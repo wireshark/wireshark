@@ -105,7 +105,7 @@ flow_init(const char *opt_argp, void *userdata)
     }
 }
 
-static gboolean
+static bool
 flow_register(const void *key _U_, void *value, void *userdata _U_)
 {
     register_analysis_t* analysis = (register_analysis_t*)value;

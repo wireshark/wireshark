@@ -923,7 +923,7 @@ wmem_map_t *kerberos_longterm_keys = NULL;
 static wmem_map_t *kerberos_all_keys = NULL;
 static wmem_map_t *kerberos_app_session_keys = NULL;
 
-static gboolean
+static bool
 enc_key_list_cb(wmem_allocator_t* allocator _U_, wmem_cb_event_t event _U_, void *user_data _U_)
 {
 	enc_key_list = NULL;

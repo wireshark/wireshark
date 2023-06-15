@@ -827,7 +827,7 @@ typedef struct {
     gboolean skip_obsolete;
 } call_foreach_t;
 
-static gboolean
+static bool
 call_foreach_cb(const void *key _U_, void *value, void *data)
 {
     module_t *module = (module_t*)value;
@@ -904,7 +904,7 @@ prefs_modules_foreach_submodules(module_t *module, module_cb callback,
     return prefs_module_list_foreach((module)?module->submodules:prefs_top_level_modules, callback, user_data, TRUE);
 }
 
-static gboolean
+static bool
 call_apply_cb(const void *key _U_, void *value, void *data _U_)
 {
     module_t *module = (module_t *)value;
@@ -1073,7 +1073,7 @@ preference_match(gconstpointer a, gconstpointer b)
     return strcmp(name, pref->name);
 }
 
-static gboolean
+static bool
 module_find_pref_cb(const void *key _U_, void *value, void *data)
 {
     find_pref_arg_t* arg = (find_pref_arg_t*)data;
@@ -4308,7 +4308,7 @@ reset_pref_cb(gpointer data, gpointer user_data)
 /*
  * Reset all preferences for a module.
  */
-static gboolean
+static bool
 reset_module_prefs(const void *key _U_, void *value, void *data _U_)
 {
     module_t *module = (module_t *)value;

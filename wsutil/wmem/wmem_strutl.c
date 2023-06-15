@@ -16,8 +16,8 @@
 #include <stdio.h>
 #include <errno.h>
 
-gchar *
-wmem_strdup(wmem_allocator_t *allocator, const gchar *src)
+char *
+wmem_strdup(wmem_allocator_t *allocator, const char *src)
 {
     size_t len;
 
@@ -29,16 +29,16 @@ wmem_strdup(wmem_allocator_t *allocator, const gchar *src)
 
     len = strlen(src) + 1; /* +1 for the null-terminator */
 
-    return (gchar *)memcpy(wmem_alloc(allocator, len), src, len);
+    return (char *)memcpy(wmem_alloc(allocator, len), src, len);
 }
 
-gchar *
-wmem_strndup(wmem_allocator_t *allocator, const gchar *src, const size_t len)
+char *
+wmem_strndup(wmem_allocator_t *allocator, const char *src, const size_t len)
 {
-    gchar *dst;
-    guint i;
+    char *dst;
+    unsigned i;
 
-    dst = (gchar *)wmem_alloc(allocator, len+1);
+    dst = (char *)wmem_alloc(allocator, len+1);
 
     for (i=0; (i < len) && src[i]; i++) {
         dst[i] = src[i];
@@ -49,11 +49,11 @@ wmem_strndup(wmem_allocator_t *allocator, const gchar *src, const size_t len)
     return dst;
 }
 
-gchar *
-wmem_strdup_printf(wmem_allocator_t *allocator, const gchar *fmt, ...)
+char *
+wmem_strdup_printf(wmem_allocator_t *allocator, const char *fmt, ...)
 {
     va_list ap;
-    gchar *dst;
+    char *dst;
 
     va_start(ap, fmt);
     dst = wmem_strdup_vprintf(allocator, fmt, ap);
@@ -112,7 +112,7 @@ wmem_strdup_vprintf(wmem_allocator_t *allocator, const char *fmt, va_list ap)
 /* Return the first occurrence of needle in haystack.
  * If not found, return NULL.
  * If either haystack or needle has 0 length, return NULL.*/
-const guint8 *
+const uint8_t *
 ws_memmem(const void *_haystack, size_t haystack_len,
                 const void *_needle, size_t needle_len)
 {
@@ -120,10 +120,10 @@ ws_memmem(const void *_haystack, size_t haystack_len,
     return memmem(_haystack, haystack_len, _needle, needle_len);
 #else
     /* Algorithm copied from GNU's glibc 2.3.2 memmem() under LGPL 2.1+ */
-    const guint8 *haystack = _haystack;
-    const guint8 *needle = _needle;
-    const guint8 *begin;
-    const guint8 *const last_possible = haystack + haystack_len - needle_len;
+    const uint8_t *haystack = _haystack;
+    const uint8_t *needle = _needle;
+    const uint8_t *begin;
+    const uint8_t *const last_possible = haystack + haystack_len - needle_len;
 
     if (needle_len == 0) {
         return NULL;

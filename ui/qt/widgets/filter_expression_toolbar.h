@@ -56,7 +56,7 @@ private:
 
     void customMenu(FilterExpressionToolBar * target, QAction * filterAction, const QPoint& pos);
 
-    static gboolean filter_expression_add_action(const void *key, void *value, void *user_data);
+    static bool filter_expression_add_action(const void *key, void *value, void *user_data);
     static QMenu * findParentMenu(const QStringList tree, void *fed_data, QMenu *parent = Q_NULLPTR);
 };
 

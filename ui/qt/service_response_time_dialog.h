@@ -69,6 +69,6 @@ private slots:
  * @param value register_srt_t* representing dissetor SRT table
  * @param userdata is unused
  */
-gboolean register_service_response_tables(const void *key, void *value, void *userdata);
+bool register_service_response_tables(const void *key, void *value, void *userdata);
 
 #endif // __SERVICE_RESPONSE_TIME_DIALOG_H__

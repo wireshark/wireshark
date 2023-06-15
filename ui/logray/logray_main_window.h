@@ -294,7 +294,7 @@ private slots:
 
     void initViewColorizeMenu();
     void initConversationMenus();
-    static gboolean addExportObjectsMenuItem(const void *key, void *value, void *userdata);
+    static bool addExportObjectsMenuItem(const void *key, void *value, void *userdata);
     void initExportObjectsMenus();
 
     // in main_window_slots.cpp

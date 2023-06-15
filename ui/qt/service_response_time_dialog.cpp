@@ -39,7 +39,7 @@ srt_init(const char *args, void*) {
 }
 }
 
-gboolean register_service_response_tables(const void *, void *value, void*)
+bool register_service_response_tables(const void *, void *value, void*)
 {
     register_srt_t *srt = (register_srt_t*)value;
     const char* short_name = proto_get_protocol_short_name(find_protocol_by_id(get_srt_proto_id(srt)));

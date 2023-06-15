@@ -36,18 +36,18 @@ typedef struct _wmem_array_t wmem_array_t;
 
 WS_DLL_PUBLIC
 wmem_array_t *
-wmem_array_sized_new(wmem_allocator_t *allocator, gsize elem_size,
-                     guint alloc_count)
+wmem_array_sized_new(wmem_allocator_t *allocator, size_t elem_size,
+                     unsigned alloc_count)
 G_GNUC_MALLOC;
 
 WS_DLL_PUBLIC
 wmem_array_t *
-wmem_array_new(wmem_allocator_t *allocator, const gsize elem_size)
+wmem_array_new(wmem_allocator_t *allocator, const size_t elem_size)
 G_GNUC_MALLOC;
 
 WS_DLL_PUBLIC
 void
-wmem_array_grow(wmem_array_t *array, const guint to_add);
+wmem_array_grow(wmem_array_t *array, const unsigned to_add);
 
 WS_DLL_PUBLIC
 void
@@ -59,18 +59,18 @@ wmem_array_bzero(wmem_array_t *array);
 
 WS_DLL_PUBLIC
 void
-wmem_array_append(wmem_array_t *array, const void *in, guint count);
+wmem_array_append(wmem_array_t *array, const void *in, unsigned count);
 
 #define wmem_array_append_one(ARRAY, VAL) \
     wmem_array_append((ARRAY), &(VAL), 1)
 
 WS_DLL_PUBLIC
 void *
-wmem_array_index(wmem_array_t *array, guint array_index);
+wmem_array_index(wmem_array_t *array, unsigned array_index);
 
 WS_DLL_PUBLIC
 int
-wmem_array_try_index(wmem_array_t *array, guint array_index, void *val);
+wmem_array_try_index(wmem_array_t *array, unsigned array_index, void *val);
 
 WS_DLL_PUBLIC
 void
@@ -81,7 +81,7 @@ void *
 wmem_array_get_raw(wmem_array_t *array);
 
 WS_DLL_PUBLIC
-guint
+unsigned
 wmem_array_get_count(wmem_array_t *array);
 
 /* Truncates the underlying array to the elements contained within

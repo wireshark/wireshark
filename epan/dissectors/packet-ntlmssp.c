@@ -370,7 +370,7 @@ LEBE_Convert(int value)
 }
 #endif
 
-static gboolean
+static bool
 ntlmssp_sessions_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data _U_)
 {
   ntlmssp_info * conv_ntlmssp_info = (ntlmssp_info *) user_data;

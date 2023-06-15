@@ -36,7 +36,7 @@ rtd_init(const char *args, void*) {
 }
 }
 
-gboolean register_response_time_delay_tables(const void *, void *value, void*)
+bool register_response_time_delay_tables(const void *, void *value, void*)
 {
     register_rtd_t *rtd = (register_rtd_t*)value;
     const char* short_name = proto_get_protocol_short_name(find_protocol_by_id(get_rtd_proto_id(rtd)));

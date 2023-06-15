@@ -27,19 +27,19 @@
 struct _wmem_array_t {
     wmem_allocator_t *allocator;
 
-    guint8 *buf;
+    uint8_t *buf;
 
-    gsize elem_size;
+    size_t elem_size;
 
-    guint elem_count;
-    guint alloc_count;
+    unsigned elem_count;
+    unsigned alloc_count;
 
-    gboolean null_terminated;
+    bool null_terminated;
 };
 
 wmem_array_t *
-wmem_array_sized_new(wmem_allocator_t *allocator, gsize elem_size,
-                     guint alloc_count)
+wmem_array_sized_new(wmem_allocator_t *allocator, size_t elem_size,
+                     unsigned alloc_count)
 {
     wmem_array_t *array;
 
@@ -49,16 +49,16 @@ wmem_array_sized_new(wmem_allocator_t *allocator, gsize elem_size,
     array->elem_size   = elem_size;
     array->elem_count  = 0;
     array->alloc_count = alloc_count ? alloc_count : 1;
-    array->null_terminated = FALSE;
+    array->null_terminated = false;
 
-    array->buf = (guint8 *)wmem_alloc(array->allocator,
+    array->buf = (uint8_t *)wmem_alloc(array->allocator,
             array->elem_size * array->alloc_count);
 
     return array;
 }
 
 wmem_array_t *
-wmem_array_new(wmem_allocator_t *allocator, const gsize elem_size)
+wmem_array_new(wmem_allocator_t *allocator, const size_t elem_size)
 {
     wmem_array_t *array;
 
@@ -68,9 +68,9 @@ wmem_array_new(wmem_allocator_t *allocator, const gsize elem_size)
 }
 
 void
-wmem_array_grow(wmem_array_t *array, const guint to_add)
+wmem_array_grow(wmem_array_t *array, const unsigned to_add)
 {
-    guint new_alloc_count, new_count;
+    unsigned new_alloc_count, new_count;
 
     new_alloc_count = array->alloc_count;
     new_count = array->elem_count + to_add;
@@ -83,7 +83,7 @@ wmem_array_grow(wmem_array_t *array, const guint to_add)
         return;
     }
 
-    array->buf = (guint8 *)wmem_realloc(array->allocator, array->buf,
+    array->buf = (uint8_t *)wmem_realloc(array->allocator, array->buf,
             new_alloc_count * array->elem_size);
 
     array->alloc_count = new_alloc_count;
@@ -101,7 +101,7 @@ wmem_array_write_null_terminator(wmem_array_t *array)
 void
 wmem_array_set_null_terminator(wmem_array_t *array)
 {
-    array->null_terminated = TRUE;
+    array->null_terminated = true;
     wmem_array_write_null_terminator(array);
 }
 
@@ -112,7 +112,7 @@ wmem_array_bzero(wmem_array_t *array)
 }
 
 void
-wmem_array_append(wmem_array_t *array, const void *in, guint count)
+wmem_array_append(wmem_array_t *array, const void *in, unsigned count)
 {
     wmem_array_grow(array, count);
 
@@ -125,14 +125,14 @@ wmem_array_append(wmem_array_t *array, const void *in, guint count)
 }
 
 void *
-wmem_array_index(wmem_array_t *array, guint array_index)
+wmem_array_index(wmem_array_t *array, unsigned array_index)
 {
     g_assert(array_index < array->elem_count);
     return &array->buf[array_index * array->elem_size];
 }
 
 int
-wmem_array_try_index(wmem_array_t *array, guint array_index, void *val)
+wmem_array_try_index(wmem_array_t *array, unsigned array_index, void *val)
 {
     if (array_index >= array->elem_count)
         return -1;
@@ -152,7 +152,7 @@ wmem_array_get_raw(wmem_array_t *array)
     return array->buf;
 }
 
-guint
+unsigned
 wmem_array_get_count(wmem_array_t *array)
 {
     if (array == NULL)

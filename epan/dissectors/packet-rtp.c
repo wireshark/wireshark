@@ -748,7 +748,7 @@ rtp_dyn_payloads_table_steal_func(gpointer key _U_, gpointer value, gpointer use
 /* the following is used as the wmem callback to destroy *all* alive rtp_dyn_payload_t's,
    which are pointed to by the single rtp_dyn_payloads GHashTable above.
  */
-static gboolean
+static bool
 wmem_rtp_dyn_payload_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
         void *user_data _U_)
 {

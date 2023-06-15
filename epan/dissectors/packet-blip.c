@@ -258,7 +258,7 @@ get_blip_conversation(packet_info* pinfo)
 
 #ifdef HAVE_ZLIB
 
-static gboolean
+static bool
 z_stream_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
 {
 	z_stream *decompress_stream = (z_stream *)user_data;

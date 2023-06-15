@@ -33,7 +33,7 @@ typedef struct _export_object_list_gui_t {
 
 static GHashTable* eo_opts = NULL;
 
-static gboolean
+static bool
 list_exportobject_protocol(const void *key, void *value _U_, void *userdata _U_)
 {
     fprintf(stderr, "     %s\n", (const gchar*)key);

@@ -1398,8 +1398,8 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	/* Load header fields if not already done */
 	if (hf_diameter_code == -1)
 		proto_registrar_get_byname("diameter.code");
-
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DIAMETER");
+
 
 	if (have_tap_listener(exported_pdu_tap)){
 		export_diameter_pdu(pinfo,tvb);
@@ -2032,7 +2032,7 @@ strcase_equal(gconstpointer ka, gconstpointer kb)
 	return g_ascii_strcasecmp(a,b) == 0;
 }
 
-static gboolean
+static bool
 ddict_cleanup_cb(wmem_allocator_t* allocator _U_, wmem_cb_event_t event _U_, void *user_data)
 {
 	ddict_t *d = (ddict_t *)user_data;

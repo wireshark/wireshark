@@ -1377,7 +1377,7 @@ select_http2_flow_index(packet_info *pinfo, http2_session_t *h2session)
 }
 
 #ifdef HAVE_NGHTTP2
-static gboolean
+static bool
 hd_inflate_del_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
 {
     nghttp2_hd_inflate_del((nghttp2_hd_inflater*)user_data);

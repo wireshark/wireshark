@@ -36,13 +36,13 @@ typedef struct _wmem_strict_allocator_block_t {
     struct _wmem_strict_allocator_block_t *prev, *next;
 
     /* Just the length of real_data, not counting the canaries */
-    gsize data_len;
+    size_t data_len;
 } wmem_strict_allocator_block_t;
 
-#define WMEM_DATA_TO_BLOCK(DATA) ((wmem_strict_allocator_block_t*)((guint8*)(DATA) - WMEM_CANARY_SIZE - sizeof(wmem_strict_allocator_block_t)))
-#define WMEM_BLOCK_TO_DATA(BLOCK) ((void*)((guint8*)(BLOCK) + WMEM_CANARY_SIZE + sizeof(wmem_strict_allocator_block_t)))
-#define WMEM_BLOCK_TO_PRE_CANARY(BLOCK) ((guint8*)(BLOCK) + sizeof(wmem_strict_allocator_block_t))
-#define WMEM_BLOCK_TO_POST_CANARY(BLOCK) ((guint8*)(BLOCK) + WMEM_CANARY_SIZE + sizeof(wmem_strict_allocator_block_t) + (BLOCK)->data_len)
+#define WMEM_DATA_TO_BLOCK(DATA) ((wmem_strict_allocator_block_t*)((uint8_t*)(DATA) - WMEM_CANARY_SIZE - sizeof(wmem_strict_allocator_block_t)))
+#define WMEM_BLOCK_TO_DATA(BLOCK) ((void*)((uint8_t*)(BLOCK) + WMEM_CANARY_SIZE + sizeof(wmem_strict_allocator_block_t)))
+#define WMEM_BLOCK_TO_PRE_CANARY(BLOCK) ((uint8_t*)(BLOCK) + sizeof(wmem_strict_allocator_block_t))
+#define WMEM_BLOCK_TO_POST_CANARY(BLOCK) ((uint8_t*)(BLOCK) + WMEM_CANARY_SIZE + sizeof(wmem_strict_allocator_block_t) + (BLOCK)->data_len)
 #define WMEM_FULL_SIZE(SIZE) ((SIZE) + sizeof(wmem_strict_allocator_block_t) + (2*WMEM_CANARY_SIZE))
 
 typedef struct _wmem_strict_allocator_t {
@@ -55,8 +55,8 @@ typedef struct _wmem_strict_allocator_t {
 static inline void
 wmem_strict_block_check_canaries(wmem_strict_allocator_block_t *block)
 {
-    guint i;
-    guint8 *canary;
+    unsigned i;
+    uint8_t *canary;
 
     canary = WMEM_BLOCK_TO_PRE_CANARY(block);
     for (i=0; i<WMEM_CANARY_SIZE; i++) g_assert_true(canary[i] == WMEM_CANARY_VALUE);
@@ -73,8 +73,8 @@ wmem_strict_alloc(void *private_data, const size_t size)
 {
     wmem_strict_allocator_t       *allocator;
     wmem_strict_allocator_block_t *block;
-    guint   i;
-    guint8 *canary;
+    unsigned  i;
+    uint8_t  *canary;
 
     allocator = (wmem_strict_allocator_t*) private_data;
 

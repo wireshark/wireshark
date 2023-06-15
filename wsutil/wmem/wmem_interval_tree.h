@@ -37,9 +37,9 @@ struct _wmem_tree_t;
 typedef struct _wmem_tree_t wmem_itree_t;
 
 struct _wmem_range_t {
-    guint64 low;        /* low is used as the key in the binary tree */
-    guint64 high;       /* Max value of the range */
-    guint64 max_edge;   /* max value among subtrees */
+    uint64_t low;        /* low is used as the key in the binary tree */
+    uint64_t high;       /* Max value of the range */
+    uint64_t max_edge;   /* max value among subtrees */
 };
 
 WS_DLL_PUBLIC
@@ -50,7 +50,7 @@ G_GNUC_MALLOC;
 
 /** Returns true if the tree is empty (has no nodes). */
 WS_DLL_PUBLIC
-gboolean
+bool
 wmem_itree_is_empty(wmem_itree_t *tree);
 
 
@@ -60,7 +60,7 @@ wmem_itree_is_empty(wmem_itree_t *tree);
  */
 WS_DLL_PUBLIC
 void
-wmem_itree_insert(wmem_itree_t *tree, const guint64 low, const guint64 high, void *data);
+wmem_itree_insert(wmem_itree_t *tree, const uint64_t low, const uint64_t high, void *data);
 
 
 /*
@@ -69,7 +69,7 @@ wmem_itree_insert(wmem_itree_t *tree, const guint64 low, const guint64 high, voi
  */
 WS_DLL_PUBLIC
 wmem_list_t *
-wmem_itree_find_intervals(wmem_itree_t *tree, wmem_allocator_t *allocator, guint64 low, guint64 high);
+wmem_itree_find_intervals(wmem_itree_t *tree, wmem_allocator_t *allocator, uint64_t low, uint64_t high);
 
 
 /**

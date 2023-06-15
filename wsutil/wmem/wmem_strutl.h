@@ -30,29 +30,29 @@ extern "C" {
  */
 
 WS_DLL_PUBLIC
-gchar *
-wmem_strdup(wmem_allocator_t *allocator, const gchar *src)
+char *
+wmem_strdup(wmem_allocator_t *allocator, const char *src)
 G_GNUC_MALLOC;
 
 #define ws_strdup(src) wmem_strdup(NULL, src)
 
 WS_DLL_PUBLIC
-gchar *
-wmem_strndup(wmem_allocator_t *allocator, const gchar *src, const size_t len)
+char *
+wmem_strndup(wmem_allocator_t *allocator, const char *src, const size_t len)
 G_GNUC_MALLOC;
 
 #define ws_strndup(src, len) wmem_strndup(NULL, src, len)
 
 WS_DLL_PUBLIC
-gchar *
-wmem_strdup_printf(wmem_allocator_t *allocator, const gchar *fmt, ...)
+char *
+wmem_strdup_printf(wmem_allocator_t *allocator, const char *fmt, ...)
 G_GNUC_MALLOC G_GNUC_PRINTF(2, 3);
 
 #define ws_strdup_printf(...) wmem_strdup_printf(NULL, __VA_ARGS__)
 
 WS_DLL_PUBLIC
-gchar *
-wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
+char *
+wmem_strdup_vprintf(wmem_allocator_t *allocator, const char *fmt, va_list ap)
 G_GNUC_MALLOC;
 
 #define ws_strdup_vprintf(fmt, ap) wmem_strdup_vprintf(NULL, fmt, ap)
@@ -69,7 +69,7 @@ G_GNUC_MALLOC;
  *         "needle_len" is 0, NULL is returned.
  */
 WS_DLL_PUBLIC
-const guint8 *ws_memmem(const void *haystack, size_t haystack_len,
+const uint8_t *ws_memmem(const void *haystack, size_t haystack_len,
                         const void *needle, size_t needle_len);
 
 /**   @}

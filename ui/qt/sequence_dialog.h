@@ -128,7 +128,7 @@ private:
     void resetAxes(bool keep_lower = false);
     void goToAdjacentPacket(bool next);
 
-    static gboolean addFlowSequenceItem(const void *key, void *value, void *userdata);
+    static bool addFlowSequenceItem(const void *key, void *value, void *userdata);
 
     void processRtpStream(bool select);
     QVector<rtpstream_id_t *>getSelectedRtpIds();

@@ -560,7 +560,7 @@ static void follow_stream(const char *opt_argp, void *userdata)
   }
 }
 
-static gboolean
+static bool
 follow_register(const void *key _U_, void *value, void *userdata _U_)
 {
   register_follow_t *follower = (register_follow_t*)value;

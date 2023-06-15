@@ -2272,7 +2272,7 @@ void LograyMainWindow::initConversationMenus()
     connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeActionTriggered()));
 }
 
-gboolean LograyMainWindow::addExportObjectsMenuItem(const void *, void *value, void *userdata)
+bool LograyMainWindow::addExportObjectsMenuItem(const void *, void *value, void *userdata)
 {
     register_eo_t *eo = (register_eo_t*)value;
     LograyMainWindow *window = (LograyMainWindow*)userdata;

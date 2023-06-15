@@ -2401,7 +2401,7 @@ static const value_string dof_2008_16_security_12_m[] = {
 static int hf_security_12_count = -1;
 static int hf_security_12_permission_group_identifier = -1;
 
-static gboolean
+static bool
 dof_sessions_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
 {
     ccm_session_data *ccm_data = (ccm_session_data*) user_data;

@@ -138,7 +138,7 @@ simple_stat_init(const char *opt_arg, void* userdata)
 	init_stat_table(stat_tap, filter);
 }
 
-gboolean
+bool
 register_simple_stat_tables(const void *key, void *value, void *userdata _U_)
 {
 	stat_tap_table_ui *stat_tap = (stat_tap_table_ui*)value;

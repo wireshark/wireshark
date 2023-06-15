@@ -399,7 +399,7 @@ QMenu * FilterExpressionToolBar::findParentMenu(const QStringList tree, void *fe
     return Q_NULLPTR;
 }
 
-gboolean FilterExpressionToolBar::filter_expression_add_action(const void *key _U_, void *value, void *user_data)
+bool FilterExpressionToolBar::filter_expression_add_action(const void *key _U_, void *value, void *user_data)
 {
     filter_expression_t* fe = (filter_expression_t*)value;
     struct filter_expression_data* data = (filter_expression_data*)user_data;

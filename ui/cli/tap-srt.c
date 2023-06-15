@@ -157,7 +157,7 @@ dissector_srt_init(const char *opt_arg, void* userdata)
 }
 
 /* Set GUI fields for register_srt list */
-gboolean
+bool
 register_srt_tables(const void *key _U_, void *value, void *userdata _U_)
 {
 	register_srt_t *srt = (register_srt_t*)value;

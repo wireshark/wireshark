@@ -37,7 +37,7 @@ simple_stat_init(const char *args, void*) {
 }
 }
 
-gboolean register_simple_stat_tables(const void *key, void *value, void*) {
+bool register_simple_stat_tables(const void *key, void *value, void*) {
     stat_tap_table_ui *stu = (stat_tap_table_ui*)value;
 
     cfg_str_to_stu_[stu->cli_string] = stu;

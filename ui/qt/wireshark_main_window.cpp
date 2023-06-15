@@ -2316,7 +2316,7 @@ void WiresharkMainWindow::initConversationMenus()
     connect(colorize_action, SIGNAL(triggered()), this, SLOT(colorizeActionTriggered()));
 }
 
-gboolean WiresharkMainWindow::addExportObjectsMenuItem(const void *, void *value, void *userdata)
+bool WiresharkMainWindow::addExportObjectsMenuItem(const void *, void *value, void *userdata)
 {
     register_eo_t *eo = (register_eo_t*)value;
     WiresharkMainWindow *window = (WiresharkMainWindow*)userdata;
@@ -2337,7 +2337,7 @@ void WiresharkMainWindow::initExportObjectsMenus()
     eo_iterate_tables(addExportObjectsMenuItem, this);
 }
 
-gboolean WiresharkMainWindow::addFollowStreamMenuItem(const void *key, void *value, void *userdata)
+bool WiresharkMainWindow::addFollowStreamMenuItem(const void *key, void *value, void *userdata)
 {
     const char *short_name = (const char*)key;
     register_follow_t *follow = (register_follow_t*)value;

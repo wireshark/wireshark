@@ -26,12 +26,12 @@
  * extensions for x86 and ppc32 would want a larger alignment than this, but
  * we don't need to do better than malloc.
  */
-#define WMEM_ALIGN_AMOUNT (2 * sizeof (gsize))
+#define WMEM_ALIGN_AMOUNT (2 * sizeof (size_t))
 #define WMEM_ALIGN_SIZE(SIZE) ((~(WMEM_ALIGN_AMOUNT-1)) & \
         ((SIZE) + (WMEM_ALIGN_AMOUNT-1)))
 
-#define WMEM_CHUNK_TO_DATA(CHUNK) ((void*)((guint8*)(CHUNK) + WMEM_CHUNK_HEADER_SIZE))
-#define WMEM_DATA_TO_CHUNK(DATA) ((wmem_block_fast_chunk_t*)((guint8*)(DATA) - WMEM_CHUNK_HEADER_SIZE))
+#define WMEM_CHUNK_TO_DATA(CHUNK) ((void*)((uint8_t*)(CHUNK) + WMEM_CHUNK_HEADER_SIZE))
+#define WMEM_DATA_TO_CHUNK(DATA) ((wmem_block_fast_chunk_t*)((uint8_t*)(DATA) - WMEM_CHUNK_HEADER_SIZE))
 
 #define WMEM_BLOCK_MAX_ALLOC_SIZE (WMEM_BLOCK_SIZE - (WMEM_BLOCK_HEADER_SIZE + WMEM_CHUNK_HEADER_SIZE))
 
@@ -45,12 +45,12 @@
 typedef struct _wmem_block_fast_hdr {
     struct _wmem_block_fast_hdr *next;
 
-    gint32 pos;
+    int32_t pos;
 } wmem_block_fast_hdr_t;
 #define WMEM_BLOCK_HEADER_SIZE WMEM_ALIGN_SIZE(sizeof(wmem_block_fast_hdr_t))
 
 typedef struct {
-    guint32 len;
+    uint32_t len;
 } wmem_block_fast_chunk_t;
 #define WMEM_CHUNK_HEADER_SIZE WMEM_ALIGN_SIZE(sizeof(wmem_block_fast_chunk_t))
 
@@ -87,7 +87,7 @@ wmem_block_fast_alloc(void *private_data, const size_t size)
 {
     wmem_block_fast_allocator_t *allocator = (wmem_block_fast_allocator_t*) private_data;
     wmem_block_fast_chunk_t     *chunk;
-    gint32 real_size;
+    int32_t real_size;
 
     if (size > WMEM_BLOCK_MAX_ALLOC_SIZE) {
         wmem_block_fast_jumbo_t *block;
@@ -100,13 +100,13 @@ wmem_block_fast_alloc(void *private_data, const size_t size)
         block->prev = NULL;
         allocator->jumbo_list = block;
 
-        chunk = ((wmem_block_fast_chunk_t*)((guint8*)(block) + WMEM_JUMBO_HEADER_SIZE));
+        chunk = ((wmem_block_fast_chunk_t*)((uint8_t*)(block) + WMEM_JUMBO_HEADER_SIZE));
         chunk->len = JUMBO_MAGIC;
 
         return WMEM_CHUNK_TO_DATA(chunk);
     }
 
-    real_size = (gint32)(WMEM_ALIGN_SIZE(size) + WMEM_CHUNK_HEADER_SIZE);
+    real_size = (int32_t)(WMEM_ALIGN_SIZE(size) + WMEM_CHUNK_HEADER_SIZE);
 
     /* Allocate a new block if necessary. */
     if (!allocator->block_list ||
@@ -114,9 +114,9 @@ wmem_block_fast_alloc(void *private_data, const size_t size)
         wmem_block_fast_new_block(allocator);
     }
 
-    chunk = (wmem_block_fast_chunk_t *) ((guint8 *) allocator->block_list + allocator->block_list->pos);
+    chunk = (wmem_block_fast_chunk_t *) ((uint8_t *) allocator->block_list + allocator->block_list->pos);
     /* safe to cast, size smaller than WMEM_BLOCK_MAX_ALLOC_SIZE */
-    chunk->len = (guint32) size;
+    chunk->len = (uint32_t) size;
 
     allocator->block_list->pos += real_size;
 
@@ -140,7 +140,7 @@ wmem_block_fast_realloc(void *private_data, void *ptr, const size_t size)
     if (chunk->len == JUMBO_MAGIC) {
         wmem_block_fast_jumbo_t *block;
 
-        block = ((wmem_block_fast_jumbo_t*)((guint8*)(chunk) - WMEM_JUMBO_HEADER_SIZE));
+        block = ((wmem_block_fast_jumbo_t*)((uint8_t*)(chunk) - WMEM_JUMBO_HEADER_SIZE));
         block =  (wmem_block_fast_jumbo_t*)wmem_realloc(NULL, block,
                 size + WMEM_JUMBO_HEADER_SIZE + WMEM_CHUNK_HEADER_SIZE);
         if (block->prev) {
@@ -153,7 +153,7 @@ wmem_block_fast_realloc(void *private_data, void *ptr, const size_t size)
         if (block->next) {
             block->next->prev = block;
         }
-        return ((void*)((guint8*)(block) + WMEM_JUMBO_HEADER_SIZE + WMEM_CHUNK_HEADER_SIZE));
+        return ((void*)((uint8_t*)(block) + WMEM_JUMBO_HEADER_SIZE + WMEM_CHUNK_HEADER_SIZE));
     }
     else if (chunk->len < size) {
         /* grow */

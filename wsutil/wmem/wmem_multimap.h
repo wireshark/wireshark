@@ -97,7 +97,7 @@ wmem_multimap_get_keys(wmem_allocator_t *list_allocator, wmem_multimap_t *map);
  * @return the number of elements
 */
 WS_DLL_PUBLIC
-guint
+unsigned
 wmem_multimap_size(wmem_multimap_t *map);
 
 /** Returns the number of values in the multimap with a certain hash key.
@@ -111,7 +111,7 @@ wmem_multimap_size(wmem_multimap_t *map);
  * tree exists at that key.
  */
 WS_DLL_PUBLIC
-guint
+unsigned
 wmem_multimap_count(wmem_multimap_t *map, const void *key);
 
 /** Insert a value in the multimap.
@@ -120,7 +120,7 @@ wmem_multimap_count(wmem_multimap_t *map, const void *key);
  * @param key The key to insert by in the map.
  * @param frame_num The key to insert by in the tree.
  * @param value The value to insert.
- * @return TRUE if there was already a tree mapped at key, in which case the
+ * @return true if there was already a tree mapped at key, in which case the
  * caller may safely free key. (This is not necessary if key is allocated with
  * a wmem pool.)
  *
@@ -130,8 +130,8 @@ wmem_multimap_count(wmem_multimap_t *map, const void *key);
  * then you must ensure that the pair is unique or do a lookup before inserting.
  */
 WS_DLL_PUBLIC
-gboolean
-wmem_multimap_insert32(wmem_multimap_t *map, const void *key, guint32 frame_num, void *value);
+bool
+wmem_multimap_insert32(wmem_multimap_t *map, const void *key, uint32_t frame_num, void *value);
 
 /** Lookup a value in the multimap combination with an exact match.
  *
@@ -142,7 +142,7 @@ wmem_multimap_insert32(wmem_multimap_t *map, const void *key, guint32 frame_num,
  */
 WS_DLL_PUBLIC
 void *
-wmem_multimap_lookup32(wmem_multimap_t *map, const void *key, const guint32 frame_num);
+wmem_multimap_lookup32(wmem_multimap_t *map, const void *key, const uint32_t frame_num);
 
 /** Lookup a value in the multimap with an exact match for the map key
  * and the largest value less than or equal to the tree key. This is
@@ -156,7 +156,7 @@ wmem_multimap_lookup32(wmem_multimap_t *map, const void *key, const guint32 fram
  */
 WS_DLL_PUBLIC
 void *
-wmem_multimap_lookup32_le(wmem_multimap_t *map, const void *key, const guint32 frame_num);
+wmem_multimap_lookup32_le(wmem_multimap_t *map, const void *key, const uint32_t frame_num);
 
 /** Remove a value from the multimap. If no value is stored at that key pair,
  * nothing happens. As with wmem_tree, this is not really a remove, but the
@@ -169,7 +169,7 @@ wmem_multimap_lookup32_le(wmem_multimap_t *map, const void *key, const guint32 f
  */
 WS_DLL_PUBLIC
 void *
-wmem_multimap_remove32(wmem_multimap_t *map, const void *key, const guint32 frame_num);
+wmem_multimap_remove32(wmem_multimap_t *map, const void *key, const uint32_t frame_num);
 
 /**   @}
  *  @} */

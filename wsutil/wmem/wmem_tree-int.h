@@ -34,8 +34,8 @@ struct _wmem_tree_node_t {
     void *data;
 
     wmem_node_color_t color;
-    gboolean          is_subtree;
-    gboolean          is_removed;
+    bool              is_subtree;
+    bool              is_removed;
 
 
 };
@@ -49,8 +49,8 @@ struct _wmem_tree_t {
     wmem_allocator_t *metadata_allocator;
     wmem_allocator_t *data_allocator;
     wmem_tree_node_t *root;
-    guint             metadata_scope_cb_id;
-    guint             data_scope_cb_id;
+    unsigned          metadata_scope_cb_id;
+    unsigned          data_scope_cb_id;
 
     void (*post_rotation_cb)(wmem_tree_node_t *);
 };
@@ -62,7 +62,7 @@ wmem_tree_insert(wmem_tree_t *tree, const void *key, void *data, compare_func cm
 
 typedef struct _wmem_range_t wmem_range_t;
 
-gboolean
+bool
 wmem_itree_range_overlap(const wmem_range_t *r1, const wmem_range_t *r2);
 
 #ifdef __cplusplus

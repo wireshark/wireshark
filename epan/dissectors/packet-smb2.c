@@ -1507,7 +1507,7 @@ smb2_fid_info_hash(gconstpointer k)
 
 /* Callback for destroying the glib hash tables associated with a conversation
  * struct. */
-static gboolean
+static bool
 smb2_conv_destroy(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
 	          void *user_data)
 {

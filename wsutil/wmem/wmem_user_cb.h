@@ -39,9 +39,9 @@ typedef enum _wmem_cb_event_t {
  * event     The event type that triggered this callback.
  * user_data Whatever user_data was originally passed to the call to
  *                  wmem_register_callback().
- * @return          FALSE to unregister the callback, TRUE otherwise.
+ * @return          false to unregister the callback, true otherwise.
  */
-typedef gboolean (*wmem_user_cb_t) (wmem_allocator_t*, wmem_cb_event_t, void*);
+typedef bool (*wmem_user_cb_t) (wmem_allocator_t*, wmem_cb_event_t, void*);
 
 /** Register a callback function with the given allocator pool.
  *
@@ -56,7 +56,7 @@ typedef gboolean (*wmem_user_cb_t) (wmem_allocator_t*, wmem_cb_event_t, void*);
  *                  wmem_unregister_callback().
  */
 WS_DLL_PUBLIC
-guint
+unsigned
 wmem_register_callback(wmem_allocator_t *allocator, wmem_user_cb_t callback,
         void *user_data);
 
@@ -67,7 +67,7 @@ wmem_register_callback(wmem_allocator_t *allocator, wmem_user_cb_t callback,
  */
 WS_DLL_PUBLIC
 void
-wmem_unregister_callback(wmem_allocator_t *allocator, guint id);
+wmem_unregister_callback(wmem_allocator_t *allocator, unsigned id);
 
 /**   @}
  *  @} */

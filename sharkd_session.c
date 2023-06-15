@@ -788,7 +788,7 @@ fail:
     return ret;
 }
 
-static gboolean
+static bool
 sharkd_session_process_info_nstat_cb(const void *key, void *value, void *userdata _U_)
 {
     stat_tap_table_ui *stat_tap = (stat_tap_table_ui *) value;
@@ -801,7 +801,7 @@ sharkd_session_process_info_nstat_cb(const void *key, void *value, void *userdat
     return FALSE;
 }
 
-static gboolean
+static bool
 sharkd_session_process_info_conv_cb(const void* key, void* value, void* userdata _U_)
 {
     struct register_ct *table = (struct register_ct *) value;
@@ -826,7 +826,7 @@ sharkd_session_process_info_conv_cb(const void* key, void* value, void* userdata
     return FALSE;
 }
 
-static gboolean
+static bool
 sharkd_session_seq_analysis_cb(const void *key, void *value, void *userdata _U_)
 {
     register_analysis_t *analysis = (register_analysis_t *) value;
@@ -839,7 +839,7 @@ sharkd_session_seq_analysis_cb(const void *key, void *value, void *userdata _U_)
     return FALSE;
 }
 
-static gboolean
+static bool
 sharkd_export_object_visit_cb(const void *key _U_, void *value, void *user_data _U_)
 {
     register_eo_t *eo = (register_eo_t *) value;
@@ -856,7 +856,7 @@ sharkd_export_object_visit_cb(const void *key _U_, void *value, void *user_data 
     return FALSE;
 }
 
-static gboolean
+static bool
 sharkd_srt_visit_cb(const void *key _U_, void *value, void *user_data _U_)
 {
     register_srt_t *srt = (register_srt_t *) value;
@@ -873,7 +873,7 @@ sharkd_srt_visit_cb(const void *key _U_, void *value, void *user_data _U_)
     return FALSE;
 }
 
-static gboolean
+static bool
 sharkd_rtd_visit_cb(const void *key _U_, void *value, void *user_data _U_)
 {
     register_rtd_t *rtd = (register_rtd_t *) value;
@@ -890,7 +890,7 @@ sharkd_rtd_visit_cb(const void *key _U_, void *value, void *user_data _U_)
     return FALSE;
 }
 
-static gboolean
+static bool
 sharkd_follower_visit_cb(const void *key _U_, void *value, void *user_data _U_)
 {
     register_follow_t *follower = (register_follow_t *) value;
@@ -3516,7 +3516,7 @@ sharkd_session_process_frame_cb_tree(const char *key, epan_dissect_t *edt, proto
     sharkd_json_array_close();
 }
 
-static gboolean
+static bool
 sharkd_follower_visit_layers_cb(const void *key _U_, void *value, void *user_data)
 {
     register_follow_t *follower = (register_follow_t *) value;

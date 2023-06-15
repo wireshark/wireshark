@@ -802,7 +802,7 @@ void SequenceDialog::zoomXAxis(bool in)
     sp->replot();
 }
 
-gboolean SequenceDialog::addFlowSequenceItem(const void* key, void *value, void *userdata)
+bool SequenceDialog::addFlowSequenceItem(const void* key, void *value, void *userdata)
 {
     const char* name = (const char*)key;
     register_analysis_t* analysis = (register_analysis_t*)value;

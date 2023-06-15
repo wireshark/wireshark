@@ -47,7 +47,7 @@ update_max_edge(wmem_tree_node_t *node)
     wmem_range_t *range;
     const wmem_range_t *range_l;
     const wmem_range_t *range_r;
-    guint64 maxEdge = 0;
+    uint64_t maxEdge = 0;
 
     if(!node) {
         return ;
@@ -74,7 +74,7 @@ update_max_edge(wmem_tree_node_t *node)
     }
 }
 
-gboolean
+bool
 wmem_itree_range_overlap(const wmem_range_t *r1, const wmem_range_t *r2)
 {
     return (r1->low <= r2->high && r2->low <= r1->high);
@@ -96,7 +96,7 @@ wmem_itree_new(wmem_allocator_t *allocator)
     return tree;
 }
 
-gboolean
+bool
 wmem_itree_is_empty(wmem_itree_t *tree)
 {
     return wmem_tree_is_empty(tree);
@@ -118,7 +118,7 @@ wmem_tree_compare_ranges(const wmem_range_t *ra, const wmem_range_t *rb)
 
 
 void
-wmem_itree_insert(wmem_itree_t *tree, const guint64 low, const guint64 high, void *data)
+wmem_itree_insert(wmem_itree_t *tree, const uint64_t low, const uint64_t high, void *data)
 {
     wmem_tree_node_t *node;
     wmem_range_t *range = (wmem_range_t *)wmem_new(tree->data_allocator, wmem_range_t);
@@ -159,7 +159,7 @@ wmem_itree_find_intervals_in_subtree(wmem_tree_node_t *node, wmem_range_t reques
 }
 
 wmem_list_t *
-wmem_itree_find_intervals(wmem_itree_t *tree, wmem_allocator_t *allocator, guint64 low, guint64 high)
+wmem_itree_find_intervals(wmem_itree_t *tree, wmem_allocator_t *allocator, uint64_t low, uint64_t high)
 {
     wmem_list_t *results = NULL;
     wmem_range_t requested = { low, high, 0 };

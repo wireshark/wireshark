@@ -458,7 +458,7 @@ wg_create_cipher(const wg_qqword *key)
     return hd;
 }
 
-static gboolean
+static bool
 wg_handshake_state_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
 {
     wg_handshake_state_t *hs = (wg_handshake_state_t *)user_data;

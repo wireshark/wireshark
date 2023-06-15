@@ -432,7 +432,7 @@ static const char spdy_dictionary[] = {
  * streams to avoid memory leaks.
  * XXX: can we be more aggressive and call this sooner for finished streams?
  */
-static gboolean inflate_end_cb (wmem_allocator_t *allocator _U_,
+static bool inflate_end_cb (wmem_allocator_t *allocator _U_,
     wmem_cb_event_t event _U_, void *user_data) {
 
   inflateEnd((z_streamp)user_data);

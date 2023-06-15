@@ -42,7 +42,7 @@ extern "C" {
 struct _wmem_strbuf_t {
     /* read-only fields */
     wmem_allocator_t *allocator;
-    gchar *str;
+    char *str;
     size_t len;
 
     /* private fields */
@@ -58,7 +58,7 @@ G_GNUC_MALLOC;
 
 WS_DLL_PUBLIC
 wmem_strbuf_t *
-wmem_strbuf_new(wmem_allocator_t *allocator, const gchar *str)
+wmem_strbuf_new(wmem_allocator_t *allocator, const char *str)
 G_GNUC_MALLOC;
 
 #define wmem_strbuf_create(allocator) \
@@ -66,7 +66,7 @@ G_GNUC_MALLOC;
 
 WS_DLL_PUBLIC
 wmem_strbuf_t *
-wmem_strbuf_new_len(wmem_allocator_t *allocator, const gchar *str, size_t len)
+wmem_strbuf_new_len(wmem_allocator_t *allocator, const char *str, size_t len)
 G_GNUC_MALLOC;
 
 WS_DLL_PUBLIC
@@ -76,31 +76,31 @@ G_GNUC_MALLOC;
 
 WS_DLL_PUBLIC
 void
-wmem_strbuf_append(wmem_strbuf_t *strbuf, const gchar *str);
+wmem_strbuf_append(wmem_strbuf_t *strbuf, const char *str);
 
 /* Appends up to append_len bytes (as allowed by strbuf->max_size) from
  * str. Ensures that strbuf is null terminated afterwards but will copy
  * embedded nulls. */
 WS_DLL_PUBLIC
 void
-wmem_strbuf_append_len(wmem_strbuf_t *strbuf, const gchar *str, size_t append_len);
+wmem_strbuf_append_len(wmem_strbuf_t *strbuf, const char *str, size_t append_len);
 
 WS_DLL_PUBLIC
 void
-wmem_strbuf_append_printf(wmem_strbuf_t *strbuf, const gchar *format, ...)
+wmem_strbuf_append_printf(wmem_strbuf_t *strbuf, const char *format, ...)
 G_GNUC_PRINTF(2, 3);
 
 WS_DLL_PUBLIC
 void
-wmem_strbuf_append_vprintf(wmem_strbuf_t *strbuf, const gchar *fmt, va_list ap);
+wmem_strbuf_append_vprintf(wmem_strbuf_t *strbuf, const char *fmt, va_list ap);
 
 WS_DLL_PUBLIC
 void
-wmem_strbuf_append_c(wmem_strbuf_t *strbuf, const gchar c);
+wmem_strbuf_append_c(wmem_strbuf_t *strbuf, const char c);
 
 WS_DLL_PUBLIC
 void
-wmem_strbuf_append_c_count(wmem_strbuf_t *strbuf, const gchar c, size_t count);
+wmem_strbuf_append_c_count(wmem_strbuf_t *strbuf, const char c, size_t count);
 
 WS_DLL_PUBLIC
 void
@@ -130,7 +130,7 @@ void
 wmem_strbuf_truncate(wmem_strbuf_t *strbuf, const size_t len);
 
 WS_DLL_PUBLIC
-const gchar *
+const char *
 wmem_strbuf_get_str(const wmem_strbuf_t *strbuf);
 
 WS_DLL_PUBLIC

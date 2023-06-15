@@ -140,7 +140,7 @@ register_conversation_table(const int proto_id, gboolean hide_ports, tap_packet_
 }
 
 /* Set GUI fields for register_ct list */
-static gboolean
+static bool
 set_conv_gui_data(const void *key _U_, void *value, void *userdata)
 {
     GString *conv_cmd_str = g_string_new("conv,");
@@ -166,7 +166,7 @@ void conversation_table_set_gui_info(conv_gui_init_cb init_cb)
     wmem_tree_foreach(registered_ct_tables, set_conv_gui_data, (void*)init_cb);
 }
 
-static gboolean
+static bool
 set_endpoint_gui_data(const void *key _U_, void *value, void *userdata)
 {
     stat_tap_ui ui_info;

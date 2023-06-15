@@ -63,19 +63,19 @@ G_GNUC_MALLOC;
 /** Cleanup memory used by tree.  Intended for NULL scope allocated trees */
 WS_DLL_PUBLIC
 void
-wmem_tree_destroy(wmem_tree_t *tree, gboolean free_keys, gboolean free_values);
+wmem_tree_destroy(wmem_tree_t *tree, bool free_keys, bool free_values);
 
 /** Returns true if the tree is empty (has no nodes). */
 WS_DLL_PUBLIC
-gboolean
+bool
 wmem_tree_is_empty(wmem_tree_t *tree);
 
 /** Returns number of nodes in tree */
 WS_DLL_PUBLIC
-guint
+unsigned
 wmem_tree_count(wmem_tree_t* tree);
 
-/** Insert a node indexed by a guint32 key value.
+/** Insert a node indexed by a uint32_t key value.
  *
  * Data is a pointer to the structure you want to be able to retrieve by
  * searching for the same key later.
@@ -88,42 +88,42 @@ wmem_tree_count(wmem_tree_t* tree);
  */
 WS_DLL_PUBLIC
 void
-wmem_tree_insert32(wmem_tree_t *tree, guint32 key, void *data);
+wmem_tree_insert32(wmem_tree_t *tree, uint32_t key, void *data);
 
-/** Look up a node in the tree indexed by a guint32 integer value. Return TRUE
+/** Look up a node in the tree indexed by a uint32_t integer value. Return true
  * if present.
  */
 WS_DLL_PUBLIC
-gboolean
-wmem_tree_contains32(wmem_tree_t *tree, guint32 key);
+bool
+wmem_tree_contains32(wmem_tree_t *tree, uint32_t key);
 
-/** Look up a node in the tree indexed by a guint32 integer value. If no node is
+/** Look up a node in the tree indexed by a uint32_t integer value. If no node is
  * found the function will return NULL.
  */
 WS_DLL_PUBLIC
 void *
-wmem_tree_lookup32(wmem_tree_t *tree, guint32 key);
+wmem_tree_lookup32(wmem_tree_t *tree, uint32_t key);
 
-/** Look up a node in the tree indexed by a guint32 integer value.
+/** Look up a node in the tree indexed by a uint32_t integer value.
  * Returns the node that has the largest key that is less than or equal
  * to the search key, or NULL if no such key exists.
  */
 WS_DLL_PUBLIC
 void *
-wmem_tree_lookup32_le(wmem_tree_t *tree, guint32 key);
+wmem_tree_lookup32_le(wmem_tree_t *tree, uint32_t key);
 
-/** Remove a node in the tree indexed by a guint32 integer value. This is not
+/** Remove a node in the tree indexed by a uint32_t integer value. This is not
  * really a remove, but the value is set to NULL so that wmem_tree_lookup32
  * not will find it.
  */
 WS_DLL_PUBLIC
 void *
-wmem_tree_remove32(wmem_tree_t *tree, guint32 key);
+wmem_tree_remove32(wmem_tree_t *tree, uint32_t key);
 
 /** case insensitive strings as keys */
 #define WMEM_TREE_STRING_NOCASE                 0x00000001
 /** Insert a new value under a string key. Like wmem_tree_insert32 but where the
- * key is a null-terminated string instead of a guint32. You may pass
+ * key is a null-terminated string instead of a uint32_t. You may pass
  * WMEM_TREE_STRING_NOCASE to the flags argument in order to make it store the
  * key in a case-insensitive way.  (Note that "case-insensitive" refers
  * only to the ASCII letters A-Z and a-z; it is locale-independent.
@@ -131,36 +131,36 @@ wmem_tree_remove32(wmem_tree_t *tree, guint32 key);
  * will always be mapped to "i". */
 WS_DLL_PUBLIC
 void
-wmem_tree_insert_string(wmem_tree_t *tree, const gchar* key, void *data,
-        guint32 flags);
+wmem_tree_insert_string(wmem_tree_t *tree, const char* key, void *data,
+        uint32_t flags);
 
 /** Lookup the value under a string key, like wmem_tree_lookup32 but where the
- * keye is a null-terminated string instead of a guint32. See
+ * keye is a null-terminated string instead of a uint32_t. See
  * wmem_tree_insert_string for an explanation of flags. */
 WS_DLL_PUBLIC
 void *
-wmem_tree_lookup_string(wmem_tree_t* tree, const gchar* key, guint32 flags);
+wmem_tree_lookup_string(wmem_tree_t* tree, const char* key, uint32_t flags);
 
 /** Remove the value under a string key.  This is not really a remove, but the
  * value is set to NULL so that wmem_tree_lookup_string not will find it.
  * See wmem_tree_insert_string for an explanation of flags. */
 WS_DLL_PUBLIC
 void *
-wmem_tree_remove_string(wmem_tree_t* tree, const gchar* key, guint32 flags);
+wmem_tree_remove_string(wmem_tree_t* tree, const char* key, uint32_t flags);
 
 typedef struct _wmem_tree_key_t {
-    guint32 length;    /**< length in guint32 words */
-    guint32 *key;
+    uint32_t length;    /**< length in uint32_t words */
+    uint32_t *key;
 } wmem_tree_key_t;
 
-/** Insert a node indexed by a sequence of guint32 key values.
+/** Insert a node indexed by a sequence of uint32_t key values.
  *
- * Takes as key an array of guint32 vectors of type wmem_tree_key_t. It will
+ * Takes as key an array of uint32_t vectors of type wmem_tree_key_t. It will
  * iterate through each key to search further down the tree until it reaches an
  * element where length==0, indicating the end of the array. You MUST terminate
  * the key array by {0, NULL} or this will crash.
  *
- * NOTE: length indicates the number of guint32 values in the vector, not the
+ * NOTE: length indicates the number of uint32_t values in the vector, not the
  * number of bytes.
  *
  * NOTE: all the "key" members of the "key" argument MUST be aligned on
@@ -176,7 +176,7 @@ typedef struct _wmem_tree_key_t {
  * nfs_name_snoop_known tree which holds filehandles for both v2 and v3.
  * v2 filehandles are always 32 bytes (8 words) while v3 filehandles can have
  * any length (though 32 bytes are most common).
- * The NFS dissector handles this by providing a guint32 containing the length
+ * The NFS dissector handles this by providing a uint32_t containing the length
  * as the very first item in this vector :
  *
  *                      wmem_tree_key_t fhkey[3];
@@ -192,7 +192,7 @@ WS_DLL_PUBLIC
 void
 wmem_tree_insert32_array(wmem_tree_t *tree, wmem_tree_key_t *key, void *data);
 
-/** Look up a node in the tree indexed by a sequence of guint32 integer values.
+/** Look up a node in the tree indexed by a sequence of uint32_t integer values.
  * See wmem_tree_insert32_array for details on the key.
  */
 WS_DLL_PUBLIC
@@ -215,9 +215,9 @@ wmem_tree_lookup32_array_le(wmem_tree_t *tree, wmem_tree_key_t *key);
 
 /** Function type for processing one node of a tree during a traversal. Value is
  * the value of the node, userdata is whatever was passed to the traversal
- * function. If the function returns TRUE the traversal will end prematurely.
+ * function. If the function returns true the traversal will end prematurely.
  */
-typedef gboolean (*wmem_foreach_func)(const void *key, void *value, void *userdata);
+typedef bool (*wmem_foreach_func)(const void *key, void *value, void *userdata);
 
 
 /** Function type to print key/data of nodes in wmem_print_tree_verbose */
@@ -227,10 +227,10 @@ typedef void (*wmem_printer_func)(const void *data);
 /** Inorder traversal (left/parent/right) of the tree and call
  * callback(value, userdata) for each value found.
  *
- * Returns TRUE if the traversal was ended prematurely by the callback.
+ * Returns true if the traversal was ended prematurely by the callback.
  */
 WS_DLL_PUBLIC
-gboolean
+bool
 wmem_tree_foreach(wmem_tree_t* tree, wmem_foreach_func callback,
         void *user_data);
 

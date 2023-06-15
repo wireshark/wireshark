@@ -24,8 +24,8 @@ struct _wmem_multimap_t {
 
     wmem_map_t *map;
 
-    guint      metadata_scope_cb_id;
-    guint      data_scope_cb_id;
+    unsigned   metadata_scope_cb_id;
+    unsigned   data_scope_cb_id;
 
     wmem_allocator_t *metadata_allocator;
     wmem_allocator_t *data_allocator;
@@ -46,7 +46,7 @@ wmem_multimap_new(wmem_allocator_t *allocator,
     return multimap;
 }
 
-static gboolean
+static bool
 wmem_multimap_reset_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event,
         void *user_data)
 {
@@ -57,10 +57,10 @@ wmem_multimap_reset_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event,
         wmem_free(multimap->metadata_allocator, multimap);
     }
 
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 wmem_multimap_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
         void *user_data)
 {
@@ -68,7 +68,7 @@ wmem_multimap_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event 
 
     wmem_unregister_callback(multimap->data_allocator, multimap->data_scope_cb_id);
 
-    return FALSE;
+    return false;
 }
 
 wmem_multimap_t *
@@ -96,22 +96,22 @@ wmem_multimap_get_keys(wmem_allocator_t *list_allocator, wmem_multimap_t *map)
 }
 
 static void
-count_nodes(gpointer key _U_, gpointer value, gpointer user_data)
+count_nodes(void * key _U_, void * value, void * user_data)
 {
-    guint* count = (guint*)user_data;
+    unsigned* count = (unsigned*)user_data;
     (*count) += wmem_tree_count(value);
 }
 
-guint
+unsigned
 wmem_multimap_size(wmem_multimap_t *map)
 {
-    guint count = 0;
+    unsigned count = 0;
 
     wmem_map_foreach(map->map, count_nodes, &count);
     return count;
 }
 
-guint
+unsigned
 wmem_multimap_count(wmem_multimap_t *map, const void *key)
 {
     wmem_tree_t *tree;
@@ -122,16 +122,16 @@ wmem_multimap_count(wmem_multimap_t *map, const void *key)
     return wmem_tree_count(tree);
 }
 
-gboolean
-wmem_multimap_insert32(wmem_multimap_t *map, const void *key, guint32 frame_num, void *value)
+bool
+wmem_multimap_insert32(wmem_multimap_t *map, const void *key, uint32_t frame_num, void *value)
 {
     wmem_tree_t *tree;
-    gboolean ret = TRUE;
+    bool ret = true;
 
     if ((tree = wmem_map_lookup(map->map, key)) == NULL) {
         tree = wmem_tree_new(map->data_allocator);
         wmem_map_insert(map->map, key, tree);
-        ret = FALSE;
+        ret = false;
     }
     wmem_tree_insert32(tree, frame_num, value);
 
@@ -139,7 +139,7 @@ wmem_multimap_insert32(wmem_multimap_t *map, const void *key, guint32 frame_num,
 }
 
 void *
-wmem_multimap_lookup32(wmem_multimap_t *map, const void *key, guint32 frame_num)
+wmem_multimap_lookup32(wmem_multimap_t *map, const void *key, uint32_t frame_num)
 {
     wmem_tree_t *tree;
 
@@ -150,7 +150,7 @@ wmem_multimap_lookup32(wmem_multimap_t *map, const void *key, guint32 frame_num)
 }
 
 void *
-wmem_multimap_lookup32_le(wmem_multimap_t *map, const void *key, guint32 frame_num)
+wmem_multimap_lookup32_le(wmem_multimap_t *map, const void *key, uint32_t frame_num)
 {
     wmem_tree_t *tree;
 
@@ -161,7 +161,7 @@ wmem_multimap_lookup32_le(wmem_multimap_t *map, const void *key, guint32 frame_n
 }
 
 void *
-wmem_multimap_remove32(wmem_multimap_t *map, const void *key, const guint32 frame_num)
+wmem_multimap_remove32(wmem_multimap_t *map, const void *key, const uint32_t frame_num)
 {
     wmem_tree_t *tree;
 

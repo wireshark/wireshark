@@ -90,7 +90,7 @@ G_GNUC_MALLOC;
  * if the number of elements is negative), and the product otherwise.
  */
 #define wmem_safe_mult_type_size(type, num) \
-    ((((num) <= 0) || ((gsize)sizeof(type) > (G_MAXSSIZE / (gsize)(num)))) ? 0 : (sizeof(type) * (num)))
+    ((((num) <= 0) || ((size_t)sizeof(type) > (G_MAXSSIZE / (size_t)(num)))) ? 0 : (sizeof(type) * (num)))
 
 /** Allocate memory sufficient to hold n objects of the given type.
  *
@@ -227,7 +227,7 @@ void
 wmem_leave_scope(wmem_allocator_t *allocator);
 
 WS_DLL_PUBLIC
-gboolean
+bool
 wmem_in_scope(wmem_allocator_t *allocator);
 
 /** @} */

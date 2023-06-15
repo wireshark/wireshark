@@ -429,7 +429,7 @@ static int cond_one_of(tvbparse_t* tt, const int offset, const tvbparse_wanted_t
     return -1;
 }
 
-static gboolean
+static bool
 tvbparse_wanted_cleanup_cb(wmem_allocator_t* allocator _U_, wmem_cb_event_t event _U_, void *user_data)
 {
     tvbparse_wanted_t* w = (tvbparse_wanted_t *)user_data;

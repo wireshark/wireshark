@@ -19,14 +19,14 @@ typedef struct _wmem_user_cb_container_t {
     wmem_user_cb_t                    cb;
     void                             *user_data;
     struct _wmem_user_cb_container_t *next;
-    guint                             id;
+    unsigned                          id;
 } wmem_user_cb_container_t;
 
 void
 wmem_call_callbacks(wmem_allocator_t *allocator, wmem_cb_event_t event)
 {
     wmem_user_cb_container_t **prev, *cur;
-    gboolean again;
+    bool again;
 
     prev = &(allocator->callbacks);
     cur  = allocator->callbacks;
@@ -50,12 +50,12 @@ wmem_call_callbacks(wmem_allocator_t *allocator, wmem_cb_event_t event)
     }
 }
 
-guint
+unsigned
 wmem_register_callback(wmem_allocator_t *allocator,
         wmem_user_cb_t callback, void *user_data)
 {
     wmem_user_cb_container_t *container;
-    static guint next_id = 1;
+    static unsigned next_id = 1;
 
     container = wmem_new(NULL, wmem_user_cb_container_t);
 
@@ -70,7 +70,7 @@ wmem_register_callback(wmem_allocator_t *allocator,
 }
 
 void
-wmem_unregister_callback(wmem_allocator_t *allocator, guint id)
+wmem_unregister_callback(wmem_allocator_t *allocator, unsigned id)
 {
     wmem_user_cb_container_t **prev, *cur;
 

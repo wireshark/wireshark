@@ -1920,7 +1920,7 @@ static wmem_map_t *epl_profiles_by_device, *epl_profiles_by_nodeid, *epl_profile
 static struct profile *epl_default_profile;
 static const char *epl_default_profile_path = NULL, *epl_default_profile_path_last = NULL;
 
-static gboolean
+static bool
 profile_del_cb(wmem_allocator_t *pool _U_, wmem_cb_event_t event _U_, void *_profile)
 {
 	struct profile *profile = (struct profile*)_profile;

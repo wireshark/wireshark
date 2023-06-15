@@ -43,11 +43,11 @@ G_GNUC_MALLOC;
 /** Generic GCompareFunc implementations to compare signed/unsigned integer
  */
 WS_DLL_PUBLIC
-gint
+int
 wmem_compare_int(gconstpointer a, gconstpointer b);
 
 WS_DLL_PUBLIC
-gint
+int
 wmem_compare_uint(gconstpointer a, gconstpointer b);
 
 /**   @}

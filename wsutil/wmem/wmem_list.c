@@ -21,12 +21,12 @@ struct _wmem_list_frame_t {
 };
 
 struct _wmem_list_t {
-    guint count;
+    unsigned count;
     wmem_list_frame_t  *head, *tail;
     wmem_allocator_t   *allocator;
 };
 
-guint
+unsigned
 wmem_list_count(const wmem_list_t *list)
 {
     return list->count;
@@ -248,7 +248,7 @@ wmem_destroy_list(wmem_list_t *list)
 }
 
 void
-wmem_list_foreach(wmem_list_t *list, GFunc foreach_func, gpointer user_data)
+wmem_list_foreach(wmem_list_t *list, GFunc foreach_func, void * user_data)
 {
     wmem_list_frame_t *cur;
 

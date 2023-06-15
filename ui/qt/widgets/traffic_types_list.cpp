@@ -43,7 +43,7 @@ void TrafficTypesRowData::setChecked(bool checked)
     _checked = checked;
 }
 
-static gboolean iterateProtocols(const void *key, void *value, void *userdata)
+static bool iterateProtocols(const void *key, void *value, void *userdata)
 {
     QList<TrafficTypesRowData> * protocols = (QList<TrafficTypesRowData> *)userdata;
 

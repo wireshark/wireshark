@@ -130,7 +130,7 @@ dissector_rtd_init(const char *opt_arg, void* userdata)
 }
 
 /* Set GUI fields for register_rtd list */
-gboolean
+bool
 register_rtd_tables(const void *key _U_, void *value, void *userdata _U_)
 {
 	register_rtd_t *rtd = (register_rtd_t*)value;

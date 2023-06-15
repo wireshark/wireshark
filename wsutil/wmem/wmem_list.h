@@ -37,7 +37,7 @@ typedef struct _wmem_list_t       wmem_list_t;
 typedef struct _wmem_list_frame_t wmem_list_frame_t;
 
 WS_DLL_PUBLIC
-guint
+unsigned
 wmem_list_count(const wmem_list_t *list);
 
 WS_DLL_PUBLIC
@@ -99,7 +99,7 @@ G_GNUC_MALLOC;
 
 WS_DLL_PUBLIC
 void
-wmem_list_foreach(wmem_list_t *list, GFunc foreach_func, gpointer user_data);
+wmem_list_foreach(wmem_list_t *list, GFunc foreach_func, void * user_data);
 
 WS_DLL_PUBLIC
 void

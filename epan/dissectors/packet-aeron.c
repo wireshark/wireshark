@@ -1998,7 +1998,7 @@ static void aeron_msg_fragment_add(aeron_msg_t * msg, aeron_msg_fragment_t * fra
     }
 }
 
-static gboolean aeron_msg_process_orphan_fragments_msg_cb(const void *key _U_, void * value, void * userdata)
+static bool aeron_msg_process_orphan_fragments_msg_cb(const void *key _U_, void * value, void * userdata)
 {
     aeron_msg_t * msg = (aeron_msg_t *) value;
     aeron_term_t * term = (aeron_term_t *) userdata;

@@ -597,7 +597,7 @@ epl_xdd_load(struct profile *profile _U_, const char *xml_file _U_)
  */
 
 
-static gboolean
+static bool
 free_garray(wmem_allocator_t *scope _U_, wmem_cb_event_t event _U_, void *data)
 {
 	GArray *arr = (GArray*)data;

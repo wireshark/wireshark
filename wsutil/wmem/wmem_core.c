@@ -25,7 +25,7 @@
 
 /* Set according to the WIRESHARK_DEBUG_WMEM_OVERRIDE environment variable in
  * wmem_init. Should not be set again. */
-static gboolean do_override = FALSE;
+static bool do_override = false;
 static wmem_allocator_type_t override_type;
 
 void *
@@ -97,7 +97,7 @@ wmem_realloc(wmem_allocator_t *allocator, void *ptr, const size_t size)
 }
 
 static void
-wmem_free_all_real(wmem_allocator_t *allocator, gboolean final)
+wmem_free_all_real(wmem_allocator_t *allocator, bool final)
 {
     wmem_call_callbacks(allocator,
             final ? WMEM_CB_DESTROY_EVENT : WMEM_CB_FREE_EVENT);
@@ -107,7 +107,7 @@ wmem_free_all_real(wmem_allocator_t *allocator, gboolean final)
 void
 wmem_free_all(wmem_allocator_t *allocator)
 {
-    wmem_free_all_real(allocator, FALSE);
+    wmem_free_all_real(allocator, false);
 }
 
 void
@@ -120,7 +120,7 @@ void
 wmem_destroy_allocator(wmem_allocator_t *allocator)
 {
 
-    wmem_free_all_real(allocator, TRUE);
+    wmem_free_all_real(allocator, true);
     allocator->cleanup(allocator->private_data);
     wmem_free(NULL, allocator);
 }
@@ -141,7 +141,7 @@ wmem_allocator_new(const wmem_allocator_type_t type)
     allocator = wmem_new(NULL, wmem_allocator_t);
     allocator->type      = real_type;
     allocator->callbacks = NULL;
-    allocator->in_scope  = TRUE;
+    allocator->in_scope  = true;
 
     switch (real_type) {
         case WMEM_ALLOCATOR_SIMPLE:
@@ -176,10 +176,10 @@ wmem_init(void)
     override_env = getenv("WIRESHARK_DEBUG_WMEM_OVERRIDE");
 
     if (override_env == NULL) {
-        do_override = FALSE;
+        do_override = false;
     }
     else {
-        do_override = TRUE;
+        do_override = true;
         if (strncmp(override_env, "simple", strlen("simple")) == 0) {
             override_type = WMEM_ALLOCATOR_SIMPLE;
         }
@@ -194,7 +194,7 @@ wmem_init(void)
         }
         else {
             g_warning("Unrecognized wmem override");
-            do_override = FALSE;
+            do_override = false;
         }
     }
 
@@ -209,17 +209,17 @@ wmem_cleanup(void)
 void
 wmem_enter_scope(wmem_allocator_t *allocator)
 {
-    allocator->in_scope = TRUE;
+    allocator->in_scope = true;
 }
 
 void
 wmem_leave_scope(wmem_allocator_t *allocator)
 {
     wmem_free_all(allocator);
-    allocator->in_scope = FALSE;
+    allocator->in_scope = false;
 }
 
-gboolean
+bool
 wmem_in_scope(wmem_allocator_t *allocator)
 {
     return allocator->in_scope;

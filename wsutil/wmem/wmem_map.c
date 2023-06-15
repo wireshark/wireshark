@@ -18,11 +18,11 @@
 #include "wmem_map_int.h"
 #include "wmem_user_cb.h"
 
-static guint32 x; /* Used for universal integer hashing (see the HASH macro) */
+static uint32_t x; /* Used for universal integer hashing (see the HASH macro) */
 
 /* Used for the wmem_strong_hash() function */
-static guint32 preseed;
-static guint32 postseed;
+static uint32_t preseed;
+static uint32_t postseed;
 
 void
 wmem_init_hashing(void)
@@ -42,7 +42,7 @@ typedef struct _wmem_map_item_t {
 } wmem_map_item_t;
 
 struct _wmem_map_t {
-    guint count; /* number of items stored */
+    unsigned count; /* number of items stored */
 
     /* The base-2 logarithm of the actual size of the table. We store this
      * value for efficiency in hashing, since finding the actual capacity
@@ -55,8 +55,8 @@ struct _wmem_map_t {
     GHashFunc  hash_func;
     GEqualFunc eql_func;
 
-    guint      metadata_scope_cb_id;
-    guint      data_scope_cb_id;
+    unsigned   metadata_scope_cb_id;
+    unsigned   data_scope_cb_id;
 
     wmem_allocator_t *metadata_allocator;
     wmem_allocator_t *data_allocator;
@@ -74,7 +74,7 @@ struct _wmem_map_t {
  * https://en.wikipedia.org/wiki/Universal_hashing#Avoiding_modular_arithmetic
  */
 #define HASH(MAP, KEY) \
-    ((guint32)(((MAP)->hash_func(KEY) * x) >> (32 - (MAP)->capacity)))
+    ((uint32_t)(((MAP)->hash_func(KEY) * x) >> (32 - (MAP)->capacity)))
 
 static void
 wmem_map_init_table(wmem_map_t *map)
@@ -102,7 +102,7 @@ wmem_map_new(wmem_allocator_t *allocator,
     return map;
 }
 
-static gboolean
+static bool
 wmem_map_reset_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event,
         void *user_data)
 {
@@ -116,10 +116,10 @@ wmem_map_reset_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event,
         wmem_free(map->metadata_allocator, map);
     }
 
-    return TRUE;
+    return true;
 }
 
-static gboolean
+static bool
 wmem_map_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
         void *user_data)
 {
@@ -127,7 +127,7 @@ wmem_map_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
 
     wmem_unregister_callback(map->data_allocator, map->data_scope_cb_id);
 
-    return FALSE;
+    return false;
 }
 
 wmem_map_t *
@@ -156,7 +156,7 @@ wmem_map_grow(wmem_map_t *map)
 {
     wmem_map_item_t **old_table, *cur, *nxt;
     size_t            old_cap, i;
-    guint             slot;
+    unsigned          slot;
 
     /* store the old table and capacity */
     old_table = map->table;
@@ -226,14 +226,14 @@ wmem_map_insert(wmem_map_t *map, const void *key, void *value)
     return NULL;
 }
 
-gboolean
+bool
 wmem_map_contains(wmem_map_t *map, const void *key)
 {
     wmem_map_item_t *item;
 
     /* Make sure we have a table */
     if (map->table == NULL) {
-        return FALSE;
+        return false;
     }
 
     /* find correct slot */
@@ -242,12 +242,12 @@ wmem_map_contains(wmem_map_t *map, const void *key)
     /* scan list of items in this slot for the correct value */
     while (item) {
         if (map->eql_func(key, item->key)) {
-            return TRUE;
+            return true;
         }
         item = item->next;
     }
 
-    return FALSE;
+    return false;
 }
 
 void *
@@ -274,14 +274,14 @@ wmem_map_lookup(wmem_map_t *map, const void *key)
     return NULL;
 }
 
-gboolean
+bool
 wmem_map_lookup_extended(wmem_map_t *map, const void *key, const void **orig_key, void **value)
 {
     wmem_map_item_t *item;
 
     /* Make sure we have a table */
     if (map->table == NULL) {
-        return FALSE;
+        return false;
     }
 
     /* find correct slot */
@@ -296,12 +296,12 @@ wmem_map_lookup_extended(wmem_map_t *map, const void *key, const void **orig_key
             if (value) {
                 *value = item->value;
             }
-            return TRUE;
+            return true;
         }
         item = item->next;
     }
 
-    return FALSE;
+    return false;
 }
 
 void *
@@ -336,14 +336,14 @@ wmem_map_remove(wmem_map_t *map, const void *key)
     return NULL;
 }
 
-gboolean
+bool
 wmem_map_steal(wmem_map_t *map, const void *key)
 {
     wmem_map_item_t **item, *tmp;
 
     /* Make sure we have a table */
     if (map->table == NULL) {
-        return FALSE;
+        return false;
     }
 
     /* get a pointer to the slot */
@@ -356,13 +356,13 @@ wmem_map_steal(wmem_map_t *map, const void *key)
             tmp     = (*item);
             (*item) = tmp->next;
             map->count--;
-            return TRUE;
+            return true;
         }
         item = &((*item)->next);
     }
 
     /* didn't find it */
-    return FALSE;
+    return false;
 }
 
 wmem_list_t*
@@ -389,7 +389,7 @@ wmem_map_get_keys(wmem_allocator_t *list_allocator, wmem_map_t *map)
 }
 
 void
-wmem_map_foreach(wmem_map_t *map, GHFunc foreach_func, gpointer user_data)
+wmem_map_foreach(wmem_map_t *map, GHFunc foreach_func, void * user_data)
 {
     wmem_map_item_t *cur;
     unsigned i;
@@ -402,14 +402,14 @@ wmem_map_foreach(wmem_map_t *map, GHFunc foreach_func, gpointer user_data)
     for (i = 0; i < CAPACITY(map); i++) {
         cur = map->table[i];
         while (cur) {
-            foreach_func((gpointer)cur->key, (gpointer)cur->value, user_data);
+            foreach_func((void *)cur->key, (void *)cur->value, user_data);
             cur = cur->next;
         }
     }
 }
 
-guint
-wmem_map_foreach_remove(wmem_map_t *map, GHRFunc foreach_func, gpointer user_data)
+unsigned
+wmem_map_foreach_remove(wmem_map_t *map, GHRFunc foreach_func, void * user_data)
 {
     wmem_map_item_t **item, *tmp;
     unsigned i, deleted = 0;
@@ -422,7 +422,7 @@ wmem_map_foreach_remove(wmem_map_t *map, GHRFunc foreach_func, gpointer user_dat
     for (i = 0; i < CAPACITY(map); i++) {
         item = &(map->table[i]);
         while (*item) {
-            if (foreach_func((gpointer)(*item)->key, (gpointer)(*item)->value, user_data)) {
+            if (foreach_func((void *)(*item)->key, (void *)(*item)->value, user_data)) {
                 tmp   = *item;
                 *item = tmp->next;
                 wmem_free(map->data_allocator, tmp);
@@ -436,7 +436,7 @@ wmem_map_foreach_remove(wmem_map_t *map, GHRFunc foreach_func, gpointer user_dat
     return deleted;
 }
 
-guint
+unsigned
 wmem_map_size(wmem_map_t *map)
 {
     return map->count;
@@ -447,11 +447,11 @@ wmem_map_size(wmem_map_t *map)
  * generally secure against collision attacks. See
  * http://blog.booking.com/hardening-perls-hash-function.html
  */
-guint32
-wmem_strong_hash(const guint8 *buf, const size_t len)
+uint32_t
+wmem_strong_hash(const uint8_t *buf, const size_t len)
 {
-    const guint8 * const end = (const guint8 *)buf + len;
-    guint32 hash = preseed + (guint32)len;
+    const uint8_t * const end = (const uint8_t *)buf + len;
+    uint32_t hash = preseed + (uint32_t)len;
 
     while (buf < end) {
         hash += (hash << 10);
@@ -461,19 +461,19 @@ wmem_strong_hash(const guint8 *buf, const size_t len)
 
     hash += (hash << 10);
     hash ^= (hash >> 6);
-    hash += ((guint8*)&postseed)[0];
+    hash += ((uint8_t*)&postseed)[0];
 
     hash += (hash << 10);
     hash ^= (hash >> 6);
-    hash += ((guint8*)&postseed)[1];
+    hash += ((uint8_t*)&postseed)[1];
 
     hash += (hash << 10);
     hash ^= (hash >> 6);
-    hash += ((guint8*)&postseed)[2];
+    hash += ((uint8_t*)&postseed)[2];
 
     hash += (hash << 10);
     hash ^= (hash >> 6);
-    hash += ((guint8*)&postseed)[3];
+    hash += ((uint8_t*)&postseed)[3];
 
     hash += (hash << 10);
     hash ^= (hash >> 6);
@@ -483,22 +483,22 @@ wmem_strong_hash(const guint8 *buf, const size_t len)
     return (hash + (hash << 15));
 }
 
-guint
+unsigned
 wmem_str_hash(gconstpointer key)
 {
-    return wmem_strong_hash((const guint8 *)key, strlen((const char *)key));
+    return wmem_strong_hash((const uint8_t *)key, strlen((const char *)key));
 }
 
-guint
+unsigned
 wmem_int64_hash(gconstpointer key)
 {
-    return wmem_strong_hash((const guint8 *)key, sizeof(guint64));
+    return wmem_strong_hash((const uint8_t *)key, sizeof(uint64_t));
 }
 
-guint
+unsigned
 wmem_double_hash(gconstpointer key)
 {
-    return wmem_strong_hash((const guint8 *)key, sizeof(double));
+    return wmem_strong_hash((const uint8_t *)key, sizeof(double));
 }
 
 /*

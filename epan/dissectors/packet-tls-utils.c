@@ -3962,7 +3962,7 @@ ssl_change_cipher(SslDecryptSession *ssl_session, gboolean server)
 /* }}} */
 
 /* Init cipher state given some security parameters. {{{ */
-static gboolean
+static bool
 ssl_decoder_destroy_cb(wmem_allocator_t *, wmem_cb_event_t, void *);
 
 static SslDecoder*
@@ -4004,7 +4004,7 @@ ssl_create_decoder(const SslCipherSuite *cipher_suite, gint cipher_algo,
     return dec;
 }
 
-static gboolean
+static bool
 ssl_decoder_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
 {
     SslDecoder *dec = (SslDecoder *) user_data;
@@ -4020,7 +4020,7 @@ ssl_decoder_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U
     return FALSE;
 }
 
-static gboolean
+static bool
 tls13_cipher_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
 {
     tls13_cipher *cipher = (tls13_cipher *) user_data;
