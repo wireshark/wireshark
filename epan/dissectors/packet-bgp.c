@@ -10401,7 +10401,7 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                     }
                 } else {
                     proto_tree_add_expert_format(subtree2, pinfo, &ei_bgp_length_invalid, tvb, o + i + aoff, alen,
-                                                 "Attribute set (invalid): %u bytes%s",
+                                                 "Attribute set (invalid): %u byte%s",
                                                  alen, plurality(alen, "", "s"));
                 }
                 break;
