@@ -938,17 +938,18 @@ static void address_with_resolution_to_str_buf(const address* addr, gchar *buf, 
 #endif
 
     /* Copy the resolved name */
-    pos = g_strlcpy(buf, at->addr_name_res_str(addr), buf_len);
+    g_strlcpy(buf, at->addr_name_res_str(addr), buf_len);
 
     /* Don't wrap "emptyness" in parentheses */
     if (addr->type == AT_NONE)
         return;
 
     /* Make sure there is enough room for the address string wrapped in parentheses */
+    pos = strlen(buf);
     if ((int)(pos + 4 + at->addr_str_len(addr)) >= buf_len)
         return;
 
-    empty = (pos <= 1) ? TRUE : FALSE;
+    empty = (pos < 1) ? TRUE : FALSE;
 
     if (!empty)
     {
