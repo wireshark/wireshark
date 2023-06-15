@@ -30,7 +30,7 @@ void proto_register_q1950(void);
 #define PFNAME "h248q1950"
 
 static int proto_q1950 = -1;
-static gboolean implicit = FALSE;
+static bool implicit = FALSE;
 
 /* A.3 Bearer characteristics package */
 static int hf_h248_pkg_BCP = -1;
@@ -283,7 +283,7 @@ static gint ett_h248_pkg_bt_bit= -1;
 static void dissect_bt_tunneled_proto(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* i _U_, void* d _U_) {
     tvbuff_t* bctp_tvb = NULL;
     gint8 appclass;
-    gboolean pc;
+    bool pc;
     gint32 tag;
     asn1_ctx_t asn1_ctx;
 

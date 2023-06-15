@@ -43,7 +43,7 @@ static gint ett_nist_csor_CFBParameters = -1;
 
 
 int
-dissect_nist_csor_AES_IV(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nist_csor_AES_IV(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -53,7 +53,7 @@ dissect_nist_csor_AES_IV(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 int
-dissect_nist_csor_NumberOfBits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nist_csor_NumberOfBits(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -68,7 +68,7 @@ static const ber_sequence_t CFBParameters_sequence[] = {
 };
 
 int
-dissect_nist_csor_CFBParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nist_csor_CFBParameters(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CFBParameters_sequence, hf_index, ett_nist_csor_CFBParameters);
 
@@ -78,7 +78,7 @@ dissect_nist_csor_CFBParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 int
-dissect_nist_csor_ShakeOutputLen(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nist_csor_ShakeOutputLen(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 

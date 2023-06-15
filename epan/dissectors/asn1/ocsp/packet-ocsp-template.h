@@ -15,7 +15,7 @@
 /*#include "packet-ocsp-exp.h"*/
 
 extern int proto_ocsp;
-int dissect_ocsp_OCSPResponse(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
+int dissect_ocsp_OCSPResponse(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index);
 
 #endif  /* PACKET_OCSP_H */
 

@@ -492,8 +492,8 @@ static void dissect_ss_info_ie(tvbuff_t *tvb, packet_info *pinfo, guint offset, 
 {
 	guint saved_offset;
 	gint8 appclass;
-	gboolean pc;
-	gboolean ind = FALSE;
+	bool pc;
+	bool ind = FALSE;
 	guint32 component_len = 0;
 	guint32 header_end_offset;
 	guint32 header_len;

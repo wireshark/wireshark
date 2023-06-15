@@ -71,7 +71,7 @@ dissect_disp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 	proto_item *item;
 	proto_tree *tree;
 	struct SESSION_DATA_STRUCTURE* session;
-	int (*disp_dissector)(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) = NULL;
+	int (*disp_dissector)(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) = NULL;
 	const char *disp_op_name;
 	asn1_ctx_t asn1_ctx;
 

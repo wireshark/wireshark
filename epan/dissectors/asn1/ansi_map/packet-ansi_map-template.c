@@ -541,7 +541,7 @@ static value_string_ext ansi_map_opr_code_strings_ext = VALUE_STRING_EXT_INIT(an
 
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
 static int dissect_returnData(proto_tree *tree, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx);
-static int dissect_ansi_map_SystemMyTypeCode(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
+static int dissect_ansi_map_SystemMyTypeCode(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 
 /* Type of Digits (octet 1, bits A-H) */
 static const value_string ansi_map_type_of_digits_vals[] = {

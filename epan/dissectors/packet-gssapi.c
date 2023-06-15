@@ -173,7 +173,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	int len, start_offset, oid_start_offset;
 	volatile int offset;
 	gint8 appclass;
-	gboolean pc, ind_field;
+	bool pc, ind_field;
 	gint32 tag;
 	guint32 len1;
 	const char *oid;

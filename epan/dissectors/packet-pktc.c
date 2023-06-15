@@ -544,7 +544,7 @@ dissect_pktc_mtafqdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     proto_item *item;
     tvbuff_t *pktc_mtafqdn_tvb;
     gint8              ber_class;
-    gboolean           pc;
+    bool               pc;
     gint32             tag;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PKTC");

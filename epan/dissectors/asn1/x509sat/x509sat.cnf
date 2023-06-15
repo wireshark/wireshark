@@ -387,7 +387,7 @@ XDayOf/fifth				fifth_dayof
 
 #.FN_BODY GUID
   gint8 ber_class;
-  gboolean pc;
+  bool pc;
   gint32 tag;
   guint32 len;
   e_guid_t uuid;

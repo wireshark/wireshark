@@ -227,7 +227,7 @@ dissect_lnpdqp_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 
 static int
-dissect_lnpdqp_Digits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lnpdqp_Digits(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
     tvbuff_t *parameter_tvb = NULL;
     guint8 type_of_dgt;
     proto_tree *subtree;
@@ -268,7 +268,7 @@ dissect_lnpdqp_Digits(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 static int
-dissect_lnpdqp_BillingIndicators(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lnpdqp_BillingIndicators(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -283,7 +283,7 @@ static const ber_sequence_t ConnectionControlArg_U_set[] = {
 };
 
 static int
-dissect_lnpdqp_ConnectionControlArg_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lnpdqp_ConnectionControlArg_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               ConnectionControlArg_U_set, hf_index, ett_lnpdqp_ConnectionControlArg_U);
 
@@ -293,7 +293,7 @@ dissect_lnpdqp_ConnectionControlArg_U(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 
 static int
-dissect_lnpdqp_ConnectionControlArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lnpdqp_ConnectionControlArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_PRI, 18, TRUE, dissect_lnpdqp_ConnectionControlArg_U);
 
@@ -312,7 +312,7 @@ static const ber_choice_t ServiceKey_choice[] = {
 };
 
 static int
-dissect_lnpdqp_ServiceKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lnpdqp_ServiceKey(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ServiceKey_choice, hf_index, ett_lnpdqp_ServiceKey,
                                  NULL);
@@ -323,7 +323,7 @@ dissect_lnpdqp_ServiceKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 
 static int
-dissect_lnpdqp_OriginatingStationType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lnpdqp_OriginatingStationType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -339,7 +339,7 @@ static const ber_sequence_t ProvideInstructionArg_U_set[] = {
 };
 
 static int
-dissect_lnpdqp_ProvideInstructionArg_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lnpdqp_ProvideInstructionArg_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set(implicit_tag, actx, tree, tvb, offset,
                               ProvideInstructionArg_U_set, hf_index, ett_lnpdqp_ProvideInstructionArg_U);
 
@@ -349,7 +349,7 @@ dissect_lnpdqp_ProvideInstructionArg_U(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 
 static int
-dissect_lnpdqp_ProvideInstructionArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lnpdqp_ProvideInstructionArg(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_PRI, 18, TRUE, dissect_lnpdqp_ProvideInstructionArg_U);
 

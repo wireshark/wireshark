@@ -1606,7 +1606,7 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
         guint matched;
         guint left;
         gint8 ber_class;
-        gboolean ber_pc;
+        bool ber_pc;
         gint32 ber_tag;
         guint encoid_len;
         guint8* encoid;
@@ -1679,10 +1679,10 @@ static int dissect_cops_pr_object_data(tvbuff_t *tvb, packet_info *pinfo, guint3
 
         while(offset < end_offset) {
             gint8 ber_class;
-            gboolean ber_pc;
+            bool ber_pc;
             gint32 ber_tag;
             guint32 ber_length;
-            gboolean ber_ind;
+            bool ber_ind;
             int hfid;
 
             offset = get_ber_identifier(tvb, offset, &ber_class, &ber_pc, &ber_tag);

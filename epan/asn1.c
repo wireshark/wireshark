@@ -21,7 +21,7 @@
 
 #include "asn1.h"
 
-void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, packet_info *pinfo) {
+void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, bool aligned, packet_info *pinfo) {
   memset(actx, '\0', sizeof(*actx));
   actx->signature = ASN1_CTX_SIGNATURE;
   actx->encoding = encoding;
@@ -29,7 +29,7 @@ void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, pack
   actx->pinfo = pinfo;
 }
 
-gboolean asn1_ctx_check_signature(asn1_ctx_t *actx) {
+bool asn1_ctx_check_signature(asn1_ctx_t *actx) {
   return actx && (actx->signature == ASN1_CTX_SIGNATURE);
 }
 
@@ -109,7 +109,7 @@ static asn1_par_t *push_new_par(asn1_ctx_t *actx) {
   return par;
 }
 
-void asn1_param_push_boolean(asn1_ctx_t *actx, gboolean value) {
+void asn1_param_push_boolean(asn1_ctx_t *actx, bool value) {
   asn1_par_t *par;
 
   par = push_new_par(actx);
@@ -125,7 +125,7 @@ void asn1_param_push_integer(asn1_ctx_t *actx, gint32 value) {
   par->value.v_integer = value;
 }
 
-gboolean asn1_param_get_boolean(asn1_ctx_t *actx, const gchar *name) {
+bool asn1_param_get_boolean(asn1_ctx_t *actx, const gchar *name) {
   asn1_par_t *par = NULL;
 
   par = get_par_by_name(actx, name);
@@ -149,7 +149,7 @@ void rose_ctx_init(rose_ctx_t *rctx) {
   rctx->signature = ROSE_CTX_SIGNATURE;
 }
 
-gboolean rose_ctx_check_signature(rose_ctx_t *rctx) {
+bool rose_ctx_check_signature(rose_ctx_t *rctx) {
   return rctx && (rctx->signature == ROSE_CTX_SIGNATURE);
 }
 
@@ -200,7 +200,7 @@ double asn1_get_real(const guint8 *real_ptr, gint len) {
   len -= 1;
   if (octet & 0x80) {  /* binary encoding */
     int i;
-    gboolean Eneg;
+    bool Eneg;
     gint8 S; /* Sign */
     guint8 B; /* Base */
     guint8 F; /* scaling Factor */

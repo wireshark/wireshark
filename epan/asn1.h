@@ -47,7 +47,7 @@ typedef struct _asn1_par_t {
   const gchar *name;
   asn1_par_type ptype;
   union {
-    gboolean v_boolean;
+    bool v_boolean;
     gint32 v_integer;
     void *v_type;
   } value;
@@ -65,7 +65,7 @@ typedef struct _asn1_stack_frame_t {
 typedef struct _asn1_ctx_t {
   guint32 signature;
   asn1_enc_e encoding;
-  gboolean aligned;
+  bool aligned;
   packet_info *pinfo;
   proto_item *created_item;
   struct _asn1_stack_frame_t *stack;
@@ -73,9 +73,9 @@ typedef struct _asn1_ctx_t {
   void *private_data;
   struct {
     int hf_index;
-    gboolean data_value_descr_present;
-    gboolean direct_ref_present;
-    gboolean indirect_ref_present;
+    bool data_value_descr_present;
+    bool direct_ref_present;
+    bool indirect_ref_present;
     tvbuff_t *data_value_descriptor;
     const char *direct_reference;
     gint32 indirect_reference;
@@ -90,7 +90,7 @@ typedef struct _asn1_ctx_t {
     tvbuff_t *arbitrary;
     union {
       struct {
-        int (*ber_callback)(gboolean imp_tag, tvbuff_t *tvb, int offset, struct _asn1_ctx_t* ,proto_tree *tree, int hf_index );
+        int (*ber_callback)(bool imp_tag, tvbuff_t *tvb, int offset, struct _asn1_ctx_t* ,proto_tree *tree, int hf_index );
       } ber;
       struct {
         int (*type_cb)(tvbuff_t*, int, struct _asn1_ctx_t*, proto_tree*, int);
@@ -104,7 +104,7 @@ typedef struct _asn1_ctx_t {
   } subtree;
   struct {
     int hf_index;
-    gboolean data_value_descr_present;
+    bool data_value_descr_present;
     tvbuff_t *data_value_descriptor;
     gint identification;
       /*
@@ -121,7 +121,7 @@ typedef struct _asn1_ctx_t {
     tvbuff_t *data_value;
     union {
       struct {
-        int (*ber_callback)(gboolean imp_tag, tvbuff_t *tvb, int offset, struct _asn1_ctx_t* ,proto_tree *tree, int hf_index );
+        int (*ber_callback)(bool imp_tag, tvbuff_t *tvb, int offset, struct _asn1_ctx_t* ,proto_tree *tree, int hf_index );
       } ber;
       struct {
         int (*type_cb)(tvbuff_t*, int, struct _asn1_ctx_t*, proto_tree*, int);
@@ -143,7 +143,7 @@ typedef struct _rose_ctx_t {
   dissector_table_t err_local_dissector_table;
   /* filling in description into tree, info column, any buffer */
   int apdu_depth;
-  gboolean fillin_info;
+  bool fillin_info;
   gchar *fillin_ptr;
   gsize fillin_buf_size;
   struct {  /* "dynamic" data */
@@ -167,8 +167,8 @@ typedef struct _rose_ctx_t {
   void *private_data;
 } rose_ctx_t;
 
-WS_DLL_PUBLIC void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, gboolean aligned, packet_info *pinfo);
-extern gboolean asn1_ctx_check_signature(asn1_ctx_t *actx);
+WS_DLL_PUBLIC void asn1_ctx_init(asn1_ctx_t *actx, asn1_enc_e encoding, bool aligned, packet_info *pinfo);
+extern bool asn1_ctx_check_signature(asn1_ctx_t *actx);
 extern void asn1_ctx_clean_external(asn1_ctx_t *actx);
 extern void asn1_ctx_clean_epdv(asn1_ctx_t *actx);
 
@@ -176,13 +176,13 @@ extern void asn1_stack_frame_push(asn1_ctx_t *actx, const gchar *name);
 extern void asn1_stack_frame_pop(asn1_ctx_t *actx, const gchar *name);
 extern void asn1_stack_frame_check(asn1_ctx_t *actx, const gchar *name, const asn1_par_def_t *par_def);
 
-extern void asn1_param_push_boolean(asn1_ctx_t *actx, gboolean value);
+extern void asn1_param_push_boolean(asn1_ctx_t *actx, bool value);
 extern void asn1_param_push_integer(asn1_ctx_t *actx, gint32 value);
-extern gboolean asn1_param_get_boolean(asn1_ctx_t *actx, const gchar *name);
+extern bool asn1_param_get_boolean(asn1_ctx_t *actx, const gchar *name);
 extern gint32 asn1_param_get_integer(asn1_ctx_t *actx, const gchar *name);
 
 WS_DLL_PUBLIC void rose_ctx_init(rose_ctx_t *rctx);
-extern gboolean rose_ctx_check_signature(rose_ctx_t *rctx);
+extern bool rose_ctx_check_signature(rose_ctx_t *rctx);
 WS_DLL_PUBLIC void rose_ctx_clean_data(rose_ctx_t *rctx);
 
 WS_DLL_PUBLIC asn1_ctx_t *get_asn1_ctx(void *ptr);

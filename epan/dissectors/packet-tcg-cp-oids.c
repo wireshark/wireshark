@@ -107,7 +107,7 @@ static gint ett_tcg_cp_oids_VirtualPlatformBackupServiceURI = -1;
 
 
 static int
-dissect_tcg_cp_oids_UTF8String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_UTF8String(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -118,7 +118,7 @@ dissect_tcg_cp_oids_UTF8String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 
 static int
-dissect_tcg_cp_oids_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_INTEGER(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -134,7 +134,7 @@ static const ber_sequence_t TPMSpecification_sequence[] = {
 };
 
 static int
-dissect_tcg_cp_oids_TPMSpecification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_TPMSpecification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TPMSpecification_sequence, hf_index, ett_tcg_cp_oids_TPMSpecification);
 
@@ -150,7 +150,7 @@ static const ber_sequence_t TCGSpecificationVersion_sequence[] = {
 };
 
 static int
-dissect_tcg_cp_oids_TCGSpecificationVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_TCGSpecificationVersion(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TCGSpecificationVersion_sequence, hf_index, ett_tcg_cp_oids_TCGSpecificationVersion);
 
@@ -160,7 +160,7 @@ dissect_tcg_cp_oids_TCGSpecificationVersion(gboolean implicit_tag _U_, tvbuff_t 
 
 
 static int
-dissect_tcg_cp_oids_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_OCTET_STRING(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -175,7 +175,7 @@ static const ber_sequence_t TCGPlatformSpecification_sequence[] = {
 };
 
 static int
-dissect_tcg_cp_oids_TCGPlatformSpecification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_TCGPlatformSpecification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TCGPlatformSpecification_sequence, hf_index, ett_tcg_cp_oids_TCGPlatformSpecification);
 
@@ -190,7 +190,7 @@ static const ber_sequence_t TCPASpecVersion_sequence[] = {
 };
 
 static int
-dissect_tcg_cp_oids_TCPASpecVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_TCPASpecVersion(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TCPASpecVersion_sequence, hf_index, ett_tcg_cp_oids_TCPASpecVersion);
 
@@ -200,7 +200,7 @@ dissect_tcg_cp_oids_TCPASpecVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static int
-dissect_tcg_cp_oids_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_Version(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -210,7 +210,7 @@ dissect_tcg_cp_oids_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 static int
-dissect_tcg_cp_oids_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_BOOLEAN(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -227,7 +227,7 @@ static const value_string tcg_cp_oids_EKGenerationType_vals[] = {
 
 
 static int
-dissect_tcg_cp_oids_EKGenerationType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_EKGenerationType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -244,7 +244,7 @@ static const value_string tcg_cp_oids_EKGenerationLocation_vals[] = {
 
 
 static int
-dissect_tcg_cp_oids_EKGenerationLocation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_EKGenerationLocation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -261,7 +261,7 @@ static const value_string tcg_cp_oids_EKCertificateGenerationLocation_vals[] = {
 
 
 static int
-dissect_tcg_cp_oids_EKCertificateGenerationLocation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_EKCertificateGenerationLocation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -271,7 +271,7 @@ dissect_tcg_cp_oids_EKCertificateGenerationLocation(gboolean implicit_tag _U_, t
 
 
 static int
-dissect_tcg_cp_oids_IA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_IA5String(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -293,7 +293,7 @@ static const value_string tcg_cp_oids_EvaluationAssuranceLevel_vals[] = {
 
 
 static int
-dissect_tcg_cp_oids_EvaluationAssuranceLevel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_EvaluationAssuranceLevel(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -310,7 +310,7 @@ static const value_string tcg_cp_oids_EvaluationStatus_vals[] = {
 
 
 static int
-dissect_tcg_cp_oids_EvaluationStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_EvaluationStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -327,7 +327,7 @@ static const value_string tcg_cp_oids_StrengthOfFunction_vals[] = {
 
 
 static int
-dissect_tcg_cp_oids_StrengthOfFunction(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_StrengthOfFunction(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -337,7 +337,7 @@ dissect_tcg_cp_oids_StrengthOfFunction(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 
 static int
-dissect_tcg_cp_oids_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_OBJECT_IDENTIFIER(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -346,7 +346,7 @@ dissect_tcg_cp_oids_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 
 static int
-dissect_tcg_cp_oids_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_BIT_STRING(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, 0, hf_index, -1,
                                     NULL);
@@ -363,7 +363,7 @@ static const ber_sequence_t URIReference_sequence[] = {
 };
 
 static int
-dissect_tcg_cp_oids_URIReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_URIReference(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    URIReference_sequence, hf_index, ett_tcg_cp_oids_URIReference);
 
@@ -385,7 +385,7 @@ static const ber_sequence_t CommonCriteriaMeasures_sequence[] = {
 };
 
 static int
-dissect_tcg_cp_oids_CommonCriteriaMeasures(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_CommonCriteriaMeasures(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CommonCriteriaMeasures_sequence, hf_index, ett_tcg_cp_oids_CommonCriteriaMeasures);
 
@@ -403,7 +403,7 @@ static const value_string tcg_cp_oids_SecurityLevel_vals[] = {
 
 
 static int
-dissect_tcg_cp_oids_SecurityLevel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_SecurityLevel(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -419,7 +419,7 @@ static const ber_sequence_t FIPSLevel_sequence[] = {
 };
 
 static int
-dissect_tcg_cp_oids_FIPSLevel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_FIPSLevel(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    FIPSLevel_sequence, hf_index, ett_tcg_cp_oids_FIPSLevel);
 
@@ -441,7 +441,7 @@ static const ber_sequence_t TPMSecurityAssertions_sequence[] = {
 };
 
 static int
-dissect_tcg_cp_oids_TPMSecurityAssertions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_TPMSecurityAssertions(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TPMSecurityAssertions_sequence, hf_index, ett_tcg_cp_oids_TPMSecurityAssertions);
 
@@ -461,7 +461,7 @@ static const value_string tcg_cp_oids_MeasurementRootType_vals[] = {
 
 
 static int
-dissect_tcg_cp_oids_MeasurementRootType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_MeasurementRootType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -480,7 +480,7 @@ static const ber_sequence_t TBBSecurityAssertions_sequence[] = {
 };
 
 static int
-dissect_tcg_cp_oids_TBBSecurityAssertions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_TBBSecurityAssertions(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TBBSecurityAssertions_sequence, hf_index, ett_tcg_cp_oids_TBBSecurityAssertions);
 
@@ -490,7 +490,7 @@ dissect_tcg_cp_oids_TBBSecurityAssertions(gboolean implicit_tag _U_, tvbuff_t *t
 
 
 static int
-dissect_tcg_cp_oids_ProtectionProfile(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_ProtectionProfile(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -499,7 +499,7 @@ dissect_tcg_cp_oids_ProtectionProfile(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 
 static int
-dissect_tcg_cp_oids_SecurityTarget(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_SecurityTarget(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -513,7 +513,7 @@ static const ber_sequence_t HashAlgAndValue_sequence[] = {
 };
 
 static int
-dissect_tcg_cp_oids_HashAlgAndValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_HashAlgAndValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    HashAlgAndValue_sequence, hf_index, ett_tcg_cp_oids_HashAlgAndValue);
 
@@ -529,7 +529,7 @@ static const ber_sequence_t HashedSubjectInfoURI_sequence[] = {
 };
 
 static int
-dissect_tcg_cp_oids_HashedSubjectInfoURI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_HashedSubjectInfoURI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    HashedSubjectInfoURI_sequence, hf_index, ett_tcg_cp_oids_HashedSubjectInfoURI);
 
@@ -542,7 +542,7 @@ static const ber_sequence_t TCGRelevantCredentials_sequence_of[1] = {
 };
 
 static int
-dissect_tcg_cp_oids_TCGRelevantCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_TCGRelevantCredentials(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       TCGRelevantCredentials_sequence_of, hf_index, ett_tcg_cp_oids_TCGRelevantCredentials);
 
@@ -555,7 +555,7 @@ static const ber_sequence_t TCGRelevantManifests_sequence_of[1] = {
 };
 
 static int
-dissect_tcg_cp_oids_TCGRelevantManifests(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_TCGRelevantManifests(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       TCGRelevantManifests_sequence_of, hf_index, ett_tcg_cp_oids_TCGRelevantManifests);
 
@@ -565,7 +565,7 @@ dissect_tcg_cp_oids_TCGRelevantManifests(gboolean implicit_tag _U_, tvbuff_t *tv
 
 
 static int
-dissect_tcg_cp_oids_VirtualPlatformAttestationServiceURI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_VirtualPlatformAttestationServiceURI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -576,7 +576,7 @@ dissect_tcg_cp_oids_VirtualPlatformAttestationServiceURI(gboolean implicit_tag _
 
 
 static int
-dissect_tcg_cp_oids_MigrationControllerAttestationServiceURI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_MigrationControllerAttestationServiceURI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -587,7 +587,7 @@ dissect_tcg_cp_oids_MigrationControllerAttestationServiceURI(gboolean implicit_t
 
 
 static int
-dissect_tcg_cp_oids_MigrationControllerRegistrationServiceURI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_MigrationControllerRegistrationServiceURI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -603,7 +603,7 @@ static const ber_sequence_t VirtualPlatformBackupServiceURI_sequence[] = {
 };
 
 static int
-dissect_tcg_cp_oids_VirtualPlatformBackupServiceURI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_tcg_cp_oids_VirtualPlatformBackupServiceURI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    VirtualPlatformBackupServiceURI_sequence, hf_index, ett_tcg_cp_oids_VirtualPlatformBackupServiceURI);
 

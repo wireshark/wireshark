@@ -192,7 +192,7 @@ char *mechanism = NULL;
 tvbuff_t *parameter_tvb;
 ldap_conv_info_t *ldap_info;
 gint8 ber_class;
-gboolean pc;
+bool pc;
 gint32 tag;
 
 %(DEFAULT_BODY)s
@@ -601,7 +601,7 @@ ldap_conv_info_t *ldap_info;
   Filter_string=wmem_strdup_printf(actx->pinfo->pool, "(!%s)",string_or_null(Filter_string));
 
 #.FN_BODY MatchingRuleAssertion/dnAttributes
-  gboolean val;
+  bool val;
 
   offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, &val);
 
@@ -711,7 +711,7 @@ ldap_conv_info_t *ldap_info;
 
 #.FN_BODY Control/controlValue
   gint8 ber_class;
-  gboolean pc, ind;
+  bool pc, ind;
   gint32 tag;
   guint32 len;
 
@@ -755,7 +755,7 @@ ldap_conv_info_t *ldap_info;
 
 #.FN_BODY DirSyncFlags
   gint8 ber_class;
-  gboolean pc;
+  bool pc;
   gint32 tag;
   guint32 len;
   gint32 val;

@@ -668,7 +668,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
     if (g_ascii_strncasecmp(word, "MEGACO", 6) != 0 && !short_form){
         gint8 ber_class;
-        gboolean pc;
+        bool pc;
         gint32 tag;
         dissector_handle_t handle = data_handle;
 

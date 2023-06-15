@@ -288,7 +288,7 @@ static gint ett_h248_3GTFO_codec = -1;
 static void dissect_3GTFO_codec_mode(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* cu _U_, void* ignored _U_) {
 	tvbuff_t* sub_tvb = NULL;
 	gint8 appclass;
-	gboolean pc;
+	bool pc;
 	gint32 tag;
 	asn1_ctx_t asn1_ctx;
 
@@ -313,7 +313,7 @@ static void dissect_3GTFO_codec_mode(proto_tree* tree, tvbuff_t* tvb, packet_inf
 static void dissect_3GTFO_codec_list(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, int hfid, h248_curr_info_t* cu _U_, void* ignored _U_) {
 	tvbuff_t* sub_tvb = NULL;
 	gint8 appclass;
-	gboolean pc;
+	bool pc;
 	gint32 tag;
 	asn1_ctx_t asn1_ctx;
 

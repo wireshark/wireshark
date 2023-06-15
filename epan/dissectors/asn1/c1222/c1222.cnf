@@ -24,7 +24,7 @@ AE-qualifier TYPE=FT_UINT32
 
 #.FN_BODY User-information
   gint8 end_device_class;
-  gboolean pc, ind;
+  bool pc, ind;
   gint32 tag;
   guint32 len;
   proto_item *tf = NULL;

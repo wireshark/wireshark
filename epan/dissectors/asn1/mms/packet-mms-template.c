@@ -200,7 +200,7 @@ dissect_mms_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	gint idx = 0 ;
 
 	gint8 tmp_class;
-	gboolean tmp_pc;
+	bool tmp_pc;
 	gint32 tmp_tag;
 
 		/* first, check do we have at least 2 bytes (pdu) */

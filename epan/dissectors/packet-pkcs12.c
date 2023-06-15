@@ -439,7 +439,7 @@ static const value_string pkcs12_T_version_vals[] = {
 
 
 static int
-dissect_pkcs12_T_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_T_version(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -449,7 +449,7 @@ dissect_pkcs12_T_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 static int
-dissect_pkcs12_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_OCTET_STRING(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        (hf_index == hf_pkcs12_salt ? &salt : NULL));
 
@@ -459,7 +459,7 @@ dissect_pkcs12_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 static int
-dissect_pkcs12_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_INTEGER(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 (hf_index == hf_pkcs12_iterationCount ? &iteration_count : NULL));
 
@@ -475,7 +475,7 @@ static const ber_sequence_t MacData_sequence[] = {
 };
 
 static int
-dissect_pkcs12_MacData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_MacData(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MacData_sequence, hf_index, ett_pkcs12_MacData);
 
@@ -491,7 +491,7 @@ static const ber_sequence_t PFX_sequence[] = {
 };
 
 static int
-dissect_pkcs12_PFX(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_PFX(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	dissector_handle_t dissector_handle;
 
 	/* we change the CMS id-data dissector to dissect as AuthenticatedSafe
@@ -516,7 +516,7 @@ static const ber_sequence_t AuthenticatedSafe_sequence_of[1] = {
 };
 
 static int
-dissect_pkcs12_AuthenticatedSafe(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_AuthenticatedSafe(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	dissector_handle_t dissector_handle;
 
 	/* we change the CMS id-data dissector to dissect as SafeContents */
@@ -537,7 +537,7 @@ dissect_pkcs12_AuthenticatedSafe(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 
 static int
-dissect_pkcs12_T_bagId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_T_bagId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
   append_oid(actx->pinfo->pool, tree, object_identifier_id);
@@ -547,7 +547,7 @@ dissect_pkcs12_T_bagId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static int
-dissect_pkcs12_T_bagValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_T_bagValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -558,7 +558,7 @@ dissect_pkcs12_T_bagValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 
 static int
-dissect_pkcs12_T_attrId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_T_attrId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
   append_oid(actx->pinfo->pool, tree, object_identifier_id);
@@ -568,7 +568,7 @@ dissect_pkcs12_T_attrId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static int
-dissect_pkcs12_T_attrValues_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_T_attrValues_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -582,7 +582,7 @@ static const ber_sequence_t T_attrValues_set_of[1] = {
 };
 
 static int
-dissect_pkcs12_T_attrValues(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_T_attrValues(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  T_attrValues_set_of, hf_index, ett_pkcs12_T_attrValues);
 
@@ -597,7 +597,7 @@ static const ber_sequence_t PKCS12Attribute_sequence[] = {
 };
 
 static int
-dissect_pkcs12_PKCS12Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_PKCS12Attribute(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PKCS12Attribute_sequence, hf_index, ett_pkcs12_PKCS12Attribute);
 
@@ -610,7 +610,7 @@ static const ber_sequence_t SET_OF_PKCS12Attribute_set_of[1] = {
 };
 
 static int
-dissect_pkcs12_SET_OF_PKCS12Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_SET_OF_PKCS12Attribute(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  SET_OF_PKCS12Attribute_set_of, hf_index, ett_pkcs12_SET_OF_PKCS12Attribute);
 
@@ -626,7 +626,7 @@ static const ber_sequence_t SafeBag_sequence[] = {
 };
 
 static int
-dissect_pkcs12_SafeBag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_SafeBag(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SafeBag_sequence, hf_index, ett_pkcs12_SafeBag);
 
@@ -639,7 +639,7 @@ static const ber_sequence_t SafeContents_sequence_of[1] = {
 };
 
 static int
-dissect_pkcs12_SafeContents(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_SafeContents(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SafeContents_sequence_of, hf_index, ett_pkcs12_SafeContents);
 
@@ -654,7 +654,7 @@ static const value_string pkcs12_Version_vals[] = {
 
 
 static int
-dissect_pkcs12_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_Version(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -664,7 +664,7 @@ dissect_pkcs12_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static int
-dissect_pkcs12_PrivateKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_PrivateKey(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -677,7 +677,7 @@ static const ber_sequence_t Attributes_set_of[1] = {
 };
 
 static int
-dissect_pkcs12_Attributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_Attributes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  Attributes_set_of, hf_index, ett_pkcs12_Attributes);
 
@@ -694,7 +694,7 @@ static const ber_sequence_t PrivateKeyInfo_sequence[] = {
 };
 
 static int
-dissect_pkcs12_PrivateKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_PrivateKeyInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PrivateKeyInfo_sequence, hf_index, ett_pkcs12_PrivateKeyInfo);
 
@@ -704,7 +704,7 @@ dissect_pkcs12_PrivateKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 static int
-dissect_pkcs12_KeyBag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_KeyBag(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_pkcs12_PrivateKeyInfo(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -713,7 +713,7 @@ dissect_pkcs12_KeyBag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 static int
-dissect_pkcs12_EncryptedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_EncryptedData(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	tvbuff_t *encrypted_tvb;
 	dissector_handle_t dissector_handle;
 
@@ -742,7 +742,7 @@ static const ber_sequence_t EncryptedPrivateKeyInfo_sequence[] = {
 };
 
 static int
-dissect_pkcs12_EncryptedPrivateKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_EncryptedPrivateKeyInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EncryptedPrivateKeyInfo_sequence, hf_index, ett_pkcs12_EncryptedPrivateKeyInfo);
 
@@ -752,7 +752,7 @@ dissect_pkcs12_EncryptedPrivateKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 
 static int
-dissect_pkcs12_PKCS8ShroudedKeyBag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_PKCS8ShroudedKeyBag(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_pkcs12_EncryptedPrivateKeyInfo(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -761,7 +761,7 @@ dissect_pkcs12_PKCS8ShroudedKeyBag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 static int
-dissect_pkcs12_T_certId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_T_certId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
   append_oid(actx->pinfo->pool, tree, object_identifier_id);
@@ -771,7 +771,7 @@ dissect_pkcs12_T_certId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static int
-dissect_pkcs12_T_certValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_T_certValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -787,7 +787,7 @@ static const ber_sequence_t CertBag_sequence[] = {
 };
 
 static int
-dissect_pkcs12_CertBag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_CertBag(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CertBag_sequence, hf_index, ett_pkcs12_CertBag);
 
@@ -797,7 +797,7 @@ dissect_pkcs12_CertBag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static int
-dissect_pkcs12_T_crlId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_T_crlId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
   append_oid(actx->pinfo->pool, tree, object_identifier_id);
@@ -807,7 +807,7 @@ dissect_pkcs12_T_crlId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static int
-dissect_pkcs12_T_crlValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_T_crlValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -823,7 +823,7 @@ static const ber_sequence_t CRLBag_sequence[] = {
 };
 
 static int
-dissect_pkcs12_CRLBag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_CRLBag(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CRLBag_sequence, hf_index, ett_pkcs12_CRLBag);
 
@@ -833,7 +833,7 @@ dissect_pkcs12_CRLBag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 static int
-dissect_pkcs12_T_secretTypeId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_T_secretTypeId(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &object_identifier_id);
 
   append_oid(actx->pinfo->pool, tree, object_identifier_id);
@@ -843,7 +843,7 @@ dissect_pkcs12_T_secretTypeId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 static int
-dissect_pkcs12_T_secretValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_T_secretValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -859,7 +859,7 @@ static const ber_sequence_t SecretBag_sequence[] = {
 };
 
 static int
-dissect_pkcs12_SecretBag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_SecretBag(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SecretBag_sequence, hf_index, ett_pkcs12_SecretBag);
 
@@ -874,7 +874,7 @@ static const ber_sequence_t PBEParameter_sequence[] = {
 };
 
 static int
-dissect_pkcs12_PBEParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_PBEParameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	/* initialise the encryption parameters */
 	PBE_reset_parameters();
 
@@ -898,7 +898,7 @@ static const ber_choice_t T_saltChoice_choice[] = {
 };
 
 static int
-dissect_pkcs12_T_saltChoice(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_T_saltChoice(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  T_saltChoice_choice, hf_index, ett_pkcs12_T_saltChoice,
                                  NULL);
@@ -909,7 +909,7 @@ dissect_pkcs12_T_saltChoice(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 static int
-dissect_pkcs12_INTEGER_1_MAX(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_INTEGER_1_MAX(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -926,7 +926,7 @@ static const ber_sequence_t PBKDF2Params_sequence[] = {
 };
 
 static int
-dissect_pkcs12_PBKDF2Params(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_PBKDF2Params(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PBKDF2Params_sequence, hf_index, ett_pkcs12_PBKDF2Params);
 
@@ -941,7 +941,7 @@ static const ber_sequence_t PBES2Params_sequence[] = {
 };
 
 static int
-dissect_pkcs12_PBES2Params(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_PBES2Params(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PBES2Params_sequence, hf_index, ett_pkcs12_PBES2Params);
 
@@ -956,7 +956,7 @@ static const ber_sequence_t PBMAC1Params_sequence[] = {
 };
 
 static int
-dissect_pkcs12_PBMAC1Params(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_pkcs12_PBMAC1Params(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PBMAC1Params_sequence, hf_index, ett_pkcs12_PBMAC1Params);
 
@@ -1061,7 +1061,7 @@ static int dissect_PBMAC1Params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 static int strip_octet_string(tvbuff_t *tvb)
 {
   gint8 ber_class;
-  gboolean pc, ind;
+  bool pc, ind;
   gint32 tag;
   guint32 len;
   int offset = 0;

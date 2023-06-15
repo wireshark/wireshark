@@ -89,7 +89,7 @@ static tvbuff_t* snmp_usm_priv_aes128(snmp_usm_params_t*, tvbuff_t*, packet_info
 static tvbuff_t* snmp_usm_priv_aes192(snmp_usm_params_t*, tvbuff_t*, packet_info *pinfo, gchar const**);
 static tvbuff_t* snmp_usm_priv_aes256(snmp_usm_params_t*, tvbuff_t*, packet_info *pinfo, gchar const**);
 
-static gboolean snmp_usm_auth(const packet_info *pinfo, const snmp_usm_auth_model_t model, snmp_usm_params_t* p, guint8**, guint*, gchar const**);
+static bool snmp_usm_auth(const packet_info *pinfo, const snmp_usm_auth_model_t model, snmp_usm_params_t* p, guint8**, guint*, gchar const**);
 
 static const value_string auth_types[] = {
 	{SNMP_USM_AUTH_MD5,"MD5"},
@@ -638,15 +638,15 @@ dissect_snmp_variable_date_and_time(proto_tree *tree, packet_info *pinfo, int hf
  */
 
 static int
-dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
+dissect_snmp_VarBind(bool implicit_tag _U_, tvbuff_t *tvb, int offset,
 		     asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_)
 {
 	int seq_offset, name_offset, value_offset, value_start;
 	guint32 seq_len, name_len, value_len;
 	gint8 ber_class;
-	gboolean pc;
+	bool pc;
 	gint32 tag;
-	gboolean ind;
+	bool ind;
 	guint32* subids;
 	guint8* oid_bytes;
 	oid_info_t* oid_info = NULL;
@@ -659,7 +659,7 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 	char* valstr;
 	int hfid = -1;
 	int min_len = 0, max_len = 0;
-	gboolean oid_info_is_ok;
+	bool oid_info_is_ok;
 	const char* oid_string = NULL;
 	enum {BER_NO_ERROR, BER_WRONG_LENGTH, BER_WRONG_TAG} format_error = BER_NO_ERROR;
 
@@ -1669,7 +1669,7 @@ get_user_assoc(tvbuff_t* engine_tvb, tvbuff_t* user_tvb, packet_info *pinfo)
 	return NULL;
 }
 
-static gboolean
+static bool
 snmp_usm_auth(const packet_info *pinfo, const snmp_usm_auth_model_t model, snmp_usm_params_t* p, guint8** calc_auth_p,
 	guint* calc_auth_len_p, gchar const** error)
 {
@@ -1890,7 +1890,7 @@ check_ScopedPdu(tvbuff_t* tvb)
 {
 	int offset;
 	gint8 ber_class;
-	gboolean pc;
+	bool pc;
 	gint32 tag;
 	int hoffset, eoffset;
 	guint32 len;
@@ -1956,7 +1956,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	guint length_remaining;
 	gint8 ber_class;
-	gboolean pc, ind = 0;
+	bool pc, ind = 0;
 	gint32 tag;
 	guint32 len;
 	guint message_length;
@@ -2122,10 +2122,10 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
 	int offset;
 	gint8 tmp_class;
-	gboolean tmp_pc;
+	bool tmp_pc;
 	gint32 tmp_tag;
 	guint32 tmp_length;
-	gboolean tmp_ind;
+	bool tmp_ind;
 
 	/*
 	 * See if this looks like SNMP or not. if not, return 0 so

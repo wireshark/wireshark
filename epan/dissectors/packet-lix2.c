@@ -981,7 +981,7 @@ static gint ett_lix2_HorizontalWithVerticalVelocityAndUncertainty = -1;
 
 
 static int
-dissect_lix2_RELATIVE_OID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_RELATIVE_OID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_relative_oid(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -998,7 +998,7 @@ static const value_string lix2_AMFRegistrationType_vals[] = {
 
 
 static int
-dissect_lix2_AMFRegistrationType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AMFRegistrationType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -1015,7 +1015,7 @@ static const value_string lix2_AMFRegistrationResult_vals[] = {
 
 
 static int
-dissect_lix2_AMFRegistrationResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AMFRegistrationResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -1025,7 +1025,7 @@ dissect_lix2_AMFRegistrationResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 static int
-dissect_lix2_INTEGER_0_255(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_INTEGER_0_255(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -1035,7 +1035,7 @@ dissect_lix2_INTEGER_0_255(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 static int
-dissect_lix2_OCTET_STRING_SIZE_3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_OCTET_STRING_SIZE_3(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -1050,7 +1050,7 @@ static const ber_sequence_t SNSSAI_sequence[] = {
 };
 
 static int
-dissect_lix2_SNSSAI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SNSSAI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SNSSAI_sequence, hf_index, ett_lix2_SNSSAI);
 
@@ -1063,7 +1063,7 @@ static const ber_sequence_t NSSAI_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_NSSAI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NSSAI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       NSSAI_sequence_of, hf_index, ett_lix2_NSSAI);
 
@@ -1073,7 +1073,7 @@ dissect_lix2_NSSAI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static int
-dissect_lix2_RejectedSliceCauseValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_RejectedSliceCauseValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -1088,7 +1088,7 @@ static const ber_sequence_t RejectedSNSSAI_sequence[] = {
 };
 
 static int
-dissect_lix2_RejectedSNSSAI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_RejectedSNSSAI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    RejectedSNSSAI_sequence, hf_index, ett_lix2_RejectedSNSSAI);
 
@@ -1101,7 +1101,7 @@ static const ber_sequence_t RejectedNSSAI_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_RejectedNSSAI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_RejectedNSSAI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       RejectedNSSAI_sequence_of, hf_index, ett_lix2_RejectedNSSAI);
 
@@ -1117,7 +1117,7 @@ static const ber_sequence_t Slice_sequence[] = {
 };
 
 static int
-dissect_lix2_Slice(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_Slice(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Slice_sequence, hf_index, ett_lix2_Slice);
 
@@ -1127,7 +1127,7 @@ dissect_lix2_Slice(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static int
-dissect_lix2_IMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_IMSI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -1138,7 +1138,7 @@ dissect_lix2_IMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 
 static int
-dissect_lix2_NAI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NAI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -1160,7 +1160,7 @@ static const ber_choice_t SUPI_choice[] = {
 };
 
 static int
-dissect_lix2_SUPI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SUPI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  SUPI_choice, hf_index, ett_lix2_SUPI,
                                  NULL);
@@ -1171,7 +1171,7 @@ dissect_lix2_SUPI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 
 static int
-dissect_lix2_MCC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MCC(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -1182,7 +1182,7 @@ dissect_lix2_MCC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 static int
-dissect_lix2_MNC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MNC(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -1193,7 +1193,7 @@ dissect_lix2_MNC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 static int
-dissect_lix2_RoutingIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_RoutingIndicator(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -1203,7 +1203,7 @@ dissect_lix2_RoutingIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 static int
-dissect_lix2_ProtectionSchemeID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_ProtectionSchemeID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -1213,7 +1213,7 @@ dissect_lix2_ProtectionSchemeID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 static int
-dissect_lix2_HomeNetworkPublicKeyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_HomeNetworkPublicKeyID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -1223,7 +1223,7 @@ dissect_lix2_HomeNetworkPublicKeyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static int
-dissect_lix2_SchemeOutput(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SchemeOutput(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -1242,7 +1242,7 @@ static const ber_sequence_t SUCI_sequence[] = {
 };
 
 static int
-dissect_lix2_SUCI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SUCI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SUCI_sequence, hf_index, ett_lix2_SUCI);
 
@@ -1252,7 +1252,7 @@ dissect_lix2_SUCI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 
 static int
-dissect_lix2_IMEI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_IMEI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -1263,7 +1263,7 @@ dissect_lix2_IMEI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 
 static int
-dissect_lix2_IMEISV(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_IMEISV(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -1285,7 +1285,7 @@ static const ber_choice_t PEI_choice[] = {
 };
 
 static int
-dissect_lix2_PEI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PEI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  PEI_choice, hf_index, ett_lix2_PEI,
                                  NULL);
@@ -1296,7 +1296,7 @@ dissect_lix2_PEI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 static int
-dissect_lix2_MSISDN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MSISDN(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -1318,7 +1318,7 @@ static const ber_choice_t GPSI_choice[] = {
 };
 
 static int
-dissect_lix2_GPSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_GPSI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  GPSI_choice, hf_index, ett_lix2_GPSI,
                                  NULL);
@@ -1329,7 +1329,7 @@ dissect_lix2_GPSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 
 static int
-dissect_lix2_AMFRegionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AMFRegionID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -1339,7 +1339,7 @@ dissect_lix2_AMFRegionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 static int
-dissect_lix2_AMFSetID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AMFSetID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -1349,7 +1349,7 @@ dissect_lix2_AMFSetID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 static int
-dissect_lix2_AMFPointer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AMFPointer(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -1359,7 +1359,7 @@ dissect_lix2_AMFPointer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static int
-dissect_lix2_FiveGTMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_FiveGTMSI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -1378,7 +1378,7 @@ static const ber_sequence_t FiveGGUTI_sequence[] = {
 };
 
 static int
-dissect_lix2_FiveGGUTI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_FiveGGUTI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    FiveGGUTI_sequence, hf_index, ett_lix2_FiveGGUTI);
 
@@ -1393,7 +1393,7 @@ static const ber_sequence_t PLMNID_sequence[] = {
 };
 
 static int
-dissect_lix2_PLMNID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PLMNID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PLMNID_sequence, hf_index, ett_lix2_PLMNID);
 
@@ -1403,7 +1403,7 @@ dissect_lix2_PLMNID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 
 static int
-dissect_lix2_TAC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_TAC(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -1413,7 +1413,7 @@ dissect_lix2_TAC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 static int
-dissect_lix2_NID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -1430,7 +1430,7 @@ static const ber_sequence_t TAI_sequence[] = {
 };
 
 static int
-dissect_lix2_TAI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_TAI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TAI_sequence, hf_index, ett_lix2_TAI);
 
@@ -1440,7 +1440,7 @@ dissect_lix2_TAI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 static int
-dissect_lix2_EUTRACellID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_EUTRACellID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, 0, hf_index, -1,
                                     NULL);
@@ -1457,7 +1457,7 @@ static const ber_sequence_t ECGI_sequence[] = {
 };
 
 static int
-dissect_lix2_ECGI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_ECGI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ECGI_sequence, hf_index, ett_lix2_ECGI);
 
@@ -1467,7 +1467,7 @@ dissect_lix2_ECGI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 
 static int
-dissect_lix2_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_INTEGER(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -1477,7 +1477,7 @@ dissect_lix2_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 static int
-dissect_lix2_Timestamp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_Timestamp(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_GeneralizedTime(implicit_tag, actx, tree, tvb, offset, hf_index);
 
   return offset;
@@ -1486,7 +1486,7 @@ dissect_lix2_Timestamp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static int
-dissect_lix2_UTF8String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_UTF8String(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -1497,7 +1497,7 @@ dissect_lix2_UTF8String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static int
-dissect_lix2_N3IWFIDSBI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_N3IWFIDSBI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -1508,7 +1508,7 @@ dissect_lix2_N3IWFIDSBI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static int
-dissect_lix2_GNbID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_GNbID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, 0, hf_index, -1,
                                     NULL);
@@ -1519,7 +1519,7 @@ dissect_lix2_GNbID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static int
-dissect_lix2_BIT_STRING_SIZE_20(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_BIT_STRING_SIZE_20(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, 0, hf_index, -1,
                                     NULL);
@@ -1530,7 +1530,7 @@ dissect_lix2_BIT_STRING_SIZE_20(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 static int
-dissect_lix2_BIT_STRING_SIZE_18(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_BIT_STRING_SIZE_18(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, 0, hf_index, -1,
                                     NULL);
@@ -1541,7 +1541,7 @@ dissect_lix2_BIT_STRING_SIZE_18(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 static int
-dissect_lix2_BIT_STRING_SIZE_21(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_BIT_STRING_SIZE_21(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, 0, hf_index, -1,
                                     NULL);
@@ -1565,7 +1565,7 @@ static const ber_choice_t NGENbID_choice[] = {
 };
 
 static int
-dissect_lix2_NGENbID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NGENbID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  NGENbID_choice, hf_index, ett_lix2_NGENbID,
                                  NULL);
@@ -1576,7 +1576,7 @@ dissect_lix2_NGENbID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 static int
-dissect_lix2_BIT_STRING_SIZE_28(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_BIT_STRING_SIZE_28(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, 0, hf_index, -1,
                                     NULL);
@@ -1602,7 +1602,7 @@ static const ber_choice_t ENbID_choice[] = {
 };
 
 static int
-dissect_lix2_ENbID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_ENbID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ENbID_choice, hf_index, ett_lix2_ENbID,
                                  NULL);
@@ -1613,7 +1613,7 @@ dissect_lix2_ENbID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static int
-dissect_lix2_WAGFID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_WAGFID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -1624,7 +1624,7 @@ dissect_lix2_WAGFID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 
 static int
-dissect_lix2_TNGFID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_TNGFID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -1654,7 +1654,7 @@ static const ber_choice_t ANNodeID_choice[] = {
 };
 
 static int
-dissect_lix2_ANNodeID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_ANNodeID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ANNodeID_choice, hf_index, ett_lix2_ANNodeID,
                                  NULL);
@@ -1671,7 +1671,7 @@ static const ber_sequence_t GlobalRANNodeID_sequence[] = {
 };
 
 static int
-dissect_lix2_GlobalRANNodeID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_GlobalRANNodeID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    GlobalRANNodeID_sequence, hf_index, ett_lix2_GlobalRANNodeID);
 
@@ -1681,7 +1681,7 @@ dissect_lix2_GlobalRANNodeID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 
 static int
-dissect_lix2_OGCURN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_OGCURN(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -1698,7 +1698,7 @@ static const ber_sequence_t GeographicalCoordinates_sequence[] = {
 };
 
 static int
-dissect_lix2_GeographicalCoordinates(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_GeographicalCoordinates(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    GeographicalCoordinates_sequence, hf_index, ett_lix2_GeographicalCoordinates);
 
@@ -1708,7 +1708,7 @@ dissect_lix2_GeographicalCoordinates(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
 static int
-dissect_lix2_INTEGER_0_359(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_INTEGER_0_359(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -1724,7 +1724,7 @@ static const ber_sequence_t CellSiteInformation_sequence[] = {
 };
 
 static int
-dissect_lix2_CellSiteInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_CellSiteInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CellSiteInformation_sequence, hf_index, ett_lix2_CellSiteInformation);
 
@@ -1746,7 +1746,7 @@ static const ber_sequence_t EUTRALocation_sequence[] = {
 };
 
 static int
-dissect_lix2_EUTRALocation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_EUTRALocation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EUTRALocation_sequence, hf_index, ett_lix2_EUTRALocation);
 
@@ -1756,7 +1756,7 @@ dissect_lix2_EUTRALocation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 static int
-dissect_lix2_NRCellID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NRCellID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, 0, hf_index, -1,
                                     NULL);
@@ -1773,7 +1773,7 @@ static const ber_sequence_t NCGI_sequence[] = {
 };
 
 static int
-dissect_lix2_NCGI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NCGI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    NCGI_sequence, hf_index, ett_lix2_NCGI);
 
@@ -1794,7 +1794,7 @@ static const ber_sequence_t NRLocation_sequence[] = {
 };
 
 static int
-dissect_lix2_NRLocation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NRLocation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    NRLocation_sequence, hf_index, ett_lix2_NRLocation);
 
@@ -1804,7 +1804,7 @@ dissect_lix2_NRLocation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static int
-dissect_lix2_N3IWFIDNGAP(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_N3IWFIDNGAP(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, 0, hf_index, -1,
                                     NULL);
@@ -1815,7 +1815,7 @@ dissect_lix2_N3IWFIDNGAP(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 static int
-dissect_lix2_IPv4Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_IPv4Address(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -1825,7 +1825,7 @@ dissect_lix2_IPv4Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 static int
-dissect_lix2_IPv6Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_IPv6Address(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -1840,7 +1840,7 @@ static const ber_sequence_t IPAddr_sequence[] = {
 };
 
 static int
-dissect_lix2_IPAddr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_IPAddr(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IPAddr_sequence, hf_index, ett_lix2_IPAddr);
 
@@ -1850,7 +1850,7 @@ dissect_lix2_IPAddr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 
 static int
-dissect_lix2_SSID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SSID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -1861,7 +1861,7 @@ dissect_lix2_SSID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 
 static int
-dissect_lix2_BSSID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_BSSID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -1872,7 +1872,7 @@ dissect_lix2_BSSID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static int
-dissect_lix2_CivicAddressBytes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_CivicAddressBytes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -1888,7 +1888,7 @@ static const ber_sequence_t TNAPID_sequence[] = {
 };
 
 static int
-dissect_lix2_TNAPID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_TNAPID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TNAPID_sequence, hf_index, ett_lix2_TNAPID);
 
@@ -1904,7 +1904,7 @@ static const ber_sequence_t TWAPID_sequence[] = {
 };
 
 static int
-dissect_lix2_TWAPID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_TWAPID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    TWAPID_sequence, hf_index, ett_lix2_TWAPID);
 
@@ -1914,7 +1914,7 @@ dissect_lix2_TWAPID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 
 static int
-dissect_lix2_HFCNodeID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_HFCNodeID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -1925,7 +1925,7 @@ dissect_lix2_HFCNodeID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static int
-dissect_lix2_GLI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_GLI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -1941,7 +1941,7 @@ static const value_string lix2_W5GBANLineType_vals[] = {
 
 
 static int
-dissect_lix2_W5GBANLineType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_W5GBANLineType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -1951,7 +1951,7 @@ dissect_lix2_W5GBANLineType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 static int
-dissect_lix2_GCI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_GCI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -1975,7 +1975,7 @@ static const ber_sequence_t N3GALocation_sequence[] = {
 };
 
 static int
-dissect_lix2_N3GALocation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_N3GALocation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    N3GALocation_sequence, hf_index, ett_lix2_N3GALocation);
 
@@ -1991,7 +1991,7 @@ static const ber_sequence_t UserLocation_sequence[] = {
 };
 
 static int
-dissect_lix2_UserLocation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_UserLocation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    UserLocation_sequence, hf_index, ett_lix2_UserLocation);
 
@@ -2001,7 +2001,7 @@ dissect_lix2_UserLocation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 
 static int
-dissect_lix2_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_BOOLEAN(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -2014,7 +2014,7 @@ static const ber_sequence_t Point_sequence[] = {
 };
 
 static int
-dissect_lix2_Point(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_Point(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Point_sequence, hf_index, ett_lix2_Point);
 
@@ -2024,7 +2024,7 @@ dissect_lix2_Point(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static int
-dissect_lix2_Uncertainty(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_Uncertainty(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -2039,7 +2039,7 @@ static const ber_sequence_t PointUncertaintyCircle_sequence[] = {
 };
 
 static int
-dissect_lix2_PointUncertaintyCircle(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PointUncertaintyCircle(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PointUncertaintyCircle_sequence, hf_index, ett_lix2_PointUncertaintyCircle);
 
@@ -2049,7 +2049,7 @@ dissect_lix2_PointUncertaintyCircle(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static int
-dissect_lix2_Orientation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_Orientation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -2065,7 +2065,7 @@ static const ber_sequence_t UncertaintyEllipse_sequence[] = {
 };
 
 static int
-dissect_lix2_UncertaintyEllipse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_UncertaintyEllipse(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    UncertaintyEllipse_sequence, hf_index, ett_lix2_UncertaintyEllipse);
 
@@ -2075,7 +2075,7 @@ dissect_lix2_UncertaintyEllipse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 static int
-dissect_lix2_Confidence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_Confidence(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -2091,7 +2091,7 @@ static const ber_sequence_t PointUncertaintyEllipse_sequence[] = {
 };
 
 static int
-dissect_lix2_PointUncertaintyEllipse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PointUncertaintyEllipse(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PointUncertaintyEllipse_sequence, hf_index, ett_lix2_PointUncertaintyEllipse);
 
@@ -2104,7 +2104,7 @@ static const ber_sequence_t SET_SIZE_3_15_OF_GeographicalCoordinates_set_of[1] =
 };
 
 static int
-dissect_lix2_SET_SIZE_3_15_OF_GeographicalCoordinates(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SET_SIZE_3_15_OF_GeographicalCoordinates(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  SET_SIZE_3_15_OF_GeographicalCoordinates_set_of, hf_index, ett_lix2_SET_SIZE_3_15_OF_GeographicalCoordinates);
 
@@ -2118,7 +2118,7 @@ static const ber_sequence_t Polygon_sequence[] = {
 };
 
 static int
-dissect_lix2_Polygon(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_Polygon(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Polygon_sequence, hf_index, ett_lix2_Polygon);
 
@@ -2128,7 +2128,7 @@ dissect_lix2_Polygon(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 static int
-dissect_lix2_Altitude(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_Altitude(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -2144,7 +2144,7 @@ static const ber_sequence_t PointAltitude_sequence[] = {
 };
 
 static int
-dissect_lix2_PointAltitude(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PointAltitude(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PointAltitude_sequence, hf_index, ett_lix2_PointAltitude);
 
@@ -2162,7 +2162,7 @@ static const ber_sequence_t PointAltitudeUncertainty_sequence[] = {
 };
 
 static int
-dissect_lix2_PointAltitudeUncertainty(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PointAltitudeUncertainty(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PointAltitudeUncertainty_sequence, hf_index, ett_lix2_PointAltitudeUncertainty);
 
@@ -2172,7 +2172,7 @@ dissect_lix2_PointAltitudeUncertainty(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 
 static int
-dissect_lix2_InnerRadius(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_InnerRadius(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -2182,7 +2182,7 @@ dissect_lix2_InnerRadius(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 static int
-dissect_lix2_Angle(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_Angle(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -2201,7 +2201,7 @@ static const ber_sequence_t EllipsoidArc_sequence[] = {
 };
 
 static int
-dissect_lix2_EllipsoidArc(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_EllipsoidArc(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EllipsoidArc_sequence, hf_index, ett_lix2_EllipsoidArc);
 
@@ -2232,7 +2232,7 @@ static const ber_choice_t GeographicArea_choice[] = {
 };
 
 static int
-dissect_lix2_GeographicArea(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_GeographicArea(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  GeographicArea_choice, hf_index, ett_lix2_GeographicArea,
                                  NULL);
@@ -2262,7 +2262,7 @@ static const value_string lix2_RATType_vals[] = {
 
 
 static int
-dissect_lix2_RATType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_RATType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -2272,7 +2272,7 @@ dissect_lix2_RATType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 static int
-dissect_lix2_TimeZone(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_TimeZone(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -2294,7 +2294,7 @@ static const ber_choice_t RANCGI_choice[] = {
 };
 
 static int
-dissect_lix2_RANCGI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_RANCGI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  RANCGI_choice, hf_index, ett_lix2_RANCGI,
                                  NULL);
@@ -2311,7 +2311,7 @@ static const ber_sequence_t CellInformation_sequence[] = {
 };
 
 static int
-dissect_lix2_CellInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_CellInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CellInformation_sequence, hf_index, ett_lix2_CellInformation);
 
@@ -2324,7 +2324,7 @@ static const ber_sequence_t SEQUENCE_OF_CellInformation_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_SEQUENCE_OF_CellInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SEQUENCE_OF_CellInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_CellInformation_sequence_of, hf_index, ett_lix2_SEQUENCE_OF_CellInformation);
 
@@ -2343,7 +2343,7 @@ static const ber_sequence_t LocationInfo_sequence[] = {
 };
 
 static int
-dissect_lix2_LocationInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_LocationInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    LocationInfo_sequence, hf_index, ett_lix2_LocationInfo);
 
@@ -2359,7 +2359,7 @@ static const value_string lix2_AccuracyFulfilmentIndicator_vals[] = {
 
 
 static int
-dissect_lix2_AccuracyFulfilmentIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AccuracyFulfilmentIndicator(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -2369,7 +2369,7 @@ dissect_lix2_AccuracyFulfilmentIndicator(gboolean implicit_tag _U_, tvbuff_t *tv
 
 
 static int
-dissect_lix2_AgeOfLocationEstimate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AgeOfLocationEstimate(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -2379,7 +2379,7 @@ dissect_lix2_AgeOfLocationEstimate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 static int
-dissect_lix2_HorizontalSpeed(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_HorizontalSpeed(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -2395,7 +2395,7 @@ static const ber_sequence_t HorizontalVelocity_sequence[] = {
 };
 
 static int
-dissect_lix2_HorizontalVelocity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_HorizontalVelocity(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    HorizontalVelocity_sequence, hf_index, ett_lix2_HorizontalVelocity);
 
@@ -2405,7 +2405,7 @@ dissect_lix2_HorizontalVelocity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 static int
-dissect_lix2_VerticalSpeed(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_VerticalSpeed(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -2422,7 +2422,7 @@ static const value_string lix2_VerticalDirection_vals[] = {
 
 
 static int
-dissect_lix2_VerticalDirection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_VerticalDirection(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -2439,7 +2439,7 @@ static const ber_sequence_t HorizontalWithVerticalVelocity_sequence[] = {
 };
 
 static int
-dissect_lix2_HorizontalWithVerticalVelocity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_HorizontalWithVerticalVelocity(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    HorizontalWithVerticalVelocity_sequence, hf_index, ett_lix2_HorizontalWithVerticalVelocity);
 
@@ -2449,7 +2449,7 @@ dissect_lix2_HorizontalWithVerticalVelocity(gboolean implicit_tag _U_, tvbuff_t 
 
 
 static int
-dissect_lix2_SpeedUncertainty(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SpeedUncertainty(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -2466,7 +2466,7 @@ static const ber_sequence_t HorizontalVelocityWithUncertainty_sequence[] = {
 };
 
 static int
-dissect_lix2_HorizontalVelocityWithUncertainty(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_HorizontalVelocityWithUncertainty(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    HorizontalVelocityWithUncertainty_sequence, hf_index, ett_lix2_HorizontalVelocityWithUncertainty);
 
@@ -2485,7 +2485,7 @@ static const ber_sequence_t HorizontalWithVerticalVelocityAndUncertainty_sequenc
 };
 
 static int
-dissect_lix2_HorizontalWithVerticalVelocityAndUncertainty(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_HorizontalWithVerticalVelocityAndUncertainty(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    HorizontalWithVerticalVelocityAndUncertainty_sequence, hf_index, ett_lix2_HorizontalWithVerticalVelocityAndUncertainty);
 
@@ -2510,7 +2510,7 @@ static const ber_choice_t VelocityEstimate_choice[] = {
 };
 
 static int
-dissect_lix2_VelocityEstimate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_VelocityEstimate(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  VelocityEstimate_choice, hf_index, ett_lix2_VelocityEstimate,
                                  NULL);
@@ -2555,7 +2555,7 @@ static const ber_sequence_t CivicAddress_sequence[] = {
 };
 
 static int
-dissect_lix2_CivicAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_CivicAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CivicAddress_sequence, hf_index, ett_lix2_CivicAddress);
 
@@ -2584,7 +2584,7 @@ static const value_string lix2_PositioningMethod_vals[] = {
 
 
 static int
-dissect_lix2_PositioningMethod(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PositioningMethod(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -2601,7 +2601,7 @@ static const value_string lix2_PositioningMode_vals[] = {
 
 
 static int
-dissect_lix2_PositioningMode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PositioningMode(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -2620,7 +2620,7 @@ static const value_string lix2_Usage_vals[] = {
 
 
 static int
-dissect_lix2_Usage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_Usage(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -2630,7 +2630,7 @@ dissect_lix2_Usage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static int
-dissect_lix2_MethodCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MethodCode(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -2647,7 +2647,7 @@ static const ber_sequence_t PositioningMethodAndUsage_sequence[] = {
 };
 
 static int
-dissect_lix2_PositioningMethodAndUsage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PositioningMethodAndUsage(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PositioningMethodAndUsage_sequence, hf_index, ett_lix2_PositioningMethodAndUsage);
 
@@ -2660,7 +2660,7 @@ static const ber_sequence_t SET_OF_PositioningMethodAndUsage_set_of[1] = {
 };
 
 static int
-dissect_lix2_SET_OF_PositioningMethodAndUsage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SET_OF_PositioningMethodAndUsage(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  SET_OF_PositioningMethodAndUsage_set_of, hf_index, ett_lix2_SET_OF_PositioningMethodAndUsage);
 
@@ -2682,7 +2682,7 @@ static const value_string lix2_GNSSID_vals[] = {
 
 
 static int
-dissect_lix2_GNSSID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_GNSSID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -2698,7 +2698,7 @@ static const ber_sequence_t GNSSPositioningMethodAndUsage_sequence[] = {
 };
 
 static int
-dissect_lix2_GNSSPositioningMethodAndUsage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_GNSSPositioningMethodAndUsage(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    GNSSPositioningMethodAndUsage_sequence, hf_index, ett_lix2_GNSSPositioningMethodAndUsage);
 
@@ -2711,7 +2711,7 @@ static const ber_sequence_t SET_OF_GNSSPositioningMethodAndUsage_set_of[1] = {
 };
 
 static int
-dissect_lix2_SET_OF_GNSSPositioningMethodAndUsage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SET_OF_GNSSPositioningMethodAndUsage(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  SET_OF_GNSSPositioningMethodAndUsage_set_of, hf_index, ett_lix2_SET_OF_GNSSPositioningMethodAndUsage);
 
@@ -2721,7 +2721,7 @@ dissect_lix2_SET_OF_GNSSPositioningMethodAndUsage(gboolean implicit_tag _U_, tvb
 
 
 static int
-dissect_lix2_BarometricPressure(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_BarometricPressure(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -2745,7 +2745,7 @@ static const ber_sequence_t LocationData_sequence[] = {
 };
 
 static int
-dissect_lix2_LocationData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_LocationData(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    LocationData_sequence, hf_index, ett_lix2_LocationData);
 
@@ -2755,7 +2755,7 @@ dissect_lix2_LocationData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 
 static int
-dissect_lix2_INTEGER_1_699(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_INTEGER_1_699(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -2776,7 +2776,7 @@ static const ber_choice_t RawMLPResponse_choice[] = {
 };
 
 static int
-dissect_lix2_RawMLPResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_RawMLPResponse(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  RawMLPResponse_choice, hf_index, ett_lix2_RawMLPResponse,
                                  NULL);
@@ -2792,7 +2792,7 @@ static const ber_sequence_t PositioningInfo_sequence[] = {
 };
 
 static int
-dissect_lix2_PositioningInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PositioningInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PositioningInfo_sequence, hf_index, ett_lix2_PositioningInfo);
 
@@ -2808,7 +2808,7 @@ static const value_string lix2_AMFEventType_vals[] = {
 
 
 static int
-dissect_lix2_AMFEventType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AMFEventType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -2826,7 +2826,7 @@ static const value_string lix2_PresenceState_vals[] = {
 
 
 static int
-dissect_lix2_PresenceState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PresenceState(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -2839,7 +2839,7 @@ static const ber_sequence_t SET_OF_TAI_set_of[1] = {
 };
 
 static int
-dissect_lix2_SET_OF_TAI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SET_OF_TAI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  SET_OF_TAI_set_of, hf_index, ett_lix2_SET_OF_TAI);
 
@@ -2852,7 +2852,7 @@ static const ber_sequence_t SET_OF_ECGI_set_of[1] = {
 };
 
 static int
-dissect_lix2_SET_OF_ECGI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SET_OF_ECGI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  SET_OF_ECGI_set_of, hf_index, ett_lix2_SET_OF_ECGI);
 
@@ -2865,7 +2865,7 @@ static const ber_sequence_t SET_OF_NCGI_set_of[1] = {
 };
 
 static int
-dissect_lix2_SET_OF_NCGI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SET_OF_NCGI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  SET_OF_NCGI_set_of, hf_index, ett_lix2_SET_OF_NCGI);
 
@@ -2878,7 +2878,7 @@ static const ber_sequence_t SET_OF_GlobalRANNodeID_set_of[1] = {
 };
 
 static int
-dissect_lix2_SET_OF_GlobalRANNodeID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SET_OF_GlobalRANNodeID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  SET_OF_GlobalRANNodeID_set_of, hf_index, ett_lix2_SET_OF_GlobalRANNodeID);
 
@@ -2897,7 +2897,7 @@ static const ber_sequence_t PresenceInfo_sequence[] = {
 };
 
 static int
-dissect_lix2_PresenceInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PresenceInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PresenceInfo_sequence, hf_index, ett_lix2_PresenceInfo);
 
@@ -2912,7 +2912,7 @@ static const ber_sequence_t LADNInfo_sequence[] = {
 };
 
 static int
-dissect_lix2_LADNInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_LADNInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    LADNInfo_sequence, hf_index, ett_lix2_LADNInfo);
 
@@ -2927,7 +2927,7 @@ static const ber_sequence_t AMFEventArea_sequence[] = {
 };
 
 static int
-dissect_lix2_AMFEventArea(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AMFEventArea(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AMFEventArea_sequence, hf_index, ett_lix2_AMFEventArea);
 
@@ -2940,7 +2940,7 @@ static const ber_sequence_t SET_OF_AMFEventArea_set_of[1] = {
 };
 
 static int
-dissect_lix2_SET_OF_AMFEventArea(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SET_OF_AMFEventArea(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  SET_OF_AMFEventArea_set_of, hf_index, ett_lix2_SET_OF_AMFEventArea);
 
@@ -2957,7 +2957,7 @@ static const value_string lix2_AccessType_vals[] = {
 
 
 static int
-dissect_lix2_AccessType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AccessType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -2970,7 +2970,7 @@ static const ber_sequence_t SET_OF_AccessType_set_of[1] = {
 };
 
 static int
-dissect_lix2_SET_OF_AccessType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SET_OF_AccessType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  SET_OF_AccessType_set_of, hf_index, ett_lix2_SET_OF_AccessType);
 
@@ -2986,7 +2986,7 @@ static const value_string lix2_RMState_vals[] = {
 
 
 static int
-dissect_lix2_RMState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_RMState(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -3001,7 +3001,7 @@ static const ber_sequence_t RMInfo_sequence[] = {
 };
 
 static int
-dissect_lix2_RMInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_RMInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    RMInfo_sequence, hf_index, ett_lix2_RMInfo);
 
@@ -3014,7 +3014,7 @@ static const ber_sequence_t SET_OF_RMInfo_set_of[1] = {
 };
 
 static int
-dissect_lix2_SET_OF_RMInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SET_OF_RMInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  SET_OF_RMInfo_set_of, hf_index, ett_lix2_SET_OF_RMInfo);
 
@@ -3030,7 +3030,7 @@ static const value_string lix2_CMState_vals[] = {
 
 
 static int
-dissect_lix2_CMState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_CMState(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -3045,7 +3045,7 @@ static const ber_sequence_t CMInfo_sequence[] = {
 };
 
 static int
-dissect_lix2_CMInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_CMInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CMInfo_sequence, hf_index, ett_lix2_CMInfo);
 
@@ -3058,7 +3058,7 @@ static const ber_sequence_t SET_OF_CMInfo_set_of[1] = {
 };
 
 static int
-dissect_lix2_SET_OF_CMInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SET_OF_CMInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_set_of(implicit_tag, actx, tree, tvb, offset,
                                  SET_OF_CMInfo_set_of, hf_index, ett_lix2_SET_OF_CMInfo);
 
@@ -3075,7 +3075,7 @@ static const value_string lix2_UEReachability_vals[] = {
 
 
 static int
-dissect_lix2_UEReachability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_UEReachability(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -3098,7 +3098,7 @@ static const ber_sequence_t LocationPresenceReport_sequence[] = {
 };
 
 static int
-dissect_lix2_LocationPresenceReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_LocationPresenceReport(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    LocationPresenceReport_sequence, hf_index, ett_lix2_LocationPresenceReport);
 
@@ -3108,7 +3108,7 @@ dissect_lix2_LocationPresenceReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static int
-dissect_lix2_LAC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_LAC(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -3123,7 +3123,7 @@ static const ber_sequence_t LAI_sequence[] = {
 };
 
 static int
-dissect_lix2_LAI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_LAI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    LAI_sequence, hf_index, ett_lix2_LAI);
 
@@ -3133,7 +3133,7 @@ dissect_lix2_LAI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 static int
-dissect_lix2_CellID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_CellID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -3148,7 +3148,7 @@ static const ber_sequence_t CGI_sequence[] = {
 };
 
 static int
-dissect_lix2_CGI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_CGI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CGI_sequence, hf_index, ett_lix2_CGI);
 
@@ -3158,7 +3158,7 @@ dissect_lix2_CGI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 static int
-dissect_lix2_SAC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SAC(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -3174,7 +3174,7 @@ static const ber_sequence_t SAI_sequence[] = {
 };
 
 static int
-dissect_lix2_SAI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SAI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SAI_sequence, hf_index, ett_lix2_SAI);
 
@@ -3184,7 +3184,7 @@ dissect_lix2_SAI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 static int
-dissect_lix2_CellPortionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_CellPortionID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -3199,7 +3199,7 @@ static const ber_sequence_t ESMLCCellInfo_sequence[] = {
 };
 
 static int
-dissect_lix2_ESMLCCellInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_ESMLCCellInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ESMLCCellInfo_sequence, hf_index, ett_lix2_ESMLCCellInfo);
 
@@ -3216,7 +3216,7 @@ static const ber_sequence_t EPSLocationInfo_sequence[] = {
 };
 
 static int
-dissect_lix2_EPSLocationInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_EPSLocationInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EPSLocationInfo_sequence, hf_index, ett_lix2_EPSLocationInfo);
 
@@ -3233,7 +3233,7 @@ static const ber_sequence_t Location_sequence[] = {
 };
 
 static int
-dissect_lix2_Location(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_Location(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Location_sequence, hf_index, ett_lix2_Location);
 
@@ -3243,7 +3243,7 @@ dissect_lix2_Location(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 static int
-dissect_lix2_MACAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MACAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -3266,7 +3266,7 @@ static const ber_choice_t UEEndpointAddress_choice[] = {
 };
 
 static int
-dissect_lix2_UEEndpointAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_UEEndpointAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  UEEndpointAddress_choice, hf_index, ett_lix2_UEEndpointAddress,
                                  NULL);
@@ -3280,7 +3280,7 @@ static const ber_sequence_t TAIList_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_TAIList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_TAIList(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       TAIList_sequence_of, hf_index, ett_lix2_TAIList);
 
@@ -3296,7 +3296,7 @@ static const value_string lix2_SMSOverNASIndicator_vals[] = {
 
 
 static int
-dissect_lix2_SMSOverNASIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMSOverNASIndicator(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -3306,7 +3306,7 @@ dissect_lix2_SMSOverNASIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 
 static int
-dissect_lix2_MMEGroupID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMEGroupID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -3316,7 +3316,7 @@ dissect_lix2_MMEGroupID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static int
-dissect_lix2_MMECode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMECode(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -3326,7 +3326,7 @@ dissect_lix2_MMECode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 static int
-dissect_lix2_TMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_TMSI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -3344,7 +3344,7 @@ static const ber_sequence_t GUTI_sequence[] = {
 };
 
 static int
-dissect_lix2_GUTI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_GUTI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    GUTI_sequence, hf_index, ett_lix2_GUTI);
 
@@ -3365,7 +3365,7 @@ static const ber_choice_t EPS5GGUTI_choice[] = {
 };
 
 static int
-dissect_lix2_EPS5GGUTI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_EPS5GGUTI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  EPS5GGUTI_choice, hf_index, ett_lix2_EPS5GGUTI,
                                  NULL);
@@ -3382,7 +3382,7 @@ static const value_string lix2_EMMRegStatus_vals[] = {
 
 
 static int
-dissect_lix2_EMMRegStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_EMMRegStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -3398,7 +3398,7 @@ static const value_string lix2_FiveGMMStatus_vals[] = {
 
 
 static int
-dissect_lix2_FiveGMMStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_FiveGMMStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -3413,7 +3413,7 @@ static const ber_sequence_t EMM5GMMStatus_sequence[] = {
 };
 
 static int
-dissect_lix2_EMM5GMMStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_EMM5GMMStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EMM5GMMStatus_sequence, hf_index, ett_lix2_EMM5GMMStatus);
 
@@ -3440,7 +3440,7 @@ static const ber_sequence_t AMFRegistration_sequence[] = {
 };
 
 static int
-dissect_lix2_AMFRegistration(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AMFRegistration(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AMFRegistration_sequence, hf_index, ett_lix2_AMFRegistration);
 
@@ -3456,7 +3456,7 @@ static const value_string lix2_AMFDirection_vals[] = {
 
 
 static int
-dissect_lix2_AMFDirection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AMFDirection(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -3466,7 +3466,7 @@ dissect_lix2_AMFDirection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 
 static int
-dissect_lix2_FiveGMMCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_FiveGMMCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -3482,7 +3482,7 @@ static const value_string lix2_SwitchOffIndicator_vals[] = {
 
 
 static int
-dissect_lix2_SwitchOffIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SwitchOffIndicator(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -3498,7 +3498,7 @@ static const value_string lix2_ReRegRequiredIndicator_vals[] = {
 
 
 static int
-dissect_lix2_ReRegRequiredIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_ReRegRequiredIndicator(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -3522,7 +3522,7 @@ static const ber_sequence_t AMFDeregistration_sequence[] = {
 };
 
 static int
-dissect_lix2_AMFDeregistration(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AMFDeregistration(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AMFDeregistration_sequence, hf_index, ett_lix2_AMFDeregistration);
 
@@ -3543,7 +3543,7 @@ static const ber_sequence_t AMFLocationUpdate_sequence[] = {
 };
 
 static int
-dissect_lix2_AMFLocationUpdate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AMFLocationUpdate(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AMFLocationUpdate_sequence, hf_index, ett_lix2_AMFLocationUpdate);
 
@@ -3571,7 +3571,7 @@ static const ber_sequence_t AMFStartOfInterceptionWithRegisteredUE_sequence[] = 
 };
 
 static int
-dissect_lix2_AMFStartOfInterceptionWithRegisteredUE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AMFStartOfInterceptionWithRegisteredUE(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AMFStartOfInterceptionWithRegisteredUE_sequence, hf_index, ett_lix2_AMFStartOfInterceptionWithRegisteredUE);
 
@@ -3588,7 +3588,7 @@ static const value_string lix2_AMFFailedProcedureType_vals[] = {
 
 
 static int
-dissect_lix2_AMFFailedProcedureType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AMFFailedProcedureType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -3598,7 +3598,7 @@ dissect_lix2_AMFFailedProcedureType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static int
-dissect_lix2_FiveGSMCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_FiveGSMCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -3619,7 +3619,7 @@ static const ber_choice_t AMFFailureCause_choice[] = {
 };
 
 static int
-dissect_lix2_AMFFailureCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AMFFailureCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  AMFFailureCause_choice, hf_index, ett_lix2_AMFFailureCause,
                                  NULL);
@@ -3642,7 +3642,7 @@ static const ber_sequence_t AMFUnsuccessfulProcedure_sequence[] = {
 };
 
 static int
-dissect_lix2_AMFUnsuccessfulProcedure(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AMFUnsuccessfulProcedure(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AMFUnsuccessfulProcedure_sequence, hf_index, ett_lix2_AMFUnsuccessfulProcedure);
 
@@ -3652,7 +3652,7 @@ dissect_lix2_AMFUnsuccessfulProcedure(gboolean implicit_tag _U_, tvbuff_t *tvb _
 
 
 static int
-dissect_lix2_SUPIUnauthenticatedIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SUPIUnauthenticatedIndication(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -3661,7 +3661,7 @@ dissect_lix2_SUPIUnauthenticatedIndication(gboolean implicit_tag _U_, tvbuff_t *
 
 
 static int
-dissect_lix2_PDUSessionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PDUSessionID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -3671,7 +3671,7 @@ dissect_lix2_PDUSessionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 
 static int
-dissect_lix2_INTEGER_0_4294967295(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_INTEGER_0_4294967295(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -3687,7 +3687,7 @@ static const ber_sequence_t FTEID_sequence[] = {
 };
 
 static int
-dissect_lix2_FTEID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_FTEID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    FTEID_sequence, hf_index, ett_lix2_FTEID);
 
@@ -3706,7 +3706,7 @@ static const value_string lix2_PDUSessionType_vals[] = {
 
 
 static int
-dissect_lix2_PDUSessionType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PDUSessionType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -3719,7 +3719,7 @@ static const ber_sequence_t SEQUENCE_OF_UEEndpointAddress_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_SEQUENCE_OF_UEEndpointAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SEQUENCE_OF_UEEndpointAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_UEEndpointAddress_sequence_of, hf_index, ett_lix2_SEQUENCE_OF_UEEndpointAddress);
 
@@ -3729,7 +3729,7 @@ dissect_lix2_SEQUENCE_OF_UEEndpointAddress(gboolean implicit_tag _U_, tvbuff_t *
 
 
 static int
-dissect_lix2_DNN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_DNN(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -3746,7 +3746,7 @@ static const ber_sequence_t AMFID_sequence[] = {
 };
 
 static int
-dissect_lix2_AMFID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AMFID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AMFID_sequence, hf_index, ett_lix2_AMFID);
 
@@ -3756,7 +3756,7 @@ dissect_lix2_AMFID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static int
-dissect_lix2_HSMFURI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_HSMFURI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -3778,7 +3778,7 @@ static const value_string lix2_FiveGSMRequestType_vals[] = {
 
 
 static int
-dissect_lix2_FiveGSMRequestType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_FiveGSMRequestType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -3788,7 +3788,7 @@ dissect_lix2_FiveGSMRequestType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 
 static int
-dissect_lix2_SMPDUDNRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMPDUDNRequest(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -3798,7 +3798,7 @@ dissect_lix2_SMPDUDNRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 static int
-dissect_lix2_UEEPSPDNConnection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_UEEPSPDNConnection(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -3830,7 +3830,7 @@ static const ber_sequence_t SMFPDUSessionEstablishment_sequence[] = {
 };
 
 static int
-dissect_lix2_SMFPDUSessionEstablishment(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMFPDUSessionEstablishment(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SMFPDUSessionEstablishment_sequence, hf_index, ett_lix2_SMFPDUSessionEstablishment);
 
@@ -3854,7 +3854,7 @@ static const ber_sequence_t SMFPDUSessionModification_sequence[] = {
 };
 
 static int
-dissect_lix2_SMFPDUSessionModification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMFPDUSessionModification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SMFPDUSessionModification_sequence, hf_index, ett_lix2_SMFPDUSessionModification);
 
@@ -3864,7 +3864,7 @@ dissect_lix2_SMFPDUSessionModification(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 
 static int
-dissect_lix2_SMFErrorCodes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMFErrorCodes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -3888,7 +3888,7 @@ static const ber_sequence_t SMFPDUSessionRelease_sequence[] = {
 };
 
 static int
-dissect_lix2_SMFPDUSessionRelease(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMFPDUSessionRelease(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SMFPDUSessionRelease_sequence, hf_index, ett_lix2_SMFPDUSessionRelease);
 
@@ -3920,7 +3920,7 @@ static const ber_sequence_t SMFStartOfInterceptionWithEstablishedPDUSession_sequ
 };
 
 static int
-dissect_lix2_SMFStartOfInterceptionWithEstablishedPDUSession(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMFStartOfInterceptionWithEstablishedPDUSession(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SMFStartOfInterceptionWithEstablishedPDUSession_sequence, hf_index, ett_lix2_SMFStartOfInterceptionWithEstablishedPDUSession);
 
@@ -3937,7 +3937,7 @@ static const value_string lix2_SMFFailedProcedureType_vals[] = {
 
 
 static int
-dissect_lix2_SMFFailedProcedureType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMFFailedProcedureType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -3954,7 +3954,7 @@ static const value_string lix2_Initiator_vals[] = {
 
 
 static int
-dissect_lix2_Initiator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_Initiator(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -3986,7 +3986,7 @@ static const ber_sequence_t SMFUnsuccessfulProcedure_sequence[] = {
 };
 
 static int
-dissect_lix2_SMFUnsuccessfulProcedure(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMFUnsuccessfulProcedure(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SMFUnsuccessfulProcedure_sequence, hf_index, ett_lix2_SMFUnsuccessfulProcedure);
 
@@ -4001,7 +4001,7 @@ static const ber_sequence_t GUAMI_sequence[] = {
 };
 
 static int
-dissect_lix2_GUAMI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_GUAMI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    GUAMI_sequence, hf_index, ett_lix2_GUAMI);
 
@@ -4011,7 +4011,7 @@ dissect_lix2_GUAMI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static int
-dissect_lix2_MMEGI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMEGI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -4022,7 +4022,7 @@ dissect_lix2_MMEGI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static int
-dissect_lix2_MMEC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMEC(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -4038,7 +4038,7 @@ static const ber_sequence_t MMEID_sequence[] = {
 };
 
 static int
-dissect_lix2_MMEID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMEID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMEID_sequence, hf_index, ett_lix2_MMEID);
 
@@ -4054,7 +4054,7 @@ static const ber_sequence_t GUMMEI_sequence[] = {
 };
 
 static int
-dissect_lix2_GUMMEI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_GUMMEI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    GUMMEI_sequence, hf_index, ett_lix2_GUMMEI);
 
@@ -4071,7 +4071,7 @@ static const value_string lix2_UDMServingSystemMethod_vals[] = {
 
 
 static int
-dissect_lix2_UDMServingSystemMethod(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_UDMServingSystemMethod(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -4081,7 +4081,7 @@ dissect_lix2_UDMServingSystemMethod(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static int
-dissect_lix2_CAGID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_CAGID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -4095,7 +4095,7 @@ static const ber_sequence_t SEQUENCE_OF_CAGID_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_SEQUENCE_OF_CAGID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SEQUENCE_OF_CAGID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_CAGID_sequence_of, hf_index, ett_lix2_SEQUENCE_OF_CAGID);
 
@@ -4110,7 +4110,7 @@ static const ber_sequence_t ServiceID_sequence[] = {
 };
 
 static int
-dissect_lix2_ServiceID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_ServiceID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ServiceID_sequence, hf_index, ett_lix2_ServiceID);
 
@@ -4131,7 +4131,7 @@ static const ber_sequence_t UDMServingSystemMessage_sequence[] = {
 };
 
 static int
-dissect_lix2_UDMServingSystemMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_UDMServingSystemMessage(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    UDMServingSystemMessage_sequence, hf_index, ett_lix2_UDMServingSystemMessage);
 
@@ -4141,7 +4141,7 @@ dissect_lix2_UDMServingSystemMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
 static int
-dissect_lix2_SMSAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMSAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -4158,7 +4158,7 @@ static const ber_sequence_t SMSParty_sequence[] = {
 };
 
 static int
-dissect_lix2_SMSParty(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMSParty(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SMSParty_sequence, hf_index, ett_lix2_SMSParty);
 
@@ -4174,7 +4174,7 @@ static const value_string lix2_Direction_vals[] = {
 
 
 static int
-dissect_lix2_Direction(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_Direction(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -4191,7 +4191,7 @@ static const value_string lix2_SMSTransferStatus_vals[] = {
 
 
 static int
-dissect_lix2_SMSTransferStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMSTransferStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -4201,7 +4201,7 @@ dissect_lix2_SMSTransferStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 
 static int
-dissect_lix2_SMSOtherMessageIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMSOtherMessageIndication(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -4221,7 +4221,7 @@ static const ber_choice_t IPAddress_choice[] = {
 };
 
 static int
-dissect_lix2_IPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_IPAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  IPAddress_choice, hf_index, ett_lix2_IPAddress,
                                  NULL);
@@ -4232,7 +4232,7 @@ dissect_lix2_IPAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static int
-dissect_lix2_E164Number(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_E164Number(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_NumericString,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -4254,7 +4254,7 @@ static const ber_choice_t SMSNFAddress_choice[] = {
 };
 
 static int
-dissect_lix2_SMSNFAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMSNFAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  SMSNFAddress_choice, hf_index, ett_lix2_SMSNFAddress,
                                  NULL);
@@ -4272,7 +4272,7 @@ static const value_string lix2_SMSNFType_vals[] = {
 
 
 static int
-dissect_lix2_SMSNFType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMSNFType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -4282,7 +4282,7 @@ dissect_lix2_SMSNFType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static int
-dissect_lix2_SMSTPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMSTPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -4292,7 +4292,7 @@ dissect_lix2_SMSTPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 static int
-dissect_lix2_TruncatedSMSTPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_TruncatedSMSTPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -4313,7 +4313,7 @@ static const ber_choice_t SMSTPDUData_choice[] = {
 };
 
 static int
-dissect_lix2_SMSTPDUData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMSTPDUData(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  SMSTPDUData_choice, hf_index, ett_lix2_SMSTPDUData,
                                  NULL);
@@ -4337,7 +4337,7 @@ static const value_string lix2_SMSMessageType_vals[] = {
 
 
 static int
-dissect_lix2_SMSMessageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMSMessageType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -4347,7 +4347,7 @@ dissect_lix2_SMSMessageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 
 static int
-dissect_lix2_SMSRPMessageReference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMSRPMessageReference(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -4371,7 +4371,7 @@ static const ber_sequence_t SMSMessage_sequence[] = {
 };
 
 static int
-dissect_lix2_SMSMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMSMessage(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SMSMessage_sequence, hf_index, ett_lix2_SMSMessage);
 
@@ -4381,7 +4381,7 @@ dissect_lix2_SMSMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static int
-dissect_lix2_SIPURI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SIPURI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -4392,7 +4392,7 @@ dissect_lix2_SIPURI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 
 static int
-dissect_lix2_TELURI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_TELURI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -4414,7 +4414,7 @@ static const ber_choice_t IMPU_choice[] = {
 };
 
 static int
-dissect_lix2_IMPU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_IMPU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  IMPU_choice, hf_index, ett_lix2_IMPU,
                                  NULL);
@@ -4434,7 +4434,7 @@ static const ber_sequence_t LALSReport_sequence[] = {
 };
 
 static int
-dissect_lix2_LALSReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_LALSReport(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    LALSReport_sequence, hf_index, ett_lix2_LALSReport);
 
@@ -4444,7 +4444,7 @@ dissect_lix2_LALSReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static int
-dissect_lix2_PortNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PortNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -4454,7 +4454,7 @@ dissect_lix2_PortNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static int
-dissect_lix2_NextLayerProtocol(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NextLayerProtocol(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -4464,7 +4464,7 @@ dissect_lix2_NextLayerProtocol(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 
 static int
-dissect_lix2_IPv6FlowLabel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_IPv6FlowLabel(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -4486,7 +4486,7 @@ static const ber_sequence_t PDHeaderReport_sequence[] = {
 };
 
 static int
-dissect_lix2_PDHeaderReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PDHeaderReport(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PDHeaderReport_sequence, hf_index, ett_lix2_PDHeaderReport);
 
@@ -4505,7 +4505,7 @@ static const value_string lix2_PDSRSummaryTrigger_vals[] = {
 
 
 static int
-dissect_lix2_PDSRSummaryTrigger(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PDSRSummaryTrigger(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -4531,7 +4531,7 @@ static const ber_sequence_t PDSummaryReport_sequence[] = {
 };
 
 static int
-dissect_lix2_PDSummaryReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PDSummaryReport(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PDSummaryReport_sequence, hf_index, ett_lix2_PDSummaryReport);
 
@@ -4546,7 +4546,7 @@ static const ber_sequence_t MMSVersion_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSVersion(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSVersion_sequence, hf_index, ett_lix2_MMSVersion);
 
@@ -4556,7 +4556,7 @@ dissect_lix2_MMSVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static int
-dissect_lix2_EmailAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_EmailAddress(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -4567,7 +4567,7 @@ dissect_lix2_EmailAddress(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 
 static int
-dissect_lix2_IMPI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_IMPI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_lix2_NAI(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -4597,7 +4597,7 @@ static const ber_choice_t MMSPartyID_choice[] = {
 };
 
 static int
-dissect_lix2_MMSPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSPartyID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  MMSPartyID_choice, hf_index, ett_lix2_MMSPartyID,
                                  NULL);
@@ -4611,7 +4611,7 @@ static const ber_sequence_t SEQUENCE_OF_MMSPartyID_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_SEQUENCE_OF_MMSPartyID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SEQUENCE_OF_MMSPartyID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_MMSPartyID_sequence_of, hf_index, ett_lix2_SEQUENCE_OF_MMSPartyID);
 
@@ -4627,7 +4627,7 @@ static const value_string lix2_NonLocalID_vals[] = {
 
 
 static int
-dissect_lix2_NonLocalID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NonLocalID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -4642,7 +4642,7 @@ static const ber_sequence_t MMSParty_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSParty(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSParty(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSParty_sequence, hf_index, ett_lix2_MMSParty);
 
@@ -4655,7 +4655,7 @@ static const ber_sequence_t SEQUENCE_OF_MMSParty_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_SEQUENCE_OF_MMSParty(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SEQUENCE_OF_MMSParty(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_MMSParty_sequence_of, hf_index, ett_lix2_SEQUENCE_OF_MMSParty);
 
@@ -4671,7 +4671,7 @@ static const value_string lix2_MMSDirection_vals[] = {
 
 
 static int
-dissect_lix2_MMSDirection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSDirection(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -4681,7 +4681,7 @@ dissect_lix2_MMSDirection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 
 static int
-dissect_lix2_MMSSubject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSSubject(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -4700,7 +4700,7 @@ static const value_string lix2_MMSMessageClass_vals[] = {
 
 
 static int
-dissect_lix2_MMSMessageClass(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSMessageClass(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -4716,7 +4716,7 @@ static const value_string lix2_MMSPeriodFormat_vals[] = {
 
 
 static int
-dissect_lix2_MMSPeriodFormat(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSPeriodFormat(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -4731,7 +4731,7 @@ static const ber_sequence_t MMSExpiry_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSExpiry(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSExpiry(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSExpiry_sequence, hf_index, ett_lix2_MMSExpiry);
 
@@ -4748,7 +4748,7 @@ static const value_string lix2_MMSPriority_vals[] = {
 
 
 static int
-dissect_lix2_MMSPriority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSPriority(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -4767,7 +4767,7 @@ static const value_string lix2_MMState_vals[] = {
 
 
 static int
-dissect_lix2_MMState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMState(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -4784,7 +4784,7 @@ static const value_string lix2_MMStateFlag_vals[] = {
 
 
 static int
-dissect_lix2_MMStateFlag(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMStateFlag(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -4800,7 +4800,7 @@ static const ber_sequence_t MMFlags_sequence[] = {
 };
 
 static int
-dissect_lix2_MMFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMFlags(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMFlags_sequence, hf_index, ett_lix2_MMFlags);
 
@@ -4818,7 +4818,7 @@ static const value_string lix2_MMSReplyCharging_vals[] = {
 
 
 static int
-dissect_lix2_MMSReplyCharging(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSReplyCharging(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -4840,7 +4840,7 @@ static const value_string lix2_MMSContentClass_vals[] = {
 
 
 static int
-dissect_lix2_MMSContentClass(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSContentClass(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -4855,7 +4855,7 @@ static const ber_sequence_t MMSAdaptation_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSAdaptation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSAdaptation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSAdaptation_sequence, hf_index, ett_lix2_MMSAdaptation);
 
@@ -4865,7 +4865,7 @@ dissect_lix2_MMSAdaptation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 static int
-dissect_lix2_MMSContentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSContentType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -4906,7 +4906,7 @@ static const value_string lix2_MMSResponseStatus_vals[] = {
 
 
 static int
-dissect_lix2_MMSResponseStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSResponseStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -4949,7 +4949,7 @@ static const ber_sequence_t MMSSend_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSSend(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSSend(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSSend_sequence, hf_index, ett_lix2_MMSSend);
 
@@ -4965,7 +4965,7 @@ static const ber_sequence_t MMSPreviouslySent_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSPreviouslySent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSPreviouslySent(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSPreviouslySent_sequence, hf_index, ett_lix2_MMSPreviouslySent);
 
@@ -4978,7 +4978,7 @@ static const ber_sequence_t MMSPreviouslySentBy_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_MMSPreviouslySentBy(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSPreviouslySentBy(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       MMSPreviouslySentBy_sequence_of, hf_index, ett_lix2_MMSPreviouslySentBy);
 
@@ -5015,7 +5015,7 @@ static const ber_sequence_t MMSSendByNonLocalTarget_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSSendByNonLocalTarget(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSSendByNonLocalTarget(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSSendByNonLocalTarget_sequence, hf_index, ett_lix2_MMSSendByNonLocalTarget);
 
@@ -5040,7 +5040,7 @@ static const ber_sequence_t MMSNotification_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSNotification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSNotification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSNotification_sequence, hf_index, ett_lix2_MMSNotification);
 
@@ -5077,7 +5077,7 @@ static const ber_sequence_t MMSSendToNonLocalTarget_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSSendToNonLocalTarget(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSSendToNonLocalTarget(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSSendToNonLocalTarget_sequence, hf_index, ett_lix2_MMSSendToNonLocalTarget);
 
@@ -5099,7 +5099,7 @@ static const value_string lix2_MMStatus_vals[] = {
 
 
 static int
-dissect_lix2_MMStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -5117,7 +5117,7 @@ static const ber_sequence_t MMSNotificationResponse_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSNotificationResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSNotificationResponse(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSNotificationResponse_sequence, hf_index, ett_lix2_MMSNotificationResponse);
 
@@ -5139,7 +5139,7 @@ static const value_string lix2_MMSRetrieveStatus_vals[] = {
 
 
 static int
-dissect_lix2_MMSRetrieveStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSRetrieveStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -5179,7 +5179,7 @@ static const ber_sequence_t MMSRetrieval_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSRetrieval(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSRetrieval(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSRetrieval_sequence, hf_index, ett_lix2_MMSRetrieval);
 
@@ -5197,7 +5197,7 @@ static const ber_sequence_t MMSDeliveryAck_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSDeliveryAck(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSDeliveryAck(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSDeliveryAck_sequence, hf_index, ett_lix2_MMSDeliveryAck);
 
@@ -5219,7 +5219,7 @@ static const value_string lix2_MMSStoreStatus_vals[] = {
 
 
 static int
-dissect_lix2_MMSStoreStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSStoreStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -5255,7 +5255,7 @@ static const ber_sequence_t MMSForward_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSForward(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSForward(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSForward_sequence, hf_index, ett_lix2_MMSForward);
 
@@ -5268,7 +5268,7 @@ static const ber_sequence_t T_contentLocationReq_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_T_contentLocationReq(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_T_contentLocationReq(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       T_contentLocationReq_sequence_of, hf_index, ett_lix2_T_contentLocationReq);
 
@@ -5281,7 +5281,7 @@ static const ber_sequence_t T_contentLocationConf_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_T_contentLocationConf(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_T_contentLocationConf(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       T_contentLocationConf_sequence_of, hf_index, ett_lix2_T_contentLocationConf);
 
@@ -5321,7 +5321,7 @@ static const value_string lix2_MMSDeleteResponseStatus_vals[] = {
 
 
 static int
-dissect_lix2_MMSDeleteResponseStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSDeleteResponseStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -5334,7 +5334,7 @@ static const ber_sequence_t T_deleteResponseText_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_T_deleteResponseText(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_T_deleteResponseText(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       T_deleteResponseText_sequence_of, hf_index, ett_lix2_T_deleteResponseText);
 
@@ -5354,7 +5354,7 @@ static const ber_sequence_t MMSDeleteFromRelay_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSDeleteFromRelay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSDeleteFromRelay(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSDeleteFromRelay_sequence, hf_index, ett_lix2_MMSDeleteFromRelay);
 
@@ -5376,7 +5376,7 @@ static const ber_sequence_t MMSDeliveryReport_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSDeliveryReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSDeliveryReport(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSDeliveryReport_sequence, hf_index, ett_lix2_MMSDeliveryReport);
 
@@ -5392,7 +5392,7 @@ static const value_string lix2_MMStatusExtension_vals[] = {
 
 
 static int
-dissect_lix2_MMStatusExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMStatusExtension(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -5402,7 +5402,7 @@ dissect_lix2_MMStatusExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 
 static int
-dissect_lix2_MMStatusText(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMStatusText(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -5430,7 +5430,7 @@ static const ber_sequence_t MMSDeliveryReportNonLocalTarget_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSDeliveryReportNonLocalTarget(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSDeliveryReportNonLocalTarget(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSDeliveryReportNonLocalTarget_sequence, hf_index, ett_lix2_MMSDeliveryReportNonLocalTarget);
 
@@ -5446,7 +5446,7 @@ static const value_string lix2_MMSReadStatus_vals[] = {
 
 
 static int
-dissect_lix2_MMSReadStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSReadStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -5469,7 +5469,7 @@ static const ber_sequence_t MMSReadReport_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSReadReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSReadReport(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSReadReport_sequence, hf_index, ett_lix2_MMSReadReport);
 
@@ -5479,7 +5479,7 @@ dissect_lix2_MMSReadReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 static int
-dissect_lix2_MMSReadStatusText(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSReadStatusText(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -5505,7 +5505,7 @@ static const ber_sequence_t MMSReadReportNonLocalTarget_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSReadReportNonLocalTarget(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSReadReportNonLocalTarget(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSReadReportNonLocalTarget_sequence, hf_index, ett_lix2_MMSReadReportNonLocalTarget);
 
@@ -5522,7 +5522,7 @@ static const ber_sequence_t MMSCancel_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSCancel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSCancel(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSCancel_sequence, hf_index, ett_lix2_MMSCancel);
 
@@ -5544,7 +5544,7 @@ static const ber_sequence_t MMSMBoxStore_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSMBoxStore(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSMBoxStore(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSMBoxStore_sequence, hf_index, ett_lix2_MMSMBoxStore);
 
@@ -5557,7 +5557,7 @@ static const ber_sequence_t SEQUENCE_OF_MMFlags_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_SEQUENCE_OF_MMFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SEQUENCE_OF_MMFlags(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_MMFlags_sequence_of, hf_index, ett_lix2_SEQUENCE_OF_MMFlags);
 
@@ -5589,7 +5589,7 @@ static const ber_sequence_t MMBoxDescription_sequence[] = {
 };
 
 static int
-dissect_lix2_MMBoxDescription(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMBoxDescription(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMBoxDescription_sequence, hf_index, ett_lix2_MMBoxDescription);
 
@@ -5602,7 +5602,7 @@ static const ber_sequence_t SEQUENCE_OF_MMBoxDescription_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_SEQUENCE_OF_MMBoxDescription(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SEQUENCE_OF_MMBoxDescription(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_MMBoxDescription_sequence_of, hf_index, ett_lix2_SEQUENCE_OF_MMBoxDescription);
 
@@ -5625,7 +5625,7 @@ static const ber_sequence_t MMSMBoxUpload_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSMBoxUpload(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSMBoxUpload(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSMBoxUpload_sequence, hf_index, ett_lix2_MMSMBoxUpload);
 
@@ -5638,7 +5638,7 @@ static const ber_sequence_t T_contentLocationReq_01_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_T_contentLocationReq_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_T_contentLocationReq_01(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       T_contentLocationReq_01_sequence_of, hf_index, ett_lix2_T_contentLocationReq_01);
 
@@ -5651,7 +5651,7 @@ static const ber_sequence_t T_contentLocationConf_01_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_T_contentLocationConf_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_T_contentLocationConf_01(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       T_contentLocationConf_01_sequence_of, hf_index, ett_lix2_T_contentLocationConf_01);
 
@@ -5671,7 +5671,7 @@ static const ber_sequence_t MMSMBoxDelete_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSMBoxDelete(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSMBoxDelete(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSMBoxDelete_sequence, hf_index, ett_lix2_MMSMBoxDelete);
 
@@ -5684,7 +5684,7 @@ static const ber_sequence_t SEQUENCE_OF_MMState_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_SEQUENCE_OF_MMState(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SEQUENCE_OF_MMState(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_MMState_sequence_of, hf_index, ett_lix2_SEQUENCE_OF_MMState);
 
@@ -5697,7 +5697,7 @@ static const ber_sequence_t T_attributes_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_T_attributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_T_attributes(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       T_attributes_sequence_of, hf_index, ett_lix2_T_attributes);
 
@@ -5713,7 +5713,7 @@ static const value_string lix2_MMSQuotaUnit_vals[] = {
 
 
 static int
-dissect_lix2_MMSQuotaUnit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSQuotaUnit(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -5728,7 +5728,7 @@ static const ber_sequence_t MMSQuota_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSQuota(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSQuota(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSQuota_sequence, hf_index, ett_lix2_MMSQuota);
 
@@ -5751,7 +5751,7 @@ static const ber_sequence_t MMSMBoxViewRequest_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSMBoxViewRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSMBoxViewRequest(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSMBoxViewRequest_sequence, hf_index, ett_lix2_MMSMBoxViewRequest);
 
@@ -5764,7 +5764,7 @@ static const ber_sequence_t T_attributes_01_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_T_attributes_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_T_attributes_01(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       T_attributes_01_sequence_of, hf_index, ett_lix2_T_attributes_01);
 
@@ -5788,7 +5788,7 @@ static const ber_sequence_t MMSMBoxViewResponse_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSMBoxViewResponse(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSMBoxViewResponse(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSMBoxViewResponse_sequence, hf_index, ett_lix2_MMSMBoxViewResponse);
 
@@ -5802,7 +5802,7 @@ static const ber_sequence_t PTCChatGroupID_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCChatGroupID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCChatGroupID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCChatGroupID_sequence, hf_index, ett_lix2_PTCChatGroupID);
 
@@ -5829,7 +5829,7 @@ static const ber_choice_t PTCIdentifiers_choice[] = {
 };
 
 static int
-dissect_lix2_PTCIdentifiers(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCIdentifiers(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  PTCIdentifiers_choice, hf_index, ett_lix2_PTCIdentifiers,
                                  NULL);
@@ -5843,7 +5843,7 @@ static const ber_sequence_t SEQUENCE_SIZE_1_MAX_OF_PTCIdentifiers_sequence_of[1]
 };
 
 static int
-dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_PTCIdentifiers(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SEQUENCE_SIZE_1_MAX_OF_PTCIdentifiers(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_SIZE_1_MAX_OF_PTCIdentifiers_sequence_of, hf_index, ett_lix2_SEQUENCE_SIZE_1_MAX_OF_PTCIdentifiers);
 
@@ -5857,7 +5857,7 @@ static const ber_sequence_t PTCTargetInformation_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCTargetInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCTargetInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCTargetInformation_sequence, hf_index, ett_lix2_PTCTargetInformation);
 
@@ -5874,7 +5874,7 @@ static const value_string lix2_PTCRegistrationRequest_vals[] = {
 
 
 static int
-dissect_lix2_PTCRegistrationRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCRegistrationRequest(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -5890,7 +5890,7 @@ static const value_string lix2_PTCRegistrationOutcome_vals[] = {
 
 
 static int
-dissect_lix2_PTCRegistrationOutcome(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCRegistrationOutcome(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -5907,7 +5907,7 @@ static const ber_sequence_t PTCRegistration_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCRegistration(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCRegistration(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCRegistration_sequence, hf_index, ett_lix2_PTCRegistration);
 
@@ -5926,7 +5926,7 @@ static const value_string lix2_PTCSessionType_vals[] = {
 
 
 static int
-dissect_lix2_PTCSessionType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCSessionType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -5941,7 +5941,7 @@ static const ber_sequence_t PTCSessionInfo_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCSessionInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCSessionInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCSessionInfo_sequence, hf_index, ett_lix2_PTCSessionInfo);
 
@@ -5954,7 +5954,7 @@ static const ber_sequence_t SEQUENCE_OF_PTCTargetInformation_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_SEQUENCE_OF_PTCTargetInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SEQUENCE_OF_PTCTargetInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_PTCTargetInformation_sequence_of, hf_index, ett_lix2_SEQUENCE_OF_PTCTargetInformation);
 
@@ -5970,7 +5970,7 @@ static const value_string lix2_PTCPresenceType_vals[] = {
 
 
 static int
-dissect_lix2_PTCPresenceType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCPresenceType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -5986,7 +5986,7 @@ static const ber_sequence_t PTCParticipantPresenceStatus_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCParticipantPresenceStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCParticipantPresenceStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCParticipantPresenceStatus_sequence, hf_index, ett_lix2_PTCParticipantPresenceStatus);
 
@@ -5999,7 +5999,7 @@ static const ber_sequence_t MultipleParticipantPresenceStatus_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_MultipleParticipantPresenceStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MultipleParticipantPresenceStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       MultipleParticipantPresenceStatus_sequence_of, hf_index, ett_lix2_MultipleParticipantPresenceStatus);
 
@@ -6022,7 +6022,7 @@ static const ber_sequence_t PTCSessionInitiation_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCSessionInitiation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCSessionInitiation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCSessionInitiation_sequence, hf_index, ett_lix2_PTCSessionInitiation);
 
@@ -6040,7 +6040,7 @@ static const ber_sequence_t PTCSessionAbandon_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCSessionAbandon(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCSessionAbandon(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCSessionAbandon_sequence, hf_index, ett_lix2_PTCSessionAbandon);
 
@@ -6063,7 +6063,7 @@ static const ber_sequence_t PTCSessionStart_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCSessionStart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCSessionStart(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCSessionStart_sequence, hf_index, ett_lix2_PTCSessionStart);
 
@@ -6083,7 +6083,7 @@ static const value_string lix2_PTCSessionEndCause_vals[] = {
 
 
 static int
-dissect_lix2_PTCSessionEndCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCSessionEndCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -6103,7 +6103,7 @@ static const ber_sequence_t PTCSessionEnd_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCSessionEnd(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCSessionEnd(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCSessionEnd_sequence, hf_index, ett_lix2_PTCSessionEnd);
 
@@ -6125,7 +6125,7 @@ static const ber_sequence_t PTCStartOfInterception_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCStartOfInterception(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCStartOfInterception(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCStartOfInterception_sequence, hf_index, ett_lix2_PTCStartOfInterception);
 
@@ -6140,7 +6140,7 @@ static const ber_sequence_t RTPSetting_sequence[] = {
 };
 
 static int
-dissect_lix2_RTPSetting(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_RTPSetting(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    RTPSetting_sequence, hf_index, ett_lix2_RTPSetting);
 
@@ -6157,7 +6157,7 @@ static const value_string lix2_PTCPreEstStatus_vals[] = {
 
 
 static int
-dissect_lix2_PTCPreEstStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCPreEstStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -6173,7 +6173,7 @@ static const value_string lix2_PTCFailureCode_vals[] = {
 
 
 static int
-dissect_lix2_PTCFailureCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCFailureCode(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -6195,7 +6195,7 @@ static const ber_sequence_t PTCPreEstablishedSession_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCPreEstablishedSession(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCPreEstablishedSession(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCPreEstablishedSession_sequence, hf_index, ett_lix2_PTCPreEstablishedSession);
 
@@ -6211,7 +6211,7 @@ static const ber_sequence_t PTCInstantPersonalAlert_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCInstantPersonalAlert(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCInstantPersonalAlert(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCInstantPersonalAlert_sequence, hf_index, ett_lix2_PTCInstantPersonalAlert);
 
@@ -6231,7 +6231,7 @@ static const ber_sequence_t PTCPartyJoin_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCPartyJoin(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCPartyJoin(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCPartyJoin_sequence, hf_index, ett_lix2_PTCPartyJoin);
 
@@ -6249,7 +6249,7 @@ static const ber_sequence_t PTCPartyDrop_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCPartyDrop(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCPartyDrop(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCPartyDrop_sequence, hf_index, ett_lix2_PTCPartyDrop);
 
@@ -6268,7 +6268,7 @@ static const ber_sequence_t PTCPartyHold_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCPartyHold(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCPartyHold(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCPartyHold_sequence, hf_index, ett_lix2_PTCPartyHold);
 
@@ -6286,7 +6286,7 @@ static const ber_sequence_t PTCMediaModification_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCMediaModification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCMediaModification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCMediaModification_sequence, hf_index, ett_lix2_PTCMediaModification);
 
@@ -6310,7 +6310,7 @@ static const value_string lix2_PTCGroupAuthRule_vals[] = {
 
 
 static int
-dissect_lix2_PTCGroupAuthRule(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCGroupAuthRule(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -6329,7 +6329,7 @@ static const ber_sequence_t PTCGroupAdvertisement_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCGroupAdvertisement(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCGroupAdvertisement(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCGroupAdvertisement_sequence, hf_index, ett_lix2_PTCGroupAdvertisement);
 
@@ -6351,7 +6351,7 @@ static const value_string lix2_PTCFloorActivity_vals[] = {
 
 
 static int
-dissect_lix2_PTCFloorActivity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCFloorActivity(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -6364,7 +6364,7 @@ static const ber_sequence_t SEQUENCE_OF_PTCFloorActivity_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_SEQUENCE_OF_PTCFloorActivity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SEQUENCE_OF_PTCFloorActivity(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_PTCFloorActivity_sequence_of, hf_index, ett_lix2_SEQUENCE_OF_PTCFloorActivity);
 
@@ -6382,7 +6382,7 @@ static const value_string lix2_PTCTBPriorityLevel_vals[] = {
 
 
 static int
-dissect_lix2_PTCTBPriorityLevel(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCTBPriorityLevel(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -6401,7 +6401,7 @@ static const value_string lix2_PTCTBReasonCode_vals[] = {
 
 
 static int
-dissect_lix2_PTCTBReasonCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCTBReasonCode(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -6424,7 +6424,7 @@ static const ber_sequence_t PTCFloorControl_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCFloorControl(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCFloorControl(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCFloorControl_sequence, hf_index, ett_lix2_PTCFloorControl);
 
@@ -6439,7 +6439,7 @@ static const ber_sequence_t PTCTargetPresence_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCTargetPresence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCTargetPresence(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCTargetPresence_sequence, hf_index, ett_lix2_PTCTargetPresence);
 
@@ -6454,7 +6454,7 @@ static const ber_sequence_t PTCParticipantPresence_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCParticipantPresence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCParticipantPresence(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCParticipantPresence_sequence, hf_index, ett_lix2_PTCParticipantPresence);
 
@@ -6473,7 +6473,7 @@ static const value_string lix2_PTCListManagementType_vals[] = {
 
 
 static int
-dissect_lix2_PTCListManagementType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCListManagementType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -6492,7 +6492,7 @@ static const value_string lix2_PTCListManagementAction_vals[] = {
 
 
 static int
-dissect_lix2_PTCListManagementAction(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCListManagementAction(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -6508,7 +6508,7 @@ static const value_string lix2_PTCListManagementFailure_vals[] = {
 
 
 static int
-dissect_lix2_PTCListManagementFailure(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCListManagementFailure(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -6523,7 +6523,7 @@ static const ber_sequence_t PTCIDList_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCIDList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCIDList(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCIDList_sequence, hf_index, ett_lix2_PTCIDList);
 
@@ -6536,7 +6536,7 @@ static const ber_sequence_t SEQUENCE_OF_PTCIDList_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_SEQUENCE_OF_PTCIDList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SEQUENCE_OF_PTCIDList(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_PTCIDList_sequence_of, hf_index, ett_lix2_SEQUENCE_OF_PTCIDList);
 
@@ -6557,7 +6557,7 @@ static const ber_sequence_t PTCListManagement_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCListManagement(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCListManagement(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCListManagement_sequence, hf_index, ett_lix2_PTCListManagement);
 
@@ -6578,7 +6578,7 @@ static const value_string lix2_PTCAccessPolicyType_vals[] = {
 
 
 static int
-dissect_lix2_PTCAccessPolicyType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCAccessPolicyType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -6596,7 +6596,7 @@ static const value_string lix2_PTCUserAccessPolicy_vals[] = {
 
 
 static int
-dissect_lix2_PTCUserAccessPolicy(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCUserAccessPolicy(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -6612,7 +6612,7 @@ static const value_string lix2_PTCAccessPolicyFailure_vals[] = {
 
 
 static int
-dissect_lix2_PTCAccessPolicyFailure(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCAccessPolicyFailure(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -6632,7 +6632,7 @@ static const ber_sequence_t PTCAccessPolicy_sequence[] = {
 };
 
 static int
-dissect_lix2_PTCAccessPolicy(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PTCAccessPolicy(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PTCAccessPolicy_sequence, hf_index, ett_lix2_PTCAccessPolicy);
 
@@ -6652,7 +6652,7 @@ static const value_string lix2_UDMSubscriberRecordChangeMethod_vals[] = {
 
 
 static int
-dissect_lix2_UDMSubscriberRecordChangeMethod(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_UDMSubscriberRecordChangeMethod(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -6674,7 +6674,7 @@ static const ber_sequence_t UDMSubscriberRecordChangeMessage_sequence[] = {
 };
 
 static int
-dissect_lix2_UDMSubscriberRecordChangeMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_UDMSubscriberRecordChangeMessage(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    UDMSubscriberRecordChangeMessage_sequence, hf_index, ett_lix2_UDMSubscriberRecordChangeMessage);
 
@@ -6692,7 +6692,7 @@ static const value_string lix2_UDMCancelLocationMethod_vals[] = {
 
 
 static int
-dissect_lix2_UDMCancelLocationMethod(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_UDMCancelLocationMethod(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -6711,7 +6711,7 @@ static const ber_sequence_t UDMCancelLocationMessage_sequence[] = {
 };
 
 static int
-dissect_lix2_UDMCancelLocationMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_UDMCancelLocationMessage(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    UDMCancelLocationMessage_sequence, hf_index, ett_lix2_UDMCancelLocationMessage);
 
@@ -6728,7 +6728,7 @@ static const ber_sequence_t SMSReport_sequence[] = {
 };
 
 static int
-dissect_lix2_SMSReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMSReport(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SMSReport_sequence, hf_index, ett_lix2_SMSReport);
 
@@ -6744,7 +6744,7 @@ static const value_string lix2_EstablishmentStatus_vals[] = {
 
 
 static int
-dissect_lix2_EstablishmentStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_EstablishmentStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -6763,7 +6763,7 @@ static const ber_sequence_t AccessInfo_sequence[] = {
 };
 
 static int
-dissect_lix2_AccessInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AccessInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AccessInfo_sequence, hf_index, ett_lix2_AccessInfo);
 
@@ -6776,7 +6776,7 @@ static const ber_sequence_t SEQUENCE_OF_AccessInfo_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_SEQUENCE_OF_AccessInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SEQUENCE_OF_AccessInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_AccessInfo_sequence_of, hf_index, ett_lix2_SEQUENCE_OF_AccessInfo);
 
@@ -6791,7 +6791,7 @@ static const ber_sequence_t SMFServingNetwork_sequence[] = {
 };
 
 static int
-dissect_lix2_SMFServingNetwork(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMFServingNetwork(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SMFServingNetwork_sequence, hf_index, ett_lix2_SMFServingNetwork);
 
@@ -6801,7 +6801,7 @@ dissect_lix2_SMFServingNetwork(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 
 static int
-dissect_lix2_SMFMAUpgradeIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMFMAUpgradeIndication(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -6810,7 +6810,7 @@ dissect_lix2_SMFMAUpgradeIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static int
-dissect_lix2_SMFEPSPDNCnxInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMFEPSPDNCnxInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -6821,7 +6821,7 @@ dissect_lix2_SMFEPSPDNCnxInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 static int
-dissect_lix2_SMFMAAcceptedIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMFMAAcceptedIndication(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -6830,7 +6830,7 @@ dissect_lix2_SMFMAAcceptedIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 
 static int
-dissect_lix2_ATSSSContainer(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_ATSSSContainer(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -6864,7 +6864,7 @@ static const ber_sequence_t SMFMAPDUSessionEstablishment_sequence[] = {
 };
 
 static int
-dissect_lix2_SMFMAPDUSessionEstablishment(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMFMAPDUSessionEstablishment(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SMFMAPDUSessionEstablishment_sequence, hf_index, ett_lix2_SMFMAPDUSessionEstablishment);
 
@@ -6892,7 +6892,7 @@ static const ber_sequence_t SMFMAPDUSessionModification_sequence[] = {
 };
 
 static int
-dissect_lix2_SMFMAPDUSessionModification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMFMAPDUSessionModification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SMFMAPDUSessionModification_sequence, hf_index, ett_lix2_SMFMAPDUSessionModification);
 
@@ -6915,7 +6915,7 @@ static const ber_sequence_t SMFMAPDUSessionRelease_sequence[] = {
 };
 
 static int
-dissect_lix2_SMFMAPDUSessionRelease(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMFMAPDUSessionRelease(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SMFMAPDUSessionRelease_sequence, hf_index, ett_lix2_SMFMAPDUSessionRelease);
 
@@ -6949,7 +6949,7 @@ static const ber_sequence_t SMFStartOfInterceptionWithEstablishedMAPDUSession_se
 };
 
 static int
-dissect_lix2_SMFStartOfInterceptionWithEstablishedMAPDUSession(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMFStartOfInterceptionWithEstablishedMAPDUSession(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SMFStartOfInterceptionWithEstablishedMAPDUSession_sequence, hf_index, ett_lix2_SMFStartOfInterceptionWithEstablishedMAPDUSession);
 
@@ -6979,7 +6979,7 @@ static const ber_sequence_t SMFMAUnsuccessfulProcedure_sequence[] = {
 };
 
 static int
-dissect_lix2_SMFMAUnsuccessfulProcedure(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMFMAUnsuccessfulProcedure(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SMFMAUnsuccessfulProcedure_sequence, hf_index, ett_lix2_SMFMAUnsuccessfulProcedure);
 
@@ -6999,7 +6999,7 @@ static const ber_sequence_t AMFIdentifierAssocation_sequence[] = {
 };
 
 static int
-dissect_lix2_AMFIdentifierAssocation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AMFIdentifierAssocation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    AMFIdentifierAssocation_sequence, hf_index, ett_lix2_AMFIdentifierAssocation);
 
@@ -7018,7 +7018,7 @@ static const ber_sequence_t MMEIdentifierAssocation_sequence[] = {
 };
 
 static int
-dissect_lix2_MMEIdentifierAssocation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMEIdentifierAssocation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMEIdentifierAssocation_sequence, hf_index, ett_lix2_MMEIdentifierAssocation);
 
@@ -7040,7 +7040,7 @@ static const value_string lix2_RequestIndication_vals[] = {
 
 
 static int
-dissect_lix2_RequestIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_RequestIndication(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -7066,7 +7066,7 @@ static const ber_sequence_t SMFPDUtoMAPDUSessionModification_sequence[] = {
 };
 
 static int
-dissect_lix2_SMFPDUtoMAPDUSessionModification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMFPDUtoMAPDUSessionModification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SMFPDUtoMAPDUSessionModification_sequence, hf_index, ett_lix2_SMFPDUtoMAPDUSessionModification);
 
@@ -7076,7 +7076,7 @@ dissect_lix2_SMFPDUtoMAPDUSessionModification(gboolean implicit_tag _U_, tvbuff_
 
 
 static int
-dissect_lix2_NEFID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NEFID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -7087,7 +7087,7 @@ dissect_lix2_NEFID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static int
-dissect_lix2_RDSSupport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_RDSSupport(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
   return offset;
@@ -7096,7 +7096,7 @@ dissect_lix2_RDSSupport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static int
-dissect_lix2_SMFID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SMFID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -7107,7 +7107,7 @@ dissect_lix2_SMFID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 
 static int
-dissect_lix2_AFID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_AFID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -7130,7 +7130,7 @@ static const ber_sequence_t NEFPDUSessionEstablishment_sequence[] = {
 };
 
 static int
-dissect_lix2_NEFPDUSessionEstablishment(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NEFPDUSessionEstablishment(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    NEFPDUSessionEstablishment_sequence, hf_index, ett_lix2_NEFPDUSessionEstablishment);
 
@@ -7140,7 +7140,7 @@ dissect_lix2_NEFPDUSessionEstablishment(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 
 static int
-dissect_lix2_RDSPortNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_RDSPortNumber(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -7150,7 +7150,7 @@ dissect_lix2_RDSPortNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 static int
-dissect_lix2_ApplicationID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_ApplicationID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -7166,7 +7166,7 @@ static const value_string lix2_RDSAction_vals[] = {
 
 
 static int
-dissect_lix2_RDSAction(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_RDSAction(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -7183,7 +7183,7 @@ static const value_string lix2_SerializationFormat_vals[] = {
 
 
 static int
-dissect_lix2_SerializationFormat(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SerializationFormat(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -7206,7 +7206,7 @@ static const ber_sequence_t NEFPDUSessionModification_sequence[] = {
 };
 
 static int
-dissect_lix2_NEFPDUSessionModification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NEFPDUSessionModification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    NEFPDUSessionModification_sequence, hf_index, ett_lix2_NEFPDUSessionModification);
 
@@ -7226,7 +7226,7 @@ static const value_string lix2_NEFReleaseCause_vals[] = {
 
 
 static int
-dissect_lix2_NEFReleaseCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NEFReleaseCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -7247,7 +7247,7 @@ static const ber_sequence_t NEFPDUSessionRelease_sequence[] = {
 };
 
 static int
-dissect_lix2_NEFPDUSessionRelease(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NEFPDUSessionRelease(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    NEFPDUSessionRelease_sequence, hf_index, ett_lix2_NEFPDUSessionRelease);
 
@@ -7266,7 +7266,7 @@ static const value_string lix2_NEFFailureCause_vals[] = {
 
 
 static int
-dissect_lix2_NEFFailureCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NEFFailureCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -7288,7 +7288,7 @@ static const ber_sequence_t NEFUnsuccessfulProcedure_sequence[] = {
 };
 
 static int
-dissect_lix2_NEFUnsuccessfulProcedure(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NEFUnsuccessfulProcedure(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    NEFUnsuccessfulProcedure_sequence, hf_index, ett_lix2_NEFUnsuccessfulProcedure);
 
@@ -7310,7 +7310,7 @@ static const ber_sequence_t NEFStartOfInterceptionWithEstablishedPDUSession_sequ
 };
 
 static int
-dissect_lix2_NEFStartOfInterceptionWithEstablishedPDUSession(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NEFStartOfInterceptionWithEstablishedPDUSession(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    NEFStartOfInterceptionWithEstablishedPDUSession_sequence, hf_index, ett_lix2_NEFStartOfInterceptionWithEstablishedPDUSession);
 
@@ -7320,7 +7320,7 @@ dissect_lix2_NEFStartOfInterceptionWithEstablishedPDUSession(gboolean implicit_t
 
 
 static int
-dissect_lix2_TriggerID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_TriggerID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -7331,7 +7331,7 @@ dissect_lix2_TriggerID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 static int
-dissect_lix2_TriggerPayload(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_TriggerPayload(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -7347,7 +7347,7 @@ static const value_string lix2_PriorityDT_vals[] = {
 
 
 static int
-dissect_lix2_PriorityDT(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PriorityDT(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -7369,7 +7369,7 @@ static const ber_sequence_t NEFDeviceTrigger_sequence[] = {
 };
 
 static int
-dissect_lix2_NEFDeviceTrigger(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NEFDeviceTrigger(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    NEFDeviceTrigger_sequence, hf_index, ett_lix2_NEFDeviceTrigger);
 
@@ -7391,7 +7391,7 @@ static const ber_sequence_t NEFDeviceTriggerReplace_sequence[] = {
 };
 
 static int
-dissect_lix2_NEFDeviceTriggerReplace(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NEFDeviceTriggerReplace(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    NEFDeviceTriggerReplace_sequence, hf_index, ett_lix2_NEFDeviceTriggerReplace);
 
@@ -7407,7 +7407,7 @@ static const ber_sequence_t NEFDeviceTriggerCancellation_sequence[] = {
 };
 
 static int
-dissect_lix2_NEFDeviceTriggerCancellation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NEFDeviceTriggerCancellation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    NEFDeviceTriggerCancellation_sequence, hf_index, ett_lix2_NEFDeviceTriggerCancellation);
 
@@ -7429,7 +7429,7 @@ static const value_string lix2_DeviceTriggerDeliveryResult_vals[] = {
 
 
 static int
-dissect_lix2_DeviceTriggerDeliveryResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_DeviceTriggerDeliveryResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -7446,7 +7446,7 @@ static const ber_sequence_t NEFDeviceTriggerReportNotify_sequence[] = {
 };
 
 static int
-dissect_lix2_NEFDeviceTriggerReportNotify(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NEFDeviceTriggerReportNotify(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    NEFDeviceTriggerReportNotify_sequence, hf_index, ett_lix2_NEFDeviceTriggerReportNotify);
 
@@ -7465,7 +7465,7 @@ static const ber_sequence_t NEFMSISDNLessMOSMS_sequence[] = {
 };
 
 static int
-dissect_lix2_NEFMSISDNLessMOSMS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NEFMSISDNLessMOSMS(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    NEFMSISDNLessMOSMS_sequence, hf_index, ett_lix2_NEFMSISDNLessMOSMS);
 
@@ -7486,7 +7486,7 @@ static const value_string lix2_Day_vals[] = {
 
 
 static int
-dissect_lix2_Day(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_Day(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -7502,7 +7502,7 @@ static const ber_sequence_t Daytime_sequence[] = {
 };
 
 static int
-dissect_lix2_Daytime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_Daytime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Daytime_sequence, hf_index, ett_lix2_Daytime);
 
@@ -7518,7 +7518,7 @@ static const ber_sequence_t UMTLocationArea5G_sequence[] = {
 };
 
 static int
-dissect_lix2_UMTLocationArea5G(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_UMTLocationArea5G(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    UMTLocationArea5G_sequence, hf_index, ett_lix2_UMTLocationArea5G);
 
@@ -7531,7 +7531,7 @@ static const ber_sequence_t SEQUENCE_OF_UMTLocationArea5G_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_SEQUENCE_OF_UMTLocationArea5G(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SEQUENCE_OF_UMTLocationArea5G(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_UMTLocationArea5G_sequence_of, hf_index, ett_lix2_SEQUENCE_OF_UMTLocationArea5G);
 
@@ -7547,7 +7547,7 @@ static const value_string lix2_StationaryIndication_vals[] = {
 
 
 static int
-dissect_lix2_StationaryIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_StationaryIndication(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -7560,7 +7560,7 @@ static const ber_sequence_t SEQUENCE_OF_Daytime_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_SEQUENCE_OF_Daytime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SEQUENCE_OF_Daytime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_Daytime_sequence_of, hf_index, ett_lix2_SEQUENCE_OF_Daytime);
 
@@ -7574,7 +7574,7 @@ static const ber_sequence_t ScheduledCommunicationTime_sequence[] = {
 };
 
 static int
-dissect_lix2_ScheduledCommunicationTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_ScheduledCommunicationTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ScheduledCommunicationTime_sequence, hf_index, ett_lix2_ScheduledCommunicationTime);
 
@@ -7591,7 +7591,7 @@ static const value_string lix2_ScheduledCommunicationType_vals[] = {
 
 
 static int
-dissect_lix2_ScheduledCommunicationType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_ScheduledCommunicationType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -7610,7 +7610,7 @@ static const value_string lix2_BatteryIndication_vals[] = {
 
 
 static int
-dissect_lix2_BatteryIndication(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_BatteryIndication(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -7629,7 +7629,7 @@ static const value_string lix2_TrafficProfile_vals[] = {
 
 
 static int
-dissect_lix2_TrafficProfile(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_TrafficProfile(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -7654,7 +7654,7 @@ static const ber_sequence_t NEFExpectedUEBehaviourUpdate_sequence[] = {
 };
 
 static int
-dissect_lix2_NEFExpectedUEBehaviourUpdate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NEFExpectedUEBehaviourUpdate(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    NEFExpectedUEBehaviourUpdate_sequence, hf_index, ett_lix2_NEFExpectedUEBehaviourUpdate);
 
@@ -7664,7 +7664,7 @@ dissect_lix2_NEFExpectedUEBehaviourUpdate(gboolean implicit_tag _U_, tvbuff_t *t
 
 
 static int
-dissect_lix2_EPSBearerID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_EPSBearerID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -7674,7 +7674,7 @@ dissect_lix2_EPSBearerID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 
 static int
-dissect_lix2_SCEFID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SCEFID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -7685,7 +7685,7 @@ dissect_lix2_SCEFID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 
 static int
-dissect_lix2_APN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_APN(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -7696,7 +7696,7 @@ dissect_lix2_APN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 
 
 static int
-dissect_lix2_SCSASID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SCSASID(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
                                             actx, tree, tvb, offset, hf_index,
                                             NULL);
@@ -7719,7 +7719,7 @@ static const ber_sequence_t SCEFPDNConnectionEstablishment_sequence[] = {
 };
 
 static int
-dissect_lix2_SCEFPDNConnectionEstablishment(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SCEFPDNConnectionEstablishment(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SCEFPDNConnectionEstablishment_sequence, hf_index, ett_lix2_SCEFPDNConnectionEstablishment);
 
@@ -7742,7 +7742,7 @@ static const ber_sequence_t SCEFPDNConnectionUpdate_sequence[] = {
 };
 
 static int
-dissect_lix2_SCEFPDNConnectionUpdate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SCEFPDNConnectionUpdate(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SCEFPDNConnectionUpdate_sequence, hf_index, ett_lix2_SCEFPDNConnectionUpdate);
 
@@ -7761,7 +7761,7 @@ static const value_string lix2_SCEFReleaseCause_vals[] = {
 
 
 static int
-dissect_lix2_SCEFReleaseCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SCEFReleaseCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -7783,7 +7783,7 @@ static const ber_sequence_t SCEFPDNConnectionRelease_sequence[] = {
 };
 
 static int
-dissect_lix2_SCEFPDNConnectionRelease(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SCEFPDNConnectionRelease(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SCEFPDNConnectionRelease_sequence, hf_index, ett_lix2_SCEFPDNConnectionRelease);
 
@@ -7803,7 +7803,7 @@ static const value_string lix2_SCEFFailureCause_vals[] = {
 
 
 static int
-dissect_lix2_SCEFFailureCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SCEFFailureCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -7825,7 +7825,7 @@ static const ber_sequence_t SCEFUnsuccessfulProcedure_sequence[] = {
 };
 
 static int
-dissect_lix2_SCEFUnsuccessfulProcedure(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SCEFUnsuccessfulProcedure(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SCEFUnsuccessfulProcedure_sequence, hf_index, ett_lix2_SCEFUnsuccessfulProcedure);
 
@@ -7847,7 +7847,7 @@ static const ber_sequence_t SCEFStartOfInterceptionWithEstablishedPDNConnection_
 };
 
 static int
-dissect_lix2_SCEFStartOfInterceptionWithEstablishedPDNConnection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SCEFStartOfInterceptionWithEstablishedPDNConnection(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SCEFStartOfInterceptionWithEstablishedPDNConnection_sequence, hf_index, ett_lix2_SCEFStartOfInterceptionWithEstablishedPDNConnection);
 
@@ -7870,7 +7870,7 @@ static const ber_sequence_t SCEFDeviceTrigger_sequence[] = {
 };
 
 static int
-dissect_lix2_SCEFDeviceTrigger(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SCEFDeviceTrigger(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SCEFDeviceTrigger_sequence, hf_index, ett_lix2_SCEFDeviceTrigger);
 
@@ -7893,7 +7893,7 @@ static const ber_sequence_t SCEFDeviceTriggerReplace_sequence[] = {
 };
 
 static int
-dissect_lix2_SCEFDeviceTriggerReplace(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SCEFDeviceTriggerReplace(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SCEFDeviceTriggerReplace_sequence, hf_index, ett_lix2_SCEFDeviceTriggerReplace);
 
@@ -7910,7 +7910,7 @@ static const ber_sequence_t SCEFDeviceTriggerCancellation_sequence[] = {
 };
 
 static int
-dissect_lix2_SCEFDeviceTriggerCancellation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SCEFDeviceTriggerCancellation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SCEFDeviceTriggerCancellation_sequence, hf_index, ett_lix2_SCEFDeviceTriggerCancellation);
 
@@ -7928,7 +7928,7 @@ static const ber_sequence_t SCEFDeviceTriggerReportNotify_sequence[] = {
 };
 
 static int
-dissect_lix2_SCEFDeviceTriggerReportNotify(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SCEFDeviceTriggerReportNotify(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SCEFDeviceTriggerReportNotify_sequence, hf_index, ett_lix2_SCEFDeviceTriggerReportNotify);
 
@@ -7948,7 +7948,7 @@ static const ber_sequence_t SCEFMSISDNLessMOSMS_sequence[] = {
 };
 
 static int
-dissect_lix2_SCEFMSISDNLessMOSMS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SCEFMSISDNLessMOSMS(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SCEFMSISDNLessMOSMS_sequence, hf_index, ett_lix2_SCEFMSISDNLessMOSMS);
 
@@ -7964,7 +7964,7 @@ static const value_string lix2_PeriodicCommunicationIndicator_vals[] = {
 
 
 static int
-dissect_lix2_PeriodicCommunicationIndicator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_PeriodicCommunicationIndicator(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -7990,7 +7990,7 @@ static const ber_sequence_t SCEFCommunicationPatternUpdate_sequence[] = {
 };
 
 static int
-dissect_lix2_SCEFCommunicationPatternUpdate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SCEFCommunicationPatternUpdate(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SCEFCommunicationPatternUpdate_sequence, hf_index, ett_lix2_SCEFCommunicationPatternUpdate);
 
@@ -8009,7 +8009,7 @@ static const value_string lix2_EPSAttachType_vals[] = {
 
 
 static int
-dissect_lix2_EPSAttachType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_EPSAttachType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -8025,7 +8025,7 @@ static const value_string lix2_EPSAttachResult_vals[] = {
 
 
 static int
-dissect_lix2_EPSAttachResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_EPSAttachResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -8043,7 +8043,7 @@ static const value_string lix2_EPSSMSServiceStatus_vals[] = {
 
 
 static int
-dissect_lix2_EPSSMSServiceStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_EPSSMSServiceStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -8067,7 +8067,7 @@ static const ber_sequence_t MMEAttach_sequence[] = {
 };
 
 static int
-dissect_lix2_MMEAttach(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMEAttach(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMEAttach_sequence, hf_index, ett_lix2_MMEAttach);
 
@@ -8083,7 +8083,7 @@ static const value_string lix2_MMEDirection_vals[] = {
 
 
 static int
-dissect_lix2_MMEDirection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMEDirection(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -8103,7 +8103,7 @@ static const value_string lix2_EPSDetachType_vals[] = {
 
 
 static int
-dissect_lix2_EPSDetachType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_EPSDetachType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -8113,7 +8113,7 @@ dissect_lix2_EPSDetachType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 static int
-dissect_lix2_EMMCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_EMMCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -8135,7 +8135,7 @@ static const ber_sequence_t MMEDetach_sequence[] = {
 };
 
 static int
-dissect_lix2_MMEDetach(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMEDetach(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMEDetach_sequence, hf_index, ett_lix2_MMEDetach);
 
@@ -8155,7 +8155,7 @@ static const ber_sequence_t MMELocationUpdate_sequence[] = {
 };
 
 static int
-dissect_lix2_MMELocationUpdate(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMELocationUpdate(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMELocationUpdate_sequence, hf_index, ett_lix2_MMELocationUpdate);
 
@@ -8178,7 +8178,7 @@ static const ber_sequence_t MMEStartOfInterceptionWithEPSAttachedUE_sequence[] =
 };
 
 static int
-dissect_lix2_MMEStartOfInterceptionWithEPSAttachedUE(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMEStartOfInterceptionWithEPSAttachedUE(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMEStartOfInterceptionWithEPSAttachedUE_sequence, hf_index, ett_lix2_MMEStartOfInterceptionWithEPSAttachedUE);
 
@@ -8204,7 +8204,7 @@ static const value_string lix2_MMEFailedProcedureType_vals[] = {
 
 
 static int
-dissect_lix2_MMEFailedProcedureType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMEFailedProcedureType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -8214,7 +8214,7 @@ dissect_lix2_MMEFailedProcedureType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static int
-dissect_lix2_ESMCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_ESMCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -8235,7 +8235,7 @@ static const ber_choice_t MMEFailureCause_choice[] = {
 };
 
 static int
-dissect_lix2_MMEFailureCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMEFailureCause(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  MMEFailureCause_choice, hf_index, ett_lix2_MMEFailureCause,
                                  NULL);
@@ -8256,7 +8256,7 @@ static const ber_sequence_t MMEUnsuccessfulProcedure_sequence[] = {
 };
 
 static int
-dissect_lix2_MMEUnsuccessfulProcedure(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMEUnsuccessfulProcedure(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMEUnsuccessfulProcedure_sequence, hf_index, ett_lix2_MMEUnsuccessfulProcedure);
 
@@ -8453,7 +8453,7 @@ static const ber_choice_t XIRIEvent_choice[] = {
 };
 
 static int
-dissect_lix2_XIRIEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_XIRIEvent(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  XIRIEvent_choice, hf_index, ett_lix2_XIRIEvent,
                                  NULL);
@@ -8469,7 +8469,7 @@ static const ber_sequence_t XIRIPayload_sequence[] = {
 };
 
 static int
-dissect_lix2_XIRIPayload(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_XIRIPayload(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    XIRIPayload_sequence, hf_index, ett_lix2_XIRIPayload);
 
@@ -8482,7 +8482,7 @@ static const ber_sequence_t MDFCellSiteReport_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_MDFCellSiteReport(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MDFCellSiteReport(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       MDFCellSiteReport_sequence_of, hf_index, ett_lix2_MDFCellSiteReport);
 
@@ -8681,7 +8681,7 @@ static const ber_choice_t IRIEvent_choice[] = {
 };
 
 static int
-dissect_lix2_IRIEvent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_IRIEvent(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  IRIEvent_choice, hf_index, ett_lix2_IRIEvent,
                                  NULL);
@@ -8719,7 +8719,7 @@ static const ber_choice_t TargetIdentifier_choice[] = {
 };
 
 static int
-dissect_lix2_TargetIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_TargetIdentifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  TargetIdentifier_choice, hf_index, ett_lix2_TargetIdentifier,
                                  NULL);
@@ -8738,7 +8738,7 @@ static const value_string lix2_TargetIdentifierProvenance_vals[] = {
 
 
 static int
-dissect_lix2_TargetIdentifierProvenance(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_TargetIdentifierProvenance(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -8753,7 +8753,7 @@ static const ber_sequence_t IRITargetIdentifier_sequence[] = {
 };
 
 static int
-dissect_lix2_IRITargetIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_IRITargetIdentifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IRITargetIdentifier_sequence, hf_index, ett_lix2_IRITargetIdentifier);
 
@@ -8766,7 +8766,7 @@ static const ber_sequence_t SEQUENCE_OF_IRITargetIdentifier_sequence_of[1] = {
 };
 
 static int
-dissect_lix2_SEQUENCE_OF_IRITargetIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SEQUENCE_OF_IRITargetIdentifier(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_IRITargetIdentifier_sequence_of, hf_index, ett_lix2_SEQUENCE_OF_IRITargetIdentifier);
 
@@ -8782,7 +8782,7 @@ static const ber_sequence_t IRIPayload_sequence[] = {
 };
 
 static int
-dissect_lix2_IRIPayload(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_IRIPayload(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    IRIPayload_sequence, hf_index, ett_lix2_IRIPayload);
 
@@ -8792,7 +8792,7 @@ dissect_lix2_IRIPayload(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 
 static int
-dissect_lix2_UPFCCPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_UPFCCPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -8802,7 +8802,7 @@ dissect_lix2_UPFCCPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 static int
-dissect_lix2_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_OCTET_STRING(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -8825,7 +8825,7 @@ static const ber_choice_t UPFCCPDUPayload_choice[] = {
 };
 
 static int
-dissect_lix2_UPFCCPDUPayload(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_UPFCCPDUPayload(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  UPFCCPDUPayload_choice, hf_index, ett_lix2_UPFCCPDUPayload,
                                  NULL);
@@ -8836,7 +8836,7 @@ dissect_lix2_UPFCCPDUPayload(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 
 static int
-dissect_lix2_QFI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_QFI(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -8851,7 +8851,7 @@ static const ber_sequence_t ExtendedUPFCCPDU_sequence[] = {
 };
 
 static int
-dissect_lix2_ExtendedUPFCCPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_ExtendedUPFCCPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ExtendedUPFCCPDU_sequence, hf_index, ett_lix2_ExtendedUPFCCPDU);
 
@@ -8867,7 +8867,7 @@ static const ber_sequence_t MMSCCPDU_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSCCPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSCCPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSCCPDU_sequence, hf_index, ett_lix2_MMSCCPDU);
 
@@ -8877,7 +8877,7 @@ dissect_lix2_MMSCCPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 static int
-dissect_lix2_NIDDCCPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_NIDDCCPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -8902,7 +8902,7 @@ static const ber_choice_t CCPDU_choice[] = {
 };
 
 static int
-dissect_lix2_CCPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_CCPDU(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  CCPDU_choice, hf_index, ett_lix2_CCPDU,
                                  NULL);
@@ -8918,7 +8918,7 @@ static const ber_sequence_t CCPayload_sequence[] = {
 };
 
 static int
-dissect_lix2_CCPayload(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_CCPayload(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CCPayload_sequence, hf_index, ett_lix2_CCPayload);
 
@@ -8935,7 +8935,7 @@ static const value_string lix2_LINotificationType_vals[] = {
 
 
 static int
-dissect_lix2_LINotificationType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_LINotificationType(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -8952,7 +8952,7 @@ static const ber_sequence_t LIAppliedDeliveryInformation_sequence[] = {
 };
 
 static int
-dissect_lix2_LIAppliedDeliveryInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_LIAppliedDeliveryInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    LIAppliedDeliveryInformation_sequence, hf_index, ett_lix2_LIAppliedDeliveryInformation);
 
@@ -8965,7 +8965,7 @@ static const ber_sequence_t SEQUENCE_OF_LIAppliedDeliveryInformation_sequence_of
 };
 
 static int
-dissect_lix2_SEQUENCE_OF_LIAppliedDeliveryInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_SEQUENCE_OF_LIAppliedDeliveryInformation(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SEQUENCE_OF_LIAppliedDeliveryInformation_sequence_of, hf_index, ett_lix2_SEQUENCE_OF_LIAppliedDeliveryInformation);
 
@@ -8983,7 +8983,7 @@ static const ber_sequence_t LINotification_sequence[] = {
 };
 
 static int
-dissect_lix2_LINotification(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_LINotification(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    LINotification_sequence, hf_index, ett_lix2_LINotification);
 
@@ -9002,7 +9002,7 @@ static const ber_choice_t LINotificationMessage_choice[] = {
 };
 
 static int
-dissect_lix2_LINotificationMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_LINotificationMessage(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  LINotificationMessage_choice, hf_index, ett_lix2_LINotificationMessage,
                                  NULL);
@@ -9018,7 +9018,7 @@ static const ber_sequence_t LINotificationPayload_sequence[] = {
 };
 
 static int
-dissect_lix2_LINotificationPayload(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_LINotificationPayload(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    LINotificationPayload_sequence, hf_index, ett_lix2_LINotificationPayload);
 
@@ -9034,7 +9034,7 @@ static const value_string lix2_MMSCancelStatus_vals[] = {
 
 
 static int
-dissect_lix2_MMSCancelStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSCancelStatus(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
 
@@ -9050,7 +9050,7 @@ static const ber_sequence_t MMSElementDescriptor_sequence[] = {
 };
 
 static int
-dissect_lix2_MMSElementDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lix2_MMSElementDescriptor(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    MMSElementDescriptor_sequence, hf_index, ett_lix2_MMSElementDescriptor);
 

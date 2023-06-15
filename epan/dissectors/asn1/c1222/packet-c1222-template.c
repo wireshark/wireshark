@@ -954,7 +954,7 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
   int local_offset;
   gint len2;
   int cmd_err;
-  gboolean ind;
+  bool ind;
   guchar *buffer;
   tvbuff_t *epsem_buffer = NULL;
   gboolean crypto_good = FALSE;
@@ -1107,7 +1107,7 @@ get_c1222_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data 
 {
   int orig_offset;
   guint length;
-  gboolean ind;
+  bool ind;
 
   orig_offset = offset;
   /* note that this assumes a Tag length of 1 which is always valid for C12.22 */

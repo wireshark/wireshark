@@ -61,7 +61,7 @@ Extensions      B "1.2.840.113549.1.9.14" "pkcs-9-at-extensionRequest"
 
 #.FN_BODY Extension/extnValue
   gint8 appclass;
-  gboolean pc, ind;
+  bool pc, ind;
   gint32 tag;
   guint32 len;
   /* skip past the T and L  */

@@ -58,7 +58,7 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
   proto_item *item = NULL;
   proto_tree *tree = NULL;
   gint8 ber_class;
-  gboolean pc;
+  bool pc;
   gint32 tag;
 
   top_tree = parent_tree;
@@ -85,9 +85,9 @@ static gboolean
 dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
   gint8 ber_class;
-  gboolean pc;
+  bool pc;
   gint32 tag;
-  volatile gboolean failed;
+  volatile bool failed;
 
   /*
    * We must catch all the "ran past the end of the packet" exceptions

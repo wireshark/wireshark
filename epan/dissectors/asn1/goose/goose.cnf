@@ -11,7 +11,7 @@
 GOOSEpdu
 
 #.FN_BODY IECGoosePdu/simulation VAL_PTR = &value
-	gboolean value;
+	bool value;
 	guint32 len = tvb_reported_length_remaining(tvb, offset);
 	int origin_offset = offset;
 %(DEFAULT_BODY)s

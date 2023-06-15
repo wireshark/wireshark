@@ -42,7 +42,7 @@ Version
 
 #.FN_BODY ResponseBytes/response
   gint8 appclass;
-  gboolean pc, ind;
+  bool pc, ind;
   gint32 tag;
   guint32 len;
   /* skip past the T and L  */

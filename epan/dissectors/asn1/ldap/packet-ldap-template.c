@@ -633,10 +633,10 @@ static char *ldapvalue_string=NULL;
  * display it as a string, othervise just display it in hex.
  */
 static int
-dissect_ldap_AssertionValue(gboolean implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index)
+dissect_ldap_AssertionValue(bool implicit_tag, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index)
 {
   gint8 ber_class;
-  gboolean pc, ind, is_ascii;
+  bool pc, ind, is_ascii;
   gint32 tag;
   guint32 len;
 
@@ -932,7 +932,7 @@ dissect_ldap_payload(tvbuff_t *tvb, packet_info *pinfo,
   guint length = 0;
   tvbuff_t *msg_tvb = NULL;
   gint8 ber_class;
-  gboolean pc, ind = 0;
+  bool pc, ind = 0;
   gint32 ber_tag;
 
   attributedesc_string=NULL;
@@ -1644,7 +1644,7 @@ get_normal_ldap_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                         int offset, void *data _U_)
 {
   guint32 len;
-  gboolean ind;
+  bool ind;
   int data_offset;
 
   /* normal ldap is tag+len bytes plus the length
@@ -1763,7 +1763,7 @@ dissect_ldap_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 {
   guint32 sasl_len;
   guint32 ldap_len;
-  gboolean ind;
+  bool ind;
   conversation_t *conversation;
   ldap_conv_info_t *ldap_info = NULL;
 

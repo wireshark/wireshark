@@ -243,7 +243,7 @@ typedef struct {
   wmem_tree_t *packets;
 } gsm_map_conv_info_t;
 
-static gsm_map_packet_info_t *gsm_map_get_packet_info(asn1_ctx_t *actx, gboolean store_conv_info)
+static gsm_map_packet_info_t *gsm_map_get_packet_info(asn1_ctx_t *actx, bool store_conv_info)
 {
   gsm_map_packet_info_t *gsm_map_pi = (gsm_map_packet_info_t*)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_gsm_map, 0);
   if (!gsm_map_pi) {
@@ -1135,7 +1135,7 @@ const gchar* gsm_map_opr_code(guint32 val, proto_item *item) {
 }
 
 /* Prototype for a decoding function */
-typedef int (* dissect_function_t)( gboolean,
+typedef int (* dissect_function_t)( bool,
                                     tvbuff_t *,
                                     int ,
                                     asn1_ctx_t *,
@@ -1164,13 +1164,13 @@ static int dissect_mc_message(tvbuff_t *tvb,
                               int offset,
                               asn1_ctx_t *actx,
                               proto_tree *tree,
-                              gboolean implicit_param _U_, dissect_function_t parameter, int hf_index_param _U_,
-                              gboolean implicit_seq   _U_, dissect_function_t sequence,  int hf_index_seq   _U_,
-                              gboolean implicit_seq3 _U_, dissect_function_t sequence3, int hf_index_seq3 _U_ )
+                              bool implicit_param _U_, dissect_function_t parameter, int hf_index_param _U_,
+                              bool implicit_seq   _U_, dissect_function_t sequence,  int hf_index_seq   _U_,
+                              bool implicit_seq3 _U_, dissect_function_t sequence3, int hf_index_seq3 _U_ )
 {
   guint8 octet;
   gint8 bug_class;
-  gboolean bug_pc, bug_ind_field;
+  bool bug_pc, bug_ind_field;
   gint32 bug_tag;
   guint32 bug_len;
 
@@ -2315,7 +2315,7 @@ static int dissect_NokiaMAP_ext_DsdArgExt(tvbuff_t *tvb, packet_info *pinfo, pro
 }
 
 static int
-dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
+dissect_gsm_map_GSMMAPPDU(bool implicit_tag _U_, tvbuff_t *tvb, int offset,
                           asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
 
   char *version_ptr;

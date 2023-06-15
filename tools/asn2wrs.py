@@ -1503,7 +1503,7 @@ class EthCtx:
             out += 'static '
         out += "int "
         if (self.Ber()):
-            out += "dissect_%s_%s(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)" % (self.eth_type[tname]['proto'], tname)
+            out += "dissect_%s_%s(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)" % (self.eth_type[tname]['proto'], tname)
         elif (self.Per() or self.Oer()):
             out += "dissect_%s_%s(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_)" % (self.eth_type[tname]['proto'], tname)
         out += ";\n"
@@ -1540,7 +1540,7 @@ class EthCtx:
             out += 'static '
         out += "int\n"
         if (self.Ber()):
-            out += "dissect_%s_%s(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
+            out += "dissect_%s_%s(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
         elif (self.Per() or self.Oer()):
             out += "dissect_%s_%s(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {\n" % (self.eth_type[tname]['proto'], tname)
         #if self.conform.get_fn_presence(tname):
@@ -4793,7 +4793,7 @@ class EnumeratedType (Type):
         if (not ectx.Per() and not ectx.Oer()): return ''
         map_table = self.get_vals_etc(ectx)[3]
         if map_table is None: return ''
-        table = "static guint32 %(TABLE)s[%(ROOT_NUM)s+%(EXT_NUM)s] = {"
+        table = "static uint32_t %(TABLE)s[%(ROOT_NUM)s+%(EXT_NUM)s] = {"
         table += ", ".join([str(v) for v in map_table])
         table += "};\n"
         return table

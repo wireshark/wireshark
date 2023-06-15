@@ -363,7 +363,7 @@ int PBE_decrypt_data(const char *object_identifier_id_param _U_, tvbuff_t *encry
 static int strip_octet_string(tvbuff_t *tvb)
 {
   gint8 ber_class;
-  gboolean pc, ind;
+  bool pc, ind;
   gint32 tag;
   guint32 len;
   int offset = 0;

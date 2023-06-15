@@ -705,7 +705,7 @@ proto_tree *subtree;
  tvbuff_t	*parameter_tvb;
  proto_tree *subtree;
  gint ett = -1;
- gboolean digits = FALSE;
+ bool digits = FALSE;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);

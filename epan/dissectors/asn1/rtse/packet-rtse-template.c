@@ -151,7 +151,7 @@ call_rtse_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *
 }
 
 static int
-call_rtse_external_type_callback(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_)
+call_rtse_external_type_callback(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_)
 {
     const char    *oid = NULL;
 

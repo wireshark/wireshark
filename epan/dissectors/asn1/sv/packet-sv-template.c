@@ -124,10 +124,10 @@ static const value_string sv_q_source_vals[] = {
 };
 
 static int
-dissect_PhsMeas1(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_id _U_)
+dissect_PhsMeas1(bool implicit_tag, packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset, int hf_id _U_)
 {
 	gint8 ber_class;
-	gboolean pc;
+	bool pc;
 	gint32 tag;
 	guint32 len;
 	proto_tree *subtree;

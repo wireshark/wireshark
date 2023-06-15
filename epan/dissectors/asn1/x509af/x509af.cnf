@@ -138,7 +138,7 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
 
 #.FN_BODY Extension/extnValue
   gint8 ber_class;
-  gboolean pc, ind;
+  bool pc, ind;
   gint32 tag;
   guint32 len;
   /* skip past the T and L  */

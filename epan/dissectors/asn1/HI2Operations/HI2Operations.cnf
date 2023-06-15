@@ -34,12 +34,12 @@ GSMLocation/geoCoordinates/longitude geoCoordinates_longitude
 
 /* Heuristic test to see if it's our content */
     gint8    tmp_class;
-    gboolean tmp_pc;
+    bool tmp_pc;
     gint32   tmp_tag;
     int      tmp_offset;
     guint    length = tvb_captured_length(tvb);
     guint32  tmp_length;
-    gboolean tmp_ind;
+    bool tmp_ind;
 
     /* Check for min length */
     if (length < 6){

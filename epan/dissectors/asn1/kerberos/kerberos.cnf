@@ -303,7 +303,7 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 
 #.FN_BODY HostAddress/address
   gint8 appclass;
-  gboolean pc;
+  bool pc;
   gint32 tag;
   guint32 len;
   const char *address_str;

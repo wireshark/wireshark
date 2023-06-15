@@ -9,7 +9,7 @@
 NegotiationToken
 
 #.FN_BODY NegotiationToken/negTokenInit
-  gboolean is_response = actx->pinfo->ptype == PT_TCP &&
+  bool is_response = actx->pinfo->ptype == PT_TCP &&
                          actx->pinfo->srcport < 1024;
 
   /*

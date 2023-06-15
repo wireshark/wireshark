@@ -1804,7 +1804,7 @@ dissect_tds_nt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     tvbuff_t *nt_tvb;
     gint8 ber_class;
-    gboolean pc;
+    bool pc;
     gint32 tag;
 
     nt_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -5498,7 +5498,7 @@ dissect_tds_sspi_token(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tr
     guint cur = offset, len_field_val;
     int encoding = tds_little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN;
     guint8 ber_class;
-    gboolean pc;
+    bool pc;
     gint32 tag;
 
     len_field_val = tvb_get_guint16(tvb, cur, encoding);
