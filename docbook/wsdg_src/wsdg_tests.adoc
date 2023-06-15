@@ -15,14 +15,25 @@ bugs as Wireshark grows and evolves.
 [#TestsQuickStart]
 === Quick Start
 
-The recommended steps to prepare for and to run tests:
+The recommended steps to prepare for and run tests with a UN*X toolchain:
 
 * Install two Python packages, pytest: `pip install pytest pytest-xdist`
 * Build programs (“wireshark”, “tshark”, etc.): `ninja`
 * Build additional programs for the “unittests” suite: `ninja test-programs`
 * Run tests in the build directory: `pytest`
 
-Replace `ninja test-programs` by `make test-programs` as needed.
+Replace `ninja` by `make` as needed.
+
+If building with <<#ChWindowsBuild,Microsoft Visual Studio>> the analogous steps are:
+
+* Install pytest Python packages: `python -m pip install pytest pytest-xdist`
+* Build programs: `msbuild /m /p:Configuration=RelWithDebInfo Wireshark.sln`
+* Build test-programs: `msbuild /m /p:Configuration=RelWithDebInfo test-programs.vcxproj`
+* Run tests: `python -m pytest`
+
+TIP: Depending on your PATH, you may need to run the pytest module as a
+script from your Python interpreter, e.g, `python -m pytest` or
+`python3 -m pytest` instead of `pytest`.
 
 The test suite will attempt to test as much as possible and skip tests
 when its dependencies are not satisfied. For example, packet capture
