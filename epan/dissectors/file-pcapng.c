@@ -519,8 +519,11 @@ static const value_string flags_reception_type_vals[] = {
 };
 
 static const value_string dsb_secrets_types_vals[] = {
-    { SECRETS_TYPE_TLS,         "TLS Key Log" },
-    { SECRETS_TYPE_WIREGUARD,   "WireGuard Key Log" },
+    { SECRETS_TYPE_TLS,             "TLS Key Log" },
+    { SECRETS_TYPE_SSH,             "SSH Key Log" },
+    { SECRETS_TYPE_WIREGUARD,       "WireGuard Key Log" },
+    { SECRETS_TYPE_ZIGBEE_NWK_KEY,  "Zigbee NWK Key" },
+    { SECRETS_TYPE_ZIGBEE_APS_KEY,  "Zigbee APS Key" },
     { 0, NULL }
 };
 
