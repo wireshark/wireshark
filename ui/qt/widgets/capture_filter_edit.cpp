@@ -132,6 +132,17 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
 
     setConflict(false);
 
+    QString buttonStyle = QString(
+        "QToolButton {"
+        "  border: none;"
+        "  background: transparent;" // Disables platform style on Windows.
+        "  padding: 0 0 0 0;"
+        "}"
+        "QToolButton::menu-indicator {"
+        "  image: none;"
+        "}"
+    );
+
     if (!plain_) {
         bookmark_button_ = new StockIconToolButton(this, "x-capture-filter-bookmark");
         bookmark_button_->setCursor(Qt::ArrowCursor);
@@ -139,28 +150,14 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
         bookmark_button_->setPopupMode(QToolButton::InstantPopup);
         bookmark_button_->setToolTip(tr("Manage saved bookmarks."));
         bookmark_button_->setIconSize(QSize(14, 14));
-        bookmark_button_->setStyleSheet(
-                    "QToolButton {"
-                    "  border: none;"
-                    "  background: transparent;" // Disables platform style on Windows.
-                    "  padding: 0 0 0 0;"
-                    "}"
-                    "QToolButton::menu-indicator { image: none; }"
-            );
+        bookmark_button_->setStyleSheet(buttonStyle);
         connect(bookmark_button_, &StockIconToolButton::clicked, this, &CaptureFilterEdit::bookmarkClicked);
 
         clear_button_ = new StockIconToolButton(this, "x-filter-clear");
         clear_button_->setCursor(Qt::ArrowCursor);
         clear_button_->setToolTip(QString());
         clear_button_->setIconSize(QSize(14, 14));
-        clear_button_->setStyleSheet(
-                "QToolButton {"
-                "  border: none;"
-                "  background: transparent;" // Disables platform style on Windows.
-                "  padding: 0 0 0 0;"
-                "  margin-left: 1px;"
-                "}"
-                );
+        clear_button_->setStyleSheet(buttonStyle);
         connect(clear_button_, &StockIconToolButton::clicked, this, &CaptureFilterEdit::clearFilter);
     }
 
@@ -258,7 +255,7 @@ void CaptureFilterEdit::paintEvent(QPaintEvent *evt) {
         painter.drawLine(bksz.width(), cr.top(), bksz.width(), cr.bottom() + 1);
 
         if (!text().isEmpty()) {
-            int xpos = cr.width() - 2;
+            int xpos = cr.width() - 3;
             if (clear_button_)
                 xpos -= clear_button_->size().width();
             if (apply_button_)

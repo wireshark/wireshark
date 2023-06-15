@@ -438,7 +438,7 @@ void SyntaxLineEdit::paintEvent(QPaintEvent *event)
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     // Must match CaptureFilterEdit and DisplayFilterEdit stylesheets.
     int pad = style()->pixelMetric(QStyle::PM_DefaultFrameWidth) + 1;
-    QRect full_cr = cr.adjusted(-pad, 0, 0, 0);
+    QRect full_cr = cr.adjusted(-pad, 0, -1, 0);
     QBrush bg;
 
     switch (syntax_state_) {

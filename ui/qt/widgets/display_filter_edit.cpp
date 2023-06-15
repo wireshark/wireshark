@@ -300,12 +300,12 @@ void DisplayFilterEdit::paintEvent(QPaintEvent *evt) {
             left_xpos = 1 + bookmark_button_->size().width() + apply_button_->size().width();
             if (clear_button_->isVisible())
                 left_xpos += clear_button_->size().width();
-            right_xpos = cr.width();
+            right_xpos = cr.width() - 1;
         }
         else
         {
             left_xpos = bookmark_button_->size().width();
-            right_xpos = cr.width() - apply_button_->size().width() - 3;
+            right_xpos = cr.width() - apply_button_->size().width() - 4;
             if (clear_button_->isVisible())
                 right_xpos -= clear_button_->size().width();
         }
