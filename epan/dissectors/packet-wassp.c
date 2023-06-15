@@ -6815,15 +6815,15 @@ void proto_register_wassp(void)
 		{
 			&hf_cos_priority_txq,
 			{
-				"COS Priority and TxQ", "wassp.cos_priority_txq",FT_UINT8,  BASE_CUSTOM,  CF_FUNC(cos_priority_txq_print),
-				0xff, "Cos Priority and Transmit Queue", HFILL
+				"COS Priority and TxQ", "wassp.cos_priority_txq", FT_UINT8,  BASE_CUSTOM,  CF_FUNC(cos_priority_txq_print),
+				0x0, "Cos Priority and Transmit Queue", HFILL
 			}
 		},
 		{
 			&hf_cos_rateid,
 			{
 				"COS In&Out Rate Id", "wassp.rate_id", FT_UINT8,  BASE_CUSTOM,  CF_FUNC(cos_rate_id_print),
-				0xff, "Cos In&Out Rate Id", HFILL
+				0x0, "Cos In&Out Rate Id", HFILL
 			}
 		},
 		{

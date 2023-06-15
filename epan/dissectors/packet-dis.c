@@ -8733,7 +8733,7 @@ void proto_register_dis(void)
             },
             { &hf_pdu_status_field,
               { "not implemented for this PDU type",       "dis.pdu_status.field",
-                FT_UINT8, BASE_HEX, NULL, 0xff,
+                FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
             },
             { &hf_dis_padding,

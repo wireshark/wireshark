@@ -536,7 +536,7 @@ proto_register_ccsds(void)
         },
         { &hf_ccsds_length,
             { "Packet Length",           "ccsds.length",
-            FT_UINT16, BASE_DEC, NULL, 0xffff,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
@@ -549,7 +549,7 @@ proto_register_ccsds(void)
         },
         { &hf_ccsds_fine_time,
             { "Fine Time",           "ccsds.fine_time",
-            FT_UINT8, BASE_DEC, NULL, 0xff,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ccsds_timeid,
@@ -636,7 +636,7 @@ proto_register_ccsds(void)
 #endif
         { &hf_ccsds_frame_id,
             { "Frame ID",             "ccsds.frame_id",
-            FT_UINT8, BASE_DEC, NULL, 0xff,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_ccsds_embedded_time,

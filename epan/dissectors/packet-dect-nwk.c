@@ -2882,7 +2882,7 @@ void proto_register_dect_nwk(void)
 		},
 		{ &hf_dect_nwk_s_ie_length,
 			{ "Content Length", "dect_nwk.s.ie.length", FT_UINT8, BASE_DEC,
-				NULL, 0xFF, "Length indicator", HFILL
+				NULL, 0x0, "Length indicator", HFILL
 			}
 		},
 		{ &hf_dect_nwk_s_ie_octet_group_extension,

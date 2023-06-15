@@ -38,10 +38,10 @@ void proto_register_vp8(void);
 #define BIT_567_MASK            0x0E
 #define BIT_45678_MASK          0x1F
 #define BIT_12_MASK             0xC0
-#define BIT_NO_MASK             0xFF
+#define BIT_NO_MASK             0x0
 
-#define BIT_2BYTE_NO_MASK       0xFFFF
-#define BIT_3BYTE_NO_MASK       0xFFFFFF
+#define BIT_2BYTE_NO_MASK       0x0
+#define BIT_3BYTE_NO_MASK       0x0
 #define BIT_EXT_PICTURE_MASK    0x7FFF
 #define BIT_PARTITION_SIZE_MASK 0xFFFFE0
 

@@ -11703,12 +11703,12 @@ proto_register_gtp(void)
         },
         {&hf_gtp_xid_par_len,
          { "PS Handover XID parameter length", "gtp.ps_handover_xid_par_len",
-           FT_UINT8, BASE_DEC, NULL, 0xFF,
+           FT_UINT8, BASE_DEC, NULL, 0x0,
            "XID parameter length", HFILL}
         },
         {&hf_gtp_rep_act_type,
          { "Action", "gtp.ms_inf_chg_rep_act",
-           FT_UINT8, BASE_DEC, VALS(chg_rep_act_type_vals), 0xFF,
+           FT_UINT8, BASE_DEC, VALS(chg_rep_act_type_vals), 0x0,
            NULL, HFILL}
         },
         {&hf_gtp_correlation_id,
@@ -12443,7 +12443,7 @@ proto_register_gtp(void)
       },
       {&hf_nrup_dl_disc_num_blks,
          { "DL discard Number of blocks", "nrup.dl_disc_num_blks",
-           FT_UINT8, BASE_DEC, NULL, 0xff,
+           FT_UINT8, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
       },
       {&hf_nrup_dl_disc_nr_pdcp_pdu_sn_start,

@@ -6600,7 +6600,7 @@ proto_register_rtcp(void)
                 FT_UINT8,
                 BASE_DEC,
                 NULL,
-                0xff,
+                0x0,
                 NULL, HFILL
             }
         },

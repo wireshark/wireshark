@@ -1484,7 +1484,7 @@ proto_register_hartip(void)
     },
     { &hf_hartip_master_type,
       { "Host Type",           "hart_ip.session_init.master_type",
-        FT_UINT8, BASE_DEC, VALS(hartip_master_type_values), 0xFF,
+        FT_UINT8, BASE_DEC, VALS(hartip_master_type_values), 0x0,
         "Session Host Type", HFILL }
     },
     { &hf_hartip_inactivity_close_timer,
@@ -1494,7 +1494,7 @@ proto_register_hartip(void)
     },
     { &hf_hartip_error_code,
       { "Error",           "hart_ip.error.error_code",
-        FT_UINT8, BASE_DEC, VALS(hartip_error_code_values), 0xFF,
+        FT_UINT8, BASE_DEC, VALS(hartip_error_code_values), 0x0,
         "Error Code", HFILL }
     },
 

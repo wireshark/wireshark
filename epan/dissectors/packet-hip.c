@@ -1374,7 +1374,7 @@ proto_register_hip(void)
 
                 { &hf_hip_tlv_notification_type,
                   { "Notification Message Type", "hip.tlv.notification_type",
-                    FT_UINT16, BASE_DEC, VALS(notification_vals), 0xFFFF, NULL, HFILL }},
+                    FT_UINT16, BASE_DEC, VALS(notification_vals), 0x0, NULL, HFILL }},
 
                 { &hf_hip_tlv_notification_data,
                   { "Notification Data", "hip.tlv.notification_data",

@@ -2511,12 +2511,12 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipc_org_port,
 			{ "Originating port", "tipc.org_port",
-				FT_UINT32, BASE_DEC, NULL, 0xffffffff,
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"TIPC Originating port", HFILL }
 		},
 		{ &hf_tipc_dst_port,
 			{ "Destination port", "tipc.dst_port",
-				FT_UINT32, BASE_DEC, NULL, 0xffffffff,
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"TIPC Destination port", HFILL }
 		},
 		{ &hf_tipc_data_msg_type,
@@ -2586,7 +2586,7 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipc_remote_addr,
 			{ "Remote address", "tipc.remote_addr",
-				FT_UINT32, BASE_DEC, NULL, 0xffffffff,
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"TIPC Remote address", HFILL }
 		},
 		{ &hf_tipc_rm_msg_type,
@@ -2661,27 +2661,27 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipc_name_dist_type,
 			{ "Published port name type", "tipc.name_dist_type",
-				FT_UINT32, BASE_DEC, NULL, 0xffffffff,
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"TIPC Published port name type", HFILL }
 		},
 		{ &hf_tipc_name_dist_lower,
 			{ "Lower bound of published sequence", "tipc.name_dist_lower",
-				FT_UINT32, BASE_DEC, NULL, 0xffffffff,
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"TIPC Lower bound of published sequence", HFILL }
 		},
 		{ &hf_tipc_name_dist_upper,
 			{ "Upper bound of published sequence", "tipc.name_dist_upper",
-				FT_UINT32, BASE_DEC, NULL, 0xffffffff,
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"TIPC Upper bound of published sequence", HFILL }
 		},
 		{ &hf_tipc_name_dist_port,
 			{ "Random number part of port identity", "tipc.dist_port",
-				FT_UINT32, BASE_DEC, NULL, 0xffffffff,
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"TIPC Random number part of port identity", HFILL }
 		},
 		{ &hf_tipc_name_dist_key,
 			{ "Key (Use for verification at withdrawal)", "tipc.dist_key",
-				FT_UINT32, BASE_DEC, NULL, 0xffffffff,
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"TIPC key", HFILL }
 		},
 		{ &hf_tipcv2_srcdrop,
@@ -2808,22 +2808,22 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipcv2_port_name_type,
 			{ "Port name type", "tipcv2.port_name_type",
-				FT_UINT32, BASE_DEC, NULL, 0xffffffff,
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_tipcv2_port_name_instance,
 			{ "Port name instance", "tipcv2.port_name_instance",
-				FT_UINT32, BASE_DEC, NULL, 0xffffffff,
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_tipcv2_multicast_lower,
 			{ "Multicast lower bound", "tipcv2.multicast_lower",
-				FT_UINT32, BASE_DEC, NULL, 0xffffffff,
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"Multicast port name instance lower bound", HFILL }
 		},
 		{ &hf_tipcv2_multicast_upper,
 			{ "Multicast upper bound", "tipcv2.multicast_upper",
-				FT_UINT32, BASE_DEC, NULL, 0xffffffff,
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"Multicast port name instance upper bound", HFILL }
 		},
 		{ &hf_tipcv2_sequence_gap,
@@ -2913,7 +2913,7 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipcv2_network_id,
 			{ "Network Identity", "tipcv2.network_id",
-				FT_UINT32, BASE_DEC, NULL, 0xFFFFFFFF,
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"The sender node's network identity", HFILL }
 		},
 		{ &hf_tipcv2_bcast_tag,
@@ -2933,7 +2933,7 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipcv2_transport_seq_no,
 			{ "Transport Sequence No", "tipcv2.tseq_no",
-				FT_UINT32, BASE_DEC, NULL, 0xFFFFFFFF,
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"Transport Level Sequence Number", HFILL }
 		},
 		{ &hf_tipcv2_redundant_link,
@@ -3003,7 +3003,7 @@ proto_register_tipc(void)
 		},
 		{ &hf_tipcv2_timestamp,
 			{ "Timestamp", "tipcv2.timestamp",
-				FT_UINT32, BASE_DEC, NULL, 0xFFFFFFFF,
+				FT_UINT32, BASE_DEC, NULL, 0x0,
 				"OS-dependent Timestamp", HFILL }
 		},
 		{ &hf_tipcv2_item_size,

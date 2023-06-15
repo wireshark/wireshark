@@ -3350,7 +3350,7 @@ proto_register_h265(void)
 		},
 		{ &hf_h265_general_level_idc,
 		{ "general_level_idc", "h265.general_level_idc",
-			FT_UINT8, BASE_DEC, NULL, 0xFF,
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_h265_sub_layer_profile_present_flag/*[i]*/,
@@ -3496,7 +3496,7 @@ proto_register_h265(void)
 		},
 		{ &hf_h265_sub_layer_level_idc/*[i]*/,
 		{ "sub_layer_level_idc", "h265.sub_layer_level_idc",
-			FT_UINT8, BASE_DEC, NULL, 0xFF,
+			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_h265_vps_sub_layer_ordering_info_present_flag,

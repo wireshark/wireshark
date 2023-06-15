@@ -10533,7 +10533,7 @@ void proto_register_gtpv2(void)
         },
         {&hf_gtpv2_charging_characteristic,
          {"Charging Characteristic", "gtpv2.charging_characteristic",
-          FT_UINT16, BASE_HEX, NULL, 0xffff,
+          FT_UINT16, BASE_HEX, NULL, 0x0,
           NULL, HFILL}
         },
         {&hf_gtpv2_bearer_flag_ppc,
@@ -11801,7 +11801,7 @@ void proto_register_gtpv2(void)
       },
       { &hf_gtpv2_secondary_rat_usage_data_report_rat_type,
           {"RAT Type", "gtpv2.secondary_rat_usage_data_report.rat_type",
-          FT_UINT8, BASE_DEC, VALS(gtpv2_secondary_rat_type_vals), 0xFF,
+          FT_UINT8, BASE_DEC, VALS(gtpv2_secondary_rat_type_vals), 0x0,
           NULL, HFILL}
       },
       { &hf_gtpv2_secondary_rat_usage_data_report_start_timestamp,

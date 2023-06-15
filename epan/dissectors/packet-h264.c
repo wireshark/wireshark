@@ -2897,7 +2897,7 @@ proto_register_h264(void)
         },
         { &hf_h264_profile_idc,
             { "Profile_idc",           "h264.profile_idc",
-            FT_UINT8, BASE_DEC, VALS(h264_profile_idc_values), 0xff,
+            FT_UINT8, BASE_DEC, VALS(h264_profile_idc_values), 0x0,
             NULL, HFILL }
         },
         { &hf_h264_rbsp_stop_bit,
@@ -2947,7 +2947,7 @@ proto_register_h264(void)
         },
         { &hf_h264_level_idc,
             { "Level_id",           "h264.level_id",
-            FT_UINT8, BASE_DEC, NULL, 0xff,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_h264_nal_unit,
@@ -3786,7 +3786,7 @@ proto_register_h264(void)
         },
         { &hf_h264_pacsi_tl0picidx,
             { "TL0PICIDX", "h264.pacsi.tl0picidx",
-            FT_UINT8, BASE_DEC, NULL, 0xFF,
+            FT_UINT8, BASE_DEC, NULL, 0xff,
             NULL, HFILL }
         },
         { &hf_h264_pacsi_idrpicid,

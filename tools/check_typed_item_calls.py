@@ -704,7 +704,9 @@ class Item:
     # - in add_bitmask() set and only one there!
     # - represents flags, but dissector is not yet decoding them
     def check_full_mask(self, mask):
-        if self.label.lower().find('mask') != -1 or self.label.lower().find('flag') != -1:
+        if self.item_type == "FT_BOOLEAN":
+            return
+        if self.label.lower().find('mask') != -1 or self.label.lower().find('flag') != -1 or self.label.lower().find('bitmap') != -1:
             return
         if mask.startswith('0x') and len(mask) > 3:
             width_in_bits = self.get_field_width_in_bits()
@@ -714,8 +716,7 @@ class Item:
             if num_digits is None:
                 return
             if mask[2:] == 'f'*num_digits   or   mask[2:] == 'F'*num_digits:
-                print(int(self.get_field_width_in_bits() / 4))
-                print('Warning:', self.filename, self.hf, '****** filter=', self.filter, ' - item is all set - this is confusing - set 0 instead! :', '"' + mask + '"')
+                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - item is all set - this is confusing - set 0 instead! :', '"' + mask + '"')
                 global warnings_found
                 warnings_found += 1
 
