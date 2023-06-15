@@ -8020,7 +8020,7 @@ proto_register_docsis_mgmt (void)
      },
     {&hf_docsis_rngrsp_length,
      {"Length", "docsis_rngrsp.length",
-      FT_UINT8, BASE_DEC, NULL, 0x0,
+      FT_UINT16, BASE_DEC, NULL, 0x0,
       "TLV Length", HFILL}
      },
     {&hf_docsis_rngrsp_sid,

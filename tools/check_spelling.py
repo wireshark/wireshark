@@ -6,6 +6,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 import os
+import sys
 import re
 import subprocess
 import argparse
@@ -88,7 +89,7 @@ class File:
 
     # Add a string found in this file.
     def add(self, value):
-        self.values.append(value.encode('utf-8'))
+        self.values.append(value.encode('utf-8') if sys.platform.startswith('win') else value)
 
     # Whole word is not recognised, but is it 2 words concatenated (without camelcase) ?
     def checkMultiWords(self, word):
@@ -222,7 +223,8 @@ class File:
 
                 if len(word) > 4 and spell.unknown([word]) and not self.checkMultiWords(word) and not self.wordBeforeId(word):
                     print(self.file, value_index, '/', num_values, '"' + original + '"', bcolors.FAIL + word + bcolors.ENDC,
-                         ' -> ', '?')
+                          ' -> ', '?')
+
                     # TODO: this can be interesting, but takes too long!
                     # bcolors.OKGREEN + spell.correction(word) + bcolors.ENDC
                     global missing_words

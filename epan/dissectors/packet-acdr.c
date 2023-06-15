@@ -1860,7 +1860,7 @@ proto_register_acdr(void)
         { &hf_5x_hpi_resource_id,
             { "Resource ID", "acdr.5x.HpiHeader.ResourceId",
                 FT_UINT8, BASE_DEC,
-                NULL, 0xFF,
+                NULL, 0x0,
                 "Resource ID into core", HFILL }
         },
         { &hf_5x_hpi_favorite,

@@ -175,29 +175,26 @@ class APICheck:
                               'item type is', items_defined[call.hf_name].item_type, 'but call has len', call.length)
                         warnings_found += 1
 
-
+            # Needs a +ve length
             if self.positive_length and call.length != None:
                 if call.length != -1 and call.length <= 0:
                     print('Error: ' +  self.fun_name + '(.., ' + call.hf_name + ', ...) called at ' +
                           self.file + ':' + str(call.line_number) +
                           ' with length ' + str(call.length) + ' - must be > 0 or -1')
-                    # Inc global count of issues found.
                     errors_found += 1
             if call.hf_name in items_defined:
+                # Is type allowed?
                 if not items_defined[call.hf_name].item_type in self.allowed_types:
-                    # Report this issue.
                     print('Error: ' +  self.fun_name + '(.., ' + call.hf_name + ', ...) called at ' +
                           self.file + ':' + str(call.line_number) +
                           ' with type ' + items_defined[call.hf_name].item_type)
                     print('    (allowed types are', self.allowed_types, ')\n')
-                    # Inc global count of issues found.
                     errors_found += 1
+                # No mask allowed
                 if not self.mask_allowed and items_defined[call.hf_name].mask_value != 0:
-                    # Report this issue.
                     print('Error: ' +  self.fun_name + '(.., ' + call.hf_name + ', ...) called at ' +
                           self.file + ':' + str(call.line_number) +
                           ' with mask ' + items_defined[call.hf_name].mask + '    (must be zero!)\n')
-                    # Inc global count of issues found.
                     errors_found += 1
 
 
@@ -534,6 +531,7 @@ class Item:
                 self.check_contiguous_bits(mask)
                 self.check_num_digits(self.mask)
                 self.check_digits_all_zeros(self.mask)
+                self.check_full_mask(self.mask)
 
 
     def __str__(self):
@@ -618,7 +616,6 @@ class Item:
                   'but mask is', mask, 'which is', mask_width, 'bits wide!')
             global warnings_found
             warnings_found += 1
-
         # Now, any more zero set bits are an error!
         if self.filter in known_non_contiguous_fields or self.filter.startswith('rtpmidi'):
             # Don't report if we know this one is Ok.
@@ -701,6 +698,28 @@ class Item:
                 print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - item mask has all zeros - this is confusing! :', '"' + mask + '"')
                 global warnings_found
                 warnings_found += 1
+
+    # A mask where all bits are set should instead be 0.
+    # Exceptions might be where:
+    # - in add_bitmask() set and only one there!
+    # - represents flags, but dissector is not yet decoding them
+    def check_full_mask(self, mask):
+        if self.label.lower().find('mask') != -1 or self.label.lower().find('flag') != -1:
+            return
+        if mask.startswith('0x') and len(mask) > 3:
+            width_in_bits = self.get_field_width_in_bits()
+            if not width_in_bits:
+                return
+            num_digits = int(width_in_bits / 4)
+            if num_digits is None:
+                return
+            if mask[2:] == 'f'*num_digits   or   mask[2:] == 'F'*num_digits:
+                print(int(self.get_field_width_in_bits() / 4))
+                print('Warning:', self.filename, self.hf, '****** filter=', self.filter, ' - item is all set - this is confusing - set 0 instead! :', '"' + mask + '"')
+                global warnings_found
+                warnings_found += 1
+
+
 
     # Return True if appears to be a match
     def check_label_vs_filter(self, reportError=True):

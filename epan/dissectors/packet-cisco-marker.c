@@ -148,22 +148,22 @@ proto_register_erspan_marker(void)
      * (37 seconds as of Nov 2021) */
     { &hf_cisco_erspan_utc_sec,
       { "UTC Seconds", "erspan-marker.utc_sec",
-        FT_UINT32, BASE_DEC, NULL, 0xffffffff,
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_cisco_erspan_utc_usec,
       { "UTC Microseconds", "erspan-marker.utc_usec",
-        FT_UINT32, BASE_DEC, NULL, 0xffffffff,
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_cisco_erspan_sequence_number,
       { "Sequence Number", "erspan-marker.sequence_number",
-        FT_UINT32, BASE_DEC, NULL, 0xffffffff,
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_cisco_erspan_reserved,
       { "Reserved", "erspan-marker.reserved",
-        FT_UINT32, BASE_DEC, NULL, 0xffffffff,
+        FT_UINT32, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     /* The 32-bit signature is expected to be 0xA5A5A5A5,

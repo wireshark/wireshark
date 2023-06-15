@@ -39962,7 +39962,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_band_id,
      {"Band ID", "wlan.band_id",
-      FT_UINT8, BASE_DEC, VALS(band_id), 0xff,
+      FT_UINT8, BASE_DEC, VALS(band_id), 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_move,
@@ -39977,12 +39977,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_tbtt_offset,
      {"TBTT Offset", "wlan.dmg_bss_param_change.tbtt_offset",
-      FT_UINT32, BASE_CUSTOM, CF_FUNC(allocation_duration_base_custom), 0xffffffff,
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(allocation_duration_base_custom), 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_bi_duration,
      {"BI Duration", "wlan.dmg_bss_param_change.bi_duration",
-      FT_UINT16, BASE_DEC, NULL, 0xffff,
+      FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_dmg_capa_sta_addr,
@@ -40297,12 +40297,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_src_aid,
      {"Source AID", "wlan.ext_sched.src_id",
-      FT_UINT8, BASE_DEC, NULL, 0xff,
+      FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_dest_aid,
      {"Destination AID", "wlan.ext_sched.dest_id",
-      FT_UINT8, BASE_DEC, NULL, 0xff,
+      FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_alloc_start,
@@ -40312,17 +40312,17 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_alloc_block_duration,
      {"Allocation Block Duration", "wlan.ext_sched.block_duration",
-      FT_UINT16, BASE_DEC, NULL, 0xffff,
+      FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_num_blocks,
      {"Number of Blocks", "wlan.ext_sched.num_blocks",
-      FT_UINT8, BASE_DEC, NULL, 0xff,
+      FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_alloc_block_period,
      {"Allocation Block Period", "wlan.ext_sched.alloc_block_period",
-      FT_UINT16, BASE_DEC, NULL, 0xffff,
+      FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_aid,
@@ -40347,7 +40347,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_next_ati_duration,
      {"ATI Duration", "wlan.next_ati.duration",
-      FT_UINT16, BASE_DEC, NULL, 0xffff,
+      FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_old_bssid,
@@ -40382,22 +40382,22 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_link_change_interval,
      {"Link Change Interval", "wlan.relay_trans_param.link_change_interval",
-      FT_UINT8, BASE_CUSTOM, CF_FUNC(allocation_duration_base_custom), 0xff,
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(allocation_duration_base_custom), 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_data_sensing_time,
      {"Data Sensing Time", "wlan.relay_trans_param.data_sensing_time",
-      FT_UINT8, BASE_DEC, NULL, 0xff,
+      FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_first_period,
      {"First Period", "wlan.relay_trans_param.first_period",
-      FT_UINT16, BASE_DEC, NULL, 0xffff,
+      FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_second_period,
      {"Second Period", "wlan.relay_trans_param.second_period",
-      FT_UINT16, BASE_DEC, NULL, 0xffff,
+      FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_initiator,

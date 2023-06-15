@@ -21,9 +21,6 @@ import signal
 import re
 from pathlib import Path
 
-# TODO:
-# - Add conditional text for a header file, e.g. registering expert info or taps?
-
 
 # Try to exit soon after Ctrl-C is pressed.
 should_exit = False
@@ -78,7 +75,6 @@ test_folder = os.path.join(os.getcwd(), args.folder)
 # Usually only building one module, so no -j benefit?
 make_command = ['cmake', '--build', args.build_folder]
 if sys.platform.startswith('win'):
-    # TODO: Untested...
     make_command += ['--config', 'RelWithDebInfo']
 
 
@@ -133,8 +129,8 @@ class BuildStats:
 stats = BuildStats()
 
 
-# We want to confirm that this file is actually built as part of the make target.
-# To do this, add some garbage to the front of the file and confirm that the
+# We want to confirm that this file is actually built as part of the build.
+# To do this, add some nonsense to the front of the file and confirm that the
 # build then fails.  If it doesn't, won't want to remove #includes from that file!
 def test_file_is_built(filename):
     print('test_file_is_built(', filename, ')')
@@ -174,8 +170,7 @@ def test_file_is_built(filename):
 def test_file(filename):
     global stats
 
-    print('')
-    print('------------------------------')
+    print('\n------------------------------')
     print(bcolors.OKBLUE, bcolors.BOLD, 'Testing', filename, bcolors.ENDC)
 
     temp_filename = filename + '.tmp'
@@ -430,5 +425,3 @@ for filename in files:
 
 # Show summary stats of run
 stats.showSummary()
-
-# TODO: return value in exit?

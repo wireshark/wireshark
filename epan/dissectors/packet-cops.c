@@ -1877,12 +1877,12 @@ void proto_register_cops(void)
         },
         { &hf_cops_r_type_flags,
           { "R-Type",           "cops.context.r_type",
-            FT_UINT16, BASE_HEX, VALS(cops_r_type_vals), 0xFFFF,
+            FT_UINT16, BASE_HEX, VALS(cops_r_type_vals), 0x0,
             "R-Type in COPS Context Object", HFILL }
         },
         { &hf_cops_m_type_flags,
           { "M-Type",           "cops.context.m_type",
-            FT_UINT16, BASE_HEX, NULL, 0xFFFF,
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             "M-Type in COPS Context Object", HFILL }
         },
         { &hf_cops_in_int_ipv4,

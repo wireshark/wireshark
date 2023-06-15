@@ -132,13 +132,13 @@ static gint ett_dpnet_desc_flags = -1;
 #define PACKET_SIGNING_FAST                  0x01
 #define PACKET_SIGNING_FULL                  0x02
 
-#define SESSION_CLIENT_SERVER                0x00000001
-#define SESSION_MIGRATE_HOST                 0x00000004
-#define SESSION_NODPNSVR                     0x00000040
-#define SESSION_REQUIREPASSWORD              0x00000080
-#define SESSION_NOENUMS                      0x00000100
-#define SESSION_FAST_SIGNED                  0x00000200
-#define SESSION_FULL_SIGNED                  0x00000400
+#define SESSION_CLIENT_SERVER                0x0001
+#define SESSION_MIGRATE_HOST                 0x0004
+#define SESSION_NODPNSVR                     0x0040
+#define SESSION_REQUIREPASSWORD              0x0080
+#define SESSION_NOENUMS                      0x0100
+#define SESSION_FAST_SIGNED                  0x0200
+#define SESSION_FULL_SIGNED                  0x0400
 
 static const value_string packetenumttypes[] = {
     { 1, "Application GUID" },

@@ -1222,43 +1222,43 @@ proto_register_ehs(void)
 
       { &hf_ehs_ph_mission,
         { "Mission", "ehs.mission",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_ph_protocol,
         { "Protocol", "ehs.protocol",
-          FT_UINT8, BASE_DEC, VALS(ehs_primary_header_protocol), 0xff,
+          FT_UINT8, BASE_DEC, VALS(ehs_primary_header_protocol), 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_ph_year,
         { "Years since 1900", "ehs.year",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_ph_jday,
         { "Julian Day of Year", "ehs.jday",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_ph_hour,
         { "Hour", "ehs.hour",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_ph_minute,
         { "Minute", "ehs.minute",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_ph_second,
         { "Second", "ehs.second",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
@@ -1312,7 +1312,7 @@ proto_register_ehs(void)
 
       { &hf_ehs_ph_hosc_packet_size,
         { "HOSC Packet Size", "ehs.hosc_packet_size",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
@@ -1376,7 +1376,7 @@ proto_register_ehs(void)
       /* common ehs secondary header values */
       { &hf_ehs_sh_vcdu_sequence_number,
         { "VCDU Sequence Number", "ehs2.vcdu_seqno",
-          FT_UINT24, BASE_DEC, NULL, 0xffffff,
+          FT_UINT24, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
@@ -1422,13 +1422,13 @@ proto_register_ehs(void)
 
       { &hf_ehs_sh_virtual_channel,
         { "Virtual Channel", "ehs2.vcid",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_sh_pdss_reserved_sync,
         { "Pdss Reserved Sync", "ehs2.sync",
-          FT_UINT16, BASE_HEX, NULL, 0xffff,
+          FT_UINT16, BASE_HEX, NULL, 0x0,
           NULL, HFILL }
       },
 
@@ -1436,7 +1436,7 @@ proto_register_ehs(void)
       /* tdm ehs secondary header values */
       { &hf_ehs_sh_tdm_secondary_header_length,
         { "Secondary Header Length", "ehs2.tdm_secondary_header_length",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
@@ -1509,57 +1509,57 @@ proto_register_ehs(void)
 
       { &hf_ehs_sh_tdm_idq,
         { "IDQ", "ehs2.tdm_idq",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_sh_tdm_cdq,
         { "CDQ", "ehs2.tdm_cdq",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_sh_tdm_adq,
         { "ADQ", "ehs2.tdm_adq",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_sh_tdm_data_dq,
         { "Data DQ", "ehs2.tdm_data_dq",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
 #if 0
       { &hf_ehs_sh_tdm_unused,
         { "Unused", "ehs2.tdm_unused",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 #endif
 
       { &hf_ehs_sh_tdm_format_id,
         { "Format ID", "ehs2.tdm_format_id",
-          FT_UINT16, BASE_HEX, NULL, 0xffff,
+          FT_UINT16, BASE_HEX, NULL, 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_sh_tdm_major_frame_packet_index,
         { "Major Frame Packet Index", "ehs2.tdm_major_frame_packet_index",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_sh_tdm_numpkts_per_major_frame,
         { "Num Packets per Major Frame", "ehs2.tdm_numpkts_per_major_frame",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_sh_tdm_num_minor_frames_per_packet,
         { "Num Minor Frames per Packet", "ehs2.tdm_num_minor_frame_per_packet",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
@@ -1588,27 +1588,27 @@ proto_register_ehs(void)
 
       { &hf_ehs_sh_tdm_cnt_year,
         { "CNT Years since 1900", "ehs2.tdm_cnt_year",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_sh_tdm_cnt_jday,
         { "CNT Julian Day of Year", "ehs2.tdm_cnt_jday",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_sh_tdm_cnt_hour,
         { "CNT Hour", "ehs2.tdm_cnt_hour",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_sh_tdm_cnt_minute,
         { "CNT Minute", "ehs2.tdm_cnt_minute",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_sh_tdm_cnt_second,
         { "CNT Second", "ehs2.tdm_cnt_second",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_sh_tdm_cnt_tenths,
@@ -1619,27 +1619,27 @@ proto_register_ehs(void)
 
       { &hf_ehs_sh_tdm_obt_year,
         { "OBT Years since 1900", "ehs2.tdm_cnt_year",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_sh_tdm_obt_jday,
         { "OBT Julian Day of Year", "ehs2.tdm_cnt_jday",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_sh_tdm_obt_hour,
         { "OBT Hour", "ehs2.tdm_cnt_hour",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_sh_tdm_obt_minute,
         { "OBT Minute", "ehs2.tdm_cnt_minute",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_sh_tdm_obt_second,
         { "OBT Second", "ehs2.tdm_cnt_second",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_sh_tdm_obt_tenths,
@@ -1678,7 +1678,7 @@ proto_register_ehs(void)
 
       { &hf_ehs_sh_tdm_num_major_frame_status_words,
         { "Number of Major Frame Status Words", "ehs2.tdm_num_major_frame_status_words",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
@@ -1757,17 +1757,17 @@ proto_register_ehs(void)
 #endif
       { &hf_ehs_sh_pseudo_workstation_id,
         { "Workstation ID", "ehs2.pseudo_workstation_id",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_sh_pseudo_user_id,
         { "User ID", "ehs2.pseudo_user_id",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_sh_pseudo_comp_id,
         { "Comp ID", "ehs2.pseudo_comp_id",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
@@ -1823,53 +1823,53 @@ proto_register_ehs(void)
 
       { &hf_ehs_dz_udsm_start_time_year,
         { "Start Time Years since 1900", "ehs.dz.udsm_start_time_year",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_start_time_jday,
         { "Start Time Julian Day", "ehs.dz.udsm_start_time_jday",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_start_time_hour,
         { "Start Time Hour", "ehs.dz.udsm_start_time_hour",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_start_time_minute,
         { "Start Time Minute", "ehs.dz.udsm_start_time_minute",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_start_time_second,
         { "Start Time Second", "ehs.dz.udsm_start_time_second",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_dz_udsm_stop_time_year,
         { "Stop Time Years since 1900", "ehs.dz.udsm_stop_time_year",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_stop_time_jday,
         { "Stop Time Julian Day", "ehs.dz.udsm_stop_time_jday",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_stop_time_hour,
         { "Stop Time Hour", "ehs.dz.udsm_stop_time_hour",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_stop_time_minute,
         { "Stop Time Minute", "ehs.dz.udsm_stop_time_minute",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_ehs_dz_udsm_stop_time_second,
         { "Stop Time Second", "ehs.dz.udsm_stop_time_second",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
@@ -1883,37 +1883,37 @@ proto_register_ehs(void)
 
       { &hf_ehs_dz_udsm_num_pkts_xmtd,
         { "Num Pkts Transmitted", "ehs.dz.udsm_num_pkts_xmtd",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_dz_udsm_num_vcdu_seqerrs,
         { "Num VCDU Sequence Errors", "ehs.dz.udsm_num_vcdu_seqerrs",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_dz_udsm_num_pkt_seqerrs,
         { "Num Packet Sequence Errors", "ehs.dz.udsm_num_pkt_seqerrs",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_dz_udsm_num_pktlen_errors,
         { "Num Pkt Length Errors", "ehs.dz.udsm_num_pktlen_errors",
-          FT_UINT16, BASE_DEC, NULL, 0xffff,
+          FT_UINT16, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_dz_udsm_event,
         { "UDSM Event Code", "ehs.dz.udsm_event",
-          FT_UINT8, BASE_DEC, VALS(ehs_data_zone_udsm_event), 0xff,
+          FT_UINT8, BASE_DEC, VALS(ehs_data_zone_udsm_event), 0x0,
           NULL, HFILL }
       },
 
       { &hf_ehs_dz_udsm_num_pkts_xmtd_rollover,
         { "Num Pkts Transmitted Rollover Counter", "ehs.dz.udsm_num_pkts_xmtd_rollover",
-          FT_UINT8, BASE_DEC, NULL, 0xff,
+          FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
 
