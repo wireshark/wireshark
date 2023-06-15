@@ -46,12 +46,23 @@ type_map = {
 
 def convert_file(file):
     lines = ''
-    with open(file, 'r') as f:
-        lines = f.read()
-        for glib_type, c99_type in padded_type_map.items():
-            lines = lines.replace(glib_type, c99_type)
-        for glib_type, c99_type in type_map.items():
-            lines = re.sub(rf'([^"])\b{glib_type}\b([^"])', rf'\1{c99_type}\2', lines, flags=re.MULTILINE)
+    try:
+        with open(file, 'r') as f:
+            lines = f.read()
+            for glib_type, c99_type in padded_type_map.items():
+                lines = lines.replace(glib_type, c99_type)
+            for glib_type, c99_type in type_map.items():
+                lines = re.sub(rf'([^"])\b{glib_type}\b([^"])', rf'\1{c99_type}\2', lines, flags=re.MULTILINE)
+    except IsADirectoryError:
+        sys.stderr.write(f'{file} is a directory.\n')
+        return
+    except UnicodeDecodeError:
+        sys.stderr.write(f"{file} isn't valid UTF-8.\n")
+        return
+    except:
+        sys.stderr.write(f'Unable to open {file}.\n')
+        return
+
     with open(file, 'w') as f:
         f.write(lines)
     print(f'Converted {file}')
