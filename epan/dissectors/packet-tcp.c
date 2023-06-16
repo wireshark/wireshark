@@ -3857,12 +3857,14 @@ msp_add_out_of_order(packet_info *pinfo, struct tcp_multisegment_pdu *msp, struc
 
     /* Whether a previous MSP exists with missing segments. */
     gboolean has_unfinished_msp = msp && !(msp->flags & MSP_FLAGS_GOT_ALL_SEGMENTS);
+    bool updated_maxnextseq = FALSE;
 
     if (msp) {
         guint32 maxnextseq = find_maxnextseq(pinfo, msp, tcpd->fwd->maxnextseq);
         if (LE_SEQ(tcpd->fwd->maxnextseq, maxnextseq)) {
             tcpd->fwd->maxnextseq = maxnextseq;
         }
+        updated_maxnextseq = TRUE;
     }
     wmem_list_frame_t *curr_entry;
     curr_entry = wmem_list_head(tcpd->fwd->ooo_segments);
@@ -3871,7 +3873,15 @@ msp_add_out_of_order(packet_info *pinfo, struct tcp_multisegment_pdu *msp, struc
     while (curr_entry) {
         fd = (ooo_segment_item *)wmem_list_frame_data(curr_entry);
         if (LT_SEQ(tcpd->fwd->maxnextseq, fd->seq)) {
-            break;
+            /* There might be segments already added to the msp that now extend
+             * the maximum contiguous sequence number. Check for them. */
+            if (msp && !updated_maxnextseq) {
+                tcpd->fwd->maxnextseq = find_maxnextseq(pinfo, msp, tcpd->fwd->maxnextseq);
+                updated_maxnextseq = TRUE;
+            }
+            if (LT_SEQ(tcpd->fwd->maxnextseq, fd->seq)) {
+                break;
+            }
         }
         /* We have filled in the gap, so this out of order
          * segment is now contiguous and can be processed along
@@ -3881,7 +3891,11 @@ msp_add_out_of_order(packet_info *pinfo, struct tcp_multisegment_pdu *msp, struc
         tvb_data = tvb_new_real_data(fd->data, fd->len, fd->len);
         if (has_unfinished_msp) {
 
-            /* Increase the expected MSP size if necessary. */
+            /* Increase the expected MSP size if necessary. Yes, the
+             * subdissector may have told us that a PDU ended here, but we
+             * might have enough newly contiguous data to dissect another
+             * PDU past that, and we should send that to the subdissector
+             * too. */
             if (LT_SEQ(msp->nxtpdu, fd->seq + fd->len)) {
                 msp->nxtpdu = fd->seq + fd->len;
             }
@@ -3908,13 +3922,16 @@ msp_add_out_of_order(packet_info *pinfo, struct tcp_multisegment_pdu *msp, struc
                         msp->nxtpdu, fd->frame);
             has_unfinished_msp = TRUE;
         }
-        /* There might be segments already added to the msp that now extend
-         * the maximum contiguous sequence number. Check for them. */
-        tcpd->fwd->maxnextseq = find_maxnextseq(pinfo, msp, tcpd->fwd->maxnextseq);
+        updated_maxnextseq = FALSE;
         tvb_free(tvb_data);
         wmem_list_remove_frame(tcpd->fwd->ooo_segments, curr_entry);
         curr_entry = wmem_list_head(tcpd->fwd->ooo_segments);
 
+    }
+    /* There might be segments already added to the msp that now extend
+     * the maximum contiguous sequence number. Check for them. */
+    if (msp && !updated_maxnextseq) {
+        tcpd->fwd->maxnextseq = find_maxnextseq(pinfo, msp, tcpd->fwd->maxnextseq);
     }
     return msp;
 }
