@@ -87,11 +87,28 @@ void CapturePreferencesFrame::updateWidgets()
         if (device->hidden) {
             continue;
         }
-        // InterfaceTree matches against device->name when selecting the
-        // default interface, so add it here if needed. On Windows this
-        // means that we show the user a big ugly UUID-laden device path.
+        // InterfaceTree matches against device->name (the device name)
+        //  when selecting the default interface, so add it here if needed.
+        //
+        // On UN*Xes, the display name includes the device name, as
+        // interface names are generally short simple names that
+        // are somewhat human-recognizable; if there's a description,
+        // it precedes the device name, which is followed by a colon
+        // and a space, e.g. "Wi-Fi: en0".  This means that we do not
+        // need to add the device name.
+        //
+        // On Windows, the display name does not include the device
+        // name, as it begins with \\Device and ends with a GUID,
+        // with nothing much human-recognizable.  Therefore, the
+        // display name is just the "friendly name" that Windows
+        // provides.  This means that we *do* need to add the device
+        // name, which means that, in the drop-down list, we show
+        // the user a big ugly UUID-laden device path.
+        //
         // We might be able to work around that by passing device->name as
         // the userData argument to addItem instead.
+        //
+        // This also means that the capture.device
         QString item_text = device->display_name;
         if (!item_text.contains(device->name)) {
             item_text.append(QString(" (%1)").arg(device->name));
