@@ -97,6 +97,7 @@ package() {
 
   DESTDIR="${pkgdir}" "${MINGW_PREFIX}"/bin/cmake.exe --install .
   DESTDIR="${pkgdir}" "${MINGW_PREFIX}"/bin/cmake.exe --install . --component UserGuide
+  DESTDIR="${pkgdir}" "${MINGW_PREFIX}"/bin/cmake.exe --install . --component Development
 
   install -Dm644 "${srcdir}/${_realname}/COPYING" "${pkgdir}${MINGW_PREFIX}/share/licenses/${_realname}/COPYING"
 }
