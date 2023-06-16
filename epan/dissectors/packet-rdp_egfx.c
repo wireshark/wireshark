@@ -52,15 +52,22 @@ static int hf_egfx_reset_monitorDefFlags = -1;
 static int hf_egfx_ack_queue_depth = -1;
 static int hf_egfx_ack_frame_id = -1;
 static int hf_egfx_ack_total_decoded = -1;
+static int hf_egfx_ack_frame_start = -1;
+static int hf_egfx_ack_frame_end = -1;
 
 static int hf_egfx_ackqoe_frame_id = -1;
 static int hf_egfx_ackqoe_timestamp = -1;
 static int hf_egfx_ackqoe_timediffse = -1;
 static int hf_egfx_ackqoe_timediffedr = -1;
+static int hf_egfx_ackqoe_frame_start = -1;
+static int hf_egfx_ackqoe_frame_end = -1;
 
 static int hf_egfx_start_timestamp = -1;
 static int hf_egfx_start_frameid = -1;
+static int hf_egfx_start_acked_in = -1;
+
 static int hf_egfx_end_frameid = -1;
+static int hf_egfx_end_acked_in = -1;
 
 
 static int ett_rdp_egfx = -1;
@@ -174,6 +181,7 @@ static const value_string rdp_egfx_monitor_flags_vals[] = {
 
 typedef struct {
 	zgfx_context_t *zgfx;
+	wmem_map_t *frames;
 } egfx_conv_info_t;
 
 enum {
@@ -183,6 +191,12 @@ enum {
 typedef struct {
 	wmem_tree_t* pdus;
 } egfx_pdu_info_t;
+
+typedef struct {
+	int startNum;
+	int endNum;
+	int ackNum;
+} egfx_frame_t;
 
 static const char *
 find_egfx_version(guint32 v) {
@@ -212,6 +226,7 @@ egfx_get_conversation_data(packet_info *pinfo)
 	if (info == NULL) {
 		info = wmem_new0(wmem_file_scope(), egfx_conv_info_t);
 		info->zgfx = zgfx_context_new(wmem_file_scope());
+		info->frames = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 		conversation_add_proto_data(conversation, proto_rdp_egfx, info);
 	}
 
@@ -220,16 +235,16 @@ egfx_get_conversation_data(packet_info *pinfo)
 
 
 static int
-dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
+dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, egfx_conv_info_t *conv, void *data _U_)
 {
 	proto_item *item;
+	proto_item *pi;
 	proto_tree *tree;
 	proto_tree *subtree;
 	gint offset = 0;
 	guint32 cmdId = 0;
 	guint32 pduLength;
 	guint32 i;
-
 
 	parent_tree = proto_tree_get_root(parent_tree);
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EGFX");
@@ -341,36 +356,99 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 		}
 
 		case RDPGFX_CMDID_STARTFRAME: {
+			guint32 frameId;
+			egfx_frame_t *frame;
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Start frame");
 			proto_tree_add_item(tree, hf_egfx_start_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			// TODO: dissect timestamp
 			offset += 4;
 
-			proto_tree_add_item(tree, hf_egfx_start_frameid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item_ret_uint(tree, hf_egfx_start_frameid, tvb, offset, 4, ENC_LITTLE_ENDIAN, &frameId);
+			frame = wmem_map_lookup(conv->frames, GUINT_TO_POINTER(frameId));
+			if (!frame) {
+				frame = wmem_alloc0(wmem_file_scope(), sizeof(*frame));
+				frame->startNum = pinfo->num;
+				frame->endNum = -1;
+				frame->ackNum = -1;
+				wmem_map_insert(conv->frames, GUINT_TO_POINTER(frameId), frame);
+			}
+
+			if (PINFO_FD_VISITED(pinfo) && frame->ackNum != -1) {
+				pi = proto_tree_add_uint(tree, hf_egfx_start_acked_in, tvb, 0, 0, frame->ackNum);
+				proto_item_set_generated(pi);
+			}
 			break;
 		}
 
-		case RDPGFX_CMDID_ENDFRAME:
-			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "End frame");
-			proto_tree_add_item(tree, hf_egfx_end_frameid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			break;
+		case RDPGFX_CMDID_ENDFRAME: {
+			guint32 frameId;
+			egfx_frame_t *frame;
 
-		case RDPGFX_CMDID_FRAMEACKNOWLEDGE:
+			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "End frame");
+			proto_tree_add_item_ret_uint(tree, hf_egfx_end_frameid, tvb, offset, 4, ENC_LITTLE_ENDIAN, &frameId);
+
+			frame = wmem_map_lookup(conv->frames, GUINT_TO_POINTER(frameId));
+			if (!frame) {
+				frame = wmem_alloc0(wmem_file_scope(), sizeof(*frame));
+				frame->startNum = -1;
+				frame->ackNum = -1;
+				wmem_map_insert(conv->frames, GUINT_TO_POINTER(frameId), frame);
+			}
+
+			frame->endNum = pinfo->num;
+
+			if (PINFO_FD_VISITED(pinfo) && frame->ackNum != -1) {
+				pi = proto_tree_add_uint(tree, hf_egfx_end_acked_in, tvb, 0, 0, frame->ackNum);
+				proto_item_set_generated(pi);
+			}
+
+			break;
+		}
+
+		case RDPGFX_CMDID_FRAMEACKNOWLEDGE: {
+			guint32 frameId;
+			egfx_frame_t *frame;
+
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Frame acknowledge");
 			subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_egfx_ack, NULL, "Frame acknowledge");
 			proto_tree_add_item(subtree, hf_egfx_ack_queue_depth, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(subtree, hf_egfx_ack_frame_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item_ret_uint(subtree, hf_egfx_ack_frame_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &frameId);
 			offset += 4;
 
 			proto_tree_add_item(subtree, hf_egfx_ack_total_decoded, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			break;
 
-		case RDPGFX_CMDID_QOEFRAMEACKNOWLEDGE:
+			frame = wmem_map_lookup(conv->frames, GUINT_TO_POINTER(frameId));
+			if (!frame) {
+				frame = wmem_alloc0(wmem_file_scope(), sizeof(*frame));
+				frame->startNum = -1;
+				frame->endNum = -1;
+				frame->ackNum = frameId;
+				wmem_map_insert(conv->frames, GUINT_TO_POINTER(frameId), frame);
+			}
+
+			frame->ackNum = pinfo->num;
+
+			if (PINFO_FD_VISITED(pinfo) && frame->startNum != -1) {
+				pi = proto_tree_add_uint(tree, hf_egfx_ack_frame_start, tvb, 0, 0, frame->startNum);
+				proto_item_set_generated(pi);
+			}
+
+			if (PINFO_FD_VISITED(pinfo) && frame->endNum != -1) {
+				pi = proto_tree_add_uint(tree, hf_egfx_ack_frame_end, tvb, 0, 0, frame->endNum);
+				proto_item_set_generated(pi);
+			}
+			break;
+		}
+
+		case RDPGFX_CMDID_QOEFRAMEACKNOWLEDGE: {
+			guint32 frameId;
+			egfx_frame_t *frame;
+
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Frame acknowledge QoE");
 			subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_egfx_ackqoe, NULL, "Frame acknowledge QoE");
-			proto_tree_add_item(subtree, hf_egfx_ackqoe_frame_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item_ret_uint(subtree, hf_egfx_ackqoe_frame_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &frameId);
 			offset += 4;
 
 			proto_tree_add_item(subtree, hf_egfx_ackqoe_timestamp, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -380,7 +458,29 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			offset += 2;
 
 			proto_tree_add_item(subtree, hf_egfx_ackqoe_timediffedr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			frame = wmem_map_lookup(conv->frames, GUINT_TO_POINTER(frameId));
+			if (!frame) {
+				frame = wmem_alloc0(wmem_file_scope(), sizeof(*frame));
+				frame->startNum = -1;
+				frame->endNum = -1;
+				frame->ackNum = frameId;
+				wmem_map_insert(conv->frames, GUINT_TO_POINTER(frameId), frame);
+			}
+
+			frame->ackNum = pinfo->num;
+
+			if (PINFO_FD_VISITED(pinfo) && frame->startNum != -1) {
+				pi = proto_tree_add_uint(tree, hf_egfx_ackqoe_frame_start, tvb, 0, 0, frame->startNum);
+				proto_item_set_generated(pi);
+			}
+
+			if (PINFO_FD_VISITED(pinfo) && frame->endNum != -1) {
+				pi = proto_tree_add_uint(tree, hf_egfx_ackqoe_frame_end, tvb, 0, 0, frame->endNum);
+				proto_item_set_generated(pi);
+			}
+
 			break;
+		}
 
 		case RDPGFX_CMDID_CREATESURFACE:
 			col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Create Surface");
@@ -459,6 +559,7 @@ static int
 dissect_rdp_egfx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data)
 {
 	tvbuff_t *work_tvb = tvb;
+	egfx_conv_info_t *infos = egfx_get_conversation_data(pinfo);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EGFX");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -466,7 +567,6 @@ dissect_rdp_egfx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	parent_tree = proto_tree_get_root(parent_tree);
 
 	if (!rdp_isServerAddressTarget(pinfo)) {
-		egfx_conv_info_t *infos = egfx_get_conversation_data(pinfo);
 		guint32 hash = crc32_ccitt_tvb(tvb, tvb_captured_length_remaining(tvb, 0));
 		egfx_pdu_info_t *pdu_infos = p_get_proto_data(wmem_file_scope(), pinfo, proto_rdp_egfx, EGFX_PDU_KEY);
 		if (!pdu_infos) {
@@ -491,7 +591,7 @@ dissect_rdp_egfx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 	}
 
 	if (work_tvb)
-		dissect_rdp_egfx_payload(work_tvb, pinfo, parent_tree, data);
+		dissect_rdp_egfx_payload(work_tvb, pinfo, parent_tree, infos, data);
 	else {
 		if (parent_tree)
 			expert_add_info_format(pinfo, parent_tree->last_child, &ei_egfx_invalid_compression, "invalid compression");
@@ -548,6 +648,16 @@ void proto_register_rdp_egfx(void) {
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
+		{ &hf_egfx_ack_frame_start,
+		  { "Frame starts in", "rdp_egfx.ack.framestart",
+			FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_ack_frame_end,
+		  { "Frame ends in", "rdp_egfx.ack.frameend",
+			FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+			NULL, HFILL }
+		},
 		{ &hf_egfx_ackqoe_frame_id,
 		  { "frameId", "rdp_egfx.ackqoe.frameid",
 			FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -566,6 +676,16 @@ void proto_register_rdp_egfx(void) {
 		{ &hf_egfx_ackqoe_timediffedr,
 		  { "TimeDiffEDR", "rdp_egfx.ackqoe.timediffedr",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_ackqoe_frame_start,
+		  { "Frame starts in", "rdp_egfx.ackqoe.framestart",
+			FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_ackqoe_frame_end,
+		  { "Frame ends in", "rdp_egfx.ackqoe.frameend",
+			FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_egfx_reset_width,
@@ -618,9 +738,20 @@ void proto_register_rdp_egfx(void) {
 			FT_UINT32, BASE_HEX, NULL, 0x0,
 			NULL, HFILL }
 		},
+		{ &hf_egfx_start_acked_in,
+		  { "Frame acked in", "rdp_egfx.startframe.ackedin",
+			FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+			NULL, HFILL }
+		},
+
 		{ &hf_egfx_end_frameid,
 		  { "Frame id", "rdp_egfx.endframe.frameid",
 			FT_UINT32, BASE_HEX, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_egfx_end_acked_in,
+		  { "Frame acked in", "rdp_egfx.endframe.ackedin",
+			FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
 			NULL, HFILL }
 		},
 	};
