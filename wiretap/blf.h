@@ -389,7 +389,9 @@ typedef struct blf_linmessage_trailer {
     guint16 crc;
     guint8  dir;            /* 0 RX, 1 TX Receipt, 2 TX Req */
     guint8  res1;
+/*  This field is optional and skipping does not hurt us.
     guint32 res2;
+*/
 } blf_linmessage_trailer_t;
 
 
