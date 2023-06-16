@@ -633,6 +633,7 @@ static int hf_pfcp_packet_replication_and_detection_carry_on_information_flags_b
 static int hf_pfcp_packet_replication_and_detection_carry_on_information_flags_b0_priueai = -1;
 
 static int hf_pfcp_validity_time_value = -1;
+static int hf_pfcp_validity_time_str = -1;
 
 static int hf_pfcp_number_of_reports = -1;
 
@@ -6836,12 +6837,19 @@ dissect_pfcp_quota_validity_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 {
     int offset = 0;
     guint value;
+    nstime_t quvti;
+    proto_item *pi;
 
     /* The Quota Validity Time value shall be encoded as an Unsigned32 binary integer value. */
     proto_tree_add_item_ret_uint(tree, hf_pfcp_validity_time_value, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
     offset += 4;
 
     proto_item_append_text(item, "%u", value);
+
+    nstime_copy(&quvti, &(pinfo->abs_ts));
+    quvti.secs += value;
+    pi = proto_tree_add_time(tree, hf_pfcp_validity_time_str, tvb, 0, 0, &quvti);
+    proto_item_set_generated(pi);
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -14181,6 +14189,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_validity_time_value,
         { "Validity Time value", "pfcp.validity_time_value",
             FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_validity_time_str,
+        { "Validity Time", "pfcp.validity_time",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
             NULL, HFILL }
         },
 
