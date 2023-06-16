@@ -67,6 +67,8 @@
 #define SC_CM_SEARCH_CONN_DATA      0x57
 #define SC_CM_LARGE_FWD_OPEN        0x5B
 #define SC_CM_GET_CONN_OWNER        0x5A
+#define SC_CM_CONCURRENT_FWD_OPEN   0x5C
+#define SC_CM_CONCURRENT_FWD_CLOSE  0x5E
 
 /* PCCC Class */
 #define SC_PCCC_EXECUTE_PCCC        0x4B
@@ -351,6 +353,8 @@
 #define CI_NETWORK_SEG_PROD_INHI_US 0x11
 #define CI_NETWORK_SEG_EXTENDED     0x1F
 
+#define CI_CONCURRENT_EXTENDED_NETWORK_SEG 0x02
+
 #define CI_SYMBOL_SEG_FORMAT_MASK   0xE0
 #define CI_SYMBOL_SEG_SIZE_MASK     0x1F
 #define CI_SYMBOL_SEG_DOUBLE        0x20
@@ -371,6 +375,8 @@
 #define CONN_TYPE_RESERVED          3
 
 #define ENIP_CIP_INTERFACE          0
+
+#define CC_CRC_LENGTH               4
 
 /* Define common services */
 #define GENERIC_SC_LIST \
@@ -555,6 +561,8 @@ typedef struct cip_conn_info {
    //  - If the full connection information is available (eg: FwdOpen found), then it will link both
    //    connections (one for each direction)
    guint32 connid;
+
+   gboolean is_concurrent_connection;
 } cip_conn_info_t;
 
 typedef struct cip_req_info {
@@ -640,6 +648,8 @@ extern void load_cip_request_data(packet_info *pinfo, cip_simple_request_info_t 
 extern void reset_cip_request_info(cip_simple_request_info_t* req_data);
 extern gboolean should_dissect_cip_response(tvbuff_t *tvb, int offset, guint8 gen_status);
 extern gboolean cip_connection_triad_match(const cip_connection_triad_t* left, const cip_connection_triad_t* right);
+extern int dissect_concurrent_connection_packet(packet_info* pinfo, tvbuff_t* tvb, int offset, proto_tree* tree);
+extern int dissect_concurrent_connection_network_segment(packet_info* pinfo, tvbuff_t* tvb, int offset, proto_tree* tree);
 
 /*
 ** Exported variables

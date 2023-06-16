@@ -3,7 +3,7 @@
  * EtherNet/IP Home: www.odva.org
  *
  * This dissector includes items from:
- *    CIP Volume 1: Common Industrial Protocol, Edition 3.24
+ *    CIP Volume 1: Common Industrial Protocol, Edition 3.34
  *    CIP Volume 2: EtherNet/IP Adaptation of CIP, Edition 1.30
  *    CIP Volume 8: CIP Security, Edition 1.13
  *
@@ -1192,7 +1192,7 @@ enip_conv_info_t* get_conversation_info_one_direction(packet_info* pinfo, addres
 }
 
 // connInfo - Connection Information that is known so far (from the Forward Open Request).
-static void enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
+static void enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo, guint8 service)
 {
    if (pinfo->fd->visited)
       return;
@@ -1219,6 +1219,7 @@ static void enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connI
       // These values are not copies from the Forward Open Request. Initialize these separately.
       conn_val->open_reply_frame = pinfo->num;
       conn_val->connid = enip_unique_connid++;
+      conn_val->is_concurrent_connection = (service == SC_CM_CONCURRENT_FWD_OPEN);
 
       wmem_map_insert(enip_conn_hashtable, conn_key, conn_val );
 
@@ -2824,6 +2825,7 @@ static void dissect_item_unconnected_message_over_udp(packet_info* pinfo, tvbuff
 static gboolean is_forward_open(guint8 cip_service)
 {
    return (cip_service == SC_CM_FWD_OPEN
+      || cip_service == SC_CM_CONCURRENT_FWD_OPEN
       || cip_service == SC_CM_LARGE_FWD_OPEN);
 }
 
@@ -2966,6 +2968,18 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
             case CPF_ITEM_CONNECTED_DATA:  // 2nd item for: Connected messages (both Class 0/1 and Class 3)
                // Save the connection info for the conversation filter
+
+               if (conn_info && conn_info->is_concurrent_connection)
+               {
+                  int cc_header_len = dissect_concurrent_connection_packet(pinfo, tvb, offset, dissector_tree);
+
+                  // The header length only includes the beginning part of the header. But, the actual data length
+                  // needs to remove the header AND the CRC field. The CRC field was parsed as part of the previous
+                  // header function.
+                  offset += cc_header_len;
+                  item_length = item_length - cc_header_len - CC_CRC_LENGTH;
+               }
+
                if (!pinfo->fd->visited && conn_info)
                {
                   p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_info);
@@ -3029,7 +3043,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
       enip_request_info_t* request_info = (enip_request_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
       if (request_info != NULL)
       {
-         enip_open_cip_connection(pinfo, request_info->cip_info->connInfo);
+         enip_open_cip_connection(pinfo, request_info->cip_info->connInfo, request_info->cip_info->bService & CIP_SC_MASK);
       }
       p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
    }

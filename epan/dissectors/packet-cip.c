@@ -3,7 +3,7 @@
  * CIP Home: www.odva.org
  *
  * This dissector includes items from:
- *    CIP Volume 1: Common Industrial Protocol, Edition 3.30
+ *    CIP Volume 1: Common Industrial Protocol, Edition 3.34
  *    CIP Volume 5: Integration of Modbus Devices into the CIP Architecture, Edition 2.17
  *    CIP Volume 7: CIP Safety, Edition 1.9
  *    CIP Volume 8: CIP Security, Edition 1.11
@@ -683,6 +683,58 @@ static expert_field ei_cip_safety_open_type2a = EI_INIT;
 static expert_field ei_cip_safety_open_type2b = EI_INIT;
 static expert_field ei_cip_no_fwd_close = EI_INIT;
 
+//// Concurrent Connections
+static int hf_cip_cm_cc_version = -1;
+
+static int hf_cip_cc_packet_length = -1;
+static int hf_cip_cc_packet_options = -1;
+static int hf_cip_cc_packet_type = -1;
+static int hf_cip_cc_packet_keepalive = -1;
+static int hf_cip_cc_packet_keepalive_hop_count = -1;
+static int hf_cip_cc_packet_reserved = -1;
+static int hf_cip_cc_packet_seq_number = -1;
+static int hf_cip_cc_crc = -1;
+
+// Parameters for Concurrent Extended Network Segment
+static int hf_ext_net_seg_hops_count = -1;
+static int hf_ext_net_seg_length = -1;
+static int hf_ext_net_seg_hop = -1;
+static int hf_ext_net_seg_hop_egress_cip_port = -1;
+static int hf_ext_net_seg_hop_link_adr_type = -1;
+static int hf_ext_net_seg_hop_number_of_linkadr = -1;
+static int hf_ext_net_seg_link_address = -1;
+static int hf_ext_net_seg_link_ipv4 = -1;
+static int hf_ext_net_seg_link_hostname = -1;
+
+static int proto_cc = -1;
+
+/* Define the tree for the frame */
+static gint ett_cc_header = -1;
+static gint ett_cc_hop = -1;
+
+static expert_field ei_cc_invalid_header_type = EI_INIT;
+
+static const value_string cc_link_adr_type[] = {
+    { 0, "8-bit numeric link addresses" },
+    { 1, "IPv4 addresses" },
+    { 2, "Hostnames" },
+
+    { 0, NULL }
+};
+
+static const value_string cc_packet_type_vals[] = {
+    { 0, "Invalid" },
+    { 1, "Concurrent Connection Packet Format" },
+
+    { 0, NULL }
+};
+
+static gint* ett_cc[] =
+{
+    &ett_cc_header,
+    &ett_cc_hop,
+};
+
 static dissector_table_t   subdissector_class_table;
 static dissector_table_t   subdissector_symbol_table;
 
@@ -705,6 +757,8 @@ static const value_string cip_sc_vals_cm[] = {
    { SC_CM_GET_CONN_DATA,        "Get Connection Data" },
    { SC_CM_SEARCH_CONN_DATA,     "Search Connection Data" },
    { SC_CM_GET_CONN_OWNER,       "Get Connection Owner" },
+   { SC_CM_CONCURRENT_FWD_OPEN,  "Concurrent Forward Open" },
+   { SC_CM_CONCURRENT_FWD_CLOSE, "Concurrent Forward Close" },
 
    { 0,                       NULL }
 };
@@ -4859,9 +4913,27 @@ static int dissect_segment_network_extended(packet_info *pinfo, proto_item *epat
           return 0;
       }
 
-      if (net_seg_data_len > 0)
+      guint16 net_seg_subtype = tvb_get_letohs(tvb, offset + 2);
+
+      int data_len_parsed = 0;
+      switch (net_seg_subtype)
       {
-          proto_tree_add_item(net_tree, hf_cip_data, tvb, net_seg_data_offset, net_seg_data_len, ENC_NA);
+      case CI_CONCURRENT_EXTENDED_NETWORK_SEG:
+      {
+         data_len_parsed = 4;
+         data_len_parsed += dissect_concurrent_connection_network_segment(pinfo, tvb, offset + data_len_parsed, net_tree);
+         break;
+      }
+
+      default:
+      {
+         break;
+      }
+      }
+
+      if (net_seg_data_len - data_len_parsed > 0)
+      {
+         proto_tree_add_item(net_tree, hf_cip_data, tvb, net_seg_data_offset + data_len_parsed, net_seg_data_len - data_len_parsed, ENC_NA);
       }
    }
 
@@ -7408,8 +7480,177 @@ static void display_connection_information_fwd_close_rsp(packet_info* pinfo, tvb
    }
 }
 
+//// Concurrent Connections
+static int dissect_cip_cc_hop(packet_info* pinfo, tvbuff_t* tvb, int offset, proto_tree* hops_tree, guint8 hop_number)
+{
+    int parsed = 0;
+
+    proto_item* item_hop = proto_tree_add_uint(hops_tree, hf_ext_net_seg_hop, tvb, offset, 0, hop_number);
+
+    proto_tree* hop_tree = proto_item_add_subtree(item_hop, ett_cc_hop);
+    proto_tree_add_item(hop_tree, hf_ext_net_seg_hop_egress_cip_port, tvb, offset + parsed, 1, ENC_LITTLE_ENDIAN);
+    parsed++;
+
+    proto_tree_add_item(hop_tree, hf_ext_net_seg_hop_link_adr_type, tvb, offset + parsed, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(hop_tree, hf_ext_net_seg_hop_number_of_linkadr, tvb, offset + parsed, 1, ENC_LITTLE_ENDIAN);
+    parsed++;
+
+    guint8 link_type = tvb_get_guint8(tvb, offset + 1) >> 4;
+    guint8 number_of_links = tvb_get_guint8(tvb, offset + 1) & 0x0F;
+
+    for (guint8 i = 0; i < number_of_links; i++)
+    {
+        switch (link_type)
+        {
+        case 0: // Link addresses
+        {
+            proto_tree_add_item(hop_tree, hf_ext_net_seg_link_address, tvb, offset + parsed, 1, ENC_LITTLE_ENDIAN);
+            parsed++;
+            break;
+        }
+
+        case 1: // IPv4 addresses encoding
+            proto_tree_add_item(hop_tree, hf_ext_net_seg_link_ipv4, tvb, offset + parsed, 4, ENC_LITTLE_ENDIAN);
+            parsed += 4;
+            break;
+
+        case 2: // Host Name addresses encoding
+            parsed += dissect_cip_string_type(pinfo, hop_tree, item_hop, tvb, offset + parsed, hf_ext_net_seg_link_hostname, CIP_STRING_TYPE);
+
+            // Add pad byte when string length is odd
+            if (parsed % 2)
+            {
+                parsed++;
+            }
+
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    proto_item_set_len(item_hop, parsed);
+
+    return parsed;
+}
+
+#define CC_PACKET_TYPE_MASK (0x001F)
+int dissect_concurrent_connection_packet(packet_info* pinfo, tvbuff_t* tvb, int offset, proto_tree* tree)
+{
+    proto_item* type_item = proto_tree_add_item(tree, proto_cc, tvb, offset, -1, ENC_NA);
+    proto_tree* CC_tree = proto_item_add_subtree(type_item, ett_cc_header);
+
+    guint16 header_type = tvb_get_letohs(tvb, offset) & CC_PACKET_TYPE_MASK;
+
+    int parsed_len = 0;
+    if (header_type == 1)
+    {
+        static int* const options[] = {
+           &hf_cip_cc_packet_type,
+           &hf_cip_cc_packet_keepalive,
+           &hf_cip_cc_packet_keepalive_hop_count,
+           &hf_cip_cc_packet_reserved,
+           NULL
+        };
+
+        proto_tree_add_bitmask(CC_tree, tvb, offset + parsed_len, hf_cip_cc_packet_options, ett_cc_header, options, ENC_LITTLE_ENDIAN);
+        parsed_len += 2;
+
+        guint32 CC_frame_length;
+        proto_tree_add_item_ret_uint(CC_tree, hf_cip_cc_packet_length, tvb, offset + parsed_len, 2, ENC_LITTLE_ENDIAN, &CC_frame_length);
+        parsed_len += 2;
+
+        guint32 ccSeq;
+        proto_tree_add_item_ret_uint(CC_tree, hf_cip_cc_packet_seq_number, tvb, offset + parsed_len, 4, ENC_LITTLE_ENDIAN, &ccSeq);
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", CC_SEQ=%010u", ccSeq);
+        parsed_len += 4;
+
+        proto_tree_add_item(CC_tree, hf_cip_cc_crc, tvb, offset + CC_frame_length, CC_CRC_LENGTH, ENC_LITTLE_ENDIAN);
+        proto_tree_set_appendix(CC_tree, tvb, offset + CC_frame_length, CC_CRC_LENGTH);
+    }
+    else
+    {
+        expert_add_info(pinfo, type_item, &ei_cc_invalid_header_type);
+    }
+
+    proto_item_set_len(type_item, parsed_len);
+
+    return parsed_len;
+}
+
+void proto_register_cc(void)
+{
+    static hf_register_info hf_cc[] =
+    {
+        /// Concurrent Connections
+        { &hf_cip_cm_cc_version, { "Concurrent Connections Protocol Version", "cip.cm.cc_version", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+        // Concurrent Connection Packet
+        { &hf_cip_cc_packet_length,{ "Packet Length", "cip.cc.packet.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_cip_cc_packet_type,{ "Packet Type", "cip.cc.packet_type", FT_UINT16, BASE_DEC, VALS(cc_packet_type_vals), CC_PACKET_TYPE_MASK, NULL, HFILL } },
+        { &hf_cip_cc_packet_options, { "Packet Type and Keep-alive", "cip.cc.packet.type_and_keepalive", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_cip_cc_packet_keepalive,{ "Keep-alive Flag", "cip.cc.packet.keep_alive_flag", FT_UINT16, BASE_HEX, NULL, 0x0020, NULL, HFILL } },
+        { &hf_cip_cc_packet_keepalive_hop_count,{ "Keep-alive Hop Count", "cip.cc.packet.keep_alive_count", FT_UINT16, BASE_DEC, NULL, 0x01C0, NULL, HFILL } },
+        { &hf_cip_cc_packet_reserved,{ "Reserved", "cip.cc.packet.reserved", FT_UINT16, BASE_HEX, NULL, 0xFE00, NULL, HFILL } },
+        { &hf_cip_cc_packet_seq_number,{ "Concurrent Connection Sequence Count", "cip.cc.packet.sequence_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_cip_cc_crc,{ "CRC", "cip.cc.crc", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
+
+        // Concurrent Connection Path
+        { &hf_ext_net_seg_hops_count,{ "Hops Count", "cip.cc.netsegment.hopsCount", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_ext_net_seg_length,{ "Length of Concurrent Connection Path", "cip.cc.netsegment.length", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+
+        // Concurrent Connection Hops
+        { &hf_ext_net_seg_hop,{ "CC Hop", "cip.cc.netsegment.hop", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_ext_net_seg_hop_egress_cip_port,{ "Egress Port", "cip.cc.netsegment.HopEgreeCipPort", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_ext_net_seg_hop_link_adr_type,{ "Link Address Type", "cip.cc.netsegment.HopLnkAdrType", FT_UINT8, BASE_DEC, VALS(cc_link_adr_type), 0xF0, NULL, HFILL } },
+        { &hf_ext_net_seg_hop_number_of_linkadr,{ "Number of link addresses", "cip.cc.netsegment.HopNumberOfLnkAdr", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL } },
+        { &hf_ext_net_seg_link_address,{ "Link address", "cip.cc.netsegment.link", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_ext_net_seg_link_ipv4,{ "IPv4 address", "cip.cc.netsegment.ip", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_ext_net_seg_link_hostname, { "Hostname", "cip.cc.netsegment.hostname", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+    };
+
+    static ei_register_info ei_cc[] = {
+        { &ei_cc_invalid_header_type, { "cip.cc.invalid_packet_type", PI_MALFORMED, PI_ERROR, "Invalid Concurrent Connections Packet Type", EXPFILL }},
+    };
+
+    proto_cc = proto_register_protocol("Concurrent Connection Packet",
+        "CIPCC",
+        "cipcc");
+
+    proto_register_field_array(proto_cc, hf_cc, array_length(hf_cc));
+    proto_register_subtree_array(ett_cc, array_length(ett_cc));
+
+    expert_module_t* expert_cc = expert_register_protocol(proto_cc);
+    expert_register_field_array(expert_cc, ei_cc, array_length(ei_cc));
+}
+
+// Offset - Starts after the Extended Network Segment Subtype
+int dissect_concurrent_connection_network_segment(packet_info* pinfo, tvbuff_t* tvb, int offset, proto_tree* tree)
+{
+    guint32 hops_count;
+    proto_tree_add_item_ret_uint(tree, hf_ext_net_seg_hops_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &hops_count);
+
+    proto_tree_add_item(tree, hf_ext_net_seg_length, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
+    int parsed_len = 2;
+
+    for (guint32 i = 0; i < hops_count; i++)
+    {
+        parsed_len += dissect_cip_cc_hop(pinfo, tvb, offset + parsed_len, tree, i + 1);
+    }
+
+    // Add padding when the Network segment length is odd.
+    if (parsed_len & 0x0001)
+    {
+        parsed_len++;
+    }
+
+    return parsed_len;
+}
+
 static void
-dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvbuff_t *tvb, int offset, gboolean large_fwd_open, packet_info *pinfo)
+dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvbuff_t *tvb, int offset,
+   gboolean large_fwd_open, packet_info *pinfo, gboolean concurrent_connection)
 {
    proto_item *pi;
    proto_tree *epath_tree;
@@ -7435,6 +7676,13 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
    dissect_connection_triad(tvb, offset + 10, cmd_tree,
       hf_cip_cm_conn_serial_num, hf_cip_cm_vendor, hf_cip_cm_orig_serial_num,
       &conn_triad);
+
+   if (concurrent_connection)
+   {
+      // For CC there is additional 1 byte containing CC Version and one reserved byte after.
+      proto_tree_add_item(cmd_tree, hf_cip_cm_cc_version, tvb, offset + 18, 1, ENC_LITTLE_ENDIAN);
+      offset += 2;
+   }
 
    guint32 timeout_value;
    proto_tree_add_item_ret_uint(cmd_tree, hf_cip_cm_timeout_multiplier, tvb, offset+18, 1, ENC_LITTLE_ENDIAN, &timeout_value);
@@ -8010,9 +8258,11 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
            {
            case SC_CM_FWD_OPEN:
            case SC_CM_LARGE_FWD_OPEN:
+           case SC_CM_CONCURRENT_FWD_OPEN:
               parsed_len = dissect_cip_cm_fwd_open_rsp_success(preq_info, cmd_data_tree, tvb, offset, pinfo);
               break;
            case SC_CM_FWD_CLOSE:
+           case SC_CM_CONCURRENT_FWD_CLOSE:
               parsed_len = dissect_cip_cm_fwd_close_rsp_success(cmd_data_tree, tvb, offset, pinfo, cmd_item);
               break;
             case SC_CM_GET_CONN_OWNER:
@@ -8044,6 +8294,8 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             case SC_CM_FWD_OPEN:
             case SC_CM_LARGE_FWD_OPEN:
             case SC_CM_FWD_CLOSE:
+            case SC_CM_CONCURRENT_FWD_OPEN:
+            case SC_CM_CONCURRENT_FWD_CLOSE:
             {
                /* Forward open and forward close error response look the same */
                cip_connection_triad_t conn_triad;
@@ -8108,13 +8360,17 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
          {
          case SC_CM_FWD_OPEN:
             /* Forward open Request*/
-            dissect_cip_cm_fwd_open_req(preq_info, cmd_data_tree, tvb, offset+2+req_path_size, FALSE, pinfo);
+            dissect_cip_cm_fwd_open_req(preq_info, cmd_data_tree, tvb, offset+2+req_path_size, FALSE, pinfo, FALSE);
+            break;
+         case SC_CM_CONCURRENT_FWD_OPEN:
+            dissect_cip_cm_fwd_open_req(preq_info, cmd_data_tree, tvb, offset+2+req_path_size, FALSE, pinfo, TRUE);
             break;
          case SC_CM_LARGE_FWD_OPEN:
             /* Large Forward open Request*/
-            dissect_cip_cm_fwd_open_req(preq_info, cmd_data_tree, tvb, offset+2+req_path_size, TRUE, pinfo);
+            dissect_cip_cm_fwd_open_req(preq_info, cmd_data_tree, tvb, offset+2+req_path_size, TRUE, pinfo, FALSE);
             break;
          case SC_CM_FWD_CLOSE:
+         case SC_CM_CONCURRENT_FWD_CLOSE:
             dissect_cip_cm_fwd_close_req(cmd_data_tree, tvb, offset + 2 + req_path_size, pinfo);
             break;
          case SC_CM_UNCON_SEND:
