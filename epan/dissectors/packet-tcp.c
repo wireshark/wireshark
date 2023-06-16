@@ -3698,9 +3698,10 @@ static reassembly_table tcp_reassembly_table;
 /* Enable desegmenting of TCP streams */
 static gboolean tcp_desegment = TRUE;
 
-/* Returns the maximum next sequence number associated with msp starting
- * with the given max sequence number (which is from the current frame
- * and may not have been added to the msp yet). */
+/* Returns the maximum contiguous sequence number of the reassembly associated
+ * with the msp *if* a new fragment were added ending in the given maxnextseq.
+ * The new fragment is from the current frame and may not have been added yet.
+ */
 static guint32
 find_maxnextseq(packet_info *pinfo, struct tcp_multisegment_pdu *msp, guint32 maxnextseq)
 {
@@ -3712,16 +3713,16 @@ find_maxnextseq(packet_info *pinfo, struct tcp_multisegment_pdu *msp, guint32 ma
     /* msp implies existence of fragments, this should never be NULL. */
     DISSECTOR_ASSERT(fd_head);
 
-    /* Find length of contiguous fragments. */
-    guint32 max = maxnextseq - msp->seq;
-    for (fragment_item *frag = fd_head->next; frag; frag = frag->next) {
-        guint32 frag_end = frag->offset + frag->len;
-        if (frag->offset <= max && max < frag_end) {
-            max = frag_end;
-        }
+    /* Find length of contiguous fragments.
+     * Start with the first gap, but the new fragment is allowed to
+     * fill that gap. */
+    guint32 max_len = maxnextseq - msp->seq;
+    fragment_item* frag = (fd_head->first_gap) ? fd_head->first_gap : fd_head->next;
+    for (; frag && frag->offset <= max_len; frag = frag->next) {
+        max_len = MAX(max_len, frag->offset + frag->len);
     }
 
-    return max + msp->seq;
+    return max_len + msp->seq;
 }
 
 static struct tcp_multisegment_pdu*
