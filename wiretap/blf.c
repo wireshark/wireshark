@@ -357,7 +357,9 @@ fix_endianness_blf_linmessage(blf_linmessage_t *header) {
 static void
 fix_endianness_blf_linmessage_trailer(blf_linmessage_trailer_t *header) {
     header->crc = GUINT16_FROM_LE(header->crc);
+/*  skip the optional part
     header->res2 = GUINT32_FROM_LE(header->res2);
+*/
 }
 
 static guint64
