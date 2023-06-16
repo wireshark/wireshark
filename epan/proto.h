@@ -3334,6 +3334,28 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const guint offset,
         const int hf_checksum, const int hf_checksum_status, struct expert_field* bad_checksum_expert,
         packet_info *pinfo, guint32 computed_checksum, const guint encoding, const guint flags);
 
+/** Add a checksum bytes arry filed to a proto_tree.
+ This standardizes the display of a checksum field as well as any
+ status and expert info supporting it.
+ @param tree the tree to append this item to
+ @param tvb the tv buffer of the current data
+ @param offset start of data in tvb
+ @param hf_checksum checksum field index
+ @param hf_checksum_status optional checksum status field index.  If none
+ exists, just pass -1
+ @param bad_checksum_expert optional expert info for a bad checksum.  If
+ none exists, just pass NULL
+ @param pinfo Packet info used for optional expert info.  If unused, NULL can
+ be passed
+ @param computed_checksum Checksum as bytes array to verify against
+ @param checksum_len Checksum size in bytes
+ @param flags bitmask field of PROTO_CHECKSUM_ options. PROTO_CHECKSUM_IN_CKSUM is ignored
+ @return the newly created item */
+WS_DLL_PUBLIC proto_item*
+proto_tree_add_checksum_bytes(proto_tree *tree, tvbuff_t *tvb, const guint offset,
+		const int hf_checksum, const int hf_checksum_status, struct expert_field* bad_checksum_expert,
+		packet_info *pinfo, const uint8_t *computed_checksum, size_t checksum_len, const guint flags);
+
 typedef enum
 {
     PROTO_CHECKSUM_E_BAD = 0,

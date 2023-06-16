@@ -53,6 +53,9 @@
 #include <epan/reassemble.h>
 #include <epan/strutil.h>
 #include "zlib.h"
+#include <epan/crc32-tvb.h>
+#include <wsutil/crc32.h>
+#include <gcrypt.h>
 
 void proto_register_rtps(void);
 void proto_reg_handoff_rtps(void);
@@ -206,6 +209,12 @@ typedef struct _rtps_dissector_data {
   gint position_in_batch;
 } rtps_dissector_data;
 
+typedef struct _rtps_tvb_field {
+  tvbuff_t *tvb;
+  gint tvb_offset;
+  gint tvb_len;
+} rtps_tvb_field;
+
 static const value_string type_object_kind [] = {
   { RTI_CDR_TYPE_OBJECT_TYPE_KIND_NO_TYPE,          "NO_TYPE" },
   { RTI_CDR_TYPE_OBJECT_TYPE_KIND_BOOLEAN_TYPE,     "BOOLEAN_TYPE" },
@@ -250,6 +259,7 @@ static gboolean enable_rtps_reassembly = FALSE;
 static gboolean enable_user_data_dissection = FALSE;
 static gboolean enable_max_array_data_type_elements = TRUE;
 static gboolean enable_max_data_type_elements = TRUE;
+static gboolean enable_rtps_crc_check = FALSE;
 static dissector_table_t rtps_type_name_table;
 
 /***************************************************************************/
@@ -1281,17 +1291,13 @@ static int hf_rtps_param_compression_id_mask                                    
 static int hf_rtps_flag_compression_id_zlib                                                 = -1;
 static int hf_rtps_flag_compression_id_bzip2                                                = -1;
 static int hf_rtps_flag_compression_id_lz4                                                  = -1;
-static int hf_rtps_param_participant_security_digital_signature_algorithms_trust_chain_supported_mask                   = -1;
 static int hf_rtps_param_crypto_algorithm_requirements_trust_chain                          = -1;
 static int hf_rtps_param_crypto_algorithm_requirements_message_auth                         = -1;
-static int hf_rtps_param_participant_security_digital_signature_algorithms_trust_chain_used_mask                        = -1;
-static int hf_rtps_param_participant_security_digital_signature_algorithms_auth_supported_mask                          = -1;
 static int hf_rtps_flag_security_digital_signature_mask_rsassapssmgf1sha256_2048_sha256    = -1;
 static int hf_rtps_flag_security_digital_signature_mask_rsassapkcs1v15_2048_sha256         = -1;
 static int hf_rtps_flag_security_digital_signature_mask_ecdsa_p256_sha256                  = -1;
 static int hf_rtps_flag_security_digital_signature_mask_ecdsa_p384_sha384                  = -1;
 static int hf_rtps_flag_security_digital_signature_mask_custom_algorithm                   = -1;
-static int hf_rtps_param_participant_security_key_establishment_algorithms_supported_mask  = -1;
 static int hf_rtps_flag_security_key_establishment_mask_dhe_modp2048256                    = -1;
 static int hf_rtps_flag_security_key_establishment_mask_ecdheceum_p256                     = -1;
 static int hf_rtps_flag_security_key_establishment_mask_ecdheceum_p384                     = -1;
@@ -1359,7 +1365,9 @@ static int hf_rtps_reassembled_length                           = -1;
 static int hf_rtps_reassembled_data                             = -1;
 static int hf_rtps_encapsulation_extended_compression_options   = -1;
 static int hf_rtps_message_length                               = -1;
-static int hf_rtps_header_extension_checksum                    = -1;
+static int hf_rtps_header_extension_checksum_crc32c             = -1;
+static int hf_rtps_header_extension_checksum_crc64              = -1;
+static int hf_rtps_header_extension_checksum_md5                = -1;
 static int hf_rtps_uextension                                   = -1;
 static int hf_rtps_wextension                                   = -1;
 static int hf_rtps_writer_group_oid                             = -1;
@@ -1451,6 +1459,7 @@ static gint ett_rtps_instance_transition_data                   = -1;
 static gint ett_rtps_crypto_algorithm_requirements              = -1;
 
 static expert_field ei_rtps_sm_octets_to_next_header_error = EI_INIT;
+static expert_field ei_rtps_checksum_check_error = EI_INIT;
 static expert_field ei_rtps_port_invalid = EI_INIT;
 static expert_field ei_rtps_ip_invalid = EI_INIT;
 static expert_field ei_rtps_parameter_value_invalid = EI_INIT;
@@ -2669,6 +2678,9 @@ static int* const HEADER_EXTENSION_MASK_FLAGS[] = {
 #define RTPS_SERVICE_REQUEST_ID_PROTODATA_KEY   1
 #define RTPS_DATA_SESSION_FINAL_PROTODATA_KEY   2
 #define RTPS_CURRENT_SUBMESSAGE_COL_DATA_KEY    3
+#define RTPS_ROOT_MESSAGE_KEY                   4
+
+#define RTPS_CHECKSUM_MAX_LEN                   16
 
 /* End of TCP get DomainId feature constants */
 
@@ -2681,7 +2693,6 @@ typedef struct _datawriter_qos {
   guint32 durability_kind;
   guint32 ownership_kind;
 } datawriter_qos;
-
 
 #define MAX_TOPIC_AND_TYPE_LENGTH 256
 typedef struct _type_mapping {
@@ -10559,11 +10570,30 @@ static void dissect_HEADER_EXTENSION(tvbuff_t* tvb, packet_info* pinfo, gint off
 #define RTPS_HE_CHECKSUM_1_FLAG        (0x40)
 #define RTPS_HE_PARAMETERS_FLAG        (0x80)
 
+#define RTPS_HE_CHECKSUM_CRC32        RTPS_HE_CHECKSUM_2_FLAG
+#define RTPS_HE_CHECKSUM_CRC64        RTPS_HE_CHECKSUM_1_FLAG
+#define RTPS_HE_CHECKSUM_MD5          (RTPS_HE_CHECKSUM_1_FLAG | RTPS_HE_CHECKSUM_2_FLAG)
+
   guint8 checksum_type = 0;
   gint initial_offset = offset;
+  guint checksum_flags = PROTO_CHECKSUM_NO_FLAGS;
+  gboolean is_crc_supported = true;
+  /*Checksum can be CRC32, CRC64 and MD5 */
+  union _calculated_checksum {
+    uint8_t md5[RTPS_CHECKSUM_MAX_LEN];
+    uint32_t crc32c;
+    uint64_t crc64;
+  } calculated_checksum, he_checksum;
 
   ++offset;
-  proto_tree_add_bitmask_value(tree, tvb, offset, hf_rtps_header_extension_flags, ett_rtps_flags, HEADER_EXTENSION_MASK_FLAGS, flags);
+  proto_tree_add_bitmask_value(
+      tree,
+      tvb,
+      offset,
+      hf_rtps_header_extension_flags,
+      ett_rtps_flags,
+      HEADER_EXTENSION_MASK_FLAGS,
+      flags);
   ++offset;
   proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb, offset, 2, encoding);
   offset += 2;
@@ -10589,23 +10619,115 @@ static void dissect_HEADER_EXTENSION(tvbuff_t* tvb, packet_info* pinfo, gint off
   checksum_type = (flags & (RTPS_HE_CHECKSUM_2_FLAG | RTPS_HE_CHECKSUM_1_FLAG));
   if (checksum_type != 0) {
     gint checksum_len = 0;
+
+    /* Adds the CRC of the RTPS message */
     switch (checksum_type) {
       /* 32-bit checksum */
-      case RTPS_HE_CHECKSUM_2_FLAG:
+      case RTPS_HE_CHECKSUM_CRC32:
         checksum_len = 4;
         break;
+
       /* 64-bit checksum */
-      case RTPS_HE_CHECKSUM_1_FLAG:
+      case RTPS_HE_CHECKSUM_CRC64:
         checksum_len = 8;
+        is_crc_supported = false;
         break;
+
       /* 128-bit checksum */
-      case (RTPS_HE_CHECKSUM_2_FLAG | RTPS_HE_CHECKSUM_1_FLAG):
+      case RTPS_HE_CHECKSUM_MD5:
         checksum_len = 16;
         break;
-    default:
-      break;
+      default:
+        break;
     }
-    proto_tree_add_item(tree, hf_rtps_header_extension_checksum, tvb, offset, checksum_len, encoding);
+
+    /* If the check CRC feature is enabled */
+    if (enable_rtps_crc_check && is_crc_supported) {
+      char* tvb_zero_checksum = NULL;
+      rtps_tvb_field *rtps_root = NULL;
+
+      checksum_flags = PROTO_CHECKSUM_VERIFY;
+      rtps_root = (rtps_tvb_field*)p_get_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_ROOT_MESSAGE_KEY);
+      if (rtps_root != NULL) {
+        /* The checksum in the wire is the checksum of the RTPS message with the
+         * checksum field set to 0. To calculate the checksum of the RTPS message
+         * we need to set those bytes to 0 in a separate buffer.
+         */
+        tvb_zero_checksum = wmem_alloc0_array(wmem_packet_scope(), char, rtps_root->tvb_len);
+        tvb_memcpy(
+            rtps_root->tvb,
+            tvb_zero_checksum,
+            rtps_root->tvb_offset,
+            rtps_root->tvb_len);
+
+        /* Set checksum bytes to 0 */
+        memset(tvb_zero_checksum + offset, 0, checksum_len);
+        switch (checksum_type) {
+          case RTPS_HE_CHECKSUM_CRC32:
+            /* Checksum is always big endian */
+            he_checksum.crc32c = tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+            calculated_checksum.crc32c = crc32c_calculate_no_swap(
+                tvb_zero_checksum,
+                rtps_root->tvb_len,
+                CRC32C_PRELOAD);
+            calculated_checksum.crc32c ^= CRC32C_PRELOAD;
+            break;
+
+          case RTPS_HE_CHECKSUM_CRC64:
+            /* CRC64 is not supported yet */
+            is_crc_supported = false;
+            break;
+
+          case RTPS_HE_CHECKSUM_MD5:
+            tvb_memcpy(
+                tvb,
+                &he_checksum.md5,
+                offset,
+                checksum_len);
+            gcry_md_hash_buffer(
+                GCRY_MD_MD5,
+                calculated_checksum.md5,
+                tvb_zero_checksum,
+                rtps_root->tvb_len);
+            break;
+
+          default:
+              break;
+        }
+      }
+    }
+    switch (checksum_type) {
+      case RTPS_HE_CHECKSUM_CRC32:
+        proto_tree_add_checksum(
+            tree,
+            tvb,
+            offset,
+            hf_rtps_header_extension_checksum_crc32c,
+            -1,
+            &ei_rtps_checksum_check_error,
+            pinfo,
+            calculated_checksum.crc32c,
+            ENC_BIG_ENDIAN,
+            checksum_flags);
+        break;
+      case RTPS_HE_CHECKSUM_MD5:
+        proto_tree_add_checksum_bytes(
+            tree,
+            tvb,
+            offset,
+            hf_rtps_header_extension_checksum_md5,
+            -1,
+            &ei_rtps_checksum_check_error,
+            pinfo,
+            calculated_checksum.md5,
+            checksum_len,
+            checksum_flags);
+        break;
+
+      case RTPS_HE_CHECKSUM_CRC64:
+      default:
+          break;
+    }
     offset += checksum_len;
   }
   if ((flags & RTPS_HE_PARAMETERS_FLAG) == RTPS_HE_PARAMETERS_FLAG) {
@@ -13478,6 +13600,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   gboolean is_domain_id_calculated = FALSE;
   const char* not_accuracy_str = "";
   gint length_remaining = 0;
+  rtps_tvb_field rtps_root;
 
   /* Check 'RTPS' signature:
    * A header is invalid if it has less than 16 octets
@@ -13499,6 +13622,11 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   /* No fields have been set in GUID yet. */
   guid.fields_present = 0;
 
+  /* Save the begining of the RTPS message */
+  rtps_root.tvb = tvb;
+  rtps_root.tvb_offset = offset;
+  rtps_root.tvb_len = tvb_reported_length_remaining(tvb, offset);
+  p_set_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_ROOT_MESSAGE_KEY, (gpointer*)&rtps_root);
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPS");
   col_clear(pinfo->cinfo, COL_INFO);
 
@@ -15978,8 +16106,16 @@ void proto_register_rtps(void) {
         "Header Extension Message Length", "rtps.flag.header_extension.message_length",
         FT_BOOLEAN, 8, TFS(&tfs_set_notset), RTPS_HE_MESSAGE_LENGTH_FLAG, NULL, HFILL }
     },
-    { &hf_rtps_header_extension_checksum, {
-        "Header Extension Checksum", "rtps.header_extension.checksum",
+    { &hf_rtps_header_extension_checksum_crc32c, {
+        "Header Extension Checksum CRC-32C", "rtps.header_extension.checksum_crc32c",
+        FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_header_extension_checksum_crc64, {
+        "Header Extension Checksum CRC64", "rtps.header_extension.checksum_crc64",
+        FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_header_extension_checksum_md5, {
+        "Header Extension Checksum MD5", "rtps.header_extension.checksum_md5",
         FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
     },
     { &hf_rtps_uextension, {
@@ -16333,11 +16469,6 @@ void proto_register_rtps(void) {
         "Custom Algorithm", "rtps.flag.security_symmetric_cipher_mask.custom_algorithm",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_SYMMETRIC_CIPHER_BIT_CUSTOM_ALGORITHM, NULL, HFILL }
     },
-    { &hf_rtps_param_participant_security_key_establishment_algorithms_supported_mask, {
-        "Supported Mask", "rtps.param.participant_security_key_establishment_algorithms.supported_mask",
-        FT_UINT32, BASE_HEX, 0, 0, "Bitmask representing the Key Establishment algorithms the participant supports",
-		HFILL }
-    },
     { &hf_rtps_flag_security_key_establishment_mask_dhe_modp2048256, {
         "DHE_MODP2048256", "rtps.flag.security_key_establishment_mask.dhe_modp2048256",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), SECURITY_KEY_ESTABLISHMENT_BIT_DHE_MODP2048256, NULL, HFILL }
@@ -16362,10 +16493,6 @@ void proto_register_rtps(void) {
         "Submessage Encrypted", "rtps.flag.security.info.plugin_submessage_encrypted",
         FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001, NULL, HFILL }
     },
-    { &hf_rtps_param_participant_security_digital_signature_algorithms_trust_chain_supported_mask, {
-        "Trust Chain Supported Mask", "rtps.param.participant_security_digital_signature_algorithms.trust_chain_supported_mask",
-        FT_UINT32, BASE_HEX, 0, 0, "Bitmask representing the Trust Chain Digital Signature algorithms the participant supports", HFILL }
-    },
     { &hf_rtps_param_crypto_algorithm_requirements_trust_chain, {
         "Supported", "rtps.param.crypto_algorithm_requirements.supported",
         FT_UINT32, BASE_HEX, 0, 0, "Bitmask representing the trust chain", HFILL }
@@ -16373,14 +16500,6 @@ void proto_register_rtps(void) {
     { &hf_rtps_param_crypto_algorithm_requirements_message_auth, {
         "Required", "rtps.param.crypto_algorithm_requirements.required",
         FT_UINT32, BASE_HEX, 0, 0, "Bitmask representing the message authentication", HFILL }
-    },
-    { &hf_rtps_param_participant_security_digital_signature_algorithms_trust_chain_used_mask, {
-        "Trust Chain Used Mask", "rtps.param.participant_security_digital_signature_algorithms.trust_chain_used_mask",
-        FT_UINT32, BASE_HEX, 0, 0, "Bitmask representing the Digital Signature algorithms the participant will use to build its Trust Chain", HFILL }
-    },
-    { &hf_rtps_param_participant_security_digital_signature_algorithms_auth_supported_mask, {
-        "Authentication Supported Mask", "rtps.param.participant_security_digital_signature_algorithms.auth_supported_mask",
-        FT_UINT32, BASE_HEX, 0, 0, "Bitmask representing the Authentication Digital Signature algorithms the participant supports", HFILL }
     },
     { &hf_rtps_flag_security_digital_signature_mask_rsassapssmgf1sha256_2048_sha256, {
         "RSASSAPSSMGF1SHA256_2048_SHA256", "rtps.flag.security_digital_signature_mask.rsassapssmgf1sha256_2048_sha256",
@@ -17044,6 +17163,7 @@ void proto_register_rtps(void) {
      { &pid_type_csonsistency_invalid_size, { "rtps.pid_type_consistency_invalid_size", PI_MALFORMED, PI_ERROR, "PID_TYPE_CONSISTENCY invalid size. Has a size of %d bytes. Expected %d or %d bytes.", EXPFILL }},
      { &ei_rtps_uncompression_error, { "rtps.uncompression_error", PI_PROTOCOL, PI_WARN, "Unable to uncompress the compressed payload.", EXPFILL }},
      { &ei_rtps_value_too_large, { "rtps.value_too_large", PI_MALFORMED, PI_ERROR, "Length value goes past the end of the packet", EXPFILL }},
+     { &ei_rtps_checksum_check_error, { "rtps.checksum_error", PI_CHECKSUM, PI_ERROR, "Error: Unexpected checksum", EXPFILL }},
   };
 
   module_t *rtps_module;
@@ -17108,6 +17228,11 @@ void proto_register_rtps(void) {
       "Enable RTPS Reassembly",
       "Enables the reassembly of DATA_FRAG submessages.",
       &enable_rtps_reassembly);
+
+prefs_register_bool_preference(rtps_module, "enable_rtps_checksum_check",
+      "Enable RTPS Checksum check (Only CRC-32C and MD5 supported)",
+      "Detects the RTPS packets with invalid checksums (Only CRC-32C and MD5 supported)",
+      &enable_rtps_crc_check);
 
   rtps_type_name_table = register_dissector_table("rtps.type_name", "RTPS Type Name",
           proto_rtps, FT_STRING, STRING_CASE_SENSITIVE);

@@ -13283,6 +13283,99 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 	return ti;
 }
 
+proto_item *
+proto_tree_add_checksum_bytes(proto_tree *tree, tvbuff_t *tvb, const guint offset,
+		const int hf_checksum, const int hf_checksum_status, struct expert_field* bad_checksum_expert,
+		packet_info *pinfo, const uint8_t *computed_checksum, size_t checksum_len, const guint flags)
+{
+	header_field_info *hfinfo;
+	uint8_t *checksum = NULL;
+	proto_item* ti = NULL;
+	proto_item* ti2;
+	gboolean incorrect_checksum = TRUE;
+
+	PROTO_REGISTRAR_GET_NTH(hf_checksum, hfinfo);
+
+	if (hfinfo->type != FT_BYTES) {
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_BYTES",
+			hfinfo->abbrev);
+	}
+
+	if (flags & PROTO_CHECKSUM_NOT_PRESENT) {
+		ti = proto_tree_add_bytes_format_value(tree, hf_checksum, tvb, offset, (gint)checksum_len, 0, "[missing]");
+		proto_item_set_generated(ti);
+		if (hf_checksum_status != -1) {
+			ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, (gint)checksum_len, PROTO_CHECKSUM_E_NOT_PRESENT);
+			proto_item_set_generated(ti2);
+		}
+		return ti;
+	}
+
+	if (flags & PROTO_CHECKSUM_GENERATED) {
+		ti = proto_tree_add_bytes(tree, hf_checksum, tvb, offset, (gint)checksum_len, computed_checksum);
+		proto_item_set_generated(ti);
+	} else {
+		checksum = (uint8_t*)wmem_alloc0_array(wmem_packet_scope(), uint8_t, checksum_len);
+		tvb_memcpy(tvb, checksum, offset, checksum_len);
+		ti = proto_tree_add_bytes(tree, hf_checksum, tvb, offset, (gint)checksum_len, checksum);
+		if (flags & PROTO_CHECKSUM_VERIFY) {
+			if (flags & (PROTO_CHECKSUM_IN_CKSUM|PROTO_CHECKSUM_ZERO)) {
+				if (computed_checksum == 0) {
+					proto_item_append_text(ti, " [correct]");
+					if (hf_checksum_status != -1) {
+						ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, 0, PROTO_CHECKSUM_E_GOOD);
+						proto_item_set_generated(ti2);
+					}
+					incorrect_checksum = FALSE;
+				}
+			} else {
+				if (memcmp(computed_checksum, checksum, checksum_len) == 0) {
+					proto_item_append_text(ti, " [correct]");
+					if (hf_checksum_status != -1) {
+						ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, 0, PROTO_CHECKSUM_E_GOOD);
+						proto_item_set_generated(ti2);
+					}
+					incorrect_checksum = FALSE;
+				}
+			}
+
+			if (incorrect_checksum) {
+				if (hf_checksum_status != -1) {
+					ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, 0, PROTO_CHECKSUM_E_BAD);
+					proto_item_set_generated(ti2);
+				}
+				if (flags & PROTO_CHECKSUM_ZERO) {
+					proto_item_append_text(ti, " [incorrect]");
+					if (bad_checksum_expert != NULL)
+						expert_add_info_format(pinfo, ti, bad_checksum_expert, "%s", expert_get_summary(bad_checksum_expert));
+				} else {
+					size_t computed_checksum_str_len = (2 * checksum_len * sizeof(char)) + 1;
+					char *computed_checksum_str = (char*)wmem_alloc0_array(wmem_packet_scope(), char, computed_checksum_str_len);
+					for (size_t counter = 0; counter < checksum_len; ++counter) {
+						snprintf(
+							/* On ecah iteration inserts two characters */
+							(char*)&computed_checksum_str[counter << 1],
+							computed_checksum_str_len - (counter << 1),
+							"%02x",
+							computed_checksum[counter]);
+					}
+					proto_item_append_text(ti, " incorrect, should be 0x%s", computed_checksum_str);
+					if (bad_checksum_expert != NULL)
+						expert_add_info_format(pinfo, ti, bad_checksum_expert, "%s [should be 0x%s]", expert_get_summary(bad_checksum_expert), computed_checksum_str);
+				}
+			}
+		} else {
+			if (hf_checksum_status != -1) {
+				proto_item_append_text(ti, " [unverified]");
+				ti2 = proto_tree_add_uint(tree, hf_checksum_status, tvb, offset, 0, PROTO_CHECKSUM_E_UNVERIFIED);
+				proto_item_set_generated(ti2);
+			}
+		}
+	}
+
+	return ti;
+}
+
 guchar
 proto_check_field_name(const gchar *field_name)
 {
