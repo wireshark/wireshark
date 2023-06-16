@@ -160,6 +160,7 @@ typedef struct blf_canfdmessage {
     guint8  dlc;
     guint32 id;
     guint32 frameLength_in_ns;
+    guint8  arbitration_bit_count;
     guint8  canfdflags;
     guint8  validDataBytes;
     guint8  reservedCanFdMessage1;
