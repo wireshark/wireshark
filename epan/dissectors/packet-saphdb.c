@@ -1260,7 +1260,12 @@ dissect_saphdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	}
 	else
 	{
+		/* Header must be present */
 		if (!tvb_bytes_exist(tvb, 0, SAPHDB_HEADER_LEN))
+			return 0;
+
+		/* Filter on reserved bytes */
+		if(tvb_get_guint8(tvb, 23) || tvb_get_guint32(tvb, 28, ENC_BIG_ENDIAN))
 			return 0;
 
 		tcp_dissect_pdus(tvb, pinfo, tree, TRUE, SAPHDB_HEADER_LEN, get_saphdb_pdu_len, dissect_saphdb_tcp, data);
