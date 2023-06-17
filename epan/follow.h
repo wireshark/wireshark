@@ -31,18 +31,6 @@ typedef enum {
     FRS_PRINT_ERROR
 } frs_return_t;
 
-/* Show Type */
-typedef enum {
-    SHOW_ASCII,
-    SHOW_CARRAY,
-    SHOW_EBCDIC,
-    SHOW_HEXDUMP,
-    SHOW_RAW,
-    SHOW_CODEC, // Ordered to match UTF-8 combobox index
-    SHOW_YAML
-} show_type_t;
-
-
 /* Show Stream */
 typedef enum {
     FROM_CLIENT,

@@ -85,6 +85,16 @@ typedef enum {
     SEARCH_TYPE_REGEX
 } search_type_type;
 
+typedef enum {
+    SHOW_ASCII,
+    SHOW_CARRAY,
+    SHOW_EBCDIC,
+    SHOW_HEXDUMP,
+    SHOW_RAW,
+    SHOW_CODEC, // Ordered to match UTF-8 combobox index
+    SHOW_YAML
+} follow_show_type;
+
 /** Recent settings. */
 typedef struct recent_settings_tag {
     gboolean    main_toolbar_show;
@@ -109,6 +119,7 @@ typedef struct recent_settings_tag {
     search_char_set_type gui_search_char_set;
     gboolean    gui_search_case_sensitive;
     search_type_type gui_search_type;
+    follow_show_type gui_follow_show;
 
     gint        gui_geometry_main_x;
     gint        gui_geometry_main_y;

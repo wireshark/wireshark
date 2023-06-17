@@ -73,6 +73,7 @@
 #define RECENT_GUI_SEARCH_CHAR_SET              "gui.search_char_set"
 #define RECENT_GUI_SEARCH_CASE_SENSITIVE        "gui.search_case_sensitive"
 #define RECENT_GUI_SEARCH_TYPE                  "gui.search_type"
+#define RECENT_GUI_FOLLOW_SHOW                  "gui.follow_show"
 
 #define RECENT_GUI_GEOMETRY                   "gui.geom."
 
@@ -151,6 +152,17 @@ static const value_string search_type_values[] = {
     { SEARCH_TYPE_HEX_VALUE,      "HEX_VALUE" },
     { SEARCH_TYPE_STRING,         "STRING" },
     { SEARCH_TYPE_REGEX,          "REGEX" },
+    { 0, NULL }
+};
+
+static const value_string follow_show_values[] = {
+    { SHOW_ASCII,   "ASCII" },
+    { SHOW_CARRAY,  "C_ARRAYS" },
+    { SHOW_EBCDIC,  "EBCDIC" },
+    { SHOW_HEXDUMP, "HEX_DUMP" },
+    { SHOW_RAW,     "RAW" },
+    { SHOW_CODEC,   "UTF-8" },
+    { SHOW_YAML,    "YAML"},
     { 0, NULL }
 };
 
@@ -901,6 +913,10 @@ write_profile_recent(void)
             RECENT_GUI_ALLOW_HOVER_SELECTION,
             recent.gui_allow_hover_selection);
 
+    write_recent_enum(rf, "Follow stream show as",
+            RECENT_GUI_FOLLOW_SHOW, follow_show_values,
+            recent.gui_follow_show);
+
     fprintf(rf, "\n# Main window upper (or leftmost) pane size.\n");
     fprintf(rf, "# Decimal number.\n");
     if (recent.gui_geometry_main_upper_pane != 0) {
@@ -1120,6 +1136,8 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
         parse_recent_boolean(value, &recent.gui_packet_diagram_field_values);
     } else if (strcmp(key, RECENT_GUI_ALLOW_HOVER_SELECTION) == 0) {
         parse_recent_boolean(value, &recent.gui_allow_hover_selection);
+    } else if (strcmp(key, RECENT_GUI_FOLLOW_SHOW) == 0) {
+        recent.gui_follow_show = (follow_show_type)str_to_val(value, follow_show_values, SHOW_ASCII);
     } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED) == 0) {
         parse_recent_boolean(value, &recent.gui_geometry_main_maximized);
     } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE) == 0) {
@@ -1387,6 +1405,7 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
     recent.gui_bytes_view            = BYTES_HEX;
     recent.gui_bytes_encoding        = BYTES_ENC_FROM_PACKET;
     recent.gui_allow_hover_selection = TRUE;
+    recent.gui_follow_show           = SHOW_ASCII;
 
     /* pane size of zero will autodetect */
     recent.gui_geometry_main_upper_pane   = 0;

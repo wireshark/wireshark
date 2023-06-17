@@ -103,7 +103,6 @@ private:
 
     follow_info_t           follow_info_;
     register_follow_t*      follower_;
-    show_type_t             show_type_;
     QString                 data_out_filename_;
     static const int        max_document_length_;
     bool                    truncated_;

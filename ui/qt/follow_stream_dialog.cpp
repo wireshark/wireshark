@@ -23,6 +23,7 @@
 
 #include "ui/alert_box.h"
 #include "ui/simple_dialog.h"
+#include <ui/recent.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/ws_assert.h>
 
@@ -69,7 +70,6 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, int pro
     ui(new Ui::FollowStreamDialog),
     b_find_(NULL),
     follower_(NULL),
-    show_type_(SHOW_ASCII),
     truncated_(false),
     client_buffer_count_(0),
     server_buffer_count_(0),
@@ -111,6 +111,7 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, int pro
     // UTF-8 is guaranteed to exist as a QTextCodec
     cbcs->addItem(tr("UTF-8"), SHOW_CODEC);
     cbcs->addItem(tr("YAML"), SHOW_YAML);
+    cbcs->setCurrentIndex(static_cast<int>(recent.gui_follow_show));
     cbcs->blockSignals(false);
 
     b_filter_out_ = ui->buttonBox->addButton(tr("Filter Out This Stream"), QDialogButtonBox::ActionRole);
@@ -287,7 +288,7 @@ void FollowStreamDialog::saveAs()
 
     // Unconditionally save data as UTF-8 (even if data is decoded otherwise).
     QByteArray bytes = ui->teStreamContent->toPlainText().toUtf8();
-    if (show_type_ == SHOW_RAW) {
+    if (recent.gui_follow_show == SHOW_RAW) {
         // The "Raw" format is currently displayed as hex data and needs to be
         // converted to binary data.
         bytes = QByteArray::fromHex(bytes);
@@ -358,7 +359,7 @@ void FollowStreamDialog::on_cbDirections_currentIndexChanged(int idx)
 void FollowStreamDialog::on_cbCharset_currentIndexChanged(int idx)
 {
     if (idx < 0) return;
-    show_type_ = static_cast<show_type_t>(ui->cbCharset->itemData(idx).toInt());
+    recent.gui_follow_show = static_cast<follow_show_type>(ui->cbCharset->itemData(idx).toInt());
     readStream();
 }
 
@@ -537,7 +538,7 @@ FollowStreamDialog::readStream()
 
     ui->teStreamContent->clear();
     text_pos_to_packet_.clear();
-    switch (show_type_) {
+    switch (recent.gui_follow_show) {
 
     case SHOW_CARRAY:
     case SHOW_HEXDUMP:
@@ -693,7 +694,7 @@ FollowStreamDialog::showBuffer(char *buffer, size_t nchars, gboolean is_from_ser
     guint32 current_pos;
     static const gchar hexchars[16] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 
-    switch (show_type_) {
+    switch (recent.gui_follow_show) {
 
     case SHOW_EBCDIC:
     {
