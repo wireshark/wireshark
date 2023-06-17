@@ -1488,7 +1488,8 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, gint hf_id, tvbuff_t
             THROW(ReportedBoundsError);
         }
         fd_head = fragment_add_seq_next(&octet_segment_reassembly_table,
-                                        next_tvb, 0, actx->pinfo, dst_ref, NULL,
+                                        next_tvb, 0, actx->pinfo,
+                                        (dst_ref | nest_level << 16), NULL,
                                         tvb_reported_length(next_tvb),
                                         fragment);
 
