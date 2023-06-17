@@ -558,6 +558,22 @@ FollowStreamDialog::readStream()
 
     ui->teStreamContent->clear();
     text_pos_to_packet_.clear();
+    switch (show_type_) {
+
+    case SHOW_CARRAY:
+    case SHOW_HEXDUMP:
+    case SHOW_YAML:
+        /* We control the width and insert line breaks in these formats. */
+        ui->teStreamContent->setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+        break;
+
+    default:
+        /* Everything else might have extremely long lines without whitespace,
+         * (SHOW_RAW almost surely so), and QTextEdit is O(N^2) trying
+         * to search for word boundaries on long lines when adding text.
+         */
+        ui->teStreamContent->setWordWrapMode(QTextOption::WrapAnywhere);
+    }
 
     truncated_ = false;
     frs_return_t ret;
