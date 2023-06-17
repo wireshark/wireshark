@@ -11,10 +11,17 @@ set(Wireshark_PLUGIN_LIBDIR "@PLUGIN_INSTALL_VERSION_LIBDIR@")
 set_and_check(Wireshark_INSTALL_PREFIX     "${PACKAGE_PREFIX_DIR}")
 set_and_check(Wireshark_LIB_DIR            "@PACKAGE_CMAKE_INSTALL_LIBDIR@")
 set_and_check(Wireshark_INCLUDE_DIR        "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@/wireshark")
+#
+# set_and_check() cannot be used with directories that may or may not exist.
+# If no plugins or extcaps are built the respective directories will not exist in the target
+# system and set_and_check() and therefore find_package() will fail with a FATAL_ERROR,
+# which is not helpful because the variable is correct, it's just that the empty directories
+# were not created (also correctly, empty directories are just noise).
+#
 if(Wireshark_PLUGINS_ENABLED)
-    set_and_check(Wireshark_PLUGIN_INSTALL_DIR "@PACKAGE_PLUGIN_INSTALL_VERSION_LIBDIR@")
+    set(Wireshark_PLUGIN_INSTALL_DIR "@PACKAGE_PLUGIN_INSTALL_VERSION_LIBDIR@")
 endif()
-set_and_check(Wireshark_EXTCAP_INSTALL_DIR "@PACKAGE_EXTCAP_INSTALL_LIBDIR@")
+set(Wireshark_EXTCAP_INSTALL_DIR "@PACKAGE_EXTCAP_INSTALL_LIBDIR@")
 
 include("${CMAKE_CURRENT_LIST_DIR}/WiresharkTargets.cmake")
 
