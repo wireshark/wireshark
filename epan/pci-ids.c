@@ -28,22 +28,25 @@
  */
 
 #include <config.h>
+
 #include "pci-ids.h"
+
+#include <stddef.h>
 
 typedef struct
 {
-  guint16 vid;
-  guint16 did;
-  guint16 svid;
-  guint16 ssid;
-  gchar *name;
+  uint16_t vid;
+  uint16_t did;
+  uint16_t svid;
+  uint16_t ssid;
+  char *name;
 
 } pci_id_t;
 
 typedef struct
 {
-  guint16 vid;
-  guint16 count;
+  uint16_t vid;
+  uint16_t count;
   pci_id_t *ids_ptr;
 
 } pci_vid_index_t;
@@ -44897,11 +44900,11 @@ pci_vid_index_t pci_vid_index[] = {
 {0xFFFF, 1, pci_vid_FFFF },
 }; /* We have 2332 VIDs */
 
-static pci_vid_index_t *get_vid_index(guint16 vid)
+static pci_vid_index_t *get_vid_index(uint16_t vid)
 {
-    guint32 start_index = 0;
-    guint32 end_index = 0;
-    guint32 idx = 0;
+    uint32_t start_index = 0;
+    uint32_t end_index = 0;
+    uint32_t idx = 0;
 
     end_index = sizeof(pci_vid_index)/sizeof(pci_vid_index[0]);
 
@@ -44931,7 +44934,7 @@ static pci_vid_index_t *get_vid_index(guint16 vid)
 
 }
 
-const char *pci_id_str(guint16 vid, guint16 did, guint16 svid, guint16 ssid)
+const char *pci_id_str(uint16_t vid, uint16_t did, uint16_t svid, uint16_t ssid)
 {
     unsigned int i;
     static char *not_found = "Not found";

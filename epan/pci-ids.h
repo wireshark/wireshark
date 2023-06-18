@@ -8,6 +8,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include <glib.h> //For g* types
+#include <stdint.h>
 
-extern const char *pci_id_str(guint16 vid, guint16 did, guint16 svid, guint16 ssid);
+extern const char *pci_id_str(uint16_t vid, uint16_t did, uint16_t svid, uint16_t ssid);
