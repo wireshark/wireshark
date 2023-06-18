@@ -151,57 +151,80 @@ public:
             return QVariant();
         }
 
+        QVariant ret;
         rtpstream_info_calculate(stream_info_, &calc);
 
         switch(col) {
         case src_addr_col_:
-            return text(col);
+            ret = QVariant(text(col));
+            break;
         case src_port_col_:
-            return calc.src_port;
+            ret = calc.src_port;
+            break;
         case dst_addr_col_:
-            return text(col);
+            ret = text(col);
+            break;
         case dst_port_col_:
-            return calc.dst_port;
+            ret = calc.dst_port;
+            break;
         case ssrc_col_:
-            return calc.ssrc;
+            ret = calc.ssrc;
+            break;
         case start_time_col_:
-            return calc.start_time_ms;
+            ret = calc.start_time_ms;
+            break;
         case duration_col_:
-            return calc.duration_ms;
+            ret = calc.duration_ms;
+            break;
         case payload_col_:
-            return text(col);
+            ret = text(col);
+            break;
         case packets_col_:
-            return calc.packet_count;
+            ret = calc.packet_count;
+            break;
         case lost_col_:
-            return calc.lost_num;
+            ret = calc.lost_num;
+            break;
         case min_delta_col_:
-            return calc.min_delta;
+            ret = calc.min_delta;
+            break;
         case mean_delta_col_:
-            return calc.mean_delta;
+            ret = calc.mean_delta;
+            break;
         case max_delta_col_:
-            return calc.max_delta;
+            ret = calc.max_delta;
+            break;
         case min_jitter_col_:
-            return calc.min_jitter;
+            ret = calc.min_jitter;
+            break;
         case mean_jitter_col_:
-            return calc.mean_jitter;
+            ret = calc.mean_jitter;
+            break;
         case max_jitter_col_:
-            return calc.max_jitter;
+            ret = calc.max_jitter;
+            break;
         case status_col_:
-            return calc.problem ? "Problem" : "";
+            ret = calc.problem ? "Problem" : "";
+            break;
         case ssrc_fmt_col_:
-            return QString("0x%1").arg(calc.ssrc, 0, 16);
+            ret = QString("0x%1").arg(calc.ssrc, 0, 16);
+            break;
         case lost_perc_col_:
-            return QString::number(calc.lost_perc, 'f', prefs.gui_decimal_places1);
+            ret = QString::number(calc.lost_perc, 'f', prefs.gui_decimal_places1);
+            break;
         default:
+            ret = QVariant();
             break;
         }
-        return QVariant();
+        rtpstream_info_calc_free(&calc);
+        return ret;
     }
 
     bool operator< (const QTreeWidgetItem &other) const
     {
         rtpstream_info_calc_t calc1;
         rtpstream_info_calc_t calc2;
+        bool ret;
 
         if (other.type() != rtp_stream_type_) return QTreeWidgetItem::operator <(other);
         const RtpStreamTreeWidgetItem &other_rstwi = dynamic_cast<const RtpStreamTreeWidgetItem&>(other);
@@ -220,11 +243,17 @@ public:
         case start_time_col_:
             rtpstream_info_calculate(stream_info_, &calc1);
             rtpstream_info_calculate(other_rstwi.stream_info_, &calc2);
-            return calc1.start_time_ms < calc2.start_time_ms;
+            ret = calc1.start_time_ms < calc2.start_time_ms;
+            rtpstream_info_calc_free(&calc1);
+            rtpstream_info_calc_free(&calc2);
+            return ret;
         case duration_col_:
             rtpstream_info_calculate(stream_info_, &calc1);
             rtpstream_info_calculate(other_rstwi.stream_info_, &calc2);
-            return calc1.duration_ms < calc2.duration_ms;
+            ret = calc1.duration_ms < calc2.duration_ms;
+            rtpstream_info_calc_free(&calc1);
+            rtpstream_info_calc_free(&calc2);
+            return ret;
         case payload_col_:
             return g_strcmp0(stream_info_->all_payload_type_names, other_rstwi.stream_info_->all_payload_type_names);
         case packets_col_:
@@ -236,7 +265,11 @@ public:
              * lost_num is displayed first and lost_perc in parenthesis,
              * so let's use the total number.
              */
-            return calc1.lost_num < calc2.lost_num;
+            ret = calc1.lost_num < calc2.lost_num;
+            rtpstream_info_calc_free(&calc1);
+            rtpstream_info_calc_free(&calc2);
+            return ret;
+            break;
         case min_delta_col_:
             return stream_info_->rtp_stats.min_delta < other_rstwi.stream_info_->rtp_stats.min_delta;
         case mean_delta_col_:
