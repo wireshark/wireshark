@@ -15,6 +15,7 @@
 
 #include <epan/to_str.h>
 #include <wsutil/time_util.h>
+#include <wsutil/safe-math.h>
 
 
 static enum ft_result
@@ -438,17 +439,58 @@ time_unary_minus(fvalue_t * dst, const fvalue_t *src, char **err_ptr _U_)
 	return FT_OK;
 }
 
-static enum ft_result
-time_add(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr _U_)
+#define NS_PER_S 1000000000
+
+static void
+check_ns_wraparound(nstime_t *ns, jmp_buf env)
 {
-	nstime_sum(&dst->value.time, &a->value.time, &b->value.time);
+	if (ns->nsecs >= NS_PER_S || (ns->nsecs > 0 && ns->secs < 0)) {
+		ws_safe_sub_jmp(&ns->nsecs, ns->nsecs, NS_PER_S, env);
+		ws_safe_add_jmp(&ns->secs, ns->secs, 1, env);
+	}
+	else if(ns->nsecs <= -NS_PER_S || (ns->nsecs < 0 && ns->secs > 0)) {
+		ws_safe_add_jmp(&ns->nsecs, ns->nsecs, NS_PER_S, env);
+		ws_safe_sub_jmp(&ns->secs, ns->secs, 1, env);
+	}
+}
+
+static void
+_nstime_add(nstime_t *res, nstime_t a, const nstime_t b, jmp_buf env)
+{
+	ws_safe_add_jmp(&res->secs, a.secs, b.secs, env);
+	ws_safe_add_jmp(&res->nsecs, a.nsecs, b.nsecs, env);
+	check_ns_wraparound(res, env);
+}
+
+static void
+_nstime_sub(nstime_t *res, nstime_t a, const nstime_t b, jmp_buf env)
+{
+	ws_safe_sub_jmp(&res->secs, a.secs, b.secs, env);
+	ws_safe_sub_jmp(&res->nsecs, a.nsecs, b.nsecs, env);
+	check_ns_wraparound(res, env);
+}
+
+static enum ft_result
+time_add(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
+{
+	jmp_buf env;
+	if (setjmp(env) != 0) {
+		*err_ptr = ws_strdup_printf("time_add: overflow");
+		return FT_ERROR;
+	}
+	_nstime_add(&dst->value.time, a->value.time, b->value.time, env);
 	return FT_OK;
 }
 
 static enum ft_result
-time_subtract(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr _U_)
+time_subtract(fvalue_t * dst, const fvalue_t *a, const fvalue_t *b, char **err_ptr)
 {
-	nstime_delta(&dst->value.time, &a->value.time, &b->value.time);
+	jmp_buf env;
+	if (setjmp(env) != 0) {
+		*err_ptr = ws_strdup_printf("time_subtract: overflow");
+		return FT_ERROR;
+	}
+	_nstime_sub(&dst->value.time, a->value.time, b->value.time, env);
 	return FT_OK;
 }
 

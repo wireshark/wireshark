@@ -1045,4 +1045,20 @@ PSNIP_SAFE_DEFINE_UNSIGNED_MOD(psnip_uint64_t, uint64, 0xffffffffffffffffULL)
 #define psnip_safe_neg(res, v)    PSNIP_SAFE_C11_GENERIC_UNARY_OP (neg, res, v)
 #endif
 
+#include <setjmp.h>
+
+#define ws_safe_op_jmp(op, res, a, b, env) \
+    do { \
+        if(!psnip_safe_##op(res, a, b)) { \
+            longjmp(env, 1); \
+        } \
+    } while (0)
+
+#define ws_safe_add_jmp(res, a, b, env) ws_safe_op_jmp(add, res, a, b, env)
+#define ws_safe_sub_jmp(res, a, b, env) ws_safe_op_jmp(sub, res, a, b, env)
+#define ws_safe_mul_jmp(res, a, b, env) ws_safe_op_jmp(mul, res, a, b, env)
+#define ws_safe_div_jmp(res, a, b, env) ws_safe_op_jmp(div, res, a, b, env)
+#define ws_safe_mod_jmp(res, a, b, env) ws_safe_op_jmp(mod, res, a, b, env)
+#define ws_safe_neg_jmp(res, a, b, env) ws_safe_op_jmp(neg, res, a, b, env)
+
 #endif /* !defined(PSNIP_SAFE_H) */
