@@ -895,14 +895,14 @@ set_pcap_datalink(pcap_t *pcap_h, int datalink, char *name,
 	if (pcap_set_datalink(pcap_h, datalink) == 0)
 		return true; /* no error */
 	set_datalink_err_str = pcap_geterr(pcap_h);
-	snprintf(errmsg, (unsigned long) errmsg_len, "Unable to set data link type on interface '%s' (%s).",
+	snprintf(errmsg, errmsg_len, "Unable to set data link type on interface '%s' (%s).",
 	    name, set_datalink_err_str);
 	/*
 	 * If the error isn't "XXX is not one of the DLTs supported by this device",
 	 * tell the user to tell the Wireshark developers about it.
 	 */
 	if (strstr(set_datalink_err_str, "is not one of the DLTs supported by this device") == NULL)
-		snprintf(secondary_errmsg, (unsigned long) secondary_errmsg_len,
+		snprintf(secondary_errmsg, secondary_errmsg_len,
 		           "%s", please_report_bug());
 	else
 		secondary_errmsg[0] = '\0';
