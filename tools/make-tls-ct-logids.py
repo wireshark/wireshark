@@ -51,7 +51,7 @@ def process_json(obj, lastmod):
         desc = entry["description"]
         pubkey_der = b64decode(entry["key"])
         key_id = sha256(pubkey_der).digest()
-        block += '    { (const guint8[]){\n'
+        block += '    { (const uint8_t[]){\n'
         for offset in range(0, len(key_id), BYTES_PER_LINE):
             block += '          %s\n' % \
                 byteshex(key_id[offset:offset+BYTES_PER_LINE])
