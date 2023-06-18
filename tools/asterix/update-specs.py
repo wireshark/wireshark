@@ -368,7 +368,7 @@ def ungroup(item):
 
 def part1(ctx, get_ref, catalogue):
     """Generate components in order
-    - static gint hf_...
+    - static int hf_...
     - FiledPart
     - FieldPart[]
     - AsterixField
@@ -399,7 +399,7 @@ def part1(ctx, get_ref, catalogue):
                 return '&I{}_{}'.format(ref, item['name'])
 
             if t == 'Element':
-                tell('static gint hf_{} = -1;'.format(ref))
+                tell('static int hf_{} = -1;'.format(ref))
                 n = variation['size']
                 content = get_content(variation['rule'])
                 scaling = get_scaling(content)
@@ -437,7 +437,7 @@ def part1(ctx, get_ref, catalogue):
                 description = get_description(item)
                 tell_pr('        {} &hf_{}, {} "{}", "asterix.{}", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL {} {},'.format('{', ref, '{', description, ref, '}', '}'))
 
-                tell('static gint hf_{} = -1;'.format(ref))
+                tell('static int hf_{} = -1;'.format(ref))
                 for i in variation['items']:
                     handle_item(path, i)
 
@@ -465,7 +465,7 @@ def part1(ctx, get_ref, catalogue):
 
                 description = get_description(item)
                 tell_pr('        {} &hf_{}, {} "{}", "asterix.{}", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL {} {},'.format('{', ref, '{', description, ref, '}', '}'))
-                tell('static gint hf_{} = -1;'.format(ref))
+                tell('static int hf_{} = -1;'.format(ref))
 
                 items = []
                 for i in variation['items']:
@@ -532,14 +532,14 @@ def part1(ctx, get_ref, catalogue):
 
             elif t == 'Explicit':
                 ctx.reset_offset()
-                tell('static gint hf_{} = -1;'.format(ref))
+                tell('static int hf_{} = -1;'.format(ref))
                 description = get_description(item)
                 tell_pr('        {} &hf_{}, {} "{}", "asterix.{}", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL {} {},'.format('{', ref, '{', description, ref, '}', '}'))
                 tell('static const AsterixField I{} = {} EXP, 0, 0, 1, &hf_{}, NULL, {} NULL {} {};'.format(ref, '{', ref, '{', '}', '}'))
 
             elif t == 'Compound':
                 ctx.reset_offset()
-                tell('static gint hf_{} = -1;'.format(ref))
+                tell('static int hf_{} = -1;'.format(ref))
                 description = get_description(item)
                 tell_pr('        {} &hf_{}, {} "{}", "asterix.{}", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL {} {},'.format('{', ref, '{', description, ref, '}', '}'))
                 comp = '{'
@@ -659,7 +659,7 @@ def part4(ctx, cats):
     tell('};')
 
     for cat in sorted(cats):
-        tell_pr('    prefs_register_enum_preference (asterix_prefs_module, "i{:03d}_version", "I{:03d} version", "Select the CAT{:03d} version", &global_categories_version[{}], I{:03d}_versions, FALSE);'.format(cat, cat, cat, cat, cat))
+        tell_pr('    prefs_register_enum_preference (asterix_prefs_module, "i{:03d}_version", "I{:03d} version", "Select the CAT{:03d} version", &global_categories_version[{}], I{:03d}_versions, false);'.format(cat, cat, cat, cat, cat))
 
 class Output(object):
     """Output context manager. Write either to stdout or to a dissector
