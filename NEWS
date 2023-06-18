@@ -20,6 +20,10 @@ Wireshark 4.1.0 Release Notes
   Display filter autocomplete is smarter about not suggesting invalid
   syntax.
 
+  "Tools › Lua Scripts › Launch with SSLKEYLOGFILE" can launch your web
+  browser with the SSLKEYLOGFILE environment variable set to the
+  appropriate value.
+
   The Windows build has a new SpeexDSP external dependency
   (https://www.speex.org). The speex code that was previously bundled
   has been removed.
@@ -120,6 +124,10 @@ Wireshark 4.1.0 Release Notes
      • When saving files or exporting packets after changing their time
        with the "Time Shift" dialog, the shifted time is written to the
        new file.
+
+     • TLS secrets used in decrypting packets can be embedded (or
+       discarded) from the capture file via the GUI, similar to the
+       options --inject-secrets and --discard-all-secrets in editcap.
 
   New Protocol Support
 

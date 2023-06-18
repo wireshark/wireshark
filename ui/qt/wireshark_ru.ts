@@ -7033,6 +7033,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Bytes %1-%2</source>
         <translation>Байты %1-%2</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln byte(s)</source>
+        <translation type="unfinished">
+            <numerusform>%Ln байт</numerusform>
+            <numerusform>%Ln байт</numerusform>
+            <numerusform>%Ln байт</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>PacketFormatGroupBox</name>
@@ -7906,6 +7914,30 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Копировать список потоков в виде YAML.</translation>
     </message>
     <message>
+        <source>Copy short names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy short protocol names in use.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable unused protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable all protocols but those listed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Re-enable unused protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Re-enable protocols that were disabled in this dialog.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Protocol Hierarchy Statistics</source>
         <translation>Статистика иерархии протоколов</translation>
     </message>
@@ -7922,12 +7954,36 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>в виде YAML</translation>
     </message>
     <message>
+        <source>protocol short names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable unused</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Revert changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>No display filter.</source>
         <translation>Нет фильтра отображения.</translation>
     </message>
     <message>
         <source>Display filter: %1</source>
         <translation>Фильтр отображения: %1</translation>
+    </message>
+    <message>
+        <source>Unused protocols have been disabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Protocol changes have been reverted.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12010,8 +12066,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Недопустимый номер кадра.</translation>
     </message>
     <message>
+        <source>Time shifting is not available while capturing packets.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Time shifting is not available capturing packets.</source>
-        <translation>Временной сдвиг для захватываемых пакетов недоступен.</translation>
+        <translation type="vanished">Временной сдвиг для захватываемых пакетов недоступен.</translation>
     </message>
 </context>
 <context>
@@ -13359,6 +13419,22 @@ a:hover {
     <message>
         <source>Remove all packet comments in the capture file</source>
         <translation>Удалить все комментарии к пакетам в файле захвата</translation>
+    </message>
+    <message>
+        <source>Inject TLS Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Embed used TLS secrets in the capture file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Discard All Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Discard all decryption secrets in the capture file</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Configuration Profiles…</source>
@@ -14819,6 +14895,18 @@ a:hover {
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
         <translation>Ключи сеанса TLS (*.keys *.txt);;Все Файлы (</translation>
+    </message>
+    <message>
+        <source>No TLS Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to discard all decryption secrets?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No filter available. Try another %1.</source>

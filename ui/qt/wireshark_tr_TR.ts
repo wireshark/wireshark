@@ -6995,6 +6995,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Bytes %1-%2</source>
         <translation>Bayt %1-%2</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln byte(s)</source>
+        <translation type="unfinished">
+            <numerusform>%Ln bayt</numerusform>
+        </translation>
+    </message>
 </context>
 <context>
     <name>PacketFormatGroupBox</name>
@@ -7854,6 +7860,30 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Akış listesini YAML olarak kopyalayın.</translation>
     </message>
     <message>
+        <source>Copy short names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy short protocol names in use.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable unused protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable all protocols but those listed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Re-enable unused protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Re-enable protocols that were disabled in this dialog.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Protocol Hierarchy Statistics</source>
         <translation>Protokol Hiyerarşi İstatistikleri</translation>
     </message>
@@ -7870,12 +7900,36 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>YAML olarak</translation>
     </message>
     <message>
+        <source>protocol short names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disable unused</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Revert changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>No display filter.</source>
         <translation>Görüntüleme filtresi yok.</translation>
     </message>
     <message>
         <source>Display filter: %1</source>
         <translation>Görüntüleme filtresi: %1</translation>
+    </message>
+    <message>
+        <source>Unused protocols have been disabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Protocol changes have been reverted.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11950,8 +12004,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Geçersiz çerçeve numarası.</translation>
     </message>
     <message>
+        <source>Time shifting is not available while capturing packets.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Time shifting is not available capturing packets.</source>
-        <translation>Paketleri yakalarken zaman kaydırma kullanılamaz.</translation>
+        <translation type="vanished">Paketleri yakalarken zaman kaydırma kullanılamaz.</translation>
     </message>
 </context>
 <context>
@@ -13297,6 +13355,22 @@ a:üzerine gelin{
     <message>
         <source>Remove all packet comments in the capture file</source>
         <translation>Yakalama dosyasındaki tüm paket yorumlarını kaldırın</translation>
+    </message>
+    <message>
+        <source>Inject TLS Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Embed used TLS secrets in the capture file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Discard All Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Discard all decryption secrets in the capture file</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Configuration Profiles…</source>
@@ -14751,6 +14825,18 @@ a:üzerine gelin{
     <message>
         <source>TLS Session Keys (*.keys *.txt);;All Files (</source>
         <translation>TLS Oturum Anahtarları (*.keys *.txt);;Tüm Dosyalar (</translation>
+    </message>
+    <message>
+        <source>No TLS Secrets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>There are no available secrets used to decrypt TLS traffic in the capture file.  Would you like to view information about how to decrypt TLS traffic on the wiki?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to discard all decryption secrets?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No filter available. Try another %1.</source>
