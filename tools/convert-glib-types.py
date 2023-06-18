@@ -24,6 +24,8 @@ type_map = {
     'guchar': 'unsigned char',
     'gint': 'int',
     'guint': 'unsigned', # Matches README.developer
+    'glong': 'long',
+    'gulong': 'unsigned long',
     'gint8': 'int8_t',
     'gint16': 'int16_t',
     'gint32': 'int32_t',

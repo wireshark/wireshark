@@ -45,7 +45,7 @@ bool has_wpcap = false;
 
 static void    (*p_pcap_close) (pcap_t *);
 static int     (*p_pcap_stats) (pcap_t *, struct pcap_stat *);
-static int     (*p_pcap_dispatch) (pcap_t *, int, pcap_handler, guchar *);
+static int     (*p_pcap_dispatch) (pcap_t *, int, pcap_handler, unsigned char *);
 static int     (*p_pcap_snapshot) (pcap_t *);
 static int     (*p_pcap_datalink) (pcap_t *);
 static int     (*p_pcap_setfilter) (pcap_t *, struct bpf_program *);
@@ -57,7 +57,7 @@ static int     (*p_pcap_compile_nopcap) (int, int, struct bpf_program *, const c
 static int     (*p_pcap_lookupnet) (const char *, bpf_u_int32 *, bpf_u_int32 *,
 			char *);
 static pcap_t* (*p_pcap_open_live) (const char *, int, int, int, char *);
-static int     (*p_pcap_loop) (pcap_t *, int, pcap_handler, guchar *);
+static int     (*p_pcap_loop) (pcap_t *, int, pcap_handler, unsigned char *);
 static pcap_t* (*p_pcap_open_dead) (int, int);
 static void    (*p_pcap_freecode) (struct bpf_program *);
 static int     (*p_pcap_findalldevs) (pcap_if_t **, char *);
@@ -298,7 +298,7 @@ pcap_stats(pcap_t *a, struct pcap_stat *b)
 }
 
 int
-pcap_dispatch(pcap_t *a, int b, pcap_handler c, guchar *d)
+pcap_dispatch(pcap_t *a, int b, pcap_handler c, unsigned char *d)
 {
 	ws_assert(has_wpcap);
 	return p_pcap_dispatch(a, b, c, d);
@@ -457,7 +457,7 @@ pcap_setsampling(pcap_t *a)
 #endif
 
 int
-pcap_loop(pcap_t *a, int b, pcap_handler c, guchar *d)
+pcap_loop(pcap_t *a, int b, pcap_handler c, unsigned char *d)
 {
 	ws_assert(has_wpcap);
 	return p_pcap_loop(a, b, c, d);
