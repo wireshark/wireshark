@@ -379,7 +379,7 @@ static gboolean communityid_calc(communityid_cfg_t *cfg, guint8 proto,
         gsize len = strlen(CID_VERSION_PREFIX) + strlen(str) + 1;
 
         *result = (gchar*) g_malloc(len);
-        snprintf(*result, (gulong) len, "%s%s", CID_VERSION_PREFIX, str);
+        snprintf(*result, len, "%s%s", CID_VERSION_PREFIX, str);
         g_free(str);
     } else {
         /* Convert binary SHA-1 to ASCII representation.

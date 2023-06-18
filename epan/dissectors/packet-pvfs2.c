@@ -887,7 +887,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 				/* alloc maximum data area */
 				string_buffer_temp = (char*) wmem_alloc(pinfo->pool, string_buffer_size);
 				/* copy over the data */
-				snprintf(string_buffer_temp, (gulong)string_buffer_size,
+				snprintf(string_buffer_temp, string_buffer_size,
 						"%s<TRUNCATED>", formatted);
 				/* append <TRUNCATED> */
 				/* This way, we get the TRUNCATED even

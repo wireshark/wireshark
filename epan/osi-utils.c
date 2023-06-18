@@ -59,7 +59,7 @@ print_nsap_net_buf( const guint8 *ad, int length, gchar *buf, int buf_len)
     cur += strlen( cur );
     print_system_id_buf( ad + RFC1237_FULLAREA_LEN, RFC1237_SYSTEMID_LEN, cur, (int) (buf_len-(cur-buf)));
     cur += strlen( cur );
-    cur += snprintf(cur, (gulong) (buf_len-(cur-buf)), "[%02x]",
+    cur += snprintf(cur, buf_len-(cur-buf), "[%02x]",
                     ad[ RFC1237_FULLAREA_LEN + RFC1237_SYSTEMID_LEN ] );
     if ( length == RFC1237_NSAP_LEN + 1 ) {
       snprintf(cur, (int) (buf_len-(cur-buf)), "-%02x", ad[ length -1 ] );
@@ -106,27 +106,27 @@ print_system_id_buf( const guint8 *ad, int length, gchar *buf, int buf_len)
                     ad[2], ad[3], ad[4], ad[5] );
     if ( ( 7 == length ) ||
          ( 8 == length )) {
-        cur += snprintf(cur, (gulong) (buf_len-(cur-buf)), ".%02x", ad[6] );
+        cur += snprintf(cur, buf_len-(cur-buf), ".%02x", ad[6] );
     }
     if ( 8 == length ) {
-        snprintf(cur, (gulong) (buf_len-(cur-buf)), "-%02x", ad[7] );
+        snprintf(cur, buf_len-(cur-buf), "-%02x", ad[7] );
     }
   }
   else {
     tmp = 0;
     while ( tmp < length / 4 ) { /* 16 / 4 == 4 > four Octets left to print */
-      cur += snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x", ad[tmp++] );
-      cur += snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x", ad[tmp++] );
-      cur += snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x", ad[tmp++] );
-      cur += snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x.", ad[tmp++] );
+      cur += snprintf(cur, buf_len-(cur-buf), "%02x", ad[tmp++] );
+      cur += snprintf(cur, buf_len-(cur-buf), "%02x", ad[tmp++] );
+      cur += snprintf(cur, buf_len-(cur-buf), "%02x", ad[tmp++] );
+      cur += snprintf(cur, buf_len-(cur-buf), "%02x.", ad[tmp++] );
     }
     if ( 1 == tmp ) {   /* Special case for Designated IS */
       cur--;
-      snprintf(cur, (gulong) (buf_len-(cur-buf)), ".%02x", ad[tmp] );
+      snprintf(cur, buf_len-(cur-buf), ".%02x", ad[tmp] );
     }
     else {
       for ( ; tmp < length; ) {  /* print the rest without dot */
-        cur += snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x", ad[tmp++] );
+        cur += snprintf(cur, buf_len-(cur-buf), "%02x", ad[tmp++] );
       }
     }
   }
@@ -208,11 +208,11 @@ print_address_prefix_buf(const guint8 *ad, int length, gchar *buf, int buf_len)
     /* Show the one-octet AFI, the two-octet IDI, the one-octet DFI, the
      * 3-octet AA, and the 2 reserved octets.
      */
-    cur += snprintf(cur, (gulong) (buf_len-(cur-buf)), "[%02x|%02x:%02x][%02x|%02x:%02x:%02x|%02x:%02x]",
+    cur += snprintf(cur, buf_len-(cur-buf), "[%02x|%02x:%02x][%02x|%02x:%02x:%02x|%02x:%02x]",
                     ad[0], ad[1], ad[2], ad[3], ad[4],
                     ad[5], ad[6], ad[7], ad[8] );
     /* Show the 2-octet RD and the 2-octet Area. */
-    cur += snprintf(cur, (gulong) (buf_len-(cur-buf)), "[%02x:%02x|%02x:%02x]",
+    cur += snprintf(cur, buf_len-(cur-buf), "[%02x:%02x|%02x:%02x]",
                     ad[9], ad[10],  ad[11], ad[12] );
     /* Show whatever the heck this is; it's not specified by RFC 1237,
      * but we also handle 14-octet areas.  Is it the "Designated IS"
@@ -220,7 +220,7 @@ print_address_prefix_buf(const guint8 *ad, int length, gchar *buf, int buf_len)
      * spec about that.)
      */
     if ( (RFC1237_FULLAREA_LEN + 1)*2 == length )
-      snprintf(cur, (gulong) (buf_len-(cur-buf)), "-[%02x]", ad[13] );
+      snprintf(cur, buf_len-(cur-buf), "-[%02x]", ad[13] );
   }
   else {
     /* This doesn't look like a full RFC 1237 IS-IS area, so all we know
@@ -239,23 +239,23 @@ print_address_prefix_buf(const guint8 *ad, int length, gchar *buf, int buf_len)
       return;
     }
     while ( tmp < length / 8 ) {      /* 32/8==4 > four Octets left to print */
-      cur += snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x", ad[tmp++] );
-      cur += snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x", ad[tmp++] );
-      cur += snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x", ad[tmp++] );
-      cur += snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x.", ad[tmp++] );
+      cur += snprintf(cur, buf_len-(cur-buf), "%02x", ad[tmp++] );
+      cur += snprintf(cur, buf_len-(cur-buf), "%02x", ad[tmp++] );
+      cur += snprintf(cur, buf_len-(cur-buf), "%02x", ad[tmp++] );
+      cur += snprintf(cur, buf_len-(cur-buf), "%02x.", ad[tmp++] );
     }
     if ( 2 == tmp ) {                     /* Special case for Designated IS */
       cur--;
-      snprintf(cur, (gulong) (buf_len-(cur-buf)), "-%02x", ad[tmp] );
+      snprintf(cur, buf_len-(cur-buf), "-%02x", ad[tmp] );
     }
     else {
       for ( ; tmp < length / 2; ) {  /* print the rest without dot or dash */
-        cur += snprintf(cur, (gulong) (buf_len-(cur-buf)), "%02x", ad[tmp++] );
+        cur += snprintf(cur, buf_len-(cur-buf), "%02x", ad[tmp++] );
       }
       /* Odd half-octet? */
       if (length & 1) {
         /* Yes - print it (it's the upper half-octet) */
-        snprintf(cur, (gulong) (buf_len-(cur-buf)), "%x", (ad[tmp] & 0xF0)>>4 );
+        snprintf(cur, buf_len-(cur-buf), "%x", (ad[tmp] & 0xF0)>>4 );
       }
     }
   }

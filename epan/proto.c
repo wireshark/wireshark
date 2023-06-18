@@ -11673,16 +11673,16 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 				*filter = (char *)wmem_alloc0(NULL, buf_len);
 				ptr = *filter;
 
-				ptr += snprintf(ptr, (gulong) (buf_len-(ptr-*filter)),
+				ptr += snprintf(ptr, buf_len-(ptr-*filter),
 					"frame[%d:%d] == ", finfo->start, length);
 				for (i=0; i<length; i++) {
 					c = tvb_get_guint8(finfo->ds_tvb, start);
 					start++;
 					if (i == 0 ) {
-						ptr += snprintf(ptr, (gulong) (buf_len-(ptr-*filter)), "%02x", c);
+						ptr += snprintf(ptr, buf_len-(ptr-*filter), "%02x", c);
 					}
 					else {
-						ptr += snprintf(ptr, (gulong) (buf_len-(ptr-*filter)), ":%02x", c);
+						ptr += snprintf(ptr, buf_len-(ptr-*filter), ":%02x", c);
 					}
 				}
 			}

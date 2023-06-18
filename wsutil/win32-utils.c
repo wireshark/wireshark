@@ -182,7 +182,7 @@ win32strexception(DWORD exception)
         if (exceptions[i].code == exception)
             return exceptions[i].msg;
     }
-    snprintf(errbuf, (gulong)sizeof errbuf, "Exception 0x%08lx", exception);
+    snprintf(errbuf, sizeof errbuf, "Exception 0x%08lx", exception);
     return errbuf;
 }
 

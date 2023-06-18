@@ -1333,10 +1333,10 @@ stats_tree_format_as_str(const stats_tree* st, st_format_type format_type,
             s = g_string_new("\n");
             g_string_append(s,separator);
             g_string_append_printf(s,"\n%s:\n",st->cfg->name);
-            snprintf (fmt,(gulong)sizeof(fmt),"%%-%us",maxnamelen);
+            snprintf (fmt,sizeof(fmt),"%%-%us",maxnamelen);
             g_string_append_printf(s,fmt,stats_tree_get_column_name(0));
             for (count = 1; count<st->num_columns; count++) {
-                snprintf (fmt,(gulong)sizeof(fmt)," %%-%us",stats_tree_get_column_size(count)+1);
+                snprintf (fmt,sizeof(fmt)," %%-%us",stats_tree_get_column_size(count)+1);
                 g_string_append_printf(s,fmt,stats_tree_get_column_name(count));
             }
             memset (separator, '-', sep_length);
@@ -1406,7 +1406,7 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
     switch(format_type) {
         case ST_FORMAT_YAML:
             if (indent) {
-                snprintf(fmt, (gulong)sizeof(fmt), "%%%ds%%s%%s", indent*4-2);
+                snprintf(fmt, sizeof(fmt), "%%%ds%%s%%s", indent*4-2);
             }
             g_string_append_printf(s, fmt, "", indent?"- ":"", "Description");
             g_string_append_printf(s, ": \"%s\"\n", values[0]);
@@ -1444,10 +1444,10 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
             g_string_append (s,"\n");
             break;
         case ST_FORMAT_PLAIN:
-            snprintf (fmt,(gulong)sizeof(fmt),"%%%ds%%-%us",indent,maxnamelen-indent);
+            snprintf (fmt,sizeof(fmt),"%%%ds%%-%us",indent,maxnamelen-indent);
             g_string_append_printf(s,fmt,"",values[0]);
             for (count = 1; count<num_columns; count++) {
-                snprintf (fmt,(gulong)sizeof(fmt)," %%-%us",stats_tree_get_column_size(count)+1);
+                snprintf (fmt,sizeof(fmt)," %%-%us",stats_tree_get_column_size(count)+1);
                 g_string_append_printf(s,fmt,values[count]);
             }
             g_string_append (s,"\n");

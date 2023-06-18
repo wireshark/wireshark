@@ -658,7 +658,7 @@ static char *adb_send_and_receive(socket_handle_t sock, const char *adb_service,
         return NULL;
     }
 
-    snprintf(buffer, (gulong)buffer_length, ADB_HEX4_FORMAT, adb_service_length);
+    snprintf(buffer, buffer_length, ADB_HEX4_FORMAT, adb_service_length);
     result = send(sock, buffer, ADB_HEX4_LEN, 0);
     if (result < ADB_HEX4_LEN) {
         ws_warning("Error while sending <%s> length to ADB daemon", adb_service);
