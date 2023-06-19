@@ -7659,7 +7659,7 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
             encoding, SECURITY_DIGITAL_SIGNATURE_MASK_FLAGS);
         sub_tree = proto_tree_add_subtree(rtps_parameter_tree, tvb, offset, 4,
             ett_rtps_crypto_algorithm_requirements, NULL, "Message Authentication");
-        offset = dissect_crypto_algorithm_requirements(sub_tree, tvb, offset,
+        dissect_crypto_algorithm_requirements(sub_tree, tvb, offset,
             encoding, SECURITY_DIGITAL_SIGNATURE_MASK_FLAGS);
       break;
     }
