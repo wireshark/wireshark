@@ -1148,9 +1148,9 @@ static int dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 		cp_code = tvb_get_ntohs(tvb, 6);
 		/*
 		 * The session payload length expressly does not include pad bytes
-		 *  when LCP or IPCP are present, so avoid the spurious error message
+		 * when LCP or IPCP or IPv6CP are present, so avoid the spurious error message
 		 */
-		if ((cp_code != PPP_LCP) && (cp_code != PPP_IPCP) &&
+		if ((cp_code != PPP_LCP) && (cp_code != PPP_IPCP) && (cp_code != PPP_IPV6CP) &&
 			(reported_payload_length != actual_payload_length) &&
 			((reported_payload_length + 4) != actual_payload_length)) {
 			proto_item_append_text(ti, " [incorrect, should be %u]",
