@@ -540,7 +540,7 @@ compile_filter(const char *expanded_text, unsigned flags, df_error_t **err_ptr)
 		return NULL;
 	}
 
-	dfw = dfwork_new(expanded_text, flags);
+	dfw = dfwork_new(expanded_text, dfs->flags);
 	dfw->st_root = dfs->st_root;
 	dfs->st_root = NULL;
 	if (dfs->deprecated)
