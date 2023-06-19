@@ -55,10 +55,11 @@ public:
 
     /** Disable and clear the packet list.
      *
+     * @param keep_current_frame If true, keep the selected frame.
      * Disable packet list widget updates, clear the detail and byte views,
      * and disconnect the model.
      */
-    void freeze();
+    bool freeze(bool keep_current_frame = false);
     /** Enable and restore the packet list.
      *
      * Enable packet list widget updates and reconnect the model.
@@ -66,7 +67,7 @@ public:
      * @param restore_selection If true, redissect the previously selected
      * packet. This includes filling in the detail and byte views.
      */
-    void thaw(bool restore_selection = false);
+    bool thaw(bool restore_selection = false);
     void clear();
     void writeRecent(FILE *rf);
     bool contextMenuActive();
@@ -128,6 +129,7 @@ private:
     bool create_near_overlay_;
     bool create_far_overlay_;
     QVector<QRgb> overlay_colors_;
+    bool changing_profile_;
 
     QModelIndex mouse_pressed_at_;
 
@@ -191,6 +193,7 @@ public slots:
     void columnsChanged();
     void fieldsChanged(capture_file *cf);
     void preferencesChanged();
+    void freezePacketList(bool changing_profile);
 
 private slots:
     void columnVisibilityTriggered();

@@ -487,6 +487,10 @@ void MainApplication::setConfigurationProfile(const gchar *profile_name, bool wr
 
     setMonospaceFont(prefs.gui_font_name);
 
+    // Freeze the packet list early to avoid updating column data before doing a
+    // full redissection. The packet list will be thawed when redissection is done.
+    emit freezePacketList(true);
+
     emit columnsChanged();
     emit preferencesChanged();
     emit recentPreferencesRead();
@@ -864,6 +868,9 @@ void MainApplication::emitAppSignal(AppSignal signal)
         break;
     case FieldsChanged:
         emit fieldsChanged();
+        break;
+    case FreezePacketList:
+        emit freezePacketList(false);
         break;
     default:
         break;

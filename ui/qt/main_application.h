@@ -66,7 +66,8 @@ public:
         PreferencesChanged,
         ProfileChanging,
         RecentCapturesChanged,
-        RecentPreferencesRead
+        RecentPreferencesRead,
+        FreezePacketList
     };
 
     enum MainMenuItem {
@@ -186,6 +187,7 @@ signals:
     void profileChanging();
     void profileNameChanged(const gchar *profile_name);
 
+    void freezePacketList(bool changing_profile);
     void columnsChanged(); // XXX This recreates the packet list. We might want to rename it accordingly.
     void captureFilterListChanged();
     void displayFilterListChanged();

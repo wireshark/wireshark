@@ -1199,6 +1199,12 @@ void PacketList::preferencesChanged()
     setTextElideMode(elide_mode);
 }
 
+void PacketList::freezePacketList(bool changing_profile)
+{
+    changing_profile_ = changing_profile;
+    freeze(true);
+}
+
 void PacketList::recolorPackets()
 {
     packet_list_model_->resetColorized();
@@ -1234,8 +1240,14 @@ void PacketList::captureFileReadFinished()
     }
 }
 
-void PacketList::freeze()
+bool PacketList::freeze(bool keep_current_frame)
 {
+    if (!cap_file_ || model() == Q_NULLPTR) {
+        // No capture file or already frozen
+        return false;
+    }
+
+    frame_data *current_frame = cap_file_->current_frame;
     column_state_ = header()->saveState();
     setHeaderHidden(true);
     frozen_current_row_ = currentIndex();
@@ -1246,22 +1258,40 @@ void PacketList::freeze()
     // call selectionChanged.
     related_packet_delegate_.clear();
 
+    if (keep_current_frame) {
+        cap_file_->current_frame = current_frame;
+    }
+
     /* Clears packet list as well as byteview */
     emit framesSelected(QList<int>());
+
+    return true;
 }
 
-void PacketList::thaw(bool restore_selection)
+bool PacketList::thaw(bool restore_selection)
 {
+    if (!cap_file_ || model() != Q_NULLPTR) {
+        // No capture file or not frozen
+        return false;
+    }
+
     setHeaderHidden(false);
     // Note that if we have a current sort status set in the header,
     // this will automatically try to sort the model (we don't want
     // that to happen if we're in the middle of reading the file).
     setModel(packet_list_model_);
 
-    // Resetting the model resets our column widths so we restore them here.
-    // We don't reapply the recent settings because the user could have
-    // resized the columns manually since they were initially loaded.
-    header()->restoreState(column_state_);
+    if (changing_profile_) {
+        // When changing profile the new recent settings must be applied to the columns.
+        applyRecentColumnWidths();
+        setColumnVisibility();
+        changing_profile_ = false;
+    } else {
+        // Resetting the model resets our column widths so we restore them here.
+        // We don't reapply the recent settings because the user could have
+        // resized the columns manually since they were initially loaded.
+        header()->restoreState(column_state_);
+    }
 
     if (restore_selection && frozen_selected_rows_.length() > 0 && selectionModel()) {
         /* This updates our selection, which redissects the current packet,
@@ -1276,6 +1306,8 @@ void PacketList::thaw(bool restore_selection)
     }
     frozen_current_row_ = QModelIndex();
     frozen_selected_rows_ = QModelIndexList();
+
+    return true;
 }
 
 void PacketList::clear() {
@@ -1543,6 +1575,7 @@ void PacketList::setCaptureFile(capture_file *cf)
         }
     }
     create_near_overlay_ = true;
+    changing_profile_ = false;
     sortByColumn(-1, Qt::AscendingOrder);
 }
 

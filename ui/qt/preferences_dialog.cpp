@@ -296,6 +296,10 @@ void PreferencesDialog::on_buttonBox_accepted()
     }
 
     if (redissect_flags & PREF_EFFECT_DISSECTION) {
+        // Freeze the packet list early to avoid updating column data before doing a
+        // full redissection. The packet list will be thawed when redissection is done.
+        mainApp->queueAppSignal(MainApplication::FreezePacketList);
+
         /* Redissect all the packets, and re-evaluate the display filter. */
         mainApp->queueAppSignal(MainApplication::PacketDissectionChanged);
     }
