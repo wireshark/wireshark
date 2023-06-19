@@ -433,6 +433,7 @@ static const value_string uds_cdtci_group_of_dtc[] = {
         {0xffff33, "Emissions-system group"},
         {0xffffd0, "Safety-system group"},
         {0xfffffe, "VOBD system"},
+        {0xffffff, "All Groups (all DTCs)"},
         {0, NULL}
 };
 
