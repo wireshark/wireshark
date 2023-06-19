@@ -843,7 +843,10 @@ You can perform the arithmetic operations on numeric fields shown in <<Arithmeti
 
 Arithmetic expressions can be grouped using curly braces.
 
-//TODO: Add example.
+For example, frames where capture length resulted in truncated TCP options:
+----
+frame.cap_len < { 14 +  ip.hdr_len + tcp.hdr_len }
+----
 
 ==== Functions
 
