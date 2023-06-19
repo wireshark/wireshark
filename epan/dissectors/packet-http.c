@@ -527,7 +527,7 @@ http_add_path_components_to_tree(tvbuff_t* tvb, packet_info* pinfo _U_, proto_it
 	}
 	uri_tree = proto_item_add_subtree(item, ett_http_request_uri);
 	path_len = end_path_offset - offset;
-	ti = proto_tree_add_item(uri_tree, hf_http_request_path, tvb, offset, path_len, ENC_ASCII);
+	proto_tree_add_item(uri_tree, hf_http_request_path, tvb, offset, path_len, ENC_ASCII);
 	parameter_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset + 1, end_path_offset - offset - 1, &pbrk_sub_delims, NULL);
 	if (parameter_offset != -1) {
 		proto_tree* path_tree = proto_item_add_subtree(item, ett_http_request_path);
