@@ -445,11 +445,19 @@ LiteralValue		{StartAlphabet}{Alphabet}*(\.{Alphabet}+)*
 	return set_lval_literal(yyextra, yytext, yytext);
 }
 
-	/* Integer or bytes */
+	/* Numeric */
 
-0[bBoOxX][[:xdigit:]]+	{
-	/* Binary/octal/hex integer. */
+[[:digit:]][[:alnum:]_-]*(\.[[:alnum:]_-]+)?	{
+	/* Numeric or field. */
 	update_location(yyextra, yytext);
+	/* Check if we have a protocol or protocol field, otherwise assume a literal. */
+	/* It is only reasonable to assume a literal here, instead of a
+	 * (possibly non-existant) protocol field, because protocol field filter names
+	 * should not start with a digit (the lexical syntax for numbers). */
+	header_field_info *hfinfo = dfilter_resolve_unparsed(yyextra, yytext);
+	if (hfinfo != NULL) {
+		return set_lval_field(yyextra, hfinfo, yytext);
+	}
 	return set_lval_literal(yyextra, yytext, yytext);
 }
 
@@ -463,23 +471,6 @@ LiteralValue		{StartAlphabet}{Alphabet}*(\.{Alphabet}+)*
 	/* Numeric or field. */
 	update_location(yyextra, yytext);
 	return set_lval_unparsed(yyextra, yytext, yytext);
-}
-
-	/* Floating point. */
-
-[[:digit:]]+\.[[:digit:]]+([eE][+-]?[[:digit:]]+)?	{
-	/* Decimal float with optional exponent. */
-	/* Significand cannot have any side omitted. */
-	update_location(yyextra, yytext);
-	return set_lval_unparsed(yyextra, yytext, yytext);
-}
-
-0[xX][[:xdigit:]]+\.[[:xdigit:]]+([pP][+-]?[[:digit:]]+)?	{
-	/* Hexadecimal float with optional exponent. Can't be a field because
-	 * field cannot beging with 0x. */
-	/* Significand cannot have any side omitted. */
-	update_location(yyextra, yytext);
-	return set_lval_literal(yyextra,  yytext, yytext);
 }
 
 	/* Bytes. */
@@ -542,7 +533,7 @@ LiteralValue		{StartAlphabet}{Alphabet}*(\.{Alphabet}+)*
 {ProtoFieldIdentifier}	{
 	/* Catch-all for protocol values. Can also be a literal. */
 	update_location(yyextra, yytext);
-	return set_lval_unparsed(yyextra, yytext, yytext);
+	return set_lval_identifier(yyextra, yytext, yytext);
 }
 
 {LiteralValue}	{
