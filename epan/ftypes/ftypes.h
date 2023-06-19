@@ -72,21 +72,21 @@ enum ftenum {
 	FT_NUM_TYPES /* last item number plus one */
 };
 
-#define IS_FT_INT32(ft) \
+#define FT_IS_INT32(ft) \
 	((ft) == FT_INT8 ||  \
 	 (ft) == FT_INT16 || \
 	 (ft) == FT_INT24 || \
 	 (ft) == FT_INT32)
 
-#define IS_FT_INT64(ft) \
+#define FT_IS_INT64(ft) \
 	((ft) == FT_INT40 || \
 	 (ft) == FT_INT48 || \
 	 (ft) == FT_INT56 || \
 	 (ft) == FT_INT64)
 
-#define IS_FT_INT(ft) (IS_FT_INT32(ft) || IS_FT_INT64(ft))
+#define FT_IS_INT(ft) (FT_IS_INT32(ft) || FT_IS_INT64(ft))
 
-#define IS_FT_UINT32(ft) \
+#define FT_IS_UINT32(ft) \
 	((ft) == FT_CHAR ||   \
 	 (ft) == FT_UINT8 ||  \
 	 (ft) == FT_UINT16 || \
@@ -94,18 +94,22 @@ enum ftenum {
 	 (ft) == FT_UINT32 || \
 	 (ft) == FT_FRAMENUM)
 
-#define IS_FT_UINT64(ft) \
+#define FT_IS_UINT64(ft) \
 	((ft) == FT_UINT40 || \
 	 (ft) == FT_UINT48 || \
 	 (ft) == FT_UINT56 || \
 	 (ft) == FT_UINT64)
 
-#define IS_FT_UINT(ft) (IS_FT_UINT32(ft) || IS_FT_UINT64(ft))
+#define FT_IS_UINT(ft) (FT_IS_UINT32(ft) || FT_IS_UINT64(ft))
 
-#define IS_FT_TIME(ft) \
+#define FT_IS_INTEGER(ft) (FT_IS_INT(ft) || FT_IS_UINT(ft))
+
+#define FT_IS_FLOATING(ft) ((ft) == FT_FLOAT || (ft) == FT_DOUBLE)
+
+#define FT_IS_TIME(ft) \
 	((ft) == FT_ABSOLUTE_TIME || (ft) == FT_RELATIVE_TIME)
 
-#define IS_FT_STRING(ft) \
+#define FT_IS_STRING(ft) \
 	((ft) == FT_STRING || (ft) == FT_STRINGZ || (ft) == FT_STRINGZPAD || \
 	 (ft) == FT_STRINGZTRUNC || (ft) == FT_UINT_STRING)
 

@@ -2333,7 +2333,7 @@ add_ptvc_field(packet_info* pinfo, ptvcursor_t *ptvc, const ptvc_record *rec, gb
         col_set_str(pinfo->cinfo, COL_INFO, "C ");
 
     /* We may want integer values regardless of whether or not the value is displayed in INFO column */
-    if (IS_FT_UINT(hinfo->type) || IS_FT_INT(hinfo->type)) {
+    if (FT_IS_UINT(hinfo->type) || FT_IS_INT(hinfo->type)) {
         guint32 value32 = 0;
         guint64 value64 = 0;
 

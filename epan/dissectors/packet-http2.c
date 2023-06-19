@@ -1978,12 +1978,12 @@ try_add_named_header_field(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 
     hfi = proto_registrar_get_nth(hf_id);
     DISSECTOR_ASSERT(hfi != NULL);
 
-    if (IS_FT_UINT32(hfi->type)) {
+    if (FT_IS_UINT32(hfi->type)) {
         guint32 value;
         if (ws_strtou32(header_value, NULL, &value)) {
             ti = proto_tree_add_uint(tree, hf_id, tvb, offset, length, value);
         }
-    } else if (IS_FT_UINT(hfi->type)) {
+    } else if (FT_IS_UINT(hfi->type)) {
         guint64 value;
         if (ws_strtou64(header_value, NULL, &value)) {
             ti = proto_tree_add_uint64(tree, hf_id, tvb, offset, length, value);

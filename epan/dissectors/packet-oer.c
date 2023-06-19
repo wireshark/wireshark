@@ -696,7 +696,7 @@ dissect_oer_sequence_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_t
 
     offset = offset + occ_len;
     hfi = proto_registrar_get_nth(hf_index);
-    if (IS_FT_UINT(hfi->type)) {
+    if (FT_IS_UINT(hfi->type)) {
         item = proto_tree_add_uint(parent_tree, hf_index, tvb, old_offset, occ_len, occurrence);
         proto_item_append_text(item, (occurrence == 1) ? " item" : " items");
     } else {

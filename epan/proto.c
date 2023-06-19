@@ -2549,7 +2549,7 @@ test_length(header_field_info *hfinfo, tvbuff_t *tvb,
 
 	if ((hfinfo->type == FT_STRINGZ) ||
 	    ((encoding & ENC_VARINT_MASK) &&
-	     (IS_FT_UINT(hfinfo->type) || IS_FT_INT(hfinfo->type)))) {
+	     (FT_IS_UINT(hfinfo->type) || FT_IS_INT(hfinfo->type)))) {
 		/* If we're fetching until the end of the TVB, only validate
 		 * that the offset is within range.
 		 */
@@ -3578,7 +3578,7 @@ proto_tree_add_item_ret_varint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
-	if ((!IS_FT_INT(hfinfo->type)) && (!IS_FT_UINT(hfinfo->type))) {
+	if ((!FT_IS_INT(hfinfo->type)) && (!FT_IS_UINT(hfinfo->type))) {
 		REPORT_DISSECTOR_BUG("field %s is not of type FT_UINT or FT_INT",
 		    hfinfo->abbrev);
 	}
@@ -6087,7 +6087,7 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint 
 		 * exception, under the assumption that the Really Big
 		 * Length would run past the end of the packet.
 		 */
-		if ((IS_FT_INT(hfinfo->type)) || (IS_FT_UINT(hfinfo->type))) {
+		if ((FT_IS_INT(hfinfo->type)) || (FT_IS_UINT(hfinfo->type))) {
 			if (encoding & (ENC_VARINT_PROTOBUF|ENC_VARINT_ZIGZAG|ENC_VARINT_SDNV)) {
 				/*
 				 * Leave the length as -1, so our caller knows
@@ -6366,11 +6366,11 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 		hf = fi->hfinfo;
 
 		ITEM_LABEL_NEW(PNODE_POOL(pi), fi->rep);
-		if (hf->bitmask && (hf->type == FT_BOOLEAN || IS_FT_UINT(hf->type))) {
+		if (hf->bitmask && (hf->type == FT_BOOLEAN || FT_IS_UINT(hf->type))) {
 			guint64 val;
 			char *p;
 
-			if (IS_FT_UINT32(hf->type))
+			if (FT_IS_UINT32(hf->type))
 				val = fvalue_get_uinteger(fi->value);
 			else
 				val = fvalue_get_uinteger64(fi->value);
@@ -6572,7 +6572,7 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 		case FT_UINT32:
 		case FT_FRAMENUM:
 			hf_str_val = NULL;
-			number = IS_FT_INT(hfinfo->type) ?
+			number = FT_IS_INT(hfinfo->type) ?
 				(guint32) fvalue_get_sinteger(finfo->value) :
 				fvalue_get_uinteger(finfo->value);
 
@@ -6617,7 +6617,7 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 		case FT_UINT56:
 		case FT_UINT64:
 			hf_str_val = NULL;
-			number64 = IS_FT_INT(hfinfo->type) ?
+			number64 = FT_IS_INT(hfinfo->type) ?
 				(guint64) fvalue_get_sinteger64(finfo->value) :
 				fvalue_get_uinteger64(finfo->value);
 
@@ -6848,15 +6848,15 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 				if (offset_e && (offset_e < (size - 1)))
 					expr[offset_e++] = ',';
 
-				if (hfinfo->strings && hfinfo->type != FT_FRAMENUM && FIELD_DISPLAY(hfinfo->display) == BASE_NONE && (IS_FT_INT(hfinfo->type) || IS_FT_UINT(hfinfo->type))) {
+				if (hfinfo->strings && hfinfo->type != FT_FRAMENUM && FIELD_DISPLAY(hfinfo->display) == BASE_NONE && (FT_IS_INT(hfinfo->type) || FT_IS_UINT(hfinfo->type))) {
 					/* Integer types with BASE_NONE never get the numeric value. */
-					if (IS_FT_INT32(hfinfo->type)) {
+					if (FT_IS_INT32(hfinfo->type)) {
 						hf_str_val = hf_try_val_to_str_const(fvalue_get_sinteger(finfo->value), hfinfo, "Unknown");
-					} else if (IS_FT_UINT32(hfinfo->type)) {
+					} else if (FT_IS_UINT32(hfinfo->type)) {
 						hf_str_val = hf_try_val_to_str_const(fvalue_get_uinteger(finfo->value), hfinfo, "Unknown");
-					} else if (IS_FT_INT64(hfinfo->type)) {
+					} else if (FT_IS_INT64(hfinfo->type)) {
 						hf_str_val = hf_try_val64_to_str_const(fvalue_get_sinteger64(finfo->value), hfinfo, "Unknown");
-					} else { // if (IS_FT_UINT64(hfinfo->type)) {
+					} else { // if (FT_IS_UINT64(hfinfo->type)) {
 						hf_str_val = hf_try_val64_to_str_const(fvalue_get_uinteger64(finfo->value), hfinfo, "Unknown");
 					}
 					snprintf(expr+offset_e, size-offset_e, "\"%s\"", hf_str_val);
@@ -10249,7 +10249,7 @@ static const char *
 hfinfo_number_value_format_display(const header_field_info *hfinfo, int display, char buf[32], guint32 value)
 {
 	char *ptr = &buf[31];
-	gboolean isint = IS_FT_INT(hfinfo->type);
+	gboolean isint = FT_IS_INT(hfinfo->type);
 
 	*ptr = '\0';
 	/* Properly format value */
@@ -10318,7 +10318,7 @@ static const char *
 hfinfo_number_value_format_display64(const header_field_info *hfinfo, int display, char buf[48], guint64 value)
 {
 	char *ptr = &buf[47];
-	gboolean isint = IS_FT_INT(hfinfo->type);
+	gboolean isint = FT_IS_INT(hfinfo->type);
 
 	*ptr = '\0';
 	/* Properly format value */

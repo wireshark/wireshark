@@ -741,7 +741,7 @@ fvalue_set_guid(fvalue_t *fv, const e_guid_t *value)
 void
 fvalue_set_time(fvalue_t *fv, const nstime_t *value)
 {
-	ws_assert(IS_FT_TIME(fv->ftype->ftype));
+	ws_assert(FT_IS_TIME(fv->ftype->ftype));
 	ws_assert(fv->ftype->set_value.set_value_time);
 	fv->ftype->set_value.set_value_time(fv, value);
 }
@@ -760,7 +760,7 @@ fvalue_set_strbuf(fvalue_t *fv, wmem_strbuf_t *value)
 		/* XXX Can this condition be relaxed? */
 		ws_critical("Fvalue strbuf allocator must be NULL");
 	}
-	ws_assert(IS_FT_STRING(fv->ftype->ftype));
+	ws_assert(FT_IS_STRING(fv->ftype->ftype));
 	ws_assert(fv->ftype->set_value.set_value_strbuf);
 	fv->ftype->set_value.set_value_strbuf(fv, value);
 }
@@ -888,7 +888,7 @@ fvalue_get_guid(fvalue_t *fv)
 const nstime_t *
 fvalue_get_time(fvalue_t *fv)
 {
-	ws_assert(IS_FT_TIME(fv->ftype->ftype));
+	ws_assert(FT_IS_TIME(fv->ftype->ftype));
 	ws_assert(fv->ftype->get_value.get_value_time);
 	return fv->ftype->get_value.get_value_time(fv);
 }
@@ -902,7 +902,7 @@ fvalue_get_string(fvalue_t *fv)
 const wmem_strbuf_t *
 fvalue_get_strbuf(fvalue_t *fv)
 {
-	ws_assert(IS_FT_STRING(fv->ftype->ftype));
+	ws_assert(FT_IS_STRING(fv->ftype->ftype));
 	ws_assert(fv->ftype->get_value.get_value_strbuf);
 	return fv->ftype->get_value.get_value_strbuf(fv);
 }

@@ -10038,9 +10038,9 @@ get_amqp_1_0_value_formatter(tvbuff_t *tvb,
             {
                 if (*(synonyms->hf_none) == hf_amqp_type)
                 {
-                    if (IS_FT_UINT(element_type->ftype) && synonyms->hf_uint != NULL)
+                    if (FT_IS_UINT(element_type->ftype) && synonyms->hf_uint != NULL)
                         hf_amqp_type = *(synonyms->hf_uint);
-                    else if (IS_FT_STRING(element_type->ftype) && synonyms->hf_str != NULL)
+                    else if (FT_IS_STRING(element_type->ftype) && synonyms->hf_str != NULL)
                         hf_amqp_type = *(synonyms->hf_str);
                     else if (element_type->ftype == FT_BYTES && synonyms->hf_bin != NULL)
                         hf_amqp_type = *(synonyms->hf_bin);
@@ -10306,7 +10306,7 @@ static gboolean find_data_dissector(tvbuff_t *msg_tvb, packet_info *pinfo, proto
     }
 
     field_info *fi = (field_info*)array->pdata[0];
-    if (fi == NULL || !IS_FT_STRING(fvalue_type_ftenum(fi->value))) {
+    if (fi == NULL || !FT_IS_STRING(fvalue_type_ftenum(fi->value))) {
         g_ptr_array_free(array, TRUE);
         return FALSE;
     }

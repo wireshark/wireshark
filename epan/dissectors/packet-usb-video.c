@@ -1739,7 +1739,7 @@ dissect_usb_vid_control_value(proto_tree *tree, tvbuff_t *tvb, int offset, guint
     {
         header_field_info *hfinfo;
         hfinfo = proto_registrar_get_nth(hf);
-        DISSECTOR_ASSERT(IS_FT_INT(hfinfo->type) || IS_FT_UINT(hfinfo->type));
+        DISSECTOR_ASSERT(FT_IS_INT(hfinfo->type) || FT_IS_UINT(hfinfo->type));
     }
 
     if ((hf != -1) && (value_size <= 4))

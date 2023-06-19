@@ -72,12 +72,12 @@ void DecodeAsItem::init(const char* table_name, gconstpointer selector)
 
     dissector_handle_t default_handle = NULL;
     ftenum_t selector_type = get_dissector_table_selector_type(tableName_);
-    if (IS_FT_STRING(selector_type)) {
+    if (FT_IS_STRING(selector_type)) {
         if (selector != NULL) {
             default_handle = dissector_get_default_string_handle(tableName_, (const gchar*)selector);
             selectorString_ = QString((const char*)selector);
         }
-    } else if (IS_FT_UINT(selector_type)) {
+    } else if (FT_IS_UINT(selector_type)) {
         if (selector != NULL) {
             selectorUint_ = GPOINTER_TO_UINT(selector);
             default_handle = dissector_get_default_uint_handle(tableName_, selectorUint_);
@@ -124,9 +124,9 @@ void DecodeAsItem::setSelector(const QString &value)
 {
     ftenum_t selector_type = get_dissector_table_selector_type(tableName_);
 
-    if (IS_FT_STRING(selector_type)) {
+    if (FT_IS_STRING(selector_type)) {
         selectorString_ = value;
-    } else if (IS_FT_UINT(selector_type)) {
+    } else if (FT_IS_UINT(selector_type)) {
         selectorUint_ = value.toUInt(Q_NULLPTR, 0);
     }
 
@@ -148,9 +148,9 @@ void DecodeAsItem::updateHandles()
     ftenum_t selector_type = get_dissector_table_selector_type(tableName_);
     dissector_handle_t default_handle = nullptr;
 
-    if (IS_FT_STRING(selector_type)) {
+    if (FT_IS_STRING(selector_type)) {
         default_handle = dissector_get_default_string_handle(tableName_, qUtf8Printable(selectorString_));
-    } else if (IS_FT_UINT(selector_type)) {
+    } else if (FT_IS_UINT(selector_type)) {
         default_handle = dissector_get_default_uint_handle(tableName_, selectorUint_);
     }
     if (default_handle != nullptr) {
@@ -238,9 +238,9 @@ QVariant DecodeAsModel::data(const QModelIndex &index, int role) const
         case colSelector:
         {
             ftenum_t selector_type = get_dissector_table_selector_type(item->tableName());
-            if (IS_FT_UINT(selector_type)) {
+            if (FT_IS_UINT(selector_type)) {
                 return entryString(item->tableName(), GUINT_TO_POINTER(item->selectorUint()));
-            } else if (IS_FT_STRING(selector_type)) {
+            } else if (FT_IS_STRING(selector_type)) {
                 return entryString(item->tableName(), (gconstpointer)item->selectorString().toUtf8().constData());
             } else if (selector_type == FT_GUID) {
                 if (item->selectorDCERPC() != NULL) {
@@ -254,9 +254,9 @@ QVariant DecodeAsModel::data(const QModelIndex &index, int role) const
         {
             ftenum_t selector_type = get_dissector_table_selector_type(item->tableName());
 
-            if (IS_FT_STRING(selector_type)) {
+            if (FT_IS_STRING(selector_type)) {
                 return tr("String");
-            } else if (IS_FT_UINT(selector_type)) {
+            } else if (FT_IS_UINT(selector_type)) {
                 QString type_desc = tr("Integer, base ");
                 switch (get_dissector_table_param(item->tableName())) {
                 case BASE_OCT:
@@ -813,7 +813,7 @@ void DecodeAsModel::applyChanges()
                     sub_dissectors = find_dissector_table(decode_as_entry->table_name);
 
                     /* For now, only numeric dissector tables can use preferences */
-                    if (IS_FT_UINT(dissector_table_get_type(sub_dissectors))) {
+                    if (FT_IS_UINT(dissector_table_get_type(sub_dissectors))) {
                         if (item->dissectorHandle() != NULL) {
                             module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(item->dissectorHandle())));
                             pref_value = prefs_find_preference(module, decode_as_entry->table_name);
@@ -830,7 +830,7 @@ void DecodeAsModel::applyChanges()
 
                     /* For now, only numeric dissector tables can use preferences */
                     if (item->dissectorHandle() != NULL) {
-                        if (IS_FT_UINT(dissector_table_get_type(sub_dissectors))) {
+                        if (FT_IS_UINT(dissector_table_get_type(sub_dissectors))) {
                             module = prefs_find_module(proto_get_protocol_filter_name(dissector_handle_get_protocol_index(item->dissectorHandle())));
                             pref_value = prefs_find_preference(module, decode_as_entry->table_name);
                             if (pref_value != NULL) {

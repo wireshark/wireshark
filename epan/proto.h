@@ -253,21 +253,19 @@ void proto_report_dissector_bug(const char *format, ...)
    __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT((hfinfo)->type == t)
 
 #define DISSECTOR_ASSERT_FIELD_TYPE_IS_INTEGRAL(hfinfo)  \
-  ((void) ((IS_FT_INT((hfinfo)->type) || \
-            IS_FT_UINT((hfinfo)->type)) ? (void)0 : \
+  ((void) ((FT_IS_INTEGER((hfinfo)->type)) ? (void)0 : \
    REPORT_DISSECTOR_BUG("%s:%u: field %s is not of type FT_CHAR or an FT_{U}INTn type", \
          __FILE__, __LINE__, (hfinfo)->abbrev))) \
-   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(IS_FT_INT((hfinfo)->type) || \
-                                           IS_FT_UINT((hfinfo)->type))
+   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(FT_IS_INTEGER((hfinfo)->type))
 
 #define __DISSECTOR_ASSERT_FIELD_TYPE_IS_STRING(hfinfo) \
   (REPORT_DISSECTOR_BUG("%s:%u: field %s is not of type FT_STRING, FT_STRINGZ, FT_STRINGZPAD, FT_STRINGZTRUNC, or FT_UINT_STRING", \
         __FILE__, __LINE__, (hfinfo)->abbrev))
 
 #define DISSECTOR_ASSERT_FIELD_TYPE_IS_STRING(hfinfo)  \
-  ((void) (IS_FT_STRING((hfinfo)->type) ? (void)0 : \
+  ((void) (FT_IS_STRING((hfinfo)->type) ? (void)0 : \
    __DISSECTOR_ASSERT_FIELD_TYPE_IS_STRING ((hfinfo)))) \
-   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(IS_FT_STRING((hfinfo)->type))
+   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(FT_IS_STRING((hfinfo)->type))
 
 #define __DISSECTOR_ASSERT_FIELD_TYPE_IS_TIME(hfinfo) \
   (REPORT_DISSECTOR_BUG("%s:%u: field %s is not of type FT_ABSOLUTE_TIME or FT_RELATIVE_TIME", \

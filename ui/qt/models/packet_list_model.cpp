@@ -665,7 +665,7 @@ bool PacketListModel::isNumericColumn(int column)
          */
         if (!hfi ||
               (hfi->strings != NULL && !(hfi->display & BASE_UNIT_STRING)) ||
-              !(((IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type)) &&
+              !(((FT_IS_INT(hfi->type) || FT_IS_UINT(hfi->type)) &&
                  ((FIELD_DISPLAY(hfi->display) == BASE_DEC) ||
                   (FIELD_DISPLAY(hfi->display) == BASE_OCT) ||
                   (FIELD_DISPLAY(hfi->display) == BASE_DEC_HEX))) ||

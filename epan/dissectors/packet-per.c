@@ -227,8 +227,8 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 			}
 		}
 		if (hfi) {
-			if (IS_FT_UINT(hfi->type)||IS_FT_INT(hfi->type)) {
-				if (IS_FT_UINT(hfi->type))
+			if (FT_IS_UINT(hfi->type)||FT_IS_INT(hfi->type)) {
+				if (FT_IS_UINT(hfi->type))
 					actx->created_item = proto_tree_add_uint(tree, hf_index, val_tvb, 0, pdu_length, pdu_length);
 				else
 					actx->created_item = proto_tree_add_int(tree, hf_index, val_tvb, 0, pdu_length, pdu_length);
@@ -609,7 +609,7 @@ DEBUG_ENTRY("dissect_per_sequence_of");
 	offset=dissect_per_length_determinant(tvb, offset, actx, parent_tree, hf_per_sequence_of_length, &length, NULL);
 
 	hfi = proto_registrar_get_nth(hf_index);
-	if (IS_FT_UINT(hfi->type)) {
+	if (FT_IS_UINT(hfi->type)) {
 		item = proto_tree_add_uint(parent_tree, hf_index, tvb, old_offset>>3, 0, length);
 		proto_item_append_text(item, (length==1)?" item":" items");
 	} else {
@@ -1010,7 +1010,7 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 
 call_sohelper:
 	hfi = proto_registrar_get_nth(hf_index);
-	if (IS_FT_UINT(hfi->type)) {
+	if (FT_IS_UINT(hfi->type)) {
 		item = proto_tree_add_uint(parent_tree, hf_index, tvb, offset>>3, 0, length);
 		proto_item_append_text(item, (length==1)?" item":" items");
 	} else {
@@ -1087,7 +1087,7 @@ dissect_per_any_oid(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
 	hfi = proto_registrar_get_nth(hf_index);
 	if ((is_absolute && hfi->type == FT_OID) || (is_absolute && hfi->type == FT_REL_OID)) {
 		actx->created_item = proto_tree_add_item(tree, hf_index, val_tvb, 0, length, ENC_BIG_ENDIAN);
-	} else if (IS_FT_STRING(hfi->type)) {
+	} else if (FT_IS_STRING(hfi->type)) {
 		str = oid_encoded2string(wmem_packet_scope(), tvb_get_ptr(val_tvb, 0, length), length);
 		actx->created_item = proto_tree_add_string(tree, hf_index, val_tvb, 0, length, str);
 	} else {
@@ -1235,9 +1235,9 @@ dissect_per_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree 
 	hfi = proto_registrar_get_nth(hf_index);
 	if (! hfi)
 		THROW(ReportedBoundsError);
-	if (IS_FT_INT(hfi->type)) {
+	if (FT_IS_INT(hfi->type)) {
 		it=proto_tree_add_int(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
-	} else if (IS_FT_UINT(hfi->type)) {
+	} else if (FT_IS_UINT(hfi->type)) {
 		it=proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
 	} else {
 		proto_tree_add_expert_format(tree, actx->pinfo, &ei_per_field_not_integer, tvb, (offset>>3)-(length+1), length+1,
@@ -1289,9 +1289,9 @@ dissect_per_integer64b(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 	hfi = proto_registrar_get_nth(hf_index);
 	if (! hfi)
 		THROW(ReportedBoundsError);
-	if (IS_FT_INT(hfi->type)) {
+	if (FT_IS_INT(hfi->type)) {
 		it=proto_tree_add_int64(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, (gint64)val);
-	} else if (IS_FT_UINT(hfi->type)) {
+	} else if (FT_IS_UINT(hfi->type)) {
 		it=proto_tree_add_uint64(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
 	} else {
 		proto_tree_add_expert_format(tree, actx->pinfo, &ei_per_field_not_integer, tvb, (offset>>3)-(length+1), length+1,
@@ -1477,13 +1477,13 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	}
 
 	timeval.secs = val;
-	if (IS_FT_UINT(hfi->type)) {
+	if (FT_IS_UINT(hfi->type)) {
 		it = proto_tree_add_uint(tree, hf_index, tvb, val_start, val_length, val);
 		per_check_value(val, min, max, actx, it, FALSE);
-	} else if (IS_FT_INT(hfi->type)) {
+	} else if (FT_IS_INT(hfi->type)) {
 		it = proto_tree_add_int(tree, hf_index, tvb, val_start, val_length, val);
 		per_check_value(val, min, max, actx, it, TRUE);
-	} else if (IS_FT_TIME(hfi->type)) {
+	} else if (FT_IS_TIME(hfi->type)) {
 		it = proto_tree_add_time(tree, hf_index, tvb, val_start, val_length, &timeval);
 	} else {
 		THROW(ReportedBoundsError);
@@ -1678,13 +1678,13 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 	}
 
 
-	if (IS_FT_UINT(hfi->type)) {
+	if (FT_IS_UINT(hfi->type)) {
 		it = proto_tree_add_uint64(tree, hf_index, tvb, val_start, val_length, val);
 		per_check_value64(val, min, max, actx, it, FALSE);
-	} else if (IS_FT_INT(hfi->type)) {
+	} else if (FT_IS_INT(hfi->type)) {
 		it = proto_tree_add_int64(tree, hf_index, tvb, val_start, val_length, val);
 		per_check_value64(val, min, max, actx, it, TRUE);
-	} else if (IS_FT_TIME(hfi->type)) {
+	} else if (FT_IS_TIME(hfi->type)) {
 		timeval.secs = (guint32)val;
 		it = proto_tree_add_time(tree, hf_index, tvb, val_start, val_length, &timeval);
 	} else {
@@ -1726,7 +1726,7 @@ dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 	}
 	val = (value_map && (enum_index<(root_num+ext_num))) ? value_map[enum_index] : enum_index;
 	hfi = proto_registrar_get_nth(hf_index);
-	if (IS_FT_UINT(hfi->type)) {
+	if (FT_IS_UINT(hfi->type)) {
 		it = proto_tree_add_uint(tree, hf_index, tvb, start_offset>>3, BLEN(start_offset, offset), val);
 	} else {
 		THROW(ReportedBoundsError);
@@ -2539,11 +2539,11 @@ DEBUG_ENTRY("dissect_per_octet_string");
 	}
 
 	if (hfi) {
-		if (IS_FT_UINT(hfi->type)||IS_FT_INT(hfi->type)) {
+		if (FT_IS_UINT(hfi->type)||FT_IS_INT(hfi->type)) {
 			/* If the type has been converted to FT_UINT or FT_INT in the .cnf file
 			 * display the length of this octet string instead of the octetstring itself
 			 */
-			if (IS_FT_UINT(hfi->type))
+			if (FT_IS_UINT(hfi->type))
 				actx->created_item = proto_tree_add_uint(tree, hf_index, out_tvb, 0, val_length, val_length);
 			else
 				actx->created_item = proto_tree_add_int(tree, hf_index, out_tvb, 0, val_length, val_length);

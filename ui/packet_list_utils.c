@@ -52,7 +52,7 @@ right_justify_column (gint col, capture_file *cf)
                     if ((hfi->type == FT_BOOLEAN) || (hfi->type == FT_FRAMENUM) || (hfi->type == FT_DOUBLE) ||
                         (hfi->type == FT_FLOAT) || (hfi->type == FT_RELATIVE_TIME) ||
                         (((FIELD_DISPLAY(hfi->display) == BASE_DEC) || (FIELD_DISPLAY(hfi->display) == BASE_OCT)) &&
-                         (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type))))
+                         (FT_IS_INT(hfi->type) || FT_IS_UINT(hfi->type))))
                     {
                         right_justify_count++;
                     }
@@ -96,7 +96,7 @@ resolve_column (gint col, capture_file *cf)
                  */
                 if ((hfi->type == FT_OID) || (hfi->type == FT_REL_OID) || (hfi->type == FT_ETHER) || (hfi->type == FT_IPv4) || (hfi->type == FT_IPv6) || (hfi->type == FT_FCWWN) || (hfi->type == FT_BOOLEAN) ||
                     ((hfi->strings != NULL) &&
-                     (IS_FT_INT(hfi->type) || IS_FT_UINT(hfi->type))))
+                     (FT_IS_INT(hfi->type) || FT_IS_UINT(hfi->type))))
                 {
                     resolve = TRUE;
                     break;

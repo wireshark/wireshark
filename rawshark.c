@@ -1141,7 +1141,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
         fs_ptr = fs_buf;
 
         /* String types are quoted. Remove them. */
-        if (IS_FT_STRING(fvalue_type_ftenum(finfo->value)) && fs_len > 2) {
+        if (FT_IS_STRING(fvalue_type_ftenum(finfo->value)) && fs_len > 2) {
             fs_buf[fs_len - 1] = '\0';
             fs_ptr++;
         }

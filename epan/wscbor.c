@@ -598,10 +598,10 @@ tvbuff_t * wscbor_require_bstr(wmem_allocator_t *alloc _U_, wscbor_chunk_t *chun
 proto_item * proto_tree_add_cbor_container(proto_tree *tree, int hfindex, packet_info *pinfo, tvbuff_t *tvb, const wscbor_chunk_t *chunk) {
     const header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
     proto_item *item;
-    if (IS_FT_UINT(hfinfo->type)) {
+    if (FT_IS_UINT(hfinfo->type)) {
         item = proto_tree_add_uint64(tree, hfindex, tvb, chunk->start, chunk->head_length, chunk->head_value);
     }
-    else if (IS_FT_INT(hfinfo->type)) {
+    else if (FT_IS_INT(hfinfo->type)) {
         item = proto_tree_add_int64(tree, hfindex, tvb, chunk->start, chunk->head_length, chunk->head_value);
     }
     else {

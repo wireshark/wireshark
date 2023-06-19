@@ -1909,7 +1909,7 @@ proto_tree_add_debug_text(tree, "INTEGERnew dissect_ber_integer(%s) entered impl
         if (hf_id >= 0) {
             type = proto_registrar_get_ftype(hf_id);
         }
-        if (first & 0x80 && IS_FT_INT(type)) {
+        if (first & 0x80 && FT_IS_INT(type)) {
             val = -1;
         }
         if ((len > 1) && decode_warning_leading_zero_bits) {
@@ -3252,7 +3252,7 @@ proto_tree_add_debug_text(tree, "OBJECT IDENTIFIER dissect_ber_any_oid(%s) enter
     hfi = proto_registrar_get_nth(hf_id);
     if ((is_absolute && hfi->type == FT_OID) || (!is_absolute && hfi->type == FT_REL_OID)) {
         actx->created_item = proto_tree_add_item(tree, hf_id, tvb, offset, len, ENC_BIG_ENDIAN);
-    } else if (IS_FT_STRING(hfi->type)) {
+    } else if (FT_IS_STRING(hfi->type)) {
         str = oid_encoded2string(wmem_packet_scope(), tvb_get_ptr(tvb, offset, len), len);
         actx->created_item = proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
         if (actx->created_item) {

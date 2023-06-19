@@ -228,7 +228,7 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
             }
 
             if (is_valid) {
-                if (IS_FT_STRING(selector_type)) {
+                if (FT_IS_STRING(selector_type)) {
                     dissector_change_string(values[0], values[1], handle);
                 } else {
                     char *p;

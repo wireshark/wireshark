@@ -2985,11 +2985,11 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
       /* If not special case, dissect generically from template */
       if (!dissected) {
-        if (IS_FT_INT(tag_ft) || IS_FT_UINT(tag_ft)) {
+        if (FT_IS_INT(tag_ft) || FT_IS_UINT(tag_ft)) {
           tag_pi = proto_tree_add_item(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, ENC_BIG_ENDIAN);
-        } else if (IS_FT_STRING(tag_ft)) {
+        } else if (FT_IS_STRING(tag_ft)) {
           tag_pi = proto_tree_add_item(section_tree, tag_info->hf_value, tvb, offset + 4, taglength, ENC_UTF_8);
-        } else if (IS_FT_TIME(tag_ft)) {
+        } else if (FT_IS_TIME(tag_ft)) {
           /*
            * ERF timestamps are conveniently the same as NTP/PTP timestamps but
            * little endian.
