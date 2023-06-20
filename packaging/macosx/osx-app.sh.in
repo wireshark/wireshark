@@ -31,11 +31,13 @@
 # and "share" directories under the installation directory.
 #
 
+# XXX We could probably replace a lot of this with https://github.com/auriamg/macdylibbundler
+
 shopt -s extglob
 
 # Defaults
 strip=false
-exclude_prefixes="/System/|/Library/|/usr/lib/|/usr/X11/|/opt/X11/|@rpath|@executable_path"
+install_exclude_prefixes="/System/|/Library/|/usr/lib/|/usr/X11/|/opt/X11/|@executable_path"
 
 # Bundle always has the same name. Version information is stored in
 # the Info.plist file which is filled in by the configure script.
@@ -123,7 +125,7 @@ sparkle_frameworks_dir="@SPARKLE_LIBRARY@"
 #
 # Leave the Qt frameworks out of the special processing.
 #
-exclude_prefixes="$exclude_prefixes|$qt_frameworks_dir"
+install_exclude_prefixes="$install_exclude_prefixes|$qt_frameworks_dir"
 
 app_name=${bundle%%.app}
 app_lower=$(echo "$app_name" | tr '[:upper:]' '[:lower:]')
@@ -142,9 +144,34 @@ pkgplugin="$bundle/Contents/PlugIns/$app_lower/@PLUGIN_PATH_ID@"
 # Treat all plain files with read and execute permissions for all as
 # binaries.
 #
-secondary_binary_list=$( find "$pkgexec" \! -name "$app_name" -type f -perm -0555 -print | sort )
-plugin_library_list=$( find "$pkgplugin" -name "*.so" -type f -perm -0555 -print | sort )
-bundle_binary_list="$pkgexec/$app_name $secondary_binary_list $plugin_library_list"
+secondary_binary_list=()
+while read -r binary ; do
+	secondary_binary_list+=("$binary")
+done < <( find "$pkgexec" \! -name "$app_name" -type f -perm -0555 -print | sort )
+plugin_library_list=()
+while read -r library ; do
+	plugin_library_list+=("$library")
+done < <( find "$pkgplugin" -name "*.so" -type f -perm -0555 -print | sort )
+bundle_binary_list=("$pkgexec/$app_name" "${secondary_binary_list[@]}" "${plugin_library_list[@]}")
+
+# Fetch a unique list of LC_RPATHs from our executables
+rpaths=()
+bundle_binary_rpaths=()
+
+# macdeployqt handles our Qt dependencies. We handle our Sparkle and
+# internal dependencies.
+skip_pats="Qt|Sparkle|build/run"
+
+for binary in "${bundle_binary_list[@]}" ; do
+	while read -r rpath ; do
+		bundle_binary_rpaths+=("$rpath")
+	done < <( otool -l "$binary" | grep -A2 LC_RPATH | awk '$1=="path" && $2 !~ /^@/ {print $2}' | grep -E -v "$skip_pats" )
+done
+
+while read -r rpath ; do
+	rpaths+=("$rpath")
+done < <( printf '%s\n' "${bundle_binary_rpaths[@]}" | sort -u)
+
 
 echo -e "\\nFixing up $bundle..."
 
@@ -183,18 +210,6 @@ while $endl; do
 	#    remove lines of output that don't correspond to dependencies;
 	#
 	#    use cut to extract the library name from the output;
-	#
-	#    replace "@rpath/libssh" with "/usr/local/lib/libssh" so that
-	#    it isn't excluded from subsequent filtering.
-	#    libssh, for some reason, has its "install name" set to
-	#    @rpath/libssh.4.dylib, rather than /usr/local/lib/libssh.4.dylib,
-	#    when built by tools/macos-setup.sh;
-	#
-	#    replace "@rpath/libsnappy" with "/usr/local/lib/libssnappy" so that
-	#    it isn't excluded from subsequent filtering;
-	#
-	#    replace "@rpath/libpcre2" with "/usr/local/lib/libpcre2" so that
-	#    it isn't excluded from subsequent filtering;
 
 	#    replace "\tlibbrotli" with "\t/usr/local/lib/libbrotli" so that
 	#    it isn't excluded from subsequent filtering.
@@ -217,22 +232,30 @@ while $endl; do
 	#
 	# instead, or just use CMake's fixup_bundle:
 	# https://cmake.org/cmake/help/latest/module/BundleUtilities.html
-	libs="$(
-		# shellcheck disable=SC2086
-		otool -L $bundle_binary_list "$pkglib"/*.dylib 2>/dev/null \
+	libs=()
+	while read -r lib ; do
+		libs+=("$lib")
+	done < <(
+		otool -L "${bundle_binary_list[@]}" "$pkglib"/*.dylib 2>/dev/null \
 		| grep -F compatibility \
+		| grep -v @rpath \
 		| cut -d\( -f1 \
-		| sed '1,$s;^	@rpath/libpcre2;	/usr/local/lib/libpcre2;' \
-		| sed '1,$s;^	@rpath/libsnappy;	/usr/local/lib/libsnappy;' \
-		| sed '1,$s;^	@rpath/libssh;	/usr/local/lib/libssh;' \
 		| sed '1,$s;^	libbrotli;	/usr/local/lib/libbrotli;' \
 		| sed '1,$s;^	@loader_path/libbrotli;	/usr/local/lib/libbrotli;' \
-		| grep -E -v "$exclude_prefixes" \
+		| grep -E -v "$install_exclude_prefixes" \
 		| sort \
 		| uniq \
-		)"
-	# shellcheck disable=SC2086
-	install -m 644 -C -v $libs "$pkglib"
+		)
+	while read -r rpath_lib _ ; do
+		suffix=${rpath_lib/@rpath\/}
+		for rpath in "${rpaths[@]}" ; do
+			if [ -f "$rpath/$suffix" ] ; then
+				printf "Found @rpath/%s in %s\n" "$suffix" "$rpath"
+				libs+=("$rpath/$suffix")
+			fi
+		done
+	done < <( otool -L "${bundle_binary_list[@]}" | grep @rpath | grep -E -v "$skip_pats" | sort -u )
+	install -m 644 -C -v "${libs[@]}" "$pkglib"
 	(( a++ ))
 	# shellcheck disable=SC2012
 	nnfiles=$( ls "$pkglib" | wc -l )
@@ -248,13 +271,9 @@ done
 if [ "$strip" = "true" ]; then
 	echo -e "\\nStripping debugging symbols...\\n"
 	strip -x "$pkglib"/*.dylib
-	strip -ur "$bundle_binary_list"
+	strip -ur "${bundle_binary_list[@]}"
 fi
 
-#
-# This may not work on Qt 5.5.0 or 5.5.1:
-# https://bugreports.qt.io/browse/QTBUG-47868
-#
 "@QT_MACDEPLOYQT_EXECUTABLE@" "$bundle" -no-strip -verbose=2 || exit 1
 
 #
@@ -274,6 +293,8 @@ fi
 # NOTE: we must rpathify *all* files, *including* Qt libraries etc.,
 #
 rpathify_file () {
+	local rpathify_exclude_prefixes="$install_exclude_prefixes|@rpath"
+
 	# Fix a given executable, library, or plugin to be relocatable
 	if [ ! -f "$1" ]; then
 		return 0;
@@ -314,24 +335,22 @@ rpathify_file () {
 			# @executable_path/../Frameworks, replace that with
 			# @rpath.
 			#
-			otool -L "$1" | grep @executable_path/../Frameworks | awk '{print $1}' | \
 			while read -r dep_lib ; do
 				base=$( echo "$dep_lib" | awk -F/ '{print $NF}' )
 				to="@rpath/$base"
 				echo "Changing reference to $dep_lib to $to in $1"
-				/usr/bin/install_name_tool -change "$dep_lib" "$to" "$1"
-			done
+				/usr/bin/install_name_tool -change "$dep_lib" "$to" "$1" &
+			done < <( otool -L "$1" | grep @executable_path/../Frameworks | awk '{print $1}' )
 
 			#
 			# Try to work around brotli's lack of a full path
 			# https://github.com/google/brotli/issues/934
 			#
-			otool -L "$1" | grep '^	libbrotli' | awk '{print $1}' | \
 			while read -r base ; do
 				to="@rpath/$base"
 				echo "Changing reference to $base to $to in $1"
 				/usr/bin/install_name_tool -change "$base" "$to" "$1"
-			done
+			done < <( otool -L "$1" | grep '^	libbrotli' | awk '{print $1}' )
 		fi
 
 		#
@@ -339,7 +358,7 @@ rpathify_file () {
 		#
 		otool -l "$1" | grep -A2 LC_RPATH \
 			| awk '$1=="path" && $2 !~ /^@/ {print $2}' \
-			| grep -E -v "$exclude_prefixes" | \
+			| grep -E -v "$rpathify_exclude_prefixes" | \
 		while read -r lc_rpath ; do
 			echo "Stripping LC_RPATH $lc_rpath from $1"
 			install_name_tool -delete_rpath "$lc_rpath" "$1"
@@ -385,16 +404,18 @@ rpathify_file () {
 		# system on which the bundle will be installed,
 		# and should be referred to by their full pathnames.
 		#
-		libs="$(
-			otool -L "$1" \
+		local libs=()
+		while read -r lib ; do
+			libs+=("$lib")
+		done < <( otool -L "$1" \
 			| grep -F compatibility \
 			| cut -d\( -f1 \
-			| grep -E -v "$exclude_prefixes" \
+			| grep -E -v "$rpathify_exclude_prefixes" \
 			| sort \
 			| uniq \
-			)"
+			)
 
-		for lib in $libs; do
+		for lib in "${libs[@]}"; do
 			#
 			# Get the file name of the library.
 			#
@@ -482,14 +503,14 @@ done
 echo "Dsymifying binaries to $bundle_dsym:"
 # shellcheck disable=SC2086
 dsymutil --minimize --out "$bundle_dsym" \
-	$bundle_binary_list \
+	"${bundle_binary_list[@]}" \
 	"${frameworks[@]}" \
 	"$pkglib"/*.dylib
 
 # echo "Stripping binaries:"
 # # shellcheck disable=SC2086
 # strip -S \
-# 	$bundle_binary_list \
+# 	"${bundle_binary_list[@]}" \
 # 	"${frameworks[@]}" \
 # 	"$pkglib"/*.dylib \
 # 	"$pkgplugin"/*/*.so
@@ -503,11 +524,11 @@ dsymutil --minimize --out "$bundle_dsym" \
 # }
 
 # echo "Dsymifying and stripping executables:"
-# if [ -z "$bundle_binary_list" ] ; then
+# if [ -z "${bundle_binary_list[@]}" ] ; then
 # 	echo "No executables specified for dsymifying."
 # 	exit 1
 # fi
-# for binary in $bundle_binary_list ; do
+# for binary in "${bundle_binary_list[@]}" ; do
 # 	if [ -e "$binary" ];then
 # 		dsymify_file "$binary"
 # 	fi
@@ -645,11 +666,11 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	done
 
 	echo "Signing secondary executables"
-	if [ -z "$secondary_binary_list" ] ; then
+	if (( ! ${#secondary_binary_list[@]} )) ; then
 		echo "No executables specified for code signing."
 		exit 1
 	fi
-	for binary in $secondary_binary_list ; do
+	for binary in "${secondary_binary_list[@]}" ; do
 		if [ -e "$binary" ];then
 			codesign_file "$binary"
 		fi
