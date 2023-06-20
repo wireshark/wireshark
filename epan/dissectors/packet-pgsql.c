@@ -25,6 +25,7 @@ static dissector_handle_t pgsql_handle;
 static dissector_handle_t pgsql_gssapi_handle;
 static dissector_handle_t tls_handle;
 static dissector_handle_t gssapi_handle;
+static dissector_handle_t ntlmssp_handle;
 
 static int proto_pgsql = -1;
 static int hf_frontend = -1;
@@ -232,6 +233,8 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
     proto_tree *shrub;
     gint32 data_length;
     pgsql_auth_state_t   state;
+    tvbuff_t *next_tvb;
+    dissector_handle_t payload_handle;
 
     switch (type) {
     /* Password, SASL or GSSAPI Response, depending on context */
@@ -256,7 +259,25 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
                 break;
 
             case PGSQL_AUTH_GSSAPI_SSPI_DATA:
-                proto_tree_add_item(tree, hf_gssapi_sspi_data, tvb, n, length-4, ENC_NA);
+                next_tvb = tvb_new_subset_length(tvb, n, length - 4);
+                /* https://www.postgresql.org/docs/current/sspi-auth.html
+                 * "PostgreSQL will use SSPI in negotiate mode, which will use
+                 * Kerberos when possible and automatically fall back to NTLM
+                 * in other cases... When using Kerberos authentication, SSPI
+                 * works the same way GSSAPI does."
+                 * Assume this means the Kerberos mode for SSPI works like
+                 * GSSAPI, and not, say, SPNEGO the way TDS does. (Need
+                 * a sample.)
+                 */
+                if (tvb_strneql(next_tvb, 0, "NTLMSSP", 7) == 0) {
+                    payload_handle = ntlmssp_handle;
+                } else {
+                    payload_handle = gssapi_handle;
+                }
+                n = call_dissector_only(payload_handle, next_tvb, pinfo, tree, NULL);
+                if ((length = tvb_reported_length_remaining(next_tvb, n))) {
+                    proto_tree_add_item(tree, hf_gssapi_sspi_data, next_tvb, n, length, ENC_NA);
+                }
                 break;
 
             default:
@@ -472,8 +493,11 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
             proto_tree_add_item(tree, hf_salt, tvb, n, siz, ENC_NA);
             break;
         case PGSQL_AUTH_TYPE_GSSAPI_SSPI_CONTINUE:
-            wmem_tree_insert32(conv_data->state_tree, pinfo->num, GUINT_TO_POINTER(PGSQL_AUTH_GSSAPI_SSPI_DATA));
             proto_tree_add_item(tree, hf_gssapi_sspi_data, tvb, n, length-8, ENC_NA);
+            /* FALLTHROUGH */
+        case PGSQL_AUTH_TYPE_GSSAPI:
+        case PGSQL_AUTH_TYPE_SSPI:
+            wmem_tree_insert32(conv_data->state_tree, pinfo->num, GUINT_TO_POINTER(PGSQL_AUTH_GSSAPI_SSPI_DATA));
             break;
         case PGSQL_AUTH_TYPE_SASL:
             wmem_tree_insert32(conv_data->state_tree, pinfo->num, GUINT_TO_POINTER(PGSQL_AUTH_SASL_REQUESTED));
@@ -1254,6 +1278,7 @@ proto_reg_handoff_pgsql(void)
 
     tls_handle = find_dissector_add_dependency("tls", proto_pgsql);
     gssapi_handle = find_dissector_add_dependency("gssapi", proto_pgsql);
+    ntlmssp_handle = find_dissector_add_dependency("ntlmssp", proto_pgsql);
 }
 
 /*
