@@ -18,6 +18,10 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/conversation.h>
+#include <epan/proto_data.h>
+
+#include <packet-bfcp.h>
 
 void proto_register_bfcp(void);
 void proto_reg_handoff_bfcp(void);
@@ -56,9 +60,14 @@ static int hf_bfcp_user_uri = -1;
 static int hf_bfcp_req_by_id = -1;
 static int hf_bfcp_padding = -1;
 static int hf_bfcp_error_specific_details = -1;
+/* BFCP setup fields */
+static int hf_bfcp_setup        = -1;
+static int hf_bfcp_setup_frame  = -1;
+static int hf_bfcp_setup_method = -1;
 
 /* Initialize subtree pointers */
 static gint ett_bfcp = -1;
+static gint ett_bfcp_setup = -1;
 static gint ett_bfcp_attr = -1;
 
 static expert_field ei_bfcp_attribute_length_too_small = EI_INIT;
@@ -154,6 +163,122 @@ static const value_string bfcp_error_code_valuse[] = {
 #define BFCP_OFFSET_TRANSACTION_ID         8
 #define BFCP_OFFSET_USER_ID               10
 #define BFCP_OFFSET_PAYLOAD               12
+
+/* Set up an BFCP conversation using the info given */
+void
+bfcp_add_address( packet_info *pinfo, port_type ptype,
+		address *addr, int port,
+		const gchar *setup_method, guint32 setup_frame_number)
+{
+	address null_addr;
+	conversation_t* p_conv;
+	struct _bfcp_conversation_info *p_conv_data = NULL;
+
+	/*
+	* If this isn't the first time this packet has been processed,
+	* we've already done this work, so we don't need to do it
+	* again.
+	*/
+	if (PINFO_FD_VISITED(pinfo)) {
+		return;
+	}
+
+	clear_address(&null_addr);
+
+	/*
+	* Check if the ip address and port combination is not
+	* already registered as a conversation.
+	*/
+	p_conv = find_conversation( pinfo->num, addr, &null_addr, conversation_pt_to_conversation_type(ptype), port, 0,
+				NO_ADDR_B | NO_PORT_B);
+
+	/*
+	* If not, create a new conversation.
+	*/
+	if (!p_conv) {
+		p_conv = conversation_new( pinfo->num, addr, &null_addr, conversation_pt_to_conversation_type(ptype),
+				   (guint32)port, 0,
+				   NO_ADDR2 | NO_PORT2);
+	}
+
+	/* Set dissector */
+	conversation_set_dissector(p_conv, bfcp_handle);
+
+	/*
+	* Check if the conversation has data associated with it.
+	*/
+	p_conv_data = (struct _bfcp_conversation_info *)conversation_get_proto_data(p_conv, proto_bfcp);
+
+	/*
+	* If not, add a new data item.
+	*/
+	if (!p_conv_data) {
+	/* Create conversation data */
+		p_conv_data = wmem_new0(wmem_file_scope(), struct _bfcp_conversation_info);
+		conversation_add_proto_data(p_conv, proto_bfcp, p_conv_data);
+	}
+
+	/*
+	* Update the conversation data.
+	*/
+	p_conv_data->setup_method_set = TRUE;
+	(void) g_strlcpy(p_conv_data->setup_method, setup_method, MAX_BFCP_SETUP_METHOD_SIZE);
+	p_conv_data->setup_frame_number = setup_frame_number;
+}
+
+/* Look for conversation info and display any setup info found */
+static void
+show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	/* Conversation and current data */
+	conversation_t *p_conv = NULL;
+	struct _bfcp_conversation_info *p_conv_data = NULL;
+
+	/* Use existing packet data if available */
+	p_conv_data = (struct _bfcp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_bfcp, 0);
+
+	if (!p_conv_data) {
+	/* First time, get info from conversation */
+	p_conv = find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
+				   conversation_pt_to_conversation_type(pinfo->ptype),
+				   pinfo->destport, pinfo->srcport, 0);
+
+		if (p_conv) {
+			/* Look for data in conversation */
+			struct _bfcp_conversation_info *p_conv_packet_data;
+			p_conv_data = (struct _bfcp_conversation_info *)conversation_get_proto_data(p_conv, proto_bfcp);
+
+			if (p_conv_data) {
+				/* Save this conversation info into packet info */
+				p_conv_packet_data = (struct _bfcp_conversation_info *)wmem_memdup(wmem_file_scope(),
+				p_conv_data, sizeof(struct _bfcp_conversation_info));
+
+				p_add_proto_data(wmem_file_scope(), pinfo, proto_bfcp, 0, p_conv_packet_data);
+			}
+		}
+	}
+
+	/* Create setup info subtree with summary info. */
+	if (p_conv_data && p_conv_data->setup_method_set) {
+		proto_tree *bfcp_setup_tree;
+		proto_item *ti =  proto_tree_add_string_format(tree, hf_bfcp_setup, tvb, 0, 0,
+							       "",
+							       "Stream setup by %s (frame %u)",
+							       p_conv_data->setup_method,
+							       p_conv_data->setup_frame_number);
+		proto_item_set_generated(ti);
+		bfcp_setup_tree = proto_item_add_subtree(ti, ett_bfcp_setup);
+		if (bfcp_setup_tree) {
+			/* Add details into subtree */
+			proto_item* item = proto_tree_add_uint(bfcp_setup_tree, hf_bfcp_setup_frame,
+						   tvb, 0, 0, p_conv_data->setup_frame_number);
+			proto_item_set_generated(item);
+			item = proto_tree_add_string(bfcp_setup_tree, hf_bfcp_setup_method,
+					 tvb, 0, 0, p_conv_data->setup_method);
+			proto_item_set_generated(item);
+		}
+	}
+}
 
 static int
 dissect_bfcp_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int bfcp_payload_length)
@@ -438,6 +563,7 @@ dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
 	ti = proto_tree_add_item(tree, proto_bfcp, tvb, 0, -1, ENC_NA);
 	bfcp_tree = proto_item_add_subtree(ti, ett_bfcp);
+	show_setup_info(tvb, pinfo, bfcp_tree);
 /*
   The following is the format of the common header.
 
@@ -696,10 +822,26 @@ void proto_register_bfcp(void)
 			  FT_BYTES, BASE_NONE, NULL, 0x0,
 			  NULL, HFILL }
 		},
+		{ &hf_bfcp_setup,
+			{ "Stream setup", "bfcp.setup",
+			  FT_STRING, BASE_NONE, NULL, 0x0,
+			  "Stream setup, method and frame number", HFILL}
+		},
+		{ &hf_bfcp_setup_frame,
+			{ "Setup frame", "bfcp.setup-frame",
+			  FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			  "Frame that set up this stream", HFILL}
+		},
+		{ &hf_bfcp_setup_method,
+			{ "Setup Method", "bfcp.setup-method",
+			  FT_STRING, BASE_NONE, NULL, 0x0,
+			  "Method used to set up this stream", HFILL}
+		},
 	};
 
 	static gint *ett[] = {
 		&ett_bfcp,
+		&ett_bfcp_setup,
 		&ett_bfcp_attr,
 	};
 

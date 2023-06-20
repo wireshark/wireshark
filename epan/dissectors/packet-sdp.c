@@ -41,6 +41,7 @@
 #include "packet-t38.h"
 #include "packet-msrp.h"
 #include "packet-sprt.h"
+#include "packet-bfcp.h"
 #include "packet-h245.h"
 #include "packet-h264.h"
 #include "packet-h265.h"
@@ -53,6 +54,7 @@ static dissector_handle_t sdp_handle;
 static dissector_handle_t rtcp_handle;
 static dissector_handle_t sprt_handle;
 static dissector_handle_t msrp_handle;
+static dissector_handle_t bfcp_handle;
 static dissector_handle_t h264_handle;
 static dissector_handle_t h265_handle;
 static dissector_handle_t mp4ves_config_handle;
@@ -218,6 +220,7 @@ typedef enum {
     SDP_PROTO_T38,
     SDP_PROTO_MSRP,
     SDP_PROTO_SPRT,
+    SDP_PROTO_BFCP,
 } transport_proto_t;
 
 
@@ -480,6 +483,8 @@ parse_sdp_media_protocol(const char *media_proto)
         { "msrp/tcp",           SDP_PROTO_MSRP }, /* Not in IANA, where is this from? */
         { "UDPSPRT",            SDP_PROTO_SPRT }, /* Not in IANA, but draft-rajeshkumar-avt-v150-registration-00 */
         { "udpsprt",            SDP_PROTO_SPRT }, /* lowercase per section E.1.1 of ITU-T V.150.1 */
+        { "udpsprt",            SDP_PROTO_SPRT }, /* lowercase per section E.1.1 of ITU-T V.150.1 */
+        { "UDP/BFCP",           SDP_PROTO_BFCP }, /* RFC 8856 */
     };
 
     for (guint i = 0; i < G_N_ELEMENTS(protocols); i++) {
@@ -2401,6 +2406,12 @@ apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int re
             msrp_add_address(pinfo, &media_desc->conn_addr, media_desc->media_port, "SDP", pinfo->num);
         }
 
+        /* Add BFCP conversation.  Uses addresses discovered in attribute
+           rather than connection information of media session line
+           (already handled in media conversion) */
+        if (media_desc->proto == SDP_PROTO_BFCP && bfcp_handle) {
+            bfcp_add_address(pinfo, PT_UDP, &media_desc->conn_addr, media_desc->media_port, "SDP", establish_frame);
+        }
     } /* end of loop through all media descriptions. */
 }
 
@@ -3466,6 +3477,7 @@ proto_reg_handoff_sdp(void)
     rtcp_handle   = find_dissector_add_dependency("rtcp", proto_sdp);
     msrp_handle   = find_dissector_add_dependency("msrp", proto_sdp);
     sprt_handle   = find_dissector_add_dependency("sprt", proto_sdp);
+    bfcp_handle   = find_dissector_add_dependency("bfcp", proto_sdp);
     h264_handle   = find_dissector_add_dependency("h264", proto_sdp);
     h265_handle   = find_dissector_add_dependency("h265", proto_sdp);
     mp4ves_config_handle = find_dissector_add_dependency("mp4ves_config", proto_sdp);

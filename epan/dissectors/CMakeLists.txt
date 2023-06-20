@@ -281,6 +281,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-bacnet.h
 	packet-bblog.h
 	packet-ber.h
+	packet-bfcp.h
 	packet-bfd.h
 	packet-bgp.h
 	packet-bicc_mst.h
