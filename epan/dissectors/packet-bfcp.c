@@ -11,7 +11,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * BFCP Message structure is defined in RFC 4582bis
+ * BFCP Message structure is defined in RFC 8855
  */
 #include "config.h"
 
@@ -33,6 +33,8 @@ static int hf_bfcp_payload_length = -1;
 static int hf_bfcp_conference_id = -1;
 static int hf_bfcp_transaction_id = -1;
 static int hf_bfcp_user_id = -1;
+static int hf_bfcp_fragment_offset = -1;
+static int hf_bfcp_fragment_length = -1;
 static int hf_bfcp_payload = -1;
 static int hf_bfcp_attribute_types = -1;
 static int hf_bfcp_attribute_types_m_bit = -1;
@@ -62,6 +64,8 @@ static gint ett_bfcp_attr = -1;
 static expert_field ei_bfcp_attribute_length_too_small = EI_INIT;
 
 static dissector_handle_t bfcp_handle;
+
+#define BFCP_HDR_LEN 12
 
 /* Initialize BFCP primitives */
 static const value_string map_bfcp_primitive[] = {
@@ -384,7 +388,7 @@ dissect_bfcp_heur_check(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree 
 
 
 	/* Size of smallest BFCP packet: 12 octets */
-	if (tvb_captured_length(tvb) < 12)
+	if (tvb_captured_length(tvb) < BFCP_HDR_LEN)
 		return FALSE;
 
 	/* Check version and reserved bits in first byte */
@@ -418,6 +422,7 @@ dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	guint8       primitive;
 	const gchar *str;
 	gint         bfcp_payload_length;
+	gboolean     f_bit;
 	proto_tree  *bfcp_tree;
 	proto_item	*ti;
 
@@ -453,7 +458,16 @@ dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	/* Add items to BFCP tree */
 	proto_tree_add_item(bfcp_tree, hf_bfcp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(bfcp_tree, hf_bfcp_hdr_r_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(bfcp_tree, hf_bfcp_hdr_f_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_boolean(bfcp_tree, hf_bfcp_hdr_f_bit, tvb, offset, 1, ENC_BIG_ENDIAN, &f_bit);
+	/* Ver should be 1 over a reliable transport (TCP) and 2 over an
+	 * unreliable transport (UDP). R and F should only be set on an
+	 * unreliable transport. They should be ignored on a reliable
+	 * transport.
+	 *
+	 * XXX: If it's version 1 and an unreliable transport, it may be
+	 * a draft implementation.
+	 * ( https://www.ietf.org/archive/id/draft-sandbakken-dispatch-bfcp-udp-03.html )
+	 */
 	offset++;
 	proto_tree_add_item(bfcp_tree, hf_bfcp_primitive, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
@@ -465,6 +479,12 @@ dissect_bfcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	offset+=2;
 	proto_tree_add_item(bfcp_tree, hf_bfcp_user_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
+	if (f_bit) {
+		proto_tree_add_item(bfcp_tree, hf_bfcp_fragment_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset+=2;
+		proto_tree_add_item(bfcp_tree, hf_bfcp_fragment_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset+=2;
+	}
 
 	bfcp_payload_length = tvb_get_ntohs(tvb,
 						BFCP_OFFSET_PAYLOAD_LENGTH) * 4;
@@ -499,13 +519,13 @@ void proto_register_bfcp(void)
 		{
 			&hf_bfcp_hdr_r_bit,
 			{ "Transaction Responder (R)", "bfcp.hdr_r_bit",
-			  FT_BOOLEAN, 8, NULL, 0x10,
+			  FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
 			  NULL, HFILL }
 		},
 		{
 			&hf_bfcp_hdr_f_bit,
 			{ "Fragmentation (F)", "bfcp.hdr_f_bit",
-			  FT_BOOLEAN, 8, NULL, 0x08,
+			  FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
 			  NULL, HFILL }
 		},
 		{
@@ -518,7 +538,7 @@ void proto_register_bfcp(void)
 			&hf_bfcp_payload_length,
 			{ "Payload Length", "bfcp.payload_length",
 			  FT_UINT16, BASE_DEC, NULL, 0x0,
-			  NULL, HFILL }
+			  "Length in 4-octet units, excluding the COMMON-HEADER", HFILL }
 		},
 		{
 			&hf_bfcp_conference_id,
@@ -537,6 +557,18 @@ void proto_register_bfcp(void)
 			{ "User ID", "bfcp.user_id",
 			  FT_UINT16, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
+		},
+		{
+			&hf_bfcp_fragment_offset,
+			{ "Fragment Offset", "bfcp.fragment_offset",
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  "Number of 4-octet units contained in previous fragments, excluding the COMMON-HEADER", HFILL }
+		},
+		{
+			&hf_bfcp_fragment_length,
+			{ "Fragment Length", "bfcp.fragment_length",
+			  FT_UINT16, BASE_DEC, NULL, 0x0,
+			  "Number of 4-octet units contained in this fragment, excluding the COMMON-HEADER", HFILL }
 		},
 		{
 			&hf_bfcp_payload,
