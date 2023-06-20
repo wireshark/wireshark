@@ -18,6 +18,8 @@
 void proto_register_llt(void);
 void proto_reg_handoff_llt(void);
 
+static dissector_handle_t llt_handle;
+
 static const value_string message_type_vs[] = {
 	{ 0x0a, "heartbeat" },
 	{ 0, NULL}
@@ -138,6 +140,8 @@ proto_register_llt(void)
 				       "Dissect this ethertype as LLT traffic in addition to the default, 0xCAFE.",
 				       16, &preference_alternate_ethertype); /* A base-16 (hexadecimal) value */
 
+	/* Register our dissector */
+	llt_handle = register_dissector("llt", dissect_llt, proto_llt);
 }
 
 
@@ -145,11 +149,9 @@ void
 proto_reg_handoff_llt(void)
 {
 	static gboolean initialized = FALSE;
-	static dissector_handle_t llt_handle;
 	static guint preference_alternate_ethertype_last;
 
 	if (!initialized) {
-		llt_handle = create_dissector_handle(dissect_llt, proto_llt);
 		dissector_add_uint("ethertype", ETHERTYPE_LLT, llt_handle);
 		initialized = TRUE;
 	} else {

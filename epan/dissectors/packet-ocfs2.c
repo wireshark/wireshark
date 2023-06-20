@@ -24,6 +24,8 @@
 void proto_register_ocfs2(void);
 void proto_reg_handoff_ocfs2(void);
 
+static dissector_handle_t ocfs2_handle;
+
 static gint ett_ocfs2 = -1;
 static gint ett_dtm_lock_flags = -1;
 static gint ett_mres_flags = -1;
@@ -1666,14 +1668,12 @@ void proto_register_ocfs2(void)
 	proto_ocfs2 = proto_register_protocol("OCFS2 Networking", "OCFS2", "ocfs2");
 	proto_register_field_array(proto_ocfs2, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	ocfs2_handle = register_dissector("ocfs2", dissect_ocfs2, proto_ocfs2);
 }
 
 void proto_reg_handoff_ocfs2(void)
 {
-	dissector_handle_t ocfs2_handle;
-
-	ocfs2_handle = create_dissector_handle(dissect_ocfs2, proto_ocfs2);
-
 	dissector_add_for_decode_as_with_preference("tcp.port", ocfs2_handle);
 }
 

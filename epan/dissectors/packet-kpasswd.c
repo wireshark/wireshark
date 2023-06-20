@@ -22,6 +22,9 @@
 void proto_register_kpasswd(void);
 void proto_reg_handoff_kpasswd(void);
 
+static dissector_handle_t kpasswd_handle_udp;
+static dissector_handle_t kpasswd_handle_tcp;
+
 /* Desegment Kerberos over TCP messages */
 static gboolean kpasswd_desegment = TRUE;
 
@@ -300,16 +303,15 @@ proto_register_kpasswd(void)
         "Whether the Kpasswd dissector should reassemble messages spanning multiple TCP segments."
         " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
         &kpasswd_desegment);
+
+    /* Register dissectors */
+    kpasswd_handle_udp = register_dissector("kpasswd.udp", dissect_kpasswd_udp, proto_kpasswd);
+    kpasswd_handle_tcp = register_dissector("kpasswd.tcp", dissect_kpasswd_tcp, proto_kpasswd);
 }
 
 void
 proto_reg_handoff_kpasswd(void)
 {
-    dissector_handle_t kpasswd_handle_udp;
-    dissector_handle_t kpasswd_handle_tcp;
-
-    kpasswd_handle_udp = create_dissector_handle(dissect_kpasswd_udp, proto_kpasswd);
-    kpasswd_handle_tcp = create_dissector_handle(dissect_kpasswd_tcp, proto_kpasswd);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_KPASSWD, kpasswd_handle_udp);
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_KPASSWD, kpasswd_handle_tcp);
 }

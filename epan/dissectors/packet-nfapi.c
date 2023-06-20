@@ -11641,7 +11641,7 @@ void proto_reg_handoff_nfapi(void)
 {
 	dissector_handle_t handle;
 
-	handle = create_dissector_handle( dissect_nfapi_ul_p7, -1 );
+	handle = create_dissector_handle( dissect_nfapi_ul_p7, proto_nfapi );
 	dissector_add_uint("nfapi.msg_id", NFAPI_HARQ_INDICATION_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_CRC_INDICATION_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_RX_ULSCH_INDICATION_MSG_ID, handle);
@@ -11650,7 +11650,7 @@ void proto_reg_handoff_nfapi(void)
 	dissector_add_uint("nfapi.msg_id", NFAPI_RX_SR_INDICATION_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_RX_CQI_INDICATION_MSG_ID, handle);
 
-	handle = create_dissector_handle( dissect_nfapi_dl_p7, -1 );
+	handle = create_dissector_handle( dissect_nfapi_dl_p7, proto_nfapi );
 	dissector_add_uint("nfapi.msg_id", NFAPI_DL_CONFIG_REQUEST_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_UL_CONFIG_REQUEST_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_HI_DCI0_REQUEST_MSG_ID, handle);
@@ -11658,7 +11658,7 @@ void proto_reg_handoff_nfapi(void)
 	dissector_add_uint("nfapi.msg_id", NFAPI_LBT_DL_CONFIG_REQUEST_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_LBT_DL_INDICATION_MSG_ID, handle);
 
-	handle = create_dissector_handle( dissect_p45_header, -1 );
+	handle = create_dissector_handle( dissect_p45_header, proto_nfapi );
 	dissector_add_uint("nfapi.msg_id", NFAPI_PNF_START_REQUEST_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_PNF_STOP_REQUEST_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_PARAM_REQUEST_MSG_ID, handle);
@@ -11666,12 +11666,12 @@ void proto_reg_handoff_nfapi(void)
 	dissector_add_uint("nfapi.msg_id", NFAPI_STOP_REQUEST_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_NMM_STOP_REQUEST_MSG_ID, handle);
 
-	handle = create_dissector_handle( dissect_p45_header_with_list, -1 );
+	handle = create_dissector_handle( dissect_p45_header_with_list, proto_nfapi );
 	dissector_add_uint("nfapi.msg_id", NFAPI_PNF_PARAM_REQUEST_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_PNF_CONFIG_REQUEST_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_MEASUREMENT_REQUEST_MSG_ID, handle);
 
-	handle = create_dissector_handle( dissect_p45_header_with_error, -1 );
+	handle = create_dissector_handle( dissect_p45_header_with_error, proto_nfapi );
 	dissector_add_uint("nfapi.msg_id", NFAPI_PNF_CONFIG_RESPONSE_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_PNF_START_RESPONSE_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_PNF_STOP_RESPONSE_MSG_ID, handle);
@@ -11679,7 +11679,7 @@ void proto_reg_handoff_nfapi(void)
 	dissector_add_uint("nfapi.msg_id", NFAPI_START_RESPONSE_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_STOP_RESPONSE_MSG_ID, handle);
 
-	handle = create_dissector_handle( dissect_p45_header_with_p4_error, -1 );
+	handle = create_dissector_handle( dissect_p45_header_with_p4_error, proto_nfapi );
 	dissector_add_uint("nfapi.msg_id", NFAPI_RSSI_RESPONSE_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_CELL_SEARCH_RESPONSE_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_BROADCAST_DETECT_RESPONSE_MSG_ID, handle);
@@ -11687,29 +11687,29 @@ void proto_reg_handoff_nfapi(void)
 	dissector_add_uint("nfapi.msg_id", NFAPI_SYSTEM_INFORMATION_RESPONSE_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_NMM_STOP_RESPONSE_MSG_ID, handle);
 
-	handle = create_dissector_handle( dissect_p45_header_with_error_and_list, -1 );
+	handle = create_dissector_handle( dissect_p45_header_with_error_and_list, proto_nfapi );
 	dissector_add_uint("nfapi.msg_id", NFAPI_PNF_PARAM_RESPONSE_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_MEASUREMENT_RESPONSE_MSG_ID, handle);
 
-	handle = create_dissector_handle( dissect_p45_header_with_p4_error_and_list, -1 );
+	handle = create_dissector_handle( dissect_p45_header_with_p4_error_and_list, proto_nfapi );
 	dissector_add_uint("nfapi.msg_id", NFAPI_RSSI_INDICATION_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_CELL_SEARCH_INDICATION_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_BROADCAST_DETECT_INDICATION_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_SYSTEM_INFORMATION_SCHEDULE_INDICATION_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_SYSTEM_INFORMATION_INDICATION_MSG_ID, handle);
 
-	handle = create_dissector_handle( dissect_p45_header_with_rat_type_list, -1 );
+	handle = create_dissector_handle( dissect_p45_header_with_rat_type_list, proto_nfapi );
 	dissector_add_uint("nfapi.msg_id", NFAPI_RSSI_REQUEST_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_CELL_SEARCH_REQUEST_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_BROADCAST_DETECT_REQUEST_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_SYSTEM_INFORMATION_SCHEDULE_REQUEST_MSG_ID, handle);
 	dissector_add_uint("nfapi.msg_id", NFAPI_SYSTEM_INFORMATION_REQUEST_MSG_ID, handle);
 
-	dissector_add_uint("nfapi.msg_id", NFAPI_CONFIG_REQUEST_MSG_ID, create_dissector_handle( dissect_p45_config_request_msg_id, -1 ));
-	dissector_add_uint("nfapi.msg_id", NFAPI_PARAM_RESPONSE_MSG_ID, create_dissector_handle( dissect_p45_param_response_msg_id, -1 ));
-	dissector_add_uint("nfapi.msg_id", NFAPI_DL_NODE_SYNC_MSG_ID, create_dissector_handle( dissect_p7_dl_node_sync_msg_id, -1 ));
-	dissector_add_uint("nfapi.msg_id", NFAPI_UL_NODE_SYNC_MSG_ID, create_dissector_handle( dissect_p7_ul_node_sync_msg_id, -1 ));
-	dissector_add_uint("nfapi.msg_id", NFAPI_TIMING_INFO_MSG_ID, create_dissector_handle( dissect_p7_timing_info_msg_id, -1 ));
+	dissector_add_uint("nfapi.msg_id", NFAPI_CONFIG_REQUEST_MSG_ID, create_dissector_handle( dissect_p45_config_request_msg_id, proto_nfapi ));
+	dissector_add_uint("nfapi.msg_id", NFAPI_PARAM_RESPONSE_MSG_ID, create_dissector_handle( dissect_p45_param_response_msg_id, proto_nfapi ));
+	dissector_add_uint("nfapi.msg_id", NFAPI_DL_NODE_SYNC_MSG_ID, create_dissector_handle( dissect_p7_dl_node_sync_msg_id, proto_nfapi ));
+	dissector_add_uint("nfapi.msg_id", NFAPI_UL_NODE_SYNC_MSG_ID, create_dissector_handle( dissect_p7_ul_node_sync_msg_id, proto_nfapi ));
+	dissector_add_uint("nfapi.msg_id", NFAPI_TIMING_INFO_MSG_ID, create_dissector_handle( dissect_p7_timing_info_msg_id, proto_nfapi ));
 
 	dissector_add_for_decode_as("sctp.port", nfapi_handle);
 	dissector_add_for_decode_as("udp.port", nfapi_handle);

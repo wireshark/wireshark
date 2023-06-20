@@ -4218,7 +4218,6 @@ proto_register_oran(void)
 void
 proto_reg_handoff_oran(void)
 {
-    create_dissector_handle(dissect_oran, proto_oran);
 }
 
 /*

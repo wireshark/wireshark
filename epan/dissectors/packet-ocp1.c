@@ -3321,18 +3321,16 @@ proto_register_ocp1(void)
 
     expert_ocp1 = expert_register_protocol(proto_ocp1);
     expert_register_field_array(expert_ocp1, ei, array_length(ei));
+
+    ocp1_tcp_handle = register_dissector("ocp1.tcp", dissect_ocp1_tcp, proto_ocp1);
+    ocp1_udp_handle = register_dissector("ocp1.udp", dissect_ocp1, proto_ocp1);
 }
 
 void
 proto_reg_handoff_ocp1(void)
 {
-
-    ocp1_tcp_handle = create_dissector_handle(dissect_ocp1_tcp, proto_ocp1);
-    ocp1_udp_handle = create_dissector_handle(dissect_ocp1, proto_ocp1);
-
     heur_dissector_add("tcp", dissect_ocp1_heur_tcp, "OCP.1 over TCP", "ocp1_tcp", proto_ocp1, HEURISTIC_ENABLE);
     heur_dissector_add("udp", dissect_ocp1_heur_udp, "OCP.1 over UDP", "ocp1_udp", proto_ocp1, HEURISTIC_ENABLE);
-
 }
 
 /*

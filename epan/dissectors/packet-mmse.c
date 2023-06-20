@@ -33,6 +33,9 @@
 void proto_register_mmse(void);
 void proto_reg_handoff_mmse(void);
 
+static dissector_handle_t mmse_standalone_handle;
+static dissector_handle_t mmse_encapsulated_handle;
+
 #define MM_QUOTE                0x7F    /* Quoted string        */
 
 #define MMS_CONTENT_TYPE        0x3E    /* WINA-value for mms-message   */
@@ -1621,6 +1624,10 @@ proto_register_mmse(void)
 
     expert_mmse = expert_register_protocol(proto_mmse);
     expert_register_field_array(expert_mmse, ei, array_length(ei));
+
+    /* Register the dissectors */
+    mmse_standalone_handle = register_dissector("mmse", dissect_mmse_standalone, proto_mmse);
+    mmse_encapsulated_handle = register_dissector("mmse_encapsulated", dissect_mmse_encapsulated, proto_mmse);
 }
 
 /* If this dissector uses sub-dissector registration add registration routine.
@@ -1630,14 +1637,7 @@ proto_register_mmse(void)
 void
 proto_reg_handoff_mmse(void)
 {
-    dissector_handle_t mmse_standalone_handle;
-    dissector_handle_t mmse_encapsulated_handle;
-
     heur_dissector_add("wsp", dissect_mmse_heur, "MMS Message Encapsulation over WSP", "mmse_wsp", proto_mmse, HEURISTIC_ENABLE);
-    mmse_standalone_handle = create_dissector_handle(
-            dissect_mmse_standalone, proto_mmse);
-    mmse_encapsulated_handle = create_dissector_handle(
-            dissect_mmse_encapsulated, proto_mmse);
         /* As the media types for WSP and HTTP are the same, the WSP dissector
          * uses the same string dissector table as the HTTP protocol. */
     dissector_add_string("media_type",

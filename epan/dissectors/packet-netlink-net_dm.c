@@ -532,7 +532,7 @@ proto_register_netlink_net_dm(void)
 	proto_register_field_array(proto_netlink_net_dm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	netlink_net_dm_handle = create_dissector_handle(dissect_netlink_net_dm, proto_netlink_net_dm);
+	netlink_net_dm_handle = register_dissector("net_dm", dissect_netlink_net_dm, proto_netlink_net_dm);
 }
 
 void

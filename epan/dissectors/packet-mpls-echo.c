@@ -31,6 +31,8 @@
 void proto_register_mpls_echo(void);
 void proto_reg_handoff_mpls_echo(void);
 
+static dissector_handle_t mpls_echo_handle;
+
 #define UDP_PORT_MPLS_ECHO 3503
 
 static int proto_mpls_echo = -1;
@@ -2794,15 +2796,14 @@ proto_register_mpls_echo(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_mpls_echo = expert_register_protocol(proto_mpls_echo);
     expert_register_field_array(expert_mpls_echo, ei, array_length(ei));
+
+    mpls_echo_handle = register_dissector("mpls-echo", dissect_mpls_echo, proto_mpls_echo);
 }
 
 
 void
 proto_reg_handoff_mpls_echo(void)
 {
-    dissector_handle_t mpls_echo_handle;
-
-    mpls_echo_handle = create_dissector_handle(dissect_mpls_echo, proto_mpls_echo);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_MPLS_ECHO, mpls_echo_handle);
 
     dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_ONDEMAND_CV, mpls_echo_handle);

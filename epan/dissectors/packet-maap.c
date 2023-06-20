@@ -19,6 +19,8 @@
 void proto_register_maap(void);
 void proto_reg_handoff_maap(void);
 
+static dissector_handle_t maap_handle;
+
 /* MAAP starts after common 1722 header */
 #define MAAP_START_OFFSET                   1
 
@@ -194,14 +196,14 @@ proto_register_maap(void)
     proto_register_field_array(proto_maap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    /* Register the dissector */
+    maap_handle = register_dissector("maap", dissect_maap, proto_maap);
+
 } /* end proto_register_maap() */
 
 void
 proto_reg_handoff_maap(void)
 {
-    dissector_handle_t maap_handle;
-
-    maap_handle = create_dissector_handle(dissect_maap, proto_maap);
     dissector_add_uint("ieee1722.subtype", 0xFE, maap_handle);
 }
 

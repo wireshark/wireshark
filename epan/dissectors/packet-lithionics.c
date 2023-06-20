@@ -20,6 +20,8 @@
 void proto_register_lithionics(void);
 void proto_reg_handoff_lithionics(void);
 
+static dissector_handle_t lithionics_handle;
+
 static int proto_lithionics = -1;
 
 static int hf_lithionics_battery_address = -1;
@@ -290,14 +292,13 @@ proto_register_lithionics(void)
 	proto_lithionics = proto_register_protocol("Lithionics Battery Management System", "Lithionics BMS", "lithionics_bms");
 	proto_register_field_array(proto_lithionics, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	lithionics_handle = register_dissector("lithionics_bms", dissect_lithionics, proto_lithionics);
 }
 
 void
 proto_reg_handoff_lithionics(void)
 {
-	dissector_handle_t lithionics_handle;
-
-	lithionics_handle = create_dissector_handle(dissect_lithionics, proto_lithionics);
 	dissector_add_for_decode_as("udp.port", lithionics_handle);
 }
 

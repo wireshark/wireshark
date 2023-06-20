@@ -675,7 +675,7 @@ void proto_register_mqttsn(void)
     proto_mqttsn = proto_register_protocol("MQ Telemetry Transport Protocol for Sensor Networks", "MQTT-SN", "mqttsn");
 
     /* Create the dissector handle. */
-    mqttsn_handle = create_dissector_handle(dissect_mqttsn, proto_mqttsn);
+    mqttsn_handle = register_dissector("mqttsn", dissect_mqttsn, proto_mqttsn);
 
     /* Register fields and subtrees. */
     proto_register_field_array(proto_mqttsn, hf_mqttsn, array_length(hf_mqttsn));

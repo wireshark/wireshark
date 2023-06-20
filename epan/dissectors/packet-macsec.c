@@ -17,6 +17,7 @@
 void proto_register_macsec(void);
 void proto_reg_handoff_macsec(void);
 
+static dissector_handle_t macsec_handle;
 static dissector_handle_t ethertype_handle;
 
 /* TCI/AN field masks */
@@ -254,13 +255,14 @@ proto_register_macsec(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_macsec, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the dissector */
+    macsec_handle = register_dissector("macsec", dissect_macsec, proto_macsec);
 }
 
 void
 proto_reg_handoff_macsec(void)
 {
-    dissector_handle_t macsec_handle;
-    macsec_handle = create_dissector_handle(dissect_macsec, proto_macsec);
     dissector_add_uint("ethertype", ETHERTYPE_MACSEC, macsec_handle);
 
     ethertype_handle = find_dissector("ethertype");

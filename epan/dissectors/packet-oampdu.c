@@ -25,6 +25,8 @@
 void proto_register_oampdu(void);
 void proto_reg_handoff_oampdu(void);
 
+static dissector_handle_t oampdu_handle;
+
 #define OUI_CL_0                    0x00
 #define OUI_CL_1                    0x10
 #define OUI_CL_2                    0x00
@@ -3233,14 +3235,13 @@ proto_register_oampdu(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_oampdu = expert_register_protocol(proto_oampdu);
     expert_register_field_array(expert_oampdu, ei, array_length(ei));
+
+    oampdu_handle = register_dissector("oampdu", dissect_oampdu, proto_oampdu);
 }
 
 void
 proto_reg_handoff_oampdu(void)
 {
-    dissector_handle_t oampdu_handle;
-
-    oampdu_handle = create_dissector_handle(dissect_oampdu, proto_oampdu);
     dissector_add_uint("slow.subtype", OAM_SUBTYPE, oampdu_handle);
 }
 

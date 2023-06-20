@@ -248,6 +248,10 @@ proto_register_nasdaq_soup(void)
     proto_register_field_array(proto_nasdaq_soup, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    /* Register the dissector */
+    nasdaq_soup_handle = register_dissector("nasdaq_soup", dissect_nasdaq_soup, proto_nasdaq_soup);
+
+    /* Register preferences */
     nasdaq_soup_module = prefs_register_protocol(proto_nasdaq_soup, NULL);
     prefs_register_bool_preference(nasdaq_soup_module, "desegment",
         "Reassemble Nasdaq-SoupTCP messages spanning multiple TCP segments",
@@ -262,7 +266,6 @@ proto_register_nasdaq_soup(void)
 void
 proto_reg_handoff_nasdaq_soup(void)
 {
-    nasdaq_soup_handle = create_dissector_handle(dissect_nasdaq_soup, proto_nasdaq_soup);
     nasdaq_itch_handle = find_dissector_add_dependency("nasdaq-itch", proto_nasdaq_soup);
     dissector_add_uint_range_with_preference("tcp.port", "", nasdaq_soup_handle);
 }

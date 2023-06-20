@@ -16,6 +16,8 @@
 void proto_register_ns_ha(void);
 void proto_reg_handoff_ns_ha(void);
 
+static dissector_handle_t nsha_handle;
+
 static int proto_ns_ha = -1;
 static gint ett_nsha = -1;
 static gint ett_nsha_flags = -1;
@@ -278,13 +280,12 @@ proto_register_ns_ha(void)
 	proto_ns_ha = proto_register_protocol("NetScaler HA Protocol", "NetScaler HA", "nstrace.ha");
 	proto_register_field_array(proto_ns_ha, hf_nsha, array_length(hf_nsha));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	nsha_handle = register_dissector("nstrace.ha", dissect_ns_ha, proto_ns_ha);
 }
 
 void proto_reg_handoff_ns_ha(void)
 {
-	dissector_handle_t nsha_handle;
-
-	nsha_handle = create_dissector_handle(dissect_ns_ha, proto_ns_ha);
 	dissector_add_for_decode_as("udp.port", nsha_handle);
 }
 

@@ -1720,6 +1720,8 @@ void proto_register_lbtrm(void)
     expert_lbtrm = expert_register_protocol(proto_lbtrm);
     expert_register_field_array(expert_lbtrm, ei, array_length(ei));
 
+    lbtrm_dissector_handle = register_dissector("lbtrm", dissect_lbtrm, proto_lbtrm);
+
     lbtrm_module = prefs_register_protocol_subtree("29West", proto_lbtrm, proto_reg_handoff_lbtrm);
     ws_inet_pton4(LBTRM_DEFAULT_MC_ADDRESS_LOW, &addr);
     lbtrm_mc_address_low_host = g_ntohl(addr);
@@ -1853,7 +1855,6 @@ void proto_reg_handoff_lbtrm(void)
 
     if (!already_registered)
     {
-        lbtrm_dissector_handle = create_dissector_handle(dissect_lbtrm, proto_lbtrm);
         dissector_add_for_decode_as_with_preference("udp.port", lbtrm_dissector_handle);
         heur_dissector_add("udp", test_lbtrm_packet, "LBT Reliable Multicast over UDP", "lbtrm_udp", proto_lbtrm, HEURISTIC_ENABLE);
         lbtrm_tap_handle = register_tap("lbm_lbtrm");

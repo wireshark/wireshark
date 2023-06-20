@@ -72,6 +72,9 @@
 void proto_register_ncp(void);
 void proto_reg_handoff_ncp(void);
 
+static dissector_handle_t ncp_handle;
+static dissector_handle_t ncp_tcp_handle;
+
 int proto_ncp = -1;
 static int hf_ncp_ip_ver = -1;
 static int hf_ncp_ip_length = -1;
@@ -1571,6 +1574,9 @@ proto_register_ncp(void)
     expert_ncp = expert_register_protocol(proto_ncp);
     expert_register_field_array(expert_ncp, ei, array_length(ei));
 
+    ncp_handle = register_dissector("ncp", dissect_ncp, proto_ncp);
+    ncp_tcp_handle = register_dissector("ncp.tcp", dissect_ncp_tcp, proto_ncp);
+
     ncp_module = prefs_register_protocol(proto_ncp, NULL);
     prefs_register_obsolete_preference(ncp_module, "initial_hash_size");
     prefs_register_bool_preference(ncp_module, "desegment",
@@ -1618,11 +1624,6 @@ proto_register_ncp(void)
 void
 proto_reg_handoff_ncp(void)
 {
-    dissector_handle_t ncp_handle;
-    dissector_handle_t ncp_tcp_handle;
-
-    ncp_handle = create_dissector_handle(dissect_ncp, proto_ncp);
-    ncp_tcp_handle = create_dissector_handle(dissect_ncp_tcp, proto_ncp);
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_NCP, ncp_tcp_handle);
     dissector_add_uint("udp.port", UDP_PORT_NCP, ncp_handle);
     dissector_add_uint("ipx.packet_type", IPX_PACKET_TYPE_NCP, ncp_handle);

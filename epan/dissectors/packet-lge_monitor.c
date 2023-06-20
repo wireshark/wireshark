@@ -18,6 +18,8 @@
 void proto_reg_handoff_lge_monitor(void);
 void proto_register_lge_monitor(void);
 
+static dissector_handle_t lge_monitor_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_lge_monitor		= -1;
 
@@ -102,9 +104,6 @@ dissect_lge_monitor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 void
 proto_reg_handoff_lge_monitor(void)
 {
-	dissector_handle_t lge_monitor_handle;
-
-	lge_monitor_handle = create_dissector_handle(dissect_lge_monitor, proto_lge_monitor);
 	dissector_add_for_decode_as_with_preference("udp.port", lge_monitor_handle);
 	mtp3_handle  = find_dissector_add_dependency("mtp3", proto_lge_monitor);
 	m3ua_handle  = find_dissector_add_dependency("m3ua", proto_lge_monitor);
@@ -152,6 +151,9 @@ proto_register_lge_monitor(void)
 /* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_lge_monitor, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+/* Register the dissector */
+	lge_monitor_handle = register_dissector("lge_monitor", dissect_lge_monitor, proto_lge_monitor);
 }
 
 /*

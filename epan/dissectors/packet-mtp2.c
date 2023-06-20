@@ -29,6 +29,9 @@ void proto_register_mtp2(void);
 void proto_reg_handoff_mtp2(void);
 
 static dissector_handle_t mtp2_handle;
+static dissector_handle_t mtp2_with_phdr_handle;
+static dissector_handle_t mtp2_bitstream_handle;
+static dissector_handle_t mtp3_handle;
 
 /* possible packet states */
 enum packet_direction_state_mtp2 {FORWARD, BACKWARD};
@@ -167,7 +170,6 @@ static expert_field ei_mtp2_li_bad = EI_INIT;
 /* Initialize the subtree pointers */
 static gint ett_mtp2       = -1;
 
-static dissector_handle_t mtp3_handle;
 static gboolean use_extended_sequence_numbers_default = FALSE;
 static gboolean capture_contains_fcs_crc_default = FALSE;
 
@@ -1268,6 +1270,9 @@ proto_register_mtp2(void)
   proto_mtp2 = proto_register_protocol("Message Transfer Part Level 2", "MTP2", "mtp2");
   mtp2_handle = register_dissector("mtp2", dissect_mtp2, proto_mtp2);
   register_dissector("mtp2_with_crc", dissect_mtp2_with_crc, proto_mtp2);
+  mtp2_with_phdr_handle = register_dissector("mtp2_with_phdr", dissect_mtp2_with_phdr,
+                                                  proto_mtp2);
+  mtp2_bitstream_handle = register_dissector("mtp2_bitstream", dissect_mtp2_bitstream, proto_mtp2);
 
   proto_register_field_array(proto_mtp2, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -1300,18 +1305,12 @@ proto_register_mtp2(void)
 void
 proto_reg_handoff_mtp2(void)
 {
-  dissector_handle_t mtp2_with_phdr_handle;
-  dissector_handle_t mtp2_bitstream_handle;
-
   dissector_add_uint("wtap_encap", WTAP_ENCAP_MTP2, mtp2_handle);
-  mtp2_with_phdr_handle = create_dissector_handle(dissect_mtp2_with_phdr,
-                                                  proto_mtp2);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_MTP2_WITH_PHDR,
                                    mtp2_with_phdr_handle);
 
   mtp3_handle   = find_dissector_add_dependency("mtp3", proto_mtp2);
 
-  mtp2_bitstream_handle = create_dissector_handle(dissect_mtp2_bitstream, proto_mtp2);
   dissector_add_string("rtp_dyn_payload_type", "MTP2", mtp2_bitstream_handle);
 
   dissector_add_uint_range_with_preference("rtp.pt", "", mtp2_bitstream_handle);

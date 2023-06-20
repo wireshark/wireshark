@@ -433,6 +433,7 @@ static const value_string ns_httpabortcode_vals[] = {
 };
 static value_string_ext ns_httpabortcode_vals_ext = VALUE_STRING_EXT_INIT(ns_httpabortcode_vals);
 
+static dissector_handle_t nstrace_handle;
 
 static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t http_handle;
@@ -1857,17 +1858,15 @@ proto_register_ns(void)
 	proto_register_field_array(proto_nstrace, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
+	nstrace_handle = register_dissector("ns", dissect_nstrace, proto_nstrace);
 }
 
 
 void proto_reg_handoff_ns(void)
 {
-	dissector_handle_t nstrace_handle;
-
 	eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_nstrace);
 	http_handle = find_dissector_add_dependency("http", proto_nstrace);
 
-	nstrace_handle = create_dissector_handle(dissect_nstrace, proto_nstrace);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NSTRACE_1_0, nstrace_handle);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NSTRACE_2_0, nstrace_handle);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_NSTRACE_3_0, nstrace_handle);

@@ -25,6 +25,9 @@
 void proto_reg_handoff_mausb(void);
 void proto_register_mausb(void);
 
+static dissector_handle_t mausb_tcp_handle;
+static dissector_handle_t mausb_pkt_handle;
+
 /* For SNAP Packets */
 static int hf_llc_mausb_pid = -1;
 
@@ -2251,18 +2254,16 @@ proto_register_mausb(void)
     expert_register_field_array(expert_mausb, ei, array_length(ei));
 
     llc_add_oui(OUI_WFA, "llc.wfa_pid", "LLC WFA OUI PID", oui_hf, proto_mausb);
+
+    /* Register the dissectors */
+    mausb_tcp_handle = register_dissector("mausb", dissect_mausb, proto_mausb);
+    mausb_pkt_handle = register_dissector("mausb.pkt", dissect_mausb_pkt, proto_mausb);
+
 }
 
 void
 proto_reg_handoff_mausb(void)
 {
-    dissector_handle_t mausb_tcp_handle;
-    dissector_handle_t mausb_pkt_handle;
-
-    mausb_tcp_handle = create_dissector_handle(dissect_mausb, proto_mausb);
-
-    mausb_pkt_handle = create_dissector_handle(dissect_mausb_pkt, proto_mausb);
-
     dissector_add_uint("llc.wfa_pid", PID_MAUSB, mausb_pkt_handle);
 
     dissector_add_uint_range_with_preference("tcp.port", "", mausb_tcp_handle);

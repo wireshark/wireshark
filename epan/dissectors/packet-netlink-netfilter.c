@@ -2148,7 +2148,7 @@ proto_register_netlink_netfilter(void)
 	proto_register_field_array(proto_netlink_netfilter, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	netlink_netfilter = create_dissector_handle(dissect_netlink_netfilter, proto_netlink_netfilter);
+	netlink_netfilter = register_dissector("netfilter", dissect_netlink_netfilter, proto_netlink_netfilter);
 }
 
 void

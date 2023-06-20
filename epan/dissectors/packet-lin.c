@@ -37,6 +37,8 @@ static heur_dtbl_entry_t                    *heur_dtbl_entry;
 
 static int proto_lin = -1;
 
+static dissector_handle_t lin_handle;
+
 /* header field */
 static int hf_lin_msg_format_rev = -1;
 static int hf_lin_reserved1 = -1;
@@ -428,7 +430,7 @@ proto_register_lin(void) {
     proto_register_field_array(proto_lin, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    register_dissector(LIN_NAME_FILTER, dissect_lin, proto_lin);
+    lin_handle = register_dissector(LIN_NAME_FILTER, dissect_lin, proto_lin);
 
     /* the lin.frame_id subdissector table carries the bus id in the higher 16 bits */
     subdissector_table = register_dissector_table("lin.frame_id", "LIN Frame ID", proto_lin, FT_UINT8, BASE_HEX);
@@ -463,8 +465,6 @@ proto_register_lin(void) {
 
 void
 proto_reg_handoff_lin(void) {
-    static dissector_handle_t lin_handle;
-    lin_handle = create_dissector_handle(dissect_lin, proto_lin);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_LIN, lin_handle);
 }
 

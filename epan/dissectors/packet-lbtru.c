@@ -1910,6 +1910,8 @@ void proto_register_lbtru(void)
     expert_lbtru = expert_register_protocol(proto_lbtru);
     expert_register_field_array(expert_lbtru, ei, array_length(ei));
 
+    lbtru_dissector_handle = register_dissector("lbtru", dissect_lbtru, proto_lbtru);
+
     lbtru_module = prefs_register_protocol_subtree("29West", proto_lbtru, proto_reg_handoff_lbtru);
     prefs_register_uint_preference(lbtru_module,
         "source_port_low",
@@ -1992,7 +1994,6 @@ void proto_reg_handoff_lbtru(void)
 
     if (!already_registered)
     {
-        lbtru_dissector_handle = create_dissector_handle(dissect_lbtru, proto_lbtru);
         dissector_add_for_decode_as_with_preference("udp.port", lbtru_dissector_handle);
         heur_dissector_add("udp", test_lbtru_packet, "LBT Reliable Unicast over UDP", "lbtru_udp", proto_lbtru, HEURISTIC_ENABLE);
         lbtru_tap_handle = register_tap("lbm_lbtru");

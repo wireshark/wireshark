@@ -26,6 +26,8 @@
 void proto_register_mrp_mmrp(void);
 void proto_reg_handoff_mrp_mmrp(void);
 
+static dissector_handle_t mmrp_handle;
+
 /* MMRP End Mark Sequence */
 #define MMRP_END_MARK       0x0000
 
@@ -426,14 +428,14 @@ proto_register_mrp_mmrp(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_mmrp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the dissector */
+    mmrp_handle = register_dissector("mrp-mmrp", dissect_mmrp, proto_mmrp);
 }
 
 void
 proto_reg_handoff_mrp_mmrp(void)
 {
-    dissector_handle_t mmrp_handle;
-
-    mmrp_handle = create_dissector_handle(dissect_mmrp, proto_mmrp);
     dissector_add_uint("ethertype", ETHERTYPE_MMRP, mmrp_handle);
 }
 

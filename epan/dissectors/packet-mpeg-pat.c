@@ -17,6 +17,8 @@
 void proto_register_mpeg_pat(void);
 void proto_reg_handoff_mpeg_pat(void);
 
+static dissector_handle_t mpeg_pat_handle;
+
 static int proto_mpeg_pat = -1;
 static int hf_mpeg_pat_transport_stream_id = -1;
 static int hf_mpeg_pat_reserved = -1;
@@ -161,14 +163,12 @@ proto_register_mpeg_pat(void)
     proto_register_field_array(proto_mpeg_pat, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    mpeg_pat_handle = register_dissector("mpeg_pat", dissect_mpeg_pat, proto_mpeg_pat);
 }
 
 
 void proto_reg_handoff_mpeg_pat(void)
 {
-    dissector_handle_t mpeg_pat_handle;
-
-    mpeg_pat_handle = create_dissector_handle(dissect_mpeg_pat, proto_mpeg_pat);
     dissector_add_uint("mpeg_sect.tid", MPEG_PAT_TID, mpeg_pat_handle);
 }
 

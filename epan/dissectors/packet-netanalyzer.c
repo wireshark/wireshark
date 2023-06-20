@@ -52,6 +52,9 @@
 void proto_register_netanalyzer(void);
 void proto_reg_handoff_netanalyzer(void);
 
+static dissector_handle_t netana_handle;
+static dissector_handle_t netana_handle_transparent;
+
 #define HEADER_SIZE  4
 #define INFO_TYPE_OFFSET    18
 
@@ -556,18 +559,14 @@ void proto_register_netanalyzer(void)
   expert_netanalyzer = expert_register_protocol(proto_netanalyzer);
   expert_register_field_array(expert_netanalyzer, ei, array_length(ei));
 
+  netana_handle             = register_dissector("netanalyzer",             dissect_netanalyzer,             proto_netanalyzer);
+  netana_handle_transparent = register_dissector("netanalyzer_transparent", dissect_netanalyzer_transparent, proto_netanalyzer);
 }
 
 
 void proto_reg_handoff_netanalyzer(void)
 {
-  dissector_handle_t netana_handle;
-  dissector_handle_t netana_handle_transparent;
-
   eth_dissector_handle  = find_dissector_add_dependency("eth_withfcs", proto_netanalyzer);
-
-  netana_handle             = create_dissector_handle(dissect_netanalyzer,             proto_netanalyzer);
-  netana_handle_transparent = create_dissector_handle(dissect_netanalyzer_transparent, proto_netanalyzer);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_NETANALYZER,             netana_handle);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_NETANALYZER_TRANSPARENT, netana_handle_transparent);
 }

@@ -24,6 +24,8 @@
 void proto_register_mndp(void);
 void proto_reg_handoff_mndp(void);
 
+static dissector_handle_t mndp_handle;
+
 /* protocol handles */
 static int proto_mndp = -1;
 
@@ -345,14 +347,13 @@ proto_register_mndp(void)
 	proto_mndp = proto_register_protocol(PROTO_LONG_NAME, PROTO_SHORT_NAME, "mndp");
 	proto_register_field_array(proto_mndp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	mndp_handle = register_dissector("mndp", dissect_mndp_static, proto_mndp);
 }
 
 void
 proto_reg_handoff_mndp(void)
 {
-	dissector_handle_t mndp_handle;
-
-	mndp_handle = create_dissector_handle(dissect_mndp_static, proto_mndp);
 	dissector_add_uint_with_preference("udp.port", PORT_MNDP, mndp_handle);
 	heur_dissector_add("udp", dissect_mndp_heur, "MNDP over UDP", "mndp_udp", proto_mndp, HEURISTIC_DISABLE);
 }

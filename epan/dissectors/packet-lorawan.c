@@ -24,6 +24,8 @@
 void proto_reg_handoff_lorawan(void);
 void proto_register_lorawan(void);
 
+static dissector_handle_t lorawan_handle;
+
 static int proto_lorawan = -1;
 static int hf_lorawan_msgtype_type = -1;
 static int hf_lorawan_mac_header_type = -1;
@@ -1841,7 +1843,7 @@ proto_register_lorawan(void)
 		"lorawan"		/* abbrev */
 	);
 
-	register_dissector("lorawan", dissect_lorawan, proto_lorawan);
+	lorawan_handle = register_dissector("lorawan", dissect_lorawan, proto_lorawan);
 
 	proto_register_field_array(proto_lorawan, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
@@ -1905,8 +1907,6 @@ proto_register_lorawan(void)
 void
 proto_reg_handoff_lorawan(void)
 {
-	dissector_handle_t lorawan_handle;
-	lorawan_handle = create_dissector_handle(dissect_lorawan, proto_lorawan);
 	dissector_add_uint("loratap.syncword", 0x34, lorawan_handle);
 	dissector_add_for_decode_as("udp.port", lorawan_handle);
 }

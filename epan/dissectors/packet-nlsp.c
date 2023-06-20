@@ -20,6 +20,8 @@
 void proto_register_nlsp(void);
 void proto_reg_handoff_nlsp(void);
 
+static dissector_handle_t nlsp_handle;
+
 /* NLSP base header */
 static int proto_nlsp                    = -1;
 
@@ -1739,14 +1741,13 @@ proto_register_nlsp(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_nlsp = expert_register_protocol(proto_nlsp);
 	expert_register_field_array(expert_nlsp, ei, array_length(ei));
+
+	nlsp_handle = register_dissector("nlsp", dissect_nlsp, proto_nlsp);
 }
 
 void
 proto_reg_handoff_nlsp(void)
 {
-	dissector_handle_t nlsp_handle;
-
-	nlsp_handle = create_dissector_handle(dissect_nlsp, proto_nlsp);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NLSP, nlsp_handle);
 }
 

@@ -31,6 +31,8 @@ void proto_register_mc_nmf(void);
 static dissector_handle_t ms_nns_handle;
 static dissector_handle_t tls_handle;
 
+static dissector_handle_t mc_nmf_handle;
+
 /* Initialize the protocol and registered fields */
 
 #define MC_NMF_REC_VERSION      0
@@ -448,13 +450,12 @@ void proto_register_mc_nmf(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_mc_nmf = expert_register_protocol(proto_mc_nmf);
     expert_register_field_array(expert_mc_nmf, ei, array_length(ei));
+
+    mc_nmf_handle = register_dissector("mc-nmf", dissect_mc_nmf, proto_mc_nmf);
 }
 
 void proto_reg_handoff_mc_nmf(void)
 {
-    dissector_handle_t mc_nmf_handle;
-
-    mc_nmf_handle = create_dissector_handle(dissect_mc_nmf, proto_mc_nmf);
     dissector_add_uint_with_preference("tcp.port", MC_NMF_TCP_PORT, mc_nmf_handle);
     ms_nns_handle = find_dissector_add_dependency("ms-nns", proto_mc_nmf);
     tls_handle = find_dissector("tls");

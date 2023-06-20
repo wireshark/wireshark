@@ -43,6 +43,7 @@ static int hf_nxp_802154_sniffer_length = -1;
 
 static gint ett_nxp_802154_sniffer = -1;
 
+static dissector_handle_t nxp_802154_sniffer_handle;
 static dissector_handle_t ieee802154_handle;
 
 static gboolean
@@ -159,16 +160,15 @@ proto_register_nxp_802154_sniffer(void)
                                                "nxp_802154_sniffer");
     proto_register_field_array(proto_nxp_802154_sniffer, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    nxp_802154_sniffer_handle = register_dissector("nxp_802154_sniffer", dissect_nxp_802154_sniffer, proto_nxp_802154_sniffer);
 }
 
 void
 proto_reg_handoff_nxp_802154_sniffer(void)
 {
-    dissector_handle_t nxp_802154_sniffer_handle;
-
     ieee802154_handle = find_dissector_add_dependency("wpan", proto_nxp_802154_sniffer);
 
-    nxp_802154_sniffer_handle = create_dissector_handle(dissect_nxp_802154_sniffer, proto_nxp_802154_sniffer);
     dissector_add_uint_with_preference("udp.port", NXP_802154_SNIFFER_UDP_PORT, nxp_802154_sniffer_handle);
 }
 

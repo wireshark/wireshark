@@ -35,6 +35,8 @@
 void proto_register_mrcpv2(void);
 void proto_reg_handoff_mrcpv2(void);
 
+static dissector_handle_t mrcpv2_handle;
+
 /* mrcp-version SP message-length */
 /*   mrcp-version = "MRCP" "/" 1*2DIGIT "." 1*2DIGIT  ==> up to 10 chars */
 /*   SP ==> whitespace, 1 char */
@@ -1501,15 +1503,13 @@ proto_register_mrcpv2(void)
 
     expert_mrcpv2 = expert_register_protocol(proto_mrcpv2);
     expert_register_field_array(expert_mrcpv2, ei, array_length(ei));
+
+    mrcpv2_handle = register_dissector("mrcpv2", dissect_mrcpv2_tcp, proto_mrcpv2);
 }
 
 void
 proto_reg_handoff_mrcpv2(void)
 {
-    dissector_handle_t mrcpv2_handle;
-
-    mrcpv2_handle = create_dissector_handle(dissect_mrcpv2_tcp, proto_mrcpv2);
-
     dissector_add_uint_range_with_preference ("tcp.port", TCP_DEFAULT_RANGE, mrcpv2_handle);
 }
 /*

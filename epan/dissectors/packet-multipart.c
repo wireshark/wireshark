@@ -134,6 +134,7 @@ static gint hf_header_array[] = {
 static dissector_table_t media_type_dissector_table;
 
 /* Data and media dissector handles */
+static dissector_handle_t multipart_handle;
 static dissector_handle_t media_handle;
 static dissector_handle_t gssapi_handle;
 
@@ -1108,6 +1109,12 @@ proto_register_multipart(void)
         "multipart_media_type",
         "Internet media type (for multipart processing)",
         proto_multipart, FT_STRING, STRING_CASE_INSENSITIVE);
+
+    /*
+     * Handle for multipart dissection
+     */
+    multipart_handle = register_dissector("mime_multipart",
+            dissect_multipart, proto_multipart);
 }
 
 
@@ -1118,8 +1125,6 @@ proto_register_multipart(void)
 void
 proto_reg_handoff_multipart(void)
 {
-    dissector_handle_t multipart_handle;
-
     /*
      * When we cannot display the data, call the data dissector.
      * When there is no dissector for the given media, call the media dissector.
@@ -1131,12 +1136,6 @@ proto_reg_handoff_multipart(void)
      * Get the content type and Internet media type table
      */
     media_type_dissector_table = find_dissector_table("media_type");
-
-    /*
-     * Handle for multipart dissection
-     */
-    multipart_handle = create_dissector_handle(
-            dissect_multipart, proto_multipart);
 
     dissector_add_string("media_type",
             "multipart/mixed", multipart_handle);

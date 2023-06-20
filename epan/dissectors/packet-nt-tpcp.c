@@ -18,6 +18,8 @@
 void proto_register_tpcp(void);
 void proto_reg_handoff_tpcp(void);
 
+static dissector_handle_t tpcp_handle;
+
 #define UDP_PORT_TPCP   3121 /* Not IANA registered */
 
 /* TPCP version1/2 PDU format */
@@ -223,14 +225,13 @@ proto_register_tpcp(void)
 	proto_tpcp = proto_register_protocol("Alteon - Transparent Proxy Cache Protocol", "TPCP", "tpcp");
 	proto_register_field_array(proto_tpcp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	tpcp_handle = register_dissector("tpcp", dissect_tpcp, proto_tpcp);
 }
 
 void
 proto_reg_handoff_tpcp(void)
 {
-	dissector_handle_t tpcp_handle;
-
-	tpcp_handle = create_dissector_handle(dissect_tpcp, proto_tpcp);
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_TPCP, tpcp_handle);
 }
 

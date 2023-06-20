@@ -20,6 +20,8 @@
 void proto_register_kingfisher(void);
 void proto_reg_handoff_kingfisher(void);
 
+static dissector_handle_t kingfisher_handle;
+
 #define SUPPORT_KINGFISHER_SERIES_2
 
 #ifdef SUPPORT_KINGFISHER_SERIES_2
@@ -371,20 +373,18 @@ proto_register_kingfisher( void )
     proto_register_subtree_array( ett, array_length( ett ) );
     expert_kingfisher = expert_register_protocol(proto_kingfisher);
     expert_register_field_array(expert_kingfisher, ei, array_length(ei));
+
+    kingfisher_handle = register_dissector("kf", dissect_kingfisher_heur, proto_kingfisher);
 }
 
 
 void
 proto_reg_handoff_kingfisher( void )
 {
-    dissector_handle_t kingfisher_handle;
-
-    kingfisher_handle = create_dissector_handle(dissect_kingfisher_heur, proto_kingfisher);
     dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_KINGFISHER_RANGE, kingfisher_handle);
     dissector_add_uint_range_with_preference("udp.port", UDP_PORT_KINGFISHER_RANGE, kingfisher_handle);
 
     kingfisher_conv_handle = create_dissector_handle(dissect_kingfisher_conv, proto_kingfisher);
-
 }
 
 /*

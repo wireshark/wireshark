@@ -66,6 +66,7 @@ static expert_field ei_lisp_data_flags_nv_invalid = EI_INIT;
 static dissector_handle_t ipv4_handle;
 static dissector_handle_t ipv6_handle;
 static dissector_handle_t lisp_handle;
+static dissector_handle_t lisp_data_handle;
 
 /* Code to actually dissect the packets */
 static int
@@ -263,6 +264,9 @@ proto_register_lisp_data(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_lisp_data = expert_register_protocol(proto_lisp_data);
     expert_register_field_array(expert_lisp_data, ei, array_length(ei));
+
+    /* Register the dissector */
+    lisp_data_handle = register_dissector("lisp-data", dissect_lisp_data, proto_lisp_data);
 }
 
 /* Simple form of proto_reg_handoff_lisp_data which can be used if there are
@@ -272,10 +276,6 @@ proto_register_lisp_data(void)
 void
 proto_reg_handoff_lisp_data(void)
 {
-    dissector_handle_t lisp_data_handle;
-
-    lisp_data_handle = create_dissector_handle(dissect_lisp_data,
-                             proto_lisp_data);
     dissector_add_uint_with_preference("udp.port", LISP_DATA_PORT, lisp_data_handle);
     ipv4_handle = find_dissector_add_dependency("ip", proto_lisp_data);
     ipv6_handle = find_dissector_add_dependency("ipv6", proto_lisp_data);

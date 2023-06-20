@@ -48,6 +48,9 @@ static const value_string family_vals[] = {
   {0,                    NULL             }
 };
 
+static dissector_handle_t null_handle, loop_handle;
+static capture_dissector_handle_t null_cap_handle;
+
 static dissector_handle_t ppp_hdlc_handle;
 static capture_dissector_handle_t ppp_hdlc_cap_handle;
 
@@ -481,14 +484,15 @@ proto_register_null(void)
                                                   "Null type", proto_null, FT_UINT32, BASE_DEC);
 
   register_capture_dissector_table("null.bsd", "Null/Loopback BSD AF");
+
+  null_handle = register_dissector("null", dissect_null, proto_null);
+  loop_handle = register_dissector("null.loop", dissect_loop, proto_null);
+  null_cap_handle = register_capture_dissector("null", capture_null, proto_null);
 }
 
 void
 proto_reg_handoff_null(void)
 {
-  dissector_handle_t null_handle, loop_handle;
-  capture_dissector_handle_t null_cap_handle;
-
   /*
    * Get a handle for the PPP-in-HDLC-like-framing dissector and
    * the "I don't know what this is" dissector.
@@ -497,13 +501,10 @@ proto_reg_handoff_null(void)
 
   ethertype_dissector_table = find_dissector_table("ethertype");
 
-  null_handle = create_dissector_handle(dissect_null, proto_null);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_NULL, null_handle);
 
-  loop_handle = create_dissector_handle(dissect_loop, proto_null);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_LOOP, loop_handle);
 
-  null_cap_handle = create_capture_dissector_handle(capture_null, proto_null);
   capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_NULL, null_cap_handle);
   capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_LOOP, null_cap_handle);
 

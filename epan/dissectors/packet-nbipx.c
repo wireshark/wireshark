@@ -20,6 +20,9 @@ void proto_reg_handoff_nbipx(void);
 void proto_register_nmpi(void);
 void proto_reg_handoff_nmpi(void);
 
+static dissector_handle_t nbipx_handle;
+static dissector_handle_t nmpi_handle;
+
 static int proto_nbipx = -1;
 static int hf_nbipx_packettype = -1;
 static int hf_nbipx_name_flags = -1;
@@ -636,14 +639,13 @@ proto_register_nbipx(void)
 	proto_nbipx = proto_register_protocol("NetBIOS over IPX", "NBIPX", "nbipx");
 	proto_register_field_array(proto_nbipx, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	nbipx_handle = register_dissector("nbipx", dissect_nbipx, proto_nbipx);
 }
 
 void
 proto_reg_handoff_nbipx(void)
 {
-	dissector_handle_t nbipx_handle;
-
-	nbipx_handle = create_dissector_handle(dissect_nbipx, proto_nbipx);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NETBIOS, nbipx_handle);
 	netbios_heur_subdissector_list = find_heur_dissector_list("netbios");
 }
@@ -848,14 +850,13 @@ proto_register_nmpi(void)
 	    "NMPI", "nmpi");
 	/*       proto_register_field_array(proto_nmpi, hf, array_length(hf));*/
 	proto_register_subtree_array(ett, array_length(ett));
+
+	nmpi_handle = register_dissector("nmpi", dissect_nmpi, proto_nmpi);
 }
 
 void
 proto_reg_handoff_nmpi(void)
 {
-	dissector_handle_t nmpi_handle;
-
-	nmpi_handle = create_dissector_handle(dissect_nmpi, proto_nmpi);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NWLINK_SMB_NAMEQUERY,
 	    nmpi_handle);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_NWLINK_SMB_MAILSLOT,

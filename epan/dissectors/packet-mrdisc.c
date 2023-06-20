@@ -32,6 +32,8 @@
 void proto_register_mrdisc(void);
 void proto_reg_handoff_mrdisc(void);
 
+static dissector_handle_t mrdisc_handle;
+
 static int proto_mrdisc = -1;
 static int hf_checksum = -1;
 static int hf_checksum_status = -1;
@@ -265,14 +267,13 @@ proto_register_mrdisc(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_mrdisc = expert_register_protocol(proto_mrdisc);
 	expert_register_field_array(expert_mrdisc, ei, array_length(ei));
+
+	mrdisc_handle = register_dissector("mrdisc", dissect_mrdisc, proto_mrdisc);
 }
 
 void
 proto_reg_handoff_mrdisc(void)
 {
-	dissector_handle_t mrdisc_handle;
-
-	mrdisc_handle = create_dissector_handle(dissect_mrdisc, proto_mrdisc);
 	dissector_add_uint("igmp.type", IGMP_TYPE_0x24, mrdisc_handle);
 	dissector_add_uint("igmp.type", IGMP_TYPE_0x25, mrdisc_handle);
 	dissector_add_uint("igmp.type", IGMP_TYPE_0x26, mrdisc_handle);

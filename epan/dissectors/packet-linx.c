@@ -39,6 +39,8 @@ void proto_reg_handoff_linx(void);
 void proto_register_linx_tcp(void);
 void proto_reg_handoff_linx_tcp(void);
 
+static dissector_handle_t linx_handle;
+
 static int proto_linx     = -1;
 static int proto_linx_tcp = -1;
 
@@ -811,6 +813,9 @@ proto_register_linx(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_linx = expert_register_protocol(proto_linx);
 	expert_register_field_array(expert_linx, ei, array_length(ei));
+
+	/* Register the dissector */
+	linx_handle = register_dissector("linx", dissect_linx, proto_linx);
 }
 
 
@@ -818,9 +823,6 @@ proto_register_linx(void)
 void
 proto_reg_handoff_linx(void)
 {
-	dissector_handle_t linx_handle;
-
-	linx_handle = create_dissector_handle(dissect_linx, proto_linx);
 	dissector_add_uint("ethertype", ETHERTYPE_LINX, linx_handle);
 }
 

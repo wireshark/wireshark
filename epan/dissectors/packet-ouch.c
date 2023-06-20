@@ -1558,6 +1558,9 @@ proto_register_ouch(void)
      * subtrees used */
     proto_register_field_array(proto_ouch, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the dissector */
+    ouch_handle = register_dissector("ouch", dissect_ouch, proto_ouch);
 }
 
 
@@ -1568,7 +1571,6 @@ proto_register_ouch(void)
 void
 proto_reg_handoff_ouch(void)
 {
-    ouch_handle = create_dissector_handle(dissect_ouch, proto_ouch);
     heur_dissector_add("soupbintcp", dissect_ouch_heur, "OUCH over SoupBinTCP", "ouch_soupbintcp", proto_ouch, HEURISTIC_ENABLE);
     dissector_add_uint_range_with_preference("tcp.port", "", ouch_handle);
 }

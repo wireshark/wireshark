@@ -24,6 +24,8 @@
 void proto_register_lacp(void);
 void proto_reg_handoff_lacp(void);
 
+static dissector_handle_t lacp_handle;
+
 #define VLACP_MAGIC_LACP 0x01010114
 #define VLACP_MAGIC_MARKER 0x02010114
 
@@ -672,14 +674,12 @@ proto_register_lacp(void)
     expert_lacp = expert_register_protocol(proto_lacp);
     expert_register_field_array(expert_lacp, ei, array_length(ei));
 
+    lacp_handle = register_dissector("lacp", dissect_lacp, proto_lacp);
 }
 
 void
 proto_reg_handoff_lacp(void)
 {
-    dissector_handle_t lacp_handle;
-
-    lacp_handle = create_dissector_handle(dissect_lacp, proto_lacp);
     dissector_add_uint("slow.subtype", LACP_SUBTYPE, lacp_handle);
     dissector_add_uint("ethertype", ETHERTYPE_VLACP, lacp_handle);
 }

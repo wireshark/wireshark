@@ -32,6 +32,7 @@ static int hf_nb_rtpmux_cmp_rtp_data          = -1;
 static gint ett_nb_rtpmux = -1;
 static gint ett_nb_rtpmux_cmp_rtp_hdr = -1;
 
+static dissector_handle_t nb_rtpmux_handle;
 static dissector_handle_t rtpdissector;
 
 static int
@@ -230,7 +231,7 @@ proto_register_nb_rtpmux(void)
 
     /* Register the protocol name and description */
     proto_nb_rtpmux = proto_register_protocol("3GPP Nb Interface RTP Multiplex", "NB_RTPMUX", "nb_rtpmux");
-    register_dissector("nb_rtpmux", dissect_nb_rtpmux, proto_nb_rtpmux);
+    nb_rtpmux_handle = register_dissector("nb_rtpmux", dissect_nb_rtpmux, proto_nb_rtpmux);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_nb_rtpmux, hf, array_length(hf));
@@ -240,9 +241,6 @@ proto_register_nb_rtpmux(void)
 void
 proto_reg_handoff_nb_rtpmux(void)
 {
-    dissector_handle_t nb_rtpmux_handle;
-
-    nb_rtpmux_handle = create_dissector_handle(dissect_nb_rtpmux, proto_nb_rtpmux);
     dissector_add_uint_range_with_preference("udp.port", "", nb_rtpmux_handle);
 
     rtpdissector = find_dissector_add_dependency("rtp", proto_nb_rtpmux);

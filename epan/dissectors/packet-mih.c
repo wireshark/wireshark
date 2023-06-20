@@ -26,6 +26,8 @@
 void proto_register_mih(void);
 void proto_reg_handoff_mih(void);
 
+static dissector_handle_t mih_handle;
+
 #define MIH_PORT 4551
 
 #define VERSION_MASK    0xF0
@@ -4856,15 +4858,14 @@ void proto_register_mih(void)
         proto_mih = proto_register_protocol("Media-Independent Handover", "MIH", "mih");
         proto_register_field_array(proto_mih, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
+
+        mih_handle = register_dissector("mih", dissect_mih, proto_mih);
 }
 
 
 /*dissector handoff*/
 void proto_reg_handoff_mih(void)
 {
-        dissector_handle_t mih_handle;
-
-        mih_handle = create_dissector_handle(dissect_mih, proto_mih);
         /*Layer 3 handle*/
         dissector_add_uint_with_preference("udp.port", MIH_PORT, mih_handle);
         dissector_add_uint_with_preference("tcp.port", MIH_PORT, mih_handle);

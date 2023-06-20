@@ -20,6 +20,8 @@
 void proto_register_opsi(void);
 void proto_reg_handoff_opsi(void);
 
+static dissector_handle_t opsi_handle;
+
 /* TCP destination port dedicated to the OPSI protocol */
 #define TCP_PORT_OPSI		4002 /* Not IANA registered */
 
@@ -858,14 +860,15 @@ proto_register_opsi(void)
 		"Reassemble OPSI messages spanning multiple TCP segments",
 		"Whether the OPSI dissector should desegment all messages spanning multiple TCP segments",
 		&opsi_desegment);
+
+/* Register the dissector */
+	opsi_handle = register_dissector("opsi", dissect_opsi, proto_opsi);
 }
 
 
 void
 proto_reg_handoff_opsi(void)
 {
-	dissector_handle_t opsi_handle;
-	opsi_handle = create_dissector_handle(dissect_opsi, proto_opsi);
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_OPSI, opsi_handle);
 }
 

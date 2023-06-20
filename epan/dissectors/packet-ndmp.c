@@ -4203,6 +4203,8 @@ proto_register_ndmp(void)
 	expert_ndmp = expert_register_protocol(proto_ndmp);
 	expert_register_field_array(expert_ndmp, ei, array_length(ei));
 
+	ndmp_handle = register_dissector("ndmp", dissect_ndmp, proto_ndmp);
+
 	/* desegmentation */
 	ndmp_module = prefs_register_protocol(proto_ndmp, NULL);
 	prefs_register_obsolete_preference(ndmp_module, "protocol_version");
@@ -4229,7 +4231,6 @@ proto_register_ndmp(void)
 void
 proto_reg_handoff_ndmp(void)
 {
-	ndmp_handle = create_dissector_handle(dissect_ndmp, proto_ndmp);
 	dissector_add_uint_with_preference("tcp.port",TCP_PORT_NDMP, ndmp_handle);
 	heur_dissector_add("tcp", dissect_ndmp_heur, "NDMP over TCP", "ndmp_tcp", proto_ndmp, HEURISTIC_ENABLE);
 }

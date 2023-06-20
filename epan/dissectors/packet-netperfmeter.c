@@ -23,6 +23,8 @@
 void proto_register_npm(void);
 void proto_reg_handoff_npm(void);
 
+static dissector_handle_t npm_handle;
+
 static int proto_npm              = -1;
 static int tap_npm                = -1;
 static int ett_npm                = -1;
@@ -829,16 +831,16 @@ proto_register_npm(void)
   tap_npm = register_tap("npm");
 
   register_stat_tap_table_ui(&npm_stat_table);
+
+  /* Register the dissector */
+  npm_handle = register_dissector("netperfmeter", dissect_npm, proto_npm);
 }
 
 
 void
 proto_reg_handoff_npm(void)
 {
-  dissector_handle_t npm_handle;
-
   /* NetPerfMeter protocol over SCTP is detected by PPIDs */
-  npm_handle = create_dissector_handle(dissect_npm, proto_npm);
   dissector_add_uint("sctp.ppi", PPID_NETPERFMETER_CONTROL_LEGACY, npm_handle);
   dissector_add_uint("sctp.ppi", PPID_NETPERFMETER_DATA_LEGACY,    npm_handle);
   dissector_add_uint("sctp.ppi", NPMP_CTRL_PAYLOAD_PROTOCOL_ID,    npm_handle);

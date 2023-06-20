@@ -19,6 +19,8 @@
 void proto_register_kdsp(void);
 void proto_reg_handoff_kdsp(void);
 
+static dissector_handle_t kdsp_handle;
+
 #define KDSP_PORT 2502 /* Not IANA registered */
 #define FRAME_HEADER_LEN 12
 
@@ -1125,17 +1127,17 @@ proto_register_kdsp(void)
   expert_register_field_array(expert_kdsp, ei, array_length(ei));
 
   subdissector_dlt_table = register_dissector_table("kdsp.cpt.dlt", "KDSP DLT Type", proto_kdsp, FT_UINT32, BASE_DEC);
+
+  kdsp_handle = register_dissector("kdsp", dissect_kdsp, proto_kdsp);
 }
 
 
 void
 proto_reg_handoff_kdsp(void)
 {
-  dissector_handle_t kdsp_handle;
   dissector_handle_t dlt_handle;
 
   /* XXX - Should be done in respective dissectors? */
-  kdsp_handle = create_dissector_handle(dissect_kdsp, proto_kdsp);
   dlt_handle = find_dissector("radiotap");
   if (dlt_handle)
       dissector_add_uint( "kdsp.cpt.dlt", DATALINK_RADIOTAP, dlt_handle);

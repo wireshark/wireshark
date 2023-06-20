@@ -18,6 +18,8 @@
 void proto_register_ns_mep(void);
 void proto_reg_handoff_ns_mep(void);
 
+static dissector_handle_t nsmep_handle;
+
 static int proto_ns_mep = -1;
 
 static gint ett_nsmep = -1;
@@ -867,15 +869,13 @@ proto_register_ns_mep(void)
 	proto_ns_mep = proto_register_protocol("NetScaler Metric Exchange Protocol", "NetScaler MEP", "nstrace.mep");
 	proto_register_field_array(proto_ns_mep, hf_nsmep, array_length(hf_nsmep));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	nsmep_handle = register_dissector("nstrace.mep", dissect_ns_mep, proto_ns_mep);
 }
 
 void proto_reg_handoff_ns_mep(void)
 {
-	dissector_handle_t nsmep_handle;
-
 	nsrpc_handle = find_dissector_add_dependency("nsrpc", proto_ns_mep);
-
-	nsmep_handle = create_dissector_handle(dissect_ns_mep, proto_ns_mep);
 	dissector_add_for_decode_as("tcp.port", nsmep_handle);
 }
 

@@ -36,6 +36,8 @@
 void proto_register_nhrp(void);
 void proto_reg_handoff_nhrp(void);
 
+static dissector_handle_t nhrp_handle;
+
 /* forward reference */
 static void _dissect_nhrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean nested, gboolean codeinfo);
@@ -1440,18 +1442,17 @@ proto_register_nhrp(void)
                                    &pref_auth_ext_has_addr);
     expert_nhrp = expert_register_protocol(proto_nhrp);
     expert_register_field_array(expert_nhrp, ei, array_length(ei));
+
+    nhrp_handle = register_dissector("nhrp", dissect_nhrp, proto_nhrp);
 }
 
 void
 proto_reg_handoff_nhrp(void)
 {
-    dissector_handle_t nhrp_handle;
-
     osinl_incl_subdissector_table = find_dissector_table("osinl.incl");
     osinl_excl_subdissector_table = find_dissector_table("osinl.excl");
     ethertype_subdissector_table  = find_dissector_table("ethertype");
 
-    nhrp_handle = create_dissector_handle(dissect_nhrp, proto_nhrp);
     dissector_add_uint("ip.proto", IP_PROTO_NARP, nhrp_handle);
     dissector_add_uint("gre.proto", GRE_NHRP, nhrp_handle);
     dissector_add_uint("llc.iana_pid", IANA_PID_MARS_NHRP_CONTROL, nhrp_handle);

@@ -24,6 +24,8 @@
 void proto_register_obdii(void);
 void proto_reg_handoff_obdii(void);
 
+static dissector_handle_t obdii_handle;
+
 static int proto_obdii = -1;
 
 static int ett_obdii = -1;
@@ -1748,17 +1750,15 @@ proto_register_obdii(void)
 
 	expert_obdii = expert_register_protocol(proto_obdii);
 	expert_register_field_array(expert_obdii, obdii_ei, array_length(obdii_ei));
+
+	obdii_handle = register_dissector("obd-ii", dissect_obdii_iso15765, proto_obdii);
+	register_dissector("obd-ii-uds", dissect_obdii_uds, proto_obdii);
 }
 
 void
 proto_reg_handoff_obdii(void)
 {
-	dissector_handle_t obdii_handle;
-
-	obdii_handle = create_dissector_handle(dissect_obdii_iso15765, proto_obdii);
 	dissector_add_for_decode_as("iso15765.subdissector", obdii_handle);
-
-	register_dissector("obd-ii-uds", dissect_obdii_uds, proto_obdii);
 
 	/* heuristics default off since these standardized IDs might be reused outside automotive systems */
 	heur_dissector_add("can", dissect_obdii_heur, "OBD-II Heuristic", "obd-ii_can_heur", proto_obdii, HEURISTIC_DISABLE);

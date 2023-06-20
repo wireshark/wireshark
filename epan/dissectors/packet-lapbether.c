@@ -24,6 +24,7 @@ static int hf_lapbether_length = -1;
 
 static gint ett_lapbether = -1;
 
+static dissector_handle_t lapbether_handle;
 static dissector_handle_t lapb_handle;
 
 static int
@@ -72,21 +73,19 @@ proto_register_lapbether(void)
         "LAPBETHER", "lapbether");
     proto_register_field_array (proto_lapbether, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+  lapbether_handle = register_dissector("lapbether", dissect_lapbether, proto_lapbether);
 }
 
 /* The registration hand-off routine */
 void
 proto_reg_handoff_lapbether(void)
 {
-  dissector_handle_t lapbether_handle;
-
   /*
    * Get a handle for the LAPB dissector.
    */
   lapb_handle = find_dissector_add_dependency("lapb", proto_lapbether);
 
-  lapbether_handle = create_dissector_handle(dissect_lapbether,
-                                             proto_lapbether);
   dissector_add_uint("ethertype", ETHERTYPE_DEC, lapbether_handle);
 
 }

@@ -911,6 +911,10 @@ void proto_register_optommp(void)
     proto_optommp = proto_register_protocol("OptoMMP", "OptoMMP", "optommp");
     proto_register_field_array(proto_optommp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    /* The dissectors */
+    optommp_tcp_handle = register_dissector("optommp.tcp", dissect_optommp_reassemble_tcp, proto_optommp);
+    optommp_udp_handle = register_dissector("optommp.udp", dissect_optommp_reassemble_udp, proto_optommp);
 }
 
 /****************************************************************************
@@ -920,9 +924,6 @@ purpose:        plug into wireshark with a handle
 ****************************************************************************/
 void proto_reg_handoff_optommp(void)
 {
-    optommp_tcp_handle = create_dissector_handle(dissect_optommp_reassemble_tcp, proto_optommp);
-    optommp_udp_handle = create_dissector_handle(dissect_optommp_reassemble_udp, proto_optommp);
-
     dissector_add_for_decode_as_with_preference("tcp.port", optommp_tcp_handle);
     dissector_add_for_decode_as_with_preference("udp.port", optommp_udp_handle);
 }

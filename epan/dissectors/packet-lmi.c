@@ -28,6 +28,8 @@
 void proto_register_lmi(void);
 void proto_reg_handoff_lmi(void);
 
+static dissector_handle_t lmi_handle;
+
 static int proto_lmi = -1;
 static int hf_lmi_call_ref = -1;
 static int hf_lmi_msg_type = -1;
@@ -218,14 +220,12 @@ proto_register_lmi(void)
     proto_register_field_array (proto_lmi, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    lmi_handle = register_dissector("lmi", dissect_lmi, proto_lmi);
 }
 
 void
 proto_reg_handoff_lmi(void)
 {
-    dissector_handle_t lmi_handle;
-
-    lmi_handle = create_dissector_handle(dissect_lmi, proto_lmi);
     dissector_add_uint("fr.nlpid", NLPID_LMI, lmi_handle);
 }
 

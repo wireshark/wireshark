@@ -42,6 +42,8 @@ static gboolean response_is_continuation(const guchar * data);
 void proto_reg_handoff_kismet(void);
 void proto_register_kismet(void);
 
+static dissector_handle_t kismet_handle;
+
 static int
 dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data _U_)
 {
@@ -317,15 +319,13 @@ proto_register_kismet(void)
 	proto_register_subtree_array(ett, array_length (ett));
 	expert_kismet = expert_register_protocol(proto_kismet);
 	expert_register_field_array(expert_kismet, ei, array_length(ei));
+
+	kismet_handle = register_dissector("kismet", dissect_kismet, proto_kismet);
 }
 
 void
 proto_reg_handoff_kismet(void)
 {
-	dissector_handle_t kismet_handle;
-
-	kismet_handle = create_dissector_handle(dissect_kismet, proto_kismet);
-
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_KISMET, kismet_handle);
 }
 

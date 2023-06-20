@@ -26,6 +26,8 @@
 void proto_register_mrp_msrp(void);
 void proto_reg_handoff_mrp_msrp(void);
 
+static dissector_handle_t msrp_handle;
+
 /* MSRP End Mark Sequence */
 #define MSRP_END_MARK       0x0000
 
@@ -770,14 +772,14 @@ proto_register_mrp_msrp(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_msrp = expert_register_protocol(proto_msrp);
     expert_register_field_array(expert_msrp, ei, array_length(ei));
+
+    /* Register the dissector */
+    msrp_handle = register_dissector("mrp-msrp", dissect_msrp, proto_msrp);
 }
 
 void
 proto_reg_handoff_mrp_msrp(void)
 {
-    dissector_handle_t msrp_handle;
-
-    msrp_handle = create_dissector_handle(dissect_msrp, proto_msrp);
     dissector_add_uint("ethertype", ETHERTYPE_MSRP, msrp_handle);
 }
 

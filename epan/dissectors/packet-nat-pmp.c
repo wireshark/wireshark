@@ -32,6 +32,9 @@
 void proto_register_nat_pmp(void);
 void proto_reg_handoff_nat_pmp(void);
 
+static dissector_handle_t nat_pmp_handle;
+static dissector_handle_t pcp_handle;
+
 #define PCP_PORT_RANGE  "5350-5351"
 
 /* NAT Port opcodes */
@@ -886,6 +889,8 @@ void proto_register_nat_pmp(void)
   expert_nat_pmp = expert_register_protocol(proto_nat_pmp);
   expert_register_field_array(expert_nat_pmp, natpmp_ei, array_length(natpmp_ei));
 
+  nat_pmp_handle = register_dissector("nat-pmp", dissect_nat_pmp, proto_nat_pmp);
+
   proto_pcp = proto_register_protocol("Port Control Protocol", "Port Control", "portcontrol");
 
   proto_register_field_array(proto_pcp, pcp_hf, array_length(pcp_hf));
@@ -893,17 +898,13 @@ void proto_register_nat_pmp(void)
   expert_pcp = expert_register_protocol(proto_pcp);
   expert_register_field_array(expert_pcp, pcp_ei, array_length(pcp_ei));
 
+  pcp_handle = register_dissector("portcontrol", dissect_portcontrol, proto_pcp);
 }
 
 void proto_reg_handoff_nat_pmp(void)
 {
-  dissector_handle_t nat_pmp_handle;
-  dissector_handle_t pcp_handle;
-
-  pcp_handle = create_dissector_handle(dissect_portcontrol, proto_pcp);
   dissector_add_uint_range_with_preference("udp.port", PCP_PORT_RANGE, pcp_handle);
 
-  nat_pmp_handle = create_dissector_handle(dissect_nat_pmp, proto_nat_pmp);
   /* Port Control Protocol (packet-portcontrol.c) shares the same UDP ports as
      NAT-PMP, but it backwards compatible.  However, still let NAT-PMP
      use Decode As

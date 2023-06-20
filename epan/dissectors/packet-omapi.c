@@ -39,6 +39,8 @@
 void proto_register_omapi(void);
 void proto_reg_handoff_omapi(void);
 
+static dissector_handle_t omapi_handle;
+
 static int proto_omapi = -1;
 static int hf_omapi_version = -1;
 static int hf_omapi_hlength = -1;
@@ -298,14 +300,13 @@ proto_register_omapi(void)
   proto_omapi = proto_register_protocol("ISC Object Management API", "OMAPI", "omapi");
   proto_register_field_array(proto_omapi, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  omapi_handle = register_dissector("omapi", dissect_omapi, proto_omapi);
 }
 
 void
 proto_reg_handoff_omapi(void)
 {
-  dissector_handle_t omapi_handle;
-
-  omapi_handle = create_dissector_handle(dissect_omapi, proto_omapi);
   dissector_add_uint_with_preference("tcp.port", OMAPI_PORT, omapi_handle);
 }
 

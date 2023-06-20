@@ -916,6 +916,9 @@ proto_register_ldss (void) {
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_ldss = expert_register_protocol(proto_ldss);
 	expert_register_field_array(expert_ldss, ei, array_length(ei));
+
+	ldss_udp_handle = register_dissector("ldss", dissect_ldss, proto_ldss);
+	ldss_tcp_handle = register_dissector("ldss_transfer", dissect_ldss_transfer, proto_ldss);
 }
 
 
@@ -923,8 +926,6 @@ proto_register_ldss (void) {
 void
 proto_reg_handoff_ldss (void)
 {
-	ldss_udp_handle = create_dissector_handle(dissect_ldss, proto_ldss);
-	ldss_tcp_handle = create_dissector_handle(dissect_ldss_transfer, proto_ldss);
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_LDSS, ldss_udp_handle);
 }
 

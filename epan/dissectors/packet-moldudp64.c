@@ -20,6 +20,8 @@
 void proto_register_moldudp64(void);
 void proto_reg_handoff_moldudp64(void);
 
+static dissector_handle_t moldudp64_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_moldudp64       = -1;
 static int hf_moldudp64_session  = -1;
@@ -256,15 +258,15 @@ proto_register_moldudp64(void)
 
     moldudp64_payload_table = register_decode_as_next_proto(proto_moldudp64, "moldudp64.payload",
                                                             "MoldUDP64 Payload", moldudp64_prompt);
+
+    /* Register the dissector */
+    moldudp64_handle = register_dissector("moldudp64", dissect_moldudp64, proto_moldudp64);
 }
 
 
 void
 proto_reg_handoff_moldudp64(void)
 {
-    dissector_handle_t moldudp64_handle;
-
-    moldudp64_handle = create_dissector_handle(dissect_moldudp64, proto_moldudp64);
     dissector_add_for_decode_as_with_preference("udp.port", moldudp64_handle);
 }
 

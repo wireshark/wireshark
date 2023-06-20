@@ -21,6 +21,8 @@
 void proto_register_netsync(void);
 void proto_reg_handoff_netsync(void);
 
+static dissector_handle_t netsync_handle;
+
 /*
  * See
  *
@@ -708,15 +710,12 @@ proto_register_netsync(void)
 		" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 		&netsync_desegment);
 
+	netsync_handle = register_dissector("netsync", dissect_netsync, proto_netsync);
 }
 
 void
 proto_reg_handoff_netsync(void)
 {
-	dissector_handle_t netsync_handle;
-
-	netsync_handle = create_dissector_handle(dissect_netsync, proto_netsync);
-
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_NETSYNC, netsync_handle);
 }
 

@@ -19,6 +19,8 @@
 void proto_register_msnms(void);
 void proto_reg_handoff_msnms(void);
 
+static dissector_handle_t msnms_handle;
+
 /*
  * The now-expired Internet-Draft for the MSN Messenger 1.0 protocol
  * can, as of the time of the writing of this comment, be found at:
@@ -113,14 +115,13 @@ proto_register_msnms(void)
 
     proto_msnms = proto_register_protocol("MSN Messenger Service", "MSNMS", "msnms");
     proto_register_subtree_array(ett, array_length(ett));
+
+    msnms_handle = register_dissector("msnms", dissect_msnms, proto_msnms);
 }
 
 void
 proto_reg_handoff_msnms(void)
 {
-    dissector_handle_t msnms_handle;
-
-    msnms_handle = create_dissector_handle(dissect_msnms, proto_msnms);
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_MSNMS, msnms_handle);
     /*
      * For MSN Messenger Protocol over HTTP

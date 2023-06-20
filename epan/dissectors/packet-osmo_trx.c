@@ -26,6 +26,9 @@
 void proto_register_osmo_trx(void);
 void proto_reg_handoff_osmo_trx(void);
 
+static dissector_handle_t otrxd_handle;
+static dissector_handle_t otrxc_handle;
+
 /* Which kind of message it is */
 static int proto_otrxd = -1;
 static int proto_otrxc = -1;
@@ -957,16 +960,14 @@ void proto_register_osmo_trx(void)
 	/* Expert info for OsmoTRXC protocol */
 	expert_module_t *expert_otrxc = expert_register_protocol(proto_otrxc);
 	expert_register_field_array(expert_otrxc, ei_otrxc, array_length(ei_otrxc));
+
+	/* Register the dissectors */
+	otrxd_handle = register_dissector("osmo_trxd", dissect_otrxd, proto_otrxd);
+	otrxc_handle = register_dissector("osmo_trxc", dissect_otrxc, proto_otrxc);
 }
 
 void proto_reg_handoff_osmo_trx(void)
 {
-	dissector_handle_t otrxd_handle;
-	dissector_handle_t otrxc_handle;
-
-	otrxd_handle = create_dissector_handle(dissect_otrxd, proto_otrxd);
-	otrxc_handle = create_dissector_handle(dissect_otrxc, proto_otrxc);
-
 #if 0
 /* The TRX-side control interface for C(N) is on port P = B + 2N + 1;
  * the corresponding core-side interface for every socket is at P + 100.

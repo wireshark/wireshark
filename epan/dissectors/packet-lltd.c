@@ -18,6 +18,8 @@
 void proto_register_lltd(void);
 void proto_reg_handoff_lltd(void);
 
+static dissector_handle_t lltd_handle;
+
 static int proto_lltd = -1;
 
 static int hf_lltd_version                  = -1;
@@ -942,13 +944,13 @@ proto_register_lltd(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_lltd = expert_register_protocol(proto_lltd);
     expert_register_field_array(expert_lltd, ei, array_length(ei));
+
+    lltd_handle = register_dissector("lltd", dissect_lltd, proto_lltd);
 }
 
 void
 proto_reg_handoff_lltd(void)
 {
-    dissector_handle_t lltd_handle;
-    lltd_handle = create_dissector_handle(dissect_lltd, proto_lltd);
     dissector_add_uint("ethertype", ETHERTYPE_LLTD, lltd_handle);
 }
 

@@ -1245,7 +1245,7 @@ proto_register_msproxy( void){
 	expert_msproxy = expert_register_protocol(proto_msproxy);
 	expert_register_field_array(expert_msproxy, ei, array_length(ei));
 
-	msproxy_sub_handle = create_dissector_handle(msproxy_sub_dissector,
+	msproxy_sub_handle = register_dissector("msproxy", msproxy_sub_dissector,
 		proto_msproxy);
 }
 

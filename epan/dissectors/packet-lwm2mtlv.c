@@ -29,6 +29,8 @@
 void proto_register_lwm2mtlv(void);
 void proto_reg_handoff_lwm2mtlv(void);
 
+static dissector_handle_t lwm2mtlv_handle;
+
 static int proto_lwm2mtlv = -1;
 
 static int hf_lwm2mtlv_object_name               = -1;
@@ -1177,7 +1179,7 @@ void proto_register_lwm2mtlv(void)
 	proto_register_field_array(proto_lwm2mtlv, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	register_dissector("lwm2mtlv", dissect_lwm2mtlv, proto_lwm2mtlv);
+	lwm2mtlv_handle = register_dissector("lwm2mtlv", dissect_lwm2mtlv, proto_lwm2mtlv);
 
 	/* Register the dissector shutdown function */
 	register_shutdown_routine(lwm2m_shutdown_routine);
@@ -1200,9 +1202,6 @@ void proto_register_lwm2mtlv(void)
 void
 proto_reg_handoff_lwm2mtlv(void)
 {
-	static dissector_handle_t lwm2mtlv_handle;
-
-	lwm2mtlv_handle = create_dissector_handle(dissect_lwm2mtlv, proto_lwm2mtlv);
 	dissector_add_string("media_type", "application/vnd.oma.lwm2m+tlv", lwm2mtlv_handle);
 }
 

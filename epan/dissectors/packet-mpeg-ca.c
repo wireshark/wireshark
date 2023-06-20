@@ -18,6 +18,8 @@
 void proto_register_mpeg_ca(void);
 void proto_reg_handoff_mpeg_ca(void);
 
+static dissector_handle_t mpeg_ca_handle;
+
 static int proto_mpeg_ca = -1;
 static int hf_mpeg_ca_reserved = -1;
 static int hf_mpeg_ca_version_number = -1;
@@ -118,14 +120,12 @@ proto_register_mpeg_ca(void)
     proto_register_field_array(proto_mpeg_ca, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    mpeg_ca_handle = register_dissector("mpeg_ca", dissect_mpeg_ca, proto_mpeg_ca);
 }
 
 
 void proto_reg_handoff_mpeg_ca(void)
 {
-    dissector_handle_t mpeg_ca_handle;
-
-    mpeg_ca_handle = create_dissector_handle(dissect_mpeg_ca, proto_mpeg_ca);
     dissector_add_uint("mpeg_sect.tid", MPEG_CA_TID, mpeg_ca_handle);
 }
 

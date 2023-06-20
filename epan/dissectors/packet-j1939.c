@@ -22,6 +22,8 @@
 void proto_register_j1939(void);
 void proto_reg_handoff_j1939(void);
 
+static dissector_handle_t j1939_handle;
+
 static int proto_j1939 = -1;
 
 static int hf_j1939_can_id = -1;
@@ -341,14 +343,13 @@ void proto_register_j1939(void)
     subdissector_pgn_table = register_dissector_table("j1939.pgn", "PGN Handle", proto_j1939, FT_UINT32, BASE_DEC);
 
     j1939_address_type = address_type_dissector_register("AT_J1939", "J1939 Address", J1939_addr_to_str, J1939_addr_str_len, NULL, J1939_col_filter_str, J1939_addr_len, NULL, NULL);
+
+    j1939_handle = register_dissector("j1939",  dissect_j1939, proto_j1939 );
 }
 
 void
 proto_reg_handoff_j1939(void)
 {
-    dissector_handle_t j1939_handle;
-
-    j1939_handle = create_dissector_handle( dissect_j1939, proto_j1939 );
     dissector_add_for_decode_as("can.subdissector", j1939_handle );
 }
 

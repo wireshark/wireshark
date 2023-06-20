@@ -33,6 +33,7 @@ VALUE_STRING_ARRAY2(portal_index);
 void proto_reg_handoff_lnet(void);
 void proto_register_lnet(void);
 
+static dissector_handle_t lnet_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_lnet = -1;
@@ -1053,6 +1054,8 @@ proto_register_lnet(void)
     expert_lnet = expert_register_protocol(proto_lnet);
     expert_register_field_array(expert_lnet, ei, array_length(ei));
 
+    lnet_handle = register_dissector("lnet", dissect_lnet, proto_lnet);
+
     subdissector_table = register_dissector_table("lnet.ptl_index", "lnet portal index",
                                                   proto_lnet,
                                                   FT_UINT32 , BASE_DEC);
@@ -1061,13 +1064,10 @@ proto_register_lnet(void)
 void
 proto_reg_handoff_lnet(void)
 {
-    dissector_handle_t lnet_handle;
-
     heur_dissector_add("infiniband.payload", dissect_lnet_ib_heur, "LNet over IB",
                         "lnet_ib", proto_lnet, HEURISTIC_ENABLE);
     heur_dissector_add("infiniband.mad.cm.private", dissect_lnet_ib_heur, "LNet over IB CM",
                         "lnet_ib_cm_private",  proto_lnet, HEURISTIC_ENABLE);
-    lnet_handle = create_dissector_handle(dissect_lnet, proto_lnet);
     dissector_add_for_decode_as("infiniband", lnet_handle);
     dissector_add_uint_with_preference("tcp.port", LNET_TCP_PORT, lnet_handle);
 }

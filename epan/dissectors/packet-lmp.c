@@ -2607,13 +2607,14 @@ proto_register_lmp(void)
     proto_register_field_array(proto_lmp, lmpf_info, array_length(lmpf_info));
     proto_register_subtree_array(ett, array_length(ett));
 
+    lmp_handle = register_dissector("lmp", dissect_lmp, proto_lmp);
+
     register_lmp_prefs();
 }
 
 void
 proto_reg_handoff_lmp(void)
 {
-    lmp_handle = create_dissector_handle(dissect_lmp, proto_lmp);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_LMP_DEFAULT, lmp_handle);
 }
 

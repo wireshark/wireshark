@@ -211,6 +211,8 @@
 void proto_reg_handoff_nordic_ble(void);
 void proto_register_nordic_ble(void);
 
+static dissector_handle_t nordic_ble_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_nordic_ble = -1;
 
@@ -945,7 +947,7 @@ proto_register_nordic_ble(void)
 
     proto_nordic_ble = proto_register_protocol("nRF Sniffer for Bluetooth LE", "NORDIC_BLE", "nordic_ble");
 
-    register_dissector("nordic_ble", dissect_nordic_ble, proto_nordic_ble);
+    nordic_ble_handle = register_dissector("nordic_ble", dissect_nordic_ble, proto_nordic_ble);
 
     expert_nordic_ble = expert_register_protocol(proto_nordic_ble);
     expert_register_field_array(expert_nordic_ble, ei, array_length(ei));
@@ -957,10 +959,6 @@ proto_register_nordic_ble(void)
 void
 proto_reg_handoff_nordic_ble(void)
 {
-    dissector_handle_t nordic_ble_handle;
-
-    nordic_ble_handle = create_dissector_handle(dissect_nordic_ble, proto_nordic_ble);
-
     btle_dissector_handle = find_dissector("btle");
     debug_handle = find_dissector("nordic_debug");
 

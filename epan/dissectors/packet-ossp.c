@@ -28,6 +28,8 @@
 void proto_register_ossp(void);
 void proto_reg_handoff_ossp(void);
 
+static dissector_handle_t ossp_handle;
+
 /*
  * ESMC
  */
@@ -754,14 +756,15 @@ proto_register_ossp(void)
     prefs_register_enum_preference(prefs_ossp, "option_network",
         "Regional option", "Select the option of the network to interpret the Quality Level for",
         &pref_option_network, pref_option_network_vals, TRUE);
+
+    /* Register the dissector */
+
+    ossp_handle = register_dissector("ossp", dissect_ossp_pdu, proto_ossp);
 }
 
 void
 proto_reg_handoff_ossp(void)
 {
-    dissector_handle_t ossp_handle;
-
-    ossp_handle = create_dissector_handle(dissect_ossp_pdu, proto_ossp);
     dissector_add_uint("slow.subtype", OSSP_SUBTYPE, ossp_handle);
 }
 

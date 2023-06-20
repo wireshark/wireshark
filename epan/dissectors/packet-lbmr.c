@@ -6502,6 +6502,8 @@ void proto_register_lbmr(void)
     expert_lbmr = expert_register_protocol(proto_lbmr);
     expert_register_field_array(expert_lbmr, ei, array_length(ei));
 
+    lbmr_dissector_handle = register_dissector("lbmr", dissect_lbmr, proto_lbmr);
+
     lbmr_module = prefs_register_protocol_subtree("29West", proto_lbmr, proto_reg_handoff_lbmr);
     prefs_register_uint_preference(lbmr_module,
         "mc_incoming_port",
@@ -6677,7 +6679,6 @@ void proto_reg_handoff_lbmr(void)
 
     if (!already_registered)
     {
-        lbmr_dissector_handle = create_dissector_handle(dissect_lbmr, proto_lbmr);
         dissector_add_for_decode_as_with_preference("udp.port", lbmr_dissector_handle);
         heur_dissector_add("udp", test_lbmr_packet, "LBM Topic Resolution over UDP", "lbmr_udp", proto_lbmr, HEURISTIC_ENABLE);
     }

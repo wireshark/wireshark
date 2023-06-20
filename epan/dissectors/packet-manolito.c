@@ -19,6 +19,8 @@
 void proto_register_manolito(void);
 void proto_reg_handoff_manolito(void);
 
+static dissector_handle_t manolito_handle;
+
 #define MANOLITO_PORT   41170 /* Not IANA registered */
 
 static int proto_manolito = -1;
@@ -276,15 +278,14 @@ proto_register_manolito(void)
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_manolito = expert_register_protocol(proto_manolito);
 	expert_register_field_array(expert_manolito, ei, array_length(ei));
+
+	manolito_handle = register_dissector("manolito", dissect_manolito, proto_manolito);
 }
 
 
 void
 proto_reg_handoff_manolito(void)
 {
-	dissector_handle_t manolito_handle;
-
-	manolito_handle = create_dissector_handle(dissect_manolito, proto_manolito);
 	dissector_add_uint_with_preference("udp.port", MANOLITO_PORT, manolito_handle);
 }
 

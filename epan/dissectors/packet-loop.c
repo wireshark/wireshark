@@ -28,6 +28,8 @@
 void proto_register_loop(void);
 void proto_reg_handoff_loop(void);
 
+static dissector_handle_t loop_handle;
+
 static int proto_loop = -1;
 static int hf_loop_skipcount = -1;
 static int hf_loop_function = -1;
@@ -152,15 +154,13 @@ proto_register_loop(void)
                                        "LOOP", "loop");
   proto_register_field_array(proto_loop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  loop_handle = register_dissector("loop", dissect_loop, proto_loop);
 }
 
 void
 proto_reg_handoff_loop(void)
 {
-  dissector_handle_t loop_handle;
-
-  loop_handle = create_dissector_handle(dissect_loop, proto_loop);
-
   dissector_add_uint("ethertype", ETHERTYPE_LOOP, loop_handle);
 }
 

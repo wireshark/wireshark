@@ -23,6 +23,8 @@
 void proto_register_kink(void);
 void proto_reg_handoff_kink(void);
 
+static dissector_handle_t kink_handle;
+
 #define KINK_PORT       910
 
 #define KINK_ISAKMP_PAYLOAD_BASE 14
@@ -974,16 +976,11 @@ proto_register_kink(void) {
   expert_kink = expert_register_protocol(proto_kink);
   expert_register_field_array(expert_kink, ei, array_length(ei));
 
+  kink_handle = register_dissector("kink", dissect_kink, proto_kink);
 }
 
 void proto_reg_handoff_kink(void) {
-
-  dissector_handle_t kink_handle;
-
-  kink_handle = create_dissector_handle(dissect_kink, proto_kink);
-
   dissector_add_uint_with_preference("udp.port", KINK_PORT, kink_handle);
-
 }
 
 /*

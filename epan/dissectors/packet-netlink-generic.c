@@ -537,8 +537,8 @@ proto_register_netlink_generic(void)
 	proto_register_field_array(proto_netlink_generic, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	netlink_generic = create_dissector_handle(dissect_netlink_generic, proto_netlink_generic);
-	netlink_generic_ctrl = create_dissector_handle(dissect_genl_ctrl, proto_netlink_generic);
+	netlink_generic = register_dissector("genl", dissect_netlink_generic, proto_netlink_generic);
+	netlink_generic_ctrl = register_dissector("genl_ctrl", dissect_genl_ctrl, proto_netlink_generic);
 	genl_dissector_table = register_dissector_table(
 		"genl.family",
 		"Linux Generic Netlink family name",

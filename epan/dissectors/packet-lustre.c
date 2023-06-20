@@ -23,6 +23,8 @@
 void proto_reg_handoff_lustre(void);
 void proto_register_lustre(void);
 
+static dissector_handle_t lustre_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_lustre = -1;
 
@@ -6798,8 +6800,6 @@ dissect_lustre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 void
 proto_reg_handoff_lustre(void)
 {
-    dissector_handle_t lustre_handle;
-    lustre_handle = create_dissector_handle(dissect_lustre, proto_lustre);
     /* we use Lustre only if we get ptl_index = One of this code (we have removed the bulk code) */
     /* in LNET we test if the message is a put or not before adding an lnet.ptl_index value */
     dissector_add_uint("lnet.ptl_index", MDC_REPLY_PORTAL,              lustre_handle);
@@ -8580,6 +8580,8 @@ proto_register_lustre(void)
 
     expert_lustre = expert_register_protocol(proto_lustre);
     expert_register_field_array(expert_lustre, ei, array_length(ei));
+
+    lustre_handle = register_dissector("lustre", dissect_lustre, proto_lustre);
 }
 
 /*

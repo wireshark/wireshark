@@ -28,6 +28,8 @@
 void proto_register_ntp(void);
 void proto_reg_handoff_ntp(void);
 
+static dissector_handle_t ntp_handle;
+
 /*
  * Dissecting NTP packets version 3 and 4 (RFC5905, RFC2030, RFC1769, RFC1361,
  * RFC1305).
@@ -3572,15 +3574,14 @@ proto_register_ntp(void)
 	expert_ntp = expert_register_protocol(proto_ntp);
 	expert_register_field_array(expert_ntp, ei, array_length(ei));
 
+	ntp_handle = register_dissector("ntp", dissect_ntp, proto_ntp);
+
 	init_parser();
 }
 
 void
 proto_reg_handoff_ntp(void)
 {
-	dissector_handle_t ntp_handle;
-
-	ntp_handle = create_dissector_handle(dissect_ntp, proto_ntp);
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_NTP, ntp_handle);
 	dissector_add_uint_with_preference("tcp.port", TCP_PORT_NTP, ntp_handle);
 }

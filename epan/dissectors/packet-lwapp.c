@@ -22,6 +22,9 @@
 void proto_register_lwapp(void);
 void proto_reg_handoff_lwapp(void);
 
+static dissector_handle_t lwapp_l3_handle;
+static dissector_handle_t lwapp_handle;
+
 #define LWAPP_8023_PORT     12220 /* Not IANA registered */
 #define LWAPP_UDP_PORT_RANGE  "12222-12223" /* Not IANA registered */
 
@@ -539,26 +542,22 @@ proto_register_lwapp(void)
                                    "Swap frame control bytes (needed for some APs).",
                                    &swap_frame_control);
 
+    /* This dissector assumes lwapp packets in an 802.3 frame */
+    lwapp_l3_handle = register_dissector("lwapp-l3", dissect_lwapp_l3, proto_lwapp_l3);
+
+    /* This dissector assumes a lwapp packet */
+    lwapp_handle = register_dissector("lwapp", dissect_lwapp, proto_lwapp);
 }
 
 void
 proto_reg_handoff_lwapp(void)
 {
-    dissector_handle_t lwapp_l3_handle;
-    dissector_handle_t lwapp_handle;
-
     /*
      * Get handles for the Ethernet and wireless dissectors.
      */
     eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_lwapp);
     wlan_handle = find_dissector_add_dependency("wlan_withoutfcs", proto_lwapp);
     wlan_bsfc_handle = find_dissector_add_dependency("wlan_bsfc", proto_lwapp);
-
-    /* This dissector assumes lwapp packets in an 802.3 frame */
-    lwapp_l3_handle = create_dissector_handle(dissect_lwapp_l3, proto_lwapp_l3);
-
-    /* This dissector assumes a lwapp packet */
-    lwapp_handle = create_dissector_handle(dissect_lwapp, proto_lwapp);
 
     /*
      * Ok, the following deserves some comments.  We have four

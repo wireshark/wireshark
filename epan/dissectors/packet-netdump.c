@@ -16,6 +16,8 @@
 void proto_register_netdump(void);
 void proto_reg_handoff_netdump(void);
 
+static dissector_handle_t netdump_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_netdump = -1;
 static int hf_netdump_magic_number = -1;
@@ -162,14 +164,12 @@ void proto_register_netdump(void)
 	proto_netdump = proto_register_protocol ("Netdump Protocol", "Netdump", "netdump" );
 	proto_register_field_array(proto_netdump, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	netdump_handle = register_dissector("netdump", dissect_netdump, proto_netdump);
 }
 
 void proto_reg_handoff_netdump(void)
 {
-	dissector_handle_t netdump_handle;
-
-	netdump_handle = create_dissector_handle(dissect_netdump, proto_netdump);
-
 	dissector_add_for_decode_as_with_preference("udp.port", netdump_handle);
 }
 

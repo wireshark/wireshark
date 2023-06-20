@@ -22,6 +22,8 @@
 void proto_register_llrp(void);
 void proto_reg_handoff_llrp(void);
 
+static dissector_handle_t llrp_handle;
+
 #define LLRP_PORT 5084
 
 /* Initialize the protocol and registered fields */
@@ -4002,14 +4004,13 @@ proto_register_llrp(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_llrp = expert_register_protocol(proto_llrp);
     expert_register_field_array(expert_llrp, ei, array_length(ei));
+
+    llrp_handle = register_dissector("llrp", dissect_llrp, proto_llrp);
 }
 
 void
 proto_reg_handoff_llrp(void)
 {
-    dissector_handle_t llrp_handle;
-
-    llrp_handle = create_dissector_handle(dissect_llrp, proto_llrp);
     dissector_add_uint_with_preference("tcp.port", LLRP_PORT, llrp_handle);
 }
 

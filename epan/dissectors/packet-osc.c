@@ -296,6 +296,7 @@ static const char *bundle_str = "#bundle";
 
 /* Initialize the protocol and registered fields */
 static dissector_handle_t osc_udp_handle = NULL;
+static dissector_handle_t osc_tcp_handle = NULL;
 
 static int proto_osc = -1;
 
@@ -1271,18 +1272,16 @@ proto_register_osc(void)
 
     proto_register_field_array(proto_osc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    osc_tcp_handle = register_dissector("osc.tcp", dissect_osc_tcp, proto_osc);
+    osc_udp_handle = register_dissector("osc.udp", dissect_osc_udp, proto_osc);
 }
 
 void
 proto_reg_handoff_osc(void)
 {
-    dissector_handle_t osc_tcp_handle;
-
-    osc_tcp_handle = create_dissector_handle(dissect_osc_tcp, proto_osc);
-
     /* XXX: Add port pref and  "decode as" for UDP ? */
     /*      (The UDP heuristic is a bit expensive    */
-    osc_udp_handle = create_dissector_handle(dissect_osc_udp, proto_osc);
     /* register as heuristic dissector for UDP connections */
     heur_dissector_add("udp", dissect_osc_heur_udp, "Open Sound Control over UDP", "osc_udp", proto_osc, HEURISTIC_DISABLE);
 

@@ -23,6 +23,7 @@
 void proto_register_l1_events(void);
 void proto_reg_handoff_l1_events(void);
 
+static dissector_handle_t l1_events_handle;
 /*
  * dissector for line-based text messages from layer 1
  */
@@ -92,13 +93,13 @@ proto_register_l1_events(void)
 			"Layer 1 Event Messages", /* Long name */
 			"Layer 1 Events",	  /* Short name */
 			"data-l1-events");		/* Filter name */
+
+	l1_events_handle = register_dissector("data-l1-events", dissect_l1_events, proto_l1_events);
 }
 
 void
 proto_reg_handoff_l1_events(void)
 {
-	dissector_handle_t l1_events_handle = create_dissector_handle(dissect_l1_events, proto_l1_events);
-
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_LAYER1_EVENT, l1_events_handle); /* for text msgs from trace files */
 }
 

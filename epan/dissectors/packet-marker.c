@@ -23,6 +23,8 @@
 void proto_register_marker(void);
 void proto_reg_handoff_marker(void);
 
+static dissector_handle_t marker_handle;
+
 /* MARKER TLVs subtype */
 #define MARKER_TERMINATOR               0x0
 #define MARKERPDU_MARKER_INFO           0x1
@@ -215,14 +217,12 @@ proto_register_marker(void)
     expert_marker = expert_register_protocol(proto_marker);
     expert_register_field_array(expert_marker, ei, array_length(ei));
 
+    marker_handle = register_dissector("marker", dissect_marker, proto_marker);
 }
 
 void
 proto_reg_handoff_marker(void)
 {
-    dissector_handle_t marker_handle;
-
-    marker_handle = create_dissector_handle(dissect_marker, proto_marker);
     dissector_add_uint("slow.subtype", MARKER_SUBTYPE, marker_handle);
 }
 

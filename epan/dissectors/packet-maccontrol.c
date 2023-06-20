@@ -25,6 +25,8 @@
 void proto_register_macctrl(void);
 void proto_reg_handoff_macctrl(void);
 
+static dissector_handle_t macctrl_handle;
+
 static int proto_macctrl = -1;
 
 static int hf_macctrl_opcode       = -1;
@@ -373,14 +375,13 @@ proto_register_macctrl(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_macctrl = expert_register_protocol(proto_macctrl);
   expert_register_field_array(expert_macctrl, ei, array_length(ei));
+
+  macctrl_handle = register_dissector("macc", dissect_macctrl, proto_macctrl);
 }
 
 void
 proto_reg_handoff_macctrl(void)
 {
-  dissector_handle_t macctrl_handle;
-
-  macctrl_handle = create_dissector_handle(dissect_macctrl, proto_macctrl);
   dissector_add_uint("ethertype", ETHERTYPE_MAC_CONTROL, macctrl_handle);
 }
 

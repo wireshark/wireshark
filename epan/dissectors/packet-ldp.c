@@ -45,6 +45,8 @@
 void proto_register_ldp(void);
 void proto_reg_handoff_ldp(void);
 
+static dissector_handle_t ldp_tcp_handle, ldp_handle;
+
 static int proto_ldp = -1;
 
 /* Delete the following if you do not use it, or add to it if you need */
@@ -4590,6 +4592,9 @@ proto_register_ldp(void)
     expert_ldp = expert_register_protocol(proto_ldp);
     expert_register_field_array(expert_ldp, ei, array_length(ei));
 
+    ldp_handle = register_dissector("ldp", dissect_ldp, proto_ldp);
+    ldp_tcp_handle = register_dissector("ldp.tcp", dissect_ldp_tcp, proto_ldp);
+
     /* Register our configuration options for , particularly our port */
 
     ldp_module = prefs_register_protocol(proto_ldp, NULL);
@@ -4606,10 +4611,6 @@ proto_register_ldp(void)
 void
 proto_reg_handoff_ldp(void)
 {
-    dissector_handle_t ldp_tcp_handle, ldp_handle;
-
-    ldp_tcp_handle = create_dissector_handle(dissect_ldp_tcp, proto_ldp);
-    ldp_handle = create_dissector_handle(dissect_ldp, proto_ldp);
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_LDP, ldp_tcp_handle);
     dissector_add_uint_with_preference("udp.port", UDP_PORT_LDP, ldp_handle);
 }

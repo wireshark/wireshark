@@ -26,6 +26,8 @@
 void proto_register_m2tp(void);
 void proto_reg_handoff_m2tp(void);
 
+static dissector_handle_t m2tp_handle;
+
 #define SCTP_PORT_M2TP        9908  /* unassigned port number (not assigned by IANA) */
 
 #define VERSION_LENGTH         1
@@ -636,14 +638,15 @@ proto_register_m2tp(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_m2tp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  /* Register the dissector */
+  m2tp_handle = register_dissector("m2tp", dissect_m2tp, proto_m2tp);
 }
 
 void
 proto_reg_handoff_m2tp(void)
 {
-  dissector_handle_t m2tp_handle;
-  mtp2_handle   = find_dissector_add_dependency("mtp2", proto_m2tp);
-  m2tp_handle   = create_dissector_handle(dissect_m2tp, proto_m2tp);
+  mtp2_handle = find_dissector_add_dependency("mtp2", proto_m2tp);
   dissector_add_uint("sctp.ppi",  M2TP_PAYLOAD_PROTOCOL_ID, m2tp_handle);
   dissector_add_uint("sctp.port", SCTP_PORT_M2TP, m2tp_handle);
 }

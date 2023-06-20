@@ -38,6 +38,8 @@
 void proto_register_nsrp(void);
 void proto_reg_handoff_nsrp(void);
 
+static dissector_handle_t nsrp_handle;
+
 #define NSRP_MIN_LEN    32
 
 /* Initialize the protocol and registered fields */
@@ -490,15 +492,14 @@ proto_register_nsrp(void)
                                          "NSRP", "nsrp");
     proto_register_field_array(proto_nsrp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    nsrp_handle = register_dissector("nsrp", dissect_nsrp, proto_nsrp);
 }
 
 
 void
 proto_reg_handoff_nsrp(void)
 {
-    dissector_handle_t nsrp_handle;
-
-    nsrp_handle = create_dissector_handle(dissect_nsrp, proto_nsrp);
     dissector_add_uint("ethertype", ETHERTYPE_NSRP, nsrp_handle);
 }
 

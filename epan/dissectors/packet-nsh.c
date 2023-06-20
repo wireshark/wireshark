@@ -33,6 +33,8 @@
 void proto_reg_handoff_nsh(void);
 void proto_register_nsh(void);
 
+static dissector_handle_t nsh_handle;
+
 static const value_string nsh_next_protocols[] = {
 	{ NSH_NONE, "None" },
 	{ NSH_IPV4, "IPv4" },
@@ -353,14 +355,12 @@ proto_register_nsh(void)
 
 	subdissector_table = register_dissector_table("nsh.next_proto", "NSH Next Protocol", proto_nsh, FT_UINT32, BASE_DEC);
 
+	nsh_handle = register_dissector("nsh", dissect_nsh, proto_nsh);
 }
 
 void
 proto_reg_handoff_nsh(void)
 {
-	static dissector_handle_t nsh_handle;
-
-	nsh_handle = create_dissector_handle(dissect_nsh, proto_nsh);
 	dissector_add_uint("ethertype", ETHERTYPE_NSH, nsh_handle);
 	dissector_add_uint("gre.proto", ETHERTYPE_NSH, nsh_handle);
 	dissector_add_uint("vxlan.next_proto", VXLAN_NSH, nsh_handle);

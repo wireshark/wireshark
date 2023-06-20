@@ -18,6 +18,8 @@
 void proto_register_jmirror(void);
 void proto_reg_handoff_jmirror(void);
 
+static dissector_handle_t jmirror_handle;
+
 #define MIRROR_HDR_SZ           8
 #define MIRROR_ID_SZ            4
 #define SESSION_ID_SZ           4
@@ -164,19 +166,19 @@ proto_register_jmirror(void)
 	/* Register the Jmirror subfields for filters */
 	proto_register_field_array(proto_jmirror, jmirror_hf, array_length(jmirror_hf));
 	proto_register_subtree_array(jmirror_ett, array_length(jmirror_ett));
+
+	/* Create a dissector handle for the Jmirror protocol */
+	jmirror_handle = register_dissector("jmirror", dissect_jmirror, proto_jmirror);
+
 }
 
 /* Create attachment point for dissector in Wireshark */
 void
 proto_reg_handoff_jmirror(void)
 {
-	dissector_handle_t jmirror_handle;
 
 	/* register as heuristic dissector for UDP */
 	/* heur_dissector_add("udp", dissect_jmirror, proto_jmirror); */
-
-	/* Create a dissector handle for the Jmirror protocol */
-	jmirror_handle = create_dissector_handle(dissect_jmirror, proto_jmirror);
 
 	/* Create pointer to ipv4, ipv6, ppp and data dissectors */
 	ipv4_handle = find_dissector_add_dependency("ip", proto_jmirror);

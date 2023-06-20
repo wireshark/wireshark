@@ -17,6 +17,8 @@
 void proto_register_nge(void);
 void proto_reg_handoff_nge(void);
 
+static dissector_handle_t nge_handle;
+
 #define NETGEAR_ENSEMBLE_PORT 4554
 
 static int proto_nge = -1;
@@ -193,14 +195,13 @@ proto_register_nge(void)
 
     proto_register_field_array(proto_nge, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    nge_handle = register_dissector("nge", dissect_nge, proto_nge);
 }
 
 void
 proto_reg_handoff_nge(void)
 {
-    dissector_handle_t nge_handle;
-
-    nge_handle = create_dissector_handle(dissect_nge, proto_nge);
     dissector_add_for_decode_as_with_preference("udp.port", nge_handle);
 }
 

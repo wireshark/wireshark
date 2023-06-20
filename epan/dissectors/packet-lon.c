@@ -22,6 +22,8 @@
 void proto_register_lon(void);
 void proto_reg_handoff_lon(void);
 
+static dissector_handle_t lon_handle;
+
 static const value_string pdu_fmt_vs[]=
 {
 	{0x00, "TPDU"},
@@ -739,16 +741,14 @@ proto_register_lon(void)
 	proto_register_subtree_array (ett, array_length (ett));
 	expert_lon = expert_register_protocol(proto_lon);
 	expert_register_field_array(expert_lon, ei, array_length(ei));
+
+	lon_handle = register_dissector("lon", dissect_lon, proto_lon);
 }
 
 
 void
 proto_reg_handoff_lon(void)
 {
-	dissector_handle_t lon_handle;
-
-	lon_handle = create_dissector_handle(dissect_lon, proto_lon);
-
 	dissector_add_uint("cnip.protocol", 0, lon_handle);
 }
 

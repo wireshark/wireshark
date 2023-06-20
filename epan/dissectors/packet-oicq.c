@@ -24,6 +24,8 @@
 void proto_register_oicq(void);
 void proto_reg_handoff_oicq(void);
 
+static dissector_handle_t oicq_handle;
+
 /*
 	Protocol Flag:     8bit unsigned
 	Sender Flag:       16bit unsigned
@@ -177,14 +179,13 @@ proto_register_oicq(void)
 	proto_oicq = proto_register_protocol("OICQ - IM software, popular in China", "OICQ", "oicq");
 	proto_register_field_array(proto_oicq, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	oicq_handle = register_dissector("oicq", dissect_oicq, proto_oicq);
 }
 
 void
 proto_reg_handoff_oicq(void)
 {
-	dissector_handle_t oicq_handle;
-
-	oicq_handle = create_dissector_handle(dissect_oicq, proto_oicq);
 	dissector_add_uint_with_preference("udp.port", UDP_PORT_OICQ, oicq_handle);
 }
 

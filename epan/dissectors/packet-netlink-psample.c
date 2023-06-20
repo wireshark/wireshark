@@ -316,7 +316,7 @@ proto_register_netlink_psample(void)
 	proto_register_field_array(proto_netlink_psample, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
-	netlink_psample_handle = create_dissector_handle(dissect_netlink_psample, proto_netlink_psample);
+	netlink_psample_handle = register_dissector("psample", dissect_netlink_psample, proto_netlink_psample);
 }
 
 void

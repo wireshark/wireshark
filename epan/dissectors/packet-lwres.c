@@ -22,6 +22,8 @@
 void proto_register_lwres(void);
 void proto_reg_handoff_lwres(void);
 
+static dissector_handle_t lwres_handle;
+
 #define LWRES_LWPACKET_LENGTH           (4 * 5 + 2 * 4)
 #define LWRES_LWPACKETFLAG_RESPONSE     0x0001U /* if set, pkt is a response */
 #define LWRES_LWPACKETVERSION_0         0
@@ -1126,15 +1128,14 @@ proto_register_lwres(void)
 
     proto_register_field_array(proto_lwres, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    lwres_handle = register_dissector("lwres", dissect_lwres, proto_lwres);
 }
 
 /* The registration hand-off routine */
 void
 proto_reg_handoff_lwres(void)
 {
-    dissector_handle_t lwres_handle;
-
-    lwres_handle = create_dissector_handle(dissect_lwres, proto_lwres);
     dissector_add_uint_with_preference("udp.port", LWRES_UDP_PORT, lwres_handle);
 }
 

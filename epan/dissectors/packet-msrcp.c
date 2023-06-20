@@ -19,6 +19,8 @@
 void proto_register_msrcp(void);
 void proto_reg_handoff_msrcp(void);
 
+static dissector_handle_t msrcp_handle;
+
 #define MSRCP_PORT 3343
 #define MSRCP_REQUEST 0
 #define MSRCP_RESPONSE 1
@@ -363,14 +365,13 @@ proto_register_msrcp(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_msrcp = expert_register_protocol(proto_msrcp);
     expert_register_field_array(expert_msrcp, ei, array_length(ei));
+
+    msrcp_handle = register_dissector("msrcp", dissect_msrcp, proto_msrcp);
 }
 
 void
 proto_reg_handoff_msrcp(void)
 {
-    static dissector_handle_t msrcp_handle;
-
     eth_handle = find_dissector_add_dependency("eth_withoutfcs", proto_msrcp);
-    msrcp_handle = create_dissector_handle(dissect_msrcp, proto_msrcp);
     dissector_add_uint("udp.port", MSRCP_PORT, msrcp_handle);
 }

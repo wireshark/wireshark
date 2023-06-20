@@ -18,6 +18,8 @@
 void proto_register_msnlb(void);
 void proto_reg_handoff_msnlb(void);
 
+static dissector_handle_t msnlb_handle;
+
 /* Initialize the protocol and registered fields */
 static int proto_msnlb = -1;
 
@@ -613,14 +615,13 @@ proto_register_msnlb(void)
   proto_msnlb = proto_register_protocol("MS Network Load Balancing", "MS NLB", "msnlb");
   proto_register_field_array(proto_msnlb, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  msnlb_handle = register_dissector("msnlb", dissect_msnlb, proto_msnlb);
 }
 
 void
 proto_reg_handoff_msnlb(void)
 {
-  dissector_handle_t msnlb_handle;
-
-  msnlb_handle = create_dissector_handle(dissect_msnlb, proto_msnlb);
   dissector_add_uint("ethertype", ETHERTYPE_MS_NLB_HEARTBEAT, msnlb_handle);
 }
 

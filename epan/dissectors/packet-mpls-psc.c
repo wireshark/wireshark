@@ -22,6 +22,8 @@
 void proto_register_mpls_psc(void);
 void proto_reg_handoff_mpls_psc(void);
 
+static dissector_handle_t mpls_psc_handle;
+
 static gint proto_mpls_psc = -1;
 
 static gint ett_mpls_psc = -1;
@@ -222,14 +224,13 @@ proto_register_mpls_psc(void)
 
     proto_register_field_array(proto_mpls_psc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    mpls_psc_handle = register_dissector("mpls_psc", dissect_mpls_psc, proto_mpls_psc);
 }
 
 void
 proto_reg_handoff_mpls_psc(void)
 {
-    dissector_handle_t mpls_psc_handle;
-
-    mpls_psc_handle    = create_dissector_handle( dissect_mpls_psc, proto_mpls_psc );
     dissector_add_uint("pwach.channel_type", PW_ACH_TYPE_PSC, mpls_psc_handle);
 }
 
