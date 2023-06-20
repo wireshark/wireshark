@@ -179,6 +179,9 @@ static int Pinfo__tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1
 #define PINFO_NAMED_BOOLEAN_GETTER(name,member) \
     WSLUA_ATTRIBUTE_NAMED_BOOLEAN_GETTER(Pinfo,name,ws_pinfo->member)
 
+#define PINFO_NAMED_BOOLEAN_SETTER(name,member) \
+    WSLUA_ATTRIBUTE_NAMED_BOOLEAN_SETTER(Pinfo,name,ws_pinfo->member)
+
 #define PINFO_NUMBER_GETTER(name) \
     WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(Pinfo,name,ws_pinfo->name)
 
@@ -249,8 +252,9 @@ PINFO_NUMBER_SETTER(desegment_offset,int);
 /* WSLUA_ATTRIBUTE Pinfo_fragmented RO If the protocol is only a fragment. */
 PINFO_NAMED_BOOLEAN_GETTER(fragmented,fragmented);
 
-/* WSLUA_ATTRIBUTE Pinfo_in_error_pkt RO If we're inside an error packet. */
+/* WSLUA_ATTRIBUTE Pinfo_in_error_pkt RW If we're inside an error packet. */
 PINFO_NAMED_BOOLEAN_GETTER(in_error_pkt,flags.in_error_pkt);
+PINFO_NAMED_BOOLEAN_SETTER(in_error_pkt,flags.in_error_pkt);
 
 /* WSLUA_ATTRIBUTE Pinfo_match_uint RO Matched uint for calling subdissector from table. */
 PINFO_NUMBER_GETTER(match_uint);
@@ -457,7 +461,7 @@ WSLUA_ATTRIBUTES Pinfo_attributes[] = {
     WSLUA_ATTRIBUTE_RWREG(Pinfo,desegment_offset),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,private),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,fragmented),
-    WSLUA_ATTRIBUTE_ROREG(Pinfo,in_error_pkt),
+    WSLUA_ATTRIBUTE_RWREG(Pinfo,in_error_pkt),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,match_uint),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,match_string),
     WSLUA_ATTRIBUTE_WOREG(Pinfo,conversation),
