@@ -129,13 +129,8 @@ typedef struct recent_settings_tag {
     gboolean    gui_geometry_main_maximized;
     gboolean    gui_geometry_leftalign_actions;
 
-    gboolean    has_gui_geometry_main_upper_pane;   /* gui_geometry_main_upper_pane is valid */
     gint        gui_geometry_main_upper_pane;
-    gboolean    has_gui_geometry_main_lower_pane;   /* gui_geometry_main_lower_pane is valid */
     gint        gui_geometry_main_lower_pane;
-    gboolean    has_gui_geometry_status_pane;       /* gui_geometry_status_pane is valid */
-    gint        gui_geometry_status_pane_left;
-    gint        gui_geometry_status_pane_right;
     gint        gui_geometry_wlan_stats_pane;
     gboolean    privs_warn_if_elevated;
     gboolean    sys_warn_if_no_capture;

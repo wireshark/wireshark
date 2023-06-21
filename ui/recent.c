@@ -16,7 +16,9 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include "capture_opts.h"
+#ifdef HAVE_PCAP_REMOTE
+#include <capture_opts.h>
+#endif
 #include <wsutil/filesystem.h>
 #include <epan/prefs.h>
 #include <epan/prefs-int.h>
@@ -56,8 +58,6 @@
 #define RECENT_GUI_GEOMETRY_LEFTALIGN_ACTIONS   "gui.geometry_leftalign_actions"
 #define RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE     "gui.geometry_main_upper_pane"
 #define RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE     "gui.geometry_main_lower_pane"
-#define RECENT_GUI_GEOMETRY_STATUS_PANE_LEFT    "gui.geometry_status_pane"
-#define RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT   "gui.geometry_status_pane_right"
 #define RECENT_GUI_GEOMETRY_WLAN_STATS_PANE     "gui.geometry_status_wlan_stats_pane"
 #define RECENT_LAST_USED_PROFILE                "gui.last_used_profile"
 #define RECENT_GUI_FILEOPEN_REMEMBERED_DIR      "gui.fileopen_remembered_dir"
@@ -742,19 +742,6 @@ write_recent(void)
             RECENT_GUI_GEOMETRY_LEFTALIGN_ACTIONS,
             recent.gui_geometry_leftalign_actions);
 
-    fprintf(rf, "\n# Statusbar left pane size.\n");
-    fprintf(rf, "# Decimal number.\n");
-    if (recent.gui_geometry_status_pane_left != 0) {
-        fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE_LEFT ": %d\n",
-                recent.gui_geometry_status_pane_left);
-    }
-    fprintf(rf, "\n# Statusbar middle pane size.\n");
-    fprintf(rf, "# Decimal number.\n");
-    if (recent.gui_geometry_status_pane_right != 0) {
-        fprintf(rf, RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT ": %d\n",
-                recent.gui_geometry_status_pane_right);
-    }
-
     fprintf(rf, "\n# Last used Configuration Profile.\n");
     fprintf(rf, RECENT_LAST_USED_PROFILE ": %s\n", get_profile_name());
 
@@ -1025,22 +1012,6 @@ read_set_recent_common_pair_static(gchar *key, const gchar *value,
         if (num <= 0)
             return PREFS_SET_SYNTAX_ERR;      /* number must be positive */
         recent.gui_geometry_main_height = (gint)num;
-    } else if (strcmp(key, RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT) == 0) {
-        num = strtol(value, &p, 0);
-        if (p == value || *p != '\0')
-            return PREFS_SET_SYNTAX_ERR;      /* number was bad */
-        if (num <= 0)
-            return PREFS_SET_SYNTAX_ERR;      /* number must be positive */
-        recent.gui_geometry_status_pane_right = (gint)num;
-        recent.has_gui_geometry_status_pane = TRUE;
-    } else if (strcmp(key, RECENT_GUI_GEOMETRY_STATUS_PANE_LEFT) == 0) {
-        num = strtol(value, &p, 0);
-        if (p == value || *p != '\0')
-            return PREFS_SET_SYNTAX_ERR;      /* number was bad */
-        if (num <= 0)
-            return PREFS_SET_SYNTAX_ERR;      /* number must be positive */
-        recent.gui_geometry_status_pane_left = (gint)num;
-        recent.has_gui_geometry_status_pane = TRUE;
     } else if (strcmp(key, RECENT_LAST_USED_PROFILE) == 0) {
         if ((strcmp(value, DEFAULT_PROFILE) != 0) && profile_exists (value, FALSE)) {
             set_profile_name (value);
@@ -1147,7 +1118,6 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
         if (num <= 0)
             return PREFS_SET_SYNTAX_ERR;      /* number must be positive */
         recent.gui_geometry_main_upper_pane = (gint)num;
-        recent.has_gui_geometry_main_upper_pane = TRUE;
     } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE) == 0) {
         num = strtol(value, &p, 0);
         if (p == value || *p != '\0')
@@ -1155,7 +1125,6 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
         if (num <= 0)
             return PREFS_SET_SYNTAX_ERR;      /* number must be positive */
         recent.gui_geometry_main_lower_pane = (gint)num;
-        recent.has_gui_geometry_main_lower_pane = TRUE;
     } else if (strcmp(key, RECENT_GUI_CONVERSATION_TABS) == 0) {
         recent.conversation_tabs = prefs_get_string_list(value);
     } else if (strcmp(key, RECENT_GUI_CONVERSATION_TABS_COLUMNS) == 0) {
@@ -1345,8 +1314,6 @@ recent_read_static(char **rf_path_return, int *rf_errno_return)
 
     recent.gui_geometry_leftalign_actions = FALSE;
 
-    recent.gui_geometry_status_pane_left  = (DEF_WIDTH/3);
-    recent.gui_geometry_status_pane_right = (DEF_WIDTH/3);
     recent.gui_geometry_wlan_stats_pane   = 200;
 
     recent.privs_warn_if_elevated = TRUE;
@@ -1410,10 +1377,6 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
     /* pane size of zero will autodetect */
     recent.gui_geometry_main_upper_pane   = 0;
     recent.gui_geometry_main_lower_pane   = 0;
-
-    recent.has_gui_geometry_main_upper_pane = TRUE;
-    recent.has_gui_geometry_main_lower_pane = TRUE;
-    recent.has_gui_geometry_status_pane     = TRUE;
 
     if (recent.col_width_list) {
         free_col_width_info(&recent);
