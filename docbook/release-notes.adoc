@@ -188,6 +188,13 @@ ID3v2
 * The IPv6 dissector has a new preference to show some semantic details
   about addresses (default off).
 
+* The IPv6 dissector now supports dissecting 
+  https://gitlab.com/wireshark/wireshark/-/merge_requests/9172[
+  Application-aware IPv6 Networking (APN6) option] 
+  in the Hop-by-Hop Options Header (HBH) and Destination Options Header (DOH). 
+  This feature supports to dissect all three types of APN ID, 
+  which are 32-bit, 64-bit and 128-bit in length.
+
 * The XML dissector now supports display character according to the "encoding"
   attribute of the XML declaration, and has a new preference to set default
   character encoding for some XML document without "encoding" attribute.
