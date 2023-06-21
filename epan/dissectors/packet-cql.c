@@ -72,6 +72,7 @@ static int hf_cql_consistency = -1;
 static int hf_cql_string_length = -1;
 static int hf_cql_string_map_size = -1;
 static int hf_cql_string = -1;
+static int hf_cql_auth_token = -1;
 static int hf_cql_value_count = -1;
 static int hf_cql_short_bytes_length = -1;
 static int hf_cql_bytes_length = -1;
@@ -1184,7 +1185,14 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 				break;
 
 			case CQL_OPCODE_AUTH_RESPONSE:
-				/* not implemented */
+				cql_subtree = proto_tree_add_subtree(cql_tree, tvb, offset, message_length, ett_cql_message, &ti, "Message AUTH_RESPONSE");
+
+				proto_tree_add_item_ret_uint(cql_subtree, hf_cql_string_length, tvb, offset, 4, ENC_BIG_ENDIAN, &string_length);
+				offset += 4;
+				if (string_length > 0) {
+					proto_tree_add_item(cql_subtree, hf_cql_auth_token, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
+					offset += string_length;
+				}
 				break;
 
 			case CQL_OPCODE_OPTIONS:
@@ -1320,7 +1328,12 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 
 
 			case CQL_OPCODE_AUTHENTICATE:
-				/* Not implemented. */
+				cql_subtree = proto_tree_add_subtree(cql_tree, tvb, offset, message_length, ett_cql_message, &ti, "Message AUTHENTICATE");
+
+				proto_tree_add_item_ret_uint(cql_subtree, hf_cql_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
+				offset += 2;
+				proto_tree_add_item(cql_subtree, hf_cql_string, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
+				offset += string_length;
 				break;
 
 
@@ -1501,10 +1514,24 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 
 
 			case CQL_OPCODE_AUTH_CHALLENGE:
+				cql_subtree = proto_tree_add_subtree(cql_tree, tvb, offset, message_length, ett_cql_message, &ti, "Message AUTH_CHALLENGE");
+
+				proto_tree_add_item_ret_uint(cql_subtree, hf_cql_string_length, tvb, offset, 4, ENC_BIG_ENDIAN, &string_length);
+				offset += 4;
+				proto_tree_add_item(cql_subtree, hf_cql_auth_token, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
+				offset += string_length;
 				break;
 
 
 			case CQL_OPCODE_AUTH_SUCCESS:
+				cql_subtree = proto_tree_add_subtree(cql_tree, tvb, offset, message_length, ett_cql_message, &ti, "Message AUTH_SUCCESS");
+
+				proto_tree_add_item_ret_uint(cql_subtree, hf_cql_string_length, tvb, offset, 4, ENC_BIG_ENDIAN, &string_length);
+				offset += 4;
+				if (string_length > 0) {
+					proto_tree_add_item(cql_subtree, hf_cql_auth_token, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
+					offset += string_length;
+				}
 				break;
 
 			default:
@@ -1857,6 +1884,15 @@ proto_register_cql(void)
 				FT_STRING, BASE_NONE,
 				NULL, 0x0,
 				"UTF-8 string value", HFILL
+			}
+		},
+		{
+			&hf_cql_auth_token,
+			{
+				"Auth Token", "cql.auth_token",
+				FT_BYTES, BASE_NONE,
+				NULL, 0x0,
+				"[bytes] auth token", HFILL
 			}
 		},
 		{
