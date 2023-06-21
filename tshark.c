@@ -2273,8 +2273,6 @@ main(int argc, char *argv[])
         }
     }
 
-    ws_debug("tshark: do_dissection = %s", do_dissection ? "TRUE" : "FALSE");
-
     if (cf_name) {
         ws_debug("tshark: Opening capture file: %s", cf_name);
         /*
@@ -2299,6 +2297,7 @@ main(int argc, char *argv[])
            other things, what taps are listening, so determine that after
            starting the statistics taps. */
         do_dissection = must_do_dissection(rfcode, dfcode, pdu_export_arg);
+        ws_debug("tshark: do_dissection = %s", do_dissection ? "TRUE" : "FALSE");
 
         /* Process the packets in the file */
         ws_debug("tshark: invoking process_cap_file() to process the packets");
@@ -2478,6 +2477,7 @@ main(int argc, char *argv[])
            other things, what taps are listening, so determine that after
            starting the statistics taps. */
         do_dissection = must_do_dissection(rfcode, dfcode, pdu_export_arg);
+        ws_debug("tshark: do_dissection = %s", do_dissection ? "TRUE" : "FALSE");
 
         /*
          * XXX - this returns FALSE if an error occurred, but it also
