@@ -827,7 +827,7 @@ write_json_proto_node_list(GSList *proto_node_list_head, write_json_data *pdata)
         // We assume all values of a json key have roughly the same layout. Thus we can use the first value to derive
         // attributes of all the values.
         gboolean has_value = value_string_repr != NULL;
-        gboolean is_pseudo_text_field = fi->hfinfo->id == 0;
+        gboolean is_pseudo_text_field = fi->hfinfo->id == hf_text_only;
 
         wmem_free(NULL, value_string_repr); // fvalue_to_string_repr returns allocated buffer
 
