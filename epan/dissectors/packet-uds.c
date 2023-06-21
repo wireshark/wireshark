@@ -796,8 +796,16 @@ static const value_string uds_standard_did_types[] = {
     {UDS_DID_NOEDRD,        "NumberOfEDRDevices"},
     {UDS_DID_EDRI,          "EDRIdentification"},
     {UDS_DID_EDRDAI,        "EDRDeviceAddressInformation"},
-    {UDS_DID_UDSVDID,       "EDRDAI"},
+    {UDS_DID_UDSVDID,       "UDSVersionDataIdentifier"},
     {UDS_DID_RESRVDCPADLC,  "ReservedForISO15765-5 (CAN, CAN-FD, CAN+CAN-FD, ...)"},
+    {0, NULL}
+};
+
+/* ReservedForISO15765 */
+static const value_string uds_did_resrvdcpadlc_types[] = {
+    {0, "CAN Classic Only"},
+    {1, "CAN FD only"},
+    {2, "CAN Classic and CAN FD"},
     {0, NULL}
 };
 
@@ -1026,6 +1034,11 @@ static int hf_uds_lc_subfunction_no_suppress = -1;
 static int hf_uds_lc_subfunction_pos_rsp_msg_ind = -1;
 static int hf_uds_lc_control_mode_id = -1;
 static int hf_uds_lc_link_record = -1;
+
+static int hf_uds_did_reply_f186_diag_session = -1;
+static int hf_uds_did_reply_f190_vin = -1;
+static int hf_uds_did_reply_ff00_version = -1;
+static int hf_uds_did_reply_ff01_dlc_support = -1;
 
 static int hf_uds_unparsed_bytes = -1;
 
@@ -1445,7 +1458,7 @@ uds_proto_tree_add_address_name(proto_tree *tree, int hf, tvbuff_t *tvb, const g
 /*** Configuration End ***/
 
 static gboolean
-call_heur_subdissector_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 service, gboolean reply, guint32 id, guint32 uds_address)
+call_heur_subdissector_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *uds_tree, guint8 service, gboolean reply, guint32 id, guint32 uds_address)
 {
     uds_info_t uds_info;
 
@@ -1454,7 +1467,33 @@ call_heur_subdissector_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     uds_info.reply = reply;
     uds_info.service = service;
 
-    return dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, &uds_info);
+    gboolean ret = dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &heur_dtbl_entry, &uds_info);
+
+    if (!ret) {
+        if (service == UDS_SERVICES_RDBI && reply && id == UDS_DID_ADSDID) {
+            proto_tree_add_item(uds_tree, hf_uds_did_reply_f186_diag_session, tvb, 0, 1, ENC_NA);
+            return true;
+        }
+
+        if (service == UDS_SERVICES_RDBI && reply && id == UDS_DID_VINDID) {
+            proto_tree_add_item(uds_tree, hf_uds_did_reply_f190_vin, tvb, 0, 17, ENC_ASCII);
+            return true;
+        }
+
+        if (service == UDS_SERVICES_RDBI && reply && id == UDS_DID_UDSVDID) {
+            guint32 tmp = tvb_get_guint32(tvb, 0, ENC_BIG_ENDIAN);
+            proto_tree_add_uint_format(uds_tree, hf_uds_did_reply_ff00_version, tvb, 0, 4, tmp, "UDS Version: %d.%d.%d.%d",
+                                       (tmp & 0xff000000) >> 24, (tmp & 0x00ff0000) >> 16, (tmp & 0x0000ff00) >> 8, tmp & 0x000000ff);
+            return true;
+        }
+
+        if (service == UDS_SERVICES_RDBI && reply && id == UDS_DID_RESRVDCPADLC) {
+            proto_tree_add_item(uds_tree, hf_uds_did_reply_ff01_dlc_support, tvb, 0, 1, ENC_NA);
+            return true;
+        }
+    }
+
+    return ret;
 }
 
 static guint
@@ -2249,20 +2288,25 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                 protoitem_append_data_name(ti, ecu_address, (guint16)data_identifier);
                 offset += 2;
 
-                /* ISO14229: at least one byte for data record. Just make sure, we show an error, if less than 1 byte left! */
-                proto_tree_add_item(uds_tree, hf_uds_data_record, tvb, offset, MAX(1, data_length - offset), ENC_NA);
-
                 col_append_fstr(pinfo->cinfo, COL_INFO, "   0x%04x", data_identifier);
                 infocol_append_data_name(pinfo, ecu_address, data_identifier);
 
+                gboolean dissection_ok = false;
                 if (data_length > offset) {
                     col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
 
                     payload_tvb = tvb_new_subset_length(tvb, offset, data_length - offset);
-                    call_heur_subdissector_uds(payload_tvb, pinfo, tree, service, TRUE, data_identifier, ecu_address);
-
-                    offset = data_length;
+                    dissection_ok = call_heur_subdissector_uds(payload_tvb, pinfo, tree, uds_tree, service, TRUE, data_identifier, ecu_address);
                 }
+
+                if (!dissection_ok) {
+                    /* ISO14229: at least one byte for data record. Just make sure, we show an error, if less than 1 byte left! */
+                    proto_tree_add_item(uds_tree, hf_uds_data_record, tvb, offset, MAX(1, data_length - offset), ENC_NA);
+                }
+
+                offset = data_length;
+
+
             } else {
                 /* ISO14229: data identifiers are 2 bytes and at least one has to be present. */
                 do {
@@ -2751,14 +2795,17 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
             offset += 2;
 
             if (!(sid & UDS_REPLY_MASK)) {
-                /* This needs to be at least one byte says the standard */
-                proto_tree_add_item(uds_tree, hf_uds_data_record, tvb, offset, MAX(1, data_length - offset), ENC_NA);
-
+                gboolean dissection_ok = false;
                 if (data_length > offset) {
-                    payload_tvb = tvb_new_subset_length(tvb, offset, data_length - offset);
-                    call_heur_subdissector_uds(payload_tvb, pinfo, tree, service, FALSE, enum_val, ecu_address);
-
                     col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
+
+                    payload_tvb = tvb_new_subset_length(tvb, offset, data_length - offset);
+                    dissection_ok = call_heur_subdissector_uds(payload_tvb, pinfo, tree, uds_tree, service, FALSE, enum_val, ecu_address);
+                }
+
+                if (!dissection_ok) {
+                    /* ISO14229: at least one byte for data record. Just make sure, we show an error, if less than 1 byte left! */
+                    proto_tree_add_item(uds_tree, hf_uds_data_record, tvb, offset, MAX(1, data_length - offset), ENC_NA);
                 }
 
                 offset = data_length;
@@ -2806,21 +2853,25 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
                     offset += 1;
 
                     if (data_length > offset) {
-                        proto_tree_add_item(uds_tree, hf_uds_rc_status_record, tvb, offset, data_length - offset, ENC_NA);
                         col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
 
                         payload_tvb = tvb_new_subset_length(tvb, offset, data_length - offset);
-                        call_heur_subdissector_uds(payload_tvb, pinfo, tree, service, TRUE, identifier, ecu_address);
+                        if (!call_heur_subdissector_uds(payload_tvb, pinfo, tree, uds_tree, service, TRUE, identifier, ecu_address)) {
+                            proto_tree_add_item(uds_tree, hf_uds_rc_status_record, tvb, offset, data_length - offset, ENC_NA);
+                        }
+
                         offset = data_length;
                     }
                 }
             } else {
                 if (data_length > offset) {
-                    proto_tree_add_item(uds_tree, hf_uds_rc_option_record, tvb, offset, data_length - offset, ENC_NA);
                     col_append_fstr(pinfo->cinfo, COL_INFO, "   %s", tvb_bytes_to_str_punct(pinfo->pool, tvb, offset, data_length - offset, ' '));
 
                     payload_tvb = tvb_new_subset_length(tvb, offset, data_length - offset);
-                    call_heur_subdissector_uds(payload_tvb, pinfo, tree, service, FALSE, identifier, ecu_address);
+                    if (!call_heur_subdissector_uds(payload_tvb, pinfo, tree, uds_tree, service, FALSE, identifier, ecu_address)) {
+                        proto_tree_add_item(uds_tree, hf_uds_rc_option_record, tvb, offset, data_length - offset, ENC_NA);
+                    }
+
                     offset = data_length;
                 }
             }
@@ -3511,6 +3562,15 @@ proto_register_uds(void) {
             "Link Control Mode Identifier", "uds.lc.link_control_mode_identifier", FT_UINT8, BASE_HEX, VALS(uds_lc_lcmi_types), 0x0, NULL, HFILL } },
         { &hf_uds_lc_link_record, {
             "Link Record", "uds.lc.link_record", FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_uds_did_reply_f186_diag_session, {
+            "Diagnostic Session", "uds.did_f186.diagnostic_session", FT_UINT8, BASE_HEX, VALS(uds_dsc_types), 0x0, NULL, HFILL } },
+        { &hf_uds_did_reply_f190_vin, {
+            "VIN", "uds.did_f190.vin", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_did_reply_ff00_version, {
+            "Version", "uds.did_ff00.version", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_uds_did_reply_ff01_dlc_support, {
+            "DLC Supports", "uds.did_ff01.dlc_supports", FT_UINT8, BASE_HEX, VALS(uds_did_resrvdcpadlc_types), 0x0, NULL, HFILL } },
 
         { &hf_uds_unparsed_bytes, {
             "Unparsed Bytes", "uds.unparsed_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
