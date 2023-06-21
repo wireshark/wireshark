@@ -453,6 +453,7 @@ static int hf_smb2_share_flags_enable_hash_v2 = -1;
 static int hf_smb2_share_flags_encrypt_data = -1;
 static int hf_smb2_share_flags_identity_remoting = -1;
 static int hf_smb2_share_flags_compress_data = -1;
+static int hf_smb2_share_flags_isolated_transport = -1;
 static int hf_smb2_share_caching = -1;
 static int hf_smb2_share_caps = -1;
 static int hf_smb2_share_caps_dfs = -1;
@@ -3476,6 +3477,7 @@ static const value_string share_cache_vals[] = {
 #define SHARE_FLAGS_encryption_required		0x00008000
 #define SHARE_FLAGS_identity_remoting		0x00040000
 #define SHARE_FLAGS_compress_data		0x00100000
+#define SHARE_FLAGS_isolated_transport		0x00200000
 
 static int
 dissect_smb2_share_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
@@ -3493,6 +3495,7 @@ dissect_smb2_share_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 		&hf_smb2_share_flags_encrypt_data,
 		&hf_smb2_share_flags_identity_remoting,
 		&hf_smb2_share_flags_compress_data,
+		&hf_smb2_share_flags_isolated_transport,
 		NULL
 	};
 	proto_item *item;
@@ -13011,6 +13014,11 @@ proto_register_smb2(void)
 		{ &hf_smb2_share_flags_compress_data,
 			{ "Compressed IO", "smb2.share_flags.compress_data", FT_BOOLEAN, 32,
 			NULL, SHARE_FLAGS_compress_data, "The share supports compression of read/write messages", HFILL }
+		},
+
+		{ &hf_smb2_share_flags_isolated_transport,
+			{ "Isolated Transport", "smb2.share_flags.isolated_transport", FT_BOOLEAN, 32,
+			NULL, SHARE_FLAGS_isolated_transport, "The server indicates that administrator set share property telling client that it is preferable to isolate communication to that share on a separate set of connections.", HFILL }
 		},
 
 		{ &hf_smb2_share_caching,
