@@ -873,7 +873,7 @@ must_do_dissection(dfilter_t *rfcode, dfilter_t *dfcode,
 
        we're using any taps that need dissection. */
     return print_packet_info || rfcode || dfcode || pdu_export_arg ||
-        tap_listeners_require_dissection() || dissect_color;
+        tap_listeners_require_dissection();
 }
 
 #ifdef HAVE_LIBPCAP
@@ -1798,6 +1798,9 @@ main(int argc, char *argv[])
                 break;
             case LONGOPT_COLOR: /* print in color where appropriate */
                 dissect_color = TRUE;
+                /* This has no effect if we don't print packet info or filter
+                   (we can filter on the coloring rules). Should we warn or
+                   error later if so, instead of silently ignoring it? */
                 break;
             case LONGOPT_NO_DUPLICATE_KEYS:
                 no_duplicate_keys = TRUE;
