@@ -178,6 +178,8 @@ static range_t *global_ipfix_ports = NULL;
 
 static gboolean netflow_preference_desegment = TRUE;
 
+static gboolean netflow_preference_tcpflags_1byte_cwr = FALSE;
+
 /*
  * Flowset (template) ID's
  */
@@ -2513,6 +2515,8 @@ static int      hf_cflow_tcpflags_rst                               = -1;
 static int      hf_cflow_tcpflags_psh                               = -1;
 static int      hf_cflow_tcpflags_ack                               = -1;
 static int      hf_cflow_tcpflags_urg                               = -1;
+static int      hf_cflow_tcpflags_ece                               = -1;
+static int      hf_cflow_tcpflags_cwr                               = -1;
 static int      hf_cflow_tcpflags16_fin                             = -1;
 static int      hf_cflow_tcpflags16_syn                             = -1;
 static int      hf_cflow_tcpflags16_rst                             = -1;
@@ -4010,6 +4014,18 @@ static int * const tcp_flags[] = {
     NULL
 };
 
+static int * const tcp_flags_cwr[] = {
+    &hf_cflow_tcpflags_cwr,
+    &hf_cflow_tcpflags_ece,
+    &hf_cflow_tcpflags_urg,
+    &hf_cflow_tcpflags_ack,
+    &hf_cflow_tcpflags_psh,
+    &hf_cflow_tcpflags_rst,
+    &hf_cflow_tcpflags_syn,
+    &hf_cflow_tcpflags_fin,
+    NULL
+};
+
 static int * const tcp_flags16[] = {
     &hf_cflow_tcpflags16_zero,
     &hf_cflow_tcpflags16_reserved,
@@ -5374,7 +5390,9 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case 6: /* TCP flags */
-            if (length == 1) {
+            if (length == 1 && netflow_preference_tcpflags_1byte_cwr) {
+                ti = proto_tree_add_bitmask(pdutree, tvb, offset, hf_cflow_tcpflags, ett_tcpflags, tcp_flags_cwr, ENC_NA);
+            } else if (length == 1) {
                 ti = proto_tree_add_bitmask(pdutree, tvb, offset, hf_cflow_tcpflags, ett_tcpflags, tcp_flags, ENC_NA);
             } else {
                 ti = proto_tree_add_bitmask(pdutree, tvb, offset, hf_cflow_tcpflags16, ett_tcpflags, tcp_flags16, ENC_NA);
@@ -13444,6 +13462,16 @@ proto_register_netflow(void)
           FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x20,
           NULL, HFILL}
         },
+        {&hf_cflow_tcpflags_ece,
+         {"ECN Echo", "cflow.tcpflags.ece",
+          FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x40,
+          NULL, HFILL}
+        },
+        {&hf_cflow_tcpflags_cwr,
+         {"CWR", "cflow.tcpflags.cwr",
+          FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x80,
+          NULL, HFILL}
+        },
         {&hf_cflow_tcpflags16_fin,
          {"FIN", "cflow.tcpflags.fin",
           FT_BOOLEAN, 16, TFS(&tfs_used_notused), 0x0001,
@@ -21424,6 +21452,11 @@ proto_register_netflow(void)
                                    10, &v9_tmplt_max_fields);
 
     prefs_register_bool_preference(netflow_module, "desegment", "Reassemble Netflow v10 messages spanning multiple TCP segments.", "Whether the Netflow/Ipfix dissector should reassemble messages spanning multiple TCP segments.  To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.", &netflow_preference_desegment);
+
+    prefs_register_bool_preference(netflow_module, "tcpflags_1byte_cwr",
+                                   "TCP flags: Decode first two bits of 1 byte TCP flags",
+                                   "Whether the first two bits of 1 byte TCP flags should be decoded as CWR and ECE or reserved.",
+                                   &netflow_preference_tcpflags_1byte_cwr);
 
     v9_v10_tmplt_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), v9_v10_tmplt_table_hash, v9_v10_tmplt_table_equal);
 }
