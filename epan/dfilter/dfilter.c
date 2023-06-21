@@ -896,16 +896,16 @@ df_error_free(df_error_t **ep)
 void
 df_cell_append(df_cell_t *rp, fvalue_t *fv)
 {
-	if (rp->array == NULL)
-		rp->array = g_ptr_array_new();
+	/* Assert cell has been initialized. */
+	ws_assert(rp->array != NULL);
 	g_ptr_array_add(rp->array, fv);
 }
 
 void
 df_cell_append_list(df_cell_t *rp, GSList *list)
 {
-	if (rp->array == NULL)
-		rp->array = g_ptr_array_new();
+	/* Assert cell has been initialized. */
+	ws_assert(rp->array != NULL);
 	for (GSList *l = list; l != NULL; l = l->next) {
 		g_ptr_array_add(rp->array, l->data);
 	}
@@ -950,18 +950,21 @@ df_cell_is_empty(const df_cell_t *rp)
 }
 
 void
+df_cell_init(df_cell_t *rp, gboolean free_seg)
+{
+	df_cell_clear(rp);
+	if (free_seg)
+		rp->array = g_ptr_array_new_with_free_func((GDestroyNotify)fvalue_free);
+	else
+		rp->array = g_ptr_array_new();
+}
+
+void
 df_cell_clear(df_cell_t *rp)
 {
-	if (rp->array) {
-		if (rp->need_free) {
-			for (guint i = 0; i < rp->array->len; i++) {
-				fvalue_free(rp->array->pdata[i]);
-			}
-		}
-		g_ptr_array_free(rp->array, TRUE);
-		rp->array = NULL;
-	}
-	rp->need_free = false;
+	if (rp->array)
+		g_ptr_array_unref(rp->array);
+	rp->array = NULL;
 }
 
 void

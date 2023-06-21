@@ -842,11 +842,11 @@ read_tree(dfilter_t *df, proto_tree *tree,
 	df->attempted_load[reg] = TRUE;
 	rp = &df->registers[reg];
 	if (raw) {
-		rp->need_free = true;
+		df_cell_init(rp, TRUE);
 	}
 	else {
 		// These values are referenced only, do not try to free it later.
-		rp->need_free = false;
+		df_cell_init(rp, FALSE);
 	}
 
 	while (hfinfo) {
@@ -936,9 +936,9 @@ read_reference(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2,
 	}
 
 	rp = &df->registers[reg];
-	filter_refs_fvalues(rp, refs, range);
 	// These values are referenced only, do not try to free it later.
-	rp->need_free = false;
+	df_cell_init(rp, FALSE);
+	filter_refs_fvalues(rp, refs, range);
 	return TRUE;
 }
 
@@ -1199,7 +1199,7 @@ mk_slice(dfilter_t *df, dfvm_value_t *from_arg, dfvm_value_t *to_arg,
 	fvalue_t *new_fv;
 
 	to_rp = &df->registers[to_arg->value.numeric];
-	to_rp->need_free = true;
+	df_cell_init(to_rp, TRUE);
 	from_rp = &df->registers[from_arg->value.numeric];
 	drange_t *drange = drange_arg->value.drange;
 
@@ -1223,7 +1223,7 @@ mk_length(dfilter_t *df, dfvm_value_t *from_arg, dfvm_value_t *to_arg)
 	fvalue_t *new_fv;
 
 	to_rp = &df->registers[to_arg->value.numeric];
-	to_rp->need_free = true;
+	df_cell_init(to_rp, TRUE);
 	from_rp = &df->registers[from_arg->value.numeric];
 
 	df_cell_iter_init(from_rp, &from_iter);
@@ -1252,10 +1252,10 @@ call_function(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2,
 	accum = funcdef->function(df->function_stack, arg_count, &retval);
 
 	/* Write return registers. */
+	// Functions create a new value, so own it.
+	df_cell_init(rp_return, TRUE);
 	df_cell_append_list(rp_return, retval);
 	g_slist_free(retval);
-	// functions create a new value, so own it.
-	rp_return->need_free = true;
 	return accum;
 }
 
@@ -1355,7 +1355,7 @@ mk_binary(dfilter_t *df, DFVMBinaryFunc func,
 	}
 
 	to_rp = &df->registers[to_arg->value.numeric];
-	to_rp->need_free = true;
+	df_cell_init(to_rp, TRUE);
 
 	mk_binary_internal(func, fv_ptr1, fv_count1, fv_ptr2, fv_count2, to_rp);
 	//debug_register(result, to_arg->value.numeric);
@@ -1401,7 +1401,7 @@ mk_minus(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *to_arg)
 	}
 
 	to_rp = &df->registers[to_arg->value.numeric];
-	to_rp->need_free = true;
+	df_cell_init(to_rp, TRUE);
 
 	mk_minus_internal(fv_ptr1, fv_count1, to_rp);
 }
@@ -1413,7 +1413,7 @@ put_fvalue(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *to_arg)
 	df_cell_t *to_rp = &df->registers[to_arg->value.numeric];
 	df_cell_append(to_rp, fv);
 	/* Memory is owned by the dfvm_value_t. */
-	to_rp->need_free = false;
+	df_cell_init(to_rp, FALSE);
 }
 
 static void

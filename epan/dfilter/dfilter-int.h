@@ -24,7 +24,6 @@ typedef struct {
 
 typedef struct {
 	GPtrArray *array;
-	bool need_free;
 } df_cell_t;
 
 typedef struct {
@@ -173,9 +172,14 @@ df_cell_array(const df_cell_t *rp);
 bool
 df_cell_is_empty(const df_cell_t *rp);
 
+/* Pass TRUE to free the array contents when the cell is cleared. */
+void
+df_cell_init(df_cell_t *rp, gboolean free_seg);
+
 void
 df_cell_clear(df_cell_t *rp);
 
+/* Cell must not be cleared while iter is alive. */
 void
 df_cell_iter_init(df_cell_t *rp, df_cell_iter_t *iter);
 
