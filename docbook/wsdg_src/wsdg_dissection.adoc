@@ -70,7 +70,7 @@ With a little care, the plugin can be converted into a built-in dissector.
 
 #define FOO_PORT 1234
 
-static int proto_foo = -1;
+static int proto_foo;
 
 void
 proto_register_foo(void)
@@ -187,7 +187,7 @@ Here is the dissector's complete code:
 
 #define FOO_PORT 1234
 
-static int proto_foo = -1;
+static int proto_foo;
 
 static int
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_)
@@ -296,8 +296,8 @@ and `proto_register_subtree_array()`:
 .Registering data structures.
 [source,c]
 ----
-static int hf_foo_pdu_type = -1;
-static int ett_foo = -1;
+static int hf_foo_pdu_type;
+static int ett_foo;
 
 /* ... */
 
@@ -402,9 +402,9 @@ more variables to the hfarray, and a couple more procedure calls.
 [source,c]
 ----
 ...
-static int hf_foo_flags = -1;
-static int hf_foo_sequenceno = -1;
-static int hf_foo_initialip = -1;
+static int hf_foo_flags;
+static int hf_foo_sequenceno;
+static int hf_foo_initialip;
 ...
 
 static int
@@ -506,9 +506,9 @@ flags structure. For this we need to add some more data to the table though.
 #define FOO_END_FLAG        0x02
 #define FOO_PRIORITY_FLAG   0x04
 
-static int hf_foo_startflag = -1;
-static int hf_foo_endflag = -1;
-static int hf_foo_priorityflag = -1;
+static int hf_foo_startflag;
+static int hf_foo_endflag;
+static int hf_foo_priorityflag;
 
 static int
 dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -625,7 +625,7 @@ number being zero (assuming that's a noteworthy thing for this protocol).
 ----
 #include <epan/expert.h>
 
-static expert_field ei_foo_seqn_zero = EI_INIT;
+static expert_field ei_foo_seqn_zero;
 
 /* ... */
 
@@ -967,19 +967,19 @@ like the following. Of course the names may need to be adjusted.
 [source,c]
 ----
 ...
-static int hf_msg_fragments = -1;
-static int hf_msg_fragment = -1;
-static int hf_msg_fragment_overlap = -1;
-static int hf_msg_fragment_overlap_conflicts = -1;
-static int hf_msg_fragment_multiple_tails = -1;
-static int hf_msg_fragment_too_long_fragment = -1;
-static int hf_msg_fragment_error = -1;
-static int hf_msg_fragment_count = -1;
-static int hf_msg_reassembled_in = -1;
-static int hf_msg_reassembled_length = -1;
+static int hf_msg_fragments;
+static int hf_msg_fragment;
+static int hf_msg_fragment_overlap;
+static int hf_msg_fragment_overlap_conflicts;
+static int hf_msg_fragment_multiple_tails;
+static int hf_msg_fragment_too_long_fragment;
+static int hf_msg_fragment_error;
+static int hf_msg_fragment_count;
+static int hf_msg_reassembled_in;
+static int hf_msg_reassembled_length;
 ...
-static int ett_msg_fragment = -1;
-static int ett_msg_fragments = -1;
+static int ett_msg_fragment;
+static int ett_msg_fragments;
 ...
 static const fragment_items msg_frag_items = {
     /* Fragment subtrees */

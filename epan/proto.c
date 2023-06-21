@@ -425,9 +425,9 @@ static GHashTable* prefixes = NULL;
 	wmem_free(pool, il);
 
 #define PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo)						\
-	if((guint)hfindex >= gpa_hfinfo.len && wireshark_abort_on_dissector_bug)	\
+	if((hfindex == 0 || (guint)hfindex > gpa_hfinfo.len) && wireshark_abort_on_dissector_bug)	\
 		ws_error("Unregistered hf! index=%d", hfindex);					\
-	DISSECTOR_ASSERT_HINT((guint)hfindex < gpa_hfinfo.len, "Unregistered hf!");	\
+	DISSECTOR_ASSERT_HINT(hfindex > 0 && (guint)hfindex < gpa_hfinfo.len, "Unregistered hf!");	\
 	DISSECTOR_ASSERT_HINT(gpa_hfinfo.hfi[hfindex] != NULL, "Unregistered hf!");	\
 	hfinfo = gpa_hfinfo.hfi[hfindex];
 
@@ -464,8 +464,8 @@ static void save_same_name_hfinfo(gpointer data)
    an item of that type are to be expanded. */
 static guint32 *tree_is_expanded;
 
-/* Number of elements in that array. */
-int		num_tree_types;
+/* Number of elements in that array. The entry with index 0 is not used. */
+int		num_tree_types = 1;
 
 /* Name hashtables for fast detection of duplicate names */
 static GHashTable* proto_names        = NULL;
@@ -7940,7 +7940,7 @@ proto_register_protocol_in_name_only(const char *name, const char *short_name, c
 		REPORT_DISSECTOR_BUG("Pino \"%s\" must be of type FT_PROTOCOL or FT_BYTES.", name);
 	}
 
-	if (parent_proto < 0) {
+	if (parent_proto <= 0) {
 		REPORT_DISSECTOR_BUG("Must have a valid parent protocol for helper protocol \"%s\"!"
 			" This might be caused by an inappropriate plugin or a development error.", name);
 	}
@@ -8112,7 +8112,7 @@ find_protocol_by_id(const int proto_id)
 {
 	header_field_info *hfinfo;
 
-	if (proto_id < 0)
+	if (proto_id <= 0)
 		return NULL;
 
 	PROTO_REGISTRAR_GET_NTH(proto_id, hfinfo);
@@ -9383,6 +9383,9 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 		if (!gpa_hfinfo.hfi) {
 			gpa_hfinfo.allocated_len = PROTO_PRE_ALLOC_HF_FIELDS_MEM;
 			gpa_hfinfo.hfi = (header_field_info **)g_malloc(sizeof(header_field_info *)*PROTO_PRE_ALLOC_HF_FIELDS_MEM);
+			/* The entry with index 0 is not used. */
+			gpa_hfinfo.hfi[0] = NULL;
+			gpa_hfinfo.len = 1;
 		} else {
 			gpa_hfinfo.allocated_len += 1000;
 			gpa_hfinfo.hfi = (header_field_info **)g_realloc(gpa_hfinfo.hfi,
@@ -9491,11 +9494,11 @@ proto_register_subtree_array(gint * const *indices, const int num_indices)
 	 * "num_tree_types" appropriately.
 	 */
 	for (i = 0; i < num_indices; i++, ptr++, num_tree_types++) {
-		if (**ptr != -1) {
-			REPORT_DISSECTOR_BUG("register_subtree_array: subtree item type (ett_...) not -1 !"
+		if (**ptr != -1 && **ptr != 0) {
+			REPORT_DISSECTOR_BUG("register_subtree_array: subtree item type (ett_...) not -1 or 0 !"
 				" This is a development error:"
 				" Either the subtree item type has already been assigned or"
-				" was not initialized to -1.");
+				" was not initialized to -1 or 0.");
 		}
 		**ptr = num_tree_types;
 	}
@@ -13751,7 +13754,7 @@ proto_check_field_name_lower(const gchar *field_name)
 gboolean
 tree_expanded(int tree_type)
 {
-	if (tree_type == -1) {
+	if (tree_type <= 0) {
 		return FALSE;
 	}
 	ws_assert(tree_type >= 0 && tree_type < num_tree_types);

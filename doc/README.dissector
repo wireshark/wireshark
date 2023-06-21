@@ -1304,9 +1304,9 @@ header_field_info struct (or an array of such structs), and
 calling the registration function along with the registration ID of
 the protocol that is the parent of the fields. Here is a complete example:
 
-    static int proto_eg = -1;
-    static int hf_field_a = -1;
-    static int hf_field_b = -1;
+    static int proto_eg;
+    static int hf_field_a;
+    static int hf_field_b;
 
     static hf_register_info hf[] = {
 
@@ -1397,8 +1397,8 @@ Subtree types are integers, assigned by
 array of pointers to "gint" variables to hold the subtree type values to
 "proto_register_subtree_array()":
 
-    static int ett_eg = -1;
-    static int ett_field_a = -1;
+    static int ett_eg;
+    static int ett_field_a;
 
     static int *ett[] = {
         &ett_eg,
@@ -2016,11 +2016,11 @@ matched string from that value_string will be printed on the expansion line
 as well.
 
 Example: (from the SCSI dissector)
-    static int hf_scsi_inq_peripheral        = -1;
-    static int hf_scsi_inq_qualifier         = -1;
-    static int hf_scsi_inq_devtype           = -1;
+    static int hf_scsi_inq_peripheral;
+    static int hf_scsi_inq_qualifier;
+    static int hf_scsi_inq_devtype;
     ...
-    static int ett_scsi_inq_peripheral = -1;
+    static int ett_scsi_inq_peripheral;
     ...
     static int * const peripheral_fields[] = {
         &hf_scsi_inq_qualifier,

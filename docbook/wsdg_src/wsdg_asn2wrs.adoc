@@ -572,13 +572,13 @@ void proto_reg_handoff_foo(void);
 void proto_register_foo(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_foo = -1;
+static int proto_foo;
 static int global_foo_port = FOO_PORT;
 
 #include "packet-foo-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_foo = -1;
+static int ett_foo;
 
 #include "packet-foo-ett.c"
 

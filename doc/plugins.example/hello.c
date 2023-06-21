@@ -24,7 +24,7 @@ WS_DLL_PUBLIC_DEF const int plugin_want_minor = WIRESHARK_VERSION_MINOR;
 WS_DLL_PUBLIC void plugin_register(void);
 WS_DLL_PUBLIC uint32_t plugin_describe(void);
 
-static int proto_hello = -1;
+static int proto_hello;
 static dissector_handle_t handle_hello;
 
 static int
