@@ -187,7 +187,6 @@ dfilter_free(dfilter_t *df)
 		g_slist_free_full(df->warnings, g_free);
 
 	g_free(df->registers);
-	g_free(df->attempted_load);
 	g_free(df->expanded_text);
 	g_free(df->syntax_tree_str);
 	g_free(df);
@@ -506,7 +505,6 @@ dfwork_build(dfwork_t *dfw)
 	/* Initialize run-time space */
 	dfilter->num_registers = dfw->next_register;
 	dfilter->registers = g_new0(df_cell_t, dfilter->num_registers);
-	dfilter->attempted_load = g_new0(gboolean, dfilter->num_registers);
 
 	return dfilter;
 }
@@ -947,6 +945,12 @@ df_cell_is_empty(const df_cell_t *rp)
 	if (rp->array == NULL)
 		return true;
 	return rp->array->len == 0;
+}
+
+bool
+df_cell_is_null(const df_cell_t *rp)
+{
+	return rp->array == NULL;
 }
 
 void

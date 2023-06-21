@@ -829,18 +829,13 @@ read_tree(dfilter_t *df, proto_tree *tree,
 		range = arg3->value.drange;
 	}
 
+	rp = &df->registers[reg];
+
 	/* Already loaded in this run of the dfilter? */
-	if (df->attempted_load[reg]) {
-		if (!df_cell_is_empty(&df->registers[reg])) {
-			return TRUE;
-		}
-		else {
-			return FALSE;
-		}
+	if (!df_cell_is_null(rp)) {
+		return !df_cell_is_empty(rp);
 	}
 
-	df->attempted_load[reg] = TRUE;
-	rp = &df->registers[reg];
 	if (raw) {
 		df_cell_init(rp, TRUE);
 	}
@@ -854,7 +849,7 @@ read_tree(dfilter_t *df, proto_tree *tree,
 		hfinfo = hfinfo->same_name_next;
 	}
 
-	return df_cell_size(rp) > 0;
+	return !df_cell_is_empty(rp);
 }
 
 static void
@@ -915,27 +910,18 @@ read_reference(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2,
 		range = arg3->value.drange;
 	}
 
+	rp = &df->registers[reg];
+
 	/* Already loaded in this run of the dfilter? */
-	if (df->attempted_load[reg]) {
-		if (df_cell_is_empty(&df->registers[reg])) {
-			return TRUE;
-		}
-		else {
-			return FALSE;
-		}
+	if (!df_cell_is_null(rp)) {
+		return !df_cell_is_empty(rp);
 	}
 
-	df->attempted_load[reg] = TRUE;
-
-	if (raw)
-		refs = g_hash_table_lookup(df->raw_references, hfinfo);
-	else
-		refs = g_hash_table_lookup(df->references, hfinfo);
+	refs = g_hash_table_lookup(raw ? df->raw_references : df->references, hfinfo);
 	if (refs == NULL || refs->len == 0) {
 		return FALSE;
 	}
 
-	rp = &df->registers[reg];
 	// These values are referenced only, do not try to free it later.
 	df_cell_init(rp, FALSE);
 	filter_refs_fvalues(rp, refs, range);
@@ -1181,7 +1167,6 @@ static void
 free_register_overhead(dfilter_t* df)
 {
 	for (guint i = 0; i < df->num_registers; i++) {
-		df->attempted_load[i] = FALSE;
 		df_cell_clear(&df->registers[i]);
 	}
 }

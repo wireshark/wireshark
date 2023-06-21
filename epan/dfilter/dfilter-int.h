@@ -36,7 +36,6 @@ struct epan_dfilter {
 	GPtrArray	*insns;
 	guint		num_registers;
 	df_cell_t	*registers;
-	gboolean	*attempted_load;
 	int		*interesting_fields;
 	int		num_interesting_fields;
 	GPtrArray	*deprecated;
@@ -171,6 +170,9 @@ df_cell_array(const df_cell_t *rp);
 
 bool
 df_cell_is_empty(const df_cell_t *rp);
+
+bool
+df_cell_is_null(const df_cell_t *rp);
 
 /* Pass TRUE to free the array contents when the cell is cleared. */
 void
