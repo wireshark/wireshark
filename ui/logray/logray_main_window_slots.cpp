@@ -3012,11 +3012,36 @@ void LograyMainWindow::statCommandExpertInfo(const char *, void *)
 
 // Statistics Menu
 
-void LograyMainWindow::on_actionStatisticsFlowGraph_triggered()
+void LograyMainWindow::connectStatisticsMenuActions()
 {
-    QMessageBox::warning(this, "Oops", "SequenceDialog depends on RTPStreamDialog");
-//    SequenceDialog *sequence_dialog = new SequenceDialog(*this, capture_file_);
-//    sequence_dialog->show();
+    connect(main_ui_->actionStatisticsCaptureFileProperties, &QAction::triggered, this, [=]() {
+        CaptureFilePropertiesDialog *capture_file_properties_dialog = new CaptureFilePropertiesDialog(*this, capture_file_);
+        connect(capture_file_properties_dialog, SIGNAL(captureCommentChanged()),
+                this, SLOT(updateForUnsavedChanges()));
+        capture_file_properties_dialog->show();
+    });
+
+    connect(main_ui_->actionStatisticsResolvedAddresses, &QAction::triggered, this, &LograyMainWindow::showResolvedAddressesDialog);
+
+    connect(main_ui_->actionStatisticsProtocolHierarchy, &QAction::triggered, this, [=]() {
+        ProtocolHierarchyDialog *phd = new ProtocolHierarchyDialog(*this, capture_file_);
+        connect(phd, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
+                this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
+        phd->show();
+    });
+
+    connect(main_ui_->actionStatisticsConversations, &QAction::triggered, this, &LograyMainWindow::showConversationsDialog);
+    connect(main_ui_->actionStatisticsEndpoints, &QAction::triggered, this, &LograyMainWindow::showEndpointsDialog);
+
+    connect(main_ui_->actionStatisticsPacketLengths, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("plen"); });
+
+    connect(main_ui_->actionStatisticsIOGraph, &QAction::triggered, this, [=]() { statCommandIOGraph(NULL, NULL); });
+
+    connect(main_ui_->actionStatisticsFlowGraph, &QAction::triggered, this, [=]() {
+        QMessageBox::warning(this, "Oops", "SequenceDialog depends on RTPStreamDialog");
+        //    SequenceDialog *sequence_dialog = new SequenceDialog(*this, capture_file_);
+        //    sequence_dialog->show();
+    });
 }
 
 void LograyMainWindow::openStatisticsTreeDialog(const gchar *abbr)
@@ -3025,31 +3050,6 @@ void LograyMainWindow::openStatisticsTreeDialog(const gchar *abbr)
 //    connect(st_dialog, SIGNAL(goToPacket(int)),
 //            packet_list_, SLOT(goToPacket(int)));
     st_dialog->show();
-}
-
-void LograyMainWindow::on_actionStatisticsConversations_triggered()
-{
-    ConversationDialog *conv_dialog = new ConversationDialog(*this, capture_file_);
-    connect(conv_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-        this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    connect(conv_dialog, SIGNAL(openFollowStreamDialog(int, guint, guint)),
-        this, SLOT(openFollowStreamDialog(int, guint, guint)));
-    conv_dialog->show();
-}
-
-void LograyMainWindow::on_actionStatisticsEndpoints_triggered()
-{
-    EndpointDialog *endp_dialog = new EndpointDialog(*this, capture_file_);
-    connect(endp_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-            this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    connect(endp_dialog, SIGNAL(openFollowStreamDialog(int)),
-            this, SLOT(openFollowStreamDialog(int)));
-    endp_dialog->show();
-}
-
-void LograyMainWindow::on_actionStatisticsPacketLengths_triggered()
-{
-    openStatisticsTreeDialog("plen");
 }
 
 // -z io,stat
@@ -3064,11 +3064,6 @@ void LograyMainWindow::statCommandIOGraph(const char *, void *)
     connect(iog_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
     connect(this, SIGNAL(reloadFields()), iog_dialog, SLOT(reloadFields()));
     iog_dialog->show();
-}
-
-void LograyMainWindow::on_actionStatisticsIOGraph_triggered()
-{
-    statCommandIOGraph(NULL, NULL);
 }
 
 // Tools Menu
@@ -3202,15 +3197,7 @@ void LograyMainWindow::on_goToLineEdit_returnPressed()
     on_goToGo_clicked();
 }
 
-void LograyMainWindow::on_actionStatisticsCaptureFileProperties_triggered()
-{
-    CaptureFilePropertiesDialog *capture_file_properties_dialog = new CaptureFilePropertiesDialog(*this, capture_file_);
-    connect(capture_file_properties_dialog, SIGNAL(captureCommentChanged()),
-            this, SLOT(updateForUnsavedChanges()));
-    capture_file_properties_dialog->show();
-}
-
-void LograyMainWindow::on_actionStatisticsResolvedAddresses_triggered()
+void LograyMainWindow::showResolvedAddressesDialog()
 {
     QString capFileName;
     wtap* wth = Q_NULLPTR;
@@ -3224,12 +3211,24 @@ void LograyMainWindow::on_actionStatisticsResolvedAddresses_triggered()
     resolved_addresses_dialog->show();
 }
 
-void LograyMainWindow::on_actionStatisticsProtocolHierarchy_triggered()
+void LograyMainWindow::showConversationsDialog()
 {
-    ProtocolHierarchyDialog *phd = new ProtocolHierarchyDialog(*this, capture_file_);
-    connect(phd, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
+    ConversationDialog *conv_dialog = new ConversationDialog(*this, capture_file_);
+    connect(conv_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
+        this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
+    connect(conv_dialog, SIGNAL(openFollowStreamDialog(int, guint, guint)),
+        this, SLOT(openFollowStreamDialog(int, guint, guint)));
+    conv_dialog->show();
+}
+
+void LograyMainWindow::showEndpointsDialog()
+{
+    EndpointDialog *endp_dialog = new EndpointDialog(*this, capture_file_);
+    connect(endp_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
             this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    phd->show();
+    connect(endp_dialog, SIGNAL(openFollowStreamDialog(int)),
+            this, SLOT(openFollowStreamDialog(int)));
+    endp_dialog->show();
 }
 
 void LograyMainWindow::externalMenuItem_triggered()

@@ -460,17 +460,14 @@ private slots:
     void on_goToGo_clicked();
     void on_goToLineEdit_returnPressed();
 
-    void on_actionStatisticsCaptureFileProperties_triggered();
-    void on_actionStatisticsResolvedAddresses_triggered();
-    void on_actionStatisticsProtocolHierarchy_triggered();
-    void on_actionStatisticsFlowGraph_triggered();
+    void connectStatisticsMenuActions();
+
+    void showResolvedAddressesDialog();
+    void showConversationsDialog();
+    void showEndpointsDialog();
 
     void openStatisticsTreeDialog(const gchar *abbr);
-    void on_actionStatisticsConversations_triggered();
-    void on_actionStatisticsEndpoints_triggered();
-    void on_actionStatisticsPacketLengths_triggered();
     void statCommandIOGraph(const char *, void *);
-    void on_actionStatisticsIOGraph_triggered();
 
     void externalMenuItem_triggered();
 

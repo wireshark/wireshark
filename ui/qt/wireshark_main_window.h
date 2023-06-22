@@ -493,10 +493,12 @@ private slots:
     void on_goToGo_clicked();
     void on_goToLineEdit_returnPressed();
 
-    void on_actionStatisticsCaptureFileProperties_triggered();
-    void on_actionStatisticsResolvedAddresses_triggered();
-    void on_actionStatisticsProtocolHierarchy_triggered();
-    void on_actionStatisticsFlowGraph_triggered();
+    void connectStatisticsMenuActions();
+
+    void showResolvedAddressesDialog();
+    void showConversationsDialog();
+    void showEndpointsDialog();
+
     void openTcpStreamDialog(int graph_type);
     void on_actionStatisticsTcpStreamStevens_triggered();
     void on_actionStatisticsTcpStreamTcptrace_triggered();
@@ -508,7 +510,6 @@ private slots:
     void on_actionSCTPAnalyseThisAssociation_triggered();
     void on_actionSCTPFilterThisAssociation_triggered();
     void statCommandMulticastStatistics(const char *arg, void *);
-    void on_actionStatisticsUdpMulticastStreams_triggered();
 
     void statCommandWlanStatistics(const char *arg, void *);
     void on_actionWirelessWlanStatistics_triggered();
@@ -533,21 +534,12 @@ private slots:
     void on_actionStatisticsBACappIP_triggered();
     void on_actionStatisticsBACappObjectId_triggered();
     void on_actionStatisticsBACappService_triggered();
-    void on_actionStatisticsCollectd_triggered();
-    void on_actionStatisticsConversations_triggered();
-    void on_actionStatisticsEndpoints_triggered();
-    void on_actionStatisticsHART_IP_triggered();
     void on_actionStatisticsHTTPPacketCounter_triggered();
     void on_actionStatisticsHTTPRequests_triggered();
     void on_actionStatisticsHTTPLoadDistribution_triggered();
     void on_actionStatisticsHTTPRequestSequences_triggered();
-    void on_actionStatisticsPacketLengths_triggered();
     void statCommandIOGraph(const char *, void *);
-    void on_actionStatisticsIOGraph_triggered();
     void on_actionStatisticsSametime_triggered();
-    void on_actionStatisticsDNS_triggered();
-    void on_actionStatisticsHpfeeds_triggered();
-    void on_actionStatisticsHTTP2_triggered();
     void on_actionStatisticsSOMEIPmessages_triggered();
     void on_actionStatisticsSOMEIPSDentries_triggered();
     void on_actionStatisticsLTP_triggered();

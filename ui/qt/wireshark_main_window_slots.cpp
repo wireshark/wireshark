@@ -3349,10 +3349,42 @@ void WiresharkMainWindow::statCommandExpertInfo(const char *, void *)
 
 // Statistics Menu
 
-void WiresharkMainWindow::on_actionStatisticsFlowGraph_triggered()
+void WiresharkMainWindow::connectStatisticsMenuActions()
 {
-    SequenceDialog *sequence_dialog = new SequenceDialog(*this, capture_file_);
-    sequence_dialog->show();
+    connect(main_ui_->actionStatisticsCaptureFileProperties, &QAction::triggered, this, [=]() {
+        CaptureFilePropertiesDialog *capture_file_properties_dialog = new CaptureFilePropertiesDialog(*this, capture_file_);
+        connect(capture_file_properties_dialog, SIGNAL(captureCommentChanged()),
+                this, SLOT(updateForUnsavedChanges()));
+        capture_file_properties_dialog->show();
+    });
+
+    connect(main_ui_->actionStatisticsResolvedAddresses, &QAction::triggered, this, &WiresharkMainWindow::showResolvedAddressesDialog);
+
+    connect(main_ui_->actionStatisticsProtocolHierarchy, &QAction::triggered, this, [=]() {
+        ProtocolHierarchyDialog *phd = new ProtocolHierarchyDialog(*this, capture_file_);
+        connect(phd, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
+                this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
+        phd->show();
+    });
+
+    connect(main_ui_->actionStatisticsConversations, &QAction::triggered, this, &WiresharkMainWindow::showConversationsDialog);
+    connect(main_ui_->actionStatisticsEndpoints, &QAction::triggered, this, &WiresharkMainWindow::showEndpointsDialog);
+
+    connect(main_ui_->actionStatisticsPacketLengths, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("plen"); });
+
+    connect(main_ui_->actionStatisticsIOGraph, &QAction::triggered, this, [=]() { statCommandIOGraph(NULL, NULL); });
+
+    connect(main_ui_->actionStatisticsFlowGraph, &QAction::triggered, this, [=]() {
+        SequenceDialog *sequence_dialog = new SequenceDialog(*this, capture_file_);
+        sequence_dialog->show();
+    });
+
+    connect(main_ui_->actionStatisticsCollectd, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("collectd"); });
+    connect(main_ui_->actionStatisticsDNS, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("dns"); });
+    connect(main_ui_->actionStatisticsHART_IP, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("hart_ip"); });
+    connect(main_ui_->actionStatisticsHpfeeds, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("hpfeeds"); });
+    connect(main_ui_->actionStatisticsHTTP2, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("http2"); });
+    connect(main_ui_->actionStatisticsUdpMulticastStreams, &QAction::triggered, this, [=]() { statCommandMulticastStatistics(NULL, NULL); });
 }
 
 void WiresharkMainWindow::openTcpStreamDialog(int graph_type)
@@ -3399,11 +3431,6 @@ void WiresharkMainWindow::statCommandMulticastStatistics(const char *arg, void *
     connect(mcast_stats_dlg, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
             this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
     mcast_stats_dlg->show();
-}
-
-void WiresharkMainWindow::on_actionStatisticsUdpMulticastStreams_triggered()
-{
-    statCommandMulticastStatistics(NULL, NULL);
 }
 
 void WiresharkMainWindow::openStatisticsTreeDialog(const gchar *abbr)
@@ -3524,45 +3551,6 @@ void WiresharkMainWindow::on_actionStatisticsBACappService_triggered()
     openStatisticsTreeDialog("bacapp_service");
 }
 
-void WiresharkMainWindow::on_actionStatisticsCollectd_triggered()
-{
-    openStatisticsTreeDialog("collectd");
-}
-
-void WiresharkMainWindow::on_actionStatisticsConversations_triggered()
-{
-    ConversationDialog *conv_dialog = new ConversationDialog(*this, capture_file_);
-    connect(conv_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-        this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    connect(conv_dialog, SIGNAL(openFollowStreamDialog(int, guint, guint)),
-        this, SLOT(openFollowStreamDialog(int, guint, guint)));
-    connect(conv_dialog, SIGNAL(openTcpStreamGraph(int)),
-        this, SLOT(openTcpStreamDialog(int)));
-    conv_dialog->show();
-}
-
-void WiresharkMainWindow::on_actionStatisticsEndpoints_triggered()
-{
-    EndpointDialog *endp_dialog = new EndpointDialog(*this, capture_file_);
-    connect(endp_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
-            this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    connect(endp_dialog, SIGNAL(openFollowStreamDialog(int)),
-            this, SLOT(openFollowStreamDialog(int)));
-    connect(endp_dialog, SIGNAL(openTcpStreamGraph(int)),
-            this, SLOT(openTcpStreamDialog(int)));
-    endp_dialog->show();
-}
-
-void WiresharkMainWindow::on_actionStatisticsHART_IP_triggered()
-{
-    openStatisticsTreeDialog("hart_ip");
-}
-
-void WiresharkMainWindow::on_actionStatisticsHpfeeds_triggered()
-{
-    openStatisticsTreeDialog("hpfeeds");
-}
-
 void WiresharkMainWindow::on_actionStatisticsHTTPPacketCounter_triggered()
 {
     openStatisticsTreeDialog("http");
@@ -3583,11 +3571,6 @@ void WiresharkMainWindow::on_actionStatisticsHTTPRequestSequences_triggered()
     openStatisticsTreeDialog("http_seq");
 }
 
-void WiresharkMainWindow::on_actionStatisticsPacketLengths_triggered()
-{
-    openStatisticsTreeDialog("plen");
-}
-
 // -z io,stat
 void WiresharkMainWindow::statCommandIOGraph(const char *, void *)
 {
@@ -3602,25 +3585,9 @@ void WiresharkMainWindow::statCommandIOGraph(const char *, void *)
     iog_dialog->show();
 }
 
-void WiresharkMainWindow::on_actionStatisticsIOGraph_triggered()
-{
-    statCommandIOGraph(NULL, NULL);
-}
-
 void WiresharkMainWindow::on_actionStatisticsSametime_triggered()
 {
     openStatisticsTreeDialog("sametime");
-}
-
-void WiresharkMainWindow::on_actionStatisticsDNS_triggered()
-{
-    openStatisticsTreeDialog("dns");
-}
-
-void WiresharkMainWindow::on_actionStatisticsHTTP2_triggered()
-{
-    openStatisticsTreeDialog("http2");
-
 }
 
 void WiresharkMainWindow::on_actionStatisticsSOMEIPmessages_triggered()
@@ -4038,15 +4005,7 @@ void WiresharkMainWindow::on_goToLineEdit_returnPressed()
     on_goToGo_clicked();
 }
 
-void WiresharkMainWindow::on_actionStatisticsCaptureFileProperties_triggered()
-{
-    CaptureFilePropertiesDialog *capture_file_properties_dialog = new CaptureFilePropertiesDialog(*this, capture_file_);
-    connect(capture_file_properties_dialog, SIGNAL(captureCommentChanged()),
-            this, SLOT(updateForUnsavedChanges()));
-    capture_file_properties_dialog->show();
-}
-
-void WiresharkMainWindow::on_actionStatisticsResolvedAddresses_triggered()
+void WiresharkMainWindow::showResolvedAddressesDialog()
 {
     QString capFileName;
     wtap* wth = Q_NULLPTR;
@@ -4060,12 +4019,28 @@ void WiresharkMainWindow::on_actionStatisticsResolvedAddresses_triggered()
     resolved_addresses_dialog->show();
 }
 
-void WiresharkMainWindow::on_actionStatisticsProtocolHierarchy_triggered()
+void WiresharkMainWindow::showConversationsDialog()
 {
-    ProtocolHierarchyDialog *phd = new ProtocolHierarchyDialog(*this, capture_file_);
-    connect(phd, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
+    ConversationDialog *conv_dialog = new ConversationDialog(*this, capture_file_);
+    connect(conv_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
+        this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
+    connect(conv_dialog, SIGNAL(openFollowStreamDialog(int, guint, guint)),
+        this, SLOT(openFollowStreamDialog(int, guint, guint)));
+    connect(conv_dialog, SIGNAL(openTcpStreamGraph(int)),
+        this, SLOT(openTcpStreamDialog(int)));
+    conv_dialog->show();
+}
+
+void WiresharkMainWindow::showEndpointsDialog()
+{
+    EndpointDialog *endp_dialog = new EndpointDialog(*this, capture_file_);
+    connect(endp_dialog, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
             this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
-    phd->show();
+    connect(endp_dialog, SIGNAL(openFollowStreamDialog(int)),
+            this, SLOT(openFollowStreamDialog(int)));
+    connect(endp_dialog, SIGNAL(openTcpStreamGraph(int)),
+            this, SLOT(openTcpStreamDialog(int)));
+    endp_dialog->show();
 }
 
 void WiresharkMainWindow::externalMenuItem_triggered()

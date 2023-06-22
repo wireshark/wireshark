@@ -607,6 +607,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connectGoMenuActions();
     connectCaptureMenuActions();
     connectAnalyzeMenuActions();
+    connectStatisticsMenuActions();
 
     connect(packet_list_, SIGNAL(packetDissectionChanged()),
             this, SLOT(redissectPackets()));
@@ -639,7 +640,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
             &capture_file_, &CaptureFile::stopLoading);
 
     connect(main_ui_->statusBar, &MainStatusBar::editCaptureComment,
-            this, &LograyMainWindow::on_actionStatisticsCaptureFileProperties_triggered);
+            main_ui_->actionStatisticsCaptureFileProperties, &QAction::trigger);
 
     connect(main_ui_->menuApplyAsFilter, &QMenu::aboutToShow,
             this, &LograyMainWindow::filterMenuAboutToShow);
