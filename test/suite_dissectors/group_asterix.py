@@ -1856,7 +1856,7 @@ class TestCategory048:
             [0x01, 0x01, 0x40, 0x2e],
             "asterix.048_030",
             {
-                "asterix.048_030_CODE": "23",
+                "asterix.048_030_Subitem": "23",
                 "asterix.FX": "0"
             }
         )
@@ -2868,7 +2868,7 @@ class TestCategory048:
             [0x01, 0x01, 0x40, 0xfe],
             "asterix.048_030",
             {
-                "asterix.048_030_CODE": "127",
+                "asterix.048_030_Subitem": "127",
                 "asterix.FX": "0"
             }
         )
