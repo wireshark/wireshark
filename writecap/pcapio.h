@@ -1,6 +1,6 @@
 /** @file
  *
- * Declarations of our own routines for writing libpcap files.
+ * Declarations of our own routines for writing pcap and pcapng files.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
