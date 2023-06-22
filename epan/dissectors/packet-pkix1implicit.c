@@ -31,30 +31,30 @@ void proto_register_pkix1implicit(void);
 void proto_reg_handoff_pkix1implicit(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_pkix1implicit = -1;
-static int hf_pkix1implicit_Dummy_PDU = -1;       /* Dummy */
-static int hf_pkix1implicit_AuthorityInfoAccessSyntax_PDU = -1;  /* AuthorityInfoAccessSyntax */
-static int hf_pkix1implicit_UserNotice_PDU = -1;  /* UserNotice */
-static int hf_pkix1implicit_AuthorityInfoAccessSyntax_item = -1;  /* AccessDescription */
-static int hf_pkix1implicit_accessMethod = -1;    /* OBJECT_IDENTIFIER */
-static int hf_pkix1implicit_accessLocation = -1;  /* GeneralName */
-static int hf_pkix1implicit_noticeRef = -1;       /* NoticeReference */
-static int hf_pkix1implicit_explicitText = -1;    /* DisplayText */
-static int hf_pkix1implicit_organization = -1;    /* DisplayText */
-static int hf_pkix1implicit_noticeNumbers = -1;   /* T_noticeNumbers */
-static int hf_pkix1implicit_noticeNumbers_item = -1;  /* INTEGER */
-static int hf_pkix1implicit_ia5String = -1;       /* IA5String */
-static int hf_pkix1implicit_visibleString = -1;   /* VisibleString */
-static int hf_pkix1implicit_bmpString = -1;       /* BMPString */
-static int hf_pkix1implicit_utf8String = -1;      /* UTF8String */
+static int proto_pkix1implicit;
+static int hf_pkix1implicit_Dummy_PDU;            /* Dummy */
+static int hf_pkix1implicit_AuthorityInfoAccessSyntax_PDU;  /* AuthorityInfoAccessSyntax */
+static int hf_pkix1implicit_UserNotice_PDU;       /* UserNotice */
+static int hf_pkix1implicit_AuthorityInfoAccessSyntax_item;  /* AccessDescription */
+static int hf_pkix1implicit_accessMethod;         /* OBJECT_IDENTIFIER */
+static int hf_pkix1implicit_accessLocation;       /* GeneralName */
+static int hf_pkix1implicit_noticeRef;            /* NoticeReference */
+static int hf_pkix1implicit_explicitText;         /* DisplayText */
+static int hf_pkix1implicit_organization;         /* DisplayText */
+static int hf_pkix1implicit_noticeNumbers;        /* T_noticeNumbers */
+static int hf_pkix1implicit_noticeNumbers_item;   /* INTEGER */
+static int hf_pkix1implicit_ia5String;            /* IA5String */
+static int hf_pkix1implicit_visibleString;        /* VisibleString */
+static int hf_pkix1implicit_bmpString;            /* BMPString */
+static int hf_pkix1implicit_utf8String;           /* UTF8String */
 
 /* Initialize the subtree pointers */
-static gint ett_pkix1implicit_AuthorityInfoAccessSyntax = -1;
-static gint ett_pkix1implicit_AccessDescription = -1;
-static gint ett_pkix1implicit_UserNotice = -1;
-static gint ett_pkix1implicit_NoticeReference = -1;
-static gint ett_pkix1implicit_T_noticeNumbers = -1;
-static gint ett_pkix1implicit_DisplayText = -1;
+static gint ett_pkix1implicit_AuthorityInfoAccessSyntax;
+static gint ett_pkix1implicit_AccessDescription;
+static gint ett_pkix1implicit_UserNotice;
+static gint ett_pkix1implicit_NoticeReference;
+static gint ett_pkix1implicit_T_noticeNumbers;
+static gint ett_pkix1implicit_DisplayText;
 
 
 int

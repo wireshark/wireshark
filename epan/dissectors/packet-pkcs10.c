@@ -48,27 +48,27 @@ void proto_register_pkcs10(void);
 static dissector_handle_t csr_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_pkcs10 = -1;
-static int hf_pkcs10_Attributes_PDU = -1;         /* Attributes */
-static int hf_pkcs10_CertificationRequest_PDU = -1;  /* CertificationRequest */
-static int hf_pkcs10_version = -1;                /* T_version */
-static int hf_pkcs10_subject = -1;                /* Name */
-static int hf_pkcs10_subjectPKInfo = -1;          /* SubjectPublicKeyInfo */
-static int hf_pkcs10_attributes = -1;             /* Attributes */
-static int hf_pkcs10_Attributes_item = -1;        /* Attribute */
-static int hf_pkcs10_type = -1;                   /* T_type */
-static int hf_pkcs10_values = -1;                 /* T_values */
-static int hf_pkcs10_values_item = -1;            /* T_values_item */
-static int hf_pkcs10_certificationRequestInfo = -1;  /* CertificationRequestInfo */
-static int hf_pkcs10_signatureAlgorithm = -1;     /* AlgorithmIdentifier */
-static int hf_pkcs10_signature = -1;              /* BIT_STRING */
+static int proto_pkcs10;
+static int hf_pkcs10_Attributes_PDU;              /* Attributes */
+static int hf_pkcs10_CertificationRequest_PDU;    /* CertificationRequest */
+static int hf_pkcs10_version;                     /* T_version */
+static int hf_pkcs10_subject;                     /* Name */
+static int hf_pkcs10_subjectPKInfo;               /* SubjectPublicKeyInfo */
+static int hf_pkcs10_attributes;                  /* Attributes */
+static int hf_pkcs10_Attributes_item;             /* Attribute */
+static int hf_pkcs10_type;                        /* T_type */
+static int hf_pkcs10_values;                      /* T_values */
+static int hf_pkcs10_values_item;                 /* T_values_item */
+static int hf_pkcs10_certificationRequestInfo;    /* CertificationRequestInfo */
+static int hf_pkcs10_signatureAlgorithm;          /* AlgorithmIdentifier */
+static int hf_pkcs10_signature;                   /* BIT_STRING */
 
 /* Initialize the subtree pointers */
-static gint ett_pkcs10_CertificationRequestInfo = -1;
-static gint ett_pkcs10_Attributes = -1;
-static gint ett_pkcs10_Attribute = -1;
-static gint ett_pkcs10_T_values = -1;
-static gint ett_pkcs10_CertificationRequest = -1;
+static gint ett_pkcs10_CertificationRequestInfo;
+static gint ett_pkcs10_Attributes;
+static gint ett_pkcs10_Attribute;
+static gint ett_pkcs10_T_values;
+static gint ett_pkcs10_CertificationRequest;
 
 static const value_string pkcs10_T_version_vals[] = {
   {   0, "v1" },

@@ -38,119 +38,119 @@ void proto_register_acp133(void);
 void proto_reg_handoff_acp133(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_acp133 = -1;
+static int proto_acp133;
 
 
-static int hf_acp133_ACPPreferredDelivery_PDU = -1;  /* ACPPreferredDelivery */
-static int hf_acp133_ALType_PDU = -1;             /* ALType */
-static int hf_acp133_Community_PDU = -1;          /* Community */
-static int hf_acp133_OnSupported_PDU = -1;        /* OnSupported */
-static int hf_acp133_ACPLegacyFormat_PDU = -1;    /* ACPLegacyFormat */
-static int hf_acp133_ACPNoAttachments_PDU = -1;   /* ACPNoAttachments */
-static int hf_acp133_Active_PDU = -1;             /* Active */
-static int hf_acp133_Addressees_PDU = -1;         /* Addressees */
-static int hf_acp133_Classification_PDU = -1;     /* Classification */
-static int hf_acp133_DistributionCode_PDU = -1;   /* DistributionCode */
-static int hf_acp133_EmConCapability_PDU = -1;    /* EmConCapability */
-static int hf_acp133_EmConState_PDU = -1;         /* EmConState */
-static int hf_acp133_JPEG_PDU = -1;               /* JPEG */
-static int hf_acp133_MaxMessageSize_PDU = -1;     /* MaxMessageSize */
-static int hf_acp133_MonthlyUKMs_PDU = -1;        /* MonthlyUKMs */
-static int hf_acp133_MsgProtocolInfoCapability_PDU = -1;  /* MsgProtocolInfoCapability */
-static int hf_acp133_Remarks_PDU = -1;            /* Remarks */
-static int hf_acp133_RIParameters_PDU = -1;       /* RIParameters */
-static int hf_acp133_WebAccessCapability_PDU = -1;  /* WebAccessCapability */
-static int hf_acp133_Kmid_PDU = -1;               /* Kmid */
-static int hf_acp133_MLReceiptPolicy_PDU = -1;    /* MLReceiptPolicy */
-static int hf_acp133_DLSubmitPermission_PDU = -1;  /* DLSubmitPermission */
-static int hf_acp133_DLPolicy_PDU = -1;           /* DLPolicy */
-static int hf_acp133_AddressCapabilities_PDU = -1;  /* AddressCapabilities */
-static int hf_acp133_Capability_PDU = -1;         /* Capability */
-static int hf_acp133_Addressees_item = -1;        /* PrintableString_SIZE_1_55 */
-static int hf_acp133_ukm_entries = -1;            /* SEQUENCE_OF_UKMEntry */
-static int hf_acp133_ukm_entries_item = -1;       /* UKMEntry */
-static int hf_acp133_algorithm_identifier = -1;   /* AlgorithmIdentifier */
-static int hf_acp133_encrypted = -1;              /* BIT_STRING */
-static int hf_acp133_Remarks_item = -1;           /* PrintableString */
-static int hf_acp133_ri_parameters = -1;          /* DirectoryString */
-static int hf_acp133_ri_parameters_deprecated = -1;  /* RIParametersDeprecated */
-static int hf_acp133_rI = -1;                     /* PrintableString */
-static int hf_acp133_rIType = -1;                 /* T_rIType */
-static int hf_acp133_minimize = -1;               /* BOOLEAN */
-static int hf_acp133_sHD = -1;                    /* PrintableString */
-static int hf_acp133_classification = -1;         /* Classification */
-static int hf_acp133_tag = -1;                    /* PairwiseTag */
-static int hf_acp133_ukm = -1;                    /* OCTET_STRING */
-static int hf_acp133_kmid = -1;                   /* Kmid */
-static int hf_acp133_edition = -1;                /* INTEGER */
-static int hf_acp133_date = -1;                   /* UTCTime */
-static int hf_acp133_none = -1;                   /* NULL */
-static int hf_acp133_insteadOf = -1;              /* SEQUENCE_OF_GeneralNames */
-static int hf_acp133_insteadOf_item = -1;         /* GeneralNames */
-static int hf_acp133_inAdditionTo = -1;           /* SEQUENCE_OF_GeneralNames */
-static int hf_acp133_inAdditionTo_item = -1;      /* GeneralNames */
-static int hf_acp133_individual = -1;             /* ORName */
-static int hf_acp133_member_of_dl = -1;           /* ORName */
-static int hf_acp133_pattern_match = -1;          /* ORNamePattern */
-static int hf_acp133_member_of_group = -1;        /* Name */
-static int hf_acp133_report_propagation = -1;     /* T_report_propagation */
-static int hf_acp133_report_from_dl = -1;         /* T_report_from_dl */
-static int hf_acp133_originating_MTA_report = -1;  /* T_originating_MTA_report */
-static int hf_acp133_originator_report = -1;      /* T_originator_report */
-static int hf_acp133_return_of_content = -1;      /* T_return_of_content */
-static int hf_acp133_priority = -1;               /* T_priority */
-static int hf_acp133_disclosure_of_other_recipients = -1;  /* T_disclosure_of_other_recipients */
-static int hf_acp133_implicit_conversion_prohibited = -1;  /* T_implicit_conversion_prohibited */
-static int hf_acp133_conversion_with_loss_prohibited = -1;  /* T_conversion_with_loss_prohibited */
-static int hf_acp133_further_dl_expansion_allowed = -1;  /* BOOLEAN */
-static int hf_acp133_originator_requested_alternate_recipient_removed = -1;  /* BOOLEAN */
-static int hf_acp133_proof_of_delivery = -1;      /* T_proof_of_delivery */
-static int hf_acp133_requested_delivery_method = -1;  /* T_requested_delivery_method */
-static int hf_acp133_unchanged = -1;              /* NULL */
-static int hf_acp133_removed = -1;                /* NULL */
-static int hf_acp133_replaced = -1;               /* RequestedDeliveryMethod */
-static int hf_acp133_token_encryption_algorithm_preference = -1;  /* SEQUENCE_OF_AlgorithmInformation */
-static int hf_acp133_token_encryption_algorithm_preference_item = -1;  /* AlgorithmInformation */
-static int hf_acp133_token_signature_algorithm_preference = -1;  /* SEQUENCE_OF_AlgorithmInformation */
-static int hf_acp133_token_signature_algorithm_preference_item = -1;  /* AlgorithmInformation */
-static int hf_acp133_originator_certificate_selector = -1;  /* CertificateAssertion */
-static int hf_acp133_recipient_certificate_selector = -1;  /* CertificateAssertion */
-static int hf_acp133_description = -1;            /* GeneralString */
-static int hf_acp133_address = -1;                /* ORAddress */
-static int hf_acp133_capabilities = -1;           /* SET_OF_Capability */
-static int hf_acp133_capabilities_item = -1;      /* Capability */
-static int hf_acp133_content_types = -1;          /* SET_OF_ExtendedContentType */
-static int hf_acp133_content_types_item = -1;     /* ExtendedContentType */
-static int hf_acp133_maximum_content_length = -1;  /* ContentLength */
-static int hf_acp133_encoded_information_types_constraints = -1;  /* EncodedInformationTypesConstraints */
-static int hf_acp133_security_labels = -1;        /* SecurityContext */
+static int hf_acp133_ACPPreferredDelivery_PDU;    /* ACPPreferredDelivery */
+static int hf_acp133_ALType_PDU;                  /* ALType */
+static int hf_acp133_Community_PDU;               /* Community */
+static int hf_acp133_OnSupported_PDU;             /* OnSupported */
+static int hf_acp133_ACPLegacyFormat_PDU;         /* ACPLegacyFormat */
+static int hf_acp133_ACPNoAttachments_PDU;        /* ACPNoAttachments */
+static int hf_acp133_Active_PDU;                  /* Active */
+static int hf_acp133_Addressees_PDU;              /* Addressees */
+static int hf_acp133_Classification_PDU;          /* Classification */
+static int hf_acp133_DistributionCode_PDU;        /* DistributionCode */
+static int hf_acp133_EmConCapability_PDU;         /* EmConCapability */
+static int hf_acp133_EmConState_PDU;              /* EmConState */
+static int hf_acp133_JPEG_PDU;                    /* JPEG */
+static int hf_acp133_MaxMessageSize_PDU;          /* MaxMessageSize */
+static int hf_acp133_MonthlyUKMs_PDU;             /* MonthlyUKMs */
+static int hf_acp133_MsgProtocolInfoCapability_PDU;  /* MsgProtocolInfoCapability */
+static int hf_acp133_Remarks_PDU;                 /* Remarks */
+static int hf_acp133_RIParameters_PDU;            /* RIParameters */
+static int hf_acp133_WebAccessCapability_PDU;     /* WebAccessCapability */
+static int hf_acp133_Kmid_PDU;                    /* Kmid */
+static int hf_acp133_MLReceiptPolicy_PDU;         /* MLReceiptPolicy */
+static int hf_acp133_DLSubmitPermission_PDU;      /* DLSubmitPermission */
+static int hf_acp133_DLPolicy_PDU;                /* DLPolicy */
+static int hf_acp133_AddressCapabilities_PDU;     /* AddressCapabilities */
+static int hf_acp133_Capability_PDU;              /* Capability */
+static int hf_acp133_Addressees_item;             /* PrintableString_SIZE_1_55 */
+static int hf_acp133_ukm_entries;                 /* SEQUENCE_OF_UKMEntry */
+static int hf_acp133_ukm_entries_item;            /* UKMEntry */
+static int hf_acp133_algorithm_identifier;        /* AlgorithmIdentifier */
+static int hf_acp133_encrypted;                   /* BIT_STRING */
+static int hf_acp133_Remarks_item;                /* PrintableString */
+static int hf_acp133_ri_parameters;               /* DirectoryString */
+static int hf_acp133_ri_parameters_deprecated;    /* RIParametersDeprecated */
+static int hf_acp133_rI;                          /* PrintableString */
+static int hf_acp133_rIType;                      /* T_rIType */
+static int hf_acp133_minimize;                    /* BOOLEAN */
+static int hf_acp133_sHD;                         /* PrintableString */
+static int hf_acp133_classification;              /* Classification */
+static int hf_acp133_tag;                         /* PairwiseTag */
+static int hf_acp133_ukm;                         /* OCTET_STRING */
+static int hf_acp133_kmid;                        /* Kmid */
+static int hf_acp133_edition;                     /* INTEGER */
+static int hf_acp133_date;                        /* UTCTime */
+static int hf_acp133_none;                        /* NULL */
+static int hf_acp133_insteadOf;                   /* SEQUENCE_OF_GeneralNames */
+static int hf_acp133_insteadOf_item;              /* GeneralNames */
+static int hf_acp133_inAdditionTo;                /* SEQUENCE_OF_GeneralNames */
+static int hf_acp133_inAdditionTo_item;           /* GeneralNames */
+static int hf_acp133_individual;                  /* ORName */
+static int hf_acp133_member_of_dl;                /* ORName */
+static int hf_acp133_pattern_match;               /* ORNamePattern */
+static int hf_acp133_member_of_group;             /* Name */
+static int hf_acp133_report_propagation;          /* T_report_propagation */
+static int hf_acp133_report_from_dl;              /* T_report_from_dl */
+static int hf_acp133_originating_MTA_report;      /* T_originating_MTA_report */
+static int hf_acp133_originator_report;           /* T_originator_report */
+static int hf_acp133_return_of_content;           /* T_return_of_content */
+static int hf_acp133_priority;                    /* T_priority */
+static int hf_acp133_disclosure_of_other_recipients;  /* T_disclosure_of_other_recipients */
+static int hf_acp133_implicit_conversion_prohibited;  /* T_implicit_conversion_prohibited */
+static int hf_acp133_conversion_with_loss_prohibited;  /* T_conversion_with_loss_prohibited */
+static int hf_acp133_further_dl_expansion_allowed;  /* BOOLEAN */
+static int hf_acp133_originator_requested_alternate_recipient_removed;  /* BOOLEAN */
+static int hf_acp133_proof_of_delivery;           /* T_proof_of_delivery */
+static int hf_acp133_requested_delivery_method;   /* T_requested_delivery_method */
+static int hf_acp133_unchanged;                   /* NULL */
+static int hf_acp133_removed;                     /* NULL */
+static int hf_acp133_replaced;                    /* RequestedDeliveryMethod */
+static int hf_acp133_token_encryption_algorithm_preference;  /* SEQUENCE_OF_AlgorithmInformation */
+static int hf_acp133_token_encryption_algorithm_preference_item;  /* AlgorithmInformation */
+static int hf_acp133_token_signature_algorithm_preference;  /* SEQUENCE_OF_AlgorithmInformation */
+static int hf_acp133_token_signature_algorithm_preference_item;  /* AlgorithmInformation */
+static int hf_acp133_originator_certificate_selector;  /* CertificateAssertion */
+static int hf_acp133_recipient_certificate_selector;  /* CertificateAssertion */
+static int hf_acp133_description;                 /* GeneralString */
+static int hf_acp133_address;                     /* ORAddress */
+static int hf_acp133_capabilities;                /* SET_OF_Capability */
+static int hf_acp133_capabilities_item;           /* Capability */
+static int hf_acp133_content_types;               /* SET_OF_ExtendedContentType */
+static int hf_acp133_content_types_item;          /* ExtendedContentType */
+static int hf_acp133_maximum_content_length;      /* ContentLength */
+static int hf_acp133_encoded_information_types_constraints;  /* EncodedInformationTypesConstraints */
+static int hf_acp133_security_labels;             /* SecurityContext */
 /* named bits */
-static int hf_acp133_OnSupported_acp127_nn = -1;
-static int hf_acp133_OnSupported_acp127_pn = -1;
-static int hf_acp133_OnSupported_acp127_tn = -1;
+static int hf_acp133_OnSupported_acp127_nn;
+static int hf_acp133_OnSupported_acp127_pn;
+static int hf_acp133_OnSupported_acp127_tn;
 
 /* Initialize the subtree pointers */
-static gint ett_acp133 = -1;
-static gint ett_acp133_OnSupported = -1;
-static gint ett_acp133_Addressees = -1;
-static gint ett_acp133_MonthlyUKMs = -1;
-static gint ett_acp133_SEQUENCE_OF_UKMEntry = -1;
-static gint ett_acp133_Remarks = -1;
-static gint ett_acp133_RIParameters = -1;
-static gint ett_acp133_RIParametersDeprecated = -1;
-static gint ett_acp133_UKMEntry = -1;
-static gint ett_acp133_PairwiseTag = -1;
-static gint ett_acp133_MLReceiptPolicy = -1;
-static gint ett_acp133_SEQUENCE_OF_GeneralNames = -1;
-static gint ett_acp133_DLSubmitPermission = -1;
-static gint ett_acp133_DLPolicy = -1;
-static gint ett_acp133_T_requested_delivery_method = -1;
-static gint ett_acp133_SEQUENCE_OF_AlgorithmInformation = -1;
-static gint ett_acp133_AlgorithmInformation = -1;
-static gint ett_acp133_AddressCapabilities = -1;
-static gint ett_acp133_SET_OF_Capability = -1;
-static gint ett_acp133_Capability = -1;
-static gint ett_acp133_SET_OF_ExtendedContentType = -1;
+static gint ett_acp133;
+static gint ett_acp133_OnSupported;
+static gint ett_acp133_Addressees;
+static gint ett_acp133_MonthlyUKMs;
+static gint ett_acp133_SEQUENCE_OF_UKMEntry;
+static gint ett_acp133_Remarks;
+static gint ett_acp133_RIParameters;
+static gint ett_acp133_RIParametersDeprecated;
+static gint ett_acp133_UKMEntry;
+static gint ett_acp133_PairwiseTag;
+static gint ett_acp133_MLReceiptPolicy;
+static gint ett_acp133_SEQUENCE_OF_GeneralNames;
+static gint ett_acp133_DLSubmitPermission;
+static gint ett_acp133_DLPolicy;
+static gint ett_acp133_T_requested_delivery_method;
+static gint ett_acp133_SEQUENCE_OF_AlgorithmInformation;
+static gint ett_acp133_AlgorithmInformation;
+static gint ett_acp133_AddressCapabilities;
+static gint ett_acp133_SET_OF_Capability;
+static gint ett_acp133_Capability;
+static gint ett_acp133_SET_OF_ExtendedContentType;
 
 
 static const value_string acp133_ACPPreferredDelivery_vals[] = {

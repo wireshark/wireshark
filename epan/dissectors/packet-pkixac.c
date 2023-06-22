@@ -35,79 +35,79 @@ void proto_register_pkixac(void);
 void proto_reg_handoff_pkixac(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_pkixac = -1;
-static int hf_pkixac_Targets_PDU = -1;            /* Targets */
-static int hf_pkixac_IetfAttrSyntax_PDU = -1;     /* IetfAttrSyntax */
-static int hf_pkixac_SvceAuthInfo_PDU = -1;       /* SvceAuthInfo */
-static int hf_pkixac_RoleSyntax_PDU = -1;         /* RoleSyntax */
-static int hf_pkixac_Clearance_PDU = -1;          /* Clearance */
-static int hf_pkixac_RFC3281Clearance_PDU = -1;   /* RFC3281Clearance */
-static int hf_pkixac_AAControls_PDU = -1;         /* AAControls */
-static int hf_pkixac_ProxyInfo_PDU = -1;          /* ProxyInfo */
-static int hf_pkixac_digestedObjectType = -1;     /* T_digestedObjectType */
-static int hf_pkixac_otherObjectTypeID = -1;      /* OBJECT_IDENTIFIER */
-static int hf_pkixac_digestAlgorithm = -1;        /* AlgorithmIdentifier */
-static int hf_pkixac_objectDigest = -1;           /* BIT_STRING */
-static int hf_pkixac_issuer = -1;                 /* GeneralNames */
-static int hf_pkixac_serial = -1;                 /* CertificateSerialNumber */
-static int hf_pkixac_issuerUID = -1;              /* UniqueIdentifier */
-static int hf_pkixac_Targets_item = -1;           /* Target */
-static int hf_pkixac_targetName = -1;             /* GeneralName */
-static int hf_pkixac_targetGroup = -1;            /* GeneralName */
-static int hf_pkixac_targetCert = -1;             /* TargetCert */
-static int hf_pkixac_targetCertificate = -1;      /* IssuerSerial */
-static int hf_pkixac_certDigestInfo = -1;         /* ObjectDigestInfo */
-static int hf_pkixac_policyAuthority = -1;        /* GeneralNames */
-static int hf_pkixac_values = -1;                 /* T_values */
-static int hf_pkixac_values_item = -1;            /* T_values_item */
-static int hf_pkixac_octets = -1;                 /* OCTET_STRING */
-static int hf_pkixac_oid = -1;                    /* OBJECT_IDENTIFIER */
-static int hf_pkixac_string = -1;                 /* UTF8String */
-static int hf_pkixac_service = -1;                /* GeneralName */
-static int hf_pkixac_ident = -1;                  /* GeneralName */
-static int hf_pkixac_authInfo = -1;               /* OCTET_STRING */
-static int hf_pkixac_roleAuthority = -1;          /* GeneralNames */
-static int hf_pkixac_roleName = -1;               /* GeneralName */
-static int hf_pkixac_policyId = -1;               /* OBJECT_IDENTIFIER */
-static int hf_pkixac_classList = -1;              /* ClassList */
-static int hf_pkixac_securityCategories = -1;     /* SET_OF_SecurityCategory */
-static int hf_pkixac_securityCategories_item = -1;  /* SecurityCategory */
-static int hf_pkixac_type = -1;                   /* T_type */
-static int hf_pkixac_value = -1;                  /* T_value */
-static int hf_pkixac_pathLenConstraint = -1;      /* INTEGER_0_MAX */
-static int hf_pkixac_permittedAttrs = -1;         /* AttrSpec */
-static int hf_pkixac_excludedAttrs = -1;          /* AttrSpec */
-static int hf_pkixac_permitUnSpecified = -1;      /* BOOLEAN */
-static int hf_pkixac_AttrSpec_item = -1;          /* OBJECT_IDENTIFIER */
-static int hf_pkixac_ProxyInfo_item = -1;         /* Targets */
+static int proto_pkixac;
+static int hf_pkixac_Targets_PDU;                 /* Targets */
+static int hf_pkixac_IetfAttrSyntax_PDU;          /* IetfAttrSyntax */
+static int hf_pkixac_SvceAuthInfo_PDU;            /* SvceAuthInfo */
+static int hf_pkixac_RoleSyntax_PDU;              /* RoleSyntax */
+static int hf_pkixac_Clearance_PDU;               /* Clearance */
+static int hf_pkixac_RFC3281Clearance_PDU;        /* RFC3281Clearance */
+static int hf_pkixac_AAControls_PDU;              /* AAControls */
+static int hf_pkixac_ProxyInfo_PDU;               /* ProxyInfo */
+static int hf_pkixac_digestedObjectType;          /* T_digestedObjectType */
+static int hf_pkixac_otherObjectTypeID;           /* OBJECT_IDENTIFIER */
+static int hf_pkixac_digestAlgorithm;             /* AlgorithmIdentifier */
+static int hf_pkixac_objectDigest;                /* BIT_STRING */
+static int hf_pkixac_issuer;                      /* GeneralNames */
+static int hf_pkixac_serial;                      /* CertificateSerialNumber */
+static int hf_pkixac_issuerUID;                   /* UniqueIdentifier */
+static int hf_pkixac_Targets_item;                /* Target */
+static int hf_pkixac_targetName;                  /* GeneralName */
+static int hf_pkixac_targetGroup;                 /* GeneralName */
+static int hf_pkixac_targetCert;                  /* TargetCert */
+static int hf_pkixac_targetCertificate;           /* IssuerSerial */
+static int hf_pkixac_certDigestInfo;              /* ObjectDigestInfo */
+static int hf_pkixac_policyAuthority;             /* GeneralNames */
+static int hf_pkixac_values;                      /* T_values */
+static int hf_pkixac_values_item;                 /* T_values_item */
+static int hf_pkixac_octets;                      /* OCTET_STRING */
+static int hf_pkixac_oid;                         /* OBJECT_IDENTIFIER */
+static int hf_pkixac_string;                      /* UTF8String */
+static int hf_pkixac_service;                     /* GeneralName */
+static int hf_pkixac_ident;                       /* GeneralName */
+static int hf_pkixac_authInfo;                    /* OCTET_STRING */
+static int hf_pkixac_roleAuthority;               /* GeneralNames */
+static int hf_pkixac_roleName;                    /* GeneralName */
+static int hf_pkixac_policyId;                    /* OBJECT_IDENTIFIER */
+static int hf_pkixac_classList;                   /* ClassList */
+static int hf_pkixac_securityCategories;          /* SET_OF_SecurityCategory */
+static int hf_pkixac_securityCategories_item;     /* SecurityCategory */
+static int hf_pkixac_type;                        /* T_type */
+static int hf_pkixac_value;                       /* T_value */
+static int hf_pkixac_pathLenConstraint;           /* INTEGER_0_MAX */
+static int hf_pkixac_permittedAttrs;              /* AttrSpec */
+static int hf_pkixac_excludedAttrs;               /* AttrSpec */
+static int hf_pkixac_permitUnSpecified;           /* BOOLEAN */
+static int hf_pkixac_AttrSpec_item;               /* OBJECT_IDENTIFIER */
+static int hf_pkixac_ProxyInfo_item;              /* Targets */
 /* named bits */
-static int hf_pkixac_ClassList_unmarked = -1;
-static int hf_pkixac_ClassList_unclassified = -1;
-static int hf_pkixac_ClassList_restricted = -1;
-static int hf_pkixac_ClassList_confidential = -1;
-static int hf_pkixac_ClassList_secret = -1;
-static int hf_pkixac_ClassList_topSecret = -1;
+static int hf_pkixac_ClassList_unmarked;
+static int hf_pkixac_ClassList_unclassified;
+static int hf_pkixac_ClassList_restricted;
+static int hf_pkixac_ClassList_confidential;
+static int hf_pkixac_ClassList_secret;
+static int hf_pkixac_ClassList_topSecret;
 
 /* Initialize the subtree pointers */
-static gint ett_pkixac = -1;
-static gint ett_pkixac_ObjectDigestInfo = -1;
-static gint ett_pkixac_IssuerSerial = -1;
-static gint ett_pkixac_Targets = -1;
-static gint ett_pkixac_Target = -1;
-static gint ett_pkixac_TargetCert = -1;
-static gint ett_pkixac_IetfAttrSyntax = -1;
-static gint ett_pkixac_T_values = -1;
-static gint ett_pkixac_T_values_item = -1;
-static gint ett_pkixac_SvceAuthInfo = -1;
-static gint ett_pkixac_RoleSyntax = -1;
-static gint ett_pkixac_Clearance = -1;
-static gint ett_pkixac_SET_OF_SecurityCategory = -1;
-static gint ett_pkixac_RFC3281Clearance = -1;
-static gint ett_pkixac_ClassList = -1;
-static gint ett_pkixac_SecurityCategory = -1;
-static gint ett_pkixac_AAControls = -1;
-static gint ett_pkixac_AttrSpec = -1;
-static gint ett_pkixac_ProxyInfo = -1;
+static gint ett_pkixac;
+static gint ett_pkixac_ObjectDigestInfo;
+static gint ett_pkixac_IssuerSerial;
+static gint ett_pkixac_Targets;
+static gint ett_pkixac_Target;
+static gint ett_pkixac_TargetCert;
+static gint ett_pkixac_IetfAttrSyntax;
+static gint ett_pkixac_T_values;
+static gint ett_pkixac_T_values_item;
+static gint ett_pkixac_SvceAuthInfo;
+static gint ett_pkixac_RoleSyntax;
+static gint ett_pkixac_Clearance;
+static gint ett_pkixac_SET_OF_SecurityCategory;
+static gint ett_pkixac_RFC3281Clearance;
+static gint ett_pkixac_ClassList;
+static gint ett_pkixac_SecurityCategory;
+static gint ett_pkixac_AAControls;
+static gint ett_pkixac_AttrSpec;
+static gint ett_pkixac_ProxyInfo;
 
 static const char *object_identifier_id;
 

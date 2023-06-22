@@ -38,17 +38,17 @@ static dissector_handle_t h450_res_handle;
 static dissector_handle_t h450_err_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_h450 = -1;
-static int hf_h450_operation = -1;
-static int hf_h450_error = -1;
+static int proto_h450;
+static int hf_h450_operation;
+static int hf_h450_error;
 #include "packet-h450-hf.c"
 
 /* Initialize the subtree pointers */
 #include "packet-h450-ett.c"
 
-static expert_field ei_h450_unsupported_arg_type = EI_INIT;
-static expert_field ei_h450_unsupported_result_type = EI_INIT;
-static expert_field ei_h450_unsupported_error_type = EI_INIT;
+static expert_field ei_h450_unsupported_arg_type;
+static expert_field ei_h450_unsupported_result_type;
+static expert_field ei_h450_unsupported_error_type;
 
 static const value_string h450_str_operation[] = {
 #include "packet-h450-table10.c"

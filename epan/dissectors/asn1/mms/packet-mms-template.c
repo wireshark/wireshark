@@ -29,17 +29,17 @@ void proto_register_mms(void);
 void proto_reg_handoff_mms(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_mms = -1;
+static int proto_mms;
 
 #include "packet-mms-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_mms = -1;
+static gint ett_mms;
 #include "packet-mms-ett.c"
 
-static expert_field ei_mms_mal_timeofday_encoding = EI_INIT;
-static expert_field ei_mms_mal_utctime_encoding = EI_INIT;
-static expert_field ei_mms_zero_pdu = EI_INIT;
+static expert_field ei_mms_mal_timeofday_encoding;
+static expert_field ei_mms_mal_utctime_encoding;
+static expert_field ei_mms_zero_pdu;
 
 /*****************************************************************************/
 /* Packet private data                                                       */

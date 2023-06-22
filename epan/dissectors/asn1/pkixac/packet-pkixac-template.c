@@ -30,11 +30,11 @@ void proto_register_pkixac(void);
 void proto_reg_handoff_pkixac(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_pkixac = -1;
+static int proto_pkixac;
 #include "packet-pkixac-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_pkixac = -1;
+static gint ett_pkixac;
 #include "packet-pkixac-ett.c"
 
 static const char *object_identifier_id;

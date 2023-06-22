@@ -34,18 +34,18 @@ void proto_register_t124(void);
 void proto_reg_handoff_t124(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_t124 = -1;
+static int proto_t124;
 static proto_tree *top_tree = NULL;
 
 #include "packet-t124-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_t124 = -1;
-static int ett_t124_connectGCCPDU = -1;
+static int ett_t124;
+static int ett_t124_connectGCCPDU;
 
-static int hf_t124_ConnectData = -1;
-static int hf_t124_connectGCCPDU = -1;
-static int hf_t124_DomainMCSPDU_PDU = -1;
+static int hf_t124_ConnectData;
+static int hf_t124_connectGCCPDU;
+static int hf_t124_DomainMCSPDU_PDU;
 
 static guint32 channelId = -1;
 

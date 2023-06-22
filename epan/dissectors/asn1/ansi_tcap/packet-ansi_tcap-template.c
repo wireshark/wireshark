@@ -38,31 +38,31 @@ void proto_reg_handoff_ansi_tcap(void);
 static gint ansi_tcap_response_matching_type = ANSI_TCAP_TID_ONLY;
 
 /* Initialize the protocol and registered fields */
-static int proto_ansi_tcap = -1;
+static int proto_ansi_tcap;
 
 #if 0
-static int hf_ansi_tcapsrt_SessionId = -1;
-static int hf_ansi_tcapsrt_Duplicate = -1;
-static int hf_ansi_tcapsrt_BeginSession = -1;
-static int hf_ansi_tcapsrt_EndSession = -1;
-static int hf_ansi_tcapsrt_SessionTime = -1;
+static int hf_ansi_tcapsrt_SessionId;
+static int hf_ansi_tcapsrt_Duplicate;
+static int hf_ansi_tcapsrt_BeginSession;
+static int hf_ansi_tcapsrt_EndSession;
+static int hf_ansi_tcapsrt_SessionTime;
 #endif
-static int hf_ansi_tcap_bit_h = -1;
-static int hf_ansi_tcap_op_family = -1;
-static int hf_ansi_tcap_op_specifier = -1;
+static int hf_ansi_tcap_bit_h;
+static int hf_ansi_tcap_op_family;
+static int hf_ansi_tcap_op_specifier;
 
 #include "packet-ansi_tcap-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_tcap = -1;
-static gint ett_param = -1;
-static gint ett_ansi_tcap_op_code_nat = -1;
+static gint ett_tcap;
+static gint ett_param;
+static gint ett_ansi_tcap_op_code_nat;
 
-static gint ett_otid = -1;
-static gint ett_dtid = -1;
-static gint ett_ansi_tcap_stat = -1;
+static gint ett_otid;
+static gint ett_dtid;
+static gint ett_ansi_tcap_stat;
 
-static expert_field ei_ansi_tcap_dissector_not_implemented = EI_INIT;
+static expert_field ei_ansi_tcap_dissector_not_implemented;
 
 static struct tcapsrt_info_t * gp_tcapsrt_info;
 static gboolean tcap_subdissector_used=FALSE;

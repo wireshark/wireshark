@@ -34,7 +34,7 @@ void proto_register_rtse(void);
 void proto_reg_handoff_rtse(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_rtse = -1;
+static int proto_rtse;
 
 static gboolean open_request=FALSE;
 static guint32 app_proto=0;
@@ -47,33 +47,33 @@ static gboolean rtse_reassemble = TRUE;
 #include "packet-rtse-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_rtse = -1;
+static gint ett_rtse;
 #include "packet-rtse-ett.c"
 
-static expert_field ei_rtse_dissector_oid_not_implemented = EI_INIT;
-static expert_field ei_rtse_unknown_rtse_pdu = EI_INIT;
-static expert_field ei_rtse_abstract_syntax = EI_INIT;
+static expert_field ei_rtse_dissector_oid_not_implemented;
+static expert_field ei_rtse_unknown_rtse_pdu;
+static expert_field ei_rtse_abstract_syntax;
 
 static dissector_table_t rtse_oid_dissector_table=NULL;
 static dissector_handle_t rtse_handle = NULL;
-static gint ett_rtse_unknown = -1;
+static gint ett_rtse_unknown;
 
 static reassembly_table rtse_reassembly_table;
 
-static int hf_rtse_segment_data = -1;
-static int hf_rtse_fragments = -1;
-static int hf_rtse_fragment = -1;
-static int hf_rtse_fragment_overlap = -1;
-static int hf_rtse_fragment_overlap_conflicts = -1;
-static int hf_rtse_fragment_multiple_tails = -1;
-static int hf_rtse_fragment_too_long_fragment = -1;
-static int hf_rtse_fragment_error = -1;
-static int hf_rtse_fragment_count = -1;
-static int hf_rtse_reassembled_in = -1;
-static int hf_rtse_reassembled_length = -1;
+static int hf_rtse_segment_data;
+static int hf_rtse_fragments;
+static int hf_rtse_fragment;
+static int hf_rtse_fragment_overlap;
+static int hf_rtse_fragment_overlap_conflicts;
+static int hf_rtse_fragment_multiple_tails;
+static int hf_rtse_fragment_too_long_fragment;
+static int hf_rtse_fragment_error;
+static int hf_rtse_fragment_count;
+static int hf_rtse_reassembled_in;
+static int hf_rtse_reassembled_length;
 
-static gint ett_rtse_fragment = -1;
-static gint ett_rtse_fragments = -1;
+static gint ett_rtse_fragment;
+static gint ett_rtse_fragments;
 
 static const fragment_items rtse_frag_items = {
     /* Fragment subtrees */

@@ -28,7 +28,7 @@ void proto_register_pkinit(void);
 void proto_reg_handoff_pkinit(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_pkinit = -1;
+static int proto_pkinit;
 #include "packet-pkinit-hf.c"
 
 /* Initialize the subtree pointers */

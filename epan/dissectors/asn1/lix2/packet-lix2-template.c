@@ -26,7 +26,7 @@ void proto_reg_handoff_lix2(void);
 void proto_register_lix2(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_lix2 = -1;
+static int proto_lix2;
 static dissector_handle_t lix2_handle = NULL;
 
 

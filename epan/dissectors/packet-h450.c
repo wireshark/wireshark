@@ -43,569 +43,569 @@ static dissector_handle_t h450_res_handle;
 static dissector_handle_t h450_err_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_h450 = -1;
-static int hf_h450_operation = -1;
-static int hf_h450_error = -1;
+static int proto_h450;
+static int hf_h450_operation;
+static int hf_h450_error;
 
 /* --- Modules H4501-Supplementary-ServiceAPDU-Structure Addressing-Data-Elements H225-generic-parameters-definition Manufacturer-specific-service-extension-definition H4501-General-Error-List --- --- --- */
 
-static int hf_h450_h450_H4501SupplementaryService_PDU = -1;  /* H4501SupplementaryService */
-static int hf_h450_networkFacilityExtension = -1;  /* NetworkFacilityExtension */
-static int hf_h450_interpretationApdu = -1;       /* InterpretationApdu */
-static int hf_h450_serviceApdu = -1;              /* ServiceApdus */
-static int hf_h450_sourceEntity = -1;             /* EntityType */
-static int hf_h450_sourceEntityAddress = -1;      /* AddressInformation */
-static int hf_h450_destinationEntity = -1;        /* EntityType */
-static int hf_h450_destinationEntityAddress = -1;  /* AddressInformation */
-static int hf_h450_endpoint = -1;                 /* NULL */
-static int hf_h450_anyEntity = -1;                /* NULL */
-static int hf_h450_discardAnyUnrecognizedInvokePdu = -1;  /* NULL */
-static int hf_h450_clearCallIfAnyInvokePduNotRecognized = -1;  /* NULL */
-static int hf_h450_rejectAnyUnrecognizedInvokePdu = -1;  /* NULL */
-static int hf_h450_rosApdus = -1;                 /* T_rosApdus */
-static int hf_h450_rosApdus_item = -1;            /* T_rosApdus_item */
-static int hf_h450_destinationAddress = -1;       /* SEQUENCE_OF_AliasAddress */
-static int hf_h450_destinationAddress_item = -1;  /* AliasAddress */
-static int hf_h450_remoteExtensionAddress = -1;   /* AliasAddress */
-static int hf_h450_destinationAddressPresentationIndicator = -1;  /* PresentationIndicator */
-static int hf_h450_destinationAddressScreeningIndicator = -1;  /* ScreeningIndicator */
-static int hf_h450_remoteExtensionAddressPresentationIndicator = -1;  /* PresentationIndicator */
-static int hf_h450_remoteExtensionAddressScreeningIndicator = -1;  /* ScreeningIndicator */
-static int hf_h450_userSpecifiedSubaddress = -1;  /* UserSpecifiedSubaddress */
-static int hf_h450_nsapSubaddress = -1;           /* NSAPSubaddress */
-static int hf_h450_subaddressInformation = -1;    /* SubaddressInformation */
-static int hf_h450_oddCountIndicator = -1;        /* BOOLEAN */
-static int hf_h450_extensionId = -1;              /* OBJECT_IDENTIFIER */
-static int hf_h450_extensionArgument = -1;        /* T_extensionArgument */
+static int hf_h450_h450_H4501SupplementaryService_PDU;  /* H4501SupplementaryService */
+static int hf_h450_networkFacilityExtension;      /* NetworkFacilityExtension */
+static int hf_h450_interpretationApdu;            /* InterpretationApdu */
+static int hf_h450_serviceApdu;                   /* ServiceApdus */
+static int hf_h450_sourceEntity;                  /* EntityType */
+static int hf_h450_sourceEntityAddress;           /* AddressInformation */
+static int hf_h450_destinationEntity;             /* EntityType */
+static int hf_h450_destinationEntityAddress;      /* AddressInformation */
+static int hf_h450_endpoint;                      /* NULL */
+static int hf_h450_anyEntity;                     /* NULL */
+static int hf_h450_discardAnyUnrecognizedInvokePdu;  /* NULL */
+static int hf_h450_clearCallIfAnyInvokePduNotRecognized;  /* NULL */
+static int hf_h450_rejectAnyUnrecognizedInvokePdu;  /* NULL */
+static int hf_h450_rosApdus;                      /* T_rosApdus */
+static int hf_h450_rosApdus_item;                 /* T_rosApdus_item */
+static int hf_h450_destinationAddress;            /* SEQUENCE_OF_AliasAddress */
+static int hf_h450_destinationAddress_item;       /* AliasAddress */
+static int hf_h450_remoteExtensionAddress;        /* AliasAddress */
+static int hf_h450_destinationAddressPresentationIndicator;  /* PresentationIndicator */
+static int hf_h450_destinationAddressScreeningIndicator;  /* ScreeningIndicator */
+static int hf_h450_remoteExtensionAddressPresentationIndicator;  /* PresentationIndicator */
+static int hf_h450_remoteExtensionAddressScreeningIndicator;  /* ScreeningIndicator */
+static int hf_h450_userSpecifiedSubaddress;       /* UserSpecifiedSubaddress */
+static int hf_h450_nsapSubaddress;                /* NSAPSubaddress */
+static int hf_h450_subaddressInformation;         /* SubaddressInformation */
+static int hf_h450_oddCountIndicator;             /* BOOLEAN */
+static int hf_h450_extensionId;                   /* OBJECT_IDENTIFIER */
+static int hf_h450_extensionArgument;             /* T_extensionArgument */
 
 /* --- Module Call-Transfer-Operations --- --- ---                            */
 
-static int hf_h450_2_h450_2_DummyArg_PDU = -1;    /* DummyArg */
-static int hf_h450_2_h450_2_CTIdentifyRes_PDU = -1;  /* CTIdentifyRes */
-static int hf_h450_2_h450_2_CTInitiateArg_PDU = -1;  /* CTInitiateArg */
-static int hf_h450_2_h450_2_DummyRes_PDU = -1;    /* DummyRes */
-static int hf_h450_2_h450_2_CTSetupArg_PDU = -1;  /* CTSetupArg */
-static int hf_h450_2_h450_2_CTUpdateArg_PDU = -1;  /* CTUpdateArg */
-static int hf_h450_2_h450_2_SubaddressTransferArg_PDU = -1;  /* SubaddressTransferArg */
-static int hf_h450_2_h450_2_CTCompleteArg_PDU = -1;  /* CTCompleteArg */
-static int hf_h450_2_h450_2_CTActiveArg_PDU = -1;  /* CTActiveArg */
-static int hf_h450_2_h450_2_PAR_unspecified_PDU = -1;  /* PAR_unspecified */
-static int hf_h450_2_extensionSeq = -1;           /* ExtensionSeq */
-static int hf_h450_2_nonStandardData = -1;        /* NonStandardParameter */
-static int hf_h450_2_callIdentity = -1;           /* CallIdentity */
-static int hf_h450_2_reroutingNumber = -1;        /* EndpointAddress */
-static int hf_h450_2_cTInitiateArg_argumentExtension = -1;  /* T_cTInitiateArg_argumentExtension */
-static int hf_h450_2_transferringNumber = -1;     /* EndpointAddress */
-static int hf_h450_2_cTSetupArg_argumentExtension = -1;  /* T_cTSetupArg_argumentExtension */
-static int hf_h450_2_resultExtension = -1;        /* T_resultExtension */
-static int hf_h450_2_redirectionNumber = -1;      /* EndpointAddress */
-static int hf_h450_2_redirectionInfo = -1;        /* BMPString_SIZE_1_128 */
-static int hf_h450_2_basicCallInfoElements = -1;  /* H225InformationElement */
-static int hf_h450_2_cTUpdateArg_argumentExtension = -1;  /* T_cTUpdateArg_argumentExtension */
-static int hf_h450_2_redirectionSubaddress = -1;  /* PartySubaddress */
-static int hf_h450_2_subaddressTransferArg_argumentExtension = -1;  /* T_subaddressTransferArg_argumentExtension */
-static int hf_h450_2_endDesignation = -1;         /* EndDesignation */
-static int hf_h450_2_callStatus = -1;             /* CallStatus */
-static int hf_h450_2_cTCompleteArg_argumentExtension = -1;  /* T_cTCompleteArg_argumentExtension */
-static int hf_h450_2_connectedAddress = -1;       /* EndpointAddress */
-static int hf_h450_2_connectedInfo = -1;          /* BMPString_SIZE_1_128 */
-static int hf_h450_2_cTActiveArg_argumentExtension = -1;  /* T_cTActiveArg_argumentExtension */
-static int hf_h450_2_ExtensionSeq_item = -1;      /* Extension */
-static int hf_h450_2_unspecified_extension = -1;  /* Extension */
-static int hf_h450_2_nonStandard = -1;            /* NonStandardParameter */
+static int hf_h450_2_h450_2_DummyArg_PDU;         /* DummyArg */
+static int hf_h450_2_h450_2_CTIdentifyRes_PDU;    /* CTIdentifyRes */
+static int hf_h450_2_h450_2_CTInitiateArg_PDU;    /* CTInitiateArg */
+static int hf_h450_2_h450_2_DummyRes_PDU;         /* DummyRes */
+static int hf_h450_2_h450_2_CTSetupArg_PDU;       /* CTSetupArg */
+static int hf_h450_2_h450_2_CTUpdateArg_PDU;      /* CTUpdateArg */
+static int hf_h450_2_h450_2_SubaddressTransferArg_PDU;  /* SubaddressTransferArg */
+static int hf_h450_2_h450_2_CTCompleteArg_PDU;    /* CTCompleteArg */
+static int hf_h450_2_h450_2_CTActiveArg_PDU;      /* CTActiveArg */
+static int hf_h450_2_h450_2_PAR_unspecified_PDU;  /* PAR_unspecified */
+static int hf_h450_2_extensionSeq;                /* ExtensionSeq */
+static int hf_h450_2_nonStandardData;             /* NonStandardParameter */
+static int hf_h450_2_callIdentity;                /* CallIdentity */
+static int hf_h450_2_reroutingNumber;             /* EndpointAddress */
+static int hf_h450_2_cTInitiateArg_argumentExtension;  /* T_cTInitiateArg_argumentExtension */
+static int hf_h450_2_transferringNumber;          /* EndpointAddress */
+static int hf_h450_2_cTSetupArg_argumentExtension;  /* T_cTSetupArg_argumentExtension */
+static int hf_h450_2_resultExtension;             /* T_resultExtension */
+static int hf_h450_2_redirectionNumber;           /* EndpointAddress */
+static int hf_h450_2_redirectionInfo;             /* BMPString_SIZE_1_128 */
+static int hf_h450_2_basicCallInfoElements;       /* H225InformationElement */
+static int hf_h450_2_cTUpdateArg_argumentExtension;  /* T_cTUpdateArg_argumentExtension */
+static int hf_h450_2_redirectionSubaddress;       /* PartySubaddress */
+static int hf_h450_2_subaddressTransferArg_argumentExtension;  /* T_subaddressTransferArg_argumentExtension */
+static int hf_h450_2_endDesignation;              /* EndDesignation */
+static int hf_h450_2_callStatus;                  /* CallStatus */
+static int hf_h450_2_cTCompleteArg_argumentExtension;  /* T_cTCompleteArg_argumentExtension */
+static int hf_h450_2_connectedAddress;            /* EndpointAddress */
+static int hf_h450_2_connectedInfo;               /* BMPString_SIZE_1_128 */
+static int hf_h450_2_cTActiveArg_argumentExtension;  /* T_cTActiveArg_argumentExtension */
+static int hf_h450_2_ExtensionSeq_item;           /* Extension */
+static int hf_h450_2_unspecified_extension;       /* Extension */
+static int hf_h450_2_nonStandard;                 /* NonStandardParameter */
 
 /* --- Module Call-Diversion-Operations --- --- ---                           */
 
-static int hf_h450_3_h450_3_ARG_activateDiversionQ_PDU = -1;  /* ARG_activateDiversionQ */
-static int hf_h450_3_h450_3_RES_activateDiversionQ_PDU = -1;  /* RES_activateDiversionQ */
-static int hf_h450_3_h450_3_ARG_deactivateDiversionQ_PDU = -1;  /* ARG_deactivateDiversionQ */
-static int hf_h450_3_h450_3_RES_deactivateDiversionQ_PDU = -1;  /* RES_deactivateDiversionQ */
-static int hf_h450_3_h450_3_ARG_interrogateDiversionQ_PDU = -1;  /* ARG_interrogateDiversionQ */
-static int hf_h450_3_h450_3_IntResultList_PDU = -1;  /* IntResultList */
-static int hf_h450_3_h450_3_ARG_checkRestriction_PDU = -1;  /* ARG_checkRestriction */
-static int hf_h450_3_h450_3_RES_checkRestriction_PDU = -1;  /* RES_checkRestriction */
-static int hf_h450_3_h450_3_ARG_callRerouting_PDU = -1;  /* ARG_callRerouting */
-static int hf_h450_3_h450_3_RES_callRerouting_PDU = -1;  /* RES_callRerouting */
-static int hf_h450_3_h450_3_ARG_divertingLegInformation1_PDU = -1;  /* ARG_divertingLegInformation1 */
-static int hf_h450_3_h450_3_ARG_divertingLegInformation2_PDU = -1;  /* ARG_divertingLegInformation2 */
-static int hf_h450_3_h450_3_ARG_divertingLegInformation3_PDU = -1;  /* ARG_divertingLegInformation3 */
-static int hf_h450_3_h450_3_ARG_divertingLegInformation4_PDU = -1;  /* ARG_divertingLegInformation4 */
-static int hf_h450_3_h450_3_ARG_cfnrDivertedLegFailed_PDU = -1;  /* ARG_cfnrDivertedLegFailed */
-static int hf_h450_3_h450_3_PAR_unspecified_PDU = -1;  /* PAR_unspecified */
-static int hf_h450_3_procedure = -1;              /* Procedure */
-static int hf_h450_3_basicService = -1;           /* BasicService */
-static int hf_h450_3_divertedToAddress = -1;      /* EndpointAddress */
-static int hf_h450_3_servedUserNr = -1;           /* EndpointAddress */
-static int hf_h450_3_activatingUserNr = -1;       /* EndpointAddress */
-static int hf_h450_3_activateDiversionQArg_extension = -1;  /* ActivateDiversionQArg_extension */
-static int hf_h450_3_extensionSeq = -1;           /* ExtensionSeq */
-static int hf_h450_3_nonStandardData = -1;        /* NonStandardParameter */
-static int hf_h450_3_deactivatingUserNr = -1;     /* EndpointAddress */
-static int hf_h450_3_deactivateDiversionQArg_extension = -1;  /* DeactivateDiversionQArg_extension */
-static int hf_h450_3_interrogatingUserNr = -1;    /* EndpointAddress */
-static int hf_h450_3_interrogateDiversionQ_extension = -1;  /* InterrogateDiversionQ_extension */
-static int hf_h450_3_divertedToNr = -1;           /* EndpointAddress */
-static int hf_h450_3_checkRestrictionArg_extension = -1;  /* CheckRestrictionArg_extension */
-static int hf_h450_3_reroutingReason = -1;        /* DiversionReason */
-static int hf_h450_3_originalReroutingReason = -1;  /* DiversionReason */
-static int hf_h450_3_calledAddress = -1;          /* EndpointAddress */
-static int hf_h450_3_diversionCounter = -1;       /* INTEGER_1_15 */
-static int hf_h450_3_h225InfoElement = -1;        /* H225InformationElement */
-static int hf_h450_3_lastReroutingNr = -1;        /* EndpointAddress */
-static int hf_h450_3_subscriptionOption = -1;     /* SubscriptionOption */
-static int hf_h450_3_callingPartySubaddress = -1;  /* PartySubaddress */
-static int hf_h450_3_callingNumber = -1;          /* EndpointAddress */
-static int hf_h450_3_callingInfo = -1;            /* BMPString_SIZE_1_128 */
-static int hf_h450_3_originalCalledNr = -1;       /* EndpointAddress */
-static int hf_h450_3_redirectingInfo = -1;        /* BMPString_SIZE_1_128 */
-static int hf_h450_3_originalCalledInfo = -1;     /* BMPString_SIZE_1_128 */
-static int hf_h450_3_callReroutingArg_extension = -1;  /* CallReroutingArg_extension */
-static int hf_h450_3_diversionReason = -1;        /* DiversionReason */
-static int hf_h450_3_nominatedNr = -1;            /* EndpointAddress */
-static int hf_h450_3_nominatedInfo = -1;          /* BMPString_SIZE_1_128 */
-static int hf_h450_3_redirectingNr = -1;          /* EndpointAddress */
-static int hf_h450_3_divertingLegInformation1Arg_extension = -1;  /* DivertingLegInformation1Arg_extension */
-static int hf_h450_3_originalDiversionReason = -1;  /* DiversionReason */
-static int hf_h450_3_divertingNr = -1;            /* EndpointAddress */
-static int hf_h450_3_divertingLegInformation2Arg_extension = -1;  /* DivertingLegInformation2Arg_extension */
-static int hf_h450_3_presentationAllowedIndicator = -1;  /* PresentationAllowedIndicator */
-static int hf_h450_3_redirectionNr = -1;          /* EndpointAddress */
-static int hf_h450_3_redirectionInfo = -1;        /* BMPString_SIZE_1_128 */
-static int hf_h450_3_divertingLegInformation3Arg_extension = -1;  /* DivertingLegInformation3Arg_extension */
-static int hf_h450_3_callingNr = -1;              /* EndpointAddress */
-static int hf_h450_3_divertingLegInformation4Arg_extension = -1;  /* DivertingLegInformation4Arg_extension */
-static int hf_h450_3_IntResultList_item = -1;     /* IntResult */
-static int hf_h450_3_remoteEnabled = -1;          /* BOOLEAN */
-static int hf_h450_3_intResult_extension = -1;    /* IntResult_extension */
-static int hf_h450_3_unspecified_extension = -1;  /* Extension */
-static int hf_h450_3_nonStandard = -1;            /* NonStandardParameter */
-static int hf_h450_3_ExtensionSeq_item = -1;      /* Extension */
+static int hf_h450_3_h450_3_ARG_activateDiversionQ_PDU;  /* ARG_activateDiversionQ */
+static int hf_h450_3_h450_3_RES_activateDiversionQ_PDU;  /* RES_activateDiversionQ */
+static int hf_h450_3_h450_3_ARG_deactivateDiversionQ_PDU;  /* ARG_deactivateDiversionQ */
+static int hf_h450_3_h450_3_RES_deactivateDiversionQ_PDU;  /* RES_deactivateDiversionQ */
+static int hf_h450_3_h450_3_ARG_interrogateDiversionQ_PDU;  /* ARG_interrogateDiversionQ */
+static int hf_h450_3_h450_3_IntResultList_PDU;    /* IntResultList */
+static int hf_h450_3_h450_3_ARG_checkRestriction_PDU;  /* ARG_checkRestriction */
+static int hf_h450_3_h450_3_RES_checkRestriction_PDU;  /* RES_checkRestriction */
+static int hf_h450_3_h450_3_ARG_callRerouting_PDU;  /* ARG_callRerouting */
+static int hf_h450_3_h450_3_RES_callRerouting_PDU;  /* RES_callRerouting */
+static int hf_h450_3_h450_3_ARG_divertingLegInformation1_PDU;  /* ARG_divertingLegInformation1 */
+static int hf_h450_3_h450_3_ARG_divertingLegInformation2_PDU;  /* ARG_divertingLegInformation2 */
+static int hf_h450_3_h450_3_ARG_divertingLegInformation3_PDU;  /* ARG_divertingLegInformation3 */
+static int hf_h450_3_h450_3_ARG_divertingLegInformation4_PDU;  /* ARG_divertingLegInformation4 */
+static int hf_h450_3_h450_3_ARG_cfnrDivertedLegFailed_PDU;  /* ARG_cfnrDivertedLegFailed */
+static int hf_h450_3_h450_3_PAR_unspecified_PDU;  /* PAR_unspecified */
+static int hf_h450_3_procedure;                   /* Procedure */
+static int hf_h450_3_basicService;                /* BasicService */
+static int hf_h450_3_divertedToAddress;           /* EndpointAddress */
+static int hf_h450_3_servedUserNr;                /* EndpointAddress */
+static int hf_h450_3_activatingUserNr;            /* EndpointAddress */
+static int hf_h450_3_activateDiversionQArg_extension;  /* ActivateDiversionQArg_extension */
+static int hf_h450_3_extensionSeq;                /* ExtensionSeq */
+static int hf_h450_3_nonStandardData;             /* NonStandardParameter */
+static int hf_h450_3_deactivatingUserNr;          /* EndpointAddress */
+static int hf_h450_3_deactivateDiversionQArg_extension;  /* DeactivateDiversionQArg_extension */
+static int hf_h450_3_interrogatingUserNr;         /* EndpointAddress */
+static int hf_h450_3_interrogateDiversionQ_extension;  /* InterrogateDiversionQ_extension */
+static int hf_h450_3_divertedToNr;                /* EndpointAddress */
+static int hf_h450_3_checkRestrictionArg_extension;  /* CheckRestrictionArg_extension */
+static int hf_h450_3_reroutingReason;             /* DiversionReason */
+static int hf_h450_3_originalReroutingReason;     /* DiversionReason */
+static int hf_h450_3_calledAddress;               /* EndpointAddress */
+static int hf_h450_3_diversionCounter;            /* INTEGER_1_15 */
+static int hf_h450_3_h225InfoElement;             /* H225InformationElement */
+static int hf_h450_3_lastReroutingNr;             /* EndpointAddress */
+static int hf_h450_3_subscriptionOption;          /* SubscriptionOption */
+static int hf_h450_3_callingPartySubaddress;      /* PartySubaddress */
+static int hf_h450_3_callingNumber;               /* EndpointAddress */
+static int hf_h450_3_callingInfo;                 /* BMPString_SIZE_1_128 */
+static int hf_h450_3_originalCalledNr;            /* EndpointAddress */
+static int hf_h450_3_redirectingInfo;             /* BMPString_SIZE_1_128 */
+static int hf_h450_3_originalCalledInfo;          /* BMPString_SIZE_1_128 */
+static int hf_h450_3_callReroutingArg_extension;  /* CallReroutingArg_extension */
+static int hf_h450_3_diversionReason;             /* DiversionReason */
+static int hf_h450_3_nominatedNr;                 /* EndpointAddress */
+static int hf_h450_3_nominatedInfo;               /* BMPString_SIZE_1_128 */
+static int hf_h450_3_redirectingNr;               /* EndpointAddress */
+static int hf_h450_3_divertingLegInformation1Arg_extension;  /* DivertingLegInformation1Arg_extension */
+static int hf_h450_3_originalDiversionReason;     /* DiversionReason */
+static int hf_h450_3_divertingNr;                 /* EndpointAddress */
+static int hf_h450_3_divertingLegInformation2Arg_extension;  /* DivertingLegInformation2Arg_extension */
+static int hf_h450_3_presentationAllowedIndicator;  /* PresentationAllowedIndicator */
+static int hf_h450_3_redirectionNr;               /* EndpointAddress */
+static int hf_h450_3_redirectionInfo;             /* BMPString_SIZE_1_128 */
+static int hf_h450_3_divertingLegInformation3Arg_extension;  /* DivertingLegInformation3Arg_extension */
+static int hf_h450_3_callingNr;                   /* EndpointAddress */
+static int hf_h450_3_divertingLegInformation4Arg_extension;  /* DivertingLegInformation4Arg_extension */
+static int hf_h450_3_IntResultList_item;          /* IntResult */
+static int hf_h450_3_remoteEnabled;               /* BOOLEAN */
+static int hf_h450_3_intResult_extension;         /* IntResult_extension */
+static int hf_h450_3_unspecified_extension;       /* Extension */
+static int hf_h450_3_nonStandard;                 /* NonStandardParameter */
+static int hf_h450_3_ExtensionSeq_item;           /* Extension */
 
 /* --- Module Call-Hold-Operations --- --- ---                                */
 
-static int hf_h450_4_h450_4_HoldNotificArg_PDU = -1;  /* HoldNotificArg */
-static int hf_h450_4_h450_4_RetrieveNotificArg_PDU = -1;  /* RetrieveNotificArg */
-static int hf_h450_4_h450_4_RemoteHoldArg_PDU = -1;  /* RemoteHoldArg */
-static int hf_h450_4_h450_4_RemoteHoldRes_PDU = -1;  /* RemoteHoldRes */
-static int hf_h450_4_h450_4_RemoteRetrieveArg_PDU = -1;  /* RemoteRetrieveArg */
-static int hf_h450_4_h450_4_RemoteRetrieveRes_PDU = -1;  /* RemoteRetrieveRes */
-static int hf_h450_4_h450_4_PAR_undefined_PDU = -1;  /* PAR_undefined */
-static int hf_h450_4_holdNotificArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_4_holdNotificArg_extensionArg_item = -1;  /* MixedExtension */
-static int hf_h450_4_retrieveNotificArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_4_retrieveNotificArg_extensionArg_item = -1;  /* MixedExtension */
-static int hf_h450_4_remoteHoldArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_4_remoteHoldArg_extensionArg_item = -1;  /* MixedExtension */
-static int hf_h450_4_extensionRes = -1;           /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_4_extensionRes_item = -1;      /* MixedExtension */
-static int hf_h450_4_remoteRetrieveArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_4_remoteRetrieveArg_extensionArg_item = -1;  /* MixedExtension */
-static int hf_h450_4_mixedExtension_extension = -1;  /* Extension */
-static int hf_h450_4_nonStandardData = -1;        /* NonStandardParameter */
-static int hf_h450_4_PAR_undefined_item = -1;     /* MixedExtension */
+static int hf_h450_4_h450_4_HoldNotificArg_PDU;   /* HoldNotificArg */
+static int hf_h450_4_h450_4_RetrieveNotificArg_PDU;  /* RetrieveNotificArg */
+static int hf_h450_4_h450_4_RemoteHoldArg_PDU;    /* RemoteHoldArg */
+static int hf_h450_4_h450_4_RemoteHoldRes_PDU;    /* RemoteHoldRes */
+static int hf_h450_4_h450_4_RemoteRetrieveArg_PDU;  /* RemoteRetrieveArg */
+static int hf_h450_4_h450_4_RemoteRetrieveRes_PDU;  /* RemoteRetrieveRes */
+static int hf_h450_4_h450_4_PAR_undefined_PDU;    /* PAR_undefined */
+static int hf_h450_4_holdNotificArg_extensionArg;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_4_holdNotificArg_extensionArg_item;  /* MixedExtension */
+static int hf_h450_4_retrieveNotificArg_extensionArg;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_4_retrieveNotificArg_extensionArg_item;  /* MixedExtension */
+static int hf_h450_4_remoteHoldArg_extensionArg;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_4_remoteHoldArg_extensionArg_item;  /* MixedExtension */
+static int hf_h450_4_extensionRes;                /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_4_extensionRes_item;           /* MixedExtension */
+static int hf_h450_4_remoteRetrieveArg_extensionArg;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_4_remoteRetrieveArg_extensionArg_item;  /* MixedExtension */
+static int hf_h450_4_mixedExtension_extension;    /* Extension */
+static int hf_h450_4_nonStandardData;             /* NonStandardParameter */
+static int hf_h450_4_PAR_undefined_item;          /* MixedExtension */
 
 /* --- Module Call-Park-Pickup-Operations --- --- ---                         */
 
-static int hf_h450_5_h450_5_CpRequestArg_PDU = -1;  /* CpRequestArg */
-static int hf_h450_5_h450_5_CpRequestRes_PDU = -1;  /* CpRequestRes */
-static int hf_h450_5_h450_5_CpSetupArg_PDU = -1;  /* CpSetupArg */
-static int hf_h450_5_h450_5_CpSetupRes_PDU = -1;  /* CpSetupRes */
-static int hf_h450_5_h450_5_GroupIndicationOnArg_PDU = -1;  /* GroupIndicationOnArg */
-static int hf_h450_5_h450_5_GroupIndicationOnRes_PDU = -1;  /* GroupIndicationOnRes */
-static int hf_h450_5_h450_5_GroupIndicationOffArg_PDU = -1;  /* GroupIndicationOffArg */
-static int hf_h450_5_h450_5_GroupIndicationOffRes_PDU = -1;  /* GroupIndicationOffRes */
-static int hf_h450_5_h450_5_PickrequArg_PDU = -1;  /* PickrequArg */
-static int hf_h450_5_h450_5_PickrequRes_PDU = -1;  /* PickrequRes */
-static int hf_h450_5_h450_5_PickupArg_PDU = -1;   /* PickupArg */
-static int hf_h450_5_h450_5_PickupRes_PDU = -1;   /* PickupRes */
-static int hf_h450_5_h450_5_PickExeArg_PDU = -1;  /* PickExeArg */
-static int hf_h450_5_h450_5_PickExeRes_PDU = -1;  /* PickExeRes */
-static int hf_h450_5_h450_5_CpNotifyArg_PDU = -1;  /* CpNotifyArg */
-static int hf_h450_5_h450_5_CpickupNotifyArg_PDU = -1;  /* CpickupNotifyArg */
-static int hf_h450_5_h450_5_PAR_undefined_PDU = -1;  /* PAR_undefined */
-static int hf_h450_5_parkingNumber = -1;          /* EndpointAddress */
-static int hf_h450_5_parkedNumber = -1;           /* EndpointAddress */
-static int hf_h450_5_parkedToNumber = -1;         /* EndpointAddress */
-static int hf_h450_5_parkedToPosition = -1;       /* ParkedToPosition */
-static int hf_h450_5_cpRequestArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_5_cpRequestArg_extensionArg_item = -1;  /* MixedExtension */
-static int hf_h450_5_parkCondition = -1;          /* ParkCondition */
-static int hf_h450_5_extensionRes = -1;           /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_5_extensionRes_item = -1;      /* MixedExtension */
-static int hf_h450_5_cpSetupArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_5_cpSetupArg_extensionArg_item = -1;  /* MixedExtension */
-static int hf_h450_5_callPickupId = -1;           /* CallIdentifier */
-static int hf_h450_5_groupMemberUserNr = -1;      /* EndpointAddress */
-static int hf_h450_5_retrieveCallType = -1;       /* CallType */
-static int hf_h450_5_partyToRetrieve = -1;        /* EndpointAddress */
-static int hf_h450_5_retrieveAddress = -1;        /* EndpointAddress */
-static int hf_h450_5_parkPosition = -1;           /* ParkedToPosition */
-static int hf_h450_5_groupIndicationOnArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_5_groupIndicationOnArg_extensionArg_item = -1;  /* MixedExtension */
-static int hf_h450_5_groupIndicationOffArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_5_groupIndicationOffArg_extensionArg_item = -1;  /* MixedExtension */
-static int hf_h450_5_picking_upNumber = -1;       /* EndpointAddress */
-static int hf_h450_5_pickrequArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_5_pickrequArg_extensionArg_item = -1;  /* MixedExtension */
-static int hf_h450_5_pickupArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_5_pickupArg_extensionArg_item = -1;  /* MixedExtension */
-static int hf_h450_5_pickExeArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_5_pickExeArg_extensionArg_item = -1;  /* MixedExtension */
-static int hf_h450_5_cpNotifyArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_5_cpNotifyArg_extensionArg_item = -1;  /* MixedExtension */
-static int hf_h450_5_cpickupNotifyArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_5_cpickupNotifyArg_extensionArg_item = -1;  /* MixedExtension */
-static int hf_h450_5_PAR_undefined_item = -1;     /* MixedExtension */
+static int hf_h450_5_h450_5_CpRequestArg_PDU;     /* CpRequestArg */
+static int hf_h450_5_h450_5_CpRequestRes_PDU;     /* CpRequestRes */
+static int hf_h450_5_h450_5_CpSetupArg_PDU;       /* CpSetupArg */
+static int hf_h450_5_h450_5_CpSetupRes_PDU;       /* CpSetupRes */
+static int hf_h450_5_h450_5_GroupIndicationOnArg_PDU;  /* GroupIndicationOnArg */
+static int hf_h450_5_h450_5_GroupIndicationOnRes_PDU;  /* GroupIndicationOnRes */
+static int hf_h450_5_h450_5_GroupIndicationOffArg_PDU;  /* GroupIndicationOffArg */
+static int hf_h450_5_h450_5_GroupIndicationOffRes_PDU;  /* GroupIndicationOffRes */
+static int hf_h450_5_h450_5_PickrequArg_PDU;      /* PickrequArg */
+static int hf_h450_5_h450_5_PickrequRes_PDU;      /* PickrequRes */
+static int hf_h450_5_h450_5_PickupArg_PDU;        /* PickupArg */
+static int hf_h450_5_h450_5_PickupRes_PDU;        /* PickupRes */
+static int hf_h450_5_h450_5_PickExeArg_PDU;       /* PickExeArg */
+static int hf_h450_5_h450_5_PickExeRes_PDU;       /* PickExeRes */
+static int hf_h450_5_h450_5_CpNotifyArg_PDU;      /* CpNotifyArg */
+static int hf_h450_5_h450_5_CpickupNotifyArg_PDU;  /* CpickupNotifyArg */
+static int hf_h450_5_h450_5_PAR_undefined_PDU;    /* PAR_undefined */
+static int hf_h450_5_parkingNumber;               /* EndpointAddress */
+static int hf_h450_5_parkedNumber;                /* EndpointAddress */
+static int hf_h450_5_parkedToNumber;              /* EndpointAddress */
+static int hf_h450_5_parkedToPosition;            /* ParkedToPosition */
+static int hf_h450_5_cpRequestArg_extensionArg;   /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_5_cpRequestArg_extensionArg_item;  /* MixedExtension */
+static int hf_h450_5_parkCondition;               /* ParkCondition */
+static int hf_h450_5_extensionRes;                /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_5_extensionRes_item;           /* MixedExtension */
+static int hf_h450_5_cpSetupArg_extensionArg;     /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_5_cpSetupArg_extensionArg_item;  /* MixedExtension */
+static int hf_h450_5_callPickupId;                /* CallIdentifier */
+static int hf_h450_5_groupMemberUserNr;           /* EndpointAddress */
+static int hf_h450_5_retrieveCallType;            /* CallType */
+static int hf_h450_5_partyToRetrieve;             /* EndpointAddress */
+static int hf_h450_5_retrieveAddress;             /* EndpointAddress */
+static int hf_h450_5_parkPosition;                /* ParkedToPosition */
+static int hf_h450_5_groupIndicationOnArg_extensionArg;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_5_groupIndicationOnArg_extensionArg_item;  /* MixedExtension */
+static int hf_h450_5_groupIndicationOffArg_extensionArg;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_5_groupIndicationOffArg_extensionArg_item;  /* MixedExtension */
+static int hf_h450_5_picking_upNumber;            /* EndpointAddress */
+static int hf_h450_5_pickrequArg_extensionArg;    /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_5_pickrequArg_extensionArg_item;  /* MixedExtension */
+static int hf_h450_5_pickupArg_extensionArg;      /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_5_pickupArg_extensionArg_item;  /* MixedExtension */
+static int hf_h450_5_pickExeArg_extensionArg;     /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_5_pickExeArg_extensionArg_item;  /* MixedExtension */
+static int hf_h450_5_cpNotifyArg_extensionArg;    /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_5_cpNotifyArg_extensionArg_item;  /* MixedExtension */
+static int hf_h450_5_cpickupNotifyArg_extensionArg;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_5_cpickupNotifyArg_extensionArg_item;  /* MixedExtension */
+static int hf_h450_5_PAR_undefined_item;          /* MixedExtension */
 
 /* --- Module Call-Waiting-Operations --- --- ---                             */
 
-static int hf_h450_6_h450_6_CallWaitingArg_PDU = -1;  /* CallWaitingArg */
-static int hf_h450_6_nbOfAddWaitingCalls = -1;    /* INTEGER_0_255 */
-static int hf_h450_6_callWaitingArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_6_callWaitingArg_extensionArg_item = -1;  /* MixedExtension */
+static int hf_h450_6_h450_6_CallWaitingArg_PDU;   /* CallWaitingArg */
+static int hf_h450_6_nbOfAddWaitingCalls;         /* INTEGER_0_255 */
+static int hf_h450_6_callWaitingArg_extensionArg;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_6_callWaitingArg_extensionArg_item;  /* MixedExtension */
 
 /* --- Module Message-Waiting-Indication-Operations --- --- ---               */
 
-static int hf_h450_7_h450_7_MWIActivateArg_PDU = -1;  /* MWIActivateArg */
-static int hf_h450_7_h450_7_DummyRes_PDU = -1;    /* DummyRes */
-static int hf_h450_7_h450_7_MWIDeactivateArg_PDU = -1;  /* MWIDeactivateArg */
-static int hf_h450_7_h450_7_MWIInterrogateArg_PDU = -1;  /* MWIInterrogateArg */
-static int hf_h450_7_h450_7_MWIInterrogateRes_PDU = -1;  /* MWIInterrogateRes */
-static int hf_h450_7_h450_7_PAR_undefined_PDU = -1;  /* PAR_undefined */
-static int hf_h450_7_servedUserNr = -1;           /* EndpointAddress */
-static int hf_h450_7_basicService = -1;           /* BasicService */
-static int hf_h450_7_msgCentreId = -1;            /* MsgCentreId */
-static int hf_h450_7_nbOfMessages = -1;           /* NbOfMessages */
-static int hf_h450_7_originatingNr = -1;          /* EndpointAddress */
-static int hf_h450_7_timestamp = -1;              /* TimeStamp */
-static int hf_h450_7_priority = -1;               /* INTEGER_0_9 */
-static int hf_h450_7_mWIActivateArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_7_mWIActivateArg_extensionArg_item = -1;  /* MixedExtension */
-static int hf_h450_7_DummyRes_item = -1;          /* MixedExtension */
-static int hf_h450_7_callbackReq = -1;            /* BOOLEAN */
-static int hf_h450_7_mWIDeactivateArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_7_mWIDeactivateArg_extensionArg_item = -1;  /* MixedExtension */
-static int hf_h450_7_mWIInterrogateArg_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_7_mWIInterrogateArg_extensionArg_item = -1;  /* MixedExtension */
-static int hf_h450_7_MWIInterrogateRes_item = -1;  /* MWIInterrogateResElt */
-static int hf_h450_7_mWIInterrogateResElt_extensionArg = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_7_mWIInterrogateResElt_extensionArg_item = -1;  /* MixedExtension */
-static int hf_h450_7_integer = -1;                /* INTEGER_0_65535 */
-static int hf_h450_7_partyNumber = -1;            /* EndpointAddress */
-static int hf_h450_7_numericString = -1;          /* NumericString_SIZE_1_10 */
-static int hf_h450_7_PAR_undefined_item = -1;     /* MixedExtension */
+static int hf_h450_7_h450_7_MWIActivateArg_PDU;   /* MWIActivateArg */
+static int hf_h450_7_h450_7_DummyRes_PDU;         /* DummyRes */
+static int hf_h450_7_h450_7_MWIDeactivateArg_PDU;  /* MWIDeactivateArg */
+static int hf_h450_7_h450_7_MWIInterrogateArg_PDU;  /* MWIInterrogateArg */
+static int hf_h450_7_h450_7_MWIInterrogateRes_PDU;  /* MWIInterrogateRes */
+static int hf_h450_7_h450_7_PAR_undefined_PDU;    /* PAR_undefined */
+static int hf_h450_7_servedUserNr;                /* EndpointAddress */
+static int hf_h450_7_basicService;                /* BasicService */
+static int hf_h450_7_msgCentreId;                 /* MsgCentreId */
+static int hf_h450_7_nbOfMessages;                /* NbOfMessages */
+static int hf_h450_7_originatingNr;               /* EndpointAddress */
+static int hf_h450_7_timestamp;                   /* TimeStamp */
+static int hf_h450_7_priority;                    /* INTEGER_0_9 */
+static int hf_h450_7_mWIActivateArg_extensionArg;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_7_mWIActivateArg_extensionArg_item;  /* MixedExtension */
+static int hf_h450_7_DummyRes_item;               /* MixedExtension */
+static int hf_h450_7_callbackReq;                 /* BOOLEAN */
+static int hf_h450_7_mWIDeactivateArg_extensionArg;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_7_mWIDeactivateArg_extensionArg_item;  /* MixedExtension */
+static int hf_h450_7_mWIInterrogateArg_extensionArg;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_7_mWIInterrogateArg_extensionArg_item;  /* MixedExtension */
+static int hf_h450_7_MWIInterrogateRes_item;      /* MWIInterrogateResElt */
+static int hf_h450_7_mWIInterrogateResElt_extensionArg;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_7_mWIInterrogateResElt_extensionArg_item;  /* MixedExtension */
+static int hf_h450_7_integer;                     /* INTEGER_0_65535 */
+static int hf_h450_7_partyNumber;                 /* EndpointAddress */
+static int hf_h450_7_numericString;               /* NumericString_SIZE_1_10 */
+static int hf_h450_7_PAR_undefined_item;          /* MixedExtension */
 
 /* --- Module Name-Operations --- --- ---                                     */
 
-static int hf_h450_8_h450_8_ARG_callingName_PDU = -1;  /* ARG_callingName */
-static int hf_h450_8_h450_8_ARG_alertingName_PDU = -1;  /* ARG_alertingName */
-static int hf_h450_8_h450_8_ARG_connectedName_PDU = -1;  /* ARG_connectedName */
-static int hf_h450_8_h450_8_ARG_busyName_PDU = -1;  /* ARG_busyName */
-static int hf_h450_8_name = -1;                   /* Name */
-static int hf_h450_8_extensionArg = -1;           /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_8_extensionArg_item = -1;      /* MixedExtension */
-static int hf_h450_8_namePresentationAllowed = -1;  /* NamePresentationAllowed */
-static int hf_h450_8_namePresentationRestricted = -1;  /* NamePresentationRestricted */
-static int hf_h450_8_nameNotAvailable = -1;       /* NULL */
-static int hf_h450_8_simpleName = -1;             /* SimpleName */
-static int hf_h450_8_extendedName = -1;           /* ExtendedName */
-static int hf_h450_8_restrictedNull = -1;         /* NULL */
+static int hf_h450_8_h450_8_ARG_callingName_PDU;  /* ARG_callingName */
+static int hf_h450_8_h450_8_ARG_alertingName_PDU;  /* ARG_alertingName */
+static int hf_h450_8_h450_8_ARG_connectedName_PDU;  /* ARG_connectedName */
+static int hf_h450_8_h450_8_ARG_busyName_PDU;     /* ARG_busyName */
+static int hf_h450_8_name;                        /* Name */
+static int hf_h450_8_extensionArg;                /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_8_extensionArg_item;           /* MixedExtension */
+static int hf_h450_8_namePresentationAllowed;     /* NamePresentationAllowed */
+static int hf_h450_8_namePresentationRestricted;  /* NamePresentationRestricted */
+static int hf_h450_8_nameNotAvailable;            /* NULL */
+static int hf_h450_8_simpleName;                  /* SimpleName */
+static int hf_h450_8_extendedName;                /* ExtendedName */
+static int hf_h450_8_restrictedNull;              /* NULL */
 
 /* --- Module Call-Completion-Operations --- --- ---                          */
 
-static int hf_h450_9_h450_9_CcRequestArg_PDU = -1;  /* CcRequestArg */
-static int hf_h450_9_h450_9_CcRequestRes_PDU = -1;  /* CcRequestRes */
-static int hf_h450_9_h450_9_CcArg_PDU = -1;       /* CcArg */
-static int hf_h450_9_h450_9_CcShortArg_PDU = -1;  /* CcShortArg */
-static int hf_h450_9_numberA = -1;                /* EndpointAddress */
-static int hf_h450_9_numberB = -1;                /* EndpointAddress */
-static int hf_h450_9_ccIdentifier = -1;           /* CallIdentifier */
-static int hf_h450_9_service = -1;                /* BasicService */
-static int hf_h450_9_can_retain_service = -1;     /* BOOLEAN */
-static int hf_h450_9_retain_sig_connection = -1;  /* BOOLEAN */
-static int hf_h450_9_ccRequestArg_extension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_9_ccRequestArg_extension_item = -1;  /* MixedExtension */
-static int hf_h450_9_retain_service = -1;         /* BOOLEAN */
-static int hf_h450_9_ccRequestRes_extension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_9_ccRequestRes_extension_item = -1;  /* MixedExtension */
-static int hf_h450_9_shortArg = -1;               /* CcShortArg */
-static int hf_h450_9_longArg = -1;                /* CcLongArg */
-static int hf_h450_9_ccShortArg_extension = -1;   /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_9_ccShortArg_extension_item = -1;  /* MixedExtension */
-static int hf_h450_9_ccLongArg_extension = -1;    /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_9_ccLongArg_extension_item = -1;  /* MixedExtension */
+static int hf_h450_9_h450_9_CcRequestArg_PDU;     /* CcRequestArg */
+static int hf_h450_9_h450_9_CcRequestRes_PDU;     /* CcRequestRes */
+static int hf_h450_9_h450_9_CcArg_PDU;            /* CcArg */
+static int hf_h450_9_h450_9_CcShortArg_PDU;       /* CcShortArg */
+static int hf_h450_9_numberA;                     /* EndpointAddress */
+static int hf_h450_9_numberB;                     /* EndpointAddress */
+static int hf_h450_9_ccIdentifier;                /* CallIdentifier */
+static int hf_h450_9_service;                     /* BasicService */
+static int hf_h450_9_can_retain_service;          /* BOOLEAN */
+static int hf_h450_9_retain_sig_connection;       /* BOOLEAN */
+static int hf_h450_9_ccRequestArg_extension;      /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_9_ccRequestArg_extension_item;  /* MixedExtension */
+static int hf_h450_9_retain_service;              /* BOOLEAN */
+static int hf_h450_9_ccRequestRes_extension;      /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_9_ccRequestRes_extension_item;  /* MixedExtension */
+static int hf_h450_9_shortArg;                    /* CcShortArg */
+static int hf_h450_9_longArg;                     /* CcLongArg */
+static int hf_h450_9_ccShortArg_extension;        /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_9_ccShortArg_extension_item;   /* MixedExtension */
+static int hf_h450_9_ccLongArg_extension;         /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_9_ccLongArg_extension_item;    /* MixedExtension */
 
 /* --- Module Call-Offer-Operations --- --- ---                               */
 
-static int hf_h450_10_h450_10_CoReqOptArg_PDU = -1;  /* CoReqOptArg */
-static int hf_h450_10_h450_10_RUAlertOptArg_PDU = -1;  /* RUAlertOptArg */
-static int hf_h450_10_h450_10_CfbOvrOptArg_PDU = -1;  /* CfbOvrOptArg */
-static int hf_h450_10_coReqOptArg_extension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_10_coReqOptArg_extension_item = -1;  /* MixedExtension */
-static int hf_h450_10_rUAlertOptArg_extension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_10_rUAlertOptArg_extension_item = -1;  /* MixedExtension */
-static int hf_h450_10_cfbOvrOptArg_extension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_10_cfbOvrOptArg_extension_item = -1;  /* MixedExtension */
+static int hf_h450_10_h450_10_CoReqOptArg_PDU;    /* CoReqOptArg */
+static int hf_h450_10_h450_10_RUAlertOptArg_PDU;  /* RUAlertOptArg */
+static int hf_h450_10_h450_10_CfbOvrOptArg_PDU;   /* CfbOvrOptArg */
+static int hf_h450_10_coReqOptArg_extension;      /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_10_coReqOptArg_extension_item;  /* MixedExtension */
+static int hf_h450_10_rUAlertOptArg_extension;    /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_10_rUAlertOptArg_extension_item;  /* MixedExtension */
+static int hf_h450_10_cfbOvrOptArg_extension;     /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_10_cfbOvrOptArg_extension_item;  /* MixedExtension */
 
 /* --- Module Call-Intrusion-Operations --- --- ---                           */
 
-static int hf_h450_11_h450_11_CIRequestArg_PDU = -1;  /* CIRequestArg */
-static int hf_h450_11_h450_11_CIRequestRes_PDU = -1;  /* CIRequestRes */
-static int hf_h450_11_h450_11_CIGetCIPLOptArg_PDU = -1;  /* CIGetCIPLOptArg */
-static int hf_h450_11_h450_11_CIGetCIPLRes_PDU = -1;  /* CIGetCIPLRes */
-static int hf_h450_11_h450_11_CIIsOptArg_PDU = -1;  /* CIIsOptArg */
-static int hf_h450_11_h450_11_CIIsOptRes_PDU = -1;  /* CIIsOptRes */
-static int hf_h450_11_h450_11_CIFrcRelArg_PDU = -1;  /* CIFrcRelArg */
-static int hf_h450_11_h450_11_CIFrcRelOptRes_PDU = -1;  /* CIFrcRelOptRes */
-static int hf_h450_11_h450_11_CIWobOptArg_PDU = -1;  /* CIWobOptArg */
-static int hf_h450_11_h450_11_CIWobOptRes_PDU = -1;  /* CIWobOptRes */
-static int hf_h450_11_h450_11_CISilentArg_PDU = -1;  /* CISilentArg */
-static int hf_h450_11_h450_11_CISilentOptRes_PDU = -1;  /* CISilentOptRes */
-static int hf_h450_11_h450_11_CINotificationArg_PDU = -1;  /* CINotificationArg */
-static int hf_h450_11_ciCapabilityLevel = -1;     /* CICapabilityLevel */
-static int hf_h450_11_cIRequestArg_argumentExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_11_cIRequestArg_argumentExtension_item = -1;  /* MixedExtension */
-static int hf_h450_11_ciStatusInformation = -1;   /* CIStatusInformation */
-static int hf_h450_11_cIRequestRes_resultExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_11_cIRequestRes_resultExtension_item = -1;  /* MixedExtension */
-static int hf_h450_11_cIGetCIPLOptArg_argumentExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_11_cIGetCIPLOptArg_argumentExtension_item = -1;  /* MixedExtension */
-static int hf_h450_11_ciProtectionLevel = -1;     /* CIProtectionLevel */
-static int hf_h450_11_silentMonitoringPermitted = -1;  /* NULL */
-static int hf_h450_11_cIGetCIPLRes_resultExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_11_cIGetCIPLRes_resultExtension_item = -1;  /* MixedExtension */
-static int hf_h450_11_cIIsOptArg_argumentExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_11_cIIsOptArg_argumentExtension_item = -1;  /* MixedExtension */
-static int hf_h450_11_cIIsOptRes_resultExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_11_cIIsOptRes_resultExtension_item = -1;  /* MixedExtension */
-static int hf_h450_11_cIFrcRelArg_argumentExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_11_cIFrcRelArg_argumentExtension_item = -1;  /* MixedExtension */
-static int hf_h450_11_cIFrcRelOptRes_resultExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_11_cIFrcRelOptRes_resultExtension_item = -1;  /* MixedExtension */
-static int hf_h450_11_cIWobOptArg_argumentExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_11_cIWobOptArg_argumentExtension_item = -1;  /* MixedExtension */
-static int hf_h450_11_cIWobOptRes_resultExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_11_cIWobOptRes_resultExtension_item = -1;  /* MixedExtension */
-static int hf_h450_11_specificCall = -1;          /* CallIdentifier */
-static int hf_h450_11_cISilentArg_argumentExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_11_cISilentArg_argumentExtension_item = -1;  /* MixedExtension */
-static int hf_h450_11_cISilentOptRes_resultExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_11_cISilentOptRes_resultExtension_item = -1;  /* MixedExtension */
-static int hf_h450_11_cINotificationArg_argumentExtension = -1;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_11_cINotificationArg_argumentExtension_item = -1;  /* MixedExtension */
-static int hf_h450_11_callIntrusionImpending = -1;  /* NULL */
-static int hf_h450_11_callIntruded = -1;          /* NULL */
-static int hf_h450_11_callIsolated = -1;          /* NULL */
-static int hf_h450_11_callForceReleased = -1;     /* NULL */
-static int hf_h450_11_callIntrusionComplete = -1;  /* NULL */
-static int hf_h450_11_callIntrusionEnd = -1;      /* NULL */
+static int hf_h450_11_h450_11_CIRequestArg_PDU;   /* CIRequestArg */
+static int hf_h450_11_h450_11_CIRequestRes_PDU;   /* CIRequestRes */
+static int hf_h450_11_h450_11_CIGetCIPLOptArg_PDU;  /* CIGetCIPLOptArg */
+static int hf_h450_11_h450_11_CIGetCIPLRes_PDU;   /* CIGetCIPLRes */
+static int hf_h450_11_h450_11_CIIsOptArg_PDU;     /* CIIsOptArg */
+static int hf_h450_11_h450_11_CIIsOptRes_PDU;     /* CIIsOptRes */
+static int hf_h450_11_h450_11_CIFrcRelArg_PDU;    /* CIFrcRelArg */
+static int hf_h450_11_h450_11_CIFrcRelOptRes_PDU;  /* CIFrcRelOptRes */
+static int hf_h450_11_h450_11_CIWobOptArg_PDU;    /* CIWobOptArg */
+static int hf_h450_11_h450_11_CIWobOptRes_PDU;    /* CIWobOptRes */
+static int hf_h450_11_h450_11_CISilentArg_PDU;    /* CISilentArg */
+static int hf_h450_11_h450_11_CISilentOptRes_PDU;  /* CISilentOptRes */
+static int hf_h450_11_h450_11_CINotificationArg_PDU;  /* CINotificationArg */
+static int hf_h450_11_ciCapabilityLevel;          /* CICapabilityLevel */
+static int hf_h450_11_cIRequestArg_argumentExtension;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_11_cIRequestArg_argumentExtension_item;  /* MixedExtension */
+static int hf_h450_11_ciStatusInformation;        /* CIStatusInformation */
+static int hf_h450_11_cIRequestRes_resultExtension;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_11_cIRequestRes_resultExtension_item;  /* MixedExtension */
+static int hf_h450_11_cIGetCIPLOptArg_argumentExtension;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_11_cIGetCIPLOptArg_argumentExtension_item;  /* MixedExtension */
+static int hf_h450_11_ciProtectionLevel;          /* CIProtectionLevel */
+static int hf_h450_11_silentMonitoringPermitted;  /* NULL */
+static int hf_h450_11_cIGetCIPLRes_resultExtension;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_11_cIGetCIPLRes_resultExtension_item;  /* MixedExtension */
+static int hf_h450_11_cIIsOptArg_argumentExtension;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_11_cIIsOptArg_argumentExtension_item;  /* MixedExtension */
+static int hf_h450_11_cIIsOptRes_resultExtension;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_11_cIIsOptRes_resultExtension_item;  /* MixedExtension */
+static int hf_h450_11_cIFrcRelArg_argumentExtension;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_11_cIFrcRelArg_argumentExtension_item;  /* MixedExtension */
+static int hf_h450_11_cIFrcRelOptRes_resultExtension;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_11_cIFrcRelOptRes_resultExtension_item;  /* MixedExtension */
+static int hf_h450_11_cIWobOptArg_argumentExtension;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_11_cIWobOptArg_argumentExtension_item;  /* MixedExtension */
+static int hf_h450_11_cIWobOptRes_resultExtension;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_11_cIWobOptRes_resultExtension_item;  /* MixedExtension */
+static int hf_h450_11_specificCall;               /* CallIdentifier */
+static int hf_h450_11_cISilentArg_argumentExtension;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_11_cISilentArg_argumentExtension_item;  /* MixedExtension */
+static int hf_h450_11_cISilentOptRes_resultExtension;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_11_cISilentOptRes_resultExtension_item;  /* MixedExtension */
+static int hf_h450_11_cINotificationArg_argumentExtension;  /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_11_cINotificationArg_argumentExtension_item;  /* MixedExtension */
+static int hf_h450_11_callIntrusionImpending;     /* NULL */
+static int hf_h450_11_callIntruded;               /* NULL */
+static int hf_h450_11_callIsolated;               /* NULL */
+static int hf_h450_11_callForceReleased;          /* NULL */
+static int hf_h450_11_callIntrusionComplete;      /* NULL */
+static int hf_h450_11_callIntrusionEnd;           /* NULL */
 
 /* --- Module Common-Information-Operations --- --- ---                       */
 
-static int hf_h450_12_h450_12_DummyArg_PDU = -1;  /* DummyArg */
-static int hf_h450_12_h450_12_CmnArg_PDU = -1;    /* CmnArg */
-static int hf_h450_12_featureList = -1;           /* FeatureList */
-static int hf_h450_12_featureValues = -1;         /* FeatureValues */
-static int hf_h450_12_featureControl = -1;        /* FeatureControl */
-static int hf_h450_12_cmnArg_extension = -1;      /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_12_cmnArg_extension_item = -1;  /* MixedExtension */
-static int hf_h450_12_extensionArg = -1;          /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
-static int hf_h450_12_extensionArg_item = -1;     /* MixedExtension */
-static int hf_h450_12_ssCFreRoutingSupported = -1;  /* NULL */
-static int hf_h450_12_ssCTreRoutingSupported = -1;  /* NULL */
-static int hf_h450_12_ssCCBSPossible = -1;        /* NULL */
-static int hf_h450_12_ssCCNRPossible = -1;        /* NULL */
-static int hf_h450_12_ssCOSupported = -1;         /* NULL */
-static int hf_h450_12_ssCIForcedReleaseSupported = -1;  /* NULL */
-static int hf_h450_12_ssCIIsolationSupported = -1;  /* NULL */
-static int hf_h450_12_ssCIWaitOnBusySupported = -1;  /* NULL */
-static int hf_h450_12_ssCISilentMonitoringSupported = -1;  /* NULL */
-static int hf_h450_12_ssCIConferenceSupported = -1;  /* NULL */
-static int hf_h450_12_ssCHFarHoldSupported = -1;  /* NULL */
-static int hf_h450_12_ssMWICallbackSupported = -1;  /* NULL */
-static int hf_h450_12_ssCPCallParkSupported = -1;  /* NULL */
-static int hf_h450_12_partyCategory = -1;         /* PartyCategory */
-static int hf_h450_12_ssCIprotectionLevel = -1;   /* SSCIProtectionLevel */
-static int hf_h450_12_ssCHDoNotHold = -1;         /* NULL */
-static int hf_h450_12_ssCTDoNotTransfer = -1;     /* NULL */
-static int hf_h450_12_ssMWICallbackCall = -1;     /* NULL */
-static int hf_h450_12_ssCISilentMonitorPermitted = -1;  /* NULL */
+static int hf_h450_12_h450_12_DummyArg_PDU;       /* DummyArg */
+static int hf_h450_12_h450_12_CmnArg_PDU;         /* CmnArg */
+static int hf_h450_12_featureList;                /* FeatureList */
+static int hf_h450_12_featureValues;              /* FeatureValues */
+static int hf_h450_12_featureControl;             /* FeatureControl */
+static int hf_h450_12_cmnArg_extension;           /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_12_cmnArg_extension_item;      /* MixedExtension */
+static int hf_h450_12_extensionArg;               /* SEQUENCE_SIZE_0_255_OF_MixedExtension */
+static int hf_h450_12_extensionArg_item;          /* MixedExtension */
+static int hf_h450_12_ssCFreRoutingSupported;     /* NULL */
+static int hf_h450_12_ssCTreRoutingSupported;     /* NULL */
+static int hf_h450_12_ssCCBSPossible;             /* NULL */
+static int hf_h450_12_ssCCNRPossible;             /* NULL */
+static int hf_h450_12_ssCOSupported;              /* NULL */
+static int hf_h450_12_ssCIForcedReleaseSupported;  /* NULL */
+static int hf_h450_12_ssCIIsolationSupported;     /* NULL */
+static int hf_h450_12_ssCIWaitOnBusySupported;    /* NULL */
+static int hf_h450_12_ssCISilentMonitoringSupported;  /* NULL */
+static int hf_h450_12_ssCIConferenceSupported;    /* NULL */
+static int hf_h450_12_ssCHFarHoldSupported;       /* NULL */
+static int hf_h450_12_ssMWICallbackSupported;     /* NULL */
+static int hf_h450_12_ssCPCallParkSupported;      /* NULL */
+static int hf_h450_12_partyCategory;              /* PartyCategory */
+static int hf_h450_12_ssCIprotectionLevel;        /* SSCIProtectionLevel */
+static int hf_h450_12_ssCHDoNotHold;              /* NULL */
+static int hf_h450_12_ssCTDoNotTransfer;          /* NULL */
+static int hf_h450_12_ssMWICallbackCall;          /* NULL */
+static int hf_h450_12_ssCISilentMonitorPermitted;  /* NULL */
 
 /* Initialize the subtree pointers */
 
 /* --- Modules H4501-Supplementary-ServiceAPDU-Structure Addressing-Data-Elements H225-generic-parameters-definition Manufacturer-specific-service-extension-definition H4501-General-Error-List --- --- --- */
 
-static gint ett_h450_H4501SupplementaryService = -1;
-static gint ett_h450_NetworkFacilityExtension = -1;
-static gint ett_h450_EntityType = -1;
-static gint ett_h450_InterpretationApdu = -1;
-static gint ett_h450_ServiceApdus = -1;
-static gint ett_h450_T_rosApdus = -1;
-static gint ett_h450_EndpointAddress = -1;
-static gint ett_h450_SEQUENCE_OF_AliasAddress = -1;
-static gint ett_h450_PartySubaddress = -1;
-static gint ett_h450_UserSpecifiedSubaddress = -1;
-static gint ett_h450_Extension = -1;
+static gint ett_h450_H4501SupplementaryService;
+static gint ett_h450_NetworkFacilityExtension;
+static gint ett_h450_EntityType;
+static gint ett_h450_InterpretationApdu;
+static gint ett_h450_ServiceApdus;
+static gint ett_h450_T_rosApdus;
+static gint ett_h450_EndpointAddress;
+static gint ett_h450_SEQUENCE_OF_AliasAddress;
+static gint ett_h450_PartySubaddress;
+static gint ett_h450_UserSpecifiedSubaddress;
+static gint ett_h450_Extension;
 
 /* --- Module Call-Transfer-Operations --- --- ---                            */
 
-static gint ett_h450_2_DummyArg = -1;
-static gint ett_h450_2_DummyRes = -1;
-static gint ett_h450_2_CTInitiateArg = -1;
-static gint ett_h450_2_T_cTInitiateArg_argumentExtension = -1;
-static gint ett_h450_2_CTSetupArg = -1;
-static gint ett_h450_2_T_cTSetupArg_argumentExtension = -1;
-static gint ett_h450_2_CTIdentifyRes = -1;
-static gint ett_h450_2_T_resultExtension = -1;
-static gint ett_h450_2_CTUpdateArg = -1;
-static gint ett_h450_2_T_cTUpdateArg_argumentExtension = -1;
-static gint ett_h450_2_SubaddressTransferArg = -1;
-static gint ett_h450_2_T_subaddressTransferArg_argumentExtension = -1;
-static gint ett_h450_2_CTCompleteArg = -1;
-static gint ett_h450_2_T_cTCompleteArg_argumentExtension = -1;
-static gint ett_h450_2_CTActiveArg = -1;
-static gint ett_h450_2_T_cTActiveArg_argumentExtension = -1;
-static gint ett_h450_2_ExtensionSeq = -1;
-static gint ett_h450_2_PAR_unspecified = -1;
+static gint ett_h450_2_DummyArg;
+static gint ett_h450_2_DummyRes;
+static gint ett_h450_2_CTInitiateArg;
+static gint ett_h450_2_T_cTInitiateArg_argumentExtension;
+static gint ett_h450_2_CTSetupArg;
+static gint ett_h450_2_T_cTSetupArg_argumentExtension;
+static gint ett_h450_2_CTIdentifyRes;
+static gint ett_h450_2_T_resultExtension;
+static gint ett_h450_2_CTUpdateArg;
+static gint ett_h450_2_T_cTUpdateArg_argumentExtension;
+static gint ett_h450_2_SubaddressTransferArg;
+static gint ett_h450_2_T_subaddressTransferArg_argumentExtension;
+static gint ett_h450_2_CTCompleteArg;
+static gint ett_h450_2_T_cTCompleteArg_argumentExtension;
+static gint ett_h450_2_CTActiveArg;
+static gint ett_h450_2_T_cTActiveArg_argumentExtension;
+static gint ett_h450_2_ExtensionSeq;
+static gint ett_h450_2_PAR_unspecified;
 
 /* --- Module Call-Diversion-Operations --- --- ---                           */
 
-static gint ett_h450_3_ARG_activateDiversionQ = -1;
-static gint ett_h450_3_ActivateDiversionQArg_extension = -1;
-static gint ett_h450_3_RES_activateDiversionQ = -1;
-static gint ett_h450_3_ARG_deactivateDiversionQ = -1;
-static gint ett_h450_3_DeactivateDiversionQArg_extension = -1;
-static gint ett_h450_3_RES_deactivateDiversionQ = -1;
-static gint ett_h450_3_ARG_interrogateDiversionQ = -1;
-static gint ett_h450_3_InterrogateDiversionQ_extension = -1;
-static gint ett_h450_3_ARG_checkRestriction = -1;
-static gint ett_h450_3_CheckRestrictionArg_extension = -1;
-static gint ett_h450_3_RES_checkRestriction = -1;
-static gint ett_h450_3_ARG_callRerouting = -1;
-static gint ett_h450_3_CallReroutingArg_extension = -1;
-static gint ett_h450_3_RES_callRerouting = -1;
-static gint ett_h450_3_ARG_divertingLegInformation1 = -1;
-static gint ett_h450_3_DivertingLegInformation1Arg_extension = -1;
-static gint ett_h450_3_ARG_divertingLegInformation2 = -1;
-static gint ett_h450_3_DivertingLegInformation2Arg_extension = -1;
-static gint ett_h450_3_ARG_divertingLegInformation3 = -1;
-static gint ett_h450_3_DivertingLegInformation3Arg_extension = -1;
-static gint ett_h450_3_ARG_divertingLegInformation4 = -1;
-static gint ett_h450_3_DivertingLegInformation4Arg_extension = -1;
-static gint ett_h450_3_ARG_cfnrDivertedLegFailed = -1;
-static gint ett_h450_3_IntResultList = -1;
-static gint ett_h450_3_IntResult = -1;
-static gint ett_h450_3_IntResult_extension = -1;
-static gint ett_h450_3_PAR_unspecified = -1;
-static gint ett_h450_3_ExtensionSeq = -1;
+static gint ett_h450_3_ARG_activateDiversionQ;
+static gint ett_h450_3_ActivateDiversionQArg_extension;
+static gint ett_h450_3_RES_activateDiversionQ;
+static gint ett_h450_3_ARG_deactivateDiversionQ;
+static gint ett_h450_3_DeactivateDiversionQArg_extension;
+static gint ett_h450_3_RES_deactivateDiversionQ;
+static gint ett_h450_3_ARG_interrogateDiversionQ;
+static gint ett_h450_3_InterrogateDiversionQ_extension;
+static gint ett_h450_3_ARG_checkRestriction;
+static gint ett_h450_3_CheckRestrictionArg_extension;
+static gint ett_h450_3_RES_checkRestriction;
+static gint ett_h450_3_ARG_callRerouting;
+static gint ett_h450_3_CallReroutingArg_extension;
+static gint ett_h450_3_RES_callRerouting;
+static gint ett_h450_3_ARG_divertingLegInformation1;
+static gint ett_h450_3_DivertingLegInformation1Arg_extension;
+static gint ett_h450_3_ARG_divertingLegInformation2;
+static gint ett_h450_3_DivertingLegInformation2Arg_extension;
+static gint ett_h450_3_ARG_divertingLegInformation3;
+static gint ett_h450_3_DivertingLegInformation3Arg_extension;
+static gint ett_h450_3_ARG_divertingLegInformation4;
+static gint ett_h450_3_DivertingLegInformation4Arg_extension;
+static gint ett_h450_3_ARG_cfnrDivertedLegFailed;
+static gint ett_h450_3_IntResultList;
+static gint ett_h450_3_IntResult;
+static gint ett_h450_3_IntResult_extension;
+static gint ett_h450_3_PAR_unspecified;
+static gint ett_h450_3_ExtensionSeq;
 
 /* --- Module Call-Hold-Operations --- --- ---                                */
 
-static gint ett_h450_4_HoldNotificArg = -1;
-static gint ett_h450_4_SEQUENCE_SIZE_0_255_OF_MixedExtension = -1;
-static gint ett_h450_4_RetrieveNotificArg = -1;
-static gint ett_h450_4_RemoteHoldArg = -1;
-static gint ett_h450_4_RemoteHoldRes = -1;
-static gint ett_h450_4_RemoteRetrieveArg = -1;
-static gint ett_h450_4_RemoteRetrieveRes = -1;
-static gint ett_h450_4_MixedExtension = -1;
-static gint ett_h450_4_PAR_undefined = -1;
+static gint ett_h450_4_HoldNotificArg;
+static gint ett_h450_4_SEQUENCE_SIZE_0_255_OF_MixedExtension;
+static gint ett_h450_4_RetrieveNotificArg;
+static gint ett_h450_4_RemoteHoldArg;
+static gint ett_h450_4_RemoteHoldRes;
+static gint ett_h450_4_RemoteRetrieveArg;
+static gint ett_h450_4_RemoteRetrieveRes;
+static gint ett_h450_4_MixedExtension;
+static gint ett_h450_4_PAR_undefined;
 
 /* --- Module Call-Park-Pickup-Operations --- --- ---                         */
 
-static gint ett_h450_5_CpRequestArg = -1;
-static gint ett_h450_5_SEQUENCE_SIZE_0_255_OF_MixedExtension = -1;
-static gint ett_h450_5_CpRequestRes = -1;
-static gint ett_h450_5_CpSetupArg = -1;
-static gint ett_h450_5_CpSetupRes = -1;
-static gint ett_h450_5_GroupIndicationOnArg = -1;
-static gint ett_h450_5_GroupIndicationOnRes = -1;
-static gint ett_h450_5_GroupIndicationOffArg = -1;
-static gint ett_h450_5_GroupIndicationOffRes = -1;
-static gint ett_h450_5_PickrequArg = -1;
-static gint ett_h450_5_PickrequRes = -1;
-static gint ett_h450_5_PickupArg = -1;
-static gint ett_h450_5_PickupRes = -1;
-static gint ett_h450_5_PickExeArg = -1;
-static gint ett_h450_5_PickExeRes = -1;
-static gint ett_h450_5_CpNotifyArg = -1;
-static gint ett_h450_5_CpickupNotifyArg = -1;
-static gint ett_h450_5_PAR_undefined = -1;
+static gint ett_h450_5_CpRequestArg;
+static gint ett_h450_5_SEQUENCE_SIZE_0_255_OF_MixedExtension;
+static gint ett_h450_5_CpRequestRes;
+static gint ett_h450_5_CpSetupArg;
+static gint ett_h450_5_CpSetupRes;
+static gint ett_h450_5_GroupIndicationOnArg;
+static gint ett_h450_5_GroupIndicationOnRes;
+static gint ett_h450_5_GroupIndicationOffArg;
+static gint ett_h450_5_GroupIndicationOffRes;
+static gint ett_h450_5_PickrequArg;
+static gint ett_h450_5_PickrequRes;
+static gint ett_h450_5_PickupArg;
+static gint ett_h450_5_PickupRes;
+static gint ett_h450_5_PickExeArg;
+static gint ett_h450_5_PickExeRes;
+static gint ett_h450_5_CpNotifyArg;
+static gint ett_h450_5_CpickupNotifyArg;
+static gint ett_h450_5_PAR_undefined;
 
 /* --- Module Call-Waiting-Operations --- --- ---                             */
 
-static gint ett_h450_6_CallWaitingArg = -1;
-static gint ett_h450_6_SEQUENCE_SIZE_0_255_OF_MixedExtension = -1;
+static gint ett_h450_6_CallWaitingArg;
+static gint ett_h450_6_SEQUENCE_SIZE_0_255_OF_MixedExtension;
 
 /* --- Module Message-Waiting-Indication-Operations --- --- ---               */
 
-static gint ett_h450_7_MWIActivateArg = -1;
-static gint ett_h450_7_SEQUENCE_SIZE_0_255_OF_MixedExtension = -1;
-static gint ett_h450_7_DummyRes = -1;
-static gint ett_h450_7_MWIDeactivateArg = -1;
-static gint ett_h450_7_MWIInterrogateArg = -1;
-static gint ett_h450_7_MWIInterrogateRes = -1;
-static gint ett_h450_7_MWIInterrogateResElt = -1;
-static gint ett_h450_7_MsgCentreId = -1;
-static gint ett_h450_7_PAR_undefined = -1;
+static gint ett_h450_7_MWIActivateArg;
+static gint ett_h450_7_SEQUENCE_SIZE_0_255_OF_MixedExtension;
+static gint ett_h450_7_DummyRes;
+static gint ett_h450_7_MWIDeactivateArg;
+static gint ett_h450_7_MWIInterrogateArg;
+static gint ett_h450_7_MWIInterrogateRes;
+static gint ett_h450_7_MWIInterrogateResElt;
+static gint ett_h450_7_MsgCentreId;
+static gint ett_h450_7_PAR_undefined;
 
 /* --- Module Name-Operations --- --- ---                                     */
 
-static gint ett_h450_8_ARG_callingName = -1;
-static gint ett_h450_8_SEQUENCE_SIZE_0_255_OF_MixedExtension = -1;
-static gint ett_h450_8_ARG_alertingName = -1;
-static gint ett_h450_8_ARG_connectedName = -1;
-static gint ett_h450_8_ARG_busyName = -1;
-static gint ett_h450_8_Name = -1;
-static gint ett_h450_8_NamePresentationAllowed = -1;
-static gint ett_h450_8_NamePresentationRestricted = -1;
+static gint ett_h450_8_ARG_callingName;
+static gint ett_h450_8_SEQUENCE_SIZE_0_255_OF_MixedExtension;
+static gint ett_h450_8_ARG_alertingName;
+static gint ett_h450_8_ARG_connectedName;
+static gint ett_h450_8_ARG_busyName;
+static gint ett_h450_8_Name;
+static gint ett_h450_8_NamePresentationAllowed;
+static gint ett_h450_8_NamePresentationRestricted;
 
 /* --- Module Call-Completion-Operations --- --- ---                          */
 
-static gint ett_h450_9_CcRequestArg = -1;
-static gint ett_h450_9_SEQUENCE_SIZE_0_255_OF_MixedExtension = -1;
-static gint ett_h450_9_CcRequestRes = -1;
-static gint ett_h450_9_CcArg = -1;
-static gint ett_h450_9_CcShortArg = -1;
-static gint ett_h450_9_CcLongArg = -1;
+static gint ett_h450_9_CcRequestArg;
+static gint ett_h450_9_SEQUENCE_SIZE_0_255_OF_MixedExtension;
+static gint ett_h450_9_CcRequestRes;
+static gint ett_h450_9_CcArg;
+static gint ett_h450_9_CcShortArg;
+static gint ett_h450_9_CcLongArg;
 
 /* --- Module Call-Offer-Operations --- --- ---                               */
 
-static gint ett_h450_10_CoReqOptArg = -1;
-static gint ett_h450_10_SEQUENCE_SIZE_0_255_OF_MixedExtension = -1;
-static gint ett_h450_10_RUAlertOptArg = -1;
-static gint ett_h450_10_CfbOvrOptArg = -1;
+static gint ett_h450_10_CoReqOptArg;
+static gint ett_h450_10_SEQUENCE_SIZE_0_255_OF_MixedExtension;
+static gint ett_h450_10_RUAlertOptArg;
+static gint ett_h450_10_CfbOvrOptArg;
 
 /* --- Module Call-Intrusion-Operations --- --- ---                           */
 
-static gint ett_h450_11_CIRequestArg = -1;
-static gint ett_h450_11_SEQUENCE_SIZE_0_255_OF_MixedExtension = -1;
-static gint ett_h450_11_CIRequestRes = -1;
-static gint ett_h450_11_CIGetCIPLOptArg = -1;
-static gint ett_h450_11_CIGetCIPLRes = -1;
-static gint ett_h450_11_CIIsOptArg = -1;
-static gint ett_h450_11_CIIsOptRes = -1;
-static gint ett_h450_11_CIFrcRelArg = -1;
-static gint ett_h450_11_CIFrcRelOptRes = -1;
-static gint ett_h450_11_CIWobOptArg = -1;
-static gint ett_h450_11_CIWobOptRes = -1;
-static gint ett_h450_11_CISilentArg = -1;
-static gint ett_h450_11_CISilentOptRes = -1;
-static gint ett_h450_11_CINotificationArg = -1;
-static gint ett_h450_11_CIStatusInformation = -1;
+static gint ett_h450_11_CIRequestArg;
+static gint ett_h450_11_SEQUENCE_SIZE_0_255_OF_MixedExtension;
+static gint ett_h450_11_CIRequestRes;
+static gint ett_h450_11_CIGetCIPLOptArg;
+static gint ett_h450_11_CIGetCIPLRes;
+static gint ett_h450_11_CIIsOptArg;
+static gint ett_h450_11_CIIsOptRes;
+static gint ett_h450_11_CIFrcRelArg;
+static gint ett_h450_11_CIFrcRelOptRes;
+static gint ett_h450_11_CIWobOptArg;
+static gint ett_h450_11_CIWobOptRes;
+static gint ett_h450_11_CISilentArg;
+static gint ett_h450_11_CISilentOptRes;
+static gint ett_h450_11_CINotificationArg;
+static gint ett_h450_11_CIStatusInformation;
 
 /* --- Module Common-Information-Operations --- --- ---                       */
 
-static gint ett_h450_12_CmnArg = -1;
-static gint ett_h450_12_SEQUENCE_SIZE_0_255_OF_MixedExtension = -1;
-static gint ett_h450_12_DummyArg = -1;
-static gint ett_h450_12_FeatureList = -1;
-static gint ett_h450_12_FeatureValues = -1;
-static gint ett_h450_12_FeatureControl = -1;
+static gint ett_h450_12_CmnArg;
+static gint ett_h450_12_SEQUENCE_SIZE_0_255_OF_MixedExtension;
+static gint ett_h450_12_DummyArg;
+static gint ett_h450_12_FeatureList;
+static gint ett_h450_12_FeatureValues;
+static gint ett_h450_12_FeatureControl;
 
-static expert_field ei_h450_unsupported_arg_type = EI_INIT;
-static expert_field ei_h450_unsupported_result_type = EI_INIT;
-static expert_field ei_h450_unsupported_error_type = EI_INIT;
+static expert_field ei_h450_unsupported_arg_type;
+static expert_field ei_h450_unsupported_result_type;
+static expert_field ei_h450_unsupported_error_type;
 
 static const value_string h450_str_operation[] = {
 

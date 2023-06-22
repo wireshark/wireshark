@@ -35,625 +35,625 @@ void proto_reg_handoff_HI2Operations(void);
 
 /* Initialize the protocol and registered fields */
 int proto_HI2Operations = -1;
-static int hf_HI2Operations_IRIsContent_PDU = -1;  /* IRIsContent */
-static int hf_HI2Operations_UUS1_Content_PDU = -1;  /* UUS1_Content */
-static int hf_HI2Operations_communication_Identity_Number = -1;  /* OCTET_STRING_SIZE_1_8 */
-static int hf_HI2Operations_network_Identifier = -1;  /* Network_Identifier */
-static int hf_HI2Operations_operator_Identifier = -1;  /* OCTET_STRING_SIZE_1_5 */
-static int hf_HI2Operations_network_Element_Identifier = -1;  /* Network_Element_Identifier */
-static int hf_HI2Operations_e164_Format = -1;     /* T_e164_Format */
-static int hf_HI2Operations_x25_Format = -1;      /* OCTET_STRING_SIZE_1_25 */
-static int hf_HI2Operations_iP_Format = -1;       /* OCTET_STRING_SIZE_1_25 */
-static int hf_HI2Operations_dNS_Format = -1;      /* OCTET_STRING_SIZE_1_25 */
-static int hf_HI2Operations_iP_Address = -1;      /* IPAddress */
-static int hf_HI2Operations_localTime = -1;       /* LocalTimeStamp */
-static int hf_HI2Operations_utcTime = -1;         /* UTCTime */
-static int hf_HI2Operations_generalizedTime = -1;  /* GeneralizedTime */
-static int hf_HI2Operations_winterSummerIndication = -1;  /* T_winterSummerIndication */
-static int hf_HI2Operations_party_Qualifier = -1;  /* T_party_Qualifier */
-static int hf_HI2Operations_partyIdentity = -1;   /* T_partyIdentity */
-static int hf_HI2Operations_imei = -1;            /* OCTET_STRING_SIZE_8 */
-static int hf_HI2Operations_tei = -1;             /* OCTET_STRING_SIZE_1_15 */
-static int hf_HI2Operations_imsi = -1;            /* OCTET_STRING_SIZE_3_8 */
-static int hf_HI2Operations_callingPartyNumber = -1;  /* CallingPartyNumber */
-static int hf_HI2Operations_calledPartyNumber = -1;  /* CalledPartyNumber */
-static int hf_HI2Operations_msISDN = -1;          /* OCTET_STRING_SIZE_1_9 */
-static int hf_HI2Operations_e164_Format_01 = -1;  /* OCTET_STRING_SIZE_1_25 */
-static int hf_HI2Operations_sip_uri = -1;         /* OCTET_STRING */
-static int hf_HI2Operations_tel_url = -1;         /* OCTET_STRING */
-static int hf_HI2Operations_nai = -1;             /* OCTET_STRING */
-static int hf_HI2Operations_x_3GPP_Asserted_Identity = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_xUI = -1;             /* OCTET_STRING */
-static int hf_HI2Operations_iMPI = -1;            /* OCTET_STRING */
-static int hf_HI2Operations_extID = -1;           /* UTF8String */
-static int hf_HI2Operations_services_Information = -1;  /* Services_Information */
-static int hf_HI2Operations_supplementary_Services_Information = -1;  /* Supplementary_Services */
-static int hf_HI2Operations_services_Data_Information = -1;  /* Services_Data_Information */
-static int hf_HI2Operations_iSUP_Format = -1;     /* OCTET_STRING_SIZE_1_25 */
-static int hf_HI2Operations_dSS1_Format = -1;     /* OCTET_STRING_SIZE_1_25 */
-static int hf_HI2Operations_mAP_Format = -1;      /* OCTET_STRING_SIZE_1_25 */
-static int hf_HI2Operations_geoCoordinates = -1;  /* T_geoCoordinates */
-static int hf_HI2Operations_geoCoordinates_latitude = -1;  /* PrintableString_SIZE_7_10 */
-static int hf_HI2Operations_geoCoordinates_longitude = -1;  /* PrintableString_SIZE_8_11 */
-static int hf_HI2Operations_mapDatum = -1;        /* MapDatum */
-static int hf_HI2Operations_azimuth = -1;         /* INTEGER_0_359 */
-static int hf_HI2Operations_utmCoordinates = -1;  /* T_utmCoordinates */
-static int hf_HI2Operations_utm_East = -1;        /* PrintableString_SIZE_10 */
-static int hf_HI2Operations_utm_North = -1;       /* PrintableString_SIZE_7 */
-static int hf_HI2Operations_utmRefCoordinates = -1;  /* T_utmRefCoordinates */
-static int hf_HI2Operations_utmref_string = -1;   /* PrintableString_SIZE_13 */
-static int hf_HI2Operations_wGS84Coordinates = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_point = -1;           /* GA_Point */
-static int hf_HI2Operations_pointWithUnCertainty = -1;  /* GA_PointWithUnCertainty */
-static int hf_HI2Operations_polygon = -1;         /* GA_Polygon */
-static int hf_HI2Operations_latitudeSign = -1;    /* T_latitudeSign */
-static int hf_HI2Operations_latitude = -1;        /* INTEGER_0_8388607 */
-static int hf_HI2Operations_longitude = -1;       /* INTEGER_M8388608_8388607 */
-static int hf_HI2Operations_geographicalCoordinates = -1;  /* GeographicalCoordinates */
-static int hf_HI2Operations_uncertaintyCode = -1;  /* INTEGER_0_127 */
-static int hf_HI2Operations_GA_Polygon_item = -1;  /* GA_Polygon_item */
-static int hf_HI2Operations_iSUP_parameters = -1;  /* ISUP_parameters */
-static int hf_HI2Operations_dSS1_parameters_codeset_0 = -1;  /* DSS1_parameters_codeset_0 */
-static int hf_HI2Operations_mAP_parameters = -1;  /* MAP_parameters */
-static int hf_HI2Operations_ISUP_parameters_item = -1;  /* OCTET_STRING_SIZE_1_256 */
-static int hf_HI2Operations_DSS1_parameters_codeset_0_item = -1;  /* OCTET_STRING_SIZE_1_256 */
-static int hf_HI2Operations_MAP_parameters_item = -1;  /* OCTET_STRING_SIZE_1_256 */
-static int hf_HI2Operations_standard_Supplementary_Services = -1;  /* Standard_Supplementary_Services */
-static int hf_HI2Operations_non_Standard_Supplementary_Services = -1;  /* Non_Standard_Supplementary_Services */
-static int hf_HI2Operations_other_Services = -1;  /* Other_Services */
-static int hf_HI2Operations_iSUP_SS_parameters = -1;  /* ISUP_SS_parameters */
-static int hf_HI2Operations_dSS1_SS_parameters_codeset_0 = -1;  /* DSS1_SS_parameters_codeset_0 */
-static int hf_HI2Operations_dSS1_SS_parameters_codeset_4 = -1;  /* DSS1_SS_parameters_codeset_4 */
-static int hf_HI2Operations_dSS1_SS_parameters_codeset_5 = -1;  /* DSS1_SS_parameters_codeset_5 */
-static int hf_HI2Operations_dSS1_SS_parameters_codeset_6 = -1;  /* DSS1_SS_parameters_codeset_6 */
-static int hf_HI2Operations_dSS1_SS_parameters_codeset_7 = -1;  /* DSS1_SS_parameters_codeset_7 */
-static int hf_HI2Operations_dSS1_SS_Invoke_components = -1;  /* DSS1_SS_Invoke_Components */
-static int hf_HI2Operations_mAP_SS_Parameters = -1;  /* MAP_SS_Parameters */
-static int hf_HI2Operations_mAP_SS_Invoke_Components = -1;  /* MAP_SS_Invoke_Components */
-static int hf_HI2Operations_Non_Standard_Supplementary_Services_item = -1;  /* Non_Standard_Supplementary_Services_item */
-static int hf_HI2Operations_simpleIndication = -1;  /* SimpleIndication */
-static int hf_HI2Operations_sciData = -1;         /* SciDataMode */
-static int hf_HI2Operations_Other_Services_item = -1;  /* OCTET_STRING_SIZE_1_256 */
-static int hf_HI2Operations_ISUP_SS_parameters_item = -1;  /* OCTET_STRING_SIZE_1_256 */
-static int hf_HI2Operations_DSS1_SS_parameters_codeset_0_item = -1;  /* OCTET_STRING_SIZE_1_256 */
-static int hf_HI2Operations_DSS1_SS_parameters_codeset_4_item = -1;  /* OCTET_STRING_SIZE_1_256 */
-static int hf_HI2Operations_DSS1_SS_parameters_codeset_5_item = -1;  /* OCTET_STRING_SIZE_1_256 */
-static int hf_HI2Operations_DSS1_SS_parameters_codeset_6_item = -1;  /* OCTET_STRING_SIZE_1_256 */
-static int hf_HI2Operations_DSS1_SS_parameters_codeset_7_item = -1;  /* OCTET_STRING_SIZE_1_256 */
-static int hf_HI2Operations_DSS1_SS_Invoke_Components_item = -1;  /* OCTET_STRING_SIZE_1_256 */
-static int hf_HI2Operations_MAP_SS_Invoke_Components_item = -1;  /* OCTET_STRING_SIZE_1_256 */
-static int hf_HI2Operations_MAP_SS_Parameters_item = -1;  /* OCTET_STRING_SIZE_1_256 */
-static int hf_HI2Operations_communicationIdentifier = -1;  /* CommunicationIdentifier */
-static int hf_HI2Operations_timeStamp = -1;       /* TimeStamp */
-static int hf_HI2Operations_sMS_Contents = -1;    /* T_sMS_Contents */
-static int hf_HI2Operations_initiator = -1;       /* T_initiator */
-static int hf_HI2Operations_transfer_status = -1;  /* T_transfer_status */
-static int hf_HI2Operations_other_message = -1;   /* T_other_message */
-static int hf_HI2Operations_content = -1;         /* OCTET_STRING_SIZE_1_270 */
-static int hf_HI2Operations_enhancedContent = -1;  /* T_enhancedContent */
-static int hf_HI2Operations_content_01 = -1;      /* OCTET_STRING */
-static int hf_HI2Operations_character_encoding = -1;  /* T_character_encoding */
-static int hf_HI2Operations_National_Parameters_item = -1;  /* OCTET_STRING_SIZE_1_256 */
-static int hf_HI2Operations_gPRS_parameters = -1;  /* GPRS_parameters */
-static int hf_HI2Operations_ipAddress = -1;       /* IPAddress */
-static int hf_HI2Operations_x25Address = -1;      /* X25Address */
-static int hf_HI2Operations_iP_type = -1;         /* T_iP_type */
-static int hf_HI2Operations_iP_value = -1;        /* IP_value */
-static int hf_HI2Operations_iP_assignment = -1;   /* T_iP_assignment */
-static int hf_HI2Operations_iPv6PrefixLength = -1;  /* INTEGER_1_128 */
-static int hf_HI2Operations_iPv4SubnetMask = -1;  /* OCTET_STRING_SIZE_4 */
-static int hf_HI2Operations_iPBinaryAddress = -1;  /* OCTET_STRING_SIZE_4_16 */
-static int hf_HI2Operations_iPTextAddress = -1;   /* IA5String_SIZE_7_45 */
-static int hf_HI2Operations_countryCode = -1;     /* PrintableString_SIZE_2 */
-static int hf_HI2Operations_domainID = -1;        /* OBJECT_IDENTIFIER */
-static int hf_HI2Operations_lawfullInterceptionIdentifier = -1;  /* LawfulInterceptionIdentifier */
-static int hf_HI2Operations_cC_Link_Identifier = -1;  /* CC_Link_Identifier */
-static int hf_HI2Operations_direction_Indication = -1;  /* Direction_Indication */
-static int hf_HI2Operations_bearer_capability = -1;  /* T_bearer_capability */
-static int hf_HI2Operations_service_Information = -1;  /* Service_Information */
-static int hf_HI2Operations_high_layer_capability = -1;  /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_tMR = -1;             /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_bearerServiceCode = -1;  /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_teleServiceCode = -1;  /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_epsiRIContent = -1;   /* EpsIRIContent */
-static int hf_HI2Operations_epsIRISequence = -1;  /* EpsIRISequence */
-static int hf_HI2Operations_EpsIRISequence_item = -1;  /* EpsIRIContent */
-static int hf_HI2Operations_iRI_Begin_record = -1;  /* IRI_Parameters */
-static int hf_HI2Operations_iRI_End_record = -1;  /* IRI_Parameters */
-static int hf_HI2Operations_iRI_Continue_record = -1;  /* IRI_Parameters */
-static int hf_HI2Operations_iRI_Report_record = -1;  /* IRI_Parameters */
-static int hf_HI2Operations_hi2epsDomainId = -1;  /* OBJECT_IDENTIFIER */
-static int hf_HI2Operations_lawfulInterceptionIdentifier = -1;  /* LawfulInterceptionIdentifier */
-static int hf_HI2Operations_initiator_01 = -1;    /* T_initiator_01 */
-static int hf_HI2Operations_locationOfTheTarget = -1;  /* Location */
-static int hf_HI2Operations_partyInformation = -1;  /* SET_SIZE_1_10_OF_PartyInformation */
-static int hf_HI2Operations_partyInformation_item = -1;  /* PartyInformation */
-static int hf_HI2Operations_serviceCenterAddress = -1;  /* PartyInformation */
-static int hf_HI2Operations_sMS = -1;             /* SMS_report */
-static int hf_HI2Operations_national_Parameters = -1;  /* National_Parameters */
-static int hf_HI2Operations_ePSCorrelationNumber = -1;  /* EPSCorrelationNumber */
-static int hf_HI2Operations_ePSevent = -1;        /* EPSEvent */
-static int hf_HI2Operations_sgsnAddress = -1;     /* DataNodeAddress */
-static int hf_HI2Operations_gPRSOperationErrorCode = -1;  /* GPRSOperationErrorCode */
-static int hf_HI2Operations_ggsnAddress = -1;     /* DataNodeAddress */
-static int hf_HI2Operations_qOS = -1;             /* UmtsQos */
-static int hf_HI2Operations_networkIdentifier = -1;  /* Network_Identifier */
-static int hf_HI2Operations_sMSOriginatingAddress = -1;  /* DataNodeAddress */
-static int hf_HI2Operations_sMSTerminatingAddress = -1;  /* DataNodeAddress */
-static int hf_HI2Operations_iMSevent = -1;        /* IMSevent */
-static int hf_HI2Operations_sIPMessage = -1;      /* OCTET_STRING */
-static int hf_HI2Operations_servingSGSN_number = -1;  /* OCTET_STRING_SIZE_1_20 */
-static int hf_HI2Operations_servingSGSN_address = -1;  /* OCTET_STRING_SIZE_5_17 */
-static int hf_HI2Operations_ldiEvent = -1;        /* LDIevent */
-static int hf_HI2Operations_correlation = -1;     /* CorrelationValues */
-static int hf_HI2Operations_ePS_GTPV2_specificParameters = -1;  /* EPS_GTPV2_SpecificParameters */
-static int hf_HI2Operations_ePS_PMIP_specificParameters = -1;  /* EPS_PMIP_SpecificParameters */
-static int hf_HI2Operations_ePS_DSMIP_SpecificParameters = -1;  /* EPS_DSMIP_SpecificParameters */
-static int hf_HI2Operations_ePS_MIP_SpecificParameters = -1;  /* EPS_MIP_SpecificParameters */
-static int hf_HI2Operations_servingNodeAddress = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_visitedNetworkId = -1;  /* UTF8String */
-static int hf_HI2Operations_mediaDecryption_info = -1;  /* MediaDecryption_info */
-static int hf_HI2Operations_servingS4_SGSN_address = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_sipMessageHeaderOffer = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_sipMessageHeaderAnswer = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_sdpOffer = -1;        /* OCTET_STRING */
-static int hf_HI2Operations_sdpAnswer = -1;       /* OCTET_STRING */
-static int hf_HI2Operations_uLITimestamp = -1;    /* OCTET_STRING_SIZE_8 */
-static int hf_HI2Operations_packetDataHeaderInformation = -1;  /* PacketDataHeaderInformation */
-static int hf_HI2Operations_mediaSecFailureIndication = -1;  /* MediaSecFailureIndication */
-static int hf_HI2Operations_csgIdentity = -1;     /* OCTET_STRING_SIZE_4 */
-static int hf_HI2Operations_heNBIdentity = -1;    /* OCTET_STRING */
-static int hf_HI2Operations_heNBiPAddress = -1;   /* IPAddress */
-static int hf_HI2Operations_heNBLocation = -1;    /* HeNBLocation */
-static int hf_HI2Operations_tunnelProtocol = -1;  /* TunnelProtocol */
-static int hf_HI2Operations_pANI_Header_Info = -1;  /* SEQUENCE_OF_PANI_Header_Info */
-static int hf_HI2Operations_pANI_Header_Info_item = -1;  /* PANI_Header_Info */
-static int hf_HI2Operations_imsVoIP = -1;         /* IMS_VoIP_Correlation */
-static int hf_HI2Operations_xCAPmessage = -1;     /* OCTET_STRING */
-static int hf_HI2Operations_logicalFunctionInformation = -1;  /* DataNodeIdentifier */
-static int hf_HI2Operations_ccUnavailableReason = -1;  /* PrintableString */
-static int hf_HI2Operations_carrierSpecificData = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_current_previous_systems = -1;  /* Current_Previous_Systems */
-static int hf_HI2Operations_change_Of_Target_Identity = -1;  /* Change_Of_Target_Identity */
-static int hf_HI2Operations_requesting_Network_Identifier = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_requesting_Node_Type = -1;  /* Requesting_Node_Type */
-static int hf_HI2Operations_serving_System_Identifier = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_proSeTargetType = -1;  /* ProSeTargetType */
-static int hf_HI2Operations_proSeRelayMSISDN = -1;  /* OCTET_STRING_SIZE_1_9 */
-static int hf_HI2Operations_proSeRelayIMSI = -1;  /* OCTET_STRING_SIZE_3_8 */
-static int hf_HI2Operations_proSeRelayIMEI = -1;  /* OCTET_STRING_SIZE_8 */
-static int hf_HI2Operations_extendedLocParameters = -1;  /* ExtendedLocParameters */
-static int hf_HI2Operations_locationErrorCode = -1;  /* LocationErrorCode */
-static int hf_HI2Operations_otherIdentities = -1;  /* SEQUENCE_OF_PartyInformation */
-static int hf_HI2Operations_otherIdentities_item = -1;  /* PartyInformation */
-static int hf_HI2Operations_deregistrationReason = -1;  /* DeregistrationReason */
-static int hf_HI2Operations_requesting_Node_Identifier = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_roamingIndication = -1;  /* VoIPRoamingIndication */
-static int hf_HI2Operations_cSREvent = -1;        /* CSREvent */
-static int hf_HI2Operations_ptc = -1;             /* PTC */
-static int hf_HI2Operations_ptcEncryption = -1;   /* PTCEncryptionInfo */
-static int hf_HI2Operations_additionalCellIDs = -1;  /* SEQUENCE_OF_AdditionalCellID */
-static int hf_HI2Operations_additionalCellIDs_item = -1;  /* AdditionalCellID */
-static int hf_HI2Operations_scefID = -1;          /* UTF8String */
-static int hf_HI2Operations_national_HI2_ASN1parameters = -1;  /* National_HI2_ASN1parameters */
-static int hf_HI2Operations_dataNodeAddress = -1;  /* DataNodeAddress */
-static int hf_HI2Operations_logicalFunctionType = -1;  /* LogicalFunctionType */
-static int hf_HI2Operations_dataNodeName = -1;    /* PrintableString_SIZE_7_25 */
-static int hf_HI2Operations_access_Type = -1;     /* OCTET_STRING */
-static int hf_HI2Operations_access_Class = -1;    /* OCTET_STRING */
-static int hf_HI2Operations_network_Provided = -1;  /* NULL */
-static int hf_HI2Operations_pANI_Location = -1;   /* PANI_Location */
-static int hf_HI2Operations_raw_Location = -1;    /* OCTET_STRING */
-static int hf_HI2Operations_location = -1;        /* Location */
-static int hf_HI2Operations_ePSLocation = -1;     /* EPSLocation */
-static int hf_HI2Operations_e164_Number = -1;     /* OCTET_STRING_SIZE_1_25 */
-static int hf_HI2Operations_globalCellID = -1;    /* GlobalCellID */
-static int hf_HI2Operations_rAI = -1;             /* Rai */
-static int hf_HI2Operations_gsmLocation = -1;     /* GSMLocation */
-static int hf_HI2Operations_umtsLocation = -1;    /* UMTSLocation */
-static int hf_HI2Operations_sAI = -1;             /* Sai */
-static int hf_HI2Operations_oldRAI = -1;          /* Rai */
-static int hf_HI2Operations_civicAddress = -1;    /* CivicAddress */
-static int hf_HI2Operations_operatorSpecificInfo = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_uELocationTimestamp = -1;  /* T_uELocationTimestamp */
-static int hf_HI2Operations_timestamp = -1;       /* TimeStamp */
-static int hf_HI2Operations_timestampUnknown = -1;  /* NULL */
-static int hf_HI2Operations_nCGI = -1;            /* NCGI */
-static int hf_HI2Operations_timeOfLocation = -1;  /* GeneralizedTime */
-static int hf_HI2Operations_mCC = -1;             /* MCC */
-static int hf_HI2Operations_mNC = -1;             /* MNC */
-static int hf_HI2Operations_pLMNID = -1;          /* PLMNID */
-static int hf_HI2Operations_nRCellID = -1;        /* NRCellID */
-static int hf_HI2Operations_iri_to_CC = -1;       /* IRI_to_CC_Correlation */
-static int hf_HI2Operations_iri_to_iri = -1;      /* IRI_to_IRI_Correlation */
-static int hf_HI2Operations_both_IRI_CC = -1;     /* T_both_IRI_CC */
-static int hf_HI2Operations_iri_CC = -1;          /* IRI_to_CC_Correlation */
-static int hf_HI2Operations_iri_IRI = -1;         /* IRI_to_IRI_Correlation */
-static int hf_HI2Operations_IMS_VoIP_Correlation_item = -1;  /* IMS_VoIP_Correlation_item */
-static int hf_HI2Operations_ims_iri = -1;         /* IRI_to_IRI_Correlation */
-static int hf_HI2Operations_ims_cc = -1;          /* IRI_to_CC_Correlation */
-static int hf_HI2Operations_cc = -1;              /* T_cc */
-static int hf_HI2Operations_cc_item = -1;         /* OCTET_STRING */
-static int hf_HI2Operations_iri = -1;             /* OCTET_STRING */
-static int hf_HI2Operations_pDP_address_allocated_to_the_target = -1;  /* DataNodeAddress */
-static int hf_HI2Operations_aPN = -1;             /* OCTET_STRING_SIZE_1_100 */
-static int hf_HI2Operations_pDP_type = -1;        /* OCTET_STRING_SIZE_2 */
-static int hf_HI2Operations_nSAPI = -1;           /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_additionalIPaddress = -1;  /* DataNodeAddress */
-static int hf_HI2Operations_qosMobileRadio = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_qosGn = -1;           /* OCTET_STRING */
-static int hf_HI2Operations_pDNAddressAllocation = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_protConfigOptions = -1;  /* ProtConfigOptions */
-static int hf_HI2Operations_attachType = -1;      /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_ePSBearerIdentity = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_detachType = -1;      /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_rATType = -1;         /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_failedBearerActivationReason = -1;  /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_ePSBearerQoS = -1;    /* OCTET_STRING */
-static int hf_HI2Operations_bearerActivationType = -1;  /* TypeOfBearer */
-static int hf_HI2Operations_aPN_AMBR = -1;        /* OCTET_STRING */
-static int hf_HI2Operations_procedureTransactionId = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_linkedEPSBearerId = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_tFT = -1;             /* OCTET_STRING */
-static int hf_HI2Operations_handoverIndication = -1;  /* NULL */
-static int hf_HI2Operations_failedBearerModReason = -1;  /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_trafficAggregateDescription = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_failedTAUReason = -1;  /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_failedEUTRANAttachReason = -1;  /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_servingMMEaddress = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_bearerDeactivationType = -1;  /* TypeOfBearer */
-static int hf_HI2Operations_bearerDeactivationCause = -1;  /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_ePSlocationOfTheTarget = -1;  /* EPSLocation */
-static int hf_HI2Operations_pDNType = -1;         /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_requestType = -1;     /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_uEReqPDNConnFailReason = -1;  /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_extendedHandoverIndication = -1;  /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_uELocalIPAddress = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_uEUdpPort = -1;       /* OCTET_STRING_SIZE_2 */
-static int hf_HI2Operations_tWANIdentifier = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_tWANIdentifierTimestamp = -1;  /* OCTET_STRING_SIZE_4 */
-static int hf_HI2Operations_proSeRemoteUeContextConnected = -1;  /* RemoteUeContextConnected */
-static int hf_HI2Operations_proSeRemoteUeContextDisconnected = -1;  /* RemoteUeContextDisconnected */
-static int hf_HI2Operations_secondaryRATUsageIndication = -1;  /* NULL */
-static int hf_HI2Operations_userLocationInfo = -1;  /* OCTET_STRING_SIZE_1_39 */
-static int hf_HI2Operations_olduserLocationInfo = -1;  /* OCTET_STRING_SIZE_1_39 */
-static int hf_HI2Operations_lastVisitedTAI = -1;  /* OCTET_STRING_SIZE_1_5 */
-static int hf_HI2Operations_tAIlist = -1;         /* OCTET_STRING_SIZE_7_97 */
-static int hf_HI2Operations_threeGPP2Bsid = -1;   /* OCTET_STRING_SIZE_1_12 */
-static int hf_HI2Operations_uELocationTimestamp_01 = -1;  /* T_uELocationTimestamp_01 */
-static int hf_HI2Operations_ueToNetwork = -1;     /* OCTET_STRING_SIZE_1_251 */
-static int hf_HI2Operations_networkToUe = -1;     /* OCTET_STRING_SIZE_1_251 */
-static int hf_HI2Operations_RemoteUeContextConnected_item = -1;  /* RemoteUEContext */
-static int hf_HI2Operations_remoteUserID = -1;    /* RemoteUserID */
-static int hf_HI2Operations_remoteUEIPInformation = -1;  /* RemoteUEIPInformation */
-static int hf_HI2Operations_lifetime = -1;        /* INTEGER_0_65535 */
-static int hf_HI2Operations_accessTechnologyType = -1;  /* OCTET_STRING_SIZE_4 */
-static int hf_HI2Operations_iPv6HomeNetworkPrefix = -1;  /* OCTET_STRING_SIZE_20 */
-static int hf_HI2Operations_protConfigurationOption = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_handoverIndication_01 = -1;  /* OCTET_STRING_SIZE_4 */
-static int hf_HI2Operations_status = -1;          /* INTEGER_0_255 */
-static int hf_HI2Operations_revocationTrigger = -1;  /* INTEGER_0_255 */
-static int hf_HI2Operations_iPv4HomeAddress = -1;  /* OCTET_STRING_SIZE_4 */
-static int hf_HI2Operations_iPv6careOfAddress = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_iPv4careOfAddress = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_servingNetwork = -1;  /* OCTET_STRING_SIZE_3 */
-static int hf_HI2Operations_dHCPv4AddressAllocationInd = -1;  /* OCTET_STRING_SIZE_1 */
-static int hf_HI2Operations_requestedIPv6HomePrefix = -1;  /* OCTET_STRING_SIZE_25 */
-static int hf_HI2Operations_homeAddress = -1;     /* OCTET_STRING_SIZE_8 */
-static int hf_HI2Operations_iPv4careOfAddress_01 = -1;  /* OCTET_STRING_SIZE_8 */
-static int hf_HI2Operations_iPv6careOfAddress_01 = -1;  /* OCTET_STRING_SIZE_16 */
-static int hf_HI2Operations_hSS_AAA_address = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_targetPDN_GW_Address = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_homeAddress_01 = -1;  /* OCTET_STRING_SIZE_4 */
-static int hf_HI2Operations_careOfAddress = -1;   /* OCTET_STRING_SIZE_4 */
-static int hf_HI2Operations_homeAgentAddress = -1;  /* OCTET_STRING_SIZE_4 */
-static int hf_HI2Operations_code = -1;            /* INTEGER_0_255 */
-static int hf_HI2Operations_foreignDomainAddress = -1;  /* OCTET_STRING_SIZE_4 */
-static int hf_HI2Operations_MediaDecryption_info_item = -1;  /* CCKeyInfo */
-static int hf_HI2Operations_cCCSID = -1;          /* OCTET_STRING */
-static int hf_HI2Operations_cCDecKey = -1;        /* OCTET_STRING */
-static int hf_HI2Operations_cCSalt = -1;          /* OCTET_STRING */
-static int hf_HI2Operations_packetDataHeader = -1;  /* PacketDataHeaderReport */
-static int hf_HI2Operations_packetDataSummary = -1;  /* PacketDataSummaryReport */
-static int hf_HI2Operations_packetDataHeaderMapped = -1;  /* PacketDataHeaderMapped */
-static int hf_HI2Operations_packetDataHeaderCopy = -1;  /* PacketDataHeaderCopy */
-static int hf_HI2Operations_sourceIPAddress = -1;  /* IPAddress */
-static int hf_HI2Operations_sourcePortNumber = -1;  /* INTEGER_0_65535 */
-static int hf_HI2Operations_destinationIPAddress = -1;  /* IPAddress */
-static int hf_HI2Operations_destinationPortNumber = -1;  /* INTEGER_0_65535 */
-static int hf_HI2Operations_transportProtocol = -1;  /* INTEGER */
-static int hf_HI2Operations_packetsize = -1;      /* INTEGER */
-static int hf_HI2Operations_flowLabel = -1;       /* INTEGER */
-static int hf_HI2Operations_packetCount = -1;     /* INTEGER */
-static int hf_HI2Operations_direction = -1;       /* TPDU_direction */
-static int hf_HI2Operations_headerCopy = -1;      /* OCTET_STRING */
-static int hf_HI2Operations_PacketDataSummaryReport_item = -1;  /* PacketFlowSummary */
-static int hf_HI2Operations_summaryPeriod = -1;   /* ReportInterval */
-static int hf_HI2Operations_sumOfPacketSizes = -1;  /* INTEGER */
-static int hf_HI2Operations_packetDataSummaryReason = -1;  /* ReportReason */
-static int hf_HI2Operations_firstPacketTimeStamp = -1;  /* TimeStamp */
-static int hf_HI2Operations_lastPacketTimeStamp = -1;  /* TimeStamp */
-static int hf_HI2Operations_rfc2868ValueField = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_nativeIPSec = -1;     /* NULL */
-static int hf_HI2Operations_new_MSISDN = -1;      /* PartyInformation */
-static int hf_HI2Operations_new_A_MSISDN = -1;    /* PartyInformation */
-static int hf_HI2Operations_old_MSISDN = -1;      /* PartyInformation */
-static int hf_HI2Operations_old_A_MSISDN = -1;    /* PartyInformation */
-static int hf_HI2Operations_new_IMSI = -1;        /* PartyInformation */
-static int hf_HI2Operations_old_IMSI = -1;        /* PartyInformation */
-static int hf_HI2Operations_new_IMEI = -1;        /* PartyInformation */
-static int hf_HI2Operations_old_IMEI = -1;        /* PartyInformation */
-static int hf_HI2Operations_new_IMPI = -1;        /* PartyInformation */
-static int hf_HI2Operations_old_IMPI = -1;        /* PartyInformation */
-static int hf_HI2Operations_new_SIP_URI = -1;     /* PartyInformation */
-static int hf_HI2Operations_old_SIP_URI = -1;     /* PartyInformation */
-static int hf_HI2Operations_new_TEL_URI = -1;     /* PartyInformation */
-static int hf_HI2Operations_old_TEL_URI = -1;     /* PartyInformation */
-static int hf_HI2Operations_current_Serving_MME_Address = -1;  /* DataNodeIdentifier */
-static int hf_HI2Operations_previous_Serving_System_Identifier = -1;  /* OCTET_STRING */
-static int hf_HI2Operations_previous_Serving_MME_Address = -1;  /* DataNodeIdentifier */
-static int hf_HI2Operations_reason_CodeAVP = -1;  /* INTEGER */
-static int hf_HI2Operations_server_AssignmentType = -1;  /* INTEGER */
-static int hf_HI2Operations_cipher = -1;          /* UTF8String */
-static int hf_HI2Operations_cryptoContext = -1;   /* UTF8String */
-static int hf_HI2Operations_key = -1;             /* UTF8String */
-static int hf_HI2Operations_keyEncoding = -1;     /* UTF8String */
-static int hf_HI2Operations_salt = -1;            /* UTF8String */
-static int hf_HI2Operations_pTCOther = -1;        /* UTF8String */
-static int hf_HI2Operations_abandonCause = -1;    /* UTF8String */
-static int hf_HI2Operations_accessPolicyFailure = -1;  /* UTF8String */
-static int hf_HI2Operations_accessPolicyType = -1;  /* AccessPolicyType */
-static int hf_HI2Operations_alertIndicator = -1;  /* AlertIndicator */
-static int hf_HI2Operations_associatePresenceStatus = -1;  /* AssociatePresenceStatus */
-static int hf_HI2Operations_bearer_capability_01 = -1;  /* UTF8String */
-static int hf_HI2Operations_broadcastIndicator = -1;  /* BOOLEAN */
-static int hf_HI2Operations_contactID = -1;       /* UTF8String */
-static int hf_HI2Operations_emergency = -1;       /* Emergency */
-static int hf_HI2Operations_emergencyGroupState = -1;  /* EmergencyGroupState */
-static int hf_HI2Operations_pTCType = -1;         /* PTCType */
-static int hf_HI2Operations_failureCode = -1;     /* UTF8String */
-static int hf_HI2Operations_floorActivity = -1;   /* FloorActivity */
-static int hf_HI2Operations_floorSpeakerID = -1;  /* PTCAddress */
-static int hf_HI2Operations_groupAdSender = -1;   /* UTF8String */
-static int hf_HI2Operations_groupAuthRule = -1;   /* GroupAuthRule */
-static int hf_HI2Operations_groupCharacteristics = -1;  /* UTF8String */
-static int hf_HI2Operations_holdRetrieveInd = -1;  /* BOOLEAN */
-static int hf_HI2Operations_imminentPerilInd = -1;  /* ImminentPerilInd */
-static int hf_HI2Operations_implicitFloorReq = -1;  /* ImplicitFloorReq */
-static int hf_HI2Operations_initiationCause = -1;  /* InitiationCause */
-static int hf_HI2Operations_invitationCause = -1;  /* UTF8String */
-static int hf_HI2Operations_iPAPartyID = -1;      /* UTF8String */
-static int hf_HI2Operations_iPADirection = -1;    /* IPADirection */
-static int hf_HI2Operations_listManagementAction = -1;  /* ListManagementAction */
-static int hf_HI2Operations_listManagementFailure = -1;  /* UTF8String */
-static int hf_HI2Operations_listManagementType = -1;  /* ListManagementType */
-static int hf_HI2Operations_maxTBTime = -1;       /* UTF8String */
-static int hf_HI2Operations_mCPTTGroupID = -1;    /* UTF8String */
-static int hf_HI2Operations_mCPTTID = -1;         /* UTF8String */
-static int hf_HI2Operations_mCPTTInd = -1;        /* BOOLEAN */
-static int hf_HI2Operations_mCPTTOrganizationName = -1;  /* UTF8String */
-static int hf_HI2Operations_mediaStreamAvail = -1;  /* BOOLEAN */
-static int hf_HI2Operations_priority_Level = -1;  /* Priority_Level */
-static int hf_HI2Operations_preEstSessionID = -1;  /* UTF8String */
-static int hf_HI2Operations_preEstStatus = -1;    /* PreEstStatus */
-static int hf_HI2Operations_pTCGroupID = -1;      /* UTF8String */
-static int hf_HI2Operations_pTCIDList = -1;       /* UTF8String */
-static int hf_HI2Operations_pTCMediaCapability = -1;  /* UTF8String */
-static int hf_HI2Operations_pTCOriginatingId = -1;  /* UTF8String */
-static int hf_HI2Operations_pTCParticipants = -1;  /* UTF8String */
-static int hf_HI2Operations_pTCParty = -1;        /* UTF8String */
-static int hf_HI2Operations_pTCPartyDrop = -1;    /* UTF8String */
-static int hf_HI2Operations_pTCSessionInfo = -1;  /* UTF8String */
-static int hf_HI2Operations_pTCServerURI = -1;    /* UTF8String */
-static int hf_HI2Operations_pTCUserAccessPolicy = -1;  /* UTF8String */
-static int hf_HI2Operations_pTCAddress = -1;      /* PTCAddress */
-static int hf_HI2Operations_queuedFloorControl = -1;  /* BOOLEAN */
-static int hf_HI2Operations_queuedPosition = -1;  /* UTF8String */
-static int hf_HI2Operations_registrationRequest = -1;  /* RegistrationRequest */
-static int hf_HI2Operations_registrationOutcome = -1;  /* RegistrationOutcome */
-static int hf_HI2Operations_retrieveID = -1;      /* UTF8String */
-static int hf_HI2Operations_rTPSetting = -1;      /* RTPSetting */
-static int hf_HI2Operations_talkBurstPriority = -1;  /* Priority_Level */
-static int hf_HI2Operations_talkBurstReason = -1;  /* Talk_burst_reason_code */
-static int hf_HI2Operations_talkburstControlSetting = -1;  /* TalkburstControlSetting */
-static int hf_HI2Operations_targetPresenceStatus = -1;  /* UTF8String */
-static int hf_HI2Operations_port_Number = -1;     /* INTEGER_0_65535 */
-static int hf_HI2Operations_userAccessPolicyAttempt = -1;  /* BOOLEAN */
-static int hf_HI2Operations_groupAuthorizationRulesAttempt = -1;  /* BOOLEAN */
-static int hf_HI2Operations_userAccessPolicyQuery = -1;  /* BOOLEAN */
-static int hf_HI2Operations_groupAuthorizationRulesQuery = -1;  /* BOOLEAN */
-static int hf_HI2Operations_userAccessPolicyResult = -1;  /* UTF8String */
-static int hf_HI2Operations_groupAuthorizationRulesResult = -1;  /* UTF8String */
-static int hf_HI2Operations_presenceID = -1;      /* UTF8String */
-static int hf_HI2Operations_presenceType = -1;    /* PresenceType */
-static int hf_HI2Operations_presenceStatus = -1;  /* BOOLEAN */
-static int hf_HI2Operations_clientEmergencyState = -1;  /* T_clientEmergencyState */
-static int hf_HI2Operations_groupEmergencyState = -1;  /* T_groupEmergencyState */
-static int hf_HI2Operations_tBCP_Request = -1;    /* BOOLEAN */
-static int hf_HI2Operations_tBCP_Granted = -1;    /* BOOLEAN */
-static int hf_HI2Operations_tBCP_Deny = -1;       /* BOOLEAN */
-static int hf_HI2Operations_tBCP_Queued = -1;     /* BOOLEAN */
-static int hf_HI2Operations_tBCP_Release = -1;    /* BOOLEAN */
-static int hf_HI2Operations_tBCP_Revoke = -1;     /* BOOLEAN */
-static int hf_HI2Operations_tBCP_Taken = -1;      /* BOOLEAN */
-static int hf_HI2Operations_tBCP_Idle = -1;       /* BOOLEAN */
-static int hf_HI2Operations_uri = -1;             /* UTF8String */
-static int hf_HI2Operations_privacy_setting = -1;  /* BOOLEAN */
-static int hf_HI2Operations_privacy_alias = -1;   /* VisibleString */
-static int hf_HI2Operations_nickname = -1;        /* UTF8String */
-static int hf_HI2Operations_ip_address = -1;      /* IPAddress */
-static int hf_HI2Operations_port_number = -1;     /* Port_Number */
-static int hf_HI2Operations_talk_BurstControlProtocol = -1;  /* UTF8String */
-static int hf_HI2Operations_talk_Burst_parameters = -1;  /* T_talk_Burst_parameters */
-static int hf_HI2Operations_talk_Burst_parameters_item = -1;  /* VisibleString */
-static int hf_HI2Operations_tBCP_PortNumber = -1;  /* INTEGER_0_65535 */
-static int hf_HI2Operations_detailedCivicAddress = -1;  /* SET_OF_DetailedCivicAddress */
-static int hf_HI2Operations_detailedCivicAddress_item = -1;  /* DetailedCivicAddress */
-static int hf_HI2Operations_xmlCivicAddress = -1;  /* XmlCivicAddress */
-static int hf_HI2Operations_building = -1;        /* UTF8String */
-static int hf_HI2Operations_room = -1;            /* UTF8String */
-static int hf_HI2Operations_placeType = -1;       /* UTF8String */
-static int hf_HI2Operations_postalCommunityName = -1;  /* UTF8String */
-static int hf_HI2Operations_additionalCode = -1;  /* UTF8String */
-static int hf_HI2Operations_seat = -1;            /* UTF8String */
-static int hf_HI2Operations_primaryRoad = -1;     /* UTF8String */
-static int hf_HI2Operations_primaryRoadDirection = -1;  /* UTF8String */
-static int hf_HI2Operations_trailingStreetSuffix = -1;  /* UTF8String */
-static int hf_HI2Operations_streetSuffix = -1;    /* UTF8String */
-static int hf_HI2Operations_houseNumber = -1;     /* UTF8String */
-static int hf_HI2Operations_houseNumberSuffix = -1;  /* UTF8String */
-static int hf_HI2Operations_landmarkAddress = -1;  /* UTF8String */
-static int hf_HI2Operations_additionalLocation = -1;  /* UTF8String */
-static int hf_HI2Operations_name = -1;            /* UTF8String */
-static int hf_HI2Operations_floor = -1;           /* UTF8String */
-static int hf_HI2Operations_primaryStreet = -1;   /* UTF8String */
-static int hf_HI2Operations_primaryStreetDirection = -1;  /* UTF8String */
-static int hf_HI2Operations_roadSection = -1;     /* UTF8String */
-static int hf_HI2Operations_roadBranch = -1;      /* UTF8String */
-static int hf_HI2Operations_roadSubBranch = -1;   /* UTF8String */
-static int hf_HI2Operations_roadPreModifier = -1;  /* UTF8String */
-static int hf_HI2Operations_roadPostModifier = -1;  /* UTF8String */
-static int hf_HI2Operations_postalCode = -1;      /* UTF8String */
-static int hf_HI2Operations_town = -1;            /* UTF8String */
-static int hf_HI2Operations_county = -1;          /* UTF8String */
-static int hf_HI2Operations_country = -1;         /* UTF8String */
-static int hf_HI2Operations_language = -1;        /* UTF8String */
-static int hf_HI2Operations_posMethod = -1;       /* PrintableString */
-static int hf_HI2Operations_mapData = -1;         /* T_mapData */
-static int hf_HI2Operations_base64Map = -1;       /* PrintableString */
-static int hf_HI2Operations_url = -1;             /* PrintableString */
-static int hf_HI2Operations_altitude = -1;        /* T_altitude */
-static int hf_HI2Operations_alt = -1;             /* PrintableString */
-static int hf_HI2Operations_alt_uncertainty = -1;  /* PrintableString */
-static int hf_HI2Operations_speed = -1;           /* PrintableString */
-static int hf_HI2Operations_direction_01 = -1;    /* PrintableString */
-static int hf_HI2Operations_level_conf = -1;      /* PrintableString */
-static int hf_HI2Operations_qOS_not_met = -1;     /* BOOLEAN */
-static int hf_HI2Operations_motionStateList = -1;  /* T_motionStateList */
-static int hf_HI2Operations_primaryMotionState = -1;  /* PrintableString */
-static int hf_HI2Operations_secondaryMotionState = -1;  /* T_secondaryMotionState */
-static int hf_HI2Operations_secondaryMotionState_item = -1;  /* PrintableString */
-static int hf_HI2Operations_confidence = -1;      /* PrintableString */
-static int hf_HI2Operations_floor_01 = -1;        /* T_floor */
-static int hf_HI2Operations_floor_number = -1;    /* PrintableString */
-static int hf_HI2Operations_floor_number_uncertainty = -1;  /* PrintableString */
-static int hf_HI2Operations_additional_info = -1;  /* PrintableString */
-static int hf_HI2Operations_lALS_rawMLPPosData = -1;  /* UTF8String */
+static int hf_HI2Operations_IRIsContent_PDU;      /* IRIsContent */
+static int hf_HI2Operations_UUS1_Content_PDU;     /* UUS1_Content */
+static int hf_HI2Operations_communication_Identity_Number;  /* OCTET_STRING_SIZE_1_8 */
+static int hf_HI2Operations_network_Identifier;   /* Network_Identifier */
+static int hf_HI2Operations_operator_Identifier;  /* OCTET_STRING_SIZE_1_5 */
+static int hf_HI2Operations_network_Element_Identifier;  /* Network_Element_Identifier */
+static int hf_HI2Operations_e164_Format;          /* T_e164_Format */
+static int hf_HI2Operations_x25_Format;           /* OCTET_STRING_SIZE_1_25 */
+static int hf_HI2Operations_iP_Format;            /* OCTET_STRING_SIZE_1_25 */
+static int hf_HI2Operations_dNS_Format;           /* OCTET_STRING_SIZE_1_25 */
+static int hf_HI2Operations_iP_Address;           /* IPAddress */
+static int hf_HI2Operations_localTime;            /* LocalTimeStamp */
+static int hf_HI2Operations_utcTime;              /* UTCTime */
+static int hf_HI2Operations_generalizedTime;      /* GeneralizedTime */
+static int hf_HI2Operations_winterSummerIndication;  /* T_winterSummerIndication */
+static int hf_HI2Operations_party_Qualifier;      /* T_party_Qualifier */
+static int hf_HI2Operations_partyIdentity;        /* T_partyIdentity */
+static int hf_HI2Operations_imei;                 /* OCTET_STRING_SIZE_8 */
+static int hf_HI2Operations_tei;                  /* OCTET_STRING_SIZE_1_15 */
+static int hf_HI2Operations_imsi;                 /* OCTET_STRING_SIZE_3_8 */
+static int hf_HI2Operations_callingPartyNumber;   /* CallingPartyNumber */
+static int hf_HI2Operations_calledPartyNumber;    /* CalledPartyNumber */
+static int hf_HI2Operations_msISDN;               /* OCTET_STRING_SIZE_1_9 */
+static int hf_HI2Operations_e164_Format_01;       /* OCTET_STRING_SIZE_1_25 */
+static int hf_HI2Operations_sip_uri;              /* OCTET_STRING */
+static int hf_HI2Operations_tel_url;              /* OCTET_STRING */
+static int hf_HI2Operations_nai;                  /* OCTET_STRING */
+static int hf_HI2Operations_x_3GPP_Asserted_Identity;  /* OCTET_STRING */
+static int hf_HI2Operations_xUI;                  /* OCTET_STRING */
+static int hf_HI2Operations_iMPI;                 /* OCTET_STRING */
+static int hf_HI2Operations_extID;                /* UTF8String */
+static int hf_HI2Operations_services_Information;  /* Services_Information */
+static int hf_HI2Operations_supplementary_Services_Information;  /* Supplementary_Services */
+static int hf_HI2Operations_services_Data_Information;  /* Services_Data_Information */
+static int hf_HI2Operations_iSUP_Format;          /* OCTET_STRING_SIZE_1_25 */
+static int hf_HI2Operations_dSS1_Format;          /* OCTET_STRING_SIZE_1_25 */
+static int hf_HI2Operations_mAP_Format;           /* OCTET_STRING_SIZE_1_25 */
+static int hf_HI2Operations_geoCoordinates;       /* T_geoCoordinates */
+static int hf_HI2Operations_geoCoordinates_latitude;  /* PrintableString_SIZE_7_10 */
+static int hf_HI2Operations_geoCoordinates_longitude;  /* PrintableString_SIZE_8_11 */
+static int hf_HI2Operations_mapDatum;             /* MapDatum */
+static int hf_HI2Operations_azimuth;              /* INTEGER_0_359 */
+static int hf_HI2Operations_utmCoordinates;       /* T_utmCoordinates */
+static int hf_HI2Operations_utm_East;             /* PrintableString_SIZE_10 */
+static int hf_HI2Operations_utm_North;            /* PrintableString_SIZE_7 */
+static int hf_HI2Operations_utmRefCoordinates;    /* T_utmRefCoordinates */
+static int hf_HI2Operations_utmref_string;        /* PrintableString_SIZE_13 */
+static int hf_HI2Operations_wGS84Coordinates;     /* OCTET_STRING */
+static int hf_HI2Operations_point;                /* GA_Point */
+static int hf_HI2Operations_pointWithUnCertainty;  /* GA_PointWithUnCertainty */
+static int hf_HI2Operations_polygon;              /* GA_Polygon */
+static int hf_HI2Operations_latitudeSign;         /* T_latitudeSign */
+static int hf_HI2Operations_latitude;             /* INTEGER_0_8388607 */
+static int hf_HI2Operations_longitude;            /* INTEGER_M8388608_8388607 */
+static int hf_HI2Operations_geographicalCoordinates;  /* GeographicalCoordinates */
+static int hf_HI2Operations_uncertaintyCode;      /* INTEGER_0_127 */
+static int hf_HI2Operations_GA_Polygon_item;      /* GA_Polygon_item */
+static int hf_HI2Operations_iSUP_parameters;      /* ISUP_parameters */
+static int hf_HI2Operations_dSS1_parameters_codeset_0;  /* DSS1_parameters_codeset_0 */
+static int hf_HI2Operations_mAP_parameters;       /* MAP_parameters */
+static int hf_HI2Operations_ISUP_parameters_item;  /* OCTET_STRING_SIZE_1_256 */
+static int hf_HI2Operations_DSS1_parameters_codeset_0_item;  /* OCTET_STRING_SIZE_1_256 */
+static int hf_HI2Operations_MAP_parameters_item;  /* OCTET_STRING_SIZE_1_256 */
+static int hf_HI2Operations_standard_Supplementary_Services;  /* Standard_Supplementary_Services */
+static int hf_HI2Operations_non_Standard_Supplementary_Services;  /* Non_Standard_Supplementary_Services */
+static int hf_HI2Operations_other_Services;       /* Other_Services */
+static int hf_HI2Operations_iSUP_SS_parameters;   /* ISUP_SS_parameters */
+static int hf_HI2Operations_dSS1_SS_parameters_codeset_0;  /* DSS1_SS_parameters_codeset_0 */
+static int hf_HI2Operations_dSS1_SS_parameters_codeset_4;  /* DSS1_SS_parameters_codeset_4 */
+static int hf_HI2Operations_dSS1_SS_parameters_codeset_5;  /* DSS1_SS_parameters_codeset_5 */
+static int hf_HI2Operations_dSS1_SS_parameters_codeset_6;  /* DSS1_SS_parameters_codeset_6 */
+static int hf_HI2Operations_dSS1_SS_parameters_codeset_7;  /* DSS1_SS_parameters_codeset_7 */
+static int hf_HI2Operations_dSS1_SS_Invoke_components;  /* DSS1_SS_Invoke_Components */
+static int hf_HI2Operations_mAP_SS_Parameters;    /* MAP_SS_Parameters */
+static int hf_HI2Operations_mAP_SS_Invoke_Components;  /* MAP_SS_Invoke_Components */
+static int hf_HI2Operations_Non_Standard_Supplementary_Services_item;  /* Non_Standard_Supplementary_Services_item */
+static int hf_HI2Operations_simpleIndication;     /* SimpleIndication */
+static int hf_HI2Operations_sciData;              /* SciDataMode */
+static int hf_HI2Operations_Other_Services_item;  /* OCTET_STRING_SIZE_1_256 */
+static int hf_HI2Operations_ISUP_SS_parameters_item;  /* OCTET_STRING_SIZE_1_256 */
+static int hf_HI2Operations_DSS1_SS_parameters_codeset_0_item;  /* OCTET_STRING_SIZE_1_256 */
+static int hf_HI2Operations_DSS1_SS_parameters_codeset_4_item;  /* OCTET_STRING_SIZE_1_256 */
+static int hf_HI2Operations_DSS1_SS_parameters_codeset_5_item;  /* OCTET_STRING_SIZE_1_256 */
+static int hf_HI2Operations_DSS1_SS_parameters_codeset_6_item;  /* OCTET_STRING_SIZE_1_256 */
+static int hf_HI2Operations_DSS1_SS_parameters_codeset_7_item;  /* OCTET_STRING_SIZE_1_256 */
+static int hf_HI2Operations_DSS1_SS_Invoke_Components_item;  /* OCTET_STRING_SIZE_1_256 */
+static int hf_HI2Operations_MAP_SS_Invoke_Components_item;  /* OCTET_STRING_SIZE_1_256 */
+static int hf_HI2Operations_MAP_SS_Parameters_item;  /* OCTET_STRING_SIZE_1_256 */
+static int hf_HI2Operations_communicationIdentifier;  /* CommunicationIdentifier */
+static int hf_HI2Operations_timeStamp;            /* TimeStamp */
+static int hf_HI2Operations_sMS_Contents;         /* T_sMS_Contents */
+static int hf_HI2Operations_initiator;            /* T_initiator */
+static int hf_HI2Operations_transfer_status;      /* T_transfer_status */
+static int hf_HI2Operations_other_message;        /* T_other_message */
+static int hf_HI2Operations_content;              /* OCTET_STRING_SIZE_1_270 */
+static int hf_HI2Operations_enhancedContent;      /* T_enhancedContent */
+static int hf_HI2Operations_content_01;           /* OCTET_STRING */
+static int hf_HI2Operations_character_encoding;   /* T_character_encoding */
+static int hf_HI2Operations_National_Parameters_item;  /* OCTET_STRING_SIZE_1_256 */
+static int hf_HI2Operations_gPRS_parameters;      /* GPRS_parameters */
+static int hf_HI2Operations_ipAddress;            /* IPAddress */
+static int hf_HI2Operations_x25Address;           /* X25Address */
+static int hf_HI2Operations_iP_type;              /* T_iP_type */
+static int hf_HI2Operations_iP_value;             /* IP_value */
+static int hf_HI2Operations_iP_assignment;        /* T_iP_assignment */
+static int hf_HI2Operations_iPv6PrefixLength;     /* INTEGER_1_128 */
+static int hf_HI2Operations_iPv4SubnetMask;       /* OCTET_STRING_SIZE_4 */
+static int hf_HI2Operations_iPBinaryAddress;      /* OCTET_STRING_SIZE_4_16 */
+static int hf_HI2Operations_iPTextAddress;        /* IA5String_SIZE_7_45 */
+static int hf_HI2Operations_countryCode;          /* PrintableString_SIZE_2 */
+static int hf_HI2Operations_domainID;             /* OBJECT_IDENTIFIER */
+static int hf_HI2Operations_lawfullInterceptionIdentifier;  /* LawfulInterceptionIdentifier */
+static int hf_HI2Operations_cC_Link_Identifier;   /* CC_Link_Identifier */
+static int hf_HI2Operations_direction_Indication;  /* Direction_Indication */
+static int hf_HI2Operations_bearer_capability;    /* T_bearer_capability */
+static int hf_HI2Operations_service_Information;  /* Service_Information */
+static int hf_HI2Operations_high_layer_capability;  /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_tMR;                  /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_bearerServiceCode;    /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_teleServiceCode;      /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_epsiRIContent;        /* EpsIRIContent */
+static int hf_HI2Operations_epsIRISequence;       /* EpsIRISequence */
+static int hf_HI2Operations_EpsIRISequence_item;  /* EpsIRIContent */
+static int hf_HI2Operations_iRI_Begin_record;     /* IRI_Parameters */
+static int hf_HI2Operations_iRI_End_record;       /* IRI_Parameters */
+static int hf_HI2Operations_iRI_Continue_record;  /* IRI_Parameters */
+static int hf_HI2Operations_iRI_Report_record;    /* IRI_Parameters */
+static int hf_HI2Operations_hi2epsDomainId;       /* OBJECT_IDENTIFIER */
+static int hf_HI2Operations_lawfulInterceptionIdentifier;  /* LawfulInterceptionIdentifier */
+static int hf_HI2Operations_initiator_01;         /* T_initiator_01 */
+static int hf_HI2Operations_locationOfTheTarget;  /* Location */
+static int hf_HI2Operations_partyInformation;     /* SET_SIZE_1_10_OF_PartyInformation */
+static int hf_HI2Operations_partyInformation_item;  /* PartyInformation */
+static int hf_HI2Operations_serviceCenterAddress;  /* PartyInformation */
+static int hf_HI2Operations_sMS;                  /* SMS_report */
+static int hf_HI2Operations_national_Parameters;  /* National_Parameters */
+static int hf_HI2Operations_ePSCorrelationNumber;  /* EPSCorrelationNumber */
+static int hf_HI2Operations_ePSevent;             /* EPSEvent */
+static int hf_HI2Operations_sgsnAddress;          /* DataNodeAddress */
+static int hf_HI2Operations_gPRSOperationErrorCode;  /* GPRSOperationErrorCode */
+static int hf_HI2Operations_ggsnAddress;          /* DataNodeAddress */
+static int hf_HI2Operations_qOS;                  /* UmtsQos */
+static int hf_HI2Operations_networkIdentifier;    /* Network_Identifier */
+static int hf_HI2Operations_sMSOriginatingAddress;  /* DataNodeAddress */
+static int hf_HI2Operations_sMSTerminatingAddress;  /* DataNodeAddress */
+static int hf_HI2Operations_iMSevent;             /* IMSevent */
+static int hf_HI2Operations_sIPMessage;           /* OCTET_STRING */
+static int hf_HI2Operations_servingSGSN_number;   /* OCTET_STRING_SIZE_1_20 */
+static int hf_HI2Operations_servingSGSN_address;  /* OCTET_STRING_SIZE_5_17 */
+static int hf_HI2Operations_ldiEvent;             /* LDIevent */
+static int hf_HI2Operations_correlation;          /* CorrelationValues */
+static int hf_HI2Operations_ePS_GTPV2_specificParameters;  /* EPS_GTPV2_SpecificParameters */
+static int hf_HI2Operations_ePS_PMIP_specificParameters;  /* EPS_PMIP_SpecificParameters */
+static int hf_HI2Operations_ePS_DSMIP_SpecificParameters;  /* EPS_DSMIP_SpecificParameters */
+static int hf_HI2Operations_ePS_MIP_SpecificParameters;  /* EPS_MIP_SpecificParameters */
+static int hf_HI2Operations_servingNodeAddress;   /* OCTET_STRING */
+static int hf_HI2Operations_visitedNetworkId;     /* UTF8String */
+static int hf_HI2Operations_mediaDecryption_info;  /* MediaDecryption_info */
+static int hf_HI2Operations_servingS4_SGSN_address;  /* OCTET_STRING */
+static int hf_HI2Operations_sipMessageHeaderOffer;  /* OCTET_STRING */
+static int hf_HI2Operations_sipMessageHeaderAnswer;  /* OCTET_STRING */
+static int hf_HI2Operations_sdpOffer;             /* OCTET_STRING */
+static int hf_HI2Operations_sdpAnswer;            /* OCTET_STRING */
+static int hf_HI2Operations_uLITimestamp;         /* OCTET_STRING_SIZE_8 */
+static int hf_HI2Operations_packetDataHeaderInformation;  /* PacketDataHeaderInformation */
+static int hf_HI2Operations_mediaSecFailureIndication;  /* MediaSecFailureIndication */
+static int hf_HI2Operations_csgIdentity;          /* OCTET_STRING_SIZE_4 */
+static int hf_HI2Operations_heNBIdentity;         /* OCTET_STRING */
+static int hf_HI2Operations_heNBiPAddress;        /* IPAddress */
+static int hf_HI2Operations_heNBLocation;         /* HeNBLocation */
+static int hf_HI2Operations_tunnelProtocol;       /* TunnelProtocol */
+static int hf_HI2Operations_pANI_Header_Info;     /* SEQUENCE_OF_PANI_Header_Info */
+static int hf_HI2Operations_pANI_Header_Info_item;  /* PANI_Header_Info */
+static int hf_HI2Operations_imsVoIP;              /* IMS_VoIP_Correlation */
+static int hf_HI2Operations_xCAPmessage;          /* OCTET_STRING */
+static int hf_HI2Operations_logicalFunctionInformation;  /* DataNodeIdentifier */
+static int hf_HI2Operations_ccUnavailableReason;  /* PrintableString */
+static int hf_HI2Operations_carrierSpecificData;  /* OCTET_STRING */
+static int hf_HI2Operations_current_previous_systems;  /* Current_Previous_Systems */
+static int hf_HI2Operations_change_Of_Target_Identity;  /* Change_Of_Target_Identity */
+static int hf_HI2Operations_requesting_Network_Identifier;  /* OCTET_STRING */
+static int hf_HI2Operations_requesting_Node_Type;  /* Requesting_Node_Type */
+static int hf_HI2Operations_serving_System_Identifier;  /* OCTET_STRING */
+static int hf_HI2Operations_proSeTargetType;      /* ProSeTargetType */
+static int hf_HI2Operations_proSeRelayMSISDN;     /* OCTET_STRING_SIZE_1_9 */
+static int hf_HI2Operations_proSeRelayIMSI;       /* OCTET_STRING_SIZE_3_8 */
+static int hf_HI2Operations_proSeRelayIMEI;       /* OCTET_STRING_SIZE_8 */
+static int hf_HI2Operations_extendedLocParameters;  /* ExtendedLocParameters */
+static int hf_HI2Operations_locationErrorCode;    /* LocationErrorCode */
+static int hf_HI2Operations_otherIdentities;      /* SEQUENCE_OF_PartyInformation */
+static int hf_HI2Operations_otherIdentities_item;  /* PartyInformation */
+static int hf_HI2Operations_deregistrationReason;  /* DeregistrationReason */
+static int hf_HI2Operations_requesting_Node_Identifier;  /* OCTET_STRING */
+static int hf_HI2Operations_roamingIndication;    /* VoIPRoamingIndication */
+static int hf_HI2Operations_cSREvent;             /* CSREvent */
+static int hf_HI2Operations_ptc;                  /* PTC */
+static int hf_HI2Operations_ptcEncryption;        /* PTCEncryptionInfo */
+static int hf_HI2Operations_additionalCellIDs;    /* SEQUENCE_OF_AdditionalCellID */
+static int hf_HI2Operations_additionalCellIDs_item;  /* AdditionalCellID */
+static int hf_HI2Operations_scefID;               /* UTF8String */
+static int hf_HI2Operations_national_HI2_ASN1parameters;  /* National_HI2_ASN1parameters */
+static int hf_HI2Operations_dataNodeAddress;      /* DataNodeAddress */
+static int hf_HI2Operations_logicalFunctionType;  /* LogicalFunctionType */
+static int hf_HI2Operations_dataNodeName;         /* PrintableString_SIZE_7_25 */
+static int hf_HI2Operations_access_Type;          /* OCTET_STRING */
+static int hf_HI2Operations_access_Class;         /* OCTET_STRING */
+static int hf_HI2Operations_network_Provided;     /* NULL */
+static int hf_HI2Operations_pANI_Location;        /* PANI_Location */
+static int hf_HI2Operations_raw_Location;         /* OCTET_STRING */
+static int hf_HI2Operations_location;             /* Location */
+static int hf_HI2Operations_ePSLocation;          /* EPSLocation */
+static int hf_HI2Operations_e164_Number;          /* OCTET_STRING_SIZE_1_25 */
+static int hf_HI2Operations_globalCellID;         /* GlobalCellID */
+static int hf_HI2Operations_rAI;                  /* Rai */
+static int hf_HI2Operations_gsmLocation;          /* GSMLocation */
+static int hf_HI2Operations_umtsLocation;         /* UMTSLocation */
+static int hf_HI2Operations_sAI;                  /* Sai */
+static int hf_HI2Operations_oldRAI;               /* Rai */
+static int hf_HI2Operations_civicAddress;         /* CivicAddress */
+static int hf_HI2Operations_operatorSpecificInfo;  /* OCTET_STRING */
+static int hf_HI2Operations_uELocationTimestamp;  /* T_uELocationTimestamp */
+static int hf_HI2Operations_timestamp;            /* TimeStamp */
+static int hf_HI2Operations_timestampUnknown;     /* NULL */
+static int hf_HI2Operations_nCGI;                 /* NCGI */
+static int hf_HI2Operations_timeOfLocation;       /* GeneralizedTime */
+static int hf_HI2Operations_mCC;                  /* MCC */
+static int hf_HI2Operations_mNC;                  /* MNC */
+static int hf_HI2Operations_pLMNID;               /* PLMNID */
+static int hf_HI2Operations_nRCellID;             /* NRCellID */
+static int hf_HI2Operations_iri_to_CC;            /* IRI_to_CC_Correlation */
+static int hf_HI2Operations_iri_to_iri;           /* IRI_to_IRI_Correlation */
+static int hf_HI2Operations_both_IRI_CC;          /* T_both_IRI_CC */
+static int hf_HI2Operations_iri_CC;               /* IRI_to_CC_Correlation */
+static int hf_HI2Operations_iri_IRI;              /* IRI_to_IRI_Correlation */
+static int hf_HI2Operations_IMS_VoIP_Correlation_item;  /* IMS_VoIP_Correlation_item */
+static int hf_HI2Operations_ims_iri;              /* IRI_to_IRI_Correlation */
+static int hf_HI2Operations_ims_cc;               /* IRI_to_CC_Correlation */
+static int hf_HI2Operations_cc;                   /* T_cc */
+static int hf_HI2Operations_cc_item;              /* OCTET_STRING */
+static int hf_HI2Operations_iri;                  /* OCTET_STRING */
+static int hf_HI2Operations_pDP_address_allocated_to_the_target;  /* DataNodeAddress */
+static int hf_HI2Operations_aPN;                  /* OCTET_STRING_SIZE_1_100 */
+static int hf_HI2Operations_pDP_type;             /* OCTET_STRING_SIZE_2 */
+static int hf_HI2Operations_nSAPI;                /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_additionalIPaddress;  /* DataNodeAddress */
+static int hf_HI2Operations_qosMobileRadio;       /* OCTET_STRING */
+static int hf_HI2Operations_qosGn;                /* OCTET_STRING */
+static int hf_HI2Operations_pDNAddressAllocation;  /* OCTET_STRING */
+static int hf_HI2Operations_protConfigOptions;    /* ProtConfigOptions */
+static int hf_HI2Operations_attachType;           /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_ePSBearerIdentity;    /* OCTET_STRING */
+static int hf_HI2Operations_detachType;           /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_rATType;              /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_failedBearerActivationReason;  /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_ePSBearerQoS;         /* OCTET_STRING */
+static int hf_HI2Operations_bearerActivationType;  /* TypeOfBearer */
+static int hf_HI2Operations_aPN_AMBR;             /* OCTET_STRING */
+static int hf_HI2Operations_procedureTransactionId;  /* OCTET_STRING */
+static int hf_HI2Operations_linkedEPSBearerId;    /* OCTET_STRING */
+static int hf_HI2Operations_tFT;                  /* OCTET_STRING */
+static int hf_HI2Operations_handoverIndication;   /* NULL */
+static int hf_HI2Operations_failedBearerModReason;  /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_trafficAggregateDescription;  /* OCTET_STRING */
+static int hf_HI2Operations_failedTAUReason;      /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_failedEUTRANAttachReason;  /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_servingMMEaddress;    /* OCTET_STRING */
+static int hf_HI2Operations_bearerDeactivationType;  /* TypeOfBearer */
+static int hf_HI2Operations_bearerDeactivationCause;  /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_ePSlocationOfTheTarget;  /* EPSLocation */
+static int hf_HI2Operations_pDNType;              /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_requestType;          /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_uEReqPDNConnFailReason;  /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_extendedHandoverIndication;  /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_uELocalIPAddress;     /* OCTET_STRING */
+static int hf_HI2Operations_uEUdpPort;            /* OCTET_STRING_SIZE_2 */
+static int hf_HI2Operations_tWANIdentifier;       /* OCTET_STRING */
+static int hf_HI2Operations_tWANIdentifierTimestamp;  /* OCTET_STRING_SIZE_4 */
+static int hf_HI2Operations_proSeRemoteUeContextConnected;  /* RemoteUeContextConnected */
+static int hf_HI2Operations_proSeRemoteUeContextDisconnected;  /* RemoteUeContextDisconnected */
+static int hf_HI2Operations_secondaryRATUsageIndication;  /* NULL */
+static int hf_HI2Operations_userLocationInfo;     /* OCTET_STRING_SIZE_1_39 */
+static int hf_HI2Operations_olduserLocationInfo;  /* OCTET_STRING_SIZE_1_39 */
+static int hf_HI2Operations_lastVisitedTAI;       /* OCTET_STRING_SIZE_1_5 */
+static int hf_HI2Operations_tAIlist;              /* OCTET_STRING_SIZE_7_97 */
+static int hf_HI2Operations_threeGPP2Bsid;        /* OCTET_STRING_SIZE_1_12 */
+static int hf_HI2Operations_uELocationTimestamp_01;  /* T_uELocationTimestamp_01 */
+static int hf_HI2Operations_ueToNetwork;          /* OCTET_STRING_SIZE_1_251 */
+static int hf_HI2Operations_networkToUe;          /* OCTET_STRING_SIZE_1_251 */
+static int hf_HI2Operations_RemoteUeContextConnected_item;  /* RemoteUEContext */
+static int hf_HI2Operations_remoteUserID;         /* RemoteUserID */
+static int hf_HI2Operations_remoteUEIPInformation;  /* RemoteUEIPInformation */
+static int hf_HI2Operations_lifetime;             /* INTEGER_0_65535 */
+static int hf_HI2Operations_accessTechnologyType;  /* OCTET_STRING_SIZE_4 */
+static int hf_HI2Operations_iPv6HomeNetworkPrefix;  /* OCTET_STRING_SIZE_20 */
+static int hf_HI2Operations_protConfigurationOption;  /* OCTET_STRING */
+static int hf_HI2Operations_handoverIndication_01;  /* OCTET_STRING_SIZE_4 */
+static int hf_HI2Operations_status;               /* INTEGER_0_255 */
+static int hf_HI2Operations_revocationTrigger;    /* INTEGER_0_255 */
+static int hf_HI2Operations_iPv4HomeAddress;      /* OCTET_STRING_SIZE_4 */
+static int hf_HI2Operations_iPv6careOfAddress;    /* OCTET_STRING */
+static int hf_HI2Operations_iPv4careOfAddress;    /* OCTET_STRING */
+static int hf_HI2Operations_servingNetwork;       /* OCTET_STRING_SIZE_3 */
+static int hf_HI2Operations_dHCPv4AddressAllocationInd;  /* OCTET_STRING_SIZE_1 */
+static int hf_HI2Operations_requestedIPv6HomePrefix;  /* OCTET_STRING_SIZE_25 */
+static int hf_HI2Operations_homeAddress;          /* OCTET_STRING_SIZE_8 */
+static int hf_HI2Operations_iPv4careOfAddress_01;  /* OCTET_STRING_SIZE_8 */
+static int hf_HI2Operations_iPv6careOfAddress_01;  /* OCTET_STRING_SIZE_16 */
+static int hf_HI2Operations_hSS_AAA_address;      /* OCTET_STRING */
+static int hf_HI2Operations_targetPDN_GW_Address;  /* OCTET_STRING */
+static int hf_HI2Operations_homeAddress_01;       /* OCTET_STRING_SIZE_4 */
+static int hf_HI2Operations_careOfAddress;        /* OCTET_STRING_SIZE_4 */
+static int hf_HI2Operations_homeAgentAddress;     /* OCTET_STRING_SIZE_4 */
+static int hf_HI2Operations_code;                 /* INTEGER_0_255 */
+static int hf_HI2Operations_foreignDomainAddress;  /* OCTET_STRING_SIZE_4 */
+static int hf_HI2Operations_MediaDecryption_info_item;  /* CCKeyInfo */
+static int hf_HI2Operations_cCCSID;               /* OCTET_STRING */
+static int hf_HI2Operations_cCDecKey;             /* OCTET_STRING */
+static int hf_HI2Operations_cCSalt;               /* OCTET_STRING */
+static int hf_HI2Operations_packetDataHeader;     /* PacketDataHeaderReport */
+static int hf_HI2Operations_packetDataSummary;    /* PacketDataSummaryReport */
+static int hf_HI2Operations_packetDataHeaderMapped;  /* PacketDataHeaderMapped */
+static int hf_HI2Operations_packetDataHeaderCopy;  /* PacketDataHeaderCopy */
+static int hf_HI2Operations_sourceIPAddress;      /* IPAddress */
+static int hf_HI2Operations_sourcePortNumber;     /* INTEGER_0_65535 */
+static int hf_HI2Operations_destinationIPAddress;  /* IPAddress */
+static int hf_HI2Operations_destinationPortNumber;  /* INTEGER_0_65535 */
+static int hf_HI2Operations_transportProtocol;    /* INTEGER */
+static int hf_HI2Operations_packetsize;           /* INTEGER */
+static int hf_HI2Operations_flowLabel;            /* INTEGER */
+static int hf_HI2Operations_packetCount;          /* INTEGER */
+static int hf_HI2Operations_direction;            /* TPDU_direction */
+static int hf_HI2Operations_headerCopy;           /* OCTET_STRING */
+static int hf_HI2Operations_PacketDataSummaryReport_item;  /* PacketFlowSummary */
+static int hf_HI2Operations_summaryPeriod;        /* ReportInterval */
+static int hf_HI2Operations_sumOfPacketSizes;     /* INTEGER */
+static int hf_HI2Operations_packetDataSummaryReason;  /* ReportReason */
+static int hf_HI2Operations_firstPacketTimeStamp;  /* TimeStamp */
+static int hf_HI2Operations_lastPacketTimeStamp;  /* TimeStamp */
+static int hf_HI2Operations_rfc2868ValueField;    /* OCTET_STRING */
+static int hf_HI2Operations_nativeIPSec;          /* NULL */
+static int hf_HI2Operations_new_MSISDN;           /* PartyInformation */
+static int hf_HI2Operations_new_A_MSISDN;         /* PartyInformation */
+static int hf_HI2Operations_old_MSISDN;           /* PartyInformation */
+static int hf_HI2Operations_old_A_MSISDN;         /* PartyInformation */
+static int hf_HI2Operations_new_IMSI;             /* PartyInformation */
+static int hf_HI2Operations_old_IMSI;             /* PartyInformation */
+static int hf_HI2Operations_new_IMEI;             /* PartyInformation */
+static int hf_HI2Operations_old_IMEI;             /* PartyInformation */
+static int hf_HI2Operations_new_IMPI;             /* PartyInformation */
+static int hf_HI2Operations_old_IMPI;             /* PartyInformation */
+static int hf_HI2Operations_new_SIP_URI;          /* PartyInformation */
+static int hf_HI2Operations_old_SIP_URI;          /* PartyInformation */
+static int hf_HI2Operations_new_TEL_URI;          /* PartyInformation */
+static int hf_HI2Operations_old_TEL_URI;          /* PartyInformation */
+static int hf_HI2Operations_current_Serving_MME_Address;  /* DataNodeIdentifier */
+static int hf_HI2Operations_previous_Serving_System_Identifier;  /* OCTET_STRING */
+static int hf_HI2Operations_previous_Serving_MME_Address;  /* DataNodeIdentifier */
+static int hf_HI2Operations_reason_CodeAVP;       /* INTEGER */
+static int hf_HI2Operations_server_AssignmentType;  /* INTEGER */
+static int hf_HI2Operations_cipher;               /* UTF8String */
+static int hf_HI2Operations_cryptoContext;        /* UTF8String */
+static int hf_HI2Operations_key;                  /* UTF8String */
+static int hf_HI2Operations_keyEncoding;          /* UTF8String */
+static int hf_HI2Operations_salt;                 /* UTF8String */
+static int hf_HI2Operations_pTCOther;             /* UTF8String */
+static int hf_HI2Operations_abandonCause;         /* UTF8String */
+static int hf_HI2Operations_accessPolicyFailure;  /* UTF8String */
+static int hf_HI2Operations_accessPolicyType;     /* AccessPolicyType */
+static int hf_HI2Operations_alertIndicator;       /* AlertIndicator */
+static int hf_HI2Operations_associatePresenceStatus;  /* AssociatePresenceStatus */
+static int hf_HI2Operations_bearer_capability_01;  /* UTF8String */
+static int hf_HI2Operations_broadcastIndicator;   /* BOOLEAN */
+static int hf_HI2Operations_contactID;            /* UTF8String */
+static int hf_HI2Operations_emergency;            /* Emergency */
+static int hf_HI2Operations_emergencyGroupState;  /* EmergencyGroupState */
+static int hf_HI2Operations_pTCType;              /* PTCType */
+static int hf_HI2Operations_failureCode;          /* UTF8String */
+static int hf_HI2Operations_floorActivity;        /* FloorActivity */
+static int hf_HI2Operations_floorSpeakerID;       /* PTCAddress */
+static int hf_HI2Operations_groupAdSender;        /* UTF8String */
+static int hf_HI2Operations_groupAuthRule;        /* GroupAuthRule */
+static int hf_HI2Operations_groupCharacteristics;  /* UTF8String */
+static int hf_HI2Operations_holdRetrieveInd;      /* BOOLEAN */
+static int hf_HI2Operations_imminentPerilInd;     /* ImminentPerilInd */
+static int hf_HI2Operations_implicitFloorReq;     /* ImplicitFloorReq */
+static int hf_HI2Operations_initiationCause;      /* InitiationCause */
+static int hf_HI2Operations_invitationCause;      /* UTF8String */
+static int hf_HI2Operations_iPAPartyID;           /* UTF8String */
+static int hf_HI2Operations_iPADirection;         /* IPADirection */
+static int hf_HI2Operations_listManagementAction;  /* ListManagementAction */
+static int hf_HI2Operations_listManagementFailure;  /* UTF8String */
+static int hf_HI2Operations_listManagementType;   /* ListManagementType */
+static int hf_HI2Operations_maxTBTime;            /* UTF8String */
+static int hf_HI2Operations_mCPTTGroupID;         /* UTF8String */
+static int hf_HI2Operations_mCPTTID;              /* UTF8String */
+static int hf_HI2Operations_mCPTTInd;             /* BOOLEAN */
+static int hf_HI2Operations_mCPTTOrganizationName;  /* UTF8String */
+static int hf_HI2Operations_mediaStreamAvail;     /* BOOLEAN */
+static int hf_HI2Operations_priority_Level;       /* Priority_Level */
+static int hf_HI2Operations_preEstSessionID;      /* UTF8String */
+static int hf_HI2Operations_preEstStatus;         /* PreEstStatus */
+static int hf_HI2Operations_pTCGroupID;           /* UTF8String */
+static int hf_HI2Operations_pTCIDList;            /* UTF8String */
+static int hf_HI2Operations_pTCMediaCapability;   /* UTF8String */
+static int hf_HI2Operations_pTCOriginatingId;     /* UTF8String */
+static int hf_HI2Operations_pTCParticipants;      /* UTF8String */
+static int hf_HI2Operations_pTCParty;             /* UTF8String */
+static int hf_HI2Operations_pTCPartyDrop;         /* UTF8String */
+static int hf_HI2Operations_pTCSessionInfo;       /* UTF8String */
+static int hf_HI2Operations_pTCServerURI;         /* UTF8String */
+static int hf_HI2Operations_pTCUserAccessPolicy;  /* UTF8String */
+static int hf_HI2Operations_pTCAddress;           /* PTCAddress */
+static int hf_HI2Operations_queuedFloorControl;   /* BOOLEAN */
+static int hf_HI2Operations_queuedPosition;       /* UTF8String */
+static int hf_HI2Operations_registrationRequest;  /* RegistrationRequest */
+static int hf_HI2Operations_registrationOutcome;  /* RegistrationOutcome */
+static int hf_HI2Operations_retrieveID;           /* UTF8String */
+static int hf_HI2Operations_rTPSetting;           /* RTPSetting */
+static int hf_HI2Operations_talkBurstPriority;    /* Priority_Level */
+static int hf_HI2Operations_talkBurstReason;      /* Talk_burst_reason_code */
+static int hf_HI2Operations_talkburstControlSetting;  /* TalkburstControlSetting */
+static int hf_HI2Operations_targetPresenceStatus;  /* UTF8String */
+static int hf_HI2Operations_port_Number;          /* INTEGER_0_65535 */
+static int hf_HI2Operations_userAccessPolicyAttempt;  /* BOOLEAN */
+static int hf_HI2Operations_groupAuthorizationRulesAttempt;  /* BOOLEAN */
+static int hf_HI2Operations_userAccessPolicyQuery;  /* BOOLEAN */
+static int hf_HI2Operations_groupAuthorizationRulesQuery;  /* BOOLEAN */
+static int hf_HI2Operations_userAccessPolicyResult;  /* UTF8String */
+static int hf_HI2Operations_groupAuthorizationRulesResult;  /* UTF8String */
+static int hf_HI2Operations_presenceID;           /* UTF8String */
+static int hf_HI2Operations_presenceType;         /* PresenceType */
+static int hf_HI2Operations_presenceStatus;       /* BOOLEAN */
+static int hf_HI2Operations_clientEmergencyState;  /* T_clientEmergencyState */
+static int hf_HI2Operations_groupEmergencyState;  /* T_groupEmergencyState */
+static int hf_HI2Operations_tBCP_Request;         /* BOOLEAN */
+static int hf_HI2Operations_tBCP_Granted;         /* BOOLEAN */
+static int hf_HI2Operations_tBCP_Deny;            /* BOOLEAN */
+static int hf_HI2Operations_tBCP_Queued;          /* BOOLEAN */
+static int hf_HI2Operations_tBCP_Release;         /* BOOLEAN */
+static int hf_HI2Operations_tBCP_Revoke;          /* BOOLEAN */
+static int hf_HI2Operations_tBCP_Taken;           /* BOOLEAN */
+static int hf_HI2Operations_tBCP_Idle;            /* BOOLEAN */
+static int hf_HI2Operations_uri;                  /* UTF8String */
+static int hf_HI2Operations_privacy_setting;      /* BOOLEAN */
+static int hf_HI2Operations_privacy_alias;        /* VisibleString */
+static int hf_HI2Operations_nickname;             /* UTF8String */
+static int hf_HI2Operations_ip_address;           /* IPAddress */
+static int hf_HI2Operations_port_number;          /* Port_Number */
+static int hf_HI2Operations_talk_BurstControlProtocol;  /* UTF8String */
+static int hf_HI2Operations_talk_Burst_parameters;  /* T_talk_Burst_parameters */
+static int hf_HI2Operations_talk_Burst_parameters_item;  /* VisibleString */
+static int hf_HI2Operations_tBCP_PortNumber;      /* INTEGER_0_65535 */
+static int hf_HI2Operations_detailedCivicAddress;  /* SET_OF_DetailedCivicAddress */
+static int hf_HI2Operations_detailedCivicAddress_item;  /* DetailedCivicAddress */
+static int hf_HI2Operations_xmlCivicAddress;      /* XmlCivicAddress */
+static int hf_HI2Operations_building;             /* UTF8String */
+static int hf_HI2Operations_room;                 /* UTF8String */
+static int hf_HI2Operations_placeType;            /* UTF8String */
+static int hf_HI2Operations_postalCommunityName;  /* UTF8String */
+static int hf_HI2Operations_additionalCode;       /* UTF8String */
+static int hf_HI2Operations_seat;                 /* UTF8String */
+static int hf_HI2Operations_primaryRoad;          /* UTF8String */
+static int hf_HI2Operations_primaryRoadDirection;  /* UTF8String */
+static int hf_HI2Operations_trailingStreetSuffix;  /* UTF8String */
+static int hf_HI2Operations_streetSuffix;         /* UTF8String */
+static int hf_HI2Operations_houseNumber;          /* UTF8String */
+static int hf_HI2Operations_houseNumberSuffix;    /* UTF8String */
+static int hf_HI2Operations_landmarkAddress;      /* UTF8String */
+static int hf_HI2Operations_additionalLocation;   /* UTF8String */
+static int hf_HI2Operations_name;                 /* UTF8String */
+static int hf_HI2Operations_floor;                /* UTF8String */
+static int hf_HI2Operations_primaryStreet;        /* UTF8String */
+static int hf_HI2Operations_primaryStreetDirection;  /* UTF8String */
+static int hf_HI2Operations_roadSection;          /* UTF8String */
+static int hf_HI2Operations_roadBranch;           /* UTF8String */
+static int hf_HI2Operations_roadSubBranch;        /* UTF8String */
+static int hf_HI2Operations_roadPreModifier;      /* UTF8String */
+static int hf_HI2Operations_roadPostModifier;     /* UTF8String */
+static int hf_HI2Operations_postalCode;           /* UTF8String */
+static int hf_HI2Operations_town;                 /* UTF8String */
+static int hf_HI2Operations_county;               /* UTF8String */
+static int hf_HI2Operations_country;              /* UTF8String */
+static int hf_HI2Operations_language;             /* UTF8String */
+static int hf_HI2Operations_posMethod;            /* PrintableString */
+static int hf_HI2Operations_mapData;              /* T_mapData */
+static int hf_HI2Operations_base64Map;            /* PrintableString */
+static int hf_HI2Operations_url;                  /* PrintableString */
+static int hf_HI2Operations_altitude;             /* T_altitude */
+static int hf_HI2Operations_alt;                  /* PrintableString */
+static int hf_HI2Operations_alt_uncertainty;      /* PrintableString */
+static int hf_HI2Operations_speed;                /* PrintableString */
+static int hf_HI2Operations_direction_01;         /* PrintableString */
+static int hf_HI2Operations_level_conf;           /* PrintableString */
+static int hf_HI2Operations_qOS_not_met;          /* BOOLEAN */
+static int hf_HI2Operations_motionStateList;      /* T_motionStateList */
+static int hf_HI2Operations_primaryMotionState;   /* PrintableString */
+static int hf_HI2Operations_secondaryMotionState;  /* T_secondaryMotionState */
+static int hf_HI2Operations_secondaryMotionState_item;  /* PrintableString */
+static int hf_HI2Operations_confidence;           /* PrintableString */
+static int hf_HI2Operations_floor_01;             /* T_floor */
+static int hf_HI2Operations_floor_number;         /* PrintableString */
+static int hf_HI2Operations_floor_number_uncertainty;  /* PrintableString */
+static int hf_HI2Operations_additional_info;      /* PrintableString */
+static int hf_HI2Operations_lALS_rawMLPPosData;   /* UTF8String */
 
 /* Initialize the subtree pointers */
-static gint ett_HI2Operations_CommunicationIdentifier = -1;
-static gint ett_HI2Operations_Network_Identifier = -1;
-static gint ett_HI2Operations_Network_Element_Identifier = -1;
-static gint ett_HI2Operations_TimeStamp = -1;
-static gint ett_HI2Operations_LocalTimeStamp = -1;
-static gint ett_HI2Operations_PartyInformation = -1;
-static gint ett_HI2Operations_T_partyIdentity = -1;
-static gint ett_HI2Operations_CallingPartyNumber = -1;
-static gint ett_HI2Operations_CalledPartyNumber = -1;
-static gint ett_HI2Operations_GSMLocation = -1;
-static gint ett_HI2Operations_T_geoCoordinates = -1;
-static gint ett_HI2Operations_T_utmCoordinates = -1;
-static gint ett_HI2Operations_T_utmRefCoordinates = -1;
-static gint ett_HI2Operations_UMTSLocation = -1;
-static gint ett_HI2Operations_GeographicalCoordinates = -1;
-static gint ett_HI2Operations_GA_Point = -1;
-static gint ett_HI2Operations_GA_PointWithUnCertainty = -1;
-static gint ett_HI2Operations_GA_Polygon = -1;
-static gint ett_HI2Operations_GA_Polygon_item = -1;
-static gint ett_HI2Operations_Services_Information = -1;
-static gint ett_HI2Operations_ISUP_parameters = -1;
-static gint ett_HI2Operations_DSS1_parameters_codeset_0 = -1;
-static gint ett_HI2Operations_MAP_parameters = -1;
-static gint ett_HI2Operations_Supplementary_Services = -1;
-static gint ett_HI2Operations_Standard_Supplementary_Services = -1;
-static gint ett_HI2Operations_Non_Standard_Supplementary_Services = -1;
-static gint ett_HI2Operations_Non_Standard_Supplementary_Services_item = -1;
-static gint ett_HI2Operations_Other_Services = -1;
-static gint ett_HI2Operations_ISUP_SS_parameters = -1;
-static gint ett_HI2Operations_DSS1_SS_parameters_codeset_0 = -1;
-static gint ett_HI2Operations_DSS1_SS_parameters_codeset_4 = -1;
-static gint ett_HI2Operations_DSS1_SS_parameters_codeset_5 = -1;
-static gint ett_HI2Operations_DSS1_SS_parameters_codeset_6 = -1;
-static gint ett_HI2Operations_DSS1_SS_parameters_codeset_7 = -1;
-static gint ett_HI2Operations_DSS1_SS_Invoke_Components = -1;
-static gint ett_HI2Operations_MAP_SS_Invoke_Components = -1;
-static gint ett_HI2Operations_MAP_SS_Parameters = -1;
-static gint ett_HI2Operations_SMS_report = -1;
-static gint ett_HI2Operations_T_sMS_Contents = -1;
-static gint ett_HI2Operations_T_enhancedContent = -1;
-static gint ett_HI2Operations_National_Parameters = -1;
-static gint ett_HI2Operations_Services_Data_Information = -1;
-static gint ett_HI2Operations_DataNodeAddress = -1;
-static gint ett_HI2Operations_IPAddress = -1;
-static gint ett_HI2Operations_IP_value = -1;
-static gint ett_HI2Operations_National_HI2_ASN1parameters = -1;
-static gint ett_HI2Operations_UUS1_Content = -1;
-static gint ett_HI2Operations_Service_Information = -1;
-static gint ett_HI2Operations_EpsIRIsContent = -1;
-static gint ett_HI2Operations_EpsIRISequence = -1;
-static gint ett_HI2Operations_EpsIRIContent = -1;
-static gint ett_HI2Operations_IRI_Parameters = -1;
-static gint ett_HI2Operations_SET_SIZE_1_10_OF_PartyInformation = -1;
-static gint ett_HI2Operations_SEQUENCE_OF_PANI_Header_Info = -1;
-static gint ett_HI2Operations_SEQUENCE_OF_PartyInformation = -1;
-static gint ett_HI2Operations_SEQUENCE_OF_AdditionalCellID = -1;
-static gint ett_HI2Operations_DataNodeIdentifier = -1;
-static gint ett_HI2Operations_PANI_Header_Info = -1;
-static gint ett_HI2Operations_PANI_Location = -1;
-static gint ett_HI2Operations_Location = -1;
-static gint ett_HI2Operations_T_uELocationTimestamp = -1;
-static gint ett_HI2Operations_AdditionalCellID = -1;
-static gint ett_HI2Operations_PLMNID = -1;
-static gint ett_HI2Operations_NCGI = -1;
-static gint ett_HI2Operations_CorrelationValues = -1;
-static gint ett_HI2Operations_T_both_IRI_CC = -1;
-static gint ett_HI2Operations_IMS_VoIP_Correlation = -1;
-static gint ett_HI2Operations_IMS_VoIP_Correlation_item = -1;
-static gint ett_HI2Operations_IRI_to_CC_Correlation = -1;
-static gint ett_HI2Operations_T_cc = -1;
-static gint ett_HI2Operations_GPRS_parameters = -1;
-static gint ett_HI2Operations_UmtsQos = -1;
-static gint ett_HI2Operations_EPS_GTPV2_SpecificParameters = -1;
-static gint ett_HI2Operations_EPSLocation = -1;
-static gint ett_HI2Operations_T_uELocationTimestamp_01 = -1;
-static gint ett_HI2Operations_ProtConfigOptions = -1;
-static gint ett_HI2Operations_RemoteUeContextConnected = -1;
-static gint ett_HI2Operations_RemoteUEContext = -1;
-static gint ett_HI2Operations_EPS_PMIP_SpecificParameters = -1;
-static gint ett_HI2Operations_EPS_DSMIP_SpecificParameters = -1;
-static gint ett_HI2Operations_EPS_MIP_SpecificParameters = -1;
-static gint ett_HI2Operations_MediaDecryption_info = -1;
-static gint ett_HI2Operations_CCKeyInfo = -1;
-static gint ett_HI2Operations_PacketDataHeaderInformation = -1;
-static gint ett_HI2Operations_PacketDataHeaderReport = -1;
-static gint ett_HI2Operations_PacketDataHeaderMapped = -1;
-static gint ett_HI2Operations_PacketDataHeaderCopy = -1;
-static gint ett_HI2Operations_PacketDataSummaryReport = -1;
-static gint ett_HI2Operations_PacketFlowSummary = -1;
-static gint ett_HI2Operations_ReportInterval = -1;
-static gint ett_HI2Operations_TunnelProtocol = -1;
-static gint ett_HI2Operations_Change_Of_Target_Identity = -1;
-static gint ett_HI2Operations_Current_Previous_Systems = -1;
-static gint ett_HI2Operations_DeregistrationReason = -1;
-static gint ett_HI2Operations_PTCEncryptionInfo = -1;
-static gint ett_HI2Operations_PTC = -1;
-static gint ett_HI2Operations_AccessPolicyType = -1;
-static gint ett_HI2Operations_AssociatePresenceStatus = -1;
-static gint ett_HI2Operations_EmergencyGroupState = -1;
-static gint ett_HI2Operations_FloorActivity = -1;
-static gint ett_HI2Operations_PTCAddress = -1;
-static gint ett_HI2Operations_RTPSetting = -1;
-static gint ett_HI2Operations_TalkburstControlSetting = -1;
-static gint ett_HI2Operations_T_talk_Burst_parameters = -1;
-static gint ett_HI2Operations_CivicAddress = -1;
-static gint ett_HI2Operations_SET_OF_DetailedCivicAddress = -1;
-static gint ett_HI2Operations_DetailedCivicAddress = -1;
-static gint ett_HI2Operations_ExtendedLocParameters = -1;
-static gint ett_HI2Operations_T_mapData = -1;
-static gint ett_HI2Operations_T_altitude = -1;
-static gint ett_HI2Operations_T_motionStateList = -1;
-static gint ett_HI2Operations_T_secondaryMotionState = -1;
-static gint ett_HI2Operations_T_floor = -1;
+static gint ett_HI2Operations_CommunicationIdentifier;
+static gint ett_HI2Operations_Network_Identifier;
+static gint ett_HI2Operations_Network_Element_Identifier;
+static gint ett_HI2Operations_TimeStamp;
+static gint ett_HI2Operations_LocalTimeStamp;
+static gint ett_HI2Operations_PartyInformation;
+static gint ett_HI2Operations_T_partyIdentity;
+static gint ett_HI2Operations_CallingPartyNumber;
+static gint ett_HI2Operations_CalledPartyNumber;
+static gint ett_HI2Operations_GSMLocation;
+static gint ett_HI2Operations_T_geoCoordinates;
+static gint ett_HI2Operations_T_utmCoordinates;
+static gint ett_HI2Operations_T_utmRefCoordinates;
+static gint ett_HI2Operations_UMTSLocation;
+static gint ett_HI2Operations_GeographicalCoordinates;
+static gint ett_HI2Operations_GA_Point;
+static gint ett_HI2Operations_GA_PointWithUnCertainty;
+static gint ett_HI2Operations_GA_Polygon;
+static gint ett_HI2Operations_GA_Polygon_item;
+static gint ett_HI2Operations_Services_Information;
+static gint ett_HI2Operations_ISUP_parameters;
+static gint ett_HI2Operations_DSS1_parameters_codeset_0;
+static gint ett_HI2Operations_MAP_parameters;
+static gint ett_HI2Operations_Supplementary_Services;
+static gint ett_HI2Operations_Standard_Supplementary_Services;
+static gint ett_HI2Operations_Non_Standard_Supplementary_Services;
+static gint ett_HI2Operations_Non_Standard_Supplementary_Services_item;
+static gint ett_HI2Operations_Other_Services;
+static gint ett_HI2Operations_ISUP_SS_parameters;
+static gint ett_HI2Operations_DSS1_SS_parameters_codeset_0;
+static gint ett_HI2Operations_DSS1_SS_parameters_codeset_4;
+static gint ett_HI2Operations_DSS1_SS_parameters_codeset_5;
+static gint ett_HI2Operations_DSS1_SS_parameters_codeset_6;
+static gint ett_HI2Operations_DSS1_SS_parameters_codeset_7;
+static gint ett_HI2Operations_DSS1_SS_Invoke_Components;
+static gint ett_HI2Operations_MAP_SS_Invoke_Components;
+static gint ett_HI2Operations_MAP_SS_Parameters;
+static gint ett_HI2Operations_SMS_report;
+static gint ett_HI2Operations_T_sMS_Contents;
+static gint ett_HI2Operations_T_enhancedContent;
+static gint ett_HI2Operations_National_Parameters;
+static gint ett_HI2Operations_Services_Data_Information;
+static gint ett_HI2Operations_DataNodeAddress;
+static gint ett_HI2Operations_IPAddress;
+static gint ett_HI2Operations_IP_value;
+static gint ett_HI2Operations_National_HI2_ASN1parameters;
+static gint ett_HI2Operations_UUS1_Content;
+static gint ett_HI2Operations_Service_Information;
+static gint ett_HI2Operations_EpsIRIsContent;
+static gint ett_HI2Operations_EpsIRISequence;
+static gint ett_HI2Operations_EpsIRIContent;
+static gint ett_HI2Operations_IRI_Parameters;
+static gint ett_HI2Operations_SET_SIZE_1_10_OF_PartyInformation;
+static gint ett_HI2Operations_SEQUENCE_OF_PANI_Header_Info;
+static gint ett_HI2Operations_SEQUENCE_OF_PartyInformation;
+static gint ett_HI2Operations_SEQUENCE_OF_AdditionalCellID;
+static gint ett_HI2Operations_DataNodeIdentifier;
+static gint ett_HI2Operations_PANI_Header_Info;
+static gint ett_HI2Operations_PANI_Location;
+static gint ett_HI2Operations_Location;
+static gint ett_HI2Operations_T_uELocationTimestamp;
+static gint ett_HI2Operations_AdditionalCellID;
+static gint ett_HI2Operations_PLMNID;
+static gint ett_HI2Operations_NCGI;
+static gint ett_HI2Operations_CorrelationValues;
+static gint ett_HI2Operations_T_both_IRI_CC;
+static gint ett_HI2Operations_IMS_VoIP_Correlation;
+static gint ett_HI2Operations_IMS_VoIP_Correlation_item;
+static gint ett_HI2Operations_IRI_to_CC_Correlation;
+static gint ett_HI2Operations_T_cc;
+static gint ett_HI2Operations_GPRS_parameters;
+static gint ett_HI2Operations_UmtsQos;
+static gint ett_HI2Operations_EPS_GTPV2_SpecificParameters;
+static gint ett_HI2Operations_EPSLocation;
+static gint ett_HI2Operations_T_uELocationTimestamp_01;
+static gint ett_HI2Operations_ProtConfigOptions;
+static gint ett_HI2Operations_RemoteUeContextConnected;
+static gint ett_HI2Operations_RemoteUEContext;
+static gint ett_HI2Operations_EPS_PMIP_SpecificParameters;
+static gint ett_HI2Operations_EPS_DSMIP_SpecificParameters;
+static gint ett_HI2Operations_EPS_MIP_SpecificParameters;
+static gint ett_HI2Operations_MediaDecryption_info;
+static gint ett_HI2Operations_CCKeyInfo;
+static gint ett_HI2Operations_PacketDataHeaderInformation;
+static gint ett_HI2Operations_PacketDataHeaderReport;
+static gint ett_HI2Operations_PacketDataHeaderMapped;
+static gint ett_HI2Operations_PacketDataHeaderCopy;
+static gint ett_HI2Operations_PacketDataSummaryReport;
+static gint ett_HI2Operations_PacketFlowSummary;
+static gint ett_HI2Operations_ReportInterval;
+static gint ett_HI2Operations_TunnelProtocol;
+static gint ett_HI2Operations_Change_Of_Target_Identity;
+static gint ett_HI2Operations_Current_Previous_Systems;
+static gint ett_HI2Operations_DeregistrationReason;
+static gint ett_HI2Operations_PTCEncryptionInfo;
+static gint ett_HI2Operations_PTC;
+static gint ett_HI2Operations_AccessPolicyType;
+static gint ett_HI2Operations_AssociatePresenceStatus;
+static gint ett_HI2Operations_EmergencyGroupState;
+static gint ett_HI2Operations_FloorActivity;
+static gint ett_HI2Operations_PTCAddress;
+static gint ett_HI2Operations_RTPSetting;
+static gint ett_HI2Operations_TalkburstControlSetting;
+static gint ett_HI2Operations_T_talk_Burst_parameters;
+static gint ett_HI2Operations_CivicAddress;
+static gint ett_HI2Operations_SET_OF_DetailedCivicAddress;
+static gint ett_HI2Operations_DetailedCivicAddress;
+static gint ett_HI2Operations_ExtendedLocParameters;
+static gint ett_HI2Operations_T_mapData;
+static gint ett_HI2Operations_T_altitude;
+static gint ett_HI2Operations_T_motionStateList;
+static gint ett_HI2Operations_T_secondaryMotionState;
+static gint ett_HI2Operations_T_floor;
 
 
 

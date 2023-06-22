@@ -31,952 +31,952 @@ void proto_reg_handoff_lix2(void);
 void proto_register_lix2(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_lix2 = -1;
+static int proto_lix2;
 static dissector_handle_t lix2_handle = NULL;
 
 
-static int hf_lix2_XIRIPayload_PDU = -1;          /* XIRIPayload */
-static int hf_lix2_xIRIPayloadOID = -1;           /* RELATIVE_OID */
-static int hf_lix2_event = -1;                    /* XIRIEvent */
-static int hf_lix2_registration = -1;             /* AMFRegistration */
-static int hf_lix2_deregistration = -1;           /* AMFDeregistration */
-static int hf_lix2_locationUpdate = -1;           /* AMFLocationUpdate */
-static int hf_lix2_startOfInterceptionWithRegisteredUE = -1;  /* AMFStartOfInterceptionWithRegisteredUE */
-static int hf_lix2_unsuccessfulAMProcedure = -1;  /* AMFUnsuccessfulProcedure */
-static int hf_lix2_pDUSessionEstablishment = -1;  /* SMFPDUSessionEstablishment */
-static int hf_lix2_pDUSessionModification = -1;   /* SMFPDUSessionModification */
-static int hf_lix2_pDUSessionRelease = -1;        /* SMFPDUSessionRelease */
-static int hf_lix2_startOfInterceptionWithEstablishedPDUSession = -1;  /* SMFStartOfInterceptionWithEstablishedPDUSession */
-static int hf_lix2_unsuccessfulSMProcedure = -1;  /* SMFUnsuccessfulProcedure */
-static int hf_lix2_servingSystemMessage = -1;     /* UDMServingSystemMessage */
-static int hf_lix2_sMSMessage = -1;               /* SMSMessage */
-static int hf_lix2_lALSReport = -1;               /* LALSReport */
-static int hf_lix2_pDHeaderReport = -1;           /* PDHeaderReport */
-static int hf_lix2_pDSummaryReport = -1;          /* PDSummaryReport */
-static int hf_lix2_mMSSend = -1;                  /* MMSSend */
-static int hf_lix2_mMSSendByNonLocalTarget = -1;  /* MMSSendByNonLocalTarget */
-static int hf_lix2_mMSNotification = -1;          /* MMSNotification */
-static int hf_lix2_mMSSendToNonLocalTarget = -1;  /* MMSSendToNonLocalTarget */
-static int hf_lix2_mMSNotificationResponse = -1;  /* MMSNotificationResponse */
-static int hf_lix2_mMSRetrieval = -1;             /* MMSRetrieval */
-static int hf_lix2_mMSDeliveryAck = -1;           /* MMSDeliveryAck */
-static int hf_lix2_mMSForward = -1;               /* MMSForward */
-static int hf_lix2_mMSDeleteFromRelay = -1;       /* MMSDeleteFromRelay */
-static int hf_lix2_mMSDeliveryReport = -1;        /* MMSDeliveryReport */
-static int hf_lix2_mMSDeliveryReportNonLocalTarget = -1;  /* MMSDeliveryReportNonLocalTarget */
-static int hf_lix2_mMSReadReport = -1;            /* MMSReadReport */
-static int hf_lix2_mMSReadReportNonLocalTarget = -1;  /* MMSReadReportNonLocalTarget */
-static int hf_lix2_mMSCancel = -1;                /* MMSCancel */
-static int hf_lix2_mMSMBoxStore = -1;             /* MMSMBoxStore */
-static int hf_lix2_mMSMBoxUpload = -1;            /* MMSMBoxUpload */
-static int hf_lix2_mMSMBoxDelete = -1;            /* MMSMBoxDelete */
-static int hf_lix2_mMSMBoxViewRequest = -1;       /* MMSMBoxViewRequest */
-static int hf_lix2_mMSMBoxViewResponse = -1;      /* MMSMBoxViewResponse */
-static int hf_lix2_pTCRegistration = -1;          /* PTCRegistration */
-static int hf_lix2_pTCSessionInitiation = -1;     /* PTCSessionInitiation */
-static int hf_lix2_pTCSessionAbandon = -1;        /* PTCSessionAbandon */
-static int hf_lix2_pTCSessionStart = -1;          /* PTCSessionStart */
-static int hf_lix2_pTCSessionEnd = -1;            /* PTCSessionEnd */
-static int hf_lix2_pTCStartOfInterception = -1;   /* PTCStartOfInterception */
-static int hf_lix2_pTCPreEstablishedSession = -1;  /* PTCPreEstablishedSession */
-static int hf_lix2_pTCInstantPersonalAlert = -1;  /* PTCInstantPersonalAlert */
-static int hf_lix2_pTCPartyJoin = -1;             /* PTCPartyJoin */
-static int hf_lix2_pTCPartyDrop = -1;             /* PTCPartyDrop */
-static int hf_lix2_pTCPartyHold = -1;             /* PTCPartyHold */
-static int hf_lix2_pTCMediaModification = -1;     /* PTCMediaModification */
-static int hf_lix2_pTCGroupAdvertisement = -1;    /* PTCGroupAdvertisement */
-static int hf_lix2_pTCFloorControl = -1;          /* PTCFloorControl */
-static int hf_lix2_pTCTargetPresence = -1;        /* PTCTargetPresence */
-static int hf_lix2_pTCParticipantPresence = -1;   /* PTCParticipantPresence */
-static int hf_lix2_pTCListManagement = -1;        /* PTCListManagement */
-static int hf_lix2_pTCAccessPolicy = -1;          /* PTCAccessPolicy */
-static int hf_lix2_subscriberRecordChangeMessage = -1;  /* UDMSubscriberRecordChangeMessage */
-static int hf_lix2_cancelLocationMessage = -1;    /* UDMCancelLocationMessage */
-static int hf_lix2_sMSReport = -1;                /* SMSReport */
-static int hf_lix2_sMFMAPDUSessionEstablishment = -1;  /* SMFMAPDUSessionEstablishment */
-static int hf_lix2_sMFMAPDUSessionModification = -1;  /* SMFMAPDUSessionModification */
-static int hf_lix2_sMFMAPDUSessionRelease = -1;   /* SMFMAPDUSessionRelease */
-static int hf_lix2_startOfInterceptionWithEstablishedMAPDUSession = -1;  /* SMFStartOfInterceptionWithEstablishedMAPDUSession */
-static int hf_lix2_unsuccessfulMASMProcedure = -1;  /* SMFMAUnsuccessfulProcedure */
-static int hf_lix2_aMFIdentifierAssocation = -1;  /* AMFIdentifierAssocation */
-static int hf_lix2_mMEIdentifierAssocation = -1;  /* MMEIdentifierAssocation */
-static int hf_lix2_sMFPDUtoMAPDUSessionModification = -1;  /* SMFPDUtoMAPDUSessionModification */
-static int hf_lix2_nEFPDUSessionEstablishment = -1;  /* NEFPDUSessionEstablishment */
-static int hf_lix2_nEFPDUSessionModification = -1;  /* NEFPDUSessionModification */
-static int hf_lix2_nEFPDUSessionRelease = -1;     /* NEFPDUSessionRelease */
-static int hf_lix2_nEFUnsuccessfulProcedure = -1;  /* NEFUnsuccessfulProcedure */
-static int hf_lix2_nEFStartOfInterceptionWithEstablishedPDUSession = -1;  /* NEFStartOfInterceptionWithEstablishedPDUSession */
-static int hf_lix2_nEFdeviceTrigger = -1;         /* NEFDeviceTrigger */
-static int hf_lix2_nEFdeviceTriggerReplace = -1;  /* NEFDeviceTriggerReplace */
-static int hf_lix2_nEFdeviceTriggerCancellation = -1;  /* NEFDeviceTriggerCancellation */
-static int hf_lix2_nEFdeviceTriggerReportNotify = -1;  /* NEFDeviceTriggerReportNotify */
-static int hf_lix2_nEFMSISDNLessMOSMS = -1;       /* NEFMSISDNLessMOSMS */
-static int hf_lix2_nEFExpectedUEBehaviourUpdate = -1;  /* NEFExpectedUEBehaviourUpdate */
-static int hf_lix2_sCEFPDNConnectionEstablishment = -1;  /* SCEFPDNConnectionEstablishment */
-static int hf_lix2_sCEFPDNConnectionUpdate = -1;  /* SCEFPDNConnectionUpdate */
-static int hf_lix2_sCEFPDNConnectionRelease = -1;  /* SCEFPDNConnectionRelease */
-static int hf_lix2_sCEFUnsuccessfulProcedure = -1;  /* SCEFUnsuccessfulProcedure */
-static int hf_lix2_sCEFStartOfInterceptionWithEstablishedPDNConnection = -1;  /* SCEFStartOfInterceptionWithEstablishedPDNConnection */
-static int hf_lix2_sCEFdeviceTrigger = -1;        /* SCEFDeviceTrigger */
-static int hf_lix2_sCEFdeviceTriggerReplace = -1;  /* SCEFDeviceTriggerReplace */
-static int hf_lix2_sCEFdeviceTriggerCancellation = -1;  /* SCEFDeviceTriggerCancellation */
-static int hf_lix2_sCEFdeviceTriggerReportNotify = -1;  /* SCEFDeviceTriggerReportNotify */
-static int hf_lix2_sCEFMSISDNLessMOSMS = -1;      /* SCEFMSISDNLessMOSMS */
-static int hf_lix2_sCEFCommunicationPatternUpdate = -1;  /* SCEFCommunicationPatternUpdate */
-static int hf_lix2_mMEAttach = -1;                /* MMEAttach */
-static int hf_lix2_mMEDetach = -1;                /* MMEDetach */
-static int hf_lix2_mMELocationUpdate = -1;        /* MMELocationUpdate */
-static int hf_lix2_mMEStartOfInterceptionWithEPSAttachedUE = -1;  /* MMEStartOfInterceptionWithEPSAttachedUE */
-static int hf_lix2_mMEUnsuccessfulProcedure = -1;  /* MMEUnsuccessfulProcedure */
-static int hf_lix2_iRIPayloadOID = -1;            /* RELATIVE_OID */
-static int hf_lix2_event_01 = -1;                 /* IRIEvent */
-static int hf_lix2_targetIdentifiers = -1;        /* SEQUENCE_OF_IRITargetIdentifier */
-static int hf_lix2_targetIdentifiers_item = -1;   /* IRITargetIdentifier */
-static int hf_lix2_unsuccessfulRegistrationProcedure = -1;  /* AMFUnsuccessfulProcedure */
-static int hf_lix2_unsuccessfulSessionProcedure = -1;  /* SMFUnsuccessfulProcedure */
-static int hf_lix2_mDFCellSiteReport = -1;        /* MDFCellSiteReport */
-static int hf_lix2_identifier = -1;               /* TargetIdentifier */
-static int hf_lix2_provenance = -1;               /* TargetIdentifierProvenance */
-static int hf_lix2_cCPayloadOID = -1;             /* RELATIVE_OID */
-static int hf_lix2_pDU = -1;                      /* CCPDU */
-static int hf_lix2_uPFCCPDU = -1;                 /* UPFCCPDU */
-static int hf_lix2_extendedUPFCCPDU = -1;         /* ExtendedUPFCCPDU */
-static int hf_lix2_mMSCCPDU = -1;                 /* MMSCCPDU */
-static int hf_lix2_nIDDCCPDU = -1;                /* NIDDCCPDU */
-static int hf_lix2_lINotificationPayloadOID = -1;  /* RELATIVE_OID */
-static int hf_lix2_notification = -1;             /* LINotificationMessage */
-static int hf_lix2_lINotification = -1;           /* LINotification */
-static int hf_lix2_sUPI = -1;                     /* SUPI */
-static int hf_lix2_gPSI = -1;                     /* GPSI */
-static int hf_lix2_pDUSessionID = -1;             /* PDUSessionID */
-static int hf_lix2_sNSSAI = -1;                   /* SNSSAI */
-static int hf_lix2_nEFID = -1;                    /* NEFID */
-static int hf_lix2_dNN = -1;                      /* DNN */
-static int hf_lix2_rDSSupport = -1;               /* RDSSupport */
-static int hf_lix2_sMFID = -1;                    /* SMFID */
-static int hf_lix2_aFID = -1;                     /* AFID */
-static int hf_lix2_initiator = -1;                /* Initiator */
-static int hf_lix2_rDSSourcePortNumber = -1;      /* RDSPortNumber */
-static int hf_lix2_rDSDestinationPortNumber = -1;  /* RDSPortNumber */
-static int hf_lix2_applicationID = -1;            /* ApplicationID */
-static int hf_lix2_rDSAction = -1;                /* RDSAction */
-static int hf_lix2_serializationFormat = -1;      /* SerializationFormat */
-static int hf_lix2_timeOfFirstPacket = -1;        /* Timestamp */
-static int hf_lix2_timeOfLastPacket = -1;         /* Timestamp */
-static int hf_lix2_uplinkVolume = -1;             /* INTEGER */
-static int hf_lix2_downlinkVolume = -1;           /* INTEGER */
-static int hf_lix2_releaseCause = -1;             /* NEFReleaseCause */
-static int hf_lix2_failureCause = -1;             /* NEFFailureCause */
-static int hf_lix2_triggerId = -1;                /* TriggerID */
-static int hf_lix2_triggerPayload = -1;           /* TriggerPayload */
-static int hf_lix2_validityPeriod = -1;           /* INTEGER */
-static int hf_lix2_priorityDT = -1;               /* PriorityDT */
-static int hf_lix2_sourcePortId = -1;             /* PortNumber */
-static int hf_lix2_destinationPortId = -1;        /* PortNumber */
-static int hf_lix2_deviceTriggerDeliveryResult = -1;  /* DeviceTriggerDeliveryResult */
-static int hf_lix2_terminatingSMSParty = -1;      /* AFID */
-static int hf_lix2_sMS = -1;                      /* SMSTPDUData */
-static int hf_lix2_sourcePort = -1;               /* PortNumber */
-static int hf_lix2_destinationPort = -1;          /* PortNumber */
-static int hf_lix2_expectedUEMovingTrajectory = -1;  /* SEQUENCE_OF_UMTLocationArea5G */
-static int hf_lix2_expectedUEMovingTrajectory_item = -1;  /* UMTLocationArea5G */
-static int hf_lix2_stationaryIndication = -1;     /* StationaryIndication */
-static int hf_lix2_communicationDurationTime = -1;  /* INTEGER */
-static int hf_lix2_periodicTime = -1;             /* INTEGER */
-static int hf_lix2_scheduledCommunicationTime = -1;  /* ScheduledCommunicationTime */
-static int hf_lix2_scheduledCommunicationType = -1;  /* ScheduledCommunicationType */
-static int hf_lix2_batteryIndication = -1;        /* BatteryIndication */
-static int hf_lix2_trafficProfile = -1;           /* TrafficProfile */
-static int hf_lix2_expectedTimeAndDayOfWeekInTrajectory = -1;  /* SEQUENCE_OF_UMTLocationArea5G */
-static int hf_lix2_expectedTimeAndDayOfWeekInTrajectory_item = -1;  /* UMTLocationArea5G */
-static int hf_lix2_validityTime = -1;             /* Timestamp */
-static int hf_lix2_days = -1;                     /* SEQUENCE_OF_Daytime */
-static int hf_lix2_days_item = -1;                /* Daytime */
-static int hf_lix2_timeOfDay = -1;                /* Daytime */
-static int hf_lix2_durationSec = -1;              /* INTEGER */
-static int hf_lix2_location = -1;                 /* NRLocation */
-static int hf_lix2_daysOfWeek = -1;               /* Day */
-static int hf_lix2_timeOfDayStart = -1;           /* Timestamp */
-static int hf_lix2_timeOfDayEnd = -1;             /* Timestamp */
-static int hf_lix2_iMSI = -1;                     /* IMSI */
-static int hf_lix2_mSISDN = -1;                   /* MSISDN */
-static int hf_lix2_externalIdentifier = -1;       /* NAI */
-static int hf_lix2_iMEI = -1;                     /* IMEI */
-static int hf_lix2_ePSBearerID = -1;              /* EPSBearerID */
-static int hf_lix2_sCEFID = -1;                   /* SCEFID */
-static int hf_lix2_aPN = -1;                      /* APN */
-static int hf_lix2_sCSASID = -1;                  /* SCSASID */
-static int hf_lix2_releaseCause_01 = -1;          /* SCEFReleaseCause */
-static int hf_lix2_failureCause_01 = -1;          /* SCEFFailureCause */
-static int hf_lix2_externalIdentifie = -1;        /* NAI */
-static int hf_lix2_terminatingSMSParty_01 = -1;   /* SCSASID */
-static int hf_lix2_periodicCommunicationIndicator = -1;  /* PeriodicCommunicationIndicator */
-static int hf_lix2_registrationType = -1;         /* AMFRegistrationType */
-static int hf_lix2_registrationResult = -1;       /* AMFRegistrationResult */
-static int hf_lix2_slice = -1;                    /* Slice */
-static int hf_lix2_sUCI = -1;                     /* SUCI */
-static int hf_lix2_pEI = -1;                      /* PEI */
-static int hf_lix2_gUTI = -1;                     /* FiveGGUTI */
-static int hf_lix2_location_01 = -1;              /* Location */
-static int hf_lix2_non3GPPAccessEndpoint = -1;    /* UEEndpointAddress */
-static int hf_lix2_fiveGSTAIList = -1;            /* TAIList */
-static int hf_lix2_sMSOverNasIndicator = -1;      /* SMSOverNASIndicator */
-static int hf_lix2_oldGUTI = -1;                  /* EPS5GGUTI */
-static int hf_lix2_eMM5GRegStatus = -1;           /* EMM5GMMStatus */
-static int hf_lix2_deregistrationDirection = -1;  /* AMFDirection */
-static int hf_lix2_accessType = -1;               /* AccessType */
-static int hf_lix2_cause = -1;                    /* FiveGMMCause */
-static int hf_lix2_switchOffIndicator = -1;       /* SwitchOffIndicator */
-static int hf_lix2_reRegRequiredIndicator = -1;   /* ReRegRequiredIndicator */
-static int hf_lix2_sMSOverNASIndicator = -1;      /* SMSOverNASIndicator */
-static int hf_lix2_timeOfRegistration = -1;       /* Timestamp */
-static int hf_lix2_failedProcedureType = -1;      /* AMFFailedProcedureType */
-static int hf_lix2_failureCause_02 = -1;          /* AMFFailureCause */
-static int hf_lix2_requestedSlice = -1;           /* NSSAI */
-static int hf_lix2_aMFRegionID = -1;              /* AMFRegionID */
-static int hf_lix2_aMFSetID = -1;                 /* AMFSetID */
-static int hf_lix2_aMFPointer = -1;               /* AMFPointer */
-static int hf_lix2_fiveGMMCause = -1;             /* FiveGMMCause */
-static int hf_lix2_fiveGSMCause = -1;             /* FiveGSMCause */
-static int hf_lix2_sUPIUnauthenticated = -1;      /* SUPIUnauthenticatedIndication */
-static int hf_lix2_gTPTunnelID = -1;              /* FTEID */
-static int hf_lix2_pDUSessionType = -1;           /* PDUSessionType */
-static int hf_lix2_uEEndpoint = -1;               /* SEQUENCE_OF_UEEndpointAddress */
-static int hf_lix2_uEEndpoint_item = -1;          /* UEEndpointAddress */
-static int hf_lix2_aMFID = -1;                    /* AMFID */
-static int hf_lix2_hSMFURI = -1;                  /* HSMFURI */
-static int hf_lix2_requestType = -1;              /* FiveGSMRequestType */
-static int hf_lix2_rATType = -1;                  /* RATType */
-static int hf_lix2_sMPDUDNRequest = -1;           /* SMPDUDNRequest */
-static int hf_lix2_uEEPSPDNConnection = -1;       /* UEEPSPDNConnection */
-static int hf_lix2_cause_01 = -1;                 /* SMFErrorCodes */
-static int hf_lix2_timeOfSessionEstablishment = -1;  /* Timestamp */
-static int hf_lix2_failedProcedureType_01 = -1;   /* SMFFailedProcedureType */
-static int hf_lix2_failureCause_03 = -1;          /* FiveGSMCause */
-static int hf_lix2_requestIndication = -1;        /* RequestIndication */
-static int hf_lix2_aTSSSContainer = -1;           /* ATSSSContainer */
-static int hf_lix2_accessInfo = -1;               /* SEQUENCE_OF_AccessInfo */
-static int hf_lix2_accessInfo_item = -1;          /* AccessInfo */
-static int hf_lix2_servingNetwork = -1;           /* SMFServingNetwork */
-static int hf_lix2_oldPDUSessionID = -1;          /* PDUSessionID */
-static int hf_lix2_mAUpgradeIndication = -1;      /* SMFMAUpgradeIndication */
-static int hf_lix2_ePSPDNCnxInfo = -1;            /* SMFEPSPDNCnxInfo */
-static int hf_lix2_mAAcceptedIndication = -1;     /* SMFMAAcceptedIndication */
-static int hf_lix2_pLMNID = -1;                   /* PLMNID */
-static int hf_lix2_nID = -1;                      /* NID */
-static int hf_lix2_establishmentStatus = -1;      /* EstablishmentStatus */
-static int hf_lix2_aNTypeToReactivate = -1;       /* AccessType */
-static int hf_lix2_payload = -1;                  /* UPFCCPDUPayload */
-static int hf_lix2_qFI = -1;                      /* QFI */
-static int hf_lix2_uPFIPCC = -1;                  /* OCTET_STRING */
-static int hf_lix2_uPFEthernetCC = -1;            /* OCTET_STRING */
-static int hf_lix2_uPFUnstructuredCC = -1;        /* OCTET_STRING */
-static int hf_lix2_gUAMI = -1;                    /* GUAMI */
-static int hf_lix2_gUMMEI = -1;                   /* GUMMEI */
-static int hf_lix2_servingSystemMethod = -1;      /* UDMServingSystemMethod */
-static int hf_lix2_serviceID = -1;                /* ServiceID */
-static int hf_lix2_oldPEI = -1;                   /* PEI */
-static int hf_lix2_oldSUPI = -1;                  /* SUPI */
-static int hf_lix2_oldGPSI = -1;                  /* GPSI */
-static int hf_lix2_oldserviceID = -1;             /* ServiceID */
-static int hf_lix2_subscriberRecordChangeMethod = -1;  /* UDMSubscriberRecordChangeMethod */
-static int hf_lix2_cancelLocationMethod = -1;     /* UDMCancelLocationMethod */
-static int hf_lix2_nSSAI = -1;                    /* NSSAI */
-static int hf_lix2_cAGID = -1;                    /* SEQUENCE_OF_CAGID */
-static int hf_lix2_cAGID_item = -1;               /* CAGID */
-static int hf_lix2_originatingSMSParty = -1;      /* SMSParty */
-static int hf_lix2_terminatingSMSParty_02 = -1;   /* SMSParty */
-static int hf_lix2_direction = -1;                /* Direction */
-static int hf_lix2_linkTransferStatus = -1;       /* SMSTransferStatus */
-static int hf_lix2_otherMessage = -1;             /* SMSOtherMessageIndication */
-static int hf_lix2_peerNFAddress = -1;            /* SMSNFAddress */
-static int hf_lix2_peerNFType = -1;               /* SMSNFType */
-static int hf_lix2_sMSTPDUData = -1;              /* SMSTPDUData */
-static int hf_lix2_messageType = -1;              /* SMSMessageType */
-static int hf_lix2_rPMessageReference = -1;       /* SMSRPMessageReference */
-static int hf_lix2_sMSAddress = -1;               /* SMSAddress */
-static int hf_lix2_iPAddress = -1;                /* IPAddress */
-static int hf_lix2_e164Number = -1;               /* E164Number */
-static int hf_lix2_sMSTPDU = -1;                  /* SMSTPDU */
-static int hf_lix2_truncatedSMSTPDU = -1;         /* TruncatedSMSTPDU */
-static int hf_lix2_transactionID = -1;            /* UTF8String */
-static int hf_lix2_version = -1;                  /* MMSVersion */
-static int hf_lix2_dateTime = -1;                 /* Timestamp */
-static int hf_lix2_originatingMMSParty = -1;      /* MMSParty */
-static int hf_lix2_terminatingMMSParty = -1;      /* SEQUENCE_OF_MMSParty */
-static int hf_lix2_terminatingMMSParty_item = -1;  /* MMSParty */
-static int hf_lix2_cCRecipients = -1;             /* SEQUENCE_OF_MMSParty */
-static int hf_lix2_cCRecipients_item = -1;        /* MMSParty */
-static int hf_lix2_bCCRecipients = -1;            /* SEQUENCE_OF_MMSParty */
-static int hf_lix2_bCCRecipients_item = -1;       /* MMSParty */
-static int hf_lix2_direction_01 = -1;             /* MMSDirection */
-static int hf_lix2_subject = -1;                  /* MMSSubject */
-static int hf_lix2_messageClass = -1;             /* MMSMessageClass */
-static int hf_lix2_expiry = -1;                   /* MMSExpiry */
-static int hf_lix2_desiredDeliveryTime = -1;      /* Timestamp */
-static int hf_lix2_priority = -1;                 /* MMSPriority */
-static int hf_lix2_senderVisibility = -1;         /* BOOLEAN */
-static int hf_lix2_deliveryReport = -1;           /* BOOLEAN */
-static int hf_lix2_readReport = -1;               /* BOOLEAN */
-static int hf_lix2_store = -1;                    /* BOOLEAN */
-static int hf_lix2_state = -1;                    /* MMState */
-static int hf_lix2_flags = -1;                    /* MMFlags */
-static int hf_lix2_replyCharging = -1;            /* MMSReplyCharging */
-static int hf_lix2_applicID = -1;                 /* UTF8String */
-static int hf_lix2_replyApplicID = -1;            /* UTF8String */
-static int hf_lix2_auxApplicInfo = -1;            /* UTF8String */
-static int hf_lix2_contentClass = -1;             /* MMSContentClass */
-static int hf_lix2_dRMContent = -1;               /* BOOLEAN */
-static int hf_lix2_adaptationAllowed = -1;        /* MMSAdaptation */
-static int hf_lix2_contentType = -1;              /* MMSContentType */
-static int hf_lix2_responseStatus = -1;           /* MMSResponseStatus */
-static int hf_lix2_responseStatusText = -1;       /* UTF8String */
-static int hf_lix2_messageID = -1;                /* UTF8String */
-static int hf_lix2_forwardCount = -1;             /* INTEGER */
-static int hf_lix2_previouslySentBy = -1;         /* MMSPreviouslySentBy */
-static int hf_lix2_prevSentByDateTime = -1;       /* Timestamp */
-static int hf_lix2_deliveryReportRequested = -1;  /* BOOLEAN */
-static int hf_lix2_stored = -1;                   /* BOOLEAN */
-static int hf_lix2_messageSize = -1;              /* INTEGER */
-static int hf_lix2_status = -1;                   /* MMStatus */
-static int hf_lix2_reportAllowed = -1;            /* BOOLEAN */
-static int hf_lix2_retrieveStatus = -1;           /* MMSRetrieveStatus */
-static int hf_lix2_retrieveStatusText = -1;       /* UTF8String */
-static int hf_lix2_replaceID = -1;                /* UTF8String */
-static int hf_lix2_contentType_01 = -1;           /* UTF8String */
-static int hf_lix2_deliveryReportAllowed = -1;    /* BOOLEAN */
-static int hf_lix2_contentLocationReq = -1;       /* UTF8String */
-static int hf_lix2_contentLocationConf = -1;      /* UTF8String */
-static int hf_lix2_storeStatus = -1;              /* MMSStoreStatus */
-static int hf_lix2_storeStatusText = -1;          /* UTF8String */
-static int hf_lix2_contentLocationReq_01 = -1;    /* T_contentLocationReq */
-static int hf_lix2_contentLocationReq_item = -1;  /* UTF8String */
-static int hf_lix2_contentLocationConf_01 = -1;   /* T_contentLocationConf */
-static int hf_lix2_contentLocationConf_item = -1;  /* UTF8String */
-static int hf_lix2_deleteResponseStatus = -1;     /* MMSDeleteResponseStatus */
-static int hf_lix2_deleteResponseText = -1;       /* T_deleteResponseText */
-static int hf_lix2_deleteResponseText_item = -1;  /* UTF8String */
-static int hf_lix2_contentLocation = -1;          /* UTF8String */
-static int hf_lix2_mMessages = -1;                /* SEQUENCE_OF_MMBoxDescription */
-static int hf_lix2_mMessages_item = -1;           /* MMBoxDescription */
-static int hf_lix2_contentLocationReq_02 = -1;    /* T_contentLocationReq_01 */
-static int hf_lix2_contentLocationConf_02 = -1;   /* T_contentLocationConf_01 */
-static int hf_lix2_responseStatus_01 = -1;        /* MMSDeleteResponseStatus */
-static int hf_lix2_mMSDateTime = -1;              /* Timestamp */
-static int hf_lix2_forwardToOriginator = -1;      /* BOOLEAN */
-static int hf_lix2_statusExtension = -1;          /* MMStatusExtension */
-static int hf_lix2_statusText = -1;               /* MMStatusText */
-static int hf_lix2_originatingMMSParty_01 = -1;   /* SEQUENCE_OF_MMSParty */
-static int hf_lix2_originatingMMSParty_item = -1;  /* MMSParty */
-static int hf_lix2_readStatus = -1;               /* MMSReadStatus */
-static int hf_lix2_readStatusText = -1;           /* MMSReadStatusText */
-static int hf_lix2_cancelID = -1;                 /* UTF8String */
-static int hf_lix2_state_01 = -1;                 /* SEQUENCE_OF_MMState */
-static int hf_lix2_state_item = -1;               /* MMState */
-static int hf_lix2_flags_01 = -1;                 /* SEQUENCE_OF_MMFlags */
-static int hf_lix2_flags_item = -1;               /* MMFlags */
-static int hf_lix2_start = -1;                    /* INTEGER */
-static int hf_lix2_limit = -1;                    /* INTEGER */
-static int hf_lix2_attributes = -1;               /* T_attributes */
-static int hf_lix2_attributes_item = -1;          /* UTF8String */
-static int hf_lix2_totals = -1;                   /* INTEGER */
-static int hf_lix2_quotas = -1;                   /* MMSQuota */
-static int hf_lix2_attributes_01 = -1;            /* T_attributes_01 */
-static int hf_lix2_mMSTotals = -1;                /* BOOLEAN */
-static int hf_lix2_mMSQuotas = -1;                /* BOOLEAN */
-static int hf_lix2_deliveryTime = -1;             /* Timestamp */
-static int hf_lix2_previouslySentByDateTime = -1;  /* Timestamp */
-static int hf_lix2_mMSContent = -1;               /* OCTET_STRING */
-static int hf_lix2_allowed = -1;                  /* BOOLEAN */
-static int hf_lix2_overriden = -1;                /* BOOLEAN */
-static int hf_lix2_reference = -1;                /* UTF8String */
-static int hf_lix2_parameter = -1;                /* UTF8String */
-static int hf_lix2_value = -1;                    /* UTF8String */
-static int hf_lix2_expiryPeriod = -1;             /* INTEGER */
-static int hf_lix2_periodFormat = -1;             /* MMSPeriodFormat */
-static int hf_lix2_length = -1;                   /* INTEGER */
-static int hf_lix2_flag = -1;                     /* MMStateFlag */
-static int hf_lix2_flagString = -1;               /* UTF8String */
-static int hf_lix2_mMSPartyIDs = -1;              /* SEQUENCE_OF_MMSPartyID */
-static int hf_lix2_mMSPartyIDs_item = -1;         /* MMSPartyID */
-static int hf_lix2_nonLocalID = -1;               /* NonLocalID */
-static int hf_lix2_emailAddress = -1;             /* EmailAddress */
-static int hf_lix2_iMPU = -1;                     /* IMPU */
-static int hf_lix2_iMPI = -1;                     /* IMPI */
-static int hf_lix2_previouslySentByParty = -1;    /* MMSParty */
-static int hf_lix2_sequenceNumber = -1;           /* INTEGER */
-static int hf_lix2_previousSendDateTime = -1;     /* Timestamp */
-static int hf_lix2_MMSPreviouslySentBy_item = -1;  /* MMSPreviouslySent */
-static int hf_lix2_quota = -1;                    /* INTEGER */
-static int hf_lix2_quotaUnit = -1;                /* MMSQuotaUnit */
-static int hf_lix2_majorVersion = -1;             /* INTEGER */
-static int hf_lix2_minorVersion = -1;             /* INTEGER */
-static int hf_lix2_pTCTargetInformation = -1;     /* PTCTargetInformation */
-static int hf_lix2_pTCServerURI = -1;             /* UTF8String */
-static int hf_lix2_pTCRegistrationRequest = -1;   /* PTCRegistrationRequest */
-static int hf_lix2_pTCRegistrationOutcome = -1;   /* PTCRegistrationOutcome */
-static int hf_lix2_pTCDirection = -1;             /* Direction */
-static int hf_lix2_pTCSessionInfo = -1;           /* PTCSessionInfo */
-static int hf_lix2_pTCOriginatingID = -1;         /* PTCTargetInformation */
-static int hf_lix2_pTCParticipants = -1;          /* SEQUENCE_OF_PTCTargetInformation */
-static int hf_lix2_pTCParticipants_item = -1;     /* PTCTargetInformation */
-static int hf_lix2_pTCParticipantPresenceStatus = -1;  /* MultipleParticipantPresenceStatus */
-static int hf_lix2_pTCBearerCapability = -1;      /* UTF8String */
-static int hf_lix2_pTCHost = -1;                  /* PTCTargetInformation */
-static int hf_lix2_pTCAbandonCause = -1;          /* INTEGER */
-static int hf_lix2_pTCSessionEndCause = -1;       /* PTCSessionEndCause */
-static int hf_lix2_preEstSessionID = -1;          /* PTCSessionInfo */
-static int hf_lix2_pTCMediaStreamAvail = -1;      /* BOOLEAN */
-static int hf_lix2_rTPSetting = -1;               /* RTPSetting */
-static int hf_lix2_pTCMediaCapability = -1;       /* UTF8String */
-static int hf_lix2_pTCPreEstSessionID = -1;       /* PTCSessionInfo */
-static int hf_lix2_pTCPreEstStatus = -1;          /* PTCPreEstStatus */
-static int hf_lix2_pTCFailureCode = -1;           /* PTCFailureCode */
-static int hf_lix2_pTCIPAPartyID = -1;            /* PTCTargetInformation */
-static int hf_lix2_pTCIPADirection = -1;          /* Direction */
-static int hf_lix2_pTCPartyDrop_01 = -1;          /* PTCTargetInformation */
-static int hf_lix2_pTCParticipantPresenceStatus_01 = -1;  /* PTCParticipantPresenceStatus */
-static int hf_lix2_pTCHoldID = -1;                /* SEQUENCE_OF_PTCTargetInformation */
-static int hf_lix2_pTCHoldID_item = -1;           /* PTCTargetInformation */
-static int hf_lix2_pTCHoldRetrieveInd = -1;       /* BOOLEAN */
-static int hf_lix2_pTCIDList = -1;                /* SEQUENCE_OF_PTCTargetInformation */
-static int hf_lix2_pTCIDList_item = -1;           /* PTCTargetInformation */
-static int hf_lix2_pTCGroupAuthRule = -1;         /* PTCGroupAuthRule */
-static int hf_lix2_pTCGroupAdSender = -1;         /* PTCTargetInformation */
-static int hf_lix2_pTCGroupNickname = -1;         /* UTF8String */
-static int hf_lix2_pTCSessioninfo = -1;           /* PTCSessionInfo */
-static int hf_lix2_pTCFloorActivity = -1;         /* SEQUENCE_OF_PTCFloorActivity */
-static int hf_lix2_pTCFloorActivity_item = -1;    /* PTCFloorActivity */
-static int hf_lix2_pTCFloorSpeakerID = -1;        /* PTCTargetInformation */
-static int hf_lix2_pTCMaxTBTime = -1;             /* INTEGER */
-static int hf_lix2_pTCQueuedFloorControl = -1;    /* BOOLEAN */
-static int hf_lix2_pTCQueuedPosition = -1;        /* INTEGER */
-static int hf_lix2_pTCTalkBurstPriority = -1;     /* PTCTBPriorityLevel */
-static int hf_lix2_pTCTalkBurstReason = -1;       /* PTCTBReasonCode */
-static int hf_lix2_pTCTargetPresenceStatus = -1;  /* PTCParticipantPresenceStatus */
-static int hf_lix2_pTCListManagementType = -1;    /* PTCListManagementType */
-static int hf_lix2_pTCListManagementAction = -1;  /* PTCListManagementAction */
-static int hf_lix2_pTCListManagementFailure = -1;  /* PTCListManagementFailure */
-static int hf_lix2_pTCContactID = -1;             /* PTCTargetInformation */
-static int hf_lix2_pTCIDList_01 = -1;             /* SEQUENCE_OF_PTCIDList */
-static int hf_lix2_pTCIDList_item_01 = -1;        /* PTCIDList */
-static int hf_lix2_pTCAccessPolicyType = -1;      /* PTCAccessPolicyType */
-static int hf_lix2_pTCUserAccessPolicy = -1;      /* PTCUserAccessPolicy */
-static int hf_lix2_pTCAccessPolicyFailure = -1;   /* PTCAccessPolicyFailure */
-static int hf_lix2_identifiers = -1;              /* SEQUENCE_SIZE_1_MAX_OF_PTCIdentifiers */
-static int hf_lix2_identifiers_item = -1;         /* PTCIdentifiers */
-static int hf_lix2_mCPTTID = -1;                  /* UTF8String */
-static int hf_lix2_instanceIdentifierURN = -1;    /* UTF8String */
-static int hf_lix2_pTCChatGroupID = -1;           /* PTCChatGroupID */
-static int hf_lix2_pTCSessionURI = -1;            /* UTF8String */
-static int hf_lix2_pTCSessionType = -1;           /* PTCSessionType */
-static int hf_lix2_MultipleParticipantPresenceStatus_item = -1;  /* PTCParticipantPresenceStatus */
-static int hf_lix2_presenceID = -1;               /* PTCTargetInformation */
-static int hf_lix2_presenceType = -1;             /* PTCPresenceType */
-static int hf_lix2_presenceStatus = -1;           /* BOOLEAN */
-static int hf_lix2_portNumber = -1;               /* PortNumber */
-static int hf_lix2_pTCPartyID = -1;               /* PTCTargetInformation */
-static int hf_lix2_groupIdentity = -1;            /* UTF8String */
-static int hf_lix2_sourceIPAddress = -1;          /* IPAddress */
-static int hf_lix2_destinationIPAddress = -1;     /* IPAddress */
-static int hf_lix2_nextLayerProtocol = -1;        /* NextLayerProtocol */
-static int hf_lix2_iPv6flowLabel = -1;            /* IPv6FlowLabel */
-static int hf_lix2_packetSize = -1;               /* INTEGER */
-static int hf_lix2_pDSRSummaryTrigger = -1;       /* PDSRSummaryTrigger */
-static int hf_lix2_firstPacketTimestamp = -1;     /* Timestamp */
-static int hf_lix2_lastPacketTimestamp = -1;      /* Timestamp */
-static int hf_lix2_packetCount = -1;              /* INTEGER */
-static int hf_lix2_byteCount = -1;                /* INTEGER */
-static int hf_lix2_gUTI_01 = -1;                  /* GUTI */
-static int hf_lix2_tAIList = -1;                  /* TAIList */
-static int hf_lix2_attachType = -1;               /* EPSAttachType */
-static int hf_lix2_attachResult = -1;             /* EPSAttachResult */
-static int hf_lix2_ePSTAIList = -1;               /* TAIList */
-static int hf_lix2_sMSServiceStatus = -1;         /* EPSSMSServiceStatus */
-static int hf_lix2_oldGUTI_01 = -1;               /* GUTI */
-static int hf_lix2_detachDirection = -1;          /* MMEDirection */
-static int hf_lix2_detachType = -1;               /* EPSDetachType */
-static int hf_lix2_cause_02 = -1;                 /* EMMCause */
-static int hf_lix2_failedProcedureType_02 = -1;   /* MMEFailedProcedureType */
-static int hf_lix2_failureCause_04 = -1;          /* MMEFailureCause */
-static int hf_lix2_eMMCause = -1;                 /* EMMCause */
-static int hf_lix2_eSMCause = -1;                 /* ESMCause */
-static int hf_lix2_notificationType = -1;         /* LINotificationType */
-static int hf_lix2_appliedTargetID = -1;          /* TargetIdentifier */
-static int hf_lix2_appliedDeliveryInformation = -1;  /* SEQUENCE_OF_LIAppliedDeliveryInformation */
-static int hf_lix2_appliedDeliveryInformation_item = -1;  /* LIAppliedDeliveryInformation */
-static int hf_lix2_appliedStartTime = -1;         /* Timestamp */
-static int hf_lix2_appliedEndTime = -1;           /* Timestamp */
-static int hf_lix2_hI2DeliveryIPAddress = -1;     /* IPAddress */
-static int hf_lix2_hI2DeliveryPortNumber = -1;    /* PortNumber */
-static int hf_lix2_hI3DeliveryIPAddress = -1;     /* IPAddress */
-static int hf_lix2_hI3DeliveryPortNumber = -1;    /* PortNumber */
-static int hf_lix2_MDFCellSiteReport_item = -1;   /* CellInformation */
-static int hf_lix2_eMMRegStatus = -1;             /* EMMRegStatus */
-static int hf_lix2_fiveGMMStatus = -1;            /* FiveGMMStatus */
-static int hf_lix2_fiveGGUTI = -1;                /* FiveGGUTI */
-static int hf_lix2_mCC = -1;                      /* MCC */
-static int hf_lix2_mNC = -1;                      /* MNC */
-static int hf_lix2_fiveGTMSI = -1;                /* FiveGTMSI */
-static int hf_lix2_tEID = -1;                     /* INTEGER_0_4294967295 */
-static int hf_lix2_iPv4Address = -1;              /* IPv4Address */
-static int hf_lix2_iPv6Address = -1;              /* IPv6Address */
-static int hf_lix2_nAI = -1;                      /* NAI */
-static int hf_lix2_mMEID = -1;                    /* MMEID */
-static int hf_lix2_mMEGroupID = -1;               /* MMEGroupID */
-static int hf_lix2_mMECode = -1;                  /* MMECode */
-static int hf_lix2_mTMSI = -1;                    /* TMSI */
-static int hf_lix2_sIPURI = -1;                   /* SIPURI */
-static int hf_lix2_tELURI = -1;                   /* TELURI */
-static int hf_lix2_mMEGI = -1;                    /* MMEGI */
-static int hf_lix2_mMEC = -1;                     /* MMEC */
-static int hf_lix2_NSSAI_item = -1;               /* SNSSAI */
-static int hf_lix2_iMEISV = -1;                   /* IMEISV */
-static int hf_lix2_RejectedNSSAI_item = -1;       /* RejectedSNSSAI */
-static int hf_lix2_causeValue = -1;               /* RejectedSliceCauseValue */
-static int hf_lix2_allowedNSSAI = -1;             /* NSSAI */
-static int hf_lix2_configuredNSSAI = -1;          /* NSSAI */
-static int hf_lix2_rejectedNSSAI = -1;            /* RejectedNSSAI */
-static int hf_lix2_sliceServiceType = -1;         /* INTEGER_0_255 */
-static int hf_lix2_sliceDifferentiator = -1;      /* OCTET_STRING_SIZE_3 */
-static int hf_lix2_routingIndicator = -1;         /* RoutingIndicator */
-static int hf_lix2_protectionSchemeID = -1;       /* ProtectionSchemeID */
-static int hf_lix2_homeNetworkPublicKeyID = -1;   /* HomeNetworkPublicKeyID */
-static int hf_lix2_schemeOutput = -1;             /* SchemeOutput */
-static int hf_lix2_ethernetAddress = -1;          /* MACAddress */
-static int hf_lix2_locationInfo = -1;             /* LocationInfo */
-static int hf_lix2_positioningInfo = -1;          /* PositioningInfo */
-static int hf_lix2_locationPresenceReport = -1;   /* LocationPresenceReport */
-static int hf_lix2_ePSLocationInfo = -1;          /* EPSLocationInfo */
-static int hf_lix2_geographicalCoordinates = -1;  /* GeographicalCoordinates */
-static int hf_lix2_azimuth = -1;                  /* INTEGER_0_359 */
-static int hf_lix2_operatorSpecificInformation = -1;  /* UTF8String */
-static int hf_lix2_userLocation = -1;             /* UserLocation */
-static int hf_lix2_currentLoc = -1;               /* BOOLEAN */
-static int hf_lix2_geoInfo = -1;                  /* GeographicArea */
-static int hf_lix2_timeZone = -1;                 /* TimeZone */
-static int hf_lix2_additionalCellIDs = -1;        /* SEQUENCE_OF_CellInformation */
-static int hf_lix2_additionalCellIDs_item = -1;   /* CellInformation */
-static int hf_lix2_eUTRALocation = -1;            /* EUTRALocation */
-static int hf_lix2_nRLocation = -1;               /* NRLocation */
-static int hf_lix2_n3GALocation = -1;             /* N3GALocation */
-static int hf_lix2_tAI = -1;                      /* TAI */
-static int hf_lix2_eCGI = -1;                     /* ECGI */
-static int hf_lix2_ageOfLocationInfo = -1;        /* INTEGER */
-static int hf_lix2_uELocationTimestamp = -1;      /* Timestamp */
-static int hf_lix2_geographicalInformation = -1;  /* UTF8String */
-static int hf_lix2_geodeticInformation = -1;      /* UTF8String */
-static int hf_lix2_globalNGENbID = -1;            /* GlobalRANNodeID */
-static int hf_lix2_cellSiteInformation = -1;      /* CellSiteInformation */
-static int hf_lix2_globalENbID = -1;              /* GlobalRANNodeID */
-static int hf_lix2_nCGI = -1;                     /* NCGI */
-static int hf_lix2_globalGNbID = -1;              /* GlobalRANNodeID */
-static int hf_lix2_n3IWFID = -1;                  /* N3IWFIDNGAP */
-static int hf_lix2_uEIPAddr = -1;                 /* IPAddr */
-static int hf_lix2_portNumber_01 = -1;            /* INTEGER */
-static int hf_lix2_tNAPID = -1;                   /* TNAPID */
-static int hf_lix2_tWAPID = -1;                   /* TWAPID */
-static int hf_lix2_hFCNodeID = -1;                /* HFCNodeID */
-static int hf_lix2_gLI = -1;                      /* GLI */
-static int hf_lix2_w5GBANLineType = -1;           /* W5GBANLineType */
-static int hf_lix2_gCI = -1;                      /* GCI */
-static int hf_lix2_iPv4Addr = -1;                 /* IPv4Address */
-static int hf_lix2_iPv6Addr = -1;                 /* IPv6Address */
-static int hf_lix2_aNNodeID = -1;                 /* ANNodeID */
-static int hf_lix2_n3IWFID_01 = -1;               /* N3IWFIDSBI */
-static int hf_lix2_gNbID = -1;                    /* GNbID */
-static int hf_lix2_nGENbID = -1;                  /* NGENbID */
-static int hf_lix2_eNbID = -1;                    /* ENbID */
-static int hf_lix2_wAGFID = -1;                   /* WAGFID */
-static int hf_lix2_tNGFID = -1;                   /* TNGFID */
-static int hf_lix2_tAC = -1;                      /* TAC */
-static int hf_lix2_lAI = -1;                      /* LAI */
-static int hf_lix2_cellID = -1;                   /* CellID */
-static int hf_lix2_lAC = -1;                      /* LAC */
-static int hf_lix2_sAC = -1;                      /* SAC */
-static int hf_lix2_eUTRACellID = -1;              /* EUTRACellID */
-static int hf_lix2_TAIList_item = -1;             /* TAI */
-static int hf_lix2_nRCellID = -1;                 /* NRCellID */
-static int hf_lix2_rANCGI = -1;                   /* RANCGI */
-static int hf_lix2_cellSiteinformation = -1;      /* CellSiteInformation */
-static int hf_lix2_timeOfLocation = -1;           /* Timestamp */
-static int hf_lix2_sSID = -1;                     /* SSID */
-static int hf_lix2_bSSID = -1;                    /* BSSID */
-static int hf_lix2_civicAddress = -1;             /* CivicAddressBytes */
-static int hf_lix2_macroNGENbID = -1;             /* BIT_STRING_SIZE_20 */
-static int hf_lix2_shortMacroNGENbID = -1;        /* BIT_STRING_SIZE_18 */
-static int hf_lix2_longMacroNGENbID = -1;         /* BIT_STRING_SIZE_21 */
-static int hf_lix2_macroENbID = -1;               /* BIT_STRING_SIZE_20 */
-static int hf_lix2_homeENbID = -1;                /* BIT_STRING_SIZE_28 */
-static int hf_lix2_shortMacroENbID = -1;          /* BIT_STRING_SIZE_18 */
-static int hf_lix2_longMacroENbID = -1;           /* BIT_STRING_SIZE_21 */
-static int hf_lix2_positionInfo = -1;             /* LocationData */
-static int hf_lix2_rawMLPResponse = -1;           /* RawMLPResponse */
-static int hf_lix2_mLPPositionData = -1;          /* UTF8String */
-static int hf_lix2_mLPErrorCode = -1;             /* INTEGER_1_699 */
-static int hf_lix2_locationEstimate = -1;         /* GeographicArea */
-static int hf_lix2_accuracyFulfilmentIndicator = -1;  /* AccuracyFulfilmentIndicator */
-static int hf_lix2_ageOfLocationEstimate = -1;    /* AgeOfLocationEstimate */
-static int hf_lix2_velocityEstimate = -1;         /* VelocityEstimate */
-static int hf_lix2_civicAddress_01 = -1;          /* CivicAddress */
-static int hf_lix2_positioningDataList = -1;      /* SET_OF_PositioningMethodAndUsage */
-static int hf_lix2_positioningDataList_item = -1;  /* PositioningMethodAndUsage */
-static int hf_lix2_gNSSPositioningDataList = -1;  /* SET_OF_GNSSPositioningMethodAndUsage */
-static int hf_lix2_gNSSPositioningDataList_item = -1;  /* GNSSPositioningMethodAndUsage */
-static int hf_lix2_altitude = -1;                 /* Altitude */
-static int hf_lix2_barometricPressure = -1;       /* BarometricPressure */
-static int hf_lix2_locationData = -1;             /* LocationData */
-static int hf_lix2_cGI = -1;                      /* CGI */
-static int hf_lix2_sAI = -1;                      /* SAI */
-static int hf_lix2_eSMLCCellInfo = -1;            /* ESMLCCellInfo */
-static int hf_lix2_cellPortionID = -1;            /* CellPortionID */
-static int hf_lix2_type = -1;                     /* AMFEventType */
-static int hf_lix2_timestamp = -1;                /* Timestamp */
-static int hf_lix2_areaList = -1;                 /* SET_OF_AMFEventArea */
-static int hf_lix2_areaList_item = -1;            /* AMFEventArea */
-static int hf_lix2_accessTypes = -1;              /* SET_OF_AccessType */
-static int hf_lix2_accessTypes_item = -1;         /* AccessType */
-static int hf_lix2_rMInfoList = -1;               /* SET_OF_RMInfo */
-static int hf_lix2_rMInfoList_item = -1;          /* RMInfo */
-static int hf_lix2_cMInfoList = -1;               /* SET_OF_CMInfo */
-static int hf_lix2_cMInfoList_item = -1;          /* CMInfo */
-static int hf_lix2_reachability = -1;             /* UEReachability */
-static int hf_lix2_location_02 = -1;              /* UserLocation */
-static int hf_lix2_presenceInfo = -1;             /* PresenceInfo */
-static int hf_lix2_lADNInfo = -1;                 /* LADNInfo */
-static int hf_lix2_presenceState = -1;            /* PresenceState */
-static int hf_lix2_trackingAreaList = -1;         /* SET_OF_TAI */
-static int hf_lix2_trackingAreaList_item = -1;    /* TAI */
-static int hf_lix2_eCGIList = -1;                 /* SET_OF_ECGI */
-static int hf_lix2_eCGIList_item = -1;            /* ECGI */
-static int hf_lix2_nCGIList = -1;                 /* SET_OF_NCGI */
-static int hf_lix2_nCGIList_item = -1;            /* NCGI */
-static int hf_lix2_globalRANNodeIDList = -1;      /* SET_OF_GlobalRANNodeID */
-static int hf_lix2_globalRANNodeIDList_item = -1;  /* GlobalRANNodeID */
-static int hf_lix2_globalENbIDList = -1;          /* SET_OF_GlobalRANNodeID */
-static int hf_lix2_globalENbIDList_item = -1;     /* GlobalRANNodeID */
-static int hf_lix2_lADN = -1;                     /* UTF8String */
-static int hf_lix2_presence = -1;                 /* PresenceState */
-static int hf_lix2_rMState = -1;                  /* RMState */
-static int hf_lix2_cMState = -1;                  /* CMState */
-static int hf_lix2_point = -1;                    /* Point */
-static int hf_lix2_pointUncertaintyCircle = -1;   /* PointUncertaintyCircle */
-static int hf_lix2_pointUncertaintyEllipse = -1;  /* PointUncertaintyEllipse */
-static int hf_lix2_polygon = -1;                  /* Polygon */
-static int hf_lix2_pointAltitude = -1;            /* PointAltitude */
-static int hf_lix2_pointAltitudeUncertainty = -1;  /* PointAltitudeUncertainty */
-static int hf_lix2_ellipsoidArc = -1;             /* EllipsoidArc */
-static int hf_lix2_horVelocity = -1;              /* HorizontalVelocity */
-static int hf_lix2_horWithVertVelocity = -1;      /* HorizontalWithVerticalVelocity */
-static int hf_lix2_horVelocityWithUncertainty = -1;  /* HorizontalVelocityWithUncertainty */
-static int hf_lix2_horWithVertVelocityAndUncertainty = -1;  /* HorizontalWithVerticalVelocityAndUncertainty */
-static int hf_lix2_country = -1;                  /* UTF8String */
-static int hf_lix2_a1 = -1;                       /* UTF8String */
-static int hf_lix2_a2 = -1;                       /* UTF8String */
-static int hf_lix2_a3 = -1;                       /* UTF8String */
-static int hf_lix2_a4 = -1;                       /* UTF8String */
-static int hf_lix2_a5 = -1;                       /* UTF8String */
-static int hf_lix2_a6 = -1;                       /* UTF8String */
-static int hf_lix2_prd = -1;                      /* UTF8String */
-static int hf_lix2_pod = -1;                      /* UTF8String */
-static int hf_lix2_sts = -1;                      /* UTF8String */
-static int hf_lix2_hno = -1;                      /* UTF8String */
-static int hf_lix2_hns = -1;                      /* UTF8String */
-static int hf_lix2_lmk = -1;                      /* UTF8String */
-static int hf_lix2_loc = -1;                      /* UTF8String */
-static int hf_lix2_nam = -1;                      /* UTF8String */
-static int hf_lix2_pc = -1;                       /* UTF8String */
-static int hf_lix2_bld = -1;                      /* UTF8String */
-static int hf_lix2_unit = -1;                     /* UTF8String */
-static int hf_lix2_flr = -1;                      /* UTF8String */
-static int hf_lix2_room = -1;                     /* UTF8String */
-static int hf_lix2_plc = -1;                      /* UTF8String */
-static int hf_lix2_pcn = -1;                      /* UTF8String */
-static int hf_lix2_pobox = -1;                    /* UTF8String */
-static int hf_lix2_addcode = -1;                  /* UTF8String */
-static int hf_lix2_seat = -1;                     /* UTF8String */
-static int hf_lix2_rd = -1;                       /* UTF8String */
-static int hf_lix2_rdsec = -1;                    /* UTF8String */
-static int hf_lix2_rdbr = -1;                     /* UTF8String */
-static int hf_lix2_rdsubbr = -1;                  /* UTF8String */
-static int hf_lix2_prm = -1;                      /* UTF8String */
-static int hf_lix2_pom = -1;                      /* UTF8String */
-static int hf_lix2_method = -1;                   /* PositioningMethod */
-static int hf_lix2_mode = -1;                     /* PositioningMode */
-static int hf_lix2_usage = -1;                    /* Usage */
-static int hf_lix2_methodCode = -1;               /* MethodCode */
-static int hf_lix2_gNSS = -1;                     /* GNSSID */
-static int hf_lix2_uncertainty = -1;              /* Uncertainty */
-static int hf_lix2_uncertainty_01 = -1;           /* UncertaintyEllipse */
-static int hf_lix2_confidence = -1;               /* Confidence */
-static int hf_lix2_pointList = -1;                /* SET_SIZE_3_15_OF_GeographicalCoordinates */
-static int hf_lix2_pointList_item = -1;           /* GeographicalCoordinates */
-static int hf_lix2_point_01 = -1;                 /* GeographicalCoordinates */
-static int hf_lix2_uncertaintyEllipse = -1;       /* UncertaintyEllipse */
-static int hf_lix2_uncertaintyAltitude = -1;      /* Uncertainty */
-static int hf_lix2_innerRadius = -1;              /* InnerRadius */
-static int hf_lix2_uncertaintyRadius = -1;        /* Uncertainty */
-static int hf_lix2_offsetAngle = -1;              /* Angle */
-static int hf_lix2_includedAngle = -1;            /* Angle */
-static int hf_lix2_latitude = -1;                 /* UTF8String */
-static int hf_lix2_longitude = -1;                /* UTF8String */
-static int hf_lix2_mapDatumInformation = -1;      /* OGCURN */
-static int hf_lix2_semiMajor = -1;                /* Uncertainty */
-static int hf_lix2_semiMinor = -1;                /* Uncertainty */
-static int hf_lix2_orientationMajor = -1;         /* Orientation */
-static int hf_lix2_hSpeed = -1;                   /* HorizontalSpeed */
-static int hf_lix2_bearing = -1;                  /* Angle */
-static int hf_lix2_vSpeed = -1;                   /* VerticalSpeed */
-static int hf_lix2_vDirection = -1;               /* VerticalDirection */
-static int hf_lix2_uncertainty_02 = -1;           /* SpeedUncertainty */
-static int hf_lix2_hUncertainty = -1;             /* SpeedUncertainty */
-static int hf_lix2_vUncertainty = -1;             /* SpeedUncertainty */
+static int hf_lix2_XIRIPayload_PDU;               /* XIRIPayload */
+static int hf_lix2_xIRIPayloadOID;                /* RELATIVE_OID */
+static int hf_lix2_event;                         /* XIRIEvent */
+static int hf_lix2_registration;                  /* AMFRegistration */
+static int hf_lix2_deregistration;                /* AMFDeregistration */
+static int hf_lix2_locationUpdate;                /* AMFLocationUpdate */
+static int hf_lix2_startOfInterceptionWithRegisteredUE;  /* AMFStartOfInterceptionWithRegisteredUE */
+static int hf_lix2_unsuccessfulAMProcedure;       /* AMFUnsuccessfulProcedure */
+static int hf_lix2_pDUSessionEstablishment;       /* SMFPDUSessionEstablishment */
+static int hf_lix2_pDUSessionModification;        /* SMFPDUSessionModification */
+static int hf_lix2_pDUSessionRelease;             /* SMFPDUSessionRelease */
+static int hf_lix2_startOfInterceptionWithEstablishedPDUSession;  /* SMFStartOfInterceptionWithEstablishedPDUSession */
+static int hf_lix2_unsuccessfulSMProcedure;       /* SMFUnsuccessfulProcedure */
+static int hf_lix2_servingSystemMessage;          /* UDMServingSystemMessage */
+static int hf_lix2_sMSMessage;                    /* SMSMessage */
+static int hf_lix2_lALSReport;                    /* LALSReport */
+static int hf_lix2_pDHeaderReport;                /* PDHeaderReport */
+static int hf_lix2_pDSummaryReport;               /* PDSummaryReport */
+static int hf_lix2_mMSSend;                       /* MMSSend */
+static int hf_lix2_mMSSendByNonLocalTarget;       /* MMSSendByNonLocalTarget */
+static int hf_lix2_mMSNotification;               /* MMSNotification */
+static int hf_lix2_mMSSendToNonLocalTarget;       /* MMSSendToNonLocalTarget */
+static int hf_lix2_mMSNotificationResponse;       /* MMSNotificationResponse */
+static int hf_lix2_mMSRetrieval;                  /* MMSRetrieval */
+static int hf_lix2_mMSDeliveryAck;                /* MMSDeliveryAck */
+static int hf_lix2_mMSForward;                    /* MMSForward */
+static int hf_lix2_mMSDeleteFromRelay;            /* MMSDeleteFromRelay */
+static int hf_lix2_mMSDeliveryReport;             /* MMSDeliveryReport */
+static int hf_lix2_mMSDeliveryReportNonLocalTarget;  /* MMSDeliveryReportNonLocalTarget */
+static int hf_lix2_mMSReadReport;                 /* MMSReadReport */
+static int hf_lix2_mMSReadReportNonLocalTarget;   /* MMSReadReportNonLocalTarget */
+static int hf_lix2_mMSCancel;                     /* MMSCancel */
+static int hf_lix2_mMSMBoxStore;                  /* MMSMBoxStore */
+static int hf_lix2_mMSMBoxUpload;                 /* MMSMBoxUpload */
+static int hf_lix2_mMSMBoxDelete;                 /* MMSMBoxDelete */
+static int hf_lix2_mMSMBoxViewRequest;            /* MMSMBoxViewRequest */
+static int hf_lix2_mMSMBoxViewResponse;           /* MMSMBoxViewResponse */
+static int hf_lix2_pTCRegistration;               /* PTCRegistration */
+static int hf_lix2_pTCSessionInitiation;          /* PTCSessionInitiation */
+static int hf_lix2_pTCSessionAbandon;             /* PTCSessionAbandon */
+static int hf_lix2_pTCSessionStart;               /* PTCSessionStart */
+static int hf_lix2_pTCSessionEnd;                 /* PTCSessionEnd */
+static int hf_lix2_pTCStartOfInterception;        /* PTCStartOfInterception */
+static int hf_lix2_pTCPreEstablishedSession;      /* PTCPreEstablishedSession */
+static int hf_lix2_pTCInstantPersonalAlert;       /* PTCInstantPersonalAlert */
+static int hf_lix2_pTCPartyJoin;                  /* PTCPartyJoin */
+static int hf_lix2_pTCPartyDrop;                  /* PTCPartyDrop */
+static int hf_lix2_pTCPartyHold;                  /* PTCPartyHold */
+static int hf_lix2_pTCMediaModification;          /* PTCMediaModification */
+static int hf_lix2_pTCGroupAdvertisement;         /* PTCGroupAdvertisement */
+static int hf_lix2_pTCFloorControl;               /* PTCFloorControl */
+static int hf_lix2_pTCTargetPresence;             /* PTCTargetPresence */
+static int hf_lix2_pTCParticipantPresence;        /* PTCParticipantPresence */
+static int hf_lix2_pTCListManagement;             /* PTCListManagement */
+static int hf_lix2_pTCAccessPolicy;               /* PTCAccessPolicy */
+static int hf_lix2_subscriberRecordChangeMessage;  /* UDMSubscriberRecordChangeMessage */
+static int hf_lix2_cancelLocationMessage;         /* UDMCancelLocationMessage */
+static int hf_lix2_sMSReport;                     /* SMSReport */
+static int hf_lix2_sMFMAPDUSessionEstablishment;  /* SMFMAPDUSessionEstablishment */
+static int hf_lix2_sMFMAPDUSessionModification;   /* SMFMAPDUSessionModification */
+static int hf_lix2_sMFMAPDUSessionRelease;        /* SMFMAPDUSessionRelease */
+static int hf_lix2_startOfInterceptionWithEstablishedMAPDUSession;  /* SMFStartOfInterceptionWithEstablishedMAPDUSession */
+static int hf_lix2_unsuccessfulMASMProcedure;     /* SMFMAUnsuccessfulProcedure */
+static int hf_lix2_aMFIdentifierAssocation;       /* AMFIdentifierAssocation */
+static int hf_lix2_mMEIdentifierAssocation;       /* MMEIdentifierAssocation */
+static int hf_lix2_sMFPDUtoMAPDUSessionModification;  /* SMFPDUtoMAPDUSessionModification */
+static int hf_lix2_nEFPDUSessionEstablishment;    /* NEFPDUSessionEstablishment */
+static int hf_lix2_nEFPDUSessionModification;     /* NEFPDUSessionModification */
+static int hf_lix2_nEFPDUSessionRelease;          /* NEFPDUSessionRelease */
+static int hf_lix2_nEFUnsuccessfulProcedure;      /* NEFUnsuccessfulProcedure */
+static int hf_lix2_nEFStartOfInterceptionWithEstablishedPDUSession;  /* NEFStartOfInterceptionWithEstablishedPDUSession */
+static int hf_lix2_nEFdeviceTrigger;              /* NEFDeviceTrigger */
+static int hf_lix2_nEFdeviceTriggerReplace;       /* NEFDeviceTriggerReplace */
+static int hf_lix2_nEFdeviceTriggerCancellation;  /* NEFDeviceTriggerCancellation */
+static int hf_lix2_nEFdeviceTriggerReportNotify;  /* NEFDeviceTriggerReportNotify */
+static int hf_lix2_nEFMSISDNLessMOSMS;            /* NEFMSISDNLessMOSMS */
+static int hf_lix2_nEFExpectedUEBehaviourUpdate;  /* NEFExpectedUEBehaviourUpdate */
+static int hf_lix2_sCEFPDNConnectionEstablishment;  /* SCEFPDNConnectionEstablishment */
+static int hf_lix2_sCEFPDNConnectionUpdate;       /* SCEFPDNConnectionUpdate */
+static int hf_lix2_sCEFPDNConnectionRelease;      /* SCEFPDNConnectionRelease */
+static int hf_lix2_sCEFUnsuccessfulProcedure;     /* SCEFUnsuccessfulProcedure */
+static int hf_lix2_sCEFStartOfInterceptionWithEstablishedPDNConnection;  /* SCEFStartOfInterceptionWithEstablishedPDNConnection */
+static int hf_lix2_sCEFdeviceTrigger;             /* SCEFDeviceTrigger */
+static int hf_lix2_sCEFdeviceTriggerReplace;      /* SCEFDeviceTriggerReplace */
+static int hf_lix2_sCEFdeviceTriggerCancellation;  /* SCEFDeviceTriggerCancellation */
+static int hf_lix2_sCEFdeviceTriggerReportNotify;  /* SCEFDeviceTriggerReportNotify */
+static int hf_lix2_sCEFMSISDNLessMOSMS;           /* SCEFMSISDNLessMOSMS */
+static int hf_lix2_sCEFCommunicationPatternUpdate;  /* SCEFCommunicationPatternUpdate */
+static int hf_lix2_mMEAttach;                     /* MMEAttach */
+static int hf_lix2_mMEDetach;                     /* MMEDetach */
+static int hf_lix2_mMELocationUpdate;             /* MMELocationUpdate */
+static int hf_lix2_mMEStartOfInterceptionWithEPSAttachedUE;  /* MMEStartOfInterceptionWithEPSAttachedUE */
+static int hf_lix2_mMEUnsuccessfulProcedure;      /* MMEUnsuccessfulProcedure */
+static int hf_lix2_iRIPayloadOID;                 /* RELATIVE_OID */
+static int hf_lix2_event_01;                      /* IRIEvent */
+static int hf_lix2_targetIdentifiers;             /* SEQUENCE_OF_IRITargetIdentifier */
+static int hf_lix2_targetIdentifiers_item;        /* IRITargetIdentifier */
+static int hf_lix2_unsuccessfulRegistrationProcedure;  /* AMFUnsuccessfulProcedure */
+static int hf_lix2_unsuccessfulSessionProcedure;  /* SMFUnsuccessfulProcedure */
+static int hf_lix2_mDFCellSiteReport;             /* MDFCellSiteReport */
+static int hf_lix2_identifier;                    /* TargetIdentifier */
+static int hf_lix2_provenance;                    /* TargetIdentifierProvenance */
+static int hf_lix2_cCPayloadOID;                  /* RELATIVE_OID */
+static int hf_lix2_pDU;                           /* CCPDU */
+static int hf_lix2_uPFCCPDU;                      /* UPFCCPDU */
+static int hf_lix2_extendedUPFCCPDU;              /* ExtendedUPFCCPDU */
+static int hf_lix2_mMSCCPDU;                      /* MMSCCPDU */
+static int hf_lix2_nIDDCCPDU;                     /* NIDDCCPDU */
+static int hf_lix2_lINotificationPayloadOID;      /* RELATIVE_OID */
+static int hf_lix2_notification;                  /* LINotificationMessage */
+static int hf_lix2_lINotification;                /* LINotification */
+static int hf_lix2_sUPI;                          /* SUPI */
+static int hf_lix2_gPSI;                          /* GPSI */
+static int hf_lix2_pDUSessionID;                  /* PDUSessionID */
+static int hf_lix2_sNSSAI;                        /* SNSSAI */
+static int hf_lix2_nEFID;                         /* NEFID */
+static int hf_lix2_dNN;                           /* DNN */
+static int hf_lix2_rDSSupport;                    /* RDSSupport */
+static int hf_lix2_sMFID;                         /* SMFID */
+static int hf_lix2_aFID;                          /* AFID */
+static int hf_lix2_initiator;                     /* Initiator */
+static int hf_lix2_rDSSourcePortNumber;           /* RDSPortNumber */
+static int hf_lix2_rDSDestinationPortNumber;      /* RDSPortNumber */
+static int hf_lix2_applicationID;                 /* ApplicationID */
+static int hf_lix2_rDSAction;                     /* RDSAction */
+static int hf_lix2_serializationFormat;           /* SerializationFormat */
+static int hf_lix2_timeOfFirstPacket;             /* Timestamp */
+static int hf_lix2_timeOfLastPacket;              /* Timestamp */
+static int hf_lix2_uplinkVolume;                  /* INTEGER */
+static int hf_lix2_downlinkVolume;                /* INTEGER */
+static int hf_lix2_releaseCause;                  /* NEFReleaseCause */
+static int hf_lix2_failureCause;                  /* NEFFailureCause */
+static int hf_lix2_triggerId;                     /* TriggerID */
+static int hf_lix2_triggerPayload;                /* TriggerPayload */
+static int hf_lix2_validityPeriod;                /* INTEGER */
+static int hf_lix2_priorityDT;                    /* PriorityDT */
+static int hf_lix2_sourcePortId;                  /* PortNumber */
+static int hf_lix2_destinationPortId;             /* PortNumber */
+static int hf_lix2_deviceTriggerDeliveryResult;   /* DeviceTriggerDeliveryResult */
+static int hf_lix2_terminatingSMSParty;           /* AFID */
+static int hf_lix2_sMS;                           /* SMSTPDUData */
+static int hf_lix2_sourcePort;                    /* PortNumber */
+static int hf_lix2_destinationPort;               /* PortNumber */
+static int hf_lix2_expectedUEMovingTrajectory;    /* SEQUENCE_OF_UMTLocationArea5G */
+static int hf_lix2_expectedUEMovingTrajectory_item;  /* UMTLocationArea5G */
+static int hf_lix2_stationaryIndication;          /* StationaryIndication */
+static int hf_lix2_communicationDurationTime;     /* INTEGER */
+static int hf_lix2_periodicTime;                  /* INTEGER */
+static int hf_lix2_scheduledCommunicationTime;    /* ScheduledCommunicationTime */
+static int hf_lix2_scheduledCommunicationType;    /* ScheduledCommunicationType */
+static int hf_lix2_batteryIndication;             /* BatteryIndication */
+static int hf_lix2_trafficProfile;                /* TrafficProfile */
+static int hf_lix2_expectedTimeAndDayOfWeekInTrajectory;  /* SEQUENCE_OF_UMTLocationArea5G */
+static int hf_lix2_expectedTimeAndDayOfWeekInTrajectory_item;  /* UMTLocationArea5G */
+static int hf_lix2_validityTime;                  /* Timestamp */
+static int hf_lix2_days;                          /* SEQUENCE_OF_Daytime */
+static int hf_lix2_days_item;                     /* Daytime */
+static int hf_lix2_timeOfDay;                     /* Daytime */
+static int hf_lix2_durationSec;                   /* INTEGER */
+static int hf_lix2_location;                      /* NRLocation */
+static int hf_lix2_daysOfWeek;                    /* Day */
+static int hf_lix2_timeOfDayStart;                /* Timestamp */
+static int hf_lix2_timeOfDayEnd;                  /* Timestamp */
+static int hf_lix2_iMSI;                          /* IMSI */
+static int hf_lix2_mSISDN;                        /* MSISDN */
+static int hf_lix2_externalIdentifier;            /* NAI */
+static int hf_lix2_iMEI;                          /* IMEI */
+static int hf_lix2_ePSBearerID;                   /* EPSBearerID */
+static int hf_lix2_sCEFID;                        /* SCEFID */
+static int hf_lix2_aPN;                           /* APN */
+static int hf_lix2_sCSASID;                       /* SCSASID */
+static int hf_lix2_releaseCause_01;               /* SCEFReleaseCause */
+static int hf_lix2_failureCause_01;               /* SCEFFailureCause */
+static int hf_lix2_externalIdentifie;             /* NAI */
+static int hf_lix2_terminatingSMSParty_01;        /* SCSASID */
+static int hf_lix2_periodicCommunicationIndicator;  /* PeriodicCommunicationIndicator */
+static int hf_lix2_registrationType;              /* AMFRegistrationType */
+static int hf_lix2_registrationResult;            /* AMFRegistrationResult */
+static int hf_lix2_slice;                         /* Slice */
+static int hf_lix2_sUCI;                          /* SUCI */
+static int hf_lix2_pEI;                           /* PEI */
+static int hf_lix2_gUTI;                          /* FiveGGUTI */
+static int hf_lix2_location_01;                   /* Location */
+static int hf_lix2_non3GPPAccessEndpoint;         /* UEEndpointAddress */
+static int hf_lix2_fiveGSTAIList;                 /* TAIList */
+static int hf_lix2_sMSOverNasIndicator;           /* SMSOverNASIndicator */
+static int hf_lix2_oldGUTI;                       /* EPS5GGUTI */
+static int hf_lix2_eMM5GRegStatus;                /* EMM5GMMStatus */
+static int hf_lix2_deregistrationDirection;       /* AMFDirection */
+static int hf_lix2_accessType;                    /* AccessType */
+static int hf_lix2_cause;                         /* FiveGMMCause */
+static int hf_lix2_switchOffIndicator;            /* SwitchOffIndicator */
+static int hf_lix2_reRegRequiredIndicator;        /* ReRegRequiredIndicator */
+static int hf_lix2_sMSOverNASIndicator;           /* SMSOverNASIndicator */
+static int hf_lix2_timeOfRegistration;            /* Timestamp */
+static int hf_lix2_failedProcedureType;           /* AMFFailedProcedureType */
+static int hf_lix2_failureCause_02;               /* AMFFailureCause */
+static int hf_lix2_requestedSlice;                /* NSSAI */
+static int hf_lix2_aMFRegionID;                   /* AMFRegionID */
+static int hf_lix2_aMFSetID;                      /* AMFSetID */
+static int hf_lix2_aMFPointer;                    /* AMFPointer */
+static int hf_lix2_fiveGMMCause;                  /* FiveGMMCause */
+static int hf_lix2_fiveGSMCause;                  /* FiveGSMCause */
+static int hf_lix2_sUPIUnauthenticated;           /* SUPIUnauthenticatedIndication */
+static int hf_lix2_gTPTunnelID;                   /* FTEID */
+static int hf_lix2_pDUSessionType;                /* PDUSessionType */
+static int hf_lix2_uEEndpoint;                    /* SEQUENCE_OF_UEEndpointAddress */
+static int hf_lix2_uEEndpoint_item;               /* UEEndpointAddress */
+static int hf_lix2_aMFID;                         /* AMFID */
+static int hf_lix2_hSMFURI;                       /* HSMFURI */
+static int hf_lix2_requestType;                   /* FiveGSMRequestType */
+static int hf_lix2_rATType;                       /* RATType */
+static int hf_lix2_sMPDUDNRequest;                /* SMPDUDNRequest */
+static int hf_lix2_uEEPSPDNConnection;            /* UEEPSPDNConnection */
+static int hf_lix2_cause_01;                      /* SMFErrorCodes */
+static int hf_lix2_timeOfSessionEstablishment;    /* Timestamp */
+static int hf_lix2_failedProcedureType_01;        /* SMFFailedProcedureType */
+static int hf_lix2_failureCause_03;               /* FiveGSMCause */
+static int hf_lix2_requestIndication;             /* RequestIndication */
+static int hf_lix2_aTSSSContainer;                /* ATSSSContainer */
+static int hf_lix2_accessInfo;                    /* SEQUENCE_OF_AccessInfo */
+static int hf_lix2_accessInfo_item;               /* AccessInfo */
+static int hf_lix2_servingNetwork;                /* SMFServingNetwork */
+static int hf_lix2_oldPDUSessionID;               /* PDUSessionID */
+static int hf_lix2_mAUpgradeIndication;           /* SMFMAUpgradeIndication */
+static int hf_lix2_ePSPDNCnxInfo;                 /* SMFEPSPDNCnxInfo */
+static int hf_lix2_mAAcceptedIndication;          /* SMFMAAcceptedIndication */
+static int hf_lix2_pLMNID;                        /* PLMNID */
+static int hf_lix2_nID;                           /* NID */
+static int hf_lix2_establishmentStatus;           /* EstablishmentStatus */
+static int hf_lix2_aNTypeToReactivate;            /* AccessType */
+static int hf_lix2_payload;                       /* UPFCCPDUPayload */
+static int hf_lix2_qFI;                           /* QFI */
+static int hf_lix2_uPFIPCC;                       /* OCTET_STRING */
+static int hf_lix2_uPFEthernetCC;                 /* OCTET_STRING */
+static int hf_lix2_uPFUnstructuredCC;             /* OCTET_STRING */
+static int hf_lix2_gUAMI;                         /* GUAMI */
+static int hf_lix2_gUMMEI;                        /* GUMMEI */
+static int hf_lix2_servingSystemMethod;           /* UDMServingSystemMethod */
+static int hf_lix2_serviceID;                     /* ServiceID */
+static int hf_lix2_oldPEI;                        /* PEI */
+static int hf_lix2_oldSUPI;                       /* SUPI */
+static int hf_lix2_oldGPSI;                       /* GPSI */
+static int hf_lix2_oldserviceID;                  /* ServiceID */
+static int hf_lix2_subscriberRecordChangeMethod;  /* UDMSubscriberRecordChangeMethod */
+static int hf_lix2_cancelLocationMethod;          /* UDMCancelLocationMethod */
+static int hf_lix2_nSSAI;                         /* NSSAI */
+static int hf_lix2_cAGID;                         /* SEQUENCE_OF_CAGID */
+static int hf_lix2_cAGID_item;                    /* CAGID */
+static int hf_lix2_originatingSMSParty;           /* SMSParty */
+static int hf_lix2_terminatingSMSParty_02;        /* SMSParty */
+static int hf_lix2_direction;                     /* Direction */
+static int hf_lix2_linkTransferStatus;            /* SMSTransferStatus */
+static int hf_lix2_otherMessage;                  /* SMSOtherMessageIndication */
+static int hf_lix2_peerNFAddress;                 /* SMSNFAddress */
+static int hf_lix2_peerNFType;                    /* SMSNFType */
+static int hf_lix2_sMSTPDUData;                   /* SMSTPDUData */
+static int hf_lix2_messageType;                   /* SMSMessageType */
+static int hf_lix2_rPMessageReference;            /* SMSRPMessageReference */
+static int hf_lix2_sMSAddress;                    /* SMSAddress */
+static int hf_lix2_iPAddress;                     /* IPAddress */
+static int hf_lix2_e164Number;                    /* E164Number */
+static int hf_lix2_sMSTPDU;                       /* SMSTPDU */
+static int hf_lix2_truncatedSMSTPDU;              /* TruncatedSMSTPDU */
+static int hf_lix2_transactionID;                 /* UTF8String */
+static int hf_lix2_version;                       /* MMSVersion */
+static int hf_lix2_dateTime;                      /* Timestamp */
+static int hf_lix2_originatingMMSParty;           /* MMSParty */
+static int hf_lix2_terminatingMMSParty;           /* SEQUENCE_OF_MMSParty */
+static int hf_lix2_terminatingMMSParty_item;      /* MMSParty */
+static int hf_lix2_cCRecipients;                  /* SEQUENCE_OF_MMSParty */
+static int hf_lix2_cCRecipients_item;             /* MMSParty */
+static int hf_lix2_bCCRecipients;                 /* SEQUENCE_OF_MMSParty */
+static int hf_lix2_bCCRecipients_item;            /* MMSParty */
+static int hf_lix2_direction_01;                  /* MMSDirection */
+static int hf_lix2_subject;                       /* MMSSubject */
+static int hf_lix2_messageClass;                  /* MMSMessageClass */
+static int hf_lix2_expiry;                        /* MMSExpiry */
+static int hf_lix2_desiredDeliveryTime;           /* Timestamp */
+static int hf_lix2_priority;                      /* MMSPriority */
+static int hf_lix2_senderVisibility;              /* BOOLEAN */
+static int hf_lix2_deliveryReport;                /* BOOLEAN */
+static int hf_lix2_readReport;                    /* BOOLEAN */
+static int hf_lix2_store;                         /* BOOLEAN */
+static int hf_lix2_state;                         /* MMState */
+static int hf_lix2_flags;                         /* MMFlags */
+static int hf_lix2_replyCharging;                 /* MMSReplyCharging */
+static int hf_lix2_applicID;                      /* UTF8String */
+static int hf_lix2_replyApplicID;                 /* UTF8String */
+static int hf_lix2_auxApplicInfo;                 /* UTF8String */
+static int hf_lix2_contentClass;                  /* MMSContentClass */
+static int hf_lix2_dRMContent;                    /* BOOLEAN */
+static int hf_lix2_adaptationAllowed;             /* MMSAdaptation */
+static int hf_lix2_contentType;                   /* MMSContentType */
+static int hf_lix2_responseStatus;                /* MMSResponseStatus */
+static int hf_lix2_responseStatusText;            /* UTF8String */
+static int hf_lix2_messageID;                     /* UTF8String */
+static int hf_lix2_forwardCount;                  /* INTEGER */
+static int hf_lix2_previouslySentBy;              /* MMSPreviouslySentBy */
+static int hf_lix2_prevSentByDateTime;            /* Timestamp */
+static int hf_lix2_deliveryReportRequested;       /* BOOLEAN */
+static int hf_lix2_stored;                        /* BOOLEAN */
+static int hf_lix2_messageSize;                   /* INTEGER */
+static int hf_lix2_status;                        /* MMStatus */
+static int hf_lix2_reportAllowed;                 /* BOOLEAN */
+static int hf_lix2_retrieveStatus;                /* MMSRetrieveStatus */
+static int hf_lix2_retrieveStatusText;            /* UTF8String */
+static int hf_lix2_replaceID;                     /* UTF8String */
+static int hf_lix2_contentType_01;                /* UTF8String */
+static int hf_lix2_deliveryReportAllowed;         /* BOOLEAN */
+static int hf_lix2_contentLocationReq;            /* UTF8String */
+static int hf_lix2_contentLocationConf;           /* UTF8String */
+static int hf_lix2_storeStatus;                   /* MMSStoreStatus */
+static int hf_lix2_storeStatusText;               /* UTF8String */
+static int hf_lix2_contentLocationReq_01;         /* T_contentLocationReq */
+static int hf_lix2_contentLocationReq_item;       /* UTF8String */
+static int hf_lix2_contentLocationConf_01;        /* T_contentLocationConf */
+static int hf_lix2_contentLocationConf_item;      /* UTF8String */
+static int hf_lix2_deleteResponseStatus;          /* MMSDeleteResponseStatus */
+static int hf_lix2_deleteResponseText;            /* T_deleteResponseText */
+static int hf_lix2_deleteResponseText_item;       /* UTF8String */
+static int hf_lix2_contentLocation;               /* UTF8String */
+static int hf_lix2_mMessages;                     /* SEQUENCE_OF_MMBoxDescription */
+static int hf_lix2_mMessages_item;                /* MMBoxDescription */
+static int hf_lix2_contentLocationReq_02;         /* T_contentLocationReq_01 */
+static int hf_lix2_contentLocationConf_02;        /* T_contentLocationConf_01 */
+static int hf_lix2_responseStatus_01;             /* MMSDeleteResponseStatus */
+static int hf_lix2_mMSDateTime;                   /* Timestamp */
+static int hf_lix2_forwardToOriginator;           /* BOOLEAN */
+static int hf_lix2_statusExtension;               /* MMStatusExtension */
+static int hf_lix2_statusText;                    /* MMStatusText */
+static int hf_lix2_originatingMMSParty_01;        /* SEQUENCE_OF_MMSParty */
+static int hf_lix2_originatingMMSParty_item;      /* MMSParty */
+static int hf_lix2_readStatus;                    /* MMSReadStatus */
+static int hf_lix2_readStatusText;                /* MMSReadStatusText */
+static int hf_lix2_cancelID;                      /* UTF8String */
+static int hf_lix2_state_01;                      /* SEQUENCE_OF_MMState */
+static int hf_lix2_state_item;                    /* MMState */
+static int hf_lix2_flags_01;                      /* SEQUENCE_OF_MMFlags */
+static int hf_lix2_flags_item;                    /* MMFlags */
+static int hf_lix2_start;                         /* INTEGER */
+static int hf_lix2_limit;                         /* INTEGER */
+static int hf_lix2_attributes;                    /* T_attributes */
+static int hf_lix2_attributes_item;               /* UTF8String */
+static int hf_lix2_totals;                        /* INTEGER */
+static int hf_lix2_quotas;                        /* MMSQuota */
+static int hf_lix2_attributes_01;                 /* T_attributes_01 */
+static int hf_lix2_mMSTotals;                     /* BOOLEAN */
+static int hf_lix2_mMSQuotas;                     /* BOOLEAN */
+static int hf_lix2_deliveryTime;                  /* Timestamp */
+static int hf_lix2_previouslySentByDateTime;      /* Timestamp */
+static int hf_lix2_mMSContent;                    /* OCTET_STRING */
+static int hf_lix2_allowed;                       /* BOOLEAN */
+static int hf_lix2_overriden;                     /* BOOLEAN */
+static int hf_lix2_reference;                     /* UTF8String */
+static int hf_lix2_parameter;                     /* UTF8String */
+static int hf_lix2_value;                         /* UTF8String */
+static int hf_lix2_expiryPeriod;                  /* INTEGER */
+static int hf_lix2_periodFormat;                  /* MMSPeriodFormat */
+static int hf_lix2_length;                        /* INTEGER */
+static int hf_lix2_flag;                          /* MMStateFlag */
+static int hf_lix2_flagString;                    /* UTF8String */
+static int hf_lix2_mMSPartyIDs;                   /* SEQUENCE_OF_MMSPartyID */
+static int hf_lix2_mMSPartyIDs_item;              /* MMSPartyID */
+static int hf_lix2_nonLocalID;                    /* NonLocalID */
+static int hf_lix2_emailAddress;                  /* EmailAddress */
+static int hf_lix2_iMPU;                          /* IMPU */
+static int hf_lix2_iMPI;                          /* IMPI */
+static int hf_lix2_previouslySentByParty;         /* MMSParty */
+static int hf_lix2_sequenceNumber;                /* INTEGER */
+static int hf_lix2_previousSendDateTime;          /* Timestamp */
+static int hf_lix2_MMSPreviouslySentBy_item;      /* MMSPreviouslySent */
+static int hf_lix2_quota;                         /* INTEGER */
+static int hf_lix2_quotaUnit;                     /* MMSQuotaUnit */
+static int hf_lix2_majorVersion;                  /* INTEGER */
+static int hf_lix2_minorVersion;                  /* INTEGER */
+static int hf_lix2_pTCTargetInformation;          /* PTCTargetInformation */
+static int hf_lix2_pTCServerURI;                  /* UTF8String */
+static int hf_lix2_pTCRegistrationRequest;        /* PTCRegistrationRequest */
+static int hf_lix2_pTCRegistrationOutcome;        /* PTCRegistrationOutcome */
+static int hf_lix2_pTCDirection;                  /* Direction */
+static int hf_lix2_pTCSessionInfo;                /* PTCSessionInfo */
+static int hf_lix2_pTCOriginatingID;              /* PTCTargetInformation */
+static int hf_lix2_pTCParticipants;               /* SEQUENCE_OF_PTCTargetInformation */
+static int hf_lix2_pTCParticipants_item;          /* PTCTargetInformation */
+static int hf_lix2_pTCParticipantPresenceStatus;  /* MultipleParticipantPresenceStatus */
+static int hf_lix2_pTCBearerCapability;           /* UTF8String */
+static int hf_lix2_pTCHost;                       /* PTCTargetInformation */
+static int hf_lix2_pTCAbandonCause;               /* INTEGER */
+static int hf_lix2_pTCSessionEndCause;            /* PTCSessionEndCause */
+static int hf_lix2_preEstSessionID;               /* PTCSessionInfo */
+static int hf_lix2_pTCMediaStreamAvail;           /* BOOLEAN */
+static int hf_lix2_rTPSetting;                    /* RTPSetting */
+static int hf_lix2_pTCMediaCapability;            /* UTF8String */
+static int hf_lix2_pTCPreEstSessionID;            /* PTCSessionInfo */
+static int hf_lix2_pTCPreEstStatus;               /* PTCPreEstStatus */
+static int hf_lix2_pTCFailureCode;                /* PTCFailureCode */
+static int hf_lix2_pTCIPAPartyID;                 /* PTCTargetInformation */
+static int hf_lix2_pTCIPADirection;               /* Direction */
+static int hf_lix2_pTCPartyDrop_01;               /* PTCTargetInformation */
+static int hf_lix2_pTCParticipantPresenceStatus_01;  /* PTCParticipantPresenceStatus */
+static int hf_lix2_pTCHoldID;                     /* SEQUENCE_OF_PTCTargetInformation */
+static int hf_lix2_pTCHoldID_item;                /* PTCTargetInformation */
+static int hf_lix2_pTCHoldRetrieveInd;            /* BOOLEAN */
+static int hf_lix2_pTCIDList;                     /* SEQUENCE_OF_PTCTargetInformation */
+static int hf_lix2_pTCIDList_item;                /* PTCTargetInformation */
+static int hf_lix2_pTCGroupAuthRule;              /* PTCGroupAuthRule */
+static int hf_lix2_pTCGroupAdSender;              /* PTCTargetInformation */
+static int hf_lix2_pTCGroupNickname;              /* UTF8String */
+static int hf_lix2_pTCSessioninfo;                /* PTCSessionInfo */
+static int hf_lix2_pTCFloorActivity;              /* SEQUENCE_OF_PTCFloorActivity */
+static int hf_lix2_pTCFloorActivity_item;         /* PTCFloorActivity */
+static int hf_lix2_pTCFloorSpeakerID;             /* PTCTargetInformation */
+static int hf_lix2_pTCMaxTBTime;                  /* INTEGER */
+static int hf_lix2_pTCQueuedFloorControl;         /* BOOLEAN */
+static int hf_lix2_pTCQueuedPosition;             /* INTEGER */
+static int hf_lix2_pTCTalkBurstPriority;          /* PTCTBPriorityLevel */
+static int hf_lix2_pTCTalkBurstReason;            /* PTCTBReasonCode */
+static int hf_lix2_pTCTargetPresenceStatus;       /* PTCParticipantPresenceStatus */
+static int hf_lix2_pTCListManagementType;         /* PTCListManagementType */
+static int hf_lix2_pTCListManagementAction;       /* PTCListManagementAction */
+static int hf_lix2_pTCListManagementFailure;      /* PTCListManagementFailure */
+static int hf_lix2_pTCContactID;                  /* PTCTargetInformation */
+static int hf_lix2_pTCIDList_01;                  /* SEQUENCE_OF_PTCIDList */
+static int hf_lix2_pTCIDList_item_01;             /* PTCIDList */
+static int hf_lix2_pTCAccessPolicyType;           /* PTCAccessPolicyType */
+static int hf_lix2_pTCUserAccessPolicy;           /* PTCUserAccessPolicy */
+static int hf_lix2_pTCAccessPolicyFailure;        /* PTCAccessPolicyFailure */
+static int hf_lix2_identifiers;                   /* SEQUENCE_SIZE_1_MAX_OF_PTCIdentifiers */
+static int hf_lix2_identifiers_item;              /* PTCIdentifiers */
+static int hf_lix2_mCPTTID;                       /* UTF8String */
+static int hf_lix2_instanceIdentifierURN;         /* UTF8String */
+static int hf_lix2_pTCChatGroupID;                /* PTCChatGroupID */
+static int hf_lix2_pTCSessionURI;                 /* UTF8String */
+static int hf_lix2_pTCSessionType;                /* PTCSessionType */
+static int hf_lix2_MultipleParticipantPresenceStatus_item;  /* PTCParticipantPresenceStatus */
+static int hf_lix2_presenceID;                    /* PTCTargetInformation */
+static int hf_lix2_presenceType;                  /* PTCPresenceType */
+static int hf_lix2_presenceStatus;                /* BOOLEAN */
+static int hf_lix2_portNumber;                    /* PortNumber */
+static int hf_lix2_pTCPartyID;                    /* PTCTargetInformation */
+static int hf_lix2_groupIdentity;                 /* UTF8String */
+static int hf_lix2_sourceIPAddress;               /* IPAddress */
+static int hf_lix2_destinationIPAddress;          /* IPAddress */
+static int hf_lix2_nextLayerProtocol;             /* NextLayerProtocol */
+static int hf_lix2_iPv6flowLabel;                 /* IPv6FlowLabel */
+static int hf_lix2_packetSize;                    /* INTEGER */
+static int hf_lix2_pDSRSummaryTrigger;            /* PDSRSummaryTrigger */
+static int hf_lix2_firstPacketTimestamp;          /* Timestamp */
+static int hf_lix2_lastPacketTimestamp;           /* Timestamp */
+static int hf_lix2_packetCount;                   /* INTEGER */
+static int hf_lix2_byteCount;                     /* INTEGER */
+static int hf_lix2_gUTI_01;                       /* GUTI */
+static int hf_lix2_tAIList;                       /* TAIList */
+static int hf_lix2_attachType;                    /* EPSAttachType */
+static int hf_lix2_attachResult;                  /* EPSAttachResult */
+static int hf_lix2_ePSTAIList;                    /* TAIList */
+static int hf_lix2_sMSServiceStatus;              /* EPSSMSServiceStatus */
+static int hf_lix2_oldGUTI_01;                    /* GUTI */
+static int hf_lix2_detachDirection;               /* MMEDirection */
+static int hf_lix2_detachType;                    /* EPSDetachType */
+static int hf_lix2_cause_02;                      /* EMMCause */
+static int hf_lix2_failedProcedureType_02;        /* MMEFailedProcedureType */
+static int hf_lix2_failureCause_04;               /* MMEFailureCause */
+static int hf_lix2_eMMCause;                      /* EMMCause */
+static int hf_lix2_eSMCause;                      /* ESMCause */
+static int hf_lix2_notificationType;              /* LINotificationType */
+static int hf_lix2_appliedTargetID;               /* TargetIdentifier */
+static int hf_lix2_appliedDeliveryInformation;    /* SEQUENCE_OF_LIAppliedDeliveryInformation */
+static int hf_lix2_appliedDeliveryInformation_item;  /* LIAppliedDeliveryInformation */
+static int hf_lix2_appliedStartTime;              /* Timestamp */
+static int hf_lix2_appliedEndTime;                /* Timestamp */
+static int hf_lix2_hI2DeliveryIPAddress;          /* IPAddress */
+static int hf_lix2_hI2DeliveryPortNumber;         /* PortNumber */
+static int hf_lix2_hI3DeliveryIPAddress;          /* IPAddress */
+static int hf_lix2_hI3DeliveryPortNumber;         /* PortNumber */
+static int hf_lix2_MDFCellSiteReport_item;        /* CellInformation */
+static int hf_lix2_eMMRegStatus;                  /* EMMRegStatus */
+static int hf_lix2_fiveGMMStatus;                 /* FiveGMMStatus */
+static int hf_lix2_fiveGGUTI;                     /* FiveGGUTI */
+static int hf_lix2_mCC;                           /* MCC */
+static int hf_lix2_mNC;                           /* MNC */
+static int hf_lix2_fiveGTMSI;                     /* FiveGTMSI */
+static int hf_lix2_tEID;                          /* INTEGER_0_4294967295 */
+static int hf_lix2_iPv4Address;                   /* IPv4Address */
+static int hf_lix2_iPv6Address;                   /* IPv6Address */
+static int hf_lix2_nAI;                           /* NAI */
+static int hf_lix2_mMEID;                         /* MMEID */
+static int hf_lix2_mMEGroupID;                    /* MMEGroupID */
+static int hf_lix2_mMECode;                       /* MMECode */
+static int hf_lix2_mTMSI;                         /* TMSI */
+static int hf_lix2_sIPURI;                        /* SIPURI */
+static int hf_lix2_tELURI;                        /* TELURI */
+static int hf_lix2_mMEGI;                         /* MMEGI */
+static int hf_lix2_mMEC;                          /* MMEC */
+static int hf_lix2_NSSAI_item;                    /* SNSSAI */
+static int hf_lix2_iMEISV;                        /* IMEISV */
+static int hf_lix2_RejectedNSSAI_item;            /* RejectedSNSSAI */
+static int hf_lix2_causeValue;                    /* RejectedSliceCauseValue */
+static int hf_lix2_allowedNSSAI;                  /* NSSAI */
+static int hf_lix2_configuredNSSAI;               /* NSSAI */
+static int hf_lix2_rejectedNSSAI;                 /* RejectedNSSAI */
+static int hf_lix2_sliceServiceType;              /* INTEGER_0_255 */
+static int hf_lix2_sliceDifferentiator;           /* OCTET_STRING_SIZE_3 */
+static int hf_lix2_routingIndicator;              /* RoutingIndicator */
+static int hf_lix2_protectionSchemeID;            /* ProtectionSchemeID */
+static int hf_lix2_homeNetworkPublicKeyID;        /* HomeNetworkPublicKeyID */
+static int hf_lix2_schemeOutput;                  /* SchemeOutput */
+static int hf_lix2_ethernetAddress;               /* MACAddress */
+static int hf_lix2_locationInfo;                  /* LocationInfo */
+static int hf_lix2_positioningInfo;               /* PositioningInfo */
+static int hf_lix2_locationPresenceReport;        /* LocationPresenceReport */
+static int hf_lix2_ePSLocationInfo;               /* EPSLocationInfo */
+static int hf_lix2_geographicalCoordinates;       /* GeographicalCoordinates */
+static int hf_lix2_azimuth;                       /* INTEGER_0_359 */
+static int hf_lix2_operatorSpecificInformation;   /* UTF8String */
+static int hf_lix2_userLocation;                  /* UserLocation */
+static int hf_lix2_currentLoc;                    /* BOOLEAN */
+static int hf_lix2_geoInfo;                       /* GeographicArea */
+static int hf_lix2_timeZone;                      /* TimeZone */
+static int hf_lix2_additionalCellIDs;             /* SEQUENCE_OF_CellInformation */
+static int hf_lix2_additionalCellIDs_item;        /* CellInformation */
+static int hf_lix2_eUTRALocation;                 /* EUTRALocation */
+static int hf_lix2_nRLocation;                    /* NRLocation */
+static int hf_lix2_n3GALocation;                  /* N3GALocation */
+static int hf_lix2_tAI;                           /* TAI */
+static int hf_lix2_eCGI;                          /* ECGI */
+static int hf_lix2_ageOfLocationInfo;             /* INTEGER */
+static int hf_lix2_uELocationTimestamp;           /* Timestamp */
+static int hf_lix2_geographicalInformation;       /* UTF8String */
+static int hf_lix2_geodeticInformation;           /* UTF8String */
+static int hf_lix2_globalNGENbID;                 /* GlobalRANNodeID */
+static int hf_lix2_cellSiteInformation;           /* CellSiteInformation */
+static int hf_lix2_globalENbID;                   /* GlobalRANNodeID */
+static int hf_lix2_nCGI;                          /* NCGI */
+static int hf_lix2_globalGNbID;                   /* GlobalRANNodeID */
+static int hf_lix2_n3IWFID;                       /* N3IWFIDNGAP */
+static int hf_lix2_uEIPAddr;                      /* IPAddr */
+static int hf_lix2_portNumber_01;                 /* INTEGER */
+static int hf_lix2_tNAPID;                        /* TNAPID */
+static int hf_lix2_tWAPID;                        /* TWAPID */
+static int hf_lix2_hFCNodeID;                     /* HFCNodeID */
+static int hf_lix2_gLI;                           /* GLI */
+static int hf_lix2_w5GBANLineType;                /* W5GBANLineType */
+static int hf_lix2_gCI;                           /* GCI */
+static int hf_lix2_iPv4Addr;                      /* IPv4Address */
+static int hf_lix2_iPv6Addr;                      /* IPv6Address */
+static int hf_lix2_aNNodeID;                      /* ANNodeID */
+static int hf_lix2_n3IWFID_01;                    /* N3IWFIDSBI */
+static int hf_lix2_gNbID;                         /* GNbID */
+static int hf_lix2_nGENbID;                       /* NGENbID */
+static int hf_lix2_eNbID;                         /* ENbID */
+static int hf_lix2_wAGFID;                        /* WAGFID */
+static int hf_lix2_tNGFID;                        /* TNGFID */
+static int hf_lix2_tAC;                           /* TAC */
+static int hf_lix2_lAI;                           /* LAI */
+static int hf_lix2_cellID;                        /* CellID */
+static int hf_lix2_lAC;                           /* LAC */
+static int hf_lix2_sAC;                           /* SAC */
+static int hf_lix2_eUTRACellID;                   /* EUTRACellID */
+static int hf_lix2_TAIList_item;                  /* TAI */
+static int hf_lix2_nRCellID;                      /* NRCellID */
+static int hf_lix2_rANCGI;                        /* RANCGI */
+static int hf_lix2_cellSiteinformation;           /* CellSiteInformation */
+static int hf_lix2_timeOfLocation;                /* Timestamp */
+static int hf_lix2_sSID;                          /* SSID */
+static int hf_lix2_bSSID;                         /* BSSID */
+static int hf_lix2_civicAddress;                  /* CivicAddressBytes */
+static int hf_lix2_macroNGENbID;                  /* BIT_STRING_SIZE_20 */
+static int hf_lix2_shortMacroNGENbID;             /* BIT_STRING_SIZE_18 */
+static int hf_lix2_longMacroNGENbID;              /* BIT_STRING_SIZE_21 */
+static int hf_lix2_macroENbID;                    /* BIT_STRING_SIZE_20 */
+static int hf_lix2_homeENbID;                     /* BIT_STRING_SIZE_28 */
+static int hf_lix2_shortMacroENbID;               /* BIT_STRING_SIZE_18 */
+static int hf_lix2_longMacroENbID;                /* BIT_STRING_SIZE_21 */
+static int hf_lix2_positionInfo;                  /* LocationData */
+static int hf_lix2_rawMLPResponse;                /* RawMLPResponse */
+static int hf_lix2_mLPPositionData;               /* UTF8String */
+static int hf_lix2_mLPErrorCode;                  /* INTEGER_1_699 */
+static int hf_lix2_locationEstimate;              /* GeographicArea */
+static int hf_lix2_accuracyFulfilmentIndicator;   /* AccuracyFulfilmentIndicator */
+static int hf_lix2_ageOfLocationEstimate;         /* AgeOfLocationEstimate */
+static int hf_lix2_velocityEstimate;              /* VelocityEstimate */
+static int hf_lix2_civicAddress_01;               /* CivicAddress */
+static int hf_lix2_positioningDataList;           /* SET_OF_PositioningMethodAndUsage */
+static int hf_lix2_positioningDataList_item;      /* PositioningMethodAndUsage */
+static int hf_lix2_gNSSPositioningDataList;       /* SET_OF_GNSSPositioningMethodAndUsage */
+static int hf_lix2_gNSSPositioningDataList_item;  /* GNSSPositioningMethodAndUsage */
+static int hf_lix2_altitude;                      /* Altitude */
+static int hf_lix2_barometricPressure;            /* BarometricPressure */
+static int hf_lix2_locationData;                  /* LocationData */
+static int hf_lix2_cGI;                           /* CGI */
+static int hf_lix2_sAI;                           /* SAI */
+static int hf_lix2_eSMLCCellInfo;                 /* ESMLCCellInfo */
+static int hf_lix2_cellPortionID;                 /* CellPortionID */
+static int hf_lix2_type;                          /* AMFEventType */
+static int hf_lix2_timestamp;                     /* Timestamp */
+static int hf_lix2_areaList;                      /* SET_OF_AMFEventArea */
+static int hf_lix2_areaList_item;                 /* AMFEventArea */
+static int hf_lix2_accessTypes;                   /* SET_OF_AccessType */
+static int hf_lix2_accessTypes_item;              /* AccessType */
+static int hf_lix2_rMInfoList;                    /* SET_OF_RMInfo */
+static int hf_lix2_rMInfoList_item;               /* RMInfo */
+static int hf_lix2_cMInfoList;                    /* SET_OF_CMInfo */
+static int hf_lix2_cMInfoList_item;               /* CMInfo */
+static int hf_lix2_reachability;                  /* UEReachability */
+static int hf_lix2_location_02;                   /* UserLocation */
+static int hf_lix2_presenceInfo;                  /* PresenceInfo */
+static int hf_lix2_lADNInfo;                      /* LADNInfo */
+static int hf_lix2_presenceState;                 /* PresenceState */
+static int hf_lix2_trackingAreaList;              /* SET_OF_TAI */
+static int hf_lix2_trackingAreaList_item;         /* TAI */
+static int hf_lix2_eCGIList;                      /* SET_OF_ECGI */
+static int hf_lix2_eCGIList_item;                 /* ECGI */
+static int hf_lix2_nCGIList;                      /* SET_OF_NCGI */
+static int hf_lix2_nCGIList_item;                 /* NCGI */
+static int hf_lix2_globalRANNodeIDList;           /* SET_OF_GlobalRANNodeID */
+static int hf_lix2_globalRANNodeIDList_item;      /* GlobalRANNodeID */
+static int hf_lix2_globalENbIDList;               /* SET_OF_GlobalRANNodeID */
+static int hf_lix2_globalENbIDList_item;          /* GlobalRANNodeID */
+static int hf_lix2_lADN;                          /* UTF8String */
+static int hf_lix2_presence;                      /* PresenceState */
+static int hf_lix2_rMState;                       /* RMState */
+static int hf_lix2_cMState;                       /* CMState */
+static int hf_lix2_point;                         /* Point */
+static int hf_lix2_pointUncertaintyCircle;        /* PointUncertaintyCircle */
+static int hf_lix2_pointUncertaintyEllipse;       /* PointUncertaintyEllipse */
+static int hf_lix2_polygon;                       /* Polygon */
+static int hf_lix2_pointAltitude;                 /* PointAltitude */
+static int hf_lix2_pointAltitudeUncertainty;      /* PointAltitudeUncertainty */
+static int hf_lix2_ellipsoidArc;                  /* EllipsoidArc */
+static int hf_lix2_horVelocity;                   /* HorizontalVelocity */
+static int hf_lix2_horWithVertVelocity;           /* HorizontalWithVerticalVelocity */
+static int hf_lix2_horVelocityWithUncertainty;    /* HorizontalVelocityWithUncertainty */
+static int hf_lix2_horWithVertVelocityAndUncertainty;  /* HorizontalWithVerticalVelocityAndUncertainty */
+static int hf_lix2_country;                       /* UTF8String */
+static int hf_lix2_a1;                            /* UTF8String */
+static int hf_lix2_a2;                            /* UTF8String */
+static int hf_lix2_a3;                            /* UTF8String */
+static int hf_lix2_a4;                            /* UTF8String */
+static int hf_lix2_a5;                            /* UTF8String */
+static int hf_lix2_a6;                            /* UTF8String */
+static int hf_lix2_prd;                           /* UTF8String */
+static int hf_lix2_pod;                           /* UTF8String */
+static int hf_lix2_sts;                           /* UTF8String */
+static int hf_lix2_hno;                           /* UTF8String */
+static int hf_lix2_hns;                           /* UTF8String */
+static int hf_lix2_lmk;                           /* UTF8String */
+static int hf_lix2_loc;                           /* UTF8String */
+static int hf_lix2_nam;                           /* UTF8String */
+static int hf_lix2_pc;                            /* UTF8String */
+static int hf_lix2_bld;                           /* UTF8String */
+static int hf_lix2_unit;                          /* UTF8String */
+static int hf_lix2_flr;                           /* UTF8String */
+static int hf_lix2_room;                          /* UTF8String */
+static int hf_lix2_plc;                           /* UTF8String */
+static int hf_lix2_pcn;                           /* UTF8String */
+static int hf_lix2_pobox;                         /* UTF8String */
+static int hf_lix2_addcode;                       /* UTF8String */
+static int hf_lix2_seat;                          /* UTF8String */
+static int hf_lix2_rd;                            /* UTF8String */
+static int hf_lix2_rdsec;                         /* UTF8String */
+static int hf_lix2_rdbr;                          /* UTF8String */
+static int hf_lix2_rdsubbr;                       /* UTF8String */
+static int hf_lix2_prm;                           /* UTF8String */
+static int hf_lix2_pom;                           /* UTF8String */
+static int hf_lix2_method;                        /* PositioningMethod */
+static int hf_lix2_mode;                          /* PositioningMode */
+static int hf_lix2_usage;                         /* Usage */
+static int hf_lix2_methodCode;                    /* MethodCode */
+static int hf_lix2_gNSS;                          /* GNSSID */
+static int hf_lix2_uncertainty;                   /* Uncertainty */
+static int hf_lix2_uncertainty_01;                /* UncertaintyEllipse */
+static int hf_lix2_confidence;                    /* Confidence */
+static int hf_lix2_pointList;                     /* SET_SIZE_3_15_OF_GeographicalCoordinates */
+static int hf_lix2_pointList_item;                /* GeographicalCoordinates */
+static int hf_lix2_point_01;                      /* GeographicalCoordinates */
+static int hf_lix2_uncertaintyEllipse;            /* UncertaintyEllipse */
+static int hf_lix2_uncertaintyAltitude;           /* Uncertainty */
+static int hf_lix2_innerRadius;                   /* InnerRadius */
+static int hf_lix2_uncertaintyRadius;             /* Uncertainty */
+static int hf_lix2_offsetAngle;                   /* Angle */
+static int hf_lix2_includedAngle;                 /* Angle */
+static int hf_lix2_latitude;                      /* UTF8String */
+static int hf_lix2_longitude;                     /* UTF8String */
+static int hf_lix2_mapDatumInformation;           /* OGCURN */
+static int hf_lix2_semiMajor;                     /* Uncertainty */
+static int hf_lix2_semiMinor;                     /* Uncertainty */
+static int hf_lix2_orientationMajor;              /* Orientation */
+static int hf_lix2_hSpeed;                        /* HorizontalSpeed */
+static int hf_lix2_bearing;                       /* Angle */
+static int hf_lix2_vSpeed;                        /* VerticalSpeed */
+static int hf_lix2_vDirection;                    /* VerticalDirection */
+static int hf_lix2_uncertainty_02;                /* SpeedUncertainty */
+static int hf_lix2_hUncertainty;                  /* SpeedUncertainty */
+static int hf_lix2_vUncertainty;                  /* SpeedUncertainty */
 
-static gint ett_lix2_XIRIPayload = -1;
-static gint ett_lix2_XIRIEvent = -1;
-static gint ett_lix2_IRIPayload = -1;
-static gint ett_lix2_SEQUENCE_OF_IRITargetIdentifier = -1;
-static gint ett_lix2_IRIEvent = -1;
-static gint ett_lix2_IRITargetIdentifier = -1;
-static gint ett_lix2_CCPayload = -1;
-static gint ett_lix2_CCPDU = -1;
-static gint ett_lix2_LINotificationPayload = -1;
-static gint ett_lix2_LINotificationMessage = -1;
-static gint ett_lix2_NEFPDUSessionEstablishment = -1;
-static gint ett_lix2_NEFPDUSessionModification = -1;
-static gint ett_lix2_NEFPDUSessionRelease = -1;
-static gint ett_lix2_NEFUnsuccessfulProcedure = -1;
-static gint ett_lix2_NEFStartOfInterceptionWithEstablishedPDUSession = -1;
-static gint ett_lix2_NEFDeviceTrigger = -1;
-static gint ett_lix2_NEFDeviceTriggerReplace = -1;
-static gint ett_lix2_NEFDeviceTriggerCancellation = -1;
-static gint ett_lix2_NEFDeviceTriggerReportNotify = -1;
-static gint ett_lix2_NEFMSISDNLessMOSMS = -1;
-static gint ett_lix2_NEFExpectedUEBehaviourUpdate = -1;
-static gint ett_lix2_SEQUENCE_OF_UMTLocationArea5G = -1;
-static gint ett_lix2_ScheduledCommunicationTime = -1;
-static gint ett_lix2_SEQUENCE_OF_Daytime = -1;
-static gint ett_lix2_UMTLocationArea5G = -1;
-static gint ett_lix2_Daytime = -1;
-static gint ett_lix2_SCEFPDNConnectionEstablishment = -1;
-static gint ett_lix2_SCEFPDNConnectionUpdate = -1;
-static gint ett_lix2_SCEFPDNConnectionRelease = -1;
-static gint ett_lix2_SCEFUnsuccessfulProcedure = -1;
-static gint ett_lix2_SCEFStartOfInterceptionWithEstablishedPDNConnection = -1;
-static gint ett_lix2_SCEFDeviceTrigger = -1;
-static gint ett_lix2_SCEFDeviceTriggerReplace = -1;
-static gint ett_lix2_SCEFDeviceTriggerCancellation = -1;
-static gint ett_lix2_SCEFDeviceTriggerReportNotify = -1;
-static gint ett_lix2_SCEFMSISDNLessMOSMS = -1;
-static gint ett_lix2_SCEFCommunicationPatternUpdate = -1;
-static gint ett_lix2_AMFRegistration = -1;
-static gint ett_lix2_AMFDeregistration = -1;
-static gint ett_lix2_AMFLocationUpdate = -1;
-static gint ett_lix2_AMFStartOfInterceptionWithRegisteredUE = -1;
-static gint ett_lix2_AMFUnsuccessfulProcedure = -1;
-static gint ett_lix2_AMFID = -1;
-static gint ett_lix2_AMFFailureCause = -1;
-static gint ett_lix2_SMFPDUSessionEstablishment = -1;
-static gint ett_lix2_SEQUENCE_OF_UEEndpointAddress = -1;
-static gint ett_lix2_SMFPDUSessionModification = -1;
-static gint ett_lix2_SMFPDUSessionRelease = -1;
-static gint ett_lix2_SMFStartOfInterceptionWithEstablishedPDUSession = -1;
-static gint ett_lix2_SMFUnsuccessfulProcedure = -1;
-static gint ett_lix2_SMFPDUtoMAPDUSessionModification = -1;
-static gint ett_lix2_SMFMAPDUSessionEstablishment = -1;
-static gint ett_lix2_SEQUENCE_OF_AccessInfo = -1;
-static gint ett_lix2_SMFMAPDUSessionModification = -1;
-static gint ett_lix2_SMFMAPDUSessionRelease = -1;
-static gint ett_lix2_SMFStartOfInterceptionWithEstablishedMAPDUSession = -1;
-static gint ett_lix2_SMFMAUnsuccessfulProcedure = -1;
-static gint ett_lix2_SMFServingNetwork = -1;
-static gint ett_lix2_AccessInfo = -1;
-static gint ett_lix2_ExtendedUPFCCPDU = -1;
-static gint ett_lix2_UPFCCPDUPayload = -1;
-static gint ett_lix2_UDMServingSystemMessage = -1;
-static gint ett_lix2_UDMSubscriberRecordChangeMessage = -1;
-static gint ett_lix2_UDMCancelLocationMessage = -1;
-static gint ett_lix2_ServiceID = -1;
-static gint ett_lix2_SEQUENCE_OF_CAGID = -1;
-static gint ett_lix2_SMSMessage = -1;
-static gint ett_lix2_SMSReport = -1;
-static gint ett_lix2_SMSParty = -1;
-static gint ett_lix2_SMSNFAddress = -1;
-static gint ett_lix2_SMSTPDUData = -1;
-static gint ett_lix2_MMSSend = -1;
-static gint ett_lix2_SEQUENCE_OF_MMSParty = -1;
-static gint ett_lix2_MMSSendByNonLocalTarget = -1;
-static gint ett_lix2_MMSNotification = -1;
-static gint ett_lix2_MMSSendToNonLocalTarget = -1;
-static gint ett_lix2_MMSNotificationResponse = -1;
-static gint ett_lix2_MMSRetrieval = -1;
-static gint ett_lix2_MMSDeliveryAck = -1;
-static gint ett_lix2_MMSForward = -1;
-static gint ett_lix2_MMSDeleteFromRelay = -1;
-static gint ett_lix2_T_contentLocationReq = -1;
-static gint ett_lix2_T_contentLocationConf = -1;
-static gint ett_lix2_T_deleteResponseText = -1;
-static gint ett_lix2_MMSMBoxStore = -1;
-static gint ett_lix2_MMSMBoxUpload = -1;
-static gint ett_lix2_SEQUENCE_OF_MMBoxDescription = -1;
-static gint ett_lix2_MMSMBoxDelete = -1;
-static gint ett_lix2_T_contentLocationReq_01 = -1;
-static gint ett_lix2_T_contentLocationConf_01 = -1;
-static gint ett_lix2_MMSDeliveryReport = -1;
-static gint ett_lix2_MMSDeliveryReportNonLocalTarget = -1;
-static gint ett_lix2_MMSReadReport = -1;
-static gint ett_lix2_MMSReadReportNonLocalTarget = -1;
-static gint ett_lix2_MMSCancel = -1;
-static gint ett_lix2_MMSMBoxViewRequest = -1;
-static gint ett_lix2_SEQUENCE_OF_MMState = -1;
-static gint ett_lix2_SEQUENCE_OF_MMFlags = -1;
-static gint ett_lix2_T_attributes = -1;
-static gint ett_lix2_MMSMBoxViewResponse = -1;
-static gint ett_lix2_T_attributes_01 = -1;
-static gint ett_lix2_MMBoxDescription = -1;
-static gint ett_lix2_MMSCCPDU = -1;
-static gint ett_lix2_MMSAdaptation = -1;
-static gint ett_lix2_MMSElementDescriptor = -1;
-static gint ett_lix2_MMSExpiry = -1;
-static gint ett_lix2_MMFlags = -1;
-static gint ett_lix2_MMSParty = -1;
-static gint ett_lix2_SEQUENCE_OF_MMSPartyID = -1;
-static gint ett_lix2_MMSPartyID = -1;
-static gint ett_lix2_MMSPreviouslySent = -1;
-static gint ett_lix2_MMSPreviouslySentBy = -1;
-static gint ett_lix2_MMSQuota = -1;
-static gint ett_lix2_MMSVersion = -1;
-static gint ett_lix2_PTCRegistration = -1;
-static gint ett_lix2_PTCSessionInitiation = -1;
-static gint ett_lix2_SEQUENCE_OF_PTCTargetInformation = -1;
-static gint ett_lix2_PTCSessionAbandon = -1;
-static gint ett_lix2_PTCSessionStart = -1;
-static gint ett_lix2_PTCSessionEnd = -1;
-static gint ett_lix2_PTCStartOfInterception = -1;
-static gint ett_lix2_PTCPreEstablishedSession = -1;
-static gint ett_lix2_PTCInstantPersonalAlert = -1;
-static gint ett_lix2_PTCPartyJoin = -1;
-static gint ett_lix2_PTCPartyDrop = -1;
-static gint ett_lix2_PTCPartyHold = -1;
-static gint ett_lix2_PTCMediaModification = -1;
-static gint ett_lix2_PTCGroupAdvertisement = -1;
-static gint ett_lix2_PTCFloorControl = -1;
-static gint ett_lix2_SEQUENCE_OF_PTCFloorActivity = -1;
-static gint ett_lix2_PTCTargetPresence = -1;
-static gint ett_lix2_PTCParticipantPresence = -1;
-static gint ett_lix2_PTCListManagement = -1;
-static gint ett_lix2_SEQUENCE_OF_PTCIDList = -1;
-static gint ett_lix2_PTCAccessPolicy = -1;
-static gint ett_lix2_PTCTargetInformation = -1;
-static gint ett_lix2_SEQUENCE_SIZE_1_MAX_OF_PTCIdentifiers = -1;
-static gint ett_lix2_PTCIdentifiers = -1;
-static gint ett_lix2_PTCSessionInfo = -1;
-static gint ett_lix2_MultipleParticipantPresenceStatus = -1;
-static gint ett_lix2_PTCParticipantPresenceStatus = -1;
-static gint ett_lix2_RTPSetting = -1;
-static gint ett_lix2_PTCIDList = -1;
-static gint ett_lix2_PTCChatGroupID = -1;
-static gint ett_lix2_LALSReport = -1;
-static gint ett_lix2_PDHeaderReport = -1;
-static gint ett_lix2_PDSummaryReport = -1;
-static gint ett_lix2_AMFIdentifierAssocation = -1;
-static gint ett_lix2_MMEIdentifierAssocation = -1;
-static gint ett_lix2_MMEAttach = -1;
-static gint ett_lix2_MMEDetach = -1;
-static gint ett_lix2_MMELocationUpdate = -1;
-static gint ett_lix2_MMEStartOfInterceptionWithEPSAttachedUE = -1;
-static gint ett_lix2_MMEUnsuccessfulProcedure = -1;
-static gint ett_lix2_MMEFailureCause = -1;
-static gint ett_lix2_LINotification = -1;
-static gint ett_lix2_SEQUENCE_OF_LIAppliedDeliveryInformation = -1;
-static gint ett_lix2_LIAppliedDeliveryInformation = -1;
-static gint ett_lix2_MDFCellSiteReport = -1;
-static gint ett_lix2_EMM5GMMStatus = -1;
-static gint ett_lix2_EPS5GGUTI = -1;
-static gint ett_lix2_FiveGGUTI = -1;
-static gint ett_lix2_FTEID = -1;
-static gint ett_lix2_GPSI = -1;
-static gint ett_lix2_GUAMI = -1;
-static gint ett_lix2_GUMMEI = -1;
-static gint ett_lix2_GUTI = -1;
-static gint ett_lix2_IMPU = -1;
-static gint ett_lix2_IPAddress = -1;
-static gint ett_lix2_MMEID = -1;
-static gint ett_lix2_NSSAI = -1;
-static gint ett_lix2_PLMNID = -1;
-static gint ett_lix2_PEI = -1;
-static gint ett_lix2_RejectedNSSAI = -1;
-static gint ett_lix2_RejectedSNSSAI = -1;
-static gint ett_lix2_Slice = -1;
-static gint ett_lix2_SNSSAI = -1;
-static gint ett_lix2_SUCI = -1;
-static gint ett_lix2_SUPI = -1;
-static gint ett_lix2_TargetIdentifier = -1;
-static gint ett_lix2_UEEndpointAddress = -1;
-static gint ett_lix2_Location = -1;
-static gint ett_lix2_CellSiteInformation = -1;
-static gint ett_lix2_LocationInfo = -1;
-static gint ett_lix2_SEQUENCE_OF_CellInformation = -1;
-static gint ett_lix2_UserLocation = -1;
-static gint ett_lix2_EUTRALocation = -1;
-static gint ett_lix2_NRLocation = -1;
-static gint ett_lix2_N3GALocation = -1;
-static gint ett_lix2_IPAddr = -1;
-static gint ett_lix2_GlobalRANNodeID = -1;
-static gint ett_lix2_ANNodeID = -1;
-static gint ett_lix2_TAI = -1;
-static gint ett_lix2_CGI = -1;
-static gint ett_lix2_LAI = -1;
-static gint ett_lix2_SAI = -1;
-static gint ett_lix2_ECGI = -1;
-static gint ett_lix2_TAIList = -1;
-static gint ett_lix2_NCGI = -1;
-static gint ett_lix2_RANCGI = -1;
-static gint ett_lix2_CellInformation = -1;
-static gint ett_lix2_TNAPID = -1;
-static gint ett_lix2_TWAPID = -1;
-static gint ett_lix2_NGENbID = -1;
-static gint ett_lix2_ENbID = -1;
-static gint ett_lix2_PositioningInfo = -1;
-static gint ett_lix2_RawMLPResponse = -1;
-static gint ett_lix2_LocationData = -1;
-static gint ett_lix2_SET_OF_PositioningMethodAndUsage = -1;
-static gint ett_lix2_SET_OF_GNSSPositioningMethodAndUsage = -1;
-static gint ett_lix2_EPSLocationInfo = -1;
-static gint ett_lix2_ESMLCCellInfo = -1;
-static gint ett_lix2_LocationPresenceReport = -1;
-static gint ett_lix2_SET_OF_AMFEventArea = -1;
-static gint ett_lix2_SET_OF_AccessType = -1;
-static gint ett_lix2_SET_OF_RMInfo = -1;
-static gint ett_lix2_SET_OF_CMInfo = -1;
-static gint ett_lix2_AMFEventArea = -1;
-static gint ett_lix2_PresenceInfo = -1;
-static gint ett_lix2_SET_OF_TAI = -1;
-static gint ett_lix2_SET_OF_ECGI = -1;
-static gint ett_lix2_SET_OF_NCGI = -1;
-static gint ett_lix2_SET_OF_GlobalRANNodeID = -1;
-static gint ett_lix2_LADNInfo = -1;
-static gint ett_lix2_RMInfo = -1;
-static gint ett_lix2_CMInfo = -1;
-static gint ett_lix2_GeographicArea = -1;
-static gint ett_lix2_VelocityEstimate = -1;
-static gint ett_lix2_CivicAddress = -1;
-static gint ett_lix2_PositioningMethodAndUsage = -1;
-static gint ett_lix2_GNSSPositioningMethodAndUsage = -1;
-static gint ett_lix2_Point = -1;
-static gint ett_lix2_PointUncertaintyCircle = -1;
-static gint ett_lix2_PointUncertaintyEllipse = -1;
-static gint ett_lix2_Polygon = -1;
-static gint ett_lix2_SET_SIZE_3_15_OF_GeographicalCoordinates = -1;
-static gint ett_lix2_PointAltitude = -1;
-static gint ett_lix2_PointAltitudeUncertainty = -1;
-static gint ett_lix2_EllipsoidArc = -1;
-static gint ett_lix2_GeographicalCoordinates = -1;
-static gint ett_lix2_UncertaintyEllipse = -1;
-static gint ett_lix2_HorizontalVelocity = -1;
-static gint ett_lix2_HorizontalWithVerticalVelocity = -1;
-static gint ett_lix2_HorizontalVelocityWithUncertainty = -1;
-static gint ett_lix2_HorizontalWithVerticalVelocityAndUncertainty = -1;
+static gint ett_lix2_XIRIPayload;
+static gint ett_lix2_XIRIEvent;
+static gint ett_lix2_IRIPayload;
+static gint ett_lix2_SEQUENCE_OF_IRITargetIdentifier;
+static gint ett_lix2_IRIEvent;
+static gint ett_lix2_IRITargetIdentifier;
+static gint ett_lix2_CCPayload;
+static gint ett_lix2_CCPDU;
+static gint ett_lix2_LINotificationPayload;
+static gint ett_lix2_LINotificationMessage;
+static gint ett_lix2_NEFPDUSessionEstablishment;
+static gint ett_lix2_NEFPDUSessionModification;
+static gint ett_lix2_NEFPDUSessionRelease;
+static gint ett_lix2_NEFUnsuccessfulProcedure;
+static gint ett_lix2_NEFStartOfInterceptionWithEstablishedPDUSession;
+static gint ett_lix2_NEFDeviceTrigger;
+static gint ett_lix2_NEFDeviceTriggerReplace;
+static gint ett_lix2_NEFDeviceTriggerCancellation;
+static gint ett_lix2_NEFDeviceTriggerReportNotify;
+static gint ett_lix2_NEFMSISDNLessMOSMS;
+static gint ett_lix2_NEFExpectedUEBehaviourUpdate;
+static gint ett_lix2_SEQUENCE_OF_UMTLocationArea5G;
+static gint ett_lix2_ScheduledCommunicationTime;
+static gint ett_lix2_SEQUENCE_OF_Daytime;
+static gint ett_lix2_UMTLocationArea5G;
+static gint ett_lix2_Daytime;
+static gint ett_lix2_SCEFPDNConnectionEstablishment;
+static gint ett_lix2_SCEFPDNConnectionUpdate;
+static gint ett_lix2_SCEFPDNConnectionRelease;
+static gint ett_lix2_SCEFUnsuccessfulProcedure;
+static gint ett_lix2_SCEFStartOfInterceptionWithEstablishedPDNConnection;
+static gint ett_lix2_SCEFDeviceTrigger;
+static gint ett_lix2_SCEFDeviceTriggerReplace;
+static gint ett_lix2_SCEFDeviceTriggerCancellation;
+static gint ett_lix2_SCEFDeviceTriggerReportNotify;
+static gint ett_lix2_SCEFMSISDNLessMOSMS;
+static gint ett_lix2_SCEFCommunicationPatternUpdate;
+static gint ett_lix2_AMFRegistration;
+static gint ett_lix2_AMFDeregistration;
+static gint ett_lix2_AMFLocationUpdate;
+static gint ett_lix2_AMFStartOfInterceptionWithRegisteredUE;
+static gint ett_lix2_AMFUnsuccessfulProcedure;
+static gint ett_lix2_AMFID;
+static gint ett_lix2_AMFFailureCause;
+static gint ett_lix2_SMFPDUSessionEstablishment;
+static gint ett_lix2_SEQUENCE_OF_UEEndpointAddress;
+static gint ett_lix2_SMFPDUSessionModification;
+static gint ett_lix2_SMFPDUSessionRelease;
+static gint ett_lix2_SMFStartOfInterceptionWithEstablishedPDUSession;
+static gint ett_lix2_SMFUnsuccessfulProcedure;
+static gint ett_lix2_SMFPDUtoMAPDUSessionModification;
+static gint ett_lix2_SMFMAPDUSessionEstablishment;
+static gint ett_lix2_SEQUENCE_OF_AccessInfo;
+static gint ett_lix2_SMFMAPDUSessionModification;
+static gint ett_lix2_SMFMAPDUSessionRelease;
+static gint ett_lix2_SMFStartOfInterceptionWithEstablishedMAPDUSession;
+static gint ett_lix2_SMFMAUnsuccessfulProcedure;
+static gint ett_lix2_SMFServingNetwork;
+static gint ett_lix2_AccessInfo;
+static gint ett_lix2_ExtendedUPFCCPDU;
+static gint ett_lix2_UPFCCPDUPayload;
+static gint ett_lix2_UDMServingSystemMessage;
+static gint ett_lix2_UDMSubscriberRecordChangeMessage;
+static gint ett_lix2_UDMCancelLocationMessage;
+static gint ett_lix2_ServiceID;
+static gint ett_lix2_SEQUENCE_OF_CAGID;
+static gint ett_lix2_SMSMessage;
+static gint ett_lix2_SMSReport;
+static gint ett_lix2_SMSParty;
+static gint ett_lix2_SMSNFAddress;
+static gint ett_lix2_SMSTPDUData;
+static gint ett_lix2_MMSSend;
+static gint ett_lix2_SEQUENCE_OF_MMSParty;
+static gint ett_lix2_MMSSendByNonLocalTarget;
+static gint ett_lix2_MMSNotification;
+static gint ett_lix2_MMSSendToNonLocalTarget;
+static gint ett_lix2_MMSNotificationResponse;
+static gint ett_lix2_MMSRetrieval;
+static gint ett_lix2_MMSDeliveryAck;
+static gint ett_lix2_MMSForward;
+static gint ett_lix2_MMSDeleteFromRelay;
+static gint ett_lix2_T_contentLocationReq;
+static gint ett_lix2_T_contentLocationConf;
+static gint ett_lix2_T_deleteResponseText;
+static gint ett_lix2_MMSMBoxStore;
+static gint ett_lix2_MMSMBoxUpload;
+static gint ett_lix2_SEQUENCE_OF_MMBoxDescription;
+static gint ett_lix2_MMSMBoxDelete;
+static gint ett_lix2_T_contentLocationReq_01;
+static gint ett_lix2_T_contentLocationConf_01;
+static gint ett_lix2_MMSDeliveryReport;
+static gint ett_lix2_MMSDeliveryReportNonLocalTarget;
+static gint ett_lix2_MMSReadReport;
+static gint ett_lix2_MMSReadReportNonLocalTarget;
+static gint ett_lix2_MMSCancel;
+static gint ett_lix2_MMSMBoxViewRequest;
+static gint ett_lix2_SEQUENCE_OF_MMState;
+static gint ett_lix2_SEQUENCE_OF_MMFlags;
+static gint ett_lix2_T_attributes;
+static gint ett_lix2_MMSMBoxViewResponse;
+static gint ett_lix2_T_attributes_01;
+static gint ett_lix2_MMBoxDescription;
+static gint ett_lix2_MMSCCPDU;
+static gint ett_lix2_MMSAdaptation;
+static gint ett_lix2_MMSElementDescriptor;
+static gint ett_lix2_MMSExpiry;
+static gint ett_lix2_MMFlags;
+static gint ett_lix2_MMSParty;
+static gint ett_lix2_SEQUENCE_OF_MMSPartyID;
+static gint ett_lix2_MMSPartyID;
+static gint ett_lix2_MMSPreviouslySent;
+static gint ett_lix2_MMSPreviouslySentBy;
+static gint ett_lix2_MMSQuota;
+static gint ett_lix2_MMSVersion;
+static gint ett_lix2_PTCRegistration;
+static gint ett_lix2_PTCSessionInitiation;
+static gint ett_lix2_SEQUENCE_OF_PTCTargetInformation;
+static gint ett_lix2_PTCSessionAbandon;
+static gint ett_lix2_PTCSessionStart;
+static gint ett_lix2_PTCSessionEnd;
+static gint ett_lix2_PTCStartOfInterception;
+static gint ett_lix2_PTCPreEstablishedSession;
+static gint ett_lix2_PTCInstantPersonalAlert;
+static gint ett_lix2_PTCPartyJoin;
+static gint ett_lix2_PTCPartyDrop;
+static gint ett_lix2_PTCPartyHold;
+static gint ett_lix2_PTCMediaModification;
+static gint ett_lix2_PTCGroupAdvertisement;
+static gint ett_lix2_PTCFloorControl;
+static gint ett_lix2_SEQUENCE_OF_PTCFloorActivity;
+static gint ett_lix2_PTCTargetPresence;
+static gint ett_lix2_PTCParticipantPresence;
+static gint ett_lix2_PTCListManagement;
+static gint ett_lix2_SEQUENCE_OF_PTCIDList;
+static gint ett_lix2_PTCAccessPolicy;
+static gint ett_lix2_PTCTargetInformation;
+static gint ett_lix2_SEQUENCE_SIZE_1_MAX_OF_PTCIdentifiers;
+static gint ett_lix2_PTCIdentifiers;
+static gint ett_lix2_PTCSessionInfo;
+static gint ett_lix2_MultipleParticipantPresenceStatus;
+static gint ett_lix2_PTCParticipantPresenceStatus;
+static gint ett_lix2_RTPSetting;
+static gint ett_lix2_PTCIDList;
+static gint ett_lix2_PTCChatGroupID;
+static gint ett_lix2_LALSReport;
+static gint ett_lix2_PDHeaderReport;
+static gint ett_lix2_PDSummaryReport;
+static gint ett_lix2_AMFIdentifierAssocation;
+static gint ett_lix2_MMEIdentifierAssocation;
+static gint ett_lix2_MMEAttach;
+static gint ett_lix2_MMEDetach;
+static gint ett_lix2_MMELocationUpdate;
+static gint ett_lix2_MMEStartOfInterceptionWithEPSAttachedUE;
+static gint ett_lix2_MMEUnsuccessfulProcedure;
+static gint ett_lix2_MMEFailureCause;
+static gint ett_lix2_LINotification;
+static gint ett_lix2_SEQUENCE_OF_LIAppliedDeliveryInformation;
+static gint ett_lix2_LIAppliedDeliveryInformation;
+static gint ett_lix2_MDFCellSiteReport;
+static gint ett_lix2_EMM5GMMStatus;
+static gint ett_lix2_EPS5GGUTI;
+static gint ett_lix2_FiveGGUTI;
+static gint ett_lix2_FTEID;
+static gint ett_lix2_GPSI;
+static gint ett_lix2_GUAMI;
+static gint ett_lix2_GUMMEI;
+static gint ett_lix2_GUTI;
+static gint ett_lix2_IMPU;
+static gint ett_lix2_IPAddress;
+static gint ett_lix2_MMEID;
+static gint ett_lix2_NSSAI;
+static gint ett_lix2_PLMNID;
+static gint ett_lix2_PEI;
+static gint ett_lix2_RejectedNSSAI;
+static gint ett_lix2_RejectedSNSSAI;
+static gint ett_lix2_Slice;
+static gint ett_lix2_SNSSAI;
+static gint ett_lix2_SUCI;
+static gint ett_lix2_SUPI;
+static gint ett_lix2_TargetIdentifier;
+static gint ett_lix2_UEEndpointAddress;
+static gint ett_lix2_Location;
+static gint ett_lix2_CellSiteInformation;
+static gint ett_lix2_LocationInfo;
+static gint ett_lix2_SEQUENCE_OF_CellInformation;
+static gint ett_lix2_UserLocation;
+static gint ett_lix2_EUTRALocation;
+static gint ett_lix2_NRLocation;
+static gint ett_lix2_N3GALocation;
+static gint ett_lix2_IPAddr;
+static gint ett_lix2_GlobalRANNodeID;
+static gint ett_lix2_ANNodeID;
+static gint ett_lix2_TAI;
+static gint ett_lix2_CGI;
+static gint ett_lix2_LAI;
+static gint ett_lix2_SAI;
+static gint ett_lix2_ECGI;
+static gint ett_lix2_TAIList;
+static gint ett_lix2_NCGI;
+static gint ett_lix2_RANCGI;
+static gint ett_lix2_CellInformation;
+static gint ett_lix2_TNAPID;
+static gint ett_lix2_TWAPID;
+static gint ett_lix2_NGENbID;
+static gint ett_lix2_ENbID;
+static gint ett_lix2_PositioningInfo;
+static gint ett_lix2_RawMLPResponse;
+static gint ett_lix2_LocationData;
+static gint ett_lix2_SET_OF_PositioningMethodAndUsage;
+static gint ett_lix2_SET_OF_GNSSPositioningMethodAndUsage;
+static gint ett_lix2_EPSLocationInfo;
+static gint ett_lix2_ESMLCCellInfo;
+static gint ett_lix2_LocationPresenceReport;
+static gint ett_lix2_SET_OF_AMFEventArea;
+static gint ett_lix2_SET_OF_AccessType;
+static gint ett_lix2_SET_OF_RMInfo;
+static gint ett_lix2_SET_OF_CMInfo;
+static gint ett_lix2_AMFEventArea;
+static gint ett_lix2_PresenceInfo;
+static gint ett_lix2_SET_OF_TAI;
+static gint ett_lix2_SET_OF_ECGI;
+static gint ett_lix2_SET_OF_NCGI;
+static gint ett_lix2_SET_OF_GlobalRANNodeID;
+static gint ett_lix2_LADNInfo;
+static gint ett_lix2_RMInfo;
+static gint ett_lix2_CMInfo;
+static gint ett_lix2_GeographicArea;
+static gint ett_lix2_VelocityEstimate;
+static gint ett_lix2_CivicAddress;
+static gint ett_lix2_PositioningMethodAndUsage;
+static gint ett_lix2_GNSSPositioningMethodAndUsage;
+static gint ett_lix2_Point;
+static gint ett_lix2_PointUncertaintyCircle;
+static gint ett_lix2_PointUncertaintyEllipse;
+static gint ett_lix2_Polygon;
+static gint ett_lix2_SET_SIZE_3_15_OF_GeographicalCoordinates;
+static gint ett_lix2_PointAltitude;
+static gint ett_lix2_PointAltitudeUncertainty;
+static gint ett_lix2_EllipsoidArc;
+static gint ett_lix2_GeographicalCoordinates;
+static gint ett_lix2_UncertaintyEllipse;
+static gint ett_lix2_HorizontalVelocity;
+static gint ett_lix2_HorizontalWithVerticalVelocity;
+static gint ett_lix2_HorizontalVelocityWithUncertainty;
+static gint ett_lix2_HorizontalWithVerticalVelocityAndUncertainty;
 
 
 

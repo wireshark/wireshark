@@ -52,224 +52,224 @@ static guint cmp_alternate_http_port = 0;
 static guint cmp_alternate_tcp_style_http_port = 0;
 
 /* Initialize the protocol and registered fields */
-static int proto_cmp = -1;
-static int hf_cmp_type_oid = -1;
-static int hf_cmp_tcptrans_len = -1;
-static int hf_cmp_tcptrans_type = -1;
-static int hf_cmp_tcptrans_poll_ref = -1;
-static int hf_cmp_tcptrans_next_poll_ref = -1;
-static int hf_cmp_tcptrans_ttcb = -1;
-static int hf_cmp_tcptrans10_version = -1;
-static int hf_cmp_tcptrans10_flags = -1;
-static int hf_cmp_PBMParameter_PDU = -1;          /* PBMParameter */
-static int hf_cmp_DHBMParameter_PDU = -1;         /* DHBMParameter */
-static int hf_cmp_CAProtEncCertValue_PDU = -1;    /* CAProtEncCertValue */
-static int hf_cmp_SignKeyPairTypesValue_PDU = -1;  /* SignKeyPairTypesValue */
-static int hf_cmp_EncKeyPairTypesValue_PDU = -1;  /* EncKeyPairTypesValue */
-static int hf_cmp_PreferredSymmAlgValue_PDU = -1;  /* PreferredSymmAlgValue */
-static int hf_cmp_CAKeyUpdateInfoValue_PDU = -1;  /* CAKeyUpdateInfoValue */
-static int hf_cmp_CurrentCRLValue_PDU = -1;       /* CurrentCRLValue */
-static int hf_cmp_UnsupportedOIDsValue_PDU = -1;  /* UnsupportedOIDsValue */
-static int hf_cmp_KeyPairParamReqValue_PDU = -1;  /* KeyPairParamReqValue */
-static int hf_cmp_KeyPairParamRepValue_PDU = -1;  /* KeyPairParamRepValue */
-static int hf_cmp_RevPassphraseValue_PDU = -1;    /* RevPassphraseValue */
-static int hf_cmp_ImplicitConfirmValue_PDU = -1;  /* ImplicitConfirmValue */
-static int hf_cmp_ConfirmWaitTimeValue_PDU = -1;  /* ConfirmWaitTimeValue */
-static int hf_cmp_OrigPKIMessageValue_PDU = -1;   /* OrigPKIMessageValue */
-static int hf_cmp_SuppLangTagsValue_PDU = -1;     /* SuppLangTagsValue */
-static int hf_cmp_x509v3PKCert = -1;              /* Certificate */
-static int hf_cmp_header = -1;                    /* PKIHeader */
-static int hf_cmp_body = -1;                      /* PKIBody */
-static int hf_cmp_protection = -1;                /* PKIProtection */
-static int hf_cmp_extraCerts = -1;                /* SEQUENCE_SIZE_1_MAX_OF_CMPCertificate */
-static int hf_cmp_extraCerts_item = -1;           /* CMPCertificate */
-static int hf_cmp_PKIMessages_item = -1;          /* PKIMessage */
-static int hf_cmp_pvno = -1;                      /* T_pvno */
-static int hf_cmp_sender = -1;                    /* GeneralName */
-static int hf_cmp_recipient = -1;                 /* GeneralName */
-static int hf_cmp_messageTime = -1;               /* GeneralizedTime */
-static int hf_cmp_protectionAlg = -1;             /* AlgorithmIdentifier */
-static int hf_cmp_senderKID = -1;                 /* KeyIdentifier */
-static int hf_cmp_recipKID = -1;                  /* KeyIdentifier */
-static int hf_cmp_transactionID = -1;             /* OCTET_STRING */
-static int hf_cmp_senderNonce = -1;               /* OCTET_STRING */
-static int hf_cmp_recipNonce = -1;                /* OCTET_STRING */
-static int hf_cmp_freeText = -1;                  /* PKIFreeText */
-static int hf_cmp_generalInfo = -1;               /* SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue */
-static int hf_cmp_generalInfo_item = -1;          /* InfoTypeAndValue */
-static int hf_cmp_PKIFreeText_item = -1;          /* UTF8String */
-static int hf_cmp_ir = -1;                        /* CertReqMessages */
-static int hf_cmp_ip = -1;                        /* CertRepMessage */
-static int hf_cmp_cr = -1;                        /* CertReqMessages */
-static int hf_cmp_cp = -1;                        /* CertRepMessage */
-static int hf_cmp_p10cr = -1;                     /* CertificationRequest */
-static int hf_cmp_popdecc = -1;                   /* POPODecKeyChallContent */
-static int hf_cmp_popdecr = -1;                   /* POPODecKeyRespContent */
-static int hf_cmp_kur = -1;                       /* CertReqMessages */
-static int hf_cmp_kup = -1;                       /* CertRepMessage */
-static int hf_cmp_krr = -1;                       /* CertReqMessages */
-static int hf_cmp_krp = -1;                       /* KeyRecRepContent */
-static int hf_cmp_rr = -1;                        /* RevReqContent */
-static int hf_cmp_rp = -1;                        /* RevRepContent */
-static int hf_cmp_ccr = -1;                       /* CertReqMessages */
-static int hf_cmp_ccp = -1;                       /* CertRepMessage */
-static int hf_cmp_ckuann = -1;                    /* CAKeyUpdAnnContent */
-static int hf_cmp_cann = -1;                      /* CertAnnContent */
-static int hf_cmp_rann = -1;                      /* RevAnnContent */
-static int hf_cmp_crlann = -1;                    /* CRLAnnContent */
-static int hf_cmp_pkiconf = -1;                   /* PKIConfirmContent */
-static int hf_cmp_nested = -1;                    /* NestedMessageContent */
-static int hf_cmp_genm = -1;                      /* GenMsgContent */
-static int hf_cmp_genp = -1;                      /* GenRepContent */
-static int hf_cmp_error = -1;                     /* ErrorMsgContent */
-static int hf_cmp_certConf = -1;                  /* CertConfirmContent */
-static int hf_cmp_pollReq = -1;                   /* PollReqContent */
-static int hf_cmp_pollRep = -1;                   /* PollRepContent */
-static int hf_cmp_salt = -1;                      /* OCTET_STRING */
-static int hf_cmp_owf = -1;                       /* AlgorithmIdentifier */
-static int hf_cmp_iterationCount = -1;            /* INTEGER */
-static int hf_cmp_mac = -1;                       /* AlgorithmIdentifier */
-static int hf_cmp_pkistatus = -1;                 /* PKIStatus */
-static int hf_cmp_statusString = -1;              /* PKIFreeText */
-static int hf_cmp_failInfo = -1;                  /* PKIFailureInfo */
-static int hf_cmp_hashAlg = -1;                   /* AlgorithmIdentifier */
-static int hf_cmp_certId = -1;                    /* CertId */
-static int hf_cmp_hashVal = -1;                   /* BIT_STRING */
-static int hf_cmp_POPODecKeyChallContent_item = -1;  /* Challenge */
-static int hf_cmp_witness = -1;                   /* OCTET_STRING */
-static int hf_cmp_challenge = -1;                 /* OCTET_STRING */
-static int hf_cmp_POPODecKeyRespContent_item = -1;  /* INTEGER */
-static int hf_cmp_caPubs = -1;                    /* SEQUENCE_SIZE_1_MAX_OF_CMPCertificate */
-static int hf_cmp_caPubs_item = -1;               /* CMPCertificate */
-static int hf_cmp_response = -1;                  /* SEQUENCE_OF_CertResponse */
-static int hf_cmp_response_item = -1;             /* CertResponse */
-static int hf_cmp_certReqId = -1;                 /* INTEGER */
-static int hf_cmp_pkistatusinf = -1;              /* PKIStatusInfo */
-static int hf_cmp_certifiedKeyPair = -1;          /* CertifiedKeyPair */
-static int hf_cmp_rspInfo = -1;                   /* OCTET_STRING */
-static int hf_cmp_certOrEncCert = -1;             /* CertOrEncCert */
-static int hf_cmp_privateKey = -1;                /* EncryptedValue */
-static int hf_cmp_publicationInfo = -1;           /* PKIPublicationInfo */
-static int hf_cmp_certificate = -1;               /* CMPCertificate */
-static int hf_cmp_encryptedCert = -1;             /* EncryptedValue */
-static int hf_cmp_newSigCert = -1;                /* CMPCertificate */
-static int hf_cmp_caCerts = -1;                   /* SEQUENCE_SIZE_1_MAX_OF_CMPCertificate */
-static int hf_cmp_caCerts_item = -1;              /* CMPCertificate */
-static int hf_cmp_keyPairHist = -1;               /* SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair */
-static int hf_cmp_keyPairHist_item = -1;          /* CertifiedKeyPair */
-static int hf_cmp_RevReqContent_item = -1;        /* RevDetails */
-static int hf_cmp_certDetails = -1;               /* CertTemplate */
-static int hf_cmp_crlEntryDetails = -1;           /* Extensions */
-static int hf_cmp_rvrpcnt_status = -1;            /* SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo */
-static int hf_cmp_rvrpcnt_status_item = -1;       /* PKIStatusInfo */
-static int hf_cmp_revCerts = -1;                  /* SEQUENCE_SIZE_1_MAX_OF_CertId */
-static int hf_cmp_revCerts_item = -1;             /* CertId */
-static int hf_cmp_crls = -1;                      /* SEQUENCE_SIZE_1_MAX_OF_CertificateList */
-static int hf_cmp_crls_item = -1;                 /* CertificateList */
-static int hf_cmp_oldWithNew = -1;                /* CMPCertificate */
-static int hf_cmp_newWithOld = -1;                /* CMPCertificate */
-static int hf_cmp_newWithNew = -1;                /* CMPCertificate */
-static int hf_cmp_pkistatus_01 = -1;              /* PKIStatus */
-static int hf_cmp_willBeRevokedAt = -1;           /* GeneralizedTime */
-static int hf_cmp_badSinceDate = -1;              /* GeneralizedTime */
-static int hf_cmp_crlDetails = -1;                /* Extensions */
-static int hf_cmp_CRLAnnContent_item = -1;        /* CertificateList */
-static int hf_cmp_CertConfirmContent_item = -1;   /* CertStatus */
-static int hf_cmp_certHash = -1;                  /* OCTET_STRING */
-static int hf_cmp_statusInfo = -1;                /* PKIStatusInfo */
-static int hf_cmp_infoType = -1;                  /* T_infoType */
-static int hf_cmp_infoValue = -1;                 /* T_infoValue */
-static int hf_cmp_SignKeyPairTypesValue_item = -1;  /* AlgorithmIdentifier */
-static int hf_cmp_EncKeyPairTypesValue_item = -1;  /* AlgorithmIdentifier */
-static int hf_cmp_UnsupportedOIDsValue_item = -1;  /* OBJECT_IDENTIFIER */
-static int hf_cmp_SuppLangTagsValue_item = -1;    /* UTF8String */
-static int hf_cmp_GenMsgContent_item = -1;        /* InfoTypeAndValue */
-static int hf_cmp_GenRepContent_item = -1;        /* InfoTypeAndValue */
-static int hf_cmp_pKIStatusInfo = -1;             /* PKIStatusInfo */
-static int hf_cmp_errorCode = -1;                 /* INTEGER */
-static int hf_cmp_errorDetails = -1;              /* PKIFreeText */
-static int hf_cmp_PollReqContent_item = -1;       /* PollReqContent_item */
-static int hf_cmp_PollRepContent_item = -1;       /* PollRepContent_item */
-static int hf_cmp_checkAfter = -1;                /* INTEGER */
-static int hf_cmp_reason = -1;                    /* PKIFreeText */
+static int proto_cmp;
+static int hf_cmp_type_oid;
+static int hf_cmp_tcptrans_len;
+static int hf_cmp_tcptrans_type;
+static int hf_cmp_tcptrans_poll_ref;
+static int hf_cmp_tcptrans_next_poll_ref;
+static int hf_cmp_tcptrans_ttcb;
+static int hf_cmp_tcptrans10_version;
+static int hf_cmp_tcptrans10_flags;
+static int hf_cmp_PBMParameter_PDU;               /* PBMParameter */
+static int hf_cmp_DHBMParameter_PDU;              /* DHBMParameter */
+static int hf_cmp_CAProtEncCertValue_PDU;         /* CAProtEncCertValue */
+static int hf_cmp_SignKeyPairTypesValue_PDU;      /* SignKeyPairTypesValue */
+static int hf_cmp_EncKeyPairTypesValue_PDU;       /* EncKeyPairTypesValue */
+static int hf_cmp_PreferredSymmAlgValue_PDU;      /* PreferredSymmAlgValue */
+static int hf_cmp_CAKeyUpdateInfoValue_PDU;       /* CAKeyUpdateInfoValue */
+static int hf_cmp_CurrentCRLValue_PDU;            /* CurrentCRLValue */
+static int hf_cmp_UnsupportedOIDsValue_PDU;       /* UnsupportedOIDsValue */
+static int hf_cmp_KeyPairParamReqValue_PDU;       /* KeyPairParamReqValue */
+static int hf_cmp_KeyPairParamRepValue_PDU;       /* KeyPairParamRepValue */
+static int hf_cmp_RevPassphraseValue_PDU;         /* RevPassphraseValue */
+static int hf_cmp_ImplicitConfirmValue_PDU;       /* ImplicitConfirmValue */
+static int hf_cmp_ConfirmWaitTimeValue_PDU;       /* ConfirmWaitTimeValue */
+static int hf_cmp_OrigPKIMessageValue_PDU;        /* OrigPKIMessageValue */
+static int hf_cmp_SuppLangTagsValue_PDU;          /* SuppLangTagsValue */
+static int hf_cmp_x509v3PKCert;                   /* Certificate */
+static int hf_cmp_header;                         /* PKIHeader */
+static int hf_cmp_body;                           /* PKIBody */
+static int hf_cmp_protection;                     /* PKIProtection */
+static int hf_cmp_extraCerts;                     /* SEQUENCE_SIZE_1_MAX_OF_CMPCertificate */
+static int hf_cmp_extraCerts_item;                /* CMPCertificate */
+static int hf_cmp_PKIMessages_item;               /* PKIMessage */
+static int hf_cmp_pvno;                           /* T_pvno */
+static int hf_cmp_sender;                         /* GeneralName */
+static int hf_cmp_recipient;                      /* GeneralName */
+static int hf_cmp_messageTime;                    /* GeneralizedTime */
+static int hf_cmp_protectionAlg;                  /* AlgorithmIdentifier */
+static int hf_cmp_senderKID;                      /* KeyIdentifier */
+static int hf_cmp_recipKID;                       /* KeyIdentifier */
+static int hf_cmp_transactionID;                  /* OCTET_STRING */
+static int hf_cmp_senderNonce;                    /* OCTET_STRING */
+static int hf_cmp_recipNonce;                     /* OCTET_STRING */
+static int hf_cmp_freeText;                       /* PKIFreeText */
+static int hf_cmp_generalInfo;                    /* SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue */
+static int hf_cmp_generalInfo_item;               /* InfoTypeAndValue */
+static int hf_cmp_PKIFreeText_item;               /* UTF8String */
+static int hf_cmp_ir;                             /* CertReqMessages */
+static int hf_cmp_ip;                             /* CertRepMessage */
+static int hf_cmp_cr;                             /* CertReqMessages */
+static int hf_cmp_cp;                             /* CertRepMessage */
+static int hf_cmp_p10cr;                          /* CertificationRequest */
+static int hf_cmp_popdecc;                        /* POPODecKeyChallContent */
+static int hf_cmp_popdecr;                        /* POPODecKeyRespContent */
+static int hf_cmp_kur;                            /* CertReqMessages */
+static int hf_cmp_kup;                            /* CertRepMessage */
+static int hf_cmp_krr;                            /* CertReqMessages */
+static int hf_cmp_krp;                            /* KeyRecRepContent */
+static int hf_cmp_rr;                             /* RevReqContent */
+static int hf_cmp_rp;                             /* RevRepContent */
+static int hf_cmp_ccr;                            /* CertReqMessages */
+static int hf_cmp_ccp;                            /* CertRepMessage */
+static int hf_cmp_ckuann;                         /* CAKeyUpdAnnContent */
+static int hf_cmp_cann;                           /* CertAnnContent */
+static int hf_cmp_rann;                           /* RevAnnContent */
+static int hf_cmp_crlann;                         /* CRLAnnContent */
+static int hf_cmp_pkiconf;                        /* PKIConfirmContent */
+static int hf_cmp_nested;                         /* NestedMessageContent */
+static int hf_cmp_genm;                           /* GenMsgContent */
+static int hf_cmp_genp;                           /* GenRepContent */
+static int hf_cmp_error;                          /* ErrorMsgContent */
+static int hf_cmp_certConf;                       /* CertConfirmContent */
+static int hf_cmp_pollReq;                        /* PollReqContent */
+static int hf_cmp_pollRep;                        /* PollRepContent */
+static int hf_cmp_salt;                           /* OCTET_STRING */
+static int hf_cmp_owf;                            /* AlgorithmIdentifier */
+static int hf_cmp_iterationCount;                 /* INTEGER */
+static int hf_cmp_mac;                            /* AlgorithmIdentifier */
+static int hf_cmp_pkistatus;                      /* PKIStatus */
+static int hf_cmp_statusString;                   /* PKIFreeText */
+static int hf_cmp_failInfo;                       /* PKIFailureInfo */
+static int hf_cmp_hashAlg;                        /* AlgorithmIdentifier */
+static int hf_cmp_certId;                         /* CertId */
+static int hf_cmp_hashVal;                        /* BIT_STRING */
+static int hf_cmp_POPODecKeyChallContent_item;    /* Challenge */
+static int hf_cmp_witness;                        /* OCTET_STRING */
+static int hf_cmp_challenge;                      /* OCTET_STRING */
+static int hf_cmp_POPODecKeyRespContent_item;     /* INTEGER */
+static int hf_cmp_caPubs;                         /* SEQUENCE_SIZE_1_MAX_OF_CMPCertificate */
+static int hf_cmp_caPubs_item;                    /* CMPCertificate */
+static int hf_cmp_response;                       /* SEQUENCE_OF_CertResponse */
+static int hf_cmp_response_item;                  /* CertResponse */
+static int hf_cmp_certReqId;                      /* INTEGER */
+static int hf_cmp_pkistatusinf;                   /* PKIStatusInfo */
+static int hf_cmp_certifiedKeyPair;               /* CertifiedKeyPair */
+static int hf_cmp_rspInfo;                        /* OCTET_STRING */
+static int hf_cmp_certOrEncCert;                  /* CertOrEncCert */
+static int hf_cmp_privateKey;                     /* EncryptedValue */
+static int hf_cmp_publicationInfo;                /* PKIPublicationInfo */
+static int hf_cmp_certificate;                    /* CMPCertificate */
+static int hf_cmp_encryptedCert;                  /* EncryptedValue */
+static int hf_cmp_newSigCert;                     /* CMPCertificate */
+static int hf_cmp_caCerts;                        /* SEQUENCE_SIZE_1_MAX_OF_CMPCertificate */
+static int hf_cmp_caCerts_item;                   /* CMPCertificate */
+static int hf_cmp_keyPairHist;                    /* SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair */
+static int hf_cmp_keyPairHist_item;               /* CertifiedKeyPair */
+static int hf_cmp_RevReqContent_item;             /* RevDetails */
+static int hf_cmp_certDetails;                    /* CertTemplate */
+static int hf_cmp_crlEntryDetails;                /* Extensions */
+static int hf_cmp_rvrpcnt_status;                 /* SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo */
+static int hf_cmp_rvrpcnt_status_item;            /* PKIStatusInfo */
+static int hf_cmp_revCerts;                       /* SEQUENCE_SIZE_1_MAX_OF_CertId */
+static int hf_cmp_revCerts_item;                  /* CertId */
+static int hf_cmp_crls;                           /* SEQUENCE_SIZE_1_MAX_OF_CertificateList */
+static int hf_cmp_crls_item;                      /* CertificateList */
+static int hf_cmp_oldWithNew;                     /* CMPCertificate */
+static int hf_cmp_newWithOld;                     /* CMPCertificate */
+static int hf_cmp_newWithNew;                     /* CMPCertificate */
+static int hf_cmp_pkistatus_01;                   /* PKIStatus */
+static int hf_cmp_willBeRevokedAt;                /* GeneralizedTime */
+static int hf_cmp_badSinceDate;                   /* GeneralizedTime */
+static int hf_cmp_crlDetails;                     /* Extensions */
+static int hf_cmp_CRLAnnContent_item;             /* CertificateList */
+static int hf_cmp_CertConfirmContent_item;        /* CertStatus */
+static int hf_cmp_certHash;                       /* OCTET_STRING */
+static int hf_cmp_statusInfo;                     /* PKIStatusInfo */
+static int hf_cmp_infoType;                       /* T_infoType */
+static int hf_cmp_infoValue;                      /* T_infoValue */
+static int hf_cmp_SignKeyPairTypesValue_item;     /* AlgorithmIdentifier */
+static int hf_cmp_EncKeyPairTypesValue_item;      /* AlgorithmIdentifier */
+static int hf_cmp_UnsupportedOIDsValue_item;      /* OBJECT_IDENTIFIER */
+static int hf_cmp_SuppLangTagsValue_item;         /* UTF8String */
+static int hf_cmp_GenMsgContent_item;             /* InfoTypeAndValue */
+static int hf_cmp_GenRepContent_item;             /* InfoTypeAndValue */
+static int hf_cmp_pKIStatusInfo;                  /* PKIStatusInfo */
+static int hf_cmp_errorCode;                      /* INTEGER */
+static int hf_cmp_errorDetails;                   /* PKIFreeText */
+static int hf_cmp_PollReqContent_item;            /* PollReqContent_item */
+static int hf_cmp_PollRepContent_item;            /* PollRepContent_item */
+static int hf_cmp_checkAfter;                     /* INTEGER */
+static int hf_cmp_reason;                         /* PKIFreeText */
 /* named bits */
-static int hf_cmp_PKIFailureInfo_badAlg = -1;
-static int hf_cmp_PKIFailureInfo_badMessageCheck = -1;
-static int hf_cmp_PKIFailureInfo_badRequest = -1;
-static int hf_cmp_PKIFailureInfo_badTime = -1;
-static int hf_cmp_PKIFailureInfo_badCertId = -1;
-static int hf_cmp_PKIFailureInfo_badDataFormat = -1;
-static int hf_cmp_PKIFailureInfo_wrongAuthority = -1;
-static int hf_cmp_PKIFailureInfo_incorrectData = -1;
-static int hf_cmp_PKIFailureInfo_missingTimeStamp = -1;
-static int hf_cmp_PKIFailureInfo_badPOP = -1;
-static int hf_cmp_PKIFailureInfo_certRevoked = -1;
-static int hf_cmp_PKIFailureInfo_certConfirmed = -1;
-static int hf_cmp_PKIFailureInfo_wrongIntegrity = -1;
-static int hf_cmp_PKIFailureInfo_badRecipientNonce = -1;
-static int hf_cmp_PKIFailureInfo_timeNotAvailable = -1;
-static int hf_cmp_PKIFailureInfo_unacceptedPolicy = -1;
-static int hf_cmp_PKIFailureInfo_unacceptedExtension = -1;
-static int hf_cmp_PKIFailureInfo_addInfoNotAvailable = -1;
-static int hf_cmp_PKIFailureInfo_badSenderNonce = -1;
-static int hf_cmp_PKIFailureInfo_badCertTemplate = -1;
-static int hf_cmp_PKIFailureInfo_signerNotTrusted = -1;
-static int hf_cmp_PKIFailureInfo_transactionIdInUse = -1;
-static int hf_cmp_PKIFailureInfo_unsupportedVersion = -1;
-static int hf_cmp_PKIFailureInfo_notAuthorized = -1;
-static int hf_cmp_PKIFailureInfo_systemUnavail = -1;
-static int hf_cmp_PKIFailureInfo_systemFailure = -1;
-static int hf_cmp_PKIFailureInfo_duplicateCertReq = -1;
+static int hf_cmp_PKIFailureInfo_badAlg;
+static int hf_cmp_PKIFailureInfo_badMessageCheck;
+static int hf_cmp_PKIFailureInfo_badRequest;
+static int hf_cmp_PKIFailureInfo_badTime;
+static int hf_cmp_PKIFailureInfo_badCertId;
+static int hf_cmp_PKIFailureInfo_badDataFormat;
+static int hf_cmp_PKIFailureInfo_wrongAuthority;
+static int hf_cmp_PKIFailureInfo_incorrectData;
+static int hf_cmp_PKIFailureInfo_missingTimeStamp;
+static int hf_cmp_PKIFailureInfo_badPOP;
+static int hf_cmp_PKIFailureInfo_certRevoked;
+static int hf_cmp_PKIFailureInfo_certConfirmed;
+static int hf_cmp_PKIFailureInfo_wrongIntegrity;
+static int hf_cmp_PKIFailureInfo_badRecipientNonce;
+static int hf_cmp_PKIFailureInfo_timeNotAvailable;
+static int hf_cmp_PKIFailureInfo_unacceptedPolicy;
+static int hf_cmp_PKIFailureInfo_unacceptedExtension;
+static int hf_cmp_PKIFailureInfo_addInfoNotAvailable;
+static int hf_cmp_PKIFailureInfo_badSenderNonce;
+static int hf_cmp_PKIFailureInfo_badCertTemplate;
+static int hf_cmp_PKIFailureInfo_signerNotTrusted;
+static int hf_cmp_PKIFailureInfo_transactionIdInUse;
+static int hf_cmp_PKIFailureInfo_unsupportedVersion;
+static int hf_cmp_PKIFailureInfo_notAuthorized;
+static int hf_cmp_PKIFailureInfo_systemUnavail;
+static int hf_cmp_PKIFailureInfo_systemFailure;
+static int hf_cmp_PKIFailureInfo_duplicateCertReq;
 
 /* Initialize the subtree pointers */
-static gint ett_cmp = -1;
-static gint ett_cmp_CMPCertificate = -1;
-static gint ett_cmp_PKIMessage = -1;
-static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CMPCertificate = -1;
-static gint ett_cmp_PKIMessages = -1;
-static gint ett_cmp_PKIHeader = -1;
-static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue = -1;
-static gint ett_cmp_PKIFreeText = -1;
-static gint ett_cmp_PKIBody = -1;
-static gint ett_cmp_ProtectedPart = -1;
-static gint ett_cmp_PBMParameter = -1;
-static gint ett_cmp_DHBMParameter = -1;
-static gint ett_cmp_PKIFailureInfo = -1;
-static gint ett_cmp_PKIStatusInfo = -1;
-static gint ett_cmp_OOBCertHash = -1;
-static gint ett_cmp_POPODecKeyChallContent = -1;
-static gint ett_cmp_Challenge = -1;
-static gint ett_cmp_POPODecKeyRespContent = -1;
-static gint ett_cmp_CertRepMessage = -1;
-static gint ett_cmp_SEQUENCE_OF_CertResponse = -1;
-static gint ett_cmp_CertResponse = -1;
-static gint ett_cmp_CertifiedKeyPair = -1;
-static gint ett_cmp_CertOrEncCert = -1;
-static gint ett_cmp_KeyRecRepContent = -1;
-static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair = -1;
-static gint ett_cmp_RevReqContent = -1;
-static gint ett_cmp_RevDetails = -1;
-static gint ett_cmp_RevRepContent = -1;
-static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo = -1;
-static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertId = -1;
-static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertificateList = -1;
-static gint ett_cmp_CAKeyUpdAnnContent = -1;
-static gint ett_cmp_RevAnnContent = -1;
-static gint ett_cmp_CRLAnnContent = -1;
-static gint ett_cmp_CertConfirmContent = -1;
-static gint ett_cmp_CertStatus = -1;
-static gint ett_cmp_InfoTypeAndValue = -1;
-static gint ett_cmp_SignKeyPairTypesValue = -1;
-static gint ett_cmp_EncKeyPairTypesValue = -1;
-static gint ett_cmp_UnsupportedOIDsValue = -1;
-static gint ett_cmp_SuppLangTagsValue = -1;
-static gint ett_cmp_GenMsgContent = -1;
-static gint ett_cmp_GenRepContent = -1;
-static gint ett_cmp_ErrorMsgContent = -1;
-static gint ett_cmp_PollReqContent = -1;
-static gint ett_cmp_PollReqContent_item = -1;
-static gint ett_cmp_PollRepContent = -1;
-static gint ett_cmp_PollRepContent_item = -1;
+static gint ett_cmp;
+static gint ett_cmp_CMPCertificate;
+static gint ett_cmp_PKIMessage;
+static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CMPCertificate;
+static gint ett_cmp_PKIMessages;
+static gint ett_cmp_PKIHeader;
+static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_InfoTypeAndValue;
+static gint ett_cmp_PKIFreeText;
+static gint ett_cmp_PKIBody;
+static gint ett_cmp_ProtectedPart;
+static gint ett_cmp_PBMParameter;
+static gint ett_cmp_DHBMParameter;
+static gint ett_cmp_PKIFailureInfo;
+static gint ett_cmp_PKIStatusInfo;
+static gint ett_cmp_OOBCertHash;
+static gint ett_cmp_POPODecKeyChallContent;
+static gint ett_cmp_Challenge;
+static gint ett_cmp_POPODecKeyRespContent;
+static gint ett_cmp_CertRepMessage;
+static gint ett_cmp_SEQUENCE_OF_CertResponse;
+static gint ett_cmp_CertResponse;
+static gint ett_cmp_CertifiedKeyPair;
+static gint ett_cmp_CertOrEncCert;
+static gint ett_cmp_KeyRecRepContent;
+static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertifiedKeyPair;
+static gint ett_cmp_RevReqContent;
+static gint ett_cmp_RevDetails;
+static gint ett_cmp_RevRepContent;
+static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo;
+static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertId;
+static gint ett_cmp_SEQUENCE_SIZE_1_MAX_OF_CertificateList;
+static gint ett_cmp_CAKeyUpdAnnContent;
+static gint ett_cmp_RevAnnContent;
+static gint ett_cmp_CRLAnnContent;
+static gint ett_cmp_CertConfirmContent;
+static gint ett_cmp_CertStatus;
+static gint ett_cmp_InfoTypeAndValue;
+static gint ett_cmp_SignKeyPairTypesValue;
+static gint ett_cmp_EncKeyPairTypesValue;
+static gint ett_cmp_UnsupportedOIDsValue;
+static gint ett_cmp_SuppLangTagsValue;
+static gint ett_cmp_GenMsgContent;
+static gint ett_cmp_GenRepContent;
+static gint ett_cmp_ErrorMsgContent;
+static gint ett_cmp_PollReqContent;
+static gint ett_cmp_PollReqContent_item;
+static gint ett_cmp_PollRepContent;
+static gint ett_cmp_PollRepContent_item;
 /*--- Cyclic dependencies ---*/
 
 /* PKIMessage -> PKIBody -> NestedMessageContent -> PKIMessages -> PKIMessage */

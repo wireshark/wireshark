@@ -46,13 +46,13 @@ void proto_register_pkcs12(void);
 void proto_reg_handoff_pkcs12(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_pkcs12 = -1;
+static int proto_pkcs12;
 
-static int hf_pkcs12_X509Certificate_PDU = -1;
-static int hf_pkcs12_AuthenticatedSafe_PDU = -1;  /* AuthenticatedSafe */
-static gint ett_decrypted_pbe = -1;
+static int hf_pkcs12_X509Certificate_PDU;
+static int hf_pkcs12_AuthenticatedSafe_PDU;  /* AuthenticatedSafe */
+static gint ett_decrypted_pbe;
 
-static expert_field ei_pkcs12_octet_string_expected = EI_INIT;
+static expert_field ei_pkcs12_octet_string_expected;
 
 
 static const char *object_identifier_id = NULL;
@@ -65,78 +65,78 @@ static int dissect_AuthenticatedSafe_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info 
 static int dissect_SafeContents_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 static int dissect_PrivateKeyInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 
-static int hf_pkcs12_PFX_PDU = -1;                /* PFX */
-static int hf_pkcs12_SafeContents_PDU = -1;       /* SafeContents */
-static int hf_pkcs12_KeyBag_PDU = -1;             /* KeyBag */
-static int hf_pkcs12_PKCS8ShroudedKeyBag_PDU = -1;  /* PKCS8ShroudedKeyBag */
-static int hf_pkcs12_CertBag_PDU = -1;            /* CertBag */
-static int hf_pkcs12_CRLBag_PDU = -1;             /* CRLBag */
-static int hf_pkcs12_SecretBag_PDU = -1;          /* SecretBag */
-static int hf_pkcs12_PrivateKeyInfo_PDU = -1;     /* PrivateKeyInfo */
-static int hf_pkcs12_EncryptedPrivateKeyInfo_PDU = -1;  /* EncryptedPrivateKeyInfo */
-static int hf_pkcs12_PBEParameter_PDU = -1;       /* PBEParameter */
-static int hf_pkcs12_PBKDF2Params_PDU = -1;       /* PBKDF2Params */
-static int hf_pkcs12_PBES2Params_PDU = -1;        /* PBES2Params */
-static int hf_pkcs12_PBMAC1Params_PDU = -1;       /* PBMAC1Params */
-static int hf_pkcs12_version = -1;                /* T_version */
-static int hf_pkcs12_authSafe = -1;               /* ContentInfo */
-static int hf_pkcs12_macData = -1;                /* MacData */
-static int hf_pkcs12_mac = -1;                    /* DigestInfo */
-static int hf_pkcs12_macSalt = -1;                /* OCTET_STRING */
-static int hf_pkcs12_iterations = -1;             /* INTEGER */
-static int hf_pkcs12_AuthenticatedSafe_item = -1;  /* ContentInfo */
-static int hf_pkcs12_SafeContents_item = -1;      /* SafeBag */
-static int hf_pkcs12_bagId = -1;                  /* T_bagId */
-static int hf_pkcs12_bagValue = -1;               /* T_bagValue */
-static int hf_pkcs12_bagAttributes = -1;          /* SET_OF_PKCS12Attribute */
-static int hf_pkcs12_bagAttributes_item = -1;     /* PKCS12Attribute */
-static int hf_pkcs12_certId = -1;                 /* T_certId */
-static int hf_pkcs12_certValue = -1;              /* T_certValue */
-static int hf_pkcs12_crlId = -1;                  /* T_crlId */
-static int hf_pkcs12_crlValue = -1;               /* T_crlValue */
-static int hf_pkcs12_secretTypeId = -1;           /* T_secretTypeId */
-static int hf_pkcs12_secretValue = -1;            /* T_secretValue */
-static int hf_pkcs12_attrId = -1;                 /* T_attrId */
-static int hf_pkcs12_attrValues = -1;             /* T_attrValues */
-static int hf_pkcs12_attrValues_item = -1;        /* T_attrValues_item */
-static int hf_pkcs12_privateKeyVersion = -1;      /* Version */
-static int hf_pkcs12_privateKeyAlgorithm = -1;    /* AlgorithmIdentifier */
-static int hf_pkcs12_privateKey = -1;             /* PrivateKey */
-static int hf_pkcs12_attributes = -1;             /* Attributes */
-static int hf_pkcs12_Attributes_item = -1;        /* Attribute */
-static int hf_pkcs12_encryptionAlgorithm = -1;    /* AlgorithmIdentifier */
-static int hf_pkcs12_encryptedData = -1;          /* EncryptedData */
-static int hf_pkcs12_salt = -1;                   /* OCTET_STRING */
-static int hf_pkcs12_iterationCount = -1;         /* INTEGER */
-static int hf_pkcs12_saltChoice = -1;             /* T_saltChoice */
-static int hf_pkcs12_specified = -1;              /* OCTET_STRING */
-static int hf_pkcs12_otherSource = -1;            /* AlgorithmIdentifier */
-static int hf_pkcs12_keyLength = -1;              /* INTEGER_1_MAX */
-static int hf_pkcs12_prf = -1;                    /* AlgorithmIdentifier */
-static int hf_pkcs12_keyDerivationFunc = -1;      /* AlgorithmIdentifier */
-static int hf_pkcs12_encryptionScheme = -1;       /* AlgorithmIdentifier */
-static int hf_pkcs12_messageAuthScheme = -1;      /* AlgorithmIdentifier */
+static int hf_pkcs12_PFX_PDU;                     /* PFX */
+static int hf_pkcs12_SafeContents_PDU;            /* SafeContents */
+static int hf_pkcs12_KeyBag_PDU;                  /* KeyBag */
+static int hf_pkcs12_PKCS8ShroudedKeyBag_PDU;     /* PKCS8ShroudedKeyBag */
+static int hf_pkcs12_CertBag_PDU;                 /* CertBag */
+static int hf_pkcs12_CRLBag_PDU;                  /* CRLBag */
+static int hf_pkcs12_SecretBag_PDU;               /* SecretBag */
+static int hf_pkcs12_PrivateKeyInfo_PDU;          /* PrivateKeyInfo */
+static int hf_pkcs12_EncryptedPrivateKeyInfo_PDU;  /* EncryptedPrivateKeyInfo */
+static int hf_pkcs12_PBEParameter_PDU;            /* PBEParameter */
+static int hf_pkcs12_PBKDF2Params_PDU;            /* PBKDF2Params */
+static int hf_pkcs12_PBES2Params_PDU;             /* PBES2Params */
+static int hf_pkcs12_PBMAC1Params_PDU;            /* PBMAC1Params */
+static int hf_pkcs12_version;                     /* T_version */
+static int hf_pkcs12_authSafe;                    /* ContentInfo */
+static int hf_pkcs12_macData;                     /* MacData */
+static int hf_pkcs12_mac;                         /* DigestInfo */
+static int hf_pkcs12_macSalt;                     /* OCTET_STRING */
+static int hf_pkcs12_iterations;                  /* INTEGER */
+static int hf_pkcs12_AuthenticatedSafe_item;      /* ContentInfo */
+static int hf_pkcs12_SafeContents_item;           /* SafeBag */
+static int hf_pkcs12_bagId;                       /* T_bagId */
+static int hf_pkcs12_bagValue;                    /* T_bagValue */
+static int hf_pkcs12_bagAttributes;               /* SET_OF_PKCS12Attribute */
+static int hf_pkcs12_bagAttributes_item;          /* PKCS12Attribute */
+static int hf_pkcs12_certId;                      /* T_certId */
+static int hf_pkcs12_certValue;                   /* T_certValue */
+static int hf_pkcs12_crlId;                       /* T_crlId */
+static int hf_pkcs12_crlValue;                    /* T_crlValue */
+static int hf_pkcs12_secretTypeId;                /* T_secretTypeId */
+static int hf_pkcs12_secretValue;                 /* T_secretValue */
+static int hf_pkcs12_attrId;                      /* T_attrId */
+static int hf_pkcs12_attrValues;                  /* T_attrValues */
+static int hf_pkcs12_attrValues_item;             /* T_attrValues_item */
+static int hf_pkcs12_privateKeyVersion;           /* Version */
+static int hf_pkcs12_privateKeyAlgorithm;         /* AlgorithmIdentifier */
+static int hf_pkcs12_privateKey;                  /* PrivateKey */
+static int hf_pkcs12_attributes;                  /* Attributes */
+static int hf_pkcs12_Attributes_item;             /* Attribute */
+static int hf_pkcs12_encryptionAlgorithm;         /* AlgorithmIdentifier */
+static int hf_pkcs12_encryptedData;               /* EncryptedData */
+static int hf_pkcs12_salt;                        /* OCTET_STRING */
+static int hf_pkcs12_iterationCount;              /* INTEGER */
+static int hf_pkcs12_saltChoice;                  /* T_saltChoice */
+static int hf_pkcs12_specified;                   /* OCTET_STRING */
+static int hf_pkcs12_otherSource;                 /* AlgorithmIdentifier */
+static int hf_pkcs12_keyLength;                   /* INTEGER_1_MAX */
+static int hf_pkcs12_prf;                         /* AlgorithmIdentifier */
+static int hf_pkcs12_keyDerivationFunc;           /* AlgorithmIdentifier */
+static int hf_pkcs12_encryptionScheme;            /* AlgorithmIdentifier */
+static int hf_pkcs12_messageAuthScheme;           /* AlgorithmIdentifier */
 
 /* Initialize the subtree pointers */
-static gint ett_pkcs12_PFX = -1;
-static gint ett_pkcs12_MacData = -1;
-static gint ett_pkcs12_AuthenticatedSafe = -1;
-static gint ett_pkcs12_SafeContents = -1;
-static gint ett_pkcs12_SafeBag = -1;
-static gint ett_pkcs12_SET_OF_PKCS12Attribute = -1;
-static gint ett_pkcs12_CertBag = -1;
-static gint ett_pkcs12_CRLBag = -1;
-static gint ett_pkcs12_SecretBag = -1;
-static gint ett_pkcs12_PKCS12Attribute = -1;
-static gint ett_pkcs12_T_attrValues = -1;
-static gint ett_pkcs12_PrivateKeyInfo = -1;
-static gint ett_pkcs12_Attributes = -1;
-static gint ett_pkcs12_EncryptedPrivateKeyInfo = -1;
-static gint ett_pkcs12_PBEParameter = -1;
-static gint ett_pkcs12_PBKDF2Params = -1;
-static gint ett_pkcs12_T_saltChoice = -1;
-static gint ett_pkcs12_PBES2Params = -1;
-static gint ett_pkcs12_PBMAC1Params = -1;
+static gint ett_pkcs12_PFX;
+static gint ett_pkcs12_MacData;
+static gint ett_pkcs12_AuthenticatedSafe;
+static gint ett_pkcs12_SafeContents;
+static gint ett_pkcs12_SafeBag;
+static gint ett_pkcs12_SET_OF_PKCS12Attribute;
+static gint ett_pkcs12_CertBag;
+static gint ett_pkcs12_CRLBag;
+static gint ett_pkcs12_SecretBag;
+static gint ett_pkcs12_PKCS12Attribute;
+static gint ett_pkcs12_T_attrValues;
+static gint ett_pkcs12_PrivateKeyInfo;
+static gint ett_pkcs12_Attributes;
+static gint ett_pkcs12_EncryptedPrivateKeyInfo;
+static gint ett_pkcs12_PBEParameter;
+static gint ett_pkcs12_PBKDF2Params;
+static gint ett_pkcs12_T_saltChoice;
+static gint ett_pkcs12_PBES2Params;
+static gint ett_pkcs12_PBMAC1Params;
 
 static void append_oid(wmem_allocator_t *pool, proto_tree *tree, const char *oid)
 {

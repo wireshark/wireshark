@@ -26,7 +26,7 @@ void proto_register_nist_csor(void);
 void proto_reg_handoff_nist_csor(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_nist_csor = -1;
+static int proto_nist_csor;
 #include "packet-nist-csor-hf.c"
 
 /* Initialize the subtree pointers */

@@ -66,45 +66,45 @@ static int sv_tap = -1;
 static sv_frame_data sv_data;
 
 /* Initialize the protocol and registered fields */
-static int proto_sv = -1;
-static int hf_sv_appid = -1;
-static int hf_sv_length = -1;
-static int hf_sv_reserve1 = -1;
-static int hf_sv_reserve1_s_bit = -1;
-static int hf_sv_reserve2 = -1;
-static int hf_sv_phmeas_instmag_i = -1;
-static int hf_sv_phsmeas_q = -1;
-static int hf_sv_phsmeas_q_validity = -1;
-static int hf_sv_phsmeas_q_overflow = -1;
-static int hf_sv_phsmeas_q_outofrange = -1;
-static int hf_sv_phsmeas_q_badreference = -1;
-static int hf_sv_phsmeas_q_oscillatory = -1;
-static int hf_sv_phsmeas_q_failure = -1;
-static int hf_sv_phsmeas_q_olddata = -1;
-static int hf_sv_phsmeas_q_inconsistent = -1;
-static int hf_sv_phsmeas_q_inaccurate = -1;
-static int hf_sv_phsmeas_q_source = -1;
-static int hf_sv_phsmeas_q_test = -1;
-static int hf_sv_phsmeas_q_operatorblocked = -1;
-static int hf_sv_phsmeas_q_derived = -1;
-static int hf_sv_gmidentity = -1;
-static int hf_sv_gmidentity_manuf = -1;
+static int proto_sv;
+static int hf_sv_appid;
+static int hf_sv_length;
+static int hf_sv_reserve1;
+static int hf_sv_reserve1_s_bit;
+static int hf_sv_reserve2;
+static int hf_sv_phmeas_instmag_i;
+static int hf_sv_phsmeas_q;
+static int hf_sv_phsmeas_q_validity;
+static int hf_sv_phsmeas_q_overflow;
+static int hf_sv_phsmeas_q_outofrange;
+static int hf_sv_phsmeas_q_badreference;
+static int hf_sv_phsmeas_q_oscillatory;
+static int hf_sv_phsmeas_q_failure;
+static int hf_sv_phsmeas_q_olddata;
+static int hf_sv_phsmeas_q_inconsistent;
+static int hf_sv_phsmeas_q_inaccurate;
+static int hf_sv_phsmeas_q_source;
+static int hf_sv_phsmeas_q_test;
+static int hf_sv_phsmeas_q_operatorblocked;
+static int hf_sv_phsmeas_q_derived;
+static int hf_sv_gmidentity;
+static int hf_sv_gmidentity_manuf;
 
 #include "packet-sv-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_sv = -1;
-static int ett_phsmeas = -1;
-static int ett_phsmeas_q = -1;
-static int ett_gmidentity = -1;
-static int ett_reserve1 = -1;
+static int ett_sv;
+static int ett_phsmeas;
+static int ett_phsmeas_q;
+static int ett_gmidentity;
+static int ett_reserve1;
 
 
 #include "packet-sv-ett.c"
 
-static expert_field ei_sv_mal_utctime = EI_INIT;
-static expert_field ei_sv_zero_pdu = EI_INIT;
-static expert_field ei_sv_mal_gmidentity = EI_INIT;
+static expert_field ei_sv_mal_utctime;
+static expert_field ei_sv_zero_pdu;
+static expert_field ei_sv_mal_gmidentity;
 
 static gboolean sv_decode_data_as_phsmeas = FALSE;
 

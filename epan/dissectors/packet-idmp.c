@@ -55,27 +55,27 @@ static guint32     opcode           = -1;
 /* Initialize the protocol and registered fields */
 int proto_idmp = -1;
 
-static int hf_idmp_version = -1;
-static int hf_idmp_final = -1;
-static int hf_idmp_length = -1;
-static int hf_idmp_PDU = -1;
+static int hf_idmp_version;
+static int hf_idmp_final;
+static int hf_idmp_length;
+static int hf_idmp_PDU;
 
 static reassembly_table idmp_reassembly_table;
 
-static int hf_idmp_fragments = -1;
-static int hf_idmp_fragment = -1;
-static int hf_idmp_fragment_overlap = -1;
-static int hf_idmp_fragment_overlap_conflicts = -1;
-static int hf_idmp_fragment_multiple_tails = -1;
-static int hf_idmp_fragment_too_long_fragment = -1;
-static int hf_idmp_fragment_error = -1;
-static int hf_idmp_fragment_count = -1;
-static int hf_idmp_reassembled_in = -1;
-static int hf_idmp_reassembled_length = -1;
-static int hf_idmp_segment_data = -1;
+static int hf_idmp_fragments;
+static int hf_idmp_fragment;
+static int hf_idmp_fragment_overlap;
+static int hf_idmp_fragment_overlap_conflicts;
+static int hf_idmp_fragment_multiple_tails;
+static int hf_idmp_fragment_too_long_fragment;
+static int hf_idmp_fragment_error;
+static int hf_idmp_fragment_count;
+static int hf_idmp_reassembled_in;
+static int hf_idmp_reassembled_length;
+static int hf_idmp_segment_data;
 
-static gint ett_idmp_fragment = -1;
-static gint ett_idmp_fragments = -1;
+static gint ett_idmp_fragment;
+static gint ett_idmp_fragments;
 
 static const fragment_items idmp_frag_items = {
     /* Fragment subtrees */
@@ -119,51 +119,51 @@ static int call_idmp_oid_callback(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 }
 
-static int hf_idmp_bind = -1;                     /* IdmBind */
-static int hf_idmp_bindResult = -1;               /* IdmBindResult */
-static int hf_idmp_bindError = -1;                /* IdmBindError */
-static int hf_idmp_request = -1;                  /* Request */
-static int hf_idmp_idm_result = -1;               /* IdmResult */
-static int hf_idmp_idm_error = -1;                /* Error */
-static int hf_idmp_reject = -1;                   /* IdmReject */
-static int hf_idmp_unbind = -1;                   /* Unbind */
-static int hf_idmp_abort = -1;                    /* Abort */
-static int hf_idmp_startTLS = -1;                 /* StartTLS */
-static int hf_idmp_tLSResponse = -1;              /* TLSResponse */
-static int hf_idmp_protocolID = -1;               /* OBJECT_IDENTIFIER */
-static int hf_idmp_callingAETitle = -1;           /* GeneralName */
-static int hf_idmp_calledAETitle = -1;            /* GeneralName */
-static int hf_idmp_bind_argument = -1;            /* Bind_argument */
-static int hf_idmp_respondingAETitle = -1;        /* GeneralName */
-static int hf_idmp_bind_result = -1;              /* Bind_result */
-static int hf_idmp_bind_errcode = -1;             /* Bind_errcode */
-static int hf_idmp_aETitleError = -1;             /* T_aETitleError */
-static int hf_idmp_bind_error = -1;               /* Bind_error */
-static int hf_idmp_invokeID = -1;                 /* INTEGER */
-static int hf_idmp_opcode = -1;                   /* Code */
-static int hf_idmp_argument = -1;                 /* T_argument */
-static int hf_idmp_idm_invokeID = -1;             /* InvokeId */
-static int hf_idmp_result = -1;                   /* T_result */
-static int hf_idmp_errcode = -1;                  /* T_errcode */
-static int hf_idmp_error = -1;                    /* T_error */
-static int hf_idmp_reason = -1;                   /* T_reason */
-static int hf_idmp_local = -1;                    /* T_local */
-static int hf_idmp_global = -1;                   /* OBJECT_IDENTIFIER */
-static int hf_idmp_present = -1;                  /* INTEGER */
-static int hf_idmp_absent = -1;                   /* NULL */
+static int hf_idmp_bind;                          /* IdmBind */
+static int hf_idmp_bindResult;                    /* IdmBindResult */
+static int hf_idmp_bindError;                     /* IdmBindError */
+static int hf_idmp_request;                       /* Request */
+static int hf_idmp_idm_result;                    /* IdmResult */
+static int hf_idmp_idm_error;                     /* Error */
+static int hf_idmp_reject;                        /* IdmReject */
+static int hf_idmp_unbind;                        /* Unbind */
+static int hf_idmp_abort;                         /* Abort */
+static int hf_idmp_startTLS;                      /* StartTLS */
+static int hf_idmp_tLSResponse;                   /* TLSResponse */
+static int hf_idmp_protocolID;                    /* OBJECT_IDENTIFIER */
+static int hf_idmp_callingAETitle;                /* GeneralName */
+static int hf_idmp_calledAETitle;                 /* GeneralName */
+static int hf_idmp_bind_argument;                 /* Bind_argument */
+static int hf_idmp_respondingAETitle;             /* GeneralName */
+static int hf_idmp_bind_result;                   /* Bind_result */
+static int hf_idmp_bind_errcode;                  /* Bind_errcode */
+static int hf_idmp_aETitleError;                  /* T_aETitleError */
+static int hf_idmp_bind_error;                    /* Bind_error */
+static int hf_idmp_invokeID;                      /* INTEGER */
+static int hf_idmp_opcode;                        /* Code */
+static int hf_idmp_argument;                      /* T_argument */
+static int hf_idmp_idm_invokeID;                  /* InvokeId */
+static int hf_idmp_result;                        /* T_result */
+static int hf_idmp_errcode;                       /* T_errcode */
+static int hf_idmp_error;                         /* T_error */
+static int hf_idmp_reason;                        /* T_reason */
+static int hf_idmp_local;                         /* T_local */
+static int hf_idmp_global;                        /* OBJECT_IDENTIFIER */
+static int hf_idmp_present;                       /* INTEGER */
+static int hf_idmp_absent;                        /* NULL */
 
 /* Initialize the subtree pointers */
-static gint ett_idmp = -1;
-static gint ett_idmp_IDM_PDU = -1;
-static gint ett_idmp_IdmBind = -1;
-static gint ett_idmp_IdmBindResult = -1;
-static gint ett_idmp_IdmBindError = -1;
-static gint ett_idmp_Request = -1;
-static gint ett_idmp_IdmResult = -1;
-static gint ett_idmp_Error = -1;
-static gint ett_idmp_IdmReject = -1;
-static gint ett_idmp_Code = -1;
-static gint ett_idmp_InvokeId = -1;
+static gint ett_idmp;
+static gint ett_idmp_IDM_PDU;
+static gint ett_idmp_IdmBind;
+static gint ett_idmp_IdmBindResult;
+static gint ett_idmp_IdmBindError;
+static gint ett_idmp_Request;
+static gint ett_idmp_IdmResult;
+static gint ett_idmp_Error;
+static gint ett_idmp_IdmReject;
+static gint ett_idmp_Code;
+static gint ett_idmp_InvokeId;
 
 
 

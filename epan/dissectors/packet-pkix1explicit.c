@@ -39,85 +39,85 @@ void proto_register_pkix1explicit(void);
 void proto_reg_handoff_pkix1explicit(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_pkix1explicit = -1;
-static int hf_pkix1explicit_object_identifier_id = -1;
-static int hf_pkix1explicit_addressFamily_afn = -1;
-static int hf_pkix1explicit_addressFamily_safi = -1;
+static int proto_pkix1explicit;
+static int hf_pkix1explicit_object_identifier_id;
+static int hf_pkix1explicit_addressFamily_afn;
+static int hf_pkix1explicit_addressFamily_safi;
 
-static int ett_pkix1explicit_addressFamily = -1;
+static int ett_pkix1explicit_addressFamily;
 
-static int hf_pkix1explicit_Extensions_PDU = -1;  /* Extensions */
-static int hf_pkix1explicit_DomainParameters_PDU = -1;  /* DomainParameters */
-static int hf_pkix1explicit_DirectoryString_PDU = -1;  /* DirectoryString */
-static int hf_pkix1explicit_Features_PDU = -1;    /* Features */
-static int hf_pkix1explicit_IPAddrBlocks_PDU = -1;  /* IPAddrBlocks */
-static int hf_pkix1explicit_ASIdentifiers_PDU = -1;  /* ASIdentifiers */
-static int hf_pkix1explicit_utcTime = -1;         /* UTCTime */
-static int hf_pkix1explicit_generalTime = -1;     /* GeneralizedTime */
-static int hf_pkix1explicit_Extensions_item = -1;  /* Extension */
-static int hf_pkix1explicit_extnId = -1;          /* T_extnId */
-static int hf_pkix1explicit_critical = -1;        /* BOOLEAN */
-static int hf_pkix1explicit_extnValue = -1;       /* T_extnValue */
-static int hf_pkix1explicit_p = -1;               /* INTEGER */
-static int hf_pkix1explicit_g = -1;               /* INTEGER */
-static int hf_pkix1explicit_q = -1;               /* INTEGER */
-static int hf_pkix1explicit_j = -1;               /* INTEGER */
-static int hf_pkix1explicit_validationParms = -1;  /* ValidationParms */
-static int hf_pkix1explicit_seed = -1;            /* BIT_STRING */
-static int hf_pkix1explicit_pgenCounter = -1;     /* INTEGER */
-static int hf_pkix1explicit_type = -1;            /* T_type */
-static int hf_pkix1explicit_values = -1;          /* T_values */
-static int hf_pkix1explicit_values_item = -1;     /* T_values_item */
-static int hf_pkix1explicit_type_01 = -1;         /* T_type_01 */
-static int hf_pkix1explicit_value = -1;           /* T_value */
-static int hf_pkix1explicit_RDNSequence_item = -1;  /* RelativeDistinguishedName */
-static int hf_pkix1explicit_RelativeDistinguishedName_item = -1;  /* AttributeTypeAndValue */
-static int hf_pkix1explicit_type_02 = -1;         /* TeletexString */
-static int hf_pkix1explicit_value_01 = -1;        /* TeletexString */
-static int hf_pkix1explicit_Features_item = -1;   /* INTEGER */
-static int hf_pkix1explicit_IPAddrBlocks_item = -1;  /* IPAddressFamily */
-static int hf_pkix1explicit_addressFamily = -1;   /* T_addressFamily */
-static int hf_pkix1explicit_ipAddressChoice = -1;  /* IPAddressChoice */
-static int hf_pkix1explicit_inherit = -1;         /* NULL */
-static int hf_pkix1explicit_addressesOrRanges = -1;  /* SEQUENCE_OF_IPAddressOrRange */
-static int hf_pkix1explicit_addressesOrRanges_item = -1;  /* IPAddressOrRange */
-static int hf_pkix1explicit_addressPrefix = -1;   /* IPAddress */
-static int hf_pkix1explicit_addressRange = -1;    /* IPAddressRange */
-static int hf_pkix1explicit_min = -1;             /* IPAddress */
-static int hf_pkix1explicit_max = -1;             /* IPAddress */
-static int hf_pkix1explicit_asnum = -1;           /* ASIdentifierChoice */
-static int hf_pkix1explicit_rdi = -1;             /* ASIdentifierChoice */
-static int hf_pkix1explicit_asIdsOrRanges = -1;   /* SEQUENCE_OF_ASIdOrRange */
-static int hf_pkix1explicit_asIdsOrRanges_item = -1;  /* ASIdOrRange */
-static int hf_pkix1explicit_id = -1;              /* ASId */
-static int hf_pkix1explicit_range = -1;           /* ASRange */
-static int hf_pkix1explicit_min_01 = -1;          /* ASId */
-static int hf_pkix1explicit_max_01 = -1;          /* ASId */
+static int hf_pkix1explicit_Extensions_PDU;       /* Extensions */
+static int hf_pkix1explicit_DomainParameters_PDU;  /* DomainParameters */
+static int hf_pkix1explicit_DirectoryString_PDU;  /* DirectoryString */
+static int hf_pkix1explicit_Features_PDU;         /* Features */
+static int hf_pkix1explicit_IPAddrBlocks_PDU;     /* IPAddrBlocks */
+static int hf_pkix1explicit_ASIdentifiers_PDU;    /* ASIdentifiers */
+static int hf_pkix1explicit_utcTime;              /* UTCTime */
+static int hf_pkix1explicit_generalTime;          /* GeneralizedTime */
+static int hf_pkix1explicit_Extensions_item;      /* Extension */
+static int hf_pkix1explicit_extnId;               /* T_extnId */
+static int hf_pkix1explicit_critical;             /* BOOLEAN */
+static int hf_pkix1explicit_extnValue;            /* T_extnValue */
+static int hf_pkix1explicit_p;                    /* INTEGER */
+static int hf_pkix1explicit_g;                    /* INTEGER */
+static int hf_pkix1explicit_q;                    /* INTEGER */
+static int hf_pkix1explicit_j;                    /* INTEGER */
+static int hf_pkix1explicit_validationParms;      /* ValidationParms */
+static int hf_pkix1explicit_seed;                 /* BIT_STRING */
+static int hf_pkix1explicit_pgenCounter;          /* INTEGER */
+static int hf_pkix1explicit_type;                 /* T_type */
+static int hf_pkix1explicit_values;               /* T_values */
+static int hf_pkix1explicit_values_item;          /* T_values_item */
+static int hf_pkix1explicit_type_01;              /* T_type_01 */
+static int hf_pkix1explicit_value;                /* T_value */
+static int hf_pkix1explicit_RDNSequence_item;     /* RelativeDistinguishedName */
+static int hf_pkix1explicit_RelativeDistinguishedName_item;  /* AttributeTypeAndValue */
+static int hf_pkix1explicit_type_02;              /* TeletexString */
+static int hf_pkix1explicit_value_01;             /* TeletexString */
+static int hf_pkix1explicit_Features_item;        /* INTEGER */
+static int hf_pkix1explicit_IPAddrBlocks_item;    /* IPAddressFamily */
+static int hf_pkix1explicit_addressFamily;        /* T_addressFamily */
+static int hf_pkix1explicit_ipAddressChoice;      /* IPAddressChoice */
+static int hf_pkix1explicit_inherit;              /* NULL */
+static int hf_pkix1explicit_addressesOrRanges;    /* SEQUENCE_OF_IPAddressOrRange */
+static int hf_pkix1explicit_addressesOrRanges_item;  /* IPAddressOrRange */
+static int hf_pkix1explicit_addressPrefix;        /* IPAddress */
+static int hf_pkix1explicit_addressRange;         /* IPAddressRange */
+static int hf_pkix1explicit_min;                  /* IPAddress */
+static int hf_pkix1explicit_max;                  /* IPAddress */
+static int hf_pkix1explicit_asnum;                /* ASIdentifierChoice */
+static int hf_pkix1explicit_rdi;                  /* ASIdentifierChoice */
+static int hf_pkix1explicit_asIdsOrRanges;        /* SEQUENCE_OF_ASIdOrRange */
+static int hf_pkix1explicit_asIdsOrRanges_item;   /* ASIdOrRange */
+static int hf_pkix1explicit_id;                   /* ASId */
+static int hf_pkix1explicit_range;                /* ASRange */
+static int hf_pkix1explicit_min_01;               /* ASId */
+static int hf_pkix1explicit_max_01;               /* ASId */
 
 /* Initialize the subtree pointers */
-static gint ett_pkix1explicit_Time = -1;
-static gint ett_pkix1explicit_Extensions = -1;
-static gint ett_pkix1explicit_Extension = -1;
-static gint ett_pkix1explicit_DomainParameters = -1;
-static gint ett_pkix1explicit_ValidationParms = -1;
-static gint ett_pkix1explicit_Attribute = -1;
-static gint ett_pkix1explicit_T_values = -1;
-static gint ett_pkix1explicit_AttributeTypeAndValue = -1;
-static gint ett_pkix1explicit_RDNSequence = -1;
-static gint ett_pkix1explicit_RelativeDistinguishedName = -1;
-static gint ett_pkix1explicit_TeletexDomainDefinedAttribute = -1;
-static gint ett_pkix1explicit_Features = -1;
-static gint ett_pkix1explicit_IPAddrBlocks = -1;
-static gint ett_pkix1explicit_IPAddressFamily = -1;
-static gint ett_pkix1explicit_IPAddressChoice = -1;
-static gint ett_pkix1explicit_SEQUENCE_OF_IPAddressOrRange = -1;
-static gint ett_pkix1explicit_IPAddressOrRange = -1;
-static gint ett_pkix1explicit_IPAddressRange = -1;
-static gint ett_pkix1explicit_ASIdentifiers = -1;
-static gint ett_pkix1explicit_ASIdentifierChoice = -1;
-static gint ett_pkix1explicit_SEQUENCE_OF_ASIdOrRange = -1;
-static gint ett_pkix1explicit_ASIdOrRange = -1;
-static gint ett_pkix1explicit_ASRange = -1;
+static gint ett_pkix1explicit_Time;
+static gint ett_pkix1explicit_Extensions;
+static gint ett_pkix1explicit_Extension;
+static gint ett_pkix1explicit_DomainParameters;
+static gint ett_pkix1explicit_ValidationParms;
+static gint ett_pkix1explicit_Attribute;
+static gint ett_pkix1explicit_T_values;
+static gint ett_pkix1explicit_AttributeTypeAndValue;
+static gint ett_pkix1explicit_RDNSequence;
+static gint ett_pkix1explicit_RelativeDistinguishedName;
+static gint ett_pkix1explicit_TeletexDomainDefinedAttribute;
+static gint ett_pkix1explicit_Features;
+static gint ett_pkix1explicit_IPAddrBlocks;
+static gint ett_pkix1explicit_IPAddressFamily;
+static gint ett_pkix1explicit_IPAddressChoice;
+static gint ett_pkix1explicit_SEQUENCE_OF_IPAddressOrRange;
+static gint ett_pkix1explicit_IPAddressOrRange;
+static gint ett_pkix1explicit_IPAddressRange;
+static gint ett_pkix1explicit_ASIdentifiers;
+static gint ett_pkix1explicit_ASIdentifierChoice;
+static gint ett_pkix1explicit_SEQUENCE_OF_ASIdOrRange;
+static gint ett_pkix1explicit_ASIdOrRange;
+static gint ett_pkix1explicit_ASRange;
 
 int
 dissect_pkix1explicit_Certificate(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index) {

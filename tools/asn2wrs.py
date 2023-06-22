@@ -1596,13 +1596,13 @@ class EthCtx:
         if not len(self.eth_hf_ord) and not len(self.eth_hfpdu_ord) and not len(self.named_bit): return
         fx = self.output.file_open('hf')
         for f in (self.eth_hfpdu_ord + self.eth_hf_ord):
-            fx.write("%-50s/* %s */\n" % ("static int %s = -1;  " % (self.eth_hf[f]['fullname']), self.eth_hf[f]['ethtype']))
+            fx.write("%-50s/* %s */\n" % ("static int %s;  " % (self.eth_hf[f]['fullname']), self.eth_hf[f]['ethtype']))
         if (self.named_bit):
             fx.write('/* named bits */\n')
         for nb in self.named_bit:
-            fx.write("static int %s = -1;\n" % (nb['ethname']))
+            fx.write("static int %s;\n" % (nb['ethname']))
         if (self.dummy_eag_field):
-            fx.write("static int %s = -1; /* never registered */\n" % (self.dummy_eag_field))
+            fx.write("static int %s; /* never registered */\n" % (self.dummy_eag_field))
         self.output.file_close(fx)
 
     #--- eth_output_hf_arr ------------------------------------------------------
@@ -1655,10 +1655,10 @@ class EthCtx:
     def eth_output_ett (self):
         fx = self.output.file_open('ett')
         fempty = True
-        #fx.write("static gint ett_%s = -1;\n" % (self.eproto))
+        #fx.write("static gint ett_%s;\n" % (self.eproto))
         for t in self.eth_type_ord:
             if self.eth_type[t]['tree']:
-                fx.write("static gint %s = -1;\n" % (self.eth_type[t]['tree']))
+                fx.write("static gint %s;\n" % (self.eth_type[t]['tree']))
                 fempty = False
         self.output.file_close(fx, discard=fempty)
 

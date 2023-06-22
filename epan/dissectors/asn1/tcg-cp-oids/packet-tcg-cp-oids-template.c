@@ -26,9 +26,9 @@ void proto_register_tcg_cp_oids(void);
 void proto_reg_handoff_tcg_cp_oids(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_tcg_cp_oids = -1;
+static int proto_tcg_cp_oids;
 #include "packet-tcg-cp-oids-hf.c"
-static int hf_tcg_cp_oids_UTF8String_PDU = -1;
+static int hf_tcg_cp_oids_UTF8String_PDU;
 
 /* Initialize the subtree pointers */
 #include "packet-tcg-cp-oids-ett.c"

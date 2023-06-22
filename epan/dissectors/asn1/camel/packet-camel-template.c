@@ -48,7 +48,7 @@
 #define PFNAME "camel"
 
 /* Initialize the protocol and registered fields */
-static int proto_camel = -1;
+static int proto_camel;
 int date_format = 1; /*assume european date format */
 int camel_tap = -1;
 /* Global variables */
@@ -66,40 +66,40 @@ static struct camelsrt_info_t camelsrt_global_info[MAX_CAMEL_INSTANCE];
 /* ROSE context */
 static rose_ctx_t camel_rose_ctx;
 
-static int hf_digit = -1;
-static int hf_camel_extension_code_local = -1;
-static int hf_camel_error_code_local = -1;
-static int hf_camel_cause_indicator = -1;
-static int hf_camel_PDPTypeNumber_etsi = -1;
-static int hf_camel_PDPTypeNumber_ietf = -1;
-static int hf_camel_PDPAddress_IPv4 = -1;
-static int hf_camel_PDPAddress_IPv6 = -1;
-static int hf_camel_cellGlobalIdOrServiceAreaIdFixedLength = -1;
-static int hf_camel_RP_Cause = -1;
-static int hf_camel_CAMEL_AChBillingChargingCharacteristics = -1;
-static int hf_camel_CAMEL_FCIBillingChargingCharacteristics = -1;
-static int hf_camel_CAMEL_FCIGPRSBillingChargingCharacteristics = -1;
-static int hf_camel_CAMEL_FCISMSBillingChargingCharacteristics = -1;
-static int hf_camel_CAMEL_SCIBillingChargingCharacteristics = -1;
-static int hf_camel_CAMEL_SCIGPRSBillingChargingCharacteristics = -1;
-static int hf_camel_CAMEL_CallResult = -1;
+static int hf_digit;
+static int hf_camel_extension_code_local;
+static int hf_camel_error_code_local;
+static int hf_camel_cause_indicator;
+static int hf_camel_PDPTypeNumber_etsi;
+static int hf_camel_PDPTypeNumber_ietf;
+static int hf_camel_PDPAddress_IPv4;
+static int hf_camel_PDPAddress_IPv6;
+static int hf_camel_cellGlobalIdOrServiceAreaIdFixedLength;
+static int hf_camel_RP_Cause;
+static int hf_camel_CAMEL_AChBillingChargingCharacteristics;
+static int hf_camel_CAMEL_FCIBillingChargingCharacteristics;
+static int hf_camel_CAMEL_FCIGPRSBillingChargingCharacteristics;
+static int hf_camel_CAMEL_FCISMSBillingChargingCharacteristics;
+static int hf_camel_CAMEL_SCIBillingChargingCharacteristics;
+static int hf_camel_CAMEL_SCIGPRSBillingChargingCharacteristics;
+static int hf_camel_CAMEL_CallResult;
 
 /* Used by persistent data */
-static int hf_camelsrt_SessionId=-1;
-//static int hf_camelsrt_RequestNumber=-1;
-static int hf_camelsrt_Duplicate=-1;
-static int hf_camelsrt_RequestFrame=-1;
-static int hf_camelsrt_ResponseFrame=-1;
-//static int hf_camelsrt_DeltaTime=-1;
-//static int hf_camelsrt_SessionTime=-1;
-static int hf_camelsrt_DeltaTime31=-1;
-static int hf_camelsrt_DeltaTime75=-1;
-static int hf_camelsrt_DeltaTime65=-1;
-static int hf_camelsrt_DeltaTime22=-1;
-static int hf_camelsrt_DeltaTime35=-1;
-static int hf_camelsrt_DeltaTime80=-1;
-static int hf_camel_timeandtimezone_time = -1;
-static int hf_camel_timeandtimezone_tz = -1;
+static int hf_camelsrt_SessionId;
+//static int hf_camelsrt_RequestNumber;
+static int hf_camelsrt_Duplicate;
+static int hf_camelsrt_RequestFrame;
+static int hf_camelsrt_ResponseFrame;
+//static int hf_camelsrt_DeltaTime;
+//static int hf_camelsrt_SessionTime;
+static int hf_camelsrt_DeltaTime31;
+static int hf_camelsrt_DeltaTime75;
+static int hf_camelsrt_DeltaTime65;
+static int hf_camelsrt_DeltaTime22;
+static int hf_camelsrt_DeltaTime35;
+static int hf_camelsrt_DeltaTime80;
+static int hf_camel_timeandtimezone_time;
+static int hf_camel_timeandtimezone_tz;
 
 #include "packet-camel-hf.c"
 
@@ -121,36 +121,36 @@ static gboolean gcamel_DisplaySRT=FALSE;
 gboolean gcamel_StatSRT=FALSE;
 
 /* Initialize the subtree pointers */
-static gint ett_camel = -1;
-static gint ett_camelisup_parameter = -1;
-static gint ett_camel_AccessPointName = -1;
-static gint ett_camel_pdptypenumber = -1;
-static gint ett_camel_cause = -1;
-static gint ett_camel_RPcause = -1;
-static gint ett_camel_stat = -1;
-static gint ett_camel_calledpartybcdnumber = -1;
-static gint ett_camel_callingpartynumber = -1;
-static gint ett_camel_originalcalledpartyid = -1;
-static gint ett_camel_redirectingpartyid = -1;
-static gint ett_camel_locationnumber = -1;
-static gint ett_camel_additionalcallingpartynumber = -1;
-static gint ett_camel_calledAddressValue = -1;
-static gint ett_camel_callingAddressValue = -1;
-static gint ett_camel_assistingSSPIPRoutingAddress = -1;
-static gint ett_camel_correlationID = -1;
-static gint ett_camel_dTMFDigitsCompleted = -1;
-static gint ett_camel_dTMFDigitsTimeOut = -1;
-static gint ett_camel_number = -1;
-static gint ett_camel_digitsResponse = -1;
-static gint ett_camel_timeandtimezone = -1;
+static gint ett_camel;
+static gint ett_camelisup_parameter;
+static gint ett_camel_AccessPointName;
+static gint ett_camel_pdptypenumber;
+static gint ett_camel_cause;
+static gint ett_camel_RPcause;
+static gint ett_camel_stat;
+static gint ett_camel_calledpartybcdnumber;
+static gint ett_camel_callingpartynumber;
+static gint ett_camel_originalcalledpartyid;
+static gint ett_camel_redirectingpartyid;
+static gint ett_camel_locationnumber;
+static gint ett_camel_additionalcallingpartynumber;
+static gint ett_camel_calledAddressValue;
+static gint ett_camel_callingAddressValue;
+static gint ett_camel_assistingSSPIPRoutingAddress;
+static gint ett_camel_correlationID;
+static gint ett_camel_dTMFDigitsCompleted;
+static gint ett_camel_dTMFDigitsTimeOut;
+static gint ett_camel_number;
+static gint ett_camel_digitsResponse;
+static gint ett_camel_timeandtimezone;
 
 #include "packet-camel-ett.c"
 
-static expert_field ei_camel_unknown_invokeData = EI_INIT;
-static expert_field ei_camel_unknown_returnResultData = EI_INIT;
-static expert_field ei_camel_unknown_returnErrorData = EI_INIT;
-static expert_field ei_camel_par_wrong_length = EI_INIT;
-static expert_field ei_camel_bcd_not_digit = EI_INIT;
+static expert_field ei_camel_unknown_invokeData;
+static expert_field ei_camel_unknown_returnResultData;
+static expert_field ei_camel_unknown_returnErrorData;
+static expert_field ei_camel_par_wrong_length;
+static expert_field ei_camel_bcd_not_digit;
 
 /* Preference settings default */
 #define MAX_SSN 254

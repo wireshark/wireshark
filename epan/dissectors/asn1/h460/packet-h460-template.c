@@ -28,7 +28,7 @@ void proto_register_h460(void);
 void proto_reg_handoff_h460(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_h460 = -1;
+static int proto_h460;
 #include "packet-h460-hf.c"
 
 /* Initialize the subtree pointers */

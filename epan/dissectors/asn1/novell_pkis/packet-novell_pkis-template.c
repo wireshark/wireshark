@@ -26,7 +26,7 @@
 void proto_register_novell_pkis (void);
 void proto_reg_handoff_novell_pkis(void);
 
-static int proto_novell_pkis = -1;
+static int proto_novell_pkis;
 
 void proto_reg_handoff_novell_pkis(void)
 {
@@ -43,7 +43,7 @@ void proto_register_novell_pkis (void)
   };
 
   /* execute protocol initialization only once */
-  if (proto_novell_pkis != -1) return;
+  if (proto_novell_pkis > 0) return;
 
   proto_novell_pkis = proto_register_protocol("Novell PKIS ASN.1 type", "novell_pkis", "novell_pkis");
   proto_register_field_array (proto_novell_pkis, hf, array_length (hf));

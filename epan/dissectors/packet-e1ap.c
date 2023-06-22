@@ -310,1225 +310,1225 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /* Initialize the protocol and registered fields */
-static int proto_e1ap = -1;
+static int proto_e1ap;
 
-static int hf_e1ap_transportLayerAddressIPv4 = -1;
-static int hf_e1ap_transportLayerAddressIPv6 = -1;
-static int hf_e1ap_InterfacesToTrace_NG_C = -1;
-static int hf_e1ap_InterfacesToTrace_Xn_C = -1;
-static int hf_e1ap_InterfacesToTrace_Uu = -1;
-static int hf_e1ap_InterfacesToTrace_F1_C = -1;
-static int hf_e1ap_InterfacesToTrace_E1 = -1;
-static int hf_e1ap_InterfacesToTrace_Reserved = -1;
-static int hf_e1ap_MeasurementsToActivate_Reserved1 = -1;
-static int hf_e1ap_MeasurementsToActivate_M4 = -1;
-static int hf_e1ap_MeasurementsToActivate_Reserved2 = -1;
-static int hf_e1ap_MeasurementsToActivate_M6 = -1;
-static int hf_e1ap_MeasurementsToActivate_M7 = -1;
-static int hf_e1ap_ReportCharacteristics_TNLAvailableCapacityIndPeriodic = -1;
-static int hf_e1ap_ReportCharacteristics_HWCapacityIndPeriodic = -1;
-static int hf_e1ap_ReportCharacteristics_Reserved = -1;
-static int hf_e1ap_tcp_pdu_len = -1;
-static int hf_e1ap_ActivityInformation_PDU = -1;  /* ActivityInformation */
-static int hf_e1ap_ActivityNotificationLevel_PDU = -1;  /* ActivityNotificationLevel */
-static int hf_e1ap_AdditionalHandoverInfo_PDU = -1;  /* AdditionalHandoverInfo */
-static int hf_e1ap_AdditionalPDCPduplicationInformation_PDU = -1;  /* AdditionalPDCPduplicationInformation */
-static int hf_e1ap_AdditionalRRMPriorityIndex_PDU = -1;  /* AdditionalRRMPriorityIndex */
-static int hf_e1ap_AlternativeQoSParaSetList_PDU = -1;  /* AlternativeQoSParaSetList */
-static int hf_e1ap_BCBearerContextToSetup_PDU = -1;  /* BCBearerContextToSetup */
-static int hf_e1ap_BCBearerContextToSetupResponse_PDU = -1;  /* BCBearerContextToSetupResponse */
-static int hf_e1ap_BCBearerContextToModify_PDU = -1;  /* BCBearerContextToModify */
-static int hf_e1ap_BCBearerContextToModifyResponse_PDU = -1;  /* BCBearerContextToModifyResponse */
-static int hf_e1ap_BCBearerContextToModifyRequired_PDU = -1;  /* BCBearerContextToModifyRequired */
-static int hf_e1ap_BCBearerContextToModifyConfirm_PDU = -1;  /* BCBearerContextToModifyConfirm */
-static int hf_e1ap_BearerContextStatusChange_PDU = -1;  /* BearerContextStatusChange */
-static int hf_e1ap_BitRate_PDU = -1;              /* BitRate */
-static int hf_e1ap_Cause_PDU = -1;                /* Cause */
-static int hf_e1ap_CHOInitiation_PDU = -1;        /* CHOInitiation */
-static int hf_e1ap_Number_of_tunnels_PDU = -1;    /* Number_of_tunnels */
-static int hf_e1ap_CNSupport_PDU = -1;            /* CNSupport */
-static int hf_e1ap_CommonNetworkInstance_PDU = -1;  /* CommonNetworkInstance */
-static int hf_e1ap_CP_TNL_Information_PDU = -1;   /* CP_TNL_Information */
-static int hf_e1ap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
-static int hf_e1ap_DAPSRequestInfo_PDU = -1;      /* DAPSRequestInfo */
-static int hf_e1ap_Data_Forwarding_Information_PDU = -1;  /* Data_Forwarding_Information */
-static int hf_e1ap_DataForwardingtoE_UTRANInformationList_PDU = -1;  /* DataForwardingtoE_UTRANInformationList */
-static int hf_e1ap_Data_Usage_Report_List_PDU = -1;  /* Data_Usage_Report_List */
-static int hf_e1ap_DirectForwardingPathAvailability_PDU = -1;  /* DirectForwardingPathAvailability */
-static int hf_e1ap_DiscardTimerExtended_PDU = -1;  /* DiscardTimerExtended */
-static int hf_e1ap_DRB_Confirm_Modified_List_EUTRAN_PDU = -1;  /* DRB_Confirm_Modified_List_EUTRAN */
-static int hf_e1ap_DRB_Failed_List_EUTRAN_PDU = -1;  /* DRB_Failed_List_EUTRAN */
-static int hf_e1ap_DRB_Failed_Mod_List_EUTRAN_PDU = -1;  /* DRB_Failed_Mod_List_EUTRAN */
-static int hf_e1ap_DRB_Failed_To_Modify_List_EUTRAN_PDU = -1;  /* DRB_Failed_To_Modify_List_EUTRAN */
-static int hf_e1ap_DRB_Measurement_Results_Information_List_PDU = -1;  /* DRB_Measurement_Results_Information_List */
-static int hf_e1ap_DRB_Modified_List_EUTRAN_PDU = -1;  /* DRB_Modified_List_EUTRAN */
-static int hf_e1ap_DRB_Required_To_Modify_List_EUTRAN_PDU = -1;  /* DRB_Required_To_Modify_List_EUTRAN */
-static int hf_e1ap_DRB_Setup_List_EUTRAN_PDU = -1;  /* DRB_Setup_List_EUTRAN */
-static int hf_e1ap_DRB_Setup_Mod_List_EUTRAN_PDU = -1;  /* DRB_Setup_Mod_List_EUTRAN */
-static int hf_e1ap_DRBs_Subject_To_Counter_Check_List_EUTRAN_PDU = -1;  /* DRBs_Subject_To_Counter_Check_List_EUTRAN */
-static int hf_e1ap_DRBs_Subject_To_Counter_Check_List_NG_RAN_PDU = -1;  /* DRBs_Subject_To_Counter_Check_List_NG_RAN */
-static int hf_e1ap_DRBs_Subject_To_Early_Forwarding_List_PDU = -1;  /* DRBs_Subject_To_Early_Forwarding_List */
-static int hf_e1ap_DRB_To_Modify_List_EUTRAN_PDU = -1;  /* DRB_To_Modify_List_EUTRAN */
-static int hf_e1ap_DRB_To_Remove_List_EUTRAN_PDU = -1;  /* DRB_To_Remove_List_EUTRAN */
-static int hf_e1ap_DRB_Required_To_Remove_List_EUTRAN_PDU = -1;  /* DRB_Required_To_Remove_List_EUTRAN */
-static int hf_e1ap_DRB_To_Setup_List_EUTRAN_PDU = -1;  /* DRB_To_Setup_List_EUTRAN */
-static int hf_e1ap_DRB_To_Setup_Mod_List_EUTRAN_PDU = -1;  /* DRB_To_Setup_Mod_List_EUTRAN */
-static int hf_e1ap_DataDiscardRequired_PDU = -1;  /* DataDiscardRequired */
-static int hf_e1ap_EarlyDataForwardingIndicator_PDU = -1;  /* EarlyDataForwardingIndicator */
-static int hf_e1ap_EarlyForwardingCOUNTInfo_PDU = -1;  /* EarlyForwardingCOUNTInfo */
-static int hf_e1ap_EarlyForwardingCOUNTReq_PDU = -1;  /* EarlyForwardingCOUNTReq */
-static int hf_e1ap_EHC_Parameters_PDU = -1;       /* EHC_Parameters */
-static int hf_e1ap_Endpoint_IP_address_and_port_PDU = -1;  /* Endpoint_IP_address_and_port */
-static int hf_e1ap_ExtendedPacketDelayBudget_PDU = -1;  /* ExtendedPacketDelayBudget */
-static int hf_e1ap_ECGI_Support_List_PDU = -1;    /* ECGI_Support_List */
-static int hf_e1ap_ExtendedSliceSupportList_PDU = -1;  /* ExtendedSliceSupportList */
-static int hf_e1ap_GlobalMBSSessionID_PDU = -1;   /* GlobalMBSSessionID */
-static int hf_e1ap_GNB_CU_CP_Name_PDU = -1;       /* GNB_CU_CP_Name */
-static int hf_e1ap_Extended_GNB_CU_CP_Name_PDU = -1;  /* Extended_GNB_CU_CP_Name */
-static int hf_e1ap_GNB_CU_CP_MBS_E1AP_ID_PDU = -1;  /* GNB_CU_CP_MBS_E1AP_ID */
-static int hf_e1ap_GNB_CU_CP_UE_E1AP_ID_PDU = -1;  /* GNB_CU_CP_UE_E1AP_ID */
-static int hf_e1ap_GNB_CU_UP_Capacity_PDU = -1;   /* GNB_CU_UP_Capacity */
-static int hf_e1ap_GNB_CU_UP_ID_PDU = -1;         /* GNB_CU_UP_ID */
-static int hf_e1ap_GNB_CU_UP_MBS_Support_Info_PDU = -1;  /* GNB_CU_UP_MBS_Support_Info */
-static int hf_e1ap_GNB_CU_UP_Name_PDU = -1;       /* GNB_CU_UP_Name */
-static int hf_e1ap_Extended_GNB_CU_UP_Name_PDU = -1;  /* Extended_GNB_CU_UP_Name */
-static int hf_e1ap_GNB_CU_UP_MBS_E1AP_ID_PDU = -1;  /* GNB_CU_UP_MBS_E1AP_ID */
-static int hf_e1ap_GNB_CU_UP_UE_E1AP_ID_PDU = -1;  /* GNB_CU_UP_UE_E1AP_ID */
-static int hf_e1ap_GBR_QoSFlowInformation_PDU = -1;  /* GBR_QoSFlowInformation */
-static int hf_e1ap_GNB_CU_UP_OverloadInformation_PDU = -1;  /* GNB_CU_UP_OverloadInformation */
-static int hf_e1ap_GNB_DU_ID_PDU = -1;            /* GNB_DU_ID */
-static int hf_e1ap_HW_CapacityIndicator_PDU = -1;  /* HW_CapacityIndicator */
-static int hf_e1ap_IgnoreMappingRuleIndication_PDU = -1;  /* IgnoreMappingRuleIndication */
-static int hf_e1ap_Inactivity_Timer_PDU = -1;     /* Inactivity_Timer */
-static int hf_e1ap_InactivityInformationRequest_PDU = -1;  /* InactivityInformationRequest */
-static int hf_e1ap_MaxCIDEHCDL_PDU = -1;          /* MaxCIDEHCDL */
-static int hf_e1ap_MBSAreaSessionID_PDU = -1;     /* MBSAreaSessionID */
-static int hf_e1ap_MBSSessionAssociatedInfoNonSupportToSupport_PDU = -1;  /* MBSSessionAssociatedInfoNonSupportToSupport */
-static int hf_e1ap_MCBearerContextToSetup_PDU = -1;  /* MCBearerContextToSetup */
-static int hf_e1ap_MCBearerContextToSetupResponse_PDU = -1;  /* MCBearerContextToSetupResponse */
-static int hf_e1ap_MCBearerContextToModify_PDU = -1;  /* MCBearerContextToModify */
-static int hf_e1ap_MBSMulticastF1UContextDescriptor_PDU = -1;  /* MBSMulticastF1UContextDescriptor */
-static int hf_e1ap_MCBearerContextToModifyResponse_PDU = -1;  /* MCBearerContextToModifyResponse */
-static int hf_e1ap_MCBearerContextToModifyRequired_PDU = -1;  /* MCBearerContextToModifyRequired */
-static int hf_e1ap_MCBearerContextToModifyConfirm_PDU = -1;  /* MCBearerContextToModifyConfirm */
-static int hf_e1ap_MCForwardingResourceRequest_PDU = -1;  /* MCForwardingResourceRequest */
-static int hf_e1ap_MCForwardingResourceIndication_PDU = -1;  /* MCForwardingResourceIndication */
-static int hf_e1ap_MCForwardingResourceResponse_PDU = -1;  /* MCForwardingResourceResponse */
-static int hf_e1ap_MCForwardingResourceRelease_PDU = -1;  /* MCForwardingResourceRelease */
-static int hf_e1ap_MCForwardingResourceReleaseIndication_PDU = -1;  /* MCForwardingResourceReleaseIndication */
-static int hf_e1ap_MDTPollutedMeasurementIndicator_PDU = -1;  /* MDTPollutedMeasurementIndicator */
-static int hf_e1ap_M4ReportAmount_PDU = -1;       /* M4ReportAmount */
-static int hf_e1ap_M6ReportAmount_PDU = -1;       /* M6ReportAmount */
-static int hf_e1ap_M7ReportAmount_PDU = -1;       /* M7ReportAmount */
-static int hf_e1ap_MDT_Configuration_PDU = -1;    /* MDT_Configuration */
-static int hf_e1ap_MDTPLMNList_PDU = -1;          /* MDTPLMNList */
-static int hf_e1ap_MDTPLMNModificationList_PDU = -1;  /* MDTPLMNModificationList */
-static int hf_e1ap_NetworkInstance_PDU = -1;      /* NetworkInstance */
-static int hf_e1ap_New_UL_TNL_Information_Required_PDU = -1;  /* New_UL_TNL_Information_Required */
-static int hf_e1ap_NPNSupportInfo_PDU = -1;       /* NPNSupportInfo */
-static int hf_e1ap_NPNContextInfo_PDU = -1;       /* NPNContextInfo */
-static int hf_e1ap_Extended_NR_CGI_Support_List_PDU = -1;  /* Extended_NR_CGI_Support_List */
-static int hf_e1ap_PDCP_COUNT_Reset_PDU = -1;     /* PDCP_COUNT_Reset */
-static int hf_e1ap_PDU_Session_Resource_Data_Usage_List_PDU = -1;  /* PDU_Session_Resource_Data_Usage_List */
-static int hf_e1ap_PDCP_StatusReportIndication_PDU = -1;  /* PDCP_StatusReportIndication */
-static int hf_e1ap_PDUSession_PairID_PDU = -1;    /* PDUSession_PairID */
-static int hf_e1ap_PDU_Session_Resource_Confirm_Modified_List_PDU = -1;  /* PDU_Session_Resource_Confirm_Modified_List */
-static int hf_e1ap_PDU_Session_Resource_Failed_List_PDU = -1;  /* PDU_Session_Resource_Failed_List */
-static int hf_e1ap_PDU_Session_Resource_Failed_Mod_List_PDU = -1;  /* PDU_Session_Resource_Failed_Mod_List */
-static int hf_e1ap_PDU_Session_Resource_Failed_To_Modify_List_PDU = -1;  /* PDU_Session_Resource_Failed_To_Modify_List */
-static int hf_e1ap_PDU_Session_Resource_Modified_List_PDU = -1;  /* PDU_Session_Resource_Modified_List */
-static int hf_e1ap_PDU_Session_Resource_Required_To_Modify_List_PDU = -1;  /* PDU_Session_Resource_Required_To_Modify_List */
-static int hf_e1ap_PDU_Session_Resource_Setup_List_PDU = -1;  /* PDU_Session_Resource_Setup_List */
-static int hf_e1ap_PDU_Session_Resource_Setup_Mod_List_PDU = -1;  /* PDU_Session_Resource_Setup_Mod_List */
-static int hf_e1ap_PDU_Session_Resource_To_Modify_List_PDU = -1;  /* PDU_Session_Resource_To_Modify_List */
-static int hf_e1ap_PDU_Session_Resource_To_Remove_List_PDU = -1;  /* PDU_Session_Resource_To_Remove_List */
-static int hf_e1ap_PDU_Session_Resource_To_Setup_List_PDU = -1;  /* PDU_Session_Resource_To_Setup_List */
-static int hf_e1ap_PDU_Session_Resource_To_Setup_Mod_List_PDU = -1;  /* PDU_Session_Resource_To_Setup_Mod_List */
-static int hf_e1ap_PDU_Session_To_Notify_List_PDU = -1;  /* PDU_Session_To_Notify_List */
-static int hf_e1ap_PLMN_Identity_PDU = -1;        /* PLMN_Identity */
-static int hf_e1ap_PPI_PDU = -1;                  /* PPI */
-static int hf_e1ap_PrivacyIndicator_PDU = -1;     /* PrivacyIndicator */
-static int hf_e1ap_QoS_Flow_List_PDU = -1;        /* QoS_Flow_List */
-static int hf_e1ap_QoS_Flow_Mapping_Indication_PDU = -1;  /* QoS_Flow_Mapping_Indication */
-static int hf_e1ap_QoS_Flows_DRB_Remapping_PDU = -1;  /* QoS_Flows_DRB_Remapping */
-static int hf_e1ap_QoSFlowLevelQoSParameters_PDU = -1;  /* QoSFlowLevelQoSParameters */
-static int hf_e1ap_QosMonitoringRequest_PDU = -1;  /* QosMonitoringRequest */
-static int hf_e1ap_QosMonitoringReportingFrequency_PDU = -1;  /* QosMonitoringReportingFrequency */
-static int hf_e1ap_QosMonitoringDisabled_PDU = -1;  /* QosMonitoringDisabled */
-static int hf_e1ap_QoS_Mapping_Information_PDU = -1;  /* QoS_Mapping_Information */
-static int hf_e1ap_DataForwardingtoNG_RANQoSFlowInformationList_PDU = -1;  /* DataForwardingtoNG_RANQoSFlowInformationList */
-static int hf_e1ap_RANUEID_PDU = -1;              /* RANUEID */
-static int hf_e1ap_RedundantQoSFlowIndicator_PDU = -1;  /* RedundantQoSFlowIndicator */
-static int hf_e1ap_RedundantPDUSessionInformation_PDU = -1;  /* RedundantPDUSessionInformation */
-static int hf_e1ap_RetainabilityMeasurementsInfo_PDU = -1;  /* RetainabilityMeasurementsInfo */
-static int hf_e1ap_RegistrationRequest_PDU = -1;  /* RegistrationRequest */
-static int hf_e1ap_ReportCharacteristics_PDU = -1;  /* ReportCharacteristics */
-static int hf_e1ap_ReportingPeriodicity_PDU = -1;  /* ReportingPeriodicity */
-static int hf_e1ap_SCGActivationStatus_PDU = -1;  /* SCGActivationStatus */
-static int hf_e1ap_SecurityIndication_PDU = -1;   /* SecurityIndication */
-static int hf_e1ap_SecurityInformation_PDU = -1;  /* SecurityInformation */
-static int hf_e1ap_SecurityResult_PDU = -1;       /* SecurityResult */
-static int hf_e1ap_SNSSAI_PDU = -1;               /* SNSSAI */
-static int hf_e1ap_SDTContinueROHC_PDU = -1;      /* SDTContinueROHC */
-static int hf_e1ap_SDTindicatorSetup_PDU = -1;    /* SDTindicatorSetup */
-static int hf_e1ap_SDTindicatorMod_PDU = -1;      /* SDTindicatorMod */
-static int hf_e1ap_SubscriberProfileIDforRFP_PDU = -1;  /* SubscriberProfileIDforRFP */
-static int hf_e1ap_SurvivalTime_PDU = -1;         /* SurvivalTime */
-static int hf_e1ap_TimeToWait_PDU = -1;           /* TimeToWait */
-static int hf_e1ap_TNL_AvailableCapacityIndicator_PDU = -1;  /* TNL_AvailableCapacityIndicator */
-static int hf_e1ap_TSCTrafficCharacteristics_PDU = -1;  /* TSCTrafficCharacteristics */
-static int hf_e1ap_TraceActivation_PDU = -1;      /* TraceActivation */
-static int hf_e1ap_TraceID_PDU = -1;              /* TraceID */
-static int hf_e1ap_TransportLayerAddress_PDU = -1;  /* TransportLayerAddress */
-static int hf_e1ap_TransactionID_PDU = -1;        /* TransactionID */
-static int hf_e1ap_Transport_Layer_Address_Info_PDU = -1;  /* Transport_Layer_Address_Info */
-static int hf_e1ap_UDC_Parameters_PDU = -1;       /* UDC_Parameters */
-static int hf_e1ap_VersionID_PDU = -1;            /* VersionID */
-static int hf_e1ap_UE_associatedLogicalE1_ConnectionItem_PDU = -1;  /* UE_associatedLogicalE1_ConnectionItem */
-static int hf_e1ap_UESliceMaximumBitRateList_PDU = -1;  /* UESliceMaximumBitRateList */
-static int hf_e1ap_UP_TNL_Information_PDU = -1;   /* UP_TNL_Information */
-static int hf_e1ap_URIaddress_PDU = -1;           /* URIaddress */
-static int hf_e1ap_UEInactivityInformation_PDU = -1;  /* UEInactivityInformation */
-static int hf_e1ap_Reset_PDU = -1;                /* Reset */
-static int hf_e1ap_ResetType_PDU = -1;            /* ResetType */
-static int hf_e1ap_ResetAcknowledge_PDU = -1;     /* ResetAcknowledge */
-static int hf_e1ap_UE_associatedLogicalE1_ConnectionListResAck_PDU = -1;  /* UE_associatedLogicalE1_ConnectionListResAck */
-static int hf_e1ap_ErrorIndication_PDU = -1;      /* ErrorIndication */
-static int hf_e1ap_GNB_CU_UP_E1SetupRequest_PDU = -1;  /* GNB_CU_UP_E1SetupRequest */
-static int hf_e1ap_SupportedPLMNs_List_PDU = -1;  /* SupportedPLMNs_List */
-static int hf_e1ap_GNB_CU_UP_E1SetupResponse_PDU = -1;  /* GNB_CU_UP_E1SetupResponse */
-static int hf_e1ap_GNB_CU_UP_E1SetupFailure_PDU = -1;  /* GNB_CU_UP_E1SetupFailure */
-static int hf_e1ap_GNB_CU_CP_E1SetupRequest_PDU = -1;  /* GNB_CU_CP_E1SetupRequest */
-static int hf_e1ap_GNB_CU_CP_E1SetupResponse_PDU = -1;  /* GNB_CU_CP_E1SetupResponse */
-static int hf_e1ap_GNB_CU_CP_E1SetupFailure_PDU = -1;  /* GNB_CU_CP_E1SetupFailure */
-static int hf_e1ap_GNB_CU_UP_ConfigurationUpdate_PDU = -1;  /* GNB_CU_UP_ConfigurationUpdate */
-static int hf_e1ap_GNB_CU_UP_TNLA_To_Remove_List_PDU = -1;  /* GNB_CU_UP_TNLA_To_Remove_List */
-static int hf_e1ap_GNB_CU_UP_ConfigurationUpdateAcknowledge_PDU = -1;  /* GNB_CU_UP_ConfigurationUpdateAcknowledge */
-static int hf_e1ap_GNB_CU_UP_ConfigurationUpdateFailure_PDU = -1;  /* GNB_CU_UP_ConfigurationUpdateFailure */
-static int hf_e1ap_GNB_CU_CP_ConfigurationUpdate_PDU = -1;  /* GNB_CU_CP_ConfigurationUpdate */
-static int hf_e1ap_GNB_CU_CP_TNLA_To_Add_List_PDU = -1;  /* GNB_CU_CP_TNLA_To_Add_List */
-static int hf_e1ap_GNB_CU_CP_TNLA_To_Remove_List_PDU = -1;  /* GNB_CU_CP_TNLA_To_Remove_List */
-static int hf_e1ap_GNB_CU_CP_TNLA_To_Update_List_PDU = -1;  /* GNB_CU_CP_TNLA_To_Update_List */
-static int hf_e1ap_GNB_CU_CP_ConfigurationUpdateAcknowledge_PDU = -1;  /* GNB_CU_CP_ConfigurationUpdateAcknowledge */
-static int hf_e1ap_GNB_CU_CP_TNLA_Setup_List_PDU = -1;  /* GNB_CU_CP_TNLA_Setup_List */
-static int hf_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_List_PDU = -1;  /* GNB_CU_CP_TNLA_Failed_To_Setup_List */
-static int hf_e1ap_GNB_CU_CP_ConfigurationUpdateFailure_PDU = -1;  /* GNB_CU_CP_ConfigurationUpdateFailure */
-static int hf_e1ap_E1ReleaseRequest_PDU = -1;     /* E1ReleaseRequest */
-static int hf_e1ap_E1ReleaseResponse_PDU = -1;    /* E1ReleaseResponse */
-static int hf_e1ap_BearerContextSetupRequest_PDU = -1;  /* BearerContextSetupRequest */
-static int hf_e1ap_System_BearerContextSetupRequest_PDU = -1;  /* System_BearerContextSetupRequest */
-static int hf_e1ap_BearerContextSetupResponse_PDU = -1;  /* BearerContextSetupResponse */
-static int hf_e1ap_System_BearerContextSetupResponse_PDU = -1;  /* System_BearerContextSetupResponse */
-static int hf_e1ap_BearerContextSetupFailure_PDU = -1;  /* BearerContextSetupFailure */
-static int hf_e1ap_BearerContextModificationRequest_PDU = -1;  /* BearerContextModificationRequest */
-static int hf_e1ap_System_BearerContextModificationRequest_PDU = -1;  /* System_BearerContextModificationRequest */
-static int hf_e1ap_BearerContextModificationResponse_PDU = -1;  /* BearerContextModificationResponse */
-static int hf_e1ap_System_BearerContextModificationResponse_PDU = -1;  /* System_BearerContextModificationResponse */
-static int hf_e1ap_BearerContextModificationFailure_PDU = -1;  /* BearerContextModificationFailure */
-static int hf_e1ap_BearerContextModificationRequired_PDU = -1;  /* BearerContextModificationRequired */
-static int hf_e1ap_System_BearerContextModificationRequired_PDU = -1;  /* System_BearerContextModificationRequired */
-static int hf_e1ap_BearerContextModificationConfirm_PDU = -1;  /* BearerContextModificationConfirm */
-static int hf_e1ap_System_BearerContextModificationConfirm_PDU = -1;  /* System_BearerContextModificationConfirm */
-static int hf_e1ap_BearerContextReleaseCommand_PDU = -1;  /* BearerContextReleaseCommand */
-static int hf_e1ap_BearerContextReleaseComplete_PDU = -1;  /* BearerContextReleaseComplete */
-static int hf_e1ap_BearerContextReleaseRequest_PDU = -1;  /* BearerContextReleaseRequest */
-static int hf_e1ap_DRB_Status_List_PDU = -1;      /* DRB_Status_List */
-static int hf_e1ap_BearerContextInactivityNotification_PDU = -1;  /* BearerContextInactivityNotification */
-static int hf_e1ap_DLDataNotification_PDU = -1;   /* DLDataNotification */
-static int hf_e1ap_ULDataNotification_PDU = -1;   /* ULDataNotification */
-static int hf_e1ap_DataUsageReport_PDU = -1;      /* DataUsageReport */
-static int hf_e1ap_GNB_CU_UP_CounterCheckRequest_PDU = -1;  /* GNB_CU_UP_CounterCheckRequest */
-static int hf_e1ap_System_GNB_CU_UP_CounterCheckRequest_PDU = -1;  /* System_GNB_CU_UP_CounterCheckRequest */
-static int hf_e1ap_GNB_CU_UP_StatusIndication_PDU = -1;  /* GNB_CU_UP_StatusIndication */
-static int hf_e1ap_GNB_CU_CPMeasurementResultsInformation_PDU = -1;  /* GNB_CU_CPMeasurementResultsInformation */
-static int hf_e1ap_MRDC_DataUsageReport_PDU = -1;  /* MRDC_DataUsageReport */
-static int hf_e1ap_TraceStart_PDU = -1;           /* TraceStart */
-static int hf_e1ap_DeactivateTrace_PDU = -1;      /* DeactivateTrace */
-static int hf_e1ap_CellTrafficTrace_PDU = -1;     /* CellTrafficTrace */
-static int hf_e1ap_PrivateMessage_PDU = -1;       /* PrivateMessage */
-static int hf_e1ap_ResourceStatusRequest_PDU = -1;  /* ResourceStatusRequest */
-static int hf_e1ap_Measurement_ID_PDU = -1;       /* Measurement_ID */
-static int hf_e1ap_ResourceStatusResponse_PDU = -1;  /* ResourceStatusResponse */
-static int hf_e1ap_ResourceStatusFailure_PDU = -1;  /* ResourceStatusFailure */
-static int hf_e1ap_ResourceStatusUpdate_PDU = -1;  /* ResourceStatusUpdate */
-static int hf_e1ap_IAB_UPTNLAddressUpdate_PDU = -1;  /* IAB_UPTNLAddressUpdate */
-static int hf_e1ap_DLUPTNLAddressToUpdateList_PDU = -1;  /* DLUPTNLAddressToUpdateList */
-static int hf_e1ap_IAB_UPTNLAddressUpdateAcknowledge_PDU = -1;  /* IAB_UPTNLAddressUpdateAcknowledge */
-static int hf_e1ap_ULUPTNLAddressToUpdateList_PDU = -1;  /* ULUPTNLAddressToUpdateList */
-static int hf_e1ap_IAB_UPTNLAddressUpdateFailure_PDU = -1;  /* IAB_UPTNLAddressUpdateFailure */
-static int hf_e1ap_EarlyForwardingSNTransfer_PDU = -1;  /* EarlyForwardingSNTransfer */
-static int hf_e1ap_IABPSKNotification_PDU = -1;   /* IABPSKNotification */
-static int hf_e1ap_IAB_Donor_CU_UPPSKInfo_PDU = -1;  /* IAB_Donor_CU_UPPSKInfo */
-static int hf_e1ap_BCBearerContextSetupRequest_PDU = -1;  /* BCBearerContextSetupRequest */
-static int hf_e1ap_BCBearerContextSetupResponse_PDU = -1;  /* BCBearerContextSetupResponse */
-static int hf_e1ap_BCBearerContextSetupFailure_PDU = -1;  /* BCBearerContextSetupFailure */
-static int hf_e1ap_BCBearerContextModificationRequest_PDU = -1;  /* BCBearerContextModificationRequest */
-static int hf_e1ap_BCBearerContextModificationResponse_PDU = -1;  /* BCBearerContextModificationResponse */
-static int hf_e1ap_BCBearerContextModificationFailure_PDU = -1;  /* BCBearerContextModificationFailure */
-static int hf_e1ap_BCBearerContextModificationRequired_PDU = -1;  /* BCBearerContextModificationRequired */
-static int hf_e1ap_BCBearerContextModificationConfirm_PDU = -1;  /* BCBearerContextModificationConfirm */
-static int hf_e1ap_BCBearerContextReleaseCommand_PDU = -1;  /* BCBearerContextReleaseCommand */
-static int hf_e1ap_BCBearerContextReleaseComplete_PDU = -1;  /* BCBearerContextReleaseComplete */
-static int hf_e1ap_BCBearerContextReleaseRequest_PDU = -1;  /* BCBearerContextReleaseRequest */
-static int hf_e1ap_MCBearerContextSetupRequest_PDU = -1;  /* MCBearerContextSetupRequest */
-static int hf_e1ap_MCBearerContextSetupResponse_PDU = -1;  /* MCBearerContextSetupResponse */
-static int hf_e1ap_MCBearerContextSetupFailure_PDU = -1;  /* MCBearerContextSetupFailure */
-static int hf_e1ap_MCBearerContextModificationRequest_PDU = -1;  /* MCBearerContextModificationRequest */
-static int hf_e1ap_MCBearerContextModificationResponse_PDU = -1;  /* MCBearerContextModificationResponse */
-static int hf_e1ap_MCBearerContextModificationFailure_PDU = -1;  /* MCBearerContextModificationFailure */
-static int hf_e1ap_MCBearerContextModificationRequired_PDU = -1;  /* MCBearerContextModificationRequired */
-static int hf_e1ap_MCBearerContextModificationConfirm_PDU = -1;  /* MCBearerContextModificationConfirm */
-static int hf_e1ap_MCBearerContextReleaseCommand_PDU = -1;  /* MCBearerContextReleaseCommand */
-static int hf_e1ap_MCBearerContextReleaseComplete_PDU = -1;  /* MCBearerContextReleaseComplete */
-static int hf_e1ap_MCBearerContextReleaseRequest_PDU = -1;  /* MCBearerContextReleaseRequest */
-static int hf_e1ap_E1AP_PDU_PDU = -1;             /* E1AP_PDU */
-static int hf_e1ap_local = -1;                    /* INTEGER_0_maxPrivateIEs */
-static int hf_e1ap_global = -1;                   /* T_global */
-static int hf_e1ap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
-static int hf_e1ap_id = -1;                       /* ProtocolIE_ID */
-static int hf_e1ap_criticality = -1;              /* Criticality */
-static int hf_e1ap_ie_field_value = -1;           /* T_ie_field_value */
-static int hf_e1ap_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
-static int hf_e1ap_ext_id = -1;                   /* ProtocolIE_ID */
-static int hf_e1ap_extensionValue = -1;           /* T_extensionValue */
-static int hf_e1ap_PrivateIE_Container_item = -1;  /* PrivateIE_Field */
-static int hf_e1ap_private_id = -1;               /* PrivateIE_ID */
-static int hf_e1ap_value = -1;                    /* T_value */
-static int hf_e1ap_dRB_Activity_List = -1;        /* DRB_Activity_List */
-static int hf_e1ap_pDU_Session_Resource_Activity_List = -1;  /* PDU_Session_Resource_Activity_List */
-static int hf_e1ap_uE_Activity = -1;              /* UE_Activity */
-static int hf_e1ap_choice_extension = -1;         /* ProtocolIE_SingleContainer */
-static int hf_e1ap_AlternativeQoSParaSetList_item = -1;  /* AlternativeQoSParaSetItem */
-static int hf_e1ap_alternativeQoSParameterIndex = -1;  /* INTEGER_1_8_ */
-static int hf_e1ap_guaranteedFlowBitRateDL = -1;  /* BitRate */
-static int hf_e1ap_guaranteedFlowBitRateUL = -1;  /* BitRate */
-static int hf_e1ap_packetDelayBudget = -1;        /* PacketDelayBudget */
-static int hf_e1ap_packetErrorRate = -1;          /* PacketErrorRate */
-static int hf_e1ap_iE_Extensions = -1;            /* ProtocolExtensionContainer */
-static int hf_e1ap_snssai = -1;                   /* SNSSAI */
-static int hf_e1ap_bcBearerContextNGU_TNLInfoat5GC = -1;  /* BCBearerContextNGU_TNLInfoat5GC */
-static int hf_e1ap_bcMRBToSetupList = -1;         /* BCMRBSetupConfiguration */
-static int hf_e1ap_requestedAction = -1;          /* RequestedAction4AvailNGUTermination */
-static int hf_e1ap_locationindependent = -1;      /* MBSNGUInformationAt5GC */
-static int hf_e1ap_locationdependent = -1;        /* LocationDependentMBSNGUInformationAt5GC */
-static int hf_e1ap_BCMRBSetupConfiguration_item = -1;  /* BCMRBSetupConfiguration_Item */
-static int hf_e1ap_mrb_ID = -1;                   /* MRB_ID */
-static int hf_e1ap_mbs_pdcp_config = -1;          /* PDCP_Configuration */
-static int hf_e1ap_qoS_Flow_QoS_Parameter_List = -1;  /* QoS_Flow_QoS_Parameter_List */
-static int hf_e1ap_qoSFlowLevelQoSParameters = -1;  /* QoSFlowLevelQoSParameters */
-static int hf_e1ap_bcBearerContextNGU_TNLInfoatNGRAN = -1;  /* BCBearerContextNGU_TNLInfoatNGRAN */
-static int hf_e1ap_bcMRBSetupResponseList = -1;   /* BCMRBSetupResponseList */
-static int hf_e1ap_bcMRBFailedList = -1;          /* BCMRBFailedList */
-static int hf_e1ap_availableBCMRBConfig = -1;     /* BCMRBSetupConfiguration */
-static int hf_e1ap_locationindependent_01 = -1;   /* MBSNGUInformationAtNGRAN */
-static int hf_e1ap_locationdependent_01 = -1;     /* LocationDependentMBSNGUInformationAtNGRAN */
-static int hf_e1ap_BCMRBSetupResponseList_item = -1;  /* BCMRBSetupResponseList_Item */
-static int hf_e1ap_qosflow_setup = -1;            /* QoS_Flow_List */
-static int hf_e1ap_qosflow_failed = -1;           /* QoS_Flow_Failed_List */
-static int hf_e1ap_bcBearerContextF1U_TNLInfoatCU = -1;  /* BCBearerContextF1U_TNLInfoatCU */
-static int hf_e1ap_locationindependent_02 = -1;   /* MBSF1UInformationAtCU */
-static int hf_e1ap_locationdependent_02 = -1;     /* LocationDependentMBSF1UInformationAtCU */
-static int hf_e1ap_BCMRBFailedList_item = -1;     /* BCMRBFailedList_Item */
-static int hf_e1ap_cause = -1;                    /* Cause */
-static int hf_e1ap_bcMRBToModifyList = -1;        /* BCMRBModifyConfiguration */
-static int hf_e1ap_bcMRBToRemoveList = -1;        /* BCMRBRemoveConfiguration */
-static int hf_e1ap_BCMRBModifyConfiguration_item = -1;  /* BCMRBModifyConfiguration_Item */
-static int hf_e1ap_bcBearerContextF1U_TNLInfoatDU = -1;  /* BCBearerContextF1U_TNLInfoatDU */
-static int hf_e1ap_locationindependent_03 = -1;   /* MBSF1UInformationAtDU */
-static int hf_e1ap_locationdependent_03 = -1;     /* LocationDependentMBSF1UInformationAtDU */
-static int hf_e1ap_BCMRBRemoveConfiguration_item = -1;  /* MRB_ID */
-static int hf_e1ap_bcMRBSetupModifyResponseList = -1;  /* BCMRBSetupModifyResponseList */
-static int hf_e1ap_BCMRBSetupModifyResponseList_item = -1;  /* BCMRBSetupModifyResponseList_Item */
-static int hf_e1ap_radioNetwork = -1;             /* CauseRadioNetwork */
-static int hf_e1ap_transport = -1;                /* CauseTransport */
-static int hf_e1ap_protocol = -1;                 /* CauseProtocol */
-static int hf_e1ap_misc = -1;                     /* CauseMisc */
-static int hf_e1ap_Cell_Group_Information_item = -1;  /* Cell_Group_Information_Item */
-static int hf_e1ap_cell_Group_ID = -1;            /* Cell_Group_ID */
-static int hf_e1ap_uL_Configuration = -1;         /* UL_Configuration */
-static int hf_e1ap_dL_TX_Stop = -1;               /* DL_TX_Stop */
-static int hf_e1ap_rAT_Type = -1;                 /* RAT_Type */
-static int hf_e1ap_endpoint_IP_Address = -1;      /* TransportLayerAddress */
-static int hf_e1ap_procedureCode = -1;            /* ProcedureCode */
-static int hf_e1ap_triggeringMessage = -1;        /* TriggeringMessage */
-static int hf_e1ap_procedureCriticality = -1;     /* Criticality */
-static int hf_e1ap_transactionID = -1;            /* TransactionID */
-static int hf_e1ap_iEsCriticalityDiagnostics = -1;  /* CriticalityDiagnostics_IE_List */
-static int hf_e1ap_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_List_item */
-static int hf_e1ap_iECriticality = -1;            /* Criticality */
-static int hf_e1ap_iE_ID = -1;                    /* ProtocolIE_ID */
-static int hf_e1ap_typeOfError = -1;              /* TypeOfError */
-static int hf_e1ap_dapsIndicator = -1;            /* T_dapsIndicator */
-static int hf_e1ap_data_Forwarding_Request = -1;  /* Data_Forwarding_Request */
-static int hf_e1ap_qoS_Flows_Forwarded_On_Fwd_Tunnels = -1;  /* QoS_Flow_Mapping_List */
-static int hf_e1ap_uL_Data_Forwarding = -1;       /* UP_TNL_Information */
-static int hf_e1ap_dL_Data_Forwarding = -1;       /* UP_TNL_Information */
-static int hf_e1ap_DataForwardingtoE_UTRANInformationList_item = -1;  /* DataForwardingtoE_UTRANInformationListItem */
-static int hf_e1ap_data_forwarding_tunnel_information = -1;  /* UP_TNL_Information */
-static int hf_e1ap_qoS_Flows_to_be_forwarded_List = -1;  /* QoS_Flows_to_be_forwarded_List */
-static int hf_e1ap_secondaryRATType = -1;         /* T_secondaryRATType */
-static int hf_e1ap_pDU_session_Timed_Report_List = -1;  /* SEQUENCE_SIZE_1_maxnooftimeperiods_OF_MRDC_Data_Usage_Report_Item */
-static int hf_e1ap_pDU_session_Timed_Report_List_item = -1;  /* MRDC_Data_Usage_Report_Item */
-static int hf_e1ap_Data_Usage_per_QoS_Flow_List_item = -1;  /* Data_Usage_per_QoS_Flow_Item */
-static int hf_e1ap_qoS_Flow_Identifier = -1;      /* QoS_Flow_Identifier */
-static int hf_e1ap_secondaryRATType_01 = -1;      /* T_secondaryRATType_01 */
-static int hf_e1ap_qoS_Flow_Timed_Report_List = -1;  /* SEQUENCE_SIZE_1_maxnooftimeperiods_OF_MRDC_Data_Usage_Report_Item */
-static int hf_e1ap_qoS_Flow_Timed_Report_List_item = -1;  /* MRDC_Data_Usage_Report_Item */
-static int hf_e1ap_Data_Usage_Report_List_item = -1;  /* Data_Usage_Report_Item */
-static int hf_e1ap_dRB_ID = -1;                   /* DRB_ID */
-static int hf_e1ap_dRB_Usage_Report_List = -1;    /* DRB_Usage_Report_List */
-static int hf_e1ap_dLDiscardingCountVal = -1;     /* PDCP_Count */
-static int hf_e1ap_oldTNLAdress = -1;             /* TransportLayerAddress */
-static int hf_e1ap_newTNLAdress = -1;             /* TransportLayerAddress */
-static int hf_e1ap_DRB_Activity_List_item = -1;   /* DRB_Activity_Item */
-static int hf_e1ap_dRB_Activity = -1;             /* DRB_Activity */
-static int hf_e1ap_DRB_Confirm_Modified_List_EUTRAN_item = -1;  /* DRB_Confirm_Modified_Item_EUTRAN */
-static int hf_e1ap_cell_Group_Information = -1;   /* Cell_Group_Information */
-static int hf_e1ap_DRB_Confirm_Modified_List_NG_RAN_item = -1;  /* DRB_Confirm_Modified_Item_NG_RAN */
-static int hf_e1ap_DRB_Failed_List_EUTRAN_item = -1;  /* DRB_Failed_Item_EUTRAN */
-static int hf_e1ap_DRB_Failed_Mod_List_EUTRAN_item = -1;  /* DRB_Failed_Mod_Item_EUTRAN */
-static int hf_e1ap_DRB_Failed_List_NG_RAN_item = -1;  /* DRB_Failed_Item_NG_RAN */
-static int hf_e1ap_DRB_Failed_Mod_List_NG_RAN_item = -1;  /* DRB_Failed_Mod_Item_NG_RAN */
-static int hf_e1ap_DRB_Failed_To_Modify_List_EUTRAN_item = -1;  /* DRB_Failed_To_Modify_Item_EUTRAN */
-static int hf_e1ap_DRB_Failed_To_Modify_List_NG_RAN_item = -1;  /* DRB_Failed_To_Modify_Item_NG_RAN */
-static int hf_e1ap_DRB_Measurement_Results_Information_List_item = -1;  /* DRB_Measurement_Results_Information_Item */
-static int hf_e1ap_uL_D1_Result = -1;             /* INTEGER_0_10000_ */
-static int hf_e1ap_DRB_Modified_List_EUTRAN_item = -1;  /* DRB_Modified_Item_EUTRAN */
-static int hf_e1ap_s1_DL_UP_TNL_Information = -1;  /* UP_TNL_Information */
-static int hf_e1ap_pDCP_SN_Status_Information = -1;  /* PDCP_SN_Status_Information */
-static int hf_e1ap_uL_UP_Transport_Parameters = -1;  /* UP_Parameters */
-static int hf_e1ap_DRB_Modified_List_NG_RAN_item = -1;  /* DRB_Modified_Item_NG_RAN */
-static int hf_e1ap_flow_Setup_List = -1;          /* QoS_Flow_List */
-static int hf_e1ap_flow_Failed_List = -1;         /* QoS_Flow_Failed_List */
-static int hf_e1ap_dRB_Released_In_Session = -1;  /* T_dRB_Released_In_Session */
-static int hf_e1ap_dRB_Accumulated_Session_Time = -1;  /* OCTET_STRING_SIZE_5 */
-static int hf_e1ap_qoS_Flow_Removed_List = -1;    /* SEQUENCE_SIZE_1_maxnoofQoSFlows_OF_QoS_Flow_Removed_Item */
-static int hf_e1ap_qoS_Flow_Removed_List_item = -1;  /* QoS_Flow_Removed_Item */
-static int hf_e1ap_DRB_Required_To_Modify_List_EUTRAN_item = -1;  /* DRB_Required_To_Modify_Item_EUTRAN */
-static int hf_e1ap_gNB_CU_UP_CellGroupRelatedConfiguration = -1;  /* GNB_CU_UP_CellGroupRelatedConfiguration */
-static int hf_e1ap_DRB_Required_To_Modify_List_NG_RAN_item = -1;  /* DRB_Required_To_Modify_Item_NG_RAN */
-static int hf_e1ap_flow_To_Remove = -1;           /* QoS_Flow_List */
-static int hf_e1ap_DRB_Setup_List_EUTRAN_item = -1;  /* DRB_Setup_Item_EUTRAN */
-static int hf_e1ap_data_Forwarding_Information_Response = -1;  /* Data_Forwarding_Information */
-static int hf_e1ap_s1_DL_UP_Unchanged = -1;       /* T_s1_DL_UP_Unchanged */
-static int hf_e1ap_DRB_Setup_Mod_List_EUTRAN_item = -1;  /* DRB_Setup_Mod_Item_EUTRAN */
-static int hf_e1ap_DRB_Setup_List_NG_RAN_item = -1;  /* DRB_Setup_Item_NG_RAN */
-static int hf_e1ap_dRB_data_Forwarding_Information_Response = -1;  /* Data_Forwarding_Information */
-static int hf_e1ap_DRB_Setup_Mod_List_NG_RAN_item = -1;  /* DRB_Setup_Mod_Item_NG_RAN */
-static int hf_e1ap_pDCP_DL_Count = -1;            /* PDCP_Count */
-static int hf_e1ap_pDCP_UL_Count = -1;            /* PDCP_Count */
-static int hf_e1ap_DRBs_Subject_To_Counter_Check_List_EUTRAN_item = -1;  /* DRBs_Subject_To_Counter_Check_Item_EUTRAN */
-static int hf_e1ap_DRBs_Subject_To_Counter_Check_List_NG_RAN_item = -1;  /* DRBs_Subject_To_Counter_Check_Item_NG_RAN */
-static int hf_e1ap_pDU_Session_ID = -1;           /* PDU_Session_ID */
-static int hf_e1ap_DRBs_Subject_To_Early_Forwarding_List_item = -1;  /* DRBs_Subject_To_Early_Forwarding_Item */
-static int hf_e1ap_dLCountValue = -1;             /* PDCP_Count */
-static int hf_e1ap_DRB_To_Modify_List_EUTRAN_item = -1;  /* DRB_To_Modify_Item_EUTRAN */
-static int hf_e1ap_pDCP_Configuration = -1;       /* PDCP_Configuration */
-static int hf_e1ap_eUTRAN_QoS = -1;               /* EUTRAN_QoS */
-static int hf_e1ap_s1_UL_UP_TNL_Information = -1;  /* UP_TNL_Information */
-static int hf_e1ap_data_Forwarding_Information = -1;  /* Data_Forwarding_Information */
-static int hf_e1ap_pDCP_SN_Status_Request = -1;   /* PDCP_SN_Status_Request */
-static int hf_e1ap_dL_UP_Parameters = -1;         /* UP_Parameters */
-static int hf_e1ap_cell_Group_To_Add = -1;        /* Cell_Group_Information */
-static int hf_e1ap_cell_Group_To_Modify = -1;     /* Cell_Group_Information */
-static int hf_e1ap_cell_Group_To_Remove = -1;     /* Cell_Group_Information */
-static int hf_e1ap_dRB_Inactivity_Timer = -1;     /* Inactivity_Timer */
-static int hf_e1ap_DRB_To_Modify_List_NG_RAN_item = -1;  /* DRB_To_Modify_Item_NG_RAN */
-static int hf_e1ap_sDAP_Configuration = -1;       /* SDAP_Configuration */
-static int hf_e1ap_dRB_Data_Forwarding_Information = -1;  /* Data_Forwarding_Information */
-static int hf_e1ap_pdcp_SN_Status_Information = -1;  /* PDCP_SN_Status_Information */
-static int hf_e1ap_flow_Mapping_Information = -1;  /* QoS_Flow_QoS_Parameter_List */
-static int hf_e1ap_DRB_To_Remove_List_EUTRAN_item = -1;  /* DRB_To_Remove_Item_EUTRAN */
-static int hf_e1ap_DRB_Required_To_Remove_List_EUTRAN_item = -1;  /* DRB_Required_To_Remove_Item_EUTRAN */
-static int hf_e1ap_DRB_To_Remove_List_NG_RAN_item = -1;  /* DRB_To_Remove_Item_NG_RAN */
-static int hf_e1ap_DRB_Required_To_Remove_List_NG_RAN_item = -1;  /* DRB_Required_To_Remove_Item_NG_RAN */
-static int hf_e1ap_DRB_To_Setup_List_EUTRAN_item = -1;  /* DRB_To_Setup_Item_EUTRAN */
-static int hf_e1ap_data_Forwarding_Information_Request = -1;  /* Data_Forwarding_Information_Request */
-static int hf_e1ap_existing_Allocated_S1_DL_UP_TNL_Info = -1;  /* UP_TNL_Information */
-static int hf_e1ap_DRB_To_Setup_Mod_List_EUTRAN_item = -1;  /* DRB_To_Setup_Mod_Item_EUTRAN */
-static int hf_e1ap_DRB_To_Setup_List_NG_RAN_item = -1;  /* DRB_To_Setup_Item_NG_RAN */
-static int hf_e1ap_qos_flow_Information_To_Be_Setup = -1;  /* QoS_Flow_QoS_Parameter_List */
-static int hf_e1ap_dRB_Data_Forwarding_Information_Request = -1;  /* Data_Forwarding_Information_Request */
-static int hf_e1ap_DRB_To_Setup_Mod_List_NG_RAN_item = -1;  /* DRB_To_Setup_Mod_Item_NG_RAN */
-static int hf_e1ap_DRB_Usage_Report_List_item = -1;  /* DRB_Usage_Report_Item */
-static int hf_e1ap_startTimeStamp = -1;           /* T_startTimeStamp */
-static int hf_e1ap_endTimeStamp = -1;             /* T_endTimeStamp */
-static int hf_e1ap_usageCountUL = -1;             /* INTEGER_0_18446744073709551615 */
-static int hf_e1ap_usageCountDL = -1;             /* INTEGER_0_18446744073709551615 */
-static int hf_e1ap_qoSPriorityLevel = -1;         /* QoSPriorityLevel */
-static int hf_e1ap_fiveQI = -1;                   /* INTEGER_0_255_ */
-static int hf_e1ap_delayCritical = -1;            /* T_delayCritical */
-static int hf_e1ap_averagingWindow = -1;          /* AveragingWindow */
-static int hf_e1ap_maxDataBurstVolume = -1;       /* MaxDataBurstVolume */
-static int hf_e1ap_firstDLCount = -1;             /* FirstDLCount */
-static int hf_e1ap_dLDiscardingCount = -1;        /* DLDiscarding */
-static int hf_e1ap_choice_Extension = -1;         /* ProtocolIE_SingleContainer */
-static int hf_e1ap_ehc_CID_Length = -1;           /* T_ehc_CID_Length */
-static int hf_e1ap_drb_ContinueEHC_DL = -1;       /* T_drb_ContinueEHC_DL */
-static int hf_e1ap_drb_ContinueEHC_UL = -1;       /* T_drb_ContinueEHC_UL */
-static int hf_e1ap_ehc_Common = -1;               /* EHC_Common_Parameters */
-static int hf_e1ap_ehc_Downlink = -1;             /* EHC_Downlink_Parameters */
-static int hf_e1ap_ehc_Uplink = -1;               /* EHC_Uplink_Parameters */
-static int hf_e1ap_portNumber = -1;               /* PortNumber */
-static int hf_e1ap_priorityLevel = -1;            /* PriorityLevel */
-static int hf_e1ap_pre_emptionCapability = -1;    /* Pre_emptionCapability */
-static int hf_e1ap_pre_emptionVulnerability = -1;  /* Pre_emptionVulnerability */
-static int hf_e1ap_pLMN_Identity = -1;            /* PLMN_Identity */
-static int hf_e1ap_eUTRAN_Cell_Identity = -1;     /* E_UTRAN_Cell_Identity */
-static int hf_e1ap_ECGI_Support_List_item = -1;   /* ECGI_Support_Item */
-static int hf_e1ap_eCGI = -1;                     /* ECGI */
-static int hf_e1ap_EUTRAN_QoS_Support_List_item = -1;  /* EUTRAN_QoS_Support_Item */
-static int hf_e1ap_qCI = -1;                      /* QCI */
-static int hf_e1ap_eUTRANallocationAndRetentionPriority = -1;  /* EUTRANAllocationAndRetentionPriority */
-static int hf_e1ap_gbrQosInformation = -1;        /* GBR_QosInformation */
-static int hf_e1ap_ExtendedSliceSupportList_item = -1;  /* Slice_Support_Item */
-static int hf_e1ap_firstDLCountVal = -1;          /* PDCP_Count */
-static int hf_e1ap_tmgi = -1;                     /* OCTET_STRING_SIZE_6 */
-static int hf_e1ap_nid = -1;                      /* NID */
-static int hf_e1ap_gNB_CU_CP_NameVisibleString = -1;  /* GNB_CU_CP_NameVisibleString */
-static int hf_e1ap_gNB_CU_CP_NameUTF8String = -1;  /* GNB_CU_CP_NameUTF8String */
-static int hf_e1ap_GNB_CU_UP_CellGroupRelatedConfiguration_item = -1;  /* GNB_CU_UP_CellGroupRelatedConfiguration_Item */
-static int hf_e1ap_uP_TNL_Information = -1;       /* UP_TNL_Information */
-static int hf_e1ap_mbs_Support_Info_ToAdd_List = -1;  /* MBS_Support_Info_ToAdd_List */
-static int hf_e1ap_mbs_Support_Info_ToRemove_List = -1;  /* MBS_Support_Info_ToRemove_List */
-static int hf_e1ap_gNB_CU_UP_NameVisibleString = -1;  /* GNB_CU_UP_NameVisibleString */
-static int hf_e1ap_gNB_CU_UP_NameUTF8String = -1;  /* GNB_CU_UP_NameUTF8String */
-static int hf_e1ap_tNLAssociationTransportLayerAddress = -1;  /* CP_TNL_Information */
-static int hf_e1ap_tNLAssociationUsage = -1;      /* TNLAssociationUsage */
-static int hf_e1ap_tNLAssociationTransportLayerAddressgNBCUCP = -1;  /* CP_TNL_Information */
-static int hf_e1ap_e_RAB_MaximumBitrateDL = -1;   /* BitRate */
-static int hf_e1ap_e_RAB_MaximumBitrateUL = -1;   /* BitRate */
-static int hf_e1ap_e_RAB_GuaranteedBitrateDL = -1;  /* BitRate */
-static int hf_e1ap_e_RAB_GuaranteedBitrateUL = -1;  /* BitRate */
-static int hf_e1ap_maxFlowBitRateDownlink = -1;   /* BitRate */
-static int hf_e1ap_maxFlowBitRateUplink = -1;     /* BitRate */
-static int hf_e1ap_guaranteedFlowBitRateDownlink = -1;  /* BitRate */
-static int hf_e1ap_guaranteedFlowBitRateUplink = -1;  /* BitRate */
-static int hf_e1ap_maxPacketLossRateDownlink = -1;  /* MaxPacketLossRate */
-static int hf_e1ap_maxPacketLossRateUplink = -1;  /* MaxPacketLossRate */
-static int hf_e1ap_GTPTLAs_item = -1;             /* GTPTLA_Item */
-static int hf_e1ap_gTPTransportLayerAddresses = -1;  /* TransportLayerAddress */
-static int hf_e1ap_transportLayerAddress = -1;    /* TransportLayerAddress */
-static int hf_e1ap_gTP_TEID = -1;                 /* GTP_TEID */
-static int hf_e1ap_offeredThroughput = -1;        /* INTEGER_1_16777216_ */
-static int hf_e1ap_availableThroughput = -1;      /* INTEGER_0_100_ */
-static int hf_e1ap_measurementsToActivate = -1;   /* MeasurementsToActivate */
-static int hf_e1ap_measurementFour = -1;          /* M4Configuration */
-static int hf_e1ap_measurementSix = -1;           /* M6Configuration */
-static int hf_e1ap_measurementSeven = -1;         /* M7Configuration */
-static int hf_e1ap_iAB_donor_CU_UPPSK = -1;       /* IAB_donor_CU_UPPSK */
-static int hf_e1ap_iAB_donor_CU_UPIPAddress = -1;  /* TransportLayerAddress */
-static int hf_e1ap_iAB_DUIPAddress = -1;          /* TransportLayerAddress */
-static int hf_e1ap_LocationDependentMBSNGUInformationAt5GC_item = -1;  /* LocationDependentMBSNGUInformationAt5GC_Item */
-static int hf_e1ap_mbsAreaSession_ID = -1;        /* MBSAreaSessionID */
-static int hf_e1ap_mbsNGUInformationAt5GC = -1;   /* MBSNGUInformationAt5GC */
-static int hf_e1ap_LocationDependentMBSF1UInformationAtCU_item = -1;  /* LocationDependentMBSF1UInformationAtCU_Item */
-static int hf_e1ap_mbs_f1u_info_at_CU = -1;       /* UP_TNL_Information */
-static int hf_e1ap_LocationDependentMBSF1UInformationAtDU_item = -1;  /* LocationDependentMBSF1UInformationAtDU_Item */
-static int hf_e1ap_mbs_f1u_info_at_DU = -1;       /* UP_TNL_Information */
-static int hf_e1ap_LocationDependentMBSNGUInformationAtNGRAN_item = -1;  /* LocationDependentMBSNGUInformationAtNGRAN_Item */
-static int hf_e1ap_mbsNGUInformationAtNGRAN = -1;  /* MBSNGUInformationAtNGRAN */
-static int hf_e1ap_maxIPrate = -1;                /* MaxIPrate */
-static int hf_e1ap_multicast = -1;                /* MBSNGUInformationAt5GC_Multicast */
-static int hf_e1ap_ipmcAddress = -1;              /* TransportLayerAddress */
-static int hf_e1ap_ipsourceAddress = -1;          /* TransportLayerAddress */
-static int hf_e1ap_gtpDLTEID = -1;                /* GTP_TEID */
-static int hf_e1ap_unicast = -1;                  /* UP_TNL_Information */
-static int hf_e1ap_ue_Reference_ID = -1;          /* GNB_CU_CP_UE_E1AP_ID */
-static int hf_e1ap_associatedQoSFlowInformationList = -1;  /* MBSSessionAssociatedInformationList */
-static int hf_e1ap_mbsSessionAssociatedInformationList = -1;  /* MBSSessionAssociatedInformationList */
-static int hf_e1ap_mbsSessionForwardingAddress = -1;  /* UP_TNL_Information */
-static int hf_e1ap_MBSSessionAssociatedInformationList_item = -1;  /* MBSSessionAssociatedInformation_Item */
-static int hf_e1ap_mbs_QoS_Flow_Identifier = -1;  /* QoS_Flow_Identifier */
-static int hf_e1ap_associated_unicast_QoS_Flow_Identifier = -1;  /* QoS_Flow_Identifier */
-static int hf_e1ap_MBS_Support_Info_ToAdd_List_item = -1;  /* MBS_Support_Info_ToAdd_Item */
-static int hf_e1ap_globalMBSSessionID = -1;       /* GlobalMBSSessionID */
-static int hf_e1ap_MBS_Support_Info_ToRemove_List_item = -1;  /* MBS_Support_Info_ToRemove_Item */
-static int hf_e1ap_mcMRBToSetupList = -1;         /* MCMRBSetupConfiguration */
-static int hf_e1ap_MCMRBSetupConfiguration_item = -1;  /* MCMRBSetupConfiguration_Item */
-static int hf_e1ap_mcBearerContextNGU_TNLInfoatNGRAN = -1;  /* MCBearerContextNGU_TNLInfoatNGRAN */
-static int hf_e1ap_mcMRBSetupResponseList = -1;   /* MCMRBSetupResponseList */
-static int hf_e1ap_mcMRBFailedList = -1;          /* MCMRBFailedList */
-static int hf_e1ap_availableMCMRBConfig = -1;     /* MCMRBSetupConfiguration */
-static int hf_e1ap_MCMRBSetupResponseList_item = -1;  /* MCMRBSetupResponseList_Item */
-static int hf_e1ap_mBS_PDCP_COUNT = -1;           /* MBS_PDCP_COUNT */
-static int hf_e1ap_MCMRBFailedList_item = -1;     /* MCMRBFailedList_Item */
-static int hf_e1ap_mcBearerContextNGUTNLInfoat5GC = -1;  /* MCBearerContextNGUTNLInfoat5GC */
-static int hf_e1ap_mcBearerContextNGUTnlInfoatNGRANRequest = -1;  /* MCBearerContextNGUTnlInfoatNGRANRequest */
-static int hf_e1ap_mbsMulticastF1UContextDescriptor = -1;  /* MBSMulticastF1UContextDescriptor */
-static int hf_e1ap_mcMRBToSetupModifyList = -1;   /* MCMRBSetupModifyConfiguration */
-static int hf_e1ap_mcMRBToRemoveList = -1;        /* MCMRBRemoveConfiguration */
-static int hf_e1ap_ngRANNGUTNLRequested = -1;     /* T_ngRANNGUTNLRequested */
-static int hf_e1ap_MCMRBSetupModifyConfiguration_item = -1;  /* MCMRBSetupModifyConfiguration_Item */
-static int hf_e1ap_f1uTNLatDU = -1;               /* MCBearerContextF1UTNLInfoatDU */
-static int hf_e1ap_mrbQoS = -1;                   /* QoSFlowLevelQoSParameters */
-static int hf_e1ap_mbs_PDCP_COUNT_Req = -1;       /* MBS_PDCP_COUNT_Req */
-static int hf_e1ap_mbsF1UInfoatDU = -1;           /* UP_TNL_Information */
-static int hf_e1ap_multicastF1UContextReferenceE1 = -1;  /* MulticastF1UContextReferenceE1 */
-static int hf_e1ap_mc_F1UCtxtusage = -1;          /* T_mc_F1UCtxtusage */
-static int hf_e1ap_mbsAreaSession = -1;           /* MBSAreaSessionID */
-static int hf_e1ap_MCMRBRemoveConfiguration_item = -1;  /* MRB_ID */
-static int hf_e1ap_mcBearerContextNGU_TNLInfoatNGRANModifyResponse = -1;  /* MCBearerContextNGU_TNLInfoatNGRANModifyResponse */
-static int hf_e1ap_mcMRBModifySetupResponseList = -1;  /* MCMRBSetupModifyResponseList */
-static int hf_e1ap_mbs_NGU_InfoatNGRAN = -1;      /* MBSNGUInformationAtNGRAN */
-static int hf_e1ap_MCMRBSetupModifyResponseList_item = -1;  /* MCMRBSetupModifyResponseList_Item */
-static int hf_e1ap_mcBearerContextF1UTNLInfoatCU = -1;  /* UP_TNL_Information */
-static int hf_e1ap_mcMRBToRemoveRequiredList = -1;  /* MCMRBRemoveConfiguration */
-static int hf_e1ap_mcMRBToModifyRequiredList = -1;  /* MCMRBModifyRequiredConfiguration */
-static int hf_e1ap_MCMRBModifyRequiredConfiguration_item = -1;  /* MCMRBModifyRequiredConfiguration_Item */
-static int hf_e1ap_mcMRBModifyConfirmList = -1;   /* MCMRBModifyConfirmList */
-static int hf_e1ap_MCMRBModifyConfirmList_item = -1;  /* MCMRBModifyConfirmList_Item */
-static int hf_e1ap_mcForwardingResourceID = -1;   /* MCForwardingResourceID */
-static int hf_e1ap_mrbForwardingResourceRequestList = -1;  /* MRBForwardingResourceRequestList */
-static int hf_e1ap_MRBForwardingResourceRequestList_item = -1;  /* MRBForwardingResourceRequest_Item */
-static int hf_e1ap_mrbProgressRequestType = -1;   /* MRB_ProgressInformationType */
-static int hf_e1ap_mrbForwardingAddressRequest = -1;  /* T_mrbForwardingAddressRequest */
-static int hf_e1ap_mrbForwardingResourceIndicationList = -1;  /* MRBForwardingResourceIndicationList */
-static int hf_e1ap_mbsSessionAssociatedInformation = -1;  /* MBSSessionAssociatedInformation */
-static int hf_e1ap_MRBForwardingResourceIndicationList_item = -1;  /* MRBForwardingResourceIndication_Item */
-static int hf_e1ap_mrb_ProgressInformation = -1;  /* MRB_ProgressInformation */
-static int hf_e1ap_mrbForwardingAddress = -1;     /* UP_TNL_Information */
-static int hf_e1ap_mrbForwardingResourceResponseList = -1;  /* MRBForwardingResourceResponseList */
-static int hf_e1ap_MRBForwardingResourceResponseList_item = -1;  /* MRBForwardingResourceResponse_Item */
-static int hf_e1ap_mrb_ProgressInformationSNs = -1;  /* MRB_ProgressInformationSNs */
-static int hf_e1ap_mrb_ProgressInformationType = -1;  /* MRB_ProgressInformationType */
-static int hf_e1ap_pdcp_SN12 = -1;                /* INTEGER_0_4095 */
-static int hf_e1ap_pdcp_SN18 = -1;                /* INTEGER_0_262143 */
-static int hf_e1ap_startTimeStamp_01 = -1;        /* T_startTimeStamp_01 */
-static int hf_e1ap_endTimeStamp_01 = -1;          /* T_endTimeStamp_01 */
-static int hf_e1ap_data_Usage_per_PDU_Session_Report = -1;  /* Data_Usage_per_PDU_Session_Report */
-static int hf_e1ap_data_Usage_per_QoS_Flow_List = -1;  /* Data_Usage_per_QoS_Flow_List */
-static int hf_e1ap_m4period = -1;                 /* M4period */
-static int hf_e1ap_m4_links_to_log = -1;          /* Links_to_log */
-static int hf_e1ap_m6report_Interval = -1;        /* M6report_Interval */
-static int hf_e1ap_m6_links_to_log = -1;          /* Links_to_log */
-static int hf_e1ap_m7period = -1;                 /* M7period */
-static int hf_e1ap_m7_links_to_log = -1;          /* Links_to_log */
-static int hf_e1ap_mdt_Activation = -1;           /* MDT_Activation */
-static int hf_e1ap_mDTMode = -1;                  /* MDTMode */
-static int hf_e1ap_immediateMDT = -1;             /* ImmediateMDT */
-static int hf_e1ap_MDTPLMNList_item = -1;         /* PLMN_Identity */
-static int hf_e1ap_MDTPLMNModificationList_item = -1;  /* PLMN_Identity */
-static int hf_e1ap_NG_RAN_QoS_Support_List_item = -1;  /* NG_RAN_QoS_Support_Item */
-static int hf_e1ap_non_Dynamic5QIDescriptor = -1;  /* Non_Dynamic5QIDescriptor */
-static int hf_e1ap_sNPN = -1;                     /* NPNSupportInfo_SNPN */
-static int hf_e1ap_nID = -1;                      /* NID */
-static int hf_e1ap_sNPN_01 = -1;                  /* NPNContextInfo_SNPN */
-static int hf_e1ap_nR_Cell_Identity = -1;         /* NR_Cell_Identity */
-static int hf_e1ap_NR_CGI_Support_List_item = -1;  /* NR_CGI_Support_Item */
-static int hf_e1ap_nR_CGI = -1;                   /* NR_CGI */
-static int hf_e1ap_Extended_NR_CGI_Support_List_item = -1;  /* Extended_NR_CGI_Support_Item */
-static int hf_e1ap_pER_Scalar = -1;               /* PER_Scalar */
-static int hf_e1ap_pER_Exponent = -1;             /* PER_Exponent */
-static int hf_e1ap_pDCP_SN_Size_UL = -1;          /* PDCP_SN_Size */
-static int hf_e1ap_pDCP_SN_Size_DL = -1;          /* PDCP_SN_Size */
-static int hf_e1ap_rLC_Mode = -1;                 /* RLC_Mode */
-static int hf_e1ap_rOHC_Parameters = -1;          /* ROHC_Parameters */
-static int hf_e1ap_t_ReorderingTimer = -1;        /* T_ReorderingTimer */
-static int hf_e1ap_discardTimer = -1;             /* DiscardTimer */
-static int hf_e1ap_uLDataSplitThreshold = -1;     /* ULDataSplitThreshold */
-static int hf_e1ap_pDCP_Duplication = -1;         /* PDCP_Duplication */
-static int hf_e1ap_pDCP_Reestablishment = -1;     /* PDCP_Reestablishment */
-static int hf_e1ap_pDCP_DataRecovery = -1;        /* PDCP_DataRecovery */
-static int hf_e1ap_duplication_Activation = -1;   /* Duplication_Activation */
-static int hf_e1ap_outOfOrderDelivery = -1;       /* OutOfOrderDelivery */
-static int hf_e1ap_pDCP_SN = -1;                  /* PDCP_SN */
-static int hf_e1ap_hFN = -1;                      /* HFN */
-static int hf_e1ap_PDU_Session_Resource_Data_Usage_List_item = -1;  /* PDU_Session_Resource_Data_Usage_Item */
-static int hf_e1ap_mRDC_Usage_Information = -1;   /* MRDC_Usage_Information */
-static int hf_e1ap_pdcpStatusTransfer_UL = -1;    /* DRBBStatusTransfer */
-static int hf_e1ap_pdcpStatusTransfer_DL = -1;    /* PDCP_Count */
-static int hf_e1ap_iE_Extension = -1;             /* ProtocolExtensionContainer */
-static int hf_e1ap_receiveStatusofPDCPSDU = -1;   /* BIT_STRING_SIZE_1_131072 */
-static int hf_e1ap_countValue = -1;               /* PDCP_Count */
-static int hf_e1ap_PDU_Session_Resource_Activity_List_item = -1;  /* PDU_Session_Resource_Activity_Item */
-static int hf_e1ap_pDU_Session_Resource_Activity = -1;  /* PDU_Session_Resource_Activity */
-static int hf_e1ap_PDU_Session_Resource_Confirm_Modified_List_item = -1;  /* PDU_Session_Resource_Confirm_Modified_Item */
-static int hf_e1ap_dRB_Confirm_Modified_List_NG_RAN = -1;  /* DRB_Confirm_Modified_List_NG_RAN */
-static int hf_e1ap_PDU_Session_Resource_Failed_List_item = -1;  /* PDU_Session_Resource_Failed_Item */
-static int hf_e1ap_PDU_Session_Resource_Failed_Mod_List_item = -1;  /* PDU_Session_Resource_Failed_Mod_Item */
-static int hf_e1ap_PDU_Session_Resource_Failed_To_Modify_List_item = -1;  /* PDU_Session_Resource_Failed_To_Modify_Item */
-static int hf_e1ap_PDU_Session_Resource_Modified_List_item = -1;  /* PDU_Session_Resource_Modified_Item */
-static int hf_e1ap_nG_DL_UP_TNL_Information = -1;  /* UP_TNL_Information */
-static int hf_e1ap_securityResult = -1;           /* SecurityResult */
-static int hf_e1ap_pDU_Session_Data_Forwarding_Information_Response = -1;  /* Data_Forwarding_Information */
-static int hf_e1ap_dRB_Setup_List_NG_RAN = -1;    /* DRB_Setup_List_NG_RAN */
-static int hf_e1ap_dRB_Failed_List_NG_RAN = -1;   /* DRB_Failed_List_NG_RAN */
-static int hf_e1ap_dRB_Modified_List_NG_RAN = -1;  /* DRB_Modified_List_NG_RAN */
-static int hf_e1ap_dRB_Failed_To_Modify_List_NG_RAN = -1;  /* DRB_Failed_To_Modify_List_NG_RAN */
-static int hf_e1ap_PDU_Session_Resource_Required_To_Modify_List_item = -1;  /* PDU_Session_Resource_Required_To_Modify_Item */
-static int hf_e1ap_dRB_Required_To_Modify_List_NG_RAN = -1;  /* DRB_Required_To_Modify_List_NG_RAN */
-static int hf_e1ap_dRB_Required_To_Remove_List_NG_RAN = -1;  /* DRB_Required_To_Remove_List_NG_RAN */
-static int hf_e1ap_PDU_Session_Resource_Setup_List_item = -1;  /* PDU_Session_Resource_Setup_Item */
-static int hf_e1ap_nG_DL_UP_Unchanged = -1;       /* T_nG_DL_UP_Unchanged */
-static int hf_e1ap_PDU_Session_Resource_Setup_Mod_List_item = -1;  /* PDU_Session_Resource_Setup_Mod_Item */
-static int hf_e1ap_dRB_Setup_Mod_List_NG_RAN = -1;  /* DRB_Setup_Mod_List_NG_RAN */
-static int hf_e1ap_dRB_Failed_Mod_List_NG_RAN = -1;  /* DRB_Failed_Mod_List_NG_RAN */
-static int hf_e1ap_PDU_Session_Resource_To_Modify_List_item = -1;  /* PDU_Session_Resource_To_Modify_Item */
-static int hf_e1ap_securityIndication = -1;       /* SecurityIndication */
-static int hf_e1ap_pDU_Session_Resource_DL_AMBR = -1;  /* BitRate */
-static int hf_e1ap_nG_UL_UP_TNL_Information = -1;  /* UP_TNL_Information */
-static int hf_e1ap_pDU_Session_Data_Forwarding_Information_Request = -1;  /* Data_Forwarding_Information_Request */
-static int hf_e1ap_pDU_Session_Data_Forwarding_Information = -1;  /* Data_Forwarding_Information */
-static int hf_e1ap_pDU_Session_Inactivity_Timer = -1;  /* Inactivity_Timer */
-static int hf_e1ap_networkInstance = -1;          /* NetworkInstance */
-static int hf_e1ap_dRB_To_Setup_List_NG_RAN = -1;  /* DRB_To_Setup_List_NG_RAN */
-static int hf_e1ap_dRB_To_Modify_List_NG_RAN = -1;  /* DRB_To_Modify_List_NG_RAN */
-static int hf_e1ap_dRB_To_Remove_List_NG_RAN = -1;  /* DRB_To_Remove_List_NG_RAN */
-static int hf_e1ap_PDU_Session_Resource_To_Remove_List_item = -1;  /* PDU_Session_Resource_To_Remove_Item */
-static int hf_e1ap_PDU_Session_Resource_To_Setup_List_item = -1;  /* PDU_Session_Resource_To_Setup_Item */
-static int hf_e1ap_pDU_Session_Type = -1;         /* PDU_Session_Type */
-static int hf_e1ap_sNSSAI = -1;                   /* SNSSAI */
-static int hf_e1ap_existing_Allocated_NG_DL_UP_TNL_Info = -1;  /* UP_TNL_Information */
-static int hf_e1ap_PDU_Session_Resource_To_Setup_Mod_List_item = -1;  /* PDU_Session_Resource_To_Setup_Mod_Item */
-static int hf_e1ap_pDU_Session_Resource_AMBR = -1;  /* BitRate */
-static int hf_e1ap_dRB_To_Setup_Mod_List_NG_RAN = -1;  /* DRB_To_Setup_Mod_List_NG_RAN */
-static int hf_e1ap_PDU_Session_To_Notify_List_item = -1;  /* PDU_Session_To_Notify_Item */
-static int hf_e1ap_qoS_Flow_List = -1;            /* QoS_Flow_List */
-static int hf_e1ap_non_Dynamic_5QI = -1;          /* Non_Dynamic5QIDescriptor */
-static int hf_e1ap_dynamic_5QI = -1;              /* Dynamic5QIDescriptor */
-static int hf_e1ap_QoS_Flow_List_item = -1;       /* QoS_Flow_Item */
-static int hf_e1ap_QoS_Flow_Failed_List_item = -1;  /* QoS_Flow_Failed_Item */
-static int hf_e1ap_QoS_Flow_Mapping_List_item = -1;  /* QoS_Flow_Mapping_Item */
-static int hf_e1ap_qoSFlowMappingIndication = -1;  /* QoS_Flow_Mapping_Indication */
-static int hf_e1ap_eUTRAN_QoS_Support_List = -1;  /* EUTRAN_QoS_Support_List */
-static int hf_e1ap_nG_RAN_QoS_Support_List = -1;  /* NG_RAN_QoS_Support_List */
-static int hf_e1ap_QoS_Flow_QoS_Parameter_List_item = -1;  /* QoS_Flow_QoS_Parameter_Item */
-static int hf_e1ap_qoS_Characteristics = -1;      /* QoS_Characteristics */
-static int hf_e1ap_nGRANallocationRetentionPriority = -1;  /* NGRANAllocationAndRetentionPriority */
-static int hf_e1ap_gBR_QoS_Flow_Information = -1;  /* GBR_QoSFlowInformation */
-static int hf_e1ap_reflective_QoS_Attribute = -1;  /* T_reflective_QoS_Attribute */
-static int hf_e1ap_additional_QoS_Information = -1;  /* T_additional_QoS_Information */
-static int hf_e1ap_paging_Policy_Index = -1;      /* INTEGER_1_8_ */
-static int hf_e1ap_reflective_QoS_Indicator = -1;  /* T_reflective_QoS_Indicator */
-static int hf_e1ap_qoS_Flow_Released_In_Session = -1;  /* T_qoS_Flow_Released_In_Session */
-static int hf_e1ap_qoS_Flow_Accumulated_Session_Time = -1;  /* OCTET_STRING_SIZE_5 */
-static int hf_e1ap_QoS_Flows_to_be_forwarded_List_item = -1;  /* QoS_Flows_to_be_forwarded_Item */
-static int hf_e1ap_dscp = -1;                     /* BIT_STRING_SIZE_6 */
-static int hf_e1ap_flow_label = -1;               /* BIT_STRING_SIZE_20 */
-static int hf_e1ap_DataForwardingtoNG_RANQoSFlowInformationList_item = -1;  /* DataForwardingtoNG_RANQoSFlowInformationList_Item */
-static int hf_e1ap_rSN = -1;                      /* RSN */
-static int hf_e1ap_RetainabilityMeasurementsInfo_item = -1;  /* DRB_Removed_Item */
-static int hf_e1ap_rOHC = -1;                     /* ROHC */
-static int hf_e1ap_uPlinkOnlyROHC = -1;           /* UplinkOnlyROHC */
-static int hf_e1ap_maxCID = -1;                   /* INTEGER_0_16383_ */
-static int hf_e1ap_rOHC_Profiles = -1;            /* INTEGER_0_511_ */
-static int hf_e1ap_continueROHC = -1;             /* T_continueROHC */
-static int hf_e1ap_cipheringAlgorithm = -1;       /* CipheringAlgorithm */
-static int hf_e1ap_integrityProtectionAlgorithm = -1;  /* IntegrityProtectionAlgorithm */
-static int hf_e1ap_integrityProtectionIndication = -1;  /* IntegrityProtectionIndication */
-static int hf_e1ap_confidentialityProtectionIndication = -1;  /* ConfidentialityProtectionIndication */
-static int hf_e1ap_maximumIPdatarate = -1;        /* MaximumIPdatarate */
-static int hf_e1ap_securityAlgorithm = -1;        /* SecurityAlgorithm */
-static int hf_e1ap_uPSecuritykey = -1;            /* UPSecuritykey */
-static int hf_e1ap_integrityProtectionResult = -1;  /* IntegrityProtectionResult */
-static int hf_e1ap_confidentialityProtectionResult = -1;  /* ConfidentialityProtectionResult */
-static int hf_e1ap_Slice_Support_List_item = -1;  /* Slice_Support_Item */
-static int hf_e1ap_sST = -1;                      /* OCTET_STRING_SIZE_1 */
-static int hf_e1ap_sD = -1;                       /* OCTET_STRING_SIZE_3 */
-static int hf_e1ap_defaultDRB = -1;               /* DefaultDRB */
-static int hf_e1ap_sDAP_Header_UL = -1;           /* SDAP_Header_UL */
-static int hf_e1ap_sDAP_Header_DL = -1;           /* SDAP_Header_DL */
-static int hf_e1ap_dL_TNL_OfferedCapacity = -1;   /* INTEGER_0_16777216_ */
-static int hf_e1ap_dL_TNL_AvailableCapacity = -1;  /* INTEGER_0_100_ */
-static int hf_e1ap_uL_TNL_OfferedCapacity = -1;   /* INTEGER_0_16777216_ */
-static int hf_e1ap_uL_TNL_AvailableCapacity = -1;  /* INTEGER_0_100_ */
-static int hf_e1ap_tSCTrafficCharacteristicsUL = -1;  /* TSCTrafficInformation */
-static int hf_e1ap_tSCTrafficCharacteristicsDL = -1;  /* TSCTrafficInformation */
-static int hf_e1ap_periodicity = -1;              /* Periodicity */
-static int hf_e1ap_burstArrivalTime = -1;         /* BurstArrivalTime */
-static int hf_e1ap_traceID = -1;                  /* TraceID */
-static int hf_e1ap_interfacesToTrace = -1;        /* InterfacesToTrace */
-static int hf_e1ap_traceDepth = -1;               /* TraceDepth */
-static int hf_e1ap_traceCollectionEntityIPAddress = -1;  /* TransportLayerAddress */
-static int hf_e1ap_t_Reordering = -1;             /* T_Reordering */
-static int hf_e1ap_transport_UP_Layer_Addresses_Info_To_Add_List = -1;  /* Transport_UP_Layer_Addresses_Info_To_Add_List */
-static int hf_e1ap_transport_UP_Layer_Addresses_Info_To_Remove_List = -1;  /* Transport_UP_Layer_Addresses_Info_To_Remove_List */
-static int hf_e1ap_Transport_UP_Layer_Addresses_Info_To_Add_List_item = -1;  /* Transport_UP_Layer_Addresses_Info_To_Add_Item */
-static int hf_e1ap_iP_SecTransportLayerAddress = -1;  /* TransportLayerAddress */
-static int hf_e1ap_gTPTransportLayerAddressesToAdd = -1;  /* GTPTLAs */
-static int hf_e1ap_Transport_UP_Layer_Addresses_Info_To_Remove_List_item = -1;  /* Transport_UP_Layer_Addresses_Info_To_Remove_Item */
-static int hf_e1ap_gTPTransportLayerAddressesToRemove = -1;  /* GTPTLAs */
-static int hf_e1ap_bufferSize = -1;               /* BufferSize */
-static int hf_e1ap_dictionary = -1;               /* Dictionary */
-static int hf_e1ap_continueUDC = -1;              /* T_continueUDC */
-static int hf_e1ap_gNB_CU_CP_UE_E1AP_ID = -1;     /* GNB_CU_CP_UE_E1AP_ID */
-static int hf_e1ap_gNB_CU_UP_UE_E1AP_ID = -1;     /* GNB_CU_UP_UE_E1AP_ID */
-static int hf_e1ap_UESliceMaximumBitRateList_item = -1;  /* UESliceMaximumBitRateItem */
-static int hf_e1ap_uESliceMaximumBitRateDL = -1;  /* BitRate */
-static int hf_e1ap_UP_Parameters_item = -1;       /* UP_Parameters_Item */
-static int hf_e1ap_encryptionKey = -1;            /* EncryptionKey */
-static int hf_e1ap_integrityProtectionKey = -1;   /* IntegrityProtectionKey */
-static int hf_e1ap_gTPTunnel = -1;                /* GTPTunnel */
-static int hf_e1ap_continueROHC_01 = -1;          /* T_continueROHC_01 */
-static int hf_e1ap_protocolIEs = -1;              /* ProtocolIE_Container */
-static int hf_e1ap_e1_Interface = -1;             /* ResetAll */
-static int hf_e1ap_partOfE1_Interface = -1;       /* UE_associatedLogicalE1_ConnectionListRes */
-static int hf_e1ap_UE_associatedLogicalE1_ConnectionListRes_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e1ap_UE_associatedLogicalE1_ConnectionListResAck_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e1ap_SupportedPLMNs_List_item = -1;  /* SupportedPLMNs_Item */
-static int hf_e1ap_slice_Support_List = -1;       /* Slice_Support_List */
-static int hf_e1ap_nR_CGI_Support_List = -1;      /* NR_CGI_Support_List */
-static int hf_e1ap_qoS_Parameters_Support_List = -1;  /* QoS_Parameters_Support_List */
-static int hf_e1ap_GNB_CU_UP_TNLA_To_Remove_List_item = -1;  /* GNB_CU_UP_TNLA_To_Remove_Item */
-static int hf_e1ap_GNB_CU_CP_TNLA_To_Add_List_item = -1;  /* GNB_CU_CP_TNLA_To_Add_Item */
-static int hf_e1ap_GNB_CU_CP_TNLA_To_Remove_List_item = -1;  /* GNB_CU_CP_TNLA_To_Remove_Item */
-static int hf_e1ap_GNB_CU_CP_TNLA_To_Update_List_item = -1;  /* GNB_CU_CP_TNLA_To_Update_Item */
-static int hf_e1ap_GNB_CU_CP_TNLA_Setup_List_item = -1;  /* GNB_CU_CP_TNLA_Setup_Item */
-static int hf_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_List_item = -1;  /* GNB_CU_CP_TNLA_Failed_To_Setup_Item */
-static int hf_e1ap_e_UTRAN_BearerContextSetupRequest = -1;  /* ProtocolIE_Container */
-static int hf_e1ap_nG_RAN_BearerContextSetupRequest = -1;  /* ProtocolIE_Container */
-static int hf_e1ap_e_UTRAN_BearerContextSetupResponse = -1;  /* ProtocolIE_Container */
-static int hf_e1ap_nG_RAN_BearerContextSetupResponse = -1;  /* ProtocolIE_Container */
-static int hf_e1ap_e_UTRAN_BearerContextModificationRequest = -1;  /* ProtocolIE_Container */
-static int hf_e1ap_nG_RAN_BearerContextModificationRequest = -1;  /* ProtocolIE_Container */
-static int hf_e1ap_e_UTRAN_BearerContextModificationResponse = -1;  /* ProtocolIE_Container */
-static int hf_e1ap_nG_RAN_BearerContextModificationResponse = -1;  /* ProtocolIE_Container */
-static int hf_e1ap_e_UTRAN_BearerContextModificationRequired = -1;  /* ProtocolIE_Container */
-static int hf_e1ap_nG_RAN_BearerContextModificationRequired = -1;  /* ProtocolIE_Container */
-static int hf_e1ap_e_UTRAN_BearerContextModificationConfirm = -1;  /* ProtocolIE_Container */
-static int hf_e1ap_nG_RAN_BearerContextModificationConfirm = -1;  /* ProtocolIE_Container */
-static int hf_e1ap_DRB_Status_List_item = -1;     /* DRB_Status_Item */
-static int hf_e1ap_e_UTRAN_GNB_CU_UP_CounterCheckRequest = -1;  /* ProtocolIE_Container */
-static int hf_e1ap_nG_RAN_GNB_CU_UP_CounterCheckRequest = -1;  /* ProtocolIE_Container */
-static int hf_e1ap_privateIEs = -1;               /* PrivateIE_Container */
-static int hf_e1ap_DLUPTNLAddressToUpdateList_item = -1;  /* DLUPTNLAddressToUpdateItem */
-static int hf_e1ap_ULUPTNLAddressToUpdateList_item = -1;  /* ULUPTNLAddressToUpdateItem */
-static int hf_e1ap_IAB_Donor_CU_UPPSKInfo_item = -1;  /* IAB_Donor_CU_UPPSKInfo_Item */
-static int hf_e1ap_initiatingMessage = -1;        /* InitiatingMessage */
-static int hf_e1ap_successfulOutcome = -1;        /* SuccessfulOutcome */
-static int hf_e1ap_unsuccessfulOutcome = -1;      /* UnsuccessfulOutcome */
-static int hf_e1ap_initiatingMessagevalue = -1;   /* InitiatingMessage_value */
-static int hf_e1ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
-static int hf_e1ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
+static int hf_e1ap_transportLayerAddressIPv4;
+static int hf_e1ap_transportLayerAddressIPv6;
+static int hf_e1ap_InterfacesToTrace_NG_C;
+static int hf_e1ap_InterfacesToTrace_Xn_C;
+static int hf_e1ap_InterfacesToTrace_Uu;
+static int hf_e1ap_InterfacesToTrace_F1_C;
+static int hf_e1ap_InterfacesToTrace_E1;
+static int hf_e1ap_InterfacesToTrace_Reserved;
+static int hf_e1ap_MeasurementsToActivate_Reserved1;
+static int hf_e1ap_MeasurementsToActivate_M4;
+static int hf_e1ap_MeasurementsToActivate_Reserved2;
+static int hf_e1ap_MeasurementsToActivate_M6;
+static int hf_e1ap_MeasurementsToActivate_M7;
+static int hf_e1ap_ReportCharacteristics_TNLAvailableCapacityIndPeriodic;
+static int hf_e1ap_ReportCharacteristics_HWCapacityIndPeriodic;
+static int hf_e1ap_ReportCharacteristics_Reserved;
+static int hf_e1ap_tcp_pdu_len;
+static int hf_e1ap_ActivityInformation_PDU;       /* ActivityInformation */
+static int hf_e1ap_ActivityNotificationLevel_PDU;  /* ActivityNotificationLevel */
+static int hf_e1ap_AdditionalHandoverInfo_PDU;    /* AdditionalHandoverInfo */
+static int hf_e1ap_AdditionalPDCPduplicationInformation_PDU;  /* AdditionalPDCPduplicationInformation */
+static int hf_e1ap_AdditionalRRMPriorityIndex_PDU;  /* AdditionalRRMPriorityIndex */
+static int hf_e1ap_AlternativeQoSParaSetList_PDU;  /* AlternativeQoSParaSetList */
+static int hf_e1ap_BCBearerContextToSetup_PDU;    /* BCBearerContextToSetup */
+static int hf_e1ap_BCBearerContextToSetupResponse_PDU;  /* BCBearerContextToSetupResponse */
+static int hf_e1ap_BCBearerContextToModify_PDU;   /* BCBearerContextToModify */
+static int hf_e1ap_BCBearerContextToModifyResponse_PDU;  /* BCBearerContextToModifyResponse */
+static int hf_e1ap_BCBearerContextToModifyRequired_PDU;  /* BCBearerContextToModifyRequired */
+static int hf_e1ap_BCBearerContextToModifyConfirm_PDU;  /* BCBearerContextToModifyConfirm */
+static int hf_e1ap_BearerContextStatusChange_PDU;  /* BearerContextStatusChange */
+static int hf_e1ap_BitRate_PDU;                   /* BitRate */
+static int hf_e1ap_Cause_PDU;                     /* Cause */
+static int hf_e1ap_CHOInitiation_PDU;             /* CHOInitiation */
+static int hf_e1ap_Number_of_tunnels_PDU;         /* Number_of_tunnels */
+static int hf_e1ap_CNSupport_PDU;                 /* CNSupport */
+static int hf_e1ap_CommonNetworkInstance_PDU;     /* CommonNetworkInstance */
+static int hf_e1ap_CP_TNL_Information_PDU;        /* CP_TNL_Information */
+static int hf_e1ap_CriticalityDiagnostics_PDU;    /* CriticalityDiagnostics */
+static int hf_e1ap_DAPSRequestInfo_PDU;           /* DAPSRequestInfo */
+static int hf_e1ap_Data_Forwarding_Information_PDU;  /* Data_Forwarding_Information */
+static int hf_e1ap_DataForwardingtoE_UTRANInformationList_PDU;  /* DataForwardingtoE_UTRANInformationList */
+static int hf_e1ap_Data_Usage_Report_List_PDU;    /* Data_Usage_Report_List */
+static int hf_e1ap_DirectForwardingPathAvailability_PDU;  /* DirectForwardingPathAvailability */
+static int hf_e1ap_DiscardTimerExtended_PDU;      /* DiscardTimerExtended */
+static int hf_e1ap_DRB_Confirm_Modified_List_EUTRAN_PDU;  /* DRB_Confirm_Modified_List_EUTRAN */
+static int hf_e1ap_DRB_Failed_List_EUTRAN_PDU;    /* DRB_Failed_List_EUTRAN */
+static int hf_e1ap_DRB_Failed_Mod_List_EUTRAN_PDU;  /* DRB_Failed_Mod_List_EUTRAN */
+static int hf_e1ap_DRB_Failed_To_Modify_List_EUTRAN_PDU;  /* DRB_Failed_To_Modify_List_EUTRAN */
+static int hf_e1ap_DRB_Measurement_Results_Information_List_PDU;  /* DRB_Measurement_Results_Information_List */
+static int hf_e1ap_DRB_Modified_List_EUTRAN_PDU;  /* DRB_Modified_List_EUTRAN */
+static int hf_e1ap_DRB_Required_To_Modify_List_EUTRAN_PDU;  /* DRB_Required_To_Modify_List_EUTRAN */
+static int hf_e1ap_DRB_Setup_List_EUTRAN_PDU;     /* DRB_Setup_List_EUTRAN */
+static int hf_e1ap_DRB_Setup_Mod_List_EUTRAN_PDU;  /* DRB_Setup_Mod_List_EUTRAN */
+static int hf_e1ap_DRBs_Subject_To_Counter_Check_List_EUTRAN_PDU;  /* DRBs_Subject_To_Counter_Check_List_EUTRAN */
+static int hf_e1ap_DRBs_Subject_To_Counter_Check_List_NG_RAN_PDU;  /* DRBs_Subject_To_Counter_Check_List_NG_RAN */
+static int hf_e1ap_DRBs_Subject_To_Early_Forwarding_List_PDU;  /* DRBs_Subject_To_Early_Forwarding_List */
+static int hf_e1ap_DRB_To_Modify_List_EUTRAN_PDU;  /* DRB_To_Modify_List_EUTRAN */
+static int hf_e1ap_DRB_To_Remove_List_EUTRAN_PDU;  /* DRB_To_Remove_List_EUTRAN */
+static int hf_e1ap_DRB_Required_To_Remove_List_EUTRAN_PDU;  /* DRB_Required_To_Remove_List_EUTRAN */
+static int hf_e1ap_DRB_To_Setup_List_EUTRAN_PDU;  /* DRB_To_Setup_List_EUTRAN */
+static int hf_e1ap_DRB_To_Setup_Mod_List_EUTRAN_PDU;  /* DRB_To_Setup_Mod_List_EUTRAN */
+static int hf_e1ap_DataDiscardRequired_PDU;       /* DataDiscardRequired */
+static int hf_e1ap_EarlyDataForwardingIndicator_PDU;  /* EarlyDataForwardingIndicator */
+static int hf_e1ap_EarlyForwardingCOUNTInfo_PDU;  /* EarlyForwardingCOUNTInfo */
+static int hf_e1ap_EarlyForwardingCOUNTReq_PDU;   /* EarlyForwardingCOUNTReq */
+static int hf_e1ap_EHC_Parameters_PDU;            /* EHC_Parameters */
+static int hf_e1ap_Endpoint_IP_address_and_port_PDU;  /* Endpoint_IP_address_and_port */
+static int hf_e1ap_ExtendedPacketDelayBudget_PDU;  /* ExtendedPacketDelayBudget */
+static int hf_e1ap_ECGI_Support_List_PDU;         /* ECGI_Support_List */
+static int hf_e1ap_ExtendedSliceSupportList_PDU;  /* ExtendedSliceSupportList */
+static int hf_e1ap_GlobalMBSSessionID_PDU;        /* GlobalMBSSessionID */
+static int hf_e1ap_GNB_CU_CP_Name_PDU;            /* GNB_CU_CP_Name */
+static int hf_e1ap_Extended_GNB_CU_CP_Name_PDU;   /* Extended_GNB_CU_CP_Name */
+static int hf_e1ap_GNB_CU_CP_MBS_E1AP_ID_PDU;     /* GNB_CU_CP_MBS_E1AP_ID */
+static int hf_e1ap_GNB_CU_CP_UE_E1AP_ID_PDU;      /* GNB_CU_CP_UE_E1AP_ID */
+static int hf_e1ap_GNB_CU_UP_Capacity_PDU;        /* GNB_CU_UP_Capacity */
+static int hf_e1ap_GNB_CU_UP_ID_PDU;              /* GNB_CU_UP_ID */
+static int hf_e1ap_GNB_CU_UP_MBS_Support_Info_PDU;  /* GNB_CU_UP_MBS_Support_Info */
+static int hf_e1ap_GNB_CU_UP_Name_PDU;            /* GNB_CU_UP_Name */
+static int hf_e1ap_Extended_GNB_CU_UP_Name_PDU;   /* Extended_GNB_CU_UP_Name */
+static int hf_e1ap_GNB_CU_UP_MBS_E1AP_ID_PDU;     /* GNB_CU_UP_MBS_E1AP_ID */
+static int hf_e1ap_GNB_CU_UP_UE_E1AP_ID_PDU;      /* GNB_CU_UP_UE_E1AP_ID */
+static int hf_e1ap_GBR_QoSFlowInformation_PDU;    /* GBR_QoSFlowInformation */
+static int hf_e1ap_GNB_CU_UP_OverloadInformation_PDU;  /* GNB_CU_UP_OverloadInformation */
+static int hf_e1ap_GNB_DU_ID_PDU;                 /* GNB_DU_ID */
+static int hf_e1ap_HW_CapacityIndicator_PDU;      /* HW_CapacityIndicator */
+static int hf_e1ap_IgnoreMappingRuleIndication_PDU;  /* IgnoreMappingRuleIndication */
+static int hf_e1ap_Inactivity_Timer_PDU;          /* Inactivity_Timer */
+static int hf_e1ap_InactivityInformationRequest_PDU;  /* InactivityInformationRequest */
+static int hf_e1ap_MaxCIDEHCDL_PDU;               /* MaxCIDEHCDL */
+static int hf_e1ap_MBSAreaSessionID_PDU;          /* MBSAreaSessionID */
+static int hf_e1ap_MBSSessionAssociatedInfoNonSupportToSupport_PDU;  /* MBSSessionAssociatedInfoNonSupportToSupport */
+static int hf_e1ap_MCBearerContextToSetup_PDU;    /* MCBearerContextToSetup */
+static int hf_e1ap_MCBearerContextToSetupResponse_PDU;  /* MCBearerContextToSetupResponse */
+static int hf_e1ap_MCBearerContextToModify_PDU;   /* MCBearerContextToModify */
+static int hf_e1ap_MBSMulticastF1UContextDescriptor_PDU;  /* MBSMulticastF1UContextDescriptor */
+static int hf_e1ap_MCBearerContextToModifyResponse_PDU;  /* MCBearerContextToModifyResponse */
+static int hf_e1ap_MCBearerContextToModifyRequired_PDU;  /* MCBearerContextToModifyRequired */
+static int hf_e1ap_MCBearerContextToModifyConfirm_PDU;  /* MCBearerContextToModifyConfirm */
+static int hf_e1ap_MCForwardingResourceRequest_PDU;  /* MCForwardingResourceRequest */
+static int hf_e1ap_MCForwardingResourceIndication_PDU;  /* MCForwardingResourceIndication */
+static int hf_e1ap_MCForwardingResourceResponse_PDU;  /* MCForwardingResourceResponse */
+static int hf_e1ap_MCForwardingResourceRelease_PDU;  /* MCForwardingResourceRelease */
+static int hf_e1ap_MCForwardingResourceReleaseIndication_PDU;  /* MCForwardingResourceReleaseIndication */
+static int hf_e1ap_MDTPollutedMeasurementIndicator_PDU;  /* MDTPollutedMeasurementIndicator */
+static int hf_e1ap_M4ReportAmount_PDU;            /* M4ReportAmount */
+static int hf_e1ap_M6ReportAmount_PDU;            /* M6ReportAmount */
+static int hf_e1ap_M7ReportAmount_PDU;            /* M7ReportAmount */
+static int hf_e1ap_MDT_Configuration_PDU;         /* MDT_Configuration */
+static int hf_e1ap_MDTPLMNList_PDU;               /* MDTPLMNList */
+static int hf_e1ap_MDTPLMNModificationList_PDU;   /* MDTPLMNModificationList */
+static int hf_e1ap_NetworkInstance_PDU;           /* NetworkInstance */
+static int hf_e1ap_New_UL_TNL_Information_Required_PDU;  /* New_UL_TNL_Information_Required */
+static int hf_e1ap_NPNSupportInfo_PDU;            /* NPNSupportInfo */
+static int hf_e1ap_NPNContextInfo_PDU;            /* NPNContextInfo */
+static int hf_e1ap_Extended_NR_CGI_Support_List_PDU;  /* Extended_NR_CGI_Support_List */
+static int hf_e1ap_PDCP_COUNT_Reset_PDU;          /* PDCP_COUNT_Reset */
+static int hf_e1ap_PDU_Session_Resource_Data_Usage_List_PDU;  /* PDU_Session_Resource_Data_Usage_List */
+static int hf_e1ap_PDCP_StatusReportIndication_PDU;  /* PDCP_StatusReportIndication */
+static int hf_e1ap_PDUSession_PairID_PDU;         /* PDUSession_PairID */
+static int hf_e1ap_PDU_Session_Resource_Confirm_Modified_List_PDU;  /* PDU_Session_Resource_Confirm_Modified_List */
+static int hf_e1ap_PDU_Session_Resource_Failed_List_PDU;  /* PDU_Session_Resource_Failed_List */
+static int hf_e1ap_PDU_Session_Resource_Failed_Mod_List_PDU;  /* PDU_Session_Resource_Failed_Mod_List */
+static int hf_e1ap_PDU_Session_Resource_Failed_To_Modify_List_PDU;  /* PDU_Session_Resource_Failed_To_Modify_List */
+static int hf_e1ap_PDU_Session_Resource_Modified_List_PDU;  /* PDU_Session_Resource_Modified_List */
+static int hf_e1ap_PDU_Session_Resource_Required_To_Modify_List_PDU;  /* PDU_Session_Resource_Required_To_Modify_List */
+static int hf_e1ap_PDU_Session_Resource_Setup_List_PDU;  /* PDU_Session_Resource_Setup_List */
+static int hf_e1ap_PDU_Session_Resource_Setup_Mod_List_PDU;  /* PDU_Session_Resource_Setup_Mod_List */
+static int hf_e1ap_PDU_Session_Resource_To_Modify_List_PDU;  /* PDU_Session_Resource_To_Modify_List */
+static int hf_e1ap_PDU_Session_Resource_To_Remove_List_PDU;  /* PDU_Session_Resource_To_Remove_List */
+static int hf_e1ap_PDU_Session_Resource_To_Setup_List_PDU;  /* PDU_Session_Resource_To_Setup_List */
+static int hf_e1ap_PDU_Session_Resource_To_Setup_Mod_List_PDU;  /* PDU_Session_Resource_To_Setup_Mod_List */
+static int hf_e1ap_PDU_Session_To_Notify_List_PDU;  /* PDU_Session_To_Notify_List */
+static int hf_e1ap_PLMN_Identity_PDU;             /* PLMN_Identity */
+static int hf_e1ap_PPI_PDU;                       /* PPI */
+static int hf_e1ap_PrivacyIndicator_PDU;          /* PrivacyIndicator */
+static int hf_e1ap_QoS_Flow_List_PDU;             /* QoS_Flow_List */
+static int hf_e1ap_QoS_Flow_Mapping_Indication_PDU;  /* QoS_Flow_Mapping_Indication */
+static int hf_e1ap_QoS_Flows_DRB_Remapping_PDU;   /* QoS_Flows_DRB_Remapping */
+static int hf_e1ap_QoSFlowLevelQoSParameters_PDU;  /* QoSFlowLevelQoSParameters */
+static int hf_e1ap_QosMonitoringRequest_PDU;      /* QosMonitoringRequest */
+static int hf_e1ap_QosMonitoringReportingFrequency_PDU;  /* QosMonitoringReportingFrequency */
+static int hf_e1ap_QosMonitoringDisabled_PDU;     /* QosMonitoringDisabled */
+static int hf_e1ap_QoS_Mapping_Information_PDU;   /* QoS_Mapping_Information */
+static int hf_e1ap_DataForwardingtoNG_RANQoSFlowInformationList_PDU;  /* DataForwardingtoNG_RANQoSFlowInformationList */
+static int hf_e1ap_RANUEID_PDU;                   /* RANUEID */
+static int hf_e1ap_RedundantQoSFlowIndicator_PDU;  /* RedundantQoSFlowIndicator */
+static int hf_e1ap_RedundantPDUSessionInformation_PDU;  /* RedundantPDUSessionInformation */
+static int hf_e1ap_RetainabilityMeasurementsInfo_PDU;  /* RetainabilityMeasurementsInfo */
+static int hf_e1ap_RegistrationRequest_PDU;       /* RegistrationRequest */
+static int hf_e1ap_ReportCharacteristics_PDU;     /* ReportCharacteristics */
+static int hf_e1ap_ReportingPeriodicity_PDU;      /* ReportingPeriodicity */
+static int hf_e1ap_SCGActivationStatus_PDU;       /* SCGActivationStatus */
+static int hf_e1ap_SecurityIndication_PDU;        /* SecurityIndication */
+static int hf_e1ap_SecurityInformation_PDU;       /* SecurityInformation */
+static int hf_e1ap_SecurityResult_PDU;            /* SecurityResult */
+static int hf_e1ap_SNSSAI_PDU;                    /* SNSSAI */
+static int hf_e1ap_SDTContinueROHC_PDU;           /* SDTContinueROHC */
+static int hf_e1ap_SDTindicatorSetup_PDU;         /* SDTindicatorSetup */
+static int hf_e1ap_SDTindicatorMod_PDU;           /* SDTindicatorMod */
+static int hf_e1ap_SubscriberProfileIDforRFP_PDU;  /* SubscriberProfileIDforRFP */
+static int hf_e1ap_SurvivalTime_PDU;              /* SurvivalTime */
+static int hf_e1ap_TimeToWait_PDU;                /* TimeToWait */
+static int hf_e1ap_TNL_AvailableCapacityIndicator_PDU;  /* TNL_AvailableCapacityIndicator */
+static int hf_e1ap_TSCTrafficCharacteristics_PDU;  /* TSCTrafficCharacteristics */
+static int hf_e1ap_TraceActivation_PDU;           /* TraceActivation */
+static int hf_e1ap_TraceID_PDU;                   /* TraceID */
+static int hf_e1ap_TransportLayerAddress_PDU;     /* TransportLayerAddress */
+static int hf_e1ap_TransactionID_PDU;             /* TransactionID */
+static int hf_e1ap_Transport_Layer_Address_Info_PDU;  /* Transport_Layer_Address_Info */
+static int hf_e1ap_UDC_Parameters_PDU;            /* UDC_Parameters */
+static int hf_e1ap_VersionID_PDU;                 /* VersionID */
+static int hf_e1ap_UE_associatedLogicalE1_ConnectionItem_PDU;  /* UE_associatedLogicalE1_ConnectionItem */
+static int hf_e1ap_UESliceMaximumBitRateList_PDU;  /* UESliceMaximumBitRateList */
+static int hf_e1ap_UP_TNL_Information_PDU;        /* UP_TNL_Information */
+static int hf_e1ap_URIaddress_PDU;                /* URIaddress */
+static int hf_e1ap_UEInactivityInformation_PDU;   /* UEInactivityInformation */
+static int hf_e1ap_Reset_PDU;                     /* Reset */
+static int hf_e1ap_ResetType_PDU;                 /* ResetType */
+static int hf_e1ap_ResetAcknowledge_PDU;          /* ResetAcknowledge */
+static int hf_e1ap_UE_associatedLogicalE1_ConnectionListResAck_PDU;  /* UE_associatedLogicalE1_ConnectionListResAck */
+static int hf_e1ap_ErrorIndication_PDU;           /* ErrorIndication */
+static int hf_e1ap_GNB_CU_UP_E1SetupRequest_PDU;  /* GNB_CU_UP_E1SetupRequest */
+static int hf_e1ap_SupportedPLMNs_List_PDU;       /* SupportedPLMNs_List */
+static int hf_e1ap_GNB_CU_UP_E1SetupResponse_PDU;  /* GNB_CU_UP_E1SetupResponse */
+static int hf_e1ap_GNB_CU_UP_E1SetupFailure_PDU;  /* GNB_CU_UP_E1SetupFailure */
+static int hf_e1ap_GNB_CU_CP_E1SetupRequest_PDU;  /* GNB_CU_CP_E1SetupRequest */
+static int hf_e1ap_GNB_CU_CP_E1SetupResponse_PDU;  /* GNB_CU_CP_E1SetupResponse */
+static int hf_e1ap_GNB_CU_CP_E1SetupFailure_PDU;  /* GNB_CU_CP_E1SetupFailure */
+static int hf_e1ap_GNB_CU_UP_ConfigurationUpdate_PDU;  /* GNB_CU_UP_ConfigurationUpdate */
+static int hf_e1ap_GNB_CU_UP_TNLA_To_Remove_List_PDU;  /* GNB_CU_UP_TNLA_To_Remove_List */
+static int hf_e1ap_GNB_CU_UP_ConfigurationUpdateAcknowledge_PDU;  /* GNB_CU_UP_ConfigurationUpdateAcknowledge */
+static int hf_e1ap_GNB_CU_UP_ConfigurationUpdateFailure_PDU;  /* GNB_CU_UP_ConfigurationUpdateFailure */
+static int hf_e1ap_GNB_CU_CP_ConfigurationUpdate_PDU;  /* GNB_CU_CP_ConfigurationUpdate */
+static int hf_e1ap_GNB_CU_CP_TNLA_To_Add_List_PDU;  /* GNB_CU_CP_TNLA_To_Add_List */
+static int hf_e1ap_GNB_CU_CP_TNLA_To_Remove_List_PDU;  /* GNB_CU_CP_TNLA_To_Remove_List */
+static int hf_e1ap_GNB_CU_CP_TNLA_To_Update_List_PDU;  /* GNB_CU_CP_TNLA_To_Update_List */
+static int hf_e1ap_GNB_CU_CP_ConfigurationUpdateAcknowledge_PDU;  /* GNB_CU_CP_ConfigurationUpdateAcknowledge */
+static int hf_e1ap_GNB_CU_CP_TNLA_Setup_List_PDU;  /* GNB_CU_CP_TNLA_Setup_List */
+static int hf_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_List_PDU;  /* GNB_CU_CP_TNLA_Failed_To_Setup_List */
+static int hf_e1ap_GNB_CU_CP_ConfigurationUpdateFailure_PDU;  /* GNB_CU_CP_ConfigurationUpdateFailure */
+static int hf_e1ap_E1ReleaseRequest_PDU;          /* E1ReleaseRequest */
+static int hf_e1ap_E1ReleaseResponse_PDU;         /* E1ReleaseResponse */
+static int hf_e1ap_BearerContextSetupRequest_PDU;  /* BearerContextSetupRequest */
+static int hf_e1ap_System_BearerContextSetupRequest_PDU;  /* System_BearerContextSetupRequest */
+static int hf_e1ap_BearerContextSetupResponse_PDU;  /* BearerContextSetupResponse */
+static int hf_e1ap_System_BearerContextSetupResponse_PDU;  /* System_BearerContextSetupResponse */
+static int hf_e1ap_BearerContextSetupFailure_PDU;  /* BearerContextSetupFailure */
+static int hf_e1ap_BearerContextModificationRequest_PDU;  /* BearerContextModificationRequest */
+static int hf_e1ap_System_BearerContextModificationRequest_PDU;  /* System_BearerContextModificationRequest */
+static int hf_e1ap_BearerContextModificationResponse_PDU;  /* BearerContextModificationResponse */
+static int hf_e1ap_System_BearerContextModificationResponse_PDU;  /* System_BearerContextModificationResponse */
+static int hf_e1ap_BearerContextModificationFailure_PDU;  /* BearerContextModificationFailure */
+static int hf_e1ap_BearerContextModificationRequired_PDU;  /* BearerContextModificationRequired */
+static int hf_e1ap_System_BearerContextModificationRequired_PDU;  /* System_BearerContextModificationRequired */
+static int hf_e1ap_BearerContextModificationConfirm_PDU;  /* BearerContextModificationConfirm */
+static int hf_e1ap_System_BearerContextModificationConfirm_PDU;  /* System_BearerContextModificationConfirm */
+static int hf_e1ap_BearerContextReleaseCommand_PDU;  /* BearerContextReleaseCommand */
+static int hf_e1ap_BearerContextReleaseComplete_PDU;  /* BearerContextReleaseComplete */
+static int hf_e1ap_BearerContextReleaseRequest_PDU;  /* BearerContextReleaseRequest */
+static int hf_e1ap_DRB_Status_List_PDU;           /* DRB_Status_List */
+static int hf_e1ap_BearerContextInactivityNotification_PDU;  /* BearerContextInactivityNotification */
+static int hf_e1ap_DLDataNotification_PDU;        /* DLDataNotification */
+static int hf_e1ap_ULDataNotification_PDU;        /* ULDataNotification */
+static int hf_e1ap_DataUsageReport_PDU;           /* DataUsageReport */
+static int hf_e1ap_GNB_CU_UP_CounterCheckRequest_PDU;  /* GNB_CU_UP_CounterCheckRequest */
+static int hf_e1ap_System_GNB_CU_UP_CounterCheckRequest_PDU;  /* System_GNB_CU_UP_CounterCheckRequest */
+static int hf_e1ap_GNB_CU_UP_StatusIndication_PDU;  /* GNB_CU_UP_StatusIndication */
+static int hf_e1ap_GNB_CU_CPMeasurementResultsInformation_PDU;  /* GNB_CU_CPMeasurementResultsInformation */
+static int hf_e1ap_MRDC_DataUsageReport_PDU;      /* MRDC_DataUsageReport */
+static int hf_e1ap_TraceStart_PDU;                /* TraceStart */
+static int hf_e1ap_DeactivateTrace_PDU;           /* DeactivateTrace */
+static int hf_e1ap_CellTrafficTrace_PDU;          /* CellTrafficTrace */
+static int hf_e1ap_PrivateMessage_PDU;            /* PrivateMessage */
+static int hf_e1ap_ResourceStatusRequest_PDU;     /* ResourceStatusRequest */
+static int hf_e1ap_Measurement_ID_PDU;            /* Measurement_ID */
+static int hf_e1ap_ResourceStatusResponse_PDU;    /* ResourceStatusResponse */
+static int hf_e1ap_ResourceStatusFailure_PDU;     /* ResourceStatusFailure */
+static int hf_e1ap_ResourceStatusUpdate_PDU;      /* ResourceStatusUpdate */
+static int hf_e1ap_IAB_UPTNLAddressUpdate_PDU;    /* IAB_UPTNLAddressUpdate */
+static int hf_e1ap_DLUPTNLAddressToUpdateList_PDU;  /* DLUPTNLAddressToUpdateList */
+static int hf_e1ap_IAB_UPTNLAddressUpdateAcknowledge_PDU;  /* IAB_UPTNLAddressUpdateAcknowledge */
+static int hf_e1ap_ULUPTNLAddressToUpdateList_PDU;  /* ULUPTNLAddressToUpdateList */
+static int hf_e1ap_IAB_UPTNLAddressUpdateFailure_PDU;  /* IAB_UPTNLAddressUpdateFailure */
+static int hf_e1ap_EarlyForwardingSNTransfer_PDU;  /* EarlyForwardingSNTransfer */
+static int hf_e1ap_IABPSKNotification_PDU;        /* IABPSKNotification */
+static int hf_e1ap_IAB_Donor_CU_UPPSKInfo_PDU;    /* IAB_Donor_CU_UPPSKInfo */
+static int hf_e1ap_BCBearerContextSetupRequest_PDU;  /* BCBearerContextSetupRequest */
+static int hf_e1ap_BCBearerContextSetupResponse_PDU;  /* BCBearerContextSetupResponse */
+static int hf_e1ap_BCBearerContextSetupFailure_PDU;  /* BCBearerContextSetupFailure */
+static int hf_e1ap_BCBearerContextModificationRequest_PDU;  /* BCBearerContextModificationRequest */
+static int hf_e1ap_BCBearerContextModificationResponse_PDU;  /* BCBearerContextModificationResponse */
+static int hf_e1ap_BCBearerContextModificationFailure_PDU;  /* BCBearerContextModificationFailure */
+static int hf_e1ap_BCBearerContextModificationRequired_PDU;  /* BCBearerContextModificationRequired */
+static int hf_e1ap_BCBearerContextModificationConfirm_PDU;  /* BCBearerContextModificationConfirm */
+static int hf_e1ap_BCBearerContextReleaseCommand_PDU;  /* BCBearerContextReleaseCommand */
+static int hf_e1ap_BCBearerContextReleaseComplete_PDU;  /* BCBearerContextReleaseComplete */
+static int hf_e1ap_BCBearerContextReleaseRequest_PDU;  /* BCBearerContextReleaseRequest */
+static int hf_e1ap_MCBearerContextSetupRequest_PDU;  /* MCBearerContextSetupRequest */
+static int hf_e1ap_MCBearerContextSetupResponse_PDU;  /* MCBearerContextSetupResponse */
+static int hf_e1ap_MCBearerContextSetupFailure_PDU;  /* MCBearerContextSetupFailure */
+static int hf_e1ap_MCBearerContextModificationRequest_PDU;  /* MCBearerContextModificationRequest */
+static int hf_e1ap_MCBearerContextModificationResponse_PDU;  /* MCBearerContextModificationResponse */
+static int hf_e1ap_MCBearerContextModificationFailure_PDU;  /* MCBearerContextModificationFailure */
+static int hf_e1ap_MCBearerContextModificationRequired_PDU;  /* MCBearerContextModificationRequired */
+static int hf_e1ap_MCBearerContextModificationConfirm_PDU;  /* MCBearerContextModificationConfirm */
+static int hf_e1ap_MCBearerContextReleaseCommand_PDU;  /* MCBearerContextReleaseCommand */
+static int hf_e1ap_MCBearerContextReleaseComplete_PDU;  /* MCBearerContextReleaseComplete */
+static int hf_e1ap_MCBearerContextReleaseRequest_PDU;  /* MCBearerContextReleaseRequest */
+static int hf_e1ap_E1AP_PDU_PDU;                  /* E1AP_PDU */
+static int hf_e1ap_local;                         /* INTEGER_0_maxPrivateIEs */
+static int hf_e1ap_global;                        /* T_global */
+static int hf_e1ap_ProtocolIE_Container_item;     /* ProtocolIE_Field */
+static int hf_e1ap_id;                            /* ProtocolIE_ID */
+static int hf_e1ap_criticality;                   /* Criticality */
+static int hf_e1ap_ie_field_value;                /* T_ie_field_value */
+static int hf_e1ap_ProtocolExtensionContainer_item;  /* ProtocolExtensionField */
+static int hf_e1ap_ext_id;                        /* ProtocolIE_ID */
+static int hf_e1ap_extensionValue;                /* T_extensionValue */
+static int hf_e1ap_PrivateIE_Container_item;      /* PrivateIE_Field */
+static int hf_e1ap_private_id;                    /* PrivateIE_ID */
+static int hf_e1ap_value;                         /* T_value */
+static int hf_e1ap_dRB_Activity_List;             /* DRB_Activity_List */
+static int hf_e1ap_pDU_Session_Resource_Activity_List;  /* PDU_Session_Resource_Activity_List */
+static int hf_e1ap_uE_Activity;                   /* UE_Activity */
+static int hf_e1ap_choice_extension;              /* ProtocolIE_SingleContainer */
+static int hf_e1ap_AlternativeQoSParaSetList_item;  /* AlternativeQoSParaSetItem */
+static int hf_e1ap_alternativeQoSParameterIndex;  /* INTEGER_1_8_ */
+static int hf_e1ap_guaranteedFlowBitRateDL;       /* BitRate */
+static int hf_e1ap_guaranteedFlowBitRateUL;       /* BitRate */
+static int hf_e1ap_packetDelayBudget;             /* PacketDelayBudget */
+static int hf_e1ap_packetErrorRate;               /* PacketErrorRate */
+static int hf_e1ap_iE_Extensions;                 /* ProtocolExtensionContainer */
+static int hf_e1ap_snssai;                        /* SNSSAI */
+static int hf_e1ap_bcBearerContextNGU_TNLInfoat5GC;  /* BCBearerContextNGU_TNLInfoat5GC */
+static int hf_e1ap_bcMRBToSetupList;              /* BCMRBSetupConfiguration */
+static int hf_e1ap_requestedAction;               /* RequestedAction4AvailNGUTermination */
+static int hf_e1ap_locationindependent;           /* MBSNGUInformationAt5GC */
+static int hf_e1ap_locationdependent;             /* LocationDependentMBSNGUInformationAt5GC */
+static int hf_e1ap_BCMRBSetupConfiguration_item;  /* BCMRBSetupConfiguration_Item */
+static int hf_e1ap_mrb_ID;                        /* MRB_ID */
+static int hf_e1ap_mbs_pdcp_config;               /* PDCP_Configuration */
+static int hf_e1ap_qoS_Flow_QoS_Parameter_List;   /* QoS_Flow_QoS_Parameter_List */
+static int hf_e1ap_qoSFlowLevelQoSParameters;     /* QoSFlowLevelQoSParameters */
+static int hf_e1ap_bcBearerContextNGU_TNLInfoatNGRAN;  /* BCBearerContextNGU_TNLInfoatNGRAN */
+static int hf_e1ap_bcMRBSetupResponseList;        /* BCMRBSetupResponseList */
+static int hf_e1ap_bcMRBFailedList;               /* BCMRBFailedList */
+static int hf_e1ap_availableBCMRBConfig;          /* BCMRBSetupConfiguration */
+static int hf_e1ap_locationindependent_01;        /* MBSNGUInformationAtNGRAN */
+static int hf_e1ap_locationdependent_01;          /* LocationDependentMBSNGUInformationAtNGRAN */
+static int hf_e1ap_BCMRBSetupResponseList_item;   /* BCMRBSetupResponseList_Item */
+static int hf_e1ap_qosflow_setup;                 /* QoS_Flow_List */
+static int hf_e1ap_qosflow_failed;                /* QoS_Flow_Failed_List */
+static int hf_e1ap_bcBearerContextF1U_TNLInfoatCU;  /* BCBearerContextF1U_TNLInfoatCU */
+static int hf_e1ap_locationindependent_02;        /* MBSF1UInformationAtCU */
+static int hf_e1ap_locationdependent_02;          /* LocationDependentMBSF1UInformationAtCU */
+static int hf_e1ap_BCMRBFailedList_item;          /* BCMRBFailedList_Item */
+static int hf_e1ap_cause;                         /* Cause */
+static int hf_e1ap_bcMRBToModifyList;             /* BCMRBModifyConfiguration */
+static int hf_e1ap_bcMRBToRemoveList;             /* BCMRBRemoveConfiguration */
+static int hf_e1ap_BCMRBModifyConfiguration_item;  /* BCMRBModifyConfiguration_Item */
+static int hf_e1ap_bcBearerContextF1U_TNLInfoatDU;  /* BCBearerContextF1U_TNLInfoatDU */
+static int hf_e1ap_locationindependent_03;        /* MBSF1UInformationAtDU */
+static int hf_e1ap_locationdependent_03;          /* LocationDependentMBSF1UInformationAtDU */
+static int hf_e1ap_BCMRBRemoveConfiguration_item;  /* MRB_ID */
+static int hf_e1ap_bcMRBSetupModifyResponseList;  /* BCMRBSetupModifyResponseList */
+static int hf_e1ap_BCMRBSetupModifyResponseList_item;  /* BCMRBSetupModifyResponseList_Item */
+static int hf_e1ap_radioNetwork;                  /* CauseRadioNetwork */
+static int hf_e1ap_transport;                     /* CauseTransport */
+static int hf_e1ap_protocol;                      /* CauseProtocol */
+static int hf_e1ap_misc;                          /* CauseMisc */
+static int hf_e1ap_Cell_Group_Information_item;   /* Cell_Group_Information_Item */
+static int hf_e1ap_cell_Group_ID;                 /* Cell_Group_ID */
+static int hf_e1ap_uL_Configuration;              /* UL_Configuration */
+static int hf_e1ap_dL_TX_Stop;                    /* DL_TX_Stop */
+static int hf_e1ap_rAT_Type;                      /* RAT_Type */
+static int hf_e1ap_endpoint_IP_Address;           /* TransportLayerAddress */
+static int hf_e1ap_procedureCode;                 /* ProcedureCode */
+static int hf_e1ap_triggeringMessage;             /* TriggeringMessage */
+static int hf_e1ap_procedureCriticality;          /* Criticality */
+static int hf_e1ap_transactionID;                 /* TransactionID */
+static int hf_e1ap_iEsCriticalityDiagnostics;     /* CriticalityDiagnostics_IE_List */
+static int hf_e1ap_CriticalityDiagnostics_IE_List_item;  /* CriticalityDiagnostics_IE_List_item */
+static int hf_e1ap_iECriticality;                 /* Criticality */
+static int hf_e1ap_iE_ID;                         /* ProtocolIE_ID */
+static int hf_e1ap_typeOfError;                   /* TypeOfError */
+static int hf_e1ap_dapsIndicator;                 /* T_dapsIndicator */
+static int hf_e1ap_data_Forwarding_Request;       /* Data_Forwarding_Request */
+static int hf_e1ap_qoS_Flows_Forwarded_On_Fwd_Tunnels;  /* QoS_Flow_Mapping_List */
+static int hf_e1ap_uL_Data_Forwarding;            /* UP_TNL_Information */
+static int hf_e1ap_dL_Data_Forwarding;            /* UP_TNL_Information */
+static int hf_e1ap_DataForwardingtoE_UTRANInformationList_item;  /* DataForwardingtoE_UTRANInformationListItem */
+static int hf_e1ap_data_forwarding_tunnel_information;  /* UP_TNL_Information */
+static int hf_e1ap_qoS_Flows_to_be_forwarded_List;  /* QoS_Flows_to_be_forwarded_List */
+static int hf_e1ap_secondaryRATType;              /* T_secondaryRATType */
+static int hf_e1ap_pDU_session_Timed_Report_List;  /* SEQUENCE_SIZE_1_maxnooftimeperiods_OF_MRDC_Data_Usage_Report_Item */
+static int hf_e1ap_pDU_session_Timed_Report_List_item;  /* MRDC_Data_Usage_Report_Item */
+static int hf_e1ap_Data_Usage_per_QoS_Flow_List_item;  /* Data_Usage_per_QoS_Flow_Item */
+static int hf_e1ap_qoS_Flow_Identifier;           /* QoS_Flow_Identifier */
+static int hf_e1ap_secondaryRATType_01;           /* T_secondaryRATType_01 */
+static int hf_e1ap_qoS_Flow_Timed_Report_List;    /* SEQUENCE_SIZE_1_maxnooftimeperiods_OF_MRDC_Data_Usage_Report_Item */
+static int hf_e1ap_qoS_Flow_Timed_Report_List_item;  /* MRDC_Data_Usage_Report_Item */
+static int hf_e1ap_Data_Usage_Report_List_item;   /* Data_Usage_Report_Item */
+static int hf_e1ap_dRB_ID;                        /* DRB_ID */
+static int hf_e1ap_dRB_Usage_Report_List;         /* DRB_Usage_Report_List */
+static int hf_e1ap_dLDiscardingCountVal;          /* PDCP_Count */
+static int hf_e1ap_oldTNLAdress;                  /* TransportLayerAddress */
+static int hf_e1ap_newTNLAdress;                  /* TransportLayerAddress */
+static int hf_e1ap_DRB_Activity_List_item;        /* DRB_Activity_Item */
+static int hf_e1ap_dRB_Activity;                  /* DRB_Activity */
+static int hf_e1ap_DRB_Confirm_Modified_List_EUTRAN_item;  /* DRB_Confirm_Modified_Item_EUTRAN */
+static int hf_e1ap_cell_Group_Information;        /* Cell_Group_Information */
+static int hf_e1ap_DRB_Confirm_Modified_List_NG_RAN_item;  /* DRB_Confirm_Modified_Item_NG_RAN */
+static int hf_e1ap_DRB_Failed_List_EUTRAN_item;   /* DRB_Failed_Item_EUTRAN */
+static int hf_e1ap_DRB_Failed_Mod_List_EUTRAN_item;  /* DRB_Failed_Mod_Item_EUTRAN */
+static int hf_e1ap_DRB_Failed_List_NG_RAN_item;   /* DRB_Failed_Item_NG_RAN */
+static int hf_e1ap_DRB_Failed_Mod_List_NG_RAN_item;  /* DRB_Failed_Mod_Item_NG_RAN */
+static int hf_e1ap_DRB_Failed_To_Modify_List_EUTRAN_item;  /* DRB_Failed_To_Modify_Item_EUTRAN */
+static int hf_e1ap_DRB_Failed_To_Modify_List_NG_RAN_item;  /* DRB_Failed_To_Modify_Item_NG_RAN */
+static int hf_e1ap_DRB_Measurement_Results_Information_List_item;  /* DRB_Measurement_Results_Information_Item */
+static int hf_e1ap_uL_D1_Result;                  /* INTEGER_0_10000_ */
+static int hf_e1ap_DRB_Modified_List_EUTRAN_item;  /* DRB_Modified_Item_EUTRAN */
+static int hf_e1ap_s1_DL_UP_TNL_Information;      /* UP_TNL_Information */
+static int hf_e1ap_pDCP_SN_Status_Information;    /* PDCP_SN_Status_Information */
+static int hf_e1ap_uL_UP_Transport_Parameters;    /* UP_Parameters */
+static int hf_e1ap_DRB_Modified_List_NG_RAN_item;  /* DRB_Modified_Item_NG_RAN */
+static int hf_e1ap_flow_Setup_List;               /* QoS_Flow_List */
+static int hf_e1ap_flow_Failed_List;              /* QoS_Flow_Failed_List */
+static int hf_e1ap_dRB_Released_In_Session;       /* T_dRB_Released_In_Session */
+static int hf_e1ap_dRB_Accumulated_Session_Time;  /* OCTET_STRING_SIZE_5 */
+static int hf_e1ap_qoS_Flow_Removed_List;         /* SEQUENCE_SIZE_1_maxnoofQoSFlows_OF_QoS_Flow_Removed_Item */
+static int hf_e1ap_qoS_Flow_Removed_List_item;    /* QoS_Flow_Removed_Item */
+static int hf_e1ap_DRB_Required_To_Modify_List_EUTRAN_item;  /* DRB_Required_To_Modify_Item_EUTRAN */
+static int hf_e1ap_gNB_CU_UP_CellGroupRelatedConfiguration;  /* GNB_CU_UP_CellGroupRelatedConfiguration */
+static int hf_e1ap_DRB_Required_To_Modify_List_NG_RAN_item;  /* DRB_Required_To_Modify_Item_NG_RAN */
+static int hf_e1ap_flow_To_Remove;                /* QoS_Flow_List */
+static int hf_e1ap_DRB_Setup_List_EUTRAN_item;    /* DRB_Setup_Item_EUTRAN */
+static int hf_e1ap_data_Forwarding_Information_Response;  /* Data_Forwarding_Information */
+static int hf_e1ap_s1_DL_UP_Unchanged;            /* T_s1_DL_UP_Unchanged */
+static int hf_e1ap_DRB_Setup_Mod_List_EUTRAN_item;  /* DRB_Setup_Mod_Item_EUTRAN */
+static int hf_e1ap_DRB_Setup_List_NG_RAN_item;    /* DRB_Setup_Item_NG_RAN */
+static int hf_e1ap_dRB_data_Forwarding_Information_Response;  /* Data_Forwarding_Information */
+static int hf_e1ap_DRB_Setup_Mod_List_NG_RAN_item;  /* DRB_Setup_Mod_Item_NG_RAN */
+static int hf_e1ap_pDCP_DL_Count;                 /* PDCP_Count */
+static int hf_e1ap_pDCP_UL_Count;                 /* PDCP_Count */
+static int hf_e1ap_DRBs_Subject_To_Counter_Check_List_EUTRAN_item;  /* DRBs_Subject_To_Counter_Check_Item_EUTRAN */
+static int hf_e1ap_DRBs_Subject_To_Counter_Check_List_NG_RAN_item;  /* DRBs_Subject_To_Counter_Check_Item_NG_RAN */
+static int hf_e1ap_pDU_Session_ID;                /* PDU_Session_ID */
+static int hf_e1ap_DRBs_Subject_To_Early_Forwarding_List_item;  /* DRBs_Subject_To_Early_Forwarding_Item */
+static int hf_e1ap_dLCountValue;                  /* PDCP_Count */
+static int hf_e1ap_DRB_To_Modify_List_EUTRAN_item;  /* DRB_To_Modify_Item_EUTRAN */
+static int hf_e1ap_pDCP_Configuration;            /* PDCP_Configuration */
+static int hf_e1ap_eUTRAN_QoS;                    /* EUTRAN_QoS */
+static int hf_e1ap_s1_UL_UP_TNL_Information;      /* UP_TNL_Information */
+static int hf_e1ap_data_Forwarding_Information;   /* Data_Forwarding_Information */
+static int hf_e1ap_pDCP_SN_Status_Request;        /* PDCP_SN_Status_Request */
+static int hf_e1ap_dL_UP_Parameters;              /* UP_Parameters */
+static int hf_e1ap_cell_Group_To_Add;             /* Cell_Group_Information */
+static int hf_e1ap_cell_Group_To_Modify;          /* Cell_Group_Information */
+static int hf_e1ap_cell_Group_To_Remove;          /* Cell_Group_Information */
+static int hf_e1ap_dRB_Inactivity_Timer;          /* Inactivity_Timer */
+static int hf_e1ap_DRB_To_Modify_List_NG_RAN_item;  /* DRB_To_Modify_Item_NG_RAN */
+static int hf_e1ap_sDAP_Configuration;            /* SDAP_Configuration */
+static int hf_e1ap_dRB_Data_Forwarding_Information;  /* Data_Forwarding_Information */
+static int hf_e1ap_pdcp_SN_Status_Information;    /* PDCP_SN_Status_Information */
+static int hf_e1ap_flow_Mapping_Information;      /* QoS_Flow_QoS_Parameter_List */
+static int hf_e1ap_DRB_To_Remove_List_EUTRAN_item;  /* DRB_To_Remove_Item_EUTRAN */
+static int hf_e1ap_DRB_Required_To_Remove_List_EUTRAN_item;  /* DRB_Required_To_Remove_Item_EUTRAN */
+static int hf_e1ap_DRB_To_Remove_List_NG_RAN_item;  /* DRB_To_Remove_Item_NG_RAN */
+static int hf_e1ap_DRB_Required_To_Remove_List_NG_RAN_item;  /* DRB_Required_To_Remove_Item_NG_RAN */
+static int hf_e1ap_DRB_To_Setup_List_EUTRAN_item;  /* DRB_To_Setup_Item_EUTRAN */
+static int hf_e1ap_data_Forwarding_Information_Request;  /* Data_Forwarding_Information_Request */
+static int hf_e1ap_existing_Allocated_S1_DL_UP_TNL_Info;  /* UP_TNL_Information */
+static int hf_e1ap_DRB_To_Setup_Mod_List_EUTRAN_item;  /* DRB_To_Setup_Mod_Item_EUTRAN */
+static int hf_e1ap_DRB_To_Setup_List_NG_RAN_item;  /* DRB_To_Setup_Item_NG_RAN */
+static int hf_e1ap_qos_flow_Information_To_Be_Setup;  /* QoS_Flow_QoS_Parameter_List */
+static int hf_e1ap_dRB_Data_Forwarding_Information_Request;  /* Data_Forwarding_Information_Request */
+static int hf_e1ap_DRB_To_Setup_Mod_List_NG_RAN_item;  /* DRB_To_Setup_Mod_Item_NG_RAN */
+static int hf_e1ap_DRB_Usage_Report_List_item;    /* DRB_Usage_Report_Item */
+static int hf_e1ap_startTimeStamp;                /* T_startTimeStamp */
+static int hf_e1ap_endTimeStamp;                  /* T_endTimeStamp */
+static int hf_e1ap_usageCountUL;                  /* INTEGER_0_18446744073709551615 */
+static int hf_e1ap_usageCountDL;                  /* INTEGER_0_18446744073709551615 */
+static int hf_e1ap_qoSPriorityLevel;              /* QoSPriorityLevel */
+static int hf_e1ap_fiveQI;                        /* INTEGER_0_255_ */
+static int hf_e1ap_delayCritical;                 /* T_delayCritical */
+static int hf_e1ap_averagingWindow;               /* AveragingWindow */
+static int hf_e1ap_maxDataBurstVolume;            /* MaxDataBurstVolume */
+static int hf_e1ap_firstDLCount;                  /* FirstDLCount */
+static int hf_e1ap_dLDiscardingCount;             /* DLDiscarding */
+static int hf_e1ap_choice_Extension;              /* ProtocolIE_SingleContainer */
+static int hf_e1ap_ehc_CID_Length;                /* T_ehc_CID_Length */
+static int hf_e1ap_drb_ContinueEHC_DL;            /* T_drb_ContinueEHC_DL */
+static int hf_e1ap_drb_ContinueEHC_UL;            /* T_drb_ContinueEHC_UL */
+static int hf_e1ap_ehc_Common;                    /* EHC_Common_Parameters */
+static int hf_e1ap_ehc_Downlink;                  /* EHC_Downlink_Parameters */
+static int hf_e1ap_ehc_Uplink;                    /* EHC_Uplink_Parameters */
+static int hf_e1ap_portNumber;                    /* PortNumber */
+static int hf_e1ap_priorityLevel;                 /* PriorityLevel */
+static int hf_e1ap_pre_emptionCapability;         /* Pre_emptionCapability */
+static int hf_e1ap_pre_emptionVulnerability;      /* Pre_emptionVulnerability */
+static int hf_e1ap_pLMN_Identity;                 /* PLMN_Identity */
+static int hf_e1ap_eUTRAN_Cell_Identity;          /* E_UTRAN_Cell_Identity */
+static int hf_e1ap_ECGI_Support_List_item;        /* ECGI_Support_Item */
+static int hf_e1ap_eCGI;                          /* ECGI */
+static int hf_e1ap_EUTRAN_QoS_Support_List_item;  /* EUTRAN_QoS_Support_Item */
+static int hf_e1ap_qCI;                           /* QCI */
+static int hf_e1ap_eUTRANallocationAndRetentionPriority;  /* EUTRANAllocationAndRetentionPriority */
+static int hf_e1ap_gbrQosInformation;             /* GBR_QosInformation */
+static int hf_e1ap_ExtendedSliceSupportList_item;  /* Slice_Support_Item */
+static int hf_e1ap_firstDLCountVal;               /* PDCP_Count */
+static int hf_e1ap_tmgi;                          /* OCTET_STRING_SIZE_6 */
+static int hf_e1ap_nid;                           /* NID */
+static int hf_e1ap_gNB_CU_CP_NameVisibleString;   /* GNB_CU_CP_NameVisibleString */
+static int hf_e1ap_gNB_CU_CP_NameUTF8String;      /* GNB_CU_CP_NameUTF8String */
+static int hf_e1ap_GNB_CU_UP_CellGroupRelatedConfiguration_item;  /* GNB_CU_UP_CellGroupRelatedConfiguration_Item */
+static int hf_e1ap_uP_TNL_Information;            /* UP_TNL_Information */
+static int hf_e1ap_mbs_Support_Info_ToAdd_List;   /* MBS_Support_Info_ToAdd_List */
+static int hf_e1ap_mbs_Support_Info_ToRemove_List;  /* MBS_Support_Info_ToRemove_List */
+static int hf_e1ap_gNB_CU_UP_NameVisibleString;   /* GNB_CU_UP_NameVisibleString */
+static int hf_e1ap_gNB_CU_UP_NameUTF8String;      /* GNB_CU_UP_NameUTF8String */
+static int hf_e1ap_tNLAssociationTransportLayerAddress;  /* CP_TNL_Information */
+static int hf_e1ap_tNLAssociationUsage;           /* TNLAssociationUsage */
+static int hf_e1ap_tNLAssociationTransportLayerAddressgNBCUCP;  /* CP_TNL_Information */
+static int hf_e1ap_e_RAB_MaximumBitrateDL;        /* BitRate */
+static int hf_e1ap_e_RAB_MaximumBitrateUL;        /* BitRate */
+static int hf_e1ap_e_RAB_GuaranteedBitrateDL;     /* BitRate */
+static int hf_e1ap_e_RAB_GuaranteedBitrateUL;     /* BitRate */
+static int hf_e1ap_maxFlowBitRateDownlink;        /* BitRate */
+static int hf_e1ap_maxFlowBitRateUplink;          /* BitRate */
+static int hf_e1ap_guaranteedFlowBitRateDownlink;  /* BitRate */
+static int hf_e1ap_guaranteedFlowBitRateUplink;   /* BitRate */
+static int hf_e1ap_maxPacketLossRateDownlink;     /* MaxPacketLossRate */
+static int hf_e1ap_maxPacketLossRateUplink;       /* MaxPacketLossRate */
+static int hf_e1ap_GTPTLAs_item;                  /* GTPTLA_Item */
+static int hf_e1ap_gTPTransportLayerAddresses;    /* TransportLayerAddress */
+static int hf_e1ap_transportLayerAddress;         /* TransportLayerAddress */
+static int hf_e1ap_gTP_TEID;                      /* GTP_TEID */
+static int hf_e1ap_offeredThroughput;             /* INTEGER_1_16777216_ */
+static int hf_e1ap_availableThroughput;           /* INTEGER_0_100_ */
+static int hf_e1ap_measurementsToActivate;        /* MeasurementsToActivate */
+static int hf_e1ap_measurementFour;               /* M4Configuration */
+static int hf_e1ap_measurementSix;                /* M6Configuration */
+static int hf_e1ap_measurementSeven;              /* M7Configuration */
+static int hf_e1ap_iAB_donor_CU_UPPSK;            /* IAB_donor_CU_UPPSK */
+static int hf_e1ap_iAB_donor_CU_UPIPAddress;      /* TransportLayerAddress */
+static int hf_e1ap_iAB_DUIPAddress;               /* TransportLayerAddress */
+static int hf_e1ap_LocationDependentMBSNGUInformationAt5GC_item;  /* LocationDependentMBSNGUInformationAt5GC_Item */
+static int hf_e1ap_mbsAreaSession_ID;             /* MBSAreaSessionID */
+static int hf_e1ap_mbsNGUInformationAt5GC;        /* MBSNGUInformationAt5GC */
+static int hf_e1ap_LocationDependentMBSF1UInformationAtCU_item;  /* LocationDependentMBSF1UInformationAtCU_Item */
+static int hf_e1ap_mbs_f1u_info_at_CU;            /* UP_TNL_Information */
+static int hf_e1ap_LocationDependentMBSF1UInformationAtDU_item;  /* LocationDependentMBSF1UInformationAtDU_Item */
+static int hf_e1ap_mbs_f1u_info_at_DU;            /* UP_TNL_Information */
+static int hf_e1ap_LocationDependentMBSNGUInformationAtNGRAN_item;  /* LocationDependentMBSNGUInformationAtNGRAN_Item */
+static int hf_e1ap_mbsNGUInformationAtNGRAN;      /* MBSNGUInformationAtNGRAN */
+static int hf_e1ap_maxIPrate;                     /* MaxIPrate */
+static int hf_e1ap_multicast;                     /* MBSNGUInformationAt5GC_Multicast */
+static int hf_e1ap_ipmcAddress;                   /* TransportLayerAddress */
+static int hf_e1ap_ipsourceAddress;               /* TransportLayerAddress */
+static int hf_e1ap_gtpDLTEID;                     /* GTP_TEID */
+static int hf_e1ap_unicast;                       /* UP_TNL_Information */
+static int hf_e1ap_ue_Reference_ID;               /* GNB_CU_CP_UE_E1AP_ID */
+static int hf_e1ap_associatedQoSFlowInformationList;  /* MBSSessionAssociatedInformationList */
+static int hf_e1ap_mbsSessionAssociatedInformationList;  /* MBSSessionAssociatedInformationList */
+static int hf_e1ap_mbsSessionForwardingAddress;   /* UP_TNL_Information */
+static int hf_e1ap_MBSSessionAssociatedInformationList_item;  /* MBSSessionAssociatedInformation_Item */
+static int hf_e1ap_mbs_QoS_Flow_Identifier;       /* QoS_Flow_Identifier */
+static int hf_e1ap_associated_unicast_QoS_Flow_Identifier;  /* QoS_Flow_Identifier */
+static int hf_e1ap_MBS_Support_Info_ToAdd_List_item;  /* MBS_Support_Info_ToAdd_Item */
+static int hf_e1ap_globalMBSSessionID;            /* GlobalMBSSessionID */
+static int hf_e1ap_MBS_Support_Info_ToRemove_List_item;  /* MBS_Support_Info_ToRemove_Item */
+static int hf_e1ap_mcMRBToSetupList;              /* MCMRBSetupConfiguration */
+static int hf_e1ap_MCMRBSetupConfiguration_item;  /* MCMRBSetupConfiguration_Item */
+static int hf_e1ap_mcBearerContextNGU_TNLInfoatNGRAN;  /* MCBearerContextNGU_TNLInfoatNGRAN */
+static int hf_e1ap_mcMRBSetupResponseList;        /* MCMRBSetupResponseList */
+static int hf_e1ap_mcMRBFailedList;               /* MCMRBFailedList */
+static int hf_e1ap_availableMCMRBConfig;          /* MCMRBSetupConfiguration */
+static int hf_e1ap_MCMRBSetupResponseList_item;   /* MCMRBSetupResponseList_Item */
+static int hf_e1ap_mBS_PDCP_COUNT;                /* MBS_PDCP_COUNT */
+static int hf_e1ap_MCMRBFailedList_item;          /* MCMRBFailedList_Item */
+static int hf_e1ap_mcBearerContextNGUTNLInfoat5GC;  /* MCBearerContextNGUTNLInfoat5GC */
+static int hf_e1ap_mcBearerContextNGUTnlInfoatNGRANRequest;  /* MCBearerContextNGUTnlInfoatNGRANRequest */
+static int hf_e1ap_mbsMulticastF1UContextDescriptor;  /* MBSMulticastF1UContextDescriptor */
+static int hf_e1ap_mcMRBToSetupModifyList;        /* MCMRBSetupModifyConfiguration */
+static int hf_e1ap_mcMRBToRemoveList;             /* MCMRBRemoveConfiguration */
+static int hf_e1ap_ngRANNGUTNLRequested;          /* T_ngRANNGUTNLRequested */
+static int hf_e1ap_MCMRBSetupModifyConfiguration_item;  /* MCMRBSetupModifyConfiguration_Item */
+static int hf_e1ap_f1uTNLatDU;                    /* MCBearerContextF1UTNLInfoatDU */
+static int hf_e1ap_mrbQoS;                        /* QoSFlowLevelQoSParameters */
+static int hf_e1ap_mbs_PDCP_COUNT_Req;            /* MBS_PDCP_COUNT_Req */
+static int hf_e1ap_mbsF1UInfoatDU;                /* UP_TNL_Information */
+static int hf_e1ap_multicastF1UContextReferenceE1;  /* MulticastF1UContextReferenceE1 */
+static int hf_e1ap_mc_F1UCtxtusage;               /* T_mc_F1UCtxtusage */
+static int hf_e1ap_mbsAreaSession;                /* MBSAreaSessionID */
+static int hf_e1ap_MCMRBRemoveConfiguration_item;  /* MRB_ID */
+static int hf_e1ap_mcBearerContextNGU_TNLInfoatNGRANModifyResponse;  /* MCBearerContextNGU_TNLInfoatNGRANModifyResponse */
+static int hf_e1ap_mcMRBModifySetupResponseList;  /* MCMRBSetupModifyResponseList */
+static int hf_e1ap_mbs_NGU_InfoatNGRAN;           /* MBSNGUInformationAtNGRAN */
+static int hf_e1ap_MCMRBSetupModifyResponseList_item;  /* MCMRBSetupModifyResponseList_Item */
+static int hf_e1ap_mcBearerContextF1UTNLInfoatCU;  /* UP_TNL_Information */
+static int hf_e1ap_mcMRBToRemoveRequiredList;     /* MCMRBRemoveConfiguration */
+static int hf_e1ap_mcMRBToModifyRequiredList;     /* MCMRBModifyRequiredConfiguration */
+static int hf_e1ap_MCMRBModifyRequiredConfiguration_item;  /* MCMRBModifyRequiredConfiguration_Item */
+static int hf_e1ap_mcMRBModifyConfirmList;        /* MCMRBModifyConfirmList */
+static int hf_e1ap_MCMRBModifyConfirmList_item;   /* MCMRBModifyConfirmList_Item */
+static int hf_e1ap_mcForwardingResourceID;        /* MCForwardingResourceID */
+static int hf_e1ap_mrbForwardingResourceRequestList;  /* MRBForwardingResourceRequestList */
+static int hf_e1ap_MRBForwardingResourceRequestList_item;  /* MRBForwardingResourceRequest_Item */
+static int hf_e1ap_mrbProgressRequestType;        /* MRB_ProgressInformationType */
+static int hf_e1ap_mrbForwardingAddressRequest;   /* T_mrbForwardingAddressRequest */
+static int hf_e1ap_mrbForwardingResourceIndicationList;  /* MRBForwardingResourceIndicationList */
+static int hf_e1ap_mbsSessionAssociatedInformation;  /* MBSSessionAssociatedInformation */
+static int hf_e1ap_MRBForwardingResourceIndicationList_item;  /* MRBForwardingResourceIndication_Item */
+static int hf_e1ap_mrb_ProgressInformation;       /* MRB_ProgressInformation */
+static int hf_e1ap_mrbForwardingAddress;          /* UP_TNL_Information */
+static int hf_e1ap_mrbForwardingResourceResponseList;  /* MRBForwardingResourceResponseList */
+static int hf_e1ap_MRBForwardingResourceResponseList_item;  /* MRBForwardingResourceResponse_Item */
+static int hf_e1ap_mrb_ProgressInformationSNs;    /* MRB_ProgressInformationSNs */
+static int hf_e1ap_mrb_ProgressInformationType;   /* MRB_ProgressInformationType */
+static int hf_e1ap_pdcp_SN12;                     /* INTEGER_0_4095 */
+static int hf_e1ap_pdcp_SN18;                     /* INTEGER_0_262143 */
+static int hf_e1ap_startTimeStamp_01;             /* T_startTimeStamp_01 */
+static int hf_e1ap_endTimeStamp_01;               /* T_endTimeStamp_01 */
+static int hf_e1ap_data_Usage_per_PDU_Session_Report;  /* Data_Usage_per_PDU_Session_Report */
+static int hf_e1ap_data_Usage_per_QoS_Flow_List;  /* Data_Usage_per_QoS_Flow_List */
+static int hf_e1ap_m4period;                      /* M4period */
+static int hf_e1ap_m4_links_to_log;               /* Links_to_log */
+static int hf_e1ap_m6report_Interval;             /* M6report_Interval */
+static int hf_e1ap_m6_links_to_log;               /* Links_to_log */
+static int hf_e1ap_m7period;                      /* M7period */
+static int hf_e1ap_m7_links_to_log;               /* Links_to_log */
+static int hf_e1ap_mdt_Activation;                /* MDT_Activation */
+static int hf_e1ap_mDTMode;                       /* MDTMode */
+static int hf_e1ap_immediateMDT;                  /* ImmediateMDT */
+static int hf_e1ap_MDTPLMNList_item;              /* PLMN_Identity */
+static int hf_e1ap_MDTPLMNModificationList_item;  /* PLMN_Identity */
+static int hf_e1ap_NG_RAN_QoS_Support_List_item;  /* NG_RAN_QoS_Support_Item */
+static int hf_e1ap_non_Dynamic5QIDescriptor;      /* Non_Dynamic5QIDescriptor */
+static int hf_e1ap_sNPN;                          /* NPNSupportInfo_SNPN */
+static int hf_e1ap_nID;                           /* NID */
+static int hf_e1ap_sNPN_01;                       /* NPNContextInfo_SNPN */
+static int hf_e1ap_nR_Cell_Identity;              /* NR_Cell_Identity */
+static int hf_e1ap_NR_CGI_Support_List_item;      /* NR_CGI_Support_Item */
+static int hf_e1ap_nR_CGI;                        /* NR_CGI */
+static int hf_e1ap_Extended_NR_CGI_Support_List_item;  /* Extended_NR_CGI_Support_Item */
+static int hf_e1ap_pER_Scalar;                    /* PER_Scalar */
+static int hf_e1ap_pER_Exponent;                  /* PER_Exponent */
+static int hf_e1ap_pDCP_SN_Size_UL;               /* PDCP_SN_Size */
+static int hf_e1ap_pDCP_SN_Size_DL;               /* PDCP_SN_Size */
+static int hf_e1ap_rLC_Mode;                      /* RLC_Mode */
+static int hf_e1ap_rOHC_Parameters;               /* ROHC_Parameters */
+static int hf_e1ap_t_ReorderingTimer;             /* T_ReorderingTimer */
+static int hf_e1ap_discardTimer;                  /* DiscardTimer */
+static int hf_e1ap_uLDataSplitThreshold;          /* ULDataSplitThreshold */
+static int hf_e1ap_pDCP_Duplication;              /* PDCP_Duplication */
+static int hf_e1ap_pDCP_Reestablishment;          /* PDCP_Reestablishment */
+static int hf_e1ap_pDCP_DataRecovery;             /* PDCP_DataRecovery */
+static int hf_e1ap_duplication_Activation;        /* Duplication_Activation */
+static int hf_e1ap_outOfOrderDelivery;            /* OutOfOrderDelivery */
+static int hf_e1ap_pDCP_SN;                       /* PDCP_SN */
+static int hf_e1ap_hFN;                           /* HFN */
+static int hf_e1ap_PDU_Session_Resource_Data_Usage_List_item;  /* PDU_Session_Resource_Data_Usage_Item */
+static int hf_e1ap_mRDC_Usage_Information;        /* MRDC_Usage_Information */
+static int hf_e1ap_pdcpStatusTransfer_UL;         /* DRBBStatusTransfer */
+static int hf_e1ap_pdcpStatusTransfer_DL;         /* PDCP_Count */
+static int hf_e1ap_iE_Extension;                  /* ProtocolExtensionContainer */
+static int hf_e1ap_receiveStatusofPDCPSDU;        /* BIT_STRING_SIZE_1_131072 */
+static int hf_e1ap_countValue;                    /* PDCP_Count */
+static int hf_e1ap_PDU_Session_Resource_Activity_List_item;  /* PDU_Session_Resource_Activity_Item */
+static int hf_e1ap_pDU_Session_Resource_Activity;  /* PDU_Session_Resource_Activity */
+static int hf_e1ap_PDU_Session_Resource_Confirm_Modified_List_item;  /* PDU_Session_Resource_Confirm_Modified_Item */
+static int hf_e1ap_dRB_Confirm_Modified_List_NG_RAN;  /* DRB_Confirm_Modified_List_NG_RAN */
+static int hf_e1ap_PDU_Session_Resource_Failed_List_item;  /* PDU_Session_Resource_Failed_Item */
+static int hf_e1ap_PDU_Session_Resource_Failed_Mod_List_item;  /* PDU_Session_Resource_Failed_Mod_Item */
+static int hf_e1ap_PDU_Session_Resource_Failed_To_Modify_List_item;  /* PDU_Session_Resource_Failed_To_Modify_Item */
+static int hf_e1ap_PDU_Session_Resource_Modified_List_item;  /* PDU_Session_Resource_Modified_Item */
+static int hf_e1ap_nG_DL_UP_TNL_Information;      /* UP_TNL_Information */
+static int hf_e1ap_securityResult;                /* SecurityResult */
+static int hf_e1ap_pDU_Session_Data_Forwarding_Information_Response;  /* Data_Forwarding_Information */
+static int hf_e1ap_dRB_Setup_List_NG_RAN;         /* DRB_Setup_List_NG_RAN */
+static int hf_e1ap_dRB_Failed_List_NG_RAN;        /* DRB_Failed_List_NG_RAN */
+static int hf_e1ap_dRB_Modified_List_NG_RAN;      /* DRB_Modified_List_NG_RAN */
+static int hf_e1ap_dRB_Failed_To_Modify_List_NG_RAN;  /* DRB_Failed_To_Modify_List_NG_RAN */
+static int hf_e1ap_PDU_Session_Resource_Required_To_Modify_List_item;  /* PDU_Session_Resource_Required_To_Modify_Item */
+static int hf_e1ap_dRB_Required_To_Modify_List_NG_RAN;  /* DRB_Required_To_Modify_List_NG_RAN */
+static int hf_e1ap_dRB_Required_To_Remove_List_NG_RAN;  /* DRB_Required_To_Remove_List_NG_RAN */
+static int hf_e1ap_PDU_Session_Resource_Setup_List_item;  /* PDU_Session_Resource_Setup_Item */
+static int hf_e1ap_nG_DL_UP_Unchanged;            /* T_nG_DL_UP_Unchanged */
+static int hf_e1ap_PDU_Session_Resource_Setup_Mod_List_item;  /* PDU_Session_Resource_Setup_Mod_Item */
+static int hf_e1ap_dRB_Setup_Mod_List_NG_RAN;     /* DRB_Setup_Mod_List_NG_RAN */
+static int hf_e1ap_dRB_Failed_Mod_List_NG_RAN;    /* DRB_Failed_Mod_List_NG_RAN */
+static int hf_e1ap_PDU_Session_Resource_To_Modify_List_item;  /* PDU_Session_Resource_To_Modify_Item */
+static int hf_e1ap_securityIndication;            /* SecurityIndication */
+static int hf_e1ap_pDU_Session_Resource_DL_AMBR;  /* BitRate */
+static int hf_e1ap_nG_UL_UP_TNL_Information;      /* UP_TNL_Information */
+static int hf_e1ap_pDU_Session_Data_Forwarding_Information_Request;  /* Data_Forwarding_Information_Request */
+static int hf_e1ap_pDU_Session_Data_Forwarding_Information;  /* Data_Forwarding_Information */
+static int hf_e1ap_pDU_Session_Inactivity_Timer;  /* Inactivity_Timer */
+static int hf_e1ap_networkInstance;               /* NetworkInstance */
+static int hf_e1ap_dRB_To_Setup_List_NG_RAN;      /* DRB_To_Setup_List_NG_RAN */
+static int hf_e1ap_dRB_To_Modify_List_NG_RAN;     /* DRB_To_Modify_List_NG_RAN */
+static int hf_e1ap_dRB_To_Remove_List_NG_RAN;     /* DRB_To_Remove_List_NG_RAN */
+static int hf_e1ap_PDU_Session_Resource_To_Remove_List_item;  /* PDU_Session_Resource_To_Remove_Item */
+static int hf_e1ap_PDU_Session_Resource_To_Setup_List_item;  /* PDU_Session_Resource_To_Setup_Item */
+static int hf_e1ap_pDU_Session_Type;              /* PDU_Session_Type */
+static int hf_e1ap_sNSSAI;                        /* SNSSAI */
+static int hf_e1ap_existing_Allocated_NG_DL_UP_TNL_Info;  /* UP_TNL_Information */
+static int hf_e1ap_PDU_Session_Resource_To_Setup_Mod_List_item;  /* PDU_Session_Resource_To_Setup_Mod_Item */
+static int hf_e1ap_pDU_Session_Resource_AMBR;     /* BitRate */
+static int hf_e1ap_dRB_To_Setup_Mod_List_NG_RAN;  /* DRB_To_Setup_Mod_List_NG_RAN */
+static int hf_e1ap_PDU_Session_To_Notify_List_item;  /* PDU_Session_To_Notify_Item */
+static int hf_e1ap_qoS_Flow_List;                 /* QoS_Flow_List */
+static int hf_e1ap_non_Dynamic_5QI;               /* Non_Dynamic5QIDescriptor */
+static int hf_e1ap_dynamic_5QI;                   /* Dynamic5QIDescriptor */
+static int hf_e1ap_QoS_Flow_List_item;            /* QoS_Flow_Item */
+static int hf_e1ap_QoS_Flow_Failed_List_item;     /* QoS_Flow_Failed_Item */
+static int hf_e1ap_QoS_Flow_Mapping_List_item;    /* QoS_Flow_Mapping_Item */
+static int hf_e1ap_qoSFlowMappingIndication;      /* QoS_Flow_Mapping_Indication */
+static int hf_e1ap_eUTRAN_QoS_Support_List;       /* EUTRAN_QoS_Support_List */
+static int hf_e1ap_nG_RAN_QoS_Support_List;       /* NG_RAN_QoS_Support_List */
+static int hf_e1ap_QoS_Flow_QoS_Parameter_List_item;  /* QoS_Flow_QoS_Parameter_Item */
+static int hf_e1ap_qoS_Characteristics;           /* QoS_Characteristics */
+static int hf_e1ap_nGRANallocationRetentionPriority;  /* NGRANAllocationAndRetentionPriority */
+static int hf_e1ap_gBR_QoS_Flow_Information;      /* GBR_QoSFlowInformation */
+static int hf_e1ap_reflective_QoS_Attribute;      /* T_reflective_QoS_Attribute */
+static int hf_e1ap_additional_QoS_Information;    /* T_additional_QoS_Information */
+static int hf_e1ap_paging_Policy_Index;           /* INTEGER_1_8_ */
+static int hf_e1ap_reflective_QoS_Indicator;      /* T_reflective_QoS_Indicator */
+static int hf_e1ap_qoS_Flow_Released_In_Session;  /* T_qoS_Flow_Released_In_Session */
+static int hf_e1ap_qoS_Flow_Accumulated_Session_Time;  /* OCTET_STRING_SIZE_5 */
+static int hf_e1ap_QoS_Flows_to_be_forwarded_List_item;  /* QoS_Flows_to_be_forwarded_Item */
+static int hf_e1ap_dscp;                          /* BIT_STRING_SIZE_6 */
+static int hf_e1ap_flow_label;                    /* BIT_STRING_SIZE_20 */
+static int hf_e1ap_DataForwardingtoNG_RANQoSFlowInformationList_item;  /* DataForwardingtoNG_RANQoSFlowInformationList_Item */
+static int hf_e1ap_rSN;                           /* RSN */
+static int hf_e1ap_RetainabilityMeasurementsInfo_item;  /* DRB_Removed_Item */
+static int hf_e1ap_rOHC;                          /* ROHC */
+static int hf_e1ap_uPlinkOnlyROHC;                /* UplinkOnlyROHC */
+static int hf_e1ap_maxCID;                        /* INTEGER_0_16383_ */
+static int hf_e1ap_rOHC_Profiles;                 /* INTEGER_0_511_ */
+static int hf_e1ap_continueROHC;                  /* T_continueROHC */
+static int hf_e1ap_cipheringAlgorithm;            /* CipheringAlgorithm */
+static int hf_e1ap_integrityProtectionAlgorithm;  /* IntegrityProtectionAlgorithm */
+static int hf_e1ap_integrityProtectionIndication;  /* IntegrityProtectionIndication */
+static int hf_e1ap_confidentialityProtectionIndication;  /* ConfidentialityProtectionIndication */
+static int hf_e1ap_maximumIPdatarate;             /* MaximumIPdatarate */
+static int hf_e1ap_securityAlgorithm;             /* SecurityAlgorithm */
+static int hf_e1ap_uPSecuritykey;                 /* UPSecuritykey */
+static int hf_e1ap_integrityProtectionResult;     /* IntegrityProtectionResult */
+static int hf_e1ap_confidentialityProtectionResult;  /* ConfidentialityProtectionResult */
+static int hf_e1ap_Slice_Support_List_item;       /* Slice_Support_Item */
+static int hf_e1ap_sST;                           /* OCTET_STRING_SIZE_1 */
+static int hf_e1ap_sD;                            /* OCTET_STRING_SIZE_3 */
+static int hf_e1ap_defaultDRB;                    /* DefaultDRB */
+static int hf_e1ap_sDAP_Header_UL;                /* SDAP_Header_UL */
+static int hf_e1ap_sDAP_Header_DL;                /* SDAP_Header_DL */
+static int hf_e1ap_dL_TNL_OfferedCapacity;        /* INTEGER_0_16777216_ */
+static int hf_e1ap_dL_TNL_AvailableCapacity;      /* INTEGER_0_100_ */
+static int hf_e1ap_uL_TNL_OfferedCapacity;        /* INTEGER_0_16777216_ */
+static int hf_e1ap_uL_TNL_AvailableCapacity;      /* INTEGER_0_100_ */
+static int hf_e1ap_tSCTrafficCharacteristicsUL;   /* TSCTrafficInformation */
+static int hf_e1ap_tSCTrafficCharacteristicsDL;   /* TSCTrafficInformation */
+static int hf_e1ap_periodicity;                   /* Periodicity */
+static int hf_e1ap_burstArrivalTime;              /* BurstArrivalTime */
+static int hf_e1ap_traceID;                       /* TraceID */
+static int hf_e1ap_interfacesToTrace;             /* InterfacesToTrace */
+static int hf_e1ap_traceDepth;                    /* TraceDepth */
+static int hf_e1ap_traceCollectionEntityIPAddress;  /* TransportLayerAddress */
+static int hf_e1ap_t_Reordering;                  /* T_Reordering */
+static int hf_e1ap_transport_UP_Layer_Addresses_Info_To_Add_List;  /* Transport_UP_Layer_Addresses_Info_To_Add_List */
+static int hf_e1ap_transport_UP_Layer_Addresses_Info_To_Remove_List;  /* Transport_UP_Layer_Addresses_Info_To_Remove_List */
+static int hf_e1ap_Transport_UP_Layer_Addresses_Info_To_Add_List_item;  /* Transport_UP_Layer_Addresses_Info_To_Add_Item */
+static int hf_e1ap_iP_SecTransportLayerAddress;   /* TransportLayerAddress */
+static int hf_e1ap_gTPTransportLayerAddressesToAdd;  /* GTPTLAs */
+static int hf_e1ap_Transport_UP_Layer_Addresses_Info_To_Remove_List_item;  /* Transport_UP_Layer_Addresses_Info_To_Remove_Item */
+static int hf_e1ap_gTPTransportLayerAddressesToRemove;  /* GTPTLAs */
+static int hf_e1ap_bufferSize;                    /* BufferSize */
+static int hf_e1ap_dictionary;                    /* Dictionary */
+static int hf_e1ap_continueUDC;                   /* T_continueUDC */
+static int hf_e1ap_gNB_CU_CP_UE_E1AP_ID;          /* GNB_CU_CP_UE_E1AP_ID */
+static int hf_e1ap_gNB_CU_UP_UE_E1AP_ID;          /* GNB_CU_UP_UE_E1AP_ID */
+static int hf_e1ap_UESliceMaximumBitRateList_item;  /* UESliceMaximumBitRateItem */
+static int hf_e1ap_uESliceMaximumBitRateDL;       /* BitRate */
+static int hf_e1ap_UP_Parameters_item;            /* UP_Parameters_Item */
+static int hf_e1ap_encryptionKey;                 /* EncryptionKey */
+static int hf_e1ap_integrityProtectionKey;        /* IntegrityProtectionKey */
+static int hf_e1ap_gTPTunnel;                     /* GTPTunnel */
+static int hf_e1ap_continueROHC_01;               /* T_continueROHC_01 */
+static int hf_e1ap_protocolIEs;                   /* ProtocolIE_Container */
+static int hf_e1ap_e1_Interface;                  /* ResetAll */
+static int hf_e1ap_partOfE1_Interface;            /* UE_associatedLogicalE1_ConnectionListRes */
+static int hf_e1ap_UE_associatedLogicalE1_ConnectionListRes_item;  /* ProtocolIE_SingleContainer */
+static int hf_e1ap_UE_associatedLogicalE1_ConnectionListResAck_item;  /* ProtocolIE_SingleContainer */
+static int hf_e1ap_SupportedPLMNs_List_item;      /* SupportedPLMNs_Item */
+static int hf_e1ap_slice_Support_List;            /* Slice_Support_List */
+static int hf_e1ap_nR_CGI_Support_List;           /* NR_CGI_Support_List */
+static int hf_e1ap_qoS_Parameters_Support_List;   /* QoS_Parameters_Support_List */
+static int hf_e1ap_GNB_CU_UP_TNLA_To_Remove_List_item;  /* GNB_CU_UP_TNLA_To_Remove_Item */
+static int hf_e1ap_GNB_CU_CP_TNLA_To_Add_List_item;  /* GNB_CU_CP_TNLA_To_Add_Item */
+static int hf_e1ap_GNB_CU_CP_TNLA_To_Remove_List_item;  /* GNB_CU_CP_TNLA_To_Remove_Item */
+static int hf_e1ap_GNB_CU_CP_TNLA_To_Update_List_item;  /* GNB_CU_CP_TNLA_To_Update_Item */
+static int hf_e1ap_GNB_CU_CP_TNLA_Setup_List_item;  /* GNB_CU_CP_TNLA_Setup_Item */
+static int hf_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_List_item;  /* GNB_CU_CP_TNLA_Failed_To_Setup_Item */
+static int hf_e1ap_e_UTRAN_BearerContextSetupRequest;  /* ProtocolIE_Container */
+static int hf_e1ap_nG_RAN_BearerContextSetupRequest;  /* ProtocolIE_Container */
+static int hf_e1ap_e_UTRAN_BearerContextSetupResponse;  /* ProtocolIE_Container */
+static int hf_e1ap_nG_RAN_BearerContextSetupResponse;  /* ProtocolIE_Container */
+static int hf_e1ap_e_UTRAN_BearerContextModificationRequest;  /* ProtocolIE_Container */
+static int hf_e1ap_nG_RAN_BearerContextModificationRequest;  /* ProtocolIE_Container */
+static int hf_e1ap_e_UTRAN_BearerContextModificationResponse;  /* ProtocolIE_Container */
+static int hf_e1ap_nG_RAN_BearerContextModificationResponse;  /* ProtocolIE_Container */
+static int hf_e1ap_e_UTRAN_BearerContextModificationRequired;  /* ProtocolIE_Container */
+static int hf_e1ap_nG_RAN_BearerContextModificationRequired;  /* ProtocolIE_Container */
+static int hf_e1ap_e_UTRAN_BearerContextModificationConfirm;  /* ProtocolIE_Container */
+static int hf_e1ap_nG_RAN_BearerContextModificationConfirm;  /* ProtocolIE_Container */
+static int hf_e1ap_DRB_Status_List_item;          /* DRB_Status_Item */
+static int hf_e1ap_e_UTRAN_GNB_CU_UP_CounterCheckRequest;  /* ProtocolIE_Container */
+static int hf_e1ap_nG_RAN_GNB_CU_UP_CounterCheckRequest;  /* ProtocolIE_Container */
+static int hf_e1ap_privateIEs;                    /* PrivateIE_Container */
+static int hf_e1ap_DLUPTNLAddressToUpdateList_item;  /* DLUPTNLAddressToUpdateItem */
+static int hf_e1ap_ULUPTNLAddressToUpdateList_item;  /* ULUPTNLAddressToUpdateItem */
+static int hf_e1ap_IAB_Donor_CU_UPPSKInfo_item;   /* IAB_Donor_CU_UPPSKInfo_Item */
+static int hf_e1ap_initiatingMessage;             /* InitiatingMessage */
+static int hf_e1ap_successfulOutcome;             /* SuccessfulOutcome */
+static int hf_e1ap_unsuccessfulOutcome;           /* UnsuccessfulOutcome */
+static int hf_e1ap_initiatingMessagevalue;        /* InitiatingMessage_value */
+static int hf_e1ap_successfulOutcome_value;       /* SuccessfulOutcome_value */
+static int hf_e1ap_unsuccessfulOutcome_value;     /* UnsuccessfulOutcome_value */
 
 /* Initialize the subtree pointers */
-static gint ett_e1ap = -1;
-static gint ett_e1ap_PLMN_Identity = -1;
-static gint ett_e1ap_TransportLayerAddress = -1;
-static gint ett_e1ap_InterfacesToTrace = -1;
-static gint ett_e1ap_MeasurementsToActivate = -1;
-static gint ett_e1ap_ReportCharacteristics = -1;
-static gint ett_e1ap_BurstArrivalTime = -1;
-static gint ett_e1ap_PrivateIE_ID = -1;
-static gint ett_e1ap_ProtocolIE_Container = -1;
-static gint ett_e1ap_ProtocolIE_Field = -1;
-static gint ett_e1ap_ProtocolExtensionContainer = -1;
-static gint ett_e1ap_ProtocolExtensionField = -1;
-static gint ett_e1ap_PrivateIE_Container = -1;
-static gint ett_e1ap_PrivateIE_Field = -1;
-static gint ett_e1ap_ActivityInformation = -1;
-static gint ett_e1ap_AlternativeQoSParaSetList = -1;
-static gint ett_e1ap_AlternativeQoSParaSetItem = -1;
-static gint ett_e1ap_BCBearerContextToSetup = -1;
-static gint ett_e1ap_BCBearerContextNGU_TNLInfoat5GC = -1;
-static gint ett_e1ap_BCMRBSetupConfiguration = -1;
-static gint ett_e1ap_BCMRBSetupConfiguration_Item = -1;
-static gint ett_e1ap_BCBearerContextToSetupResponse = -1;
-static gint ett_e1ap_BCBearerContextNGU_TNLInfoatNGRAN = -1;
-static gint ett_e1ap_BCMRBSetupResponseList = -1;
-static gint ett_e1ap_BCMRBSetupResponseList_Item = -1;
-static gint ett_e1ap_BCBearerContextF1U_TNLInfoatCU = -1;
-static gint ett_e1ap_BCMRBFailedList = -1;
-static gint ett_e1ap_BCMRBFailedList_Item = -1;
-static gint ett_e1ap_BCBearerContextToModify = -1;
-static gint ett_e1ap_BCMRBModifyConfiguration = -1;
-static gint ett_e1ap_BCMRBModifyConfiguration_Item = -1;
-static gint ett_e1ap_BCBearerContextF1U_TNLInfoatDU = -1;
-static gint ett_e1ap_BCMRBRemoveConfiguration = -1;
-static gint ett_e1ap_BCBearerContextToModifyResponse = -1;
-static gint ett_e1ap_BCMRBSetupModifyResponseList = -1;
-static gint ett_e1ap_BCMRBSetupModifyResponseList_Item = -1;
-static gint ett_e1ap_BCBearerContextToModifyRequired = -1;
-static gint ett_e1ap_BCBearerContextToModifyConfirm = -1;
-static gint ett_e1ap_Cause = -1;
-static gint ett_e1ap_Cell_Group_Information = -1;
-static gint ett_e1ap_Cell_Group_Information_Item = -1;
-static gint ett_e1ap_CP_TNL_Information = -1;
-static gint ett_e1ap_CriticalityDiagnostics = -1;
-static gint ett_e1ap_CriticalityDiagnostics_IE_List = -1;
-static gint ett_e1ap_CriticalityDiagnostics_IE_List_item = -1;
-static gint ett_e1ap_DAPSRequestInfo = -1;
-static gint ett_e1ap_Data_Forwarding_Information_Request = -1;
-static gint ett_e1ap_Data_Forwarding_Information = -1;
-static gint ett_e1ap_DataForwardingtoE_UTRANInformationList = -1;
-static gint ett_e1ap_DataForwardingtoE_UTRANInformationListItem = -1;
-static gint ett_e1ap_Data_Usage_per_PDU_Session_Report = -1;
-static gint ett_e1ap_SEQUENCE_SIZE_1_maxnooftimeperiods_OF_MRDC_Data_Usage_Report_Item = -1;
-static gint ett_e1ap_Data_Usage_per_QoS_Flow_List = -1;
-static gint ett_e1ap_Data_Usage_per_QoS_Flow_Item = -1;
-static gint ett_e1ap_Data_Usage_Report_List = -1;
-static gint ett_e1ap_Data_Usage_Report_Item = -1;
-static gint ett_e1ap_DLDiscarding = -1;
-static gint ett_e1ap_DLUPTNLAddressToUpdateItem = -1;
-static gint ett_e1ap_DRB_Activity_List = -1;
-static gint ett_e1ap_DRB_Activity_Item = -1;
-static gint ett_e1ap_DRB_Confirm_Modified_List_EUTRAN = -1;
-static gint ett_e1ap_DRB_Confirm_Modified_Item_EUTRAN = -1;
-static gint ett_e1ap_DRB_Confirm_Modified_List_NG_RAN = -1;
-static gint ett_e1ap_DRB_Confirm_Modified_Item_NG_RAN = -1;
-static gint ett_e1ap_DRB_Failed_List_EUTRAN = -1;
-static gint ett_e1ap_DRB_Failed_Item_EUTRAN = -1;
-static gint ett_e1ap_DRB_Failed_Mod_List_EUTRAN = -1;
-static gint ett_e1ap_DRB_Failed_Mod_Item_EUTRAN = -1;
-static gint ett_e1ap_DRB_Failed_List_NG_RAN = -1;
-static gint ett_e1ap_DRB_Failed_Item_NG_RAN = -1;
-static gint ett_e1ap_DRB_Failed_Mod_List_NG_RAN = -1;
-static gint ett_e1ap_DRB_Failed_Mod_Item_NG_RAN = -1;
-static gint ett_e1ap_DRB_Failed_To_Modify_List_EUTRAN = -1;
-static gint ett_e1ap_DRB_Failed_To_Modify_Item_EUTRAN = -1;
-static gint ett_e1ap_DRB_Failed_To_Modify_List_NG_RAN = -1;
-static gint ett_e1ap_DRB_Failed_To_Modify_Item_NG_RAN = -1;
-static gint ett_e1ap_DRB_Measurement_Results_Information_List = -1;
-static gint ett_e1ap_DRB_Measurement_Results_Information_Item = -1;
-static gint ett_e1ap_DRB_Modified_List_EUTRAN = -1;
-static gint ett_e1ap_DRB_Modified_Item_EUTRAN = -1;
-static gint ett_e1ap_DRB_Modified_List_NG_RAN = -1;
-static gint ett_e1ap_DRB_Modified_Item_NG_RAN = -1;
-static gint ett_e1ap_DRB_Removed_Item = -1;
-static gint ett_e1ap_SEQUENCE_SIZE_1_maxnoofQoSFlows_OF_QoS_Flow_Removed_Item = -1;
-static gint ett_e1ap_DRB_Required_To_Modify_List_EUTRAN = -1;
-static gint ett_e1ap_DRB_Required_To_Modify_Item_EUTRAN = -1;
-static gint ett_e1ap_DRB_Required_To_Modify_List_NG_RAN = -1;
-static gint ett_e1ap_DRB_Required_To_Modify_Item_NG_RAN = -1;
-static gint ett_e1ap_DRB_Setup_List_EUTRAN = -1;
-static gint ett_e1ap_DRB_Setup_Item_EUTRAN = -1;
-static gint ett_e1ap_DRB_Setup_Mod_List_EUTRAN = -1;
-static gint ett_e1ap_DRB_Setup_Mod_Item_EUTRAN = -1;
-static gint ett_e1ap_DRB_Setup_List_NG_RAN = -1;
-static gint ett_e1ap_DRB_Setup_Item_NG_RAN = -1;
-static gint ett_e1ap_DRB_Setup_Mod_List_NG_RAN = -1;
-static gint ett_e1ap_DRB_Setup_Mod_Item_NG_RAN = -1;
-static gint ett_e1ap_DRB_Status_Item = -1;
-static gint ett_e1ap_DRBs_Subject_To_Counter_Check_List_EUTRAN = -1;
-static gint ett_e1ap_DRBs_Subject_To_Counter_Check_Item_EUTRAN = -1;
-static gint ett_e1ap_DRBs_Subject_To_Counter_Check_List_NG_RAN = -1;
-static gint ett_e1ap_DRBs_Subject_To_Counter_Check_Item_NG_RAN = -1;
-static gint ett_e1ap_DRBs_Subject_To_Early_Forwarding_List = -1;
-static gint ett_e1ap_DRBs_Subject_To_Early_Forwarding_Item = -1;
-static gint ett_e1ap_DRB_To_Modify_List_EUTRAN = -1;
-static gint ett_e1ap_DRB_To_Modify_Item_EUTRAN = -1;
-static gint ett_e1ap_DRB_To_Modify_List_NG_RAN = -1;
-static gint ett_e1ap_DRB_To_Modify_Item_NG_RAN = -1;
-static gint ett_e1ap_DRB_To_Remove_List_EUTRAN = -1;
-static gint ett_e1ap_DRB_To_Remove_Item_EUTRAN = -1;
-static gint ett_e1ap_DRB_Required_To_Remove_List_EUTRAN = -1;
-static gint ett_e1ap_DRB_Required_To_Remove_Item_EUTRAN = -1;
-static gint ett_e1ap_DRB_To_Remove_List_NG_RAN = -1;
-static gint ett_e1ap_DRB_To_Remove_Item_NG_RAN = -1;
-static gint ett_e1ap_DRB_Required_To_Remove_List_NG_RAN = -1;
-static gint ett_e1ap_DRB_Required_To_Remove_Item_NG_RAN = -1;
-static gint ett_e1ap_DRB_To_Setup_List_EUTRAN = -1;
-static gint ett_e1ap_DRB_To_Setup_Item_EUTRAN = -1;
-static gint ett_e1ap_DRB_To_Setup_Mod_List_EUTRAN = -1;
-static gint ett_e1ap_DRB_To_Setup_Mod_Item_EUTRAN = -1;
-static gint ett_e1ap_DRB_To_Setup_List_NG_RAN = -1;
-static gint ett_e1ap_DRB_To_Setup_Item_NG_RAN = -1;
-static gint ett_e1ap_DRB_To_Setup_Mod_List_NG_RAN = -1;
-static gint ett_e1ap_DRB_To_Setup_Mod_Item_NG_RAN = -1;
-static gint ett_e1ap_DRB_Usage_Report_List = -1;
-static gint ett_e1ap_DRB_Usage_Report_Item = -1;
-static gint ett_e1ap_Dynamic5QIDescriptor = -1;
-static gint ett_e1ap_EarlyForwardingCOUNTInfo = -1;
-static gint ett_e1ap_EHC_Common_Parameters = -1;
-static gint ett_e1ap_EHC_Downlink_Parameters = -1;
-static gint ett_e1ap_EHC_Uplink_Parameters = -1;
-static gint ett_e1ap_EHC_Parameters = -1;
-static gint ett_e1ap_Endpoint_IP_address_and_port = -1;
-static gint ett_e1ap_EUTRANAllocationAndRetentionPriority = -1;
-static gint ett_e1ap_ECGI = -1;
-static gint ett_e1ap_ECGI_Support_List = -1;
-static gint ett_e1ap_ECGI_Support_Item = -1;
-static gint ett_e1ap_EUTRAN_QoS_Support_List = -1;
-static gint ett_e1ap_EUTRAN_QoS_Support_Item = -1;
-static gint ett_e1ap_EUTRAN_QoS = -1;
-static gint ett_e1ap_ExtendedSliceSupportList = -1;
-static gint ett_e1ap_FirstDLCount = -1;
-static gint ett_e1ap_GlobalMBSSessionID = -1;
-static gint ett_e1ap_Extended_GNB_CU_CP_Name = -1;
-static gint ett_e1ap_GNB_CU_UP_CellGroupRelatedConfiguration = -1;
-static gint ett_e1ap_GNB_CU_UP_CellGroupRelatedConfiguration_Item = -1;
-static gint ett_e1ap_GNB_CU_UP_MBS_Support_Info = -1;
-static gint ett_e1ap_Extended_GNB_CU_UP_Name = -1;
-static gint ett_e1ap_GNB_CU_CP_TNLA_Setup_Item = -1;
-static gint ett_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_Item = -1;
-static gint ett_e1ap_GNB_CU_CP_TNLA_To_Add_Item = -1;
-static gint ett_e1ap_GNB_CU_CP_TNLA_To_Remove_Item = -1;
-static gint ett_e1ap_GNB_CU_CP_TNLA_To_Update_Item = -1;
-static gint ett_e1ap_GNB_CU_UP_TNLA_To_Remove_Item = -1;
-static gint ett_e1ap_GBR_QosInformation = -1;
-static gint ett_e1ap_GBR_QoSFlowInformation = -1;
-static gint ett_e1ap_GTPTLAs = -1;
-static gint ett_e1ap_GTPTLA_Item = -1;
-static gint ett_e1ap_GTPTunnel = -1;
-static gint ett_e1ap_HW_CapacityIndicator = -1;
-static gint ett_e1ap_ImmediateMDT = -1;
-static gint ett_e1ap_IAB_Donor_CU_UPPSKInfo_Item = -1;
-static gint ett_e1ap_LocationDependentMBSNGUInformationAt5GC = -1;
-static gint ett_e1ap_LocationDependentMBSNGUInformationAt5GC_Item = -1;
-static gint ett_e1ap_LocationDependentMBSF1UInformationAtCU = -1;
-static gint ett_e1ap_LocationDependentMBSF1UInformationAtCU_Item = -1;
-static gint ett_e1ap_LocationDependentMBSF1UInformationAtDU = -1;
-static gint ett_e1ap_LocationDependentMBSF1UInformationAtDU_Item = -1;
-static gint ett_e1ap_LocationDependentMBSNGUInformationAtNGRAN = -1;
-static gint ett_e1ap_LocationDependentMBSNGUInformationAtNGRAN_Item = -1;
-static gint ett_e1ap_MaximumIPdatarate = -1;
-static gint ett_e1ap_MBSF1UInformationAtCU = -1;
-static gint ett_e1ap_MBSF1UInformationAtDU = -1;
-static gint ett_e1ap_MBSNGUInformationAt5GC = -1;
-static gint ett_e1ap_MBSNGUInformationAt5GC_Multicast = -1;
-static gint ett_e1ap_MBSNGUInformationAtNGRAN = -1;
-static gint ett_e1ap_MBSSessionAssociatedInfoNonSupportToSupport = -1;
-static gint ett_e1ap_MBSSessionAssociatedInformation = -1;
-static gint ett_e1ap_MBSSessionAssociatedInformationList = -1;
-static gint ett_e1ap_MBSSessionAssociatedInformation_Item = -1;
-static gint ett_e1ap_MBS_Support_Info_ToAdd_List = -1;
-static gint ett_e1ap_MBS_Support_Info_ToAdd_Item = -1;
-static gint ett_e1ap_MBS_Support_Info_ToRemove_List = -1;
-static gint ett_e1ap_MBS_Support_Info_ToRemove_Item = -1;
-static gint ett_e1ap_MCBearerContextToSetup = -1;
-static gint ett_e1ap_MCMRBSetupConfiguration = -1;
-static gint ett_e1ap_MCMRBSetupConfiguration_Item = -1;
-static gint ett_e1ap_MCBearerContextToSetupResponse = -1;
-static gint ett_e1ap_MCBearerContextNGU_TNLInfoatNGRAN = -1;
-static gint ett_e1ap_MCMRBSetupResponseList = -1;
-static gint ett_e1ap_MCMRBSetupResponseList_Item = -1;
-static gint ett_e1ap_MCMRBFailedList = -1;
-static gint ett_e1ap_MCMRBFailedList_Item = -1;
-static gint ett_e1ap_MCBearerContextToModify = -1;
-static gint ett_e1ap_MCBearerContextNGUTNLInfoat5GC = -1;
-static gint ett_e1ap_MCBearerContextNGUTnlInfoatNGRANRequest = -1;
-static gint ett_e1ap_MCMRBSetupModifyConfiguration = -1;
-static gint ett_e1ap_MCMRBSetupModifyConfiguration_Item = -1;
-static gint ett_e1ap_MCBearerContextF1UTNLInfoatDU = -1;
-static gint ett_e1ap_MBSMulticastF1UContextDescriptor = -1;
-static gint ett_e1ap_MCMRBRemoveConfiguration = -1;
-static gint ett_e1ap_MCBearerContextToModifyResponse = -1;
-static gint ett_e1ap_MCBearerContextNGU_TNLInfoatNGRANModifyResponse = -1;
-static gint ett_e1ap_MCMRBSetupModifyResponseList = -1;
-static gint ett_e1ap_MCMRBSetupModifyResponseList_Item = -1;
-static gint ett_e1ap_MCBearerContextToModifyRequired = -1;
-static gint ett_e1ap_MCMRBModifyRequiredConfiguration = -1;
-static gint ett_e1ap_MCMRBModifyRequiredConfiguration_Item = -1;
-static gint ett_e1ap_MCBearerContextToModifyConfirm = -1;
-static gint ett_e1ap_MCMRBModifyConfirmList = -1;
-static gint ett_e1ap_MCMRBModifyConfirmList_Item = -1;
-static gint ett_e1ap_MCForwardingResourceRequest = -1;
-static gint ett_e1ap_MRBForwardingResourceRequestList = -1;
-static gint ett_e1ap_MRBForwardingResourceRequest_Item = -1;
-static gint ett_e1ap_MCForwardingResourceIndication = -1;
-static gint ett_e1ap_MRBForwardingResourceIndicationList = -1;
-static gint ett_e1ap_MRBForwardingResourceIndication_Item = -1;
-static gint ett_e1ap_MCForwardingResourceResponse = -1;
-static gint ett_e1ap_MRBForwardingResourceResponseList = -1;
-static gint ett_e1ap_MRBForwardingResourceResponse_Item = -1;
-static gint ett_e1ap_MCForwardingResourceRelease = -1;
-static gint ett_e1ap_MCForwardingResourceReleaseIndication = -1;
-static gint ett_e1ap_MRB_ProgressInformation = -1;
-static gint ett_e1ap_MRB_ProgressInformationSNs = -1;
-static gint ett_e1ap_MRDC_Data_Usage_Report_Item = -1;
-static gint ett_e1ap_MRDC_Usage_Information = -1;
-static gint ett_e1ap_M4Configuration = -1;
-static gint ett_e1ap_M6Configuration = -1;
-static gint ett_e1ap_M7Configuration = -1;
-static gint ett_e1ap_MDT_Configuration = -1;
-static gint ett_e1ap_MDTMode = -1;
-static gint ett_e1ap_MDTPLMNList = -1;
-static gint ett_e1ap_MDTPLMNModificationList = -1;
-static gint ett_e1ap_NGRANAllocationAndRetentionPriority = -1;
-static gint ett_e1ap_NG_RAN_QoS_Support_List = -1;
-static gint ett_e1ap_NG_RAN_QoS_Support_Item = -1;
-static gint ett_e1ap_Non_Dynamic5QIDescriptor = -1;
-static gint ett_e1ap_NPNSupportInfo = -1;
-static gint ett_e1ap_NPNSupportInfo_SNPN = -1;
-static gint ett_e1ap_NPNContextInfo = -1;
-static gint ett_e1ap_NPNContextInfo_SNPN = -1;
-static gint ett_e1ap_NR_CGI = -1;
-static gint ett_e1ap_NR_CGI_Support_List = -1;
-static gint ett_e1ap_NR_CGI_Support_Item = -1;
-static gint ett_e1ap_Extended_NR_CGI_Support_List = -1;
-static gint ett_e1ap_Extended_NR_CGI_Support_Item = -1;
-static gint ett_e1ap_PacketErrorRate = -1;
-static gint ett_e1ap_PDCP_Configuration = -1;
-static gint ett_e1ap_PDCP_Count = -1;
-static gint ett_e1ap_PDU_Session_Resource_Data_Usage_List = -1;
-static gint ett_e1ap_PDU_Session_Resource_Data_Usage_Item = -1;
-static gint ett_e1ap_PDCP_SN_Status_Information = -1;
-static gint ett_e1ap_DRBBStatusTransfer = -1;
-static gint ett_e1ap_PDU_Session_Resource_Activity_List = -1;
-static gint ett_e1ap_PDU_Session_Resource_Activity_Item = -1;
-static gint ett_e1ap_PDU_Session_Resource_Confirm_Modified_List = -1;
-static gint ett_e1ap_PDU_Session_Resource_Confirm_Modified_Item = -1;
-static gint ett_e1ap_PDU_Session_Resource_Failed_List = -1;
-static gint ett_e1ap_PDU_Session_Resource_Failed_Item = -1;
-static gint ett_e1ap_PDU_Session_Resource_Failed_Mod_List = -1;
-static gint ett_e1ap_PDU_Session_Resource_Failed_Mod_Item = -1;
-static gint ett_e1ap_PDU_Session_Resource_Failed_To_Modify_List = -1;
-static gint ett_e1ap_PDU_Session_Resource_Failed_To_Modify_Item = -1;
-static gint ett_e1ap_PDU_Session_Resource_Modified_List = -1;
-static gint ett_e1ap_PDU_Session_Resource_Modified_Item = -1;
-static gint ett_e1ap_PDU_Session_Resource_Required_To_Modify_List = -1;
-static gint ett_e1ap_PDU_Session_Resource_Required_To_Modify_Item = -1;
-static gint ett_e1ap_PDU_Session_Resource_Setup_List = -1;
-static gint ett_e1ap_PDU_Session_Resource_Setup_Item = -1;
-static gint ett_e1ap_PDU_Session_Resource_Setup_Mod_List = -1;
-static gint ett_e1ap_PDU_Session_Resource_Setup_Mod_Item = -1;
-static gint ett_e1ap_PDU_Session_Resource_To_Modify_List = -1;
-static gint ett_e1ap_PDU_Session_Resource_To_Modify_Item = -1;
-static gint ett_e1ap_PDU_Session_Resource_To_Remove_List = -1;
-static gint ett_e1ap_PDU_Session_Resource_To_Remove_Item = -1;
-static gint ett_e1ap_PDU_Session_Resource_To_Setup_List = -1;
-static gint ett_e1ap_PDU_Session_Resource_To_Setup_Item = -1;
-static gint ett_e1ap_PDU_Session_Resource_To_Setup_Mod_List = -1;
-static gint ett_e1ap_PDU_Session_Resource_To_Setup_Mod_Item = -1;
-static gint ett_e1ap_PDU_Session_To_Notify_List = -1;
-static gint ett_e1ap_PDU_Session_To_Notify_Item = -1;
-static gint ett_e1ap_QoS_Characteristics = -1;
-static gint ett_e1ap_QoS_Flow_List = -1;
-static gint ett_e1ap_QoS_Flow_Item = -1;
-static gint ett_e1ap_QoS_Flow_Failed_List = -1;
-static gint ett_e1ap_QoS_Flow_Failed_Item = -1;
-static gint ett_e1ap_QoS_Flow_Mapping_List = -1;
-static gint ett_e1ap_QoS_Flow_Mapping_Item = -1;
-static gint ett_e1ap_QoS_Parameters_Support_List = -1;
-static gint ett_e1ap_QoS_Flow_QoS_Parameter_List = -1;
-static gint ett_e1ap_QoS_Flow_QoS_Parameter_Item = -1;
-static gint ett_e1ap_QoSFlowLevelQoSParameters = -1;
-static gint ett_e1ap_QoS_Flow_Removed_Item = -1;
-static gint ett_e1ap_QoS_Flows_to_be_forwarded_List = -1;
-static gint ett_e1ap_QoS_Flows_to_be_forwarded_Item = -1;
-static gint ett_e1ap_QoS_Mapping_Information = -1;
-static gint ett_e1ap_DataForwardingtoNG_RANQoSFlowInformationList = -1;
-static gint ett_e1ap_DataForwardingtoNG_RANQoSFlowInformationList_Item = -1;
-static gint ett_e1ap_RedundantPDUSessionInformation = -1;
-static gint ett_e1ap_RetainabilityMeasurementsInfo = -1;
-static gint ett_e1ap_ROHC_Parameters = -1;
-static gint ett_e1ap_ROHC = -1;
-static gint ett_e1ap_SecurityAlgorithm = -1;
-static gint ett_e1ap_SecurityIndication = -1;
-static gint ett_e1ap_SecurityInformation = -1;
-static gint ett_e1ap_SecurityResult = -1;
-static gint ett_e1ap_Slice_Support_List = -1;
-static gint ett_e1ap_Slice_Support_Item = -1;
-static gint ett_e1ap_SNSSAI = -1;
-static gint ett_e1ap_SDAP_Configuration = -1;
-static gint ett_e1ap_TNL_AvailableCapacityIndicator = -1;
-static gint ett_e1ap_TSCTrafficCharacteristics = -1;
-static gint ett_e1ap_TSCTrafficInformation = -1;
-static gint ett_e1ap_TraceActivation = -1;
-static gint ett_e1ap_T_ReorderingTimer = -1;
-static gint ett_e1ap_Transport_Layer_Address_Info = -1;
-static gint ett_e1ap_Transport_UP_Layer_Addresses_Info_To_Add_List = -1;
-static gint ett_e1ap_Transport_UP_Layer_Addresses_Info_To_Add_Item = -1;
-static gint ett_e1ap_Transport_UP_Layer_Addresses_Info_To_Remove_List = -1;
-static gint ett_e1ap_Transport_UP_Layer_Addresses_Info_To_Remove_Item = -1;
-static gint ett_e1ap_UDC_Parameters = -1;
-static gint ett_e1ap_UE_associatedLogicalE1_ConnectionItem = -1;
-static gint ett_e1ap_UESliceMaximumBitRateList = -1;
-static gint ett_e1ap_UESliceMaximumBitRateItem = -1;
-static gint ett_e1ap_ULUPTNLAddressToUpdateItem = -1;
-static gint ett_e1ap_UP_Parameters = -1;
-static gint ett_e1ap_UP_Parameters_Item = -1;
-static gint ett_e1ap_UPSecuritykey = -1;
-static gint ett_e1ap_UP_TNL_Information = -1;
-static gint ett_e1ap_UplinkOnlyROHC = -1;
-static gint ett_e1ap_Reset = -1;
-static gint ett_e1ap_ResetType = -1;
-static gint ett_e1ap_UE_associatedLogicalE1_ConnectionListRes = -1;
-static gint ett_e1ap_ResetAcknowledge = -1;
-static gint ett_e1ap_UE_associatedLogicalE1_ConnectionListResAck = -1;
-static gint ett_e1ap_ErrorIndication = -1;
-static gint ett_e1ap_GNB_CU_UP_E1SetupRequest = -1;
-static gint ett_e1ap_SupportedPLMNs_List = -1;
-static gint ett_e1ap_SupportedPLMNs_Item = -1;
-static gint ett_e1ap_GNB_CU_UP_E1SetupResponse = -1;
-static gint ett_e1ap_GNB_CU_UP_E1SetupFailure = -1;
-static gint ett_e1ap_GNB_CU_CP_E1SetupRequest = -1;
-static gint ett_e1ap_GNB_CU_CP_E1SetupResponse = -1;
-static gint ett_e1ap_GNB_CU_CP_E1SetupFailure = -1;
-static gint ett_e1ap_GNB_CU_UP_ConfigurationUpdate = -1;
-static gint ett_e1ap_GNB_CU_UP_TNLA_To_Remove_List = -1;
-static gint ett_e1ap_GNB_CU_UP_ConfigurationUpdateAcknowledge = -1;
-static gint ett_e1ap_GNB_CU_UP_ConfigurationUpdateFailure = -1;
-static gint ett_e1ap_GNB_CU_CP_ConfigurationUpdate = -1;
-static gint ett_e1ap_GNB_CU_CP_TNLA_To_Add_List = -1;
-static gint ett_e1ap_GNB_CU_CP_TNLA_To_Remove_List = -1;
-static gint ett_e1ap_GNB_CU_CP_TNLA_To_Update_List = -1;
-static gint ett_e1ap_GNB_CU_CP_ConfigurationUpdateAcknowledge = -1;
-static gint ett_e1ap_GNB_CU_CP_TNLA_Setup_List = -1;
-static gint ett_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_List = -1;
-static gint ett_e1ap_GNB_CU_CP_ConfigurationUpdateFailure = -1;
-static gint ett_e1ap_E1ReleaseRequest = -1;
-static gint ett_e1ap_E1ReleaseResponse = -1;
-static gint ett_e1ap_BearerContextSetupRequest = -1;
-static gint ett_e1ap_System_BearerContextSetupRequest = -1;
-static gint ett_e1ap_BearerContextSetupResponse = -1;
-static gint ett_e1ap_System_BearerContextSetupResponse = -1;
-static gint ett_e1ap_BearerContextSetupFailure = -1;
-static gint ett_e1ap_BearerContextModificationRequest = -1;
-static gint ett_e1ap_System_BearerContextModificationRequest = -1;
-static gint ett_e1ap_BearerContextModificationResponse = -1;
-static gint ett_e1ap_System_BearerContextModificationResponse = -1;
-static gint ett_e1ap_BearerContextModificationFailure = -1;
-static gint ett_e1ap_BearerContextModificationRequired = -1;
-static gint ett_e1ap_System_BearerContextModificationRequired = -1;
-static gint ett_e1ap_BearerContextModificationConfirm = -1;
-static gint ett_e1ap_System_BearerContextModificationConfirm = -1;
-static gint ett_e1ap_BearerContextReleaseCommand = -1;
-static gint ett_e1ap_BearerContextReleaseComplete = -1;
-static gint ett_e1ap_BearerContextReleaseRequest = -1;
-static gint ett_e1ap_DRB_Status_List = -1;
-static gint ett_e1ap_BearerContextInactivityNotification = -1;
-static gint ett_e1ap_DLDataNotification = -1;
-static gint ett_e1ap_ULDataNotification = -1;
-static gint ett_e1ap_DataUsageReport = -1;
-static gint ett_e1ap_GNB_CU_UP_CounterCheckRequest = -1;
-static gint ett_e1ap_System_GNB_CU_UP_CounterCheckRequest = -1;
-static gint ett_e1ap_GNB_CU_UP_StatusIndication = -1;
-static gint ett_e1ap_GNB_CU_CPMeasurementResultsInformation = -1;
-static gint ett_e1ap_MRDC_DataUsageReport = -1;
-static gint ett_e1ap_TraceStart = -1;
-static gint ett_e1ap_DeactivateTrace = -1;
-static gint ett_e1ap_CellTrafficTrace = -1;
-static gint ett_e1ap_PrivateMessage = -1;
-static gint ett_e1ap_ResourceStatusRequest = -1;
-static gint ett_e1ap_ResourceStatusResponse = -1;
-static gint ett_e1ap_ResourceStatusFailure = -1;
-static gint ett_e1ap_ResourceStatusUpdate = -1;
-static gint ett_e1ap_IAB_UPTNLAddressUpdate = -1;
-static gint ett_e1ap_DLUPTNLAddressToUpdateList = -1;
-static gint ett_e1ap_IAB_UPTNLAddressUpdateAcknowledge = -1;
-static gint ett_e1ap_ULUPTNLAddressToUpdateList = -1;
-static gint ett_e1ap_IAB_UPTNLAddressUpdateFailure = -1;
-static gint ett_e1ap_EarlyForwardingSNTransfer = -1;
-static gint ett_e1ap_IABPSKNotification = -1;
-static gint ett_e1ap_IAB_Donor_CU_UPPSKInfo = -1;
-static gint ett_e1ap_BCBearerContextSetupRequest = -1;
-static gint ett_e1ap_BCBearerContextSetupResponse = -1;
-static gint ett_e1ap_BCBearerContextSetupFailure = -1;
-static gint ett_e1ap_BCBearerContextModificationRequest = -1;
-static gint ett_e1ap_BCBearerContextModificationResponse = -1;
-static gint ett_e1ap_BCBearerContextModificationFailure = -1;
-static gint ett_e1ap_BCBearerContextModificationRequired = -1;
-static gint ett_e1ap_BCBearerContextModificationConfirm = -1;
-static gint ett_e1ap_BCBearerContextReleaseCommand = -1;
-static gint ett_e1ap_BCBearerContextReleaseComplete = -1;
-static gint ett_e1ap_BCBearerContextReleaseRequest = -1;
-static gint ett_e1ap_MCBearerContextSetupRequest = -1;
-static gint ett_e1ap_MCBearerContextSetupResponse = -1;
-static gint ett_e1ap_MCBearerContextSetupFailure = -1;
-static gint ett_e1ap_MCBearerContextModificationRequest = -1;
-static gint ett_e1ap_MCBearerContextModificationResponse = -1;
-static gint ett_e1ap_MCBearerContextModificationFailure = -1;
-static gint ett_e1ap_MCBearerContextModificationRequired = -1;
-static gint ett_e1ap_MCBearerContextModificationConfirm = -1;
-static gint ett_e1ap_MCBearerContextReleaseCommand = -1;
-static gint ett_e1ap_MCBearerContextReleaseComplete = -1;
-static gint ett_e1ap_MCBearerContextReleaseRequest = -1;
-static gint ett_e1ap_E1AP_PDU = -1;
-static gint ett_e1ap_InitiatingMessage = -1;
-static gint ett_e1ap_SuccessfulOutcome = -1;
-static gint ett_e1ap_UnsuccessfulOutcome = -1;
+static gint ett_e1ap;
+static gint ett_e1ap_PLMN_Identity;
+static gint ett_e1ap_TransportLayerAddress;
+static gint ett_e1ap_InterfacesToTrace;
+static gint ett_e1ap_MeasurementsToActivate;
+static gint ett_e1ap_ReportCharacteristics;
+static gint ett_e1ap_BurstArrivalTime;
+static gint ett_e1ap_PrivateIE_ID;
+static gint ett_e1ap_ProtocolIE_Container;
+static gint ett_e1ap_ProtocolIE_Field;
+static gint ett_e1ap_ProtocolExtensionContainer;
+static gint ett_e1ap_ProtocolExtensionField;
+static gint ett_e1ap_PrivateIE_Container;
+static gint ett_e1ap_PrivateIE_Field;
+static gint ett_e1ap_ActivityInformation;
+static gint ett_e1ap_AlternativeQoSParaSetList;
+static gint ett_e1ap_AlternativeQoSParaSetItem;
+static gint ett_e1ap_BCBearerContextToSetup;
+static gint ett_e1ap_BCBearerContextNGU_TNLInfoat5GC;
+static gint ett_e1ap_BCMRBSetupConfiguration;
+static gint ett_e1ap_BCMRBSetupConfiguration_Item;
+static gint ett_e1ap_BCBearerContextToSetupResponse;
+static gint ett_e1ap_BCBearerContextNGU_TNLInfoatNGRAN;
+static gint ett_e1ap_BCMRBSetupResponseList;
+static gint ett_e1ap_BCMRBSetupResponseList_Item;
+static gint ett_e1ap_BCBearerContextF1U_TNLInfoatCU;
+static gint ett_e1ap_BCMRBFailedList;
+static gint ett_e1ap_BCMRBFailedList_Item;
+static gint ett_e1ap_BCBearerContextToModify;
+static gint ett_e1ap_BCMRBModifyConfiguration;
+static gint ett_e1ap_BCMRBModifyConfiguration_Item;
+static gint ett_e1ap_BCBearerContextF1U_TNLInfoatDU;
+static gint ett_e1ap_BCMRBRemoveConfiguration;
+static gint ett_e1ap_BCBearerContextToModifyResponse;
+static gint ett_e1ap_BCMRBSetupModifyResponseList;
+static gint ett_e1ap_BCMRBSetupModifyResponseList_Item;
+static gint ett_e1ap_BCBearerContextToModifyRequired;
+static gint ett_e1ap_BCBearerContextToModifyConfirm;
+static gint ett_e1ap_Cause;
+static gint ett_e1ap_Cell_Group_Information;
+static gint ett_e1ap_Cell_Group_Information_Item;
+static gint ett_e1ap_CP_TNL_Information;
+static gint ett_e1ap_CriticalityDiagnostics;
+static gint ett_e1ap_CriticalityDiagnostics_IE_List;
+static gint ett_e1ap_CriticalityDiagnostics_IE_List_item;
+static gint ett_e1ap_DAPSRequestInfo;
+static gint ett_e1ap_Data_Forwarding_Information_Request;
+static gint ett_e1ap_Data_Forwarding_Information;
+static gint ett_e1ap_DataForwardingtoE_UTRANInformationList;
+static gint ett_e1ap_DataForwardingtoE_UTRANInformationListItem;
+static gint ett_e1ap_Data_Usage_per_PDU_Session_Report;
+static gint ett_e1ap_SEQUENCE_SIZE_1_maxnooftimeperiods_OF_MRDC_Data_Usage_Report_Item;
+static gint ett_e1ap_Data_Usage_per_QoS_Flow_List;
+static gint ett_e1ap_Data_Usage_per_QoS_Flow_Item;
+static gint ett_e1ap_Data_Usage_Report_List;
+static gint ett_e1ap_Data_Usage_Report_Item;
+static gint ett_e1ap_DLDiscarding;
+static gint ett_e1ap_DLUPTNLAddressToUpdateItem;
+static gint ett_e1ap_DRB_Activity_List;
+static gint ett_e1ap_DRB_Activity_Item;
+static gint ett_e1ap_DRB_Confirm_Modified_List_EUTRAN;
+static gint ett_e1ap_DRB_Confirm_Modified_Item_EUTRAN;
+static gint ett_e1ap_DRB_Confirm_Modified_List_NG_RAN;
+static gint ett_e1ap_DRB_Confirm_Modified_Item_NG_RAN;
+static gint ett_e1ap_DRB_Failed_List_EUTRAN;
+static gint ett_e1ap_DRB_Failed_Item_EUTRAN;
+static gint ett_e1ap_DRB_Failed_Mod_List_EUTRAN;
+static gint ett_e1ap_DRB_Failed_Mod_Item_EUTRAN;
+static gint ett_e1ap_DRB_Failed_List_NG_RAN;
+static gint ett_e1ap_DRB_Failed_Item_NG_RAN;
+static gint ett_e1ap_DRB_Failed_Mod_List_NG_RAN;
+static gint ett_e1ap_DRB_Failed_Mod_Item_NG_RAN;
+static gint ett_e1ap_DRB_Failed_To_Modify_List_EUTRAN;
+static gint ett_e1ap_DRB_Failed_To_Modify_Item_EUTRAN;
+static gint ett_e1ap_DRB_Failed_To_Modify_List_NG_RAN;
+static gint ett_e1ap_DRB_Failed_To_Modify_Item_NG_RAN;
+static gint ett_e1ap_DRB_Measurement_Results_Information_List;
+static gint ett_e1ap_DRB_Measurement_Results_Information_Item;
+static gint ett_e1ap_DRB_Modified_List_EUTRAN;
+static gint ett_e1ap_DRB_Modified_Item_EUTRAN;
+static gint ett_e1ap_DRB_Modified_List_NG_RAN;
+static gint ett_e1ap_DRB_Modified_Item_NG_RAN;
+static gint ett_e1ap_DRB_Removed_Item;
+static gint ett_e1ap_SEQUENCE_SIZE_1_maxnoofQoSFlows_OF_QoS_Flow_Removed_Item;
+static gint ett_e1ap_DRB_Required_To_Modify_List_EUTRAN;
+static gint ett_e1ap_DRB_Required_To_Modify_Item_EUTRAN;
+static gint ett_e1ap_DRB_Required_To_Modify_List_NG_RAN;
+static gint ett_e1ap_DRB_Required_To_Modify_Item_NG_RAN;
+static gint ett_e1ap_DRB_Setup_List_EUTRAN;
+static gint ett_e1ap_DRB_Setup_Item_EUTRAN;
+static gint ett_e1ap_DRB_Setup_Mod_List_EUTRAN;
+static gint ett_e1ap_DRB_Setup_Mod_Item_EUTRAN;
+static gint ett_e1ap_DRB_Setup_List_NG_RAN;
+static gint ett_e1ap_DRB_Setup_Item_NG_RAN;
+static gint ett_e1ap_DRB_Setup_Mod_List_NG_RAN;
+static gint ett_e1ap_DRB_Setup_Mod_Item_NG_RAN;
+static gint ett_e1ap_DRB_Status_Item;
+static gint ett_e1ap_DRBs_Subject_To_Counter_Check_List_EUTRAN;
+static gint ett_e1ap_DRBs_Subject_To_Counter_Check_Item_EUTRAN;
+static gint ett_e1ap_DRBs_Subject_To_Counter_Check_List_NG_RAN;
+static gint ett_e1ap_DRBs_Subject_To_Counter_Check_Item_NG_RAN;
+static gint ett_e1ap_DRBs_Subject_To_Early_Forwarding_List;
+static gint ett_e1ap_DRBs_Subject_To_Early_Forwarding_Item;
+static gint ett_e1ap_DRB_To_Modify_List_EUTRAN;
+static gint ett_e1ap_DRB_To_Modify_Item_EUTRAN;
+static gint ett_e1ap_DRB_To_Modify_List_NG_RAN;
+static gint ett_e1ap_DRB_To_Modify_Item_NG_RAN;
+static gint ett_e1ap_DRB_To_Remove_List_EUTRAN;
+static gint ett_e1ap_DRB_To_Remove_Item_EUTRAN;
+static gint ett_e1ap_DRB_Required_To_Remove_List_EUTRAN;
+static gint ett_e1ap_DRB_Required_To_Remove_Item_EUTRAN;
+static gint ett_e1ap_DRB_To_Remove_List_NG_RAN;
+static gint ett_e1ap_DRB_To_Remove_Item_NG_RAN;
+static gint ett_e1ap_DRB_Required_To_Remove_List_NG_RAN;
+static gint ett_e1ap_DRB_Required_To_Remove_Item_NG_RAN;
+static gint ett_e1ap_DRB_To_Setup_List_EUTRAN;
+static gint ett_e1ap_DRB_To_Setup_Item_EUTRAN;
+static gint ett_e1ap_DRB_To_Setup_Mod_List_EUTRAN;
+static gint ett_e1ap_DRB_To_Setup_Mod_Item_EUTRAN;
+static gint ett_e1ap_DRB_To_Setup_List_NG_RAN;
+static gint ett_e1ap_DRB_To_Setup_Item_NG_RAN;
+static gint ett_e1ap_DRB_To_Setup_Mod_List_NG_RAN;
+static gint ett_e1ap_DRB_To_Setup_Mod_Item_NG_RAN;
+static gint ett_e1ap_DRB_Usage_Report_List;
+static gint ett_e1ap_DRB_Usage_Report_Item;
+static gint ett_e1ap_Dynamic5QIDescriptor;
+static gint ett_e1ap_EarlyForwardingCOUNTInfo;
+static gint ett_e1ap_EHC_Common_Parameters;
+static gint ett_e1ap_EHC_Downlink_Parameters;
+static gint ett_e1ap_EHC_Uplink_Parameters;
+static gint ett_e1ap_EHC_Parameters;
+static gint ett_e1ap_Endpoint_IP_address_and_port;
+static gint ett_e1ap_EUTRANAllocationAndRetentionPriority;
+static gint ett_e1ap_ECGI;
+static gint ett_e1ap_ECGI_Support_List;
+static gint ett_e1ap_ECGI_Support_Item;
+static gint ett_e1ap_EUTRAN_QoS_Support_List;
+static gint ett_e1ap_EUTRAN_QoS_Support_Item;
+static gint ett_e1ap_EUTRAN_QoS;
+static gint ett_e1ap_ExtendedSliceSupportList;
+static gint ett_e1ap_FirstDLCount;
+static gint ett_e1ap_GlobalMBSSessionID;
+static gint ett_e1ap_Extended_GNB_CU_CP_Name;
+static gint ett_e1ap_GNB_CU_UP_CellGroupRelatedConfiguration;
+static gint ett_e1ap_GNB_CU_UP_CellGroupRelatedConfiguration_Item;
+static gint ett_e1ap_GNB_CU_UP_MBS_Support_Info;
+static gint ett_e1ap_Extended_GNB_CU_UP_Name;
+static gint ett_e1ap_GNB_CU_CP_TNLA_Setup_Item;
+static gint ett_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_Item;
+static gint ett_e1ap_GNB_CU_CP_TNLA_To_Add_Item;
+static gint ett_e1ap_GNB_CU_CP_TNLA_To_Remove_Item;
+static gint ett_e1ap_GNB_CU_CP_TNLA_To_Update_Item;
+static gint ett_e1ap_GNB_CU_UP_TNLA_To_Remove_Item;
+static gint ett_e1ap_GBR_QosInformation;
+static gint ett_e1ap_GBR_QoSFlowInformation;
+static gint ett_e1ap_GTPTLAs;
+static gint ett_e1ap_GTPTLA_Item;
+static gint ett_e1ap_GTPTunnel;
+static gint ett_e1ap_HW_CapacityIndicator;
+static gint ett_e1ap_ImmediateMDT;
+static gint ett_e1ap_IAB_Donor_CU_UPPSKInfo_Item;
+static gint ett_e1ap_LocationDependentMBSNGUInformationAt5GC;
+static gint ett_e1ap_LocationDependentMBSNGUInformationAt5GC_Item;
+static gint ett_e1ap_LocationDependentMBSF1UInformationAtCU;
+static gint ett_e1ap_LocationDependentMBSF1UInformationAtCU_Item;
+static gint ett_e1ap_LocationDependentMBSF1UInformationAtDU;
+static gint ett_e1ap_LocationDependentMBSF1UInformationAtDU_Item;
+static gint ett_e1ap_LocationDependentMBSNGUInformationAtNGRAN;
+static gint ett_e1ap_LocationDependentMBSNGUInformationAtNGRAN_Item;
+static gint ett_e1ap_MaximumIPdatarate;
+static gint ett_e1ap_MBSF1UInformationAtCU;
+static gint ett_e1ap_MBSF1UInformationAtDU;
+static gint ett_e1ap_MBSNGUInformationAt5GC;
+static gint ett_e1ap_MBSNGUInformationAt5GC_Multicast;
+static gint ett_e1ap_MBSNGUInformationAtNGRAN;
+static gint ett_e1ap_MBSSessionAssociatedInfoNonSupportToSupport;
+static gint ett_e1ap_MBSSessionAssociatedInformation;
+static gint ett_e1ap_MBSSessionAssociatedInformationList;
+static gint ett_e1ap_MBSSessionAssociatedInformation_Item;
+static gint ett_e1ap_MBS_Support_Info_ToAdd_List;
+static gint ett_e1ap_MBS_Support_Info_ToAdd_Item;
+static gint ett_e1ap_MBS_Support_Info_ToRemove_List;
+static gint ett_e1ap_MBS_Support_Info_ToRemove_Item;
+static gint ett_e1ap_MCBearerContextToSetup;
+static gint ett_e1ap_MCMRBSetupConfiguration;
+static gint ett_e1ap_MCMRBSetupConfiguration_Item;
+static gint ett_e1ap_MCBearerContextToSetupResponse;
+static gint ett_e1ap_MCBearerContextNGU_TNLInfoatNGRAN;
+static gint ett_e1ap_MCMRBSetupResponseList;
+static gint ett_e1ap_MCMRBSetupResponseList_Item;
+static gint ett_e1ap_MCMRBFailedList;
+static gint ett_e1ap_MCMRBFailedList_Item;
+static gint ett_e1ap_MCBearerContextToModify;
+static gint ett_e1ap_MCBearerContextNGUTNLInfoat5GC;
+static gint ett_e1ap_MCBearerContextNGUTnlInfoatNGRANRequest;
+static gint ett_e1ap_MCMRBSetupModifyConfiguration;
+static gint ett_e1ap_MCMRBSetupModifyConfiguration_Item;
+static gint ett_e1ap_MCBearerContextF1UTNLInfoatDU;
+static gint ett_e1ap_MBSMulticastF1UContextDescriptor;
+static gint ett_e1ap_MCMRBRemoveConfiguration;
+static gint ett_e1ap_MCBearerContextToModifyResponse;
+static gint ett_e1ap_MCBearerContextNGU_TNLInfoatNGRANModifyResponse;
+static gint ett_e1ap_MCMRBSetupModifyResponseList;
+static gint ett_e1ap_MCMRBSetupModifyResponseList_Item;
+static gint ett_e1ap_MCBearerContextToModifyRequired;
+static gint ett_e1ap_MCMRBModifyRequiredConfiguration;
+static gint ett_e1ap_MCMRBModifyRequiredConfiguration_Item;
+static gint ett_e1ap_MCBearerContextToModifyConfirm;
+static gint ett_e1ap_MCMRBModifyConfirmList;
+static gint ett_e1ap_MCMRBModifyConfirmList_Item;
+static gint ett_e1ap_MCForwardingResourceRequest;
+static gint ett_e1ap_MRBForwardingResourceRequestList;
+static gint ett_e1ap_MRBForwardingResourceRequest_Item;
+static gint ett_e1ap_MCForwardingResourceIndication;
+static gint ett_e1ap_MRBForwardingResourceIndicationList;
+static gint ett_e1ap_MRBForwardingResourceIndication_Item;
+static gint ett_e1ap_MCForwardingResourceResponse;
+static gint ett_e1ap_MRBForwardingResourceResponseList;
+static gint ett_e1ap_MRBForwardingResourceResponse_Item;
+static gint ett_e1ap_MCForwardingResourceRelease;
+static gint ett_e1ap_MCForwardingResourceReleaseIndication;
+static gint ett_e1ap_MRB_ProgressInformation;
+static gint ett_e1ap_MRB_ProgressInformationSNs;
+static gint ett_e1ap_MRDC_Data_Usage_Report_Item;
+static gint ett_e1ap_MRDC_Usage_Information;
+static gint ett_e1ap_M4Configuration;
+static gint ett_e1ap_M6Configuration;
+static gint ett_e1ap_M7Configuration;
+static gint ett_e1ap_MDT_Configuration;
+static gint ett_e1ap_MDTMode;
+static gint ett_e1ap_MDTPLMNList;
+static gint ett_e1ap_MDTPLMNModificationList;
+static gint ett_e1ap_NGRANAllocationAndRetentionPriority;
+static gint ett_e1ap_NG_RAN_QoS_Support_List;
+static gint ett_e1ap_NG_RAN_QoS_Support_Item;
+static gint ett_e1ap_Non_Dynamic5QIDescriptor;
+static gint ett_e1ap_NPNSupportInfo;
+static gint ett_e1ap_NPNSupportInfo_SNPN;
+static gint ett_e1ap_NPNContextInfo;
+static gint ett_e1ap_NPNContextInfo_SNPN;
+static gint ett_e1ap_NR_CGI;
+static gint ett_e1ap_NR_CGI_Support_List;
+static gint ett_e1ap_NR_CGI_Support_Item;
+static gint ett_e1ap_Extended_NR_CGI_Support_List;
+static gint ett_e1ap_Extended_NR_CGI_Support_Item;
+static gint ett_e1ap_PacketErrorRate;
+static gint ett_e1ap_PDCP_Configuration;
+static gint ett_e1ap_PDCP_Count;
+static gint ett_e1ap_PDU_Session_Resource_Data_Usage_List;
+static gint ett_e1ap_PDU_Session_Resource_Data_Usage_Item;
+static gint ett_e1ap_PDCP_SN_Status_Information;
+static gint ett_e1ap_DRBBStatusTransfer;
+static gint ett_e1ap_PDU_Session_Resource_Activity_List;
+static gint ett_e1ap_PDU_Session_Resource_Activity_Item;
+static gint ett_e1ap_PDU_Session_Resource_Confirm_Modified_List;
+static gint ett_e1ap_PDU_Session_Resource_Confirm_Modified_Item;
+static gint ett_e1ap_PDU_Session_Resource_Failed_List;
+static gint ett_e1ap_PDU_Session_Resource_Failed_Item;
+static gint ett_e1ap_PDU_Session_Resource_Failed_Mod_List;
+static gint ett_e1ap_PDU_Session_Resource_Failed_Mod_Item;
+static gint ett_e1ap_PDU_Session_Resource_Failed_To_Modify_List;
+static gint ett_e1ap_PDU_Session_Resource_Failed_To_Modify_Item;
+static gint ett_e1ap_PDU_Session_Resource_Modified_List;
+static gint ett_e1ap_PDU_Session_Resource_Modified_Item;
+static gint ett_e1ap_PDU_Session_Resource_Required_To_Modify_List;
+static gint ett_e1ap_PDU_Session_Resource_Required_To_Modify_Item;
+static gint ett_e1ap_PDU_Session_Resource_Setup_List;
+static gint ett_e1ap_PDU_Session_Resource_Setup_Item;
+static gint ett_e1ap_PDU_Session_Resource_Setup_Mod_List;
+static gint ett_e1ap_PDU_Session_Resource_Setup_Mod_Item;
+static gint ett_e1ap_PDU_Session_Resource_To_Modify_List;
+static gint ett_e1ap_PDU_Session_Resource_To_Modify_Item;
+static gint ett_e1ap_PDU_Session_Resource_To_Remove_List;
+static gint ett_e1ap_PDU_Session_Resource_To_Remove_Item;
+static gint ett_e1ap_PDU_Session_Resource_To_Setup_List;
+static gint ett_e1ap_PDU_Session_Resource_To_Setup_Item;
+static gint ett_e1ap_PDU_Session_Resource_To_Setup_Mod_List;
+static gint ett_e1ap_PDU_Session_Resource_To_Setup_Mod_Item;
+static gint ett_e1ap_PDU_Session_To_Notify_List;
+static gint ett_e1ap_PDU_Session_To_Notify_Item;
+static gint ett_e1ap_QoS_Characteristics;
+static gint ett_e1ap_QoS_Flow_List;
+static gint ett_e1ap_QoS_Flow_Item;
+static gint ett_e1ap_QoS_Flow_Failed_List;
+static gint ett_e1ap_QoS_Flow_Failed_Item;
+static gint ett_e1ap_QoS_Flow_Mapping_List;
+static gint ett_e1ap_QoS_Flow_Mapping_Item;
+static gint ett_e1ap_QoS_Parameters_Support_List;
+static gint ett_e1ap_QoS_Flow_QoS_Parameter_List;
+static gint ett_e1ap_QoS_Flow_QoS_Parameter_Item;
+static gint ett_e1ap_QoSFlowLevelQoSParameters;
+static gint ett_e1ap_QoS_Flow_Removed_Item;
+static gint ett_e1ap_QoS_Flows_to_be_forwarded_List;
+static gint ett_e1ap_QoS_Flows_to_be_forwarded_Item;
+static gint ett_e1ap_QoS_Mapping_Information;
+static gint ett_e1ap_DataForwardingtoNG_RANQoSFlowInformationList;
+static gint ett_e1ap_DataForwardingtoNG_RANQoSFlowInformationList_Item;
+static gint ett_e1ap_RedundantPDUSessionInformation;
+static gint ett_e1ap_RetainabilityMeasurementsInfo;
+static gint ett_e1ap_ROHC_Parameters;
+static gint ett_e1ap_ROHC;
+static gint ett_e1ap_SecurityAlgorithm;
+static gint ett_e1ap_SecurityIndication;
+static gint ett_e1ap_SecurityInformation;
+static gint ett_e1ap_SecurityResult;
+static gint ett_e1ap_Slice_Support_List;
+static gint ett_e1ap_Slice_Support_Item;
+static gint ett_e1ap_SNSSAI;
+static gint ett_e1ap_SDAP_Configuration;
+static gint ett_e1ap_TNL_AvailableCapacityIndicator;
+static gint ett_e1ap_TSCTrafficCharacteristics;
+static gint ett_e1ap_TSCTrafficInformation;
+static gint ett_e1ap_TraceActivation;
+static gint ett_e1ap_T_ReorderingTimer;
+static gint ett_e1ap_Transport_Layer_Address_Info;
+static gint ett_e1ap_Transport_UP_Layer_Addresses_Info_To_Add_List;
+static gint ett_e1ap_Transport_UP_Layer_Addresses_Info_To_Add_Item;
+static gint ett_e1ap_Transport_UP_Layer_Addresses_Info_To_Remove_List;
+static gint ett_e1ap_Transport_UP_Layer_Addresses_Info_To_Remove_Item;
+static gint ett_e1ap_UDC_Parameters;
+static gint ett_e1ap_UE_associatedLogicalE1_ConnectionItem;
+static gint ett_e1ap_UESliceMaximumBitRateList;
+static gint ett_e1ap_UESliceMaximumBitRateItem;
+static gint ett_e1ap_ULUPTNLAddressToUpdateItem;
+static gint ett_e1ap_UP_Parameters;
+static gint ett_e1ap_UP_Parameters_Item;
+static gint ett_e1ap_UPSecuritykey;
+static gint ett_e1ap_UP_TNL_Information;
+static gint ett_e1ap_UplinkOnlyROHC;
+static gint ett_e1ap_Reset;
+static gint ett_e1ap_ResetType;
+static gint ett_e1ap_UE_associatedLogicalE1_ConnectionListRes;
+static gint ett_e1ap_ResetAcknowledge;
+static gint ett_e1ap_UE_associatedLogicalE1_ConnectionListResAck;
+static gint ett_e1ap_ErrorIndication;
+static gint ett_e1ap_GNB_CU_UP_E1SetupRequest;
+static gint ett_e1ap_SupportedPLMNs_List;
+static gint ett_e1ap_SupportedPLMNs_Item;
+static gint ett_e1ap_GNB_CU_UP_E1SetupResponse;
+static gint ett_e1ap_GNB_CU_UP_E1SetupFailure;
+static gint ett_e1ap_GNB_CU_CP_E1SetupRequest;
+static gint ett_e1ap_GNB_CU_CP_E1SetupResponse;
+static gint ett_e1ap_GNB_CU_CP_E1SetupFailure;
+static gint ett_e1ap_GNB_CU_UP_ConfigurationUpdate;
+static gint ett_e1ap_GNB_CU_UP_TNLA_To_Remove_List;
+static gint ett_e1ap_GNB_CU_UP_ConfigurationUpdateAcknowledge;
+static gint ett_e1ap_GNB_CU_UP_ConfigurationUpdateFailure;
+static gint ett_e1ap_GNB_CU_CP_ConfigurationUpdate;
+static gint ett_e1ap_GNB_CU_CP_TNLA_To_Add_List;
+static gint ett_e1ap_GNB_CU_CP_TNLA_To_Remove_List;
+static gint ett_e1ap_GNB_CU_CP_TNLA_To_Update_List;
+static gint ett_e1ap_GNB_CU_CP_ConfigurationUpdateAcknowledge;
+static gint ett_e1ap_GNB_CU_CP_TNLA_Setup_List;
+static gint ett_e1ap_GNB_CU_CP_TNLA_Failed_To_Setup_List;
+static gint ett_e1ap_GNB_CU_CP_ConfigurationUpdateFailure;
+static gint ett_e1ap_E1ReleaseRequest;
+static gint ett_e1ap_E1ReleaseResponse;
+static gint ett_e1ap_BearerContextSetupRequest;
+static gint ett_e1ap_System_BearerContextSetupRequest;
+static gint ett_e1ap_BearerContextSetupResponse;
+static gint ett_e1ap_System_BearerContextSetupResponse;
+static gint ett_e1ap_BearerContextSetupFailure;
+static gint ett_e1ap_BearerContextModificationRequest;
+static gint ett_e1ap_System_BearerContextModificationRequest;
+static gint ett_e1ap_BearerContextModificationResponse;
+static gint ett_e1ap_System_BearerContextModificationResponse;
+static gint ett_e1ap_BearerContextModificationFailure;
+static gint ett_e1ap_BearerContextModificationRequired;
+static gint ett_e1ap_System_BearerContextModificationRequired;
+static gint ett_e1ap_BearerContextModificationConfirm;
+static gint ett_e1ap_System_BearerContextModificationConfirm;
+static gint ett_e1ap_BearerContextReleaseCommand;
+static gint ett_e1ap_BearerContextReleaseComplete;
+static gint ett_e1ap_BearerContextReleaseRequest;
+static gint ett_e1ap_DRB_Status_List;
+static gint ett_e1ap_BearerContextInactivityNotification;
+static gint ett_e1ap_DLDataNotification;
+static gint ett_e1ap_ULDataNotification;
+static gint ett_e1ap_DataUsageReport;
+static gint ett_e1ap_GNB_CU_UP_CounterCheckRequest;
+static gint ett_e1ap_System_GNB_CU_UP_CounterCheckRequest;
+static gint ett_e1ap_GNB_CU_UP_StatusIndication;
+static gint ett_e1ap_GNB_CU_CPMeasurementResultsInformation;
+static gint ett_e1ap_MRDC_DataUsageReport;
+static gint ett_e1ap_TraceStart;
+static gint ett_e1ap_DeactivateTrace;
+static gint ett_e1ap_CellTrafficTrace;
+static gint ett_e1ap_PrivateMessage;
+static gint ett_e1ap_ResourceStatusRequest;
+static gint ett_e1ap_ResourceStatusResponse;
+static gint ett_e1ap_ResourceStatusFailure;
+static gint ett_e1ap_ResourceStatusUpdate;
+static gint ett_e1ap_IAB_UPTNLAddressUpdate;
+static gint ett_e1ap_DLUPTNLAddressToUpdateList;
+static gint ett_e1ap_IAB_UPTNLAddressUpdateAcknowledge;
+static gint ett_e1ap_ULUPTNLAddressToUpdateList;
+static gint ett_e1ap_IAB_UPTNLAddressUpdateFailure;
+static gint ett_e1ap_EarlyForwardingSNTransfer;
+static gint ett_e1ap_IABPSKNotification;
+static gint ett_e1ap_IAB_Donor_CU_UPPSKInfo;
+static gint ett_e1ap_BCBearerContextSetupRequest;
+static gint ett_e1ap_BCBearerContextSetupResponse;
+static gint ett_e1ap_BCBearerContextSetupFailure;
+static gint ett_e1ap_BCBearerContextModificationRequest;
+static gint ett_e1ap_BCBearerContextModificationResponse;
+static gint ett_e1ap_BCBearerContextModificationFailure;
+static gint ett_e1ap_BCBearerContextModificationRequired;
+static gint ett_e1ap_BCBearerContextModificationConfirm;
+static gint ett_e1ap_BCBearerContextReleaseCommand;
+static gint ett_e1ap_BCBearerContextReleaseComplete;
+static gint ett_e1ap_BCBearerContextReleaseRequest;
+static gint ett_e1ap_MCBearerContextSetupRequest;
+static gint ett_e1ap_MCBearerContextSetupResponse;
+static gint ett_e1ap_MCBearerContextSetupFailure;
+static gint ett_e1ap_MCBearerContextModificationRequest;
+static gint ett_e1ap_MCBearerContextModificationResponse;
+static gint ett_e1ap_MCBearerContextModificationFailure;
+static gint ett_e1ap_MCBearerContextModificationRequired;
+static gint ett_e1ap_MCBearerContextModificationConfirm;
+static gint ett_e1ap_MCBearerContextReleaseCommand;
+static gint ett_e1ap_MCBearerContextReleaseComplete;
+static gint ett_e1ap_MCBearerContextReleaseRequest;
+static gint ett_e1ap_E1AP_PDU;
+static gint ett_e1ap_InitiatingMessage;
+static gint ett_e1ap_SuccessfulOutcome;
+static gint ett_e1ap_UnsuccessfulOutcome;
 
 enum{
   INITIATING_MESSAGE,

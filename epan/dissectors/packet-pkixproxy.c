@@ -31,16 +31,16 @@ void proto_register_pkixproxy(void);
 void proto_reg_handoff_pkixproxy(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_pkixproxy = -1;
-static int hf_pkixproxy_ProxyCertInfoExtension_PDU = -1;  /* ProxyCertInfoExtension */
-static int hf_pkixproxy_pCPathLenConstraint = -1;  /* ProxyCertPathLengthConstraint */
-static int hf_pkixproxy_proxyPolicy = -1;         /* ProxyPolicy */
-static int hf_pkixproxy_policyLanguage = -1;      /* OBJECT_IDENTIFIER */
-static int hf_pkixproxy_policy = -1;              /* OCTET_STRING */
+static int proto_pkixproxy;
+static int hf_pkixproxy_ProxyCertInfoExtension_PDU;  /* ProxyCertInfoExtension */
+static int hf_pkixproxy_pCPathLenConstraint;      /* ProxyCertPathLengthConstraint */
+static int hf_pkixproxy_proxyPolicy;              /* ProxyPolicy */
+static int hf_pkixproxy_policyLanguage;           /* OBJECT_IDENTIFIER */
+static int hf_pkixproxy_policy;                   /* OCTET_STRING */
 
 /* Initialize the subtree pointers */
-static gint ett_pkixproxy_ProxyCertInfoExtension = -1;
-static gint ett_pkixproxy_ProxyPolicy = -1;
+static gint ett_pkixproxy_ProxyCertInfoExtension;
+static gint ett_pkixproxy_ProxyPolicy;
 
 
 

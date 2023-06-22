@@ -36,33 +36,33 @@
 #define PFNAME "p1"
 
 /* Initialize the protocol and registered fields */
-static int proto_p1 = -1;
-static int proto_p3 = -1;
+static int proto_p1;
+static int proto_p3;
 
-static int hf_p1_MTS_APDU_PDU = -1;
-static int hf_p1_MTABindArgument_PDU = -1;
-static int hf_p1_MTABindResult_PDU = -1;
-static int hf_p1_MTABindError_PDU = -1;
+static int hf_p1_MTS_APDU_PDU;
+static int hf_p1_MTABindArgument_PDU;
+static int hf_p1_MTABindResult_PDU;
+static int hf_p1_MTABindError_PDU;
 
 #include "packet-p1-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_p1 = -1;
-static gint ett_p3 = -1;
-static gint ett_p1_content_unknown = -1;
-static gint ett_p1_bilateral_information = -1;
-static gint ett_p1_additional_information = -1;
-static gint ett_p1_unknown_standard_extension = -1;
-static gint ett_p1_unknown_extension_attribute_type = -1;
-static gint ett_p1_unknown_tokendata_type = -1;
+static gint ett_p1;
+static gint ett_p3;
+static gint ett_p1_content_unknown;
+static gint ett_p1_bilateral_information;
+static gint ett_p1_additional_information;
+static gint ett_p1_unknown_standard_extension;
+static gint ett_p1_unknown_extension_attribute_type;
+static gint ett_p1_unknown_tokendata_type;
 #include "packet-p1-ett.c"
 
-static expert_field ei_p1_unknown_extension_attribute_type = EI_INIT;
-static expert_field ei_p1_unknown_standard_extension = EI_INIT;
-static expert_field ei_p1_unknown_built_in_content_type = EI_INIT;
-static expert_field ei_p1_unknown_tokendata_type = EI_INIT;
-static expert_field ei_p1_unsupported_pdu = EI_INIT;
-static expert_field ei_p1_zero_pdu = EI_INIT;
+static expert_field ei_p1_unknown_extension_attribute_type;
+static expert_field ei_p1_unknown_standard_extension;
+static expert_field ei_p1_unknown_built_in_content_type;
+static expert_field ei_p1_unknown_tokendata_type;
+static expert_field ei_p1_unsupported_pdu;
+static expert_field ei_p1_zero_pdu;
 
 /* Dissector tables */
 static dissector_table_t p1_extension_dissector_table;

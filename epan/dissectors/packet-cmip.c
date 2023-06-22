@@ -38,414 +38,414 @@ void proto_reg_handoff_cmip(void);
 #include "packet-pres.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_cmip = -1;
-static int hf_cmip_actionType_OID = -1;
-static int hf_cmip_eventType_OID = -1;
-static int hf_cmip_attributeId_OID = -1;
-static int hf_cmip_errorId_OID = -1;
+static int proto_cmip;
+static int hf_cmip_actionType_OID;
+static int hf_cmip_eventType_OID;
+static int hf_cmip_attributeId_OID;
+static int hf_cmip_errorId_OID;
 
-static int hf_cmip_BaseManagedObjectId_PDU = -1;  /* BaseManagedObjectId */
-static int hf_cmip_EventTypeId_PDU = -1;          /* EventTypeId */
-static int hf_cmip_ObjectClass_PDU = -1;          /* ObjectClass */
-static int hf_cmip_ActiveDestination_PDU = -1;    /* ActiveDestination */
-static int hf_cmip_AdditionalText_PDU = -1;       /* AdditionalText */
-static int hf_cmip_AdditionalInformation_PDU = -1;  /* AdditionalInformation */
-static int hf_cmip_Allomorphs_PDU = -1;           /* Allomorphs */
-static int hf_cmip_AdministrativeState_PDU = -1;  /* AdministrativeState */
-static int hf_cmip_AttributeIdentifierList_PDU = -1;  /* AttributeIdentifierList */
-static int hf_cmip_AttributeList_PDU = -1;        /* AttributeList */
-static int hf_cmip_AttributeValueChangeDefinition_PDU = -1;  /* AttributeValueChangeDefinition */
-static int hf_cmip_AlarmStatus_PDU = -1;          /* AlarmStatus */
-static int hf_cmip_AvailabilityStatus_PDU = -1;   /* AvailabilityStatus */
-static int hf_cmip_BackedUpStatus_PDU = -1;       /* BackedUpStatus */
-static int hf_cmip_BackUpDestinationList_PDU = -1;  /* BackUpDestinationList */
-static int hf_cmip_BackUpRelationshipObject_PDU = -1;  /* BackUpRelationshipObject */
-static int hf_cmip_CapacityAlarmThreshold_PDU = -1;  /* CapacityAlarmThreshold */
-static int hf_cmip_ConfirmedMode_PDU = -1;        /* ConfirmedMode */
-static int hf_cmip_ControlStatus_PDU = -1;        /* ControlStatus */
-static int hf_cmip_CorrelatedNotifications_PDU = -1;  /* CorrelatedNotifications */
-static int hf_cmip_CurrentLogSize_PDU = -1;       /* CurrentLogSize */
-static int hf_cmip_Destination_PDU = -1;          /* Destination */
-static int hf_cmip_DiscriminatorConstruct_PDU = -1;  /* DiscriminatorConstruct */
-static int hf_cmip_EventTime_PDU = -1;            /* EventTime */
-static int hf_cmip_GroupObjects_PDU = -1;         /* GroupObjects */
-static int hf_cmip_IntervalsOfDay_PDU = -1;       /* IntervalsOfDay */
-static int hf_cmip_LifecycleState_PDU = -1;       /* LifecycleState */
-static int hf_cmip_LogFullAction_PDU = -1;        /* LogFullAction */
-static int hf_cmip_LoggingTime_PDU = -1;          /* LoggingTime */
-static int hf_cmip_LogRecordId_PDU = -1;          /* LogRecordId */
-static int hf_cmip_MaxLogSize_PDU = -1;           /* MaxLogSize */
-static int hf_cmip_MonitoredAttributes_PDU = -1;  /* MonitoredAttributes */
-static int hf_cmip_NameBinding_PDU = -1;          /* NameBinding */
-static int hf_cmip_NotificationIdentifier_PDU = -1;  /* NotificationIdentifier */
-static int hf_cmip_NumberOfRecords_PDU = -1;      /* NumberOfRecords */
-static int hf_cmip_OperationalState_PDU = -1;     /* OperationalState */
-static int hf_cmip_Packages_PDU = -1;             /* Packages */
-static int hf_cmip_PerceivedSeverity_PDU = -1;    /* PerceivedSeverity */
-static int hf_cmip_PrioritisedObject_PDU = -1;    /* PrioritisedObject */
-static int hf_cmip_ProbableCause_PDU = -1;        /* ProbableCause */
-static int hf_cmip_ProceduralStatus_PDU = -1;     /* ProceduralStatus */
-static int hf_cmip_ProposedRepairActions_PDU = -1;  /* ProposedRepairActions */
-static int hf_cmip_SecurityAlarmCause_PDU = -1;   /* SecurityAlarmCause */
-static int hf_cmip_SecurityAlarmSeverity_PDU = -1;  /* SecurityAlarmSeverity */
-static int hf_cmip_SecurityAlarmDetector_PDU = -1;  /* SecurityAlarmDetector */
-static int hf_cmip_ServiceProvider_PDU = -1;      /* ServiceProvider */
-static int hf_cmip_ServiceUser_PDU = -1;          /* ServiceUser */
-static int hf_cmip_SimpleNameType_PDU = -1;       /* SimpleNameType */
-static int hf_cmip_SourceIndicator_PDU = -1;      /* SourceIndicator */
-static int hf_cmip_SpecificProblems_PDU = -1;     /* SpecificProblems */
-static int hf_cmip_StandbyStatus_PDU = -1;        /* StandbyStatus */
-static int hf_cmip_StartTime_PDU = -1;            /* StartTime */
-static int hf_cmip_StopTime_PDU = -1;             /* StopTime */
-static int hf_cmip_SupportedFeatures_PDU = -1;    /* SupportedFeatures */
-static int hf_cmip_SystemId_PDU = -1;             /* SystemId */
-static int hf_cmip_SystemTitle_PDU = -1;          /* SystemTitle */
-static int hf_cmip_ThresholdInfo_PDU = -1;        /* ThresholdInfo */
-static int hf_cmip_TrendIndication_PDU = -1;      /* TrendIndication */
-static int hf_cmip_UnknownStatus_PDU = -1;        /* UnknownStatus */
-static int hf_cmip_UsageState_PDU = -1;           /* UsageState */
-static int hf_cmip_WeekMask_PDU = -1;             /* WeekMask */
-static int hf_cmip_PAR_missingAttributeValue_item = -1;  /* AttributeId */
-static int hf_cmip_managedObjectClass = -1;       /* ObjectClass */
-static int hf_cmip_managedObjectInstance = -1;    /* ObjectInstance */
-static int hf_cmip_currentTime = -1;              /* GeneralizedTime */
-static int hf_cmip_actionErroractionErrorInfo = -1;  /* ActionErrorInfo */
-static int hf_cmip_actionErrorInfo_errorStatus = -1;  /* T_actionErrorInfo_errorStatus */
-static int hf_cmip_actionErrorInfo = -1;          /* T_actionErrorInfo */
-static int hf_cmip_actionType = -1;               /* ActionTypeId */
-static int hf_cmip_actionArgument = -1;           /* NoSuchArgument */
-static int hf_cmip_argumentValue = -1;            /* InvalidArgumentValue */
-static int hf_cmip_actionInfoArg = -1;            /* T_actionInfoArg */
-static int hf_cmip_actionReplyInfo = -1;          /* T_actionReplyInfo */
-static int hf_cmip_actionReply = -1;              /* ActionReply */
-static int hf_cmip_actionTypeId_globalForm = -1;  /* T_actionTypeId_globalForm */
-static int hf_cmip_localForm = -1;                /* INTEGER */
-static int hf_cmip_attributeid = -1;              /* AttributeId */
-static int hf_cmip_value = -1;                    /* AttributeValue */
-static int hf_cmip_attributeError_errorStatus = -1;  /* T_attributeError_errorStatus */
-static int hf_cmip_modifyOperator = -1;           /* ModifyOperator */
-static int hf_cmip_attributeId = -1;              /* AttributeId */
-static int hf_cmip_attributeValue = -1;           /* T_attributeValue */
-static int hf_cmip_attributeId_globalForm = -1;   /* T_attributeId_globalForm */
-static int hf_cmip_attributeIdlocalForm = -1;     /* T_attributeIdlocalForm */
-static int hf_cmip_attributeIdError_errorStatus = -1;  /* T_attributeIdError_errorStatus */
-static int hf_cmip_id = -1;                       /* T_id */
-static int hf_cmip_attributeValueAssertionvalue = -1;  /* T_attributeValueAssertionvalue */
-static int hf_cmip_baseManagedObjectClass = -1;   /* ObjectClass */
-static int hf_cmip_baseManagedObjectInstance = -1;  /* ObjectInstance */
-static int hf_cmip_item = -1;                     /* FilterItem */
-static int hf_cmip_and = -1;                      /* SET_OF_CMISFilter */
-static int hf_cmip_and_item = -1;                 /* CMISFilter */
-static int hf_cmip_or = -1;                       /* SET_OF_CMISFilter */
-static int hf_cmip_or_item = -1;                  /* CMISFilter */
-static int hf_cmip_not = -1;                      /* CMISFilter */
-static int hf_cmip_scope = -1;                    /* Scope */
-static int hf_cmip_filter = -1;                   /* CMISFilter */
-static int hf_cmip_sync = -1;                     /* CMISSync */
-static int hf_cmip_managedOrSuperiorObjectInstance = -1;  /* T_managedOrSuperiorObjectInstance */
-static int hf_cmip_superiorObjectInstance = -1;   /* ObjectInstance */
-static int hf_cmip_accessControl = -1;            /* AccessControl */
-static int hf_cmip_referenceObjectInstance = -1;  /* ObjectInstance */
-static int hf_cmip_attributeList = -1;            /* SET_OF_Attribute */
-static int hf_cmip_attributeList_item = -1;       /* Attribute */
-static int hf_cmip_deleteErrorInfo = -1;          /* T_deleteErrorInfo */
-static int hf_cmip_eventType = -1;                /* EventTypeId */
-static int hf_cmip_eventReplyInfo = -1;           /* T_eventReplyInfo */
-static int hf_cmip_eventTime = -1;                /* GeneralizedTime */
-static int hf_cmip_eventReportArgumenteventInfo = -1;  /* EventReportArgumentEventInfo */
-static int hf_cmip_eventReply = -1;               /* EventReply */
-static int hf_cmip_eventTypeId_globalForm = -1;   /* T_eventTypeId_globalForm */
-static int hf_cmip_equality = -1;                 /* Attribute */
-static int hf_cmip_substrings = -1;               /* T_substrings */
-static int hf_cmip_substrings_item = -1;          /* T_substrings_item */
-static int hf_cmip_initialString = -1;            /* Attribute */
-static int hf_cmip_anyString = -1;                /* Attribute */
-static int hf_cmip_finalString = -1;              /* Attribute */
-static int hf_cmip_greaterOrEqual = -1;           /* Attribute */
-static int hf_cmip_lessOrEqual = -1;              /* Attribute */
-static int hf_cmip_filterItempresent = -1;        /* AttributeId */
-static int hf_cmip_subsetOf = -1;                 /* Attribute */
-static int hf_cmip_supersetOf = -1;               /* Attribute */
-static int hf_cmip_nonNullSetIntersection = -1;   /* Attribute */
-static int hf_cmip_attributeIdError = -1;         /* AttributeIdError */
-static int hf_cmip_attribute = -1;                /* Attribute */
-static int hf_cmip_getInfoList = -1;              /* SET_OF_GetInfoStatus */
-static int hf_cmip_getInfoList_item = -1;         /* GetInfoStatus */
-static int hf_cmip_actionValue = -1;              /* ActionInfo */
-static int hf_cmip_eventValue = -1;               /* T_eventValue */
-static int hf_cmip_eventInfo = -1;                /* T_eventInfo */
-static int hf_cmip_getResult = -1;                /* GetResult */
-static int hf_cmip_getListError = -1;             /* GetListError */
-static int hf_cmip_setResult = -1;                /* SetResult */
-static int hf_cmip_setListError = -1;             /* SetListError */
-static int hf_cmip_actionResult = -1;             /* ActionResult */
-static int hf_cmip_processingFailure = -1;        /* ProcessingFailure */
-static int hf_cmip_deleteResult = -1;             /* DeleteResult */
-static int hf_cmip_actionError = -1;              /* ActionError */
-static int hf_cmip_deleteError = -1;              /* DeleteError */
-static int hf_cmip_actionId = -1;                 /* T_actionId */
-static int hf_cmip_eventId = -1;                  /* T_eventId */
-static int hf_cmip_objectClass_globalForm = -1;   /* T_objectClass_globalForm */
-static int hf_cmip_objectClasslocalForm = -1;     /* INTEGER */
-static int hf_cmip_distinguishedName = -1;        /* DistinguishedName */
-static int hf_cmip_nonSpecificForm = -1;          /* OCTET_STRING */
-static int hf_cmip_localDistinguishedName = -1;   /* RDNSequence */
-static int hf_cmip_specificErrorInfo = -1;        /* SpecificErrorInfo */
-static int hf_cmip_RDNSequence_item = -1;         /* RelativeDistinguishedName */
-static int hf_cmip_RelativeDistinguishedName_item = -1;  /* AttributeValueAssertion */
-static int hf_cmip_namedNumbers = -1;             /* T_namedNumbers */
-static int hf_cmip_individualLevels = -1;         /* INTEGER */
-static int hf_cmip_baseToNthLevel = -1;           /* INTEGER */
-static int hf_cmip_attributeError = -1;           /* AttributeError */
-static int hf_cmip_setInfoList = -1;              /* SET_OF_SetInfoStatus */
-static int hf_cmip_setInfoList_item = -1;         /* SetInfoStatus */
-static int hf_cmip_errorId = -1;                  /* T_errorId */
-static int hf_cmip_errorInfo = -1;                /* T_errorInfo */
-static int hf_cmip_abortSource = -1;              /* CMIPAbortSource */
-static int hf_cmip_userInfo = -1;                 /* EXTERNAL */
-static int hf_cmip_protocolVersion = -1;          /* ProtocolVersion */
-static int hf_cmip_functionalUnits = -1;          /* FunctionalUnits */
-static int hf_cmip_cmipUserInfoaccessControl = -1;  /* EXTERNAL */
-static int hf_cmip_AdditionalInformation_item = -1;  /* ManagementExtension */
-static int hf_cmip_Allomorphs_item = -1;          /* ObjectClass */
-static int hf_cmip_AttributeIdentifierList_item = -1;  /* AttributeId */
-static int hf_cmip_AttributeList_item = -1;       /* Attribute */
-static int hf_cmip_AttributeValueChangeDefinition_item = -1;  /* AttributeValueChangeDefinition_item */
-static int hf_cmip_oldAttributeValue = -1;        /* T_oldAttributeValue */
-static int hf_cmip_newAttributeValue = -1;        /* T_newAttributeValue */
-static int hf_cmip_AlarmStatus_item = -1;         /* AlarmStatus_item */
-static int hf_cmip_AvailabilityStatus_item = -1;  /* AvailabilityStatus_item */
-static int hf_cmip_BackUpDestinationList_item = -1;  /* AE_title */
-static int hf_cmip_objectName = -1;               /* ObjectInstance */
-static int hf_cmip_noObject = -1;                 /* NULL */
-static int hf_cmip_CapacityAlarmThreshold_item = -1;  /* INTEGER_0_100 */
-static int hf_cmip_ControlStatus_item = -1;       /* ControlStatus_item */
-static int hf_cmip_CorrelatedNotifications_item = -1;  /* CorrelatedNotifications_item */
-static int hf_cmip_correlatedNotifications = -1;  /* SET_OF_NotificationIdentifier */
-static int hf_cmip_correlatedNotifications_item = -1;  /* NotificationIdentifier */
-static int hf_cmip_sourceObjectInst = -1;         /* ObjectInstance */
-static int hf_cmip_single = -1;                   /* AE_title */
-static int hf_cmip_multiple = -1;                 /* SET_OF_AE_title */
-static int hf_cmip_multiple_item = -1;            /* AE_title */
-static int hf_cmip_GroupObjects_item = -1;        /* ObjectInstance */
-static int hf_cmip_IntervalsOfDay_item = -1;      /* IntervalsOfDay_item */
-static int hf_cmip_intervalStart = -1;            /* Time24 */
-static int hf_cmip_intervalEnd = -1;              /* Time24 */
-static int hf_cmip_managementExtensionidentifier = -1;  /* T_managementExtensionidentifier */
-static int hf_cmip_significance = -1;             /* BOOLEAN */
-static int hf_cmip_information = -1;              /* T_information */
-static int hf_cmip_MonitoredAttributes_item = -1;  /* Attribute */
-static int hf_cmip_integer = -1;                  /* INTEGER */
-static int hf_cmip_real = -1;                     /* REAL */
-static int hf_cmip_Packages_item = -1;            /* OBJECT_IDENTIFIER */
-static int hf_cmip_PrioritisedObject_item = -1;   /* PrioritisedObject_item */
-static int hf_cmip_object = -1;                   /* ObjectInstance */
-static int hf_cmip_priority = -1;                 /* T_priority */
-static int hf_cmip_globalValue = -1;              /* OBJECT_IDENTIFIER */
-static int hf_cmip_localValue = -1;               /* INTEGER */
-static int hf_cmip_ProceduralStatus_item = -1;    /* ProceduralStatus_item */
-static int hf_cmip_ProposedRepairActions_item = -1;  /* SpecificIdentifier */
-static int hf_cmip_mechanism = -1;                /* OBJECT_IDENTIFIER */
-static int hf_cmip_application = -1;              /* AE_title */
-static int hf_cmip_serviceUseridentifier = -1;    /* T_serviceUseridentifier */
-static int hf_cmip_details = -1;                  /* T_details */
-static int hf_cmip_number = -1;                   /* INTEGER */
-static int hf_cmip_string = -1;                   /* GraphicString */
-static int hf_cmip_oi = -1;                       /* OBJECT_IDENTIFIER */
-static int hf_cmip_int = -1;                      /* INTEGER */
-static int hf_cmip_SpecificProblems_item = -1;    /* SpecificIdentifier */
-static int hf_cmip_specific = -1;                 /* GeneralizedTime */
-static int hf_cmip_continual = -1;                /* NULL */
-static int hf_cmip_SupportedFeatures_item = -1;   /* SupportedFeatures_item */
-static int hf_cmip_featureIdentifier = -1;        /* T_featureIdentifier */
-static int hf_cmip_featureInfo = -1;              /* T_featureInfo */
-static int hf_cmip_name = -1;                     /* GraphicString */
-static int hf_cmip_nothing = -1;                  /* NULL */
-static int hf_cmip_oid = -1;                      /* OBJECT_IDENTIFIER */
-static int hf_cmip_hour = -1;                     /* INTEGER_0_23 */
-static int hf_cmip_minute = -1;                   /* INTEGER_0_59 */
-static int hf_cmip_triggeredThreshold = -1;       /* AttributeId */
-static int hf_cmip_observedValue = -1;            /* ObservedValue */
-static int hf_cmip_thresholdLevel = -1;           /* ThresholdLevelInd */
-static int hf_cmip_armTime = -1;                  /* GeneralizedTime */
-static int hf_cmip_up = -1;                       /* T_up */
-static int hf_cmip_high = -1;                     /* ObservedValue */
-static int hf_cmip_low = -1;                      /* ObservedValue */
-static int hf_cmip_down = -1;                     /* T_down */
-static int hf_cmip_WeekMask_item = -1;            /* WeekMask_item */
-static int hf_cmip_daysOfWeek = -1;               /* T_daysOfWeek */
-static int hf_cmip_intervalsOfDay = -1;           /* IntervalsOfDay */
-static int hf_cmip_local = -1;                    /* T_local */
-static int hf_cmip_global = -1;                   /* OBJECT_IDENTIFIER */
-static int hf_cmip_invoke = -1;                   /* Invoke */
-static int hf_cmip_returnResult = -1;             /* ReturnResult */
-static int hf_cmip_returnError = -1;              /* ReturnError */
-static int hf_cmip_reject = -1;                   /* Reject */
-static int hf_cmip_invokeId = -1;                 /* InvokeId */
-static int hf_cmip_linkedId = -1;                 /* T_linkedId */
-static int hf_cmip_linkedIdPresent = -1;          /* T_linkedIdPresent */
-static int hf_cmip_absent = -1;                   /* NULL */
-static int hf_cmip_opcode = -1;                   /* Code */
-static int hf_cmip_argument = -1;                 /* InvokeArgument */
-static int hf_cmip_result = -1;                   /* T_result */
-static int hf_cmip_resultArgument = -1;           /* ResultArgument */
-static int hf_cmip_errcode = -1;                  /* Code */
-static int hf_cmip_parameter = -1;                /* T_parameter */
-static int hf_cmip_problem = -1;                  /* T_problem */
-static int hf_cmip_general = -1;                  /* GeneralProblem */
-static int hf_cmip_invokeProblem = -1;            /* InvokeProblem */
-static int hf_cmip_returnResultProblem = -1;      /* ReturnResultProblem */
-static int hf_cmip_returnErrorProblem = -1;       /* ReturnErrorProblem */
-static int hf_cmip_present = -1;                  /* INTEGER */
-static int hf_cmip_synchronization = -1;          /* CMISSync */
-static int hf_cmip_actionInfo = -1;               /* ActionInfo */
-static int hf_cmip_attributeIdList = -1;          /* SET_OF_AttributeId */
-static int hf_cmip_attributeIdList_item = -1;     /* AttributeId */
-static int hf_cmip_modificationList = -1;         /* T_modificationList */
-static int hf_cmip_modificationList_item = -1;    /* T_modificationList_item */
-static int hf_cmip_attributevalue = -1;           /* T_attributevalue */
-static int hf_cmip_InvokeId_present = -1;         /* InvokeId_present */
+static int hf_cmip_BaseManagedObjectId_PDU;       /* BaseManagedObjectId */
+static int hf_cmip_EventTypeId_PDU;               /* EventTypeId */
+static int hf_cmip_ObjectClass_PDU;               /* ObjectClass */
+static int hf_cmip_ActiveDestination_PDU;         /* ActiveDestination */
+static int hf_cmip_AdditionalText_PDU;            /* AdditionalText */
+static int hf_cmip_AdditionalInformation_PDU;     /* AdditionalInformation */
+static int hf_cmip_Allomorphs_PDU;                /* Allomorphs */
+static int hf_cmip_AdministrativeState_PDU;       /* AdministrativeState */
+static int hf_cmip_AttributeIdentifierList_PDU;   /* AttributeIdentifierList */
+static int hf_cmip_AttributeList_PDU;             /* AttributeList */
+static int hf_cmip_AttributeValueChangeDefinition_PDU;  /* AttributeValueChangeDefinition */
+static int hf_cmip_AlarmStatus_PDU;               /* AlarmStatus */
+static int hf_cmip_AvailabilityStatus_PDU;        /* AvailabilityStatus */
+static int hf_cmip_BackedUpStatus_PDU;            /* BackedUpStatus */
+static int hf_cmip_BackUpDestinationList_PDU;     /* BackUpDestinationList */
+static int hf_cmip_BackUpRelationshipObject_PDU;  /* BackUpRelationshipObject */
+static int hf_cmip_CapacityAlarmThreshold_PDU;    /* CapacityAlarmThreshold */
+static int hf_cmip_ConfirmedMode_PDU;             /* ConfirmedMode */
+static int hf_cmip_ControlStatus_PDU;             /* ControlStatus */
+static int hf_cmip_CorrelatedNotifications_PDU;   /* CorrelatedNotifications */
+static int hf_cmip_CurrentLogSize_PDU;            /* CurrentLogSize */
+static int hf_cmip_Destination_PDU;               /* Destination */
+static int hf_cmip_DiscriminatorConstruct_PDU;    /* DiscriminatorConstruct */
+static int hf_cmip_EventTime_PDU;                 /* EventTime */
+static int hf_cmip_GroupObjects_PDU;              /* GroupObjects */
+static int hf_cmip_IntervalsOfDay_PDU;            /* IntervalsOfDay */
+static int hf_cmip_LifecycleState_PDU;            /* LifecycleState */
+static int hf_cmip_LogFullAction_PDU;             /* LogFullAction */
+static int hf_cmip_LoggingTime_PDU;               /* LoggingTime */
+static int hf_cmip_LogRecordId_PDU;               /* LogRecordId */
+static int hf_cmip_MaxLogSize_PDU;                /* MaxLogSize */
+static int hf_cmip_MonitoredAttributes_PDU;       /* MonitoredAttributes */
+static int hf_cmip_NameBinding_PDU;               /* NameBinding */
+static int hf_cmip_NotificationIdentifier_PDU;    /* NotificationIdentifier */
+static int hf_cmip_NumberOfRecords_PDU;           /* NumberOfRecords */
+static int hf_cmip_OperationalState_PDU;          /* OperationalState */
+static int hf_cmip_Packages_PDU;                  /* Packages */
+static int hf_cmip_PerceivedSeverity_PDU;         /* PerceivedSeverity */
+static int hf_cmip_PrioritisedObject_PDU;         /* PrioritisedObject */
+static int hf_cmip_ProbableCause_PDU;             /* ProbableCause */
+static int hf_cmip_ProceduralStatus_PDU;          /* ProceduralStatus */
+static int hf_cmip_ProposedRepairActions_PDU;     /* ProposedRepairActions */
+static int hf_cmip_SecurityAlarmCause_PDU;        /* SecurityAlarmCause */
+static int hf_cmip_SecurityAlarmSeverity_PDU;     /* SecurityAlarmSeverity */
+static int hf_cmip_SecurityAlarmDetector_PDU;     /* SecurityAlarmDetector */
+static int hf_cmip_ServiceProvider_PDU;           /* ServiceProvider */
+static int hf_cmip_ServiceUser_PDU;               /* ServiceUser */
+static int hf_cmip_SimpleNameType_PDU;            /* SimpleNameType */
+static int hf_cmip_SourceIndicator_PDU;           /* SourceIndicator */
+static int hf_cmip_SpecificProblems_PDU;          /* SpecificProblems */
+static int hf_cmip_StandbyStatus_PDU;             /* StandbyStatus */
+static int hf_cmip_StartTime_PDU;                 /* StartTime */
+static int hf_cmip_StopTime_PDU;                  /* StopTime */
+static int hf_cmip_SupportedFeatures_PDU;         /* SupportedFeatures */
+static int hf_cmip_SystemId_PDU;                  /* SystemId */
+static int hf_cmip_SystemTitle_PDU;               /* SystemTitle */
+static int hf_cmip_ThresholdInfo_PDU;             /* ThresholdInfo */
+static int hf_cmip_TrendIndication_PDU;           /* TrendIndication */
+static int hf_cmip_UnknownStatus_PDU;             /* UnknownStatus */
+static int hf_cmip_UsageState_PDU;                /* UsageState */
+static int hf_cmip_WeekMask_PDU;                  /* WeekMask */
+static int hf_cmip_PAR_missingAttributeValue_item;  /* AttributeId */
+static int hf_cmip_managedObjectClass;            /* ObjectClass */
+static int hf_cmip_managedObjectInstance;         /* ObjectInstance */
+static int hf_cmip_currentTime;                   /* GeneralizedTime */
+static int hf_cmip_actionErroractionErrorInfo;    /* ActionErrorInfo */
+static int hf_cmip_actionErrorInfo_errorStatus;   /* T_actionErrorInfo_errorStatus */
+static int hf_cmip_actionErrorInfo;               /* T_actionErrorInfo */
+static int hf_cmip_actionType;                    /* ActionTypeId */
+static int hf_cmip_actionArgument;                /* NoSuchArgument */
+static int hf_cmip_argumentValue;                 /* InvalidArgumentValue */
+static int hf_cmip_actionInfoArg;                 /* T_actionInfoArg */
+static int hf_cmip_actionReplyInfo;               /* T_actionReplyInfo */
+static int hf_cmip_actionReply;                   /* ActionReply */
+static int hf_cmip_actionTypeId_globalForm;       /* T_actionTypeId_globalForm */
+static int hf_cmip_localForm;                     /* INTEGER */
+static int hf_cmip_attributeid;                   /* AttributeId */
+static int hf_cmip_value;                         /* AttributeValue */
+static int hf_cmip_attributeError_errorStatus;    /* T_attributeError_errorStatus */
+static int hf_cmip_modifyOperator;                /* ModifyOperator */
+static int hf_cmip_attributeId;                   /* AttributeId */
+static int hf_cmip_attributeValue;                /* T_attributeValue */
+static int hf_cmip_attributeId_globalForm;        /* T_attributeId_globalForm */
+static int hf_cmip_attributeIdlocalForm;          /* T_attributeIdlocalForm */
+static int hf_cmip_attributeIdError_errorStatus;  /* T_attributeIdError_errorStatus */
+static int hf_cmip_id;                            /* T_id */
+static int hf_cmip_attributeValueAssertionvalue;  /* T_attributeValueAssertionvalue */
+static int hf_cmip_baseManagedObjectClass;        /* ObjectClass */
+static int hf_cmip_baseManagedObjectInstance;     /* ObjectInstance */
+static int hf_cmip_item;                          /* FilterItem */
+static int hf_cmip_and;                           /* SET_OF_CMISFilter */
+static int hf_cmip_and_item;                      /* CMISFilter */
+static int hf_cmip_or;                            /* SET_OF_CMISFilter */
+static int hf_cmip_or_item;                       /* CMISFilter */
+static int hf_cmip_not;                           /* CMISFilter */
+static int hf_cmip_scope;                         /* Scope */
+static int hf_cmip_filter;                        /* CMISFilter */
+static int hf_cmip_sync;                          /* CMISSync */
+static int hf_cmip_managedOrSuperiorObjectInstance;  /* T_managedOrSuperiorObjectInstance */
+static int hf_cmip_superiorObjectInstance;        /* ObjectInstance */
+static int hf_cmip_accessControl;                 /* AccessControl */
+static int hf_cmip_referenceObjectInstance;       /* ObjectInstance */
+static int hf_cmip_attributeList;                 /* SET_OF_Attribute */
+static int hf_cmip_attributeList_item;            /* Attribute */
+static int hf_cmip_deleteErrorInfo;               /* T_deleteErrorInfo */
+static int hf_cmip_eventType;                     /* EventTypeId */
+static int hf_cmip_eventReplyInfo;                /* T_eventReplyInfo */
+static int hf_cmip_eventTime;                     /* GeneralizedTime */
+static int hf_cmip_eventReportArgumenteventInfo;  /* EventReportArgumentEventInfo */
+static int hf_cmip_eventReply;                    /* EventReply */
+static int hf_cmip_eventTypeId_globalForm;        /* T_eventTypeId_globalForm */
+static int hf_cmip_equality;                      /* Attribute */
+static int hf_cmip_substrings;                    /* T_substrings */
+static int hf_cmip_substrings_item;               /* T_substrings_item */
+static int hf_cmip_initialString;                 /* Attribute */
+static int hf_cmip_anyString;                     /* Attribute */
+static int hf_cmip_finalString;                   /* Attribute */
+static int hf_cmip_greaterOrEqual;                /* Attribute */
+static int hf_cmip_lessOrEqual;                   /* Attribute */
+static int hf_cmip_filterItempresent;             /* AttributeId */
+static int hf_cmip_subsetOf;                      /* Attribute */
+static int hf_cmip_supersetOf;                    /* Attribute */
+static int hf_cmip_nonNullSetIntersection;        /* Attribute */
+static int hf_cmip_attributeIdError;              /* AttributeIdError */
+static int hf_cmip_attribute;                     /* Attribute */
+static int hf_cmip_getInfoList;                   /* SET_OF_GetInfoStatus */
+static int hf_cmip_getInfoList_item;              /* GetInfoStatus */
+static int hf_cmip_actionValue;                   /* ActionInfo */
+static int hf_cmip_eventValue;                    /* T_eventValue */
+static int hf_cmip_eventInfo;                     /* T_eventInfo */
+static int hf_cmip_getResult;                     /* GetResult */
+static int hf_cmip_getListError;                  /* GetListError */
+static int hf_cmip_setResult;                     /* SetResult */
+static int hf_cmip_setListError;                  /* SetListError */
+static int hf_cmip_actionResult;                  /* ActionResult */
+static int hf_cmip_processingFailure;             /* ProcessingFailure */
+static int hf_cmip_deleteResult;                  /* DeleteResult */
+static int hf_cmip_actionError;                   /* ActionError */
+static int hf_cmip_deleteError;                   /* DeleteError */
+static int hf_cmip_actionId;                      /* T_actionId */
+static int hf_cmip_eventId;                       /* T_eventId */
+static int hf_cmip_objectClass_globalForm;        /* T_objectClass_globalForm */
+static int hf_cmip_objectClasslocalForm;          /* INTEGER */
+static int hf_cmip_distinguishedName;             /* DistinguishedName */
+static int hf_cmip_nonSpecificForm;               /* OCTET_STRING */
+static int hf_cmip_localDistinguishedName;        /* RDNSequence */
+static int hf_cmip_specificErrorInfo;             /* SpecificErrorInfo */
+static int hf_cmip_RDNSequence_item;              /* RelativeDistinguishedName */
+static int hf_cmip_RelativeDistinguishedName_item;  /* AttributeValueAssertion */
+static int hf_cmip_namedNumbers;                  /* T_namedNumbers */
+static int hf_cmip_individualLevels;              /* INTEGER */
+static int hf_cmip_baseToNthLevel;                /* INTEGER */
+static int hf_cmip_attributeError;                /* AttributeError */
+static int hf_cmip_setInfoList;                   /* SET_OF_SetInfoStatus */
+static int hf_cmip_setInfoList_item;              /* SetInfoStatus */
+static int hf_cmip_errorId;                       /* T_errorId */
+static int hf_cmip_errorInfo;                     /* T_errorInfo */
+static int hf_cmip_abortSource;                   /* CMIPAbortSource */
+static int hf_cmip_userInfo;                      /* EXTERNAL */
+static int hf_cmip_protocolVersion;               /* ProtocolVersion */
+static int hf_cmip_functionalUnits;               /* FunctionalUnits */
+static int hf_cmip_cmipUserInfoaccessControl;     /* EXTERNAL */
+static int hf_cmip_AdditionalInformation_item;    /* ManagementExtension */
+static int hf_cmip_Allomorphs_item;               /* ObjectClass */
+static int hf_cmip_AttributeIdentifierList_item;  /* AttributeId */
+static int hf_cmip_AttributeList_item;            /* Attribute */
+static int hf_cmip_AttributeValueChangeDefinition_item;  /* AttributeValueChangeDefinition_item */
+static int hf_cmip_oldAttributeValue;             /* T_oldAttributeValue */
+static int hf_cmip_newAttributeValue;             /* T_newAttributeValue */
+static int hf_cmip_AlarmStatus_item;              /* AlarmStatus_item */
+static int hf_cmip_AvailabilityStatus_item;       /* AvailabilityStatus_item */
+static int hf_cmip_BackUpDestinationList_item;    /* AE_title */
+static int hf_cmip_objectName;                    /* ObjectInstance */
+static int hf_cmip_noObject;                      /* NULL */
+static int hf_cmip_CapacityAlarmThreshold_item;   /* INTEGER_0_100 */
+static int hf_cmip_ControlStatus_item;            /* ControlStatus_item */
+static int hf_cmip_CorrelatedNotifications_item;  /* CorrelatedNotifications_item */
+static int hf_cmip_correlatedNotifications;       /* SET_OF_NotificationIdentifier */
+static int hf_cmip_correlatedNotifications_item;  /* NotificationIdentifier */
+static int hf_cmip_sourceObjectInst;              /* ObjectInstance */
+static int hf_cmip_single;                        /* AE_title */
+static int hf_cmip_multiple;                      /* SET_OF_AE_title */
+static int hf_cmip_multiple_item;                 /* AE_title */
+static int hf_cmip_GroupObjects_item;             /* ObjectInstance */
+static int hf_cmip_IntervalsOfDay_item;           /* IntervalsOfDay_item */
+static int hf_cmip_intervalStart;                 /* Time24 */
+static int hf_cmip_intervalEnd;                   /* Time24 */
+static int hf_cmip_managementExtensionidentifier;  /* T_managementExtensionidentifier */
+static int hf_cmip_significance;                  /* BOOLEAN */
+static int hf_cmip_information;                   /* T_information */
+static int hf_cmip_MonitoredAttributes_item;      /* Attribute */
+static int hf_cmip_integer;                       /* INTEGER */
+static int hf_cmip_real;                          /* REAL */
+static int hf_cmip_Packages_item;                 /* OBJECT_IDENTIFIER */
+static int hf_cmip_PrioritisedObject_item;        /* PrioritisedObject_item */
+static int hf_cmip_object;                        /* ObjectInstance */
+static int hf_cmip_priority;                      /* T_priority */
+static int hf_cmip_globalValue;                   /* OBJECT_IDENTIFIER */
+static int hf_cmip_localValue;                    /* INTEGER */
+static int hf_cmip_ProceduralStatus_item;         /* ProceduralStatus_item */
+static int hf_cmip_ProposedRepairActions_item;    /* SpecificIdentifier */
+static int hf_cmip_mechanism;                     /* OBJECT_IDENTIFIER */
+static int hf_cmip_application;                   /* AE_title */
+static int hf_cmip_serviceUseridentifier;         /* T_serviceUseridentifier */
+static int hf_cmip_details;                       /* T_details */
+static int hf_cmip_number;                        /* INTEGER */
+static int hf_cmip_string;                        /* GraphicString */
+static int hf_cmip_oi;                            /* OBJECT_IDENTIFIER */
+static int hf_cmip_int;                           /* INTEGER */
+static int hf_cmip_SpecificProblems_item;         /* SpecificIdentifier */
+static int hf_cmip_specific;                      /* GeneralizedTime */
+static int hf_cmip_continual;                     /* NULL */
+static int hf_cmip_SupportedFeatures_item;        /* SupportedFeatures_item */
+static int hf_cmip_featureIdentifier;             /* T_featureIdentifier */
+static int hf_cmip_featureInfo;                   /* T_featureInfo */
+static int hf_cmip_name;                          /* GraphicString */
+static int hf_cmip_nothing;                       /* NULL */
+static int hf_cmip_oid;                           /* OBJECT_IDENTIFIER */
+static int hf_cmip_hour;                          /* INTEGER_0_23 */
+static int hf_cmip_minute;                        /* INTEGER_0_59 */
+static int hf_cmip_triggeredThreshold;            /* AttributeId */
+static int hf_cmip_observedValue;                 /* ObservedValue */
+static int hf_cmip_thresholdLevel;                /* ThresholdLevelInd */
+static int hf_cmip_armTime;                       /* GeneralizedTime */
+static int hf_cmip_up;                            /* T_up */
+static int hf_cmip_high;                          /* ObservedValue */
+static int hf_cmip_low;                           /* ObservedValue */
+static int hf_cmip_down;                          /* T_down */
+static int hf_cmip_WeekMask_item;                 /* WeekMask_item */
+static int hf_cmip_daysOfWeek;                    /* T_daysOfWeek */
+static int hf_cmip_intervalsOfDay;                /* IntervalsOfDay */
+static int hf_cmip_local;                         /* T_local */
+static int hf_cmip_global;                        /* OBJECT_IDENTIFIER */
+static int hf_cmip_invoke;                        /* Invoke */
+static int hf_cmip_returnResult;                  /* ReturnResult */
+static int hf_cmip_returnError;                   /* ReturnError */
+static int hf_cmip_reject;                        /* Reject */
+static int hf_cmip_invokeId;                      /* InvokeId */
+static int hf_cmip_linkedId;                      /* T_linkedId */
+static int hf_cmip_linkedIdPresent;               /* T_linkedIdPresent */
+static int hf_cmip_absent;                        /* NULL */
+static int hf_cmip_opcode;                        /* Code */
+static int hf_cmip_argument;                      /* InvokeArgument */
+static int hf_cmip_result;                        /* T_result */
+static int hf_cmip_resultArgument;                /* ResultArgument */
+static int hf_cmip_errcode;                       /* Code */
+static int hf_cmip_parameter;                     /* T_parameter */
+static int hf_cmip_problem;                       /* T_problem */
+static int hf_cmip_general;                       /* GeneralProblem */
+static int hf_cmip_invokeProblem;                 /* InvokeProblem */
+static int hf_cmip_returnResultProblem;           /* ReturnResultProblem */
+static int hf_cmip_returnErrorProblem;            /* ReturnErrorProblem */
+static int hf_cmip_present;                       /* INTEGER */
+static int hf_cmip_synchronization;               /* CMISSync */
+static int hf_cmip_actionInfo;                    /* ActionInfo */
+static int hf_cmip_attributeIdList;               /* SET_OF_AttributeId */
+static int hf_cmip_attributeIdList_item;          /* AttributeId */
+static int hf_cmip_modificationList;              /* T_modificationList */
+static int hf_cmip_modificationList_item;         /* T_modificationList_item */
+static int hf_cmip_attributevalue;                /* T_attributevalue */
+static int hf_cmip_InvokeId_present;              /* InvokeId_present */
 /* named bits */
-static int hf_cmip_FunctionalUnits_multipleObjectSelection = -1;
-static int hf_cmip_FunctionalUnits_filter = -1;
-static int hf_cmip_FunctionalUnits_multipleReply = -1;
-static int hf_cmip_FunctionalUnits_extendedService = -1;
-static int hf_cmip_FunctionalUnits_cancelGet = -1;
-static int hf_cmip_ProtocolVersion_version1 = -1;
-static int hf_cmip_ProtocolVersion_version2 = -1;
-static int hf_cmip_T_daysOfWeek_sunday = -1;
-static int hf_cmip_T_daysOfWeek_monday = -1;
-static int hf_cmip_T_daysOfWeek_tuesday = -1;
-static int hf_cmip_T_daysOfWeek_wednesday = -1;
-static int hf_cmip_T_daysOfWeek_thursday = -1;
-static int hf_cmip_T_daysOfWeek_friday = -1;
-static int hf_cmip_T_daysOfWeek_saturday = -1;
+static int hf_cmip_FunctionalUnits_multipleObjectSelection;
+static int hf_cmip_FunctionalUnits_filter;
+static int hf_cmip_FunctionalUnits_multipleReply;
+static int hf_cmip_FunctionalUnits_extendedService;
+static int hf_cmip_FunctionalUnits_cancelGet;
+static int hf_cmip_ProtocolVersion_version1;
+static int hf_cmip_ProtocolVersion_version2;
+static int hf_cmip_T_daysOfWeek_sunday;
+static int hf_cmip_T_daysOfWeek_monday;
+static int hf_cmip_T_daysOfWeek_tuesday;
+static int hf_cmip_T_daysOfWeek_wednesday;
+static int hf_cmip_T_daysOfWeek_thursday;
+static int hf_cmip_T_daysOfWeek_friday;
+static int hf_cmip_T_daysOfWeek_saturday;
 
 /* Initialize the subtree pointers */
-static gint ett_cmip = -1;
-static gint ett_cmip_PAR_missingAttributeValue = -1;
-static gint ett_cmip_ActionArgument = -1;
-static gint ett_cmip_ActionError = -1;
-static gint ett_cmip_ActionErrorInfo = -1;
-static gint ett_cmip_T_actionErrorInfo = -1;
-static gint ett_cmip_ActionInfo = -1;
-static gint ett_cmip_ActionReply = -1;
-static gint ett_cmip_ActionResult = -1;
-static gint ett_cmip_ActionTypeId = -1;
-static gint ett_cmip_Attribute = -1;
-static gint ett_cmip_AttributeError = -1;
-static gint ett_cmip_AttributeId = -1;
-static gint ett_cmip_AttributeIdError = -1;
-static gint ett_cmip_AttributeValueAssertion = -1;
-static gint ett_cmip_BaseManagedObjectId = -1;
-static gint ett_cmip_CMISFilter = -1;
-static gint ett_cmip_SET_OF_CMISFilter = -1;
-static gint ett_cmip_ComplexityLimitation = -1;
-static gint ett_cmip_CreateArgument = -1;
-static gint ett_cmip_T_managedOrSuperiorObjectInstance = -1;
-static gint ett_cmip_SET_OF_Attribute = -1;
-static gint ett_cmip_CreateResult = -1;
-static gint ett_cmip_DeleteArgument = -1;
-static gint ett_cmip_DeleteError = -1;
-static gint ett_cmip_DeleteResult = -1;
-static gint ett_cmip_EventReply = -1;
-static gint ett_cmip_EventReportArgument = -1;
-static gint ett_cmip_EventReportResult = -1;
-static gint ett_cmip_EventTypeId = -1;
-static gint ett_cmip_FilterItem = -1;
-static gint ett_cmip_T_substrings = -1;
-static gint ett_cmip_T_substrings_item = -1;
-static gint ett_cmip_GetArgument = -1;
-static gint ett_cmip_GetInfoStatus = -1;
-static gint ett_cmip_GetListError = -1;
-static gint ett_cmip_SET_OF_GetInfoStatus = -1;
-static gint ett_cmip_GetResult = -1;
-static gint ett_cmip_InvalidArgumentValue = -1;
-static gint ett_cmip_T_eventValue = -1;
-static gint ett_cmip_LinkedReplyArgument = -1;
-static gint ett_cmip_NoSuchAction = -1;
-static gint ett_cmip_NoSuchArgument = -1;
-static gint ett_cmip_T_actionId = -1;
-static gint ett_cmip_T_eventId = -1;
-static gint ett_cmip_NoSuchEventType = -1;
-static gint ett_cmip_ObjectClass = -1;
-static gint ett_cmip_ObjectInstance = -1;
-static gint ett_cmip_ProcessingFailure = -1;
-static gint ett_cmip_RDNSequence = -1;
-static gint ett_cmip_RelativeDistinguishedName = -1;
-static gint ett_cmip_Scope = -1;
-static gint ett_cmip_SetArgument = -1;
-static gint ett_cmip_SetInfoStatus = -1;
-static gint ett_cmip_SetListError = -1;
-static gint ett_cmip_SET_OF_SetInfoStatus = -1;
-static gint ett_cmip_SetResult = -1;
-static gint ett_cmip_SpecificErrorInfo = -1;
-static gint ett_cmip_CMIPAbortInfo = -1;
-static gint ett_cmip_FunctionalUnits = -1;
-static gint ett_cmip_CMIPUserInfo = -1;
-static gint ett_cmip_ProtocolVersion = -1;
-static gint ett_cmip_AdditionalInformation = -1;
-static gint ett_cmip_Allomorphs = -1;
-static gint ett_cmip_AttributeIdentifierList = -1;
-static gint ett_cmip_AttributeList = -1;
-static gint ett_cmip_AttributeValueChangeDefinition = -1;
-static gint ett_cmip_AttributeValueChangeDefinition_item = -1;
-static gint ett_cmip_AlarmStatus = -1;
-static gint ett_cmip_AvailabilityStatus = -1;
-static gint ett_cmip_BackUpDestinationList = -1;
-static gint ett_cmip_BackUpRelationshipObject = -1;
-static gint ett_cmip_CapacityAlarmThreshold = -1;
-static gint ett_cmip_ControlStatus = -1;
-static gint ett_cmip_CorrelatedNotifications = -1;
-static gint ett_cmip_CorrelatedNotifications_item = -1;
-static gint ett_cmip_SET_OF_NotificationIdentifier = -1;
-static gint ett_cmip_Destination = -1;
-static gint ett_cmip_SET_OF_AE_title = -1;
-static gint ett_cmip_GroupObjects = -1;
-static gint ett_cmip_IntervalsOfDay = -1;
-static gint ett_cmip_IntervalsOfDay_item = -1;
-static gint ett_cmip_ManagementExtension = -1;
-static gint ett_cmip_MonitoredAttributes = -1;
-static gint ett_cmip_ObservedValue = -1;
-static gint ett_cmip_Packages = -1;
-static gint ett_cmip_PrioritisedObject = -1;
-static gint ett_cmip_PrioritisedObject_item = -1;
-static gint ett_cmip_ProbableCause = -1;
-static gint ett_cmip_ProceduralStatus = -1;
-static gint ett_cmip_ProposedRepairActions = -1;
-static gint ett_cmip_SecurityAlarmDetector = -1;
-static gint ett_cmip_ServiceUser = -1;
-static gint ett_cmip_SimpleNameType = -1;
-static gint ett_cmip_SpecificIdentifier = -1;
-static gint ett_cmip_SpecificProblems = -1;
-static gint ett_cmip_StopTime = -1;
-static gint ett_cmip_SupportedFeatures = -1;
-static gint ett_cmip_SupportedFeatures_item = -1;
-static gint ett_cmip_SystemId = -1;
-static gint ett_cmip_SystemTitle = -1;
-static gint ett_cmip_Time24 = -1;
-static gint ett_cmip_ThresholdInfo = -1;
-static gint ett_cmip_ThresholdLevelInd = -1;
-static gint ett_cmip_T_up = -1;
-static gint ett_cmip_T_down = -1;
-static gint ett_cmip_WeekMask = -1;
-static gint ett_cmip_WeekMask_item = -1;
-static gint ett_cmip_T_daysOfWeek = -1;
-static gint ett_cmip_Code = -1;
-static gint ett_cmip_ROS = -1;
-static gint ett_cmip_Invoke = -1;
-static gint ett_cmip_T_linkedId = -1;
-static gint ett_cmip_ReturnResult = -1;
-static gint ett_cmip_T_result = -1;
-static gint ett_cmip_ReturnError = -1;
-static gint ett_cmip_Reject = -1;
-static gint ett_cmip_T_problem = -1;
-static gint ett_cmip_InvokeId = -1;
-static gint ett_cmip_SET_OF_AttributeId = -1;
-static gint ett_cmip_T_modificationList = -1;
-static gint ett_cmip_T_modificationList_item = -1;
+static gint ett_cmip;
+static gint ett_cmip_PAR_missingAttributeValue;
+static gint ett_cmip_ActionArgument;
+static gint ett_cmip_ActionError;
+static gint ett_cmip_ActionErrorInfo;
+static gint ett_cmip_T_actionErrorInfo;
+static gint ett_cmip_ActionInfo;
+static gint ett_cmip_ActionReply;
+static gint ett_cmip_ActionResult;
+static gint ett_cmip_ActionTypeId;
+static gint ett_cmip_Attribute;
+static gint ett_cmip_AttributeError;
+static gint ett_cmip_AttributeId;
+static gint ett_cmip_AttributeIdError;
+static gint ett_cmip_AttributeValueAssertion;
+static gint ett_cmip_BaseManagedObjectId;
+static gint ett_cmip_CMISFilter;
+static gint ett_cmip_SET_OF_CMISFilter;
+static gint ett_cmip_ComplexityLimitation;
+static gint ett_cmip_CreateArgument;
+static gint ett_cmip_T_managedOrSuperiorObjectInstance;
+static gint ett_cmip_SET_OF_Attribute;
+static gint ett_cmip_CreateResult;
+static gint ett_cmip_DeleteArgument;
+static gint ett_cmip_DeleteError;
+static gint ett_cmip_DeleteResult;
+static gint ett_cmip_EventReply;
+static gint ett_cmip_EventReportArgument;
+static gint ett_cmip_EventReportResult;
+static gint ett_cmip_EventTypeId;
+static gint ett_cmip_FilterItem;
+static gint ett_cmip_T_substrings;
+static gint ett_cmip_T_substrings_item;
+static gint ett_cmip_GetArgument;
+static gint ett_cmip_GetInfoStatus;
+static gint ett_cmip_GetListError;
+static gint ett_cmip_SET_OF_GetInfoStatus;
+static gint ett_cmip_GetResult;
+static gint ett_cmip_InvalidArgumentValue;
+static gint ett_cmip_T_eventValue;
+static gint ett_cmip_LinkedReplyArgument;
+static gint ett_cmip_NoSuchAction;
+static gint ett_cmip_NoSuchArgument;
+static gint ett_cmip_T_actionId;
+static gint ett_cmip_T_eventId;
+static gint ett_cmip_NoSuchEventType;
+static gint ett_cmip_ObjectClass;
+static gint ett_cmip_ObjectInstance;
+static gint ett_cmip_ProcessingFailure;
+static gint ett_cmip_RDNSequence;
+static gint ett_cmip_RelativeDistinguishedName;
+static gint ett_cmip_Scope;
+static gint ett_cmip_SetArgument;
+static gint ett_cmip_SetInfoStatus;
+static gint ett_cmip_SetListError;
+static gint ett_cmip_SET_OF_SetInfoStatus;
+static gint ett_cmip_SetResult;
+static gint ett_cmip_SpecificErrorInfo;
+static gint ett_cmip_CMIPAbortInfo;
+static gint ett_cmip_FunctionalUnits;
+static gint ett_cmip_CMIPUserInfo;
+static gint ett_cmip_ProtocolVersion;
+static gint ett_cmip_AdditionalInformation;
+static gint ett_cmip_Allomorphs;
+static gint ett_cmip_AttributeIdentifierList;
+static gint ett_cmip_AttributeList;
+static gint ett_cmip_AttributeValueChangeDefinition;
+static gint ett_cmip_AttributeValueChangeDefinition_item;
+static gint ett_cmip_AlarmStatus;
+static gint ett_cmip_AvailabilityStatus;
+static gint ett_cmip_BackUpDestinationList;
+static gint ett_cmip_BackUpRelationshipObject;
+static gint ett_cmip_CapacityAlarmThreshold;
+static gint ett_cmip_ControlStatus;
+static gint ett_cmip_CorrelatedNotifications;
+static gint ett_cmip_CorrelatedNotifications_item;
+static gint ett_cmip_SET_OF_NotificationIdentifier;
+static gint ett_cmip_Destination;
+static gint ett_cmip_SET_OF_AE_title;
+static gint ett_cmip_GroupObjects;
+static gint ett_cmip_IntervalsOfDay;
+static gint ett_cmip_IntervalsOfDay_item;
+static gint ett_cmip_ManagementExtension;
+static gint ett_cmip_MonitoredAttributes;
+static gint ett_cmip_ObservedValue;
+static gint ett_cmip_Packages;
+static gint ett_cmip_PrioritisedObject;
+static gint ett_cmip_PrioritisedObject_item;
+static gint ett_cmip_ProbableCause;
+static gint ett_cmip_ProceduralStatus;
+static gint ett_cmip_ProposedRepairActions;
+static gint ett_cmip_SecurityAlarmDetector;
+static gint ett_cmip_ServiceUser;
+static gint ett_cmip_SimpleNameType;
+static gint ett_cmip_SpecificIdentifier;
+static gint ett_cmip_SpecificProblems;
+static gint ett_cmip_StopTime;
+static gint ett_cmip_SupportedFeatures;
+static gint ett_cmip_SupportedFeatures_item;
+static gint ett_cmip_SystemId;
+static gint ett_cmip_SystemTitle;
+static gint ett_cmip_Time24;
+static gint ett_cmip_ThresholdInfo;
+static gint ett_cmip_ThresholdLevelInd;
+static gint ett_cmip_T_up;
+static gint ett_cmip_T_down;
+static gint ett_cmip_WeekMask;
+static gint ett_cmip_WeekMask_item;
+static gint ett_cmip_T_daysOfWeek;
+static gint ett_cmip_Code;
+static gint ett_cmip_ROS;
+static gint ett_cmip_Invoke;
+static gint ett_cmip_T_linkedId;
+static gint ett_cmip_ReturnResult;
+static gint ett_cmip_T_result;
+static gint ett_cmip_ReturnError;
+static gint ett_cmip_Reject;
+static gint ett_cmip_T_problem;
+static gint ett_cmip_InvokeId;
+static gint ett_cmip_SET_OF_AttributeId;
+static gint ett_cmip_T_modificationList;
+static gint ett_cmip_T_modificationList_item;
 
-static expert_field ei_wrong_spdu_type = EI_INIT;
+static expert_field ei_wrong_spdu_type;
 
 static guint32 opcode;
 

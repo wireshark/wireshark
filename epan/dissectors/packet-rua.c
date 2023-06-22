@@ -64,118 +64,118 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /* Initialize the protocol and registered fields */
-static int proto_rua = -1;
+static int proto_rua;
 
-static int hf_rua_CN_DomainIndicator_PDU = -1;    /* CN_DomainIndicator */
-static int hf_rua_CSGMembershipStatus_PDU = -1;   /* CSGMembershipStatus */
-static int hf_rua_Establishment_Cause_PDU = -1;   /* Establishment_Cause */
-static int hf_rua_Context_ID_PDU = -1;            /* Context_ID */
-static int hf_rua_IntraDomainNasNodeSelector_PDU = -1;  /* IntraDomainNasNodeSelector */
-static int hf_rua_RANAP_Message_PDU = -1;         /* RANAP_Message */
-static int hf_rua_Cause_PDU = -1;                 /* Cause */
-static int hf_rua_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
-static int hf_rua_Connect_PDU = -1;               /* Connect */
-static int hf_rua_DirectTransfer_PDU = -1;        /* DirectTransfer */
-static int hf_rua_Disconnect_PDU = -1;            /* Disconnect */
-static int hf_rua_ConnectionlessTransfer_PDU = -1;  /* ConnectionlessTransfer */
-static int hf_rua_ErrorIndication_PDU = -1;       /* ErrorIndication */
-static int hf_rua_PrivateMessage_PDU = -1;        /* PrivateMessage */
-static int hf_rua_RUA_PDU_PDU = -1;               /* RUA_PDU */
-static int hf_rua_local = -1;                     /* INTEGER_0_65535 */
-static int hf_rua_global = -1;                    /* OBJECT_IDENTIFIER */
-static int hf_rua_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
-static int hf_rua_protocol_ie_field_id = -1;      /* ProtocolIE_ID */
-static int hf_rua_criticality = -1;               /* Criticality */
-static int hf_rua_ie_field_value = -1;            /* ProtocolIE_Field_value */
-static int hf_rua_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
-static int hf_rua_id = -1;                        /* ProtocolIE_ID */
-static int hf_rua_extensionValue = -1;            /* T_extensionValue */
-static int hf_rua_PrivateIE_Container_item = -1;  /* PrivateIE_Field */
-static int hf_rua_private_ie_field_id = -1;       /* PrivateIE_ID */
-static int hf_rua_private_value = -1;             /* PrivateIE_Field_value */
-static int hf_rua_version = -1;                   /* T_version */
-static int hf_rua_release99 = -1;                 /* T_release99 */
-static int hf_rua_cn_Type = -1;                   /* T_cn_Type */
-static int hf_rua_gsm_Map_IDNNS = -1;             /* Gsm_map_IDNNS */
-static int hf_rua_ansi_41_IDNNS = -1;             /* Ansi_41_IDNNS */
-static int hf_rua_later = -1;                     /* T_later */
-static int hf_rua_futurecoding = -1;              /* BIT_STRING_SIZE_15 */
-static int hf_rua_routingbasis = -1;              /* T_routingbasis */
-static int hf_rua_localPTMSI = -1;                /* T_localPTMSI */
-static int hf_rua_routingparameter = -1;          /* RoutingParameter */
-static int hf_rua_tMSIofsamePLMN = -1;            /* T_tMSIofsamePLMN */
-static int hf_rua_tMSIofdifferentPLMN = -1;       /* T_tMSIofdifferentPLMN */
-static int hf_rua_iMSIresponsetopaging = -1;      /* T_iMSIresponsetopaging */
-static int hf_rua_iMSIcauseUEinitiatedEvent = -1;  /* T_iMSIcauseUEinitiatedEvent */
-static int hf_rua_iMEI = -1;                      /* T_iMEI */
-static int hf_rua_spare2 = -1;                    /* T_spare2 */
-static int hf_rua_spare1 = -1;                    /* T_spare1 */
-static int hf_rua_dummy = -1;                     /* BOOLEAN */
-static int hf_rua_radioNetwork = -1;              /* CauseRadioNetwork */
-static int hf_rua_transport = -1;                 /* CauseTransport */
-static int hf_rua_protocol = -1;                  /* CauseProtocol */
-static int hf_rua_misc = -1;                      /* CauseMisc */
-static int hf_rua_procedureCode = -1;             /* ProcedureCode */
-static int hf_rua_triggeringMessage = -1;         /* TriggeringMessage */
-static int hf_rua_procedureCriticality = -1;      /* Criticality */
-static int hf_rua_iEsCriticalityDiagnostics = -1;  /* CriticalityDiagnostics_IE_List */
-static int hf_rua_iE_Extensions = -1;             /* ProtocolExtensionContainer */
-static int hf_rua_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_List_item */
-static int hf_rua_iECriticality = -1;             /* Criticality */
-static int hf_rua_iE_ID = -1;                     /* ProtocolIE_ID */
-static int hf_rua_typeOfError = -1;               /* TypeOfError */
-static int hf_rua_protocolIEs = -1;               /* ProtocolIE_Container */
-static int hf_rua_protocolExtensions = -1;        /* ProtocolExtensionContainer */
-static int hf_rua_privateIEs = -1;                /* PrivateIE_Container */
-static int hf_rua_initiatingMessage = -1;         /* InitiatingMessage */
-static int hf_rua_successfulOutcome = -1;         /* SuccessfulOutcome */
-static int hf_rua_unsuccessfulOutcome = -1;       /* UnsuccessfulOutcome */
-static int hf_rua_initiatingMessagevalue = -1;    /* InitiatingMessage_value */
-static int hf_rua_successfulOutcome_value = -1;   /* SuccessfulOutcome_value */
-static int hf_rua_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
+static int hf_rua_CN_DomainIndicator_PDU;         /* CN_DomainIndicator */
+static int hf_rua_CSGMembershipStatus_PDU;        /* CSGMembershipStatus */
+static int hf_rua_Establishment_Cause_PDU;        /* Establishment_Cause */
+static int hf_rua_Context_ID_PDU;                 /* Context_ID */
+static int hf_rua_IntraDomainNasNodeSelector_PDU;  /* IntraDomainNasNodeSelector */
+static int hf_rua_RANAP_Message_PDU;              /* RANAP_Message */
+static int hf_rua_Cause_PDU;                      /* Cause */
+static int hf_rua_CriticalityDiagnostics_PDU;     /* CriticalityDiagnostics */
+static int hf_rua_Connect_PDU;                    /* Connect */
+static int hf_rua_DirectTransfer_PDU;             /* DirectTransfer */
+static int hf_rua_Disconnect_PDU;                 /* Disconnect */
+static int hf_rua_ConnectionlessTransfer_PDU;     /* ConnectionlessTransfer */
+static int hf_rua_ErrorIndication_PDU;            /* ErrorIndication */
+static int hf_rua_PrivateMessage_PDU;             /* PrivateMessage */
+static int hf_rua_RUA_PDU_PDU;                    /* RUA_PDU */
+static int hf_rua_local;                          /* INTEGER_0_65535 */
+static int hf_rua_global;                         /* OBJECT_IDENTIFIER */
+static int hf_rua_ProtocolIE_Container_item;      /* ProtocolIE_Field */
+static int hf_rua_protocol_ie_field_id;           /* ProtocolIE_ID */
+static int hf_rua_criticality;                    /* Criticality */
+static int hf_rua_ie_field_value;                 /* ProtocolIE_Field_value */
+static int hf_rua_ProtocolExtensionContainer_item;  /* ProtocolExtensionField */
+static int hf_rua_id;                             /* ProtocolIE_ID */
+static int hf_rua_extensionValue;                 /* T_extensionValue */
+static int hf_rua_PrivateIE_Container_item;       /* PrivateIE_Field */
+static int hf_rua_private_ie_field_id;            /* PrivateIE_ID */
+static int hf_rua_private_value;                  /* PrivateIE_Field_value */
+static int hf_rua_version;                        /* T_version */
+static int hf_rua_release99;                      /* T_release99 */
+static int hf_rua_cn_Type;                        /* T_cn_Type */
+static int hf_rua_gsm_Map_IDNNS;                  /* Gsm_map_IDNNS */
+static int hf_rua_ansi_41_IDNNS;                  /* Ansi_41_IDNNS */
+static int hf_rua_later;                          /* T_later */
+static int hf_rua_futurecoding;                   /* BIT_STRING_SIZE_15 */
+static int hf_rua_routingbasis;                   /* T_routingbasis */
+static int hf_rua_localPTMSI;                     /* T_localPTMSI */
+static int hf_rua_routingparameter;               /* RoutingParameter */
+static int hf_rua_tMSIofsamePLMN;                 /* T_tMSIofsamePLMN */
+static int hf_rua_tMSIofdifferentPLMN;            /* T_tMSIofdifferentPLMN */
+static int hf_rua_iMSIresponsetopaging;           /* T_iMSIresponsetopaging */
+static int hf_rua_iMSIcauseUEinitiatedEvent;      /* T_iMSIcauseUEinitiatedEvent */
+static int hf_rua_iMEI;                           /* T_iMEI */
+static int hf_rua_spare2;                         /* T_spare2 */
+static int hf_rua_spare1;                         /* T_spare1 */
+static int hf_rua_dummy;                          /* BOOLEAN */
+static int hf_rua_radioNetwork;                   /* CauseRadioNetwork */
+static int hf_rua_transport;                      /* CauseTransport */
+static int hf_rua_protocol;                       /* CauseProtocol */
+static int hf_rua_misc;                           /* CauseMisc */
+static int hf_rua_procedureCode;                  /* ProcedureCode */
+static int hf_rua_triggeringMessage;              /* TriggeringMessage */
+static int hf_rua_procedureCriticality;           /* Criticality */
+static int hf_rua_iEsCriticalityDiagnostics;      /* CriticalityDiagnostics_IE_List */
+static int hf_rua_iE_Extensions;                  /* ProtocolExtensionContainer */
+static int hf_rua_CriticalityDiagnostics_IE_List_item;  /* CriticalityDiagnostics_IE_List_item */
+static int hf_rua_iECriticality;                  /* Criticality */
+static int hf_rua_iE_ID;                          /* ProtocolIE_ID */
+static int hf_rua_typeOfError;                    /* TypeOfError */
+static int hf_rua_protocolIEs;                    /* ProtocolIE_Container */
+static int hf_rua_protocolExtensions;             /* ProtocolExtensionContainer */
+static int hf_rua_privateIEs;                     /* PrivateIE_Container */
+static int hf_rua_initiatingMessage;              /* InitiatingMessage */
+static int hf_rua_successfulOutcome;              /* SuccessfulOutcome */
+static int hf_rua_unsuccessfulOutcome;            /* UnsuccessfulOutcome */
+static int hf_rua_initiatingMessagevalue;         /* InitiatingMessage_value */
+static int hf_rua_successfulOutcome_value;        /* SuccessfulOutcome_value */
+static int hf_rua_unsuccessfulOutcome_value;      /* UnsuccessfulOutcome_value */
 
 /* Initialize the subtree pointers */
-static int ett_rua = -1;
+static int ett_rua;
 
  /* initialise sub-dissector handles */
  static dissector_handle_t ranap_handle = NULL;
 
-static gint ett_rua_PrivateIE_ID = -1;
-static gint ett_rua_ProtocolIE_Container = -1;
-static gint ett_rua_ProtocolIE_Field = -1;
-static gint ett_rua_ProtocolExtensionContainer = -1;
-static gint ett_rua_ProtocolExtensionField = -1;
-static gint ett_rua_PrivateIE_Container = -1;
-static gint ett_rua_PrivateIE_Field = -1;
-static gint ett_rua_IntraDomainNasNodeSelector = -1;
-static gint ett_rua_T_version = -1;
-static gint ett_rua_T_release99 = -1;
-static gint ett_rua_T_cn_Type = -1;
-static gint ett_rua_T_later = -1;
-static gint ett_rua_Gsm_map_IDNNS = -1;
-static gint ett_rua_T_routingbasis = -1;
-static gint ett_rua_T_localPTMSI = -1;
-static gint ett_rua_T_tMSIofsamePLMN = -1;
-static gint ett_rua_T_tMSIofdifferentPLMN = -1;
-static gint ett_rua_T_iMSIresponsetopaging = -1;
-static gint ett_rua_T_iMSIcauseUEinitiatedEvent = -1;
-static gint ett_rua_T_iMEI = -1;
-static gint ett_rua_T_spare2 = -1;
-static gint ett_rua_T_spare1 = -1;
-static gint ett_rua_Cause = -1;
-static gint ett_rua_CriticalityDiagnostics = -1;
-static gint ett_rua_CriticalityDiagnostics_IE_List = -1;
-static gint ett_rua_CriticalityDiagnostics_IE_List_item = -1;
-static gint ett_rua_Connect = -1;
-static gint ett_rua_DirectTransfer = -1;
-static gint ett_rua_Disconnect = -1;
-static gint ett_rua_ConnectionlessTransfer = -1;
-static gint ett_rua_ErrorIndication = -1;
-static gint ett_rua_PrivateMessage = -1;
-static gint ett_rua_RUA_PDU = -1;
-static gint ett_rua_InitiatingMessage = -1;
-static gint ett_rua_SuccessfulOutcome = -1;
-static gint ett_rua_UnsuccessfulOutcome = -1;
+static gint ett_rua_PrivateIE_ID;
+static gint ett_rua_ProtocolIE_Container;
+static gint ett_rua_ProtocolIE_Field;
+static gint ett_rua_ProtocolExtensionContainer;
+static gint ett_rua_ProtocolExtensionField;
+static gint ett_rua_PrivateIE_Container;
+static gint ett_rua_PrivateIE_Field;
+static gint ett_rua_IntraDomainNasNodeSelector;
+static gint ett_rua_T_version;
+static gint ett_rua_T_release99;
+static gint ett_rua_T_cn_Type;
+static gint ett_rua_T_later;
+static gint ett_rua_Gsm_map_IDNNS;
+static gint ett_rua_T_routingbasis;
+static gint ett_rua_T_localPTMSI;
+static gint ett_rua_T_tMSIofsamePLMN;
+static gint ett_rua_T_tMSIofdifferentPLMN;
+static gint ett_rua_T_iMSIresponsetopaging;
+static gint ett_rua_T_iMSIcauseUEinitiatedEvent;
+static gint ett_rua_T_iMEI;
+static gint ett_rua_T_spare2;
+static gint ett_rua_T_spare1;
+static gint ett_rua_Cause;
+static gint ett_rua_CriticalityDiagnostics;
+static gint ett_rua_CriticalityDiagnostics_IE_List;
+static gint ett_rua_CriticalityDiagnostics_IE_List_item;
+static gint ett_rua_Connect;
+static gint ett_rua_DirectTransfer;
+static gint ett_rua_Disconnect;
+static gint ett_rua_ConnectionlessTransfer;
+static gint ett_rua_ErrorIndication;
+static gint ett_rua_PrivateMessage;
+static gint ett_rua_RUA_PDU;
+static gint ett_rua_InitiatingMessage;
+static gint ett_rua_SuccessfulOutcome;
+static gint ett_rua_UnsuccessfulOutcome;
 
 /* Global variables */
 static guint32 ProcedureCode;

@@ -42,120 +42,120 @@ void proto_reg_handoff_x509af(void);
 static dissector_handle_t pkix_crl_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_x509af = -1;
-static int hf_x509af_algorithm_id = -1;
-static int hf_x509af_extension_id = -1;
-static int hf_x509af_x509af_Certificate_PDU = -1;  /* Certificate */
-static int hf_x509af_SubjectPublicKeyInfo_PDU = -1;  /* SubjectPublicKeyInfo */
-static int hf_x509af_CertificatePair_PDU = -1;    /* CertificatePair */
-static int hf_x509af_CertificateList_PDU = -1;    /* CertificateList */
-static int hf_x509af_AttributeCertificate_PDU = -1;  /* AttributeCertificate */
-static int hf_x509af_DSS_Params_PDU = -1;         /* DSS_Params */
-static int hf_x509af_Userid_PDU = -1;             /* Userid */
-static int hf_x509af_signedCertificate = -1;      /* T_signedCertificate */
-static int hf_x509af_version = -1;                /* Version */
-static int hf_x509af_serialNumber = -1;           /* CertificateSerialNumber */
-static int hf_x509af_signature = -1;              /* AlgorithmIdentifier */
-static int hf_x509af_issuer = -1;                 /* Name */
-static int hf_x509af_validity = -1;               /* Validity */
-static int hf_x509af_subject = -1;                /* SubjectName */
-static int hf_x509af_subjectPublicKeyInfo = -1;   /* SubjectPublicKeyInfo */
-static int hf_x509af_issuerUniqueIdentifier = -1;  /* UniqueIdentifier */
-static int hf_x509af_subjectUniqueIdentifier = -1;  /* UniqueIdentifier */
-static int hf_x509af_extensions = -1;             /* Extensions */
-static int hf_x509af_algorithmIdentifier = -1;    /* AlgorithmIdentifier */
-static int hf_x509af_encrypted = -1;              /* BIT_STRING */
-static int hf_x509af_rdnSequence = -1;            /* RDNSequence */
-static int hf_x509af_algorithmId = -1;            /* T_algorithmId */
-static int hf_x509af_parameters = -1;             /* T_parameters */
-static int hf_x509af_notBefore = -1;              /* Time */
-static int hf_x509af_notAfter = -1;               /* Time */
-static int hf_x509af_algorithm = -1;              /* AlgorithmIdentifier */
-static int hf_x509af_subjectPublicKey = -1;       /* T_subjectPublicKey */
-static int hf_x509af_utcTime = -1;                /* T_utcTime */
-static int hf_x509af_generalizedTime = -1;        /* GeneralizedTime */
-static int hf_x509af_Extensions_item = -1;        /* Extension */
-static int hf_x509af_extnId = -1;                 /* T_extnId */
-static int hf_x509af_critical = -1;               /* BOOLEAN */
-static int hf_x509af_extnValue = -1;              /* T_extnValue */
-static int hf_x509af_userCertificate = -1;        /* Certificate */
-static int hf_x509af_certificationPath = -1;      /* ForwardCertificationPath */
-static int hf_x509af_ForwardCertificationPath_item = -1;  /* CrossCertificates */
-static int hf_x509af_CrossCertificates_item = -1;  /* Certificate */
-static int hf_x509af_theCACertificates = -1;      /* SEQUENCE_OF_CertificatePair */
-static int hf_x509af_theCACertificates_item = -1;  /* CertificatePair */
-static int hf_x509af_issuedByThisCA = -1;         /* Certificate */
-static int hf_x509af_issuedToThisCA = -1;         /* Certificate */
-static int hf_x509af_signedCertificateList = -1;  /* T_signedCertificateList */
-static int hf_x509af_thisUpdate = -1;             /* Time */
-static int hf_x509af_nextUpdate = -1;             /* Time */
-static int hf_x509af_revokedCertificates = -1;    /* T_revokedCertificates */
-static int hf_x509af_revokedCertificates_item = -1;  /* T_revokedCertificates_item */
-static int hf_x509af_revokedUserCertificate = -1;  /* CertificateSerialNumber */
-static int hf_x509af_revocationDate = -1;         /* Time */
-static int hf_x509af_crlEntryExtensions = -1;     /* Extensions */
-static int hf_x509af_crlExtensions = -1;          /* Extensions */
-static int hf_x509af_attributeCertificate = -1;   /* AttributeCertificate */
-static int hf_x509af_acPath = -1;                 /* SEQUENCE_OF_ACPathData */
-static int hf_x509af_acPath_item = -1;            /* ACPathData */
-static int hf_x509af_certificate = -1;            /* Certificate */
-static int hf_x509af_signedAttributeCertificateInfo = -1;  /* AttributeCertificateInfo */
-static int hf_x509af_info_subject = -1;           /* InfoSubject */
-static int hf_x509af_baseCertificateID = -1;      /* IssuerSerial */
-static int hf_x509af_infoSubjectName = -1;        /* GeneralNames */
-static int hf_x509af_issuerName = -1;             /* GeneralNames */
-static int hf_x509af_attCertValidityPeriod = -1;  /* AttCertValidityPeriod */
-static int hf_x509af_attributes = -1;             /* SEQUENCE_OF_Attribute */
-static int hf_x509af_attributes_item = -1;        /* Attribute */
-static int hf_x509af_issuerUniqueID = -1;         /* UniqueIdentifier */
-static int hf_x509af_serial = -1;                 /* CertificateSerialNumber */
-static int hf_x509af_issuerUID = -1;              /* UniqueIdentifier */
-static int hf_x509af_notBeforeTime = -1;          /* GeneralizedTime */
-static int hf_x509af_notAfterTime = -1;           /* GeneralizedTime */
-static int hf_x509af_assertion_subject = -1;      /* AssertionSubject */
-static int hf_x509af_assertionSubjectName = -1;   /* SubjectName */
-static int hf_x509af_assertionIssuer = -1;        /* Name */
-static int hf_x509af_attCertValidity = -1;        /* GeneralizedTime */
-static int hf_x509af_attType = -1;                /* SET_OF_AttributeType */
-static int hf_x509af_attType_item = -1;           /* AttributeType */
-static int hf_x509af_p = -1;                      /* INTEGER */
-static int hf_x509af_q = -1;                      /* INTEGER */
-static int hf_x509af_g = -1;                      /* INTEGER */
+static int proto_x509af;
+static int hf_x509af_algorithm_id;
+static int hf_x509af_extension_id;
+static int hf_x509af_x509af_Certificate_PDU;      /* Certificate */
+static int hf_x509af_SubjectPublicKeyInfo_PDU;    /* SubjectPublicKeyInfo */
+static int hf_x509af_CertificatePair_PDU;         /* CertificatePair */
+static int hf_x509af_CertificateList_PDU;         /* CertificateList */
+static int hf_x509af_AttributeCertificate_PDU;    /* AttributeCertificate */
+static int hf_x509af_DSS_Params_PDU;              /* DSS_Params */
+static int hf_x509af_Userid_PDU;                  /* Userid */
+static int hf_x509af_signedCertificate;           /* T_signedCertificate */
+static int hf_x509af_version;                     /* Version */
+static int hf_x509af_serialNumber;                /* CertificateSerialNumber */
+static int hf_x509af_signature;                   /* AlgorithmIdentifier */
+static int hf_x509af_issuer;                      /* Name */
+static int hf_x509af_validity;                    /* Validity */
+static int hf_x509af_subject;                     /* SubjectName */
+static int hf_x509af_subjectPublicKeyInfo;        /* SubjectPublicKeyInfo */
+static int hf_x509af_issuerUniqueIdentifier;      /* UniqueIdentifier */
+static int hf_x509af_subjectUniqueIdentifier;     /* UniqueIdentifier */
+static int hf_x509af_extensions;                  /* Extensions */
+static int hf_x509af_algorithmIdentifier;         /* AlgorithmIdentifier */
+static int hf_x509af_encrypted;                   /* BIT_STRING */
+static int hf_x509af_rdnSequence;                 /* RDNSequence */
+static int hf_x509af_algorithmId;                 /* T_algorithmId */
+static int hf_x509af_parameters;                  /* T_parameters */
+static int hf_x509af_notBefore;                   /* Time */
+static int hf_x509af_notAfter;                    /* Time */
+static int hf_x509af_algorithm;                   /* AlgorithmIdentifier */
+static int hf_x509af_subjectPublicKey;            /* T_subjectPublicKey */
+static int hf_x509af_utcTime;                     /* T_utcTime */
+static int hf_x509af_generalizedTime;             /* GeneralizedTime */
+static int hf_x509af_Extensions_item;             /* Extension */
+static int hf_x509af_extnId;                      /* T_extnId */
+static int hf_x509af_critical;                    /* BOOLEAN */
+static int hf_x509af_extnValue;                   /* T_extnValue */
+static int hf_x509af_userCertificate;             /* Certificate */
+static int hf_x509af_certificationPath;           /* ForwardCertificationPath */
+static int hf_x509af_ForwardCertificationPath_item;  /* CrossCertificates */
+static int hf_x509af_CrossCertificates_item;      /* Certificate */
+static int hf_x509af_theCACertificates;           /* SEQUENCE_OF_CertificatePair */
+static int hf_x509af_theCACertificates_item;      /* CertificatePair */
+static int hf_x509af_issuedByThisCA;              /* Certificate */
+static int hf_x509af_issuedToThisCA;              /* Certificate */
+static int hf_x509af_signedCertificateList;       /* T_signedCertificateList */
+static int hf_x509af_thisUpdate;                  /* Time */
+static int hf_x509af_nextUpdate;                  /* Time */
+static int hf_x509af_revokedCertificates;         /* T_revokedCertificates */
+static int hf_x509af_revokedCertificates_item;    /* T_revokedCertificates_item */
+static int hf_x509af_revokedUserCertificate;      /* CertificateSerialNumber */
+static int hf_x509af_revocationDate;              /* Time */
+static int hf_x509af_crlEntryExtensions;          /* Extensions */
+static int hf_x509af_crlExtensions;               /* Extensions */
+static int hf_x509af_attributeCertificate;        /* AttributeCertificate */
+static int hf_x509af_acPath;                      /* SEQUENCE_OF_ACPathData */
+static int hf_x509af_acPath_item;                 /* ACPathData */
+static int hf_x509af_certificate;                 /* Certificate */
+static int hf_x509af_signedAttributeCertificateInfo;  /* AttributeCertificateInfo */
+static int hf_x509af_info_subject;                /* InfoSubject */
+static int hf_x509af_baseCertificateID;           /* IssuerSerial */
+static int hf_x509af_infoSubjectName;             /* GeneralNames */
+static int hf_x509af_issuerName;                  /* GeneralNames */
+static int hf_x509af_attCertValidityPeriod;       /* AttCertValidityPeriod */
+static int hf_x509af_attributes;                  /* SEQUENCE_OF_Attribute */
+static int hf_x509af_attributes_item;             /* Attribute */
+static int hf_x509af_issuerUniqueID;              /* UniqueIdentifier */
+static int hf_x509af_serial;                      /* CertificateSerialNumber */
+static int hf_x509af_issuerUID;                   /* UniqueIdentifier */
+static int hf_x509af_notBeforeTime;               /* GeneralizedTime */
+static int hf_x509af_notAfterTime;                /* GeneralizedTime */
+static int hf_x509af_assertion_subject;           /* AssertionSubject */
+static int hf_x509af_assertionSubjectName;        /* SubjectName */
+static int hf_x509af_assertionIssuer;             /* Name */
+static int hf_x509af_attCertValidity;             /* GeneralizedTime */
+static int hf_x509af_attType;                     /* SET_OF_AttributeType */
+static int hf_x509af_attType_item;                /* AttributeType */
+static int hf_x509af_p;                           /* INTEGER */
+static int hf_x509af_q;                           /* INTEGER */
+static int hf_x509af_g;                           /* INTEGER */
 
 /* Initialize the subtree pointers */
-static gint ett_pkix_crl = -1;
-static gint ett_x509af_Certificate = -1;
-static gint ett_x509af_T_signedCertificate = -1;
-static gint ett_x509af_SubjectName = -1;
-static gint ett_x509af_AlgorithmIdentifier = -1;
-static gint ett_x509af_Validity = -1;
-static gint ett_x509af_SubjectPublicKeyInfo = -1;
-static gint ett_x509af_Time = -1;
-static gint ett_x509af_Extensions = -1;
-static gint ett_x509af_Extension = -1;
-static gint ett_x509af_Certificates = -1;
-static gint ett_x509af_ForwardCertificationPath = -1;
-static gint ett_x509af_CrossCertificates = -1;
-static gint ett_x509af_CertificationPath = -1;
-static gint ett_x509af_SEQUENCE_OF_CertificatePair = -1;
-static gint ett_x509af_CertificatePair = -1;
-static gint ett_x509af_CertificateList = -1;
-static gint ett_x509af_T_signedCertificateList = -1;
-static gint ett_x509af_T_revokedCertificates = -1;
-static gint ett_x509af_T_revokedCertificates_item = -1;
-static gint ett_x509af_AttributeCertificationPath = -1;
-static gint ett_x509af_SEQUENCE_OF_ACPathData = -1;
-static gint ett_x509af_ACPathData = -1;
-static gint ett_x509af_AttributeCertificate = -1;
-static gint ett_x509af_AttributeCertificateInfo = -1;
-static gint ett_x509af_InfoSubject = -1;
-static gint ett_x509af_SEQUENCE_OF_Attribute = -1;
-static gint ett_x509af_IssuerSerial = -1;
-static gint ett_x509af_AttCertValidityPeriod = -1;
-static gint ett_x509af_AttributeCertificateAssertion = -1;
-static gint ett_x509af_AssertionSubject = -1;
-static gint ett_x509af_SET_OF_AttributeType = -1;
-static gint ett_x509af_DSS_Params = -1;
+static gint ett_pkix_crl;
+static gint ett_x509af_Certificate;
+static gint ett_x509af_T_signedCertificate;
+static gint ett_x509af_SubjectName;
+static gint ett_x509af_AlgorithmIdentifier;
+static gint ett_x509af_Validity;
+static gint ett_x509af_SubjectPublicKeyInfo;
+static gint ett_x509af_Time;
+static gint ett_x509af_Extensions;
+static gint ett_x509af_Extension;
+static gint ett_x509af_Certificates;
+static gint ett_x509af_ForwardCertificationPath;
+static gint ett_x509af_CrossCertificates;
+static gint ett_x509af_CertificationPath;
+static gint ett_x509af_SEQUENCE_OF_CertificatePair;
+static gint ett_x509af_CertificatePair;
+static gint ett_x509af_CertificateList;
+static gint ett_x509af_T_signedCertificateList;
+static gint ett_x509af_T_revokedCertificates;
+static gint ett_x509af_T_revokedCertificates_item;
+static gint ett_x509af_AttributeCertificationPath;
+static gint ett_x509af_SEQUENCE_OF_ACPathData;
+static gint ett_x509af_ACPathData;
+static gint ett_x509af_AttributeCertificate;
+static gint ett_x509af_AttributeCertificateInfo;
+static gint ett_x509af_InfoSubject;
+static gint ett_x509af_SEQUENCE_OF_Attribute;
+static gint ett_x509af_IssuerSerial;
+static gint ett_x509af_AttCertValidityPeriod;
+static gint ett_x509af_AttributeCertificateAssertion;
+static gint ett_x509af_AssertionSubject;
+static gint ett_x509af_SET_OF_AttributeType;
+static gint ett_x509af_DSS_Params;
 static const char *algorithm_id = NULL;
 static void
 x509af_export_publickey(tvbuff_t *tvb, asn1_ctx_t *actx, int offset, int len);
@@ -247,7 +247,7 @@ dissect_x509af_T_utcTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
   /* the 2-digit year can only be in the range 1950..2049 https://tools.ietf.org/html/rfc5280#section-4.1.2.5.1 */
   offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, &outstr, &tvblen);
-  if (hf_index >= 0 && outstr) {
+  if (hf_index > 0 && outstr) {
     newstr = wmem_strconcat(actx->pinfo->pool, outstr[0] < '5' ? "20": "19", outstr, NULL);
     proto_tree_add_string(tree, hf_index, tvb, offset - tvblen, tvblen, newstr);
   }

@@ -34,49 +34,49 @@
 void proto_register_h248(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_h248                   = -1;
-static int hf_248_magic_num             = -1;
-static int hf_h248_mtpaddress_ni        = -1;
-static int hf_h248_mtpaddress_pc        = -1;
-static int hf_h248_pkg_name             = -1;
-static int hf_248_pkg_param             = -1;
-static int hf_h248_event_name           = -1;
-static int hf_h248_signal_name          = -1;
-static int hf_h248_signal_code          = -1;
-static int hf_h248_event_code           = -1;
-static int hf_h248_pkg_bcp_BNCChar_PDU  = -1;
+static int proto_h248;
+static int hf_248_magic_num;
+static int hf_h248_mtpaddress_ni;
+static int hf_h248_mtpaddress_pc;
+static int hf_h248_pkg_name;
+static int hf_248_pkg_param;
+static int hf_h248_event_name;
+static int hf_h248_signal_name;
+static int hf_h248_signal_code;
+static int hf_h248_event_code;
+static int hf_h248_pkg_bcp_BNCChar_PDU;
 
 
 
-static int hf_h248_context_id = -1;
-static int hf_h248_term_wild_type = -1;
-static int hf_h248_term_wild_level = -1;
-static int hf_h248_term_wild_position = -1;
+static int hf_h248_context_id;
+static int hf_h248_term_wild_type;
+static int hf_h248_term_wild_level;
+static int hf_h248_term_wild_position;
 
-static int hf_h248_no_pkg = -1;
-static int hf_h248_no_sig = -1;
-static int hf_h248_no_evt = -1;
-static int hf_h248_param = -1;
+static int hf_h248_no_pkg;
+static int hf_h248_no_sig;
+static int hf_h248_no_evt;
+static int hf_h248_param;
 
-static int hf_h248_serviceChangeReasonStr = -1;
-static int hf_h248_transactionId64 = -1;
-static int hf_h248_context_id64 = -1;
+static int hf_h248_serviceChangeReasonStr;
+static int hf_h248_transactionId64;
+static int hf_h248_context_id64;
 
 /* h248v1 support */
-static int hf_h248_auditValueReplyV1 = -1;
+static int hf_h248_auditValueReplyV1;
 
 #include "packet-h248-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_h248 = -1;
-static gint ett_mtpaddress = -1;
-static gint ett_packagename = -1;
-static gint ett_codec = -1;
-static gint ett_wildcard = -1;
+static gint ett_h248;
+static gint ett_mtpaddress;
+static gint ett_packagename;
+static gint ett_codec;
+static gint ett_wildcard;
 
-static gint ett_h248_no_pkg = -1;
-static gint ett_h248_no_sig = -1;
-static gint ett_h248_no_evt = -1;
+static gint ett_h248_no_pkg;
+static gint ett_h248_no_sig;
+static gint ett_h248_no_evt;
 
 static int h248_tap = -1;
 
@@ -87,10 +87,10 @@ static gint exported_pdu_tap = -1;
 
 #include "packet-h248-ett.c"
 
-static expert_field ei_h248_errored_command = EI_INIT;
-static expert_field ei_h248_transactionId64 = EI_INIT;
-static expert_field ei_h248_context_id64 = EI_INIT;
-static expert_field ei_h248_octet_string_expected = EI_INIT;
+static expert_field ei_h248_errored_command;
+static expert_field ei_h248_transactionId64;
+static expert_field ei_h248_context_id64;
+static expert_field ei_h248_octet_string_expected;
 
 static dissector_table_t subdissector_table;
 

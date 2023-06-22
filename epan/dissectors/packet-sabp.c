@@ -80,141 +80,141 @@ void proto_register_sabp(void);
 void proto_reg_handoff_sabp(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_sabp = -1;
+static int proto_sabp;
 
-static int hf_sabp_no_of_pages = -1;
-static int hf_sabp_cb_inf_len = -1;
-static int hf_sabp_cb_msg_inf_page = -1;
-static int hf_sabp_cbs_page_content = -1;
-static int hf_sabp_Broadcast_Message_Content_PDU = -1;  /* Broadcast_Message_Content */
-static int hf_sabp_Broadcast_Message_Content_Validity_Indicator_PDU = -1;  /* Broadcast_Message_Content_Validity_Indicator */
-static int hf_sabp_Category_PDU = -1;             /* Category */
-static int hf_sabp_Cause_PDU = -1;                /* Cause */
-static int hf_sabp_Criticality_Diagnostics_PDU = -1;  /* Criticality_Diagnostics */
-static int hf_sabp_MessageStructure_PDU = -1;     /* MessageStructure */
-static int hf_sabp_Data_Coding_Scheme_PDU = -1;   /* Data_Coding_Scheme */
-static int hf_sabp_Failure_List_PDU = -1;         /* Failure_List */
-static int hf_sabp_Message_Identifier_PDU = -1;   /* Message_Identifier */
-static int hf_sabp_New_Serial_Number_PDU = -1;    /* New_Serial_Number */
-static int hf_sabp_Number_of_Broadcasts_Completed_List_PDU = -1;  /* Number_of_Broadcasts_Completed_List */
-static int hf_sabp_Number_of_Broadcasts_Requested_PDU = -1;  /* Number_of_Broadcasts_Requested */
-static int hf_sabp_Old_Serial_Number_PDU = -1;    /* Old_Serial_Number */
-static int hf_sabp_Paging_ETWS_Indicator_PDU = -1;  /* Paging_ETWS_Indicator */
-static int hf_sabp_Radio_Resource_Loading_List_PDU = -1;  /* Radio_Resource_Loading_List */
-static int hf_sabp_Recovery_Indication_PDU = -1;  /* Recovery_Indication */
-static int hf_sabp_Repetition_Period_PDU = -1;    /* Repetition_Period */
-static int hf_sabp_Serial_Number_PDU = -1;        /* Serial_Number */
-static int hf_sabp_Service_Areas_List_PDU = -1;   /* Service_Areas_List */
-static int hf_sabp_TypeOfError_PDU = -1;          /* TypeOfError */
-static int hf_sabp_WarningSecurityInfo_PDU = -1;  /* WarningSecurityInfo */
-static int hf_sabp_Warning_Type_PDU = -1;         /* Warning_Type */
-static int hf_sabp_Write_Replace_PDU = -1;        /* Write_Replace */
-static int hf_sabp_Write_Replace_Complete_PDU = -1;  /* Write_Replace_Complete */
-static int hf_sabp_Write_Replace_Failure_PDU = -1;  /* Write_Replace_Failure */
-static int hf_sabp_Kill_PDU = -1;                 /* Kill */
-static int hf_sabp_Kill_Complete_PDU = -1;        /* Kill_Complete */
-static int hf_sabp_Kill_Failure_PDU = -1;         /* Kill_Failure */
-static int hf_sabp_Load_Query_PDU = -1;           /* Load_Query */
-static int hf_sabp_Load_Query_Complete_PDU = -1;  /* Load_Query_Complete */
-static int hf_sabp_Load_Query_Failure_PDU = -1;   /* Load_Query_Failure */
-static int hf_sabp_Message_Status_Query_PDU = -1;  /* Message_Status_Query */
-static int hf_sabp_Message_Status_Query_Complete_PDU = -1;  /* Message_Status_Query_Complete */
-static int hf_sabp_Message_Status_Query_Failure_PDU = -1;  /* Message_Status_Query_Failure */
-static int hf_sabp_Reset_PDU = -1;                /* Reset */
-static int hf_sabp_Reset_Complete_PDU = -1;       /* Reset_Complete */
-static int hf_sabp_Reset_Failure_PDU = -1;        /* Reset_Failure */
-static int hf_sabp_Restart_PDU = -1;              /* Restart */
-static int hf_sabp_Failure_PDU = -1;              /* Failure */
-static int hf_sabp_Error_Indication_PDU = -1;     /* Error_Indication */
-static int hf_sabp_SABP_PDU_PDU = -1;             /* SABP_PDU */
-static int hf_sabp_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
-static int hf_sabp_id = -1;                       /* ProtocolIE_ID */
-static int hf_sabp_criticality = -1;              /* Criticality */
-static int hf_sabp_protocolIE_Field_value = -1;   /* ProtocolIE_Field_value */
-static int hf_sabp_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
-static int hf_sabp_ext_id = -1;                   /* ProtocolExtensionID */
-static int hf_sabp_extensionValue = -1;           /* T_extensionValue */
-static int hf_sabp_procedureCode = -1;            /* ProcedureCode */
-static int hf_sabp_triggeringMessage = -1;        /* TriggeringMessage */
-static int hf_sabp_procedureCriticality = -1;     /* Criticality */
-static int hf_sabp_iEsCriticalityDiagnostics = -1;  /* CriticalityDiagnostics_IE_List */
-static int hf_sabp_iE_Extensions = -1;            /* ProtocolExtensionContainer */
-static int hf_sabp_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_List_item */
-static int hf_sabp_iECriticality = -1;            /* Criticality */
-static int hf_sabp_iE_ID = -1;                    /* ProtocolIE_ID */
-static int hf_sabp_repetitionNumber = -1;         /* RepetitionNumber0 */
-static int hf_sabp_MessageStructure_item = -1;    /* MessageStructure_item */
-static int hf_sabp_repetitionNumber1 = -1;        /* RepetitionNumber1 */
-static int hf_sabp_Failure_List_item = -1;        /* Failure_List_Item */
-static int hf_sabp_service_area_identifier = -1;  /* Service_Area_Identifier */
-static int hf_sabp_cause = -1;                    /* Cause */
-static int hf_sabp_Number_of_Broadcasts_Completed_List_item = -1;  /* Number_of_Broadcasts_Completed_List_Item */
-static int hf_sabp_number_of_broadcasts_completed = -1;  /* INTEGER_0_65535 */
-static int hf_sabp_number_of_broadcasts_completed_info = -1;  /* Number_Of_Broadcasts_Completed_Info */
-static int hf_sabp_Radio_Resource_Loading_List_item = -1;  /* Radio_Resource_Loading_List_Item */
-static int hf_sabp_available_bandwidth = -1;      /* Available_Bandwidth */
-static int hf_sabp_pLMNidentity = -1;             /* T_pLMNidentity */
-static int hf_sabp_lac = -1;                      /* OCTET_STRING_SIZE_2 */
-static int hf_sabp_sac = -1;                      /* OCTET_STRING_SIZE_2 */
-static int hf_sabp_Service_Areas_List_item = -1;  /* Service_Area_Identifier */
-static int hf_sabp_protocolIEs = -1;              /* ProtocolIE_Container */
-static int hf_sabp_protocolExtensions = -1;       /* ProtocolExtensionContainer */
-static int hf_sabp_initiatingMessage = -1;        /* InitiatingMessage */
-static int hf_sabp_successfulOutcome = -1;        /* SuccessfulOutcome */
-static int hf_sabp_unsuccessfulOutcome = -1;      /* UnsuccessfulOutcome */
-static int hf_sabp_initiatingMessage_value = -1;  /* InitiatingMessage_value */
-static int hf_sabp_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
-static int hf_sabp_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
+static int hf_sabp_no_of_pages;
+static int hf_sabp_cb_inf_len;
+static int hf_sabp_cb_msg_inf_page;
+static int hf_sabp_cbs_page_content;
+static int hf_sabp_Broadcast_Message_Content_PDU;  /* Broadcast_Message_Content */
+static int hf_sabp_Broadcast_Message_Content_Validity_Indicator_PDU;  /* Broadcast_Message_Content_Validity_Indicator */
+static int hf_sabp_Category_PDU;                  /* Category */
+static int hf_sabp_Cause_PDU;                     /* Cause */
+static int hf_sabp_Criticality_Diagnostics_PDU;   /* Criticality_Diagnostics */
+static int hf_sabp_MessageStructure_PDU;          /* MessageStructure */
+static int hf_sabp_Data_Coding_Scheme_PDU;        /* Data_Coding_Scheme */
+static int hf_sabp_Failure_List_PDU;              /* Failure_List */
+static int hf_sabp_Message_Identifier_PDU;        /* Message_Identifier */
+static int hf_sabp_New_Serial_Number_PDU;         /* New_Serial_Number */
+static int hf_sabp_Number_of_Broadcasts_Completed_List_PDU;  /* Number_of_Broadcasts_Completed_List */
+static int hf_sabp_Number_of_Broadcasts_Requested_PDU;  /* Number_of_Broadcasts_Requested */
+static int hf_sabp_Old_Serial_Number_PDU;         /* Old_Serial_Number */
+static int hf_sabp_Paging_ETWS_Indicator_PDU;     /* Paging_ETWS_Indicator */
+static int hf_sabp_Radio_Resource_Loading_List_PDU;  /* Radio_Resource_Loading_List */
+static int hf_sabp_Recovery_Indication_PDU;       /* Recovery_Indication */
+static int hf_sabp_Repetition_Period_PDU;         /* Repetition_Period */
+static int hf_sabp_Serial_Number_PDU;             /* Serial_Number */
+static int hf_sabp_Service_Areas_List_PDU;        /* Service_Areas_List */
+static int hf_sabp_TypeOfError_PDU;               /* TypeOfError */
+static int hf_sabp_WarningSecurityInfo_PDU;       /* WarningSecurityInfo */
+static int hf_sabp_Warning_Type_PDU;              /* Warning_Type */
+static int hf_sabp_Write_Replace_PDU;             /* Write_Replace */
+static int hf_sabp_Write_Replace_Complete_PDU;    /* Write_Replace_Complete */
+static int hf_sabp_Write_Replace_Failure_PDU;     /* Write_Replace_Failure */
+static int hf_sabp_Kill_PDU;                      /* Kill */
+static int hf_sabp_Kill_Complete_PDU;             /* Kill_Complete */
+static int hf_sabp_Kill_Failure_PDU;              /* Kill_Failure */
+static int hf_sabp_Load_Query_PDU;                /* Load_Query */
+static int hf_sabp_Load_Query_Complete_PDU;       /* Load_Query_Complete */
+static int hf_sabp_Load_Query_Failure_PDU;        /* Load_Query_Failure */
+static int hf_sabp_Message_Status_Query_PDU;      /* Message_Status_Query */
+static int hf_sabp_Message_Status_Query_Complete_PDU;  /* Message_Status_Query_Complete */
+static int hf_sabp_Message_Status_Query_Failure_PDU;  /* Message_Status_Query_Failure */
+static int hf_sabp_Reset_PDU;                     /* Reset */
+static int hf_sabp_Reset_Complete_PDU;            /* Reset_Complete */
+static int hf_sabp_Reset_Failure_PDU;             /* Reset_Failure */
+static int hf_sabp_Restart_PDU;                   /* Restart */
+static int hf_sabp_Failure_PDU;                   /* Failure */
+static int hf_sabp_Error_Indication_PDU;          /* Error_Indication */
+static int hf_sabp_SABP_PDU_PDU;                  /* SABP_PDU */
+static int hf_sabp_ProtocolIE_Container_item;     /* ProtocolIE_Field */
+static int hf_sabp_id;                            /* ProtocolIE_ID */
+static int hf_sabp_criticality;                   /* Criticality */
+static int hf_sabp_protocolIE_Field_value;        /* ProtocolIE_Field_value */
+static int hf_sabp_ProtocolExtensionContainer_item;  /* ProtocolExtensionField */
+static int hf_sabp_ext_id;                        /* ProtocolExtensionID */
+static int hf_sabp_extensionValue;                /* T_extensionValue */
+static int hf_sabp_procedureCode;                 /* ProcedureCode */
+static int hf_sabp_triggeringMessage;             /* TriggeringMessage */
+static int hf_sabp_procedureCriticality;          /* Criticality */
+static int hf_sabp_iEsCriticalityDiagnostics;     /* CriticalityDiagnostics_IE_List */
+static int hf_sabp_iE_Extensions;                 /* ProtocolExtensionContainer */
+static int hf_sabp_CriticalityDiagnostics_IE_List_item;  /* CriticalityDiagnostics_IE_List_item */
+static int hf_sabp_iECriticality;                 /* Criticality */
+static int hf_sabp_iE_ID;                         /* ProtocolIE_ID */
+static int hf_sabp_repetitionNumber;              /* RepetitionNumber0 */
+static int hf_sabp_MessageStructure_item;         /* MessageStructure_item */
+static int hf_sabp_repetitionNumber1;             /* RepetitionNumber1 */
+static int hf_sabp_Failure_List_item;             /* Failure_List_Item */
+static int hf_sabp_service_area_identifier;       /* Service_Area_Identifier */
+static int hf_sabp_cause;                         /* Cause */
+static int hf_sabp_Number_of_Broadcasts_Completed_List_item;  /* Number_of_Broadcasts_Completed_List_Item */
+static int hf_sabp_number_of_broadcasts_completed;  /* INTEGER_0_65535 */
+static int hf_sabp_number_of_broadcasts_completed_info;  /* Number_Of_Broadcasts_Completed_Info */
+static int hf_sabp_Radio_Resource_Loading_List_item;  /* Radio_Resource_Loading_List_Item */
+static int hf_sabp_available_bandwidth;           /* Available_Bandwidth */
+static int hf_sabp_pLMNidentity;                  /* T_pLMNidentity */
+static int hf_sabp_lac;                           /* OCTET_STRING_SIZE_2 */
+static int hf_sabp_sac;                           /* OCTET_STRING_SIZE_2 */
+static int hf_sabp_Service_Areas_List_item;       /* Service_Area_Identifier */
+static int hf_sabp_protocolIEs;                   /* ProtocolIE_Container */
+static int hf_sabp_protocolExtensions;            /* ProtocolExtensionContainer */
+static int hf_sabp_initiatingMessage;             /* InitiatingMessage */
+static int hf_sabp_successfulOutcome;             /* SuccessfulOutcome */
+static int hf_sabp_unsuccessfulOutcome;           /* UnsuccessfulOutcome */
+static int hf_sabp_initiatingMessage_value;       /* InitiatingMessage_value */
+static int hf_sabp_successfulOutcome_value;       /* SuccessfulOutcome_value */
+static int hf_sabp_unsuccessfulOutcome_value;     /* UnsuccessfulOutcome_value */
 
 /* Initialize the subtree pointers */
-static int ett_sabp = -1;
-static int ett_sabp_e212 = -1;
-static int ett_sabp_cbs_data_coding = -1;
-static int ett_sabp_bcast_msg = -1;
-static int ett_sabp_cbs_serial_number = -1;
-static int ett_sabp_cbs_new_serial_number = -1;
-static int ett_sabp_cbs_page = -1;
-static int ett_sabp_cbs_page_content = -1;
+static int ett_sabp;
+static int ett_sabp_e212;
+static int ett_sabp_cbs_data_coding;
+static int ett_sabp_bcast_msg;
+static int ett_sabp_cbs_serial_number;
+static int ett_sabp_cbs_new_serial_number;
+static int ett_sabp_cbs_page;
+static int ett_sabp_cbs_page_content;
 
-static gint ett_sabp_ProtocolIE_Container = -1;
-static gint ett_sabp_ProtocolIE_Field = -1;
-static gint ett_sabp_ProtocolExtensionContainer = -1;
-static gint ett_sabp_ProtocolExtensionField = -1;
-static gint ett_sabp_Criticality_Diagnostics = -1;
-static gint ett_sabp_CriticalityDiagnostics_IE_List = -1;
-static gint ett_sabp_CriticalityDiagnostics_IE_List_item = -1;
-static gint ett_sabp_MessageStructure = -1;
-static gint ett_sabp_MessageStructure_item = -1;
-static gint ett_sabp_Failure_List = -1;
-static gint ett_sabp_Failure_List_Item = -1;
-static gint ett_sabp_Number_of_Broadcasts_Completed_List = -1;
-static gint ett_sabp_Number_of_Broadcasts_Completed_List_Item = -1;
-static gint ett_sabp_Radio_Resource_Loading_List = -1;
-static gint ett_sabp_Radio_Resource_Loading_List_Item = -1;
-static gint ett_sabp_Service_Area_Identifier = -1;
-static gint ett_sabp_Service_Areas_List = -1;
-static gint ett_sabp_Write_Replace = -1;
-static gint ett_sabp_Write_Replace_Complete = -1;
-static gint ett_sabp_Write_Replace_Failure = -1;
-static gint ett_sabp_Kill = -1;
-static gint ett_sabp_Kill_Complete = -1;
-static gint ett_sabp_Kill_Failure = -1;
-static gint ett_sabp_Load_Query = -1;
-static gint ett_sabp_Load_Query_Complete = -1;
-static gint ett_sabp_Load_Query_Failure = -1;
-static gint ett_sabp_Message_Status_Query = -1;
-static gint ett_sabp_Message_Status_Query_Complete = -1;
-static gint ett_sabp_Message_Status_Query_Failure = -1;
-static gint ett_sabp_Reset = -1;
-static gint ett_sabp_Reset_Complete = -1;
-static gint ett_sabp_Reset_Failure = -1;
-static gint ett_sabp_Restart = -1;
-static gint ett_sabp_Failure = -1;
-static gint ett_sabp_Error_Indication = -1;
-static gint ett_sabp_SABP_PDU = -1;
-static gint ett_sabp_InitiatingMessage = -1;
-static gint ett_sabp_SuccessfulOutcome = -1;
-static gint ett_sabp_UnsuccessfulOutcome = -1;
+static gint ett_sabp_ProtocolIE_Container;
+static gint ett_sabp_ProtocolIE_Field;
+static gint ett_sabp_ProtocolExtensionContainer;
+static gint ett_sabp_ProtocolExtensionField;
+static gint ett_sabp_Criticality_Diagnostics;
+static gint ett_sabp_CriticalityDiagnostics_IE_List;
+static gint ett_sabp_CriticalityDiagnostics_IE_List_item;
+static gint ett_sabp_MessageStructure;
+static gint ett_sabp_MessageStructure_item;
+static gint ett_sabp_Failure_List;
+static gint ett_sabp_Failure_List_Item;
+static gint ett_sabp_Number_of_Broadcasts_Completed_List;
+static gint ett_sabp_Number_of_Broadcasts_Completed_List_Item;
+static gint ett_sabp_Radio_Resource_Loading_List;
+static gint ett_sabp_Radio_Resource_Loading_List_Item;
+static gint ett_sabp_Service_Area_Identifier;
+static gint ett_sabp_Service_Areas_List;
+static gint ett_sabp_Write_Replace;
+static gint ett_sabp_Write_Replace_Complete;
+static gint ett_sabp_Write_Replace_Failure;
+static gint ett_sabp_Kill;
+static gint ett_sabp_Kill_Complete;
+static gint ett_sabp_Kill_Failure;
+static gint ett_sabp_Load_Query;
+static gint ett_sabp_Load_Query_Complete;
+static gint ett_sabp_Load_Query_Failure;
+static gint ett_sabp_Message_Status_Query;
+static gint ett_sabp_Message_Status_Query_Complete;
+static gint ett_sabp_Message_Status_Query_Failure;
+static gint ett_sabp_Reset;
+static gint ett_sabp_Reset_Complete;
+static gint ett_sabp_Reset_Failure;
+static gint ett_sabp_Restart;
+static gint ett_sabp_Failure;
+static gint ett_sabp_Error_Indication;
+static gint ett_sabp_SABP_PDU;
+static gint ett_sabp_InitiatingMessage;
+static gint ett_sabp_SuccessfulOutcome;
+static gint ett_sabp_UnsuccessfulOutcome;
 
 /* Global variables */
 static guint32 ProcedureCode;

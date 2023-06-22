@@ -29,7 +29,7 @@ void proto_reg_handoff_pkixqualified(void);
 
 
 /* Initialize the protocol and registered fields */
-static int proto_pkixqualified = -1;
+static int proto_pkixqualified;
 #include "packet-pkixqualified-hf.c"
 
 /* Initialize the subtree pointers */

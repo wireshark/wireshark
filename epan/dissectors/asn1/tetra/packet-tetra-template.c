@@ -32,7 +32,7 @@ void proto_register_tetra(void);
 void proto_reg_handoff_tetra(void);
 
 /* Wireshark ID of the tetra protocol */
-static int proto_tetra = -1;
+static int proto_tetra;
 
 static dissector_handle_t tetra_handle;
 
@@ -46,36 +46,36 @@ static gboolean include_carrier_number = TRUE;
 * proto_register_field_array() in proto_register_tetra()
 */
 /** Kts attempt at defining the protocol */
-static gint hf_tetra = -1;
-static gint hf_tetra_header = -1;
-static gint hf_tetra_channels = -1;
-static gint hf_tetra_channel1 = -1;
-static gint hf_tetra_channel2 = -1;
-static gint hf_tetra_channel3 = -1;
-static gint hf_tetra_txreg = -1;
-static gint hf_tetra_timer = -1;
-static gint hf_tetra_pdu = -1;
-static gint hf_tetra_rvstr = -1;
-static gint hf_tetra_carriernumber = -1;
-static gint hf_tetra_rxchannel1 = -1;
-static gint hf_tetra_rxchannel2 = -1;
-static gint hf_tetra_rxchannel3 = -1;
-static gint hf_tetra_crc = -1;
-static gint hf_tetra_len0 = -1;
+static gint hf_tetra;
+static gint hf_tetra_header;
+static gint hf_tetra_channels;
+static gint hf_tetra_channel1;
+static gint hf_tetra_channel2;
+static gint hf_tetra_channel3;
+static gint hf_tetra_txreg;
+static gint hf_tetra_timer;
+static gint hf_tetra_pdu;
+static gint hf_tetra_rvstr;
+static gint hf_tetra_carriernumber;
+static gint hf_tetra_rxchannel1;
+static gint hf_tetra_rxchannel2;
+static gint hf_tetra_rxchannel3;
+static gint hf_tetra_crc;
+static gint hf_tetra_len0;
 
 #include "packet-tetra-hf.c"
 
 /* Initialize the subtree pointers */
 /* These are the ids of the subtrees that we may be creating */
-static gint ett_tetra = -1;
-static gint ett_tetra_header = -1;
-static gint ett_tetra_length = -1;
-static gint ett_tetra_txreg = -1;
-static gint ett_tetra_text = -1;
+static gint ett_tetra;
+static gint ett_tetra_header;
+static gint ett_tetra_length;
+static gint ett_tetra_txreg;
+static gint ett_tetra_text;
 
 #include "packet-tetra-ett.c"
 
-static expert_field ei_tetra_channels_incorrect = EI_INIT;
+static expert_field ei_tetra_channels_incorrect;
 
 #include "packet-tetra-fn.c"
 

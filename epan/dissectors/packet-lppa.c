@@ -34,359 +34,359 @@ void proto_register_lppa(void);
 void proto_reg_handoff_lppa(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_lppa = -1;
+static int proto_lppa;
 
-static int hf_lppa_Add_OTDOACells_PDU = -1;       /* Add_OTDOACells */
-static int hf_lppa_Assistance_Information_PDU = -1;  /* Assistance_Information */
-static int hf_lppa_AssistanceInformationFailureList_PDU = -1;  /* AssistanceInformationFailureList */
-static int hf_lppa_Broadcast_PDU = -1;            /* Broadcast */
-static int hf_lppa_Cause_PDU = -1;                /* Cause */
-static int hf_lppa_Cell_Portion_ID_PDU = -1;      /* Cell_Portion_ID */
-static int hf_lppa_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
-static int hf_lppa_E_CID_MeasurementResult_PDU = -1;  /* E_CID_MeasurementResult */
-static int hf_lppa_InterRATMeasurementQuantities_PDU = -1;  /* InterRATMeasurementQuantities */
-static int hf_lppa_InterRATMeasurementQuantities_Item_PDU = -1;  /* InterRATMeasurementQuantities_Item */
-static int hf_lppa_InterRATMeasurementResult_PDU = -1;  /* InterRATMeasurementResult */
-static int hf_lppa_Measurement_ID_PDU = -1;       /* Measurement_ID */
-static int hf_lppa_MeasurementPeriodicity_PDU = -1;  /* MeasurementPeriodicity */
-static int hf_lppa_MeasurementQuantities_PDU = -1;  /* MeasurementQuantities */
-static int hf_lppa_MeasurementQuantities_Item_PDU = -1;  /* MeasurementQuantities_Item */
-static int hf_lppa_NR_CGI_PDU = -1;               /* NR_CGI */
-static int hf_lppa_OTDOACells_PDU = -1;           /* OTDOACells */
-static int hf_lppa_ReportCharacteristics_PDU = -1;  /* ReportCharacteristics */
-static int hf_lppa_RequestedSRSTransmissionCharacteristics_PDU = -1;  /* RequestedSRSTransmissionCharacteristics */
-static int hf_lppa_ResultsPerSSB_Index_List_PDU = -1;  /* ResultsPerSSB_Index_List */
-static int hf_lppa_ULConfiguration_PDU = -1;      /* ULConfiguration */
-static int hf_lppa_WLANMeasurementQuantities_PDU = -1;  /* WLANMeasurementQuantities */
-static int hf_lppa_WLANMeasurementQuantities_Item_PDU = -1;  /* WLANMeasurementQuantities_Item */
-static int hf_lppa_WLANMeasurementResult_PDU = -1;  /* WLANMeasurementResult */
-static int hf_lppa_E_CIDMeasurementInitiationRequest_PDU = -1;  /* E_CIDMeasurementInitiationRequest */
-static int hf_lppa_E_CIDMeasurementInitiationResponse_PDU = -1;  /* E_CIDMeasurementInitiationResponse */
-static int hf_lppa_E_CIDMeasurementInitiationFailure_PDU = -1;  /* E_CIDMeasurementInitiationFailure */
-static int hf_lppa_E_CIDMeasurementFailureIndication_PDU = -1;  /* E_CIDMeasurementFailureIndication */
-static int hf_lppa_E_CIDMeasurementReport_PDU = -1;  /* E_CIDMeasurementReport */
-static int hf_lppa_E_CIDMeasurementTerminationCommand_PDU = -1;  /* E_CIDMeasurementTerminationCommand */
-static int hf_lppa_OTDOAInformationRequest_PDU = -1;  /* OTDOAInformationRequest */
-static int hf_lppa_OTDOA_Information_Type_PDU = -1;  /* OTDOA_Information_Type */
-static int hf_lppa_OTDOA_Information_Type_Item_PDU = -1;  /* OTDOA_Information_Type_Item */
-static int hf_lppa_OTDOAInformationResponse_PDU = -1;  /* OTDOAInformationResponse */
-static int hf_lppa_OTDOAInformationFailure_PDU = -1;  /* OTDOAInformationFailure */
-static int hf_lppa_UTDOAInformationRequest_PDU = -1;  /* UTDOAInformationRequest */
-static int hf_lppa_UTDOAInformationResponse_PDU = -1;  /* UTDOAInformationResponse */
-static int hf_lppa_UTDOAInformationFailure_PDU = -1;  /* UTDOAInformationFailure */
-static int hf_lppa_UTDOAInformationUpdate_PDU = -1;  /* UTDOAInformationUpdate */
-static int hf_lppa_AssistanceInformationControl_PDU = -1;  /* AssistanceInformationControl */
-static int hf_lppa_AssistanceInformationFeedback_PDU = -1;  /* AssistanceInformationFeedback */
-static int hf_lppa_ErrorIndication_PDU = -1;      /* ErrorIndication */
-static int hf_lppa_PrivateMessage_PDU = -1;       /* PrivateMessage */
-static int hf_lppa_LPPA_PDU_PDU = -1;             /* LPPA_PDU */
-static int hf_lppa_local = -1;                    /* INTEGER_0_maxPrivateIEs */
-static int hf_lppa_global = -1;                   /* OBJECT_IDENTIFIER */
-static int hf_lppa_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
-static int hf_lppa_id = -1;                       /* ProtocolIE_ID */
-static int hf_lppa_criticality = -1;              /* Criticality */
-static int hf_lppa_ie_field_value = -1;           /* T_ie_field_value */
-static int hf_lppa_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
-static int hf_lppa_ext_id = -1;                   /* ProtocolIE_ID */
-static int hf_lppa_extensionValue = -1;           /* T_extensionValue */
-static int hf_lppa_PrivateIE_Container_item = -1;  /* PrivateIE_Field */
-static int hf_lppa_id_01 = -1;                    /* PrivateIE_ID */
-static int hf_lppa_value = -1;                    /* T_value */
-static int hf_lppa_Add_OTDOACells_item = -1;      /* Add_OTDOACells_item */
-static int hf_lppa_add_OTDOACellInfo = -1;        /* Add_OTDOACell_Information */
-static int hf_lppa_iE_Extensions = -1;            /* ProtocolExtensionContainer */
-static int hf_lppa_Add_OTDOACell_Information_item = -1;  /* OTDOACell_Information_Item */
-static int hf_lppa_systemInformation = -1;        /* SystemInformation */
-static int hf_lppa_AssistanceInformationFailureList_item = -1;  /* AssistanceInformationFailureList_item */
-static int hf_lppa_posSIB_Type = -1;              /* PosSIB_Type */
-static int hf_lppa_outcome = -1;                  /* Outcome */
-static int hf_lppa_encrypted = -1;                /* T_encrypted */
-static int hf_lppa_gNSSID = -1;                   /* T_gNSSID */
-static int hf_lppa_sBASID = -1;                   /* T_sBASID */
-static int hf_lppa_ten = -1;                      /* BIT_STRING_SIZE_10 */
-static int hf_lppa_forty = -1;                    /* BIT_STRING_SIZE_40 */
-static int hf_lppa_ten_tdd = -1;                  /* BIT_STRING_SIZE_8 */
-static int hf_lppa_forty_tdd = -1;                /* BIT_STRING_SIZE_32 */
-static int hf_lppa_radioNetwork = -1;             /* CauseRadioNetwork */
-static int hf_lppa_protocol = -1;                 /* CauseProtocol */
-static int hf_lppa_misc = -1;                     /* CauseMisc */
-static int hf_lppa_procedureCode = -1;            /* ProcedureCode */
-static int hf_lppa_triggeringMessage = -1;        /* TriggeringMessage */
-static int hf_lppa_procedureCriticality = -1;     /* Criticality */
-static int hf_lppa_lppatransactionID = -1;        /* LPPATransactionID */
-static int hf_lppa_iEsCriticalityDiagnostics = -1;  /* CriticalityDiagnostics_IE_List */
-static int hf_lppa_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_List_item */
-static int hf_lppa_iECriticality = -1;            /* Criticality */
-static int hf_lppa_iE_ID = -1;                    /* ProtocolIE_ID */
-static int hf_lppa_typeOfError = -1;              /* TypeOfError */
-static int hf_lppa_servingCell_ID = -1;           /* ECGI */
-static int hf_lppa_servingCellTAC = -1;           /* TAC */
-static int hf_lppa_e_UTRANAccessPointPosition = -1;  /* E_UTRANAccessPointPosition */
-static int hf_lppa_measuredResults = -1;          /* MeasuredResults */
-static int hf_lppa_pLMN_Identity = -1;            /* PLMN_Identity */
-static int hf_lppa_eUTRANcellIdentifier = -1;     /* EUTRANCellIdentifier */
-static int hf_lppa_latitudeSign = -1;             /* T_latitudeSign */
-static int hf_lppa_latitude = -1;                 /* INTEGER_0_8388607 */
-static int hf_lppa_longitude = -1;                /* INTEGER_M8388608_8388607 */
-static int hf_lppa_directionOfAltitude = -1;      /* T_directionOfAltitude */
-static int hf_lppa_altitude = -1;                 /* INTEGER_0_32767 */
-static int hf_lppa_uncertaintySemi_major = -1;    /* INTEGER_0_127 */
-static int hf_lppa_uncertaintySemi_minor = -1;    /* INTEGER_0_127 */
-static int hf_lppa_orientationOfMajorAxis = -1;   /* INTEGER_0_179 */
-static int hf_lppa_uncertaintyAltitude = -1;      /* INTEGER_0_127 */
-static int hf_lppa_confidence = -1;               /* INTEGER_0_100 */
-static int hf_lppa_InterRATMeasurementQuantities_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_lppa_interRATMeasurementQuantitiesValue = -1;  /* InterRATMeasurementQuantitiesValue */
-static int hf_lppa_InterRATMeasurementResult_item = -1;  /* InterRATMeasuredResultsValue */
-static int hf_lppa_resultGERAN = -1;              /* ResultGERAN */
-static int hf_lppa_resultUTRAN = -1;              /* ResultUTRAN */
-static int hf_lppa_resultNR = -1;                 /* ResultNR */
-static int hf_lppa_MeasurementQuantities_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_lppa_measurementQuantitiesValue = -1;  /* MeasurementQuantitiesValue */
-static int hf_lppa_MeasuredResults_item = -1;     /* MeasuredResultsValue */
-static int hf_lppa_valueAngleOfArrival = -1;      /* INTEGER_0_719 */
-static int hf_lppa_valueTimingAdvanceType1 = -1;  /* INTEGER_0_7690 */
-static int hf_lppa_valueTimingAdvanceType2 = -1;  /* INTEGER_0_7690 */
-static int hf_lppa_resultRSRP = -1;               /* ResultRSRP */
-static int hf_lppa_resultRSRQ = -1;               /* ResultRSRQ */
-static int hf_lppa_MBSFNsubframeConfiguration_item = -1;  /* MBSFNsubframeConfigurationValue */
-static int hf_lppa_radioframeAllocationPeriod = -1;  /* T_radioframeAllocationPeriod */
-static int hf_lppa_radioframeAllocationOffset = -1;  /* INTEGER_0_7 */
-static int hf_lppa_subframeAllocation = -1;       /* Subframeallocation */
-static int hf_lppa_nRCellIdentity = -1;           /* NRCellIdentity */
-static int hf_lppa_nPRSSubframePartA = -1;        /* NPRSSubframePartA */
-static int hf_lppa_nPRSSubframePartB = -1;        /* NPRSSubframePartB */
-static int hf_lppa_two = -1;                      /* BIT_STRING_SIZE_2 */
-static int hf_lppa_four = -1;                     /* BIT_STRING_SIZE_4 */
-static int hf_lppa_eight = -1;                    /* BIT_STRING_SIZE_8 */
-static int hf_lppa_sixteen = -1;                  /* BIT_STRING_SIZE_16 */
-static int hf_lppa_bitmapsforNPRS = -1;           /* BitmapsforNPRS */
-static int hf_lppa_nPRSMutingConfiguration = -1;  /* NPRSMutingConfiguration */
-static int hf_lppa_numberofNPRSOneOccasion = -1;  /* T_numberofNPRSOneOccasion */
-static int hf_lppa_periodicityofNPRS = -1;        /* T_periodicityofNPRS */
-static int hf_lppa_startingsubframeoffset = -1;   /* T_startingsubframeoffset */
-static int hf_lppa_sIB1_NB_Subframe_TDD = -1;     /* T_sIB1_NB_Subframe_TDD */
-static int hf_lppa_OTDOACells_item = -1;          /* OTDOACells_item */
-static int hf_lppa_oTDOACellInfo = -1;            /* OTDOACell_Information */
-static int hf_lppa_OTDOACell_Information_item = -1;  /* OTDOACell_Information_Item */
-static int hf_lppa_pCI = -1;                      /* PCI */
-static int hf_lppa_cellId = -1;                   /* ECGI */
-static int hf_lppa_tAC = -1;                      /* TAC */
-static int hf_lppa_eARFCN = -1;                   /* EARFCN */
-static int hf_lppa_pRS_Bandwidth = -1;            /* PRS_Bandwidth */
-static int hf_lppa_pRS_ConfigurationIndex = -1;   /* PRS_Configuration_Index */
-static int hf_lppa_cPLength = -1;                 /* CPLength */
-static int hf_lppa_numberOfDlFrames = -1;         /* NumberOfDlFrames */
-static int hf_lppa_numberOfAntennaPorts = -1;     /* NumberOfAntennaPorts */
-static int hf_lppa_sFNInitialisationTime = -1;    /* SFNInitialisationTime */
-static int hf_lppa_pRSMutingConfiguration = -1;   /* PRSMutingConfiguration */
-static int hf_lppa_prsid = -1;                    /* PRS_ID */
-static int hf_lppa_tpid = -1;                     /* TP_ID */
-static int hf_lppa_tpType = -1;                   /* TP_Type */
-static int hf_lppa_numberOfDlFrames_Extended = -1;  /* NumberOfDlFrames_Extended */
-static int hf_lppa_crsCPlength = -1;              /* CPLength */
-static int hf_lppa_mBSFNsubframeConfiguration = -1;  /* MBSFNsubframeConfiguration */
-static int hf_lppa_nPRSConfiguration = -1;        /* NPRSConfiguration */
-static int hf_lppa_offsetNBChanneltoEARFCN = -1;  /* OffsetNBChanneltoEARFCN */
-static int hf_lppa_operationModeInfo = -1;        /* OperationModeInfo */
-static int hf_lppa_nPRS_ID = -1;                  /* INTEGER_0_4095_ */
-static int hf_lppa_dL_Bandwidth = -1;             /* DL_Bandwidth */
-static int hf_lppa_pRSOccasionGroup = -1;         /* PRSOccasionGroup */
-static int hf_lppa_pRSFreqHoppingConfig = -1;     /* PRSFrequencyHoppingConfiguration */
-static int hf_lppa_repetitionNumberofSIB1_NB = -1;  /* RepetitionNumberofSIB1_NB */
-static int hf_lppa_nPRSSequenceInfo = -1;         /* NPRSSequenceInfo */
-static int hf_lppa_nPRSType2 = -1;                /* NPRSConfiguration */
-static int hf_lppa_tddConfiguration = -1;         /* TDDConfiguration */
-static int hf_lppa_PosSIBs_item = -1;             /* PosSIBs_item */
-static int hf_lppa_posSIB_Segments = -1;          /* PosSIB_Segments */
-static int hf_lppa_assistanceInformationMetaData = -1;  /* AssistanceInformationMetaData */
-static int hf_lppa_broadcastPriority = -1;        /* INTEGER_1_16_ */
-static int hf_lppa_PosSIB_Segments_item = -1;     /* PosSIB_Segments_item */
-static int hf_lppa_assistanceDataSIBelement = -1;  /* OCTET_STRING */
-static int hf_lppa_thirty_two = -1;               /* BIT_STRING_SIZE_32 */
-static int hf_lppa_sixty_four = -1;               /* BIT_STRING_SIZE_64 */
-static int hf_lppa_one_hundred_and_twenty_eight = -1;  /* BIT_STRING_SIZE_128 */
-static int hf_lppa_two_hundred_and_fifty_six = -1;  /* BIT_STRING_SIZE_256 */
-static int hf_lppa_five_hundred_and_twelve = -1;  /* BIT_STRING_SIZE_512 */
-static int hf_lppa_one_thousand_and_twenty_four = -1;  /* BIT_STRING_SIZE_1024 */
-static int hf_lppa_noOfFreqHoppingBands = -1;     /* NumberOfFrequencyHoppingBands */
-static int hf_lppa_bandPositions = -1;            /* SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex */
-static int hf_lppa_bandPositions_item = -1;       /* NarrowBandIndex */
-static int hf_lppa_numberOfTransmissions = -1;    /* INTEGER_0_500_ */
-static int hf_lppa_bandwidth = -1;                /* INTEGER_1_100_ */
-static int hf_lppa_ResultRSRP_item = -1;          /* ResultRSRP_Item */
-static int hf_lppa_eCGI = -1;                     /* ECGI */
-static int hf_lppa_valueRSRP = -1;                /* ValueRSRP */
-static int hf_lppa_ResultRSRQ_item = -1;          /* ResultRSRQ_Item */
-static int hf_lppa_valueRSRQ = -1;                /* ValueRSRQ */
-static int hf_lppa_ResultGERAN_item = -1;         /* ResultGERAN_Item */
-static int hf_lppa_bCCH = -1;                     /* BCCH */
-static int hf_lppa_physCellIDGERAN = -1;          /* PhysCellIDGERAN */
-static int hf_lppa_rSSI = -1;                     /* RSSI */
-static int hf_lppa_ResultUTRAN_item = -1;         /* ResultUTRAN_Item */
-static int hf_lppa_uARFCN = -1;                   /* UARFCN */
-static int hf_lppa_physCellIDUTRAN = -1;          /* T_physCellIDUTRAN */
-static int hf_lppa_physCellIDUTRA_FDD = -1;       /* PhysCellIDUTRA_FDD */
-static int hf_lppa_physCellIDUTRA_TDD = -1;       /* PhysCellIDUTRA_TDD */
-static int hf_lppa_uTRA_RSCP = -1;                /* UTRA_RSCP */
-static int hf_lppa_uTRA_EcN0 = -1;                /* UTRA_EcN0 */
-static int hf_lppa_ResultNR_item = -1;            /* ResultNR_Item */
-static int hf_lppa_nRARFCN = -1;                  /* NRARFCN */
-static int hf_lppa_nRPCI = -1;                    /* NRPCI */
-static int hf_lppa_sS_NRRSRP = -1;                /* SS_NRRSRP */
-static int hf_lppa_sS_NRRSRQ = -1;                /* SS_NRRSRQ */
-static int hf_lppa_ResultsPerSSB_Index_List_item = -1;  /* ResultsPerSSB_Index_Item */
-static int hf_lppa_sSB_Index = -1;                /* SSB_Index */
-static int hf_lppa_sS_NRRSRPBeamValue = -1;       /* SS_NRRSRP */
-static int hf_lppa_sS_NRRSRQBeamValue = -1;       /* SS_NRRSRQ */
-static int hf_lppa_SRSConfigurationForAllCells_item = -1;  /* SRSConfigurationForOneCell */
-static int hf_lppa_pci = -1;                      /* PCI */
-static int hf_lppa_ul_earfcn = -1;                /* EARFCN */
-static int hf_lppa_ul_bandwidth = -1;             /* T_ul_bandwidth */
-static int hf_lppa_ul_cyclicPrefixLength = -1;    /* CPLength */
-static int hf_lppa_srs_BandwidthConfig = -1;      /* T_srs_BandwidthConfig */
-static int hf_lppa_srs_Bandwidth = -1;            /* T_srs_Bandwidth */
-static int hf_lppa_srs_AntennaPort = -1;          /* T_srs_AntennaPort */
-static int hf_lppa_srs_HoppingBandwidth = -1;     /* T_srs_HoppingBandwidth */
-static int hf_lppa_srs_cyclicShift = -1;          /* T_srs_cyclicShift */
-static int hf_lppa_srs_ConfigIndex = -1;          /* INTEGER_0_1023 */
-static int hf_lppa_maxUpPts = -1;                 /* T_maxUpPts */
-static int hf_lppa_transmissionComb = -1;         /* INTEGER_0_1 */
-static int hf_lppa_freqDomainPosition = -1;       /* INTEGER_0_23 */
-static int hf_lppa_groupHoppingEnabled = -1;      /* BOOLEAN */
-static int hf_lppa_deltaSS = -1;                  /* INTEGER_0_29 */
-static int hf_lppa_sfnInitialisationTime = -1;    /* SFNInitialisationTime */
-static int hf_lppa_oneFrame = -1;                 /* BIT_STRING_SIZE_6 */
-static int hf_lppa_fourFrames = -1;               /* BIT_STRING_SIZE_24 */
-static int hf_lppa_SystemInformation_item = -1;   /* SystemInformation_item */
-static int hf_lppa_broadcastPeriodicity = -1;     /* BroadcastPeriodicity */
-static int hf_lppa_posSIBs = -1;                  /* PosSIBs */
-static int hf_lppa_subframeAssignment = -1;       /* T_subframeAssignment */
-static int hf_lppa_timingAdvanceType1 = -1;       /* INTEGER_0_7690 */
-static int hf_lppa_timingAdvanceType2 = -1;       /* INTEGER_0_7690 */
-static int hf_lppa_srsConfiguration = -1;         /* SRSConfigurationForAllCells */
-static int hf_lppa_WLANMeasurementQuantities_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_lppa_wLANMeasurementQuantitiesValue = -1;  /* WLANMeasurementQuantitiesValue */
-static int hf_lppa_WLANMeasurementResult_item = -1;  /* WLANMeasurementResult_Item */
-static int hf_lppa_wLAN_RSSI = -1;                /* WLAN_RSSI */
-static int hf_lppa_sSID = -1;                     /* SSID */
-static int hf_lppa_bSSID = -1;                    /* BSSID */
-static int hf_lppa_hESSID = -1;                   /* HESSID */
-static int hf_lppa_operatingClass = -1;           /* WLANOperatingClass */
-static int hf_lppa_countryCode = -1;              /* WLANCountryCode */
-static int hf_lppa_wLANChannelList = -1;          /* WLANChannelList */
-static int hf_lppa_wLANBand = -1;                 /* WLANBand */
-static int hf_lppa_WLANChannelList_item = -1;     /* WLANChannel */
-static int hf_lppa_protocolIEs = -1;              /* ProtocolIE_Container */
-static int hf_lppa_OTDOA_Information_Type_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_lppa_oTDOA_Information_Type_Item = -1;  /* OTDOA_Information_Item */
-static int hf_lppa_privateIEs = -1;               /* PrivateIE_Container */
-static int hf_lppa_initiatingMessage = -1;        /* InitiatingMessage */
-static int hf_lppa_successfulOutcome = -1;        /* SuccessfulOutcome */
-static int hf_lppa_unsuccessfulOutcome = -1;      /* UnsuccessfulOutcome */
-static int hf_lppa_initiatingMessagevalue = -1;   /* InitiatingMessage_value */
-static int hf_lppa_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
-static int hf_lppa_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
+static int hf_lppa_Add_OTDOACells_PDU;            /* Add_OTDOACells */
+static int hf_lppa_Assistance_Information_PDU;    /* Assistance_Information */
+static int hf_lppa_AssistanceInformationFailureList_PDU;  /* AssistanceInformationFailureList */
+static int hf_lppa_Broadcast_PDU;                 /* Broadcast */
+static int hf_lppa_Cause_PDU;                     /* Cause */
+static int hf_lppa_Cell_Portion_ID_PDU;           /* Cell_Portion_ID */
+static int hf_lppa_CriticalityDiagnostics_PDU;    /* CriticalityDiagnostics */
+static int hf_lppa_E_CID_MeasurementResult_PDU;   /* E_CID_MeasurementResult */
+static int hf_lppa_InterRATMeasurementQuantities_PDU;  /* InterRATMeasurementQuantities */
+static int hf_lppa_InterRATMeasurementQuantities_Item_PDU;  /* InterRATMeasurementQuantities_Item */
+static int hf_lppa_InterRATMeasurementResult_PDU;  /* InterRATMeasurementResult */
+static int hf_lppa_Measurement_ID_PDU;            /* Measurement_ID */
+static int hf_lppa_MeasurementPeriodicity_PDU;    /* MeasurementPeriodicity */
+static int hf_lppa_MeasurementQuantities_PDU;     /* MeasurementQuantities */
+static int hf_lppa_MeasurementQuantities_Item_PDU;  /* MeasurementQuantities_Item */
+static int hf_lppa_NR_CGI_PDU;                    /* NR_CGI */
+static int hf_lppa_OTDOACells_PDU;                /* OTDOACells */
+static int hf_lppa_ReportCharacteristics_PDU;     /* ReportCharacteristics */
+static int hf_lppa_RequestedSRSTransmissionCharacteristics_PDU;  /* RequestedSRSTransmissionCharacteristics */
+static int hf_lppa_ResultsPerSSB_Index_List_PDU;  /* ResultsPerSSB_Index_List */
+static int hf_lppa_ULConfiguration_PDU;           /* ULConfiguration */
+static int hf_lppa_WLANMeasurementQuantities_PDU;  /* WLANMeasurementQuantities */
+static int hf_lppa_WLANMeasurementQuantities_Item_PDU;  /* WLANMeasurementQuantities_Item */
+static int hf_lppa_WLANMeasurementResult_PDU;     /* WLANMeasurementResult */
+static int hf_lppa_E_CIDMeasurementInitiationRequest_PDU;  /* E_CIDMeasurementInitiationRequest */
+static int hf_lppa_E_CIDMeasurementInitiationResponse_PDU;  /* E_CIDMeasurementInitiationResponse */
+static int hf_lppa_E_CIDMeasurementInitiationFailure_PDU;  /* E_CIDMeasurementInitiationFailure */
+static int hf_lppa_E_CIDMeasurementFailureIndication_PDU;  /* E_CIDMeasurementFailureIndication */
+static int hf_lppa_E_CIDMeasurementReport_PDU;    /* E_CIDMeasurementReport */
+static int hf_lppa_E_CIDMeasurementTerminationCommand_PDU;  /* E_CIDMeasurementTerminationCommand */
+static int hf_lppa_OTDOAInformationRequest_PDU;   /* OTDOAInformationRequest */
+static int hf_lppa_OTDOA_Information_Type_PDU;    /* OTDOA_Information_Type */
+static int hf_lppa_OTDOA_Information_Type_Item_PDU;  /* OTDOA_Information_Type_Item */
+static int hf_lppa_OTDOAInformationResponse_PDU;  /* OTDOAInformationResponse */
+static int hf_lppa_OTDOAInformationFailure_PDU;   /* OTDOAInformationFailure */
+static int hf_lppa_UTDOAInformationRequest_PDU;   /* UTDOAInformationRequest */
+static int hf_lppa_UTDOAInformationResponse_PDU;  /* UTDOAInformationResponse */
+static int hf_lppa_UTDOAInformationFailure_PDU;   /* UTDOAInformationFailure */
+static int hf_lppa_UTDOAInformationUpdate_PDU;    /* UTDOAInformationUpdate */
+static int hf_lppa_AssistanceInformationControl_PDU;  /* AssistanceInformationControl */
+static int hf_lppa_AssistanceInformationFeedback_PDU;  /* AssistanceInformationFeedback */
+static int hf_lppa_ErrorIndication_PDU;           /* ErrorIndication */
+static int hf_lppa_PrivateMessage_PDU;            /* PrivateMessage */
+static int hf_lppa_LPPA_PDU_PDU;                  /* LPPA_PDU */
+static int hf_lppa_local;                         /* INTEGER_0_maxPrivateIEs */
+static int hf_lppa_global;                        /* OBJECT_IDENTIFIER */
+static int hf_lppa_ProtocolIE_Container_item;     /* ProtocolIE_Field */
+static int hf_lppa_id;                            /* ProtocolIE_ID */
+static int hf_lppa_criticality;                   /* Criticality */
+static int hf_lppa_ie_field_value;                /* T_ie_field_value */
+static int hf_lppa_ProtocolExtensionContainer_item;  /* ProtocolExtensionField */
+static int hf_lppa_ext_id;                        /* ProtocolIE_ID */
+static int hf_lppa_extensionValue;                /* T_extensionValue */
+static int hf_lppa_PrivateIE_Container_item;      /* PrivateIE_Field */
+static int hf_lppa_id_01;                         /* PrivateIE_ID */
+static int hf_lppa_value;                         /* T_value */
+static int hf_lppa_Add_OTDOACells_item;           /* Add_OTDOACells_item */
+static int hf_lppa_add_OTDOACellInfo;             /* Add_OTDOACell_Information */
+static int hf_lppa_iE_Extensions;                 /* ProtocolExtensionContainer */
+static int hf_lppa_Add_OTDOACell_Information_item;  /* OTDOACell_Information_Item */
+static int hf_lppa_systemInformation;             /* SystemInformation */
+static int hf_lppa_AssistanceInformationFailureList_item;  /* AssistanceInformationFailureList_item */
+static int hf_lppa_posSIB_Type;                   /* PosSIB_Type */
+static int hf_lppa_outcome;                       /* Outcome */
+static int hf_lppa_encrypted;                     /* T_encrypted */
+static int hf_lppa_gNSSID;                        /* T_gNSSID */
+static int hf_lppa_sBASID;                        /* T_sBASID */
+static int hf_lppa_ten;                           /* BIT_STRING_SIZE_10 */
+static int hf_lppa_forty;                         /* BIT_STRING_SIZE_40 */
+static int hf_lppa_ten_tdd;                       /* BIT_STRING_SIZE_8 */
+static int hf_lppa_forty_tdd;                     /* BIT_STRING_SIZE_32 */
+static int hf_lppa_radioNetwork;                  /* CauseRadioNetwork */
+static int hf_lppa_protocol;                      /* CauseProtocol */
+static int hf_lppa_misc;                          /* CauseMisc */
+static int hf_lppa_procedureCode;                 /* ProcedureCode */
+static int hf_lppa_triggeringMessage;             /* TriggeringMessage */
+static int hf_lppa_procedureCriticality;          /* Criticality */
+static int hf_lppa_lppatransactionID;             /* LPPATransactionID */
+static int hf_lppa_iEsCriticalityDiagnostics;     /* CriticalityDiagnostics_IE_List */
+static int hf_lppa_CriticalityDiagnostics_IE_List_item;  /* CriticalityDiagnostics_IE_List_item */
+static int hf_lppa_iECriticality;                 /* Criticality */
+static int hf_lppa_iE_ID;                         /* ProtocolIE_ID */
+static int hf_lppa_typeOfError;                   /* TypeOfError */
+static int hf_lppa_servingCell_ID;                /* ECGI */
+static int hf_lppa_servingCellTAC;                /* TAC */
+static int hf_lppa_e_UTRANAccessPointPosition;    /* E_UTRANAccessPointPosition */
+static int hf_lppa_measuredResults;               /* MeasuredResults */
+static int hf_lppa_pLMN_Identity;                 /* PLMN_Identity */
+static int hf_lppa_eUTRANcellIdentifier;          /* EUTRANCellIdentifier */
+static int hf_lppa_latitudeSign;                  /* T_latitudeSign */
+static int hf_lppa_latitude;                      /* INTEGER_0_8388607 */
+static int hf_lppa_longitude;                     /* INTEGER_M8388608_8388607 */
+static int hf_lppa_directionOfAltitude;           /* T_directionOfAltitude */
+static int hf_lppa_altitude;                      /* INTEGER_0_32767 */
+static int hf_lppa_uncertaintySemi_major;         /* INTEGER_0_127 */
+static int hf_lppa_uncertaintySemi_minor;         /* INTEGER_0_127 */
+static int hf_lppa_orientationOfMajorAxis;        /* INTEGER_0_179 */
+static int hf_lppa_uncertaintyAltitude;           /* INTEGER_0_127 */
+static int hf_lppa_confidence;                    /* INTEGER_0_100 */
+static int hf_lppa_InterRATMeasurementQuantities_item;  /* ProtocolIE_Single_Container */
+static int hf_lppa_interRATMeasurementQuantitiesValue;  /* InterRATMeasurementQuantitiesValue */
+static int hf_lppa_InterRATMeasurementResult_item;  /* InterRATMeasuredResultsValue */
+static int hf_lppa_resultGERAN;                   /* ResultGERAN */
+static int hf_lppa_resultUTRAN;                   /* ResultUTRAN */
+static int hf_lppa_resultNR;                      /* ResultNR */
+static int hf_lppa_MeasurementQuantities_item;    /* ProtocolIE_Single_Container */
+static int hf_lppa_measurementQuantitiesValue;    /* MeasurementQuantitiesValue */
+static int hf_lppa_MeasuredResults_item;          /* MeasuredResultsValue */
+static int hf_lppa_valueAngleOfArrival;           /* INTEGER_0_719 */
+static int hf_lppa_valueTimingAdvanceType1;       /* INTEGER_0_7690 */
+static int hf_lppa_valueTimingAdvanceType2;       /* INTEGER_0_7690 */
+static int hf_lppa_resultRSRP;                    /* ResultRSRP */
+static int hf_lppa_resultRSRQ;                    /* ResultRSRQ */
+static int hf_lppa_MBSFNsubframeConfiguration_item;  /* MBSFNsubframeConfigurationValue */
+static int hf_lppa_radioframeAllocationPeriod;    /* T_radioframeAllocationPeriod */
+static int hf_lppa_radioframeAllocationOffset;    /* INTEGER_0_7 */
+static int hf_lppa_subframeAllocation;            /* Subframeallocation */
+static int hf_lppa_nRCellIdentity;                /* NRCellIdentity */
+static int hf_lppa_nPRSSubframePartA;             /* NPRSSubframePartA */
+static int hf_lppa_nPRSSubframePartB;             /* NPRSSubframePartB */
+static int hf_lppa_two;                           /* BIT_STRING_SIZE_2 */
+static int hf_lppa_four;                          /* BIT_STRING_SIZE_4 */
+static int hf_lppa_eight;                         /* BIT_STRING_SIZE_8 */
+static int hf_lppa_sixteen;                       /* BIT_STRING_SIZE_16 */
+static int hf_lppa_bitmapsforNPRS;                /* BitmapsforNPRS */
+static int hf_lppa_nPRSMutingConfiguration;       /* NPRSMutingConfiguration */
+static int hf_lppa_numberofNPRSOneOccasion;       /* T_numberofNPRSOneOccasion */
+static int hf_lppa_periodicityofNPRS;             /* T_periodicityofNPRS */
+static int hf_lppa_startingsubframeoffset;        /* T_startingsubframeoffset */
+static int hf_lppa_sIB1_NB_Subframe_TDD;          /* T_sIB1_NB_Subframe_TDD */
+static int hf_lppa_OTDOACells_item;               /* OTDOACells_item */
+static int hf_lppa_oTDOACellInfo;                 /* OTDOACell_Information */
+static int hf_lppa_OTDOACell_Information_item;    /* OTDOACell_Information_Item */
+static int hf_lppa_pCI;                           /* PCI */
+static int hf_lppa_cellId;                        /* ECGI */
+static int hf_lppa_tAC;                           /* TAC */
+static int hf_lppa_eARFCN;                        /* EARFCN */
+static int hf_lppa_pRS_Bandwidth;                 /* PRS_Bandwidth */
+static int hf_lppa_pRS_ConfigurationIndex;        /* PRS_Configuration_Index */
+static int hf_lppa_cPLength;                      /* CPLength */
+static int hf_lppa_numberOfDlFrames;              /* NumberOfDlFrames */
+static int hf_lppa_numberOfAntennaPorts;          /* NumberOfAntennaPorts */
+static int hf_lppa_sFNInitialisationTime;         /* SFNInitialisationTime */
+static int hf_lppa_pRSMutingConfiguration;        /* PRSMutingConfiguration */
+static int hf_lppa_prsid;                         /* PRS_ID */
+static int hf_lppa_tpid;                          /* TP_ID */
+static int hf_lppa_tpType;                        /* TP_Type */
+static int hf_lppa_numberOfDlFrames_Extended;     /* NumberOfDlFrames_Extended */
+static int hf_lppa_crsCPlength;                   /* CPLength */
+static int hf_lppa_mBSFNsubframeConfiguration;    /* MBSFNsubframeConfiguration */
+static int hf_lppa_nPRSConfiguration;             /* NPRSConfiguration */
+static int hf_lppa_offsetNBChanneltoEARFCN;       /* OffsetNBChanneltoEARFCN */
+static int hf_lppa_operationModeInfo;             /* OperationModeInfo */
+static int hf_lppa_nPRS_ID;                       /* INTEGER_0_4095_ */
+static int hf_lppa_dL_Bandwidth;                  /* DL_Bandwidth */
+static int hf_lppa_pRSOccasionGroup;              /* PRSOccasionGroup */
+static int hf_lppa_pRSFreqHoppingConfig;          /* PRSFrequencyHoppingConfiguration */
+static int hf_lppa_repetitionNumberofSIB1_NB;     /* RepetitionNumberofSIB1_NB */
+static int hf_lppa_nPRSSequenceInfo;              /* NPRSSequenceInfo */
+static int hf_lppa_nPRSType2;                     /* NPRSConfiguration */
+static int hf_lppa_tddConfiguration;              /* TDDConfiguration */
+static int hf_lppa_PosSIBs_item;                  /* PosSIBs_item */
+static int hf_lppa_posSIB_Segments;               /* PosSIB_Segments */
+static int hf_lppa_assistanceInformationMetaData;  /* AssistanceInformationMetaData */
+static int hf_lppa_broadcastPriority;             /* INTEGER_1_16_ */
+static int hf_lppa_PosSIB_Segments_item;          /* PosSIB_Segments_item */
+static int hf_lppa_assistanceDataSIBelement;      /* OCTET_STRING */
+static int hf_lppa_thirty_two;                    /* BIT_STRING_SIZE_32 */
+static int hf_lppa_sixty_four;                    /* BIT_STRING_SIZE_64 */
+static int hf_lppa_one_hundred_and_twenty_eight;  /* BIT_STRING_SIZE_128 */
+static int hf_lppa_two_hundred_and_fifty_six;     /* BIT_STRING_SIZE_256 */
+static int hf_lppa_five_hundred_and_twelve;       /* BIT_STRING_SIZE_512 */
+static int hf_lppa_one_thousand_and_twenty_four;  /* BIT_STRING_SIZE_1024 */
+static int hf_lppa_noOfFreqHoppingBands;          /* NumberOfFrequencyHoppingBands */
+static int hf_lppa_bandPositions;                 /* SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex */
+static int hf_lppa_bandPositions_item;            /* NarrowBandIndex */
+static int hf_lppa_numberOfTransmissions;         /* INTEGER_0_500_ */
+static int hf_lppa_bandwidth;                     /* INTEGER_1_100_ */
+static int hf_lppa_ResultRSRP_item;               /* ResultRSRP_Item */
+static int hf_lppa_eCGI;                          /* ECGI */
+static int hf_lppa_valueRSRP;                     /* ValueRSRP */
+static int hf_lppa_ResultRSRQ_item;               /* ResultRSRQ_Item */
+static int hf_lppa_valueRSRQ;                     /* ValueRSRQ */
+static int hf_lppa_ResultGERAN_item;              /* ResultGERAN_Item */
+static int hf_lppa_bCCH;                          /* BCCH */
+static int hf_lppa_physCellIDGERAN;               /* PhysCellIDGERAN */
+static int hf_lppa_rSSI;                          /* RSSI */
+static int hf_lppa_ResultUTRAN_item;              /* ResultUTRAN_Item */
+static int hf_lppa_uARFCN;                        /* UARFCN */
+static int hf_lppa_physCellIDUTRAN;               /* T_physCellIDUTRAN */
+static int hf_lppa_physCellIDUTRA_FDD;            /* PhysCellIDUTRA_FDD */
+static int hf_lppa_physCellIDUTRA_TDD;            /* PhysCellIDUTRA_TDD */
+static int hf_lppa_uTRA_RSCP;                     /* UTRA_RSCP */
+static int hf_lppa_uTRA_EcN0;                     /* UTRA_EcN0 */
+static int hf_lppa_ResultNR_item;                 /* ResultNR_Item */
+static int hf_lppa_nRARFCN;                       /* NRARFCN */
+static int hf_lppa_nRPCI;                         /* NRPCI */
+static int hf_lppa_sS_NRRSRP;                     /* SS_NRRSRP */
+static int hf_lppa_sS_NRRSRQ;                     /* SS_NRRSRQ */
+static int hf_lppa_ResultsPerSSB_Index_List_item;  /* ResultsPerSSB_Index_Item */
+static int hf_lppa_sSB_Index;                     /* SSB_Index */
+static int hf_lppa_sS_NRRSRPBeamValue;            /* SS_NRRSRP */
+static int hf_lppa_sS_NRRSRQBeamValue;            /* SS_NRRSRQ */
+static int hf_lppa_SRSConfigurationForAllCells_item;  /* SRSConfigurationForOneCell */
+static int hf_lppa_pci;                           /* PCI */
+static int hf_lppa_ul_earfcn;                     /* EARFCN */
+static int hf_lppa_ul_bandwidth;                  /* T_ul_bandwidth */
+static int hf_lppa_ul_cyclicPrefixLength;         /* CPLength */
+static int hf_lppa_srs_BandwidthConfig;           /* T_srs_BandwidthConfig */
+static int hf_lppa_srs_Bandwidth;                 /* T_srs_Bandwidth */
+static int hf_lppa_srs_AntennaPort;               /* T_srs_AntennaPort */
+static int hf_lppa_srs_HoppingBandwidth;          /* T_srs_HoppingBandwidth */
+static int hf_lppa_srs_cyclicShift;               /* T_srs_cyclicShift */
+static int hf_lppa_srs_ConfigIndex;               /* INTEGER_0_1023 */
+static int hf_lppa_maxUpPts;                      /* T_maxUpPts */
+static int hf_lppa_transmissionComb;              /* INTEGER_0_1 */
+static int hf_lppa_freqDomainPosition;            /* INTEGER_0_23 */
+static int hf_lppa_groupHoppingEnabled;           /* BOOLEAN */
+static int hf_lppa_deltaSS;                       /* INTEGER_0_29 */
+static int hf_lppa_sfnInitialisationTime;         /* SFNInitialisationTime */
+static int hf_lppa_oneFrame;                      /* BIT_STRING_SIZE_6 */
+static int hf_lppa_fourFrames;                    /* BIT_STRING_SIZE_24 */
+static int hf_lppa_SystemInformation_item;        /* SystemInformation_item */
+static int hf_lppa_broadcastPeriodicity;          /* BroadcastPeriodicity */
+static int hf_lppa_posSIBs;                       /* PosSIBs */
+static int hf_lppa_subframeAssignment;            /* T_subframeAssignment */
+static int hf_lppa_timingAdvanceType1;            /* INTEGER_0_7690 */
+static int hf_lppa_timingAdvanceType2;            /* INTEGER_0_7690 */
+static int hf_lppa_srsConfiguration;              /* SRSConfigurationForAllCells */
+static int hf_lppa_WLANMeasurementQuantities_item;  /* ProtocolIE_Single_Container */
+static int hf_lppa_wLANMeasurementQuantitiesValue;  /* WLANMeasurementQuantitiesValue */
+static int hf_lppa_WLANMeasurementResult_item;    /* WLANMeasurementResult_Item */
+static int hf_lppa_wLAN_RSSI;                     /* WLAN_RSSI */
+static int hf_lppa_sSID;                          /* SSID */
+static int hf_lppa_bSSID;                         /* BSSID */
+static int hf_lppa_hESSID;                        /* HESSID */
+static int hf_lppa_operatingClass;                /* WLANOperatingClass */
+static int hf_lppa_countryCode;                   /* WLANCountryCode */
+static int hf_lppa_wLANChannelList;               /* WLANChannelList */
+static int hf_lppa_wLANBand;                      /* WLANBand */
+static int hf_lppa_WLANChannelList_item;          /* WLANChannel */
+static int hf_lppa_protocolIEs;                   /* ProtocolIE_Container */
+static int hf_lppa_OTDOA_Information_Type_item;   /* ProtocolIE_Single_Container */
+static int hf_lppa_oTDOA_Information_Type_Item;   /* OTDOA_Information_Item */
+static int hf_lppa_privateIEs;                    /* PrivateIE_Container */
+static int hf_lppa_initiatingMessage;             /* InitiatingMessage */
+static int hf_lppa_successfulOutcome;             /* SuccessfulOutcome */
+static int hf_lppa_unsuccessfulOutcome;           /* UnsuccessfulOutcome */
+static int hf_lppa_initiatingMessagevalue;        /* InitiatingMessage_value */
+static int hf_lppa_successfulOutcome_value;       /* SuccessfulOutcome_value */
+static int hf_lppa_unsuccessfulOutcome_value;     /* UnsuccessfulOutcome_value */
 
 /* Initialize the subtree pointers */
-static gint ett_lppa = -1;
-static gint ett_lppa_PrivateIE_ID = -1;
-static gint ett_lppa_ProtocolIE_Container = -1;
-static gint ett_lppa_ProtocolIE_Field = -1;
-static gint ett_lppa_ProtocolExtensionContainer = -1;
-static gint ett_lppa_ProtocolExtensionField = -1;
-static gint ett_lppa_PrivateIE_Container = -1;
-static gint ett_lppa_PrivateIE_Field = -1;
-static gint ett_lppa_Add_OTDOACells = -1;
-static gint ett_lppa_Add_OTDOACells_item = -1;
-static gint ett_lppa_Add_OTDOACell_Information = -1;
-static gint ett_lppa_Assistance_Information = -1;
-static gint ett_lppa_AssistanceInformationFailureList = -1;
-static gint ett_lppa_AssistanceInformationFailureList_item = -1;
-static gint ett_lppa_AssistanceInformationMetaData = -1;
-static gint ett_lppa_BitmapsforNPRS = -1;
-static gint ett_lppa_Cause = -1;
-static gint ett_lppa_CriticalityDiagnostics = -1;
-static gint ett_lppa_CriticalityDiagnostics_IE_List = -1;
-static gint ett_lppa_CriticalityDiagnostics_IE_List_item = -1;
-static gint ett_lppa_E_CID_MeasurementResult = -1;
-static gint ett_lppa_ECGI = -1;
-static gint ett_lppa_E_UTRANAccessPointPosition = -1;
-static gint ett_lppa_InterRATMeasurementQuantities = -1;
-static gint ett_lppa_InterRATMeasurementQuantities_Item = -1;
-static gint ett_lppa_InterRATMeasurementResult = -1;
-static gint ett_lppa_InterRATMeasuredResultsValue = -1;
-static gint ett_lppa_MeasurementQuantities = -1;
-static gint ett_lppa_MeasurementQuantities_Item = -1;
-static gint ett_lppa_MeasuredResults = -1;
-static gint ett_lppa_MeasuredResultsValue = -1;
-static gint ett_lppa_MBSFNsubframeConfiguration = -1;
-static gint ett_lppa_MBSFNsubframeConfigurationValue = -1;
-static gint ett_lppa_NR_CGI = -1;
-static gint ett_lppa_NPRSConfiguration = -1;
-static gint ett_lppa_NPRSMutingConfiguration = -1;
-static gint ett_lppa_NPRSSubframePartA = -1;
-static gint ett_lppa_NPRSSubframePartB = -1;
-static gint ett_lppa_OTDOACells = -1;
-static gint ett_lppa_OTDOACells_item = -1;
-static gint ett_lppa_OTDOACell_Information = -1;
-static gint ett_lppa_OTDOACell_Information_Item = -1;
-static gint ett_lppa_PosSIBs = -1;
-static gint ett_lppa_PosSIBs_item = -1;
-static gint ett_lppa_PosSIB_Segments = -1;
-static gint ett_lppa_PosSIB_Segments_item = -1;
-static gint ett_lppa_PRSMutingConfiguration = -1;
-static gint ett_lppa_PRSFrequencyHoppingConfiguration = -1;
-static gint ett_lppa_SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex = -1;
-static gint ett_lppa_RequestedSRSTransmissionCharacteristics = -1;
-static gint ett_lppa_ResultRSRP = -1;
-static gint ett_lppa_ResultRSRP_Item = -1;
-static gint ett_lppa_ResultRSRQ = -1;
-static gint ett_lppa_ResultRSRQ_Item = -1;
-static gint ett_lppa_ResultGERAN = -1;
-static gint ett_lppa_ResultGERAN_Item = -1;
-static gint ett_lppa_ResultUTRAN = -1;
-static gint ett_lppa_ResultUTRAN_Item = -1;
-static gint ett_lppa_T_physCellIDUTRAN = -1;
-static gint ett_lppa_ResultNR = -1;
-static gint ett_lppa_ResultNR_Item = -1;
-static gint ett_lppa_ResultsPerSSB_Index_List = -1;
-static gint ett_lppa_ResultsPerSSB_Index_Item = -1;
-static gint ett_lppa_SRSConfigurationForAllCells = -1;
-static gint ett_lppa_SRSConfigurationForOneCell = -1;
-static gint ett_lppa_Subframeallocation = -1;
-static gint ett_lppa_SystemInformation = -1;
-static gint ett_lppa_SystemInformation_item = -1;
-static gint ett_lppa_TDDConfiguration = -1;
-static gint ett_lppa_ULConfiguration = -1;
-static gint ett_lppa_WLANMeasurementQuantities = -1;
-static gint ett_lppa_WLANMeasurementQuantities_Item = -1;
-static gint ett_lppa_WLANMeasurementResult = -1;
-static gint ett_lppa_WLANMeasurementResult_Item = -1;
-static gint ett_lppa_WLANChannelList = -1;
-static gint ett_lppa_E_CIDMeasurementInitiationRequest = -1;
-static gint ett_lppa_E_CIDMeasurementInitiationResponse = -1;
-static gint ett_lppa_E_CIDMeasurementInitiationFailure = -1;
-static gint ett_lppa_E_CIDMeasurementFailureIndication = -1;
-static gint ett_lppa_E_CIDMeasurementReport = -1;
-static gint ett_lppa_E_CIDMeasurementTerminationCommand = -1;
-static gint ett_lppa_OTDOAInformationRequest = -1;
-static gint ett_lppa_OTDOA_Information_Type = -1;
-static gint ett_lppa_OTDOA_Information_Type_Item = -1;
-static gint ett_lppa_OTDOAInformationResponse = -1;
-static gint ett_lppa_OTDOAInformationFailure = -1;
-static gint ett_lppa_UTDOAInformationRequest = -1;
-static gint ett_lppa_UTDOAInformationResponse = -1;
-static gint ett_lppa_UTDOAInformationFailure = -1;
-static gint ett_lppa_UTDOAInformationUpdate = -1;
-static gint ett_lppa_AssistanceInformationControl = -1;
-static gint ett_lppa_AssistanceInformationFeedback = -1;
-static gint ett_lppa_ErrorIndication = -1;
-static gint ett_lppa_PrivateMessage = -1;
-static gint ett_lppa_LPPA_PDU = -1;
-static gint ett_lppa_InitiatingMessage = -1;
-static gint ett_lppa_SuccessfulOutcome = -1;
-static gint ett_lppa_UnsuccessfulOutcome = -1;
+static gint ett_lppa;
+static gint ett_lppa_PrivateIE_ID;
+static gint ett_lppa_ProtocolIE_Container;
+static gint ett_lppa_ProtocolIE_Field;
+static gint ett_lppa_ProtocolExtensionContainer;
+static gint ett_lppa_ProtocolExtensionField;
+static gint ett_lppa_PrivateIE_Container;
+static gint ett_lppa_PrivateIE_Field;
+static gint ett_lppa_Add_OTDOACells;
+static gint ett_lppa_Add_OTDOACells_item;
+static gint ett_lppa_Add_OTDOACell_Information;
+static gint ett_lppa_Assistance_Information;
+static gint ett_lppa_AssistanceInformationFailureList;
+static gint ett_lppa_AssistanceInformationFailureList_item;
+static gint ett_lppa_AssistanceInformationMetaData;
+static gint ett_lppa_BitmapsforNPRS;
+static gint ett_lppa_Cause;
+static gint ett_lppa_CriticalityDiagnostics;
+static gint ett_lppa_CriticalityDiagnostics_IE_List;
+static gint ett_lppa_CriticalityDiagnostics_IE_List_item;
+static gint ett_lppa_E_CID_MeasurementResult;
+static gint ett_lppa_ECGI;
+static gint ett_lppa_E_UTRANAccessPointPosition;
+static gint ett_lppa_InterRATMeasurementQuantities;
+static gint ett_lppa_InterRATMeasurementQuantities_Item;
+static gint ett_lppa_InterRATMeasurementResult;
+static gint ett_lppa_InterRATMeasuredResultsValue;
+static gint ett_lppa_MeasurementQuantities;
+static gint ett_lppa_MeasurementQuantities_Item;
+static gint ett_lppa_MeasuredResults;
+static gint ett_lppa_MeasuredResultsValue;
+static gint ett_lppa_MBSFNsubframeConfiguration;
+static gint ett_lppa_MBSFNsubframeConfigurationValue;
+static gint ett_lppa_NR_CGI;
+static gint ett_lppa_NPRSConfiguration;
+static gint ett_lppa_NPRSMutingConfiguration;
+static gint ett_lppa_NPRSSubframePartA;
+static gint ett_lppa_NPRSSubframePartB;
+static gint ett_lppa_OTDOACells;
+static gint ett_lppa_OTDOACells_item;
+static gint ett_lppa_OTDOACell_Information;
+static gint ett_lppa_OTDOACell_Information_Item;
+static gint ett_lppa_PosSIBs;
+static gint ett_lppa_PosSIBs_item;
+static gint ett_lppa_PosSIB_Segments;
+static gint ett_lppa_PosSIB_Segments_item;
+static gint ett_lppa_PRSMutingConfiguration;
+static gint ett_lppa_PRSFrequencyHoppingConfiguration;
+static gint ett_lppa_SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex;
+static gint ett_lppa_RequestedSRSTransmissionCharacteristics;
+static gint ett_lppa_ResultRSRP;
+static gint ett_lppa_ResultRSRP_Item;
+static gint ett_lppa_ResultRSRQ;
+static gint ett_lppa_ResultRSRQ_Item;
+static gint ett_lppa_ResultGERAN;
+static gint ett_lppa_ResultGERAN_Item;
+static gint ett_lppa_ResultUTRAN;
+static gint ett_lppa_ResultUTRAN_Item;
+static gint ett_lppa_T_physCellIDUTRAN;
+static gint ett_lppa_ResultNR;
+static gint ett_lppa_ResultNR_Item;
+static gint ett_lppa_ResultsPerSSB_Index_List;
+static gint ett_lppa_ResultsPerSSB_Index_Item;
+static gint ett_lppa_SRSConfigurationForAllCells;
+static gint ett_lppa_SRSConfigurationForOneCell;
+static gint ett_lppa_Subframeallocation;
+static gint ett_lppa_SystemInformation;
+static gint ett_lppa_SystemInformation_item;
+static gint ett_lppa_TDDConfiguration;
+static gint ett_lppa_ULConfiguration;
+static gint ett_lppa_WLANMeasurementQuantities;
+static gint ett_lppa_WLANMeasurementQuantities_Item;
+static gint ett_lppa_WLANMeasurementResult;
+static gint ett_lppa_WLANMeasurementResult_Item;
+static gint ett_lppa_WLANChannelList;
+static gint ett_lppa_E_CIDMeasurementInitiationRequest;
+static gint ett_lppa_E_CIDMeasurementInitiationResponse;
+static gint ett_lppa_E_CIDMeasurementInitiationFailure;
+static gint ett_lppa_E_CIDMeasurementFailureIndication;
+static gint ett_lppa_E_CIDMeasurementReport;
+static gint ett_lppa_E_CIDMeasurementTerminationCommand;
+static gint ett_lppa_OTDOAInformationRequest;
+static gint ett_lppa_OTDOA_Information_Type;
+static gint ett_lppa_OTDOA_Information_Type_Item;
+static gint ett_lppa_OTDOAInformationResponse;
+static gint ett_lppa_OTDOAInformationFailure;
+static gint ett_lppa_UTDOAInformationRequest;
+static gint ett_lppa_UTDOAInformationResponse;
+static gint ett_lppa_UTDOAInformationFailure;
+static gint ett_lppa_UTDOAInformationUpdate;
+static gint ett_lppa_AssistanceInformationControl;
+static gint ett_lppa_AssistanceInformationFeedback;
+static gint ett_lppa_ErrorIndication;
+static gint ett_lppa_PrivateMessage;
+static gint ett_lppa_LPPA_PDU;
+static gint ett_lppa_InitiatingMessage;
+static gint ett_lppa_SuccessfulOutcome;
+static gint ett_lppa_UnsuccessfulOutcome;
 
 enum {
     INITIATING_MESSAGE,

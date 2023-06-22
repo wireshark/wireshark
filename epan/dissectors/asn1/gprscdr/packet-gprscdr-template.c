@@ -33,21 +33,21 @@
 void proto_register_gprscdr(void);
 
 /* Define the GPRS CDR proto */
-static int proto_gprscdr = -1;
+static int proto_gprscdr;
 
 #include "packet-gprscdr-hf.c"
 
-static int ett_gprscdr = -1;
-static int ett_gprscdr_timestamp = -1;
-static int ett_gprscdr_plmn_id = -1;
-static int ett_gprscdr_pdp_pdn_type = -1;
-static int ett_gprscdr_eps_qos_arp = -1;
-static int ett_gprscdr_managementextension_information = -1;
-static int ett_gprscdr_userlocationinformation = -1;
+static int ett_gprscdr;
+static int ett_gprscdr_timestamp;
+static int ett_gprscdr_plmn_id;
+static int ett_gprscdr_pdp_pdn_type;
+static int ett_gprscdr_eps_qos_arp;
+static int ett_gprscdr_managementextension_information;
+static int ett_gprscdr_userlocationinformation;
 #include "packet-gprscdr-ett.c"
 
-static expert_field ei_gprscdr_not_dissected = EI_INIT;
-static expert_field ei_gprscdr_choice_not_found = EI_INIT;
+static expert_field ei_gprscdr_not_dissected;
+static expert_field ei_gprscdr_choice_not_found;
 
 /* Global variables */
 static const char *obj_id = NULL;

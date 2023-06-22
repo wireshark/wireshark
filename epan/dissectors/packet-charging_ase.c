@@ -31,104 +31,104 @@ void proto_register_charging_ase(void);
 void proto_reg_handoff_charging_ase(void);
 
 /* Define the Charging ASE proto */
-static int proto_charging_ase = -1;
+static int proto_charging_ase;
 
-static int hf_charging_ase_charging_ase_ChargingMessageType_PDU = -1;  /* ChargingMessageType */
-static int hf_charging_ase_crgt = -1;             /* ChargingTariffInformation */
-static int hf_charging_ase_aocrg = -1;            /* AddOnChargingInformation */
-static int hf_charging_ase_crga = -1;             /* ChargingAcknowledgementInformation */
-static int hf_charging_ase_start = -1;            /* StartCharging */
-static int hf_charging_ase_stop = -1;             /* StopCharging */
-static int hf_charging_ase_acknowledgementIndicators = -1;  /* T_acknowledgementIndicators */
-static int hf_charging_ase_extensions = -1;       /* SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField */
-static int hf_charging_ase_extensions_item = -1;  /* ExtensionField */
-static int hf_charging_ase_originationIdentification = -1;  /* ChargingReferenceIdentification */
-static int hf_charging_ase_destinationIdentification = -1;  /* ChargingReferenceIdentification */
-static int hf_charging_ase_chargingControlIndicators = -1;  /* ChargingControlIndicators */
-static int hf_charging_ase_addOncharge = -1;      /* T_addOncharge */
-static int hf_charging_ase_addOnChargeCurrency = -1;  /* CurrencyFactorScale */
-static int hf_charging_ase_addOnChargePulse = -1;  /* PulseUnits */
-static int hf_charging_ase_currency = -1;         /* Currency */
-static int hf_charging_ase_chargingTariff = -1;   /* T_chargingTariff */
-static int hf_charging_ase_tariffCurrency = -1;   /* TariffCurrency */
-static int hf_charging_ase_tariffPulse = -1;      /* TariffPulse */
-static int hf_charging_ase_local = -1;            /* INTEGER */
-static int hf_charging_ase_global = -1;           /* OBJECT_IDENTIFIER */
-static int hf_charging_ase_currencyFactorScale = -1;  /* CurrencyFactorScale */
-static int hf_charging_ase_tariffDuration = -1;   /* TariffDuration */
-static int hf_charging_ase_subTariffControl = -1;  /* SubTariffControl */
-static int hf_charging_ase_pulseUnits = -1;       /* PulseUnits */
-static int hf_charging_ase_chargeUnitTimeInterval = -1;  /* ChargeUnitTimeInterval */
-static int hf_charging_ase_currencyFactor = -1;   /* CurrencyFactor */
-static int hf_charging_ase_currencyScale = -1;    /* CurrencyScale */
-static int hf_charging_ase_type = -1;             /* Code */
-static int hf_charging_ase_criticality = -1;      /* CriticalityType */
-static int hf_charging_ase_value = -1;            /* T_value */
-static int hf_charging_ase_networkOperators = -1;  /* SEQUENCE_SIZE_1_maxNetworkOperators_OF_NetworkIdentification */
-static int hf_charging_ase_networkOperators_item = -1;  /* NetworkIdentification */
-static int hf_charging_ase_stopIndicators = -1;   /* T_stopIndicators */
-static int hf_charging_ase_currentTariffCurrency = -1;  /* TariffCurrencyFormat */
-static int hf_charging_ase_tariffSwitchCurrency = -1;  /* TariffSwitchCurrency */
-static int hf_charging_ase_nextTariffCurrency = -1;  /* TariffCurrencyFormat */
-static int hf_charging_ase_tariffSwitchoverTime = -1;  /* TariffSwitchoverTime */
-static int hf_charging_ase_communicationChargeSequenceCurrency = -1;  /* SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargeCurrency */
-static int hf_charging_ase_communicationChargeSequenceCurrency_item = -1;  /* CommunicationChargeCurrency */
-static int hf_charging_ase_tariffControlIndicators = -1;  /* T_tariffControlIndicators */
-static int hf_charging_ase_callAttemptChargeCurrency = -1;  /* CurrencyFactorScale */
-static int hf_charging_ase_callSetupChargeCurrency = -1;  /* CurrencyFactorScale */
-static int hf_charging_ase_currentTariffPulse = -1;  /* TariffPulseFormat */
-static int hf_charging_ase_tariffSwitchPulse = -1;  /* TariffSwitchPulse */
-static int hf_charging_ase_nextTariffPulse = -1;  /* TariffPulseFormat */
-static int hf_charging_ase_communicationChargeSequencePulse = -1;  /* SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargePulse */
-static int hf_charging_ase_communicationChargeSequencePulse_item = -1;  /* CommunicationChargePulse */
-static int hf_charging_ase_tariffControlIndicators_01 = -1;  /* T_tariffControlIndicators_01 */
-static int hf_charging_ase_callAttemptChargePulse = -1;  /* PulseUnits */
-static int hf_charging_ase_callSetupChargePulse = -1;  /* PulseUnits */
-static int hf_charging_ase_networkIdentification = -1;  /* NetworkIdentification */
-static int hf_charging_ase_referenceID = -1;      /* ReferenceID */
+static int hf_charging_ase_charging_ase_ChargingMessageType_PDU;  /* ChargingMessageType */
+static int hf_charging_ase_crgt;                  /* ChargingTariffInformation */
+static int hf_charging_ase_aocrg;                 /* AddOnChargingInformation */
+static int hf_charging_ase_crga;                  /* ChargingAcknowledgementInformation */
+static int hf_charging_ase_start;                 /* StartCharging */
+static int hf_charging_ase_stop;                  /* StopCharging */
+static int hf_charging_ase_acknowledgementIndicators;  /* T_acknowledgementIndicators */
+static int hf_charging_ase_extensions;            /* SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField */
+static int hf_charging_ase_extensions_item;       /* ExtensionField */
+static int hf_charging_ase_originationIdentification;  /* ChargingReferenceIdentification */
+static int hf_charging_ase_destinationIdentification;  /* ChargingReferenceIdentification */
+static int hf_charging_ase_chargingControlIndicators;  /* ChargingControlIndicators */
+static int hf_charging_ase_addOncharge;           /* T_addOncharge */
+static int hf_charging_ase_addOnChargeCurrency;   /* CurrencyFactorScale */
+static int hf_charging_ase_addOnChargePulse;      /* PulseUnits */
+static int hf_charging_ase_currency;              /* Currency */
+static int hf_charging_ase_chargingTariff;        /* T_chargingTariff */
+static int hf_charging_ase_tariffCurrency;        /* TariffCurrency */
+static int hf_charging_ase_tariffPulse;           /* TariffPulse */
+static int hf_charging_ase_local;                 /* INTEGER */
+static int hf_charging_ase_global;                /* OBJECT_IDENTIFIER */
+static int hf_charging_ase_currencyFactorScale;   /* CurrencyFactorScale */
+static int hf_charging_ase_tariffDuration;        /* TariffDuration */
+static int hf_charging_ase_subTariffControl;      /* SubTariffControl */
+static int hf_charging_ase_pulseUnits;            /* PulseUnits */
+static int hf_charging_ase_chargeUnitTimeInterval;  /* ChargeUnitTimeInterval */
+static int hf_charging_ase_currencyFactor;        /* CurrencyFactor */
+static int hf_charging_ase_currencyScale;         /* CurrencyScale */
+static int hf_charging_ase_type;                  /* Code */
+static int hf_charging_ase_criticality;           /* CriticalityType */
+static int hf_charging_ase_value;                 /* T_value */
+static int hf_charging_ase_networkOperators;      /* SEQUENCE_SIZE_1_maxNetworkOperators_OF_NetworkIdentification */
+static int hf_charging_ase_networkOperators_item;  /* NetworkIdentification */
+static int hf_charging_ase_stopIndicators;        /* T_stopIndicators */
+static int hf_charging_ase_currentTariffCurrency;  /* TariffCurrencyFormat */
+static int hf_charging_ase_tariffSwitchCurrency;  /* TariffSwitchCurrency */
+static int hf_charging_ase_nextTariffCurrency;    /* TariffCurrencyFormat */
+static int hf_charging_ase_tariffSwitchoverTime;  /* TariffSwitchoverTime */
+static int hf_charging_ase_communicationChargeSequenceCurrency;  /* SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargeCurrency */
+static int hf_charging_ase_communicationChargeSequenceCurrency_item;  /* CommunicationChargeCurrency */
+static int hf_charging_ase_tariffControlIndicators;  /* T_tariffControlIndicators */
+static int hf_charging_ase_callAttemptChargeCurrency;  /* CurrencyFactorScale */
+static int hf_charging_ase_callSetupChargeCurrency;  /* CurrencyFactorScale */
+static int hf_charging_ase_currentTariffPulse;    /* TariffPulseFormat */
+static int hf_charging_ase_tariffSwitchPulse;     /* TariffSwitchPulse */
+static int hf_charging_ase_nextTariffPulse;       /* TariffPulseFormat */
+static int hf_charging_ase_communicationChargeSequencePulse;  /* SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargePulse */
+static int hf_charging_ase_communicationChargeSequencePulse_item;  /* CommunicationChargePulse */
+static int hf_charging_ase_tariffControlIndicators_01;  /* T_tariffControlIndicators_01 */
+static int hf_charging_ase_callAttemptChargePulse;  /* PulseUnits */
+static int hf_charging_ase_callSetupChargePulse;  /* PulseUnits */
+static int hf_charging_ase_networkIdentification;  /* NetworkIdentification */
+static int hf_charging_ase_referenceID;           /* ReferenceID */
 /* named bits */
-static int hf_charging_ase_T_acknowledgementIndicators_accepted = -1;
-static int hf_charging_ase_ChargingControlIndicators_subscriberCharge = -1;
-static int hf_charging_ase_ChargingControlIndicators_immediateChangeOfActuallyAppliedTariff = -1;
-static int hf_charging_ase_ChargingControlIndicators_delayUntilStart = -1;
-static int hf_charging_ase_T_stopIndicators_callAttemptChargesApplicable = -1;
-static int hf_charging_ase_SubTariffControl_oneTimeCharge = -1;
-static int hf_charging_ase_T_tariffControlIndicators_non_cyclicTariff = -1;
-static int hf_charging_ase_T_tariffControlIndicators_01_non_cyclicTariff = -1;
+static int hf_charging_ase_T_acknowledgementIndicators_accepted;
+static int hf_charging_ase_ChargingControlIndicators_subscriberCharge;
+static int hf_charging_ase_ChargingControlIndicators_immediateChangeOfActuallyAppliedTariff;
+static int hf_charging_ase_ChargingControlIndicators_delayUntilStart;
+static int hf_charging_ase_T_stopIndicators_callAttemptChargesApplicable;
+static int hf_charging_ase_SubTariffControl_oneTimeCharge;
+static int hf_charging_ase_T_tariffControlIndicators_non_cyclicTariff;
+static int hf_charging_ase_T_tariffControlIndicators_01_non_cyclicTariff;
 
-static int ett_charging_ase = -1;
-static gint ett_charging_ase_ChargingMessageType = -1;
-static gint ett_charging_ase_ChargingAcknowledgementInformation = -1;
-static gint ett_charging_ase_T_acknowledgementIndicators = -1;
-static gint ett_charging_ase_SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField = -1;
-static gint ett_charging_ase_ChargingControlIndicators = -1;
-static gint ett_charging_ase_AddOnChargingInformation = -1;
-static gint ett_charging_ase_T_addOncharge = -1;
-static gint ett_charging_ase_ChargingTariffInformation = -1;
-static gint ett_charging_ase_T_chargingTariff = -1;
-static gint ett_charging_ase_Code = -1;
-static gint ett_charging_ase_CommunicationChargeCurrency = -1;
-static gint ett_charging_ase_CommunicationChargePulse = -1;
-static gint ett_charging_ase_CurrencyFactorScale = -1;
-static gint ett_charging_ase_ExtensionField = -1;
-static gint ett_charging_ase_StartCharging = -1;
-static gint ett_charging_ase_SEQUENCE_SIZE_1_maxNetworkOperators_OF_NetworkIdentification = -1;
-static gint ett_charging_ase_StopCharging = -1;
-static gint ett_charging_ase_T_stopIndicators = -1;
-static gint ett_charging_ase_SubTariffControl = -1;
-static gint ett_charging_ase_TariffCurrency = -1;
-static gint ett_charging_ase_TariffSwitchCurrency = -1;
-static gint ett_charging_ase_TariffCurrencyFormat = -1;
-static gint ett_charging_ase_SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargeCurrency = -1;
-static gint ett_charging_ase_T_tariffControlIndicators = -1;
-static gint ett_charging_ase_TariffPulse = -1;
-static gint ett_charging_ase_TariffSwitchPulse = -1;
-static gint ett_charging_ase_TariffPulseFormat = -1;
-static gint ett_charging_ase_SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargePulse = -1;
-static gint ett_charging_ase_T_tariffControlIndicators_01 = -1;
-static gint ett_charging_ase_ChargingReferenceIdentification = -1;
+static int ett_charging_ase;
+static gint ett_charging_ase_ChargingMessageType;
+static gint ett_charging_ase_ChargingAcknowledgementInformation;
+static gint ett_charging_ase_T_acknowledgementIndicators;
+static gint ett_charging_ase_SEQUENCE_SIZE_1_numOfExtensions_OF_ExtensionField;
+static gint ett_charging_ase_ChargingControlIndicators;
+static gint ett_charging_ase_AddOnChargingInformation;
+static gint ett_charging_ase_T_addOncharge;
+static gint ett_charging_ase_ChargingTariffInformation;
+static gint ett_charging_ase_T_chargingTariff;
+static gint ett_charging_ase_Code;
+static gint ett_charging_ase_CommunicationChargeCurrency;
+static gint ett_charging_ase_CommunicationChargePulse;
+static gint ett_charging_ase_CurrencyFactorScale;
+static gint ett_charging_ase_ExtensionField;
+static gint ett_charging_ase_StartCharging;
+static gint ett_charging_ase_SEQUENCE_SIZE_1_maxNetworkOperators_OF_NetworkIdentification;
+static gint ett_charging_ase_StopCharging;
+static gint ett_charging_ase_T_stopIndicators;
+static gint ett_charging_ase_SubTariffControl;
+static gint ett_charging_ase_TariffCurrency;
+static gint ett_charging_ase_TariffSwitchCurrency;
+static gint ett_charging_ase_TariffCurrencyFormat;
+static gint ett_charging_ase_SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargeCurrency;
+static gint ett_charging_ase_T_tariffControlIndicators;
+static gint ett_charging_ase_TariffPulse;
+static gint ett_charging_ase_TariffSwitchPulse;
+static gint ett_charging_ase_TariffPulseFormat;
+static gint ett_charging_ase_SEQUENCE_SIZE_minCommunicationTariffNum_maxCommunicationTariffNum_OF_CommunicationChargePulse;
+static gint ett_charging_ase_T_tariffControlIndicators_01;
+static gint ett_charging_ase_ChargingReferenceIdentification;
 
-static expert_field ei_charging_ase_extensions_not_dissected = EI_INIT;
+static expert_field ei_charging_ase_extensions_not_dissected;
 
 static dissector_handle_t charging_ase_handle;
 

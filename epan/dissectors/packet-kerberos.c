@@ -195,480 +195,480 @@ static int dissect_kerberos_FastOptions(bool implicit_tag _U_, tvbuff_t *tvb _U_
 /* Desegment Kerberos over TCP messages */
 static gboolean krb_desegment = TRUE;
 
-static gint proto_kerberos = -1;
+static gint proto_kerberos;
 
-static gint hf_krb_rm_reserved = -1;
-static gint hf_krb_rm_reclen = -1;
-static gint hf_krb_provsrv_location = -1;
-static gint hf_krb_pw_salt = -1;
-static gint hf_krb_ext_error_nt_status = -1;
-static gint hf_krb_ext_error_reserved = -1;
-static gint hf_krb_ext_error_flags = -1;
-static gint hf_krb_address_ip = -1;
-static gint hf_krb_address_netbios = -1;
-static gint hf_krb_address_ipv6 = -1;
-static gint hf_krb_gssapi_len = -1;
-static gint hf_krb_gssapi_bnd = -1;
-static gint hf_krb_gssapi_dlgopt = -1;
-static gint hf_krb_gssapi_dlglen = -1;
-static gint hf_krb_gssapi_c_flag_deleg = -1;
-static gint hf_krb_gssapi_c_flag_mutual = -1;
-static gint hf_krb_gssapi_c_flag_replay = -1;
-static gint hf_krb_gssapi_c_flag_sequence = -1;
-static gint hf_krb_gssapi_c_flag_conf = -1;
-static gint hf_krb_gssapi_c_flag_integ = -1;
-static gint hf_krb_gssapi_c_flag_dce_style = -1;
-static gint hf_krb_midl_version = -1;
-static gint hf_krb_midl_hdr_len = -1;
-static gint hf_krb_midl_fill_bytes = -1;
-static gint hf_krb_midl_blob_len = -1;
-static gint hf_krb_pac_signature_type = -1;
-static gint hf_krb_pac_signature_signature = -1;
-static gint hf_krb_w2k_pac_entries = -1;
-static gint hf_krb_w2k_pac_version = -1;
-static gint hf_krb_w2k_pac_type = -1;
-static gint hf_krb_w2k_pac_size = -1;
-static gint hf_krb_w2k_pac_offset = -1;
-static gint hf_krb_pac_clientid = -1;
-static gint hf_krb_pac_namelen = -1;
-static gint hf_krb_pac_clientname = -1;
-static gint hf_krb_pac_logon_info = -1;
-static gint hf_krb_pac_credential_data = -1;
-static gint hf_krb_pac_credential_info = -1;
-static gint hf_krb_pac_credential_info_version = -1;
-static gint hf_krb_pac_credential_info_etype = -1;
-static gint hf_krb_pac_s4u_delegation_info = -1;
-static gint hf_krb_pac_upn_dns_info = -1;
-static gint hf_krb_pac_upn_flags = -1;
-static gint hf_krb_pac_upn_flag_upn_constructed = -1;
-static gint hf_krb_pac_upn_flag_has_sam_name_and_sid = -1;
-static gint hf_krb_pac_upn_upn_offset = -1;
-static gint hf_krb_pac_upn_upn_len = -1;
-static gint hf_krb_pac_upn_upn_name = -1;
-static gint hf_krb_pac_upn_dns_offset = -1;
-static gint hf_krb_pac_upn_dns_len = -1;
-static gint hf_krb_pac_upn_dns_name = -1;
-static gint hf_krb_pac_upn_samaccountname_offset = -1;
-static gint hf_krb_pac_upn_samaccountname_len = -1;
-static gint hf_krb_pac_upn_samaccountname = -1;
-static gint hf_krb_pac_upn_objectsid_offset = -1;
-static gint hf_krb_pac_upn_objectsid_len = -1;
-static gint hf_krb_pac_server_checksum = -1;
-static gint hf_krb_pac_privsvr_checksum = -1;
-static gint hf_krb_pac_client_info_type = -1;
-static gint hf_krb_pac_client_claims_info = -1;
-static gint hf_krb_pac_device_info = -1;
-static gint hf_krb_pac_device_claims_info = -1;
-static gint hf_krb_pac_ticket_checksum = -1;
-static gint hf_krb_pac_attributes_info = -1;
-static gint hf_krb_pac_attributes_info_length = -1;
-static gint hf_krb_pac_attributes_info_flags = -1;
-static gint hf_krb_pac_attributes_info_flags_pac_was_requested = -1;
-static gint hf_krb_pac_attributes_info_flags_pac_was_given_implicitly = -1;
-static gint hf_krb_pac_requester_sid = -1;
-static gint hf_krb_pa_supported_enctypes = -1;
-static gint hf_krb_pa_supported_enctypes_des_cbc_crc = -1;
-static gint hf_krb_pa_supported_enctypes_des_cbc_md5 = -1;
-static gint hf_krb_pa_supported_enctypes_rc4_hmac = -1;
-static gint hf_krb_pa_supported_enctypes_aes128_cts_hmac_sha1_96 = -1;
-static gint hf_krb_pa_supported_enctypes_aes256_cts_hmac_sha1_96 = -1;
-static gint hf_krb_pa_supported_enctypes_fast_supported = -1;
-static gint hf_krb_pa_supported_enctypes_compound_identity_supported = -1;
-static gint hf_krb_pa_supported_enctypes_claims_supported = -1;
-static gint hf_krb_pa_supported_enctypes_resource_sid_compression_disabled = -1;
-static gint hf_krb_ad_ap_options = -1;
-static gint hf_krb_ad_ap_options_cbt = -1;
-static gint hf_krb_ad_target_principal = -1;
-static gint hf_krb_key_hidden_item = -1;
-static gint hf_kerberos_KERB_TICKET_LOGON = -1;
-static gint hf_kerberos_KERB_TICKET_LOGON_MessageType = -1;
-static gint hf_kerberos_KERB_TICKET_LOGON_Flags = -1;
-static gint hf_kerberos_KERB_TICKET_LOGON_ServiceTicketLength = -1;
-static gint hf_kerberos_KERB_TICKET_LOGON_TicketGrantingTicketLength = -1;
-static gint hf_kerberos_KERB_TICKET_LOGON_ServiceTicket = -1;
-static gint hf_kerberos_KERB_TICKET_LOGON_TicketGrantingTicket = -1;
-static gint hf_kerberos_KERB_TICKET_LOGON_FLAG_ALLOW_EXPIRED_TICKET = -1;
-static gint hf_kerberos_KERB_TICKET_LOGON_FLAG_REDIRECTED = -1;
+static gint hf_krb_rm_reserved;
+static gint hf_krb_rm_reclen;
+static gint hf_krb_provsrv_location;
+static gint hf_krb_pw_salt;
+static gint hf_krb_ext_error_nt_status;
+static gint hf_krb_ext_error_reserved;
+static gint hf_krb_ext_error_flags;
+static gint hf_krb_address_ip;
+static gint hf_krb_address_netbios;
+static gint hf_krb_address_ipv6;
+static gint hf_krb_gssapi_len;
+static gint hf_krb_gssapi_bnd;
+static gint hf_krb_gssapi_dlgopt;
+static gint hf_krb_gssapi_dlglen;
+static gint hf_krb_gssapi_c_flag_deleg;
+static gint hf_krb_gssapi_c_flag_mutual;
+static gint hf_krb_gssapi_c_flag_replay;
+static gint hf_krb_gssapi_c_flag_sequence;
+static gint hf_krb_gssapi_c_flag_conf;
+static gint hf_krb_gssapi_c_flag_integ;
+static gint hf_krb_gssapi_c_flag_dce_style;
+static gint hf_krb_midl_version;
+static gint hf_krb_midl_hdr_len;
+static gint hf_krb_midl_fill_bytes;
+static gint hf_krb_midl_blob_len;
+static gint hf_krb_pac_signature_type;
+static gint hf_krb_pac_signature_signature;
+static gint hf_krb_w2k_pac_entries;
+static gint hf_krb_w2k_pac_version;
+static gint hf_krb_w2k_pac_type;
+static gint hf_krb_w2k_pac_size;
+static gint hf_krb_w2k_pac_offset;
+static gint hf_krb_pac_clientid;
+static gint hf_krb_pac_namelen;
+static gint hf_krb_pac_clientname;
+static gint hf_krb_pac_logon_info;
+static gint hf_krb_pac_credential_data;
+static gint hf_krb_pac_credential_info;
+static gint hf_krb_pac_credential_info_version;
+static gint hf_krb_pac_credential_info_etype;
+static gint hf_krb_pac_s4u_delegation_info;
+static gint hf_krb_pac_upn_dns_info;
+static gint hf_krb_pac_upn_flags;
+static gint hf_krb_pac_upn_flag_upn_constructed;
+static gint hf_krb_pac_upn_flag_has_sam_name_and_sid;
+static gint hf_krb_pac_upn_upn_offset;
+static gint hf_krb_pac_upn_upn_len;
+static gint hf_krb_pac_upn_upn_name;
+static gint hf_krb_pac_upn_dns_offset;
+static gint hf_krb_pac_upn_dns_len;
+static gint hf_krb_pac_upn_dns_name;
+static gint hf_krb_pac_upn_samaccountname_offset;
+static gint hf_krb_pac_upn_samaccountname_len;
+static gint hf_krb_pac_upn_samaccountname;
+static gint hf_krb_pac_upn_objectsid_offset;
+static gint hf_krb_pac_upn_objectsid_len;
+static gint hf_krb_pac_server_checksum;
+static gint hf_krb_pac_privsvr_checksum;
+static gint hf_krb_pac_client_info_type;
+static gint hf_krb_pac_client_claims_info;
+static gint hf_krb_pac_device_info;
+static gint hf_krb_pac_device_claims_info;
+static gint hf_krb_pac_ticket_checksum;
+static gint hf_krb_pac_attributes_info;
+static gint hf_krb_pac_attributes_info_length;
+static gint hf_krb_pac_attributes_info_flags;
+static gint hf_krb_pac_attributes_info_flags_pac_was_requested;
+static gint hf_krb_pac_attributes_info_flags_pac_was_given_implicitly;
+static gint hf_krb_pac_requester_sid;
+static gint hf_krb_pa_supported_enctypes;
+static gint hf_krb_pa_supported_enctypes_des_cbc_crc;
+static gint hf_krb_pa_supported_enctypes_des_cbc_md5;
+static gint hf_krb_pa_supported_enctypes_rc4_hmac;
+static gint hf_krb_pa_supported_enctypes_aes128_cts_hmac_sha1_96;
+static gint hf_krb_pa_supported_enctypes_aes256_cts_hmac_sha1_96;
+static gint hf_krb_pa_supported_enctypes_fast_supported;
+static gint hf_krb_pa_supported_enctypes_compound_identity_supported;
+static gint hf_krb_pa_supported_enctypes_claims_supported;
+static gint hf_krb_pa_supported_enctypes_resource_sid_compression_disabled;
+static gint hf_krb_ad_ap_options;
+static gint hf_krb_ad_ap_options_cbt;
+static gint hf_krb_ad_target_principal;
+static gint hf_krb_key_hidden_item;
+static gint hf_kerberos_KERB_TICKET_LOGON;
+static gint hf_kerberos_KERB_TICKET_LOGON_MessageType;
+static gint hf_kerberos_KERB_TICKET_LOGON_Flags;
+static gint hf_kerberos_KERB_TICKET_LOGON_ServiceTicketLength;
+static gint hf_kerberos_KERB_TICKET_LOGON_TicketGrantingTicketLength;
+static gint hf_kerberos_KERB_TICKET_LOGON_ServiceTicket;
+static gint hf_kerberos_KERB_TICKET_LOGON_TicketGrantingTicket;
+static gint hf_kerberos_KERB_TICKET_LOGON_FLAG_ALLOW_EXPIRED_TICKET;
+static gint hf_kerberos_KERB_TICKET_LOGON_FLAG_REDIRECTED;
 #ifdef HAVE_KERBEROS
-static gint hf_kerberos_KrbFastResponse = -1;
-static gint hf_kerberos_strengthen_key = -1;
-static gint hf_kerberos_finished = -1;
-static gint hf_kerberos_fast_options = -1;
-static gint hf_kerberos_ticket_checksum = -1;
-static gint hf_krb_patimestamp = -1;
-static gint hf_krb_pausec = -1;
-static gint hf_kerberos_FastOptions_reserved = -1;
-static gint hf_kerberos_FastOptions_hide_client_names = -1;
-static gint hf_kerberos_FastOptions_spare_bit2 = -1;
-static gint hf_kerberos_FastOptions_spare_bit3 = -1;
-static gint hf_kerberos_FastOptions_spare_bit4 = -1;
-static gint hf_kerberos_FastOptions_spare_bit5 = -1;
-static gint hf_kerberos_FastOptions_spare_bit6 = -1;
-static gint hf_kerberos_FastOptions_spare_bit7 = -1;
-static gint hf_kerberos_FastOptions_spare_bit8 = -1;
-static gint hf_kerberos_FastOptions_spare_bit9 = -1;
-static gint hf_kerberos_FastOptions_spare_bit10 = -1;
-static gint hf_kerberos_FastOptions_spare_bit11 = -1;
-static gint hf_kerberos_FastOptions_spare_bit12 = -1;
-static gint hf_kerberos_FastOptions_spare_bit13 = -1;
-static gint hf_kerberos_FastOptions_spare_bit14 = -1;
-static gint hf_kerberos_FastOptions_spare_bit15 = -1;
-static gint hf_kerberos_FastOptions_kdc_follow_referrals = -1;
+static gint hf_kerberos_KrbFastResponse;
+static gint hf_kerberos_strengthen_key;
+static gint hf_kerberos_finished;
+static gint hf_kerberos_fast_options;
+static gint hf_kerberos_ticket_checksum;
+static gint hf_krb_patimestamp;
+static gint hf_krb_pausec;
+static gint hf_kerberos_FastOptions_reserved;
+static gint hf_kerberos_FastOptions_hide_client_names;
+static gint hf_kerberos_FastOptions_spare_bit2;
+static gint hf_kerberos_FastOptions_spare_bit3;
+static gint hf_kerberos_FastOptions_spare_bit4;
+static gint hf_kerberos_FastOptions_spare_bit5;
+static gint hf_kerberos_FastOptions_spare_bit6;
+static gint hf_kerberos_FastOptions_spare_bit7;
+static gint hf_kerberos_FastOptions_spare_bit8;
+static gint hf_kerberos_FastOptions_spare_bit9;
+static gint hf_kerberos_FastOptions_spare_bit10;
+static gint hf_kerberos_FastOptions_spare_bit11;
+static gint hf_kerberos_FastOptions_spare_bit12;
+static gint hf_kerberos_FastOptions_spare_bit13;
+static gint hf_kerberos_FastOptions_spare_bit14;
+static gint hf_kerberos_FastOptions_spare_bit15;
+static gint hf_kerberos_FastOptions_kdc_follow_referrals;
 
 #endif
-static int hf_kerberos_ticket = -1;               /* Ticket */
-static int hf_kerberos_authenticator = -1;        /* Authenticator */
-static int hf_kerberos_encTicketPart = -1;        /* EncTicketPart */
-static int hf_kerberos_as_req = -1;               /* AS_REQ */
-static int hf_kerberos_as_rep = -1;               /* AS_REP */
-static int hf_kerberos_tgs_req = -1;              /* TGS_REQ */
-static int hf_kerberos_tgs_rep = -1;              /* TGS_REP */
-static int hf_kerberos_ap_req = -1;               /* AP_REQ */
-static int hf_kerberos_ap_rep = -1;               /* AP_REP */
-static int hf_kerberos_krb_safe = -1;             /* KRB_SAFE */
-static int hf_kerberos_krb_priv = -1;             /* KRB_PRIV */
-static int hf_kerberos_krb_cred = -1;             /* KRB_CRED */
-static int hf_kerberos_encASRepPart = -1;         /* EncASRepPart */
-static int hf_kerberos_encTGSRepPart = -1;        /* EncTGSRepPart */
-static int hf_kerberos_encAPRepPart = -1;         /* EncAPRepPart */
-static int hf_kerberos_encKrbPrivPart = -1;       /* ENC_KRB_PRIV_PART */
-static int hf_kerberos_encKrbCredPart = -1;       /* EncKrbCredPart */
-static int hf_kerberos_krb_error = -1;            /* KRB_ERROR */
-static int hf_kerberos_name_type = -1;            /* NAME_TYPE */
-static int hf_kerberos_name_string = -1;          /* SEQUENCE_OF_KerberosString */
-static int hf_kerberos_name_string_item = -1;     /* KerberosString */
-static int hf_kerberos_cname_string = -1;         /* SEQUENCE_OF_CNameString */
-static int hf_kerberos_cname_string_item = -1;    /* CNameString */
-static int hf_kerberos_sname_string = -1;         /* SEQUENCE_OF_SNameString */
-static int hf_kerberos_sname_string_item = -1;    /* SNameString */
-static int hf_kerberos_addr_type = -1;            /* ADDR_TYPE */
-static int hf_kerberos_address = -1;              /* T_address */
-static int hf_kerberos_HostAddresses_item = -1;   /* HostAddress */
-static int hf_kerberos_AuthorizationData_item = -1;  /* AuthorizationData_item */
-static int hf_kerberos_ad_type = -1;              /* AUTHDATA_TYPE */
-static int hf_kerberos_ad_data = -1;              /* T_ad_data */
-static int hf_kerberos_padata_type = -1;          /* PADATA_TYPE */
-static int hf_kerberos_padata_value = -1;         /* T_padata_value */
-static int hf_kerberos_keytype = -1;              /* T_keytype */
-static int hf_kerberos_keyvalue = -1;             /* T_keyvalue */
-static int hf_kerberos_cksumtype = -1;            /* CKSUMTYPE */
-static int hf_kerberos_checksum = -1;             /* T_checksum */
-static int hf_kerberos_etype = -1;                /* ENCTYPE */
-static int hf_kerberos_kvno = -1;                 /* UInt32 */
-static int hf_kerberos_encryptedTicketData_cipher = -1;  /* T_encryptedTicketData_cipher */
-static int hf_kerberos_encryptedAuthorizationData_cipher = -1;  /* T_encryptedAuthorizationData_cipher */
-static int hf_kerberos_encryptedAuthenticator_cipher = -1;  /* T_encryptedAuthenticator_cipher */
-static int hf_kerberos_encryptedKDCREPData_cipher = -1;  /* T_encryptedKDCREPData_cipher */
-static int hf_kerberos_encryptedAPREPData_cipher = -1;  /* T_encryptedAPREPData_cipher */
-static int hf_kerberos_encryptedKrbPrivData_cipher = -1;  /* T_encryptedKrbPrivData_cipher */
-static int hf_kerberos_encryptedKrbCredData_cipher = -1;  /* T_encryptedKrbCredData_cipher */
-static int hf_kerberos_tkt_vno = -1;              /* INTEGER_5 */
-static int hf_kerberos_realm = -1;                /* Realm */
-static int hf_kerberos_sname = -1;                /* SName */
-static int hf_kerberos_ticket_enc_part = -1;      /* EncryptedTicketData */
-static int hf_kerberos_flags = -1;                /* TicketFlags */
-static int hf_kerberos_encTicketPart_key = -1;    /* T_encTicketPart_key */
-static int hf_kerberos_crealm = -1;               /* Realm */
-static int hf_kerberos_cname = -1;                /* CName */
-static int hf_kerberos_transited = -1;            /* TransitedEncoding */
-static int hf_kerberos_authtime = -1;             /* KerberosTime */
-static int hf_kerberos_starttime = -1;            /* KerberosTime */
-static int hf_kerberos_endtime = -1;              /* KerberosTime */
-static int hf_kerberos_renew_till = -1;           /* KerberosTime */
-static int hf_kerberos_caddr = -1;                /* HostAddresses */
-static int hf_kerberos_authorization_data = -1;   /* AuthorizationData */
-static int hf_kerberos_tr_type = -1;              /* Int32 */
-static int hf_kerberos_contents = -1;             /* OCTET_STRING */
-static int hf_kerberos_pvno = -1;                 /* INTEGER_5 */
-static int hf_kerberos_msg_type = -1;             /* MESSAGE_TYPE */
-static int hf_kerberos_rEQ_SEQUENCE_OF_PA_DATA = -1;  /* T_rEQ_SEQUENCE_OF_PA_DATA */
-static int hf_kerberos_rEQ_SEQUENCE_OF_PA_DATA_item = -1;  /* PA_DATA */
-static int hf_kerberos_req_body = -1;             /* KDC_REQ_BODY */
-static int hf_kerberos_kdc_options = -1;          /* KDCOptions */
-static int hf_kerberos_from = -1;                 /* KerberosTime */
-static int hf_kerberos_till = -1;                 /* KerberosTime */
-static int hf_kerberos_rtime = -1;                /* KerberosTime */
-static int hf_kerberos_nonce = -1;                /* UInt32 */
-static int hf_kerberos_kDC_REQ_BODY_etype = -1;   /* SEQUENCE_OF_ENCTYPE */
-static int hf_kerberos_kDC_REQ_BODY_etype_item = -1;  /* ENCTYPE */
-static int hf_kerberos_addresses = -1;            /* HostAddresses */
-static int hf_kerberos_enc_authorization_data = -1;  /* EncryptedAuthorizationData */
-static int hf_kerberos_additional_tickets = -1;   /* SEQUENCE_OF_Ticket */
-static int hf_kerberos_additional_tickets_item = -1;  /* Ticket */
-static int hf_kerberos_rEP_SEQUENCE_OF_PA_DATA = -1;  /* T_rEP_SEQUENCE_OF_PA_DATA */
-static int hf_kerberos_rEP_SEQUENCE_OF_PA_DATA_item = -1;  /* PA_DATA */
-static int hf_kerberos_kDC_REP_enc_part = -1;     /* EncryptedKDCREPData */
-static int hf_kerberos_encKDCRepPart_key = -1;    /* T_encKDCRepPart_key */
-static int hf_kerberos_last_req = -1;             /* LastReq */
-static int hf_kerberos_key_expiration = -1;       /* KerberosTime */
-static int hf_kerberos_srealm = -1;               /* Realm */
-static int hf_kerberos_encrypted_pa_data = -1;    /* T_encrypted_pa_data */
-static int hf_kerberos_LastReq_item = -1;         /* LastReq_item */
-static int hf_kerberos_lr_type = -1;              /* LR_TYPE */
-static int hf_kerberos_lr_value = -1;             /* KerberosTime */
-static int hf_kerberos_ap_options = -1;           /* APOptions */
-static int hf_kerberos_authenticator_enc_part = -1;  /* EncryptedAuthenticator */
-static int hf_kerberos_authenticator_vno = -1;    /* INTEGER_5 */
-static int hf_kerberos_cksum = -1;                /* Checksum */
-static int hf_kerberos_cusec = -1;                /* Microseconds */
-static int hf_kerberos_ctime = -1;                /* KerberosTime */
-static int hf_kerberos_authenticator_subkey = -1;  /* T_authenticator_subkey */
-static int hf_kerberos_seq_number = -1;           /* UInt32 */
-static int hf_kerberos_aP_REP_enc_part = -1;      /* EncryptedAPREPData */
-static int hf_kerberos_encAPRepPart_subkey = -1;  /* T_encAPRepPart_subkey */
-static int hf_kerberos_safe_body = -1;            /* KRB_SAFE_BODY */
-static int hf_kerberos_kRB_SAFE_BODY_user_data = -1;  /* T_kRB_SAFE_BODY_user_data */
-static int hf_kerberos_timestamp = -1;            /* KerberosTime */
-static int hf_kerberos_usec = -1;                 /* Microseconds */
-static int hf_kerberos_s_address = -1;            /* HostAddress */
-static int hf_kerberos_r_address = -1;            /* HostAddress */
-static int hf_kerberos_kRB_PRIV_enc_part = -1;    /* EncryptedKrbPrivData */
-static int hf_kerberos_encKrbPrivPart_user_data = -1;  /* T_encKrbPrivPart_user_data */
-static int hf_kerberos_tickets = -1;              /* SEQUENCE_OF_Ticket */
-static int hf_kerberos_tickets_item = -1;         /* Ticket */
-static int hf_kerberos_kRB_CRED_enc_part = -1;    /* EncryptedKrbCredData */
-static int hf_kerberos_ticket_info = -1;          /* SEQUENCE_OF_KrbCredInfo */
-static int hf_kerberos_ticket_info_item = -1;     /* KrbCredInfo */
-static int hf_kerberos_krbCredInfo_key = -1;      /* T_krbCredInfo_key */
-static int hf_kerberos_prealm = -1;               /* Realm */
-static int hf_kerberos_pname = -1;                /* PrincipalName */
-static int hf_kerberos_stime = -1;                /* KerberosTime */
-static int hf_kerberos_susec = -1;                /* Microseconds */
-static int hf_kerberos_error_code = -1;           /* ERROR_CODE */
-static int hf_kerberos_e_text = -1;               /* KerberosString */
-static int hf_kerberos_e_data = -1;               /* T_e_data */
-static int hf_kerberos_e_checksum = -1;           /* Checksum */
-static int hf_kerberos_METHOD_DATA_item = -1;     /* PA_DATA */
-static int hf_kerberos_pA_ENC_TIMESTAMP_cipher = -1;  /* T_pA_ENC_TIMESTAMP_cipher */
-static int hf_kerberos_info_salt = -1;            /* OCTET_STRING */
-static int hf_kerberos_ETYPE_INFO_item = -1;      /* ETYPE_INFO_ENTRY */
-static int hf_kerberos_info2_salt = -1;           /* KerberosString */
-static int hf_kerberos_s2kparams = -1;            /* OCTET_STRING */
-static int hf_kerberos_ETYPE_INFO2_item = -1;     /* ETYPE_INFO2_ENTRY */
-static int hf_kerberos_server_name = -1;          /* PrincipalName */
-static int hf_kerberos_include_pac = -1;          /* BOOLEAN */
-static int hf_kerberos_name = -1;                 /* PrincipalName */
-static int hf_kerberos_auth = -1;                 /* GeneralString */
-static int hf_kerberos_user_id = -1;              /* S4UUserID */
-static int hf_kerberos_checksum_01 = -1;          /* Checksum */
-static int hf_kerberos_cname_01 = -1;             /* PrincipalName */
-static int hf_kerberos_subject_certificate = -1;  /* T_subject_certificate */
-static int hf_kerberos_options = -1;              /* BIT_STRING */
-static int hf_kerberos_flags_01 = -1;             /* PAC_OPTIONS_FLAGS */
-static int hf_kerberos_restriction_type = -1;     /* Int32 */
-static int hf_kerberos_restriction = -1;          /* OCTET_STRING */
-static int hf_kerberos_PA_KERB_KEY_LIST_REQ_item = -1;  /* ENCTYPE */
-static int hf_kerberos_kerbKeyListRep_key = -1;   /* PA_KERB_KEY_LIST_REP_item */
-static int hf_kerberos_newpasswd = -1;            /* OCTET_STRING */
-static int hf_kerberos_targname = -1;             /* PrincipalName */
-static int hf_kerberos_targrealm = -1;            /* Realm */
-static int hf_kerberos_pa_type = -1;              /* PADATA_TYPE */
-static int hf_kerberos_pa_hint = -1;              /* OCTET_STRING */
-static int hf_kerberos_pa_value = -1;             /* OCTET_STRING */
-static int hf_kerberos_armor_type = -1;           /* KrbFastArmorTypes */
-static int hf_kerberos_armor_value = -1;          /* T_armor_value */
-static int hf_kerberos_armored_data_request = -1;  /* KrbFastArmoredReq */
-static int hf_kerberos_encryptedKrbFastReq_cipher = -1;  /* T_encryptedKrbFastReq_cipher */
-static int hf_kerberos_armor = -1;                /* KrbFastArmor */
-static int hf_kerberos_req_checksum = -1;         /* Checksum */
-static int hf_kerberos_enc_fast_req = -1;         /* EncryptedKrbFastReq */
-static int hf_kerberos_armored_data_reply = -1;   /* KrbFastArmoredRep */
-static int hf_kerberos_encryptedKrbFastResponse_cipher = -1;  /* T_encryptedKrbFastResponse_cipher */
-static int hf_kerberos_enc_fast_rep = -1;         /* EncryptedKrbFastResponse */
-static int hf_kerberos_encryptedChallenge_cipher = -1;  /* T_encryptedChallenge_cipher */
-static int hf_kerberos_cipher = -1;               /* OCTET_STRING */
-static int hf_kerberos_groups = -1;               /* SEQUENCE_SIZE_1_MAX_OF_SPAKEGroup */
-static int hf_kerberos_groups_item = -1;          /* SPAKEGroup */
-static int hf_kerberos_group = -1;                /* SPAKEGroup */
-static int hf_kerberos_pubkey = -1;               /* OCTET_STRING */
-static int hf_kerberos_factors = -1;              /* SEQUENCE_SIZE_1_MAX_OF_SPAKESecondFactor */
-static int hf_kerberos_factors_item = -1;         /* SPAKESecondFactor */
-static int hf_kerberos_type = -1;                 /* SPAKESecondFactorType */
-static int hf_kerberos_data = -1;                 /* OCTET_STRING */
-static int hf_kerberos_factor = -1;               /* EncryptedSpakeResponseData */
-static int hf_kerberos_support = -1;              /* SPAKESupport */
-static int hf_kerberos_challenge = -1;            /* SPAKEChallenge */
-static int hf_kerberos_response = -1;             /* SPAKEResponse */
-static int hf_kerberos_encdata = -1;              /* EncryptedSpakeData */
+static int hf_kerberos_ticket;                    /* Ticket */
+static int hf_kerberos_authenticator;             /* Authenticator */
+static int hf_kerberos_encTicketPart;             /* EncTicketPart */
+static int hf_kerberos_as_req;                    /* AS_REQ */
+static int hf_kerberos_as_rep;                    /* AS_REP */
+static int hf_kerberos_tgs_req;                   /* TGS_REQ */
+static int hf_kerberos_tgs_rep;                   /* TGS_REP */
+static int hf_kerberos_ap_req;                    /* AP_REQ */
+static int hf_kerberos_ap_rep;                    /* AP_REP */
+static int hf_kerberos_krb_safe;                  /* KRB_SAFE */
+static int hf_kerberos_krb_priv;                  /* KRB_PRIV */
+static int hf_kerberos_krb_cred;                  /* KRB_CRED */
+static int hf_kerberos_encASRepPart;              /* EncASRepPart */
+static int hf_kerberos_encTGSRepPart;             /* EncTGSRepPart */
+static int hf_kerberos_encAPRepPart;              /* EncAPRepPart */
+static int hf_kerberos_encKrbPrivPart;            /* ENC_KRB_PRIV_PART */
+static int hf_kerberos_encKrbCredPart;            /* EncKrbCredPart */
+static int hf_kerberos_krb_error;                 /* KRB_ERROR */
+static int hf_kerberos_name_type;                 /* NAME_TYPE */
+static int hf_kerberos_name_string;               /* SEQUENCE_OF_KerberosString */
+static int hf_kerberos_name_string_item;          /* KerberosString */
+static int hf_kerberos_cname_string;              /* SEQUENCE_OF_CNameString */
+static int hf_kerberos_cname_string_item;         /* CNameString */
+static int hf_kerberos_sname_string;              /* SEQUENCE_OF_SNameString */
+static int hf_kerberos_sname_string_item;         /* SNameString */
+static int hf_kerberos_addr_type;                 /* ADDR_TYPE */
+static int hf_kerberos_address;                   /* T_address */
+static int hf_kerberos_HostAddresses_item;        /* HostAddress */
+static int hf_kerberos_AuthorizationData_item;    /* AuthorizationData_item */
+static int hf_kerberos_ad_type;                   /* AUTHDATA_TYPE */
+static int hf_kerberos_ad_data;                   /* T_ad_data */
+static int hf_kerberos_padata_type;               /* PADATA_TYPE */
+static int hf_kerberos_padata_value;              /* T_padata_value */
+static int hf_kerberos_keytype;                   /* T_keytype */
+static int hf_kerberos_keyvalue;                  /* T_keyvalue */
+static int hf_kerberos_cksumtype;                 /* CKSUMTYPE */
+static int hf_kerberos_checksum;                  /* T_checksum */
+static int hf_kerberos_etype;                     /* ENCTYPE */
+static int hf_kerberos_kvno;                      /* UInt32 */
+static int hf_kerberos_encryptedTicketData_cipher;  /* T_encryptedTicketData_cipher */
+static int hf_kerberos_encryptedAuthorizationData_cipher;  /* T_encryptedAuthorizationData_cipher */
+static int hf_kerberos_encryptedAuthenticator_cipher;  /* T_encryptedAuthenticator_cipher */
+static int hf_kerberos_encryptedKDCREPData_cipher;  /* T_encryptedKDCREPData_cipher */
+static int hf_kerberos_encryptedAPREPData_cipher;  /* T_encryptedAPREPData_cipher */
+static int hf_kerberos_encryptedKrbPrivData_cipher;  /* T_encryptedKrbPrivData_cipher */
+static int hf_kerberos_encryptedKrbCredData_cipher;  /* T_encryptedKrbCredData_cipher */
+static int hf_kerberos_tkt_vno;                   /* INTEGER_5 */
+static int hf_kerberos_realm;                     /* Realm */
+static int hf_kerberos_sname;                     /* SName */
+static int hf_kerberos_ticket_enc_part;           /* EncryptedTicketData */
+static int hf_kerberos_flags;                     /* TicketFlags */
+static int hf_kerberos_encTicketPart_key;         /* T_encTicketPart_key */
+static int hf_kerberos_crealm;                    /* Realm */
+static int hf_kerberos_cname;                     /* CName */
+static int hf_kerberos_transited;                 /* TransitedEncoding */
+static int hf_kerberos_authtime;                  /* KerberosTime */
+static int hf_kerberos_starttime;                 /* KerberosTime */
+static int hf_kerberos_endtime;                   /* KerberosTime */
+static int hf_kerberos_renew_till;                /* KerberosTime */
+static int hf_kerberos_caddr;                     /* HostAddresses */
+static int hf_kerberos_authorization_data;        /* AuthorizationData */
+static int hf_kerberos_tr_type;                   /* Int32 */
+static int hf_kerberos_contents;                  /* OCTET_STRING */
+static int hf_kerberos_pvno;                      /* INTEGER_5 */
+static int hf_kerberos_msg_type;                  /* MESSAGE_TYPE */
+static int hf_kerberos_rEQ_SEQUENCE_OF_PA_DATA;   /* T_rEQ_SEQUENCE_OF_PA_DATA */
+static int hf_kerberos_rEQ_SEQUENCE_OF_PA_DATA_item;  /* PA_DATA */
+static int hf_kerberos_req_body;                  /* KDC_REQ_BODY */
+static int hf_kerberos_kdc_options;               /* KDCOptions */
+static int hf_kerberos_from;                      /* KerberosTime */
+static int hf_kerberos_till;                      /* KerberosTime */
+static int hf_kerberos_rtime;                     /* KerberosTime */
+static int hf_kerberos_nonce;                     /* UInt32 */
+static int hf_kerberos_kDC_REQ_BODY_etype;        /* SEQUENCE_OF_ENCTYPE */
+static int hf_kerberos_kDC_REQ_BODY_etype_item;   /* ENCTYPE */
+static int hf_kerberos_addresses;                 /* HostAddresses */
+static int hf_kerberos_enc_authorization_data;    /* EncryptedAuthorizationData */
+static int hf_kerberos_additional_tickets;        /* SEQUENCE_OF_Ticket */
+static int hf_kerberos_additional_tickets_item;   /* Ticket */
+static int hf_kerberos_rEP_SEQUENCE_OF_PA_DATA;   /* T_rEP_SEQUENCE_OF_PA_DATA */
+static int hf_kerberos_rEP_SEQUENCE_OF_PA_DATA_item;  /* PA_DATA */
+static int hf_kerberos_kDC_REP_enc_part;          /* EncryptedKDCREPData */
+static int hf_kerberos_encKDCRepPart_key;         /* T_encKDCRepPart_key */
+static int hf_kerberos_last_req;                  /* LastReq */
+static int hf_kerberos_key_expiration;            /* KerberosTime */
+static int hf_kerberos_srealm;                    /* Realm */
+static int hf_kerberos_encrypted_pa_data;         /* T_encrypted_pa_data */
+static int hf_kerberos_LastReq_item;              /* LastReq_item */
+static int hf_kerberos_lr_type;                   /* LR_TYPE */
+static int hf_kerberos_lr_value;                  /* KerberosTime */
+static int hf_kerberos_ap_options;                /* APOptions */
+static int hf_kerberos_authenticator_enc_part;    /* EncryptedAuthenticator */
+static int hf_kerberos_authenticator_vno;         /* INTEGER_5 */
+static int hf_kerberos_cksum;                     /* Checksum */
+static int hf_kerberos_cusec;                     /* Microseconds */
+static int hf_kerberos_ctime;                     /* KerberosTime */
+static int hf_kerberos_authenticator_subkey;      /* T_authenticator_subkey */
+static int hf_kerberos_seq_number;                /* UInt32 */
+static int hf_kerberos_aP_REP_enc_part;           /* EncryptedAPREPData */
+static int hf_kerberos_encAPRepPart_subkey;       /* T_encAPRepPart_subkey */
+static int hf_kerberos_safe_body;                 /* KRB_SAFE_BODY */
+static int hf_kerberos_kRB_SAFE_BODY_user_data;   /* T_kRB_SAFE_BODY_user_data */
+static int hf_kerberos_timestamp;                 /* KerberosTime */
+static int hf_kerberos_usec;                      /* Microseconds */
+static int hf_kerberos_s_address;                 /* HostAddress */
+static int hf_kerberos_r_address;                 /* HostAddress */
+static int hf_kerberos_kRB_PRIV_enc_part;         /* EncryptedKrbPrivData */
+static int hf_kerberos_encKrbPrivPart_user_data;  /* T_encKrbPrivPart_user_data */
+static int hf_kerberos_tickets;                   /* SEQUENCE_OF_Ticket */
+static int hf_kerberos_tickets_item;              /* Ticket */
+static int hf_kerberos_kRB_CRED_enc_part;         /* EncryptedKrbCredData */
+static int hf_kerberos_ticket_info;               /* SEQUENCE_OF_KrbCredInfo */
+static int hf_kerberos_ticket_info_item;          /* KrbCredInfo */
+static int hf_kerberos_krbCredInfo_key;           /* T_krbCredInfo_key */
+static int hf_kerberos_prealm;                    /* Realm */
+static int hf_kerberos_pname;                     /* PrincipalName */
+static int hf_kerberos_stime;                     /* KerberosTime */
+static int hf_kerberos_susec;                     /* Microseconds */
+static int hf_kerberos_error_code;                /* ERROR_CODE */
+static int hf_kerberos_e_text;                    /* KerberosString */
+static int hf_kerberos_e_data;                    /* T_e_data */
+static int hf_kerberos_e_checksum;                /* Checksum */
+static int hf_kerberos_METHOD_DATA_item;          /* PA_DATA */
+static int hf_kerberos_pA_ENC_TIMESTAMP_cipher;   /* T_pA_ENC_TIMESTAMP_cipher */
+static int hf_kerberos_info_salt;                 /* OCTET_STRING */
+static int hf_kerberos_ETYPE_INFO_item;           /* ETYPE_INFO_ENTRY */
+static int hf_kerberos_info2_salt;                /* KerberosString */
+static int hf_kerberos_s2kparams;                 /* OCTET_STRING */
+static int hf_kerberos_ETYPE_INFO2_item;          /* ETYPE_INFO2_ENTRY */
+static int hf_kerberos_server_name;               /* PrincipalName */
+static int hf_kerberos_include_pac;               /* BOOLEAN */
+static int hf_kerberos_name;                      /* PrincipalName */
+static int hf_kerberos_auth;                      /* GeneralString */
+static int hf_kerberos_user_id;                   /* S4UUserID */
+static int hf_kerberos_checksum_01;               /* Checksum */
+static int hf_kerberos_cname_01;                  /* PrincipalName */
+static int hf_kerberos_subject_certificate;       /* T_subject_certificate */
+static int hf_kerberos_options;                   /* BIT_STRING */
+static int hf_kerberos_flags_01;                  /* PAC_OPTIONS_FLAGS */
+static int hf_kerberos_restriction_type;          /* Int32 */
+static int hf_kerberos_restriction;               /* OCTET_STRING */
+static int hf_kerberos_PA_KERB_KEY_LIST_REQ_item;  /* ENCTYPE */
+static int hf_kerberos_kerbKeyListRep_key;        /* PA_KERB_KEY_LIST_REP_item */
+static int hf_kerberos_newpasswd;                 /* OCTET_STRING */
+static int hf_kerberos_targname;                  /* PrincipalName */
+static int hf_kerberos_targrealm;                 /* Realm */
+static int hf_kerberos_pa_type;                   /* PADATA_TYPE */
+static int hf_kerberos_pa_hint;                   /* OCTET_STRING */
+static int hf_kerberos_pa_value;                  /* OCTET_STRING */
+static int hf_kerberos_armor_type;                /* KrbFastArmorTypes */
+static int hf_kerberos_armor_value;               /* T_armor_value */
+static int hf_kerberos_armored_data_request;      /* KrbFastArmoredReq */
+static int hf_kerberos_encryptedKrbFastReq_cipher;  /* T_encryptedKrbFastReq_cipher */
+static int hf_kerberos_armor;                     /* KrbFastArmor */
+static int hf_kerberos_req_checksum;              /* Checksum */
+static int hf_kerberos_enc_fast_req;              /* EncryptedKrbFastReq */
+static int hf_kerberos_armored_data_reply;        /* KrbFastArmoredRep */
+static int hf_kerberos_encryptedKrbFastResponse_cipher;  /* T_encryptedKrbFastResponse_cipher */
+static int hf_kerberos_enc_fast_rep;              /* EncryptedKrbFastResponse */
+static int hf_kerberos_encryptedChallenge_cipher;  /* T_encryptedChallenge_cipher */
+static int hf_kerberos_cipher;                    /* OCTET_STRING */
+static int hf_kerberos_groups;                    /* SEQUENCE_SIZE_1_MAX_OF_SPAKEGroup */
+static int hf_kerberos_groups_item;               /* SPAKEGroup */
+static int hf_kerberos_group;                     /* SPAKEGroup */
+static int hf_kerberos_pubkey;                    /* OCTET_STRING */
+static int hf_kerberos_factors;                   /* SEQUENCE_SIZE_1_MAX_OF_SPAKESecondFactor */
+static int hf_kerberos_factors_item;              /* SPAKESecondFactor */
+static int hf_kerberos_type;                      /* SPAKESecondFactorType */
+static int hf_kerberos_data;                      /* OCTET_STRING */
+static int hf_kerberos_factor;                    /* EncryptedSpakeResponseData */
+static int hf_kerberos_support;                   /* SPAKESupport */
+static int hf_kerberos_challenge;                 /* SPAKEChallenge */
+static int hf_kerberos_response;                  /* SPAKEResponse */
+static int hf_kerberos_encdata;                   /* EncryptedSpakeData */
 /* named bits */
-static int hf_kerberos_APOptions_reserved = -1;
-static int hf_kerberos_APOptions_use_session_key = -1;
-static int hf_kerberos_APOptions_mutual_required = -1;
-static int hf_kerberos_TicketFlags_reserved = -1;
-static int hf_kerberos_TicketFlags_forwardable = -1;
-static int hf_kerberos_TicketFlags_forwarded = -1;
-static int hf_kerberos_TicketFlags_proxiable = -1;
-static int hf_kerberos_TicketFlags_proxy = -1;
-static int hf_kerberos_TicketFlags_may_postdate = -1;
-static int hf_kerberos_TicketFlags_postdated = -1;
-static int hf_kerberos_TicketFlags_invalid = -1;
-static int hf_kerberos_TicketFlags_renewable = -1;
-static int hf_kerberos_TicketFlags_initial = -1;
-static int hf_kerberos_TicketFlags_pre_authent = -1;
-static int hf_kerberos_TicketFlags_hw_authent = -1;
-static int hf_kerberos_TicketFlags_transited_policy_checked = -1;
-static int hf_kerberos_TicketFlags_ok_as_delegate = -1;
-static int hf_kerberos_TicketFlags_unused = -1;
-static int hf_kerberos_TicketFlags_enc_pa_rep = -1;
-static int hf_kerberos_TicketFlags_anonymous = -1;
-static int hf_kerberos_KDCOptions_reserved = -1;
-static int hf_kerberos_KDCOptions_forwardable = -1;
-static int hf_kerberos_KDCOptions_forwarded = -1;
-static int hf_kerberos_KDCOptions_proxiable = -1;
-static int hf_kerberos_KDCOptions_proxy = -1;
-static int hf_kerberos_KDCOptions_allow_postdate = -1;
-static int hf_kerberos_KDCOptions_postdated = -1;
-static int hf_kerberos_KDCOptions_unused7 = -1;
-static int hf_kerberos_KDCOptions_renewable = -1;
-static int hf_kerberos_KDCOptions_unused9 = -1;
-static int hf_kerberos_KDCOptions_unused10 = -1;
-static int hf_kerberos_KDCOptions_opt_hardware_auth = -1;
-static int hf_kerberos_KDCOptions_unused12 = -1;
-static int hf_kerberos_KDCOptions_unused13 = -1;
-static int hf_kerberos_KDCOptions_constrained_delegation = -1;
-static int hf_kerberos_KDCOptions_canonicalize = -1;
-static int hf_kerberos_KDCOptions_request_anonymous = -1;
-static int hf_kerberos_KDCOptions_unused17 = -1;
-static int hf_kerberos_KDCOptions_unused18 = -1;
-static int hf_kerberos_KDCOptions_unused19 = -1;
-static int hf_kerberos_KDCOptions_unused20 = -1;
-static int hf_kerberos_KDCOptions_unused21 = -1;
-static int hf_kerberos_KDCOptions_unused22 = -1;
-static int hf_kerberos_KDCOptions_unused23 = -1;
-static int hf_kerberos_KDCOptions_unused24 = -1;
-static int hf_kerberos_KDCOptions_unused25 = -1;
-static int hf_kerberos_KDCOptions_disable_transited_check = -1;
-static int hf_kerberos_KDCOptions_renewable_ok = -1;
-static int hf_kerberos_KDCOptions_enc_tkt_in_skey = -1;
-static int hf_kerberos_KDCOptions_unused29 = -1;
-static int hf_kerberos_KDCOptions_renew = -1;
-static int hf_kerberos_KDCOptions_validate = -1;
-static int hf_kerberos_PAC_OPTIONS_FLAGS_claims = -1;
-static int hf_kerberos_PAC_OPTIONS_FLAGS_branch_aware = -1;
-static int hf_kerberos_PAC_OPTIONS_FLAGS_forward_to_full_dc = -1;
-static int hf_kerberos_PAC_OPTIONS_FLAGS_resource_based_constrained_delegation = -1;
+static int hf_kerberos_APOptions_reserved;
+static int hf_kerberos_APOptions_use_session_key;
+static int hf_kerberos_APOptions_mutual_required;
+static int hf_kerberos_TicketFlags_reserved;
+static int hf_kerberos_TicketFlags_forwardable;
+static int hf_kerberos_TicketFlags_forwarded;
+static int hf_kerberos_TicketFlags_proxiable;
+static int hf_kerberos_TicketFlags_proxy;
+static int hf_kerberos_TicketFlags_may_postdate;
+static int hf_kerberos_TicketFlags_postdated;
+static int hf_kerberos_TicketFlags_invalid;
+static int hf_kerberos_TicketFlags_renewable;
+static int hf_kerberos_TicketFlags_initial;
+static int hf_kerberos_TicketFlags_pre_authent;
+static int hf_kerberos_TicketFlags_hw_authent;
+static int hf_kerberos_TicketFlags_transited_policy_checked;
+static int hf_kerberos_TicketFlags_ok_as_delegate;
+static int hf_kerberos_TicketFlags_unused;
+static int hf_kerberos_TicketFlags_enc_pa_rep;
+static int hf_kerberos_TicketFlags_anonymous;
+static int hf_kerberos_KDCOptions_reserved;
+static int hf_kerberos_KDCOptions_forwardable;
+static int hf_kerberos_KDCOptions_forwarded;
+static int hf_kerberos_KDCOptions_proxiable;
+static int hf_kerberos_KDCOptions_proxy;
+static int hf_kerberos_KDCOptions_allow_postdate;
+static int hf_kerberos_KDCOptions_postdated;
+static int hf_kerberos_KDCOptions_unused7;
+static int hf_kerberos_KDCOptions_renewable;
+static int hf_kerberos_KDCOptions_unused9;
+static int hf_kerberos_KDCOptions_unused10;
+static int hf_kerberos_KDCOptions_opt_hardware_auth;
+static int hf_kerberos_KDCOptions_unused12;
+static int hf_kerberos_KDCOptions_unused13;
+static int hf_kerberos_KDCOptions_constrained_delegation;
+static int hf_kerberos_KDCOptions_canonicalize;
+static int hf_kerberos_KDCOptions_request_anonymous;
+static int hf_kerberos_KDCOptions_unused17;
+static int hf_kerberos_KDCOptions_unused18;
+static int hf_kerberos_KDCOptions_unused19;
+static int hf_kerberos_KDCOptions_unused20;
+static int hf_kerberos_KDCOptions_unused21;
+static int hf_kerberos_KDCOptions_unused22;
+static int hf_kerberos_KDCOptions_unused23;
+static int hf_kerberos_KDCOptions_unused24;
+static int hf_kerberos_KDCOptions_unused25;
+static int hf_kerberos_KDCOptions_disable_transited_check;
+static int hf_kerberos_KDCOptions_renewable_ok;
+static int hf_kerberos_KDCOptions_enc_tkt_in_skey;
+static int hf_kerberos_KDCOptions_unused29;
+static int hf_kerberos_KDCOptions_renew;
+static int hf_kerberos_KDCOptions_validate;
+static int hf_kerberos_PAC_OPTIONS_FLAGS_claims;
+static int hf_kerberos_PAC_OPTIONS_FLAGS_branch_aware;
+static int hf_kerberos_PAC_OPTIONS_FLAGS_forward_to_full_dc;
+static int hf_kerberos_PAC_OPTIONS_FLAGS_resource_based_constrained_delegation;
 
 /* Initialize the subtree pointers */
-static gint ett_kerberos = -1;
-static gint ett_krb_recordmark = -1;
-static gint ett_krb_pac = -1;
-static gint ett_krb_pac_drep = -1;
-static gint ett_krb_pac_midl_blob = -1;
-static gint ett_krb_pac_logon_info = -1;
-static gint ett_krb_pac_credential_info = -1;
-static gint ett_krb_pac_s4u_delegation_info = -1;
-static gint ett_krb_pac_upn_dns_info = -1;
-static gint ett_krb_pac_upn_dns_info_flags = -1;
-static gint ett_krb_pac_device_info = -1;
-static gint ett_krb_pac_server_checksum = -1;
-static gint ett_krb_pac_privsvr_checksum = -1;
-static gint ett_krb_pac_client_info_type = -1;
-static gint ett_krb_pac_ticket_checksum = -1;
-static gint ett_krb_pac_attributes_info = -1;
-static gint ett_krb_pac_attributes_info_flags = -1;
-static gint ett_krb_pac_requester_sid = -1;
-static gint ett_krb_pa_supported_enctypes = -1;
-static gint ett_krb_ad_ap_options = -1;
-static gint ett_kerberos_KERB_TICKET_LOGON = -1;
+static gint ett_kerberos;
+static gint ett_krb_recordmark;
+static gint ett_krb_pac;
+static gint ett_krb_pac_drep;
+static gint ett_krb_pac_midl_blob;
+static gint ett_krb_pac_logon_info;
+static gint ett_krb_pac_credential_info;
+static gint ett_krb_pac_s4u_delegation_info;
+static gint ett_krb_pac_upn_dns_info;
+static gint ett_krb_pac_upn_dns_info_flags;
+static gint ett_krb_pac_device_info;
+static gint ett_krb_pac_server_checksum;
+static gint ett_krb_pac_privsvr_checksum;
+static gint ett_krb_pac_client_info_type;
+static gint ett_krb_pac_ticket_checksum;
+static gint ett_krb_pac_attributes_info;
+static gint ett_krb_pac_attributes_info_flags;
+static gint ett_krb_pac_requester_sid;
+static gint ett_krb_pa_supported_enctypes;
+static gint ett_krb_ad_ap_options;
+static gint ett_kerberos_KERB_TICKET_LOGON;
 #ifdef HAVE_KERBEROS
-static gint ett_krb_pa_enc_ts_enc = -1;
-static gint ett_kerberos_KrbFastFinished = -1;
-static gint ett_kerberos_KrbFastResponse = -1;
-static gint ett_kerberos_KrbFastReq = -1;
-static gint ett_kerberos_FastOptions = -1;
+static gint ett_krb_pa_enc_ts_enc;
+static gint ett_kerberos_KrbFastFinished;
+static gint ett_kerberos_KrbFastResponse;
+static gint ett_kerberos_KrbFastReq;
+static gint ett_kerberos_FastOptions;
 #endif
-static gint ett_kerberos_Applications = -1;
-static gint ett_kerberos_PrincipalName = -1;
-static gint ett_kerberos_SEQUENCE_OF_KerberosString = -1;
-static gint ett_kerberos_CName = -1;
-static gint ett_kerberos_SEQUENCE_OF_CNameString = -1;
-static gint ett_kerberos_SName = -1;
-static gint ett_kerberos_SEQUENCE_OF_SNameString = -1;
-static gint ett_kerberos_HostAddress = -1;
-static gint ett_kerberos_HostAddresses = -1;
-static gint ett_kerberos_AuthorizationData = -1;
-static gint ett_kerberos_AuthorizationData_item = -1;
-static gint ett_kerberos_PA_DATA = -1;
-static gint ett_kerberos_EncryptionKey = -1;
-static gint ett_kerberos_Checksum = -1;
-static gint ett_kerberos_EncryptedTicketData = -1;
-static gint ett_kerberos_EncryptedAuthorizationData = -1;
-static gint ett_kerberos_EncryptedAuthenticator = -1;
-static gint ett_kerberos_EncryptedKDCREPData = -1;
-static gint ett_kerberos_EncryptedAPREPData = -1;
-static gint ett_kerberos_EncryptedKrbPrivData = -1;
-static gint ett_kerberos_EncryptedKrbCredData = -1;
-static gint ett_kerberos_Ticket_U = -1;
-static gint ett_kerberos_EncTicketPart_U = -1;
-static gint ett_kerberos_TransitedEncoding = -1;
-static gint ett_kerberos_KDC_REQ = -1;
-static gint ett_kerberos_T_rEQ_SEQUENCE_OF_PA_DATA = -1;
-static gint ett_kerberos_KDC_REQ_BODY = -1;
-static gint ett_kerberos_SEQUENCE_OF_ENCTYPE = -1;
-static gint ett_kerberos_SEQUENCE_OF_Ticket = -1;
-static gint ett_kerberos_KDC_REP = -1;
-static gint ett_kerberos_T_rEP_SEQUENCE_OF_PA_DATA = -1;
-static gint ett_kerberos_EncKDCRepPart = -1;
-static gint ett_kerberos_LastReq = -1;
-static gint ett_kerberos_LastReq_item = -1;
-static gint ett_kerberos_AP_REQ_U = -1;
-static gint ett_kerberos_Authenticator_U = -1;
-static gint ett_kerberos_AP_REP_U = -1;
-static gint ett_kerberos_EncAPRepPart_U = -1;
-static gint ett_kerberos_KRB_SAFE_U = -1;
-static gint ett_kerberos_KRB_SAFE_BODY = -1;
-static gint ett_kerberos_KRB_PRIV_U = -1;
-static gint ett_kerberos_EncKrbPrivPart = -1;
-static gint ett_kerberos_KRB_CRED_U = -1;
-static gint ett_kerberos_EncKrbCredPart_U = -1;
-static gint ett_kerberos_SEQUENCE_OF_KrbCredInfo = -1;
-static gint ett_kerberos_KrbCredInfo = -1;
-static gint ett_kerberos_KRB_ERROR_U = -1;
-static gint ett_kerberos_METHOD_DATA = -1;
-static gint ett_kerberos_PA_ENC_TIMESTAMP = -1;
-static gint ett_kerberos_ETYPE_INFO_ENTRY = -1;
-static gint ett_kerberos_ETYPE_INFO = -1;
-static gint ett_kerberos_ETYPE_INFO2_ENTRY = -1;
-static gint ett_kerberos_ETYPE_INFO2 = -1;
-static gint ett_kerberos_TGT_REQ = -1;
-static gint ett_kerberos_TGT_REP = -1;
-static gint ett_kerberos_APOptions = -1;
-static gint ett_kerberos_TicketFlags = -1;
-static gint ett_kerberos_KDCOptions = -1;
-static gint ett_kerberos_PA_PAC_REQUEST = -1;
-static gint ett_kerberos_PA_S4U2Self = -1;
-static gint ett_kerberos_PA_S4U_X509_USER = -1;
-static gint ett_kerberos_S4UUserID = -1;
-static gint ett_kerberos_PAC_OPTIONS_FLAGS = -1;
-static gint ett_kerberos_PA_PAC_OPTIONS = -1;
-static gint ett_kerberos_KERB_AD_RESTRICTION_ENTRY_U = -1;
-static gint ett_kerberos_PA_KERB_KEY_LIST_REQ = -1;
-static gint ett_kerberos_PA_KERB_KEY_LIST_REP = -1;
-static gint ett_kerberos_ChangePasswdData = -1;
-static gint ett_kerberos_PA_AUTHENTICATION_SET_ELEM = -1;
-static gint ett_kerberos_KrbFastArmor = -1;
-static gint ett_kerberos_PA_FX_FAST_REQUEST = -1;
-static gint ett_kerberos_EncryptedKrbFastReq = -1;
-static gint ett_kerberos_KrbFastArmoredReq = -1;
-static gint ett_kerberos_PA_FX_FAST_REPLY = -1;
-static gint ett_kerberos_EncryptedKrbFastResponse = -1;
-static gint ett_kerberos_KrbFastArmoredRep = -1;
-static gint ett_kerberos_EncryptedChallenge = -1;
-static gint ett_kerberos_EncryptedSpakeData = -1;
-static gint ett_kerberos_EncryptedSpakeResponseData = -1;
-static gint ett_kerberos_SPAKESupport = -1;
-static gint ett_kerberos_SEQUENCE_SIZE_1_MAX_OF_SPAKEGroup = -1;
-static gint ett_kerberos_SPAKEChallenge = -1;
-static gint ett_kerberos_SEQUENCE_SIZE_1_MAX_OF_SPAKESecondFactor = -1;
-static gint ett_kerberos_SPAKESecondFactor = -1;
-static gint ett_kerberos_SPAKEResponse = -1;
-static gint ett_kerberos_PA_SPAKE = -1;
+static gint ett_kerberos_Applications;
+static gint ett_kerberos_PrincipalName;
+static gint ett_kerberos_SEQUENCE_OF_KerberosString;
+static gint ett_kerberos_CName;
+static gint ett_kerberos_SEQUENCE_OF_CNameString;
+static gint ett_kerberos_SName;
+static gint ett_kerberos_SEQUENCE_OF_SNameString;
+static gint ett_kerberos_HostAddress;
+static gint ett_kerberos_HostAddresses;
+static gint ett_kerberos_AuthorizationData;
+static gint ett_kerberos_AuthorizationData_item;
+static gint ett_kerberos_PA_DATA;
+static gint ett_kerberos_EncryptionKey;
+static gint ett_kerberos_Checksum;
+static gint ett_kerberos_EncryptedTicketData;
+static gint ett_kerberos_EncryptedAuthorizationData;
+static gint ett_kerberos_EncryptedAuthenticator;
+static gint ett_kerberos_EncryptedKDCREPData;
+static gint ett_kerberos_EncryptedAPREPData;
+static gint ett_kerberos_EncryptedKrbPrivData;
+static gint ett_kerberos_EncryptedKrbCredData;
+static gint ett_kerberos_Ticket_U;
+static gint ett_kerberos_EncTicketPart_U;
+static gint ett_kerberos_TransitedEncoding;
+static gint ett_kerberos_KDC_REQ;
+static gint ett_kerberos_T_rEQ_SEQUENCE_OF_PA_DATA;
+static gint ett_kerberos_KDC_REQ_BODY;
+static gint ett_kerberos_SEQUENCE_OF_ENCTYPE;
+static gint ett_kerberos_SEQUENCE_OF_Ticket;
+static gint ett_kerberos_KDC_REP;
+static gint ett_kerberos_T_rEP_SEQUENCE_OF_PA_DATA;
+static gint ett_kerberos_EncKDCRepPart;
+static gint ett_kerberos_LastReq;
+static gint ett_kerberos_LastReq_item;
+static gint ett_kerberos_AP_REQ_U;
+static gint ett_kerberos_Authenticator_U;
+static gint ett_kerberos_AP_REP_U;
+static gint ett_kerberos_EncAPRepPart_U;
+static gint ett_kerberos_KRB_SAFE_U;
+static gint ett_kerberos_KRB_SAFE_BODY;
+static gint ett_kerberos_KRB_PRIV_U;
+static gint ett_kerberos_EncKrbPrivPart;
+static gint ett_kerberos_KRB_CRED_U;
+static gint ett_kerberos_EncKrbCredPart_U;
+static gint ett_kerberos_SEQUENCE_OF_KrbCredInfo;
+static gint ett_kerberos_KrbCredInfo;
+static gint ett_kerberos_KRB_ERROR_U;
+static gint ett_kerberos_METHOD_DATA;
+static gint ett_kerberos_PA_ENC_TIMESTAMP;
+static gint ett_kerberos_ETYPE_INFO_ENTRY;
+static gint ett_kerberos_ETYPE_INFO;
+static gint ett_kerberos_ETYPE_INFO2_ENTRY;
+static gint ett_kerberos_ETYPE_INFO2;
+static gint ett_kerberos_TGT_REQ;
+static gint ett_kerberos_TGT_REP;
+static gint ett_kerberos_APOptions;
+static gint ett_kerberos_TicketFlags;
+static gint ett_kerberos_KDCOptions;
+static gint ett_kerberos_PA_PAC_REQUEST;
+static gint ett_kerberos_PA_S4U2Self;
+static gint ett_kerberos_PA_S4U_X509_USER;
+static gint ett_kerberos_S4UUserID;
+static gint ett_kerberos_PAC_OPTIONS_FLAGS;
+static gint ett_kerberos_PA_PAC_OPTIONS;
+static gint ett_kerberos_KERB_AD_RESTRICTION_ENTRY_U;
+static gint ett_kerberos_PA_KERB_KEY_LIST_REQ;
+static gint ett_kerberos_PA_KERB_KEY_LIST_REP;
+static gint ett_kerberos_ChangePasswdData;
+static gint ett_kerberos_PA_AUTHENTICATION_SET_ELEM;
+static gint ett_kerberos_KrbFastArmor;
+static gint ett_kerberos_PA_FX_FAST_REQUEST;
+static gint ett_kerberos_EncryptedKrbFastReq;
+static gint ett_kerberos_KrbFastArmoredReq;
+static gint ett_kerberos_PA_FX_FAST_REPLY;
+static gint ett_kerberos_EncryptedKrbFastResponse;
+static gint ett_kerberos_KrbFastArmoredRep;
+static gint ett_kerberos_EncryptedChallenge;
+static gint ett_kerberos_EncryptedSpakeData;
+static gint ett_kerberos_EncryptedSpakeResponseData;
+static gint ett_kerberos_SPAKESupport;
+static gint ett_kerberos_SEQUENCE_SIZE_1_MAX_OF_SPAKEGroup;
+static gint ett_kerberos_SPAKEChallenge;
+static gint ett_kerberos_SEQUENCE_SIZE_1_MAX_OF_SPAKESecondFactor;
+static gint ett_kerberos_SPAKESecondFactor;
+static gint ett_kerberos_SPAKEResponse;
+static gint ett_kerberos_PA_SPAKE;
 
-static expert_field ei_kerberos_missing_keytype = EI_INIT;
-static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
-static expert_field ei_kerberos_learnt_keytype = EI_INIT;
-static expert_field ei_kerberos_address = EI_INIT;
-static expert_field ei_krb_gssapi_dlglen = EI_INIT;
+static expert_field ei_kerberos_missing_keytype;
+static expert_field ei_kerberos_decrypted_keytype;
+static expert_field ei_kerberos_learnt_keytype;
+static expert_field ei_kerberos_address;
+static expert_field ei_krb_gssapi_dlglen;
 
 static dissector_handle_t krb4_handle=NULL;
 
@@ -869,7 +869,7 @@ static int dissect_kerberos_defer_PA_FX_FAST_REQUEST(bool implicit_tag _U_, tvbu
 	 */
 	ws_assert(implicit_tag == FALSE);
 	ws_assert(offset == 0);
-	ws_assert(hf_index == -1);
+	ws_assert(hf_index <= 0);
 
 	if (private_data->PA_FX_FAST_REQUEST.defer) {
 		/*

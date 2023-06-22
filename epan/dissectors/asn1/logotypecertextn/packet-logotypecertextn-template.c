@@ -25,7 +25,7 @@ void proto_register_logotypecertextn(void);
 void proto_reg_handoff_logotypecertextn(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_logotypecertextn = -1;
+static int proto_logotypecertextn;
 #include "packet-logotypecertextn-hf.c"
 
 /* Initialize the subtree pointers */

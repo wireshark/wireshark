@@ -126,7 +126,7 @@ static heur_dissector_list_t atn_ulcs_heur_subdissector_list;
 static dissector_handle_t atn_cm_handle = NULL;
 static dissector_handle_t atn_cpdlc_handle = NULL;
 
-static int proto_atn_ulcs          = -1;
+static int proto_atn_ulcs;
 static guint32 ulcs_context_value = 0;
 static const char *object_identifier_id;
 
@@ -179,107 +179,107 @@ static gint dissect_atn_ulcs(
     proto_tree  *tree,
     void *data _U_);
 
-static int hf_atn_ulcs_Fully_encoded_data_PDU = -1;  /* Fully_encoded_data */
-static int hf_atn_ulcs_ACSE_apdu_PDU = -1;        /* ACSE_apdu */
-static int hf_atn_ulcs_Fully_encoded_data_item = -1;  /* PDV_list */
-static int hf_atn_ulcs_transfer_syntax_name = -1;  /* Transfer_syntax_name */
-static int hf_atn_ulcs_presentation_context_identifier = -1;  /* Presentation_context_identifier */
-static int hf_atn_ulcs_presentation_data_values = -1;  /* T_presentation_data_values */
-static int hf_atn_ulcs_pdv_list_presentation_data_values_single_asn1_type = -1;  /* T_pdv_list_presentation_data_values_single_asn1_type */
-static int hf_atn_ulcs_octet_aligned = -1;        /* OCTET_STRING */
-static int hf_atn_ulcs_pdv_list_presentation_data_values_arbitrary = -1;  /* T_pdv_list_presentation_data_values_arbitrary */
-static int hf_atn_ulcs_direct_reference = -1;     /* OBJECT_IDENTIFIER */
-static int hf_atn_ulcs_indirect_reference = -1;   /* INTEGER */
-static int hf_atn_ulcs_data_value_descriptor = -1;  /* T_data_value_descriptor */
-static int hf_atn_ulcs_encoding = -1;             /* T_encoding */
-static int hf_atn_ulcs_externalt_encoding_single_asn1_type = -1;  /* T_externalt_encoding_single_asn1_type */
-static int hf_atn_ulcs_externalt_encoding_octet_aligned = -1;  /* T_externalt_encoding_octet_aligned */
-static int hf_atn_ulcs_externalt_encoding_arbitrary = -1;  /* T_externalt_encoding_arbitrary */
-static int hf_atn_ulcs_aarq = -1;                 /* AARQ_apdu */
-static int hf_atn_ulcs_aare = -1;                 /* AARE_apdu */
-static int hf_atn_ulcs_rlrq = -1;                 /* RLRQ_apdu */
-static int hf_atn_ulcs_rlre = -1;                 /* RLRE_apdu */
-static int hf_atn_ulcs_abrt = -1;                 /* ABRT_apdu */
-static int hf_atn_ulcs_aarq_apdu_protocol_version = -1;  /* T_aarq_apdu_protocol_version */
-static int hf_atn_ulcs_application_context_name = -1;  /* Application_context_name */
-static int hf_atn_ulcs_called_AP_title = -1;      /* AP_title */
-static int hf_atn_ulcs_called_AE_qualifier = -1;  /* AE_qualifier */
-static int hf_atn_ulcs_called_AP_invocation_identifier = -1;  /* AP_invocation_identifier */
-static int hf_atn_ulcs_called_AE_invocation_identifier = -1;  /* AE_invocation_identifier */
-static int hf_atn_ulcs_calling_AP_title = -1;     /* AP_title */
-static int hf_atn_ulcs_calling_AE_qualifier = -1;  /* AE_qualifier */
-static int hf_atn_ulcs_calling_AP_invocation_identifier = -1;  /* AP_invocation_identifier */
-static int hf_atn_ulcs_calling_AE_invocation_identifier = -1;  /* AE_invocation_identifier */
-static int hf_atn_ulcs_sender_acse_requirements = -1;  /* ACSE_requirements */
-static int hf_atn_ulcs_mechanism_name = -1;       /* Mechanism_name */
-static int hf_atn_ulcs_calling_authentication_value = -1;  /* Authentication_value */
-static int hf_atn_ulcs_application_context_name_list = -1;  /* Application_context_name_list */
-static int hf_atn_ulcs_implementation_information = -1;  /* Implementation_data */
-static int hf_atn_ulcs_user_information = -1;     /* Association_information */
-static int hf_atn_ulcs_aare_apdu_protocol_version = -1;  /* T_aare_apdu_protocol_version */
-static int hf_atn_ulcs_result = -1;               /* Associate_result */
-static int hf_atn_ulcs_result_source_diagnostic = -1;  /* Associate_source_diagnostic */
-static int hf_atn_ulcs_responding_AP_title = -1;  /* AP_title */
-static int hf_atn_ulcs_responding_AE_qualifier = -1;  /* AE_qualifier */
-static int hf_atn_ulcs_responding_AP_invocation_identifier = -1;  /* AP_invocation_identifier */
-static int hf_atn_ulcs_responding_AE_invocation_identifier = -1;  /* AE_invocation_identifier */
-static int hf_atn_ulcs_responder_acse_requirements = -1;  /* ACSE_requirements */
-static int hf_atn_ulcs_responding_authentication_value = -1;  /* Authentication_value */
-static int hf_atn_ulcs_rlrq_apdu_request_reason = -1;  /* Release_request_reason */
-static int hf_atn_ulcs_rlre_apdu_response_reason = -1;  /* Release_response_reason */
-static int hf_atn_ulcs_abort_source = -1;         /* ABRT_source */
-static int hf_atn_ulcs_abort_diagnostic = -1;     /* ABRT_diagnostic */
-static int hf_atn_ulcs_Application_context_name_list_item = -1;  /* Application_context_name */
-static int hf_atn_ulcs_ap_title_form2 = -1;       /* AP_title_form2 */
-static int hf_atn_ulcs_ap_title_form1 = -1;       /* AP_title_form1 */
-static int hf_atn_ulcs_ae_qualifier_form2 = -1;   /* AE_qualifier_form2 */
-static int hf_atn_ulcs_ae_qualifier_form1 = -1;   /* AE_qualifier_form1 */
-static int hf_atn_ulcs_acse_service_user = -1;    /* T_acse_service_user */
-static int hf_atn_ulcs_acse_service_provider = -1;  /* T_acse_service_provider */
-static int hf_atn_ulcs_Association_information_item = -1;  /* EXTERNALt */
-static int hf_atn_ulcs_charstring = -1;           /* OCTET_STRING */
-static int hf_atn_ulcs_bitstring = -1;            /* BIT_STRING */
-static int hf_atn_ulcs_external = -1;             /* EXTERNAL */
-static int hf_atn_ulcs_other = -1;                /* T_other */
-static int hf_atn_ulcs_other_mechanism_name = -1;  /* OBJECT_IDENTIFIER */
-static int hf_atn_ulcs_other_mechanism_value = -1;  /* T_other_mechanism_value */
-static int hf_atn_ulcs_rdnSequence = -1;          /* RDNSequence */
-static int hf_atn_ulcs_RDNSequence_item = -1;     /* RelativeDistinguishedName */
-static int hf_atn_ulcs_RelativeDistinguishedName_item = -1;  /* AttributeTypeAndValue */
-static int hf_atn_ulcs_null = -1;                 /* NULL */
+static int hf_atn_ulcs_Fully_encoded_data_PDU;    /* Fully_encoded_data */
+static int hf_atn_ulcs_ACSE_apdu_PDU;             /* ACSE_apdu */
+static int hf_atn_ulcs_Fully_encoded_data_item;   /* PDV_list */
+static int hf_atn_ulcs_transfer_syntax_name;      /* Transfer_syntax_name */
+static int hf_atn_ulcs_presentation_context_identifier;  /* Presentation_context_identifier */
+static int hf_atn_ulcs_presentation_data_values;  /* T_presentation_data_values */
+static int hf_atn_ulcs_pdv_list_presentation_data_values_single_asn1_type;  /* T_pdv_list_presentation_data_values_single_asn1_type */
+static int hf_atn_ulcs_octet_aligned;             /* OCTET_STRING */
+static int hf_atn_ulcs_pdv_list_presentation_data_values_arbitrary;  /* T_pdv_list_presentation_data_values_arbitrary */
+static int hf_atn_ulcs_direct_reference;          /* OBJECT_IDENTIFIER */
+static int hf_atn_ulcs_indirect_reference;        /* INTEGER */
+static int hf_atn_ulcs_data_value_descriptor;     /* T_data_value_descriptor */
+static int hf_atn_ulcs_encoding;                  /* T_encoding */
+static int hf_atn_ulcs_externalt_encoding_single_asn1_type;  /* T_externalt_encoding_single_asn1_type */
+static int hf_atn_ulcs_externalt_encoding_octet_aligned;  /* T_externalt_encoding_octet_aligned */
+static int hf_atn_ulcs_externalt_encoding_arbitrary;  /* T_externalt_encoding_arbitrary */
+static int hf_atn_ulcs_aarq;                      /* AARQ_apdu */
+static int hf_atn_ulcs_aare;                      /* AARE_apdu */
+static int hf_atn_ulcs_rlrq;                      /* RLRQ_apdu */
+static int hf_atn_ulcs_rlre;                      /* RLRE_apdu */
+static int hf_atn_ulcs_abrt;                      /* ABRT_apdu */
+static int hf_atn_ulcs_aarq_apdu_protocol_version;  /* T_aarq_apdu_protocol_version */
+static int hf_atn_ulcs_application_context_name;  /* Application_context_name */
+static int hf_atn_ulcs_called_AP_title;           /* AP_title */
+static int hf_atn_ulcs_called_AE_qualifier;       /* AE_qualifier */
+static int hf_atn_ulcs_called_AP_invocation_identifier;  /* AP_invocation_identifier */
+static int hf_atn_ulcs_called_AE_invocation_identifier;  /* AE_invocation_identifier */
+static int hf_atn_ulcs_calling_AP_title;          /* AP_title */
+static int hf_atn_ulcs_calling_AE_qualifier;      /* AE_qualifier */
+static int hf_atn_ulcs_calling_AP_invocation_identifier;  /* AP_invocation_identifier */
+static int hf_atn_ulcs_calling_AE_invocation_identifier;  /* AE_invocation_identifier */
+static int hf_atn_ulcs_sender_acse_requirements;  /* ACSE_requirements */
+static int hf_atn_ulcs_mechanism_name;            /* Mechanism_name */
+static int hf_atn_ulcs_calling_authentication_value;  /* Authentication_value */
+static int hf_atn_ulcs_application_context_name_list;  /* Application_context_name_list */
+static int hf_atn_ulcs_implementation_information;  /* Implementation_data */
+static int hf_atn_ulcs_user_information;          /* Association_information */
+static int hf_atn_ulcs_aare_apdu_protocol_version;  /* T_aare_apdu_protocol_version */
+static int hf_atn_ulcs_result;                    /* Associate_result */
+static int hf_atn_ulcs_result_source_diagnostic;  /* Associate_source_diagnostic */
+static int hf_atn_ulcs_responding_AP_title;       /* AP_title */
+static int hf_atn_ulcs_responding_AE_qualifier;   /* AE_qualifier */
+static int hf_atn_ulcs_responding_AP_invocation_identifier;  /* AP_invocation_identifier */
+static int hf_atn_ulcs_responding_AE_invocation_identifier;  /* AE_invocation_identifier */
+static int hf_atn_ulcs_responder_acse_requirements;  /* ACSE_requirements */
+static int hf_atn_ulcs_responding_authentication_value;  /* Authentication_value */
+static int hf_atn_ulcs_rlrq_apdu_request_reason;  /* Release_request_reason */
+static int hf_atn_ulcs_rlre_apdu_response_reason;  /* Release_response_reason */
+static int hf_atn_ulcs_abort_source;              /* ABRT_source */
+static int hf_atn_ulcs_abort_diagnostic;          /* ABRT_diagnostic */
+static int hf_atn_ulcs_Application_context_name_list_item;  /* Application_context_name */
+static int hf_atn_ulcs_ap_title_form2;            /* AP_title_form2 */
+static int hf_atn_ulcs_ap_title_form1;            /* AP_title_form1 */
+static int hf_atn_ulcs_ae_qualifier_form2;        /* AE_qualifier_form2 */
+static int hf_atn_ulcs_ae_qualifier_form1;        /* AE_qualifier_form1 */
+static int hf_atn_ulcs_acse_service_user;         /* T_acse_service_user */
+static int hf_atn_ulcs_acse_service_provider;     /* T_acse_service_provider */
+static int hf_atn_ulcs_Association_information_item;  /* EXTERNALt */
+static int hf_atn_ulcs_charstring;                /* OCTET_STRING */
+static int hf_atn_ulcs_bitstring;                 /* BIT_STRING */
+static int hf_atn_ulcs_external;                  /* EXTERNAL */
+static int hf_atn_ulcs_other;                     /* T_other */
+static int hf_atn_ulcs_other_mechanism_name;      /* OBJECT_IDENTIFIER */
+static int hf_atn_ulcs_other_mechanism_value;     /* T_other_mechanism_value */
+static int hf_atn_ulcs_rdnSequence;               /* RDNSequence */
+static int hf_atn_ulcs_RDNSequence_item;          /* RelativeDistinguishedName */
+static int hf_atn_ulcs_RelativeDistinguishedName_item;  /* AttributeTypeAndValue */
+static int hf_atn_ulcs_null;                      /* NULL */
 /* named bits */
-static int hf_atn_ulcs_T_aarq_apdu_protocol_version_version1 = -1;
-static int hf_atn_ulcs_T_aare_apdu_protocol_version_version1 = -1;
-static int hf_atn_ulcs_ACSE_requirements_authentication = -1;
-static int hf_atn_ulcs_ACSE_requirements_application_context_negotiation = -1;
+static int hf_atn_ulcs_T_aarq_apdu_protocol_version_version1;
+static int hf_atn_ulcs_T_aare_apdu_protocol_version_version1;
+static int hf_atn_ulcs_ACSE_requirements_authentication;
+static int hf_atn_ulcs_ACSE_requirements_application_context_negotiation;
 
-static gint ett_atn_ulcs_Fully_encoded_data = -1;
-static gint ett_atn_ulcs_PDV_list = -1;
-static gint ett_atn_ulcs_T_presentation_data_values = -1;
-static gint ett_atn_ulcs_EXTERNALt = -1;
-static gint ett_atn_ulcs_T_encoding = -1;
-static gint ett_atn_ulcs_ACSE_apdu = -1;
-static gint ett_atn_ulcs_AARQ_apdu = -1;
-static gint ett_atn_ulcs_T_aarq_apdu_protocol_version = -1;
-static gint ett_atn_ulcs_AARE_apdu = -1;
-static gint ett_atn_ulcs_T_aare_apdu_protocol_version = -1;
-static gint ett_atn_ulcs_RLRQ_apdu = -1;
-static gint ett_atn_ulcs_RLRE_apdu = -1;
-static gint ett_atn_ulcs_ABRT_apdu = -1;
-static gint ett_atn_ulcs_ACSE_requirements = -1;
-static gint ett_atn_ulcs_Application_context_name_list = -1;
-static gint ett_atn_ulcs_AP_title = -1;
-static gint ett_atn_ulcs_AE_qualifier = -1;
-static gint ett_atn_ulcs_Associate_source_diagnostic = -1;
-static gint ett_atn_ulcs_Association_information = -1;
-static gint ett_atn_ulcs_Authentication_value = -1;
-static gint ett_atn_ulcs_T_other = -1;
-static gint ett_atn_ulcs_Name = -1;
-static gint ett_atn_ulcs_RDNSequence = -1;
-static gint ett_atn_ulcs_RelativeDistinguishedName = -1;
-static gint ett_atn_ulcs_AttributeTypeAndValue = -1;
-static gint ett_atn_ulcs = -1;
-static gint ett_atn_acse = -1;
+static gint ett_atn_ulcs_Fully_encoded_data;
+static gint ett_atn_ulcs_PDV_list;
+static gint ett_atn_ulcs_T_presentation_data_values;
+static gint ett_atn_ulcs_EXTERNALt;
+static gint ett_atn_ulcs_T_encoding;
+static gint ett_atn_ulcs_ACSE_apdu;
+static gint ett_atn_ulcs_AARQ_apdu;
+static gint ett_atn_ulcs_T_aarq_apdu_protocol_version;
+static gint ett_atn_ulcs_AARE_apdu;
+static gint ett_atn_ulcs_T_aare_apdu_protocol_version;
+static gint ett_atn_ulcs_RLRQ_apdu;
+static gint ett_atn_ulcs_RLRE_apdu;
+static gint ett_atn_ulcs_ABRT_apdu;
+static gint ett_atn_ulcs_ACSE_requirements;
+static gint ett_atn_ulcs_Application_context_name_list;
+static gint ett_atn_ulcs_AP_title;
+static gint ett_atn_ulcs_AE_qualifier;
+static gint ett_atn_ulcs_Associate_source_diagnostic;
+static gint ett_atn_ulcs_Association_information;
+static gint ett_atn_ulcs_Authentication_value;
+static gint ett_atn_ulcs_T_other;
+static gint ett_atn_ulcs_Name;
+static gint ett_atn_ulcs_RDNSequence;
+static gint ett_atn_ulcs_RelativeDistinguishedName;
+static gint ett_atn_ulcs_AttributeTypeAndValue;
+static gint ett_atn_ulcs;
+static gint ett_atn_acse;
 
 
 
@@ -1640,12 +1640,12 @@ static const per_choice_t External_encoding_choice[] =
 #define SES_PARAM_B2_MASK     0x02
 #define SES_PARAM_B1_MASK     0x01
 
-static int hf_atn_ses_type = -1;
-static int hf_atn_ses_param_ind = -1;
-static int hf_atn_ses_param_b1 = -1;
-static int hf_atn_ses_param_b2 = -1;
+static int hf_atn_ses_type;
+static int hf_atn_ses_param_ind;
+static int hf_atn_ses_param_b1;
+static int hf_atn_ses_param_b2;
 
-static gint ett_atn_ses = -1;
+static gint ett_atn_ses;
 
 #define ATN_SES_PROTO "ICAO Doc9705 ULCS Session (ISO 8326/8327-1:1994)"
 
@@ -1690,9 +1690,9 @@ const value_string atn_ses_type[] =
 /* ATN Presentation layer */
 #define ATN_PRES_PROTO "ICAO Doc9705 ULCS Presentation (ISO 8822/8823-1:1994)"
 
-static int hf_atn_pres_err   = -1;
-static int hf_atn_pres_pdu_type = -1;
-static gint ett_atn_pres    = -1;
+static int hf_atn_pres_err;
+static int hf_atn_pres_pdu_type;
+static gint ett_atn_pres;
 
 #define ATN_SES_PRES_MASK 0xf803
 #define PRES_CPR_ER_MASK    0x70

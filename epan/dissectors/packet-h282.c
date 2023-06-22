@@ -30,586 +30,586 @@ void proto_register_h282(void);
 void proto_reg_handoff_h282(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_h282 = -1;
-static int hf_h282_NonCollapsingCapabilities_PDU = -1;  /* NonCollapsingCapabilities */
-static int hf_h282_RDCPDU_PDU = -1;               /* RDCPDU */
-static int hf_h282_object = -1;                   /* OBJECT_IDENTIFIER */
-static int hf_h282_h221NonStandard = -1;          /* H221NonStandardIdentifier */
-static int hf_h282_key = -1;                      /* Key */
-static int hf_h282_data = -1;                     /* OCTET_STRING */
-static int hf_h282_h221nonStandard = -1;          /* H221NonStandardIdentifier */
-static int hf_h282_camera = -1;                   /* NULL */
-static int hf_h282_microphone = -1;               /* NULL */
-static int hf_h282_streamPlayerRecorder = -1;     /* NULL */
-static int hf_h282_slideProjector = -1;           /* NULL */
-static int hf_h282_lightSource = -1;              /* NULL */
-static int hf_h282_sourceCombiner = -1;           /* NULL */
-static int hf_h282_nonStandardDevice = -1;        /* NonStandardIdentifier */
-static int hf_h282_deviceID = -1;                 /* DeviceID */
-static int hf_h282_audioSourceFlag = -1;          /* BOOLEAN */
-static int hf_h282_audioSinkFlag = -1;            /* BOOLEAN */
-static int hf_h282_videoSourceFlag = -1;          /* BOOLEAN */
-static int hf_h282_videoSinkFlag = -1;            /* BOOLEAN */
-static int hf_h282_remoteControlFlag = -1;        /* BOOLEAN */
-static int hf_h282_instanceNumber = -1;           /* INTEGER_0_255 */
-static int hf_h282_deviceName = -1;               /* TextString */
-static int hf_h282_streamID = -1;                 /* StreamID */
-static int hf_h282_videoStreamFlag = -1;          /* BOOLEAN */
-static int hf_h282_sourceChangeFlag = -1;         /* BOOLEAN */
-static int hf_h282_streamName = -1;               /* TextString */
-static int hf_h282_standard = -1;                 /* INTEGER_0_65535 */
-static int hf_h282_nonStandard = -1;              /* Key */
-static int hf_h282_NonCollapsingCapabilities_item = -1;  /* NonCollapsingCapabilities_item */
-static int hf_h282_capabilityID = -1;             /* CapabilityID */
-static int hf_h282_applicationData = -1;          /* T_applicationData */
-static int hf_h282_deviceList = -1;               /* SET_SIZE_0_127_OF_DeviceProfile */
-static int hf_h282_deviceList_item = -1;          /* DeviceProfile */
-static int hf_h282_streamList = -1;               /* SET_SIZE_0_127_OF_StreamProfile */
-static int hf_h282_streamList_item = -1;          /* StreamProfile */
-static int hf_h282_playing = -1;                  /* NULL */
-static int hf_h282_recording = -1;                /* NULL */
-static int hf_h282_pausedOnRecord = -1;           /* NULL */
-static int hf_h282_pausedOnPlay = -1;             /* NULL */
-static int hf_h282_rewinding = -1;                /* NULL */
-static int hf_h282_fastForwarding = -1;           /* NULL */
-static int hf_h282_searchingForwards = -1;        /* NULL */
-static int hf_h282_searchingBackwards = -1;       /* NULL */
-static int hf_h282_stopped = -1;                  /* NULL */
-static int hf_h282_programUnavailable = -1;       /* NULL */
-static int hf_h282_maxNumber = -1;                /* PresetNumber */
-static int hf_h282_presetCapability = -1;         /* T_presetCapability */
-static int hf_h282_presetCapability_item = -1;    /* T_presetCapability_item */
-static int hf_h282_presetNumber = -1;             /* PresetNumber */
-static int hf_h282_storeModeSupported = -1;       /* BOOLEAN */
-static int hf_h282_presetTextLabel = -1;          /* DeviceText */
-static int hf_h282_maxNumberOfFilters = -1;       /* INTEGER_2_255 */
-static int hf_h282_filterTextLabel = -1;          /* T_filterTextLabel */
-static int hf_h282_filterTextLabel_item = -1;     /* T_filterTextLabel_item */
-static int hf_h282_filterNumber = -1;             /* INTEGER_1_255 */
-static int hf_h282_filterTextLabel_deviceText = -1;  /* DeviceText */
-static int hf_h282_maxNumberOfLens = -1;          /* INTEGER_2_255 */
-static int hf_h282_accessoryTextLabel = -1;       /* T_accessoryTextLabel */
-static int hf_h282_accessoryTextLabel_item = -1;  /* T_accessoryTextLabel_item */
-static int hf_h282_lensNumber = -1;               /* INTEGER_1_255 */
-static int hf_h282_lensTextLabel = -1;            /* DeviceText */
-static int hf_h282_maxNumber_01 = -1;             /* INTEGER_1_10 */
-static int hf_h282_lightTextLabel = -1;           /* T_lightTextLabel */
-static int hf_h282_lightTextLabel_item = -1;      /* T_lightTextLabel_item */
-static int hf_h282_lightNumber = -1;              /* INTEGER_1_10 */
-static int hf_h282_lightLabel = -1;               /* DeviceText */
-static int hf_h282_maxSpeed = -1;                 /* CameraPanSpeed */
-static int hf_h282_minSpeed = -1;                 /* CameraPanSpeed */
-static int hf_h282_speedStepSize = -1;            /* CameraPanSpeed */
-static int hf_h282_maxSpeed_01 = -1;              /* CameraTiltSpeed */
-static int hf_h282_minSpeed_01 = -1;              /* CameraTiltSpeed */
-static int hf_h282_speedStepSize_01 = -1;         /* CameraTiltSpeed */
-static int hf_h282_maxLeft = -1;                  /* INTEGER_M18000_0 */
-static int hf_h282_maxRight = -1;                 /* INTEGER_0_18000 */
-static int hf_h282_minStepSize = -1;              /* INTEGER_1_18000 */
-static int hf_h282_maxDown = -1;                  /* INTEGER_M18000_0 */
-static int hf_h282_maxUp = -1;                    /* INTEGER_0_18000 */
-static int hf_h282_multiplierFactors = -1;        /* T_multiplierFactors */
-static int hf_h282_multiplierFactors_item = -1;   /* INTEGER_10_1000 */
-static int hf_h282_divisorFactors = -1;           /* T_divisorFactors */
-static int hf_h282_divisorFactors_item = -1;      /* INTEGER_10_1000 */
-static int hf_h282_numberOfDeviceInputs = -1;     /* INTEGER_2_64 */
-static int hf_h282_numberOfDeviceRows = -1;       /* INTEGER_1_64 */
-static int hf_h282_availableDevices = -1;         /* T_availableDevices */
-static int hf_h282_availableDevices_item = -1;    /* T_availableDevices_item */
-static int hf_h282_deviceClass = -1;              /* DeviceClass */
-static int hf_h282_deviceIdentifier = -1;         /* DeviceID */
-static int hf_h282_availableDevices_01 = -1;      /* T_availableDevices_01 */
-static int hf_h282_availableDevices_item_01 = -1;  /* T_availableDevices_item_01 */
-static int hf_h282_deviceStateSupported = -1;     /* NULL */
-static int hf_h282_deviceDateSupported = -1;      /* NULL */
-static int hf_h282_deviceTimeSupported = -1;      /* NULL */
-static int hf_h282_devicePresetSupported = -1;    /* DevicePresetCapability */
-static int hf_h282_irisModeSupported = -1;        /* NULL */
-static int hf_h282_focusModeSupported = -1;       /* NULL */
-static int hf_h282_pointingModeSupported = -1;    /* NULL */
-static int hf_h282_cameraLensSupported = -1;      /* CameraLensCapability */
-static int hf_h282_cameraFilterSupported = -1;    /* CameraFilterCapability */
-static int hf_h282_homePositionSupported = -1;    /* NULL */
-static int hf_h282_externalCameraLightSupported = -1;  /* ExternalCameraLightCapability */
-static int hf_h282_clearCameraLensSupported = -1;  /* NULL */
-static int hf_h282_cameraPanSpeedSupported = -1;  /* CameraPanSpeedCapability */
-static int hf_h282_cameraTiltSpeedSupported = -1;  /* CameraTiltSpeedCapability */
-static int hf_h282_backLightModeSupported = -1;   /* NULL */
-static int hf_h282_backLightSettingSupported = -1;  /* MaxBacklight */
-static int hf_h282_whiteBalanceSettingSupported = -1;  /* MaxWhiteBalance */
-static int hf_h282_whiteBalanceModeSupported = -1;  /* NULL */
-static int hf_h282_calibrateWhiteBalanceSupported = -1;  /* NULL */
-static int hf_h282_focusImageSupported = -1;      /* NULL */
-static int hf_h282_captureImageSupported = -1;    /* NULL */
-static int hf_h282_panContinuousSupported = -1;   /* NULL */
-static int hf_h282_tiltContinuousSupported = -1;  /* NULL */
-static int hf_h282_zoomContinuousSupported = -1;  /* NULL */
-static int hf_h282_focusContinuousSupported = -1;  /* NULL */
-static int hf_h282_irisContinuousSupported = -1;  /* NULL */
-static int hf_h282_zoomPositionSupported = -1;    /* MinZoomPositionSetSize */
-static int hf_h282_focusPositionSupported = -1;   /* MinFocusPositionStepSize */
-static int hf_h282_irisPositionSupported = -1;    /* MinIrisPositionStepSize */
-static int hf_h282_panPositionSupported = -1;     /* PanPositionCapability */
-static int hf_h282_tiltPositionSupported = -1;    /* TiltPositionCapability */
-static int hf_h282_zoomMagnificationSupported = -1;  /* MinZoomMagnificationStepSize */
-static int hf_h282_panViewSupported = -1;         /* NULL */
-static int hf_h282_tiltViewSupported = -1;        /* NULL */
-static int hf_h282_selectSlideSupported = -1;     /* MaxNumberOfSlides */
-static int hf_h282_selectNextSlideSupported = -1;  /* NULL */
-static int hf_h282_slideShowModeSupported = -1;   /* NULL */
-static int hf_h282_playSlideShowSupported = -1;   /* NULL */
-static int hf_h282_setSlideDisplayTimeSupported = -1;  /* MaxSlideDisplayTime */
-static int hf_h282_continuousRewindSupported = -1;  /* NULL */
-static int hf_h282_continuousFastForwardSupported = -1;  /* NULL */
-static int hf_h282_searchBackwardsSupported = -1;  /* NULL */
-static int hf_h282_searchForwardsSupported = -1;  /* NULL */
-static int hf_h282_pauseSupported = -1;           /* NULL */
-static int hf_h282_selectProgramSupported = -1;   /* MaxNumberOfPrograms */
-static int hf_h282_nextProgramSupported = -1;     /* NULL */
-static int hf_h282_gotoNormalPlayTimePointSupported = -1;  /* NULL */
-static int hf_h282_readStreamPlayerStateSupported = -1;  /* NULL */
-static int hf_h282_readProgramDurationSupported = -1;  /* NULL */
-static int hf_h282_continuousPlayBackModeSupported = -1;  /* NULL */
-static int hf_h282_playbackSpeedSupported = -1;   /* PlayBackSpeedCapability */
-static int hf_h282_playSupported = -1;            /* NULL */
-static int hf_h282_setAudioOutputStateSupported = -1;  /* NULL */
-static int hf_h282_playToNormalPlayTimePointSupported = -1;  /* NULL */
-static int hf_h282_recordSupported = -1;          /* NULL */
-static int hf_h282_recordForDurationSupported = -1;  /* NULL */
-static int hf_h282_configurableVideoInputsSupported = -1;  /* VideoInputsCapability */
-static int hf_h282_videoInputsSupported = -1;     /* VideoInputsCapability */
-static int hf_h282_configurableAudioInputsSupported = -1;  /* AudioInputsCapability */
-static int hf_h282_audioInputsSupported = -1;     /* AudioInputsCapability */
-static int hf_h282_deviceLockStateChangedSupported = -1;  /* NULL */
-static int hf_h282_deviceAvailabilityChangedSupported = -1;  /* NULL */
-static int hf_h282_cameraPannedToLimitSupported = -1;  /* NULL */
-static int hf_h282_cameraTiltedToLimitSupported = -1;  /* NULL */
-static int hf_h282_cameraZoomedToLimitSupported = -1;  /* NULL */
-static int hf_h282_cameraFocusedToLimitSupported = -1;  /* NULL */
-static int hf_h282_autoSlideShowFinishedSupported = -1;  /* NULL */
-static int hf_h282_streamPlayerStateChangeSupported = -1;  /* NULL */
-static int hf_h282_streamPlayerProgramChangeSupported = -1;  /* NULL */
-static int hf_h282_nonStandardAttributeSupported = -1;  /* NonStandardParameter */
-static int hf_h282_active = -1;                   /* NULL */
-static int hf_h282_inactive = -1;                 /* NULL */
-static int hf_h282_day = -1;                      /* Day */
-static int hf_h282_month = -1;                    /* Month */
-static int hf_h282_year = -1;                     /* Year */
-static int hf_h282_hour = -1;                     /* Hour */
-static int hf_h282_minute = -1;                   /* Minute */
-static int hf_h282_mode = -1;                     /* T_mode */
-static int hf_h282_store = -1;                    /* NULL */
-static int hf_h282_activate = -1;                 /* NULL */
-static int hf_h282_manual = -1;                   /* NULL */
-static int hf_h282_auto = -1;                     /* NULL */
-static int hf_h282_toggle = -1;                   /* NULL */
-static int hf_h282_none = -1;                     /* NULL */
-static int hf_h282_panDirection = -1;             /* T_panDirection */
-static int hf_h282_left = -1;                     /* NULL */
-static int hf_h282_right = -1;                    /* NULL */
-static int hf_h282_stop = -1;                     /* NULL */
-static int hf_h282_continue = -1;                 /* NULL */
-static int hf_h282_timeOut = -1;                  /* INTEGER_50_1000 */
-static int hf_h282_tiltDirection = -1;            /* T_tiltDirection */
-static int hf_h282_up = -1;                       /* NULL */
-static int hf_h282_down = -1;                     /* NULL */
-static int hf_h282_zoomDirection = -1;            /* T_zoomDirection */
-static int hf_h282_telescopic = -1;               /* NULL */
-static int hf_h282_wide = -1;                     /* NULL */
-static int hf_h282_focusDirection = -1;           /* T_focusDirection */
-static int hf_h282_near = -1;                     /* NULL */
-static int hf_h282_far = -1;                      /* NULL */
-static int hf_h282_relative = -1;                 /* NULL */
-static int hf_h282_absolute = -1;                 /* NULL */
-static int hf_h282_zoomPosition = -1;             /* ZoomPosition */
-static int hf_h282_positioningMode = -1;          /* PositioningMode */
-static int hf_h282_focusPosition = -1;            /* FocusPosition */
-static int hf_h282_irisPosition = -1;             /* IrisPosition */
-static int hf_h282_panPosition = -1;              /* PanPosition */
-static int hf_h282_tiltPosition = -1;             /* TiltPosition */
-static int hf_h282_next = -1;                     /* NULL */
-static int hf_h282_previous = -1;                 /* NULL */
-static int hf_h282_start = -1;                    /* NULL */
-static int hf_h282_pause = -1;                    /* NULL */
-static int hf_h282_hours = -1;                    /* INTEGER_0_24 */
-static int hf_h282_minutes = -1;                  /* INTEGER_0_59 */
-static int hf_h282_seconds = -1;                  /* INTEGER_0_59 */
-static int hf_h282_microseconds = -1;             /* INTEGER_0_99999 */
-static int hf_h282_scaleFactor = -1;              /* INTEGER_10_1000 */
-static int hf_h282_multiplyFactor = -1;           /* BOOLEAN */
-static int hf_h282_inputDevices = -1;             /* T_inputDevices */
-static int hf_h282_inputDevices_item = -1;        /* T_inputDevices_item */
-static int hf_h282_setDeviceState = -1;           /* DeviceState */
-static int hf_h282_setDeviceDate = -1;            /* DeviceDate */
-static int hf_h282_setDeviceTime = -1;            /* DeviceTime */
-static int hf_h282_setDevicePreset = -1;          /* DevicePreset */
-static int hf_h282_setIrisMode = -1;              /* Mode */
-static int hf_h282_setFocusMode = -1;             /* Mode */
-static int hf_h282_setBackLightMode = -1;         /* Mode */
-static int hf_h282_setPointingMode = -1;          /* PointingToggle */
-static int hf_h282_selectCameraLens = -1;         /* CameraLensNumber */
-static int hf_h282_selectCameraFilter = -1;       /* CameraFilterNumber */
-static int hf_h282_gotoHomePosition = -1;         /* NULL */
-static int hf_h282_selectExternalLight = -1;      /* SelectExternalLight */
-static int hf_h282_clearCameraLens = -1;          /* NULL */
-static int hf_h282_setCameraPanSpeed = -1;        /* CameraPanSpeed */
-static int hf_h282_setCameraTiltSpeed = -1;       /* CameraTiltSpeed */
-static int hf_h282_setBackLight = -1;             /* BackLight */
-static int hf_h282_setWhiteBalance = -1;          /* WhiteBalance */
-static int hf_h282_setWhiteBalanceMode = -1;      /* Mode */
-static int hf_h282_calibrateWhiteBalance = -1;    /* NULL */
-static int hf_h282_focusImage = -1;               /* NULL */
-static int hf_h282_captureImage = -1;             /* NULL */
-static int hf_h282_panContinuous = -1;            /* PanContinuous */
-static int hf_h282_tiltContinuous = -1;           /* TiltContinuous */
-static int hf_h282_zoomContinuous = -1;           /* ZoomContinuous */
-static int hf_h282_focusContinuous = -1;          /* FocusContinuous */
-static int hf_h282_setZoomPosition = -1;          /* SetZoomPosition */
-static int hf_h282_setFocusPosition = -1;         /* SetFocusPosition */
-static int hf_h282_setIrisPosition = -1;          /* SetIrisPosition */
-static int hf_h282_setPanPosition = -1;           /* SetPanPosition */
-static int hf_h282_setTiltPosition = -1;          /* SetTiltPosition */
-static int hf_h282_setZoomMagnification = -1;     /* ZoomMagnification */
-static int hf_h282_setPanView = -1;               /* PanView */
-static int hf_h282_setTiltView = -1;              /* TiltView */
-static int hf_h282_selectSlide = -1;              /* SlideNumber */
-static int hf_h282_selectNextSlide = -1;          /* SelectDirection */
-static int hf_h282_playAutoSlideShow = -1;        /* AutoSlideShowControl */
-static int hf_h282_setAutoSlideDisplayTime = -1;  /* AutoSlideDisplayTime */
-static int hf_h282_continuousRewindControl = -1;  /* BOOLEAN */
-static int hf_h282_continuousFastForwardControl = -1;  /* BOOLEAN */
-static int hf_h282_searchBackwardsControl = -1;   /* BOOLEAN */
-static int hf_h282_searchForwardsControl = -1;    /* BOOLEAN */
-static int hf_h282_pause_01 = -1;                 /* BOOLEAN */
-static int hf_h282_selectProgram = -1;            /* ProgramNumber */
-static int hf_h282_nextProgramSelect = -1;        /* SelectDirection */
-static int hf_h282_gotoNormalPlayTimePoint = -1;  /* ProgramDuration */
-static int hf_h282_continuousPlayBackMode = -1;   /* BOOLEAN */
-static int hf_h282_setPlaybackSpeed = -1;         /* PlaybackSpeed */
-static int hf_h282_play = -1;                     /* BOOLEAN */
-static int hf_h282_setAudioOutputMute = -1;       /* BOOLEAN */
-static int hf_h282_playToNormalPlayTimePoint = -1;  /* ProgramDuration */
-static int hf_h282_record = -1;                   /* BOOLEAN */
-static int hf_h282_recordForDuration = -1;        /* RecordForDuration */
-static int hf_h282_configureVideoInputs = -1;     /* DeviceInputs */
-static int hf_h282_configureAudioInputs = -1;     /* DeviceInputs */
-static int hf_h282_nonStandardControl = -1;       /* NonStandardParameter */
-static int hf_h282_getDeviceState = -1;           /* NULL */
-static int hf_h282_getDeviceDate = -1;            /* NULL */
-static int hf_h282_getDeviceTime = -1;            /* NULL */
-static int hf_h282_getdevicePreset = -1;          /* NULL */
-static int hf_h282_getIrisMode = -1;              /* NULL */
-static int hf_h282_getFocusMode = -1;             /* NULL */
-static int hf_h282_getBacklightMode = -1;         /* NULL */
-static int hf_h282_getPointingMode = -1;          /* NULL */
-static int hf_h282_getCameraLens = -1;            /* NULL */
-static int hf_h282_getCameraFilter = -1;          /* NULL */
-static int hf_h282_getExternalLight = -1;         /* NULL */
-static int hf_h282_getCameraPanSpeed = -1;        /* NULL */
-static int hf_h282_getCameraTiltSpeed = -1;       /* NULL */
-static int hf_h282_getBackLightMode = -1;         /* NULL */
-static int hf_h282_getBackLight = -1;             /* NULL */
-static int hf_h282_getWhiteBalance = -1;          /* NULL */
-static int hf_h282_getWhiteBalanceMode = -1;      /* NULL */
-static int hf_h282_getZoomPosition = -1;          /* NULL */
-static int hf_h282_getFocusPosition = -1;         /* NULL */
-static int hf_h282_getIrisPosition = -1;          /* NULL */
-static int hf_h282_getPanPosition = -1;           /* NULL */
-static int hf_h282_getTiltPosition = -1;          /* NULL */
-static int hf_h282_getSelectedSlide = -1;         /* NULL */
-static int hf_h282_getAutoSlideDisplayTime = -1;  /* NULL */
-static int hf_h282_getSelectedProgram = -1;       /* NULL */
-static int hf_h282_getStreamPlayerState = -1;     /* NULL */
-static int hf_h282_getCurrentProgramDuration = -1;  /* NULL */
-static int hf_h282_getPlaybackSpeed = -1;         /* NULL */
-static int hf_h282_getAudioOutputState = -1;      /* NULL */
-static int hf_h282_getConfigurableVideoInputs = -1;  /* NULL */
-static int hf_h282_getVideoInputs = -1;           /* NULL */
-static int hf_h282_getConfigurableAudioInputs = -1;  /* NULL */
-static int hf_h282_getAudioInputs = -1;           /* NULL */
-static int hf_h282_getNonStandardStatus = -1;     /* NonStandardIdentifier */
-static int hf_h282_deviceState = -1;              /* DeviceState */
-static int hf_h282_unknown = -1;                  /* NULL */
-static int hf_h282_currentDay = -1;               /* T_currentDay */
-static int hf_h282_currentMonth = -1;             /* T_currentMonth */
-static int hf_h282_currentYear = -1;              /* T_currentYear */
-static int hf_h282_currentHour = -1;              /* T_currentHour */
-static int hf_h282_currentMinute = -1;            /* T_currentMinute */
-static int hf_h282_preset = -1;                   /* PresetNumber */
-static int hf_h282_mode_01 = -1;                  /* Mode */
-static int hf_h282_automatic = -1;                /* NULL */
-static int hf_h282_lensNumber_01 = -1;            /* CameraLensNumber */
-static int hf_h282_lensNumber_02 = -1;            /* CameraFilterNumber */
-static int hf_h282_speed = -1;                    /* CameraPanSpeed */
-static int hf_h282_speed_01 = -1;                 /* CameraTiltSpeed */
-static int hf_h282_backLight = -1;                /* BackLight */
-static int hf_h282_whiteBalance = -1;             /* WhiteBalance */
-static int hf_h282_slide = -1;                    /* SlideNumber */
-static int hf_h282_time = -1;                     /* AutoSlideDisplayTime */
-static int hf_h282_program = -1;                  /* ProgramNumber */
-static int hf_h282_state = -1;                    /* StreamPlayerState */
-static int hf_h282_speed_02 = -1;                 /* PlaybackSpeed */
-static int hf_h282_mute = -1;                     /* BOOLEAN */
-static int hf_h282_currentdeviceState = -1;       /* CurrentDeviceState */
-static int hf_h282_currentDeviceDate = -1;        /* CurrentDeviceDate */
-static int hf_h282_currentDeviceTime = -1;        /* CurrentDeviceTime */
-static int hf_h282_currentDevicePreset = -1;      /* CurrentDevicePreset */
-static int hf_h282_currentIrisMode = -1;          /* CurrentMode */
-static int hf_h282_currentFocusMode = -1;         /* CurrentMode */
-static int hf_h282_currentBackLightMode = -1;     /* CurrentMode */
-static int hf_h282_currentPointingMode = -1;      /* CurrentPointingMode */
-static int hf_h282_currentCameraLens = -1;        /* CurrentCameraLensNumber */
-static int hf_h282_currentCameraFilter = -1;      /* CurrentCameraFilterNumber */
-static int hf_h282_currentExternalLight = -1;     /* CurrentExternalLight */
-static int hf_h282_currentCameraPanSpeed = -1;    /* CurrentCameraPanSpeed */
-static int hf_h282_currentCameraTiltSpeed = -1;   /* CurrentCameraTiltSpeed */
-static int hf_h282_currentBackLight = -1;         /* CurrentBackLight */
-static int hf_h282_currentWhiteBalance = -1;      /* CurrentWhiteBalance */
-static int hf_h282_currentWhiteBalanceMode = -1;  /* CurrentMode */
-static int hf_h282_currentZoomPosition = -1;      /* CurrentZoomPosition */
-static int hf_h282_currentFocusPosition = -1;     /* CurrentFocusPosition */
-static int hf_h282_currentIrisPosition = -1;      /* CurrentIrisPosition */
-static int hf_h282_currentPanPosition = -1;       /* CurrentPanPosition */
-static int hf_h282_currentTiltPosition = -1;      /* CurrentTiltPosition */
-static int hf_h282_currentSlide = -1;             /* CurrentSlide */
-static int hf_h282_currentAutoSlideDisplayTime = -1;  /* CurrentAutoSlideDisplayTime */
-static int hf_h282_currentSelectedProgram = -1;   /* CurrentSelectedProgram */
-static int hf_h282_currentstreamPlayerState = -1;  /* CurrentStreamPlayerState */
-static int hf_h282_currentProgramDuration = -1;   /* ProgramDuration */
-static int hf_h282_currentPlaybackSpeed = -1;     /* CurrentPlaybackSpeed */
-static int hf_h282_currentAudioOutputMute = -1;   /* CurrentAudioOutputMute */
-static int hf_h282_configurableVideoInputs = -1;  /* DeviceInputs */
-static int hf_h282_videoInputs = -1;              /* DeviceInputs */
-static int hf_h282_configurableAudioInputs = -1;  /* DeviceInputs */
-static int hf_h282_audioInputs = -1;              /* DeviceInputs */
-static int hf_h282_nonStandardStatus = -1;        /* NonStandardParameter */
-static int hf_h282_requestDeviceLockChanged = -1;  /* NULL */
-static int hf_h282_requestDeviceAvailabilityChanged = -1;  /* NULL */
-static int hf_h282_requestCameraPannedToLimit = -1;  /* NULL */
-static int hf_h282_requestCameraTiltedToLimit = -1;  /* NULL */
-static int hf_h282_requestCameraZoomedToLimit = -1;  /* NULL */
-static int hf_h282_requestCameraFocusedToLimit = -1;  /* NULL */
-static int hf_h282_requestAutoSlideShowFinished = -1;  /* NULL */
-static int hf_h282_requestStreamPlayerStateChange = -1;  /* NULL */
-static int hf_h282_requestStreamPlayerProgramChange = -1;  /* NULL */
-static int hf_h282_requestNonStandardEvent = -1;  /* NonStandardIdentifier */
-static int hf_h282_deviceLockChanged = -1;        /* BOOLEAN */
-static int hf_h282_deviceAvailabilityChanged = -1;  /* BOOLEAN */
-static int hf_h282_cameraPannedToLimit = -1;      /* CameraPannedToLimit */
-static int hf_h282_cameraTiltedToLimit = -1;      /* CameraTiltedToLimit */
-static int hf_h282_cameraZoomedToLimit = -1;      /* CameraZoomedToLimit */
-static int hf_h282_cameraFocusedToLimit = -1;     /* CameraFocusedToLimit */
-static int hf_h282_autoSlideShowFinished = -1;    /* NULL */
-static int hf_h282_streamPlayerStateChange = -1;  /* StreamPlayerState */
-static int hf_h282_streamPlayerProgramChange = -1;  /* ProgramNumber */
-static int hf_h282_nonStandardEvent = -1;         /* NonStandardParameter */
-static int hf_h282_requestHandle = -1;            /* Handle */
-static int hf_h282_streamIdentifier = -1;         /* StreamID */
-static int hf_h282_result = -1;                   /* T_result */
-static int hf_h282_successful = -1;               /* NULL */
-static int hf_h282_requestDenied = -1;            /* NULL */
-static int hf_h282_deviceUnavailable = -1;        /* NULL */
-static int hf_h282_invalidStreamID = -1;          /* NULL */
-static int hf_h282_currentDeviceIsLocked = -1;    /* NULL */
-static int hf_h282_deviceIncompatible = -1;       /* NULL */
-static int hf_h282_sourceEventNotify = -1;        /* BOOLEAN */
-static int hf_h282_result_01 = -1;                /* T_result_01 */
-static int hf_h282_eventsNotSupported = -1;       /* NULL */
-static int hf_h282_deviceAttributeList = -1;      /* SET_OF_DeviceAttribute */
-static int hf_h282_deviceAttributeList_item = -1;  /* DeviceAttribute */
-static int hf_h282_result_02 = -1;                /* T_result_02 */
-static int hf_h282_unknownDevice = -1;            /* NULL */
-static int hf_h282_lockFlag = -1;                 /* BOOLEAN */
-static int hf_h282_result_03 = -1;                /* T_result_03 */
-static int hf_h282_lockingNotSupported = -1;      /* NULL */
-static int hf_h282_deviceAlreadyLocked = -1;      /* NULL */
-static int hf_h282_result_04 = -1;                /* T_result_04 */
-static int hf_h282_lockRequired = -1;             /* NULL */
-static int hf_h282_lockNotRequired = -1;          /* NULL */
-static int hf_h282_controlAttributeList = -1;     /* SET_SIZE_1_8_OF_ControlAttribute */
-static int hf_h282_controlAttributeList_item = -1;  /* ControlAttribute */
-static int hf_h282_statusAttributeIdentifierList = -1;  /* SET_SIZE_1_16_OF_StatusAttributeIdentifier */
-static int hf_h282_statusAttributeIdentifierList_item = -1;  /* StatusAttributeIdentifier */
-static int hf_h282_statusAttributeList = -1;      /* SET_SIZE_1_16_OF_StatusAttribute */
-static int hf_h282_statusAttributeList_item = -1;  /* StatusAttribute */
-static int hf_h282_result_05 = -1;                /* T_result_05 */
-static int hf_h282_deviceAttributeError = -1;     /* NULL */
-static int hf_h282_deviceEventIdentifierList = -1;  /* SET_OF_DeviceEventIdentifier */
-static int hf_h282_deviceEventIdentifierList_item = -1;  /* DeviceEventIdentifier */
-static int hf_h282_result_06 = -1;                /* T_result_06 */
-static int hf_h282_deviceEventList = -1;          /* SET_SIZE_1_8_OF_DeviceEvent */
-static int hf_h282_deviceEventList_item = -1;     /* DeviceEvent */
-static int hf_h282_nonStandardData = -1;          /* NonStandardParameter */
-static int hf_h282_request = -1;                  /* RequestPDU */
-static int hf_h282_response = -1;                 /* ResponsePDU */
-static int hf_h282_indication = -1;               /* IndicationPDU */
-static int hf_h282_sourceSelectRequest = -1;      /* SourceSelectRequest */
-static int hf_h282_sourceEventsRequest = -1;      /* SourceEventsRequest */
-static int hf_h282_deviceAttributeRequest = -1;   /* DeviceAttributeRequest */
-static int hf_h282_deviceLockRequest = -1;        /* DeviceLockRequest */
-static int hf_h282_deviceLockEnquireRequest = -1;  /* DeviceLockEnquireRequest */
-static int hf_h282_deviceControlRequest = -1;     /* DeviceControlRequest */
-static int hf_h282_deviceStatusEnquireRequest = -1;  /* DeviceStatusEnquireRequest */
-static int hf_h282_configureDeviceEventsRequest = -1;  /* ConfigureDeviceEventsRequest */
-static int hf_h282_nonStandardRequest = -1;       /* NonStandardPDU */
-static int hf_h282_sourceSelectResponse = -1;     /* SourceSelectResponse */
-static int hf_h282_sourceEventsResponse = -1;     /* SourceEventsResponse */
-static int hf_h282_deviceAttributeResponse = -1;  /* DeviceAttributeResponse */
-static int hf_h282_deviceLockResponse = -1;       /* DeviceLockResponse */
-static int hf_h282_deviceLockEnquireResponse = -1;  /* DeviceLockEnquireResponse */
-static int hf_h282_deviceStatusEnquireResponse = -1;  /* DeviceStatusEnquireResponse */
-static int hf_h282_configureDeviceEventsResponse = -1;  /* ConfigureDeviceEventsResponse */
-static int hf_h282_nonStandardResponse = -1;      /* NonStandardPDU */
-static int hf_h282_sourceChangeEventIndication = -1;  /* SourceChangeEventIndication */
-static int hf_h282_deviceLockTerminatedIndication = -1;  /* DeviceLockTerminatedIndication */
-static int hf_h282_deviceEventNotifyIndication = -1;  /* DeviceEventNotifyIndication */
-static int hf_h282_nonStandardIndication = -1;    /* NonStandardPDU */
+static int proto_h282;
+static int hf_h282_NonCollapsingCapabilities_PDU;  /* NonCollapsingCapabilities */
+static int hf_h282_RDCPDU_PDU;                    /* RDCPDU */
+static int hf_h282_object;                        /* OBJECT_IDENTIFIER */
+static int hf_h282_h221NonStandard;               /* H221NonStandardIdentifier */
+static int hf_h282_key;                           /* Key */
+static int hf_h282_data;                          /* OCTET_STRING */
+static int hf_h282_h221nonStandard;               /* H221NonStandardIdentifier */
+static int hf_h282_camera;                        /* NULL */
+static int hf_h282_microphone;                    /* NULL */
+static int hf_h282_streamPlayerRecorder;          /* NULL */
+static int hf_h282_slideProjector;                /* NULL */
+static int hf_h282_lightSource;                   /* NULL */
+static int hf_h282_sourceCombiner;                /* NULL */
+static int hf_h282_nonStandardDevice;             /* NonStandardIdentifier */
+static int hf_h282_deviceID;                      /* DeviceID */
+static int hf_h282_audioSourceFlag;               /* BOOLEAN */
+static int hf_h282_audioSinkFlag;                 /* BOOLEAN */
+static int hf_h282_videoSourceFlag;               /* BOOLEAN */
+static int hf_h282_videoSinkFlag;                 /* BOOLEAN */
+static int hf_h282_remoteControlFlag;             /* BOOLEAN */
+static int hf_h282_instanceNumber;                /* INTEGER_0_255 */
+static int hf_h282_deviceName;                    /* TextString */
+static int hf_h282_streamID;                      /* StreamID */
+static int hf_h282_videoStreamFlag;               /* BOOLEAN */
+static int hf_h282_sourceChangeFlag;              /* BOOLEAN */
+static int hf_h282_streamName;                    /* TextString */
+static int hf_h282_standard;                      /* INTEGER_0_65535 */
+static int hf_h282_nonStandard;                   /* Key */
+static int hf_h282_NonCollapsingCapabilities_item;  /* NonCollapsingCapabilities_item */
+static int hf_h282_capabilityID;                  /* CapabilityID */
+static int hf_h282_applicationData;               /* T_applicationData */
+static int hf_h282_deviceList;                    /* SET_SIZE_0_127_OF_DeviceProfile */
+static int hf_h282_deviceList_item;               /* DeviceProfile */
+static int hf_h282_streamList;                    /* SET_SIZE_0_127_OF_StreamProfile */
+static int hf_h282_streamList_item;               /* StreamProfile */
+static int hf_h282_playing;                       /* NULL */
+static int hf_h282_recording;                     /* NULL */
+static int hf_h282_pausedOnRecord;                /* NULL */
+static int hf_h282_pausedOnPlay;                  /* NULL */
+static int hf_h282_rewinding;                     /* NULL */
+static int hf_h282_fastForwarding;                /* NULL */
+static int hf_h282_searchingForwards;             /* NULL */
+static int hf_h282_searchingBackwards;            /* NULL */
+static int hf_h282_stopped;                       /* NULL */
+static int hf_h282_programUnavailable;            /* NULL */
+static int hf_h282_maxNumber;                     /* PresetNumber */
+static int hf_h282_presetCapability;              /* T_presetCapability */
+static int hf_h282_presetCapability_item;         /* T_presetCapability_item */
+static int hf_h282_presetNumber;                  /* PresetNumber */
+static int hf_h282_storeModeSupported;            /* BOOLEAN */
+static int hf_h282_presetTextLabel;               /* DeviceText */
+static int hf_h282_maxNumberOfFilters;            /* INTEGER_2_255 */
+static int hf_h282_filterTextLabel;               /* T_filterTextLabel */
+static int hf_h282_filterTextLabel_item;          /* T_filterTextLabel_item */
+static int hf_h282_filterNumber;                  /* INTEGER_1_255 */
+static int hf_h282_filterTextLabel_deviceText;    /* DeviceText */
+static int hf_h282_maxNumberOfLens;               /* INTEGER_2_255 */
+static int hf_h282_accessoryTextLabel;            /* T_accessoryTextLabel */
+static int hf_h282_accessoryTextLabel_item;       /* T_accessoryTextLabel_item */
+static int hf_h282_lensNumber;                    /* INTEGER_1_255 */
+static int hf_h282_lensTextLabel;                 /* DeviceText */
+static int hf_h282_maxNumber_01;                  /* INTEGER_1_10 */
+static int hf_h282_lightTextLabel;                /* T_lightTextLabel */
+static int hf_h282_lightTextLabel_item;           /* T_lightTextLabel_item */
+static int hf_h282_lightNumber;                   /* INTEGER_1_10 */
+static int hf_h282_lightLabel;                    /* DeviceText */
+static int hf_h282_maxSpeed;                      /* CameraPanSpeed */
+static int hf_h282_minSpeed;                      /* CameraPanSpeed */
+static int hf_h282_speedStepSize;                 /* CameraPanSpeed */
+static int hf_h282_maxSpeed_01;                   /* CameraTiltSpeed */
+static int hf_h282_minSpeed_01;                   /* CameraTiltSpeed */
+static int hf_h282_speedStepSize_01;              /* CameraTiltSpeed */
+static int hf_h282_maxLeft;                       /* INTEGER_M18000_0 */
+static int hf_h282_maxRight;                      /* INTEGER_0_18000 */
+static int hf_h282_minStepSize;                   /* INTEGER_1_18000 */
+static int hf_h282_maxDown;                       /* INTEGER_M18000_0 */
+static int hf_h282_maxUp;                         /* INTEGER_0_18000 */
+static int hf_h282_multiplierFactors;             /* T_multiplierFactors */
+static int hf_h282_multiplierFactors_item;        /* INTEGER_10_1000 */
+static int hf_h282_divisorFactors;                /* T_divisorFactors */
+static int hf_h282_divisorFactors_item;           /* INTEGER_10_1000 */
+static int hf_h282_numberOfDeviceInputs;          /* INTEGER_2_64 */
+static int hf_h282_numberOfDeviceRows;            /* INTEGER_1_64 */
+static int hf_h282_availableDevices;              /* T_availableDevices */
+static int hf_h282_availableDevices_item;         /* T_availableDevices_item */
+static int hf_h282_deviceClass;                   /* DeviceClass */
+static int hf_h282_deviceIdentifier;              /* DeviceID */
+static int hf_h282_availableDevices_01;           /* T_availableDevices_01 */
+static int hf_h282_availableDevices_item_01;      /* T_availableDevices_item_01 */
+static int hf_h282_deviceStateSupported;          /* NULL */
+static int hf_h282_deviceDateSupported;           /* NULL */
+static int hf_h282_deviceTimeSupported;           /* NULL */
+static int hf_h282_devicePresetSupported;         /* DevicePresetCapability */
+static int hf_h282_irisModeSupported;             /* NULL */
+static int hf_h282_focusModeSupported;            /* NULL */
+static int hf_h282_pointingModeSupported;         /* NULL */
+static int hf_h282_cameraLensSupported;           /* CameraLensCapability */
+static int hf_h282_cameraFilterSupported;         /* CameraFilterCapability */
+static int hf_h282_homePositionSupported;         /* NULL */
+static int hf_h282_externalCameraLightSupported;  /* ExternalCameraLightCapability */
+static int hf_h282_clearCameraLensSupported;      /* NULL */
+static int hf_h282_cameraPanSpeedSupported;       /* CameraPanSpeedCapability */
+static int hf_h282_cameraTiltSpeedSupported;      /* CameraTiltSpeedCapability */
+static int hf_h282_backLightModeSupported;        /* NULL */
+static int hf_h282_backLightSettingSupported;     /* MaxBacklight */
+static int hf_h282_whiteBalanceSettingSupported;  /* MaxWhiteBalance */
+static int hf_h282_whiteBalanceModeSupported;     /* NULL */
+static int hf_h282_calibrateWhiteBalanceSupported;  /* NULL */
+static int hf_h282_focusImageSupported;           /* NULL */
+static int hf_h282_captureImageSupported;         /* NULL */
+static int hf_h282_panContinuousSupported;        /* NULL */
+static int hf_h282_tiltContinuousSupported;       /* NULL */
+static int hf_h282_zoomContinuousSupported;       /* NULL */
+static int hf_h282_focusContinuousSupported;      /* NULL */
+static int hf_h282_irisContinuousSupported;       /* NULL */
+static int hf_h282_zoomPositionSupported;         /* MinZoomPositionSetSize */
+static int hf_h282_focusPositionSupported;        /* MinFocusPositionStepSize */
+static int hf_h282_irisPositionSupported;         /* MinIrisPositionStepSize */
+static int hf_h282_panPositionSupported;          /* PanPositionCapability */
+static int hf_h282_tiltPositionSupported;         /* TiltPositionCapability */
+static int hf_h282_zoomMagnificationSupported;    /* MinZoomMagnificationStepSize */
+static int hf_h282_panViewSupported;              /* NULL */
+static int hf_h282_tiltViewSupported;             /* NULL */
+static int hf_h282_selectSlideSupported;          /* MaxNumberOfSlides */
+static int hf_h282_selectNextSlideSupported;      /* NULL */
+static int hf_h282_slideShowModeSupported;        /* NULL */
+static int hf_h282_playSlideShowSupported;        /* NULL */
+static int hf_h282_setSlideDisplayTimeSupported;  /* MaxSlideDisplayTime */
+static int hf_h282_continuousRewindSupported;     /* NULL */
+static int hf_h282_continuousFastForwardSupported;  /* NULL */
+static int hf_h282_searchBackwardsSupported;      /* NULL */
+static int hf_h282_searchForwardsSupported;       /* NULL */
+static int hf_h282_pauseSupported;                /* NULL */
+static int hf_h282_selectProgramSupported;        /* MaxNumberOfPrograms */
+static int hf_h282_nextProgramSupported;          /* NULL */
+static int hf_h282_gotoNormalPlayTimePointSupported;  /* NULL */
+static int hf_h282_readStreamPlayerStateSupported;  /* NULL */
+static int hf_h282_readProgramDurationSupported;  /* NULL */
+static int hf_h282_continuousPlayBackModeSupported;  /* NULL */
+static int hf_h282_playbackSpeedSupported;        /* PlayBackSpeedCapability */
+static int hf_h282_playSupported;                 /* NULL */
+static int hf_h282_setAudioOutputStateSupported;  /* NULL */
+static int hf_h282_playToNormalPlayTimePointSupported;  /* NULL */
+static int hf_h282_recordSupported;               /* NULL */
+static int hf_h282_recordForDurationSupported;    /* NULL */
+static int hf_h282_configurableVideoInputsSupported;  /* VideoInputsCapability */
+static int hf_h282_videoInputsSupported;          /* VideoInputsCapability */
+static int hf_h282_configurableAudioInputsSupported;  /* AudioInputsCapability */
+static int hf_h282_audioInputsSupported;          /* AudioInputsCapability */
+static int hf_h282_deviceLockStateChangedSupported;  /* NULL */
+static int hf_h282_deviceAvailabilityChangedSupported;  /* NULL */
+static int hf_h282_cameraPannedToLimitSupported;  /* NULL */
+static int hf_h282_cameraTiltedToLimitSupported;  /* NULL */
+static int hf_h282_cameraZoomedToLimitSupported;  /* NULL */
+static int hf_h282_cameraFocusedToLimitSupported;  /* NULL */
+static int hf_h282_autoSlideShowFinishedSupported;  /* NULL */
+static int hf_h282_streamPlayerStateChangeSupported;  /* NULL */
+static int hf_h282_streamPlayerProgramChangeSupported;  /* NULL */
+static int hf_h282_nonStandardAttributeSupported;  /* NonStandardParameter */
+static int hf_h282_active;                        /* NULL */
+static int hf_h282_inactive;                      /* NULL */
+static int hf_h282_day;                           /* Day */
+static int hf_h282_month;                         /* Month */
+static int hf_h282_year;                          /* Year */
+static int hf_h282_hour;                          /* Hour */
+static int hf_h282_minute;                        /* Minute */
+static int hf_h282_mode;                          /* T_mode */
+static int hf_h282_store;                         /* NULL */
+static int hf_h282_activate;                      /* NULL */
+static int hf_h282_manual;                        /* NULL */
+static int hf_h282_auto;                          /* NULL */
+static int hf_h282_toggle;                        /* NULL */
+static int hf_h282_none;                          /* NULL */
+static int hf_h282_panDirection;                  /* T_panDirection */
+static int hf_h282_left;                          /* NULL */
+static int hf_h282_right;                         /* NULL */
+static int hf_h282_stop;                          /* NULL */
+static int hf_h282_continue;                      /* NULL */
+static int hf_h282_timeOut;                       /* INTEGER_50_1000 */
+static int hf_h282_tiltDirection;                 /* T_tiltDirection */
+static int hf_h282_up;                            /* NULL */
+static int hf_h282_down;                          /* NULL */
+static int hf_h282_zoomDirection;                 /* T_zoomDirection */
+static int hf_h282_telescopic;                    /* NULL */
+static int hf_h282_wide;                          /* NULL */
+static int hf_h282_focusDirection;                /* T_focusDirection */
+static int hf_h282_near;                          /* NULL */
+static int hf_h282_far;                           /* NULL */
+static int hf_h282_relative;                      /* NULL */
+static int hf_h282_absolute;                      /* NULL */
+static int hf_h282_zoomPosition;                  /* ZoomPosition */
+static int hf_h282_positioningMode;               /* PositioningMode */
+static int hf_h282_focusPosition;                 /* FocusPosition */
+static int hf_h282_irisPosition;                  /* IrisPosition */
+static int hf_h282_panPosition;                   /* PanPosition */
+static int hf_h282_tiltPosition;                  /* TiltPosition */
+static int hf_h282_next;                          /* NULL */
+static int hf_h282_previous;                      /* NULL */
+static int hf_h282_start;                         /* NULL */
+static int hf_h282_pause;                         /* NULL */
+static int hf_h282_hours;                         /* INTEGER_0_24 */
+static int hf_h282_minutes;                       /* INTEGER_0_59 */
+static int hf_h282_seconds;                       /* INTEGER_0_59 */
+static int hf_h282_microseconds;                  /* INTEGER_0_99999 */
+static int hf_h282_scaleFactor;                   /* INTEGER_10_1000 */
+static int hf_h282_multiplyFactor;                /* BOOLEAN */
+static int hf_h282_inputDevices;                  /* T_inputDevices */
+static int hf_h282_inputDevices_item;             /* T_inputDevices_item */
+static int hf_h282_setDeviceState;                /* DeviceState */
+static int hf_h282_setDeviceDate;                 /* DeviceDate */
+static int hf_h282_setDeviceTime;                 /* DeviceTime */
+static int hf_h282_setDevicePreset;               /* DevicePreset */
+static int hf_h282_setIrisMode;                   /* Mode */
+static int hf_h282_setFocusMode;                  /* Mode */
+static int hf_h282_setBackLightMode;              /* Mode */
+static int hf_h282_setPointingMode;               /* PointingToggle */
+static int hf_h282_selectCameraLens;              /* CameraLensNumber */
+static int hf_h282_selectCameraFilter;            /* CameraFilterNumber */
+static int hf_h282_gotoHomePosition;              /* NULL */
+static int hf_h282_selectExternalLight;           /* SelectExternalLight */
+static int hf_h282_clearCameraLens;               /* NULL */
+static int hf_h282_setCameraPanSpeed;             /* CameraPanSpeed */
+static int hf_h282_setCameraTiltSpeed;            /* CameraTiltSpeed */
+static int hf_h282_setBackLight;                  /* BackLight */
+static int hf_h282_setWhiteBalance;               /* WhiteBalance */
+static int hf_h282_setWhiteBalanceMode;           /* Mode */
+static int hf_h282_calibrateWhiteBalance;         /* NULL */
+static int hf_h282_focusImage;                    /* NULL */
+static int hf_h282_captureImage;                  /* NULL */
+static int hf_h282_panContinuous;                 /* PanContinuous */
+static int hf_h282_tiltContinuous;                /* TiltContinuous */
+static int hf_h282_zoomContinuous;                /* ZoomContinuous */
+static int hf_h282_focusContinuous;               /* FocusContinuous */
+static int hf_h282_setZoomPosition;               /* SetZoomPosition */
+static int hf_h282_setFocusPosition;              /* SetFocusPosition */
+static int hf_h282_setIrisPosition;               /* SetIrisPosition */
+static int hf_h282_setPanPosition;                /* SetPanPosition */
+static int hf_h282_setTiltPosition;               /* SetTiltPosition */
+static int hf_h282_setZoomMagnification;          /* ZoomMagnification */
+static int hf_h282_setPanView;                    /* PanView */
+static int hf_h282_setTiltView;                   /* TiltView */
+static int hf_h282_selectSlide;                   /* SlideNumber */
+static int hf_h282_selectNextSlide;               /* SelectDirection */
+static int hf_h282_playAutoSlideShow;             /* AutoSlideShowControl */
+static int hf_h282_setAutoSlideDisplayTime;       /* AutoSlideDisplayTime */
+static int hf_h282_continuousRewindControl;       /* BOOLEAN */
+static int hf_h282_continuousFastForwardControl;  /* BOOLEAN */
+static int hf_h282_searchBackwardsControl;        /* BOOLEAN */
+static int hf_h282_searchForwardsControl;         /* BOOLEAN */
+static int hf_h282_pause_01;                      /* BOOLEAN */
+static int hf_h282_selectProgram;                 /* ProgramNumber */
+static int hf_h282_nextProgramSelect;             /* SelectDirection */
+static int hf_h282_gotoNormalPlayTimePoint;       /* ProgramDuration */
+static int hf_h282_continuousPlayBackMode;        /* BOOLEAN */
+static int hf_h282_setPlaybackSpeed;              /* PlaybackSpeed */
+static int hf_h282_play;                          /* BOOLEAN */
+static int hf_h282_setAudioOutputMute;            /* BOOLEAN */
+static int hf_h282_playToNormalPlayTimePoint;     /* ProgramDuration */
+static int hf_h282_record;                        /* BOOLEAN */
+static int hf_h282_recordForDuration;             /* RecordForDuration */
+static int hf_h282_configureVideoInputs;          /* DeviceInputs */
+static int hf_h282_configureAudioInputs;          /* DeviceInputs */
+static int hf_h282_nonStandardControl;            /* NonStandardParameter */
+static int hf_h282_getDeviceState;                /* NULL */
+static int hf_h282_getDeviceDate;                 /* NULL */
+static int hf_h282_getDeviceTime;                 /* NULL */
+static int hf_h282_getdevicePreset;               /* NULL */
+static int hf_h282_getIrisMode;                   /* NULL */
+static int hf_h282_getFocusMode;                  /* NULL */
+static int hf_h282_getBacklightMode;              /* NULL */
+static int hf_h282_getPointingMode;               /* NULL */
+static int hf_h282_getCameraLens;                 /* NULL */
+static int hf_h282_getCameraFilter;               /* NULL */
+static int hf_h282_getExternalLight;              /* NULL */
+static int hf_h282_getCameraPanSpeed;             /* NULL */
+static int hf_h282_getCameraTiltSpeed;            /* NULL */
+static int hf_h282_getBackLightMode;              /* NULL */
+static int hf_h282_getBackLight;                  /* NULL */
+static int hf_h282_getWhiteBalance;               /* NULL */
+static int hf_h282_getWhiteBalanceMode;           /* NULL */
+static int hf_h282_getZoomPosition;               /* NULL */
+static int hf_h282_getFocusPosition;              /* NULL */
+static int hf_h282_getIrisPosition;               /* NULL */
+static int hf_h282_getPanPosition;                /* NULL */
+static int hf_h282_getTiltPosition;               /* NULL */
+static int hf_h282_getSelectedSlide;              /* NULL */
+static int hf_h282_getAutoSlideDisplayTime;       /* NULL */
+static int hf_h282_getSelectedProgram;            /* NULL */
+static int hf_h282_getStreamPlayerState;          /* NULL */
+static int hf_h282_getCurrentProgramDuration;     /* NULL */
+static int hf_h282_getPlaybackSpeed;              /* NULL */
+static int hf_h282_getAudioOutputState;           /* NULL */
+static int hf_h282_getConfigurableVideoInputs;    /* NULL */
+static int hf_h282_getVideoInputs;                /* NULL */
+static int hf_h282_getConfigurableAudioInputs;    /* NULL */
+static int hf_h282_getAudioInputs;                /* NULL */
+static int hf_h282_getNonStandardStatus;          /* NonStandardIdentifier */
+static int hf_h282_deviceState;                   /* DeviceState */
+static int hf_h282_unknown;                       /* NULL */
+static int hf_h282_currentDay;                    /* T_currentDay */
+static int hf_h282_currentMonth;                  /* T_currentMonth */
+static int hf_h282_currentYear;                   /* T_currentYear */
+static int hf_h282_currentHour;                   /* T_currentHour */
+static int hf_h282_currentMinute;                 /* T_currentMinute */
+static int hf_h282_preset;                        /* PresetNumber */
+static int hf_h282_mode_01;                       /* Mode */
+static int hf_h282_automatic;                     /* NULL */
+static int hf_h282_lensNumber_01;                 /* CameraLensNumber */
+static int hf_h282_lensNumber_02;                 /* CameraFilterNumber */
+static int hf_h282_speed;                         /* CameraPanSpeed */
+static int hf_h282_speed_01;                      /* CameraTiltSpeed */
+static int hf_h282_backLight;                     /* BackLight */
+static int hf_h282_whiteBalance;                  /* WhiteBalance */
+static int hf_h282_slide;                         /* SlideNumber */
+static int hf_h282_time;                          /* AutoSlideDisplayTime */
+static int hf_h282_program;                       /* ProgramNumber */
+static int hf_h282_state;                         /* StreamPlayerState */
+static int hf_h282_speed_02;                      /* PlaybackSpeed */
+static int hf_h282_mute;                          /* BOOLEAN */
+static int hf_h282_currentdeviceState;            /* CurrentDeviceState */
+static int hf_h282_currentDeviceDate;             /* CurrentDeviceDate */
+static int hf_h282_currentDeviceTime;             /* CurrentDeviceTime */
+static int hf_h282_currentDevicePreset;           /* CurrentDevicePreset */
+static int hf_h282_currentIrisMode;               /* CurrentMode */
+static int hf_h282_currentFocusMode;              /* CurrentMode */
+static int hf_h282_currentBackLightMode;          /* CurrentMode */
+static int hf_h282_currentPointingMode;           /* CurrentPointingMode */
+static int hf_h282_currentCameraLens;             /* CurrentCameraLensNumber */
+static int hf_h282_currentCameraFilter;           /* CurrentCameraFilterNumber */
+static int hf_h282_currentExternalLight;          /* CurrentExternalLight */
+static int hf_h282_currentCameraPanSpeed;         /* CurrentCameraPanSpeed */
+static int hf_h282_currentCameraTiltSpeed;        /* CurrentCameraTiltSpeed */
+static int hf_h282_currentBackLight;              /* CurrentBackLight */
+static int hf_h282_currentWhiteBalance;           /* CurrentWhiteBalance */
+static int hf_h282_currentWhiteBalanceMode;       /* CurrentMode */
+static int hf_h282_currentZoomPosition;           /* CurrentZoomPosition */
+static int hf_h282_currentFocusPosition;          /* CurrentFocusPosition */
+static int hf_h282_currentIrisPosition;           /* CurrentIrisPosition */
+static int hf_h282_currentPanPosition;            /* CurrentPanPosition */
+static int hf_h282_currentTiltPosition;           /* CurrentTiltPosition */
+static int hf_h282_currentSlide;                  /* CurrentSlide */
+static int hf_h282_currentAutoSlideDisplayTime;   /* CurrentAutoSlideDisplayTime */
+static int hf_h282_currentSelectedProgram;        /* CurrentSelectedProgram */
+static int hf_h282_currentstreamPlayerState;      /* CurrentStreamPlayerState */
+static int hf_h282_currentProgramDuration;        /* ProgramDuration */
+static int hf_h282_currentPlaybackSpeed;          /* CurrentPlaybackSpeed */
+static int hf_h282_currentAudioOutputMute;        /* CurrentAudioOutputMute */
+static int hf_h282_configurableVideoInputs;       /* DeviceInputs */
+static int hf_h282_videoInputs;                   /* DeviceInputs */
+static int hf_h282_configurableAudioInputs;       /* DeviceInputs */
+static int hf_h282_audioInputs;                   /* DeviceInputs */
+static int hf_h282_nonStandardStatus;             /* NonStandardParameter */
+static int hf_h282_requestDeviceLockChanged;      /* NULL */
+static int hf_h282_requestDeviceAvailabilityChanged;  /* NULL */
+static int hf_h282_requestCameraPannedToLimit;    /* NULL */
+static int hf_h282_requestCameraTiltedToLimit;    /* NULL */
+static int hf_h282_requestCameraZoomedToLimit;    /* NULL */
+static int hf_h282_requestCameraFocusedToLimit;   /* NULL */
+static int hf_h282_requestAutoSlideShowFinished;  /* NULL */
+static int hf_h282_requestStreamPlayerStateChange;  /* NULL */
+static int hf_h282_requestStreamPlayerProgramChange;  /* NULL */
+static int hf_h282_requestNonStandardEvent;       /* NonStandardIdentifier */
+static int hf_h282_deviceLockChanged;             /* BOOLEAN */
+static int hf_h282_deviceAvailabilityChanged;     /* BOOLEAN */
+static int hf_h282_cameraPannedToLimit;           /* CameraPannedToLimit */
+static int hf_h282_cameraTiltedToLimit;           /* CameraTiltedToLimit */
+static int hf_h282_cameraZoomedToLimit;           /* CameraZoomedToLimit */
+static int hf_h282_cameraFocusedToLimit;          /* CameraFocusedToLimit */
+static int hf_h282_autoSlideShowFinished;         /* NULL */
+static int hf_h282_streamPlayerStateChange;       /* StreamPlayerState */
+static int hf_h282_streamPlayerProgramChange;     /* ProgramNumber */
+static int hf_h282_nonStandardEvent;              /* NonStandardParameter */
+static int hf_h282_requestHandle;                 /* Handle */
+static int hf_h282_streamIdentifier;              /* StreamID */
+static int hf_h282_result;                        /* T_result */
+static int hf_h282_successful;                    /* NULL */
+static int hf_h282_requestDenied;                 /* NULL */
+static int hf_h282_deviceUnavailable;             /* NULL */
+static int hf_h282_invalidStreamID;               /* NULL */
+static int hf_h282_currentDeviceIsLocked;         /* NULL */
+static int hf_h282_deviceIncompatible;            /* NULL */
+static int hf_h282_sourceEventNotify;             /* BOOLEAN */
+static int hf_h282_result_01;                     /* T_result_01 */
+static int hf_h282_eventsNotSupported;            /* NULL */
+static int hf_h282_deviceAttributeList;           /* SET_OF_DeviceAttribute */
+static int hf_h282_deviceAttributeList_item;      /* DeviceAttribute */
+static int hf_h282_result_02;                     /* T_result_02 */
+static int hf_h282_unknownDevice;                 /* NULL */
+static int hf_h282_lockFlag;                      /* BOOLEAN */
+static int hf_h282_result_03;                     /* T_result_03 */
+static int hf_h282_lockingNotSupported;           /* NULL */
+static int hf_h282_deviceAlreadyLocked;           /* NULL */
+static int hf_h282_result_04;                     /* T_result_04 */
+static int hf_h282_lockRequired;                  /* NULL */
+static int hf_h282_lockNotRequired;               /* NULL */
+static int hf_h282_controlAttributeList;          /* SET_SIZE_1_8_OF_ControlAttribute */
+static int hf_h282_controlAttributeList_item;     /* ControlAttribute */
+static int hf_h282_statusAttributeIdentifierList;  /* SET_SIZE_1_16_OF_StatusAttributeIdentifier */
+static int hf_h282_statusAttributeIdentifierList_item;  /* StatusAttributeIdentifier */
+static int hf_h282_statusAttributeList;           /* SET_SIZE_1_16_OF_StatusAttribute */
+static int hf_h282_statusAttributeList_item;      /* StatusAttribute */
+static int hf_h282_result_05;                     /* T_result_05 */
+static int hf_h282_deviceAttributeError;          /* NULL */
+static int hf_h282_deviceEventIdentifierList;     /* SET_OF_DeviceEventIdentifier */
+static int hf_h282_deviceEventIdentifierList_item;  /* DeviceEventIdentifier */
+static int hf_h282_result_06;                     /* T_result_06 */
+static int hf_h282_deviceEventList;               /* SET_SIZE_1_8_OF_DeviceEvent */
+static int hf_h282_deviceEventList_item;          /* DeviceEvent */
+static int hf_h282_nonStandardData;               /* NonStandardParameter */
+static int hf_h282_request;                       /* RequestPDU */
+static int hf_h282_response;                      /* ResponsePDU */
+static int hf_h282_indication;                    /* IndicationPDU */
+static int hf_h282_sourceSelectRequest;           /* SourceSelectRequest */
+static int hf_h282_sourceEventsRequest;           /* SourceEventsRequest */
+static int hf_h282_deviceAttributeRequest;        /* DeviceAttributeRequest */
+static int hf_h282_deviceLockRequest;             /* DeviceLockRequest */
+static int hf_h282_deviceLockEnquireRequest;      /* DeviceLockEnquireRequest */
+static int hf_h282_deviceControlRequest;          /* DeviceControlRequest */
+static int hf_h282_deviceStatusEnquireRequest;    /* DeviceStatusEnquireRequest */
+static int hf_h282_configureDeviceEventsRequest;  /* ConfigureDeviceEventsRequest */
+static int hf_h282_nonStandardRequest;            /* NonStandardPDU */
+static int hf_h282_sourceSelectResponse;          /* SourceSelectResponse */
+static int hf_h282_sourceEventsResponse;          /* SourceEventsResponse */
+static int hf_h282_deviceAttributeResponse;       /* DeviceAttributeResponse */
+static int hf_h282_deviceLockResponse;            /* DeviceLockResponse */
+static int hf_h282_deviceLockEnquireResponse;     /* DeviceLockEnquireResponse */
+static int hf_h282_deviceStatusEnquireResponse;   /* DeviceStatusEnquireResponse */
+static int hf_h282_configureDeviceEventsResponse;  /* ConfigureDeviceEventsResponse */
+static int hf_h282_nonStandardResponse;           /* NonStandardPDU */
+static int hf_h282_sourceChangeEventIndication;   /* SourceChangeEventIndication */
+static int hf_h282_deviceLockTerminatedIndication;  /* DeviceLockTerminatedIndication */
+static int hf_h282_deviceEventNotifyIndication;   /* DeviceEventNotifyIndication */
+static int hf_h282_nonStandardIndication;         /* NonStandardPDU */
 
 /* Initialize the subtree pointers */
-static int ett_h282 = -1;
-static gint ett_h282_Key = -1;
-static gint ett_h282_NonStandardParameter = -1;
-static gint ett_h282_NonStandardIdentifier = -1;
-static gint ett_h282_DeviceClass = -1;
-static gint ett_h282_DeviceProfile = -1;
-static gint ett_h282_StreamProfile = -1;
-static gint ett_h282_CapabilityID = -1;
-static gint ett_h282_NonCollapsingCapabilities = -1;
-static gint ett_h282_NonCollapsingCapabilities_item = -1;
-static gint ett_h282_T_applicationData = -1;
-static gint ett_h282_SET_SIZE_0_127_OF_DeviceProfile = -1;
-static gint ett_h282_SET_SIZE_0_127_OF_StreamProfile = -1;
-static gint ett_h282_StreamPlayerState = -1;
-static gint ett_h282_DevicePresetCapability = -1;
-static gint ett_h282_T_presetCapability = -1;
-static gint ett_h282_T_presetCapability_item = -1;
-static gint ett_h282_CameraFilterCapability = -1;
-static gint ett_h282_T_filterTextLabel = -1;
-static gint ett_h282_T_filterTextLabel_item = -1;
-static gint ett_h282_CameraLensCapability = -1;
-static gint ett_h282_T_accessoryTextLabel = -1;
-static gint ett_h282_T_accessoryTextLabel_item = -1;
-static gint ett_h282_ExternalCameraLightCapability = -1;
-static gint ett_h282_T_lightTextLabel = -1;
-static gint ett_h282_T_lightTextLabel_item = -1;
-static gint ett_h282_CameraPanSpeedCapability = -1;
-static gint ett_h282_CameraTiltSpeedCapability = -1;
-static gint ett_h282_PanPositionCapability = -1;
-static gint ett_h282_TiltPositionCapability = -1;
-static gint ett_h282_PlayBackSpeedCapability = -1;
-static gint ett_h282_T_multiplierFactors = -1;
-static gint ett_h282_T_divisorFactors = -1;
-static gint ett_h282_VideoInputsCapability = -1;
-static gint ett_h282_T_availableDevices = -1;
-static gint ett_h282_T_availableDevices_item = -1;
-static gint ett_h282_AudioInputsCapability = -1;
-static gint ett_h282_T_availableDevices_01 = -1;
-static gint ett_h282_T_availableDevices_item_01 = -1;
-static gint ett_h282_DeviceAttribute = -1;
-static gint ett_h282_DeviceState = -1;
-static gint ett_h282_DeviceDate = -1;
-static gint ett_h282_DeviceTime = -1;
-static gint ett_h282_DevicePreset = -1;
-static gint ett_h282_T_mode = -1;
-static gint ett_h282_Mode = -1;
-static gint ett_h282_PointingToggle = -1;
-static gint ett_h282_SelectExternalLight = -1;
-static gint ett_h282_PanContinuous = -1;
-static gint ett_h282_T_panDirection = -1;
-static gint ett_h282_TiltContinuous = -1;
-static gint ett_h282_T_tiltDirection = -1;
-static gint ett_h282_ZoomContinuous = -1;
-static gint ett_h282_T_zoomDirection = -1;
-static gint ett_h282_FocusContinuous = -1;
-static gint ett_h282_T_focusDirection = -1;
-static gint ett_h282_PositioningMode = -1;
-static gint ett_h282_SetZoomPosition = -1;
-static gint ett_h282_SetFocusPosition = -1;
-static gint ett_h282_SetIrisPosition = -1;
-static gint ett_h282_SetPanPosition = -1;
-static gint ett_h282_SetTiltPosition = -1;
-static gint ett_h282_SelectDirection = -1;
-static gint ett_h282_AutoSlideShowControl = -1;
-static gint ett_h282_ProgramDuration = -1;
-static gint ett_h282_PlaybackSpeed = -1;
-static gint ett_h282_RecordForDuration = -1;
-static gint ett_h282_DeviceInputs = -1;
-static gint ett_h282_T_inputDevices = -1;
-static gint ett_h282_T_inputDevices_item = -1;
-static gint ett_h282_ControlAttribute = -1;
-static gint ett_h282_StatusAttributeIdentifier = -1;
-static gint ett_h282_CurrentDeviceState = -1;
-static gint ett_h282_CurrentDeviceDate = -1;
-static gint ett_h282_T_currentDay = -1;
-static gint ett_h282_T_currentMonth = -1;
-static gint ett_h282_T_currentYear = -1;
-static gint ett_h282_CurrentDeviceTime = -1;
-static gint ett_h282_T_currentHour = -1;
-static gint ett_h282_T_currentMinute = -1;
-static gint ett_h282_CurrentDevicePreset = -1;
-static gint ett_h282_CurrentMode = -1;
-static gint ett_h282_CurrentPointingMode = -1;
-static gint ett_h282_CurrentCameraLensNumber = -1;
-static gint ett_h282_CurrentCameraFilterNumber = -1;
-static gint ett_h282_CurrentExternalLight = -1;
-static gint ett_h282_CurrentCameraPanSpeed = -1;
-static gint ett_h282_CurrentCameraTiltSpeed = -1;
-static gint ett_h282_CurrentBackLight = -1;
-static gint ett_h282_CurrentWhiteBalance = -1;
-static gint ett_h282_CurrentZoomPosition = -1;
-static gint ett_h282_CurrentFocusPosition = -1;
-static gint ett_h282_CurrentIrisPosition = -1;
-static gint ett_h282_CurrentPanPosition = -1;
-static gint ett_h282_CurrentTiltPosition = -1;
-static gint ett_h282_CurrentSlide = -1;
-static gint ett_h282_CurrentAutoSlideDisplayTime = -1;
-static gint ett_h282_CurrentSelectedProgram = -1;
-static gint ett_h282_CurrentStreamPlayerState = -1;
-static gint ett_h282_CurrentPlaybackSpeed = -1;
-static gint ett_h282_CurrentAudioOutputMute = -1;
-static gint ett_h282_StatusAttribute = -1;
-static gint ett_h282_DeviceEventIdentifier = -1;
-static gint ett_h282_CameraPannedToLimit = -1;
-static gint ett_h282_CameraTiltedToLimit = -1;
-static gint ett_h282_CameraZoomedToLimit = -1;
-static gint ett_h282_CameraFocusedToLimit = -1;
-static gint ett_h282_DeviceEvent = -1;
-static gint ett_h282_SourceSelectRequest = -1;
-static gint ett_h282_SourceSelectResponse = -1;
-static gint ett_h282_T_result = -1;
-static gint ett_h282_SourceEventsRequest = -1;
-static gint ett_h282_SourceEventsResponse = -1;
-static gint ett_h282_T_result_01 = -1;
-static gint ett_h282_SourceChangeEventIndication = -1;
-static gint ett_h282_DeviceAttributeRequest = -1;
-static gint ett_h282_DeviceAttributeResponse = -1;
-static gint ett_h282_SET_OF_DeviceAttribute = -1;
-static gint ett_h282_T_result_02 = -1;
-static gint ett_h282_DeviceLockRequest = -1;
-static gint ett_h282_DeviceLockResponse = -1;
-static gint ett_h282_T_result_03 = -1;
-static gint ett_h282_DeviceLockEnquireRequest = -1;
-static gint ett_h282_DeviceLockEnquireResponse = -1;
-static gint ett_h282_T_result_04 = -1;
-static gint ett_h282_DeviceLockTerminatedIndication = -1;
-static gint ett_h282_DeviceControlRequest = -1;
-static gint ett_h282_SET_SIZE_1_8_OF_ControlAttribute = -1;
-static gint ett_h282_DeviceStatusEnquireRequest = -1;
-static gint ett_h282_SET_SIZE_1_16_OF_StatusAttributeIdentifier = -1;
-static gint ett_h282_DeviceStatusEnquireResponse = -1;
-static gint ett_h282_SET_SIZE_1_16_OF_StatusAttribute = -1;
-static gint ett_h282_T_result_05 = -1;
-static gint ett_h282_ConfigureDeviceEventsRequest = -1;
-static gint ett_h282_SET_OF_DeviceEventIdentifier = -1;
-static gint ett_h282_ConfigureDeviceEventsResponse = -1;
-static gint ett_h282_T_result_06 = -1;
-static gint ett_h282_DeviceEventNotifyIndication = -1;
-static gint ett_h282_SET_SIZE_1_8_OF_DeviceEvent = -1;
-static gint ett_h282_NonStandardPDU = -1;
-static gint ett_h282_RDCPDU = -1;
-static gint ett_h282_RequestPDU = -1;
-static gint ett_h282_ResponsePDU = -1;
-static gint ett_h282_IndicationPDU = -1;
+static int ett_h282;
+static gint ett_h282_Key;
+static gint ett_h282_NonStandardParameter;
+static gint ett_h282_NonStandardIdentifier;
+static gint ett_h282_DeviceClass;
+static gint ett_h282_DeviceProfile;
+static gint ett_h282_StreamProfile;
+static gint ett_h282_CapabilityID;
+static gint ett_h282_NonCollapsingCapabilities;
+static gint ett_h282_NonCollapsingCapabilities_item;
+static gint ett_h282_T_applicationData;
+static gint ett_h282_SET_SIZE_0_127_OF_DeviceProfile;
+static gint ett_h282_SET_SIZE_0_127_OF_StreamProfile;
+static gint ett_h282_StreamPlayerState;
+static gint ett_h282_DevicePresetCapability;
+static gint ett_h282_T_presetCapability;
+static gint ett_h282_T_presetCapability_item;
+static gint ett_h282_CameraFilterCapability;
+static gint ett_h282_T_filterTextLabel;
+static gint ett_h282_T_filterTextLabel_item;
+static gint ett_h282_CameraLensCapability;
+static gint ett_h282_T_accessoryTextLabel;
+static gint ett_h282_T_accessoryTextLabel_item;
+static gint ett_h282_ExternalCameraLightCapability;
+static gint ett_h282_T_lightTextLabel;
+static gint ett_h282_T_lightTextLabel_item;
+static gint ett_h282_CameraPanSpeedCapability;
+static gint ett_h282_CameraTiltSpeedCapability;
+static gint ett_h282_PanPositionCapability;
+static gint ett_h282_TiltPositionCapability;
+static gint ett_h282_PlayBackSpeedCapability;
+static gint ett_h282_T_multiplierFactors;
+static gint ett_h282_T_divisorFactors;
+static gint ett_h282_VideoInputsCapability;
+static gint ett_h282_T_availableDevices;
+static gint ett_h282_T_availableDevices_item;
+static gint ett_h282_AudioInputsCapability;
+static gint ett_h282_T_availableDevices_01;
+static gint ett_h282_T_availableDevices_item_01;
+static gint ett_h282_DeviceAttribute;
+static gint ett_h282_DeviceState;
+static gint ett_h282_DeviceDate;
+static gint ett_h282_DeviceTime;
+static gint ett_h282_DevicePreset;
+static gint ett_h282_T_mode;
+static gint ett_h282_Mode;
+static gint ett_h282_PointingToggle;
+static gint ett_h282_SelectExternalLight;
+static gint ett_h282_PanContinuous;
+static gint ett_h282_T_panDirection;
+static gint ett_h282_TiltContinuous;
+static gint ett_h282_T_tiltDirection;
+static gint ett_h282_ZoomContinuous;
+static gint ett_h282_T_zoomDirection;
+static gint ett_h282_FocusContinuous;
+static gint ett_h282_T_focusDirection;
+static gint ett_h282_PositioningMode;
+static gint ett_h282_SetZoomPosition;
+static gint ett_h282_SetFocusPosition;
+static gint ett_h282_SetIrisPosition;
+static gint ett_h282_SetPanPosition;
+static gint ett_h282_SetTiltPosition;
+static gint ett_h282_SelectDirection;
+static gint ett_h282_AutoSlideShowControl;
+static gint ett_h282_ProgramDuration;
+static gint ett_h282_PlaybackSpeed;
+static gint ett_h282_RecordForDuration;
+static gint ett_h282_DeviceInputs;
+static gint ett_h282_T_inputDevices;
+static gint ett_h282_T_inputDevices_item;
+static gint ett_h282_ControlAttribute;
+static gint ett_h282_StatusAttributeIdentifier;
+static gint ett_h282_CurrentDeviceState;
+static gint ett_h282_CurrentDeviceDate;
+static gint ett_h282_T_currentDay;
+static gint ett_h282_T_currentMonth;
+static gint ett_h282_T_currentYear;
+static gint ett_h282_CurrentDeviceTime;
+static gint ett_h282_T_currentHour;
+static gint ett_h282_T_currentMinute;
+static gint ett_h282_CurrentDevicePreset;
+static gint ett_h282_CurrentMode;
+static gint ett_h282_CurrentPointingMode;
+static gint ett_h282_CurrentCameraLensNumber;
+static gint ett_h282_CurrentCameraFilterNumber;
+static gint ett_h282_CurrentExternalLight;
+static gint ett_h282_CurrentCameraPanSpeed;
+static gint ett_h282_CurrentCameraTiltSpeed;
+static gint ett_h282_CurrentBackLight;
+static gint ett_h282_CurrentWhiteBalance;
+static gint ett_h282_CurrentZoomPosition;
+static gint ett_h282_CurrentFocusPosition;
+static gint ett_h282_CurrentIrisPosition;
+static gint ett_h282_CurrentPanPosition;
+static gint ett_h282_CurrentTiltPosition;
+static gint ett_h282_CurrentSlide;
+static gint ett_h282_CurrentAutoSlideDisplayTime;
+static gint ett_h282_CurrentSelectedProgram;
+static gint ett_h282_CurrentStreamPlayerState;
+static gint ett_h282_CurrentPlaybackSpeed;
+static gint ett_h282_CurrentAudioOutputMute;
+static gint ett_h282_StatusAttribute;
+static gint ett_h282_DeviceEventIdentifier;
+static gint ett_h282_CameraPannedToLimit;
+static gint ett_h282_CameraTiltedToLimit;
+static gint ett_h282_CameraZoomedToLimit;
+static gint ett_h282_CameraFocusedToLimit;
+static gint ett_h282_DeviceEvent;
+static gint ett_h282_SourceSelectRequest;
+static gint ett_h282_SourceSelectResponse;
+static gint ett_h282_T_result;
+static gint ett_h282_SourceEventsRequest;
+static gint ett_h282_SourceEventsResponse;
+static gint ett_h282_T_result_01;
+static gint ett_h282_SourceChangeEventIndication;
+static gint ett_h282_DeviceAttributeRequest;
+static gint ett_h282_DeviceAttributeResponse;
+static gint ett_h282_SET_OF_DeviceAttribute;
+static gint ett_h282_T_result_02;
+static gint ett_h282_DeviceLockRequest;
+static gint ett_h282_DeviceLockResponse;
+static gint ett_h282_T_result_03;
+static gint ett_h282_DeviceLockEnquireRequest;
+static gint ett_h282_DeviceLockEnquireResponse;
+static gint ett_h282_T_result_04;
+static gint ett_h282_DeviceLockTerminatedIndication;
+static gint ett_h282_DeviceControlRequest;
+static gint ett_h282_SET_SIZE_1_8_OF_ControlAttribute;
+static gint ett_h282_DeviceStatusEnquireRequest;
+static gint ett_h282_SET_SIZE_1_16_OF_StatusAttributeIdentifier;
+static gint ett_h282_DeviceStatusEnquireResponse;
+static gint ett_h282_SET_SIZE_1_16_OF_StatusAttribute;
+static gint ett_h282_T_result_05;
+static gint ett_h282_ConfigureDeviceEventsRequest;
+static gint ett_h282_SET_OF_DeviceEventIdentifier;
+static gint ett_h282_ConfigureDeviceEventsResponse;
+static gint ett_h282_T_result_06;
+static gint ett_h282_DeviceEventNotifyIndication;
+static gint ett_h282_SET_SIZE_1_8_OF_DeviceEvent;
+static gint ett_h282_NonStandardPDU;
+static gint ett_h282_RDCPDU;
+static gint ett_h282_RequestPDU;
+static gint ett_h282_ResponsePDU;
+static gint ett_h282_IndicationPDU;
 
 /* Dissectors */
 

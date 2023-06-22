@@ -99,35 +99,35 @@ static guint32 Data_value;
 static guint32 T30ind_value;
 static guint32 Data_Field_item_num;
 
-static int proto_t38 = -1;
-static int proto_acdr = -1;
+static int proto_t38;
+static int proto_acdr;
 #include "packet-t38-hf.c"
 
 /* T38 setup fields */
-static int hf_t38_setup        = -1;
-static int hf_t38_setup_frame  = -1;
-static int hf_t38_setup_method = -1;
+static int hf_t38_setup;
+static int hf_t38_setup_frame;
+static int hf_t38_setup_method;
 
 /* T38 Data reassemble fields */
-static int hf_t38_fragments = -1;
-static int hf_t38_fragment = -1;
-static int hf_t38_fragment_overlap = -1;
-static int hf_t38_fragment_overlap_conflicts = -1;
-static int hf_t38_fragment_multiple_tails = -1;
-static int hf_t38_fragment_too_long_fragment = -1;
-static int hf_t38_fragment_error = -1;
-static int hf_t38_fragment_count = -1;
-static int hf_t38_reassembled_in = -1;
-static int hf_t38_reassembled_length = -1;
+static int hf_t38_fragments;
+static int hf_t38_fragment;
+static int hf_t38_fragment_overlap;
+static int hf_t38_fragment_overlap_conflicts;
+static int hf_t38_fragment_multiple_tails;
+static int hf_t38_fragment_too_long_fragment;
+static int hf_t38_fragment_error;
+static int hf_t38_fragment_count;
+static int hf_t38_reassembled_in;
+static int hf_t38_reassembled_length;
 
-static gint ett_t38 = -1;
+static gint ett_t38;
 #include "packet-t38-ett.c"
-static gint ett_t38_setup = -1;
+static gint ett_t38_setup;
 
-static gint ett_data_fragment = -1;
-static gint ett_data_fragments = -1;
+static gint ett_data_fragment;
+static gint ett_data_fragments;
 
-static expert_field ei_t38_malformed = EI_INIT;
+static expert_field ei_t38_malformed;
 
 static gboolean primary_part = TRUE;
 static guint32 seq_number = 0;

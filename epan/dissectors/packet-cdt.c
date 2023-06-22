@@ -49,25 +49,25 @@ static proto_item *cdt_item = NULL;
 static guint32 content_type = 0;
 
 /* Initialize the protocol and registered fields */
-static int proto_cdt = -1;
-static int hf_cdt_CompressedData_PDU = -1;        /* CompressedData */
-static int hf_cdt_compressionAlgorithm = -1;      /* CompressionAlgorithmIdentifier */
-static int hf_cdt_compressedContentInfo = -1;     /* CompressedContentInfo */
-static int hf_cdt_algorithmID_ShortForm = -1;     /* AlgorithmID_ShortForm */
-static int hf_cdt_algorithmID_OID = -1;           /* OBJECT_IDENTIFIER */
-static int hf_cdt_contentType = -1;               /* T_contentType */
-static int hf_cdt_contentType_ShortForm = -1;     /* ContentType_ShortForm */
-static int hf_cdt_contentType_OID = -1;           /* T_contentType_OID */
-static int hf_cdt_compressedContent = -1;         /* CompressedContent */
+static int proto_cdt;
+static int hf_cdt_CompressedData_PDU;             /* CompressedData */
+static int hf_cdt_compressionAlgorithm;           /* CompressionAlgorithmIdentifier */
+static int hf_cdt_compressedContentInfo;          /* CompressedContentInfo */
+static int hf_cdt_algorithmID_ShortForm;          /* AlgorithmID_ShortForm */
+static int hf_cdt_algorithmID_OID;                /* OBJECT_IDENTIFIER */
+static int hf_cdt_contentType;                    /* T_contentType */
+static int hf_cdt_contentType_ShortForm;          /* ContentType_ShortForm */
+static int hf_cdt_contentType_OID;                /* T_contentType_OID */
+static int hf_cdt_compressedContent;              /* CompressedContent */
 
 /* Initialize the subtree pointers */
-static gint ett_cdt_CompressedData = -1;
-static gint ett_cdt_CompressionAlgorithmIdentifier = -1;
-static gint ett_cdt_CompressedContentInfo = -1;
-static gint ett_cdt_T_contentType = -1;
+static gint ett_cdt_CompressedData;
+static gint ett_cdt_CompressionAlgorithmIdentifier;
+static gint ett_cdt_CompressedContentInfo;
+static gint ett_cdt_T_contentType;
 
-static expert_field ei_cdt_unable_compress_content = EI_INIT;
-static expert_field ei_cdt_unable_uncompress_content = EI_INIT;
+static expert_field ei_cdt_unable_compress_content;
+static expert_field ei_cdt_unable_uncompress_content;
 
 
 static const value_string cdt_AlgorithmID_ShortForm_vals[] = {

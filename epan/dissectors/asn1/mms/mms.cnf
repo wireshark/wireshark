@@ -111,7 +111,7 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
 		milliseconds = tvb_get_ntohl(tvb, offset);
 		ptime = signed_time_msecs_to_str(actx->pinfo->pool, milliseconds);
 
-		if(hf_index >= 0)
+		if(hf_index > 0)
 		{
 			proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
 		}
@@ -130,7 +130,7 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
 		ts.nsecs = (milliseconds %% 1000) * 1000000U;
 
 		ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, TRUE);
-		if(hf_index >= 0)
+		if(hf_index > 0)
 		{
 			proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
 		}
@@ -140,7 +140,7 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
 
 	proto_tree_add_expert_format(tree, actx->pinfo, &ei_mms_mal_timeofday_encoding,
 			tvb, offset, len, "BER Error: malformed TimeOfDay encoding, length must be 4 or 6 bytes");
-	if(hf_index >= 0)
+	if(hf_index > 0)
 	{
 		proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
 	}
@@ -160,7 +160,7 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
 	{
 		proto_tree_add_expert_format(tree, actx->pinfo, &ei_mms_mal_utctime_encoding,
 				tvb, offset, len, "BER Error: malformed IEC61850 UTCTime encoding, length must be 8 bytes");
-		if(hf_index >= 0)
+		if(hf_index > 0)
 		{
 			proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
 		}
@@ -176,7 +176,7 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
 
 	ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, TRUE);
 
-	if(hf_index >= 0)
+	if(hf_index > 0)
 	{
 		proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
 	}

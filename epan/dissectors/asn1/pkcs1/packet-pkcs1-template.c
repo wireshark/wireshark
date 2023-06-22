@@ -27,7 +27,7 @@ void proto_register_pkcs1(void);
 void proto_reg_handoff_pkcs1(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_pkcs1 = -1;
+static int proto_pkcs1;
 #include "packet-pkcs1-hf.c"
 
 /* Initialize the subtree pointers */

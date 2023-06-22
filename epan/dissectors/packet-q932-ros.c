@@ -31,45 +31,45 @@ void proto_register_q932_ros(void);
 void proto_reg_handoff_q932_ros(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_q932_ros = -1;
-static int hf_q932_ros_ROS_PDU = -1;              /* ROS */
-static int hf_q932_ros_local = -1;                /* T_local */
-static int hf_q932_ros_global = -1;               /* T_global */
-static int hf_q932_ros_invoke = -1;               /* Invoke */
-static int hf_q932_ros_returnResult = -1;         /* ReturnResult */
-static int hf_q932_ros_returnError = -1;          /* ReturnError */
-static int hf_q932_ros_reject = -1;               /* Reject */
-static int hf_q932_ros_invokeId = -1;             /* InvokeId */
-static int hf_q932_ros_linkedId = -1;             /* T_linkedId */
-static int hf_q932_ros_linkedIdPresent = -1;      /* T_linkedIdPresent */
-static int hf_q932_ros_absent = -1;               /* NULL */
-static int hf_q932_ros_opcode = -1;               /* Code */
-static int hf_q932_ros_argument = -1;             /* InvokeArgument */
-static int hf_q932_ros_result = -1;               /* T_result */
-static int hf_q932_ros_resultArgument = -1;       /* ResultArgument */
-static int hf_q932_ros_errcode = -1;              /* Code */
-static int hf_q932_ros_parameter = -1;            /* T_parameter */
-static int hf_q932_ros_problem = -1;              /* T_problem */
-static int hf_q932_ros_general = -1;              /* GeneralProblem */
-static int hf_q932_ros_invokeProblem = -1;        /* InvokeProblem */
-static int hf_q932_ros_returnResultProblem = -1;  /* ReturnResultProblem */
-static int hf_q932_ros_returnErrorProblem = -1;   /* ReturnErrorProblem */
-static int hf_q932_ros_present = -1;              /* INTEGER */
-static int hf_q932_ros_InvokeId_present = -1;     /* InvokeId_present */
+static int proto_q932_ros;
+static int hf_q932_ros_ROS_PDU;                   /* ROS */
+static int hf_q932_ros_local;                     /* T_local */
+static int hf_q932_ros_global;                    /* T_global */
+static int hf_q932_ros_invoke;                    /* Invoke */
+static int hf_q932_ros_returnResult;              /* ReturnResult */
+static int hf_q932_ros_returnError;               /* ReturnError */
+static int hf_q932_ros_reject;                    /* Reject */
+static int hf_q932_ros_invokeId;                  /* InvokeId */
+static int hf_q932_ros_linkedId;                  /* T_linkedId */
+static int hf_q932_ros_linkedIdPresent;           /* T_linkedIdPresent */
+static int hf_q932_ros_absent;                    /* NULL */
+static int hf_q932_ros_opcode;                    /* Code */
+static int hf_q932_ros_argument;                  /* InvokeArgument */
+static int hf_q932_ros_result;                    /* T_result */
+static int hf_q932_ros_resultArgument;            /* ResultArgument */
+static int hf_q932_ros_errcode;                   /* Code */
+static int hf_q932_ros_parameter;                 /* T_parameter */
+static int hf_q932_ros_problem;                   /* T_problem */
+static int hf_q932_ros_general;                   /* GeneralProblem */
+static int hf_q932_ros_invokeProblem;             /* InvokeProblem */
+static int hf_q932_ros_returnResultProblem;       /* ReturnResultProblem */
+static int hf_q932_ros_returnErrorProblem;        /* ReturnErrorProblem */
+static int hf_q932_ros_present;                   /* INTEGER */
+static int hf_q932_ros_InvokeId_present;          /* InvokeId_present */
 
 /* Initialize the subtree pointers */
-static gint ett_q932_ros_Code = -1;
-static gint ett_q932_ros_ROS = -1;
-static gint ett_q932_ros_Invoke = -1;
-static gint ett_q932_ros_T_linkedId = -1;
-static gint ett_q932_ros_ReturnResult = -1;
-static gint ett_q932_ros_T_result = -1;
-static gint ett_q932_ros_ReturnError = -1;
-static gint ett_q932_ros_Reject = -1;
-static gint ett_q932_ros_T_problem = -1;
-static gint ett_q932_ros_InvokeId = -1;
+static gint ett_q932_ros_Code;
+static gint ett_q932_ros_ROS;
+static gint ett_q932_ros_Invoke;
+static gint ett_q932_ros_T_linkedId;
+static gint ett_q932_ros_ReturnResult;
+static gint ett_q932_ros_T_result;
+static gint ett_q932_ros_ReturnError;
+static gint ett_q932_ros_Reject;
+static gint ett_q932_ros_T_problem;
+static gint ett_q932_ros_InvokeId;
 
-static expert_field ei_ros_undecoded = EI_INIT;
+static expert_field ei_ros_undecoded;
 
 /* Preferences */
 

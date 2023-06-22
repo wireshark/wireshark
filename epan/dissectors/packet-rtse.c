@@ -39,7 +39,7 @@ void proto_register_rtse(void);
 void proto_reg_handoff_rtse(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_rtse = -1;
+static int proto_rtse;
 
 static gboolean open_request=FALSE;
 static guint32 app_proto=0;
@@ -49,66 +49,66 @@ static proto_tree *top_tree=NULL;
 /* Preferences */
 static gboolean rtse_reassemble = TRUE;
 
-static int hf_rtse_rtorq_apdu = -1;               /* RTORQapdu */
-static int hf_rtse_rtoac_apdu = -1;               /* RTOACapdu */
-static int hf_rtse_rtorj_apdu = -1;               /* RTORJapdu */
-static int hf_rtse_rttp_apdu = -1;                /* RTTPapdu */
-static int hf_rtse_rttr_apdu = -1;                /* RTTRapdu */
-static int hf_rtse_rtab_apdu = -1;                /* RTABapdu */
-static int hf_rtse_checkpointSize = -1;           /* INTEGER */
-static int hf_rtse_windowSize = -1;               /* INTEGER */
-static int hf_rtse_dialogueMode = -1;             /* T_dialogueMode */
-static int hf_rtse_connectionDataRQ = -1;         /* ConnectionData */
-static int hf_rtse_applicationProtocol = -1;      /* T_applicationProtocol */
-static int hf_rtse_connectionDataAC = -1;         /* ConnectionData */
-static int hf_rtse_refuseReason = -1;             /* RefuseReason */
-static int hf_rtse_userDataRJ = -1;               /* T_userDataRJ */
-static int hf_rtse_abortReason = -1;              /* AbortReason */
-static int hf_rtse_reflectedParameter = -1;       /* BIT_STRING */
-static int hf_rtse_userdataAB = -1;               /* T_userdataAB */
-static int hf_rtse_open = -1;                     /* T_open */
-static int hf_rtse_recover = -1;                  /* SessionConnectionIdentifier */
-static int hf_rtse_callingSSuserReference = -1;   /* CallingSSuserReference */
-static int hf_rtse_commonReference = -1;          /* CommonReference */
-static int hf_rtse_additionalReferenceInformation = -1;  /* AdditionalReferenceInformation */
-static int hf_rtse_t61String = -1;                /* T_t61String */
-static int hf_rtse_octetString = -1;              /* T_octetString */
+static int hf_rtse_rtorq_apdu;                    /* RTORQapdu */
+static int hf_rtse_rtoac_apdu;                    /* RTOACapdu */
+static int hf_rtse_rtorj_apdu;                    /* RTORJapdu */
+static int hf_rtse_rttp_apdu;                     /* RTTPapdu */
+static int hf_rtse_rttr_apdu;                     /* RTTRapdu */
+static int hf_rtse_rtab_apdu;                     /* RTABapdu */
+static int hf_rtse_checkpointSize;                /* INTEGER */
+static int hf_rtse_windowSize;                    /* INTEGER */
+static int hf_rtse_dialogueMode;                  /* T_dialogueMode */
+static int hf_rtse_connectionDataRQ;              /* ConnectionData */
+static int hf_rtse_applicationProtocol;           /* T_applicationProtocol */
+static int hf_rtse_connectionDataAC;              /* ConnectionData */
+static int hf_rtse_refuseReason;                  /* RefuseReason */
+static int hf_rtse_userDataRJ;                    /* T_userDataRJ */
+static int hf_rtse_abortReason;                   /* AbortReason */
+static int hf_rtse_reflectedParameter;            /* BIT_STRING */
+static int hf_rtse_userdataAB;                    /* T_userdataAB */
+static int hf_rtse_open;                          /* T_open */
+static int hf_rtse_recover;                       /* SessionConnectionIdentifier */
+static int hf_rtse_callingSSuserReference;        /* CallingSSuserReference */
+static int hf_rtse_commonReference;               /* CommonReference */
+static int hf_rtse_additionalReferenceInformation;  /* AdditionalReferenceInformation */
+static int hf_rtse_t61String;                     /* T_t61String */
+static int hf_rtse_octetString;                   /* T_octetString */
 
 /* Initialize the subtree pointers */
-static gint ett_rtse = -1;
-static gint ett_rtse_RTSE_apdus = -1;
-static gint ett_rtse_RTORQapdu = -1;
-static gint ett_rtse_RTOACapdu = -1;
-static gint ett_rtse_RTORJapdu = -1;
-static gint ett_rtse_RTABapdu = -1;
-static gint ett_rtse_ConnectionData = -1;
-static gint ett_rtse_SessionConnectionIdentifier = -1;
-static gint ett_rtse_CallingSSuserReference = -1;
+static gint ett_rtse;
+static gint ett_rtse_RTSE_apdus;
+static gint ett_rtse_RTORQapdu;
+static gint ett_rtse_RTOACapdu;
+static gint ett_rtse_RTORJapdu;
+static gint ett_rtse_RTABapdu;
+static gint ett_rtse_ConnectionData;
+static gint ett_rtse_SessionConnectionIdentifier;
+static gint ett_rtse_CallingSSuserReference;
 
-static expert_field ei_rtse_dissector_oid_not_implemented = EI_INIT;
-static expert_field ei_rtse_unknown_rtse_pdu = EI_INIT;
-static expert_field ei_rtse_abstract_syntax = EI_INIT;
+static expert_field ei_rtse_dissector_oid_not_implemented;
+static expert_field ei_rtse_unknown_rtse_pdu;
+static expert_field ei_rtse_abstract_syntax;
 
 static dissector_table_t rtse_oid_dissector_table=NULL;
 static dissector_handle_t rtse_handle = NULL;
-static gint ett_rtse_unknown = -1;
+static gint ett_rtse_unknown;
 
 static reassembly_table rtse_reassembly_table;
 
-static int hf_rtse_segment_data = -1;
-static int hf_rtse_fragments = -1;
-static int hf_rtse_fragment = -1;
-static int hf_rtse_fragment_overlap = -1;
-static int hf_rtse_fragment_overlap_conflicts = -1;
-static int hf_rtse_fragment_multiple_tails = -1;
-static int hf_rtse_fragment_too_long_fragment = -1;
-static int hf_rtse_fragment_error = -1;
-static int hf_rtse_fragment_count = -1;
-static int hf_rtse_reassembled_in = -1;
-static int hf_rtse_reassembled_length = -1;
+static int hf_rtse_segment_data;
+static int hf_rtse_fragments;
+static int hf_rtse_fragment;
+static int hf_rtse_fragment_overlap;
+static int hf_rtse_fragment_overlap_conflicts;
+static int hf_rtse_fragment_multiple_tails;
+static int hf_rtse_fragment_too_long_fragment;
+static int hf_rtse_fragment_error;
+static int hf_rtse_fragment_count;
+static int hf_rtse_reassembled_in;
+static int hf_rtse_reassembled_length;
 
-static gint ett_rtse_fragment = -1;
-static gint ett_rtse_fragments = -1;
+static gint ett_rtse_fragment;
+static gint ett_rtse_fragments;
 
 static const fragment_items rtse_frag_items = {
     /* Fragment subtrees */

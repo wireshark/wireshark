@@ -45,7 +45,7 @@ static gint credssp_TS_RGC_package;
 static gint exported_pdu_tap = -1;
 
 /* Initialize the protocol and registered fields */
-static int proto_credssp = -1;
+static int proto_credssp;
 
 /* List of dissectors to call for negoToken data */
 static heur_dissector_list_t credssp_heur_subdissector_list;
@@ -53,16 +53,16 @@ static heur_dissector_list_t credssp_heur_subdissector_list;
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t gssapi_wrap_handle;
 
-static int hf_credssp_TSPasswordCreds = -1;   /* TSPasswordCreds */
-static int hf_credssp_TSSmartCardCreds = -1;  /* TSSmartCardCreds */
-static int hf_credssp_TSRemoteGuardCreds = -1;/* TSRemoteGuardCreds */
-static int hf_credssp_TSCredentials = -1;     /* TSCredentials */
-static int hf_credssp_decr_PublicKeyAuth = -1;/* decr_PublicKeyAuth */
+static int hf_credssp_TSPasswordCreds;   /* TSPasswordCreds */
+static int hf_credssp_TSSmartCardCreds;  /* TSSmartCardCreds */
+static int hf_credssp_TSRemoteGuardCreds;/* TSRemoteGuardCreds */
+static int hf_credssp_TSCredentials;     /* TSCredentials */
+static int hf_credssp_decr_PublicKeyAuth;/* decr_PublicKeyAuth */
 #include "packet-credssp-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_credssp = -1;
-static gint ett_credssp_RGC_CredBuffer = -1;
+static gint ett_credssp;
+static gint ett_credssp_RGC_CredBuffer;
 
 #include "packet-credssp-ett.c"
 

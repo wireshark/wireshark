@@ -968,3250 +968,3250 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /* Initialize the protocol and registered fields */
-static int proto_f1ap = -1;
+static int proto_f1ap;
 
-static int hf_f1ap_transportLayerAddressIPv4 = -1;
-static int hf_f1ap_transportLayerAddressIPv6 = -1;
-static int hf_f1ap_IABTNLAddressIPv4 = -1;
-static int hf_f1ap_IABTNLAddressIPv6 = -1;
-static int hf_f1ap_IABTNLAddressIPv6Prefix = -1;
-static int hf_f1ap_interfacesToTrace_NG_C = -1;
-static int hf_f1ap_interfacesToTrace_Xn_C = -1;
-static int hf_f1ap_interfacesToTrace_Uu = -1;
-static int hf_f1ap_interfacesToTrace_F1_C = -1;
-static int hf_f1ap_interfacesToTrace_E1 = -1;
-static int hf_f1ap_interfacesToTrace_Reserved = -1;
-static int hf_f1ap_MeasurementsToActivate_Reserved1 = -1;
-static int hf_f1ap_MeasurementsToActivate_M2 = -1;
-static int hf_f1ap_MeasurementsToActivate_Reserved2 = -1;
-static int hf_f1ap_MeasurementsToActivate_M5 = -1;
-static int hf_f1ap_MeasurementsToActivate_Reserved3 = -1;
-static int hf_f1ap_MeasurementsToActivate_M6 = -1;
-static int hf_f1ap_MeasurementsToActivate_M7 = -1;
-static int hf_f1ap_ReportCharacteristics_PRBPeriodic = -1;
-static int hf_f1ap_ReportCharacteristics_TNLCapacityIndPeriodic = -1;
-static int hf_f1ap_ReportCharacteristics_CompositeAvailableCapacityPeriodic = -1;
-static int hf_f1ap_ReportCharacteristics_HWLoadIndPeriodic = -1;
-static int hf_f1ap_ReportCharacteristics_NumberOfActiveUEs = -1;
-static int hf_f1ap_ReportCharacteristics_Reserved = -1;
-static int hf_f1ap_AbortTransmission_PDU = -1;    /* AbortTransmission */
-static int hf_f1ap_Activated_Cells_to_be_Updated_List_PDU = -1;  /* Activated_Cells_to_be_Updated_List */
-static int hf_f1ap_ActivationRequestType_PDU = -1;  /* ActivationRequestType */
-static int hf_f1ap_AdditionalDuplicationIndication_PDU = -1;  /* AdditionalDuplicationIndication */
-static int hf_f1ap_ExtendedAdditionalPathList_PDU = -1;  /* ExtendedAdditionalPathList */
-static int hf_f1ap_AdditionalPDCPDuplicationTNL_List_PDU = -1;  /* AdditionalPDCPDuplicationTNL_List */
-static int hf_f1ap_AdditionalSIBMessageList_PDU = -1;  /* AdditionalSIBMessageList */
-static int hf_f1ap_AdditionalRRMPriorityIndex_PDU = -1;  /* AdditionalRRMPriorityIndex */
-static int hf_f1ap_AggressorgNBSetID_PDU = -1;    /* AggressorgNBSetID */
-static int hf_f1ap_AlternativeQoSParaSetList_PDU = -1;  /* AlternativeQoSParaSetList */
-static int hf_f1ap_Associated_SCell_Item_PDU = -1;  /* Associated_SCell_Item */
-static int hf_f1ap_AvailablePLMNList_PDU = -1;    /* AvailablePLMNList */
-static int hf_f1ap_AvailableSNPN_ID_List_PDU = -1;  /* AvailableSNPN_ID_List */
-static int hf_f1ap_AreaScope_PDU = -1;            /* AreaScope */
-static int hf_f1ap_AoA_AssistanceInfo_PDU = -1;   /* AoA_AssistanceInfo */
-static int hf_f1ap_ARP_ID_PDU = -1;               /* ARP_ID */
-static int hf_f1ap_ARPLocationInformation_PDU = -1;  /* ARPLocationInformation */
-static int hf_f1ap_BAP_Header_Rewriting_Added_List_Item_PDU = -1;  /* BAP_Header_Rewriting_Added_List_Item */
-static int hf_f1ap_BAP_Header_Rewriting_Removed_List_Item_PDU = -1;  /* BAP_Header_Rewriting_Removed_List_Item */
-static int hf_f1ap_BAPAddress_PDU = -1;           /* BAPAddress */
-static int hf_f1ap_BitRate_PDU = -1;              /* BitRate */
-static int hf_f1ap_BearerTypeChange_PDU = -1;     /* BearerTypeChange */
-static int hf_f1ap_BHChannels_FailedToBeModified_Item_PDU = -1;  /* BHChannels_FailedToBeModified_Item */
-static int hf_f1ap_BHChannels_FailedToBeSetup_Item_PDU = -1;  /* BHChannels_FailedToBeSetup_Item */
-static int hf_f1ap_BHChannels_FailedToBeSetupMod_Item_PDU = -1;  /* BHChannels_FailedToBeSetupMod_Item */
-static int hf_f1ap_BHChannels_Modified_Item_PDU = -1;  /* BHChannels_Modified_Item */
-static int hf_f1ap_BHChannels_Required_ToBeReleased_Item_PDU = -1;  /* BHChannels_Required_ToBeReleased_Item */
-static int hf_f1ap_BHChannels_Setup_Item_PDU = -1;  /* BHChannels_Setup_Item */
-static int hf_f1ap_BHChannels_SetupMod_Item_PDU = -1;  /* BHChannels_SetupMod_Item */
-static int hf_f1ap_BHChannels_ToBeModified_Item_PDU = -1;  /* BHChannels_ToBeModified_Item */
-static int hf_f1ap_BHChannels_ToBeReleased_Item_PDU = -1;  /* BHChannels_ToBeReleased_Item */
-static int hf_f1ap_BHChannels_ToBeSetup_Item_PDU = -1;  /* BHChannels_ToBeSetup_Item */
-static int hf_f1ap_BHChannels_ToBeSetupMod_Item_PDU = -1;  /* BHChannels_ToBeSetupMod_Item */
-static int hf_f1ap_BHInfo_PDU = -1;               /* BHInfo */
-static int hf_f1ap_BH_Routing_Information_Added_List_Item_PDU = -1;  /* BH_Routing_Information_Added_List_Item */
-static int hf_f1ap_BH_Routing_Information_Removed_List_Item_PDU = -1;  /* BH_Routing_Information_Removed_List_Item */
-static int hf_f1ap_BPLMN_ID_Info_List_PDU = -1;   /* BPLMN_ID_Info_List */
-static int hf_f1ap_BroadcastMRBs_FailedToBeModified_Item_PDU = -1;  /* BroadcastMRBs_FailedToBeModified_Item */
-static int hf_f1ap_BroadcastMRBs_FailedToBeSetup_Item_PDU = -1;  /* BroadcastMRBs_FailedToBeSetup_Item */
-static int hf_f1ap_BroadcastMRBs_FailedToBeSetupMod_Item_PDU = -1;  /* BroadcastMRBs_FailedToBeSetupMod_Item */
-static int hf_f1ap_BroadcastMRBs_Modified_Item_PDU = -1;  /* BroadcastMRBs_Modified_Item */
-static int hf_f1ap_BroadcastMRBs_Setup_Item_PDU = -1;  /* BroadcastMRBs_Setup_Item */
-static int hf_f1ap_BroadcastMRBs_SetupMod_Item_PDU = -1;  /* BroadcastMRBs_SetupMod_Item */
-static int hf_f1ap_BroadcastMRBs_ToBeModified_Item_PDU = -1;  /* BroadcastMRBs_ToBeModified_Item */
-static int hf_f1ap_BroadcastMRBs_ToBeReleased_Item_PDU = -1;  /* BroadcastMRBs_ToBeReleased_Item */
-static int hf_f1ap_BroadcastMRBs_ToBeSetup_Item_PDU = -1;  /* BroadcastMRBs_ToBeSetup_Item */
-static int hf_f1ap_BroadcastMRBs_ToBeSetupMod_Item_PDU = -1;  /* BroadcastMRBs_ToBeSetupMod_Item */
-static int hf_f1ap_BroadcastAreaScope_PDU = -1;   /* BroadcastAreaScope */
-static int hf_f1ap_BufferSizeThresh_PDU = -1;     /* BufferSizeThresh */
-static int hf_f1ap_Cancel_all_Warning_Messages_Indicator_PDU = -1;  /* Cancel_all_Warning_Messages_Indicator */
-static int hf_f1ap_Candidate_SpCell_Item_PDU = -1;  /* Candidate_SpCell_Item */
-static int hf_f1ap_Cause_PDU = -1;                /* Cause */
-static int hf_f1ap_CellGroupConfig_PDU = -1;      /* CellGroupConfig */
-static int hf_f1ap_Cell_Direction_PDU = -1;       /* Cell_Direction */
-static int hf_f1ap_CellMeasurementResultList_PDU = -1;  /* CellMeasurementResultList */
-static int hf_f1ap_Cell_Portion_ID_PDU = -1;      /* Cell_Portion_ID */
-static int hf_f1ap_CellsForSON_List_PDU = -1;     /* CellsForSON_List */
-static int hf_f1ap_Cells_Failed_to_be_Activated_List_Item_PDU = -1;  /* Cells_Failed_to_be_Activated_List_Item */
-static int hf_f1ap_Cells_Status_Item_PDU = -1;    /* Cells_Status_Item */
-static int hf_f1ap_Cells_To_Be_Broadcast_Item_PDU = -1;  /* Cells_To_Be_Broadcast_Item */
-static int hf_f1ap_Cells_Broadcast_Completed_Item_PDU = -1;  /* Cells_Broadcast_Completed_Item */
-static int hf_f1ap_Broadcast_To_Be_Cancelled_Item_PDU = -1;  /* Broadcast_To_Be_Cancelled_Item */
-static int hf_f1ap_Cells_Broadcast_Cancelled_Item_PDU = -1;  /* Cells_Broadcast_Cancelled_Item */
-static int hf_f1ap_Cells_to_be_Activated_List_Item_PDU = -1;  /* Cells_to_be_Activated_List_Item */
-static int hf_f1ap_Cells_to_be_Deactivated_List_Item_PDU = -1;  /* Cells_to_be_Deactivated_List_Item */
-static int hf_f1ap_Cells_to_be_Barred_Item_PDU = -1;  /* Cells_to_be_Barred_Item */
-static int hf_f1ap_CellToReportList_PDU = -1;     /* CellToReportList */
-static int hf_f1ap_CellType_PDU = -1;             /* CellType */
-static int hf_f1ap_CellULConfigured_PDU = -1;     /* CellULConfigured */
-static int hf_f1ap_CG_SDTQueryIndication_PDU = -1;  /* CG_SDTQueryIndication */
-static int hf_f1ap_CG_SDTKeptIndicator_PDU = -1;  /* CG_SDTKeptIndicator */
-static int hf_f1ap_CG_SDTindicatorSetup_PDU = -1;  /* CG_SDTindicatorSetup */
-static int hf_f1ap_CG_SDTindicatorMod_PDU = -1;   /* CG_SDTindicatorMod */
-static int hf_f1ap_CG_SDTSessionInfo_PDU = -1;    /* CG_SDTSessionInfo */
-static int hf_f1ap_Child_IAB_Nodes_NA_Resource_List_PDU = -1;  /* Child_IAB_Nodes_NA_Resource_List */
-static int hf_f1ap_Child_Nodes_List_PDU = -1;     /* Child_Nodes_List */
-static int hf_f1ap_CompositeAvailableCapacity_PDU = -1;  /* CompositeAvailableCapacity */
-static int hf_f1ap_CHO_Probability_PDU = -1;      /* CHO_Probability */
-static int hf_f1ap_ConditionalInterDUMobilityInformation_PDU = -1;  /* ConditionalInterDUMobilityInformation */
-static int hf_f1ap_ConditionalIntraDUMobilityInformation_PDU = -1;  /* ConditionalIntraDUMobilityInformation */
-static int hf_f1ap_ConfigRestrictInfoDAPS_PDU = -1;  /* ConfigRestrictInfoDAPS */
-static int hf_f1ap_ConfiguredTACIndication_PDU = -1;  /* ConfiguredTACIndication */
-static int hf_f1ap_Coverage_Modification_Notification_PDU = -1;  /* Coverage_Modification_Notification */
-static int hf_f1ap_CCO_Assistance_Information_PDU = -1;  /* CCO_Assistance_Information */
-static int hf_f1ap_CP_TransportLayerAddress_PDU = -1;  /* CP_TransportLayerAddress */
-static int hf_f1ap_CPACMCGInformation_PDU = -1;   /* CPACMCGInformation */
-static int hf_f1ap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
-static int hf_f1ap_C_RNTI_PDU = -1;               /* C_RNTI */
-static int hf_f1ap_CUDURadioInformationType_PDU = -1;  /* CUDURadioInformationType */
-static int hf_f1ap_CUtoDURRCInformation_PDU = -1;  /* CUtoDURRCInformation */
-static int hf_f1ap_DAPS_HO_Status_PDU = -1;       /* DAPS_HO_Status */
-static int hf_f1ap_DCBasedDuplicationConfigured_PDU = -1;  /* DCBasedDuplicationConfigured */
-static int hf_f1ap_Dedicated_SIDelivery_NeededUE_Item_PDU = -1;  /* Dedicated_SIDelivery_NeededUE_Item */
-static int hf_f1ap_DL_UP_TNL_Address_to_Update_List_Item_PDU = -1;  /* DL_UP_TNL_Address_to_Update_List_Item */
-static int hf_f1ap_DRB_Activity_Item_PDU = -1;    /* DRB_Activity_Item */
-static int hf_f1ap_DRBs_FailedToBeModified_Item_PDU = -1;  /* DRBs_FailedToBeModified_Item */
-static int hf_f1ap_DRBs_FailedToBeSetup_Item_PDU = -1;  /* DRBs_FailedToBeSetup_Item */
-static int hf_f1ap_DRBs_FailedToBeSetupMod_Item_PDU = -1;  /* DRBs_FailedToBeSetupMod_Item */
-static int hf_f1ap_DRB_Information_PDU = -1;      /* DRB_Information */
-static int hf_f1ap_DRBs_Modified_Item_PDU = -1;   /* DRBs_Modified_Item */
-static int hf_f1ap_DRBs_ModifiedConf_Item_PDU = -1;  /* DRBs_ModifiedConf_Item */
-static int hf_f1ap_DRB_Notify_Item_PDU = -1;      /* DRB_Notify_Item */
-static int hf_f1ap_DRBs_Required_ToBeModified_Item_PDU = -1;  /* DRBs_Required_ToBeModified_Item */
-static int hf_f1ap_DRBs_Required_ToBeReleased_Item_PDU = -1;  /* DRBs_Required_ToBeReleased_Item */
-static int hf_f1ap_DRBs_Setup_Item_PDU = -1;      /* DRBs_Setup_Item */
-static int hf_f1ap_DRBs_SetupMod_Item_PDU = -1;   /* DRBs_SetupMod_Item */
-static int hf_f1ap_DRBs_ToBeModified_Item_PDU = -1;  /* DRBs_ToBeModified_Item */
-static int hf_f1ap_DRBs_ToBeReleased_Item_PDU = -1;  /* DRBs_ToBeReleased_Item */
-static int hf_f1ap_DRBs_ToBeSetup_Item_PDU = -1;  /* DRBs_ToBeSetup_Item */
-static int hf_f1ap_DRBs_ToBeSetupMod_Item_PDU = -1;  /* DRBs_ToBeSetupMod_Item */
-static int hf_f1ap_DRXCycle_PDU = -1;             /* DRXCycle */
-static int hf_f1ap_DRX_Config_PDU = -1;           /* DRX_Config */
-static int hf_f1ap_DRXConfigurationIndicator_PDU = -1;  /* DRXConfigurationIndicator */
-static int hf_f1ap_DRX_LongCycleStartOffset_PDU = -1;  /* DRX_LongCycleStartOffset */
-static int hf_f1ap_DUtoCURRCContainer_PDU = -1;   /* DUtoCURRCContainer */
-static int hf_f1ap_DUCURadioInformationType_PDU = -1;  /* DUCURadioInformationType */
-static int hf_f1ap_DU_RX_MT_RX_Extend_PDU = -1;   /* DU_RX_MT_RX_Extend */
-static int hf_f1ap_DU_TX_MT_TX_Extend_PDU = -1;   /* DU_TX_MT_TX_Extend */
-static int hf_f1ap_DU_RX_MT_TX_Extend_PDU = -1;   /* DU_RX_MT_TX_Extend */
-static int hf_f1ap_DU_TX_MT_RX_Extend_PDU = -1;   /* DU_TX_MT_RX_Extend */
-static int hf_f1ap_DUtoCURRCInformation_PDU = -1;  /* DUtoCURRCInformation */
-static int hf_f1ap_DuplicationActivation_PDU = -1;  /* DuplicationActivation */
-static int hf_f1ap_E_CID_MeasurementQuantities_PDU = -1;  /* E_CID_MeasurementQuantities */
-static int hf_f1ap_E_CID_MeasurementQuantities_Item_PDU = -1;  /* E_CID_MeasurementQuantities_Item */
-static int hf_f1ap_E_CID_MeasurementResult_PDU = -1;  /* E_CID_MeasurementResult */
-static int hf_f1ap_E_CID_ReportCharacteristics_PDU = -1;  /* E_CID_ReportCharacteristics */
-static int hf_f1ap_EgressNonF1terminatingTopologyIndicator_PDU = -1;  /* EgressNonF1terminatingTopologyIndicator */
-static int hf_f1ap_ExtendedAvailablePLMN_List_PDU = -1;  /* ExtendedAvailablePLMN_List */
-static int hf_f1ap_ExtendedServedPLMNs_List_PDU = -1;  /* ExtendedServedPLMNs_List */
-static int hf_f1ap_ExtendedSliceSupportList_PDU = -1;  /* ExtendedSliceSupportList */
-static int hf_f1ap_ExtendedUEIdentityIndexValue_PDU = -1;  /* ExtendedUEIdentityIndexValue */
-static int hf_f1ap_ExecuteDuplication_PDU = -1;   /* ExecuteDuplication */
-static int hf_f1ap_EUTRA_NR_CellResourceCoordinationReq_Container_PDU = -1;  /* EUTRA_NR_CellResourceCoordinationReq_Container */
-static int hf_f1ap_EUTRA_NR_CellResourceCoordinationReqAck_Container_PDU = -1;  /* EUTRA_NR_CellResourceCoordinationReqAck_Container */
-static int hf_f1ap_ExtendedPacketDelayBudget_PDU = -1;  /* ExtendedPacketDelayBudget */
-static int hf_f1ap_F1CTransferPath_PDU = -1;      /* F1CTransferPath */
-static int hf_f1ap_F1CTransferPathNRDC_PDU = -1;  /* F1CTransferPathNRDC */
-static int hf_f1ap_FiveG_ProSeAuthorized_PDU = -1;  /* FiveG_ProSeAuthorized */
-static int hf_f1ap_FrequencyShift7p5khz_PDU = -1;  /* FrequencyShift7p5khz */
-static int hf_f1ap_Frequency_Domain_HSNA_Configuration_List_PDU = -1;  /* Frequency_Domain_HSNA_Configuration_List */
-static int hf_f1ap_FullConfiguration_PDU = -1;    /* FullConfiguration */
-static int hf_f1ap_CG_Config_PDU = -1;            /* CG_Config */
-static int hf_f1ap_GNB_CU_MBS_F1AP_ID_PDU = -1;   /* GNB_CU_MBS_F1AP_ID */
-static int hf_f1ap_GNBCUMeasurementID_PDU = -1;   /* GNBCUMeasurementID */
-static int hf_f1ap_GNBDUMeasurementID_PDU = -1;   /* GNBDUMeasurementID */
-static int hf_f1ap_GNB_CUSystemInformation_PDU = -1;  /* GNB_CUSystemInformation */
-static int hf_f1ap_GNB_CU_TNL_Association_Setup_Item_PDU = -1;  /* GNB_CU_TNL_Association_Setup_Item */
-static int hf_f1ap_GNB_CU_TNL_Association_Failed_To_Setup_Item_PDU = -1;  /* GNB_CU_TNL_Association_Failed_To_Setup_Item */
-static int hf_f1ap_GNB_CU_TNL_Association_To_Add_Item_PDU = -1;  /* GNB_CU_TNL_Association_To_Add_Item */
-static int hf_f1ap_GNB_CU_TNL_Association_To_Remove_Item_PDU = -1;  /* GNB_CU_TNL_Association_To_Remove_Item */
-static int hf_f1ap_GNB_CU_TNL_Association_To_Update_Item_PDU = -1;  /* GNB_CU_TNL_Association_To_Update_Item */
-static int hf_f1ap_GNB_CU_UE_F1AP_ID_PDU = -1;    /* GNB_CU_UE_F1AP_ID */
-static int hf_f1ap_GNB_DU_MBS_F1AP_ID_PDU = -1;   /* GNB_DU_MBS_F1AP_ID */
-static int hf_f1ap_GNB_DU_UE_F1AP_ID_PDU = -1;    /* GNB_DU_UE_F1AP_ID */
-static int hf_f1ap_GNB_DU_ID_PDU = -1;            /* GNB_DU_ID */
-static int hf_f1ap_GNB_CU_Name_PDU = -1;          /* GNB_CU_Name */
-static int hf_f1ap_GNB_DU_Name_PDU = -1;          /* GNB_DU_Name */
-static int hf_f1ap_Extended_GNB_CU_Name_PDU = -1;  /* Extended_GNB_CU_Name */
-static int hf_f1ap_Extended_GNB_DU_Name_PDU = -1;  /* Extended_GNB_DU_Name */
-static int hf_f1ap_GNB_DU_Served_Cells_Item_PDU = -1;  /* GNB_DU_Served_Cells_Item */
-static int hf_f1ap_GNB_DUConfigurationQuery_PDU = -1;  /* GNB_DUConfigurationQuery */
-static int hf_f1ap_GNBDUOverloadInformation_PDU = -1;  /* GNBDUOverloadInformation */
-static int hf_f1ap_GNB_DU_TNL_Association_To_Remove_Item_PDU = -1;  /* GNB_DU_TNL_Association_To_Remove_Item */
-static int hf_f1ap_GNBDUUESliceMaximumBitRateList_PDU = -1;  /* GNBDUUESliceMaximumBitRateList */
-static int hf_f1ap_HandoverPreparationInformation_PDU = -1;  /* HandoverPreparationInformation */
-static int hf_f1ap_HardwareLoadIndicator_PDU = -1;  /* HardwareLoadIndicator */
-static int hf_f1ap_HashedUEIdentityIndexValue_PDU = -1;  /* HashedUEIdentityIndexValue */
-static int hf_f1ap_IAB_Barred_PDU = -1;           /* IAB_Barred */
-static int hf_f1ap_IABConditionalRRCMessageDeliveryIndication_PDU = -1;  /* IABConditionalRRCMessageDeliveryIndication */
-static int hf_f1ap_IABCongestionIndication_PDU = -1;  /* IABCongestionIndication */
-static int hf_f1ap_IAB_Info_IAB_donor_CU_PDU = -1;  /* IAB_Info_IAB_donor_CU */
-static int hf_f1ap_IAB_Info_IAB_DU_PDU = -1;      /* IAB_Info_IAB_DU */
-static int hf_f1ap_IAB_Allocated_TNL_Address_Item_PDU = -1;  /* IAB_Allocated_TNL_Address_Item */
-static int hf_f1ap_IABIPv6RequestType_PDU = -1;   /* IABIPv6RequestType */
-static int hf_f1ap_IAB_TNL_Addresses_To_Remove_Item_PDU = -1;  /* IAB_TNL_Addresses_To_Remove_Item */
-static int hf_f1ap_IAB_TNL_Addresses_Exception_PDU = -1;  /* IAB_TNL_Addresses_Exception */
-static int hf_f1ap_IABv4AddressesRequested_PDU = -1;  /* IABv4AddressesRequested */
-static int hf_f1ap_IgnorePRACHConfiguration_PDU = -1;  /* IgnorePRACHConfiguration */
-static int hf_f1ap_IgnoreResourceCoordinationContainer_PDU = -1;  /* IgnoreResourceCoordinationContainer */
-static int hf_f1ap_InactivityMonitoringRequest_PDU = -1;  /* InactivityMonitoringRequest */
-static int hf_f1ap_InactivityMonitoringResponse_PDU = -1;  /* InactivityMonitoringResponse */
-static int hf_f1ap_IntendedTDD_DL_ULConfig_PDU = -1;  /* IntendedTDD_DL_ULConfig */
-static int hf_f1ap_InterFrequencyConfig_NoGap_PDU = -1;  /* InterFrequencyConfig_NoGap */
-static int hf_f1ap_IngressNonF1terminatingTopologyIndicator_PDU = -1;  /* IngressNonF1terminatingTopologyIndicator */
-static int hf_f1ap_L571Info_PDU = -1;             /* L571Info */
-static int hf_f1ap_L1151Info_PDU = -1;            /* L1151Info */
-static int hf_f1ap_LastUsedCellIndication_PDU = -1;  /* LastUsedCellIndication */
-static int hf_f1ap_LMF_MeasurementID_PDU = -1;    /* LMF_MeasurementID */
-static int hf_f1ap_LMF_UE_MeasurementID_PDU = -1;  /* LMF_UE_MeasurementID */
-static int hf_f1ap_LocationMeasurementInformation_PDU = -1;  /* LocationMeasurementInformation */
-static int hf_f1ap_LowerLayerPresenceStatusChange_PDU = -1;  /* LowerLayerPresenceStatusChange */
-static int hf_f1ap_LoS_NLoSInformation_PDU = -1;  /* LoS_NLoSInformation */
-static int hf_f1ap_LTEUESidelinkAggregateMaximumBitrate_PDU = -1;  /* LTEUESidelinkAggregateMaximumBitrate */
-static int hf_f1ap_LTEV2XServicesAuthorized_PDU = -1;  /* LTEV2XServicesAuthorized */
-static int hf_f1ap_MaskedIMEISV_PDU = -1;         /* MaskedIMEISV */
-static int hf_f1ap_MBS_Broadcast_NeighbourCellList_PDU = -1;  /* MBS_Broadcast_NeighbourCellList */
-static int hf_f1ap_MBSInterestIndication_PDU = -1;  /* MBSInterestIndication */
-static int hf_f1ap_MBS_CUtoDURRCInformation_PDU = -1;  /* MBS_CUtoDURRCInformation */
-static int hf_f1ap_MBSMulticastF1UContextDescriptor_PDU = -1;  /* MBSMulticastF1UContextDescriptor */
-static int hf_f1ap_MulticastF1UContext_ToBeSetup_Item_PDU = -1;  /* MulticastF1UContext_ToBeSetup_Item */
-static int hf_f1ap_MulticastF1UContext_Setup_Item_PDU = -1;  /* MulticastF1UContext_Setup_Item */
-static int hf_f1ap_MulticastF1UContext_FailedToBeSetup_Item_PDU = -1;  /* MulticastF1UContext_FailedToBeSetup_Item */
-static int hf_f1ap_MBS_ServiceArea_PDU = -1;      /* MBS_ServiceArea */
-static int hf_f1ap_MC_PagingCell_Item_PDU = -1;   /* MC_PagingCell_Item */
-static int hf_f1ap_MeasGapSharingConfig_PDU = -1;  /* MeasGapSharingConfig */
-static int hf_f1ap_PosMeasurementAmount_PDU = -1;  /* PosMeasurementAmount */
-static int hf_f1ap_MeasurementBeamInfoRequest_PDU = -1;  /* MeasurementBeamInfoRequest */
-static int hf_f1ap_MeasurementTimingConfiguration_PDU = -1;  /* MeasurementTimingConfiguration */
-static int hf_f1ap_MeasurementTimeOccasion_PDU = -1;  /* MeasurementTimeOccasion */
-static int hf_f1ap_MeasurementCharacteristicsRequestIndicator_PDU = -1;  /* MeasurementCharacteristicsRequestIndicator */
-static int hf_f1ap_MulticastF1UContextReferenceCU_PDU = -1;  /* MulticastF1UContextReferenceCU */
-static int hf_f1ap_MultipleULAoA_PDU = -1;        /* MultipleULAoA */
-static int hf_f1ap_MDTPollutedMeasurementIndicator_PDU = -1;  /* MDTPollutedMeasurementIndicator */
-static int hf_f1ap_MRB_ID_PDU = -1;               /* MRB_ID */
-static int hf_f1ap_MulticastMBSSessionList_PDU = -1;  /* MulticastMBSSessionList */
-static int hf_f1ap_MulticastMRBs_FailedToBeModified_Item_PDU = -1;  /* MulticastMRBs_FailedToBeModified_Item */
-static int hf_f1ap_MulticastMRBs_FailedToBeSetup_Item_PDU = -1;  /* MulticastMRBs_FailedToBeSetup_Item */
-static int hf_f1ap_MulticastMRBs_FailedToBeSetupMod_Item_PDU = -1;  /* MulticastMRBs_FailedToBeSetupMod_Item */
-static int hf_f1ap_MulticastMRBs_Modified_Item_PDU = -1;  /* MulticastMRBs_Modified_Item */
-static int hf_f1ap_MulticastMRBs_Setup_Item_PDU = -1;  /* MulticastMRBs_Setup_Item */
-static int hf_f1ap_MulticastMRBs_SetupMod_Item_PDU = -1;  /* MulticastMRBs_SetupMod_Item */
-static int hf_f1ap_MulticastMRBs_ToBeModified_Item_PDU = -1;  /* MulticastMRBs_ToBeModified_Item */
-static int hf_f1ap_MulticastMRBs_ToBeReleased_Item_PDU = -1;  /* MulticastMRBs_ToBeReleased_Item */
-static int hf_f1ap_MulticastMRBs_ToBeSetup_Item_PDU = -1;  /* MulticastMRBs_ToBeSetup_Item */
-static int hf_f1ap_MulticastMRBs_ToBeSetupMod_Item_PDU = -1;  /* MulticastMRBs_ToBeSetupMod_Item */
-static int hf_f1ap_M5ReportAmount_PDU = -1;       /* M5ReportAmount */
-static int hf_f1ap_M6ReportAmount_PDU = -1;       /* M6ReportAmount */
-static int hf_f1ap_M7ReportAmount_PDU = -1;       /* M7ReportAmount */
-static int hf_f1ap_MDTConfiguration_PDU = -1;     /* MDTConfiguration */
-static int hf_f1ap_MDTPLMNList_PDU = -1;          /* MDTPLMNList */
-static int hf_f1ap_MDTPLMNModificationList_PDU = -1;  /* MDTPLMNModificationList */
-static int hf_f1ap_MUSIM_GapConfig_PDU = -1;      /* MUSIM_GapConfig */
-static int hf_f1ap_Ncd_SSB_RedCapInitialBWP_SDT_PDU = -1;  /* Ncd_SSB_RedCapInitialBWP_SDT */
-static int hf_f1ap_Neighbour_Node_Cells_List_PDU = -1;  /* Neighbour_Node_Cells_List */
-static int hf_f1ap_NeedforGap_PDU = -1;           /* NeedforGap */
-static int hf_f1ap_NeedForGapsInfoNR_PDU = -1;    /* NeedForGapsInfoNR */
-static int hf_f1ap_NeedForGapNCSGInfoNR_PDU = -1;  /* NeedForGapNCSGInfoNR */
-static int hf_f1ap_NeedForGapNCSGInfoEUTRA_PDU = -1;  /* NeedForGapNCSGInfoEUTRA */
-static int hf_f1ap_Neighbour_Cell_Information_Item_PDU = -1;  /* Neighbour_Cell_Information_Item */
-static int hf_f1ap_NID_PDU = -1;                  /* NID */
-static int hf_f1ap_NonF1terminatingTopologyIndicator_PDU = -1;  /* NonF1terminatingTopologyIndicator */
-static int hf_f1ap_NR_CGI_List_For_Restart_Item_PDU = -1;  /* NR_CGI_List_For_Restart_Item */
-static int hf_f1ap_NrofSymbolsExtended_PDU = -1;  /* NrofSymbolsExtended */
-static int hf_f1ap_NR_TADV_PDU = -1;              /* NR_TADV */
-static int hf_f1ap_NRRedCapUEIndication_PDU = -1;  /* NRRedCapUEIndication */
-static int hf_f1ap_NRPagingeDRXInformation_PDU = -1;  /* NRPagingeDRXInformation */
-static int hf_f1ap_NRPagingeDRXInformationforRRCINACTIVE_PDU = -1;  /* NRPagingeDRXInformationforRRCINACTIVE */
-static int hf_f1ap_NotificationInformation_PDU = -1;  /* NotificationInformation */
-static int hf_f1ap_NPNBroadcastInformation_PDU = -1;  /* NPNBroadcastInformation */
-static int hf_f1ap_NPNSupportInfo_PDU = -1;       /* NPNSupportInfo */
-static int hf_f1ap_NRCarrierList_PDU = -1;        /* NRCarrierList */
-static int hf_f1ap_NRFreqInfo_PDU = -1;           /* NRFreqInfo */
-static int hf_f1ap_NRCGI_PDU = -1;                /* NRCGI */
-static int hf_f1ap_f1ap_NRPRACHConfig_PDU = -1;   /* NRPRACHConfig */
-static int hf_f1ap_NR_U_Channel_Info_List_PDU = -1;  /* NR_U_Channel_Info_List */
-static int hf_f1ap_NR_U_Channel_List_PDU = -1;    /* NR_U_Channel_List */
-static int hf_f1ap_NumberofBroadcastRequest_PDU = -1;  /* NumberofBroadcastRequest */
-static int hf_f1ap_NumberOfTRPRxTEG_PDU = -1;     /* NumberOfTRPRxTEG */
-static int hf_f1ap_NumberOfTRPRxTxTEG_PDU = -1;   /* NumberOfTRPRxTxTEG */
-static int hf_f1ap_NRV2XServicesAuthorized_PDU = -1;  /* NRV2XServicesAuthorized */
-static int hf_f1ap_NRUESidelinkAggregateMaximumBitrate_PDU = -1;  /* NRUESidelinkAggregateMaximumBitrate */
-static int hf_f1ap_OnDemandPRS_Info_PDU = -1;     /* OnDemandPRS_Info */
-static int hf_f1ap_PagingCell_Item_PDU = -1;      /* PagingCell_Item */
-static int hf_f1ap_PagingDRX_PDU = -1;            /* PagingDRX */
-static int hf_f1ap_PagingIdentity_PDU = -1;       /* PagingIdentity */
-static int hf_f1ap_PagingCause_PDU = -1;          /* PagingCause */
-static int hf_f1ap_PagingOrigin_PDU = -1;         /* PagingOrigin */
-static int hf_f1ap_PagingPriority_PDU = -1;       /* PagingPriority */
-static int hf_f1ap_PEIPSAssistanceInfo_PDU = -1;  /* PEIPSAssistanceInfo */
-static int hf_f1ap_Parent_IAB_Nodes_NA_Resource_Configuration_List_PDU = -1;  /* Parent_IAB_Nodes_NA_Resource_Configuration_List */
-static int hf_f1ap_PathSwitchConfiguration_PDU = -1;  /* PathSwitchConfiguration */
-static int hf_f1ap_PC5RLCChannelToBeSetupList_PDU = -1;  /* PC5RLCChannelToBeSetupList */
-static int hf_f1ap_PC5RLCChannelToBeModifiedList_PDU = -1;  /* PC5RLCChannelToBeModifiedList */
-static int hf_f1ap_PC5RLCChannelToBeReleasedList_PDU = -1;  /* PC5RLCChannelToBeReleasedList */
-static int hf_f1ap_PC5RLCChannelSetupList_PDU = -1;  /* PC5RLCChannelSetupList */
-static int hf_f1ap_PC5RLCChannelFailedToBeSetupList_PDU = -1;  /* PC5RLCChannelFailedToBeSetupList */
-static int hf_f1ap_PC5RLCChannelModifiedList_PDU = -1;  /* PC5RLCChannelModifiedList */
-static int hf_f1ap_PC5RLCChannelFailedToBeModifiedList_PDU = -1;  /* PC5RLCChannelFailedToBeModifiedList */
-static int hf_f1ap_PC5RLCChannelRequiredToBeModifiedList_PDU = -1;  /* PC5RLCChannelRequiredToBeModifiedList */
-static int hf_f1ap_PC5RLCChannelRequiredToBeReleasedList_PDU = -1;  /* PC5RLCChannelRequiredToBeReleasedList */
-static int hf_f1ap_PDCCH_BlindDetectionSCG_PDU = -1;  /* PDCCH_BlindDetectionSCG */
-static int hf_f1ap_PDCMeasurementPeriodicity_PDU = -1;  /* PDCMeasurementPeriodicity */
-static int hf_f1ap_PDCMeasurementQuantities_PDU = -1;  /* PDCMeasurementQuantities */
-static int hf_f1ap_PDCMeasurementQuantities_Item_PDU = -1;  /* PDCMeasurementQuantities_Item */
-static int hf_f1ap_PDCMeasurementResult_PDU = -1;  /* PDCMeasurementResult */
-static int hf_f1ap_PDCReportType_PDU = -1;        /* PDCReportType */
-static int hf_f1ap_PDCPSNLength_PDU = -1;         /* PDCPSNLength */
-static int hf_f1ap_PDUSessionID_PDU = -1;         /* PDUSessionID */
-static int hf_f1ap_PEISubgroupingSupportIndication_PDU = -1;  /* PEISubgroupingSupportIndication */
-static int hf_f1ap_Permutation_PDU = -1;          /* Permutation */
-static int hf_f1ap_Ph_InfoMCG_PDU = -1;           /* Ph_InfoMCG */
-static int hf_f1ap_Ph_InfoSCG_PDU = -1;           /* Ph_InfoSCG */
-static int hf_f1ap_PLMN_Identity_PDU = -1;        /* PLMN_Identity */
-static int hf_f1ap_PortNumber_PDU = -1;           /* PortNumber */
-static int hf_f1ap_PosAssistance_Information_PDU = -1;  /* PosAssistance_Information */
-static int hf_f1ap_PosAssistanceInformationFailureList_PDU = -1;  /* PosAssistanceInformationFailureList */
-static int hf_f1ap_PosBroadcast_PDU = -1;         /* PosBroadcast */
-static int hf_f1ap_PosConextRevIndication_PDU = -1;  /* PosConextRevIndication */
-static int hf_f1ap_PositioningBroadcastCells_PDU = -1;  /* PositioningBroadcastCells */
-static int hf_f1ap_PosMeasGapPreConfigList_PDU = -1;  /* PosMeasGapPreConfigList */
-static int hf_f1ap_MeasurementPeriodicity_PDU = -1;  /* MeasurementPeriodicity */
-static int hf_f1ap_MeasurementPeriodicityExtended_PDU = -1;  /* MeasurementPeriodicityExtended */
-static int hf_f1ap_PosMeasurementPeriodicityNR_AoA_PDU = -1;  /* PosMeasurementPeriodicityNR_AoA */
-static int hf_f1ap_PosMeasurementQuantities_PDU = -1;  /* PosMeasurementQuantities */
-static int hf_f1ap_PosMeasurementResultList_PDU = -1;  /* PosMeasurementResultList */
-static int hf_f1ap_PosReportCharacteristics_PDU = -1;  /* PosReportCharacteristics */
-static int hf_f1ap_PosSItypeList_PDU = -1;        /* PosSItypeList */
-static int hf_f1ap_Protected_EUTRA_Resources_Item_PDU = -1;  /* Protected_EUTRA_Resources_Item */
-static int hf_f1ap_PRS_Measurement_Info_List_PDU = -1;  /* PRS_Measurement_Info_List */
-static int hf_f1ap_Potential_SpCell_Item_PDU = -1;  /* Potential_SpCell_Item */
-static int hf_f1ap_PRSConfigRequestType_PDU = -1;  /* PRSConfigRequestType */
-static int hf_f1ap_PRS_Resource_ID_PDU = -1;      /* PRS_Resource_ID */
-static int hf_f1ap_PWS_Failed_NR_CGI_Item_PDU = -1;  /* PWS_Failed_NR_CGI_Item */
-static int hf_f1ap_PWSSystemInformation_PDU = -1;  /* PWSSystemInformation */
-static int hf_f1ap_PrivacyIndicator_PDU = -1;     /* PrivacyIndicator */
-static int hf_f1ap_PRSTRPList_PDU = -1;           /* PRSTRPList */
-static int hf_f1ap_PRSTransmissionTRPList_PDU = -1;  /* PRSTransmissionTRPList */
-static int hf_f1ap_QoEInformation_PDU = -1;       /* QoEInformation */
-static int hf_f1ap_QoSFlowMappingIndication_PDU = -1;  /* QoSFlowMappingIndication */
-static int hf_f1ap_QosMonitoringRequest_PDU = -1;  /* QosMonitoringRequest */
-static int hf_f1ap_QoSParaSetNotifyIndex_PDU = -1;  /* QoSParaSetNotifyIndex */
-static int hf_f1ap_RACHReportInformationList_PDU = -1;  /* RACHReportInformationList */
-static int hf_f1ap_MIMOPRBusageInformation_PDU = -1;  /* MIMOPRBusageInformation */
-static int hf_f1ap_RANAC_PDU = -1;                /* RANAC */
-static int hf_f1ap_RAN_MeasurementID_PDU = -1;    /* RAN_MeasurementID */
-static int hf_f1ap_RAN_UE_MeasurementID_PDU = -1;  /* RAN_UE_MeasurementID */
-static int hf_f1ap_RAN_UE_PDC_MeasID_PDU = -1;    /* RAN_UE_PDC_MeasID */
-static int hf_f1ap_RANUEID_PDU = -1;              /* RANUEID */
-static int hf_f1ap_RAT_FrequencyPriorityInformation_PDU = -1;  /* RAT_FrequencyPriorityInformation */
-static int hf_f1ap_RBSetConfiguration_PDU = -1;   /* RBSetConfiguration */
-static int hf_f1ap_Re_routingEnableIndicator_PDU = -1;  /* Re_routingEnableIndicator */
-static int hf_f1ap_Redcap_Bcast_Information_PDU = -1;  /* Redcap_Bcast_Information */
-static int hf_f1ap_RedCapIndication_PDU = -1;     /* RedCapIndication */
-static int hf_f1ap_RemoteUELocalID_PDU = -1;      /* RemoteUELocalID */
-static int hf_f1ap_RegistrationRequest_PDU = -1;  /* RegistrationRequest */
-static int hf_f1ap_ReportCharacteristics_PDU = -1;  /* ReportCharacteristics */
-static int hf_f1ap_ReportingPeriodicity_PDU = -1;  /* ReportingPeriodicity */
-static int hf_f1ap_RequestedBandCombinationIndex_PDU = -1;  /* RequestedBandCombinationIndex */
-static int hf_f1ap_RequestedFeatureSetEntryIndex_PDU = -1;  /* RequestedFeatureSetEntryIndex */
-static int hf_f1ap_RequestedP_MaxFR2_PDU = -1;    /* RequestedP_MaxFR2 */
-static int hf_f1ap_Requested_PDCCH_BlindDetectionSCG_PDU = -1;  /* Requested_PDCCH_BlindDetectionSCG */
-static int hf_f1ap_RequestedSRSTransmissionCharacteristics_PDU = -1;  /* RequestedSRSTransmissionCharacteristics */
-static int hf_f1ap_RequestType_PDU = -1;          /* RequestType */
-static int hf_f1ap_ResourceCoordinationTransferInformation_PDU = -1;  /* ResourceCoordinationTransferInformation */
-static int hf_f1ap_ResourceCoordinationTransferContainer_PDU = -1;  /* ResourceCoordinationTransferContainer */
-static int hf_f1ap_RepetitionFactorExtended_PDU = -1;  /* RepetitionFactorExtended */
-static int hf_f1ap_RepetitionPeriod_PDU = -1;     /* RepetitionPeriod */
-static int hf_f1ap_ReportingRequestType_PDU = -1;  /* ReportingRequestType */
-static int hf_f1ap_RLCDuplicationInformation_PDU = -1;  /* RLCDuplicationInformation */
-static int hf_f1ap_RLCFailureIndication_PDU = -1;  /* RLCFailureIndication */
-static int hf_f1ap_RLCMode_PDU = -1;              /* RLCMode */
-static int hf_f1ap_RLC_Status_PDU = -1;           /* RLC_Status */
-static int hf_f1ap_RLFReportInformationList_PDU = -1;  /* RLFReportInformationList */
-static int hf_f1ap_RRCContainer_PDU = -1;         /* RRCContainer */
-static int hf_f1ap_RRCContainer_RRCSetupComplete_PDU = -1;  /* RRCContainer_RRCSetupComplete */
-static int hf_f1ap_RRCDeliveryStatus_PDU = -1;    /* RRCDeliveryStatus */
-static int hf_f1ap_RRCDeliveryStatusRequest_PDU = -1;  /* RRCDeliveryStatusRequest */
-static int hf_f1ap_RRCReconfigurationCompleteIndicator_PDU = -1;  /* RRCReconfigurationCompleteIndicator */
-static int hf_f1ap_RRC_Version_PDU = -1;          /* RRC_Version */
-static int hf_f1ap_Latest_RRC_Version_Enhanced_PDU = -1;  /* Latest_RRC_Version_Enhanced */
-static int hf_f1ap_RoutingID_PDU = -1;            /* RoutingID */
-static int hf_f1ap_ResponseTime_PDU = -1;         /* ResponseTime */
-static int hf_f1ap_SCell_FailedtoSetup_Item_PDU = -1;  /* SCell_FailedtoSetup_Item */
-static int hf_f1ap_SCell_FailedtoSetupMod_Item_PDU = -1;  /* SCell_FailedtoSetupMod_Item */
-static int hf_f1ap_SCell_ToBeRemoved_Item_PDU = -1;  /* SCell_ToBeRemoved_Item */
-static int hf_f1ap_SCell_ToBeSetup_Item_PDU = -1;  /* SCell_ToBeSetup_Item */
-static int hf_f1ap_SCell_ToBeSetupMod_Item_PDU = -1;  /* SCell_ToBeSetupMod_Item */
-static int hf_f1ap_SCGActivationRequest_PDU = -1;  /* SCGActivationRequest */
-static int hf_f1ap_SCGActivationStatus_PDU = -1;  /* SCGActivationStatus */
-static int hf_f1ap_SCGIndicator_PDU = -1;         /* SCGIndicator */
-static int hf_f1ap_SCS_480_PDU = -1;              /* SCS_480 */
-static int hf_f1ap_SCS_960_PDU = -1;              /* SCS_960 */
-static int hf_f1ap_SDTBearerConfigurationQueryIndication_PDU = -1;  /* SDTBearerConfigurationQueryIndication */
-static int hf_f1ap_SDTBearerConfigurationInfo_PDU = -1;  /* SDTBearerConfigurationInfo */
-static int hf_f1ap_SDT_MAC_PHY_CG_Config_PDU = -1;  /* SDT_MAC_PHY_CG_Config */
-static int hf_f1ap_SDTInformation_PDU = -1;       /* SDTInformation */
-static int hf_f1ap_SDTRLCBearerConfiguration_PDU = -1;  /* SDTRLCBearerConfiguration */
-static int hf_f1ap_SDT_Termination_Request_PDU = -1;  /* SDT_Termination_Request */
-static int hf_f1ap_SelectedBandCombinationIndex_PDU = -1;  /* SelectedBandCombinationIndex */
-static int hf_f1ap_SelectedFeatureSetEntryIndex_PDU = -1;  /* SelectedFeatureSetEntryIndex */
-static int hf_f1ap_ServCellInfoList_PDU = -1;     /* ServCellInfoList */
-static int hf_f1ap_ServCellIndex_PDU = -1;        /* ServCellIndex */
-static int hf_f1ap_ServingCellMO_PDU = -1;        /* ServingCellMO */
-static int hf_f1ap_ServingCellMO_List_Item_PDU = -1;  /* ServingCellMO_List_Item */
-static int hf_f1ap_ServingCellMO_encoded_in_CGC_List_PDU = -1;  /* ServingCellMO_encoded_in_CGC_List */
-static int hf_f1ap_Serving_Cells_List_PDU = -1;   /* Serving_Cells_List */
-static int hf_f1ap_Supported_MBS_FSA_ID_List_PDU = -1;  /* Supported_MBS_FSA_ID_List */
-static int hf_f1ap_SFN_Offset_PDU = -1;           /* SFN_Offset */
-static int hf_f1ap_Served_Cells_To_Add_Item_PDU = -1;  /* Served_Cells_To_Add_Item */
-static int hf_f1ap_Served_Cells_To_Delete_Item_PDU = -1;  /* Served_Cells_To_Delete_Item */
-static int hf_f1ap_Served_Cells_To_Modify_Item_PDU = -1;  /* Served_Cells_To_Modify_Item */
-static int hf_f1ap_RelativeTime1900_PDU = -1;     /* RelativeTime1900 */
-static int hf_f1ap_SIB10_message_PDU = -1;        /* SIB10_message */
-static int hf_f1ap_SIB12_message_PDU = -1;        /* SIB12_message */
-static int hf_f1ap_SIB13_message_PDU = -1;        /* SIB13_message */
-static int hf_f1ap_SIB14_message_PDU = -1;        /* SIB14_message */
-static int hf_f1ap_SIB15_message_PDU = -1;        /* SIB15_message */
-static int hf_f1ap_SIB17_message_PDU = -1;        /* SIB17_message */
-static int hf_f1ap_SIB20_message_PDU = -1;        /* SIB20_message */
-static int hf_f1ap_SItype_List_PDU = -1;          /* SItype_List */
-static int hf_f1ap_SidelinkRelayConfiguration_PDU = -1;  /* SidelinkRelayConfiguration */
-static int hf_f1ap_SLDRBs_FailedToBeModified_Item_PDU = -1;  /* SLDRBs_FailedToBeModified_Item */
-static int hf_f1ap_SLDRBs_FailedToBeSetup_Item_PDU = -1;  /* SLDRBs_FailedToBeSetup_Item */
-static int hf_f1ap_SLDRBs_FailedToBeSetupMod_Item_PDU = -1;  /* SLDRBs_FailedToBeSetupMod_Item */
-static int hf_f1ap_SLDRBs_Modified_Item_PDU = -1;  /* SLDRBs_Modified_Item */
-static int hf_f1ap_SLDRBs_ModifiedConf_Item_PDU = -1;  /* SLDRBs_ModifiedConf_Item */
-static int hf_f1ap_SLDRBs_Required_ToBeModified_Item_PDU = -1;  /* SLDRBs_Required_ToBeModified_Item */
-static int hf_f1ap_SLDRBs_Required_ToBeReleased_Item_PDU = -1;  /* SLDRBs_Required_ToBeReleased_Item */
-static int hf_f1ap_SLDRBs_Setup_Item_PDU = -1;    /* SLDRBs_Setup_Item */
-static int hf_f1ap_SLDRBs_SetupMod_Item_PDU = -1;  /* SLDRBs_SetupMod_Item */
-static int hf_f1ap_SLDRBs_ToBeModified_Item_PDU = -1;  /* SLDRBs_ToBeModified_Item */
-static int hf_f1ap_SLDRBs_ToBeReleased_Item_PDU = -1;  /* SLDRBs_ToBeReleased_Item */
-static int hf_f1ap_SLDRBs_ToBeSetup_Item_PDU = -1;  /* SLDRBs_ToBeSetup_Item */
-static int hf_f1ap_SLDRBs_ToBeSetupMod_Item_PDU = -1;  /* SLDRBs_ToBeSetupMod_Item */
-static int hf_f1ap_SLDRXCycleList_PDU = -1;       /* SLDRXCycleList */
-static int hf_f1ap_SL_PHY_MAC_RLC_Config_PDU = -1;  /* SL_PHY_MAC_RLC_Config */
-static int hf_f1ap_SL_RLC_ChannelToAddModList_PDU = -1;  /* SL_RLC_ChannelToAddModList */
-static int hf_f1ap_SL_ConfigDedicatedEUTRA_Info_PDU = -1;  /* SL_ConfigDedicatedEUTRA_Info */
-static int hf_f1ap_SliceRadioResourceStatus_PDU = -1;  /* SliceRadioResourceStatus */
-static int hf_f1ap_SliceSupportList_PDU = -1;     /* SliceSupportList */
-static int hf_f1ap_SlotNumber_PDU = -1;           /* SlotNumber */
-static int hf_f1ap_SNSSAI_PDU = -1;               /* SNSSAI */
-static int hf_f1ap_SpatialRelationPerSRSResource_PDU = -1;  /* SpatialRelationPerSRSResource */
-static int hf_f1ap_SRBID_PDU = -1;                /* SRBID */
-static int hf_f1ap_SRBs_FailedToBeSetup_Item_PDU = -1;  /* SRBs_FailedToBeSetup_Item */
-static int hf_f1ap_SRBs_FailedToBeSetupMod_Item_PDU = -1;  /* SRBs_FailedToBeSetupMod_Item */
-static int hf_f1ap_SRBs_Modified_Item_PDU = -1;   /* SRBs_Modified_Item */
-static int hf_f1ap_SRBs_Required_ToBeReleased_Item_PDU = -1;  /* SRBs_Required_ToBeReleased_Item */
-static int hf_f1ap_SRBs_Setup_Item_PDU = -1;      /* SRBs_Setup_Item */
-static int hf_f1ap_SRBs_SetupMod_Item_PDU = -1;   /* SRBs_SetupMod_Item */
-static int hf_f1ap_SRBs_ToBeReleased_Item_PDU = -1;  /* SRBs_ToBeReleased_Item */
-static int hf_f1ap_SRBs_ToBeSetup_Item_PDU = -1;  /* SRBs_ToBeSetup_Item */
-static int hf_f1ap_SRBs_ToBeSetupMod_Item_PDU = -1;  /* SRBs_ToBeSetupMod_Item */
-static int hf_f1ap_SRSConfiguration_PDU = -1;     /* SRSConfiguration */
-static int hf_f1ap_SrsFrequency_PDU = -1;         /* SrsFrequency */
-static int hf_f1ap_SRSPortIndex_PDU = -1;         /* SRSPortIndex */
-static int hf_f1ap_SRSResourcetype_PDU = -1;      /* SRSResourcetype */
-static int hf_f1ap_SRSPosRRCInactiveConfig_PDU = -1;  /* SRSPosRRCInactiveConfig */
-static int hf_f1ap_SRSPosRRCInactiveQueryIndication_PDU = -1;  /* SRSPosRRCInactiveQueryIndication */
-static int hf_f1ap_SSB_PositionsInBurst_PDU = -1;  /* SSB_PositionsInBurst */
-static int hf_f1ap_StartRBIndex_PDU = -1;         /* StartRBIndex */
-static int hf_f1ap_StartRBHopping_PDU = -1;       /* StartRBHopping */
-static int hf_f1ap_SuccessfulHOReportInformationList_PDU = -1;  /* SuccessfulHOReportInformationList */
-static int hf_f1ap_SULAccessIndication_PDU = -1;  /* SULAccessIndication */
-static int hf_f1ap_SurvivalTime_PDU = -1;         /* SurvivalTime */
-static int hf_f1ap_SystemFrameNumber_PDU = -1;    /* SystemFrameNumber */
-static int hf_f1ap_SystemInformationAreaID_PDU = -1;  /* SystemInformationAreaID */
-static int hf_f1ap_TargetCellList_PDU = -1;       /* TargetCellList */
-static int hf_f1ap_NSAGSupportList_PDU = -1;      /* NSAGSupportList */
-static int hf_f1ap_TDD_UL_DLConfigCommonNR_PDU = -1;  /* TDD_UL_DLConfigCommonNR */
-static int hf_f1ap_TRPTEGInformation_PDU = -1;    /* TRPTEGInformation */
-static int hf_f1ap_TimeReferenceInformation_PDU = -1;  /* TimeReferenceInformation */
-static int hf_f1ap_TimeToWait_PDU = -1;           /* TimeToWait */
-static int hf_f1ap_TNLCapacityIndicator_PDU = -1;  /* TNLCapacityIndicator */
-static int hf_f1ap_TraceActivation_PDU = -1;      /* TraceActivation */
-static int hf_f1ap_TraceID_PDU = -1;              /* TraceID */
-static int hf_f1ap_TrafficMappingInfo_PDU = -1;   /* TrafficMappingInfo */
-static int hf_f1ap_TransportLayerAddress_PDU = -1;  /* TransportLayerAddress */
-static int hf_f1ap_TransactionID_PDU = -1;        /* TransactionID */
-static int hf_f1ap_Transmission_Bandwidth_PDU = -1;  /* Transmission_Bandwidth */
-static int hf_f1ap_TransmissionCombn8_PDU = -1;   /* TransmissionCombn8 */
-static int hf_f1ap_TransmissionStopIndicator_PDU = -1;  /* TransmissionStopIndicator */
-static int hf_f1ap_TransmissionActionIndicator_PDU = -1;  /* TransmissionActionIndicator */
-static int hf_f1ap_TRPBeamAntennaInformation_PDU = -1;  /* TRPBeamAntennaInformation */
-static int hf_f1ap_TRPInformationItem_PDU = -1;   /* TRPInformationItem */
-static int hf_f1ap_TRPInformationTypeItem_PDU = -1;  /* TRPInformationTypeItem */
-static int hf_f1ap_TRPList_PDU = -1;              /* TRPList */
-static int hf_f1ap_TRP_MeasurementRequestList_PDU = -1;  /* TRP_MeasurementRequestList */
-static int hf_f1ap_TRP_PRS_Info_List_PDU = -1;    /* TRP_PRS_Info_List */
-static int hf_f1ap_TRP_Rx_TEGInformation_PDU = -1;  /* TRP_Rx_TEGInformation */
-static int hf_f1ap_TRPTxTEGAssociation_PDU = -1;  /* TRPTxTEGAssociation */
-static int hf_f1ap_Transport_Layer_Address_Info_PDU = -1;  /* Transport_Layer_Address_Info */
-static int hf_f1ap_TRPType_PDU = -1;              /* TRPType */
-static int hf_f1ap_TSCTrafficCharacteristics_PDU = -1;  /* TSCTrafficCharacteristics */
-static int hf_f1ap_TRP_MeasurementUpdateList_PDU = -1;  /* TRP_MeasurementUpdateList */
-static int hf_f1ap_TwoPHRModeMCG_PDU = -1;        /* TwoPHRModeMCG */
-static int hf_f1ap_TwoPHRModeSCG_PDU = -1;        /* TwoPHRModeSCG */
-static int hf_f1ap_UAC_Assistance_Info_PDU = -1;  /* UAC_Assistance_Info */
-static int hf_f1ap_UE_associatedLogicalF1_ConnectionItem_PDU = -1;  /* UE_associatedLogicalF1_ConnectionItem */
-static int hf_f1ap_UEAssistanceInformation_PDU = -1;  /* UEAssistanceInformation */
-static int hf_f1ap_UEAssistanceInformationEUTRA_PDU = -1;  /* UEAssistanceInformationEUTRA */
-static int hf_f1ap_UEContextNotRetrievable_PDU = -1;  /* UEContextNotRetrievable */
-static int hf_f1ap_UEIdentityIndexValue_PDU = -1;  /* UEIdentityIndexValue */
-static int hf_f1ap_UEIdentity_List_For_Paging_Item_PDU = -1;  /* UEIdentity_List_For_Paging_Item */
-static int hf_f1ap_UE_MulticastMRBs_ConfirmedToBeModified_Item_PDU = -1;  /* UE_MulticastMRBs_ConfirmedToBeModified_Item */
-static int hf_f1ap_UE_MulticastMRBs_RequiredToBeModified_Item_PDU = -1;  /* UE_MulticastMRBs_RequiredToBeModified_Item */
-static int hf_f1ap_UE_MulticastMRBs_RequiredToBeReleased_Item_PDU = -1;  /* UE_MulticastMRBs_RequiredToBeReleased_Item */
-static int hf_f1ap_UE_MulticastMRBs_Setup_Item_PDU = -1;  /* UE_MulticastMRBs_Setup_Item */
-static int hf_f1ap_UE_MulticastMRBs_Setupnew_Item_PDU = -1;  /* UE_MulticastMRBs_Setupnew_Item */
-static int hf_f1ap_UE_MulticastMRBs_ToBeReleased_Item_PDU = -1;  /* UE_MulticastMRBs_ToBeReleased_Item */
-static int hf_f1ap_UE_MulticastMRBs_ToBeSetup_Item_PDU = -1;  /* UE_MulticastMRBs_ToBeSetup_Item */
-static int hf_f1ap_UE_MulticastMRBs_ToBeSetup_atModify_Item_PDU = -1;  /* UE_MulticastMRBs_ToBeSetup_atModify_Item */
-static int hf_f1ap_UEPagingCapability_PDU = -1;   /* UEPagingCapability */
-static int hf_f1ap_UEReportingInformation_PDU = -1;  /* UEReportingInformation */
-static int hf_f1ap_UlTxDirectCurrentMoreCarrierInformation_PDU = -1;  /* UlTxDirectCurrentMoreCarrierInformation */
-static int hf_f1ap_UL_BH_Non_UP_Traffic_Mapping_PDU = -1;  /* UL_BH_Non_UP_Traffic_Mapping */
-static int hf_f1ap_UL_GapFR2_Config_PDU = -1;     /* UL_GapFR2_Config */
-static int hf_f1ap_UL_SRS_RSRPP_PDU = -1;         /* UL_SRS_RSRPP */
-static int hf_f1ap_UL_UP_TNL_Information_to_Update_List_Item_PDU = -1;  /* UL_UP_TNL_Information_to_Update_List_Item */
-static int hf_f1ap_UL_UP_TNL_Address_to_Update_List_Item_PDU = -1;  /* UL_UP_TNL_Address_to_Update_List_Item */
-static int hf_f1ap_UplinkTxDirectCurrentListInformation_PDU = -1;  /* UplinkTxDirectCurrentListInformation */
-static int hf_f1ap_UplinkTxDirectCurrentTwoCarrierListInfo_PDU = -1;  /* UplinkTxDirectCurrentTwoCarrierListInfo */
-static int hf_f1ap_URI_address_PDU = -1;          /* URI_address */
-static int hf_f1ap_UuRLCChannelID_PDU = -1;       /* UuRLCChannelID */
-static int hf_f1ap_UuRLCChannelToBeSetupList_PDU = -1;  /* UuRLCChannelToBeSetupList */
-static int hf_f1ap_UuRLCChannelToBeModifiedList_PDU = -1;  /* UuRLCChannelToBeModifiedList */
-static int hf_f1ap_UuRLCChannelToBeReleasedList_PDU = -1;  /* UuRLCChannelToBeReleasedList */
-static int hf_f1ap_UuRLCChannelSetupList_PDU = -1;  /* UuRLCChannelSetupList */
-static int hf_f1ap_UuRLCChannelFailedToBeSetupList_PDU = -1;  /* UuRLCChannelFailedToBeSetupList */
-static int hf_f1ap_UuRLCChannelModifiedList_PDU = -1;  /* UuRLCChannelModifiedList */
-static int hf_f1ap_UuRLCChannelFailedToBeModifiedList_PDU = -1;  /* UuRLCChannelFailedToBeModifiedList */
-static int hf_f1ap_UuRLCChannelRequiredToBeModifiedList_PDU = -1;  /* UuRLCChannelRequiredToBeModifiedList */
-static int hf_f1ap_UuRLCChannelRequiredToBeReleasedList_PDU = -1;  /* UuRLCChannelRequiredToBeReleasedList */
-static int hf_f1ap_VictimgNBSetID_PDU = -1;       /* VictimgNBSetID */
-static int hf_f1ap_ZoAInformation_PDU = -1;       /* ZoAInformation */
-static int hf_f1ap_Reset_PDU = -1;                /* Reset */
-static int hf_f1ap_ResetType_PDU = -1;            /* ResetType */
-static int hf_f1ap_ResetAcknowledge_PDU = -1;     /* ResetAcknowledge */
-static int hf_f1ap_UE_associatedLogicalF1_ConnectionListResAck_PDU = -1;  /* UE_associatedLogicalF1_ConnectionListResAck */
-static int hf_f1ap_ErrorIndication_PDU = -1;      /* ErrorIndication */
-static int hf_f1ap_F1SetupRequest_PDU = -1;       /* F1SetupRequest */
-static int hf_f1ap_GNB_DU_Served_Cells_List_PDU = -1;  /* GNB_DU_Served_Cells_List */
-static int hf_f1ap_F1SetupResponse_PDU = -1;      /* F1SetupResponse */
-static int hf_f1ap_Cells_to_be_Activated_List_PDU = -1;  /* Cells_to_be_Activated_List */
-static int hf_f1ap_F1SetupFailure_PDU = -1;       /* F1SetupFailure */
-static int hf_f1ap_GNBDUConfigurationUpdate_PDU = -1;  /* GNBDUConfigurationUpdate */
-static int hf_f1ap_Served_Cells_To_Add_List_PDU = -1;  /* Served_Cells_To_Add_List */
-static int hf_f1ap_Served_Cells_To_Modify_List_PDU = -1;  /* Served_Cells_To_Modify_List */
-static int hf_f1ap_Served_Cells_To_Delete_List_PDU = -1;  /* Served_Cells_To_Delete_List */
-static int hf_f1ap_Cells_Status_List_PDU = -1;    /* Cells_Status_List */
-static int hf_f1ap_Dedicated_SIDelivery_NeededUE_List_PDU = -1;  /* Dedicated_SIDelivery_NeededUE_List */
-static int hf_f1ap_GNB_DU_TNL_Association_To_Remove_List_PDU = -1;  /* GNB_DU_TNL_Association_To_Remove_List */
-static int hf_f1ap_GNBDUConfigurationUpdateAcknowledge_PDU = -1;  /* GNBDUConfigurationUpdateAcknowledge */
-static int hf_f1ap_GNBDUConfigurationUpdateFailure_PDU = -1;  /* GNBDUConfigurationUpdateFailure */
-static int hf_f1ap_GNBCUConfigurationUpdate_PDU = -1;  /* GNBCUConfigurationUpdate */
-static int hf_f1ap_Cells_to_be_Deactivated_List_PDU = -1;  /* Cells_to_be_Deactivated_List */
-static int hf_f1ap_GNB_CU_TNL_Association_To_Add_List_PDU = -1;  /* GNB_CU_TNL_Association_To_Add_List */
-static int hf_f1ap_GNB_CU_TNL_Association_To_Remove_List_PDU = -1;  /* GNB_CU_TNL_Association_To_Remove_List */
-static int hf_f1ap_GNB_CU_TNL_Association_To_Update_List_PDU = -1;  /* GNB_CU_TNL_Association_To_Update_List */
-static int hf_f1ap_Cells_to_be_Barred_List_PDU = -1;  /* Cells_to_be_Barred_List */
-static int hf_f1ap_Protected_EUTRA_Resources_List_PDU = -1;  /* Protected_EUTRA_Resources_List */
-static int hf_f1ap_Neighbour_Cell_Information_List_PDU = -1;  /* Neighbour_Cell_Information_List */
-static int hf_f1ap_GNBCUConfigurationUpdateAcknowledge_PDU = -1;  /* GNBCUConfigurationUpdateAcknowledge */
-static int hf_f1ap_Cells_Failed_to_be_Activated_List_PDU = -1;  /* Cells_Failed_to_be_Activated_List */
-static int hf_f1ap_GNB_CU_TNL_Association_Setup_List_PDU = -1;  /* GNB_CU_TNL_Association_Setup_List */
-static int hf_f1ap_GNB_CU_TNL_Association_Failed_To_Setup_List_PDU = -1;  /* GNB_CU_TNL_Association_Failed_To_Setup_List */
-static int hf_f1ap_GNBCUConfigurationUpdateFailure_PDU = -1;  /* GNBCUConfigurationUpdateFailure */
-static int hf_f1ap_GNBDUResourceCoordinationRequest_PDU = -1;  /* GNBDUResourceCoordinationRequest */
-static int hf_f1ap_GNBDUResourceCoordinationResponse_PDU = -1;  /* GNBDUResourceCoordinationResponse */
-static int hf_f1ap_UEContextSetupRequest_PDU = -1;  /* UEContextSetupRequest */
-static int hf_f1ap_Candidate_SpCell_List_PDU = -1;  /* Candidate_SpCell_List */
-static int hf_f1ap_SCell_ToBeSetup_List_PDU = -1;  /* SCell_ToBeSetup_List */
-static int hf_f1ap_SRBs_ToBeSetup_List_PDU = -1;  /* SRBs_ToBeSetup_List */
-static int hf_f1ap_DRBs_ToBeSetup_List_PDU = -1;  /* DRBs_ToBeSetup_List */
-static int hf_f1ap_BHChannels_ToBeSetup_List_PDU = -1;  /* BHChannels_ToBeSetup_List */
-static int hf_f1ap_SLDRBs_ToBeSetup_List_PDU = -1;  /* SLDRBs_ToBeSetup_List */
-static int hf_f1ap_UE_MulticastMRBs_ToBeSetup_List_PDU = -1;  /* UE_MulticastMRBs_ToBeSetup_List */
-static int hf_f1ap_ServingCellMO_List_PDU = -1;   /* ServingCellMO_List */
-static int hf_f1ap_UEContextSetupResponse_PDU = -1;  /* UEContextSetupResponse */
-static int hf_f1ap_DRBs_Setup_List_PDU = -1;      /* DRBs_Setup_List */
-static int hf_f1ap_SRBs_FailedToBeSetup_List_PDU = -1;  /* SRBs_FailedToBeSetup_List */
-static int hf_f1ap_DRBs_FailedToBeSetup_List_PDU = -1;  /* DRBs_FailedToBeSetup_List */
-static int hf_f1ap_SCell_FailedtoSetup_List_PDU = -1;  /* SCell_FailedtoSetup_List */
-static int hf_f1ap_SRBs_Setup_List_PDU = -1;      /* SRBs_Setup_List */
-static int hf_f1ap_BHChannels_Setup_List_PDU = -1;  /* BHChannels_Setup_List */
-static int hf_f1ap_BHChannels_FailedToBeSetup_List_PDU = -1;  /* BHChannels_FailedToBeSetup_List */
-static int hf_f1ap_SLDRBs_Setup_List_PDU = -1;    /* SLDRBs_Setup_List */
-static int hf_f1ap_SLDRBs_FailedToBeSetup_List_PDU = -1;  /* SLDRBs_FailedToBeSetup_List */
-static int hf_f1ap_UE_MulticastMRBs_Setupnew_List_PDU = -1;  /* UE_MulticastMRBs_Setupnew_List */
-static int hf_f1ap_UEContextSetupFailure_PDU = -1;  /* UEContextSetupFailure */
-static int hf_f1ap_Potential_SpCell_List_PDU = -1;  /* Potential_SpCell_List */
-static int hf_f1ap_UEContextReleaseRequest_PDU = -1;  /* UEContextReleaseRequest */
-static int hf_f1ap_UEContextReleaseCommand_PDU = -1;  /* UEContextReleaseCommand */
-static int hf_f1ap_UEContextReleaseComplete_PDU = -1;  /* UEContextReleaseComplete */
-static int hf_f1ap_UEContextModificationRequest_PDU = -1;  /* UEContextModificationRequest */
-static int hf_f1ap_SCell_ToBeSetupMod_List_PDU = -1;  /* SCell_ToBeSetupMod_List */
-static int hf_f1ap_SCell_ToBeRemoved_List_PDU = -1;  /* SCell_ToBeRemoved_List */
-static int hf_f1ap_SRBs_ToBeSetupMod_List_PDU = -1;  /* SRBs_ToBeSetupMod_List */
-static int hf_f1ap_DRBs_ToBeSetupMod_List_PDU = -1;  /* DRBs_ToBeSetupMod_List */
-static int hf_f1ap_BHChannels_ToBeSetupMod_List_PDU = -1;  /* BHChannels_ToBeSetupMod_List */
-static int hf_f1ap_DRBs_ToBeModified_List_PDU = -1;  /* DRBs_ToBeModified_List */
-static int hf_f1ap_BHChannels_ToBeModified_List_PDU = -1;  /* BHChannels_ToBeModified_List */
-static int hf_f1ap_SRBs_ToBeReleased_List_PDU = -1;  /* SRBs_ToBeReleased_List */
-static int hf_f1ap_DRBs_ToBeReleased_List_PDU = -1;  /* DRBs_ToBeReleased_List */
-static int hf_f1ap_BHChannels_ToBeReleased_List_PDU = -1;  /* BHChannels_ToBeReleased_List */
-static int hf_f1ap_UE_MulticastMRBs_ToBeSetup_atModify_List_PDU = -1;  /* UE_MulticastMRBs_ToBeSetup_atModify_List */
-static int hf_f1ap_UE_MulticastMRBs_ToBeReleased_List_PDU = -1;  /* UE_MulticastMRBs_ToBeReleased_List */
-static int hf_f1ap_SLDRBs_ToBeSetupMod_List_PDU = -1;  /* SLDRBs_ToBeSetupMod_List */
-static int hf_f1ap_SLDRBs_ToBeModified_List_PDU = -1;  /* SLDRBs_ToBeModified_List */
-static int hf_f1ap_SLDRBs_ToBeReleased_List_PDU = -1;  /* SLDRBs_ToBeReleased_List */
-static int hf_f1ap_UEContextModificationResponse_PDU = -1;  /* UEContextModificationResponse */
-static int hf_f1ap_DRBs_SetupMod_List_PDU = -1;   /* DRBs_SetupMod_List */
-static int hf_f1ap_DRBs_Modified_List_PDU = -1;   /* DRBs_Modified_List */
-static int hf_f1ap_SRBs_SetupMod_List_PDU = -1;   /* SRBs_SetupMod_List */
-static int hf_f1ap_SRBs_Modified_List_PDU = -1;   /* SRBs_Modified_List */
-static int hf_f1ap_DRBs_FailedToBeModified_List_PDU = -1;  /* DRBs_FailedToBeModified_List */
-static int hf_f1ap_SRBs_FailedToBeSetupMod_List_PDU = -1;  /* SRBs_FailedToBeSetupMod_List */
-static int hf_f1ap_DRBs_FailedToBeSetupMod_List_PDU = -1;  /* DRBs_FailedToBeSetupMod_List */
-static int hf_f1ap_SCell_FailedtoSetupMod_List_PDU = -1;  /* SCell_FailedtoSetupMod_List */
-static int hf_f1ap_BHChannels_SetupMod_List_PDU = -1;  /* BHChannels_SetupMod_List */
-static int hf_f1ap_BHChannels_Modified_List_PDU = -1;  /* BHChannels_Modified_List */
-static int hf_f1ap_BHChannels_FailedToBeModified_List_PDU = -1;  /* BHChannels_FailedToBeModified_List */
-static int hf_f1ap_BHChannels_FailedToBeSetupMod_List_PDU = -1;  /* BHChannels_FailedToBeSetupMod_List */
-static int hf_f1ap_Associated_SCell_List_PDU = -1;  /* Associated_SCell_List */
-static int hf_f1ap_SLDRBs_SetupMod_List_PDU = -1;  /* SLDRBs_SetupMod_List */
-static int hf_f1ap_SLDRBs_Modified_List_PDU = -1;  /* SLDRBs_Modified_List */
-static int hf_f1ap_SLDRBs_FailedToBeModified_List_PDU = -1;  /* SLDRBs_FailedToBeModified_List */
-static int hf_f1ap_SLDRBs_FailedToBeSetupMod_List_PDU = -1;  /* SLDRBs_FailedToBeSetupMod_List */
-static int hf_f1ap_UE_MulticastMRBs_Setup_List_PDU = -1;  /* UE_MulticastMRBs_Setup_List */
-static int hf_f1ap_UEContextModificationFailure_PDU = -1;  /* UEContextModificationFailure */
-static int hf_f1ap_UEContextModificationRequired_PDU = -1;  /* UEContextModificationRequired */
-static int hf_f1ap_DRBs_Required_ToBeModified_List_PDU = -1;  /* DRBs_Required_ToBeModified_List */
-static int hf_f1ap_DRBs_Required_ToBeReleased_List_PDU = -1;  /* DRBs_Required_ToBeReleased_List */
-static int hf_f1ap_SRBs_Required_ToBeReleased_List_PDU = -1;  /* SRBs_Required_ToBeReleased_List */
-static int hf_f1ap_BHChannels_Required_ToBeReleased_List_PDU = -1;  /* BHChannels_Required_ToBeReleased_List */
-static int hf_f1ap_SLDRBs_Required_ToBeModified_List_PDU = -1;  /* SLDRBs_Required_ToBeModified_List */
-static int hf_f1ap_SLDRBs_Required_ToBeReleased_List_PDU = -1;  /* SLDRBs_Required_ToBeReleased_List */
-static int hf_f1ap_UE_MulticastMRBs_RequiredToBeModified_List_PDU = -1;  /* UE_MulticastMRBs_RequiredToBeModified_List */
-static int hf_f1ap_UE_MulticastMRBs_RequiredToBeReleased_List_PDU = -1;  /* UE_MulticastMRBs_RequiredToBeReleased_List */
-static int hf_f1ap_UEContextModificationConfirm_PDU = -1;  /* UEContextModificationConfirm */
-static int hf_f1ap_DRBs_ModifiedConf_List_PDU = -1;  /* DRBs_ModifiedConf_List */
-static int hf_f1ap_SLDRBs_ModifiedConf_List_PDU = -1;  /* SLDRBs_ModifiedConf_List */
-static int hf_f1ap_UE_MulticastMRBs_ConfirmedToBeModified_List_PDU = -1;  /* UE_MulticastMRBs_ConfirmedToBeModified_List */
-static int hf_f1ap_UEContextModificationRefuse_PDU = -1;  /* UEContextModificationRefuse */
-static int hf_f1ap_WriteReplaceWarningRequest_PDU = -1;  /* WriteReplaceWarningRequest */
-static int hf_f1ap_Cells_To_Be_Broadcast_List_PDU = -1;  /* Cells_To_Be_Broadcast_List */
-static int hf_f1ap_WriteReplaceWarningResponse_PDU = -1;  /* WriteReplaceWarningResponse */
-static int hf_f1ap_Cells_Broadcast_Completed_List_PDU = -1;  /* Cells_Broadcast_Completed_List */
-static int hf_f1ap_PWSCancelRequest_PDU = -1;     /* PWSCancelRequest */
-static int hf_f1ap_Broadcast_To_Be_Cancelled_List_PDU = -1;  /* Broadcast_To_Be_Cancelled_List */
-static int hf_f1ap_PWSCancelResponse_PDU = -1;    /* PWSCancelResponse */
-static int hf_f1ap_Cells_Broadcast_Cancelled_List_PDU = -1;  /* Cells_Broadcast_Cancelled_List */
-static int hf_f1ap_UEInactivityNotification_PDU = -1;  /* UEInactivityNotification */
-static int hf_f1ap_DRB_Activity_List_PDU = -1;    /* DRB_Activity_List */
-static int hf_f1ap_InitialULRRCMessageTransfer_PDU = -1;  /* InitialULRRCMessageTransfer */
-static int hf_f1ap_DLRRCMessageTransfer_PDU = -1;  /* DLRRCMessageTransfer */
-static int hf_f1ap_RedirectedRRCmessage_PDU = -1;  /* RedirectedRRCmessage */
-static int hf_f1ap_ULRRCMessageTransfer_PDU = -1;  /* ULRRCMessageTransfer */
-static int hf_f1ap_PrivateMessage_PDU = -1;       /* PrivateMessage */
-static int hf_f1ap_SystemInformationDeliveryCommand_PDU = -1;  /* SystemInformationDeliveryCommand */
-static int hf_f1ap_Paging_PDU = -1;               /* Paging */
-static int hf_f1ap_PagingCell_list_PDU = -1;      /* PagingCell_list */
-static int hf_f1ap_Notify_PDU = -1;               /* Notify */
-static int hf_f1ap_DRB_Notify_List_PDU = -1;      /* DRB_Notify_List */
-static int hf_f1ap_NetworkAccessRateReduction_PDU = -1;  /* NetworkAccessRateReduction */
-static int hf_f1ap_PWSRestartIndication_PDU = -1;  /* PWSRestartIndication */
-static int hf_f1ap_NR_CGI_List_For_Restart_List_PDU = -1;  /* NR_CGI_List_For_Restart_List */
-static int hf_f1ap_PWSFailureIndication_PDU = -1;  /* PWSFailureIndication */
-static int hf_f1ap_PWS_Failed_NR_CGI_List_PDU = -1;  /* PWS_Failed_NR_CGI_List */
-static int hf_f1ap_GNBDUStatusIndication_PDU = -1;  /* GNBDUStatusIndication */
-static int hf_f1ap_RRCDeliveryReport_PDU = -1;    /* RRCDeliveryReport */
-static int hf_f1ap_F1RemovalRequest_PDU = -1;     /* F1RemovalRequest */
-static int hf_f1ap_F1RemovalResponse_PDU = -1;    /* F1RemovalResponse */
-static int hf_f1ap_F1RemovalFailure_PDU = -1;     /* F1RemovalFailure */
-static int hf_f1ap_TraceStart_PDU = -1;           /* TraceStart */
-static int hf_f1ap_DeactivateTrace_PDU = -1;      /* DeactivateTrace */
-static int hf_f1ap_CellTrafficTrace_PDU = -1;     /* CellTrafficTrace */
-static int hf_f1ap_DUCURadioInformationTransfer_PDU = -1;  /* DUCURadioInformationTransfer */
-static int hf_f1ap_CUDURadioInformationTransfer_PDU = -1;  /* CUDURadioInformationTransfer */
-static int hf_f1ap_BAPMappingConfiguration_PDU = -1;  /* BAPMappingConfiguration */
-static int hf_f1ap_BH_Routing_Information_Added_List_PDU = -1;  /* BH_Routing_Information_Added_List */
-static int hf_f1ap_BH_Routing_Information_Removed_List_PDU = -1;  /* BH_Routing_Information_Removed_List */
-static int hf_f1ap_BAP_Header_Rewriting_Added_List_PDU = -1;  /* BAP_Header_Rewriting_Added_List */
-static int hf_f1ap_BAP_Header_Rewriting_Removed_List_PDU = -1;  /* BAP_Header_Rewriting_Removed_List */
-static int hf_f1ap_BAPMappingConfigurationAcknowledge_PDU = -1;  /* BAPMappingConfigurationAcknowledge */
-static int hf_f1ap_BAPMappingConfigurationFailure_PDU = -1;  /* BAPMappingConfigurationFailure */
-static int hf_f1ap_GNBDUResourceConfiguration_PDU = -1;  /* GNBDUResourceConfiguration */
-static int hf_f1ap_GNBDUResourceConfigurationAcknowledge_PDU = -1;  /* GNBDUResourceConfigurationAcknowledge */
-static int hf_f1ap_GNBDUResourceConfigurationFailure_PDU = -1;  /* GNBDUResourceConfigurationFailure */
-static int hf_f1ap_IABTNLAddressRequest_PDU = -1;  /* IABTNLAddressRequest */
-static int hf_f1ap_IAB_TNL_Addresses_To_Remove_List_PDU = -1;  /* IAB_TNL_Addresses_To_Remove_List */
-static int hf_f1ap_IABTNLAddressResponse_PDU = -1;  /* IABTNLAddressResponse */
-static int hf_f1ap_IAB_Allocated_TNL_Address_List_PDU = -1;  /* IAB_Allocated_TNL_Address_List */
-static int hf_f1ap_IABTNLAddressFailure_PDU = -1;  /* IABTNLAddressFailure */
-static int hf_f1ap_IABUPConfigurationUpdateRequest_PDU = -1;  /* IABUPConfigurationUpdateRequest */
-static int hf_f1ap_UL_UP_TNL_Information_to_Update_List_PDU = -1;  /* UL_UP_TNL_Information_to_Update_List */
-static int hf_f1ap_UL_UP_TNL_Address_to_Update_List_PDU = -1;  /* UL_UP_TNL_Address_to_Update_List */
-static int hf_f1ap_IABUPConfigurationUpdateResponse_PDU = -1;  /* IABUPConfigurationUpdateResponse */
-static int hf_f1ap_DL_UP_TNL_Address_to_Update_List_PDU = -1;  /* DL_UP_TNL_Address_to_Update_List */
-static int hf_f1ap_IABUPConfigurationUpdateFailure_PDU = -1;  /* IABUPConfigurationUpdateFailure */
-static int hf_f1ap_ResourceStatusRequest_PDU = -1;  /* ResourceStatusRequest */
-static int hf_f1ap_ResourceStatusResponse_PDU = -1;  /* ResourceStatusResponse */
-static int hf_f1ap_ResourceStatusFailure_PDU = -1;  /* ResourceStatusFailure */
-static int hf_f1ap_ResourceStatusUpdate_PDU = -1;  /* ResourceStatusUpdate */
-static int hf_f1ap_AccessAndMobilityIndication_PDU = -1;  /* AccessAndMobilityIndication */
-static int hf_f1ap_ReferenceTimeInformationReportingControl_PDU = -1;  /* ReferenceTimeInformationReportingControl */
-static int hf_f1ap_ReferenceTimeInformationReport_PDU = -1;  /* ReferenceTimeInformationReport */
-static int hf_f1ap_AccessSuccess_PDU = -1;        /* AccessSuccess */
-static int hf_f1ap_PositioningAssistanceInformationControl_PDU = -1;  /* PositioningAssistanceInformationControl */
-static int hf_f1ap_PositioningAssistanceInformationFeedback_PDU = -1;  /* PositioningAssistanceInformationFeedback */
-static int hf_f1ap_PositioningMeasurementRequest_PDU = -1;  /* PositioningMeasurementRequest */
-static int hf_f1ap_PositioningMeasurementResponse_PDU = -1;  /* PositioningMeasurementResponse */
-static int hf_f1ap_PositioningMeasurementFailure_PDU = -1;  /* PositioningMeasurementFailure */
-static int hf_f1ap_PositioningMeasurementReport_PDU = -1;  /* PositioningMeasurementReport */
-static int hf_f1ap_PositioningMeasurementAbort_PDU = -1;  /* PositioningMeasurementAbort */
-static int hf_f1ap_PositioningMeasurementFailureIndication_PDU = -1;  /* PositioningMeasurementFailureIndication */
-static int hf_f1ap_PositioningMeasurementUpdate_PDU = -1;  /* PositioningMeasurementUpdate */
-static int hf_f1ap_TRPInformationRequest_PDU = -1;  /* TRPInformationRequest */
-static int hf_f1ap_TRPInformationTypeListTRPReq_PDU = -1;  /* TRPInformationTypeListTRPReq */
-static int hf_f1ap_TRPInformationResponse_PDU = -1;  /* TRPInformationResponse */
-static int hf_f1ap_TRPInformationListTRPResp_PDU = -1;  /* TRPInformationListTRPResp */
-static int hf_f1ap_TRPInformationFailure_PDU = -1;  /* TRPInformationFailure */
-static int hf_f1ap_PositioningInformationRequest_PDU = -1;  /* PositioningInformationRequest */
-static int hf_f1ap_PositioningInformationResponse_PDU = -1;  /* PositioningInformationResponse */
-static int hf_f1ap_PositioningInformationFailure_PDU = -1;  /* PositioningInformationFailure */
-static int hf_f1ap_PositioningActivationRequest_PDU = -1;  /* PositioningActivationRequest */
-static int hf_f1ap_SRSType_PDU = -1;              /* SRSType */
-static int hf_f1ap_PositioningActivationResponse_PDU = -1;  /* PositioningActivationResponse */
-static int hf_f1ap_PositioningActivationFailure_PDU = -1;  /* PositioningActivationFailure */
-static int hf_f1ap_PositioningDeactivation_PDU = -1;  /* PositioningDeactivation */
-static int hf_f1ap_PositioningInformationUpdate_PDU = -1;  /* PositioningInformationUpdate */
-static int hf_f1ap_E_CIDMeasurementInitiationRequest_PDU = -1;  /* E_CIDMeasurementInitiationRequest */
-static int hf_f1ap_E_CIDMeasurementInitiationResponse_PDU = -1;  /* E_CIDMeasurementInitiationResponse */
-static int hf_f1ap_E_CIDMeasurementInitiationFailure_PDU = -1;  /* E_CIDMeasurementInitiationFailure */
-static int hf_f1ap_E_CIDMeasurementFailureIndication_PDU = -1;  /* E_CIDMeasurementFailureIndication */
-static int hf_f1ap_E_CIDMeasurementReport_PDU = -1;  /* E_CIDMeasurementReport */
-static int hf_f1ap_E_CIDMeasurementTerminationCommand_PDU = -1;  /* E_CIDMeasurementTerminationCommand */
-static int hf_f1ap_BroadcastContextSetupRequest_PDU = -1;  /* BroadcastContextSetupRequest */
-static int hf_f1ap_BroadcastMRBs_ToBeSetup_List_PDU = -1;  /* BroadcastMRBs_ToBeSetup_List */
-static int hf_f1ap_BroadcastContextSetupResponse_PDU = -1;  /* BroadcastContextSetupResponse */
-static int hf_f1ap_BroadcastMRBs_Setup_List_PDU = -1;  /* BroadcastMRBs_Setup_List */
-static int hf_f1ap_BroadcastMRBs_FailedToBeSetup_List_PDU = -1;  /* BroadcastMRBs_FailedToBeSetup_List */
-static int hf_f1ap_BroadcastContextSetupFailure_PDU = -1;  /* BroadcastContextSetupFailure */
-static int hf_f1ap_BroadcastContextReleaseCommand_PDU = -1;  /* BroadcastContextReleaseCommand */
-static int hf_f1ap_BroadcastContextReleaseComplete_PDU = -1;  /* BroadcastContextReleaseComplete */
-static int hf_f1ap_BroadcastContextReleaseRequest_PDU = -1;  /* BroadcastContextReleaseRequest */
-static int hf_f1ap_BroadcastContextModificationRequest_PDU = -1;  /* BroadcastContextModificationRequest */
-static int hf_f1ap_BroadcastMRBs_ToBeSetupMod_List_PDU = -1;  /* BroadcastMRBs_ToBeSetupMod_List */
-static int hf_f1ap_BroadcastMRBs_ToBeModified_List_PDU = -1;  /* BroadcastMRBs_ToBeModified_List */
-static int hf_f1ap_BroadcastMRBs_ToBeReleased_List_PDU = -1;  /* BroadcastMRBs_ToBeReleased_List */
-static int hf_f1ap_BroadcastContextModificationResponse_PDU = -1;  /* BroadcastContextModificationResponse */
-static int hf_f1ap_BroadcastMRBs_SetupMod_List_PDU = -1;  /* BroadcastMRBs_SetupMod_List */
-static int hf_f1ap_BroadcastMRBs_FailedToBeSetupMod_List_PDU = -1;  /* BroadcastMRBs_FailedToBeSetupMod_List */
-static int hf_f1ap_BroadcastMRBs_Modified_List_PDU = -1;  /* BroadcastMRBs_Modified_List */
-static int hf_f1ap_BroadcastMRBs_FailedToBeModified_List_PDU = -1;  /* BroadcastMRBs_FailedToBeModified_List */
-static int hf_f1ap_BroadcastContextModificationFailure_PDU = -1;  /* BroadcastContextModificationFailure */
-static int hf_f1ap_MulticastGroupPaging_PDU = -1;  /* MulticastGroupPaging */
-static int hf_f1ap_UEIdentity_List_For_Paging_List_PDU = -1;  /* UEIdentity_List_For_Paging_List */
-static int hf_f1ap_MC_PagingCell_list_PDU = -1;   /* MC_PagingCell_list */
-static int hf_f1ap_MulticastContextSetupRequest_PDU = -1;  /* MulticastContextSetupRequest */
-static int hf_f1ap_MulticastMRBs_ToBeSetup_List_PDU = -1;  /* MulticastMRBs_ToBeSetup_List */
-static int hf_f1ap_MulticastContextSetupResponse_PDU = -1;  /* MulticastContextSetupResponse */
-static int hf_f1ap_MulticastMRBs_Setup_List_PDU = -1;  /* MulticastMRBs_Setup_List */
-static int hf_f1ap_MulticastMRBs_FailedToBeSetup_List_PDU = -1;  /* MulticastMRBs_FailedToBeSetup_List */
-static int hf_f1ap_MulticastContextSetupFailure_PDU = -1;  /* MulticastContextSetupFailure */
-static int hf_f1ap_MulticastContextReleaseCommand_PDU = -1;  /* MulticastContextReleaseCommand */
-static int hf_f1ap_MulticastContextReleaseComplete_PDU = -1;  /* MulticastContextReleaseComplete */
-static int hf_f1ap_MulticastContextReleaseRequest_PDU = -1;  /* MulticastContextReleaseRequest */
-static int hf_f1ap_MulticastContextModificationRequest_PDU = -1;  /* MulticastContextModificationRequest */
-static int hf_f1ap_MulticastMRBs_ToBeSetupMod_List_PDU = -1;  /* MulticastMRBs_ToBeSetupMod_List */
-static int hf_f1ap_MulticastMRBs_ToBeModified_List_PDU = -1;  /* MulticastMRBs_ToBeModified_List */
-static int hf_f1ap_MulticastMRBs_ToBeReleased_List_PDU = -1;  /* MulticastMRBs_ToBeReleased_List */
-static int hf_f1ap_MulticastContextModificationResponse_PDU = -1;  /* MulticastContextModificationResponse */
-static int hf_f1ap_MulticastMRBs_SetupMod_List_PDU = -1;  /* MulticastMRBs_SetupMod_List */
-static int hf_f1ap_MulticastMRBs_FailedToBeSetupMod_List_PDU = -1;  /* MulticastMRBs_FailedToBeSetupMod_List */
-static int hf_f1ap_MulticastMRBs_Modified_List_PDU = -1;  /* MulticastMRBs_Modified_List */
-static int hf_f1ap_MulticastMRBs_FailedToBeModified_List_PDU = -1;  /* MulticastMRBs_FailedToBeModified_List */
-static int hf_f1ap_MulticastContextModificationFailure_PDU = -1;  /* MulticastContextModificationFailure */
-static int hf_f1ap_MulticastDistributionSetupRequest_PDU = -1;  /* MulticastDistributionSetupRequest */
-static int hf_f1ap_MulticastF1UContext_ToBeSetup_List_PDU = -1;  /* MulticastF1UContext_ToBeSetup_List */
-static int hf_f1ap_MulticastDistributionSetupResponse_PDU = -1;  /* MulticastDistributionSetupResponse */
-static int hf_f1ap_MulticastF1UContext_Setup_List_PDU = -1;  /* MulticastF1UContext_Setup_List */
-static int hf_f1ap_MulticastF1UContext_FailedToBeSetup_List_PDU = -1;  /* MulticastF1UContext_FailedToBeSetup_List */
-static int hf_f1ap_MulticastDistributionSetupFailure_PDU = -1;  /* MulticastDistributionSetupFailure */
-static int hf_f1ap_MulticastDistributionReleaseCommand_PDU = -1;  /* MulticastDistributionReleaseCommand */
-static int hf_f1ap_MulticastDistributionReleaseComplete_PDU = -1;  /* MulticastDistributionReleaseComplete */
-static int hf_f1ap_PDCMeasurementInitiationRequest_PDU = -1;  /* PDCMeasurementInitiationRequest */
-static int hf_f1ap_PDCMeasurementInitiationResponse_PDU = -1;  /* PDCMeasurementInitiationResponse */
-static int hf_f1ap_PDCMeasurementInitiationFailure_PDU = -1;  /* PDCMeasurementInitiationFailure */
-static int hf_f1ap_PDCMeasurementReport_PDU = -1;  /* PDCMeasurementReport */
-static int hf_f1ap_PDCMeasurementTerminationCommand_PDU = -1;  /* PDCMeasurementTerminationCommand */
-static int hf_f1ap_PDCMeasurementFailureIndication_PDU = -1;  /* PDCMeasurementFailureIndication */
-static int hf_f1ap_PRSConfigurationRequest_PDU = -1;  /* PRSConfigurationRequest */
-static int hf_f1ap_PRSConfigurationResponse_PDU = -1;  /* PRSConfigurationResponse */
-static int hf_f1ap_PRSConfigurationFailure_PDU = -1;  /* PRSConfigurationFailure */
-static int hf_f1ap_MeasurementPreconfigurationRequired_PDU = -1;  /* MeasurementPreconfigurationRequired */
-static int hf_f1ap_MeasurementPreconfigurationConfirm_PDU = -1;  /* MeasurementPreconfigurationConfirm */
-static int hf_f1ap_MeasurementPreconfigurationRefuse_PDU = -1;  /* MeasurementPreconfigurationRefuse */
-static int hf_f1ap_MeasurementActivation_PDU = -1;  /* MeasurementActivation */
-static int hf_f1ap_QoEInformationTransfer_PDU = -1;  /* QoEInformationTransfer */
-static int hf_f1ap_PosSystemInformationDeliveryCommand_PDU = -1;  /* PosSystemInformationDeliveryCommand */
-static int hf_f1ap_F1AP_PDU_PDU = -1;             /* F1AP_PDU */
-static int hf_f1ap_local = -1;                    /* INTEGER_0_65535 */
-static int hf_f1ap_global = -1;                   /* T_global */
-static int hf_f1ap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
-static int hf_f1ap_id = -1;                       /* ProtocolIE_ID */
-static int hf_f1ap_criticality = -1;              /* Criticality */
-static int hf_f1ap_ie_field_value = -1;           /* T_ie_field_value */
-static int hf_f1ap_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
-static int hf_f1ap_ext_id = -1;                   /* ProtocolExtensionID */
-static int hf_f1ap_extensionValue = -1;           /* T_extensionValue */
-static int hf_f1ap_PrivateIE_Container_item = -1;  /* PrivateIE_Field */
-static int hf_f1ap_private_id = -1;               /* PrivateIE_ID */
-static int hf_f1ap_value = -1;                    /* T_value */
-static int hf_f1ap_sRSResourceSetID = -1;         /* SRSResourceSetID */
-static int hf_f1ap_releaseALL = -1;               /* NULL */
-static int hf_f1ap_choice_extension = -1;         /* ProtocolIE_SingleContainer */
-static int hf_f1ap_latitudeSign = -1;             /* T_latitudeSign */
-static int hf_f1ap_latitude = -1;                 /* INTEGER_0_8388607 */
-static int hf_f1ap_longitude = -1;                /* INTEGER_M8388608_8388607 */
-static int hf_f1ap_directionOfAltitude = -1;      /* T_directionOfAltitude */
-static int hf_f1ap_altitude = -1;                 /* INTEGER_0_32767 */
-static int hf_f1ap_uncertaintySemi_major = -1;    /* INTEGER_0_127 */
-static int hf_f1ap_uncertaintySemi_minor = -1;    /* INTEGER_0_127 */
-static int hf_f1ap_orientationOfMajorAxis = -1;   /* INTEGER_0_179 */
-static int hf_f1ap_uncertaintyAltitude = -1;      /* INTEGER_0_127 */
-static int hf_f1ap_confidence = -1;               /* INTEGER_0_100 */
-static int hf_f1ap_iE_Extensions = -1;            /* ProtocolExtensionContainer */
-static int hf_f1ap_Activated_Cells_to_be_Updated_List_item = -1;  /* Activated_Cells_to_be_Updated_List_Item */
-static int hf_f1ap_nRCGI = -1;                    /* NRCGI */
-static int hf_f1ap_iAB_DU_Cell_Resource_Configuration_Mode_Info = -1;  /* IAB_DU_Cell_Resource_Configuration_Mode_Info */
-static int hf_f1ap_locationAndBandwidth = -1;     /* INTEGER_0_37949_ */
-static int hf_f1ap_subcarrierSpacing = -1;        /* T_subcarrierSpacing */
-static int hf_f1ap_cyclicPrefix = -1;             /* T_cyclicPrefix */
-static int hf_f1ap_txDirectCurrentLocation = -1;  /* INTEGER_0_3301_ */
-static int hf_f1ap_shift7dot5kHz = -1;            /* T_shift7dot5kHz */
-static int hf_f1ap_sRSConfig = -1;                /* SRSConfig */
-static int hf_f1ap_AdditionalPath_List_item = -1;  /* AdditionalPath_Item */
-static int hf_f1ap_relativePathDelay = -1;        /* RelativePathDelay */
-static int hf_f1ap_pathQuality = -1;              /* TRPMeasurementQuality */
-static int hf_f1ap_ExtendedAdditionalPathList_item = -1;  /* ExtendedAdditionalPathList_Item */
-static int hf_f1ap_relativeTimeOfPath = -1;       /* RelativePathDelay */
-static int hf_f1ap_multipleULAoA = -1;            /* MultipleULAoA */
-static int hf_f1ap_pathPower = -1;                /* UL_SRS_RSRPP */
-static int hf_f1ap_AdditionalPDCPDuplicationTNL_List_item = -1;  /* AdditionalPDCPDuplicationTNL_Item */
-static int hf_f1ap_additionalPDCPDuplicationUPTNLInformation = -1;  /* UPTransportLayerInformation */
-static int hf_f1ap_AdditionalSIBMessageList_item = -1;  /* AdditionalSIBMessageList_Item */
-static int hf_f1ap_additionalSIB = -1;            /* T_additionalSIB */
-static int hf_f1ap_AffectedCellsAndBeams_List_item = -1;  /* AffectedCellsAndBeams_Item */
-static int hf_f1ap_affectedSSB_List = -1;         /* AffectedSSB_List */
-static int hf_f1ap_AffectedSSB_List_item = -1;    /* AffectedSSB_Item */
-static int hf_f1ap_sSB_Index = -1;                /* INTEGER_0_63 */
-static int hf_f1ap_AggressorCellList_item = -1;   /* AggressorCellList_Item */
-static int hf_f1ap_aggressorCell_ID = -1;         /* NRCGI */
-static int hf_f1ap_aggressorgNBSetID = -1;        /* GNBSetID */
-static int hf_f1ap_priorityLevel = -1;            /* PriorityLevel */
-static int hf_f1ap_pre_emptionCapability = -1;    /* Pre_emptionCapability */
-static int hf_f1ap_pre_emptionVulnerability = -1;  /* Pre_emptionVulnerability */
-static int hf_f1ap_AlternativeQoSParaSetList_item = -1;  /* AlternativeQoSParaSetItem */
-static int hf_f1ap_alternativeQoSParaSetIndex = -1;  /* QoSParaSetIndex */
-static int hf_f1ap_guaranteedFlowBitRateDL = -1;  /* BitRate */
-static int hf_f1ap_guaranteedFlowBitRateUL = -1;  /* BitRate */
-static int hf_f1ap_packetDelayBudget = -1;        /* PacketDelayBudget */
-static int hf_f1ap_packetErrorRate = -1;          /* PacketErrorRate */
-static int hf_f1ap_azimuthQuality = -1;           /* INTEGER_0_255 */
-static int hf_f1ap_zenithQuality = -1;            /* INTEGER_0_255 */
-static int hf_f1ap_resolution = -1;               /* T_resolution */
-static int hf_f1ap_AperiodicSRSResourceTriggerList_item = -1;  /* AperiodicSRSResourceTrigger */
-static int hf_f1ap_sCell_ID = -1;                 /* NRCGI */
-static int hf_f1ap_AvailablePLMNList_item = -1;   /* AvailablePLMNList_Item */
-static int hf_f1ap_pLMNIdentity = -1;             /* PLMN_Identity */
-static int hf_f1ap_AvailableSNPN_ID_List_item = -1;  /* AvailableSNPN_ID_List_Item */
-static int hf_f1ap_pLMN_Identity = -1;            /* PLMN_Identity */
-static int hf_f1ap_availableNIDList = -1;         /* BroadcastNIDList */
-static int hf_f1ap_angleMeasurement = -1;         /* AngleMeasurementType */
-static int hf_f1ap_lCS_to_GCS_Translation = -1;   /* LCS_to_GCS_Translation */
-static int hf_f1ap_expected_ULAoA = -1;           /* Expected_UL_AoA */
-static int hf_f1ap_expected_ZoA = -1;             /* Expected_ZoA_only */
-static int hf_f1ap_ARPLocationInformation_item = -1;  /* ARPLocationInformation_Item */
-static int hf_f1ap_aRP_ID = -1;                   /* ARP_ID */
-static int hf_f1ap_aRPLocationType = -1;          /* ARPLocationType */
-static int hf_f1ap_aRPPositionRelativeGeodetic = -1;  /* RelativeGeodeticLocation */
-static int hf_f1ap_aRPPositionRelativeCartesian = -1;  /* RelativeCartesianLocation */
-static int hf_f1ap_ingressBAPRoutingID = -1;      /* BAPRoutingID */
-static int hf_f1ap_egressBAPRoutingID = -1;       /* BAPRoutingID */
-static int hf_f1ap_nonF1terminatingTopologyIndicator = -1;  /* NonF1terminatingTopologyIndicator */
-static int hf_f1ap_fR1 = -1;                      /* FR1_Bandwidth */
-static int hf_f1ap_fR2 = -1;                      /* FR2_Bandwidth */
-static int hf_f1ap_bAPlayerBHRLCchannelMappingInfoToAdd = -1;  /* BAPlayerBHRLCchannelMappingInfoList */
-static int hf_f1ap_bAPlayerBHRLCchannelMappingInfoToRemove = -1;  /* MappingInformationtoRemove */
-static int hf_f1ap_BAPlayerBHRLCchannelMappingInfoList_item = -1;  /* BAPlayerBHRLCchannelMappingInfo_Item */
-static int hf_f1ap_mappingInformationIndex = -1;  /* MappingInformationIndex */
-static int hf_f1ap_priorHopBAPAddress = -1;       /* BAPAddress */
-static int hf_f1ap_ingressbHRLCChannelID = -1;    /* BHRLCChannelID */
-static int hf_f1ap_nextHopBAPAddress = -1;        /* BAPAddress */
-static int hf_f1ap_egressbHRLCChannelID = -1;     /* BHRLCChannelID */
-static int hf_f1ap_bAPAddress = -1;               /* BAPAddress */
-static int hf_f1ap_bAPPathID = -1;                /* BAPPathID */
-static int hf_f1ap_locationindpendent = -1;       /* MBSF1UInformation */
-static int hf_f1ap_locationdependent = -1;        /* LocationDependentMBSF1UInformation */
-static int hf_f1ap_bHRLCChannelID = -1;           /* BHRLCChannelID */
-static int hf_f1ap_cause = -1;                    /* Cause */
-static int hf_f1ap_bHQoSInformation = -1;         /* BHQoSInformation */
-static int hf_f1ap_rLCmode = -1;                  /* RLCMode */
-static int hf_f1ap_bAPCtrlPDUChannel = -1;        /* BAPCtrlPDUChannel */
-static int hf_f1ap_trafficMappingInfo = -1;       /* TrafficMappingInfo */
-static int hf_f1ap_bAProutingID = -1;             /* BAPRoutingID */
-static int hf_f1ap_egressBHRLCCHList = -1;        /* EgressBHRLCCHList */
-static int hf_f1ap_bHRLCCHQoS = -1;               /* QoSFlowLevelQoSParameters */
-static int hf_f1ap_eUTRANBHRLCCHQoS = -1;         /* EUTRANQoS */
-static int hf_f1ap_cPTrafficType = -1;            /* CPTrafficType */
-static int hf_f1ap_BHRLCCHList_item = -1;         /* BHRLCCHItem */
-static int hf_f1ap_bAPRoutingID = -1;             /* BAPRoutingID */
-static int hf_f1ap_BPLMN_ID_Info_List_item = -1;  /* BPLMN_ID_Info_Item */
-static int hf_f1ap_pLMN_Identity_List = -1;       /* AvailablePLMNList */
-static int hf_f1ap_extended_PLMN_Identity_List = -1;  /* ExtendedAvailablePLMN_List */
-static int hf_f1ap_fiveGS_TAC = -1;               /* FiveGS_TAC */
-static int hf_f1ap_nr_cell_ID = -1;               /* NRCellIdentity */
-static int hf_f1ap_ranac = -1;                    /* RANAC */
-static int hf_f1ap_ServedPLMNs_List_item = -1;    /* ServedPLMNs_Item */
-static int hf_f1ap_BroadcastCAGList_item = -1;    /* CAGID */
-static int hf_f1ap_mRB_ID = -1;                   /* MRB_ID */
-static int hf_f1ap_bcBearerCtxtF1U_TNLInfoatDU = -1;  /* BCBearerContextF1U_TNLInfo */
-static int hf_f1ap_mRB_QoSInformation = -1;       /* QoSFlowLevelQoSParameters */
-static int hf_f1ap_mBS_Flows_Mapped_To_MRB_List = -1;  /* MBS_Flows_Mapped_To_MRB_List */
-static int hf_f1ap_bcBearerCtxtF1U_TNLInfoatCU = -1;  /* BCBearerContextF1U_TNLInfo */
-static int hf_f1ap_BroadcastNIDList_item = -1;    /* NID */
-static int hf_f1ap_BroadcastSNPN_ID_List_item = -1;  /* BroadcastSNPN_ID_List_Item */
-static int hf_f1ap_broadcastNIDList = -1;         /* BroadcastNIDList */
-static int hf_f1ap_BroadcastPNI_NPN_ID_List_item = -1;  /* BroadcastPNI_NPN_ID_List_Item */
-static int hf_f1ap_broadcastCAGList = -1;         /* BroadcastCAGList */
-static int hf_f1ap_completeSuccess = -1;          /* NULL */
-static int hf_f1ap_partialSuccess = -1;           /* PartialSuccessCell */
-static int hf_f1ap_BroadcastCellList_item = -1;   /* Broadcast_Cell_List_Item */
-static int hf_f1ap_cellID = -1;                   /* NRCGI */
-static int hf_f1ap_candidate_SpCell_ID = -1;      /* NRCGI */
-static int hf_f1ap_capacityValue = -1;            /* INTEGER_0_100 */
-static int hf_f1ap_sSBAreaCapacityValueList = -1;  /* SSBAreaCapacityValueList */
-static int hf_f1ap_radioNetwork = -1;             /* CauseRadioNetwork */
-static int hf_f1ap_transport = -1;                /* CauseTransport */
-static int hf_f1ap_protocol = -1;                 /* CauseProtocol */
-static int hf_f1ap_misc = -1;                     /* CauseMisc */
-static int hf_f1ap_CellMeasurementResultList_item = -1;  /* CellMeasurementResultItem */
-static int hf_f1ap_radioResourceStatus = -1;      /* RadioResourceStatus */
-static int hf_f1ap_compositeAvailableCapacityGroup = -1;  /* CompositeAvailableCapacityGroup */
-static int hf_f1ap_sliceAvailableCapacity = -1;   /* SliceAvailableCapacity */
-static int hf_f1ap_numberofActiveUEs = -1;        /* NumberofActiveUEs */
-static int hf_f1ap_CellsForSON_List_item = -1;    /* CellsForSON_Item */
-static int hf_f1ap_neighbourNR_CellsForSON_List = -1;  /* NeighbourNR_CellsForSON_List */
-static int hf_f1ap_service_status = -1;           /* Service_Status */
-static int hf_f1ap_numberOfBroadcasts = -1;       /* NumberOfBroadcasts */
-static int hf_f1ap_nRPCI = -1;                    /* NRPCI */
-static int hf_f1ap_cellBarred = -1;               /* CellBarred */
-static int hf_f1ap_CellToReportList_item = -1;    /* CellToReportItem */
-static int hf_f1ap_sSBToReportList = -1;          /* SSBToReportList */
-static int hf_f1ap_sliceToReportList = -1;        /* SliceToReportList */
-static int hf_f1ap_cellSize = -1;                 /* CellSize */
-static int hf_f1ap_gNB_CU_UE_F1AP_ID = -1;        /* GNB_CU_UE_F1AP_ID */
-static int hf_f1ap_gNB_DU_UE_F1AP_ID = -1;        /* GNB_DU_UE_F1AP_ID */
-static int hf_f1ap_Child_IAB_Nodes_NA_Resource_List_item = -1;  /* Child_IAB_Nodes_NA_Resource_List_Item */
-static int hf_f1ap_nA_Resource_Configuration_List = -1;  /* NA_Resource_Configuration_List */
-static int hf_f1ap_Child_Node_Cells_List_item = -1;  /* Child_Node_Cells_List_Item */
-static int hf_f1ap_iAB_STC_Info = -1;             /* IAB_STC_Info */
-static int hf_f1ap_rACH_Config_Common = -1;       /* RACH_Config_Common */
-static int hf_f1ap_rACH_Config_Common_IAB = -1;   /* RACH_Config_Common_IAB */
-static int hf_f1ap_cSI_RS_Configuration = -1;     /* T_cSI_RS_Configuration */
-static int hf_f1ap_sR_Configuration = -1;         /* T_sR_Configuration */
-static int hf_f1ap_pDCCH_ConfigSIB1 = -1;         /* T_pDCCH_ConfigSIB1 */
-static int hf_f1ap_sCS_Common = -1;               /* T_sCS_Common */
-static int hf_f1ap_multiplexingInfo = -1;         /* MultiplexingInfo */
-static int hf_f1ap_Child_Nodes_List_item = -1;    /* Child_Nodes_List_Item */
-static int hf_f1ap_child_Node_Cells_List = -1;    /* Child_Node_Cells_List */
-static int hf_f1ap_fiveG_S_TMSI = -1;             /* BIT_STRING_SIZE_48 */
-static int hf_f1ap_compositeAvailableCapacityDownlink = -1;  /* CompositeAvailableCapacity */
-static int hf_f1ap_compositeAvailableCapacityUplink = -1;  /* CompositeAvailableCapacity */
-static int hf_f1ap_cellCapacityClassValue = -1;   /* CellCapacityClassValue */
-static int hf_f1ap_capacityValue_01 = -1;         /* CapacityValue */
-static int hf_f1ap_cho_trigger = -1;              /* CHOtrigger_InterDU */
-static int hf_f1ap_targetgNB_DUUEF1APID = -1;     /* GNB_DU_UE_F1AP_ID */
-static int hf_f1ap_cho_trigger_01 = -1;           /* CHOtrigger_IntraDU */
-static int hf_f1ap_targetCellsTocancel = -1;      /* TargetCellList */
-static int hf_f1ap_coverage_Modification_List = -1;  /* Coverage_Modification_List */
-static int hf_f1ap_Coverage_Modification_List_item = -1;  /* Coverage_Modification_Item */
-static int hf_f1ap_cellCoverageState = -1;        /* CellCoverageState */
-static int hf_f1ap_sSBCoverageModificationList = -1;  /* SSBCoverageModification_List */
-static int hf_f1ap_iE_Extension = -1;             /* ProtocolExtensionContainer */
-static int hf_f1ap_cCO_issue_detection = -1;      /* CCO_issue_detection */
-static int hf_f1ap_affectedCellsAndBeams_List = -1;  /* AffectedCellsAndBeams_List */
-static int hf_f1ap_endpoint_IP_address = -1;      /* TransportLayerAddress */
-static int hf_f1ap_endpoint_IP_address_and_port = -1;  /* Endpoint_IP_address_and_port */
-static int hf_f1ap_cpac_trigger = -1;             /* CPAC_trigger */
-static int hf_f1ap_pscellid = -1;                 /* NRCGI */
-static int hf_f1ap_procedureCode = -1;            /* ProcedureCode */
-static int hf_f1ap_triggeringMessage = -1;        /* TriggeringMessage */
-static int hf_f1ap_procedureCriticality = -1;     /* Criticality */
-static int hf_f1ap_transactionID = -1;            /* TransactionID */
-static int hf_f1ap_iEsCriticalityDiagnostics = -1;  /* CriticalityDiagnostics_IE_List */
-static int hf_f1ap_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_Item */
-static int hf_f1ap_iECriticality = -1;            /* Criticality */
-static int hf_f1ap_iE_ID = -1;                    /* ProtocolIE_ID */
-static int hf_f1ap_typeOfError = -1;              /* TypeOfError */
-static int hf_f1ap_rIM = -1;                      /* CUDURIMInformation */
-static int hf_f1ap_victimgNBSetID = -1;           /* GNBSetID */
-static int hf_f1ap_rIMRSDetectionStatus = -1;     /* RIMRSDetectionStatus */
-static int hf_f1ap_cG_ConfigInfo = -1;            /* CG_ConfigInfo */
-static int hf_f1ap_uE_CapabilityRAT_ContainerList = -1;  /* UE_CapabilityRAT_ContainerList */
-static int hf_f1ap_measConfig = -1;               /* MeasConfig */
-static int hf_f1ap_prsid = -1;                    /* INTEGER_0_255 */
-static int hf_f1ap_dl_PRSResourceSetID = -1;      /* PRS_Resource_Set_ID */
-static int hf_f1ap_dl_PRSResourceID = -1;         /* PRS_Resource_ID */
-static int hf_f1ap_two = -1;                      /* BIT_STRING_SIZE_2 */
-static int hf_f1ap_four = -1;                     /* BIT_STRING_SIZE_4 */
-static int hf_f1ap_six = -1;                      /* BIT_STRING_SIZE_6 */
-static int hf_f1ap_eight = -1;                    /* BIT_STRING_SIZE_8 */
-static int hf_f1ap_sixteen = -1;                  /* BIT_STRING_SIZE_16 */
-static int hf_f1ap_thirty_two = -1;               /* BIT_STRING_SIZE_32 */
-static int hf_f1ap_listofDL_PRSResourceSetARP = -1;  /* SEQUENCE_SIZE_1_maxnoofPRS_ResourceSets_OF_DLPRSResourceSetARP */
-static int hf_f1ap_listofDL_PRSResourceSetARP_item = -1;  /* DLPRSResourceSetARP */
-static int hf_f1ap_dL_PRSResourceSetARPLocation = -1;  /* DL_PRSResourceSetARPLocation */
-static int hf_f1ap_listofDL_PRSResourceARP = -1;  /* SEQUENCE_SIZE_1_maxnoofPRS_ResourcesPerSet_OF_DLPRSResourceARP */
-static int hf_f1ap_listofDL_PRSResourceARP_item = -1;  /* DLPRSResourceARP */
-static int hf_f1ap_relativeGeodeticLocation = -1;  /* RelativeGeodeticLocation */
-static int hf_f1ap_relativeCartesianLocation = -1;  /* RelativeCartesianLocation */
-static int hf_f1ap_choice_Extension = -1;         /* ProtocolIE_SingleContainer */
-static int hf_f1ap_dL_PRSResourceARPLocation = -1;  /* DL_PRSResourceARPLocation */
-static int hf_f1ap_oldIPAdress = -1;              /* TransportLayerAddress */
-static int hf_f1ap_newIPAdress = -1;              /* TransportLayerAddress */
-static int hf_f1ap_DLUPTNLInformation_ToBeSetup_List_item = -1;  /* DLUPTNLInformation_ToBeSetup_Item */
-static int hf_f1ap_dLUPTNLInformation = -1;       /* UPTransportLayerInformation */
-static int hf_f1ap_dRBID = -1;                    /* DRBID */
-static int hf_f1ap_dRB_Activity = -1;             /* DRB_Activity */
-static int hf_f1ap_dRB_QoS = -1;                  /* QoSFlowLevelQoSParameters */
-static int hf_f1ap_sNSSAI = -1;                   /* SNSSAI */
-static int hf_f1ap_notificationControl = -1;      /* NotificationControl */
-static int hf_f1ap_flows_Mapped_To_DRB_List = -1;  /* Flows_Mapped_To_DRB_List */
-static int hf_f1ap_lCID = -1;                     /* LCID */
-static int hf_f1ap_dLUPTNLInformation_ToBeSetup_List = -1;  /* DLUPTNLInformation_ToBeSetup_List */
-static int hf_f1ap_uLUPTNLInformation_ToBeSetup_List = -1;  /* ULUPTNLInformation_ToBeSetup_List */
-static int hf_f1ap_notification_Cause = -1;       /* Notification_Cause */
-static int hf_f1ap_qoSInformation = -1;           /* QoSInformation */
-static int hf_f1ap_uLConfiguration = -1;          /* ULConfiguration */
-static int hf_f1ap_rLCMode = -1;                  /* RLCMode */
-static int hf_f1ap_duplicationActivation = -1;    /* DuplicationActivation */
-static int hf_f1ap_longDRXCycleLength = -1;       /* LongDRXCycleLength */
-static int hf_f1ap_shortDRXCycleLength = -1;      /* ShortDRXCycleLength */
-static int hf_f1ap_shortDRXCycleTimer = -1;       /* ShortDRXCycleTimer */
-static int hf_f1ap_DSInformationList_item = -1;   /* DSCP */
-static int hf_f1ap_rIM_01 = -1;                   /* DUCURIMInformation */
-static int hf_f1ap_aggressorCellList = -1;        /* AggressorCellList */
-static int hf_f1ap_explicitFormat = -1;           /* ExplicitFormat */
-static int hf_f1ap_implicitFormat = -1;           /* ImplicitFormat */
-static int hf_f1ap_DUF_Slot_Config_List_item = -1;  /* DUF_Slot_Config_Item */
-static int hf_f1ap_cellGroupConfig = -1;          /* CellGroupConfig */
-static int hf_f1ap_measGapConfig = -1;            /* MeasGapConfig */
-static int hf_f1ap_requestedP_MaxFR1 = -1;        /* T_requestedP_MaxFR1 */
-static int hf_f1ap_qoSPriorityLevel = -1;         /* INTEGER_1_127 */
-static int hf_f1ap_fiveQI = -1;                   /* INTEGER_0_255_ */
-static int hf_f1ap_delayCritical = -1;            /* T_delayCritical */
-static int hf_f1ap_averagingWindow = -1;          /* AveragingWindow */
-static int hf_f1ap_maxDataBurstVolume = -1;       /* MaxDataBurstVolume */
-static int hf_f1ap_resourceType = -1;             /* T_resourceType */
-static int hf_f1ap_qoSPriorityLevel_01 = -1;      /* INTEGER_1_8_ */
-static int hf_f1ap_E_CID_MeasurementQuantities_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_e_CIDmeasurementQuantitiesValue = -1;  /* E_CID_MeasurementQuantitiesValue */
-static int hf_f1ap_geographicalCoordinates = -1;  /* GeographicalCoordinates */
-static int hf_f1ap_measuredResults_List = -1;     /* E_CID_MeasuredResults_List */
-static int hf_f1ap_E_CID_MeasuredResults_List_item = -1;  /* E_CID_MeasuredResults_Item */
-static int hf_f1ap_e_CID_MeasuredResults_Value = -1;  /* E_CID_MeasuredResults_Value */
-static int hf_f1ap_valueAngleofArrivalNR = -1;    /* UL_AoA */
-static int hf_f1ap_EgressBHRLCCHList_item = -1;   /* EgressBHRLCCHItem */
-static int hf_f1ap_endpointIPAddress = -1;        /* TransportLayerAddress */
-static int hf_f1ap_ExtendedAvailablePLMN_List_item = -1;  /* ExtendedAvailablePLMN_Item */
-static int hf_f1ap_permutation = -1;              /* Permutation */
-static int hf_f1ap_noofDownlinkSymbols = -1;      /* NoofDownlinkSymbols */
-static int hf_f1ap_noofUplinkSymbols = -1;        /* NoofUplinkSymbols */
-static int hf_f1ap_ExtendedServedPLMNs_List_item = -1;  /* ExtendedServedPLMNs_Item */
-static int hf_f1ap_tAISliceSupportList = -1;      /* SliceSupportList */
-static int hf_f1ap_ExtendedSliceSupportList_item = -1;  /* SliceSupportItem */
-static int hf_f1ap_EUTRACells_List_item = -1;     /* EUTRACells_List_item */
-static int hf_f1ap_eUTRA_Cell_ID = -1;            /* EUTRA_Cell_ID */
-static int hf_f1ap_served_EUTRA_Cells_Information = -1;  /* Served_EUTRA_Cells_Information */
-static int hf_f1ap_uL_EARFCN = -1;                /* ExtendedEARFCN */
-static int hf_f1ap_dL_EARFCN = -1;                /* ExtendedEARFCN */
-static int hf_f1ap_uL_Transmission_Bandwidth = -1;  /* EUTRA_Transmission_Bandwidth */
-static int hf_f1ap_dL_Transmission_Bandwidth = -1;  /* EUTRA_Transmission_Bandwidth */
-static int hf_f1ap_fDD = -1;                      /* EUTRA_Coex_FDD_Info */
-static int hf_f1ap_tDD = -1;                      /* EUTRA_Coex_TDD_Info */
-static int hf_f1ap_eARFCN = -1;                   /* ExtendedEARFCN */
-static int hf_f1ap_transmission_Bandwidth = -1;   /* EUTRA_Transmission_Bandwidth */
-static int hf_f1ap_subframeAssignment = -1;       /* EUTRA_SubframeAssignment */
-static int hf_f1ap_specialSubframe_Info = -1;     /* EUTRA_SpecialSubframe_Info */
-static int hf_f1ap_rootSequenceIndex = -1;        /* INTEGER_0_837 */
-static int hf_f1ap_zeroCorrelationIndex = -1;     /* INTEGER_0_15 */
-static int hf_f1ap_highSpeedFlag = -1;            /* BOOLEAN */
-static int hf_f1ap_prach_FreqOffset = -1;         /* INTEGER_0_94 */
-static int hf_f1ap_prach_ConfigIndex = -1;        /* INTEGER_0_63 */
-static int hf_f1ap_specialSubframePatterns = -1;  /* EUTRA_SpecialSubframePatterns */
-static int hf_f1ap_cyclicPrefixDL = -1;           /* EUTRA_CyclicPrefixDL */
-static int hf_f1ap_cyclicPrefixUL = -1;           /* EUTRA_CyclicPrefixUL */
-static int hf_f1ap_qCI = -1;                      /* QCI */
-static int hf_f1ap_allocationAndRetentionPriority = -1;  /* AllocationAndRetentionPriority */
-static int hf_f1ap_gbrQosInformation = -1;        /* GBR_QosInformation */
-static int hf_f1ap_eUTRAFDD = -1;                 /* EUTRA_FDD_Info */
-static int hf_f1ap_eUTRATDD = -1;                 /* EUTRA_TDD_Info */
-static int hf_f1ap_uL_offsetToPointA = -1;        /* OffsetToPointA */
-static int hf_f1ap_dL_offsetToPointA = -1;        /* OffsetToPointA */
-static int hf_f1ap_offsetToPointA = -1;           /* OffsetToPointA */
-static int hf_f1ap_expected_Azimuth_AoA = -1;     /* Expected_Azimuth_AoA */
-static int hf_f1ap_expected_Zenith_AoA = -1;      /* Expected_Zenith_AoA */
-static int hf_f1ap_iE_extensions = -1;            /* ProtocolExtensionContainer */
-static int hf_f1ap_expected_ZoA_only = -1;        /* Expected_Zenith_AoA */
-static int hf_f1ap_expected_Azimuth_AoA_value = -1;  /* Expected_Value_AoA */
-static int hf_f1ap_expected_Azimuth_AoA_uncertainty = -1;  /* Uncertainty_range_AoA */
-static int hf_f1ap_expected_Zenith_AoA_value = -1;  /* Expected_Value_ZoA */
-static int hf_f1ap_expected_Zenith_AoA_uncertainty = -1;  /* Uncertainty_range_ZoA */
-static int hf_f1ap_f1CPathNSA = -1;               /* F1CPathNSA */
-static int hf_f1ap_f1CPathNRDC = -1;              /* F1CPathNRDC */
-static int hf_f1ap_uL_NRFreqInfo = -1;            /* NRFreqInfo */
-static int hf_f1ap_dL_NRFreqInfo = -1;            /* NRFreqInfo */
-static int hf_f1ap_uL_Transmission_Bandwidth_01 = -1;  /* Transmission_Bandwidth */
-static int hf_f1ap_dL_Transmission_Bandwidth_01 = -1;  /* Transmission_Bandwidth */
-static int hf_f1ap_uL_FreqInfo = -1;              /* FreqInfoRel16 */
-static int hf_f1ap_sUL_FreqInfo = -1;             /* FreqInfoRel16 */
-static int hf_f1ap_fiveG_proSeDirectDiscovery = -1;  /* FiveG_ProSeDirectDiscovery */
-static int hf_f1ap_fiveG_proSeDirectCommunication = -1;  /* FiveG_ProSeDirectCommunication */
-static int hf_f1ap_fiveG_ProSeLayer2UEtoNetworkRelay = -1;  /* FiveG_ProSeLayer2UEtoNetworkRelay */
-static int hf_f1ap_fiveG_ProSeLayer3UEtoNetworkRelay = -1;  /* FiveG_ProSeLayer3UEtoNetworkRelay */
-static int hf_f1ap_fiveG_ProSeLayer2RemoteUE = -1;  /* FiveG_ProSeLayer2RemoteUE */
-static int hf_f1ap_Flows_Mapped_To_DRB_List_item = -1;  /* Flows_Mapped_To_DRB_Item */
-static int hf_f1ap_qoSFlowIdentifier = -1;        /* QoSFlowIdentifier */
-static int hf_f1ap_qoSFlowLevelQoSParameters = -1;  /* QoSFlowLevelQoSParameters */
-static int hf_f1ap_freqBandIndicatorNr = -1;      /* INTEGER_1_1024_ */
-static int hf_f1ap_supportedSULBandList = -1;     /* SEQUENCE_SIZE_0_maxnoofNrCellBands_OF_SupportedSULFreqBandItem */
-static int hf_f1ap_supportedSULBandList_item = -1;  /* SupportedSULFreqBandItem */
-static int hf_f1ap_l839 = -1;                     /* L839Info */
-static int hf_f1ap_l139 = -1;                     /* L139Info */
-static int hf_f1ap_nRARFCN = -1;                  /* INTEGER_0_maxNRARFCN */
-static int hf_f1ap_frequencyShift7p5khz = -1;     /* FrequencyShift7p5khz */
-static int hf_f1ap_carrierList = -1;              /* NRCarrierList */
-static int hf_f1ap_Frequency_Domain_HSNA_Configuration_List_item = -1;  /* Frequency_Domain_HSNA_Configuration_Item */
-static int hf_f1ap_rBSetIndex = -1;               /* INTEGER_0_maxnoofRBsetsPerCell_1_ */
-static int hf_f1ap_frequency_Domain_HSNA_Slot_Configuration_List = -1;  /* Frequency_Domain_HSNA_Slot_Configuration_List */
-static int hf_f1ap_Frequency_Domain_HSNA_Slot_Configuration_List_item = -1;  /* Frequency_Domain_HSNA_Slot_Configuration_Item */
-static int hf_f1ap_slotIndex = -1;                /* INTEGER_0_5119 */
-static int hf_f1ap_hSNADownlink = -1;             /* HSNADownlink */
-static int hf_f1ap_hSNAUplink = -1;               /* HSNAUplink */
-static int hf_f1ap_hSNAFlexible = -1;             /* HSNAFlexible */
-static int hf_f1ap_FlowsMappedToSLDRB_List_item = -1;  /* FlowsMappedToSLDRB_Item */
-static int hf_f1ap_pc5QoSFlowIdentifier = -1;     /* PC5QoSFlowIdentifier */
-static int hf_f1ap_e_RAB_MaximumBitrateDL = -1;   /* BitRate */
-static int hf_f1ap_e_RAB_MaximumBitrateUL = -1;   /* BitRate */
-static int hf_f1ap_e_RAB_GuaranteedBitrateDL = -1;  /* BitRate */
-static int hf_f1ap_e_RAB_GuaranteedBitrateUL = -1;  /* BitRate */
-static int hf_f1ap_maxFlowBitRateDownlink = -1;   /* BitRate */
-static int hf_f1ap_maxFlowBitRateUplink = -1;     /* BitRate */
-static int hf_f1ap_guaranteedFlowBitRateDownlink = -1;  /* BitRate */
-static int hf_f1ap_guaranteedFlowBitRateUplink = -1;  /* BitRate */
-static int hf_f1ap_maxPacketLossRateDownlink = -1;  /* MaxPacketLossRate */
-static int hf_f1ap_maxPacketLossRateUplink = -1;  /* MaxPacketLossRate */
-static int hf_f1ap_tRPPositionDefinitionType = -1;  /* TRPPositionDefinitionType */
-static int hf_f1ap_dLPRSResourceCoordinates = -1;  /* DLPRSResourceCoordinates */
-static int hf_f1ap_sibtypetobeupdatedlist = -1;   /* SEQUENCE_SIZE_1_maxnoofSIBTypes_OF_SibtypetobeupdatedListItem */
-static int hf_f1ap_sibtypetobeupdatedlist_item = -1;  /* SibtypetobeupdatedListItem */
-static int hf_f1ap_tNLAssociationTransportLayerAddress = -1;  /* CP_TransportLayerAddress */
-static int hf_f1ap_tNLAssociationUsage = -1;      /* TNLAssociationUsage */
-static int hf_f1ap_subcarrierSpacing_01 = -1;     /* SubcarrierSpacing */
-static int hf_f1ap_dUFTransmissionPeriodicity = -1;  /* DUFTransmissionPeriodicity */
-static int hf_f1ap_dUF_Slot_Config_List = -1;     /* DUF_Slot_Config_List */
-static int hf_f1ap_hSNATransmissionPeriodicity = -1;  /* HSNATransmissionPeriodicity */
-static int hf_f1ap_hsNSASlotConfigList = -1;      /* HSNASlotConfigList */
-static int hf_f1ap_gNB_CU_NameVisibleString = -1;  /* GNB_CU_NameVisibleString */
-static int hf_f1ap_gNB_CU_NameUTF8String = -1;    /* GNB_CU_NameUTF8String */
-static int hf_f1ap_gNB_DU_NameVisibleString = -1;  /* GNB_DU_NameVisibleString */
-static int hf_f1ap_gNB_DU_NameUTF8String = -1;    /* GNB_DU_NameUTF8String */
-static int hf_f1ap_served_Cell_Information = -1;  /* Served_Cell_Information */
-static int hf_f1ap_gNB_DU_System_Information = -1;  /* GNB_DU_System_Information */
-static int hf_f1ap_mIB_message = -1;              /* MIB_message */
-static int hf_f1ap_sIB1_message = -1;             /* SIB1_message */
-static int hf_f1ap_tNLAssociationTransportLayerAddressgNBCU = -1;  /* CP_TransportLayerAddress */
-static int hf_f1ap_GNBDUUESliceMaximumBitRateList_item = -1;  /* GNBDUUESliceMaximumBitRateItem */
-static int hf_f1ap_uESliceMaximumBitRateUL = -1;  /* BitRate */
-static int hf_f1ap_rxTxTimeDiff = -1;             /* GNBRxTxTimeDiffMeas */
-static int hf_f1ap_additionalPath_List = -1;      /* AdditionalPath_List */
-static int hf_f1ap_k0 = -1;                       /* INTEGER_0_1970049 */
-static int hf_f1ap_k1 = -1;                       /* INTEGER_0_985025 */
-static int hf_f1ap_k2 = -1;                       /* INTEGER_0_492513 */
-static int hf_f1ap_k3 = -1;                       /* INTEGER_0_246257 */
-static int hf_f1ap_k4 = -1;                       /* INTEGER_0_123129 */
-static int hf_f1ap_k5 = -1;                       /* INTEGER_0_61565 */
-static int hf_f1ap_GTPTLAs_item = -1;             /* GTPTLA_Item */
-static int hf_f1ap_gTPTransportLayerAddress = -1;  /* TransportLayerAddress */
-static int hf_f1ap_transportLayerAddress = -1;    /* TransportLayerAddress */
-static int hf_f1ap_gTP_TEID = -1;                 /* GTP_TEID */
-static int hf_f1ap_dLHardwareLoadIndicator = -1;  /* INTEGER_0_100_ */
-static int hf_f1ap_uLHardwareLoadIndicator = -1;  /* INTEGER_0_100_ */
-static int hf_f1ap_HSNASlotConfigList_item = -1;  /* HSNASlotConfigItem */
-static int hf_f1ap_iAB_Congestion_Indication_List = -1;  /* IAB_Congestion_Indication_List */
-static int hf_f1ap_IAB_Congestion_Indication_List_item = -1;  /* IAB_Congestion_Indication_Item */
-static int hf_f1ap_childNodeIdentifier = -1;      /* BAPAddress */
-static int hf_f1ap_bHRLCCHList = -1;              /* BHRLCCHList */
-static int hf_f1ap_IAB_MT_Cell_List_item = -1;    /* IAB_MT_Cell_List_Item */
-static int hf_f1ap_nRCellIdentity = -1;           /* NRCellIdentity */
-static int hf_f1ap_dU_RX_MT_RX = -1;              /* DU_RX_MT_RX */
-static int hf_f1ap_dU_TX_MT_TX = -1;              /* DU_TX_MT_TX */
-static int hf_f1ap_dU_RX_MT_TX = -1;              /* DU_RX_MT_TX */
-static int hf_f1ap_dU_TX_MT_RX = -1;              /* DU_TX_MT_RX */
-static int hf_f1ap_fDD_01 = -1;                   /* IAB_MT_Cell_NA_Resource_Configuration_FDD_Info */
-static int hf_f1ap_tDD_01 = -1;                   /* IAB_MT_Cell_NA_Resource_Configuration_TDD_Info */
-static int hf_f1ap_gNB_DU_Cell_NA_Resource_Configuration_FDD_UL = -1;  /* GNB_DU_Cell_Resource_Configuration */
-static int hf_f1ap_gNB_DU_Cell_NA_Resource_Configuration_FDD_DL = -1;  /* GNB_DU_Cell_Resource_Configuration */
-static int hf_f1ap_uL_FreqInfo_01 = -1;           /* NRFreqInfo */
-static int hf_f1ap_uL_NR_Carrier_List = -1;       /* NRCarrierList */
-static int hf_f1ap_dL_FreqInfo = -1;              /* NRFreqInfo */
-static int hf_f1ap_dL_NR_Carrier_List = -1;       /* NRCarrierList */
-static int hf_f1ap_gNB_DU_Cell_NA_Resourc_Configuration_TDD = -1;  /* GNB_DU_Cell_Resource_Configuration */
-static int hf_f1ap_nRFreqInfo = -1;               /* NRFreqInfo */
-static int hf_f1ap_transmission_Bandwidth_01 = -1;  /* Transmission_Bandwidth */
-static int hf_f1ap_nR_Carrier_List = -1;          /* NRCarrierList */
-static int hf_f1ap_iAB_STC_Info_List = -1;        /* IAB_STC_Info_List */
-static int hf_f1ap_IAB_STC_Info_List_item = -1;   /* IAB_STC_Info_Item */
-static int hf_f1ap_sSB_freqInfo = -1;             /* SSB_freqInfo */
-static int hf_f1ap_sSB_subcarrierSpacing = -1;    /* SSB_subcarrierSpacing */
-static int hf_f1ap_sSB_transmissionPeriodicity = -1;  /* SSB_transmissionPeriodicity */
-static int hf_f1ap_sSB_transmissionTimingOffset = -1;  /* SSB_transmissionTimingOffset */
-static int hf_f1ap_sSB_transmissionBitmap = -1;   /* SSB_transmissionBitmap */
-static int hf_f1ap_iABTNLAddress = -1;            /* IABTNLAddress */
-static int hf_f1ap_iABTNLAddressUsage = -1;       /* IABTNLAddressUsage */
-static int hf_f1ap_fDD_02 = -1;                   /* IAB_DU_Cell_Resource_Configuration_FDD_Info */
-static int hf_f1ap_tDD_02 = -1;                   /* IAB_DU_Cell_Resource_Configuration_TDD_Info */
-static int hf_f1ap_gNB_DU_Cell_Resource_Configuration_FDD_UL = -1;  /* GNB_DU_Cell_Resource_Configuration */
-static int hf_f1ap_gNB_DU_Cell_Resource_Configuration_FDD_DL = -1;  /* GNB_DU_Cell_Resource_Configuration */
-static int hf_f1ap_gNB_DU_Cell_Resourc_Configuration_TDD = -1;  /* GNB_DU_Cell_Resource_Configuration */
-static int hf_f1ap_iPv6Address = -1;              /* IABTNLAddressesRequested */
-static int hf_f1ap_iPv6Prefix = -1;               /* IABTNLAddressesRequested */
-static int hf_f1ap_iPv4Address = -1;              /* T_iPv4Address */
-static int hf_f1ap_iPv6Address_01 = -1;           /* T_iPv6Address */
-static int hf_f1ap_iPv6Prefix_01 = -1;            /* T_iPv6Prefix */
-static int hf_f1ap_tNLAddressesOrPrefixesRequestedAllTraffic = -1;  /* INTEGER_1_256 */
-static int hf_f1ap_tNLAddressesOrPrefixesRequestedF1_C = -1;  /* INTEGER_1_256 */
-static int hf_f1ap_tNLAddressesOrPrefixesRequestedF1_U = -1;  /* INTEGER_1_256 */
-static int hf_f1ap_tNLAddressesOrPrefixesRequestedNoNF1 = -1;  /* INTEGER_1_256 */
-static int hf_f1ap_iABTNLAddressList = -1;        /* IABTNLAddressList */
-static int hf_f1ap_IABTNLAddressList_item = -1;   /* IABTNLAddress_Item */
-static int hf_f1ap_iABv4AddressesRequested = -1;  /* IABTNLAddressesRequested */
-static int hf_f1ap_dUFSlotformatIndex = -1;       /* DUFSlotformatIndex */
-static int hf_f1ap_nRSCS = -1;                    /* T_nRSCS */
-static int hf_f1ap_nRCP = -1;                     /* T_nRCP */
-static int hf_f1ap_nRDLULTxPeriodicity = -1;      /* T_nRDLULTxPeriodicity */
-static int hf_f1ap_slot_Configuration_List = -1;  /* Slot_Configuration_List */
-static int hf_f1ap_destinationIABTNLAddress = -1;  /* IABTNLAddress */
-static int hf_f1ap_dsInformationList = -1;        /* DSInformationList */
-static int hf_f1ap_iPv6FlowLabel = -1;            /* BIT_STRING_SIZE_20 */
-static int hf_f1ap_iPtolayer2TrafficMappingInfoToAdd = -1;  /* IPtolayer2TrafficMappingInfoList */
-static int hf_f1ap_iPtolayer2TrafficMappingInfoToRemove = -1;  /* MappingInformationtoRemove */
-static int hf_f1ap_IPtolayer2TrafficMappingInfoList_item = -1;  /* IPtolayer2TrafficMappingInfo_Item */
-static int hf_f1ap_iPHeaderInformation = -1;      /* IPHeaderInformation */
-static int hf_f1ap_bHInfo = -1;                   /* BHInfo */
-static int hf_f1ap_prachSCS = -1;                 /* T_prachSCS */
-static int hf_f1ap_rootSequenceIndex_01 = -1;     /* INTEGER_0_137 */
-static int hf_f1ap_restrictedSetConfig = -1;      /* T_restrictedSetConfig */
-static int hf_f1ap_prachSCSForL571 = -1;          /* T_prachSCSForL571 */
-static int hf_f1ap_rootSequenceIndex_02 = -1;     /* INTEGER_0_569 */
-static int hf_f1ap_prachSCSForL1151 = -1;         /* T_prachSCSForL1151 */
-static int hf_f1ap_rootSequenceIndex_03 = -1;     /* INTEGER_0_1149 */
-static int hf_f1ap_alpha = -1;                    /* INTEGER_0_3599 */
-static int hf_f1ap_beta = -1;                     /* INTEGER_0_3599 */
-static int hf_f1ap_gamma = -1;                    /* INTEGER_0_3599 */
-static int hf_f1ap_LCStoGCSTranslationList_item = -1;  /* LCStoGCSTranslation */
-static int hf_f1ap_alpha_01 = -1;                 /* INTEGER_0_359 */
-static int hf_f1ap_alpha_fine = -1;               /* INTEGER_0_9 */
-static int hf_f1ap_beta_01 = -1;                  /* INTEGER_0_359 */
-static int hf_f1ap_beta_fine = -1;                /* INTEGER_0_9 */
-static int hf_f1ap_gamma_01 = -1;                 /* INTEGER_0_359 */
-static int hf_f1ap_gamma_fine = -1;               /* INTEGER_0_9 */
-static int hf_f1ap_LocationDependentMBSF1UInformation_item = -1;  /* LocationDependentMBSF1UInformation_Item */
-static int hf_f1ap_mbsAreaSession_ID = -1;        /* MBS_Area_Session_ID */
-static int hf_f1ap_mbs_f1u_info_at_CU = -1;       /* UPTransportLayerInformation */
-static int hf_f1ap_horizontalUncertainty = -1;    /* INTEGER_0_255 */
-static int hf_f1ap_horizontalConfidence = -1;     /* INTEGER_0_100 */
-static int hf_f1ap_verticalUncertainty = -1;      /* INTEGER_0_255 */
-static int hf_f1ap_verticalConfidence = -1;       /* INTEGER_0_100 */
-static int hf_f1ap_loS_NLoSIndicatorSoft = -1;    /* LoS_NLoSIndicatorSoft */
-static int hf_f1ap_loS_NLoSIndicatorHard = -1;    /* LoS_NLoSIndicatorHard */
-static int hf_f1ap_uELTESidelinkAggregateMaximumBitrate = -1;  /* BitRate */
-static int hf_f1ap_vehicleUE = -1;                /* VehicleUE */
-static int hf_f1ap_pedestrianUE = -1;             /* PedestrianUE */
-static int hf_f1ap_MappingInformationtoRemove_item = -1;  /* MappingInformationIndex */
-static int hf_f1ap_MBS_Flows_Mapped_To_MRB_List_item = -1;  /* MBS_Flows_Mapped_To_MRB_Item */
-static int hf_f1ap_mBS_QoSFlowIdentifier = -1;    /* QoSFlowIdentifier */
-static int hf_f1ap_mbs_QoSFlowLevelQoSParameters = -1;  /* QoSFlowLevelQoSParameters */
-static int hf_f1ap_mbs_f1u_info = -1;             /* UPTransportLayerInformation */
-static int hf_f1ap_tMGI = -1;                     /* TMGI */
-static int hf_f1ap_nID = -1;                      /* NID */
-static int hf_f1ap_mBS_Broadcast_Cell_List = -1;  /* MBS_Broadcast_Cell_List */
-static int hf_f1ap_mBS_Broadcast_MRB_List = -1;   /* MBS_Broadcast_MRB_List */
-static int hf_f1ap_MBS_Broadcast_Cell_List_item = -1;  /* MBS_Broadcast_Cell_Item */
-static int hf_f1ap_mtch_neighbourCell = -1;       /* OCTET_STRING */
-static int hf_f1ap_MBS_Broadcast_MRB_List_item = -1;  /* MBS_Broadcast_MRB_Item */
-static int hf_f1ap_mRB_PDCP_Config_Broadcast = -1;  /* T_mRB_PDCP_Config_Broadcast */
-static int hf_f1ap_multicastF1UContextReferenceF1 = -1;  /* MulticastF1UContextReferenceF1 */
-static int hf_f1ap_mc_F1UCtxtusage = -1;          /* T_mc_F1UCtxtusage */
-static int hf_f1ap_mbsAreaSession = -1;           /* MBS_Area_Session_ID */
-static int hf_f1ap_mbs_f1u_info_at_DU = -1;       /* UPTransportLayerInformation */
-static int hf_f1ap_mbsProgressInformation = -1;   /* MRB_ProgressInformation */
-static int hf_f1ap_locationindependent = -1;      /* MBS_ServiceAreaInformation */
-static int hf_f1ap_locationdependent_01 = -1;     /* MBS_ServiceAreaInformationList */
-static int hf_f1ap_choice_Extensions = -1;        /* ProtocolIE_SingleContainer */
-static int hf_f1ap_mBS_ServiceAreaCellList = -1;  /* MBS_ServiceAreaCellList */
-static int hf_f1ap_mBS_ServiceAreaTAIList = -1;   /* MBS_ServiceAreaTAIList */
-static int hf_f1ap_MBS_ServiceAreaCellList_item = -1;  /* NRCGI */
-static int hf_f1ap_MBS_ServiceAreaTAIList_item = -1;  /* MBS_ServiceAreaTAIList_Item */
-static int hf_f1ap_plmn_ID = -1;                  /* PLMN_Identity */
-static int hf_f1ap_five5_TAC = -1;                /* FiveGS_TAC */
-static int hf_f1ap_MBS_ServiceAreaInformationList_item = -1;  /* MBS_ServiceAreaInformationItem */
-static int hf_f1ap_mBS_AreaSessionID = -1;        /* MBS_Area_Session_ID */
-static int hf_f1ap_mBS_ServiceAreaInformation = -1;  /* MBS_ServiceAreaInformation */
-static int hf_f1ap_pRS_Resource_ID = -1;          /* PRS_Resource_ID */
-static int hf_f1ap_pRS_Resource_Set_ID = -1;      /* PRS_Resource_Set_ID */
-static int hf_f1ap_sSB_Index_01 = -1;             /* SSB_Index */
-static int hf_f1ap_pdcp_SN12 = -1;                /* INTEGER_0_4095 */
-static int hf_f1ap_pdcp_SN18 = -1;                /* INTEGER_0_262143 */
-static int hf_f1ap_multipleULAoA_01 = -1;         /* MultipleULAoA_List */
-static int hf_f1ap_MultipleULAoA_List_item = -1;  /* MultipleULAoA_Item */
-static int hf_f1ap_uL_AoA = -1;                   /* UL_AoA */
-static int hf_f1ap_ul_ZoA = -1;                   /* ZoAInformation */
-static int hf_f1ap_MulticastMBSSessionList_item = -1;  /* MulticastMBSSessionList_Item */
-static int hf_f1ap_mbsSessionId = -1;             /* MBS_Session_ID */
-static int hf_f1ap_mBS_DL_PDCP_SN_Length = -1;    /* PDCPSNLength */
-static int hf_f1ap_iAB_MT_Cell_List = -1;         /* IAB_MT_Cell_List */
-static int hf_f1ap_m5period = -1;                 /* M5period */
-static int hf_f1ap_m5_links_to_log = -1;          /* M5_Links_to_log */
-static int hf_f1ap_m6report_Interval = -1;        /* M6report_Interval */
-static int hf_f1ap_m6_links_to_log = -1;          /* M6_Links_to_log */
-static int hf_f1ap_m7period = -1;                 /* M7period */
-static int hf_f1ap_m7_links_to_log = -1;          /* M7_Links_to_log */
-static int hf_f1ap_mdt_Activation = -1;           /* MDT_Activation */
-static int hf_f1ap_measurementsToActivate = -1;   /* MeasurementsToActivate */
-static int hf_f1ap_m2Configuration = -1;          /* M2Configuration */
-static int hf_f1ap_m5Configuration = -1;          /* M5Configuration */
-static int hf_f1ap_m6Configuration = -1;          /* M6Configuration */
-static int hf_f1ap_m7Configuration = -1;          /* M7Configuration */
-static int hf_f1ap_MDTPLMNList_item = -1;         /* PLMN_Identity */
-static int hf_f1ap_MDTPLMNModificationList_item = -1;  /* PLMN_Identity */
-static int hf_f1ap_uL_AngleOfArrival = -1;        /* UL_AoA */
-static int hf_f1ap_uL_SRS_RSRP = -1;              /* UL_SRS_RSRP */
-static int hf_f1ap_uL_RTOA = -1;                  /* UL_RTOA_Measurement */
-static int hf_f1ap_gNB_RxTxTimeDiff = -1;         /* GNB_RxTxTimeDiff */
-static int hf_f1ap_NA_Resource_Configuration_List_item = -1;  /* NA_Resource_Configuration_Item */
-static int hf_f1ap_nADownlink = -1;               /* NADownlink */
-static int hf_f1ap_nAUplink = -1;                 /* NAUplink */
-static int hf_f1ap_nAFlexible = -1;               /* NAFlexible */
-static int hf_f1ap_Neighbour_Node_Cells_List_item = -1;  /* Neighbour_Node_Cells_List_Item */
-static int hf_f1ap_peer_Parent_Node_Indicator = -1;  /* T_peer_Parent_Node_Indicator */
-static int hf_f1ap_cSI_RS_Configuration_01 = -1;  /* T_cSI_RS_Configuration_01 */
-static int hf_f1ap_sR_Configuration_01 = -1;      /* T_sR_Configuration_01 */
-static int hf_f1ap_pDCCH_ConfigSIB1_01 = -1;      /* T_pDCCH_ConfigSIB1_01 */
-static int hf_f1ap_sCS_Common_01 = -1;            /* T_sCS_Common_01 */
-static int hf_f1ap_intendedTDD_DL_ULConfig = -1;  /* IntendedTDD_DL_ULConfig */
-static int hf_f1ap_NeighbourNR_CellsForSON_List_item = -1;  /* NeighbourNR_CellsForSON_Item */
-static int hf_f1ap_nR_ModeInfoRel16 = -1;         /* NR_ModeInfoRel16 */
-static int hf_f1ap_sSB_PositionsInBurst = -1;     /* SSB_PositionsInBurst */
-static int hf_f1ap_nRPRACHConfig = -1;            /* NRPRACHConfig */
-static int hf_f1ap_latitude_01 = -1;              /* INTEGER_M2147483648_2147483647 */
-static int hf_f1ap_longitude_01 = -1;             /* INTEGER_M2147483648_2147483647 */
-static int hf_f1ap_altitude_01 = -1;              /* INTEGER_M64000_1280000 */
-static int hf_f1ap_uncertaintySemi_major_01 = -1;  /* INTEGER_0_255 */
-static int hf_f1ap_uncertaintySemi_minor_01 = -1;  /* INTEGER_0_255 */
-static int hf_f1ap_uncertaintyAltitude_01 = -1;   /* INTEGER_0_255 */
-static int hf_f1ap_nR_PRSBeamInformationList = -1;  /* NR_PRSBeamInformationList */
-static int hf_f1ap_lCStoGCSTranslationList = -1;  /* LCStoGCSTranslationList */
-static int hf_f1ap_NR_PRSBeamInformationList_item = -1;  /* NR_PRSBeamInformationItem */
-static int hf_f1ap_pRSResourceSetID = -1;         /* PRS_Resource_Set_ID */
-static int hf_f1ap_pRSAngleList = -1;             /* PRSAngleList */
-static int hf_f1ap_nrpaging_eDRX_Cycle_Idle = -1;  /* NRPaging_eDRX_Cycle_Idle */
-static int hf_f1ap_nrpaging_Time_Window = -1;     /* NRPaging_Time_Window */
-static int hf_f1ap_nrpaging_eDRX_Cycle_Inactive = -1;  /* NRPaging_eDRX_Cycle_Inactive */
-static int hf_f1ap_message_Identifier = -1;       /* MessageIdentifier */
-static int hf_f1ap_serialNumber = -1;             /* SerialNumber */
-static int hf_f1ap_sNPN_Broadcast_Information = -1;  /* NPN_Broadcast_Information_SNPN */
-static int hf_f1ap_pNI_NPN_Broadcast_Information = -1;  /* NPN_Broadcast_Information_PNI_NPN */
-static int hf_f1ap_broadcastSNPNID_List = -1;     /* BroadcastSNPN_ID_List */
-static int hf_f1ap_broadcastPNI_NPN_ID_Information = -1;  /* BroadcastPNI_NPN_ID_List */
-static int hf_f1ap_sNPN_Information = -1;         /* NID */
-static int hf_f1ap_NRCarrierList_item = -1;       /* NRCarrierItem */
-static int hf_f1ap_carrierSCS = -1;               /* NRSCS */
-static int hf_f1ap_offsetToCarrier = -1;          /* INTEGER_0_2199_ */
-static int hf_f1ap_carrierBandwidth = -1;         /* INTEGER_0_maxnoofPhysicalResourceBlocks_ */
-static int hf_f1ap_sul_Information = -1;          /* SUL_Information */
-static int hf_f1ap_freqBandListNr = -1;           /* SEQUENCE_SIZE_1_maxnoofNrCellBands_OF_FreqBandNrItem */
-static int hf_f1ap_freqBandListNr_item = -1;      /* FreqBandNrItem */
-static int hf_f1ap_fDD_03 = -1;                   /* FDD_Info */
-static int hf_f1ap_tDD_03 = -1;                   /* TDD_Info */
-static int hf_f1ap_fDD_04 = -1;                   /* FDD_InfoRel16 */
-static int hf_f1ap_tDD_04 = -1;                   /* TDD_InfoRel16 */
-static int hf_f1ap_ulPRACHConfigList = -1;        /* NRPRACHConfigList */
-static int hf_f1ap_sulPRACHConfigList = -1;       /* NRPRACHConfigList */
-static int hf_f1ap_NRPRACHConfigList_item = -1;   /* NRPRACHConfigItem */
-static int hf_f1ap_nRSCS_01 = -1;                 /* NRSCS */
-static int hf_f1ap_prachFreqStartfromCarrier = -1;  /* INTEGER_0_maxnoofPhysicalResourceBlocks_1_ */
-static int hf_f1ap_prachFDM = -1;                 /* T_prachFDM */
-static int hf_f1ap_prachConfigIndex = -1;         /* INTEGER_0_255_ */
-static int hf_f1ap_ssb_perRACH_Occasion = -1;     /* T_ssb_perRACH_Occasion */
-static int hf_f1ap_freqDomainLength = -1;         /* FreqDomainLength */
-static int hf_f1ap_zeroCorrelZoneConfig = -1;     /* INTEGER_0_15 */
-static int hf_f1ap_NR_U_Channel_Info_List_item = -1;  /* NR_U_Channel_Info_Item */
-static int hf_f1ap_nr_U_channel_ID = -1;          /* INTEGER_1_maxnoofNR_UChannelIDs_ */
-static int hf_f1ap_nR_ARFCN = -1;                 /* INTEGER_0_maxNRARFCN */
-static int hf_f1ap_bandwidth = -1;                /* T_bandwidth */
-static int hf_f1ap_NR_U_Channel_List_item = -1;   /* NR_U_Channel_Item */
-static int hf_f1ap_nR_U_ChannelID = -1;           /* INTEGER_1_maxnoofNR_UChannelIDs */
-static int hf_f1ap_channelOccupancyTimePercentageDL = -1;  /* ChannelOccupancyTimePercentage */
-static int hf_f1ap_energyDetectionThreshold = -1;  /* EnergyDetectionThreshold */
-static int hf_f1ap_numDLSymbols = -1;             /* INTEGER_0_13_ */
-static int hf_f1ap_numULSymbols = -1;             /* INTEGER_0_13_ */
-static int hf_f1ap_uENRSidelinkAggregateMaximumBitrate = -1;  /* BitRate */
-static int hf_f1ap_onDemandPRSRequestAllowed = -1;  /* BIT_STRING_SIZE_16 */
-static int hf_f1ap_allowedResourceSetPeriodicityValues = -1;  /* BIT_STRING_SIZE_24 */
-static int hf_f1ap_allowedPRSBandwidthValues = -1;  /* BIT_STRING_SIZE_64 */
-static int hf_f1ap_allowedResourceRepetitionFactorValues = -1;  /* BIT_STRING_SIZE_8 */
-static int hf_f1ap_allowedResourceNumberOfSymbolsValues = -1;  /* BIT_STRING_SIZE_8 */
-static int hf_f1ap_allowedCombSizeValues = -1;    /* BIT_STRING_SIZE_8 */
-static int hf_f1ap_pER_Scalar = -1;               /* PER_Scalar */
-static int hf_f1ap_pER_Exponent = -1;             /* PER_Exponent */
-static int hf_f1ap_rANUEPagingIdentity = -1;      /* RANUEPagingIdentity */
-static int hf_f1ap_cNUEPagingIdentity = -1;       /* CNUEPagingIdentity */
-static int hf_f1ap_cNSubgroupID = -1;             /* CNSubgroupID */
-static int hf_f1ap_k0_01 = -1;                    /* INTEGER_0_16351 */
-static int hf_f1ap_k1_01 = -1;                    /* INTEGER_0_8176 */
-static int hf_f1ap_k2_01 = -1;                    /* INTEGER_0_4088 */
-static int hf_f1ap_k3_01 = -1;                    /* INTEGER_0_2044 */
-static int hf_f1ap_k4_01 = -1;                    /* INTEGER_0_1022 */
-static int hf_f1ap_k5_01 = -1;                    /* INTEGER_0_511 */
-static int hf_f1ap_Parent_IAB_Nodes_NA_Resource_Configuration_List_item = -1;  /* Parent_IAB_Nodes_NA_Resource_Configuration_Item */
-static int hf_f1ap_broadcastCellList = -1;        /* BroadcastCellList */
-static int hf_f1ap_pathlossReferenceSignal = -1;  /* PathlossReferenceSignal */
-static int hf_f1ap_sSB = -1;                      /* SSB */
-static int hf_f1ap_dL_PRS = -1;                   /* DL_PRS */
-static int hf_f1ap_targetRelayUEID = -1;          /* BIT_STRING_SIZE_24 */
-static int hf_f1ap_remoteUELocalID = -1;          /* RemoteUELocalID */
-static int hf_f1ap_t420 = -1;                     /* T_t420 */
-static int hf_f1ap_non_Dynamic_PQI = -1;          /* NonDynamicPQIDescriptor */
-static int hf_f1ap_dynamic_PQI = -1;              /* DynamicPQIDescriptor */
-static int hf_f1ap_pC5_QoS_Characteristics = -1;  /* PC5_QoS_Characteristics */
-static int hf_f1ap_pC5_QoS_Flow_Bit_Rates = -1;   /* PC5FlowBitRates */
-static int hf_f1ap_guaranteedFlowBitRate = -1;    /* BitRate */
-static int hf_f1ap_maximumFlowBitRate = -1;       /* BitRate */
-static int hf_f1ap_pC5RLCChannelQoS = -1;         /* QoSFlowLevelQoSParameters */
-static int hf_f1ap_pC5ControlPlaneTrafficType = -1;  /* T_pC5ControlPlaneTrafficType */
-static int hf_f1ap_PC5RLCChannelToBeSetupList_item = -1;  /* PC5RLCChannelToBeSetupItem */
-static int hf_f1ap_pC5RLCChannelID = -1;          /* PC5RLCChannelID */
-static int hf_f1ap_pC5RLCChannelQoSInformation = -1;  /* PC5RLCChannelQoSInformation */
-static int hf_f1ap_PC5RLCChannelToBeModifiedList_item = -1;  /* PC5RLCChannelToBeModifiedItem */
-static int hf_f1ap_PC5RLCChannelToBeReleasedList_item = -1;  /* PC5RLCChannelToBeReleasedItem */
-static int hf_f1ap_PC5RLCChannelSetupList_item = -1;  /* PC5RLCChannelSetupItem */
-static int hf_f1ap_PC5RLCChannelFailedToBeSetupList_item = -1;  /* PC5RLCChannelFailedToBeSetupItem */
-static int hf_f1ap_PC5RLCChannelModifiedList_item = -1;  /* PC5RLCChannelModifiedItem */
-static int hf_f1ap_PC5RLCChannelFailedToBeModifiedList_item = -1;  /* PC5RLCChannelFailedToBeModifiedItem */
-static int hf_f1ap_PC5RLCChannelRequiredToBeModifiedList_item = -1;  /* PC5RLCChannelRequiredToBeModifiedItem */
-static int hf_f1ap_PC5RLCChannelRequiredToBeReleasedList_item = -1;  /* PC5RLCChannelRequiredToBeReleasedItem */
-static int hf_f1ap_PDCMeasurementQuantities_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_pDCmeasurementQuantitiesValue = -1;  /* PDCMeasurementQuantitiesValue */
-static int hf_f1ap_pDCMeasuredResultsList = -1;   /* PDCMeasuredResultsList */
-static int hf_f1ap_PDCMeasuredResultsList_item = -1;  /* PDCMeasuredResults_Item */
-static int hf_f1ap_pDCMeasuredResults_Value = -1;  /* PDCMeasuredResults_Value */
-static int hf_f1ap_pDC_TADV_NR = -1;              /* PDC_TADV_NR */
-static int hf_f1ap_pDC_RxTxTimeDiff = -1;         /* PDC_RxTxTimeDiff */
-static int hf_f1ap_PeriodicityList_item = -1;     /* PeriodicityList_Item */
-static int hf_f1ap_periodicitySRS = -1;           /* PeriodicitySRS */
-static int hf_f1ap_PositioningBroadcastCells_item = -1;  /* NRCGI */
-static int hf_f1ap_posMeasGapPreConfigToAddModList = -1;  /* T_posMeasGapPreConfigToAddModList */
-static int hf_f1ap_posMeasGapPreConfigToReleaseList = -1;  /* T_posMeasGapPreConfigToReleaseList */
-static int hf_f1ap_PosMeasurementQuantities_item = -1;  /* PosMeasurementQuantities_Item */
-static int hf_f1ap_posMeasurementType = -1;       /* PosMeasurementType */
-static int hf_f1ap_timingReportingGranularityFactor = -1;  /* INTEGER_0_5 */
-static int hf_f1ap_PosMeasurementResult_item = -1;  /* PosMeasurementResultItem */
-static int hf_f1ap_measuredResultsValue = -1;     /* MeasuredResultsValue */
-static int hf_f1ap_timeStamp = -1;                /* TimeStamp */
-static int hf_f1ap_measurementQuality = -1;       /* TRPMeasurementQuality */
-static int hf_f1ap_measurementBeamInfo = -1;      /* MeasurementBeamInfo */
-static int hf_f1ap_PosMeasurementResultList_item = -1;  /* PosMeasurementResultList_Item */
-static int hf_f1ap_posMeasurementResult = -1;     /* PosMeasurementResult */
-static int hf_f1ap_tRPID = -1;                    /* TRPID */
-static int hf_f1ap_periodic = -1;                 /* PosResourceSetTypePR */
-static int hf_f1ap_semi_persistent = -1;          /* PosResourceSetTypeSP */
-static int hf_f1ap_aperiodic = -1;                /* PosResourceSetTypeAP */
-static int hf_f1ap_posperiodicSet = -1;           /* T_posperiodicSet */
-static int hf_f1ap_possemi_persistentSet = -1;    /* T_possemi_persistentSet */
-static int hf_f1ap_sRSResourceTrigger_List = -1;  /* INTEGER_1_3 */
-static int hf_f1ap_PosSItypeList_item = -1;       /* PosSItype_Item */
-static int hf_f1ap_posItype = -1;                 /* PosSItype */
-static int hf_f1ap_PosSRSResourceID_List_item = -1;  /* SRSPosResourceID */
-static int hf_f1ap_srs_PosResourceId = -1;        /* SRSPosResourceID */
-static int hf_f1ap_transmissionCombPos = -1;      /* TransmissionCombPos */
-static int hf_f1ap_startPosition = -1;            /* INTEGER_0_13 */
-static int hf_f1ap_nrofSymbols = -1;              /* T_nrofSymbols */
-static int hf_f1ap_freqDomainShift = -1;          /* INTEGER_0_268 */
-static int hf_f1ap_c_SRS = -1;                    /* INTEGER_0_63 */
-static int hf_f1ap_groupOrSequenceHopping = -1;   /* T_groupOrSequenceHopping */
-static int hf_f1ap_resourceTypePos = -1;          /* ResourceTypePos */
-static int hf_f1ap_sequenceId = -1;               /* INTEGER_0_65535 */
-static int hf_f1ap_spatialRelationPos = -1;       /* SpatialRelationPos */
-static int hf_f1ap_PosSRSResource_List_item = -1;  /* PosSRSResource_Item */
-static int hf_f1ap_possrsResourceSetID = -1;      /* INTEGER_0_15 */
-static int hf_f1ap_possRSResourceID_List = -1;    /* PosSRSResourceID_List */
-static int hf_f1ap_posresourceSetType = -1;       /* PosResourceSetType */
-static int hf_f1ap_PosSRSResourceSet_List_item = -1;  /* PosSRSResourceSet_Item */
-static int hf_f1ap_spectrumSharingGroupID = -1;   /* SpectrumSharingGroupID */
-static int hf_f1ap_eUTRACells_List = -1;          /* EUTRACells_List */
-static int hf_f1ap_pRSResourceSet_List = -1;      /* PRSResourceSet_List */
-static int hf_f1ap_pRS_IDPos = -1;                /* INTEGER_0_255 */
-static int hf_f1ap_pRS_Resource_Set_IDPos = -1;   /* INTEGER_0_7 */
-static int hf_f1ap_pRS_Resource_IDPos = -1;       /* INTEGER_0_63 */
-static int hf_f1ap_PRS_Measurement_Info_List_item = -1;  /* PRS_Measurement_Info_List_Item */
-static int hf_f1ap_pointA = -1;                   /* INTEGER_0_3279165 */
-static int hf_f1ap_measPRSPeriodicity = -1;       /* T_measPRSPeriodicity */
-static int hf_f1ap_measPRSOffset = -1;            /* INTEGER_0_159_ */
-static int hf_f1ap_measurementPRSLength = -1;     /* T_measurementPRSLength */
-static int hf_f1ap_potential_SpCell_ID = -1;      /* NRCGI */
-static int hf_f1ap_PRSAngleList_item = -1;        /* PRSAngleItem */
-static int hf_f1ap_nR_PRS_Azimuth = -1;           /* INTEGER_0_359 */
-static int hf_f1ap_nR_PRS_Azimuth_fine = -1;      /* INTEGER_0_9 */
-static int hf_f1ap_nR_PRS_Elevation = -1;         /* INTEGER_0_180 */
-static int hf_f1ap_nR_PRS_Elevation_fine = -1;    /* INTEGER_0_9 */
-static int hf_f1ap_pRSMutingOption1 = -1;         /* PRSMutingOption1 */
-static int hf_f1ap_pRSMutingOption2 = -1;         /* PRSMutingOption2 */
-static int hf_f1ap_mutingPattern = -1;            /* DL_PRSMutingPattern */
-static int hf_f1ap_mutingBitRepetitionFactor = -1;  /* T_mutingBitRepetitionFactor */
-static int hf_f1ap_PRSResource_List_item = -1;    /* PRSResource_Item */
-static int hf_f1ap_pRSResourceID = -1;            /* PRS_Resource_ID */
-static int hf_f1ap_sequenceID = -1;               /* INTEGER_0_4095 */
-static int hf_f1ap_rEOffset = -1;                 /* INTEGER_0_11_ */
-static int hf_f1ap_resourceSlotOffset = -1;       /* INTEGER_0_511 */
-static int hf_f1ap_resourceSymbolOffset = -1;     /* INTEGER_0_12 */
-static int hf_f1ap_qCLInfo = -1;                  /* PRSResource_QCLInfo */
-static int hf_f1ap_qCLSourceSSB = -1;             /* PRSResource_QCLSourceSSB */
-static int hf_f1ap_qCLSourcePRS = -1;             /* PRSResource_QCLSourcePRS */
-static int hf_f1ap_pCI_NR = -1;                   /* INTEGER_0_1007 */
-static int hf_f1ap_qCLSourcePRSResourceSetID = -1;  /* PRS_Resource_Set_ID */
-static int hf_f1ap_qCLSourcePRSResourceID = -1;   /* PRS_Resource_ID */
-static int hf_f1ap_PRSResourceSet_List_item = -1;  /* PRSResourceSet_Item */
-static int hf_f1ap_subcarrierSpacing_02 = -1;     /* T_subcarrierSpacing_01 */
-static int hf_f1ap_pRSbandwidth = -1;             /* INTEGER_1_63 */
-static int hf_f1ap_startPRB = -1;                 /* INTEGER_0_2176 */
-static int hf_f1ap_combSize = -1;                 /* T_combSize */
-static int hf_f1ap_cPType = -1;                   /* T_cPType */
-static int hf_f1ap_resourceSetPeriodicity = -1;   /* T_resourceSetPeriodicity */
-static int hf_f1ap_resourceSetSlotOffset = -1;    /* INTEGER_0_81919_ */
-static int hf_f1ap_resourceRepetitionFactor = -1;  /* T_resourceRepetitionFactor */
-static int hf_f1ap_resourceTimeGap = -1;          /* T_resourceTimeGap */
-static int hf_f1ap_resourceNumberofSymbols = -1;  /* T_resourceNumberofSymbols */
-static int hf_f1ap_pRSMuting = -1;                /* PRSMuting */
-static int hf_f1ap_pRSResourceTransmitPower = -1;  /* INTEGER_M60_50 */
-static int hf_f1ap_pRSResource_List = -1;         /* PRSResource_List */
-static int hf_f1ap_pRSTransmissionOffPerTRP = -1;  /* NULL */
-static int hf_f1ap_pRSTransmissionOffPerResourceSet = -1;  /* PRSTransmissionOffPerResourceSet */
-static int hf_f1ap_pRSTransmissionOffPerResource = -1;  /* PRSTransmissionOffPerResource */
-static int hf_f1ap_PRSTransmissionOffPerResource_item = -1;  /* PRSTransmissionOffPerResource_Item */
-static int hf_f1ap_pRSTransmissionOffIndicationPerResourceList = -1;  /* SEQUENCE_SIZE_1_maxnoofPRSresources_OF_PRSTransmissionOffIndicationPerResource_Item */
-static int hf_f1ap_pRSTransmissionOffIndicationPerResourceList_item = -1;  /* PRSTransmissionOffIndicationPerResource_Item */
-static int hf_f1ap_pRSTransmissionOffIndication = -1;  /* PRSTransmissionOffIndication */
-static int hf_f1ap_PRSTransmissionOffPerResourceSet_item = -1;  /* PRSTransmissionOffPerResourceSet_Item */
-static int hf_f1ap_sIBtype = -1;                  /* SIBType_PWS */
-static int hf_f1ap_sIBmessage = -1;               /* T_sIBmessage */
-static int hf_f1ap_PRSTRPList_item = -1;          /* PRSTRPItem */
-static int hf_f1ap_tRP_ID = -1;                   /* TRPID */
-static int hf_f1ap_requestedDLPRSTransmissionCharacteristics = -1;  /* RequestedDLPRSTransmissionCharacteristics */
-static int hf_f1ap_pRSTransmissionOffInformation = -1;  /* PRSTransmissionOffInformation */
-static int hf_f1ap_requestedDLPRSResourceSet_List = -1;  /* RequestedDLPRSResourceSet_List */
-static int hf_f1ap_numberofFrequencyLayers = -1;  /* INTEGER_1_4 */
-static int hf_f1ap_startTimeAndDuration = -1;     /* StartTimeAndDuration */
-static int hf_f1ap_RequestedDLPRSResourceSet_List_item = -1;  /* RequestedDLPRSResourceSet_Item */
-static int hf_f1ap_combSize_01 = -1;              /* T_combSize_01 */
-static int hf_f1ap_resourceSetPeriodicity_01 = -1;  /* T_resourceSetPeriodicity_01 */
-static int hf_f1ap_resourceRepetitionFactor_01 = -1;  /* T_resourceRepetitionFactor_01 */
-static int hf_f1ap_resourceNumberofSymbols_01 = -1;  /* T_resourceNumberofSymbols_01 */
-static int hf_f1ap_requestedDLPRSResource_List = -1;  /* RequestedDLPRSResource_List */
-static int hf_f1ap_resourceSetStartTimeAndDuration = -1;  /* StartTimeAndDuration */
-static int hf_f1ap_RequestedDLPRSResource_List_item = -1;  /* RequestedDLPRSResource_Item */
-static int hf_f1ap_PRSTransmissionTRPList_item = -1;  /* PRSTransmissionTRPItem */
-static int hf_f1ap_pRSConfiguration = -1;         /* PRSConfiguration */
-static int hf_f1ap_qoEInformationList = -1;       /* QoEInformationList */
-static int hf_f1ap_QoEInformationList_item = -1;  /* QoEInformationList_Item */
-static int hf_f1ap_qoEMetrics = -1;               /* QoEMetrics */
-static int hf_f1ap_appLayerBufferLevelList = -1;  /* AppLayerBufferLevelList */
-static int hf_f1ap_playoutDelayForMediaStartup = -1;  /* PlayoutDelayForMediaStartup */
-static int hf_f1ap_non_Dynamic_5QI = -1;          /* NonDynamic5QIDescriptor */
-static int hf_f1ap_dynamic_5QI = -1;              /* Dynamic5QIDescriptor */
-static int hf_f1ap_qoS_Characteristics = -1;      /* QoS_Characteristics */
-static int hf_f1ap_nGRANallocationRetentionPriority = -1;  /* NGRANAllocationAndRetentionPriority */
-static int hf_f1ap_gBR_QoS_Flow_Information = -1;  /* GBR_QoSFlowInformation */
-static int hf_f1ap_reflective_QoS_Attribute = -1;  /* T_reflective_QoS_Attribute */
-static int hf_f1ap_eUTRANQoS = -1;                /* EUTRANQoS */
-static int hf_f1ap_RACHReportInformationList_item = -1;  /* RACHReportInformationItem */
-static int hf_f1ap_rACHReportContainer = -1;      /* RACHReportContainer */
-static int hf_f1ap_uEAssitantIdentifier = -1;     /* GNB_DU_UE_F1AP_ID */
-static int hf_f1ap_sSBAreaRadioResourceStatusList = -1;  /* SSBAreaRadioResourceStatusList */
-static int hf_f1ap_dl_GBR_PRB_usage_for_MIMO = -1;  /* INTEGER_0_100 */
-static int hf_f1ap_ul_GBR_PRB_usage_for_MIMO = -1;  /* INTEGER_0_100 */
-static int hf_f1ap_dl_non_GBR_PRB_usage_for_MIMO = -1;  /* INTEGER_0_100 */
-static int hf_f1ap_ul_non_GBR_PRB_usage_for_MIMO = -1;  /* INTEGER_0_100 */
-static int hf_f1ap_dl_Total_PRB_usage_for_MIMO = -1;  /* INTEGER_0_100 */
-static int hf_f1ap_ul_Total_PRB_usage_for_MIMO = -1;  /* INTEGER_0_100 */
-static int hf_f1ap_iRNTI = -1;                    /* BIT_STRING_SIZE_40 */
-static int hf_f1ap_eNDC = -1;                     /* SubscriberProfileIDforRFP */
-static int hf_f1ap_nGRAN = -1;                    /* RAT_FrequencySelectionPriority */
-static int hf_f1ap_rBSetSize = -1;                /* RBSetSize */
-static int hf_f1ap_nUmberRBsets = -1;             /* INTEGER_1_maxnoofRBsetsPerCell */
-static int hf_f1ap_coordinateID = -1;             /* CoordinateID */
-static int hf_f1ap_referencePointCoordinate = -1;  /* AccessPointPosition */
-static int hf_f1ap_referencePointCoordinateHA = -1;  /* NGRANHighAccuracyAccessPointPosition */
-static int hf_f1ap_nZP_CSI_RS = -1;               /* NZP_CSI_RS_ResourceID */
-static int hf_f1ap_sRS = -1;                      /* SRSResourceID */
-static int hf_f1ap_positioningSRS = -1;           /* SRSPosResourceID */
-static int hf_f1ap_xYZunit = -1;                  /* T_xYZunit */
-static int hf_f1ap_xvalue = -1;                   /* INTEGER_M65536_65535 */
-static int hf_f1ap_yvalue = -1;                   /* INTEGER_M65536_65535 */
-static int hf_f1ap_zvalue = -1;                   /* INTEGER_M32768_32767 */
-static int hf_f1ap_locationUncertainty = -1;      /* LocationUncertainty */
-static int hf_f1ap_milli_Arc_SecondUnits = -1;    /* T_milli_Arc_SecondUnits */
-static int hf_f1ap_heightUnits = -1;              /* T_heightUnits */
-static int hf_f1ap_deltaLatitude = -1;            /* INTEGER_M1024_1023 */
-static int hf_f1ap_deltaLongitude = -1;           /* INTEGER_M1024_1023 */
-static int hf_f1ap_deltaHeight = -1;              /* INTEGER_M1024_1023 */
-static int hf_f1ap_numberOfTransmissions = -1;    /* INTEGER_0_500_ */
-static int hf_f1ap_resourceType_01 = -1;          /* T_resourceType_01 */
-static int hf_f1ap_bandwidthSRS = -1;             /* BandwidthSRS */
-static int hf_f1ap_sRSResourceSetList = -1;       /* SRSResourceSetList */
-static int hf_f1ap_sSBInformation = -1;           /* SSBInformation */
-static int hf_f1ap_eUTRA_Mode_Info = -1;          /* EUTRA_Coex_Mode_Info */
-static int hf_f1ap_eUTRA_PRACH_Configuration = -1;  /* EUTRA_PRACH_Configuration */
-static int hf_f1ap_meNB_Cell_ID = -1;             /* EUTRA_Cell_ID */
-static int hf_f1ap_resourceCoordinationEUTRACellInfo = -1;  /* ResourceCoordinationEUTRACellInfo */
-static int hf_f1ap_periodic_01 = -1;              /* ResourceSetTypePeriodic */
-static int hf_f1ap_semi_persistent_01 = -1;       /* ResourceSetTypeSemi_persistent */
-static int hf_f1ap_aperiodic_01 = -1;             /* ResourceSetTypeAperiodic */
-static int hf_f1ap_periodicSet = -1;              /* T_periodicSet */
-static int hf_f1ap_semi_persistentSet = -1;       /* T_semi_persistentSet */
-static int hf_f1ap_slotoffset = -1;               /* INTEGER_0_32 */
-static int hf_f1ap_eventType = -1;                /* EventType */
-static int hf_f1ap_reportingPeriodicityValue = -1;  /* ReportingPeriodicityValue */
-static int hf_f1ap_periodic_02 = -1;              /* ResourceTypePeriodic */
-static int hf_f1ap_semi_persistent_02 = -1;       /* ResourceTypeSemi_persistent */
-static int hf_f1ap_aperiodic_02 = -1;             /* ResourceTypeAperiodic */
-static int hf_f1ap_periodicity = -1;              /* T_periodicity */
-static int hf_f1ap_offset = -1;                   /* INTEGER_0_2559_ */
-static int hf_f1ap_periodicity_01 = -1;           /* T_periodicity_01 */
-static int hf_f1ap_aperiodicResourceType = -1;    /* T_aperiodicResourceType */
-static int hf_f1ap_periodic_03 = -1;              /* ResourceTypePeriodicPos */
-static int hf_f1ap_semi_persistent_03 = -1;       /* ResourceTypeSemi_persistentPos */
-static int hf_f1ap_aperiodic_03 = -1;             /* ResourceTypeAperiodicPos */
-static int hf_f1ap_periodicity_02 = -1;           /* T_periodicity_02 */
-static int hf_f1ap_offset_01 = -1;                /* INTEGER_0_81919_ */
-static int hf_f1ap_periodicity_03 = -1;           /* T_periodicity_03 */
-static int hf_f1ap_slotOffset = -1;               /* INTEGER_0_32 */
-static int hf_f1ap_rLCDuplicationStateList = -1;  /* RLCDuplicationStateList */
-static int hf_f1ap_primaryPathIndication = -1;    /* PrimaryPathIndication */
-static int hf_f1ap_RLCDuplicationStateList_item = -1;  /* RLCDuplicationState_Item */
-static int hf_f1ap_duplicationState = -1;         /* DuplicationState */
-static int hf_f1ap_assocatedLCID = -1;            /* LCID */
-static int hf_f1ap_reestablishment_Indication = -1;  /* Reestablishment_Indication */
-static int hf_f1ap_RLFReportInformationList_item = -1;  /* RLFReportInformationItem */
-static int hf_f1ap_nRUERLFReportContainer = -1;   /* NRUERLFReportContainer */
-static int hf_f1ap_delivery_status = -1;          /* PDCP_SN */
-static int hf_f1ap_triggering_message = -1;       /* PDCP_SN */
-static int hf_f1ap_latest_RRC_Version = -1;       /* BIT_STRING_SIZE_3 */
-static int hf_f1ap_time = -1;                     /* INTEGER_1_128_ */
-static int hf_f1ap_timeUnit = -1;                 /* T_timeUnit */
-static int hf_f1ap_sCellIndex = -1;               /* SCellIndex */
-static int hf_f1ap_sCellULConfigured = -1;        /* CellULConfigured */
-static int hf_f1ap_subcarrierSpacing_03 = -1;     /* T_subcarrierSpacing_02 */
-static int hf_f1ap_carrierBandwidth_01 = -1;      /* INTEGER_1_275_ */
-static int hf_f1ap_sDTBearerConfig_List = -1;     /* SDTBearerConfig_List */
-static int hf_f1ap_SDTBearerConfig_List_item = -1;  /* SDTBearerConfig_List_Item */
-static int hf_f1ap_sDTBearerType = -1;            /* SDTBearerType */
-static int hf_f1ap_sDTRLCBearerConfiguration = -1;  /* SDTRLCBearerConfiguration */
-static int hf_f1ap_sRB = -1;                      /* SRBID */
-static int hf_f1ap_dRB = -1;                      /* DRBID */
-static int hf_f1ap_sdtIndicator = -1;             /* T_sdtIndicator */
-static int hf_f1ap_sdtAssistantInformation = -1;  /* T_sdtAssistantInformation */
-static int hf_f1ap_expectedPropagationDelay = -1;  /* INTEGER_M3841_3841_ */
-static int hf_f1ap_delayUncertainty = -1;         /* INTEGER_1_246_ */
-static int hf_f1ap_servingCellMO = -1;            /* ServingCellMO */
-static int hf_f1ap_sSB_Frequency = -1;            /* INTEGER_0_3279165 */
-static int hf_f1ap_ServingCellMO_encoded_in_CGC_List_item = -1;  /* ServingCellMO_encoded_in_CGC_Item */
-static int hf_f1ap_configured_EPS_TAC = -1;       /* Configured_EPS_TAC */
-static int hf_f1ap_servedPLMNs = -1;              /* ServedPLMNs_List */
-static int hf_f1ap_nR_Mode_Info = -1;             /* NR_Mode_Info */
-static int hf_f1ap_measurementTimingConfiguration = -1;  /* T_measurementTimingConfiguration */
-static int hf_f1ap_Serving_Cells_List_item = -1;  /* Serving_Cells_List_Item */
-static int hf_f1ap_iAB_MT_Cell_NA_Resource_Configuration_Mode_Info = -1;  /* IAB_MT_Cell_NA_Resource_Configuration_Mode_Info */
-static int hf_f1ap_Supported_MBS_FSA_ID_List_item = -1;  /* MBS_FrequencySelectionArea_Identity */
-static int hf_f1ap_sFN_Time_Offset = -1;          /* BIT_STRING_SIZE_24 */
-static int hf_f1ap_oldNRCGI = -1;                 /* NRCGI */
-static int hf_f1ap_eUTRA_Mode_Info_01 = -1;       /* EUTRA_Mode_Info */
-static int hf_f1ap_protectedEUTRAResourceIndication = -1;  /* ProtectedEUTRAResourceIndication */
-static int hf_f1ap_service_state = -1;            /* Service_State */
-static int hf_f1ap_switchingOffOngoing = -1;      /* T_switchingOffOngoing */
-static int hf_f1ap_SItype_List_item = -1;         /* SItype_Item */
-static int hf_f1ap_sItype = -1;                   /* SItype */
-static int hf_f1ap_sIBtype_01 = -1;               /* T_sIBtype */
-static int hf_f1ap_sIBmessage_01 = -1;            /* T_sIBmessage_01 */
-static int hf_f1ap_valueTag = -1;                 /* INTEGER_0_31_ */
-static int hf_f1ap_gNB_DU_UE_F1APIDofRelayUE = -1;  /* GNB_DU_UE_F1AP_ID */
-static int hf_f1ap_sidelinkConfigurationContainer = -1;  /* SidelinkConfigurationContainer */
-static int hf_f1ap_sLDRB_QoS = -1;                /* PC5QoSParameters */
-static int hf_f1ap_flowsMappedToSLDRB_List = -1;  /* FlowsMappedToSLDRB_List */
-static int hf_f1ap_sLDRBID = -1;                  /* SLDRBID */
-static int hf_f1ap_sLDRBInformation = -1;         /* SLDRBInformation */
-static int hf_f1ap_SLDRXCycleList_item = -1;      /* SLDRXCycleItem */
-static int hf_f1ap_rXUEID = -1;                   /* BIT_STRING_SIZE_24 */
-static int hf_f1ap_sLDRXInformation = -1;         /* SLDRXInformation */
-static int hf_f1ap_sLDRXCycle = -1;               /* SLDRXCycleLength */
-static int hf_f1ap_nosLDRX = -1;                  /* SLDRXConfigurationIndicator */
-static int hf_f1ap_sliceAvailableCapacityList = -1;  /* SliceAvailableCapacityList */
-static int hf_f1ap_SliceAvailableCapacityList_item = -1;  /* SliceAvailableCapacityItem */
-static int hf_f1ap_sNSSAIAvailableCapacity_List = -1;  /* SNSSAIAvailableCapacity_List */
-static int hf_f1ap_SNSSAIAvailableCapacity_List_item = -1;  /* SNSSAIAvailableCapacity_Item */
-static int hf_f1ap_sliceAvailableCapacityValueDownlink = -1;  /* INTEGER_0_100 */
-static int hf_f1ap_sliceAvailableCapacityValueUplink = -1;  /* INTEGER_0_100 */
-static int hf_f1ap_sliceRadioResourceStatus = -1;  /* SliceRadioResourceStatus_List */
-static int hf_f1ap_SliceRadioResourceStatus_List_item = -1;  /* SliceRadioResourceStatus_Item */
-static int hf_f1ap_sNSSAIRadioResourceStatus_List = -1;  /* SNSSAIRadioResourceStatus_List */
-static int hf_f1ap_SNSSAIRadioResourceStatus_List_item = -1;  /* SNSSAIRadioResourceStatus_Item */
-static int hf_f1ap_sNSSAIdlGBRPRBusage = -1;      /* INTEGER_0_100 */
-static int hf_f1ap_sNSSAIulGBRPRBusage = -1;      /* INTEGER_0_100 */
-static int hf_f1ap_sNSSAIdlNonGBRPRBusage = -1;   /* INTEGER_0_100 */
-static int hf_f1ap_sNSSAIulNonGBRPRBusage = -1;   /* INTEGER_0_100 */
-static int hf_f1ap_sNSSAIdlTotalPRBallocation = -1;  /* INTEGER_0_100 */
-static int hf_f1ap_sNSSAIulTotalPRBallocation = -1;  /* INTEGER_0_100 */
-static int hf_f1ap_SliceSupportList_item = -1;    /* SliceSupportItem */
-static int hf_f1ap_SliceToReportList_item = -1;   /* SliceToReportItem */
-static int hf_f1ap_sNSSAIlist = -1;               /* SNSSAI_list */
-static int hf_f1ap_SNSSAI_list_item = -1;         /* SNSSAI_Item */
-static int hf_f1ap_Slot_Configuration_List_item = -1;  /* Slot_Configuration_Item */
-static int hf_f1ap_slotIndex_01 = -1;             /* INTEGER_0_5119_ */
-static int hf_f1ap_symbolAllocInSlot = -1;        /* SymbolAllocInSlot */
-static int hf_f1ap_sST = -1;                      /* OCTET_STRING_SIZE_1 */
-static int hf_f1ap_sD = -1;                       /* OCTET_STRING_SIZE_3 */
-static int hf_f1ap_nR_PRSBeamInformation = -1;    /* NR_PRSBeamInformation */
-static int hf_f1ap_spatialRelationforResourceID = -1;  /* SpatialRelationforResourceID */
-static int hf_f1ap_SpatialRelationforResourceID_item = -1;  /* SpatialRelationforResourceIDItem */
-static int hf_f1ap_referenceSignal = -1;          /* ReferenceSignal */
-static int hf_f1ap_spatialRelationPerSRSResource_List = -1;  /* SpatialRelationPerSRSResource_List */
-static int hf_f1ap_SpatialRelationPerSRSResource_List_item = -1;  /* SpatialRelationPerSRSResourceItem */
-static int hf_f1ap_sSBPos = -1;                   /* SSB */
-static int hf_f1ap_pRSInformationPos = -1;        /* PRSInformationPos */
-static int hf_f1ap_sRBID = -1;                    /* SRBID */
-static int hf_f1ap_duplicationIndication = -1;    /* DuplicationIndication */
-static int hf_f1ap_SRSCarrier_List_item = -1;     /* SRSCarrier_List_Item */
-static int hf_f1ap_uplinkChannelBW_PerSCS_List = -1;  /* UplinkChannelBW_PerSCS_List */
-static int hf_f1ap_activeULBWP = -1;              /* ActiveULBWP */
-static int hf_f1ap_pci = -1;                      /* NRPCI */
-static int hf_f1ap_sRSResource_List = -1;         /* SRSResource_List */
-static int hf_f1ap_posSRSResource_List = -1;      /* PosSRSResource_List */
-static int hf_f1ap_sRSResourceSet_List = -1;      /* SRSResourceSet_List */
-static int hf_f1ap_posSRSResourceSet_List = -1;   /* PosSRSResourceSet_List */
-static int hf_f1ap_sRSCarrier_List = -1;          /* SRSCarrier_List */
-static int hf_f1ap_sRSResourceID = -1;            /* SRSResourceID */
-static int hf_f1ap_nrofSRS_Ports = -1;            /* T_nrofSRS_Ports */
-static int hf_f1ap_transmissionComb = -1;         /* TransmissionComb */
-static int hf_f1ap_nrofSymbols_01 = -1;           /* T_nrofSymbols_01 */
-static int hf_f1ap_repetitionFactor = -1;         /* T_repetitionFactor */
-static int hf_f1ap_freqDomainPosition = -1;       /* INTEGER_0_67 */
-static int hf_f1ap_b_SRS = -1;                    /* INTEGER_0_3 */
-static int hf_f1ap_b_hop = -1;                    /* INTEGER_0_3 */
-static int hf_f1ap_groupOrSequenceHopping_01 = -1;  /* T_groupOrSequenceHopping_01 */
-static int hf_f1ap_resourceType_02 = -1;          /* ResourceType */
-static int hf_f1ap_sequenceId_01 = -1;            /* INTEGER_0_1023 */
-static int hf_f1ap_SRSResourceID_List_item = -1;  /* SRSResourceID */
-static int hf_f1ap_SRSResource_List_item = -1;    /* SRSResource */
-static int hf_f1ap_sRSResourceID_List = -1;       /* SRSResourceID_List */
-static int hf_f1ap_resourceSetType = -1;          /* ResourceSetType */
-static int hf_f1ap_SRSResourceSetList_item = -1;  /* SRSResourceSetItem */
-static int hf_f1ap_numSRSresourcesperset = -1;    /* INTEGER_1_16_ */
-static int hf_f1ap_periodicityList = -1;          /* PeriodicityList */
-static int hf_f1ap_spatialRelationInfo = -1;      /* SpatialRelationInfo */
-static int hf_f1ap_pathlossReferenceInfo = -1;    /* PathlossReferenceInfo */
-static int hf_f1ap_SRSResourceSet_List_item = -1;  /* SRSResourceSet */
-static int hf_f1ap_aperiodicSRSResourceTriggerList = -1;  /* AperiodicSRSResourceTriggerList */
-static int hf_f1ap_sRSResourceTypeChoice = -1;    /* SRSResourceTypeChoice */
-static int hf_f1ap_sRSResourceInfo = -1;          /* SRSInfo */
-static int hf_f1ap_posSRSResourceInfo = -1;       /* PosSRSInfo */
-static int hf_f1ap_sRSResource = -1;              /* SRSResourceID */
-static int hf_f1ap_posSRSResourceID = -1;         /* SRSPosResourceID */
-static int hf_f1ap_pCI_NR_01 = -1;                /* NRPCI */
-static int hf_f1ap_ssb_index = -1;                /* SSB_Index */
-static int hf_f1ap_SSBCoverageModification_List_item = -1;  /* SSBCoverageModification_Item */
-static int hf_f1ap_sSBIndex = -1;                 /* INTEGER_0_63 */
-static int hf_f1ap_sSBCoverageState = -1;         /* SSBCoverageState */
-static int hf_f1ap_shortBitmap = -1;              /* BIT_STRING_SIZE_4 */
-static int hf_f1ap_mediumBitmap = -1;             /* BIT_STRING_SIZE_8 */
-static int hf_f1ap_longBitmap = -1;               /* BIT_STRING_SIZE_64 */
-static int hf_f1ap_SSBAreaCapacityValueList_item = -1;  /* SSBAreaCapacityValueItem */
-static int hf_f1ap_sSBAreaCapacityValue = -1;     /* INTEGER_0_100 */
-static int hf_f1ap_SSBAreaRadioResourceStatusList_item = -1;  /* SSBAreaRadioResourceStatusItem */
-static int hf_f1ap_sSBAreaDLGBRPRBusage = -1;     /* INTEGER_0_100 */
-static int hf_f1ap_sSBAreaULGBRPRBusage = -1;     /* INTEGER_0_100 */
-static int hf_f1ap_sSBAreaDLnon_GBRPRBusage = -1;  /* INTEGER_0_100 */
-static int hf_f1ap_sSBAreaULnon_GBRPRBusage = -1;  /* INTEGER_0_100 */
-static int hf_f1ap_sSBAreaDLTotalPRBusage = -1;   /* INTEGER_0_100 */
-static int hf_f1ap_sSBAreaULTotalPRBusage = -1;   /* INTEGER_0_100 */
-static int hf_f1ap_dLschedulingPDCCHCCEusage = -1;  /* INTEGER_0_100 */
-static int hf_f1ap_uLschedulingPDCCHCCEusage = -1;  /* INTEGER_0_100 */
-static int hf_f1ap_sSBInformationList = -1;       /* SSBInformationList */
-static int hf_f1ap_SSBInformationList_item = -1;  /* SSBInformationItem */
-static int hf_f1ap_sSB_Configuration = -1;        /* SSB_TF_Configuration */
-static int hf_f1ap_sSB_frequency = -1;            /* INTEGER_0_3279165 */
-static int hf_f1ap_sSB_subcarrier_spacing = -1;   /* T_sSB_subcarrier_spacing */
-static int hf_f1ap_sSB_Transmit_power = -1;       /* INTEGER_M60_50 */
-static int hf_f1ap_sSB_periodicity = -1;          /* T_sSB_periodicity */
-static int hf_f1ap_sSB_half_frame_offset = -1;    /* INTEGER_0_1 */
-static int hf_f1ap_sSB_SFN_offset = -1;           /* INTEGER_0_15 */
-static int hf_f1ap_sSB_position_in_burst = -1;    /* SSB_PositionsInBurst */
-static int hf_f1ap_sFNInitialisationTime = -1;    /* RelativeTime1900 */
-static int hf_f1ap_SSBToReportList_item = -1;     /* SSBToReportItem */
-static int hf_f1ap_freqScalingFactor2 = -1;       /* INTEGER_0_1 */
-static int hf_f1ap_freqScalingFactor4 = -1;       /* INTEGER_0_3 */
-static int hf_f1ap_startTime = -1;                /* RelativeTime1900 */
-static int hf_f1ap_duration = -1;                 /* INTEGER_0_90060_ */
-static int hf_f1ap_sUL_NRARFCN = -1;              /* INTEGER_0_maxNRARFCN */
-static int hf_f1ap_sUL_transmission_Bandwidth = -1;  /* Transmission_Bandwidth */
-static int hf_f1ap_SuccessfulHOReportInformationList_item = -1;  /* SuccessfulHOReportInformation_Item */
-static int hf_f1ap_successfulHOReportContainer = -1;  /* T_successfulHOReportContainer */
-static int hf_f1ap_all_DL = -1;                   /* NULL */
-static int hf_f1ap_all_UL = -1;                   /* NULL */
-static int hf_f1ap_both_DL_and_UL = -1;           /* NumDLULSymbols */
-static int hf_f1ap_TargetCellList_item = -1;      /* TargetCellList_Item */
-static int hf_f1ap_target_cell = -1;              /* NRCGI */
-static int hf_f1ap_NSAGSupportList_item = -1;     /* NSAGSupportItem */
-static int hf_f1ap_nSAG_ID = -1;                  /* NSAG_ID */
-static int hf_f1ap_nSAGSliceSupport = -1;         /* ExtendedSliceSupportList */
-static int hf_f1ap_tDD_FreqInfo = -1;             /* FreqInfoRel16 */
-static int hf_f1ap_tDD_UL_DLConfigCommonNR = -1;  /* TDD_UL_DLConfigCommonNR */
-static int hf_f1ap_rxTx_TEG = -1;                 /* RxTxTEG */
-static int hf_f1ap_rx_TEG = -1;                   /* RxTEG */
-static int hf_f1ap_tRP_RxTx_TEGInformation = -1;  /* TRP_RxTx_TEGInformation */
-static int hf_f1ap_tRP_Tx_TEGInformation = -1;    /* TRP_Tx_TEGInformation */
-static int hf_f1ap_tRP_Rx_TEGInformation = -1;    /* TRP_Rx_TEGInformation */
-static int hf_f1ap_referenceTime = -1;            /* ReferenceTime */
-static int hf_f1ap_referenceSFN = -1;             /* ReferenceSFN */
-static int hf_f1ap_uncertainty = -1;              /* Uncertainty */
-static int hf_f1ap_timeInformationType = -1;      /* TimeInformationType */
-static int hf_f1ap_systemFrameNumber = -1;        /* SystemFrameNumber */
-static int hf_f1ap_slotIndex_02 = -1;             /* TimeStampSlotIndex */
-static int hf_f1ap_measurementTime = -1;          /* RelativeTime1900 */
-static int hf_f1ap_sCS_15 = -1;                   /* INTEGER_0_9 */
-static int hf_f1ap_sCS_30 = -1;                   /* INTEGER_0_19 */
-static int hf_f1ap_sCS_60 = -1;                   /* INTEGER_0_39 */
-static int hf_f1ap_sCS_120 = -1;                  /* INTEGER_0_79 */
-static int hf_f1ap_measurementQuality_01 = -1;    /* INTEGER_0_31 */
-static int hf_f1ap_resolution_01 = -1;            /* T_resolution_01 */
-static int hf_f1ap_dLTNLOfferedCapacity = -1;     /* INTEGER_1_16777216_ */
-static int hf_f1ap_dLTNLAvailableCapacity = -1;   /* INTEGER_0_100_ */
-static int hf_f1ap_uLTNLOfferedCapacity = -1;     /* INTEGER_1_16777216_ */
-static int hf_f1ap_uLTNLAvailableCapacity = -1;   /* INTEGER_0_100_ */
-static int hf_f1ap_traceID = -1;                  /* TraceID */
-static int hf_f1ap_interfacesToTrace = -1;        /* InterfacesToTrace */
-static int hf_f1ap_traceDepth = -1;               /* TraceDepth */
-static int hf_f1ap_traceCollectionEntityIPAddress = -1;  /* TransportLayerAddress */
-static int hf_f1ap_iPtolayer2TrafficMappingInfo = -1;  /* IPtolayer2TrafficMappingInfo */
-static int hf_f1ap_bAPlayerBHRLCchannelMappingInfo = -1;  /* BAPlayerBHRLCchannelMappingInfo */
-static int hf_f1ap_nRNRB = -1;                    /* NRNRB */
-static int hf_f1ap_n2 = -1;                       /* T_n2 */
-static int hf_f1ap_combOffset_n2 = -1;            /* INTEGER_0_1 */
-static int hf_f1ap_cyclicShift_n2 = -1;           /* INTEGER_0_7 */
-static int hf_f1ap_n4 = -1;                       /* T_n4 */
-static int hf_f1ap_combOffset_n4 = -1;            /* INTEGER_0_3 */
-static int hf_f1ap_cyclicShift_n4 = -1;           /* INTEGER_0_11 */
-static int hf_f1ap_combOffset_n8 = -1;            /* INTEGER_0_7 */
-static int hf_f1ap_cyclicShift_n8 = -1;           /* INTEGER_0_5 */
-static int hf_f1ap_n2_01 = -1;                    /* T_n2_01 */
-static int hf_f1ap_n4_01 = -1;                    /* T_n4_01 */
-static int hf_f1ap_n8 = -1;                       /* T_n8 */
-static int hf_f1ap_Transport_UP_Layer_Address_Info_To_Add_List_item = -1;  /* Transport_UP_Layer_Address_Info_To_Add_Item */
-static int hf_f1ap_iP_SecTransportLayerAddress = -1;  /* TransportLayerAddress */
-static int hf_f1ap_gTPTransportLayerAddressToAdd = -1;  /* GTPTLAs */
-static int hf_f1ap_Transport_UP_Layer_Address_Info_To_Remove_List_item = -1;  /* Transport_UP_Layer_Address_Info_To_Remove_Item */
-static int hf_f1ap_gTPTransportLayerAddressToRemove = -1;  /* GTPTLAs */
-static int hf_f1ap_choice_TRP_Beam_Antenna_Info_Item = -1;  /* Choice_TRP_Beam_Antenna_Info_Item */
-static int hf_f1ap_reference = -1;                /* TRPID */
-static int hf_f1ap_explicit = -1;                 /* TRP_BeamAntennaExplicitInformation */
-static int hf_f1ap_noChange = -1;                 /* NULL */
-static int hf_f1ap_trp_BeamAntennaAngles = -1;    /* TRP_BeamAntennaAngles */
-static int hf_f1ap_lcs_to_gcs_translation = -1;   /* LCS_to_GCS_Translation */
-static int hf_f1ap_TRP_BeamAntennaAngles_item = -1;  /* TRP_BeamAntennaAnglesList_Item */
-static int hf_f1ap_trp_azimuth_angle = -1;        /* INTEGER_0_359 */
-static int hf_f1ap_trp_azimuth_angle_fine = -1;   /* INTEGER_0_9 */
-static int hf_f1ap_trp_elevation_angle_list = -1;  /* SEQUENCE_SIZE_1_maxnoElevationAngles_OF_TRP_ElevationAngleList_Item */
-static int hf_f1ap_trp_elevation_angle_list_item = -1;  /* TRP_ElevationAngleList_Item */
-static int hf_f1ap_trp_elevation_angle = -1;      /* INTEGER_0_180 */
-static int hf_f1ap_trp_elevation_angle_fine = -1;  /* INTEGER_0_9 */
-static int hf_f1ap_trp_beam_power_list = -1;      /* SEQUENCE_SIZE_2_maxNumResourcesPerAngle_OF_TRP_Beam_Power_Item */
-static int hf_f1ap_trp_beam_power_list_item = -1;  /* TRP_Beam_Power_Item */
-static int hf_f1ap_relativePower = -1;            /* INTEGER_0_30 */
-static int hf_f1ap_relativePowerFine = -1;        /* INTEGER_0_9 */
-static int hf_f1ap_tRPInformationTypeResponseList = -1;  /* TRPInformationTypeResponseList */
-static int hf_f1ap_tRPInformation = -1;           /* TRPInformation */
-static int hf_f1ap_TRPInformationTypeResponseList_item = -1;  /* TRPInformationTypeResponseItem */
-static int hf_f1ap_nG_RAN_CGI = -1;               /* NRCGI */
-static int hf_f1ap_sSBinformation = -1;           /* SSBInformation */
-static int hf_f1ap_spatialDirectionInformation = -1;  /* SpatialDirectionInformation */
-static int hf_f1ap_TRPList_item = -1;             /* TRPListItem */
-static int hf_f1ap_tRPmeasurementQuality_Item = -1;  /* TRPMeasurementQuality_Item */
-static int hf_f1ap_timingMeasurementQuality = -1;  /* TimingMeasurementQuality */
-static int hf_f1ap_angleMeasurementQuality = -1;  /* AngleMeasurementQuality */
-static int hf_f1ap_TRP_MeasurementRequestList_item = -1;  /* TRP_MeasurementRequestItem */
-static int hf_f1ap_search_window_information = -1;  /* Search_window_information */
-static int hf_f1ap_TRP_PRS_Info_List_item = -1;   /* TRP_PRS_Info_List_Item */
-static int hf_f1ap_nR_PCI = -1;                   /* NRPCI */
-static int hf_f1ap_cGI_NR = -1;                   /* NRCGI */
-static int hf_f1ap_direct = -1;                   /* TRPPositionDirect */
-static int hf_f1ap_referenced = -1;               /* TRPPositionReferenced */
-static int hf_f1ap_accuracy = -1;                 /* TRPPositionDirectAccuracy */
-static int hf_f1ap_tRPPosition = -1;              /* AccessPointPosition */
-static int hf_f1ap_tRPHAposition = -1;            /* NGRANHighAccuracyAccessPointPosition */
-static int hf_f1ap_referencePoint = -1;           /* ReferencePoint */
-static int hf_f1ap_referencePointType = -1;       /* TRPReferencePointType */
-static int hf_f1ap_tRPPositionRelativeGeodetic = -1;  /* RelativeGeodeticLocation */
-static int hf_f1ap_tRPPositionRelativeCartesian = -1;  /* RelativeCartesianLocation */
-static int hf_f1ap_tRP_Rx_TEGID = -1;             /* INTEGER_0_31 */
-static int hf_f1ap_tRP_Rx_TimingErrorMargin = -1;  /* TimingErrorMargin */
-static int hf_f1ap_tRP_RxTx_TEGID = -1;           /* INTEGER_0_255 */
-static int hf_f1ap_tRP_RxTx_TimingErrorMargin = -1;  /* RxTxTimingErrorMargin */
-static int hf_f1ap_tRP_Tx_TEGID = -1;             /* INTEGER_0_7 */
-static int hf_f1ap_tRP_Tx_TimingErrorMargin = -1;  /* TimingErrorMargin */
-static int hf_f1ap_TRPTxTEGAssociation_item = -1;  /* TRPTEG_Item */
-static int hf_f1ap_dl_PRSResourceID_List = -1;    /* SEQUENCE_SIZE_1_maxnoofPRS_ResourcesPerSet_OF_DLPRSResourceID_Item */
-static int hf_f1ap_dl_PRSResourceID_List_item = -1;  /* DLPRSResourceID_Item */
-static int hf_f1ap_transport_UP_Layer_Address_Info_To_Add_List = -1;  /* Transport_UP_Layer_Address_Info_To_Add_List */
-static int hf_f1ap_transport_UP_Layer_Address_Info_To_Remove_List = -1;  /* Transport_UP_Layer_Address_Info_To_Remove_List */
-static int hf_f1ap_periodicity_04 = -1;           /* Periodicity */
-static int hf_f1ap_burstArrivalTime = -1;         /* BurstArrivalTime */
-static int hf_f1ap_tSCAssistanceInformationDL = -1;  /* TSCAssistanceInformation */
-static int hf_f1ap_tSCAssistanceInformationUL = -1;  /* TSCAssistanceInformation */
-static int hf_f1ap_TRP_MeasurementUpdateList_item = -1;  /* TRP_MeasurementUpdateItem */
-static int hf_f1ap_aoA_window_information = -1;   /* AoA_AssistanceInfo */
-static int hf_f1ap_uACPLMN_List = -1;             /* UACPLMN_List */
-static int hf_f1ap_UACPLMN_List_item = -1;        /* UACPLMN_Item */
-static int hf_f1ap_uACType_List = -1;             /* UACType_List */
-static int hf_f1ap_UACType_List_item = -1;        /* UACType_Item */
-static int hf_f1ap_uACReductionIndication = -1;   /* UACReductionIndication */
-static int hf_f1ap_uACCategoryType = -1;          /* UACCategoryType */
-static int hf_f1ap_uACstandardized = -1;          /* UACAction */
-static int hf_f1ap_uACOperatorDefined = -1;       /* UACOperatorDefined */
-static int hf_f1ap_accessCategory = -1;           /* INTEGER_32_63_ */
-static int hf_f1ap_accessIdentity = -1;           /* BIT_STRING_SIZE_7 */
-static int hf_f1ap_indexLength10 = -1;            /* BIT_STRING_SIZE_10 */
-static int hf_f1ap_uEIdentityIndexValue = -1;     /* UEIdentityIndexValue */
-static int hf_f1ap_pagingDRX = -1;                /* PagingDRX */
-static int hf_f1ap_mrb_type_reconfiguration = -1;  /* MBSPTPRetransmissionTunnelRequired */
-static int hf_f1ap_mrb_type_reconfiguration_01 = -1;  /* T_mrb_type_reconfiguration */
-static int hf_f1ap_mrb_reconfigured_RLCtype = -1;  /* T_mrb_reconfigured_RLCtype */
-static int hf_f1ap_multicastF1UContextReferenceCU = -1;  /* MulticastF1UContextReferenceCU */
-static int hf_f1ap_mbsPTPRetransmissionTunnelRequired = -1;  /* MBSPTPRetransmissionTunnelRequired */
-static int hf_f1ap_mbsPTPForwardingRequiredInformation = -1;  /* MRB_ProgressInformation */
-static int hf_f1ap_iNACTIVEStatePODetermination = -1;  /* T_iNACTIVEStatePODetermination */
-static int hf_f1ap_reportingAmount = -1;          /* T_reportingAmount */
-static int hf_f1ap_reportingInterval = -1;        /* T_reportingInterval */
-static int hf_f1ap_azimuthAoA = -1;               /* INTEGER_0_3599 */
-static int hf_f1ap_zenithAoA = -1;                /* INTEGER_0_1799 */
-static int hf_f1ap_uL_BH_Non_UP_Traffic_Mapping_List = -1;  /* UL_BH_Non_UP_Traffic_Mapping_List */
-static int hf_f1ap_UL_BH_Non_UP_Traffic_Mapping_List_item = -1;  /* UL_BH_Non_UP_Traffic_Mapping_Item */
-static int hf_f1ap_nonUPTrafficType = -1;         /* NonUPTrafficType */
-static int hf_f1ap_uLUEConfiguration = -1;        /* ULUEConfiguration */
-static int hf_f1ap_uL_RTOA_MeasurementItem = -1;  /* UL_RTOA_MeasurementItem */
-static int hf_f1ap_firstPathRSRPP = -1;           /* INTEGER_0_126 */
-static int hf_f1ap_uLUPTNLInformation = -1;       /* UPTransportLayerInformation */
-static int hf_f1ap_newULUPTNLInformation = -1;    /* UPTransportLayerInformation */
-static int hf_f1ap_ULUPTNLInformation_ToBeSetup_List_item = -1;  /* ULUPTNLInformation_ToBeSetup_Item */
-static int hf_f1ap_UplinkChannelBW_PerSCS_List_item = -1;  /* SCS_SpecificCarrier */
-static int hf_f1ap_gTPTunnel = -1;                /* GTPTunnel */
-static int hf_f1ap_uuRLCChannelQoS = -1;          /* QoSFlowLevelQoSParameters */
-static int hf_f1ap_uuControlPlaneTrafficType = -1;  /* T_uuControlPlaneTrafficType */
-static int hf_f1ap_UuRLCChannelToBeSetupList_item = -1;  /* UuRLCChannelToBeSetupItem */
-static int hf_f1ap_uuRLCChannelID = -1;           /* UuRLCChannelID */
-static int hf_f1ap_uuRLCChannelQoSInformation = -1;  /* UuRLCChannelQoSInformation */
-static int hf_f1ap_UuRLCChannelToBeModifiedList_item = -1;  /* UuRLCChannelToBeModifiedItem */
-static int hf_f1ap_UuRLCChannelToBeReleasedList_item = -1;  /* UuRLCChannelToBeReleasedItem */
-static int hf_f1ap_UuRLCChannelSetupList_item = -1;  /* UuRLCChannelSetupItem */
-static int hf_f1ap_UuRLCChannelFailedToBeSetupList_item = -1;  /* UuRLCChannelFailedToBeSetupItem */
-static int hf_f1ap_UuRLCChannelModifiedList_item = -1;  /* UuRLCChannelModifiedItem */
-static int hf_f1ap_UuRLCChannelFailedToBeModifiedList_item = -1;  /* UuRLCChannelFailedToBeModifiedItem */
-static int hf_f1ap_UuRLCChannelRequiredToBeModifiedList_item = -1;  /* UuRLCChannelRequiredToBeModifiedItem */
-static int hf_f1ap_UuRLCChannelRequiredToBeReleasedList_item = -1;  /* UuRLCChannelRequiredToBeReleasedItem */
-static int hf_f1ap_protocolIEs = -1;              /* ProtocolIE_Container */
-static int hf_f1ap_f1_Interface = -1;             /* ResetAll */
-static int hf_f1ap_partOfF1_Interface = -1;       /* UE_associatedLogicalF1_ConnectionListRes */
-static int hf_f1ap_UE_associatedLogicalF1_ConnectionListRes_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_UE_associatedLogicalF1_ConnectionListResAck_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_GNB_DU_Served_Cells_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_Cells_to_be_Activated_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_Served_Cells_To_Add_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_Served_Cells_To_Modify_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_Served_Cells_To_Delete_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_Cells_Status_List_item = -1;   /* ProtocolIE_SingleContainer */
-static int hf_f1ap_Dedicated_SIDelivery_NeededUE_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_GNB_DU_TNL_Association_To_Remove_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_Cells_to_be_Deactivated_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_GNB_CU_TNL_Association_To_Add_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_GNB_CU_TNL_Association_To_Remove_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_GNB_CU_TNL_Association_To_Update_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_Cells_to_be_Barred_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_Protected_EUTRA_Resources_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_Neighbour_Cell_Information_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_Cells_Failed_to_be_Activated_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_GNB_CU_TNL_Association_Setup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_GNB_CU_TNL_Association_Failed_To_Setup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_Candidate_SpCell_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SCell_ToBeSetup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SRBs_ToBeSetup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_DRBs_ToBeSetup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BHChannels_ToBeSetup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SLDRBs_ToBeSetup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_UE_MulticastMRBs_ToBeSetup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_ServingCellMO_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_DRBs_Setup_List_item = -1;     /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SRBs_FailedToBeSetup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_DRBs_FailedToBeSetup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SCell_FailedtoSetup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SRBs_Setup_List_item = -1;     /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BHChannels_Setup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BHChannels_FailedToBeSetup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SLDRBs_Setup_List_item = -1;   /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SLDRBs_FailedToBeSetup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_UE_MulticastMRBs_Setupnew_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_Potential_SpCell_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SCell_ToBeSetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SCell_ToBeRemoved_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SRBs_ToBeSetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_DRBs_ToBeSetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BHChannels_ToBeSetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_DRBs_ToBeModified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BHChannels_ToBeModified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SRBs_ToBeReleased_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_DRBs_ToBeReleased_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BHChannels_ToBeReleased_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_UE_MulticastMRBs_ToBeSetup_atModify_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_UE_MulticastMRBs_ToBeReleased_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SLDRBs_ToBeSetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SLDRBs_ToBeModified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SLDRBs_ToBeReleased_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_DRBs_SetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_DRBs_Modified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SRBs_SetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SRBs_Modified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_DRBs_FailedToBeModified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SRBs_FailedToBeSetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_DRBs_FailedToBeSetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SCell_FailedtoSetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BHChannels_SetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BHChannels_Modified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BHChannels_FailedToBeModified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BHChannels_FailedToBeSetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_Associated_SCell_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SLDRBs_SetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SLDRBs_Modified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SLDRBs_FailedToBeModified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SLDRBs_FailedToBeSetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_UE_MulticastMRBs_Setup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_DRBs_Required_ToBeModified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_DRBs_Required_ToBeReleased_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SRBs_Required_ToBeReleased_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BHChannels_Required_ToBeReleased_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SLDRBs_Required_ToBeModified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SLDRBs_Required_ToBeReleased_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_UE_MulticastMRBs_RequiredToBeModified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_UE_MulticastMRBs_RequiredToBeReleased_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_DRBs_ModifiedConf_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_SLDRBs_ModifiedConf_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_UE_MulticastMRBs_ConfirmedToBeModified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_Cells_To_Be_Broadcast_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_Cells_Broadcast_Completed_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_Broadcast_To_Be_Cancelled_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_Cells_Broadcast_Cancelled_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_DRB_Activity_List_item = -1;   /* ProtocolIE_SingleContainer */
-static int hf_f1ap_privateIEs = -1;               /* PrivateIE_Container */
-static int hf_f1ap_PagingCell_list_item = -1;     /* ProtocolIE_SingleContainer */
-static int hf_f1ap_DRB_Notify_List_item = -1;     /* ProtocolIE_SingleContainer */
-static int hf_f1ap_NR_CGI_List_For_Restart_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_PWS_Failed_NR_CGI_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BH_Routing_Information_Added_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BH_Routing_Information_Removed_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BAP_Header_Rewriting_Added_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BAP_Header_Rewriting_Removed_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_IAB_TNL_Addresses_To_Remove_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_IAB_Allocated_TNL_Address_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_UL_UP_TNL_Information_to_Update_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_UL_UP_TNL_Address_to_Update_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_DL_UP_TNL_Address_to_Update_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_TRPInformationTypeListTRPReq_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_TRPInformationListTRPResp_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_semipersistentSRS = -1;        /* SemipersistentSRS */
-static int hf_f1ap_aperiodicSRS = -1;             /* AperiodicSRS */
-static int hf_f1ap_sRSSpatialRelation = -1;       /* SpatialRelationInfo */
-static int hf_f1ap_aperiodic_04 = -1;             /* T_aperiodic */
-static int hf_f1ap_sRSResourceTrigger = -1;       /* SRSResourceTrigger */
-static int hf_f1ap_BroadcastMRBs_ToBeSetup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BroadcastMRBs_Setup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BroadcastMRBs_FailedToBeSetup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BroadcastMRBs_ToBeSetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BroadcastMRBs_ToBeModified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BroadcastMRBs_ToBeReleased_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BroadcastMRBs_SetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BroadcastMRBs_FailedToBeSetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BroadcastMRBs_Modified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_BroadcastMRBs_FailedToBeModified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_UEIdentity_List_For_Paging_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_MC_PagingCell_list_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_MulticastMRBs_ToBeSetup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_MulticastMRBs_Setup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_MulticastMRBs_FailedToBeSetup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_MulticastMRBs_ToBeSetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_MulticastMRBs_ToBeModified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_MulticastMRBs_ToBeReleased_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_MulticastMRBs_SetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_MulticastMRBs_FailedToBeSetupMod_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_MulticastMRBs_Modified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_MulticastMRBs_FailedToBeModified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_MulticastF1UContext_ToBeSetup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_MulticastF1UContext_Setup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_MulticastF1UContext_FailedToBeSetup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_f1ap_initiatingMessage = -1;        /* InitiatingMessage */
-static int hf_f1ap_successfulOutcome = -1;        /* SuccessfulOutcome */
-static int hf_f1ap_unsuccessfulOutcome = -1;      /* UnsuccessfulOutcome */
-static int hf_f1ap_initiatingMessagevalue = -1;   /* InitiatingMessage_value */
-static int hf_f1ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
-static int hf_f1ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
+static int hf_f1ap_transportLayerAddressIPv4;
+static int hf_f1ap_transportLayerAddressIPv6;
+static int hf_f1ap_IABTNLAddressIPv4;
+static int hf_f1ap_IABTNLAddressIPv6;
+static int hf_f1ap_IABTNLAddressIPv6Prefix;
+static int hf_f1ap_interfacesToTrace_NG_C;
+static int hf_f1ap_interfacesToTrace_Xn_C;
+static int hf_f1ap_interfacesToTrace_Uu;
+static int hf_f1ap_interfacesToTrace_F1_C;
+static int hf_f1ap_interfacesToTrace_E1;
+static int hf_f1ap_interfacesToTrace_Reserved;
+static int hf_f1ap_MeasurementsToActivate_Reserved1;
+static int hf_f1ap_MeasurementsToActivate_M2;
+static int hf_f1ap_MeasurementsToActivate_Reserved2;
+static int hf_f1ap_MeasurementsToActivate_M5;
+static int hf_f1ap_MeasurementsToActivate_Reserved3;
+static int hf_f1ap_MeasurementsToActivate_M6;
+static int hf_f1ap_MeasurementsToActivate_M7;
+static int hf_f1ap_ReportCharacteristics_PRBPeriodic;
+static int hf_f1ap_ReportCharacteristics_TNLCapacityIndPeriodic;
+static int hf_f1ap_ReportCharacteristics_CompositeAvailableCapacityPeriodic;
+static int hf_f1ap_ReportCharacteristics_HWLoadIndPeriodic;
+static int hf_f1ap_ReportCharacteristics_NumberOfActiveUEs;
+static int hf_f1ap_ReportCharacteristics_Reserved;
+static int hf_f1ap_AbortTransmission_PDU;         /* AbortTransmission */
+static int hf_f1ap_Activated_Cells_to_be_Updated_List_PDU;  /* Activated_Cells_to_be_Updated_List */
+static int hf_f1ap_ActivationRequestType_PDU;     /* ActivationRequestType */
+static int hf_f1ap_AdditionalDuplicationIndication_PDU;  /* AdditionalDuplicationIndication */
+static int hf_f1ap_ExtendedAdditionalPathList_PDU;  /* ExtendedAdditionalPathList */
+static int hf_f1ap_AdditionalPDCPDuplicationTNL_List_PDU;  /* AdditionalPDCPDuplicationTNL_List */
+static int hf_f1ap_AdditionalSIBMessageList_PDU;  /* AdditionalSIBMessageList */
+static int hf_f1ap_AdditionalRRMPriorityIndex_PDU;  /* AdditionalRRMPriorityIndex */
+static int hf_f1ap_AggressorgNBSetID_PDU;         /* AggressorgNBSetID */
+static int hf_f1ap_AlternativeQoSParaSetList_PDU;  /* AlternativeQoSParaSetList */
+static int hf_f1ap_Associated_SCell_Item_PDU;     /* Associated_SCell_Item */
+static int hf_f1ap_AvailablePLMNList_PDU;         /* AvailablePLMNList */
+static int hf_f1ap_AvailableSNPN_ID_List_PDU;     /* AvailableSNPN_ID_List */
+static int hf_f1ap_AreaScope_PDU;                 /* AreaScope */
+static int hf_f1ap_AoA_AssistanceInfo_PDU;        /* AoA_AssistanceInfo */
+static int hf_f1ap_ARP_ID_PDU;                    /* ARP_ID */
+static int hf_f1ap_ARPLocationInformation_PDU;    /* ARPLocationInformation */
+static int hf_f1ap_BAP_Header_Rewriting_Added_List_Item_PDU;  /* BAP_Header_Rewriting_Added_List_Item */
+static int hf_f1ap_BAP_Header_Rewriting_Removed_List_Item_PDU;  /* BAP_Header_Rewriting_Removed_List_Item */
+static int hf_f1ap_BAPAddress_PDU;                /* BAPAddress */
+static int hf_f1ap_BitRate_PDU;                   /* BitRate */
+static int hf_f1ap_BearerTypeChange_PDU;          /* BearerTypeChange */
+static int hf_f1ap_BHChannels_FailedToBeModified_Item_PDU;  /* BHChannels_FailedToBeModified_Item */
+static int hf_f1ap_BHChannels_FailedToBeSetup_Item_PDU;  /* BHChannels_FailedToBeSetup_Item */
+static int hf_f1ap_BHChannels_FailedToBeSetupMod_Item_PDU;  /* BHChannels_FailedToBeSetupMod_Item */
+static int hf_f1ap_BHChannels_Modified_Item_PDU;  /* BHChannels_Modified_Item */
+static int hf_f1ap_BHChannels_Required_ToBeReleased_Item_PDU;  /* BHChannels_Required_ToBeReleased_Item */
+static int hf_f1ap_BHChannels_Setup_Item_PDU;     /* BHChannels_Setup_Item */
+static int hf_f1ap_BHChannels_SetupMod_Item_PDU;  /* BHChannels_SetupMod_Item */
+static int hf_f1ap_BHChannels_ToBeModified_Item_PDU;  /* BHChannels_ToBeModified_Item */
+static int hf_f1ap_BHChannels_ToBeReleased_Item_PDU;  /* BHChannels_ToBeReleased_Item */
+static int hf_f1ap_BHChannels_ToBeSetup_Item_PDU;  /* BHChannels_ToBeSetup_Item */
+static int hf_f1ap_BHChannels_ToBeSetupMod_Item_PDU;  /* BHChannels_ToBeSetupMod_Item */
+static int hf_f1ap_BHInfo_PDU;                    /* BHInfo */
+static int hf_f1ap_BH_Routing_Information_Added_List_Item_PDU;  /* BH_Routing_Information_Added_List_Item */
+static int hf_f1ap_BH_Routing_Information_Removed_List_Item_PDU;  /* BH_Routing_Information_Removed_List_Item */
+static int hf_f1ap_BPLMN_ID_Info_List_PDU;        /* BPLMN_ID_Info_List */
+static int hf_f1ap_BroadcastMRBs_FailedToBeModified_Item_PDU;  /* BroadcastMRBs_FailedToBeModified_Item */
+static int hf_f1ap_BroadcastMRBs_FailedToBeSetup_Item_PDU;  /* BroadcastMRBs_FailedToBeSetup_Item */
+static int hf_f1ap_BroadcastMRBs_FailedToBeSetupMod_Item_PDU;  /* BroadcastMRBs_FailedToBeSetupMod_Item */
+static int hf_f1ap_BroadcastMRBs_Modified_Item_PDU;  /* BroadcastMRBs_Modified_Item */
+static int hf_f1ap_BroadcastMRBs_Setup_Item_PDU;  /* BroadcastMRBs_Setup_Item */
+static int hf_f1ap_BroadcastMRBs_SetupMod_Item_PDU;  /* BroadcastMRBs_SetupMod_Item */
+static int hf_f1ap_BroadcastMRBs_ToBeModified_Item_PDU;  /* BroadcastMRBs_ToBeModified_Item */
+static int hf_f1ap_BroadcastMRBs_ToBeReleased_Item_PDU;  /* BroadcastMRBs_ToBeReleased_Item */
+static int hf_f1ap_BroadcastMRBs_ToBeSetup_Item_PDU;  /* BroadcastMRBs_ToBeSetup_Item */
+static int hf_f1ap_BroadcastMRBs_ToBeSetupMod_Item_PDU;  /* BroadcastMRBs_ToBeSetupMod_Item */
+static int hf_f1ap_BroadcastAreaScope_PDU;        /* BroadcastAreaScope */
+static int hf_f1ap_BufferSizeThresh_PDU;          /* BufferSizeThresh */
+static int hf_f1ap_Cancel_all_Warning_Messages_Indicator_PDU;  /* Cancel_all_Warning_Messages_Indicator */
+static int hf_f1ap_Candidate_SpCell_Item_PDU;     /* Candidate_SpCell_Item */
+static int hf_f1ap_Cause_PDU;                     /* Cause */
+static int hf_f1ap_CellGroupConfig_PDU;           /* CellGroupConfig */
+static int hf_f1ap_Cell_Direction_PDU;            /* Cell_Direction */
+static int hf_f1ap_CellMeasurementResultList_PDU;  /* CellMeasurementResultList */
+static int hf_f1ap_Cell_Portion_ID_PDU;           /* Cell_Portion_ID */
+static int hf_f1ap_CellsForSON_List_PDU;          /* CellsForSON_List */
+static int hf_f1ap_Cells_Failed_to_be_Activated_List_Item_PDU;  /* Cells_Failed_to_be_Activated_List_Item */
+static int hf_f1ap_Cells_Status_Item_PDU;         /* Cells_Status_Item */
+static int hf_f1ap_Cells_To_Be_Broadcast_Item_PDU;  /* Cells_To_Be_Broadcast_Item */
+static int hf_f1ap_Cells_Broadcast_Completed_Item_PDU;  /* Cells_Broadcast_Completed_Item */
+static int hf_f1ap_Broadcast_To_Be_Cancelled_Item_PDU;  /* Broadcast_To_Be_Cancelled_Item */
+static int hf_f1ap_Cells_Broadcast_Cancelled_Item_PDU;  /* Cells_Broadcast_Cancelled_Item */
+static int hf_f1ap_Cells_to_be_Activated_List_Item_PDU;  /* Cells_to_be_Activated_List_Item */
+static int hf_f1ap_Cells_to_be_Deactivated_List_Item_PDU;  /* Cells_to_be_Deactivated_List_Item */
+static int hf_f1ap_Cells_to_be_Barred_Item_PDU;   /* Cells_to_be_Barred_Item */
+static int hf_f1ap_CellToReportList_PDU;          /* CellToReportList */
+static int hf_f1ap_CellType_PDU;                  /* CellType */
+static int hf_f1ap_CellULConfigured_PDU;          /* CellULConfigured */
+static int hf_f1ap_CG_SDTQueryIndication_PDU;     /* CG_SDTQueryIndication */
+static int hf_f1ap_CG_SDTKeptIndicator_PDU;       /* CG_SDTKeptIndicator */
+static int hf_f1ap_CG_SDTindicatorSetup_PDU;      /* CG_SDTindicatorSetup */
+static int hf_f1ap_CG_SDTindicatorMod_PDU;        /* CG_SDTindicatorMod */
+static int hf_f1ap_CG_SDTSessionInfo_PDU;         /* CG_SDTSessionInfo */
+static int hf_f1ap_Child_IAB_Nodes_NA_Resource_List_PDU;  /* Child_IAB_Nodes_NA_Resource_List */
+static int hf_f1ap_Child_Nodes_List_PDU;          /* Child_Nodes_List */
+static int hf_f1ap_CompositeAvailableCapacity_PDU;  /* CompositeAvailableCapacity */
+static int hf_f1ap_CHO_Probability_PDU;           /* CHO_Probability */
+static int hf_f1ap_ConditionalInterDUMobilityInformation_PDU;  /* ConditionalInterDUMobilityInformation */
+static int hf_f1ap_ConditionalIntraDUMobilityInformation_PDU;  /* ConditionalIntraDUMobilityInformation */
+static int hf_f1ap_ConfigRestrictInfoDAPS_PDU;    /* ConfigRestrictInfoDAPS */
+static int hf_f1ap_ConfiguredTACIndication_PDU;   /* ConfiguredTACIndication */
+static int hf_f1ap_Coverage_Modification_Notification_PDU;  /* Coverage_Modification_Notification */
+static int hf_f1ap_CCO_Assistance_Information_PDU;  /* CCO_Assistance_Information */
+static int hf_f1ap_CP_TransportLayerAddress_PDU;  /* CP_TransportLayerAddress */
+static int hf_f1ap_CPACMCGInformation_PDU;        /* CPACMCGInformation */
+static int hf_f1ap_CriticalityDiagnostics_PDU;    /* CriticalityDiagnostics */
+static int hf_f1ap_C_RNTI_PDU;                    /* C_RNTI */
+static int hf_f1ap_CUDURadioInformationType_PDU;  /* CUDURadioInformationType */
+static int hf_f1ap_CUtoDURRCInformation_PDU;      /* CUtoDURRCInformation */
+static int hf_f1ap_DAPS_HO_Status_PDU;            /* DAPS_HO_Status */
+static int hf_f1ap_DCBasedDuplicationConfigured_PDU;  /* DCBasedDuplicationConfigured */
+static int hf_f1ap_Dedicated_SIDelivery_NeededUE_Item_PDU;  /* Dedicated_SIDelivery_NeededUE_Item */
+static int hf_f1ap_DL_UP_TNL_Address_to_Update_List_Item_PDU;  /* DL_UP_TNL_Address_to_Update_List_Item */
+static int hf_f1ap_DRB_Activity_Item_PDU;         /* DRB_Activity_Item */
+static int hf_f1ap_DRBs_FailedToBeModified_Item_PDU;  /* DRBs_FailedToBeModified_Item */
+static int hf_f1ap_DRBs_FailedToBeSetup_Item_PDU;  /* DRBs_FailedToBeSetup_Item */
+static int hf_f1ap_DRBs_FailedToBeSetupMod_Item_PDU;  /* DRBs_FailedToBeSetupMod_Item */
+static int hf_f1ap_DRB_Information_PDU;           /* DRB_Information */
+static int hf_f1ap_DRBs_Modified_Item_PDU;        /* DRBs_Modified_Item */
+static int hf_f1ap_DRBs_ModifiedConf_Item_PDU;    /* DRBs_ModifiedConf_Item */
+static int hf_f1ap_DRB_Notify_Item_PDU;           /* DRB_Notify_Item */
+static int hf_f1ap_DRBs_Required_ToBeModified_Item_PDU;  /* DRBs_Required_ToBeModified_Item */
+static int hf_f1ap_DRBs_Required_ToBeReleased_Item_PDU;  /* DRBs_Required_ToBeReleased_Item */
+static int hf_f1ap_DRBs_Setup_Item_PDU;           /* DRBs_Setup_Item */
+static int hf_f1ap_DRBs_SetupMod_Item_PDU;        /* DRBs_SetupMod_Item */
+static int hf_f1ap_DRBs_ToBeModified_Item_PDU;    /* DRBs_ToBeModified_Item */
+static int hf_f1ap_DRBs_ToBeReleased_Item_PDU;    /* DRBs_ToBeReleased_Item */
+static int hf_f1ap_DRBs_ToBeSetup_Item_PDU;       /* DRBs_ToBeSetup_Item */
+static int hf_f1ap_DRBs_ToBeSetupMod_Item_PDU;    /* DRBs_ToBeSetupMod_Item */
+static int hf_f1ap_DRXCycle_PDU;                  /* DRXCycle */
+static int hf_f1ap_DRX_Config_PDU;                /* DRX_Config */
+static int hf_f1ap_DRXConfigurationIndicator_PDU;  /* DRXConfigurationIndicator */
+static int hf_f1ap_DRX_LongCycleStartOffset_PDU;  /* DRX_LongCycleStartOffset */
+static int hf_f1ap_DUtoCURRCContainer_PDU;        /* DUtoCURRCContainer */
+static int hf_f1ap_DUCURadioInformationType_PDU;  /* DUCURadioInformationType */
+static int hf_f1ap_DU_RX_MT_RX_Extend_PDU;        /* DU_RX_MT_RX_Extend */
+static int hf_f1ap_DU_TX_MT_TX_Extend_PDU;        /* DU_TX_MT_TX_Extend */
+static int hf_f1ap_DU_RX_MT_TX_Extend_PDU;        /* DU_RX_MT_TX_Extend */
+static int hf_f1ap_DU_TX_MT_RX_Extend_PDU;        /* DU_TX_MT_RX_Extend */
+static int hf_f1ap_DUtoCURRCInformation_PDU;      /* DUtoCURRCInformation */
+static int hf_f1ap_DuplicationActivation_PDU;     /* DuplicationActivation */
+static int hf_f1ap_E_CID_MeasurementQuantities_PDU;  /* E_CID_MeasurementQuantities */
+static int hf_f1ap_E_CID_MeasurementQuantities_Item_PDU;  /* E_CID_MeasurementQuantities_Item */
+static int hf_f1ap_E_CID_MeasurementResult_PDU;   /* E_CID_MeasurementResult */
+static int hf_f1ap_E_CID_ReportCharacteristics_PDU;  /* E_CID_ReportCharacteristics */
+static int hf_f1ap_EgressNonF1terminatingTopologyIndicator_PDU;  /* EgressNonF1terminatingTopologyIndicator */
+static int hf_f1ap_ExtendedAvailablePLMN_List_PDU;  /* ExtendedAvailablePLMN_List */
+static int hf_f1ap_ExtendedServedPLMNs_List_PDU;  /* ExtendedServedPLMNs_List */
+static int hf_f1ap_ExtendedSliceSupportList_PDU;  /* ExtendedSliceSupportList */
+static int hf_f1ap_ExtendedUEIdentityIndexValue_PDU;  /* ExtendedUEIdentityIndexValue */
+static int hf_f1ap_ExecuteDuplication_PDU;        /* ExecuteDuplication */
+static int hf_f1ap_EUTRA_NR_CellResourceCoordinationReq_Container_PDU;  /* EUTRA_NR_CellResourceCoordinationReq_Container */
+static int hf_f1ap_EUTRA_NR_CellResourceCoordinationReqAck_Container_PDU;  /* EUTRA_NR_CellResourceCoordinationReqAck_Container */
+static int hf_f1ap_ExtendedPacketDelayBudget_PDU;  /* ExtendedPacketDelayBudget */
+static int hf_f1ap_F1CTransferPath_PDU;           /* F1CTransferPath */
+static int hf_f1ap_F1CTransferPathNRDC_PDU;       /* F1CTransferPathNRDC */
+static int hf_f1ap_FiveG_ProSeAuthorized_PDU;     /* FiveG_ProSeAuthorized */
+static int hf_f1ap_FrequencyShift7p5khz_PDU;      /* FrequencyShift7p5khz */
+static int hf_f1ap_Frequency_Domain_HSNA_Configuration_List_PDU;  /* Frequency_Domain_HSNA_Configuration_List */
+static int hf_f1ap_FullConfiguration_PDU;         /* FullConfiguration */
+static int hf_f1ap_CG_Config_PDU;                 /* CG_Config */
+static int hf_f1ap_GNB_CU_MBS_F1AP_ID_PDU;        /* GNB_CU_MBS_F1AP_ID */
+static int hf_f1ap_GNBCUMeasurementID_PDU;        /* GNBCUMeasurementID */
+static int hf_f1ap_GNBDUMeasurementID_PDU;        /* GNBDUMeasurementID */
+static int hf_f1ap_GNB_CUSystemInformation_PDU;   /* GNB_CUSystemInformation */
+static int hf_f1ap_GNB_CU_TNL_Association_Setup_Item_PDU;  /* GNB_CU_TNL_Association_Setup_Item */
+static int hf_f1ap_GNB_CU_TNL_Association_Failed_To_Setup_Item_PDU;  /* GNB_CU_TNL_Association_Failed_To_Setup_Item */
+static int hf_f1ap_GNB_CU_TNL_Association_To_Add_Item_PDU;  /* GNB_CU_TNL_Association_To_Add_Item */
+static int hf_f1ap_GNB_CU_TNL_Association_To_Remove_Item_PDU;  /* GNB_CU_TNL_Association_To_Remove_Item */
+static int hf_f1ap_GNB_CU_TNL_Association_To_Update_Item_PDU;  /* GNB_CU_TNL_Association_To_Update_Item */
+static int hf_f1ap_GNB_CU_UE_F1AP_ID_PDU;         /* GNB_CU_UE_F1AP_ID */
+static int hf_f1ap_GNB_DU_MBS_F1AP_ID_PDU;        /* GNB_DU_MBS_F1AP_ID */
+static int hf_f1ap_GNB_DU_UE_F1AP_ID_PDU;         /* GNB_DU_UE_F1AP_ID */
+static int hf_f1ap_GNB_DU_ID_PDU;                 /* GNB_DU_ID */
+static int hf_f1ap_GNB_CU_Name_PDU;               /* GNB_CU_Name */
+static int hf_f1ap_GNB_DU_Name_PDU;               /* GNB_DU_Name */
+static int hf_f1ap_Extended_GNB_CU_Name_PDU;      /* Extended_GNB_CU_Name */
+static int hf_f1ap_Extended_GNB_DU_Name_PDU;      /* Extended_GNB_DU_Name */
+static int hf_f1ap_GNB_DU_Served_Cells_Item_PDU;  /* GNB_DU_Served_Cells_Item */
+static int hf_f1ap_GNB_DUConfigurationQuery_PDU;  /* GNB_DUConfigurationQuery */
+static int hf_f1ap_GNBDUOverloadInformation_PDU;  /* GNBDUOverloadInformation */
+static int hf_f1ap_GNB_DU_TNL_Association_To_Remove_Item_PDU;  /* GNB_DU_TNL_Association_To_Remove_Item */
+static int hf_f1ap_GNBDUUESliceMaximumBitRateList_PDU;  /* GNBDUUESliceMaximumBitRateList */
+static int hf_f1ap_HandoverPreparationInformation_PDU;  /* HandoverPreparationInformation */
+static int hf_f1ap_HardwareLoadIndicator_PDU;     /* HardwareLoadIndicator */
+static int hf_f1ap_HashedUEIdentityIndexValue_PDU;  /* HashedUEIdentityIndexValue */
+static int hf_f1ap_IAB_Barred_PDU;                /* IAB_Barred */
+static int hf_f1ap_IABConditionalRRCMessageDeliveryIndication_PDU;  /* IABConditionalRRCMessageDeliveryIndication */
+static int hf_f1ap_IABCongestionIndication_PDU;   /* IABCongestionIndication */
+static int hf_f1ap_IAB_Info_IAB_donor_CU_PDU;     /* IAB_Info_IAB_donor_CU */
+static int hf_f1ap_IAB_Info_IAB_DU_PDU;           /* IAB_Info_IAB_DU */
+static int hf_f1ap_IAB_Allocated_TNL_Address_Item_PDU;  /* IAB_Allocated_TNL_Address_Item */
+static int hf_f1ap_IABIPv6RequestType_PDU;        /* IABIPv6RequestType */
+static int hf_f1ap_IAB_TNL_Addresses_To_Remove_Item_PDU;  /* IAB_TNL_Addresses_To_Remove_Item */
+static int hf_f1ap_IAB_TNL_Addresses_Exception_PDU;  /* IAB_TNL_Addresses_Exception */
+static int hf_f1ap_IABv4AddressesRequested_PDU;   /* IABv4AddressesRequested */
+static int hf_f1ap_IgnorePRACHConfiguration_PDU;  /* IgnorePRACHConfiguration */
+static int hf_f1ap_IgnoreResourceCoordinationContainer_PDU;  /* IgnoreResourceCoordinationContainer */
+static int hf_f1ap_InactivityMonitoringRequest_PDU;  /* InactivityMonitoringRequest */
+static int hf_f1ap_InactivityMonitoringResponse_PDU;  /* InactivityMonitoringResponse */
+static int hf_f1ap_IntendedTDD_DL_ULConfig_PDU;   /* IntendedTDD_DL_ULConfig */
+static int hf_f1ap_InterFrequencyConfig_NoGap_PDU;  /* InterFrequencyConfig_NoGap */
+static int hf_f1ap_IngressNonF1terminatingTopologyIndicator_PDU;  /* IngressNonF1terminatingTopologyIndicator */
+static int hf_f1ap_L571Info_PDU;                  /* L571Info */
+static int hf_f1ap_L1151Info_PDU;                 /* L1151Info */
+static int hf_f1ap_LastUsedCellIndication_PDU;    /* LastUsedCellIndication */
+static int hf_f1ap_LMF_MeasurementID_PDU;         /* LMF_MeasurementID */
+static int hf_f1ap_LMF_UE_MeasurementID_PDU;      /* LMF_UE_MeasurementID */
+static int hf_f1ap_LocationMeasurementInformation_PDU;  /* LocationMeasurementInformation */
+static int hf_f1ap_LowerLayerPresenceStatusChange_PDU;  /* LowerLayerPresenceStatusChange */
+static int hf_f1ap_LoS_NLoSInformation_PDU;       /* LoS_NLoSInformation */
+static int hf_f1ap_LTEUESidelinkAggregateMaximumBitrate_PDU;  /* LTEUESidelinkAggregateMaximumBitrate */
+static int hf_f1ap_LTEV2XServicesAuthorized_PDU;  /* LTEV2XServicesAuthorized */
+static int hf_f1ap_MaskedIMEISV_PDU;              /* MaskedIMEISV */
+static int hf_f1ap_MBS_Broadcast_NeighbourCellList_PDU;  /* MBS_Broadcast_NeighbourCellList */
+static int hf_f1ap_MBSInterestIndication_PDU;     /* MBSInterestIndication */
+static int hf_f1ap_MBS_CUtoDURRCInformation_PDU;  /* MBS_CUtoDURRCInformation */
+static int hf_f1ap_MBSMulticastF1UContextDescriptor_PDU;  /* MBSMulticastF1UContextDescriptor */
+static int hf_f1ap_MulticastF1UContext_ToBeSetup_Item_PDU;  /* MulticastF1UContext_ToBeSetup_Item */
+static int hf_f1ap_MulticastF1UContext_Setup_Item_PDU;  /* MulticastF1UContext_Setup_Item */
+static int hf_f1ap_MulticastF1UContext_FailedToBeSetup_Item_PDU;  /* MulticastF1UContext_FailedToBeSetup_Item */
+static int hf_f1ap_MBS_ServiceArea_PDU;           /* MBS_ServiceArea */
+static int hf_f1ap_MC_PagingCell_Item_PDU;        /* MC_PagingCell_Item */
+static int hf_f1ap_MeasGapSharingConfig_PDU;      /* MeasGapSharingConfig */
+static int hf_f1ap_PosMeasurementAmount_PDU;      /* PosMeasurementAmount */
+static int hf_f1ap_MeasurementBeamInfoRequest_PDU;  /* MeasurementBeamInfoRequest */
+static int hf_f1ap_MeasurementTimingConfiguration_PDU;  /* MeasurementTimingConfiguration */
+static int hf_f1ap_MeasurementTimeOccasion_PDU;   /* MeasurementTimeOccasion */
+static int hf_f1ap_MeasurementCharacteristicsRequestIndicator_PDU;  /* MeasurementCharacteristicsRequestIndicator */
+static int hf_f1ap_MulticastF1UContextReferenceCU_PDU;  /* MulticastF1UContextReferenceCU */
+static int hf_f1ap_MultipleULAoA_PDU;             /* MultipleULAoA */
+static int hf_f1ap_MDTPollutedMeasurementIndicator_PDU;  /* MDTPollutedMeasurementIndicator */
+static int hf_f1ap_MRB_ID_PDU;                    /* MRB_ID */
+static int hf_f1ap_MulticastMBSSessionList_PDU;   /* MulticastMBSSessionList */
+static int hf_f1ap_MulticastMRBs_FailedToBeModified_Item_PDU;  /* MulticastMRBs_FailedToBeModified_Item */
+static int hf_f1ap_MulticastMRBs_FailedToBeSetup_Item_PDU;  /* MulticastMRBs_FailedToBeSetup_Item */
+static int hf_f1ap_MulticastMRBs_FailedToBeSetupMod_Item_PDU;  /* MulticastMRBs_FailedToBeSetupMod_Item */
+static int hf_f1ap_MulticastMRBs_Modified_Item_PDU;  /* MulticastMRBs_Modified_Item */
+static int hf_f1ap_MulticastMRBs_Setup_Item_PDU;  /* MulticastMRBs_Setup_Item */
+static int hf_f1ap_MulticastMRBs_SetupMod_Item_PDU;  /* MulticastMRBs_SetupMod_Item */
+static int hf_f1ap_MulticastMRBs_ToBeModified_Item_PDU;  /* MulticastMRBs_ToBeModified_Item */
+static int hf_f1ap_MulticastMRBs_ToBeReleased_Item_PDU;  /* MulticastMRBs_ToBeReleased_Item */
+static int hf_f1ap_MulticastMRBs_ToBeSetup_Item_PDU;  /* MulticastMRBs_ToBeSetup_Item */
+static int hf_f1ap_MulticastMRBs_ToBeSetupMod_Item_PDU;  /* MulticastMRBs_ToBeSetupMod_Item */
+static int hf_f1ap_M5ReportAmount_PDU;            /* M5ReportAmount */
+static int hf_f1ap_M6ReportAmount_PDU;            /* M6ReportAmount */
+static int hf_f1ap_M7ReportAmount_PDU;            /* M7ReportAmount */
+static int hf_f1ap_MDTConfiguration_PDU;          /* MDTConfiguration */
+static int hf_f1ap_MDTPLMNList_PDU;               /* MDTPLMNList */
+static int hf_f1ap_MDTPLMNModificationList_PDU;   /* MDTPLMNModificationList */
+static int hf_f1ap_MUSIM_GapConfig_PDU;           /* MUSIM_GapConfig */
+static int hf_f1ap_Ncd_SSB_RedCapInitialBWP_SDT_PDU;  /* Ncd_SSB_RedCapInitialBWP_SDT */
+static int hf_f1ap_Neighbour_Node_Cells_List_PDU;  /* Neighbour_Node_Cells_List */
+static int hf_f1ap_NeedforGap_PDU;                /* NeedforGap */
+static int hf_f1ap_NeedForGapsInfoNR_PDU;         /* NeedForGapsInfoNR */
+static int hf_f1ap_NeedForGapNCSGInfoNR_PDU;      /* NeedForGapNCSGInfoNR */
+static int hf_f1ap_NeedForGapNCSGInfoEUTRA_PDU;   /* NeedForGapNCSGInfoEUTRA */
+static int hf_f1ap_Neighbour_Cell_Information_Item_PDU;  /* Neighbour_Cell_Information_Item */
+static int hf_f1ap_NID_PDU;                       /* NID */
+static int hf_f1ap_NonF1terminatingTopologyIndicator_PDU;  /* NonF1terminatingTopologyIndicator */
+static int hf_f1ap_NR_CGI_List_For_Restart_Item_PDU;  /* NR_CGI_List_For_Restart_Item */
+static int hf_f1ap_NrofSymbolsExtended_PDU;       /* NrofSymbolsExtended */
+static int hf_f1ap_NR_TADV_PDU;                   /* NR_TADV */
+static int hf_f1ap_NRRedCapUEIndication_PDU;      /* NRRedCapUEIndication */
+static int hf_f1ap_NRPagingeDRXInformation_PDU;   /* NRPagingeDRXInformation */
+static int hf_f1ap_NRPagingeDRXInformationforRRCINACTIVE_PDU;  /* NRPagingeDRXInformationforRRCINACTIVE */
+static int hf_f1ap_NotificationInformation_PDU;   /* NotificationInformation */
+static int hf_f1ap_NPNBroadcastInformation_PDU;   /* NPNBroadcastInformation */
+static int hf_f1ap_NPNSupportInfo_PDU;            /* NPNSupportInfo */
+static int hf_f1ap_NRCarrierList_PDU;             /* NRCarrierList */
+static int hf_f1ap_NRFreqInfo_PDU;                /* NRFreqInfo */
+static int hf_f1ap_NRCGI_PDU;                     /* NRCGI */
+static int hf_f1ap_f1ap_NRPRACHConfig_PDU;        /* NRPRACHConfig */
+static int hf_f1ap_NR_U_Channel_Info_List_PDU;    /* NR_U_Channel_Info_List */
+static int hf_f1ap_NR_U_Channel_List_PDU;         /* NR_U_Channel_List */
+static int hf_f1ap_NumberofBroadcastRequest_PDU;  /* NumberofBroadcastRequest */
+static int hf_f1ap_NumberOfTRPRxTEG_PDU;          /* NumberOfTRPRxTEG */
+static int hf_f1ap_NumberOfTRPRxTxTEG_PDU;        /* NumberOfTRPRxTxTEG */
+static int hf_f1ap_NRV2XServicesAuthorized_PDU;   /* NRV2XServicesAuthorized */
+static int hf_f1ap_NRUESidelinkAggregateMaximumBitrate_PDU;  /* NRUESidelinkAggregateMaximumBitrate */
+static int hf_f1ap_OnDemandPRS_Info_PDU;          /* OnDemandPRS_Info */
+static int hf_f1ap_PagingCell_Item_PDU;           /* PagingCell_Item */
+static int hf_f1ap_PagingDRX_PDU;                 /* PagingDRX */
+static int hf_f1ap_PagingIdentity_PDU;            /* PagingIdentity */
+static int hf_f1ap_PagingCause_PDU;               /* PagingCause */
+static int hf_f1ap_PagingOrigin_PDU;              /* PagingOrigin */
+static int hf_f1ap_PagingPriority_PDU;            /* PagingPriority */
+static int hf_f1ap_PEIPSAssistanceInfo_PDU;       /* PEIPSAssistanceInfo */
+static int hf_f1ap_Parent_IAB_Nodes_NA_Resource_Configuration_List_PDU;  /* Parent_IAB_Nodes_NA_Resource_Configuration_List */
+static int hf_f1ap_PathSwitchConfiguration_PDU;   /* PathSwitchConfiguration */
+static int hf_f1ap_PC5RLCChannelToBeSetupList_PDU;  /* PC5RLCChannelToBeSetupList */
+static int hf_f1ap_PC5RLCChannelToBeModifiedList_PDU;  /* PC5RLCChannelToBeModifiedList */
+static int hf_f1ap_PC5RLCChannelToBeReleasedList_PDU;  /* PC5RLCChannelToBeReleasedList */
+static int hf_f1ap_PC5RLCChannelSetupList_PDU;    /* PC5RLCChannelSetupList */
+static int hf_f1ap_PC5RLCChannelFailedToBeSetupList_PDU;  /* PC5RLCChannelFailedToBeSetupList */
+static int hf_f1ap_PC5RLCChannelModifiedList_PDU;  /* PC5RLCChannelModifiedList */
+static int hf_f1ap_PC5RLCChannelFailedToBeModifiedList_PDU;  /* PC5RLCChannelFailedToBeModifiedList */
+static int hf_f1ap_PC5RLCChannelRequiredToBeModifiedList_PDU;  /* PC5RLCChannelRequiredToBeModifiedList */
+static int hf_f1ap_PC5RLCChannelRequiredToBeReleasedList_PDU;  /* PC5RLCChannelRequiredToBeReleasedList */
+static int hf_f1ap_PDCCH_BlindDetectionSCG_PDU;   /* PDCCH_BlindDetectionSCG */
+static int hf_f1ap_PDCMeasurementPeriodicity_PDU;  /* PDCMeasurementPeriodicity */
+static int hf_f1ap_PDCMeasurementQuantities_PDU;  /* PDCMeasurementQuantities */
+static int hf_f1ap_PDCMeasurementQuantities_Item_PDU;  /* PDCMeasurementQuantities_Item */
+static int hf_f1ap_PDCMeasurementResult_PDU;      /* PDCMeasurementResult */
+static int hf_f1ap_PDCReportType_PDU;             /* PDCReportType */
+static int hf_f1ap_PDCPSNLength_PDU;              /* PDCPSNLength */
+static int hf_f1ap_PDUSessionID_PDU;              /* PDUSessionID */
+static int hf_f1ap_PEISubgroupingSupportIndication_PDU;  /* PEISubgroupingSupportIndication */
+static int hf_f1ap_Permutation_PDU;               /* Permutation */
+static int hf_f1ap_Ph_InfoMCG_PDU;                /* Ph_InfoMCG */
+static int hf_f1ap_Ph_InfoSCG_PDU;                /* Ph_InfoSCG */
+static int hf_f1ap_PLMN_Identity_PDU;             /* PLMN_Identity */
+static int hf_f1ap_PortNumber_PDU;                /* PortNumber */
+static int hf_f1ap_PosAssistance_Information_PDU;  /* PosAssistance_Information */
+static int hf_f1ap_PosAssistanceInformationFailureList_PDU;  /* PosAssistanceInformationFailureList */
+static int hf_f1ap_PosBroadcast_PDU;              /* PosBroadcast */
+static int hf_f1ap_PosConextRevIndication_PDU;    /* PosConextRevIndication */
+static int hf_f1ap_PositioningBroadcastCells_PDU;  /* PositioningBroadcastCells */
+static int hf_f1ap_PosMeasGapPreConfigList_PDU;   /* PosMeasGapPreConfigList */
+static int hf_f1ap_MeasurementPeriodicity_PDU;    /* MeasurementPeriodicity */
+static int hf_f1ap_MeasurementPeriodicityExtended_PDU;  /* MeasurementPeriodicityExtended */
+static int hf_f1ap_PosMeasurementPeriodicityNR_AoA_PDU;  /* PosMeasurementPeriodicityNR_AoA */
+static int hf_f1ap_PosMeasurementQuantities_PDU;  /* PosMeasurementQuantities */
+static int hf_f1ap_PosMeasurementResultList_PDU;  /* PosMeasurementResultList */
+static int hf_f1ap_PosReportCharacteristics_PDU;  /* PosReportCharacteristics */
+static int hf_f1ap_PosSItypeList_PDU;             /* PosSItypeList */
+static int hf_f1ap_Protected_EUTRA_Resources_Item_PDU;  /* Protected_EUTRA_Resources_Item */
+static int hf_f1ap_PRS_Measurement_Info_List_PDU;  /* PRS_Measurement_Info_List */
+static int hf_f1ap_Potential_SpCell_Item_PDU;     /* Potential_SpCell_Item */
+static int hf_f1ap_PRSConfigRequestType_PDU;      /* PRSConfigRequestType */
+static int hf_f1ap_PRS_Resource_ID_PDU;           /* PRS_Resource_ID */
+static int hf_f1ap_PWS_Failed_NR_CGI_Item_PDU;    /* PWS_Failed_NR_CGI_Item */
+static int hf_f1ap_PWSSystemInformation_PDU;      /* PWSSystemInformation */
+static int hf_f1ap_PrivacyIndicator_PDU;          /* PrivacyIndicator */
+static int hf_f1ap_PRSTRPList_PDU;                /* PRSTRPList */
+static int hf_f1ap_PRSTransmissionTRPList_PDU;    /* PRSTransmissionTRPList */
+static int hf_f1ap_QoEInformation_PDU;            /* QoEInformation */
+static int hf_f1ap_QoSFlowMappingIndication_PDU;  /* QoSFlowMappingIndication */
+static int hf_f1ap_QosMonitoringRequest_PDU;      /* QosMonitoringRequest */
+static int hf_f1ap_QoSParaSetNotifyIndex_PDU;     /* QoSParaSetNotifyIndex */
+static int hf_f1ap_RACHReportInformationList_PDU;  /* RACHReportInformationList */
+static int hf_f1ap_MIMOPRBusageInformation_PDU;   /* MIMOPRBusageInformation */
+static int hf_f1ap_RANAC_PDU;                     /* RANAC */
+static int hf_f1ap_RAN_MeasurementID_PDU;         /* RAN_MeasurementID */
+static int hf_f1ap_RAN_UE_MeasurementID_PDU;      /* RAN_UE_MeasurementID */
+static int hf_f1ap_RAN_UE_PDC_MeasID_PDU;         /* RAN_UE_PDC_MeasID */
+static int hf_f1ap_RANUEID_PDU;                   /* RANUEID */
+static int hf_f1ap_RAT_FrequencyPriorityInformation_PDU;  /* RAT_FrequencyPriorityInformation */
+static int hf_f1ap_RBSetConfiguration_PDU;        /* RBSetConfiguration */
+static int hf_f1ap_Re_routingEnableIndicator_PDU;  /* Re_routingEnableIndicator */
+static int hf_f1ap_Redcap_Bcast_Information_PDU;  /* Redcap_Bcast_Information */
+static int hf_f1ap_RedCapIndication_PDU;          /* RedCapIndication */
+static int hf_f1ap_RemoteUELocalID_PDU;           /* RemoteUELocalID */
+static int hf_f1ap_RegistrationRequest_PDU;       /* RegistrationRequest */
+static int hf_f1ap_ReportCharacteristics_PDU;     /* ReportCharacteristics */
+static int hf_f1ap_ReportingPeriodicity_PDU;      /* ReportingPeriodicity */
+static int hf_f1ap_RequestedBandCombinationIndex_PDU;  /* RequestedBandCombinationIndex */
+static int hf_f1ap_RequestedFeatureSetEntryIndex_PDU;  /* RequestedFeatureSetEntryIndex */
+static int hf_f1ap_RequestedP_MaxFR2_PDU;         /* RequestedP_MaxFR2 */
+static int hf_f1ap_Requested_PDCCH_BlindDetectionSCG_PDU;  /* Requested_PDCCH_BlindDetectionSCG */
+static int hf_f1ap_RequestedSRSTransmissionCharacteristics_PDU;  /* RequestedSRSTransmissionCharacteristics */
+static int hf_f1ap_RequestType_PDU;               /* RequestType */
+static int hf_f1ap_ResourceCoordinationTransferInformation_PDU;  /* ResourceCoordinationTransferInformation */
+static int hf_f1ap_ResourceCoordinationTransferContainer_PDU;  /* ResourceCoordinationTransferContainer */
+static int hf_f1ap_RepetitionFactorExtended_PDU;  /* RepetitionFactorExtended */
+static int hf_f1ap_RepetitionPeriod_PDU;          /* RepetitionPeriod */
+static int hf_f1ap_ReportingRequestType_PDU;      /* ReportingRequestType */
+static int hf_f1ap_RLCDuplicationInformation_PDU;  /* RLCDuplicationInformation */
+static int hf_f1ap_RLCFailureIndication_PDU;      /* RLCFailureIndication */
+static int hf_f1ap_RLCMode_PDU;                   /* RLCMode */
+static int hf_f1ap_RLC_Status_PDU;                /* RLC_Status */
+static int hf_f1ap_RLFReportInformationList_PDU;  /* RLFReportInformationList */
+static int hf_f1ap_RRCContainer_PDU;              /* RRCContainer */
+static int hf_f1ap_RRCContainer_RRCSetupComplete_PDU;  /* RRCContainer_RRCSetupComplete */
+static int hf_f1ap_RRCDeliveryStatus_PDU;         /* RRCDeliveryStatus */
+static int hf_f1ap_RRCDeliveryStatusRequest_PDU;  /* RRCDeliveryStatusRequest */
+static int hf_f1ap_RRCReconfigurationCompleteIndicator_PDU;  /* RRCReconfigurationCompleteIndicator */
+static int hf_f1ap_RRC_Version_PDU;               /* RRC_Version */
+static int hf_f1ap_Latest_RRC_Version_Enhanced_PDU;  /* Latest_RRC_Version_Enhanced */
+static int hf_f1ap_RoutingID_PDU;                 /* RoutingID */
+static int hf_f1ap_ResponseTime_PDU;              /* ResponseTime */
+static int hf_f1ap_SCell_FailedtoSetup_Item_PDU;  /* SCell_FailedtoSetup_Item */
+static int hf_f1ap_SCell_FailedtoSetupMod_Item_PDU;  /* SCell_FailedtoSetupMod_Item */
+static int hf_f1ap_SCell_ToBeRemoved_Item_PDU;    /* SCell_ToBeRemoved_Item */
+static int hf_f1ap_SCell_ToBeSetup_Item_PDU;      /* SCell_ToBeSetup_Item */
+static int hf_f1ap_SCell_ToBeSetupMod_Item_PDU;   /* SCell_ToBeSetupMod_Item */
+static int hf_f1ap_SCGActivationRequest_PDU;      /* SCGActivationRequest */
+static int hf_f1ap_SCGActivationStatus_PDU;       /* SCGActivationStatus */
+static int hf_f1ap_SCGIndicator_PDU;              /* SCGIndicator */
+static int hf_f1ap_SCS_480_PDU;                   /* SCS_480 */
+static int hf_f1ap_SCS_960_PDU;                   /* SCS_960 */
+static int hf_f1ap_SDTBearerConfigurationQueryIndication_PDU;  /* SDTBearerConfigurationQueryIndication */
+static int hf_f1ap_SDTBearerConfigurationInfo_PDU;  /* SDTBearerConfigurationInfo */
+static int hf_f1ap_SDT_MAC_PHY_CG_Config_PDU;     /* SDT_MAC_PHY_CG_Config */
+static int hf_f1ap_SDTInformation_PDU;            /* SDTInformation */
+static int hf_f1ap_SDTRLCBearerConfiguration_PDU;  /* SDTRLCBearerConfiguration */
+static int hf_f1ap_SDT_Termination_Request_PDU;   /* SDT_Termination_Request */
+static int hf_f1ap_SelectedBandCombinationIndex_PDU;  /* SelectedBandCombinationIndex */
+static int hf_f1ap_SelectedFeatureSetEntryIndex_PDU;  /* SelectedFeatureSetEntryIndex */
+static int hf_f1ap_ServCellInfoList_PDU;          /* ServCellInfoList */
+static int hf_f1ap_ServCellIndex_PDU;             /* ServCellIndex */
+static int hf_f1ap_ServingCellMO_PDU;             /* ServingCellMO */
+static int hf_f1ap_ServingCellMO_List_Item_PDU;   /* ServingCellMO_List_Item */
+static int hf_f1ap_ServingCellMO_encoded_in_CGC_List_PDU;  /* ServingCellMO_encoded_in_CGC_List */
+static int hf_f1ap_Serving_Cells_List_PDU;        /* Serving_Cells_List */
+static int hf_f1ap_Supported_MBS_FSA_ID_List_PDU;  /* Supported_MBS_FSA_ID_List */
+static int hf_f1ap_SFN_Offset_PDU;                /* SFN_Offset */
+static int hf_f1ap_Served_Cells_To_Add_Item_PDU;  /* Served_Cells_To_Add_Item */
+static int hf_f1ap_Served_Cells_To_Delete_Item_PDU;  /* Served_Cells_To_Delete_Item */
+static int hf_f1ap_Served_Cells_To_Modify_Item_PDU;  /* Served_Cells_To_Modify_Item */
+static int hf_f1ap_RelativeTime1900_PDU;          /* RelativeTime1900 */
+static int hf_f1ap_SIB10_message_PDU;             /* SIB10_message */
+static int hf_f1ap_SIB12_message_PDU;             /* SIB12_message */
+static int hf_f1ap_SIB13_message_PDU;             /* SIB13_message */
+static int hf_f1ap_SIB14_message_PDU;             /* SIB14_message */
+static int hf_f1ap_SIB15_message_PDU;             /* SIB15_message */
+static int hf_f1ap_SIB17_message_PDU;             /* SIB17_message */
+static int hf_f1ap_SIB20_message_PDU;             /* SIB20_message */
+static int hf_f1ap_SItype_List_PDU;               /* SItype_List */
+static int hf_f1ap_SidelinkRelayConfiguration_PDU;  /* SidelinkRelayConfiguration */
+static int hf_f1ap_SLDRBs_FailedToBeModified_Item_PDU;  /* SLDRBs_FailedToBeModified_Item */
+static int hf_f1ap_SLDRBs_FailedToBeSetup_Item_PDU;  /* SLDRBs_FailedToBeSetup_Item */
+static int hf_f1ap_SLDRBs_FailedToBeSetupMod_Item_PDU;  /* SLDRBs_FailedToBeSetupMod_Item */
+static int hf_f1ap_SLDRBs_Modified_Item_PDU;      /* SLDRBs_Modified_Item */
+static int hf_f1ap_SLDRBs_ModifiedConf_Item_PDU;  /* SLDRBs_ModifiedConf_Item */
+static int hf_f1ap_SLDRBs_Required_ToBeModified_Item_PDU;  /* SLDRBs_Required_ToBeModified_Item */
+static int hf_f1ap_SLDRBs_Required_ToBeReleased_Item_PDU;  /* SLDRBs_Required_ToBeReleased_Item */
+static int hf_f1ap_SLDRBs_Setup_Item_PDU;         /* SLDRBs_Setup_Item */
+static int hf_f1ap_SLDRBs_SetupMod_Item_PDU;      /* SLDRBs_SetupMod_Item */
+static int hf_f1ap_SLDRBs_ToBeModified_Item_PDU;  /* SLDRBs_ToBeModified_Item */
+static int hf_f1ap_SLDRBs_ToBeReleased_Item_PDU;  /* SLDRBs_ToBeReleased_Item */
+static int hf_f1ap_SLDRBs_ToBeSetup_Item_PDU;     /* SLDRBs_ToBeSetup_Item */
+static int hf_f1ap_SLDRBs_ToBeSetupMod_Item_PDU;  /* SLDRBs_ToBeSetupMod_Item */
+static int hf_f1ap_SLDRXCycleList_PDU;            /* SLDRXCycleList */
+static int hf_f1ap_SL_PHY_MAC_RLC_Config_PDU;     /* SL_PHY_MAC_RLC_Config */
+static int hf_f1ap_SL_RLC_ChannelToAddModList_PDU;  /* SL_RLC_ChannelToAddModList */
+static int hf_f1ap_SL_ConfigDedicatedEUTRA_Info_PDU;  /* SL_ConfigDedicatedEUTRA_Info */
+static int hf_f1ap_SliceRadioResourceStatus_PDU;  /* SliceRadioResourceStatus */
+static int hf_f1ap_SliceSupportList_PDU;          /* SliceSupportList */
+static int hf_f1ap_SlotNumber_PDU;                /* SlotNumber */
+static int hf_f1ap_SNSSAI_PDU;                    /* SNSSAI */
+static int hf_f1ap_SpatialRelationPerSRSResource_PDU;  /* SpatialRelationPerSRSResource */
+static int hf_f1ap_SRBID_PDU;                     /* SRBID */
+static int hf_f1ap_SRBs_FailedToBeSetup_Item_PDU;  /* SRBs_FailedToBeSetup_Item */
+static int hf_f1ap_SRBs_FailedToBeSetupMod_Item_PDU;  /* SRBs_FailedToBeSetupMod_Item */
+static int hf_f1ap_SRBs_Modified_Item_PDU;        /* SRBs_Modified_Item */
+static int hf_f1ap_SRBs_Required_ToBeReleased_Item_PDU;  /* SRBs_Required_ToBeReleased_Item */
+static int hf_f1ap_SRBs_Setup_Item_PDU;           /* SRBs_Setup_Item */
+static int hf_f1ap_SRBs_SetupMod_Item_PDU;        /* SRBs_SetupMod_Item */
+static int hf_f1ap_SRBs_ToBeReleased_Item_PDU;    /* SRBs_ToBeReleased_Item */
+static int hf_f1ap_SRBs_ToBeSetup_Item_PDU;       /* SRBs_ToBeSetup_Item */
+static int hf_f1ap_SRBs_ToBeSetupMod_Item_PDU;    /* SRBs_ToBeSetupMod_Item */
+static int hf_f1ap_SRSConfiguration_PDU;          /* SRSConfiguration */
+static int hf_f1ap_SrsFrequency_PDU;              /* SrsFrequency */
+static int hf_f1ap_SRSPortIndex_PDU;              /* SRSPortIndex */
+static int hf_f1ap_SRSResourcetype_PDU;           /* SRSResourcetype */
+static int hf_f1ap_SRSPosRRCInactiveConfig_PDU;   /* SRSPosRRCInactiveConfig */
+static int hf_f1ap_SRSPosRRCInactiveQueryIndication_PDU;  /* SRSPosRRCInactiveQueryIndication */
+static int hf_f1ap_SSB_PositionsInBurst_PDU;      /* SSB_PositionsInBurst */
+static int hf_f1ap_StartRBIndex_PDU;              /* StartRBIndex */
+static int hf_f1ap_StartRBHopping_PDU;            /* StartRBHopping */
+static int hf_f1ap_SuccessfulHOReportInformationList_PDU;  /* SuccessfulHOReportInformationList */
+static int hf_f1ap_SULAccessIndication_PDU;       /* SULAccessIndication */
+static int hf_f1ap_SurvivalTime_PDU;              /* SurvivalTime */
+static int hf_f1ap_SystemFrameNumber_PDU;         /* SystemFrameNumber */
+static int hf_f1ap_SystemInformationAreaID_PDU;   /* SystemInformationAreaID */
+static int hf_f1ap_TargetCellList_PDU;            /* TargetCellList */
+static int hf_f1ap_NSAGSupportList_PDU;           /* NSAGSupportList */
+static int hf_f1ap_TDD_UL_DLConfigCommonNR_PDU;   /* TDD_UL_DLConfigCommonNR */
+static int hf_f1ap_TRPTEGInformation_PDU;         /* TRPTEGInformation */
+static int hf_f1ap_TimeReferenceInformation_PDU;  /* TimeReferenceInformation */
+static int hf_f1ap_TimeToWait_PDU;                /* TimeToWait */
+static int hf_f1ap_TNLCapacityIndicator_PDU;      /* TNLCapacityIndicator */
+static int hf_f1ap_TraceActivation_PDU;           /* TraceActivation */
+static int hf_f1ap_TraceID_PDU;                   /* TraceID */
+static int hf_f1ap_TrafficMappingInfo_PDU;        /* TrafficMappingInfo */
+static int hf_f1ap_TransportLayerAddress_PDU;     /* TransportLayerAddress */
+static int hf_f1ap_TransactionID_PDU;             /* TransactionID */
+static int hf_f1ap_Transmission_Bandwidth_PDU;    /* Transmission_Bandwidth */
+static int hf_f1ap_TransmissionCombn8_PDU;        /* TransmissionCombn8 */
+static int hf_f1ap_TransmissionStopIndicator_PDU;  /* TransmissionStopIndicator */
+static int hf_f1ap_TransmissionActionIndicator_PDU;  /* TransmissionActionIndicator */
+static int hf_f1ap_TRPBeamAntennaInformation_PDU;  /* TRPBeamAntennaInformation */
+static int hf_f1ap_TRPInformationItem_PDU;        /* TRPInformationItem */
+static int hf_f1ap_TRPInformationTypeItem_PDU;    /* TRPInformationTypeItem */
+static int hf_f1ap_TRPList_PDU;                   /* TRPList */
+static int hf_f1ap_TRP_MeasurementRequestList_PDU;  /* TRP_MeasurementRequestList */
+static int hf_f1ap_TRP_PRS_Info_List_PDU;         /* TRP_PRS_Info_List */
+static int hf_f1ap_TRP_Rx_TEGInformation_PDU;     /* TRP_Rx_TEGInformation */
+static int hf_f1ap_TRPTxTEGAssociation_PDU;       /* TRPTxTEGAssociation */
+static int hf_f1ap_Transport_Layer_Address_Info_PDU;  /* Transport_Layer_Address_Info */
+static int hf_f1ap_TRPType_PDU;                   /* TRPType */
+static int hf_f1ap_TSCTrafficCharacteristics_PDU;  /* TSCTrafficCharacteristics */
+static int hf_f1ap_TRP_MeasurementUpdateList_PDU;  /* TRP_MeasurementUpdateList */
+static int hf_f1ap_TwoPHRModeMCG_PDU;             /* TwoPHRModeMCG */
+static int hf_f1ap_TwoPHRModeSCG_PDU;             /* TwoPHRModeSCG */
+static int hf_f1ap_UAC_Assistance_Info_PDU;       /* UAC_Assistance_Info */
+static int hf_f1ap_UE_associatedLogicalF1_ConnectionItem_PDU;  /* UE_associatedLogicalF1_ConnectionItem */
+static int hf_f1ap_UEAssistanceInformation_PDU;   /* UEAssistanceInformation */
+static int hf_f1ap_UEAssistanceInformationEUTRA_PDU;  /* UEAssistanceInformationEUTRA */
+static int hf_f1ap_UEContextNotRetrievable_PDU;   /* UEContextNotRetrievable */
+static int hf_f1ap_UEIdentityIndexValue_PDU;      /* UEIdentityIndexValue */
+static int hf_f1ap_UEIdentity_List_For_Paging_Item_PDU;  /* UEIdentity_List_For_Paging_Item */
+static int hf_f1ap_UE_MulticastMRBs_ConfirmedToBeModified_Item_PDU;  /* UE_MulticastMRBs_ConfirmedToBeModified_Item */
+static int hf_f1ap_UE_MulticastMRBs_RequiredToBeModified_Item_PDU;  /* UE_MulticastMRBs_RequiredToBeModified_Item */
+static int hf_f1ap_UE_MulticastMRBs_RequiredToBeReleased_Item_PDU;  /* UE_MulticastMRBs_RequiredToBeReleased_Item */
+static int hf_f1ap_UE_MulticastMRBs_Setup_Item_PDU;  /* UE_MulticastMRBs_Setup_Item */
+static int hf_f1ap_UE_MulticastMRBs_Setupnew_Item_PDU;  /* UE_MulticastMRBs_Setupnew_Item */
+static int hf_f1ap_UE_MulticastMRBs_ToBeReleased_Item_PDU;  /* UE_MulticastMRBs_ToBeReleased_Item */
+static int hf_f1ap_UE_MulticastMRBs_ToBeSetup_Item_PDU;  /* UE_MulticastMRBs_ToBeSetup_Item */
+static int hf_f1ap_UE_MulticastMRBs_ToBeSetup_atModify_Item_PDU;  /* UE_MulticastMRBs_ToBeSetup_atModify_Item */
+static int hf_f1ap_UEPagingCapability_PDU;        /* UEPagingCapability */
+static int hf_f1ap_UEReportingInformation_PDU;    /* UEReportingInformation */
+static int hf_f1ap_UlTxDirectCurrentMoreCarrierInformation_PDU;  /* UlTxDirectCurrentMoreCarrierInformation */
+static int hf_f1ap_UL_BH_Non_UP_Traffic_Mapping_PDU;  /* UL_BH_Non_UP_Traffic_Mapping */
+static int hf_f1ap_UL_GapFR2_Config_PDU;          /* UL_GapFR2_Config */
+static int hf_f1ap_UL_SRS_RSRPP_PDU;              /* UL_SRS_RSRPP */
+static int hf_f1ap_UL_UP_TNL_Information_to_Update_List_Item_PDU;  /* UL_UP_TNL_Information_to_Update_List_Item */
+static int hf_f1ap_UL_UP_TNL_Address_to_Update_List_Item_PDU;  /* UL_UP_TNL_Address_to_Update_List_Item */
+static int hf_f1ap_UplinkTxDirectCurrentListInformation_PDU;  /* UplinkTxDirectCurrentListInformation */
+static int hf_f1ap_UplinkTxDirectCurrentTwoCarrierListInfo_PDU;  /* UplinkTxDirectCurrentTwoCarrierListInfo */
+static int hf_f1ap_URI_address_PDU;               /* URI_address */
+static int hf_f1ap_UuRLCChannelID_PDU;            /* UuRLCChannelID */
+static int hf_f1ap_UuRLCChannelToBeSetupList_PDU;  /* UuRLCChannelToBeSetupList */
+static int hf_f1ap_UuRLCChannelToBeModifiedList_PDU;  /* UuRLCChannelToBeModifiedList */
+static int hf_f1ap_UuRLCChannelToBeReleasedList_PDU;  /* UuRLCChannelToBeReleasedList */
+static int hf_f1ap_UuRLCChannelSetupList_PDU;     /* UuRLCChannelSetupList */
+static int hf_f1ap_UuRLCChannelFailedToBeSetupList_PDU;  /* UuRLCChannelFailedToBeSetupList */
+static int hf_f1ap_UuRLCChannelModifiedList_PDU;  /* UuRLCChannelModifiedList */
+static int hf_f1ap_UuRLCChannelFailedToBeModifiedList_PDU;  /* UuRLCChannelFailedToBeModifiedList */
+static int hf_f1ap_UuRLCChannelRequiredToBeModifiedList_PDU;  /* UuRLCChannelRequiredToBeModifiedList */
+static int hf_f1ap_UuRLCChannelRequiredToBeReleasedList_PDU;  /* UuRLCChannelRequiredToBeReleasedList */
+static int hf_f1ap_VictimgNBSetID_PDU;            /* VictimgNBSetID */
+static int hf_f1ap_ZoAInformation_PDU;            /* ZoAInformation */
+static int hf_f1ap_Reset_PDU;                     /* Reset */
+static int hf_f1ap_ResetType_PDU;                 /* ResetType */
+static int hf_f1ap_ResetAcknowledge_PDU;          /* ResetAcknowledge */
+static int hf_f1ap_UE_associatedLogicalF1_ConnectionListResAck_PDU;  /* UE_associatedLogicalF1_ConnectionListResAck */
+static int hf_f1ap_ErrorIndication_PDU;           /* ErrorIndication */
+static int hf_f1ap_F1SetupRequest_PDU;            /* F1SetupRequest */
+static int hf_f1ap_GNB_DU_Served_Cells_List_PDU;  /* GNB_DU_Served_Cells_List */
+static int hf_f1ap_F1SetupResponse_PDU;           /* F1SetupResponse */
+static int hf_f1ap_Cells_to_be_Activated_List_PDU;  /* Cells_to_be_Activated_List */
+static int hf_f1ap_F1SetupFailure_PDU;            /* F1SetupFailure */
+static int hf_f1ap_GNBDUConfigurationUpdate_PDU;  /* GNBDUConfigurationUpdate */
+static int hf_f1ap_Served_Cells_To_Add_List_PDU;  /* Served_Cells_To_Add_List */
+static int hf_f1ap_Served_Cells_To_Modify_List_PDU;  /* Served_Cells_To_Modify_List */
+static int hf_f1ap_Served_Cells_To_Delete_List_PDU;  /* Served_Cells_To_Delete_List */
+static int hf_f1ap_Cells_Status_List_PDU;         /* Cells_Status_List */
+static int hf_f1ap_Dedicated_SIDelivery_NeededUE_List_PDU;  /* Dedicated_SIDelivery_NeededUE_List */
+static int hf_f1ap_GNB_DU_TNL_Association_To_Remove_List_PDU;  /* GNB_DU_TNL_Association_To_Remove_List */
+static int hf_f1ap_GNBDUConfigurationUpdateAcknowledge_PDU;  /* GNBDUConfigurationUpdateAcknowledge */
+static int hf_f1ap_GNBDUConfigurationUpdateFailure_PDU;  /* GNBDUConfigurationUpdateFailure */
+static int hf_f1ap_GNBCUConfigurationUpdate_PDU;  /* GNBCUConfigurationUpdate */
+static int hf_f1ap_Cells_to_be_Deactivated_List_PDU;  /* Cells_to_be_Deactivated_List */
+static int hf_f1ap_GNB_CU_TNL_Association_To_Add_List_PDU;  /* GNB_CU_TNL_Association_To_Add_List */
+static int hf_f1ap_GNB_CU_TNL_Association_To_Remove_List_PDU;  /* GNB_CU_TNL_Association_To_Remove_List */
+static int hf_f1ap_GNB_CU_TNL_Association_To_Update_List_PDU;  /* GNB_CU_TNL_Association_To_Update_List */
+static int hf_f1ap_Cells_to_be_Barred_List_PDU;   /* Cells_to_be_Barred_List */
+static int hf_f1ap_Protected_EUTRA_Resources_List_PDU;  /* Protected_EUTRA_Resources_List */
+static int hf_f1ap_Neighbour_Cell_Information_List_PDU;  /* Neighbour_Cell_Information_List */
+static int hf_f1ap_GNBCUConfigurationUpdateAcknowledge_PDU;  /* GNBCUConfigurationUpdateAcknowledge */
+static int hf_f1ap_Cells_Failed_to_be_Activated_List_PDU;  /* Cells_Failed_to_be_Activated_List */
+static int hf_f1ap_GNB_CU_TNL_Association_Setup_List_PDU;  /* GNB_CU_TNL_Association_Setup_List */
+static int hf_f1ap_GNB_CU_TNL_Association_Failed_To_Setup_List_PDU;  /* GNB_CU_TNL_Association_Failed_To_Setup_List */
+static int hf_f1ap_GNBCUConfigurationUpdateFailure_PDU;  /* GNBCUConfigurationUpdateFailure */
+static int hf_f1ap_GNBDUResourceCoordinationRequest_PDU;  /* GNBDUResourceCoordinationRequest */
+static int hf_f1ap_GNBDUResourceCoordinationResponse_PDU;  /* GNBDUResourceCoordinationResponse */
+static int hf_f1ap_UEContextSetupRequest_PDU;     /* UEContextSetupRequest */
+static int hf_f1ap_Candidate_SpCell_List_PDU;     /* Candidate_SpCell_List */
+static int hf_f1ap_SCell_ToBeSetup_List_PDU;      /* SCell_ToBeSetup_List */
+static int hf_f1ap_SRBs_ToBeSetup_List_PDU;       /* SRBs_ToBeSetup_List */
+static int hf_f1ap_DRBs_ToBeSetup_List_PDU;       /* DRBs_ToBeSetup_List */
+static int hf_f1ap_BHChannels_ToBeSetup_List_PDU;  /* BHChannels_ToBeSetup_List */
+static int hf_f1ap_SLDRBs_ToBeSetup_List_PDU;     /* SLDRBs_ToBeSetup_List */
+static int hf_f1ap_UE_MulticastMRBs_ToBeSetup_List_PDU;  /* UE_MulticastMRBs_ToBeSetup_List */
+static int hf_f1ap_ServingCellMO_List_PDU;        /* ServingCellMO_List */
+static int hf_f1ap_UEContextSetupResponse_PDU;    /* UEContextSetupResponse */
+static int hf_f1ap_DRBs_Setup_List_PDU;           /* DRBs_Setup_List */
+static int hf_f1ap_SRBs_FailedToBeSetup_List_PDU;  /* SRBs_FailedToBeSetup_List */
+static int hf_f1ap_DRBs_FailedToBeSetup_List_PDU;  /* DRBs_FailedToBeSetup_List */
+static int hf_f1ap_SCell_FailedtoSetup_List_PDU;  /* SCell_FailedtoSetup_List */
+static int hf_f1ap_SRBs_Setup_List_PDU;           /* SRBs_Setup_List */
+static int hf_f1ap_BHChannels_Setup_List_PDU;     /* BHChannels_Setup_List */
+static int hf_f1ap_BHChannels_FailedToBeSetup_List_PDU;  /* BHChannels_FailedToBeSetup_List */
+static int hf_f1ap_SLDRBs_Setup_List_PDU;         /* SLDRBs_Setup_List */
+static int hf_f1ap_SLDRBs_FailedToBeSetup_List_PDU;  /* SLDRBs_FailedToBeSetup_List */
+static int hf_f1ap_UE_MulticastMRBs_Setupnew_List_PDU;  /* UE_MulticastMRBs_Setupnew_List */
+static int hf_f1ap_UEContextSetupFailure_PDU;     /* UEContextSetupFailure */
+static int hf_f1ap_Potential_SpCell_List_PDU;     /* Potential_SpCell_List */
+static int hf_f1ap_UEContextReleaseRequest_PDU;   /* UEContextReleaseRequest */
+static int hf_f1ap_UEContextReleaseCommand_PDU;   /* UEContextReleaseCommand */
+static int hf_f1ap_UEContextReleaseComplete_PDU;  /* UEContextReleaseComplete */
+static int hf_f1ap_UEContextModificationRequest_PDU;  /* UEContextModificationRequest */
+static int hf_f1ap_SCell_ToBeSetupMod_List_PDU;   /* SCell_ToBeSetupMod_List */
+static int hf_f1ap_SCell_ToBeRemoved_List_PDU;    /* SCell_ToBeRemoved_List */
+static int hf_f1ap_SRBs_ToBeSetupMod_List_PDU;    /* SRBs_ToBeSetupMod_List */
+static int hf_f1ap_DRBs_ToBeSetupMod_List_PDU;    /* DRBs_ToBeSetupMod_List */
+static int hf_f1ap_BHChannels_ToBeSetupMod_List_PDU;  /* BHChannels_ToBeSetupMod_List */
+static int hf_f1ap_DRBs_ToBeModified_List_PDU;    /* DRBs_ToBeModified_List */
+static int hf_f1ap_BHChannels_ToBeModified_List_PDU;  /* BHChannels_ToBeModified_List */
+static int hf_f1ap_SRBs_ToBeReleased_List_PDU;    /* SRBs_ToBeReleased_List */
+static int hf_f1ap_DRBs_ToBeReleased_List_PDU;    /* DRBs_ToBeReleased_List */
+static int hf_f1ap_BHChannels_ToBeReleased_List_PDU;  /* BHChannels_ToBeReleased_List */
+static int hf_f1ap_UE_MulticastMRBs_ToBeSetup_atModify_List_PDU;  /* UE_MulticastMRBs_ToBeSetup_atModify_List */
+static int hf_f1ap_UE_MulticastMRBs_ToBeReleased_List_PDU;  /* UE_MulticastMRBs_ToBeReleased_List */
+static int hf_f1ap_SLDRBs_ToBeSetupMod_List_PDU;  /* SLDRBs_ToBeSetupMod_List */
+static int hf_f1ap_SLDRBs_ToBeModified_List_PDU;  /* SLDRBs_ToBeModified_List */
+static int hf_f1ap_SLDRBs_ToBeReleased_List_PDU;  /* SLDRBs_ToBeReleased_List */
+static int hf_f1ap_UEContextModificationResponse_PDU;  /* UEContextModificationResponse */
+static int hf_f1ap_DRBs_SetupMod_List_PDU;        /* DRBs_SetupMod_List */
+static int hf_f1ap_DRBs_Modified_List_PDU;        /* DRBs_Modified_List */
+static int hf_f1ap_SRBs_SetupMod_List_PDU;        /* SRBs_SetupMod_List */
+static int hf_f1ap_SRBs_Modified_List_PDU;        /* SRBs_Modified_List */
+static int hf_f1ap_DRBs_FailedToBeModified_List_PDU;  /* DRBs_FailedToBeModified_List */
+static int hf_f1ap_SRBs_FailedToBeSetupMod_List_PDU;  /* SRBs_FailedToBeSetupMod_List */
+static int hf_f1ap_DRBs_FailedToBeSetupMod_List_PDU;  /* DRBs_FailedToBeSetupMod_List */
+static int hf_f1ap_SCell_FailedtoSetupMod_List_PDU;  /* SCell_FailedtoSetupMod_List */
+static int hf_f1ap_BHChannels_SetupMod_List_PDU;  /* BHChannels_SetupMod_List */
+static int hf_f1ap_BHChannels_Modified_List_PDU;  /* BHChannels_Modified_List */
+static int hf_f1ap_BHChannels_FailedToBeModified_List_PDU;  /* BHChannels_FailedToBeModified_List */
+static int hf_f1ap_BHChannels_FailedToBeSetupMod_List_PDU;  /* BHChannels_FailedToBeSetupMod_List */
+static int hf_f1ap_Associated_SCell_List_PDU;     /* Associated_SCell_List */
+static int hf_f1ap_SLDRBs_SetupMod_List_PDU;      /* SLDRBs_SetupMod_List */
+static int hf_f1ap_SLDRBs_Modified_List_PDU;      /* SLDRBs_Modified_List */
+static int hf_f1ap_SLDRBs_FailedToBeModified_List_PDU;  /* SLDRBs_FailedToBeModified_List */
+static int hf_f1ap_SLDRBs_FailedToBeSetupMod_List_PDU;  /* SLDRBs_FailedToBeSetupMod_List */
+static int hf_f1ap_UE_MulticastMRBs_Setup_List_PDU;  /* UE_MulticastMRBs_Setup_List */
+static int hf_f1ap_UEContextModificationFailure_PDU;  /* UEContextModificationFailure */
+static int hf_f1ap_UEContextModificationRequired_PDU;  /* UEContextModificationRequired */
+static int hf_f1ap_DRBs_Required_ToBeModified_List_PDU;  /* DRBs_Required_ToBeModified_List */
+static int hf_f1ap_DRBs_Required_ToBeReleased_List_PDU;  /* DRBs_Required_ToBeReleased_List */
+static int hf_f1ap_SRBs_Required_ToBeReleased_List_PDU;  /* SRBs_Required_ToBeReleased_List */
+static int hf_f1ap_BHChannels_Required_ToBeReleased_List_PDU;  /* BHChannels_Required_ToBeReleased_List */
+static int hf_f1ap_SLDRBs_Required_ToBeModified_List_PDU;  /* SLDRBs_Required_ToBeModified_List */
+static int hf_f1ap_SLDRBs_Required_ToBeReleased_List_PDU;  /* SLDRBs_Required_ToBeReleased_List */
+static int hf_f1ap_UE_MulticastMRBs_RequiredToBeModified_List_PDU;  /* UE_MulticastMRBs_RequiredToBeModified_List */
+static int hf_f1ap_UE_MulticastMRBs_RequiredToBeReleased_List_PDU;  /* UE_MulticastMRBs_RequiredToBeReleased_List */
+static int hf_f1ap_UEContextModificationConfirm_PDU;  /* UEContextModificationConfirm */
+static int hf_f1ap_DRBs_ModifiedConf_List_PDU;    /* DRBs_ModifiedConf_List */
+static int hf_f1ap_SLDRBs_ModifiedConf_List_PDU;  /* SLDRBs_ModifiedConf_List */
+static int hf_f1ap_UE_MulticastMRBs_ConfirmedToBeModified_List_PDU;  /* UE_MulticastMRBs_ConfirmedToBeModified_List */
+static int hf_f1ap_UEContextModificationRefuse_PDU;  /* UEContextModificationRefuse */
+static int hf_f1ap_WriteReplaceWarningRequest_PDU;  /* WriteReplaceWarningRequest */
+static int hf_f1ap_Cells_To_Be_Broadcast_List_PDU;  /* Cells_To_Be_Broadcast_List */
+static int hf_f1ap_WriteReplaceWarningResponse_PDU;  /* WriteReplaceWarningResponse */
+static int hf_f1ap_Cells_Broadcast_Completed_List_PDU;  /* Cells_Broadcast_Completed_List */
+static int hf_f1ap_PWSCancelRequest_PDU;          /* PWSCancelRequest */
+static int hf_f1ap_Broadcast_To_Be_Cancelled_List_PDU;  /* Broadcast_To_Be_Cancelled_List */
+static int hf_f1ap_PWSCancelResponse_PDU;         /* PWSCancelResponse */
+static int hf_f1ap_Cells_Broadcast_Cancelled_List_PDU;  /* Cells_Broadcast_Cancelled_List */
+static int hf_f1ap_UEInactivityNotification_PDU;  /* UEInactivityNotification */
+static int hf_f1ap_DRB_Activity_List_PDU;         /* DRB_Activity_List */
+static int hf_f1ap_InitialULRRCMessageTransfer_PDU;  /* InitialULRRCMessageTransfer */
+static int hf_f1ap_DLRRCMessageTransfer_PDU;      /* DLRRCMessageTransfer */
+static int hf_f1ap_RedirectedRRCmessage_PDU;      /* RedirectedRRCmessage */
+static int hf_f1ap_ULRRCMessageTransfer_PDU;      /* ULRRCMessageTransfer */
+static int hf_f1ap_PrivateMessage_PDU;            /* PrivateMessage */
+static int hf_f1ap_SystemInformationDeliveryCommand_PDU;  /* SystemInformationDeliveryCommand */
+static int hf_f1ap_Paging_PDU;                    /* Paging */
+static int hf_f1ap_PagingCell_list_PDU;           /* PagingCell_list */
+static int hf_f1ap_Notify_PDU;                    /* Notify */
+static int hf_f1ap_DRB_Notify_List_PDU;           /* DRB_Notify_List */
+static int hf_f1ap_NetworkAccessRateReduction_PDU;  /* NetworkAccessRateReduction */
+static int hf_f1ap_PWSRestartIndication_PDU;      /* PWSRestartIndication */
+static int hf_f1ap_NR_CGI_List_For_Restart_List_PDU;  /* NR_CGI_List_For_Restart_List */
+static int hf_f1ap_PWSFailureIndication_PDU;      /* PWSFailureIndication */
+static int hf_f1ap_PWS_Failed_NR_CGI_List_PDU;    /* PWS_Failed_NR_CGI_List */
+static int hf_f1ap_GNBDUStatusIndication_PDU;     /* GNBDUStatusIndication */
+static int hf_f1ap_RRCDeliveryReport_PDU;         /* RRCDeliveryReport */
+static int hf_f1ap_F1RemovalRequest_PDU;          /* F1RemovalRequest */
+static int hf_f1ap_F1RemovalResponse_PDU;         /* F1RemovalResponse */
+static int hf_f1ap_F1RemovalFailure_PDU;          /* F1RemovalFailure */
+static int hf_f1ap_TraceStart_PDU;                /* TraceStart */
+static int hf_f1ap_DeactivateTrace_PDU;           /* DeactivateTrace */
+static int hf_f1ap_CellTrafficTrace_PDU;          /* CellTrafficTrace */
+static int hf_f1ap_DUCURadioInformationTransfer_PDU;  /* DUCURadioInformationTransfer */
+static int hf_f1ap_CUDURadioInformationTransfer_PDU;  /* CUDURadioInformationTransfer */
+static int hf_f1ap_BAPMappingConfiguration_PDU;   /* BAPMappingConfiguration */
+static int hf_f1ap_BH_Routing_Information_Added_List_PDU;  /* BH_Routing_Information_Added_List */
+static int hf_f1ap_BH_Routing_Information_Removed_List_PDU;  /* BH_Routing_Information_Removed_List */
+static int hf_f1ap_BAP_Header_Rewriting_Added_List_PDU;  /* BAP_Header_Rewriting_Added_List */
+static int hf_f1ap_BAP_Header_Rewriting_Removed_List_PDU;  /* BAP_Header_Rewriting_Removed_List */
+static int hf_f1ap_BAPMappingConfigurationAcknowledge_PDU;  /* BAPMappingConfigurationAcknowledge */
+static int hf_f1ap_BAPMappingConfigurationFailure_PDU;  /* BAPMappingConfigurationFailure */
+static int hf_f1ap_GNBDUResourceConfiguration_PDU;  /* GNBDUResourceConfiguration */
+static int hf_f1ap_GNBDUResourceConfigurationAcknowledge_PDU;  /* GNBDUResourceConfigurationAcknowledge */
+static int hf_f1ap_GNBDUResourceConfigurationFailure_PDU;  /* GNBDUResourceConfigurationFailure */
+static int hf_f1ap_IABTNLAddressRequest_PDU;      /* IABTNLAddressRequest */
+static int hf_f1ap_IAB_TNL_Addresses_To_Remove_List_PDU;  /* IAB_TNL_Addresses_To_Remove_List */
+static int hf_f1ap_IABTNLAddressResponse_PDU;     /* IABTNLAddressResponse */
+static int hf_f1ap_IAB_Allocated_TNL_Address_List_PDU;  /* IAB_Allocated_TNL_Address_List */
+static int hf_f1ap_IABTNLAddressFailure_PDU;      /* IABTNLAddressFailure */
+static int hf_f1ap_IABUPConfigurationUpdateRequest_PDU;  /* IABUPConfigurationUpdateRequest */
+static int hf_f1ap_UL_UP_TNL_Information_to_Update_List_PDU;  /* UL_UP_TNL_Information_to_Update_List */
+static int hf_f1ap_UL_UP_TNL_Address_to_Update_List_PDU;  /* UL_UP_TNL_Address_to_Update_List */
+static int hf_f1ap_IABUPConfigurationUpdateResponse_PDU;  /* IABUPConfigurationUpdateResponse */
+static int hf_f1ap_DL_UP_TNL_Address_to_Update_List_PDU;  /* DL_UP_TNL_Address_to_Update_List */
+static int hf_f1ap_IABUPConfigurationUpdateFailure_PDU;  /* IABUPConfigurationUpdateFailure */
+static int hf_f1ap_ResourceStatusRequest_PDU;     /* ResourceStatusRequest */
+static int hf_f1ap_ResourceStatusResponse_PDU;    /* ResourceStatusResponse */
+static int hf_f1ap_ResourceStatusFailure_PDU;     /* ResourceStatusFailure */
+static int hf_f1ap_ResourceStatusUpdate_PDU;      /* ResourceStatusUpdate */
+static int hf_f1ap_AccessAndMobilityIndication_PDU;  /* AccessAndMobilityIndication */
+static int hf_f1ap_ReferenceTimeInformationReportingControl_PDU;  /* ReferenceTimeInformationReportingControl */
+static int hf_f1ap_ReferenceTimeInformationReport_PDU;  /* ReferenceTimeInformationReport */
+static int hf_f1ap_AccessSuccess_PDU;             /* AccessSuccess */
+static int hf_f1ap_PositioningAssistanceInformationControl_PDU;  /* PositioningAssistanceInformationControl */
+static int hf_f1ap_PositioningAssistanceInformationFeedback_PDU;  /* PositioningAssistanceInformationFeedback */
+static int hf_f1ap_PositioningMeasurementRequest_PDU;  /* PositioningMeasurementRequest */
+static int hf_f1ap_PositioningMeasurementResponse_PDU;  /* PositioningMeasurementResponse */
+static int hf_f1ap_PositioningMeasurementFailure_PDU;  /* PositioningMeasurementFailure */
+static int hf_f1ap_PositioningMeasurementReport_PDU;  /* PositioningMeasurementReport */
+static int hf_f1ap_PositioningMeasurementAbort_PDU;  /* PositioningMeasurementAbort */
+static int hf_f1ap_PositioningMeasurementFailureIndication_PDU;  /* PositioningMeasurementFailureIndication */
+static int hf_f1ap_PositioningMeasurementUpdate_PDU;  /* PositioningMeasurementUpdate */
+static int hf_f1ap_TRPInformationRequest_PDU;     /* TRPInformationRequest */
+static int hf_f1ap_TRPInformationTypeListTRPReq_PDU;  /* TRPInformationTypeListTRPReq */
+static int hf_f1ap_TRPInformationResponse_PDU;    /* TRPInformationResponse */
+static int hf_f1ap_TRPInformationListTRPResp_PDU;  /* TRPInformationListTRPResp */
+static int hf_f1ap_TRPInformationFailure_PDU;     /* TRPInformationFailure */
+static int hf_f1ap_PositioningInformationRequest_PDU;  /* PositioningInformationRequest */
+static int hf_f1ap_PositioningInformationResponse_PDU;  /* PositioningInformationResponse */
+static int hf_f1ap_PositioningInformationFailure_PDU;  /* PositioningInformationFailure */
+static int hf_f1ap_PositioningActivationRequest_PDU;  /* PositioningActivationRequest */
+static int hf_f1ap_SRSType_PDU;                   /* SRSType */
+static int hf_f1ap_PositioningActivationResponse_PDU;  /* PositioningActivationResponse */
+static int hf_f1ap_PositioningActivationFailure_PDU;  /* PositioningActivationFailure */
+static int hf_f1ap_PositioningDeactivation_PDU;   /* PositioningDeactivation */
+static int hf_f1ap_PositioningInformationUpdate_PDU;  /* PositioningInformationUpdate */
+static int hf_f1ap_E_CIDMeasurementInitiationRequest_PDU;  /* E_CIDMeasurementInitiationRequest */
+static int hf_f1ap_E_CIDMeasurementInitiationResponse_PDU;  /* E_CIDMeasurementInitiationResponse */
+static int hf_f1ap_E_CIDMeasurementInitiationFailure_PDU;  /* E_CIDMeasurementInitiationFailure */
+static int hf_f1ap_E_CIDMeasurementFailureIndication_PDU;  /* E_CIDMeasurementFailureIndication */
+static int hf_f1ap_E_CIDMeasurementReport_PDU;    /* E_CIDMeasurementReport */
+static int hf_f1ap_E_CIDMeasurementTerminationCommand_PDU;  /* E_CIDMeasurementTerminationCommand */
+static int hf_f1ap_BroadcastContextSetupRequest_PDU;  /* BroadcastContextSetupRequest */
+static int hf_f1ap_BroadcastMRBs_ToBeSetup_List_PDU;  /* BroadcastMRBs_ToBeSetup_List */
+static int hf_f1ap_BroadcastContextSetupResponse_PDU;  /* BroadcastContextSetupResponse */
+static int hf_f1ap_BroadcastMRBs_Setup_List_PDU;  /* BroadcastMRBs_Setup_List */
+static int hf_f1ap_BroadcastMRBs_FailedToBeSetup_List_PDU;  /* BroadcastMRBs_FailedToBeSetup_List */
+static int hf_f1ap_BroadcastContextSetupFailure_PDU;  /* BroadcastContextSetupFailure */
+static int hf_f1ap_BroadcastContextReleaseCommand_PDU;  /* BroadcastContextReleaseCommand */
+static int hf_f1ap_BroadcastContextReleaseComplete_PDU;  /* BroadcastContextReleaseComplete */
+static int hf_f1ap_BroadcastContextReleaseRequest_PDU;  /* BroadcastContextReleaseRequest */
+static int hf_f1ap_BroadcastContextModificationRequest_PDU;  /* BroadcastContextModificationRequest */
+static int hf_f1ap_BroadcastMRBs_ToBeSetupMod_List_PDU;  /* BroadcastMRBs_ToBeSetupMod_List */
+static int hf_f1ap_BroadcastMRBs_ToBeModified_List_PDU;  /* BroadcastMRBs_ToBeModified_List */
+static int hf_f1ap_BroadcastMRBs_ToBeReleased_List_PDU;  /* BroadcastMRBs_ToBeReleased_List */
+static int hf_f1ap_BroadcastContextModificationResponse_PDU;  /* BroadcastContextModificationResponse */
+static int hf_f1ap_BroadcastMRBs_SetupMod_List_PDU;  /* BroadcastMRBs_SetupMod_List */
+static int hf_f1ap_BroadcastMRBs_FailedToBeSetupMod_List_PDU;  /* BroadcastMRBs_FailedToBeSetupMod_List */
+static int hf_f1ap_BroadcastMRBs_Modified_List_PDU;  /* BroadcastMRBs_Modified_List */
+static int hf_f1ap_BroadcastMRBs_FailedToBeModified_List_PDU;  /* BroadcastMRBs_FailedToBeModified_List */
+static int hf_f1ap_BroadcastContextModificationFailure_PDU;  /* BroadcastContextModificationFailure */
+static int hf_f1ap_MulticastGroupPaging_PDU;      /* MulticastGroupPaging */
+static int hf_f1ap_UEIdentity_List_For_Paging_List_PDU;  /* UEIdentity_List_For_Paging_List */
+static int hf_f1ap_MC_PagingCell_list_PDU;        /* MC_PagingCell_list */
+static int hf_f1ap_MulticastContextSetupRequest_PDU;  /* MulticastContextSetupRequest */
+static int hf_f1ap_MulticastMRBs_ToBeSetup_List_PDU;  /* MulticastMRBs_ToBeSetup_List */
+static int hf_f1ap_MulticastContextSetupResponse_PDU;  /* MulticastContextSetupResponse */
+static int hf_f1ap_MulticastMRBs_Setup_List_PDU;  /* MulticastMRBs_Setup_List */
+static int hf_f1ap_MulticastMRBs_FailedToBeSetup_List_PDU;  /* MulticastMRBs_FailedToBeSetup_List */
+static int hf_f1ap_MulticastContextSetupFailure_PDU;  /* MulticastContextSetupFailure */
+static int hf_f1ap_MulticastContextReleaseCommand_PDU;  /* MulticastContextReleaseCommand */
+static int hf_f1ap_MulticastContextReleaseComplete_PDU;  /* MulticastContextReleaseComplete */
+static int hf_f1ap_MulticastContextReleaseRequest_PDU;  /* MulticastContextReleaseRequest */
+static int hf_f1ap_MulticastContextModificationRequest_PDU;  /* MulticastContextModificationRequest */
+static int hf_f1ap_MulticastMRBs_ToBeSetupMod_List_PDU;  /* MulticastMRBs_ToBeSetupMod_List */
+static int hf_f1ap_MulticastMRBs_ToBeModified_List_PDU;  /* MulticastMRBs_ToBeModified_List */
+static int hf_f1ap_MulticastMRBs_ToBeReleased_List_PDU;  /* MulticastMRBs_ToBeReleased_List */
+static int hf_f1ap_MulticastContextModificationResponse_PDU;  /* MulticastContextModificationResponse */
+static int hf_f1ap_MulticastMRBs_SetupMod_List_PDU;  /* MulticastMRBs_SetupMod_List */
+static int hf_f1ap_MulticastMRBs_FailedToBeSetupMod_List_PDU;  /* MulticastMRBs_FailedToBeSetupMod_List */
+static int hf_f1ap_MulticastMRBs_Modified_List_PDU;  /* MulticastMRBs_Modified_List */
+static int hf_f1ap_MulticastMRBs_FailedToBeModified_List_PDU;  /* MulticastMRBs_FailedToBeModified_List */
+static int hf_f1ap_MulticastContextModificationFailure_PDU;  /* MulticastContextModificationFailure */
+static int hf_f1ap_MulticastDistributionSetupRequest_PDU;  /* MulticastDistributionSetupRequest */
+static int hf_f1ap_MulticastF1UContext_ToBeSetup_List_PDU;  /* MulticastF1UContext_ToBeSetup_List */
+static int hf_f1ap_MulticastDistributionSetupResponse_PDU;  /* MulticastDistributionSetupResponse */
+static int hf_f1ap_MulticastF1UContext_Setup_List_PDU;  /* MulticastF1UContext_Setup_List */
+static int hf_f1ap_MulticastF1UContext_FailedToBeSetup_List_PDU;  /* MulticastF1UContext_FailedToBeSetup_List */
+static int hf_f1ap_MulticastDistributionSetupFailure_PDU;  /* MulticastDistributionSetupFailure */
+static int hf_f1ap_MulticastDistributionReleaseCommand_PDU;  /* MulticastDistributionReleaseCommand */
+static int hf_f1ap_MulticastDistributionReleaseComplete_PDU;  /* MulticastDistributionReleaseComplete */
+static int hf_f1ap_PDCMeasurementInitiationRequest_PDU;  /* PDCMeasurementInitiationRequest */
+static int hf_f1ap_PDCMeasurementInitiationResponse_PDU;  /* PDCMeasurementInitiationResponse */
+static int hf_f1ap_PDCMeasurementInitiationFailure_PDU;  /* PDCMeasurementInitiationFailure */
+static int hf_f1ap_PDCMeasurementReport_PDU;      /* PDCMeasurementReport */
+static int hf_f1ap_PDCMeasurementTerminationCommand_PDU;  /* PDCMeasurementTerminationCommand */
+static int hf_f1ap_PDCMeasurementFailureIndication_PDU;  /* PDCMeasurementFailureIndication */
+static int hf_f1ap_PRSConfigurationRequest_PDU;   /* PRSConfigurationRequest */
+static int hf_f1ap_PRSConfigurationResponse_PDU;  /* PRSConfigurationResponse */
+static int hf_f1ap_PRSConfigurationFailure_PDU;   /* PRSConfigurationFailure */
+static int hf_f1ap_MeasurementPreconfigurationRequired_PDU;  /* MeasurementPreconfigurationRequired */
+static int hf_f1ap_MeasurementPreconfigurationConfirm_PDU;  /* MeasurementPreconfigurationConfirm */
+static int hf_f1ap_MeasurementPreconfigurationRefuse_PDU;  /* MeasurementPreconfigurationRefuse */
+static int hf_f1ap_MeasurementActivation_PDU;     /* MeasurementActivation */
+static int hf_f1ap_QoEInformationTransfer_PDU;    /* QoEInformationTransfer */
+static int hf_f1ap_PosSystemInformationDeliveryCommand_PDU;  /* PosSystemInformationDeliveryCommand */
+static int hf_f1ap_F1AP_PDU_PDU;                  /* F1AP_PDU */
+static int hf_f1ap_local;                         /* INTEGER_0_65535 */
+static int hf_f1ap_global;                        /* T_global */
+static int hf_f1ap_ProtocolIE_Container_item;     /* ProtocolIE_Field */
+static int hf_f1ap_id;                            /* ProtocolIE_ID */
+static int hf_f1ap_criticality;                   /* Criticality */
+static int hf_f1ap_ie_field_value;                /* T_ie_field_value */
+static int hf_f1ap_ProtocolExtensionContainer_item;  /* ProtocolExtensionField */
+static int hf_f1ap_ext_id;                        /* ProtocolExtensionID */
+static int hf_f1ap_extensionValue;                /* T_extensionValue */
+static int hf_f1ap_PrivateIE_Container_item;      /* PrivateIE_Field */
+static int hf_f1ap_private_id;                    /* PrivateIE_ID */
+static int hf_f1ap_value;                         /* T_value */
+static int hf_f1ap_sRSResourceSetID;              /* SRSResourceSetID */
+static int hf_f1ap_releaseALL;                    /* NULL */
+static int hf_f1ap_choice_extension;              /* ProtocolIE_SingleContainer */
+static int hf_f1ap_latitudeSign;                  /* T_latitudeSign */
+static int hf_f1ap_latitude;                      /* INTEGER_0_8388607 */
+static int hf_f1ap_longitude;                     /* INTEGER_M8388608_8388607 */
+static int hf_f1ap_directionOfAltitude;           /* T_directionOfAltitude */
+static int hf_f1ap_altitude;                      /* INTEGER_0_32767 */
+static int hf_f1ap_uncertaintySemi_major;         /* INTEGER_0_127 */
+static int hf_f1ap_uncertaintySemi_minor;         /* INTEGER_0_127 */
+static int hf_f1ap_orientationOfMajorAxis;        /* INTEGER_0_179 */
+static int hf_f1ap_uncertaintyAltitude;           /* INTEGER_0_127 */
+static int hf_f1ap_confidence;                    /* INTEGER_0_100 */
+static int hf_f1ap_iE_Extensions;                 /* ProtocolExtensionContainer */
+static int hf_f1ap_Activated_Cells_to_be_Updated_List_item;  /* Activated_Cells_to_be_Updated_List_Item */
+static int hf_f1ap_nRCGI;                         /* NRCGI */
+static int hf_f1ap_iAB_DU_Cell_Resource_Configuration_Mode_Info;  /* IAB_DU_Cell_Resource_Configuration_Mode_Info */
+static int hf_f1ap_locationAndBandwidth;          /* INTEGER_0_37949_ */
+static int hf_f1ap_subcarrierSpacing;             /* T_subcarrierSpacing */
+static int hf_f1ap_cyclicPrefix;                  /* T_cyclicPrefix */
+static int hf_f1ap_txDirectCurrentLocation;       /* INTEGER_0_3301_ */
+static int hf_f1ap_shift7dot5kHz;                 /* T_shift7dot5kHz */
+static int hf_f1ap_sRSConfig;                     /* SRSConfig */
+static int hf_f1ap_AdditionalPath_List_item;      /* AdditionalPath_Item */
+static int hf_f1ap_relativePathDelay;             /* RelativePathDelay */
+static int hf_f1ap_pathQuality;                   /* TRPMeasurementQuality */
+static int hf_f1ap_ExtendedAdditionalPathList_item;  /* ExtendedAdditionalPathList_Item */
+static int hf_f1ap_relativeTimeOfPath;            /* RelativePathDelay */
+static int hf_f1ap_multipleULAoA;                 /* MultipleULAoA */
+static int hf_f1ap_pathPower;                     /* UL_SRS_RSRPP */
+static int hf_f1ap_AdditionalPDCPDuplicationTNL_List_item;  /* AdditionalPDCPDuplicationTNL_Item */
+static int hf_f1ap_additionalPDCPDuplicationUPTNLInformation;  /* UPTransportLayerInformation */
+static int hf_f1ap_AdditionalSIBMessageList_item;  /* AdditionalSIBMessageList_Item */
+static int hf_f1ap_additionalSIB;                 /* T_additionalSIB */
+static int hf_f1ap_AffectedCellsAndBeams_List_item;  /* AffectedCellsAndBeams_Item */
+static int hf_f1ap_affectedSSB_List;              /* AffectedSSB_List */
+static int hf_f1ap_AffectedSSB_List_item;         /* AffectedSSB_Item */
+static int hf_f1ap_sSB_Index;                     /* INTEGER_0_63 */
+static int hf_f1ap_AggressorCellList_item;        /* AggressorCellList_Item */
+static int hf_f1ap_aggressorCell_ID;              /* NRCGI */
+static int hf_f1ap_aggressorgNBSetID;             /* GNBSetID */
+static int hf_f1ap_priorityLevel;                 /* PriorityLevel */
+static int hf_f1ap_pre_emptionCapability;         /* Pre_emptionCapability */
+static int hf_f1ap_pre_emptionVulnerability;      /* Pre_emptionVulnerability */
+static int hf_f1ap_AlternativeQoSParaSetList_item;  /* AlternativeQoSParaSetItem */
+static int hf_f1ap_alternativeQoSParaSetIndex;    /* QoSParaSetIndex */
+static int hf_f1ap_guaranteedFlowBitRateDL;       /* BitRate */
+static int hf_f1ap_guaranteedFlowBitRateUL;       /* BitRate */
+static int hf_f1ap_packetDelayBudget;             /* PacketDelayBudget */
+static int hf_f1ap_packetErrorRate;               /* PacketErrorRate */
+static int hf_f1ap_azimuthQuality;                /* INTEGER_0_255 */
+static int hf_f1ap_zenithQuality;                 /* INTEGER_0_255 */
+static int hf_f1ap_resolution;                    /* T_resolution */
+static int hf_f1ap_AperiodicSRSResourceTriggerList_item;  /* AperiodicSRSResourceTrigger */
+static int hf_f1ap_sCell_ID;                      /* NRCGI */
+static int hf_f1ap_AvailablePLMNList_item;        /* AvailablePLMNList_Item */
+static int hf_f1ap_pLMNIdentity;                  /* PLMN_Identity */
+static int hf_f1ap_AvailableSNPN_ID_List_item;    /* AvailableSNPN_ID_List_Item */
+static int hf_f1ap_pLMN_Identity;                 /* PLMN_Identity */
+static int hf_f1ap_availableNIDList;              /* BroadcastNIDList */
+static int hf_f1ap_angleMeasurement;              /* AngleMeasurementType */
+static int hf_f1ap_lCS_to_GCS_Translation;        /* LCS_to_GCS_Translation */
+static int hf_f1ap_expected_ULAoA;                /* Expected_UL_AoA */
+static int hf_f1ap_expected_ZoA;                  /* Expected_ZoA_only */
+static int hf_f1ap_ARPLocationInformation_item;   /* ARPLocationInformation_Item */
+static int hf_f1ap_aRP_ID;                        /* ARP_ID */
+static int hf_f1ap_aRPLocationType;               /* ARPLocationType */
+static int hf_f1ap_aRPPositionRelativeGeodetic;   /* RelativeGeodeticLocation */
+static int hf_f1ap_aRPPositionRelativeCartesian;  /* RelativeCartesianLocation */
+static int hf_f1ap_ingressBAPRoutingID;           /* BAPRoutingID */
+static int hf_f1ap_egressBAPRoutingID;            /* BAPRoutingID */
+static int hf_f1ap_nonF1terminatingTopologyIndicator;  /* NonF1terminatingTopologyIndicator */
+static int hf_f1ap_fR1;                           /* FR1_Bandwidth */
+static int hf_f1ap_fR2;                           /* FR2_Bandwidth */
+static int hf_f1ap_bAPlayerBHRLCchannelMappingInfoToAdd;  /* BAPlayerBHRLCchannelMappingInfoList */
+static int hf_f1ap_bAPlayerBHRLCchannelMappingInfoToRemove;  /* MappingInformationtoRemove */
+static int hf_f1ap_BAPlayerBHRLCchannelMappingInfoList_item;  /* BAPlayerBHRLCchannelMappingInfo_Item */
+static int hf_f1ap_mappingInformationIndex;       /* MappingInformationIndex */
+static int hf_f1ap_priorHopBAPAddress;            /* BAPAddress */
+static int hf_f1ap_ingressbHRLCChannelID;         /* BHRLCChannelID */
+static int hf_f1ap_nextHopBAPAddress;             /* BAPAddress */
+static int hf_f1ap_egressbHRLCChannelID;          /* BHRLCChannelID */
+static int hf_f1ap_bAPAddress;                    /* BAPAddress */
+static int hf_f1ap_bAPPathID;                     /* BAPPathID */
+static int hf_f1ap_locationindpendent;            /* MBSF1UInformation */
+static int hf_f1ap_locationdependent;             /* LocationDependentMBSF1UInformation */
+static int hf_f1ap_bHRLCChannelID;                /* BHRLCChannelID */
+static int hf_f1ap_cause;                         /* Cause */
+static int hf_f1ap_bHQoSInformation;              /* BHQoSInformation */
+static int hf_f1ap_rLCmode;                       /* RLCMode */
+static int hf_f1ap_bAPCtrlPDUChannel;             /* BAPCtrlPDUChannel */
+static int hf_f1ap_trafficMappingInfo;            /* TrafficMappingInfo */
+static int hf_f1ap_bAProutingID;                  /* BAPRoutingID */
+static int hf_f1ap_egressBHRLCCHList;             /* EgressBHRLCCHList */
+static int hf_f1ap_bHRLCCHQoS;                    /* QoSFlowLevelQoSParameters */
+static int hf_f1ap_eUTRANBHRLCCHQoS;              /* EUTRANQoS */
+static int hf_f1ap_cPTrafficType;                 /* CPTrafficType */
+static int hf_f1ap_BHRLCCHList_item;              /* BHRLCCHItem */
+static int hf_f1ap_bAPRoutingID;                  /* BAPRoutingID */
+static int hf_f1ap_BPLMN_ID_Info_List_item;       /* BPLMN_ID_Info_Item */
+static int hf_f1ap_pLMN_Identity_List;            /* AvailablePLMNList */
+static int hf_f1ap_extended_PLMN_Identity_List;   /* ExtendedAvailablePLMN_List */
+static int hf_f1ap_fiveGS_TAC;                    /* FiveGS_TAC */
+static int hf_f1ap_nr_cell_ID;                    /* NRCellIdentity */
+static int hf_f1ap_ranac;                         /* RANAC */
+static int hf_f1ap_ServedPLMNs_List_item;         /* ServedPLMNs_Item */
+static int hf_f1ap_BroadcastCAGList_item;         /* CAGID */
+static int hf_f1ap_mRB_ID;                        /* MRB_ID */
+static int hf_f1ap_bcBearerCtxtF1U_TNLInfoatDU;   /* BCBearerContextF1U_TNLInfo */
+static int hf_f1ap_mRB_QoSInformation;            /* QoSFlowLevelQoSParameters */
+static int hf_f1ap_mBS_Flows_Mapped_To_MRB_List;  /* MBS_Flows_Mapped_To_MRB_List */
+static int hf_f1ap_bcBearerCtxtF1U_TNLInfoatCU;   /* BCBearerContextF1U_TNLInfo */
+static int hf_f1ap_BroadcastNIDList_item;         /* NID */
+static int hf_f1ap_BroadcastSNPN_ID_List_item;    /* BroadcastSNPN_ID_List_Item */
+static int hf_f1ap_broadcastNIDList;              /* BroadcastNIDList */
+static int hf_f1ap_BroadcastPNI_NPN_ID_List_item;  /* BroadcastPNI_NPN_ID_List_Item */
+static int hf_f1ap_broadcastCAGList;              /* BroadcastCAGList */
+static int hf_f1ap_completeSuccess;               /* NULL */
+static int hf_f1ap_partialSuccess;                /* PartialSuccessCell */
+static int hf_f1ap_BroadcastCellList_item;        /* Broadcast_Cell_List_Item */
+static int hf_f1ap_cellID;                        /* NRCGI */
+static int hf_f1ap_candidate_SpCell_ID;           /* NRCGI */
+static int hf_f1ap_capacityValue;                 /* INTEGER_0_100 */
+static int hf_f1ap_sSBAreaCapacityValueList;      /* SSBAreaCapacityValueList */
+static int hf_f1ap_radioNetwork;                  /* CauseRadioNetwork */
+static int hf_f1ap_transport;                     /* CauseTransport */
+static int hf_f1ap_protocol;                      /* CauseProtocol */
+static int hf_f1ap_misc;                          /* CauseMisc */
+static int hf_f1ap_CellMeasurementResultList_item;  /* CellMeasurementResultItem */
+static int hf_f1ap_radioResourceStatus;           /* RadioResourceStatus */
+static int hf_f1ap_compositeAvailableCapacityGroup;  /* CompositeAvailableCapacityGroup */
+static int hf_f1ap_sliceAvailableCapacity;        /* SliceAvailableCapacity */
+static int hf_f1ap_numberofActiveUEs;             /* NumberofActiveUEs */
+static int hf_f1ap_CellsForSON_List_item;         /* CellsForSON_Item */
+static int hf_f1ap_neighbourNR_CellsForSON_List;  /* NeighbourNR_CellsForSON_List */
+static int hf_f1ap_service_status;                /* Service_Status */
+static int hf_f1ap_numberOfBroadcasts;            /* NumberOfBroadcasts */
+static int hf_f1ap_nRPCI;                         /* NRPCI */
+static int hf_f1ap_cellBarred;                    /* CellBarred */
+static int hf_f1ap_CellToReportList_item;         /* CellToReportItem */
+static int hf_f1ap_sSBToReportList;               /* SSBToReportList */
+static int hf_f1ap_sliceToReportList;             /* SliceToReportList */
+static int hf_f1ap_cellSize;                      /* CellSize */
+static int hf_f1ap_gNB_CU_UE_F1AP_ID;             /* GNB_CU_UE_F1AP_ID */
+static int hf_f1ap_gNB_DU_UE_F1AP_ID;             /* GNB_DU_UE_F1AP_ID */
+static int hf_f1ap_Child_IAB_Nodes_NA_Resource_List_item;  /* Child_IAB_Nodes_NA_Resource_List_Item */
+static int hf_f1ap_nA_Resource_Configuration_List;  /* NA_Resource_Configuration_List */
+static int hf_f1ap_Child_Node_Cells_List_item;    /* Child_Node_Cells_List_Item */
+static int hf_f1ap_iAB_STC_Info;                  /* IAB_STC_Info */
+static int hf_f1ap_rACH_Config_Common;            /* RACH_Config_Common */
+static int hf_f1ap_rACH_Config_Common_IAB;        /* RACH_Config_Common_IAB */
+static int hf_f1ap_cSI_RS_Configuration;          /* T_cSI_RS_Configuration */
+static int hf_f1ap_sR_Configuration;              /* T_sR_Configuration */
+static int hf_f1ap_pDCCH_ConfigSIB1;              /* T_pDCCH_ConfigSIB1 */
+static int hf_f1ap_sCS_Common;                    /* T_sCS_Common */
+static int hf_f1ap_multiplexingInfo;              /* MultiplexingInfo */
+static int hf_f1ap_Child_Nodes_List_item;         /* Child_Nodes_List_Item */
+static int hf_f1ap_child_Node_Cells_List;         /* Child_Node_Cells_List */
+static int hf_f1ap_fiveG_S_TMSI;                  /* BIT_STRING_SIZE_48 */
+static int hf_f1ap_compositeAvailableCapacityDownlink;  /* CompositeAvailableCapacity */
+static int hf_f1ap_compositeAvailableCapacityUplink;  /* CompositeAvailableCapacity */
+static int hf_f1ap_cellCapacityClassValue;        /* CellCapacityClassValue */
+static int hf_f1ap_capacityValue_01;              /* CapacityValue */
+static int hf_f1ap_cho_trigger;                   /* CHOtrigger_InterDU */
+static int hf_f1ap_targetgNB_DUUEF1APID;          /* GNB_DU_UE_F1AP_ID */
+static int hf_f1ap_cho_trigger_01;                /* CHOtrigger_IntraDU */
+static int hf_f1ap_targetCellsTocancel;           /* TargetCellList */
+static int hf_f1ap_coverage_Modification_List;    /* Coverage_Modification_List */
+static int hf_f1ap_Coverage_Modification_List_item;  /* Coverage_Modification_Item */
+static int hf_f1ap_cellCoverageState;             /* CellCoverageState */
+static int hf_f1ap_sSBCoverageModificationList;   /* SSBCoverageModification_List */
+static int hf_f1ap_iE_Extension;                  /* ProtocolExtensionContainer */
+static int hf_f1ap_cCO_issue_detection;           /* CCO_issue_detection */
+static int hf_f1ap_affectedCellsAndBeams_List;    /* AffectedCellsAndBeams_List */
+static int hf_f1ap_endpoint_IP_address;           /* TransportLayerAddress */
+static int hf_f1ap_endpoint_IP_address_and_port;  /* Endpoint_IP_address_and_port */
+static int hf_f1ap_cpac_trigger;                  /* CPAC_trigger */
+static int hf_f1ap_pscellid;                      /* NRCGI */
+static int hf_f1ap_procedureCode;                 /* ProcedureCode */
+static int hf_f1ap_triggeringMessage;             /* TriggeringMessage */
+static int hf_f1ap_procedureCriticality;          /* Criticality */
+static int hf_f1ap_transactionID;                 /* TransactionID */
+static int hf_f1ap_iEsCriticalityDiagnostics;     /* CriticalityDiagnostics_IE_List */
+static int hf_f1ap_CriticalityDiagnostics_IE_List_item;  /* CriticalityDiagnostics_IE_Item */
+static int hf_f1ap_iECriticality;                 /* Criticality */
+static int hf_f1ap_iE_ID;                         /* ProtocolIE_ID */
+static int hf_f1ap_typeOfError;                   /* TypeOfError */
+static int hf_f1ap_rIM;                           /* CUDURIMInformation */
+static int hf_f1ap_victimgNBSetID;                /* GNBSetID */
+static int hf_f1ap_rIMRSDetectionStatus;          /* RIMRSDetectionStatus */
+static int hf_f1ap_cG_ConfigInfo;                 /* CG_ConfigInfo */
+static int hf_f1ap_uE_CapabilityRAT_ContainerList;  /* UE_CapabilityRAT_ContainerList */
+static int hf_f1ap_measConfig;                    /* MeasConfig */
+static int hf_f1ap_prsid;                         /* INTEGER_0_255 */
+static int hf_f1ap_dl_PRSResourceSetID;           /* PRS_Resource_Set_ID */
+static int hf_f1ap_dl_PRSResourceID;              /* PRS_Resource_ID */
+static int hf_f1ap_two;                           /* BIT_STRING_SIZE_2 */
+static int hf_f1ap_four;                          /* BIT_STRING_SIZE_4 */
+static int hf_f1ap_six;                           /* BIT_STRING_SIZE_6 */
+static int hf_f1ap_eight;                         /* BIT_STRING_SIZE_8 */
+static int hf_f1ap_sixteen;                       /* BIT_STRING_SIZE_16 */
+static int hf_f1ap_thirty_two;                    /* BIT_STRING_SIZE_32 */
+static int hf_f1ap_listofDL_PRSResourceSetARP;    /* SEQUENCE_SIZE_1_maxnoofPRS_ResourceSets_OF_DLPRSResourceSetARP */
+static int hf_f1ap_listofDL_PRSResourceSetARP_item;  /* DLPRSResourceSetARP */
+static int hf_f1ap_dL_PRSResourceSetARPLocation;  /* DL_PRSResourceSetARPLocation */
+static int hf_f1ap_listofDL_PRSResourceARP;       /* SEQUENCE_SIZE_1_maxnoofPRS_ResourcesPerSet_OF_DLPRSResourceARP */
+static int hf_f1ap_listofDL_PRSResourceARP_item;  /* DLPRSResourceARP */
+static int hf_f1ap_relativeGeodeticLocation;      /* RelativeGeodeticLocation */
+static int hf_f1ap_relativeCartesianLocation;     /* RelativeCartesianLocation */
+static int hf_f1ap_choice_Extension;              /* ProtocolIE_SingleContainer */
+static int hf_f1ap_dL_PRSResourceARPLocation;     /* DL_PRSResourceARPLocation */
+static int hf_f1ap_oldIPAdress;                   /* TransportLayerAddress */
+static int hf_f1ap_newIPAdress;                   /* TransportLayerAddress */
+static int hf_f1ap_DLUPTNLInformation_ToBeSetup_List_item;  /* DLUPTNLInformation_ToBeSetup_Item */
+static int hf_f1ap_dLUPTNLInformation;            /* UPTransportLayerInformation */
+static int hf_f1ap_dRBID;                         /* DRBID */
+static int hf_f1ap_dRB_Activity;                  /* DRB_Activity */
+static int hf_f1ap_dRB_QoS;                       /* QoSFlowLevelQoSParameters */
+static int hf_f1ap_sNSSAI;                        /* SNSSAI */
+static int hf_f1ap_notificationControl;           /* NotificationControl */
+static int hf_f1ap_flows_Mapped_To_DRB_List;      /* Flows_Mapped_To_DRB_List */
+static int hf_f1ap_lCID;                          /* LCID */
+static int hf_f1ap_dLUPTNLInformation_ToBeSetup_List;  /* DLUPTNLInformation_ToBeSetup_List */
+static int hf_f1ap_uLUPTNLInformation_ToBeSetup_List;  /* ULUPTNLInformation_ToBeSetup_List */
+static int hf_f1ap_notification_Cause;            /* Notification_Cause */
+static int hf_f1ap_qoSInformation;                /* QoSInformation */
+static int hf_f1ap_uLConfiguration;               /* ULConfiguration */
+static int hf_f1ap_rLCMode;                       /* RLCMode */
+static int hf_f1ap_duplicationActivation;         /* DuplicationActivation */
+static int hf_f1ap_longDRXCycleLength;            /* LongDRXCycleLength */
+static int hf_f1ap_shortDRXCycleLength;           /* ShortDRXCycleLength */
+static int hf_f1ap_shortDRXCycleTimer;            /* ShortDRXCycleTimer */
+static int hf_f1ap_DSInformationList_item;        /* DSCP */
+static int hf_f1ap_rIM_01;                        /* DUCURIMInformation */
+static int hf_f1ap_aggressorCellList;             /* AggressorCellList */
+static int hf_f1ap_explicitFormat;                /* ExplicitFormat */
+static int hf_f1ap_implicitFormat;                /* ImplicitFormat */
+static int hf_f1ap_DUF_Slot_Config_List_item;     /* DUF_Slot_Config_Item */
+static int hf_f1ap_cellGroupConfig;               /* CellGroupConfig */
+static int hf_f1ap_measGapConfig;                 /* MeasGapConfig */
+static int hf_f1ap_requestedP_MaxFR1;             /* T_requestedP_MaxFR1 */
+static int hf_f1ap_qoSPriorityLevel;              /* INTEGER_1_127 */
+static int hf_f1ap_fiveQI;                        /* INTEGER_0_255_ */
+static int hf_f1ap_delayCritical;                 /* T_delayCritical */
+static int hf_f1ap_averagingWindow;               /* AveragingWindow */
+static int hf_f1ap_maxDataBurstVolume;            /* MaxDataBurstVolume */
+static int hf_f1ap_resourceType;                  /* T_resourceType */
+static int hf_f1ap_qoSPriorityLevel_01;           /* INTEGER_1_8_ */
+static int hf_f1ap_E_CID_MeasurementQuantities_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_e_CIDmeasurementQuantitiesValue;  /* E_CID_MeasurementQuantitiesValue */
+static int hf_f1ap_geographicalCoordinates;       /* GeographicalCoordinates */
+static int hf_f1ap_measuredResults_List;          /* E_CID_MeasuredResults_List */
+static int hf_f1ap_E_CID_MeasuredResults_List_item;  /* E_CID_MeasuredResults_Item */
+static int hf_f1ap_e_CID_MeasuredResults_Value;   /* E_CID_MeasuredResults_Value */
+static int hf_f1ap_valueAngleofArrivalNR;         /* UL_AoA */
+static int hf_f1ap_EgressBHRLCCHList_item;        /* EgressBHRLCCHItem */
+static int hf_f1ap_endpointIPAddress;             /* TransportLayerAddress */
+static int hf_f1ap_ExtendedAvailablePLMN_List_item;  /* ExtendedAvailablePLMN_Item */
+static int hf_f1ap_permutation;                   /* Permutation */
+static int hf_f1ap_noofDownlinkSymbols;           /* NoofDownlinkSymbols */
+static int hf_f1ap_noofUplinkSymbols;             /* NoofUplinkSymbols */
+static int hf_f1ap_ExtendedServedPLMNs_List_item;  /* ExtendedServedPLMNs_Item */
+static int hf_f1ap_tAISliceSupportList;           /* SliceSupportList */
+static int hf_f1ap_ExtendedSliceSupportList_item;  /* SliceSupportItem */
+static int hf_f1ap_EUTRACells_List_item;          /* EUTRACells_List_item */
+static int hf_f1ap_eUTRA_Cell_ID;                 /* EUTRA_Cell_ID */
+static int hf_f1ap_served_EUTRA_Cells_Information;  /* Served_EUTRA_Cells_Information */
+static int hf_f1ap_uL_EARFCN;                     /* ExtendedEARFCN */
+static int hf_f1ap_dL_EARFCN;                     /* ExtendedEARFCN */
+static int hf_f1ap_uL_Transmission_Bandwidth;     /* EUTRA_Transmission_Bandwidth */
+static int hf_f1ap_dL_Transmission_Bandwidth;     /* EUTRA_Transmission_Bandwidth */
+static int hf_f1ap_fDD;                           /* EUTRA_Coex_FDD_Info */
+static int hf_f1ap_tDD;                           /* EUTRA_Coex_TDD_Info */
+static int hf_f1ap_eARFCN;                        /* ExtendedEARFCN */
+static int hf_f1ap_transmission_Bandwidth;        /* EUTRA_Transmission_Bandwidth */
+static int hf_f1ap_subframeAssignment;            /* EUTRA_SubframeAssignment */
+static int hf_f1ap_specialSubframe_Info;          /* EUTRA_SpecialSubframe_Info */
+static int hf_f1ap_rootSequenceIndex;             /* INTEGER_0_837 */
+static int hf_f1ap_zeroCorrelationIndex;          /* INTEGER_0_15 */
+static int hf_f1ap_highSpeedFlag;                 /* BOOLEAN */
+static int hf_f1ap_prach_FreqOffset;              /* INTEGER_0_94 */
+static int hf_f1ap_prach_ConfigIndex;             /* INTEGER_0_63 */
+static int hf_f1ap_specialSubframePatterns;       /* EUTRA_SpecialSubframePatterns */
+static int hf_f1ap_cyclicPrefixDL;                /* EUTRA_CyclicPrefixDL */
+static int hf_f1ap_cyclicPrefixUL;                /* EUTRA_CyclicPrefixUL */
+static int hf_f1ap_qCI;                           /* QCI */
+static int hf_f1ap_allocationAndRetentionPriority;  /* AllocationAndRetentionPriority */
+static int hf_f1ap_gbrQosInformation;             /* GBR_QosInformation */
+static int hf_f1ap_eUTRAFDD;                      /* EUTRA_FDD_Info */
+static int hf_f1ap_eUTRATDD;                      /* EUTRA_TDD_Info */
+static int hf_f1ap_uL_offsetToPointA;             /* OffsetToPointA */
+static int hf_f1ap_dL_offsetToPointA;             /* OffsetToPointA */
+static int hf_f1ap_offsetToPointA;                /* OffsetToPointA */
+static int hf_f1ap_expected_Azimuth_AoA;          /* Expected_Azimuth_AoA */
+static int hf_f1ap_expected_Zenith_AoA;           /* Expected_Zenith_AoA */
+static int hf_f1ap_iE_extensions;                 /* ProtocolExtensionContainer */
+static int hf_f1ap_expected_ZoA_only;             /* Expected_Zenith_AoA */
+static int hf_f1ap_expected_Azimuth_AoA_value;    /* Expected_Value_AoA */
+static int hf_f1ap_expected_Azimuth_AoA_uncertainty;  /* Uncertainty_range_AoA */
+static int hf_f1ap_expected_Zenith_AoA_value;     /* Expected_Value_ZoA */
+static int hf_f1ap_expected_Zenith_AoA_uncertainty;  /* Uncertainty_range_ZoA */
+static int hf_f1ap_f1CPathNSA;                    /* F1CPathNSA */
+static int hf_f1ap_f1CPathNRDC;                   /* F1CPathNRDC */
+static int hf_f1ap_uL_NRFreqInfo;                 /* NRFreqInfo */
+static int hf_f1ap_dL_NRFreqInfo;                 /* NRFreqInfo */
+static int hf_f1ap_uL_Transmission_Bandwidth_01;  /* Transmission_Bandwidth */
+static int hf_f1ap_dL_Transmission_Bandwidth_01;  /* Transmission_Bandwidth */
+static int hf_f1ap_uL_FreqInfo;                   /* FreqInfoRel16 */
+static int hf_f1ap_sUL_FreqInfo;                  /* FreqInfoRel16 */
+static int hf_f1ap_fiveG_proSeDirectDiscovery;    /* FiveG_ProSeDirectDiscovery */
+static int hf_f1ap_fiveG_proSeDirectCommunication;  /* FiveG_ProSeDirectCommunication */
+static int hf_f1ap_fiveG_ProSeLayer2UEtoNetworkRelay;  /* FiveG_ProSeLayer2UEtoNetworkRelay */
+static int hf_f1ap_fiveG_ProSeLayer3UEtoNetworkRelay;  /* FiveG_ProSeLayer3UEtoNetworkRelay */
+static int hf_f1ap_fiveG_ProSeLayer2RemoteUE;     /* FiveG_ProSeLayer2RemoteUE */
+static int hf_f1ap_Flows_Mapped_To_DRB_List_item;  /* Flows_Mapped_To_DRB_Item */
+static int hf_f1ap_qoSFlowIdentifier;             /* QoSFlowIdentifier */
+static int hf_f1ap_qoSFlowLevelQoSParameters;     /* QoSFlowLevelQoSParameters */
+static int hf_f1ap_freqBandIndicatorNr;           /* INTEGER_1_1024_ */
+static int hf_f1ap_supportedSULBandList;          /* SEQUENCE_SIZE_0_maxnoofNrCellBands_OF_SupportedSULFreqBandItem */
+static int hf_f1ap_supportedSULBandList_item;     /* SupportedSULFreqBandItem */
+static int hf_f1ap_l839;                          /* L839Info */
+static int hf_f1ap_l139;                          /* L139Info */
+static int hf_f1ap_nRARFCN;                       /* INTEGER_0_maxNRARFCN */
+static int hf_f1ap_frequencyShift7p5khz;          /* FrequencyShift7p5khz */
+static int hf_f1ap_carrierList;                   /* NRCarrierList */
+static int hf_f1ap_Frequency_Domain_HSNA_Configuration_List_item;  /* Frequency_Domain_HSNA_Configuration_Item */
+static int hf_f1ap_rBSetIndex;                    /* INTEGER_0_maxnoofRBsetsPerCell_1_ */
+static int hf_f1ap_frequency_Domain_HSNA_Slot_Configuration_List;  /* Frequency_Domain_HSNA_Slot_Configuration_List */
+static int hf_f1ap_Frequency_Domain_HSNA_Slot_Configuration_List_item;  /* Frequency_Domain_HSNA_Slot_Configuration_Item */
+static int hf_f1ap_slotIndex;                     /* INTEGER_0_5119 */
+static int hf_f1ap_hSNADownlink;                  /* HSNADownlink */
+static int hf_f1ap_hSNAUplink;                    /* HSNAUplink */
+static int hf_f1ap_hSNAFlexible;                  /* HSNAFlexible */
+static int hf_f1ap_FlowsMappedToSLDRB_List_item;  /* FlowsMappedToSLDRB_Item */
+static int hf_f1ap_pc5QoSFlowIdentifier;          /* PC5QoSFlowIdentifier */
+static int hf_f1ap_e_RAB_MaximumBitrateDL;        /* BitRate */
+static int hf_f1ap_e_RAB_MaximumBitrateUL;        /* BitRate */
+static int hf_f1ap_e_RAB_GuaranteedBitrateDL;     /* BitRate */
+static int hf_f1ap_e_RAB_GuaranteedBitrateUL;     /* BitRate */
+static int hf_f1ap_maxFlowBitRateDownlink;        /* BitRate */
+static int hf_f1ap_maxFlowBitRateUplink;          /* BitRate */
+static int hf_f1ap_guaranteedFlowBitRateDownlink;  /* BitRate */
+static int hf_f1ap_guaranteedFlowBitRateUplink;   /* BitRate */
+static int hf_f1ap_maxPacketLossRateDownlink;     /* MaxPacketLossRate */
+static int hf_f1ap_maxPacketLossRateUplink;       /* MaxPacketLossRate */
+static int hf_f1ap_tRPPositionDefinitionType;     /* TRPPositionDefinitionType */
+static int hf_f1ap_dLPRSResourceCoordinates;      /* DLPRSResourceCoordinates */
+static int hf_f1ap_sibtypetobeupdatedlist;        /* SEQUENCE_SIZE_1_maxnoofSIBTypes_OF_SibtypetobeupdatedListItem */
+static int hf_f1ap_sibtypetobeupdatedlist_item;   /* SibtypetobeupdatedListItem */
+static int hf_f1ap_tNLAssociationTransportLayerAddress;  /* CP_TransportLayerAddress */
+static int hf_f1ap_tNLAssociationUsage;           /* TNLAssociationUsage */
+static int hf_f1ap_subcarrierSpacing_01;          /* SubcarrierSpacing */
+static int hf_f1ap_dUFTransmissionPeriodicity;    /* DUFTransmissionPeriodicity */
+static int hf_f1ap_dUF_Slot_Config_List;          /* DUF_Slot_Config_List */
+static int hf_f1ap_hSNATransmissionPeriodicity;   /* HSNATransmissionPeriodicity */
+static int hf_f1ap_hsNSASlotConfigList;           /* HSNASlotConfigList */
+static int hf_f1ap_gNB_CU_NameVisibleString;      /* GNB_CU_NameVisibleString */
+static int hf_f1ap_gNB_CU_NameUTF8String;         /* GNB_CU_NameUTF8String */
+static int hf_f1ap_gNB_DU_NameVisibleString;      /* GNB_DU_NameVisibleString */
+static int hf_f1ap_gNB_DU_NameUTF8String;         /* GNB_DU_NameUTF8String */
+static int hf_f1ap_served_Cell_Information;       /* Served_Cell_Information */
+static int hf_f1ap_gNB_DU_System_Information;     /* GNB_DU_System_Information */
+static int hf_f1ap_mIB_message;                   /* MIB_message */
+static int hf_f1ap_sIB1_message;                  /* SIB1_message */
+static int hf_f1ap_tNLAssociationTransportLayerAddressgNBCU;  /* CP_TransportLayerAddress */
+static int hf_f1ap_GNBDUUESliceMaximumBitRateList_item;  /* GNBDUUESliceMaximumBitRateItem */
+static int hf_f1ap_uESliceMaximumBitRateUL;       /* BitRate */
+static int hf_f1ap_rxTxTimeDiff;                  /* GNBRxTxTimeDiffMeas */
+static int hf_f1ap_additionalPath_List;           /* AdditionalPath_List */
+static int hf_f1ap_k0;                            /* INTEGER_0_1970049 */
+static int hf_f1ap_k1;                            /* INTEGER_0_985025 */
+static int hf_f1ap_k2;                            /* INTEGER_0_492513 */
+static int hf_f1ap_k3;                            /* INTEGER_0_246257 */
+static int hf_f1ap_k4;                            /* INTEGER_0_123129 */
+static int hf_f1ap_k5;                            /* INTEGER_0_61565 */
+static int hf_f1ap_GTPTLAs_item;                  /* GTPTLA_Item */
+static int hf_f1ap_gTPTransportLayerAddress;      /* TransportLayerAddress */
+static int hf_f1ap_transportLayerAddress;         /* TransportLayerAddress */
+static int hf_f1ap_gTP_TEID;                      /* GTP_TEID */
+static int hf_f1ap_dLHardwareLoadIndicator;       /* INTEGER_0_100_ */
+static int hf_f1ap_uLHardwareLoadIndicator;       /* INTEGER_0_100_ */
+static int hf_f1ap_HSNASlotConfigList_item;       /* HSNASlotConfigItem */
+static int hf_f1ap_iAB_Congestion_Indication_List;  /* IAB_Congestion_Indication_List */
+static int hf_f1ap_IAB_Congestion_Indication_List_item;  /* IAB_Congestion_Indication_Item */
+static int hf_f1ap_childNodeIdentifier;           /* BAPAddress */
+static int hf_f1ap_bHRLCCHList;                   /* BHRLCCHList */
+static int hf_f1ap_IAB_MT_Cell_List_item;         /* IAB_MT_Cell_List_Item */
+static int hf_f1ap_nRCellIdentity;                /* NRCellIdentity */
+static int hf_f1ap_dU_RX_MT_RX;                   /* DU_RX_MT_RX */
+static int hf_f1ap_dU_TX_MT_TX;                   /* DU_TX_MT_TX */
+static int hf_f1ap_dU_RX_MT_TX;                   /* DU_RX_MT_TX */
+static int hf_f1ap_dU_TX_MT_RX;                   /* DU_TX_MT_RX */
+static int hf_f1ap_fDD_01;                        /* IAB_MT_Cell_NA_Resource_Configuration_FDD_Info */
+static int hf_f1ap_tDD_01;                        /* IAB_MT_Cell_NA_Resource_Configuration_TDD_Info */
+static int hf_f1ap_gNB_DU_Cell_NA_Resource_Configuration_FDD_UL;  /* GNB_DU_Cell_Resource_Configuration */
+static int hf_f1ap_gNB_DU_Cell_NA_Resource_Configuration_FDD_DL;  /* GNB_DU_Cell_Resource_Configuration */
+static int hf_f1ap_uL_FreqInfo_01;                /* NRFreqInfo */
+static int hf_f1ap_uL_NR_Carrier_List;            /* NRCarrierList */
+static int hf_f1ap_dL_FreqInfo;                   /* NRFreqInfo */
+static int hf_f1ap_dL_NR_Carrier_List;            /* NRCarrierList */
+static int hf_f1ap_gNB_DU_Cell_NA_Resourc_Configuration_TDD;  /* GNB_DU_Cell_Resource_Configuration */
+static int hf_f1ap_nRFreqInfo;                    /* NRFreqInfo */
+static int hf_f1ap_transmission_Bandwidth_01;     /* Transmission_Bandwidth */
+static int hf_f1ap_nR_Carrier_List;               /* NRCarrierList */
+static int hf_f1ap_iAB_STC_Info_List;             /* IAB_STC_Info_List */
+static int hf_f1ap_IAB_STC_Info_List_item;        /* IAB_STC_Info_Item */
+static int hf_f1ap_sSB_freqInfo;                  /* SSB_freqInfo */
+static int hf_f1ap_sSB_subcarrierSpacing;         /* SSB_subcarrierSpacing */
+static int hf_f1ap_sSB_transmissionPeriodicity;   /* SSB_transmissionPeriodicity */
+static int hf_f1ap_sSB_transmissionTimingOffset;  /* SSB_transmissionTimingOffset */
+static int hf_f1ap_sSB_transmissionBitmap;        /* SSB_transmissionBitmap */
+static int hf_f1ap_iABTNLAddress;                 /* IABTNLAddress */
+static int hf_f1ap_iABTNLAddressUsage;            /* IABTNLAddressUsage */
+static int hf_f1ap_fDD_02;                        /* IAB_DU_Cell_Resource_Configuration_FDD_Info */
+static int hf_f1ap_tDD_02;                        /* IAB_DU_Cell_Resource_Configuration_TDD_Info */
+static int hf_f1ap_gNB_DU_Cell_Resource_Configuration_FDD_UL;  /* GNB_DU_Cell_Resource_Configuration */
+static int hf_f1ap_gNB_DU_Cell_Resource_Configuration_FDD_DL;  /* GNB_DU_Cell_Resource_Configuration */
+static int hf_f1ap_gNB_DU_Cell_Resourc_Configuration_TDD;  /* GNB_DU_Cell_Resource_Configuration */
+static int hf_f1ap_iPv6Address;                   /* IABTNLAddressesRequested */
+static int hf_f1ap_iPv6Prefix;                    /* IABTNLAddressesRequested */
+static int hf_f1ap_iPv4Address;                   /* T_iPv4Address */
+static int hf_f1ap_iPv6Address_01;                /* T_iPv6Address */
+static int hf_f1ap_iPv6Prefix_01;                 /* T_iPv6Prefix */
+static int hf_f1ap_tNLAddressesOrPrefixesRequestedAllTraffic;  /* INTEGER_1_256 */
+static int hf_f1ap_tNLAddressesOrPrefixesRequestedF1_C;  /* INTEGER_1_256 */
+static int hf_f1ap_tNLAddressesOrPrefixesRequestedF1_U;  /* INTEGER_1_256 */
+static int hf_f1ap_tNLAddressesOrPrefixesRequestedNoNF1;  /* INTEGER_1_256 */
+static int hf_f1ap_iABTNLAddressList;             /* IABTNLAddressList */
+static int hf_f1ap_IABTNLAddressList_item;        /* IABTNLAddress_Item */
+static int hf_f1ap_iABv4AddressesRequested;       /* IABTNLAddressesRequested */
+static int hf_f1ap_dUFSlotformatIndex;            /* DUFSlotformatIndex */
+static int hf_f1ap_nRSCS;                         /* T_nRSCS */
+static int hf_f1ap_nRCP;                          /* T_nRCP */
+static int hf_f1ap_nRDLULTxPeriodicity;           /* T_nRDLULTxPeriodicity */
+static int hf_f1ap_slot_Configuration_List;       /* Slot_Configuration_List */
+static int hf_f1ap_destinationIABTNLAddress;      /* IABTNLAddress */
+static int hf_f1ap_dsInformationList;             /* DSInformationList */
+static int hf_f1ap_iPv6FlowLabel;                 /* BIT_STRING_SIZE_20 */
+static int hf_f1ap_iPtolayer2TrafficMappingInfoToAdd;  /* IPtolayer2TrafficMappingInfoList */
+static int hf_f1ap_iPtolayer2TrafficMappingInfoToRemove;  /* MappingInformationtoRemove */
+static int hf_f1ap_IPtolayer2TrafficMappingInfoList_item;  /* IPtolayer2TrafficMappingInfo_Item */
+static int hf_f1ap_iPHeaderInformation;           /* IPHeaderInformation */
+static int hf_f1ap_bHInfo;                        /* BHInfo */
+static int hf_f1ap_prachSCS;                      /* T_prachSCS */
+static int hf_f1ap_rootSequenceIndex_01;          /* INTEGER_0_137 */
+static int hf_f1ap_restrictedSetConfig;           /* T_restrictedSetConfig */
+static int hf_f1ap_prachSCSForL571;               /* T_prachSCSForL571 */
+static int hf_f1ap_rootSequenceIndex_02;          /* INTEGER_0_569 */
+static int hf_f1ap_prachSCSForL1151;              /* T_prachSCSForL1151 */
+static int hf_f1ap_rootSequenceIndex_03;          /* INTEGER_0_1149 */
+static int hf_f1ap_alpha;                         /* INTEGER_0_3599 */
+static int hf_f1ap_beta;                          /* INTEGER_0_3599 */
+static int hf_f1ap_gamma;                         /* INTEGER_0_3599 */
+static int hf_f1ap_LCStoGCSTranslationList_item;  /* LCStoGCSTranslation */
+static int hf_f1ap_alpha_01;                      /* INTEGER_0_359 */
+static int hf_f1ap_alpha_fine;                    /* INTEGER_0_9 */
+static int hf_f1ap_beta_01;                       /* INTEGER_0_359 */
+static int hf_f1ap_beta_fine;                     /* INTEGER_0_9 */
+static int hf_f1ap_gamma_01;                      /* INTEGER_0_359 */
+static int hf_f1ap_gamma_fine;                    /* INTEGER_0_9 */
+static int hf_f1ap_LocationDependentMBSF1UInformation_item;  /* LocationDependentMBSF1UInformation_Item */
+static int hf_f1ap_mbsAreaSession_ID;             /* MBS_Area_Session_ID */
+static int hf_f1ap_mbs_f1u_info_at_CU;            /* UPTransportLayerInformation */
+static int hf_f1ap_horizontalUncertainty;         /* INTEGER_0_255 */
+static int hf_f1ap_horizontalConfidence;          /* INTEGER_0_100 */
+static int hf_f1ap_verticalUncertainty;           /* INTEGER_0_255 */
+static int hf_f1ap_verticalConfidence;            /* INTEGER_0_100 */
+static int hf_f1ap_loS_NLoSIndicatorSoft;         /* LoS_NLoSIndicatorSoft */
+static int hf_f1ap_loS_NLoSIndicatorHard;         /* LoS_NLoSIndicatorHard */
+static int hf_f1ap_uELTESidelinkAggregateMaximumBitrate;  /* BitRate */
+static int hf_f1ap_vehicleUE;                     /* VehicleUE */
+static int hf_f1ap_pedestrianUE;                  /* PedestrianUE */
+static int hf_f1ap_MappingInformationtoRemove_item;  /* MappingInformationIndex */
+static int hf_f1ap_MBS_Flows_Mapped_To_MRB_List_item;  /* MBS_Flows_Mapped_To_MRB_Item */
+static int hf_f1ap_mBS_QoSFlowIdentifier;         /* QoSFlowIdentifier */
+static int hf_f1ap_mbs_QoSFlowLevelQoSParameters;  /* QoSFlowLevelQoSParameters */
+static int hf_f1ap_mbs_f1u_info;                  /* UPTransportLayerInformation */
+static int hf_f1ap_tMGI;                          /* TMGI */
+static int hf_f1ap_nID;                           /* NID */
+static int hf_f1ap_mBS_Broadcast_Cell_List;       /* MBS_Broadcast_Cell_List */
+static int hf_f1ap_mBS_Broadcast_MRB_List;        /* MBS_Broadcast_MRB_List */
+static int hf_f1ap_MBS_Broadcast_Cell_List_item;  /* MBS_Broadcast_Cell_Item */
+static int hf_f1ap_mtch_neighbourCell;            /* OCTET_STRING */
+static int hf_f1ap_MBS_Broadcast_MRB_List_item;   /* MBS_Broadcast_MRB_Item */
+static int hf_f1ap_mRB_PDCP_Config_Broadcast;     /* T_mRB_PDCP_Config_Broadcast */
+static int hf_f1ap_multicastF1UContextReferenceF1;  /* MulticastF1UContextReferenceF1 */
+static int hf_f1ap_mc_F1UCtxtusage;               /* T_mc_F1UCtxtusage */
+static int hf_f1ap_mbsAreaSession;                /* MBS_Area_Session_ID */
+static int hf_f1ap_mbs_f1u_info_at_DU;            /* UPTransportLayerInformation */
+static int hf_f1ap_mbsProgressInformation;        /* MRB_ProgressInformation */
+static int hf_f1ap_locationindependent;           /* MBS_ServiceAreaInformation */
+static int hf_f1ap_locationdependent_01;          /* MBS_ServiceAreaInformationList */
+static int hf_f1ap_choice_Extensions;             /* ProtocolIE_SingleContainer */
+static int hf_f1ap_mBS_ServiceAreaCellList;       /* MBS_ServiceAreaCellList */
+static int hf_f1ap_mBS_ServiceAreaTAIList;        /* MBS_ServiceAreaTAIList */
+static int hf_f1ap_MBS_ServiceAreaCellList_item;  /* NRCGI */
+static int hf_f1ap_MBS_ServiceAreaTAIList_item;   /* MBS_ServiceAreaTAIList_Item */
+static int hf_f1ap_plmn_ID;                       /* PLMN_Identity */
+static int hf_f1ap_five5_TAC;                     /* FiveGS_TAC */
+static int hf_f1ap_MBS_ServiceAreaInformationList_item;  /* MBS_ServiceAreaInformationItem */
+static int hf_f1ap_mBS_AreaSessionID;             /* MBS_Area_Session_ID */
+static int hf_f1ap_mBS_ServiceAreaInformation;    /* MBS_ServiceAreaInformation */
+static int hf_f1ap_pRS_Resource_ID;               /* PRS_Resource_ID */
+static int hf_f1ap_pRS_Resource_Set_ID;           /* PRS_Resource_Set_ID */
+static int hf_f1ap_sSB_Index_01;                  /* SSB_Index */
+static int hf_f1ap_pdcp_SN12;                     /* INTEGER_0_4095 */
+static int hf_f1ap_pdcp_SN18;                     /* INTEGER_0_262143 */
+static int hf_f1ap_multipleULAoA_01;              /* MultipleULAoA_List */
+static int hf_f1ap_MultipleULAoA_List_item;       /* MultipleULAoA_Item */
+static int hf_f1ap_uL_AoA;                        /* UL_AoA */
+static int hf_f1ap_ul_ZoA;                        /* ZoAInformation */
+static int hf_f1ap_MulticastMBSSessionList_item;  /* MulticastMBSSessionList_Item */
+static int hf_f1ap_mbsSessionId;                  /* MBS_Session_ID */
+static int hf_f1ap_mBS_DL_PDCP_SN_Length;         /* PDCPSNLength */
+static int hf_f1ap_iAB_MT_Cell_List;              /* IAB_MT_Cell_List */
+static int hf_f1ap_m5period;                      /* M5period */
+static int hf_f1ap_m5_links_to_log;               /* M5_Links_to_log */
+static int hf_f1ap_m6report_Interval;             /* M6report_Interval */
+static int hf_f1ap_m6_links_to_log;               /* M6_Links_to_log */
+static int hf_f1ap_m7period;                      /* M7period */
+static int hf_f1ap_m7_links_to_log;               /* M7_Links_to_log */
+static int hf_f1ap_mdt_Activation;                /* MDT_Activation */
+static int hf_f1ap_measurementsToActivate;        /* MeasurementsToActivate */
+static int hf_f1ap_m2Configuration;               /* M2Configuration */
+static int hf_f1ap_m5Configuration;               /* M5Configuration */
+static int hf_f1ap_m6Configuration;               /* M6Configuration */
+static int hf_f1ap_m7Configuration;               /* M7Configuration */
+static int hf_f1ap_MDTPLMNList_item;              /* PLMN_Identity */
+static int hf_f1ap_MDTPLMNModificationList_item;  /* PLMN_Identity */
+static int hf_f1ap_uL_AngleOfArrival;             /* UL_AoA */
+static int hf_f1ap_uL_SRS_RSRP;                   /* UL_SRS_RSRP */
+static int hf_f1ap_uL_RTOA;                       /* UL_RTOA_Measurement */
+static int hf_f1ap_gNB_RxTxTimeDiff;              /* GNB_RxTxTimeDiff */
+static int hf_f1ap_NA_Resource_Configuration_List_item;  /* NA_Resource_Configuration_Item */
+static int hf_f1ap_nADownlink;                    /* NADownlink */
+static int hf_f1ap_nAUplink;                      /* NAUplink */
+static int hf_f1ap_nAFlexible;                    /* NAFlexible */
+static int hf_f1ap_Neighbour_Node_Cells_List_item;  /* Neighbour_Node_Cells_List_Item */
+static int hf_f1ap_peer_Parent_Node_Indicator;    /* T_peer_Parent_Node_Indicator */
+static int hf_f1ap_cSI_RS_Configuration_01;       /* T_cSI_RS_Configuration_01 */
+static int hf_f1ap_sR_Configuration_01;           /* T_sR_Configuration_01 */
+static int hf_f1ap_pDCCH_ConfigSIB1_01;           /* T_pDCCH_ConfigSIB1_01 */
+static int hf_f1ap_sCS_Common_01;                 /* T_sCS_Common_01 */
+static int hf_f1ap_intendedTDD_DL_ULConfig;       /* IntendedTDD_DL_ULConfig */
+static int hf_f1ap_NeighbourNR_CellsForSON_List_item;  /* NeighbourNR_CellsForSON_Item */
+static int hf_f1ap_nR_ModeInfoRel16;              /* NR_ModeInfoRel16 */
+static int hf_f1ap_sSB_PositionsInBurst;          /* SSB_PositionsInBurst */
+static int hf_f1ap_nRPRACHConfig;                 /* NRPRACHConfig */
+static int hf_f1ap_latitude_01;                   /* INTEGER_M2147483648_2147483647 */
+static int hf_f1ap_longitude_01;                  /* INTEGER_M2147483648_2147483647 */
+static int hf_f1ap_altitude_01;                   /* INTEGER_M64000_1280000 */
+static int hf_f1ap_uncertaintySemi_major_01;      /* INTEGER_0_255 */
+static int hf_f1ap_uncertaintySemi_minor_01;      /* INTEGER_0_255 */
+static int hf_f1ap_uncertaintyAltitude_01;        /* INTEGER_0_255 */
+static int hf_f1ap_nR_PRSBeamInformationList;     /* NR_PRSBeamInformationList */
+static int hf_f1ap_lCStoGCSTranslationList;       /* LCStoGCSTranslationList */
+static int hf_f1ap_NR_PRSBeamInformationList_item;  /* NR_PRSBeamInformationItem */
+static int hf_f1ap_pRSResourceSetID;              /* PRS_Resource_Set_ID */
+static int hf_f1ap_pRSAngleList;                  /* PRSAngleList */
+static int hf_f1ap_nrpaging_eDRX_Cycle_Idle;      /* NRPaging_eDRX_Cycle_Idle */
+static int hf_f1ap_nrpaging_Time_Window;          /* NRPaging_Time_Window */
+static int hf_f1ap_nrpaging_eDRX_Cycle_Inactive;  /* NRPaging_eDRX_Cycle_Inactive */
+static int hf_f1ap_message_Identifier;            /* MessageIdentifier */
+static int hf_f1ap_serialNumber;                  /* SerialNumber */
+static int hf_f1ap_sNPN_Broadcast_Information;    /* NPN_Broadcast_Information_SNPN */
+static int hf_f1ap_pNI_NPN_Broadcast_Information;  /* NPN_Broadcast_Information_PNI_NPN */
+static int hf_f1ap_broadcastSNPNID_List;          /* BroadcastSNPN_ID_List */
+static int hf_f1ap_broadcastPNI_NPN_ID_Information;  /* BroadcastPNI_NPN_ID_List */
+static int hf_f1ap_sNPN_Information;              /* NID */
+static int hf_f1ap_NRCarrierList_item;            /* NRCarrierItem */
+static int hf_f1ap_carrierSCS;                    /* NRSCS */
+static int hf_f1ap_offsetToCarrier;               /* INTEGER_0_2199_ */
+static int hf_f1ap_carrierBandwidth;              /* INTEGER_0_maxnoofPhysicalResourceBlocks_ */
+static int hf_f1ap_sul_Information;               /* SUL_Information */
+static int hf_f1ap_freqBandListNr;                /* SEQUENCE_SIZE_1_maxnoofNrCellBands_OF_FreqBandNrItem */
+static int hf_f1ap_freqBandListNr_item;           /* FreqBandNrItem */
+static int hf_f1ap_fDD_03;                        /* FDD_Info */
+static int hf_f1ap_tDD_03;                        /* TDD_Info */
+static int hf_f1ap_fDD_04;                        /* FDD_InfoRel16 */
+static int hf_f1ap_tDD_04;                        /* TDD_InfoRel16 */
+static int hf_f1ap_ulPRACHConfigList;             /* NRPRACHConfigList */
+static int hf_f1ap_sulPRACHConfigList;            /* NRPRACHConfigList */
+static int hf_f1ap_NRPRACHConfigList_item;        /* NRPRACHConfigItem */
+static int hf_f1ap_nRSCS_01;                      /* NRSCS */
+static int hf_f1ap_prachFreqStartfromCarrier;     /* INTEGER_0_maxnoofPhysicalResourceBlocks_1_ */
+static int hf_f1ap_prachFDM;                      /* T_prachFDM */
+static int hf_f1ap_prachConfigIndex;              /* INTEGER_0_255_ */
+static int hf_f1ap_ssb_perRACH_Occasion;          /* T_ssb_perRACH_Occasion */
+static int hf_f1ap_freqDomainLength;              /* FreqDomainLength */
+static int hf_f1ap_zeroCorrelZoneConfig;          /* INTEGER_0_15 */
+static int hf_f1ap_NR_U_Channel_Info_List_item;   /* NR_U_Channel_Info_Item */
+static int hf_f1ap_nr_U_channel_ID;               /* INTEGER_1_maxnoofNR_UChannelIDs_ */
+static int hf_f1ap_nR_ARFCN;                      /* INTEGER_0_maxNRARFCN */
+static int hf_f1ap_bandwidth;                     /* T_bandwidth */
+static int hf_f1ap_NR_U_Channel_List_item;        /* NR_U_Channel_Item */
+static int hf_f1ap_nR_U_ChannelID;                /* INTEGER_1_maxnoofNR_UChannelIDs */
+static int hf_f1ap_channelOccupancyTimePercentageDL;  /* ChannelOccupancyTimePercentage */
+static int hf_f1ap_energyDetectionThreshold;      /* EnergyDetectionThreshold */
+static int hf_f1ap_numDLSymbols;                  /* INTEGER_0_13_ */
+static int hf_f1ap_numULSymbols;                  /* INTEGER_0_13_ */
+static int hf_f1ap_uENRSidelinkAggregateMaximumBitrate;  /* BitRate */
+static int hf_f1ap_onDemandPRSRequestAllowed;     /* BIT_STRING_SIZE_16 */
+static int hf_f1ap_allowedResourceSetPeriodicityValues;  /* BIT_STRING_SIZE_24 */
+static int hf_f1ap_allowedPRSBandwidthValues;     /* BIT_STRING_SIZE_64 */
+static int hf_f1ap_allowedResourceRepetitionFactorValues;  /* BIT_STRING_SIZE_8 */
+static int hf_f1ap_allowedResourceNumberOfSymbolsValues;  /* BIT_STRING_SIZE_8 */
+static int hf_f1ap_allowedCombSizeValues;         /* BIT_STRING_SIZE_8 */
+static int hf_f1ap_pER_Scalar;                    /* PER_Scalar */
+static int hf_f1ap_pER_Exponent;                  /* PER_Exponent */
+static int hf_f1ap_rANUEPagingIdentity;           /* RANUEPagingIdentity */
+static int hf_f1ap_cNUEPagingIdentity;            /* CNUEPagingIdentity */
+static int hf_f1ap_cNSubgroupID;                  /* CNSubgroupID */
+static int hf_f1ap_k0_01;                         /* INTEGER_0_16351 */
+static int hf_f1ap_k1_01;                         /* INTEGER_0_8176 */
+static int hf_f1ap_k2_01;                         /* INTEGER_0_4088 */
+static int hf_f1ap_k3_01;                         /* INTEGER_0_2044 */
+static int hf_f1ap_k4_01;                         /* INTEGER_0_1022 */
+static int hf_f1ap_k5_01;                         /* INTEGER_0_511 */
+static int hf_f1ap_Parent_IAB_Nodes_NA_Resource_Configuration_List_item;  /* Parent_IAB_Nodes_NA_Resource_Configuration_Item */
+static int hf_f1ap_broadcastCellList;             /* BroadcastCellList */
+static int hf_f1ap_pathlossReferenceSignal;       /* PathlossReferenceSignal */
+static int hf_f1ap_sSB;                           /* SSB */
+static int hf_f1ap_dL_PRS;                        /* DL_PRS */
+static int hf_f1ap_targetRelayUEID;               /* BIT_STRING_SIZE_24 */
+static int hf_f1ap_remoteUELocalID;               /* RemoteUELocalID */
+static int hf_f1ap_t420;                          /* T_t420 */
+static int hf_f1ap_non_Dynamic_PQI;               /* NonDynamicPQIDescriptor */
+static int hf_f1ap_dynamic_PQI;                   /* DynamicPQIDescriptor */
+static int hf_f1ap_pC5_QoS_Characteristics;       /* PC5_QoS_Characteristics */
+static int hf_f1ap_pC5_QoS_Flow_Bit_Rates;        /* PC5FlowBitRates */
+static int hf_f1ap_guaranteedFlowBitRate;         /* BitRate */
+static int hf_f1ap_maximumFlowBitRate;            /* BitRate */
+static int hf_f1ap_pC5RLCChannelQoS;              /* QoSFlowLevelQoSParameters */
+static int hf_f1ap_pC5ControlPlaneTrafficType;    /* T_pC5ControlPlaneTrafficType */
+static int hf_f1ap_PC5RLCChannelToBeSetupList_item;  /* PC5RLCChannelToBeSetupItem */
+static int hf_f1ap_pC5RLCChannelID;               /* PC5RLCChannelID */
+static int hf_f1ap_pC5RLCChannelQoSInformation;   /* PC5RLCChannelQoSInformation */
+static int hf_f1ap_PC5RLCChannelToBeModifiedList_item;  /* PC5RLCChannelToBeModifiedItem */
+static int hf_f1ap_PC5RLCChannelToBeReleasedList_item;  /* PC5RLCChannelToBeReleasedItem */
+static int hf_f1ap_PC5RLCChannelSetupList_item;   /* PC5RLCChannelSetupItem */
+static int hf_f1ap_PC5RLCChannelFailedToBeSetupList_item;  /* PC5RLCChannelFailedToBeSetupItem */
+static int hf_f1ap_PC5RLCChannelModifiedList_item;  /* PC5RLCChannelModifiedItem */
+static int hf_f1ap_PC5RLCChannelFailedToBeModifiedList_item;  /* PC5RLCChannelFailedToBeModifiedItem */
+static int hf_f1ap_PC5RLCChannelRequiredToBeModifiedList_item;  /* PC5RLCChannelRequiredToBeModifiedItem */
+static int hf_f1ap_PC5RLCChannelRequiredToBeReleasedList_item;  /* PC5RLCChannelRequiredToBeReleasedItem */
+static int hf_f1ap_PDCMeasurementQuantities_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_pDCmeasurementQuantitiesValue;  /* PDCMeasurementQuantitiesValue */
+static int hf_f1ap_pDCMeasuredResultsList;        /* PDCMeasuredResultsList */
+static int hf_f1ap_PDCMeasuredResultsList_item;   /* PDCMeasuredResults_Item */
+static int hf_f1ap_pDCMeasuredResults_Value;      /* PDCMeasuredResults_Value */
+static int hf_f1ap_pDC_TADV_NR;                   /* PDC_TADV_NR */
+static int hf_f1ap_pDC_RxTxTimeDiff;              /* PDC_RxTxTimeDiff */
+static int hf_f1ap_PeriodicityList_item;          /* PeriodicityList_Item */
+static int hf_f1ap_periodicitySRS;                /* PeriodicitySRS */
+static int hf_f1ap_PositioningBroadcastCells_item;  /* NRCGI */
+static int hf_f1ap_posMeasGapPreConfigToAddModList;  /* T_posMeasGapPreConfigToAddModList */
+static int hf_f1ap_posMeasGapPreConfigToReleaseList;  /* T_posMeasGapPreConfigToReleaseList */
+static int hf_f1ap_PosMeasurementQuantities_item;  /* PosMeasurementQuantities_Item */
+static int hf_f1ap_posMeasurementType;            /* PosMeasurementType */
+static int hf_f1ap_timingReportingGranularityFactor;  /* INTEGER_0_5 */
+static int hf_f1ap_PosMeasurementResult_item;     /* PosMeasurementResultItem */
+static int hf_f1ap_measuredResultsValue;          /* MeasuredResultsValue */
+static int hf_f1ap_timeStamp;                     /* TimeStamp */
+static int hf_f1ap_measurementQuality;            /* TRPMeasurementQuality */
+static int hf_f1ap_measurementBeamInfo;           /* MeasurementBeamInfo */
+static int hf_f1ap_PosMeasurementResultList_item;  /* PosMeasurementResultList_Item */
+static int hf_f1ap_posMeasurementResult;          /* PosMeasurementResult */
+static int hf_f1ap_tRPID;                         /* TRPID */
+static int hf_f1ap_periodic;                      /* PosResourceSetTypePR */
+static int hf_f1ap_semi_persistent;               /* PosResourceSetTypeSP */
+static int hf_f1ap_aperiodic;                     /* PosResourceSetTypeAP */
+static int hf_f1ap_posperiodicSet;                /* T_posperiodicSet */
+static int hf_f1ap_possemi_persistentSet;         /* T_possemi_persistentSet */
+static int hf_f1ap_sRSResourceTrigger_List;       /* INTEGER_1_3 */
+static int hf_f1ap_PosSItypeList_item;            /* PosSItype_Item */
+static int hf_f1ap_posItype;                      /* PosSItype */
+static int hf_f1ap_PosSRSResourceID_List_item;    /* SRSPosResourceID */
+static int hf_f1ap_srs_PosResourceId;             /* SRSPosResourceID */
+static int hf_f1ap_transmissionCombPos;           /* TransmissionCombPos */
+static int hf_f1ap_startPosition;                 /* INTEGER_0_13 */
+static int hf_f1ap_nrofSymbols;                   /* T_nrofSymbols */
+static int hf_f1ap_freqDomainShift;               /* INTEGER_0_268 */
+static int hf_f1ap_c_SRS;                         /* INTEGER_0_63 */
+static int hf_f1ap_groupOrSequenceHopping;        /* T_groupOrSequenceHopping */
+static int hf_f1ap_resourceTypePos;               /* ResourceTypePos */
+static int hf_f1ap_sequenceId;                    /* INTEGER_0_65535 */
+static int hf_f1ap_spatialRelationPos;            /* SpatialRelationPos */
+static int hf_f1ap_PosSRSResource_List_item;      /* PosSRSResource_Item */
+static int hf_f1ap_possrsResourceSetID;           /* INTEGER_0_15 */
+static int hf_f1ap_possRSResourceID_List;         /* PosSRSResourceID_List */
+static int hf_f1ap_posresourceSetType;            /* PosResourceSetType */
+static int hf_f1ap_PosSRSResourceSet_List_item;   /* PosSRSResourceSet_Item */
+static int hf_f1ap_spectrumSharingGroupID;        /* SpectrumSharingGroupID */
+static int hf_f1ap_eUTRACells_List;               /* EUTRACells_List */
+static int hf_f1ap_pRSResourceSet_List;           /* PRSResourceSet_List */
+static int hf_f1ap_pRS_IDPos;                     /* INTEGER_0_255 */
+static int hf_f1ap_pRS_Resource_Set_IDPos;        /* INTEGER_0_7 */
+static int hf_f1ap_pRS_Resource_IDPos;            /* INTEGER_0_63 */
+static int hf_f1ap_PRS_Measurement_Info_List_item;  /* PRS_Measurement_Info_List_Item */
+static int hf_f1ap_pointA;                        /* INTEGER_0_3279165 */
+static int hf_f1ap_measPRSPeriodicity;            /* T_measPRSPeriodicity */
+static int hf_f1ap_measPRSOffset;                 /* INTEGER_0_159_ */
+static int hf_f1ap_measurementPRSLength;          /* T_measurementPRSLength */
+static int hf_f1ap_potential_SpCell_ID;           /* NRCGI */
+static int hf_f1ap_PRSAngleList_item;             /* PRSAngleItem */
+static int hf_f1ap_nR_PRS_Azimuth;                /* INTEGER_0_359 */
+static int hf_f1ap_nR_PRS_Azimuth_fine;           /* INTEGER_0_9 */
+static int hf_f1ap_nR_PRS_Elevation;              /* INTEGER_0_180 */
+static int hf_f1ap_nR_PRS_Elevation_fine;         /* INTEGER_0_9 */
+static int hf_f1ap_pRSMutingOption1;              /* PRSMutingOption1 */
+static int hf_f1ap_pRSMutingOption2;              /* PRSMutingOption2 */
+static int hf_f1ap_mutingPattern;                 /* DL_PRSMutingPattern */
+static int hf_f1ap_mutingBitRepetitionFactor;     /* T_mutingBitRepetitionFactor */
+static int hf_f1ap_PRSResource_List_item;         /* PRSResource_Item */
+static int hf_f1ap_pRSResourceID;                 /* PRS_Resource_ID */
+static int hf_f1ap_sequenceID;                    /* INTEGER_0_4095 */
+static int hf_f1ap_rEOffset;                      /* INTEGER_0_11_ */
+static int hf_f1ap_resourceSlotOffset;            /* INTEGER_0_511 */
+static int hf_f1ap_resourceSymbolOffset;          /* INTEGER_0_12 */
+static int hf_f1ap_qCLInfo;                       /* PRSResource_QCLInfo */
+static int hf_f1ap_qCLSourceSSB;                  /* PRSResource_QCLSourceSSB */
+static int hf_f1ap_qCLSourcePRS;                  /* PRSResource_QCLSourcePRS */
+static int hf_f1ap_pCI_NR;                        /* INTEGER_0_1007 */
+static int hf_f1ap_qCLSourcePRSResourceSetID;     /* PRS_Resource_Set_ID */
+static int hf_f1ap_qCLSourcePRSResourceID;        /* PRS_Resource_ID */
+static int hf_f1ap_PRSResourceSet_List_item;      /* PRSResourceSet_Item */
+static int hf_f1ap_subcarrierSpacing_02;          /* T_subcarrierSpacing_01 */
+static int hf_f1ap_pRSbandwidth;                  /* INTEGER_1_63 */
+static int hf_f1ap_startPRB;                      /* INTEGER_0_2176 */
+static int hf_f1ap_combSize;                      /* T_combSize */
+static int hf_f1ap_cPType;                        /* T_cPType */
+static int hf_f1ap_resourceSetPeriodicity;        /* T_resourceSetPeriodicity */
+static int hf_f1ap_resourceSetSlotOffset;         /* INTEGER_0_81919_ */
+static int hf_f1ap_resourceRepetitionFactor;      /* T_resourceRepetitionFactor */
+static int hf_f1ap_resourceTimeGap;               /* T_resourceTimeGap */
+static int hf_f1ap_resourceNumberofSymbols;       /* T_resourceNumberofSymbols */
+static int hf_f1ap_pRSMuting;                     /* PRSMuting */
+static int hf_f1ap_pRSResourceTransmitPower;      /* INTEGER_M60_50 */
+static int hf_f1ap_pRSResource_List;              /* PRSResource_List */
+static int hf_f1ap_pRSTransmissionOffPerTRP;      /* NULL */
+static int hf_f1ap_pRSTransmissionOffPerResourceSet;  /* PRSTransmissionOffPerResourceSet */
+static int hf_f1ap_pRSTransmissionOffPerResource;  /* PRSTransmissionOffPerResource */
+static int hf_f1ap_PRSTransmissionOffPerResource_item;  /* PRSTransmissionOffPerResource_Item */
+static int hf_f1ap_pRSTransmissionOffIndicationPerResourceList;  /* SEQUENCE_SIZE_1_maxnoofPRSresources_OF_PRSTransmissionOffIndicationPerResource_Item */
+static int hf_f1ap_pRSTransmissionOffIndicationPerResourceList_item;  /* PRSTransmissionOffIndicationPerResource_Item */
+static int hf_f1ap_pRSTransmissionOffIndication;  /* PRSTransmissionOffIndication */
+static int hf_f1ap_PRSTransmissionOffPerResourceSet_item;  /* PRSTransmissionOffPerResourceSet_Item */
+static int hf_f1ap_sIBtype;                       /* SIBType_PWS */
+static int hf_f1ap_sIBmessage;                    /* T_sIBmessage */
+static int hf_f1ap_PRSTRPList_item;               /* PRSTRPItem */
+static int hf_f1ap_tRP_ID;                        /* TRPID */
+static int hf_f1ap_requestedDLPRSTransmissionCharacteristics;  /* RequestedDLPRSTransmissionCharacteristics */
+static int hf_f1ap_pRSTransmissionOffInformation;  /* PRSTransmissionOffInformation */
+static int hf_f1ap_requestedDLPRSResourceSet_List;  /* RequestedDLPRSResourceSet_List */
+static int hf_f1ap_numberofFrequencyLayers;       /* INTEGER_1_4 */
+static int hf_f1ap_startTimeAndDuration;          /* StartTimeAndDuration */
+static int hf_f1ap_RequestedDLPRSResourceSet_List_item;  /* RequestedDLPRSResourceSet_Item */
+static int hf_f1ap_combSize_01;                   /* T_combSize_01 */
+static int hf_f1ap_resourceSetPeriodicity_01;     /* T_resourceSetPeriodicity_01 */
+static int hf_f1ap_resourceRepetitionFactor_01;   /* T_resourceRepetitionFactor_01 */
+static int hf_f1ap_resourceNumberofSymbols_01;    /* T_resourceNumberofSymbols_01 */
+static int hf_f1ap_requestedDLPRSResource_List;   /* RequestedDLPRSResource_List */
+static int hf_f1ap_resourceSetStartTimeAndDuration;  /* StartTimeAndDuration */
+static int hf_f1ap_RequestedDLPRSResource_List_item;  /* RequestedDLPRSResource_Item */
+static int hf_f1ap_PRSTransmissionTRPList_item;   /* PRSTransmissionTRPItem */
+static int hf_f1ap_pRSConfiguration;              /* PRSConfiguration */
+static int hf_f1ap_qoEInformationList;            /* QoEInformationList */
+static int hf_f1ap_QoEInformationList_item;       /* QoEInformationList_Item */
+static int hf_f1ap_qoEMetrics;                    /* QoEMetrics */
+static int hf_f1ap_appLayerBufferLevelList;       /* AppLayerBufferLevelList */
+static int hf_f1ap_playoutDelayForMediaStartup;   /* PlayoutDelayForMediaStartup */
+static int hf_f1ap_non_Dynamic_5QI;               /* NonDynamic5QIDescriptor */
+static int hf_f1ap_dynamic_5QI;                   /* Dynamic5QIDescriptor */
+static int hf_f1ap_qoS_Characteristics;           /* QoS_Characteristics */
+static int hf_f1ap_nGRANallocationRetentionPriority;  /* NGRANAllocationAndRetentionPriority */
+static int hf_f1ap_gBR_QoS_Flow_Information;      /* GBR_QoSFlowInformation */
+static int hf_f1ap_reflective_QoS_Attribute;      /* T_reflective_QoS_Attribute */
+static int hf_f1ap_eUTRANQoS;                     /* EUTRANQoS */
+static int hf_f1ap_RACHReportInformationList_item;  /* RACHReportInformationItem */
+static int hf_f1ap_rACHReportContainer;           /* RACHReportContainer */
+static int hf_f1ap_uEAssitantIdentifier;          /* GNB_DU_UE_F1AP_ID */
+static int hf_f1ap_sSBAreaRadioResourceStatusList;  /* SSBAreaRadioResourceStatusList */
+static int hf_f1ap_dl_GBR_PRB_usage_for_MIMO;     /* INTEGER_0_100 */
+static int hf_f1ap_ul_GBR_PRB_usage_for_MIMO;     /* INTEGER_0_100 */
+static int hf_f1ap_dl_non_GBR_PRB_usage_for_MIMO;  /* INTEGER_0_100 */
+static int hf_f1ap_ul_non_GBR_PRB_usage_for_MIMO;  /* INTEGER_0_100 */
+static int hf_f1ap_dl_Total_PRB_usage_for_MIMO;   /* INTEGER_0_100 */
+static int hf_f1ap_ul_Total_PRB_usage_for_MIMO;   /* INTEGER_0_100 */
+static int hf_f1ap_iRNTI;                         /* BIT_STRING_SIZE_40 */
+static int hf_f1ap_eNDC;                          /* SubscriberProfileIDforRFP */
+static int hf_f1ap_nGRAN;                         /* RAT_FrequencySelectionPriority */
+static int hf_f1ap_rBSetSize;                     /* RBSetSize */
+static int hf_f1ap_nUmberRBsets;                  /* INTEGER_1_maxnoofRBsetsPerCell */
+static int hf_f1ap_coordinateID;                  /* CoordinateID */
+static int hf_f1ap_referencePointCoordinate;      /* AccessPointPosition */
+static int hf_f1ap_referencePointCoordinateHA;    /* NGRANHighAccuracyAccessPointPosition */
+static int hf_f1ap_nZP_CSI_RS;                    /* NZP_CSI_RS_ResourceID */
+static int hf_f1ap_sRS;                           /* SRSResourceID */
+static int hf_f1ap_positioningSRS;                /* SRSPosResourceID */
+static int hf_f1ap_xYZunit;                       /* T_xYZunit */
+static int hf_f1ap_xvalue;                        /* INTEGER_M65536_65535 */
+static int hf_f1ap_yvalue;                        /* INTEGER_M65536_65535 */
+static int hf_f1ap_zvalue;                        /* INTEGER_M32768_32767 */
+static int hf_f1ap_locationUncertainty;           /* LocationUncertainty */
+static int hf_f1ap_milli_Arc_SecondUnits;         /* T_milli_Arc_SecondUnits */
+static int hf_f1ap_heightUnits;                   /* T_heightUnits */
+static int hf_f1ap_deltaLatitude;                 /* INTEGER_M1024_1023 */
+static int hf_f1ap_deltaLongitude;                /* INTEGER_M1024_1023 */
+static int hf_f1ap_deltaHeight;                   /* INTEGER_M1024_1023 */
+static int hf_f1ap_numberOfTransmissions;         /* INTEGER_0_500_ */
+static int hf_f1ap_resourceType_01;               /* T_resourceType_01 */
+static int hf_f1ap_bandwidthSRS;                  /* BandwidthSRS */
+static int hf_f1ap_sRSResourceSetList;            /* SRSResourceSetList */
+static int hf_f1ap_sSBInformation;                /* SSBInformation */
+static int hf_f1ap_eUTRA_Mode_Info;               /* EUTRA_Coex_Mode_Info */
+static int hf_f1ap_eUTRA_PRACH_Configuration;     /* EUTRA_PRACH_Configuration */
+static int hf_f1ap_meNB_Cell_ID;                  /* EUTRA_Cell_ID */
+static int hf_f1ap_resourceCoordinationEUTRACellInfo;  /* ResourceCoordinationEUTRACellInfo */
+static int hf_f1ap_periodic_01;                   /* ResourceSetTypePeriodic */
+static int hf_f1ap_semi_persistent_01;            /* ResourceSetTypeSemi_persistent */
+static int hf_f1ap_aperiodic_01;                  /* ResourceSetTypeAperiodic */
+static int hf_f1ap_periodicSet;                   /* T_periodicSet */
+static int hf_f1ap_semi_persistentSet;            /* T_semi_persistentSet */
+static int hf_f1ap_slotoffset;                    /* INTEGER_0_32 */
+static int hf_f1ap_eventType;                     /* EventType */
+static int hf_f1ap_reportingPeriodicityValue;     /* ReportingPeriodicityValue */
+static int hf_f1ap_periodic_02;                   /* ResourceTypePeriodic */
+static int hf_f1ap_semi_persistent_02;            /* ResourceTypeSemi_persistent */
+static int hf_f1ap_aperiodic_02;                  /* ResourceTypeAperiodic */
+static int hf_f1ap_periodicity;                   /* T_periodicity */
+static int hf_f1ap_offset;                        /* INTEGER_0_2559_ */
+static int hf_f1ap_periodicity_01;                /* T_periodicity_01 */
+static int hf_f1ap_aperiodicResourceType;         /* T_aperiodicResourceType */
+static int hf_f1ap_periodic_03;                   /* ResourceTypePeriodicPos */
+static int hf_f1ap_semi_persistent_03;            /* ResourceTypeSemi_persistentPos */
+static int hf_f1ap_aperiodic_03;                  /* ResourceTypeAperiodicPos */
+static int hf_f1ap_periodicity_02;                /* T_periodicity_02 */
+static int hf_f1ap_offset_01;                     /* INTEGER_0_81919_ */
+static int hf_f1ap_periodicity_03;                /* T_periodicity_03 */
+static int hf_f1ap_slotOffset;                    /* INTEGER_0_32 */
+static int hf_f1ap_rLCDuplicationStateList;       /* RLCDuplicationStateList */
+static int hf_f1ap_primaryPathIndication;         /* PrimaryPathIndication */
+static int hf_f1ap_RLCDuplicationStateList_item;  /* RLCDuplicationState_Item */
+static int hf_f1ap_duplicationState;              /* DuplicationState */
+static int hf_f1ap_assocatedLCID;                 /* LCID */
+static int hf_f1ap_reestablishment_Indication;    /* Reestablishment_Indication */
+static int hf_f1ap_RLFReportInformationList_item;  /* RLFReportInformationItem */
+static int hf_f1ap_nRUERLFReportContainer;        /* NRUERLFReportContainer */
+static int hf_f1ap_delivery_status;               /* PDCP_SN */
+static int hf_f1ap_triggering_message;            /* PDCP_SN */
+static int hf_f1ap_latest_RRC_Version;            /* BIT_STRING_SIZE_3 */
+static int hf_f1ap_time;                          /* INTEGER_1_128_ */
+static int hf_f1ap_timeUnit;                      /* T_timeUnit */
+static int hf_f1ap_sCellIndex;                    /* SCellIndex */
+static int hf_f1ap_sCellULConfigured;             /* CellULConfigured */
+static int hf_f1ap_subcarrierSpacing_03;          /* T_subcarrierSpacing_02 */
+static int hf_f1ap_carrierBandwidth_01;           /* INTEGER_1_275_ */
+static int hf_f1ap_sDTBearerConfig_List;          /* SDTBearerConfig_List */
+static int hf_f1ap_SDTBearerConfig_List_item;     /* SDTBearerConfig_List_Item */
+static int hf_f1ap_sDTBearerType;                 /* SDTBearerType */
+static int hf_f1ap_sDTRLCBearerConfiguration;     /* SDTRLCBearerConfiguration */
+static int hf_f1ap_sRB;                           /* SRBID */
+static int hf_f1ap_dRB;                           /* DRBID */
+static int hf_f1ap_sdtIndicator;                  /* T_sdtIndicator */
+static int hf_f1ap_sdtAssistantInformation;       /* T_sdtAssistantInformation */
+static int hf_f1ap_expectedPropagationDelay;      /* INTEGER_M3841_3841_ */
+static int hf_f1ap_delayUncertainty;              /* INTEGER_1_246_ */
+static int hf_f1ap_servingCellMO;                 /* ServingCellMO */
+static int hf_f1ap_sSB_Frequency;                 /* INTEGER_0_3279165 */
+static int hf_f1ap_ServingCellMO_encoded_in_CGC_List_item;  /* ServingCellMO_encoded_in_CGC_Item */
+static int hf_f1ap_configured_EPS_TAC;            /* Configured_EPS_TAC */
+static int hf_f1ap_servedPLMNs;                   /* ServedPLMNs_List */
+static int hf_f1ap_nR_Mode_Info;                  /* NR_Mode_Info */
+static int hf_f1ap_measurementTimingConfiguration;  /* T_measurementTimingConfiguration */
+static int hf_f1ap_Serving_Cells_List_item;       /* Serving_Cells_List_Item */
+static int hf_f1ap_iAB_MT_Cell_NA_Resource_Configuration_Mode_Info;  /* IAB_MT_Cell_NA_Resource_Configuration_Mode_Info */
+static int hf_f1ap_Supported_MBS_FSA_ID_List_item;  /* MBS_FrequencySelectionArea_Identity */
+static int hf_f1ap_sFN_Time_Offset;               /* BIT_STRING_SIZE_24 */
+static int hf_f1ap_oldNRCGI;                      /* NRCGI */
+static int hf_f1ap_eUTRA_Mode_Info_01;            /* EUTRA_Mode_Info */
+static int hf_f1ap_protectedEUTRAResourceIndication;  /* ProtectedEUTRAResourceIndication */
+static int hf_f1ap_service_state;                 /* Service_State */
+static int hf_f1ap_switchingOffOngoing;           /* T_switchingOffOngoing */
+static int hf_f1ap_SItype_List_item;              /* SItype_Item */
+static int hf_f1ap_sItype;                        /* SItype */
+static int hf_f1ap_sIBtype_01;                    /* T_sIBtype */
+static int hf_f1ap_sIBmessage_01;                 /* T_sIBmessage_01 */
+static int hf_f1ap_valueTag;                      /* INTEGER_0_31_ */
+static int hf_f1ap_gNB_DU_UE_F1APIDofRelayUE;     /* GNB_DU_UE_F1AP_ID */
+static int hf_f1ap_sidelinkConfigurationContainer;  /* SidelinkConfigurationContainer */
+static int hf_f1ap_sLDRB_QoS;                     /* PC5QoSParameters */
+static int hf_f1ap_flowsMappedToSLDRB_List;       /* FlowsMappedToSLDRB_List */
+static int hf_f1ap_sLDRBID;                       /* SLDRBID */
+static int hf_f1ap_sLDRBInformation;              /* SLDRBInformation */
+static int hf_f1ap_SLDRXCycleList_item;           /* SLDRXCycleItem */
+static int hf_f1ap_rXUEID;                        /* BIT_STRING_SIZE_24 */
+static int hf_f1ap_sLDRXInformation;              /* SLDRXInformation */
+static int hf_f1ap_sLDRXCycle;                    /* SLDRXCycleLength */
+static int hf_f1ap_nosLDRX;                       /* SLDRXConfigurationIndicator */
+static int hf_f1ap_sliceAvailableCapacityList;    /* SliceAvailableCapacityList */
+static int hf_f1ap_SliceAvailableCapacityList_item;  /* SliceAvailableCapacityItem */
+static int hf_f1ap_sNSSAIAvailableCapacity_List;  /* SNSSAIAvailableCapacity_List */
+static int hf_f1ap_SNSSAIAvailableCapacity_List_item;  /* SNSSAIAvailableCapacity_Item */
+static int hf_f1ap_sliceAvailableCapacityValueDownlink;  /* INTEGER_0_100 */
+static int hf_f1ap_sliceAvailableCapacityValueUplink;  /* INTEGER_0_100 */
+static int hf_f1ap_sliceRadioResourceStatus;      /* SliceRadioResourceStatus_List */
+static int hf_f1ap_SliceRadioResourceStatus_List_item;  /* SliceRadioResourceStatus_Item */
+static int hf_f1ap_sNSSAIRadioResourceStatus_List;  /* SNSSAIRadioResourceStatus_List */
+static int hf_f1ap_SNSSAIRadioResourceStatus_List_item;  /* SNSSAIRadioResourceStatus_Item */
+static int hf_f1ap_sNSSAIdlGBRPRBusage;           /* INTEGER_0_100 */
+static int hf_f1ap_sNSSAIulGBRPRBusage;           /* INTEGER_0_100 */
+static int hf_f1ap_sNSSAIdlNonGBRPRBusage;        /* INTEGER_0_100 */
+static int hf_f1ap_sNSSAIulNonGBRPRBusage;        /* INTEGER_0_100 */
+static int hf_f1ap_sNSSAIdlTotalPRBallocation;    /* INTEGER_0_100 */
+static int hf_f1ap_sNSSAIulTotalPRBallocation;    /* INTEGER_0_100 */
+static int hf_f1ap_SliceSupportList_item;         /* SliceSupportItem */
+static int hf_f1ap_SliceToReportList_item;        /* SliceToReportItem */
+static int hf_f1ap_sNSSAIlist;                    /* SNSSAI_list */
+static int hf_f1ap_SNSSAI_list_item;              /* SNSSAI_Item */
+static int hf_f1ap_Slot_Configuration_List_item;  /* Slot_Configuration_Item */
+static int hf_f1ap_slotIndex_01;                  /* INTEGER_0_5119_ */
+static int hf_f1ap_symbolAllocInSlot;             /* SymbolAllocInSlot */
+static int hf_f1ap_sST;                           /* OCTET_STRING_SIZE_1 */
+static int hf_f1ap_sD;                            /* OCTET_STRING_SIZE_3 */
+static int hf_f1ap_nR_PRSBeamInformation;         /* NR_PRSBeamInformation */
+static int hf_f1ap_spatialRelationforResourceID;  /* SpatialRelationforResourceID */
+static int hf_f1ap_SpatialRelationforResourceID_item;  /* SpatialRelationforResourceIDItem */
+static int hf_f1ap_referenceSignal;               /* ReferenceSignal */
+static int hf_f1ap_spatialRelationPerSRSResource_List;  /* SpatialRelationPerSRSResource_List */
+static int hf_f1ap_SpatialRelationPerSRSResource_List_item;  /* SpatialRelationPerSRSResourceItem */
+static int hf_f1ap_sSBPos;                        /* SSB */
+static int hf_f1ap_pRSInformationPos;             /* PRSInformationPos */
+static int hf_f1ap_sRBID;                         /* SRBID */
+static int hf_f1ap_duplicationIndication;         /* DuplicationIndication */
+static int hf_f1ap_SRSCarrier_List_item;          /* SRSCarrier_List_Item */
+static int hf_f1ap_uplinkChannelBW_PerSCS_List;   /* UplinkChannelBW_PerSCS_List */
+static int hf_f1ap_activeULBWP;                   /* ActiveULBWP */
+static int hf_f1ap_pci;                           /* NRPCI */
+static int hf_f1ap_sRSResource_List;              /* SRSResource_List */
+static int hf_f1ap_posSRSResource_List;           /* PosSRSResource_List */
+static int hf_f1ap_sRSResourceSet_List;           /* SRSResourceSet_List */
+static int hf_f1ap_posSRSResourceSet_List;        /* PosSRSResourceSet_List */
+static int hf_f1ap_sRSCarrier_List;               /* SRSCarrier_List */
+static int hf_f1ap_sRSResourceID;                 /* SRSResourceID */
+static int hf_f1ap_nrofSRS_Ports;                 /* T_nrofSRS_Ports */
+static int hf_f1ap_transmissionComb;              /* TransmissionComb */
+static int hf_f1ap_nrofSymbols_01;                /* T_nrofSymbols_01 */
+static int hf_f1ap_repetitionFactor;              /* T_repetitionFactor */
+static int hf_f1ap_freqDomainPosition;            /* INTEGER_0_67 */
+static int hf_f1ap_b_SRS;                         /* INTEGER_0_3 */
+static int hf_f1ap_b_hop;                         /* INTEGER_0_3 */
+static int hf_f1ap_groupOrSequenceHopping_01;     /* T_groupOrSequenceHopping_01 */
+static int hf_f1ap_resourceType_02;               /* ResourceType */
+static int hf_f1ap_sequenceId_01;                 /* INTEGER_0_1023 */
+static int hf_f1ap_SRSResourceID_List_item;       /* SRSResourceID */
+static int hf_f1ap_SRSResource_List_item;         /* SRSResource */
+static int hf_f1ap_sRSResourceID_List;            /* SRSResourceID_List */
+static int hf_f1ap_resourceSetType;               /* ResourceSetType */
+static int hf_f1ap_SRSResourceSetList_item;       /* SRSResourceSetItem */
+static int hf_f1ap_numSRSresourcesperset;         /* INTEGER_1_16_ */
+static int hf_f1ap_periodicityList;               /* PeriodicityList */
+static int hf_f1ap_spatialRelationInfo;           /* SpatialRelationInfo */
+static int hf_f1ap_pathlossReferenceInfo;         /* PathlossReferenceInfo */
+static int hf_f1ap_SRSResourceSet_List_item;      /* SRSResourceSet */
+static int hf_f1ap_aperiodicSRSResourceTriggerList;  /* AperiodicSRSResourceTriggerList */
+static int hf_f1ap_sRSResourceTypeChoice;         /* SRSResourceTypeChoice */
+static int hf_f1ap_sRSResourceInfo;               /* SRSInfo */
+static int hf_f1ap_posSRSResourceInfo;            /* PosSRSInfo */
+static int hf_f1ap_sRSResource;                   /* SRSResourceID */
+static int hf_f1ap_posSRSResourceID;              /* SRSPosResourceID */
+static int hf_f1ap_pCI_NR_01;                     /* NRPCI */
+static int hf_f1ap_ssb_index;                     /* SSB_Index */
+static int hf_f1ap_SSBCoverageModification_List_item;  /* SSBCoverageModification_Item */
+static int hf_f1ap_sSBIndex;                      /* INTEGER_0_63 */
+static int hf_f1ap_sSBCoverageState;              /* SSBCoverageState */
+static int hf_f1ap_shortBitmap;                   /* BIT_STRING_SIZE_4 */
+static int hf_f1ap_mediumBitmap;                  /* BIT_STRING_SIZE_8 */
+static int hf_f1ap_longBitmap;                    /* BIT_STRING_SIZE_64 */
+static int hf_f1ap_SSBAreaCapacityValueList_item;  /* SSBAreaCapacityValueItem */
+static int hf_f1ap_sSBAreaCapacityValue;          /* INTEGER_0_100 */
+static int hf_f1ap_SSBAreaRadioResourceStatusList_item;  /* SSBAreaRadioResourceStatusItem */
+static int hf_f1ap_sSBAreaDLGBRPRBusage;          /* INTEGER_0_100 */
+static int hf_f1ap_sSBAreaULGBRPRBusage;          /* INTEGER_0_100 */
+static int hf_f1ap_sSBAreaDLnon_GBRPRBusage;      /* INTEGER_0_100 */
+static int hf_f1ap_sSBAreaULnon_GBRPRBusage;      /* INTEGER_0_100 */
+static int hf_f1ap_sSBAreaDLTotalPRBusage;        /* INTEGER_0_100 */
+static int hf_f1ap_sSBAreaULTotalPRBusage;        /* INTEGER_0_100 */
+static int hf_f1ap_dLschedulingPDCCHCCEusage;     /* INTEGER_0_100 */
+static int hf_f1ap_uLschedulingPDCCHCCEusage;     /* INTEGER_0_100 */
+static int hf_f1ap_sSBInformationList;            /* SSBInformationList */
+static int hf_f1ap_SSBInformationList_item;       /* SSBInformationItem */
+static int hf_f1ap_sSB_Configuration;             /* SSB_TF_Configuration */
+static int hf_f1ap_sSB_frequency;                 /* INTEGER_0_3279165 */
+static int hf_f1ap_sSB_subcarrier_spacing;        /* T_sSB_subcarrier_spacing */
+static int hf_f1ap_sSB_Transmit_power;            /* INTEGER_M60_50 */
+static int hf_f1ap_sSB_periodicity;               /* T_sSB_periodicity */
+static int hf_f1ap_sSB_half_frame_offset;         /* INTEGER_0_1 */
+static int hf_f1ap_sSB_SFN_offset;                /* INTEGER_0_15 */
+static int hf_f1ap_sSB_position_in_burst;         /* SSB_PositionsInBurst */
+static int hf_f1ap_sFNInitialisationTime;         /* RelativeTime1900 */
+static int hf_f1ap_SSBToReportList_item;          /* SSBToReportItem */
+static int hf_f1ap_freqScalingFactor2;            /* INTEGER_0_1 */
+static int hf_f1ap_freqScalingFactor4;            /* INTEGER_0_3 */
+static int hf_f1ap_startTime;                     /* RelativeTime1900 */
+static int hf_f1ap_duration;                      /* INTEGER_0_90060_ */
+static int hf_f1ap_sUL_NRARFCN;                   /* INTEGER_0_maxNRARFCN */
+static int hf_f1ap_sUL_transmission_Bandwidth;    /* Transmission_Bandwidth */
+static int hf_f1ap_SuccessfulHOReportInformationList_item;  /* SuccessfulHOReportInformation_Item */
+static int hf_f1ap_successfulHOReportContainer;   /* T_successfulHOReportContainer */
+static int hf_f1ap_all_DL;                        /* NULL */
+static int hf_f1ap_all_UL;                        /* NULL */
+static int hf_f1ap_both_DL_and_UL;                /* NumDLULSymbols */
+static int hf_f1ap_TargetCellList_item;           /* TargetCellList_Item */
+static int hf_f1ap_target_cell;                   /* NRCGI */
+static int hf_f1ap_NSAGSupportList_item;          /* NSAGSupportItem */
+static int hf_f1ap_nSAG_ID;                       /* NSAG_ID */
+static int hf_f1ap_nSAGSliceSupport;              /* ExtendedSliceSupportList */
+static int hf_f1ap_tDD_FreqInfo;                  /* FreqInfoRel16 */
+static int hf_f1ap_tDD_UL_DLConfigCommonNR;       /* TDD_UL_DLConfigCommonNR */
+static int hf_f1ap_rxTx_TEG;                      /* RxTxTEG */
+static int hf_f1ap_rx_TEG;                        /* RxTEG */
+static int hf_f1ap_tRP_RxTx_TEGInformation;       /* TRP_RxTx_TEGInformation */
+static int hf_f1ap_tRP_Tx_TEGInformation;         /* TRP_Tx_TEGInformation */
+static int hf_f1ap_tRP_Rx_TEGInformation;         /* TRP_Rx_TEGInformation */
+static int hf_f1ap_referenceTime;                 /* ReferenceTime */
+static int hf_f1ap_referenceSFN;                  /* ReferenceSFN */
+static int hf_f1ap_uncertainty;                   /* Uncertainty */
+static int hf_f1ap_timeInformationType;           /* TimeInformationType */
+static int hf_f1ap_systemFrameNumber;             /* SystemFrameNumber */
+static int hf_f1ap_slotIndex_02;                  /* TimeStampSlotIndex */
+static int hf_f1ap_measurementTime;               /* RelativeTime1900 */
+static int hf_f1ap_sCS_15;                        /* INTEGER_0_9 */
+static int hf_f1ap_sCS_30;                        /* INTEGER_0_19 */
+static int hf_f1ap_sCS_60;                        /* INTEGER_0_39 */
+static int hf_f1ap_sCS_120;                       /* INTEGER_0_79 */
+static int hf_f1ap_measurementQuality_01;         /* INTEGER_0_31 */
+static int hf_f1ap_resolution_01;                 /* T_resolution_01 */
+static int hf_f1ap_dLTNLOfferedCapacity;          /* INTEGER_1_16777216_ */
+static int hf_f1ap_dLTNLAvailableCapacity;        /* INTEGER_0_100_ */
+static int hf_f1ap_uLTNLOfferedCapacity;          /* INTEGER_1_16777216_ */
+static int hf_f1ap_uLTNLAvailableCapacity;        /* INTEGER_0_100_ */
+static int hf_f1ap_traceID;                       /* TraceID */
+static int hf_f1ap_interfacesToTrace;             /* InterfacesToTrace */
+static int hf_f1ap_traceDepth;                    /* TraceDepth */
+static int hf_f1ap_traceCollectionEntityIPAddress;  /* TransportLayerAddress */
+static int hf_f1ap_iPtolayer2TrafficMappingInfo;  /* IPtolayer2TrafficMappingInfo */
+static int hf_f1ap_bAPlayerBHRLCchannelMappingInfo;  /* BAPlayerBHRLCchannelMappingInfo */
+static int hf_f1ap_nRNRB;                         /* NRNRB */
+static int hf_f1ap_n2;                            /* T_n2 */
+static int hf_f1ap_combOffset_n2;                 /* INTEGER_0_1 */
+static int hf_f1ap_cyclicShift_n2;                /* INTEGER_0_7 */
+static int hf_f1ap_n4;                            /* T_n4 */
+static int hf_f1ap_combOffset_n4;                 /* INTEGER_0_3 */
+static int hf_f1ap_cyclicShift_n4;                /* INTEGER_0_11 */
+static int hf_f1ap_combOffset_n8;                 /* INTEGER_0_7 */
+static int hf_f1ap_cyclicShift_n8;                /* INTEGER_0_5 */
+static int hf_f1ap_n2_01;                         /* T_n2_01 */
+static int hf_f1ap_n4_01;                         /* T_n4_01 */
+static int hf_f1ap_n8;                            /* T_n8 */
+static int hf_f1ap_Transport_UP_Layer_Address_Info_To_Add_List_item;  /* Transport_UP_Layer_Address_Info_To_Add_Item */
+static int hf_f1ap_iP_SecTransportLayerAddress;   /* TransportLayerAddress */
+static int hf_f1ap_gTPTransportLayerAddressToAdd;  /* GTPTLAs */
+static int hf_f1ap_Transport_UP_Layer_Address_Info_To_Remove_List_item;  /* Transport_UP_Layer_Address_Info_To_Remove_Item */
+static int hf_f1ap_gTPTransportLayerAddressToRemove;  /* GTPTLAs */
+static int hf_f1ap_choice_TRP_Beam_Antenna_Info_Item;  /* Choice_TRP_Beam_Antenna_Info_Item */
+static int hf_f1ap_reference;                     /* TRPID */
+static int hf_f1ap_explicit;                      /* TRP_BeamAntennaExplicitInformation */
+static int hf_f1ap_noChange;                      /* NULL */
+static int hf_f1ap_trp_BeamAntennaAngles;         /* TRP_BeamAntennaAngles */
+static int hf_f1ap_lcs_to_gcs_translation;        /* LCS_to_GCS_Translation */
+static int hf_f1ap_TRP_BeamAntennaAngles_item;    /* TRP_BeamAntennaAnglesList_Item */
+static int hf_f1ap_trp_azimuth_angle;             /* INTEGER_0_359 */
+static int hf_f1ap_trp_azimuth_angle_fine;        /* INTEGER_0_9 */
+static int hf_f1ap_trp_elevation_angle_list;      /* SEQUENCE_SIZE_1_maxnoElevationAngles_OF_TRP_ElevationAngleList_Item */
+static int hf_f1ap_trp_elevation_angle_list_item;  /* TRP_ElevationAngleList_Item */
+static int hf_f1ap_trp_elevation_angle;           /* INTEGER_0_180 */
+static int hf_f1ap_trp_elevation_angle_fine;      /* INTEGER_0_9 */
+static int hf_f1ap_trp_beam_power_list;           /* SEQUENCE_SIZE_2_maxNumResourcesPerAngle_OF_TRP_Beam_Power_Item */
+static int hf_f1ap_trp_beam_power_list_item;      /* TRP_Beam_Power_Item */
+static int hf_f1ap_relativePower;                 /* INTEGER_0_30 */
+static int hf_f1ap_relativePowerFine;             /* INTEGER_0_9 */
+static int hf_f1ap_tRPInformationTypeResponseList;  /* TRPInformationTypeResponseList */
+static int hf_f1ap_tRPInformation;                /* TRPInformation */
+static int hf_f1ap_TRPInformationTypeResponseList_item;  /* TRPInformationTypeResponseItem */
+static int hf_f1ap_nG_RAN_CGI;                    /* NRCGI */
+static int hf_f1ap_sSBinformation;                /* SSBInformation */
+static int hf_f1ap_spatialDirectionInformation;   /* SpatialDirectionInformation */
+static int hf_f1ap_TRPList_item;                  /* TRPListItem */
+static int hf_f1ap_tRPmeasurementQuality_Item;    /* TRPMeasurementQuality_Item */
+static int hf_f1ap_timingMeasurementQuality;      /* TimingMeasurementQuality */
+static int hf_f1ap_angleMeasurementQuality;       /* AngleMeasurementQuality */
+static int hf_f1ap_TRP_MeasurementRequestList_item;  /* TRP_MeasurementRequestItem */
+static int hf_f1ap_search_window_information;     /* Search_window_information */
+static int hf_f1ap_TRP_PRS_Info_List_item;        /* TRP_PRS_Info_List_Item */
+static int hf_f1ap_nR_PCI;                        /* NRPCI */
+static int hf_f1ap_cGI_NR;                        /* NRCGI */
+static int hf_f1ap_direct;                        /* TRPPositionDirect */
+static int hf_f1ap_referenced;                    /* TRPPositionReferenced */
+static int hf_f1ap_accuracy;                      /* TRPPositionDirectAccuracy */
+static int hf_f1ap_tRPPosition;                   /* AccessPointPosition */
+static int hf_f1ap_tRPHAposition;                 /* NGRANHighAccuracyAccessPointPosition */
+static int hf_f1ap_referencePoint;                /* ReferencePoint */
+static int hf_f1ap_referencePointType;            /* TRPReferencePointType */
+static int hf_f1ap_tRPPositionRelativeGeodetic;   /* RelativeGeodeticLocation */
+static int hf_f1ap_tRPPositionRelativeCartesian;  /* RelativeCartesianLocation */
+static int hf_f1ap_tRP_Rx_TEGID;                  /* INTEGER_0_31 */
+static int hf_f1ap_tRP_Rx_TimingErrorMargin;      /* TimingErrorMargin */
+static int hf_f1ap_tRP_RxTx_TEGID;                /* INTEGER_0_255 */
+static int hf_f1ap_tRP_RxTx_TimingErrorMargin;    /* RxTxTimingErrorMargin */
+static int hf_f1ap_tRP_Tx_TEGID;                  /* INTEGER_0_7 */
+static int hf_f1ap_tRP_Tx_TimingErrorMargin;      /* TimingErrorMargin */
+static int hf_f1ap_TRPTxTEGAssociation_item;      /* TRPTEG_Item */
+static int hf_f1ap_dl_PRSResourceID_List;         /* SEQUENCE_SIZE_1_maxnoofPRS_ResourcesPerSet_OF_DLPRSResourceID_Item */
+static int hf_f1ap_dl_PRSResourceID_List_item;    /* DLPRSResourceID_Item */
+static int hf_f1ap_transport_UP_Layer_Address_Info_To_Add_List;  /* Transport_UP_Layer_Address_Info_To_Add_List */
+static int hf_f1ap_transport_UP_Layer_Address_Info_To_Remove_List;  /* Transport_UP_Layer_Address_Info_To_Remove_List */
+static int hf_f1ap_periodicity_04;                /* Periodicity */
+static int hf_f1ap_burstArrivalTime;              /* BurstArrivalTime */
+static int hf_f1ap_tSCAssistanceInformationDL;    /* TSCAssistanceInformation */
+static int hf_f1ap_tSCAssistanceInformationUL;    /* TSCAssistanceInformation */
+static int hf_f1ap_TRP_MeasurementUpdateList_item;  /* TRP_MeasurementUpdateItem */
+static int hf_f1ap_aoA_window_information;        /* AoA_AssistanceInfo */
+static int hf_f1ap_uACPLMN_List;                  /* UACPLMN_List */
+static int hf_f1ap_UACPLMN_List_item;             /* UACPLMN_Item */
+static int hf_f1ap_uACType_List;                  /* UACType_List */
+static int hf_f1ap_UACType_List_item;             /* UACType_Item */
+static int hf_f1ap_uACReductionIndication;        /* UACReductionIndication */
+static int hf_f1ap_uACCategoryType;               /* UACCategoryType */
+static int hf_f1ap_uACstandardized;               /* UACAction */
+static int hf_f1ap_uACOperatorDefined;            /* UACOperatorDefined */
+static int hf_f1ap_accessCategory;                /* INTEGER_32_63_ */
+static int hf_f1ap_accessIdentity;                /* BIT_STRING_SIZE_7 */
+static int hf_f1ap_indexLength10;                 /* BIT_STRING_SIZE_10 */
+static int hf_f1ap_uEIdentityIndexValue;          /* UEIdentityIndexValue */
+static int hf_f1ap_pagingDRX;                     /* PagingDRX */
+static int hf_f1ap_mrb_type_reconfiguration;      /* MBSPTPRetransmissionTunnelRequired */
+static int hf_f1ap_mrb_type_reconfiguration_01;   /* T_mrb_type_reconfiguration */
+static int hf_f1ap_mrb_reconfigured_RLCtype;      /* T_mrb_reconfigured_RLCtype */
+static int hf_f1ap_multicastF1UContextReferenceCU;  /* MulticastF1UContextReferenceCU */
+static int hf_f1ap_mbsPTPRetransmissionTunnelRequired;  /* MBSPTPRetransmissionTunnelRequired */
+static int hf_f1ap_mbsPTPForwardingRequiredInformation;  /* MRB_ProgressInformation */
+static int hf_f1ap_iNACTIVEStatePODetermination;  /* T_iNACTIVEStatePODetermination */
+static int hf_f1ap_reportingAmount;               /* T_reportingAmount */
+static int hf_f1ap_reportingInterval;             /* T_reportingInterval */
+static int hf_f1ap_azimuthAoA;                    /* INTEGER_0_3599 */
+static int hf_f1ap_zenithAoA;                     /* INTEGER_0_1799 */
+static int hf_f1ap_uL_BH_Non_UP_Traffic_Mapping_List;  /* UL_BH_Non_UP_Traffic_Mapping_List */
+static int hf_f1ap_UL_BH_Non_UP_Traffic_Mapping_List_item;  /* UL_BH_Non_UP_Traffic_Mapping_Item */
+static int hf_f1ap_nonUPTrafficType;              /* NonUPTrafficType */
+static int hf_f1ap_uLUEConfiguration;             /* ULUEConfiguration */
+static int hf_f1ap_uL_RTOA_MeasurementItem;       /* UL_RTOA_MeasurementItem */
+static int hf_f1ap_firstPathRSRPP;                /* INTEGER_0_126 */
+static int hf_f1ap_uLUPTNLInformation;            /* UPTransportLayerInformation */
+static int hf_f1ap_newULUPTNLInformation;         /* UPTransportLayerInformation */
+static int hf_f1ap_ULUPTNLInformation_ToBeSetup_List_item;  /* ULUPTNLInformation_ToBeSetup_Item */
+static int hf_f1ap_UplinkChannelBW_PerSCS_List_item;  /* SCS_SpecificCarrier */
+static int hf_f1ap_gTPTunnel;                     /* GTPTunnel */
+static int hf_f1ap_uuRLCChannelQoS;               /* QoSFlowLevelQoSParameters */
+static int hf_f1ap_uuControlPlaneTrafficType;     /* T_uuControlPlaneTrafficType */
+static int hf_f1ap_UuRLCChannelToBeSetupList_item;  /* UuRLCChannelToBeSetupItem */
+static int hf_f1ap_uuRLCChannelID;                /* UuRLCChannelID */
+static int hf_f1ap_uuRLCChannelQoSInformation;    /* UuRLCChannelQoSInformation */
+static int hf_f1ap_UuRLCChannelToBeModifiedList_item;  /* UuRLCChannelToBeModifiedItem */
+static int hf_f1ap_UuRLCChannelToBeReleasedList_item;  /* UuRLCChannelToBeReleasedItem */
+static int hf_f1ap_UuRLCChannelSetupList_item;    /* UuRLCChannelSetupItem */
+static int hf_f1ap_UuRLCChannelFailedToBeSetupList_item;  /* UuRLCChannelFailedToBeSetupItem */
+static int hf_f1ap_UuRLCChannelModifiedList_item;  /* UuRLCChannelModifiedItem */
+static int hf_f1ap_UuRLCChannelFailedToBeModifiedList_item;  /* UuRLCChannelFailedToBeModifiedItem */
+static int hf_f1ap_UuRLCChannelRequiredToBeModifiedList_item;  /* UuRLCChannelRequiredToBeModifiedItem */
+static int hf_f1ap_UuRLCChannelRequiredToBeReleasedList_item;  /* UuRLCChannelRequiredToBeReleasedItem */
+static int hf_f1ap_protocolIEs;                   /* ProtocolIE_Container */
+static int hf_f1ap_f1_Interface;                  /* ResetAll */
+static int hf_f1ap_partOfF1_Interface;            /* UE_associatedLogicalF1_ConnectionListRes */
+static int hf_f1ap_UE_associatedLogicalF1_ConnectionListRes_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_UE_associatedLogicalF1_ConnectionListResAck_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_GNB_DU_Served_Cells_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_Cells_to_be_Activated_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_Served_Cells_To_Add_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_Served_Cells_To_Modify_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_Served_Cells_To_Delete_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_Cells_Status_List_item;        /* ProtocolIE_SingleContainer */
+static int hf_f1ap_Dedicated_SIDelivery_NeededUE_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_GNB_DU_TNL_Association_To_Remove_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_Cells_to_be_Deactivated_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_GNB_CU_TNL_Association_To_Add_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_GNB_CU_TNL_Association_To_Remove_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_GNB_CU_TNL_Association_To_Update_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_Cells_to_be_Barred_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_Protected_EUTRA_Resources_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_Neighbour_Cell_Information_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_Cells_Failed_to_be_Activated_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_GNB_CU_TNL_Association_Setup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_GNB_CU_TNL_Association_Failed_To_Setup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_Candidate_SpCell_List_item;    /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SCell_ToBeSetup_List_item;     /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SRBs_ToBeSetup_List_item;      /* ProtocolIE_SingleContainer */
+static int hf_f1ap_DRBs_ToBeSetup_List_item;      /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BHChannels_ToBeSetup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SLDRBs_ToBeSetup_List_item;    /* ProtocolIE_SingleContainer */
+static int hf_f1ap_UE_MulticastMRBs_ToBeSetup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_ServingCellMO_List_item;       /* ProtocolIE_SingleContainer */
+static int hf_f1ap_DRBs_Setup_List_item;          /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SRBs_FailedToBeSetup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_DRBs_FailedToBeSetup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SCell_FailedtoSetup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SRBs_Setup_List_item;          /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BHChannels_Setup_List_item;    /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BHChannels_FailedToBeSetup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SLDRBs_Setup_List_item;        /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SLDRBs_FailedToBeSetup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_UE_MulticastMRBs_Setupnew_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_Potential_SpCell_List_item;    /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SCell_ToBeSetupMod_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SCell_ToBeRemoved_List_item;   /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SRBs_ToBeSetupMod_List_item;   /* ProtocolIE_SingleContainer */
+static int hf_f1ap_DRBs_ToBeSetupMod_List_item;   /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BHChannels_ToBeSetupMod_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_DRBs_ToBeModified_List_item;   /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BHChannels_ToBeModified_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SRBs_ToBeReleased_List_item;   /* ProtocolIE_SingleContainer */
+static int hf_f1ap_DRBs_ToBeReleased_List_item;   /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BHChannels_ToBeReleased_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_UE_MulticastMRBs_ToBeSetup_atModify_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_UE_MulticastMRBs_ToBeReleased_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SLDRBs_ToBeSetupMod_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SLDRBs_ToBeModified_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SLDRBs_ToBeReleased_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_DRBs_SetupMod_List_item;       /* ProtocolIE_SingleContainer */
+static int hf_f1ap_DRBs_Modified_List_item;       /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SRBs_SetupMod_List_item;       /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SRBs_Modified_List_item;       /* ProtocolIE_SingleContainer */
+static int hf_f1ap_DRBs_FailedToBeModified_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SRBs_FailedToBeSetupMod_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_DRBs_FailedToBeSetupMod_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SCell_FailedtoSetupMod_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BHChannels_SetupMod_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BHChannels_Modified_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BHChannels_FailedToBeModified_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BHChannels_FailedToBeSetupMod_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_Associated_SCell_List_item;    /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SLDRBs_SetupMod_List_item;     /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SLDRBs_Modified_List_item;     /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SLDRBs_FailedToBeModified_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SLDRBs_FailedToBeSetupMod_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_UE_MulticastMRBs_Setup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_DRBs_Required_ToBeModified_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_DRBs_Required_ToBeReleased_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SRBs_Required_ToBeReleased_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BHChannels_Required_ToBeReleased_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SLDRBs_Required_ToBeModified_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SLDRBs_Required_ToBeReleased_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_UE_MulticastMRBs_RequiredToBeModified_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_UE_MulticastMRBs_RequiredToBeReleased_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_DRBs_ModifiedConf_List_item;   /* ProtocolIE_SingleContainer */
+static int hf_f1ap_SLDRBs_ModifiedConf_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_UE_MulticastMRBs_ConfirmedToBeModified_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_Cells_To_Be_Broadcast_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_Cells_Broadcast_Completed_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_Broadcast_To_Be_Cancelled_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_Cells_Broadcast_Cancelled_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_DRB_Activity_List_item;        /* ProtocolIE_SingleContainer */
+static int hf_f1ap_privateIEs;                    /* PrivateIE_Container */
+static int hf_f1ap_PagingCell_list_item;          /* ProtocolIE_SingleContainer */
+static int hf_f1ap_DRB_Notify_List_item;          /* ProtocolIE_SingleContainer */
+static int hf_f1ap_NR_CGI_List_For_Restart_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_PWS_Failed_NR_CGI_List_item;   /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BH_Routing_Information_Added_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BH_Routing_Information_Removed_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BAP_Header_Rewriting_Added_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BAP_Header_Rewriting_Removed_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_IAB_TNL_Addresses_To_Remove_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_IAB_Allocated_TNL_Address_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_UL_UP_TNL_Information_to_Update_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_UL_UP_TNL_Address_to_Update_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_DL_UP_TNL_Address_to_Update_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_TRPInformationTypeListTRPReq_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_TRPInformationListTRPResp_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_semipersistentSRS;             /* SemipersistentSRS */
+static int hf_f1ap_aperiodicSRS;                  /* AperiodicSRS */
+static int hf_f1ap_sRSSpatialRelation;            /* SpatialRelationInfo */
+static int hf_f1ap_aperiodic_04;                  /* T_aperiodic */
+static int hf_f1ap_sRSResourceTrigger;            /* SRSResourceTrigger */
+static int hf_f1ap_BroadcastMRBs_ToBeSetup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BroadcastMRBs_Setup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BroadcastMRBs_FailedToBeSetup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BroadcastMRBs_ToBeSetupMod_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BroadcastMRBs_ToBeModified_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BroadcastMRBs_ToBeReleased_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BroadcastMRBs_SetupMod_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BroadcastMRBs_FailedToBeSetupMod_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BroadcastMRBs_Modified_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_BroadcastMRBs_FailedToBeModified_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_UEIdentity_List_For_Paging_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_MC_PagingCell_list_item;       /* ProtocolIE_SingleContainer */
+static int hf_f1ap_MulticastMRBs_ToBeSetup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_MulticastMRBs_Setup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_MulticastMRBs_FailedToBeSetup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_MulticastMRBs_ToBeSetupMod_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_MulticastMRBs_ToBeModified_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_MulticastMRBs_ToBeReleased_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_MulticastMRBs_SetupMod_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_MulticastMRBs_FailedToBeSetupMod_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_MulticastMRBs_Modified_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_MulticastMRBs_FailedToBeModified_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_MulticastF1UContext_ToBeSetup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_MulticastF1UContext_Setup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_MulticastF1UContext_FailedToBeSetup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_f1ap_initiatingMessage;             /* InitiatingMessage */
+static int hf_f1ap_successfulOutcome;             /* SuccessfulOutcome */
+static int hf_f1ap_unsuccessfulOutcome;           /* UnsuccessfulOutcome */
+static int hf_f1ap_initiatingMessagevalue;        /* InitiatingMessage_value */
+static int hf_f1ap_successfulOutcome_value;       /* SuccessfulOutcome_value */
+static int hf_f1ap_unsuccessfulOutcome_value;     /* UnsuccessfulOutcome_value */
 
 /* Initialize the subtree pointers */
-static gint ett_f1ap = -1;
-static gint ett_f1ap_ResourceCoordinationTransferContainer = -1;
-static gint ett_f1ap_PLMN_Identity = -1;
-static gint ett_f1ap_MIB_message = -1;
-static gint ett_f1ap_SIB1_message = -1;
-static gint ett_f1ap_CG_ConfigInfo = -1;
-static gint ett_f1ap_CellGroupConfig = -1;
-static gint ett_f1ap_TransportLayerAddress = -1;
-static gint ett_f1ap_UE_CapabilityRAT_ContainerList = -1;
-static gint ett_f1ap_measurementTimingConfiguration = -1;
-static gint ett_f1ap_DUtoCURRCContainer = -1;
-static gint ett_f1ap_requestedP_MaxFR1 = -1;
-static gint ett_f1ap_HandoverPreparationInformation = -1;
-static gint ett_f1ap_MeasConfig = -1;
-static gint ett_f1ap_MeasGapConfig = -1;
-static gint ett_f1ap_MeasGapSharingConfig = -1;
-static gint ett_f1ap_EUTRA_NR_CellResourceCoordinationReq_Container = -1;
-static gint ett_f1ap_EUTRA_NR_CellResourceCoordinationReqAck_Container = -1;
-static gint ett_f1ap_ProtectedEUTRAResourceIndication = -1;
-static gint ett_f1ap_RRCContainer = -1;
-static gint ett_f1ap_RRCContainer_RRCSetupComplete = -1;
-static gint ett_f1ap_sIBmessage = -1;
-static gint ett_f1ap_UplinkTxDirectCurrentListInformation = -1;
-static gint ett_f1ap_DRX_Config = -1;
-static gint ett_f1ap_Ph_InfoSCG = -1;
-static gint ett_f1ap_RequestedBandCombinationIndex = -1;
-static gint ett_f1ap_RequestedFeatureSetEntryIndex = -1;
-static gint ett_f1ap_RequestedP_MaxFR2 = -1;
-static gint ett_f1ap_UEAssistanceInformation = -1;
-static gint ett_f1ap_CG_Config = -1;
-static gint ett_f1ap_Ph_InfoMCG = -1;
-static gint ett_f1ap_BurstArrivalTime = -1;
-static gint ett_f1ap_cSI_RS_Configuration = -1;
-static gint ett_f1ap_sR_Configuration = -1;
-static gint ett_f1ap_pDCCH_ConfigSIB1 = -1;
-static gint ett_f1ap_sCS_Common = -1;
-static gint ett_f1ap_IABTNLAddressIPv4Address = -1;
-static gint ett_f1ap_IABTNLAddressIPv6Address = -1;
-static gint ett_f1ap_IABTNLAddressIPv6Prefix = -1;
-static gint ett_f1ap_InterfacesToTrace = -1;
-static gint ett_f1ap_MeasurementsToActivate = -1;
-static gint ett_f1ap_NRUERLFReportContainer = -1;
-static gint ett_f1ap_RACH_Config_Common = -1;
-static gint ett_f1ap_RACH_Config_Common_IAB = -1;
-static gint ett_f1ap_RACHReportContainer = -1;
-static gint ett_f1ap_ReferenceTime = -1;
-static gint ett_f1ap_ReportCharacteristics = -1;
-static gint ett_f1ap_SIB10_message = -1;
-static gint ett_f1ap_SIB12_message = -1;
-static gint ett_f1ap_SIB13_message = -1;
-static gint ett_f1ap_SIB14_message = -1;
-static gint ett_f1ap_SIB15_message = -1;
-static gint ett_f1ap_SIB17_message = -1;
-static gint ett_f1ap_SIB20_message = -1;
-static gint ett_f1ap_SL_PHY_MAC_RLC_Config = -1;
-static gint ett_f1ap_SL_RLC_ChannelToAddModList = -1;
-static gint ett_f1ap_SL_ConfigDedicatedEUTRA_Info = -1;
-static gint ett_f1ap_TDD_UL_DLConfigCommonNR = -1;
-static gint ett_f1ap_UEAssistanceInformationEUTRA = -1;
-static gint ett_f1ap_PosAssistance_Information = -1;
-static gint ett_f1ap_LocationMeasurementInformation = -1;
-static gint ett_f1ap_MUSIM_GapConfig = -1;
-static gint ett_f1ap_SDT_MAC_PHY_CG_Config = -1;
-static gint ett_f1ap_SDTRLCBearerConfiguration = -1;
-static gint ett_f1ap_MBSInterestIndication = -1;
-static gint ett_f1ap_NeedForGapsInfoNR = -1;
-static gint ett_f1ap_NeedForGapNCSGInfoNR = -1;
-static gint ett_f1ap_NeedForGapNCSGInfoEUTRA = -1;
-static gint ett_f1ap_MBS_Broadcast_NeighbourCellList = -1;
-static gint ett_f1ap_mRB_PDCP_Config_Broadcast = -1;
-static gint ett_f1ap_posMeasGapPreConfigToAddModList = -1;
-static gint ett_f1ap_posMeasGapPreConfigToReleaseList = -1;
-static gint ett_f1ap_SidelinkConfigurationContainer = -1;
-static gint ett_f1ap_SRSPosRRCInactiveConfig = -1;
-static gint ett_f1ap_successfulHOReportContainer = -1;
-static gint ett_f1ap_UL_GapFR2_Config = -1;
-static gint ett_f1ap_ConfigRestrictInfoDAPS = -1;
-static gint ett_f1ap_UplinkTxDirectCurrentTwoCarrierListInfo = -1;
-static gint ett_f1ap_Ncd_SSB_RedCapInitialBWP_SDT = -1;
-static gint ett_f1ap_PrivateIE_ID = -1;
-static gint ett_f1ap_ProtocolIE_Container = -1;
-static gint ett_f1ap_ProtocolIE_Field = -1;
-static gint ett_f1ap_ProtocolExtensionContainer = -1;
-static gint ett_f1ap_ProtocolExtensionField = -1;
-static gint ett_f1ap_PrivateIE_Container = -1;
-static gint ett_f1ap_PrivateIE_Field = -1;
-static gint ett_f1ap_AbortTransmission = -1;
-static gint ett_f1ap_AccessPointPosition = -1;
-static gint ett_f1ap_Activated_Cells_to_be_Updated_List = -1;
-static gint ett_f1ap_Activated_Cells_to_be_Updated_List_Item = -1;
-static gint ett_f1ap_ActiveULBWP = -1;
-static gint ett_f1ap_AdditionalPath_List = -1;
-static gint ett_f1ap_AdditionalPath_Item = -1;
-static gint ett_f1ap_ExtendedAdditionalPathList = -1;
-static gint ett_f1ap_ExtendedAdditionalPathList_Item = -1;
-static gint ett_f1ap_AdditionalPDCPDuplicationTNL_List = -1;
-static gint ett_f1ap_AdditionalPDCPDuplicationTNL_Item = -1;
-static gint ett_f1ap_AdditionalSIBMessageList = -1;
-static gint ett_f1ap_AdditionalSIBMessageList_Item = -1;
-static gint ett_f1ap_AffectedCellsAndBeams_List = -1;
-static gint ett_f1ap_AffectedCellsAndBeams_Item = -1;
-static gint ett_f1ap_AffectedSSB_List = -1;
-static gint ett_f1ap_AffectedSSB_Item = -1;
-static gint ett_f1ap_AggressorCellList = -1;
-static gint ett_f1ap_AggressorCellList_Item = -1;
-static gint ett_f1ap_AggressorgNBSetID = -1;
-static gint ett_f1ap_AllocationAndRetentionPriority = -1;
-static gint ett_f1ap_AlternativeQoSParaSetList = -1;
-static gint ett_f1ap_AlternativeQoSParaSetItem = -1;
-static gint ett_f1ap_AngleMeasurementQuality = -1;
-static gint ett_f1ap_AperiodicSRSResourceTriggerList = -1;
-static gint ett_f1ap_Associated_SCell_Item = -1;
-static gint ett_f1ap_AvailablePLMNList = -1;
-static gint ett_f1ap_AvailablePLMNList_Item = -1;
-static gint ett_f1ap_AvailableSNPN_ID_List = -1;
-static gint ett_f1ap_AvailableSNPN_ID_List_Item = -1;
-static gint ett_f1ap_AoA_AssistanceInfo = -1;
-static gint ett_f1ap_AngleMeasurementType = -1;
-static gint ett_f1ap_ARPLocationInformation = -1;
-static gint ett_f1ap_ARPLocationInformation_Item = -1;
-static gint ett_f1ap_ARPLocationType = -1;
-static gint ett_f1ap_BAP_Header_Rewriting_Added_List_Item = -1;
-static gint ett_f1ap_BAP_Header_Rewriting_Removed_List_Item = -1;
-static gint ett_f1ap_BandwidthSRS = -1;
-static gint ett_f1ap_BAPlayerBHRLCchannelMappingInfo = -1;
-static gint ett_f1ap_BAPlayerBHRLCchannelMappingInfoList = -1;
-static gint ett_f1ap_BAPlayerBHRLCchannelMappingInfo_Item = -1;
-static gint ett_f1ap_BAPRoutingID = -1;
-static gint ett_f1ap_BCBearerContextF1U_TNLInfo = -1;
-static gint ett_f1ap_BHChannels_FailedToBeModified_Item = -1;
-static gint ett_f1ap_BHChannels_FailedToBeSetup_Item = -1;
-static gint ett_f1ap_BHChannels_FailedToBeSetupMod_Item = -1;
-static gint ett_f1ap_BHChannels_Modified_Item = -1;
-static gint ett_f1ap_BHChannels_Required_ToBeReleased_Item = -1;
-static gint ett_f1ap_BHChannels_Setup_Item = -1;
-static gint ett_f1ap_BHChannels_SetupMod_Item = -1;
-static gint ett_f1ap_BHChannels_ToBeModified_Item = -1;
-static gint ett_f1ap_BHChannels_ToBeReleased_Item = -1;
-static gint ett_f1ap_BHChannels_ToBeSetup_Item = -1;
-static gint ett_f1ap_BHChannels_ToBeSetupMod_Item = -1;
-static gint ett_f1ap_BHInfo = -1;
-static gint ett_f1ap_BHQoSInformation = -1;
-static gint ett_f1ap_BHRLCCHList = -1;
-static gint ett_f1ap_BHRLCCHItem = -1;
-static gint ett_f1ap_BH_Routing_Information_Added_List_Item = -1;
-static gint ett_f1ap_BH_Routing_Information_Removed_List_Item = -1;
-static gint ett_f1ap_BPLMN_ID_Info_List = -1;
-static gint ett_f1ap_BPLMN_ID_Info_Item = -1;
-static gint ett_f1ap_ServedPLMNs_List = -1;
-static gint ett_f1ap_ServedPLMNs_Item = -1;
-static gint ett_f1ap_BroadcastCAGList = -1;
-static gint ett_f1ap_BroadcastMRBs_FailedToBeModified_Item = -1;
-static gint ett_f1ap_BroadcastMRBs_FailedToBeSetup_Item = -1;
-static gint ett_f1ap_BroadcastMRBs_FailedToBeSetupMod_Item = -1;
-static gint ett_f1ap_BroadcastMRBs_Modified_Item = -1;
-static gint ett_f1ap_BroadcastMRBs_Setup_Item = -1;
-static gint ett_f1ap_BroadcastMRBs_SetupMod_Item = -1;
-static gint ett_f1ap_BroadcastMRBs_ToBeModified_Item = -1;
-static gint ett_f1ap_BroadcastMRBs_ToBeReleased_Item = -1;
-static gint ett_f1ap_BroadcastMRBs_ToBeSetup_Item = -1;
-static gint ett_f1ap_BroadcastMRBs_ToBeSetupMod_Item = -1;
-static gint ett_f1ap_BroadcastNIDList = -1;
-static gint ett_f1ap_BroadcastSNPN_ID_List = -1;
-static gint ett_f1ap_BroadcastSNPN_ID_List_Item = -1;
-static gint ett_f1ap_BroadcastPNI_NPN_ID_List = -1;
-static gint ett_f1ap_BroadcastPNI_NPN_ID_List_Item = -1;
-static gint ett_f1ap_BroadcastAreaScope = -1;
-static gint ett_f1ap_BroadcastCellList = -1;
-static gint ett_f1ap_Broadcast_Cell_List_Item = -1;
-static gint ett_f1ap_Candidate_SpCell_Item = -1;
-static gint ett_f1ap_CapacityValue = -1;
-static gint ett_f1ap_Cause = -1;
-static gint ett_f1ap_CellMeasurementResultList = -1;
-static gint ett_f1ap_CellMeasurementResultItem = -1;
-static gint ett_f1ap_CellsForSON_List = -1;
-static gint ett_f1ap_CellsForSON_Item = -1;
-static gint ett_f1ap_Cells_Failed_to_be_Activated_List_Item = -1;
-static gint ett_f1ap_Cells_Status_Item = -1;
-static gint ett_f1ap_Cells_To_Be_Broadcast_Item = -1;
-static gint ett_f1ap_Cells_Broadcast_Completed_Item = -1;
-static gint ett_f1ap_Broadcast_To_Be_Cancelled_Item = -1;
-static gint ett_f1ap_Cells_Broadcast_Cancelled_Item = -1;
-static gint ett_f1ap_Cells_to_be_Activated_List_Item = -1;
-static gint ett_f1ap_Cells_to_be_Deactivated_List_Item = -1;
-static gint ett_f1ap_Cells_to_be_Barred_Item = -1;
-static gint ett_f1ap_CellToReportList = -1;
-static gint ett_f1ap_CellToReportItem = -1;
-static gint ett_f1ap_CellType = -1;
-static gint ett_f1ap_CG_SDTSessionInfo = -1;
-static gint ett_f1ap_Child_IAB_Nodes_NA_Resource_List = -1;
-static gint ett_f1ap_Child_IAB_Nodes_NA_Resource_List_Item = -1;
-static gint ett_f1ap_Child_Node_Cells_List = -1;
-static gint ett_f1ap_Child_Node_Cells_List_Item = -1;
-static gint ett_f1ap_Child_Nodes_List = -1;
-static gint ett_f1ap_Child_Nodes_List_Item = -1;
-static gint ett_f1ap_CNUEPagingIdentity = -1;
-static gint ett_f1ap_CompositeAvailableCapacityGroup = -1;
-static gint ett_f1ap_CompositeAvailableCapacity = -1;
-static gint ett_f1ap_ConditionalInterDUMobilityInformation = -1;
-static gint ett_f1ap_ConditionalIntraDUMobilityInformation = -1;
-static gint ett_f1ap_Coverage_Modification_Notification = -1;
-static gint ett_f1ap_Coverage_Modification_List = -1;
-static gint ett_f1ap_Coverage_Modification_Item = -1;
-static gint ett_f1ap_CCO_Assistance_Information = -1;
-static gint ett_f1ap_CP_TransportLayerAddress = -1;
-static gint ett_f1ap_CPACMCGInformation = -1;
-static gint ett_f1ap_CriticalityDiagnostics = -1;
-static gint ett_f1ap_CriticalityDiagnostics_IE_List = -1;
-static gint ett_f1ap_CriticalityDiagnostics_IE_Item = -1;
-static gint ett_f1ap_CUDURadioInformationType = -1;
-static gint ett_f1ap_CUDURIMInformation = -1;
-static gint ett_f1ap_CUtoDURRCInformation = -1;
-static gint ett_f1ap_Dedicated_SIDelivery_NeededUE_Item = -1;
-static gint ett_f1ap_DL_PRS = -1;
-static gint ett_f1ap_DL_PRSMutingPattern = -1;
-static gint ett_f1ap_DLPRSResourceCoordinates = -1;
-static gint ett_f1ap_SEQUENCE_SIZE_1_maxnoofPRS_ResourceSets_OF_DLPRSResourceSetARP = -1;
-static gint ett_f1ap_DLPRSResourceSetARP = -1;
-static gint ett_f1ap_SEQUENCE_SIZE_1_maxnoofPRS_ResourcesPerSet_OF_DLPRSResourceARP = -1;
-static gint ett_f1ap_DL_PRSResourceSetARPLocation = -1;
-static gint ett_f1ap_DLPRSResourceARP = -1;
-static gint ett_f1ap_DL_PRSResourceARPLocation = -1;
-static gint ett_f1ap_DL_UP_TNL_Address_to_Update_List_Item = -1;
-static gint ett_f1ap_DLUPTNLInformation_ToBeSetup_List = -1;
-static gint ett_f1ap_DLUPTNLInformation_ToBeSetup_Item = -1;
-static gint ett_f1ap_DRB_Activity_Item = -1;
-static gint ett_f1ap_DRBs_FailedToBeModified_Item = -1;
-static gint ett_f1ap_DRBs_FailedToBeSetup_Item = -1;
-static gint ett_f1ap_DRBs_FailedToBeSetupMod_Item = -1;
-static gint ett_f1ap_DRB_Information = -1;
-static gint ett_f1ap_DRBs_Modified_Item = -1;
-static gint ett_f1ap_DRBs_ModifiedConf_Item = -1;
-static gint ett_f1ap_DRB_Notify_Item = -1;
-static gint ett_f1ap_DRBs_Required_ToBeModified_Item = -1;
-static gint ett_f1ap_DRBs_Required_ToBeReleased_Item = -1;
-static gint ett_f1ap_DRBs_Setup_Item = -1;
-static gint ett_f1ap_DRBs_SetupMod_Item = -1;
-static gint ett_f1ap_DRBs_ToBeModified_Item = -1;
-static gint ett_f1ap_DRBs_ToBeReleased_Item = -1;
-static gint ett_f1ap_DRBs_ToBeSetup_Item = -1;
-static gint ett_f1ap_DRBs_ToBeSetupMod_Item = -1;
-static gint ett_f1ap_DRXCycle = -1;
-static gint ett_f1ap_DSInformationList = -1;
-static gint ett_f1ap_DUCURadioInformationType = -1;
-static gint ett_f1ap_DUCURIMInformation = -1;
-static gint ett_f1ap_DUF_Slot_Config_Item = -1;
-static gint ett_f1ap_DUF_Slot_Config_List = -1;
-static gint ett_f1ap_DUtoCURRCInformation = -1;
-static gint ett_f1ap_Dynamic5QIDescriptor = -1;
-static gint ett_f1ap_DynamicPQIDescriptor = -1;
-static gint ett_f1ap_E_CID_MeasurementQuantities = -1;
-static gint ett_f1ap_E_CID_MeasurementQuantities_Item = -1;
-static gint ett_f1ap_E_CID_MeasurementResult = -1;
-static gint ett_f1ap_E_CID_MeasuredResults_List = -1;
-static gint ett_f1ap_E_CID_MeasuredResults_Item = -1;
-static gint ett_f1ap_E_CID_MeasuredResults_Value = -1;
-static gint ett_f1ap_EgressBHRLCCHList = -1;
-static gint ett_f1ap_EgressBHRLCCHItem = -1;
-static gint ett_f1ap_Endpoint_IP_address_and_port = -1;
-static gint ett_f1ap_ExtendedAvailablePLMN_List = -1;
-static gint ett_f1ap_ExtendedAvailablePLMN_Item = -1;
-static gint ett_f1ap_ExplicitFormat = -1;
-static gint ett_f1ap_ExtendedServedPLMNs_List = -1;
-static gint ett_f1ap_ExtendedServedPLMNs_Item = -1;
-static gint ett_f1ap_ExtendedSliceSupportList = -1;
-static gint ett_f1ap_EUTRACells_List = -1;
-static gint ett_f1ap_EUTRACells_List_item = -1;
-static gint ett_f1ap_EUTRA_Coex_FDD_Info = -1;
-static gint ett_f1ap_EUTRA_Coex_Mode_Info = -1;
-static gint ett_f1ap_EUTRA_Coex_TDD_Info = -1;
-static gint ett_f1ap_EUTRA_PRACH_Configuration = -1;
-static gint ett_f1ap_EUTRA_SpecialSubframe_Info = -1;
-static gint ett_f1ap_EUTRANQoS = -1;
-static gint ett_f1ap_EUTRA_Mode_Info = -1;
-static gint ett_f1ap_EUTRA_FDD_Info = -1;
-static gint ett_f1ap_EUTRA_TDD_Info = -1;
-static gint ett_f1ap_Expected_UL_AoA = -1;
-static gint ett_f1ap_Expected_ZoA_only = -1;
-static gint ett_f1ap_Expected_Azimuth_AoA = -1;
-static gint ett_f1ap_Expected_Zenith_AoA = -1;
-static gint ett_f1ap_F1CTransferPath = -1;
-static gint ett_f1ap_F1CTransferPathNRDC = -1;
-static gint ett_f1ap_FDD_Info = -1;
-static gint ett_f1ap_FDD_InfoRel16 = -1;
-static gint ett_f1ap_FiveG_ProSeAuthorized = -1;
-static gint ett_f1ap_Flows_Mapped_To_DRB_List = -1;
-static gint ett_f1ap_Flows_Mapped_To_DRB_Item = -1;
-static gint ett_f1ap_FreqBandNrItem = -1;
-static gint ett_f1ap_SEQUENCE_SIZE_0_maxnoofNrCellBands_OF_SupportedSULFreqBandItem = -1;
-static gint ett_f1ap_FreqDomainLength = -1;
-static gint ett_f1ap_FreqInfoRel16 = -1;
-static gint ett_f1ap_Frequency_Domain_HSNA_Configuration_List = -1;
-static gint ett_f1ap_Frequency_Domain_HSNA_Configuration_Item = -1;
-static gint ett_f1ap_Frequency_Domain_HSNA_Slot_Configuration_List = -1;
-static gint ett_f1ap_Frequency_Domain_HSNA_Slot_Configuration_Item = -1;
-static gint ett_f1ap_FlowsMappedToSLDRB_List = -1;
-static gint ett_f1ap_FlowsMappedToSLDRB_Item = -1;
-static gint ett_f1ap_GBR_QosInformation = -1;
-static gint ett_f1ap_GBR_QoSFlowInformation = -1;
-static gint ett_f1ap_GeographicalCoordinates = -1;
-static gint ett_f1ap_GNB_CUSystemInformation = -1;
-static gint ett_f1ap_SEQUENCE_SIZE_1_maxnoofSIBTypes_OF_SibtypetobeupdatedListItem = -1;
-static gint ett_f1ap_GNB_CU_TNL_Association_Setup_Item = -1;
-static gint ett_f1ap_GNB_CU_TNL_Association_Failed_To_Setup_Item = -1;
-static gint ett_f1ap_GNB_CU_TNL_Association_To_Add_Item = -1;
-static gint ett_f1ap_GNB_CU_TNL_Association_To_Remove_Item = -1;
-static gint ett_f1ap_GNB_CU_TNL_Association_To_Update_Item = -1;
-static gint ett_f1ap_GNB_DU_Cell_Resource_Configuration = -1;
-static gint ett_f1ap_Extended_GNB_CU_Name = -1;
-static gint ett_f1ap_Extended_GNB_DU_Name = -1;
-static gint ett_f1ap_GNB_DU_Served_Cells_Item = -1;
-static gint ett_f1ap_GNB_DU_System_Information = -1;
-static gint ett_f1ap_GNB_DU_TNL_Association_To_Remove_Item = -1;
-static gint ett_f1ap_GNBDUUESliceMaximumBitRateList = -1;
-static gint ett_f1ap_GNBDUUESliceMaximumBitRateItem = -1;
-static gint ett_f1ap_GNB_RxTxTimeDiff = -1;
-static gint ett_f1ap_GNBRxTxTimeDiffMeas = -1;
-static gint ett_f1ap_GTPTLAs = -1;
-static gint ett_f1ap_GTPTLA_Item = -1;
-static gint ett_f1ap_GTPTunnel = -1;
-static gint ett_f1ap_HardwareLoadIndicator = -1;
-static gint ett_f1ap_HSNASlotConfigList = -1;
-static gint ett_f1ap_HSNASlotConfigItem = -1;
-static gint ett_f1ap_IABCongestionIndication = -1;
-static gint ett_f1ap_IAB_Congestion_Indication_List = -1;
-static gint ett_f1ap_IAB_Congestion_Indication_Item = -1;
-static gint ett_f1ap_IAB_Info_IAB_donor_CU = -1;
-static gint ett_f1ap_IAB_Info_IAB_DU = -1;
-static gint ett_f1ap_IAB_MT_Cell_List = -1;
-static gint ett_f1ap_IAB_MT_Cell_List_Item = -1;
-static gint ett_f1ap_IAB_MT_Cell_NA_Resource_Configuration_Mode_Info = -1;
-static gint ett_f1ap_IAB_MT_Cell_NA_Resource_Configuration_FDD_Info = -1;
-static gint ett_f1ap_IAB_MT_Cell_NA_Resource_Configuration_TDD_Info = -1;
-static gint ett_f1ap_IAB_STC_Info = -1;
-static gint ett_f1ap_IAB_STC_Info_List = -1;
-static gint ett_f1ap_IAB_STC_Info_Item = -1;
-static gint ett_f1ap_IAB_Allocated_TNL_Address_Item = -1;
-static gint ett_f1ap_IAB_DU_Cell_Resource_Configuration_Mode_Info = -1;
-static gint ett_f1ap_IAB_DU_Cell_Resource_Configuration_FDD_Info = -1;
-static gint ett_f1ap_IAB_DU_Cell_Resource_Configuration_TDD_Info = -1;
-static gint ett_f1ap_IABIPv6RequestType = -1;
-static gint ett_f1ap_IABTNLAddress = -1;
-static gint ett_f1ap_IABTNLAddressesRequested = -1;
-static gint ett_f1ap_IAB_TNL_Addresses_To_Remove_Item = -1;
-static gint ett_f1ap_IAB_TNL_Addresses_Exception = -1;
-static gint ett_f1ap_IABTNLAddressList = -1;
-static gint ett_f1ap_IABTNLAddress_Item = -1;
-static gint ett_f1ap_IABv4AddressesRequested = -1;
-static gint ett_f1ap_ImplicitFormat = -1;
-static gint ett_f1ap_IntendedTDD_DL_ULConfig = -1;
-static gint ett_f1ap_IPHeaderInformation = -1;
-static gint ett_f1ap_IPtolayer2TrafficMappingInfo = -1;
-static gint ett_f1ap_IPtolayer2TrafficMappingInfoList = -1;
-static gint ett_f1ap_IPtolayer2TrafficMappingInfo_Item = -1;
-static gint ett_f1ap_L139Info = -1;
-static gint ett_f1ap_L839Info = -1;
-static gint ett_f1ap_L571Info = -1;
-static gint ett_f1ap_L1151Info = -1;
-static gint ett_f1ap_LCS_to_GCS_Translation = -1;
-static gint ett_f1ap_LCStoGCSTranslationList = -1;
-static gint ett_f1ap_LCStoGCSTranslation = -1;
-static gint ett_f1ap_LocationDependentMBSF1UInformation = -1;
-static gint ett_f1ap_LocationDependentMBSF1UInformation_Item = -1;
-static gint ett_f1ap_LocationUncertainty = -1;
-static gint ett_f1ap_LoS_NLoSInformation = -1;
-static gint ett_f1ap_LTEUESidelinkAggregateMaximumBitrate = -1;
-static gint ett_f1ap_LTEV2XServicesAuthorized = -1;
-static gint ett_f1ap_MappingInformationtoRemove = -1;
-static gint ett_f1ap_MBS_Flows_Mapped_To_MRB_List = -1;
-static gint ett_f1ap_MBS_Flows_Mapped_To_MRB_Item = -1;
-static gint ett_f1ap_MBSF1UInformation = -1;
-static gint ett_f1ap_MBS_Session_ID = -1;
-static gint ett_f1ap_MBS_CUtoDURRCInformation = -1;
-static gint ett_f1ap_MBS_Broadcast_Cell_List = -1;
-static gint ett_f1ap_MBS_Broadcast_Cell_Item = -1;
-static gint ett_f1ap_MBS_Broadcast_MRB_List = -1;
-static gint ett_f1ap_MBS_Broadcast_MRB_Item = -1;
-static gint ett_f1ap_MBSMulticastF1UContextDescriptor = -1;
-static gint ett_f1ap_MulticastF1UContext_ToBeSetup_Item = -1;
-static gint ett_f1ap_MulticastF1UContext_Setup_Item = -1;
-static gint ett_f1ap_MulticastF1UContext_FailedToBeSetup_Item = -1;
-static gint ett_f1ap_MBS_ServiceArea = -1;
-static gint ett_f1ap_MBS_ServiceAreaInformation = -1;
-static gint ett_f1ap_MBS_ServiceAreaCellList = -1;
-static gint ett_f1ap_MBS_ServiceAreaTAIList = -1;
-static gint ett_f1ap_MBS_ServiceAreaTAIList_Item = -1;
-static gint ett_f1ap_MBS_ServiceAreaInformationList = -1;
-static gint ett_f1ap_MBS_ServiceAreaInformationItem = -1;
-static gint ett_f1ap_MC_PagingCell_Item = -1;
-static gint ett_f1ap_MeasurementBeamInfo = -1;
-static gint ett_f1ap_MRB_ProgressInformation = -1;
-static gint ett_f1ap_MultipleULAoA = -1;
-static gint ett_f1ap_MultipleULAoA_List = -1;
-static gint ett_f1ap_MultipleULAoA_Item = -1;
-static gint ett_f1ap_MulticastMBSSessionList = -1;
-static gint ett_f1ap_MulticastMBSSessionList_Item = -1;
-static gint ett_f1ap_MulticastMRBs_FailedToBeModified_Item = -1;
-static gint ett_f1ap_MulticastMRBs_FailedToBeSetup_Item = -1;
-static gint ett_f1ap_MulticastMRBs_FailedToBeSetupMod_Item = -1;
-static gint ett_f1ap_MulticastMRBs_Modified_Item = -1;
-static gint ett_f1ap_MulticastMRBs_Setup_Item = -1;
-static gint ett_f1ap_MulticastMRBs_SetupMod_Item = -1;
-static gint ett_f1ap_MulticastMRBs_ToBeModified_Item = -1;
-static gint ett_f1ap_MulticastMRBs_ToBeReleased_Item = -1;
-static gint ett_f1ap_MulticastMRBs_ToBeSetup_Item = -1;
-static gint ett_f1ap_MulticastMRBs_ToBeSetupMod_Item = -1;
-static gint ett_f1ap_MultiplexingInfo = -1;
-static gint ett_f1ap_M5Configuration = -1;
-static gint ett_f1ap_M6Configuration = -1;
-static gint ett_f1ap_M7Configuration = -1;
-static gint ett_f1ap_MDTConfiguration = -1;
-static gint ett_f1ap_MDTPLMNList = -1;
-static gint ett_f1ap_MDTPLMNModificationList = -1;
-static gint ett_f1ap_MeasuredResultsValue = -1;
-static gint ett_f1ap_NA_Resource_Configuration_List = -1;
-static gint ett_f1ap_NA_Resource_Configuration_Item = -1;
-static gint ett_f1ap_Neighbour_Node_Cells_List = -1;
-static gint ett_f1ap_Neighbour_Node_Cells_List_Item = -1;
-static gint ett_f1ap_Neighbour_Cell_Information_Item = -1;
-static gint ett_f1ap_NeighbourNR_CellsForSON_List = -1;
-static gint ett_f1ap_NeighbourNR_CellsForSON_Item = -1;
-static gint ett_f1ap_NGRANAllocationAndRetentionPriority = -1;
-static gint ett_f1ap_NGRANHighAccuracyAccessPointPosition = -1;
-static gint ett_f1ap_NR_CGI_List_For_Restart_Item = -1;
-static gint ett_f1ap_NR_PRSBeamInformation = -1;
-static gint ett_f1ap_NR_PRSBeamInformationList = -1;
-static gint ett_f1ap_NR_PRSBeamInformationItem = -1;
-static gint ett_f1ap_NRPagingeDRXInformation = -1;
-static gint ett_f1ap_NRPagingeDRXInformationforRRCINACTIVE = -1;
-static gint ett_f1ap_NonDynamic5QIDescriptor = -1;
-static gint ett_f1ap_NonDynamicPQIDescriptor = -1;
-static gint ett_f1ap_NotificationInformation = -1;
-static gint ett_f1ap_NPNBroadcastInformation = -1;
-static gint ett_f1ap_NPN_Broadcast_Information_SNPN = -1;
-static gint ett_f1ap_NPN_Broadcast_Information_PNI_NPN = -1;
-static gint ett_f1ap_NPNSupportInfo = -1;
-static gint ett_f1ap_NRCarrierList = -1;
-static gint ett_f1ap_NRCarrierItem = -1;
-static gint ett_f1ap_NRFreqInfo = -1;
-static gint ett_f1ap_SEQUENCE_SIZE_1_maxnoofNrCellBands_OF_FreqBandNrItem = -1;
-static gint ett_f1ap_NRCGI = -1;
-static gint ett_f1ap_NR_Mode_Info = -1;
-static gint ett_f1ap_NR_ModeInfoRel16 = -1;
-static gint ett_f1ap_NRPRACHConfig = -1;
-static gint ett_f1ap_NRPRACHConfigList = -1;
-static gint ett_f1ap_NRPRACHConfigItem = -1;
-static gint ett_f1ap_NR_U_Channel_Info_List = -1;
-static gint ett_f1ap_NR_U_Channel_Info_Item = -1;
-static gint ett_f1ap_NR_U_Channel_List = -1;
-static gint ett_f1ap_NR_U_Channel_Item = -1;
-static gint ett_f1ap_NumDLULSymbols = -1;
-static gint ett_f1ap_NRV2XServicesAuthorized = -1;
-static gint ett_f1ap_NRUESidelinkAggregateMaximumBitrate = -1;
-static gint ett_f1ap_OnDemandPRS_Info = -1;
-static gint ett_f1ap_PacketErrorRate = -1;
-static gint ett_f1ap_PagingCell_Item = -1;
-static gint ett_f1ap_PagingIdentity = -1;
-static gint ett_f1ap_PEIPSAssistanceInfo = -1;
-static gint ett_f1ap_RelativePathDelay = -1;
-static gint ett_f1ap_Parent_IAB_Nodes_NA_Resource_Configuration_List = -1;
-static gint ett_f1ap_Parent_IAB_Nodes_NA_Resource_Configuration_Item = -1;
-static gint ett_f1ap_PartialSuccessCell = -1;
-static gint ett_f1ap_PathlossReferenceInfo = -1;
-static gint ett_f1ap_PathlossReferenceSignal = -1;
-static gint ett_f1ap_PathSwitchConfiguration = -1;
-static gint ett_f1ap_PC5_QoS_Characteristics = -1;
-static gint ett_f1ap_PC5QoSParameters = -1;
-static gint ett_f1ap_PC5FlowBitRates = -1;
-static gint ett_f1ap_PC5RLCChannelQoSInformation = -1;
-static gint ett_f1ap_PC5RLCChannelToBeSetupList = -1;
-static gint ett_f1ap_PC5RLCChannelToBeSetupItem = -1;
-static gint ett_f1ap_PC5RLCChannelToBeModifiedList = -1;
-static gint ett_f1ap_PC5RLCChannelToBeModifiedItem = -1;
-static gint ett_f1ap_PC5RLCChannelToBeReleasedList = -1;
-static gint ett_f1ap_PC5RLCChannelToBeReleasedItem = -1;
-static gint ett_f1ap_PC5RLCChannelSetupList = -1;
-static gint ett_f1ap_PC5RLCChannelSetupItem = -1;
-static gint ett_f1ap_PC5RLCChannelFailedToBeSetupList = -1;
-static gint ett_f1ap_PC5RLCChannelFailedToBeSetupItem = -1;
-static gint ett_f1ap_PC5RLCChannelModifiedList = -1;
-static gint ett_f1ap_PC5RLCChannelModifiedItem = -1;
-static gint ett_f1ap_PC5RLCChannelFailedToBeModifiedList = -1;
-static gint ett_f1ap_PC5RLCChannelFailedToBeModifiedItem = -1;
-static gint ett_f1ap_PC5RLCChannelRequiredToBeModifiedList = -1;
-static gint ett_f1ap_PC5RLCChannelRequiredToBeModifiedItem = -1;
-static gint ett_f1ap_PC5RLCChannelRequiredToBeReleasedList = -1;
-static gint ett_f1ap_PC5RLCChannelRequiredToBeReleasedItem = -1;
-static gint ett_f1ap_PDCMeasurementQuantities = -1;
-static gint ett_f1ap_PDCMeasurementQuantities_Item = -1;
-static gint ett_f1ap_PDCMeasurementResult = -1;
-static gint ett_f1ap_PDCMeasuredResultsList = -1;
-static gint ett_f1ap_PDCMeasuredResults_Item = -1;
-static gint ett_f1ap_PDCMeasuredResults_Value = -1;
-static gint ett_f1ap_PeriodicityList = -1;
-static gint ett_f1ap_PeriodicityList_Item = -1;
-static gint ett_f1ap_PositioningBroadcastCells = -1;
-static gint ett_f1ap_PosMeasGapPreConfigList = -1;
-static gint ett_f1ap_PosMeasurementQuantities = -1;
-static gint ett_f1ap_PosMeasurementQuantities_Item = -1;
-static gint ett_f1ap_PosMeasurementResult = -1;
-static gint ett_f1ap_PosMeasurementResultItem = -1;
-static gint ett_f1ap_PosMeasurementResultList = -1;
-static gint ett_f1ap_PosMeasurementResultList_Item = -1;
-static gint ett_f1ap_PosResourceSetType = -1;
-static gint ett_f1ap_PosResourceSetTypePR = -1;
-static gint ett_f1ap_PosResourceSetTypeSP = -1;
-static gint ett_f1ap_PosResourceSetTypeAP = -1;
-static gint ett_f1ap_PosSItypeList = -1;
-static gint ett_f1ap_PosSItype_Item = -1;
-static gint ett_f1ap_PosSRSResourceID_List = -1;
-static gint ett_f1ap_PosSRSResource_Item = -1;
-static gint ett_f1ap_PosSRSResource_List = -1;
-static gint ett_f1ap_PosSRSResourceSet_Item = -1;
-static gint ett_f1ap_PosSRSResourceSet_List = -1;
-static gint ett_f1ap_Protected_EUTRA_Resources_Item = -1;
-static gint ett_f1ap_PRSConfiguration = -1;
-static gint ett_f1ap_PRSInformationPos = -1;
-static gint ett_f1ap_PRS_Measurement_Info_List = -1;
-static gint ett_f1ap_PRS_Measurement_Info_List_Item = -1;
-static gint ett_f1ap_Potential_SpCell_Item = -1;
-static gint ett_f1ap_PRSAngleList = -1;
-static gint ett_f1ap_PRSAngleItem = -1;
-static gint ett_f1ap_PRSMuting = -1;
-static gint ett_f1ap_PRSMutingOption1 = -1;
-static gint ett_f1ap_PRSMutingOption2 = -1;
-static gint ett_f1ap_PRSResource_List = -1;
-static gint ett_f1ap_PRSResource_Item = -1;
-static gint ett_f1ap_PRSResource_QCLInfo = -1;
-static gint ett_f1ap_PRSResource_QCLSourceSSB = -1;
-static gint ett_f1ap_PRSResource_QCLSourcePRS = -1;
-static gint ett_f1ap_PRSResourceSet_List = -1;
-static gint ett_f1ap_PRSResourceSet_Item = -1;
-static gint ett_f1ap_PRSTransmissionOffIndication = -1;
-static gint ett_f1ap_PRSTransmissionOffPerResource = -1;
-static gint ett_f1ap_PRSTransmissionOffPerResource_Item = -1;
-static gint ett_f1ap_SEQUENCE_SIZE_1_maxnoofPRSresources_OF_PRSTransmissionOffIndicationPerResource_Item = -1;
-static gint ett_f1ap_PRSTransmissionOffIndicationPerResource_Item = -1;
-static gint ett_f1ap_PRSTransmissionOffInformation = -1;
-static gint ett_f1ap_PRSTransmissionOffPerResourceSet = -1;
-static gint ett_f1ap_PRSTransmissionOffPerResourceSet_Item = -1;
-static gint ett_f1ap_PWS_Failed_NR_CGI_Item = -1;
-static gint ett_f1ap_PWSSystemInformation = -1;
-static gint ett_f1ap_PRSTRPList = -1;
-static gint ett_f1ap_PRSTRPItem = -1;
-static gint ett_f1ap_RequestedDLPRSTransmissionCharacteristics = -1;
-static gint ett_f1ap_RequestedDLPRSResourceSet_List = -1;
-static gint ett_f1ap_RequestedDLPRSResourceSet_Item = -1;
-static gint ett_f1ap_RequestedDLPRSResource_List = -1;
-static gint ett_f1ap_RequestedDLPRSResource_Item = -1;
-static gint ett_f1ap_PRSTransmissionTRPList = -1;
-static gint ett_f1ap_PRSTransmissionTRPItem = -1;
-static gint ett_f1ap_QoEInformation = -1;
-static gint ett_f1ap_QoEInformationList = -1;
-static gint ett_f1ap_QoEInformationList_Item = -1;
-static gint ett_f1ap_QoEMetrics = -1;
-static gint ett_f1ap_QoS_Characteristics = -1;
-static gint ett_f1ap_QoSFlowLevelQoSParameters = -1;
-static gint ett_f1ap_QoSInformation = -1;
-static gint ett_f1ap_RACHReportInformationList = -1;
-static gint ett_f1ap_RACHReportInformationItem = -1;
-static gint ett_f1ap_RadioResourceStatus = -1;
-static gint ett_f1ap_MIMOPRBusageInformation = -1;
-static gint ett_f1ap_RANUEPagingIdentity = -1;
-static gint ett_f1ap_RAT_FrequencyPriorityInformation = -1;
-static gint ett_f1ap_RBSetConfiguration = -1;
-static gint ett_f1ap_ReferencePoint = -1;
-static gint ett_f1ap_ReferenceSignal = -1;
-static gint ett_f1ap_RelativeCartesianLocation = -1;
-static gint ett_f1ap_RelativeGeodeticLocation = -1;
-static gint ett_f1ap_RequestedSRSTransmissionCharacteristics = -1;
-static gint ett_f1ap_ResourceCoordinationEUTRACellInfo = -1;
-static gint ett_f1ap_ResourceCoordinationTransferInformation = -1;
-static gint ett_f1ap_ResourceSetType = -1;
-static gint ett_f1ap_ResourceSetTypePeriodic = -1;
-static gint ett_f1ap_ResourceSetTypeSemi_persistent = -1;
-static gint ett_f1ap_ResourceSetTypeAperiodic = -1;
-static gint ett_f1ap_ReportingRequestType = -1;
-static gint ett_f1ap_ResourceType = -1;
-static gint ett_f1ap_ResourceTypePeriodic = -1;
-static gint ett_f1ap_ResourceTypeSemi_persistent = -1;
-static gint ett_f1ap_ResourceTypeAperiodic = -1;
-static gint ett_f1ap_ResourceTypePos = -1;
-static gint ett_f1ap_ResourceTypePeriodicPos = -1;
-static gint ett_f1ap_ResourceTypeSemi_persistentPos = -1;
-static gint ett_f1ap_ResourceTypeAperiodicPos = -1;
-static gint ett_f1ap_RLCDuplicationInformation = -1;
-static gint ett_f1ap_RLCDuplicationStateList = -1;
-static gint ett_f1ap_RLCDuplicationState_Item = -1;
-static gint ett_f1ap_RLCFailureIndication = -1;
-static gint ett_f1ap_RLC_Status = -1;
-static gint ett_f1ap_RLFReportInformationList = -1;
-static gint ett_f1ap_RLFReportInformationItem = -1;
-static gint ett_f1ap_RRCDeliveryStatus = -1;
-static gint ett_f1ap_RRC_Version = -1;
-static gint ett_f1ap_ResponseTime = -1;
-static gint ett_f1ap_SCell_FailedtoSetup_Item = -1;
-static gint ett_f1ap_SCell_FailedtoSetupMod_Item = -1;
-static gint ett_f1ap_SCell_ToBeRemoved_Item = -1;
-static gint ett_f1ap_SCell_ToBeSetup_Item = -1;
-static gint ett_f1ap_SCell_ToBeSetupMod_Item = -1;
-static gint ett_f1ap_SCS_SpecificCarrier = -1;
-static gint ett_f1ap_SDTBearerConfigurationInfo = -1;
-static gint ett_f1ap_SDTBearerConfig_List = -1;
-static gint ett_f1ap_SDTBearerConfig_List_Item = -1;
-static gint ett_f1ap_SDTBearerType = -1;
-static gint ett_f1ap_SDTInformation = -1;
-static gint ett_f1ap_Search_window_information = -1;
-static gint ett_f1ap_ServingCellMO_List_Item = -1;
-static gint ett_f1ap_ServingCellMO_encoded_in_CGC_List = -1;
-static gint ett_f1ap_ServingCellMO_encoded_in_CGC_Item = -1;
-static gint ett_f1ap_Served_Cell_Information = -1;
-static gint ett_f1ap_Serving_Cells_List = -1;
-static gint ett_f1ap_Serving_Cells_List_Item = -1;
-static gint ett_f1ap_Supported_MBS_FSA_ID_List = -1;
-static gint ett_f1ap_SFN_Offset = -1;
-static gint ett_f1ap_Served_Cells_To_Add_Item = -1;
-static gint ett_f1ap_Served_Cells_To_Delete_Item = -1;
-static gint ett_f1ap_Served_Cells_To_Modify_Item = -1;
-static gint ett_f1ap_Served_EUTRA_Cells_Information = -1;
-static gint ett_f1ap_Service_Status = -1;
-static gint ett_f1ap_SItype_List = -1;
-static gint ett_f1ap_SItype_Item = -1;
-static gint ett_f1ap_SibtypetobeupdatedListItem = -1;
-static gint ett_f1ap_SidelinkRelayConfiguration = -1;
-static gint ett_f1ap_SLDRBInformation = -1;
-static gint ett_f1ap_SLDRBs_FailedToBeModified_Item = -1;
-static gint ett_f1ap_SLDRBs_FailedToBeSetup_Item = -1;
-static gint ett_f1ap_SLDRBs_FailedToBeSetupMod_Item = -1;
-static gint ett_f1ap_SLDRBs_Modified_Item = -1;
-static gint ett_f1ap_SLDRBs_ModifiedConf_Item = -1;
-static gint ett_f1ap_SLDRBs_Required_ToBeModified_Item = -1;
-static gint ett_f1ap_SLDRBs_Required_ToBeReleased_Item = -1;
-static gint ett_f1ap_SLDRBs_Setup_Item = -1;
-static gint ett_f1ap_SLDRBs_SetupMod_Item = -1;
-static gint ett_f1ap_SLDRBs_ToBeModified_Item = -1;
-static gint ett_f1ap_SLDRBs_ToBeReleased_Item = -1;
-static gint ett_f1ap_SLDRBs_ToBeSetup_Item = -1;
-static gint ett_f1ap_SLDRBs_ToBeSetupMod_Item = -1;
-static gint ett_f1ap_SLDRXCycleList = -1;
-static gint ett_f1ap_SLDRXCycleItem = -1;
-static gint ett_f1ap_SLDRXInformation = -1;
-static gint ett_f1ap_SliceAvailableCapacity = -1;
-static gint ett_f1ap_SliceAvailableCapacityList = -1;
-static gint ett_f1ap_SliceAvailableCapacityItem = -1;
-static gint ett_f1ap_SNSSAIAvailableCapacity_List = -1;
-static gint ett_f1ap_SNSSAIAvailableCapacity_Item = -1;
-static gint ett_f1ap_SliceRadioResourceStatus = -1;
-static gint ett_f1ap_SliceRadioResourceStatus_List = -1;
-static gint ett_f1ap_SliceRadioResourceStatus_Item = -1;
-static gint ett_f1ap_SNSSAIRadioResourceStatus_List = -1;
-static gint ett_f1ap_SNSSAIRadioResourceStatus_Item = -1;
-static gint ett_f1ap_SliceSupportList = -1;
-static gint ett_f1ap_SliceSupportItem = -1;
-static gint ett_f1ap_SliceToReportList = -1;
-static gint ett_f1ap_SliceToReportItem = -1;
-static gint ett_f1ap_SNSSAI_list = -1;
-static gint ett_f1ap_SNSSAI_Item = -1;
-static gint ett_f1ap_Slot_Configuration_List = -1;
-static gint ett_f1ap_Slot_Configuration_Item = -1;
-static gint ett_f1ap_SNSSAI = -1;
-static gint ett_f1ap_SpatialDirectionInformation = -1;
-static gint ett_f1ap_SpatialRelationInfo = -1;
-static gint ett_f1ap_SpatialRelationforResourceID = -1;
-static gint ett_f1ap_SpatialRelationforResourceIDItem = -1;
-static gint ett_f1ap_SpatialRelationPerSRSResource = -1;
-static gint ett_f1ap_SpatialRelationPerSRSResource_List = -1;
-static gint ett_f1ap_SpatialRelationPerSRSResourceItem = -1;
-static gint ett_f1ap_SpatialRelationPos = -1;
-static gint ett_f1ap_SRBs_FailedToBeSetup_Item = -1;
-static gint ett_f1ap_SRBs_FailedToBeSetupMod_Item = -1;
-static gint ett_f1ap_SRBs_Modified_Item = -1;
-static gint ett_f1ap_SRBs_Required_ToBeReleased_Item = -1;
-static gint ett_f1ap_SRBs_Setup_Item = -1;
-static gint ett_f1ap_SRBs_SetupMod_Item = -1;
-static gint ett_f1ap_SRBs_ToBeReleased_Item = -1;
-static gint ett_f1ap_SRBs_ToBeSetup_Item = -1;
-static gint ett_f1ap_SRBs_ToBeSetupMod_Item = -1;
-static gint ett_f1ap_SRSCarrier_List = -1;
-static gint ett_f1ap_SRSCarrier_List_Item = -1;
-static gint ett_f1ap_SRSConfig = -1;
-static gint ett_f1ap_SRSConfiguration = -1;
-static gint ett_f1ap_SRSResource = -1;
-static gint ett_f1ap_SRSResourceID_List = -1;
-static gint ett_f1ap_SRSResource_List = -1;
-static gint ett_f1ap_SRSResourceSet = -1;
-static gint ett_f1ap_SRSResourceSetList = -1;
-static gint ett_f1ap_SRSResourceSetItem = -1;
-static gint ett_f1ap_SRSResourceSet_List = -1;
-static gint ett_f1ap_SRSResourceTrigger = -1;
-static gint ett_f1ap_SRSResourcetype = -1;
-static gint ett_f1ap_SRSResourceTypeChoice = -1;
-static gint ett_f1ap_SRSInfo = -1;
-static gint ett_f1ap_PosSRSInfo = -1;
-static gint ett_f1ap_SSB = -1;
-static gint ett_f1ap_SSBCoverageModification_List = -1;
-static gint ett_f1ap_SSBCoverageModification_Item = -1;
-static gint ett_f1ap_SSB_transmissionBitmap = -1;
-static gint ett_f1ap_SSBAreaCapacityValueList = -1;
-static gint ett_f1ap_SSBAreaCapacityValueItem = -1;
-static gint ett_f1ap_SSBAreaRadioResourceStatusList = -1;
-static gint ett_f1ap_SSBAreaRadioResourceStatusItem = -1;
-static gint ett_f1ap_SSBInformation = -1;
-static gint ett_f1ap_SSBInformationList = -1;
-static gint ett_f1ap_SSBInformationItem = -1;
-static gint ett_f1ap_SSB_PositionsInBurst = -1;
-static gint ett_f1ap_SSB_TF_Configuration = -1;
-static gint ett_f1ap_SSBToReportList = -1;
-static gint ett_f1ap_SSBToReportItem = -1;
-static gint ett_f1ap_StartRBIndex = -1;
-static gint ett_f1ap_StartTimeAndDuration = -1;
-static gint ett_f1ap_SUL_Information = -1;
-static gint ett_f1ap_SuccessfulHOReportInformationList = -1;
-static gint ett_f1ap_SuccessfulHOReportInformation_Item = -1;
-static gint ett_f1ap_SupportedSULFreqBandItem = -1;
-static gint ett_f1ap_SymbolAllocInSlot = -1;
-static gint ett_f1ap_TargetCellList = -1;
-static gint ett_f1ap_TargetCellList_Item = -1;
-static gint ett_f1ap_NSAGSupportList = -1;
-static gint ett_f1ap_NSAGSupportItem = -1;
-static gint ett_f1ap_TDD_Info = -1;
-static gint ett_f1ap_TDD_InfoRel16 = -1;
-static gint ett_f1ap_TRPTEGInformation = -1;
-static gint ett_f1ap_RxTxTEG = -1;
-static gint ett_f1ap_RxTEG = -1;
-static gint ett_f1ap_TimeReferenceInformation = -1;
-static gint ett_f1ap_TimeStamp = -1;
-static gint ett_f1ap_TimeStampSlotIndex = -1;
-static gint ett_f1ap_TimingMeasurementQuality = -1;
-static gint ett_f1ap_TNLCapacityIndicator = -1;
-static gint ett_f1ap_TraceActivation = -1;
-static gint ett_f1ap_TrafficMappingInfo = -1;
-static gint ett_f1ap_Transmission_Bandwidth = -1;
-static gint ett_f1ap_TransmissionComb = -1;
-static gint ett_f1ap_T_n2 = -1;
-static gint ett_f1ap_T_n4 = -1;
-static gint ett_f1ap_TransmissionCombn8 = -1;
-static gint ett_f1ap_TransmissionCombPos = -1;
-static gint ett_f1ap_T_n2_01 = -1;
-static gint ett_f1ap_T_n4_01 = -1;
-static gint ett_f1ap_T_n8 = -1;
-static gint ett_f1ap_Transport_UP_Layer_Address_Info_To_Add_List = -1;
-static gint ett_f1ap_Transport_UP_Layer_Address_Info_To_Add_Item = -1;
-static gint ett_f1ap_Transport_UP_Layer_Address_Info_To_Remove_List = -1;
-static gint ett_f1ap_Transport_UP_Layer_Address_Info_To_Remove_Item = -1;
-static gint ett_f1ap_TRPBeamAntennaInformation = -1;
-static gint ett_f1ap_Choice_TRP_Beam_Antenna_Info_Item = -1;
-static gint ett_f1ap_TRP_BeamAntennaExplicitInformation = -1;
-static gint ett_f1ap_TRP_BeamAntennaAngles = -1;
-static gint ett_f1ap_TRP_BeamAntennaAnglesList_Item = -1;
-static gint ett_f1ap_SEQUENCE_SIZE_1_maxnoElevationAngles_OF_TRP_ElevationAngleList_Item = -1;
-static gint ett_f1ap_TRP_ElevationAngleList_Item = -1;
-static gint ett_f1ap_SEQUENCE_SIZE_2_maxNumResourcesPerAngle_OF_TRP_Beam_Power_Item = -1;
-static gint ett_f1ap_TRP_Beam_Power_Item = -1;
-static gint ett_f1ap_TRPInformation = -1;
-static gint ett_f1ap_TRPInformationItem = -1;
-static gint ett_f1ap_TRPInformationTypeResponseList = -1;
-static gint ett_f1ap_TRPInformationTypeResponseItem = -1;
-static gint ett_f1ap_TRPList = -1;
-static gint ett_f1ap_TRPListItem = -1;
-static gint ett_f1ap_TRPMeasurementQuality = -1;
-static gint ett_f1ap_TRPMeasurementQuality_Item = -1;
-static gint ett_f1ap_TRP_MeasurementRequestList = -1;
-static gint ett_f1ap_TRP_MeasurementRequestItem = -1;
-static gint ett_f1ap_TRP_PRS_Info_List = -1;
-static gint ett_f1ap_TRP_PRS_Info_List_Item = -1;
-static gint ett_f1ap_TRPPositionDefinitionType = -1;
-static gint ett_f1ap_TRPPositionDirect = -1;
-static gint ett_f1ap_TRPPositionDirectAccuracy = -1;
-static gint ett_f1ap_TRPPositionReferenced = -1;
-static gint ett_f1ap_TRPReferencePointType = -1;
-static gint ett_f1ap_TRP_Rx_TEGInformation = -1;
-static gint ett_f1ap_TRP_RxTx_TEGInformation = -1;
-static gint ett_f1ap_TRP_Tx_TEGInformation = -1;
-static gint ett_f1ap_TRPTxTEGAssociation = -1;
-static gint ett_f1ap_TRPTEG_Item = -1;
-static gint ett_f1ap_SEQUENCE_SIZE_1_maxnoofPRS_ResourcesPerSet_OF_DLPRSResourceID_Item = -1;
-static gint ett_f1ap_DLPRSResourceID_Item = -1;
-static gint ett_f1ap_Transport_Layer_Address_Info = -1;
-static gint ett_f1ap_TSCAssistanceInformation = -1;
-static gint ett_f1ap_TSCTrafficCharacteristics = -1;
-static gint ett_f1ap_TRP_MeasurementUpdateList = -1;
-static gint ett_f1ap_TRP_MeasurementUpdateItem = -1;
-static gint ett_f1ap_UAC_Assistance_Info = -1;
-static gint ett_f1ap_UACPLMN_List = -1;
-static gint ett_f1ap_UACPLMN_Item = -1;
-static gint ett_f1ap_UACType_List = -1;
-static gint ett_f1ap_UACType_Item = -1;
-static gint ett_f1ap_UACCategoryType = -1;
-static gint ett_f1ap_UACOperatorDefined = -1;
-static gint ett_f1ap_UE_associatedLogicalF1_ConnectionItem = -1;
-static gint ett_f1ap_UEIdentityIndexValue = -1;
-static gint ett_f1ap_UEIdentity_List_For_Paging_Item = -1;
-static gint ett_f1ap_UE_MulticastMRBs_ConfirmedToBeModified_Item = -1;
-static gint ett_f1ap_UE_MulticastMRBs_RequiredToBeModified_Item = -1;
-static gint ett_f1ap_UE_MulticastMRBs_RequiredToBeReleased_Item = -1;
-static gint ett_f1ap_UE_MulticastMRBs_Setup_Item = -1;
-static gint ett_f1ap_UE_MulticastMRBs_Setupnew_Item = -1;
-static gint ett_f1ap_UE_MulticastMRBs_ToBeReleased_Item = -1;
-static gint ett_f1ap_UE_MulticastMRBs_ToBeSetup_Item = -1;
-static gint ett_f1ap_UE_MulticastMRBs_ToBeSetup_atModify_Item = -1;
-static gint ett_f1ap_UEPagingCapability = -1;
-static gint ett_f1ap_UEReportingInformation = -1;
-static gint ett_f1ap_UL_AoA = -1;
-static gint ett_f1ap_UL_BH_Non_UP_Traffic_Mapping = -1;
-static gint ett_f1ap_UL_BH_Non_UP_Traffic_Mapping_List = -1;
-static gint ett_f1ap_UL_BH_Non_UP_Traffic_Mapping_Item = -1;
-static gint ett_f1ap_ULConfiguration = -1;
-static gint ett_f1ap_UL_RTOA_Measurement = -1;
-static gint ett_f1ap_UL_RTOA_MeasurementItem = -1;
-static gint ett_f1ap_UL_SRS_RSRPP = -1;
-static gint ett_f1ap_UL_UP_TNL_Information_to_Update_List_Item = -1;
-static gint ett_f1ap_UL_UP_TNL_Address_to_Update_List_Item = -1;
-static gint ett_f1ap_ULUPTNLInformation_ToBeSetup_List = -1;
-static gint ett_f1ap_ULUPTNLInformation_ToBeSetup_Item = -1;
-static gint ett_f1ap_UplinkChannelBW_PerSCS_List = -1;
-static gint ett_f1ap_UPTransportLayerInformation = -1;
-static gint ett_f1ap_UuRLCChannelQoSInformation = -1;
-static gint ett_f1ap_UuRLCChannelToBeSetupList = -1;
-static gint ett_f1ap_UuRLCChannelToBeSetupItem = -1;
-static gint ett_f1ap_UuRLCChannelToBeModifiedList = -1;
-static gint ett_f1ap_UuRLCChannelToBeModifiedItem = -1;
-static gint ett_f1ap_UuRLCChannelToBeReleasedList = -1;
-static gint ett_f1ap_UuRLCChannelToBeReleasedItem = -1;
-static gint ett_f1ap_UuRLCChannelSetupList = -1;
-static gint ett_f1ap_UuRLCChannelSetupItem = -1;
-static gint ett_f1ap_UuRLCChannelFailedToBeSetupList = -1;
-static gint ett_f1ap_UuRLCChannelFailedToBeSetupItem = -1;
-static gint ett_f1ap_UuRLCChannelModifiedList = -1;
-static gint ett_f1ap_UuRLCChannelModifiedItem = -1;
-static gint ett_f1ap_UuRLCChannelFailedToBeModifiedList = -1;
-static gint ett_f1ap_UuRLCChannelFailedToBeModifiedItem = -1;
-static gint ett_f1ap_UuRLCChannelRequiredToBeModifiedList = -1;
-static gint ett_f1ap_UuRLCChannelRequiredToBeModifiedItem = -1;
-static gint ett_f1ap_UuRLCChannelRequiredToBeReleasedList = -1;
-static gint ett_f1ap_UuRLCChannelRequiredToBeReleasedItem = -1;
-static gint ett_f1ap_VictimgNBSetID = -1;
-static gint ett_f1ap_ZoAInformation = -1;
-static gint ett_f1ap_Reset = -1;
-static gint ett_f1ap_ResetType = -1;
-static gint ett_f1ap_UE_associatedLogicalF1_ConnectionListRes = -1;
-static gint ett_f1ap_ResetAcknowledge = -1;
-static gint ett_f1ap_UE_associatedLogicalF1_ConnectionListResAck = -1;
-static gint ett_f1ap_ErrorIndication = -1;
-static gint ett_f1ap_F1SetupRequest = -1;
-static gint ett_f1ap_GNB_DU_Served_Cells_List = -1;
-static gint ett_f1ap_F1SetupResponse = -1;
-static gint ett_f1ap_Cells_to_be_Activated_List = -1;
-static gint ett_f1ap_F1SetupFailure = -1;
-static gint ett_f1ap_GNBDUConfigurationUpdate = -1;
-static gint ett_f1ap_Served_Cells_To_Add_List = -1;
-static gint ett_f1ap_Served_Cells_To_Modify_List = -1;
-static gint ett_f1ap_Served_Cells_To_Delete_List = -1;
-static gint ett_f1ap_Cells_Status_List = -1;
-static gint ett_f1ap_Dedicated_SIDelivery_NeededUE_List = -1;
-static gint ett_f1ap_GNB_DU_TNL_Association_To_Remove_List = -1;
-static gint ett_f1ap_GNBDUConfigurationUpdateAcknowledge = -1;
-static gint ett_f1ap_GNBDUConfigurationUpdateFailure = -1;
-static gint ett_f1ap_GNBCUConfigurationUpdate = -1;
-static gint ett_f1ap_Cells_to_be_Deactivated_List = -1;
-static gint ett_f1ap_GNB_CU_TNL_Association_To_Add_List = -1;
-static gint ett_f1ap_GNB_CU_TNL_Association_To_Remove_List = -1;
-static gint ett_f1ap_GNB_CU_TNL_Association_To_Update_List = -1;
-static gint ett_f1ap_Cells_to_be_Barred_List = -1;
-static gint ett_f1ap_Protected_EUTRA_Resources_List = -1;
-static gint ett_f1ap_Neighbour_Cell_Information_List = -1;
-static gint ett_f1ap_GNBCUConfigurationUpdateAcknowledge = -1;
-static gint ett_f1ap_Cells_Failed_to_be_Activated_List = -1;
-static gint ett_f1ap_GNB_CU_TNL_Association_Setup_List = -1;
-static gint ett_f1ap_GNB_CU_TNL_Association_Failed_To_Setup_List = -1;
-static gint ett_f1ap_GNBCUConfigurationUpdateFailure = -1;
-static gint ett_f1ap_GNBDUResourceCoordinationRequest = -1;
-static gint ett_f1ap_GNBDUResourceCoordinationResponse = -1;
-static gint ett_f1ap_UEContextSetupRequest = -1;
-static gint ett_f1ap_Candidate_SpCell_List = -1;
-static gint ett_f1ap_SCell_ToBeSetup_List = -1;
-static gint ett_f1ap_SRBs_ToBeSetup_List = -1;
-static gint ett_f1ap_DRBs_ToBeSetup_List = -1;
-static gint ett_f1ap_BHChannels_ToBeSetup_List = -1;
-static gint ett_f1ap_SLDRBs_ToBeSetup_List = -1;
-static gint ett_f1ap_UE_MulticastMRBs_ToBeSetup_List = -1;
-static gint ett_f1ap_ServingCellMO_List = -1;
-static gint ett_f1ap_UEContextSetupResponse = -1;
-static gint ett_f1ap_DRBs_Setup_List = -1;
-static gint ett_f1ap_SRBs_FailedToBeSetup_List = -1;
-static gint ett_f1ap_DRBs_FailedToBeSetup_List = -1;
-static gint ett_f1ap_SCell_FailedtoSetup_List = -1;
-static gint ett_f1ap_SRBs_Setup_List = -1;
-static gint ett_f1ap_BHChannels_Setup_List = -1;
-static gint ett_f1ap_BHChannels_FailedToBeSetup_List = -1;
-static gint ett_f1ap_SLDRBs_Setup_List = -1;
-static gint ett_f1ap_SLDRBs_FailedToBeSetup_List = -1;
-static gint ett_f1ap_UE_MulticastMRBs_Setupnew_List = -1;
-static gint ett_f1ap_UEContextSetupFailure = -1;
-static gint ett_f1ap_Potential_SpCell_List = -1;
-static gint ett_f1ap_UEContextReleaseRequest = -1;
-static gint ett_f1ap_UEContextReleaseCommand = -1;
-static gint ett_f1ap_UEContextReleaseComplete = -1;
-static gint ett_f1ap_UEContextModificationRequest = -1;
-static gint ett_f1ap_SCell_ToBeSetupMod_List = -1;
-static gint ett_f1ap_SCell_ToBeRemoved_List = -1;
-static gint ett_f1ap_SRBs_ToBeSetupMod_List = -1;
-static gint ett_f1ap_DRBs_ToBeSetupMod_List = -1;
-static gint ett_f1ap_BHChannels_ToBeSetupMod_List = -1;
-static gint ett_f1ap_DRBs_ToBeModified_List = -1;
-static gint ett_f1ap_BHChannels_ToBeModified_List = -1;
-static gint ett_f1ap_SRBs_ToBeReleased_List = -1;
-static gint ett_f1ap_DRBs_ToBeReleased_List = -1;
-static gint ett_f1ap_BHChannels_ToBeReleased_List = -1;
-static gint ett_f1ap_UE_MulticastMRBs_ToBeSetup_atModify_List = -1;
-static gint ett_f1ap_UE_MulticastMRBs_ToBeReleased_List = -1;
-static gint ett_f1ap_SLDRBs_ToBeSetupMod_List = -1;
-static gint ett_f1ap_SLDRBs_ToBeModified_List = -1;
-static gint ett_f1ap_SLDRBs_ToBeReleased_List = -1;
-static gint ett_f1ap_UEContextModificationResponse = -1;
-static gint ett_f1ap_DRBs_SetupMod_List = -1;
-static gint ett_f1ap_DRBs_Modified_List = -1;
-static gint ett_f1ap_SRBs_SetupMod_List = -1;
-static gint ett_f1ap_SRBs_Modified_List = -1;
-static gint ett_f1ap_DRBs_FailedToBeModified_List = -1;
-static gint ett_f1ap_SRBs_FailedToBeSetupMod_List = -1;
-static gint ett_f1ap_DRBs_FailedToBeSetupMod_List = -1;
-static gint ett_f1ap_SCell_FailedtoSetupMod_List = -1;
-static gint ett_f1ap_BHChannels_SetupMod_List = -1;
-static gint ett_f1ap_BHChannels_Modified_List = -1;
-static gint ett_f1ap_BHChannels_FailedToBeModified_List = -1;
-static gint ett_f1ap_BHChannels_FailedToBeSetupMod_List = -1;
-static gint ett_f1ap_Associated_SCell_List = -1;
-static gint ett_f1ap_SLDRBs_SetupMod_List = -1;
-static gint ett_f1ap_SLDRBs_Modified_List = -1;
-static gint ett_f1ap_SLDRBs_FailedToBeModified_List = -1;
-static gint ett_f1ap_SLDRBs_FailedToBeSetupMod_List = -1;
-static gint ett_f1ap_UE_MulticastMRBs_Setup_List = -1;
-static gint ett_f1ap_UEContextModificationFailure = -1;
-static gint ett_f1ap_UEContextModificationRequired = -1;
-static gint ett_f1ap_DRBs_Required_ToBeModified_List = -1;
-static gint ett_f1ap_DRBs_Required_ToBeReleased_List = -1;
-static gint ett_f1ap_SRBs_Required_ToBeReleased_List = -1;
-static gint ett_f1ap_BHChannels_Required_ToBeReleased_List = -1;
-static gint ett_f1ap_SLDRBs_Required_ToBeModified_List = -1;
-static gint ett_f1ap_SLDRBs_Required_ToBeReleased_List = -1;
-static gint ett_f1ap_UE_MulticastMRBs_RequiredToBeModified_List = -1;
-static gint ett_f1ap_UE_MulticastMRBs_RequiredToBeReleased_List = -1;
-static gint ett_f1ap_UEContextModificationConfirm = -1;
-static gint ett_f1ap_DRBs_ModifiedConf_List = -1;
-static gint ett_f1ap_SLDRBs_ModifiedConf_List = -1;
-static gint ett_f1ap_UE_MulticastMRBs_ConfirmedToBeModified_List = -1;
-static gint ett_f1ap_UEContextModificationRefuse = -1;
-static gint ett_f1ap_WriteReplaceWarningRequest = -1;
-static gint ett_f1ap_Cells_To_Be_Broadcast_List = -1;
-static gint ett_f1ap_WriteReplaceWarningResponse = -1;
-static gint ett_f1ap_Cells_Broadcast_Completed_List = -1;
-static gint ett_f1ap_PWSCancelRequest = -1;
-static gint ett_f1ap_Broadcast_To_Be_Cancelled_List = -1;
-static gint ett_f1ap_PWSCancelResponse = -1;
-static gint ett_f1ap_Cells_Broadcast_Cancelled_List = -1;
-static gint ett_f1ap_UEInactivityNotification = -1;
-static gint ett_f1ap_DRB_Activity_List = -1;
-static gint ett_f1ap_InitialULRRCMessageTransfer = -1;
-static gint ett_f1ap_DLRRCMessageTransfer = -1;
-static gint ett_f1ap_ULRRCMessageTransfer = -1;
-static gint ett_f1ap_PrivateMessage = -1;
-static gint ett_f1ap_SystemInformationDeliveryCommand = -1;
-static gint ett_f1ap_Paging = -1;
-static gint ett_f1ap_PagingCell_list = -1;
-static gint ett_f1ap_Notify = -1;
-static gint ett_f1ap_DRB_Notify_List = -1;
-static gint ett_f1ap_NetworkAccessRateReduction = -1;
-static gint ett_f1ap_PWSRestartIndication = -1;
-static gint ett_f1ap_NR_CGI_List_For_Restart_List = -1;
-static gint ett_f1ap_PWSFailureIndication = -1;
-static gint ett_f1ap_PWS_Failed_NR_CGI_List = -1;
-static gint ett_f1ap_GNBDUStatusIndication = -1;
-static gint ett_f1ap_RRCDeliveryReport = -1;
-static gint ett_f1ap_F1RemovalRequest = -1;
-static gint ett_f1ap_F1RemovalResponse = -1;
-static gint ett_f1ap_F1RemovalFailure = -1;
-static gint ett_f1ap_TraceStart = -1;
-static gint ett_f1ap_DeactivateTrace = -1;
-static gint ett_f1ap_CellTrafficTrace = -1;
-static gint ett_f1ap_DUCURadioInformationTransfer = -1;
-static gint ett_f1ap_CUDURadioInformationTransfer = -1;
-static gint ett_f1ap_BAPMappingConfiguration = -1;
-static gint ett_f1ap_BH_Routing_Information_Added_List = -1;
-static gint ett_f1ap_BH_Routing_Information_Removed_List = -1;
-static gint ett_f1ap_BAP_Header_Rewriting_Added_List = -1;
-static gint ett_f1ap_BAP_Header_Rewriting_Removed_List = -1;
-static gint ett_f1ap_BAPMappingConfigurationAcknowledge = -1;
-static gint ett_f1ap_BAPMappingConfigurationFailure = -1;
-static gint ett_f1ap_GNBDUResourceConfiguration = -1;
-static gint ett_f1ap_GNBDUResourceConfigurationAcknowledge = -1;
-static gint ett_f1ap_GNBDUResourceConfigurationFailure = -1;
-static gint ett_f1ap_IABTNLAddressRequest = -1;
-static gint ett_f1ap_IAB_TNL_Addresses_To_Remove_List = -1;
-static gint ett_f1ap_IABTNLAddressResponse = -1;
-static gint ett_f1ap_IAB_Allocated_TNL_Address_List = -1;
-static gint ett_f1ap_IABTNLAddressFailure = -1;
-static gint ett_f1ap_IABUPConfigurationUpdateRequest = -1;
-static gint ett_f1ap_UL_UP_TNL_Information_to_Update_List = -1;
-static gint ett_f1ap_UL_UP_TNL_Address_to_Update_List = -1;
-static gint ett_f1ap_IABUPConfigurationUpdateResponse = -1;
-static gint ett_f1ap_DL_UP_TNL_Address_to_Update_List = -1;
-static gint ett_f1ap_IABUPConfigurationUpdateFailure = -1;
-static gint ett_f1ap_ResourceStatusRequest = -1;
-static gint ett_f1ap_ResourceStatusResponse = -1;
-static gint ett_f1ap_ResourceStatusFailure = -1;
-static gint ett_f1ap_ResourceStatusUpdate = -1;
-static gint ett_f1ap_AccessAndMobilityIndication = -1;
-static gint ett_f1ap_ReferenceTimeInformationReportingControl = -1;
-static gint ett_f1ap_ReferenceTimeInformationReport = -1;
-static gint ett_f1ap_AccessSuccess = -1;
-static gint ett_f1ap_PositioningAssistanceInformationControl = -1;
-static gint ett_f1ap_PositioningAssistanceInformationFeedback = -1;
-static gint ett_f1ap_PositioningMeasurementRequest = -1;
-static gint ett_f1ap_PositioningMeasurementResponse = -1;
-static gint ett_f1ap_PositioningMeasurementFailure = -1;
-static gint ett_f1ap_PositioningMeasurementReport = -1;
-static gint ett_f1ap_PositioningMeasurementAbort = -1;
-static gint ett_f1ap_PositioningMeasurementFailureIndication = -1;
-static gint ett_f1ap_PositioningMeasurementUpdate = -1;
-static gint ett_f1ap_TRPInformationRequest = -1;
-static gint ett_f1ap_TRPInformationTypeListTRPReq = -1;
-static gint ett_f1ap_TRPInformationResponse = -1;
-static gint ett_f1ap_TRPInformationListTRPResp = -1;
-static gint ett_f1ap_TRPInformationFailure = -1;
-static gint ett_f1ap_PositioningInformationRequest = -1;
-static gint ett_f1ap_PositioningInformationResponse = -1;
-static gint ett_f1ap_PositioningInformationFailure = -1;
-static gint ett_f1ap_PositioningActivationRequest = -1;
-static gint ett_f1ap_SRSType = -1;
-static gint ett_f1ap_SemipersistentSRS = -1;
-static gint ett_f1ap_AperiodicSRS = -1;
-static gint ett_f1ap_PositioningActivationResponse = -1;
-static gint ett_f1ap_PositioningActivationFailure = -1;
-static gint ett_f1ap_PositioningDeactivation = -1;
-static gint ett_f1ap_PositioningInformationUpdate = -1;
-static gint ett_f1ap_E_CIDMeasurementInitiationRequest = -1;
-static gint ett_f1ap_E_CIDMeasurementInitiationResponse = -1;
-static gint ett_f1ap_E_CIDMeasurementInitiationFailure = -1;
-static gint ett_f1ap_E_CIDMeasurementFailureIndication = -1;
-static gint ett_f1ap_E_CIDMeasurementReport = -1;
-static gint ett_f1ap_E_CIDMeasurementTerminationCommand = -1;
-static gint ett_f1ap_BroadcastContextSetupRequest = -1;
-static gint ett_f1ap_BroadcastMRBs_ToBeSetup_List = -1;
-static gint ett_f1ap_BroadcastContextSetupResponse = -1;
-static gint ett_f1ap_BroadcastMRBs_Setup_List = -1;
-static gint ett_f1ap_BroadcastMRBs_FailedToBeSetup_List = -1;
-static gint ett_f1ap_BroadcastContextSetupFailure = -1;
-static gint ett_f1ap_BroadcastContextReleaseCommand = -1;
-static gint ett_f1ap_BroadcastContextReleaseComplete = -1;
-static gint ett_f1ap_BroadcastContextReleaseRequest = -1;
-static gint ett_f1ap_BroadcastContextModificationRequest = -1;
-static gint ett_f1ap_BroadcastMRBs_ToBeSetupMod_List = -1;
-static gint ett_f1ap_BroadcastMRBs_ToBeModified_List = -1;
-static gint ett_f1ap_BroadcastMRBs_ToBeReleased_List = -1;
-static gint ett_f1ap_BroadcastContextModificationResponse = -1;
-static gint ett_f1ap_BroadcastMRBs_SetupMod_List = -1;
-static gint ett_f1ap_BroadcastMRBs_FailedToBeSetupMod_List = -1;
-static gint ett_f1ap_BroadcastMRBs_Modified_List = -1;
-static gint ett_f1ap_BroadcastMRBs_FailedToBeModified_List = -1;
-static gint ett_f1ap_BroadcastContextModificationFailure = -1;
-static gint ett_f1ap_MulticastGroupPaging = -1;
-static gint ett_f1ap_UEIdentity_List_For_Paging_List = -1;
-static gint ett_f1ap_MC_PagingCell_list = -1;
-static gint ett_f1ap_MulticastContextSetupRequest = -1;
-static gint ett_f1ap_MulticastMRBs_ToBeSetup_List = -1;
-static gint ett_f1ap_MulticastContextSetupResponse = -1;
-static gint ett_f1ap_MulticastMRBs_Setup_List = -1;
-static gint ett_f1ap_MulticastMRBs_FailedToBeSetup_List = -1;
-static gint ett_f1ap_MulticastContextSetupFailure = -1;
-static gint ett_f1ap_MulticastContextReleaseCommand = -1;
-static gint ett_f1ap_MulticastContextReleaseComplete = -1;
-static gint ett_f1ap_MulticastContextReleaseRequest = -1;
-static gint ett_f1ap_MulticastContextModificationRequest = -1;
-static gint ett_f1ap_MulticastMRBs_ToBeSetupMod_List = -1;
-static gint ett_f1ap_MulticastMRBs_ToBeModified_List = -1;
-static gint ett_f1ap_MulticastMRBs_ToBeReleased_List = -1;
-static gint ett_f1ap_MulticastContextModificationResponse = -1;
-static gint ett_f1ap_MulticastMRBs_SetupMod_List = -1;
-static gint ett_f1ap_MulticastMRBs_FailedToBeSetupMod_List = -1;
-static gint ett_f1ap_MulticastMRBs_Modified_List = -1;
-static gint ett_f1ap_MulticastMRBs_FailedToBeModified_List = -1;
-static gint ett_f1ap_MulticastContextModificationFailure = -1;
-static gint ett_f1ap_MulticastDistributionSetupRequest = -1;
-static gint ett_f1ap_MulticastF1UContext_ToBeSetup_List = -1;
-static gint ett_f1ap_MulticastDistributionSetupResponse = -1;
-static gint ett_f1ap_MulticastF1UContext_Setup_List = -1;
-static gint ett_f1ap_MulticastF1UContext_FailedToBeSetup_List = -1;
-static gint ett_f1ap_MulticastDistributionSetupFailure = -1;
-static gint ett_f1ap_MulticastDistributionReleaseCommand = -1;
-static gint ett_f1ap_MulticastDistributionReleaseComplete = -1;
-static gint ett_f1ap_PDCMeasurementInitiationRequest = -1;
-static gint ett_f1ap_PDCMeasurementInitiationResponse = -1;
-static gint ett_f1ap_PDCMeasurementInitiationFailure = -1;
-static gint ett_f1ap_PDCMeasurementReport = -1;
-static gint ett_f1ap_PDCMeasurementTerminationCommand = -1;
-static gint ett_f1ap_PDCMeasurementFailureIndication = -1;
-static gint ett_f1ap_PRSConfigurationRequest = -1;
-static gint ett_f1ap_PRSConfigurationResponse = -1;
-static gint ett_f1ap_PRSConfigurationFailure = -1;
-static gint ett_f1ap_MeasurementPreconfigurationRequired = -1;
-static gint ett_f1ap_MeasurementPreconfigurationConfirm = -1;
-static gint ett_f1ap_MeasurementPreconfigurationRefuse = -1;
-static gint ett_f1ap_MeasurementActivation = -1;
-static gint ett_f1ap_QoEInformationTransfer = -1;
-static gint ett_f1ap_PosSystemInformationDeliveryCommand = -1;
-static gint ett_f1ap_F1AP_PDU = -1;
-static gint ett_f1ap_InitiatingMessage = -1;
-static gint ett_f1ap_SuccessfulOutcome = -1;
-static gint ett_f1ap_UnsuccessfulOutcome = -1;
+static gint ett_f1ap;
+static gint ett_f1ap_ResourceCoordinationTransferContainer;
+static gint ett_f1ap_PLMN_Identity;
+static gint ett_f1ap_MIB_message;
+static gint ett_f1ap_SIB1_message;
+static gint ett_f1ap_CG_ConfigInfo;
+static gint ett_f1ap_CellGroupConfig;
+static gint ett_f1ap_TransportLayerAddress;
+static gint ett_f1ap_UE_CapabilityRAT_ContainerList;
+static gint ett_f1ap_measurementTimingConfiguration;
+static gint ett_f1ap_DUtoCURRCContainer;
+static gint ett_f1ap_requestedP_MaxFR1;
+static gint ett_f1ap_HandoverPreparationInformation;
+static gint ett_f1ap_MeasConfig;
+static gint ett_f1ap_MeasGapConfig;
+static gint ett_f1ap_MeasGapSharingConfig;
+static gint ett_f1ap_EUTRA_NR_CellResourceCoordinationReq_Container;
+static gint ett_f1ap_EUTRA_NR_CellResourceCoordinationReqAck_Container;
+static gint ett_f1ap_ProtectedEUTRAResourceIndication;
+static gint ett_f1ap_RRCContainer;
+static gint ett_f1ap_RRCContainer_RRCSetupComplete;
+static gint ett_f1ap_sIBmessage;
+static gint ett_f1ap_UplinkTxDirectCurrentListInformation;
+static gint ett_f1ap_DRX_Config;
+static gint ett_f1ap_Ph_InfoSCG;
+static gint ett_f1ap_RequestedBandCombinationIndex;
+static gint ett_f1ap_RequestedFeatureSetEntryIndex;
+static gint ett_f1ap_RequestedP_MaxFR2;
+static gint ett_f1ap_UEAssistanceInformation;
+static gint ett_f1ap_CG_Config;
+static gint ett_f1ap_Ph_InfoMCG;
+static gint ett_f1ap_BurstArrivalTime;
+static gint ett_f1ap_cSI_RS_Configuration;
+static gint ett_f1ap_sR_Configuration;
+static gint ett_f1ap_pDCCH_ConfigSIB1;
+static gint ett_f1ap_sCS_Common;
+static gint ett_f1ap_IABTNLAddressIPv4Address;
+static gint ett_f1ap_IABTNLAddressIPv6Address;
+static gint ett_f1ap_IABTNLAddressIPv6Prefix;
+static gint ett_f1ap_InterfacesToTrace;
+static gint ett_f1ap_MeasurementsToActivate;
+static gint ett_f1ap_NRUERLFReportContainer;
+static gint ett_f1ap_RACH_Config_Common;
+static gint ett_f1ap_RACH_Config_Common_IAB;
+static gint ett_f1ap_RACHReportContainer;
+static gint ett_f1ap_ReferenceTime;
+static gint ett_f1ap_ReportCharacteristics;
+static gint ett_f1ap_SIB10_message;
+static gint ett_f1ap_SIB12_message;
+static gint ett_f1ap_SIB13_message;
+static gint ett_f1ap_SIB14_message;
+static gint ett_f1ap_SIB15_message;
+static gint ett_f1ap_SIB17_message;
+static gint ett_f1ap_SIB20_message;
+static gint ett_f1ap_SL_PHY_MAC_RLC_Config;
+static gint ett_f1ap_SL_RLC_ChannelToAddModList;
+static gint ett_f1ap_SL_ConfigDedicatedEUTRA_Info;
+static gint ett_f1ap_TDD_UL_DLConfigCommonNR;
+static gint ett_f1ap_UEAssistanceInformationEUTRA;
+static gint ett_f1ap_PosAssistance_Information;
+static gint ett_f1ap_LocationMeasurementInformation;
+static gint ett_f1ap_MUSIM_GapConfig;
+static gint ett_f1ap_SDT_MAC_PHY_CG_Config;
+static gint ett_f1ap_SDTRLCBearerConfiguration;
+static gint ett_f1ap_MBSInterestIndication;
+static gint ett_f1ap_NeedForGapsInfoNR;
+static gint ett_f1ap_NeedForGapNCSGInfoNR;
+static gint ett_f1ap_NeedForGapNCSGInfoEUTRA;
+static gint ett_f1ap_MBS_Broadcast_NeighbourCellList;
+static gint ett_f1ap_mRB_PDCP_Config_Broadcast;
+static gint ett_f1ap_posMeasGapPreConfigToAddModList;
+static gint ett_f1ap_posMeasGapPreConfigToReleaseList;
+static gint ett_f1ap_SidelinkConfigurationContainer;
+static gint ett_f1ap_SRSPosRRCInactiveConfig;
+static gint ett_f1ap_successfulHOReportContainer;
+static gint ett_f1ap_UL_GapFR2_Config;
+static gint ett_f1ap_ConfigRestrictInfoDAPS;
+static gint ett_f1ap_UplinkTxDirectCurrentTwoCarrierListInfo;
+static gint ett_f1ap_Ncd_SSB_RedCapInitialBWP_SDT;
+static gint ett_f1ap_PrivateIE_ID;
+static gint ett_f1ap_ProtocolIE_Container;
+static gint ett_f1ap_ProtocolIE_Field;
+static gint ett_f1ap_ProtocolExtensionContainer;
+static gint ett_f1ap_ProtocolExtensionField;
+static gint ett_f1ap_PrivateIE_Container;
+static gint ett_f1ap_PrivateIE_Field;
+static gint ett_f1ap_AbortTransmission;
+static gint ett_f1ap_AccessPointPosition;
+static gint ett_f1ap_Activated_Cells_to_be_Updated_List;
+static gint ett_f1ap_Activated_Cells_to_be_Updated_List_Item;
+static gint ett_f1ap_ActiveULBWP;
+static gint ett_f1ap_AdditionalPath_List;
+static gint ett_f1ap_AdditionalPath_Item;
+static gint ett_f1ap_ExtendedAdditionalPathList;
+static gint ett_f1ap_ExtendedAdditionalPathList_Item;
+static gint ett_f1ap_AdditionalPDCPDuplicationTNL_List;
+static gint ett_f1ap_AdditionalPDCPDuplicationTNL_Item;
+static gint ett_f1ap_AdditionalSIBMessageList;
+static gint ett_f1ap_AdditionalSIBMessageList_Item;
+static gint ett_f1ap_AffectedCellsAndBeams_List;
+static gint ett_f1ap_AffectedCellsAndBeams_Item;
+static gint ett_f1ap_AffectedSSB_List;
+static gint ett_f1ap_AffectedSSB_Item;
+static gint ett_f1ap_AggressorCellList;
+static gint ett_f1ap_AggressorCellList_Item;
+static gint ett_f1ap_AggressorgNBSetID;
+static gint ett_f1ap_AllocationAndRetentionPriority;
+static gint ett_f1ap_AlternativeQoSParaSetList;
+static gint ett_f1ap_AlternativeQoSParaSetItem;
+static gint ett_f1ap_AngleMeasurementQuality;
+static gint ett_f1ap_AperiodicSRSResourceTriggerList;
+static gint ett_f1ap_Associated_SCell_Item;
+static gint ett_f1ap_AvailablePLMNList;
+static gint ett_f1ap_AvailablePLMNList_Item;
+static gint ett_f1ap_AvailableSNPN_ID_List;
+static gint ett_f1ap_AvailableSNPN_ID_List_Item;
+static gint ett_f1ap_AoA_AssistanceInfo;
+static gint ett_f1ap_AngleMeasurementType;
+static gint ett_f1ap_ARPLocationInformation;
+static gint ett_f1ap_ARPLocationInformation_Item;
+static gint ett_f1ap_ARPLocationType;
+static gint ett_f1ap_BAP_Header_Rewriting_Added_List_Item;
+static gint ett_f1ap_BAP_Header_Rewriting_Removed_List_Item;
+static gint ett_f1ap_BandwidthSRS;
+static gint ett_f1ap_BAPlayerBHRLCchannelMappingInfo;
+static gint ett_f1ap_BAPlayerBHRLCchannelMappingInfoList;
+static gint ett_f1ap_BAPlayerBHRLCchannelMappingInfo_Item;
+static gint ett_f1ap_BAPRoutingID;
+static gint ett_f1ap_BCBearerContextF1U_TNLInfo;
+static gint ett_f1ap_BHChannels_FailedToBeModified_Item;
+static gint ett_f1ap_BHChannels_FailedToBeSetup_Item;
+static gint ett_f1ap_BHChannels_FailedToBeSetupMod_Item;
+static gint ett_f1ap_BHChannels_Modified_Item;
+static gint ett_f1ap_BHChannels_Required_ToBeReleased_Item;
+static gint ett_f1ap_BHChannels_Setup_Item;
+static gint ett_f1ap_BHChannels_SetupMod_Item;
+static gint ett_f1ap_BHChannels_ToBeModified_Item;
+static gint ett_f1ap_BHChannels_ToBeReleased_Item;
+static gint ett_f1ap_BHChannels_ToBeSetup_Item;
+static gint ett_f1ap_BHChannels_ToBeSetupMod_Item;
+static gint ett_f1ap_BHInfo;
+static gint ett_f1ap_BHQoSInformation;
+static gint ett_f1ap_BHRLCCHList;
+static gint ett_f1ap_BHRLCCHItem;
+static gint ett_f1ap_BH_Routing_Information_Added_List_Item;
+static gint ett_f1ap_BH_Routing_Information_Removed_List_Item;
+static gint ett_f1ap_BPLMN_ID_Info_List;
+static gint ett_f1ap_BPLMN_ID_Info_Item;
+static gint ett_f1ap_ServedPLMNs_List;
+static gint ett_f1ap_ServedPLMNs_Item;
+static gint ett_f1ap_BroadcastCAGList;
+static gint ett_f1ap_BroadcastMRBs_FailedToBeModified_Item;
+static gint ett_f1ap_BroadcastMRBs_FailedToBeSetup_Item;
+static gint ett_f1ap_BroadcastMRBs_FailedToBeSetupMod_Item;
+static gint ett_f1ap_BroadcastMRBs_Modified_Item;
+static gint ett_f1ap_BroadcastMRBs_Setup_Item;
+static gint ett_f1ap_BroadcastMRBs_SetupMod_Item;
+static gint ett_f1ap_BroadcastMRBs_ToBeModified_Item;
+static gint ett_f1ap_BroadcastMRBs_ToBeReleased_Item;
+static gint ett_f1ap_BroadcastMRBs_ToBeSetup_Item;
+static gint ett_f1ap_BroadcastMRBs_ToBeSetupMod_Item;
+static gint ett_f1ap_BroadcastNIDList;
+static gint ett_f1ap_BroadcastSNPN_ID_List;
+static gint ett_f1ap_BroadcastSNPN_ID_List_Item;
+static gint ett_f1ap_BroadcastPNI_NPN_ID_List;
+static gint ett_f1ap_BroadcastPNI_NPN_ID_List_Item;
+static gint ett_f1ap_BroadcastAreaScope;
+static gint ett_f1ap_BroadcastCellList;
+static gint ett_f1ap_Broadcast_Cell_List_Item;
+static gint ett_f1ap_Candidate_SpCell_Item;
+static gint ett_f1ap_CapacityValue;
+static gint ett_f1ap_Cause;
+static gint ett_f1ap_CellMeasurementResultList;
+static gint ett_f1ap_CellMeasurementResultItem;
+static gint ett_f1ap_CellsForSON_List;
+static gint ett_f1ap_CellsForSON_Item;
+static gint ett_f1ap_Cells_Failed_to_be_Activated_List_Item;
+static gint ett_f1ap_Cells_Status_Item;
+static gint ett_f1ap_Cells_To_Be_Broadcast_Item;
+static gint ett_f1ap_Cells_Broadcast_Completed_Item;
+static gint ett_f1ap_Broadcast_To_Be_Cancelled_Item;
+static gint ett_f1ap_Cells_Broadcast_Cancelled_Item;
+static gint ett_f1ap_Cells_to_be_Activated_List_Item;
+static gint ett_f1ap_Cells_to_be_Deactivated_List_Item;
+static gint ett_f1ap_Cells_to_be_Barred_Item;
+static gint ett_f1ap_CellToReportList;
+static gint ett_f1ap_CellToReportItem;
+static gint ett_f1ap_CellType;
+static gint ett_f1ap_CG_SDTSessionInfo;
+static gint ett_f1ap_Child_IAB_Nodes_NA_Resource_List;
+static gint ett_f1ap_Child_IAB_Nodes_NA_Resource_List_Item;
+static gint ett_f1ap_Child_Node_Cells_List;
+static gint ett_f1ap_Child_Node_Cells_List_Item;
+static gint ett_f1ap_Child_Nodes_List;
+static gint ett_f1ap_Child_Nodes_List_Item;
+static gint ett_f1ap_CNUEPagingIdentity;
+static gint ett_f1ap_CompositeAvailableCapacityGroup;
+static gint ett_f1ap_CompositeAvailableCapacity;
+static gint ett_f1ap_ConditionalInterDUMobilityInformation;
+static gint ett_f1ap_ConditionalIntraDUMobilityInformation;
+static gint ett_f1ap_Coverage_Modification_Notification;
+static gint ett_f1ap_Coverage_Modification_List;
+static gint ett_f1ap_Coverage_Modification_Item;
+static gint ett_f1ap_CCO_Assistance_Information;
+static gint ett_f1ap_CP_TransportLayerAddress;
+static gint ett_f1ap_CPACMCGInformation;
+static gint ett_f1ap_CriticalityDiagnostics;
+static gint ett_f1ap_CriticalityDiagnostics_IE_List;
+static gint ett_f1ap_CriticalityDiagnostics_IE_Item;
+static gint ett_f1ap_CUDURadioInformationType;
+static gint ett_f1ap_CUDURIMInformation;
+static gint ett_f1ap_CUtoDURRCInformation;
+static gint ett_f1ap_Dedicated_SIDelivery_NeededUE_Item;
+static gint ett_f1ap_DL_PRS;
+static gint ett_f1ap_DL_PRSMutingPattern;
+static gint ett_f1ap_DLPRSResourceCoordinates;
+static gint ett_f1ap_SEQUENCE_SIZE_1_maxnoofPRS_ResourceSets_OF_DLPRSResourceSetARP;
+static gint ett_f1ap_DLPRSResourceSetARP;
+static gint ett_f1ap_SEQUENCE_SIZE_1_maxnoofPRS_ResourcesPerSet_OF_DLPRSResourceARP;
+static gint ett_f1ap_DL_PRSResourceSetARPLocation;
+static gint ett_f1ap_DLPRSResourceARP;
+static gint ett_f1ap_DL_PRSResourceARPLocation;
+static gint ett_f1ap_DL_UP_TNL_Address_to_Update_List_Item;
+static gint ett_f1ap_DLUPTNLInformation_ToBeSetup_List;
+static gint ett_f1ap_DLUPTNLInformation_ToBeSetup_Item;
+static gint ett_f1ap_DRB_Activity_Item;
+static gint ett_f1ap_DRBs_FailedToBeModified_Item;
+static gint ett_f1ap_DRBs_FailedToBeSetup_Item;
+static gint ett_f1ap_DRBs_FailedToBeSetupMod_Item;
+static gint ett_f1ap_DRB_Information;
+static gint ett_f1ap_DRBs_Modified_Item;
+static gint ett_f1ap_DRBs_ModifiedConf_Item;
+static gint ett_f1ap_DRB_Notify_Item;
+static gint ett_f1ap_DRBs_Required_ToBeModified_Item;
+static gint ett_f1ap_DRBs_Required_ToBeReleased_Item;
+static gint ett_f1ap_DRBs_Setup_Item;
+static gint ett_f1ap_DRBs_SetupMod_Item;
+static gint ett_f1ap_DRBs_ToBeModified_Item;
+static gint ett_f1ap_DRBs_ToBeReleased_Item;
+static gint ett_f1ap_DRBs_ToBeSetup_Item;
+static gint ett_f1ap_DRBs_ToBeSetupMod_Item;
+static gint ett_f1ap_DRXCycle;
+static gint ett_f1ap_DSInformationList;
+static gint ett_f1ap_DUCURadioInformationType;
+static gint ett_f1ap_DUCURIMInformation;
+static gint ett_f1ap_DUF_Slot_Config_Item;
+static gint ett_f1ap_DUF_Slot_Config_List;
+static gint ett_f1ap_DUtoCURRCInformation;
+static gint ett_f1ap_Dynamic5QIDescriptor;
+static gint ett_f1ap_DynamicPQIDescriptor;
+static gint ett_f1ap_E_CID_MeasurementQuantities;
+static gint ett_f1ap_E_CID_MeasurementQuantities_Item;
+static gint ett_f1ap_E_CID_MeasurementResult;
+static gint ett_f1ap_E_CID_MeasuredResults_List;
+static gint ett_f1ap_E_CID_MeasuredResults_Item;
+static gint ett_f1ap_E_CID_MeasuredResults_Value;
+static gint ett_f1ap_EgressBHRLCCHList;
+static gint ett_f1ap_EgressBHRLCCHItem;
+static gint ett_f1ap_Endpoint_IP_address_and_port;
+static gint ett_f1ap_ExtendedAvailablePLMN_List;
+static gint ett_f1ap_ExtendedAvailablePLMN_Item;
+static gint ett_f1ap_ExplicitFormat;
+static gint ett_f1ap_ExtendedServedPLMNs_List;
+static gint ett_f1ap_ExtendedServedPLMNs_Item;
+static gint ett_f1ap_ExtendedSliceSupportList;
+static gint ett_f1ap_EUTRACells_List;
+static gint ett_f1ap_EUTRACells_List_item;
+static gint ett_f1ap_EUTRA_Coex_FDD_Info;
+static gint ett_f1ap_EUTRA_Coex_Mode_Info;
+static gint ett_f1ap_EUTRA_Coex_TDD_Info;
+static gint ett_f1ap_EUTRA_PRACH_Configuration;
+static gint ett_f1ap_EUTRA_SpecialSubframe_Info;
+static gint ett_f1ap_EUTRANQoS;
+static gint ett_f1ap_EUTRA_Mode_Info;
+static gint ett_f1ap_EUTRA_FDD_Info;
+static gint ett_f1ap_EUTRA_TDD_Info;
+static gint ett_f1ap_Expected_UL_AoA;
+static gint ett_f1ap_Expected_ZoA_only;
+static gint ett_f1ap_Expected_Azimuth_AoA;
+static gint ett_f1ap_Expected_Zenith_AoA;
+static gint ett_f1ap_F1CTransferPath;
+static gint ett_f1ap_F1CTransferPathNRDC;
+static gint ett_f1ap_FDD_Info;
+static gint ett_f1ap_FDD_InfoRel16;
+static gint ett_f1ap_FiveG_ProSeAuthorized;
+static gint ett_f1ap_Flows_Mapped_To_DRB_List;
+static gint ett_f1ap_Flows_Mapped_To_DRB_Item;
+static gint ett_f1ap_FreqBandNrItem;
+static gint ett_f1ap_SEQUENCE_SIZE_0_maxnoofNrCellBands_OF_SupportedSULFreqBandItem;
+static gint ett_f1ap_FreqDomainLength;
+static gint ett_f1ap_FreqInfoRel16;
+static gint ett_f1ap_Frequency_Domain_HSNA_Configuration_List;
+static gint ett_f1ap_Frequency_Domain_HSNA_Configuration_Item;
+static gint ett_f1ap_Frequency_Domain_HSNA_Slot_Configuration_List;
+static gint ett_f1ap_Frequency_Domain_HSNA_Slot_Configuration_Item;
+static gint ett_f1ap_FlowsMappedToSLDRB_List;
+static gint ett_f1ap_FlowsMappedToSLDRB_Item;
+static gint ett_f1ap_GBR_QosInformation;
+static gint ett_f1ap_GBR_QoSFlowInformation;
+static gint ett_f1ap_GeographicalCoordinates;
+static gint ett_f1ap_GNB_CUSystemInformation;
+static gint ett_f1ap_SEQUENCE_SIZE_1_maxnoofSIBTypes_OF_SibtypetobeupdatedListItem;
+static gint ett_f1ap_GNB_CU_TNL_Association_Setup_Item;
+static gint ett_f1ap_GNB_CU_TNL_Association_Failed_To_Setup_Item;
+static gint ett_f1ap_GNB_CU_TNL_Association_To_Add_Item;
+static gint ett_f1ap_GNB_CU_TNL_Association_To_Remove_Item;
+static gint ett_f1ap_GNB_CU_TNL_Association_To_Update_Item;
+static gint ett_f1ap_GNB_DU_Cell_Resource_Configuration;
+static gint ett_f1ap_Extended_GNB_CU_Name;
+static gint ett_f1ap_Extended_GNB_DU_Name;
+static gint ett_f1ap_GNB_DU_Served_Cells_Item;
+static gint ett_f1ap_GNB_DU_System_Information;
+static gint ett_f1ap_GNB_DU_TNL_Association_To_Remove_Item;
+static gint ett_f1ap_GNBDUUESliceMaximumBitRateList;
+static gint ett_f1ap_GNBDUUESliceMaximumBitRateItem;
+static gint ett_f1ap_GNB_RxTxTimeDiff;
+static gint ett_f1ap_GNBRxTxTimeDiffMeas;
+static gint ett_f1ap_GTPTLAs;
+static gint ett_f1ap_GTPTLA_Item;
+static gint ett_f1ap_GTPTunnel;
+static gint ett_f1ap_HardwareLoadIndicator;
+static gint ett_f1ap_HSNASlotConfigList;
+static gint ett_f1ap_HSNASlotConfigItem;
+static gint ett_f1ap_IABCongestionIndication;
+static gint ett_f1ap_IAB_Congestion_Indication_List;
+static gint ett_f1ap_IAB_Congestion_Indication_Item;
+static gint ett_f1ap_IAB_Info_IAB_donor_CU;
+static gint ett_f1ap_IAB_Info_IAB_DU;
+static gint ett_f1ap_IAB_MT_Cell_List;
+static gint ett_f1ap_IAB_MT_Cell_List_Item;
+static gint ett_f1ap_IAB_MT_Cell_NA_Resource_Configuration_Mode_Info;
+static gint ett_f1ap_IAB_MT_Cell_NA_Resource_Configuration_FDD_Info;
+static gint ett_f1ap_IAB_MT_Cell_NA_Resource_Configuration_TDD_Info;
+static gint ett_f1ap_IAB_STC_Info;
+static gint ett_f1ap_IAB_STC_Info_List;
+static gint ett_f1ap_IAB_STC_Info_Item;
+static gint ett_f1ap_IAB_Allocated_TNL_Address_Item;
+static gint ett_f1ap_IAB_DU_Cell_Resource_Configuration_Mode_Info;
+static gint ett_f1ap_IAB_DU_Cell_Resource_Configuration_FDD_Info;
+static gint ett_f1ap_IAB_DU_Cell_Resource_Configuration_TDD_Info;
+static gint ett_f1ap_IABIPv6RequestType;
+static gint ett_f1ap_IABTNLAddress;
+static gint ett_f1ap_IABTNLAddressesRequested;
+static gint ett_f1ap_IAB_TNL_Addresses_To_Remove_Item;
+static gint ett_f1ap_IAB_TNL_Addresses_Exception;
+static gint ett_f1ap_IABTNLAddressList;
+static gint ett_f1ap_IABTNLAddress_Item;
+static gint ett_f1ap_IABv4AddressesRequested;
+static gint ett_f1ap_ImplicitFormat;
+static gint ett_f1ap_IntendedTDD_DL_ULConfig;
+static gint ett_f1ap_IPHeaderInformation;
+static gint ett_f1ap_IPtolayer2TrafficMappingInfo;
+static gint ett_f1ap_IPtolayer2TrafficMappingInfoList;
+static gint ett_f1ap_IPtolayer2TrafficMappingInfo_Item;
+static gint ett_f1ap_L139Info;
+static gint ett_f1ap_L839Info;
+static gint ett_f1ap_L571Info;
+static gint ett_f1ap_L1151Info;
+static gint ett_f1ap_LCS_to_GCS_Translation;
+static gint ett_f1ap_LCStoGCSTranslationList;
+static gint ett_f1ap_LCStoGCSTranslation;
+static gint ett_f1ap_LocationDependentMBSF1UInformation;
+static gint ett_f1ap_LocationDependentMBSF1UInformation_Item;
+static gint ett_f1ap_LocationUncertainty;
+static gint ett_f1ap_LoS_NLoSInformation;
+static gint ett_f1ap_LTEUESidelinkAggregateMaximumBitrate;
+static gint ett_f1ap_LTEV2XServicesAuthorized;
+static gint ett_f1ap_MappingInformationtoRemove;
+static gint ett_f1ap_MBS_Flows_Mapped_To_MRB_List;
+static gint ett_f1ap_MBS_Flows_Mapped_To_MRB_Item;
+static gint ett_f1ap_MBSF1UInformation;
+static gint ett_f1ap_MBS_Session_ID;
+static gint ett_f1ap_MBS_CUtoDURRCInformation;
+static gint ett_f1ap_MBS_Broadcast_Cell_List;
+static gint ett_f1ap_MBS_Broadcast_Cell_Item;
+static gint ett_f1ap_MBS_Broadcast_MRB_List;
+static gint ett_f1ap_MBS_Broadcast_MRB_Item;
+static gint ett_f1ap_MBSMulticastF1UContextDescriptor;
+static gint ett_f1ap_MulticastF1UContext_ToBeSetup_Item;
+static gint ett_f1ap_MulticastF1UContext_Setup_Item;
+static gint ett_f1ap_MulticastF1UContext_FailedToBeSetup_Item;
+static gint ett_f1ap_MBS_ServiceArea;
+static gint ett_f1ap_MBS_ServiceAreaInformation;
+static gint ett_f1ap_MBS_ServiceAreaCellList;
+static gint ett_f1ap_MBS_ServiceAreaTAIList;
+static gint ett_f1ap_MBS_ServiceAreaTAIList_Item;
+static gint ett_f1ap_MBS_ServiceAreaInformationList;
+static gint ett_f1ap_MBS_ServiceAreaInformationItem;
+static gint ett_f1ap_MC_PagingCell_Item;
+static gint ett_f1ap_MeasurementBeamInfo;
+static gint ett_f1ap_MRB_ProgressInformation;
+static gint ett_f1ap_MultipleULAoA;
+static gint ett_f1ap_MultipleULAoA_List;
+static gint ett_f1ap_MultipleULAoA_Item;
+static gint ett_f1ap_MulticastMBSSessionList;
+static gint ett_f1ap_MulticastMBSSessionList_Item;
+static gint ett_f1ap_MulticastMRBs_FailedToBeModified_Item;
+static gint ett_f1ap_MulticastMRBs_FailedToBeSetup_Item;
+static gint ett_f1ap_MulticastMRBs_FailedToBeSetupMod_Item;
+static gint ett_f1ap_MulticastMRBs_Modified_Item;
+static gint ett_f1ap_MulticastMRBs_Setup_Item;
+static gint ett_f1ap_MulticastMRBs_SetupMod_Item;
+static gint ett_f1ap_MulticastMRBs_ToBeModified_Item;
+static gint ett_f1ap_MulticastMRBs_ToBeReleased_Item;
+static gint ett_f1ap_MulticastMRBs_ToBeSetup_Item;
+static gint ett_f1ap_MulticastMRBs_ToBeSetupMod_Item;
+static gint ett_f1ap_MultiplexingInfo;
+static gint ett_f1ap_M5Configuration;
+static gint ett_f1ap_M6Configuration;
+static gint ett_f1ap_M7Configuration;
+static gint ett_f1ap_MDTConfiguration;
+static gint ett_f1ap_MDTPLMNList;
+static gint ett_f1ap_MDTPLMNModificationList;
+static gint ett_f1ap_MeasuredResultsValue;
+static gint ett_f1ap_NA_Resource_Configuration_List;
+static gint ett_f1ap_NA_Resource_Configuration_Item;
+static gint ett_f1ap_Neighbour_Node_Cells_List;
+static gint ett_f1ap_Neighbour_Node_Cells_List_Item;
+static gint ett_f1ap_Neighbour_Cell_Information_Item;
+static gint ett_f1ap_NeighbourNR_CellsForSON_List;
+static gint ett_f1ap_NeighbourNR_CellsForSON_Item;
+static gint ett_f1ap_NGRANAllocationAndRetentionPriority;
+static gint ett_f1ap_NGRANHighAccuracyAccessPointPosition;
+static gint ett_f1ap_NR_CGI_List_For_Restart_Item;
+static gint ett_f1ap_NR_PRSBeamInformation;
+static gint ett_f1ap_NR_PRSBeamInformationList;
+static gint ett_f1ap_NR_PRSBeamInformationItem;
+static gint ett_f1ap_NRPagingeDRXInformation;
+static gint ett_f1ap_NRPagingeDRXInformationforRRCINACTIVE;
+static gint ett_f1ap_NonDynamic5QIDescriptor;
+static gint ett_f1ap_NonDynamicPQIDescriptor;
+static gint ett_f1ap_NotificationInformation;
+static gint ett_f1ap_NPNBroadcastInformation;
+static gint ett_f1ap_NPN_Broadcast_Information_SNPN;
+static gint ett_f1ap_NPN_Broadcast_Information_PNI_NPN;
+static gint ett_f1ap_NPNSupportInfo;
+static gint ett_f1ap_NRCarrierList;
+static gint ett_f1ap_NRCarrierItem;
+static gint ett_f1ap_NRFreqInfo;
+static gint ett_f1ap_SEQUENCE_SIZE_1_maxnoofNrCellBands_OF_FreqBandNrItem;
+static gint ett_f1ap_NRCGI;
+static gint ett_f1ap_NR_Mode_Info;
+static gint ett_f1ap_NR_ModeInfoRel16;
+static gint ett_f1ap_NRPRACHConfig;
+static gint ett_f1ap_NRPRACHConfigList;
+static gint ett_f1ap_NRPRACHConfigItem;
+static gint ett_f1ap_NR_U_Channel_Info_List;
+static gint ett_f1ap_NR_U_Channel_Info_Item;
+static gint ett_f1ap_NR_U_Channel_List;
+static gint ett_f1ap_NR_U_Channel_Item;
+static gint ett_f1ap_NumDLULSymbols;
+static gint ett_f1ap_NRV2XServicesAuthorized;
+static gint ett_f1ap_NRUESidelinkAggregateMaximumBitrate;
+static gint ett_f1ap_OnDemandPRS_Info;
+static gint ett_f1ap_PacketErrorRate;
+static gint ett_f1ap_PagingCell_Item;
+static gint ett_f1ap_PagingIdentity;
+static gint ett_f1ap_PEIPSAssistanceInfo;
+static gint ett_f1ap_RelativePathDelay;
+static gint ett_f1ap_Parent_IAB_Nodes_NA_Resource_Configuration_List;
+static gint ett_f1ap_Parent_IAB_Nodes_NA_Resource_Configuration_Item;
+static gint ett_f1ap_PartialSuccessCell;
+static gint ett_f1ap_PathlossReferenceInfo;
+static gint ett_f1ap_PathlossReferenceSignal;
+static gint ett_f1ap_PathSwitchConfiguration;
+static gint ett_f1ap_PC5_QoS_Characteristics;
+static gint ett_f1ap_PC5QoSParameters;
+static gint ett_f1ap_PC5FlowBitRates;
+static gint ett_f1ap_PC5RLCChannelQoSInformation;
+static gint ett_f1ap_PC5RLCChannelToBeSetupList;
+static gint ett_f1ap_PC5RLCChannelToBeSetupItem;
+static gint ett_f1ap_PC5RLCChannelToBeModifiedList;
+static gint ett_f1ap_PC5RLCChannelToBeModifiedItem;
+static gint ett_f1ap_PC5RLCChannelToBeReleasedList;
+static gint ett_f1ap_PC5RLCChannelToBeReleasedItem;
+static gint ett_f1ap_PC5RLCChannelSetupList;
+static gint ett_f1ap_PC5RLCChannelSetupItem;
+static gint ett_f1ap_PC5RLCChannelFailedToBeSetupList;
+static gint ett_f1ap_PC5RLCChannelFailedToBeSetupItem;
+static gint ett_f1ap_PC5RLCChannelModifiedList;
+static gint ett_f1ap_PC5RLCChannelModifiedItem;
+static gint ett_f1ap_PC5RLCChannelFailedToBeModifiedList;
+static gint ett_f1ap_PC5RLCChannelFailedToBeModifiedItem;
+static gint ett_f1ap_PC5RLCChannelRequiredToBeModifiedList;
+static gint ett_f1ap_PC5RLCChannelRequiredToBeModifiedItem;
+static gint ett_f1ap_PC5RLCChannelRequiredToBeReleasedList;
+static gint ett_f1ap_PC5RLCChannelRequiredToBeReleasedItem;
+static gint ett_f1ap_PDCMeasurementQuantities;
+static gint ett_f1ap_PDCMeasurementQuantities_Item;
+static gint ett_f1ap_PDCMeasurementResult;
+static gint ett_f1ap_PDCMeasuredResultsList;
+static gint ett_f1ap_PDCMeasuredResults_Item;
+static gint ett_f1ap_PDCMeasuredResults_Value;
+static gint ett_f1ap_PeriodicityList;
+static gint ett_f1ap_PeriodicityList_Item;
+static gint ett_f1ap_PositioningBroadcastCells;
+static gint ett_f1ap_PosMeasGapPreConfigList;
+static gint ett_f1ap_PosMeasurementQuantities;
+static gint ett_f1ap_PosMeasurementQuantities_Item;
+static gint ett_f1ap_PosMeasurementResult;
+static gint ett_f1ap_PosMeasurementResultItem;
+static gint ett_f1ap_PosMeasurementResultList;
+static gint ett_f1ap_PosMeasurementResultList_Item;
+static gint ett_f1ap_PosResourceSetType;
+static gint ett_f1ap_PosResourceSetTypePR;
+static gint ett_f1ap_PosResourceSetTypeSP;
+static gint ett_f1ap_PosResourceSetTypeAP;
+static gint ett_f1ap_PosSItypeList;
+static gint ett_f1ap_PosSItype_Item;
+static gint ett_f1ap_PosSRSResourceID_List;
+static gint ett_f1ap_PosSRSResource_Item;
+static gint ett_f1ap_PosSRSResource_List;
+static gint ett_f1ap_PosSRSResourceSet_Item;
+static gint ett_f1ap_PosSRSResourceSet_List;
+static gint ett_f1ap_Protected_EUTRA_Resources_Item;
+static gint ett_f1ap_PRSConfiguration;
+static gint ett_f1ap_PRSInformationPos;
+static gint ett_f1ap_PRS_Measurement_Info_List;
+static gint ett_f1ap_PRS_Measurement_Info_List_Item;
+static gint ett_f1ap_Potential_SpCell_Item;
+static gint ett_f1ap_PRSAngleList;
+static gint ett_f1ap_PRSAngleItem;
+static gint ett_f1ap_PRSMuting;
+static gint ett_f1ap_PRSMutingOption1;
+static gint ett_f1ap_PRSMutingOption2;
+static gint ett_f1ap_PRSResource_List;
+static gint ett_f1ap_PRSResource_Item;
+static gint ett_f1ap_PRSResource_QCLInfo;
+static gint ett_f1ap_PRSResource_QCLSourceSSB;
+static gint ett_f1ap_PRSResource_QCLSourcePRS;
+static gint ett_f1ap_PRSResourceSet_List;
+static gint ett_f1ap_PRSResourceSet_Item;
+static gint ett_f1ap_PRSTransmissionOffIndication;
+static gint ett_f1ap_PRSTransmissionOffPerResource;
+static gint ett_f1ap_PRSTransmissionOffPerResource_Item;
+static gint ett_f1ap_SEQUENCE_SIZE_1_maxnoofPRSresources_OF_PRSTransmissionOffIndicationPerResource_Item;
+static gint ett_f1ap_PRSTransmissionOffIndicationPerResource_Item;
+static gint ett_f1ap_PRSTransmissionOffInformation;
+static gint ett_f1ap_PRSTransmissionOffPerResourceSet;
+static gint ett_f1ap_PRSTransmissionOffPerResourceSet_Item;
+static gint ett_f1ap_PWS_Failed_NR_CGI_Item;
+static gint ett_f1ap_PWSSystemInformation;
+static gint ett_f1ap_PRSTRPList;
+static gint ett_f1ap_PRSTRPItem;
+static gint ett_f1ap_RequestedDLPRSTransmissionCharacteristics;
+static gint ett_f1ap_RequestedDLPRSResourceSet_List;
+static gint ett_f1ap_RequestedDLPRSResourceSet_Item;
+static gint ett_f1ap_RequestedDLPRSResource_List;
+static gint ett_f1ap_RequestedDLPRSResource_Item;
+static gint ett_f1ap_PRSTransmissionTRPList;
+static gint ett_f1ap_PRSTransmissionTRPItem;
+static gint ett_f1ap_QoEInformation;
+static gint ett_f1ap_QoEInformationList;
+static gint ett_f1ap_QoEInformationList_Item;
+static gint ett_f1ap_QoEMetrics;
+static gint ett_f1ap_QoS_Characteristics;
+static gint ett_f1ap_QoSFlowLevelQoSParameters;
+static gint ett_f1ap_QoSInformation;
+static gint ett_f1ap_RACHReportInformationList;
+static gint ett_f1ap_RACHReportInformationItem;
+static gint ett_f1ap_RadioResourceStatus;
+static gint ett_f1ap_MIMOPRBusageInformation;
+static gint ett_f1ap_RANUEPagingIdentity;
+static gint ett_f1ap_RAT_FrequencyPriorityInformation;
+static gint ett_f1ap_RBSetConfiguration;
+static gint ett_f1ap_ReferencePoint;
+static gint ett_f1ap_ReferenceSignal;
+static gint ett_f1ap_RelativeCartesianLocation;
+static gint ett_f1ap_RelativeGeodeticLocation;
+static gint ett_f1ap_RequestedSRSTransmissionCharacteristics;
+static gint ett_f1ap_ResourceCoordinationEUTRACellInfo;
+static gint ett_f1ap_ResourceCoordinationTransferInformation;
+static gint ett_f1ap_ResourceSetType;
+static gint ett_f1ap_ResourceSetTypePeriodic;
+static gint ett_f1ap_ResourceSetTypeSemi_persistent;
+static gint ett_f1ap_ResourceSetTypeAperiodic;
+static gint ett_f1ap_ReportingRequestType;
+static gint ett_f1ap_ResourceType;
+static gint ett_f1ap_ResourceTypePeriodic;
+static gint ett_f1ap_ResourceTypeSemi_persistent;
+static gint ett_f1ap_ResourceTypeAperiodic;
+static gint ett_f1ap_ResourceTypePos;
+static gint ett_f1ap_ResourceTypePeriodicPos;
+static gint ett_f1ap_ResourceTypeSemi_persistentPos;
+static gint ett_f1ap_ResourceTypeAperiodicPos;
+static gint ett_f1ap_RLCDuplicationInformation;
+static gint ett_f1ap_RLCDuplicationStateList;
+static gint ett_f1ap_RLCDuplicationState_Item;
+static gint ett_f1ap_RLCFailureIndication;
+static gint ett_f1ap_RLC_Status;
+static gint ett_f1ap_RLFReportInformationList;
+static gint ett_f1ap_RLFReportInformationItem;
+static gint ett_f1ap_RRCDeliveryStatus;
+static gint ett_f1ap_RRC_Version;
+static gint ett_f1ap_ResponseTime;
+static gint ett_f1ap_SCell_FailedtoSetup_Item;
+static gint ett_f1ap_SCell_FailedtoSetupMod_Item;
+static gint ett_f1ap_SCell_ToBeRemoved_Item;
+static gint ett_f1ap_SCell_ToBeSetup_Item;
+static gint ett_f1ap_SCell_ToBeSetupMod_Item;
+static gint ett_f1ap_SCS_SpecificCarrier;
+static gint ett_f1ap_SDTBearerConfigurationInfo;
+static gint ett_f1ap_SDTBearerConfig_List;
+static gint ett_f1ap_SDTBearerConfig_List_Item;
+static gint ett_f1ap_SDTBearerType;
+static gint ett_f1ap_SDTInformation;
+static gint ett_f1ap_Search_window_information;
+static gint ett_f1ap_ServingCellMO_List_Item;
+static gint ett_f1ap_ServingCellMO_encoded_in_CGC_List;
+static gint ett_f1ap_ServingCellMO_encoded_in_CGC_Item;
+static gint ett_f1ap_Served_Cell_Information;
+static gint ett_f1ap_Serving_Cells_List;
+static gint ett_f1ap_Serving_Cells_List_Item;
+static gint ett_f1ap_Supported_MBS_FSA_ID_List;
+static gint ett_f1ap_SFN_Offset;
+static gint ett_f1ap_Served_Cells_To_Add_Item;
+static gint ett_f1ap_Served_Cells_To_Delete_Item;
+static gint ett_f1ap_Served_Cells_To_Modify_Item;
+static gint ett_f1ap_Served_EUTRA_Cells_Information;
+static gint ett_f1ap_Service_Status;
+static gint ett_f1ap_SItype_List;
+static gint ett_f1ap_SItype_Item;
+static gint ett_f1ap_SibtypetobeupdatedListItem;
+static gint ett_f1ap_SidelinkRelayConfiguration;
+static gint ett_f1ap_SLDRBInformation;
+static gint ett_f1ap_SLDRBs_FailedToBeModified_Item;
+static gint ett_f1ap_SLDRBs_FailedToBeSetup_Item;
+static gint ett_f1ap_SLDRBs_FailedToBeSetupMod_Item;
+static gint ett_f1ap_SLDRBs_Modified_Item;
+static gint ett_f1ap_SLDRBs_ModifiedConf_Item;
+static gint ett_f1ap_SLDRBs_Required_ToBeModified_Item;
+static gint ett_f1ap_SLDRBs_Required_ToBeReleased_Item;
+static gint ett_f1ap_SLDRBs_Setup_Item;
+static gint ett_f1ap_SLDRBs_SetupMod_Item;
+static gint ett_f1ap_SLDRBs_ToBeModified_Item;
+static gint ett_f1ap_SLDRBs_ToBeReleased_Item;
+static gint ett_f1ap_SLDRBs_ToBeSetup_Item;
+static gint ett_f1ap_SLDRBs_ToBeSetupMod_Item;
+static gint ett_f1ap_SLDRXCycleList;
+static gint ett_f1ap_SLDRXCycleItem;
+static gint ett_f1ap_SLDRXInformation;
+static gint ett_f1ap_SliceAvailableCapacity;
+static gint ett_f1ap_SliceAvailableCapacityList;
+static gint ett_f1ap_SliceAvailableCapacityItem;
+static gint ett_f1ap_SNSSAIAvailableCapacity_List;
+static gint ett_f1ap_SNSSAIAvailableCapacity_Item;
+static gint ett_f1ap_SliceRadioResourceStatus;
+static gint ett_f1ap_SliceRadioResourceStatus_List;
+static gint ett_f1ap_SliceRadioResourceStatus_Item;
+static gint ett_f1ap_SNSSAIRadioResourceStatus_List;
+static gint ett_f1ap_SNSSAIRadioResourceStatus_Item;
+static gint ett_f1ap_SliceSupportList;
+static gint ett_f1ap_SliceSupportItem;
+static gint ett_f1ap_SliceToReportList;
+static gint ett_f1ap_SliceToReportItem;
+static gint ett_f1ap_SNSSAI_list;
+static gint ett_f1ap_SNSSAI_Item;
+static gint ett_f1ap_Slot_Configuration_List;
+static gint ett_f1ap_Slot_Configuration_Item;
+static gint ett_f1ap_SNSSAI;
+static gint ett_f1ap_SpatialDirectionInformation;
+static gint ett_f1ap_SpatialRelationInfo;
+static gint ett_f1ap_SpatialRelationforResourceID;
+static gint ett_f1ap_SpatialRelationforResourceIDItem;
+static gint ett_f1ap_SpatialRelationPerSRSResource;
+static gint ett_f1ap_SpatialRelationPerSRSResource_List;
+static gint ett_f1ap_SpatialRelationPerSRSResourceItem;
+static gint ett_f1ap_SpatialRelationPos;
+static gint ett_f1ap_SRBs_FailedToBeSetup_Item;
+static gint ett_f1ap_SRBs_FailedToBeSetupMod_Item;
+static gint ett_f1ap_SRBs_Modified_Item;
+static gint ett_f1ap_SRBs_Required_ToBeReleased_Item;
+static gint ett_f1ap_SRBs_Setup_Item;
+static gint ett_f1ap_SRBs_SetupMod_Item;
+static gint ett_f1ap_SRBs_ToBeReleased_Item;
+static gint ett_f1ap_SRBs_ToBeSetup_Item;
+static gint ett_f1ap_SRBs_ToBeSetupMod_Item;
+static gint ett_f1ap_SRSCarrier_List;
+static gint ett_f1ap_SRSCarrier_List_Item;
+static gint ett_f1ap_SRSConfig;
+static gint ett_f1ap_SRSConfiguration;
+static gint ett_f1ap_SRSResource;
+static gint ett_f1ap_SRSResourceID_List;
+static gint ett_f1ap_SRSResource_List;
+static gint ett_f1ap_SRSResourceSet;
+static gint ett_f1ap_SRSResourceSetList;
+static gint ett_f1ap_SRSResourceSetItem;
+static gint ett_f1ap_SRSResourceSet_List;
+static gint ett_f1ap_SRSResourceTrigger;
+static gint ett_f1ap_SRSResourcetype;
+static gint ett_f1ap_SRSResourceTypeChoice;
+static gint ett_f1ap_SRSInfo;
+static gint ett_f1ap_PosSRSInfo;
+static gint ett_f1ap_SSB;
+static gint ett_f1ap_SSBCoverageModification_List;
+static gint ett_f1ap_SSBCoverageModification_Item;
+static gint ett_f1ap_SSB_transmissionBitmap;
+static gint ett_f1ap_SSBAreaCapacityValueList;
+static gint ett_f1ap_SSBAreaCapacityValueItem;
+static gint ett_f1ap_SSBAreaRadioResourceStatusList;
+static gint ett_f1ap_SSBAreaRadioResourceStatusItem;
+static gint ett_f1ap_SSBInformation;
+static gint ett_f1ap_SSBInformationList;
+static gint ett_f1ap_SSBInformationItem;
+static gint ett_f1ap_SSB_PositionsInBurst;
+static gint ett_f1ap_SSB_TF_Configuration;
+static gint ett_f1ap_SSBToReportList;
+static gint ett_f1ap_SSBToReportItem;
+static gint ett_f1ap_StartRBIndex;
+static gint ett_f1ap_StartTimeAndDuration;
+static gint ett_f1ap_SUL_Information;
+static gint ett_f1ap_SuccessfulHOReportInformationList;
+static gint ett_f1ap_SuccessfulHOReportInformation_Item;
+static gint ett_f1ap_SupportedSULFreqBandItem;
+static gint ett_f1ap_SymbolAllocInSlot;
+static gint ett_f1ap_TargetCellList;
+static gint ett_f1ap_TargetCellList_Item;
+static gint ett_f1ap_NSAGSupportList;
+static gint ett_f1ap_NSAGSupportItem;
+static gint ett_f1ap_TDD_Info;
+static gint ett_f1ap_TDD_InfoRel16;
+static gint ett_f1ap_TRPTEGInformation;
+static gint ett_f1ap_RxTxTEG;
+static gint ett_f1ap_RxTEG;
+static gint ett_f1ap_TimeReferenceInformation;
+static gint ett_f1ap_TimeStamp;
+static gint ett_f1ap_TimeStampSlotIndex;
+static gint ett_f1ap_TimingMeasurementQuality;
+static gint ett_f1ap_TNLCapacityIndicator;
+static gint ett_f1ap_TraceActivation;
+static gint ett_f1ap_TrafficMappingInfo;
+static gint ett_f1ap_Transmission_Bandwidth;
+static gint ett_f1ap_TransmissionComb;
+static gint ett_f1ap_T_n2;
+static gint ett_f1ap_T_n4;
+static gint ett_f1ap_TransmissionCombn8;
+static gint ett_f1ap_TransmissionCombPos;
+static gint ett_f1ap_T_n2_01;
+static gint ett_f1ap_T_n4_01;
+static gint ett_f1ap_T_n8;
+static gint ett_f1ap_Transport_UP_Layer_Address_Info_To_Add_List;
+static gint ett_f1ap_Transport_UP_Layer_Address_Info_To_Add_Item;
+static gint ett_f1ap_Transport_UP_Layer_Address_Info_To_Remove_List;
+static gint ett_f1ap_Transport_UP_Layer_Address_Info_To_Remove_Item;
+static gint ett_f1ap_TRPBeamAntennaInformation;
+static gint ett_f1ap_Choice_TRP_Beam_Antenna_Info_Item;
+static gint ett_f1ap_TRP_BeamAntennaExplicitInformation;
+static gint ett_f1ap_TRP_BeamAntennaAngles;
+static gint ett_f1ap_TRP_BeamAntennaAnglesList_Item;
+static gint ett_f1ap_SEQUENCE_SIZE_1_maxnoElevationAngles_OF_TRP_ElevationAngleList_Item;
+static gint ett_f1ap_TRP_ElevationAngleList_Item;
+static gint ett_f1ap_SEQUENCE_SIZE_2_maxNumResourcesPerAngle_OF_TRP_Beam_Power_Item;
+static gint ett_f1ap_TRP_Beam_Power_Item;
+static gint ett_f1ap_TRPInformation;
+static gint ett_f1ap_TRPInformationItem;
+static gint ett_f1ap_TRPInformationTypeResponseList;
+static gint ett_f1ap_TRPInformationTypeResponseItem;
+static gint ett_f1ap_TRPList;
+static gint ett_f1ap_TRPListItem;
+static gint ett_f1ap_TRPMeasurementQuality;
+static gint ett_f1ap_TRPMeasurementQuality_Item;
+static gint ett_f1ap_TRP_MeasurementRequestList;
+static gint ett_f1ap_TRP_MeasurementRequestItem;
+static gint ett_f1ap_TRP_PRS_Info_List;
+static gint ett_f1ap_TRP_PRS_Info_List_Item;
+static gint ett_f1ap_TRPPositionDefinitionType;
+static gint ett_f1ap_TRPPositionDirect;
+static gint ett_f1ap_TRPPositionDirectAccuracy;
+static gint ett_f1ap_TRPPositionReferenced;
+static gint ett_f1ap_TRPReferencePointType;
+static gint ett_f1ap_TRP_Rx_TEGInformation;
+static gint ett_f1ap_TRP_RxTx_TEGInformation;
+static gint ett_f1ap_TRP_Tx_TEGInformation;
+static gint ett_f1ap_TRPTxTEGAssociation;
+static gint ett_f1ap_TRPTEG_Item;
+static gint ett_f1ap_SEQUENCE_SIZE_1_maxnoofPRS_ResourcesPerSet_OF_DLPRSResourceID_Item;
+static gint ett_f1ap_DLPRSResourceID_Item;
+static gint ett_f1ap_Transport_Layer_Address_Info;
+static gint ett_f1ap_TSCAssistanceInformation;
+static gint ett_f1ap_TSCTrafficCharacteristics;
+static gint ett_f1ap_TRP_MeasurementUpdateList;
+static gint ett_f1ap_TRP_MeasurementUpdateItem;
+static gint ett_f1ap_UAC_Assistance_Info;
+static gint ett_f1ap_UACPLMN_List;
+static gint ett_f1ap_UACPLMN_Item;
+static gint ett_f1ap_UACType_List;
+static gint ett_f1ap_UACType_Item;
+static gint ett_f1ap_UACCategoryType;
+static gint ett_f1ap_UACOperatorDefined;
+static gint ett_f1ap_UE_associatedLogicalF1_ConnectionItem;
+static gint ett_f1ap_UEIdentityIndexValue;
+static gint ett_f1ap_UEIdentity_List_For_Paging_Item;
+static gint ett_f1ap_UE_MulticastMRBs_ConfirmedToBeModified_Item;
+static gint ett_f1ap_UE_MulticastMRBs_RequiredToBeModified_Item;
+static gint ett_f1ap_UE_MulticastMRBs_RequiredToBeReleased_Item;
+static gint ett_f1ap_UE_MulticastMRBs_Setup_Item;
+static gint ett_f1ap_UE_MulticastMRBs_Setupnew_Item;
+static gint ett_f1ap_UE_MulticastMRBs_ToBeReleased_Item;
+static gint ett_f1ap_UE_MulticastMRBs_ToBeSetup_Item;
+static gint ett_f1ap_UE_MulticastMRBs_ToBeSetup_atModify_Item;
+static gint ett_f1ap_UEPagingCapability;
+static gint ett_f1ap_UEReportingInformation;
+static gint ett_f1ap_UL_AoA;
+static gint ett_f1ap_UL_BH_Non_UP_Traffic_Mapping;
+static gint ett_f1ap_UL_BH_Non_UP_Traffic_Mapping_List;
+static gint ett_f1ap_UL_BH_Non_UP_Traffic_Mapping_Item;
+static gint ett_f1ap_ULConfiguration;
+static gint ett_f1ap_UL_RTOA_Measurement;
+static gint ett_f1ap_UL_RTOA_MeasurementItem;
+static gint ett_f1ap_UL_SRS_RSRPP;
+static gint ett_f1ap_UL_UP_TNL_Information_to_Update_List_Item;
+static gint ett_f1ap_UL_UP_TNL_Address_to_Update_List_Item;
+static gint ett_f1ap_ULUPTNLInformation_ToBeSetup_List;
+static gint ett_f1ap_ULUPTNLInformation_ToBeSetup_Item;
+static gint ett_f1ap_UplinkChannelBW_PerSCS_List;
+static gint ett_f1ap_UPTransportLayerInformation;
+static gint ett_f1ap_UuRLCChannelQoSInformation;
+static gint ett_f1ap_UuRLCChannelToBeSetupList;
+static gint ett_f1ap_UuRLCChannelToBeSetupItem;
+static gint ett_f1ap_UuRLCChannelToBeModifiedList;
+static gint ett_f1ap_UuRLCChannelToBeModifiedItem;
+static gint ett_f1ap_UuRLCChannelToBeReleasedList;
+static gint ett_f1ap_UuRLCChannelToBeReleasedItem;
+static gint ett_f1ap_UuRLCChannelSetupList;
+static gint ett_f1ap_UuRLCChannelSetupItem;
+static gint ett_f1ap_UuRLCChannelFailedToBeSetupList;
+static gint ett_f1ap_UuRLCChannelFailedToBeSetupItem;
+static gint ett_f1ap_UuRLCChannelModifiedList;
+static gint ett_f1ap_UuRLCChannelModifiedItem;
+static gint ett_f1ap_UuRLCChannelFailedToBeModifiedList;
+static gint ett_f1ap_UuRLCChannelFailedToBeModifiedItem;
+static gint ett_f1ap_UuRLCChannelRequiredToBeModifiedList;
+static gint ett_f1ap_UuRLCChannelRequiredToBeModifiedItem;
+static gint ett_f1ap_UuRLCChannelRequiredToBeReleasedList;
+static gint ett_f1ap_UuRLCChannelRequiredToBeReleasedItem;
+static gint ett_f1ap_VictimgNBSetID;
+static gint ett_f1ap_ZoAInformation;
+static gint ett_f1ap_Reset;
+static gint ett_f1ap_ResetType;
+static gint ett_f1ap_UE_associatedLogicalF1_ConnectionListRes;
+static gint ett_f1ap_ResetAcknowledge;
+static gint ett_f1ap_UE_associatedLogicalF1_ConnectionListResAck;
+static gint ett_f1ap_ErrorIndication;
+static gint ett_f1ap_F1SetupRequest;
+static gint ett_f1ap_GNB_DU_Served_Cells_List;
+static gint ett_f1ap_F1SetupResponse;
+static gint ett_f1ap_Cells_to_be_Activated_List;
+static gint ett_f1ap_F1SetupFailure;
+static gint ett_f1ap_GNBDUConfigurationUpdate;
+static gint ett_f1ap_Served_Cells_To_Add_List;
+static gint ett_f1ap_Served_Cells_To_Modify_List;
+static gint ett_f1ap_Served_Cells_To_Delete_List;
+static gint ett_f1ap_Cells_Status_List;
+static gint ett_f1ap_Dedicated_SIDelivery_NeededUE_List;
+static gint ett_f1ap_GNB_DU_TNL_Association_To_Remove_List;
+static gint ett_f1ap_GNBDUConfigurationUpdateAcknowledge;
+static gint ett_f1ap_GNBDUConfigurationUpdateFailure;
+static gint ett_f1ap_GNBCUConfigurationUpdate;
+static gint ett_f1ap_Cells_to_be_Deactivated_List;
+static gint ett_f1ap_GNB_CU_TNL_Association_To_Add_List;
+static gint ett_f1ap_GNB_CU_TNL_Association_To_Remove_List;
+static gint ett_f1ap_GNB_CU_TNL_Association_To_Update_List;
+static gint ett_f1ap_Cells_to_be_Barred_List;
+static gint ett_f1ap_Protected_EUTRA_Resources_List;
+static gint ett_f1ap_Neighbour_Cell_Information_List;
+static gint ett_f1ap_GNBCUConfigurationUpdateAcknowledge;
+static gint ett_f1ap_Cells_Failed_to_be_Activated_List;
+static gint ett_f1ap_GNB_CU_TNL_Association_Setup_List;
+static gint ett_f1ap_GNB_CU_TNL_Association_Failed_To_Setup_List;
+static gint ett_f1ap_GNBCUConfigurationUpdateFailure;
+static gint ett_f1ap_GNBDUResourceCoordinationRequest;
+static gint ett_f1ap_GNBDUResourceCoordinationResponse;
+static gint ett_f1ap_UEContextSetupRequest;
+static gint ett_f1ap_Candidate_SpCell_List;
+static gint ett_f1ap_SCell_ToBeSetup_List;
+static gint ett_f1ap_SRBs_ToBeSetup_List;
+static gint ett_f1ap_DRBs_ToBeSetup_List;
+static gint ett_f1ap_BHChannels_ToBeSetup_List;
+static gint ett_f1ap_SLDRBs_ToBeSetup_List;
+static gint ett_f1ap_UE_MulticastMRBs_ToBeSetup_List;
+static gint ett_f1ap_ServingCellMO_List;
+static gint ett_f1ap_UEContextSetupResponse;
+static gint ett_f1ap_DRBs_Setup_List;
+static gint ett_f1ap_SRBs_FailedToBeSetup_List;
+static gint ett_f1ap_DRBs_FailedToBeSetup_List;
+static gint ett_f1ap_SCell_FailedtoSetup_List;
+static gint ett_f1ap_SRBs_Setup_List;
+static gint ett_f1ap_BHChannels_Setup_List;
+static gint ett_f1ap_BHChannels_FailedToBeSetup_List;
+static gint ett_f1ap_SLDRBs_Setup_List;
+static gint ett_f1ap_SLDRBs_FailedToBeSetup_List;
+static gint ett_f1ap_UE_MulticastMRBs_Setupnew_List;
+static gint ett_f1ap_UEContextSetupFailure;
+static gint ett_f1ap_Potential_SpCell_List;
+static gint ett_f1ap_UEContextReleaseRequest;
+static gint ett_f1ap_UEContextReleaseCommand;
+static gint ett_f1ap_UEContextReleaseComplete;
+static gint ett_f1ap_UEContextModificationRequest;
+static gint ett_f1ap_SCell_ToBeSetupMod_List;
+static gint ett_f1ap_SCell_ToBeRemoved_List;
+static gint ett_f1ap_SRBs_ToBeSetupMod_List;
+static gint ett_f1ap_DRBs_ToBeSetupMod_List;
+static gint ett_f1ap_BHChannels_ToBeSetupMod_List;
+static gint ett_f1ap_DRBs_ToBeModified_List;
+static gint ett_f1ap_BHChannels_ToBeModified_List;
+static gint ett_f1ap_SRBs_ToBeReleased_List;
+static gint ett_f1ap_DRBs_ToBeReleased_List;
+static gint ett_f1ap_BHChannels_ToBeReleased_List;
+static gint ett_f1ap_UE_MulticastMRBs_ToBeSetup_atModify_List;
+static gint ett_f1ap_UE_MulticastMRBs_ToBeReleased_List;
+static gint ett_f1ap_SLDRBs_ToBeSetupMod_List;
+static gint ett_f1ap_SLDRBs_ToBeModified_List;
+static gint ett_f1ap_SLDRBs_ToBeReleased_List;
+static gint ett_f1ap_UEContextModificationResponse;
+static gint ett_f1ap_DRBs_SetupMod_List;
+static gint ett_f1ap_DRBs_Modified_List;
+static gint ett_f1ap_SRBs_SetupMod_List;
+static gint ett_f1ap_SRBs_Modified_List;
+static gint ett_f1ap_DRBs_FailedToBeModified_List;
+static gint ett_f1ap_SRBs_FailedToBeSetupMod_List;
+static gint ett_f1ap_DRBs_FailedToBeSetupMod_List;
+static gint ett_f1ap_SCell_FailedtoSetupMod_List;
+static gint ett_f1ap_BHChannels_SetupMod_List;
+static gint ett_f1ap_BHChannels_Modified_List;
+static gint ett_f1ap_BHChannels_FailedToBeModified_List;
+static gint ett_f1ap_BHChannels_FailedToBeSetupMod_List;
+static gint ett_f1ap_Associated_SCell_List;
+static gint ett_f1ap_SLDRBs_SetupMod_List;
+static gint ett_f1ap_SLDRBs_Modified_List;
+static gint ett_f1ap_SLDRBs_FailedToBeModified_List;
+static gint ett_f1ap_SLDRBs_FailedToBeSetupMod_List;
+static gint ett_f1ap_UE_MulticastMRBs_Setup_List;
+static gint ett_f1ap_UEContextModificationFailure;
+static gint ett_f1ap_UEContextModificationRequired;
+static gint ett_f1ap_DRBs_Required_ToBeModified_List;
+static gint ett_f1ap_DRBs_Required_ToBeReleased_List;
+static gint ett_f1ap_SRBs_Required_ToBeReleased_List;
+static gint ett_f1ap_BHChannels_Required_ToBeReleased_List;
+static gint ett_f1ap_SLDRBs_Required_ToBeModified_List;
+static gint ett_f1ap_SLDRBs_Required_ToBeReleased_List;
+static gint ett_f1ap_UE_MulticastMRBs_RequiredToBeModified_List;
+static gint ett_f1ap_UE_MulticastMRBs_RequiredToBeReleased_List;
+static gint ett_f1ap_UEContextModificationConfirm;
+static gint ett_f1ap_DRBs_ModifiedConf_List;
+static gint ett_f1ap_SLDRBs_ModifiedConf_List;
+static gint ett_f1ap_UE_MulticastMRBs_ConfirmedToBeModified_List;
+static gint ett_f1ap_UEContextModificationRefuse;
+static gint ett_f1ap_WriteReplaceWarningRequest;
+static gint ett_f1ap_Cells_To_Be_Broadcast_List;
+static gint ett_f1ap_WriteReplaceWarningResponse;
+static gint ett_f1ap_Cells_Broadcast_Completed_List;
+static gint ett_f1ap_PWSCancelRequest;
+static gint ett_f1ap_Broadcast_To_Be_Cancelled_List;
+static gint ett_f1ap_PWSCancelResponse;
+static gint ett_f1ap_Cells_Broadcast_Cancelled_List;
+static gint ett_f1ap_UEInactivityNotification;
+static gint ett_f1ap_DRB_Activity_List;
+static gint ett_f1ap_InitialULRRCMessageTransfer;
+static gint ett_f1ap_DLRRCMessageTransfer;
+static gint ett_f1ap_ULRRCMessageTransfer;
+static gint ett_f1ap_PrivateMessage;
+static gint ett_f1ap_SystemInformationDeliveryCommand;
+static gint ett_f1ap_Paging;
+static gint ett_f1ap_PagingCell_list;
+static gint ett_f1ap_Notify;
+static gint ett_f1ap_DRB_Notify_List;
+static gint ett_f1ap_NetworkAccessRateReduction;
+static gint ett_f1ap_PWSRestartIndication;
+static gint ett_f1ap_NR_CGI_List_For_Restart_List;
+static gint ett_f1ap_PWSFailureIndication;
+static gint ett_f1ap_PWS_Failed_NR_CGI_List;
+static gint ett_f1ap_GNBDUStatusIndication;
+static gint ett_f1ap_RRCDeliveryReport;
+static gint ett_f1ap_F1RemovalRequest;
+static gint ett_f1ap_F1RemovalResponse;
+static gint ett_f1ap_F1RemovalFailure;
+static gint ett_f1ap_TraceStart;
+static gint ett_f1ap_DeactivateTrace;
+static gint ett_f1ap_CellTrafficTrace;
+static gint ett_f1ap_DUCURadioInformationTransfer;
+static gint ett_f1ap_CUDURadioInformationTransfer;
+static gint ett_f1ap_BAPMappingConfiguration;
+static gint ett_f1ap_BH_Routing_Information_Added_List;
+static gint ett_f1ap_BH_Routing_Information_Removed_List;
+static gint ett_f1ap_BAP_Header_Rewriting_Added_List;
+static gint ett_f1ap_BAP_Header_Rewriting_Removed_List;
+static gint ett_f1ap_BAPMappingConfigurationAcknowledge;
+static gint ett_f1ap_BAPMappingConfigurationFailure;
+static gint ett_f1ap_GNBDUResourceConfiguration;
+static gint ett_f1ap_GNBDUResourceConfigurationAcknowledge;
+static gint ett_f1ap_GNBDUResourceConfigurationFailure;
+static gint ett_f1ap_IABTNLAddressRequest;
+static gint ett_f1ap_IAB_TNL_Addresses_To_Remove_List;
+static gint ett_f1ap_IABTNLAddressResponse;
+static gint ett_f1ap_IAB_Allocated_TNL_Address_List;
+static gint ett_f1ap_IABTNLAddressFailure;
+static gint ett_f1ap_IABUPConfigurationUpdateRequest;
+static gint ett_f1ap_UL_UP_TNL_Information_to_Update_List;
+static gint ett_f1ap_UL_UP_TNL_Address_to_Update_List;
+static gint ett_f1ap_IABUPConfigurationUpdateResponse;
+static gint ett_f1ap_DL_UP_TNL_Address_to_Update_List;
+static gint ett_f1ap_IABUPConfigurationUpdateFailure;
+static gint ett_f1ap_ResourceStatusRequest;
+static gint ett_f1ap_ResourceStatusResponse;
+static gint ett_f1ap_ResourceStatusFailure;
+static gint ett_f1ap_ResourceStatusUpdate;
+static gint ett_f1ap_AccessAndMobilityIndication;
+static gint ett_f1ap_ReferenceTimeInformationReportingControl;
+static gint ett_f1ap_ReferenceTimeInformationReport;
+static gint ett_f1ap_AccessSuccess;
+static gint ett_f1ap_PositioningAssistanceInformationControl;
+static gint ett_f1ap_PositioningAssistanceInformationFeedback;
+static gint ett_f1ap_PositioningMeasurementRequest;
+static gint ett_f1ap_PositioningMeasurementResponse;
+static gint ett_f1ap_PositioningMeasurementFailure;
+static gint ett_f1ap_PositioningMeasurementReport;
+static gint ett_f1ap_PositioningMeasurementAbort;
+static gint ett_f1ap_PositioningMeasurementFailureIndication;
+static gint ett_f1ap_PositioningMeasurementUpdate;
+static gint ett_f1ap_TRPInformationRequest;
+static gint ett_f1ap_TRPInformationTypeListTRPReq;
+static gint ett_f1ap_TRPInformationResponse;
+static gint ett_f1ap_TRPInformationListTRPResp;
+static gint ett_f1ap_TRPInformationFailure;
+static gint ett_f1ap_PositioningInformationRequest;
+static gint ett_f1ap_PositioningInformationResponse;
+static gint ett_f1ap_PositioningInformationFailure;
+static gint ett_f1ap_PositioningActivationRequest;
+static gint ett_f1ap_SRSType;
+static gint ett_f1ap_SemipersistentSRS;
+static gint ett_f1ap_AperiodicSRS;
+static gint ett_f1ap_PositioningActivationResponse;
+static gint ett_f1ap_PositioningActivationFailure;
+static gint ett_f1ap_PositioningDeactivation;
+static gint ett_f1ap_PositioningInformationUpdate;
+static gint ett_f1ap_E_CIDMeasurementInitiationRequest;
+static gint ett_f1ap_E_CIDMeasurementInitiationResponse;
+static gint ett_f1ap_E_CIDMeasurementInitiationFailure;
+static gint ett_f1ap_E_CIDMeasurementFailureIndication;
+static gint ett_f1ap_E_CIDMeasurementReport;
+static gint ett_f1ap_E_CIDMeasurementTerminationCommand;
+static gint ett_f1ap_BroadcastContextSetupRequest;
+static gint ett_f1ap_BroadcastMRBs_ToBeSetup_List;
+static gint ett_f1ap_BroadcastContextSetupResponse;
+static gint ett_f1ap_BroadcastMRBs_Setup_List;
+static gint ett_f1ap_BroadcastMRBs_FailedToBeSetup_List;
+static gint ett_f1ap_BroadcastContextSetupFailure;
+static gint ett_f1ap_BroadcastContextReleaseCommand;
+static gint ett_f1ap_BroadcastContextReleaseComplete;
+static gint ett_f1ap_BroadcastContextReleaseRequest;
+static gint ett_f1ap_BroadcastContextModificationRequest;
+static gint ett_f1ap_BroadcastMRBs_ToBeSetupMod_List;
+static gint ett_f1ap_BroadcastMRBs_ToBeModified_List;
+static gint ett_f1ap_BroadcastMRBs_ToBeReleased_List;
+static gint ett_f1ap_BroadcastContextModificationResponse;
+static gint ett_f1ap_BroadcastMRBs_SetupMod_List;
+static gint ett_f1ap_BroadcastMRBs_FailedToBeSetupMod_List;
+static gint ett_f1ap_BroadcastMRBs_Modified_List;
+static gint ett_f1ap_BroadcastMRBs_FailedToBeModified_List;
+static gint ett_f1ap_BroadcastContextModificationFailure;
+static gint ett_f1ap_MulticastGroupPaging;
+static gint ett_f1ap_UEIdentity_List_For_Paging_List;
+static gint ett_f1ap_MC_PagingCell_list;
+static gint ett_f1ap_MulticastContextSetupRequest;
+static gint ett_f1ap_MulticastMRBs_ToBeSetup_List;
+static gint ett_f1ap_MulticastContextSetupResponse;
+static gint ett_f1ap_MulticastMRBs_Setup_List;
+static gint ett_f1ap_MulticastMRBs_FailedToBeSetup_List;
+static gint ett_f1ap_MulticastContextSetupFailure;
+static gint ett_f1ap_MulticastContextReleaseCommand;
+static gint ett_f1ap_MulticastContextReleaseComplete;
+static gint ett_f1ap_MulticastContextReleaseRequest;
+static gint ett_f1ap_MulticastContextModificationRequest;
+static gint ett_f1ap_MulticastMRBs_ToBeSetupMod_List;
+static gint ett_f1ap_MulticastMRBs_ToBeModified_List;
+static gint ett_f1ap_MulticastMRBs_ToBeReleased_List;
+static gint ett_f1ap_MulticastContextModificationResponse;
+static gint ett_f1ap_MulticastMRBs_SetupMod_List;
+static gint ett_f1ap_MulticastMRBs_FailedToBeSetupMod_List;
+static gint ett_f1ap_MulticastMRBs_Modified_List;
+static gint ett_f1ap_MulticastMRBs_FailedToBeModified_List;
+static gint ett_f1ap_MulticastContextModificationFailure;
+static gint ett_f1ap_MulticastDistributionSetupRequest;
+static gint ett_f1ap_MulticastF1UContext_ToBeSetup_List;
+static gint ett_f1ap_MulticastDistributionSetupResponse;
+static gint ett_f1ap_MulticastF1UContext_Setup_List;
+static gint ett_f1ap_MulticastF1UContext_FailedToBeSetup_List;
+static gint ett_f1ap_MulticastDistributionSetupFailure;
+static gint ett_f1ap_MulticastDistributionReleaseCommand;
+static gint ett_f1ap_MulticastDistributionReleaseComplete;
+static gint ett_f1ap_PDCMeasurementInitiationRequest;
+static gint ett_f1ap_PDCMeasurementInitiationResponse;
+static gint ett_f1ap_PDCMeasurementInitiationFailure;
+static gint ett_f1ap_PDCMeasurementReport;
+static gint ett_f1ap_PDCMeasurementTerminationCommand;
+static gint ett_f1ap_PDCMeasurementFailureIndication;
+static gint ett_f1ap_PRSConfigurationRequest;
+static gint ett_f1ap_PRSConfigurationResponse;
+static gint ett_f1ap_PRSConfigurationFailure;
+static gint ett_f1ap_MeasurementPreconfigurationRequired;
+static gint ett_f1ap_MeasurementPreconfigurationConfirm;
+static gint ett_f1ap_MeasurementPreconfigurationRefuse;
+static gint ett_f1ap_MeasurementActivation;
+static gint ett_f1ap_QoEInformationTransfer;
+static gint ett_f1ap_PosSystemInformationDeliveryCommand;
+static gint ett_f1ap_F1AP_PDU;
+static gint ett_f1ap_InitiatingMessage;
+static gint ett_f1ap_SuccessfulOutcome;
+static gint ett_f1ap_UnsuccessfulOutcome;
 
 enum{
   INITIATING_MESSAGE,

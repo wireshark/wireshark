@@ -635,2054 +635,2054 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /* Initialize the protocol and registered fields */
-static int proto_x2ap = -1;
-static int hf_x2ap_transportLayerAddressIPv4 = -1;
-static int hf_x2ap_transportLayerAddressIPv6 = -1;
-static int hf_x2ap_ReportCharacteristics_PRBPeriodic = -1;
-static int hf_x2ap_ReportCharacteristics_TNLLoadIndPeriodic = -1;
-static int hf_x2ap_ReportCharacteristics_HWLoadIndPeriodic = -1;
-static int hf_x2ap_ReportCharacteristics_CompositeAvailableCapacityPeriodic = -1;
-static int hf_x2ap_ReportCharacteristics_ABSStatusPeriodic = -1;
-static int hf_x2ap_ReportCharacteristics_RSRPMeasurementReportPeriodic = -1;
-static int hf_x2ap_ReportCharacteristics_CSIReportPeriodic = -1;
-static int hf_x2ap_ReportCharacteristics_Reserved = -1;
-static int hf_x2ap_measurementFailedReportCharacteristics_PRBPeriodic = -1;
-static int hf_x2ap_measurementFailedReportCharacteristics_TNLLoadIndPeriodic = -1;
-static int hf_x2ap_measurementFailedReportCharacteristics_HWLoadIndPeriodic = -1;
-static int hf_x2ap_measurementFailedReportCharacteristics_CompositeAvailableCapacityPeriodic = -1;
-static int hf_x2ap_measurementFailedReportCharacteristics_ABSStatusPeriodic = -1;
-static int hf_x2ap_measurementFailedReportCharacteristics_RSRPMeasurementReportPeriodic = -1;
-static int hf_x2ap_measurementFailedReportCharacteristics_CSIReportPeriodic = -1;
-static int hf_x2ap_measurementFailedReportCharacteristics_Reserved = -1;
-static int hf_x2ap_eUTRANTraceID_TraceID = -1;
-static int hf_x2ap_eUTRANTraceID_TraceRecordingSessionReference = -1;
-static int hf_x2ap_interfacesToTrace_S1_MME = -1;
-static int hf_x2ap_interfacesToTrace_X2 = -1;
-static int hf_x2ap_interfacesToTrace_Uu = -1;
-static int hf_x2ap_interfacesToTrace_F1_C = -1;
-static int hf_x2ap_interfacesToTrace_E1 = -1;
-static int hf_x2ap_interfacesToTrace_Reserved = -1;
-static int hf_x2ap_traceCollectionEntityIPAddress_IPv4 = -1;
-static int hf_x2ap_traceCollectionEntityIPAddress_IPv6 = -1;
-static int hf_x2ap_encryptionAlgorithms_EEA1 = -1;
-static int hf_x2ap_encryptionAlgorithms_EEA2 = -1;
-static int hf_x2ap_encryptionAlgorithms_EEA3 = -1;
-static int hf_x2ap_encryptionAlgorithms_Reserved = -1;
-static int hf_x2ap_integrityProtectionAlgorithms_EIA1 = -1;
-static int hf_x2ap_integrityProtectionAlgorithms_EIA2 = -1;
-static int hf_x2ap_integrityProtectionAlgorithms_EIA3 = -1;
-static int hf_x2ap_integrityProtectionAlgorithms_EIA7 = -1;
-static int hf_x2ap_integrityProtectionAlgorithms_Reserved = -1;
-static int hf_x2ap_measurementsToActivate_M1 = -1;
-static int hf_x2ap_measurementsToActivate_M2 = -1;
-static int hf_x2ap_measurementsToActivate_M3 = -1;
-static int hf_x2ap_measurementsToActivate_M4 = -1;
-static int hf_x2ap_measurementsToActivate_M5 = -1;
-static int hf_x2ap_measurementsToActivate_LoggingM1FromEventTriggered = -1;
-static int hf_x2ap_measurementsToActivate_M6 = -1;
-static int hf_x2ap_measurementsToActivate_M7 = -1;
-static int hf_x2ap_MDT_Location_Info_GNSS = -1;
-static int hf_x2ap_MDT_Location_Info_E_CID = -1;
-static int hf_x2ap_MDT_Location_Info_Reserved = -1;
-static int hf_x2ap_MDT_transmissionModes_tm1 = -1;
-static int hf_x2ap_MDT_transmissionModes_tm2 = -1;
-static int hf_x2ap_MDT_transmissionModes_tm3 = -1;
-static int hf_x2ap_MDT_transmissionModes_tm4 = -1;
-static int hf_x2ap_MDT_transmissionModes_tm6 = -1;
-static int hf_x2ap_MDT_transmissionModes_tm8 = -1;
-static int hf_x2ap_MDT_transmissionModes_tm9 = -1;
-static int hf_x2ap_MDT_transmissionModes_tm10 = -1;
-static int hf_x2ap_NRencryptionAlgorithms_NEA1 = -1;
-static int hf_x2ap_NRencryptionAlgorithms_NEA2 = -1;
-static int hf_x2ap_NRencryptionAlgorithms_NEA3 = -1;
-static int hf_x2ap_NRencryptionAlgorithms_Reserved = -1;
-static int hf_x2ap_NRintegrityProtectionAlgorithms_NIA1 = -1;
-static int hf_x2ap_NRintegrityProtectionAlgorithms_NIA2 = -1;
-static int hf_x2ap_NRintegrityProtectionAlgorithms_NIA3 = -1;
-static int hf_x2ap_NRintegrityProtectionAlgorithms_Reserved = -1;
-static int hf_x2ap_ReportCharacteristics_ENDC_PRBPeriodic = -1;
-static int hf_x2ap_ReportCharacteristics_ENDC_TNLCapacityIndPeriodic = -1;
-static int hf_x2ap_ReportCharacteristics_ENDC_CompositeAvailableCapacityPeriodic = -1;
-static int hf_x2ap_ReportCharacteristics_ENDC_NumberOfActiveUEs = -1;
-static int hf_x2ap_ReportCharacteristics_ENDC_Reserved = -1;
-static int hf_x2ap_Registration_Request_ENDC_PDU = -1;
-static int hf_x2ap_ReportingPeriodicity_ENDC_PDU = -1;
-static int hf_x2ap_ReportCharacteristics_ENDC_PDU = -1;
-static int hf_x2ap_rAT_RestrictionInformation_LEO = -1;
-static int hf_x2ap_rAT_RestrictionInformation_MEO = -1;
-static int hf_x2ap_rAT_RestrictionInformation_GEO = -1;
-static int hf_x2ap_rAT_RestrictionInformation_OTHERSAT = -1;
-static int hf_x2ap_rAT_RestrictionInformation_Reserved = -1;
-static int hf_x2ap_ABSInformation_PDU = -1;       /* ABSInformation */
-static int hf_x2ap_ABS_Status_PDU = -1;           /* ABS_Status */
-static int hf_x2ap_ActivationID_PDU = -1;         /* ActivationID */
-static int hf_x2ap_Additional_Measurement_Timing_Configuration_List_PDU = -1;  /* Additional_Measurement_Timing_Configuration_List */
-static int hf_x2ap_AdditionalListofForwardingGTPTunnelEndpoint_PDU = -1;  /* AdditionalListofForwardingGTPTunnelEndpoint */
-static int hf_x2ap_AdditionLocationInformation_PDU = -1;  /* AdditionLocationInformation */
-static int hf_x2ap_AdditionalRRMPriorityIndex_PDU = -1;  /* AdditionalRRMPriorityIndex */
-static int hf_x2ap_AdditionalSpecialSubframe_Info_PDU = -1;  /* AdditionalSpecialSubframe_Info */
-static int hf_x2ap_AdditionalSpecialSubframeExtension_Info_PDU = -1;  /* AdditionalSpecialSubframeExtension_Info */
-static int hf_x2ap_AvailableFastMCGRecoveryViaSRB3_PDU = -1;  /* AvailableFastMCGRecoveryViaSRB3 */
-static int hf_x2ap_AerialUEsubscriptionInformation_PDU = -1;  /* AerialUEsubscriptionInformation */
-static int hf_x2ap_AdditionalPLMNs_Item_PDU = -1;  /* AdditionalPLMNs_Item */
-static int hf_x2ap_BandwidthReducedSI_PDU = -1;   /* BandwidthReducedSI */
-static int hf_x2ap_BearerType_PDU = -1;           /* BearerType */
-static int hf_x2ap_BluetoothMeasurementConfiguration_PDU = -1;  /* BluetoothMeasurementConfiguration */
-static int hf_x2ap_BPLMN_ID_Info_EUTRA_PDU = -1;  /* BPLMN_ID_Info_EUTRA */
-static int hf_x2ap_BPLMN_ID_Info_NR_PDU = -1;     /* BPLMN_ID_Info_NR */
-static int hf_x2ap_Cause_PDU = -1;                /* Cause */
-static int hf_x2ap_CellReportingIndicator_PDU = -1;  /* CellReportingIndicator */
-static int hf_x2ap_CPAinformation_REQ_PDU = -1;   /* CPAinformation_REQ */
-static int hf_x2ap_CPAinformation_REQ_ACK_PDU = -1;  /* CPAinformation_REQ_ACK */
-static int hf_x2ap_CPCinformation_REQD_PDU = -1;  /* CPCinformation_REQD */
-static int hf_x2ap_CPCinformation_CONF_PDU = -1;  /* CPCinformation_CONF */
-static int hf_x2ap_CPCinformation_NOTIFY_PDU = -1;  /* CPCinformation_NOTIFY */
-static int hf_x2ap_CPAinformation_MOD_PDU = -1;   /* CPAinformation_MOD */
-static int hf_x2ap_CPCupdate_MOD_PDU = -1;        /* CPCupdate_MOD */
-static int hf_x2ap_CPAinformation_MOD_ACK_PDU = -1;  /* CPAinformation_MOD_ACK */
-static int hf_x2ap_CPACinformation_REQD_PDU = -1;  /* CPACinformation_REQD */
-static int hf_x2ap_CHO_DC_EarlyDataForwarding_PDU = -1;  /* CHO_DC_EarlyDataForwarding */
-static int hf_x2ap_CHO_DC_Indicator_PDU = -1;     /* CHO_DC_Indicator */
-static int hf_x2ap_CNTypeRestrictions_PDU = -1;   /* CNTypeRestrictions */
-static int hf_x2ap_CoMPInformation_PDU = -1;      /* CoMPInformation */
-static int hf_x2ap_CompositeAvailableCapacityGroup_PDU = -1;  /* CompositeAvailableCapacityGroup */
-static int hf_x2ap_Correlation_ID_PDU = -1;       /* Correlation_ID */
-static int hf_x2ap_COUNTValueExtended_PDU = -1;   /* COUNTValueExtended */
-static int hf_x2ap_COUNTvaluePDCP_SNlength18_PDU = -1;  /* COUNTvaluePDCP_SNlength18 */
-static int hf_x2ap_CoverageModificationList_PDU = -1;  /* CoverageModificationList */
-static int hf_x2ap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
-static int hf_x2ap_CRNTI_PDU = -1;                /* CRNTI */
-static int hf_x2ap_CSGMembershipStatus_PDU = -1;  /* CSGMembershipStatus */
-static int hf_x2ap_CSG_Id_PDU = -1;               /* CSG_Id */
-static int hf_x2ap_CSIReportList_PDU = -1;        /* CSIReportList */
-static int hf_x2ap_CHOinformation_REQ_PDU = -1;   /* CHOinformation_REQ */
-static int hf_x2ap_CHOinformation_ACK_PDU = -1;   /* CHOinformation_ACK */
-static int hf_x2ap_CandidateCellsToBeCancelledList_PDU = -1;  /* CandidateCellsToBeCancelledList */
-static int hf_x2ap_CHOinformation_AddReq_PDU = -1;  /* CHOinformation_AddReq */
-static int hf_x2ap_CHOinformation_ModReq_PDU = -1;  /* CHOinformation_ModReq */
-static int hf_x2ap_CSI_RSTransmissionIndication_PDU = -1;  /* CSI_RSTransmissionIndication */
-static int hf_x2ap_DataTrafficResourceIndication_PDU = -1;  /* DataTrafficResourceIndication */
-static int hf_x2ap_DAPSRequestInfo_PDU = -1;      /* DAPSRequestInfo */
-static int hf_x2ap_DAPSResponseInfo_PDU = -1;     /* DAPSResponseInfo */
-static int hf_x2ap_DeactivationIndication_PDU = -1;  /* DeactivationIndication */
-static int hf_x2ap_DesiredActNotificationLevel_PDU = -1;  /* DesiredActNotificationLevel */
-static int hf_x2ap_DirectForwardingPathAvailability_PDU = -1;  /* DirectForwardingPathAvailability */
-static int hf_x2ap_DL_Forwarding_PDU = -1;        /* DL_Forwarding */
-static int hf_x2ap_DL_scheduling_PDCCH_CCE_usage_PDU = -1;  /* DL_scheduling_PDCCH_CCE_usage */
-static int hf_x2ap_DuplicationActivation_PDU = -1;  /* DuplicationActivation */
-static int hf_x2ap_DynamicDLTransmissionInformation_PDU = -1;  /* DynamicDLTransmissionInformation */
-static int hf_x2ap_EARFCNExtension_PDU = -1;      /* EARFCNExtension */
-static int hf_x2ap_ECGI_PDU = -1;                 /* ECGI */
-static int hf_x2ap_EndcSONConfigurationTransfer_PDU = -1;  /* EndcSONConfigurationTransfer */
-static int hf_x2ap_EnhancedRNTP_PDU = -1;         /* EnhancedRNTP */
-static int hf_x2ap_EPCHandoverRestrictionListContainer_PDU = -1;  /* EPCHandoverRestrictionListContainer */
-static int hf_x2ap_ERABActivityNotifyItemList_PDU = -1;  /* ERABActivityNotifyItemList */
-static int hf_x2ap_E_RAB_List_PDU = -1;           /* E_RAB_List */
-static int hf_x2ap_E_RAB_Item_PDU = -1;           /* E_RAB_Item */
-static int hf_x2ap_E_RABUsageReport_Item_PDU = -1;  /* E_RABUsageReport_Item */
-static int hf_x2ap_Ethernet_Type_PDU = -1;        /* Ethernet_Type */
-static int hf_x2ap_EUTRANCellIdentifier_PDU = -1;  /* EUTRANCellIdentifier */
-static int hf_x2ap_EUTRANTraceID_PDU = -1;        /* EUTRANTraceID */
-static int hf_x2ap_ExpectedUEBehaviour_PDU = -1;  /* ExpectedUEBehaviour */
-static int hf_x2ap_ExtendedULInterferenceOverloadInfo_PDU = -1;  /* ExtendedULInterferenceOverloadInfo */
-static int hf_x2ap_ExtendedBitRate_PDU = -1;      /* ExtendedBitRate */
-static int hf_x2ap_F1CTrafficContainer_PDU = -1;  /* F1CTrafficContainer */
-static int hf_x2ap_FastMCGRecovery_PDU = -1;      /* FastMCGRecovery */
-static int hf_x2ap_FreqBandIndicatorPriority_PDU = -1;  /* FreqBandIndicatorPriority */
-static int hf_x2ap_FrequencyShift7p5khz_PDU = -1;  /* FrequencyShift7p5khz */
-static int hf_x2ap_GlobalENB_ID_PDU = -1;         /* GlobalENB_ID */
-static int hf_x2ap_GlobalGNB_ID_PDU = -1;         /* GlobalGNB_ID */
-static int hf_x2ap_Global_RAN_NODE_ID_PDU = -1;   /* Global_RAN_NODE_ID */
-static int hf_x2ap_GNBOverloadInformation_PDU = -1;  /* GNBOverloadInformation */
-static int hf_x2ap_GTPtunnelEndpoint_PDU = -1;    /* GTPtunnelEndpoint */
-static int hf_x2ap_GUGroupIDList_PDU = -1;        /* GUGroupIDList */
-static int hf_x2ap_GUMMEI_PDU = -1;               /* GUMMEI */
-static int hf_x2ap_HandoverReportType_PDU = -1;   /* HandoverReportType */
-static int hf_x2ap_HandoverRestrictionList_PDU = -1;  /* HandoverRestrictionList */
-static int hf_x2ap_IABNodeIndication_PDU = -1;    /* IABNodeIndication */
-static int hf_x2ap_IMSvoiceEPSfallbackfrom5G_PDU = -1;  /* IMSvoiceEPSfallbackfrom5G */
-static int hf_x2ap_IntendedTDD_DL_ULConfiguration_NR_PDU = -1;  /* IntendedTDD_DL_ULConfiguration_NR */
-static int hf_x2ap_InterfaceInstanceIndication_PDU = -1;  /* InterfaceInstanceIndication */
-static int hf_x2ap_InvokeIndication_PDU = -1;     /* InvokeIndication */
-static int hf_x2ap_LCID_PDU = -1;                 /* LCID */
-static int hf_x2ap_LHN_ID_PDU = -1;               /* LHN_ID */
-static int hf_x2ap_LocationInformationSgNB_PDU = -1;  /* LocationInformationSgNB */
-static int hf_x2ap_LocationInformationSgNBReporting_PDU = -1;  /* LocationInformationSgNBReporting */
-static int hf_x2ap_LowerLayerPresenceStatusChange_PDU = -1;  /* LowerLayerPresenceStatusChange */
-static int hf_x2ap_M3Configuration_PDU = -1;      /* M3Configuration */
-static int hf_x2ap_M4Configuration_PDU = -1;      /* M4Configuration */
-static int hf_x2ap_M5Configuration_PDU = -1;      /* M5Configuration */
-static int hf_x2ap_M6Configuration_PDU = -1;      /* M6Configuration */
-static int hf_x2ap_M7Configuration_PDU = -1;      /* M7Configuration */
-static int hf_x2ap_MakeBeforeBreakIndicator_PDU = -1;  /* MakeBeforeBreakIndicator */
-static int hf_x2ap_ManagementBasedMDTallowed_PDU = -1;  /* ManagementBasedMDTallowed */
-static int hf_x2ap_Masked_IMEISV_PDU = -1;        /* Masked_IMEISV */
-static int hf_x2ap_MDT_Configuration_PDU = -1;    /* MDT_Configuration */
-static int hf_x2ap_MDTPLMNList_PDU = -1;          /* MDTPLMNList */
-static int hf_x2ap_MDT_Location_Info_PDU = -1;    /* MDT_Location_Info */
-static int hf_x2ap_Measurement_ID_PDU = -1;       /* Measurement_ID */
-static int hf_x2ap_Measurement_ID_ENDC_PDU = -1;  /* Measurement_ID_ENDC */
-static int hf_x2ap_MeNBCoordinationAssistanceInformation_PDU = -1;  /* MeNBCoordinationAssistanceInformation */
-static int hf_x2ap_x2ap_MeNBResourceCoordinationInformation_PDU = -1;  /* MeNBResourceCoordinationInformation */
-static int hf_x2ap_MeNBtoSeNBContainer_PDU = -1;  /* MeNBtoSeNBContainer */
-static int hf_x2ap_MBMS_Service_Area_Identity_List_PDU = -1;  /* MBMS_Service_Area_Identity_List */
-static int hf_x2ap_MBSFN_Subframe_Infolist_PDU = -1;  /* MBSFN_Subframe_Infolist */
-static int hf_x2ap_MDT_ConfigurationNR_PDU = -1;  /* MDT_ConfigurationNR */
-static int hf_x2ap_MobilityParametersModificationRange_PDU = -1;  /* MobilityParametersModificationRange */
-static int hf_x2ap_MobilityParametersInformation_PDU = -1;  /* MobilityParametersInformation */
-static int hf_x2ap_MultibandInfoList_PDU = -1;    /* MultibandInfoList */
-static int hf_x2ap_MessageOversizeNotification_PDU = -1;  /* MessageOversizeNotification */
-static int hf_x2ap_MeNBtoSgNBContainer_PDU = -1;  /* MeNBtoSgNBContainer */
-static int hf_x2ap_SplitSRBs_PDU = -1;            /* SplitSRBs */
-static int hf_x2ap_SplitSRB_PDU = -1;             /* SplitSRB */
-static int hf_x2ap_NBIoT_UL_DL_AlignmentOffset_PDU = -1;  /* NBIoT_UL_DL_AlignmentOffset */
-static int hf_x2ap_NBIoT_RLF_Report_Container_PDU = -1;  /* NBIoT_RLF_Report_Container */
-static int hf_x2ap_NewDRBIDrequest_PDU = -1;      /* NewDRBIDrequest */
-static int hf_x2ap_Number_of_Antennaports_PDU = -1;  /* Number_of_Antennaports */
-static int hf_x2ap_NRCarrierList_PDU = -1;        /* NRCarrierList */
-static int hf_x2ap_NRCellPRACHConfig_PDU = -1;    /* NRCellPRACHConfig */
-static int hf_x2ap_NRCGI_PDU = -1;                /* NRCGI */
-static int hf_x2ap_NRRACHReportInformation_PDU = -1;  /* NRRACHReportInformation */
-static int hf_x2ap_NRNeighbour_Information_PDU = -1;  /* NRNeighbour_Information */
-static int hf_x2ap_NPRACHConfiguration_PDU = -1;  /* NPRACHConfiguration */
-static int hf_x2ap_NRrestrictioninEPSasSecondaryRAT_PDU = -1;  /* NRrestrictioninEPSasSecondaryRAT */
-static int hf_x2ap_MeasurementResultforNRCellsPossiblyAggregated_PDU = -1;  /* MeasurementResultforNRCellsPossiblyAggregated */
-static int hf_x2ap_MIMOPRBusageInformation_PDU = -1;  /* MIMOPRBusageInformation */
-static int hf_x2ap_NRrestrictionin5GS_PDU = -1;   /* NRrestrictionin5GS */
-static int hf_x2ap_NRS_NSSS_PowerOffset_PDU = -1;  /* NRS_NSSS_PowerOffset */
-static int hf_x2ap_NRUeReport_PDU = -1;           /* NRUeReport */
-static int hf_x2ap_NRUESidelinkAggregateMaximumBitRate_PDU = -1;  /* NRUESidelinkAggregateMaximumBitRate */
-static int hf_x2ap_NRUESecurityCapabilities_PDU = -1;  /* NRUESecurityCapabilities */
-static int hf_x2ap_NSSS_NumOccasionDifferentPrecoder_PDU = -1;  /* NSSS_NumOccasionDifferentPrecoder */
-static int hf_x2ap_NRV2XServicesAuthorized_PDU = -1;  /* NRV2XServicesAuthorized */
-static int hf_x2ap_OffsetOfNbiotChannelNumberToEARFCN_PDU = -1;  /* OffsetOfNbiotChannelNumberToEARFCN */
-static int hf_x2ap_Packet_LossRate_PDU = -1;      /* Packet_LossRate */
-static int hf_x2ap_PC5QoSParameters_PDU = -1;     /* PC5QoSParameters */
-static int hf_x2ap_PDCPChangeIndication_PDU = -1;  /* PDCPChangeIndication */
-static int hf_x2ap_PDCPSnLength_PDU = -1;         /* PDCPSnLength */
-static int hf_x2ap_PCI_PDU = -1;                  /* PCI */
-static int hf_x2ap_PLMN_Identity_PDU = -1;        /* PLMN_Identity */
-static int hf_x2ap_PRACH_Configuration_PDU = -1;  /* PRACH_Configuration */
-static int hf_x2ap_ProSeAuthorized_PDU = -1;      /* ProSeAuthorized */
-static int hf_x2ap_ProSeUEtoNetworkRelaying_PDU = -1;  /* ProSeUEtoNetworkRelaying */
-static int hf_x2ap_x2ap_ProtectedEUTRAResourceIndication_PDU = -1;  /* ProtectedEUTRAResourceIndication */
-static int hf_x2ap_PartialListIndicator_PDU = -1;  /* PartialListIndicator */
-static int hf_x2ap_PrivacyIndicator_PDU = -1;     /* PrivacyIndicator */
-static int hf_x2ap_PSCellHistoryInformationRetrieve_PDU = -1;  /* PSCellHistoryInformationRetrieve */
-static int hf_x2ap_PSCell_UE_HistoryInformation_PDU = -1;  /* PSCell_UE_HistoryInformation */
-static int hf_x2ap_PSCellChangeHistory_PDU = -1;  /* PSCellChangeHistory */
-static int hf_x2ap_QoS_Mapping_Information_PDU = -1;  /* QoS_Mapping_Information */
-static int hf_x2ap_RAN_UE_NGAP_ID_PDU = -1;       /* RAN_UE_NGAP_ID */
-static int hf_x2ap_RAT_Restrictions_PDU = -1;     /* RAT_Restrictions */
-static int hf_x2ap_ReceiveStatusOfULPDCPSDUsExtended_PDU = -1;  /* ReceiveStatusOfULPDCPSDUsExtended */
-static int hf_x2ap_ReceiveStatusOfULPDCPSDUsPDCP_SNlength18_PDU = -1;  /* ReceiveStatusOfULPDCPSDUsPDCP_SNlength18 */
-static int hf_x2ap_ReleaseFastMCGRecoveryViaSRB3_PDU = -1;  /* ReleaseFastMCGRecoveryViaSRB3 */
-static int hf_x2ap_Registration_Request_PDU = -1;  /* Registration_Request */
-static int hf_x2ap_ReportCharacteristics_PDU = -1;  /* ReportCharacteristics */
-static int hf_x2ap_ReportingPeriodicityCSIR_PDU = -1;  /* ReportingPeriodicityCSIR */
-static int hf_x2ap_ReportingPeriodicityRSRPMR_PDU = -1;  /* ReportingPeriodicityRSRPMR */
-static int hf_x2ap_RequestedFastMCGRecoveryViaSRB3_PDU = -1;  /* RequestedFastMCGRecoveryViaSRB3 */
-static int hf_x2ap_RequestedFastMCGRecoveryViaSRB3Release_PDU = -1;  /* RequestedFastMCGRecoveryViaSRB3Release */
-static int hf_x2ap_ResumeID_PDU = -1;             /* ResumeID */
-static int hf_x2ap_RLCMode_PDU = -1;              /* RLCMode */
-static int hf_x2ap_RLC_Status_PDU = -1;           /* RLC_Status */
-static int hf_x2ap_RRC_Config_Ind_PDU = -1;       /* RRC_Config_Ind */
-static int hf_x2ap_RRCConnReestabIndicator_PDU = -1;  /* RRCConnReestabIndicator */
-static int hf_x2ap_RRCConnSetupIndicator_PDU = -1;  /* RRCConnSetupIndicator */
-static int hf_x2ap_RSRPMRList_PDU = -1;           /* RSRPMRList */
-static int hf_x2ap_SCGActivationStatus_PDU = -1;  /* SCGActivationStatus */
-static int hf_x2ap_SCGActivationRequest_PDU = -1;  /* SCGActivationRequest */
-static int hf_x2ap_SCGChangeIndication_PDU = -1;  /* SCGChangeIndication */
-static int hf_x2ap_SCGreconfigNotification_PDU = -1;  /* SCGreconfigNotification */
-static int hf_x2ap_SCG_UE_HistoryInformation_PDU = -1;  /* SCG_UE_HistoryInformation */
-static int hf_x2ap_SecondaryRATUsageReportList_PDU = -1;  /* SecondaryRATUsageReportList */
-static int hf_x2ap_SecondaryRATUsageReport_Item_PDU = -1;  /* SecondaryRATUsageReport_Item */
-static int hf_x2ap_SecurityIndication_PDU = -1;   /* SecurityIndication */
-static int hf_x2ap_SecurityResult_PDU = -1;       /* SecurityResult */
-static int hf_x2ap_SeNBSecurityKey_PDU = -1;      /* SeNBSecurityKey */
-static int hf_x2ap_SeNBtoMeNBContainer_PDU = -1;  /* SeNBtoMeNBContainer */
-static int hf_x2ap_SensorMeasurementConfiguration_PDU = -1;  /* SensorMeasurementConfiguration */
-static int hf_x2ap_ServedCells_PDU = -1;          /* ServedCells */
-static int hf_x2ap_ServedCellSpecificInfoReq_NR_PDU = -1;  /* ServedCellSpecificInfoReq_NR */
-static int hf_x2ap_ServiceType_PDU = -1;          /* ServiceType */
-static int hf_x2ap_SgNBCoordinationAssistanceInformation_PDU = -1;  /* SgNBCoordinationAssistanceInformation */
-static int hf_x2ap_x2ap_SgNBResourceCoordinationInformation_PDU = -1;  /* SgNBResourceCoordinationInformation */
-static int hf_x2ap_SgNB_UE_X2AP_ID_PDU = -1;      /* SgNB_UE_X2AP_ID */
-static int hf_x2ap_SIPTOBearerDeactivationIndication_PDU = -1;  /* SIPTOBearerDeactivationIndication */
-static int hf_x2ap_ShortMAC_I_PDU = -1;           /* ShortMAC_I */
-static int hf_x2ap_SGNB_Addition_Trigger_Ind_PDU = -1;  /* SGNB_Addition_Trigger_Ind */
-static int hf_x2ap_SNtriggered_PDU = -1;          /* SNtriggered */
-static int hf_x2ap_SpectrumSharingGroupID_PDU = -1;  /* SpectrumSharingGroupID */
-static int hf_x2ap_Subscription_Based_UE_DifferentiationInfo_PDU = -1;  /* Subscription_Based_UE_DifferentiationInfo */
-static int hf_x2ap_SRVCCOperationPossible_PDU = -1;  /* SRVCCOperationPossible */
-static int hf_x2ap_SSB_PositionsInBurst_PDU = -1;  /* SSB_PositionsInBurst */
-static int hf_x2ap_SubscriberProfileIDforRFP_PDU = -1;  /* SubscriberProfileIDforRFP */
-static int hf_x2ap_SubframeAssignment_PDU = -1;   /* SubframeAssignment */
-static int hf_x2ap_SgNBSecurityKey_PDU = -1;      /* SgNBSecurityKey */
-static int hf_x2ap_SgNBtoMeNBContainer_PDU = -1;  /* SgNBtoMeNBContainer */
-static int hf_x2ap_SCGConfigurationQuery_PDU = -1;  /* SCGConfigurationQuery */
-static int hf_x2ap_SFN_Offset_PDU = -1;           /* SFN_Offset */
-static int hf_x2ap_TAC_PDU = -1;                  /* TAC */
-static int hf_x2ap_TargetCellInNGRAN_PDU = -1;    /* TargetCellInNGRAN */
-static int hf_x2ap_TargetCellInUTRAN_PDU = -1;    /* TargetCellInUTRAN */
-static int hf_x2ap_TargeteNBtoSource_eNBTransparentContainer_PDU = -1;  /* TargeteNBtoSource_eNBTransparentContainer */
-static int hf_x2ap_TDDULDLConfigurationCommonNR_PDU = -1;  /* TDDULDLConfigurationCommonNR */
-static int hf_x2ap_TimeToWait_PDU = -1;           /* TimeToWait */
-static int hf_x2ap_Time_UE_StayedInCell_EnhancedGranularity_PDU = -1;  /* Time_UE_StayedInCell_EnhancedGranularity */
-static int hf_x2ap_TNLA_To_Add_List_PDU = -1;     /* TNLA_To_Add_List */
-static int hf_x2ap_TNLA_To_Update_List_PDU = -1;  /* TNLA_To_Update_List */
-static int hf_x2ap_TNLA_To_Remove_List_PDU = -1;  /* TNLA_To_Remove_List */
-static int hf_x2ap_TNLA_Setup_List_PDU = -1;      /* TNLA_Setup_List */
-static int hf_x2ap_TNLA_Failed_To_Setup_List_PDU = -1;  /* TNLA_Failed_To_Setup_List */
-static int hf_x2ap_TNLConfigurationInfo_PDU = -1;  /* TNLConfigurationInfo */
-static int hf_x2ap_TraceActivation_PDU = -1;      /* TraceActivation */
-static int hf_x2ap_TransportLayerAddress_PDU = -1;  /* TransportLayerAddress */
-static int hf_x2ap_TunnelInformation_PDU = -1;    /* TunnelInformation */
-static int hf_x2ap_UEAggregateMaximumBitRate_PDU = -1;  /* UEAggregateMaximumBitRate */
-static int hf_x2ap_UEAppLayerMeasConfig_PDU = -1;  /* UEAppLayerMeasConfig */
-static int hf_x2ap_UE_ContextKeptIndicator_PDU = -1;  /* UE_ContextKeptIndicator */
-static int hf_x2ap_UEID_PDU = -1;                 /* UEID */
-static int hf_x2ap_UE_HistoryInformation_PDU = -1;  /* UE_HistoryInformation */
-static int hf_x2ap_UE_HistoryInformationFromTheUE_PDU = -1;  /* UE_HistoryInformationFromTheUE */
-static int hf_x2ap_UE_X2AP_ID_PDU = -1;           /* UE_X2AP_ID */
-static int hf_x2ap_UE_X2AP_ID_Extension_PDU = -1;  /* UE_X2AP_ID_Extension */
-static int hf_x2ap_UERadioCapability_PDU = -1;    /* UERadioCapability */
-static int hf_x2ap_UERadioCapabilityID_PDU = -1;  /* UERadioCapabilityID */
-static int hf_x2ap_UE_RLF_Report_Container_PDU = -1;  /* UE_RLF_Report_Container */
-static int hf_x2ap_UE_RLF_Report_Container_for_extended_bands_PDU = -1;  /* UE_RLF_Report_Container_for_extended_bands */
-static int hf_x2ap_UESecurityCapabilities_PDU = -1;  /* UESecurityCapabilities */
-static int hf_x2ap_UESidelinkAggregateMaximumBitRate_PDU = -1;  /* UESidelinkAggregateMaximumBitRate */
-static int hf_x2ap_UEsToBeResetList_PDU = -1;     /* UEsToBeResetList */
-static int hf_x2ap_UL_scheduling_PDCCH_CCE_usage_PDU = -1;  /* UL_scheduling_PDCCH_CCE_usage */
-static int hf_x2ap_UnlicensedSpectrumRestriction_PDU = -1;  /* UnlicensedSpectrumRestriction */
-static int hf_x2ap_URI_Address_PDU = -1;          /* URI_Address */
-static int hf_x2ap_UserPlaneTrafficActivityReport_PDU = -1;  /* UserPlaneTrafficActivityReport */
-static int hf_x2ap_V2XServicesAuthorized_PDU = -1;  /* V2XServicesAuthorized */
-static int hf_x2ap_WLANMeasurementConfiguration_PDU = -1;  /* WLANMeasurementConfiguration */
-static int hf_x2ap_X2BenefitValue_PDU = -1;       /* X2BenefitValue */
-static int hf_x2ap_HandoverRequest_PDU = -1;      /* HandoverRequest */
-static int hf_x2ap_UE_ContextInformation_PDU = -1;  /* UE_ContextInformation */
-static int hf_x2ap_E_RABs_ToBeSetup_Item_PDU = -1;  /* E_RABs_ToBeSetup_Item */
-static int hf_x2ap_MobilityInformation_PDU = -1;  /* MobilityInformation */
-static int hf_x2ap_UE_ContextReferenceAtSeNB_PDU = -1;  /* UE_ContextReferenceAtSeNB */
-static int hf_x2ap_UE_ContextReferenceAtWT_PDU = -1;  /* UE_ContextReferenceAtWT */
-static int hf_x2ap_UE_ContextReferenceAtSgNB_PDU = -1;  /* UE_ContextReferenceAtSgNB */
-static int hf_x2ap_HandoverRequestAcknowledge_PDU = -1;  /* HandoverRequestAcknowledge */
-static int hf_x2ap_E_RABs_Admitted_List_PDU = -1;  /* E_RABs_Admitted_List */
-static int hf_x2ap_E_RABs_Admitted_Item_PDU = -1;  /* E_RABs_Admitted_Item */
-static int hf_x2ap_HandoverPreparationFailure_PDU = -1;  /* HandoverPreparationFailure */
-static int hf_x2ap_HandoverReport_PDU = -1;       /* HandoverReport */
-static int hf_x2ap_EarlyStatusTransfer_PDU = -1;  /* EarlyStatusTransfer */
-static int hf_x2ap_ProcedureStageChoice_PDU = -1;  /* ProcedureStageChoice */
-static int hf_x2ap_SNStatusTransfer_PDU = -1;     /* SNStatusTransfer */
-static int hf_x2ap_E_RABs_SubjectToStatusTransfer_List_PDU = -1;  /* E_RABs_SubjectToStatusTransfer_List */
-static int hf_x2ap_E_RABs_SubjectToStatusTransfer_Item_PDU = -1;  /* E_RABs_SubjectToStatusTransfer_Item */
-static int hf_x2ap_UEContextRelease_PDU = -1;     /* UEContextRelease */
-static int hf_x2ap_HandoverCancel_PDU = -1;       /* HandoverCancel */
-static int hf_x2ap_HandoverSuccess_PDU = -1;      /* HandoverSuccess */
-static int hf_x2ap_ConditionalHandoverCancel_PDU = -1;  /* ConditionalHandoverCancel */
-static int hf_x2ap_ErrorIndication_PDU = -1;      /* ErrorIndication */
-static int hf_x2ap_ResetRequest_PDU = -1;         /* ResetRequest */
-static int hf_x2ap_ResetResponse_PDU = -1;        /* ResetResponse */
-static int hf_x2ap_X2SetupRequest_PDU = -1;       /* X2SetupRequest */
-static int hf_x2ap_X2SetupResponse_PDU = -1;      /* X2SetupResponse */
-static int hf_x2ap_X2SetupFailure_PDU = -1;       /* X2SetupFailure */
-static int hf_x2ap_LoadInformation_PDU = -1;      /* LoadInformation */
-static int hf_x2ap_CellInformation_List_PDU = -1;  /* CellInformation_List */
-static int hf_x2ap_CellInformation_Item_PDU = -1;  /* CellInformation_Item */
-static int hf_x2ap_ENBConfigurationUpdate_PDU = -1;  /* ENBConfigurationUpdate */
-static int hf_x2ap_ServedCellsToModify_PDU = -1;  /* ServedCellsToModify */
-static int hf_x2ap_Old_ECGIs_PDU = -1;            /* Old_ECGIs */
-static int hf_x2ap_ENBConfigurationUpdateAcknowledge_PDU = -1;  /* ENBConfigurationUpdateAcknowledge */
-static int hf_x2ap_ENBConfigurationUpdateFailure_PDU = -1;  /* ENBConfigurationUpdateFailure */
-static int hf_x2ap_ResourceStatusRequest_PDU = -1;  /* ResourceStatusRequest */
-static int hf_x2ap_CellToReport_List_PDU = -1;    /* CellToReport_List */
-static int hf_x2ap_CellToReport_Item_PDU = -1;    /* CellToReport_Item */
-static int hf_x2ap_ReportingPeriodicity_PDU = -1;  /* ReportingPeriodicity */
-static int hf_x2ap_PartialSuccessIndicator_PDU = -1;  /* PartialSuccessIndicator */
-static int hf_x2ap_ResourceStatusResponse_PDU = -1;  /* ResourceStatusResponse */
-static int hf_x2ap_MeasurementInitiationResult_List_PDU = -1;  /* MeasurementInitiationResult_List */
-static int hf_x2ap_MeasurementInitiationResult_Item_PDU = -1;  /* MeasurementInitiationResult_Item */
-static int hf_x2ap_MeasurementFailureCause_Item_PDU = -1;  /* MeasurementFailureCause_Item */
-static int hf_x2ap_ResourceStatusFailure_PDU = -1;  /* ResourceStatusFailure */
-static int hf_x2ap_CompleteFailureCauseInformation_List_PDU = -1;  /* CompleteFailureCauseInformation_List */
-static int hf_x2ap_CompleteFailureCauseInformation_Item_PDU = -1;  /* CompleteFailureCauseInformation_Item */
-static int hf_x2ap_ResourceStatusUpdate_PDU = -1;  /* ResourceStatusUpdate */
-static int hf_x2ap_CellMeasurementResult_List_PDU = -1;  /* CellMeasurementResult_List */
-static int hf_x2ap_CellMeasurementResult_Item_PDU = -1;  /* CellMeasurementResult_Item */
-static int hf_x2ap_PrivateMessage_PDU = -1;       /* PrivateMessage */
-static int hf_x2ap_MobilityChangeRequest_PDU = -1;  /* MobilityChangeRequest */
-static int hf_x2ap_MobilityChangeAcknowledge_PDU = -1;  /* MobilityChangeAcknowledge */
-static int hf_x2ap_MobilityChangeFailure_PDU = -1;  /* MobilityChangeFailure */
-static int hf_x2ap_RLFIndication_PDU = -1;        /* RLFIndication */
-static int hf_x2ap_CellActivationRequest_PDU = -1;  /* CellActivationRequest */
-static int hf_x2ap_ServedCellsToActivate_PDU = -1;  /* ServedCellsToActivate */
-static int hf_x2ap_CellActivationResponse_PDU = -1;  /* CellActivationResponse */
-static int hf_x2ap_ActivatedCellList_PDU = -1;    /* ActivatedCellList */
-static int hf_x2ap_CellActivationFailure_PDU = -1;  /* CellActivationFailure */
-static int hf_x2ap_X2Release_PDU = -1;            /* X2Release */
-static int hf_x2ap_X2APMessageTransfer_PDU = -1;  /* X2APMessageTransfer */
-static int hf_x2ap_RNL_Header_PDU = -1;           /* RNL_Header */
-static int hf_x2ap_X2AP_Message_PDU = -1;         /* X2AP_Message */
-static int hf_x2ap_SeNBAdditionRequest_PDU = -1;  /* SeNBAdditionRequest */
-static int hf_x2ap_E_RABs_ToBeAdded_List_PDU = -1;  /* E_RABs_ToBeAdded_List */
-static int hf_x2ap_E_RABs_ToBeAdded_Item_PDU = -1;  /* E_RABs_ToBeAdded_Item */
-static int hf_x2ap_SeNBAdditionRequestAcknowledge_PDU = -1;  /* SeNBAdditionRequestAcknowledge */
-static int hf_x2ap_E_RABs_Admitted_ToBeAdded_List_PDU = -1;  /* E_RABs_Admitted_ToBeAdded_List */
-static int hf_x2ap_E_RABs_Admitted_ToBeAdded_Item_PDU = -1;  /* E_RABs_Admitted_ToBeAdded_Item */
-static int hf_x2ap_SeNBAdditionRequestReject_PDU = -1;  /* SeNBAdditionRequestReject */
-static int hf_x2ap_SeNBReconfigurationComplete_PDU = -1;  /* SeNBReconfigurationComplete */
-static int hf_x2ap_ResponseInformationSeNBReconfComp_PDU = -1;  /* ResponseInformationSeNBReconfComp */
-static int hf_x2ap_SeNBModificationRequest_PDU = -1;  /* SeNBModificationRequest */
-static int hf_x2ap_UE_ContextInformationSeNBModReq_PDU = -1;  /* UE_ContextInformationSeNBModReq */
-static int hf_x2ap_E_RABs_ToBeAdded_ModReqItem_PDU = -1;  /* E_RABs_ToBeAdded_ModReqItem */
-static int hf_x2ap_E_RABs_ToBeModified_ModReqItem_PDU = -1;  /* E_RABs_ToBeModified_ModReqItem */
-static int hf_x2ap_E_RABs_ToBeReleased_ModReqItem_PDU = -1;  /* E_RABs_ToBeReleased_ModReqItem */
-static int hf_x2ap_SeNBModificationRequestAcknowledge_PDU = -1;  /* SeNBModificationRequestAcknowledge */
-static int hf_x2ap_E_RABs_Admitted_ToBeAdded_ModAckList_PDU = -1;  /* E_RABs_Admitted_ToBeAdded_ModAckList */
-static int hf_x2ap_E_RABs_Admitted_ToBeAdded_ModAckItem_PDU = -1;  /* E_RABs_Admitted_ToBeAdded_ModAckItem */
-static int hf_x2ap_E_RABs_Admitted_ToBeModified_ModAckList_PDU = -1;  /* E_RABs_Admitted_ToBeModified_ModAckList */
-static int hf_x2ap_E_RABs_Admitted_ToBeModified_ModAckItem_PDU = -1;  /* E_RABs_Admitted_ToBeModified_ModAckItem */
-static int hf_x2ap_E_RABs_Admitted_ToBeReleased_ModAckList_PDU = -1;  /* E_RABs_Admitted_ToBeReleased_ModAckList */
-static int hf_x2ap_E_RABs_Admitted_ToReleased_ModAckItem_PDU = -1;  /* E_RABs_Admitted_ToReleased_ModAckItem */
-static int hf_x2ap_SeNBModificationRequestReject_PDU = -1;  /* SeNBModificationRequestReject */
-static int hf_x2ap_SeNBModificationRequired_PDU = -1;  /* SeNBModificationRequired */
-static int hf_x2ap_E_RABs_ToBeReleased_ModReqd_PDU = -1;  /* E_RABs_ToBeReleased_ModReqd */
-static int hf_x2ap_E_RABs_ToBeReleased_ModReqdItem_PDU = -1;  /* E_RABs_ToBeReleased_ModReqdItem */
-static int hf_x2ap_SeNBModificationConfirm_PDU = -1;  /* SeNBModificationConfirm */
-static int hf_x2ap_SeNBModificationRefuse_PDU = -1;  /* SeNBModificationRefuse */
-static int hf_x2ap_SeNBReleaseRequest_PDU = -1;   /* SeNBReleaseRequest */
-static int hf_x2ap_E_RABs_ToBeReleased_List_RelReq_PDU = -1;  /* E_RABs_ToBeReleased_List_RelReq */
-static int hf_x2ap_E_RABs_ToBeReleased_RelReqItem_PDU = -1;  /* E_RABs_ToBeReleased_RelReqItem */
-static int hf_x2ap_SeNBReleaseRequired_PDU = -1;  /* SeNBReleaseRequired */
-static int hf_x2ap_SeNBReleaseConfirm_PDU = -1;   /* SeNBReleaseConfirm */
-static int hf_x2ap_E_RABs_ToBeReleased_List_RelConf_PDU = -1;  /* E_RABs_ToBeReleased_List_RelConf */
-static int hf_x2ap_E_RABs_ToBeReleased_RelConfItem_PDU = -1;  /* E_RABs_ToBeReleased_RelConfItem */
-static int hf_x2ap_SeNBCounterCheckRequest_PDU = -1;  /* SeNBCounterCheckRequest */
-static int hf_x2ap_E_RABs_SubjectToCounterCheck_List_PDU = -1;  /* E_RABs_SubjectToCounterCheck_List */
-static int hf_x2ap_E_RABs_SubjectToCounterCheckItem_PDU = -1;  /* E_RABs_SubjectToCounterCheckItem */
-static int hf_x2ap_X2RemovalRequest_PDU = -1;     /* X2RemovalRequest */
-static int hf_x2ap_X2RemovalResponse_PDU = -1;    /* X2RemovalResponse */
-static int hf_x2ap_X2RemovalFailure_PDU = -1;     /* X2RemovalFailure */
-static int hf_x2ap_RetrieveUEContextRequest_PDU = -1;  /* RetrieveUEContextRequest */
-static int hf_x2ap_RetrieveUEContextResponse_PDU = -1;  /* RetrieveUEContextResponse */
-static int hf_x2ap_UE_ContextInformationRetrieve_PDU = -1;  /* UE_ContextInformationRetrieve */
-static int hf_x2ap_E_RABs_ToBeSetupRetrieve_Item_PDU = -1;  /* E_RABs_ToBeSetupRetrieve_Item */
-static int hf_x2ap_RetrieveUEContextFailure_PDU = -1;  /* RetrieveUEContextFailure */
-static int hf_x2ap_SgNBAdditionRequest_PDU = -1;  /* SgNBAdditionRequest */
-static int hf_x2ap_E_RABs_ToBeAdded_SgNBAddReqList_PDU = -1;  /* E_RABs_ToBeAdded_SgNBAddReqList */
-static int hf_x2ap_E_RABs_ToBeAdded_SgNBAddReq_Item_PDU = -1;  /* E_RABs_ToBeAdded_SgNBAddReq_Item */
-static int hf_x2ap_SgNBAdditionRequestAcknowledge_PDU = -1;  /* SgNBAdditionRequestAcknowledge */
-static int hf_x2ap_E_RABs_Admitted_ToBeAdded_SgNBAddReqAckList_PDU = -1;  /* E_RABs_Admitted_ToBeAdded_SgNBAddReqAckList */
-static int hf_x2ap_E_RABs_Admitted_ToBeAdded_SgNBAddReqAck_Item_PDU = -1;  /* E_RABs_Admitted_ToBeAdded_SgNBAddReqAck_Item */
-static int hf_x2ap_SgNBAdditionRequestReject_PDU = -1;  /* SgNBAdditionRequestReject */
-static int hf_x2ap_SgNBReconfigurationComplete_PDU = -1;  /* SgNBReconfigurationComplete */
-static int hf_x2ap_ResponseInformationSgNBReconfComp_PDU = -1;  /* ResponseInformationSgNBReconfComp */
-static int hf_x2ap_SgNBModificationRequest_PDU = -1;  /* SgNBModificationRequest */
-static int hf_x2ap_UE_ContextInformation_SgNBModReq_PDU = -1;  /* UE_ContextInformation_SgNBModReq */
-static int hf_x2ap_E_RABs_ToBeAdded_SgNBModReq_Item_PDU = -1;  /* E_RABs_ToBeAdded_SgNBModReq_Item */
-static int hf_x2ap_E_RABs_ToBeModified_SgNBModReq_Item_PDU = -1;  /* E_RABs_ToBeModified_SgNBModReq_Item */
-static int hf_x2ap_E_RABs_ToBeReleased_SgNBModReq_Item_PDU = -1;  /* E_RABs_ToBeReleased_SgNBModReq_Item */
-static int hf_x2ap_SgNBModificationRequestAcknowledge_PDU = -1;  /* SgNBModificationRequestAcknowledge */
-static int hf_x2ap_E_RABs_Admitted_ToBeAdded_SgNBModAckList_PDU = -1;  /* E_RABs_Admitted_ToBeAdded_SgNBModAckList */
-static int hf_x2ap_E_RABs_Admitted_ToBeAdded_SgNBModAck_Item_PDU = -1;  /* E_RABs_Admitted_ToBeAdded_SgNBModAck_Item */
-static int hf_x2ap_E_RABs_Admitted_ToBeModified_SgNBModAckList_PDU = -1;  /* E_RABs_Admitted_ToBeModified_SgNBModAckList */
-static int hf_x2ap_E_RABs_Admitted_ToBeModified_SgNBModAck_Item_PDU = -1;  /* E_RABs_Admitted_ToBeModified_SgNBModAck_Item */
-static int hf_x2ap_E_RABs_Admitted_ToBeReleased_SgNBModAckList_PDU = -1;  /* E_RABs_Admitted_ToBeReleased_SgNBModAckList */
-static int hf_x2ap_E_RABs_Admitted_ToReleased_SgNBModAck_Item_PDU = -1;  /* E_RABs_Admitted_ToReleased_SgNBModAck_Item */
-static int hf_x2ap_SgNBModificationRequestReject_PDU = -1;  /* SgNBModificationRequestReject */
-static int hf_x2ap_SgNBModificationRequired_PDU = -1;  /* SgNBModificationRequired */
-static int hf_x2ap_E_RABs_ToBeReleased_SgNBModReqdList_PDU = -1;  /* E_RABs_ToBeReleased_SgNBModReqdList */
-static int hf_x2ap_E_RABs_ToBeReleased_SgNBModReqd_Item_PDU = -1;  /* E_RABs_ToBeReleased_SgNBModReqd_Item */
-static int hf_x2ap_E_RABs_ToBeModified_SgNBModReqdList_PDU = -1;  /* E_RABs_ToBeModified_SgNBModReqdList */
-static int hf_x2ap_E_RABs_ToBeModified_SgNBModReqd_Item_PDU = -1;  /* E_RABs_ToBeModified_SgNBModReqd_Item */
-static int hf_x2ap_SgNBModificationConfirm_PDU = -1;  /* SgNBModificationConfirm */
-static int hf_x2ap_E_RABs_AdmittedToBeModified_SgNBModConfList_PDU = -1;  /* E_RABs_AdmittedToBeModified_SgNBModConfList */
-static int hf_x2ap_E_RABs_AdmittedToBeModified_SgNBModConf_Item_PDU = -1;  /* E_RABs_AdmittedToBeModified_SgNBModConf_Item */
-static int hf_x2ap_SgNBModificationRefuse_PDU = -1;  /* SgNBModificationRefuse */
-static int hf_x2ap_SgNBReleaseRequest_PDU = -1;   /* SgNBReleaseRequest */
-static int hf_x2ap_E_RABs_ToBeReleased_SgNBRelReqList_PDU = -1;  /* E_RABs_ToBeReleased_SgNBRelReqList */
-static int hf_x2ap_E_RABs_ToBeReleased_SgNBRelReq_Item_PDU = -1;  /* E_RABs_ToBeReleased_SgNBRelReq_Item */
-static int hf_x2ap_SgNBReleaseRequestAcknowledge_PDU = -1;  /* SgNBReleaseRequestAcknowledge */
-static int hf_x2ap_E_RABs_Admitted_ToBeReleased_SgNBRelReqAckList_PDU = -1;  /* E_RABs_Admitted_ToBeReleased_SgNBRelReqAckList */
-static int hf_x2ap_E_RABs_Admitted_ToBeReleased_SgNBRelReqAck_Item_PDU = -1;  /* E_RABs_Admitted_ToBeReleased_SgNBRelReqAck_Item */
-static int hf_x2ap_SgNBReleaseRequestReject_PDU = -1;  /* SgNBReleaseRequestReject */
-static int hf_x2ap_SgNBReleaseRequired_PDU = -1;  /* SgNBReleaseRequired */
-static int hf_x2ap_E_RABs_ToBeReleased_SgNBRelReqdList_PDU = -1;  /* E_RABs_ToBeReleased_SgNBRelReqdList */
-static int hf_x2ap_E_RABs_ToBeReleased_SgNBRelReqd_Item_PDU = -1;  /* E_RABs_ToBeReleased_SgNBRelReqd_Item */
-static int hf_x2ap_SgNBReleaseConfirm_PDU = -1;   /* SgNBReleaseConfirm */
-static int hf_x2ap_E_RABs_ToBeReleased_SgNBRelConfList_PDU = -1;  /* E_RABs_ToBeReleased_SgNBRelConfList */
-static int hf_x2ap_E_RABs_ToBeReleased_SgNBRelConf_Item_PDU = -1;  /* E_RABs_ToBeReleased_SgNBRelConf_Item */
-static int hf_x2ap_SgNBCounterCheckRequest_PDU = -1;  /* SgNBCounterCheckRequest */
-static int hf_x2ap_E_RABs_SubjectToSgNBCounterCheck_List_PDU = -1;  /* E_RABs_SubjectToSgNBCounterCheck_List */
-static int hf_x2ap_E_RABs_SubjectToSgNBCounterCheck_Item_PDU = -1;  /* E_RABs_SubjectToSgNBCounterCheck_Item */
-static int hf_x2ap_SgNBChangeRequired_PDU = -1;   /* SgNBChangeRequired */
-static int hf_x2ap_AccessAndMobilityIndication_PDU = -1;  /* AccessAndMobilityIndication */
-static int hf_x2ap_SgNBChangeConfirm_PDU = -1;    /* SgNBChangeConfirm */
-static int hf_x2ap_E_RABs_ToBeReleased_SgNBChaConfList_PDU = -1;  /* E_RABs_ToBeReleased_SgNBChaConfList */
-static int hf_x2ap_E_RABs_ToBeReleased_SgNBChaConf_Item_PDU = -1;  /* E_RABs_ToBeReleased_SgNBChaConf_Item */
-static int hf_x2ap_RRCTransfer_PDU = -1;          /* RRCTransfer */
-static int hf_x2ap_SgNBChangeRefuse_PDU = -1;     /* SgNBChangeRefuse */
-static int hf_x2ap_ENDCX2SetupRequest_PDU = -1;   /* ENDCX2SetupRequest */
-static int hf_x2ap_InitiatingNodeType_EndcX2Setup_PDU = -1;  /* InitiatingNodeType_EndcX2Setup */
-static int hf_x2ap_ServedEUTRAcellsENDCX2ManagementList_PDU = -1;  /* ServedEUTRAcellsENDCX2ManagementList */
-static int hf_x2ap_ServedNRcellsENDCX2ManagementList_PDU = -1;  /* ServedNRcellsENDCX2ManagementList */
-static int hf_x2ap_CellandCapacityAssistInfo_PDU = -1;  /* CellandCapacityAssistInfo */
-static int hf_x2ap_CellAssistanceInformation_PDU = -1;  /* CellAssistanceInformation */
-static int hf_x2ap_ENDCX2SetupResponse_PDU = -1;  /* ENDCX2SetupResponse */
-static int hf_x2ap_RespondingNodeType_EndcX2Setup_PDU = -1;  /* RespondingNodeType_EndcX2Setup */
-static int hf_x2ap_ENDCX2SetupFailure_PDU = -1;   /* ENDCX2SetupFailure */
-static int hf_x2ap_ENDCConfigurationUpdate_PDU = -1;  /* ENDCConfigurationUpdate */
-static int hf_x2ap_InitiatingNodeType_EndcConfigUpdate_PDU = -1;  /* InitiatingNodeType_EndcConfigUpdate */
-static int hf_x2ap_ServedEUTRAcellsToModifyListENDCConfUpd_PDU = -1;  /* ServedEUTRAcellsToModifyListENDCConfUpd */
-static int hf_x2ap_ServedEUTRAcellsToDeleteListENDCConfUpd_PDU = -1;  /* ServedEUTRAcellsToDeleteListENDCConfUpd */
-static int hf_x2ap_ServedNRcellsToModifyENDCConfUpdList_PDU = -1;  /* ServedNRcellsToModifyENDCConfUpdList */
-static int hf_x2ap_ServedNRcellsToDeleteENDCConfUpdList_PDU = -1;  /* ServedNRcellsToDeleteENDCConfUpdList */
-static int hf_x2ap_ENDCConfigurationUpdateAcknowledge_PDU = -1;  /* ENDCConfigurationUpdateAcknowledge */
-static int hf_x2ap_RespondingNodeType_EndcConfigUpdate_PDU = -1;  /* RespondingNodeType_EndcConfigUpdate */
-static int hf_x2ap_ENDCConfigurationUpdateFailure_PDU = -1;  /* ENDCConfigurationUpdateFailure */
-static int hf_x2ap_ENDCCellActivationRequest_PDU = -1;  /* ENDCCellActivationRequest */
-static int hf_x2ap_ServedNRCellsToActivate_PDU = -1;  /* ServedNRCellsToActivate */
-static int hf_x2ap_ENDCCellActivationResponse_PDU = -1;  /* ENDCCellActivationResponse */
-static int hf_x2ap_ActivatedNRCellList_PDU = -1;  /* ActivatedNRCellList */
-static int hf_x2ap_ENDCCellActivationFailure_PDU = -1;  /* ENDCCellActivationFailure */
-static int hf_x2ap_ENDCResourceStatusRequest_PDU = -1;  /* ENDCResourceStatusRequest */
-static int hf_x2ap_CellToReport_NR_ENDC_List_PDU = -1;  /* CellToReport_NR_ENDC_List */
-static int hf_x2ap_CellToReport_NR_ENDC_Item_PDU = -1;  /* CellToReport_NR_ENDC_Item */
-static int hf_x2ap_CellToReport_E_UTRA_ENDC_List_PDU = -1;  /* CellToReport_E_UTRA_ENDC_List */
-static int hf_x2ap_CellToReport_E_UTRA_ENDC_Item_PDU = -1;  /* CellToReport_E_UTRA_ENDC_Item */
-static int hf_x2ap_ENDCResourceStatusResponse_PDU = -1;  /* ENDCResourceStatusResponse */
-static int hf_x2ap_ENDCResourceStatusFailure_PDU = -1;  /* ENDCResourceStatusFailure */
-static int hf_x2ap_ENDCResourceStatusUpdate_PDU = -1;  /* ENDCResourceStatusUpdate */
-static int hf_x2ap_CellMeasurementResult_NR_ENDC_List_PDU = -1;  /* CellMeasurementResult_NR_ENDC_List */
-static int hf_x2ap_CellMeasurementResult_NR_ENDC_Item_PDU = -1;  /* CellMeasurementResult_NR_ENDC_Item */
-static int hf_x2ap_CellMeasurementResult_E_UTRA_ENDC_List_PDU = -1;  /* CellMeasurementResult_E_UTRA_ENDC_List */
-static int hf_x2ap_CellMeasurementResult_E_UTRA_ENDC_Item_PDU = -1;  /* CellMeasurementResult_E_UTRA_ENDC_Item */
-static int hf_x2ap_SecondaryRATDataUsageReport_PDU = -1;  /* SecondaryRATDataUsageReport */
-static int hf_x2ap_SgNBActivityNotification_PDU = -1;  /* SgNBActivityNotification */
-static int hf_x2ap_ENDCPartialResetRequired_PDU = -1;  /* ENDCPartialResetRequired */
-static int hf_x2ap_ENDCPartialResetConfirm_PDU = -1;  /* ENDCPartialResetConfirm */
-static int hf_x2ap_x2ap_EUTRANRCellResourceCoordinationRequest_PDU = -1;  /* EUTRANRCellResourceCoordinationRequest */
-static int hf_x2ap_InitiatingNodeType_EutranrCellResourceCoordination_PDU = -1;  /* InitiatingNodeType_EutranrCellResourceCoordination */
-static int hf_x2ap_ListofEUTRACellsinEUTRACoordinationReq_PDU = -1;  /* ListofEUTRACellsinEUTRACoordinationReq */
-static int hf_x2ap_ListofEUTRACellsinNRCoordinationReq_PDU = -1;  /* ListofEUTRACellsinNRCoordinationReq */
-static int hf_x2ap_ListofNRCellsinNRCoordinationReq_PDU = -1;  /* ListofNRCellsinNRCoordinationReq */
-static int hf_x2ap_x2ap_EUTRANRCellResourceCoordinationResponse_PDU = -1;  /* EUTRANRCellResourceCoordinationResponse */
-static int hf_x2ap_RespondingNodeType_EutranrCellResourceCoordination_PDU = -1;  /* RespondingNodeType_EutranrCellResourceCoordination */
-static int hf_x2ap_ListofEUTRACellsinEUTRACoordinationResp_PDU = -1;  /* ListofEUTRACellsinEUTRACoordinationResp */
-static int hf_x2ap_ListofNRCellsinNRCoordinationResp_PDU = -1;  /* ListofNRCellsinNRCoordinationResp */
-static int hf_x2ap_ENDCX2RemovalRequest_PDU = -1;  /* ENDCX2RemovalRequest */
-static int hf_x2ap_InitiatingNodeType_EndcX2Removal_PDU = -1;  /* InitiatingNodeType_EndcX2Removal */
-static int hf_x2ap_ENDCX2RemovalResponse_PDU = -1;  /* ENDCX2RemovalResponse */
-static int hf_x2ap_RespondingNodeType_EndcX2Removal_PDU = -1;  /* RespondingNodeType_EndcX2Removal */
-static int hf_x2ap_ENDCX2RemovalFailure_PDU = -1;  /* ENDCX2RemovalFailure */
-static int hf_x2ap_DataForwardingAddressIndication_PDU = -1;  /* DataForwardingAddressIndication */
-static int hf_x2ap_E_RABs_DataForwardingAddress_List_PDU = -1;  /* E_RABs_DataForwardingAddress_List */
-static int hf_x2ap_E_RABs_DataForwardingAddress_Item_PDU = -1;  /* E_RABs_DataForwardingAddress_Item */
-static int hf_x2ap_GNBStatusIndication_PDU = -1;  /* GNBStatusIndication */
-static int hf_x2ap_ENDCConfigurationTransfer_PDU = -1;  /* ENDCConfigurationTransfer */
-static int hf_x2ap_TraceStart_PDU = -1;           /* TraceStart */
-static int hf_x2ap_DeactivateTrace_PDU = -1;      /* DeactivateTrace */
-static int hf_x2ap_CellTrafficTrace_PDU = -1;     /* CellTrafficTrace */
-static int hf_x2ap_F1CTrafficTransfer_PDU = -1;   /* F1CTrafficTransfer */
-static int hf_x2ap_UERadioCapabilityIDMappingRequest_PDU = -1;  /* UERadioCapabilityIDMappingRequest */
-static int hf_x2ap_UERadioCapabilityIDMappingResponse_PDU = -1;  /* UERadioCapabilityIDMappingResponse */
-static int hf_x2ap_CPC_cancel_PDU = -1;           /* CPC_cancel */
-static int hf_x2ap_X2AP_PDU_PDU = -1;             /* X2AP_PDU */
-static int hf_x2ap_local = -1;                    /* INTEGER_0_maxPrivateIEs */
-static int hf_x2ap_global = -1;                   /* T_global */
-static int hf_x2ap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
-static int hf_x2ap_id = -1;                       /* ProtocolIE_ID */
-static int hf_x2ap_criticality = -1;              /* Criticality */
-static int hf_x2ap_protocolIE_Field_value = -1;   /* ProtocolIE_Field_value */
-static int hf_x2ap_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
-static int hf_x2ap_extension_id = -1;             /* ProtocolIE_ID */
-static int hf_x2ap_extensionValue = -1;           /* T_extensionValue */
-static int hf_x2ap_PrivateIE_Container_item = -1;  /* PrivateIE_Field */
-static int hf_x2ap_private_id = -1;               /* PrivateIE_ID */
-static int hf_x2ap_privateIE_Field_value = -1;    /* PrivateIE_Field_value */
-static int hf_x2ap_fdd = -1;                      /* ABSInformationFDD */
-static int hf_x2ap_tdd = -1;                      /* ABSInformationTDD */
-static int hf_x2ap_abs_inactive = -1;             /* NULL */
-static int hf_x2ap_abs_pattern_info = -1;         /* BIT_STRING_SIZE_40 */
-static int hf_x2ap_numberOfCellSpecificAntennaPorts = -1;  /* T_numberOfCellSpecificAntennaPorts */
-static int hf_x2ap_measurement_subset = -1;       /* BIT_STRING_SIZE_40 */
-static int hf_x2ap_iE_Extensions = -1;            /* ProtocolExtensionContainer */
-static int hf_x2ap_abs_pattern_info_01 = -1;      /* BIT_STRING_SIZE_1_70_ */
-static int hf_x2ap_numberOfCellSpecificAntennaPorts_01 = -1;  /* T_numberOfCellSpecificAntennaPorts_01 */
-static int hf_x2ap_measurement_subset_01 = -1;    /* BIT_STRING_SIZE_1_70_ */
-static int hf_x2ap_dL_ABS_status = -1;            /* DL_ABS_status */
-static int hf_x2ap_usableABSInformation = -1;     /* UsableABSInformation */
-static int hf_x2ap_Additional_Measurement_Timing_Configuration_List_item = -1;  /* Additional_Measurement_Timing_Configuration_Item */
-static int hf_x2ap_additionalMeasurementTimingConfiguration = -1;  /* INTEGER_0_16 */
-static int hf_x2ap_csi_RS_MTC_Configuration_List = -1;  /* CSI_RS_MTC_Configuration_List */
-static int hf_x2ap_CSI_RS_MTC_Configuration_List_item = -1;  /* CSI_RS_MTC_Configuration_Item */
-static int hf_x2ap_csi_RS_Index = -1;             /* INTEGER_0_95 */
-static int hf_x2ap_csi_RS_Status = -1;            /* T_csi_RS_Status */
-static int hf_x2ap_csi_RS_Neighbour_List = -1;    /* CSI_RS_Neighbour_List */
-static int hf_x2ap_CSI_RS_Neighbour_List_item = -1;  /* CSI_RS_Neighbour_Item */
-static int hf_x2ap_nr_cgi = -1;                   /* NRCGI */
-static int hf_x2ap_csi_RS_MTC_Neighbour_List = -1;  /* CSI_RS_MTC_Neighbour_List */
-static int hf_x2ap_CSI_RS_MTC_Neighbour_List_item = -1;  /* CSI_RS_MTC_Neighbour_Item */
-static int hf_x2ap_AdditionalListofForwardingGTPTunnelEndpoint_item = -1;  /* AdditionalListofForwardingGTPTunnelEndpoint_Item */
-static int hf_x2ap_uL_GTPtunnelEndpoint = -1;     /* GTPtunnelEndpoint */
-static int hf_x2ap_dL_GTPtunnelEndpoint = -1;     /* GTPtunnelEndpoint */
-static int hf_x2ap_additionalspecialSubframePatterns = -1;  /* AdditionalSpecialSubframePatterns */
-static int hf_x2ap_cyclicPrefixDL = -1;           /* CyclicPrefixDL */
-static int hf_x2ap_cyclicPrefixUL = -1;           /* CyclicPrefixUL */
-static int hf_x2ap_additionalspecialSubframePatternsExtension = -1;  /* AdditionalSpecialSubframePatternsExtension */
-static int hf_x2ap_priorityLevel = -1;            /* PriorityLevel */
-static int hf_x2ap_pre_emptionCapability = -1;    /* Pre_emptionCapability */
-static int hf_x2ap_pre_emptionVulnerability = -1;  /* Pre_emptionVulnerability */
-static int hf_x2ap_cellBased = -1;                /* CellBasedMDT */
-static int hf_x2ap_tABased = -1;                  /* TABasedMDT */
-static int hf_x2ap_pLMNWide = -1;                 /* NULL */
-static int hf_x2ap_tAIBased = -1;                 /* TAIBasedMDT */
-static int hf_x2ap_cellBased_01 = -1;             /* CellBasedQMC */
-static int hf_x2ap_tABased_01 = -1;               /* TABasedQMC */
-static int hf_x2ap_tAIBased_01 = -1;              /* TAIBasedQMC */
-static int hf_x2ap_pLMNAreaBased = -1;            /* PLMNAreaBasedQMC */
-static int hf_x2ap_key_eNodeB_star = -1;          /* Key_eNodeB_Star */
-static int hf_x2ap_nextHopChainingCount = -1;     /* NextHopChainingCount */
-static int hf_x2ap_AdditionalPLMNs_Item_item = -1;  /* PLMN_Identity */
-static int hf_x2ap_BroadcastPLMNs_Item_item = -1;  /* PLMN_Identity */
-static int hf_x2ap_bluetoothMeasConfig = -1;      /* BluetoothMeasConfig */
-static int hf_x2ap_bluetoothMeasConfigNameList = -1;  /* BluetoothMeasConfigNameList */
-static int hf_x2ap_bt_rssi = -1;                  /* T_bt_rssi */
-static int hf_x2ap_BluetoothMeasConfigNameList_item = -1;  /* BluetoothName */
-static int hf_x2ap_BPLMN_ID_Info_EUTRA_item = -1;  /* BPLMN_ID_Info_EUTRA_Item */
-static int hf_x2ap_broadcastPLMNs = -1;           /* BroadcastPLMNs_Item */
-static int hf_x2ap_tac = -1;                      /* TAC */
-static int hf_x2ap_e_utraCI = -1;                 /* EUTRANCellIdentifier */
-static int hf_x2ap_iE_Extension = -1;             /* ProtocolExtensionContainer */
-static int hf_x2ap_BPLMN_ID_Info_NR_item = -1;    /* BPLMN_ID_Info_NR_Item */
-static int hf_x2ap_broadcastPLMNs_01 = -1;        /* BroadcastextPLMNs */
-static int hf_x2ap_fiveGS_TAC = -1;               /* FiveGS_TAC */
-static int hf_x2ap_nr_CI = -1;                    /* NRCellIdentifier */
-static int hf_x2ap_BroadcastextPLMNs_item = -1;   /* PLMN_Identity */
-static int hf_x2ap_radioNetwork = -1;             /* CauseRadioNetwork */
-static int hf_x2ap_transport = -1;                /* CauseTransport */
-static int hf_x2ap_protocol = -1;                 /* CauseProtocol */
-static int hf_x2ap_misc = -1;                     /* CauseMisc */
-static int hf_x2ap_cellIdListforMDT = -1;         /* CellIdListforMDT */
-static int hf_x2ap_cellIdListforQMC = -1;         /* CellIdListforQMC */
-static int hf_x2ap_CellIdListforMDT_item = -1;    /* ECGI */
-static int hf_x2ap_CellIdListforQMC_item = -1;    /* ECGI */
-static int hf_x2ap_replacingCellsList = -1;       /* ReplacingCellsList */
-static int hf_x2ap_cell_Size = -1;                /* Cell_Size */
-static int hf_x2ap_CPACcandidatePSCells_list_item = -1;  /* CPACcandidatePSCells_item */
-static int hf_x2ap_pscell_id = -1;                /* NRCGI */
-static int hf_x2ap_max_no_of_pscells = -1;        /* INTEGER_1_maxnoofPSCellCandidates */
-static int hf_x2ap_estimatedArrivalProbability = -1;  /* CHO_Probability */
-static int hf_x2ap_candidate_pscells = -1;        /* CPACcandidatePSCells_list */
-static int hf_x2ap_cpc_target_sgnb_list = -1;     /* CPC_target_SgNB_reqd_list */
-static int hf_x2ap_CPC_target_SgNB_reqd_list_item = -1;  /* CPC_target_SgNB_reqd_item */
-static int hf_x2ap_target_SgNB_ID = -1;           /* GlobalGNB_ID */
-static int hf_x2ap_cpc_indicator = -1;            /* CPCindicator */
-static int hf_x2ap_sgNBtoMeNBContainer = -1;      /* SgNBtoMeNBContainer */
-static int hf_x2ap_cpc_target_sgnb_list_01 = -1;  /* CPC_target_SgNB_conf_list */
-static int hf_x2ap_CPC_target_SgNB_conf_list_item = -1;  /* CPC_target_SgNB_conf_item */
-static int hf_x2ap_cpc_indicator_01 = -1;         /* CPCdataforwarding */
-static int hf_x2ap_cpc_target_sgnb_list_02 = -1;  /* CPC_target_SgNB_mod_list */
-static int hf_x2ap_CPC_target_SgNB_mod_list_item = -1;  /* CPC_target_SgNB_mod_item */
-static int hf_x2ap_CNTypeRestrictions_item = -1;  /* CNTypeRestrictionsItem */
-static int hf_x2ap_plmn_Id = -1;                  /* PLMN_Identity */
-static int hf_x2ap_cn_type = -1;                  /* T_cn_type */
-static int hf_x2ap_CoMPHypothesisSet_item = -1;   /* CoMPHypothesisSetItem */
-static int hf_x2ap_coMPCellID = -1;               /* ECGI */
-static int hf_x2ap_coMPHypothesis = -1;           /* BIT_STRING_SIZE_6_4400_ */
-static int hf_x2ap_coMPInformationItem = -1;      /* CoMPInformationItem */
-static int hf_x2ap_coMPInformationStartTime = -1;  /* CoMPInformationStartTime */
-static int hf_x2ap_CoMPInformationItem_item = -1;  /* CoMPInformationItem_item */
-static int hf_x2ap_coMPHypothesisSet = -1;        /* CoMPHypothesisSet */
-static int hf_x2ap_benefitMetric = -1;            /* BenefitMetric */
-static int hf_x2ap_CoMPInformationStartTime_item = -1;  /* CoMPInformationStartTime_item */
-static int hf_x2ap_startSFN = -1;                 /* INTEGER_0_1023_ */
-static int hf_x2ap_startSubframeNumber = -1;      /* INTEGER_0_9_ */
-static int hf_x2ap_cellCapacityClassValue = -1;   /* CellCapacityClassValue */
-static int hf_x2ap_capacityValue = -1;            /* CapacityValue */
-static int hf_x2ap_dL_CompositeAvailableCapacity = -1;  /* CompositeAvailableCapacity */
-static int hf_x2ap_uL_CompositeAvailableCapacity = -1;  /* CompositeAvailableCapacity */
-static int hf_x2ap_pDCP_SN = -1;                  /* PDCP_SN */
-static int hf_x2ap_hFN = -1;                      /* HFN */
-static int hf_x2ap_pDCP_SNExtended = -1;          /* PDCP_SNExtended */
-static int hf_x2ap_hFNModified = -1;              /* HFNModified */
-static int hf_x2ap_pDCP_SNlength18 = -1;          /* PDCP_SNlength18 */
-static int hf_x2ap_hFNforPDCP_SNlength18 = -1;    /* HFNforPDCP_SNlength18 */
-static int hf_x2ap_CoverageModificationList_item = -1;  /* CoverageModification_Item */
-static int hf_x2ap_eCGI = -1;                     /* ECGI */
-static int hf_x2ap_coverageState = -1;            /* INTEGER_0_15_ */
-static int hf_x2ap_cellDeploymentStatusIndicator = -1;  /* CellDeploymentStatusIndicator */
-static int hf_x2ap_cellReplacingInfo = -1;        /* CellReplacingInfo */
-static int hf_x2ap_endpointIPAddress = -1;        /* TransportLayerAddress */
-static int hf_x2ap_endpointIPAddressAndPort = -1;  /* TransportLayerAddressAndPort */
-static int hf_x2ap_procedureCode = -1;            /* ProcedureCode */
-static int hf_x2ap_triggeringMessage = -1;        /* TriggeringMessage */
-static int hf_x2ap_procedureCriticality = -1;     /* Criticality */
-static int hf_x2ap_iEsCriticalityDiagnostics = -1;  /* CriticalityDiagnostics_IE_List */
-static int hf_x2ap_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_List_item */
-static int hf_x2ap_iECriticality = -1;            /* Criticality */
-static int hf_x2ap_iE_ID = -1;                    /* ProtocolIE_ID */
-static int hf_x2ap_typeOfError = -1;              /* TypeOfError */
-static int hf_x2ap_CSIReportList_item = -1;       /* CSIReportList_item */
-static int hf_x2ap_uEID = -1;                     /* UEID */
-static int hf_x2ap_cSIReportPerCSIProcess = -1;   /* CSIReportPerCSIProcess */
-static int hf_x2ap_CSIReportPerCSIProcess_item = -1;  /* CSIReportPerCSIProcess_item */
-static int hf_x2ap_cSIProcessConfigurationIndex = -1;  /* INTEGER_1_7_ */
-static int hf_x2ap_cSIReportPerCSIProcessItem = -1;  /* CSIReportPerCSIProcessItem */
-static int hf_x2ap_CSIReportPerCSIProcessItem_item = -1;  /* CSIReportPerCSIProcessItem_item */
-static int hf_x2ap_rI = -1;                       /* INTEGER_1_8_ */
-static int hf_x2ap_widebandCQI = -1;              /* WidebandCQI */
-static int hf_x2ap_subbandSize = -1;              /* SubbandSize */
-static int hf_x2ap_subbandCQIList = -1;           /* SubbandCQIList */
-static int hf_x2ap_cho_trigger = -1;              /* CHOtrigger */
-static int hf_x2ap_new_eNB_UE_X2AP_ID = -1;       /* UE_X2AP_ID */
-static int hf_x2ap_new_eNB_UE_X2AP_ID_Extension = -1;  /* UE_X2AP_ID_Extension */
-static int hf_x2ap_cHO_EstimatedArrivalProbability = -1;  /* CHO_Probability */
-static int hf_x2ap_requestedTargetCellID = -1;    /* ECGI */
-static int hf_x2ap_maxCHOpreparations = -1;       /* MaxCHOpreparations */
-static int hf_x2ap_CandidateCellsToBeCancelledList_item = -1;  /* ECGI */
-static int hf_x2ap_source_eNB_ID = -1;            /* GlobalENB_ID */
-static int hf_x2ap_source_eNB_UE_X2AP_ID = -1;    /* UE_X2AP_ID */
-static int hf_x2ap_source_eNB_UE_X2AP_ID_Ext = -1;  /* UE_X2AP_ID_Extension */
-static int hf_x2ap_conditionalReconfig = -1;      /* T_conditionalReconfig */
-static int hf_x2ap_activationSFN = -1;            /* INTEGER_0_1023 */
-static int hf_x2ap_sharedResourceType = -1;       /* SharedResourceType */
-static int hf_x2ap_reservedSubframePattern = -1;  /* ReservedSubframePattern */
-static int hf_x2ap_dAPSIndicator = -1;            /* T_dAPSIndicator */
-static int hf_x2ap_dAPSResponseIndicator = -1;    /* T_dAPSResponseIndicator */
-static int hf_x2ap_highestSuccessDeliveredPDCPSN = -1;  /* INTEGER_0_4095 */
-static int hf_x2ap_unchanged = -1;                /* NULL */
-static int hf_x2ap_changed = -1;                  /* DLResourceBitmapULandDLSharing */
-static int hf_x2ap_naics_active = -1;             /* DynamicNAICSInformation */
-static int hf_x2ap_naics_inactive = -1;           /* NULL */
-static int hf_x2ap_transmissionModes = -1;        /* T_transmissionModes */
-static int hf_x2ap_pB_information = -1;           /* INTEGER_0_3 */
-static int hf_x2ap_pA_list = -1;                  /* SEQUENCE_SIZE_0_maxnoofPA_OF_PA_Values */
-static int hf_x2ap_pA_list_item = -1;             /* PA_Values */
-static int hf_x2ap_pLMN_Identity = -1;            /* PLMN_Identity */
-static int hf_x2ap_eUTRANcellIdentifier = -1;     /* EUTRANCellIdentifier */
-static int hf_x2ap_enhancedRNTPBitmap = -1;       /* BIT_STRING_SIZE_12_8800_ */
-static int hf_x2ap_rNTP_High_Power_Threshold = -1;  /* RNTP_Threshold */
-static int hf_x2ap_enhancedRNTPStartTime = -1;    /* EnhancedRNTPStartTime */
-static int hf_x2ap_macro_eNB_ID = -1;             /* BIT_STRING_SIZE_20 */
-static int hf_x2ap_home_eNB_ID = -1;              /* BIT_STRING_SIZE_28 */
-static int hf_x2ap_short_Macro_eNB_ID = -1;       /* BIT_STRING_SIZE_18 */
-static int hf_x2ap_long_Macro_eNB_ID = -1;        /* BIT_STRING_SIZE_21 */
-static int hf_x2ap_pDCPatSgNB = -1;               /* T_pDCPatSgNB */
-static int hf_x2ap_mCGresources = -1;             /* T_mCGresources */
-static int hf_x2ap_sCGresources = -1;             /* T_sCGresources */
-static int hf_x2ap_EPLMNs_item = -1;              /* PLMN_Identity */
-static int hf_x2ap_ERABActivityNotifyItemList_item = -1;  /* ERABActivityNotifyItem */
-static int hf_x2ap_e_RAB_ID = -1;                 /* E_RAB_ID */
-static int hf_x2ap_activityReport = -1;           /* UserPlaneTrafficActivityReport */
-static int hf_x2ap_qCI = -1;                      /* QCI */
-static int hf_x2ap_allocationAndRetentionPriority = -1;  /* AllocationAndRetentionPriority */
-static int hf_x2ap_gbrQosInformation = -1;        /* GBR_QosInformation */
-static int hf_x2ap_E_RAB_List_item = -1;          /* ProtocolIE_Single_Container */
-static int hf_x2ap_cause = -1;                    /* Cause */
-static int hf_x2ap_E_RABsSubjectToEarlyStatusTransfer_List_item = -1;  /* E_RABsSubjectToEarlyStatusTransfer_Item */
-static int hf_x2ap_fIRST_DL_COUNTValue = -1;      /* COUNTvalue */
-static int hf_x2ap_fIRST_DL_COUNTValueExtended = -1;  /* COUNTValueExtended */
-static int hf_x2ap_fIRST_DL_COUNTValueforPDCPSNLength18 = -1;  /* COUNTvaluePDCP_SNlength18 */
-static int hf_x2ap_E_RABsSubjectToDLDiscarding_List_item = -1;  /* E_RABsSubjectToDLDiscarding_Item */
-static int hf_x2ap_dISCARD_DL_COUNTValue = -1;    /* COUNTvalue */
-static int hf_x2ap_dISCARD_DL_COUNTValueExtended = -1;  /* COUNTValueExtended */
-static int hf_x2ap_dISCARD_DL_COUNTValueforPDCPSNLength18 = -1;  /* COUNTvaluePDCP_SNlength18 */
-static int hf_x2ap_E_RABUsageReportList_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_startTimeStamp = -1;           /* T_startTimeStamp */
-static int hf_x2ap_endTimeStamp = -1;             /* T_endTimeStamp */
-static int hf_x2ap_usageCountUL = -1;             /* INTEGER_0_18446744073709551615 */
-static int hf_x2ap_usageCountDL = -1;             /* INTEGER_0_18446744073709551615 */
-static int hf_x2ap_fDD = -1;                      /* FDD_Info */
-static int hf_x2ap_tDD = -1;                      /* TDD_Info */
-static int hf_x2ap_expectedActivity = -1;         /* ExpectedUEActivityBehaviour */
-static int hf_x2ap_expectedHOInterval = -1;       /* ExpectedHOInterval */
-static int hf_x2ap_expectedActivityPeriod = -1;   /* ExpectedActivityPeriod */
-static int hf_x2ap_expectedIdlePeriod = -1;       /* ExpectedIdlePeriod */
-static int hf_x2ap_sourceofUEActivityBehaviourInformation = -1;  /* SourceOfUEActivityBehaviourInformation */
-static int hf_x2ap_associatedSubframes = -1;      /* BIT_STRING_SIZE_5 */
-static int hf_x2ap_extended_ul_InterferenceOverloadIndication = -1;  /* UL_InterferenceOverloadIndication */
-static int hf_x2ap_rrcContainer = -1;             /* RRCContainer */
-static int hf_x2ap_uL_EARFCN = -1;                /* EARFCN */
-static int hf_x2ap_dL_EARFCN = -1;                /* EARFCN */
-static int hf_x2ap_uL_Transmission_Bandwidth = -1;  /* Transmission_Bandwidth */
-static int hf_x2ap_dL_Transmission_Bandwidth = -1;  /* Transmission_Bandwidth */
-static int hf_x2ap_ul_NRFreqInfo = -1;            /* NRFreqInfo */
-static int hf_x2ap_dl_NRFreqInfo = -1;            /* NRFreqInfo */
-static int hf_x2ap_ForbiddenTAs_item = -1;        /* ForbiddenTAs_Item */
-static int hf_x2ap_forbiddenTACs = -1;            /* ForbiddenTACs */
-static int hf_x2ap_ForbiddenTACs_item = -1;       /* TAC */
-static int hf_x2ap_ForbiddenLAs_item = -1;        /* ForbiddenLAs_Item */
-static int hf_x2ap_forbiddenLACs = -1;            /* ForbiddenLACs */
-static int hf_x2ap_ForbiddenLACs_item = -1;       /* LAC */
-static int hf_x2ap_freqBandIndicatorNr = -1;      /* INTEGER_1_1024_ */
-static int hf_x2ap_supportedSULBandList = -1;     /* SEQUENCE_SIZE_0_maxnoofNrCellBands_OF_SupportedSULFreqBandItem */
-static int hf_x2ap_supportedSULBandList_item = -1;  /* SupportedSULFreqBandItem */
-static int hf_x2ap_e_RAB_MaximumBitrateDL = -1;   /* BitRate */
-static int hf_x2ap_e_RAB_MaximumBitrateUL = -1;   /* BitRate */
-static int hf_x2ap_e_RAB_GuaranteedBitrateDL = -1;  /* BitRate */
-static int hf_x2ap_e_RAB_GuaranteedBitrateUL = -1;  /* BitRate */
-static int hf_x2ap_eNB_ID = -1;                   /* ENB_ID */
-static int hf_x2ap_gNB_ID = -1;                   /* GNB_ID */
-static int hf_x2ap_gNB = -1;                      /* GlobalGNB_ID */
-static int hf_x2ap_choice_extension = -1;         /* ProtocolIE_Single_Container */
-static int hf_x2ap_GTPTLAs_item = -1;             /* GTPTLA_Item */
-static int hf_x2ap_gTPTransportLayerAddresses = -1;  /* TransportLayerAddress */
-static int hf_x2ap_transportLayerAddress = -1;    /* TransportLayerAddress */
-static int hf_x2ap_gTP_TEID = -1;                 /* GTP_TEI */
-static int hf_x2ap_GUGroupIDList_item = -1;       /* GU_Group_ID */
-static int hf_x2ap_mME_Group_ID = -1;             /* MME_Group_ID */
-static int hf_x2ap_gU_Group_ID = -1;              /* GU_Group_ID */
-static int hf_x2ap_mME_Code = -1;                 /* MME_Code */
-static int hf_x2ap_gNB_ID_01 = -1;                /* BIT_STRING_SIZE_22_32 */
-static int hf_x2ap_servingPLMN = -1;              /* PLMN_Identity */
-static int hf_x2ap_equivalentPLMNs = -1;          /* EPLMNs */
-static int hf_x2ap_forbiddenTAs = -1;             /* ForbiddenTAs */
-static int hf_x2ap_forbiddenLAs = -1;             /* ForbiddenLAs */
-static int hf_x2ap_forbiddenInterRATs = -1;       /* ForbiddenInterRATs */
-static int hf_x2ap_dLHWLoadIndicator = -1;        /* LoadIndicator */
-static int hf_x2ap_uLHWLoadIndicator = -1;        /* LoadIndicator */
-static int hf_x2ap_e_UTRAN_Cell = -1;             /* LastVisitedEUTRANCellInformation */
-static int hf_x2ap_uTRAN_Cell = -1;               /* LastVisitedUTRANCellInformation */
-static int hf_x2ap_gERAN_Cell = -1;               /* LastVisitedGERANCellInformation */
-static int hf_x2ap_nG_RAN_Cell = -1;              /* LastVisitedNGRANCellInformation */
-static int hf_x2ap_global_Cell_ID = -1;           /* ECGI */
-static int hf_x2ap_cellType = -1;                 /* CellType */
-static int hf_x2ap_time_UE_StayedInCell = -1;     /* Time_UE_StayedInCell */
-static int hf_x2ap_undefined = -1;                /* NULL */
-static int hf_x2ap_pSCell_id = -1;                /* NRCGI */
-static int hf_x2ap_eventType = -1;                /* EventType */
-static int hf_x2ap_reportArea = -1;               /* ReportArea */
-static int hf_x2ap_reportInterval = -1;           /* ReportIntervalMDT */
-static int hf_x2ap_reportAmount = -1;             /* ReportAmountMDT */
-static int hf_x2ap_measurementThreshold = -1;     /* MeasurementThresholdA2 */
-static int hf_x2ap_m3period = -1;                 /* M3period */
-static int hf_x2ap_m4period = -1;                 /* M4period */
-static int hf_x2ap_m4_links_to_log = -1;          /* Links_to_log */
-static int hf_x2ap_m5period = -1;                 /* M5period */
-static int hf_x2ap_m5_links_to_log = -1;          /* Links_to_log */
-static int hf_x2ap_m6report_interval = -1;        /* M6report_interval */
-static int hf_x2ap_m6delay_threshold = -1;        /* M6delay_threshold */
-static int hf_x2ap_m6_links_to_log = -1;          /* Links_to_log */
-static int hf_x2ap_m7period = -1;                 /* M7period */
-static int hf_x2ap_m7_links_to_log = -1;          /* Links_to_log */
-static int hf_x2ap_mdt_Activation = -1;           /* MDT_Activation */
-static int hf_x2ap_areaScopeOfMDT = -1;           /* AreaScopeOfMDT */
-static int hf_x2ap_measurementsToActivate = -1;   /* MeasurementsToActivate */
-static int hf_x2ap_m1reportingTrigger = -1;       /* M1ReportingTrigger */
-static int hf_x2ap_m1thresholdeventA2 = -1;       /* M1ThresholdEventA2 */
-static int hf_x2ap_m1periodicReporting = -1;      /* M1PeriodicReporting */
-static int hf_x2ap_MDTPLMNList_item = -1;         /* PLMN_Identity */
-static int hf_x2ap_threshold_RSRP = -1;           /* Threshold_RSRP */
-static int hf_x2ap_threshold_RSRQ = -1;           /* Threshold_RSRQ */
-static int hf_x2ap_eUTRA_Cell_ID = -1;            /* ECGI */
-static int hf_x2ap_uLCoordinationInformation = -1;  /* BIT_STRING_SIZE_6_4400_ */
-static int hf_x2ap_dLCoordinationInformation = -1;  /* BIT_STRING_SIZE_6_4400_ */
-static int hf_x2ap_MBMS_Service_Area_Identity_List_item = -1;  /* MBMS_Service_Area_Identity */
-static int hf_x2ap_MBSFN_Subframe_Infolist_item = -1;  /* MBSFN_Subframe_Info */
-static int hf_x2ap_radioframeAllocationPeriod = -1;  /* RadioframeAllocationPeriod */
-static int hf_x2ap_radioframeAllocationOffset = -1;  /* RadioframeAllocationOffset */
-static int hf_x2ap_subframeAllocation = -1;       /* SubframeAllocation */
-static int hf_x2ap_handoverTriggerChangeLowerLimit = -1;  /* INTEGER_M20_20 */
-static int hf_x2ap_handoverTriggerChangeUpperLimit = -1;  /* INTEGER_M20_20 */
-static int hf_x2ap_handoverTriggerChange = -1;    /* INTEGER_M20_20 */
-static int hf_x2ap_MultibandInfoList_item = -1;   /* BandInfo */
-static int hf_x2ap_maximumCellListSize = -1;      /* MaximumCellListSize */
-static int hf_x2ap_freqBandIndicator = -1;        /* FreqBandIndicator */
-static int hf_x2ap_rrcContainer_01 = -1;          /* T_rrcContainer */
-static int hf_x2ap_srbType = -1;                  /* SRBType */
-static int hf_x2ap_deliveryStatus = -1;           /* DeliveryStatus */
-static int hf_x2ap_Neighbour_Information_item = -1;  /* Neighbour_Information_item */
-static int hf_x2ap_pCI = -1;                      /* PCI */
-static int hf_x2ap_eARFCN = -1;                   /* EARFCN */
-static int hf_x2ap_capacityValue_01 = -1;         /* INTEGER_0_100 */
-static int hf_x2ap_ssbAreaCapacityValue_List = -1;  /* SSBAreaCapacityValue_List */
-static int hf_x2ap_NRCarrierList_item = -1;       /* NRCarrierItem */
-static int hf_x2ap_carrierSCS = -1;               /* NRSCS */
-static int hf_x2ap_offsetToCarrier = -1;          /* INTEGER_0_2199_ */
-static int hf_x2ap_carrierBandwidth = -1;         /* INTEGER_0_maxnoofNRPhysicalResourceBlocks_ */
-static int hf_x2ap_compositeAvailableCapacityDL = -1;  /* NRCompositeAvailableCapacity */
-static int hf_x2ap_compositeAvailableCapacityUL = -1;  /* NRCompositeAvailableCapacity */
-static int hf_x2ap_cellCapacityClassValue_01 = -1;  /* NRCellCapacityClassValue */
-static int hf_x2ap_capacityValue_02 = -1;         /* NRCapacityValue */
-static int hf_x2ap_nRARFCN = -1;                  /* INTEGER_0_3279165 */
-static int hf_x2ap_freqBandListNr = -1;           /* SEQUENCE_SIZE_1_maxnoofNrCellBands_OF_FreqBandNrItem */
-static int hf_x2ap_freqBandListNr_item = -1;      /* FreqBandNrItem */
-static int hf_x2ap_sULInformation = -1;           /* SULInformation */
-static int hf_x2ap_nRcellIdentifier = -1;         /* NRCellIdentifier */
-static int hf_x2ap_NRRACHReportInformation_item = -1;  /* NRRACHReportList_Item */
-static int hf_x2ap_nRRACHReport = -1;             /* NRRACHReportContainer */
-static int hf_x2ap_uEAssitantIdentifier = -1;     /* SgNB_UE_X2AP_ID */
-static int hf_x2ap_NRNeighbour_Information_item = -1;  /* NRNeighbour_Information_item */
-static int hf_x2ap_nrpCI = -1;                    /* NRPCI */
-static int hf_x2ap_nrCellID = -1;                 /* NRCGI */
-static int hf_x2ap_configured_TAC = -1;           /* TAC */
-static int hf_x2ap_measurementTimingConfiguration = -1;  /* T_measurementTimingConfiguration */
-static int hf_x2ap_nRNeighbourModeInfo = -1;      /* T_nRNeighbourModeInfo */
-static int hf_x2ap_fdd_01 = -1;                   /* FDD_InfoNeighbourServedNRCell_Information */
-static int hf_x2ap_tdd_01 = -1;                   /* TDD_InfoNeighbourServedNRCell_Information */
-static int hf_x2ap_fdd_or_tdd = -1;               /* T_fdd_or_tdd */
-static int hf_x2ap_fdd_02 = -1;                   /* NPRACHConfiguration_FDD */
-static int hf_x2ap_tdd_02 = -1;                   /* NPRACHConfiguration_TDD */
-static int hf_x2ap_nprach_CP_length = -1;         /* NPRACH_CP_Length */
-static int hf_x2ap_anchorCarrier_NPRACHConfig = -1;  /* T_anchorCarrier_NPRACHConfig */
-static int hf_x2ap_anchorCarrier_EDT_NPRACHConfig = -1;  /* T_anchorCarrier_EDT_NPRACHConfig */
-static int hf_x2ap_anchorCarrier_Format2_NPRACHConfig = -1;  /* T_anchorCarrier_Format2_NPRACHConfig */
-static int hf_x2ap_anchorCarrier_Format2_EDT_NPRACHConfig = -1;  /* T_anchorCarrier_Format2_EDT_NPRACHConfig */
-static int hf_x2ap_non_anchorCarrier_NPRACHConfig = -1;  /* T_non_anchorCarrier_NPRACHConfig */
-static int hf_x2ap_non_anchorCarrier_Format2_NPRACHConfig = -1;  /* T_non_anchorCarrier_Format2_NPRACHConfig */
-static int hf_x2ap_nprach_preambleFormat = -1;    /* NPRACH_preambleFormat */
-static int hf_x2ap_anchorCarrier_NPRACHConfigTDD = -1;  /* T_anchorCarrier_NPRACHConfigTDD */
-static int hf_x2ap_non_anchorCarrierFequencyConfiglist = -1;  /* Non_AnchorCarrierFrequencylist */
-static int hf_x2ap_non_anchorCarrier_NPRACHConfigTDD = -1;  /* T_non_anchorCarrier_NPRACHConfigTDD */
-static int hf_x2ap_Non_AnchorCarrierFrequencylist_item = -1;  /* Non_AnchorCarrierFrequencylist_item */
-static int hf_x2ap_non_anchorCarrioerFrquency = -1;  /* Non_anchorCarrierFrequency */
-static int hf_x2ap_MeasurementResultforNRCellsPossiblyAggregated_item = -1;  /* MeasurementResultforNRCellsPossiblyAggregated_Item */
-static int hf_x2ap_cellID = -1;                   /* NRCGI */
-static int hf_x2ap_nrCompositeAvailableCapacityGroup = -1;  /* NRCompositeAvailableCapacityGroup */
-static int hf_x2ap_ssbAreaRadioResourceStatus_List = -1;  /* SSBAreaRadioResourceStatus_List */
-static int hf_x2ap_dl_GBR_PRB_usage_for_MIMO = -1;  /* DL_GBR_PRB_usage_for_MIMO */
-static int hf_x2ap_ul_GBR_PRB_usage_for_MIMO = -1;  /* UL_GBR_PRB_usage_for_MIMO */
-static int hf_x2ap_dl_non_GBR_PRB_usage_for_MIMO = -1;  /* DL_non_GBR_PRB_usage_for_MIMO */
-static int hf_x2ap_ul_non_GBR_PRB_usage_for_MIMO = -1;  /* UL_non_GBR_PRB_usage_for_MIMO */
-static int hf_x2ap_dl_Total_PRB_usage_for_MIMO = -1;  /* DL_Total_PRB_usage_for_MIMO */
-static int hf_x2ap_ul_Total_PRB_usage_for_MIMO = -1;  /* UL_Total_PRB_usage_for_MIMO */
-static int hf_x2ap_nRSCS = -1;                    /* NRSCS */
-static int hf_x2ap_nRNRB = -1;                    /* NRNRB */
-static int hf_x2ap_uENRMeasurements = -1;         /* T_uENRMeasurements */
-static int hf_x2ap_uESidelinkAggregateMaximumBitRate = -1;  /* BitRate */
-static int hf_x2ap_nRencryptionAlgorithms = -1;   /* NRencryptionAlgorithms */
-static int hf_x2ap_nRintegrityProtectionAlgorithms = -1;  /* NRintegrityProtectionAlgorithms */
-static int hf_x2ap_vehicleUE = -1;                /* VehicleUE */
-static int hf_x2ap_pedestrianUE = -1;             /* PedestrianUE */
-static int hf_x2ap_pc5QoSFlowList = -1;           /* PC5QoSFlowList */
-static int hf_x2ap_pc5LinkAggregatedBitRates = -1;  /* BitRate */
-static int hf_x2ap_PC5QoSFlowList_item = -1;      /* PC5QoSFlowItem */
-static int hf_x2ap_pQI = -1;                      /* FiveQI */
-static int hf_x2ap_pc5FlowBitRates = -1;          /* PC5FlowBitRates */
-static int hf_x2ap_range = -1;                    /* Range */
-static int hf_x2ap_guaranteedFlowBitRate = -1;    /* BitRate */
-static int hf_x2ap_maximumFlowBitRate = -1;       /* BitRate */
-static int hf_x2ap_rootSequenceIndex = -1;        /* INTEGER_0_837 */
-static int hf_x2ap_zeroCorrelationIndex = -1;     /* INTEGER_0_15 */
-static int hf_x2ap_highSpeedFlag = -1;            /* BOOLEAN */
-static int hf_x2ap_prach_FreqOffset = -1;         /* INTEGER_0_94 */
-static int hf_x2ap_prach_ConfigIndex = -1;        /* INTEGER_0_63 */
-static int hf_x2ap_plmnListforQMC = -1;           /* PLMNListforQMC */
-static int hf_x2ap_PLMNListforQMC_item = -1;      /* PLMN_Identity */
-static int hf_x2ap_proSeDirectDiscovery = -1;     /* ProSeDirectDiscovery */
-static int hf_x2ap_proSeDirectCommunication = -1;  /* ProSeDirectCommunication */
-static int hf_x2ap_protectedResourceList = -1;    /* ProtectedResourceList */
-static int hf_x2ap_mBSFNControlRegionLength = -1;  /* T_mBSFNControlRegionLength */
-static int hf_x2ap_pDCCHRegionLength = -1;        /* T_pDCCHRegionLength */
-static int hf_x2ap_protectedFootprintTimePeriodicity = -1;  /* INTEGER_1_320_ */
-static int hf_x2ap_protectedFootprintStartTime = -1;  /* INTEGER_1_20_ */
-static int hf_x2ap_ProtectedResourceList_item = -1;  /* ProtectedResourceList_Item */
-static int hf_x2ap_resourceType = -1;             /* ResourceType */
-static int hf_x2ap_intraPRBProtectedResourceFootprint = -1;  /* BIT_STRING_SIZE_84_ */
-static int hf_x2ap_protectedFootprintFrequencyPattern = -1;  /* BIT_STRING_SIZE_6_110_ */
-static int hf_x2ap_protectedFootprintTimePattern = -1;  /* ProtectedFootprintTimePattern */
-static int hf_x2ap_PSCell_UE_HistoryInformation_item = -1;  /* LastVisitedPSCell_Item */
-static int hf_x2ap_dscp = -1;                     /* BIT_STRING_SIZE_6 */
-static int hf_x2ap_flow_label = -1;               /* BIT_STRING_SIZE_20 */
-static int hf_x2ap_dL_GBR_PRB_usage = -1;         /* DL_GBR_PRB_usage */
-static int hf_x2ap_uL_GBR_PRB_usage = -1;         /* UL_GBR_PRB_usage */
-static int hf_x2ap_dL_non_GBR_PRB_usage = -1;     /* DL_non_GBR_PRB_usage */
-static int hf_x2ap_uL_non_GBR_PRB_usage = -1;     /* UL_non_GBR_PRB_usage */
-static int hf_x2ap_dL_Total_PRB_usage = -1;       /* DL_Total_PRB_usage */
-static int hf_x2ap_uL_Total_PRB_usage = -1;       /* UL_Total_PRB_usage */
-static int hf_x2ap_RAT_Restrictions_item = -1;    /* RAT_RestrictionsItem */
-static int hf_x2ap_rAT_RestrictionInformation = -1;  /* T_rAT_RestrictionInformation */
-static int hf_x2ap_rNTP_PerPRB = -1;              /* BIT_STRING_SIZE_6_110_ */
-static int hf_x2ap_rNTP_Threshold = -1;           /* RNTP_Threshold */
-static int hf_x2ap_numberOfCellSpecificAntennaPorts_02 = -1;  /* T_numberOfCellSpecificAntennaPorts_02 */
-static int hf_x2ap_p_B = -1;                      /* INTEGER_0_3_ */
-static int hf_x2ap_pDCCH_InterferenceImpact = -1;  /* INTEGER_0_4_ */
-static int hf_x2ap_ReplacingCellsList_item = -1;  /* ReplacingCellsList_Item */
-static int hf_x2ap_subframeType = -1;             /* SubframeType */
-static int hf_x2ap_reservedSubframePattern_01 = -1;  /* BIT_STRING_SIZE_10_160 */
-static int hf_x2ap_mBSFNControlRegionLength_01 = -1;  /* T_mBSFNControlRegionLength_01 */
-static int hf_x2ap_non_truncated = -1;            /* BIT_STRING_SIZE_40 */
-static int hf_x2ap_truncated = -1;                /* BIT_STRING_SIZE_24 */
-static int hf_x2ap_reestablishment_Indication = -1;  /* Reestablishment_Indication */
-static int hf_x2ap_RSRPMeasurementResult_item = -1;  /* RSRPMeasurementResult_item */
-static int hf_x2ap_rSRPCellID = -1;               /* ECGI */
-static int hf_x2ap_rSRPMeasured = -1;             /* INTEGER_0_97_ */
-static int hf_x2ap_RSRPMRList_item = -1;          /* RSRPMRList_item */
-static int hf_x2ap_rSRPMeasurementResult = -1;    /* RSRPMeasurementResult */
-static int hf_x2ap_dLS1TNLLoadIndicator = -1;     /* LoadIndicator */
-static int hf_x2ap_uLS1TNLLoadIndicator = -1;     /* LoadIndicator */
-static int hf_x2ap_SCG_UE_HistoryInformation_item = -1;  /* LastVisitedPSCell_Item */
-static int hf_x2ap_SecondaryRATUsageReportList_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_secondaryRATType = -1;         /* T_secondaryRATType */
-static int hf_x2ap_e_RABUsageReportList = -1;     /* E_RABUsageReportList */
-static int hf_x2ap_integrityProtectionIndication = -1;  /* IntegrityProtectionIndication */
-static int hf_x2ap_integrityProtectionResult = -1;  /* IntegrityProtectionResult */
-static int hf_x2ap_sensorMeasConfig = -1;         /* SensorMeasConfig */
-static int hf_x2ap_sensorMeasConfigNameList = -1;  /* SensorMeasConfigNameList */
-static int hf_x2ap_SensorMeasConfigNameList_item = -1;  /* SensorMeasConfigNameItem */
-static int hf_x2ap_sensorNameConfig = -1;         /* SensorNameConfig */
-static int hf_x2ap_uncompensatedBarometricConfig = -1;  /* T_uncompensatedBarometricConfig */
-static int hf_x2ap_ServedCells_item = -1;         /* ServedCells_item */
-static int hf_x2ap_servedCellInfo = -1;           /* ServedCell_Information */
-static int hf_x2ap_neighbour_Info = -1;           /* Neighbour_Information */
-static int hf_x2ap_cellId = -1;                   /* ECGI */
-static int hf_x2ap_tAC = -1;                      /* TAC */
-static int hf_x2ap_eUTRA_Mode_Info = -1;          /* EUTRA_Mode_Info */
-static int hf_x2ap_ServedCellSpecificInfoReq_NR_item = -1;  /* ServedCellSpecificInfoReq_NR_Item */
-static int hf_x2ap_nRCGI = -1;                    /* NRCGI */
-static int hf_x2ap_additionalMTCListRequestIndicator = -1;  /* T_additionalMTCListRequestIndicator */
-static int hf_x2ap_nR_CGI = -1;                   /* NRCGI */
-static int hf_x2ap_uLOnlySharing = -1;            /* ULOnlySharing */
-static int hf_x2ap_uLandDLSharing = -1;           /* ULandDLSharing */
-static int hf_x2ap_specialSubframePatterns = -1;  /* SpecialSubframePatterns */
-static int hf_x2ap_subbandCQICodeword0 = -1;      /* SubbandCQICodeword0 */
-static int hf_x2ap_subbandCQICodeword1 = -1;      /* SubbandCQICodeword1 */
-static int hf_x2ap_periodicCommunicationIndicator = -1;  /* T_periodicCommunicationIndicator */
-static int hf_x2ap_periodicTime = -1;             /* INTEGER_1_3600_ */
-static int hf_x2ap_scheduledCommunicationTime = -1;  /* ScheduledCommunicationTime */
-static int hf_x2ap_stationaryIndication = -1;     /* T_stationaryIndication */
-static int hf_x2ap_trafficProfile = -1;           /* T_trafficProfile */
-static int hf_x2ap_batteryIndication = -1;        /* T_batteryIndication */
-static int hf_x2ap_dayofWeek = -1;                /* BIT_STRING_SIZE_7 */
-static int hf_x2ap_timeofDayStart = -1;           /* INTEGER_0_86399_ */
-static int hf_x2ap_timeofDayEnd = -1;             /* INTEGER_0_86399_ */
-static int hf_x2ap_SSBAreaCapacityValue_List_item = -1;  /* SSBAreaCapacityValue_Item */
-static int hf_x2ap_ssbIndex = -1;                 /* SSBIndex */
-static int hf_x2ap_ssbAreaCapacityValue = -1;     /* INTEGER_0_100 */
-static int hf_x2ap_SSBAreaRadioResourceStatus_List_item = -1;  /* SSBAreaRadioResourceStatus_Item */
-static int hf_x2ap_ssbAreaDLGBRPRBUsage = -1;     /* INTEGER_0_100 */
-static int hf_x2ap_ssbAreaULGBRPRBUsage = -1;     /* INTEGER_0_100 */
-static int hf_x2ap_ssbAreaDLNonGBRPRBUsage = -1;  /* INTEGER_0_100 */
-static int hf_x2ap_ssbAreaULNonGBRPRBUsage = -1;  /* INTEGER_0_100 */
-static int hf_x2ap_ssbAreaDLTotalPRBUsage = -1;   /* INTEGER_0_100 */
-static int hf_x2ap_ssbAreaULTotalPRBUsage = -1;   /* INTEGER_0_100 */
-static int hf_x2ap_ssbAreaDLSchedulingPDCCHCCEUsage = -1;  /* INTEGER_0_100 */
-static int hf_x2ap_ssbAreaULSchedulingPDCCHCCEUsage = -1;  /* INTEGER_0_100 */
-static int hf_x2ap_shortBitmap = -1;              /* BIT_STRING_SIZE_4 */
-static int hf_x2ap_mediumBitmap = -1;             /* BIT_STRING_SIZE_8 */
-static int hf_x2ap_longBitmap = -1;               /* BIT_STRING_SIZE_64 */
-static int hf_x2ap_four_bitCQI = -1;              /* INTEGER_0_15_ */
-static int hf_x2ap_two_bitSubbandDifferentialCQI = -1;  /* INTEGER_0_3_ */
-static int hf_x2ap_two_bitDifferentialCQI = -1;   /* INTEGER_0_3_ */
-static int hf_x2ap_three_bitSpatialDifferentialCQI = -1;  /* INTEGER_0_7_ */
-static int hf_x2ap_SubbandCQIList_item = -1;      /* SubbandCQIItem */
-static int hf_x2ap_subbandCQI = -1;               /* SubbandCQI */
-static int hf_x2ap_subbandIndex = -1;             /* INTEGER_0_27_ */
-static int hf_x2ap_oneframe = -1;                 /* Oneframe */
-static int hf_x2ap_fourframes = -1;               /* Fourframes */
-static int hf_x2ap_sUL_ARFCN = -1;                /* INTEGER_0_3279165 */
-static int hf_x2ap_sUL_TxBW = -1;                 /* NR_TxBW */
-static int hf_x2ap_sFN_Time_Offset = -1;          /* BIT_STRING_SIZE_24 */
-static int hf_x2ap_tAListforMDT = -1;             /* TAListforMDT */
-static int hf_x2ap_tAIListforMDT = -1;            /* TAIListforMDT */
-static int hf_x2ap_TAIListforMDT_item = -1;       /* TAI_Item */
-static int hf_x2ap_TAListforMDT_item = -1;        /* TAC */
-static int hf_x2ap_tAListforQMC = -1;             /* TAListforQMC */
-static int hf_x2ap_TAListforQMC_item = -1;        /* TAC */
-static int hf_x2ap_tAIListforQMC = -1;            /* TAIListforQMC */
-static int hf_x2ap_TAIListforQMC_item = -1;       /* TAI_Item */
-static int hf_x2ap_transmission_Bandwidth = -1;   /* Transmission_Bandwidth */
-static int hf_x2ap_subframeAssignment = -1;       /* SubframeAssignment */
-static int hf_x2ap_specialSubframe_Info = -1;     /* SpecialSubframe_Info */
-static int hf_x2ap_nRFreqInfo = -1;               /* NRFreqInfo */
-static int hf_x2ap_TNLA_To_Add_List_item = -1;    /* TNLA_To_Add_Item */
-static int hf_x2ap_tNLAssociationTransportLayerAddress = -1;  /* CPTransportLayerInformation */
-static int hf_x2ap_tNLAssociationUsage = -1;      /* TNLAssociationUsage */
-static int hf_x2ap_TNLA_To_Update_List_item = -1;  /* TNLA_To_Update_Item */
-static int hf_x2ap_TNLA_To_Remove_List_item = -1;  /* TNLA_To_Remove_Item */
-static int hf_x2ap_TNLA_Setup_List_item = -1;     /* TNLA_Setup_Item */
-static int hf_x2ap_TNLA_Failed_To_Setup_List_item = -1;  /* TNLA_Failed_To_Setup_Item */
-static int hf_x2ap_dlTNLMaximumOfferedCapacity = -1;  /* INTEGER_1_16777216_ */
-static int hf_x2ap_dlTNLAvailableCapacity = -1;   /* INTEGER_0_100_ */
-static int hf_x2ap_ulTNLMaximumOfferedCapacity = -1;  /* INTEGER_1_16777216_ */
-static int hf_x2ap_ulTNLAvailableCapacity = -1;   /* INTEGER_0_100_ */
-static int hf_x2ap_Transport_UP_Layer_Addresses_Info_To_Add_List_item = -1;  /* Transport_UP_Layer_Addresses_Info_To_Add_Item */
-static int hf_x2ap_iP_SecTransportLayerAddress = -1;  /* TransportLayerAddress */
-static int hf_x2ap_gTPTransportLayerAddressesToAdd = -1;  /* GTPTLAs */
-static int hf_x2ap_Transport_UP_Layer_Addresses_Info_To_Remove_List_item = -1;  /* Transport_UP_Layer_Addresses_Info_To_Remove_Item */
-static int hf_x2ap_gTPTransportLayerAddressesToRemove = -1;  /* GTPTLAs */
-static int hf_x2ap_transport_UP_Layer_Addresses_Info_To_Add_List = -1;  /* Transport_UP_Layer_Addresses_Info_To_Add_List */
-static int hf_x2ap_transport_UP_Layer_Addresses_Info_To_Remove_List = -1;  /* Transport_UP_Layer_Addresses_Info_To_Remove_List */
-static int hf_x2ap_eUTRANTraceID = -1;            /* EUTRANTraceID */
-static int hf_x2ap_interfacesToTrace = -1;        /* InterfacesToTrace */
-static int hf_x2ap_traceDepth = -1;               /* TraceDepth */
-static int hf_x2ap_traceCollectionEntityIPAddress = -1;  /* TraceCollectionEntityIPAddress */
-static int hf_x2ap_portnumber = -1;               /* Port_Number */
-static int hf_x2ap_uDP_Port_Number = -1;          /* Port_Number */
-static int hf_x2ap_uEaggregateMaximumBitRateDownlink = -1;  /* BitRate */
-static int hf_x2ap_uEaggregateMaximumBitRateUplink = -1;  /* BitRate */
-static int hf_x2ap_containerForAppLayerMeasConfig = -1;  /* OCTET_STRING_SIZE_1_1000 */
-static int hf_x2ap_areaScopeOfQMC = -1;           /* AreaScopeOfQMC */
-static int hf_x2ap_UE_HistoryInformation_item = -1;  /* LastVisitedCell_Item */
-static int hf_x2ap_encryptionAlgorithms = -1;     /* EncryptionAlgorithms */
-static int hf_x2ap_integrityProtectionAlgorithms = -1;  /* IntegrityProtectionAlgorithms */
-static int hf_x2ap_UEsToBeResetList_item = -1;    /* UEsToBeResetList_Item */
-static int hf_x2ap_meNB_ID = -1;                  /* UE_X2AP_ID */
-static int hf_x2ap_meNB_ID_ext = -1;              /* UE_X2AP_ID_Extension */
-static int hf_x2ap_sgNB_ID = -1;                  /* SgNB_UE_X2AP_ID */
-static int hf_x2ap_uLResourcesULandDLSharing = -1;  /* ULResourcesULandDLSharing */
-static int hf_x2ap_dLResourcesULandDLSharing = -1;  /* DLResourcesULandDLSharing */
-static int hf_x2ap_uL_PDCP = -1;                  /* UL_UE_Configuration */
-static int hf_x2ap_UL_HighInterferenceIndicationInfo_item = -1;  /* UL_HighInterferenceIndicationInfo_Item */
-static int hf_x2ap_target_Cell_ID = -1;           /* ECGI */
-static int hf_x2ap_ul_interferenceindication = -1;  /* UL_HighInterferenceIndication */
-static int hf_x2ap_UL_InterferenceOverloadIndication_item = -1;  /* UL_InterferenceOverloadIndication_Item */
-static int hf_x2ap_uLResourceBitmapULOnlySharing = -1;  /* DataTrafficResources */
-static int hf_x2ap_changed_01 = -1;               /* ULResourceBitmapULandDLSharing */
-static int hf_x2ap_fdd_03 = -1;                   /* UsableABSInformationFDD */
-static int hf_x2ap_tdd_03 = -1;                   /* UsableABSInformationTDD */
-static int hf_x2ap_usable_abs_pattern_info = -1;  /* BIT_STRING_SIZE_40 */
-static int hf_x2ap_usaable_abs_pattern_info = -1;  /* BIT_STRING_SIZE_1_70_ */
-static int hf_x2ap_widebandCQICodeword0 = -1;     /* INTEGER_0_15_ */
-static int hf_x2ap_widebandCQICodeword1 = -1;     /* WidebandCQICodeword1 */
-static int hf_x2ap_wlanMeasConfig = -1;           /* WLANMeasConfig */
-static int hf_x2ap_wlanMeasConfigNameList = -1;   /* WLANMeasConfigNameList */
-static int hf_x2ap_wlan_rssi = -1;                /* T_wlan_rssi */
-static int hf_x2ap_wlan_rtt = -1;                 /* T_wlan_rtt */
-static int hf_x2ap_WLANMeasConfigNameList_item = -1;  /* WLANName */
-static int hf_x2ap_wTID_Type1 = -1;               /* WTID_Type1 */
-static int hf_x2ap_wTID_Type2 = -1;               /* WTID_Long_Type2 */
-static int hf_x2ap_shortWTID = -1;                /* BIT_STRING_SIZE_24 */
-static int hf_x2ap_protocolIEs = -1;              /* ProtocolIE_Container */
-static int hf_x2ap_mME_UE_S1AP_ID = -1;           /* UE_S1AP_ID */
-static int hf_x2ap_uESecurityCapabilities = -1;   /* UESecurityCapabilities */
-static int hf_x2ap_aS_SecurityInformation = -1;   /* AS_SecurityInformation */
-static int hf_x2ap_uEaggregateMaximumBitRate = -1;  /* UEAggregateMaximumBitRate */
-static int hf_x2ap_subscriberProfileIDforRFP = -1;  /* SubscriberProfileIDforRFP */
-static int hf_x2ap_e_RABs_ToBeSetup_List = -1;    /* E_RABs_ToBeSetup_List */
-static int hf_x2ap_rRC_Context = -1;              /* RRC_Context */
-static int hf_x2ap_handoverRestrictionList = -1;  /* HandoverRestrictionList */
-static int hf_x2ap_locationReportingInformation = -1;  /* LocationReportingInformation */
-static int hf_x2ap_E_RABs_ToBeSetup_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_e_RAB_Level_QoS_Parameters = -1;  /* E_RAB_Level_QoS_Parameters */
-static int hf_x2ap_dL_Forwarding = -1;            /* DL_Forwarding */
-static int hf_x2ap_source_GlobalSeNB_ID = -1;     /* GlobalENB_ID */
-static int hf_x2ap_seNB_UE_X2AP_ID = -1;          /* UE_X2AP_ID */
-static int hf_x2ap_seNB_UE_X2AP_ID_Extension = -1;  /* UE_X2AP_ID_Extension */
-static int hf_x2ap_wTID = -1;                     /* WTID */
-static int hf_x2ap_wT_UE_XwAP_ID = -1;            /* WT_UE_XwAP_ID */
-static int hf_x2ap_source_GlobalSgNB_ID = -1;     /* GlobalGNB_ID */
-static int hf_x2ap_sgNB_UE_X2AP_ID = -1;          /* SgNB_UE_X2AP_ID */
-static int hf_x2ap_E_RABs_Admitted_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_uL_GTP_TunnelEndpoint = -1;    /* GTPtunnelEndpoint */
-static int hf_x2ap_dL_GTP_TunnelEndpoint = -1;    /* GTPtunnelEndpoint */
-static int hf_x2ap_first_dl_count = -1;           /* FirstDLCount */
-static int hf_x2ap_dl_discarding = -1;            /* DLDiscarding */
-static int hf_x2ap_e_RABsSubjectToEarlyStatusTransfer = -1;  /* E_RABsSubjectToEarlyStatusTransfer_List */
-static int hf_x2ap_e_RABsSubjectToDLDiscarding_List = -1;  /* E_RABsSubjectToDLDiscarding_List */
-static int hf_x2ap_E_RABs_SubjectToStatusTransfer_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_receiveStatusofULPDCPSDUs = -1;  /* ReceiveStatusofULPDCPSDUs */
-static int hf_x2ap_uL_COUNTvalue = -1;            /* COUNTvalue */
-static int hf_x2ap_dL_COUNTvalue = -1;            /* COUNTvalue */
-static int hf_x2ap_CellInformation_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_cell_ID = -1;                  /* ECGI */
-static int hf_x2ap_ul_InterferenceOverloadIndication = -1;  /* UL_InterferenceOverloadIndication */
-static int hf_x2ap_ul_HighInterferenceIndicationInfo = -1;  /* UL_HighInterferenceIndicationInfo */
-static int hf_x2ap_relativeNarrowbandTxPower = -1;  /* RelativeNarrowbandTxPower */
-static int hf_x2ap_ServedCellsToModify_item = -1;  /* ServedCellsToModify_Item */
-static int hf_x2ap_old_ecgi = -1;                 /* ECGI */
-static int hf_x2ap_Old_ECGIs_item = -1;           /* ECGI */
-static int hf_x2ap_CellToReport_List_item = -1;   /* ProtocolIE_Single_Container */
-static int hf_x2ap_MeasurementInitiationResult_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_measurementFailureCause_List = -1;  /* MeasurementFailureCause_List */
-static int hf_x2ap_MeasurementFailureCause_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_measurementFailedReportCharacteristics = -1;  /* T_measurementFailedReportCharacteristics */
-static int hf_x2ap_CompleteFailureCauseInformation_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_CellMeasurementResult_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_hWLoadIndicator = -1;          /* HWLoadIndicator */
-static int hf_x2ap_s1TNLLoadIndicator = -1;       /* S1TNLLoadIndicator */
-static int hf_x2ap_radioResourceStatus = -1;      /* RadioResourceStatus */
-static int hf_x2ap_privateIEs = -1;               /* PrivateIE_Container */
-static int hf_x2ap_ServedCellsToActivate_item = -1;  /* ServedCellsToActivate_Item */
-static int hf_x2ap_ecgi = -1;                     /* ECGI */
-static int hf_x2ap_ActivatedCellList_item = -1;   /* ActivatedCellList_Item */
-static int hf_x2ap_source_GlobalENB_ID = -1;      /* GlobalENB_ID */
-static int hf_x2ap_target_GlobalENB_ID = -1;      /* GlobalENB_ID */
-static int hf_x2ap_E_RABs_ToBeAdded_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_sCG_Bearer = -1;               /* E_RABs_ToBeAdded_Item_SCG_Bearer */
-static int hf_x2ap_split_Bearer = -1;             /* E_RABs_ToBeAdded_Item_Split_Bearer */
-static int hf_x2ap_s1_UL_GTPtunnelEndpoint = -1;  /* GTPtunnelEndpoint */
-static int hf_x2ap_meNB_GTPtunnelEndpoint = -1;   /* GTPtunnelEndpoint */
-static int hf_x2ap_E_RABs_Admitted_ToBeAdded_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_sCG_Bearer_01 = -1;            /* E_RABs_Admitted_ToBeAdded_Item_SCG_Bearer */
-static int hf_x2ap_split_Bearer_01 = -1;          /* E_RABs_Admitted_ToBeAdded_Item_Split_Bearer */
-static int hf_x2ap_s1_DL_GTPtunnelEndpoint = -1;  /* GTPtunnelEndpoint */
-static int hf_x2ap_dL_Forwarding_GTPtunnelEndpoint = -1;  /* GTPtunnelEndpoint */
-static int hf_x2ap_uL_Forwarding_GTPtunnelEndpoint = -1;  /* GTPtunnelEndpoint */
-static int hf_x2ap_seNB_GTPtunnelEndpoint = -1;   /* GTPtunnelEndpoint */
-static int hf_x2ap_success = -1;                  /* ResponseInformationSeNBReconfComp_SuccessItem */
-static int hf_x2ap_reject_by_MeNB = -1;           /* ResponseInformationSeNBReconfComp_RejectByMeNBItem */
-static int hf_x2ap_meNBtoSeNBContainer = -1;      /* MeNBtoSeNBContainer */
-static int hf_x2ap_uE_SecurityCapabilities = -1;  /* UESecurityCapabilities */
-static int hf_x2ap_seNB_SecurityKey = -1;         /* SeNBSecurityKey */
-static int hf_x2ap_seNBUEAggregateMaximumBitRate = -1;  /* UEAggregateMaximumBitRate */
-static int hf_x2ap_e_RABs_ToBeAdded = -1;         /* E_RABs_ToBeAdded_List_ModReq */
-static int hf_x2ap_e_RABs_ToBeModified = -1;      /* E_RABs_ToBeModified_List_ModReq */
-static int hf_x2ap_e_RABs_ToBeReleased = -1;      /* E_RABs_ToBeReleased_List_ModReq */
-static int hf_x2ap_E_RABs_ToBeAdded_List_ModReq_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_sCG_Bearer_02 = -1;            /* E_RABs_ToBeAdded_ModReqItem_SCG_Bearer */
-static int hf_x2ap_split_Bearer_02 = -1;          /* E_RABs_ToBeAdded_ModReqItem_Split_Bearer */
-static int hf_x2ap_E_RABs_ToBeModified_List_ModReq_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_sCG_Bearer_03 = -1;            /* E_RABs_ToBeModified_ModReqItem_SCG_Bearer */
-static int hf_x2ap_split_Bearer_03 = -1;          /* E_RABs_ToBeModified_ModReqItem_Split_Bearer */
-static int hf_x2ap_E_RABs_ToBeReleased_List_ModReq_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_sCG_Bearer_04 = -1;            /* E_RABs_ToBeReleased_ModReqItem_SCG_Bearer */
-static int hf_x2ap_split_Bearer_04 = -1;          /* E_RABs_ToBeReleased_ModReqItem_Split_Bearer */
-static int hf_x2ap_E_RABs_Admitted_ToBeAdded_ModAckList_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_sCG_Bearer_05 = -1;            /* E_RABs_Admitted_ToBeAdded_ModAckItem_SCG_Bearer */
-static int hf_x2ap_split_Bearer_05 = -1;          /* E_RABs_Admitted_ToBeAdded_ModAckItem_Split_Bearer */
-static int hf_x2ap_E_RABs_Admitted_ToBeModified_ModAckList_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_sCG_Bearer_06 = -1;            /* E_RABs_Admitted_ToBeModified_ModAckItem_SCG_Bearer */
-static int hf_x2ap_split_Bearer_06 = -1;          /* E_RABs_Admitted_ToBeModified_ModAckItem_Split_Bearer */
-static int hf_x2ap_E_RABs_Admitted_ToBeReleased_ModAckList_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_sCG_Bearer_07 = -1;            /* E_RABs_Admitted_ToBeReleased_ModAckItem_SCG_Bearer */
-static int hf_x2ap_split_Bearer_07 = -1;          /* E_RABs_Admitted_ToBeReleased_ModAckItem_Split_Bearer */
-static int hf_x2ap_E_RABs_ToBeReleased_ModReqd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_E_RABs_ToBeReleased_List_RelReq_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_sCG_Bearer_08 = -1;            /* E_RABs_ToBeReleased_RelReqItem_SCG_Bearer */
-static int hf_x2ap_split_Bearer_08 = -1;          /* E_RABs_ToBeReleased_RelReqItem_Split_Bearer */
-static int hf_x2ap_E_RABs_ToBeReleased_List_RelConf_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_sCG_Bearer_09 = -1;            /* E_RABs_ToBeReleased_RelConfItem_SCG_Bearer */
-static int hf_x2ap_split_Bearer_09 = -1;          /* E_RABs_ToBeReleased_RelConfItem_Split_Bearer */
-static int hf_x2ap_E_RABs_SubjectToCounterCheck_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_uL_Count = -1;                 /* INTEGER_0_4294967295 */
-static int hf_x2ap_dL_Count = -1;                 /* INTEGER_0_4294967295 */
-static int hf_x2ap_e_RABs_ToBeSetup_ListRetrieve = -1;  /* E_RABs_ToBeSetup_ListRetrieve */
-static int hf_x2ap_managBasedMDTallowed = -1;     /* ManagementBasedMDTallowed */
-static int hf_x2ap_managBasedMDTPLMNList = -1;    /* MDTPLMNList */
-static int hf_x2ap_E_RABs_ToBeSetup_ListRetrieve_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_bearerType = -1;               /* BearerType */
-static int hf_x2ap_E_RABs_ToBeAdded_SgNBAddReqList_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_drb_ID = -1;                   /* DRB_ID */
-static int hf_x2ap_en_DC_ResourceConfiguration = -1;  /* EN_DC_ResourceConfiguration */
-static int hf_x2ap_resource_configuration = -1;   /* T_resource_configuration */
-static int hf_x2ap_sgNBPDCPpresent = -1;          /* E_RABs_ToBeAdded_SgNBAddReq_Item_SgNBPDCPpresent */
-static int hf_x2ap_sgNBPDCPnotpresent = -1;       /* E_RABs_ToBeAdded_SgNBAddReq_Item_SgNBPDCPnotpresent */
-static int hf_x2ap_full_E_RAB_Level_QoS_Parameters = -1;  /* E_RAB_Level_QoS_Parameters */
-static int hf_x2ap_max_MCG_admit_E_RAB_Level_QoS_Parameters = -1;  /* GBR_QosInformation */
-static int hf_x2ap_meNB_DL_GTP_TEIDatMCG = -1;    /* GTPtunnelEndpoint */
-static int hf_x2ap_requested_SCG_E_RAB_Level_QoS_Parameters = -1;  /* E_RAB_Level_QoS_Parameters */
-static int hf_x2ap_meNB_UL_GTP_TEIDatPDCP = -1;   /* GTPtunnelEndpoint */
-static int hf_x2ap_secondary_meNB_UL_GTP_TEIDatPDCP = -1;  /* GTPtunnelEndpoint */
-static int hf_x2ap_rlc_Mode = -1;                 /* RLCMode */
-static int hf_x2ap_uL_Configuration = -1;         /* ULConfiguration */
-static int hf_x2ap_E_RABs_Admitted_ToBeAdded_SgNBAddReqAckList_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_resource_configuration_01 = -1;  /* T_resource_configuration_01 */
-static int hf_x2ap_sgNBPDCPpresent_01 = -1;       /* E_RABs_Admitted_ToBeAdded_SgNBAddReqAck_Item_SgNBPDCPpresent */
-static int hf_x2ap_sgNBPDCPnotpresent_01 = -1;    /* E_RABs_Admitted_ToBeAdded_SgNBAddReqAck_Item_SgNBPDCPnotpresent */
-static int hf_x2ap_sgNB_UL_GTP_TEIDatPDCP = -1;   /* GTPtunnelEndpoint */
-static int hf_x2ap_mCG_E_RAB_Level_QoS_Parameters = -1;  /* E_RAB_Level_QoS_Parameters */
-static int hf_x2ap_sgNB_DL_GTP_TEIDatSCG = -1;    /* GTPtunnelEndpoint */
-static int hf_x2ap_secondary_sgNB_DL_GTP_TEIDatSCG = -1;  /* GTPtunnelEndpoint */
-static int hf_x2ap_success_SgNBReconfComp = -1;   /* ResponseInformationSgNBReconfComp_SuccessItem */
-static int hf_x2ap_reject_by_MeNB_SgNBReconfComp = -1;  /* ResponseInformationSgNBReconfComp_RejectByMeNBItem */
-static int hf_x2ap_meNBtoSgNBContainer = -1;      /* MeNBtoSgNBContainer */
-static int hf_x2ap_nRUE_SecurityCapabilities = -1;  /* NRUESecurityCapabilities */
-static int hf_x2ap_sgNB_SecurityKey = -1;         /* SgNBSecurityKey */
-static int hf_x2ap_sgNBUEAggregateMaximumBitRate = -1;  /* UEAggregateMaximumBitRate */
-static int hf_x2ap_e_RABs_ToBeAdded_01 = -1;      /* E_RABs_ToBeAdded_SgNBModReq_List */
-static int hf_x2ap_e_RABs_ToBeModified_01 = -1;   /* E_RABs_ToBeModified_SgNBModReq_List */
-static int hf_x2ap_e_RABs_ToBeReleased_01 = -1;   /* E_RABs_ToBeReleased_SgNBModReq_List */
-static int hf_x2ap_E_RABs_ToBeAdded_SgNBModReq_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_resource_configuration_02 = -1;  /* T_resource_configuration_02 */
-static int hf_x2ap_sgNBPDCPpresent_02 = -1;       /* E_RABs_ToBeAdded_SgNBModReq_Item_SgNBPDCPpresent */
-static int hf_x2ap_sgNBPDCPnotpresent_02 = -1;    /* E_RABs_ToBeAdded_SgNBModReq_Item_SgNBPDCPnotpresent */
-static int hf_x2ap_max_MN_admit_E_RAB_Level_QoS_Parameters = -1;  /* GBR_QosInformation */
-static int hf_x2ap_E_RABs_ToBeModified_SgNBModReq_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_resource_configuration_03 = -1;  /* T_resource_configuration_03 */
-static int hf_x2ap_sgNBPDCPpresent_03 = -1;       /* E_RABs_ToBeModified_SgNBModReq_Item_SgNBPDCPpresent */
-static int hf_x2ap_sgNBPDCPnotpresent_03 = -1;    /* E_RABs_ToBeModified_SgNBModReq_Item_SgNBPDCPnotpresent */
-static int hf_x2ap_E_RABs_ToBeReleased_SgNBModReq_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_resource_configuration_04 = -1;  /* T_resource_configuration_04 */
-static int hf_x2ap_sgNBPDCPpresent_04 = -1;       /* E_RABs_ToBeReleased_SgNBModReq_Item_SgNBPDCPpresent */
-static int hf_x2ap_sgNBPDCPnotpresent_04 = -1;    /* E_RABs_ToBeReleased_SgNBModReq_Item_SgNBPDCPnotpresent */
-static int hf_x2ap_E_RABs_Admitted_ToBeAdded_SgNBModAckList_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_resource_configuration_05 = -1;  /* T_resource_configuration_05 */
-static int hf_x2ap_sgNBPDCPpresent_05 = -1;       /* E_RABs_Admitted_ToBeAdded_SgNBModAck_Item_SgNBPDCPpresent */
-static int hf_x2ap_sgNBPDCPnotpresent_05 = -1;    /* E_RABs_Admitted_ToBeAdded_SgNBModAck_Item_SgNBPDCPnotpresent */
-static int hf_x2ap_E_RABs_Admitted_ToBeModified_SgNBModAckList_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_resource_configuration_06 = -1;  /* T_resource_configuration_06 */
-static int hf_x2ap_sgNBPDCPpresent_06 = -1;       /* E_RABs_Admitted_ToBeModified_SgNBModAck_Item_SgNBPDCPpresent */
-static int hf_x2ap_sgNBPDCPnotpresent_06 = -1;    /* E_RABs_Admitted_ToBeModified_SgNBModAck_Item_SgNBPDCPnotpresent */
-static int hf_x2ap_E_RABs_Admitted_ToBeReleased_SgNBModAckList_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_resource_configuration_07 = -1;  /* T_resource_configuration_07 */
-static int hf_x2ap_sgNBPDCPpresent_07 = -1;       /* E_RABs_Admitted_ToBeReleased_SgNBModAck_Item_SgNBPDCPpresent */
-static int hf_x2ap_sgNBPDCPnotpresent_07 = -1;    /* E_RABs_Admitted_ToBeReleased_SgNBModAck_Item_SgNBPDCPnotpresent */
-static int hf_x2ap_E_RABs_ToBeReleased_SgNBModReqdList_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_E_RABs_ToBeModified_SgNBModReqdList_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_resource_configuration_08 = -1;  /* T_resource_configuration_08 */
-static int hf_x2ap_sgNBPDCPpresent_08 = -1;       /* E_RABs_ToBeModified_SgNBModReqd_Item_SgNBPDCPpresent */
-static int hf_x2ap_sgNBPDCPnotpresent_08 = -1;    /* E_RABs_ToBeModified_SgNBModReqd_Item_SgNBPDCPnotpresent */
-static int hf_x2ap_requested_MCG_E_RAB_Level_QoS_Parameters = -1;  /* E_RAB_Level_QoS_Parameters */
-static int hf_x2ap_s1_DL_GTP_TEIDatSgNB = -1;     /* GTPtunnelEndpoint */
-static int hf_x2ap_E_RABs_AdmittedToBeModified_SgNBModConfList_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_resource_configuration_09 = -1;  /* T_resource_configuration_09 */
-static int hf_x2ap_sgNBPDCPpresent_09 = -1;       /* E_RABs_AdmittedToBeModified_SgNBModConf_Item_SgNBPDCPpresent */
-static int hf_x2ap_sgNBPDCPnotpresent_09 = -1;    /* E_RABs_AdmittedToBeModified_SgNBModConf_Item_SgNBPDCPnotpresent */
-static int hf_x2ap_E_RABs_ToBeReleased_SgNBRelReqList_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_resource_configuration_10 = -1;  /* T_resource_configuration_10 */
-static int hf_x2ap_sgNBPDCPpresent_10 = -1;       /* E_RABs_ToBeReleased_SgNBRelReq_Item_SgNBPDCPpresent */
-static int hf_x2ap_sgNBPDCPnotpresent_10 = -1;    /* E_RABs_ToBeReleased_SgNBRelReq_Item_SgNBPDCPnotpresent */
-static int hf_x2ap_E_RABs_Admitted_ToBeReleased_SgNBRelReqAckList_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_rlc_Mode_transferred = -1;     /* RLCMode */
-static int hf_x2ap_E_RABs_ToBeReleased_SgNBRelReqdList_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_E_RABs_ToBeReleased_SgNBRelConfList_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_resource_configuration_11 = -1;  /* T_resource_configuration_11 */
-static int hf_x2ap_sgNBPDCPpresent_11 = -1;       /* E_RABs_ToBeReleased_SgNBRelConf_Item_SgNBPDCPpresent */
-static int hf_x2ap_sgNBPDCPnotpresent_11 = -1;    /* E_RABs_ToBeReleased_SgNBRelConf_Item_SgNBPDCPnotpresent */
-static int hf_x2ap_E_RABs_SubjectToSgNBCounterCheck_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_E_RABs_ToBeReleased_SgNBChaConfList_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_resource_configuration_12 = -1;  /* T_resource_configuration_12 */
-static int hf_x2ap_sgNBPDCPpresent_12 = -1;       /* E_RABs_ToBeReleased_SgNBChaConf_Item_SgNBPDCPpresent */
-static int hf_x2ap_sgNBPDCPnotpresent_12 = -1;    /* E_RABs_ToBeReleased_SgNBChaConf_Item_SgNBPDCPnotpresent */
-static int hf_x2ap_init_eNB = -1;                 /* ProtocolIE_Container */
-static int hf_x2ap_init_en_gNB = -1;              /* ProtocolIE_Container */
-static int hf_x2ap_ServedEUTRAcellsENDCX2ManagementList_item = -1;  /* ServedEUTRAcellsENDCX2ManagementList_item */
-static int hf_x2ap_servedEUTRACellInfo = -1;      /* ServedCell_Information */
-static int hf_x2ap_nrNeighbourInfo = -1;          /* NRNeighbour_Information */
-static int hf_x2ap_ServedNRcellsENDCX2ManagementList_item = -1;  /* ServedNRcellsENDCX2ManagementList_item */
-static int hf_x2ap_servedNRCellInfo = -1;         /* ServedNRCell_Information */
-static int hf_x2ap_nRNeighbourInfo = -1;          /* NRNeighbour_Information */
-static int hf_x2ap_nrModeInfo = -1;               /* T_nrModeInfo */
-static int hf_x2ap_fdd_04 = -1;                   /* FDD_InfoServedNRCell_Information */
-static int hf_x2ap_tdd_04 = -1;                   /* TDD_InfoServedNRCell_Information */
-static int hf_x2ap_measurementTimingConfiguration_01 = -1;  /* T_measurementTimingConfiguration_01 */
-static int hf_x2ap_ul_NR_TxBW = -1;               /* NR_TxBW */
-static int hf_x2ap_dl_NR_TxBW = -1;               /* NR_TxBW */
-static int hf_x2ap_nR_TxBW = -1;                  /* NR_TxBW */
-static int hf_x2ap_cellAssistanceInformation = -1;  /* CellAssistanceInformation */
-static int hf_x2ap_limited_list = -1;             /* Limited_list */
-static int hf_x2ap_full_list = -1;                /* T_full_list */
-static int hf_x2ap_Limited_list_item = -1;        /* Limited_list_item */
-static int hf_x2ap_respond_eNB = -1;              /* ProtocolIE_Container */
-static int hf_x2ap_respond_en_gNB = -1;           /* ProtocolIE_Container */
-static int hf_x2ap_ServedEUTRAcellsToModifyListENDCConfUpd_item = -1;  /* ServedEUTRAcellsToModifyListENDCConfUpd_item */
-static int hf_x2ap_old_ECGI = -1;                 /* ECGI */
-static int hf_x2ap_ServedEUTRAcellsToDeleteListENDCConfUpd_item = -1;  /* ECGI */
-static int hf_x2ap_ServedNRcellsToModifyENDCConfUpdList_item = -1;  /* ServedNRCellsToModify_Item */
-static int hf_x2ap_old_nrcgi = -1;                /* NRCGI */
-static int hf_x2ap_servedNRCellInformation = -1;  /* ServedNRCell_Information */
-static int hf_x2ap_nrNeighbourInformation = -1;   /* NRNeighbour_Information */
-static int hf_x2ap_nrDeactivationIndication = -1;  /* DeactivationIndication */
-static int hf_x2ap_ServedNRcellsToDeleteENDCConfUpdList_item = -1;  /* NRCGI */
-static int hf_x2ap_ServedNRCellsToActivate_item = -1;  /* ServedNRCellsToActivate_Item */
-static int hf_x2ap_ActivatedNRCellList_item = -1;  /* ActivatedNRCellList_Item */
-static int hf_x2ap_CellToReport_NR_ENDC_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_nr_cell_ID = -1;               /* NRCGI */
-static int hf_x2ap_ssbToReport_List = -1;         /* SSBToReport_List */
-static int hf_x2ap_CellToReport_E_UTRA_ENDC_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_e_utra_cell_ID = -1;           /* ECGI */
-static int hf_x2ap_SSBToReport_List_item = -1;    /* SSBToReport_Item */
-static int hf_x2ap_CellMeasurementResult_NR_ENDC_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_nr_radioResourceStatus = -1;   /* NRRadioResourceStatus */
-static int hf_x2ap_tnlCapacityIndicator = -1;     /* TNLCapacityIndicator */
-static int hf_x2ap_nr_compositeAvailableCapacityGroup = -1;  /* NRCompositeAvailableCapacityGroup */
-static int hf_x2ap_numberofActiveUEs = -1;        /* INTEGER_0_16777215_ */
-static int hf_x2ap_CellMeasurementResult_E_UTRA_ENDC_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_compositeAvailableCapacityGroup = -1;  /* CompositeAvailableCapacityGroup */
-static int hf_x2ap_initiate_eNB = -1;             /* ProtocolIE_Container */
-static int hf_x2ap_initiate_en_gNB = -1;          /* ProtocolIE_Container */
-static int hf_x2ap_ListofEUTRACellsinEUTRACoordinationReq_item = -1;  /* ECGI */
-static int hf_x2ap_ListofEUTRACellsinNRCoordinationReq_item = -1;  /* ECGI */
-static int hf_x2ap_ListofNRCellsinNRCoordinationReq_item = -1;  /* NRCGI */
-static int hf_x2ap_ListofEUTRACellsinEUTRACoordinationResp_item = -1;  /* ECGI */
-static int hf_x2ap_ListofNRCellsinNRCoordinationResp_item = -1;  /* NRCGI */
-static int hf_x2ap_E_RABs_DataForwardingAddress_List_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_x2ap_dl_GTPtunnelEndpoint = -1;     /* GTPtunnelEndpoint */
-static int hf_x2ap_initiatingMessage = -1;        /* InitiatingMessage */
-static int hf_x2ap_successfulOutcome = -1;        /* SuccessfulOutcome */
-static int hf_x2ap_unsuccessfulOutcome = -1;      /* UnsuccessfulOutcome */
-static int hf_x2ap_initiatingMessage_value = -1;  /* InitiatingMessage_value */
-static int hf_x2ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
-static int hf_x2ap_value = -1;                    /* UnsuccessfulOutcome_value */
+static int proto_x2ap;
+static int hf_x2ap_transportLayerAddressIPv4;
+static int hf_x2ap_transportLayerAddressIPv6;
+static int hf_x2ap_ReportCharacteristics_PRBPeriodic;
+static int hf_x2ap_ReportCharacteristics_TNLLoadIndPeriodic;
+static int hf_x2ap_ReportCharacteristics_HWLoadIndPeriodic;
+static int hf_x2ap_ReportCharacteristics_CompositeAvailableCapacityPeriodic;
+static int hf_x2ap_ReportCharacteristics_ABSStatusPeriodic;
+static int hf_x2ap_ReportCharacteristics_RSRPMeasurementReportPeriodic;
+static int hf_x2ap_ReportCharacteristics_CSIReportPeriodic;
+static int hf_x2ap_ReportCharacteristics_Reserved;
+static int hf_x2ap_measurementFailedReportCharacteristics_PRBPeriodic;
+static int hf_x2ap_measurementFailedReportCharacteristics_TNLLoadIndPeriodic;
+static int hf_x2ap_measurementFailedReportCharacteristics_HWLoadIndPeriodic;
+static int hf_x2ap_measurementFailedReportCharacteristics_CompositeAvailableCapacityPeriodic;
+static int hf_x2ap_measurementFailedReportCharacteristics_ABSStatusPeriodic;
+static int hf_x2ap_measurementFailedReportCharacteristics_RSRPMeasurementReportPeriodic;
+static int hf_x2ap_measurementFailedReportCharacteristics_CSIReportPeriodic;
+static int hf_x2ap_measurementFailedReportCharacteristics_Reserved;
+static int hf_x2ap_eUTRANTraceID_TraceID;
+static int hf_x2ap_eUTRANTraceID_TraceRecordingSessionReference;
+static int hf_x2ap_interfacesToTrace_S1_MME;
+static int hf_x2ap_interfacesToTrace_X2;
+static int hf_x2ap_interfacesToTrace_Uu;
+static int hf_x2ap_interfacesToTrace_F1_C;
+static int hf_x2ap_interfacesToTrace_E1;
+static int hf_x2ap_interfacesToTrace_Reserved;
+static int hf_x2ap_traceCollectionEntityIPAddress_IPv4;
+static int hf_x2ap_traceCollectionEntityIPAddress_IPv6;
+static int hf_x2ap_encryptionAlgorithms_EEA1;
+static int hf_x2ap_encryptionAlgorithms_EEA2;
+static int hf_x2ap_encryptionAlgorithms_EEA3;
+static int hf_x2ap_encryptionAlgorithms_Reserved;
+static int hf_x2ap_integrityProtectionAlgorithms_EIA1;
+static int hf_x2ap_integrityProtectionAlgorithms_EIA2;
+static int hf_x2ap_integrityProtectionAlgorithms_EIA3;
+static int hf_x2ap_integrityProtectionAlgorithms_EIA7;
+static int hf_x2ap_integrityProtectionAlgorithms_Reserved;
+static int hf_x2ap_measurementsToActivate_M1;
+static int hf_x2ap_measurementsToActivate_M2;
+static int hf_x2ap_measurementsToActivate_M3;
+static int hf_x2ap_measurementsToActivate_M4;
+static int hf_x2ap_measurementsToActivate_M5;
+static int hf_x2ap_measurementsToActivate_LoggingM1FromEventTriggered;
+static int hf_x2ap_measurementsToActivate_M6;
+static int hf_x2ap_measurementsToActivate_M7;
+static int hf_x2ap_MDT_Location_Info_GNSS;
+static int hf_x2ap_MDT_Location_Info_E_CID;
+static int hf_x2ap_MDT_Location_Info_Reserved;
+static int hf_x2ap_MDT_transmissionModes_tm1;
+static int hf_x2ap_MDT_transmissionModes_tm2;
+static int hf_x2ap_MDT_transmissionModes_tm3;
+static int hf_x2ap_MDT_transmissionModes_tm4;
+static int hf_x2ap_MDT_transmissionModes_tm6;
+static int hf_x2ap_MDT_transmissionModes_tm8;
+static int hf_x2ap_MDT_transmissionModes_tm9;
+static int hf_x2ap_MDT_transmissionModes_tm10;
+static int hf_x2ap_NRencryptionAlgorithms_NEA1;
+static int hf_x2ap_NRencryptionAlgorithms_NEA2;
+static int hf_x2ap_NRencryptionAlgorithms_NEA3;
+static int hf_x2ap_NRencryptionAlgorithms_Reserved;
+static int hf_x2ap_NRintegrityProtectionAlgorithms_NIA1;
+static int hf_x2ap_NRintegrityProtectionAlgorithms_NIA2;
+static int hf_x2ap_NRintegrityProtectionAlgorithms_NIA3;
+static int hf_x2ap_NRintegrityProtectionAlgorithms_Reserved;
+static int hf_x2ap_ReportCharacteristics_ENDC_PRBPeriodic;
+static int hf_x2ap_ReportCharacteristics_ENDC_TNLCapacityIndPeriodic;
+static int hf_x2ap_ReportCharacteristics_ENDC_CompositeAvailableCapacityPeriodic;
+static int hf_x2ap_ReportCharacteristics_ENDC_NumberOfActiveUEs;
+static int hf_x2ap_ReportCharacteristics_ENDC_Reserved;
+static int hf_x2ap_Registration_Request_ENDC_PDU;
+static int hf_x2ap_ReportingPeriodicity_ENDC_PDU;
+static int hf_x2ap_ReportCharacteristics_ENDC_PDU;
+static int hf_x2ap_rAT_RestrictionInformation_LEO;
+static int hf_x2ap_rAT_RestrictionInformation_MEO;
+static int hf_x2ap_rAT_RestrictionInformation_GEO;
+static int hf_x2ap_rAT_RestrictionInformation_OTHERSAT;
+static int hf_x2ap_rAT_RestrictionInformation_Reserved;
+static int hf_x2ap_ABSInformation_PDU;            /* ABSInformation */
+static int hf_x2ap_ABS_Status_PDU;                /* ABS_Status */
+static int hf_x2ap_ActivationID_PDU;              /* ActivationID */
+static int hf_x2ap_Additional_Measurement_Timing_Configuration_List_PDU;  /* Additional_Measurement_Timing_Configuration_List */
+static int hf_x2ap_AdditionalListofForwardingGTPTunnelEndpoint_PDU;  /* AdditionalListofForwardingGTPTunnelEndpoint */
+static int hf_x2ap_AdditionLocationInformation_PDU;  /* AdditionLocationInformation */
+static int hf_x2ap_AdditionalRRMPriorityIndex_PDU;  /* AdditionalRRMPriorityIndex */
+static int hf_x2ap_AdditionalSpecialSubframe_Info_PDU;  /* AdditionalSpecialSubframe_Info */
+static int hf_x2ap_AdditionalSpecialSubframeExtension_Info_PDU;  /* AdditionalSpecialSubframeExtension_Info */
+static int hf_x2ap_AvailableFastMCGRecoveryViaSRB3_PDU;  /* AvailableFastMCGRecoveryViaSRB3 */
+static int hf_x2ap_AerialUEsubscriptionInformation_PDU;  /* AerialUEsubscriptionInformation */
+static int hf_x2ap_AdditionalPLMNs_Item_PDU;      /* AdditionalPLMNs_Item */
+static int hf_x2ap_BandwidthReducedSI_PDU;        /* BandwidthReducedSI */
+static int hf_x2ap_BearerType_PDU;                /* BearerType */
+static int hf_x2ap_BluetoothMeasurementConfiguration_PDU;  /* BluetoothMeasurementConfiguration */
+static int hf_x2ap_BPLMN_ID_Info_EUTRA_PDU;       /* BPLMN_ID_Info_EUTRA */
+static int hf_x2ap_BPLMN_ID_Info_NR_PDU;          /* BPLMN_ID_Info_NR */
+static int hf_x2ap_Cause_PDU;                     /* Cause */
+static int hf_x2ap_CellReportingIndicator_PDU;    /* CellReportingIndicator */
+static int hf_x2ap_CPAinformation_REQ_PDU;        /* CPAinformation_REQ */
+static int hf_x2ap_CPAinformation_REQ_ACK_PDU;    /* CPAinformation_REQ_ACK */
+static int hf_x2ap_CPCinformation_REQD_PDU;       /* CPCinformation_REQD */
+static int hf_x2ap_CPCinformation_CONF_PDU;       /* CPCinformation_CONF */
+static int hf_x2ap_CPCinformation_NOTIFY_PDU;     /* CPCinformation_NOTIFY */
+static int hf_x2ap_CPAinformation_MOD_PDU;        /* CPAinformation_MOD */
+static int hf_x2ap_CPCupdate_MOD_PDU;             /* CPCupdate_MOD */
+static int hf_x2ap_CPAinformation_MOD_ACK_PDU;    /* CPAinformation_MOD_ACK */
+static int hf_x2ap_CPACinformation_REQD_PDU;      /* CPACinformation_REQD */
+static int hf_x2ap_CHO_DC_EarlyDataForwarding_PDU;  /* CHO_DC_EarlyDataForwarding */
+static int hf_x2ap_CHO_DC_Indicator_PDU;          /* CHO_DC_Indicator */
+static int hf_x2ap_CNTypeRestrictions_PDU;        /* CNTypeRestrictions */
+static int hf_x2ap_CoMPInformation_PDU;           /* CoMPInformation */
+static int hf_x2ap_CompositeAvailableCapacityGroup_PDU;  /* CompositeAvailableCapacityGroup */
+static int hf_x2ap_Correlation_ID_PDU;            /* Correlation_ID */
+static int hf_x2ap_COUNTValueExtended_PDU;        /* COUNTValueExtended */
+static int hf_x2ap_COUNTvaluePDCP_SNlength18_PDU;  /* COUNTvaluePDCP_SNlength18 */
+static int hf_x2ap_CoverageModificationList_PDU;  /* CoverageModificationList */
+static int hf_x2ap_CriticalityDiagnostics_PDU;    /* CriticalityDiagnostics */
+static int hf_x2ap_CRNTI_PDU;                     /* CRNTI */
+static int hf_x2ap_CSGMembershipStatus_PDU;       /* CSGMembershipStatus */
+static int hf_x2ap_CSG_Id_PDU;                    /* CSG_Id */
+static int hf_x2ap_CSIReportList_PDU;             /* CSIReportList */
+static int hf_x2ap_CHOinformation_REQ_PDU;        /* CHOinformation_REQ */
+static int hf_x2ap_CHOinformation_ACK_PDU;        /* CHOinformation_ACK */
+static int hf_x2ap_CandidateCellsToBeCancelledList_PDU;  /* CandidateCellsToBeCancelledList */
+static int hf_x2ap_CHOinformation_AddReq_PDU;     /* CHOinformation_AddReq */
+static int hf_x2ap_CHOinformation_ModReq_PDU;     /* CHOinformation_ModReq */
+static int hf_x2ap_CSI_RSTransmissionIndication_PDU;  /* CSI_RSTransmissionIndication */
+static int hf_x2ap_DataTrafficResourceIndication_PDU;  /* DataTrafficResourceIndication */
+static int hf_x2ap_DAPSRequestInfo_PDU;           /* DAPSRequestInfo */
+static int hf_x2ap_DAPSResponseInfo_PDU;          /* DAPSResponseInfo */
+static int hf_x2ap_DeactivationIndication_PDU;    /* DeactivationIndication */
+static int hf_x2ap_DesiredActNotificationLevel_PDU;  /* DesiredActNotificationLevel */
+static int hf_x2ap_DirectForwardingPathAvailability_PDU;  /* DirectForwardingPathAvailability */
+static int hf_x2ap_DL_Forwarding_PDU;             /* DL_Forwarding */
+static int hf_x2ap_DL_scheduling_PDCCH_CCE_usage_PDU;  /* DL_scheduling_PDCCH_CCE_usage */
+static int hf_x2ap_DuplicationActivation_PDU;     /* DuplicationActivation */
+static int hf_x2ap_DynamicDLTransmissionInformation_PDU;  /* DynamicDLTransmissionInformation */
+static int hf_x2ap_EARFCNExtension_PDU;           /* EARFCNExtension */
+static int hf_x2ap_ECGI_PDU;                      /* ECGI */
+static int hf_x2ap_EndcSONConfigurationTransfer_PDU;  /* EndcSONConfigurationTransfer */
+static int hf_x2ap_EnhancedRNTP_PDU;              /* EnhancedRNTP */
+static int hf_x2ap_EPCHandoverRestrictionListContainer_PDU;  /* EPCHandoverRestrictionListContainer */
+static int hf_x2ap_ERABActivityNotifyItemList_PDU;  /* ERABActivityNotifyItemList */
+static int hf_x2ap_E_RAB_List_PDU;                /* E_RAB_List */
+static int hf_x2ap_E_RAB_Item_PDU;                /* E_RAB_Item */
+static int hf_x2ap_E_RABUsageReport_Item_PDU;     /* E_RABUsageReport_Item */
+static int hf_x2ap_Ethernet_Type_PDU;             /* Ethernet_Type */
+static int hf_x2ap_EUTRANCellIdentifier_PDU;      /* EUTRANCellIdentifier */
+static int hf_x2ap_EUTRANTraceID_PDU;             /* EUTRANTraceID */
+static int hf_x2ap_ExpectedUEBehaviour_PDU;       /* ExpectedUEBehaviour */
+static int hf_x2ap_ExtendedULInterferenceOverloadInfo_PDU;  /* ExtendedULInterferenceOverloadInfo */
+static int hf_x2ap_ExtendedBitRate_PDU;           /* ExtendedBitRate */
+static int hf_x2ap_F1CTrafficContainer_PDU;       /* F1CTrafficContainer */
+static int hf_x2ap_FastMCGRecovery_PDU;           /* FastMCGRecovery */
+static int hf_x2ap_FreqBandIndicatorPriority_PDU;  /* FreqBandIndicatorPriority */
+static int hf_x2ap_FrequencyShift7p5khz_PDU;      /* FrequencyShift7p5khz */
+static int hf_x2ap_GlobalENB_ID_PDU;              /* GlobalENB_ID */
+static int hf_x2ap_GlobalGNB_ID_PDU;              /* GlobalGNB_ID */
+static int hf_x2ap_Global_RAN_NODE_ID_PDU;        /* Global_RAN_NODE_ID */
+static int hf_x2ap_GNBOverloadInformation_PDU;    /* GNBOverloadInformation */
+static int hf_x2ap_GTPtunnelEndpoint_PDU;         /* GTPtunnelEndpoint */
+static int hf_x2ap_GUGroupIDList_PDU;             /* GUGroupIDList */
+static int hf_x2ap_GUMMEI_PDU;                    /* GUMMEI */
+static int hf_x2ap_HandoverReportType_PDU;        /* HandoverReportType */
+static int hf_x2ap_HandoverRestrictionList_PDU;   /* HandoverRestrictionList */
+static int hf_x2ap_IABNodeIndication_PDU;         /* IABNodeIndication */
+static int hf_x2ap_IMSvoiceEPSfallbackfrom5G_PDU;  /* IMSvoiceEPSfallbackfrom5G */
+static int hf_x2ap_IntendedTDD_DL_ULConfiguration_NR_PDU;  /* IntendedTDD_DL_ULConfiguration_NR */
+static int hf_x2ap_InterfaceInstanceIndication_PDU;  /* InterfaceInstanceIndication */
+static int hf_x2ap_InvokeIndication_PDU;          /* InvokeIndication */
+static int hf_x2ap_LCID_PDU;                      /* LCID */
+static int hf_x2ap_LHN_ID_PDU;                    /* LHN_ID */
+static int hf_x2ap_LocationInformationSgNB_PDU;   /* LocationInformationSgNB */
+static int hf_x2ap_LocationInformationSgNBReporting_PDU;  /* LocationInformationSgNBReporting */
+static int hf_x2ap_LowerLayerPresenceStatusChange_PDU;  /* LowerLayerPresenceStatusChange */
+static int hf_x2ap_M3Configuration_PDU;           /* M3Configuration */
+static int hf_x2ap_M4Configuration_PDU;           /* M4Configuration */
+static int hf_x2ap_M5Configuration_PDU;           /* M5Configuration */
+static int hf_x2ap_M6Configuration_PDU;           /* M6Configuration */
+static int hf_x2ap_M7Configuration_PDU;           /* M7Configuration */
+static int hf_x2ap_MakeBeforeBreakIndicator_PDU;  /* MakeBeforeBreakIndicator */
+static int hf_x2ap_ManagementBasedMDTallowed_PDU;  /* ManagementBasedMDTallowed */
+static int hf_x2ap_Masked_IMEISV_PDU;             /* Masked_IMEISV */
+static int hf_x2ap_MDT_Configuration_PDU;         /* MDT_Configuration */
+static int hf_x2ap_MDTPLMNList_PDU;               /* MDTPLMNList */
+static int hf_x2ap_MDT_Location_Info_PDU;         /* MDT_Location_Info */
+static int hf_x2ap_Measurement_ID_PDU;            /* Measurement_ID */
+static int hf_x2ap_Measurement_ID_ENDC_PDU;       /* Measurement_ID_ENDC */
+static int hf_x2ap_MeNBCoordinationAssistanceInformation_PDU;  /* MeNBCoordinationAssistanceInformation */
+static int hf_x2ap_x2ap_MeNBResourceCoordinationInformation_PDU;  /* MeNBResourceCoordinationInformation */
+static int hf_x2ap_MeNBtoSeNBContainer_PDU;       /* MeNBtoSeNBContainer */
+static int hf_x2ap_MBMS_Service_Area_Identity_List_PDU;  /* MBMS_Service_Area_Identity_List */
+static int hf_x2ap_MBSFN_Subframe_Infolist_PDU;   /* MBSFN_Subframe_Infolist */
+static int hf_x2ap_MDT_ConfigurationNR_PDU;       /* MDT_ConfigurationNR */
+static int hf_x2ap_MobilityParametersModificationRange_PDU;  /* MobilityParametersModificationRange */
+static int hf_x2ap_MobilityParametersInformation_PDU;  /* MobilityParametersInformation */
+static int hf_x2ap_MultibandInfoList_PDU;         /* MultibandInfoList */
+static int hf_x2ap_MessageOversizeNotification_PDU;  /* MessageOversizeNotification */
+static int hf_x2ap_MeNBtoSgNBContainer_PDU;       /* MeNBtoSgNBContainer */
+static int hf_x2ap_SplitSRBs_PDU;                 /* SplitSRBs */
+static int hf_x2ap_SplitSRB_PDU;                  /* SplitSRB */
+static int hf_x2ap_NBIoT_UL_DL_AlignmentOffset_PDU;  /* NBIoT_UL_DL_AlignmentOffset */
+static int hf_x2ap_NBIoT_RLF_Report_Container_PDU;  /* NBIoT_RLF_Report_Container */
+static int hf_x2ap_NewDRBIDrequest_PDU;           /* NewDRBIDrequest */
+static int hf_x2ap_Number_of_Antennaports_PDU;    /* Number_of_Antennaports */
+static int hf_x2ap_NRCarrierList_PDU;             /* NRCarrierList */
+static int hf_x2ap_NRCellPRACHConfig_PDU;         /* NRCellPRACHConfig */
+static int hf_x2ap_NRCGI_PDU;                     /* NRCGI */
+static int hf_x2ap_NRRACHReportInformation_PDU;   /* NRRACHReportInformation */
+static int hf_x2ap_NRNeighbour_Information_PDU;   /* NRNeighbour_Information */
+static int hf_x2ap_NPRACHConfiguration_PDU;       /* NPRACHConfiguration */
+static int hf_x2ap_NRrestrictioninEPSasSecondaryRAT_PDU;  /* NRrestrictioninEPSasSecondaryRAT */
+static int hf_x2ap_MeasurementResultforNRCellsPossiblyAggregated_PDU;  /* MeasurementResultforNRCellsPossiblyAggregated */
+static int hf_x2ap_MIMOPRBusageInformation_PDU;   /* MIMOPRBusageInformation */
+static int hf_x2ap_NRrestrictionin5GS_PDU;        /* NRrestrictionin5GS */
+static int hf_x2ap_NRS_NSSS_PowerOffset_PDU;      /* NRS_NSSS_PowerOffset */
+static int hf_x2ap_NRUeReport_PDU;                /* NRUeReport */
+static int hf_x2ap_NRUESidelinkAggregateMaximumBitRate_PDU;  /* NRUESidelinkAggregateMaximumBitRate */
+static int hf_x2ap_NRUESecurityCapabilities_PDU;  /* NRUESecurityCapabilities */
+static int hf_x2ap_NSSS_NumOccasionDifferentPrecoder_PDU;  /* NSSS_NumOccasionDifferentPrecoder */
+static int hf_x2ap_NRV2XServicesAuthorized_PDU;   /* NRV2XServicesAuthorized */
+static int hf_x2ap_OffsetOfNbiotChannelNumberToEARFCN_PDU;  /* OffsetOfNbiotChannelNumberToEARFCN */
+static int hf_x2ap_Packet_LossRate_PDU;           /* Packet_LossRate */
+static int hf_x2ap_PC5QoSParameters_PDU;          /* PC5QoSParameters */
+static int hf_x2ap_PDCPChangeIndication_PDU;      /* PDCPChangeIndication */
+static int hf_x2ap_PDCPSnLength_PDU;              /* PDCPSnLength */
+static int hf_x2ap_PCI_PDU;                       /* PCI */
+static int hf_x2ap_PLMN_Identity_PDU;             /* PLMN_Identity */
+static int hf_x2ap_PRACH_Configuration_PDU;       /* PRACH_Configuration */
+static int hf_x2ap_ProSeAuthorized_PDU;           /* ProSeAuthorized */
+static int hf_x2ap_ProSeUEtoNetworkRelaying_PDU;  /* ProSeUEtoNetworkRelaying */
+static int hf_x2ap_x2ap_ProtectedEUTRAResourceIndication_PDU;  /* ProtectedEUTRAResourceIndication */
+static int hf_x2ap_PartialListIndicator_PDU;      /* PartialListIndicator */
+static int hf_x2ap_PrivacyIndicator_PDU;          /* PrivacyIndicator */
+static int hf_x2ap_PSCellHistoryInformationRetrieve_PDU;  /* PSCellHistoryInformationRetrieve */
+static int hf_x2ap_PSCell_UE_HistoryInformation_PDU;  /* PSCell_UE_HistoryInformation */
+static int hf_x2ap_PSCellChangeHistory_PDU;       /* PSCellChangeHistory */
+static int hf_x2ap_QoS_Mapping_Information_PDU;   /* QoS_Mapping_Information */
+static int hf_x2ap_RAN_UE_NGAP_ID_PDU;            /* RAN_UE_NGAP_ID */
+static int hf_x2ap_RAT_Restrictions_PDU;          /* RAT_Restrictions */
+static int hf_x2ap_ReceiveStatusOfULPDCPSDUsExtended_PDU;  /* ReceiveStatusOfULPDCPSDUsExtended */
+static int hf_x2ap_ReceiveStatusOfULPDCPSDUsPDCP_SNlength18_PDU;  /* ReceiveStatusOfULPDCPSDUsPDCP_SNlength18 */
+static int hf_x2ap_ReleaseFastMCGRecoveryViaSRB3_PDU;  /* ReleaseFastMCGRecoveryViaSRB3 */
+static int hf_x2ap_Registration_Request_PDU;      /* Registration_Request */
+static int hf_x2ap_ReportCharacteristics_PDU;     /* ReportCharacteristics */
+static int hf_x2ap_ReportingPeriodicityCSIR_PDU;  /* ReportingPeriodicityCSIR */
+static int hf_x2ap_ReportingPeriodicityRSRPMR_PDU;  /* ReportingPeriodicityRSRPMR */
+static int hf_x2ap_RequestedFastMCGRecoveryViaSRB3_PDU;  /* RequestedFastMCGRecoveryViaSRB3 */
+static int hf_x2ap_RequestedFastMCGRecoveryViaSRB3Release_PDU;  /* RequestedFastMCGRecoveryViaSRB3Release */
+static int hf_x2ap_ResumeID_PDU;                  /* ResumeID */
+static int hf_x2ap_RLCMode_PDU;                   /* RLCMode */
+static int hf_x2ap_RLC_Status_PDU;                /* RLC_Status */
+static int hf_x2ap_RRC_Config_Ind_PDU;            /* RRC_Config_Ind */
+static int hf_x2ap_RRCConnReestabIndicator_PDU;   /* RRCConnReestabIndicator */
+static int hf_x2ap_RRCConnSetupIndicator_PDU;     /* RRCConnSetupIndicator */
+static int hf_x2ap_RSRPMRList_PDU;                /* RSRPMRList */
+static int hf_x2ap_SCGActivationStatus_PDU;       /* SCGActivationStatus */
+static int hf_x2ap_SCGActivationRequest_PDU;      /* SCGActivationRequest */
+static int hf_x2ap_SCGChangeIndication_PDU;       /* SCGChangeIndication */
+static int hf_x2ap_SCGreconfigNotification_PDU;   /* SCGreconfigNotification */
+static int hf_x2ap_SCG_UE_HistoryInformation_PDU;  /* SCG_UE_HistoryInformation */
+static int hf_x2ap_SecondaryRATUsageReportList_PDU;  /* SecondaryRATUsageReportList */
+static int hf_x2ap_SecondaryRATUsageReport_Item_PDU;  /* SecondaryRATUsageReport_Item */
+static int hf_x2ap_SecurityIndication_PDU;        /* SecurityIndication */
+static int hf_x2ap_SecurityResult_PDU;            /* SecurityResult */
+static int hf_x2ap_SeNBSecurityKey_PDU;           /* SeNBSecurityKey */
+static int hf_x2ap_SeNBtoMeNBContainer_PDU;       /* SeNBtoMeNBContainer */
+static int hf_x2ap_SensorMeasurementConfiguration_PDU;  /* SensorMeasurementConfiguration */
+static int hf_x2ap_ServedCells_PDU;               /* ServedCells */
+static int hf_x2ap_ServedCellSpecificInfoReq_NR_PDU;  /* ServedCellSpecificInfoReq_NR */
+static int hf_x2ap_ServiceType_PDU;               /* ServiceType */
+static int hf_x2ap_SgNBCoordinationAssistanceInformation_PDU;  /* SgNBCoordinationAssistanceInformation */
+static int hf_x2ap_x2ap_SgNBResourceCoordinationInformation_PDU;  /* SgNBResourceCoordinationInformation */
+static int hf_x2ap_SgNB_UE_X2AP_ID_PDU;           /* SgNB_UE_X2AP_ID */
+static int hf_x2ap_SIPTOBearerDeactivationIndication_PDU;  /* SIPTOBearerDeactivationIndication */
+static int hf_x2ap_ShortMAC_I_PDU;                /* ShortMAC_I */
+static int hf_x2ap_SGNB_Addition_Trigger_Ind_PDU;  /* SGNB_Addition_Trigger_Ind */
+static int hf_x2ap_SNtriggered_PDU;               /* SNtriggered */
+static int hf_x2ap_SpectrumSharingGroupID_PDU;    /* SpectrumSharingGroupID */
+static int hf_x2ap_Subscription_Based_UE_DifferentiationInfo_PDU;  /* Subscription_Based_UE_DifferentiationInfo */
+static int hf_x2ap_SRVCCOperationPossible_PDU;    /* SRVCCOperationPossible */
+static int hf_x2ap_SSB_PositionsInBurst_PDU;      /* SSB_PositionsInBurst */
+static int hf_x2ap_SubscriberProfileIDforRFP_PDU;  /* SubscriberProfileIDforRFP */
+static int hf_x2ap_SubframeAssignment_PDU;        /* SubframeAssignment */
+static int hf_x2ap_SgNBSecurityKey_PDU;           /* SgNBSecurityKey */
+static int hf_x2ap_SgNBtoMeNBContainer_PDU;       /* SgNBtoMeNBContainer */
+static int hf_x2ap_SCGConfigurationQuery_PDU;     /* SCGConfigurationQuery */
+static int hf_x2ap_SFN_Offset_PDU;                /* SFN_Offset */
+static int hf_x2ap_TAC_PDU;                       /* TAC */
+static int hf_x2ap_TargetCellInNGRAN_PDU;         /* TargetCellInNGRAN */
+static int hf_x2ap_TargetCellInUTRAN_PDU;         /* TargetCellInUTRAN */
+static int hf_x2ap_TargeteNBtoSource_eNBTransparentContainer_PDU;  /* TargeteNBtoSource_eNBTransparentContainer */
+static int hf_x2ap_TDDULDLConfigurationCommonNR_PDU;  /* TDDULDLConfigurationCommonNR */
+static int hf_x2ap_TimeToWait_PDU;                /* TimeToWait */
+static int hf_x2ap_Time_UE_StayedInCell_EnhancedGranularity_PDU;  /* Time_UE_StayedInCell_EnhancedGranularity */
+static int hf_x2ap_TNLA_To_Add_List_PDU;          /* TNLA_To_Add_List */
+static int hf_x2ap_TNLA_To_Update_List_PDU;       /* TNLA_To_Update_List */
+static int hf_x2ap_TNLA_To_Remove_List_PDU;       /* TNLA_To_Remove_List */
+static int hf_x2ap_TNLA_Setup_List_PDU;           /* TNLA_Setup_List */
+static int hf_x2ap_TNLA_Failed_To_Setup_List_PDU;  /* TNLA_Failed_To_Setup_List */
+static int hf_x2ap_TNLConfigurationInfo_PDU;      /* TNLConfigurationInfo */
+static int hf_x2ap_TraceActivation_PDU;           /* TraceActivation */
+static int hf_x2ap_TransportLayerAddress_PDU;     /* TransportLayerAddress */
+static int hf_x2ap_TunnelInformation_PDU;         /* TunnelInformation */
+static int hf_x2ap_UEAggregateMaximumBitRate_PDU;  /* UEAggregateMaximumBitRate */
+static int hf_x2ap_UEAppLayerMeasConfig_PDU;      /* UEAppLayerMeasConfig */
+static int hf_x2ap_UE_ContextKeptIndicator_PDU;   /* UE_ContextKeptIndicator */
+static int hf_x2ap_UEID_PDU;                      /* UEID */
+static int hf_x2ap_UE_HistoryInformation_PDU;     /* UE_HistoryInformation */
+static int hf_x2ap_UE_HistoryInformationFromTheUE_PDU;  /* UE_HistoryInformationFromTheUE */
+static int hf_x2ap_UE_X2AP_ID_PDU;                /* UE_X2AP_ID */
+static int hf_x2ap_UE_X2AP_ID_Extension_PDU;      /* UE_X2AP_ID_Extension */
+static int hf_x2ap_UERadioCapability_PDU;         /* UERadioCapability */
+static int hf_x2ap_UERadioCapabilityID_PDU;       /* UERadioCapabilityID */
+static int hf_x2ap_UE_RLF_Report_Container_PDU;   /* UE_RLF_Report_Container */
+static int hf_x2ap_UE_RLF_Report_Container_for_extended_bands_PDU;  /* UE_RLF_Report_Container_for_extended_bands */
+static int hf_x2ap_UESecurityCapabilities_PDU;    /* UESecurityCapabilities */
+static int hf_x2ap_UESidelinkAggregateMaximumBitRate_PDU;  /* UESidelinkAggregateMaximumBitRate */
+static int hf_x2ap_UEsToBeResetList_PDU;          /* UEsToBeResetList */
+static int hf_x2ap_UL_scheduling_PDCCH_CCE_usage_PDU;  /* UL_scheduling_PDCCH_CCE_usage */
+static int hf_x2ap_UnlicensedSpectrumRestriction_PDU;  /* UnlicensedSpectrumRestriction */
+static int hf_x2ap_URI_Address_PDU;               /* URI_Address */
+static int hf_x2ap_UserPlaneTrafficActivityReport_PDU;  /* UserPlaneTrafficActivityReport */
+static int hf_x2ap_V2XServicesAuthorized_PDU;     /* V2XServicesAuthorized */
+static int hf_x2ap_WLANMeasurementConfiguration_PDU;  /* WLANMeasurementConfiguration */
+static int hf_x2ap_X2BenefitValue_PDU;            /* X2BenefitValue */
+static int hf_x2ap_HandoverRequest_PDU;           /* HandoverRequest */
+static int hf_x2ap_UE_ContextInformation_PDU;     /* UE_ContextInformation */
+static int hf_x2ap_E_RABs_ToBeSetup_Item_PDU;     /* E_RABs_ToBeSetup_Item */
+static int hf_x2ap_MobilityInformation_PDU;       /* MobilityInformation */
+static int hf_x2ap_UE_ContextReferenceAtSeNB_PDU;  /* UE_ContextReferenceAtSeNB */
+static int hf_x2ap_UE_ContextReferenceAtWT_PDU;   /* UE_ContextReferenceAtWT */
+static int hf_x2ap_UE_ContextReferenceAtSgNB_PDU;  /* UE_ContextReferenceAtSgNB */
+static int hf_x2ap_HandoverRequestAcknowledge_PDU;  /* HandoverRequestAcknowledge */
+static int hf_x2ap_E_RABs_Admitted_List_PDU;      /* E_RABs_Admitted_List */
+static int hf_x2ap_E_RABs_Admitted_Item_PDU;      /* E_RABs_Admitted_Item */
+static int hf_x2ap_HandoverPreparationFailure_PDU;  /* HandoverPreparationFailure */
+static int hf_x2ap_HandoverReport_PDU;            /* HandoverReport */
+static int hf_x2ap_EarlyStatusTransfer_PDU;       /* EarlyStatusTransfer */
+static int hf_x2ap_ProcedureStageChoice_PDU;      /* ProcedureStageChoice */
+static int hf_x2ap_SNStatusTransfer_PDU;          /* SNStatusTransfer */
+static int hf_x2ap_E_RABs_SubjectToStatusTransfer_List_PDU;  /* E_RABs_SubjectToStatusTransfer_List */
+static int hf_x2ap_E_RABs_SubjectToStatusTransfer_Item_PDU;  /* E_RABs_SubjectToStatusTransfer_Item */
+static int hf_x2ap_UEContextRelease_PDU;          /* UEContextRelease */
+static int hf_x2ap_HandoverCancel_PDU;            /* HandoverCancel */
+static int hf_x2ap_HandoverSuccess_PDU;           /* HandoverSuccess */
+static int hf_x2ap_ConditionalHandoverCancel_PDU;  /* ConditionalHandoverCancel */
+static int hf_x2ap_ErrorIndication_PDU;           /* ErrorIndication */
+static int hf_x2ap_ResetRequest_PDU;              /* ResetRequest */
+static int hf_x2ap_ResetResponse_PDU;             /* ResetResponse */
+static int hf_x2ap_X2SetupRequest_PDU;            /* X2SetupRequest */
+static int hf_x2ap_X2SetupResponse_PDU;           /* X2SetupResponse */
+static int hf_x2ap_X2SetupFailure_PDU;            /* X2SetupFailure */
+static int hf_x2ap_LoadInformation_PDU;           /* LoadInformation */
+static int hf_x2ap_CellInformation_List_PDU;      /* CellInformation_List */
+static int hf_x2ap_CellInformation_Item_PDU;      /* CellInformation_Item */
+static int hf_x2ap_ENBConfigurationUpdate_PDU;    /* ENBConfigurationUpdate */
+static int hf_x2ap_ServedCellsToModify_PDU;       /* ServedCellsToModify */
+static int hf_x2ap_Old_ECGIs_PDU;                 /* Old_ECGIs */
+static int hf_x2ap_ENBConfigurationUpdateAcknowledge_PDU;  /* ENBConfigurationUpdateAcknowledge */
+static int hf_x2ap_ENBConfigurationUpdateFailure_PDU;  /* ENBConfigurationUpdateFailure */
+static int hf_x2ap_ResourceStatusRequest_PDU;     /* ResourceStatusRequest */
+static int hf_x2ap_CellToReport_List_PDU;         /* CellToReport_List */
+static int hf_x2ap_CellToReport_Item_PDU;         /* CellToReport_Item */
+static int hf_x2ap_ReportingPeriodicity_PDU;      /* ReportingPeriodicity */
+static int hf_x2ap_PartialSuccessIndicator_PDU;   /* PartialSuccessIndicator */
+static int hf_x2ap_ResourceStatusResponse_PDU;    /* ResourceStatusResponse */
+static int hf_x2ap_MeasurementInitiationResult_List_PDU;  /* MeasurementInitiationResult_List */
+static int hf_x2ap_MeasurementInitiationResult_Item_PDU;  /* MeasurementInitiationResult_Item */
+static int hf_x2ap_MeasurementFailureCause_Item_PDU;  /* MeasurementFailureCause_Item */
+static int hf_x2ap_ResourceStatusFailure_PDU;     /* ResourceStatusFailure */
+static int hf_x2ap_CompleteFailureCauseInformation_List_PDU;  /* CompleteFailureCauseInformation_List */
+static int hf_x2ap_CompleteFailureCauseInformation_Item_PDU;  /* CompleteFailureCauseInformation_Item */
+static int hf_x2ap_ResourceStatusUpdate_PDU;      /* ResourceStatusUpdate */
+static int hf_x2ap_CellMeasurementResult_List_PDU;  /* CellMeasurementResult_List */
+static int hf_x2ap_CellMeasurementResult_Item_PDU;  /* CellMeasurementResult_Item */
+static int hf_x2ap_PrivateMessage_PDU;            /* PrivateMessage */
+static int hf_x2ap_MobilityChangeRequest_PDU;     /* MobilityChangeRequest */
+static int hf_x2ap_MobilityChangeAcknowledge_PDU;  /* MobilityChangeAcknowledge */
+static int hf_x2ap_MobilityChangeFailure_PDU;     /* MobilityChangeFailure */
+static int hf_x2ap_RLFIndication_PDU;             /* RLFIndication */
+static int hf_x2ap_CellActivationRequest_PDU;     /* CellActivationRequest */
+static int hf_x2ap_ServedCellsToActivate_PDU;     /* ServedCellsToActivate */
+static int hf_x2ap_CellActivationResponse_PDU;    /* CellActivationResponse */
+static int hf_x2ap_ActivatedCellList_PDU;         /* ActivatedCellList */
+static int hf_x2ap_CellActivationFailure_PDU;     /* CellActivationFailure */
+static int hf_x2ap_X2Release_PDU;                 /* X2Release */
+static int hf_x2ap_X2APMessageTransfer_PDU;       /* X2APMessageTransfer */
+static int hf_x2ap_RNL_Header_PDU;                /* RNL_Header */
+static int hf_x2ap_X2AP_Message_PDU;              /* X2AP_Message */
+static int hf_x2ap_SeNBAdditionRequest_PDU;       /* SeNBAdditionRequest */
+static int hf_x2ap_E_RABs_ToBeAdded_List_PDU;     /* E_RABs_ToBeAdded_List */
+static int hf_x2ap_E_RABs_ToBeAdded_Item_PDU;     /* E_RABs_ToBeAdded_Item */
+static int hf_x2ap_SeNBAdditionRequestAcknowledge_PDU;  /* SeNBAdditionRequestAcknowledge */
+static int hf_x2ap_E_RABs_Admitted_ToBeAdded_List_PDU;  /* E_RABs_Admitted_ToBeAdded_List */
+static int hf_x2ap_E_RABs_Admitted_ToBeAdded_Item_PDU;  /* E_RABs_Admitted_ToBeAdded_Item */
+static int hf_x2ap_SeNBAdditionRequestReject_PDU;  /* SeNBAdditionRequestReject */
+static int hf_x2ap_SeNBReconfigurationComplete_PDU;  /* SeNBReconfigurationComplete */
+static int hf_x2ap_ResponseInformationSeNBReconfComp_PDU;  /* ResponseInformationSeNBReconfComp */
+static int hf_x2ap_SeNBModificationRequest_PDU;   /* SeNBModificationRequest */
+static int hf_x2ap_UE_ContextInformationSeNBModReq_PDU;  /* UE_ContextInformationSeNBModReq */
+static int hf_x2ap_E_RABs_ToBeAdded_ModReqItem_PDU;  /* E_RABs_ToBeAdded_ModReqItem */
+static int hf_x2ap_E_RABs_ToBeModified_ModReqItem_PDU;  /* E_RABs_ToBeModified_ModReqItem */
+static int hf_x2ap_E_RABs_ToBeReleased_ModReqItem_PDU;  /* E_RABs_ToBeReleased_ModReqItem */
+static int hf_x2ap_SeNBModificationRequestAcknowledge_PDU;  /* SeNBModificationRequestAcknowledge */
+static int hf_x2ap_E_RABs_Admitted_ToBeAdded_ModAckList_PDU;  /* E_RABs_Admitted_ToBeAdded_ModAckList */
+static int hf_x2ap_E_RABs_Admitted_ToBeAdded_ModAckItem_PDU;  /* E_RABs_Admitted_ToBeAdded_ModAckItem */
+static int hf_x2ap_E_RABs_Admitted_ToBeModified_ModAckList_PDU;  /* E_RABs_Admitted_ToBeModified_ModAckList */
+static int hf_x2ap_E_RABs_Admitted_ToBeModified_ModAckItem_PDU;  /* E_RABs_Admitted_ToBeModified_ModAckItem */
+static int hf_x2ap_E_RABs_Admitted_ToBeReleased_ModAckList_PDU;  /* E_RABs_Admitted_ToBeReleased_ModAckList */
+static int hf_x2ap_E_RABs_Admitted_ToReleased_ModAckItem_PDU;  /* E_RABs_Admitted_ToReleased_ModAckItem */
+static int hf_x2ap_SeNBModificationRequestReject_PDU;  /* SeNBModificationRequestReject */
+static int hf_x2ap_SeNBModificationRequired_PDU;  /* SeNBModificationRequired */
+static int hf_x2ap_E_RABs_ToBeReleased_ModReqd_PDU;  /* E_RABs_ToBeReleased_ModReqd */
+static int hf_x2ap_E_RABs_ToBeReleased_ModReqdItem_PDU;  /* E_RABs_ToBeReleased_ModReqdItem */
+static int hf_x2ap_SeNBModificationConfirm_PDU;   /* SeNBModificationConfirm */
+static int hf_x2ap_SeNBModificationRefuse_PDU;    /* SeNBModificationRefuse */
+static int hf_x2ap_SeNBReleaseRequest_PDU;        /* SeNBReleaseRequest */
+static int hf_x2ap_E_RABs_ToBeReleased_List_RelReq_PDU;  /* E_RABs_ToBeReleased_List_RelReq */
+static int hf_x2ap_E_RABs_ToBeReleased_RelReqItem_PDU;  /* E_RABs_ToBeReleased_RelReqItem */
+static int hf_x2ap_SeNBReleaseRequired_PDU;       /* SeNBReleaseRequired */
+static int hf_x2ap_SeNBReleaseConfirm_PDU;        /* SeNBReleaseConfirm */
+static int hf_x2ap_E_RABs_ToBeReleased_List_RelConf_PDU;  /* E_RABs_ToBeReleased_List_RelConf */
+static int hf_x2ap_E_RABs_ToBeReleased_RelConfItem_PDU;  /* E_RABs_ToBeReleased_RelConfItem */
+static int hf_x2ap_SeNBCounterCheckRequest_PDU;   /* SeNBCounterCheckRequest */
+static int hf_x2ap_E_RABs_SubjectToCounterCheck_List_PDU;  /* E_RABs_SubjectToCounterCheck_List */
+static int hf_x2ap_E_RABs_SubjectToCounterCheckItem_PDU;  /* E_RABs_SubjectToCounterCheckItem */
+static int hf_x2ap_X2RemovalRequest_PDU;          /* X2RemovalRequest */
+static int hf_x2ap_X2RemovalResponse_PDU;         /* X2RemovalResponse */
+static int hf_x2ap_X2RemovalFailure_PDU;          /* X2RemovalFailure */
+static int hf_x2ap_RetrieveUEContextRequest_PDU;  /* RetrieveUEContextRequest */
+static int hf_x2ap_RetrieveUEContextResponse_PDU;  /* RetrieveUEContextResponse */
+static int hf_x2ap_UE_ContextInformationRetrieve_PDU;  /* UE_ContextInformationRetrieve */
+static int hf_x2ap_E_RABs_ToBeSetupRetrieve_Item_PDU;  /* E_RABs_ToBeSetupRetrieve_Item */
+static int hf_x2ap_RetrieveUEContextFailure_PDU;  /* RetrieveUEContextFailure */
+static int hf_x2ap_SgNBAdditionRequest_PDU;       /* SgNBAdditionRequest */
+static int hf_x2ap_E_RABs_ToBeAdded_SgNBAddReqList_PDU;  /* E_RABs_ToBeAdded_SgNBAddReqList */
+static int hf_x2ap_E_RABs_ToBeAdded_SgNBAddReq_Item_PDU;  /* E_RABs_ToBeAdded_SgNBAddReq_Item */
+static int hf_x2ap_SgNBAdditionRequestAcknowledge_PDU;  /* SgNBAdditionRequestAcknowledge */
+static int hf_x2ap_E_RABs_Admitted_ToBeAdded_SgNBAddReqAckList_PDU;  /* E_RABs_Admitted_ToBeAdded_SgNBAddReqAckList */
+static int hf_x2ap_E_RABs_Admitted_ToBeAdded_SgNBAddReqAck_Item_PDU;  /* E_RABs_Admitted_ToBeAdded_SgNBAddReqAck_Item */
+static int hf_x2ap_SgNBAdditionRequestReject_PDU;  /* SgNBAdditionRequestReject */
+static int hf_x2ap_SgNBReconfigurationComplete_PDU;  /* SgNBReconfigurationComplete */
+static int hf_x2ap_ResponseInformationSgNBReconfComp_PDU;  /* ResponseInformationSgNBReconfComp */
+static int hf_x2ap_SgNBModificationRequest_PDU;   /* SgNBModificationRequest */
+static int hf_x2ap_UE_ContextInformation_SgNBModReq_PDU;  /* UE_ContextInformation_SgNBModReq */
+static int hf_x2ap_E_RABs_ToBeAdded_SgNBModReq_Item_PDU;  /* E_RABs_ToBeAdded_SgNBModReq_Item */
+static int hf_x2ap_E_RABs_ToBeModified_SgNBModReq_Item_PDU;  /* E_RABs_ToBeModified_SgNBModReq_Item */
+static int hf_x2ap_E_RABs_ToBeReleased_SgNBModReq_Item_PDU;  /* E_RABs_ToBeReleased_SgNBModReq_Item */
+static int hf_x2ap_SgNBModificationRequestAcknowledge_PDU;  /* SgNBModificationRequestAcknowledge */
+static int hf_x2ap_E_RABs_Admitted_ToBeAdded_SgNBModAckList_PDU;  /* E_RABs_Admitted_ToBeAdded_SgNBModAckList */
+static int hf_x2ap_E_RABs_Admitted_ToBeAdded_SgNBModAck_Item_PDU;  /* E_RABs_Admitted_ToBeAdded_SgNBModAck_Item */
+static int hf_x2ap_E_RABs_Admitted_ToBeModified_SgNBModAckList_PDU;  /* E_RABs_Admitted_ToBeModified_SgNBModAckList */
+static int hf_x2ap_E_RABs_Admitted_ToBeModified_SgNBModAck_Item_PDU;  /* E_RABs_Admitted_ToBeModified_SgNBModAck_Item */
+static int hf_x2ap_E_RABs_Admitted_ToBeReleased_SgNBModAckList_PDU;  /* E_RABs_Admitted_ToBeReleased_SgNBModAckList */
+static int hf_x2ap_E_RABs_Admitted_ToReleased_SgNBModAck_Item_PDU;  /* E_RABs_Admitted_ToReleased_SgNBModAck_Item */
+static int hf_x2ap_SgNBModificationRequestReject_PDU;  /* SgNBModificationRequestReject */
+static int hf_x2ap_SgNBModificationRequired_PDU;  /* SgNBModificationRequired */
+static int hf_x2ap_E_RABs_ToBeReleased_SgNBModReqdList_PDU;  /* E_RABs_ToBeReleased_SgNBModReqdList */
+static int hf_x2ap_E_RABs_ToBeReleased_SgNBModReqd_Item_PDU;  /* E_RABs_ToBeReleased_SgNBModReqd_Item */
+static int hf_x2ap_E_RABs_ToBeModified_SgNBModReqdList_PDU;  /* E_RABs_ToBeModified_SgNBModReqdList */
+static int hf_x2ap_E_RABs_ToBeModified_SgNBModReqd_Item_PDU;  /* E_RABs_ToBeModified_SgNBModReqd_Item */
+static int hf_x2ap_SgNBModificationConfirm_PDU;   /* SgNBModificationConfirm */
+static int hf_x2ap_E_RABs_AdmittedToBeModified_SgNBModConfList_PDU;  /* E_RABs_AdmittedToBeModified_SgNBModConfList */
+static int hf_x2ap_E_RABs_AdmittedToBeModified_SgNBModConf_Item_PDU;  /* E_RABs_AdmittedToBeModified_SgNBModConf_Item */
+static int hf_x2ap_SgNBModificationRefuse_PDU;    /* SgNBModificationRefuse */
+static int hf_x2ap_SgNBReleaseRequest_PDU;        /* SgNBReleaseRequest */
+static int hf_x2ap_E_RABs_ToBeReleased_SgNBRelReqList_PDU;  /* E_RABs_ToBeReleased_SgNBRelReqList */
+static int hf_x2ap_E_RABs_ToBeReleased_SgNBRelReq_Item_PDU;  /* E_RABs_ToBeReleased_SgNBRelReq_Item */
+static int hf_x2ap_SgNBReleaseRequestAcknowledge_PDU;  /* SgNBReleaseRequestAcknowledge */
+static int hf_x2ap_E_RABs_Admitted_ToBeReleased_SgNBRelReqAckList_PDU;  /* E_RABs_Admitted_ToBeReleased_SgNBRelReqAckList */
+static int hf_x2ap_E_RABs_Admitted_ToBeReleased_SgNBRelReqAck_Item_PDU;  /* E_RABs_Admitted_ToBeReleased_SgNBRelReqAck_Item */
+static int hf_x2ap_SgNBReleaseRequestReject_PDU;  /* SgNBReleaseRequestReject */
+static int hf_x2ap_SgNBReleaseRequired_PDU;       /* SgNBReleaseRequired */
+static int hf_x2ap_E_RABs_ToBeReleased_SgNBRelReqdList_PDU;  /* E_RABs_ToBeReleased_SgNBRelReqdList */
+static int hf_x2ap_E_RABs_ToBeReleased_SgNBRelReqd_Item_PDU;  /* E_RABs_ToBeReleased_SgNBRelReqd_Item */
+static int hf_x2ap_SgNBReleaseConfirm_PDU;        /* SgNBReleaseConfirm */
+static int hf_x2ap_E_RABs_ToBeReleased_SgNBRelConfList_PDU;  /* E_RABs_ToBeReleased_SgNBRelConfList */
+static int hf_x2ap_E_RABs_ToBeReleased_SgNBRelConf_Item_PDU;  /* E_RABs_ToBeReleased_SgNBRelConf_Item */
+static int hf_x2ap_SgNBCounterCheckRequest_PDU;   /* SgNBCounterCheckRequest */
+static int hf_x2ap_E_RABs_SubjectToSgNBCounterCheck_List_PDU;  /* E_RABs_SubjectToSgNBCounterCheck_List */
+static int hf_x2ap_E_RABs_SubjectToSgNBCounterCheck_Item_PDU;  /* E_RABs_SubjectToSgNBCounterCheck_Item */
+static int hf_x2ap_SgNBChangeRequired_PDU;        /* SgNBChangeRequired */
+static int hf_x2ap_AccessAndMobilityIndication_PDU;  /* AccessAndMobilityIndication */
+static int hf_x2ap_SgNBChangeConfirm_PDU;         /* SgNBChangeConfirm */
+static int hf_x2ap_E_RABs_ToBeReleased_SgNBChaConfList_PDU;  /* E_RABs_ToBeReleased_SgNBChaConfList */
+static int hf_x2ap_E_RABs_ToBeReleased_SgNBChaConf_Item_PDU;  /* E_RABs_ToBeReleased_SgNBChaConf_Item */
+static int hf_x2ap_RRCTransfer_PDU;               /* RRCTransfer */
+static int hf_x2ap_SgNBChangeRefuse_PDU;          /* SgNBChangeRefuse */
+static int hf_x2ap_ENDCX2SetupRequest_PDU;        /* ENDCX2SetupRequest */
+static int hf_x2ap_InitiatingNodeType_EndcX2Setup_PDU;  /* InitiatingNodeType_EndcX2Setup */
+static int hf_x2ap_ServedEUTRAcellsENDCX2ManagementList_PDU;  /* ServedEUTRAcellsENDCX2ManagementList */
+static int hf_x2ap_ServedNRcellsENDCX2ManagementList_PDU;  /* ServedNRcellsENDCX2ManagementList */
+static int hf_x2ap_CellandCapacityAssistInfo_PDU;  /* CellandCapacityAssistInfo */
+static int hf_x2ap_CellAssistanceInformation_PDU;  /* CellAssistanceInformation */
+static int hf_x2ap_ENDCX2SetupResponse_PDU;       /* ENDCX2SetupResponse */
+static int hf_x2ap_RespondingNodeType_EndcX2Setup_PDU;  /* RespondingNodeType_EndcX2Setup */
+static int hf_x2ap_ENDCX2SetupFailure_PDU;        /* ENDCX2SetupFailure */
+static int hf_x2ap_ENDCConfigurationUpdate_PDU;   /* ENDCConfigurationUpdate */
+static int hf_x2ap_InitiatingNodeType_EndcConfigUpdate_PDU;  /* InitiatingNodeType_EndcConfigUpdate */
+static int hf_x2ap_ServedEUTRAcellsToModifyListENDCConfUpd_PDU;  /* ServedEUTRAcellsToModifyListENDCConfUpd */
+static int hf_x2ap_ServedEUTRAcellsToDeleteListENDCConfUpd_PDU;  /* ServedEUTRAcellsToDeleteListENDCConfUpd */
+static int hf_x2ap_ServedNRcellsToModifyENDCConfUpdList_PDU;  /* ServedNRcellsToModifyENDCConfUpdList */
+static int hf_x2ap_ServedNRcellsToDeleteENDCConfUpdList_PDU;  /* ServedNRcellsToDeleteENDCConfUpdList */
+static int hf_x2ap_ENDCConfigurationUpdateAcknowledge_PDU;  /* ENDCConfigurationUpdateAcknowledge */
+static int hf_x2ap_RespondingNodeType_EndcConfigUpdate_PDU;  /* RespondingNodeType_EndcConfigUpdate */
+static int hf_x2ap_ENDCConfigurationUpdateFailure_PDU;  /* ENDCConfigurationUpdateFailure */
+static int hf_x2ap_ENDCCellActivationRequest_PDU;  /* ENDCCellActivationRequest */
+static int hf_x2ap_ServedNRCellsToActivate_PDU;   /* ServedNRCellsToActivate */
+static int hf_x2ap_ENDCCellActivationResponse_PDU;  /* ENDCCellActivationResponse */
+static int hf_x2ap_ActivatedNRCellList_PDU;       /* ActivatedNRCellList */
+static int hf_x2ap_ENDCCellActivationFailure_PDU;  /* ENDCCellActivationFailure */
+static int hf_x2ap_ENDCResourceStatusRequest_PDU;  /* ENDCResourceStatusRequest */
+static int hf_x2ap_CellToReport_NR_ENDC_List_PDU;  /* CellToReport_NR_ENDC_List */
+static int hf_x2ap_CellToReport_NR_ENDC_Item_PDU;  /* CellToReport_NR_ENDC_Item */
+static int hf_x2ap_CellToReport_E_UTRA_ENDC_List_PDU;  /* CellToReport_E_UTRA_ENDC_List */
+static int hf_x2ap_CellToReport_E_UTRA_ENDC_Item_PDU;  /* CellToReport_E_UTRA_ENDC_Item */
+static int hf_x2ap_ENDCResourceStatusResponse_PDU;  /* ENDCResourceStatusResponse */
+static int hf_x2ap_ENDCResourceStatusFailure_PDU;  /* ENDCResourceStatusFailure */
+static int hf_x2ap_ENDCResourceStatusUpdate_PDU;  /* ENDCResourceStatusUpdate */
+static int hf_x2ap_CellMeasurementResult_NR_ENDC_List_PDU;  /* CellMeasurementResult_NR_ENDC_List */
+static int hf_x2ap_CellMeasurementResult_NR_ENDC_Item_PDU;  /* CellMeasurementResult_NR_ENDC_Item */
+static int hf_x2ap_CellMeasurementResult_E_UTRA_ENDC_List_PDU;  /* CellMeasurementResult_E_UTRA_ENDC_List */
+static int hf_x2ap_CellMeasurementResult_E_UTRA_ENDC_Item_PDU;  /* CellMeasurementResult_E_UTRA_ENDC_Item */
+static int hf_x2ap_SecondaryRATDataUsageReport_PDU;  /* SecondaryRATDataUsageReport */
+static int hf_x2ap_SgNBActivityNotification_PDU;  /* SgNBActivityNotification */
+static int hf_x2ap_ENDCPartialResetRequired_PDU;  /* ENDCPartialResetRequired */
+static int hf_x2ap_ENDCPartialResetConfirm_PDU;   /* ENDCPartialResetConfirm */
+static int hf_x2ap_x2ap_EUTRANRCellResourceCoordinationRequest_PDU;  /* EUTRANRCellResourceCoordinationRequest */
+static int hf_x2ap_InitiatingNodeType_EutranrCellResourceCoordination_PDU;  /* InitiatingNodeType_EutranrCellResourceCoordination */
+static int hf_x2ap_ListofEUTRACellsinEUTRACoordinationReq_PDU;  /* ListofEUTRACellsinEUTRACoordinationReq */
+static int hf_x2ap_ListofEUTRACellsinNRCoordinationReq_PDU;  /* ListofEUTRACellsinNRCoordinationReq */
+static int hf_x2ap_ListofNRCellsinNRCoordinationReq_PDU;  /* ListofNRCellsinNRCoordinationReq */
+static int hf_x2ap_x2ap_EUTRANRCellResourceCoordinationResponse_PDU;  /* EUTRANRCellResourceCoordinationResponse */
+static int hf_x2ap_RespondingNodeType_EutranrCellResourceCoordination_PDU;  /* RespondingNodeType_EutranrCellResourceCoordination */
+static int hf_x2ap_ListofEUTRACellsinEUTRACoordinationResp_PDU;  /* ListofEUTRACellsinEUTRACoordinationResp */
+static int hf_x2ap_ListofNRCellsinNRCoordinationResp_PDU;  /* ListofNRCellsinNRCoordinationResp */
+static int hf_x2ap_ENDCX2RemovalRequest_PDU;      /* ENDCX2RemovalRequest */
+static int hf_x2ap_InitiatingNodeType_EndcX2Removal_PDU;  /* InitiatingNodeType_EndcX2Removal */
+static int hf_x2ap_ENDCX2RemovalResponse_PDU;     /* ENDCX2RemovalResponse */
+static int hf_x2ap_RespondingNodeType_EndcX2Removal_PDU;  /* RespondingNodeType_EndcX2Removal */
+static int hf_x2ap_ENDCX2RemovalFailure_PDU;      /* ENDCX2RemovalFailure */
+static int hf_x2ap_DataForwardingAddressIndication_PDU;  /* DataForwardingAddressIndication */
+static int hf_x2ap_E_RABs_DataForwardingAddress_List_PDU;  /* E_RABs_DataForwardingAddress_List */
+static int hf_x2ap_E_RABs_DataForwardingAddress_Item_PDU;  /* E_RABs_DataForwardingAddress_Item */
+static int hf_x2ap_GNBStatusIndication_PDU;       /* GNBStatusIndication */
+static int hf_x2ap_ENDCConfigurationTransfer_PDU;  /* ENDCConfigurationTransfer */
+static int hf_x2ap_TraceStart_PDU;                /* TraceStart */
+static int hf_x2ap_DeactivateTrace_PDU;           /* DeactivateTrace */
+static int hf_x2ap_CellTrafficTrace_PDU;          /* CellTrafficTrace */
+static int hf_x2ap_F1CTrafficTransfer_PDU;        /* F1CTrafficTransfer */
+static int hf_x2ap_UERadioCapabilityIDMappingRequest_PDU;  /* UERadioCapabilityIDMappingRequest */
+static int hf_x2ap_UERadioCapabilityIDMappingResponse_PDU;  /* UERadioCapabilityIDMappingResponse */
+static int hf_x2ap_CPC_cancel_PDU;                /* CPC_cancel */
+static int hf_x2ap_X2AP_PDU_PDU;                  /* X2AP_PDU */
+static int hf_x2ap_local;                         /* INTEGER_0_maxPrivateIEs */
+static int hf_x2ap_global;                        /* T_global */
+static int hf_x2ap_ProtocolIE_Container_item;     /* ProtocolIE_Field */
+static int hf_x2ap_id;                            /* ProtocolIE_ID */
+static int hf_x2ap_criticality;                   /* Criticality */
+static int hf_x2ap_protocolIE_Field_value;        /* ProtocolIE_Field_value */
+static int hf_x2ap_ProtocolExtensionContainer_item;  /* ProtocolExtensionField */
+static int hf_x2ap_extension_id;                  /* ProtocolIE_ID */
+static int hf_x2ap_extensionValue;                /* T_extensionValue */
+static int hf_x2ap_PrivateIE_Container_item;      /* PrivateIE_Field */
+static int hf_x2ap_private_id;                    /* PrivateIE_ID */
+static int hf_x2ap_privateIE_Field_value;         /* PrivateIE_Field_value */
+static int hf_x2ap_fdd;                           /* ABSInformationFDD */
+static int hf_x2ap_tdd;                           /* ABSInformationTDD */
+static int hf_x2ap_abs_inactive;                  /* NULL */
+static int hf_x2ap_abs_pattern_info;              /* BIT_STRING_SIZE_40 */
+static int hf_x2ap_numberOfCellSpecificAntennaPorts;  /* T_numberOfCellSpecificAntennaPorts */
+static int hf_x2ap_measurement_subset;            /* BIT_STRING_SIZE_40 */
+static int hf_x2ap_iE_Extensions;                 /* ProtocolExtensionContainer */
+static int hf_x2ap_abs_pattern_info_01;           /* BIT_STRING_SIZE_1_70_ */
+static int hf_x2ap_numberOfCellSpecificAntennaPorts_01;  /* T_numberOfCellSpecificAntennaPorts_01 */
+static int hf_x2ap_measurement_subset_01;         /* BIT_STRING_SIZE_1_70_ */
+static int hf_x2ap_dL_ABS_status;                 /* DL_ABS_status */
+static int hf_x2ap_usableABSInformation;          /* UsableABSInformation */
+static int hf_x2ap_Additional_Measurement_Timing_Configuration_List_item;  /* Additional_Measurement_Timing_Configuration_Item */
+static int hf_x2ap_additionalMeasurementTimingConfiguration;  /* INTEGER_0_16 */
+static int hf_x2ap_csi_RS_MTC_Configuration_List;  /* CSI_RS_MTC_Configuration_List */
+static int hf_x2ap_CSI_RS_MTC_Configuration_List_item;  /* CSI_RS_MTC_Configuration_Item */
+static int hf_x2ap_csi_RS_Index;                  /* INTEGER_0_95 */
+static int hf_x2ap_csi_RS_Status;                 /* T_csi_RS_Status */
+static int hf_x2ap_csi_RS_Neighbour_List;         /* CSI_RS_Neighbour_List */
+static int hf_x2ap_CSI_RS_Neighbour_List_item;    /* CSI_RS_Neighbour_Item */
+static int hf_x2ap_nr_cgi;                        /* NRCGI */
+static int hf_x2ap_csi_RS_MTC_Neighbour_List;     /* CSI_RS_MTC_Neighbour_List */
+static int hf_x2ap_CSI_RS_MTC_Neighbour_List_item;  /* CSI_RS_MTC_Neighbour_Item */
+static int hf_x2ap_AdditionalListofForwardingGTPTunnelEndpoint_item;  /* AdditionalListofForwardingGTPTunnelEndpoint_Item */
+static int hf_x2ap_uL_GTPtunnelEndpoint;          /* GTPtunnelEndpoint */
+static int hf_x2ap_dL_GTPtunnelEndpoint;          /* GTPtunnelEndpoint */
+static int hf_x2ap_additionalspecialSubframePatterns;  /* AdditionalSpecialSubframePatterns */
+static int hf_x2ap_cyclicPrefixDL;                /* CyclicPrefixDL */
+static int hf_x2ap_cyclicPrefixUL;                /* CyclicPrefixUL */
+static int hf_x2ap_additionalspecialSubframePatternsExtension;  /* AdditionalSpecialSubframePatternsExtension */
+static int hf_x2ap_priorityLevel;                 /* PriorityLevel */
+static int hf_x2ap_pre_emptionCapability;         /* Pre_emptionCapability */
+static int hf_x2ap_pre_emptionVulnerability;      /* Pre_emptionVulnerability */
+static int hf_x2ap_cellBased;                     /* CellBasedMDT */
+static int hf_x2ap_tABased;                       /* TABasedMDT */
+static int hf_x2ap_pLMNWide;                      /* NULL */
+static int hf_x2ap_tAIBased;                      /* TAIBasedMDT */
+static int hf_x2ap_cellBased_01;                  /* CellBasedQMC */
+static int hf_x2ap_tABased_01;                    /* TABasedQMC */
+static int hf_x2ap_tAIBased_01;                   /* TAIBasedQMC */
+static int hf_x2ap_pLMNAreaBased;                 /* PLMNAreaBasedQMC */
+static int hf_x2ap_key_eNodeB_star;               /* Key_eNodeB_Star */
+static int hf_x2ap_nextHopChainingCount;          /* NextHopChainingCount */
+static int hf_x2ap_AdditionalPLMNs_Item_item;     /* PLMN_Identity */
+static int hf_x2ap_BroadcastPLMNs_Item_item;      /* PLMN_Identity */
+static int hf_x2ap_bluetoothMeasConfig;           /* BluetoothMeasConfig */
+static int hf_x2ap_bluetoothMeasConfigNameList;   /* BluetoothMeasConfigNameList */
+static int hf_x2ap_bt_rssi;                       /* T_bt_rssi */
+static int hf_x2ap_BluetoothMeasConfigNameList_item;  /* BluetoothName */
+static int hf_x2ap_BPLMN_ID_Info_EUTRA_item;      /* BPLMN_ID_Info_EUTRA_Item */
+static int hf_x2ap_broadcastPLMNs;                /* BroadcastPLMNs_Item */
+static int hf_x2ap_tac;                           /* TAC */
+static int hf_x2ap_e_utraCI;                      /* EUTRANCellIdentifier */
+static int hf_x2ap_iE_Extension;                  /* ProtocolExtensionContainer */
+static int hf_x2ap_BPLMN_ID_Info_NR_item;         /* BPLMN_ID_Info_NR_Item */
+static int hf_x2ap_broadcastPLMNs_01;             /* BroadcastextPLMNs */
+static int hf_x2ap_fiveGS_TAC;                    /* FiveGS_TAC */
+static int hf_x2ap_nr_CI;                         /* NRCellIdentifier */
+static int hf_x2ap_BroadcastextPLMNs_item;        /* PLMN_Identity */
+static int hf_x2ap_radioNetwork;                  /* CauseRadioNetwork */
+static int hf_x2ap_transport;                     /* CauseTransport */
+static int hf_x2ap_protocol;                      /* CauseProtocol */
+static int hf_x2ap_misc;                          /* CauseMisc */
+static int hf_x2ap_cellIdListforMDT;              /* CellIdListforMDT */
+static int hf_x2ap_cellIdListforQMC;              /* CellIdListforQMC */
+static int hf_x2ap_CellIdListforMDT_item;         /* ECGI */
+static int hf_x2ap_CellIdListforQMC_item;         /* ECGI */
+static int hf_x2ap_replacingCellsList;            /* ReplacingCellsList */
+static int hf_x2ap_cell_Size;                     /* Cell_Size */
+static int hf_x2ap_CPACcandidatePSCells_list_item;  /* CPACcandidatePSCells_item */
+static int hf_x2ap_pscell_id;                     /* NRCGI */
+static int hf_x2ap_max_no_of_pscells;             /* INTEGER_1_maxnoofPSCellCandidates */
+static int hf_x2ap_estimatedArrivalProbability;   /* CHO_Probability */
+static int hf_x2ap_candidate_pscells;             /* CPACcandidatePSCells_list */
+static int hf_x2ap_cpc_target_sgnb_list;          /* CPC_target_SgNB_reqd_list */
+static int hf_x2ap_CPC_target_SgNB_reqd_list_item;  /* CPC_target_SgNB_reqd_item */
+static int hf_x2ap_target_SgNB_ID;                /* GlobalGNB_ID */
+static int hf_x2ap_cpc_indicator;                 /* CPCindicator */
+static int hf_x2ap_sgNBtoMeNBContainer;           /* SgNBtoMeNBContainer */
+static int hf_x2ap_cpc_target_sgnb_list_01;       /* CPC_target_SgNB_conf_list */
+static int hf_x2ap_CPC_target_SgNB_conf_list_item;  /* CPC_target_SgNB_conf_item */
+static int hf_x2ap_cpc_indicator_01;              /* CPCdataforwarding */
+static int hf_x2ap_cpc_target_sgnb_list_02;       /* CPC_target_SgNB_mod_list */
+static int hf_x2ap_CPC_target_SgNB_mod_list_item;  /* CPC_target_SgNB_mod_item */
+static int hf_x2ap_CNTypeRestrictions_item;       /* CNTypeRestrictionsItem */
+static int hf_x2ap_plmn_Id;                       /* PLMN_Identity */
+static int hf_x2ap_cn_type;                       /* T_cn_type */
+static int hf_x2ap_CoMPHypothesisSet_item;        /* CoMPHypothesisSetItem */
+static int hf_x2ap_coMPCellID;                    /* ECGI */
+static int hf_x2ap_coMPHypothesis;                /* BIT_STRING_SIZE_6_4400_ */
+static int hf_x2ap_coMPInformationItem;           /* CoMPInformationItem */
+static int hf_x2ap_coMPInformationStartTime;      /* CoMPInformationStartTime */
+static int hf_x2ap_CoMPInformationItem_item;      /* CoMPInformationItem_item */
+static int hf_x2ap_coMPHypothesisSet;             /* CoMPHypothesisSet */
+static int hf_x2ap_benefitMetric;                 /* BenefitMetric */
+static int hf_x2ap_CoMPInformationStartTime_item;  /* CoMPInformationStartTime_item */
+static int hf_x2ap_startSFN;                      /* INTEGER_0_1023_ */
+static int hf_x2ap_startSubframeNumber;           /* INTEGER_0_9_ */
+static int hf_x2ap_cellCapacityClassValue;        /* CellCapacityClassValue */
+static int hf_x2ap_capacityValue;                 /* CapacityValue */
+static int hf_x2ap_dL_CompositeAvailableCapacity;  /* CompositeAvailableCapacity */
+static int hf_x2ap_uL_CompositeAvailableCapacity;  /* CompositeAvailableCapacity */
+static int hf_x2ap_pDCP_SN;                       /* PDCP_SN */
+static int hf_x2ap_hFN;                           /* HFN */
+static int hf_x2ap_pDCP_SNExtended;               /* PDCP_SNExtended */
+static int hf_x2ap_hFNModified;                   /* HFNModified */
+static int hf_x2ap_pDCP_SNlength18;               /* PDCP_SNlength18 */
+static int hf_x2ap_hFNforPDCP_SNlength18;         /* HFNforPDCP_SNlength18 */
+static int hf_x2ap_CoverageModificationList_item;  /* CoverageModification_Item */
+static int hf_x2ap_eCGI;                          /* ECGI */
+static int hf_x2ap_coverageState;                 /* INTEGER_0_15_ */
+static int hf_x2ap_cellDeploymentStatusIndicator;  /* CellDeploymentStatusIndicator */
+static int hf_x2ap_cellReplacingInfo;             /* CellReplacingInfo */
+static int hf_x2ap_endpointIPAddress;             /* TransportLayerAddress */
+static int hf_x2ap_endpointIPAddressAndPort;      /* TransportLayerAddressAndPort */
+static int hf_x2ap_procedureCode;                 /* ProcedureCode */
+static int hf_x2ap_triggeringMessage;             /* TriggeringMessage */
+static int hf_x2ap_procedureCriticality;          /* Criticality */
+static int hf_x2ap_iEsCriticalityDiagnostics;     /* CriticalityDiagnostics_IE_List */
+static int hf_x2ap_CriticalityDiagnostics_IE_List_item;  /* CriticalityDiagnostics_IE_List_item */
+static int hf_x2ap_iECriticality;                 /* Criticality */
+static int hf_x2ap_iE_ID;                         /* ProtocolIE_ID */
+static int hf_x2ap_typeOfError;                   /* TypeOfError */
+static int hf_x2ap_CSIReportList_item;            /* CSIReportList_item */
+static int hf_x2ap_uEID;                          /* UEID */
+static int hf_x2ap_cSIReportPerCSIProcess;        /* CSIReportPerCSIProcess */
+static int hf_x2ap_CSIReportPerCSIProcess_item;   /* CSIReportPerCSIProcess_item */
+static int hf_x2ap_cSIProcessConfigurationIndex;  /* INTEGER_1_7_ */
+static int hf_x2ap_cSIReportPerCSIProcessItem;    /* CSIReportPerCSIProcessItem */
+static int hf_x2ap_CSIReportPerCSIProcessItem_item;  /* CSIReportPerCSIProcessItem_item */
+static int hf_x2ap_rI;                            /* INTEGER_1_8_ */
+static int hf_x2ap_widebandCQI;                   /* WidebandCQI */
+static int hf_x2ap_subbandSize;                   /* SubbandSize */
+static int hf_x2ap_subbandCQIList;                /* SubbandCQIList */
+static int hf_x2ap_cho_trigger;                   /* CHOtrigger */
+static int hf_x2ap_new_eNB_UE_X2AP_ID;            /* UE_X2AP_ID */
+static int hf_x2ap_new_eNB_UE_X2AP_ID_Extension;  /* UE_X2AP_ID_Extension */
+static int hf_x2ap_cHO_EstimatedArrivalProbability;  /* CHO_Probability */
+static int hf_x2ap_requestedTargetCellID;         /* ECGI */
+static int hf_x2ap_maxCHOpreparations;            /* MaxCHOpreparations */
+static int hf_x2ap_CandidateCellsToBeCancelledList_item;  /* ECGI */
+static int hf_x2ap_source_eNB_ID;                 /* GlobalENB_ID */
+static int hf_x2ap_source_eNB_UE_X2AP_ID;         /* UE_X2AP_ID */
+static int hf_x2ap_source_eNB_UE_X2AP_ID_Ext;     /* UE_X2AP_ID_Extension */
+static int hf_x2ap_conditionalReconfig;           /* T_conditionalReconfig */
+static int hf_x2ap_activationSFN;                 /* INTEGER_0_1023 */
+static int hf_x2ap_sharedResourceType;            /* SharedResourceType */
+static int hf_x2ap_reservedSubframePattern;       /* ReservedSubframePattern */
+static int hf_x2ap_dAPSIndicator;                 /* T_dAPSIndicator */
+static int hf_x2ap_dAPSResponseIndicator;         /* T_dAPSResponseIndicator */
+static int hf_x2ap_highestSuccessDeliveredPDCPSN;  /* INTEGER_0_4095 */
+static int hf_x2ap_unchanged;                     /* NULL */
+static int hf_x2ap_changed;                       /* DLResourceBitmapULandDLSharing */
+static int hf_x2ap_naics_active;                  /* DynamicNAICSInformation */
+static int hf_x2ap_naics_inactive;                /* NULL */
+static int hf_x2ap_transmissionModes;             /* T_transmissionModes */
+static int hf_x2ap_pB_information;                /* INTEGER_0_3 */
+static int hf_x2ap_pA_list;                       /* SEQUENCE_SIZE_0_maxnoofPA_OF_PA_Values */
+static int hf_x2ap_pA_list_item;                  /* PA_Values */
+static int hf_x2ap_pLMN_Identity;                 /* PLMN_Identity */
+static int hf_x2ap_eUTRANcellIdentifier;          /* EUTRANCellIdentifier */
+static int hf_x2ap_enhancedRNTPBitmap;            /* BIT_STRING_SIZE_12_8800_ */
+static int hf_x2ap_rNTP_High_Power_Threshold;     /* RNTP_Threshold */
+static int hf_x2ap_enhancedRNTPStartTime;         /* EnhancedRNTPStartTime */
+static int hf_x2ap_macro_eNB_ID;                  /* BIT_STRING_SIZE_20 */
+static int hf_x2ap_home_eNB_ID;                   /* BIT_STRING_SIZE_28 */
+static int hf_x2ap_short_Macro_eNB_ID;            /* BIT_STRING_SIZE_18 */
+static int hf_x2ap_long_Macro_eNB_ID;             /* BIT_STRING_SIZE_21 */
+static int hf_x2ap_pDCPatSgNB;                    /* T_pDCPatSgNB */
+static int hf_x2ap_mCGresources;                  /* T_mCGresources */
+static int hf_x2ap_sCGresources;                  /* T_sCGresources */
+static int hf_x2ap_EPLMNs_item;                   /* PLMN_Identity */
+static int hf_x2ap_ERABActivityNotifyItemList_item;  /* ERABActivityNotifyItem */
+static int hf_x2ap_e_RAB_ID;                      /* E_RAB_ID */
+static int hf_x2ap_activityReport;                /* UserPlaneTrafficActivityReport */
+static int hf_x2ap_qCI;                           /* QCI */
+static int hf_x2ap_allocationAndRetentionPriority;  /* AllocationAndRetentionPriority */
+static int hf_x2ap_gbrQosInformation;             /* GBR_QosInformation */
+static int hf_x2ap_E_RAB_List_item;               /* ProtocolIE_Single_Container */
+static int hf_x2ap_cause;                         /* Cause */
+static int hf_x2ap_E_RABsSubjectToEarlyStatusTransfer_List_item;  /* E_RABsSubjectToEarlyStatusTransfer_Item */
+static int hf_x2ap_fIRST_DL_COUNTValue;           /* COUNTvalue */
+static int hf_x2ap_fIRST_DL_COUNTValueExtended;   /* COUNTValueExtended */
+static int hf_x2ap_fIRST_DL_COUNTValueforPDCPSNLength18;  /* COUNTvaluePDCP_SNlength18 */
+static int hf_x2ap_E_RABsSubjectToDLDiscarding_List_item;  /* E_RABsSubjectToDLDiscarding_Item */
+static int hf_x2ap_dISCARD_DL_COUNTValue;         /* COUNTvalue */
+static int hf_x2ap_dISCARD_DL_COUNTValueExtended;  /* COUNTValueExtended */
+static int hf_x2ap_dISCARD_DL_COUNTValueforPDCPSNLength18;  /* COUNTvaluePDCP_SNlength18 */
+static int hf_x2ap_E_RABUsageReportList_item;     /* ProtocolIE_Single_Container */
+static int hf_x2ap_startTimeStamp;                /* T_startTimeStamp */
+static int hf_x2ap_endTimeStamp;                  /* T_endTimeStamp */
+static int hf_x2ap_usageCountUL;                  /* INTEGER_0_18446744073709551615 */
+static int hf_x2ap_usageCountDL;                  /* INTEGER_0_18446744073709551615 */
+static int hf_x2ap_fDD;                           /* FDD_Info */
+static int hf_x2ap_tDD;                           /* TDD_Info */
+static int hf_x2ap_expectedActivity;              /* ExpectedUEActivityBehaviour */
+static int hf_x2ap_expectedHOInterval;            /* ExpectedHOInterval */
+static int hf_x2ap_expectedActivityPeriod;        /* ExpectedActivityPeriod */
+static int hf_x2ap_expectedIdlePeriod;            /* ExpectedIdlePeriod */
+static int hf_x2ap_sourceofUEActivityBehaviourInformation;  /* SourceOfUEActivityBehaviourInformation */
+static int hf_x2ap_associatedSubframes;           /* BIT_STRING_SIZE_5 */
+static int hf_x2ap_extended_ul_InterferenceOverloadIndication;  /* UL_InterferenceOverloadIndication */
+static int hf_x2ap_rrcContainer;                  /* RRCContainer */
+static int hf_x2ap_uL_EARFCN;                     /* EARFCN */
+static int hf_x2ap_dL_EARFCN;                     /* EARFCN */
+static int hf_x2ap_uL_Transmission_Bandwidth;     /* Transmission_Bandwidth */
+static int hf_x2ap_dL_Transmission_Bandwidth;     /* Transmission_Bandwidth */
+static int hf_x2ap_ul_NRFreqInfo;                 /* NRFreqInfo */
+static int hf_x2ap_dl_NRFreqInfo;                 /* NRFreqInfo */
+static int hf_x2ap_ForbiddenTAs_item;             /* ForbiddenTAs_Item */
+static int hf_x2ap_forbiddenTACs;                 /* ForbiddenTACs */
+static int hf_x2ap_ForbiddenTACs_item;            /* TAC */
+static int hf_x2ap_ForbiddenLAs_item;             /* ForbiddenLAs_Item */
+static int hf_x2ap_forbiddenLACs;                 /* ForbiddenLACs */
+static int hf_x2ap_ForbiddenLACs_item;            /* LAC */
+static int hf_x2ap_freqBandIndicatorNr;           /* INTEGER_1_1024_ */
+static int hf_x2ap_supportedSULBandList;          /* SEQUENCE_SIZE_0_maxnoofNrCellBands_OF_SupportedSULFreqBandItem */
+static int hf_x2ap_supportedSULBandList_item;     /* SupportedSULFreqBandItem */
+static int hf_x2ap_e_RAB_MaximumBitrateDL;        /* BitRate */
+static int hf_x2ap_e_RAB_MaximumBitrateUL;        /* BitRate */
+static int hf_x2ap_e_RAB_GuaranteedBitrateDL;     /* BitRate */
+static int hf_x2ap_e_RAB_GuaranteedBitrateUL;     /* BitRate */
+static int hf_x2ap_eNB_ID;                        /* ENB_ID */
+static int hf_x2ap_gNB_ID;                        /* GNB_ID */
+static int hf_x2ap_gNB;                           /* GlobalGNB_ID */
+static int hf_x2ap_choice_extension;              /* ProtocolIE_Single_Container */
+static int hf_x2ap_GTPTLAs_item;                  /* GTPTLA_Item */
+static int hf_x2ap_gTPTransportLayerAddresses;    /* TransportLayerAddress */
+static int hf_x2ap_transportLayerAddress;         /* TransportLayerAddress */
+static int hf_x2ap_gTP_TEID;                      /* GTP_TEI */
+static int hf_x2ap_GUGroupIDList_item;            /* GU_Group_ID */
+static int hf_x2ap_mME_Group_ID;                  /* MME_Group_ID */
+static int hf_x2ap_gU_Group_ID;                   /* GU_Group_ID */
+static int hf_x2ap_mME_Code;                      /* MME_Code */
+static int hf_x2ap_gNB_ID_01;                     /* BIT_STRING_SIZE_22_32 */
+static int hf_x2ap_servingPLMN;                   /* PLMN_Identity */
+static int hf_x2ap_equivalentPLMNs;               /* EPLMNs */
+static int hf_x2ap_forbiddenTAs;                  /* ForbiddenTAs */
+static int hf_x2ap_forbiddenLAs;                  /* ForbiddenLAs */
+static int hf_x2ap_forbiddenInterRATs;            /* ForbiddenInterRATs */
+static int hf_x2ap_dLHWLoadIndicator;             /* LoadIndicator */
+static int hf_x2ap_uLHWLoadIndicator;             /* LoadIndicator */
+static int hf_x2ap_e_UTRAN_Cell;                  /* LastVisitedEUTRANCellInformation */
+static int hf_x2ap_uTRAN_Cell;                    /* LastVisitedUTRANCellInformation */
+static int hf_x2ap_gERAN_Cell;                    /* LastVisitedGERANCellInformation */
+static int hf_x2ap_nG_RAN_Cell;                   /* LastVisitedNGRANCellInformation */
+static int hf_x2ap_global_Cell_ID;                /* ECGI */
+static int hf_x2ap_cellType;                      /* CellType */
+static int hf_x2ap_time_UE_StayedInCell;          /* Time_UE_StayedInCell */
+static int hf_x2ap_undefined;                     /* NULL */
+static int hf_x2ap_pSCell_id;                     /* NRCGI */
+static int hf_x2ap_eventType;                     /* EventType */
+static int hf_x2ap_reportArea;                    /* ReportArea */
+static int hf_x2ap_reportInterval;                /* ReportIntervalMDT */
+static int hf_x2ap_reportAmount;                  /* ReportAmountMDT */
+static int hf_x2ap_measurementThreshold;          /* MeasurementThresholdA2 */
+static int hf_x2ap_m3period;                      /* M3period */
+static int hf_x2ap_m4period;                      /* M4period */
+static int hf_x2ap_m4_links_to_log;               /* Links_to_log */
+static int hf_x2ap_m5period;                      /* M5period */
+static int hf_x2ap_m5_links_to_log;               /* Links_to_log */
+static int hf_x2ap_m6report_interval;             /* M6report_interval */
+static int hf_x2ap_m6delay_threshold;             /* M6delay_threshold */
+static int hf_x2ap_m6_links_to_log;               /* Links_to_log */
+static int hf_x2ap_m7period;                      /* M7period */
+static int hf_x2ap_m7_links_to_log;               /* Links_to_log */
+static int hf_x2ap_mdt_Activation;                /* MDT_Activation */
+static int hf_x2ap_areaScopeOfMDT;                /* AreaScopeOfMDT */
+static int hf_x2ap_measurementsToActivate;        /* MeasurementsToActivate */
+static int hf_x2ap_m1reportingTrigger;            /* M1ReportingTrigger */
+static int hf_x2ap_m1thresholdeventA2;            /* M1ThresholdEventA2 */
+static int hf_x2ap_m1periodicReporting;           /* M1PeriodicReporting */
+static int hf_x2ap_MDTPLMNList_item;              /* PLMN_Identity */
+static int hf_x2ap_threshold_RSRP;                /* Threshold_RSRP */
+static int hf_x2ap_threshold_RSRQ;                /* Threshold_RSRQ */
+static int hf_x2ap_eUTRA_Cell_ID;                 /* ECGI */
+static int hf_x2ap_uLCoordinationInformation;     /* BIT_STRING_SIZE_6_4400_ */
+static int hf_x2ap_dLCoordinationInformation;     /* BIT_STRING_SIZE_6_4400_ */
+static int hf_x2ap_MBMS_Service_Area_Identity_List_item;  /* MBMS_Service_Area_Identity */
+static int hf_x2ap_MBSFN_Subframe_Infolist_item;  /* MBSFN_Subframe_Info */
+static int hf_x2ap_radioframeAllocationPeriod;    /* RadioframeAllocationPeriod */
+static int hf_x2ap_radioframeAllocationOffset;    /* RadioframeAllocationOffset */
+static int hf_x2ap_subframeAllocation;            /* SubframeAllocation */
+static int hf_x2ap_handoverTriggerChangeLowerLimit;  /* INTEGER_M20_20 */
+static int hf_x2ap_handoverTriggerChangeUpperLimit;  /* INTEGER_M20_20 */
+static int hf_x2ap_handoverTriggerChange;         /* INTEGER_M20_20 */
+static int hf_x2ap_MultibandInfoList_item;        /* BandInfo */
+static int hf_x2ap_maximumCellListSize;           /* MaximumCellListSize */
+static int hf_x2ap_freqBandIndicator;             /* FreqBandIndicator */
+static int hf_x2ap_rrcContainer_01;               /* T_rrcContainer */
+static int hf_x2ap_srbType;                       /* SRBType */
+static int hf_x2ap_deliveryStatus;                /* DeliveryStatus */
+static int hf_x2ap_Neighbour_Information_item;    /* Neighbour_Information_item */
+static int hf_x2ap_pCI;                           /* PCI */
+static int hf_x2ap_eARFCN;                        /* EARFCN */
+static int hf_x2ap_capacityValue_01;              /* INTEGER_0_100 */
+static int hf_x2ap_ssbAreaCapacityValue_List;     /* SSBAreaCapacityValue_List */
+static int hf_x2ap_NRCarrierList_item;            /* NRCarrierItem */
+static int hf_x2ap_carrierSCS;                    /* NRSCS */
+static int hf_x2ap_offsetToCarrier;               /* INTEGER_0_2199_ */
+static int hf_x2ap_carrierBandwidth;              /* INTEGER_0_maxnoofNRPhysicalResourceBlocks_ */
+static int hf_x2ap_compositeAvailableCapacityDL;  /* NRCompositeAvailableCapacity */
+static int hf_x2ap_compositeAvailableCapacityUL;  /* NRCompositeAvailableCapacity */
+static int hf_x2ap_cellCapacityClassValue_01;     /* NRCellCapacityClassValue */
+static int hf_x2ap_capacityValue_02;              /* NRCapacityValue */
+static int hf_x2ap_nRARFCN;                       /* INTEGER_0_3279165 */
+static int hf_x2ap_freqBandListNr;                /* SEQUENCE_SIZE_1_maxnoofNrCellBands_OF_FreqBandNrItem */
+static int hf_x2ap_freqBandListNr_item;           /* FreqBandNrItem */
+static int hf_x2ap_sULInformation;                /* SULInformation */
+static int hf_x2ap_nRcellIdentifier;              /* NRCellIdentifier */
+static int hf_x2ap_NRRACHReportInformation_item;  /* NRRACHReportList_Item */
+static int hf_x2ap_nRRACHReport;                  /* NRRACHReportContainer */
+static int hf_x2ap_uEAssitantIdentifier;          /* SgNB_UE_X2AP_ID */
+static int hf_x2ap_NRNeighbour_Information_item;  /* NRNeighbour_Information_item */
+static int hf_x2ap_nrpCI;                         /* NRPCI */
+static int hf_x2ap_nrCellID;                      /* NRCGI */
+static int hf_x2ap_configured_TAC;                /* TAC */
+static int hf_x2ap_measurementTimingConfiguration;  /* T_measurementTimingConfiguration */
+static int hf_x2ap_nRNeighbourModeInfo;           /* T_nRNeighbourModeInfo */
+static int hf_x2ap_fdd_01;                        /* FDD_InfoNeighbourServedNRCell_Information */
+static int hf_x2ap_tdd_01;                        /* TDD_InfoNeighbourServedNRCell_Information */
+static int hf_x2ap_fdd_or_tdd;                    /* T_fdd_or_tdd */
+static int hf_x2ap_fdd_02;                        /* NPRACHConfiguration_FDD */
+static int hf_x2ap_tdd_02;                        /* NPRACHConfiguration_TDD */
+static int hf_x2ap_nprach_CP_length;              /* NPRACH_CP_Length */
+static int hf_x2ap_anchorCarrier_NPRACHConfig;    /* T_anchorCarrier_NPRACHConfig */
+static int hf_x2ap_anchorCarrier_EDT_NPRACHConfig;  /* T_anchorCarrier_EDT_NPRACHConfig */
+static int hf_x2ap_anchorCarrier_Format2_NPRACHConfig;  /* T_anchorCarrier_Format2_NPRACHConfig */
+static int hf_x2ap_anchorCarrier_Format2_EDT_NPRACHConfig;  /* T_anchorCarrier_Format2_EDT_NPRACHConfig */
+static int hf_x2ap_non_anchorCarrier_NPRACHConfig;  /* T_non_anchorCarrier_NPRACHConfig */
+static int hf_x2ap_non_anchorCarrier_Format2_NPRACHConfig;  /* T_non_anchorCarrier_Format2_NPRACHConfig */
+static int hf_x2ap_nprach_preambleFormat;         /* NPRACH_preambleFormat */
+static int hf_x2ap_anchorCarrier_NPRACHConfigTDD;  /* T_anchorCarrier_NPRACHConfigTDD */
+static int hf_x2ap_non_anchorCarrierFequencyConfiglist;  /* Non_AnchorCarrierFrequencylist */
+static int hf_x2ap_non_anchorCarrier_NPRACHConfigTDD;  /* T_non_anchorCarrier_NPRACHConfigTDD */
+static int hf_x2ap_Non_AnchorCarrierFrequencylist_item;  /* Non_AnchorCarrierFrequencylist_item */
+static int hf_x2ap_non_anchorCarrioerFrquency;    /* Non_anchorCarrierFrequency */
+static int hf_x2ap_MeasurementResultforNRCellsPossiblyAggregated_item;  /* MeasurementResultforNRCellsPossiblyAggregated_Item */
+static int hf_x2ap_cellID;                        /* NRCGI */
+static int hf_x2ap_nrCompositeAvailableCapacityGroup;  /* NRCompositeAvailableCapacityGroup */
+static int hf_x2ap_ssbAreaRadioResourceStatus_List;  /* SSBAreaRadioResourceStatus_List */
+static int hf_x2ap_dl_GBR_PRB_usage_for_MIMO;     /* DL_GBR_PRB_usage_for_MIMO */
+static int hf_x2ap_ul_GBR_PRB_usage_for_MIMO;     /* UL_GBR_PRB_usage_for_MIMO */
+static int hf_x2ap_dl_non_GBR_PRB_usage_for_MIMO;  /* DL_non_GBR_PRB_usage_for_MIMO */
+static int hf_x2ap_ul_non_GBR_PRB_usage_for_MIMO;  /* UL_non_GBR_PRB_usage_for_MIMO */
+static int hf_x2ap_dl_Total_PRB_usage_for_MIMO;   /* DL_Total_PRB_usage_for_MIMO */
+static int hf_x2ap_ul_Total_PRB_usage_for_MIMO;   /* UL_Total_PRB_usage_for_MIMO */
+static int hf_x2ap_nRSCS;                         /* NRSCS */
+static int hf_x2ap_nRNRB;                         /* NRNRB */
+static int hf_x2ap_uENRMeasurements;              /* T_uENRMeasurements */
+static int hf_x2ap_uESidelinkAggregateMaximumBitRate;  /* BitRate */
+static int hf_x2ap_nRencryptionAlgorithms;        /* NRencryptionAlgorithms */
+static int hf_x2ap_nRintegrityProtectionAlgorithms;  /* NRintegrityProtectionAlgorithms */
+static int hf_x2ap_vehicleUE;                     /* VehicleUE */
+static int hf_x2ap_pedestrianUE;                  /* PedestrianUE */
+static int hf_x2ap_pc5QoSFlowList;                /* PC5QoSFlowList */
+static int hf_x2ap_pc5LinkAggregatedBitRates;     /* BitRate */
+static int hf_x2ap_PC5QoSFlowList_item;           /* PC5QoSFlowItem */
+static int hf_x2ap_pQI;                           /* FiveQI */
+static int hf_x2ap_pc5FlowBitRates;               /* PC5FlowBitRates */
+static int hf_x2ap_range;                         /* Range */
+static int hf_x2ap_guaranteedFlowBitRate;         /* BitRate */
+static int hf_x2ap_maximumFlowBitRate;            /* BitRate */
+static int hf_x2ap_rootSequenceIndex;             /* INTEGER_0_837 */
+static int hf_x2ap_zeroCorrelationIndex;          /* INTEGER_0_15 */
+static int hf_x2ap_highSpeedFlag;                 /* BOOLEAN */
+static int hf_x2ap_prach_FreqOffset;              /* INTEGER_0_94 */
+static int hf_x2ap_prach_ConfigIndex;             /* INTEGER_0_63 */
+static int hf_x2ap_plmnListforQMC;                /* PLMNListforQMC */
+static int hf_x2ap_PLMNListforQMC_item;           /* PLMN_Identity */
+static int hf_x2ap_proSeDirectDiscovery;          /* ProSeDirectDiscovery */
+static int hf_x2ap_proSeDirectCommunication;      /* ProSeDirectCommunication */
+static int hf_x2ap_protectedResourceList;         /* ProtectedResourceList */
+static int hf_x2ap_mBSFNControlRegionLength;      /* T_mBSFNControlRegionLength */
+static int hf_x2ap_pDCCHRegionLength;             /* T_pDCCHRegionLength */
+static int hf_x2ap_protectedFootprintTimePeriodicity;  /* INTEGER_1_320_ */
+static int hf_x2ap_protectedFootprintStartTime;   /* INTEGER_1_20_ */
+static int hf_x2ap_ProtectedResourceList_item;    /* ProtectedResourceList_Item */
+static int hf_x2ap_resourceType;                  /* ResourceType */
+static int hf_x2ap_intraPRBProtectedResourceFootprint;  /* BIT_STRING_SIZE_84_ */
+static int hf_x2ap_protectedFootprintFrequencyPattern;  /* BIT_STRING_SIZE_6_110_ */
+static int hf_x2ap_protectedFootprintTimePattern;  /* ProtectedFootprintTimePattern */
+static int hf_x2ap_PSCell_UE_HistoryInformation_item;  /* LastVisitedPSCell_Item */
+static int hf_x2ap_dscp;                          /* BIT_STRING_SIZE_6 */
+static int hf_x2ap_flow_label;                    /* BIT_STRING_SIZE_20 */
+static int hf_x2ap_dL_GBR_PRB_usage;              /* DL_GBR_PRB_usage */
+static int hf_x2ap_uL_GBR_PRB_usage;              /* UL_GBR_PRB_usage */
+static int hf_x2ap_dL_non_GBR_PRB_usage;          /* DL_non_GBR_PRB_usage */
+static int hf_x2ap_uL_non_GBR_PRB_usage;          /* UL_non_GBR_PRB_usage */
+static int hf_x2ap_dL_Total_PRB_usage;            /* DL_Total_PRB_usage */
+static int hf_x2ap_uL_Total_PRB_usage;            /* UL_Total_PRB_usage */
+static int hf_x2ap_RAT_Restrictions_item;         /* RAT_RestrictionsItem */
+static int hf_x2ap_rAT_RestrictionInformation;    /* T_rAT_RestrictionInformation */
+static int hf_x2ap_rNTP_PerPRB;                   /* BIT_STRING_SIZE_6_110_ */
+static int hf_x2ap_rNTP_Threshold;                /* RNTP_Threshold */
+static int hf_x2ap_numberOfCellSpecificAntennaPorts_02;  /* T_numberOfCellSpecificAntennaPorts_02 */
+static int hf_x2ap_p_B;                           /* INTEGER_0_3_ */
+static int hf_x2ap_pDCCH_InterferenceImpact;      /* INTEGER_0_4_ */
+static int hf_x2ap_ReplacingCellsList_item;       /* ReplacingCellsList_Item */
+static int hf_x2ap_subframeType;                  /* SubframeType */
+static int hf_x2ap_reservedSubframePattern_01;    /* BIT_STRING_SIZE_10_160 */
+static int hf_x2ap_mBSFNControlRegionLength_01;   /* T_mBSFNControlRegionLength_01 */
+static int hf_x2ap_non_truncated;                 /* BIT_STRING_SIZE_40 */
+static int hf_x2ap_truncated;                     /* BIT_STRING_SIZE_24 */
+static int hf_x2ap_reestablishment_Indication;    /* Reestablishment_Indication */
+static int hf_x2ap_RSRPMeasurementResult_item;    /* RSRPMeasurementResult_item */
+static int hf_x2ap_rSRPCellID;                    /* ECGI */
+static int hf_x2ap_rSRPMeasured;                  /* INTEGER_0_97_ */
+static int hf_x2ap_RSRPMRList_item;               /* RSRPMRList_item */
+static int hf_x2ap_rSRPMeasurementResult;         /* RSRPMeasurementResult */
+static int hf_x2ap_dLS1TNLLoadIndicator;          /* LoadIndicator */
+static int hf_x2ap_uLS1TNLLoadIndicator;          /* LoadIndicator */
+static int hf_x2ap_SCG_UE_HistoryInformation_item;  /* LastVisitedPSCell_Item */
+static int hf_x2ap_SecondaryRATUsageReportList_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_secondaryRATType;              /* T_secondaryRATType */
+static int hf_x2ap_e_RABUsageReportList;          /* E_RABUsageReportList */
+static int hf_x2ap_integrityProtectionIndication;  /* IntegrityProtectionIndication */
+static int hf_x2ap_integrityProtectionResult;     /* IntegrityProtectionResult */
+static int hf_x2ap_sensorMeasConfig;              /* SensorMeasConfig */
+static int hf_x2ap_sensorMeasConfigNameList;      /* SensorMeasConfigNameList */
+static int hf_x2ap_SensorMeasConfigNameList_item;  /* SensorMeasConfigNameItem */
+static int hf_x2ap_sensorNameConfig;              /* SensorNameConfig */
+static int hf_x2ap_uncompensatedBarometricConfig;  /* T_uncompensatedBarometricConfig */
+static int hf_x2ap_ServedCells_item;              /* ServedCells_item */
+static int hf_x2ap_servedCellInfo;                /* ServedCell_Information */
+static int hf_x2ap_neighbour_Info;                /* Neighbour_Information */
+static int hf_x2ap_cellId;                        /* ECGI */
+static int hf_x2ap_tAC;                           /* TAC */
+static int hf_x2ap_eUTRA_Mode_Info;               /* EUTRA_Mode_Info */
+static int hf_x2ap_ServedCellSpecificInfoReq_NR_item;  /* ServedCellSpecificInfoReq_NR_Item */
+static int hf_x2ap_nRCGI;                         /* NRCGI */
+static int hf_x2ap_additionalMTCListRequestIndicator;  /* T_additionalMTCListRequestIndicator */
+static int hf_x2ap_nR_CGI;                        /* NRCGI */
+static int hf_x2ap_uLOnlySharing;                 /* ULOnlySharing */
+static int hf_x2ap_uLandDLSharing;                /* ULandDLSharing */
+static int hf_x2ap_specialSubframePatterns;       /* SpecialSubframePatterns */
+static int hf_x2ap_subbandCQICodeword0;           /* SubbandCQICodeword0 */
+static int hf_x2ap_subbandCQICodeword1;           /* SubbandCQICodeword1 */
+static int hf_x2ap_periodicCommunicationIndicator;  /* T_periodicCommunicationIndicator */
+static int hf_x2ap_periodicTime;                  /* INTEGER_1_3600_ */
+static int hf_x2ap_scheduledCommunicationTime;    /* ScheduledCommunicationTime */
+static int hf_x2ap_stationaryIndication;          /* T_stationaryIndication */
+static int hf_x2ap_trafficProfile;                /* T_trafficProfile */
+static int hf_x2ap_batteryIndication;             /* T_batteryIndication */
+static int hf_x2ap_dayofWeek;                     /* BIT_STRING_SIZE_7 */
+static int hf_x2ap_timeofDayStart;                /* INTEGER_0_86399_ */
+static int hf_x2ap_timeofDayEnd;                  /* INTEGER_0_86399_ */
+static int hf_x2ap_SSBAreaCapacityValue_List_item;  /* SSBAreaCapacityValue_Item */
+static int hf_x2ap_ssbIndex;                      /* SSBIndex */
+static int hf_x2ap_ssbAreaCapacityValue;          /* INTEGER_0_100 */
+static int hf_x2ap_SSBAreaRadioResourceStatus_List_item;  /* SSBAreaRadioResourceStatus_Item */
+static int hf_x2ap_ssbAreaDLGBRPRBUsage;          /* INTEGER_0_100 */
+static int hf_x2ap_ssbAreaULGBRPRBUsage;          /* INTEGER_0_100 */
+static int hf_x2ap_ssbAreaDLNonGBRPRBUsage;       /* INTEGER_0_100 */
+static int hf_x2ap_ssbAreaULNonGBRPRBUsage;       /* INTEGER_0_100 */
+static int hf_x2ap_ssbAreaDLTotalPRBUsage;        /* INTEGER_0_100 */
+static int hf_x2ap_ssbAreaULTotalPRBUsage;        /* INTEGER_0_100 */
+static int hf_x2ap_ssbAreaDLSchedulingPDCCHCCEUsage;  /* INTEGER_0_100 */
+static int hf_x2ap_ssbAreaULSchedulingPDCCHCCEUsage;  /* INTEGER_0_100 */
+static int hf_x2ap_shortBitmap;                   /* BIT_STRING_SIZE_4 */
+static int hf_x2ap_mediumBitmap;                  /* BIT_STRING_SIZE_8 */
+static int hf_x2ap_longBitmap;                    /* BIT_STRING_SIZE_64 */
+static int hf_x2ap_four_bitCQI;                   /* INTEGER_0_15_ */
+static int hf_x2ap_two_bitSubbandDifferentialCQI;  /* INTEGER_0_3_ */
+static int hf_x2ap_two_bitDifferentialCQI;        /* INTEGER_0_3_ */
+static int hf_x2ap_three_bitSpatialDifferentialCQI;  /* INTEGER_0_7_ */
+static int hf_x2ap_SubbandCQIList_item;           /* SubbandCQIItem */
+static int hf_x2ap_subbandCQI;                    /* SubbandCQI */
+static int hf_x2ap_subbandIndex;                  /* INTEGER_0_27_ */
+static int hf_x2ap_oneframe;                      /* Oneframe */
+static int hf_x2ap_fourframes;                    /* Fourframes */
+static int hf_x2ap_sUL_ARFCN;                     /* INTEGER_0_3279165 */
+static int hf_x2ap_sUL_TxBW;                      /* NR_TxBW */
+static int hf_x2ap_sFN_Time_Offset;               /* BIT_STRING_SIZE_24 */
+static int hf_x2ap_tAListforMDT;                  /* TAListforMDT */
+static int hf_x2ap_tAIListforMDT;                 /* TAIListforMDT */
+static int hf_x2ap_TAIListforMDT_item;            /* TAI_Item */
+static int hf_x2ap_TAListforMDT_item;             /* TAC */
+static int hf_x2ap_tAListforQMC;                  /* TAListforQMC */
+static int hf_x2ap_TAListforQMC_item;             /* TAC */
+static int hf_x2ap_tAIListforQMC;                 /* TAIListforQMC */
+static int hf_x2ap_TAIListforQMC_item;            /* TAI_Item */
+static int hf_x2ap_transmission_Bandwidth;        /* Transmission_Bandwidth */
+static int hf_x2ap_subframeAssignment;            /* SubframeAssignment */
+static int hf_x2ap_specialSubframe_Info;          /* SpecialSubframe_Info */
+static int hf_x2ap_nRFreqInfo;                    /* NRFreqInfo */
+static int hf_x2ap_TNLA_To_Add_List_item;         /* TNLA_To_Add_Item */
+static int hf_x2ap_tNLAssociationTransportLayerAddress;  /* CPTransportLayerInformation */
+static int hf_x2ap_tNLAssociationUsage;           /* TNLAssociationUsage */
+static int hf_x2ap_TNLA_To_Update_List_item;      /* TNLA_To_Update_Item */
+static int hf_x2ap_TNLA_To_Remove_List_item;      /* TNLA_To_Remove_Item */
+static int hf_x2ap_TNLA_Setup_List_item;          /* TNLA_Setup_Item */
+static int hf_x2ap_TNLA_Failed_To_Setup_List_item;  /* TNLA_Failed_To_Setup_Item */
+static int hf_x2ap_dlTNLMaximumOfferedCapacity;   /* INTEGER_1_16777216_ */
+static int hf_x2ap_dlTNLAvailableCapacity;        /* INTEGER_0_100_ */
+static int hf_x2ap_ulTNLMaximumOfferedCapacity;   /* INTEGER_1_16777216_ */
+static int hf_x2ap_ulTNLAvailableCapacity;        /* INTEGER_0_100_ */
+static int hf_x2ap_Transport_UP_Layer_Addresses_Info_To_Add_List_item;  /* Transport_UP_Layer_Addresses_Info_To_Add_Item */
+static int hf_x2ap_iP_SecTransportLayerAddress;   /* TransportLayerAddress */
+static int hf_x2ap_gTPTransportLayerAddressesToAdd;  /* GTPTLAs */
+static int hf_x2ap_Transport_UP_Layer_Addresses_Info_To_Remove_List_item;  /* Transport_UP_Layer_Addresses_Info_To_Remove_Item */
+static int hf_x2ap_gTPTransportLayerAddressesToRemove;  /* GTPTLAs */
+static int hf_x2ap_transport_UP_Layer_Addresses_Info_To_Add_List;  /* Transport_UP_Layer_Addresses_Info_To_Add_List */
+static int hf_x2ap_transport_UP_Layer_Addresses_Info_To_Remove_List;  /* Transport_UP_Layer_Addresses_Info_To_Remove_List */
+static int hf_x2ap_eUTRANTraceID;                 /* EUTRANTraceID */
+static int hf_x2ap_interfacesToTrace;             /* InterfacesToTrace */
+static int hf_x2ap_traceDepth;                    /* TraceDepth */
+static int hf_x2ap_traceCollectionEntityIPAddress;  /* TraceCollectionEntityIPAddress */
+static int hf_x2ap_portnumber;                    /* Port_Number */
+static int hf_x2ap_uDP_Port_Number;               /* Port_Number */
+static int hf_x2ap_uEaggregateMaximumBitRateDownlink;  /* BitRate */
+static int hf_x2ap_uEaggregateMaximumBitRateUplink;  /* BitRate */
+static int hf_x2ap_containerForAppLayerMeasConfig;  /* OCTET_STRING_SIZE_1_1000 */
+static int hf_x2ap_areaScopeOfQMC;                /* AreaScopeOfQMC */
+static int hf_x2ap_UE_HistoryInformation_item;    /* LastVisitedCell_Item */
+static int hf_x2ap_encryptionAlgorithms;          /* EncryptionAlgorithms */
+static int hf_x2ap_integrityProtectionAlgorithms;  /* IntegrityProtectionAlgorithms */
+static int hf_x2ap_UEsToBeResetList_item;         /* UEsToBeResetList_Item */
+static int hf_x2ap_meNB_ID;                       /* UE_X2AP_ID */
+static int hf_x2ap_meNB_ID_ext;                   /* UE_X2AP_ID_Extension */
+static int hf_x2ap_sgNB_ID;                       /* SgNB_UE_X2AP_ID */
+static int hf_x2ap_uLResourcesULandDLSharing;     /* ULResourcesULandDLSharing */
+static int hf_x2ap_dLResourcesULandDLSharing;     /* DLResourcesULandDLSharing */
+static int hf_x2ap_uL_PDCP;                       /* UL_UE_Configuration */
+static int hf_x2ap_UL_HighInterferenceIndicationInfo_item;  /* UL_HighInterferenceIndicationInfo_Item */
+static int hf_x2ap_target_Cell_ID;                /* ECGI */
+static int hf_x2ap_ul_interferenceindication;     /* UL_HighInterferenceIndication */
+static int hf_x2ap_UL_InterferenceOverloadIndication_item;  /* UL_InterferenceOverloadIndication_Item */
+static int hf_x2ap_uLResourceBitmapULOnlySharing;  /* DataTrafficResources */
+static int hf_x2ap_changed_01;                    /* ULResourceBitmapULandDLSharing */
+static int hf_x2ap_fdd_03;                        /* UsableABSInformationFDD */
+static int hf_x2ap_tdd_03;                        /* UsableABSInformationTDD */
+static int hf_x2ap_usable_abs_pattern_info;       /* BIT_STRING_SIZE_40 */
+static int hf_x2ap_usaable_abs_pattern_info;      /* BIT_STRING_SIZE_1_70_ */
+static int hf_x2ap_widebandCQICodeword0;          /* INTEGER_0_15_ */
+static int hf_x2ap_widebandCQICodeword1;          /* WidebandCQICodeword1 */
+static int hf_x2ap_wlanMeasConfig;                /* WLANMeasConfig */
+static int hf_x2ap_wlanMeasConfigNameList;        /* WLANMeasConfigNameList */
+static int hf_x2ap_wlan_rssi;                     /* T_wlan_rssi */
+static int hf_x2ap_wlan_rtt;                      /* T_wlan_rtt */
+static int hf_x2ap_WLANMeasConfigNameList_item;   /* WLANName */
+static int hf_x2ap_wTID_Type1;                    /* WTID_Type1 */
+static int hf_x2ap_wTID_Type2;                    /* WTID_Long_Type2 */
+static int hf_x2ap_shortWTID;                     /* BIT_STRING_SIZE_24 */
+static int hf_x2ap_protocolIEs;                   /* ProtocolIE_Container */
+static int hf_x2ap_mME_UE_S1AP_ID;                /* UE_S1AP_ID */
+static int hf_x2ap_uESecurityCapabilities;        /* UESecurityCapabilities */
+static int hf_x2ap_aS_SecurityInformation;        /* AS_SecurityInformation */
+static int hf_x2ap_uEaggregateMaximumBitRate;     /* UEAggregateMaximumBitRate */
+static int hf_x2ap_subscriberProfileIDforRFP;     /* SubscriberProfileIDforRFP */
+static int hf_x2ap_e_RABs_ToBeSetup_List;         /* E_RABs_ToBeSetup_List */
+static int hf_x2ap_rRC_Context;                   /* RRC_Context */
+static int hf_x2ap_handoverRestrictionList;       /* HandoverRestrictionList */
+static int hf_x2ap_locationReportingInformation;  /* LocationReportingInformation */
+static int hf_x2ap_E_RABs_ToBeSetup_List_item;    /* ProtocolIE_Single_Container */
+static int hf_x2ap_e_RAB_Level_QoS_Parameters;    /* E_RAB_Level_QoS_Parameters */
+static int hf_x2ap_dL_Forwarding;                 /* DL_Forwarding */
+static int hf_x2ap_source_GlobalSeNB_ID;          /* GlobalENB_ID */
+static int hf_x2ap_seNB_UE_X2AP_ID;               /* UE_X2AP_ID */
+static int hf_x2ap_seNB_UE_X2AP_ID_Extension;     /* UE_X2AP_ID_Extension */
+static int hf_x2ap_wTID;                          /* WTID */
+static int hf_x2ap_wT_UE_XwAP_ID;                 /* WT_UE_XwAP_ID */
+static int hf_x2ap_source_GlobalSgNB_ID;          /* GlobalGNB_ID */
+static int hf_x2ap_sgNB_UE_X2AP_ID;               /* SgNB_UE_X2AP_ID */
+static int hf_x2ap_E_RABs_Admitted_List_item;     /* ProtocolIE_Single_Container */
+static int hf_x2ap_uL_GTP_TunnelEndpoint;         /* GTPtunnelEndpoint */
+static int hf_x2ap_dL_GTP_TunnelEndpoint;         /* GTPtunnelEndpoint */
+static int hf_x2ap_first_dl_count;                /* FirstDLCount */
+static int hf_x2ap_dl_discarding;                 /* DLDiscarding */
+static int hf_x2ap_e_RABsSubjectToEarlyStatusTransfer;  /* E_RABsSubjectToEarlyStatusTransfer_List */
+static int hf_x2ap_e_RABsSubjectToDLDiscarding_List;  /* E_RABsSubjectToDLDiscarding_List */
+static int hf_x2ap_E_RABs_SubjectToStatusTransfer_List_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_receiveStatusofULPDCPSDUs;     /* ReceiveStatusofULPDCPSDUs */
+static int hf_x2ap_uL_COUNTvalue;                 /* COUNTvalue */
+static int hf_x2ap_dL_COUNTvalue;                 /* COUNTvalue */
+static int hf_x2ap_CellInformation_List_item;     /* ProtocolIE_Single_Container */
+static int hf_x2ap_cell_ID;                       /* ECGI */
+static int hf_x2ap_ul_InterferenceOverloadIndication;  /* UL_InterferenceOverloadIndication */
+static int hf_x2ap_ul_HighInterferenceIndicationInfo;  /* UL_HighInterferenceIndicationInfo */
+static int hf_x2ap_relativeNarrowbandTxPower;     /* RelativeNarrowbandTxPower */
+static int hf_x2ap_ServedCellsToModify_item;      /* ServedCellsToModify_Item */
+static int hf_x2ap_old_ecgi;                      /* ECGI */
+static int hf_x2ap_Old_ECGIs_item;                /* ECGI */
+static int hf_x2ap_CellToReport_List_item;        /* ProtocolIE_Single_Container */
+static int hf_x2ap_MeasurementInitiationResult_List_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_measurementFailureCause_List;  /* MeasurementFailureCause_List */
+static int hf_x2ap_MeasurementFailureCause_List_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_measurementFailedReportCharacteristics;  /* T_measurementFailedReportCharacteristics */
+static int hf_x2ap_CompleteFailureCauseInformation_List_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_CellMeasurementResult_List_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_hWLoadIndicator;               /* HWLoadIndicator */
+static int hf_x2ap_s1TNLLoadIndicator;            /* S1TNLLoadIndicator */
+static int hf_x2ap_radioResourceStatus;           /* RadioResourceStatus */
+static int hf_x2ap_privateIEs;                    /* PrivateIE_Container */
+static int hf_x2ap_ServedCellsToActivate_item;    /* ServedCellsToActivate_Item */
+static int hf_x2ap_ecgi;                          /* ECGI */
+static int hf_x2ap_ActivatedCellList_item;        /* ActivatedCellList_Item */
+static int hf_x2ap_source_GlobalENB_ID;           /* GlobalENB_ID */
+static int hf_x2ap_target_GlobalENB_ID;           /* GlobalENB_ID */
+static int hf_x2ap_E_RABs_ToBeAdded_List_item;    /* ProtocolIE_Single_Container */
+static int hf_x2ap_sCG_Bearer;                    /* E_RABs_ToBeAdded_Item_SCG_Bearer */
+static int hf_x2ap_split_Bearer;                  /* E_RABs_ToBeAdded_Item_Split_Bearer */
+static int hf_x2ap_s1_UL_GTPtunnelEndpoint;       /* GTPtunnelEndpoint */
+static int hf_x2ap_meNB_GTPtunnelEndpoint;        /* GTPtunnelEndpoint */
+static int hf_x2ap_E_RABs_Admitted_ToBeAdded_List_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_sCG_Bearer_01;                 /* E_RABs_Admitted_ToBeAdded_Item_SCG_Bearer */
+static int hf_x2ap_split_Bearer_01;               /* E_RABs_Admitted_ToBeAdded_Item_Split_Bearer */
+static int hf_x2ap_s1_DL_GTPtunnelEndpoint;       /* GTPtunnelEndpoint */
+static int hf_x2ap_dL_Forwarding_GTPtunnelEndpoint;  /* GTPtunnelEndpoint */
+static int hf_x2ap_uL_Forwarding_GTPtunnelEndpoint;  /* GTPtunnelEndpoint */
+static int hf_x2ap_seNB_GTPtunnelEndpoint;        /* GTPtunnelEndpoint */
+static int hf_x2ap_success;                       /* ResponseInformationSeNBReconfComp_SuccessItem */
+static int hf_x2ap_reject_by_MeNB;                /* ResponseInformationSeNBReconfComp_RejectByMeNBItem */
+static int hf_x2ap_meNBtoSeNBContainer;           /* MeNBtoSeNBContainer */
+static int hf_x2ap_uE_SecurityCapabilities;       /* UESecurityCapabilities */
+static int hf_x2ap_seNB_SecurityKey;              /* SeNBSecurityKey */
+static int hf_x2ap_seNBUEAggregateMaximumBitRate;  /* UEAggregateMaximumBitRate */
+static int hf_x2ap_e_RABs_ToBeAdded;              /* E_RABs_ToBeAdded_List_ModReq */
+static int hf_x2ap_e_RABs_ToBeModified;           /* E_RABs_ToBeModified_List_ModReq */
+static int hf_x2ap_e_RABs_ToBeReleased;           /* E_RABs_ToBeReleased_List_ModReq */
+static int hf_x2ap_E_RABs_ToBeAdded_List_ModReq_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_sCG_Bearer_02;                 /* E_RABs_ToBeAdded_ModReqItem_SCG_Bearer */
+static int hf_x2ap_split_Bearer_02;               /* E_RABs_ToBeAdded_ModReqItem_Split_Bearer */
+static int hf_x2ap_E_RABs_ToBeModified_List_ModReq_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_sCG_Bearer_03;                 /* E_RABs_ToBeModified_ModReqItem_SCG_Bearer */
+static int hf_x2ap_split_Bearer_03;               /* E_RABs_ToBeModified_ModReqItem_Split_Bearer */
+static int hf_x2ap_E_RABs_ToBeReleased_List_ModReq_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_sCG_Bearer_04;                 /* E_RABs_ToBeReleased_ModReqItem_SCG_Bearer */
+static int hf_x2ap_split_Bearer_04;               /* E_RABs_ToBeReleased_ModReqItem_Split_Bearer */
+static int hf_x2ap_E_RABs_Admitted_ToBeAdded_ModAckList_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_sCG_Bearer_05;                 /* E_RABs_Admitted_ToBeAdded_ModAckItem_SCG_Bearer */
+static int hf_x2ap_split_Bearer_05;               /* E_RABs_Admitted_ToBeAdded_ModAckItem_Split_Bearer */
+static int hf_x2ap_E_RABs_Admitted_ToBeModified_ModAckList_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_sCG_Bearer_06;                 /* E_RABs_Admitted_ToBeModified_ModAckItem_SCG_Bearer */
+static int hf_x2ap_split_Bearer_06;               /* E_RABs_Admitted_ToBeModified_ModAckItem_Split_Bearer */
+static int hf_x2ap_E_RABs_Admitted_ToBeReleased_ModAckList_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_sCG_Bearer_07;                 /* E_RABs_Admitted_ToBeReleased_ModAckItem_SCG_Bearer */
+static int hf_x2ap_split_Bearer_07;               /* E_RABs_Admitted_ToBeReleased_ModAckItem_Split_Bearer */
+static int hf_x2ap_E_RABs_ToBeReleased_ModReqd_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_E_RABs_ToBeReleased_List_RelReq_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_sCG_Bearer_08;                 /* E_RABs_ToBeReleased_RelReqItem_SCG_Bearer */
+static int hf_x2ap_split_Bearer_08;               /* E_RABs_ToBeReleased_RelReqItem_Split_Bearer */
+static int hf_x2ap_E_RABs_ToBeReleased_List_RelConf_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_sCG_Bearer_09;                 /* E_RABs_ToBeReleased_RelConfItem_SCG_Bearer */
+static int hf_x2ap_split_Bearer_09;               /* E_RABs_ToBeReleased_RelConfItem_Split_Bearer */
+static int hf_x2ap_E_RABs_SubjectToCounterCheck_List_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_uL_Count;                      /* INTEGER_0_4294967295 */
+static int hf_x2ap_dL_Count;                      /* INTEGER_0_4294967295 */
+static int hf_x2ap_e_RABs_ToBeSetup_ListRetrieve;  /* E_RABs_ToBeSetup_ListRetrieve */
+static int hf_x2ap_managBasedMDTallowed;          /* ManagementBasedMDTallowed */
+static int hf_x2ap_managBasedMDTPLMNList;         /* MDTPLMNList */
+static int hf_x2ap_E_RABs_ToBeSetup_ListRetrieve_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_bearerType;                    /* BearerType */
+static int hf_x2ap_E_RABs_ToBeAdded_SgNBAddReqList_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_drb_ID;                        /* DRB_ID */
+static int hf_x2ap_en_DC_ResourceConfiguration;   /* EN_DC_ResourceConfiguration */
+static int hf_x2ap_resource_configuration;        /* T_resource_configuration */
+static int hf_x2ap_sgNBPDCPpresent;               /* E_RABs_ToBeAdded_SgNBAddReq_Item_SgNBPDCPpresent */
+static int hf_x2ap_sgNBPDCPnotpresent;            /* E_RABs_ToBeAdded_SgNBAddReq_Item_SgNBPDCPnotpresent */
+static int hf_x2ap_full_E_RAB_Level_QoS_Parameters;  /* E_RAB_Level_QoS_Parameters */
+static int hf_x2ap_max_MCG_admit_E_RAB_Level_QoS_Parameters;  /* GBR_QosInformation */
+static int hf_x2ap_meNB_DL_GTP_TEIDatMCG;         /* GTPtunnelEndpoint */
+static int hf_x2ap_requested_SCG_E_RAB_Level_QoS_Parameters;  /* E_RAB_Level_QoS_Parameters */
+static int hf_x2ap_meNB_UL_GTP_TEIDatPDCP;        /* GTPtunnelEndpoint */
+static int hf_x2ap_secondary_meNB_UL_GTP_TEIDatPDCP;  /* GTPtunnelEndpoint */
+static int hf_x2ap_rlc_Mode;                      /* RLCMode */
+static int hf_x2ap_uL_Configuration;              /* ULConfiguration */
+static int hf_x2ap_E_RABs_Admitted_ToBeAdded_SgNBAddReqAckList_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_resource_configuration_01;     /* T_resource_configuration_01 */
+static int hf_x2ap_sgNBPDCPpresent_01;            /* E_RABs_Admitted_ToBeAdded_SgNBAddReqAck_Item_SgNBPDCPpresent */
+static int hf_x2ap_sgNBPDCPnotpresent_01;         /* E_RABs_Admitted_ToBeAdded_SgNBAddReqAck_Item_SgNBPDCPnotpresent */
+static int hf_x2ap_sgNB_UL_GTP_TEIDatPDCP;        /* GTPtunnelEndpoint */
+static int hf_x2ap_mCG_E_RAB_Level_QoS_Parameters;  /* E_RAB_Level_QoS_Parameters */
+static int hf_x2ap_sgNB_DL_GTP_TEIDatSCG;         /* GTPtunnelEndpoint */
+static int hf_x2ap_secondary_sgNB_DL_GTP_TEIDatSCG;  /* GTPtunnelEndpoint */
+static int hf_x2ap_success_SgNBReconfComp;        /* ResponseInformationSgNBReconfComp_SuccessItem */
+static int hf_x2ap_reject_by_MeNB_SgNBReconfComp;  /* ResponseInformationSgNBReconfComp_RejectByMeNBItem */
+static int hf_x2ap_meNBtoSgNBContainer;           /* MeNBtoSgNBContainer */
+static int hf_x2ap_nRUE_SecurityCapabilities;     /* NRUESecurityCapabilities */
+static int hf_x2ap_sgNB_SecurityKey;              /* SgNBSecurityKey */
+static int hf_x2ap_sgNBUEAggregateMaximumBitRate;  /* UEAggregateMaximumBitRate */
+static int hf_x2ap_e_RABs_ToBeAdded_01;           /* E_RABs_ToBeAdded_SgNBModReq_List */
+static int hf_x2ap_e_RABs_ToBeModified_01;        /* E_RABs_ToBeModified_SgNBModReq_List */
+static int hf_x2ap_e_RABs_ToBeReleased_01;        /* E_RABs_ToBeReleased_SgNBModReq_List */
+static int hf_x2ap_E_RABs_ToBeAdded_SgNBModReq_List_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_resource_configuration_02;     /* T_resource_configuration_02 */
+static int hf_x2ap_sgNBPDCPpresent_02;            /* E_RABs_ToBeAdded_SgNBModReq_Item_SgNBPDCPpresent */
+static int hf_x2ap_sgNBPDCPnotpresent_02;         /* E_RABs_ToBeAdded_SgNBModReq_Item_SgNBPDCPnotpresent */
+static int hf_x2ap_max_MN_admit_E_RAB_Level_QoS_Parameters;  /* GBR_QosInformation */
+static int hf_x2ap_E_RABs_ToBeModified_SgNBModReq_List_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_resource_configuration_03;     /* T_resource_configuration_03 */
+static int hf_x2ap_sgNBPDCPpresent_03;            /* E_RABs_ToBeModified_SgNBModReq_Item_SgNBPDCPpresent */
+static int hf_x2ap_sgNBPDCPnotpresent_03;         /* E_RABs_ToBeModified_SgNBModReq_Item_SgNBPDCPnotpresent */
+static int hf_x2ap_E_RABs_ToBeReleased_SgNBModReq_List_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_resource_configuration_04;     /* T_resource_configuration_04 */
+static int hf_x2ap_sgNBPDCPpresent_04;            /* E_RABs_ToBeReleased_SgNBModReq_Item_SgNBPDCPpresent */
+static int hf_x2ap_sgNBPDCPnotpresent_04;         /* E_RABs_ToBeReleased_SgNBModReq_Item_SgNBPDCPnotpresent */
+static int hf_x2ap_E_RABs_Admitted_ToBeAdded_SgNBModAckList_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_resource_configuration_05;     /* T_resource_configuration_05 */
+static int hf_x2ap_sgNBPDCPpresent_05;            /* E_RABs_Admitted_ToBeAdded_SgNBModAck_Item_SgNBPDCPpresent */
+static int hf_x2ap_sgNBPDCPnotpresent_05;         /* E_RABs_Admitted_ToBeAdded_SgNBModAck_Item_SgNBPDCPnotpresent */
+static int hf_x2ap_E_RABs_Admitted_ToBeModified_SgNBModAckList_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_resource_configuration_06;     /* T_resource_configuration_06 */
+static int hf_x2ap_sgNBPDCPpresent_06;            /* E_RABs_Admitted_ToBeModified_SgNBModAck_Item_SgNBPDCPpresent */
+static int hf_x2ap_sgNBPDCPnotpresent_06;         /* E_RABs_Admitted_ToBeModified_SgNBModAck_Item_SgNBPDCPnotpresent */
+static int hf_x2ap_E_RABs_Admitted_ToBeReleased_SgNBModAckList_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_resource_configuration_07;     /* T_resource_configuration_07 */
+static int hf_x2ap_sgNBPDCPpresent_07;            /* E_RABs_Admitted_ToBeReleased_SgNBModAck_Item_SgNBPDCPpresent */
+static int hf_x2ap_sgNBPDCPnotpresent_07;         /* E_RABs_Admitted_ToBeReleased_SgNBModAck_Item_SgNBPDCPnotpresent */
+static int hf_x2ap_E_RABs_ToBeReleased_SgNBModReqdList_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_E_RABs_ToBeModified_SgNBModReqdList_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_resource_configuration_08;     /* T_resource_configuration_08 */
+static int hf_x2ap_sgNBPDCPpresent_08;            /* E_RABs_ToBeModified_SgNBModReqd_Item_SgNBPDCPpresent */
+static int hf_x2ap_sgNBPDCPnotpresent_08;         /* E_RABs_ToBeModified_SgNBModReqd_Item_SgNBPDCPnotpresent */
+static int hf_x2ap_requested_MCG_E_RAB_Level_QoS_Parameters;  /* E_RAB_Level_QoS_Parameters */
+static int hf_x2ap_s1_DL_GTP_TEIDatSgNB;          /* GTPtunnelEndpoint */
+static int hf_x2ap_E_RABs_AdmittedToBeModified_SgNBModConfList_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_resource_configuration_09;     /* T_resource_configuration_09 */
+static int hf_x2ap_sgNBPDCPpresent_09;            /* E_RABs_AdmittedToBeModified_SgNBModConf_Item_SgNBPDCPpresent */
+static int hf_x2ap_sgNBPDCPnotpresent_09;         /* E_RABs_AdmittedToBeModified_SgNBModConf_Item_SgNBPDCPnotpresent */
+static int hf_x2ap_E_RABs_ToBeReleased_SgNBRelReqList_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_resource_configuration_10;     /* T_resource_configuration_10 */
+static int hf_x2ap_sgNBPDCPpresent_10;            /* E_RABs_ToBeReleased_SgNBRelReq_Item_SgNBPDCPpresent */
+static int hf_x2ap_sgNBPDCPnotpresent_10;         /* E_RABs_ToBeReleased_SgNBRelReq_Item_SgNBPDCPnotpresent */
+static int hf_x2ap_E_RABs_Admitted_ToBeReleased_SgNBRelReqAckList_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_rlc_Mode_transferred;          /* RLCMode */
+static int hf_x2ap_E_RABs_ToBeReleased_SgNBRelReqdList_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_E_RABs_ToBeReleased_SgNBRelConfList_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_resource_configuration_11;     /* T_resource_configuration_11 */
+static int hf_x2ap_sgNBPDCPpresent_11;            /* E_RABs_ToBeReleased_SgNBRelConf_Item_SgNBPDCPpresent */
+static int hf_x2ap_sgNBPDCPnotpresent_11;         /* E_RABs_ToBeReleased_SgNBRelConf_Item_SgNBPDCPnotpresent */
+static int hf_x2ap_E_RABs_SubjectToSgNBCounterCheck_List_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_E_RABs_ToBeReleased_SgNBChaConfList_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_resource_configuration_12;     /* T_resource_configuration_12 */
+static int hf_x2ap_sgNBPDCPpresent_12;            /* E_RABs_ToBeReleased_SgNBChaConf_Item_SgNBPDCPpresent */
+static int hf_x2ap_sgNBPDCPnotpresent_12;         /* E_RABs_ToBeReleased_SgNBChaConf_Item_SgNBPDCPnotpresent */
+static int hf_x2ap_init_eNB;                      /* ProtocolIE_Container */
+static int hf_x2ap_init_en_gNB;                   /* ProtocolIE_Container */
+static int hf_x2ap_ServedEUTRAcellsENDCX2ManagementList_item;  /* ServedEUTRAcellsENDCX2ManagementList_item */
+static int hf_x2ap_servedEUTRACellInfo;           /* ServedCell_Information */
+static int hf_x2ap_nrNeighbourInfo;               /* NRNeighbour_Information */
+static int hf_x2ap_ServedNRcellsENDCX2ManagementList_item;  /* ServedNRcellsENDCX2ManagementList_item */
+static int hf_x2ap_servedNRCellInfo;              /* ServedNRCell_Information */
+static int hf_x2ap_nRNeighbourInfo;               /* NRNeighbour_Information */
+static int hf_x2ap_nrModeInfo;                    /* T_nrModeInfo */
+static int hf_x2ap_fdd_04;                        /* FDD_InfoServedNRCell_Information */
+static int hf_x2ap_tdd_04;                        /* TDD_InfoServedNRCell_Information */
+static int hf_x2ap_measurementTimingConfiguration_01;  /* T_measurementTimingConfiguration_01 */
+static int hf_x2ap_ul_NR_TxBW;                    /* NR_TxBW */
+static int hf_x2ap_dl_NR_TxBW;                    /* NR_TxBW */
+static int hf_x2ap_nR_TxBW;                       /* NR_TxBW */
+static int hf_x2ap_cellAssistanceInformation;     /* CellAssistanceInformation */
+static int hf_x2ap_limited_list;                  /* Limited_list */
+static int hf_x2ap_full_list;                     /* T_full_list */
+static int hf_x2ap_Limited_list_item;             /* Limited_list_item */
+static int hf_x2ap_respond_eNB;                   /* ProtocolIE_Container */
+static int hf_x2ap_respond_en_gNB;                /* ProtocolIE_Container */
+static int hf_x2ap_ServedEUTRAcellsToModifyListENDCConfUpd_item;  /* ServedEUTRAcellsToModifyListENDCConfUpd_item */
+static int hf_x2ap_old_ECGI;                      /* ECGI */
+static int hf_x2ap_ServedEUTRAcellsToDeleteListENDCConfUpd_item;  /* ECGI */
+static int hf_x2ap_ServedNRcellsToModifyENDCConfUpdList_item;  /* ServedNRCellsToModify_Item */
+static int hf_x2ap_old_nrcgi;                     /* NRCGI */
+static int hf_x2ap_servedNRCellInformation;       /* ServedNRCell_Information */
+static int hf_x2ap_nrNeighbourInformation;        /* NRNeighbour_Information */
+static int hf_x2ap_nrDeactivationIndication;      /* DeactivationIndication */
+static int hf_x2ap_ServedNRcellsToDeleteENDCConfUpdList_item;  /* NRCGI */
+static int hf_x2ap_ServedNRCellsToActivate_item;  /* ServedNRCellsToActivate_Item */
+static int hf_x2ap_ActivatedNRCellList_item;      /* ActivatedNRCellList_Item */
+static int hf_x2ap_CellToReport_NR_ENDC_List_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_nr_cell_ID;                    /* NRCGI */
+static int hf_x2ap_ssbToReport_List;              /* SSBToReport_List */
+static int hf_x2ap_CellToReport_E_UTRA_ENDC_List_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_e_utra_cell_ID;                /* ECGI */
+static int hf_x2ap_SSBToReport_List_item;         /* SSBToReport_Item */
+static int hf_x2ap_CellMeasurementResult_NR_ENDC_List_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_nr_radioResourceStatus;        /* NRRadioResourceStatus */
+static int hf_x2ap_tnlCapacityIndicator;          /* TNLCapacityIndicator */
+static int hf_x2ap_nr_compositeAvailableCapacityGroup;  /* NRCompositeAvailableCapacityGroup */
+static int hf_x2ap_numberofActiveUEs;             /* INTEGER_0_16777215_ */
+static int hf_x2ap_CellMeasurementResult_E_UTRA_ENDC_List_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_compositeAvailableCapacityGroup;  /* CompositeAvailableCapacityGroup */
+static int hf_x2ap_initiate_eNB;                  /* ProtocolIE_Container */
+static int hf_x2ap_initiate_en_gNB;               /* ProtocolIE_Container */
+static int hf_x2ap_ListofEUTRACellsinEUTRACoordinationReq_item;  /* ECGI */
+static int hf_x2ap_ListofEUTRACellsinNRCoordinationReq_item;  /* ECGI */
+static int hf_x2ap_ListofNRCellsinNRCoordinationReq_item;  /* NRCGI */
+static int hf_x2ap_ListofEUTRACellsinEUTRACoordinationResp_item;  /* ECGI */
+static int hf_x2ap_ListofNRCellsinNRCoordinationResp_item;  /* NRCGI */
+static int hf_x2ap_E_RABs_DataForwardingAddress_List_item;  /* ProtocolIE_Single_Container */
+static int hf_x2ap_dl_GTPtunnelEndpoint;          /* GTPtunnelEndpoint */
+static int hf_x2ap_initiatingMessage;             /* InitiatingMessage */
+static int hf_x2ap_successfulOutcome;             /* SuccessfulOutcome */
+static int hf_x2ap_unsuccessfulOutcome;           /* UnsuccessfulOutcome */
+static int hf_x2ap_initiatingMessage_value;       /* InitiatingMessage_value */
+static int hf_x2ap_successfulOutcome_value;       /* SuccessfulOutcome_value */
+static int hf_x2ap_value;                         /* UnsuccessfulOutcome_value */
 
 /* Initialize the subtree pointers */
-static int ett_x2ap = -1;
-static int ett_x2ap_TransportLayerAddress = -1;
-static int ett_x2ap_PLMN_Identity = -1;
-static int ett_x2ap_TargeteNBtoSource_eNBTransparentContainer = -1;
-static int ett_x2ap_RRC_Context = -1;
-static int ett_x2ap_UE_HistoryInformationFromTheUE = -1;
-static int ett_x2ap_ReportCharacteristics = -1;
-static int ett_x2ap_measurementFailedReportCharacteristics = -1;
-static int ett_x2ap_UE_RLF_Report_Container = -1;
-static int ett_x2ap_UE_RLF_Report_Container_for_extended_bands = -1;
-static int ett_x2ap_MeNBtoSeNBContainer = -1;
-static int ett_x2ap_SeNBtoMeNBContainer = -1;
-static int ett_x2ap_EUTRANTraceID = -1;
-static int ett_x2ap_InterfacesToTrace = -1;
-static int ett_x2ap_TraceCollectionEntityIPAddress = -1;
-static int ett_x2ap_EncryptionAlgorithms = -1;
-static int ett_x2ap_IntegrityProtectionAlgorithms = -1;
-static int ett_x2ap_MeasurementsToActivate = -1;
-static int ett_x2ap_MDT_Location_Info = -1;
-static int ett_x2ap_transmissionModes = -1;
-static int ett_x2ap_X2AP_Message = -1;
-static int ett_x2ap_MeNBtoSgNBContainer = -1;
-static int ett_x2ap_SgNBtoMeNBContainer = -1;
-static int ett_x2ap_RRCContainer = -1;
-static int ett_x2ap_NRencryptionAlgorithms = -1;
-static int ett_x2ap_NRintegrityProtectionAlgorithms = -1;
-static int ett_x2ap_measurementTimingConfiguration = -1;
-static int ett_x2ap_LastVisitedNGRANCellInformation = -1;
-static int ett_x2ap_LastVisitedUTRANCellInformation = -1;
-static int ett_x2ap_EndcSONConfigurationTransfer = -1;
-static int ett_x2ap_EPCHandoverRestrictionListContainer = -1;
-static int ett_x2ap_NBIoT_RLF_Report_Container = -1;
-static int ett_x2ap_anchorCarrier_NPRACHConfig = -1;
-static int ett_x2ap_anchorCarrier_EDT_NPRACHConfig = -1;
-static int ett_x2ap_anchorCarrier_Format2_NPRACHConfig = -1;
-static int ett_x2ap_anchorCarrier_Format2_EDT_NPRACHConfig = -1;
-static int ett_x2ap_non_anchorCarrier_NPRACHConfig = -1;
-static int ett_x2ap_non_anchorCarrier_Format2_NPRACHConfig = -1;
-static int ett_x2ap_anchorCarrier_NPRACHConfigTDD = -1;
-static int ett_x2ap_non_anchorCarrier_NPRACHConfigTDD = -1;
-static int ett_x2ap_Non_anchorCarrierFrequency = -1;
-static int ett_x2ap_ReportCharacteristics_ENDC = -1;
-static int ett_x2ap_TargetCellInNGRAN = -1;
-static int ett_x2ap_TDDULDLConfigurationCommonNR = -1;
-static int ett_x2ap_MDT_ConfigurationNR = -1;
-static int ett_x2ap_NRCellPRACHConfig = -1;
-static int ett_x2ap_IntendedTDD_DL_ULConfiguration_NR = -1;
-static int ett_x2ap_UERadioCapability = -1;
-static int ett_x2ap_LastVisitedPSCell_Item = -1;
-static int ett_x2ap_NRRACHReportContainer = -1;
-static int ett_x2ap_rAT_RestrictionInformation = -1;
-static gint ett_x2ap_PrivateIE_ID = -1;
-static gint ett_x2ap_ProtocolIE_Container = -1;
-static gint ett_x2ap_ProtocolIE_Field = -1;
-static gint ett_x2ap_ProtocolExtensionContainer = -1;
-static gint ett_x2ap_ProtocolExtensionField = -1;
-static gint ett_x2ap_PrivateIE_Container = -1;
-static gint ett_x2ap_PrivateIE_Field = -1;
-static gint ett_x2ap_ABSInformation = -1;
-static gint ett_x2ap_ABSInformationFDD = -1;
-static gint ett_x2ap_ABSInformationTDD = -1;
-static gint ett_x2ap_ABS_Status = -1;
-static gint ett_x2ap_Additional_Measurement_Timing_Configuration_List = -1;
-static gint ett_x2ap_Additional_Measurement_Timing_Configuration_Item = -1;
-static gint ett_x2ap_CSI_RS_MTC_Configuration_List = -1;
-static gint ett_x2ap_CSI_RS_MTC_Configuration_Item = -1;
-static gint ett_x2ap_CSI_RS_Neighbour_List = -1;
-static gint ett_x2ap_CSI_RS_Neighbour_Item = -1;
-static gint ett_x2ap_CSI_RS_MTC_Neighbour_List = -1;
-static gint ett_x2ap_CSI_RS_MTC_Neighbour_Item = -1;
-static gint ett_x2ap_AdditionalListofForwardingGTPTunnelEndpoint = -1;
-static gint ett_x2ap_AdditionalListofForwardingGTPTunnelEndpoint_Item = -1;
-static gint ett_x2ap_AdditionalSpecialSubframe_Info = -1;
-static gint ett_x2ap_AdditionalSpecialSubframeExtension_Info = -1;
-static gint ett_x2ap_AllocationAndRetentionPriority = -1;
-static gint ett_x2ap_AreaScopeOfMDT = -1;
-static gint ett_x2ap_AreaScopeOfQMC = -1;
-static gint ett_x2ap_AS_SecurityInformation = -1;
-static gint ett_x2ap_AdditionalPLMNs_Item = -1;
-static gint ett_x2ap_BroadcastPLMNs_Item = -1;
-static gint ett_x2ap_BluetoothMeasurementConfiguration = -1;
-static gint ett_x2ap_BluetoothMeasConfigNameList = -1;
-static gint ett_x2ap_BPLMN_ID_Info_EUTRA = -1;
-static gint ett_x2ap_BPLMN_ID_Info_EUTRA_Item = -1;
-static gint ett_x2ap_BPLMN_ID_Info_NR = -1;
-static gint ett_x2ap_BPLMN_ID_Info_NR_Item = -1;
-static gint ett_x2ap_BroadcastextPLMNs = -1;
-static gint ett_x2ap_Cause = -1;
-static gint ett_x2ap_CellBasedMDT = -1;
-static gint ett_x2ap_CellBasedQMC = -1;
-static gint ett_x2ap_CellIdListforMDT = -1;
-static gint ett_x2ap_CellIdListforQMC = -1;
-static gint ett_x2ap_CellReplacingInfo = -1;
-static gint ett_x2ap_CellType = -1;
-static gint ett_x2ap_CPACcandidatePSCells_list = -1;
-static gint ett_x2ap_CPACcandidatePSCells_item = -1;
-static gint ett_x2ap_CPAinformation_REQ = -1;
-static gint ett_x2ap_CPAinformation_REQ_ACK = -1;
-static gint ett_x2ap_CPCinformation_REQD = -1;
-static gint ett_x2ap_CPC_target_SgNB_reqd_list = -1;
-static gint ett_x2ap_CPC_target_SgNB_reqd_item = -1;
-static gint ett_x2ap_CPCinformation_CONF = -1;
-static gint ett_x2ap_CPC_target_SgNB_conf_list = -1;
-static gint ett_x2ap_CPC_target_SgNB_conf_item = -1;
-static gint ett_x2ap_CPCinformation_NOTIFY = -1;
-static gint ett_x2ap_CPAinformation_MOD = -1;
-static gint ett_x2ap_CPCupdate_MOD = -1;
-static gint ett_x2ap_CPC_target_SgNB_mod_list = -1;
-static gint ett_x2ap_CPC_target_SgNB_mod_item = -1;
-static gint ett_x2ap_CPAinformation_MOD_ACK = -1;
-static gint ett_x2ap_CPACinformation_REQD = -1;
-static gint ett_x2ap_CNTypeRestrictions = -1;
-static gint ett_x2ap_CNTypeRestrictionsItem = -1;
-static gint ett_x2ap_CoMPHypothesisSet = -1;
-static gint ett_x2ap_CoMPHypothesisSetItem = -1;
-static gint ett_x2ap_CoMPInformation = -1;
-static gint ett_x2ap_CoMPInformationItem = -1;
-static gint ett_x2ap_CoMPInformationItem_item = -1;
-static gint ett_x2ap_CoMPInformationStartTime = -1;
-static gint ett_x2ap_CoMPInformationStartTime_item = -1;
-static gint ett_x2ap_CompositeAvailableCapacity = -1;
-static gint ett_x2ap_CompositeAvailableCapacityGroup = -1;
-static gint ett_x2ap_COUNTvalue = -1;
-static gint ett_x2ap_COUNTValueExtended = -1;
-static gint ett_x2ap_COUNTvaluePDCP_SNlength18 = -1;
-static gint ett_x2ap_CoverageModificationList = -1;
-static gint ett_x2ap_CoverageModification_Item = -1;
-static gint ett_x2ap_CPTransportLayerInformation = -1;
-static gint ett_x2ap_CriticalityDiagnostics = -1;
-static gint ett_x2ap_CriticalityDiagnostics_IE_List = -1;
-static gint ett_x2ap_CriticalityDiagnostics_IE_List_item = -1;
-static gint ett_x2ap_CSIReportList = -1;
-static gint ett_x2ap_CSIReportList_item = -1;
-static gint ett_x2ap_CSIReportPerCSIProcess = -1;
-static gint ett_x2ap_CSIReportPerCSIProcess_item = -1;
-static gint ett_x2ap_CSIReportPerCSIProcessItem = -1;
-static gint ett_x2ap_CSIReportPerCSIProcessItem_item = -1;
-static gint ett_x2ap_CHOinformation_REQ = -1;
-static gint ett_x2ap_CHOinformation_ACK = -1;
-static gint ett_x2ap_CandidateCellsToBeCancelledList = -1;
-static gint ett_x2ap_CHOinformation_AddReq = -1;
-static gint ett_x2ap_CHOinformation_ModReq = -1;
-static gint ett_x2ap_DataTrafficResourceIndication = -1;
-static gint ett_x2ap_DAPSRequestInfo = -1;
-static gint ett_x2ap_DAPSResponseInfo = -1;
-static gint ett_x2ap_DeliveryStatus = -1;
-static gint ett_x2ap_DLResourcesULandDLSharing = -1;
-static gint ett_x2ap_DynamicDLTransmissionInformation = -1;
-static gint ett_x2ap_DynamicNAICSInformation = -1;
-static gint ett_x2ap_SEQUENCE_SIZE_0_maxnoofPA_OF_PA_Values = -1;
-static gint ett_x2ap_ECGI = -1;
-static gint ett_x2ap_EnhancedRNTP = -1;
-static gint ett_x2ap_EnhancedRNTPStartTime = -1;
-static gint ett_x2ap_ENB_ID = -1;
-static gint ett_x2ap_EN_DC_ResourceConfiguration = -1;
-static gint ett_x2ap_EPLMNs = -1;
-static gint ett_x2ap_ERABActivityNotifyItemList = -1;
-static gint ett_x2ap_ERABActivityNotifyItem = -1;
-static gint ett_x2ap_E_RAB_Level_QoS_Parameters = -1;
-static gint ett_x2ap_E_RAB_List = -1;
-static gint ett_x2ap_E_RAB_Item = -1;
-static gint ett_x2ap_E_RABsSubjectToEarlyStatusTransfer_List = -1;
-static gint ett_x2ap_E_RABsSubjectToEarlyStatusTransfer_Item = -1;
-static gint ett_x2ap_E_RABsSubjectToDLDiscarding_List = -1;
-static gint ett_x2ap_E_RABsSubjectToDLDiscarding_Item = -1;
-static gint ett_x2ap_E_RABUsageReportList = -1;
-static gint ett_x2ap_E_RABUsageReport_Item = -1;
-static gint ett_x2ap_EUTRA_Mode_Info = -1;
-static gint ett_x2ap_ExpectedUEBehaviour = -1;
-static gint ett_x2ap_ExpectedUEActivityBehaviour = -1;
-static gint ett_x2ap_ExtendedULInterferenceOverloadInfo = -1;
-static gint ett_x2ap_FastMCGRecovery = -1;
-static gint ett_x2ap_FDD_Info = -1;
-static gint ett_x2ap_FDD_InfoNeighbourServedNRCell_Information = -1;
-static gint ett_x2ap_ForbiddenTAs = -1;
-static gint ett_x2ap_ForbiddenTAs_Item = -1;
-static gint ett_x2ap_ForbiddenTACs = -1;
-static gint ett_x2ap_ForbiddenLAs = -1;
-static gint ett_x2ap_ForbiddenLAs_Item = -1;
-static gint ett_x2ap_ForbiddenLACs = -1;
-static gint ett_x2ap_FreqBandNrItem = -1;
-static gint ett_x2ap_SEQUENCE_SIZE_0_maxnoofNrCellBands_OF_SupportedSULFreqBandItem = -1;
-static gint ett_x2ap_GBR_QosInformation = -1;
-static gint ett_x2ap_GlobalENB_ID = -1;
-static gint ett_x2ap_GlobalGNB_ID = -1;
-static gint ett_x2ap_Global_RAN_NODE_ID = -1;
-static gint ett_x2ap_GTPTLAs = -1;
-static gint ett_x2ap_GTPTLA_Item = -1;
-static gint ett_x2ap_GTPtunnelEndpoint = -1;
-static gint ett_x2ap_GUGroupIDList = -1;
-static gint ett_x2ap_GU_Group_ID = -1;
-static gint ett_x2ap_GUMMEI = -1;
-static gint ett_x2ap_GNB_ID = -1;
-static gint ett_x2ap_HandoverRestrictionList = -1;
-static gint ett_x2ap_HWLoadIndicator = -1;
-static gint ett_x2ap_LastVisitedCell_Item = -1;
-static gint ett_x2ap_LastVisitedEUTRANCellInformation = -1;
-static gint ett_x2ap_LastVisitedGERANCellInformation = -1;
-static gint ett_x2ap_LocationInformationSgNB = -1;
-static gint ett_x2ap_LocationReportingInformation = -1;
-static gint ett_x2ap_M1PeriodicReporting = -1;
-static gint ett_x2ap_M1ThresholdEventA2 = -1;
-static gint ett_x2ap_M3Configuration = -1;
-static gint ett_x2ap_M4Configuration = -1;
-static gint ett_x2ap_M5Configuration = -1;
-static gint ett_x2ap_M6Configuration = -1;
-static gint ett_x2ap_M7Configuration = -1;
-static gint ett_x2ap_MDT_Configuration = -1;
-static gint ett_x2ap_MDTPLMNList = -1;
-static gint ett_x2ap_MeasurementThresholdA2 = -1;
-static gint ett_x2ap_MeNBResourceCoordinationInformation = -1;
-static gint ett_x2ap_MBMS_Service_Area_Identity_List = -1;
-static gint ett_x2ap_MBSFN_Subframe_Infolist = -1;
-static gint ett_x2ap_MBSFN_Subframe_Info = -1;
-static gint ett_x2ap_MobilityParametersModificationRange = -1;
-static gint ett_x2ap_MobilityParametersInformation = -1;
-static gint ett_x2ap_MultibandInfoList = -1;
-static gint ett_x2ap_MessageOversizeNotification = -1;
-static gint ett_x2ap_BandInfo = -1;
-static gint ett_x2ap_SplitSRB = -1;
-static gint ett_x2ap_Neighbour_Information = -1;
-static gint ett_x2ap_Neighbour_Information_item = -1;
-static gint ett_x2ap_NRCapacityValue = -1;
-static gint ett_x2ap_NRCarrierList = -1;
-static gint ett_x2ap_NRCarrierItem = -1;
-static gint ett_x2ap_NRCompositeAvailableCapacityGroup = -1;
-static gint ett_x2ap_NRCompositeAvailableCapacity = -1;
-static gint ett_x2ap_NRFreqInfo = -1;
-static gint ett_x2ap_SEQUENCE_SIZE_1_maxnoofNrCellBands_OF_FreqBandNrItem = -1;
-static gint ett_x2ap_NRCGI = -1;
-static gint ett_x2ap_NRRACHReportInformation = -1;
-static gint ett_x2ap_NRRACHReportList_Item = -1;
-static gint ett_x2ap_NRNeighbour_Information = -1;
-static gint ett_x2ap_NRNeighbour_Information_item = -1;
-static gint ett_x2ap_T_nRNeighbourModeInfo = -1;
-static gint ett_x2ap_NPRACHConfiguration = -1;
-static gint ett_x2ap_T_fdd_or_tdd = -1;
-static gint ett_x2ap_NPRACHConfiguration_FDD = -1;
-static gint ett_x2ap_NPRACHConfiguration_TDD = -1;
-static gint ett_x2ap_Non_AnchorCarrierFrequencylist = -1;
-static gint ett_x2ap_Non_AnchorCarrierFrequencylist_item = -1;
-static gint ett_x2ap_MeasurementResultforNRCellsPossiblyAggregated = -1;
-static gint ett_x2ap_MeasurementResultforNRCellsPossiblyAggregated_Item = -1;
-static gint ett_x2ap_NRRadioResourceStatus = -1;
-static gint ett_x2ap_MIMOPRBusageInformation = -1;
-static gint ett_x2ap_NR_TxBW = -1;
-static gint ett_x2ap_NRUeReport = -1;
-static gint ett_x2ap_NRUESidelinkAggregateMaximumBitRate = -1;
-static gint ett_x2ap_NRUESecurityCapabilities = -1;
-static gint ett_x2ap_NRV2XServicesAuthorized = -1;
-static gint ett_x2ap_PC5QoSParameters = -1;
-static gint ett_x2ap_PC5QoSFlowList = -1;
-static gint ett_x2ap_PC5QoSFlowItem = -1;
-static gint ett_x2ap_PC5FlowBitRates = -1;
-static gint ett_x2ap_PRACH_Configuration = -1;
-static gint ett_x2ap_PLMNAreaBasedQMC = -1;
-static gint ett_x2ap_PLMNListforQMC = -1;
-static gint ett_x2ap_ProSeAuthorized = -1;
-static gint ett_x2ap_ProtectedEUTRAResourceIndication = -1;
-static gint ett_x2ap_ProtectedFootprintTimePattern = -1;
-static gint ett_x2ap_ProtectedResourceList = -1;
-static gint ett_x2ap_ProtectedResourceList_Item = -1;
-static gint ett_x2ap_PSCell_UE_HistoryInformation = -1;
-static gint ett_x2ap_QoS_Mapping_Information = -1;
-static gint ett_x2ap_RadioResourceStatus = -1;
-static gint ett_x2ap_RAT_Restrictions = -1;
-static gint ett_x2ap_RAT_RestrictionsItem = -1;
-static gint ett_x2ap_RelativeNarrowbandTxPower = -1;
-static gint ett_x2ap_ReplacingCellsList = -1;
-static gint ett_x2ap_ReplacingCellsList_Item = -1;
-static gint ett_x2ap_ReservedSubframePattern = -1;
-static gint ett_x2ap_ResumeID = -1;
-static gint ett_x2ap_RLC_Status = -1;
-static gint ett_x2ap_RSRPMeasurementResult = -1;
-static gint ett_x2ap_RSRPMeasurementResult_item = -1;
-static gint ett_x2ap_RSRPMRList = -1;
-static gint ett_x2ap_RSRPMRList_item = -1;
-static gint ett_x2ap_S1TNLLoadIndicator = -1;
-static gint ett_x2ap_SCG_UE_HistoryInformation = -1;
-static gint ett_x2ap_SecondaryRATUsageReportList = -1;
-static gint ett_x2ap_SecondaryRATUsageReport_Item = -1;
-static gint ett_x2ap_SecurityIndication = -1;
-static gint ett_x2ap_SecurityResult = -1;
-static gint ett_x2ap_SensorMeasurementConfiguration = -1;
-static gint ett_x2ap_SensorMeasConfigNameList = -1;
-static gint ett_x2ap_SensorMeasConfigNameItem = -1;
-static gint ett_x2ap_SensorNameConfig = -1;
-static gint ett_x2ap_ServedCells = -1;
-static gint ett_x2ap_ServedCells_item = -1;
-static gint ett_x2ap_ServedCell_Information = -1;
-static gint ett_x2ap_ServedCellSpecificInfoReq_NR = -1;
-static gint ett_x2ap_ServedCellSpecificInfoReq_NR_Item = -1;
-static gint ett_x2ap_SgNBResourceCoordinationInformation = -1;
-static gint ett_x2ap_SharedResourceType = -1;
-static gint ett_x2ap_SpecialSubframe_Info = -1;
-static gint ett_x2ap_SubbandCQI = -1;
-static gint ett_x2ap_Subscription_Based_UE_DifferentiationInfo = -1;
-static gint ett_x2ap_ScheduledCommunicationTime = -1;
-static gint ett_x2ap_SSBAreaCapacityValue_List = -1;
-static gint ett_x2ap_SSBAreaCapacityValue_Item = -1;
-static gint ett_x2ap_SSBAreaRadioResourceStatus_List = -1;
-static gint ett_x2ap_SSBAreaRadioResourceStatus_Item = -1;
-static gint ett_x2ap_SSB_PositionsInBurst = -1;
-static gint ett_x2ap_SubbandCQICodeword0 = -1;
-static gint ett_x2ap_SubbandCQICodeword1 = -1;
-static gint ett_x2ap_SubbandCQIList = -1;
-static gint ett_x2ap_SubbandCQIItem = -1;
-static gint ett_x2ap_SubframeAllocation = -1;
-static gint ett_x2ap_SULInformation = -1;
-static gint ett_x2ap_SupportedSULFreqBandItem = -1;
-static gint ett_x2ap_SFN_Offset = -1;
-static gint ett_x2ap_TABasedMDT = -1;
-static gint ett_x2ap_TAIBasedMDT = -1;
-static gint ett_x2ap_TAIListforMDT = -1;
-static gint ett_x2ap_TAI_Item = -1;
-static gint ett_x2ap_TAListforMDT = -1;
-static gint ett_x2ap_TABasedQMC = -1;
-static gint ett_x2ap_TAListforQMC = -1;
-static gint ett_x2ap_TAIBasedQMC = -1;
-static gint ett_x2ap_TAIListforQMC = -1;
-static gint ett_x2ap_TDD_Info = -1;
-static gint ett_x2ap_TDD_InfoNeighbourServedNRCell_Information = -1;
-static gint ett_x2ap_TNLA_To_Add_List = -1;
-static gint ett_x2ap_TNLA_To_Add_Item = -1;
-static gint ett_x2ap_TNLA_To_Update_List = -1;
-static gint ett_x2ap_TNLA_To_Update_Item = -1;
-static gint ett_x2ap_TNLA_To_Remove_List = -1;
-static gint ett_x2ap_TNLA_To_Remove_Item = -1;
-static gint ett_x2ap_TNLA_Setup_List = -1;
-static gint ett_x2ap_TNLA_Setup_Item = -1;
-static gint ett_x2ap_TNLA_Failed_To_Setup_List = -1;
-static gint ett_x2ap_TNLA_Failed_To_Setup_Item = -1;
-static gint ett_x2ap_TNLCapacityIndicator = -1;
-static gint ett_x2ap_Transport_UP_Layer_Addresses_Info_To_Add_List = -1;
-static gint ett_x2ap_Transport_UP_Layer_Addresses_Info_To_Add_Item = -1;
-static gint ett_x2ap_Transport_UP_Layer_Addresses_Info_To_Remove_List = -1;
-static gint ett_x2ap_Transport_UP_Layer_Addresses_Info_To_Remove_Item = -1;
-static gint ett_x2ap_TNLConfigurationInfo = -1;
-static gint ett_x2ap_TraceActivation = -1;
-static gint ett_x2ap_TransportLayerAddressAndPort = -1;
-static gint ett_x2ap_TunnelInformation = -1;
-static gint ett_x2ap_UEAggregateMaximumBitRate = -1;
-static gint ett_x2ap_UEAppLayerMeasConfig = -1;
-static gint ett_x2ap_UE_HistoryInformation = -1;
-static gint ett_x2ap_UESecurityCapabilities = -1;
-static gint ett_x2ap_UESidelinkAggregateMaximumBitRate = -1;
-static gint ett_x2ap_UEsToBeResetList = -1;
-static gint ett_x2ap_UEsToBeResetList_Item = -1;
-static gint ett_x2ap_ULandDLSharing = -1;
-static gint ett_x2ap_ULConfiguration = -1;
-static gint ett_x2ap_UL_HighInterferenceIndicationInfo = -1;
-static gint ett_x2ap_UL_HighInterferenceIndicationInfo_Item = -1;
-static gint ett_x2ap_UL_InterferenceOverloadIndication = -1;
-static gint ett_x2ap_ULOnlySharing = -1;
-static gint ett_x2ap_ULResourcesULandDLSharing = -1;
-static gint ett_x2ap_UsableABSInformation = -1;
-static gint ett_x2ap_UsableABSInformationFDD = -1;
-static gint ett_x2ap_UsableABSInformationTDD = -1;
-static gint ett_x2ap_V2XServicesAuthorized = -1;
-static gint ett_x2ap_WidebandCQI = -1;
-static gint ett_x2ap_WidebandCQICodeword1 = -1;
-static gint ett_x2ap_WLANMeasurementConfiguration = -1;
-static gint ett_x2ap_WLANMeasConfigNameList = -1;
-static gint ett_x2ap_WTID = -1;
-static gint ett_x2ap_WTID_Type1 = -1;
-static gint ett_x2ap_HandoverRequest = -1;
-static gint ett_x2ap_UE_ContextInformation = -1;
-static gint ett_x2ap_E_RABs_ToBeSetup_List = -1;
-static gint ett_x2ap_E_RABs_ToBeSetup_Item = -1;
-static gint ett_x2ap_UE_ContextReferenceAtSeNB = -1;
-static gint ett_x2ap_UE_ContextReferenceAtWT = -1;
-static gint ett_x2ap_UE_ContextReferenceAtSgNB = -1;
-static gint ett_x2ap_HandoverRequestAcknowledge = -1;
-static gint ett_x2ap_E_RABs_Admitted_List = -1;
-static gint ett_x2ap_E_RABs_Admitted_Item = -1;
-static gint ett_x2ap_HandoverPreparationFailure = -1;
-static gint ett_x2ap_HandoverReport = -1;
-static gint ett_x2ap_EarlyStatusTransfer = -1;
-static gint ett_x2ap_ProcedureStageChoice = -1;
-static gint ett_x2ap_FirstDLCount = -1;
-static gint ett_x2ap_DLDiscarding = -1;
-static gint ett_x2ap_SNStatusTransfer = -1;
-static gint ett_x2ap_E_RABs_SubjectToStatusTransfer_List = -1;
-static gint ett_x2ap_E_RABs_SubjectToStatusTransfer_Item = -1;
-static gint ett_x2ap_UEContextRelease = -1;
-static gint ett_x2ap_HandoverCancel = -1;
-static gint ett_x2ap_HandoverSuccess = -1;
-static gint ett_x2ap_ConditionalHandoverCancel = -1;
-static gint ett_x2ap_ErrorIndication = -1;
-static gint ett_x2ap_ResetRequest = -1;
-static gint ett_x2ap_ResetResponse = -1;
-static gint ett_x2ap_X2SetupRequest = -1;
-static gint ett_x2ap_X2SetupResponse = -1;
-static gint ett_x2ap_X2SetupFailure = -1;
-static gint ett_x2ap_LoadInformation = -1;
-static gint ett_x2ap_CellInformation_List = -1;
-static gint ett_x2ap_CellInformation_Item = -1;
-static gint ett_x2ap_ENBConfigurationUpdate = -1;
-static gint ett_x2ap_ServedCellsToModify = -1;
-static gint ett_x2ap_ServedCellsToModify_Item = -1;
-static gint ett_x2ap_Old_ECGIs = -1;
-static gint ett_x2ap_ENBConfigurationUpdateAcknowledge = -1;
-static gint ett_x2ap_ENBConfigurationUpdateFailure = -1;
-static gint ett_x2ap_ResourceStatusRequest = -1;
-static gint ett_x2ap_CellToReport_List = -1;
-static gint ett_x2ap_CellToReport_Item = -1;
-static gint ett_x2ap_ResourceStatusResponse = -1;
-static gint ett_x2ap_MeasurementInitiationResult_List = -1;
-static gint ett_x2ap_MeasurementInitiationResult_Item = -1;
-static gint ett_x2ap_MeasurementFailureCause_List = -1;
-static gint ett_x2ap_MeasurementFailureCause_Item = -1;
-static gint ett_x2ap_ResourceStatusFailure = -1;
-static gint ett_x2ap_CompleteFailureCauseInformation_List = -1;
-static gint ett_x2ap_CompleteFailureCauseInformation_Item = -1;
-static gint ett_x2ap_ResourceStatusUpdate = -1;
-static gint ett_x2ap_CellMeasurementResult_List = -1;
-static gint ett_x2ap_CellMeasurementResult_Item = -1;
-static gint ett_x2ap_PrivateMessage = -1;
-static gint ett_x2ap_MobilityChangeRequest = -1;
-static gint ett_x2ap_MobilityChangeAcknowledge = -1;
-static gint ett_x2ap_MobilityChangeFailure = -1;
-static gint ett_x2ap_RLFIndication = -1;
-static gint ett_x2ap_CellActivationRequest = -1;
-static gint ett_x2ap_ServedCellsToActivate = -1;
-static gint ett_x2ap_ServedCellsToActivate_Item = -1;
-static gint ett_x2ap_CellActivationResponse = -1;
-static gint ett_x2ap_ActivatedCellList = -1;
-static gint ett_x2ap_ActivatedCellList_Item = -1;
-static gint ett_x2ap_CellActivationFailure = -1;
-static gint ett_x2ap_X2Release = -1;
-static gint ett_x2ap_X2APMessageTransfer = -1;
-static gint ett_x2ap_RNL_Header = -1;
-static gint ett_x2ap_SeNBAdditionRequest = -1;
-static gint ett_x2ap_E_RABs_ToBeAdded_List = -1;
-static gint ett_x2ap_E_RABs_ToBeAdded_Item = -1;
-static gint ett_x2ap_E_RABs_ToBeAdded_Item_SCG_Bearer = -1;
-static gint ett_x2ap_E_RABs_ToBeAdded_Item_Split_Bearer = -1;
-static gint ett_x2ap_SeNBAdditionRequestAcknowledge = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_List = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_Item = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_Item_SCG_Bearer = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_Item_Split_Bearer = -1;
-static gint ett_x2ap_SeNBAdditionRequestReject = -1;
-static gint ett_x2ap_SeNBReconfigurationComplete = -1;
-static gint ett_x2ap_ResponseInformationSeNBReconfComp = -1;
-static gint ett_x2ap_ResponseInformationSeNBReconfComp_SuccessItem = -1;
-static gint ett_x2ap_ResponseInformationSeNBReconfComp_RejectByMeNBItem = -1;
-static gint ett_x2ap_SeNBModificationRequest = -1;
-static gint ett_x2ap_UE_ContextInformationSeNBModReq = -1;
-static gint ett_x2ap_E_RABs_ToBeAdded_List_ModReq = -1;
-static gint ett_x2ap_E_RABs_ToBeAdded_ModReqItem = -1;
-static gint ett_x2ap_E_RABs_ToBeAdded_ModReqItem_SCG_Bearer = -1;
-static gint ett_x2ap_E_RABs_ToBeAdded_ModReqItem_Split_Bearer = -1;
-static gint ett_x2ap_E_RABs_ToBeModified_List_ModReq = -1;
-static gint ett_x2ap_E_RABs_ToBeModified_ModReqItem = -1;
-static gint ett_x2ap_E_RABs_ToBeModified_ModReqItem_SCG_Bearer = -1;
-static gint ett_x2ap_E_RABs_ToBeModified_ModReqItem_Split_Bearer = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_List_ModReq = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_ModReqItem = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_ModReqItem_SCG_Bearer = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_ModReqItem_Split_Bearer = -1;
-static gint ett_x2ap_SeNBModificationRequestAcknowledge = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_ModAckList = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_ModAckItem = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_ModAckItem_SCG_Bearer = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_ModAckItem_Split_Bearer = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeModified_ModAckList = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeModified_ModAckItem = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeModified_ModAckItem_SCG_Bearer = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeModified_ModAckItem_Split_Bearer = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeReleased_ModAckList = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToReleased_ModAckItem = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeReleased_ModAckItem_SCG_Bearer = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeReleased_ModAckItem_Split_Bearer = -1;
-static gint ett_x2ap_SeNBModificationRequestReject = -1;
-static gint ett_x2ap_SeNBModificationRequired = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_ModReqd = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_ModReqdItem = -1;
-static gint ett_x2ap_SeNBModificationConfirm = -1;
-static gint ett_x2ap_SeNBModificationRefuse = -1;
-static gint ett_x2ap_SeNBReleaseRequest = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_List_RelReq = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_RelReqItem = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_RelReqItem_SCG_Bearer = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_RelReqItem_Split_Bearer = -1;
-static gint ett_x2ap_SeNBReleaseRequired = -1;
-static gint ett_x2ap_SeNBReleaseConfirm = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_List_RelConf = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_RelConfItem = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_RelConfItem_SCG_Bearer = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_RelConfItem_Split_Bearer = -1;
-static gint ett_x2ap_SeNBCounterCheckRequest = -1;
-static gint ett_x2ap_E_RABs_SubjectToCounterCheck_List = -1;
-static gint ett_x2ap_E_RABs_SubjectToCounterCheckItem = -1;
-static gint ett_x2ap_X2RemovalRequest = -1;
-static gint ett_x2ap_X2RemovalResponse = -1;
-static gint ett_x2ap_X2RemovalFailure = -1;
-static gint ett_x2ap_RetrieveUEContextRequest = -1;
-static gint ett_x2ap_RetrieveUEContextResponse = -1;
-static gint ett_x2ap_UE_ContextInformationRetrieve = -1;
-static gint ett_x2ap_E_RABs_ToBeSetup_ListRetrieve = -1;
-static gint ett_x2ap_E_RABs_ToBeSetupRetrieve_Item = -1;
-static gint ett_x2ap_RetrieveUEContextFailure = -1;
-static gint ett_x2ap_SgNBAdditionRequest = -1;
-static gint ett_x2ap_E_RABs_ToBeAdded_SgNBAddReqList = -1;
-static gint ett_x2ap_E_RABs_ToBeAdded_SgNBAddReq_Item = -1;
-static gint ett_x2ap_T_resource_configuration = -1;
-static gint ett_x2ap_E_RABs_ToBeAdded_SgNBAddReq_Item_SgNBPDCPpresent = -1;
-static gint ett_x2ap_E_RABs_ToBeAdded_SgNBAddReq_Item_SgNBPDCPnotpresent = -1;
-static gint ett_x2ap_SgNBAdditionRequestAcknowledge = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_SgNBAddReqAckList = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_SgNBAddReqAck_Item = -1;
-static gint ett_x2ap_T_resource_configuration_01 = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_SgNBAddReqAck_Item_SgNBPDCPpresent = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_SgNBAddReqAck_Item_SgNBPDCPnotpresent = -1;
-static gint ett_x2ap_SgNBAdditionRequestReject = -1;
-static gint ett_x2ap_SgNBReconfigurationComplete = -1;
-static gint ett_x2ap_ResponseInformationSgNBReconfComp = -1;
-static gint ett_x2ap_ResponseInformationSgNBReconfComp_SuccessItem = -1;
-static gint ett_x2ap_ResponseInformationSgNBReconfComp_RejectByMeNBItem = -1;
-static gint ett_x2ap_SgNBModificationRequest = -1;
-static gint ett_x2ap_UE_ContextInformation_SgNBModReq = -1;
-static gint ett_x2ap_E_RABs_ToBeAdded_SgNBModReq_List = -1;
-static gint ett_x2ap_E_RABs_ToBeAdded_SgNBModReq_Item = -1;
-static gint ett_x2ap_T_resource_configuration_02 = -1;
-static gint ett_x2ap_E_RABs_ToBeAdded_SgNBModReq_Item_SgNBPDCPpresent = -1;
-static gint ett_x2ap_E_RABs_ToBeAdded_SgNBModReq_Item_SgNBPDCPnotpresent = -1;
-static gint ett_x2ap_E_RABs_ToBeModified_SgNBModReq_List = -1;
-static gint ett_x2ap_E_RABs_ToBeModified_SgNBModReq_Item = -1;
-static gint ett_x2ap_T_resource_configuration_03 = -1;
-static gint ett_x2ap_E_RABs_ToBeModified_SgNBModReq_Item_SgNBPDCPpresent = -1;
-static gint ett_x2ap_E_RABs_ToBeModified_SgNBModReq_Item_SgNBPDCPnotpresent = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBModReq_List = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBModReq_Item = -1;
-static gint ett_x2ap_T_resource_configuration_04 = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBModReq_Item_SgNBPDCPpresent = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBModReq_Item_SgNBPDCPnotpresent = -1;
-static gint ett_x2ap_SgNBModificationRequestAcknowledge = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_SgNBModAckList = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_SgNBModAck_Item = -1;
-static gint ett_x2ap_T_resource_configuration_05 = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_SgNBModAck_Item_SgNBPDCPpresent = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_SgNBModAck_Item_SgNBPDCPnotpresent = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeModified_SgNBModAckList = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeModified_SgNBModAck_Item = -1;
-static gint ett_x2ap_T_resource_configuration_06 = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeModified_SgNBModAck_Item_SgNBPDCPpresent = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeModified_SgNBModAck_Item_SgNBPDCPnotpresent = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeReleased_SgNBModAckList = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToReleased_SgNBModAck_Item = -1;
-static gint ett_x2ap_T_resource_configuration_07 = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeReleased_SgNBModAck_Item_SgNBPDCPpresent = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeReleased_SgNBModAck_Item_SgNBPDCPnotpresent = -1;
-static gint ett_x2ap_SgNBModificationRequestReject = -1;
-static gint ett_x2ap_SgNBModificationRequired = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBModReqdList = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBModReqd_Item = -1;
-static gint ett_x2ap_E_RABs_ToBeModified_SgNBModReqdList = -1;
-static gint ett_x2ap_E_RABs_ToBeModified_SgNBModReqd_Item = -1;
-static gint ett_x2ap_T_resource_configuration_08 = -1;
-static gint ett_x2ap_E_RABs_ToBeModified_SgNBModReqd_Item_SgNBPDCPpresent = -1;
-static gint ett_x2ap_E_RABs_ToBeModified_SgNBModReqd_Item_SgNBPDCPnotpresent = -1;
-static gint ett_x2ap_SgNBModificationConfirm = -1;
-static gint ett_x2ap_E_RABs_AdmittedToBeModified_SgNBModConfList = -1;
-static gint ett_x2ap_E_RABs_AdmittedToBeModified_SgNBModConf_Item = -1;
-static gint ett_x2ap_T_resource_configuration_09 = -1;
-static gint ett_x2ap_E_RABs_AdmittedToBeModified_SgNBModConf_Item_SgNBPDCPpresent = -1;
-static gint ett_x2ap_E_RABs_AdmittedToBeModified_SgNBModConf_Item_SgNBPDCPnotpresent = -1;
-static gint ett_x2ap_SgNBModificationRefuse = -1;
-static gint ett_x2ap_SgNBReleaseRequest = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelReqList = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelReq_Item = -1;
-static gint ett_x2ap_T_resource_configuration_10 = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelReq_Item_SgNBPDCPpresent = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelReq_Item_SgNBPDCPnotpresent = -1;
-static gint ett_x2ap_SgNBReleaseRequestAcknowledge = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeReleased_SgNBRelReqAckList = -1;
-static gint ett_x2ap_E_RABs_Admitted_ToBeReleased_SgNBRelReqAck_Item = -1;
-static gint ett_x2ap_SgNBReleaseRequestReject = -1;
-static gint ett_x2ap_SgNBReleaseRequired = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelReqdList = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelReqd_Item = -1;
-static gint ett_x2ap_SgNBReleaseConfirm = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelConfList = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelConf_Item = -1;
-static gint ett_x2ap_T_resource_configuration_11 = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelConf_Item_SgNBPDCPpresent = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelConf_Item_SgNBPDCPnotpresent = -1;
-static gint ett_x2ap_SgNBCounterCheckRequest = -1;
-static gint ett_x2ap_E_RABs_SubjectToSgNBCounterCheck_List = -1;
-static gint ett_x2ap_E_RABs_SubjectToSgNBCounterCheck_Item = -1;
-static gint ett_x2ap_SgNBChangeRequired = -1;
-static gint ett_x2ap_AccessAndMobilityIndication = -1;
-static gint ett_x2ap_SgNBChangeConfirm = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBChaConfList = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBChaConf_Item = -1;
-static gint ett_x2ap_T_resource_configuration_12 = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBChaConf_Item_SgNBPDCPpresent = -1;
-static gint ett_x2ap_E_RABs_ToBeReleased_SgNBChaConf_Item_SgNBPDCPnotpresent = -1;
-static gint ett_x2ap_RRCTransfer = -1;
-static gint ett_x2ap_SgNBChangeRefuse = -1;
-static gint ett_x2ap_ENDCX2SetupRequest = -1;
-static gint ett_x2ap_InitiatingNodeType_EndcX2Setup = -1;
-static gint ett_x2ap_ServedEUTRAcellsENDCX2ManagementList = -1;
-static gint ett_x2ap_ServedEUTRAcellsENDCX2ManagementList_item = -1;
-static gint ett_x2ap_ServedNRcellsENDCX2ManagementList = -1;
-static gint ett_x2ap_ServedNRcellsENDCX2ManagementList_item = -1;
-static gint ett_x2ap_ServedNRCell_Information = -1;
-static gint ett_x2ap_T_nrModeInfo = -1;
-static gint ett_x2ap_FDD_InfoServedNRCell_Information = -1;
-static gint ett_x2ap_TDD_InfoServedNRCell_Information = -1;
-static gint ett_x2ap_CellandCapacityAssistInfo = -1;
-static gint ett_x2ap_CellAssistanceInformation = -1;
-static gint ett_x2ap_Limited_list = -1;
-static gint ett_x2ap_Limited_list_item = -1;
-static gint ett_x2ap_ENDCX2SetupResponse = -1;
-static gint ett_x2ap_RespondingNodeType_EndcX2Setup = -1;
-static gint ett_x2ap_ENDCX2SetupFailure = -1;
-static gint ett_x2ap_ENDCConfigurationUpdate = -1;
-static gint ett_x2ap_InitiatingNodeType_EndcConfigUpdate = -1;
-static gint ett_x2ap_ServedEUTRAcellsToModifyListENDCConfUpd = -1;
-static gint ett_x2ap_ServedEUTRAcellsToModifyListENDCConfUpd_item = -1;
-static gint ett_x2ap_ServedEUTRAcellsToDeleteListENDCConfUpd = -1;
-static gint ett_x2ap_ServedNRcellsToModifyENDCConfUpdList = -1;
-static gint ett_x2ap_ServedNRCellsToModify_Item = -1;
-static gint ett_x2ap_ServedNRcellsToDeleteENDCConfUpdList = -1;
-static gint ett_x2ap_ENDCConfigurationUpdateAcknowledge = -1;
-static gint ett_x2ap_RespondingNodeType_EndcConfigUpdate = -1;
-static gint ett_x2ap_ENDCConfigurationUpdateFailure = -1;
-static gint ett_x2ap_ENDCCellActivationRequest = -1;
-static gint ett_x2ap_ServedNRCellsToActivate = -1;
-static gint ett_x2ap_ServedNRCellsToActivate_Item = -1;
-static gint ett_x2ap_ENDCCellActivationResponse = -1;
-static gint ett_x2ap_ActivatedNRCellList = -1;
-static gint ett_x2ap_ActivatedNRCellList_Item = -1;
-static gint ett_x2ap_ENDCCellActivationFailure = -1;
-static gint ett_x2ap_ENDCResourceStatusRequest = -1;
-static gint ett_x2ap_CellToReport_NR_ENDC_List = -1;
-static gint ett_x2ap_CellToReport_NR_ENDC_Item = -1;
-static gint ett_x2ap_CellToReport_E_UTRA_ENDC_List = -1;
-static gint ett_x2ap_CellToReport_E_UTRA_ENDC_Item = -1;
-static gint ett_x2ap_SSBToReport_List = -1;
-static gint ett_x2ap_SSBToReport_Item = -1;
-static gint ett_x2ap_ENDCResourceStatusResponse = -1;
-static gint ett_x2ap_ENDCResourceStatusFailure = -1;
-static gint ett_x2ap_ENDCResourceStatusUpdate = -1;
-static gint ett_x2ap_CellMeasurementResult_NR_ENDC_List = -1;
-static gint ett_x2ap_CellMeasurementResult_NR_ENDC_Item = -1;
-static gint ett_x2ap_CellMeasurementResult_E_UTRA_ENDC_List = -1;
-static gint ett_x2ap_CellMeasurementResult_E_UTRA_ENDC_Item = -1;
-static gint ett_x2ap_SecondaryRATDataUsageReport = -1;
-static gint ett_x2ap_SgNBActivityNotification = -1;
-static gint ett_x2ap_ENDCPartialResetRequired = -1;
-static gint ett_x2ap_ENDCPartialResetConfirm = -1;
-static gint ett_x2ap_EUTRANRCellResourceCoordinationRequest = -1;
-static gint ett_x2ap_InitiatingNodeType_EutranrCellResourceCoordination = -1;
-static gint ett_x2ap_ListofEUTRACellsinEUTRACoordinationReq = -1;
-static gint ett_x2ap_ListofEUTRACellsinNRCoordinationReq = -1;
-static gint ett_x2ap_ListofNRCellsinNRCoordinationReq = -1;
-static gint ett_x2ap_EUTRANRCellResourceCoordinationResponse = -1;
-static gint ett_x2ap_RespondingNodeType_EutranrCellResourceCoordination = -1;
-static gint ett_x2ap_ListofEUTRACellsinEUTRACoordinationResp = -1;
-static gint ett_x2ap_ListofNRCellsinNRCoordinationResp = -1;
-static gint ett_x2ap_ENDCX2RemovalRequest = -1;
-static gint ett_x2ap_InitiatingNodeType_EndcX2Removal = -1;
-static gint ett_x2ap_ENDCX2RemovalResponse = -1;
-static gint ett_x2ap_RespondingNodeType_EndcX2Removal = -1;
-static gint ett_x2ap_ENDCX2RemovalFailure = -1;
-static gint ett_x2ap_DataForwardingAddressIndication = -1;
-static gint ett_x2ap_E_RABs_DataForwardingAddress_List = -1;
-static gint ett_x2ap_E_RABs_DataForwardingAddress_Item = -1;
-static gint ett_x2ap_GNBStatusIndication = -1;
-static gint ett_x2ap_ENDCConfigurationTransfer = -1;
-static gint ett_x2ap_TraceStart = -1;
-static gint ett_x2ap_DeactivateTrace = -1;
-static gint ett_x2ap_CellTrafficTrace = -1;
-static gint ett_x2ap_F1CTrafficTransfer = -1;
-static gint ett_x2ap_UERadioCapabilityIDMappingRequest = -1;
-static gint ett_x2ap_UERadioCapabilityIDMappingResponse = -1;
-static gint ett_x2ap_CPC_cancel = -1;
-static gint ett_x2ap_X2AP_PDU = -1;
-static gint ett_x2ap_InitiatingMessage = -1;
-static gint ett_x2ap_SuccessfulOutcome = -1;
-static gint ett_x2ap_UnsuccessfulOutcome = -1;
+static int ett_x2ap;
+static int ett_x2ap_TransportLayerAddress;
+static int ett_x2ap_PLMN_Identity;
+static int ett_x2ap_TargeteNBtoSource_eNBTransparentContainer;
+static int ett_x2ap_RRC_Context;
+static int ett_x2ap_UE_HistoryInformationFromTheUE;
+static int ett_x2ap_ReportCharacteristics;
+static int ett_x2ap_measurementFailedReportCharacteristics;
+static int ett_x2ap_UE_RLF_Report_Container;
+static int ett_x2ap_UE_RLF_Report_Container_for_extended_bands;
+static int ett_x2ap_MeNBtoSeNBContainer;
+static int ett_x2ap_SeNBtoMeNBContainer;
+static int ett_x2ap_EUTRANTraceID;
+static int ett_x2ap_InterfacesToTrace;
+static int ett_x2ap_TraceCollectionEntityIPAddress;
+static int ett_x2ap_EncryptionAlgorithms;
+static int ett_x2ap_IntegrityProtectionAlgorithms;
+static int ett_x2ap_MeasurementsToActivate;
+static int ett_x2ap_MDT_Location_Info;
+static int ett_x2ap_transmissionModes;
+static int ett_x2ap_X2AP_Message;
+static int ett_x2ap_MeNBtoSgNBContainer;
+static int ett_x2ap_SgNBtoMeNBContainer;
+static int ett_x2ap_RRCContainer;
+static int ett_x2ap_NRencryptionAlgorithms;
+static int ett_x2ap_NRintegrityProtectionAlgorithms;
+static int ett_x2ap_measurementTimingConfiguration;
+static int ett_x2ap_LastVisitedNGRANCellInformation;
+static int ett_x2ap_LastVisitedUTRANCellInformation;
+static int ett_x2ap_EndcSONConfigurationTransfer;
+static int ett_x2ap_EPCHandoverRestrictionListContainer;
+static int ett_x2ap_NBIoT_RLF_Report_Container;
+static int ett_x2ap_anchorCarrier_NPRACHConfig;
+static int ett_x2ap_anchorCarrier_EDT_NPRACHConfig;
+static int ett_x2ap_anchorCarrier_Format2_NPRACHConfig;
+static int ett_x2ap_anchorCarrier_Format2_EDT_NPRACHConfig;
+static int ett_x2ap_non_anchorCarrier_NPRACHConfig;
+static int ett_x2ap_non_anchorCarrier_Format2_NPRACHConfig;
+static int ett_x2ap_anchorCarrier_NPRACHConfigTDD;
+static int ett_x2ap_non_anchorCarrier_NPRACHConfigTDD;
+static int ett_x2ap_Non_anchorCarrierFrequency;
+static int ett_x2ap_ReportCharacteristics_ENDC;
+static int ett_x2ap_TargetCellInNGRAN;
+static int ett_x2ap_TDDULDLConfigurationCommonNR;
+static int ett_x2ap_MDT_ConfigurationNR;
+static int ett_x2ap_NRCellPRACHConfig;
+static int ett_x2ap_IntendedTDD_DL_ULConfiguration_NR;
+static int ett_x2ap_UERadioCapability;
+static int ett_x2ap_LastVisitedPSCell_Item;
+static int ett_x2ap_NRRACHReportContainer;
+static int ett_x2ap_rAT_RestrictionInformation;
+static gint ett_x2ap_PrivateIE_ID;
+static gint ett_x2ap_ProtocolIE_Container;
+static gint ett_x2ap_ProtocolIE_Field;
+static gint ett_x2ap_ProtocolExtensionContainer;
+static gint ett_x2ap_ProtocolExtensionField;
+static gint ett_x2ap_PrivateIE_Container;
+static gint ett_x2ap_PrivateIE_Field;
+static gint ett_x2ap_ABSInformation;
+static gint ett_x2ap_ABSInformationFDD;
+static gint ett_x2ap_ABSInformationTDD;
+static gint ett_x2ap_ABS_Status;
+static gint ett_x2ap_Additional_Measurement_Timing_Configuration_List;
+static gint ett_x2ap_Additional_Measurement_Timing_Configuration_Item;
+static gint ett_x2ap_CSI_RS_MTC_Configuration_List;
+static gint ett_x2ap_CSI_RS_MTC_Configuration_Item;
+static gint ett_x2ap_CSI_RS_Neighbour_List;
+static gint ett_x2ap_CSI_RS_Neighbour_Item;
+static gint ett_x2ap_CSI_RS_MTC_Neighbour_List;
+static gint ett_x2ap_CSI_RS_MTC_Neighbour_Item;
+static gint ett_x2ap_AdditionalListofForwardingGTPTunnelEndpoint;
+static gint ett_x2ap_AdditionalListofForwardingGTPTunnelEndpoint_Item;
+static gint ett_x2ap_AdditionalSpecialSubframe_Info;
+static gint ett_x2ap_AdditionalSpecialSubframeExtension_Info;
+static gint ett_x2ap_AllocationAndRetentionPriority;
+static gint ett_x2ap_AreaScopeOfMDT;
+static gint ett_x2ap_AreaScopeOfQMC;
+static gint ett_x2ap_AS_SecurityInformation;
+static gint ett_x2ap_AdditionalPLMNs_Item;
+static gint ett_x2ap_BroadcastPLMNs_Item;
+static gint ett_x2ap_BluetoothMeasurementConfiguration;
+static gint ett_x2ap_BluetoothMeasConfigNameList;
+static gint ett_x2ap_BPLMN_ID_Info_EUTRA;
+static gint ett_x2ap_BPLMN_ID_Info_EUTRA_Item;
+static gint ett_x2ap_BPLMN_ID_Info_NR;
+static gint ett_x2ap_BPLMN_ID_Info_NR_Item;
+static gint ett_x2ap_BroadcastextPLMNs;
+static gint ett_x2ap_Cause;
+static gint ett_x2ap_CellBasedMDT;
+static gint ett_x2ap_CellBasedQMC;
+static gint ett_x2ap_CellIdListforMDT;
+static gint ett_x2ap_CellIdListforQMC;
+static gint ett_x2ap_CellReplacingInfo;
+static gint ett_x2ap_CellType;
+static gint ett_x2ap_CPACcandidatePSCells_list;
+static gint ett_x2ap_CPACcandidatePSCells_item;
+static gint ett_x2ap_CPAinformation_REQ;
+static gint ett_x2ap_CPAinformation_REQ_ACK;
+static gint ett_x2ap_CPCinformation_REQD;
+static gint ett_x2ap_CPC_target_SgNB_reqd_list;
+static gint ett_x2ap_CPC_target_SgNB_reqd_item;
+static gint ett_x2ap_CPCinformation_CONF;
+static gint ett_x2ap_CPC_target_SgNB_conf_list;
+static gint ett_x2ap_CPC_target_SgNB_conf_item;
+static gint ett_x2ap_CPCinformation_NOTIFY;
+static gint ett_x2ap_CPAinformation_MOD;
+static gint ett_x2ap_CPCupdate_MOD;
+static gint ett_x2ap_CPC_target_SgNB_mod_list;
+static gint ett_x2ap_CPC_target_SgNB_mod_item;
+static gint ett_x2ap_CPAinformation_MOD_ACK;
+static gint ett_x2ap_CPACinformation_REQD;
+static gint ett_x2ap_CNTypeRestrictions;
+static gint ett_x2ap_CNTypeRestrictionsItem;
+static gint ett_x2ap_CoMPHypothesisSet;
+static gint ett_x2ap_CoMPHypothesisSetItem;
+static gint ett_x2ap_CoMPInformation;
+static gint ett_x2ap_CoMPInformationItem;
+static gint ett_x2ap_CoMPInformationItem_item;
+static gint ett_x2ap_CoMPInformationStartTime;
+static gint ett_x2ap_CoMPInformationStartTime_item;
+static gint ett_x2ap_CompositeAvailableCapacity;
+static gint ett_x2ap_CompositeAvailableCapacityGroup;
+static gint ett_x2ap_COUNTvalue;
+static gint ett_x2ap_COUNTValueExtended;
+static gint ett_x2ap_COUNTvaluePDCP_SNlength18;
+static gint ett_x2ap_CoverageModificationList;
+static gint ett_x2ap_CoverageModification_Item;
+static gint ett_x2ap_CPTransportLayerInformation;
+static gint ett_x2ap_CriticalityDiagnostics;
+static gint ett_x2ap_CriticalityDiagnostics_IE_List;
+static gint ett_x2ap_CriticalityDiagnostics_IE_List_item;
+static gint ett_x2ap_CSIReportList;
+static gint ett_x2ap_CSIReportList_item;
+static gint ett_x2ap_CSIReportPerCSIProcess;
+static gint ett_x2ap_CSIReportPerCSIProcess_item;
+static gint ett_x2ap_CSIReportPerCSIProcessItem;
+static gint ett_x2ap_CSIReportPerCSIProcessItem_item;
+static gint ett_x2ap_CHOinformation_REQ;
+static gint ett_x2ap_CHOinformation_ACK;
+static gint ett_x2ap_CandidateCellsToBeCancelledList;
+static gint ett_x2ap_CHOinformation_AddReq;
+static gint ett_x2ap_CHOinformation_ModReq;
+static gint ett_x2ap_DataTrafficResourceIndication;
+static gint ett_x2ap_DAPSRequestInfo;
+static gint ett_x2ap_DAPSResponseInfo;
+static gint ett_x2ap_DeliveryStatus;
+static gint ett_x2ap_DLResourcesULandDLSharing;
+static gint ett_x2ap_DynamicDLTransmissionInformation;
+static gint ett_x2ap_DynamicNAICSInformation;
+static gint ett_x2ap_SEQUENCE_SIZE_0_maxnoofPA_OF_PA_Values;
+static gint ett_x2ap_ECGI;
+static gint ett_x2ap_EnhancedRNTP;
+static gint ett_x2ap_EnhancedRNTPStartTime;
+static gint ett_x2ap_ENB_ID;
+static gint ett_x2ap_EN_DC_ResourceConfiguration;
+static gint ett_x2ap_EPLMNs;
+static gint ett_x2ap_ERABActivityNotifyItemList;
+static gint ett_x2ap_ERABActivityNotifyItem;
+static gint ett_x2ap_E_RAB_Level_QoS_Parameters;
+static gint ett_x2ap_E_RAB_List;
+static gint ett_x2ap_E_RAB_Item;
+static gint ett_x2ap_E_RABsSubjectToEarlyStatusTransfer_List;
+static gint ett_x2ap_E_RABsSubjectToEarlyStatusTransfer_Item;
+static gint ett_x2ap_E_RABsSubjectToDLDiscarding_List;
+static gint ett_x2ap_E_RABsSubjectToDLDiscarding_Item;
+static gint ett_x2ap_E_RABUsageReportList;
+static gint ett_x2ap_E_RABUsageReport_Item;
+static gint ett_x2ap_EUTRA_Mode_Info;
+static gint ett_x2ap_ExpectedUEBehaviour;
+static gint ett_x2ap_ExpectedUEActivityBehaviour;
+static gint ett_x2ap_ExtendedULInterferenceOverloadInfo;
+static gint ett_x2ap_FastMCGRecovery;
+static gint ett_x2ap_FDD_Info;
+static gint ett_x2ap_FDD_InfoNeighbourServedNRCell_Information;
+static gint ett_x2ap_ForbiddenTAs;
+static gint ett_x2ap_ForbiddenTAs_Item;
+static gint ett_x2ap_ForbiddenTACs;
+static gint ett_x2ap_ForbiddenLAs;
+static gint ett_x2ap_ForbiddenLAs_Item;
+static gint ett_x2ap_ForbiddenLACs;
+static gint ett_x2ap_FreqBandNrItem;
+static gint ett_x2ap_SEQUENCE_SIZE_0_maxnoofNrCellBands_OF_SupportedSULFreqBandItem;
+static gint ett_x2ap_GBR_QosInformation;
+static gint ett_x2ap_GlobalENB_ID;
+static gint ett_x2ap_GlobalGNB_ID;
+static gint ett_x2ap_Global_RAN_NODE_ID;
+static gint ett_x2ap_GTPTLAs;
+static gint ett_x2ap_GTPTLA_Item;
+static gint ett_x2ap_GTPtunnelEndpoint;
+static gint ett_x2ap_GUGroupIDList;
+static gint ett_x2ap_GU_Group_ID;
+static gint ett_x2ap_GUMMEI;
+static gint ett_x2ap_GNB_ID;
+static gint ett_x2ap_HandoverRestrictionList;
+static gint ett_x2ap_HWLoadIndicator;
+static gint ett_x2ap_LastVisitedCell_Item;
+static gint ett_x2ap_LastVisitedEUTRANCellInformation;
+static gint ett_x2ap_LastVisitedGERANCellInformation;
+static gint ett_x2ap_LocationInformationSgNB;
+static gint ett_x2ap_LocationReportingInformation;
+static gint ett_x2ap_M1PeriodicReporting;
+static gint ett_x2ap_M1ThresholdEventA2;
+static gint ett_x2ap_M3Configuration;
+static gint ett_x2ap_M4Configuration;
+static gint ett_x2ap_M5Configuration;
+static gint ett_x2ap_M6Configuration;
+static gint ett_x2ap_M7Configuration;
+static gint ett_x2ap_MDT_Configuration;
+static gint ett_x2ap_MDTPLMNList;
+static gint ett_x2ap_MeasurementThresholdA2;
+static gint ett_x2ap_MeNBResourceCoordinationInformation;
+static gint ett_x2ap_MBMS_Service_Area_Identity_List;
+static gint ett_x2ap_MBSFN_Subframe_Infolist;
+static gint ett_x2ap_MBSFN_Subframe_Info;
+static gint ett_x2ap_MobilityParametersModificationRange;
+static gint ett_x2ap_MobilityParametersInformation;
+static gint ett_x2ap_MultibandInfoList;
+static gint ett_x2ap_MessageOversizeNotification;
+static gint ett_x2ap_BandInfo;
+static gint ett_x2ap_SplitSRB;
+static gint ett_x2ap_Neighbour_Information;
+static gint ett_x2ap_Neighbour_Information_item;
+static gint ett_x2ap_NRCapacityValue;
+static gint ett_x2ap_NRCarrierList;
+static gint ett_x2ap_NRCarrierItem;
+static gint ett_x2ap_NRCompositeAvailableCapacityGroup;
+static gint ett_x2ap_NRCompositeAvailableCapacity;
+static gint ett_x2ap_NRFreqInfo;
+static gint ett_x2ap_SEQUENCE_SIZE_1_maxnoofNrCellBands_OF_FreqBandNrItem;
+static gint ett_x2ap_NRCGI;
+static gint ett_x2ap_NRRACHReportInformation;
+static gint ett_x2ap_NRRACHReportList_Item;
+static gint ett_x2ap_NRNeighbour_Information;
+static gint ett_x2ap_NRNeighbour_Information_item;
+static gint ett_x2ap_T_nRNeighbourModeInfo;
+static gint ett_x2ap_NPRACHConfiguration;
+static gint ett_x2ap_T_fdd_or_tdd;
+static gint ett_x2ap_NPRACHConfiguration_FDD;
+static gint ett_x2ap_NPRACHConfiguration_TDD;
+static gint ett_x2ap_Non_AnchorCarrierFrequencylist;
+static gint ett_x2ap_Non_AnchorCarrierFrequencylist_item;
+static gint ett_x2ap_MeasurementResultforNRCellsPossiblyAggregated;
+static gint ett_x2ap_MeasurementResultforNRCellsPossiblyAggregated_Item;
+static gint ett_x2ap_NRRadioResourceStatus;
+static gint ett_x2ap_MIMOPRBusageInformation;
+static gint ett_x2ap_NR_TxBW;
+static gint ett_x2ap_NRUeReport;
+static gint ett_x2ap_NRUESidelinkAggregateMaximumBitRate;
+static gint ett_x2ap_NRUESecurityCapabilities;
+static gint ett_x2ap_NRV2XServicesAuthorized;
+static gint ett_x2ap_PC5QoSParameters;
+static gint ett_x2ap_PC5QoSFlowList;
+static gint ett_x2ap_PC5QoSFlowItem;
+static gint ett_x2ap_PC5FlowBitRates;
+static gint ett_x2ap_PRACH_Configuration;
+static gint ett_x2ap_PLMNAreaBasedQMC;
+static gint ett_x2ap_PLMNListforQMC;
+static gint ett_x2ap_ProSeAuthorized;
+static gint ett_x2ap_ProtectedEUTRAResourceIndication;
+static gint ett_x2ap_ProtectedFootprintTimePattern;
+static gint ett_x2ap_ProtectedResourceList;
+static gint ett_x2ap_ProtectedResourceList_Item;
+static gint ett_x2ap_PSCell_UE_HistoryInformation;
+static gint ett_x2ap_QoS_Mapping_Information;
+static gint ett_x2ap_RadioResourceStatus;
+static gint ett_x2ap_RAT_Restrictions;
+static gint ett_x2ap_RAT_RestrictionsItem;
+static gint ett_x2ap_RelativeNarrowbandTxPower;
+static gint ett_x2ap_ReplacingCellsList;
+static gint ett_x2ap_ReplacingCellsList_Item;
+static gint ett_x2ap_ReservedSubframePattern;
+static gint ett_x2ap_ResumeID;
+static gint ett_x2ap_RLC_Status;
+static gint ett_x2ap_RSRPMeasurementResult;
+static gint ett_x2ap_RSRPMeasurementResult_item;
+static gint ett_x2ap_RSRPMRList;
+static gint ett_x2ap_RSRPMRList_item;
+static gint ett_x2ap_S1TNLLoadIndicator;
+static gint ett_x2ap_SCG_UE_HistoryInformation;
+static gint ett_x2ap_SecondaryRATUsageReportList;
+static gint ett_x2ap_SecondaryRATUsageReport_Item;
+static gint ett_x2ap_SecurityIndication;
+static gint ett_x2ap_SecurityResult;
+static gint ett_x2ap_SensorMeasurementConfiguration;
+static gint ett_x2ap_SensorMeasConfigNameList;
+static gint ett_x2ap_SensorMeasConfigNameItem;
+static gint ett_x2ap_SensorNameConfig;
+static gint ett_x2ap_ServedCells;
+static gint ett_x2ap_ServedCells_item;
+static gint ett_x2ap_ServedCell_Information;
+static gint ett_x2ap_ServedCellSpecificInfoReq_NR;
+static gint ett_x2ap_ServedCellSpecificInfoReq_NR_Item;
+static gint ett_x2ap_SgNBResourceCoordinationInformation;
+static gint ett_x2ap_SharedResourceType;
+static gint ett_x2ap_SpecialSubframe_Info;
+static gint ett_x2ap_SubbandCQI;
+static gint ett_x2ap_Subscription_Based_UE_DifferentiationInfo;
+static gint ett_x2ap_ScheduledCommunicationTime;
+static gint ett_x2ap_SSBAreaCapacityValue_List;
+static gint ett_x2ap_SSBAreaCapacityValue_Item;
+static gint ett_x2ap_SSBAreaRadioResourceStatus_List;
+static gint ett_x2ap_SSBAreaRadioResourceStatus_Item;
+static gint ett_x2ap_SSB_PositionsInBurst;
+static gint ett_x2ap_SubbandCQICodeword0;
+static gint ett_x2ap_SubbandCQICodeword1;
+static gint ett_x2ap_SubbandCQIList;
+static gint ett_x2ap_SubbandCQIItem;
+static gint ett_x2ap_SubframeAllocation;
+static gint ett_x2ap_SULInformation;
+static gint ett_x2ap_SupportedSULFreqBandItem;
+static gint ett_x2ap_SFN_Offset;
+static gint ett_x2ap_TABasedMDT;
+static gint ett_x2ap_TAIBasedMDT;
+static gint ett_x2ap_TAIListforMDT;
+static gint ett_x2ap_TAI_Item;
+static gint ett_x2ap_TAListforMDT;
+static gint ett_x2ap_TABasedQMC;
+static gint ett_x2ap_TAListforQMC;
+static gint ett_x2ap_TAIBasedQMC;
+static gint ett_x2ap_TAIListforQMC;
+static gint ett_x2ap_TDD_Info;
+static gint ett_x2ap_TDD_InfoNeighbourServedNRCell_Information;
+static gint ett_x2ap_TNLA_To_Add_List;
+static gint ett_x2ap_TNLA_To_Add_Item;
+static gint ett_x2ap_TNLA_To_Update_List;
+static gint ett_x2ap_TNLA_To_Update_Item;
+static gint ett_x2ap_TNLA_To_Remove_List;
+static gint ett_x2ap_TNLA_To_Remove_Item;
+static gint ett_x2ap_TNLA_Setup_List;
+static gint ett_x2ap_TNLA_Setup_Item;
+static gint ett_x2ap_TNLA_Failed_To_Setup_List;
+static gint ett_x2ap_TNLA_Failed_To_Setup_Item;
+static gint ett_x2ap_TNLCapacityIndicator;
+static gint ett_x2ap_Transport_UP_Layer_Addresses_Info_To_Add_List;
+static gint ett_x2ap_Transport_UP_Layer_Addresses_Info_To_Add_Item;
+static gint ett_x2ap_Transport_UP_Layer_Addresses_Info_To_Remove_List;
+static gint ett_x2ap_Transport_UP_Layer_Addresses_Info_To_Remove_Item;
+static gint ett_x2ap_TNLConfigurationInfo;
+static gint ett_x2ap_TraceActivation;
+static gint ett_x2ap_TransportLayerAddressAndPort;
+static gint ett_x2ap_TunnelInformation;
+static gint ett_x2ap_UEAggregateMaximumBitRate;
+static gint ett_x2ap_UEAppLayerMeasConfig;
+static gint ett_x2ap_UE_HistoryInformation;
+static gint ett_x2ap_UESecurityCapabilities;
+static gint ett_x2ap_UESidelinkAggregateMaximumBitRate;
+static gint ett_x2ap_UEsToBeResetList;
+static gint ett_x2ap_UEsToBeResetList_Item;
+static gint ett_x2ap_ULandDLSharing;
+static gint ett_x2ap_ULConfiguration;
+static gint ett_x2ap_UL_HighInterferenceIndicationInfo;
+static gint ett_x2ap_UL_HighInterferenceIndicationInfo_Item;
+static gint ett_x2ap_UL_InterferenceOverloadIndication;
+static gint ett_x2ap_ULOnlySharing;
+static gint ett_x2ap_ULResourcesULandDLSharing;
+static gint ett_x2ap_UsableABSInformation;
+static gint ett_x2ap_UsableABSInformationFDD;
+static gint ett_x2ap_UsableABSInformationTDD;
+static gint ett_x2ap_V2XServicesAuthorized;
+static gint ett_x2ap_WidebandCQI;
+static gint ett_x2ap_WidebandCQICodeword1;
+static gint ett_x2ap_WLANMeasurementConfiguration;
+static gint ett_x2ap_WLANMeasConfigNameList;
+static gint ett_x2ap_WTID;
+static gint ett_x2ap_WTID_Type1;
+static gint ett_x2ap_HandoverRequest;
+static gint ett_x2ap_UE_ContextInformation;
+static gint ett_x2ap_E_RABs_ToBeSetup_List;
+static gint ett_x2ap_E_RABs_ToBeSetup_Item;
+static gint ett_x2ap_UE_ContextReferenceAtSeNB;
+static gint ett_x2ap_UE_ContextReferenceAtWT;
+static gint ett_x2ap_UE_ContextReferenceAtSgNB;
+static gint ett_x2ap_HandoverRequestAcknowledge;
+static gint ett_x2ap_E_RABs_Admitted_List;
+static gint ett_x2ap_E_RABs_Admitted_Item;
+static gint ett_x2ap_HandoverPreparationFailure;
+static gint ett_x2ap_HandoverReport;
+static gint ett_x2ap_EarlyStatusTransfer;
+static gint ett_x2ap_ProcedureStageChoice;
+static gint ett_x2ap_FirstDLCount;
+static gint ett_x2ap_DLDiscarding;
+static gint ett_x2ap_SNStatusTransfer;
+static gint ett_x2ap_E_RABs_SubjectToStatusTransfer_List;
+static gint ett_x2ap_E_RABs_SubjectToStatusTransfer_Item;
+static gint ett_x2ap_UEContextRelease;
+static gint ett_x2ap_HandoverCancel;
+static gint ett_x2ap_HandoverSuccess;
+static gint ett_x2ap_ConditionalHandoverCancel;
+static gint ett_x2ap_ErrorIndication;
+static gint ett_x2ap_ResetRequest;
+static gint ett_x2ap_ResetResponse;
+static gint ett_x2ap_X2SetupRequest;
+static gint ett_x2ap_X2SetupResponse;
+static gint ett_x2ap_X2SetupFailure;
+static gint ett_x2ap_LoadInformation;
+static gint ett_x2ap_CellInformation_List;
+static gint ett_x2ap_CellInformation_Item;
+static gint ett_x2ap_ENBConfigurationUpdate;
+static gint ett_x2ap_ServedCellsToModify;
+static gint ett_x2ap_ServedCellsToModify_Item;
+static gint ett_x2ap_Old_ECGIs;
+static gint ett_x2ap_ENBConfigurationUpdateAcknowledge;
+static gint ett_x2ap_ENBConfigurationUpdateFailure;
+static gint ett_x2ap_ResourceStatusRequest;
+static gint ett_x2ap_CellToReport_List;
+static gint ett_x2ap_CellToReport_Item;
+static gint ett_x2ap_ResourceStatusResponse;
+static gint ett_x2ap_MeasurementInitiationResult_List;
+static gint ett_x2ap_MeasurementInitiationResult_Item;
+static gint ett_x2ap_MeasurementFailureCause_List;
+static gint ett_x2ap_MeasurementFailureCause_Item;
+static gint ett_x2ap_ResourceStatusFailure;
+static gint ett_x2ap_CompleteFailureCauseInformation_List;
+static gint ett_x2ap_CompleteFailureCauseInformation_Item;
+static gint ett_x2ap_ResourceStatusUpdate;
+static gint ett_x2ap_CellMeasurementResult_List;
+static gint ett_x2ap_CellMeasurementResult_Item;
+static gint ett_x2ap_PrivateMessage;
+static gint ett_x2ap_MobilityChangeRequest;
+static gint ett_x2ap_MobilityChangeAcknowledge;
+static gint ett_x2ap_MobilityChangeFailure;
+static gint ett_x2ap_RLFIndication;
+static gint ett_x2ap_CellActivationRequest;
+static gint ett_x2ap_ServedCellsToActivate;
+static gint ett_x2ap_ServedCellsToActivate_Item;
+static gint ett_x2ap_CellActivationResponse;
+static gint ett_x2ap_ActivatedCellList;
+static gint ett_x2ap_ActivatedCellList_Item;
+static gint ett_x2ap_CellActivationFailure;
+static gint ett_x2ap_X2Release;
+static gint ett_x2ap_X2APMessageTransfer;
+static gint ett_x2ap_RNL_Header;
+static gint ett_x2ap_SeNBAdditionRequest;
+static gint ett_x2ap_E_RABs_ToBeAdded_List;
+static gint ett_x2ap_E_RABs_ToBeAdded_Item;
+static gint ett_x2ap_E_RABs_ToBeAdded_Item_SCG_Bearer;
+static gint ett_x2ap_E_RABs_ToBeAdded_Item_Split_Bearer;
+static gint ett_x2ap_SeNBAdditionRequestAcknowledge;
+static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_List;
+static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_Item;
+static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_Item_SCG_Bearer;
+static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_Item_Split_Bearer;
+static gint ett_x2ap_SeNBAdditionRequestReject;
+static gint ett_x2ap_SeNBReconfigurationComplete;
+static gint ett_x2ap_ResponseInformationSeNBReconfComp;
+static gint ett_x2ap_ResponseInformationSeNBReconfComp_SuccessItem;
+static gint ett_x2ap_ResponseInformationSeNBReconfComp_RejectByMeNBItem;
+static gint ett_x2ap_SeNBModificationRequest;
+static gint ett_x2ap_UE_ContextInformationSeNBModReq;
+static gint ett_x2ap_E_RABs_ToBeAdded_List_ModReq;
+static gint ett_x2ap_E_RABs_ToBeAdded_ModReqItem;
+static gint ett_x2ap_E_RABs_ToBeAdded_ModReqItem_SCG_Bearer;
+static gint ett_x2ap_E_RABs_ToBeAdded_ModReqItem_Split_Bearer;
+static gint ett_x2ap_E_RABs_ToBeModified_List_ModReq;
+static gint ett_x2ap_E_RABs_ToBeModified_ModReqItem;
+static gint ett_x2ap_E_RABs_ToBeModified_ModReqItem_SCG_Bearer;
+static gint ett_x2ap_E_RABs_ToBeModified_ModReqItem_Split_Bearer;
+static gint ett_x2ap_E_RABs_ToBeReleased_List_ModReq;
+static gint ett_x2ap_E_RABs_ToBeReleased_ModReqItem;
+static gint ett_x2ap_E_RABs_ToBeReleased_ModReqItem_SCG_Bearer;
+static gint ett_x2ap_E_RABs_ToBeReleased_ModReqItem_Split_Bearer;
+static gint ett_x2ap_SeNBModificationRequestAcknowledge;
+static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_ModAckList;
+static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_ModAckItem;
+static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_ModAckItem_SCG_Bearer;
+static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_ModAckItem_Split_Bearer;
+static gint ett_x2ap_E_RABs_Admitted_ToBeModified_ModAckList;
+static gint ett_x2ap_E_RABs_Admitted_ToBeModified_ModAckItem;
+static gint ett_x2ap_E_RABs_Admitted_ToBeModified_ModAckItem_SCG_Bearer;
+static gint ett_x2ap_E_RABs_Admitted_ToBeModified_ModAckItem_Split_Bearer;
+static gint ett_x2ap_E_RABs_Admitted_ToBeReleased_ModAckList;
+static gint ett_x2ap_E_RABs_Admitted_ToReleased_ModAckItem;
+static gint ett_x2ap_E_RABs_Admitted_ToBeReleased_ModAckItem_SCG_Bearer;
+static gint ett_x2ap_E_RABs_Admitted_ToBeReleased_ModAckItem_Split_Bearer;
+static gint ett_x2ap_SeNBModificationRequestReject;
+static gint ett_x2ap_SeNBModificationRequired;
+static gint ett_x2ap_E_RABs_ToBeReleased_ModReqd;
+static gint ett_x2ap_E_RABs_ToBeReleased_ModReqdItem;
+static gint ett_x2ap_SeNBModificationConfirm;
+static gint ett_x2ap_SeNBModificationRefuse;
+static gint ett_x2ap_SeNBReleaseRequest;
+static gint ett_x2ap_E_RABs_ToBeReleased_List_RelReq;
+static gint ett_x2ap_E_RABs_ToBeReleased_RelReqItem;
+static gint ett_x2ap_E_RABs_ToBeReleased_RelReqItem_SCG_Bearer;
+static gint ett_x2ap_E_RABs_ToBeReleased_RelReqItem_Split_Bearer;
+static gint ett_x2ap_SeNBReleaseRequired;
+static gint ett_x2ap_SeNBReleaseConfirm;
+static gint ett_x2ap_E_RABs_ToBeReleased_List_RelConf;
+static gint ett_x2ap_E_RABs_ToBeReleased_RelConfItem;
+static gint ett_x2ap_E_RABs_ToBeReleased_RelConfItem_SCG_Bearer;
+static gint ett_x2ap_E_RABs_ToBeReleased_RelConfItem_Split_Bearer;
+static gint ett_x2ap_SeNBCounterCheckRequest;
+static gint ett_x2ap_E_RABs_SubjectToCounterCheck_List;
+static gint ett_x2ap_E_RABs_SubjectToCounterCheckItem;
+static gint ett_x2ap_X2RemovalRequest;
+static gint ett_x2ap_X2RemovalResponse;
+static gint ett_x2ap_X2RemovalFailure;
+static gint ett_x2ap_RetrieveUEContextRequest;
+static gint ett_x2ap_RetrieveUEContextResponse;
+static gint ett_x2ap_UE_ContextInformationRetrieve;
+static gint ett_x2ap_E_RABs_ToBeSetup_ListRetrieve;
+static gint ett_x2ap_E_RABs_ToBeSetupRetrieve_Item;
+static gint ett_x2ap_RetrieveUEContextFailure;
+static gint ett_x2ap_SgNBAdditionRequest;
+static gint ett_x2ap_E_RABs_ToBeAdded_SgNBAddReqList;
+static gint ett_x2ap_E_RABs_ToBeAdded_SgNBAddReq_Item;
+static gint ett_x2ap_T_resource_configuration;
+static gint ett_x2ap_E_RABs_ToBeAdded_SgNBAddReq_Item_SgNBPDCPpresent;
+static gint ett_x2ap_E_RABs_ToBeAdded_SgNBAddReq_Item_SgNBPDCPnotpresent;
+static gint ett_x2ap_SgNBAdditionRequestAcknowledge;
+static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_SgNBAddReqAckList;
+static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_SgNBAddReqAck_Item;
+static gint ett_x2ap_T_resource_configuration_01;
+static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_SgNBAddReqAck_Item_SgNBPDCPpresent;
+static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_SgNBAddReqAck_Item_SgNBPDCPnotpresent;
+static gint ett_x2ap_SgNBAdditionRequestReject;
+static gint ett_x2ap_SgNBReconfigurationComplete;
+static gint ett_x2ap_ResponseInformationSgNBReconfComp;
+static gint ett_x2ap_ResponseInformationSgNBReconfComp_SuccessItem;
+static gint ett_x2ap_ResponseInformationSgNBReconfComp_RejectByMeNBItem;
+static gint ett_x2ap_SgNBModificationRequest;
+static gint ett_x2ap_UE_ContextInformation_SgNBModReq;
+static gint ett_x2ap_E_RABs_ToBeAdded_SgNBModReq_List;
+static gint ett_x2ap_E_RABs_ToBeAdded_SgNBModReq_Item;
+static gint ett_x2ap_T_resource_configuration_02;
+static gint ett_x2ap_E_RABs_ToBeAdded_SgNBModReq_Item_SgNBPDCPpresent;
+static gint ett_x2ap_E_RABs_ToBeAdded_SgNBModReq_Item_SgNBPDCPnotpresent;
+static gint ett_x2ap_E_RABs_ToBeModified_SgNBModReq_List;
+static gint ett_x2ap_E_RABs_ToBeModified_SgNBModReq_Item;
+static gint ett_x2ap_T_resource_configuration_03;
+static gint ett_x2ap_E_RABs_ToBeModified_SgNBModReq_Item_SgNBPDCPpresent;
+static gint ett_x2ap_E_RABs_ToBeModified_SgNBModReq_Item_SgNBPDCPnotpresent;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBModReq_List;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBModReq_Item;
+static gint ett_x2ap_T_resource_configuration_04;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBModReq_Item_SgNBPDCPpresent;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBModReq_Item_SgNBPDCPnotpresent;
+static gint ett_x2ap_SgNBModificationRequestAcknowledge;
+static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_SgNBModAckList;
+static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_SgNBModAck_Item;
+static gint ett_x2ap_T_resource_configuration_05;
+static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_SgNBModAck_Item_SgNBPDCPpresent;
+static gint ett_x2ap_E_RABs_Admitted_ToBeAdded_SgNBModAck_Item_SgNBPDCPnotpresent;
+static gint ett_x2ap_E_RABs_Admitted_ToBeModified_SgNBModAckList;
+static gint ett_x2ap_E_RABs_Admitted_ToBeModified_SgNBModAck_Item;
+static gint ett_x2ap_T_resource_configuration_06;
+static gint ett_x2ap_E_RABs_Admitted_ToBeModified_SgNBModAck_Item_SgNBPDCPpresent;
+static gint ett_x2ap_E_RABs_Admitted_ToBeModified_SgNBModAck_Item_SgNBPDCPnotpresent;
+static gint ett_x2ap_E_RABs_Admitted_ToBeReleased_SgNBModAckList;
+static gint ett_x2ap_E_RABs_Admitted_ToReleased_SgNBModAck_Item;
+static gint ett_x2ap_T_resource_configuration_07;
+static gint ett_x2ap_E_RABs_Admitted_ToBeReleased_SgNBModAck_Item_SgNBPDCPpresent;
+static gint ett_x2ap_E_RABs_Admitted_ToBeReleased_SgNBModAck_Item_SgNBPDCPnotpresent;
+static gint ett_x2ap_SgNBModificationRequestReject;
+static gint ett_x2ap_SgNBModificationRequired;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBModReqdList;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBModReqd_Item;
+static gint ett_x2ap_E_RABs_ToBeModified_SgNBModReqdList;
+static gint ett_x2ap_E_RABs_ToBeModified_SgNBModReqd_Item;
+static gint ett_x2ap_T_resource_configuration_08;
+static gint ett_x2ap_E_RABs_ToBeModified_SgNBModReqd_Item_SgNBPDCPpresent;
+static gint ett_x2ap_E_RABs_ToBeModified_SgNBModReqd_Item_SgNBPDCPnotpresent;
+static gint ett_x2ap_SgNBModificationConfirm;
+static gint ett_x2ap_E_RABs_AdmittedToBeModified_SgNBModConfList;
+static gint ett_x2ap_E_RABs_AdmittedToBeModified_SgNBModConf_Item;
+static gint ett_x2ap_T_resource_configuration_09;
+static gint ett_x2ap_E_RABs_AdmittedToBeModified_SgNBModConf_Item_SgNBPDCPpresent;
+static gint ett_x2ap_E_RABs_AdmittedToBeModified_SgNBModConf_Item_SgNBPDCPnotpresent;
+static gint ett_x2ap_SgNBModificationRefuse;
+static gint ett_x2ap_SgNBReleaseRequest;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelReqList;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelReq_Item;
+static gint ett_x2ap_T_resource_configuration_10;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelReq_Item_SgNBPDCPpresent;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelReq_Item_SgNBPDCPnotpresent;
+static gint ett_x2ap_SgNBReleaseRequestAcknowledge;
+static gint ett_x2ap_E_RABs_Admitted_ToBeReleased_SgNBRelReqAckList;
+static gint ett_x2ap_E_RABs_Admitted_ToBeReleased_SgNBRelReqAck_Item;
+static gint ett_x2ap_SgNBReleaseRequestReject;
+static gint ett_x2ap_SgNBReleaseRequired;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelReqdList;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelReqd_Item;
+static gint ett_x2ap_SgNBReleaseConfirm;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelConfList;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelConf_Item;
+static gint ett_x2ap_T_resource_configuration_11;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelConf_Item_SgNBPDCPpresent;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBRelConf_Item_SgNBPDCPnotpresent;
+static gint ett_x2ap_SgNBCounterCheckRequest;
+static gint ett_x2ap_E_RABs_SubjectToSgNBCounterCheck_List;
+static gint ett_x2ap_E_RABs_SubjectToSgNBCounterCheck_Item;
+static gint ett_x2ap_SgNBChangeRequired;
+static gint ett_x2ap_AccessAndMobilityIndication;
+static gint ett_x2ap_SgNBChangeConfirm;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBChaConfList;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBChaConf_Item;
+static gint ett_x2ap_T_resource_configuration_12;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBChaConf_Item_SgNBPDCPpresent;
+static gint ett_x2ap_E_RABs_ToBeReleased_SgNBChaConf_Item_SgNBPDCPnotpresent;
+static gint ett_x2ap_RRCTransfer;
+static gint ett_x2ap_SgNBChangeRefuse;
+static gint ett_x2ap_ENDCX2SetupRequest;
+static gint ett_x2ap_InitiatingNodeType_EndcX2Setup;
+static gint ett_x2ap_ServedEUTRAcellsENDCX2ManagementList;
+static gint ett_x2ap_ServedEUTRAcellsENDCX2ManagementList_item;
+static gint ett_x2ap_ServedNRcellsENDCX2ManagementList;
+static gint ett_x2ap_ServedNRcellsENDCX2ManagementList_item;
+static gint ett_x2ap_ServedNRCell_Information;
+static gint ett_x2ap_T_nrModeInfo;
+static gint ett_x2ap_FDD_InfoServedNRCell_Information;
+static gint ett_x2ap_TDD_InfoServedNRCell_Information;
+static gint ett_x2ap_CellandCapacityAssistInfo;
+static gint ett_x2ap_CellAssistanceInformation;
+static gint ett_x2ap_Limited_list;
+static gint ett_x2ap_Limited_list_item;
+static gint ett_x2ap_ENDCX2SetupResponse;
+static gint ett_x2ap_RespondingNodeType_EndcX2Setup;
+static gint ett_x2ap_ENDCX2SetupFailure;
+static gint ett_x2ap_ENDCConfigurationUpdate;
+static gint ett_x2ap_InitiatingNodeType_EndcConfigUpdate;
+static gint ett_x2ap_ServedEUTRAcellsToModifyListENDCConfUpd;
+static gint ett_x2ap_ServedEUTRAcellsToModifyListENDCConfUpd_item;
+static gint ett_x2ap_ServedEUTRAcellsToDeleteListENDCConfUpd;
+static gint ett_x2ap_ServedNRcellsToModifyENDCConfUpdList;
+static gint ett_x2ap_ServedNRCellsToModify_Item;
+static gint ett_x2ap_ServedNRcellsToDeleteENDCConfUpdList;
+static gint ett_x2ap_ENDCConfigurationUpdateAcknowledge;
+static gint ett_x2ap_RespondingNodeType_EndcConfigUpdate;
+static gint ett_x2ap_ENDCConfigurationUpdateFailure;
+static gint ett_x2ap_ENDCCellActivationRequest;
+static gint ett_x2ap_ServedNRCellsToActivate;
+static gint ett_x2ap_ServedNRCellsToActivate_Item;
+static gint ett_x2ap_ENDCCellActivationResponse;
+static gint ett_x2ap_ActivatedNRCellList;
+static gint ett_x2ap_ActivatedNRCellList_Item;
+static gint ett_x2ap_ENDCCellActivationFailure;
+static gint ett_x2ap_ENDCResourceStatusRequest;
+static gint ett_x2ap_CellToReport_NR_ENDC_List;
+static gint ett_x2ap_CellToReport_NR_ENDC_Item;
+static gint ett_x2ap_CellToReport_E_UTRA_ENDC_List;
+static gint ett_x2ap_CellToReport_E_UTRA_ENDC_Item;
+static gint ett_x2ap_SSBToReport_List;
+static gint ett_x2ap_SSBToReport_Item;
+static gint ett_x2ap_ENDCResourceStatusResponse;
+static gint ett_x2ap_ENDCResourceStatusFailure;
+static gint ett_x2ap_ENDCResourceStatusUpdate;
+static gint ett_x2ap_CellMeasurementResult_NR_ENDC_List;
+static gint ett_x2ap_CellMeasurementResult_NR_ENDC_Item;
+static gint ett_x2ap_CellMeasurementResult_E_UTRA_ENDC_List;
+static gint ett_x2ap_CellMeasurementResult_E_UTRA_ENDC_Item;
+static gint ett_x2ap_SecondaryRATDataUsageReport;
+static gint ett_x2ap_SgNBActivityNotification;
+static gint ett_x2ap_ENDCPartialResetRequired;
+static gint ett_x2ap_ENDCPartialResetConfirm;
+static gint ett_x2ap_EUTRANRCellResourceCoordinationRequest;
+static gint ett_x2ap_InitiatingNodeType_EutranrCellResourceCoordination;
+static gint ett_x2ap_ListofEUTRACellsinEUTRACoordinationReq;
+static gint ett_x2ap_ListofEUTRACellsinNRCoordinationReq;
+static gint ett_x2ap_ListofNRCellsinNRCoordinationReq;
+static gint ett_x2ap_EUTRANRCellResourceCoordinationResponse;
+static gint ett_x2ap_RespondingNodeType_EutranrCellResourceCoordination;
+static gint ett_x2ap_ListofEUTRACellsinEUTRACoordinationResp;
+static gint ett_x2ap_ListofNRCellsinNRCoordinationResp;
+static gint ett_x2ap_ENDCX2RemovalRequest;
+static gint ett_x2ap_InitiatingNodeType_EndcX2Removal;
+static gint ett_x2ap_ENDCX2RemovalResponse;
+static gint ett_x2ap_RespondingNodeType_EndcX2Removal;
+static gint ett_x2ap_ENDCX2RemovalFailure;
+static gint ett_x2ap_DataForwardingAddressIndication;
+static gint ett_x2ap_E_RABs_DataForwardingAddress_List;
+static gint ett_x2ap_E_RABs_DataForwardingAddress_Item;
+static gint ett_x2ap_GNBStatusIndication;
+static gint ett_x2ap_ENDCConfigurationTransfer;
+static gint ett_x2ap_TraceStart;
+static gint ett_x2ap_DeactivateTrace;
+static gint ett_x2ap_CellTrafficTrace;
+static gint ett_x2ap_F1CTrafficTransfer;
+static gint ett_x2ap_UERadioCapabilityIDMappingRequest;
+static gint ett_x2ap_UERadioCapabilityIDMappingResponse;
+static gint ett_x2ap_CPC_cancel;
+static gint ett_x2ap_X2AP_PDU;
+static gint ett_x2ap_InitiatingMessage;
+static gint ett_x2ap_SuccessfulOutcome;
+static gint ett_x2ap_UnsuccessfulOutcome;
 
 /* Forward declarations */
 static int dissect_x2ap_Registration_Request_ENDC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);

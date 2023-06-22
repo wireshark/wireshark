@@ -29,15 +29,15 @@ void proto_reg_handoff_smrse(void);
 static dissector_handle_t smrse_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_smrse = -1;
-static int hf_smrse_reserved = -1;
-static int hf_smrse_tag = -1;
-static int hf_smrse_length = -1;
-static int hf_smrse_Octet_Format = -1;
+static int proto_smrse;
+static int hf_smrse_reserved;
+static int hf_smrse_tag;
+static int hf_smrse_length;
+static int hf_smrse_Octet_Format;
 #include "packet-smrse-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_smrse = -1;
+static gint ett_smrse;
 #include "packet-smrse-ett.c"
 
 

@@ -42,16 +42,16 @@ void proto_register_dap(void);
 void proto_reg_handoff_dap(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_dap = -1;
+static int proto_dap;
 
 
 #include "packet-dap-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_dap = -1;
+static gint ett_dap;
 #include "packet-dap-ett.c"
 
-static expert_field ei_dap_anonymous = EI_INIT;
+static expert_field ei_dap_anonymous;
 
 #include "packet-dap-val.h"
 

@@ -33,1074 +33,1074 @@ void proto_register_nrppa(void);
 void proto_reg_handoff_nrppa(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_nrppa = -1;
+static int proto_nrppa;
 
-static int hf_nrppa_NRPPA_PDU_PDU = -1;           /* NRPPA_PDU */
-static int hf_nrppa_AbortTransmission_PDU = -1;   /* AbortTransmission */
-static int hf_nrppa_ExtendedAdditionalPathList_PDU = -1;  /* ExtendedAdditionalPathList */
-static int hf_nrppa_AoA_AssistanceInfo_PDU = -1;  /* AoA_AssistanceInfo */
-static int hf_nrppa_ARP_ID_PDU = -1;              /* ARP_ID */
-static int hf_nrppa_ARPLocationInformation_PDU = -1;  /* ARPLocationInformation */
-static int hf_nrppa_nrppa_Assistance_Information_PDU = -1;  /* Assistance_Information */
-static int hf_nrppa_AssistanceInformationFailureList_PDU = -1;  /* AssistanceInformationFailureList */
-static int hf_nrppa_Broadcast_PDU = -1;           /* Broadcast */
-static int hf_nrppa_PositioningBroadcastCells_PDU = -1;  /* PositioningBroadcastCells */
-static int hf_nrppa_Cause_PDU = -1;               /* Cause */
-static int hf_nrppa_Cell_Portion_ID_PDU = -1;     /* Cell_Portion_ID */
-static int hf_nrppa_CGI_NR_PDU = -1;              /* CGI_NR */
-static int hf_nrppa_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
-static int hf_nrppa_E_CID_MeasurementResult_PDU = -1;  /* E_CID_MeasurementResult */
-static int hf_nrppa_GeographicalCoordinates_PDU = -1;  /* GeographicalCoordinates */
-static int hf_nrppa_LoS_NLoSInformation_PDU = -1;  /* LoS_NLoSInformation */
-static int hf_nrppa_Measurement_ID_PDU = -1;      /* Measurement_ID */
-static int hf_nrppa_MeasurementAmount_PDU = -1;   /* MeasurementAmount */
-static int hf_nrppa_MeasurementBeamInfoRequest_PDU = -1;  /* MeasurementBeamInfoRequest */
-static int hf_nrppa_MeasurementPeriodicity_PDU = -1;  /* MeasurementPeriodicity */
-static int hf_nrppa_MeasurementPeriodicityExtended_PDU = -1;  /* MeasurementPeriodicityExtended */
-static int hf_nrppa_MeasurementPeriodicityNR_AoA_PDU = -1;  /* MeasurementPeriodicityNR_AoA */
-static int hf_nrppa_MeasurementQuantities_PDU = -1;  /* MeasurementQuantities */
-static int hf_nrppa_MeasurementQuantities_Item_PDU = -1;  /* MeasurementQuantities_Item */
-static int hf_nrppa_MeasurementTimeOccasion_PDU = -1;  /* MeasurementTimeOccasion */
-static int hf_nrppa_MeasurementCharacteristicsRequestIndicator_PDU = -1;  /* MeasurementCharacteristicsRequestIndicator */
-static int hf_nrppa_MultipleULAoA_PDU = -1;       /* MultipleULAoA */
-static int hf_nrppa_NR_TADV_PDU = -1;             /* NR_TADV */
-static int hf_nrppa_NumberOfTRPRxTEG_PDU = -1;    /* NumberOfTRPRxTEG */
-static int hf_nrppa_NumberOfTRPRxTxTEG_PDU = -1;  /* NumberOfTRPRxTxTEG */
-static int hf_nrppa_OnDemandPRS_Info_PDU = -1;    /* OnDemandPRS_Info */
-static int hf_nrppa_OTDOACells_PDU = -1;          /* OTDOACells */
-static int hf_nrppa_OtherRATMeasurementQuantities_PDU = -1;  /* OtherRATMeasurementQuantities */
-static int hf_nrppa_OtherRATMeasurementQuantities_Item_PDU = -1;  /* OtherRATMeasurementQuantities_Item */
-static int hf_nrppa_OtherRATMeasurementResult_PDU = -1;  /* OtherRATMeasurementResult */
-static int hf_nrppa_PreconfigurationResult_PDU = -1;  /* PreconfigurationResult */
-static int hf_nrppa_PRSConfigRequestType_PDU = -1;  /* PRSConfigRequestType */
-static int hf_nrppa_PRS_Measurements_Info_List_PDU = -1;  /* PRS_Measurements_Info_List */
-static int hf_nrppa_PRS_Resource_ID_PDU = -1;     /* PRS_Resource_ID */
-static int hf_nrppa_PRSTRPList_PDU = -1;          /* PRSTRPList */
-static int hf_nrppa_PRSTransmissionTRPList_PDU = -1;  /* PRSTransmissionTRPList */
-static int hf_nrppa_ReportCharacteristics_PDU = -1;  /* ReportCharacteristics */
-static int hf_nrppa_RequestedSRSTransmissionCharacteristics_PDU = -1;  /* RequestedSRSTransmissionCharacteristics */
-static int hf_nrppa_RequestType_PDU = -1;         /* RequestType */
-static int hf_nrppa_ResponseTime_PDU = -1;        /* ResponseTime */
-static int hf_nrppa_ResultCSI_RSRP_PDU = -1;      /* ResultCSI_RSRP */
-static int hf_nrppa_ResultCSI_RSRQ_PDU = -1;      /* ResultCSI_RSRQ */
-static int hf_nrppa_ResultEUTRA_PDU = -1;         /* ResultEUTRA */
-static int hf_nrppa_ResultSS_RSRP_PDU = -1;       /* ResultSS_RSRP */
-static int hf_nrppa_ResultSS_RSRQ_PDU = -1;       /* ResultSS_RSRQ */
-static int hf_nrppa_ResultNR_PDU = -1;            /* ResultNR */
-static int hf_nrppa_RelativeTime1900_PDU = -1;    /* RelativeTime1900 */
-static int hf_nrppa_SFNInitialisationTime_EUTRA_PDU = -1;  /* SFNInitialisationTime_EUTRA */
-static int hf_nrppa_SlotNumber_PDU = -1;          /* SlotNumber */
-static int hf_nrppa_SpatialRelationInfo_PDU = -1;  /* SpatialRelationInfo */
-static int hf_nrppa_SpatialRelationPerSRSResource_PDU = -1;  /* SpatialRelationPerSRSResource */
-static int hf_nrppa_SRSConfiguration_PDU = -1;    /* SRSConfiguration */
-static int hf_nrppa_SrsFrequency_PDU = -1;        /* SrsFrequency */
-static int hf_nrppa_SRSPortIndex_PDU = -1;        /* SRSPortIndex */
-static int hf_nrppa_SRSResourcetype_PDU = -1;     /* SRSResourcetype */
-static int hf_nrppa_SRSTransmissionStatus_PDU = -1;  /* SRSTransmissionStatus */
-static int hf_nrppa_SystemFrameNumber_PDU = -1;   /* SystemFrameNumber */
-static int hf_nrppa_TDD_Config_EUTRA_Item_PDU = -1;  /* TDD_Config_EUTRA_Item */
-static int hf_nrppa_TRPTEGInformation_PDU = -1;   /* TRPTEGInformation */
-static int hf_nrppa_TimingErrorMargin_PDU = -1;   /* TimingErrorMargin */
-static int hf_nrppa_TRPBeamAntennaInformation_PDU = -1;  /* TRPBeamAntennaInformation */
-static int hf_nrppa_TRPMeasurementQuantities_PDU = -1;  /* TRPMeasurementQuantities */
-static int hf_nrppa_TRP_MeasurementRequestList_PDU = -1;  /* TRP_MeasurementRequestList */
-static int hf_nrppa_TRP_MeasurementResponseList_PDU = -1;  /* TRP_MeasurementResponseList */
-static int hf_nrppa_TRP_MeasurementUpdateList_PDU = -1;  /* TRP_MeasurementUpdateList */
-static int hf_nrppa_TRPInformationListTRPResp_PDU = -1;  /* TRPInformationListTRPResp */
-static int hf_nrppa_TRPInformationTypeListTRPReq_PDU = -1;  /* TRPInformationTypeListTRPReq */
-static int hf_nrppa_TRPInformationTypeItem_PDU = -1;  /* TRPInformationTypeItem */
-static int hf_nrppa_TRPList_PDU = -1;             /* TRPList */
-static int hf_nrppa_TRP_PRS_Information_List_PDU = -1;  /* TRP_PRS_Information_List */
-static int hf_nrppa_TRP_Rx_TEGInformation_PDU = -1;  /* TRP_Rx_TEGInformation */
-static int hf_nrppa_TRPTxTEGAssociation_PDU = -1;  /* TRPTxTEGAssociation */
-static int hf_nrppa_TRPType_PDU = -1;             /* TRPType */
-static int hf_nrppa_UE_Measurement_ID_PDU = -1;   /* UE_Measurement_ID */
-static int hf_nrppa_UEReportingInformation_PDU = -1;  /* UEReportingInformation */
-static int hf_nrppa_UE_TEG_ReportingPeriodicity_PDU = -1;  /* UE_TEG_ReportingPeriodicity */
-static int hf_nrppa_UETxTEGAssociationList_PDU = -1;  /* UETxTEGAssociationList */
-static int hf_nrppa_UE_TEG_Info_Request_PDU = -1;  /* UE_TEG_Info_Request */
-static int hf_nrppa_UL_AoA_PDU = -1;              /* UL_AoA */
-static int hf_nrppa_UL_SRS_RSRPP_PDU = -1;        /* UL_SRS_RSRPP */
-static int hf_nrppa_WLANMeasurementQuantities_PDU = -1;  /* WLANMeasurementQuantities */
-static int hf_nrppa_WLANMeasurementQuantities_Item_PDU = -1;  /* WLANMeasurementQuantities_Item */
-static int hf_nrppa_WLANMeasurementResult_PDU = -1;  /* WLANMeasurementResult */
-static int hf_nrppa_ZoA_PDU = -1;                 /* ZoA */
-static int hf_nrppa_E_CIDMeasurementInitiationRequest_PDU = -1;  /* E_CIDMeasurementInitiationRequest */
-static int hf_nrppa_E_CIDMeasurementInitiationResponse_PDU = -1;  /* E_CIDMeasurementInitiationResponse */
-static int hf_nrppa_E_CIDMeasurementInitiationFailure_PDU = -1;  /* E_CIDMeasurementInitiationFailure */
-static int hf_nrppa_E_CIDMeasurementFailureIndication_PDU = -1;  /* E_CIDMeasurementFailureIndication */
-static int hf_nrppa_E_CIDMeasurementReport_PDU = -1;  /* E_CIDMeasurementReport */
-static int hf_nrppa_E_CIDMeasurementTerminationCommand_PDU = -1;  /* E_CIDMeasurementTerminationCommand */
-static int hf_nrppa_OTDOAInformationRequest_PDU = -1;  /* OTDOAInformationRequest */
-static int hf_nrppa_OTDOA_Information_Type_PDU = -1;  /* OTDOA_Information_Type */
-static int hf_nrppa_OTDOA_Information_Type_Item_PDU = -1;  /* OTDOA_Information_Type_Item */
-static int hf_nrppa_OTDOAInformationResponse_PDU = -1;  /* OTDOAInformationResponse */
-static int hf_nrppa_OTDOAInformationFailure_PDU = -1;  /* OTDOAInformationFailure */
-static int hf_nrppa_AssistanceInformationControl_PDU = -1;  /* AssistanceInformationControl */
-static int hf_nrppa_AssistanceInformationFeedback_PDU = -1;  /* AssistanceInformationFeedback */
-static int hf_nrppa_ErrorIndication_PDU = -1;     /* ErrorIndication */
-static int hf_nrppa_PrivateMessage_PDU = -1;      /* PrivateMessage */
-static int hf_nrppa_PositioningInformationRequest_PDU = -1;  /* PositioningInformationRequest */
-static int hf_nrppa_PositioningInformationResponse_PDU = -1;  /* PositioningInformationResponse */
-static int hf_nrppa_PositioningInformationFailure_PDU = -1;  /* PositioningInformationFailure */
-static int hf_nrppa_PositioningInformationUpdate_PDU = -1;  /* PositioningInformationUpdate */
-static int hf_nrppa_MeasurementRequest_PDU = -1;  /* MeasurementRequest */
-static int hf_nrppa_MeasurementResponse_PDU = -1;  /* MeasurementResponse */
-static int hf_nrppa_MeasurementFailure_PDU = -1;  /* MeasurementFailure */
-static int hf_nrppa_MeasurementReport_PDU = -1;   /* MeasurementReport */
-static int hf_nrppa_MeasurementUpdate_PDU = -1;   /* MeasurementUpdate */
-static int hf_nrppa_MeasurementAbort_PDU = -1;    /* MeasurementAbort */
-static int hf_nrppa_MeasurementFailureIndication_PDU = -1;  /* MeasurementFailureIndication */
-static int hf_nrppa_TRPInformationRequest_PDU = -1;  /* TRPInformationRequest */
-static int hf_nrppa_TRPInformationResponse_PDU = -1;  /* TRPInformationResponse */
-static int hf_nrppa_TRPInformationFailure_PDU = -1;  /* TRPInformationFailure */
-static int hf_nrppa_PositioningActivationRequest_PDU = -1;  /* PositioningActivationRequest */
-static int hf_nrppa_SRSType_PDU = -1;             /* SRSType */
-static int hf_nrppa_PositioningActivationResponse_PDU = -1;  /* PositioningActivationResponse */
-static int hf_nrppa_PositioningActivationFailure_PDU = -1;  /* PositioningActivationFailure */
-static int hf_nrppa_PositioningDeactivation_PDU = -1;  /* PositioningDeactivation */
-static int hf_nrppa_PRSConfigurationRequest_PDU = -1;  /* PRSConfigurationRequest */
-static int hf_nrppa_PRSConfigurationResponse_PDU = -1;  /* PRSConfigurationResponse */
-static int hf_nrppa_PRSConfigurationFailure_PDU = -1;  /* PRSConfigurationFailure */
-static int hf_nrppa_MeasurementPreconfigurationRequired_PDU = -1;  /* MeasurementPreconfigurationRequired */
-static int hf_nrppa_MeasurementPreconfigurationConfirm_PDU = -1;  /* MeasurementPreconfigurationConfirm */
-static int hf_nrppa_MeasurementPreconfigurationRefuse_PDU = -1;  /* MeasurementPreconfigurationRefuse */
-static int hf_nrppa_MeasurementActivation_PDU = -1;  /* MeasurementActivation */
-static int hf_nrppa_local = -1;                   /* INTEGER_0_maxPrivateIEs */
-static int hf_nrppa_global = -1;                  /* OBJECT_IDENTIFIER */
-static int hf_nrppa_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
-static int hf_nrppa_id = -1;                      /* ProtocolIE_ID */
-static int hf_nrppa_criticality = -1;             /* Criticality */
-static int hf_nrppa_ie_field_value = -1;          /* T_ie_field_value */
-static int hf_nrppa_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
-static int hf_nrppa_ext_id = -1;                  /* ProtocolIE_ID */
-static int hf_nrppa_extensionValue = -1;          /* T_extensionValue */
-static int hf_nrppa_PrivateIE_Container_item = -1;  /* PrivateIE_Field */
-static int hf_nrppa_id_01 = -1;                   /* PrivateIE_ID */
-static int hf_nrppa_value = -1;                   /* T_value */
-static int hf_nrppa_initiatingMessage = -1;       /* InitiatingMessage */
-static int hf_nrppa_successfulOutcome = -1;       /* SuccessfulOutcome */
-static int hf_nrppa_unsuccessfulOutcome = -1;     /* UnsuccessfulOutcome */
-static int hf_nrppa_procedureCode = -1;           /* ProcedureCode */
-static int hf_nrppa_nrppatransactionID = -1;      /* NRPPATransactionID */
-static int hf_nrppa_initiatingMessagevalue = -1;  /* InitiatingMessage_value */
-static int hf_nrppa_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
-static int hf_nrppa_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
-static int hf_nrppa_deactivateSRSResourceSetID = -1;  /* SRSResourceSetID */
-static int hf_nrppa_releaseALL = -1;              /* NULL */
-static int hf_nrppa_choice_extension = -1;        /* ProtocolIE_Single_Container */
-static int hf_nrppa_locationAndBandwidth = -1;    /* INTEGER_0_37949_ */
-static int hf_nrppa_subcarrierSpacing = -1;       /* T_subcarrierSpacing */
-static int hf_nrppa_cyclicPrefix = -1;            /* T_cyclicPrefix */
-static int hf_nrppa_txDirectCurrentLocation = -1;  /* INTEGER_0_3301_ */
-static int hf_nrppa_shift7dot5kHz = -1;           /* T_shift7dot5kHz */
-static int hf_nrppa_sRSConfig = -1;               /* SRSConfig */
-static int hf_nrppa_iE_Extensions = -1;           /* ProtocolExtensionContainer */
-static int hf_nrppa_AdditionalPathList_item = -1;  /* AdditionalPathListItem */
-static int hf_nrppa_relativeTimeOfPath = -1;      /* RelativePathDelay */
-static int hf_nrppa_pathQuality = -1;             /* TrpMeasurementQuality */
-static int hf_nrppa_ExtendedAdditionalPathList_item = -1;  /* ExtendedAdditionalPathList_Item */
-static int hf_nrppa_multipleULAoA = -1;           /* MultipleULAoA */
-static int hf_nrppa_pathPower = -1;               /* UL_SRS_RSRPP */
-static int hf_nrppa_angleMeasurement = -1;        /* AngleMeasurementType */
-static int hf_nrppa_lCS_to_GCS_Translation = -1;  /* LCS_to_GCS_Translation */
-static int hf_nrppa_AperiodicSRSResourceTriggerList_item = -1;  /* AperiodicSRSResourceTrigger */
-static int hf_nrppa_expected_ULAoA = -1;          /* Expected_UL_AoA */
-static int hf_nrppa_expected_ZoA = -1;            /* Expected_ZoA_only */
-static int hf_nrppa_expected_Azimuth_AoA = -1;    /* Expected_Azimuth_AoA */
-static int hf_nrppa_expected_Zenith_AoA = -1;     /* Expected_Zenith_AoA */
-static int hf_nrppa_iE_extensions = -1;           /* ProtocolExtensionContainer */
-static int hf_nrppa_expected_ZoA_only = -1;       /* Expected_Zenith_AoA */
-static int hf_nrppa_expected_Azimuth_AoA_value = -1;  /* Expected_Value_AoA */
-static int hf_nrppa_expected_Azimuth_AoA_uncertainty = -1;  /* Uncertainty_range_AoA */
-static int hf_nrppa_expected_Zenith_AoA_value = -1;  /* Expected_Value_ZoA */
-static int hf_nrppa_expected_Zenith_AoA_uncertainty = -1;  /* Uncertainty_range_ZoA */
-static int hf_nrppa_ARPLocationInformation_item = -1;  /* ARPLocationInformation_Item */
-static int hf_nrppa_aRP_ID = -1;                  /* ARP_ID */
-static int hf_nrppa_aRPLocationType = -1;         /* ARPLocationType */
-static int hf_nrppa_aRPPositionRelativeGeodetic = -1;  /* RelativeGeodeticLocation */
-static int hf_nrppa_aRPPositionRelativeCartesian = -1;  /* RelativeCartesianLocation */
-static int hf_nrppa_systemInformation = -1;       /* SystemInformation */
-static int hf_nrppa_AssistanceInformationFailureList_item = -1;  /* AssistanceInformationFailureList_item */
-static int hf_nrppa_posSIB_Type = -1;             /* PosSIB_Type */
-static int hf_nrppa_outcome = -1;                 /* Outcome */
-static int hf_nrppa_encrypted = -1;               /* T_encrypted */
-static int hf_nrppa_gNSSID = -1;                  /* T_gNSSID */
-static int hf_nrppa_sBASID = -1;                  /* T_sBASID */
-static int hf_nrppa_fR1 = -1;                     /* T_fR1 */
-static int hf_nrppa_fR2 = -1;                     /* T_fR2 */
-static int hf_nrppa_PositioningBroadcastCells_item = -1;  /* NG_RAN_CGI */
-static int hf_nrppa_pointA = -1;                  /* INTEGER_0_3279165 */
-static int hf_nrppa_offsetToCarrier = -1;         /* INTEGER_0_2199_ */
-static int hf_nrppa_radioNetwork = -1;            /* CauseRadioNetwork */
-static int hf_nrppa_protocol = -1;                /* CauseProtocol */
-static int hf_nrppa_misc = -1;                    /* CauseMisc */
-static int hf_nrppa_choice_Extension = -1;        /* ProtocolIE_Single_Container */
-static int hf_nrppa_pLMN_Identity = -1;           /* PLMN_Identity */
-static int hf_nrppa_eUTRAcellIdentifier = -1;     /* EUTRACellIdentifier */
-static int hf_nrppa_nRcellIdentifier = -1;        /* NRCellIdentifier */
-static int hf_nrppa_triggeringMessage = -1;       /* TriggeringMessage */
-static int hf_nrppa_procedureCriticality = -1;    /* Criticality */
-static int hf_nrppa_iEsCriticalityDiagnostics = -1;  /* CriticalityDiagnostics_IE_List */
-static int hf_nrppa_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_List_item */
-static int hf_nrppa_iECriticality = -1;           /* Criticality */
-static int hf_nrppa_iE_ID = -1;                   /* ProtocolIE_ID */
-static int hf_nrppa_typeOfError = -1;             /* TypeOfError */
-static int hf_nrppa_prsid = -1;                   /* INTEGER_0_255 */
-static int hf_nrppa_dl_PRSResourceSetID = -1;     /* PRS_Resource_Set_ID */
-static int hf_nrppa_dl_PRSResourceID = -1;        /* PRS_Resource_ID */
-static int hf_nrppa_two = -1;                     /* BIT_STRING_SIZE_2 */
-static int hf_nrppa_four = -1;                    /* BIT_STRING_SIZE_4 */
-static int hf_nrppa_six = -1;                     /* BIT_STRING_SIZE_6 */
-static int hf_nrppa_eight = -1;                   /* BIT_STRING_SIZE_8 */
-static int hf_nrppa_sixteen = -1;                 /* BIT_STRING_SIZE_16 */
-static int hf_nrppa_thirty_two = -1;              /* BIT_STRING_SIZE_32 */
-static int hf_nrppa_listofDL_PRSResourceSetARP = -1;  /* SEQUENCE_SIZE_1_maxPRS_ResourceSets_OF_DLPRSResourceSetARP */
-static int hf_nrppa_listofDL_PRSResourceSetARP_item = -1;  /* DLPRSResourceSetARP */
-static int hf_nrppa_dL_PRSResourceSetARPLocation = -1;  /* DL_PRSResourceSetARPLocation */
-static int hf_nrppa_listofDL_PRSResourceARP = -1;  /* SEQUENCE_SIZE_1_maxPRS_ResourcesPerSet_OF_DLPRSResourceARP */
-static int hf_nrppa_listofDL_PRSResourceARP_item = -1;  /* DLPRSResourceARP */
-static int hf_nrppa_relativeGeodeticLocation = -1;  /* RelativeGeodeticLocation */
-static int hf_nrppa_relativeCartesianLocation = -1;  /* RelativeCartesianLocation */
-static int hf_nrppa_dL_PRSResourceARPLocation = -1;  /* DL_PRSResourceARPLocation */
-static int hf_nrppa_servingCell_ID = -1;          /* NG_RAN_CGI */
-static int hf_nrppa_servingCellTAC = -1;          /* TAC */
-static int hf_nrppa_nG_RANAccessPointPosition = -1;  /* NG_RANAccessPointPosition */
-static int hf_nrppa_measuredResults = -1;         /* MeasuredResults */
-static int hf_nrppa_tRPPositionDefinitionType = -1;  /* TRPPositionDefinitionType */
-static int hf_nrppa_dLPRSResourceCoordinates = -1;  /* DLPRSResourceCoordinates */
-static int hf_nrppa_rxTxTimeDiff = -1;            /* GNBRxTxTimeDiffMeas */
-static int hf_nrppa_additionalPathList = -1;      /* AdditionalPathList */
-static int hf_nrppa_k0 = -1;                      /* INTEGER_0_1970049 */
-static int hf_nrppa_k1 = -1;                      /* INTEGER_0_985025 */
-static int hf_nrppa_k2 = -1;                      /* INTEGER_0_492513 */
-static int hf_nrppa_k3 = -1;                      /* INTEGER_0_246257 */
-static int hf_nrppa_k4 = -1;                      /* INTEGER_0_123129 */
-static int hf_nrppa_k5 = -1;                      /* INTEGER_0_61565 */
-static int hf_nrppa_alpha = -1;                   /* INTEGER_0_3599 */
-static int hf_nrppa_beta = -1;                    /* INTEGER_0_3599 */
-static int hf_nrppa_gamma = -1;                   /* INTEGER_0_3599 */
-static int hf_nrppa_alpha_01 = -1;                /* INTEGER_0_359 */
-static int hf_nrppa_alphaFine = -1;               /* INTEGER_0_9 */
-static int hf_nrppa_beta_01 = -1;                 /* INTEGER_0_359 */
-static int hf_nrppa_betaFine = -1;                /* INTEGER_0_9 */
-static int hf_nrppa_gamma_01 = -1;                /* INTEGER_0_359 */
-static int hf_nrppa_gammaFine = -1;               /* INTEGER_0_9 */
-static int hf_nrppa_horizontalUncertainty = -1;   /* INTEGER_0_255 */
-static int hf_nrppa_horizontalConfidence = -1;    /* INTEGER_0_100 */
-static int hf_nrppa_verticalUncertainty = -1;     /* INTEGER_0_255 */
-static int hf_nrppa_verticalConfidence = -1;      /* INTEGER_0_100 */
-static int hf_nrppa_loS_NLoSIndicatorSoft = -1;   /* LoS_NLoSIndicatorSoft */
-static int hf_nrppa_loS_NLoSIndicatorHard = -1;   /* LoS_NLoSIndicatorHard */
-static int hf_nrppa_pRS_Resource_ID = -1;         /* PRS_Resource_ID */
-static int hf_nrppa_pRS_Resource_Set_ID = -1;     /* PRS_Resource_Set_ID */
-static int hf_nrppa_sSB_Index = -1;               /* SSB_Index */
-static int hf_nrppa_MeasurementQuantities_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nrppa_measurementQuantitiesValue = -1;  /* MeasurementQuantitiesValue */
-static int hf_nrppa_MeasuredResults_item = -1;    /* MeasuredResultsValue */
-static int hf_nrppa_valueAngleOfArrival_EUTRA = -1;  /* INTEGER_0_719 */
-static int hf_nrppa_valueTimingAdvanceType1_EUTRA = -1;  /* INTEGER_0_7690 */
-static int hf_nrppa_valueTimingAdvanceType2_EUTRA = -1;  /* INTEGER_0_7690 */
-static int hf_nrppa_resultRSRP_EUTRA = -1;        /* ResultRSRP_EUTRA */
-static int hf_nrppa_resultRSRQ_EUTRA = -1;        /* ResultRSRQ_EUTRA */
-static int hf_nrppa_multipleULAoA_01 = -1;        /* MultipleULAoA_List */
-static int hf_nrppa_MultipleULAoA_List_item = -1;  /* MultipleULAoA_Item */
-static int hf_nrppa_uL_AoA = -1;                  /* UL_AoA */
-static int hf_nrppa_ul_ZoA = -1;                  /* ZoA */
-static int hf_nrppa_latitudeSign = -1;            /* T_latitudeSign */
-static int hf_nrppa_latitude = -1;                /* INTEGER_0_8388607 */
-static int hf_nrppa_longitude = -1;               /* INTEGER_M8388608_8388607 */
-static int hf_nrppa_directionOfAltitude = -1;     /* T_directionOfAltitude */
-static int hf_nrppa_altitude = -1;                /* INTEGER_0_32767 */
-static int hf_nrppa_uncertaintySemi_major = -1;   /* INTEGER_0_127 */
-static int hf_nrppa_uncertaintySemi_minor = -1;   /* INTEGER_0_127 */
-static int hf_nrppa_orientationOfMajorAxis = -1;  /* INTEGER_0_179 */
-static int hf_nrppa_uncertaintyAltitude = -1;     /* INTEGER_0_127 */
-static int hf_nrppa_confidence = -1;              /* INTEGER_0_100 */
-static int hf_nrppa_latitude_01 = -1;             /* INTEGER_M2147483648_2147483647 */
-static int hf_nrppa_longitude_01 = -1;            /* INTEGER_M2147483648_2147483647 */
-static int hf_nrppa_altitude_01 = -1;             /* INTEGER_M64000_1280000 */
-static int hf_nrppa_uncertaintySemi_major_01 = -1;  /* INTEGER_0_255 */
-static int hf_nrppa_uncertaintySemi_minor_01 = -1;  /* INTEGER_0_255 */
-static int hf_nrppa_uncertaintyAltitude_01 = -1;  /* INTEGER_0_255 */
-static int hf_nrppa_nG_RANcell = -1;              /* NG_RANCell */
-static int hf_nrppa_eUTRA_CellID = -1;            /* EUTRACellIdentifier */
-static int hf_nrppa_nR_CellID = -1;               /* NRCellIdentifier */
-static int hf_nrppa_nR_PRS_Beam_InformationList = -1;  /* SEQUENCE_SIZE_1_maxPRS_ResourceSets_OF_NR_PRS_Beam_InformationItem */
-static int hf_nrppa_nR_PRS_Beam_InformationList_item = -1;  /* NR_PRS_Beam_InformationItem */
-static int hf_nrppa_lCS_to_GCS_TranslationList = -1;  /* SEQUENCE_SIZE_1_maxnolcs_gcs_translation_OF_LCS_to_GCS_TranslationItem */
-static int hf_nrppa_lCS_to_GCS_TranslationList_item = -1;  /* LCS_to_GCS_TranslationItem */
-static int hf_nrppa_pRSresourceSetID = -1;        /* PRS_Resource_Set_ID */
-static int hf_nrppa_pRSAngle = -1;                /* SEQUENCE_SIZE_1_maxPRS_ResourcesPerSet_OF_PRSAngleItem */
-static int hf_nrppa_pRSAngle_item = -1;           /* PRSAngleItem */
-static int hf_nrppa_onDemandPRSRequestAllowed = -1;  /* BIT_STRING_SIZE_16 */
-static int hf_nrppa_allowedResourceSetPeriodicityValues = -1;  /* BIT_STRING_SIZE_24 */
-static int hf_nrppa_allowedPRSBandwidthValues = -1;  /* BIT_STRING_SIZE_64 */
-static int hf_nrppa_allowedResourceRepetitionFactorValues = -1;  /* BIT_STRING_SIZE_8 */
-static int hf_nrppa_allowedResourceNumberOfSymbolsValues = -1;  /* BIT_STRING_SIZE_8 */
-static int hf_nrppa_allowedCombSizeValues = -1;   /* BIT_STRING_SIZE_8 */
-static int hf_nrppa_OTDOACells_item = -1;         /* OTDOACells_item */
-static int hf_nrppa_oTDOACellInfo = -1;           /* OTDOACell_Information */
-static int hf_nrppa_OTDOACell_Information_item = -1;  /* OTDOACell_Information_Item */
-static int hf_nrppa_pCI_EUTRA = -1;               /* PCI_EUTRA */
-static int hf_nrppa_cGI_EUTRA = -1;               /* CGI_EUTRA */
-static int hf_nrppa_tAC = -1;                     /* TAC */
-static int hf_nrppa_eARFCN = -1;                  /* EARFCN */
-static int hf_nrppa_pRS_Bandwidth_EUTRA = -1;     /* PRS_Bandwidth_EUTRA */
-static int hf_nrppa_pRS_ConfigurationIndex_EUTRA = -1;  /* PRS_ConfigurationIndex_EUTRA */
-static int hf_nrppa_cPLength_EUTRA = -1;          /* CPLength_EUTRA */
-static int hf_nrppa_numberOfDlFrames_EUTRA = -1;  /* NumberOfDlFrames_EUTRA */
-static int hf_nrppa_numberOfAntennaPorts_EUTRA = -1;  /* NumberOfAntennaPorts_EUTRA */
-static int hf_nrppa_sFNInitialisationTime_EUTRA = -1;  /* SFNInitialisationTime_EUTRA */
-static int hf_nrppa_pRSMutingConfiguration_EUTRA = -1;  /* PRSMutingConfiguration_EUTRA */
-static int hf_nrppa_prsid_EUTRA = -1;             /* PRS_ID_EUTRA */
-static int hf_nrppa_tpid_EUTRA = -1;              /* TP_ID_EUTRA */
-static int hf_nrppa_tpType_EUTRA = -1;            /* TP_Type_EUTRA */
-static int hf_nrppa_numberOfDlFrames_Extended_EUTRA = -1;  /* NumberOfDlFrames_Extended_EUTRA */
-static int hf_nrppa_crsCPlength_EUTRA = -1;       /* CPLength_EUTRA */
-static int hf_nrppa_dL_Bandwidth_EUTRA = -1;      /* DL_Bandwidth_EUTRA */
-static int hf_nrppa_pRSOccasionGroup_EUTRA = -1;  /* PRSOccasionGroup_EUTRA */
-static int hf_nrppa_pRSFrequencyHoppingConfiguration_EUTRA = -1;  /* PRSFrequencyHoppingConfiguration_EUTRA */
-static int hf_nrppa_OtherRATMeasurementQuantities_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nrppa_otherRATMeasurementQuantitiesValue = -1;  /* OtherRATMeasurementQuantitiesValue */
-static int hf_nrppa_OtherRATMeasurementResult_item = -1;  /* OtherRATMeasuredResultsValue */
-static int hf_nrppa_resultGERAN = -1;             /* ResultGERAN */
-static int hf_nrppa_resultUTRAN = -1;             /* ResultUTRAN */
-static int hf_nrppa_pathlossReferenceSignal = -1;  /* PathlossReferenceSignal */
-static int hf_nrppa_sSB_Reference = -1;           /* SSB */
-static int hf_nrppa_dL_PRS_Reference = -1;        /* DL_PRS */
-static int hf_nrppa_PeriodicityList_item = -1;    /* PeriodicityItem */
-static int hf_nrppa_PosSIBs_item = -1;            /* PosSIBs_item */
-static int hf_nrppa_posSIB_Segments = -1;         /* PosSIB_Segments */
-static int hf_nrppa_assistanceInformationMetaData = -1;  /* AssistanceInformationMetaData */
-static int hf_nrppa_broadcastPriority = -1;       /* INTEGER_1_16_ */
-static int hf_nrppa_PosSIB_Segments_item = -1;    /* PosSIB_Segments_item */
-static int hf_nrppa_assistanceDataSIBelement = -1;  /* OCTET_STRING */
-static int hf_nrppa_PosSRSResource_List_item = -1;  /* PosSRSResource_Item */
-static int hf_nrppa_srs_PosResourceId = -1;       /* SRSPosResourceID */
-static int hf_nrppa_transmissionCombPos = -1;     /* TransmissionCombPos */
-static int hf_nrppa_startPosition = -1;           /* INTEGER_0_13 */
-static int hf_nrppa_nrofSymbols = -1;             /* T_nrofSymbols */
-static int hf_nrppa_freqDomainShift = -1;         /* INTEGER_0_268 */
-static int hf_nrppa_c_SRS = -1;                   /* INTEGER_0_63 */
-static int hf_nrppa_groupOrSequenceHopping = -1;  /* T_groupOrSequenceHopping */
-static int hf_nrppa_resourceTypePos = -1;         /* ResourceTypePos */
-static int hf_nrppa_sequenceId = -1;              /* INTEGER_0_65535 */
-static int hf_nrppa_spatialRelationPos = -1;      /* SpatialRelationPos */
-static int hf_nrppa_PosSRSResourceID_List_item = -1;  /* SRSPosResourceID */
-static int hf_nrppa_PosSRSResourceSet_List_item = -1;  /* PosSRSResourceSet_Item */
-static int hf_nrppa_PosSRSResourceIDPerSet_List_item = -1;  /* SRSPosResourceID */
-static int hf_nrppa_possrsResourceSetID = -1;     /* INTEGER_0_15 */
-static int hf_nrppa_possRSResourceIDPerSet_List = -1;  /* PosSRSResourceIDPerSet_List */
-static int hf_nrppa_posresourceSetType = -1;      /* PosResourceSetType */
-static int hf_nrppa_periodic = -1;                /* PosResourceSetTypePeriodic */
-static int hf_nrppa_semi_persistent = -1;         /* PosResourceSetTypeSemi_persistent */
-static int hf_nrppa_aperiodic = -1;               /* PosResourceSetTypeAperiodic */
-static int hf_nrppa_posperiodicSet = -1;          /* T_posperiodicSet */
-static int hf_nrppa_possemi_persistentSet = -1;   /* T_possemi_persistentSet */
-static int hf_nrppa_sRSResourceTrigger = -1;      /* INTEGER_1_3 */
-static int hf_nrppa_nRPRSAzimuth = -1;            /* INTEGER_0_359 */
-static int hf_nrppa_nRPRSAzimuthFine = -1;        /* INTEGER_0_9 */
-static int hf_nrppa_nRPRSElevation = -1;          /* INTEGER_0_180 */
-static int hf_nrppa_nRPRSElevationFine = -1;      /* INTEGER_0_9 */
-static int hf_nrppa_pRS_IDPos = -1;               /* INTEGER_0_255 */
-static int hf_nrppa_pRS_Resource_Set_IDPos = -1;  /* INTEGER_0_7 */
-static int hf_nrppa_pRS_Resource_IDPos = -1;      /* INTEGER_0_63 */
-static int hf_nrppa_pRSResourceSet_List = -1;     /* PRSResourceSet_List */
-static int hf_nrppa_sixty_four = -1;              /* BIT_STRING_SIZE_64 */
-static int hf_nrppa_one_hundred_and_twenty_eight = -1;  /* BIT_STRING_SIZE_128 */
-static int hf_nrppa_two_hundred_and_fifty_six = -1;  /* BIT_STRING_SIZE_256 */
-static int hf_nrppa_five_hundred_and_twelve = -1;  /* BIT_STRING_SIZE_512 */
-static int hf_nrppa_one_thousand_and_twenty_four = -1;  /* BIT_STRING_SIZE_1024 */
-static int hf_nrppa_noOfFreqHoppingBands = -1;    /* NumberOfFrequencyHoppingBands */
-static int hf_nrppa_bandPositions = -1;           /* SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex */
-static int hf_nrppa_bandPositions_item = -1;      /* NarrowBandIndex */
-static int hf_nrppa_PRS_Measurements_Info_List_item = -1;  /* PRS_Measurements_Info_List_Item */
-static int hf_nrppa_measPRSPeriodicity = -1;      /* T_measPRSPeriodicity */
-static int hf_nrppa_measPRSOffset = -1;           /* INTEGER_0_159_ */
-static int hf_nrppa_measurementPRSLength = -1;    /* T_measurementPRSLength */
-static int hf_nrppa_pRSMutingOption1 = -1;        /* PRSMutingOption1 */
-static int hf_nrppa_pRSMutingOption2 = -1;        /* PRSMutingOption2 */
-static int hf_nrppa_mutingPattern = -1;           /* DL_PRSMutingPattern */
-static int hf_nrppa_mutingBitRepetitionFactor = -1;  /* T_mutingBitRepetitionFactor */
-static int hf_nrppa_PRSResource_List_item = -1;   /* PRSResource_Item */
-static int hf_nrppa_pRSResourceID = -1;           /* PRS_Resource_ID */
-static int hf_nrppa_sequenceID = -1;              /* INTEGER_0_4095 */
-static int hf_nrppa_rEOffset = -1;                /* INTEGER_0_11_ */
-static int hf_nrppa_resourceSlotOffset = -1;      /* INTEGER_0_511 */
-static int hf_nrppa_resourceSymbolOffset = -1;    /* INTEGER_0_12 */
-static int hf_nrppa_qCLInfo = -1;                 /* PRSResource_QCLInfo */
-static int hf_nrppa_qCLSourceSSB = -1;            /* PRSResource_QCLSourceSSB */
-static int hf_nrppa_qCLSourcePRS = -1;            /* PRSResource_QCLSourcePRS */
-static int hf_nrppa_pCI_NR = -1;                  /* INTEGER_0_1007 */
-static int hf_nrppa_qCLSourcePRSResourceSetID = -1;  /* PRS_Resource_Set_ID */
-static int hf_nrppa_qCLSourcePRSResourceID = -1;  /* PRS_Resource_ID */
-static int hf_nrppa_PRSResourceSet_List_item = -1;  /* PRSResourceSet_Item */
-static int hf_nrppa_pRSResourceSetID = -1;        /* PRS_Resource_Set_ID */
-static int hf_nrppa_subcarrierSpacing_01 = -1;    /* T_subcarrierSpacing_01 */
-static int hf_nrppa_pRSbandwidth = -1;            /* INTEGER_1_63 */
-static int hf_nrppa_startPRB = -1;                /* INTEGER_0_2176 */
-static int hf_nrppa_combSize = -1;                /* T_combSize */
-static int hf_nrppa_cPType = -1;                  /* T_cPType */
-static int hf_nrppa_resourceSetPeriodicity = -1;  /* T_resourceSetPeriodicity */
-static int hf_nrppa_resourceSetSlotOffset = -1;   /* INTEGER_0_81919_ */
-static int hf_nrppa_resourceRepetitionFactor = -1;  /* T_resourceRepetitionFactor */
-static int hf_nrppa_resourceTimeGap = -1;         /* T_resourceTimeGap */
-static int hf_nrppa_resourceNumberofSymbols = -1;  /* T_resourceNumberofSymbols */
-static int hf_nrppa_pRSMuting = -1;               /* PRSMuting */
-static int hf_nrppa_pRSResourceTransmitPower = -1;  /* INTEGER_M60_50 */
-static int hf_nrppa_pRSResource_List = -1;        /* PRSResource_List */
-static int hf_nrppa_pRSTransmissionOffPerTRP = -1;  /* NULL */
-static int hf_nrppa_pRSTransmissionOffPerResourceSet = -1;  /* PRSTransmissionOffPerResourceSet */
-static int hf_nrppa_pRSTransmissionOffPerResource = -1;  /* PRSTransmissionOffPerResource */
-static int hf_nrppa_PRSTransmissionOffPerResource_item = -1;  /* PRSTransmissionOffPerResource_Item */
-static int hf_nrppa_pRSTransmissionOffIndicationPerResourceList = -1;  /* SEQUENCE_SIZE_1_maxnoofPRSresource_OF_PRSTransmissionOffIndicationPerResource_Item */
-static int hf_nrppa_pRSTransmissionOffIndicationPerResourceList_item = -1;  /* PRSTransmissionOffIndicationPerResource_Item */
-static int hf_nrppa_pRSTransmissionOffIndication = -1;  /* PRSTransmissionOffIndication */
-static int hf_nrppa_PRSTransmissionOffPerResourceSet_item = -1;  /* PRSTransmissionOffPerResourceSet_Item */
-static int hf_nrppa_PRSTRPList_item = -1;         /* PRSTRPItem */
-static int hf_nrppa_tRP_ID = -1;                  /* TRP_ID */
-static int hf_nrppa_requestedDLPRSTransmissionCharacteristics = -1;  /* RequestedDLPRSTransmissionCharacteristics */
-static int hf_nrppa_pRSTransmissionOffInformation = -1;  /* PRSTransmissionOffInformation */
-static int hf_nrppa_PRSTransmissionTRPList_item = -1;  /* PRSTransmissionTRPItem */
-static int hf_nrppa_pRSConfiguration = -1;        /* PRSConfiguration */
-static int hf_nrppa_nZP_CSI_RS = -1;              /* NZP_CSI_RS_ResourceID */
-static int hf_nrppa_sSB = -1;                     /* SSB */
-static int hf_nrppa_sRS = -1;                     /* SRSResourceID */
-static int hf_nrppa_positioningSRS = -1;          /* SRSPosResourceID */
-static int hf_nrppa_dL_PRS = -1;                  /* DL_PRS */
-static int hf_nrppa_relativeCoordinateID = -1;    /* CoordinateID */
-static int hf_nrppa_referencePointCoordinate = -1;  /* NG_RANAccessPointPosition */
-static int hf_nrppa_referencePointCoordinateHA = -1;  /* NGRANHighAccuracyAccessPointPosition */
-static int hf_nrppa_milli_Arc_SecondUnits = -1;   /* T_milli_Arc_SecondUnits */
-static int hf_nrppa_heightUnits = -1;             /* T_heightUnits */
-static int hf_nrppa_deltaLatitude = -1;           /* INTEGER_M1024_1023 */
-static int hf_nrppa_deltaLongitude = -1;          /* INTEGER_M1024_1023 */
-static int hf_nrppa_deltaHeight = -1;             /* INTEGER_M1024_1023 */
-static int hf_nrppa_locationUncertainty = -1;     /* LocationUncertainty */
-static int hf_nrppa_xYZunit = -1;                 /* T_xYZunit */
-static int hf_nrppa_xvalue = -1;                  /* INTEGER_M65536_65535 */
-static int hf_nrppa_yvalue = -1;                  /* INTEGER_M65536_65535 */
-static int hf_nrppa_zvalue = -1;                  /* INTEGER_M32768_32767 */
-static int hf_nrppa_k0_01 = -1;                   /* INTEGER_0_16351 */
-static int hf_nrppa_k1_01 = -1;                   /* INTEGER_0_8176 */
-static int hf_nrppa_k2_01 = -1;                   /* INTEGER_0_4088 */
-static int hf_nrppa_k3_01 = -1;                   /* INTEGER_0_2044 */
-static int hf_nrppa_k4_01 = -1;                   /* INTEGER_0_1022 */
-static int hf_nrppa_k5_01 = -1;                   /* INTEGER_0_511 */
-static int hf_nrppa_requestedDLPRSResourceSet_List = -1;  /* RequestedDLPRSResourceSet_List */
-static int hf_nrppa_numberofFrequencyLayers = -1;  /* INTEGER_1_4 */
-static int hf_nrppa_startTimeAndDuration = -1;    /* StartTimeAndDuration */
-static int hf_nrppa_RequestedDLPRSResourceSet_List_item = -1;  /* RequestedDLPRSResourceSet_Item */
-static int hf_nrppa_combSize_01 = -1;             /* T_combSize_01 */
-static int hf_nrppa_resourceSetPeriodicity_01 = -1;  /* T_resourceSetPeriodicity_01 */
-static int hf_nrppa_resourceRepetitionFactor_01 = -1;  /* T_resourceRepetitionFactor_01 */
-static int hf_nrppa_resourceNumberofSymbols_01 = -1;  /* T_resourceNumberofSymbols_01 */
-static int hf_nrppa_requestedDLPRSResource_List = -1;  /* RequestedDLPRSResource_List */
-static int hf_nrppa_resourceSetStartTimeAndDuration = -1;  /* StartTimeAndDuration */
-static int hf_nrppa_RequestedDLPRSResource_List_item = -1;  /* RequestedDLPRSResource_Item */
-static int hf_nrppa_numberOfTransmissions = -1;   /* INTEGER_0_500_ */
-static int hf_nrppa_resourceType = -1;            /* T_resourceType */
-static int hf_nrppa_bandwidth = -1;               /* BandwidthSRS */
-static int hf_nrppa_listOfSRSResourceSet = -1;    /* SEQUENCE_SIZE_1_maxnoSRS_ResourceSets_OF_SRSResourceSet_Item */
-static int hf_nrppa_listOfSRSResourceSet_item = -1;  /* SRSResourceSet_Item */
-static int hf_nrppa_sSBInformation = -1;          /* SSBInfo */
-static int hf_nrppa_numberOfSRSResourcePerSet = -1;  /* INTEGER_1_16_ */
-static int hf_nrppa_periodicityList = -1;         /* PeriodicityList */
-static int hf_nrppa_spatialRelationInformation = -1;  /* SpatialRelationInfo */
-static int hf_nrppa_pathlossReferenceInformation = -1;  /* PathlossReferenceInformation */
-static int hf_nrppa_periodic_01 = -1;             /* ResourceSetTypePeriodic */
-static int hf_nrppa_semi_persistent_01 = -1;      /* ResourceSetTypeSemi_persistent */
-static int hf_nrppa_aperiodic_01 = -1;            /* ResourceSetTypeAperiodic */
-static int hf_nrppa_periodicSet = -1;             /* T_periodicSet */
-static int hf_nrppa_semi_persistentSet = -1;      /* T_semi_persistentSet */
-static int hf_nrppa_slotoffset = -1;              /* INTEGER_0_32 */
-static int hf_nrppa_periodic_02 = -1;             /* ResourceTypePeriodic */
-static int hf_nrppa_semi_persistent_02 = -1;      /* ResourceTypeSemi_persistent */
-static int hf_nrppa_aperiodic_02 = -1;            /* ResourceTypeAperiodic */
-static int hf_nrppa_periodicity = -1;             /* T_periodicity */
-static int hf_nrppa_offset = -1;                  /* INTEGER_0_2559_ */
-static int hf_nrppa_periodicity_01 = -1;          /* T_periodicity_01 */
-static int hf_nrppa_aperiodicResourceType = -1;   /* T_aperiodicResourceType */
-static int hf_nrppa_periodic_03 = -1;             /* ResourceTypePeriodicPos */
-static int hf_nrppa_semi_persistent_03 = -1;      /* ResourceTypeSemi_persistentPos */
-static int hf_nrppa_aperiodic_03 = -1;            /* ResourceTypeAperiodicPos */
-static int hf_nrppa_periodicity_02 = -1;          /* T_periodicity_02 */
-static int hf_nrppa_offset_01 = -1;               /* INTEGER_0_81919_ */
-static int hf_nrppa_periodicity_03 = -1;          /* T_periodicity_03 */
-static int hf_nrppa_slotOffset = -1;              /* INTEGER_0_32 */
-static int hf_nrppa_time = -1;                    /* INTEGER_1_128_ */
-static int hf_nrppa_timeUnit = -1;                /* T_timeUnit */
-static int hf_nrppa_ResultCSI_RSRP_item = -1;     /* ResultCSI_RSRP_Item */
-static int hf_nrppa_nR_PCI = -1;                  /* NR_PCI */
-static int hf_nrppa_nR_ARFCN = -1;                /* NR_ARFCN */
-static int hf_nrppa_cGI_NR = -1;                  /* CGI_NR */
-static int hf_nrppa_valueCSI_RSRP_Cell = -1;      /* ValueRSRP_NR */
-static int hf_nrppa_cSI_RSRP_PerCSI_RS = -1;      /* ResultCSI_RSRP_PerCSI_RS */
-static int hf_nrppa_ResultCSI_RSRP_PerCSI_RS_item = -1;  /* ResultCSI_RSRP_PerCSI_RS_Item */
-static int hf_nrppa_cSI_RS_Index = -1;            /* INTEGER_0_95 */
-static int hf_nrppa_valueCSI_RSRP = -1;           /* ValueRSRP_NR */
-static int hf_nrppa_ResultCSI_RSRQ_item = -1;     /* ResultCSI_RSRQ_Item */
-static int hf_nrppa_valueCSI_RSRQ_Cell = -1;      /* ValueRSRQ_NR */
-static int hf_nrppa_cSI_RSRQ_PerCSI_RS = -1;      /* ResultCSI_RSRQ_PerCSI_RS */
-static int hf_nrppa_ResultCSI_RSRQ_PerCSI_RS_item = -1;  /* ResultCSI_RSRQ_PerCSI_RS_Item */
-static int hf_nrppa_valueCSI_RSRQ = -1;           /* ValueRSRQ_NR */
-static int hf_nrppa_ResultEUTRA_item = -1;        /* ResultEUTRA_Item */
-static int hf_nrppa_valueRSRP_EUTRA = -1;         /* ValueRSRP_EUTRA */
-static int hf_nrppa_valueRSRQ_EUTRA = -1;         /* ValueRSRQ_EUTRA */
-static int hf_nrppa_ResultRSRP_EUTRA_item = -1;   /* ResultRSRP_EUTRA_Item */
-static int hf_nrppa_ResultRSRQ_EUTRA_item = -1;   /* ResultRSRQ_EUTRA_Item */
-static int hf_nrppa_cGI_UTRA = -1;                /* CGI_EUTRA */
-static int hf_nrppa_ResultSS_RSRP_item = -1;      /* ResultSS_RSRP_Item */
-static int hf_nrppa_valueSS_RSRP_Cell = -1;       /* ValueRSRP_NR */
-static int hf_nrppa_sS_RSRP_PerSSB = -1;          /* ResultSS_RSRP_PerSSB */
-static int hf_nrppa_ResultSS_RSRP_PerSSB_item = -1;  /* ResultSS_RSRP_PerSSB_Item */
-static int hf_nrppa_valueSS_RSRP = -1;            /* ValueRSRP_NR */
-static int hf_nrppa_ResultSS_RSRQ_item = -1;      /* ResultSS_RSRQ_Item */
-static int hf_nrppa_valueSS_RSRQ_Cell = -1;       /* ValueRSRQ_NR */
-static int hf_nrppa_sS_RSRQ_PerSSB = -1;          /* ResultSS_RSRQ_PerSSB */
-static int hf_nrppa_ResultSS_RSRQ_PerSSB_item = -1;  /* ResultSS_RSRQ_PerSSB_Item */
-static int hf_nrppa_valueSS_RSRQ = -1;            /* ValueRSRQ_NR */
-static int hf_nrppa_ResultGERAN_item = -1;        /* ResultGERAN_Item */
-static int hf_nrppa_bCCH = -1;                    /* BCCH */
-static int hf_nrppa_physCellIDGERAN = -1;         /* PhysCellIDGERAN */
-static int hf_nrppa_rSSI = -1;                    /* RSSI */
-static int hf_nrppa_ResultNR_item = -1;           /* ResultNR_Item */
-static int hf_nrppa_ResultUTRAN_item = -1;        /* ResultUTRAN_Item */
-static int hf_nrppa_uARFCN = -1;                  /* UARFCN */
-static int hf_nrppa_physCellIDUTRAN = -1;         /* T_physCellIDUTRAN */
-static int hf_nrppa_physCellIDUTRA_FDD = -1;      /* PhysCellIDUTRA_FDD */
-static int hf_nrppa_physCellIDUTRA_TDD = -1;      /* PhysCellIDUTRA_TDD */
-static int hf_nrppa_uTRA_RSCP = -1;               /* UTRA_RSCP */
-static int hf_nrppa_uTRA_EcN0 = -1;               /* UTRA_EcN0 */
-static int hf_nrppa_subcarrierSpacing_02 = -1;    /* T_subcarrierSpacing_02 */
-static int hf_nrppa_carrierBandwidth = -1;        /* INTEGER_1_275_ */
-static int hf_nrppa_expectedPropagationDelay = -1;  /* INTEGER_M3841_3841_ */
-static int hf_nrppa_delayUncertainty = -1;        /* INTEGER_1_246_ */
-static int hf_nrppa_nR_PRS_Beam_Information = -1;  /* NR_PRS_Beam_Information */
-static int hf_nrppa_spatialRelationforResourceID = -1;  /* SpatialRelationforResourceID */
-static int hf_nrppa_SpatialRelationforResourceID_item = -1;  /* SpatialRelationforResourceIDItem */
-static int hf_nrppa_referenceSignal = -1;         /* ReferenceSignal */
-static int hf_nrppa_spatialRelationPerSRSResource_List = -1;  /* SpatialRelationPerSRSResource_List */
-static int hf_nrppa_SpatialRelationPerSRSResource_List_item = -1;  /* SpatialRelationPerSRSResourceItem */
-static int hf_nrppa_sSBPos = -1;                  /* SSB */
-static int hf_nrppa_pRSInformationPos = -1;       /* PRSInformationPos */
-static int hf_nrppa_sRSResource_List = -1;        /* SRSResource_List */
-static int hf_nrppa_posSRSResource_List = -1;     /* PosSRSResource_List */
-static int hf_nrppa_sRSResourceSet_List = -1;     /* SRSResourceSet_List */
-static int hf_nrppa_posSRSResourceSet_List = -1;  /* PosSRSResourceSet_List */
-static int hf_nrppa_SRSCarrier_List_item = -1;    /* SRSCarrier_List_Item */
-static int hf_nrppa_uplinkChannelBW_PerSCS_List = -1;  /* UplinkChannelBW_PerSCS_List */
-static int hf_nrppa_activeULBWP = -1;             /* ActiveULBWP */
-static int hf_nrppa_sRSCarrier_List = -1;         /* SRSCarrier_List */
-static int hf_nrppa_sRSResourceID = -1;           /* SRSResourceID */
-static int hf_nrppa_nrofSRS_Ports = -1;           /* T_nrofSRS_Ports */
-static int hf_nrppa_transmissionComb = -1;        /* TransmissionComb */
-static int hf_nrppa_nrofSymbols_01 = -1;          /* T_nrofSymbols_01 */
-static int hf_nrppa_repetitionFactor = -1;        /* T_repetitionFactor */
-static int hf_nrppa_freqDomainPosition = -1;      /* INTEGER_0_67 */
-static int hf_nrppa_b_SRS = -1;                   /* INTEGER_0_3 */
-static int hf_nrppa_b_hop = -1;                   /* INTEGER_0_3 */
-static int hf_nrppa_groupOrSequenceHopping_01 = -1;  /* T_groupOrSequenceHopping_01 */
-static int hf_nrppa_resourceType_01 = -1;         /* ResourceType */
-static int hf_nrppa_sequenceId_01 = -1;           /* INTEGER_0_1023 */
-static int hf_nrppa_SRSResource_List_item = -1;   /* SRSResource */
-static int hf_nrppa_SRSResourceSet_List_item = -1;  /* SRSResourceSet */
-static int hf_nrppa_SRSResourceID_List_item = -1;  /* SRSResourceID */
-static int hf_nrppa_sRSResourceSetID = -1;        /* INTEGER_0_15 */
-static int hf_nrppa_sRSResourceID_List = -1;      /* SRSResourceID_List */
-static int hf_nrppa_resourceSetType = -1;         /* ResourceSetType */
-static int hf_nrppa_aperiodicSRSResourceTriggerList = -1;  /* AperiodicSRSResourceTriggerList */
-static int hf_nrppa_sRSResourceTypeChoice = -1;   /* SRSResourceTypeChoice */
-static int hf_nrppa_sRSResourceInfo = -1;         /* SRSInfo */
-static int hf_nrppa_posSRSResourceInfo = -1;      /* PosSRSInfo */
-static int hf_nrppa_sRSResource = -1;             /* SRSResourceID */
-static int hf_nrppa_posSRSResourceID = -1;        /* SRSPosResourceID */
-static int hf_nrppa_listOfSSBInfo = -1;           /* SEQUENCE_SIZE_1_maxNoSSBs_OF_SSBInfoItem */
-static int hf_nrppa_listOfSSBInfo_item = -1;      /* SSBInfoItem */
-static int hf_nrppa_sSB_Configuration = -1;       /* TF_Configuration */
-static int hf_nrppa_ssb_index = -1;               /* SSB_Index */
-static int hf_nrppa_shortBitmap = -1;             /* BIT_STRING_SIZE_4 */
-static int hf_nrppa_mediumBitmap = -1;            /* BIT_STRING_SIZE_8 */
-static int hf_nrppa_longBitmap = -1;              /* BIT_STRING_SIZE_64 */
-static int hf_nrppa_startTime = -1;               /* RelativeTime1900 */
-static int hf_nrppa_duration = -1;                /* INTEGER_0_90060_ */
-static int hf_nrppa_SystemInformation_item = -1;  /* SystemInformation_item */
-static int hf_nrppa_broadcastPeriodicity = -1;    /* BroadcastPeriodicity */
-static int hf_nrppa_posSIBs = -1;                 /* PosSIBs */
-static int hf_nrppa_subframeAssignment = -1;      /* T_subframeAssignment */
-static int hf_nrppa_rxTx_TEG = -1;                /* RxTxTEG */
-static int hf_nrppa_rx_TEG = -1;                  /* RxTEG */
-static int hf_nrppa_tRP_RxTx_TEGInformation = -1;  /* TRP_RxTx_TEGInformation */
-static int hf_nrppa_tRP_Tx_TEGInformation = -1;   /* TRP_Tx_TEGInformation */
-static int hf_nrppa_tRP_Rx_TEGInformation = -1;   /* TRP_Rx_TEGInformation */
-static int hf_nrppa_sSB_frequency = -1;           /* INTEGER_0_3279165 */
-static int hf_nrppa_sSB_subcarrier_spacing = -1;  /* T_sSB_subcarrier_spacing */
-static int hf_nrppa_sSB_Transmit_power = -1;      /* INTEGER_M60_50 */
-static int hf_nrppa_sSB_periodicity = -1;         /* T_sSB_periodicity */
-static int hf_nrppa_sSB_half_frame_offset = -1;   /* INTEGER_0_1 */
-static int hf_nrppa_sSB_SFN_offset = -1;          /* INTEGER_0_15 */
-static int hf_nrppa_sSB_BurstPosition = -1;       /* SSBBurstPosition */
-static int hf_nrppa_sFN_initialisation_time = -1;  /* RelativeTime1900 */
-static int hf_nrppa_systemFrameNumber = -1;       /* SystemFrameNumber */
-static int hf_nrppa_slotIndex = -1;               /* TimeStampSlotIndex */
-static int hf_nrppa_measurementTime = -1;         /* RelativeTime1900 */
-static int hf_nrppa_iE_Extension = -1;            /* ProtocolExtensionContainer */
-static int hf_nrppa_sCS_15 = -1;                  /* INTEGER_0_9 */
-static int hf_nrppa_sCS_30 = -1;                  /* INTEGER_0_19 */
-static int hf_nrppa_sCS_60 = -1;                  /* INTEGER_0_39 */
-static int hf_nrppa_sCS_120 = -1;                 /* INTEGER_0_79 */
-static int hf_nrppa_n2 = -1;                      /* T_n2 */
-static int hf_nrppa_combOffset_n2 = -1;           /* INTEGER_0_1 */
-static int hf_nrppa_cyclicShift_n2 = -1;          /* INTEGER_0_7 */
-static int hf_nrppa_n4 = -1;                      /* T_n4 */
-static int hf_nrppa_combOffset_n4 = -1;           /* INTEGER_0_3 */
-static int hf_nrppa_cyclicShift_n4 = -1;          /* INTEGER_0_11 */
-static int hf_nrppa_n2_01 = -1;                   /* T_n2_01 */
-static int hf_nrppa_n4_01 = -1;                   /* T_n4_01 */
-static int hf_nrppa_n8 = -1;                      /* T_n8 */
-static int hf_nrppa_combOffset_n8 = -1;           /* INTEGER_0_7 */
-static int hf_nrppa_cyclicShift_n8 = -1;          /* INTEGER_0_5 */
-static int hf_nrppa_choice_TRP_Beam_Antenna_Info_Item = -1;  /* Choice_TRP_Beam_Antenna_Info_Item */
-static int hf_nrppa_reference = -1;               /* TRP_ID */
-static int hf_nrppa_explicit = -1;                /* TRP_BeamAntennaExplicitInformation */
-static int hf_nrppa_noChange = -1;                /* NULL */
-static int hf_nrppa_trp_BeamAntennaAngles = -1;   /* TRP_BeamAntennaAngles */
-static int hf_nrppa_lcs_to_gcs_translation = -1;  /* LCS_to_GCS_Translation */
-static int hf_nrppa_TRP_BeamAntennaAngles_item = -1;  /* TRP_BeamAntennaAnglesList_Item */
-static int hf_nrppa_trp_azimuth_angle = -1;       /* INTEGER_0_359 */
-static int hf_nrppa_trp_azimuth_angle_fine = -1;  /* INTEGER_0_9 */
-static int hf_nrppa_trp_elevation_angle_list = -1;  /* SEQUENCE_SIZE_1_maxnoElevationAngles_OF_TRP_ElevationAngleList_Item */
-static int hf_nrppa_trp_elevation_angle_list_item = -1;  /* TRP_ElevationAngleList_Item */
-static int hf_nrppa_trp_elevation_angle = -1;     /* INTEGER_0_180 */
-static int hf_nrppa_trp_elevation_angle_fine = -1;  /* INTEGER_0_9 */
-static int hf_nrppa_trp_beam_power_list = -1;     /* SEQUENCE_SIZE_2_maxNumResourcesPerAngle_OF_TRP_Beam_Power_Item */
-static int hf_nrppa_trp_beam_power_list_item = -1;  /* TRP_Beam_Power_Item */
-static int hf_nrppa_relativePower = -1;           /* INTEGER_0_30 */
-static int hf_nrppa_relativePowerFine = -1;       /* INTEGER_0_9 */
-static int hf_nrppa_TRPMeasurementQuantities_item = -1;  /* TRPMeasurementQuantitiesList_Item */
-static int hf_nrppa_tRPMeasurementQuantities_Item = -1;  /* TRPMeasurementQuantities_Item */
-static int hf_nrppa_timingReportingGranularityFactor = -1;  /* INTEGER_0_5 */
-static int hf_nrppa_TrpMeasurementResult_item = -1;  /* TrpMeasurementResultItem */
-static int hf_nrppa_measuredResultsValue = -1;    /* TrpMeasuredResultsValue */
-static int hf_nrppa_timeStamp = -1;               /* TimeStamp */
-static int hf_nrppa_measurementQuality = -1;      /* TrpMeasurementQuality */
-static int hf_nrppa_measurementBeamInfo = -1;     /* MeasurementBeamInfo */
-static int hf_nrppa_uL_AngleOfArrival = -1;       /* UL_AoA */
-static int hf_nrppa_uL_SRS_RSRP = -1;             /* UL_SRS_RSRP */
-static int hf_nrppa_uL_RTOA = -1;                 /* UL_RTOAMeasurement */
-static int hf_nrppa_gNB_RxTxTimeDiff = -1;        /* GNB_RxTxTimeDiff */
-static int hf_nrppa_timingMeasQuality = -1;       /* TrpMeasurementTimingQuality */
-static int hf_nrppa_angleMeasQuality = -1;        /* TrpMeasurementAngleQuality */
-static int hf_nrppa_measurementQuality_01 = -1;   /* INTEGER_0_31 */
-static int hf_nrppa_resolution = -1;              /* T_resolution */
-static int hf_nrppa_azimuthQuality = -1;          /* INTEGER_0_255 */
-static int hf_nrppa_zenithQuality = -1;           /* INTEGER_0_255 */
-static int hf_nrppa_resolution_01 = -1;           /* T_resolution_01 */
-static int hf_nrppa_TRP_MeasurementRequestList_item = -1;  /* TRP_MeasurementRequestItem */
-static int hf_nrppa_search_window_information = -1;  /* Search_window_information */
-static int hf_nrppa_TRP_MeasurementResponseList_item = -1;  /* TRP_MeasurementResponseItem */
-static int hf_nrppa_measurementResult = -1;       /* TrpMeasurementResult */
-static int hf_nrppa_TRP_MeasurementUpdateList_item = -1;  /* TRP_MeasurementUpdateItem */
-static int hf_nrppa_aoA_window_information = -1;  /* AoA_AssistanceInfo */
-static int hf_nrppa_TRPInformationListTRPResp_item = -1;  /* TRPInformationListTRPResp_item */
-static int hf_nrppa_tRPInformation = -1;          /* TRPInformation */
-static int hf_nrppa_tRPInformationTypeResponseList = -1;  /* TRPInformationTypeResponseList */
-static int hf_nrppa_TRPInformationTypeResponseList_item = -1;  /* TRPInformationTypeResponseItem */
-static int hf_nrppa_aRFCN = -1;                   /* INTEGER_0_3279165 */
-static int hf_nrppa_sSBinformation = -1;          /* SSBInfo */
-static int hf_nrppa_sFNInitialisationTime = -1;   /* RelativeTime1900 */
-static int hf_nrppa_spatialDirectionInformation = -1;  /* SpatialDirectionInformation */
-static int hf_nrppa_geographicalCoordinates = -1;  /* GeographicalCoordinates */
-static int hf_nrppa_TRPInformationTypeListTRPReq_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nrppa_TRPList_item = -1;            /* TRPItem */
-static int hf_nrppa_direct = -1;                  /* TRPPositionDirect */
-static int hf_nrppa_referenced = -1;              /* TRPPositionReferenced */
-static int hf_nrppa_accuracy = -1;                /* TRPPositionDirectAccuracy */
-static int hf_nrppa_tRPPosition = -1;             /* NG_RANAccessPointPosition */
-static int hf_nrppa_tRPHAposition = -1;           /* NGRANHighAccuracyAccessPointPosition */
-static int hf_nrppa_referencePoint = -1;          /* ReferencePoint */
-static int hf_nrppa_referencePointType = -1;      /* TRPReferencePointType */
-static int hf_nrppa_TRP_PRS_Information_List_item = -1;  /* TRP_PRS_Information_List_Item */
-static int hf_nrppa_tRPPositionRelativeGeodetic = -1;  /* RelativeGeodeticLocation */
-static int hf_nrppa_tRPPositionRelativeCartesian = -1;  /* RelativeCartesianLocation */
-static int hf_nrppa_tRP_Rx_TEGID = -1;            /* INTEGER_0_31 */
-static int hf_nrppa_tRP_Rx_TimingErrorMargin = -1;  /* TimingErrorMargin */
-static int hf_nrppa_tRP_RxTx_TEGID = -1;          /* INTEGER_0_255 */
-static int hf_nrppa_tRP_RxTx_TimingErrorMargin = -1;  /* RxTxTimingErrorMargin */
-static int hf_nrppa_tRP_Tx_TEGID = -1;            /* INTEGER_0_7 */
-static int hf_nrppa_tRP_Tx_TimingErrorMargin = -1;  /* TimingErrorMargin */
-static int hf_nrppa_TRPTxTEGAssociation_item = -1;  /* TRPTEGItem */
-static int hf_nrppa_dl_PRSResourceID_List = -1;   /* SEQUENCE_SIZE_1_maxPRS_ResourcesPerSet_OF_DLPRSResourceID_Item */
-static int hf_nrppa_dl_PRSResourceID_List_item = -1;  /* DLPRSResourceID_Item */
-static int hf_nrppa_reportingAmount = -1;         /* T_reportingAmount */
-static int hf_nrppa_reportingInterval = -1;       /* T_reportingInterval */
-static int hf_nrppa_UETxTEGAssociationList_item = -1;  /* UETxTEGAssociationItem */
-static int hf_nrppa_uE_Tx_TEG_ID = -1;            /* INTEGER_0_7 */
-static int hf_nrppa_posSRSResourceID_List = -1;   /* PosSRSResourceID_List */
-static int hf_nrppa_carrierFreq = -1;             /* CarrierFreq */
-static int hf_nrppa_azimuthAoA = -1;              /* INTEGER_0_3599 */
-static int hf_nrppa_zenithAoA = -1;               /* INTEGER_0_1799 */
-static int hf_nrppa_uLRTOAmeas = -1;              /* ULRTOAMeas */
-static int hf_nrppa_firstPathRSRPP = -1;          /* INTEGER_0_126 */
-static int hf_nrppa_UplinkChannelBW_PerSCS_List_item = -1;  /* SCS_SpecificCarrier */
-static int hf_nrppa_WLANMeasurementQuantities_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nrppa_wLANMeasurementQuantitiesValue = -1;  /* WLANMeasurementQuantitiesValue */
-static int hf_nrppa_WLANMeasurementResult_item = -1;  /* WLANMeasurementResult_Item */
-static int hf_nrppa_wLAN_RSSI = -1;               /* WLAN_RSSI */
-static int hf_nrppa_sSID = -1;                    /* SSID */
-static int hf_nrppa_bSSID = -1;                   /* BSSID */
-static int hf_nrppa_hESSID = -1;                  /* HESSID */
-static int hf_nrppa_operatingClass = -1;          /* WLANOperatingClass */
-static int hf_nrppa_countryCode = -1;             /* WLANCountryCode */
-static int hf_nrppa_wLANChannelList = -1;         /* WLANChannelList */
-static int hf_nrppa_wLANBand = -1;                /* WLANBand */
-static int hf_nrppa_WLANChannelList_item = -1;    /* WLANChannel */
-static int hf_nrppa_protocolIEs = -1;             /* ProtocolIE_Container */
-static int hf_nrppa_OTDOA_Information_Type_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nrppa_oTDOA_Information_Item = -1;  /* OTDOA_Information_Item */
-static int hf_nrppa_privateIEs = -1;              /* PrivateIE_Container */
-static int hf_nrppa_semipersistentSRS = -1;       /* SemipersistentSRS */
-static int hf_nrppa_aperiodicSRS = -1;            /* AperiodicSRS */
-static int hf_nrppa_sRSResourceSetID_01 = -1;     /* SRSResourceSetID */
-static int hf_nrppa_aperiodic_04 = -1;            /* T_aperiodic */
-static int hf_nrppa_sRSResourceTrigger_01 = -1;   /* SRSResourceTrigger */
+static int hf_nrppa_NRPPA_PDU_PDU;                /* NRPPA_PDU */
+static int hf_nrppa_AbortTransmission_PDU;        /* AbortTransmission */
+static int hf_nrppa_ExtendedAdditionalPathList_PDU;  /* ExtendedAdditionalPathList */
+static int hf_nrppa_AoA_AssistanceInfo_PDU;       /* AoA_AssistanceInfo */
+static int hf_nrppa_ARP_ID_PDU;                   /* ARP_ID */
+static int hf_nrppa_ARPLocationInformation_PDU;   /* ARPLocationInformation */
+static int hf_nrppa_nrppa_Assistance_Information_PDU;  /* Assistance_Information */
+static int hf_nrppa_AssistanceInformationFailureList_PDU;  /* AssistanceInformationFailureList */
+static int hf_nrppa_Broadcast_PDU;                /* Broadcast */
+static int hf_nrppa_PositioningBroadcastCells_PDU;  /* PositioningBroadcastCells */
+static int hf_nrppa_Cause_PDU;                    /* Cause */
+static int hf_nrppa_Cell_Portion_ID_PDU;          /* Cell_Portion_ID */
+static int hf_nrppa_CGI_NR_PDU;                   /* CGI_NR */
+static int hf_nrppa_CriticalityDiagnostics_PDU;   /* CriticalityDiagnostics */
+static int hf_nrppa_E_CID_MeasurementResult_PDU;  /* E_CID_MeasurementResult */
+static int hf_nrppa_GeographicalCoordinates_PDU;  /* GeographicalCoordinates */
+static int hf_nrppa_LoS_NLoSInformation_PDU;      /* LoS_NLoSInformation */
+static int hf_nrppa_Measurement_ID_PDU;           /* Measurement_ID */
+static int hf_nrppa_MeasurementAmount_PDU;        /* MeasurementAmount */
+static int hf_nrppa_MeasurementBeamInfoRequest_PDU;  /* MeasurementBeamInfoRequest */
+static int hf_nrppa_MeasurementPeriodicity_PDU;   /* MeasurementPeriodicity */
+static int hf_nrppa_MeasurementPeriodicityExtended_PDU;  /* MeasurementPeriodicityExtended */
+static int hf_nrppa_MeasurementPeriodicityNR_AoA_PDU;  /* MeasurementPeriodicityNR_AoA */
+static int hf_nrppa_MeasurementQuantities_PDU;    /* MeasurementQuantities */
+static int hf_nrppa_MeasurementQuantities_Item_PDU;  /* MeasurementQuantities_Item */
+static int hf_nrppa_MeasurementTimeOccasion_PDU;  /* MeasurementTimeOccasion */
+static int hf_nrppa_MeasurementCharacteristicsRequestIndicator_PDU;  /* MeasurementCharacteristicsRequestIndicator */
+static int hf_nrppa_MultipleULAoA_PDU;            /* MultipleULAoA */
+static int hf_nrppa_NR_TADV_PDU;                  /* NR_TADV */
+static int hf_nrppa_NumberOfTRPRxTEG_PDU;         /* NumberOfTRPRxTEG */
+static int hf_nrppa_NumberOfTRPRxTxTEG_PDU;       /* NumberOfTRPRxTxTEG */
+static int hf_nrppa_OnDemandPRS_Info_PDU;         /* OnDemandPRS_Info */
+static int hf_nrppa_OTDOACells_PDU;               /* OTDOACells */
+static int hf_nrppa_OtherRATMeasurementQuantities_PDU;  /* OtherRATMeasurementQuantities */
+static int hf_nrppa_OtherRATMeasurementQuantities_Item_PDU;  /* OtherRATMeasurementQuantities_Item */
+static int hf_nrppa_OtherRATMeasurementResult_PDU;  /* OtherRATMeasurementResult */
+static int hf_nrppa_PreconfigurationResult_PDU;   /* PreconfigurationResult */
+static int hf_nrppa_PRSConfigRequestType_PDU;     /* PRSConfigRequestType */
+static int hf_nrppa_PRS_Measurements_Info_List_PDU;  /* PRS_Measurements_Info_List */
+static int hf_nrppa_PRS_Resource_ID_PDU;          /* PRS_Resource_ID */
+static int hf_nrppa_PRSTRPList_PDU;               /* PRSTRPList */
+static int hf_nrppa_PRSTransmissionTRPList_PDU;   /* PRSTransmissionTRPList */
+static int hf_nrppa_ReportCharacteristics_PDU;    /* ReportCharacteristics */
+static int hf_nrppa_RequestedSRSTransmissionCharacteristics_PDU;  /* RequestedSRSTransmissionCharacteristics */
+static int hf_nrppa_RequestType_PDU;              /* RequestType */
+static int hf_nrppa_ResponseTime_PDU;             /* ResponseTime */
+static int hf_nrppa_ResultCSI_RSRP_PDU;           /* ResultCSI_RSRP */
+static int hf_nrppa_ResultCSI_RSRQ_PDU;           /* ResultCSI_RSRQ */
+static int hf_nrppa_ResultEUTRA_PDU;              /* ResultEUTRA */
+static int hf_nrppa_ResultSS_RSRP_PDU;            /* ResultSS_RSRP */
+static int hf_nrppa_ResultSS_RSRQ_PDU;            /* ResultSS_RSRQ */
+static int hf_nrppa_ResultNR_PDU;                 /* ResultNR */
+static int hf_nrppa_RelativeTime1900_PDU;         /* RelativeTime1900 */
+static int hf_nrppa_SFNInitialisationTime_EUTRA_PDU;  /* SFNInitialisationTime_EUTRA */
+static int hf_nrppa_SlotNumber_PDU;               /* SlotNumber */
+static int hf_nrppa_SpatialRelationInfo_PDU;      /* SpatialRelationInfo */
+static int hf_nrppa_SpatialRelationPerSRSResource_PDU;  /* SpatialRelationPerSRSResource */
+static int hf_nrppa_SRSConfiguration_PDU;         /* SRSConfiguration */
+static int hf_nrppa_SrsFrequency_PDU;             /* SrsFrequency */
+static int hf_nrppa_SRSPortIndex_PDU;             /* SRSPortIndex */
+static int hf_nrppa_SRSResourcetype_PDU;          /* SRSResourcetype */
+static int hf_nrppa_SRSTransmissionStatus_PDU;    /* SRSTransmissionStatus */
+static int hf_nrppa_SystemFrameNumber_PDU;        /* SystemFrameNumber */
+static int hf_nrppa_TDD_Config_EUTRA_Item_PDU;    /* TDD_Config_EUTRA_Item */
+static int hf_nrppa_TRPTEGInformation_PDU;        /* TRPTEGInformation */
+static int hf_nrppa_TimingErrorMargin_PDU;        /* TimingErrorMargin */
+static int hf_nrppa_TRPBeamAntennaInformation_PDU;  /* TRPBeamAntennaInformation */
+static int hf_nrppa_TRPMeasurementQuantities_PDU;  /* TRPMeasurementQuantities */
+static int hf_nrppa_TRP_MeasurementRequestList_PDU;  /* TRP_MeasurementRequestList */
+static int hf_nrppa_TRP_MeasurementResponseList_PDU;  /* TRP_MeasurementResponseList */
+static int hf_nrppa_TRP_MeasurementUpdateList_PDU;  /* TRP_MeasurementUpdateList */
+static int hf_nrppa_TRPInformationListTRPResp_PDU;  /* TRPInformationListTRPResp */
+static int hf_nrppa_TRPInformationTypeListTRPReq_PDU;  /* TRPInformationTypeListTRPReq */
+static int hf_nrppa_TRPInformationTypeItem_PDU;   /* TRPInformationTypeItem */
+static int hf_nrppa_TRPList_PDU;                  /* TRPList */
+static int hf_nrppa_TRP_PRS_Information_List_PDU;  /* TRP_PRS_Information_List */
+static int hf_nrppa_TRP_Rx_TEGInformation_PDU;    /* TRP_Rx_TEGInformation */
+static int hf_nrppa_TRPTxTEGAssociation_PDU;      /* TRPTxTEGAssociation */
+static int hf_nrppa_TRPType_PDU;                  /* TRPType */
+static int hf_nrppa_UE_Measurement_ID_PDU;        /* UE_Measurement_ID */
+static int hf_nrppa_UEReportingInformation_PDU;   /* UEReportingInformation */
+static int hf_nrppa_UE_TEG_ReportingPeriodicity_PDU;  /* UE_TEG_ReportingPeriodicity */
+static int hf_nrppa_UETxTEGAssociationList_PDU;   /* UETxTEGAssociationList */
+static int hf_nrppa_UE_TEG_Info_Request_PDU;      /* UE_TEG_Info_Request */
+static int hf_nrppa_UL_AoA_PDU;                   /* UL_AoA */
+static int hf_nrppa_UL_SRS_RSRPP_PDU;             /* UL_SRS_RSRPP */
+static int hf_nrppa_WLANMeasurementQuantities_PDU;  /* WLANMeasurementQuantities */
+static int hf_nrppa_WLANMeasurementQuantities_Item_PDU;  /* WLANMeasurementQuantities_Item */
+static int hf_nrppa_WLANMeasurementResult_PDU;    /* WLANMeasurementResult */
+static int hf_nrppa_ZoA_PDU;                      /* ZoA */
+static int hf_nrppa_E_CIDMeasurementInitiationRequest_PDU;  /* E_CIDMeasurementInitiationRequest */
+static int hf_nrppa_E_CIDMeasurementInitiationResponse_PDU;  /* E_CIDMeasurementInitiationResponse */
+static int hf_nrppa_E_CIDMeasurementInitiationFailure_PDU;  /* E_CIDMeasurementInitiationFailure */
+static int hf_nrppa_E_CIDMeasurementFailureIndication_PDU;  /* E_CIDMeasurementFailureIndication */
+static int hf_nrppa_E_CIDMeasurementReport_PDU;   /* E_CIDMeasurementReport */
+static int hf_nrppa_E_CIDMeasurementTerminationCommand_PDU;  /* E_CIDMeasurementTerminationCommand */
+static int hf_nrppa_OTDOAInformationRequest_PDU;  /* OTDOAInformationRequest */
+static int hf_nrppa_OTDOA_Information_Type_PDU;   /* OTDOA_Information_Type */
+static int hf_nrppa_OTDOA_Information_Type_Item_PDU;  /* OTDOA_Information_Type_Item */
+static int hf_nrppa_OTDOAInformationResponse_PDU;  /* OTDOAInformationResponse */
+static int hf_nrppa_OTDOAInformationFailure_PDU;  /* OTDOAInformationFailure */
+static int hf_nrppa_AssistanceInformationControl_PDU;  /* AssistanceInformationControl */
+static int hf_nrppa_AssistanceInformationFeedback_PDU;  /* AssistanceInformationFeedback */
+static int hf_nrppa_ErrorIndication_PDU;          /* ErrorIndication */
+static int hf_nrppa_PrivateMessage_PDU;           /* PrivateMessage */
+static int hf_nrppa_PositioningInformationRequest_PDU;  /* PositioningInformationRequest */
+static int hf_nrppa_PositioningInformationResponse_PDU;  /* PositioningInformationResponse */
+static int hf_nrppa_PositioningInformationFailure_PDU;  /* PositioningInformationFailure */
+static int hf_nrppa_PositioningInformationUpdate_PDU;  /* PositioningInformationUpdate */
+static int hf_nrppa_MeasurementRequest_PDU;       /* MeasurementRequest */
+static int hf_nrppa_MeasurementResponse_PDU;      /* MeasurementResponse */
+static int hf_nrppa_MeasurementFailure_PDU;       /* MeasurementFailure */
+static int hf_nrppa_MeasurementReport_PDU;        /* MeasurementReport */
+static int hf_nrppa_MeasurementUpdate_PDU;        /* MeasurementUpdate */
+static int hf_nrppa_MeasurementAbort_PDU;         /* MeasurementAbort */
+static int hf_nrppa_MeasurementFailureIndication_PDU;  /* MeasurementFailureIndication */
+static int hf_nrppa_TRPInformationRequest_PDU;    /* TRPInformationRequest */
+static int hf_nrppa_TRPInformationResponse_PDU;   /* TRPInformationResponse */
+static int hf_nrppa_TRPInformationFailure_PDU;    /* TRPInformationFailure */
+static int hf_nrppa_PositioningActivationRequest_PDU;  /* PositioningActivationRequest */
+static int hf_nrppa_SRSType_PDU;                  /* SRSType */
+static int hf_nrppa_PositioningActivationResponse_PDU;  /* PositioningActivationResponse */
+static int hf_nrppa_PositioningActivationFailure_PDU;  /* PositioningActivationFailure */
+static int hf_nrppa_PositioningDeactivation_PDU;  /* PositioningDeactivation */
+static int hf_nrppa_PRSConfigurationRequest_PDU;  /* PRSConfigurationRequest */
+static int hf_nrppa_PRSConfigurationResponse_PDU;  /* PRSConfigurationResponse */
+static int hf_nrppa_PRSConfigurationFailure_PDU;  /* PRSConfigurationFailure */
+static int hf_nrppa_MeasurementPreconfigurationRequired_PDU;  /* MeasurementPreconfigurationRequired */
+static int hf_nrppa_MeasurementPreconfigurationConfirm_PDU;  /* MeasurementPreconfigurationConfirm */
+static int hf_nrppa_MeasurementPreconfigurationRefuse_PDU;  /* MeasurementPreconfigurationRefuse */
+static int hf_nrppa_MeasurementActivation_PDU;    /* MeasurementActivation */
+static int hf_nrppa_local;                        /* INTEGER_0_maxPrivateIEs */
+static int hf_nrppa_global;                       /* OBJECT_IDENTIFIER */
+static int hf_nrppa_ProtocolIE_Container_item;    /* ProtocolIE_Field */
+static int hf_nrppa_id;                           /* ProtocolIE_ID */
+static int hf_nrppa_criticality;                  /* Criticality */
+static int hf_nrppa_ie_field_value;               /* T_ie_field_value */
+static int hf_nrppa_ProtocolExtensionContainer_item;  /* ProtocolExtensionField */
+static int hf_nrppa_ext_id;                       /* ProtocolIE_ID */
+static int hf_nrppa_extensionValue;               /* T_extensionValue */
+static int hf_nrppa_PrivateIE_Container_item;     /* PrivateIE_Field */
+static int hf_nrppa_id_01;                        /* PrivateIE_ID */
+static int hf_nrppa_value;                        /* T_value */
+static int hf_nrppa_initiatingMessage;            /* InitiatingMessage */
+static int hf_nrppa_successfulOutcome;            /* SuccessfulOutcome */
+static int hf_nrppa_unsuccessfulOutcome;          /* UnsuccessfulOutcome */
+static int hf_nrppa_procedureCode;                /* ProcedureCode */
+static int hf_nrppa_nrppatransactionID;           /* NRPPATransactionID */
+static int hf_nrppa_initiatingMessagevalue;       /* InitiatingMessage_value */
+static int hf_nrppa_successfulOutcome_value;      /* SuccessfulOutcome_value */
+static int hf_nrppa_unsuccessfulOutcome_value;    /* UnsuccessfulOutcome_value */
+static int hf_nrppa_deactivateSRSResourceSetID;   /* SRSResourceSetID */
+static int hf_nrppa_releaseALL;                   /* NULL */
+static int hf_nrppa_choice_extension;             /* ProtocolIE_Single_Container */
+static int hf_nrppa_locationAndBandwidth;         /* INTEGER_0_37949_ */
+static int hf_nrppa_subcarrierSpacing;            /* T_subcarrierSpacing */
+static int hf_nrppa_cyclicPrefix;                 /* T_cyclicPrefix */
+static int hf_nrppa_txDirectCurrentLocation;      /* INTEGER_0_3301_ */
+static int hf_nrppa_shift7dot5kHz;                /* T_shift7dot5kHz */
+static int hf_nrppa_sRSConfig;                    /* SRSConfig */
+static int hf_nrppa_iE_Extensions;                /* ProtocolExtensionContainer */
+static int hf_nrppa_AdditionalPathList_item;      /* AdditionalPathListItem */
+static int hf_nrppa_relativeTimeOfPath;           /* RelativePathDelay */
+static int hf_nrppa_pathQuality;                  /* TrpMeasurementQuality */
+static int hf_nrppa_ExtendedAdditionalPathList_item;  /* ExtendedAdditionalPathList_Item */
+static int hf_nrppa_multipleULAoA;                /* MultipleULAoA */
+static int hf_nrppa_pathPower;                    /* UL_SRS_RSRPP */
+static int hf_nrppa_angleMeasurement;             /* AngleMeasurementType */
+static int hf_nrppa_lCS_to_GCS_Translation;       /* LCS_to_GCS_Translation */
+static int hf_nrppa_AperiodicSRSResourceTriggerList_item;  /* AperiodicSRSResourceTrigger */
+static int hf_nrppa_expected_ULAoA;               /* Expected_UL_AoA */
+static int hf_nrppa_expected_ZoA;                 /* Expected_ZoA_only */
+static int hf_nrppa_expected_Azimuth_AoA;         /* Expected_Azimuth_AoA */
+static int hf_nrppa_expected_Zenith_AoA;          /* Expected_Zenith_AoA */
+static int hf_nrppa_iE_extensions;                /* ProtocolExtensionContainer */
+static int hf_nrppa_expected_ZoA_only;            /* Expected_Zenith_AoA */
+static int hf_nrppa_expected_Azimuth_AoA_value;   /* Expected_Value_AoA */
+static int hf_nrppa_expected_Azimuth_AoA_uncertainty;  /* Uncertainty_range_AoA */
+static int hf_nrppa_expected_Zenith_AoA_value;    /* Expected_Value_ZoA */
+static int hf_nrppa_expected_Zenith_AoA_uncertainty;  /* Uncertainty_range_ZoA */
+static int hf_nrppa_ARPLocationInformation_item;  /* ARPLocationInformation_Item */
+static int hf_nrppa_aRP_ID;                       /* ARP_ID */
+static int hf_nrppa_aRPLocationType;              /* ARPLocationType */
+static int hf_nrppa_aRPPositionRelativeGeodetic;  /* RelativeGeodeticLocation */
+static int hf_nrppa_aRPPositionRelativeCartesian;  /* RelativeCartesianLocation */
+static int hf_nrppa_systemInformation;            /* SystemInformation */
+static int hf_nrppa_AssistanceInformationFailureList_item;  /* AssistanceInformationFailureList_item */
+static int hf_nrppa_posSIB_Type;                  /* PosSIB_Type */
+static int hf_nrppa_outcome;                      /* Outcome */
+static int hf_nrppa_encrypted;                    /* T_encrypted */
+static int hf_nrppa_gNSSID;                       /* T_gNSSID */
+static int hf_nrppa_sBASID;                       /* T_sBASID */
+static int hf_nrppa_fR1;                          /* T_fR1 */
+static int hf_nrppa_fR2;                          /* T_fR2 */
+static int hf_nrppa_PositioningBroadcastCells_item;  /* NG_RAN_CGI */
+static int hf_nrppa_pointA;                       /* INTEGER_0_3279165 */
+static int hf_nrppa_offsetToCarrier;              /* INTEGER_0_2199_ */
+static int hf_nrppa_radioNetwork;                 /* CauseRadioNetwork */
+static int hf_nrppa_protocol;                     /* CauseProtocol */
+static int hf_nrppa_misc;                         /* CauseMisc */
+static int hf_nrppa_choice_Extension;             /* ProtocolIE_Single_Container */
+static int hf_nrppa_pLMN_Identity;                /* PLMN_Identity */
+static int hf_nrppa_eUTRAcellIdentifier;          /* EUTRACellIdentifier */
+static int hf_nrppa_nRcellIdentifier;             /* NRCellIdentifier */
+static int hf_nrppa_triggeringMessage;            /* TriggeringMessage */
+static int hf_nrppa_procedureCriticality;         /* Criticality */
+static int hf_nrppa_iEsCriticalityDiagnostics;    /* CriticalityDiagnostics_IE_List */
+static int hf_nrppa_CriticalityDiagnostics_IE_List_item;  /* CriticalityDiagnostics_IE_List_item */
+static int hf_nrppa_iECriticality;                /* Criticality */
+static int hf_nrppa_iE_ID;                        /* ProtocolIE_ID */
+static int hf_nrppa_typeOfError;                  /* TypeOfError */
+static int hf_nrppa_prsid;                        /* INTEGER_0_255 */
+static int hf_nrppa_dl_PRSResourceSetID;          /* PRS_Resource_Set_ID */
+static int hf_nrppa_dl_PRSResourceID;             /* PRS_Resource_ID */
+static int hf_nrppa_two;                          /* BIT_STRING_SIZE_2 */
+static int hf_nrppa_four;                         /* BIT_STRING_SIZE_4 */
+static int hf_nrppa_six;                          /* BIT_STRING_SIZE_6 */
+static int hf_nrppa_eight;                        /* BIT_STRING_SIZE_8 */
+static int hf_nrppa_sixteen;                      /* BIT_STRING_SIZE_16 */
+static int hf_nrppa_thirty_two;                   /* BIT_STRING_SIZE_32 */
+static int hf_nrppa_listofDL_PRSResourceSetARP;   /* SEQUENCE_SIZE_1_maxPRS_ResourceSets_OF_DLPRSResourceSetARP */
+static int hf_nrppa_listofDL_PRSResourceSetARP_item;  /* DLPRSResourceSetARP */
+static int hf_nrppa_dL_PRSResourceSetARPLocation;  /* DL_PRSResourceSetARPLocation */
+static int hf_nrppa_listofDL_PRSResourceARP;      /* SEQUENCE_SIZE_1_maxPRS_ResourcesPerSet_OF_DLPRSResourceARP */
+static int hf_nrppa_listofDL_PRSResourceARP_item;  /* DLPRSResourceARP */
+static int hf_nrppa_relativeGeodeticLocation;     /* RelativeGeodeticLocation */
+static int hf_nrppa_relativeCartesianLocation;    /* RelativeCartesianLocation */
+static int hf_nrppa_dL_PRSResourceARPLocation;    /* DL_PRSResourceARPLocation */
+static int hf_nrppa_servingCell_ID;               /* NG_RAN_CGI */
+static int hf_nrppa_servingCellTAC;               /* TAC */
+static int hf_nrppa_nG_RANAccessPointPosition;    /* NG_RANAccessPointPosition */
+static int hf_nrppa_measuredResults;              /* MeasuredResults */
+static int hf_nrppa_tRPPositionDefinitionType;    /* TRPPositionDefinitionType */
+static int hf_nrppa_dLPRSResourceCoordinates;     /* DLPRSResourceCoordinates */
+static int hf_nrppa_rxTxTimeDiff;                 /* GNBRxTxTimeDiffMeas */
+static int hf_nrppa_additionalPathList;           /* AdditionalPathList */
+static int hf_nrppa_k0;                           /* INTEGER_0_1970049 */
+static int hf_nrppa_k1;                           /* INTEGER_0_985025 */
+static int hf_nrppa_k2;                           /* INTEGER_0_492513 */
+static int hf_nrppa_k3;                           /* INTEGER_0_246257 */
+static int hf_nrppa_k4;                           /* INTEGER_0_123129 */
+static int hf_nrppa_k5;                           /* INTEGER_0_61565 */
+static int hf_nrppa_alpha;                        /* INTEGER_0_3599 */
+static int hf_nrppa_beta;                         /* INTEGER_0_3599 */
+static int hf_nrppa_gamma;                        /* INTEGER_0_3599 */
+static int hf_nrppa_alpha_01;                     /* INTEGER_0_359 */
+static int hf_nrppa_alphaFine;                    /* INTEGER_0_9 */
+static int hf_nrppa_beta_01;                      /* INTEGER_0_359 */
+static int hf_nrppa_betaFine;                     /* INTEGER_0_9 */
+static int hf_nrppa_gamma_01;                     /* INTEGER_0_359 */
+static int hf_nrppa_gammaFine;                    /* INTEGER_0_9 */
+static int hf_nrppa_horizontalUncertainty;        /* INTEGER_0_255 */
+static int hf_nrppa_horizontalConfidence;         /* INTEGER_0_100 */
+static int hf_nrppa_verticalUncertainty;          /* INTEGER_0_255 */
+static int hf_nrppa_verticalConfidence;           /* INTEGER_0_100 */
+static int hf_nrppa_loS_NLoSIndicatorSoft;        /* LoS_NLoSIndicatorSoft */
+static int hf_nrppa_loS_NLoSIndicatorHard;        /* LoS_NLoSIndicatorHard */
+static int hf_nrppa_pRS_Resource_ID;              /* PRS_Resource_ID */
+static int hf_nrppa_pRS_Resource_Set_ID;          /* PRS_Resource_Set_ID */
+static int hf_nrppa_sSB_Index;                    /* SSB_Index */
+static int hf_nrppa_MeasurementQuantities_item;   /* ProtocolIE_Single_Container */
+static int hf_nrppa_measurementQuantitiesValue;   /* MeasurementQuantitiesValue */
+static int hf_nrppa_MeasuredResults_item;         /* MeasuredResultsValue */
+static int hf_nrppa_valueAngleOfArrival_EUTRA;    /* INTEGER_0_719 */
+static int hf_nrppa_valueTimingAdvanceType1_EUTRA;  /* INTEGER_0_7690 */
+static int hf_nrppa_valueTimingAdvanceType2_EUTRA;  /* INTEGER_0_7690 */
+static int hf_nrppa_resultRSRP_EUTRA;             /* ResultRSRP_EUTRA */
+static int hf_nrppa_resultRSRQ_EUTRA;             /* ResultRSRQ_EUTRA */
+static int hf_nrppa_multipleULAoA_01;             /* MultipleULAoA_List */
+static int hf_nrppa_MultipleULAoA_List_item;      /* MultipleULAoA_Item */
+static int hf_nrppa_uL_AoA;                       /* UL_AoA */
+static int hf_nrppa_ul_ZoA;                       /* ZoA */
+static int hf_nrppa_latitudeSign;                 /* T_latitudeSign */
+static int hf_nrppa_latitude;                     /* INTEGER_0_8388607 */
+static int hf_nrppa_longitude;                    /* INTEGER_M8388608_8388607 */
+static int hf_nrppa_directionOfAltitude;          /* T_directionOfAltitude */
+static int hf_nrppa_altitude;                     /* INTEGER_0_32767 */
+static int hf_nrppa_uncertaintySemi_major;        /* INTEGER_0_127 */
+static int hf_nrppa_uncertaintySemi_minor;        /* INTEGER_0_127 */
+static int hf_nrppa_orientationOfMajorAxis;       /* INTEGER_0_179 */
+static int hf_nrppa_uncertaintyAltitude;          /* INTEGER_0_127 */
+static int hf_nrppa_confidence;                   /* INTEGER_0_100 */
+static int hf_nrppa_latitude_01;                  /* INTEGER_M2147483648_2147483647 */
+static int hf_nrppa_longitude_01;                 /* INTEGER_M2147483648_2147483647 */
+static int hf_nrppa_altitude_01;                  /* INTEGER_M64000_1280000 */
+static int hf_nrppa_uncertaintySemi_major_01;     /* INTEGER_0_255 */
+static int hf_nrppa_uncertaintySemi_minor_01;     /* INTEGER_0_255 */
+static int hf_nrppa_uncertaintyAltitude_01;       /* INTEGER_0_255 */
+static int hf_nrppa_nG_RANcell;                   /* NG_RANCell */
+static int hf_nrppa_eUTRA_CellID;                 /* EUTRACellIdentifier */
+static int hf_nrppa_nR_CellID;                    /* NRCellIdentifier */
+static int hf_nrppa_nR_PRS_Beam_InformationList;  /* SEQUENCE_SIZE_1_maxPRS_ResourceSets_OF_NR_PRS_Beam_InformationItem */
+static int hf_nrppa_nR_PRS_Beam_InformationList_item;  /* NR_PRS_Beam_InformationItem */
+static int hf_nrppa_lCS_to_GCS_TranslationList;   /* SEQUENCE_SIZE_1_maxnolcs_gcs_translation_OF_LCS_to_GCS_TranslationItem */
+static int hf_nrppa_lCS_to_GCS_TranslationList_item;  /* LCS_to_GCS_TranslationItem */
+static int hf_nrppa_pRSresourceSetID;             /* PRS_Resource_Set_ID */
+static int hf_nrppa_pRSAngle;                     /* SEQUENCE_SIZE_1_maxPRS_ResourcesPerSet_OF_PRSAngleItem */
+static int hf_nrppa_pRSAngle_item;                /* PRSAngleItem */
+static int hf_nrppa_onDemandPRSRequestAllowed;    /* BIT_STRING_SIZE_16 */
+static int hf_nrppa_allowedResourceSetPeriodicityValues;  /* BIT_STRING_SIZE_24 */
+static int hf_nrppa_allowedPRSBandwidthValues;    /* BIT_STRING_SIZE_64 */
+static int hf_nrppa_allowedResourceRepetitionFactorValues;  /* BIT_STRING_SIZE_8 */
+static int hf_nrppa_allowedResourceNumberOfSymbolsValues;  /* BIT_STRING_SIZE_8 */
+static int hf_nrppa_allowedCombSizeValues;        /* BIT_STRING_SIZE_8 */
+static int hf_nrppa_OTDOACells_item;              /* OTDOACells_item */
+static int hf_nrppa_oTDOACellInfo;                /* OTDOACell_Information */
+static int hf_nrppa_OTDOACell_Information_item;   /* OTDOACell_Information_Item */
+static int hf_nrppa_pCI_EUTRA;                    /* PCI_EUTRA */
+static int hf_nrppa_cGI_EUTRA;                    /* CGI_EUTRA */
+static int hf_nrppa_tAC;                          /* TAC */
+static int hf_nrppa_eARFCN;                       /* EARFCN */
+static int hf_nrppa_pRS_Bandwidth_EUTRA;          /* PRS_Bandwidth_EUTRA */
+static int hf_nrppa_pRS_ConfigurationIndex_EUTRA;  /* PRS_ConfigurationIndex_EUTRA */
+static int hf_nrppa_cPLength_EUTRA;               /* CPLength_EUTRA */
+static int hf_nrppa_numberOfDlFrames_EUTRA;       /* NumberOfDlFrames_EUTRA */
+static int hf_nrppa_numberOfAntennaPorts_EUTRA;   /* NumberOfAntennaPorts_EUTRA */
+static int hf_nrppa_sFNInitialisationTime_EUTRA;  /* SFNInitialisationTime_EUTRA */
+static int hf_nrppa_pRSMutingConfiguration_EUTRA;  /* PRSMutingConfiguration_EUTRA */
+static int hf_nrppa_prsid_EUTRA;                  /* PRS_ID_EUTRA */
+static int hf_nrppa_tpid_EUTRA;                   /* TP_ID_EUTRA */
+static int hf_nrppa_tpType_EUTRA;                 /* TP_Type_EUTRA */
+static int hf_nrppa_numberOfDlFrames_Extended_EUTRA;  /* NumberOfDlFrames_Extended_EUTRA */
+static int hf_nrppa_crsCPlength_EUTRA;            /* CPLength_EUTRA */
+static int hf_nrppa_dL_Bandwidth_EUTRA;           /* DL_Bandwidth_EUTRA */
+static int hf_nrppa_pRSOccasionGroup_EUTRA;       /* PRSOccasionGroup_EUTRA */
+static int hf_nrppa_pRSFrequencyHoppingConfiguration_EUTRA;  /* PRSFrequencyHoppingConfiguration_EUTRA */
+static int hf_nrppa_OtherRATMeasurementQuantities_item;  /* ProtocolIE_Single_Container */
+static int hf_nrppa_otherRATMeasurementQuantitiesValue;  /* OtherRATMeasurementQuantitiesValue */
+static int hf_nrppa_OtherRATMeasurementResult_item;  /* OtherRATMeasuredResultsValue */
+static int hf_nrppa_resultGERAN;                  /* ResultGERAN */
+static int hf_nrppa_resultUTRAN;                  /* ResultUTRAN */
+static int hf_nrppa_pathlossReferenceSignal;      /* PathlossReferenceSignal */
+static int hf_nrppa_sSB_Reference;                /* SSB */
+static int hf_nrppa_dL_PRS_Reference;             /* DL_PRS */
+static int hf_nrppa_PeriodicityList_item;         /* PeriodicityItem */
+static int hf_nrppa_PosSIBs_item;                 /* PosSIBs_item */
+static int hf_nrppa_posSIB_Segments;              /* PosSIB_Segments */
+static int hf_nrppa_assistanceInformationMetaData;  /* AssistanceInformationMetaData */
+static int hf_nrppa_broadcastPriority;            /* INTEGER_1_16_ */
+static int hf_nrppa_PosSIB_Segments_item;         /* PosSIB_Segments_item */
+static int hf_nrppa_assistanceDataSIBelement;     /* OCTET_STRING */
+static int hf_nrppa_PosSRSResource_List_item;     /* PosSRSResource_Item */
+static int hf_nrppa_srs_PosResourceId;            /* SRSPosResourceID */
+static int hf_nrppa_transmissionCombPos;          /* TransmissionCombPos */
+static int hf_nrppa_startPosition;                /* INTEGER_0_13 */
+static int hf_nrppa_nrofSymbols;                  /* T_nrofSymbols */
+static int hf_nrppa_freqDomainShift;              /* INTEGER_0_268 */
+static int hf_nrppa_c_SRS;                        /* INTEGER_0_63 */
+static int hf_nrppa_groupOrSequenceHopping;       /* T_groupOrSequenceHopping */
+static int hf_nrppa_resourceTypePos;              /* ResourceTypePos */
+static int hf_nrppa_sequenceId;                   /* INTEGER_0_65535 */
+static int hf_nrppa_spatialRelationPos;           /* SpatialRelationPos */
+static int hf_nrppa_PosSRSResourceID_List_item;   /* SRSPosResourceID */
+static int hf_nrppa_PosSRSResourceSet_List_item;  /* PosSRSResourceSet_Item */
+static int hf_nrppa_PosSRSResourceIDPerSet_List_item;  /* SRSPosResourceID */
+static int hf_nrppa_possrsResourceSetID;          /* INTEGER_0_15 */
+static int hf_nrppa_possRSResourceIDPerSet_List;  /* PosSRSResourceIDPerSet_List */
+static int hf_nrppa_posresourceSetType;           /* PosResourceSetType */
+static int hf_nrppa_periodic;                     /* PosResourceSetTypePeriodic */
+static int hf_nrppa_semi_persistent;              /* PosResourceSetTypeSemi_persistent */
+static int hf_nrppa_aperiodic;                    /* PosResourceSetTypeAperiodic */
+static int hf_nrppa_posperiodicSet;               /* T_posperiodicSet */
+static int hf_nrppa_possemi_persistentSet;        /* T_possemi_persistentSet */
+static int hf_nrppa_sRSResourceTrigger;           /* INTEGER_1_3 */
+static int hf_nrppa_nRPRSAzimuth;                 /* INTEGER_0_359 */
+static int hf_nrppa_nRPRSAzimuthFine;             /* INTEGER_0_9 */
+static int hf_nrppa_nRPRSElevation;               /* INTEGER_0_180 */
+static int hf_nrppa_nRPRSElevationFine;           /* INTEGER_0_9 */
+static int hf_nrppa_pRS_IDPos;                    /* INTEGER_0_255 */
+static int hf_nrppa_pRS_Resource_Set_IDPos;       /* INTEGER_0_7 */
+static int hf_nrppa_pRS_Resource_IDPos;           /* INTEGER_0_63 */
+static int hf_nrppa_pRSResourceSet_List;          /* PRSResourceSet_List */
+static int hf_nrppa_sixty_four;                   /* BIT_STRING_SIZE_64 */
+static int hf_nrppa_one_hundred_and_twenty_eight;  /* BIT_STRING_SIZE_128 */
+static int hf_nrppa_two_hundred_and_fifty_six;    /* BIT_STRING_SIZE_256 */
+static int hf_nrppa_five_hundred_and_twelve;      /* BIT_STRING_SIZE_512 */
+static int hf_nrppa_one_thousand_and_twenty_four;  /* BIT_STRING_SIZE_1024 */
+static int hf_nrppa_noOfFreqHoppingBands;         /* NumberOfFrequencyHoppingBands */
+static int hf_nrppa_bandPositions;                /* SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex */
+static int hf_nrppa_bandPositions_item;           /* NarrowBandIndex */
+static int hf_nrppa_PRS_Measurements_Info_List_item;  /* PRS_Measurements_Info_List_Item */
+static int hf_nrppa_measPRSPeriodicity;           /* T_measPRSPeriodicity */
+static int hf_nrppa_measPRSOffset;                /* INTEGER_0_159_ */
+static int hf_nrppa_measurementPRSLength;         /* T_measurementPRSLength */
+static int hf_nrppa_pRSMutingOption1;             /* PRSMutingOption1 */
+static int hf_nrppa_pRSMutingOption2;             /* PRSMutingOption2 */
+static int hf_nrppa_mutingPattern;                /* DL_PRSMutingPattern */
+static int hf_nrppa_mutingBitRepetitionFactor;    /* T_mutingBitRepetitionFactor */
+static int hf_nrppa_PRSResource_List_item;        /* PRSResource_Item */
+static int hf_nrppa_pRSResourceID;                /* PRS_Resource_ID */
+static int hf_nrppa_sequenceID;                   /* INTEGER_0_4095 */
+static int hf_nrppa_rEOffset;                     /* INTEGER_0_11_ */
+static int hf_nrppa_resourceSlotOffset;           /* INTEGER_0_511 */
+static int hf_nrppa_resourceSymbolOffset;         /* INTEGER_0_12 */
+static int hf_nrppa_qCLInfo;                      /* PRSResource_QCLInfo */
+static int hf_nrppa_qCLSourceSSB;                 /* PRSResource_QCLSourceSSB */
+static int hf_nrppa_qCLSourcePRS;                 /* PRSResource_QCLSourcePRS */
+static int hf_nrppa_pCI_NR;                       /* INTEGER_0_1007 */
+static int hf_nrppa_qCLSourcePRSResourceSetID;    /* PRS_Resource_Set_ID */
+static int hf_nrppa_qCLSourcePRSResourceID;       /* PRS_Resource_ID */
+static int hf_nrppa_PRSResourceSet_List_item;     /* PRSResourceSet_Item */
+static int hf_nrppa_pRSResourceSetID;             /* PRS_Resource_Set_ID */
+static int hf_nrppa_subcarrierSpacing_01;         /* T_subcarrierSpacing_01 */
+static int hf_nrppa_pRSbandwidth;                 /* INTEGER_1_63 */
+static int hf_nrppa_startPRB;                     /* INTEGER_0_2176 */
+static int hf_nrppa_combSize;                     /* T_combSize */
+static int hf_nrppa_cPType;                       /* T_cPType */
+static int hf_nrppa_resourceSetPeriodicity;       /* T_resourceSetPeriodicity */
+static int hf_nrppa_resourceSetSlotOffset;        /* INTEGER_0_81919_ */
+static int hf_nrppa_resourceRepetitionFactor;     /* T_resourceRepetitionFactor */
+static int hf_nrppa_resourceTimeGap;              /* T_resourceTimeGap */
+static int hf_nrppa_resourceNumberofSymbols;      /* T_resourceNumberofSymbols */
+static int hf_nrppa_pRSMuting;                    /* PRSMuting */
+static int hf_nrppa_pRSResourceTransmitPower;     /* INTEGER_M60_50 */
+static int hf_nrppa_pRSResource_List;             /* PRSResource_List */
+static int hf_nrppa_pRSTransmissionOffPerTRP;     /* NULL */
+static int hf_nrppa_pRSTransmissionOffPerResourceSet;  /* PRSTransmissionOffPerResourceSet */
+static int hf_nrppa_pRSTransmissionOffPerResource;  /* PRSTransmissionOffPerResource */
+static int hf_nrppa_PRSTransmissionOffPerResource_item;  /* PRSTransmissionOffPerResource_Item */
+static int hf_nrppa_pRSTransmissionOffIndicationPerResourceList;  /* SEQUENCE_SIZE_1_maxnoofPRSresource_OF_PRSTransmissionOffIndicationPerResource_Item */
+static int hf_nrppa_pRSTransmissionOffIndicationPerResourceList_item;  /* PRSTransmissionOffIndicationPerResource_Item */
+static int hf_nrppa_pRSTransmissionOffIndication;  /* PRSTransmissionOffIndication */
+static int hf_nrppa_PRSTransmissionOffPerResourceSet_item;  /* PRSTransmissionOffPerResourceSet_Item */
+static int hf_nrppa_PRSTRPList_item;              /* PRSTRPItem */
+static int hf_nrppa_tRP_ID;                       /* TRP_ID */
+static int hf_nrppa_requestedDLPRSTransmissionCharacteristics;  /* RequestedDLPRSTransmissionCharacteristics */
+static int hf_nrppa_pRSTransmissionOffInformation;  /* PRSTransmissionOffInformation */
+static int hf_nrppa_PRSTransmissionTRPList_item;  /* PRSTransmissionTRPItem */
+static int hf_nrppa_pRSConfiguration;             /* PRSConfiguration */
+static int hf_nrppa_nZP_CSI_RS;                   /* NZP_CSI_RS_ResourceID */
+static int hf_nrppa_sSB;                          /* SSB */
+static int hf_nrppa_sRS;                          /* SRSResourceID */
+static int hf_nrppa_positioningSRS;               /* SRSPosResourceID */
+static int hf_nrppa_dL_PRS;                       /* DL_PRS */
+static int hf_nrppa_relativeCoordinateID;         /* CoordinateID */
+static int hf_nrppa_referencePointCoordinate;     /* NG_RANAccessPointPosition */
+static int hf_nrppa_referencePointCoordinateHA;   /* NGRANHighAccuracyAccessPointPosition */
+static int hf_nrppa_milli_Arc_SecondUnits;        /* T_milli_Arc_SecondUnits */
+static int hf_nrppa_heightUnits;                  /* T_heightUnits */
+static int hf_nrppa_deltaLatitude;                /* INTEGER_M1024_1023 */
+static int hf_nrppa_deltaLongitude;               /* INTEGER_M1024_1023 */
+static int hf_nrppa_deltaHeight;                  /* INTEGER_M1024_1023 */
+static int hf_nrppa_locationUncertainty;          /* LocationUncertainty */
+static int hf_nrppa_xYZunit;                      /* T_xYZunit */
+static int hf_nrppa_xvalue;                       /* INTEGER_M65536_65535 */
+static int hf_nrppa_yvalue;                       /* INTEGER_M65536_65535 */
+static int hf_nrppa_zvalue;                       /* INTEGER_M32768_32767 */
+static int hf_nrppa_k0_01;                        /* INTEGER_0_16351 */
+static int hf_nrppa_k1_01;                        /* INTEGER_0_8176 */
+static int hf_nrppa_k2_01;                        /* INTEGER_0_4088 */
+static int hf_nrppa_k3_01;                        /* INTEGER_0_2044 */
+static int hf_nrppa_k4_01;                        /* INTEGER_0_1022 */
+static int hf_nrppa_k5_01;                        /* INTEGER_0_511 */
+static int hf_nrppa_requestedDLPRSResourceSet_List;  /* RequestedDLPRSResourceSet_List */
+static int hf_nrppa_numberofFrequencyLayers;      /* INTEGER_1_4 */
+static int hf_nrppa_startTimeAndDuration;         /* StartTimeAndDuration */
+static int hf_nrppa_RequestedDLPRSResourceSet_List_item;  /* RequestedDLPRSResourceSet_Item */
+static int hf_nrppa_combSize_01;                  /* T_combSize_01 */
+static int hf_nrppa_resourceSetPeriodicity_01;    /* T_resourceSetPeriodicity_01 */
+static int hf_nrppa_resourceRepetitionFactor_01;  /* T_resourceRepetitionFactor_01 */
+static int hf_nrppa_resourceNumberofSymbols_01;   /* T_resourceNumberofSymbols_01 */
+static int hf_nrppa_requestedDLPRSResource_List;  /* RequestedDLPRSResource_List */
+static int hf_nrppa_resourceSetStartTimeAndDuration;  /* StartTimeAndDuration */
+static int hf_nrppa_RequestedDLPRSResource_List_item;  /* RequestedDLPRSResource_Item */
+static int hf_nrppa_numberOfTransmissions;        /* INTEGER_0_500_ */
+static int hf_nrppa_resourceType;                 /* T_resourceType */
+static int hf_nrppa_bandwidth;                    /* BandwidthSRS */
+static int hf_nrppa_listOfSRSResourceSet;         /* SEQUENCE_SIZE_1_maxnoSRS_ResourceSets_OF_SRSResourceSet_Item */
+static int hf_nrppa_listOfSRSResourceSet_item;    /* SRSResourceSet_Item */
+static int hf_nrppa_sSBInformation;               /* SSBInfo */
+static int hf_nrppa_numberOfSRSResourcePerSet;    /* INTEGER_1_16_ */
+static int hf_nrppa_periodicityList;              /* PeriodicityList */
+static int hf_nrppa_spatialRelationInformation;   /* SpatialRelationInfo */
+static int hf_nrppa_pathlossReferenceInformation;  /* PathlossReferenceInformation */
+static int hf_nrppa_periodic_01;                  /* ResourceSetTypePeriodic */
+static int hf_nrppa_semi_persistent_01;           /* ResourceSetTypeSemi_persistent */
+static int hf_nrppa_aperiodic_01;                 /* ResourceSetTypeAperiodic */
+static int hf_nrppa_periodicSet;                  /* T_periodicSet */
+static int hf_nrppa_semi_persistentSet;           /* T_semi_persistentSet */
+static int hf_nrppa_slotoffset;                   /* INTEGER_0_32 */
+static int hf_nrppa_periodic_02;                  /* ResourceTypePeriodic */
+static int hf_nrppa_semi_persistent_02;           /* ResourceTypeSemi_persistent */
+static int hf_nrppa_aperiodic_02;                 /* ResourceTypeAperiodic */
+static int hf_nrppa_periodicity;                  /* T_periodicity */
+static int hf_nrppa_offset;                       /* INTEGER_0_2559_ */
+static int hf_nrppa_periodicity_01;               /* T_periodicity_01 */
+static int hf_nrppa_aperiodicResourceType;        /* T_aperiodicResourceType */
+static int hf_nrppa_periodic_03;                  /* ResourceTypePeriodicPos */
+static int hf_nrppa_semi_persistent_03;           /* ResourceTypeSemi_persistentPos */
+static int hf_nrppa_aperiodic_03;                 /* ResourceTypeAperiodicPos */
+static int hf_nrppa_periodicity_02;               /* T_periodicity_02 */
+static int hf_nrppa_offset_01;                    /* INTEGER_0_81919_ */
+static int hf_nrppa_periodicity_03;               /* T_periodicity_03 */
+static int hf_nrppa_slotOffset;                   /* INTEGER_0_32 */
+static int hf_nrppa_time;                         /* INTEGER_1_128_ */
+static int hf_nrppa_timeUnit;                     /* T_timeUnit */
+static int hf_nrppa_ResultCSI_RSRP_item;          /* ResultCSI_RSRP_Item */
+static int hf_nrppa_nR_PCI;                       /* NR_PCI */
+static int hf_nrppa_nR_ARFCN;                     /* NR_ARFCN */
+static int hf_nrppa_cGI_NR;                       /* CGI_NR */
+static int hf_nrppa_valueCSI_RSRP_Cell;           /* ValueRSRP_NR */
+static int hf_nrppa_cSI_RSRP_PerCSI_RS;           /* ResultCSI_RSRP_PerCSI_RS */
+static int hf_nrppa_ResultCSI_RSRP_PerCSI_RS_item;  /* ResultCSI_RSRP_PerCSI_RS_Item */
+static int hf_nrppa_cSI_RS_Index;                 /* INTEGER_0_95 */
+static int hf_nrppa_valueCSI_RSRP;                /* ValueRSRP_NR */
+static int hf_nrppa_ResultCSI_RSRQ_item;          /* ResultCSI_RSRQ_Item */
+static int hf_nrppa_valueCSI_RSRQ_Cell;           /* ValueRSRQ_NR */
+static int hf_nrppa_cSI_RSRQ_PerCSI_RS;           /* ResultCSI_RSRQ_PerCSI_RS */
+static int hf_nrppa_ResultCSI_RSRQ_PerCSI_RS_item;  /* ResultCSI_RSRQ_PerCSI_RS_Item */
+static int hf_nrppa_valueCSI_RSRQ;                /* ValueRSRQ_NR */
+static int hf_nrppa_ResultEUTRA_item;             /* ResultEUTRA_Item */
+static int hf_nrppa_valueRSRP_EUTRA;              /* ValueRSRP_EUTRA */
+static int hf_nrppa_valueRSRQ_EUTRA;              /* ValueRSRQ_EUTRA */
+static int hf_nrppa_ResultRSRP_EUTRA_item;        /* ResultRSRP_EUTRA_Item */
+static int hf_nrppa_ResultRSRQ_EUTRA_item;        /* ResultRSRQ_EUTRA_Item */
+static int hf_nrppa_cGI_UTRA;                     /* CGI_EUTRA */
+static int hf_nrppa_ResultSS_RSRP_item;           /* ResultSS_RSRP_Item */
+static int hf_nrppa_valueSS_RSRP_Cell;            /* ValueRSRP_NR */
+static int hf_nrppa_sS_RSRP_PerSSB;               /* ResultSS_RSRP_PerSSB */
+static int hf_nrppa_ResultSS_RSRP_PerSSB_item;    /* ResultSS_RSRP_PerSSB_Item */
+static int hf_nrppa_valueSS_RSRP;                 /* ValueRSRP_NR */
+static int hf_nrppa_ResultSS_RSRQ_item;           /* ResultSS_RSRQ_Item */
+static int hf_nrppa_valueSS_RSRQ_Cell;            /* ValueRSRQ_NR */
+static int hf_nrppa_sS_RSRQ_PerSSB;               /* ResultSS_RSRQ_PerSSB */
+static int hf_nrppa_ResultSS_RSRQ_PerSSB_item;    /* ResultSS_RSRQ_PerSSB_Item */
+static int hf_nrppa_valueSS_RSRQ;                 /* ValueRSRQ_NR */
+static int hf_nrppa_ResultGERAN_item;             /* ResultGERAN_Item */
+static int hf_nrppa_bCCH;                         /* BCCH */
+static int hf_nrppa_physCellIDGERAN;              /* PhysCellIDGERAN */
+static int hf_nrppa_rSSI;                         /* RSSI */
+static int hf_nrppa_ResultNR_item;                /* ResultNR_Item */
+static int hf_nrppa_ResultUTRAN_item;             /* ResultUTRAN_Item */
+static int hf_nrppa_uARFCN;                       /* UARFCN */
+static int hf_nrppa_physCellIDUTRAN;              /* T_physCellIDUTRAN */
+static int hf_nrppa_physCellIDUTRA_FDD;           /* PhysCellIDUTRA_FDD */
+static int hf_nrppa_physCellIDUTRA_TDD;           /* PhysCellIDUTRA_TDD */
+static int hf_nrppa_uTRA_RSCP;                    /* UTRA_RSCP */
+static int hf_nrppa_uTRA_EcN0;                    /* UTRA_EcN0 */
+static int hf_nrppa_subcarrierSpacing_02;         /* T_subcarrierSpacing_02 */
+static int hf_nrppa_carrierBandwidth;             /* INTEGER_1_275_ */
+static int hf_nrppa_expectedPropagationDelay;     /* INTEGER_M3841_3841_ */
+static int hf_nrppa_delayUncertainty;             /* INTEGER_1_246_ */
+static int hf_nrppa_nR_PRS_Beam_Information;      /* NR_PRS_Beam_Information */
+static int hf_nrppa_spatialRelationforResourceID;  /* SpatialRelationforResourceID */
+static int hf_nrppa_SpatialRelationforResourceID_item;  /* SpatialRelationforResourceIDItem */
+static int hf_nrppa_referenceSignal;              /* ReferenceSignal */
+static int hf_nrppa_spatialRelationPerSRSResource_List;  /* SpatialRelationPerSRSResource_List */
+static int hf_nrppa_SpatialRelationPerSRSResource_List_item;  /* SpatialRelationPerSRSResourceItem */
+static int hf_nrppa_sSBPos;                       /* SSB */
+static int hf_nrppa_pRSInformationPos;            /* PRSInformationPos */
+static int hf_nrppa_sRSResource_List;             /* SRSResource_List */
+static int hf_nrppa_posSRSResource_List;          /* PosSRSResource_List */
+static int hf_nrppa_sRSResourceSet_List;          /* SRSResourceSet_List */
+static int hf_nrppa_posSRSResourceSet_List;       /* PosSRSResourceSet_List */
+static int hf_nrppa_SRSCarrier_List_item;         /* SRSCarrier_List_Item */
+static int hf_nrppa_uplinkChannelBW_PerSCS_List;  /* UplinkChannelBW_PerSCS_List */
+static int hf_nrppa_activeULBWP;                  /* ActiveULBWP */
+static int hf_nrppa_sRSCarrier_List;              /* SRSCarrier_List */
+static int hf_nrppa_sRSResourceID;                /* SRSResourceID */
+static int hf_nrppa_nrofSRS_Ports;                /* T_nrofSRS_Ports */
+static int hf_nrppa_transmissionComb;             /* TransmissionComb */
+static int hf_nrppa_nrofSymbols_01;               /* T_nrofSymbols_01 */
+static int hf_nrppa_repetitionFactor;             /* T_repetitionFactor */
+static int hf_nrppa_freqDomainPosition;           /* INTEGER_0_67 */
+static int hf_nrppa_b_SRS;                        /* INTEGER_0_3 */
+static int hf_nrppa_b_hop;                        /* INTEGER_0_3 */
+static int hf_nrppa_groupOrSequenceHopping_01;    /* T_groupOrSequenceHopping_01 */
+static int hf_nrppa_resourceType_01;              /* ResourceType */
+static int hf_nrppa_sequenceId_01;                /* INTEGER_0_1023 */
+static int hf_nrppa_SRSResource_List_item;        /* SRSResource */
+static int hf_nrppa_SRSResourceSet_List_item;     /* SRSResourceSet */
+static int hf_nrppa_SRSResourceID_List_item;      /* SRSResourceID */
+static int hf_nrppa_sRSResourceSetID;             /* INTEGER_0_15 */
+static int hf_nrppa_sRSResourceID_List;           /* SRSResourceID_List */
+static int hf_nrppa_resourceSetType;              /* ResourceSetType */
+static int hf_nrppa_aperiodicSRSResourceTriggerList;  /* AperiodicSRSResourceTriggerList */
+static int hf_nrppa_sRSResourceTypeChoice;        /* SRSResourceTypeChoice */
+static int hf_nrppa_sRSResourceInfo;              /* SRSInfo */
+static int hf_nrppa_posSRSResourceInfo;           /* PosSRSInfo */
+static int hf_nrppa_sRSResource;                  /* SRSResourceID */
+static int hf_nrppa_posSRSResourceID;             /* SRSPosResourceID */
+static int hf_nrppa_listOfSSBInfo;                /* SEQUENCE_SIZE_1_maxNoSSBs_OF_SSBInfoItem */
+static int hf_nrppa_listOfSSBInfo_item;           /* SSBInfoItem */
+static int hf_nrppa_sSB_Configuration;            /* TF_Configuration */
+static int hf_nrppa_ssb_index;                    /* SSB_Index */
+static int hf_nrppa_shortBitmap;                  /* BIT_STRING_SIZE_4 */
+static int hf_nrppa_mediumBitmap;                 /* BIT_STRING_SIZE_8 */
+static int hf_nrppa_longBitmap;                   /* BIT_STRING_SIZE_64 */
+static int hf_nrppa_startTime;                    /* RelativeTime1900 */
+static int hf_nrppa_duration;                     /* INTEGER_0_90060_ */
+static int hf_nrppa_SystemInformation_item;       /* SystemInformation_item */
+static int hf_nrppa_broadcastPeriodicity;         /* BroadcastPeriodicity */
+static int hf_nrppa_posSIBs;                      /* PosSIBs */
+static int hf_nrppa_subframeAssignment;           /* T_subframeAssignment */
+static int hf_nrppa_rxTx_TEG;                     /* RxTxTEG */
+static int hf_nrppa_rx_TEG;                       /* RxTEG */
+static int hf_nrppa_tRP_RxTx_TEGInformation;      /* TRP_RxTx_TEGInformation */
+static int hf_nrppa_tRP_Tx_TEGInformation;        /* TRP_Tx_TEGInformation */
+static int hf_nrppa_tRP_Rx_TEGInformation;        /* TRP_Rx_TEGInformation */
+static int hf_nrppa_sSB_frequency;                /* INTEGER_0_3279165 */
+static int hf_nrppa_sSB_subcarrier_spacing;       /* T_sSB_subcarrier_spacing */
+static int hf_nrppa_sSB_Transmit_power;           /* INTEGER_M60_50 */
+static int hf_nrppa_sSB_periodicity;              /* T_sSB_periodicity */
+static int hf_nrppa_sSB_half_frame_offset;        /* INTEGER_0_1 */
+static int hf_nrppa_sSB_SFN_offset;               /* INTEGER_0_15 */
+static int hf_nrppa_sSB_BurstPosition;            /* SSBBurstPosition */
+static int hf_nrppa_sFN_initialisation_time;      /* RelativeTime1900 */
+static int hf_nrppa_systemFrameNumber;            /* SystemFrameNumber */
+static int hf_nrppa_slotIndex;                    /* TimeStampSlotIndex */
+static int hf_nrppa_measurementTime;              /* RelativeTime1900 */
+static int hf_nrppa_iE_Extension;                 /* ProtocolExtensionContainer */
+static int hf_nrppa_sCS_15;                       /* INTEGER_0_9 */
+static int hf_nrppa_sCS_30;                       /* INTEGER_0_19 */
+static int hf_nrppa_sCS_60;                       /* INTEGER_0_39 */
+static int hf_nrppa_sCS_120;                      /* INTEGER_0_79 */
+static int hf_nrppa_n2;                           /* T_n2 */
+static int hf_nrppa_combOffset_n2;                /* INTEGER_0_1 */
+static int hf_nrppa_cyclicShift_n2;               /* INTEGER_0_7 */
+static int hf_nrppa_n4;                           /* T_n4 */
+static int hf_nrppa_combOffset_n4;                /* INTEGER_0_3 */
+static int hf_nrppa_cyclicShift_n4;               /* INTEGER_0_11 */
+static int hf_nrppa_n2_01;                        /* T_n2_01 */
+static int hf_nrppa_n4_01;                        /* T_n4_01 */
+static int hf_nrppa_n8;                           /* T_n8 */
+static int hf_nrppa_combOffset_n8;                /* INTEGER_0_7 */
+static int hf_nrppa_cyclicShift_n8;               /* INTEGER_0_5 */
+static int hf_nrppa_choice_TRP_Beam_Antenna_Info_Item;  /* Choice_TRP_Beam_Antenna_Info_Item */
+static int hf_nrppa_reference;                    /* TRP_ID */
+static int hf_nrppa_explicit;                     /* TRP_BeamAntennaExplicitInformation */
+static int hf_nrppa_noChange;                     /* NULL */
+static int hf_nrppa_trp_BeamAntennaAngles;        /* TRP_BeamAntennaAngles */
+static int hf_nrppa_lcs_to_gcs_translation;       /* LCS_to_GCS_Translation */
+static int hf_nrppa_TRP_BeamAntennaAngles_item;   /* TRP_BeamAntennaAnglesList_Item */
+static int hf_nrppa_trp_azimuth_angle;            /* INTEGER_0_359 */
+static int hf_nrppa_trp_azimuth_angle_fine;       /* INTEGER_0_9 */
+static int hf_nrppa_trp_elevation_angle_list;     /* SEQUENCE_SIZE_1_maxnoElevationAngles_OF_TRP_ElevationAngleList_Item */
+static int hf_nrppa_trp_elevation_angle_list_item;  /* TRP_ElevationAngleList_Item */
+static int hf_nrppa_trp_elevation_angle;          /* INTEGER_0_180 */
+static int hf_nrppa_trp_elevation_angle_fine;     /* INTEGER_0_9 */
+static int hf_nrppa_trp_beam_power_list;          /* SEQUENCE_SIZE_2_maxNumResourcesPerAngle_OF_TRP_Beam_Power_Item */
+static int hf_nrppa_trp_beam_power_list_item;     /* TRP_Beam_Power_Item */
+static int hf_nrppa_relativePower;                /* INTEGER_0_30 */
+static int hf_nrppa_relativePowerFine;            /* INTEGER_0_9 */
+static int hf_nrppa_TRPMeasurementQuantities_item;  /* TRPMeasurementQuantitiesList_Item */
+static int hf_nrppa_tRPMeasurementQuantities_Item;  /* TRPMeasurementQuantities_Item */
+static int hf_nrppa_timingReportingGranularityFactor;  /* INTEGER_0_5 */
+static int hf_nrppa_TrpMeasurementResult_item;    /* TrpMeasurementResultItem */
+static int hf_nrppa_measuredResultsValue;         /* TrpMeasuredResultsValue */
+static int hf_nrppa_timeStamp;                    /* TimeStamp */
+static int hf_nrppa_measurementQuality;           /* TrpMeasurementQuality */
+static int hf_nrppa_measurementBeamInfo;          /* MeasurementBeamInfo */
+static int hf_nrppa_uL_AngleOfArrival;            /* UL_AoA */
+static int hf_nrppa_uL_SRS_RSRP;                  /* UL_SRS_RSRP */
+static int hf_nrppa_uL_RTOA;                      /* UL_RTOAMeasurement */
+static int hf_nrppa_gNB_RxTxTimeDiff;             /* GNB_RxTxTimeDiff */
+static int hf_nrppa_timingMeasQuality;            /* TrpMeasurementTimingQuality */
+static int hf_nrppa_angleMeasQuality;             /* TrpMeasurementAngleQuality */
+static int hf_nrppa_measurementQuality_01;        /* INTEGER_0_31 */
+static int hf_nrppa_resolution;                   /* T_resolution */
+static int hf_nrppa_azimuthQuality;               /* INTEGER_0_255 */
+static int hf_nrppa_zenithQuality;                /* INTEGER_0_255 */
+static int hf_nrppa_resolution_01;                /* T_resolution_01 */
+static int hf_nrppa_TRP_MeasurementRequestList_item;  /* TRP_MeasurementRequestItem */
+static int hf_nrppa_search_window_information;    /* Search_window_information */
+static int hf_nrppa_TRP_MeasurementResponseList_item;  /* TRP_MeasurementResponseItem */
+static int hf_nrppa_measurementResult;            /* TrpMeasurementResult */
+static int hf_nrppa_TRP_MeasurementUpdateList_item;  /* TRP_MeasurementUpdateItem */
+static int hf_nrppa_aoA_window_information;       /* AoA_AssistanceInfo */
+static int hf_nrppa_TRPInformationListTRPResp_item;  /* TRPInformationListTRPResp_item */
+static int hf_nrppa_tRPInformation;               /* TRPInformation */
+static int hf_nrppa_tRPInformationTypeResponseList;  /* TRPInformationTypeResponseList */
+static int hf_nrppa_TRPInformationTypeResponseList_item;  /* TRPInformationTypeResponseItem */
+static int hf_nrppa_aRFCN;                        /* INTEGER_0_3279165 */
+static int hf_nrppa_sSBinformation;               /* SSBInfo */
+static int hf_nrppa_sFNInitialisationTime;        /* RelativeTime1900 */
+static int hf_nrppa_spatialDirectionInformation;  /* SpatialDirectionInformation */
+static int hf_nrppa_geographicalCoordinates;      /* GeographicalCoordinates */
+static int hf_nrppa_TRPInformationTypeListTRPReq_item;  /* ProtocolIE_Single_Container */
+static int hf_nrppa_TRPList_item;                 /* TRPItem */
+static int hf_nrppa_direct;                       /* TRPPositionDirect */
+static int hf_nrppa_referenced;                   /* TRPPositionReferenced */
+static int hf_nrppa_accuracy;                     /* TRPPositionDirectAccuracy */
+static int hf_nrppa_tRPPosition;                  /* NG_RANAccessPointPosition */
+static int hf_nrppa_tRPHAposition;                /* NGRANHighAccuracyAccessPointPosition */
+static int hf_nrppa_referencePoint;               /* ReferencePoint */
+static int hf_nrppa_referencePointType;           /* TRPReferencePointType */
+static int hf_nrppa_TRP_PRS_Information_List_item;  /* TRP_PRS_Information_List_Item */
+static int hf_nrppa_tRPPositionRelativeGeodetic;  /* RelativeGeodeticLocation */
+static int hf_nrppa_tRPPositionRelativeCartesian;  /* RelativeCartesianLocation */
+static int hf_nrppa_tRP_Rx_TEGID;                 /* INTEGER_0_31 */
+static int hf_nrppa_tRP_Rx_TimingErrorMargin;     /* TimingErrorMargin */
+static int hf_nrppa_tRP_RxTx_TEGID;               /* INTEGER_0_255 */
+static int hf_nrppa_tRP_RxTx_TimingErrorMargin;   /* RxTxTimingErrorMargin */
+static int hf_nrppa_tRP_Tx_TEGID;                 /* INTEGER_0_7 */
+static int hf_nrppa_tRP_Tx_TimingErrorMargin;     /* TimingErrorMargin */
+static int hf_nrppa_TRPTxTEGAssociation_item;     /* TRPTEGItem */
+static int hf_nrppa_dl_PRSResourceID_List;        /* SEQUENCE_SIZE_1_maxPRS_ResourcesPerSet_OF_DLPRSResourceID_Item */
+static int hf_nrppa_dl_PRSResourceID_List_item;   /* DLPRSResourceID_Item */
+static int hf_nrppa_reportingAmount;              /* T_reportingAmount */
+static int hf_nrppa_reportingInterval;            /* T_reportingInterval */
+static int hf_nrppa_UETxTEGAssociationList_item;  /* UETxTEGAssociationItem */
+static int hf_nrppa_uE_Tx_TEG_ID;                 /* INTEGER_0_7 */
+static int hf_nrppa_posSRSResourceID_List;        /* PosSRSResourceID_List */
+static int hf_nrppa_carrierFreq;                  /* CarrierFreq */
+static int hf_nrppa_azimuthAoA;                   /* INTEGER_0_3599 */
+static int hf_nrppa_zenithAoA;                    /* INTEGER_0_1799 */
+static int hf_nrppa_uLRTOAmeas;                   /* ULRTOAMeas */
+static int hf_nrppa_firstPathRSRPP;               /* INTEGER_0_126 */
+static int hf_nrppa_UplinkChannelBW_PerSCS_List_item;  /* SCS_SpecificCarrier */
+static int hf_nrppa_WLANMeasurementQuantities_item;  /* ProtocolIE_Single_Container */
+static int hf_nrppa_wLANMeasurementQuantitiesValue;  /* WLANMeasurementQuantitiesValue */
+static int hf_nrppa_WLANMeasurementResult_item;   /* WLANMeasurementResult_Item */
+static int hf_nrppa_wLAN_RSSI;                    /* WLAN_RSSI */
+static int hf_nrppa_sSID;                         /* SSID */
+static int hf_nrppa_bSSID;                        /* BSSID */
+static int hf_nrppa_hESSID;                       /* HESSID */
+static int hf_nrppa_operatingClass;               /* WLANOperatingClass */
+static int hf_nrppa_countryCode;                  /* WLANCountryCode */
+static int hf_nrppa_wLANChannelList;              /* WLANChannelList */
+static int hf_nrppa_wLANBand;                     /* WLANBand */
+static int hf_nrppa_WLANChannelList_item;         /* WLANChannel */
+static int hf_nrppa_protocolIEs;                  /* ProtocolIE_Container */
+static int hf_nrppa_OTDOA_Information_Type_item;  /* ProtocolIE_Single_Container */
+static int hf_nrppa_oTDOA_Information_Item;       /* OTDOA_Information_Item */
+static int hf_nrppa_privateIEs;                   /* PrivateIE_Container */
+static int hf_nrppa_semipersistentSRS;            /* SemipersistentSRS */
+static int hf_nrppa_aperiodicSRS;                 /* AperiodicSRS */
+static int hf_nrppa_sRSResourceSetID_01;          /* SRSResourceSetID */
+static int hf_nrppa_aperiodic_04;                 /* T_aperiodic */
+static int hf_nrppa_sRSResourceTrigger_01;        /* SRSResourceTrigger */
 
 /* Initialize the subtree pointers */
-static gint ett_nrppa = -1;
-static gint ett_nrppa_PrivateIE_ID = -1;
-static gint ett_nrppa_ProtocolIE_Container = -1;
-static gint ett_nrppa_ProtocolIE_Field = -1;
-static gint ett_nrppa_ProtocolExtensionContainer = -1;
-static gint ett_nrppa_ProtocolExtensionField = -1;
-static gint ett_nrppa_PrivateIE_Container = -1;
-static gint ett_nrppa_PrivateIE_Field = -1;
-static gint ett_nrppa_NRPPA_PDU = -1;
-static gint ett_nrppa_InitiatingMessage = -1;
-static gint ett_nrppa_SuccessfulOutcome = -1;
-static gint ett_nrppa_UnsuccessfulOutcome = -1;
-static gint ett_nrppa_AbortTransmission = -1;
-static gint ett_nrppa_ActiveULBWP = -1;
-static gint ett_nrppa_AdditionalPathList = -1;
-static gint ett_nrppa_AdditionalPathListItem = -1;
-static gint ett_nrppa_ExtendedAdditionalPathList = -1;
-static gint ett_nrppa_ExtendedAdditionalPathList_Item = -1;
-static gint ett_nrppa_AoA_AssistanceInfo = -1;
-static gint ett_nrppa_AperiodicSRSResourceTriggerList = -1;
-static gint ett_nrppa_AngleMeasurementType = -1;
-static gint ett_nrppa_Expected_UL_AoA = -1;
-static gint ett_nrppa_Expected_ZoA_only = -1;
-static gint ett_nrppa_Expected_Azimuth_AoA = -1;
-static gint ett_nrppa_Expected_Zenith_AoA = -1;
-static gint ett_nrppa_ARPLocationInformation = -1;
-static gint ett_nrppa_ARPLocationInformation_Item = -1;
-static gint ett_nrppa_ARPLocationType = -1;
-static gint ett_nrppa_Assistance_Information = -1;
-static gint ett_nrppa_AssistanceInformationFailureList = -1;
-static gint ett_nrppa_AssistanceInformationFailureList_item = -1;
-static gint ett_nrppa_AssistanceInformationMetaData = -1;
-static gint ett_nrppa_BandwidthSRS = -1;
-static gint ett_nrppa_PositioningBroadcastCells = -1;
-static gint ett_nrppa_CarrierFreq = -1;
-static gint ett_nrppa_Cause = -1;
-static gint ett_nrppa_CGI_EUTRA = -1;
-static gint ett_nrppa_CGI_NR = -1;
-static gint ett_nrppa_CriticalityDiagnostics = -1;
-static gint ett_nrppa_CriticalityDiagnostics_IE_List = -1;
-static gint ett_nrppa_CriticalityDiagnostics_IE_List_item = -1;
-static gint ett_nrppa_DL_PRS = -1;
-static gint ett_nrppa_DL_PRSMutingPattern = -1;
-static gint ett_nrppa_DLPRSResourceCoordinates = -1;
-static gint ett_nrppa_SEQUENCE_SIZE_1_maxPRS_ResourceSets_OF_DLPRSResourceSetARP = -1;
-static gint ett_nrppa_DLPRSResourceSetARP = -1;
-static gint ett_nrppa_SEQUENCE_SIZE_1_maxPRS_ResourcesPerSet_OF_DLPRSResourceARP = -1;
-static gint ett_nrppa_DL_PRSResourceSetARPLocation = -1;
-static gint ett_nrppa_DLPRSResourceARP = -1;
-static gint ett_nrppa_DL_PRSResourceARPLocation = -1;
-static gint ett_nrppa_E_CID_MeasurementResult = -1;
-static gint ett_nrppa_GeographicalCoordinates = -1;
-static gint ett_nrppa_GNB_RxTxTimeDiff = -1;
-static gint ett_nrppa_GNBRxTxTimeDiffMeas = -1;
-static gint ett_nrppa_LCS_to_GCS_Translation = -1;
-static gint ett_nrppa_LCS_to_GCS_TranslationItem = -1;
-static gint ett_nrppa_LocationUncertainty = -1;
-static gint ett_nrppa_LoS_NLoSInformation = -1;
-static gint ett_nrppa_MeasurementBeamInfo = -1;
-static gint ett_nrppa_MeasurementQuantities = -1;
-static gint ett_nrppa_MeasurementQuantities_Item = -1;
-static gint ett_nrppa_MeasuredResults = -1;
-static gint ett_nrppa_MeasuredResultsValue = -1;
-static gint ett_nrppa_MultipleULAoA = -1;
-static gint ett_nrppa_MultipleULAoA_List = -1;
-static gint ett_nrppa_MultipleULAoA_Item = -1;
-static gint ett_nrppa_NG_RANAccessPointPosition = -1;
-static gint ett_nrppa_NGRANHighAccuracyAccessPointPosition = -1;
-static gint ett_nrppa_NG_RAN_CGI = -1;
-static gint ett_nrppa_NG_RANCell = -1;
-static gint ett_nrppa_NR_PRS_Beam_Information = -1;
-static gint ett_nrppa_SEQUENCE_SIZE_1_maxPRS_ResourceSets_OF_NR_PRS_Beam_InformationItem = -1;
-static gint ett_nrppa_SEQUENCE_SIZE_1_maxnolcs_gcs_translation_OF_LCS_to_GCS_TranslationItem = -1;
-static gint ett_nrppa_NR_PRS_Beam_InformationItem = -1;
-static gint ett_nrppa_SEQUENCE_SIZE_1_maxPRS_ResourcesPerSet_OF_PRSAngleItem = -1;
-static gint ett_nrppa_OnDemandPRS_Info = -1;
-static gint ett_nrppa_OTDOACells = -1;
-static gint ett_nrppa_OTDOACells_item = -1;
-static gint ett_nrppa_OTDOACell_Information = -1;
-static gint ett_nrppa_OTDOACell_Information_Item = -1;
-static gint ett_nrppa_OtherRATMeasurementQuantities = -1;
-static gint ett_nrppa_OtherRATMeasurementQuantities_Item = -1;
-static gint ett_nrppa_OtherRATMeasurementResult = -1;
-static gint ett_nrppa_OtherRATMeasuredResultsValue = -1;
-static gint ett_nrppa_PathlossReferenceInformation = -1;
-static gint ett_nrppa_PathlossReferenceSignal = -1;
-static gint ett_nrppa_PeriodicityList = -1;
-static gint ett_nrppa_PosSIBs = -1;
-static gint ett_nrppa_PosSIBs_item = -1;
-static gint ett_nrppa_PosSIB_Segments = -1;
-static gint ett_nrppa_PosSIB_Segments_item = -1;
-static gint ett_nrppa_PosSRSResource_List = -1;
-static gint ett_nrppa_PosSRSResource_Item = -1;
-static gint ett_nrppa_PosSRSResourceID_List = -1;
-static gint ett_nrppa_PosSRSResourceSet_List = -1;
-static gint ett_nrppa_PosSRSResourceIDPerSet_List = -1;
-static gint ett_nrppa_PosSRSResourceSet_Item = -1;
-static gint ett_nrppa_PosResourceSetType = -1;
-static gint ett_nrppa_PosResourceSetTypePeriodic = -1;
-static gint ett_nrppa_PosResourceSetTypeSemi_persistent = -1;
-static gint ett_nrppa_PosResourceSetTypeAperiodic = -1;
-static gint ett_nrppa_PRSAngleItem = -1;
-static gint ett_nrppa_PRSInformationPos = -1;
-static gint ett_nrppa_PRSConfiguration = -1;
-static gint ett_nrppa_PRSMutingConfiguration_EUTRA = -1;
-static gint ett_nrppa_PRSFrequencyHoppingConfiguration_EUTRA = -1;
-static gint ett_nrppa_SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex = -1;
-static gint ett_nrppa_PRS_Measurements_Info_List = -1;
-static gint ett_nrppa_PRS_Measurements_Info_List_Item = -1;
-static gint ett_nrppa_PRSMuting = -1;
-static gint ett_nrppa_PRSMutingOption1 = -1;
-static gint ett_nrppa_PRSMutingOption2 = -1;
-static gint ett_nrppa_PRSResource_List = -1;
-static gint ett_nrppa_PRSResource_Item = -1;
-static gint ett_nrppa_PRSResource_QCLInfo = -1;
-static gint ett_nrppa_PRSResource_QCLSourceSSB = -1;
-static gint ett_nrppa_PRSResource_QCLSourcePRS = -1;
-static gint ett_nrppa_PRSResourceSet_List = -1;
-static gint ett_nrppa_PRSResourceSet_Item = -1;
-static gint ett_nrppa_PRSTransmissionOffIndication = -1;
-static gint ett_nrppa_PRSTransmissionOffPerResource = -1;
-static gint ett_nrppa_PRSTransmissionOffPerResource_Item = -1;
-static gint ett_nrppa_SEQUENCE_SIZE_1_maxnoofPRSresource_OF_PRSTransmissionOffIndicationPerResource_Item = -1;
-static gint ett_nrppa_PRSTransmissionOffIndicationPerResource_Item = -1;
-static gint ett_nrppa_PRSTransmissionOffInformation = -1;
-static gint ett_nrppa_PRSTransmissionOffPerResourceSet = -1;
-static gint ett_nrppa_PRSTransmissionOffPerResourceSet_Item = -1;
-static gint ett_nrppa_PRSTRPList = -1;
-static gint ett_nrppa_PRSTRPItem = -1;
-static gint ett_nrppa_PRSTransmissionTRPList = -1;
-static gint ett_nrppa_PRSTransmissionTRPItem = -1;
-static gint ett_nrppa_ReferenceSignal = -1;
-static gint ett_nrppa_ReferencePoint = -1;
-static gint ett_nrppa_RelativeGeodeticLocation = -1;
-static gint ett_nrppa_RelativeCartesianLocation = -1;
-static gint ett_nrppa_RelativePathDelay = -1;
-static gint ett_nrppa_RequestedDLPRSTransmissionCharacteristics = -1;
-static gint ett_nrppa_RequestedDLPRSResourceSet_List = -1;
-static gint ett_nrppa_RequestedDLPRSResourceSet_Item = -1;
-static gint ett_nrppa_RequestedDLPRSResource_List = -1;
-static gint ett_nrppa_RequestedDLPRSResource_Item = -1;
-static gint ett_nrppa_RequestedSRSTransmissionCharacteristics = -1;
-static gint ett_nrppa_SEQUENCE_SIZE_1_maxnoSRS_ResourceSets_OF_SRSResourceSet_Item = -1;
-static gint ett_nrppa_SRSResourceSet_Item = -1;
-static gint ett_nrppa_ResourceSetType = -1;
-static gint ett_nrppa_ResourceSetTypePeriodic = -1;
-static gint ett_nrppa_ResourceSetTypeSemi_persistent = -1;
-static gint ett_nrppa_ResourceSetTypeAperiodic = -1;
-static gint ett_nrppa_ResourceType = -1;
-static gint ett_nrppa_ResourceTypePeriodic = -1;
-static gint ett_nrppa_ResourceTypeSemi_persistent = -1;
-static gint ett_nrppa_ResourceTypeAperiodic = -1;
-static gint ett_nrppa_ResourceTypePos = -1;
-static gint ett_nrppa_ResourceTypePeriodicPos = -1;
-static gint ett_nrppa_ResourceTypeSemi_persistentPos = -1;
-static gint ett_nrppa_ResourceTypeAperiodicPos = -1;
-static gint ett_nrppa_ResponseTime = -1;
-static gint ett_nrppa_ResultCSI_RSRP = -1;
-static gint ett_nrppa_ResultCSI_RSRP_Item = -1;
-static gint ett_nrppa_ResultCSI_RSRP_PerCSI_RS = -1;
-static gint ett_nrppa_ResultCSI_RSRP_PerCSI_RS_Item = -1;
-static gint ett_nrppa_ResultCSI_RSRQ = -1;
-static gint ett_nrppa_ResultCSI_RSRQ_Item = -1;
-static gint ett_nrppa_ResultCSI_RSRQ_PerCSI_RS = -1;
-static gint ett_nrppa_ResultCSI_RSRQ_PerCSI_RS_Item = -1;
-static gint ett_nrppa_ResultEUTRA = -1;
-static gint ett_nrppa_ResultEUTRA_Item = -1;
-static gint ett_nrppa_ResultRSRP_EUTRA = -1;
-static gint ett_nrppa_ResultRSRP_EUTRA_Item = -1;
-static gint ett_nrppa_ResultRSRQ_EUTRA = -1;
-static gint ett_nrppa_ResultRSRQ_EUTRA_Item = -1;
-static gint ett_nrppa_ResultSS_RSRP = -1;
-static gint ett_nrppa_ResultSS_RSRP_Item = -1;
-static gint ett_nrppa_ResultSS_RSRP_PerSSB = -1;
-static gint ett_nrppa_ResultSS_RSRP_PerSSB_Item = -1;
-static gint ett_nrppa_ResultSS_RSRQ = -1;
-static gint ett_nrppa_ResultSS_RSRQ_Item = -1;
-static gint ett_nrppa_ResultSS_RSRQ_PerSSB = -1;
-static gint ett_nrppa_ResultSS_RSRQ_PerSSB_Item = -1;
-static gint ett_nrppa_ResultGERAN = -1;
-static gint ett_nrppa_ResultGERAN_Item = -1;
-static gint ett_nrppa_ResultNR = -1;
-static gint ett_nrppa_ResultNR_Item = -1;
-static gint ett_nrppa_ResultUTRAN = -1;
-static gint ett_nrppa_ResultUTRAN_Item = -1;
-static gint ett_nrppa_T_physCellIDUTRAN = -1;
-static gint ett_nrppa_SCS_SpecificCarrier = -1;
-static gint ett_nrppa_Search_window_information = -1;
-static gint ett_nrppa_SpatialDirectionInformation = -1;
-static gint ett_nrppa_SpatialRelationInfo = -1;
-static gint ett_nrppa_SpatialRelationforResourceID = -1;
-static gint ett_nrppa_SpatialRelationforResourceIDItem = -1;
-static gint ett_nrppa_SpatialRelationPerSRSResource = -1;
-static gint ett_nrppa_SpatialRelationPerSRSResource_List = -1;
-static gint ett_nrppa_SpatialRelationPerSRSResourceItem = -1;
-static gint ett_nrppa_SpatialRelationPos = -1;
-static gint ett_nrppa_SRSConfig = -1;
-static gint ett_nrppa_SRSCarrier_List = -1;
-static gint ett_nrppa_SRSCarrier_List_Item = -1;
-static gint ett_nrppa_SRSConfiguration = -1;
-static gint ett_nrppa_SRSResource = -1;
-static gint ett_nrppa_SRSResource_List = -1;
-static gint ett_nrppa_SRSResourceSet_List = -1;
-static gint ett_nrppa_SRSResourceID_List = -1;
-static gint ett_nrppa_SRSResourceSet = -1;
-static gint ett_nrppa_SRSResourceTrigger = -1;
-static gint ett_nrppa_SRSResourcetype = -1;
-static gint ett_nrppa_SRSResourceTypeChoice = -1;
-static gint ett_nrppa_SRSInfo = -1;
-static gint ett_nrppa_PosSRSInfo = -1;
-static gint ett_nrppa_SSBInfo = -1;
-static gint ett_nrppa_SEQUENCE_SIZE_1_maxNoSSBs_OF_SSBInfoItem = -1;
-static gint ett_nrppa_SSBInfoItem = -1;
-static gint ett_nrppa_SSB = -1;
-static gint ett_nrppa_SSBBurstPosition = -1;
-static gint ett_nrppa_StartTimeAndDuration = -1;
-static gint ett_nrppa_SystemInformation = -1;
-static gint ett_nrppa_SystemInformation_item = -1;
-static gint ett_nrppa_TDD_Config_EUTRA_Item = -1;
-static gint ett_nrppa_TRPTEGInformation = -1;
-static gint ett_nrppa_RxTxTEG = -1;
-static gint ett_nrppa_RxTEG = -1;
-static gint ett_nrppa_TF_Configuration = -1;
-static gint ett_nrppa_TimeStamp = -1;
-static gint ett_nrppa_TimeStampSlotIndex = -1;
-static gint ett_nrppa_TransmissionComb = -1;
-static gint ett_nrppa_T_n2 = -1;
-static gint ett_nrppa_T_n4 = -1;
-static gint ett_nrppa_TransmissionCombPos = -1;
-static gint ett_nrppa_T_n2_01 = -1;
-static gint ett_nrppa_T_n4_01 = -1;
-static gint ett_nrppa_T_n8 = -1;
-static gint ett_nrppa_TRPBeamAntennaInformation = -1;
-static gint ett_nrppa_Choice_TRP_Beam_Antenna_Info_Item = -1;
-static gint ett_nrppa_TRP_BeamAntennaExplicitInformation = -1;
-static gint ett_nrppa_TRP_BeamAntennaAngles = -1;
-static gint ett_nrppa_TRP_BeamAntennaAnglesList_Item = -1;
-static gint ett_nrppa_SEQUENCE_SIZE_1_maxnoElevationAngles_OF_TRP_ElevationAngleList_Item = -1;
-static gint ett_nrppa_TRP_ElevationAngleList_Item = -1;
-static gint ett_nrppa_SEQUENCE_SIZE_2_maxNumResourcesPerAngle_OF_TRP_Beam_Power_Item = -1;
-static gint ett_nrppa_TRP_Beam_Power_Item = -1;
-static gint ett_nrppa_TRPMeasurementQuantities = -1;
-static gint ett_nrppa_TRPMeasurementQuantitiesList_Item = -1;
-static gint ett_nrppa_TrpMeasurementResult = -1;
-static gint ett_nrppa_TrpMeasurementResultItem = -1;
-static gint ett_nrppa_TrpMeasuredResultsValue = -1;
-static gint ett_nrppa_TrpMeasurementQuality = -1;
-static gint ett_nrppa_TrpMeasurementTimingQuality = -1;
-static gint ett_nrppa_TrpMeasurementAngleQuality = -1;
-static gint ett_nrppa_TRP_MeasurementRequestList = -1;
-static gint ett_nrppa_TRP_MeasurementRequestItem = -1;
-static gint ett_nrppa_TRP_MeasurementResponseList = -1;
-static gint ett_nrppa_TRP_MeasurementResponseItem = -1;
-static gint ett_nrppa_TRP_MeasurementUpdateList = -1;
-static gint ett_nrppa_TRP_MeasurementUpdateItem = -1;
-static gint ett_nrppa_TRPInformationListTRPResp = -1;
-static gint ett_nrppa_TRPInformationListTRPResp_item = -1;
-static gint ett_nrppa_TRPInformation = -1;
-static gint ett_nrppa_TRPInformationTypeResponseList = -1;
-static gint ett_nrppa_TRPInformationTypeResponseItem = -1;
-static gint ett_nrppa_TRPInformationTypeListTRPReq = -1;
-static gint ett_nrppa_TRPList = -1;
-static gint ett_nrppa_TRPItem = -1;
-static gint ett_nrppa_TRPPositionDefinitionType = -1;
-static gint ett_nrppa_TRPPositionDirect = -1;
-static gint ett_nrppa_TRPPositionDirectAccuracy = -1;
-static gint ett_nrppa_TRPPositionReferenced = -1;
-static gint ett_nrppa_TRP_PRS_Information_List = -1;
-static gint ett_nrppa_TRP_PRS_Information_List_Item = -1;
-static gint ett_nrppa_TRPReferencePointType = -1;
-static gint ett_nrppa_TRP_Rx_TEGInformation = -1;
-static gint ett_nrppa_TRP_RxTx_TEGInformation = -1;
-static gint ett_nrppa_TRP_Tx_TEGInformation = -1;
-static gint ett_nrppa_TRPTxTEGAssociation = -1;
-static gint ett_nrppa_TRPTEGItem = -1;
-static gint ett_nrppa_SEQUENCE_SIZE_1_maxPRS_ResourcesPerSet_OF_DLPRSResourceID_Item = -1;
-static gint ett_nrppa_DLPRSResourceID_Item = -1;
-static gint ett_nrppa_UEReportingInformation = -1;
-static gint ett_nrppa_UETxTEGAssociationList = -1;
-static gint ett_nrppa_UETxTEGAssociationItem = -1;
-static gint ett_nrppa_UL_AoA = -1;
-static gint ett_nrppa_UL_RTOAMeasurement = -1;
-static gint ett_nrppa_ULRTOAMeas = -1;
-static gint ett_nrppa_UL_SRS_RSRPP = -1;
-static gint ett_nrppa_UplinkChannelBW_PerSCS_List = -1;
-static gint ett_nrppa_WLANMeasurementQuantities = -1;
-static gint ett_nrppa_WLANMeasurementQuantities_Item = -1;
-static gint ett_nrppa_WLANMeasurementResult = -1;
-static gint ett_nrppa_WLANMeasurementResult_Item = -1;
-static gint ett_nrppa_WLANChannelList = -1;
-static gint ett_nrppa_ZoA = -1;
-static gint ett_nrppa_E_CIDMeasurementInitiationRequest = -1;
-static gint ett_nrppa_E_CIDMeasurementInitiationResponse = -1;
-static gint ett_nrppa_E_CIDMeasurementInitiationFailure = -1;
-static gint ett_nrppa_E_CIDMeasurementFailureIndication = -1;
-static gint ett_nrppa_E_CIDMeasurementReport = -1;
-static gint ett_nrppa_E_CIDMeasurementTerminationCommand = -1;
-static gint ett_nrppa_OTDOAInformationRequest = -1;
-static gint ett_nrppa_OTDOA_Information_Type = -1;
-static gint ett_nrppa_OTDOA_Information_Type_Item = -1;
-static gint ett_nrppa_OTDOAInformationResponse = -1;
-static gint ett_nrppa_OTDOAInformationFailure = -1;
-static gint ett_nrppa_AssistanceInformationControl = -1;
-static gint ett_nrppa_AssistanceInformationFeedback = -1;
-static gint ett_nrppa_ErrorIndication = -1;
-static gint ett_nrppa_PrivateMessage = -1;
-static gint ett_nrppa_PositioningInformationRequest = -1;
-static gint ett_nrppa_PositioningInformationResponse = -1;
-static gint ett_nrppa_PositioningInformationFailure = -1;
-static gint ett_nrppa_PositioningInformationUpdate = -1;
-static gint ett_nrppa_MeasurementRequest = -1;
-static gint ett_nrppa_MeasurementResponse = -1;
-static gint ett_nrppa_MeasurementFailure = -1;
-static gint ett_nrppa_MeasurementReport = -1;
-static gint ett_nrppa_MeasurementUpdate = -1;
-static gint ett_nrppa_MeasurementAbort = -1;
-static gint ett_nrppa_MeasurementFailureIndication = -1;
-static gint ett_nrppa_TRPInformationRequest = -1;
-static gint ett_nrppa_TRPInformationResponse = -1;
-static gint ett_nrppa_TRPInformationFailure = -1;
-static gint ett_nrppa_PositioningActivationRequest = -1;
-static gint ett_nrppa_SRSType = -1;
-static gint ett_nrppa_SemipersistentSRS = -1;
-static gint ett_nrppa_AperiodicSRS = -1;
-static gint ett_nrppa_PositioningActivationResponse = -1;
-static gint ett_nrppa_PositioningActivationFailure = -1;
-static gint ett_nrppa_PositioningDeactivation = -1;
-static gint ett_nrppa_PRSConfigurationRequest = -1;
-static gint ett_nrppa_PRSConfigurationResponse = -1;
-static gint ett_nrppa_PRSConfigurationFailure = -1;
-static gint ett_nrppa_MeasurementPreconfigurationRequired = -1;
-static gint ett_nrppa_MeasurementPreconfigurationConfirm = -1;
-static gint ett_nrppa_MeasurementPreconfigurationRefuse = -1;
-static gint ett_nrppa_MeasurementActivation = -1;
+static gint ett_nrppa;
+static gint ett_nrppa_PrivateIE_ID;
+static gint ett_nrppa_ProtocolIE_Container;
+static gint ett_nrppa_ProtocolIE_Field;
+static gint ett_nrppa_ProtocolExtensionContainer;
+static gint ett_nrppa_ProtocolExtensionField;
+static gint ett_nrppa_PrivateIE_Container;
+static gint ett_nrppa_PrivateIE_Field;
+static gint ett_nrppa_NRPPA_PDU;
+static gint ett_nrppa_InitiatingMessage;
+static gint ett_nrppa_SuccessfulOutcome;
+static gint ett_nrppa_UnsuccessfulOutcome;
+static gint ett_nrppa_AbortTransmission;
+static gint ett_nrppa_ActiveULBWP;
+static gint ett_nrppa_AdditionalPathList;
+static gint ett_nrppa_AdditionalPathListItem;
+static gint ett_nrppa_ExtendedAdditionalPathList;
+static gint ett_nrppa_ExtendedAdditionalPathList_Item;
+static gint ett_nrppa_AoA_AssistanceInfo;
+static gint ett_nrppa_AperiodicSRSResourceTriggerList;
+static gint ett_nrppa_AngleMeasurementType;
+static gint ett_nrppa_Expected_UL_AoA;
+static gint ett_nrppa_Expected_ZoA_only;
+static gint ett_nrppa_Expected_Azimuth_AoA;
+static gint ett_nrppa_Expected_Zenith_AoA;
+static gint ett_nrppa_ARPLocationInformation;
+static gint ett_nrppa_ARPLocationInformation_Item;
+static gint ett_nrppa_ARPLocationType;
+static gint ett_nrppa_Assistance_Information;
+static gint ett_nrppa_AssistanceInformationFailureList;
+static gint ett_nrppa_AssistanceInformationFailureList_item;
+static gint ett_nrppa_AssistanceInformationMetaData;
+static gint ett_nrppa_BandwidthSRS;
+static gint ett_nrppa_PositioningBroadcastCells;
+static gint ett_nrppa_CarrierFreq;
+static gint ett_nrppa_Cause;
+static gint ett_nrppa_CGI_EUTRA;
+static gint ett_nrppa_CGI_NR;
+static gint ett_nrppa_CriticalityDiagnostics;
+static gint ett_nrppa_CriticalityDiagnostics_IE_List;
+static gint ett_nrppa_CriticalityDiagnostics_IE_List_item;
+static gint ett_nrppa_DL_PRS;
+static gint ett_nrppa_DL_PRSMutingPattern;
+static gint ett_nrppa_DLPRSResourceCoordinates;
+static gint ett_nrppa_SEQUENCE_SIZE_1_maxPRS_ResourceSets_OF_DLPRSResourceSetARP;
+static gint ett_nrppa_DLPRSResourceSetARP;
+static gint ett_nrppa_SEQUENCE_SIZE_1_maxPRS_ResourcesPerSet_OF_DLPRSResourceARP;
+static gint ett_nrppa_DL_PRSResourceSetARPLocation;
+static gint ett_nrppa_DLPRSResourceARP;
+static gint ett_nrppa_DL_PRSResourceARPLocation;
+static gint ett_nrppa_E_CID_MeasurementResult;
+static gint ett_nrppa_GeographicalCoordinates;
+static gint ett_nrppa_GNB_RxTxTimeDiff;
+static gint ett_nrppa_GNBRxTxTimeDiffMeas;
+static gint ett_nrppa_LCS_to_GCS_Translation;
+static gint ett_nrppa_LCS_to_GCS_TranslationItem;
+static gint ett_nrppa_LocationUncertainty;
+static gint ett_nrppa_LoS_NLoSInformation;
+static gint ett_nrppa_MeasurementBeamInfo;
+static gint ett_nrppa_MeasurementQuantities;
+static gint ett_nrppa_MeasurementQuantities_Item;
+static gint ett_nrppa_MeasuredResults;
+static gint ett_nrppa_MeasuredResultsValue;
+static gint ett_nrppa_MultipleULAoA;
+static gint ett_nrppa_MultipleULAoA_List;
+static gint ett_nrppa_MultipleULAoA_Item;
+static gint ett_nrppa_NG_RANAccessPointPosition;
+static gint ett_nrppa_NGRANHighAccuracyAccessPointPosition;
+static gint ett_nrppa_NG_RAN_CGI;
+static gint ett_nrppa_NG_RANCell;
+static gint ett_nrppa_NR_PRS_Beam_Information;
+static gint ett_nrppa_SEQUENCE_SIZE_1_maxPRS_ResourceSets_OF_NR_PRS_Beam_InformationItem;
+static gint ett_nrppa_SEQUENCE_SIZE_1_maxnolcs_gcs_translation_OF_LCS_to_GCS_TranslationItem;
+static gint ett_nrppa_NR_PRS_Beam_InformationItem;
+static gint ett_nrppa_SEQUENCE_SIZE_1_maxPRS_ResourcesPerSet_OF_PRSAngleItem;
+static gint ett_nrppa_OnDemandPRS_Info;
+static gint ett_nrppa_OTDOACells;
+static gint ett_nrppa_OTDOACells_item;
+static gint ett_nrppa_OTDOACell_Information;
+static gint ett_nrppa_OTDOACell_Information_Item;
+static gint ett_nrppa_OtherRATMeasurementQuantities;
+static gint ett_nrppa_OtherRATMeasurementQuantities_Item;
+static gint ett_nrppa_OtherRATMeasurementResult;
+static gint ett_nrppa_OtherRATMeasuredResultsValue;
+static gint ett_nrppa_PathlossReferenceInformation;
+static gint ett_nrppa_PathlossReferenceSignal;
+static gint ett_nrppa_PeriodicityList;
+static gint ett_nrppa_PosSIBs;
+static gint ett_nrppa_PosSIBs_item;
+static gint ett_nrppa_PosSIB_Segments;
+static gint ett_nrppa_PosSIB_Segments_item;
+static gint ett_nrppa_PosSRSResource_List;
+static gint ett_nrppa_PosSRSResource_Item;
+static gint ett_nrppa_PosSRSResourceID_List;
+static gint ett_nrppa_PosSRSResourceSet_List;
+static gint ett_nrppa_PosSRSResourceIDPerSet_List;
+static gint ett_nrppa_PosSRSResourceSet_Item;
+static gint ett_nrppa_PosResourceSetType;
+static gint ett_nrppa_PosResourceSetTypePeriodic;
+static gint ett_nrppa_PosResourceSetTypeSemi_persistent;
+static gint ett_nrppa_PosResourceSetTypeAperiodic;
+static gint ett_nrppa_PRSAngleItem;
+static gint ett_nrppa_PRSInformationPos;
+static gint ett_nrppa_PRSConfiguration;
+static gint ett_nrppa_PRSMutingConfiguration_EUTRA;
+static gint ett_nrppa_PRSFrequencyHoppingConfiguration_EUTRA;
+static gint ett_nrppa_SEQUENCE_SIZE_1_maxnoFreqHoppingBandsMinusOne_OF_NarrowBandIndex;
+static gint ett_nrppa_PRS_Measurements_Info_List;
+static gint ett_nrppa_PRS_Measurements_Info_List_Item;
+static gint ett_nrppa_PRSMuting;
+static gint ett_nrppa_PRSMutingOption1;
+static gint ett_nrppa_PRSMutingOption2;
+static gint ett_nrppa_PRSResource_List;
+static gint ett_nrppa_PRSResource_Item;
+static gint ett_nrppa_PRSResource_QCLInfo;
+static gint ett_nrppa_PRSResource_QCLSourceSSB;
+static gint ett_nrppa_PRSResource_QCLSourcePRS;
+static gint ett_nrppa_PRSResourceSet_List;
+static gint ett_nrppa_PRSResourceSet_Item;
+static gint ett_nrppa_PRSTransmissionOffIndication;
+static gint ett_nrppa_PRSTransmissionOffPerResource;
+static gint ett_nrppa_PRSTransmissionOffPerResource_Item;
+static gint ett_nrppa_SEQUENCE_SIZE_1_maxnoofPRSresource_OF_PRSTransmissionOffIndicationPerResource_Item;
+static gint ett_nrppa_PRSTransmissionOffIndicationPerResource_Item;
+static gint ett_nrppa_PRSTransmissionOffInformation;
+static gint ett_nrppa_PRSTransmissionOffPerResourceSet;
+static gint ett_nrppa_PRSTransmissionOffPerResourceSet_Item;
+static gint ett_nrppa_PRSTRPList;
+static gint ett_nrppa_PRSTRPItem;
+static gint ett_nrppa_PRSTransmissionTRPList;
+static gint ett_nrppa_PRSTransmissionTRPItem;
+static gint ett_nrppa_ReferenceSignal;
+static gint ett_nrppa_ReferencePoint;
+static gint ett_nrppa_RelativeGeodeticLocation;
+static gint ett_nrppa_RelativeCartesianLocation;
+static gint ett_nrppa_RelativePathDelay;
+static gint ett_nrppa_RequestedDLPRSTransmissionCharacteristics;
+static gint ett_nrppa_RequestedDLPRSResourceSet_List;
+static gint ett_nrppa_RequestedDLPRSResourceSet_Item;
+static gint ett_nrppa_RequestedDLPRSResource_List;
+static gint ett_nrppa_RequestedDLPRSResource_Item;
+static gint ett_nrppa_RequestedSRSTransmissionCharacteristics;
+static gint ett_nrppa_SEQUENCE_SIZE_1_maxnoSRS_ResourceSets_OF_SRSResourceSet_Item;
+static gint ett_nrppa_SRSResourceSet_Item;
+static gint ett_nrppa_ResourceSetType;
+static gint ett_nrppa_ResourceSetTypePeriodic;
+static gint ett_nrppa_ResourceSetTypeSemi_persistent;
+static gint ett_nrppa_ResourceSetTypeAperiodic;
+static gint ett_nrppa_ResourceType;
+static gint ett_nrppa_ResourceTypePeriodic;
+static gint ett_nrppa_ResourceTypeSemi_persistent;
+static gint ett_nrppa_ResourceTypeAperiodic;
+static gint ett_nrppa_ResourceTypePos;
+static gint ett_nrppa_ResourceTypePeriodicPos;
+static gint ett_nrppa_ResourceTypeSemi_persistentPos;
+static gint ett_nrppa_ResourceTypeAperiodicPos;
+static gint ett_nrppa_ResponseTime;
+static gint ett_nrppa_ResultCSI_RSRP;
+static gint ett_nrppa_ResultCSI_RSRP_Item;
+static gint ett_nrppa_ResultCSI_RSRP_PerCSI_RS;
+static gint ett_nrppa_ResultCSI_RSRP_PerCSI_RS_Item;
+static gint ett_nrppa_ResultCSI_RSRQ;
+static gint ett_nrppa_ResultCSI_RSRQ_Item;
+static gint ett_nrppa_ResultCSI_RSRQ_PerCSI_RS;
+static gint ett_nrppa_ResultCSI_RSRQ_PerCSI_RS_Item;
+static gint ett_nrppa_ResultEUTRA;
+static gint ett_nrppa_ResultEUTRA_Item;
+static gint ett_nrppa_ResultRSRP_EUTRA;
+static gint ett_nrppa_ResultRSRP_EUTRA_Item;
+static gint ett_nrppa_ResultRSRQ_EUTRA;
+static gint ett_nrppa_ResultRSRQ_EUTRA_Item;
+static gint ett_nrppa_ResultSS_RSRP;
+static gint ett_nrppa_ResultSS_RSRP_Item;
+static gint ett_nrppa_ResultSS_RSRP_PerSSB;
+static gint ett_nrppa_ResultSS_RSRP_PerSSB_Item;
+static gint ett_nrppa_ResultSS_RSRQ;
+static gint ett_nrppa_ResultSS_RSRQ_Item;
+static gint ett_nrppa_ResultSS_RSRQ_PerSSB;
+static gint ett_nrppa_ResultSS_RSRQ_PerSSB_Item;
+static gint ett_nrppa_ResultGERAN;
+static gint ett_nrppa_ResultGERAN_Item;
+static gint ett_nrppa_ResultNR;
+static gint ett_nrppa_ResultNR_Item;
+static gint ett_nrppa_ResultUTRAN;
+static gint ett_nrppa_ResultUTRAN_Item;
+static gint ett_nrppa_T_physCellIDUTRAN;
+static gint ett_nrppa_SCS_SpecificCarrier;
+static gint ett_nrppa_Search_window_information;
+static gint ett_nrppa_SpatialDirectionInformation;
+static gint ett_nrppa_SpatialRelationInfo;
+static gint ett_nrppa_SpatialRelationforResourceID;
+static gint ett_nrppa_SpatialRelationforResourceIDItem;
+static gint ett_nrppa_SpatialRelationPerSRSResource;
+static gint ett_nrppa_SpatialRelationPerSRSResource_List;
+static gint ett_nrppa_SpatialRelationPerSRSResourceItem;
+static gint ett_nrppa_SpatialRelationPos;
+static gint ett_nrppa_SRSConfig;
+static gint ett_nrppa_SRSCarrier_List;
+static gint ett_nrppa_SRSCarrier_List_Item;
+static gint ett_nrppa_SRSConfiguration;
+static gint ett_nrppa_SRSResource;
+static gint ett_nrppa_SRSResource_List;
+static gint ett_nrppa_SRSResourceSet_List;
+static gint ett_nrppa_SRSResourceID_List;
+static gint ett_nrppa_SRSResourceSet;
+static gint ett_nrppa_SRSResourceTrigger;
+static gint ett_nrppa_SRSResourcetype;
+static gint ett_nrppa_SRSResourceTypeChoice;
+static gint ett_nrppa_SRSInfo;
+static gint ett_nrppa_PosSRSInfo;
+static gint ett_nrppa_SSBInfo;
+static gint ett_nrppa_SEQUENCE_SIZE_1_maxNoSSBs_OF_SSBInfoItem;
+static gint ett_nrppa_SSBInfoItem;
+static gint ett_nrppa_SSB;
+static gint ett_nrppa_SSBBurstPosition;
+static gint ett_nrppa_StartTimeAndDuration;
+static gint ett_nrppa_SystemInformation;
+static gint ett_nrppa_SystemInformation_item;
+static gint ett_nrppa_TDD_Config_EUTRA_Item;
+static gint ett_nrppa_TRPTEGInformation;
+static gint ett_nrppa_RxTxTEG;
+static gint ett_nrppa_RxTEG;
+static gint ett_nrppa_TF_Configuration;
+static gint ett_nrppa_TimeStamp;
+static gint ett_nrppa_TimeStampSlotIndex;
+static gint ett_nrppa_TransmissionComb;
+static gint ett_nrppa_T_n2;
+static gint ett_nrppa_T_n4;
+static gint ett_nrppa_TransmissionCombPos;
+static gint ett_nrppa_T_n2_01;
+static gint ett_nrppa_T_n4_01;
+static gint ett_nrppa_T_n8;
+static gint ett_nrppa_TRPBeamAntennaInformation;
+static gint ett_nrppa_Choice_TRP_Beam_Antenna_Info_Item;
+static gint ett_nrppa_TRP_BeamAntennaExplicitInformation;
+static gint ett_nrppa_TRP_BeamAntennaAngles;
+static gint ett_nrppa_TRP_BeamAntennaAnglesList_Item;
+static gint ett_nrppa_SEQUENCE_SIZE_1_maxnoElevationAngles_OF_TRP_ElevationAngleList_Item;
+static gint ett_nrppa_TRP_ElevationAngleList_Item;
+static gint ett_nrppa_SEQUENCE_SIZE_2_maxNumResourcesPerAngle_OF_TRP_Beam_Power_Item;
+static gint ett_nrppa_TRP_Beam_Power_Item;
+static gint ett_nrppa_TRPMeasurementQuantities;
+static gint ett_nrppa_TRPMeasurementQuantitiesList_Item;
+static gint ett_nrppa_TrpMeasurementResult;
+static gint ett_nrppa_TrpMeasurementResultItem;
+static gint ett_nrppa_TrpMeasuredResultsValue;
+static gint ett_nrppa_TrpMeasurementQuality;
+static gint ett_nrppa_TrpMeasurementTimingQuality;
+static gint ett_nrppa_TrpMeasurementAngleQuality;
+static gint ett_nrppa_TRP_MeasurementRequestList;
+static gint ett_nrppa_TRP_MeasurementRequestItem;
+static gint ett_nrppa_TRP_MeasurementResponseList;
+static gint ett_nrppa_TRP_MeasurementResponseItem;
+static gint ett_nrppa_TRP_MeasurementUpdateList;
+static gint ett_nrppa_TRP_MeasurementUpdateItem;
+static gint ett_nrppa_TRPInformationListTRPResp;
+static gint ett_nrppa_TRPInformationListTRPResp_item;
+static gint ett_nrppa_TRPInformation;
+static gint ett_nrppa_TRPInformationTypeResponseList;
+static gint ett_nrppa_TRPInformationTypeResponseItem;
+static gint ett_nrppa_TRPInformationTypeListTRPReq;
+static gint ett_nrppa_TRPList;
+static gint ett_nrppa_TRPItem;
+static gint ett_nrppa_TRPPositionDefinitionType;
+static gint ett_nrppa_TRPPositionDirect;
+static gint ett_nrppa_TRPPositionDirectAccuracy;
+static gint ett_nrppa_TRPPositionReferenced;
+static gint ett_nrppa_TRP_PRS_Information_List;
+static gint ett_nrppa_TRP_PRS_Information_List_Item;
+static gint ett_nrppa_TRPReferencePointType;
+static gint ett_nrppa_TRP_Rx_TEGInformation;
+static gint ett_nrppa_TRP_RxTx_TEGInformation;
+static gint ett_nrppa_TRP_Tx_TEGInformation;
+static gint ett_nrppa_TRPTxTEGAssociation;
+static gint ett_nrppa_TRPTEGItem;
+static gint ett_nrppa_SEQUENCE_SIZE_1_maxPRS_ResourcesPerSet_OF_DLPRSResourceID_Item;
+static gint ett_nrppa_DLPRSResourceID_Item;
+static gint ett_nrppa_UEReportingInformation;
+static gint ett_nrppa_UETxTEGAssociationList;
+static gint ett_nrppa_UETxTEGAssociationItem;
+static gint ett_nrppa_UL_AoA;
+static gint ett_nrppa_UL_RTOAMeasurement;
+static gint ett_nrppa_ULRTOAMeas;
+static gint ett_nrppa_UL_SRS_RSRPP;
+static gint ett_nrppa_UplinkChannelBW_PerSCS_List;
+static gint ett_nrppa_WLANMeasurementQuantities;
+static gint ett_nrppa_WLANMeasurementQuantities_Item;
+static gint ett_nrppa_WLANMeasurementResult;
+static gint ett_nrppa_WLANMeasurementResult_Item;
+static gint ett_nrppa_WLANChannelList;
+static gint ett_nrppa_ZoA;
+static gint ett_nrppa_E_CIDMeasurementInitiationRequest;
+static gint ett_nrppa_E_CIDMeasurementInitiationResponse;
+static gint ett_nrppa_E_CIDMeasurementInitiationFailure;
+static gint ett_nrppa_E_CIDMeasurementFailureIndication;
+static gint ett_nrppa_E_CIDMeasurementReport;
+static gint ett_nrppa_E_CIDMeasurementTerminationCommand;
+static gint ett_nrppa_OTDOAInformationRequest;
+static gint ett_nrppa_OTDOA_Information_Type;
+static gint ett_nrppa_OTDOA_Information_Type_Item;
+static gint ett_nrppa_OTDOAInformationResponse;
+static gint ett_nrppa_OTDOAInformationFailure;
+static gint ett_nrppa_AssistanceInformationControl;
+static gint ett_nrppa_AssistanceInformationFeedback;
+static gint ett_nrppa_ErrorIndication;
+static gint ett_nrppa_PrivateMessage;
+static gint ett_nrppa_PositioningInformationRequest;
+static gint ett_nrppa_PositioningInformationResponse;
+static gint ett_nrppa_PositioningInformationFailure;
+static gint ett_nrppa_PositioningInformationUpdate;
+static gint ett_nrppa_MeasurementRequest;
+static gint ett_nrppa_MeasurementResponse;
+static gint ett_nrppa_MeasurementFailure;
+static gint ett_nrppa_MeasurementReport;
+static gint ett_nrppa_MeasurementUpdate;
+static gint ett_nrppa_MeasurementAbort;
+static gint ett_nrppa_MeasurementFailureIndication;
+static gint ett_nrppa_TRPInformationRequest;
+static gint ett_nrppa_TRPInformationResponse;
+static gint ett_nrppa_TRPInformationFailure;
+static gint ett_nrppa_PositioningActivationRequest;
+static gint ett_nrppa_SRSType;
+static gint ett_nrppa_SemipersistentSRS;
+static gint ett_nrppa_AperiodicSRS;
+static gint ett_nrppa_PositioningActivationResponse;
+static gint ett_nrppa_PositioningActivationFailure;
+static gint ett_nrppa_PositioningDeactivation;
+static gint ett_nrppa_PRSConfigurationRequest;
+static gint ett_nrppa_PRSConfigurationResponse;
+static gint ett_nrppa_PRSConfigurationFailure;
+static gint ett_nrppa_MeasurementPreconfigurationRequired;
+static gint ett_nrppa_MeasurementPreconfigurationConfirm;
+static gint ett_nrppa_MeasurementPreconfigurationRefuse;
+static gint ett_nrppa_MeasurementActivation;
 
 /* Global variables */
 static guint32 ProcedureCode;

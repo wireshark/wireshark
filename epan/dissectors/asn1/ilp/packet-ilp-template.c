@@ -42,7 +42,7 @@ static dissector_handle_t ilp_tcp_handle;
 #define ILP_TCP_PORT    7276
 
 /* Initialize the protocol and registered fields */
-static int proto_ilp = -1;
+static int proto_ilp;
 
 
 #define ILP_HEADER_SIZE 2
@@ -50,11 +50,11 @@ static int proto_ilp = -1;
 static gboolean ilp_desegment = TRUE;
 
 #include "packet-ilp-hf.c"
-static int hf_ilp_mobile_directory_number = -1;
+static int hf_ilp_mobile_directory_number;
 
 /* Initialize the subtree pointers */
-static gint ett_ilp = -1;
-static gint ett_ilp_setid = -1;
+static gint ett_ilp;
+static gint ett_ilp_setid;
 #include "packet-ilp-ett.c"
 
 /* Include constants */

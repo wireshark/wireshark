@@ -43,18 +43,18 @@ void proto_register_disp(void);
 void proto_reg_handoff_disp(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_disp = -1;
+static int proto_disp;
 
 #include "packet-disp-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_disp = -1;
+static gint ett_disp;
 #include "packet-disp-ett.c"
 
-static expert_field ei_disp_unsupported_opcode = EI_INIT;
-static expert_field ei_disp_unsupported_errcode = EI_INIT;
-static expert_field ei_disp_unsupported_pdu = EI_INIT;
-static expert_field ei_disp_zero_pdu = EI_INIT;
+static expert_field ei_disp_unsupported_opcode;
+static expert_field ei_disp_unsupported_errcode;
+static expert_field ei_disp_unsupported_pdu;
+static expert_field ei_disp_zero_pdu;
 
 static dissector_handle_t disp_handle = NULL;
 

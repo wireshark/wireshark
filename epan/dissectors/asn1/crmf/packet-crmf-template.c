@@ -29,8 +29,8 @@ void proto_register_crmf(void);
 void proto_reg_handoff_crmf(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_crmf = -1;
-static int hf_crmf_type_oid = -1;
+static int proto_crmf;
+static int hf_crmf_type_oid;
 #include "packet-crmf-hf.c"
 
 /* Initialize the subtree pointers */

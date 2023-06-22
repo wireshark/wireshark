@@ -28,7 +28,7 @@ void proto_register_ros(void);
 void proto_reg_handoff_ros(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_ros = -1;
+static int proto_ros;
 
 static proto_tree *top_tree=NULL;
 static guint32 opcode;
@@ -49,28 +49,28 @@ typedef struct ros_call_response {
   guint invokeId;
 } ros_call_response_t;
 
-static int hf_ros_response_in = -1;
-static int hf_ros_response_to = -1;
-static int hf_ros_time = -1;
+static int hf_ros_response_in;
+static int hf_ros_response_to;
+static int hf_ros_time;
 
 
 #include "packet-ros-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_ros = -1;
-static gint ett_ros_unknown = -1;
-static gint ett_ros_invoke_argument = -1;
-static gint ett_ros_return_result = -1;
-static gint ett_ros_bind_invoke = -1;
-static gint ett_ros_bind_result = -1;
-static gint ett_ros_bind_error = -1;
-static gint ett_ros_unbind_invoke = -1;
-static gint ett_ros_unbind_result = -1;
-static gint ett_ros_unbind_error = -1;
+static gint ett_ros;
+static gint ett_ros_unknown;
+static gint ett_ros_invoke_argument;
+static gint ett_ros_return_result;
+static gint ett_ros_bind_invoke;
+static gint ett_ros_bind_result;
+static gint ett_ros_bind_error;
+static gint ett_ros_unbind_invoke;
+static gint ett_ros_unbind_result;
+static gint ett_ros_unbind_error;
 #include "packet-ros-ett.c"
 
-static expert_field ei_ros_dissector_oid_not_implemented = EI_INIT;
-static expert_field ei_ros_unknown_ros_pdu = EI_INIT;
+static expert_field ei_ros_dissector_oid_not_implemented;
+static expert_field ei_ros_unknown_ros_pdu;
 
 static dissector_table_t ros_oid_dissector_table=NULL;
 

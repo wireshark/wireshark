@@ -37,12 +37,12 @@
 #define PFNAME "tcap"
 
 /* Initialize the protocol and registered fields */
-static int proto_tcap = -1;
-static int hf_tcap_tag = -1;
-static int hf_tcap_length = -1;
-static int hf_tcap_data = -1;
-static int hf_tcap_tid = -1;
-static int hf_tcap_constructor_eoc=-1;
+static int proto_tcap;
+static int hf_tcap_tag;
+static int hf_tcap_length;
+static int hf_tcap_data;
+static int hf_tcap_tid;
+static int hf_tcap_constructor_eoc;
 
 int hf_tcapsrt_SessionId=-1;
 int hf_tcapsrt_Duplicate=-1;
@@ -50,80 +50,80 @@ int hf_tcapsrt_BeginSession=-1;
 int hf_tcapsrt_EndSession=-1;
 int hf_tcapsrt_SessionTime=-1;
 
-static int hf_tcap_UniDialoguePDU_PDU = -1;       /* UniDialoguePDU */
-static int hf_tcap_DialoguePDU_PDU = -1;          /* DialoguePDU */
-static int hf_tcap_oid = -1;                      /* OBJECT_IDENTIFIER */
-static int hf_tcap_dialog = -1;                   /* Dialog1 */
-static int hf_tcap_unidirectional = -1;           /* Unidirectional */
-static int hf_tcap_begin = -1;                    /* Begin */
-static int hf_tcap_end = -1;                      /* End */
-static int hf_tcap_continue = -1;                 /* Continue */
-static int hf_tcap_abort = -1;                    /* Abort */
-static int hf_tcap_dialoguePortion = -1;          /* DialoguePortion */
-static int hf_tcap_components = -1;               /* ComponentPortion */
-static int hf_tcap_otid = -1;                     /* OrigTransactionID */
-static int hf_tcap_dtid = -1;                     /* DestTransactionID */
-static int hf_tcap_reason = -1;                   /* Reason */
-static int hf_tcap_p_abortCause = -1;             /* P_AbortCause */
-static int hf_tcap_u_abortCause = -1;             /* DialoguePortion */
-static int hf_tcap__untag_item = -1;              /* Component */
-static int hf_tcap_invoke = -1;                   /* Invoke */
-static int hf_tcap_returnResultLast = -1;         /* ReturnResult */
-static int hf_tcap_returnError = -1;              /* ReturnError */
-static int hf_tcap_reject = -1;                   /* Reject */
-static int hf_tcap_returnResultNotLast = -1;      /* ReturnResult */
-static int hf_tcap_invokeID = -1;                 /* InvokeIdType */
-static int hf_tcap_linkedID = -1;                 /* InvokeIdType */
-static int hf_tcap_opCode = -1;                   /* OPERATION */
-static int hf_tcap_parameter = -1;                /* Parameter */
-static int hf_tcap_resultretres = -1;             /* T_resultretres */
-static int hf_tcap_errorCode = -1;                /* ErrorCode */
-static int hf_tcap_invokeIDRej = -1;              /* T_invokeIDRej */
-static int hf_tcap_derivable = -1;                /* InvokeIdType */
-static int hf_tcap_not_derivable = -1;            /* NULL */
-static int hf_tcap_problem = -1;                  /* T_problem */
-static int hf_tcap_generalProblem = -1;           /* GeneralProblem */
-static int hf_tcap_invokeProblem = -1;            /* InvokeProblem */
-static int hf_tcap_returnResultProblem = -1;      /* ReturnResultProblem */
-static int hf_tcap_returnErrorProblem = -1;       /* ReturnErrorProblem */
-static int hf_tcap_localValue = -1;               /* INTEGER */
-static int hf_tcap_globalValue = -1;              /* OBJECT_IDENTIFIER */
-static int hf_tcap_nationaler = -1;               /* INTEGER_M32768_32767 */
-static int hf_tcap_privateer = -1;                /* INTEGER */
-static int hf_tcap_unidialoguePDU = -1;           /* AUDT_apdu */
-static int hf_tcap_audt_protocol_version = -1;    /* AUDT_protocol_version */
-static int hf_tcap_audt_application_context_name = -1;  /* AUDT_application_context_name */
-static int hf_tcap_audt_user_information = -1;    /* AUDT_user_information */
-static int hf_tcap_audt_user_information_item = -1;  /* EXTERNAL */
-static int hf_tcap_dialogueRequest = -1;          /* AARQ_apdu */
-static int hf_tcap_dialogueResponse = -1;         /* AARE_apdu */
-static int hf_tcap_dialogueAbort = -1;            /* ABRT_apdu */
-static int hf_tcap_aarq_protocol_version = -1;    /* AARQ_protocol_version */
-static int hf_tcap_aarq_application_context_name = -1;  /* AARQ_application_context_name */
-static int hf_tcap_aarq_user_information = -1;    /* AARQ_user_information */
-static int hf_tcap_aarq_user_information_item = -1;  /* EXTERNAL */
-static int hf_tcap_aare_protocol_version = -1;    /* AARE_protocol_version */
-static int hf_tcap_aare_application_context_name = -1;  /* AARE_application_context_name */
-static int hf_tcap_result = -1;                   /* Associate_result */
-static int hf_tcap_result_source_diagnostic = -1;  /* Associate_source_diagnostic */
-static int hf_tcap_aare_user_information = -1;    /* AARE_user_information */
-static int hf_tcap_aare_user_information_item = -1;  /* EXTERNAL */
-static int hf_tcap_abort_source = -1;             /* ABRT_source */
-static int hf_tcap_abrt_user_information = -1;    /* ABRT_user_information */
-static int hf_tcap_abrt_user_information_item = -1;  /* EXTERNAL */
-static int hf_tcap_dialogue_service_user = -1;    /* T_dialogue_service_user */
-static int hf_tcap_dialogue_service_provider = -1;  /* T_dialogue_service_provider */
+static int hf_tcap_UniDialoguePDU_PDU;            /* UniDialoguePDU */
+static int hf_tcap_DialoguePDU_PDU;               /* DialoguePDU */
+static int hf_tcap_oid;                           /* OBJECT_IDENTIFIER */
+static int hf_tcap_dialog;                        /* Dialog1 */
+static int hf_tcap_unidirectional;                /* Unidirectional */
+static int hf_tcap_begin;                         /* Begin */
+static int hf_tcap_end;                           /* End */
+static int hf_tcap_continue;                      /* Continue */
+static int hf_tcap_abort;                         /* Abort */
+static int hf_tcap_dialoguePortion;               /* DialoguePortion */
+static int hf_tcap_components;                    /* ComponentPortion */
+static int hf_tcap_otid;                          /* OrigTransactionID */
+static int hf_tcap_dtid;                          /* DestTransactionID */
+static int hf_tcap_reason;                        /* Reason */
+static int hf_tcap_p_abortCause;                  /* P_AbortCause */
+static int hf_tcap_u_abortCause;                  /* DialoguePortion */
+static int hf_tcap__untag_item;                   /* Component */
+static int hf_tcap_invoke;                        /* Invoke */
+static int hf_tcap_returnResultLast;              /* ReturnResult */
+static int hf_tcap_returnError;                   /* ReturnError */
+static int hf_tcap_reject;                        /* Reject */
+static int hf_tcap_returnResultNotLast;           /* ReturnResult */
+static int hf_tcap_invokeID;                      /* InvokeIdType */
+static int hf_tcap_linkedID;                      /* InvokeIdType */
+static int hf_tcap_opCode;                        /* OPERATION */
+static int hf_tcap_parameter;                     /* Parameter */
+static int hf_tcap_resultretres;                  /* T_resultretres */
+static int hf_tcap_errorCode;                     /* ErrorCode */
+static int hf_tcap_invokeIDRej;                   /* T_invokeIDRej */
+static int hf_tcap_derivable;                     /* InvokeIdType */
+static int hf_tcap_not_derivable;                 /* NULL */
+static int hf_tcap_problem;                       /* T_problem */
+static int hf_tcap_generalProblem;                /* GeneralProblem */
+static int hf_tcap_invokeProblem;                 /* InvokeProblem */
+static int hf_tcap_returnResultProblem;           /* ReturnResultProblem */
+static int hf_tcap_returnErrorProblem;            /* ReturnErrorProblem */
+static int hf_tcap_localValue;                    /* INTEGER */
+static int hf_tcap_globalValue;                   /* OBJECT_IDENTIFIER */
+static int hf_tcap_nationaler;                    /* INTEGER_M32768_32767 */
+static int hf_tcap_privateer;                     /* INTEGER */
+static int hf_tcap_unidialoguePDU;                /* AUDT_apdu */
+static int hf_tcap_audt_protocol_version;         /* AUDT_protocol_version */
+static int hf_tcap_audt_application_context_name;  /* AUDT_application_context_name */
+static int hf_tcap_audt_user_information;         /* AUDT_user_information */
+static int hf_tcap_audt_user_information_item;    /* EXTERNAL */
+static int hf_tcap_dialogueRequest;               /* AARQ_apdu */
+static int hf_tcap_dialogueResponse;              /* AARE_apdu */
+static int hf_tcap_dialogueAbort;                 /* ABRT_apdu */
+static int hf_tcap_aarq_protocol_version;         /* AARQ_protocol_version */
+static int hf_tcap_aarq_application_context_name;  /* AARQ_application_context_name */
+static int hf_tcap_aarq_user_information;         /* AARQ_user_information */
+static int hf_tcap_aarq_user_information_item;    /* EXTERNAL */
+static int hf_tcap_aare_protocol_version;         /* AARE_protocol_version */
+static int hf_tcap_aare_application_context_name;  /* AARE_application_context_name */
+static int hf_tcap_result;                        /* Associate_result */
+static int hf_tcap_result_source_diagnostic;      /* Associate_source_diagnostic */
+static int hf_tcap_aare_user_information;         /* AARE_user_information */
+static int hf_tcap_aare_user_information_item;    /* EXTERNAL */
+static int hf_tcap_abort_source;                  /* ABRT_source */
+static int hf_tcap_abrt_user_information;         /* ABRT_user_information */
+static int hf_tcap_abrt_user_information_item;    /* EXTERNAL */
+static int hf_tcap_dialogue_service_user;         /* T_dialogue_service_user */
+static int hf_tcap_dialogue_service_provider;     /* T_dialogue_service_provider */
 /* named bits */
-static int hf_tcap_AUDT_protocol_version_version1 = -1;
-static int hf_tcap_AARQ_protocol_version_version1 = -1;
-static int hf_tcap_AARE_protocol_version_version1 = -1;
+static int hf_tcap_AUDT_protocol_version_version1;
+static int hf_tcap_AARQ_protocol_version_version1;
+static int hf_tcap_AARE_protocol_version_version1;
 
 /* Initialize the subtree pointers */
-static gint ett_tcap = -1;
-static gint ett_param = -1;
+static gint ett_tcap;
+static gint ett_param;
 
-static gint ett_otid = -1;
-static gint ett_dtid = -1;
+static gint ett_otid;
+static gint ett_dtid;
 gint ett_tcap_stat = -1;
 
 static struct tcapsrt_info_t * gp_tcapsrt_info;
@@ -134,39 +134,39 @@ static int ss7pc_address_type = -1;
 
 static struct tcaphash_context_t * gp_tcap_context=NULL;
 
-static gint ett_tcap_ExternalPDU_U = -1;
-static gint ett_tcap_TCMessage = -1;
-static gint ett_tcap_Unidirectional = -1;
-static gint ett_tcap_Begin = -1;
-static gint ett_tcap_End = -1;
-static gint ett_tcap_Continue = -1;
-static gint ett_tcap_Abort = -1;
-static gint ett_tcap_Reason = -1;
-static gint ett_tcap_SEQUENCE_SIZE_1_MAX_OF_Component = -1;
-static gint ett_tcap_Component = -1;
-static gint ett_tcap_Invoke = -1;
-static gint ett_tcap_ReturnResult = -1;
-static gint ett_tcap_T_resultretres = -1;
-static gint ett_tcap_ReturnError = -1;
-static gint ett_tcap_Reject = -1;
-static gint ett_tcap_T_invokeIDRej = -1;
-static gint ett_tcap_T_problem = -1;
-static gint ett_tcap_OPERATION = -1;
-static gint ett_tcap_ErrorCode = -1;
-static gint ett_tcap_UniDialoguePDU = -1;
-static gint ett_tcap_AUDT_apdu_U = -1;
-static gint ett_tcap_AUDT_protocol_version = -1;
-static gint ett_tcap_AUDT_user_information = -1;
-static gint ett_tcap_DialoguePDU = -1;
-static gint ett_tcap_AARQ_apdu_U = -1;
-static gint ett_tcap_AARQ_protocol_version = -1;
-static gint ett_tcap_AARQ_user_information = -1;
-static gint ett_tcap_AARE_apdu_U = -1;
-static gint ett_tcap_AARE_protocol_version = -1;
-static gint ett_tcap_AARE_user_information = -1;
-static gint ett_tcap_ABRT_apdu_U = -1;
-static gint ett_tcap_ABRT_user_information = -1;
-static gint ett_tcap_Associate_source_diagnostic = -1;
+static gint ett_tcap_ExternalPDU_U;
+static gint ett_tcap_TCMessage;
+static gint ett_tcap_Unidirectional;
+static gint ett_tcap_Begin;
+static gint ett_tcap_End;
+static gint ett_tcap_Continue;
+static gint ett_tcap_Abort;
+static gint ett_tcap_Reason;
+static gint ett_tcap_SEQUENCE_SIZE_1_MAX_OF_Component;
+static gint ett_tcap_Component;
+static gint ett_tcap_Invoke;
+static gint ett_tcap_ReturnResult;
+static gint ett_tcap_T_resultretres;
+static gint ett_tcap_ReturnError;
+static gint ett_tcap_Reject;
+static gint ett_tcap_T_invokeIDRej;
+static gint ett_tcap_T_problem;
+static gint ett_tcap_OPERATION;
+static gint ett_tcap_ErrorCode;
+static gint ett_tcap_UniDialoguePDU;
+static gint ett_tcap_AUDT_apdu_U;
+static gint ett_tcap_AUDT_protocol_version;
+static gint ett_tcap_AUDT_user_information;
+static gint ett_tcap_DialoguePDU;
+static gint ett_tcap_AARQ_apdu_U;
+static gint ett_tcap_AARQ_protocol_version;
+static gint ett_tcap_AARQ_user_information;
+static gint ett_tcap_AARE_apdu_U;
+static gint ett_tcap_AARE_protocol_version;
+static gint ett_tcap_AARE_user_information;
+static gint ett_tcap_ABRT_apdu_U;
+static gint ett_tcap_ABRT_user_information;
+static gint ett_tcap_Associate_source_diagnostic;
 
 /* When several Tcap components are received in a single TCAP message,
    we have to use several buffers for the stored parameters

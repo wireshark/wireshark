@@ -39,20 +39,20 @@ static dissector_handle_t m3ap_handle=NULL;
 #include "packet-m3ap-val.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_m3ap = -1;
+static int proto_m3ap;
 
-static int hf_m3ap_Absolute_Time_ofMBMS_Data_value = -1;
-static int hf_m3ap_IPAddress_v4 = -1;
-static int hf_m3ap_IPAddress_v6 = -1;
+static int hf_m3ap_Absolute_Time_ofMBMS_Data_value;
+static int hf_m3ap_IPAddress_v4;
+static int hf_m3ap_IPAddress_v6;
 
 #include "packet-m3ap-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_m3ap = -1;
-static int ett_m3ap_IPAddress = -1;
+static int ett_m3ap;
+static int ett_m3ap_IPAddress;
 #include "packet-m3ap-ett.c"
 
-static expert_field ei_m3ap_invalid_ip_address_len = EI_INIT;
+static expert_field ei_m3ap_invalid_ip_address_len;
 
 struct m3ap_private_data {
   e212_number_type_t number_type;

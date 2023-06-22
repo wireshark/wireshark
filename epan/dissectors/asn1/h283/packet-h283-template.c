@@ -25,11 +25,11 @@ void proto_register_h283(void);
 void proto_reg_handoff_h283(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_h283 = -1;
+static int proto_h283;
 #include "packet-h283-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_h283 = -1;
+static int ett_h283;
 #include "packet-h283-ett.c"
 
 /* Subdissectors */

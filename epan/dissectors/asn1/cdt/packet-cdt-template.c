@@ -44,14 +44,14 @@ static proto_item *cdt_item = NULL;
 static guint32 content_type = 0;
 
 /* Initialize the protocol and registered fields */
-static int proto_cdt = -1;
+static int proto_cdt;
 #include "packet-cdt-hf.c"
 
 /* Initialize the subtree pointers */
 #include "packet-cdt-ett.c"
 
-static expert_field ei_cdt_unable_compress_content = EI_INIT;
-static expert_field ei_cdt_unable_uncompress_content = EI_INIT;
+static expert_field ei_cdt_unable_compress_content;
+static expert_field ei_cdt_unable_uncompress_content;
 
 #include "packet-cdt-fn.c"
 

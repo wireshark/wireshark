@@ -45,12 +45,12 @@ void proto_reg_handoff_pcap(void);
 static dissector_handle_t pcap_handle = NULL;
 
 /* Initialize the protocol and registered fields */
-static int proto_pcap = -1;
+static int proto_pcap;
 
 #include "packet-pcap-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_pcap = -1;
+static int ett_pcap;
 
 #include "packet-pcap-ett.c"
 

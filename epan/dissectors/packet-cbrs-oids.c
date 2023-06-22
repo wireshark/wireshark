@@ -36,15 +36,15 @@ void proto_register_cbrs_oids(void);
 void proto_reg_handoff_cbrs_oids(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_cbrs_oids = -1;
-static int hf_cbrs_oids_ZONE_PDU = -1;            /* ZONE */
-static int hf_cbrs_oids_FREQUENCY_PDU = -1;       /* FREQUENCY */
-static int hf_cbrs_oids_FCCID_PDU = -1;           /* FCCID */
-static int hf_cbrs_oids_SERIAL_PDU = -1;          /* SERIAL */
-static int hf_cbrs_oids_FRN_PDU = -1;             /* FRN */
-static int hf_cbrs_oids_CPIRID_PDU = -1;          /* CPIRID */
-static int hf_cbrs_oids_TEST_PDU = -1;            /* TEST */
-static int hf_cbrs_oids_UTF8String_PDU = -1;
+static int proto_cbrs_oids;
+static int hf_cbrs_oids_ZONE_PDU;                 /* ZONE */
+static int hf_cbrs_oids_FREQUENCY_PDU;            /* FREQUENCY */
+static int hf_cbrs_oids_FCCID_PDU;                /* FCCID */
+static int hf_cbrs_oids_SERIAL_PDU;               /* SERIAL */
+static int hf_cbrs_oids_FRN_PDU;                  /* FRN */
+static int hf_cbrs_oids_CPIRID_PDU;               /* CPIRID */
+static int hf_cbrs_oids_TEST_PDU;                 /* TEST */
+static int hf_cbrs_oids_UTF8String_PDU;
 
 /* Initialize the subtree pointers */
 

@@ -35,30 +35,30 @@ void proto_reg_handoff_lnpdqp(void);
 void proto_register_lnpdqp(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_lnpdqp = -1;
+static int proto_lnpdqp;
 
 
-static int hf_lnpdqp_type_of_digits = -1;
-static int hf_lnpdqp_nature_of_number = -1;
-static int hf_lnpdqp_digits_enc = -1;
-static int hf_lnpdqp_np = -1;
-static int hf_lnpdqp_nr_digits = -1;
-static int hf_lnpdqp_bcd_digits = -1;
-static int hf_lnpdqp_ia5_digits = -1;
+static int hf_lnpdqp_type_of_digits;
+static int hf_lnpdqp_nature_of_number;
+static int hf_lnpdqp_digits_enc;
+static int hf_lnpdqp_np;
+static int hf_lnpdqp_nr_digits;
+static int hf_lnpdqp_bcd_digits;
+static int hf_lnpdqp_ia5_digits;
 
 /* asn2wrs/the ber dissector does not handle the same tag used multiple times
  * in asn1 description, do some magic to handle.
  */
-static int hf_lnpdqp_networkRoutingNumber = -1;   /* Digits */
-static int hf_lnpdqp_callingPartyANI = -1;        /* Digits */
-static int hf_lnpdqp_originatingLATA = -1;        /* Digits */
-static int hf_lnpdqp_carrierID = -1;              /* Digits */
+static int hf_lnpdqp_networkRoutingNumber;   /* Digits */
+static int hf_lnpdqp_callingPartyANI;        /* Digits */
+static int hf_lnpdqp_originatingLATA;        /* Digits */
+static int hf_lnpdqp_carrierID;              /* Digits */
 
 #include "packet-lnpdqp-hf.c"
 
-static int ett_lnpdqp = -1;
-static int ett_lnpdqp_digitstype = -1;
-static int ett_lnpdqp_digits = -1;
+static int ett_lnpdqp;
+static int ett_lnpdqp_digitstype;
+static int ett_lnpdqp_digits;
 #include "packet-lnpdqp-ett.c"
 
 

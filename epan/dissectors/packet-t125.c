@@ -44,43 +44,43 @@ void proto_register_t125(void);
 void proto_reg_handoff_t125(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_t125 = -1;
+static int proto_t125;
 static proto_tree *top_tree = NULL;
-static int hf_t125_ConnectMCSPDU_PDU = -1;        /* ConnectMCSPDU */
-static int hf_t125_maxChannelIds = -1;            /* INTEGER_0_MAX */
-static int hf_t125_maxUserIds = -1;               /* INTEGER_0_MAX */
-static int hf_t125_maxTokenIds = -1;              /* INTEGER_0_MAX */
-static int hf_t125_numPriorities = -1;            /* INTEGER_0_MAX */
-static int hf_t125_minThroughput = -1;            /* INTEGER_0_MAX */
-static int hf_t125_maxHeight = -1;                /* INTEGER_0_MAX */
-static int hf_t125_maxMCSPDUsize = -1;            /* INTEGER_0_MAX */
-static int hf_t125_protocolVersion = -1;          /* INTEGER_0_MAX */
-static int hf_t125_callingDomainSelector = -1;    /* OCTET_STRING */
-static int hf_t125_calledDomainSelector = -1;     /* OCTET_STRING */
-static int hf_t125_upwardFlag = -1;               /* BOOLEAN */
-static int hf_t125_targetParameters = -1;         /* DomainParameters */
-static int hf_t125_minimumParameters = -1;        /* DomainParameters */
-static int hf_t125_maximumParameters = -1;        /* DomainParameters */
-static int hf_t125_userData = -1;                 /* T_userData */
-static int hf_t125_result = -1;                   /* Result */
-static int hf_t125_calledConnectId = -1;          /* INTEGER_0_MAX */
-static int hf_t125_domainParameters = -1;         /* DomainParameters */
-static int hf_t125_userData_01 = -1;              /* T_userData_01 */
-static int hf_t125_dataPriority = -1;             /* DataPriority */
-static int hf_t125_connect_initial = -1;          /* Connect_Initial */
-static int hf_t125_connect_response = -1;         /* Connect_Response */
-static int hf_t125_connect_additional = -1;       /* Connect_Additional */
-static int hf_t125_connect_result = -1;           /* Connect_Result */
+static int hf_t125_ConnectMCSPDU_PDU;             /* ConnectMCSPDU */
+static int hf_t125_maxChannelIds;                 /* INTEGER_0_MAX */
+static int hf_t125_maxUserIds;                    /* INTEGER_0_MAX */
+static int hf_t125_maxTokenIds;                   /* INTEGER_0_MAX */
+static int hf_t125_numPriorities;                 /* INTEGER_0_MAX */
+static int hf_t125_minThroughput;                 /* INTEGER_0_MAX */
+static int hf_t125_maxHeight;                     /* INTEGER_0_MAX */
+static int hf_t125_maxMCSPDUsize;                 /* INTEGER_0_MAX */
+static int hf_t125_protocolVersion;               /* INTEGER_0_MAX */
+static int hf_t125_callingDomainSelector;         /* OCTET_STRING */
+static int hf_t125_calledDomainSelector;          /* OCTET_STRING */
+static int hf_t125_upwardFlag;                    /* BOOLEAN */
+static int hf_t125_targetParameters;              /* DomainParameters */
+static int hf_t125_minimumParameters;             /* DomainParameters */
+static int hf_t125_maximumParameters;             /* DomainParameters */
+static int hf_t125_userData;                      /* T_userData */
+static int hf_t125_result;                        /* Result */
+static int hf_t125_calledConnectId;               /* INTEGER_0_MAX */
+static int hf_t125_domainParameters;              /* DomainParameters */
+static int hf_t125_userData_01;                   /* T_userData_01 */
+static int hf_t125_dataPriority;                  /* DataPriority */
+static int hf_t125_connect_initial;               /* Connect_Initial */
+static int hf_t125_connect_response;              /* Connect_Response */
+static int hf_t125_connect_additional;            /* Connect_Additional */
+static int hf_t125_connect_result;                /* Connect_Result */
 
 /* Initialize the subtree pointers */
-static int ett_t125 = -1;
+static int ett_t125;
 
-static gint ett_t125_DomainParameters = -1;
-static gint ett_t125_Connect_Initial_U = -1;
-static gint ett_t125_Connect_Response_U = -1;
-static gint ett_t125_Connect_Additional_U = -1;
-static gint ett_t125_Connect_Result_U = -1;
-static gint ett_t125_ConnectMCSPDU = -1;
+static gint ett_t125_DomainParameters;
+static gint ett_t125_Connect_Initial_U;
+static gint ett_t125_Connect_Response_U;
+static gint ett_t125_Connect_Additional_U;
+static gint ett_t125_Connect_Result_U;
+static gint ett_t125_ConnectMCSPDU;
 
 static heur_dissector_list_t t125_heur_subdissector_list;
 

@@ -38,604 +38,604 @@
 void proto_register_gprscdr(void);
 
 /* Define the GPRS CDR proto */
-static int proto_gprscdr = -1;
+static int proto_gprscdr;
 
-static int hf_gprscdr_gprscdr_GPRSCallEventRecord_PDU = -1;  /* GPRSCallEventRecord */
-static int hf_gprscdr_gprscdr_GPRSRecord_PDU = -1;  /* GPRSRecord */
-static int hf_gprscdr_gprscdr_CAMELInformationPDP_PDU = -1;  /* CAMELInformationPDP */
-static int hf_gprscdr_gsm0408Cause = -1;          /* INTEGER */
-static int hf_gprscdr_gsm0902MapErrorValue = -1;  /* INTEGER */
-static int hf_gprscdr_itu_tQ767Cause = -1;        /* INTEGER */
-static int hf_gprscdr_networkSpecificCause = -1;  /* ManagementExtension */
-static int hf_gprscdr_manufacturerSpecificCause = -1;  /* ManagementExtension */
-static int hf_gprscdr_positionMethodFailureCause = -1;  /* PositionMethodFailure_Diagnostic */
-static int hf_gprscdr_unauthorizedLCSClientCause = -1;  /* UnauthorizedLCSClient_Diagnostic */
-static int hf_gprscdr_diameterResultCodeAndExperimentalResult = -1;  /* INTEGER */
-static int hf_gprscdr_plmnId = -1;                /* PLMN_Id */
-static int hf_gprscdr_eutraCellId = -1;           /* EutraCellId */
-static int hf_gprscdr_nid = -1;                   /* Nid */
-static int hf_gprscdr_rANNASCause = -1;           /* SEQUENCE_OF_RANNASCause */
-static int hf_gprscdr_rANNASCause_item = -1;      /* RANNASCause */
-static int hf_gprscdr_sIP_URI = -1;               /* GraphicString */
-static int hf_gprscdr_tEL_URI = -1;               /* GraphicString */
-static int hf_gprscdr_uRN = -1;                   /* GraphicString */
-static int hf_gprscdr_iSDN_E164 = -1;             /* GraphicString */
-static int hf_gprscdr_externalId = -1;            /* UTF8String */
-static int hf_gprscdr_iPBinaryAddress = -1;       /* IPBinaryAddress */
-static int hf_gprscdr_iPTextRepresentedAddress = -1;  /* IPTextRepresentedAddress */
-static int hf_gprscdr_iPBinV4Address = -1;        /* IPBinV4Address */
-static int hf_gprscdr_iPBinV6Address_choice = -1;  /* IPBinV6AddressWithOrWithoutPrefixLength */
-static int hf_gprscdr_iPBinV6Address = -1;        /* IPBinV6Address */
-static int hf_gprscdr_iPBinV6AddressWithPrefix = -1;  /* IPBinV6AddressWithPrefixLength */
-static int hf_gprscdr_pDPAddressPrefixLength = -1;  /* PDPAddressPrefixLength */
-static int hf_gprscdr_iPTextV4Address = -1;       /* IA5String_SIZE_7_15 */
-static int hf_gprscdr_iPTextV6Address = -1;       /* IA5String_SIZE_15_45 */
-static int hf_gprscdr_lcsClientExternalID = -1;   /* LCSClientExternalID */
-static int hf_gprscdr_lcsClientDialedByMS = -1;   /* AddressString */
-static int hf_gprscdr_lcsClientInternalID = -1;   /* LCSClientInternalID */
-static int hf_gprscdr_locationAreaCode = -1;      /* LocationAreaCode */
-static int hf_gprscdr_cellId = -1;                /* CellId */
-static int hf_gprscdr_mCC_MNC = -1;               /* MCC_MNC */
-static int hf_gprscdr_ManagementExtensions_item = -1;  /* ManagementExtension */
-static int hf_gprscdr_tMGI = -1;                  /* TMGI */
-static int hf_gprscdr_mBMSSessionIdentity = -1;   /* MBMSSessionIdentity */
-static int hf_gprscdr_mBMSServiceType = -1;       /* MBMSServiceType */
-static int hf_gprscdr_mBMSUserServiceType = -1;   /* MBMSUserServiceType */
-static int hf_gprscdr_mBMS2G3GIndicator = -1;     /* MBMS2G3GIndicator */
-static int hf_gprscdr_fileRepairSupported = -1;   /* BOOLEAN */
-static int hf_gprscdr_rAI = -1;                   /* RoutingAreaCode */
-static int hf_gprscdr_mBMSServiceArea = -1;       /* MBMSServiceArea */
-static int hf_gprscdr_requiredMBMSBearerCaps = -1;  /* RequiredMBMSBearerCapabilities */
-static int hf_gprscdr_mBMSGWAddress = -1;         /* GSNAddress */
-static int hf_gprscdr_cNIPMulticastDistribution = -1;  /* CNIPMulticastDistribution */
-static int hf_gprscdr_mBMSDataTransferStart = -1;  /* MBMSTime */
-static int hf_gprscdr_mBMSDataTransferStop = -1;  /* MBMSTime */
-static int hf_gprscdr_nrCellId = -1;              /* NrCellId */
-static int hf_gprscdr_iPAddress = -1;             /* IPAddress */
-static int hf_gprscdr_nRcgi = -1;                 /* Ncgi */
-static int hf_gprscdr_ecgi = -1;                  /* Ecgi */
-static int hf_gprscdr_sCSAddress = -1;            /* IPAddress */
-static int hf_gprscdr_sCSRealm = -1;              /* DiameterIdentity */
-static int hf_gprscdr_serviceSpecificData = -1;   /* GraphicString */
-static int hf_gprscdr_serviceSpecificType = -1;   /* INTEGER */
-static int hf_gprscdr_subscriptionIDType = -1;    /* SubscriptionIDType */
-static int hf_gprscdr_subscriptionIDData = -1;    /* UTF8String */
-static int hf_gprscdr_identifier = -1;            /* T_identifier */
-static int hf_gprscdr_significance = -1;          /* BOOLEAN */
-static int hf_gprscdr_information = -1;           /* T_information */
-static int hf_gprscdr_sgsnPDPRecord = -1;         /* SGSNPDPRecordV651 */
-static int hf_gprscdr_ggsnPDPRecord = -1;         /* GGSNPDPRecord */
-static int hf_gprscdr_sgsnMMRecord = -1;          /* SGSNMMRecord */
-static int hf_gprscdr_sgsnSMORecord = -1;         /* SGSNSMORecordV651 */
-static int hf_gprscdr_sgsnSMTRecord = -1;         /* SGSNSMTRecordV651 */
-static int hf_gprscdr_egsnPDPRecord = -1;         /* EGSNPDPRecord */
-static int hf_gprscdr_recordType = -1;            /* CallEventRecordType */
-static int hf_gprscdr_networkInitiation = -1;     /* NetworkInitiatedPDPContext */
-static int hf_gprscdr_servedIMSI = -1;            /* IMSI */
-static int hf_gprscdr_ggsnAddress = -1;           /* GSNAddress */
-static int hf_gprscdr_chargingID = -1;            /* ChargingID */
-static int hf_gprscdr_sgsnAddress = -1;           /* SEQUENCE_OF_GSNAddress */
-static int hf_gprscdr_sgsnAddress_item = -1;      /* GSNAddress */
-static int hf_gprscdr_accessPointNameNI = -1;     /* AccessPointNameNI */
-static int hf_gprscdr_pdpType = -1;               /* PDPType */
-static int hf_gprscdr_servedPDPAddress = -1;      /* PDPAddress */
-static int hf_gprscdr_dynamicAddressFlag = -1;    /* DynamicAddressFlag */
-static int hf_gprscdr_listOfTrafficVolumes = -1;  /* SEQUENCE_OF_ChangeOfCharConditionV651 */
-static int hf_gprscdr_listOfTrafficVolumes_item = -1;  /* ChangeOfCharConditionV651 */
-static int hf_gprscdr_recordOpeningTime = -1;     /* TimeStamp */
-static int hf_gprscdr_duration = -1;              /* CallDuration */
-static int hf_gprscdr_causeForRecClosing = -1;    /* CauseForRecClosingV651 */
-static int hf_gprscdr_diagnostics = -1;           /* Diagnostics */
-static int hf_gprscdr_recordSequenceNumber = -1;  /* INTEGER */
-static int hf_gprscdr_nodeID = -1;                /* NodeID */
-static int hf_gprscdr_recordExtensions = -1;      /* ManagementExtensions */
-static int hf_gprscdr_localSequenceNumber = -1;   /* LocalSequenceNumber */
-static int hf_gprscdr_apnSelectionMode = -1;      /* APNSelectionMode */
-static int hf_gprscdr_servedMSISDN = -1;          /* MSISDN */
-static int hf_gprscdr_chargingCharacteristics = -1;  /* ChargingCharacteristics */
-static int hf_gprscdr_chChSelectionMode = -1;     /* ChChSelectionMode */
-static int hf_gprscdr_iMSsignalingContext = -1;   /* NULL */
-static int hf_gprscdr_externalChargingID = -1;    /* OCTET_STRING */
-static int hf_gprscdr_sgsnPLMNIdentifier = -1;    /* PLMN_Id */
-static int hf_gprscdr_servedIMEISV = -1;          /* IMEI */
-static int hf_gprscdr_rATType = -1;               /* RATType */
-static int hf_gprscdr_mSTimeZone = -1;            /* MSTimeZone */
-static int hf_gprscdr_userLocationInformation = -1;  /* T_userLocationInformation */
-static int hf_gprscdr_cAMELChargingInformation = -1;  /* OCTET_STRING */
-static int hf_gprscdr_recordType_01 = -1;         /* RecordType */
-static int hf_gprscdr_causeForRecClosing_01 = -1;  /* CauseForRecClosing */
-static int hf_gprscdr_userLocationInformation_01 = -1;  /* T_userLocationInformation_01 */
-static int hf_gprscdr_pSFurnishChargingInformation = -1;  /* PSFurnishChargingInformation */
-static int hf_gprscdr_userLocationInformation_02 = -1;  /* T_userLocationInformation_02 */
-static int hf_gprscdr_listOfServiceData = -1;     /* SEQUENCE_OF_ChangeOfServiceConditionV651 */
-static int hf_gprscdr_listOfServiceData_item = -1;  /* ChangeOfServiceConditionV651 */
-static int hf_gprscdr_userLocationInformation_03 = -1;  /* T_userLocationInformation_03 */
-static int hf_gprscdr_listOfServiceData_01 = -1;  /* SEQUENCE_OF_ChangeOfServiceConditionV750 */
-static int hf_gprscdr_listOfServiceData_item_01 = -1;  /* ChangeOfServiceConditionV750 */
-static int hf_gprscdr_servedIMEI = -1;            /* IMEI */
-static int hf_gprscdr_sgsnAddress_01 = -1;        /* GSNAddress */
-static int hf_gprscdr_msNetworkCapability = -1;   /* MSNetworkCapability */
-static int hf_gprscdr_routingArea = -1;           /* RoutingAreaCode */
-static int hf_gprscdr_cellIdentifier = -1;        /* CellId */
-static int hf_gprscdr_ggsnAddressUsed = -1;       /* GSNAddress */
-static int hf_gprscdr_sgsnChange = -1;            /* SGSNChange */
-static int hf_gprscdr_accessPointNameOI = -1;     /* AccessPointNameOI */
-static int hf_gprscdr_cAMELInformationPDP = -1;   /* CAMELInformationPDP */
-static int hf_gprscdr_rNCUnsentDownlinkVolume = -1;  /* DataVolumeGPRS */
-static int hf_gprscdr_serviceCentre = -1;         /* AddressString */
-static int hf_gprscdr_recordingEntity = -1;       /* RecordingEntity */
-static int hf_gprscdr_locationArea = -1;          /* LocationAreaCode */
-static int hf_gprscdr_messageReference = -1;      /* MessageReference */
-static int hf_gprscdr_eventTimeStamp = -1;        /* TimeStamp */
-static int hf_gprscdr_smsResult = -1;             /* SMSResult */
-static int hf_gprscdr_destinationNumber = -1;     /* SmsTpDestinationNumber */
-static int hf_gprscdr_cAMELInformationSMS = -1;   /* CAMELInformationSMS */
-static int hf_gprscdr_qosRequested = -1;          /* QoSInformation */
-static int hf_gprscdr_qosNegotiated = -1;         /* QoSInformation */
-static int hf_gprscdr_dataVolumeGPRSUplink = -1;  /* DataVolumeGPRS */
-static int hf_gprscdr_dataVolumeGPRSDownlink = -1;  /* DataVolumeGPRS */
-static int hf_gprscdr_changeCondition = -1;       /* ChangeConditionV651 */
-static int hf_gprscdr_changeTime = -1;            /* TimeStamp */
-static int hf_gprscdr_failureHandlingContinue = -1;  /* FailureHandlingContinue */
-static int hf_gprscdr_userLocationInformation_04 = -1;  /* T_userLocationInformation_04 */
-static int hf_gprscdr_ratingGroup = -1;           /* RatingGroupId */
-static int hf_gprscdr_chargingRuleBaseName = -1;  /* ChargingRuleBaseName */
-static int hf_gprscdr_resultCode = -1;            /* ResultCode */
-static int hf_gprscdr_timeOfFirstUsage = -1;      /* TimeStamp */
-static int hf_gprscdr_timeOfLastUsage = -1;       /* TimeStamp */
-static int hf_gprscdr_timeUsage = -1;             /* CallDuration */
-static int hf_gprscdr_serviceConditionChange = -1;  /* ServiceConditionChangeV651 */
-static int hf_gprscdr_qoSInformationNeg = -1;     /* QoSInformation */
-static int hf_gprscdr_sgsn_Address = -1;          /* GSNAddress */
-static int hf_gprscdr_sGSNPLMNIdentifier = -1;    /* PLMN_Id */
-static int hf_gprscdr_datavolumeFBCUplink = -1;   /* DataVolumeGPRS */
-static int hf_gprscdr_datavolumeFBCDownlink = -1;  /* DataVolumeGPRS */
-static int hf_gprscdr_timeOfReport = -1;          /* TimeStamp */
-static int hf_gprscdr_serviceIdentifier = -1;     /* ServiceIdentifier */
-static int hf_gprscdr_serviceConditionChangeV750 = -1;  /* ServiceConditionChangeV750 */
-static int hf_gprscdr_aFRecordInformation = -1;   /* SEQUENCE_OF_AFRecordInformation */
-static int hf_gprscdr_aFRecordInformation_item = -1;  /* AFRecordInformation */
-static int hf_gprscdr_userLocationInformation_05 = -1;  /* T_userLocationInformation_05 */
-static int hf_gprscdr_eventBasedChargingInformation = -1;  /* EventBasedChargingInformation */
-static int hf_gprscdr_timeQuotaMechanism = -1;    /* TimeQuotaMechanism */
-static int hf_gprscdr_sgsnPDPRecord_01 = -1;      /* SGSNPDPRecord */
-static int hf_gprscdr_ggsnPDPRecord_01 = -1;      /* GGSNPDPRecordV750 */
-static int hf_gprscdr_sgsnSMORecord_01 = -1;      /* SGSNSMORecord */
-static int hf_gprscdr_sgsnSMTRecord_01 = -1;      /* SGSNSMTRecord */
-static int hf_gprscdr_sgsnMTLCSRecord = -1;       /* SGSNMTLCSRecord */
-static int hf_gprscdr_sgsnMOLCSRecord = -1;       /* SGSNMOLCSRecord */
-static int hf_gprscdr_sgsnNILCSRecord = -1;       /* SGSNNILCSRecord */
-static int hf_gprscdr_egsnPDPRecord_01 = -1;      /* EGSNPDPRecordV750 */
-static int hf_gprscdr_sgsnMBMSRecord = -1;        /* SGSNMBMSRecord */
-static int hf_gprscdr_ggsnMBMSRecord = -1;        /* GGSNMBMSRecord */
-static int hf_gprscdr_sGWRecord = -1;             /* SGWRecord */
-static int hf_gprscdr_pGWRecord = -1;             /* PGWRecord */
-static int hf_gprscdr_gwMBMSRecord = -1;          /* GWMBMSRecord */
-static int hf_gprscdr_tDFRecord = -1;             /* TDFRecord */
-static int hf_gprscdr_iPERecord = -1;             /* IPERecord */
-static int hf_gprscdr_ePDGRecord = -1;            /* EPDGRecord */
-static int hf_gprscdr_tWAGRecord = -1;            /* TWAGRecord */
-static int hf_gprscdr_s_GWAddress = -1;           /* GSNAddress */
-static int hf_gprscdr_servingNodeAddress = -1;    /* SEQUENCE_OF_GSNAddress */
-static int hf_gprscdr_servingNodeAddress_item = -1;  /* GSNAddress */
-static int hf_gprscdr_pdpPDNType = -1;            /* PDPType */
-static int hf_gprscdr_servedPDPPDNAddress = -1;   /* PDPAddress */
-static int hf_gprscdr_listOfTrafficVolumes_01 = -1;  /* SEQUENCE_OF_ChangeOfCharCondition */
-static int hf_gprscdr_listOfTrafficVolumes_item_01 = -1;  /* ChangeOfCharCondition */
-static int hf_gprscdr_servingNodePLMNIdentifier = -1;  /* PLMN_Id */
-static int hf_gprscdr_userLocationInformation_06 = -1;  /* T_userLocationInformation_06 */
-static int hf_gprscdr_sGWChange = -1;             /* SGWChange */
-static int hf_gprscdr_servingNodeType = -1;       /* SEQUENCE_OF_ServingNodeType */
-static int hf_gprscdr_servingNodeType_item = -1;  /* ServingNodeType */
-static int hf_gprscdr_p_GWAddressUsed = -1;       /* GSNAddress */
-static int hf_gprscdr_p_GWPLMNIdentifier = -1;    /* PLMN_Id */
-static int hf_gprscdr_startTime = -1;             /* TimeStamp */
-static int hf_gprscdr_stopTime = -1;              /* TimeStamp */
-static int hf_gprscdr_pDNConnectionChargingID = -1;  /* ChargingID */
-static int hf_gprscdr_iMSIunauthenticatedFlag = -1;  /* NULL */
-static int hf_gprscdr_userCSGInformation = -1;    /* UserCSGInformation */
-static int hf_gprscdr_servedPDPPDNAddressExt = -1;  /* PDPAddress */
-static int hf_gprscdr_lowPriorityIndicator = -1;  /* NULL */
-static int hf_gprscdr_dynamicAddressFlagExt = -1;  /* DynamicAddressFlag */
-static int hf_gprscdr_s_GWiPv6Address = -1;       /* GSNAddress */
-static int hf_gprscdr_servingNodeiPv6Address = -1;  /* SEQUENCE_OF_GSNAddress */
-static int hf_gprscdr_servingNodeiPv6Address_item = -1;  /* GSNAddress */
-static int hf_gprscdr_p_GWiPv6AddressUsed = -1;   /* GSNAddress */
-static int hf_gprscdr_retransmission = -1;        /* NULL */
-static int hf_gprscdr_userLocationInfoTime = -1;  /* TimeStamp */
-static int hf_gprscdr_cNOperatorSelectionEnt = -1;  /* CNOperatorSelectionEntity */
-static int hf_gprscdr_presenceReportingAreaInfo = -1;  /* PresenceReportingAreaInfo */
-static int hf_gprscdr_lastUserLocationInformation = -1;  /* T_lastUserLocationInformation */
-static int hf_gprscdr_lastMSTimeZone = -1;        /* MSTimeZone */
-static int hf_gprscdr_enhancedDiagnostics = -1;   /* EnhancedDiagnostics */
-static int hf_gprscdr_cPCIoTEPSOptimisationIndicator = -1;  /* CPCIoTEPSOptimisationIndicator */
-static int hf_gprscdr_uNIPDUCPOnlyFlag = -1;      /* UNIPDUCPOnlyFlag */
-static int hf_gprscdr_servingPLMNRateControl = -1;  /* ServingPLMNRateControl */
-static int hf_gprscdr_pDPPDNTypeExtension = -1;   /* PDPPDNTypeExtension */
-static int hf_gprscdr_mOExceptionDataCounter = -1;  /* MOExceptionDataCounter */
-static int hf_gprscdr_listOfRANSecondaryRATUsageReports = -1;  /* SEQUENCE_OF_RANSecondaryRATUsageReport */
-static int hf_gprscdr_listOfRANSecondaryRATUsageReports_item = -1;  /* RANSecondaryRATUsageReport */
-static int hf_gprscdr_pSCellInformation = -1;     /* PSCellInformation */
-static int hf_gprscdr_p_GWAddress = -1;           /* GSNAddress */
-static int hf_gprscdr_userLocationInformation_07 = -1;  /* T_userLocationInformation_07 */
-static int hf_gprscdr_listOfServiceData_02 = -1;  /* SEQUENCE_OF_ChangeOfServiceCondition */
-static int hf_gprscdr_listOfServiceData_item_02 = -1;  /* ChangeOfServiceCondition */
-static int hf_gprscdr_servedMNNAI = -1;           /* SubscriptionID */
-static int hf_gprscdr_served3gpp2MEID = -1;       /* OCTET_STRING */
-static int hf_gprscdr_threeGPP2UserLocationInformation = -1;  /* OCTET_STRING */
-static int hf_gprscdr_tWANUserLocationInformation = -1;  /* TWANUserLocationInfo */
-static int hf_gprscdr_ePCQoSInformation = -1;     /* EPCQoSInformation */
-static int hf_gprscdr_lastUserLocationInformation_01 = -1;  /* T_lastUserLocationInformation_01 */
-static int hf_gprscdr_nBIFOMMode = -1;            /* NBIFOMMode */
-static int hf_gprscdr_nBIFOMSupport = -1;         /* NBIFOMSupport */
-static int hf_gprscdr_uWANUserLocationInformation = -1;  /* UWANUserLocationInfo */
-static int hf_gprscdr_sGiPtPTunnellingMethod = -1;  /* SGiPtPTunnellingMethod */
-static int hf_gprscdr_aPNRateControl = -1;        /* APNRateControl */
-static int hf_gprscdr_chargingPerIPCANSessionIndicator = -1;  /* ChargingPerIPCANSessionIndicator */
-static int hf_gprscdr_threeGPPPSDataOffStatus = -1;  /* ThreeGPPPSDataOffStatus */
-static int hf_gprscdr_sCSASAddress = -1;          /* SCSASAddress */
-static int hf_gprscdr_userLocationInformation_08 = -1;  /* OCTET_STRING */
-static int hf_gprscdr_tDFAddress = -1;            /* GSNAddress */
-static int hf_gprscdr_tDFiPv6AddressUsed = -1;    /* GSNAddress */
-static int hf_gprscdr_tDFPLMNIdentifier = -1;     /* PLMN_Id */
-static int hf_gprscdr_servedFixedSubsID = -1;     /* FixedSubsID */
-static int hf_gprscdr_accessLineIdentifier = -1;  /* AccessLineIdentifier */
-static int hf_gprscdr_fixedUserLocationInformation = -1;  /* FixedUserLocationInformation */
-static int hf_gprscdr_iPEdgeAddress = -1;         /* GSNAddress */
-static int hf_gprscdr_iPCANsessionType = -1;      /* PDPType */
-static int hf_gprscdr_servedIPCANsessionAddress = -1;  /* PDPAddress */
-static int hf_gprscdr_iPEdgeOperatorIdentifier = -1;  /* PLMN_Id */
-static int hf_gprscdr_servedIPCANsessionAddressExt = -1;  /* PDPAddress */
-static int hf_gprscdr_iPEdgeiPv6AddressUsed = -1;  /* GSNAddress */
-static int hf_gprscdr_ePDGAddressUsed = -1;       /* GSNAddress */
-static int hf_gprscdr_ePDGiPv6AddressUsed = -1;   /* GSNAddress */
-static int hf_gprscdr_tWAGAddressUsed = -1;       /* GSNAddress */
-static int hf_gprscdr_tWAGiPv6AddressUsed = -1;   /* GSNAddress */
-static int hf_gprscdr_changeLocation = -1;        /* SEQUENCE_OF_ChangeLocation */
-static int hf_gprscdr_changeLocation_item = -1;   /* ChangeLocation */
-static int hf_gprscdr_cAMELInformationMM = -1;    /* CAMELInformationMM */
-static int hf_gprscdr_cellPLMNId = -1;            /* PLMN_Id */
-static int hf_gprscdr_servingNodeType_01 = -1;    /* ServingNodeType */
-static int hf_gprscdr_servingNodeAddress_01 = -1;  /* GSNAddress */
-static int hf_gprscdr_servingNodeiPv6Address_01 = -1;  /* GSNAddress */
-static int hf_gprscdr_mMEName = -1;               /* DiameterIdentity */
-static int hf_gprscdr_mMERealm = -1;              /* DiameterIdentity */
-static int hf_gprscdr_originatingAddress = -1;    /* AddressString */
-static int hf_gprscdr_lcsClientType = -1;         /* LCSClientType */
-static int hf_gprscdr_lcsClientIdentity = -1;     /* LCSClientIdentity */
-static int hf_gprscdr_locationType = -1;          /* LocationType */
-static int hf_gprscdr_lcsQos = -1;                /* LCSQoSInfo */
-static int hf_gprscdr_lcsPriority = -1;           /* LCS_Priority */
-static int hf_gprscdr_mlcNumber = -1;             /* ISDN_AddressString */
-static int hf_gprscdr_measurementDuration = -1;   /* CallDuration */
-static int hf_gprscdr_notificationToMSUser = -1;  /* NotificationToMSUser */
-static int hf_gprscdr_privacyOverride = -1;       /* NULL */
-static int hf_gprscdr_location = -1;              /* LocationAreaAndCell */
-static int hf_gprscdr_locationEstimate = -1;      /* Ext_GeographicalInformation */
-static int hf_gprscdr_positioningData = -1;       /* PositioningData */
-static int hf_gprscdr_lcsCause = -1;              /* LCSCause */
-static int hf_gprscdr_locationMethod = -1;        /* LocationMethod */
-static int hf_gprscdr_listofRAs = -1;             /* SEQUENCE_OF_RAIdentity */
-static int hf_gprscdr_listofRAs_item = -1;        /* RAIdentity */
-static int hf_gprscdr_listOfTrafficVolumes_02 = -1;  /* SEQUENCE_OF_ChangeOfMBMSCondition */
-static int hf_gprscdr_listOfTrafficVolumes_item_02 = -1;  /* ChangeOfMBMSCondition */
-static int hf_gprscdr_numberofReceivingUE = -1;   /* INTEGER */
-static int hf_gprscdr_mbmsInformation = -1;       /* MBMSInformation */
-static int hf_gprscdr_listofDownstreamNodes = -1;  /* SEQUENCE_OF_GSNAddress */
-static int hf_gprscdr_listofDownstreamNodes_item = -1;  /* GSNAddress */
-static int hf_gprscdr_mbmsGWAddress = -1;         /* GSNAddress */
-static int hf_gprscdr_commonTeid = -1;            /* CTEID */
-static int hf_gprscdr_iPMulticastSourceAddress = -1;  /* PDPAddress */
-static int hf_gprscdr_physicalAccessID = -1;      /* UTF8String */
-static int hf_gprscdr_logicalAccessID = -1;       /* OCTET_STRING */
-static int hf_gprscdr_aFChargingIdentifier = -1;  /* AFChargingIdentifier */
-static int hf_gprscdr_flows = -1;                 /* Flows */
-static int hf_gprscdr_aPNRateControlUplink = -1;  /* APNRateControlParameters */
-static int hf_gprscdr_aPNRateControlDownlink = -1;  /* APNRateControlParameters */
-static int hf_gprscdr_additionalExceptionReports = -1;  /* AdditionalExceptionReports */
-static int hf_gprscdr_rateControlTimeUnit = -1;   /* RateControlTimeUnit */
-static int hf_gprscdr_rateControlMaxRate = -1;    /* INTEGER */
-static int hf_gprscdr_rateControlMaxMessageSize = -1;  /* DataVolumeGPRS */
-static int hf_gprscdr_called_Party_Address = -1;  /* InvolvedParty */
-static int hf_gprscdr_requested_Party_Address = -1;  /* InvolvedParty */
-static int hf_gprscdr_list_Of_Called_Asserted_Identity = -1;  /* SEQUENCE_OF_InvolvedParty */
-static int hf_gprscdr_list_Of_Called_Asserted_Identity_item = -1;  /* InvolvedParty */
-static int hf_gprscdr_sCFAddress = -1;            /* SCFAddress */
-static int hf_gprscdr_serviceKey = -1;            /* ServiceKey */
-static int hf_gprscdr_defaultTransactionHandling = -1;  /* DefaultGPRS_Handling */
-static int hf_gprscdr_numberOfDPEncountered = -1;  /* NumberOfDPEncountered */
-static int hf_gprscdr_levelOfCAMELService = -1;   /* LevelOfCAMELService */
-static int hf_gprscdr_freeFormatData = -1;        /* FreeFormatData */
-static int hf_gprscdr_fFDAppendIndicator = -1;    /* FFDAppendIndicator */
-static int hf_gprscdr_cAMELAccessPointNameNI = -1;  /* CAMELAccessPointNameNI */
-static int hf_gprscdr_cAMELAccessPointNameOI = -1;  /* CAMELAccessPointNameOI */
-static int hf_gprscdr_defaultSMSHandling = -1;    /* DefaultSMS_Handling */
-static int hf_gprscdr_cAMELCallingPartyNumber = -1;  /* CallingNumber */
-static int hf_gprscdr_cAMELDestinationSubscriberNumber = -1;  /* SmsTpDestinationNumber */
-static int hf_gprscdr_cAMELSMSCAddress = -1;      /* AddressString */
-static int hf_gprscdr_smsReferenceNumber = -1;    /* CallReferenceNumber */
-static int hf_gprscdr_changeCondition_01 = -1;    /* ChangeCondition */
-static int hf_gprscdr_userLocationInformation_09 = -1;  /* T_userLocationInformation_08 */
-static int hf_gprscdr_presenceReportingAreaStatus = -1;  /* PresenceReportingAreaStatus */
-static int hf_gprscdr_accessAvailabilityChangeReason = -1;  /* AccessAvailabilityChangeReason */
-static int hf_gprscdr_relatedChangeOfCharCondition = -1;  /* RelatedChangeOfCharCondition */
-static int hf_gprscdr_listOfPresenceReportingAreaInformation = -1;  /* SEQUENCE_OF_PresenceReportingAreaInfo */
-static int hf_gprscdr_listOfPresenceReportingAreaInformation_item = -1;  /* PresenceReportingAreaInfo */
-static int hf_gprscdr_dataVolumeMBMSUplink = -1;  /* DataVolumeMBMS */
-static int hf_gprscdr_dataVolumeMBMSDownlink = -1;  /* DataVolumeMBMS */
-static int hf_gprscdr_serviceConditionChange_01 = -1;  /* ServiceConditionChange */
-static int hf_gprscdr_qoSInformationNeg_01 = -1;  /* EPCQoSInformation */
-static int hf_gprscdr_userLocationInformation_10 = -1;  /* T_userLocationInformation_09 */
-static int hf_gprscdr_serviceSpecificInfo = -1;   /* SEQUENCE_OF_ServiceSpecificInfo */
-static int hf_gprscdr_serviceSpecificInfo_item = -1;  /* ServiceSpecificInfo */
-static int hf_gprscdr_sponsorIdentity = -1;       /* OCTET_STRING */
-static int hf_gprscdr_applicationServiceProviderIdentity = -1;  /* OCTET_STRING */
-static int hf_gprscdr_aDCRuleBaseName = -1;       /* ADCRuleBaseName */
-static int hf_gprscdr_relatedChangeOfServiceCondition = -1;  /* RelatedChangeOfServiceCondition */
-static int hf_gprscdr_trafficSteeringPolicyIDDownlink = -1;  /* TrafficSteeringPolicyIDDownlink */
-static int hf_gprscdr_trafficSteeringPolicyIDUplink = -1;  /* TrafficSteeringPolicyIDUplink */
-static int hf_gprscdr_voLTEInformation = -1;      /* VoLTEInformation */
-static int hf_gprscdr_routingAreaCode = -1;       /* RoutingAreaCode */
-static int hf_gprscdr_mCC_MNC_01 = -1;            /* PLMN_Id */
-static int hf_gprscdr_qCI = -1;                   /* INTEGER */
-static int hf_gprscdr_maxRequestedBandwithUL = -1;  /* INTEGER */
-static int hf_gprscdr_maxRequestedBandwithDL = -1;  /* INTEGER */
-static int hf_gprscdr_guaranteedBitrateUL = -1;   /* INTEGER */
-static int hf_gprscdr_guaranteedBitrateDL = -1;   /* INTEGER */
-static int hf_gprscdr_aRP = -1;                   /* T_aRP */
-static int hf_gprscdr_aPNAggregateMaxBitrateUL = -1;  /* INTEGER */
-static int hf_gprscdr_aPNAggregateMaxBitrateDL = -1;  /* INTEGER */
-static int hf_gprscdr_extendedMaxRequestedBWUL = -1;  /* INTEGER */
-static int hf_gprscdr_extendedMaxRequestedBWDL = -1;  /* INTEGER */
-static int hf_gprscdr_extendedGBRUL = -1;         /* INTEGER */
-static int hf_gprscdr_extendedGBRDL = -1;         /* INTEGER */
-static int hf_gprscdr_extendedAPNAMBRUL = -1;     /* INTEGER */
-static int hf_gprscdr_extendedAPNAMBRDL = -1;     /* INTEGER */
-static int hf_gprscdr_numberOfEvents = -1;        /* INTEGER */
-static int hf_gprscdr_eventTimeStamps = -1;       /* SEQUENCE_OF_TimeStamp */
-static int hf_gprscdr_eventTimeStamps_item = -1;  /* TimeStamp */
-static int hf_gprscdr_sSID = -1;                  /* OCTET_STRING */
-static int hf_gprscdr_bSSID = -1;                 /* OCTET_STRING */
-static int hf_gprscdr_mediaComponentNumber = -1;  /* INTEGER */
-static int hf_gprscdr_flowNumber = -1;            /* T_flowNumber */
-static int hf_gprscdr_flowNumber_item = -1;       /* INTEGER */
-static int hf_gprscdr_counterValue = -1;          /* INTEGER */
-static int hf_gprscdr_counterTimestamp = -1;      /* TimeStamp */
-static int hf_gprscdr_presenceReportingAreaIdentifier = -1;  /* OCTET_STRING */
-static int hf_gprscdr_presenceReportingAreaElementsList = -1;  /* PresenceReportingAreaElementsList */
-static int hf_gprscdr_presenceReportingAreaNode = -1;  /* PresenceReportingAreaNode */
-static int hf_gprscdr_pSFreeFormatData = -1;      /* FreeFormatData */
-static int hf_gprscdr_pSFFDAppendIndicator = -1;  /* FFDAppendIndicator */
-static int hf_gprscdr_dataVolumeUplink = -1;      /* DataVolumeGPRS */
-static int hf_gprscdr_dataVolumeDownlink = -1;    /* DataVolumeGPRS */
-static int hf_gprscdr_rANStartTime = -1;          /* TimeStamp */
-static int hf_gprscdr_rANEndTime = -1;            /* TimeStamp */
-static int hf_gprscdr_secondaryRATType = -1;      /* SecondaryRATType */
-static int hf_gprscdr_userLocationInformation_11 = -1;  /* T_userLocationInformation_10 */
-static int hf_gprscdr_userLocationInformation_12 = -1;  /* T_userLocationInformation_11 */
-static int hf_gprscdr_relatedServiceConditionChange = -1;  /* ServiceConditionChange */
-static int hf_gprscdr_sPLMNDLRateControlValue = -1;  /* INTEGER */
-static int hf_gprscdr_sPLMNULRateControlValue = -1;  /* INTEGER */
-static int hf_gprscdr_timeQuotaType = -1;         /* TimeQuotaType */
-static int hf_gprscdr_baseTimeInterval = -1;      /* INTEGER */
-static int hf_gprscdr_civicAddressInformation = -1;  /* CivicAddressInformation */
-static int hf_gprscdr_wLANOperatorId = -1;        /* WLANOperatorId */
-static int hf_gprscdr_cSGId = -1;                 /* CSGId */
-static int hf_gprscdr_cSGAccessMode = -1;         /* CSGAccessMode */
-static int hf_gprscdr_cSGMembershipIndication = -1;  /* NULL */
-static int hf_gprscdr_uELocalIPAddress = -1;      /* IPAddress */
-static int hf_gprscdr_uDPSourcePort = -1;         /* OCTET_STRING_SIZE_2 */
-static int hf_gprscdr_tCPSourcePort = -1;         /* OCTET_STRING_SIZE_2 */
-static int hf_gprscdr_callerInformation = -1;     /* SEQUENCE_OF_InvolvedParty */
-static int hf_gprscdr_callerInformation_item = -1;  /* InvolvedParty */
-static int hf_gprscdr_calleeInformation = -1;     /* CalleePartyInformation */
-static int hf_gprscdr_wLANOperatorName = -1;      /* OCTET_STRING */
-static int hf_gprscdr_wLANPLMNId = -1;            /* PLMN_Id */
+static int hf_gprscdr_gprscdr_GPRSCallEventRecord_PDU;  /* GPRSCallEventRecord */
+static int hf_gprscdr_gprscdr_GPRSRecord_PDU;     /* GPRSRecord */
+static int hf_gprscdr_gprscdr_CAMELInformationPDP_PDU;  /* CAMELInformationPDP */
+static int hf_gprscdr_gsm0408Cause;               /* INTEGER */
+static int hf_gprscdr_gsm0902MapErrorValue;       /* INTEGER */
+static int hf_gprscdr_itu_tQ767Cause;             /* INTEGER */
+static int hf_gprscdr_networkSpecificCause;       /* ManagementExtension */
+static int hf_gprscdr_manufacturerSpecificCause;  /* ManagementExtension */
+static int hf_gprscdr_positionMethodFailureCause;  /* PositionMethodFailure_Diagnostic */
+static int hf_gprscdr_unauthorizedLCSClientCause;  /* UnauthorizedLCSClient_Diagnostic */
+static int hf_gprscdr_diameterResultCodeAndExperimentalResult;  /* INTEGER */
+static int hf_gprscdr_plmnId;                     /* PLMN_Id */
+static int hf_gprscdr_eutraCellId;                /* EutraCellId */
+static int hf_gprscdr_nid;                        /* Nid */
+static int hf_gprscdr_rANNASCause;                /* SEQUENCE_OF_RANNASCause */
+static int hf_gprscdr_rANNASCause_item;           /* RANNASCause */
+static int hf_gprscdr_sIP_URI;                    /* GraphicString */
+static int hf_gprscdr_tEL_URI;                    /* GraphicString */
+static int hf_gprscdr_uRN;                        /* GraphicString */
+static int hf_gprscdr_iSDN_E164;                  /* GraphicString */
+static int hf_gprscdr_externalId;                 /* UTF8String */
+static int hf_gprscdr_iPBinaryAddress;            /* IPBinaryAddress */
+static int hf_gprscdr_iPTextRepresentedAddress;   /* IPTextRepresentedAddress */
+static int hf_gprscdr_iPBinV4Address;             /* IPBinV4Address */
+static int hf_gprscdr_iPBinV6Address_choice;      /* IPBinV6AddressWithOrWithoutPrefixLength */
+static int hf_gprscdr_iPBinV6Address;             /* IPBinV6Address */
+static int hf_gprscdr_iPBinV6AddressWithPrefix;   /* IPBinV6AddressWithPrefixLength */
+static int hf_gprscdr_pDPAddressPrefixLength;     /* PDPAddressPrefixLength */
+static int hf_gprscdr_iPTextV4Address;            /* IA5String_SIZE_7_15 */
+static int hf_gprscdr_iPTextV6Address;            /* IA5String_SIZE_15_45 */
+static int hf_gprscdr_lcsClientExternalID;        /* LCSClientExternalID */
+static int hf_gprscdr_lcsClientDialedByMS;        /* AddressString */
+static int hf_gprscdr_lcsClientInternalID;        /* LCSClientInternalID */
+static int hf_gprscdr_locationAreaCode;           /* LocationAreaCode */
+static int hf_gprscdr_cellId;                     /* CellId */
+static int hf_gprscdr_mCC_MNC;                    /* MCC_MNC */
+static int hf_gprscdr_ManagementExtensions_item;  /* ManagementExtension */
+static int hf_gprscdr_tMGI;                       /* TMGI */
+static int hf_gprscdr_mBMSSessionIdentity;        /* MBMSSessionIdentity */
+static int hf_gprscdr_mBMSServiceType;            /* MBMSServiceType */
+static int hf_gprscdr_mBMSUserServiceType;        /* MBMSUserServiceType */
+static int hf_gprscdr_mBMS2G3GIndicator;          /* MBMS2G3GIndicator */
+static int hf_gprscdr_fileRepairSupported;        /* BOOLEAN */
+static int hf_gprscdr_rAI;                        /* RoutingAreaCode */
+static int hf_gprscdr_mBMSServiceArea;            /* MBMSServiceArea */
+static int hf_gprscdr_requiredMBMSBearerCaps;     /* RequiredMBMSBearerCapabilities */
+static int hf_gprscdr_mBMSGWAddress;              /* GSNAddress */
+static int hf_gprscdr_cNIPMulticastDistribution;  /* CNIPMulticastDistribution */
+static int hf_gprscdr_mBMSDataTransferStart;      /* MBMSTime */
+static int hf_gprscdr_mBMSDataTransferStop;       /* MBMSTime */
+static int hf_gprscdr_nrCellId;                   /* NrCellId */
+static int hf_gprscdr_iPAddress;                  /* IPAddress */
+static int hf_gprscdr_nRcgi;                      /* Ncgi */
+static int hf_gprscdr_ecgi;                       /* Ecgi */
+static int hf_gprscdr_sCSAddress;                 /* IPAddress */
+static int hf_gprscdr_sCSRealm;                   /* DiameterIdentity */
+static int hf_gprscdr_serviceSpecificData;        /* GraphicString */
+static int hf_gprscdr_serviceSpecificType;        /* INTEGER */
+static int hf_gprscdr_subscriptionIDType;         /* SubscriptionIDType */
+static int hf_gprscdr_subscriptionIDData;         /* UTF8String */
+static int hf_gprscdr_identifier;                 /* T_identifier */
+static int hf_gprscdr_significance;               /* BOOLEAN */
+static int hf_gprscdr_information;                /* T_information */
+static int hf_gprscdr_sgsnPDPRecord;              /* SGSNPDPRecordV651 */
+static int hf_gprscdr_ggsnPDPRecord;              /* GGSNPDPRecord */
+static int hf_gprscdr_sgsnMMRecord;               /* SGSNMMRecord */
+static int hf_gprscdr_sgsnSMORecord;              /* SGSNSMORecordV651 */
+static int hf_gprscdr_sgsnSMTRecord;              /* SGSNSMTRecordV651 */
+static int hf_gprscdr_egsnPDPRecord;              /* EGSNPDPRecord */
+static int hf_gprscdr_recordType;                 /* CallEventRecordType */
+static int hf_gprscdr_networkInitiation;          /* NetworkInitiatedPDPContext */
+static int hf_gprscdr_servedIMSI;                 /* IMSI */
+static int hf_gprscdr_ggsnAddress;                /* GSNAddress */
+static int hf_gprscdr_chargingID;                 /* ChargingID */
+static int hf_gprscdr_sgsnAddress;                /* SEQUENCE_OF_GSNAddress */
+static int hf_gprscdr_sgsnAddress_item;           /* GSNAddress */
+static int hf_gprscdr_accessPointNameNI;          /* AccessPointNameNI */
+static int hf_gprscdr_pdpType;                    /* PDPType */
+static int hf_gprscdr_servedPDPAddress;           /* PDPAddress */
+static int hf_gprscdr_dynamicAddressFlag;         /* DynamicAddressFlag */
+static int hf_gprscdr_listOfTrafficVolumes;       /* SEQUENCE_OF_ChangeOfCharConditionV651 */
+static int hf_gprscdr_listOfTrafficVolumes_item;  /* ChangeOfCharConditionV651 */
+static int hf_gprscdr_recordOpeningTime;          /* TimeStamp */
+static int hf_gprscdr_duration;                   /* CallDuration */
+static int hf_gprscdr_causeForRecClosing;         /* CauseForRecClosingV651 */
+static int hf_gprscdr_diagnostics;                /* Diagnostics */
+static int hf_gprscdr_recordSequenceNumber;       /* INTEGER */
+static int hf_gprscdr_nodeID;                     /* NodeID */
+static int hf_gprscdr_recordExtensions;           /* ManagementExtensions */
+static int hf_gprscdr_localSequenceNumber;        /* LocalSequenceNumber */
+static int hf_gprscdr_apnSelectionMode;           /* APNSelectionMode */
+static int hf_gprscdr_servedMSISDN;               /* MSISDN */
+static int hf_gprscdr_chargingCharacteristics;    /* ChargingCharacteristics */
+static int hf_gprscdr_chChSelectionMode;          /* ChChSelectionMode */
+static int hf_gprscdr_iMSsignalingContext;        /* NULL */
+static int hf_gprscdr_externalChargingID;         /* OCTET_STRING */
+static int hf_gprscdr_sgsnPLMNIdentifier;         /* PLMN_Id */
+static int hf_gprscdr_servedIMEISV;               /* IMEI */
+static int hf_gprscdr_rATType;                    /* RATType */
+static int hf_gprscdr_mSTimeZone;                 /* MSTimeZone */
+static int hf_gprscdr_userLocationInformation;    /* T_userLocationInformation */
+static int hf_gprscdr_cAMELChargingInformation;   /* OCTET_STRING */
+static int hf_gprscdr_recordType_01;              /* RecordType */
+static int hf_gprscdr_causeForRecClosing_01;      /* CauseForRecClosing */
+static int hf_gprscdr_userLocationInformation_01;  /* T_userLocationInformation_01 */
+static int hf_gprscdr_pSFurnishChargingInformation;  /* PSFurnishChargingInformation */
+static int hf_gprscdr_userLocationInformation_02;  /* T_userLocationInformation_02 */
+static int hf_gprscdr_listOfServiceData;          /* SEQUENCE_OF_ChangeOfServiceConditionV651 */
+static int hf_gprscdr_listOfServiceData_item;     /* ChangeOfServiceConditionV651 */
+static int hf_gprscdr_userLocationInformation_03;  /* T_userLocationInformation_03 */
+static int hf_gprscdr_listOfServiceData_01;       /* SEQUENCE_OF_ChangeOfServiceConditionV750 */
+static int hf_gprscdr_listOfServiceData_item_01;  /* ChangeOfServiceConditionV750 */
+static int hf_gprscdr_servedIMEI;                 /* IMEI */
+static int hf_gprscdr_sgsnAddress_01;             /* GSNAddress */
+static int hf_gprscdr_msNetworkCapability;        /* MSNetworkCapability */
+static int hf_gprscdr_routingArea;                /* RoutingAreaCode */
+static int hf_gprscdr_cellIdentifier;             /* CellId */
+static int hf_gprscdr_ggsnAddressUsed;            /* GSNAddress */
+static int hf_gprscdr_sgsnChange;                 /* SGSNChange */
+static int hf_gprscdr_accessPointNameOI;          /* AccessPointNameOI */
+static int hf_gprscdr_cAMELInformationPDP;        /* CAMELInformationPDP */
+static int hf_gprscdr_rNCUnsentDownlinkVolume;    /* DataVolumeGPRS */
+static int hf_gprscdr_serviceCentre;              /* AddressString */
+static int hf_gprscdr_recordingEntity;            /* RecordingEntity */
+static int hf_gprscdr_locationArea;               /* LocationAreaCode */
+static int hf_gprscdr_messageReference;           /* MessageReference */
+static int hf_gprscdr_eventTimeStamp;             /* TimeStamp */
+static int hf_gprscdr_smsResult;                  /* SMSResult */
+static int hf_gprscdr_destinationNumber;          /* SmsTpDestinationNumber */
+static int hf_gprscdr_cAMELInformationSMS;        /* CAMELInformationSMS */
+static int hf_gprscdr_qosRequested;               /* QoSInformation */
+static int hf_gprscdr_qosNegotiated;              /* QoSInformation */
+static int hf_gprscdr_dataVolumeGPRSUplink;       /* DataVolumeGPRS */
+static int hf_gprscdr_dataVolumeGPRSDownlink;     /* DataVolumeGPRS */
+static int hf_gprscdr_changeCondition;            /* ChangeConditionV651 */
+static int hf_gprscdr_changeTime;                 /* TimeStamp */
+static int hf_gprscdr_failureHandlingContinue;    /* FailureHandlingContinue */
+static int hf_gprscdr_userLocationInformation_04;  /* T_userLocationInformation_04 */
+static int hf_gprscdr_ratingGroup;                /* RatingGroupId */
+static int hf_gprscdr_chargingRuleBaseName;       /* ChargingRuleBaseName */
+static int hf_gprscdr_resultCode;                 /* ResultCode */
+static int hf_gprscdr_timeOfFirstUsage;           /* TimeStamp */
+static int hf_gprscdr_timeOfLastUsage;            /* TimeStamp */
+static int hf_gprscdr_timeUsage;                  /* CallDuration */
+static int hf_gprscdr_serviceConditionChange;     /* ServiceConditionChangeV651 */
+static int hf_gprscdr_qoSInformationNeg;          /* QoSInformation */
+static int hf_gprscdr_sgsn_Address;               /* GSNAddress */
+static int hf_gprscdr_sGSNPLMNIdentifier;         /* PLMN_Id */
+static int hf_gprscdr_datavolumeFBCUplink;        /* DataVolumeGPRS */
+static int hf_gprscdr_datavolumeFBCDownlink;      /* DataVolumeGPRS */
+static int hf_gprscdr_timeOfReport;               /* TimeStamp */
+static int hf_gprscdr_serviceIdentifier;          /* ServiceIdentifier */
+static int hf_gprscdr_serviceConditionChangeV750;  /* ServiceConditionChangeV750 */
+static int hf_gprscdr_aFRecordInformation;        /* SEQUENCE_OF_AFRecordInformation */
+static int hf_gprscdr_aFRecordInformation_item;   /* AFRecordInformation */
+static int hf_gprscdr_userLocationInformation_05;  /* T_userLocationInformation_05 */
+static int hf_gprscdr_eventBasedChargingInformation;  /* EventBasedChargingInformation */
+static int hf_gprscdr_timeQuotaMechanism;         /* TimeQuotaMechanism */
+static int hf_gprscdr_sgsnPDPRecord_01;           /* SGSNPDPRecord */
+static int hf_gprscdr_ggsnPDPRecord_01;           /* GGSNPDPRecordV750 */
+static int hf_gprscdr_sgsnSMORecord_01;           /* SGSNSMORecord */
+static int hf_gprscdr_sgsnSMTRecord_01;           /* SGSNSMTRecord */
+static int hf_gprscdr_sgsnMTLCSRecord;            /* SGSNMTLCSRecord */
+static int hf_gprscdr_sgsnMOLCSRecord;            /* SGSNMOLCSRecord */
+static int hf_gprscdr_sgsnNILCSRecord;            /* SGSNNILCSRecord */
+static int hf_gprscdr_egsnPDPRecord_01;           /* EGSNPDPRecordV750 */
+static int hf_gprscdr_sgsnMBMSRecord;             /* SGSNMBMSRecord */
+static int hf_gprscdr_ggsnMBMSRecord;             /* GGSNMBMSRecord */
+static int hf_gprscdr_sGWRecord;                  /* SGWRecord */
+static int hf_gprscdr_pGWRecord;                  /* PGWRecord */
+static int hf_gprscdr_gwMBMSRecord;               /* GWMBMSRecord */
+static int hf_gprscdr_tDFRecord;                  /* TDFRecord */
+static int hf_gprscdr_iPERecord;                  /* IPERecord */
+static int hf_gprscdr_ePDGRecord;                 /* EPDGRecord */
+static int hf_gprscdr_tWAGRecord;                 /* TWAGRecord */
+static int hf_gprscdr_s_GWAddress;                /* GSNAddress */
+static int hf_gprscdr_servingNodeAddress;         /* SEQUENCE_OF_GSNAddress */
+static int hf_gprscdr_servingNodeAddress_item;    /* GSNAddress */
+static int hf_gprscdr_pdpPDNType;                 /* PDPType */
+static int hf_gprscdr_servedPDPPDNAddress;        /* PDPAddress */
+static int hf_gprscdr_listOfTrafficVolumes_01;    /* SEQUENCE_OF_ChangeOfCharCondition */
+static int hf_gprscdr_listOfTrafficVolumes_item_01;  /* ChangeOfCharCondition */
+static int hf_gprscdr_servingNodePLMNIdentifier;  /* PLMN_Id */
+static int hf_gprscdr_userLocationInformation_06;  /* T_userLocationInformation_06 */
+static int hf_gprscdr_sGWChange;                  /* SGWChange */
+static int hf_gprscdr_servingNodeType;            /* SEQUENCE_OF_ServingNodeType */
+static int hf_gprscdr_servingNodeType_item;       /* ServingNodeType */
+static int hf_gprscdr_p_GWAddressUsed;            /* GSNAddress */
+static int hf_gprscdr_p_GWPLMNIdentifier;         /* PLMN_Id */
+static int hf_gprscdr_startTime;                  /* TimeStamp */
+static int hf_gprscdr_stopTime;                   /* TimeStamp */
+static int hf_gprscdr_pDNConnectionChargingID;    /* ChargingID */
+static int hf_gprscdr_iMSIunauthenticatedFlag;    /* NULL */
+static int hf_gprscdr_userCSGInformation;         /* UserCSGInformation */
+static int hf_gprscdr_servedPDPPDNAddressExt;     /* PDPAddress */
+static int hf_gprscdr_lowPriorityIndicator;       /* NULL */
+static int hf_gprscdr_dynamicAddressFlagExt;      /* DynamicAddressFlag */
+static int hf_gprscdr_s_GWiPv6Address;            /* GSNAddress */
+static int hf_gprscdr_servingNodeiPv6Address;     /* SEQUENCE_OF_GSNAddress */
+static int hf_gprscdr_servingNodeiPv6Address_item;  /* GSNAddress */
+static int hf_gprscdr_p_GWiPv6AddressUsed;        /* GSNAddress */
+static int hf_gprscdr_retransmission;             /* NULL */
+static int hf_gprscdr_userLocationInfoTime;       /* TimeStamp */
+static int hf_gprscdr_cNOperatorSelectionEnt;     /* CNOperatorSelectionEntity */
+static int hf_gprscdr_presenceReportingAreaInfo;  /* PresenceReportingAreaInfo */
+static int hf_gprscdr_lastUserLocationInformation;  /* T_lastUserLocationInformation */
+static int hf_gprscdr_lastMSTimeZone;             /* MSTimeZone */
+static int hf_gprscdr_enhancedDiagnostics;        /* EnhancedDiagnostics */
+static int hf_gprscdr_cPCIoTEPSOptimisationIndicator;  /* CPCIoTEPSOptimisationIndicator */
+static int hf_gprscdr_uNIPDUCPOnlyFlag;           /* UNIPDUCPOnlyFlag */
+static int hf_gprscdr_servingPLMNRateControl;     /* ServingPLMNRateControl */
+static int hf_gprscdr_pDPPDNTypeExtension;        /* PDPPDNTypeExtension */
+static int hf_gprscdr_mOExceptionDataCounter;     /* MOExceptionDataCounter */
+static int hf_gprscdr_listOfRANSecondaryRATUsageReports;  /* SEQUENCE_OF_RANSecondaryRATUsageReport */
+static int hf_gprscdr_listOfRANSecondaryRATUsageReports_item;  /* RANSecondaryRATUsageReport */
+static int hf_gprscdr_pSCellInformation;          /* PSCellInformation */
+static int hf_gprscdr_p_GWAddress;                /* GSNAddress */
+static int hf_gprscdr_userLocationInformation_07;  /* T_userLocationInformation_07 */
+static int hf_gprscdr_listOfServiceData_02;       /* SEQUENCE_OF_ChangeOfServiceCondition */
+static int hf_gprscdr_listOfServiceData_item_02;  /* ChangeOfServiceCondition */
+static int hf_gprscdr_servedMNNAI;                /* SubscriptionID */
+static int hf_gprscdr_served3gpp2MEID;            /* OCTET_STRING */
+static int hf_gprscdr_threeGPP2UserLocationInformation;  /* OCTET_STRING */
+static int hf_gprscdr_tWANUserLocationInformation;  /* TWANUserLocationInfo */
+static int hf_gprscdr_ePCQoSInformation;          /* EPCQoSInformation */
+static int hf_gprscdr_lastUserLocationInformation_01;  /* T_lastUserLocationInformation_01 */
+static int hf_gprscdr_nBIFOMMode;                 /* NBIFOMMode */
+static int hf_gprscdr_nBIFOMSupport;              /* NBIFOMSupport */
+static int hf_gprscdr_uWANUserLocationInformation;  /* UWANUserLocationInfo */
+static int hf_gprscdr_sGiPtPTunnellingMethod;     /* SGiPtPTunnellingMethod */
+static int hf_gprscdr_aPNRateControl;             /* APNRateControl */
+static int hf_gprscdr_chargingPerIPCANSessionIndicator;  /* ChargingPerIPCANSessionIndicator */
+static int hf_gprscdr_threeGPPPSDataOffStatus;    /* ThreeGPPPSDataOffStatus */
+static int hf_gprscdr_sCSASAddress;               /* SCSASAddress */
+static int hf_gprscdr_userLocationInformation_08;  /* OCTET_STRING */
+static int hf_gprscdr_tDFAddress;                 /* GSNAddress */
+static int hf_gprscdr_tDFiPv6AddressUsed;         /* GSNAddress */
+static int hf_gprscdr_tDFPLMNIdentifier;          /* PLMN_Id */
+static int hf_gprscdr_servedFixedSubsID;          /* FixedSubsID */
+static int hf_gprscdr_accessLineIdentifier;       /* AccessLineIdentifier */
+static int hf_gprscdr_fixedUserLocationInformation;  /* FixedUserLocationInformation */
+static int hf_gprscdr_iPEdgeAddress;              /* GSNAddress */
+static int hf_gprscdr_iPCANsessionType;           /* PDPType */
+static int hf_gprscdr_servedIPCANsessionAddress;  /* PDPAddress */
+static int hf_gprscdr_iPEdgeOperatorIdentifier;   /* PLMN_Id */
+static int hf_gprscdr_servedIPCANsessionAddressExt;  /* PDPAddress */
+static int hf_gprscdr_iPEdgeiPv6AddressUsed;      /* GSNAddress */
+static int hf_gprscdr_ePDGAddressUsed;            /* GSNAddress */
+static int hf_gprscdr_ePDGiPv6AddressUsed;        /* GSNAddress */
+static int hf_gprscdr_tWAGAddressUsed;            /* GSNAddress */
+static int hf_gprscdr_tWAGiPv6AddressUsed;        /* GSNAddress */
+static int hf_gprscdr_changeLocation;             /* SEQUENCE_OF_ChangeLocation */
+static int hf_gprscdr_changeLocation_item;        /* ChangeLocation */
+static int hf_gprscdr_cAMELInformationMM;         /* CAMELInformationMM */
+static int hf_gprscdr_cellPLMNId;                 /* PLMN_Id */
+static int hf_gprscdr_servingNodeType_01;         /* ServingNodeType */
+static int hf_gprscdr_servingNodeAddress_01;      /* GSNAddress */
+static int hf_gprscdr_servingNodeiPv6Address_01;  /* GSNAddress */
+static int hf_gprscdr_mMEName;                    /* DiameterIdentity */
+static int hf_gprscdr_mMERealm;                   /* DiameterIdentity */
+static int hf_gprscdr_originatingAddress;         /* AddressString */
+static int hf_gprscdr_lcsClientType;              /* LCSClientType */
+static int hf_gprscdr_lcsClientIdentity;          /* LCSClientIdentity */
+static int hf_gprscdr_locationType;               /* LocationType */
+static int hf_gprscdr_lcsQos;                     /* LCSQoSInfo */
+static int hf_gprscdr_lcsPriority;                /* LCS_Priority */
+static int hf_gprscdr_mlcNumber;                  /* ISDN_AddressString */
+static int hf_gprscdr_measurementDuration;        /* CallDuration */
+static int hf_gprscdr_notificationToMSUser;       /* NotificationToMSUser */
+static int hf_gprscdr_privacyOverride;            /* NULL */
+static int hf_gprscdr_location;                   /* LocationAreaAndCell */
+static int hf_gprscdr_locationEstimate;           /* Ext_GeographicalInformation */
+static int hf_gprscdr_positioningData;            /* PositioningData */
+static int hf_gprscdr_lcsCause;                   /* LCSCause */
+static int hf_gprscdr_locationMethod;             /* LocationMethod */
+static int hf_gprscdr_listofRAs;                  /* SEQUENCE_OF_RAIdentity */
+static int hf_gprscdr_listofRAs_item;             /* RAIdentity */
+static int hf_gprscdr_listOfTrafficVolumes_02;    /* SEQUENCE_OF_ChangeOfMBMSCondition */
+static int hf_gprscdr_listOfTrafficVolumes_item_02;  /* ChangeOfMBMSCondition */
+static int hf_gprscdr_numberofReceivingUE;        /* INTEGER */
+static int hf_gprscdr_mbmsInformation;            /* MBMSInformation */
+static int hf_gprscdr_listofDownstreamNodes;      /* SEQUENCE_OF_GSNAddress */
+static int hf_gprscdr_listofDownstreamNodes_item;  /* GSNAddress */
+static int hf_gprscdr_mbmsGWAddress;              /* GSNAddress */
+static int hf_gprscdr_commonTeid;                 /* CTEID */
+static int hf_gprscdr_iPMulticastSourceAddress;   /* PDPAddress */
+static int hf_gprscdr_physicalAccessID;           /* UTF8String */
+static int hf_gprscdr_logicalAccessID;            /* OCTET_STRING */
+static int hf_gprscdr_aFChargingIdentifier;       /* AFChargingIdentifier */
+static int hf_gprscdr_flows;                      /* Flows */
+static int hf_gprscdr_aPNRateControlUplink;       /* APNRateControlParameters */
+static int hf_gprscdr_aPNRateControlDownlink;     /* APNRateControlParameters */
+static int hf_gprscdr_additionalExceptionReports;  /* AdditionalExceptionReports */
+static int hf_gprscdr_rateControlTimeUnit;        /* RateControlTimeUnit */
+static int hf_gprscdr_rateControlMaxRate;         /* INTEGER */
+static int hf_gprscdr_rateControlMaxMessageSize;  /* DataVolumeGPRS */
+static int hf_gprscdr_called_Party_Address;       /* InvolvedParty */
+static int hf_gprscdr_requested_Party_Address;    /* InvolvedParty */
+static int hf_gprscdr_list_Of_Called_Asserted_Identity;  /* SEQUENCE_OF_InvolvedParty */
+static int hf_gprscdr_list_Of_Called_Asserted_Identity_item;  /* InvolvedParty */
+static int hf_gprscdr_sCFAddress;                 /* SCFAddress */
+static int hf_gprscdr_serviceKey;                 /* ServiceKey */
+static int hf_gprscdr_defaultTransactionHandling;  /* DefaultGPRS_Handling */
+static int hf_gprscdr_numberOfDPEncountered;      /* NumberOfDPEncountered */
+static int hf_gprscdr_levelOfCAMELService;        /* LevelOfCAMELService */
+static int hf_gprscdr_freeFormatData;             /* FreeFormatData */
+static int hf_gprscdr_fFDAppendIndicator;         /* FFDAppendIndicator */
+static int hf_gprscdr_cAMELAccessPointNameNI;     /* CAMELAccessPointNameNI */
+static int hf_gprscdr_cAMELAccessPointNameOI;     /* CAMELAccessPointNameOI */
+static int hf_gprscdr_defaultSMSHandling;         /* DefaultSMS_Handling */
+static int hf_gprscdr_cAMELCallingPartyNumber;    /* CallingNumber */
+static int hf_gprscdr_cAMELDestinationSubscriberNumber;  /* SmsTpDestinationNumber */
+static int hf_gprscdr_cAMELSMSCAddress;           /* AddressString */
+static int hf_gprscdr_smsReferenceNumber;         /* CallReferenceNumber */
+static int hf_gprscdr_changeCondition_01;         /* ChangeCondition */
+static int hf_gprscdr_userLocationInformation_09;  /* T_userLocationInformation_08 */
+static int hf_gprscdr_presenceReportingAreaStatus;  /* PresenceReportingAreaStatus */
+static int hf_gprscdr_accessAvailabilityChangeReason;  /* AccessAvailabilityChangeReason */
+static int hf_gprscdr_relatedChangeOfCharCondition;  /* RelatedChangeOfCharCondition */
+static int hf_gprscdr_listOfPresenceReportingAreaInformation;  /* SEQUENCE_OF_PresenceReportingAreaInfo */
+static int hf_gprscdr_listOfPresenceReportingAreaInformation_item;  /* PresenceReportingAreaInfo */
+static int hf_gprscdr_dataVolumeMBMSUplink;       /* DataVolumeMBMS */
+static int hf_gprscdr_dataVolumeMBMSDownlink;     /* DataVolumeMBMS */
+static int hf_gprscdr_serviceConditionChange_01;  /* ServiceConditionChange */
+static int hf_gprscdr_qoSInformationNeg_01;       /* EPCQoSInformation */
+static int hf_gprscdr_userLocationInformation_10;  /* T_userLocationInformation_09 */
+static int hf_gprscdr_serviceSpecificInfo;        /* SEQUENCE_OF_ServiceSpecificInfo */
+static int hf_gprscdr_serviceSpecificInfo_item;   /* ServiceSpecificInfo */
+static int hf_gprscdr_sponsorIdentity;            /* OCTET_STRING */
+static int hf_gprscdr_applicationServiceProviderIdentity;  /* OCTET_STRING */
+static int hf_gprscdr_aDCRuleBaseName;            /* ADCRuleBaseName */
+static int hf_gprscdr_relatedChangeOfServiceCondition;  /* RelatedChangeOfServiceCondition */
+static int hf_gprscdr_trafficSteeringPolicyIDDownlink;  /* TrafficSteeringPolicyIDDownlink */
+static int hf_gprscdr_trafficSteeringPolicyIDUplink;  /* TrafficSteeringPolicyIDUplink */
+static int hf_gprscdr_voLTEInformation;           /* VoLTEInformation */
+static int hf_gprscdr_routingAreaCode;            /* RoutingAreaCode */
+static int hf_gprscdr_mCC_MNC_01;                 /* PLMN_Id */
+static int hf_gprscdr_qCI;                        /* INTEGER */
+static int hf_gprscdr_maxRequestedBandwithUL;     /* INTEGER */
+static int hf_gprscdr_maxRequestedBandwithDL;     /* INTEGER */
+static int hf_gprscdr_guaranteedBitrateUL;        /* INTEGER */
+static int hf_gprscdr_guaranteedBitrateDL;        /* INTEGER */
+static int hf_gprscdr_aRP;                        /* T_aRP */
+static int hf_gprscdr_aPNAggregateMaxBitrateUL;   /* INTEGER */
+static int hf_gprscdr_aPNAggregateMaxBitrateDL;   /* INTEGER */
+static int hf_gprscdr_extendedMaxRequestedBWUL;   /* INTEGER */
+static int hf_gprscdr_extendedMaxRequestedBWDL;   /* INTEGER */
+static int hf_gprscdr_extendedGBRUL;              /* INTEGER */
+static int hf_gprscdr_extendedGBRDL;              /* INTEGER */
+static int hf_gprscdr_extendedAPNAMBRUL;          /* INTEGER */
+static int hf_gprscdr_extendedAPNAMBRDL;          /* INTEGER */
+static int hf_gprscdr_numberOfEvents;             /* INTEGER */
+static int hf_gprscdr_eventTimeStamps;            /* SEQUENCE_OF_TimeStamp */
+static int hf_gprscdr_eventTimeStamps_item;       /* TimeStamp */
+static int hf_gprscdr_sSID;                       /* OCTET_STRING */
+static int hf_gprscdr_bSSID;                      /* OCTET_STRING */
+static int hf_gprscdr_mediaComponentNumber;       /* INTEGER */
+static int hf_gprscdr_flowNumber;                 /* T_flowNumber */
+static int hf_gprscdr_flowNumber_item;            /* INTEGER */
+static int hf_gprscdr_counterValue;               /* INTEGER */
+static int hf_gprscdr_counterTimestamp;           /* TimeStamp */
+static int hf_gprscdr_presenceReportingAreaIdentifier;  /* OCTET_STRING */
+static int hf_gprscdr_presenceReportingAreaElementsList;  /* PresenceReportingAreaElementsList */
+static int hf_gprscdr_presenceReportingAreaNode;  /* PresenceReportingAreaNode */
+static int hf_gprscdr_pSFreeFormatData;           /* FreeFormatData */
+static int hf_gprscdr_pSFFDAppendIndicator;       /* FFDAppendIndicator */
+static int hf_gprscdr_dataVolumeUplink;           /* DataVolumeGPRS */
+static int hf_gprscdr_dataVolumeDownlink;         /* DataVolumeGPRS */
+static int hf_gprscdr_rANStartTime;               /* TimeStamp */
+static int hf_gprscdr_rANEndTime;                 /* TimeStamp */
+static int hf_gprscdr_secondaryRATType;           /* SecondaryRATType */
+static int hf_gprscdr_userLocationInformation_11;  /* T_userLocationInformation_10 */
+static int hf_gprscdr_userLocationInformation_12;  /* T_userLocationInformation_11 */
+static int hf_gprscdr_relatedServiceConditionChange;  /* ServiceConditionChange */
+static int hf_gprscdr_sPLMNDLRateControlValue;    /* INTEGER */
+static int hf_gprscdr_sPLMNULRateControlValue;    /* INTEGER */
+static int hf_gprscdr_timeQuotaType;              /* TimeQuotaType */
+static int hf_gprscdr_baseTimeInterval;           /* INTEGER */
+static int hf_gprscdr_civicAddressInformation;    /* CivicAddressInformation */
+static int hf_gprscdr_wLANOperatorId;             /* WLANOperatorId */
+static int hf_gprscdr_cSGId;                      /* CSGId */
+static int hf_gprscdr_cSGAccessMode;              /* CSGAccessMode */
+static int hf_gprscdr_cSGMembershipIndication;    /* NULL */
+static int hf_gprscdr_uELocalIPAddress;           /* IPAddress */
+static int hf_gprscdr_uDPSourcePort;              /* OCTET_STRING_SIZE_2 */
+static int hf_gprscdr_tCPSourcePort;              /* OCTET_STRING_SIZE_2 */
+static int hf_gprscdr_callerInformation;          /* SEQUENCE_OF_InvolvedParty */
+static int hf_gprscdr_callerInformation_item;     /* InvolvedParty */
+static int hf_gprscdr_calleeInformation;          /* CalleePartyInformation */
+static int hf_gprscdr_wLANOperatorName;           /* OCTET_STRING */
+static int hf_gprscdr_wLANPLMNId;                 /* PLMN_Id */
 /* named bits */
-static int hf_gprscdr_LevelOfCAMELService_basic = -1;
-static int hf_gprscdr_LevelOfCAMELService_callDurationSupervision = -1;
-static int hf_gprscdr_LevelOfCAMELService_onlineCharging = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_qoSChange = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_sGSNChange = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_sGSNPLMNIDChange = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_tariffTimeSwitch = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_pDPContextRelease = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_rATChange = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_serviceIdledOut = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_qCTExpiry = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_configurationChange = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_serviceStop = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_timeThresholdReached = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_volumeThresholdReached = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_spare_bit12 = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_timeExhausted = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_volumeExhausted = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_timeout = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_returnRequested = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_reauthorisationRequest = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_continueOngoingSession = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_retryAndTerminateOngoingSession = -1;
-static int hf_gprscdr_ServiceConditionChangeV651_terminateOngoingSession = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_qoSChange = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_sGSNChange = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_sGSNPLMNIDChange = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_tariffTimeSwitch = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_pDPContextRelease = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_rATChange = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_serviceIdledOut = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_reserved = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_configurationChange = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_serviceStop = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_dCCATimeThresholdReached = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_dCCAVolumeThresholdReached = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_dCCAServiceSpecificUnitThresholdReached = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_dCCATimeExhausted = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_dCCAVolumeExhausted = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_dCCAValidityTimeout = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_reserved2 = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_dCCAReauthorisationRequest = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_dCCAContinueOngoingSession = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_dCCARetryAndTerminateOngoingSession = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_dCCATerminateOngoingSession = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_cGI_SAIChange = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_rAIChange = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_dCCAServiceSpecificUnitExhausted = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_recordClosure = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_timeLimit = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_volumeLimit = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_serviceSpecificUnitLimit = -1;
-static int hf_gprscdr_ServiceConditionChangeV750_envelopeClosure = -1;
-static int hf_gprscdr_PresenceReportingAreaNode_oCS = -1;
-static int hf_gprscdr_PresenceReportingAreaNode_pCRF = -1;
-static int hf_gprscdr_ServiceConditionChange_qoSChange = -1;
-static int hf_gprscdr_ServiceConditionChange_sGSNChange = -1;
-static int hf_gprscdr_ServiceConditionChange_sGSNPLMNIDChange = -1;
-static int hf_gprscdr_ServiceConditionChange_tariffTimeSwitch = -1;
-static int hf_gprscdr_ServiceConditionChange_pDPContextRelease = -1;
-static int hf_gprscdr_ServiceConditionChange_rATChange = -1;
-static int hf_gprscdr_ServiceConditionChange_serviceIdledOut = -1;
-static int hf_gprscdr_ServiceConditionChange_reserved = -1;
-static int hf_gprscdr_ServiceConditionChange_configurationChange = -1;
-static int hf_gprscdr_ServiceConditionChange_serviceStop = -1;
-static int hf_gprscdr_ServiceConditionChange_dCCATimeThresholdReached = -1;
-static int hf_gprscdr_ServiceConditionChange_dCCAVolumeThresholdReached = -1;
-static int hf_gprscdr_ServiceConditionChange_dCCAServiceSpecificUnitThresholdReached = -1;
-static int hf_gprscdr_ServiceConditionChange_dCCATimeExhausted = -1;
-static int hf_gprscdr_ServiceConditionChange_dCCAVolumeExhausted = -1;
-static int hf_gprscdr_ServiceConditionChange_dCCAValidityTimeout = -1;
-static int hf_gprscdr_ServiceConditionChange_reserved1 = -1;
-static int hf_gprscdr_ServiceConditionChange_dCCAReauthorisationRequest = -1;
-static int hf_gprscdr_ServiceConditionChange_dCCAContinueOngoingSession = -1;
-static int hf_gprscdr_ServiceConditionChange_dCCARetryAndTerminateOngoingSession = -1;
-static int hf_gprscdr_ServiceConditionChange_dCCATerminateOngoingSession = -1;
-static int hf_gprscdr_ServiceConditionChange_cGI_SAIChange = -1;
-static int hf_gprscdr_ServiceConditionChange_rAIChange = -1;
-static int hf_gprscdr_ServiceConditionChange_dCCAServiceSpecificUnitExhausted = -1;
-static int hf_gprscdr_ServiceConditionChange_recordClosure = -1;
-static int hf_gprscdr_ServiceConditionChange_timeLimit = -1;
-static int hf_gprscdr_ServiceConditionChange_volumeLimit = -1;
-static int hf_gprscdr_ServiceConditionChange_serviceSpecificUnitLimit = -1;
-static int hf_gprscdr_ServiceConditionChange_envelopeClosure = -1;
-static int hf_gprscdr_ServiceConditionChange_eCGIChange = -1;
-static int hf_gprscdr_ServiceConditionChange_tAIChange = -1;
-static int hf_gprscdr_ServiceConditionChange_userLocationChange = -1;
-static int hf_gprscdr_ServiceConditionChange_userCSGInformationChange = -1;
-static int hf_gprscdr_ServiceConditionChange_presenceInPRAChange = -1;
-static int hf_gprscdr_ServiceConditionChange_accessChangeOfSDF = -1;
-static int hf_gprscdr_ServiceConditionChange_indirectServiceConditionChange = -1;
-static int hf_gprscdr_ServiceConditionChange_servingPLMNRateControlChange = -1;
-static int hf_gprscdr_ServiceConditionChange_aPNRateControlChange = -1;
+static int hf_gprscdr_LevelOfCAMELService_basic;
+static int hf_gprscdr_LevelOfCAMELService_callDurationSupervision;
+static int hf_gprscdr_LevelOfCAMELService_onlineCharging;
+static int hf_gprscdr_ServiceConditionChangeV651_qoSChange;
+static int hf_gprscdr_ServiceConditionChangeV651_sGSNChange;
+static int hf_gprscdr_ServiceConditionChangeV651_sGSNPLMNIDChange;
+static int hf_gprscdr_ServiceConditionChangeV651_tariffTimeSwitch;
+static int hf_gprscdr_ServiceConditionChangeV651_pDPContextRelease;
+static int hf_gprscdr_ServiceConditionChangeV651_rATChange;
+static int hf_gprscdr_ServiceConditionChangeV651_serviceIdledOut;
+static int hf_gprscdr_ServiceConditionChangeV651_qCTExpiry;
+static int hf_gprscdr_ServiceConditionChangeV651_configurationChange;
+static int hf_gprscdr_ServiceConditionChangeV651_serviceStop;
+static int hf_gprscdr_ServiceConditionChangeV651_timeThresholdReached;
+static int hf_gprscdr_ServiceConditionChangeV651_volumeThresholdReached;
+static int hf_gprscdr_ServiceConditionChangeV651_spare_bit12;
+static int hf_gprscdr_ServiceConditionChangeV651_timeExhausted;
+static int hf_gprscdr_ServiceConditionChangeV651_volumeExhausted;
+static int hf_gprscdr_ServiceConditionChangeV651_timeout;
+static int hf_gprscdr_ServiceConditionChangeV651_returnRequested;
+static int hf_gprscdr_ServiceConditionChangeV651_reauthorisationRequest;
+static int hf_gprscdr_ServiceConditionChangeV651_continueOngoingSession;
+static int hf_gprscdr_ServiceConditionChangeV651_retryAndTerminateOngoingSession;
+static int hf_gprscdr_ServiceConditionChangeV651_terminateOngoingSession;
+static int hf_gprscdr_ServiceConditionChangeV750_qoSChange;
+static int hf_gprscdr_ServiceConditionChangeV750_sGSNChange;
+static int hf_gprscdr_ServiceConditionChangeV750_sGSNPLMNIDChange;
+static int hf_gprscdr_ServiceConditionChangeV750_tariffTimeSwitch;
+static int hf_gprscdr_ServiceConditionChangeV750_pDPContextRelease;
+static int hf_gprscdr_ServiceConditionChangeV750_rATChange;
+static int hf_gprscdr_ServiceConditionChangeV750_serviceIdledOut;
+static int hf_gprscdr_ServiceConditionChangeV750_reserved;
+static int hf_gprscdr_ServiceConditionChangeV750_configurationChange;
+static int hf_gprscdr_ServiceConditionChangeV750_serviceStop;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCATimeThresholdReached;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCAVolumeThresholdReached;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCAServiceSpecificUnitThresholdReached;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCATimeExhausted;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCAVolumeExhausted;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCAValidityTimeout;
+static int hf_gprscdr_ServiceConditionChangeV750_reserved2;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCAReauthorisationRequest;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCAContinueOngoingSession;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCARetryAndTerminateOngoingSession;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCATerminateOngoingSession;
+static int hf_gprscdr_ServiceConditionChangeV750_cGI_SAIChange;
+static int hf_gprscdr_ServiceConditionChangeV750_rAIChange;
+static int hf_gprscdr_ServiceConditionChangeV750_dCCAServiceSpecificUnitExhausted;
+static int hf_gprscdr_ServiceConditionChangeV750_recordClosure;
+static int hf_gprscdr_ServiceConditionChangeV750_timeLimit;
+static int hf_gprscdr_ServiceConditionChangeV750_volumeLimit;
+static int hf_gprscdr_ServiceConditionChangeV750_serviceSpecificUnitLimit;
+static int hf_gprscdr_ServiceConditionChangeV750_envelopeClosure;
+static int hf_gprscdr_PresenceReportingAreaNode_oCS;
+static int hf_gprscdr_PresenceReportingAreaNode_pCRF;
+static int hf_gprscdr_ServiceConditionChange_qoSChange;
+static int hf_gprscdr_ServiceConditionChange_sGSNChange;
+static int hf_gprscdr_ServiceConditionChange_sGSNPLMNIDChange;
+static int hf_gprscdr_ServiceConditionChange_tariffTimeSwitch;
+static int hf_gprscdr_ServiceConditionChange_pDPContextRelease;
+static int hf_gprscdr_ServiceConditionChange_rATChange;
+static int hf_gprscdr_ServiceConditionChange_serviceIdledOut;
+static int hf_gprscdr_ServiceConditionChange_reserved;
+static int hf_gprscdr_ServiceConditionChange_configurationChange;
+static int hf_gprscdr_ServiceConditionChange_serviceStop;
+static int hf_gprscdr_ServiceConditionChange_dCCATimeThresholdReached;
+static int hf_gprscdr_ServiceConditionChange_dCCAVolumeThresholdReached;
+static int hf_gprscdr_ServiceConditionChange_dCCAServiceSpecificUnitThresholdReached;
+static int hf_gprscdr_ServiceConditionChange_dCCATimeExhausted;
+static int hf_gprscdr_ServiceConditionChange_dCCAVolumeExhausted;
+static int hf_gprscdr_ServiceConditionChange_dCCAValidityTimeout;
+static int hf_gprscdr_ServiceConditionChange_reserved1;
+static int hf_gprscdr_ServiceConditionChange_dCCAReauthorisationRequest;
+static int hf_gprscdr_ServiceConditionChange_dCCAContinueOngoingSession;
+static int hf_gprscdr_ServiceConditionChange_dCCARetryAndTerminateOngoingSession;
+static int hf_gprscdr_ServiceConditionChange_dCCATerminateOngoingSession;
+static int hf_gprscdr_ServiceConditionChange_cGI_SAIChange;
+static int hf_gprscdr_ServiceConditionChange_rAIChange;
+static int hf_gprscdr_ServiceConditionChange_dCCAServiceSpecificUnitExhausted;
+static int hf_gprscdr_ServiceConditionChange_recordClosure;
+static int hf_gprscdr_ServiceConditionChange_timeLimit;
+static int hf_gprscdr_ServiceConditionChange_volumeLimit;
+static int hf_gprscdr_ServiceConditionChange_serviceSpecificUnitLimit;
+static int hf_gprscdr_ServiceConditionChange_envelopeClosure;
+static int hf_gprscdr_ServiceConditionChange_eCGIChange;
+static int hf_gprscdr_ServiceConditionChange_tAIChange;
+static int hf_gprscdr_ServiceConditionChange_userLocationChange;
+static int hf_gprscdr_ServiceConditionChange_userCSGInformationChange;
+static int hf_gprscdr_ServiceConditionChange_presenceInPRAChange;
+static int hf_gprscdr_ServiceConditionChange_accessChangeOfSDF;
+static int hf_gprscdr_ServiceConditionChange_indirectServiceConditionChange;
+static int hf_gprscdr_ServiceConditionChange_servingPLMNRateControlChange;
+static int hf_gprscdr_ServiceConditionChange_aPNRateControlChange;
 
-static int ett_gprscdr = -1;
-static int ett_gprscdr_timestamp = -1;
-static int ett_gprscdr_plmn_id = -1;
-static int ett_gprscdr_pdp_pdn_type = -1;
-static int ett_gprscdr_eps_qos_arp = -1;
-static int ett_gprscdr_managementextension_information = -1;
-static int ett_gprscdr_userlocationinformation = -1;
-static gint ett_gprscdr_Diagnostics = -1;
-static gint ett_gprscdr_Ecgi = -1;
-static gint ett_gprscdr_EnhancedDiagnostics = -1;
-static gint ett_gprscdr_SEQUENCE_OF_RANNASCause = -1;
-static gint ett_gprscdr_InvolvedParty = -1;
-static gint ett_gprscdr_IPAddress = -1;
-static gint ett_gprscdr_IPBinaryAddress = -1;
-static gint ett_gprscdr_IPBinV6AddressWithOrWithoutPrefixLength = -1;
-static gint ett_gprscdr_IPBinV6AddressWithPrefixLength = -1;
-static gint ett_gprscdr_IPTextRepresentedAddress = -1;
-static gint ett_gprscdr_LCSClientIdentity = -1;
-static gint ett_gprscdr_LevelOfCAMELService = -1;
-static gint ett_gprscdr_LocationAreaAndCell = -1;
-static gint ett_gprscdr_ManagementExtensions = -1;
-static gint ett_gprscdr_MBMSInformation = -1;
-static gint ett_gprscdr_Ncgi = -1;
-static gint ett_gprscdr_PDPAddress = -1;
-static gint ett_gprscdr_PSCellInformation = -1;
-static gint ett_gprscdr_SCSASAddress = -1;
-static gint ett_gprscdr_ServiceSpecificInfo = -1;
-static gint ett_gprscdr_SubscriptionID = -1;
-static gint ett_gprscdr_ManagementExtension = -1;
-static gint ett_gprscdr_GPRSCallEventRecord = -1;
-static gint ett_gprscdr_GGSNPDPRecord = -1;
-static gint ett_gprscdr_SEQUENCE_OF_GSNAddress = -1;
-static gint ett_gprscdr_SEQUENCE_OF_ChangeOfCharConditionV651 = -1;
-static gint ett_gprscdr_GGSNPDPRecordV750 = -1;
-static gint ett_gprscdr_EGSNPDPRecord = -1;
-static gint ett_gprscdr_SEQUENCE_OF_ChangeOfServiceConditionV651 = -1;
-static gint ett_gprscdr_EGSNPDPRecordV750 = -1;
-static gint ett_gprscdr_SEQUENCE_OF_ChangeOfServiceConditionV750 = -1;
-static gint ett_gprscdr_SGSNPDPRecordV651 = -1;
-static gint ett_gprscdr_SGSNSMORecordV651 = -1;
-static gint ett_gprscdr_SGSNSMTRecordV651 = -1;
-static gint ett_gprscdr_ChangeOfCharConditionV651 = -1;
-static gint ett_gprscdr_ChangeOfServiceConditionV651 = -1;
-static gint ett_gprscdr_ChangeOfServiceConditionV750 = -1;
-static gint ett_gprscdr_SEQUENCE_OF_AFRecordInformation = -1;
-static gint ett_gprscdr_ServiceConditionChangeV651 = -1;
-static gint ett_gprscdr_ServiceConditionChangeV750 = -1;
-static gint ett_gprscdr_GPRSRecord = -1;
-static gint ett_gprscdr_SGWRecord = -1;
-static gint ett_gprscdr_SEQUENCE_OF_ChangeOfCharCondition = -1;
-static gint ett_gprscdr_SEQUENCE_OF_ServingNodeType = -1;
-static gint ett_gprscdr_SEQUENCE_OF_RANSecondaryRATUsageReport = -1;
-static gint ett_gprscdr_PGWRecord = -1;
-static gint ett_gprscdr_SEQUENCE_OF_ChangeOfServiceCondition = -1;
-static gint ett_gprscdr_TDFRecord = -1;
-static gint ett_gprscdr_IPERecord = -1;
-static gint ett_gprscdr_EPDGRecord = -1;
-static gint ett_gprscdr_TWAGRecord = -1;
-static gint ett_gprscdr_SGSNMMRecord = -1;
-static gint ett_gprscdr_SEQUENCE_OF_ChangeLocation = -1;
-static gint ett_gprscdr_SGSNPDPRecord = -1;
-static gint ett_gprscdr_SGSNSMORecord = -1;
-static gint ett_gprscdr_SGSNSMTRecord = -1;
-static gint ett_gprscdr_SGSNMTLCSRecord = -1;
-static gint ett_gprscdr_SGSNMOLCSRecord = -1;
-static gint ett_gprscdr_SGSNNILCSRecord = -1;
-static gint ett_gprscdr_SGSNMBMSRecord = -1;
-static gint ett_gprscdr_SEQUENCE_OF_RAIdentity = -1;
-static gint ett_gprscdr_SEQUENCE_OF_ChangeOfMBMSCondition = -1;
-static gint ett_gprscdr_GGSNMBMSRecord = -1;
-static gint ett_gprscdr_GWMBMSRecord = -1;
-static gint ett_gprscdr_AccessLineIdentifier = -1;
-static gint ett_gprscdr_AFRecordInformation = -1;
-static gint ett_gprscdr_APNRateControl = -1;
-static gint ett_gprscdr_APNRateControlParameters = -1;
-static gint ett_gprscdr_CalleePartyInformation = -1;
-static gint ett_gprscdr_SEQUENCE_OF_InvolvedParty = -1;
-static gint ett_gprscdr_CAMELInformationMM = -1;
-static gint ett_gprscdr_CAMELInformationPDP = -1;
-static gint ett_gprscdr_CAMELInformationSMS = -1;
-static gint ett_gprscdr_ChangeOfCharCondition = -1;
-static gint ett_gprscdr_SEQUENCE_OF_PresenceReportingAreaInfo = -1;
-static gint ett_gprscdr_ChangeOfMBMSCondition = -1;
-static gint ett_gprscdr_ChangeOfServiceCondition = -1;
-static gint ett_gprscdr_SEQUENCE_OF_ServiceSpecificInfo = -1;
-static gint ett_gprscdr_ChangeLocation = -1;
-static gint ett_gprscdr_EPCQoSInformation = -1;
-static gint ett_gprscdr_EventBasedChargingInformation = -1;
-static gint ett_gprscdr_SEQUENCE_OF_TimeStamp = -1;
-static gint ett_gprscdr_FixedUserLocationInformation = -1;
-static gint ett_gprscdr_Flows = -1;
-static gint ett_gprscdr_T_flowNumber = -1;
-static gint ett_gprscdr_MOExceptionDataCounter = -1;
-static gint ett_gprscdr_PresenceReportingAreaInfo = -1;
-static gint ett_gprscdr_PresenceReportingAreaNode = -1;
-static gint ett_gprscdr_PSFurnishChargingInformation = -1;
-static gint ett_gprscdr_RANSecondaryRATUsageReport = -1;
-static gint ett_gprscdr_RelatedChangeOfCharCondition = -1;
-static gint ett_gprscdr_RelatedChangeOfServiceCondition = -1;
-static gint ett_gprscdr_ServiceConditionChange = -1;
-static gint ett_gprscdr_ServingPLMNRateControl = -1;
-static gint ett_gprscdr_TimeQuotaMechanism = -1;
-static gint ett_gprscdr_TWANUserLocationInfo = -1;
-static gint ett_gprscdr_UserCSGInformation = -1;
-static gint ett_gprscdr_UWANUserLocationInfo = -1;
-static gint ett_gprscdr_VoLTEInformation = -1;
-static gint ett_gprscdr_WLANOperatorId = -1;
+static int ett_gprscdr;
+static int ett_gprscdr_timestamp;
+static int ett_gprscdr_plmn_id;
+static int ett_gprscdr_pdp_pdn_type;
+static int ett_gprscdr_eps_qos_arp;
+static int ett_gprscdr_managementextension_information;
+static int ett_gprscdr_userlocationinformation;
+static gint ett_gprscdr_Diagnostics;
+static gint ett_gprscdr_Ecgi;
+static gint ett_gprscdr_EnhancedDiagnostics;
+static gint ett_gprscdr_SEQUENCE_OF_RANNASCause;
+static gint ett_gprscdr_InvolvedParty;
+static gint ett_gprscdr_IPAddress;
+static gint ett_gprscdr_IPBinaryAddress;
+static gint ett_gprscdr_IPBinV6AddressWithOrWithoutPrefixLength;
+static gint ett_gprscdr_IPBinV6AddressWithPrefixLength;
+static gint ett_gprscdr_IPTextRepresentedAddress;
+static gint ett_gprscdr_LCSClientIdentity;
+static gint ett_gprscdr_LevelOfCAMELService;
+static gint ett_gprscdr_LocationAreaAndCell;
+static gint ett_gprscdr_ManagementExtensions;
+static gint ett_gprscdr_MBMSInformation;
+static gint ett_gprscdr_Ncgi;
+static gint ett_gprscdr_PDPAddress;
+static gint ett_gprscdr_PSCellInformation;
+static gint ett_gprscdr_SCSASAddress;
+static gint ett_gprscdr_ServiceSpecificInfo;
+static gint ett_gprscdr_SubscriptionID;
+static gint ett_gprscdr_ManagementExtension;
+static gint ett_gprscdr_GPRSCallEventRecord;
+static gint ett_gprscdr_GGSNPDPRecord;
+static gint ett_gprscdr_SEQUENCE_OF_GSNAddress;
+static gint ett_gprscdr_SEQUENCE_OF_ChangeOfCharConditionV651;
+static gint ett_gprscdr_GGSNPDPRecordV750;
+static gint ett_gprscdr_EGSNPDPRecord;
+static gint ett_gprscdr_SEQUENCE_OF_ChangeOfServiceConditionV651;
+static gint ett_gprscdr_EGSNPDPRecordV750;
+static gint ett_gprscdr_SEQUENCE_OF_ChangeOfServiceConditionV750;
+static gint ett_gprscdr_SGSNPDPRecordV651;
+static gint ett_gprscdr_SGSNSMORecordV651;
+static gint ett_gprscdr_SGSNSMTRecordV651;
+static gint ett_gprscdr_ChangeOfCharConditionV651;
+static gint ett_gprscdr_ChangeOfServiceConditionV651;
+static gint ett_gprscdr_ChangeOfServiceConditionV750;
+static gint ett_gprscdr_SEQUENCE_OF_AFRecordInformation;
+static gint ett_gprscdr_ServiceConditionChangeV651;
+static gint ett_gprscdr_ServiceConditionChangeV750;
+static gint ett_gprscdr_GPRSRecord;
+static gint ett_gprscdr_SGWRecord;
+static gint ett_gprscdr_SEQUENCE_OF_ChangeOfCharCondition;
+static gint ett_gprscdr_SEQUENCE_OF_ServingNodeType;
+static gint ett_gprscdr_SEQUENCE_OF_RANSecondaryRATUsageReport;
+static gint ett_gprscdr_PGWRecord;
+static gint ett_gprscdr_SEQUENCE_OF_ChangeOfServiceCondition;
+static gint ett_gprscdr_TDFRecord;
+static gint ett_gprscdr_IPERecord;
+static gint ett_gprscdr_EPDGRecord;
+static gint ett_gprscdr_TWAGRecord;
+static gint ett_gprscdr_SGSNMMRecord;
+static gint ett_gprscdr_SEQUENCE_OF_ChangeLocation;
+static gint ett_gprscdr_SGSNPDPRecord;
+static gint ett_gprscdr_SGSNSMORecord;
+static gint ett_gprscdr_SGSNSMTRecord;
+static gint ett_gprscdr_SGSNMTLCSRecord;
+static gint ett_gprscdr_SGSNMOLCSRecord;
+static gint ett_gprscdr_SGSNNILCSRecord;
+static gint ett_gprscdr_SGSNMBMSRecord;
+static gint ett_gprscdr_SEQUENCE_OF_RAIdentity;
+static gint ett_gprscdr_SEQUENCE_OF_ChangeOfMBMSCondition;
+static gint ett_gprscdr_GGSNMBMSRecord;
+static gint ett_gprscdr_GWMBMSRecord;
+static gint ett_gprscdr_AccessLineIdentifier;
+static gint ett_gprscdr_AFRecordInformation;
+static gint ett_gprscdr_APNRateControl;
+static gint ett_gprscdr_APNRateControlParameters;
+static gint ett_gprscdr_CalleePartyInformation;
+static gint ett_gprscdr_SEQUENCE_OF_InvolvedParty;
+static gint ett_gprscdr_CAMELInformationMM;
+static gint ett_gprscdr_CAMELInformationPDP;
+static gint ett_gprscdr_CAMELInformationSMS;
+static gint ett_gprscdr_ChangeOfCharCondition;
+static gint ett_gprscdr_SEQUENCE_OF_PresenceReportingAreaInfo;
+static gint ett_gprscdr_ChangeOfMBMSCondition;
+static gint ett_gprscdr_ChangeOfServiceCondition;
+static gint ett_gprscdr_SEQUENCE_OF_ServiceSpecificInfo;
+static gint ett_gprscdr_ChangeLocation;
+static gint ett_gprscdr_EPCQoSInformation;
+static gint ett_gprscdr_EventBasedChargingInformation;
+static gint ett_gprscdr_SEQUENCE_OF_TimeStamp;
+static gint ett_gprscdr_FixedUserLocationInformation;
+static gint ett_gprscdr_Flows;
+static gint ett_gprscdr_T_flowNumber;
+static gint ett_gprscdr_MOExceptionDataCounter;
+static gint ett_gprscdr_PresenceReportingAreaInfo;
+static gint ett_gprscdr_PresenceReportingAreaNode;
+static gint ett_gprscdr_PSFurnishChargingInformation;
+static gint ett_gprscdr_RANSecondaryRATUsageReport;
+static gint ett_gprscdr_RelatedChangeOfCharCondition;
+static gint ett_gprscdr_RelatedChangeOfServiceCondition;
+static gint ett_gprscdr_ServiceConditionChange;
+static gint ett_gprscdr_ServingPLMNRateControl;
+static gint ett_gprscdr_TimeQuotaMechanism;
+static gint ett_gprscdr_TWANUserLocationInfo;
+static gint ett_gprscdr_UserCSGInformation;
+static gint ett_gprscdr_UWANUserLocationInfo;
+static gint ett_gprscdr_VoLTEInformation;
+static gint ett_gprscdr_WLANOperatorId;
 
-static expert_field ei_gprscdr_not_dissected = EI_INIT;
-static expert_field ei_gprscdr_choice_not_found = EI_INIT;
+static expert_field ei_gprscdr_not_dissected;
+static expert_field ei_gprscdr_choice_not_found;
 
 /* Global variables */
 static const char *obj_id = NULL;

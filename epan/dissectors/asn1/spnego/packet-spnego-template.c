@@ -39,27 +39,27 @@ void proto_reg_handoff_spnego(void);
 static dissector_handle_t spnego_wrap_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_spnego = -1;
-static int proto_spnego_krb5 = -1;
+static int proto_spnego;
+static int proto_spnego_krb5;
 
 
-static int hf_spnego_wraptoken = -1;
+static int hf_spnego_wraptoken;
 static int hf_spnego_krb5_oid;
-static int hf_spnego_krb5 = -1;
-static int hf_spnego_krb5_tok_id = -1;
-static int hf_spnego_krb5_sgn_alg = -1;
-static int hf_spnego_krb5_seal_alg = -1;
-static int hf_spnego_krb5_snd_seq = -1;
-static int hf_spnego_krb5_sgn_cksum = -1;
-static int hf_spnego_krb5_confounder = -1;
-static int hf_spnego_krb5_filler = -1;
-static int hf_spnego_krb5_cfx_flags = -1;
-static int hf_spnego_krb5_cfx_flags_01 = -1;
-static int hf_spnego_krb5_cfx_flags_02 = -1;
-static int hf_spnego_krb5_cfx_flags_04 = -1;
-static int hf_spnego_krb5_cfx_ec = -1;
-static int hf_spnego_krb5_cfx_rrc = -1;
-static int hf_spnego_krb5_cfx_seq = -1;
+static int hf_spnego_krb5;
+static int hf_spnego_krb5_tok_id;
+static int hf_spnego_krb5_sgn_alg;
+static int hf_spnego_krb5_seal_alg;
+static int hf_spnego_krb5_snd_seq;
+static int hf_spnego_krb5_sgn_cksum;
+static int hf_spnego_krb5_confounder;
+static int hf_spnego_krb5_filler;
+static int hf_spnego_krb5_cfx_flags;
+static int hf_spnego_krb5_cfx_flags_01;
+static int hf_spnego_krb5_cfx_flags_02;
+static int hf_spnego_krb5_cfx_flags_04;
+static int hf_spnego_krb5_cfx_ec;
+static int hf_spnego_krb5_cfx_rrc;
+static int hf_spnego_krb5_cfx_seq;
 
 #include "packet-spnego-hf.c"
 
@@ -70,15 +70,15 @@ gboolean saw_mechanism = FALSE;
 
 
 /* Initialize the subtree pointers */
-static gint ett_spnego = -1;
-static gint ett_spnego_wraptoken = -1;
-static gint ett_spnego_krb5 = -1;
-static gint ett_spnego_krb5_cfx_flags = -1;
+static gint ett_spnego;
+static gint ett_spnego_wraptoken;
+static gint ett_spnego_krb5;
+static gint ett_spnego_krb5_cfx_flags;
 
 #include "packet-spnego-ett.c"
 
-static expert_field ei_spnego_decrypted_keytype = EI_INIT;
-static expert_field ei_spnego_unknown_header = EI_INIT;
+static expert_field ei_spnego_decrypted_keytype;
+static expert_field ei_spnego_unknown_header;
 
 static dissector_handle_t spnego_handle;
 static dissector_handle_t spnego_krb5_handle;

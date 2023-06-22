@@ -35,239 +35,239 @@ void proto_register_x509if(void);
 void proto_reg_handoff_x509if(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_x509if = -1;
-static int hf_x509if_object_identifier_id = -1;
-static int hf_x509if_any_string = -1;
-static int hf_x509if_DistinguishedName_PDU = -1;  /* DistinguishedName */
-static int hf_x509if_SubtreeSpecification_PDU = -1;  /* SubtreeSpecification */
-static int hf_x509if_HierarchyLevel_PDU = -1;     /* HierarchyLevel */
-static int hf_x509if_HierarchyBelow_PDU = -1;     /* HierarchyBelow */
-static int hf_x509if_type = -1;                   /* T_type */
-static int hf_x509if_values = -1;                 /* T_values */
-static int hf_x509if_values_item = -1;            /* T_values_item */
-static int hf_x509if_valuesWithContext = -1;      /* T_valuesWithContext */
-static int hf_x509if_valuesWithContext_item = -1;  /* T_valuesWithContext_item */
-static int hf_x509if_value = -1;                  /* T_value */
-static int hf_x509if_contextList = -1;            /* SET_SIZE_1_MAX_OF_Context */
-static int hf_x509if_contextList_item = -1;       /* Context */
-static int hf_x509if_contextType = -1;            /* T_contextType */
-static int hf_x509if_contextValues = -1;          /* T_contextValues */
-static int hf_x509if_contextValues_item = -1;     /* T_contextValues_item */
-static int hf_x509if_fallback = -1;               /* BOOLEAN */
-static int hf_x509if_type_01 = -1;                /* T_type_01 */
-static int hf_x509if_assertion = -1;              /* T_assertion */
-static int hf_x509if_assertedContexts = -1;       /* T_assertedContexts */
-static int hf_x509if_allContexts = -1;            /* NULL */
-static int hf_x509if_selectedContexts = -1;       /* SET_SIZE_1_MAX_OF_ContextAssertion */
-static int hf_x509if_selectedContexts_item = -1;  /* ContextAssertion */
-static int hf_x509if_ca_contextType = -1;         /* T_ca_contextType */
-static int hf_x509if_ca_contextValues = -1;       /* T_ca_contextValues */
-static int hf_x509if_ca_contextValues_item = -1;  /* T_ca_contextValues_item */
-static int hf_x509if_type_02 = -1;                /* OBJECT_IDENTIFIER */
-static int hf_x509if_ata_assertedContexts = -1;   /* SEQUENCE_SIZE_1_MAX_OF_ContextAssertion */
-static int hf_x509if_ata_assertedContexts_item = -1;  /* ContextAssertion */
-static int hf_x509if_rdnSequence = -1;            /* RDNSequence */
-static int hf_x509if_RDNSequence_item = -1;       /* RDNSequence_item */
-static int hf_x509if_RelativeDistinguishedName_item = -1;  /* RelativeDistinguishedName_item */
-static int hf_x509if_type_03 = -1;                /* T_type_02 */
-static int hf_x509if_atadv_value = -1;            /* T_atadv_value */
-static int hf_x509if_primaryDistinguished = -1;   /* BOOLEAN */
-static int hf_x509if_valueswithContext = -1;      /* T_valWithContext */
-static int hf_x509if_valueswithContext_item = -1;  /* T_valWithContext_item */
-static int hf_x509if_distingAttrValue = -1;       /* T_distingAttrValue */
-static int hf_x509if_chopSpecificExclusions = -1;  /* T_chopSpecificExclusions */
-static int hf_x509if_chopSpecificExclusions_item = -1;  /* T_chopSpecificExclusions_item */
-static int hf_x509if_chopBefore = -1;             /* LocalName */
-static int hf_x509if_chopAfter = -1;              /* LocalName */
-static int hf_x509if_minimum = -1;                /* BaseDistance */
-static int hf_x509if_maximum = -1;                /* BaseDistance */
-static int hf_x509if_item = -1;                   /* OBJECT_IDENTIFIER */
-static int hf_x509if_refinement_and = -1;         /* SET_OF_Refinement */
-static int hf_x509if_refinement_and_item = -1;    /* Refinement */
-static int hf_x509if_refinement_or = -1;          /* SET_OF_Refinement */
-static int hf_x509if_refinement_or_item = -1;     /* Refinement */
-static int hf_x509if_refinement_not = -1;         /* Refinement */
-static int hf_x509if_ruleIdentifier = -1;         /* RuleIdentifier */
-static int hf_x509if_nameForm = -1;               /* OBJECT_IDENTIFIER */
-static int hf_x509if_superiorStructureRules = -1;  /* SET_SIZE_1_MAX_OF_RuleIdentifier */
-static int hf_x509if_superiorStructureRules_item = -1;  /* RuleIdentifier */
-static int hf_x509if_structuralObjectClass = -1;  /* OBJECT_IDENTIFIER */
-static int hf_x509if_auxiliaries = -1;            /* T_auxiliaries */
-static int hf_x509if_auxiliaries_item = -1;       /* OBJECT_IDENTIFIER */
-static int hf_x509if_mandatory = -1;              /* T_mandatory */
-static int hf_x509if_mandatory_item = -1;         /* OBJECT_IDENTIFIER */
-static int hf_x509if_optional = -1;               /* T_optional */
-static int hf_x509if_optional_item = -1;          /* OBJECT_IDENTIFIER */
-static int hf_x509if_precluded = -1;              /* T_precluded */
-static int hf_x509if_precluded_item = -1;         /* OBJECT_IDENTIFIER */
-static int hf_x509if_attributeType = -1;          /* OBJECT_IDENTIFIER */
-static int hf_x509if_mandatoryContexts = -1;      /* T_mandatoryContexts */
-static int hf_x509if_mandatoryContexts_item = -1;  /* OBJECT_IDENTIFIER */
-static int hf_x509if_optionalContexts = -1;       /* T_optionalContexts */
-static int hf_x509if_optionalContexts_item = -1;  /* OBJECT_IDENTIFIER */
-static int hf_x509if_id = -1;                     /* INTEGER */
-static int hf_x509if_dmdId = -1;                  /* OBJECT_IDENTIFIER */
-static int hf_x509if_attributeType_01 = -1;       /* T_attributeType */
-static int hf_x509if_includeSubtypes = -1;        /* BOOLEAN */
-static int hf_x509if_ra_selectedValues = -1;      /* T_ra_selectedValues */
-static int hf_x509if_ra_selectedValues_item = -1;  /* T_ra_selectedValues_item */
-static int hf_x509if_defaultValues = -1;          /* T_defaultValues */
-static int hf_x509if_defaultValues_item = -1;     /* T_defaultValues_item */
-static int hf_x509if_entryType = -1;              /* T_entryType */
-static int hf_x509if_ra_values = -1;              /* T_ra_values */
-static int hf_x509if_ra_values_item = -1;         /* T_ra_values_item */
-static int hf_x509if_contexts = -1;               /* SEQUENCE_SIZE_0_MAX_OF_ContextProfile */
-static int hf_x509if_contexts_item = -1;          /* ContextProfile */
-static int hf_x509if_contextCombination = -1;     /* ContextCombination */
-static int hf_x509if_matchingUse = -1;            /* SEQUENCE_SIZE_1_MAX_OF_MatchingUse */
-static int hf_x509if_matchingUse_item = -1;       /* MatchingUse */
-static int hf_x509if_contextType_01 = -1;         /* T_contextType_01 */
-static int hf_x509if_contextValue = -1;           /* T_contextValue */
-static int hf_x509if_contextValue_item = -1;      /* T_contextValue_item */
-static int hf_x509if_context = -1;                /* OBJECT_IDENTIFIER */
-static int hf_x509if_contextcombination_and = -1;  /* SEQUENCE_OF_ContextCombination */
-static int hf_x509if_contextcombination_and_item = -1;  /* ContextCombination */
-static int hf_x509if_contextcombination_or = -1;  /* SEQUENCE_OF_ContextCombination */
-static int hf_x509if_contextcombination_or_item = -1;  /* ContextCombination */
-static int hf_x509if_contextcombination_not = -1;  /* ContextCombination */
-static int hf_x509if_restrictionType = -1;        /* T_restrictionType */
-static int hf_x509if_restrictionValue = -1;       /* T_restrictionValue */
-static int hf_x509if_attribute = -1;              /* AttributeType */
-static int hf_x509if_and = -1;                    /* SEQUENCE_OF_AttributeCombination */
-static int hf_x509if_and_item = -1;               /* AttributeCombination */
-static int hf_x509if_or = -1;                     /* SEQUENCE_OF_AttributeCombination */
-static int hf_x509if_or_item = -1;                /* AttributeCombination */
-static int hf_x509if_not = -1;                    /* AttributeCombination */
-static int hf_x509if_attributeType_02 = -1;       /* T_attributeType_01 */
-static int hf_x509if_outputValues = -1;           /* T_outputValues */
-static int hf_x509if_selectedValues = -1;         /* T_selectedValues */
-static int hf_x509if_selectedValues_item = -1;    /* T_selectedValues_item */
-static int hf_x509if_matchedValuesOnly = -1;      /* NULL */
-static int hf_x509if_contexts_01 = -1;            /* SEQUENCE_SIZE_1_MAX_OF_ContextProfile */
-static int hf_x509if_serviceControls = -1;        /* ServiceControlOptions */
-static int hf_x509if_searchOptions = -1;          /* SearchControlOptions */
-static int hf_x509if_hierarchyOptions = -1;       /* HierarchySelections */
-static int hf_x509if_default = -1;                /* INTEGER */
-static int hf_x509if_max = -1;                    /* INTEGER */
-static int hf_x509if_basic = -1;                  /* MRMapping */
-static int hf_x509if_tightenings = -1;            /* SEQUENCE_SIZE_1_MAX_OF_MRMapping */
-static int hf_x509if_tightenings_item = -1;       /* MRMapping */
-static int hf_x509if_relaxations = -1;            /* SEQUENCE_SIZE_1_MAX_OF_MRMapping */
-static int hf_x509if_relaxations_item = -1;       /* MRMapping */
-static int hf_x509if_maximum_relaxation = -1;     /* INTEGER */
-static int hf_x509if_minimum_relaxation = -1;     /* INTEGER */
-static int hf_x509if_mapping = -1;                /* SEQUENCE_SIZE_1_MAX_OF_Mapping */
-static int hf_x509if_mapping_item = -1;           /* Mapping */
-static int hf_x509if_substitution = -1;           /* SEQUENCE_SIZE_1_MAX_OF_MRSubstitution */
-static int hf_x509if_substitution_item = -1;      /* MRSubstitution */
-static int hf_x509if_mappingFunction = -1;        /* OBJECT_IDENTIFIER */
-static int hf_x509if_level = -1;                  /* INTEGER */
-static int hf_x509if_oldMatchingRule = -1;        /* OBJECT_IDENTIFIER */
-static int hf_x509if_newMatchingRule = -1;        /* OBJECT_IDENTIFIER */
-static int hf_x509if_base = -1;                   /* LocalName */
-static int hf_x509if_specificExclusions = -1;     /* T_specificExclusions */
-static int hf_x509if_specificExclusions_item = -1;  /* T_specificExclusions_item */
-static int hf_x509if_specificationFilter = -1;    /* Refinement */
-static int hf_x509if_serviceType = -1;            /* OBJECT_IDENTIFIER */
-static int hf_x509if_userClass = -1;              /* INTEGER */
-static int hf_x509if_inputAttributeTypes = -1;    /* SEQUENCE_SIZE_0_MAX_OF_RequestAttribute */
-static int hf_x509if_inputAttributeTypes_item = -1;  /* RequestAttribute */
-static int hf_x509if_attributeCombination = -1;   /* AttributeCombination */
-static int hf_x509if_outputAttributeTypes = -1;   /* SEQUENCE_SIZE_1_MAX_OF_ResultAttribute */
-static int hf_x509if_outputAttributeTypes_item = -1;  /* ResultAttribute */
-static int hf_x509if_defaultControls = -1;        /* ControlOptions */
-static int hf_x509if_mandatoryControls = -1;      /* ControlOptions */
-static int hf_x509if_searchRuleControls = -1;     /* ControlOptions */
-static int hf_x509if_familyGrouping = -1;         /* FamilyGrouping */
-static int hf_x509if_familyReturn = -1;           /* FamilyReturn */
-static int hf_x509if_relaxation = -1;             /* RelaxationPolicy */
-static int hf_x509if_additionalControl = -1;      /* SEQUENCE_SIZE_1_MAX_OF_AttributeType */
-static int hf_x509if_additionalControl_item = -1;  /* AttributeType */
-static int hf_x509if_allowedSubset = -1;          /* AllowedSubset */
-static int hf_x509if_imposedSubset = -1;          /* ImposedSubset */
-static int hf_x509if_entryLimit = -1;             /* EntryLimit */
-static int hf_x509if_name = -1;                   /* SET_SIZE_1_MAX_OF_DirectoryString */
-static int hf_x509if_name_item = -1;              /* DirectoryString */
-static int hf_x509if_description = -1;            /* DirectoryString */
+static int proto_x509if;
+static int hf_x509if_object_identifier_id;
+static int hf_x509if_any_string;
+static int hf_x509if_DistinguishedName_PDU;       /* DistinguishedName */
+static int hf_x509if_SubtreeSpecification_PDU;    /* SubtreeSpecification */
+static int hf_x509if_HierarchyLevel_PDU;          /* HierarchyLevel */
+static int hf_x509if_HierarchyBelow_PDU;          /* HierarchyBelow */
+static int hf_x509if_type;                        /* T_type */
+static int hf_x509if_values;                      /* T_values */
+static int hf_x509if_values_item;                 /* T_values_item */
+static int hf_x509if_valuesWithContext;           /* T_valuesWithContext */
+static int hf_x509if_valuesWithContext_item;      /* T_valuesWithContext_item */
+static int hf_x509if_value;                       /* T_value */
+static int hf_x509if_contextList;                 /* SET_SIZE_1_MAX_OF_Context */
+static int hf_x509if_contextList_item;            /* Context */
+static int hf_x509if_contextType;                 /* T_contextType */
+static int hf_x509if_contextValues;               /* T_contextValues */
+static int hf_x509if_contextValues_item;          /* T_contextValues_item */
+static int hf_x509if_fallback;                    /* BOOLEAN */
+static int hf_x509if_type_01;                     /* T_type_01 */
+static int hf_x509if_assertion;                   /* T_assertion */
+static int hf_x509if_assertedContexts;            /* T_assertedContexts */
+static int hf_x509if_allContexts;                 /* NULL */
+static int hf_x509if_selectedContexts;            /* SET_SIZE_1_MAX_OF_ContextAssertion */
+static int hf_x509if_selectedContexts_item;       /* ContextAssertion */
+static int hf_x509if_ca_contextType;              /* T_ca_contextType */
+static int hf_x509if_ca_contextValues;            /* T_ca_contextValues */
+static int hf_x509if_ca_contextValues_item;       /* T_ca_contextValues_item */
+static int hf_x509if_type_02;                     /* OBJECT_IDENTIFIER */
+static int hf_x509if_ata_assertedContexts;        /* SEQUENCE_SIZE_1_MAX_OF_ContextAssertion */
+static int hf_x509if_ata_assertedContexts_item;   /* ContextAssertion */
+static int hf_x509if_rdnSequence;                 /* RDNSequence */
+static int hf_x509if_RDNSequence_item;            /* RDNSequence_item */
+static int hf_x509if_RelativeDistinguishedName_item;  /* RelativeDistinguishedName_item */
+static int hf_x509if_type_03;                     /* T_type_02 */
+static int hf_x509if_atadv_value;                 /* T_atadv_value */
+static int hf_x509if_primaryDistinguished;        /* BOOLEAN */
+static int hf_x509if_valueswithContext;           /* T_valWithContext */
+static int hf_x509if_valueswithContext_item;      /* T_valWithContext_item */
+static int hf_x509if_distingAttrValue;            /* T_distingAttrValue */
+static int hf_x509if_chopSpecificExclusions;      /* T_chopSpecificExclusions */
+static int hf_x509if_chopSpecificExclusions_item;  /* T_chopSpecificExclusions_item */
+static int hf_x509if_chopBefore;                  /* LocalName */
+static int hf_x509if_chopAfter;                   /* LocalName */
+static int hf_x509if_minimum;                     /* BaseDistance */
+static int hf_x509if_maximum;                     /* BaseDistance */
+static int hf_x509if_item;                        /* OBJECT_IDENTIFIER */
+static int hf_x509if_refinement_and;              /* SET_OF_Refinement */
+static int hf_x509if_refinement_and_item;         /* Refinement */
+static int hf_x509if_refinement_or;               /* SET_OF_Refinement */
+static int hf_x509if_refinement_or_item;          /* Refinement */
+static int hf_x509if_refinement_not;              /* Refinement */
+static int hf_x509if_ruleIdentifier;              /* RuleIdentifier */
+static int hf_x509if_nameForm;                    /* OBJECT_IDENTIFIER */
+static int hf_x509if_superiorStructureRules;      /* SET_SIZE_1_MAX_OF_RuleIdentifier */
+static int hf_x509if_superiorStructureRules_item;  /* RuleIdentifier */
+static int hf_x509if_structuralObjectClass;       /* OBJECT_IDENTIFIER */
+static int hf_x509if_auxiliaries;                 /* T_auxiliaries */
+static int hf_x509if_auxiliaries_item;            /* OBJECT_IDENTIFIER */
+static int hf_x509if_mandatory;                   /* T_mandatory */
+static int hf_x509if_mandatory_item;              /* OBJECT_IDENTIFIER */
+static int hf_x509if_optional;                    /* T_optional */
+static int hf_x509if_optional_item;               /* OBJECT_IDENTIFIER */
+static int hf_x509if_precluded;                   /* T_precluded */
+static int hf_x509if_precluded_item;              /* OBJECT_IDENTIFIER */
+static int hf_x509if_attributeType;               /* OBJECT_IDENTIFIER */
+static int hf_x509if_mandatoryContexts;           /* T_mandatoryContexts */
+static int hf_x509if_mandatoryContexts_item;      /* OBJECT_IDENTIFIER */
+static int hf_x509if_optionalContexts;            /* T_optionalContexts */
+static int hf_x509if_optionalContexts_item;       /* OBJECT_IDENTIFIER */
+static int hf_x509if_id;                          /* INTEGER */
+static int hf_x509if_dmdId;                       /* OBJECT_IDENTIFIER */
+static int hf_x509if_attributeType_01;            /* T_attributeType */
+static int hf_x509if_includeSubtypes;             /* BOOLEAN */
+static int hf_x509if_ra_selectedValues;           /* T_ra_selectedValues */
+static int hf_x509if_ra_selectedValues_item;      /* T_ra_selectedValues_item */
+static int hf_x509if_defaultValues;               /* T_defaultValues */
+static int hf_x509if_defaultValues_item;          /* T_defaultValues_item */
+static int hf_x509if_entryType;                   /* T_entryType */
+static int hf_x509if_ra_values;                   /* T_ra_values */
+static int hf_x509if_ra_values_item;              /* T_ra_values_item */
+static int hf_x509if_contexts;                    /* SEQUENCE_SIZE_0_MAX_OF_ContextProfile */
+static int hf_x509if_contexts_item;               /* ContextProfile */
+static int hf_x509if_contextCombination;          /* ContextCombination */
+static int hf_x509if_matchingUse;                 /* SEQUENCE_SIZE_1_MAX_OF_MatchingUse */
+static int hf_x509if_matchingUse_item;            /* MatchingUse */
+static int hf_x509if_contextType_01;              /* T_contextType_01 */
+static int hf_x509if_contextValue;                /* T_contextValue */
+static int hf_x509if_contextValue_item;           /* T_contextValue_item */
+static int hf_x509if_context;                     /* OBJECT_IDENTIFIER */
+static int hf_x509if_contextcombination_and;      /* SEQUENCE_OF_ContextCombination */
+static int hf_x509if_contextcombination_and_item;  /* ContextCombination */
+static int hf_x509if_contextcombination_or;       /* SEQUENCE_OF_ContextCombination */
+static int hf_x509if_contextcombination_or_item;  /* ContextCombination */
+static int hf_x509if_contextcombination_not;      /* ContextCombination */
+static int hf_x509if_restrictionType;             /* T_restrictionType */
+static int hf_x509if_restrictionValue;            /* T_restrictionValue */
+static int hf_x509if_attribute;                   /* AttributeType */
+static int hf_x509if_and;                         /* SEQUENCE_OF_AttributeCombination */
+static int hf_x509if_and_item;                    /* AttributeCombination */
+static int hf_x509if_or;                          /* SEQUENCE_OF_AttributeCombination */
+static int hf_x509if_or_item;                     /* AttributeCombination */
+static int hf_x509if_not;                         /* AttributeCombination */
+static int hf_x509if_attributeType_02;            /* T_attributeType_01 */
+static int hf_x509if_outputValues;                /* T_outputValues */
+static int hf_x509if_selectedValues;              /* T_selectedValues */
+static int hf_x509if_selectedValues_item;         /* T_selectedValues_item */
+static int hf_x509if_matchedValuesOnly;           /* NULL */
+static int hf_x509if_contexts_01;                 /* SEQUENCE_SIZE_1_MAX_OF_ContextProfile */
+static int hf_x509if_serviceControls;             /* ServiceControlOptions */
+static int hf_x509if_searchOptions;               /* SearchControlOptions */
+static int hf_x509if_hierarchyOptions;            /* HierarchySelections */
+static int hf_x509if_default;                     /* INTEGER */
+static int hf_x509if_max;                         /* INTEGER */
+static int hf_x509if_basic;                       /* MRMapping */
+static int hf_x509if_tightenings;                 /* SEQUENCE_SIZE_1_MAX_OF_MRMapping */
+static int hf_x509if_tightenings_item;            /* MRMapping */
+static int hf_x509if_relaxations;                 /* SEQUENCE_SIZE_1_MAX_OF_MRMapping */
+static int hf_x509if_relaxations_item;            /* MRMapping */
+static int hf_x509if_maximum_relaxation;          /* INTEGER */
+static int hf_x509if_minimum_relaxation;          /* INTEGER */
+static int hf_x509if_mapping;                     /* SEQUENCE_SIZE_1_MAX_OF_Mapping */
+static int hf_x509if_mapping_item;                /* Mapping */
+static int hf_x509if_substitution;                /* SEQUENCE_SIZE_1_MAX_OF_MRSubstitution */
+static int hf_x509if_substitution_item;           /* MRSubstitution */
+static int hf_x509if_mappingFunction;             /* OBJECT_IDENTIFIER */
+static int hf_x509if_level;                       /* INTEGER */
+static int hf_x509if_oldMatchingRule;             /* OBJECT_IDENTIFIER */
+static int hf_x509if_newMatchingRule;             /* OBJECT_IDENTIFIER */
+static int hf_x509if_base;                        /* LocalName */
+static int hf_x509if_specificExclusions;          /* T_specificExclusions */
+static int hf_x509if_specificExclusions_item;     /* T_specificExclusions_item */
+static int hf_x509if_specificationFilter;         /* Refinement */
+static int hf_x509if_serviceType;                 /* OBJECT_IDENTIFIER */
+static int hf_x509if_userClass;                   /* INTEGER */
+static int hf_x509if_inputAttributeTypes;         /* SEQUENCE_SIZE_0_MAX_OF_RequestAttribute */
+static int hf_x509if_inputAttributeTypes_item;    /* RequestAttribute */
+static int hf_x509if_attributeCombination;        /* AttributeCombination */
+static int hf_x509if_outputAttributeTypes;        /* SEQUENCE_SIZE_1_MAX_OF_ResultAttribute */
+static int hf_x509if_outputAttributeTypes_item;   /* ResultAttribute */
+static int hf_x509if_defaultControls;             /* ControlOptions */
+static int hf_x509if_mandatoryControls;           /* ControlOptions */
+static int hf_x509if_searchRuleControls;          /* ControlOptions */
+static int hf_x509if_familyGrouping;              /* FamilyGrouping */
+static int hf_x509if_familyReturn;                /* FamilyReturn */
+static int hf_x509if_relaxation;                  /* RelaxationPolicy */
+static int hf_x509if_additionalControl;           /* SEQUENCE_SIZE_1_MAX_OF_AttributeType */
+static int hf_x509if_additionalControl_item;      /* AttributeType */
+static int hf_x509if_allowedSubset;               /* AllowedSubset */
+static int hf_x509if_imposedSubset;               /* ImposedSubset */
+static int hf_x509if_entryLimit;                  /* EntryLimit */
+static int hf_x509if_name;                        /* SET_SIZE_1_MAX_OF_DirectoryString */
+static int hf_x509if_name_item;                   /* DirectoryString */
+static int hf_x509if_description;                 /* DirectoryString */
 /* named bits */
-static int hf_x509if_AllowedSubset_baseObject = -1;
-static int hf_x509if_AllowedSubset_oneLevel = -1;
-static int hf_x509if_AllowedSubset_wholeSubtree = -1;
+static int hf_x509if_AllowedSubset_baseObject;
+static int hf_x509if_AllowedSubset_oneLevel;
+static int hf_x509if_AllowedSubset_wholeSubtree;
 
 /* Initialize the subtree pointers */
-static gint ett_x509if_Attribute = -1;
-static gint ett_x509if_T_values = -1;
-static gint ett_x509if_T_valuesWithContext = -1;
-static gint ett_x509if_T_valuesWithContext_item = -1;
-static gint ett_x509if_SET_SIZE_1_MAX_OF_Context = -1;
-static gint ett_x509if_Context = -1;
-static gint ett_x509if_T_contextValues = -1;
-static gint ett_x509if_AttributeValueAssertion = -1;
-static gint ett_x509if_T_assertedContexts = -1;
-static gint ett_x509if_SET_SIZE_1_MAX_OF_ContextAssertion = -1;
-static gint ett_x509if_ContextAssertion = -1;
-static gint ett_x509if_T_ca_contextValues = -1;
-static gint ett_x509if_AttributeTypeAssertion = -1;
-static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_ContextAssertion = -1;
-static gint ett_x509if_Name = -1;
-static gint ett_x509if_RDNSequence = -1;
-static gint ett_x509if_RelativeDistinguishedName = -1;
-static gint ett_x509if_AttributeTypeAndDistinguishedValue = -1;
-static gint ett_x509if_T_valWithContext = -1;
-static gint ett_x509if_T_valWithContext_item = -1;
-static gint ett_x509if_SubtreeSpecification = -1;
-static gint ett_x509if_ChopSpecification = -1;
-static gint ett_x509if_T_chopSpecificExclusions = -1;
-static gint ett_x509if_T_chopSpecificExclusions_item = -1;
-static gint ett_x509if_Refinement = -1;
-static gint ett_x509if_SET_OF_Refinement = -1;
-static gint ett_x509if_DITStructureRule = -1;
-static gint ett_x509if_SET_SIZE_1_MAX_OF_RuleIdentifier = -1;
-static gint ett_x509if_DITContentRule = -1;
-static gint ett_x509if_T_auxiliaries = -1;
-static gint ett_x509if_T_mandatory = -1;
-static gint ett_x509if_T_optional = -1;
-static gint ett_x509if_T_precluded = -1;
-static gint ett_x509if_DITContextUse = -1;
-static gint ett_x509if_T_mandatoryContexts = -1;
-static gint ett_x509if_T_optionalContexts = -1;
-static gint ett_x509if_SearchRuleDescription = -1;
-static gint ett_x509if_SearchRule = -1;
-static gint ett_x509if_SearchRuleId = -1;
-static gint ett_x509if_AllowedSubset = -1;
-static gint ett_x509if_RequestAttribute = -1;
-static gint ett_x509if_T_ra_selectedValues = -1;
-static gint ett_x509if_T_defaultValues = -1;
-static gint ett_x509if_T_defaultValues_item = -1;
-static gint ett_x509if_T_ra_values = -1;
-static gint ett_x509if_SEQUENCE_SIZE_0_MAX_OF_ContextProfile = -1;
-static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_MatchingUse = -1;
-static gint ett_x509if_ContextProfile = -1;
-static gint ett_x509if_T_contextValue = -1;
-static gint ett_x509if_ContextCombination = -1;
-static gint ett_x509if_SEQUENCE_OF_ContextCombination = -1;
-static gint ett_x509if_MatchingUse = -1;
-static gint ett_x509if_AttributeCombination = -1;
-static gint ett_x509if_SEQUENCE_OF_AttributeCombination = -1;
-static gint ett_x509if_ResultAttribute = -1;
-static gint ett_x509if_T_outputValues = -1;
-static gint ett_x509if_T_selectedValues = -1;
-static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_ContextProfile = -1;
-static gint ett_x509if_ControlOptions = -1;
-static gint ett_x509if_EntryLimit = -1;
-static gint ett_x509if_RelaxationPolicy = -1;
-static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_MRMapping = -1;
-static gint ett_x509if_MRMapping = -1;
-static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_Mapping = -1;
-static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_MRSubstitution = -1;
-static gint ett_x509if_Mapping = -1;
-static gint ett_x509if_MRSubstitution = -1;
-static gint ett_x509if_T_specificExclusions = -1;
-static gint ett_x509if_T_specificExclusions_item = -1;
-static gint ett_x509if_SEQUENCE_SIZE_0_MAX_OF_RequestAttribute = -1;
-static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_ResultAttribute = -1;
-static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_AttributeType = -1;
-static gint ett_x509if_SET_SIZE_1_MAX_OF_DirectoryString = -1;
+static gint ett_x509if_Attribute;
+static gint ett_x509if_T_values;
+static gint ett_x509if_T_valuesWithContext;
+static gint ett_x509if_T_valuesWithContext_item;
+static gint ett_x509if_SET_SIZE_1_MAX_OF_Context;
+static gint ett_x509if_Context;
+static gint ett_x509if_T_contextValues;
+static gint ett_x509if_AttributeValueAssertion;
+static gint ett_x509if_T_assertedContexts;
+static gint ett_x509if_SET_SIZE_1_MAX_OF_ContextAssertion;
+static gint ett_x509if_ContextAssertion;
+static gint ett_x509if_T_ca_contextValues;
+static gint ett_x509if_AttributeTypeAssertion;
+static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_ContextAssertion;
+static gint ett_x509if_Name;
+static gint ett_x509if_RDNSequence;
+static gint ett_x509if_RelativeDistinguishedName;
+static gint ett_x509if_AttributeTypeAndDistinguishedValue;
+static gint ett_x509if_T_valWithContext;
+static gint ett_x509if_T_valWithContext_item;
+static gint ett_x509if_SubtreeSpecification;
+static gint ett_x509if_ChopSpecification;
+static gint ett_x509if_T_chopSpecificExclusions;
+static gint ett_x509if_T_chopSpecificExclusions_item;
+static gint ett_x509if_Refinement;
+static gint ett_x509if_SET_OF_Refinement;
+static gint ett_x509if_DITStructureRule;
+static gint ett_x509if_SET_SIZE_1_MAX_OF_RuleIdentifier;
+static gint ett_x509if_DITContentRule;
+static gint ett_x509if_T_auxiliaries;
+static gint ett_x509if_T_mandatory;
+static gint ett_x509if_T_optional;
+static gint ett_x509if_T_precluded;
+static gint ett_x509if_DITContextUse;
+static gint ett_x509if_T_mandatoryContexts;
+static gint ett_x509if_T_optionalContexts;
+static gint ett_x509if_SearchRuleDescription;
+static gint ett_x509if_SearchRule;
+static gint ett_x509if_SearchRuleId;
+static gint ett_x509if_AllowedSubset;
+static gint ett_x509if_RequestAttribute;
+static gint ett_x509if_T_ra_selectedValues;
+static gint ett_x509if_T_defaultValues;
+static gint ett_x509if_T_defaultValues_item;
+static gint ett_x509if_T_ra_values;
+static gint ett_x509if_SEQUENCE_SIZE_0_MAX_OF_ContextProfile;
+static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_MatchingUse;
+static gint ett_x509if_ContextProfile;
+static gint ett_x509if_T_contextValue;
+static gint ett_x509if_ContextCombination;
+static gint ett_x509if_SEQUENCE_OF_ContextCombination;
+static gint ett_x509if_MatchingUse;
+static gint ett_x509if_AttributeCombination;
+static gint ett_x509if_SEQUENCE_OF_AttributeCombination;
+static gint ett_x509if_ResultAttribute;
+static gint ett_x509if_T_outputValues;
+static gint ett_x509if_T_selectedValues;
+static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_ContextProfile;
+static gint ett_x509if_ControlOptions;
+static gint ett_x509if_EntryLimit;
+static gint ett_x509if_RelaxationPolicy;
+static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_MRMapping;
+static gint ett_x509if_MRMapping;
+static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_Mapping;
+static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_MRSubstitution;
+static gint ett_x509if_Mapping;
+static gint ett_x509if_MRSubstitution;
+static gint ett_x509if_T_specificExclusions;
+static gint ett_x509if_T_specificExclusions_item;
+static gint ett_x509if_SEQUENCE_SIZE_0_MAX_OF_RequestAttribute;
+static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_ResultAttribute;
+static gint ett_x509if_SEQUENCE_SIZE_1_MAX_OF_AttributeType;
+static gint ett_x509if_SET_SIZE_1_MAX_OF_DirectoryString;
 
 static proto_tree *top_of_dn = NULL;
 static proto_tree *top_of_rdn = NULL;

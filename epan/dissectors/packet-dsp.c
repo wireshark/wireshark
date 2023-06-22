@@ -42,224 +42,224 @@ void proto_register_dsp(void);
 void proto_reg_handoff_dsp(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_dsp = -1;
+static int proto_dsp;
 
-static int hf_dsp_AccessPoint_PDU = -1;           /* AccessPoint */
-static int hf_dsp_MasterAndShadowAccessPoints_PDU = -1;  /* MasterAndShadowAccessPoints */
-static int hf_dsp_DitBridgeKnowledge_PDU = -1;    /* DitBridgeKnowledge */
-static int hf_dsp_chainedArgument = -1;           /* ChainingArguments */
-static int hf_dsp_readArgument = -1;              /* ReadArgument */
-static int hf_dsp_unsignedChainedReadArgument = -1;  /* ChainedReadArgumentData */
-static int hf_dsp_signedChainedReadArgument = -1;  /* T_signedChainedReadArgument */
-static int hf_dsp_chainedReadArgument = -1;       /* ChainedReadArgumentData */
-static int hf_dsp_algorithmIdentifier = -1;       /* AlgorithmIdentifier */
-static int hf_dsp_encrypted = -1;                 /* BIT_STRING */
-static int hf_dsp_chainedResults = -1;            /* ChainingResults */
-static int hf_dsp_readResult = -1;                /* ReadResult */
-static int hf_dsp_unsignedChainedReadResult = -1;  /* ChainedReadResultData */
-static int hf_dsp_signedChainedReadResult = -1;   /* T_signedChainedReadResult */
-static int hf_dsp_chainedReadResult = -1;         /* ChainedReadResultData */
-static int hf_dsp_compareArgument = -1;           /* CompareArgument */
-static int hf_dsp_unsignedChainedCompareArgument = -1;  /* ChainedCompareArgumentData */
-static int hf_dsp_signedChainedCompareArgument = -1;  /* T_signedChainedCompareArgument */
-static int hf_dsp_chainedCompareArgument = -1;    /* ChainedCompareArgumentData */
-static int hf_dsp_compareResult = -1;             /* CompareResult */
-static int hf_dsp_unsignedChainedCompareResult = -1;  /* ChainedCompareResultData */
-static int hf_dsp_signedChainedCompareResult = -1;  /* T_signedChainedCompareResult */
-static int hf_dsp_chainedCompareResult = -1;      /* ChainedCompareResultData */
-static int hf_dsp_listArgument = -1;              /* ListArgument */
-static int hf_dsp_unsignedChainedListArgument = -1;  /* ChainedListArgumentData */
-static int hf_dsp_signedChainedListArgument = -1;  /* T_signedChainedListArgument */
-static int hf_dsp_chainedListArgument = -1;       /* ChainedListArgumentData */
-static int hf_dsp_listResult = -1;                /* ListResult */
-static int hf_dsp_unsignedChainedListResult = -1;  /* ChainedListResultData */
-static int hf_dsp_signedChainedListResult = -1;   /* T_signedChainedListResult */
-static int hf_dsp_chainedListResult = -1;         /* ChainedListResultData */
-static int hf_dsp_searchArgument = -1;            /* SearchArgument */
-static int hf_dsp_unsignedChainedSearchArgument = -1;  /* ChainedSearchArgumentData */
-static int hf_dsp_signedChainedSearchArgument = -1;  /* T_signedChainedSearchArgument */
-static int hf_dsp_chainedSearchArgument = -1;     /* ChainedSearchArgumentData */
-static int hf_dsp_searchResult = -1;              /* SearchResult */
-static int hf_dsp_unsignedChainedSearchResult = -1;  /* ChainedSearchResultData */
-static int hf_dsp_signedChainedSearchResult = -1;  /* T_signedChainedSearchResult */
-static int hf_dsp_chainedSearchResult = -1;       /* ChainedSearchResultData */
-static int hf_dsp_addEntryArgument = -1;          /* AddEntryArgument */
-static int hf_dsp_unsignedChainedAddEntryArgument = -1;  /* ChainedAddEntryArgumentData */
-static int hf_dsp_signedChainedAddEntryArgument = -1;  /* T_signedChainedAddEntryArgument */
-static int hf_dsp_chainedAddEntryArgument = -1;   /* ChainedAddEntryArgumentData */
-static int hf_dsp_addEntryResult = -1;            /* AddEntryResult */
-static int hf_dsp_unsignedChainedAddEntryResult = -1;  /* ChainedAddEntryResultData */
-static int hf_dsp_signedChainedAddEntryResult = -1;  /* T_signedChainedAddEntryResult */
-static int hf_dsp_chainedAddEntryResult = -1;     /* ChainedAddEntryResultData */
-static int hf_dsp_removeEntryArgument = -1;       /* RemoveEntryArgument */
-static int hf_dsp_unsignedChainedRemoveEntryArgument = -1;  /* ChainedRemoveEntryArgumentData */
-static int hf_dsp_signedChainedRemoveEntryArgument = -1;  /* T_signedChainedRemoveEntryArgument */
-static int hf_dsp_chainedRemoveEntryArgument = -1;  /* ChainedRemoveEntryArgumentData */
-static int hf_dsp_removeEntryResult = -1;         /* RemoveEntryResult */
-static int hf_dsp_unsignedChainedRemoveEntryResult = -1;  /* ChainedRemoveEntryResultData */
-static int hf_dsp_signedChainedRemoveEntryResult = -1;  /* T_signedChainedRemoveEntryResult */
-static int hf_dsp_chainedRemoveEntryResult = -1;  /* ChainedRemoveEntryResultData */
-static int hf_dsp_modifyEntryArgument = -1;       /* ModifyEntryArgument */
-static int hf_dsp_unsignedChainedModifyEntryArgument = -1;  /* ChainedModifyEntryArgumentData */
-static int hf_dsp_signedChainedModifyEntryArgument = -1;  /* T_signedChainedModifyEntryArgument */
-static int hf_dsp_chainedModifyEntryArgument = -1;  /* ChainedModifyEntryArgumentData */
-static int hf_dsp_modifyEntryResult = -1;         /* ModifyEntryResult */
-static int hf_dsp_unsignedChainedModifyEntryResult = -1;  /* ChainedModifyEntryResultData */
-static int hf_dsp_signedChainedModifyEntryResult = -1;  /* T_signedChainedModifyEntryResult */
-static int hf_dsp_chainedModifyEntryResult = -1;  /* ChainedModifyEntryResultData */
-static int hf_dsp_modifyDNArgument = -1;          /* ModifyDNArgument */
-static int hf_dsp_unsignedChainedModifyDNArgument = -1;  /* ChainedModifyDNArgumentData */
-static int hf_dsp_signedChainedModifyDNArgument = -1;  /* T_signedChainedModifyDNArgument */
-static int hf_dsp_chainedModifyDNArgument = -1;   /* ChainedModifyDNArgumentData */
-static int hf_dsp_modifyDNResult = -1;            /* ModifyDNResult */
-static int hf_dsp_unsignedChainedModifyDNResult = -1;  /* ChainedModifyDNResultData */
-static int hf_dsp_signedChainedModifyDNResult = -1;  /* T_signedChainedModifyDNResult */
-static int hf_dsp_chainedModifyDNResult = -1;     /* ChainedModifyDNResultData */
-static int hf_dsp_reference = -1;                 /* ContinuationReference */
-static int hf_dsp_contextPrefix = -1;             /* DistinguishedName */
-static int hf_dsp_securityParameters = -1;        /* SecurityParameters */
-static int hf_dsp_performer = -1;                 /* DistinguishedName */
-static int hf_dsp_aliasDereferenced = -1;         /* BOOLEAN */
-static int hf_dsp_notification = -1;              /* SEQUENCE_OF_Attribute */
-static int hf_dsp_notification_item = -1;         /* Attribute */
-static int hf_dsp_unsignedDSAReferral = -1;       /* DSAReferralData */
-static int hf_dsp_signedDSAReferral = -1;         /* T_signedDSAReferral */
-static int hf_dsp_dsaReferral = -1;               /* DSAReferralData */
-static int hf_dsp_originator = -1;                /* DistinguishedName */
-static int hf_dsp_targetObjectDN = -1;            /* DistinguishedName */
-static int hf_dsp_operationProgress = -1;         /* OperationProgress */
-static int hf_dsp_traceInformation = -1;          /* TraceInformation */
-static int hf_dsp_aliasedRDNs = -1;               /* INTEGER */
-static int hf_dsp_returnCrossRefs = -1;           /* BOOLEAN */
-static int hf_dsp_referenceType = -1;             /* ReferenceType */
-static int hf_dsp_info = -1;                      /* DomainInfo */
-static int hf_dsp_timeLimit = -1;                 /* Time */
-static int hf_dsp_entryOnly = -1;                 /* BOOLEAN */
-static int hf_dsp_uniqueIdentifier = -1;          /* UniqueIdentifier */
-static int hf_dsp_authenticationLevel = -1;       /* AuthenticationLevel */
-static int hf_dsp_exclusions = -1;                /* Exclusions */
-static int hf_dsp_excludeShadows = -1;            /* BOOLEAN */
-static int hf_dsp_nameResolveOnMaster = -1;       /* BOOLEAN */
-static int hf_dsp_operationIdentifier = -1;       /* INTEGER */
-static int hf_dsp_searchRuleId = -1;              /* SearchRuleId */
-static int hf_dsp_chainedRelaxation = -1;         /* MRMapping */
-static int hf_dsp_relatedEntry = -1;              /* INTEGER */
-static int hf_dsp_dspPaging = -1;                 /* BOOLEAN */
-static int hf_dsp_nonDapPdu = -1;                 /* T_nonDapPdu */
-static int hf_dsp_streamedResults = -1;           /* INTEGER */
-static int hf_dsp_excludeWriteableCopies = -1;    /* BOOLEAN */
-static int hf_dsp_utcTime = -1;                   /* UTCTime */
-static int hf_dsp_generalizedTime = -1;           /* GeneralizedTime */
-static int hf_dsp_crossReferences = -1;           /* SEQUENCE_OF_CrossReference */
-static int hf_dsp_crossReferences_item = -1;      /* CrossReference */
-static int hf_dsp_alreadySearched = -1;           /* Exclusions */
-static int hf_dsp_accessPoint = -1;               /* AccessPointInformation */
-static int hf_dsp_nameResolutionPhase = -1;       /* T_nameResolutionPhase */
-static int hf_dsp_nextRDNToBeResolved = -1;       /* INTEGER */
-static int hf_dsp_TraceInformation_item = -1;     /* TraceItem */
-static int hf_dsp_dsa = -1;                       /* Name */
-static int hf_dsp_targetObject = -1;              /* Name */
-static int hf_dsp_ae_title = -1;                  /* Name */
-static int hf_dsp_address = -1;                   /* PresentationAddress */
-static int hf_dsp_protocolInformation = -1;       /* SET_OF_ProtocolInformation */
-static int hf_dsp_protocolInformation_item = -1;  /* ProtocolInformation */
-static int hf_dsp_labeledURI = -1;                /* LabeledURI */
-static int hf_dsp_access_point_category = -1;     /* APCategory */
-static int hf_dsp_chainingRequired = -1;          /* BOOLEAN */
-static int hf_dsp_MasterAndShadowAccessPoints_item = -1;  /* MasterOrShadowAccessPoint */
-static int hf_dsp_category = -1;                  /* T_category */
-static int hf_dsp_additionalPoints = -1;          /* MasterAndShadowAccessPoints */
-static int hf_dsp_domainLocalID = -1;             /* DirectoryString */
-static int hf_dsp_accessPoints = -1;              /* MasterAndShadowAccessPoints */
-static int hf_dsp_Exclusions_item = -1;           /* RDNSequence */
-static int hf_dsp_rdnsResolved = -1;              /* INTEGER */
-static int hf_dsp_accessPoints_01 = -1;           /* SET_OF_AccessPointInformation */
-static int hf_dsp_accessPoints_item = -1;         /* AccessPointInformation */
-static int hf_dsp_returnToDUA = -1;               /* BOOLEAN */
-static int hf_dsp_basicLevels = -1;               /* T_basicLevels */
-static int hf_dsp_level = -1;                     /* T_level */
-static int hf_dsp_localQualifier = -1;            /* INTEGER */
-static int hf_dsp_signed = -1;                    /* BOOLEAN */
-static int hf_dsp_other = -1;                     /* EXTERNAL */
+static int hf_dsp_AccessPoint_PDU;                /* AccessPoint */
+static int hf_dsp_MasterAndShadowAccessPoints_PDU;  /* MasterAndShadowAccessPoints */
+static int hf_dsp_DitBridgeKnowledge_PDU;         /* DitBridgeKnowledge */
+static int hf_dsp_chainedArgument;                /* ChainingArguments */
+static int hf_dsp_readArgument;                   /* ReadArgument */
+static int hf_dsp_unsignedChainedReadArgument;    /* ChainedReadArgumentData */
+static int hf_dsp_signedChainedReadArgument;      /* T_signedChainedReadArgument */
+static int hf_dsp_chainedReadArgument;            /* ChainedReadArgumentData */
+static int hf_dsp_algorithmIdentifier;            /* AlgorithmIdentifier */
+static int hf_dsp_encrypted;                      /* BIT_STRING */
+static int hf_dsp_chainedResults;                 /* ChainingResults */
+static int hf_dsp_readResult;                     /* ReadResult */
+static int hf_dsp_unsignedChainedReadResult;      /* ChainedReadResultData */
+static int hf_dsp_signedChainedReadResult;        /* T_signedChainedReadResult */
+static int hf_dsp_chainedReadResult;              /* ChainedReadResultData */
+static int hf_dsp_compareArgument;                /* CompareArgument */
+static int hf_dsp_unsignedChainedCompareArgument;  /* ChainedCompareArgumentData */
+static int hf_dsp_signedChainedCompareArgument;   /* T_signedChainedCompareArgument */
+static int hf_dsp_chainedCompareArgument;         /* ChainedCompareArgumentData */
+static int hf_dsp_compareResult;                  /* CompareResult */
+static int hf_dsp_unsignedChainedCompareResult;   /* ChainedCompareResultData */
+static int hf_dsp_signedChainedCompareResult;     /* T_signedChainedCompareResult */
+static int hf_dsp_chainedCompareResult;           /* ChainedCompareResultData */
+static int hf_dsp_listArgument;                   /* ListArgument */
+static int hf_dsp_unsignedChainedListArgument;    /* ChainedListArgumentData */
+static int hf_dsp_signedChainedListArgument;      /* T_signedChainedListArgument */
+static int hf_dsp_chainedListArgument;            /* ChainedListArgumentData */
+static int hf_dsp_listResult;                     /* ListResult */
+static int hf_dsp_unsignedChainedListResult;      /* ChainedListResultData */
+static int hf_dsp_signedChainedListResult;        /* T_signedChainedListResult */
+static int hf_dsp_chainedListResult;              /* ChainedListResultData */
+static int hf_dsp_searchArgument;                 /* SearchArgument */
+static int hf_dsp_unsignedChainedSearchArgument;  /* ChainedSearchArgumentData */
+static int hf_dsp_signedChainedSearchArgument;    /* T_signedChainedSearchArgument */
+static int hf_dsp_chainedSearchArgument;          /* ChainedSearchArgumentData */
+static int hf_dsp_searchResult;                   /* SearchResult */
+static int hf_dsp_unsignedChainedSearchResult;    /* ChainedSearchResultData */
+static int hf_dsp_signedChainedSearchResult;      /* T_signedChainedSearchResult */
+static int hf_dsp_chainedSearchResult;            /* ChainedSearchResultData */
+static int hf_dsp_addEntryArgument;               /* AddEntryArgument */
+static int hf_dsp_unsignedChainedAddEntryArgument;  /* ChainedAddEntryArgumentData */
+static int hf_dsp_signedChainedAddEntryArgument;  /* T_signedChainedAddEntryArgument */
+static int hf_dsp_chainedAddEntryArgument;        /* ChainedAddEntryArgumentData */
+static int hf_dsp_addEntryResult;                 /* AddEntryResult */
+static int hf_dsp_unsignedChainedAddEntryResult;  /* ChainedAddEntryResultData */
+static int hf_dsp_signedChainedAddEntryResult;    /* T_signedChainedAddEntryResult */
+static int hf_dsp_chainedAddEntryResult;          /* ChainedAddEntryResultData */
+static int hf_dsp_removeEntryArgument;            /* RemoveEntryArgument */
+static int hf_dsp_unsignedChainedRemoveEntryArgument;  /* ChainedRemoveEntryArgumentData */
+static int hf_dsp_signedChainedRemoveEntryArgument;  /* T_signedChainedRemoveEntryArgument */
+static int hf_dsp_chainedRemoveEntryArgument;     /* ChainedRemoveEntryArgumentData */
+static int hf_dsp_removeEntryResult;              /* RemoveEntryResult */
+static int hf_dsp_unsignedChainedRemoveEntryResult;  /* ChainedRemoveEntryResultData */
+static int hf_dsp_signedChainedRemoveEntryResult;  /* T_signedChainedRemoveEntryResult */
+static int hf_dsp_chainedRemoveEntryResult;       /* ChainedRemoveEntryResultData */
+static int hf_dsp_modifyEntryArgument;            /* ModifyEntryArgument */
+static int hf_dsp_unsignedChainedModifyEntryArgument;  /* ChainedModifyEntryArgumentData */
+static int hf_dsp_signedChainedModifyEntryArgument;  /* T_signedChainedModifyEntryArgument */
+static int hf_dsp_chainedModifyEntryArgument;     /* ChainedModifyEntryArgumentData */
+static int hf_dsp_modifyEntryResult;              /* ModifyEntryResult */
+static int hf_dsp_unsignedChainedModifyEntryResult;  /* ChainedModifyEntryResultData */
+static int hf_dsp_signedChainedModifyEntryResult;  /* T_signedChainedModifyEntryResult */
+static int hf_dsp_chainedModifyEntryResult;       /* ChainedModifyEntryResultData */
+static int hf_dsp_modifyDNArgument;               /* ModifyDNArgument */
+static int hf_dsp_unsignedChainedModifyDNArgument;  /* ChainedModifyDNArgumentData */
+static int hf_dsp_signedChainedModifyDNArgument;  /* T_signedChainedModifyDNArgument */
+static int hf_dsp_chainedModifyDNArgument;        /* ChainedModifyDNArgumentData */
+static int hf_dsp_modifyDNResult;                 /* ModifyDNResult */
+static int hf_dsp_unsignedChainedModifyDNResult;  /* ChainedModifyDNResultData */
+static int hf_dsp_signedChainedModifyDNResult;    /* T_signedChainedModifyDNResult */
+static int hf_dsp_chainedModifyDNResult;          /* ChainedModifyDNResultData */
+static int hf_dsp_reference;                      /* ContinuationReference */
+static int hf_dsp_contextPrefix;                  /* DistinguishedName */
+static int hf_dsp_securityParameters;             /* SecurityParameters */
+static int hf_dsp_performer;                      /* DistinguishedName */
+static int hf_dsp_aliasDereferenced;              /* BOOLEAN */
+static int hf_dsp_notification;                   /* SEQUENCE_OF_Attribute */
+static int hf_dsp_notification_item;              /* Attribute */
+static int hf_dsp_unsignedDSAReferral;            /* DSAReferralData */
+static int hf_dsp_signedDSAReferral;              /* T_signedDSAReferral */
+static int hf_dsp_dsaReferral;                    /* DSAReferralData */
+static int hf_dsp_originator;                     /* DistinguishedName */
+static int hf_dsp_targetObjectDN;                 /* DistinguishedName */
+static int hf_dsp_operationProgress;              /* OperationProgress */
+static int hf_dsp_traceInformation;               /* TraceInformation */
+static int hf_dsp_aliasedRDNs;                    /* INTEGER */
+static int hf_dsp_returnCrossRefs;                /* BOOLEAN */
+static int hf_dsp_referenceType;                  /* ReferenceType */
+static int hf_dsp_info;                           /* DomainInfo */
+static int hf_dsp_timeLimit;                      /* Time */
+static int hf_dsp_entryOnly;                      /* BOOLEAN */
+static int hf_dsp_uniqueIdentifier;               /* UniqueIdentifier */
+static int hf_dsp_authenticationLevel;            /* AuthenticationLevel */
+static int hf_dsp_exclusions;                     /* Exclusions */
+static int hf_dsp_excludeShadows;                 /* BOOLEAN */
+static int hf_dsp_nameResolveOnMaster;            /* BOOLEAN */
+static int hf_dsp_operationIdentifier;            /* INTEGER */
+static int hf_dsp_searchRuleId;                   /* SearchRuleId */
+static int hf_dsp_chainedRelaxation;              /* MRMapping */
+static int hf_dsp_relatedEntry;                   /* INTEGER */
+static int hf_dsp_dspPaging;                      /* BOOLEAN */
+static int hf_dsp_nonDapPdu;                      /* T_nonDapPdu */
+static int hf_dsp_streamedResults;                /* INTEGER */
+static int hf_dsp_excludeWriteableCopies;         /* BOOLEAN */
+static int hf_dsp_utcTime;                        /* UTCTime */
+static int hf_dsp_generalizedTime;                /* GeneralizedTime */
+static int hf_dsp_crossReferences;                /* SEQUENCE_OF_CrossReference */
+static int hf_dsp_crossReferences_item;           /* CrossReference */
+static int hf_dsp_alreadySearched;                /* Exclusions */
+static int hf_dsp_accessPoint;                    /* AccessPointInformation */
+static int hf_dsp_nameResolutionPhase;            /* T_nameResolutionPhase */
+static int hf_dsp_nextRDNToBeResolved;            /* INTEGER */
+static int hf_dsp_TraceInformation_item;          /* TraceItem */
+static int hf_dsp_dsa;                            /* Name */
+static int hf_dsp_targetObject;                   /* Name */
+static int hf_dsp_ae_title;                       /* Name */
+static int hf_dsp_address;                        /* PresentationAddress */
+static int hf_dsp_protocolInformation;            /* SET_OF_ProtocolInformation */
+static int hf_dsp_protocolInformation_item;       /* ProtocolInformation */
+static int hf_dsp_labeledURI;                     /* LabeledURI */
+static int hf_dsp_access_point_category;          /* APCategory */
+static int hf_dsp_chainingRequired;               /* BOOLEAN */
+static int hf_dsp_MasterAndShadowAccessPoints_item;  /* MasterOrShadowAccessPoint */
+static int hf_dsp_category;                       /* T_category */
+static int hf_dsp_additionalPoints;               /* MasterAndShadowAccessPoints */
+static int hf_dsp_domainLocalID;                  /* DirectoryString */
+static int hf_dsp_accessPoints;                   /* MasterAndShadowAccessPoints */
+static int hf_dsp_Exclusions_item;                /* RDNSequence */
+static int hf_dsp_rdnsResolved;                   /* INTEGER */
+static int hf_dsp_accessPoints_01;                /* SET_OF_AccessPointInformation */
+static int hf_dsp_accessPoints_item;              /* AccessPointInformation */
+static int hf_dsp_returnToDUA;                    /* BOOLEAN */
+static int hf_dsp_basicLevels;                    /* T_basicLevels */
+static int hf_dsp_level;                          /* T_level */
+static int hf_dsp_localQualifier;                 /* INTEGER */
+static int hf_dsp_signed;                         /* BOOLEAN */
+static int hf_dsp_other;                          /* EXTERNAL */
 
 /* Initialize the subtree pointers */
-static gint ett_dsp = -1;
-static gint ett_dsp_ChainedReadArgumentData = -1;
-static gint ett_dsp_ChainedReadArgument = -1;
-static gint ett_dsp_T_signedChainedReadArgument = -1;
-static gint ett_dsp_ChainedReadResultData = -1;
-static gint ett_dsp_ChainedReadResult = -1;
-static gint ett_dsp_T_signedChainedReadResult = -1;
-static gint ett_dsp_ChainedCompareArgumentData = -1;
-static gint ett_dsp_ChainedCompareArgument = -1;
-static gint ett_dsp_T_signedChainedCompareArgument = -1;
-static gint ett_dsp_ChainedCompareResultData = -1;
-static gint ett_dsp_ChainedCompareResult = -1;
-static gint ett_dsp_T_signedChainedCompareResult = -1;
-static gint ett_dsp_ChainedListArgumentData = -1;
-static gint ett_dsp_ChainedListArgument = -1;
-static gint ett_dsp_T_signedChainedListArgument = -1;
-static gint ett_dsp_ChainedListResultData = -1;
-static gint ett_dsp_ChainedListResult = -1;
-static gint ett_dsp_T_signedChainedListResult = -1;
-static gint ett_dsp_ChainedSearchArgumentData = -1;
-static gint ett_dsp_ChainedSearchArgument = -1;
-static gint ett_dsp_T_signedChainedSearchArgument = -1;
-static gint ett_dsp_ChainedSearchResultData = -1;
-static gint ett_dsp_ChainedSearchResult = -1;
-static gint ett_dsp_T_signedChainedSearchResult = -1;
-static gint ett_dsp_ChainedAddEntryArgumentData = -1;
-static gint ett_dsp_ChainedAddEntryArgument = -1;
-static gint ett_dsp_T_signedChainedAddEntryArgument = -1;
-static gint ett_dsp_ChainedAddEntryResultData = -1;
-static gint ett_dsp_ChainedAddEntryResult = -1;
-static gint ett_dsp_T_signedChainedAddEntryResult = -1;
-static gint ett_dsp_ChainedRemoveEntryArgumentData = -1;
-static gint ett_dsp_ChainedRemoveEntryArgument = -1;
-static gint ett_dsp_T_signedChainedRemoveEntryArgument = -1;
-static gint ett_dsp_ChainedRemoveEntryResultData = -1;
-static gint ett_dsp_ChainedRemoveEntryResult = -1;
-static gint ett_dsp_T_signedChainedRemoveEntryResult = -1;
-static gint ett_dsp_ChainedModifyEntryArgumentData = -1;
-static gint ett_dsp_ChainedModifyEntryArgument = -1;
-static gint ett_dsp_T_signedChainedModifyEntryArgument = -1;
-static gint ett_dsp_ChainedModifyEntryResultData = -1;
-static gint ett_dsp_ChainedModifyEntryResult = -1;
-static gint ett_dsp_T_signedChainedModifyEntryResult = -1;
-static gint ett_dsp_ChainedModifyDNArgumentData = -1;
-static gint ett_dsp_ChainedModifyDNArgument = -1;
-static gint ett_dsp_T_signedChainedModifyDNArgument = -1;
-static gint ett_dsp_ChainedModifyDNResultData = -1;
-static gint ett_dsp_ChainedModifyDNResult = -1;
-static gint ett_dsp_T_signedChainedModifyDNResult = -1;
-static gint ett_dsp_DSAReferralData = -1;
-static gint ett_dsp_SEQUENCE_OF_Attribute = -1;
-static gint ett_dsp_DSAReferral = -1;
-static gint ett_dsp_T_signedDSAReferral = -1;
-static gint ett_dsp_ChainingArguments = -1;
-static gint ett_dsp_Time = -1;
-static gint ett_dsp_ChainingResults = -1;
-static gint ett_dsp_SEQUENCE_OF_CrossReference = -1;
-static gint ett_dsp_CrossReference = -1;
-static gint ett_dsp_OperationProgress = -1;
-static gint ett_dsp_TraceInformation = -1;
-static gint ett_dsp_TraceItem = -1;
-static gint ett_dsp_AccessPoint = -1;
-static gint ett_dsp_SET_OF_ProtocolInformation = -1;
-static gint ett_dsp_MasterOrShadowAccessPoint = -1;
-static gint ett_dsp_MasterAndShadowAccessPoints = -1;
-static gint ett_dsp_AccessPointInformation = -1;
-static gint ett_dsp_DitBridgeKnowledge = -1;
-static gint ett_dsp_Exclusions = -1;
-static gint ett_dsp_ContinuationReference = -1;
-static gint ett_dsp_SET_OF_AccessPointInformation = -1;
-static gint ett_dsp_AuthenticationLevel = -1;
-static gint ett_dsp_T_basicLevels = -1;
+static gint ett_dsp;
+static gint ett_dsp_ChainedReadArgumentData;
+static gint ett_dsp_ChainedReadArgument;
+static gint ett_dsp_T_signedChainedReadArgument;
+static gint ett_dsp_ChainedReadResultData;
+static gint ett_dsp_ChainedReadResult;
+static gint ett_dsp_T_signedChainedReadResult;
+static gint ett_dsp_ChainedCompareArgumentData;
+static gint ett_dsp_ChainedCompareArgument;
+static gint ett_dsp_T_signedChainedCompareArgument;
+static gint ett_dsp_ChainedCompareResultData;
+static gint ett_dsp_ChainedCompareResult;
+static gint ett_dsp_T_signedChainedCompareResult;
+static gint ett_dsp_ChainedListArgumentData;
+static gint ett_dsp_ChainedListArgument;
+static gint ett_dsp_T_signedChainedListArgument;
+static gint ett_dsp_ChainedListResultData;
+static gint ett_dsp_ChainedListResult;
+static gint ett_dsp_T_signedChainedListResult;
+static gint ett_dsp_ChainedSearchArgumentData;
+static gint ett_dsp_ChainedSearchArgument;
+static gint ett_dsp_T_signedChainedSearchArgument;
+static gint ett_dsp_ChainedSearchResultData;
+static gint ett_dsp_ChainedSearchResult;
+static gint ett_dsp_T_signedChainedSearchResult;
+static gint ett_dsp_ChainedAddEntryArgumentData;
+static gint ett_dsp_ChainedAddEntryArgument;
+static gint ett_dsp_T_signedChainedAddEntryArgument;
+static gint ett_dsp_ChainedAddEntryResultData;
+static gint ett_dsp_ChainedAddEntryResult;
+static gint ett_dsp_T_signedChainedAddEntryResult;
+static gint ett_dsp_ChainedRemoveEntryArgumentData;
+static gint ett_dsp_ChainedRemoveEntryArgument;
+static gint ett_dsp_T_signedChainedRemoveEntryArgument;
+static gint ett_dsp_ChainedRemoveEntryResultData;
+static gint ett_dsp_ChainedRemoveEntryResult;
+static gint ett_dsp_T_signedChainedRemoveEntryResult;
+static gint ett_dsp_ChainedModifyEntryArgumentData;
+static gint ett_dsp_ChainedModifyEntryArgument;
+static gint ett_dsp_T_signedChainedModifyEntryArgument;
+static gint ett_dsp_ChainedModifyEntryResultData;
+static gint ett_dsp_ChainedModifyEntryResult;
+static gint ett_dsp_T_signedChainedModifyEntryResult;
+static gint ett_dsp_ChainedModifyDNArgumentData;
+static gint ett_dsp_ChainedModifyDNArgument;
+static gint ett_dsp_T_signedChainedModifyDNArgument;
+static gint ett_dsp_ChainedModifyDNResultData;
+static gint ett_dsp_ChainedModifyDNResult;
+static gint ett_dsp_T_signedChainedModifyDNResult;
+static gint ett_dsp_DSAReferralData;
+static gint ett_dsp_SEQUENCE_OF_Attribute;
+static gint ett_dsp_DSAReferral;
+static gint ett_dsp_T_signedDSAReferral;
+static gint ett_dsp_ChainingArguments;
+static gint ett_dsp_Time;
+static gint ett_dsp_ChainingResults;
+static gint ett_dsp_SEQUENCE_OF_CrossReference;
+static gint ett_dsp_CrossReference;
+static gint ett_dsp_OperationProgress;
+static gint ett_dsp_TraceInformation;
+static gint ett_dsp_TraceItem;
+static gint ett_dsp_AccessPoint;
+static gint ett_dsp_SET_OF_ProtocolInformation;
+static gint ett_dsp_MasterOrShadowAccessPoint;
+static gint ett_dsp_MasterAndShadowAccessPoints;
+static gint ett_dsp_AccessPointInformation;
+static gint ett_dsp_DitBridgeKnowledge;
+static gint ett_dsp_Exclusions;
+static gint ett_dsp_ContinuationReference;
+static gint ett_dsp_SET_OF_AccessPointInformation;
+static gint ett_dsp_AuthenticationLevel;
+static gint ett_dsp_T_basicLevels;
 
-static expert_field ei_dsp_unsupported_opcode = EI_INIT;
-static expert_field ei_dsp_unsupported_errcode = EI_INIT;
-static expert_field ei_dsp_unsupported_pdu = EI_INIT;
-static expert_field ei_dsp_zero_pdu = EI_INIT;
+static expert_field ei_dsp_unsupported_opcode;
+static expert_field ei_dsp_unsupported_errcode;
+static expert_field ei_dsp_unsupported_pdu;
+static expert_field ei_dsp_zero_pdu;
 
 
 

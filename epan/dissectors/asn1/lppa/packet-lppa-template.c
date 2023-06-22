@@ -29,12 +29,12 @@ void proto_register_lppa(void);
 void proto_reg_handoff_lppa(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_lppa = -1;
+static int proto_lppa;
 
 #include "packet-lppa-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_lppa = -1;
+static gint ett_lppa;
 #include "packet-lppa-ett.c"
 
 enum {

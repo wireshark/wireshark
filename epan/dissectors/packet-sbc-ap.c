@@ -127,259 +127,259 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /* Initialize the protocol and registered fields */
-static int proto_sbc_ap = -1;
+static int proto_sbc_ap;
 
-static int hf_sbc_ap_Serial_Number_gs = -1;
-static int hf_sbc_ap_Serial_Number_msg_code = -1;
-static int hf_sbc_ap_Serial_Number_upd_nb = -1;
-static int hf_sbc_ap_Warning_Type_value = -1;
-static int hf_sbc_ap_Warning_Type_emergency_user_alert = -1;
-static int hf_sbc_ap_Warning_Type_popup = -1;
-static int hf_sbc_ap_Warning_Message_Contents_nb_pages = -1;
-static int hf_sbc_ap_Warning_Message_Contents_decoded_page = -1;
-static int hf_sbc_ap_Broadcast_Scheduled_Area_List_PDU = -1;  /* Broadcast_Scheduled_Area_List */
-static int hf_sbc_ap_Broadcast_Scheduled_Area_List_5GS_PDU = -1;  /* Broadcast_Scheduled_Area_List_5GS */
-static int hf_sbc_ap_Broadcast_Cancelled_Area_List_PDU = -1;  /* Broadcast_Cancelled_Area_List */
-static int hf_sbc_ap_Broadcast_Cancelled_Area_List_5GS_PDU = -1;  /* Broadcast_Cancelled_Area_List_5GS */
-static int hf_sbc_ap_Broadcast_Empty_Area_List_PDU = -1;  /* Broadcast_Empty_Area_List */
-static int hf_sbc_ap_Broadcast_Empty_Area_List_5GS_PDU = -1;  /* Broadcast_Empty_Area_List_5GS */
-static int hf_sbc_ap_Cause_PDU = -1;              /* Cause */
-static int hf_sbc_ap_Concurrent_Warning_Message_Indicator_PDU = -1;  /* Concurrent_Warning_Message_Indicator */
-static int hf_sbc_ap_Criticality_Diagnostics_PDU = -1;  /* Criticality_Diagnostics */
-static int hf_sbc_ap_Data_Coding_Scheme_PDU = -1;  /* Data_Coding_Scheme */
-static int hf_sbc_ap_Extended_Repetition_Period_PDU = -1;  /* Extended_Repetition_Period */
-static int hf_sbc_ap_Failed_Cell_List_PDU = -1;   /* Failed_Cell_List */
-static int hf_sbc_ap_Failed_Cell_List_NR_PDU = -1;  /* Failed_Cell_List_NR */
-static int hf_sbc_ap_Global_ENB_ID_PDU = -1;      /* Global_ENB_ID */
-static int hf_sbc_ap_Global_RAN_Node_ID_PDU = -1;  /* Global_RAN_Node_ID */
-static int hf_sbc_ap_Global_GNB_ID_PDU = -1;      /* Global_GNB_ID */
-static int hf_sbc_ap_List_of_TAIs_PDU = -1;       /* List_of_TAIs */
-static int hf_sbc_ap_List_of_TAIs_Restart_PDU = -1;  /* List_of_TAIs_Restart */
-static int hf_sbc_ap_List_of_EAIs_Restart_PDU = -1;  /* List_of_EAIs_Restart */
-static int hf_sbc_ap_List_of_5GS_TAIs_PDU = -1;   /* List_of_5GS_TAIs */
-static int hf_sbc_ap_List_of_5GS_TAI_for_Restart_PDU = -1;  /* List_of_5GS_TAI_for_Restart */
-static int hf_sbc_ap_Message_Identifier_PDU = -1;  /* Message_Identifier */
-static int hf_sbc_ap_Number_of_Broadcasts_Requested_PDU = -1;  /* Number_of_Broadcasts_Requested */
-static int hf_sbc_ap_Omc_Id_PDU = -1;             /* Omc_Id */
-static int hf_sbc_ap_Repetition_Period_PDU = -1;  /* Repetition_Period */
-static int hf_sbc_ap_Restarted_Cell_List_PDU = -1;  /* Restarted_Cell_List */
-static int hf_sbc_ap_RAT_Selector_5GS_PDU = -1;   /* RAT_Selector_5GS */
-static int hf_sbc_ap_Restarted_Cell_List_NR_PDU = -1;  /* Restarted_Cell_List_NR */
-static int hf_sbc_ap_Send_Write_Replace_Warning_Indication_PDU = -1;  /* Send_Write_Replace_Warning_Indication */
-static int hf_sbc_ap_Send_Stop_Warning_Indication_PDU = -1;  /* Send_Stop_Warning_Indication */
-static int hf_sbc_ap_Serial_Number_PDU = -1;      /* Serial_Number */
-static int hf_sbc_ap_Stop_All_Indicator_PDU = -1;  /* Stop_All_Indicator */
-static int hf_sbc_ap_Unknown_5GS_Tracking_Area_List_PDU = -1;  /* Unknown_5GS_Tracking_Area_List */
-static int hf_sbc_ap_Warning_Area_List_PDU = -1;  /* Warning_Area_List */
-static int hf_sbc_ap_Warning_Message_Content_PDU = -1;  /* Warning_Message_Content */
-static int hf_sbc_ap_Warning_Area_Coordinates_PDU = -1;  /* Warning_Area_Coordinates */
-static int hf_sbc_ap_Warning_Security_Information_PDU = -1;  /* Warning_Security_Information */
-static int hf_sbc_ap_Warning_Type_PDU = -1;       /* Warning_Type */
-static int hf_sbc_ap_Warning_Area_List_5GS_PDU = -1;  /* Warning_Area_List_5GS */
-static int hf_sbc_ap_Write_Replace_Warning_Request_PDU = -1;  /* Write_Replace_Warning_Request */
-static int hf_sbc_ap_Write_Replace_Warning_Response_PDU = -1;  /* Write_Replace_Warning_Response */
-static int hf_sbc_ap_Stop_Warning_Request_PDU = -1;  /* Stop_Warning_Request */
-static int hf_sbc_ap_Stop_Warning_Response_PDU = -1;  /* Stop_Warning_Response */
-static int hf_sbc_ap_Write_Replace_Warning_Indication_PDU = -1;  /* Write_Replace_Warning_Indication */
-static int hf_sbc_ap_Stop_Warning_Indication_PDU = -1;  /* Stop_Warning_Indication */
-static int hf_sbc_ap_PWS_Restart_Indication_PDU = -1;  /* PWS_Restart_Indication */
-static int hf_sbc_ap_PWS_Failure_Indication_PDU = -1;  /* PWS_Failure_Indication */
-static int hf_sbc_ap_Error_Indication_PDU = -1;   /* Error_Indication */
-static int hf_sbc_ap_SBC_AP_PDU_PDU = -1;         /* SBC_AP_PDU */
-static int hf_sbc_ap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
-static int hf_sbc_ap_id = -1;                     /* ProtocolIE_ID */
-static int hf_sbc_ap_criticality = -1;            /* Criticality */
-static int hf_sbc_ap_ie_field_value = -1;         /* T_ie_field_value */
-static int hf_sbc_ap_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
-static int hf_sbc_ap_ext_id = -1;                 /* ProtocolExtensionID */
-static int hf_sbc_ap_extensionValue = -1;         /* T_extensionValue */
-static int hf_sbc_ap_cellId_Broadcast_List = -1;  /* CellId_Broadcast_List */
-static int hf_sbc_ap_tAI_Broadcast_List = -1;     /* TAI_Broadcast_List */
-static int hf_sbc_ap_emergencyAreaID_Broadcast_List = -1;  /* EmergencyAreaID_Broadcast_List */
-static int hf_sbc_ap_iE_Extensions = -1;          /* ProtocolExtensionContainer */
-static int hf_sbc_ap_cellId_Broadcast_List_5GS = -1;  /* CellId_Broadcast_List_5GS */
-static int hf_sbc_ap_tAI_Broadcast_List_5GS = -1;  /* TAI_Broadcast_List_5GS */
-static int hf_sbc_ap_cellID_Cancelled_List = -1;  /* CellID_Cancelled_List */
-static int hf_sbc_ap_tAI_Cancelled_List = -1;     /* TAI_Cancelled_List */
-static int hf_sbc_ap_emergencyAreaID_Cancelled_List = -1;  /* EmergencyAreaID_Cancelled_List */
-static int hf_sbc_ap_cellID_Cancelled_List_5GS = -1;  /* CellID_Cancelled_List_5GS */
-static int hf_sbc_ap_tAI_Cancelled_List_5GS = -1;  /* TAI_Cancelled_List_5GS */
-static int hf_sbc_ap_Broadcast_Empty_Area_List_item = -1;  /* Global_ENB_ID */
-static int hf_sbc_ap_Broadcast_Empty_Area_List_5GS_item = -1;  /* Global_RAN_Node_ID */
-static int hf_sbc_ap_CancelledCellinEAI_item = -1;  /* CancelledCellinEAI_Item */
-static int hf_sbc_ap_eCGI = -1;                   /* EUTRAN_CGI */
-static int hf_sbc_ap_numberOfBroadcasts = -1;     /* NumberOfBroadcasts */
-static int hf_sbc_ap_CancelledCellinTAI_item = -1;  /* CancelledCellinTAI_Item */
-static int hf_sbc_ap_CancelledCellinTAI_5GS_item = -1;  /* CancelledCellinTAI_5GS_item */
-static int hf_sbc_ap_nR_CGI = -1;                 /* NR_CGI */
-static int hf_sbc_ap_CellId_Broadcast_List_item = -1;  /* CellId_Broadcast_List_Item */
-static int hf_sbc_ap_CellId_Broadcast_List_5GS_item = -1;  /* CellId_Broadcast_List_5GS_item */
-static int hf_sbc_ap_CellID_Cancelled_List_item = -1;  /* CellID_Cancelled_Item */
-static int hf_sbc_ap_CellID_Cancelled_List_5GS_item = -1;  /* CellID_Cancelled_List_5GS_item */
-static int hf_sbc_ap_procedureCode = -1;          /* ProcedureCode */
-static int hf_sbc_ap_triggeringMessage = -1;      /* TriggeringMessage */
-static int hf_sbc_ap_procedureCriticality = -1;   /* Criticality */
-static int hf_sbc_ap_iE_CriticalityDiagnostics = -1;  /* CriticalityDiagnostics_IE_List */
-static int hf_sbc_ap_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_List_item */
-static int hf_sbc_ap_iECriticality = -1;          /* Criticality */
-static int hf_sbc_ap_iE_ID = -1;                  /* ProtocolIE_ID */
-static int hf_sbc_ap_typeOfError = -1;            /* TypeOfError */
-static int hf_sbc_ap_ECGIList_item = -1;          /* EUTRAN_CGI */
-static int hf_sbc_ap_Emergency_Area_ID_List_item = -1;  /* Emergency_Area_ID */
-static int hf_sbc_ap_EmergencyAreaID_Broadcast_List_item = -1;  /* EmergencyAreaID_Broadcast_List_Item */
-static int hf_sbc_ap_emergencyAreaID = -1;        /* Emergency_Area_ID */
-static int hf_sbc_ap_scheduledCellinEAI = -1;     /* ScheduledCellinEAI */
-static int hf_sbc_ap_EmergencyAreaID_Cancelled_List_item = -1;  /* EmergencyAreaID_Cancelled_Item */
-static int hf_sbc_ap_cancelledCellinEAI = -1;     /* CancelledCellinEAI */
-static int hf_sbc_ap_pLMNidentity = -1;           /* PLMNidentity */
-static int hf_sbc_ap_cell_ID = -1;                /* CellIdentity */
-static int hf_sbc_ap_macroENB_ID = -1;            /* BIT_STRING_SIZE_20 */
-static int hf_sbc_ap_homeENB_ID = -1;             /* BIT_STRING_SIZE_28 */
-static int hf_sbc_ap_short_macroENB_ID = -1;      /* BIT_STRING_SIZE_18 */
-static int hf_sbc_ap_long_macroENB_ID = -1;       /* BIT_STRING_SIZE_21 */
-static int hf_sbc_ap_Failed_Cell_List_item = -1;  /* EUTRAN_CGI */
-static int hf_sbc_ap_Failed_Cell_List_NR_item = -1;  /* NR_CGI */
-static int hf_sbc_ap_eNB_ID = -1;                 /* ENB_ID */
-static int hf_sbc_ap_global_GNB_ID = -1;          /* Global_GNB_ID */
-static int hf_sbc_ap_global_NgENB_ID = -1;        /* Global_NgENB_ID */
-static int hf_sbc_ap_gNB_ID = -1;                 /* GNB_ID */
-static int hf_sbc_ap_gNB_ID_01 = -1;              /* BIT_STRING_SIZE_22_32 */
-static int hf_sbc_ap_ngENB_ID = -1;               /* ENB_ID */
-static int hf_sbc_ap_List_of_TAIs_item = -1;      /* List_of_TAIs_item */
-static int hf_sbc_ap_tai = -1;                    /* TAI */
-static int hf_sbc_ap_List_of_TAIs_Restart_item = -1;  /* List_of_TAIs_Restart_item */
-static int hf_sbc_ap_List_of_EAIs_Restart_item = -1;  /* Emergency_Area_ID */
-static int hf_sbc_ap_List_of_5GS_TAIs_item = -1;  /* TAI_5GS */
-static int hf_sbc_ap_List_of_5GS_TAI_for_Restart_item = -1;  /* TAI_5GS */
-static int hf_sbc_ap_NR_CGIList_item = -1;        /* NR_CGI */
-static int hf_sbc_ap_nRCellIdentity = -1;         /* NRCellIdentity */
-static int hf_sbc_ap_Restarted_Cell_List_item = -1;  /* EUTRAN_CGI */
-static int hf_sbc_ap_Restarted_Cell_List_NR_item = -1;  /* NR_CGI */
-static int hf_sbc_ap_ScheduledCellinEAI_item = -1;  /* ScheduledCellinEAI_Item */
-static int hf_sbc_ap_ScheduledCellinTAI_item = -1;  /* ScheduledCellinTAI_Item */
-static int hf_sbc_ap_ScheduledCellinTAI_5GS_item = -1;  /* ScheduledCellinTAI_5GS_item */
-static int hf_sbc_ap_TAI_Broadcast_List_item = -1;  /* TAI_Broadcast_List_Item */
-static int hf_sbc_ap_tAI = -1;                    /* TAI */
-static int hf_sbc_ap_scheduledCellinTAI = -1;     /* ScheduledCellinTAI */
-static int hf_sbc_ap_TAI_Broadcast_List_5GS_item = -1;  /* TAI_Broadcast_List_5GS_item */
-static int hf_sbc_ap_tAI_5GS = -1;                /* TAI_5GS */
-static int hf_sbc_ap_scheduledCellinTAI_5GS = -1;  /* ScheduledCellinTAI_5GS */
-static int hf_sbc_ap_TAI_Cancelled_List_item = -1;  /* TAI_Cancelled_List_Item */
-static int hf_sbc_ap_cancelledCellinTAI = -1;     /* CancelledCellinTAI */
-static int hf_sbc_ap_TAI_Cancelled_List_5GS_item = -1;  /* TAI_Cancelled_List_5GS_item */
-static int hf_sbc_ap_cancelledCellinTAI_5GS = -1;  /* CancelledCellinTAI_5GS */
-static int hf_sbc_ap_TAI_List_for_Warning_item = -1;  /* TAI */
-static int hf_sbc_ap_tAC = -1;                    /* TAC */
-static int hf_sbc_ap_tAC_5GS = -1;                /* TAC_5GS */
-static int hf_sbc_ap_Unknown_5GS_Tracking_Area_List_item = -1;  /* TAI_5GS */
-static int hf_sbc_ap_cell_ID_List = -1;           /* ECGIList */
-static int hf_sbc_ap_tracking_Area_List_for_Warning = -1;  /* TAI_List_for_Warning */
-static int hf_sbc_ap_emergency_Area_ID_List = -1;  /* Emergency_Area_ID_List */
-static int hf_sbc_ap_nR_CGIList = -1;             /* NR_CGIList */
-static int hf_sbc_ap_tAIList_5GS = -1;            /* TAI_5GS */
-static int hf_sbc_ap_emergencyAreaIDList = -1;    /* Emergency_Area_ID_List */
-static int hf_sbc_ap_protocolIEs = -1;            /* ProtocolIE_Container */
-static int hf_sbc_ap_protocolExtensions = -1;     /* ProtocolExtensionContainer */
-static int hf_sbc_ap_initiatingMessage = -1;      /* InitiatingMessage */
-static int hf_sbc_ap_successfulOutcome = -1;      /* SuccessfulOutcome */
-static int hf_sbc_ap_unsuccessfulOutcome = -1;    /* UnsuccessfulOutcome */
-static int hf_sbc_ap_initiatingMessagevalue = -1;  /* InitiatingMessage_value */
-static int hf_sbc_ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
-static int hf_sbc_ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
+static int hf_sbc_ap_Serial_Number_gs;
+static int hf_sbc_ap_Serial_Number_msg_code;
+static int hf_sbc_ap_Serial_Number_upd_nb;
+static int hf_sbc_ap_Warning_Type_value;
+static int hf_sbc_ap_Warning_Type_emergency_user_alert;
+static int hf_sbc_ap_Warning_Type_popup;
+static int hf_sbc_ap_Warning_Message_Contents_nb_pages;
+static int hf_sbc_ap_Warning_Message_Contents_decoded_page;
+static int hf_sbc_ap_Broadcast_Scheduled_Area_List_PDU;  /* Broadcast_Scheduled_Area_List */
+static int hf_sbc_ap_Broadcast_Scheduled_Area_List_5GS_PDU;  /* Broadcast_Scheduled_Area_List_5GS */
+static int hf_sbc_ap_Broadcast_Cancelled_Area_List_PDU;  /* Broadcast_Cancelled_Area_List */
+static int hf_sbc_ap_Broadcast_Cancelled_Area_List_5GS_PDU;  /* Broadcast_Cancelled_Area_List_5GS */
+static int hf_sbc_ap_Broadcast_Empty_Area_List_PDU;  /* Broadcast_Empty_Area_List */
+static int hf_sbc_ap_Broadcast_Empty_Area_List_5GS_PDU;  /* Broadcast_Empty_Area_List_5GS */
+static int hf_sbc_ap_Cause_PDU;                   /* Cause */
+static int hf_sbc_ap_Concurrent_Warning_Message_Indicator_PDU;  /* Concurrent_Warning_Message_Indicator */
+static int hf_sbc_ap_Criticality_Diagnostics_PDU;  /* Criticality_Diagnostics */
+static int hf_sbc_ap_Data_Coding_Scheme_PDU;      /* Data_Coding_Scheme */
+static int hf_sbc_ap_Extended_Repetition_Period_PDU;  /* Extended_Repetition_Period */
+static int hf_sbc_ap_Failed_Cell_List_PDU;        /* Failed_Cell_List */
+static int hf_sbc_ap_Failed_Cell_List_NR_PDU;     /* Failed_Cell_List_NR */
+static int hf_sbc_ap_Global_ENB_ID_PDU;           /* Global_ENB_ID */
+static int hf_sbc_ap_Global_RAN_Node_ID_PDU;      /* Global_RAN_Node_ID */
+static int hf_sbc_ap_Global_GNB_ID_PDU;           /* Global_GNB_ID */
+static int hf_sbc_ap_List_of_TAIs_PDU;            /* List_of_TAIs */
+static int hf_sbc_ap_List_of_TAIs_Restart_PDU;    /* List_of_TAIs_Restart */
+static int hf_sbc_ap_List_of_EAIs_Restart_PDU;    /* List_of_EAIs_Restart */
+static int hf_sbc_ap_List_of_5GS_TAIs_PDU;        /* List_of_5GS_TAIs */
+static int hf_sbc_ap_List_of_5GS_TAI_for_Restart_PDU;  /* List_of_5GS_TAI_for_Restart */
+static int hf_sbc_ap_Message_Identifier_PDU;      /* Message_Identifier */
+static int hf_sbc_ap_Number_of_Broadcasts_Requested_PDU;  /* Number_of_Broadcasts_Requested */
+static int hf_sbc_ap_Omc_Id_PDU;                  /* Omc_Id */
+static int hf_sbc_ap_Repetition_Period_PDU;       /* Repetition_Period */
+static int hf_sbc_ap_Restarted_Cell_List_PDU;     /* Restarted_Cell_List */
+static int hf_sbc_ap_RAT_Selector_5GS_PDU;        /* RAT_Selector_5GS */
+static int hf_sbc_ap_Restarted_Cell_List_NR_PDU;  /* Restarted_Cell_List_NR */
+static int hf_sbc_ap_Send_Write_Replace_Warning_Indication_PDU;  /* Send_Write_Replace_Warning_Indication */
+static int hf_sbc_ap_Send_Stop_Warning_Indication_PDU;  /* Send_Stop_Warning_Indication */
+static int hf_sbc_ap_Serial_Number_PDU;           /* Serial_Number */
+static int hf_sbc_ap_Stop_All_Indicator_PDU;      /* Stop_All_Indicator */
+static int hf_sbc_ap_Unknown_5GS_Tracking_Area_List_PDU;  /* Unknown_5GS_Tracking_Area_List */
+static int hf_sbc_ap_Warning_Area_List_PDU;       /* Warning_Area_List */
+static int hf_sbc_ap_Warning_Message_Content_PDU;  /* Warning_Message_Content */
+static int hf_sbc_ap_Warning_Area_Coordinates_PDU;  /* Warning_Area_Coordinates */
+static int hf_sbc_ap_Warning_Security_Information_PDU;  /* Warning_Security_Information */
+static int hf_sbc_ap_Warning_Type_PDU;            /* Warning_Type */
+static int hf_sbc_ap_Warning_Area_List_5GS_PDU;   /* Warning_Area_List_5GS */
+static int hf_sbc_ap_Write_Replace_Warning_Request_PDU;  /* Write_Replace_Warning_Request */
+static int hf_sbc_ap_Write_Replace_Warning_Response_PDU;  /* Write_Replace_Warning_Response */
+static int hf_sbc_ap_Stop_Warning_Request_PDU;    /* Stop_Warning_Request */
+static int hf_sbc_ap_Stop_Warning_Response_PDU;   /* Stop_Warning_Response */
+static int hf_sbc_ap_Write_Replace_Warning_Indication_PDU;  /* Write_Replace_Warning_Indication */
+static int hf_sbc_ap_Stop_Warning_Indication_PDU;  /* Stop_Warning_Indication */
+static int hf_sbc_ap_PWS_Restart_Indication_PDU;  /* PWS_Restart_Indication */
+static int hf_sbc_ap_PWS_Failure_Indication_PDU;  /* PWS_Failure_Indication */
+static int hf_sbc_ap_Error_Indication_PDU;        /* Error_Indication */
+static int hf_sbc_ap_SBC_AP_PDU_PDU;              /* SBC_AP_PDU */
+static int hf_sbc_ap_ProtocolIE_Container_item;   /* ProtocolIE_Field */
+static int hf_sbc_ap_id;                          /* ProtocolIE_ID */
+static int hf_sbc_ap_criticality;                 /* Criticality */
+static int hf_sbc_ap_ie_field_value;              /* T_ie_field_value */
+static int hf_sbc_ap_ProtocolExtensionContainer_item;  /* ProtocolExtensionField */
+static int hf_sbc_ap_ext_id;                      /* ProtocolExtensionID */
+static int hf_sbc_ap_extensionValue;              /* T_extensionValue */
+static int hf_sbc_ap_cellId_Broadcast_List;       /* CellId_Broadcast_List */
+static int hf_sbc_ap_tAI_Broadcast_List;          /* TAI_Broadcast_List */
+static int hf_sbc_ap_emergencyAreaID_Broadcast_List;  /* EmergencyAreaID_Broadcast_List */
+static int hf_sbc_ap_iE_Extensions;               /* ProtocolExtensionContainer */
+static int hf_sbc_ap_cellId_Broadcast_List_5GS;   /* CellId_Broadcast_List_5GS */
+static int hf_sbc_ap_tAI_Broadcast_List_5GS;      /* TAI_Broadcast_List_5GS */
+static int hf_sbc_ap_cellID_Cancelled_List;       /* CellID_Cancelled_List */
+static int hf_sbc_ap_tAI_Cancelled_List;          /* TAI_Cancelled_List */
+static int hf_sbc_ap_emergencyAreaID_Cancelled_List;  /* EmergencyAreaID_Cancelled_List */
+static int hf_sbc_ap_cellID_Cancelled_List_5GS;   /* CellID_Cancelled_List_5GS */
+static int hf_sbc_ap_tAI_Cancelled_List_5GS;      /* TAI_Cancelled_List_5GS */
+static int hf_sbc_ap_Broadcast_Empty_Area_List_item;  /* Global_ENB_ID */
+static int hf_sbc_ap_Broadcast_Empty_Area_List_5GS_item;  /* Global_RAN_Node_ID */
+static int hf_sbc_ap_CancelledCellinEAI_item;     /* CancelledCellinEAI_Item */
+static int hf_sbc_ap_eCGI;                        /* EUTRAN_CGI */
+static int hf_sbc_ap_numberOfBroadcasts;          /* NumberOfBroadcasts */
+static int hf_sbc_ap_CancelledCellinTAI_item;     /* CancelledCellinTAI_Item */
+static int hf_sbc_ap_CancelledCellinTAI_5GS_item;  /* CancelledCellinTAI_5GS_item */
+static int hf_sbc_ap_nR_CGI;                      /* NR_CGI */
+static int hf_sbc_ap_CellId_Broadcast_List_item;  /* CellId_Broadcast_List_Item */
+static int hf_sbc_ap_CellId_Broadcast_List_5GS_item;  /* CellId_Broadcast_List_5GS_item */
+static int hf_sbc_ap_CellID_Cancelled_List_item;  /* CellID_Cancelled_Item */
+static int hf_sbc_ap_CellID_Cancelled_List_5GS_item;  /* CellID_Cancelled_List_5GS_item */
+static int hf_sbc_ap_procedureCode;               /* ProcedureCode */
+static int hf_sbc_ap_triggeringMessage;           /* TriggeringMessage */
+static int hf_sbc_ap_procedureCriticality;        /* Criticality */
+static int hf_sbc_ap_iE_CriticalityDiagnostics;   /* CriticalityDiagnostics_IE_List */
+static int hf_sbc_ap_CriticalityDiagnostics_IE_List_item;  /* CriticalityDiagnostics_IE_List_item */
+static int hf_sbc_ap_iECriticality;               /* Criticality */
+static int hf_sbc_ap_iE_ID;                       /* ProtocolIE_ID */
+static int hf_sbc_ap_typeOfError;                 /* TypeOfError */
+static int hf_sbc_ap_ECGIList_item;               /* EUTRAN_CGI */
+static int hf_sbc_ap_Emergency_Area_ID_List_item;  /* Emergency_Area_ID */
+static int hf_sbc_ap_EmergencyAreaID_Broadcast_List_item;  /* EmergencyAreaID_Broadcast_List_Item */
+static int hf_sbc_ap_emergencyAreaID;             /* Emergency_Area_ID */
+static int hf_sbc_ap_scheduledCellinEAI;          /* ScheduledCellinEAI */
+static int hf_sbc_ap_EmergencyAreaID_Cancelled_List_item;  /* EmergencyAreaID_Cancelled_Item */
+static int hf_sbc_ap_cancelledCellinEAI;          /* CancelledCellinEAI */
+static int hf_sbc_ap_pLMNidentity;                /* PLMNidentity */
+static int hf_sbc_ap_cell_ID;                     /* CellIdentity */
+static int hf_sbc_ap_macroENB_ID;                 /* BIT_STRING_SIZE_20 */
+static int hf_sbc_ap_homeENB_ID;                  /* BIT_STRING_SIZE_28 */
+static int hf_sbc_ap_short_macroENB_ID;           /* BIT_STRING_SIZE_18 */
+static int hf_sbc_ap_long_macroENB_ID;            /* BIT_STRING_SIZE_21 */
+static int hf_sbc_ap_Failed_Cell_List_item;       /* EUTRAN_CGI */
+static int hf_sbc_ap_Failed_Cell_List_NR_item;    /* NR_CGI */
+static int hf_sbc_ap_eNB_ID;                      /* ENB_ID */
+static int hf_sbc_ap_global_GNB_ID;               /* Global_GNB_ID */
+static int hf_sbc_ap_global_NgENB_ID;             /* Global_NgENB_ID */
+static int hf_sbc_ap_gNB_ID;                      /* GNB_ID */
+static int hf_sbc_ap_gNB_ID_01;                   /* BIT_STRING_SIZE_22_32 */
+static int hf_sbc_ap_ngENB_ID;                    /* ENB_ID */
+static int hf_sbc_ap_List_of_TAIs_item;           /* List_of_TAIs_item */
+static int hf_sbc_ap_tai;                         /* TAI */
+static int hf_sbc_ap_List_of_TAIs_Restart_item;   /* List_of_TAIs_Restart_item */
+static int hf_sbc_ap_List_of_EAIs_Restart_item;   /* Emergency_Area_ID */
+static int hf_sbc_ap_List_of_5GS_TAIs_item;       /* TAI_5GS */
+static int hf_sbc_ap_List_of_5GS_TAI_for_Restart_item;  /* TAI_5GS */
+static int hf_sbc_ap_NR_CGIList_item;             /* NR_CGI */
+static int hf_sbc_ap_nRCellIdentity;              /* NRCellIdentity */
+static int hf_sbc_ap_Restarted_Cell_List_item;    /* EUTRAN_CGI */
+static int hf_sbc_ap_Restarted_Cell_List_NR_item;  /* NR_CGI */
+static int hf_sbc_ap_ScheduledCellinEAI_item;     /* ScheduledCellinEAI_Item */
+static int hf_sbc_ap_ScheduledCellinTAI_item;     /* ScheduledCellinTAI_Item */
+static int hf_sbc_ap_ScheduledCellinTAI_5GS_item;  /* ScheduledCellinTAI_5GS_item */
+static int hf_sbc_ap_TAI_Broadcast_List_item;     /* TAI_Broadcast_List_Item */
+static int hf_sbc_ap_tAI;                         /* TAI */
+static int hf_sbc_ap_scheduledCellinTAI;          /* ScheduledCellinTAI */
+static int hf_sbc_ap_TAI_Broadcast_List_5GS_item;  /* TAI_Broadcast_List_5GS_item */
+static int hf_sbc_ap_tAI_5GS;                     /* TAI_5GS */
+static int hf_sbc_ap_scheduledCellinTAI_5GS;      /* ScheduledCellinTAI_5GS */
+static int hf_sbc_ap_TAI_Cancelled_List_item;     /* TAI_Cancelled_List_Item */
+static int hf_sbc_ap_cancelledCellinTAI;          /* CancelledCellinTAI */
+static int hf_sbc_ap_TAI_Cancelled_List_5GS_item;  /* TAI_Cancelled_List_5GS_item */
+static int hf_sbc_ap_cancelledCellinTAI_5GS;      /* CancelledCellinTAI_5GS */
+static int hf_sbc_ap_TAI_List_for_Warning_item;   /* TAI */
+static int hf_sbc_ap_tAC;                         /* TAC */
+static int hf_sbc_ap_tAC_5GS;                     /* TAC_5GS */
+static int hf_sbc_ap_Unknown_5GS_Tracking_Area_List_item;  /* TAI_5GS */
+static int hf_sbc_ap_cell_ID_List;                /* ECGIList */
+static int hf_sbc_ap_tracking_Area_List_for_Warning;  /* TAI_List_for_Warning */
+static int hf_sbc_ap_emergency_Area_ID_List;      /* Emergency_Area_ID_List */
+static int hf_sbc_ap_nR_CGIList;                  /* NR_CGIList */
+static int hf_sbc_ap_tAIList_5GS;                 /* TAI_5GS */
+static int hf_sbc_ap_emergencyAreaIDList;         /* Emergency_Area_ID_List */
+static int hf_sbc_ap_protocolIEs;                 /* ProtocolIE_Container */
+static int hf_sbc_ap_protocolExtensions;          /* ProtocolExtensionContainer */
+static int hf_sbc_ap_initiatingMessage;           /* InitiatingMessage */
+static int hf_sbc_ap_successfulOutcome;           /* SuccessfulOutcome */
+static int hf_sbc_ap_unsuccessfulOutcome;         /* UnsuccessfulOutcome */
+static int hf_sbc_ap_initiatingMessagevalue;      /* InitiatingMessage_value */
+static int hf_sbc_ap_successfulOutcome_value;     /* SuccessfulOutcome_value */
+static int hf_sbc_ap_unsuccessfulOutcome_value;   /* UnsuccessfulOutcome_value */
 
 /* Initialize the subtree pointers */
-static int ett_sbc_ap = -1;
-static int ett_sbc_ap_Serial_Number = -1;
-static int ett_sbc_ap_Warning_Type = -1;
-static int ett_sbc_ap_Data_Coding_Scheme = -1;
-static int ett_sbc_ap_Warning_Message_Contents = -1;
+static int ett_sbc_ap;
+static int ett_sbc_ap_Serial_Number;
+static int ett_sbc_ap_Warning_Type;
+static int ett_sbc_ap_Data_Coding_Scheme;
+static int ett_sbc_ap_Warning_Message_Contents;
 
-static gint ett_sbc_ap_ProtocolIE_Container = -1;
-static gint ett_sbc_ap_ProtocolIE_Field = -1;
-static gint ett_sbc_ap_ProtocolExtensionContainer = -1;
-static gint ett_sbc_ap_ProtocolExtensionField = -1;
-static gint ett_sbc_ap_Broadcast_Scheduled_Area_List = -1;
-static gint ett_sbc_ap_Broadcast_Scheduled_Area_List_5GS = -1;
-static gint ett_sbc_ap_Broadcast_Cancelled_Area_List = -1;
-static gint ett_sbc_ap_Broadcast_Cancelled_Area_List_5GS = -1;
-static gint ett_sbc_ap_Broadcast_Empty_Area_List = -1;
-static gint ett_sbc_ap_Broadcast_Empty_Area_List_5GS = -1;
-static gint ett_sbc_ap_CancelledCellinEAI = -1;
-static gint ett_sbc_ap_CancelledCellinEAI_Item = -1;
-static gint ett_sbc_ap_CancelledCellinTAI = -1;
-static gint ett_sbc_ap_CancelledCellinTAI_Item = -1;
-static gint ett_sbc_ap_CancelledCellinTAI_5GS = -1;
-static gint ett_sbc_ap_CancelledCellinTAI_5GS_item = -1;
-static gint ett_sbc_ap_CellId_Broadcast_List = -1;
-static gint ett_sbc_ap_CellId_Broadcast_List_Item = -1;
-static gint ett_sbc_ap_CellId_Broadcast_List_5GS = -1;
-static gint ett_sbc_ap_CellId_Broadcast_List_5GS_item = -1;
-static gint ett_sbc_ap_CellID_Cancelled_List = -1;
-static gint ett_sbc_ap_CellID_Cancelled_Item = -1;
-static gint ett_sbc_ap_CellID_Cancelled_List_5GS = -1;
-static gint ett_sbc_ap_CellID_Cancelled_List_5GS_item = -1;
-static gint ett_sbc_ap_Criticality_Diagnostics = -1;
-static gint ett_sbc_ap_CriticalityDiagnostics_IE_List = -1;
-static gint ett_sbc_ap_CriticalityDiagnostics_IE_List_item = -1;
-static gint ett_sbc_ap_ECGIList = -1;
-static gint ett_sbc_ap_Emergency_Area_ID_List = -1;
-static gint ett_sbc_ap_EmergencyAreaID_Broadcast_List = -1;
-static gint ett_sbc_ap_EmergencyAreaID_Broadcast_List_Item = -1;
-static gint ett_sbc_ap_EmergencyAreaID_Cancelled_List = -1;
-static gint ett_sbc_ap_EmergencyAreaID_Cancelled_Item = -1;
-static gint ett_sbc_ap_EUTRAN_CGI = -1;
-static gint ett_sbc_ap_ENB_ID = -1;
-static gint ett_sbc_ap_Failed_Cell_List = -1;
-static gint ett_sbc_ap_Failed_Cell_List_NR = -1;
-static gint ett_sbc_ap_Global_ENB_ID = -1;
-static gint ett_sbc_ap_Global_RAN_Node_ID = -1;
-static gint ett_sbc_ap_Global_GNB_ID = -1;
-static gint ett_sbc_ap_GNB_ID = -1;
-static gint ett_sbc_ap_Global_NgENB_ID = -1;
-static gint ett_sbc_ap_List_of_TAIs = -1;
-static gint ett_sbc_ap_List_of_TAIs_item = -1;
-static gint ett_sbc_ap_List_of_TAIs_Restart = -1;
-static gint ett_sbc_ap_List_of_TAIs_Restart_item = -1;
-static gint ett_sbc_ap_List_of_EAIs_Restart = -1;
-static gint ett_sbc_ap_List_of_5GS_TAIs = -1;
-static gint ett_sbc_ap_List_of_5GS_TAI_for_Restart = -1;
-static gint ett_sbc_ap_NR_CGIList = -1;
-static gint ett_sbc_ap_NR_CGI = -1;
-static gint ett_sbc_ap_Restarted_Cell_List = -1;
-static gint ett_sbc_ap_Restarted_Cell_List_NR = -1;
-static gint ett_sbc_ap_ScheduledCellinEAI = -1;
-static gint ett_sbc_ap_ScheduledCellinEAI_Item = -1;
-static gint ett_sbc_ap_ScheduledCellinTAI = -1;
-static gint ett_sbc_ap_ScheduledCellinTAI_Item = -1;
-static gint ett_sbc_ap_ScheduledCellinTAI_5GS = -1;
-static gint ett_sbc_ap_ScheduledCellinTAI_5GS_item = -1;
-static gint ett_sbc_ap_TAI_Broadcast_List = -1;
-static gint ett_sbc_ap_TAI_Broadcast_List_Item = -1;
-static gint ett_sbc_ap_TAI_Broadcast_List_5GS = -1;
-static gint ett_sbc_ap_TAI_Broadcast_List_5GS_item = -1;
-static gint ett_sbc_ap_TAI_Cancelled_List = -1;
-static gint ett_sbc_ap_TAI_Cancelled_List_Item = -1;
-static gint ett_sbc_ap_TAI_Cancelled_List_5GS = -1;
-static gint ett_sbc_ap_TAI_Cancelled_List_5GS_item = -1;
-static gint ett_sbc_ap_TAI_List_for_Warning = -1;
-static gint ett_sbc_ap_TAI = -1;
-static gint ett_sbc_ap_TAI_5GS = -1;
-static gint ett_sbc_ap_Unknown_5GS_Tracking_Area_List = -1;
-static gint ett_sbc_ap_Warning_Area_List = -1;
-static gint ett_sbc_ap_Warning_Area_List_5GS = -1;
-static gint ett_sbc_ap_Write_Replace_Warning_Request = -1;
-static gint ett_sbc_ap_Write_Replace_Warning_Response = -1;
-static gint ett_sbc_ap_Stop_Warning_Request = -1;
-static gint ett_sbc_ap_Stop_Warning_Response = -1;
-static gint ett_sbc_ap_Write_Replace_Warning_Indication = -1;
-static gint ett_sbc_ap_Stop_Warning_Indication = -1;
-static gint ett_sbc_ap_PWS_Restart_Indication = -1;
-static gint ett_sbc_ap_PWS_Failure_Indication = -1;
-static gint ett_sbc_ap_Error_Indication = -1;
-static gint ett_sbc_ap_SBC_AP_PDU = -1;
-static gint ett_sbc_ap_InitiatingMessage = -1;
-static gint ett_sbc_ap_SuccessfulOutcome = -1;
-static gint ett_sbc_ap_UnsuccessfulOutcome = -1;
+static gint ett_sbc_ap_ProtocolIE_Container;
+static gint ett_sbc_ap_ProtocolIE_Field;
+static gint ett_sbc_ap_ProtocolExtensionContainer;
+static gint ett_sbc_ap_ProtocolExtensionField;
+static gint ett_sbc_ap_Broadcast_Scheduled_Area_List;
+static gint ett_sbc_ap_Broadcast_Scheduled_Area_List_5GS;
+static gint ett_sbc_ap_Broadcast_Cancelled_Area_List;
+static gint ett_sbc_ap_Broadcast_Cancelled_Area_List_5GS;
+static gint ett_sbc_ap_Broadcast_Empty_Area_List;
+static gint ett_sbc_ap_Broadcast_Empty_Area_List_5GS;
+static gint ett_sbc_ap_CancelledCellinEAI;
+static gint ett_sbc_ap_CancelledCellinEAI_Item;
+static gint ett_sbc_ap_CancelledCellinTAI;
+static gint ett_sbc_ap_CancelledCellinTAI_Item;
+static gint ett_sbc_ap_CancelledCellinTAI_5GS;
+static gint ett_sbc_ap_CancelledCellinTAI_5GS_item;
+static gint ett_sbc_ap_CellId_Broadcast_List;
+static gint ett_sbc_ap_CellId_Broadcast_List_Item;
+static gint ett_sbc_ap_CellId_Broadcast_List_5GS;
+static gint ett_sbc_ap_CellId_Broadcast_List_5GS_item;
+static gint ett_sbc_ap_CellID_Cancelled_List;
+static gint ett_sbc_ap_CellID_Cancelled_Item;
+static gint ett_sbc_ap_CellID_Cancelled_List_5GS;
+static gint ett_sbc_ap_CellID_Cancelled_List_5GS_item;
+static gint ett_sbc_ap_Criticality_Diagnostics;
+static gint ett_sbc_ap_CriticalityDiagnostics_IE_List;
+static gint ett_sbc_ap_CriticalityDiagnostics_IE_List_item;
+static gint ett_sbc_ap_ECGIList;
+static gint ett_sbc_ap_Emergency_Area_ID_List;
+static gint ett_sbc_ap_EmergencyAreaID_Broadcast_List;
+static gint ett_sbc_ap_EmergencyAreaID_Broadcast_List_Item;
+static gint ett_sbc_ap_EmergencyAreaID_Cancelled_List;
+static gint ett_sbc_ap_EmergencyAreaID_Cancelled_Item;
+static gint ett_sbc_ap_EUTRAN_CGI;
+static gint ett_sbc_ap_ENB_ID;
+static gint ett_sbc_ap_Failed_Cell_List;
+static gint ett_sbc_ap_Failed_Cell_List_NR;
+static gint ett_sbc_ap_Global_ENB_ID;
+static gint ett_sbc_ap_Global_RAN_Node_ID;
+static gint ett_sbc_ap_Global_GNB_ID;
+static gint ett_sbc_ap_GNB_ID;
+static gint ett_sbc_ap_Global_NgENB_ID;
+static gint ett_sbc_ap_List_of_TAIs;
+static gint ett_sbc_ap_List_of_TAIs_item;
+static gint ett_sbc_ap_List_of_TAIs_Restart;
+static gint ett_sbc_ap_List_of_TAIs_Restart_item;
+static gint ett_sbc_ap_List_of_EAIs_Restart;
+static gint ett_sbc_ap_List_of_5GS_TAIs;
+static gint ett_sbc_ap_List_of_5GS_TAI_for_Restart;
+static gint ett_sbc_ap_NR_CGIList;
+static gint ett_sbc_ap_NR_CGI;
+static gint ett_sbc_ap_Restarted_Cell_List;
+static gint ett_sbc_ap_Restarted_Cell_List_NR;
+static gint ett_sbc_ap_ScheduledCellinEAI;
+static gint ett_sbc_ap_ScheduledCellinEAI_Item;
+static gint ett_sbc_ap_ScheduledCellinTAI;
+static gint ett_sbc_ap_ScheduledCellinTAI_Item;
+static gint ett_sbc_ap_ScheduledCellinTAI_5GS;
+static gint ett_sbc_ap_ScheduledCellinTAI_5GS_item;
+static gint ett_sbc_ap_TAI_Broadcast_List;
+static gint ett_sbc_ap_TAI_Broadcast_List_Item;
+static gint ett_sbc_ap_TAI_Broadcast_List_5GS;
+static gint ett_sbc_ap_TAI_Broadcast_List_5GS_item;
+static gint ett_sbc_ap_TAI_Cancelled_List;
+static gint ett_sbc_ap_TAI_Cancelled_List_Item;
+static gint ett_sbc_ap_TAI_Cancelled_List_5GS;
+static gint ett_sbc_ap_TAI_Cancelled_List_5GS_item;
+static gint ett_sbc_ap_TAI_List_for_Warning;
+static gint ett_sbc_ap_TAI;
+static gint ett_sbc_ap_TAI_5GS;
+static gint ett_sbc_ap_Unknown_5GS_Tracking_Area_List;
+static gint ett_sbc_ap_Warning_Area_List;
+static gint ett_sbc_ap_Warning_Area_List_5GS;
+static gint ett_sbc_ap_Write_Replace_Warning_Request;
+static gint ett_sbc_ap_Write_Replace_Warning_Response;
+static gint ett_sbc_ap_Stop_Warning_Request;
+static gint ett_sbc_ap_Stop_Warning_Response;
+static gint ett_sbc_ap_Write_Replace_Warning_Indication;
+static gint ett_sbc_ap_Stop_Warning_Indication;
+static gint ett_sbc_ap_PWS_Restart_Indication;
+static gint ett_sbc_ap_PWS_Failure_Indication;
+static gint ett_sbc_ap_Error_Indication;
+static gint ett_sbc_ap_SBC_AP_PDU;
+static gint ett_sbc_ap_InitiatingMessage;
+static gint ett_sbc_ap_SuccessfulOutcome;
+static gint ett_sbc_ap_UnsuccessfulOutcome;
 
 enum{
 	INITIATING_MESSAGE,

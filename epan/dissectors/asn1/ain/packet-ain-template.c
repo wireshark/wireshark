@@ -41,37 +41,37 @@ void proto_reg_handoff_ain(void);
 
 
 /* Initialize the protocol and registered fields */
-static int proto_ain = -1;
+static int proto_ain;
 
 static dissector_handle_t   ain_handle;
 
 /* include constants */
 #include "packet-ain-val.h"
 
-static int hf_ain_ext_type_oid = -1;
-static int hf_ain_odd_even_indicator = -1;
-static int hf_ain_nature_of_address = -1;
-static int hf_ain_numbering_plan = -1;
-static int hf_ain_bcd_digits = -1;
-static int hf_ain_carrier_selection = -1;
-static int hf_ain_nature_of_carrier = -1;
-static int hf_ain_nr_digits = -1;
-static int hf_ain_carrier_bcd_digits = -1;
-static int hf_ain_amaslpid = -1;
+static int hf_ain_ext_type_oid;
+static int hf_ain_odd_even_indicator;
+static int hf_ain_nature_of_address;
+static int hf_ain_numbering_plan;
+static int hf_ain_bcd_digits;
+static int hf_ain_carrier_selection;
+static int hf_ain_nature_of_carrier;
+static int hf_ain_nr_digits;
+static int hf_ain_carrier_bcd_digits;
+static int hf_ain_amaslpid;
 
 #include "packet-ain-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_ain = -1;
-static int ett_ain_digits = -1;
-static int ett_ain_carrierformat = -1;
-static int ett_ain_amaslpid = -1;
+static int ett_ain;
+static int ett_ain_digits;
+static int ett_ain_carrierformat;
+static int ett_ain_amaslpid;
 
 #include "packet-ain-ett.c"
 
-static expert_field ei_ain_unknown_invokeData = EI_INIT;
-static expert_field ei_ain_unknown_returnResultData = EI_INIT;
-static expert_field ei_ain_unknown_returnErrorData = EI_INIT;
+static expert_field ei_ain_unknown_invokeData;
+static expert_field ei_ain_unknown_returnResultData;
+static expert_field ei_ain_unknown_returnErrorData;
 
 /* Global variables */
 static guint32 opcode = 0;

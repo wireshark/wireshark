@@ -35,23 +35,23 @@ void proto_register_sabp(void);
 void proto_reg_handoff_sabp(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_sabp = -1;
+static int proto_sabp;
 
-static int hf_sabp_no_of_pages = -1;
-static int hf_sabp_cb_inf_len = -1;
-static int hf_sabp_cb_msg_inf_page = -1;
-static int hf_sabp_cbs_page_content = -1;
+static int hf_sabp_no_of_pages;
+static int hf_sabp_cb_inf_len;
+static int hf_sabp_cb_msg_inf_page;
+static int hf_sabp_cbs_page_content;
 #include "packet-sabp-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_sabp = -1;
-static int ett_sabp_e212 = -1;
-static int ett_sabp_cbs_data_coding = -1;
-static int ett_sabp_bcast_msg = -1;
-static int ett_sabp_cbs_serial_number = -1;
-static int ett_sabp_cbs_new_serial_number = -1;
-static int ett_sabp_cbs_page = -1;
-static int ett_sabp_cbs_page_content = -1;
+static int ett_sabp;
+static int ett_sabp_e212;
+static int ett_sabp_cbs_data_coding;
+static int ett_sabp_bcast_msg;
+static int ett_sabp_cbs_serial_number;
+static int ett_sabp_cbs_new_serial_number;
+static int ett_sabp_cbs_page;
+static int ett_sabp_cbs_page_content;
 
 #include "packet-sabp-ett.c"
 

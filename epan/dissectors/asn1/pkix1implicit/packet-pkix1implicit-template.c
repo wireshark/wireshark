@@ -26,7 +26,7 @@ void proto_register_pkix1implicit(void);
 void proto_reg_handoff_pkix1implicit(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_pkix1implicit = -1;
+static int proto_pkix1implicit;
 #include "packet-pkix1implicit-hf.c"
 
 /* Initialize the subtree pointers */

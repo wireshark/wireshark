@@ -36,13 +36,13 @@ void proto_register_rrlp(void);
 void proto_reg_handoff_rrlp(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_rrlp = -1;
+static int proto_rrlp;
 
 
 #include "packet-rrlp-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_rrlp = -1;
+static gint ett_rrlp;
 #include "packet-rrlp-ett.c"
 
 /* Include constants */

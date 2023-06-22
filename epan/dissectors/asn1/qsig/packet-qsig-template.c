@@ -273,17 +273,17 @@ static const value_string qsig_str_error[] = {
 };
 
 /* Initialize the protocol and registered fields */
-static int proto_qsig = -1;
-static int hf_qsig_operation = -1;
-static int hf_qsig_service = -1;
-static int hf_qsig_error = -1;
-static int hf_qsig_ie_type = -1;
-static int hf_qsig_ie_type_cs4 = -1;
-static int hf_qsig_ie_type_cs5 = -1;
-static int hf_qsig_ie_len = -1;
-static int hf_qsig_ie_data = -1;
-static int hf_qsig_tc = -1;
-static int hf_qsig_pc = -1;
+static int proto_qsig;
+static int hf_qsig_operation;
+static int hf_qsig_service;
+static int hf_qsig_error;
+static int hf_qsig_ie_type;
+static int hf_qsig_ie_type_cs4;
+static int hf_qsig_ie_type_cs5;
+static int hf_qsig_ie_len;
+static int hf_qsig_ie_data;
+static int hf_qsig_tc;
+static int hf_qsig_pc;
 #include "packet-qsig-hf.c"
 
 static int *hf_qsig_ie_type_arr[] = {
@@ -298,15 +298,15 @@ static int *hf_qsig_ie_type_arr[] = {
 };
 
 /* Initialize the subtree pointers */
-static gint ett_qsig = -1;
-static gint ett_qsig_ie = -1;
-static gint ett_qsig_unknown_extension = -1;
+static gint ett_qsig;
+static gint ett_qsig_ie;
+static gint ett_qsig_unknown_extension;
 #include "packet-qsig-ett.c"
-static gint ett_cnq_PSS1InformationElement = -1;
+static gint ett_cnq_PSS1InformationElement;
 
-/* static expert_field ei_qsig_unsupported_arg_type = EI_INIT; */
-static expert_field ei_qsig_unsupported_result_type = EI_INIT;
-static expert_field ei_qsig_unsupported_error_type = EI_INIT;
+/* static expert_field ei_qsig_unsupported_arg_type; */
+static expert_field ei_qsig_unsupported_result_type;
+static expert_field ei_qsig_unsupported_error_type;
 
 /* Preferences */
 

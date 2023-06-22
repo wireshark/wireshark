@@ -52,265 +52,265 @@ void proto_reg_handoff_kpm_v2(void);
 #define maxnoofNrCellBands             32
 
 /* Initialize the protocol and registered fields */
-static int proto_kpm_v2 = -1;
-static int hf_kpm_v2_E2SM_KPM_EventTriggerDefinition_PDU = -1;  /* E2SM_KPM_EventTriggerDefinition */
-static int hf_kpm_v2_E2SM_KPM_ActionDefinition_PDU = -1;  /* E2SM_KPM_ActionDefinition */
-static int hf_kpm_v2_E2SM_KPM_IndicationHeader_PDU = -1;  /* E2SM_KPM_IndicationHeader */
-static int hf_kpm_v2_E2SM_KPM_IndicationMessage_PDU = -1;  /* E2SM_KPM_IndicationMessage */
-static int hf_kpm_v2_E2SM_KPM_RANfunction_Description_PDU = -1;  /* E2SM_KPM_RANfunction_Description */
-static int hf_kpm_v2_measName = -1;               /* MeasurementTypeName */
-static int hf_kpm_v2_measID = -1;                 /* MeasurementTypeID */
-static int hf_kpm_v2_noLabel = -1;                /* T_noLabel */
-static int hf_kpm_v2_plmnID = -1;                 /* PLMNIdentity */
-static int hf_kpm_v2_sliceID = -1;                /* S_NSSAI */
-static int hf_kpm_v2_fiveQI = -1;                 /* FiveQI */
-static int hf_kpm_v2_qFI = -1;                    /* QosFlowIdentifier */
-static int hf_kpm_v2_qCI = -1;                    /* QCI */
-static int hf_kpm_v2_qCImax = -1;                 /* QCI */
-static int hf_kpm_v2_qCImin = -1;                 /* QCI */
-static int hf_kpm_v2_aRPmax = -1;                 /* INTEGER_1_15_ */
-static int hf_kpm_v2_aRPmin = -1;                 /* INTEGER_1_15_ */
-static int hf_kpm_v2_bitrateRange = -1;           /* INTEGER_1_65535_ */
-static int hf_kpm_v2_layerMU_MIMO = -1;           /* INTEGER_1_65535_ */
-static int hf_kpm_v2_sUM = -1;                    /* T_sUM */
-static int hf_kpm_v2_distBinX = -1;               /* INTEGER_1_65535_ */
-static int hf_kpm_v2_distBinY = -1;               /* INTEGER_1_65535_ */
-static int hf_kpm_v2_distBinZ = -1;               /* INTEGER_1_65535_ */
-static int hf_kpm_v2_preLabelOverride = -1;       /* T_preLabelOverride */
-static int hf_kpm_v2_startEndInd = -1;            /* T_startEndInd */
-static int hf_kpm_v2_min = -1;                    /* T_min */
-static int hf_kpm_v2_max = -1;                    /* T_max */
-static int hf_kpm_v2_avg = -1;                    /* T_avg */
-static int hf_kpm_v2_testType = -1;               /* TestCond_Type */
-static int hf_kpm_v2_testExpr = -1;               /* TestCond_Expression */
-static int hf_kpm_v2_testValue = -1;              /* TestCond_Value */
-static int hf_kpm_v2_gBR = -1;                    /* T_gBR */
-static int hf_kpm_v2_aMBR = -1;                   /* T_aMBR */
-static int hf_kpm_v2_isStat = -1;                 /* T_isStat */
-static int hf_kpm_v2_isCatM = -1;                 /* T_isCatM */
-static int hf_kpm_v2_rSRP = -1;                   /* T_rSRP */
-static int hf_kpm_v2_rSRQ = -1;                   /* T_rSRQ */
-static int hf_kpm_v2_ul_rSRP = -1;                /* T_ul_rSRP */
-static int hf_kpm_v2_cQI = -1;                    /* T_cQI */
-static int hf_kpm_v2_fiveQI_01 = -1;              /* T_fiveQI */
-static int hf_kpm_v2_qCI_01 = -1;                 /* T_qCI */
-static int hf_kpm_v2_sNSSAI = -1;                 /* T_sNSSAI */
-static int hf_kpm_v2_valueInt = -1;               /* INTEGER */
-static int hf_kpm_v2_valueEnum = -1;              /* INTEGER */
-static int hf_kpm_v2_valueBool = -1;              /* BOOLEAN */
-static int hf_kpm_v2_valueBitS = -1;              /* BIT_STRING */
-static int hf_kpm_v2_valueOctS = -1;              /* OCTET_STRING */
-static int hf_kpm_v2_valuePrtS = -1;              /* PrintableString */
-static int hf_kpm_v2_valueReal = -1;              /* REAL */
-static int hf_kpm_v2_MeasurementInfoList_item = -1;  /* MeasurementInfoItem */
-static int hf_kpm_v2_measType = -1;               /* MeasurementType */
-static int hf_kpm_v2_labelInfoList = -1;          /* LabelInfoList */
-static int hf_kpm_v2_LabelInfoList_item = -1;     /* LabelInfoItem */
-static int hf_kpm_v2_measLabel = -1;              /* MeasurementLabel */
-static int hf_kpm_v2_MeasurementData_item = -1;   /* MeasurementDataItem */
-static int hf_kpm_v2_measRecord = -1;             /* MeasurementRecord */
-static int hf_kpm_v2_incompleteFlag = -1;         /* T_incompleteFlag */
-static int hf_kpm_v2_MeasurementRecord_item = -1;  /* MeasurementRecordItem */
-static int hf_kpm_v2_integer = -1;                /* INTEGER_0_4294967295 */
-static int hf_kpm_v2_real = -1;                   /* REAL */
-static int hf_kpm_v2_noValue = -1;                /* NULL */
-static int hf_kpm_v2_MeasurementInfo_Action_List_item = -1;  /* MeasurementInfo_Action_Item */
-static int hf_kpm_v2_MeasurementCondList_item = -1;  /* MeasurementCondItem */
-static int hf_kpm_v2_matchingCond = -1;           /* MatchingCondList */
-static int hf_kpm_v2_MeasurementCondUEidList_item = -1;  /* MeasurementCondUEidItem */
-static int hf_kpm_v2_matchingUEidList = -1;       /* MatchingUEidList */
-static int hf_kpm_v2_MatchingCondList_item = -1;  /* MatchingCondItem */
-static int hf_kpm_v2_testCondInfo = -1;           /* TestCondInfo */
-static int hf_kpm_v2_MatchingUEidList_item = -1;  /* MatchingUEidItem */
-static int hf_kpm_v2_ueID = -1;                   /* UEID */
-static int hf_kpm_v2_MatchingUeCondPerSubList_item = -1;  /* MatchingUeCondPerSubItem */
-static int hf_kpm_v2_MatchingUEidPerSubList_item = -1;  /* MatchingUEidPerSubItem */
-static int hf_kpm_v2_UEMeasurementReportList_item = -1;  /* UEMeasurementReportItem */
-static int hf_kpm_v2_measReport = -1;             /* E2SM_KPM_IndicationMessage_Format1 */
-static int hf_kpm_v2_eventDefinition_formats = -1;  /* T_eventDefinition_formats */
-static int hf_kpm_v2_eventDefinition_Format1 = -1;  /* E2SM_KPM_EventTriggerDefinition_Format1 */
-static int hf_kpm_v2_reportingPeriod = -1;        /* INTEGER_1_4294967295 */
-static int hf_kpm_v2_ric_Style_Type = -1;         /* RIC_Style_Type */
-static int hf_kpm_v2_actionDefinition_formats = -1;  /* T_actionDefinition_formats */
-static int hf_kpm_v2_actionDefinition_Format1 = -1;  /* E2SM_KPM_ActionDefinition_Format1 */
-static int hf_kpm_v2_actionDefinition_Format2 = -1;  /* E2SM_KPM_ActionDefinition_Format2 */
-static int hf_kpm_v2_actionDefinition_Format3 = -1;  /* E2SM_KPM_ActionDefinition_Format3 */
-static int hf_kpm_v2_actionDefinition_Format4 = -1;  /* E2SM_KPM_ActionDefinition_Format4 */
-static int hf_kpm_v2_actionDefinition_Format5 = -1;  /* E2SM_KPM_ActionDefinition_Format5 */
-static int hf_kpm_v2_measInfoList = -1;           /* MeasurementInfoList */
-static int hf_kpm_v2_granulPeriod = -1;           /* GranularityPeriod */
-static int hf_kpm_v2_cellGlobalID = -1;           /* CGI */
-static int hf_kpm_v2_subscriptInfo = -1;          /* E2SM_KPM_ActionDefinition_Format1 */
-static int hf_kpm_v2_measCondList = -1;           /* MeasurementCondList */
-static int hf_kpm_v2_matchingUeCondList = -1;     /* MatchingUeCondPerSubList */
-static int hf_kpm_v2_subscriptionInfo = -1;       /* E2SM_KPM_ActionDefinition_Format1 */
-static int hf_kpm_v2_matchingUEidList_01 = -1;    /* MatchingUEidPerSubList */
-static int hf_kpm_v2_indicationHeader_formats = -1;  /* T_indicationHeader_formats */
-static int hf_kpm_v2_indicationHeader_Format1 = -1;  /* E2SM_KPM_IndicationHeader_Format1 */
-static int hf_kpm_v2_colletStartTime = -1;        /* T_colletStartTime */
-static int hf_kpm_v2_fileFormatversion = -1;      /* PrintableString_SIZE_0_15_ */
-static int hf_kpm_v2_senderName = -1;             /* PrintableString_SIZE_0_400_ */
-static int hf_kpm_v2_senderType = -1;             /* PrintableString_SIZE_0_8_ */
-static int hf_kpm_v2_vendorName = -1;             /* PrintableString_SIZE_0_32_ */
-static int hf_kpm_v2_indicationMessage_formats = -1;  /* T_indicationMessage_formats */
-static int hf_kpm_v2_indicationMessage_Format1 = -1;  /* E2SM_KPM_IndicationMessage_Format1 */
-static int hf_kpm_v2_indicationMessage_Format2 = -1;  /* E2SM_KPM_IndicationMessage_Format2 */
-static int hf_kpm_v2_indicationMessage_Format3 = -1;  /* E2SM_KPM_IndicationMessage_Format3 */
-static int hf_kpm_v2_measData = -1;               /* MeasurementData */
-static int hf_kpm_v2_measCondUEidList = -1;       /* MeasurementCondUEidList */
-static int hf_kpm_v2_ueMeasReportList = -1;       /* UEMeasurementReportList */
-static int hf_kpm_v2_ranFunction_Name = -1;       /* RANfunction_Name */
-static int hf_kpm_v2_ric_EventTriggerStyle_List = -1;  /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RIC_EventTriggerStyle_Item */
-static int hf_kpm_v2_ric_EventTriggerStyle_List_item = -1;  /* RIC_EventTriggerStyle_Item */
-static int hf_kpm_v2_ric_ReportStyle_List = -1;   /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RIC_ReportStyle_Item */
-static int hf_kpm_v2_ric_ReportStyle_List_item = -1;  /* RIC_ReportStyle_Item */
-static int hf_kpm_v2_ric_EventTriggerStyle_Type = -1;  /* RIC_Style_Type */
-static int hf_kpm_v2_ric_EventTriggerStyle_Name = -1;  /* RIC_Style_Name */
-static int hf_kpm_v2_ric_EventTriggerFormat_Type = -1;  /* RIC_Format_Type */
-static int hf_kpm_v2_ric_ReportStyle_Type = -1;   /* RIC_Style_Type */
-static int hf_kpm_v2_ric_ReportStyle_Name = -1;   /* RIC_Style_Name */
-static int hf_kpm_v2_ric_ActionFormat_Type = -1;  /* RIC_Format_Type */
-static int hf_kpm_v2_measInfo_Action_List = -1;   /* MeasurementInfo_Action_List */
-static int hf_kpm_v2_ric_IndicationHeaderFormat_Type = -1;  /* RIC_Format_Type */
-static int hf_kpm_v2_ric_IndicationMessageFormat_Type = -1;  /* RIC_Format_Type */
-static int hf_kpm_v2_nR_CGI = -1;                 /* NR_CGI */
-static int hf_kpm_v2_eUTRA_CGI = -1;              /* EUTRA_CGI */
-static int hf_kpm_v2_ranFunction_ShortName = -1;  /* T_ranFunction_ShortName */
-static int hf_kpm_v2_ranFunction_E2SM_OID = -1;   /* T_ranFunction_E2SM_OID */
-static int hf_kpm_v2_ranFunction_Description = -1;  /* PrintableString_SIZE_1_150_ */
-static int hf_kpm_v2_ranFunction_Instance = -1;   /* INTEGER */
-static int hf_kpm_v2_gNB_UEID = -1;               /* UEID_GNB */
-static int hf_kpm_v2_gNB_DU_UEID = -1;            /* UEID_GNB_DU */
-static int hf_kpm_v2_gNB_CU_UP_UEID = -1;         /* UEID_GNB_CU_UP */
-static int hf_kpm_v2_ng_eNB_UEID = -1;            /* UEID_NG_ENB */
-static int hf_kpm_v2_ng_eNB_DU_UEID = -1;         /* UEID_NG_ENB_DU */
-static int hf_kpm_v2_en_gNB_UEID = -1;            /* UEID_EN_GNB */
-static int hf_kpm_v2_eNB_UEID = -1;               /* UEID_ENB */
-static int hf_kpm_v2_amf_UE_NGAP_ID = -1;         /* AMF_UE_NGAP_ID */
-static int hf_kpm_v2_guami = -1;                  /* GUAMI */
-static int hf_kpm_v2_gNB_CU_UE_F1AP_ID_List = -1;  /* UEID_GNB_CU_F1AP_ID_List */
-static int hf_kpm_v2_gNB_CU_CP_UE_E1AP_ID_List = -1;  /* UEID_GNB_CU_CP_E1AP_ID_List */
-static int hf_kpm_v2_ran_UEID = -1;               /* RANUEID */
-static int hf_kpm_v2_m_NG_RAN_UE_XnAP_ID = -1;    /* NG_RANnodeUEXnAPID */
-static int hf_kpm_v2_globalGNB_ID = -1;           /* GlobalGNB_ID */
-static int hf_kpm_v2_globalNG_RANNode_ID = -1;    /* GlobalNGRANNodeID */
-static int hf_kpm_v2_UEID_GNB_CU_CP_E1AP_ID_List_item = -1;  /* UEID_GNB_CU_CP_E1AP_ID_Item */
-static int hf_kpm_v2_gNB_CU_CP_UE_E1AP_ID = -1;   /* GNB_CU_CP_UE_E1AP_ID */
-static int hf_kpm_v2_UEID_GNB_CU_F1AP_ID_List_item = -1;  /* UEID_GNB_CU_CP_F1AP_ID_Item */
-static int hf_kpm_v2_gNB_CU_UE_F1AP_ID = -1;      /* GNB_CU_UE_F1AP_ID */
-static int hf_kpm_v2_ng_eNB_CU_UE_W1AP_ID = -1;   /* NGENB_CU_UE_W1AP_ID */
-static int hf_kpm_v2_globalNgENB_ID = -1;         /* GlobalNgENB_ID */
-static int hf_kpm_v2_m_eNB_UE_X2AP_ID = -1;       /* ENB_UE_X2AP_ID */
-static int hf_kpm_v2_m_eNB_UE_X2AP_ID_Extension = -1;  /* ENB_UE_X2AP_ID_Extension */
-static int hf_kpm_v2_globalENB_ID = -1;           /* GlobalENB_ID */
-static int hf_kpm_v2_mME_UE_S1AP_ID = -1;         /* MME_UE_S1AP_ID */
-static int hf_kpm_v2_gUMMEI = -1;                 /* GUMMEI */
-static int hf_kpm_v2_macro_eNB_ID = -1;           /* BIT_STRING_SIZE_20 */
-static int hf_kpm_v2_home_eNB_ID = -1;            /* BIT_STRING_SIZE_28 */
-static int hf_kpm_v2_short_Macro_eNB_ID = -1;     /* BIT_STRING_SIZE_18 */
-static int hf_kpm_v2_long_Macro_eNB_ID = -1;      /* BIT_STRING_SIZE_21 */
-static int hf_kpm_v2_pLMNIdentity = -1;           /* PLMNIdentity */
-static int hf_kpm_v2_eNB_ID = -1;                 /* ENB_ID */
-static int hf_kpm_v2_pLMN_Identity = -1;          /* PLMNIdentity */
-static int hf_kpm_v2_mME_Group_ID = -1;           /* MME_Group_ID */
-static int hf_kpm_v2_mME_Code = -1;               /* MME_Code */
-static int hf_kpm_v2_eUTRACellIdentity = -1;      /* EUTRACellIdentity */
-static int hf_kpm_v2_gNB_ID = -1;                 /* GNB_ID */
-static int hf_kpm_v2_ngENB_ID = -1;               /* NgENB_ID */
-static int hf_kpm_v2_gNB_ID_01 = -1;              /* BIT_STRING_SIZE_22_32 */
-static int hf_kpm_v2_aMFRegionID = -1;            /* AMFRegionID */
-static int hf_kpm_v2_aMFSetID = -1;               /* AMFSetID */
-static int hf_kpm_v2_aMFPointer = -1;             /* AMFPointer */
-static int hf_kpm_v2_macroNgENB_ID = -1;          /* BIT_STRING_SIZE_20 */
-static int hf_kpm_v2_shortMacroNgENB_ID = -1;     /* BIT_STRING_SIZE_18 */
-static int hf_kpm_v2_longMacroNgENB_ID = -1;      /* BIT_STRING_SIZE_21 */
-static int hf_kpm_v2_nRCellIdentity = -1;         /* NRCellIdentity */
-static int hf_kpm_v2_sST = -1;                    /* SST */
-static int hf_kpm_v2_sD = -1;                     /* SD */
-static int hf_kpm_v2_gNB = -1;                    /* GlobalGNB_ID */
-static int hf_kpm_v2_ng_eNB = -1;                 /* GlobalNgENB_ID */
+static int proto_kpm_v2;
+static int hf_kpm_v2_E2SM_KPM_EventTriggerDefinition_PDU;  /* E2SM_KPM_EventTriggerDefinition */
+static int hf_kpm_v2_E2SM_KPM_ActionDefinition_PDU;  /* E2SM_KPM_ActionDefinition */
+static int hf_kpm_v2_E2SM_KPM_IndicationHeader_PDU;  /* E2SM_KPM_IndicationHeader */
+static int hf_kpm_v2_E2SM_KPM_IndicationMessage_PDU;  /* E2SM_KPM_IndicationMessage */
+static int hf_kpm_v2_E2SM_KPM_RANfunction_Description_PDU;  /* E2SM_KPM_RANfunction_Description */
+static int hf_kpm_v2_measName;                    /* MeasurementTypeName */
+static int hf_kpm_v2_measID;                      /* MeasurementTypeID */
+static int hf_kpm_v2_noLabel;                     /* T_noLabel */
+static int hf_kpm_v2_plmnID;                      /* PLMNIdentity */
+static int hf_kpm_v2_sliceID;                     /* S_NSSAI */
+static int hf_kpm_v2_fiveQI;                      /* FiveQI */
+static int hf_kpm_v2_qFI;                         /* QosFlowIdentifier */
+static int hf_kpm_v2_qCI;                         /* QCI */
+static int hf_kpm_v2_qCImax;                      /* QCI */
+static int hf_kpm_v2_qCImin;                      /* QCI */
+static int hf_kpm_v2_aRPmax;                      /* INTEGER_1_15_ */
+static int hf_kpm_v2_aRPmin;                      /* INTEGER_1_15_ */
+static int hf_kpm_v2_bitrateRange;                /* INTEGER_1_65535_ */
+static int hf_kpm_v2_layerMU_MIMO;                /* INTEGER_1_65535_ */
+static int hf_kpm_v2_sUM;                         /* T_sUM */
+static int hf_kpm_v2_distBinX;                    /* INTEGER_1_65535_ */
+static int hf_kpm_v2_distBinY;                    /* INTEGER_1_65535_ */
+static int hf_kpm_v2_distBinZ;                    /* INTEGER_1_65535_ */
+static int hf_kpm_v2_preLabelOverride;            /* T_preLabelOverride */
+static int hf_kpm_v2_startEndInd;                 /* T_startEndInd */
+static int hf_kpm_v2_min;                         /* T_min */
+static int hf_kpm_v2_max;                         /* T_max */
+static int hf_kpm_v2_avg;                         /* T_avg */
+static int hf_kpm_v2_testType;                    /* TestCond_Type */
+static int hf_kpm_v2_testExpr;                    /* TestCond_Expression */
+static int hf_kpm_v2_testValue;                   /* TestCond_Value */
+static int hf_kpm_v2_gBR;                         /* T_gBR */
+static int hf_kpm_v2_aMBR;                        /* T_aMBR */
+static int hf_kpm_v2_isStat;                      /* T_isStat */
+static int hf_kpm_v2_isCatM;                      /* T_isCatM */
+static int hf_kpm_v2_rSRP;                        /* T_rSRP */
+static int hf_kpm_v2_rSRQ;                        /* T_rSRQ */
+static int hf_kpm_v2_ul_rSRP;                     /* T_ul_rSRP */
+static int hf_kpm_v2_cQI;                         /* T_cQI */
+static int hf_kpm_v2_fiveQI_01;                   /* T_fiveQI */
+static int hf_kpm_v2_qCI_01;                      /* T_qCI */
+static int hf_kpm_v2_sNSSAI;                      /* T_sNSSAI */
+static int hf_kpm_v2_valueInt;                    /* INTEGER */
+static int hf_kpm_v2_valueEnum;                   /* INTEGER */
+static int hf_kpm_v2_valueBool;                   /* BOOLEAN */
+static int hf_kpm_v2_valueBitS;                   /* BIT_STRING */
+static int hf_kpm_v2_valueOctS;                   /* OCTET_STRING */
+static int hf_kpm_v2_valuePrtS;                   /* PrintableString */
+static int hf_kpm_v2_valueReal;                   /* REAL */
+static int hf_kpm_v2_MeasurementInfoList_item;    /* MeasurementInfoItem */
+static int hf_kpm_v2_measType;                    /* MeasurementType */
+static int hf_kpm_v2_labelInfoList;               /* LabelInfoList */
+static int hf_kpm_v2_LabelInfoList_item;          /* LabelInfoItem */
+static int hf_kpm_v2_measLabel;                   /* MeasurementLabel */
+static int hf_kpm_v2_MeasurementData_item;        /* MeasurementDataItem */
+static int hf_kpm_v2_measRecord;                  /* MeasurementRecord */
+static int hf_kpm_v2_incompleteFlag;              /* T_incompleteFlag */
+static int hf_kpm_v2_MeasurementRecord_item;      /* MeasurementRecordItem */
+static int hf_kpm_v2_integer;                     /* INTEGER_0_4294967295 */
+static int hf_kpm_v2_real;                        /* REAL */
+static int hf_kpm_v2_noValue;                     /* NULL */
+static int hf_kpm_v2_MeasurementInfo_Action_List_item;  /* MeasurementInfo_Action_Item */
+static int hf_kpm_v2_MeasurementCondList_item;    /* MeasurementCondItem */
+static int hf_kpm_v2_matchingCond;                /* MatchingCondList */
+static int hf_kpm_v2_MeasurementCondUEidList_item;  /* MeasurementCondUEidItem */
+static int hf_kpm_v2_matchingUEidList;            /* MatchingUEidList */
+static int hf_kpm_v2_MatchingCondList_item;       /* MatchingCondItem */
+static int hf_kpm_v2_testCondInfo;                /* TestCondInfo */
+static int hf_kpm_v2_MatchingUEidList_item;       /* MatchingUEidItem */
+static int hf_kpm_v2_ueID;                        /* UEID */
+static int hf_kpm_v2_MatchingUeCondPerSubList_item;  /* MatchingUeCondPerSubItem */
+static int hf_kpm_v2_MatchingUEidPerSubList_item;  /* MatchingUEidPerSubItem */
+static int hf_kpm_v2_UEMeasurementReportList_item;  /* UEMeasurementReportItem */
+static int hf_kpm_v2_measReport;                  /* E2SM_KPM_IndicationMessage_Format1 */
+static int hf_kpm_v2_eventDefinition_formats;     /* T_eventDefinition_formats */
+static int hf_kpm_v2_eventDefinition_Format1;     /* E2SM_KPM_EventTriggerDefinition_Format1 */
+static int hf_kpm_v2_reportingPeriod;             /* INTEGER_1_4294967295 */
+static int hf_kpm_v2_ric_Style_Type;              /* RIC_Style_Type */
+static int hf_kpm_v2_actionDefinition_formats;    /* T_actionDefinition_formats */
+static int hf_kpm_v2_actionDefinition_Format1;    /* E2SM_KPM_ActionDefinition_Format1 */
+static int hf_kpm_v2_actionDefinition_Format2;    /* E2SM_KPM_ActionDefinition_Format2 */
+static int hf_kpm_v2_actionDefinition_Format3;    /* E2SM_KPM_ActionDefinition_Format3 */
+static int hf_kpm_v2_actionDefinition_Format4;    /* E2SM_KPM_ActionDefinition_Format4 */
+static int hf_kpm_v2_actionDefinition_Format5;    /* E2SM_KPM_ActionDefinition_Format5 */
+static int hf_kpm_v2_measInfoList;                /* MeasurementInfoList */
+static int hf_kpm_v2_granulPeriod;                /* GranularityPeriod */
+static int hf_kpm_v2_cellGlobalID;                /* CGI */
+static int hf_kpm_v2_subscriptInfo;               /* E2SM_KPM_ActionDefinition_Format1 */
+static int hf_kpm_v2_measCondList;                /* MeasurementCondList */
+static int hf_kpm_v2_matchingUeCondList;          /* MatchingUeCondPerSubList */
+static int hf_kpm_v2_subscriptionInfo;            /* E2SM_KPM_ActionDefinition_Format1 */
+static int hf_kpm_v2_matchingUEidList_01;         /* MatchingUEidPerSubList */
+static int hf_kpm_v2_indicationHeader_formats;    /* T_indicationHeader_formats */
+static int hf_kpm_v2_indicationHeader_Format1;    /* E2SM_KPM_IndicationHeader_Format1 */
+static int hf_kpm_v2_colletStartTime;             /* T_colletStartTime */
+static int hf_kpm_v2_fileFormatversion;           /* PrintableString_SIZE_0_15_ */
+static int hf_kpm_v2_senderName;                  /* PrintableString_SIZE_0_400_ */
+static int hf_kpm_v2_senderType;                  /* PrintableString_SIZE_0_8_ */
+static int hf_kpm_v2_vendorName;                  /* PrintableString_SIZE_0_32_ */
+static int hf_kpm_v2_indicationMessage_formats;   /* T_indicationMessage_formats */
+static int hf_kpm_v2_indicationMessage_Format1;   /* E2SM_KPM_IndicationMessage_Format1 */
+static int hf_kpm_v2_indicationMessage_Format2;   /* E2SM_KPM_IndicationMessage_Format2 */
+static int hf_kpm_v2_indicationMessage_Format3;   /* E2SM_KPM_IndicationMessage_Format3 */
+static int hf_kpm_v2_measData;                    /* MeasurementData */
+static int hf_kpm_v2_measCondUEidList;            /* MeasurementCondUEidList */
+static int hf_kpm_v2_ueMeasReportList;            /* UEMeasurementReportList */
+static int hf_kpm_v2_ranFunction_Name;            /* RANfunction_Name */
+static int hf_kpm_v2_ric_EventTriggerStyle_List;  /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RIC_EventTriggerStyle_Item */
+static int hf_kpm_v2_ric_EventTriggerStyle_List_item;  /* RIC_EventTriggerStyle_Item */
+static int hf_kpm_v2_ric_ReportStyle_List;        /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RIC_ReportStyle_Item */
+static int hf_kpm_v2_ric_ReportStyle_List_item;   /* RIC_ReportStyle_Item */
+static int hf_kpm_v2_ric_EventTriggerStyle_Type;  /* RIC_Style_Type */
+static int hf_kpm_v2_ric_EventTriggerStyle_Name;  /* RIC_Style_Name */
+static int hf_kpm_v2_ric_EventTriggerFormat_Type;  /* RIC_Format_Type */
+static int hf_kpm_v2_ric_ReportStyle_Type;        /* RIC_Style_Type */
+static int hf_kpm_v2_ric_ReportStyle_Name;        /* RIC_Style_Name */
+static int hf_kpm_v2_ric_ActionFormat_Type;       /* RIC_Format_Type */
+static int hf_kpm_v2_measInfo_Action_List;        /* MeasurementInfo_Action_List */
+static int hf_kpm_v2_ric_IndicationHeaderFormat_Type;  /* RIC_Format_Type */
+static int hf_kpm_v2_ric_IndicationMessageFormat_Type;  /* RIC_Format_Type */
+static int hf_kpm_v2_nR_CGI;                      /* NR_CGI */
+static int hf_kpm_v2_eUTRA_CGI;                   /* EUTRA_CGI */
+static int hf_kpm_v2_ranFunction_ShortName;       /* T_ranFunction_ShortName */
+static int hf_kpm_v2_ranFunction_E2SM_OID;        /* T_ranFunction_E2SM_OID */
+static int hf_kpm_v2_ranFunction_Description;     /* PrintableString_SIZE_1_150_ */
+static int hf_kpm_v2_ranFunction_Instance;        /* INTEGER */
+static int hf_kpm_v2_gNB_UEID;                    /* UEID_GNB */
+static int hf_kpm_v2_gNB_DU_UEID;                 /* UEID_GNB_DU */
+static int hf_kpm_v2_gNB_CU_UP_UEID;              /* UEID_GNB_CU_UP */
+static int hf_kpm_v2_ng_eNB_UEID;                 /* UEID_NG_ENB */
+static int hf_kpm_v2_ng_eNB_DU_UEID;              /* UEID_NG_ENB_DU */
+static int hf_kpm_v2_en_gNB_UEID;                 /* UEID_EN_GNB */
+static int hf_kpm_v2_eNB_UEID;                    /* UEID_ENB */
+static int hf_kpm_v2_amf_UE_NGAP_ID;              /* AMF_UE_NGAP_ID */
+static int hf_kpm_v2_guami;                       /* GUAMI */
+static int hf_kpm_v2_gNB_CU_UE_F1AP_ID_List;      /* UEID_GNB_CU_F1AP_ID_List */
+static int hf_kpm_v2_gNB_CU_CP_UE_E1AP_ID_List;   /* UEID_GNB_CU_CP_E1AP_ID_List */
+static int hf_kpm_v2_ran_UEID;                    /* RANUEID */
+static int hf_kpm_v2_m_NG_RAN_UE_XnAP_ID;         /* NG_RANnodeUEXnAPID */
+static int hf_kpm_v2_globalGNB_ID;                /* GlobalGNB_ID */
+static int hf_kpm_v2_globalNG_RANNode_ID;         /* GlobalNGRANNodeID */
+static int hf_kpm_v2_UEID_GNB_CU_CP_E1AP_ID_List_item;  /* UEID_GNB_CU_CP_E1AP_ID_Item */
+static int hf_kpm_v2_gNB_CU_CP_UE_E1AP_ID;        /* GNB_CU_CP_UE_E1AP_ID */
+static int hf_kpm_v2_UEID_GNB_CU_F1AP_ID_List_item;  /* UEID_GNB_CU_CP_F1AP_ID_Item */
+static int hf_kpm_v2_gNB_CU_UE_F1AP_ID;           /* GNB_CU_UE_F1AP_ID */
+static int hf_kpm_v2_ng_eNB_CU_UE_W1AP_ID;        /* NGENB_CU_UE_W1AP_ID */
+static int hf_kpm_v2_globalNgENB_ID;              /* GlobalNgENB_ID */
+static int hf_kpm_v2_m_eNB_UE_X2AP_ID;            /* ENB_UE_X2AP_ID */
+static int hf_kpm_v2_m_eNB_UE_X2AP_ID_Extension;  /* ENB_UE_X2AP_ID_Extension */
+static int hf_kpm_v2_globalENB_ID;                /* GlobalENB_ID */
+static int hf_kpm_v2_mME_UE_S1AP_ID;              /* MME_UE_S1AP_ID */
+static int hf_kpm_v2_gUMMEI;                      /* GUMMEI */
+static int hf_kpm_v2_macro_eNB_ID;                /* BIT_STRING_SIZE_20 */
+static int hf_kpm_v2_home_eNB_ID;                 /* BIT_STRING_SIZE_28 */
+static int hf_kpm_v2_short_Macro_eNB_ID;          /* BIT_STRING_SIZE_18 */
+static int hf_kpm_v2_long_Macro_eNB_ID;           /* BIT_STRING_SIZE_21 */
+static int hf_kpm_v2_pLMNIdentity;                /* PLMNIdentity */
+static int hf_kpm_v2_eNB_ID;                      /* ENB_ID */
+static int hf_kpm_v2_pLMN_Identity;               /* PLMNIdentity */
+static int hf_kpm_v2_mME_Group_ID;                /* MME_Group_ID */
+static int hf_kpm_v2_mME_Code;                    /* MME_Code */
+static int hf_kpm_v2_eUTRACellIdentity;           /* EUTRACellIdentity */
+static int hf_kpm_v2_gNB_ID;                      /* GNB_ID */
+static int hf_kpm_v2_ngENB_ID;                    /* NgENB_ID */
+static int hf_kpm_v2_gNB_ID_01;                   /* BIT_STRING_SIZE_22_32 */
+static int hf_kpm_v2_aMFRegionID;                 /* AMFRegionID */
+static int hf_kpm_v2_aMFSetID;                    /* AMFSetID */
+static int hf_kpm_v2_aMFPointer;                  /* AMFPointer */
+static int hf_kpm_v2_macroNgENB_ID;               /* BIT_STRING_SIZE_20 */
+static int hf_kpm_v2_shortMacroNgENB_ID;          /* BIT_STRING_SIZE_18 */
+static int hf_kpm_v2_longMacroNgENB_ID;           /* BIT_STRING_SIZE_21 */
+static int hf_kpm_v2_nRCellIdentity;              /* NRCellIdentity */
+static int hf_kpm_v2_sST;                         /* SST */
+static int hf_kpm_v2_sD;                          /* SD */
+static int hf_kpm_v2_gNB;                         /* GlobalGNB_ID */
+static int hf_kpm_v2_ng_eNB;                      /* GlobalNgENB_ID */
 
-static int hf_kpm_v2_timestamp_string = -1;
+static int hf_kpm_v2_timestamp_string;
 
 
-static gint ett_kpm_v2_MeasurementType = -1;
-static gint ett_kpm_v2_MeasurementLabel = -1;
-static gint ett_kpm_v2_TestCondInfo = -1;
-static gint ett_kpm_v2_TestCond_Type = -1;
-static gint ett_kpm_v2_TestCond_Value = -1;
-static gint ett_kpm_v2_MeasurementInfoList = -1;
-static gint ett_kpm_v2_MeasurementInfoItem = -1;
-static gint ett_kpm_v2_LabelInfoList = -1;
-static gint ett_kpm_v2_LabelInfoItem = -1;
-static gint ett_kpm_v2_MeasurementData = -1;
-static gint ett_kpm_v2_MeasurementDataItem = -1;
-static gint ett_kpm_v2_MeasurementRecord = -1;
-static gint ett_kpm_v2_MeasurementRecordItem = -1;
-static gint ett_kpm_v2_MeasurementInfo_Action_List = -1;
-static gint ett_kpm_v2_MeasurementInfo_Action_Item = -1;
-static gint ett_kpm_v2_MeasurementCondList = -1;
-static gint ett_kpm_v2_MeasurementCondItem = -1;
-static gint ett_kpm_v2_MeasurementCondUEidList = -1;
-static gint ett_kpm_v2_MeasurementCondUEidItem = -1;
-static gint ett_kpm_v2_MatchingCondList = -1;
-static gint ett_kpm_v2_MatchingCondItem = -1;
-static gint ett_kpm_v2_MatchingUEidList = -1;
-static gint ett_kpm_v2_MatchingUEidItem = -1;
-static gint ett_kpm_v2_MatchingUeCondPerSubList = -1;
-static gint ett_kpm_v2_MatchingUeCondPerSubItem = -1;
-static gint ett_kpm_v2_MatchingUEidPerSubList = -1;
-static gint ett_kpm_v2_MatchingUEidPerSubItem = -1;
-static gint ett_kpm_v2_UEMeasurementReportList = -1;
-static gint ett_kpm_v2_UEMeasurementReportItem = -1;
-static gint ett_kpm_v2_E2SM_KPM_EventTriggerDefinition = -1;
-static gint ett_kpm_v2_T_eventDefinition_formats = -1;
-static gint ett_kpm_v2_E2SM_KPM_EventTriggerDefinition_Format1 = -1;
-static gint ett_kpm_v2_E2SM_KPM_ActionDefinition = -1;
-static gint ett_kpm_v2_T_actionDefinition_formats = -1;
-static gint ett_kpm_v2_E2SM_KPM_ActionDefinition_Format1 = -1;
-static gint ett_kpm_v2_E2SM_KPM_ActionDefinition_Format2 = -1;
-static gint ett_kpm_v2_E2SM_KPM_ActionDefinition_Format3 = -1;
-static gint ett_kpm_v2_E2SM_KPM_ActionDefinition_Format4 = -1;
-static gint ett_kpm_v2_E2SM_KPM_ActionDefinition_Format5 = -1;
-static gint ett_kpm_v2_E2SM_KPM_IndicationHeader = -1;
-static gint ett_kpm_v2_T_indicationHeader_formats = -1;
-static gint ett_kpm_v2_E2SM_KPM_IndicationHeader_Format1 = -1;
-static gint ett_kpm_v2_E2SM_KPM_IndicationMessage = -1;
-static gint ett_kpm_v2_T_indicationMessage_formats = -1;
-static gint ett_kpm_v2_E2SM_KPM_IndicationMessage_Format1 = -1;
-static gint ett_kpm_v2_E2SM_KPM_IndicationMessage_Format2 = -1;
-static gint ett_kpm_v2_E2SM_KPM_IndicationMessage_Format3 = -1;
-static gint ett_kpm_v2_E2SM_KPM_RANfunction_Description = -1;
-static gint ett_kpm_v2_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RIC_EventTriggerStyle_Item = -1;
-static gint ett_kpm_v2_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RIC_ReportStyle_Item = -1;
-static gint ett_kpm_v2_RIC_EventTriggerStyle_Item = -1;
-static gint ett_kpm_v2_RIC_ReportStyle_Item = -1;
-static gint ett_kpm_v2_CGI = -1;
-static gint ett_kpm_v2_RANfunction_Name = -1;
-static gint ett_kpm_v2_UEID = -1;
-static gint ett_kpm_v2_UEID_GNB = -1;
-static gint ett_kpm_v2_UEID_GNB_CU_CP_E1AP_ID_List = -1;
-static gint ett_kpm_v2_UEID_GNB_CU_CP_E1AP_ID_Item = -1;
-static gint ett_kpm_v2_UEID_GNB_CU_F1AP_ID_List = -1;
-static gint ett_kpm_v2_UEID_GNB_CU_CP_F1AP_ID_Item = -1;
-static gint ett_kpm_v2_UEID_GNB_DU = -1;
-static gint ett_kpm_v2_UEID_GNB_CU_UP = -1;
-static gint ett_kpm_v2_UEID_NG_ENB = -1;
-static gint ett_kpm_v2_UEID_NG_ENB_DU = -1;
-static gint ett_kpm_v2_UEID_EN_GNB = -1;
-static gint ett_kpm_v2_UEID_ENB = -1;
-static gint ett_kpm_v2_ENB_ID = -1;
-static gint ett_kpm_v2_GlobalENB_ID = -1;
-static gint ett_kpm_v2_GUMMEI = -1;
-static gint ett_kpm_v2_EUTRA_CGI = -1;
-static gint ett_kpm_v2_GlobalGNB_ID = -1;
-static gint ett_kpm_v2_GlobalNgENB_ID = -1;
-static gint ett_kpm_v2_GNB_ID = -1;
-static gint ett_kpm_v2_GUAMI = -1;
-static gint ett_kpm_v2_NgENB_ID = -1;
-static gint ett_kpm_v2_NR_CGI = -1;
-static gint ett_kpm_v2_S_NSSAI = -1;
-static gint ett_kpm_v2_GlobalNGRANNodeID = -1;
+static gint ett_kpm_v2_MeasurementType;
+static gint ett_kpm_v2_MeasurementLabel;
+static gint ett_kpm_v2_TestCondInfo;
+static gint ett_kpm_v2_TestCond_Type;
+static gint ett_kpm_v2_TestCond_Value;
+static gint ett_kpm_v2_MeasurementInfoList;
+static gint ett_kpm_v2_MeasurementInfoItem;
+static gint ett_kpm_v2_LabelInfoList;
+static gint ett_kpm_v2_LabelInfoItem;
+static gint ett_kpm_v2_MeasurementData;
+static gint ett_kpm_v2_MeasurementDataItem;
+static gint ett_kpm_v2_MeasurementRecord;
+static gint ett_kpm_v2_MeasurementRecordItem;
+static gint ett_kpm_v2_MeasurementInfo_Action_List;
+static gint ett_kpm_v2_MeasurementInfo_Action_Item;
+static gint ett_kpm_v2_MeasurementCondList;
+static gint ett_kpm_v2_MeasurementCondItem;
+static gint ett_kpm_v2_MeasurementCondUEidList;
+static gint ett_kpm_v2_MeasurementCondUEidItem;
+static gint ett_kpm_v2_MatchingCondList;
+static gint ett_kpm_v2_MatchingCondItem;
+static gint ett_kpm_v2_MatchingUEidList;
+static gint ett_kpm_v2_MatchingUEidItem;
+static gint ett_kpm_v2_MatchingUeCondPerSubList;
+static gint ett_kpm_v2_MatchingUeCondPerSubItem;
+static gint ett_kpm_v2_MatchingUEidPerSubList;
+static gint ett_kpm_v2_MatchingUEidPerSubItem;
+static gint ett_kpm_v2_UEMeasurementReportList;
+static gint ett_kpm_v2_UEMeasurementReportItem;
+static gint ett_kpm_v2_E2SM_KPM_EventTriggerDefinition;
+static gint ett_kpm_v2_T_eventDefinition_formats;
+static gint ett_kpm_v2_E2SM_KPM_EventTriggerDefinition_Format1;
+static gint ett_kpm_v2_E2SM_KPM_ActionDefinition;
+static gint ett_kpm_v2_T_actionDefinition_formats;
+static gint ett_kpm_v2_E2SM_KPM_ActionDefinition_Format1;
+static gint ett_kpm_v2_E2SM_KPM_ActionDefinition_Format2;
+static gint ett_kpm_v2_E2SM_KPM_ActionDefinition_Format3;
+static gint ett_kpm_v2_E2SM_KPM_ActionDefinition_Format4;
+static gint ett_kpm_v2_E2SM_KPM_ActionDefinition_Format5;
+static gint ett_kpm_v2_E2SM_KPM_IndicationHeader;
+static gint ett_kpm_v2_T_indicationHeader_formats;
+static gint ett_kpm_v2_E2SM_KPM_IndicationHeader_Format1;
+static gint ett_kpm_v2_E2SM_KPM_IndicationMessage;
+static gint ett_kpm_v2_T_indicationMessage_formats;
+static gint ett_kpm_v2_E2SM_KPM_IndicationMessage_Format1;
+static gint ett_kpm_v2_E2SM_KPM_IndicationMessage_Format2;
+static gint ett_kpm_v2_E2SM_KPM_IndicationMessage_Format3;
+static gint ett_kpm_v2_E2SM_KPM_RANfunction_Description;
+static gint ett_kpm_v2_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RIC_EventTriggerStyle_Item;
+static gint ett_kpm_v2_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RIC_ReportStyle_Item;
+static gint ett_kpm_v2_RIC_EventTriggerStyle_Item;
+static gint ett_kpm_v2_RIC_ReportStyle_Item;
+static gint ett_kpm_v2_CGI;
+static gint ett_kpm_v2_RANfunction_Name;
+static gint ett_kpm_v2_UEID;
+static gint ett_kpm_v2_UEID_GNB;
+static gint ett_kpm_v2_UEID_GNB_CU_CP_E1AP_ID_List;
+static gint ett_kpm_v2_UEID_GNB_CU_CP_E1AP_ID_Item;
+static gint ett_kpm_v2_UEID_GNB_CU_F1AP_ID_List;
+static gint ett_kpm_v2_UEID_GNB_CU_CP_F1AP_ID_Item;
+static gint ett_kpm_v2_UEID_GNB_DU;
+static gint ett_kpm_v2_UEID_GNB_CU_UP;
+static gint ett_kpm_v2_UEID_NG_ENB;
+static gint ett_kpm_v2_UEID_NG_ENB_DU;
+static gint ett_kpm_v2_UEID_EN_GNB;
+static gint ett_kpm_v2_UEID_ENB;
+static gint ett_kpm_v2_ENB_ID;
+static gint ett_kpm_v2_GlobalENB_ID;
+static gint ett_kpm_v2_GUMMEI;
+static gint ett_kpm_v2_EUTRA_CGI;
+static gint ett_kpm_v2_GlobalGNB_ID;
+static gint ett_kpm_v2_GlobalNgENB_ID;
+static gint ett_kpm_v2_GNB_ID;
+static gint ett_kpm_v2_GUAMI;
+static gint ett_kpm_v2_NgENB_ID;
+static gint ett_kpm_v2_NR_CGI;
+static gint ett_kpm_v2_S_NSSAI;
+static gint ett_kpm_v2_GlobalNGRANNodeID;
 
 
 /* Forward declarations */

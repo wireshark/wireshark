@@ -29,7 +29,7 @@ void proto_register_wlancertextn(void);
 void proto_reg_handoff_wlancertextn(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_wlancertextn = -1;
+static int proto_wlancertextn;
 #include "packet-wlancertextn-hf.c"
 
 /* Initialize the subtree pointers */

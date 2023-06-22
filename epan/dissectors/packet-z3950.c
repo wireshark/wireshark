@@ -110,7 +110,7 @@ void proto_reg_handoff_z3950(void);
 void proto_register_z3950(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_z3950 = -1;
+static int proto_z3950;
 static int global_z3950_port = Z3950_PORT;
 static gboolean z3950_desegment = TRUE;
 
@@ -656,1202 +656,1202 @@ static const value_string z3950_bib1_diagconditions[] = {
     { 0, NULL}
 };
 
-static int hf_z3950_OCLC_UserInformation_PDU = -1;  /* OCLC_UserInformation */
-static int hf_z3950_SutrsRecord_PDU = -1;         /* SutrsRecord */
-static int hf_z3950_OPACRecord_PDU = -1;          /* OPACRecord */
-static int hf_z3950_DiagnosticFormat_PDU = -1;    /* DiagnosticFormat */
-static int hf_z3950_Explain_Record_PDU = -1;      /* Explain_Record */
-static int hf_z3950_BriefBib_PDU = -1;            /* BriefBib */
-static int hf_z3950_GenericRecord_PDU = -1;       /* GenericRecord */
-static int hf_z3950_TaskPackage_PDU = -1;         /* TaskPackage */
-static int hf_z3950_PromptObject_PDU = -1;        /* PromptObject */
-static int hf_z3950_DES_RN_Object_PDU = -1;       /* DES_RN_Object */
-static int hf_z3950_KRBObject_PDU = -1;           /* KRBObject */
-static int hf_z3950_SearchInfoReport_PDU = -1;    /* SearchInfoReport */
-static int hf_z3950_initRequest = -1;             /* InitializeRequest */
-static int hf_z3950_initResponse = -1;            /* InitializeResponse */
-static int hf_z3950_searchRequest = -1;           /* SearchRequest */
-static int hf_z3950_searchResponse = -1;          /* SearchResponse */
-static int hf_z3950_presentRequest = -1;          /* PresentRequest */
-static int hf_z3950_presentResponse = -1;         /* PresentResponse */
-static int hf_z3950_deleteResultSetRequest = -1;  /* DeleteResultSetRequest */
-static int hf_z3950_deleteResultSetResponse = -1;  /* DeleteResultSetResponse */
-static int hf_z3950_accessControlRequest = -1;    /* AccessControlRequest */
-static int hf_z3950_accessControlResponse = -1;   /* AccessControlResponse */
-static int hf_z3950_resourceControlRequest = -1;  /* ResourceControlRequest */
-static int hf_z3950_resourceControlResponse = -1;  /* ResourceControlResponse */
-static int hf_z3950_triggerResourceControlRequest = -1;  /* TriggerResourceControlRequest */
-static int hf_z3950_resourceReportRequest = -1;   /* ResourceReportRequest */
-static int hf_z3950_resourceReportResponse = -1;  /* ResourceReportResponse */
-static int hf_z3950_scanRequest = -1;             /* ScanRequest */
-static int hf_z3950_scanResponse = -1;            /* ScanResponse */
-static int hf_z3950_sortRequest = -1;             /* SortRequest */
-static int hf_z3950_sortResponse = -1;            /* SortResponse */
-static int hf_z3950_segmentRequest = -1;          /* Segment */
-static int hf_z3950_extendedServicesRequest = -1;  /* ExtendedServicesRequest */
-static int hf_z3950_extendedServicesResponse = -1;  /* ExtendedServicesResponse */
-static int hf_z3950_close = -1;                   /* Close */
-static int hf_z3950_referenceId = -1;             /* ReferenceId */
-static int hf_z3950_protocolVersion = -1;         /* ProtocolVersion */
-static int hf_z3950_options = -1;                 /* Options */
-static int hf_z3950_preferredMessageSize = -1;    /* INTEGER */
-static int hf_z3950_exceptionalRecordSize = -1;   /* INTEGER */
-static int hf_z3950_idAuthentication = -1;        /* T_idAuthentication */
-static int hf_z3950_open = -1;                    /* VisibleString */
-static int hf_z3950_idPass = -1;                  /* T_idPass */
-static int hf_z3950_groupId = -1;                 /* InternationalString */
-static int hf_z3950_userId = -1;                  /* InternationalString */
-static int hf_z3950_password = -1;                /* InternationalString */
-static int hf_z3950_anonymous = -1;               /* NULL */
-static int hf_z3950_other = -1;                   /* EXTERNAL */
-static int hf_z3950_implementationId = -1;        /* InternationalString */
-static int hf_z3950_implementationName = -1;      /* InternationalString */
-static int hf_z3950_implementationVersion = -1;   /* InternationalString */
-static int hf_z3950_userInformationField = -1;    /* EXTERNAL */
-static int hf_z3950_otherInfo = -1;               /* OtherInformation */
-static int hf_z3950_result = -1;                  /* BOOLEAN */
-static int hf_z3950_smallSetUpperBound = -1;      /* INTEGER */
-static int hf_z3950_largeSetLowerBound = -1;      /* INTEGER */
-static int hf_z3950_mediumSetPresentNumber = -1;  /* INTEGER */
-static int hf_z3950_replaceIndicator = -1;        /* BOOLEAN */
-static int hf_z3950_resultSetName = -1;           /* InternationalString */
-static int hf_z3950_databaseNames = -1;           /* SEQUENCE_OF_DatabaseName */
-static int hf_z3950_databaseNames_item = -1;      /* DatabaseName */
-static int hf_z3950_smallSetElementSetNames = -1;  /* ElementSetNames */
-static int hf_z3950_mediumSetElementSetNames = -1;  /* ElementSetNames */
-static int hf_z3950_preferredRecordSyntax = -1;   /* OBJECT_IDENTIFIER */
-static int hf_z3950_query = -1;                   /* Query */
-static int hf_z3950_additionalSearchInfo = -1;    /* OtherInformation */
-static int hf_z3950_type_0 = -1;                  /* T_type_0 */
-static int hf_z3950_type_1 = -1;                  /* RPNQuery */
-static int hf_z3950_type_2 = -1;                  /* OCTET_STRING */
-static int hf_z3950_type_100 = -1;                /* OCTET_STRING */
-static int hf_z3950_type_101 = -1;                /* RPNQuery */
-static int hf_z3950_type_102 = -1;                /* OCTET_STRING */
-static int hf_z3950_attributeSet = -1;            /* AttributeSetId */
-static int hf_z3950_rpn = -1;                     /* RPNStructure */
-static int hf_z3950_operandRpnOp = -1;            /* Operand */
-static int hf_z3950_rpnRpnOp = -1;                /* T_rpnRpnOp */
-static int hf_z3950_rpn1 = -1;                    /* RPNStructure */
-static int hf_z3950_rpn2 = -1;                    /* RPNStructure */
-static int hf_z3950_operatorRpnOp = -1;           /* Operator */
-static int hf_z3950_attrTerm = -1;                /* AttributesPlusTerm */
-static int hf_z3950_resultSet = -1;               /* ResultSetId */
-static int hf_z3950_resultAttr = -1;              /* ResultSetPlusAttributes */
-static int hf_z3950_attributes = -1;              /* AttributeList */
-static int hf_z3950_term = -1;                    /* Term */
-static int hf_z3950_attributeList_item = -1;      /* AttributeElement */
-static int hf_z3950_general = -1;                 /* T_general */
-static int hf_z3950_numeric = -1;                 /* INTEGER */
-static int hf_z3950_characterString = -1;         /* InternationalString */
-static int hf_z3950_oid = -1;                     /* OBJECT_IDENTIFIER */
-static int hf_z3950_dateTime = -1;                /* GeneralizedTime */
-static int hf_z3950_external = -1;                /* EXTERNAL */
-static int hf_z3950_integerAndUnit = -1;          /* IntUnit */
-static int hf_z3950_null = -1;                    /* NULL */
-static int hf_z3950_and = -1;                     /* NULL */
-static int hf_z3950_or = -1;                      /* NULL */
-static int hf_z3950_and_not = -1;                 /* NULL */
-static int hf_z3950_prox = -1;                    /* ProximityOperator */
-static int hf_z3950_attributeElement_attributeType = -1;  /* T_attributeElement_attributeType */
-static int hf_z3950_attributeValue = -1;          /* T_attributeValue */
-static int hf_z3950_attributeValue_numeric = -1;  /* T_attributeValue_numeric */
-static int hf_z3950_attributeValue_complex = -1;  /* T_attributeValue_complex */
-static int hf_z3950_attributeValue_complex_list = -1;  /* SEQUENCE_OF_StringOrNumeric */
-static int hf_z3950_attributeValue_complex_list_item = -1;  /* StringOrNumeric */
-static int hf_z3950_semanticAction = -1;          /* T_semanticAction */
-static int hf_z3950_semanticAction_item = -1;     /* INTEGER */
-static int hf_z3950_exclusion = -1;               /* BOOLEAN */
-static int hf_z3950_distance = -1;                /* INTEGER */
-static int hf_z3950_ordered = -1;                 /* BOOLEAN */
-static int hf_z3950_relationType = -1;            /* T_relationType */
-static int hf_z3950_proximityUnitCode = -1;       /* T_proximityUnitCode */
-static int hf_z3950_known = -1;                   /* KnownProximityUnit */
-static int hf_z3950_private = -1;                 /* INTEGER */
-static int hf_z3950_resultCount = -1;             /* INTEGER */
-static int hf_z3950_numberOfRecordsReturned = -1;  /* INTEGER */
-static int hf_z3950_nextResultSetPosition = -1;   /* INTEGER */
-static int hf_z3950_searchStatus = -1;            /* BOOLEAN */
-static int hf_z3950_search_resultSetStatus = -1;  /* T_search_resultSetStatus */
-static int hf_z3950_presentStatus = -1;           /* PresentStatus */
-static int hf_z3950_records = -1;                 /* Records */
-static int hf_z3950_resultSetId = -1;             /* ResultSetId */
-static int hf_z3950_resultSetStartPoint = -1;     /* INTEGER */
-static int hf_z3950_numberOfRecordsRequested = -1;  /* INTEGER */
-static int hf_z3950_additionalRanges = -1;        /* SEQUENCE_OF_Range */
-static int hf_z3950_additionalRanges_item = -1;   /* Range */
-static int hf_z3950_recordComposition = -1;       /* T_recordComposition */
-static int hf_z3950_simple = -1;                  /* ElementSetNames */
-static int hf_z3950_recordComposition_complex = -1;  /* CompSpec */
-static int hf_z3950_maxSegmentCount = -1;         /* INTEGER */
-static int hf_z3950_maxRecordSize = -1;           /* INTEGER */
-static int hf_z3950_maxSegmentSize = -1;          /* INTEGER */
-static int hf_z3950_segmentRecords = -1;          /* SEQUENCE_OF_NamePlusRecord */
-static int hf_z3950_segmentRecords_item = -1;     /* NamePlusRecord */
-static int hf_z3950_responseRecords = -1;         /* SEQUENCE_OF_NamePlusRecord */
-static int hf_z3950_responseRecords_item = -1;    /* NamePlusRecord */
-static int hf_z3950_nonSurrogateDiagnostic = -1;  /* DefaultDiagFormat */
-static int hf_z3950_multipleNonSurDiagnostics = -1;  /* SEQUENCE_OF_DiagRec */
-static int hf_z3950_multipleNonSurDiagnostics_item = -1;  /* DiagRec */
-static int hf_z3950_namePlusRecord_name = -1;     /* DatabaseName */
-static int hf_z3950_record = -1;                  /* T_record */
-static int hf_z3950_retrievalRecord = -1;         /* EXTERNAL */
-static int hf_z3950_surrogateDiagnostic = -1;     /* DiagRec */
-static int hf_z3950_startingFragment = -1;        /* FragmentSyntax */
-static int hf_z3950_intermediateFragment = -1;    /* FragmentSyntax */
-static int hf_z3950_finalFragment = -1;           /* FragmentSyntax */
-static int hf_z3950_externallyTagged = -1;        /* EXTERNAL */
-static int hf_z3950_notExternallyTagged = -1;     /* OCTET_STRING */
-static int hf_z3950_defaultFormat = -1;           /* DefaultDiagFormat */
-static int hf_z3950_externallyDefined = -1;       /* EXTERNAL */
-static int hf_z3950_diagnosticSetId = -1;         /* T_diagnosticSetId */
-static int hf_z3950_condition = -1;               /* T_condition */
-static int hf_z3950_addinfo = -1;                 /* T_addinfo */
-static int hf_z3950_v2Addinfo = -1;               /* VisibleString */
-static int hf_z3950_v3Addinfo = -1;               /* InternationalString */
-static int hf_z3950_startingPosition = -1;        /* INTEGER */
-static int hf_z3950_numberOfRecords = -1;         /* INTEGER */
-static int hf_z3950_genericElementSetName = -1;   /* InternationalString */
-static int hf_z3950_databaseSpecific = -1;        /* T_databaseSpecific */
-static int hf_z3950_databaseSpecific_item = -1;   /* T_databaseSpecific_item */
-static int hf_z3950_dbName = -1;                  /* DatabaseName */
-static int hf_z3950_esn = -1;                     /* ElementSetName */
-static int hf_z3950_selectAlternativeSyntax = -1;  /* BOOLEAN */
-static int hf_z3950_compSpec_generic = -1;        /* Specification */
-static int hf_z3950_dbSpecific = -1;              /* T_dbSpecific */
-static int hf_z3950_dbSpecific_item = -1;         /* T_dbSpecific_item */
-static int hf_z3950_db = -1;                      /* DatabaseName */
-static int hf_z3950_spec = -1;                    /* Specification */
-static int hf_z3950_compSpec_recordSyntax = -1;   /* T_compSpec_recordSyntax */
-static int hf_z3950_compSpec_recordSyntax_item = -1;  /* OBJECT_IDENTIFIER */
-static int hf_z3950_schema = -1;                  /* OBJECT_IDENTIFIER */
-static int hf_z3950_specification_elementSpec = -1;  /* T_specification_elementSpec */
-static int hf_z3950_elementSetName = -1;          /* InternationalString */
-static int hf_z3950_externalEspec = -1;           /* EXTERNAL */
-static int hf_z3950_deleteFunction = -1;          /* T_deleteFunction */
-static int hf_z3950_resultSetList = -1;           /* SEQUENCE_OF_ResultSetId */
-static int hf_z3950_resultSetList_item = -1;      /* ResultSetId */
-static int hf_z3950_deleteOperationStatus = -1;   /* DeleteSetStatus */
-static int hf_z3950_deleteListStatuses = -1;      /* ListStatuses */
-static int hf_z3950_numberNotDeleted = -1;        /* INTEGER */
-static int hf_z3950_bulkStatuses = -1;            /* ListStatuses */
-static int hf_z3950_deleteMessage = -1;           /* InternationalString */
-static int hf_z3950_ListStatuses_item = -1;       /* ListStatuses_item */
-static int hf_z3950_listStatuses_id = -1;         /* ResultSetId */
-static int hf_z3950_status = -1;                  /* DeleteSetStatus */
-static int hf_z3950_securityChallenge = -1;       /* T_securityChallenge */
-static int hf_z3950_simpleForm = -1;              /* OCTET_STRING */
-static int hf_z3950_securityChallengeResponse = -1;  /* T_securityChallengeResponse */
-static int hf_z3950_diagnostic = -1;              /* DiagRec */
-static int hf_z3950_suspendedFlag = -1;           /* BOOLEAN */
-static int hf_z3950_resourceReport = -1;          /* ResourceReport */
-static int hf_z3950_partialResultsAvailable = -1;  /* T_partialResultsAvailable */
-static int hf_z3950_resourceControlRequest_responseRequired = -1;  /* BOOLEAN */
-static int hf_z3950_triggeredRequestFlag = -1;    /* BOOLEAN */
-static int hf_z3950_continueFlag = -1;            /* BOOLEAN */
-static int hf_z3950_resultSetWanted = -1;         /* BOOLEAN */
-static int hf_z3950_requestedAction = -1;         /* T_requestedAction */
-static int hf_z3950_prefResourceReportFormat = -1;  /* ResourceReportId */
-static int hf_z3950_opId = -1;                    /* ReferenceId */
-static int hf_z3950_resourceReportStatus = -1;    /* T_resourceReportStatus */
-static int hf_z3950_termListAndStartPoint = -1;   /* AttributesPlusTerm */
-static int hf_z3950_stepSize = -1;                /* INTEGER */
-static int hf_z3950_numberOfTermsRequested = -1;  /* INTEGER */
-static int hf_z3950_preferredPositionInResponse = -1;  /* INTEGER */
-static int hf_z3950_scanStatus = -1;              /* T_scanStatus */
-static int hf_z3950_numberOfEntriesReturned = -1;  /* INTEGER */
-static int hf_z3950_positionOfTerm = -1;          /* INTEGER */
-static int hf_z3950_scanResponse_entries = -1;    /* ListEntries */
-static int hf_z3950_listEntries_entries = -1;     /* SEQUENCE_OF_Entry */
-static int hf_z3950_listEntries_entries_item = -1;  /* Entry */
-static int hf_z3950_nonsurrogateDiagnostics = -1;  /* SEQUENCE_OF_DiagRec */
-static int hf_z3950_nonsurrogateDiagnostics_item = -1;  /* DiagRec */
-static int hf_z3950_termInfo = -1;                /* TermInfo */
-static int hf_z3950_displayTerm = -1;             /* InternationalString */
-static int hf_z3950_suggestedAttributes = -1;     /* AttributeList */
-static int hf_z3950_alternativeTerm = -1;         /* SEQUENCE_OF_AttributesPlusTerm */
-static int hf_z3950_alternativeTerm_item = -1;    /* AttributesPlusTerm */
-static int hf_z3950_globalOccurrences = -1;       /* INTEGER */
-static int hf_z3950_byAttributes = -1;            /* OccurrenceByAttributes */
-static int hf_z3950_otherTermInfo = -1;           /* OtherInformation */
-static int hf_z3950_OccurrenceByAttributes_item = -1;  /* OccurrenceByAttributes_item */
-static int hf_z3950_occurrences = -1;             /* T_occurrences */
-static int hf_z3950_global = -1;                  /* INTEGER */
-static int hf_z3950_byDatabase = -1;              /* T_byDatabase */
-static int hf_z3950_byDatabase_item = -1;         /* T_byDatabase_item */
-static int hf_z3950_num = -1;                     /* INTEGER */
-static int hf_z3950_otherDbInfo = -1;             /* OtherInformation */
-static int hf_z3950_otherOccurInfo = -1;          /* OtherInformation */
-static int hf_z3950_inputResultSetNames = -1;     /* SEQUENCE_OF_InternationalString */
-static int hf_z3950_inputResultSetNames_item = -1;  /* InternationalString */
-static int hf_z3950_sortedResultSetName = -1;     /* InternationalString */
-static int hf_z3950_sortSequence = -1;            /* SEQUENCE_OF_SortKeySpec */
-static int hf_z3950_sortSequence_item = -1;       /* SortKeySpec */
-static int hf_z3950_sortStatus = -1;              /* T_sortStatus */
-static int hf_z3950_sort_resultSetStatus = -1;    /* T_sort_resultSetStatus */
-static int hf_z3950_diagnostics = -1;             /* SEQUENCE_OF_DiagRec */
-static int hf_z3950_diagnostics_item = -1;        /* DiagRec */
-static int hf_z3950_sortElement = -1;             /* SortElement */
-static int hf_z3950_sortRelation = -1;            /* T_sortRelation */
-static int hf_z3950_caseSensitivity = -1;         /* T_caseSensitivity */
-static int hf_z3950_missingValueAction = -1;      /* T_missingValueAction */
-static int hf_z3950_abort = -1;                   /* NULL */
-static int hf_z3950_missingValueData = -1;        /* OCTET_STRING */
-static int hf_z3950_sortElement_generic = -1;     /* SortKey */
-static int hf_z3950_datbaseSpecific = -1;         /* T_datbaseSpecific */
-static int hf_z3950_datbaseSpecific_item = -1;    /* T_datbaseSpecific_item */
-static int hf_z3950_databaseName = -1;            /* DatabaseName */
-static int hf_z3950_dbSort = -1;                  /* SortKey */
-static int hf_z3950_sortfield = -1;               /* InternationalString */
-static int hf_z3950_sortKey_elementSpec = -1;     /* Specification */
-static int hf_z3950_sortAttributes = -1;          /* T_sortAttributes */
-static int hf_z3950_sortAttributes_id = -1;       /* AttributeSetId */
-static int hf_z3950_sortAttributes_list = -1;     /* AttributeList */
-static int hf_z3950_function = -1;                /* T_function */
-static int hf_z3950_packageType = -1;             /* OBJECT_IDENTIFIER */
-static int hf_z3950_packageName = -1;             /* InternationalString */
-static int hf_z3950_retentionTime = -1;           /* IntUnit */
-static int hf_z3950_permissions = -1;             /* Permissions */
-static int hf_z3950_extendedServicesRequest_description = -1;  /* InternationalString */
-static int hf_z3950_taskSpecificParameters = -1;  /* EXTERNAL */
-static int hf_z3950_waitAction = -1;              /* T_waitAction */
-static int hf_z3950_elements = -1;                /* ElementSetName */
-static int hf_z3950_operationStatus = -1;         /* T_operationStatus */
-static int hf_z3950_taskPackage = -1;             /* EXTERNAL */
-static int hf_z3950_Permissions_item = -1;        /* Permissions_item */
-static int hf_z3950_allowableFunctions = -1;      /* T_allowableFunctions */
-static int hf_z3950_allowableFunctions_item = -1;  /* T_allowableFunctions_item */
-static int hf_z3950_closeReason = -1;             /* CloseReason */
-static int hf_z3950_diagnosticInformation = -1;   /* InternationalString */
-static int hf_z3950_resourceReportFormat = -1;    /* ResourceReportId */
-static int hf_z3950_otherInformation_item = -1;   /* T__untag_item */
-static int hf_z3950_category = -1;                /* InfoCategory */
-static int hf_z3950_information = -1;             /* T_information */
-static int hf_z3950_characterInfo = -1;           /* InternationalString */
-static int hf_z3950_binaryInfo = -1;              /* OCTET_STRING */
-static int hf_z3950_externallyDefinedInfo = -1;   /* EXTERNAL */
-static int hf_z3950_categoryTypeId = -1;          /* OBJECT_IDENTIFIER */
-static int hf_z3950_categoryValue = -1;           /* INTEGER */
-static int hf_z3950_value = -1;                   /* INTEGER */
-static int hf_z3950_unitUsed = -1;                /* Unit */
-static int hf_z3950_unitSystem = -1;              /* InternationalString */
-static int hf_z3950_unitType = -1;                /* StringOrNumeric */
-static int hf_z3950_unit = -1;                    /* StringOrNumeric */
-static int hf_z3950_scaleFactor = -1;             /* INTEGER */
-static int hf_z3950_string = -1;                  /* InternationalString */
-static int hf_z3950_motd = -1;                    /* VisibleString */
-static int hf_z3950_dblist = -1;                  /* SEQUENCE_OF_DBName */
-static int hf_z3950_dblist_item = -1;             /* DBName */
-static int hf_z3950_failReason = -1;              /* BOOLEAN */
-static int hf_z3950_oCLC_UserInformation_text = -1;  /* VisibleString */
-static int hf_z3950_bibliographicRecord = -1;     /* EXTERNAL */
-static int hf_z3950_holdingsData = -1;            /* SEQUENCE_OF_HoldingsRecord */
-static int hf_z3950_holdingsData_item = -1;       /* HoldingsRecord */
-static int hf_z3950_marcHoldingsRecord = -1;      /* EXTERNAL */
-static int hf_z3950_holdingsAndCirc = -1;         /* HoldingsAndCircData */
-static int hf_z3950_typeOfRecord = -1;            /* InternationalString */
-static int hf_z3950_encodingLevel = -1;           /* InternationalString */
-static int hf_z3950_format = -1;                  /* InternationalString */
-static int hf_z3950_receiptAcqStatus = -1;        /* InternationalString */
-static int hf_z3950_generalRetention = -1;        /* InternationalString */
-static int hf_z3950_completeness = -1;            /* InternationalString */
-static int hf_z3950_dateOfReport = -1;            /* InternationalString */
-static int hf_z3950_nucCode = -1;                 /* InternationalString */
-static int hf_z3950_localLocation = -1;           /* InternationalString */
-static int hf_z3950_shelvingLocation = -1;        /* InternationalString */
-static int hf_z3950_callNumber = -1;              /* InternationalString */
-static int hf_z3950_shelvingData = -1;            /* InternationalString */
-static int hf_z3950_copyNumber = -1;              /* InternationalString */
-static int hf_z3950_publicNote = -1;              /* InternationalString */
-static int hf_z3950_reproductionNote = -1;        /* InternationalString */
-static int hf_z3950_termsUseRepro = -1;           /* InternationalString */
-static int hf_z3950_enumAndChron = -1;            /* InternationalString */
-static int hf_z3950_volumes = -1;                 /* SEQUENCE_OF_Volume */
-static int hf_z3950_volumes_item = -1;            /* Volume */
-static int hf_z3950_circulationData = -1;         /* SEQUENCE_OF_CircRecord */
-static int hf_z3950_circulationData_item = -1;    /* CircRecord */
-static int hf_z3950_enumeration = -1;             /* InternationalString */
-static int hf_z3950_chronology = -1;              /* InternationalString */
-static int hf_z3950_availableNow = -1;            /* BOOLEAN */
-static int hf_z3950_availablityDate = -1;         /* InternationalString */
-static int hf_z3950_availableThru = -1;           /* InternationalString */
-static int hf_z3950_circRecord_restrictions = -1;  /* InternationalString */
-static int hf_z3950_itemId = -1;                  /* InternationalString */
-static int hf_z3950_renewable = -1;               /* BOOLEAN */
-static int hf_z3950_onHold = -1;                  /* BOOLEAN */
-static int hf_z3950_midspine = -1;                /* InternationalString */
-static int hf_z3950_temporaryLocation = -1;       /* InternationalString */
-static int hf_z3950_DiagnosticFormat_item = -1;   /* DiagnosticFormat_item */
-static int hf_z3950_diagnosticFormat_item_diagnostic = -1;  /* T_diagnosticFormat_item_diagnostic */
-static int hf_z3950_defaultDiagRec = -1;          /* DefaultDiagFormat */
-static int hf_z3950_explicitDiagnostic = -1;      /* DiagFormat */
-static int hf_z3950_message = -1;                 /* InternationalString */
-static int hf_z3950_tooMany = -1;                 /* T_tooMany */
-static int hf_z3950_tooManyWhat = -1;             /* T_tooManyWhat */
-static int hf_z3950_max = -1;                     /* INTEGER */
-static int hf_z3950_badSpec = -1;                 /* T_badSpec */
-static int hf_z3950_goodOnes = -1;                /* SEQUENCE_OF_Specification */
-static int hf_z3950_goodOnes_item = -1;           /* Specification */
-static int hf_z3950_dbUnavail = -1;               /* T_dbUnavail */
-static int hf_z3950_why = -1;                     /* T_why */
-static int hf_z3950_reasonCode = -1;              /* T_reasonCode */
-static int hf_z3950_unSupOp = -1;                 /* T_unSupOp */
-static int hf_z3950_attribute = -1;               /* T_attribute */
-static int hf_z3950_id = -1;                      /* OBJECT_IDENTIFIER */
-static int hf_z3950_type = -1;                    /* INTEGER */
-static int hf_z3950_attCombo = -1;                /* T_attCombo */
-static int hf_z3950_unsupportedCombination = -1;  /* AttributeList */
-static int hf_z3950_recommendedAlternatives = -1;  /* SEQUENCE_OF_AttributeList */
-static int hf_z3950_recommendedAlternatives_item = -1;  /* AttributeList */
-static int hf_z3950_diagFormat_term = -1;         /* T_diagFormat_term */
-static int hf_z3950_problem = -1;                 /* T_problem */
-static int hf_z3950_diagFormat_proximity = -1;    /* T_diagFormat_proximity */
-static int hf_z3950_resultSets = -1;              /* NULL */
-static int hf_z3950_badSet = -1;                  /* InternationalString */
-static int hf_z3950_relation = -1;                /* INTEGER */
-static int hf_z3950_diagFormat_proximity_unit = -1;  /* INTEGER */
-static int hf_z3950_diagFormat_proximity_ordered = -1;  /* NULL */
-static int hf_z3950_diagFormat_proximity_exclusion = -1;  /* NULL */
-static int hf_z3950_scan = -1;                    /* T_scan */
-static int hf_z3950_nonZeroStepSize = -1;         /* NULL */
-static int hf_z3950_specifiedStepSize = -1;       /* NULL */
-static int hf_z3950_termList1 = -1;               /* NULL */
-static int hf_z3950_termList2 = -1;               /* SEQUENCE_OF_AttributeList */
-static int hf_z3950_termList2_item = -1;          /* AttributeList */
-static int hf_z3950_posInResponse = -1;           /* T_posInResponse */
-static int hf_z3950_resources = -1;               /* NULL */
-static int hf_z3950_endOfList = -1;               /* NULL */
-static int hf_z3950_sort = -1;                    /* T_sort */
-static int hf_z3950_sequence = -1;                /* NULL */
-static int hf_z3950_noRsName = -1;                /* NULL */
-static int hf_z3950_diagFormat_sort_tooMany = -1;  /* INTEGER */
-static int hf_z3950_incompatible = -1;            /* NULL */
-static int hf_z3950_generic = -1;                 /* NULL */
-static int hf_z3950_diagFormat_sort_dbSpecific = -1;  /* NULL */
-static int hf_z3950_key = -1;                     /* T_key */
-static int hf_z3950_action = -1;                  /* NULL */
-static int hf_z3950_illegal = -1;                 /* T_illegal */
-static int hf_z3950_inputTooLarge = -1;           /* SEQUENCE_OF_InternationalString */
-static int hf_z3950_inputTooLarge_item = -1;      /* InternationalString */
-static int hf_z3950_aggregateTooLarge = -1;       /* NULL */
-static int hf_z3950_segmentation = -1;            /* T_segmentation */
-static int hf_z3950_segmentCount = -1;            /* NULL */
-static int hf_z3950_segmentSize = -1;             /* INTEGER */
-static int hf_z3950_extServices = -1;             /* T_extServices */
-static int hf_z3950_req = -1;                     /* T_req */
-static int hf_z3950_permission = -1;              /* T_permission */
-static int hf_z3950_immediate = -1;               /* T_immediate */
-static int hf_z3950_accessCtrl = -1;              /* T_accessCtrl */
-static int hf_z3950_noUser = -1;                  /* NULL */
-static int hf_z3950_refused = -1;                 /* NULL */
-static int hf_z3950_diagFormat_accessCtrl_simple = -1;  /* NULL */
-static int hf_z3950_diagFormat_accessCtrl_oid = -1;  /* T_diagFormat_accessCtrl_oid */
-static int hf_z3950_diagFormat_accessCtrl_oid_item = -1;  /* OBJECT_IDENTIFIER */
-static int hf_z3950_alternative = -1;             /* T_alternative */
-static int hf_z3950_alternative_item = -1;        /* OBJECT_IDENTIFIER */
-static int hf_z3950_pwdInv = -1;                  /* NULL */
-static int hf_z3950_pwdExp = -1;                  /* NULL */
-static int hf_z3950_diagFormat_recordSyntax = -1;  /* T_diagFormat_recordSyntax */
-static int hf_z3950_unsupportedSyntax = -1;       /* OBJECT_IDENTIFIER */
-static int hf_z3950_suggestedAlternatives = -1;   /* T_suggestedAlternatives */
-static int hf_z3950_suggestedAlternatives_item = -1;  /* OBJECT_IDENTIFIER */
-static int hf_z3950_targetInfo = -1;              /* TargetInfo */
-static int hf_z3950_databaseInfo = -1;            /* DatabaseInfo */
-static int hf_z3950_schemaInfo = -1;              /* SchemaInfo */
-static int hf_z3950_tagSetInfo = -1;              /* TagSetInfo */
-static int hf_z3950_recordSyntaxInfo = -1;        /* RecordSyntaxInfo */
-static int hf_z3950_attributeSetInfo = -1;        /* AttributeSetInfo */
-static int hf_z3950_termListInfo = -1;            /* TermListInfo */
-static int hf_z3950_extendedServicesInfo = -1;    /* ExtendedServicesInfo */
-static int hf_z3950_attributeDetails = -1;        /* AttributeDetails */
-static int hf_z3950_termListDetails = -1;         /* TermListDetails */
-static int hf_z3950_elementSetDetails = -1;       /* ElementSetDetails */
-static int hf_z3950_retrievalRecordDetails = -1;  /* RetrievalRecordDetails */
-static int hf_z3950_sortDetails = -1;             /* SortDetails */
-static int hf_z3950_processing = -1;              /* ProcessingInformation */
-static int hf_z3950_variants = -1;                /* VariantSetInfo */
-static int hf_z3950_units = -1;                   /* UnitInfo */
-static int hf_z3950_categoryList = -1;            /* CategoryList */
-static int hf_z3950_commonInfo = -1;              /* CommonInfo */
-static int hf_z3950_name = -1;                    /* InternationalString */
-static int hf_z3950_recent_news = -1;             /* HumanString */
-static int hf_z3950_icon = -1;                    /* IconObject */
-static int hf_z3950_namedResultSets = -1;         /* BOOLEAN */
-static int hf_z3950_multipleDBsearch = -1;        /* BOOLEAN */
-static int hf_z3950_maxResultSets = -1;           /* INTEGER */
-static int hf_z3950_maxResultSize = -1;           /* INTEGER */
-static int hf_z3950_maxTerms = -1;                /* INTEGER */
-static int hf_z3950_timeoutInterval = -1;         /* IntUnit */
-static int hf_z3950_welcomeMessage = -1;          /* HumanString */
-static int hf_z3950_contactInfo = -1;             /* ContactInfo */
-static int hf_z3950_description = -1;             /* HumanString */
-static int hf_z3950_nicknames = -1;               /* SEQUENCE_OF_InternationalString */
-static int hf_z3950_nicknames_item = -1;          /* InternationalString */
-static int hf_z3950_usage_restrictions = -1;      /* HumanString */
-static int hf_z3950_paymentAddr = -1;             /* HumanString */
-static int hf_z3950_hours = -1;                   /* HumanString */
-static int hf_z3950_dbCombinations = -1;          /* SEQUENCE_OF_DatabaseList */
-static int hf_z3950_dbCombinations_item = -1;     /* DatabaseList */
-static int hf_z3950_addresses = -1;               /* SEQUENCE_OF_NetworkAddress */
-static int hf_z3950_addresses_item = -1;          /* NetworkAddress */
-static int hf_z3950_languages = -1;               /* SEQUENCE_OF_InternationalString */
-static int hf_z3950_languages_item = -1;          /* InternationalString */
-static int hf_z3950_commonAccessInfo = -1;        /* AccessInfo */
-static int hf_z3950_databaseInfo_name = -1;       /* DatabaseName */
-static int hf_z3950_explainDatabase = -1;         /* NULL */
-static int hf_z3950_databaseInfo_nicknames = -1;  /* SEQUENCE_OF_DatabaseName */
-static int hf_z3950_databaseInfo_nicknames_item = -1;  /* DatabaseName */
-static int hf_z3950_user_fee = -1;                /* BOOLEAN */
-static int hf_z3950_available = -1;               /* BOOLEAN */
-static int hf_z3950_titleString = -1;             /* HumanString */
-static int hf_z3950_keywords = -1;                /* SEQUENCE_OF_HumanString */
-static int hf_z3950_keywords_item = -1;           /* HumanString */
-static int hf_z3950_associatedDbs = -1;           /* DatabaseList */
-static int hf_z3950_subDbs = -1;                  /* DatabaseList */
-static int hf_z3950_disclaimers = -1;             /* HumanString */
-static int hf_z3950_news = -1;                    /* HumanString */
-static int hf_z3950_recordCount = -1;             /* T_recordCount */
-static int hf_z3950_actualNumber = -1;            /* INTEGER */
-static int hf_z3950_approxNumber = -1;            /* INTEGER */
-static int hf_z3950_defaultOrder = -1;            /* HumanString */
-static int hf_z3950_avRecordSize = -1;            /* INTEGER */
-static int hf_z3950_bestTime = -1;                /* HumanString */
-static int hf_z3950_lastUpdate = -1;              /* GeneralizedTime */
-static int hf_z3950_updateInterval = -1;          /* IntUnit */
-static int hf_z3950_coverage = -1;                /* HumanString */
-static int hf_z3950_proprietary = -1;             /* BOOLEAN */
-static int hf_z3950_copyrightText = -1;           /* HumanString */
-static int hf_z3950_copyrightNotice = -1;         /* HumanString */
-static int hf_z3950_producerContactInfo = -1;     /* ContactInfo */
-static int hf_z3950_supplierContactInfo = -1;     /* ContactInfo */
-static int hf_z3950_submissionContactInfo = -1;   /* ContactInfo */
-static int hf_z3950_accessInfo = -1;              /* AccessInfo */
-static int hf_z3950_tagTypeMapping = -1;          /* T_tagTypeMapping */
-static int hf_z3950_tagTypeMapping_item = -1;     /* T_tagTypeMapping_item */
-static int hf_z3950_tagType = -1;                 /* INTEGER */
-static int hf_z3950_tagSet = -1;                  /* OBJECT_IDENTIFIER */
-static int hf_z3950_defaultTagType = -1;          /* NULL */
-static int hf_z3950_recordStructure = -1;         /* SEQUENCE_OF_ElementInfo */
-static int hf_z3950_recordStructure_item = -1;    /* ElementInfo */
-static int hf_z3950_elementName = -1;             /* InternationalString */
-static int hf_z3950_elementTagPath = -1;          /* Path */
-static int hf_z3950_elementInfo_dataType = -1;    /* ElementDataType */
-static int hf_z3950_required = -1;                /* BOOLEAN */
-static int hf_z3950_repeatable = -1;              /* BOOLEAN */
-static int hf_z3950_Path_item = -1;               /* Path_item */
-static int hf_z3950_tagValue = -1;                /* StringOrNumeric */
-static int hf_z3950_primitive = -1;               /* PrimitiveDataType */
-static int hf_z3950_structured = -1;              /* SEQUENCE_OF_ElementInfo */
-static int hf_z3950_structured_item = -1;         /* ElementInfo */
-static int hf_z3950_tagSetInfo_elements = -1;     /* T_tagSetInfo_elements */
-static int hf_z3950_tagSetInfo_elements_item = -1;  /* T_tagSetInfo_elements_item */
-static int hf_z3950_elementname = -1;             /* InternationalString */
-static int hf_z3950_elementTag = -1;              /* StringOrNumeric */
-static int hf_z3950_dataType = -1;                /* PrimitiveDataType */
-static int hf_z3950_otherTagInfo = -1;            /* OtherInformation */
-static int hf_z3950_recordSyntax = -1;            /* OBJECT_IDENTIFIER */
-static int hf_z3950_transferSyntaxes = -1;        /* T_transferSyntaxes */
-static int hf_z3950_transferSyntaxes_item = -1;   /* OBJECT_IDENTIFIER */
-static int hf_z3950_asn1Module = -1;              /* InternationalString */
-static int hf_z3950_abstractStructure = -1;       /* SEQUENCE_OF_ElementInfo */
-static int hf_z3950_abstractStructure_item = -1;  /* ElementInfo */
-static int hf_z3950_attributeSetInfo_attributes = -1;  /* SEQUENCE_OF_AttributeType */
-static int hf_z3950_attributeSetInfo_attributes_item = -1;  /* AttributeType */
-static int hf_z3950_attributeType = -1;           /* INTEGER */
-static int hf_z3950_attributeValues = -1;         /* SEQUENCE_OF_AttributeDescription */
-static int hf_z3950_attributeValues_item = -1;    /* AttributeDescription */
-static int hf_z3950_attributeDescription_attributeValue = -1;  /* StringOrNumeric */
-static int hf_z3950_equivalentAttributes = -1;    /* SEQUENCE_OF_StringOrNumeric */
-static int hf_z3950_equivalentAttributes_item = -1;  /* StringOrNumeric */
-static int hf_z3950_termLists = -1;               /* T_termLists */
-static int hf_z3950_termLists_item = -1;          /* T_termLists_item */
-static int hf_z3950_title = -1;                   /* HumanString */
-static int hf_z3950_searchCost = -1;              /* T_searchCost */
-static int hf_z3950_scanable = -1;                /* BOOLEAN */
-static int hf_z3950_broader = -1;                 /* SEQUENCE_OF_InternationalString */
-static int hf_z3950_broader_item = -1;            /* InternationalString */
-static int hf_z3950_narrower = -1;                /* SEQUENCE_OF_InternationalString */
-static int hf_z3950_narrower_item = -1;           /* InternationalString */
-static int hf_z3950_extendedServicesInfo_type = -1;  /* OBJECT_IDENTIFIER */
-static int hf_z3950_privateType = -1;             /* BOOLEAN */
-static int hf_z3950_restrictionsApply = -1;       /* BOOLEAN */
-static int hf_z3950_feeApply = -1;                /* BOOLEAN */
-static int hf_z3950_retentionSupported = -1;      /* BOOLEAN */
-static int hf_z3950_extendedServicesInfo_waitAction = -1;  /* T_extendedServicesInfo_waitAction */
-static int hf_z3950_specificExplain = -1;         /* EXTERNAL */
-static int hf_z3950_esASN = -1;                   /* InternationalString */
-static int hf_z3950_attributesBySet = -1;         /* SEQUENCE_OF_AttributeSetDetails */
-static int hf_z3950_attributesBySet_item = -1;    /* AttributeSetDetails */
-static int hf_z3950_attributeCombinations = -1;   /* AttributeCombinations */
-static int hf_z3950_attributesByType = -1;        /* SEQUENCE_OF_AttributeTypeDetails */
-static int hf_z3950_attributesByType_item = -1;   /* AttributeTypeDetails */
-static int hf_z3950_defaultIfOmitted = -1;        /* OmittedAttributeInterpretation */
-static int hf_z3950_attributeTypeDetails_attributeValues = -1;  /* SEQUENCE_OF_AttributeValue */
-static int hf_z3950_attributeTypeDetails_attributeValues_item = -1;  /* AttributeValue */
-static int hf_z3950_defaultValue = -1;            /* StringOrNumeric */
-static int hf_z3950_defaultDescription = -1;      /* HumanString */
-static int hf_z3950_attributeValue_value = -1;    /* StringOrNumeric */
-static int hf_z3950_subAttributes = -1;           /* SEQUENCE_OF_StringOrNumeric */
-static int hf_z3950_subAttributes_item = -1;      /* StringOrNumeric */
-static int hf_z3950_superAttributes = -1;         /* SEQUENCE_OF_StringOrNumeric */
-static int hf_z3950_superAttributes_item = -1;    /* StringOrNumeric */
-static int hf_z3950_partialSupport = -1;          /* NULL */
-static int hf_z3950_termListName = -1;            /* InternationalString */
-static int hf_z3950_termListDetails_attributes = -1;  /* AttributeCombinations */
-static int hf_z3950_scanInfo = -1;                /* T_scanInfo */
-static int hf_z3950_maxStepSize = -1;             /* INTEGER */
-static int hf_z3950_collatingSequence = -1;       /* HumanString */
-static int hf_z3950_increasing = -1;              /* BOOLEAN */
-static int hf_z3950_estNumberTerms = -1;          /* INTEGER */
-static int hf_z3950_sampleTerms = -1;             /* SEQUENCE_OF_Term */
-static int hf_z3950_sampleTerms_item = -1;        /* Term */
-static int hf_z3950_elementSetDetails_elementSetName = -1;  /* ElementSetName */
-static int hf_z3950_detailsPerElement = -1;       /* SEQUENCE_OF_PerElementDetails */
-static int hf_z3950_detailsPerElement_item = -1;  /* PerElementDetails */
-static int hf_z3950_recordTag = -1;               /* RecordTag */
-static int hf_z3950_schemaTags = -1;              /* SEQUENCE_OF_Path */
-static int hf_z3950_schemaTags_item = -1;         /* Path */
-static int hf_z3950_maxSize = -1;                 /* INTEGER */
-static int hf_z3950_minSize = -1;                 /* INTEGER */
-static int hf_z3950_avgSize = -1;                 /* INTEGER */
-static int hf_z3950_fixedSize = -1;               /* INTEGER */
-static int hf_z3950_contents = -1;                /* HumanString */
-static int hf_z3950_billingInfo = -1;             /* HumanString */
-static int hf_z3950_restrictions = -1;            /* HumanString */
-static int hf_z3950_alternateNames = -1;          /* SEQUENCE_OF_InternationalString */
-static int hf_z3950_alternateNames_item = -1;     /* InternationalString */
-static int hf_z3950_genericNames = -1;            /* SEQUENCE_OF_InternationalString */
-static int hf_z3950_genericNames_item = -1;       /* InternationalString */
-static int hf_z3950_searchAccess = -1;            /* AttributeCombinations */
-static int hf_z3950_qualifier = -1;               /* StringOrNumeric */
-static int hf_z3950_sortKeys = -1;                /* SEQUENCE_OF_SortKeyDetails */
-static int hf_z3950_sortKeys_item = -1;           /* SortKeyDetails */
-static int hf_z3950_elementSpecifications = -1;   /* SEQUENCE_OF_Specification */
-static int hf_z3950_elementSpecifications_item = -1;  /* Specification */
-static int hf_z3950_attributeSpecifications = -1;  /* AttributeCombinations */
-static int hf_z3950_sortType = -1;                /* T_sortType */
-static int hf_z3950_character = -1;               /* NULL */
-static int hf_z3950_sortKeyDetails_sortType_numeric = -1;  /* NULL */
-static int hf_z3950_sortKeyDetails_sortType_structured = -1;  /* HumanString */
-static int hf_z3950_sortKeyDetails_caseSensitivity = -1;  /* T_sortKeyDetails_caseSensitivity */
-static int hf_z3950_processingContext = -1;       /* T_processingContext */
-static int hf_z3950_instructions = -1;            /* EXTERNAL */
-static int hf_z3950_variantSet = -1;              /* OBJECT_IDENTIFIER */
-static int hf_z3950_variantSetInfo_variants = -1;  /* SEQUENCE_OF_VariantClass */
-static int hf_z3950_variantSetInfo_variants_item = -1;  /* VariantClass */
-static int hf_z3950_variantClass = -1;            /* INTEGER */
-static int hf_z3950_variantTypes = -1;            /* SEQUENCE_OF_VariantType */
-static int hf_z3950_variantTypes_item = -1;       /* VariantType */
-static int hf_z3950_variantType = -1;             /* INTEGER */
-static int hf_z3950_variantValue = -1;            /* VariantValue */
-static int hf_z3950_values = -1;                  /* ValueSet */
-static int hf_z3950_range = -1;                   /* ValueRange */
-static int hf_z3950_enumerated = -1;              /* SEQUENCE_OF_ValueDescription */
-static int hf_z3950_enumerated_item = -1;         /* ValueDescription */
-static int hf_z3950_lower = -1;                   /* ValueDescription */
-static int hf_z3950_upper = -1;                   /* ValueDescription */
-static int hf_z3950_integer = -1;                 /* INTEGER */
-static int hf_z3950_octets = -1;                  /* OCTET_STRING */
-static int hf_z3950_valueDescription_unit = -1;   /* Unit */
-static int hf_z3950_valueAndUnit = -1;            /* IntUnit */
-static int hf_z3950_unitInfo_units = -1;          /* SEQUENCE_OF_UnitType */
-static int hf_z3950_unitInfo_units_item = -1;     /* UnitType */
-static int hf_z3950_unitType_units = -1;          /* SEQUENCE_OF_Units */
-static int hf_z3950_unitType_units_item = -1;     /* Units */
-static int hf_z3950_categories = -1;              /* SEQUENCE_OF_CategoryInfo */
-static int hf_z3950_categories_item = -1;         /* CategoryInfo */
-static int hf_z3950_categoryInfo_category = -1;   /* InternationalString */
-static int hf_z3950_originalCategory = -1;        /* InternationalString */
-static int hf_z3950_dateAdded = -1;               /* GeneralizedTime */
-static int hf_z3950_dateChanged = -1;             /* GeneralizedTime */
-static int hf_z3950_expiry = -1;                  /* GeneralizedTime */
-static int hf_z3950_humanString_Language = -1;    /* LanguageCode */
-static int hf_z3950_HumanString_item = -1;        /* HumanString_item */
-static int hf_z3950_language = -1;                /* LanguageCode */
-static int hf_z3950_text = -1;                    /* InternationalString */
-static int hf_z3950_IconObject_item = -1;         /* IconObject_item */
-static int hf_z3950_bodyType = -1;                /* T_bodyType */
-static int hf_z3950_ianaType = -1;                /* InternationalString */
-static int hf_z3950_z3950type = -1;               /* InternationalString */
-static int hf_z3950_otherType = -1;               /* InternationalString */
-static int hf_z3950_content = -1;                 /* OCTET_STRING */
-static int hf_z3950_address = -1;                 /* HumanString */
-static int hf_z3950_email = -1;                   /* InternationalString */
-static int hf_z3950_phone = -1;                   /* InternationalString */
-static int hf_z3950_internetAddress = -1;         /* T_internetAddress */
-static int hf_z3950_hostAddress = -1;             /* InternationalString */
-static int hf_z3950_port = -1;                    /* INTEGER */
-static int hf_z3950_osiPresentationAddress = -1;  /* T_osiPresentationAddress */
-static int hf_z3950_pSel = -1;                    /* InternationalString */
-static int hf_z3950_sSel = -1;                    /* InternationalString */
-static int hf_z3950_tSel = -1;                    /* InternationalString */
-static int hf_z3950_nSap = -1;                    /* InternationalString */
-static int hf_z3950_networkAddress_other = -1;    /* T_networkAddress_other */
-static int hf_z3950_networkAddress_other_type = -1;  /* InternationalString */
-static int hf_z3950_networkAddress_other_address = -1;  /* InternationalString */
-static int hf_z3950_queryTypesSupported = -1;     /* SEQUENCE_OF_QueryTypeDetails */
-static int hf_z3950_queryTypesSupported_item = -1;  /* QueryTypeDetails */
-static int hf_z3950_diagnosticsSets = -1;         /* T_diagnosticsSets */
-static int hf_z3950_diagnosticsSets_item = -1;    /* OBJECT_IDENTIFIER */
-static int hf_z3950_attributeSetIds = -1;         /* SEQUENCE_OF_AttributeSetId */
-static int hf_z3950_attributeSetIds_item = -1;    /* AttributeSetId */
-static int hf_z3950_schemas = -1;                 /* T_schemas */
-static int hf_z3950_schemas_item = -1;            /* OBJECT_IDENTIFIER */
-static int hf_z3950_recordSyntaxes = -1;          /* T_recordSyntaxes */
-static int hf_z3950_recordSyntaxes_item = -1;     /* OBJECT_IDENTIFIER */
-static int hf_z3950_resourceChallenges = -1;      /* T_resourceChallenges */
-static int hf_z3950_resourceChallenges_item = -1;  /* OBJECT_IDENTIFIER */
-static int hf_z3950_restrictedAccess = -1;        /* AccessRestrictions */
-static int hf_z3950_costInfo = -1;                /* Costs */
-static int hf_z3950_variantSets = -1;             /* T_variantSets */
-static int hf_z3950_variantSets_item = -1;        /* OBJECT_IDENTIFIER */
-static int hf_z3950_elementSetNames = -1;         /* SEQUENCE_OF_ElementSetName */
-static int hf_z3950_elementSetNames_item = -1;    /* ElementSetName */
-static int hf_z3950_unitSystems = -1;             /* SEQUENCE_OF_InternationalString */
-static int hf_z3950_unitSystems_item = -1;        /* InternationalString */
-static int hf_z3950_queryTypeDetails_private = -1;  /* PrivateCapabilities */
-static int hf_z3950_queryTypeDetails_rpn = -1;    /* RpnCapabilities */
-static int hf_z3950_iso8777 = -1;                 /* Iso8777Capabilities */
-static int hf_z3950_z39_58 = -1;                  /* HumanString */
-static int hf_z3950_erpn = -1;                    /* RpnCapabilities */
-static int hf_z3950_rankedList = -1;              /* HumanString */
-static int hf_z3950_privateCapabilities_operators = -1;  /* T_privateCapabilities_operators */
-static int hf_z3950_privateCapabilities_operators_item = -1;  /* T_privateCapabilities_operators_item */
-static int hf_z3950_operator = -1;                /* InternationalString */
-static int hf_z3950_searchKeys = -1;              /* SEQUENCE_OF_SearchKey */
-static int hf_z3950_searchKeys_item = -1;         /* SearchKey */
-static int hf_z3950_privateCapabilities_description = -1;  /* SEQUENCE_OF_HumanString */
-static int hf_z3950_privateCapabilities_description_item = -1;  /* HumanString */
-static int hf_z3950_operators = -1;               /* T_operators */
-static int hf_z3950_operators_item = -1;          /* INTEGER */
-static int hf_z3950_resultSetAsOperandSupported = -1;  /* BOOLEAN */
-static int hf_z3950_restrictionOperandSupported = -1;  /* BOOLEAN */
-static int hf_z3950_proximity = -1;               /* ProximitySupport */
-static int hf_z3950_anySupport = -1;              /* BOOLEAN */
-static int hf_z3950_unitsSupported = -1;          /* T_unitsSupported */
-static int hf_z3950_unitsSupported_item = -1;     /* T_unitsSupported_item */
-static int hf_z3950_proximitySupport_unitsSupported_item_known = -1;  /* INTEGER */
-static int hf_z3950_proximitySupport_unitsSupported_item_private = -1;  /* T_proximitySupport_unitsSupported_item_private */
-static int hf_z3950_proximitySupport_unitsSupported_item_private_unit = -1;  /* INTEGER */
-static int hf_z3950_searchKey = -1;               /* InternationalString */
-static int hf_z3950_AccessRestrictions_item = -1;  /* AccessRestrictions_item */
-static int hf_z3950_accessType = -1;              /* T_accessType */
-static int hf_z3950_accessText = -1;              /* HumanString */
-static int hf_z3950_accessChallenges = -1;        /* T_accessChallenges */
-static int hf_z3950_accessChallenges_item = -1;   /* OBJECT_IDENTIFIER */
-static int hf_z3950_connectCharge = -1;           /* Charge */
-static int hf_z3950_connectTime = -1;             /* Charge */
-static int hf_z3950_displayCharge = -1;           /* Charge */
-static int hf_z3950_searchCharge = -1;            /* Charge */
-static int hf_z3950_subscriptCharge = -1;         /* Charge */
-static int hf_z3950_otherCharges = -1;            /* T_otherCharges */
-static int hf_z3950_otherCharges_item = -1;       /* T_otherCharges_item */
-static int hf_z3950_forWhat = -1;                 /* HumanString */
-static int hf_z3950_charge = -1;                  /* Charge */
-static int hf_z3950_cost = -1;                    /* IntUnit */
-static int hf_z3950_perWhat = -1;                 /* Unit */
-static int hf_z3950_charge_text = -1;             /* HumanString */
-static int hf_z3950_DatabaseList_item = -1;       /* DatabaseName */
-static int hf_z3950_defaultAttributeSet = -1;     /* AttributeSetId */
-static int hf_z3950_legalCombinations = -1;       /* SEQUENCE_OF_AttributeCombination */
-static int hf_z3950_legalCombinations_item = -1;  /* AttributeCombination */
-static int hf_z3950_AttributeCombination_item = -1;  /* AttributeOccurrence */
-static int hf_z3950_mustBeSupplied = -1;          /* NULL */
-static int hf_z3950_attributeOccurrence_attributeValues = -1;  /* T_attributeOccurrence_attributeValues */
-static int hf_z3950_any_or_none = -1;             /* NULL */
-static int hf_z3950_specific = -1;                /* SEQUENCE_OF_StringOrNumeric */
-static int hf_z3950_specific_item = -1;           /* StringOrNumeric */
-static int hf_z3950_briefBib_title = -1;          /* InternationalString */
-static int hf_z3950_author = -1;                  /* InternationalString */
-static int hf_z3950_recordType = -1;              /* InternationalString */
-static int hf_z3950_bibliographicLevel = -1;      /* InternationalString */
-static int hf_z3950_briefBib_format = -1;         /* SEQUENCE_OF_FormatSpec */
-static int hf_z3950_briefBib_format_item = -1;    /* FormatSpec */
-static int hf_z3950_publicationPlace = -1;        /* InternationalString */
-static int hf_z3950_publicationDate = -1;         /* InternationalString */
-static int hf_z3950_targetSystemKey = -1;         /* InternationalString */
-static int hf_z3950_satisfyingElement = -1;       /* InternationalString */
-static int hf_z3950_rank = -1;                    /* INTEGER */
-static int hf_z3950_documentId = -1;              /* InternationalString */
-static int hf_z3950_abstract = -1;                /* InternationalString */
-static int hf_z3950_formatSpec_type = -1;         /* InternationalString */
-static int hf_z3950_size = -1;                    /* INTEGER */
-static int hf_z3950_bestPosn = -1;                /* INTEGER */
-static int hf_z3950_GenericRecord_item = -1;      /* TaggedElement */
-static int hf_z3950_tagOccurrence = -1;           /* INTEGER */
-static int hf_z3950_taggedElement_content = -1;   /* ElementData */
-static int hf_z3950_metaData = -1;                /* ElementMetaData */
-static int hf_z3950_appliedVariant = -1;          /* Variant */
-static int hf_z3950_date = -1;                    /* GeneralizedTime */
-static int hf_z3950_ext = -1;                     /* EXTERNAL */
-static int hf_z3950_trueOrFalse = -1;             /* BOOLEAN */
-static int hf_z3950_intUnit = -1;                 /* IntUnit */
-static int hf_z3950_elementNotThere = -1;         /* NULL */
-static int hf_z3950_elementEmpty = -1;            /* NULL */
-static int hf_z3950_noDataRequested = -1;         /* NULL */
-static int hf_z3950_elementData_diagnostic = -1;  /* EXTERNAL */
-static int hf_z3950_subtree = -1;                 /* SEQUENCE_OF_TaggedElement */
-static int hf_z3950_subtree_item = -1;            /* TaggedElement */
-static int hf_z3950_seriesOrder = -1;             /* Order */
-static int hf_z3950_usageRight = -1;              /* Usage */
-static int hf_z3950_hits = -1;                    /* SEQUENCE_OF_HitVector */
-static int hf_z3950_hits_item = -1;               /* HitVector */
-static int hf_z3950_displayName = -1;             /* InternationalString */
-static int hf_z3950_supportedVariants = -1;       /* SEQUENCE_OF_Variant */
-static int hf_z3950_supportedVariants_item = -1;  /* Variant */
-static int hf_z3950_elementDescriptor = -1;       /* OCTET_STRING */
-static int hf_z3950_surrogateFor = -1;            /* TagPath */
-static int hf_z3950_surrogateElement = -1;        /* TagPath */
-static int hf_z3950_TagPath_item = -1;            /* TagPath_item */
-static int hf_z3950_ascending = -1;               /* BOOLEAN */
-static int hf_z3950_order = -1;                   /* INTEGER */
-static int hf_z3950_usage_type = -1;              /* T_usage_type */
-static int hf_z3950_restriction = -1;             /* InternationalString */
-static int hf_z3950_satisfier = -1;               /* Term */
-static int hf_z3950_offsetIntoElement = -1;       /* IntUnit */
-static int hf_z3950_length = -1;                  /* IntUnit */
-static int hf_z3950_hitRank = -1;                 /* INTEGER */
-static int hf_z3950_targetToken = -1;             /* OCTET_STRING */
-static int hf_z3950_globalVariantSetId = -1;      /* OBJECT_IDENTIFIER */
-static int hf_z3950_triples = -1;                 /* T_triples */
-static int hf_z3950_triples_item = -1;            /* T_triples_item */
-static int hf_z3950_variantSetId = -1;            /* OBJECT_IDENTIFIER */
-static int hf_z3950_class = -1;                   /* INTEGER */
-static int hf_z3950_variant_triples_item_value = -1;  /* T_variant_triples_item_value */
-static int hf_z3950_octetString = -1;             /* OCTET_STRING */
-static int hf_z3950_boolean = -1;                 /* BOOLEAN */
-static int hf_z3950_variant_triples_item_value_unit = -1;  /* Unit */
-static int hf_z3950_taskPackage_description = -1;  /* InternationalString */
-static int hf_z3950_targetReference = -1;         /* OCTET_STRING */
-static int hf_z3950_creationDateTime = -1;        /* GeneralizedTime */
-static int hf_z3950_taskStatus = -1;              /* T_taskStatus */
-static int hf_z3950_packageDiagnostics = -1;      /* SEQUENCE_OF_DiagRec */
-static int hf_z3950_packageDiagnostics_item = -1;  /* DiagRec */
-static int hf_z3950_challenge = -1;               /* Challenge */
-static int hf_z3950_response = -1;                /* Response */
-static int hf_z3950_Challenge_item = -1;          /* Challenge_item */
-static int hf_z3950_promptId = -1;                /* PromptId */
-static int hf_z3950_defaultResponse = -1;         /* InternationalString */
-static int hf_z3950_promptInfo = -1;              /* T_promptInfo */
-static int hf_z3950_challenge_item_promptInfo_character = -1;  /* InternationalString */
-static int hf_z3950_encrypted = -1;               /* Encryption */
-static int hf_z3950_regExpr = -1;                 /* InternationalString */
-static int hf_z3950_responseRequired = -1;        /* NULL */
-static int hf_z3950_allowedValues = -1;           /* SEQUENCE_OF_InternationalString */
-static int hf_z3950_allowedValues_item = -1;      /* InternationalString */
-static int hf_z3950_shouldSave = -1;              /* NULL */
-static int hf_z3950_challenge_item_dataType = -1;  /* T_challenge_item_dataType */
-static int hf_z3950_challenge_item_diagnostic = -1;  /* EXTERNAL */
-static int hf_z3950_Response_item = -1;           /* Response_item */
-static int hf_z3950_promptResponse = -1;          /* T_promptResponse */
-static int hf_z3950_accept = -1;                  /* BOOLEAN */
-static int hf_z3950_acknowledge = -1;             /* NULL */
-static int hf_z3950_enummeratedPrompt = -1;       /* T_enummeratedPrompt */
-static int hf_z3950_promptId_enummeratedPrompt_type = -1;  /* T_promptId_enummeratedPrompt_type */
-static int hf_z3950_suggestedString = -1;         /* InternationalString */
-static int hf_z3950_nonEnumeratedPrompt = -1;     /* InternationalString */
-static int hf_z3950_cryptType = -1;               /* OCTET_STRING */
-static int hf_z3950_credential = -1;              /* OCTET_STRING */
-static int hf_z3950_data = -1;                    /* OCTET_STRING */
-static int hf_z3950_dES_RN_Object_challenge = -1;  /* DRNType */
-static int hf_z3950_rES_RN_Object_response = -1;  /* DRNType */
-static int hf_z3950_dRNType_userId = -1;          /* OCTET_STRING */
-static int hf_z3950_salt = -1;                    /* OCTET_STRING */
-static int hf_z3950_randomNumber = -1;            /* OCTET_STRING */
-static int hf_z3950_kRBObject_challenge = -1;     /* KRBRequest */
-static int hf_z3950_kRBObject_response = -1;      /* KRBResponse */
-static int hf_z3950_service = -1;                 /* InternationalString */
-static int hf_z3950_instance = -1;                /* InternationalString */
-static int hf_z3950_realm = -1;                   /* InternationalString */
-static int hf_z3950_userid = -1;                  /* InternationalString */
-static int hf_z3950_ticket = -1;                  /* OCTET_STRING */
-static int hf_z3950_SearchInfoReport_item = -1;   /* SearchInfoReport_item */
-static int hf_z3950_subqueryId = -1;              /* InternationalString */
-static int hf_z3950_fullQuery = -1;               /* BOOLEAN */
-static int hf_z3950_subqueryExpression = -1;      /* QueryExpression */
-static int hf_z3950_subqueryInterpretation = -1;  /* QueryExpression */
-static int hf_z3950_subqueryRecommendation = -1;  /* QueryExpression */
-static int hf_z3950_subqueryCount = -1;           /* INTEGER */
-static int hf_z3950_subqueryWeight = -1;          /* IntUnit */
-static int hf_z3950_resultsByDB = -1;             /* ResultsByDB */
-static int hf_z3950_ResultsByDB_item = -1;        /* ResultsByDB_item */
-static int hf_z3950_databases = -1;               /* T_databases */
-static int hf_z3950_all = -1;                     /* NULL */
-static int hf_z3950_list = -1;                    /* SEQUENCE_OF_DatabaseName */
-static int hf_z3950_list_item = -1;               /* DatabaseName */
-static int hf_z3950_count = -1;                   /* INTEGER */
-static int hf_z3950_queryExpression_term = -1;    /* T_queryExpression_term */
-static int hf_z3950_queryTerm = -1;               /* Term */
-static int hf_z3950_termComment = -1;             /* InternationalString */
+static int hf_z3950_OCLC_UserInformation_PDU;     /* OCLC_UserInformation */
+static int hf_z3950_SutrsRecord_PDU;              /* SutrsRecord */
+static int hf_z3950_OPACRecord_PDU;               /* OPACRecord */
+static int hf_z3950_DiagnosticFormat_PDU;         /* DiagnosticFormat */
+static int hf_z3950_Explain_Record_PDU;           /* Explain_Record */
+static int hf_z3950_BriefBib_PDU;                 /* BriefBib */
+static int hf_z3950_GenericRecord_PDU;            /* GenericRecord */
+static int hf_z3950_TaskPackage_PDU;              /* TaskPackage */
+static int hf_z3950_PromptObject_PDU;             /* PromptObject */
+static int hf_z3950_DES_RN_Object_PDU;            /* DES_RN_Object */
+static int hf_z3950_KRBObject_PDU;                /* KRBObject */
+static int hf_z3950_SearchInfoReport_PDU;         /* SearchInfoReport */
+static int hf_z3950_initRequest;                  /* InitializeRequest */
+static int hf_z3950_initResponse;                 /* InitializeResponse */
+static int hf_z3950_searchRequest;                /* SearchRequest */
+static int hf_z3950_searchResponse;               /* SearchResponse */
+static int hf_z3950_presentRequest;               /* PresentRequest */
+static int hf_z3950_presentResponse;              /* PresentResponse */
+static int hf_z3950_deleteResultSetRequest;       /* DeleteResultSetRequest */
+static int hf_z3950_deleteResultSetResponse;      /* DeleteResultSetResponse */
+static int hf_z3950_accessControlRequest;         /* AccessControlRequest */
+static int hf_z3950_accessControlResponse;        /* AccessControlResponse */
+static int hf_z3950_resourceControlRequest;       /* ResourceControlRequest */
+static int hf_z3950_resourceControlResponse;      /* ResourceControlResponse */
+static int hf_z3950_triggerResourceControlRequest;  /* TriggerResourceControlRequest */
+static int hf_z3950_resourceReportRequest;        /* ResourceReportRequest */
+static int hf_z3950_resourceReportResponse;       /* ResourceReportResponse */
+static int hf_z3950_scanRequest;                  /* ScanRequest */
+static int hf_z3950_scanResponse;                 /* ScanResponse */
+static int hf_z3950_sortRequest;                  /* SortRequest */
+static int hf_z3950_sortResponse;                 /* SortResponse */
+static int hf_z3950_segmentRequest;               /* Segment */
+static int hf_z3950_extendedServicesRequest;      /* ExtendedServicesRequest */
+static int hf_z3950_extendedServicesResponse;     /* ExtendedServicesResponse */
+static int hf_z3950_close;                        /* Close */
+static int hf_z3950_referenceId;                  /* ReferenceId */
+static int hf_z3950_protocolVersion;              /* ProtocolVersion */
+static int hf_z3950_options;                      /* Options */
+static int hf_z3950_preferredMessageSize;         /* INTEGER */
+static int hf_z3950_exceptionalRecordSize;        /* INTEGER */
+static int hf_z3950_idAuthentication;             /* T_idAuthentication */
+static int hf_z3950_open;                         /* VisibleString */
+static int hf_z3950_idPass;                       /* T_idPass */
+static int hf_z3950_groupId;                      /* InternationalString */
+static int hf_z3950_userId;                       /* InternationalString */
+static int hf_z3950_password;                     /* InternationalString */
+static int hf_z3950_anonymous;                    /* NULL */
+static int hf_z3950_other;                        /* EXTERNAL */
+static int hf_z3950_implementationId;             /* InternationalString */
+static int hf_z3950_implementationName;           /* InternationalString */
+static int hf_z3950_implementationVersion;        /* InternationalString */
+static int hf_z3950_userInformationField;         /* EXTERNAL */
+static int hf_z3950_otherInfo;                    /* OtherInformation */
+static int hf_z3950_result;                       /* BOOLEAN */
+static int hf_z3950_smallSetUpperBound;           /* INTEGER */
+static int hf_z3950_largeSetLowerBound;           /* INTEGER */
+static int hf_z3950_mediumSetPresentNumber;       /* INTEGER */
+static int hf_z3950_replaceIndicator;             /* BOOLEAN */
+static int hf_z3950_resultSetName;                /* InternationalString */
+static int hf_z3950_databaseNames;                /* SEQUENCE_OF_DatabaseName */
+static int hf_z3950_databaseNames_item;           /* DatabaseName */
+static int hf_z3950_smallSetElementSetNames;      /* ElementSetNames */
+static int hf_z3950_mediumSetElementSetNames;     /* ElementSetNames */
+static int hf_z3950_preferredRecordSyntax;        /* OBJECT_IDENTIFIER */
+static int hf_z3950_query;                        /* Query */
+static int hf_z3950_additionalSearchInfo;         /* OtherInformation */
+static int hf_z3950_type_0;                       /* T_type_0 */
+static int hf_z3950_type_1;                       /* RPNQuery */
+static int hf_z3950_type_2;                       /* OCTET_STRING */
+static int hf_z3950_type_100;                     /* OCTET_STRING */
+static int hf_z3950_type_101;                     /* RPNQuery */
+static int hf_z3950_type_102;                     /* OCTET_STRING */
+static int hf_z3950_attributeSet;                 /* AttributeSetId */
+static int hf_z3950_rpn;                          /* RPNStructure */
+static int hf_z3950_operandRpnOp;                 /* Operand */
+static int hf_z3950_rpnRpnOp;                     /* T_rpnRpnOp */
+static int hf_z3950_rpn1;                         /* RPNStructure */
+static int hf_z3950_rpn2;                         /* RPNStructure */
+static int hf_z3950_operatorRpnOp;                /* Operator */
+static int hf_z3950_attrTerm;                     /* AttributesPlusTerm */
+static int hf_z3950_resultSet;                    /* ResultSetId */
+static int hf_z3950_resultAttr;                   /* ResultSetPlusAttributes */
+static int hf_z3950_attributes;                   /* AttributeList */
+static int hf_z3950_term;                         /* Term */
+static int hf_z3950_attributeList_item;           /* AttributeElement */
+static int hf_z3950_general;                      /* T_general */
+static int hf_z3950_numeric;                      /* INTEGER */
+static int hf_z3950_characterString;              /* InternationalString */
+static int hf_z3950_oid;                          /* OBJECT_IDENTIFIER */
+static int hf_z3950_dateTime;                     /* GeneralizedTime */
+static int hf_z3950_external;                     /* EXTERNAL */
+static int hf_z3950_integerAndUnit;               /* IntUnit */
+static int hf_z3950_null;                         /* NULL */
+static int hf_z3950_and;                          /* NULL */
+static int hf_z3950_or;                           /* NULL */
+static int hf_z3950_and_not;                      /* NULL */
+static int hf_z3950_prox;                         /* ProximityOperator */
+static int hf_z3950_attributeElement_attributeType;  /* T_attributeElement_attributeType */
+static int hf_z3950_attributeValue;               /* T_attributeValue */
+static int hf_z3950_attributeValue_numeric;       /* T_attributeValue_numeric */
+static int hf_z3950_attributeValue_complex;       /* T_attributeValue_complex */
+static int hf_z3950_attributeValue_complex_list;  /* SEQUENCE_OF_StringOrNumeric */
+static int hf_z3950_attributeValue_complex_list_item;  /* StringOrNumeric */
+static int hf_z3950_semanticAction;               /* T_semanticAction */
+static int hf_z3950_semanticAction_item;          /* INTEGER */
+static int hf_z3950_exclusion;                    /* BOOLEAN */
+static int hf_z3950_distance;                     /* INTEGER */
+static int hf_z3950_ordered;                      /* BOOLEAN */
+static int hf_z3950_relationType;                 /* T_relationType */
+static int hf_z3950_proximityUnitCode;            /* T_proximityUnitCode */
+static int hf_z3950_known;                        /* KnownProximityUnit */
+static int hf_z3950_private;                      /* INTEGER */
+static int hf_z3950_resultCount;                  /* INTEGER */
+static int hf_z3950_numberOfRecordsReturned;      /* INTEGER */
+static int hf_z3950_nextResultSetPosition;        /* INTEGER */
+static int hf_z3950_searchStatus;                 /* BOOLEAN */
+static int hf_z3950_search_resultSetStatus;       /* T_search_resultSetStatus */
+static int hf_z3950_presentStatus;                /* PresentStatus */
+static int hf_z3950_records;                      /* Records */
+static int hf_z3950_resultSetId;                  /* ResultSetId */
+static int hf_z3950_resultSetStartPoint;          /* INTEGER */
+static int hf_z3950_numberOfRecordsRequested;     /* INTEGER */
+static int hf_z3950_additionalRanges;             /* SEQUENCE_OF_Range */
+static int hf_z3950_additionalRanges_item;        /* Range */
+static int hf_z3950_recordComposition;            /* T_recordComposition */
+static int hf_z3950_simple;                       /* ElementSetNames */
+static int hf_z3950_recordComposition_complex;    /* CompSpec */
+static int hf_z3950_maxSegmentCount;              /* INTEGER */
+static int hf_z3950_maxRecordSize;                /* INTEGER */
+static int hf_z3950_maxSegmentSize;               /* INTEGER */
+static int hf_z3950_segmentRecords;               /* SEQUENCE_OF_NamePlusRecord */
+static int hf_z3950_segmentRecords_item;          /* NamePlusRecord */
+static int hf_z3950_responseRecords;              /* SEQUENCE_OF_NamePlusRecord */
+static int hf_z3950_responseRecords_item;         /* NamePlusRecord */
+static int hf_z3950_nonSurrogateDiagnostic;       /* DefaultDiagFormat */
+static int hf_z3950_multipleNonSurDiagnostics;    /* SEQUENCE_OF_DiagRec */
+static int hf_z3950_multipleNonSurDiagnostics_item;  /* DiagRec */
+static int hf_z3950_namePlusRecord_name;          /* DatabaseName */
+static int hf_z3950_record;                       /* T_record */
+static int hf_z3950_retrievalRecord;              /* EXTERNAL */
+static int hf_z3950_surrogateDiagnostic;          /* DiagRec */
+static int hf_z3950_startingFragment;             /* FragmentSyntax */
+static int hf_z3950_intermediateFragment;         /* FragmentSyntax */
+static int hf_z3950_finalFragment;                /* FragmentSyntax */
+static int hf_z3950_externallyTagged;             /* EXTERNAL */
+static int hf_z3950_notExternallyTagged;          /* OCTET_STRING */
+static int hf_z3950_defaultFormat;                /* DefaultDiagFormat */
+static int hf_z3950_externallyDefined;            /* EXTERNAL */
+static int hf_z3950_diagnosticSetId;              /* T_diagnosticSetId */
+static int hf_z3950_condition;                    /* T_condition */
+static int hf_z3950_addinfo;                      /* T_addinfo */
+static int hf_z3950_v2Addinfo;                    /* VisibleString */
+static int hf_z3950_v3Addinfo;                    /* InternationalString */
+static int hf_z3950_startingPosition;             /* INTEGER */
+static int hf_z3950_numberOfRecords;              /* INTEGER */
+static int hf_z3950_genericElementSetName;        /* InternationalString */
+static int hf_z3950_databaseSpecific;             /* T_databaseSpecific */
+static int hf_z3950_databaseSpecific_item;        /* T_databaseSpecific_item */
+static int hf_z3950_dbName;                       /* DatabaseName */
+static int hf_z3950_esn;                          /* ElementSetName */
+static int hf_z3950_selectAlternativeSyntax;      /* BOOLEAN */
+static int hf_z3950_compSpec_generic;             /* Specification */
+static int hf_z3950_dbSpecific;                   /* T_dbSpecific */
+static int hf_z3950_dbSpecific_item;              /* T_dbSpecific_item */
+static int hf_z3950_db;                           /* DatabaseName */
+static int hf_z3950_spec;                         /* Specification */
+static int hf_z3950_compSpec_recordSyntax;        /* T_compSpec_recordSyntax */
+static int hf_z3950_compSpec_recordSyntax_item;   /* OBJECT_IDENTIFIER */
+static int hf_z3950_schema;                       /* OBJECT_IDENTIFIER */
+static int hf_z3950_specification_elementSpec;    /* T_specification_elementSpec */
+static int hf_z3950_elementSetName;               /* InternationalString */
+static int hf_z3950_externalEspec;                /* EXTERNAL */
+static int hf_z3950_deleteFunction;               /* T_deleteFunction */
+static int hf_z3950_resultSetList;                /* SEQUENCE_OF_ResultSetId */
+static int hf_z3950_resultSetList_item;           /* ResultSetId */
+static int hf_z3950_deleteOperationStatus;        /* DeleteSetStatus */
+static int hf_z3950_deleteListStatuses;           /* ListStatuses */
+static int hf_z3950_numberNotDeleted;             /* INTEGER */
+static int hf_z3950_bulkStatuses;                 /* ListStatuses */
+static int hf_z3950_deleteMessage;                /* InternationalString */
+static int hf_z3950_ListStatuses_item;            /* ListStatuses_item */
+static int hf_z3950_listStatuses_id;              /* ResultSetId */
+static int hf_z3950_status;                       /* DeleteSetStatus */
+static int hf_z3950_securityChallenge;            /* T_securityChallenge */
+static int hf_z3950_simpleForm;                   /* OCTET_STRING */
+static int hf_z3950_securityChallengeResponse;    /* T_securityChallengeResponse */
+static int hf_z3950_diagnostic;                   /* DiagRec */
+static int hf_z3950_suspendedFlag;                /* BOOLEAN */
+static int hf_z3950_resourceReport;               /* ResourceReport */
+static int hf_z3950_partialResultsAvailable;      /* T_partialResultsAvailable */
+static int hf_z3950_resourceControlRequest_responseRequired;  /* BOOLEAN */
+static int hf_z3950_triggeredRequestFlag;         /* BOOLEAN */
+static int hf_z3950_continueFlag;                 /* BOOLEAN */
+static int hf_z3950_resultSetWanted;              /* BOOLEAN */
+static int hf_z3950_requestedAction;              /* T_requestedAction */
+static int hf_z3950_prefResourceReportFormat;     /* ResourceReportId */
+static int hf_z3950_opId;                         /* ReferenceId */
+static int hf_z3950_resourceReportStatus;         /* T_resourceReportStatus */
+static int hf_z3950_termListAndStartPoint;        /* AttributesPlusTerm */
+static int hf_z3950_stepSize;                     /* INTEGER */
+static int hf_z3950_numberOfTermsRequested;       /* INTEGER */
+static int hf_z3950_preferredPositionInResponse;  /* INTEGER */
+static int hf_z3950_scanStatus;                   /* T_scanStatus */
+static int hf_z3950_numberOfEntriesReturned;      /* INTEGER */
+static int hf_z3950_positionOfTerm;               /* INTEGER */
+static int hf_z3950_scanResponse_entries;         /* ListEntries */
+static int hf_z3950_listEntries_entries;          /* SEQUENCE_OF_Entry */
+static int hf_z3950_listEntries_entries_item;     /* Entry */
+static int hf_z3950_nonsurrogateDiagnostics;      /* SEQUENCE_OF_DiagRec */
+static int hf_z3950_nonsurrogateDiagnostics_item;  /* DiagRec */
+static int hf_z3950_termInfo;                     /* TermInfo */
+static int hf_z3950_displayTerm;                  /* InternationalString */
+static int hf_z3950_suggestedAttributes;          /* AttributeList */
+static int hf_z3950_alternativeTerm;              /* SEQUENCE_OF_AttributesPlusTerm */
+static int hf_z3950_alternativeTerm_item;         /* AttributesPlusTerm */
+static int hf_z3950_globalOccurrences;            /* INTEGER */
+static int hf_z3950_byAttributes;                 /* OccurrenceByAttributes */
+static int hf_z3950_otherTermInfo;                /* OtherInformation */
+static int hf_z3950_OccurrenceByAttributes_item;  /* OccurrenceByAttributes_item */
+static int hf_z3950_occurrences;                  /* T_occurrences */
+static int hf_z3950_global;                       /* INTEGER */
+static int hf_z3950_byDatabase;                   /* T_byDatabase */
+static int hf_z3950_byDatabase_item;              /* T_byDatabase_item */
+static int hf_z3950_num;                          /* INTEGER */
+static int hf_z3950_otherDbInfo;                  /* OtherInformation */
+static int hf_z3950_otherOccurInfo;               /* OtherInformation */
+static int hf_z3950_inputResultSetNames;          /* SEQUENCE_OF_InternationalString */
+static int hf_z3950_inputResultSetNames_item;     /* InternationalString */
+static int hf_z3950_sortedResultSetName;          /* InternationalString */
+static int hf_z3950_sortSequence;                 /* SEQUENCE_OF_SortKeySpec */
+static int hf_z3950_sortSequence_item;            /* SortKeySpec */
+static int hf_z3950_sortStatus;                   /* T_sortStatus */
+static int hf_z3950_sort_resultSetStatus;         /* T_sort_resultSetStatus */
+static int hf_z3950_diagnostics;                  /* SEQUENCE_OF_DiagRec */
+static int hf_z3950_diagnostics_item;             /* DiagRec */
+static int hf_z3950_sortElement;                  /* SortElement */
+static int hf_z3950_sortRelation;                 /* T_sortRelation */
+static int hf_z3950_caseSensitivity;              /* T_caseSensitivity */
+static int hf_z3950_missingValueAction;           /* T_missingValueAction */
+static int hf_z3950_abort;                        /* NULL */
+static int hf_z3950_missingValueData;             /* OCTET_STRING */
+static int hf_z3950_sortElement_generic;          /* SortKey */
+static int hf_z3950_datbaseSpecific;              /* T_datbaseSpecific */
+static int hf_z3950_datbaseSpecific_item;         /* T_datbaseSpecific_item */
+static int hf_z3950_databaseName;                 /* DatabaseName */
+static int hf_z3950_dbSort;                       /* SortKey */
+static int hf_z3950_sortfield;                    /* InternationalString */
+static int hf_z3950_sortKey_elementSpec;          /* Specification */
+static int hf_z3950_sortAttributes;               /* T_sortAttributes */
+static int hf_z3950_sortAttributes_id;            /* AttributeSetId */
+static int hf_z3950_sortAttributes_list;          /* AttributeList */
+static int hf_z3950_function;                     /* T_function */
+static int hf_z3950_packageType;                  /* OBJECT_IDENTIFIER */
+static int hf_z3950_packageName;                  /* InternationalString */
+static int hf_z3950_retentionTime;                /* IntUnit */
+static int hf_z3950_permissions;                  /* Permissions */
+static int hf_z3950_extendedServicesRequest_description;  /* InternationalString */
+static int hf_z3950_taskSpecificParameters;       /* EXTERNAL */
+static int hf_z3950_waitAction;                   /* T_waitAction */
+static int hf_z3950_elements;                     /* ElementSetName */
+static int hf_z3950_operationStatus;              /* T_operationStatus */
+static int hf_z3950_taskPackage;                  /* EXTERNAL */
+static int hf_z3950_Permissions_item;             /* Permissions_item */
+static int hf_z3950_allowableFunctions;           /* T_allowableFunctions */
+static int hf_z3950_allowableFunctions_item;      /* T_allowableFunctions_item */
+static int hf_z3950_closeReason;                  /* CloseReason */
+static int hf_z3950_diagnosticInformation;        /* InternationalString */
+static int hf_z3950_resourceReportFormat;         /* ResourceReportId */
+static int hf_z3950_otherInformation_item;        /* T__untag_item */
+static int hf_z3950_category;                     /* InfoCategory */
+static int hf_z3950_information;                  /* T_information */
+static int hf_z3950_characterInfo;                /* InternationalString */
+static int hf_z3950_binaryInfo;                   /* OCTET_STRING */
+static int hf_z3950_externallyDefinedInfo;        /* EXTERNAL */
+static int hf_z3950_categoryTypeId;               /* OBJECT_IDENTIFIER */
+static int hf_z3950_categoryValue;                /* INTEGER */
+static int hf_z3950_value;                        /* INTEGER */
+static int hf_z3950_unitUsed;                     /* Unit */
+static int hf_z3950_unitSystem;                   /* InternationalString */
+static int hf_z3950_unitType;                     /* StringOrNumeric */
+static int hf_z3950_unit;                         /* StringOrNumeric */
+static int hf_z3950_scaleFactor;                  /* INTEGER */
+static int hf_z3950_string;                       /* InternationalString */
+static int hf_z3950_motd;                         /* VisibleString */
+static int hf_z3950_dblist;                       /* SEQUENCE_OF_DBName */
+static int hf_z3950_dblist_item;                  /* DBName */
+static int hf_z3950_failReason;                   /* BOOLEAN */
+static int hf_z3950_oCLC_UserInformation_text;    /* VisibleString */
+static int hf_z3950_bibliographicRecord;          /* EXTERNAL */
+static int hf_z3950_holdingsData;                 /* SEQUENCE_OF_HoldingsRecord */
+static int hf_z3950_holdingsData_item;            /* HoldingsRecord */
+static int hf_z3950_marcHoldingsRecord;           /* EXTERNAL */
+static int hf_z3950_holdingsAndCirc;              /* HoldingsAndCircData */
+static int hf_z3950_typeOfRecord;                 /* InternationalString */
+static int hf_z3950_encodingLevel;                /* InternationalString */
+static int hf_z3950_format;                       /* InternationalString */
+static int hf_z3950_receiptAcqStatus;             /* InternationalString */
+static int hf_z3950_generalRetention;             /* InternationalString */
+static int hf_z3950_completeness;                 /* InternationalString */
+static int hf_z3950_dateOfReport;                 /* InternationalString */
+static int hf_z3950_nucCode;                      /* InternationalString */
+static int hf_z3950_localLocation;                /* InternationalString */
+static int hf_z3950_shelvingLocation;             /* InternationalString */
+static int hf_z3950_callNumber;                   /* InternationalString */
+static int hf_z3950_shelvingData;                 /* InternationalString */
+static int hf_z3950_copyNumber;                   /* InternationalString */
+static int hf_z3950_publicNote;                   /* InternationalString */
+static int hf_z3950_reproductionNote;             /* InternationalString */
+static int hf_z3950_termsUseRepro;                /* InternationalString */
+static int hf_z3950_enumAndChron;                 /* InternationalString */
+static int hf_z3950_volumes;                      /* SEQUENCE_OF_Volume */
+static int hf_z3950_volumes_item;                 /* Volume */
+static int hf_z3950_circulationData;              /* SEQUENCE_OF_CircRecord */
+static int hf_z3950_circulationData_item;         /* CircRecord */
+static int hf_z3950_enumeration;                  /* InternationalString */
+static int hf_z3950_chronology;                   /* InternationalString */
+static int hf_z3950_availableNow;                 /* BOOLEAN */
+static int hf_z3950_availablityDate;              /* InternationalString */
+static int hf_z3950_availableThru;                /* InternationalString */
+static int hf_z3950_circRecord_restrictions;      /* InternationalString */
+static int hf_z3950_itemId;                       /* InternationalString */
+static int hf_z3950_renewable;                    /* BOOLEAN */
+static int hf_z3950_onHold;                       /* BOOLEAN */
+static int hf_z3950_midspine;                     /* InternationalString */
+static int hf_z3950_temporaryLocation;            /* InternationalString */
+static int hf_z3950_DiagnosticFormat_item;        /* DiagnosticFormat_item */
+static int hf_z3950_diagnosticFormat_item_diagnostic;  /* T_diagnosticFormat_item_diagnostic */
+static int hf_z3950_defaultDiagRec;               /* DefaultDiagFormat */
+static int hf_z3950_explicitDiagnostic;           /* DiagFormat */
+static int hf_z3950_message;                      /* InternationalString */
+static int hf_z3950_tooMany;                      /* T_tooMany */
+static int hf_z3950_tooManyWhat;                  /* T_tooManyWhat */
+static int hf_z3950_max;                          /* INTEGER */
+static int hf_z3950_badSpec;                      /* T_badSpec */
+static int hf_z3950_goodOnes;                     /* SEQUENCE_OF_Specification */
+static int hf_z3950_goodOnes_item;                /* Specification */
+static int hf_z3950_dbUnavail;                    /* T_dbUnavail */
+static int hf_z3950_why;                          /* T_why */
+static int hf_z3950_reasonCode;                   /* T_reasonCode */
+static int hf_z3950_unSupOp;                      /* T_unSupOp */
+static int hf_z3950_attribute;                    /* T_attribute */
+static int hf_z3950_id;                           /* OBJECT_IDENTIFIER */
+static int hf_z3950_type;                         /* INTEGER */
+static int hf_z3950_attCombo;                     /* T_attCombo */
+static int hf_z3950_unsupportedCombination;       /* AttributeList */
+static int hf_z3950_recommendedAlternatives;      /* SEQUENCE_OF_AttributeList */
+static int hf_z3950_recommendedAlternatives_item;  /* AttributeList */
+static int hf_z3950_diagFormat_term;              /* T_diagFormat_term */
+static int hf_z3950_problem;                      /* T_problem */
+static int hf_z3950_diagFormat_proximity;         /* T_diagFormat_proximity */
+static int hf_z3950_resultSets;                   /* NULL */
+static int hf_z3950_badSet;                       /* InternationalString */
+static int hf_z3950_relation;                     /* INTEGER */
+static int hf_z3950_diagFormat_proximity_unit;    /* INTEGER */
+static int hf_z3950_diagFormat_proximity_ordered;  /* NULL */
+static int hf_z3950_diagFormat_proximity_exclusion;  /* NULL */
+static int hf_z3950_scan;                         /* T_scan */
+static int hf_z3950_nonZeroStepSize;              /* NULL */
+static int hf_z3950_specifiedStepSize;            /* NULL */
+static int hf_z3950_termList1;                    /* NULL */
+static int hf_z3950_termList2;                    /* SEQUENCE_OF_AttributeList */
+static int hf_z3950_termList2_item;               /* AttributeList */
+static int hf_z3950_posInResponse;                /* T_posInResponse */
+static int hf_z3950_resources;                    /* NULL */
+static int hf_z3950_endOfList;                    /* NULL */
+static int hf_z3950_sort;                         /* T_sort */
+static int hf_z3950_sequence;                     /* NULL */
+static int hf_z3950_noRsName;                     /* NULL */
+static int hf_z3950_diagFormat_sort_tooMany;      /* INTEGER */
+static int hf_z3950_incompatible;                 /* NULL */
+static int hf_z3950_generic;                      /* NULL */
+static int hf_z3950_diagFormat_sort_dbSpecific;   /* NULL */
+static int hf_z3950_key;                          /* T_key */
+static int hf_z3950_action;                       /* NULL */
+static int hf_z3950_illegal;                      /* T_illegal */
+static int hf_z3950_inputTooLarge;                /* SEQUENCE_OF_InternationalString */
+static int hf_z3950_inputTooLarge_item;           /* InternationalString */
+static int hf_z3950_aggregateTooLarge;            /* NULL */
+static int hf_z3950_segmentation;                 /* T_segmentation */
+static int hf_z3950_segmentCount;                 /* NULL */
+static int hf_z3950_segmentSize;                  /* INTEGER */
+static int hf_z3950_extServices;                  /* T_extServices */
+static int hf_z3950_req;                          /* T_req */
+static int hf_z3950_permission;                   /* T_permission */
+static int hf_z3950_immediate;                    /* T_immediate */
+static int hf_z3950_accessCtrl;                   /* T_accessCtrl */
+static int hf_z3950_noUser;                       /* NULL */
+static int hf_z3950_refused;                      /* NULL */
+static int hf_z3950_diagFormat_accessCtrl_simple;  /* NULL */
+static int hf_z3950_diagFormat_accessCtrl_oid;    /* T_diagFormat_accessCtrl_oid */
+static int hf_z3950_diagFormat_accessCtrl_oid_item;  /* OBJECT_IDENTIFIER */
+static int hf_z3950_alternative;                  /* T_alternative */
+static int hf_z3950_alternative_item;             /* OBJECT_IDENTIFIER */
+static int hf_z3950_pwdInv;                       /* NULL */
+static int hf_z3950_pwdExp;                       /* NULL */
+static int hf_z3950_diagFormat_recordSyntax;      /* T_diagFormat_recordSyntax */
+static int hf_z3950_unsupportedSyntax;            /* OBJECT_IDENTIFIER */
+static int hf_z3950_suggestedAlternatives;        /* T_suggestedAlternatives */
+static int hf_z3950_suggestedAlternatives_item;   /* OBJECT_IDENTIFIER */
+static int hf_z3950_targetInfo;                   /* TargetInfo */
+static int hf_z3950_databaseInfo;                 /* DatabaseInfo */
+static int hf_z3950_schemaInfo;                   /* SchemaInfo */
+static int hf_z3950_tagSetInfo;                   /* TagSetInfo */
+static int hf_z3950_recordSyntaxInfo;             /* RecordSyntaxInfo */
+static int hf_z3950_attributeSetInfo;             /* AttributeSetInfo */
+static int hf_z3950_termListInfo;                 /* TermListInfo */
+static int hf_z3950_extendedServicesInfo;         /* ExtendedServicesInfo */
+static int hf_z3950_attributeDetails;             /* AttributeDetails */
+static int hf_z3950_termListDetails;              /* TermListDetails */
+static int hf_z3950_elementSetDetails;            /* ElementSetDetails */
+static int hf_z3950_retrievalRecordDetails;       /* RetrievalRecordDetails */
+static int hf_z3950_sortDetails;                  /* SortDetails */
+static int hf_z3950_processing;                   /* ProcessingInformation */
+static int hf_z3950_variants;                     /* VariantSetInfo */
+static int hf_z3950_units;                        /* UnitInfo */
+static int hf_z3950_categoryList;                 /* CategoryList */
+static int hf_z3950_commonInfo;                   /* CommonInfo */
+static int hf_z3950_name;                         /* InternationalString */
+static int hf_z3950_recent_news;                  /* HumanString */
+static int hf_z3950_icon;                         /* IconObject */
+static int hf_z3950_namedResultSets;              /* BOOLEAN */
+static int hf_z3950_multipleDBsearch;             /* BOOLEAN */
+static int hf_z3950_maxResultSets;                /* INTEGER */
+static int hf_z3950_maxResultSize;                /* INTEGER */
+static int hf_z3950_maxTerms;                     /* INTEGER */
+static int hf_z3950_timeoutInterval;              /* IntUnit */
+static int hf_z3950_welcomeMessage;               /* HumanString */
+static int hf_z3950_contactInfo;                  /* ContactInfo */
+static int hf_z3950_description;                  /* HumanString */
+static int hf_z3950_nicknames;                    /* SEQUENCE_OF_InternationalString */
+static int hf_z3950_nicknames_item;               /* InternationalString */
+static int hf_z3950_usage_restrictions;           /* HumanString */
+static int hf_z3950_paymentAddr;                  /* HumanString */
+static int hf_z3950_hours;                        /* HumanString */
+static int hf_z3950_dbCombinations;               /* SEQUENCE_OF_DatabaseList */
+static int hf_z3950_dbCombinations_item;          /* DatabaseList */
+static int hf_z3950_addresses;                    /* SEQUENCE_OF_NetworkAddress */
+static int hf_z3950_addresses_item;               /* NetworkAddress */
+static int hf_z3950_languages;                    /* SEQUENCE_OF_InternationalString */
+static int hf_z3950_languages_item;               /* InternationalString */
+static int hf_z3950_commonAccessInfo;             /* AccessInfo */
+static int hf_z3950_databaseInfo_name;            /* DatabaseName */
+static int hf_z3950_explainDatabase;              /* NULL */
+static int hf_z3950_databaseInfo_nicknames;       /* SEQUENCE_OF_DatabaseName */
+static int hf_z3950_databaseInfo_nicknames_item;  /* DatabaseName */
+static int hf_z3950_user_fee;                     /* BOOLEAN */
+static int hf_z3950_available;                    /* BOOLEAN */
+static int hf_z3950_titleString;                  /* HumanString */
+static int hf_z3950_keywords;                     /* SEQUENCE_OF_HumanString */
+static int hf_z3950_keywords_item;                /* HumanString */
+static int hf_z3950_associatedDbs;                /* DatabaseList */
+static int hf_z3950_subDbs;                       /* DatabaseList */
+static int hf_z3950_disclaimers;                  /* HumanString */
+static int hf_z3950_news;                         /* HumanString */
+static int hf_z3950_recordCount;                  /* T_recordCount */
+static int hf_z3950_actualNumber;                 /* INTEGER */
+static int hf_z3950_approxNumber;                 /* INTEGER */
+static int hf_z3950_defaultOrder;                 /* HumanString */
+static int hf_z3950_avRecordSize;                 /* INTEGER */
+static int hf_z3950_bestTime;                     /* HumanString */
+static int hf_z3950_lastUpdate;                   /* GeneralizedTime */
+static int hf_z3950_updateInterval;               /* IntUnit */
+static int hf_z3950_coverage;                     /* HumanString */
+static int hf_z3950_proprietary;                  /* BOOLEAN */
+static int hf_z3950_copyrightText;                /* HumanString */
+static int hf_z3950_copyrightNotice;              /* HumanString */
+static int hf_z3950_producerContactInfo;          /* ContactInfo */
+static int hf_z3950_supplierContactInfo;          /* ContactInfo */
+static int hf_z3950_submissionContactInfo;        /* ContactInfo */
+static int hf_z3950_accessInfo;                   /* AccessInfo */
+static int hf_z3950_tagTypeMapping;               /* T_tagTypeMapping */
+static int hf_z3950_tagTypeMapping_item;          /* T_tagTypeMapping_item */
+static int hf_z3950_tagType;                      /* INTEGER */
+static int hf_z3950_tagSet;                       /* OBJECT_IDENTIFIER */
+static int hf_z3950_defaultTagType;               /* NULL */
+static int hf_z3950_recordStructure;              /* SEQUENCE_OF_ElementInfo */
+static int hf_z3950_recordStructure_item;         /* ElementInfo */
+static int hf_z3950_elementName;                  /* InternationalString */
+static int hf_z3950_elementTagPath;               /* Path */
+static int hf_z3950_elementInfo_dataType;         /* ElementDataType */
+static int hf_z3950_required;                     /* BOOLEAN */
+static int hf_z3950_repeatable;                   /* BOOLEAN */
+static int hf_z3950_Path_item;                    /* Path_item */
+static int hf_z3950_tagValue;                     /* StringOrNumeric */
+static int hf_z3950_primitive;                    /* PrimitiveDataType */
+static int hf_z3950_structured;                   /* SEQUENCE_OF_ElementInfo */
+static int hf_z3950_structured_item;              /* ElementInfo */
+static int hf_z3950_tagSetInfo_elements;          /* T_tagSetInfo_elements */
+static int hf_z3950_tagSetInfo_elements_item;     /* T_tagSetInfo_elements_item */
+static int hf_z3950_elementname;                  /* InternationalString */
+static int hf_z3950_elementTag;                   /* StringOrNumeric */
+static int hf_z3950_dataType;                     /* PrimitiveDataType */
+static int hf_z3950_otherTagInfo;                 /* OtherInformation */
+static int hf_z3950_recordSyntax;                 /* OBJECT_IDENTIFIER */
+static int hf_z3950_transferSyntaxes;             /* T_transferSyntaxes */
+static int hf_z3950_transferSyntaxes_item;        /* OBJECT_IDENTIFIER */
+static int hf_z3950_asn1Module;                   /* InternationalString */
+static int hf_z3950_abstractStructure;            /* SEQUENCE_OF_ElementInfo */
+static int hf_z3950_abstractStructure_item;       /* ElementInfo */
+static int hf_z3950_attributeSetInfo_attributes;  /* SEQUENCE_OF_AttributeType */
+static int hf_z3950_attributeSetInfo_attributes_item;  /* AttributeType */
+static int hf_z3950_attributeType;                /* INTEGER */
+static int hf_z3950_attributeValues;              /* SEQUENCE_OF_AttributeDescription */
+static int hf_z3950_attributeValues_item;         /* AttributeDescription */
+static int hf_z3950_attributeDescription_attributeValue;  /* StringOrNumeric */
+static int hf_z3950_equivalentAttributes;         /* SEQUENCE_OF_StringOrNumeric */
+static int hf_z3950_equivalentAttributes_item;    /* StringOrNumeric */
+static int hf_z3950_termLists;                    /* T_termLists */
+static int hf_z3950_termLists_item;               /* T_termLists_item */
+static int hf_z3950_title;                        /* HumanString */
+static int hf_z3950_searchCost;                   /* T_searchCost */
+static int hf_z3950_scanable;                     /* BOOLEAN */
+static int hf_z3950_broader;                      /* SEQUENCE_OF_InternationalString */
+static int hf_z3950_broader_item;                 /* InternationalString */
+static int hf_z3950_narrower;                     /* SEQUENCE_OF_InternationalString */
+static int hf_z3950_narrower_item;                /* InternationalString */
+static int hf_z3950_extendedServicesInfo_type;    /* OBJECT_IDENTIFIER */
+static int hf_z3950_privateType;                  /* BOOLEAN */
+static int hf_z3950_restrictionsApply;            /* BOOLEAN */
+static int hf_z3950_feeApply;                     /* BOOLEAN */
+static int hf_z3950_retentionSupported;           /* BOOLEAN */
+static int hf_z3950_extendedServicesInfo_waitAction;  /* T_extendedServicesInfo_waitAction */
+static int hf_z3950_specificExplain;              /* EXTERNAL */
+static int hf_z3950_esASN;                        /* InternationalString */
+static int hf_z3950_attributesBySet;              /* SEQUENCE_OF_AttributeSetDetails */
+static int hf_z3950_attributesBySet_item;         /* AttributeSetDetails */
+static int hf_z3950_attributeCombinations;        /* AttributeCombinations */
+static int hf_z3950_attributesByType;             /* SEQUENCE_OF_AttributeTypeDetails */
+static int hf_z3950_attributesByType_item;        /* AttributeTypeDetails */
+static int hf_z3950_defaultIfOmitted;             /* OmittedAttributeInterpretation */
+static int hf_z3950_attributeTypeDetails_attributeValues;  /* SEQUENCE_OF_AttributeValue */
+static int hf_z3950_attributeTypeDetails_attributeValues_item;  /* AttributeValue */
+static int hf_z3950_defaultValue;                 /* StringOrNumeric */
+static int hf_z3950_defaultDescription;           /* HumanString */
+static int hf_z3950_attributeValue_value;         /* StringOrNumeric */
+static int hf_z3950_subAttributes;                /* SEQUENCE_OF_StringOrNumeric */
+static int hf_z3950_subAttributes_item;           /* StringOrNumeric */
+static int hf_z3950_superAttributes;              /* SEQUENCE_OF_StringOrNumeric */
+static int hf_z3950_superAttributes_item;         /* StringOrNumeric */
+static int hf_z3950_partialSupport;               /* NULL */
+static int hf_z3950_termListName;                 /* InternationalString */
+static int hf_z3950_termListDetails_attributes;   /* AttributeCombinations */
+static int hf_z3950_scanInfo;                     /* T_scanInfo */
+static int hf_z3950_maxStepSize;                  /* INTEGER */
+static int hf_z3950_collatingSequence;            /* HumanString */
+static int hf_z3950_increasing;                   /* BOOLEAN */
+static int hf_z3950_estNumberTerms;               /* INTEGER */
+static int hf_z3950_sampleTerms;                  /* SEQUENCE_OF_Term */
+static int hf_z3950_sampleTerms_item;             /* Term */
+static int hf_z3950_elementSetDetails_elementSetName;  /* ElementSetName */
+static int hf_z3950_detailsPerElement;            /* SEQUENCE_OF_PerElementDetails */
+static int hf_z3950_detailsPerElement_item;       /* PerElementDetails */
+static int hf_z3950_recordTag;                    /* RecordTag */
+static int hf_z3950_schemaTags;                   /* SEQUENCE_OF_Path */
+static int hf_z3950_schemaTags_item;              /* Path */
+static int hf_z3950_maxSize;                      /* INTEGER */
+static int hf_z3950_minSize;                      /* INTEGER */
+static int hf_z3950_avgSize;                      /* INTEGER */
+static int hf_z3950_fixedSize;                    /* INTEGER */
+static int hf_z3950_contents;                     /* HumanString */
+static int hf_z3950_billingInfo;                  /* HumanString */
+static int hf_z3950_restrictions;                 /* HumanString */
+static int hf_z3950_alternateNames;               /* SEQUENCE_OF_InternationalString */
+static int hf_z3950_alternateNames_item;          /* InternationalString */
+static int hf_z3950_genericNames;                 /* SEQUENCE_OF_InternationalString */
+static int hf_z3950_genericNames_item;            /* InternationalString */
+static int hf_z3950_searchAccess;                 /* AttributeCombinations */
+static int hf_z3950_qualifier;                    /* StringOrNumeric */
+static int hf_z3950_sortKeys;                     /* SEQUENCE_OF_SortKeyDetails */
+static int hf_z3950_sortKeys_item;                /* SortKeyDetails */
+static int hf_z3950_elementSpecifications;        /* SEQUENCE_OF_Specification */
+static int hf_z3950_elementSpecifications_item;   /* Specification */
+static int hf_z3950_attributeSpecifications;      /* AttributeCombinations */
+static int hf_z3950_sortType;                     /* T_sortType */
+static int hf_z3950_character;                    /* NULL */
+static int hf_z3950_sortKeyDetails_sortType_numeric;  /* NULL */
+static int hf_z3950_sortKeyDetails_sortType_structured;  /* HumanString */
+static int hf_z3950_sortKeyDetails_caseSensitivity;  /* T_sortKeyDetails_caseSensitivity */
+static int hf_z3950_processingContext;            /* T_processingContext */
+static int hf_z3950_instructions;                 /* EXTERNAL */
+static int hf_z3950_variantSet;                   /* OBJECT_IDENTIFIER */
+static int hf_z3950_variantSetInfo_variants;      /* SEQUENCE_OF_VariantClass */
+static int hf_z3950_variantSetInfo_variants_item;  /* VariantClass */
+static int hf_z3950_variantClass;                 /* INTEGER */
+static int hf_z3950_variantTypes;                 /* SEQUENCE_OF_VariantType */
+static int hf_z3950_variantTypes_item;            /* VariantType */
+static int hf_z3950_variantType;                  /* INTEGER */
+static int hf_z3950_variantValue;                 /* VariantValue */
+static int hf_z3950_values;                       /* ValueSet */
+static int hf_z3950_range;                        /* ValueRange */
+static int hf_z3950_enumerated;                   /* SEQUENCE_OF_ValueDescription */
+static int hf_z3950_enumerated_item;              /* ValueDescription */
+static int hf_z3950_lower;                        /* ValueDescription */
+static int hf_z3950_upper;                        /* ValueDescription */
+static int hf_z3950_integer;                      /* INTEGER */
+static int hf_z3950_octets;                       /* OCTET_STRING */
+static int hf_z3950_valueDescription_unit;        /* Unit */
+static int hf_z3950_valueAndUnit;                 /* IntUnit */
+static int hf_z3950_unitInfo_units;               /* SEQUENCE_OF_UnitType */
+static int hf_z3950_unitInfo_units_item;          /* UnitType */
+static int hf_z3950_unitType_units;               /* SEQUENCE_OF_Units */
+static int hf_z3950_unitType_units_item;          /* Units */
+static int hf_z3950_categories;                   /* SEQUENCE_OF_CategoryInfo */
+static int hf_z3950_categories_item;              /* CategoryInfo */
+static int hf_z3950_categoryInfo_category;        /* InternationalString */
+static int hf_z3950_originalCategory;             /* InternationalString */
+static int hf_z3950_dateAdded;                    /* GeneralizedTime */
+static int hf_z3950_dateChanged;                  /* GeneralizedTime */
+static int hf_z3950_expiry;                       /* GeneralizedTime */
+static int hf_z3950_humanString_Language;         /* LanguageCode */
+static int hf_z3950_HumanString_item;             /* HumanString_item */
+static int hf_z3950_language;                     /* LanguageCode */
+static int hf_z3950_text;                         /* InternationalString */
+static int hf_z3950_IconObject_item;              /* IconObject_item */
+static int hf_z3950_bodyType;                     /* T_bodyType */
+static int hf_z3950_ianaType;                     /* InternationalString */
+static int hf_z3950_z3950type;                    /* InternationalString */
+static int hf_z3950_otherType;                    /* InternationalString */
+static int hf_z3950_content;                      /* OCTET_STRING */
+static int hf_z3950_address;                      /* HumanString */
+static int hf_z3950_email;                        /* InternationalString */
+static int hf_z3950_phone;                        /* InternationalString */
+static int hf_z3950_internetAddress;              /* T_internetAddress */
+static int hf_z3950_hostAddress;                  /* InternationalString */
+static int hf_z3950_port;                         /* INTEGER */
+static int hf_z3950_osiPresentationAddress;       /* T_osiPresentationAddress */
+static int hf_z3950_pSel;                         /* InternationalString */
+static int hf_z3950_sSel;                         /* InternationalString */
+static int hf_z3950_tSel;                         /* InternationalString */
+static int hf_z3950_nSap;                         /* InternationalString */
+static int hf_z3950_networkAddress_other;         /* T_networkAddress_other */
+static int hf_z3950_networkAddress_other_type;    /* InternationalString */
+static int hf_z3950_networkAddress_other_address;  /* InternationalString */
+static int hf_z3950_queryTypesSupported;          /* SEQUENCE_OF_QueryTypeDetails */
+static int hf_z3950_queryTypesSupported_item;     /* QueryTypeDetails */
+static int hf_z3950_diagnosticsSets;              /* T_diagnosticsSets */
+static int hf_z3950_diagnosticsSets_item;         /* OBJECT_IDENTIFIER */
+static int hf_z3950_attributeSetIds;              /* SEQUENCE_OF_AttributeSetId */
+static int hf_z3950_attributeSetIds_item;         /* AttributeSetId */
+static int hf_z3950_schemas;                      /* T_schemas */
+static int hf_z3950_schemas_item;                 /* OBJECT_IDENTIFIER */
+static int hf_z3950_recordSyntaxes;               /* T_recordSyntaxes */
+static int hf_z3950_recordSyntaxes_item;          /* OBJECT_IDENTIFIER */
+static int hf_z3950_resourceChallenges;           /* T_resourceChallenges */
+static int hf_z3950_resourceChallenges_item;      /* OBJECT_IDENTIFIER */
+static int hf_z3950_restrictedAccess;             /* AccessRestrictions */
+static int hf_z3950_costInfo;                     /* Costs */
+static int hf_z3950_variantSets;                  /* T_variantSets */
+static int hf_z3950_variantSets_item;             /* OBJECT_IDENTIFIER */
+static int hf_z3950_elementSetNames;              /* SEQUENCE_OF_ElementSetName */
+static int hf_z3950_elementSetNames_item;         /* ElementSetName */
+static int hf_z3950_unitSystems;                  /* SEQUENCE_OF_InternationalString */
+static int hf_z3950_unitSystems_item;             /* InternationalString */
+static int hf_z3950_queryTypeDetails_private;     /* PrivateCapabilities */
+static int hf_z3950_queryTypeDetails_rpn;         /* RpnCapabilities */
+static int hf_z3950_iso8777;                      /* Iso8777Capabilities */
+static int hf_z3950_z39_58;                       /* HumanString */
+static int hf_z3950_erpn;                         /* RpnCapabilities */
+static int hf_z3950_rankedList;                   /* HumanString */
+static int hf_z3950_privateCapabilities_operators;  /* T_privateCapabilities_operators */
+static int hf_z3950_privateCapabilities_operators_item;  /* T_privateCapabilities_operators_item */
+static int hf_z3950_operator;                     /* InternationalString */
+static int hf_z3950_searchKeys;                   /* SEQUENCE_OF_SearchKey */
+static int hf_z3950_searchKeys_item;              /* SearchKey */
+static int hf_z3950_privateCapabilities_description;  /* SEQUENCE_OF_HumanString */
+static int hf_z3950_privateCapabilities_description_item;  /* HumanString */
+static int hf_z3950_operators;                    /* T_operators */
+static int hf_z3950_operators_item;               /* INTEGER */
+static int hf_z3950_resultSetAsOperandSupported;  /* BOOLEAN */
+static int hf_z3950_restrictionOperandSupported;  /* BOOLEAN */
+static int hf_z3950_proximity;                    /* ProximitySupport */
+static int hf_z3950_anySupport;                   /* BOOLEAN */
+static int hf_z3950_unitsSupported;               /* T_unitsSupported */
+static int hf_z3950_unitsSupported_item;          /* T_unitsSupported_item */
+static int hf_z3950_proximitySupport_unitsSupported_item_known;  /* INTEGER */
+static int hf_z3950_proximitySupport_unitsSupported_item_private;  /* T_proximitySupport_unitsSupported_item_private */
+static int hf_z3950_proximitySupport_unitsSupported_item_private_unit;  /* INTEGER */
+static int hf_z3950_searchKey;                    /* InternationalString */
+static int hf_z3950_AccessRestrictions_item;      /* AccessRestrictions_item */
+static int hf_z3950_accessType;                   /* T_accessType */
+static int hf_z3950_accessText;                   /* HumanString */
+static int hf_z3950_accessChallenges;             /* T_accessChallenges */
+static int hf_z3950_accessChallenges_item;        /* OBJECT_IDENTIFIER */
+static int hf_z3950_connectCharge;                /* Charge */
+static int hf_z3950_connectTime;                  /* Charge */
+static int hf_z3950_displayCharge;                /* Charge */
+static int hf_z3950_searchCharge;                 /* Charge */
+static int hf_z3950_subscriptCharge;              /* Charge */
+static int hf_z3950_otherCharges;                 /* T_otherCharges */
+static int hf_z3950_otherCharges_item;            /* T_otherCharges_item */
+static int hf_z3950_forWhat;                      /* HumanString */
+static int hf_z3950_charge;                       /* Charge */
+static int hf_z3950_cost;                         /* IntUnit */
+static int hf_z3950_perWhat;                      /* Unit */
+static int hf_z3950_charge_text;                  /* HumanString */
+static int hf_z3950_DatabaseList_item;            /* DatabaseName */
+static int hf_z3950_defaultAttributeSet;          /* AttributeSetId */
+static int hf_z3950_legalCombinations;            /* SEQUENCE_OF_AttributeCombination */
+static int hf_z3950_legalCombinations_item;       /* AttributeCombination */
+static int hf_z3950_AttributeCombination_item;    /* AttributeOccurrence */
+static int hf_z3950_mustBeSupplied;               /* NULL */
+static int hf_z3950_attributeOccurrence_attributeValues;  /* T_attributeOccurrence_attributeValues */
+static int hf_z3950_any_or_none;                  /* NULL */
+static int hf_z3950_specific;                     /* SEQUENCE_OF_StringOrNumeric */
+static int hf_z3950_specific_item;                /* StringOrNumeric */
+static int hf_z3950_briefBib_title;               /* InternationalString */
+static int hf_z3950_author;                       /* InternationalString */
+static int hf_z3950_recordType;                   /* InternationalString */
+static int hf_z3950_bibliographicLevel;           /* InternationalString */
+static int hf_z3950_briefBib_format;              /* SEQUENCE_OF_FormatSpec */
+static int hf_z3950_briefBib_format_item;         /* FormatSpec */
+static int hf_z3950_publicationPlace;             /* InternationalString */
+static int hf_z3950_publicationDate;              /* InternationalString */
+static int hf_z3950_targetSystemKey;              /* InternationalString */
+static int hf_z3950_satisfyingElement;            /* InternationalString */
+static int hf_z3950_rank;                         /* INTEGER */
+static int hf_z3950_documentId;                   /* InternationalString */
+static int hf_z3950_abstract;                     /* InternationalString */
+static int hf_z3950_formatSpec_type;              /* InternationalString */
+static int hf_z3950_size;                         /* INTEGER */
+static int hf_z3950_bestPosn;                     /* INTEGER */
+static int hf_z3950_GenericRecord_item;           /* TaggedElement */
+static int hf_z3950_tagOccurrence;                /* INTEGER */
+static int hf_z3950_taggedElement_content;        /* ElementData */
+static int hf_z3950_metaData;                     /* ElementMetaData */
+static int hf_z3950_appliedVariant;               /* Variant */
+static int hf_z3950_date;                         /* GeneralizedTime */
+static int hf_z3950_ext;                          /* EXTERNAL */
+static int hf_z3950_trueOrFalse;                  /* BOOLEAN */
+static int hf_z3950_intUnit;                      /* IntUnit */
+static int hf_z3950_elementNotThere;              /* NULL */
+static int hf_z3950_elementEmpty;                 /* NULL */
+static int hf_z3950_noDataRequested;              /* NULL */
+static int hf_z3950_elementData_diagnostic;       /* EXTERNAL */
+static int hf_z3950_subtree;                      /* SEQUENCE_OF_TaggedElement */
+static int hf_z3950_subtree_item;                 /* TaggedElement */
+static int hf_z3950_seriesOrder;                  /* Order */
+static int hf_z3950_usageRight;                   /* Usage */
+static int hf_z3950_hits;                         /* SEQUENCE_OF_HitVector */
+static int hf_z3950_hits_item;                    /* HitVector */
+static int hf_z3950_displayName;                  /* InternationalString */
+static int hf_z3950_supportedVariants;            /* SEQUENCE_OF_Variant */
+static int hf_z3950_supportedVariants_item;       /* Variant */
+static int hf_z3950_elementDescriptor;            /* OCTET_STRING */
+static int hf_z3950_surrogateFor;                 /* TagPath */
+static int hf_z3950_surrogateElement;             /* TagPath */
+static int hf_z3950_TagPath_item;                 /* TagPath_item */
+static int hf_z3950_ascending;                    /* BOOLEAN */
+static int hf_z3950_order;                        /* INTEGER */
+static int hf_z3950_usage_type;                   /* T_usage_type */
+static int hf_z3950_restriction;                  /* InternationalString */
+static int hf_z3950_satisfier;                    /* Term */
+static int hf_z3950_offsetIntoElement;            /* IntUnit */
+static int hf_z3950_length;                       /* IntUnit */
+static int hf_z3950_hitRank;                      /* INTEGER */
+static int hf_z3950_targetToken;                  /* OCTET_STRING */
+static int hf_z3950_globalVariantSetId;           /* OBJECT_IDENTIFIER */
+static int hf_z3950_triples;                      /* T_triples */
+static int hf_z3950_triples_item;                 /* T_triples_item */
+static int hf_z3950_variantSetId;                 /* OBJECT_IDENTIFIER */
+static int hf_z3950_class;                        /* INTEGER */
+static int hf_z3950_variant_triples_item_value;   /* T_variant_triples_item_value */
+static int hf_z3950_octetString;                  /* OCTET_STRING */
+static int hf_z3950_boolean;                      /* BOOLEAN */
+static int hf_z3950_variant_triples_item_value_unit;  /* Unit */
+static int hf_z3950_taskPackage_description;      /* InternationalString */
+static int hf_z3950_targetReference;              /* OCTET_STRING */
+static int hf_z3950_creationDateTime;             /* GeneralizedTime */
+static int hf_z3950_taskStatus;                   /* T_taskStatus */
+static int hf_z3950_packageDiagnostics;           /* SEQUENCE_OF_DiagRec */
+static int hf_z3950_packageDiagnostics_item;      /* DiagRec */
+static int hf_z3950_challenge;                    /* Challenge */
+static int hf_z3950_response;                     /* Response */
+static int hf_z3950_Challenge_item;               /* Challenge_item */
+static int hf_z3950_promptId;                     /* PromptId */
+static int hf_z3950_defaultResponse;              /* InternationalString */
+static int hf_z3950_promptInfo;                   /* T_promptInfo */
+static int hf_z3950_challenge_item_promptInfo_character;  /* InternationalString */
+static int hf_z3950_encrypted;                    /* Encryption */
+static int hf_z3950_regExpr;                      /* InternationalString */
+static int hf_z3950_responseRequired;             /* NULL */
+static int hf_z3950_allowedValues;                /* SEQUENCE_OF_InternationalString */
+static int hf_z3950_allowedValues_item;           /* InternationalString */
+static int hf_z3950_shouldSave;                   /* NULL */
+static int hf_z3950_challenge_item_dataType;      /* T_challenge_item_dataType */
+static int hf_z3950_challenge_item_diagnostic;    /* EXTERNAL */
+static int hf_z3950_Response_item;                /* Response_item */
+static int hf_z3950_promptResponse;               /* T_promptResponse */
+static int hf_z3950_accept;                       /* BOOLEAN */
+static int hf_z3950_acknowledge;                  /* NULL */
+static int hf_z3950_enummeratedPrompt;            /* T_enummeratedPrompt */
+static int hf_z3950_promptId_enummeratedPrompt_type;  /* T_promptId_enummeratedPrompt_type */
+static int hf_z3950_suggestedString;              /* InternationalString */
+static int hf_z3950_nonEnumeratedPrompt;          /* InternationalString */
+static int hf_z3950_cryptType;                    /* OCTET_STRING */
+static int hf_z3950_credential;                   /* OCTET_STRING */
+static int hf_z3950_data;                         /* OCTET_STRING */
+static int hf_z3950_dES_RN_Object_challenge;      /* DRNType */
+static int hf_z3950_rES_RN_Object_response;       /* DRNType */
+static int hf_z3950_dRNType_userId;               /* OCTET_STRING */
+static int hf_z3950_salt;                         /* OCTET_STRING */
+static int hf_z3950_randomNumber;                 /* OCTET_STRING */
+static int hf_z3950_kRBObject_challenge;          /* KRBRequest */
+static int hf_z3950_kRBObject_response;           /* KRBResponse */
+static int hf_z3950_service;                      /* InternationalString */
+static int hf_z3950_instance;                     /* InternationalString */
+static int hf_z3950_realm;                        /* InternationalString */
+static int hf_z3950_userid;                       /* InternationalString */
+static int hf_z3950_ticket;                       /* OCTET_STRING */
+static int hf_z3950_SearchInfoReport_item;        /* SearchInfoReport_item */
+static int hf_z3950_subqueryId;                   /* InternationalString */
+static int hf_z3950_fullQuery;                    /* BOOLEAN */
+static int hf_z3950_subqueryExpression;           /* QueryExpression */
+static int hf_z3950_subqueryInterpretation;       /* QueryExpression */
+static int hf_z3950_subqueryRecommendation;       /* QueryExpression */
+static int hf_z3950_subqueryCount;                /* INTEGER */
+static int hf_z3950_subqueryWeight;               /* IntUnit */
+static int hf_z3950_resultsByDB;                  /* ResultsByDB */
+static int hf_z3950_ResultsByDB_item;             /* ResultsByDB_item */
+static int hf_z3950_databases;                    /* T_databases */
+static int hf_z3950_all;                          /* NULL */
+static int hf_z3950_list;                         /* SEQUENCE_OF_DatabaseName */
+static int hf_z3950_list_item;                    /* DatabaseName */
+static int hf_z3950_count;                        /* INTEGER */
+static int hf_z3950_queryExpression_term;         /* T_queryExpression_term */
+static int hf_z3950_queryTerm;                    /* Term */
+static int hf_z3950_termComment;                  /* InternationalString */
 /* named bits */
-static int hf_z3950_ProtocolVersion_U_version_1 = -1;
-static int hf_z3950_ProtocolVersion_U_version_2 = -1;
-static int hf_z3950_ProtocolVersion_U_version_3 = -1;
-static int hf_z3950_Options_U_search = -1;
-static int hf_z3950_Options_U_present = -1;
-static int hf_z3950_Options_U_delSet = -1;
-static int hf_z3950_Options_U_resourceReport = -1;
-static int hf_z3950_Options_U_triggerResourceCtrl = -1;
-static int hf_z3950_Options_U_resourceCtrl = -1;
-static int hf_z3950_Options_U_accessCtrl = -1;
-static int hf_z3950_Options_U_scan = -1;
-static int hf_z3950_Options_U_sort = -1;
-static int hf_z3950_Options_U_spare_bit9 = -1;
-static int hf_z3950_Options_U_extendedServices = -1;
-static int hf_z3950_Options_U_level_1Segmentation = -1;
-static int hf_z3950_Options_U_level_2Segmentation = -1;
-static int hf_z3950_Options_U_concurrentOperations = -1;
-static int hf_z3950_Options_U_namedResultSets = -1;
+static int hf_z3950_ProtocolVersion_U_version_1;
+static int hf_z3950_ProtocolVersion_U_version_2;
+static int hf_z3950_ProtocolVersion_U_version_3;
+static int hf_z3950_Options_U_search;
+static int hf_z3950_Options_U_present;
+static int hf_z3950_Options_U_delSet;
+static int hf_z3950_Options_U_resourceReport;
+static int hf_z3950_Options_U_triggerResourceCtrl;
+static int hf_z3950_Options_U_resourceCtrl;
+static int hf_z3950_Options_U_accessCtrl;
+static int hf_z3950_Options_U_scan;
+static int hf_z3950_Options_U_sort;
+static int hf_z3950_Options_U_spare_bit9;
+static int hf_z3950_Options_U_extendedServices;
+static int hf_z3950_Options_U_level_1Segmentation;
+static int hf_z3950_Options_U_level_2Segmentation;
+static int hf_z3950_Options_U_concurrentOperations;
+static int hf_z3950_Options_U_namedResultSets;
 
-static int hf_z3950_referenceId_printable = -1;
-static int hf_z3950_general_printable = -1;
+static int hf_z3950_referenceId_printable;
+static int hf_z3950_general_printable;
 
 /* Initialize the subtree pointers */
-static int ett_z3950 = -1;
+static int ett_z3950;
 
-static gint ett_z3950_PDU = -1;
-static gint ett_z3950_InitializeRequest = -1;
-static gint ett_z3950_T_idAuthentication = -1;
-static gint ett_z3950_T_idPass = -1;
-static gint ett_z3950_InitializeResponse = -1;
-static gint ett_z3950_ProtocolVersion_U = -1;
-static gint ett_z3950_Options_U = -1;
-static gint ett_z3950_SearchRequest = -1;
-static gint ett_z3950_SEQUENCE_OF_DatabaseName = -1;
-static gint ett_z3950_Query = -1;
-static gint ett_z3950_RPNQuery = -1;
-static gint ett_z3950_RPNStructure = -1;
-static gint ett_z3950_T_rpnRpnOp = -1;
-static gint ett_z3950_Operand = -1;
-static gint ett_z3950_AttributesPlusTerm_U = -1;
-static gint ett_z3950_ResultSetPlusAttributes_U = -1;
-static gint ett_z3950_SEQUENCE_OF_AttributeElement = -1;
-static gint ett_z3950_Term = -1;
-static gint ett_z3950_Operator_U = -1;
-static gint ett_z3950_AttributeElement = -1;
-static gint ett_z3950_T_attributeValue = -1;
-static gint ett_z3950_T_attributeValue_complex = -1;
-static gint ett_z3950_SEQUENCE_OF_StringOrNumeric = -1;
-static gint ett_z3950_T_semanticAction = -1;
-static gint ett_z3950_ProximityOperator = -1;
-static gint ett_z3950_T_proximityUnitCode = -1;
-static gint ett_z3950_SearchResponse = -1;
-static gint ett_z3950_PresentRequest = -1;
-static gint ett_z3950_SEQUENCE_OF_Range = -1;
-static gint ett_z3950_T_recordComposition = -1;
-static gint ett_z3950_Segment = -1;
-static gint ett_z3950_SEQUENCE_OF_NamePlusRecord = -1;
-static gint ett_z3950_PresentResponse = -1;
-static gint ett_z3950_Records = -1;
-static gint ett_z3950_SEQUENCE_OF_DiagRec = -1;
-static gint ett_z3950_NamePlusRecord = -1;
-static gint ett_z3950_T_record = -1;
-static gint ett_z3950_FragmentSyntax = -1;
-static gint ett_z3950_DiagRec = -1;
-static gint ett_z3950_DefaultDiagFormat = -1;
-static gint ett_z3950_T_addinfo = -1;
-static gint ett_z3950_Range = -1;
-static gint ett_z3950_ElementSetNames = -1;
-static gint ett_z3950_T_databaseSpecific = -1;
-static gint ett_z3950_T_databaseSpecific_item = -1;
-static gint ett_z3950_CompSpec = -1;
-static gint ett_z3950_T_dbSpecific = -1;
-static gint ett_z3950_T_dbSpecific_item = -1;
-static gint ett_z3950_T_compSpec_recordSyntax = -1;
-static gint ett_z3950_Specification = -1;
-static gint ett_z3950_T_specification_elementSpec = -1;
-static gint ett_z3950_DeleteResultSetRequest = -1;
-static gint ett_z3950_SEQUENCE_OF_ResultSetId = -1;
-static gint ett_z3950_DeleteResultSetResponse = -1;
-static gint ett_z3950_ListStatuses = -1;
-static gint ett_z3950_ListStatuses_item = -1;
-static gint ett_z3950_AccessControlRequest = -1;
-static gint ett_z3950_T_securityChallenge = -1;
-static gint ett_z3950_AccessControlResponse = -1;
-static gint ett_z3950_T_securityChallengeResponse = -1;
-static gint ett_z3950_ResourceControlRequest = -1;
-static gint ett_z3950_ResourceControlResponse = -1;
-static gint ett_z3950_TriggerResourceControlRequest = -1;
-static gint ett_z3950_ResourceReportRequest = -1;
-static gint ett_z3950_ResourceReportResponse = -1;
-static gint ett_z3950_ScanRequest = -1;
-static gint ett_z3950_ScanResponse = -1;
-static gint ett_z3950_ListEntries = -1;
-static gint ett_z3950_SEQUENCE_OF_Entry = -1;
-static gint ett_z3950_Entry = -1;
-static gint ett_z3950_TermInfo = -1;
-static gint ett_z3950_SEQUENCE_OF_AttributesPlusTerm = -1;
-static gint ett_z3950_OccurrenceByAttributes = -1;
-static gint ett_z3950_OccurrenceByAttributes_item = -1;
-static gint ett_z3950_T_occurrences = -1;
-static gint ett_z3950_T_byDatabase = -1;
-static gint ett_z3950_T_byDatabase_item = -1;
-static gint ett_z3950_SortRequest = -1;
-static gint ett_z3950_SEQUENCE_OF_InternationalString = -1;
-static gint ett_z3950_SEQUENCE_OF_SortKeySpec = -1;
-static gint ett_z3950_SortResponse = -1;
-static gint ett_z3950_SortKeySpec = -1;
-static gint ett_z3950_T_missingValueAction = -1;
-static gint ett_z3950_SortElement = -1;
-static gint ett_z3950_T_datbaseSpecific = -1;
-static gint ett_z3950_T_datbaseSpecific_item = -1;
-static gint ett_z3950_SortKey = -1;
-static gint ett_z3950_T_sortAttributes = -1;
-static gint ett_z3950_ExtendedServicesRequest = -1;
-static gint ett_z3950_ExtendedServicesResponse = -1;
-static gint ett_z3950_Permissions = -1;
-static gint ett_z3950_Permissions_item = -1;
-static gint ett_z3950_T_allowableFunctions = -1;
-static gint ett_z3950_Close = -1;
-static gint ett_z3950_OtherInformation_U = -1;
-static gint ett_z3950_T__untag_item = -1;
-static gint ett_z3950_T_information = -1;
-static gint ett_z3950_InfoCategory = -1;
-static gint ett_z3950_IntUnit = -1;
-static gint ett_z3950_Unit = -1;
-static gint ett_z3950_StringOrNumeric = -1;
-static gint ett_z3950_OCLC_UserInformation = -1;
-static gint ett_z3950_SEQUENCE_OF_DBName = -1;
-static gint ett_z3950_OPACRecord = -1;
-static gint ett_z3950_SEQUENCE_OF_HoldingsRecord = -1;
-static gint ett_z3950_HoldingsRecord = -1;
-static gint ett_z3950_HoldingsAndCircData = -1;
-static gint ett_z3950_SEQUENCE_OF_Volume = -1;
-static gint ett_z3950_SEQUENCE_OF_CircRecord = -1;
-static gint ett_z3950_Volume = -1;
-static gint ett_z3950_CircRecord = -1;
-static gint ett_z3950_DiagnosticFormat = -1;
-static gint ett_z3950_DiagnosticFormat_item = -1;
-static gint ett_z3950_T_diagnosticFormat_item_diagnostic = -1;
-static gint ett_z3950_DiagFormat = -1;
-static gint ett_z3950_T_tooMany = -1;
-static gint ett_z3950_T_badSpec = -1;
-static gint ett_z3950_SEQUENCE_OF_Specification = -1;
-static gint ett_z3950_T_dbUnavail = -1;
-static gint ett_z3950_T_why = -1;
-static gint ett_z3950_T_attribute = -1;
-static gint ett_z3950_T_attCombo = -1;
-static gint ett_z3950_SEQUENCE_OF_AttributeList = -1;
-static gint ett_z3950_T_diagFormat_term = -1;
-static gint ett_z3950_T_diagFormat_proximity = -1;
-static gint ett_z3950_T_scan = -1;
-static gint ett_z3950_T_sort = -1;
-static gint ett_z3950_T_segmentation = -1;
-static gint ett_z3950_T_extServices = -1;
-static gint ett_z3950_T_accessCtrl = -1;
-static gint ett_z3950_T_diagFormat_accessCtrl_oid = -1;
-static gint ett_z3950_T_alternative = -1;
-static gint ett_z3950_T_diagFormat_recordSyntax = -1;
-static gint ett_z3950_T_suggestedAlternatives = -1;
-static gint ett_z3950_Explain_Record = -1;
-static gint ett_z3950_TargetInfo = -1;
-static gint ett_z3950_SEQUENCE_OF_DatabaseList = -1;
-static gint ett_z3950_SEQUENCE_OF_NetworkAddress = -1;
-static gint ett_z3950_DatabaseInfo = -1;
-static gint ett_z3950_SEQUENCE_OF_HumanString = -1;
-static gint ett_z3950_T_recordCount = -1;
-static gint ett_z3950_SchemaInfo = -1;
-static gint ett_z3950_T_tagTypeMapping = -1;
-static gint ett_z3950_T_tagTypeMapping_item = -1;
-static gint ett_z3950_SEQUENCE_OF_ElementInfo = -1;
-static gint ett_z3950_ElementInfo = -1;
-static gint ett_z3950_Path = -1;
-static gint ett_z3950_Path_item = -1;
-static gint ett_z3950_ElementDataType = -1;
-static gint ett_z3950_TagSetInfo = -1;
-static gint ett_z3950_T_tagSetInfo_elements = -1;
-static gint ett_z3950_T_tagSetInfo_elements_item = -1;
-static gint ett_z3950_RecordSyntaxInfo = -1;
-static gint ett_z3950_T_transferSyntaxes = -1;
-static gint ett_z3950_AttributeSetInfo = -1;
-static gint ett_z3950_SEQUENCE_OF_AttributeType = -1;
-static gint ett_z3950_AttributeType = -1;
-static gint ett_z3950_SEQUENCE_OF_AttributeDescription = -1;
-static gint ett_z3950_AttributeDescription = -1;
-static gint ett_z3950_TermListInfo = -1;
-static gint ett_z3950_T_termLists = -1;
-static gint ett_z3950_T_termLists_item = -1;
-static gint ett_z3950_ExtendedServicesInfo = -1;
-static gint ett_z3950_AttributeDetails = -1;
-static gint ett_z3950_SEQUENCE_OF_AttributeSetDetails = -1;
-static gint ett_z3950_AttributeSetDetails = -1;
-static gint ett_z3950_SEQUENCE_OF_AttributeTypeDetails = -1;
-static gint ett_z3950_AttributeTypeDetails = -1;
-static gint ett_z3950_SEQUENCE_OF_AttributeValue = -1;
-static gint ett_z3950_OmittedAttributeInterpretation = -1;
-static gint ett_z3950_AttributeValue = -1;
-static gint ett_z3950_TermListDetails = -1;
-static gint ett_z3950_T_scanInfo = -1;
-static gint ett_z3950_SEQUENCE_OF_Term = -1;
-static gint ett_z3950_ElementSetDetails = -1;
-static gint ett_z3950_SEQUENCE_OF_PerElementDetails = -1;
-static gint ett_z3950_RetrievalRecordDetails = -1;
-static gint ett_z3950_PerElementDetails = -1;
-static gint ett_z3950_SEQUENCE_OF_Path = -1;
-static gint ett_z3950_RecordTag = -1;
-static gint ett_z3950_SortDetails = -1;
-static gint ett_z3950_SEQUENCE_OF_SortKeyDetails = -1;
-static gint ett_z3950_SortKeyDetails = -1;
-static gint ett_z3950_T_sortType = -1;
-static gint ett_z3950_ProcessingInformation = -1;
-static gint ett_z3950_VariantSetInfo = -1;
-static gint ett_z3950_SEQUENCE_OF_VariantClass = -1;
-static gint ett_z3950_VariantClass = -1;
-static gint ett_z3950_SEQUENCE_OF_VariantType = -1;
-static gint ett_z3950_VariantType = -1;
-static gint ett_z3950_VariantValue = -1;
-static gint ett_z3950_ValueSet = -1;
-static gint ett_z3950_SEQUENCE_OF_ValueDescription = -1;
-static gint ett_z3950_ValueRange = -1;
-static gint ett_z3950_ValueDescription = -1;
-static gint ett_z3950_UnitInfo = -1;
-static gint ett_z3950_SEQUENCE_OF_UnitType = -1;
-static gint ett_z3950_UnitType = -1;
-static gint ett_z3950_SEQUENCE_OF_Units = -1;
-static gint ett_z3950_Units = -1;
-static gint ett_z3950_CategoryList = -1;
-static gint ett_z3950_SEQUENCE_OF_CategoryInfo = -1;
-static gint ett_z3950_CategoryInfo = -1;
-static gint ett_z3950_CommonInfo = -1;
-static gint ett_z3950_HumanString = -1;
-static gint ett_z3950_HumanString_item = -1;
-static gint ett_z3950_IconObject = -1;
-static gint ett_z3950_IconObject_item = -1;
-static gint ett_z3950_T_bodyType = -1;
-static gint ett_z3950_ContactInfo = -1;
-static gint ett_z3950_NetworkAddress = -1;
-static gint ett_z3950_T_internetAddress = -1;
-static gint ett_z3950_T_osiPresentationAddress = -1;
-static gint ett_z3950_T_networkAddress_other = -1;
-static gint ett_z3950_AccessInfo = -1;
-static gint ett_z3950_SEQUENCE_OF_QueryTypeDetails = -1;
-static gint ett_z3950_T_diagnosticsSets = -1;
-static gint ett_z3950_SEQUENCE_OF_AttributeSetId = -1;
-static gint ett_z3950_T_schemas = -1;
-static gint ett_z3950_T_recordSyntaxes = -1;
-static gint ett_z3950_T_resourceChallenges = -1;
-static gint ett_z3950_T_variantSets = -1;
-static gint ett_z3950_SEQUENCE_OF_ElementSetName = -1;
-static gint ett_z3950_QueryTypeDetails = -1;
-static gint ett_z3950_PrivateCapabilities = -1;
-static gint ett_z3950_T_privateCapabilities_operators = -1;
-static gint ett_z3950_T_privateCapabilities_operators_item = -1;
-static gint ett_z3950_SEQUENCE_OF_SearchKey = -1;
-static gint ett_z3950_RpnCapabilities = -1;
-static gint ett_z3950_T_operators = -1;
-static gint ett_z3950_Iso8777Capabilities = -1;
-static gint ett_z3950_ProximitySupport = -1;
-static gint ett_z3950_T_unitsSupported = -1;
-static gint ett_z3950_T_unitsSupported_item = -1;
-static gint ett_z3950_T_proximitySupport_unitsSupported_item_private = -1;
-static gint ett_z3950_SearchKey = -1;
-static gint ett_z3950_AccessRestrictions = -1;
-static gint ett_z3950_AccessRestrictions_item = -1;
-static gint ett_z3950_T_accessChallenges = -1;
-static gint ett_z3950_Costs = -1;
-static gint ett_z3950_T_otherCharges = -1;
-static gint ett_z3950_T_otherCharges_item = -1;
-static gint ett_z3950_Charge = -1;
-static gint ett_z3950_DatabaseList = -1;
-static gint ett_z3950_AttributeCombinations = -1;
-static gint ett_z3950_SEQUENCE_OF_AttributeCombination = -1;
-static gint ett_z3950_AttributeCombination = -1;
-static gint ett_z3950_AttributeOccurrence = -1;
-static gint ett_z3950_T_attributeOccurrence_attributeValues = -1;
-static gint ett_z3950_BriefBib = -1;
-static gint ett_z3950_SEQUENCE_OF_FormatSpec = -1;
-static gint ett_z3950_FormatSpec = -1;
-static gint ett_z3950_GenericRecord = -1;
-static gint ett_z3950_TaggedElement = -1;
-static gint ett_z3950_ElementData = -1;
-static gint ett_z3950_SEQUENCE_OF_TaggedElement = -1;
-static gint ett_z3950_ElementMetaData = -1;
-static gint ett_z3950_SEQUENCE_OF_HitVector = -1;
-static gint ett_z3950_SEQUENCE_OF_Variant = -1;
-static gint ett_z3950_TagPath = -1;
-static gint ett_z3950_TagPath_item = -1;
-static gint ett_z3950_Order = -1;
-static gint ett_z3950_Usage = -1;
-static gint ett_z3950_HitVector = -1;
-static gint ett_z3950_Variant = -1;
-static gint ett_z3950_T_triples = -1;
-static gint ett_z3950_T_triples_item = -1;
-static gint ett_z3950_T_variant_triples_item_value = -1;
-static gint ett_z3950_TaskPackage = -1;
-static gint ett_z3950_PromptObject = -1;
-static gint ett_z3950_Challenge = -1;
-static gint ett_z3950_Challenge_item = -1;
-static gint ett_z3950_T_promptInfo = -1;
-static gint ett_z3950_Response = -1;
-static gint ett_z3950_Response_item = -1;
-static gint ett_z3950_T_promptResponse = -1;
-static gint ett_z3950_PromptId = -1;
-static gint ett_z3950_T_enummeratedPrompt = -1;
-static gint ett_z3950_Encryption = -1;
-static gint ett_z3950_DES_RN_Object = -1;
-static gint ett_z3950_DRNType = -1;
-static gint ett_z3950_KRBObject = -1;
-static gint ett_z3950_KRBRequest = -1;
-static gint ett_z3950_KRBResponse = -1;
-static gint ett_z3950_SearchInfoReport = -1;
-static gint ett_z3950_SearchInfoReport_item = -1;
-static gint ett_z3950_ResultsByDB = -1;
-static gint ett_z3950_ResultsByDB_item = -1;
-static gint ett_z3950_T_databases = -1;
-static gint ett_z3950_QueryExpression = -1;
-static gint ett_z3950_T_queryExpression_term = -1;
+static gint ett_z3950_PDU;
+static gint ett_z3950_InitializeRequest;
+static gint ett_z3950_T_idAuthentication;
+static gint ett_z3950_T_idPass;
+static gint ett_z3950_InitializeResponse;
+static gint ett_z3950_ProtocolVersion_U;
+static gint ett_z3950_Options_U;
+static gint ett_z3950_SearchRequest;
+static gint ett_z3950_SEQUENCE_OF_DatabaseName;
+static gint ett_z3950_Query;
+static gint ett_z3950_RPNQuery;
+static gint ett_z3950_RPNStructure;
+static gint ett_z3950_T_rpnRpnOp;
+static gint ett_z3950_Operand;
+static gint ett_z3950_AttributesPlusTerm_U;
+static gint ett_z3950_ResultSetPlusAttributes_U;
+static gint ett_z3950_SEQUENCE_OF_AttributeElement;
+static gint ett_z3950_Term;
+static gint ett_z3950_Operator_U;
+static gint ett_z3950_AttributeElement;
+static gint ett_z3950_T_attributeValue;
+static gint ett_z3950_T_attributeValue_complex;
+static gint ett_z3950_SEQUENCE_OF_StringOrNumeric;
+static gint ett_z3950_T_semanticAction;
+static gint ett_z3950_ProximityOperator;
+static gint ett_z3950_T_proximityUnitCode;
+static gint ett_z3950_SearchResponse;
+static gint ett_z3950_PresentRequest;
+static gint ett_z3950_SEQUENCE_OF_Range;
+static gint ett_z3950_T_recordComposition;
+static gint ett_z3950_Segment;
+static gint ett_z3950_SEQUENCE_OF_NamePlusRecord;
+static gint ett_z3950_PresentResponse;
+static gint ett_z3950_Records;
+static gint ett_z3950_SEQUENCE_OF_DiagRec;
+static gint ett_z3950_NamePlusRecord;
+static gint ett_z3950_T_record;
+static gint ett_z3950_FragmentSyntax;
+static gint ett_z3950_DiagRec;
+static gint ett_z3950_DefaultDiagFormat;
+static gint ett_z3950_T_addinfo;
+static gint ett_z3950_Range;
+static gint ett_z3950_ElementSetNames;
+static gint ett_z3950_T_databaseSpecific;
+static gint ett_z3950_T_databaseSpecific_item;
+static gint ett_z3950_CompSpec;
+static gint ett_z3950_T_dbSpecific;
+static gint ett_z3950_T_dbSpecific_item;
+static gint ett_z3950_T_compSpec_recordSyntax;
+static gint ett_z3950_Specification;
+static gint ett_z3950_T_specification_elementSpec;
+static gint ett_z3950_DeleteResultSetRequest;
+static gint ett_z3950_SEQUENCE_OF_ResultSetId;
+static gint ett_z3950_DeleteResultSetResponse;
+static gint ett_z3950_ListStatuses;
+static gint ett_z3950_ListStatuses_item;
+static gint ett_z3950_AccessControlRequest;
+static gint ett_z3950_T_securityChallenge;
+static gint ett_z3950_AccessControlResponse;
+static gint ett_z3950_T_securityChallengeResponse;
+static gint ett_z3950_ResourceControlRequest;
+static gint ett_z3950_ResourceControlResponse;
+static gint ett_z3950_TriggerResourceControlRequest;
+static gint ett_z3950_ResourceReportRequest;
+static gint ett_z3950_ResourceReportResponse;
+static gint ett_z3950_ScanRequest;
+static gint ett_z3950_ScanResponse;
+static gint ett_z3950_ListEntries;
+static gint ett_z3950_SEQUENCE_OF_Entry;
+static gint ett_z3950_Entry;
+static gint ett_z3950_TermInfo;
+static gint ett_z3950_SEQUENCE_OF_AttributesPlusTerm;
+static gint ett_z3950_OccurrenceByAttributes;
+static gint ett_z3950_OccurrenceByAttributes_item;
+static gint ett_z3950_T_occurrences;
+static gint ett_z3950_T_byDatabase;
+static gint ett_z3950_T_byDatabase_item;
+static gint ett_z3950_SortRequest;
+static gint ett_z3950_SEQUENCE_OF_InternationalString;
+static gint ett_z3950_SEQUENCE_OF_SortKeySpec;
+static gint ett_z3950_SortResponse;
+static gint ett_z3950_SortKeySpec;
+static gint ett_z3950_T_missingValueAction;
+static gint ett_z3950_SortElement;
+static gint ett_z3950_T_datbaseSpecific;
+static gint ett_z3950_T_datbaseSpecific_item;
+static gint ett_z3950_SortKey;
+static gint ett_z3950_T_sortAttributes;
+static gint ett_z3950_ExtendedServicesRequest;
+static gint ett_z3950_ExtendedServicesResponse;
+static gint ett_z3950_Permissions;
+static gint ett_z3950_Permissions_item;
+static gint ett_z3950_T_allowableFunctions;
+static gint ett_z3950_Close;
+static gint ett_z3950_OtherInformation_U;
+static gint ett_z3950_T__untag_item;
+static gint ett_z3950_T_information;
+static gint ett_z3950_InfoCategory;
+static gint ett_z3950_IntUnit;
+static gint ett_z3950_Unit;
+static gint ett_z3950_StringOrNumeric;
+static gint ett_z3950_OCLC_UserInformation;
+static gint ett_z3950_SEQUENCE_OF_DBName;
+static gint ett_z3950_OPACRecord;
+static gint ett_z3950_SEQUENCE_OF_HoldingsRecord;
+static gint ett_z3950_HoldingsRecord;
+static gint ett_z3950_HoldingsAndCircData;
+static gint ett_z3950_SEQUENCE_OF_Volume;
+static gint ett_z3950_SEQUENCE_OF_CircRecord;
+static gint ett_z3950_Volume;
+static gint ett_z3950_CircRecord;
+static gint ett_z3950_DiagnosticFormat;
+static gint ett_z3950_DiagnosticFormat_item;
+static gint ett_z3950_T_diagnosticFormat_item_diagnostic;
+static gint ett_z3950_DiagFormat;
+static gint ett_z3950_T_tooMany;
+static gint ett_z3950_T_badSpec;
+static gint ett_z3950_SEQUENCE_OF_Specification;
+static gint ett_z3950_T_dbUnavail;
+static gint ett_z3950_T_why;
+static gint ett_z3950_T_attribute;
+static gint ett_z3950_T_attCombo;
+static gint ett_z3950_SEQUENCE_OF_AttributeList;
+static gint ett_z3950_T_diagFormat_term;
+static gint ett_z3950_T_diagFormat_proximity;
+static gint ett_z3950_T_scan;
+static gint ett_z3950_T_sort;
+static gint ett_z3950_T_segmentation;
+static gint ett_z3950_T_extServices;
+static gint ett_z3950_T_accessCtrl;
+static gint ett_z3950_T_diagFormat_accessCtrl_oid;
+static gint ett_z3950_T_alternative;
+static gint ett_z3950_T_diagFormat_recordSyntax;
+static gint ett_z3950_T_suggestedAlternatives;
+static gint ett_z3950_Explain_Record;
+static gint ett_z3950_TargetInfo;
+static gint ett_z3950_SEQUENCE_OF_DatabaseList;
+static gint ett_z3950_SEQUENCE_OF_NetworkAddress;
+static gint ett_z3950_DatabaseInfo;
+static gint ett_z3950_SEQUENCE_OF_HumanString;
+static gint ett_z3950_T_recordCount;
+static gint ett_z3950_SchemaInfo;
+static gint ett_z3950_T_tagTypeMapping;
+static gint ett_z3950_T_tagTypeMapping_item;
+static gint ett_z3950_SEQUENCE_OF_ElementInfo;
+static gint ett_z3950_ElementInfo;
+static gint ett_z3950_Path;
+static gint ett_z3950_Path_item;
+static gint ett_z3950_ElementDataType;
+static gint ett_z3950_TagSetInfo;
+static gint ett_z3950_T_tagSetInfo_elements;
+static gint ett_z3950_T_tagSetInfo_elements_item;
+static gint ett_z3950_RecordSyntaxInfo;
+static gint ett_z3950_T_transferSyntaxes;
+static gint ett_z3950_AttributeSetInfo;
+static gint ett_z3950_SEQUENCE_OF_AttributeType;
+static gint ett_z3950_AttributeType;
+static gint ett_z3950_SEQUENCE_OF_AttributeDescription;
+static gint ett_z3950_AttributeDescription;
+static gint ett_z3950_TermListInfo;
+static gint ett_z3950_T_termLists;
+static gint ett_z3950_T_termLists_item;
+static gint ett_z3950_ExtendedServicesInfo;
+static gint ett_z3950_AttributeDetails;
+static gint ett_z3950_SEQUENCE_OF_AttributeSetDetails;
+static gint ett_z3950_AttributeSetDetails;
+static gint ett_z3950_SEQUENCE_OF_AttributeTypeDetails;
+static gint ett_z3950_AttributeTypeDetails;
+static gint ett_z3950_SEQUENCE_OF_AttributeValue;
+static gint ett_z3950_OmittedAttributeInterpretation;
+static gint ett_z3950_AttributeValue;
+static gint ett_z3950_TermListDetails;
+static gint ett_z3950_T_scanInfo;
+static gint ett_z3950_SEQUENCE_OF_Term;
+static gint ett_z3950_ElementSetDetails;
+static gint ett_z3950_SEQUENCE_OF_PerElementDetails;
+static gint ett_z3950_RetrievalRecordDetails;
+static gint ett_z3950_PerElementDetails;
+static gint ett_z3950_SEQUENCE_OF_Path;
+static gint ett_z3950_RecordTag;
+static gint ett_z3950_SortDetails;
+static gint ett_z3950_SEQUENCE_OF_SortKeyDetails;
+static gint ett_z3950_SortKeyDetails;
+static gint ett_z3950_T_sortType;
+static gint ett_z3950_ProcessingInformation;
+static gint ett_z3950_VariantSetInfo;
+static gint ett_z3950_SEQUENCE_OF_VariantClass;
+static gint ett_z3950_VariantClass;
+static gint ett_z3950_SEQUENCE_OF_VariantType;
+static gint ett_z3950_VariantType;
+static gint ett_z3950_VariantValue;
+static gint ett_z3950_ValueSet;
+static gint ett_z3950_SEQUENCE_OF_ValueDescription;
+static gint ett_z3950_ValueRange;
+static gint ett_z3950_ValueDescription;
+static gint ett_z3950_UnitInfo;
+static gint ett_z3950_SEQUENCE_OF_UnitType;
+static gint ett_z3950_UnitType;
+static gint ett_z3950_SEQUENCE_OF_Units;
+static gint ett_z3950_Units;
+static gint ett_z3950_CategoryList;
+static gint ett_z3950_SEQUENCE_OF_CategoryInfo;
+static gint ett_z3950_CategoryInfo;
+static gint ett_z3950_CommonInfo;
+static gint ett_z3950_HumanString;
+static gint ett_z3950_HumanString_item;
+static gint ett_z3950_IconObject;
+static gint ett_z3950_IconObject_item;
+static gint ett_z3950_T_bodyType;
+static gint ett_z3950_ContactInfo;
+static gint ett_z3950_NetworkAddress;
+static gint ett_z3950_T_internetAddress;
+static gint ett_z3950_T_osiPresentationAddress;
+static gint ett_z3950_T_networkAddress_other;
+static gint ett_z3950_AccessInfo;
+static gint ett_z3950_SEQUENCE_OF_QueryTypeDetails;
+static gint ett_z3950_T_diagnosticsSets;
+static gint ett_z3950_SEQUENCE_OF_AttributeSetId;
+static gint ett_z3950_T_schemas;
+static gint ett_z3950_T_recordSyntaxes;
+static gint ett_z3950_T_resourceChallenges;
+static gint ett_z3950_T_variantSets;
+static gint ett_z3950_SEQUENCE_OF_ElementSetName;
+static gint ett_z3950_QueryTypeDetails;
+static gint ett_z3950_PrivateCapabilities;
+static gint ett_z3950_T_privateCapabilities_operators;
+static gint ett_z3950_T_privateCapabilities_operators_item;
+static gint ett_z3950_SEQUENCE_OF_SearchKey;
+static gint ett_z3950_RpnCapabilities;
+static gint ett_z3950_T_operators;
+static gint ett_z3950_Iso8777Capabilities;
+static gint ett_z3950_ProximitySupport;
+static gint ett_z3950_T_unitsSupported;
+static gint ett_z3950_T_unitsSupported_item;
+static gint ett_z3950_T_proximitySupport_unitsSupported_item_private;
+static gint ett_z3950_SearchKey;
+static gint ett_z3950_AccessRestrictions;
+static gint ett_z3950_AccessRestrictions_item;
+static gint ett_z3950_T_accessChallenges;
+static gint ett_z3950_Costs;
+static gint ett_z3950_T_otherCharges;
+static gint ett_z3950_T_otherCharges_item;
+static gint ett_z3950_Charge;
+static gint ett_z3950_DatabaseList;
+static gint ett_z3950_AttributeCombinations;
+static gint ett_z3950_SEQUENCE_OF_AttributeCombination;
+static gint ett_z3950_AttributeCombination;
+static gint ett_z3950_AttributeOccurrence;
+static gint ett_z3950_T_attributeOccurrence_attributeValues;
+static gint ett_z3950_BriefBib;
+static gint ett_z3950_SEQUENCE_OF_FormatSpec;
+static gint ett_z3950_FormatSpec;
+static gint ett_z3950_GenericRecord;
+static gint ett_z3950_TaggedElement;
+static gint ett_z3950_ElementData;
+static gint ett_z3950_SEQUENCE_OF_TaggedElement;
+static gint ett_z3950_ElementMetaData;
+static gint ett_z3950_SEQUENCE_OF_HitVector;
+static gint ett_z3950_SEQUENCE_OF_Variant;
+static gint ett_z3950_TagPath;
+static gint ett_z3950_TagPath_item;
+static gint ett_z3950_Order;
+static gint ett_z3950_Usage;
+static gint ett_z3950_HitVector;
+static gint ett_z3950_Variant;
+static gint ett_z3950_T_triples;
+static gint ett_z3950_T_triples_item;
+static gint ett_z3950_T_variant_triples_item_value;
+static gint ett_z3950_TaskPackage;
+static gint ett_z3950_PromptObject;
+static gint ett_z3950_Challenge;
+static gint ett_z3950_Challenge_item;
+static gint ett_z3950_T_promptInfo;
+static gint ett_z3950_Response;
+static gint ett_z3950_Response_item;
+static gint ett_z3950_T_promptResponse;
+static gint ett_z3950_PromptId;
+static gint ett_z3950_T_enummeratedPrompt;
+static gint ett_z3950_Encryption;
+static gint ett_z3950_DES_RN_Object;
+static gint ett_z3950_DRNType;
+static gint ett_z3950_KRBObject;
+static gint ett_z3950_KRBRequest;
+static gint ett_z3950_KRBResponse;
+static gint ett_z3950_SearchInfoReport;
+static gint ett_z3950_SearchInfoReport_item;
+static gint ett_z3950_ResultsByDB;
+static gint ett_z3950_ResultsByDB_item;
+static gint ett_z3950_T_databases;
+static gint ett_z3950_QueryExpression;
+static gint ett_z3950_T_queryExpression_term;
 
 /* MARC variables and forwards */
 
 static int dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * data _U_);
 
 /* MARC fields */
-static int hf_marc_record = -1;
-static int hf_marc_record_terminator = -1;
-static int hf_marc_leader = -1;
-static int hf_marc_leader_length = -1;
-static int hf_marc_leader_status = -1;
-static int hf_marc_leader_type = -1;
-static int hf_marc_leader_biblevel = -1;
-static int hf_marc_leader_control = -1;
-static int hf_marc_leader_encoding = -1;
-static int hf_marc_leader_indicator_count = -1;
-static int hf_marc_leader_subfield_count = -1;
-static int hf_marc_leader_data_offset = -1;
-static int hf_marc_leader_encoding_level = -1;
-static int hf_marc_leader_descriptive_cataloging = -1;
-static int hf_marc_leader_multipart_level = -1;
-static int hf_marc_leader_length_of_field_length = -1;
-static int hf_marc_leader_starting_character_position_length = -1;
-static int hf_marc_leader_implementation_defined_length = -1;
-static int hf_marc_directory = -1;
-static int hf_marc_directory_entry = -1;
-static int hf_marc_directory_entry_tag = -1;
-static int hf_marc_directory_entry_length = -1;
-static int hf_marc_directory_entry_starting_position = -1;
-static int hf_marc_directory_terminator = -1;
-static int hf_marc_fields = -1;
-static int hf_marc_field = -1;
-static int hf_marc_field_control = -1;
-static int hf_marc_field_terminator = -1;
-static int hf_marc_field_indicator1 = -1;
-static int hf_marc_field_indicator2 = -1;
-static int hf_marc_field_subfield_indicator = -1;
-static int hf_marc_field_subfield_tag = -1;
-static int hf_marc_field_subfield = -1;
+static int hf_marc_record;
+static int hf_marc_record_terminator;
+static int hf_marc_leader;
+static int hf_marc_leader_length;
+static int hf_marc_leader_status;
+static int hf_marc_leader_type;
+static int hf_marc_leader_biblevel;
+static int hf_marc_leader_control;
+static int hf_marc_leader_encoding;
+static int hf_marc_leader_indicator_count;
+static int hf_marc_leader_subfield_count;
+static int hf_marc_leader_data_offset;
+static int hf_marc_leader_encoding_level;
+static int hf_marc_leader_descriptive_cataloging;
+static int hf_marc_leader_multipart_level;
+static int hf_marc_leader_length_of_field_length;
+static int hf_marc_leader_starting_character_position_length;
+static int hf_marc_leader_implementation_defined_length;
+static int hf_marc_directory;
+static int hf_marc_directory_entry;
+static int hf_marc_directory_entry_tag;
+static int hf_marc_directory_entry_length;
+static int hf_marc_directory_entry_starting_position;
+static int hf_marc_directory_terminator;
+static int hf_marc_fields;
+static int hf_marc_field;
+static int hf_marc_field_control;
+static int hf_marc_field_terminator;
+static int hf_marc_field_indicator1;
+static int hf_marc_field_indicator2;
+static int hf_marc_field_subfield_indicator;
+static int hf_marc_field_subfield_tag;
+static int hf_marc_field_subfield;
 
 /* MARC subtree pointers */
-static int ett_marc_record = -1;
-static int ett_marc_leader = -1;
-static int ett_marc_directory = -1;
-static int ett_marc_directory_entry = -1;
-static int ett_marc_fields = -1;
-static int ett_marc_field = -1;
+static int ett_marc_record;
+static int ett_marc_leader;
+static int ett_marc_directory;
+static int ett_marc_directory_entry;
+static int ett_marc_fields;
+static int ett_marc_field;
 
 /* MARC expert fields */
-static expert_field ei_marc_invalid_length = EI_INIT;
-static expert_field ei_marc_invalid_value = EI_INIT;
-static expert_field ei_marc_invalid_record_length = EI_INIT;
+static expert_field ei_marc_invalid_length;
+static expert_field ei_marc_invalid_value;
+static expert_field ei_marc_invalid_record_length;
 
 /* MARC value strings */
 

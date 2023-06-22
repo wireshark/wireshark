@@ -42,370 +42,370 @@ void proto_reg_handoff_ieee1609dot2(void);
 /* Initialize the protocol and registered fields */
 int proto_ieee1609dot2 = -1;
 dissector_handle_t proto_ieee1609dot2_handle = NULL;
-static int hf_ieee1609dot2_SecuredCrl_PDU = -1;   /* SecuredCrl */
-static int hf_ieee1609dot2_Ieee1609Dot2Data_PDU = -1;  /* Ieee1609Dot2Data */
-static int hf_ieee1609dot2_SequenceOfUint8_item = -1;  /* Uint8 */
-static int hf_ieee1609dot2_SequenceOfUint16_item = -1;  /* Uint16 */
-static int hf_ieee1609dot2_SequenceOfHashedId3_item = -1;  /* HashedId3 */
-static int hf_ieee1609dot2_start = -1;            /* Time32 */
-static int hf_ieee1609dot2_duration = -1;         /* Duration */
-static int hf_ieee1609dot2_microseconds = -1;     /* Uint16 */
-static int hf_ieee1609dot2_milliseconds = -1;     /* Uint16 */
-static int hf_ieee1609dot2_seconds = -1;          /* Uint16 */
-static int hf_ieee1609dot2_minutes = -1;          /* Uint16 */
-static int hf_ieee1609dot2_hours = -1;            /* Uint16 */
-static int hf_ieee1609dot2_sixtyHours = -1;       /* Uint16 */
-static int hf_ieee1609dot2_years = -1;            /* Uint16 */
-static int hf_ieee1609dot2_circularRegion = -1;   /* CircularRegion */
-static int hf_ieee1609dot2_rectangularRegion = -1;  /* SequenceOfRectangularRegion */
-static int hf_ieee1609dot2_polygonalRegion = -1;  /* PolygonalRegion */
-static int hf_ieee1609dot2_identifiedRegion = -1;  /* SequenceOfIdentifiedRegion */
-static int hf_ieee1609dot2_center = -1;           /* TwoDLocation */
-static int hf_ieee1609dot2_radius = -1;           /* Uint16 */
-static int hf_ieee1609dot2_northWest = -1;        /* TwoDLocation */
-static int hf_ieee1609dot2_southEast = -1;        /* TwoDLocation */
-static int hf_ieee1609dot2_SequenceOfRectangularRegion_item = -1;  /* RectangularRegion */
-static int hf_ieee1609dot2_PolygonalRegion_item = -1;  /* TwoDLocation */
-static int hf_ieee1609dot2_latitude = -1;         /* Latitude */
-static int hf_ieee1609dot2_longitude = -1;        /* Longitude */
-static int hf_ieee1609dot2_countryOnly = -1;      /* UnCountryId */
-static int hf_ieee1609dot2_countryAndRegions = -1;  /* CountryAndRegions */
-static int hf_ieee1609dot2_countryAndSubregions = -1;  /* CountryAndSubregions */
-static int hf_ieee1609dot2_SequenceOfIdentifiedRegion_item = -1;  /* IdentifiedRegion */
-static int hf_ieee1609dot2_regions = -1;          /* SequenceOfUint8 */
-static int hf_ieee1609dot2_regionAndSubregions = -1;  /* SequenceOfRegionAndSubregions */
-static int hf_ieee1609dot2_rasRegion = -1;        /* Uint8 */
-static int hf_ieee1609dot2_subregions = -1;       /* SequenceOfUint16 */
-static int hf_ieee1609dot2_SequenceOfRegionAndSubregions_item = -1;  /* RegionAndSubregions */
-static int hf_ieee1609dot2_elevation = -1;        /* Elevation */
-static int hf_ieee1609dot2_ecdsaNistP256Signature = -1;  /* EcdsaP256Signature */
-static int hf_ieee1609dot2_ecdsaBrainpoolP256r1Signature = -1;  /* EcdsaP256Signature */
-static int hf_ieee1609dot2_ecdsaBrainpoolP384r1Signature = -1;  /* EcdsaP384Signature */
-static int hf_ieee1609dot2_ecdsaNistP384Signature = -1;  /* EcdsaP384Signature */
-static int hf_ieee1609dot2_sm2Signature = -1;     /* EcsigP256Signature */
-static int hf_ieee1609dot2_rSig = -1;             /* EccP256CurvePoint */
-static int hf_ieee1609dot2_sSig = -1;             /* OCTET_STRING_SIZE_32 */
-static int hf_ieee1609dot2_ecdsap384RSig = -1;    /* EccP384CurvePoint */
-static int hf_ieee1609dot2_ecdsap384SSig = -1;    /* OCTET_STRING_SIZE_48 */
-static int hf_ieee1609dot2_rSig_01 = -1;          /* OCTET_STRING_SIZE_32 */
-static int hf_ieee1609dot2_x_only = -1;           /* OCTET_STRING_SIZE_32 */
-static int hf_ieee1609dot2_fill = -1;             /* NULL */
-static int hf_ieee1609dot2_compressed_y_0 = -1;   /* OCTET_STRING_SIZE_32 */
-static int hf_ieee1609dot2_compressed_y_1 = -1;   /* OCTET_STRING_SIZE_32 */
-static int hf_ieee1609dot2_uncompressedP256 = -1;  /* T_uncompressedP256 */
-static int hf_ieee1609dot2_x = -1;                /* OCTET_STRING_SIZE_32 */
-static int hf_ieee1609dot2_y = -1;                /* OCTET_STRING_SIZE_32 */
-static int hf_ieee1609dot2_eccp384cpXOnly = -1;   /* OCTET_STRING_SIZE_48 */
-static int hf_ieee1609dot2_eccp384cpCompressed_y_0 = -1;  /* OCTET_STRING_SIZE_48 */
-static int hf_ieee1609dot2_eccp384cpCompressed_y_1 = -1;  /* OCTET_STRING_SIZE_48 */
-static int hf_ieee1609dot2_uncompressedP384 = -1;  /* T_uncompressedP384 */
-static int hf_ieee1609dot2_eccp384cpX = -1;       /* OCTET_STRING_SIZE_48 */
-static int hf_ieee1609dot2_eccp384cpY = -1;       /* OCTET_STRING_SIZE_48 */
-static int hf_ieee1609dot2_v = -1;                /* EccP256CurvePoint */
-static int hf_ieee1609dot2_c = -1;                /* OCTET_STRING_SIZE_16 */
-static int hf_ieee1609dot2_t = -1;                /* OCTET_STRING_SIZE_16 */
-static int hf_ieee1609dot2_t_01 = -1;             /* OCTET_STRING_SIZE_32 */
-static int hf_ieee1609dot2_public = -1;           /* PublicEncryptionKey */
-static int hf_ieee1609dot2_symmetric = -1;        /* SymmetricEncryptionKey */
-static int hf_ieee1609dot2_supportedSymmAlg = -1;  /* SymmAlgorithm */
-static int hf_ieee1609dot2_publicKey = -1;        /* BasePublicEncryptionKey */
-static int hf_ieee1609dot2_eciesNistP256 = -1;    /* EccP256CurvePoint */
-static int hf_ieee1609dot2_eciesBrainpoolP256r1 = -1;  /* EccP256CurvePoint */
-static int hf_ieee1609dot2_ecencSm2 = -1;         /* EccP256CurvePoint */
-static int hf_ieee1609dot2_ecdsaNistP256 = -1;    /* EccP256CurvePoint */
-static int hf_ieee1609dot2_ecdsaBrainpoolP256r1 = -1;  /* EccP256CurvePoint */
-static int hf_ieee1609dot2_ecdsaBrainpoolP384r1 = -1;  /* EccP384CurvePoint */
-static int hf_ieee1609dot2_ecdsaNistP384 = -1;    /* EccP384CurvePoint */
-static int hf_ieee1609dot2_ecsigSm2 = -1;         /* EccP256CurvePoint */
-static int hf_ieee1609dot2_aes128Ccm = -1;        /* OCTET_STRING_SIZE_16 */
-static int hf_ieee1609dot2_sm4Ccm = -1;           /* OCTET_STRING_SIZE_16 */
-static int hf_ieee1609dot2_psPsid = -1;           /* T_psPsid */
-static int hf_ieee1609dot2_ssp = -1;              /* ServiceSpecificPermissions */
-static int hf_ieee1609dot2_SequenceOfPsidSsp_item = -1;  /* PsidSsp */
-static int hf_ieee1609dot2_opaque = -1;           /* T_opaque */
-static int hf_ieee1609dot2_bitmapSsp = -1;        /* BitmapSsp */
-static int hf_ieee1609dot2_psid = -1;             /* Psid */
-static int hf_ieee1609dot2_sspRange = -1;         /* SspRange */
-static int hf_ieee1609dot2_SequenceOfPsidSspRange_item = -1;  /* PsidSspRange */
-static int hf_ieee1609dot2_srRange = -1;          /* SequenceOfOctetString */
-static int hf_ieee1609dot2_all = -1;              /* NULL */
-static int hf_ieee1609dot2_bitmapSspRange = -1;   /* BitmapSspRange */
-static int hf_ieee1609dot2_sspValue = -1;         /* OCTET_STRING_SIZE_1_32 */
-static int hf_ieee1609dot2_sspBitmask = -1;       /* OCTET_STRING_SIZE_1_32 */
-static int hf_ieee1609dot2_SequenceOfOctetString_item = -1;  /* OCTET_STRING_SIZE_0_MAX */
-static int hf_ieee1609dot2_jValue = -1;           /* OCTET_STRING_SIZE_4 */
-static int hf_ieee1609dot2_value = -1;            /* OCTET_STRING_SIZE_9 */
-static int hf_ieee1609dot2_SequenceOfLinkageSeed_item = -1;  /* LinkageSeed */
-static int hf_ieee1609dot2_version = -1;          /* Uint8 */
-static int hf_ieee1609dot2_crlSeries = -1;        /* CrlSeries */
-static int hf_ieee1609dot2_crlCraca = -1;         /* HashedId8 */
-static int hf_ieee1609dot2_issueDate = -1;        /* Time32 */
-static int hf_ieee1609dot2_nextCrl = -1;          /* Time32 */
-static int hf_ieee1609dot2_priorityInfo = -1;     /* CrlPriorityInfo */
-static int hf_ieee1609dot2_typeSpecific = -1;     /* TypeSpecificCrlContents */
-static int hf_ieee1609dot2_priority = -1;         /* Uint8 */
-static int hf_ieee1609dot2_fullHashCrl = -1;      /* ToBeSignedHashIdCrl */
-static int hf_ieee1609dot2_deltaHashCrl = -1;     /* ToBeSignedHashIdCrl */
-static int hf_ieee1609dot2_fullLinkedCrl = -1;    /* ToBeSignedLinkageValueCrl */
-static int hf_ieee1609dot2_deltaLinkedCrl = -1;   /* ToBeSignedLinkageValueCrl */
-static int hf_ieee1609dot2_fullLinkedCrlWithAlg = -1;  /* ToBeSignedLinkageValueCrlWithAlgIdentifier */
-static int hf_ieee1609dot2_deltaLinkedCrlWithAlg = -1;  /* ToBeSignedLinkageValueCrlWithAlgIdentifier */
-static int hf_ieee1609dot2_crlSerial = -1;        /* Uint32 */
-static int hf_ieee1609dot2_entries = -1;          /* SequenceOfHashBasedRevocationInfo */
-static int hf_ieee1609dot2_SequenceOfHashBasedRevocationInfo_item = -1;  /* HashBasedRevocationInfo */
-static int hf_ieee1609dot2_id = -1;               /* HashedId10 */
-static int hf_ieee1609dot2_expiry = -1;           /* Time32 */
-static int hf_ieee1609dot2_iRev = -1;             /* IValue */
-static int hf_ieee1609dot2_indexWithinI = -1;     /* Uint8 */
-static int hf_ieee1609dot2_individual = -1;       /* SequenceOfJMaxGroup */
-static int hf_ieee1609dot2_groups = -1;           /* SequenceOfGroupCrlEntry */
-static int hf_ieee1609dot2_groupsSingleSeed = -1;  /* SequenceOfGroupSingleSeedCrlEntry */
-static int hf_ieee1609dot2_SequenceOfJMaxGroup_item = -1;  /* JMaxGroup */
-static int hf_ieee1609dot2_jmax = -1;             /* Uint8 */
-static int hf_ieee1609dot2_contents = -1;         /* SequenceOfLAGroup */
-static int hf_ieee1609dot2_SequenceOfLAGroup_item = -1;  /* LAGroup */
-static int hf_ieee1609dot2_la1Id = -1;            /* LaId */
-static int hf_ieee1609dot2_la2Id = -1;            /* LaId */
-static int hf_ieee1609dot2_contents_01 = -1;      /* SequenceOfIMaxGroup */
-static int hf_ieee1609dot2_SequenceOfIMaxGroup_item = -1;  /* IMaxGroup */
-static int hf_ieee1609dot2_iMax = -1;             /* Uint16 */
-static int hf_ieee1609dot2_contents_02 = -1;      /* SequenceOfIndividualRevocation */
-static int hf_ieee1609dot2_singleSeed = -1;       /* SequenceOfLinkageSeed */
-static int hf_ieee1609dot2_SequenceOfIndividualRevocation_item = -1;  /* IndividualRevocation */
-static int hf_ieee1609dot2_linkageSeed1 = -1;     /* LinkageSeed */
-static int hf_ieee1609dot2_linkageSeed2 = -1;     /* LinkageSeed */
-static int hf_ieee1609dot2_SequenceOfGroupCrlEntry_item = -1;  /* GroupCrlEntry */
-static int hf_ieee1609dot2_seedEvolution = -1;    /* SeedEvolutionFunctionIdentifier */
-static int hf_ieee1609dot2_lvGeneration = -1;     /* LvGenerationFunctionIdentifier */
-static int hf_ieee1609dot2_SequenceOfGroupSingleSeedCrlEntry_item = -1;  /* GroupSingleSeedCrlEntry */
-static int hf_ieee1609dot2_laId = -1;             /* LaId */
-static int hf_ieee1609dot2_linkageSeed = -1;      /* LinkageSeed */
-static int hf_ieee1609dot2_content = -1;          /* SecuredCrlContent */
-static int hf_ieee1609dot2_signedData = -1;       /* CrlSignedData */
-static int hf_ieee1609dot2_tbsData = -1;          /* CrlToBeSignedData */
-static int hf_ieee1609dot2_payload = -1;          /* CrlSignedDataPayload */
-static int hf_ieee1609dot2_headerInfo = -1;       /* HeaderInfo */
-static int hf_ieee1609dot2_data = -1;             /* Ieee1609Dot2CrlData */
-static int hf_ieee1609dot2_content_01 = -1;       /* Ieee1609Dot2CrlContent */
-static int hf_ieee1609dot2_unsecuredData = -1;    /* CrlContents */
-static int hf_ieee1609dot2_protocolVersion = -1;  /* Uint8 */
-static int hf_ieee1609dot2_content_02 = -1;       /* Ieee1609Dot2Content */
-static int hf_ieee1609dot2_unsecuredData_01 = -1;  /* T_unsecuredData */
-static int hf_ieee1609dot2_signedData_01 = -1;    /* SignedData */
-static int hf_ieee1609dot2_encryptedData = -1;    /* EncryptedData */
-static int hf_ieee1609dot2_signedCertificateRequest = -1;  /* Opaque */
-static int hf_ieee1609dot2_signedX509CertificateRequest = -1;  /* Opaque */
-static int hf_ieee1609dot2_hashId = -1;           /* HashAlgorithm */
-static int hf_ieee1609dot2_tbsData_01 = -1;       /* ToBeSignedData */
-static int hf_ieee1609dot2_signer = -1;           /* SignerIdentifier */
-static int hf_ieee1609dot2_signature = -1;        /* Signature */
-static int hf_ieee1609dot2_payload_01 = -1;       /* SignedDataPayload */
-static int hf_ieee1609dot2_data_01 = -1;          /* Ieee1609Dot2Data */
-static int hf_ieee1609dot2_extDataHash = -1;      /* HashedData */
-static int hf_ieee1609dot2_omitted = -1;          /* NULL */
-static int hf_ieee1609dot2_sha256HashedData = -1;  /* HashedId32 */
-static int hf_ieee1609dot2_sha384HashedData = -1;  /* HashedId48 */
-static int hf_ieee1609dot2_sm3HashedData = -1;    /* HashedId32 */
-static int hf_ieee1609dot2_hiPsid = -1;           /* T_hiPsid */
-static int hf_ieee1609dot2_generationTime = -1;   /* Time64 */
-static int hf_ieee1609dot2_expiryTime = -1;       /* Time64 */
-static int hf_ieee1609dot2_generationLocation = -1;  /* ThreeDLocation */
-static int hf_ieee1609dot2_p2pcdLearningRequest = -1;  /* HashedId3 */
-static int hf_ieee1609dot2_missingCrlIdentifier = -1;  /* MissingCrlIdentifier */
-static int hf_ieee1609dot2_encryptionKey = -1;    /* EncryptionKey */
-static int hf_ieee1609dot2_inlineP2pcdRequest = -1;  /* SequenceOfHashedId3 */
-static int hf_ieee1609dot2_requestedCertificate = -1;  /* Certificate */
-static int hf_ieee1609dot2_pduFunctionalType = -1;  /* PduFunctionalType */
-static int hf_ieee1609dot2_contributedExtensions = -1;  /* ContributedExtensionBlocks */
-static int hf_ieee1609dot2_cracaId = -1;          /* HashedId3 */
-static int hf_ieee1609dot2_ContributedExtensionBlocks_item = -1;  /* ContributedExtensionBlock */
-static int hf_ieee1609dot2_contributorId = -1;    /* HeaderInfoContributorId */
-static int hf_ieee1609dot2_extns = -1;            /* T_extns */
-static int hf_ieee1609dot2_extns_item = -1;       /* T_extns_item */
-static int hf_ieee1609dot2_digest = -1;           /* HashedId8 */
-static int hf_ieee1609dot2_certificate = -1;      /* SequenceOfCertificate */
-static int hf_ieee1609dot2_siSelf = -1;           /* NULL */
-static int hf_ieee1609dot2_recipients = -1;       /* SequenceOfRecipientInfo */
-static int hf_ieee1609dot2_ciphertext = -1;       /* SymmetricCiphertext */
-static int hf_ieee1609dot2_pskRecipInfo = -1;     /* PreSharedKeyRecipientInfo */
-static int hf_ieee1609dot2_symmRecipInfo = -1;    /* SymmRecipientInfo */
-static int hf_ieee1609dot2_certRecipInfo = -1;    /* PKRecipientInfo */
-static int hf_ieee1609dot2_signedDataRecipInfo = -1;  /* PKRecipientInfo */
-static int hf_ieee1609dot2_rekRecipInfo = -1;     /* PKRecipientInfo */
-static int hf_ieee1609dot2_SequenceOfRecipientInfo_item = -1;  /* RecipientInfo */
-static int hf_ieee1609dot2_recipientId = -1;      /* HashedId8 */
-static int hf_ieee1609dot2_sriEncKey = -1;        /* SymmetricCiphertext */
-static int hf_ieee1609dot2_encKey = -1;           /* EncryptedDataEncryptionKey */
-static int hf_ieee1609dot2_edeEciesNistP256 = -1;  /* EciesP256EncryptedKey */
-static int hf_ieee1609dot2_edekEciesBrainpoolP256r1 = -1;  /* EciesP256EncryptedKey */
-static int hf_ieee1609dot2_ecencSm2256 = -1;      /* EcencP256EncryptedKey */
-static int hf_ieee1609dot2_aes128ccm = -1;        /* One28BitCcmCiphertext */
-static int hf_ieee1609dot2_sm4Ccm_01 = -1;        /* One28BitCcmCiphertext */
-static int hf_ieee1609dot2_nonce = -1;            /* OCTET_STRING_SIZE_12 */
-static int hf_ieee1609dot2_ccmCiphertext = -1;    /* Opaque */
-static int hf_ieee1609dot2_SequenceOfCertificate_item = -1;  /* Certificate */
-static int hf_ieee1609dot2_type = -1;             /* CertificateType */
-static int hf_ieee1609dot2_issuer = -1;           /* IssuerIdentifier */
-static int hf_ieee1609dot2_toBeSigned = -1;       /* ToBeSignedCertificate */
-static int hf_ieee1609dot2_sha256AndDigest = -1;  /* HashedId8 */
-static int hf_ieee1609dot2_iiSelf = -1;           /* HashAlgorithm */
-static int hf_ieee1609dot2_sha384AndDigest = -1;  /* HashedId8 */
-static int hf_ieee1609dot2_sm3AndDigest = -1;     /* HashedId8 */
-static int hf_ieee1609dot2_id_01 = -1;            /* CertificateId */
-static int hf_ieee1609dot2_validityPeriod = -1;   /* ValidityPeriod */
-static int hf_ieee1609dot2_region = -1;           /* GeographicRegion */
-static int hf_ieee1609dot2_assuranceLevel = -1;   /* SubjectAssurance */
-static int hf_ieee1609dot2_appPermissions = -1;   /* SequenceOfPsidSsp */
-static int hf_ieee1609dot2_certIssuePermissions = -1;  /* SequenceOfPsidGroupPermissions */
-static int hf_ieee1609dot2_certRequestPermissions = -1;  /* SequenceOfPsidGroupPermissions */
-static int hf_ieee1609dot2_canRequestRollover = -1;  /* NULL */
-static int hf_ieee1609dot2_tbscEncryptionKey = -1;  /* PublicEncryptionKey */
-static int hf_ieee1609dot2_verifyKeyIndicator = -1;  /* VerificationKeyIndicator */
-static int hf_ieee1609dot2_flags = -1;            /* T_flags */
-static int hf_ieee1609dot2_appExtensions = -1;    /* SequenceOfAppExtensions */
-static int hf_ieee1609dot2_certIssueExtensions = -1;  /* SequenceOfCertIssueExtensions */
-static int hf_ieee1609dot2_certRequestExtension = -1;  /* SequenceOfCertRequestExtensions */
-static int hf_ieee1609dot2_linkageData = -1;      /* LinkageData */
-static int hf_ieee1609dot2_name = -1;             /* Hostname */
-static int hf_ieee1609dot2_binaryId = -1;         /* OCTET_STRING_SIZE_1_64 */
-static int hf_ieee1609dot2_none = -1;             /* NULL */
-static int hf_ieee1609dot2_iCert = -1;            /* IValue */
-static int hf_ieee1609dot2_linkage_value = -1;    /* LinkageValue */
-static int hf_ieee1609dot2_group_linkage_value = -1;  /* GroupLinkageValue */
-static int hf_ieee1609dot2_subjectPermissions = -1;  /* SubjectPermissions */
-static int hf_ieee1609dot2_minChainLength = -1;   /* INTEGER */
-static int hf_ieee1609dot2_chainLengthRange = -1;  /* INTEGER */
-static int hf_ieee1609dot2_eeType = -1;           /* EndEntityType */
-static int hf_ieee1609dot2_SequenceOfPsidGroupPermissions_item = -1;  /* PsidGroupPermissions */
-static int hf_ieee1609dot2_explicit = -1;         /* SequenceOfPsidSspRange */
-static int hf_ieee1609dot2_verificationKey = -1;  /* PublicVerificationKey */
-static int hf_ieee1609dot2_reconstructionValue = -1;  /* EccP256CurvePoint */
-static int hf_ieee1609dot2_SequenceOfAppExtensions_item = -1;  /* AppExtension */
-static int hf_ieee1609dot2_id_02 = -1;            /* ExtId */
-static int hf_ieee1609dot2_content_03 = -1;       /* T_content */
-static int hf_ieee1609dot2_SequenceOfCertIssueExtensions_item = -1;  /* CertIssueExtension */
-static int hf_ieee1609dot2_permissions = -1;      /* T_permissions */
-static int hf_ieee1609dot2_specific = -1;         /* T_specific */
-static int hf_ieee1609dot2_SequenceOfCertRequestExtensions_item = -1;  /* CertRequestExtension */
-static int hf_ieee1609dot2_permissions_01 = -1;   /* T_permissions_01 */
-static int hf_ieee1609dot2_content_04 = -1;       /* T_content_01 */
+static int hf_ieee1609dot2_SecuredCrl_PDU;        /* SecuredCrl */
+static int hf_ieee1609dot2_Ieee1609Dot2Data_PDU;  /* Ieee1609Dot2Data */
+static int hf_ieee1609dot2_SequenceOfUint8_item;  /* Uint8 */
+static int hf_ieee1609dot2_SequenceOfUint16_item;  /* Uint16 */
+static int hf_ieee1609dot2_SequenceOfHashedId3_item;  /* HashedId3 */
+static int hf_ieee1609dot2_start;                 /* Time32 */
+static int hf_ieee1609dot2_duration;              /* Duration */
+static int hf_ieee1609dot2_microseconds;          /* Uint16 */
+static int hf_ieee1609dot2_milliseconds;          /* Uint16 */
+static int hf_ieee1609dot2_seconds;               /* Uint16 */
+static int hf_ieee1609dot2_minutes;               /* Uint16 */
+static int hf_ieee1609dot2_hours;                 /* Uint16 */
+static int hf_ieee1609dot2_sixtyHours;            /* Uint16 */
+static int hf_ieee1609dot2_years;                 /* Uint16 */
+static int hf_ieee1609dot2_circularRegion;        /* CircularRegion */
+static int hf_ieee1609dot2_rectangularRegion;     /* SequenceOfRectangularRegion */
+static int hf_ieee1609dot2_polygonalRegion;       /* PolygonalRegion */
+static int hf_ieee1609dot2_identifiedRegion;      /* SequenceOfIdentifiedRegion */
+static int hf_ieee1609dot2_center;                /* TwoDLocation */
+static int hf_ieee1609dot2_radius;                /* Uint16 */
+static int hf_ieee1609dot2_northWest;             /* TwoDLocation */
+static int hf_ieee1609dot2_southEast;             /* TwoDLocation */
+static int hf_ieee1609dot2_SequenceOfRectangularRegion_item;  /* RectangularRegion */
+static int hf_ieee1609dot2_PolygonalRegion_item;  /* TwoDLocation */
+static int hf_ieee1609dot2_latitude;              /* Latitude */
+static int hf_ieee1609dot2_longitude;             /* Longitude */
+static int hf_ieee1609dot2_countryOnly;           /* UnCountryId */
+static int hf_ieee1609dot2_countryAndRegions;     /* CountryAndRegions */
+static int hf_ieee1609dot2_countryAndSubregions;  /* CountryAndSubregions */
+static int hf_ieee1609dot2_SequenceOfIdentifiedRegion_item;  /* IdentifiedRegion */
+static int hf_ieee1609dot2_regions;               /* SequenceOfUint8 */
+static int hf_ieee1609dot2_regionAndSubregions;   /* SequenceOfRegionAndSubregions */
+static int hf_ieee1609dot2_rasRegion;             /* Uint8 */
+static int hf_ieee1609dot2_subregions;            /* SequenceOfUint16 */
+static int hf_ieee1609dot2_SequenceOfRegionAndSubregions_item;  /* RegionAndSubregions */
+static int hf_ieee1609dot2_elevation;             /* Elevation */
+static int hf_ieee1609dot2_ecdsaNistP256Signature;  /* EcdsaP256Signature */
+static int hf_ieee1609dot2_ecdsaBrainpoolP256r1Signature;  /* EcdsaP256Signature */
+static int hf_ieee1609dot2_ecdsaBrainpoolP384r1Signature;  /* EcdsaP384Signature */
+static int hf_ieee1609dot2_ecdsaNistP384Signature;  /* EcdsaP384Signature */
+static int hf_ieee1609dot2_sm2Signature;          /* EcsigP256Signature */
+static int hf_ieee1609dot2_rSig;                  /* EccP256CurvePoint */
+static int hf_ieee1609dot2_sSig;                  /* OCTET_STRING_SIZE_32 */
+static int hf_ieee1609dot2_ecdsap384RSig;         /* EccP384CurvePoint */
+static int hf_ieee1609dot2_ecdsap384SSig;         /* OCTET_STRING_SIZE_48 */
+static int hf_ieee1609dot2_rSig_01;               /* OCTET_STRING_SIZE_32 */
+static int hf_ieee1609dot2_x_only;                /* OCTET_STRING_SIZE_32 */
+static int hf_ieee1609dot2_fill;                  /* NULL */
+static int hf_ieee1609dot2_compressed_y_0;        /* OCTET_STRING_SIZE_32 */
+static int hf_ieee1609dot2_compressed_y_1;        /* OCTET_STRING_SIZE_32 */
+static int hf_ieee1609dot2_uncompressedP256;      /* T_uncompressedP256 */
+static int hf_ieee1609dot2_x;                     /* OCTET_STRING_SIZE_32 */
+static int hf_ieee1609dot2_y;                     /* OCTET_STRING_SIZE_32 */
+static int hf_ieee1609dot2_eccp384cpXOnly;        /* OCTET_STRING_SIZE_48 */
+static int hf_ieee1609dot2_eccp384cpCompressed_y_0;  /* OCTET_STRING_SIZE_48 */
+static int hf_ieee1609dot2_eccp384cpCompressed_y_1;  /* OCTET_STRING_SIZE_48 */
+static int hf_ieee1609dot2_uncompressedP384;      /* T_uncompressedP384 */
+static int hf_ieee1609dot2_eccp384cpX;            /* OCTET_STRING_SIZE_48 */
+static int hf_ieee1609dot2_eccp384cpY;            /* OCTET_STRING_SIZE_48 */
+static int hf_ieee1609dot2_v;                     /* EccP256CurvePoint */
+static int hf_ieee1609dot2_c;                     /* OCTET_STRING_SIZE_16 */
+static int hf_ieee1609dot2_t;                     /* OCTET_STRING_SIZE_16 */
+static int hf_ieee1609dot2_t_01;                  /* OCTET_STRING_SIZE_32 */
+static int hf_ieee1609dot2_public;                /* PublicEncryptionKey */
+static int hf_ieee1609dot2_symmetric;             /* SymmetricEncryptionKey */
+static int hf_ieee1609dot2_supportedSymmAlg;      /* SymmAlgorithm */
+static int hf_ieee1609dot2_publicKey;             /* BasePublicEncryptionKey */
+static int hf_ieee1609dot2_eciesNistP256;         /* EccP256CurvePoint */
+static int hf_ieee1609dot2_eciesBrainpoolP256r1;  /* EccP256CurvePoint */
+static int hf_ieee1609dot2_ecencSm2;              /* EccP256CurvePoint */
+static int hf_ieee1609dot2_ecdsaNistP256;         /* EccP256CurvePoint */
+static int hf_ieee1609dot2_ecdsaBrainpoolP256r1;  /* EccP256CurvePoint */
+static int hf_ieee1609dot2_ecdsaBrainpoolP384r1;  /* EccP384CurvePoint */
+static int hf_ieee1609dot2_ecdsaNistP384;         /* EccP384CurvePoint */
+static int hf_ieee1609dot2_ecsigSm2;              /* EccP256CurvePoint */
+static int hf_ieee1609dot2_aes128Ccm;             /* OCTET_STRING_SIZE_16 */
+static int hf_ieee1609dot2_sm4Ccm;                /* OCTET_STRING_SIZE_16 */
+static int hf_ieee1609dot2_psPsid;                /* T_psPsid */
+static int hf_ieee1609dot2_ssp;                   /* ServiceSpecificPermissions */
+static int hf_ieee1609dot2_SequenceOfPsidSsp_item;  /* PsidSsp */
+static int hf_ieee1609dot2_opaque;                /* T_opaque */
+static int hf_ieee1609dot2_bitmapSsp;             /* BitmapSsp */
+static int hf_ieee1609dot2_psid;                  /* Psid */
+static int hf_ieee1609dot2_sspRange;              /* SspRange */
+static int hf_ieee1609dot2_SequenceOfPsidSspRange_item;  /* PsidSspRange */
+static int hf_ieee1609dot2_srRange;               /* SequenceOfOctetString */
+static int hf_ieee1609dot2_all;                   /* NULL */
+static int hf_ieee1609dot2_bitmapSspRange;        /* BitmapSspRange */
+static int hf_ieee1609dot2_sspValue;              /* OCTET_STRING_SIZE_1_32 */
+static int hf_ieee1609dot2_sspBitmask;            /* OCTET_STRING_SIZE_1_32 */
+static int hf_ieee1609dot2_SequenceOfOctetString_item;  /* OCTET_STRING_SIZE_0_MAX */
+static int hf_ieee1609dot2_jValue;                /* OCTET_STRING_SIZE_4 */
+static int hf_ieee1609dot2_value;                 /* OCTET_STRING_SIZE_9 */
+static int hf_ieee1609dot2_SequenceOfLinkageSeed_item;  /* LinkageSeed */
+static int hf_ieee1609dot2_version;               /* Uint8 */
+static int hf_ieee1609dot2_crlSeries;             /* CrlSeries */
+static int hf_ieee1609dot2_crlCraca;              /* HashedId8 */
+static int hf_ieee1609dot2_issueDate;             /* Time32 */
+static int hf_ieee1609dot2_nextCrl;               /* Time32 */
+static int hf_ieee1609dot2_priorityInfo;          /* CrlPriorityInfo */
+static int hf_ieee1609dot2_typeSpecific;          /* TypeSpecificCrlContents */
+static int hf_ieee1609dot2_priority;              /* Uint8 */
+static int hf_ieee1609dot2_fullHashCrl;           /* ToBeSignedHashIdCrl */
+static int hf_ieee1609dot2_deltaHashCrl;          /* ToBeSignedHashIdCrl */
+static int hf_ieee1609dot2_fullLinkedCrl;         /* ToBeSignedLinkageValueCrl */
+static int hf_ieee1609dot2_deltaLinkedCrl;        /* ToBeSignedLinkageValueCrl */
+static int hf_ieee1609dot2_fullLinkedCrlWithAlg;  /* ToBeSignedLinkageValueCrlWithAlgIdentifier */
+static int hf_ieee1609dot2_deltaLinkedCrlWithAlg;  /* ToBeSignedLinkageValueCrlWithAlgIdentifier */
+static int hf_ieee1609dot2_crlSerial;             /* Uint32 */
+static int hf_ieee1609dot2_entries;               /* SequenceOfHashBasedRevocationInfo */
+static int hf_ieee1609dot2_SequenceOfHashBasedRevocationInfo_item;  /* HashBasedRevocationInfo */
+static int hf_ieee1609dot2_id;                    /* HashedId10 */
+static int hf_ieee1609dot2_expiry;                /* Time32 */
+static int hf_ieee1609dot2_iRev;                  /* IValue */
+static int hf_ieee1609dot2_indexWithinI;          /* Uint8 */
+static int hf_ieee1609dot2_individual;            /* SequenceOfJMaxGroup */
+static int hf_ieee1609dot2_groups;                /* SequenceOfGroupCrlEntry */
+static int hf_ieee1609dot2_groupsSingleSeed;      /* SequenceOfGroupSingleSeedCrlEntry */
+static int hf_ieee1609dot2_SequenceOfJMaxGroup_item;  /* JMaxGroup */
+static int hf_ieee1609dot2_jmax;                  /* Uint8 */
+static int hf_ieee1609dot2_contents;              /* SequenceOfLAGroup */
+static int hf_ieee1609dot2_SequenceOfLAGroup_item;  /* LAGroup */
+static int hf_ieee1609dot2_la1Id;                 /* LaId */
+static int hf_ieee1609dot2_la2Id;                 /* LaId */
+static int hf_ieee1609dot2_contents_01;           /* SequenceOfIMaxGroup */
+static int hf_ieee1609dot2_SequenceOfIMaxGroup_item;  /* IMaxGroup */
+static int hf_ieee1609dot2_iMax;                  /* Uint16 */
+static int hf_ieee1609dot2_contents_02;           /* SequenceOfIndividualRevocation */
+static int hf_ieee1609dot2_singleSeed;            /* SequenceOfLinkageSeed */
+static int hf_ieee1609dot2_SequenceOfIndividualRevocation_item;  /* IndividualRevocation */
+static int hf_ieee1609dot2_linkageSeed1;          /* LinkageSeed */
+static int hf_ieee1609dot2_linkageSeed2;          /* LinkageSeed */
+static int hf_ieee1609dot2_SequenceOfGroupCrlEntry_item;  /* GroupCrlEntry */
+static int hf_ieee1609dot2_seedEvolution;         /* SeedEvolutionFunctionIdentifier */
+static int hf_ieee1609dot2_lvGeneration;          /* LvGenerationFunctionIdentifier */
+static int hf_ieee1609dot2_SequenceOfGroupSingleSeedCrlEntry_item;  /* GroupSingleSeedCrlEntry */
+static int hf_ieee1609dot2_laId;                  /* LaId */
+static int hf_ieee1609dot2_linkageSeed;           /* LinkageSeed */
+static int hf_ieee1609dot2_content;               /* SecuredCrlContent */
+static int hf_ieee1609dot2_signedData;            /* CrlSignedData */
+static int hf_ieee1609dot2_tbsData;               /* CrlToBeSignedData */
+static int hf_ieee1609dot2_payload;               /* CrlSignedDataPayload */
+static int hf_ieee1609dot2_headerInfo;            /* HeaderInfo */
+static int hf_ieee1609dot2_data;                  /* Ieee1609Dot2CrlData */
+static int hf_ieee1609dot2_content_01;            /* Ieee1609Dot2CrlContent */
+static int hf_ieee1609dot2_unsecuredData;         /* CrlContents */
+static int hf_ieee1609dot2_protocolVersion;       /* Uint8 */
+static int hf_ieee1609dot2_content_02;            /* Ieee1609Dot2Content */
+static int hf_ieee1609dot2_unsecuredData_01;      /* T_unsecuredData */
+static int hf_ieee1609dot2_signedData_01;         /* SignedData */
+static int hf_ieee1609dot2_encryptedData;         /* EncryptedData */
+static int hf_ieee1609dot2_signedCertificateRequest;  /* Opaque */
+static int hf_ieee1609dot2_signedX509CertificateRequest;  /* Opaque */
+static int hf_ieee1609dot2_hashId;                /* HashAlgorithm */
+static int hf_ieee1609dot2_tbsData_01;            /* ToBeSignedData */
+static int hf_ieee1609dot2_signer;                /* SignerIdentifier */
+static int hf_ieee1609dot2_signature;             /* Signature */
+static int hf_ieee1609dot2_payload_01;            /* SignedDataPayload */
+static int hf_ieee1609dot2_data_01;               /* Ieee1609Dot2Data */
+static int hf_ieee1609dot2_extDataHash;           /* HashedData */
+static int hf_ieee1609dot2_omitted;               /* NULL */
+static int hf_ieee1609dot2_sha256HashedData;      /* HashedId32 */
+static int hf_ieee1609dot2_sha384HashedData;      /* HashedId48 */
+static int hf_ieee1609dot2_sm3HashedData;         /* HashedId32 */
+static int hf_ieee1609dot2_hiPsid;                /* T_hiPsid */
+static int hf_ieee1609dot2_generationTime;        /* Time64 */
+static int hf_ieee1609dot2_expiryTime;            /* Time64 */
+static int hf_ieee1609dot2_generationLocation;    /* ThreeDLocation */
+static int hf_ieee1609dot2_p2pcdLearningRequest;  /* HashedId3 */
+static int hf_ieee1609dot2_missingCrlIdentifier;  /* MissingCrlIdentifier */
+static int hf_ieee1609dot2_encryptionKey;         /* EncryptionKey */
+static int hf_ieee1609dot2_inlineP2pcdRequest;    /* SequenceOfHashedId3 */
+static int hf_ieee1609dot2_requestedCertificate;  /* Certificate */
+static int hf_ieee1609dot2_pduFunctionalType;     /* PduFunctionalType */
+static int hf_ieee1609dot2_contributedExtensions;  /* ContributedExtensionBlocks */
+static int hf_ieee1609dot2_cracaId;               /* HashedId3 */
+static int hf_ieee1609dot2_ContributedExtensionBlocks_item;  /* ContributedExtensionBlock */
+static int hf_ieee1609dot2_contributorId;         /* HeaderInfoContributorId */
+static int hf_ieee1609dot2_extns;                 /* T_extns */
+static int hf_ieee1609dot2_extns_item;            /* T_extns_item */
+static int hf_ieee1609dot2_digest;                /* HashedId8 */
+static int hf_ieee1609dot2_certificate;           /* SequenceOfCertificate */
+static int hf_ieee1609dot2_siSelf;                /* NULL */
+static int hf_ieee1609dot2_recipients;            /* SequenceOfRecipientInfo */
+static int hf_ieee1609dot2_ciphertext;            /* SymmetricCiphertext */
+static int hf_ieee1609dot2_pskRecipInfo;          /* PreSharedKeyRecipientInfo */
+static int hf_ieee1609dot2_symmRecipInfo;         /* SymmRecipientInfo */
+static int hf_ieee1609dot2_certRecipInfo;         /* PKRecipientInfo */
+static int hf_ieee1609dot2_signedDataRecipInfo;   /* PKRecipientInfo */
+static int hf_ieee1609dot2_rekRecipInfo;          /* PKRecipientInfo */
+static int hf_ieee1609dot2_SequenceOfRecipientInfo_item;  /* RecipientInfo */
+static int hf_ieee1609dot2_recipientId;           /* HashedId8 */
+static int hf_ieee1609dot2_sriEncKey;             /* SymmetricCiphertext */
+static int hf_ieee1609dot2_encKey;                /* EncryptedDataEncryptionKey */
+static int hf_ieee1609dot2_edeEciesNistP256;      /* EciesP256EncryptedKey */
+static int hf_ieee1609dot2_edekEciesBrainpoolP256r1;  /* EciesP256EncryptedKey */
+static int hf_ieee1609dot2_ecencSm2256;           /* EcencP256EncryptedKey */
+static int hf_ieee1609dot2_aes128ccm;             /* One28BitCcmCiphertext */
+static int hf_ieee1609dot2_sm4Ccm_01;             /* One28BitCcmCiphertext */
+static int hf_ieee1609dot2_nonce;                 /* OCTET_STRING_SIZE_12 */
+static int hf_ieee1609dot2_ccmCiphertext;         /* Opaque */
+static int hf_ieee1609dot2_SequenceOfCertificate_item;  /* Certificate */
+static int hf_ieee1609dot2_type;                  /* CertificateType */
+static int hf_ieee1609dot2_issuer;                /* IssuerIdentifier */
+static int hf_ieee1609dot2_toBeSigned;            /* ToBeSignedCertificate */
+static int hf_ieee1609dot2_sha256AndDigest;       /* HashedId8 */
+static int hf_ieee1609dot2_iiSelf;                /* HashAlgorithm */
+static int hf_ieee1609dot2_sha384AndDigest;       /* HashedId8 */
+static int hf_ieee1609dot2_sm3AndDigest;          /* HashedId8 */
+static int hf_ieee1609dot2_id_01;                 /* CertificateId */
+static int hf_ieee1609dot2_validityPeriod;        /* ValidityPeriod */
+static int hf_ieee1609dot2_region;                /* GeographicRegion */
+static int hf_ieee1609dot2_assuranceLevel;        /* SubjectAssurance */
+static int hf_ieee1609dot2_appPermissions;        /* SequenceOfPsidSsp */
+static int hf_ieee1609dot2_certIssuePermissions;  /* SequenceOfPsidGroupPermissions */
+static int hf_ieee1609dot2_certRequestPermissions;  /* SequenceOfPsidGroupPermissions */
+static int hf_ieee1609dot2_canRequestRollover;    /* NULL */
+static int hf_ieee1609dot2_tbscEncryptionKey;     /* PublicEncryptionKey */
+static int hf_ieee1609dot2_verifyKeyIndicator;    /* VerificationKeyIndicator */
+static int hf_ieee1609dot2_flags;                 /* T_flags */
+static int hf_ieee1609dot2_appExtensions;         /* SequenceOfAppExtensions */
+static int hf_ieee1609dot2_certIssueExtensions;   /* SequenceOfCertIssueExtensions */
+static int hf_ieee1609dot2_certRequestExtension;  /* SequenceOfCertRequestExtensions */
+static int hf_ieee1609dot2_linkageData;           /* LinkageData */
+static int hf_ieee1609dot2_name;                  /* Hostname */
+static int hf_ieee1609dot2_binaryId;              /* OCTET_STRING_SIZE_1_64 */
+static int hf_ieee1609dot2_none;                  /* NULL */
+static int hf_ieee1609dot2_iCert;                 /* IValue */
+static int hf_ieee1609dot2_linkage_value;         /* LinkageValue */
+static int hf_ieee1609dot2_group_linkage_value;   /* GroupLinkageValue */
+static int hf_ieee1609dot2_subjectPermissions;    /* SubjectPermissions */
+static int hf_ieee1609dot2_minChainLength;        /* INTEGER */
+static int hf_ieee1609dot2_chainLengthRange;      /* INTEGER */
+static int hf_ieee1609dot2_eeType;                /* EndEntityType */
+static int hf_ieee1609dot2_SequenceOfPsidGroupPermissions_item;  /* PsidGroupPermissions */
+static int hf_ieee1609dot2_explicit;              /* SequenceOfPsidSspRange */
+static int hf_ieee1609dot2_verificationKey;       /* PublicVerificationKey */
+static int hf_ieee1609dot2_reconstructionValue;   /* EccP256CurvePoint */
+static int hf_ieee1609dot2_SequenceOfAppExtensions_item;  /* AppExtension */
+static int hf_ieee1609dot2_id_02;                 /* ExtId */
+static int hf_ieee1609dot2_content_03;            /* T_content */
+static int hf_ieee1609dot2_SequenceOfCertIssueExtensions_item;  /* CertIssueExtension */
+static int hf_ieee1609dot2_permissions;           /* T_permissions */
+static int hf_ieee1609dot2_specific;              /* T_specific */
+static int hf_ieee1609dot2_SequenceOfCertRequestExtensions_item;  /* CertRequestExtension */
+static int hf_ieee1609dot2_permissions_01;        /* T_permissions_01 */
+static int hf_ieee1609dot2_content_04;            /* T_content_01 */
 /* named bits */
-static int hf_ieee1609dot2_T_flags_usesCubk = -1;
-static int hf_ieee1609dot2_EndEntityType_app = -1;
-static int hf_ieee1609dot2_EndEntityType_enrol = -1;
+static int hf_ieee1609dot2_T_flags_usesCubk;
+static int hf_ieee1609dot2_EndEntityType_app;
+static int hf_ieee1609dot2_EndEntityType_enrol;
 
 /* Initialize the subtree pointers */
-static int ett_ieee1609dot2_ssp = -1;
-static gint ett_ieee1609dot2_SequenceOfUint8 = -1;
-static gint ett_ieee1609dot2_SequenceOfUint16 = -1;
-static gint ett_ieee1609dot2_SequenceOfHashedId3 = -1;
-static gint ett_ieee1609dot2_ValidityPeriod = -1;
-static gint ett_ieee1609dot2_Duration = -1;
-static gint ett_ieee1609dot2_GeographicRegion = -1;
-static gint ett_ieee1609dot2_CircularRegion = -1;
-static gint ett_ieee1609dot2_RectangularRegion = -1;
-static gint ett_ieee1609dot2_SequenceOfRectangularRegion = -1;
-static gint ett_ieee1609dot2_PolygonalRegion = -1;
-static gint ett_ieee1609dot2_TwoDLocation = -1;
-static gint ett_ieee1609dot2_IdentifiedRegion = -1;
-static gint ett_ieee1609dot2_SequenceOfIdentifiedRegion = -1;
-static gint ett_ieee1609dot2_CountryAndRegions = -1;
-static gint ett_ieee1609dot2_CountryAndSubregions = -1;
-static gint ett_ieee1609dot2_RegionAndSubregions = -1;
-static gint ett_ieee1609dot2_SequenceOfRegionAndSubregions = -1;
-static gint ett_ieee1609dot2_ThreeDLocation = -1;
-static gint ett_ieee1609dot2_Signature = -1;
-static gint ett_ieee1609dot2_EcdsaP256Signature = -1;
-static gint ett_ieee1609dot2_EcdsaP384Signature = -1;
-static gint ett_ieee1609dot2_EcsigP256Signature = -1;
-static gint ett_ieee1609dot2_EccP256CurvePoint = -1;
-static gint ett_ieee1609dot2_T_uncompressedP256 = -1;
-static gint ett_ieee1609dot2_EccP384CurvePoint = -1;
-static gint ett_ieee1609dot2_T_uncompressedP384 = -1;
-static gint ett_ieee1609dot2_EciesP256EncryptedKey = -1;
-static gint ett_ieee1609dot2_EcencP256EncryptedKey = -1;
-static gint ett_ieee1609dot2_EncryptionKey = -1;
-static gint ett_ieee1609dot2_PublicEncryptionKey = -1;
-static gint ett_ieee1609dot2_BasePublicEncryptionKey = -1;
-static gint ett_ieee1609dot2_PublicVerificationKey = -1;
-static gint ett_ieee1609dot2_SymmetricEncryptionKey = -1;
-static gint ett_ieee1609dot2_PsidSsp = -1;
-static gint ett_ieee1609dot2_SequenceOfPsidSsp = -1;
-static gint ett_ieee1609dot2_ServiceSpecificPermissions = -1;
-static gint ett_ieee1609dot2_PsidSspRange = -1;
-static gint ett_ieee1609dot2_SequenceOfPsidSspRange = -1;
-static gint ett_ieee1609dot2_SspRange = -1;
-static gint ett_ieee1609dot2_BitmapSspRange = -1;
-static gint ett_ieee1609dot2_SequenceOfOctetString = -1;
-static gint ett_ieee1609dot2_GroupLinkageValue = -1;
-static gint ett_ieee1609dot2_SequenceOfLinkageSeed = -1;
-static gint ett_ieee1609dot2_CrlContents = -1;
-static gint ett_ieee1609dot2_CrlPriorityInfo = -1;
-static gint ett_ieee1609dot2_TypeSpecificCrlContents = -1;
-static gint ett_ieee1609dot2_ToBeSignedHashIdCrl = -1;
-static gint ett_ieee1609dot2_SequenceOfHashBasedRevocationInfo = -1;
-static gint ett_ieee1609dot2_HashBasedRevocationInfo = -1;
-static gint ett_ieee1609dot2_ToBeSignedLinkageValueCrl = -1;
-static gint ett_ieee1609dot2_SequenceOfJMaxGroup = -1;
-static gint ett_ieee1609dot2_JMaxGroup = -1;
-static gint ett_ieee1609dot2_SequenceOfLAGroup = -1;
-static gint ett_ieee1609dot2_LAGroup = -1;
-static gint ett_ieee1609dot2_SequenceOfIMaxGroup = -1;
-static gint ett_ieee1609dot2_IMaxGroup = -1;
-static gint ett_ieee1609dot2_SequenceOfIndividualRevocation = -1;
-static gint ett_ieee1609dot2_IndividualRevocation = -1;
-static gint ett_ieee1609dot2_SequenceOfGroupCrlEntry = -1;
-static gint ett_ieee1609dot2_GroupCrlEntry = -1;
-static gint ett_ieee1609dot2_ToBeSignedLinkageValueCrlWithAlgIdentifier = -1;
-static gint ett_ieee1609dot2_SequenceOfGroupSingleSeedCrlEntry = -1;
-static gint ett_ieee1609dot2_GroupSingleSeedCrlEntry = -1;
-static gint ett_ieee1609dot2_SecuredCrl = -1;
-static gint ett_ieee1609dot2_SecuredCrlContent = -1;
-static gint ett_ieee1609dot2_CrlSignedData = -1;
-static gint ett_ieee1609dot2_CrlToBeSignedData = -1;
-static gint ett_ieee1609dot2_CrlSignedDataPayload = -1;
-static gint ett_ieee1609dot2_Ieee1609Dot2CrlData = -1;
-static gint ett_ieee1609dot2_Ieee1609Dot2CrlContent = -1;
-static gint ett_ieee1609dot2_Ieee1609Dot2Data = -1;
-static gint ett_ieee1609dot2_Ieee1609Dot2Content = -1;
-static gint ett_ieee1609dot2_SignedData = -1;
-static gint ett_ieee1609dot2_ToBeSignedData = -1;
-static gint ett_ieee1609dot2_SignedDataPayload = -1;
-static gint ett_ieee1609dot2_HashedData = -1;
-static gint ett_ieee1609dot2_HeaderInfo = -1;
-static gint ett_ieee1609dot2_MissingCrlIdentifier = -1;
-static gint ett_ieee1609dot2_ContributedExtensionBlocks = -1;
-static gint ett_ieee1609dot2_ContributedExtensionBlock = -1;
-static gint ett_ieee1609dot2_T_extns = -1;
-static gint ett_ieee1609dot2_SignerIdentifier = -1;
-static gint ett_ieee1609dot2_EncryptedData = -1;
-static gint ett_ieee1609dot2_RecipientInfo = -1;
-static gint ett_ieee1609dot2_SequenceOfRecipientInfo = -1;
-static gint ett_ieee1609dot2_SymmRecipientInfo = -1;
-static gint ett_ieee1609dot2_PKRecipientInfo = -1;
-static gint ett_ieee1609dot2_EncryptedDataEncryptionKey = -1;
-static gint ett_ieee1609dot2_SymmetricCiphertext = -1;
-static gint ett_ieee1609dot2_One28BitCcmCiphertext = -1;
-static gint ett_ieee1609dot2_SequenceOfCertificate = -1;
-static gint ett_ieee1609dot2_CertificateBase = -1;
-static gint ett_ieee1609dot2_IssuerIdentifier = -1;
-static gint ett_ieee1609dot2_ToBeSignedCertificate = -1;
-static gint ett_ieee1609dot2_T_flags = -1;
-static gint ett_ieee1609dot2_CertificateId = -1;
-static gint ett_ieee1609dot2_LinkageData = -1;
-static gint ett_ieee1609dot2_EndEntityType = -1;
-static gint ett_ieee1609dot2_PsidGroupPermissions = -1;
-static gint ett_ieee1609dot2_SequenceOfPsidGroupPermissions = -1;
-static gint ett_ieee1609dot2_SubjectPermissions = -1;
-static gint ett_ieee1609dot2_VerificationKeyIndicator = -1;
-static gint ett_ieee1609dot2_SequenceOfAppExtensions = -1;
-static gint ett_ieee1609dot2_AppExtension = -1;
-static gint ett_ieee1609dot2_SequenceOfCertIssueExtensions = -1;
-static gint ett_ieee1609dot2_CertIssueExtension = -1;
-static gint ett_ieee1609dot2_T_permissions = -1;
-static gint ett_ieee1609dot2_SequenceOfCertRequestExtensions = -1;
-static gint ett_ieee1609dot2_CertRequestExtension = -1;
-static gint ett_ieee1609dot2_T_permissions_01 = -1;
+static int ett_ieee1609dot2_ssp;
+static gint ett_ieee1609dot2_SequenceOfUint8;
+static gint ett_ieee1609dot2_SequenceOfUint16;
+static gint ett_ieee1609dot2_SequenceOfHashedId3;
+static gint ett_ieee1609dot2_ValidityPeriod;
+static gint ett_ieee1609dot2_Duration;
+static gint ett_ieee1609dot2_GeographicRegion;
+static gint ett_ieee1609dot2_CircularRegion;
+static gint ett_ieee1609dot2_RectangularRegion;
+static gint ett_ieee1609dot2_SequenceOfRectangularRegion;
+static gint ett_ieee1609dot2_PolygonalRegion;
+static gint ett_ieee1609dot2_TwoDLocation;
+static gint ett_ieee1609dot2_IdentifiedRegion;
+static gint ett_ieee1609dot2_SequenceOfIdentifiedRegion;
+static gint ett_ieee1609dot2_CountryAndRegions;
+static gint ett_ieee1609dot2_CountryAndSubregions;
+static gint ett_ieee1609dot2_RegionAndSubregions;
+static gint ett_ieee1609dot2_SequenceOfRegionAndSubregions;
+static gint ett_ieee1609dot2_ThreeDLocation;
+static gint ett_ieee1609dot2_Signature;
+static gint ett_ieee1609dot2_EcdsaP256Signature;
+static gint ett_ieee1609dot2_EcdsaP384Signature;
+static gint ett_ieee1609dot2_EcsigP256Signature;
+static gint ett_ieee1609dot2_EccP256CurvePoint;
+static gint ett_ieee1609dot2_T_uncompressedP256;
+static gint ett_ieee1609dot2_EccP384CurvePoint;
+static gint ett_ieee1609dot2_T_uncompressedP384;
+static gint ett_ieee1609dot2_EciesP256EncryptedKey;
+static gint ett_ieee1609dot2_EcencP256EncryptedKey;
+static gint ett_ieee1609dot2_EncryptionKey;
+static gint ett_ieee1609dot2_PublicEncryptionKey;
+static gint ett_ieee1609dot2_BasePublicEncryptionKey;
+static gint ett_ieee1609dot2_PublicVerificationKey;
+static gint ett_ieee1609dot2_SymmetricEncryptionKey;
+static gint ett_ieee1609dot2_PsidSsp;
+static gint ett_ieee1609dot2_SequenceOfPsidSsp;
+static gint ett_ieee1609dot2_ServiceSpecificPermissions;
+static gint ett_ieee1609dot2_PsidSspRange;
+static gint ett_ieee1609dot2_SequenceOfPsidSspRange;
+static gint ett_ieee1609dot2_SspRange;
+static gint ett_ieee1609dot2_BitmapSspRange;
+static gint ett_ieee1609dot2_SequenceOfOctetString;
+static gint ett_ieee1609dot2_GroupLinkageValue;
+static gint ett_ieee1609dot2_SequenceOfLinkageSeed;
+static gint ett_ieee1609dot2_CrlContents;
+static gint ett_ieee1609dot2_CrlPriorityInfo;
+static gint ett_ieee1609dot2_TypeSpecificCrlContents;
+static gint ett_ieee1609dot2_ToBeSignedHashIdCrl;
+static gint ett_ieee1609dot2_SequenceOfHashBasedRevocationInfo;
+static gint ett_ieee1609dot2_HashBasedRevocationInfo;
+static gint ett_ieee1609dot2_ToBeSignedLinkageValueCrl;
+static gint ett_ieee1609dot2_SequenceOfJMaxGroup;
+static gint ett_ieee1609dot2_JMaxGroup;
+static gint ett_ieee1609dot2_SequenceOfLAGroup;
+static gint ett_ieee1609dot2_LAGroup;
+static gint ett_ieee1609dot2_SequenceOfIMaxGroup;
+static gint ett_ieee1609dot2_IMaxGroup;
+static gint ett_ieee1609dot2_SequenceOfIndividualRevocation;
+static gint ett_ieee1609dot2_IndividualRevocation;
+static gint ett_ieee1609dot2_SequenceOfGroupCrlEntry;
+static gint ett_ieee1609dot2_GroupCrlEntry;
+static gint ett_ieee1609dot2_ToBeSignedLinkageValueCrlWithAlgIdentifier;
+static gint ett_ieee1609dot2_SequenceOfGroupSingleSeedCrlEntry;
+static gint ett_ieee1609dot2_GroupSingleSeedCrlEntry;
+static gint ett_ieee1609dot2_SecuredCrl;
+static gint ett_ieee1609dot2_SecuredCrlContent;
+static gint ett_ieee1609dot2_CrlSignedData;
+static gint ett_ieee1609dot2_CrlToBeSignedData;
+static gint ett_ieee1609dot2_CrlSignedDataPayload;
+static gint ett_ieee1609dot2_Ieee1609Dot2CrlData;
+static gint ett_ieee1609dot2_Ieee1609Dot2CrlContent;
+static gint ett_ieee1609dot2_Ieee1609Dot2Data;
+static gint ett_ieee1609dot2_Ieee1609Dot2Content;
+static gint ett_ieee1609dot2_SignedData;
+static gint ett_ieee1609dot2_ToBeSignedData;
+static gint ett_ieee1609dot2_SignedDataPayload;
+static gint ett_ieee1609dot2_HashedData;
+static gint ett_ieee1609dot2_HeaderInfo;
+static gint ett_ieee1609dot2_MissingCrlIdentifier;
+static gint ett_ieee1609dot2_ContributedExtensionBlocks;
+static gint ett_ieee1609dot2_ContributedExtensionBlock;
+static gint ett_ieee1609dot2_T_extns;
+static gint ett_ieee1609dot2_SignerIdentifier;
+static gint ett_ieee1609dot2_EncryptedData;
+static gint ett_ieee1609dot2_RecipientInfo;
+static gint ett_ieee1609dot2_SequenceOfRecipientInfo;
+static gint ett_ieee1609dot2_SymmRecipientInfo;
+static gint ett_ieee1609dot2_PKRecipientInfo;
+static gint ett_ieee1609dot2_EncryptedDataEncryptionKey;
+static gint ett_ieee1609dot2_SymmetricCiphertext;
+static gint ett_ieee1609dot2_One28BitCcmCiphertext;
+static gint ett_ieee1609dot2_SequenceOfCertificate;
+static gint ett_ieee1609dot2_CertificateBase;
+static gint ett_ieee1609dot2_IssuerIdentifier;
+static gint ett_ieee1609dot2_ToBeSignedCertificate;
+static gint ett_ieee1609dot2_T_flags;
+static gint ett_ieee1609dot2_CertificateId;
+static gint ett_ieee1609dot2_LinkageData;
+static gint ett_ieee1609dot2_EndEntityType;
+static gint ett_ieee1609dot2_PsidGroupPermissions;
+static gint ett_ieee1609dot2_SequenceOfPsidGroupPermissions;
+static gint ett_ieee1609dot2_SubjectPermissions;
+static gint ett_ieee1609dot2_VerificationKeyIndicator;
+static gint ett_ieee1609dot2_SequenceOfAppExtensions;
+static gint ett_ieee1609dot2_AppExtension;
+static gint ett_ieee1609dot2_SequenceOfCertIssueExtensions;
+static gint ett_ieee1609dot2_CertIssueExtension;
+static gint ett_ieee1609dot2_T_permissions;
+static gint ett_ieee1609dot2_SequenceOfCertRequestExtensions;
+static gint ett_ieee1609dot2_CertRequestExtension;
+static gint ett_ieee1609dot2_T_permissions_01;
 
 static dissector_table_t unsecured_data_subdissector_table;
 static dissector_table_t ssp_subdissector_table;

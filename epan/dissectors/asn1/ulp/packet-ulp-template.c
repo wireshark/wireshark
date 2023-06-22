@@ -44,7 +44,7 @@ static dissector_handle_t lpp_handle;
 #define ULP_PORT    7275
 
 /* Initialize the protocol and registered fields */
-static int proto_ulp = -1;
+static int proto_ulp;
 
 
 #define ULP_HEADER_SIZE 2
@@ -52,19 +52,19 @@ static int proto_ulp = -1;
 static gboolean ulp_desegment = TRUE;
 
 #include "packet-ulp-hf.c"
-static int hf_ulp_mobile_directory_number = -1;
-static int hf_ulp_ganssTimeModels_bit0 = -1;
-static int hf_ulp_ganssTimeModels_bit1 = -1;
-static int hf_ulp_ganssTimeModels_bit2 = -1;
-static int hf_ulp_ganssTimeModels_bit3 = -1;
-static int hf_ulp_ganssTimeModels_bit4 = -1;
-static int hf_ulp_ganssTimeModels_spare = -1;
+static int hf_ulp_mobile_directory_number;
+static int hf_ulp_ganssTimeModels_bit0;
+static int hf_ulp_ganssTimeModels_bit1;
+static int hf_ulp_ganssTimeModels_bit2;
+static int hf_ulp_ganssTimeModels_bit3;
+static int hf_ulp_ganssTimeModels_bit4;
+static int hf_ulp_ganssTimeModels_spare;
 
 /* Initialize the subtree pointers */
-static gint ett_ulp = -1;
-static gint ett_ulp_setid = -1;
-static gint ett_ulp_thirdPartyId = -1;
-static gint ett_ulp_ganssTimeModels = -1;
+static gint ett_ulp;
+static gint ett_ulp_setid;
+static gint ett_ulp_thirdPartyId;
+static gint ett_ulp_ganssTimeModels;
 #include "packet-ulp-ett.c"
 
 static dissector_handle_t ulp_tcp_handle;

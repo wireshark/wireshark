@@ -602,2640 +602,2640 @@ typedef enum _GlobalNG_RANNode_ID_enum {
 } GlobalNG_RANNode_ID_enum;
 
 /* Initialize the protocol and registered fields */
-static int proto_xnap = -1;
-static int hf_xnap_transportLayerAddressIPv4 = -1;
-static int hf_xnap_transportLayerAddressIPv6 = -1;
-static int hf_xnap_NG_RANTraceID_TraceID = -1;
-static int hf_xnap_NG_RANTraceID_TraceRecordingSessionReference = -1;
-static int hf_xnap_primaryRATRestriction_e_UTRA = -1;
-static int hf_xnap_primaryRATRestriction_nR = -1;
-static int hf_xnap_primaryRATRestriction_nR_unlicensed = -1;
-static int hf_xnap_primaryRATRestriction_nR_LEO = -1;
-static int hf_xnap_primaryRATRestriction_nR_MEO = -1;
-static int hf_xnap_primaryRATRestriction_nR_GEO = -1;
-static int hf_xnap_primaryRATRestriction_nR_OTHERSAT = -1;
-static int hf_xnap_primaryRATRestriction_reserved = -1;
-static int hf_xnap_secondaryRATRestriction_e_UTRA = -1;
-static int hf_xnap_secondaryRATRestriction_nR = -1;
-static int hf_xnap_secondaryRATRestriction_e_UTRA_unlicensed = -1;
-static int hf_xnap_secondaryRATRestriction_nR_unlicensed = -1;
-static int hf_xnap_secondaryRATRestriction_reserved = -1;
-static int hf_xnap_MDT_Location_Info_GNSS = -1;
-static int hf_xnap_MDT_Location_Info_reserved = -1;
-static int hf_xnap_MeasurementsToActivate_M1 = -1;
-static int hf_xnap_MeasurementsToActivate_M2 = -1;
-static int hf_xnap_MeasurementsToActivate_M3 = -1;
-static int hf_xnap_MeasurementsToActivate_M4 = -1;
-static int hf_xnap_MeasurementsToActivate_M5 = -1;
-static int hf_xnap_MeasurementsToActivate_LoggingM1FromEventTriggered = -1;
-static int hf_xnap_MeasurementsToActivate_M6 = -1;
-static int hf_xnap_MeasurementsToActivate_M7 = -1;
-static int hf_xnap_ReportCharacteristics_PRBPeriodic = -1;
-static int hf_xnap_ReportCharacteristics_TNLCapacityIndPeriodic = -1;
-static int hf_xnap_ReportCharacteristics_CompositeAvailableCapacityPeriodic = -1;
-static int hf_xnap_ReportCharacteristics_NumberOfActiveUEs = -1;
-static int hf_xnap_ReportCharacteristics_Reserved = -1;
-static int hf_xnap_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated_PDU = -1;  /* AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated */
-static int hf_xnap_AdditionLocationInformation_PDU = -1;  /* AdditionLocationInformation */
-static int hf_xnap_Additional_PDCP_Duplication_TNL_List_PDU = -1;  /* Additional_PDCP_Duplication_TNL_List */
-static int hf_xnap_Additional_UL_NG_U_TNLatUPF_List_PDU = -1;  /* Additional_UL_NG_U_TNLatUPF_List */
-static int hf_xnap_Additional_Measurement_Timing_Configuration_List_PDU = -1;  /* Additional_Measurement_Timing_Configuration_List */
-static int hf_xnap_ActivationIDforCellActivation_PDU = -1;  /* ActivationIDforCellActivation */
-static int hf_xnap_AlternativeQoSParaSetList_PDU = -1;  /* AlternativeQoSParaSetList */
-static int hf_xnap_AMF_Region_Information_PDU = -1;  /* AMF_Region_Information */
-static int hf_xnap_AssistanceDataForRANPaging_PDU = -1;  /* AssistanceDataForRANPaging */
-static int hf_xnap_BeamMeasurementIndicationM1_PDU = -1;  /* BeamMeasurementIndicationM1 */
-static int hf_xnap_BeamMeasurementsReportConfiguration_PDU = -1;  /* BeamMeasurementsReportConfiguration */
-static int hf_xnap_BPLMN_ID_Info_EUTRA_PDU = -1;  /* BPLMN_ID_Info_EUTRA */
-static int hf_xnap_BPLMN_ID_Info_NR_PDU = -1;     /* BPLMN_ID_Info_NR */
-static int hf_xnap_BitRate_PDU = -1;              /* BitRate */
-static int hf_xnap_Cause_PDU = -1;                /* Cause */
-static int hf_xnap_CellAssistanceInfo_NR_PDU = -1;  /* CellAssistanceInfo_NR */
-static int hf_xnap_CellAndCapacityAssistanceInfo_NR_PDU = -1;  /* CellAndCapacityAssistanceInfo_NR */
-static int hf_xnap_CellAndCapacityAssistanceInfo_EUTRA_PDU = -1;  /* CellAndCapacityAssistanceInfo_EUTRA */
-static int hf_xnap_CellAssistanceInfo_EUTRA_PDU = -1;  /* CellAssistanceInfo_EUTRA */
-static int hf_xnap_CellMeasurementResult_PDU = -1;  /* CellMeasurementResult */
-static int hf_xnap_CellToReport_PDU = -1;         /* CellToReport */
-static int hf_xnap_CHOConfiguration_PDU = -1;     /* CHOConfiguration */
-static int hf_xnap_CompositeAvailableCapacity_PDU = -1;  /* CompositeAvailableCapacity */
-static int hf_xnap_CHO_MRDC_EarlyDataForwarding_PDU = -1;  /* CHO_MRDC_EarlyDataForwarding */
-static int hf_xnap_CHO_MRDC_Indicator_PDU = -1;   /* CHO_MRDC_Indicator */
-static int hf_xnap_CHOinformation_Req_PDU = -1;   /* CHOinformation_Req */
-static int hf_xnap_CHOinformation_Ack_PDU = -1;   /* CHOinformation_Ack */
-static int hf_xnap_CHOinformation_AddReq_PDU = -1;  /* CHOinformation_AddReq */
-static int hf_xnap_CHOinformation_ModReq_PDU = -1;  /* CHOinformation_ModReq */
-static int hf_xnap_ConfiguredTACIndication_PDU = -1;  /* ConfiguredTACIndication */
-static int hf_xnap_CoverageModificationCause_PDU = -1;  /* CoverageModificationCause */
-static int hf_xnap_Coverage_Modification_List_PDU = -1;  /* Coverage_Modification_List */
-static int hf_xnap_CPAInformationRequest_PDU = -1;  /* CPAInformationRequest */
-static int hf_xnap_CPAInformationAck_PDU = -1;    /* CPAInformationAck */
-static int hf_xnap_CPCInformationRequired_PDU = -1;  /* CPCInformationRequired */
-static int hf_xnap_CPCInformationConfirm_PDU = -1;  /* CPCInformationConfirm */
-static int hf_xnap_CPAInformationModReq_PDU = -1;  /* CPAInformationModReq */
-static int hf_xnap_CPAInformationModReqAck_PDU = -1;  /* CPAInformationModReqAck */
-static int hf_xnap_CPC_DataForwarding_Indicator_PDU = -1;  /* CPC_DataForwarding_Indicator */
-static int hf_xnap_CPACInformationModRequired_PDU = -1;  /* CPACInformationModRequired */
-static int hf_xnap_CPCInformationUpdate_PDU = -1;  /* CPCInformationUpdate */
-static int hf_xnap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
-static int hf_xnap_C_RNTI_PDU = -1;               /* C_RNTI */
-static int hf_xnap_CSI_RSTransmissionIndication_PDU = -1;  /* CSI_RSTransmissionIndication */
-static int hf_xnap_XnUAddressInfoperPDUSession_List_PDU = -1;  /* XnUAddressInfoperPDUSession_List */
-static int hf_xnap_DataForwardingInfoFromTargetE_UTRANnode_PDU = -1;  /* DataForwardingInfoFromTargetE_UTRANnode */
-static int hf_xnap_DAPSRequestInfo_PDU = -1;      /* DAPSRequestInfo */
-static int hf_xnap_DAPSResponseInfo_List_PDU = -1;  /* DAPSResponseInfo_List */
-static int hf_xnap_DesiredActNotificationLevel_PDU = -1;  /* DesiredActNotificationLevel */
-static int hf_xnap_DefaultDRB_Allowed_PDU = -1;   /* DefaultDRB_Allowed */
-static int hf_xnap_DirectForwardingPathAvailability_PDU = -1;  /* DirectForwardingPathAvailability */
-static int hf_xnap_DRB_List_PDU = -1;             /* DRB_List */
-static int hf_xnap_DRB_List_withCause_PDU = -1;   /* DRB_List_withCause */
-static int hf_xnap_DRB_Number_PDU = -1;           /* DRB_Number */
-static int hf_xnap_DRBsSubjectToStatusTransfer_List_PDU = -1;  /* DRBsSubjectToStatusTransfer_List */
-static int hf_xnap_DuplicationActivation_PDU = -1;  /* DuplicationActivation */
-static int hf_xnap_EarlyMeasurement_PDU = -1;     /* EarlyMeasurement */
-static int hf_xnap_EUTRAPagingeDRXInformation_PDU = -1;  /* EUTRAPagingeDRXInformation */
-static int hf_xnap_EndpointIPAddressAndPort_PDU = -1;  /* EndpointIPAddressAndPort */
-static int hf_xnap_ExcessPacketDelayThresholdConfiguration_PDU = -1;  /* ExcessPacketDelayThresholdConfiguration */
-static int hf_xnap_ExpectedUEActivityBehaviour_PDU = -1;  /* ExpectedUEActivityBehaviour */
-static int hf_xnap_ExpectedUEBehaviour_PDU = -1;  /* ExpectedUEBehaviour */
-static int hf_xnap_ExtendedRATRestrictionInformation_PDU = -1;  /* ExtendedRATRestrictionInformation */
-static int hf_xnap_ExtendedPacketDelayBudget_PDU = -1;  /* ExtendedPacketDelayBudget */
-static int hf_xnap_ExtendedSliceSupportList_PDU = -1;  /* ExtendedSliceSupportList */
-static int hf_xnap_ExtendedUEIdentityIndexValue_PDU = -1;  /* ExtendedUEIdentityIndexValue */
-static int hf_xnap_F1CTrafficContainer_PDU = -1;  /* F1CTrafficContainer */
-static int hf_xnap_F1_terminatingIAB_donorIndicator_PDU = -1;  /* F1_terminatingIAB_donorIndicator */
-static int hf_xnap_FiveGCMobilityRestrictionListContainer_PDU = -1;  /* FiveGCMobilityRestrictionListContainer */
-static int hf_xnap_FiveGProSeAuthorized_PDU = -1;  /* FiveGProSeAuthorized */
-static int hf_xnap_FiveGProSePC5QoSParameters_PDU = -1;  /* FiveGProSePC5QoSParameters */
-static int hf_xnap_FrequencyShift7p5khz_PDU = -1;  /* FrequencyShift7p5khz */
-static int hf_xnap_GNB_DU_Cell_Resource_Configuration_PDU = -1;  /* GNB_DU_Cell_Resource_Configuration */
-static int hf_xnap_GlobalCell_ID_PDU = -1;        /* GlobalCell_ID */
-static int hf_xnap_GlobalNG_RANCell_ID_PDU = -1;  /* GlobalNG_RANCell_ID */
-static int hf_xnap_GlobalNG_RANNode_ID_PDU = -1;  /* GlobalNG_RANNode_ID */
-static int hf_xnap_GUAMI_PDU = -1;                /* GUAMI */
-static int hf_xnap_HandoverReportType_PDU = -1;   /* HandoverReportType */
-static int hf_xnap_HashedUEIdentityIndexValue_PDU = -1;  /* HashedUEIdentityIndexValue */
-static int hf_xnap_IABNodeIndication_PDU = -1;    /* IABNodeIndication */
-static int hf_xnap_IAB_TNL_Address_Request_PDU = -1;  /* IAB_TNL_Address_Request */
-static int hf_xnap_IAB_TNL_Address_Response_PDU = -1;  /* IAB_TNL_Address_Response */
-static int hf_xnap_IABTNLAddressException_PDU = -1;  /* IABTNLAddressException */
-static int hf_xnap_InitiatingCondition_FailureIndication_PDU = -1;  /* InitiatingCondition_FailureIndication */
-static int hf_xnap_xnap_IntendedTDD_DL_ULConfiguration_NR_PDU = -1;  /* IntendedTDD_DL_ULConfiguration_NR */
-static int hf_xnap_InterfaceInstanceIndication_PDU = -1;  /* InterfaceInstanceIndication */
-static int hf_xnap_Local_NG_RAN_Node_Identifier_PDU = -1;  /* Local_NG_RAN_Node_Identifier */
-static int hf_xnap_Full_and_Short_I_RNTI_Profile_List_PDU = -1;  /* Full_and_Short_I_RNTI_Profile_List */
-static int hf_xnap_SCGUEHistoryInformation_PDU = -1;  /* SCGUEHistoryInformation */
-static int hf_xnap_LocationInformationSNReporting_PDU = -1;  /* LocationInformationSNReporting */
-static int hf_xnap_LocationReportingInformation_PDU = -1;  /* LocationReportingInformation */
-static int hf_xnap_LTEV2XServicesAuthorized_PDU = -1;  /* LTEV2XServicesAuthorized */
-static int hf_xnap_LTEUESidelinkAggregateMaximumBitRate_PDU = -1;  /* LTEUESidelinkAggregateMaximumBitRate */
-static int hf_xnap_M4ReportAmountMDT_PDU = -1;    /* M4ReportAmountMDT */
-static int hf_xnap_M5ReportAmountMDT_PDU = -1;    /* M5ReportAmountMDT */
-static int hf_xnap_M6ReportAmountMDT_PDU = -1;    /* M6ReportAmountMDT */
-static int hf_xnap_M7ReportAmountMDT_PDU = -1;    /* M7ReportAmountMDT */
-static int hf_xnap_MAC_I_PDU = -1;                /* MAC_I */
-static int hf_xnap_MaskedIMEISV_PDU = -1;         /* MaskedIMEISV */
-static int hf_xnap_MaxIPrate_PDU = -1;            /* MaxIPrate */
-static int hf_xnap_MBS_Session_ID_PDU = -1;       /* MBS_Session_ID */
-static int hf_xnap_MBS_SessionAssociatedInformation_PDU = -1;  /* MBS_SessionAssociatedInformation */
-static int hf_xnap_MBS_SessionInformation_List_PDU = -1;  /* MBS_SessionInformation_List */
-static int hf_xnap_MBS_SessionInformationResponse_List_PDU = -1;  /* MBS_SessionInformationResponse_List */
-static int hf_xnap_MDT_Configuration_PDU = -1;    /* MDT_Configuration */
-static int hf_xnap_MDTPLMNList_PDU = -1;          /* MDTPLMNList */
-static int hf_xnap_MDTPLMNModificationList_PDU = -1;  /* MDTPLMNModificationList */
-static int hf_xnap_Measurement_ID_PDU = -1;       /* Measurement_ID */
-static int hf_xnap_MIMOPRBusageInformation_PDU = -1;  /* MIMOPRBusageInformation */
-static int hf_xnap_MobilityInformation_PDU = -1;  /* MobilityInformation */
-static int hf_xnap_MobilityParametersModificationRange_PDU = -1;  /* MobilityParametersModificationRange */
-static int hf_xnap_MobilityParametersInformation_PDU = -1;  /* MobilityParametersInformation */
-static int hf_xnap_MobilityRestrictionList_PDU = -1;  /* MobilityRestrictionList */
-static int hf_xnap_CNTypeRestrictionsForEquivalent_PDU = -1;  /* CNTypeRestrictionsForEquivalent */
-static int hf_xnap_CNTypeRestrictionsForServing_PDU = -1;  /* CNTypeRestrictionsForServing */
-static int hf_xnap_MR_DC_ResourceCoordinationInfo_PDU = -1;  /* MR_DC_ResourceCoordinationInfo */
-static int hf_xnap_MessageOversizeNotification_PDU = -1;  /* MessageOversizeNotification */
-static int hf_xnap_NBIoT_UL_DL_AlignmentOffset_PDU = -1;  /* NBIoT_UL_DL_AlignmentOffset */
-static int hf_xnap_NE_DC_TDM_Pattern_PDU = -1;    /* NE_DC_TDM_Pattern */
-static int hf_xnap_Neighbour_NG_RAN_Node_List_PDU = -1;  /* Neighbour_NG_RAN_Node_List */
-static int hf_xnap_NRCarrierList_PDU = -1;        /* NRCarrierList */
-static int hf_xnap_NRCellPRACHConfig_PDU = -1;    /* NRCellPRACHConfig */
-static int hf_xnap_NG_RAN_Cell_Identity_PDU = -1;  /* NG_RAN_Cell_Identity */
-static int hf_xnap_NG_RANnode2SSBOffsetsModificationRange_PDU = -1;  /* NG_RANnode2SSBOffsetsModificationRange */
-static int hf_xnap_NG_RANnodeUEXnAPID_PDU = -1;   /* NG_RANnodeUEXnAPID */
-static int hf_xnap_DL_scheduling_PDCCH_CCE_usage_PDU = -1;  /* DL_scheduling_PDCCH_CCE_usage */
-static int hf_xnap_UL_scheduling_PDCCH_CCE_usage_PDU = -1;  /* UL_scheduling_PDCCH_CCE_usage */
-static int hf_xnap_NoPDUSessionIndication_PDU = -1;  /* NoPDUSessionIndication */
-static int hf_xnap_NPN_Broadcast_Information_PDU = -1;  /* NPN_Broadcast_Information */
-static int hf_xnap_NPNMobilityInformation_PDU = -1;  /* NPNMobilityInformation */
-static int hf_xnap_NPNPagingAssistanceInformation_PDU = -1;  /* NPNPagingAssistanceInformation */
-static int hf_xnap_NPN_Support_PDU = -1;          /* NPN_Support */
-static int hf_xnap_NPRACHConfiguration_PDU = -1;  /* NPRACHConfiguration */
-static int hf_xnap_NR_U_Channel_List_PDU = -1;    /* NR_U_Channel_List */
-static int hf_xnap_NR_U_ChannelInfo_List_PDU = -1;  /* NR_U_ChannelInfo_List */
-static int hf_xnap_NRPagingeDRXInformation_PDU = -1;  /* NRPagingeDRXInformation */
-static int hf_xnap_NRPagingeDRXInformationforRRCINACTIVE_PDU = -1;  /* NRPagingeDRXInformationforRRCINACTIVE */
-static int hf_xnap_NG_RANTraceID_PDU = -1;        /* NG_RANTraceID */
-static int hf_xnap_NonGBRResources_Offered_PDU = -1;  /* NonGBRResources_Offered */
-static int hf_xnap_NRV2XServicesAuthorized_PDU = -1;  /* NRV2XServicesAuthorized */
-static int hf_xnap_NRUESidelinkAggregateMaximumBitRate_PDU = -1;  /* NRUESidelinkAggregateMaximumBitRate */
-static int hf_xnap_OffsetOfNbiotChannelNumberToEARFCN_PDU = -1;  /* OffsetOfNbiotChannelNumberToEARFCN */
-static int hf_xnap_PositioningInformation_PDU = -1;  /* PositioningInformation */
-static int hf_xnap_PagingCause_PDU = -1;          /* PagingCause */
-static int hf_xnap_PEIPSassistanceInformation_PDU = -1;  /* PEIPSassistanceInformation */
-static int hf_xnap_PagingDRX_PDU = -1;            /* PagingDRX */
-static int hf_xnap_PagingPriority_PDU = -1;       /* PagingPriority */
-static int hf_xnap_PartialListIndicator_PDU = -1;  /* PartialListIndicator */
-static int hf_xnap_PC5QoSParameters_PDU = -1;     /* PC5QoSParameters */
-static int hf_xnap_PDCPChangeIndication_PDU = -1;  /* PDCPChangeIndication */
-static int hf_xnap_PDCPDuplicationConfiguration_PDU = -1;  /* PDCPDuplicationConfiguration */
-static int hf_xnap_PDUSession_List_withCause_PDU = -1;  /* PDUSession_List_withCause */
-static int hf_xnap_PDUSessionResourcesAdmitted_List_PDU = -1;  /* PDUSessionResourcesAdmitted_List */
-static int hf_xnap_PDUSessionResourcesNotAdmitted_List_PDU = -1;  /* PDUSessionResourcesNotAdmitted_List */
-static int hf_xnap_QoSFlowsMappedtoDRB_SetupResponse_MNterminated_PDU = -1;  /* QoSFlowsMappedtoDRB_SetupResponse_MNterminated */
-static int hf_xnap_PDUSessionResourceSecondaryRATUsageList_PDU = -1;  /* PDUSessionResourceSecondaryRATUsageList */
-static int hf_xnap_PDUSessionCommonNetworkInstance_PDU = -1;  /* PDUSessionCommonNetworkInstance */
-static int hf_xnap_PDUSession_PairID_PDU = -1;    /* PDUSession_PairID */
-static int hf_xnap_Permutation_PDU = -1;          /* Permutation */
-static int hf_xnap_PLMN_Identity_PDU = -1;        /* PLMN_Identity */
-static int hf_xnap_PrivacyIndicator_PDU = -1;     /* PrivacyIndicator */
-static int hf_xnap_PSCellChangeHistory_PDU = -1;  /* PSCellChangeHistory */
-static int hf_xnap_PSCellHistoryInformationRetrieve_PDU = -1;  /* PSCellHistoryInformationRetrieve */
-static int hf_xnap_QMCConfigInfo_PDU = -1;        /* QMCConfigInfo */
-static int hf_xnap_QoSFlowMappingIndication_PDU = -1;  /* QoSFlowMappingIndication */
-static int hf_xnap_QoSFlows_List_PDU = -1;        /* QoSFlows_List */
-static int hf_xnap_QoS_Mapping_Information_PDU = -1;  /* QoS_Mapping_Information */
-static int hf_xnap_QoSParaSetNotifyIndex_PDU = -1;  /* QoSParaSetNotifyIndex */
-static int hf_xnap_QosMonitoringRequest_PDU = -1;  /* QosMonitoringRequest */
-static int hf_xnap_QoSMonitoringDisabled_PDU = -1;  /* QoSMonitoringDisabled */
-static int hf_xnap_QosMonitoringReportingFrequency_PDU = -1;  /* QosMonitoringReportingFrequency */
-static int hf_xnap_RACHReportInformation_PDU = -1;  /* RACHReportInformation */
-static int hf_xnap_RANPagingArea_PDU = -1;        /* RANPagingArea */
-static int hf_xnap_RANPagingFailure_PDU = -1;     /* RANPagingFailure */
-static int hf_xnap_Redcap_Bcast_Information_PDU = -1;  /* Redcap_Bcast_Information */
-static int hf_xnap_RedundantQoSFlowIndicator_PDU = -1;  /* RedundantQoSFlowIndicator */
-static int hf_xnap_RedundantPDUSessionInformation_PDU = -1;  /* RedundantPDUSessionInformation */
-static int hf_xnap_ExtendedReportIntervalMDT_PDU = -1;  /* ExtendedReportIntervalMDT */
-static int hf_xnap_ReportCharacteristics_PDU = -1;  /* ReportCharacteristics */
-static int hf_xnap_ReportingPeriodicity_PDU = -1;  /* ReportingPeriodicity */
-static int hf_xnap_RegistrationRequest_PDU = -1;  /* RegistrationRequest */
-static int hf_xnap_ResetRequestTypeInfo_PDU = -1;  /* ResetRequestTypeInfo */
-static int hf_xnap_ResetResponseTypeInfo_PDU = -1;  /* ResetResponseTypeInfo */
-static int hf_xnap_RLCDuplicationInformation_PDU = -1;  /* RLCDuplicationInformation */
-static int hf_xnap_RFSP_Index_PDU = -1;           /* RFSP_Index */
-static int hf_xnap_RRCConfigIndication_PDU = -1;  /* RRCConfigIndication */
-static int hf_xnap_RRCConnReestab_Indicator_PDU = -1;  /* RRCConnReestab_Indicator */
-static int hf_xnap_RRCResumeCause_PDU = -1;       /* RRCResumeCause */
-static int hf_xnap_SCGreconfigNotification_PDU = -1;  /* SCGreconfigNotification */
-static int hf_xnap_SecondarydataForwardingInfoFromTarget_List_PDU = -1;  /* SecondarydataForwardingInfoFromTarget_List */
-static int hf_xnap_SCGActivationRequest_PDU = -1;  /* SCGActivationRequest */
-static int hf_xnap_SCGActivationStatus_PDU = -1;  /* SCGActivationStatus */
-static int hf_xnap_SCGConfigurationQuery_PDU = -1;  /* SCGConfigurationQuery */
-static int hf_xnap_SCGIndicator_PDU = -1;         /* SCGIndicator */
-static int hf_xnap_SCGFailureReportContainer_PDU = -1;  /* SCGFailureReportContainer */
-static int hf_xnap_SDTSupportRequest_PDU = -1;    /* SDTSupportRequest */
-static int hf_xnap_SDT_Termination_Request_PDU = -1;  /* SDT_Termination_Request */
-static int hf_xnap_SDTPartialUEContextInfo_PDU = -1;  /* SDTPartialUEContextInfo */
-static int hf_xnap_SDTDataForwardingDRBList_PDU = -1;  /* SDTDataForwardingDRBList */
-static int hf_xnap_SecurityIndication_PDU = -1;   /* SecurityIndication */
-static int hf_xnap_SecurityResult_PDU = -1;       /* SecurityResult */
-static int hf_xnap_ServedCells_E_UTRA_PDU = -1;   /* ServedCells_E_UTRA */
-static int hf_xnap_ServedCellsToUpdate_E_UTRA_PDU = -1;  /* ServedCellsToUpdate_E_UTRA */
-static int hf_xnap_SFN_Offset_PDU = -1;           /* SFN_Offset */
-static int hf_xnap_ServedCells_NR_PDU = -1;       /* ServedCells_NR */
-static int hf_xnap_ServedCellSpecificInfoReq_NR_PDU = -1;  /* ServedCellSpecificInfoReq_NR */
-static int hf_xnap_ServedCellsToUpdate_NR_PDU = -1;  /* ServedCellsToUpdate_NR */
-static int hf_xnap_SliceRadioResourceStatus_List_PDU = -1;  /* SliceRadioResourceStatus_List */
-static int hf_xnap_S_NG_RANnode_SecurityKey_PDU = -1;  /* S_NG_RANnode_SecurityKey */
-static int hf_xnap_S_NG_RANnode_Addition_Trigger_Ind_PDU = -1;  /* S_NG_RANnode_Addition_Trigger_Ind */
-static int hf_xnap_S_NSSAI_PDU = -1;              /* S_NSSAI */
-static int hf_xnap_SNMobilityInformation_PDU = -1;  /* SNMobilityInformation */
-static int hf_xnap_SNTriggered_PDU = -1;          /* SNTriggered */
-static int hf_xnap_SplitSessionIndicator_PDU = -1;  /* SplitSessionIndicator */
-static int hf_xnap_SplitSRBsTypes_PDU = -1;       /* SplitSRBsTypes */
-static int hf_xnap_SSB_PositionsInBurst_PDU = -1;  /* SSB_PositionsInBurst */
-static int hf_xnap_SSBOffsets_List_PDU = -1;      /* SSBOffsets_List */
-static int hf_xnap_SuccessfulHOReportInformation_PDU = -1;  /* SuccessfulHOReportInformation */
-static int hf_xnap_Supported_MBS_FSA_ID_List_PDU = -1;  /* Supported_MBS_FSA_ID_List */
-static int hf_xnap_SurvivalTime_PDU = -1;         /* SurvivalTime */
-static int hf_xnap_TAINSAGSupportList_PDU = -1;   /* TAINSAGSupportList */
-static int hf_xnap_TAISupport_List_PDU = -1;      /* TAISupport_List */
-static int hf_xnap_TargetCellinEUTRAN_PDU = -1;   /* TargetCellinEUTRAN */
-static int hf_xnap_Target_CGI_PDU = -1;           /* Target_CGI */
-static int hf_xnap_TDDULDLConfigurationCommonNR_PDU = -1;  /* TDDULDLConfigurationCommonNR */
-static int hf_xnap_TargetCellList_PDU = -1;       /* TargetCellList */
-static int hf_xnap_TimeSynchronizationAssistanceInformation_PDU = -1;  /* TimeSynchronizationAssistanceInformation */
-static int hf_xnap_TimeToWait_PDU = -1;           /* TimeToWait */
-static int hf_xnap_TNLConfigurationInfo_PDU = -1;  /* TNLConfigurationInfo */
-static int hf_xnap_TNLA_To_Add_List_PDU = -1;     /* TNLA_To_Add_List */
-static int hf_xnap_TNLA_To_Update_List_PDU = -1;  /* TNLA_To_Update_List */
-static int hf_xnap_TNLA_To_Remove_List_PDU = -1;  /* TNLA_To_Remove_List */
-static int hf_xnap_TNLA_Setup_List_PDU = -1;      /* TNLA_Setup_List */
-static int hf_xnap_TNLA_Failed_To_Setup_List_PDU = -1;  /* TNLA_Failed_To_Setup_List */
-static int hf_xnap_TransportLayerAddress_PDU = -1;  /* TransportLayerAddress */
-static int hf_xnap_TraceActivation_PDU = -1;      /* TraceActivation */
-static int hf_xnap_TrafficToBeReleaseInformation_PDU = -1;  /* TrafficToBeReleaseInformation */
-static int hf_xnap_TSCTrafficCharacteristics_PDU = -1;  /* TSCTrafficCharacteristics */
-static int hf_xnap_UEAggregateMaximumBitRate_PDU = -1;  /* UEAggregateMaximumBitRate */
-static int hf_xnap_UEContextKeptIndicator_PDU = -1;  /* UEContextKeptIndicator */
-static int hf_xnap_UEContextID_PDU = -1;          /* UEContextID */
-static int hf_xnap_UEContextInfoRetrUECtxtResp_PDU = -1;  /* UEContextInfoRetrUECtxtResp */
-static int hf_xnap_UEHistoryInformation_PDU = -1;  /* UEHistoryInformation */
-static int hf_xnap_UEHistoryInformationFromTheUE_PDU = -1;  /* UEHistoryInformationFromTheUE */
-static int hf_xnap_UEIdentityIndexValue_PDU = -1;  /* UEIdentityIndexValue */
-static int hf_xnap_UEIdentityIndexList_MBSGroupPaging_PDU = -1;  /* UEIdentityIndexList_MBSGroupPaging */
-static int hf_xnap_UERadioCapabilityForPaging_PDU = -1;  /* UERadioCapabilityForPaging */
-static int hf_xnap_UERadioCapabilityID_PDU = -1;  /* UERadioCapabilityID */
-static int hf_xnap_UERANPagingIdentity_PDU = -1;  /* UERANPagingIdentity */
-static int hf_xnap_UERLFReportContainer_PDU = -1;  /* UERLFReportContainer */
-static int hf_xnap_UERLFReportContainerLTEExtension_PDU = -1;  /* UERLFReportContainerLTEExtension */
-static int hf_xnap_UESliceMaximumBitRateList_PDU = -1;  /* UESliceMaximumBitRateList */
-static int hf_xnap_UESecurityCapabilities_PDU = -1;  /* UESecurityCapabilities */
-static int hf_xnap_UESpecificDRX_PDU = -1;        /* UESpecificDRX */
-static int hf_xnap_ULForwardingProposal_PDU = -1;  /* ULForwardingProposal */
-static int hf_xnap_UPTransportLayerInformation_PDU = -1;  /* UPTransportLayerInformation */
-static int hf_xnap_UPTransportParameters_PDU = -1;  /* UPTransportParameters */
-static int hf_xnap_UserPlaneTrafficActivityReport_PDU = -1;  /* UserPlaneTrafficActivityReport */
-static int hf_xnap_URIaddress_PDU = -1;           /* URIaddress */
-static int hf_xnap_XnBenefitValue_PDU = -1;       /* XnBenefitValue */
-static int hf_xnap_HandoverRequest_PDU = -1;      /* HandoverRequest */
-static int hf_xnap_UEContextInfoHORequest_PDU = -1;  /* UEContextInfoHORequest */
-static int hf_xnap_UEContextRefAtSN_HORequest_PDU = -1;  /* UEContextRefAtSN_HORequest */
-static int hf_xnap_HandoverRequestAcknowledge_PDU = -1;  /* HandoverRequestAcknowledge */
-static int hf_xnap_Target2SourceNG_RANnodeTranspContainer_PDU = -1;  /* Target2SourceNG_RANnodeTranspContainer */
-static int hf_xnap_HandoverPreparationFailure_PDU = -1;  /* HandoverPreparationFailure */
-static int hf_xnap_SNStatusTransfer_PDU = -1;     /* SNStatusTransfer */
-static int hf_xnap_UEContextRelease_PDU = -1;     /* UEContextRelease */
-static int hf_xnap_HandoverCancel_PDU = -1;       /* HandoverCancel */
-static int hf_xnap_HandoverSuccess_PDU = -1;      /* HandoverSuccess */
-static int hf_xnap_ConditionalHandoverCancel_PDU = -1;  /* ConditionalHandoverCancel */
-static int hf_xnap_EarlyStatusTransfer_PDU = -1;  /* EarlyStatusTransfer */
-static int hf_xnap_ProcedureStageChoice_PDU = -1;  /* ProcedureStageChoice */
-static int hf_xnap_RANPaging_PDU = -1;            /* RANPaging */
-static int hf_xnap_RetrieveUEContextRequest_PDU = -1;  /* RetrieveUEContextRequest */
-static int hf_xnap_RetrieveUEContextResponse_PDU = -1;  /* RetrieveUEContextResponse */
-static int hf_xnap_RetrieveUEContextConfirm_PDU = -1;  /* RetrieveUEContextConfirm */
-static int hf_xnap_RetrieveUEContextFailure_PDU = -1;  /* RetrieveUEContextFailure */
-static int hf_xnap_OldtoNewNG_RANnodeResumeContainer_PDU = -1;  /* OldtoNewNG_RANnodeResumeContainer */
-static int hf_xnap_XnUAddressIndication_PDU = -1;  /* XnUAddressIndication */
-static int hf_xnap_SNodeAdditionRequest_PDU = -1;  /* SNodeAdditionRequest */
-static int hf_xnap_MN_to_SN_Container_PDU = -1;   /* MN_to_SN_Container */
-static int hf_xnap_PDUSessionToBeAddedAddReq_PDU = -1;  /* PDUSessionToBeAddedAddReq */
-static int hf_xnap_RequestedFastMCGRecoveryViaSRB3_PDU = -1;  /* RequestedFastMCGRecoveryViaSRB3 */
-static int hf_xnap_SNodeAdditionRequestAcknowledge_PDU = -1;  /* SNodeAdditionRequestAcknowledge */
-static int hf_xnap_SN_to_MN_Container_PDU = -1;   /* SN_to_MN_Container */
-static int hf_xnap_PDUSessionAdmittedAddedAddReqAck_PDU = -1;  /* PDUSessionAdmittedAddedAddReqAck */
-static int hf_xnap_PDUSessionNotAdmittedAddReqAck_PDU = -1;  /* PDUSessionNotAdmittedAddReqAck */
-static int hf_xnap_AvailableFastMCGRecoveryViaSRB3_PDU = -1;  /* AvailableFastMCGRecoveryViaSRB3 */
-static int hf_xnap_SNodeAdditionRequestReject_PDU = -1;  /* SNodeAdditionRequestReject */
-static int hf_xnap_SNodeReconfigurationComplete_PDU = -1;  /* SNodeReconfigurationComplete */
-static int hf_xnap_ResponseInfo_ReconfCompl_PDU = -1;  /* ResponseInfo_ReconfCompl */
-static int hf_xnap_SNodeModificationRequest_PDU = -1;  /* SNodeModificationRequest */
-static int hf_xnap_UEContextInfo_SNModRequest_PDU = -1;  /* UEContextInfo_SNModRequest */
-static int hf_xnap_RequestedFastMCGRecoveryViaSRB3Release_PDU = -1;  /* RequestedFastMCGRecoveryViaSRB3Release */
-static int hf_xnap_SNodeModificationRequestAcknowledge_PDU = -1;  /* SNodeModificationRequestAcknowledge */
-static int hf_xnap_PDUSessionAdmitted_SNModResponse_PDU = -1;  /* PDUSessionAdmitted_SNModResponse */
-static int hf_xnap_PDUSessionNotAdmitted_SNModResponse_PDU = -1;  /* PDUSessionNotAdmitted_SNModResponse */
-static int hf_xnap_PDUSessionDataForwarding_SNModResponse_PDU = -1;  /* PDUSessionDataForwarding_SNModResponse */
-static int hf_xnap_ReleaseFastMCGRecoveryViaSRB3_PDU = -1;  /* ReleaseFastMCGRecoveryViaSRB3 */
-static int hf_xnap_SNodeModificationRequestReject_PDU = -1;  /* SNodeModificationRequestReject */
-static int hf_xnap_SNodeModificationRequired_PDU = -1;  /* SNodeModificationRequired */
-static int hf_xnap_PDUSessionToBeModifiedSNModRequired_PDU = -1;  /* PDUSessionToBeModifiedSNModRequired */
-static int hf_xnap_PDUSessionToBeReleasedSNModRequired_PDU = -1;  /* PDUSessionToBeReleasedSNModRequired */
-static int hf_xnap_SNodeModificationConfirm_PDU = -1;  /* SNodeModificationConfirm */
-static int hf_xnap_PDUSessionAdmittedModSNModConfirm_PDU = -1;  /* PDUSessionAdmittedModSNModConfirm */
-static int hf_xnap_PDUSessionReleasedSNModConfirm_PDU = -1;  /* PDUSessionReleasedSNModConfirm */
-static int hf_xnap_SNodeModificationRefuse_PDU = -1;  /* SNodeModificationRefuse */
-static int hf_xnap_SNodeReleaseRequest_PDU = -1;  /* SNodeReleaseRequest */
-static int hf_xnap_SNodeReleaseRequestAcknowledge_PDU = -1;  /* SNodeReleaseRequestAcknowledge */
-static int hf_xnap_PDUSessionToBeReleasedList_RelReqAck_PDU = -1;  /* PDUSessionToBeReleasedList_RelReqAck */
-static int hf_xnap_SNodeReleaseReject_PDU = -1;   /* SNodeReleaseReject */
-static int hf_xnap_SNodeReleaseRequired_PDU = -1;  /* SNodeReleaseRequired */
-static int hf_xnap_PDUSessionToBeReleasedList_RelRqd_PDU = -1;  /* PDUSessionToBeReleasedList_RelRqd */
-static int hf_xnap_SNodeReleaseConfirm_PDU = -1;  /* SNodeReleaseConfirm */
-static int hf_xnap_PDUSessionReleasedList_RelConf_PDU = -1;  /* PDUSessionReleasedList_RelConf */
-static int hf_xnap_SNodeCounterCheckRequest_PDU = -1;  /* SNodeCounterCheckRequest */
-static int hf_xnap_BearersSubjectToCounterCheck_List_PDU = -1;  /* BearersSubjectToCounterCheck_List */
-static int hf_xnap_SNodeChangeRequired_PDU = -1;  /* SNodeChangeRequired */
-static int hf_xnap_PDUSession_SNChangeRequired_List_PDU = -1;  /* PDUSession_SNChangeRequired_List */
-static int hf_xnap_SNodeChangeConfirm_PDU = -1;   /* SNodeChangeConfirm */
-static int hf_xnap_PDUSession_SNChangeConfirm_List_PDU = -1;  /* PDUSession_SNChangeConfirm_List */
-static int hf_xnap_SNodeChangeRefuse_PDU = -1;    /* SNodeChangeRefuse */
-static int hf_xnap_RRCTransfer_PDU = -1;          /* RRCTransfer */
-static int hf_xnap_SplitSRB_RRCTransfer_PDU = -1;  /* SplitSRB_RRCTransfer */
-static int hf_xnap_UEReportRRCTransfer_PDU = -1;  /* UEReportRRCTransfer */
-static int hf_xnap_FastMCGRecoveryRRCTransfer_PDU = -1;  /* FastMCGRecoveryRRCTransfer */
-static int hf_xnap_SDT_SRB_between_NewNode_OldNode_PDU = -1;  /* SDT_SRB_between_NewNode_OldNode */
-static int hf_xnap_NotificationControlIndication_PDU = -1;  /* NotificationControlIndication */
-static int hf_xnap_PDUSessionResourcesNotifyList_PDU = -1;  /* PDUSessionResourcesNotifyList */
-static int hf_xnap_ActivityNotification_PDU = -1;  /* ActivityNotification */
-static int hf_xnap_PDUSessionResourcesActivityNotifyList_PDU = -1;  /* PDUSessionResourcesActivityNotifyList */
-static int hf_xnap_XnSetupRequest_PDU = -1;       /* XnSetupRequest */
-static int hf_xnap_XnSetupResponse_PDU = -1;      /* XnSetupResponse */
-static int hf_xnap_XnSetupFailure_PDU = -1;       /* XnSetupFailure */
-static int hf_xnap_NGRANNodeConfigurationUpdate_PDU = -1;  /* NGRANNodeConfigurationUpdate */
-static int hf_xnap_ConfigurationUpdateInitiatingNodeChoice_PDU = -1;  /* ConfigurationUpdateInitiatingNodeChoice */
-static int hf_xnap_NGRANNodeConfigurationUpdateAcknowledge_PDU = -1;  /* NGRANNodeConfigurationUpdateAcknowledge */
-static int hf_xnap_RespondingNodeTypeConfigUpdateAck_PDU = -1;  /* RespondingNodeTypeConfigUpdateAck */
-static int hf_xnap_NGRANNodeConfigurationUpdateFailure_PDU = -1;  /* NGRANNodeConfigurationUpdateFailure */
-static int hf_xnap_E_UTRA_NR_CellResourceCoordinationRequest_PDU = -1;  /* E_UTRA_NR_CellResourceCoordinationRequest */
-static int hf_xnap_InitiatingNodeType_ResourceCoordRequest_PDU = -1;  /* InitiatingNodeType_ResourceCoordRequest */
-static int hf_xnap_E_UTRA_NR_CellResourceCoordinationResponse_PDU = -1;  /* E_UTRA_NR_CellResourceCoordinationResponse */
-static int hf_xnap_RespondingNodeType_ResourceCoordResponse_PDU = -1;  /* RespondingNodeType_ResourceCoordResponse */
-static int hf_xnap_SecondaryRATDataUsageReport_PDU = -1;  /* SecondaryRATDataUsageReport */
-static int hf_xnap_XnRemovalRequest_PDU = -1;     /* XnRemovalRequest */
-static int hf_xnap_XnRemovalResponse_PDU = -1;    /* XnRemovalResponse */
-static int hf_xnap_XnRemovalFailure_PDU = -1;     /* XnRemovalFailure */
-static int hf_xnap_CellActivationRequest_PDU = -1;  /* CellActivationRequest */
-static int hf_xnap_ServedCellsToActivate_PDU = -1;  /* ServedCellsToActivate */
-static int hf_xnap_CellActivationResponse_PDU = -1;  /* CellActivationResponse */
-static int hf_xnap_ActivatedServedCells_PDU = -1;  /* ActivatedServedCells */
-static int hf_xnap_CellActivationFailure_PDU = -1;  /* CellActivationFailure */
-static int hf_xnap_ResetRequest_PDU = -1;         /* ResetRequest */
-static int hf_xnap_ResetResponse_PDU = -1;        /* ResetResponse */
-static int hf_xnap_ErrorIndication_PDU = -1;      /* ErrorIndication */
-static int hf_xnap_PrivateMessage_PDU = -1;       /* PrivateMessage */
-static int hf_xnap_TraceStart_PDU = -1;           /* TraceStart */
-static int hf_xnap_DeactivateTrace_PDU = -1;      /* DeactivateTrace */
-static int hf_xnap_FailureIndication_PDU = -1;    /* FailureIndication */
-static int hf_xnap_HandoverReport_PDU = -1;       /* HandoverReport */
-static int hf_xnap_ResourceStatusRequest_PDU = -1;  /* ResourceStatusRequest */
-static int hf_xnap_ResourceStatusResponse_PDU = -1;  /* ResourceStatusResponse */
-static int hf_xnap_ResourceStatusFailure_PDU = -1;  /* ResourceStatusFailure */
-static int hf_xnap_ResourceStatusUpdate_PDU = -1;  /* ResourceStatusUpdate */
-static int hf_xnap_MobilityChangeRequest_PDU = -1;  /* MobilityChangeRequest */
-static int hf_xnap_MobilityChangeAcknowledge_PDU = -1;  /* MobilityChangeAcknowledge */
-static int hf_xnap_MobilityChangeFailure_PDU = -1;  /* MobilityChangeFailure */
-static int hf_xnap_AccessAndMobilityIndication_PDU = -1;  /* AccessAndMobilityIndication */
-static int hf_xnap_CellTrafficTrace_PDU = -1;     /* CellTrafficTrace */
-static int hf_xnap_RANMulticastGroupPaging_PDU = -1;  /* RANMulticastGroupPaging */
-static int hf_xnap_ScgFailureInformationReport_PDU = -1;  /* ScgFailureInformationReport */
-static int hf_xnap_ScgFailureTransfer_PDU = -1;   /* ScgFailureTransfer */
-static int hf_xnap_F1CTrafficTransfer_PDU = -1;   /* F1CTrafficTransfer */
-static int hf_xnap_IABTransportMigrationManagementRequest_PDU = -1;  /* IABTransportMigrationManagementRequest */
-static int hf_xnap_TrafficToBeAddedList_PDU = -1;  /* TrafficToBeAddedList */
-static int hf_xnap_TrafficToBeModifiedList_PDU = -1;  /* TrafficToBeModifiedList */
-static int hf_xnap_IABTransportMigrationManagementResponse_PDU = -1;  /* IABTransportMigrationManagementResponse */
-static int hf_xnap_TrafficAddedList_PDU = -1;     /* TrafficAddedList */
-static int hf_xnap_TrafficModifiedList_PDU = -1;  /* TrafficModifiedList */
-static int hf_xnap_TrafficNotAddedList_PDU = -1;  /* TrafficNotAddedList */
-static int hf_xnap_TrafficNotModifiedList_PDU = -1;  /* TrafficNotModifiedList */
-static int hf_xnap_TrafficReleasedList_PDU = -1;  /* TrafficReleasedList */
-static int hf_xnap_IABTransportMigrationManagementReject_PDU = -1;  /* IABTransportMigrationManagementReject */
-static int hf_xnap_IABTransportMigrationModificationRequest_PDU = -1;  /* IABTransportMigrationModificationRequest */
-static int hf_xnap_TrafficRequiredToBeModifiedList_PDU = -1;  /* TrafficRequiredToBeModifiedList */
-static int hf_xnap_IABTNLAddressToBeReleasedList_PDU = -1;  /* IABTNLAddressToBeReleasedList */
-static int hf_xnap_IABTransportMigrationModificationResponse_PDU = -1;  /* IABTransportMigrationModificationResponse */
-static int hf_xnap_TrafficRequiredModifiedList_PDU = -1;  /* TrafficRequiredModifiedList */
-static int hf_xnap_IABResourceCoordinationRequest_PDU = -1;  /* IABResourceCoordinationRequest */
-static int hf_xnap_BoundaryNodeCellsList_PDU = -1;  /* BoundaryNodeCellsList */
-static int hf_xnap_ParentNodeCellsList_PDU = -1;  /* ParentNodeCellsList */
-static int hf_xnap_IABResourceCoordinationResponse_PDU = -1;  /* IABResourceCoordinationResponse */
-static int hf_xnap_CPCCancel_PDU = -1;            /* CPCCancel */
-static int hf_xnap_PartialUEContextTransfer_PDU = -1;  /* PartialUEContextTransfer */
-static int hf_xnap_PartialUEContextTransferAcknowledge_PDU = -1;  /* PartialUEContextTransferAcknowledge */
-static int hf_xnap_PartialUEContextTransferFailure_PDU = -1;  /* PartialUEContextTransferFailure */
-static int hf_xnap_XnAP_PDU_PDU = -1;             /* XnAP_PDU */
-static int hf_xnap_local = -1;                    /* INTEGER_0_maxPrivateIEs */
-static int hf_xnap_global = -1;                   /* OBJECT_IDENTIFIER */
-static int hf_xnap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
-static int hf_xnap_id = -1;                       /* ProtocolIE_ID */
-static int hf_xnap_criticality = -1;              /* Criticality */
-static int hf_xnap_protocolIE_Field_value = -1;   /* ProtocolIE_Field_value */
-static int hf_xnap_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
-static int hf_xnap_extension_id = -1;             /* ProtocolIE_ID */
-static int hf_xnap_extensionValue = -1;           /* T_extensionValue */
-static int hf_xnap_PrivateIE_Container_item = -1;  /* PrivateIE_Field */
-static int hf_xnap_private_id = -1;               /* PrivateIE_ID */
-static int hf_xnap_privateIE_Field_value = -1;    /* PrivateIE_Field_value */
-static int hf_xnap_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated_item = -1;  /* AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated_Item */
-static int hf_xnap_pDUSessionResourceChangeConfirmInfo_SNterminated = -1;  /* PDUSessionResourceChangeConfirmInfo_SNterminated */
-static int hf_xnap_iE_Extensions = -1;            /* ProtocolExtensionContainer */
-static int hf_xnap_Additional_PDCP_Duplication_TNL_List_item = -1;  /* Additional_PDCP_Duplication_TNL_Item */
-static int hf_xnap_additional_PDCP_Duplication_UP_TNL_Information = -1;  /* UPTransportLayerInformation */
-static int hf_xnap_additional_UL_NG_U_TNLatUPF = -1;  /* UPTransportLayerInformation */
-static int hf_xnap_Additional_UL_NG_U_TNLatUPF_List_item = -1;  /* Additional_UL_NG_U_TNLatUPF_Item */
-static int hf_xnap_Additional_Measurement_Timing_Configuration_List_item = -1;  /* Additional_Measurement_Timing_Configuration_Item */
-static int hf_xnap_additionalMeasurementTimingConfigurationIndex = -1;  /* INTEGER_0_16 */
-static int hf_xnap_csi_RS_MTC_Configuration_List = -1;  /* CSI_RS_MTC_Configuration_List */
-static int hf_xnap_mBS_QoSFlowsToAdd_List = -1;   /* MBS_QoSFlowsToAdd_List */
-static int hf_xnap_mBS_ServiceArea = -1;          /* MBS_ServiceArea */
-static int hf_xnap_mBS_MappingandDataForwardingRequestInfofromSource = -1;  /* MBS_MappingandDataForwardingRequestInfofromSource */
-static int hf_xnap_priorityLevel = -1;            /* INTEGER_0_15_ */
-static int hf_xnap_pre_emption_capability = -1;   /* T_pre_emption_capability */
-static int hf_xnap_pre_emption_vulnerability = -1;  /* T_pre_emption_vulnerability */
-static int hf_xnap_AllowedCAG_ID_List_perPLMN_item = -1;  /* CAG_Identifier */
-static int hf_xnap_AllowedPNI_NPN_ID_List_item = -1;  /* AllowedPNI_NPN_ID_Item */
-static int hf_xnap_plmn_id = -1;                  /* PLMN_Identity */
-static int hf_xnap_pni_npn_restricted_information = -1;  /* PNI_NPN_Restricted_Information */
-static int hf_xnap_allowed_CAG_id_list_per_plmn = -1;  /* AllowedCAG_ID_List_perPLMN */
-static int hf_xnap_AlternativeQoSParaSetList_item = -1;  /* AlternativeQoSParaSetItem */
-static int hf_xnap_alternativeQoSParaSetIndex = -1;  /* QoSParaSetIndex */
-static int hf_xnap_guaranteedFlowBitRateDL = -1;  /* BitRate */
-static int hf_xnap_guaranteedFlowBitRateUL = -1;  /* BitRate */
-static int hf_xnap_packetDelayBudget = -1;        /* PacketDelayBudget */
-static int hf_xnap_packetErrorRate = -1;          /* PacketErrorRate */
-static int hf_xnap_AMF_Region_Information_item = -1;  /* GlobalAMF_Region_Information */
-static int hf_xnap_plmn_ID = -1;                  /* PLMN_Identity */
-static int hf_xnap_amf_region_id = -1;            /* BIT_STRING_SIZE_8 */
-static int hf_xnap_AreaOfInterestInformation_item = -1;  /* AreaOfInterest_Item */
-static int hf_xnap_listOfTAIsinAoI = -1;          /* ListOfTAIsinAoI */
-static int hf_xnap_listOfCellsinAoI = -1;         /* ListOfCells */
-static int hf_xnap_listOfRANNodesinAoI = -1;      /* ListOfRANNodesinAoI */
-static int hf_xnap_requestReferenceID = -1;       /* RequestReferenceID */
-static int hf_xnap_cellBased = -1;                /* CellBasedMDT_NR */
-static int hf_xnap_tABased = -1;                  /* TABasedMDT */
-static int hf_xnap_tAIBased = -1;                 /* TAIBasedMDT */
-static int hf_xnap_choice_extension = -1;         /* ProtocolIE_Single_Container */
-static int hf_xnap_cellBased_01 = -1;             /* CellBasedMDT_EUTRA */
-static int hf_xnap_AreaScopeOfNeighCellsList_item = -1;  /* AreaScopeOfNeighCellsItem */
-static int hf_xnap_nrFrequencyInfo = -1;          /* NRFrequencyInfo */
-static int hf_xnap_pciListForMDT = -1;            /* PCIListForMDT */
-static int hf_xnap_cellBased_02 = -1;             /* CellBasedQMC */
-static int hf_xnap_tABased_01 = -1;               /* TABasedQMC */
-static int hf_xnap_tAIBased_01 = -1;              /* TAIBasedQMC */
-static int hf_xnap_pLMNAreaBased = -1;            /* PLMNAreaBasedQMC */
-static int hf_xnap_key_NG_RAN_Star = -1;          /* BIT_STRING_SIZE_256 */
-static int hf_xnap_ncc = -1;                      /* INTEGER_0_7 */
-static int hf_xnap_ran_paging_attempt_info = -1;  /* RANPagingAttemptInfo */
-static int hf_xnap_Associated_QoSFlowInfo_List_item = -1;  /* Associated_QoSFlowInfo_Item */
-static int hf_xnap_mBS_QoSFlowIdentifier = -1;    /* QoSFlowIdentifier */
-static int hf_xnap_associatedUnicastQoSFlowIdentifier = -1;  /* QoSFlowIdentifier */
-static int hf_xnap_bufferLevel = -1;              /* T_bufferLevel */
-static int hf_xnap_playoutDelayForMediaStartup = -1;  /* T_playoutDelayForMediaStartup */
-static int hf_xnap_bAPAddress = -1;               /* BAPAddress */
-static int hf_xnap_bAPPathID = -1;                /* BAPPathID */
-static int hf_xnap_beamMeasurementsReportQuantity = -1;  /* BeamMeasurementsReportQuantity */
-static int hf_xnap_maxNrofRS_IndexesToReport = -1;  /* MaxNrofRS_IndexesToReport */
-static int hf_xnap_rSRP = -1;                     /* T_rSRP */
-static int hf_xnap_rSRQ = -1;                     /* T_rSRQ */
-static int hf_xnap_sINR = -1;                     /* T_sINR */
-static int hf_xnap_BHInfoList_item = -1;          /* BHInfo_Item */
-static int hf_xnap_bHInfoIndex = -1;              /* BHInfoIndex */
-static int hf_xnap_BAPControlPDURLCCH_List_item = -1;  /* BAPControlPDURLCCH_Item */
-static int hf_xnap_bHRLCCHID = -1;                /* BHRLCChannelID */
-static int hf_xnap_nexthopBAPAddress = -1;        /* BAPAddress */
-static int hf_xnap_bluetoothMeasConfig = -1;      /* BluetoothMeasConfig */
-static int hf_xnap_bluetoothMeasConfigNameList = -1;  /* BluetoothMeasConfigNameList */
-static int hf_xnap_bt_rssi = -1;                  /* T_bt_rssi */
-static int hf_xnap_BluetoothMeasConfigNameList_item = -1;  /* BluetoothName */
-static int hf_xnap_BPLMN_ID_Info_EUTRA_item = -1;  /* BPLMN_ID_Info_EUTRA_Item */
-static int hf_xnap_broadcastPLMNs = -1;           /* BroadcastEUTRAPLMNs */
-static int hf_xnap_tac = -1;                      /* TAC */
-static int hf_xnap_e_utraCI = -1;                 /* E_UTRA_Cell_Identity */
-static int hf_xnap_ranac = -1;                    /* RANAC */
-static int hf_xnap_iE_Extension = -1;             /* ProtocolExtensionContainer */
-static int hf_xnap_BPLMN_ID_Info_NR_item = -1;    /* BPLMN_ID_Info_NR_Item */
-static int hf_xnap_broadcastPLMNs_01 = -1;        /* BroadcastPLMNs */
-static int hf_xnap_nr_CI = -1;                    /* NR_Cell_Identity */
-static int hf_xnap_BroadcastCAG_Identifier_List_item = -1;  /* BroadcastCAG_Identifier_Item */
-static int hf_xnap_cag_Identifier = -1;           /* CAG_Identifier */
-static int hf_xnap_BroadcastNID_List_item = -1;   /* BroadcastNID_Item */
-static int hf_xnap_nid = -1;                      /* NID */
-static int hf_xnap_BroadcastPLMNs_item = -1;      /* PLMN_Identity */
-static int hf_xnap_BroadcastEUTRAPLMNs_item = -1;  /* PLMN_Identity */
-static int hf_xnap_tAISliceSupport_List = -1;     /* SliceSupport_List */
-static int hf_xnap_BroadcastPNI_NPN_ID_Information_item = -1;  /* BroadcastPNI_NPN_ID_Information_Item */
-static int hf_xnap_broadcastCAG_Identifier_List = -1;  /* BroadcastCAG_Identifier_List */
-static int hf_xnap_BroadcastSNPNID_List_item = -1;  /* BroadcastSNPNID */
-static int hf_xnap_broadcastNID_List = -1;        /* BroadcastNID_List */
-static int hf_xnap_capacityValue = -1;            /* CapacityValue */
-static int hf_xnap_ssbAreaCapacityValueList = -1;  /* SSBAreaCapacityValue_List */
-static int hf_xnap_radioNetwork = -1;             /* CauseRadioNetworkLayer */
-static int hf_xnap_transport = -1;                /* CauseTransportLayer */
-static int hf_xnap_protocol = -1;                 /* CauseProtocol */
-static int hf_xnap_misc = -1;                     /* CauseMisc */
-static int hf_xnap_limitedNR_List = -1;           /* SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_NR_CGI */
-static int hf_xnap_limitedNR_List_item = -1;      /* NR_CGI */
-static int hf_xnap_full_List = -1;                /* T_full_List */
-static int hf_xnap_maximumCellListSize = -1;      /* MaximumCellListSize */
-static int hf_xnap_cellAssistanceInfo_NR = -1;    /* CellAssistanceInfo_NR */
-static int hf_xnap_cellAssistanceInfo_EUTRA = -1;  /* CellAssistanceInfo_EUTRA */
-static int hf_xnap_limitedEUTRA_List = -1;        /* SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_E_UTRA_CGI */
-static int hf_xnap_limitedEUTRA_List_item = -1;   /* E_UTRA_CGI */
-static int hf_xnap_full_List_01 = -1;             /* T_full_List_01 */
-static int hf_xnap_cellIdListforMDT_NR = -1;      /* CellIdListforMDT_NR */
-static int hf_xnap_CellIdListforMDT_NR_item = -1;  /* NR_CGI */
-static int hf_xnap_cellIdListforQMC = -1;         /* CellIdListforQMC */
-static int hf_xnap_CellIdListforQMC_item = -1;    /* GlobalNG_RANCell_ID */
-static int hf_xnap_cellIdListforMDT_EUTRA = -1;   /* CellIdListforMDT_EUTRA */
-static int hf_xnap_CellIdListforMDT_EUTRA_item = -1;  /* E_UTRA_CGI */
-static int hf_xnap_CellMeasurementResult_item = -1;  /* CellMeasurementResult_Item */
-static int hf_xnap_cell_ID = -1;                  /* GlobalNG_RANCell_ID */
-static int hf_xnap_radioResourceStatus = -1;      /* RadioResourceStatus */
-static int hf_xnap_tNLCapacityIndicator = -1;     /* TNLCapacityIndicator */
-static int hf_xnap_compositeAvailableCapacityGroup = -1;  /* CompositeAvailableCapacityGroup */
-static int hf_xnap_sliceAvailableCapacity = -1;   /* SliceAvailableCapacity */
-static int hf_xnap_numberofActiveUEs = -1;        /* NumberofActiveUEs */
-static int hf_xnap_rRCConnections = -1;           /* RRCConnections */
-static int hf_xnap_replacingCells = -1;           /* ReplacingCells */
-static int hf_xnap_CellToReport_item = -1;        /* CellToReport_Item */
-static int hf_xnap_sSBToReport_List = -1;         /* SSBToReport_List */
-static int hf_xnap_sliceToReport_List = -1;       /* SliceToReport_List */
-static int hf_xnap_ng_ran_e_utra = -1;            /* E_UTRA_Cell_Identity */
-static int hf_xnap_ng_ran_nr = -1;                /* NR_Cell_Identity */
-static int hf_xnap_e_utran = -1;                  /* E_UTRA_Cell_Identity */
-static int hf_xnap_choCandidateCell_List = -1;    /* CHOCandidateCell_List */
-static int hf_xnap_CHOCandidateCell_List_item = -1;  /* CHOCandidateCell_Item */
-static int hf_xnap_choCandidateCellID = -1;       /* GlobalNG_RANCell_ID */
-static int hf_xnap_choExecutionCondition_List = -1;  /* CHOExecutionCondition_List */
-static int hf_xnap_CHOExecutionCondition_List_item = -1;  /* CHOExecutionCondition_Item */
-static int hf_xnap_measObjectContainer = -1;      /* MeasObjectContainer */
-static int hf_xnap_reportConfigContainer = -1;    /* ReportConfigContainer */
-static int hf_xnap_compositeAvailableCapacityDownlink = -1;  /* CompositeAvailableCapacity */
-static int hf_xnap_compositeAvailableCapacityUplink = -1;  /* CompositeAvailableCapacity */
-static int hf_xnap_cellCapacityClassValue = -1;   /* CellCapacityClassValue */
-static int hf_xnap_capacityValueInfo = -1;        /* CapacityValueInfo */
-static int hf_xnap_cho_trigger = -1;              /* CHOtrigger */
-static int hf_xnap_targetNG_RANnodeUEXnAPID = -1;  /* NG_RANnodeUEXnAPID */
-static int hf_xnap_cHO_EstimatedArrivalProbability = -1;  /* CHO_Probability */
-static int hf_xnap_requestedTargetCellGlobalID = -1;  /* Target_CGI */
-static int hf_xnap_maxCHOoperations = -1;         /* MaxCHOpreparations */
-static int hf_xnap_source_M_NGRAN_node_ID = -1;   /* GlobalNG_RANNode_ID */
-static int hf_xnap_source_M_NGRAN_node_UE_XnAP_ID = -1;  /* NG_RANnodeUEXnAPID */
-static int hf_xnap_conditionalReconfig = -1;      /* T_conditionalReconfig */
-static int hf_xnap_eNDC_Support = -1;             /* T_eNDC_Support */
-static int hf_xnap_pdcp_SN12 = -1;                /* INTEGER_0_4095 */
-static int hf_xnap_hfn_PDCP_SN12 = -1;            /* INTEGER_0_1048575 */
-static int hf_xnap_pdcp_SN18 = -1;                /* INTEGER_0_262143 */
-static int hf_xnap_hfn_PDCP_SN18 = -1;            /* INTEGER_0_16383 */
-static int hf_xnap_Coverage_Modification_List_item = -1;  /* Coverage_Modification_List_Item */
-static int hf_xnap_globalNG_RANCell_ID = -1;      /* GlobalCell_ID */
-static int hf_xnap_cellCoverageState = -1;        /* INTEGER_0_63_ */
-static int hf_xnap_cellDeploymentStatusIndicator = -1;  /* CellDeploymentStatusIndicator */
-static int hf_xnap_cellReplacingInfo = -1;        /* CellReplacingInfo */
-static int hf_xnap_sSB_Coverage_Modification_List = -1;  /* SSB_Coverage_Modification_List */
-static int hf_xnap_endpointIPAddress = -1;        /* TransportLayerAddress */
-static int hf_xnap_CPACcandidatePSCells_list_item = -1;  /* CPACcandidatePSCells_item */
-static int hf_xnap_pscell_id = -1;                /* NR_CGI */
-static int hf_xnap_max_no_of_pscells = -1;        /* INTEGER_1_maxnoofPSCellCandidates_ */
-static int hf_xnap_cpac_EstimatedArrivalProbability = -1;  /* CHO_Probability */
-static int hf_xnap_candidate_pscells = -1;        /* CPACcandidatePSCells_list */
-static int hf_xnap_cpc_target_sn_required_list = -1;  /* CPC_target_SN_required_list */
-static int hf_xnap_CPC_target_SN_required_list_item = -1;  /* CPC_target_SN_required_list_Item */
-static int hf_xnap_target_S_NG_RANnodeID = -1;    /* GlobalNG_RANNode_ID */
-static int hf_xnap_cpc_indicator = -1;            /* CPCindicator */
-static int hf_xnap_sN_to_MN_Container = -1;       /* T_sN_to_MN_Container */
-static int hf_xnap_cpc_target_sn_confirm_list = -1;  /* CPC_target_SN_confirm_list */
-static int hf_xnap_CPC_target_SN_confirm_list_item = -1;  /* CPC_target_SN_confirm_list_Item */
-static int hf_xnap_max_no_of_pscells_01 = -1;     /* INTEGER_1_8_ */
-static int hf_xnap_cpc_target_sn_list = -1;       /* CPC_target_SN_mod_list */
-static int hf_xnap_CPC_target_SN_mod_list_item = -1;  /* CPC_target_SN_mod_item */
-static int hf_xnap_candidate_pscells_01 = -1;     /* CPCInformationUpdatePSCells_list */
-static int hf_xnap_CPCInformationUpdatePSCells_list_item = -1;  /* CPCInformationUpdatePSCells_item */
-static int hf_xnap_procedureCode = -1;            /* ProcedureCode */
-static int hf_xnap_triggeringMessage = -1;        /* TriggeringMessage */
-static int hf_xnap_procedureCriticality = -1;     /* Criticality */
-static int hf_xnap_iEsCriticalityDiagnostics = -1;  /* CriticalityDiagnostics_IE_List */
-static int hf_xnap_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_List_item */
-static int hf_xnap_iECriticality = -1;            /* Criticality */
-static int hf_xnap_iE_ID = -1;                    /* ProtocolIE_ID */
-static int hf_xnap_typeOfError = -1;              /* TypeOfError */
-static int hf_xnap_CSI_RS_MTC_Configuration_List_item = -1;  /* CSI_RS_MTC_Configuration_Item */
-static int hf_xnap_csi_RS_Index = -1;             /* INTEGER_0_95 */
-static int hf_xnap_csi_RS_Status = -1;            /* T_csi_RS_Status */
-static int hf_xnap_csi_RS_Neighbour_List = -1;    /* CSI_RS_Neighbour_List */
-static int hf_xnap_CSI_RS_Neighbour_List_item = -1;  /* CSI_RS_Neighbour_Item */
-static int hf_xnap_nr_cgi = -1;                   /* NR_CGI */
-static int hf_xnap_csi_RS_MTC_Neighbour_List = -1;  /* CSI_RS_MTC_Neighbour_List */
-static int hf_xnap_CSI_RS_MTC_Neighbour_List_item = -1;  /* CSI_RS_MTC_Neighbour_Item */
-static int hf_xnap_XnUAddressInfoperPDUSession_List_item = -1;  /* XnUAddressInfoperPDUSession_Item */
-static int hf_xnap_pduSession_ID = -1;            /* PDUSession_ID */
-static int hf_xnap_dataForwardingInfoFromTargetNGRANnode = -1;  /* DataForwardingInfoFromTargetNGRANnode */
-static int hf_xnap_pduSessionResourceSetupCompleteInfo_SNterm = -1;  /* PDUSessionResourceBearerSetupCompleteInfo_SNterminated */
-static int hf_xnap_dataForwardingInfoFromTargetE_UTRANnode_List = -1;  /* DataForwardingInfoFromTargetE_UTRANnode_List */
-static int hf_xnap_DataForwardingInfoFromTargetE_UTRANnode_List_item = -1;  /* DataForwardingInfoFromTargetE_UTRANnode_Item */
-static int hf_xnap_dlForwardingUPTNLInformation = -1;  /* UPTransportLayerInformation */
-static int hf_xnap_qosFlowsToBeForwarded_List = -1;  /* QoSFlowsToBeForwarded_List */
-static int hf_xnap_QoSFlowsToBeForwarded_List_item = -1;  /* QoSFlowsToBeForwarded_Item */
-static int hf_xnap_qosFlowIdentifier = -1;        /* QoSFlowIdentifier */
-static int hf_xnap_qosFlowsAcceptedForDataForwarding_List = -1;  /* QoSFLowsAcceptedToBeForwarded_List */
-static int hf_xnap_pduSessionLevelDLDataForwardingInfo = -1;  /* UPTransportLayerInformation */
-static int hf_xnap_pduSessionLevelULDataForwardingInfo = -1;  /* UPTransportLayerInformation */
-static int hf_xnap_dataForwardingResponseDRBItemList = -1;  /* DataForwardingResponseDRBItemList */
-static int hf_xnap_QoSFLowsAcceptedToBeForwarded_List_item = -1;  /* QoSFLowsAcceptedToBeForwarded_Item */
-static int hf_xnap_qosFlowsToBeForwarded = -1;    /* QoSFLowsToBeForwarded_List */
-static int hf_xnap_sourceDRBtoQoSFlowMapping = -1;  /* DRBToQoSFlowMapping_List */
-static int hf_xnap_QoSFLowsToBeForwarded_List_item = -1;  /* QoSFLowsToBeForwarded_Item */
-static int hf_xnap_dl_dataforwarding = -1;        /* DLForwarding */
-static int hf_xnap_ul_dataforwarding = -1;        /* ULForwarding */
-static int hf_xnap_DataForwardingResponseDRBItemList_item = -1;  /* DataForwardingResponseDRBItem */
-static int hf_xnap_drb_ID = -1;                   /* DRB_ID */
-static int hf_xnap_dlForwardingUPTNL = -1;        /* UPTransportLayerInformation */
-static int hf_xnap_ulForwardingUPTNL = -1;        /* UPTransportLayerInformation */
-static int hf_xnap_activationSFN = -1;            /* ActivationSFN */
-static int hf_xnap_sharedResourceType = -1;       /* SharedResourceType */
-static int hf_xnap_reservedSubframePattern = -1;  /* ReservedSubframePattern */
-static int hf_xnap_dapsIndicator = -1;            /* T_dapsIndicator */
-static int hf_xnap_DAPSResponseInfo_List_item = -1;  /* DAPSResponseInfo_Item */
-static int hf_xnap_drbID = -1;                    /* DRB_ID */
-static int hf_xnap_dapsResponseIndicator = -1;    /* T_dapsResponseIndicator */
-static int hf_xnap_count12bits = -1;              /* COUNT_PDCP_SN12 */
-static int hf_xnap_count18bits = -1;              /* COUNT_PDCP_SN18 */
-static int hf_xnap_egressBAPRoutingID = -1;       /* BAPRoutingID */
-static int hf_xnap_egressBHRLCCHID = -1;          /* BHRLCChannelID */
-static int hf_xnap_ingressBAPRoutingID = -1;      /* BAPRoutingID */
-static int hf_xnap_ingressBHRLCCHID = -1;         /* BHRLCChannelID */
-static int hf_xnap_priorhopBAPAddress = -1;       /* BAPAddress */
-static int hf_xnap_iabqosMappingInformation = -1;  /* IAB_QoS_Mapping_Information */
-static int hf_xnap_DRB_List_item = -1;            /* DRB_ID */
-static int hf_xnap_DRB_List_withCause_item = -1;  /* DRB_List_withCause_Item */
-static int hf_xnap_drb_id = -1;                   /* DRB_ID */
-static int hf_xnap_cause = -1;                    /* Cause */
-static int hf_xnap_rLC_Mode = -1;                 /* RLCMode */
-static int hf_xnap_DRBsSubjectToDLDiscarding_List_item = -1;  /* DRBsSubjectToDLDiscarding_Item */
-static int hf_xnap_dlCount = -1;                  /* DLCountChoice */
-static int hf_xnap_DRBsSubjectToEarlyStatusTransfer_List_item = -1;  /* DRBsSubjectToEarlyStatusTransfer_Item */
-static int hf_xnap_DRBsSubjectToStatusTransfer_List_item = -1;  /* DRBsSubjectToStatusTransfer_Item */
-static int hf_xnap_pdcpStatusTransfer_UL = -1;    /* DRBBStatusTransferChoice */
-static int hf_xnap_pdcpStatusTransfer_DL = -1;    /* DRBBStatusTransferChoice */
-static int hf_xnap_pdcp_sn_12bits = -1;           /* DRBBStatusTransfer12bitsSN */
-static int hf_xnap_pdcp_sn_18bits = -1;           /* DRBBStatusTransfer18bitsSN */
-static int hf_xnap_receiveStatusofPDCPSDU = -1;   /* BIT_STRING_SIZE_1_2048 */
-static int hf_xnap_cOUNTValue = -1;               /* COUNT_PDCP_SN12 */
-static int hf_xnap_receiveStatusofPDCPSDU_01 = -1;  /* BIT_STRING_SIZE_1_131072 */
-static int hf_xnap_cOUNTValue_01 = -1;            /* COUNT_PDCP_SN18 */
-static int hf_xnap_DRBToQoSFlowMapping_List_item = -1;  /* DRBToQoSFlowMapping_Item */
-static int hf_xnap_qosFlows_List = -1;            /* QoSFlows_List */
-static int hf_xnap_DUF_Slot_Config_List_item = -1;  /* DUF_Slot_Config_Item */
-static int hf_xnap_explicitFormat = -1;           /* ExplicitFormat */
-static int hf_xnap_implicitFormat = -1;           /* ImplicitFormat */
-static int hf_xnap_priorityLevelQoS = -1;         /* PriorityLevelQoS */
-static int hf_xnap_fiveQI = -1;                   /* FiveQI */
-static int hf_xnap_delayCritical = -1;            /* T_delayCritical */
-static int hf_xnap_averagingWindow = -1;          /* AveragingWindow */
-static int hf_xnap_maximumDataBurstVolume = -1;   /* MaximumDataBurstVolume */
-static int hf_xnap_e_utra_CI = -1;                /* E_UTRA_Cell_Identity */
-static int hf_xnap_E_UTRAMultibandInfoList_item = -1;  /* E_UTRAFrequencyBandIndicator */
-static int hf_xnap_eutrapaging_eDRX_Cycle = -1;   /* EUTRAPaging_eDRX_Cycle */
-static int hf_xnap_eutrapaging_Time_Window = -1;  /* EUTRAPaging_Time_Window */
-static int hf_xnap_rootSequenceIndex = -1;        /* INTEGER_0_837 */
-static int hf_xnap_zeroCorrelationIndex = -1;     /* INTEGER_0_15 */
-static int hf_xnap_highSpeedFlag = -1;            /* T_highSpeedFlag */
-static int hf_xnap_prach_FreqOffset = -1;         /* INTEGER_0_94 */
-static int hf_xnap_prach_ConfigIndex = -1;        /* INTEGER_0_63 */
-static int hf_xnap_portNumber = -1;               /* PortNumber */
-static int hf_xnap_loggedEventTriggeredConfig = -1;  /* LoggedEventTriggeredConfig */
-static int hf_xnap_outOfCoverage = -1;            /* T_outOfCoverage */
-static int hf_xnap_eventL1 = -1;                  /* EventL1 */
-static int hf_xnap_choice_Extensions = -1;        /* ProtocolIE_Single_Container */
-static int hf_xnap_l1Threshold = -1;              /* MeasurementThresholdL1LoggedMDT */
-static int hf_xnap_hysteresis = -1;               /* Hysteresis */
-static int hf_xnap_timeToTrigger = -1;            /* TimeToTrigger */
-static int hf_xnap_threshold_RSRP = -1;           /* Threshold_RSRP */
-static int hf_xnap_threshold_RSRQ = -1;           /* Threshold_RSRQ */
-static int hf_xnap_ExcessPacketDelayThresholdConfiguration_item = -1;  /* ExcessPacketDelayThresholdItem */
-static int hf_xnap_excessPacketDelayThresholdValue = -1;  /* ExcessPacketDelayThresholdValue */
-static int hf_xnap_expectedActivityPeriod = -1;   /* ExpectedActivityPeriod */
-static int hf_xnap_expectedIdlePeriod = -1;       /* ExpectedIdlePeriod */
-static int hf_xnap_sourceOfUEActivityBehaviourInformation = -1;  /* SourceOfUEActivityBehaviourInformation */
-static int hf_xnap_expectedUEActivityBehaviour = -1;  /* ExpectedUEActivityBehaviour */
-static int hf_xnap_expectedHOInterval = -1;       /* ExpectedHOInterval */
-static int hf_xnap_expectedUEMobility = -1;       /* ExpectedUEMobility */
-static int hf_xnap_expectedUEMovingTrajectory = -1;  /* ExpectedUEMovingTrajectory */
-static int hf_xnap_ExpectedUEMovingTrajectory_item = -1;  /* ExpectedUEMovingTrajectoryItem */
-static int hf_xnap_nGRAN_CGI = -1;                /* GlobalNG_RANCell_ID */
-static int hf_xnap_timeStayedInCell = -1;         /* INTEGER_0_4095 */
-static int hf_xnap_permutation = -1;              /* Permutation */
-static int hf_xnap_noofDownlinkSymbols = -1;      /* INTEGER_0_14 */
-static int hf_xnap_noofUplinkSymbols = -1;        /* INTEGER_0_14 */
-static int hf_xnap_primaryRATRestriction = -1;    /* T_primaryRATRestriction */
-static int hf_xnap_secondaryRATRestriction = -1;  /* T_secondaryRATRestriction */
-static int hf_xnap_ExtendedSliceSupportList_item = -1;  /* S_NSSAI */
-static int hf_xnap_ExtTLAs_item = -1;             /* ExtTLA_Item */
-static int hf_xnap_iPsecTLA = -1;                 /* TransportLayerAddress */
-static int hf_xnap_gTPTransportLayerAddresses = -1;  /* GTPTLAs */
-static int hf_xnap_GTPTLAs_item = -1;             /* GTPTLA_Item */
-static int hf_xnap_gTPTransportLayerAddresses_01 = -1;  /* TransportLayerAddress */
-static int hf_xnap_f1TerminatingBHInformation_List = -1;  /* F1TerminatingBHInformation_List */
-static int hf_xnap_F1TerminatingBHInformation_List_item = -1;  /* F1TerminatingBHInformation_Item */
-static int hf_xnap_dLTNLAddress = -1;             /* IABTNLAddress */
-static int hf_xnap_dlF1TerminatingBHInfo = -1;    /* DLF1Terminating_BHInfo */
-static int hf_xnap_ulF1TerminatingBHInfo = -1;    /* ULF1Terminating_BHInfo */
-static int hf_xnap_fiveGproSeDirectDiscovery = -1;  /* FiveGProSeDirectDiscovery */
-static int hf_xnap_fiveGproSeDirectCommunication = -1;  /* FiveGProSeDirectCommunication */
-static int hf_xnap_fiveGnrProSeLayer2UEtoNetworkRelay = -1;  /* FiveGProSeLayer2UEtoNetworkRelay */
-static int hf_xnap_fiveGnrProSeLayer3UEtoNetworkRelay = -1;  /* FiveGProSeLayer3UEtoNetworkRelay */
-static int hf_xnap_fiveGnrProSeLayer2RemoteUE = -1;  /* FiveGProSeLayer2RemoteUE */
-static int hf_xnap_fiveGProSepc5QoSFlowList = -1;  /* FiveGProSePC5QoSFlowList */
-static int hf_xnap_fiveGproSepc5LinkAggregateBitRates = -1;  /* BitRate */
-static int hf_xnap_FiveGProSePC5QoSFlowList_item = -1;  /* FiveGProSePC5QoSFlowItem */
-static int hf_xnap_fiveGproSepQI = -1;            /* FiveQI */
-static int hf_xnap_fiveGproSepc5FlowBitRates = -1;  /* FiveGProSePC5FlowBitRates */
-static int hf_xnap_fiveGproSerange = -1;          /* Range */
-static int hf_xnap_fiveGproSeguaranteedFlowBitRate = -1;  /* BitRate */
-static int hf_xnap_fiveGproSemaximumFlowBitRate = -1;  /* BitRate */
-static int hf_xnap_Flows_Mapped_To_DRB_List_item = -1;  /* Flows_Mapped_To_DRB_Item */
-static int hf_xnap_qoSFlowIdentifier = -1;        /* QoSFlowIdentifier */
-static int hf_xnap_qoSFlowLevelQoSParameters = -1;  /* QoSFlowLevelQoSParameters */
-static int hf_xnap_qoSFlowMappingIndication = -1;  /* QoSFlowMappingIndication */
-static int hf_xnap_FreqDomainHSNAconfiguration_List_item = -1;  /* FreqDomainHSNAconfiguration_List_Item */
-static int hf_xnap_rBsetIndex = -1;               /* INTEGER_0_maxnoofRBsetsPerCell1_ */
-static int hf_xnap_freqDomainSlotHSNAconfiguration_List = -1;  /* FreqDomainSlotHSNAconfiguration_List */
-static int hf_xnap_FreqDomainSlotHSNAconfiguration_List_item = -1;  /* FreqDomainSlotHSNAconfiguration_List_Item */
-static int hf_xnap_slotIndex = -1;                /* INTEGER_1_maxnoofHSNASlots */
-static int hf_xnap_hSNADownlink = -1;             /* HSNADownlink */
-static int hf_xnap_hSNAUplink = -1;               /* HSNAUplink */
-static int hf_xnap_hSNAFlexible = -1;             /* HSNAFlexible */
-static int hf_xnap_maxFlowBitRateDL = -1;         /* BitRate */
-static int hf_xnap_maxFlowBitRateUL = -1;         /* BitRate */
-static int hf_xnap_notificationControl = -1;      /* T_notificationControl */
-static int hf_xnap_maxPacketLossRateDL = -1;      /* PacketLossRate */
-static int hf_xnap_maxPacketLossRateUL = -1;      /* PacketLossRate */
-static int hf_xnap_gnb_id = -1;                   /* GNB_ID_Choice */
-static int hf_xnap_subcarrierSpacing = -1;        /* SSB_subcarrierSpacing */
-static int hf_xnap_dUFTransmissionPeriodicity = -1;  /* DUFTransmissionPeriodicity */
-static int hf_xnap_dUF_Slot_Config_List = -1;     /* DUF_Slot_Config_List */
-static int hf_xnap_hSNATransmissionPeriodicity = -1;  /* HSNATransmissionPeriodicity */
-static int hf_xnap_hNSASlotConfigList = -1;       /* HSNASlotConfigList */
-static int hf_xnap_rBsetConfiguration = -1;       /* RBsetConfiguration */
-static int hf_xnap_freqDomainHSNAconfiguration_List = -1;  /* FreqDomainHSNAconfiguration_List */
-static int hf_xnap_nACellResourceConfigurationList = -1;  /* NACellResourceConfigurationList */
-static int hf_xnap_gnb_ID = -1;                   /* BIT_STRING_SIZE_22_32 */
-static int hf_xnap_ssbAreaRadioResourceStatus_List = -1;  /* SSBAreaRadioResourceStatus_List */
-static int hf_xnap_cell_type = -1;                /* Cell_Type_Choice */
-static int hf_xnap_enb_id = -1;                   /* ENB_ID_Choice */
-static int hf_xnap_enb_ID_macro = -1;             /* BIT_STRING_SIZE_20 */
-static int hf_xnap_enb_ID_shortmacro = -1;        /* BIT_STRING_SIZE_18 */
-static int hf_xnap_enb_ID_longmacro = -1;         /* BIT_STRING_SIZE_21 */
-static int hf_xnap_ng_RAN_Cell_id = -1;           /* NG_RAN_Cell_Identity */
-static int hf_xnap_gNB = -1;                      /* GlobalgNB_ID */
-static int hf_xnap_ng_eNB = -1;                   /* GlobalngeNB_ID */
-static int hf_xnap_tnl_address = -1;              /* TransportLayerAddress */
-static int hf_xnap_gtp_teid = -1;                 /* GTP_TEID */
-static int hf_xnap_amf_set_id = -1;               /* BIT_STRING_SIZE_10 */
-static int hf_xnap_amf_pointer = -1;              /* BIT_STRING_SIZE_6 */
-static int hf_xnap_HSNASlotConfigList_item = -1;  /* HSNASlotConfigItem */
-static int hf_xnap_nRCGI = -1;                    /* NR_CGI */
-static int hf_xnap_iAB_DU_Cell_Resource_Configuration_Mode_Info = -1;  /* IAB_DU_Cell_Resource_Configuration_Mode_Info */
-static int hf_xnap_iAB_STC_Info = -1;             /* IAB_STC_Info */
-static int hf_xnap_rACH_Config_Common = -1;       /* RACH_Config_Common */
-static int hf_xnap_rACH_Config_Common_IAB = -1;   /* RACH_Config_Common_IAB */
-static int hf_xnap_cSI_RS_Configuration = -1;     /* T_cSI_RS_Configuration */
-static int hf_xnap_sR_Configuration = -1;         /* T_sR_Configuration */
-static int hf_xnap_pDCCH_ConfigSIB1 = -1;         /* T_pDCCH_ConfigSIB1 */
-static int hf_xnap_sCS_Common = -1;               /* T_sCS_Common */
-static int hf_xnap_multiplexingInfo = -1;         /* MultiplexingInfo */
-static int hf_xnap_tDD = -1;                      /* IAB_DU_Cell_Resource_Configuration_TDD_Info */
-static int hf_xnap_fDD = -1;                      /* IAB_DU_Cell_Resource_Configuration_FDD_Info */
-static int hf_xnap_gNB_DU_Cell_Resource_Configuration_FDD_UL = -1;  /* GNB_DU_Cell_Resource_Configuration */
-static int hf_xnap_gNB_DU_Cell_Resource_Configuration_FDD_DL = -1;  /* GNB_DU_Cell_Resource_Configuration */
-static int hf_xnap_uLFrequencyInfo = -1;          /* NRFrequencyInfo */
-static int hf_xnap_dLFrequencyInfo = -1;          /* NRFrequencyInfo */
-static int hf_xnap_uLTransmissionBandwidth = -1;  /* NRTransmissionBandwidth */
-static int hf_xnap_dlTransmissionBandwidth = -1;  /* NRTransmissionBandwidth */
-static int hf_xnap_uLCarrierList = -1;            /* NRCarrierList */
-static int hf_xnap_dlCarrierList = -1;            /* NRCarrierList */
-static int hf_xnap_gNB_DU_Cell_Resource_Configuration_TDD = -1;  /* GNB_DU_Cell_Resource_Configuration */
-static int hf_xnap_frequencyInfo = -1;            /* NRFrequencyInfo */
-static int hf_xnap_transmissionBandwidth = -1;    /* NRTransmissionBandwidth */
-static int hf_xnap_carrierList = -1;              /* NRCarrierList */
-static int hf_xnap_IAB_MT_Cell_List_item = -1;    /* IAB_MT_Cell_List_Item */
-static int hf_xnap_nRCellIdentity = -1;           /* NR_Cell_Identity */
-static int hf_xnap_dU_RX_MT_RX = -1;              /* DU_RX_MT_RX */
-static int hf_xnap_dU_TX_MT_TX = -1;              /* DU_TX_MT_TX */
-static int hf_xnap_dU_RX_MT_TX = -1;              /* DU_RX_MT_TX */
-static int hf_xnap_dU_TX_MT_RX = -1;              /* DU_TX_MT_RX */
-static int hf_xnap_dscp = -1;                     /* BIT_STRING_SIZE_6 */
-static int hf_xnap_flow_label = -1;               /* BIT_STRING_SIZE_20 */
-static int hf_xnap_iAB_STC_Info_List = -1;        /* IAB_STC_Info_List */
-static int hf_xnap_IAB_STC_Info_List_item = -1;   /* IAB_STC_Info_Item */
-static int hf_xnap_sSB_freqInfo = -1;             /* SSB_freqInfo */
-static int hf_xnap_sSB_subcarrierSpacing = -1;    /* SSB_subcarrierSpacing */
-static int hf_xnap_sSB_transmissionPeriodicity = -1;  /* SSB_transmissionPeriodicity */
-static int hf_xnap_sSB_transmissionTimingOffset = -1;  /* SSB_transmissionTimingOffset */
-static int hf_xnap_sSB_transmissionBitmap = -1;   /* SSB_transmissionBitmap */
-static int hf_xnap_iABIPv4AddressesRequested = -1;  /* IABTNLAddressesRequested */
-static int hf_xnap_iABIPv6RequestType = -1;       /* IABIPv6RequestType */
-static int hf_xnap_iABTNLAddressToRemove_List = -1;  /* IABTNLAddressToRemove_List */
-static int hf_xnap_iPv6Address = -1;              /* IABTNLAddressesRequested */
-static int hf_xnap_iPv6Prefix = -1;               /* IABTNLAddressesRequested */
-static int hf_xnap_iABAllocatedTNLAddress_List = -1;  /* IABAllocatedTNLAddress_List */
-static int hf_xnap_IABAllocatedTNLAddress_List_item = -1;  /* IABAllocatedTNLAddress_Item */
-static int hf_xnap_iABTNLAddress = -1;            /* IABTNLAddress */
-static int hf_xnap_iABTNLAddressUsage = -1;       /* IABTNLAddressUsage */
-static int hf_xnap_associatedDonorDUAddress = -1;  /* BAPAddress */
-static int hf_xnap_iPv4Address = -1;              /* T_iPv4Address */
-static int hf_xnap_iPv6Address_01 = -1;           /* T_iPv6Address */
-static int hf_xnap_iPv6Prefix_01 = -1;            /* T_iPv6Prefix */
-static int hf_xnap_tNLAddressesOrPrefixesRequestedAllTraffic = -1;  /* INTEGER_1_256 */
-static int hf_xnap_tNLAddressesOrPrefixesRequestedF1_C = -1;  /* INTEGER_1_256 */
-static int hf_xnap_tNLAddressesOrPrefixesRequestedF1_U = -1;  /* INTEGER_1_256 */
-static int hf_xnap_tNLAddressesOrPrefixesRequestedNoNF1 = -1;  /* INTEGER_1_256 */
-static int hf_xnap_IABTNLAddressToRemove_List_item = -1;  /* IABTNLAddressToRemove_Item */
-static int hf_xnap_IABTNLAddressException_item = -1;  /* IABTNLAddress_Item */
-static int hf_xnap_measurementsToActivate = -1;   /* MeasurementsToActivate */
-static int hf_xnap_m1Configuration = -1;          /* M1Configuration */
-static int hf_xnap_m4Configuration = -1;          /* M4Configuration */
-static int hf_xnap_m5Configuration = -1;          /* M5Configuration */
-static int hf_xnap_mDT_Location_Info = -1;        /* MDT_Location_Info */
-static int hf_xnap_m6Configuration = -1;          /* M6Configuration */
-static int hf_xnap_m7Configuration = -1;          /* M7Configuration */
-static int hf_xnap_bluetoothMeasurementConfiguration = -1;  /* BluetoothMeasurementConfiguration */
-static int hf_xnap_wLANMeasurementConfiguration = -1;  /* WLANMeasurementConfiguration */
-static int hf_xnap_sensorMeasurementConfiguration = -1;  /* SensorMeasurementConfiguration */
-static int hf_xnap_dUFSlotformatIndex = -1;       /* DUFSlotformatIndex */
-static int hf_xnap_rRCReestab = -1;               /* RRCReestab_initiated */
-static int hf_xnap_rRCSetup = -1;                 /* RRCSetup_initiated */
-static int hf_xnap_nrscs = -1;                    /* NRSCS */
-static int hf_xnap_nrCyclicPrefix = -1;           /* NRCyclicPrefix */
-static int hf_xnap_nrDL_ULTransmissionPeriodicity = -1;  /* NRDL_ULTransmissionPeriodicity */
-static int hf_xnap_slotConfiguration_List = -1;   /* SlotConfiguration_List */
-static int hf_xnap_i_RNTI_full = -1;              /* BIT_STRING_SIZE_40 */
-static int hf_xnap_i_RNTI_short = -1;             /* BIT_STRING_SIZE_24 */
-static int hf_xnap_full_I_RNTI_Profile_List = -1;  /* Full_I_RNTI_Profile_List */
-static int hf_xnap_short_I_RNTI_Profile_List = -1;  /* Short_I_RNTI_Profile_List */
-static int hf_xnap_full_I_RNTI_Profile_0 = -1;    /* BIT_STRING_SIZE_21 */
-static int hf_xnap_full_I_RNTI_Profile_1 = -1;    /* BIT_STRING_SIZE_18 */
-static int hf_xnap_full_I_RNTI_Profile_2 = -1;    /* BIT_STRING_SIZE_15 */
-static int hf_xnap_full_I_RNTI_Profile_3 = -1;    /* BIT_STRING_SIZE_12 */
-static int hf_xnap_short_I_RNTI_Profile_0 = -1;   /* BIT_STRING_SIZE_8 */
-static int hf_xnap_short_I_RNTI_Profile_1 = -1;   /* BIT_STRING_SIZE_6 */
-static int hf_xnap_nG_RAN_Cell = -1;              /* LastVisitedNGRANCellInformation */
-static int hf_xnap_e_UTRAN_Cell = -1;             /* LastVisitedEUTRANCellInformation */
-static int hf_xnap_uTRAN_Cell = -1;               /* LastVisitedUTRANCellInformation */
-static int hf_xnap_gERAN_Cell = -1;               /* LastVisitedGERANCellInformation */
-static int hf_xnap_LastVisitedPSCellList_item = -1;  /* LastVisitedPSCellList_Item */
-static int hf_xnap_lastVisitedPSCellInformation = -1;  /* LastVisitedPSCellInformation */
-static int hf_xnap_lastVisitedPSCellList = -1;    /* LastVisitedPSCellList */
-static int hf_xnap_ListOfCells_item = -1;         /* CellsinAoI_Item */
-static int hf_xnap_pLMN_Identity = -1;            /* PLMN_Identity */
-static int hf_xnap_ng_ran_cell_id = -1;           /* NG_RAN_Cell_Identity */
-static int hf_xnap_ListOfRANNodesinAoI_item = -1;  /* GlobalNG_RANNodesinAoI_Item */
-static int hf_xnap_global_NG_RAN_Node_ID = -1;    /* GlobalNG_RANNode_ID */
-static int hf_xnap_ListOfTAIsinAoI_item = -1;     /* TAIsinAoI_Item */
-static int hf_xnap_tAC = -1;                      /* TAC */
-static int hf_xnap_eventType = -1;                /* EventType */
-static int hf_xnap_reportArea = -1;               /* ReportArea */
-static int hf_xnap_areaOfInterest = -1;           /* AreaOfInterestInformation */
-static int hf_xnap_eventTypeTrigger = -1;         /* EventTypeTrigger */
-static int hf_xnap_loggingInterval = -1;          /* LoggingInterval */
-static int hf_xnap_loggingDuration = -1;          /* LoggingDuration */
-static int hf_xnap_reportType = -1;               /* ReportType */
-static int hf_xnap_areaScopeOfNeighCellsList = -1;  /* AreaScopeOfNeighCellsList */
-static int hf_xnap_vehicleUE = -1;                /* VehicleUE */
-static int hf_xnap_pedestrianUE = -1;             /* PedestrianUE */
-static int hf_xnap_uESidelinkAggregateMaximumBitRate = -1;  /* BitRate */
-static int hf_xnap_s_BasedMDT = -1;               /* S_BasedMDT */
-static int hf_xnap_m1reportingTrigger = -1;       /* M1ReportingTrigger */
-static int hf_xnap_m1thresholdeventA2 = -1;       /* M1ThresholdEventA2 */
-static int hf_xnap_m1periodicReporting = -1;      /* M1PeriodicReporting */
-static int hf_xnap_reportInterval = -1;           /* ReportIntervalMDT */
-static int hf_xnap_reportAmount = -1;             /* ReportAmountMDT */
-static int hf_xnap_measurementThreshold = -1;     /* MeasurementThresholdA2 */
-static int hf_xnap_m4period = -1;                 /* M4period */
-static int hf_xnap_m4_links_to_log = -1;          /* Links_to_log */
-static int hf_xnap_m5period = -1;                 /* M5period */
-static int hf_xnap_m5_links_to_log = -1;          /* Links_to_log */
-static int hf_xnap_m6report_Interval = -1;        /* M6report_Interval */
-static int hf_xnap_m6_links_to_log = -1;          /* Links_to_log */
-static int hf_xnap_m7period = -1;                 /* M7period */
-static int hf_xnap_m7_links_to_log = -1;          /* Links_to_log */
-static int hf_xnap_maxIPrate_UL = -1;             /* MaxIPrate */
-static int hf_xnap_oneframe = -1;                 /* BIT_STRING_SIZE_6 */
-static int hf_xnap_fourframes = -1;               /* BIT_STRING_SIZE_24 */
-static int hf_xnap_MBSFNSubframeInfo_E_UTRA_item = -1;  /* MBSFNSubframeInfo_E_UTRA_Item */
-static int hf_xnap_radioframeAllocationPeriod = -1;  /* T_radioframeAllocationPeriod */
-static int hf_xnap_radioframeAllocationOffset = -1;  /* INTEGER_0_7_ */
-static int hf_xnap_subframeAllocation = -1;       /* MBSFNSubframeAllocation_E_UTRA */
-static int hf_xnap_MBS_MappingandDataForwardingRequestInfofromSource_item = -1;  /* MBS_MappingandDataForwardingRequestInfofromSource_Item */
-static int hf_xnap_mRB_ID = -1;                   /* MRB_ID */
-static int hf_xnap_mBS_QoSFlow_List = -1;         /* MBS_QoSFlow_List */
-static int hf_xnap_mRB_ProgressInformation = -1;  /* MRB_ProgressInformation */
-static int hf_xnap_MBS_DataForwardingResponseInfofromTarget_item = -1;  /* MBS_DataForwardingResponseInfofromTarget_Item */
-static int hf_xnap_MBS_QoSFlow_List_item = -1;    /* QoSFlowIdentifier */
-static int hf_xnap_MBS_QoSFlowsToAdd_List_item = -1;  /* MBS_QoSFlowsToAdd_Item */
-static int hf_xnap_mBS_QosFlowIdentifier = -1;    /* QoSFlowIdentifier */
-static int hf_xnap_mBS_QosFlowLevelQosParameters = -1;  /* QoSFlowLevelQoSParameters */
-static int hf_xnap_locationindependent = -1;      /* MBS_ServiceAreaInformation */
-static int hf_xnap_locationdependent = -1;        /* MBS_ServiceAreaInformationList */
-static int hf_xnap_MBS_ServiceAreaCell_List_item = -1;  /* NR_CGI */
-static int hf_xnap_mBS_ServiceAreaCell_List = -1;  /* MBS_ServiceAreaCell_List */
-static int hf_xnap_mBS_ServiceAreaTAI_List = -1;  /* MBS_ServiceAreaTAI_List */
-static int hf_xnap_MBS_ServiceAreaInformationList_item = -1;  /* MBS_ServiceAreaInformation_Item */
-static int hf_xnap_mBS_Area_Session_ID = -1;      /* MBS_Area_Session_ID */
-static int hf_xnap_mBS_ServiceAreaInformation = -1;  /* MBS_ServiceAreaInformation */
-static int hf_xnap_MBS_ServiceAreaTAI_List_item = -1;  /* MBS_ServiceAreaTAI_Item */
-static int hf_xnap_tMGI = -1;                     /* TMGI */
-static int hf_xnap_nID = -1;                      /* NID */
-static int hf_xnap_MBS_SessionAssociatedInformation_item = -1;  /* MBS_SessionAssociatedInformation_Item */
-static int hf_xnap_mBS_Session_ID = -1;           /* MBS_Session_ID */
-static int hf_xnap_associated_QoSFlowInfo_List = -1;  /* Associated_QoSFlowInfo_List */
-static int hf_xnap_MBS_SessionInformation_List_item = -1;  /* MBS_SessionInformation_Item */
-static int hf_xnap_active_MBS_SessioInformation = -1;  /* Active_MBS_SessionInformation */
-static int hf_xnap_MBS_SessionInformationResponse_List_item = -1;  /* MBS_SessionInformationResponse_Item */
-static int hf_xnap_mBS_DataForwardingResponseInfofromTarget = -1;  /* MBS_DataForwardingResponseInfofromTarget */
-static int hf_xnap_mDT_Configuration_NR = -1;     /* MDT_Configuration_NR */
-static int hf_xnap_mDT_Configuration_EUTRA = -1;  /* MDT_Configuration_EUTRA */
-static int hf_xnap_mdt_Activation = -1;           /* MDT_Activation */
-static int hf_xnap_areaScopeOfMDT_NR = -1;        /* AreaScopeOfMDT_NR */
-static int hf_xnap_mDTMode_NR = -1;               /* MDTMode_NR */
-static int hf_xnap_signallingBasedMDTPLMNList = -1;  /* MDTPLMNList */
-static int hf_xnap_areaScopeOfMDT_EUTRA = -1;     /* AreaScopeOfMDT_EUTRA */
-static int hf_xnap_mDTMode_EUTRA = -1;            /* MDTMode_EUTRA */
-static int hf_xnap_MDTPLMNList_item = -1;         /* PLMN_Identity */
-static int hf_xnap_MDTPLMNModificationList_item = -1;  /* PLMN_Identity */
-static int hf_xnap_immediateMDT = -1;             /* ImmediateMDT_NR */
-static int hf_xnap_loggedMDT = -1;                /* LoggedMDT_NR */
-static int hf_xnap_mDTMode_NR_Extension = -1;     /* MDTMode_NR_Extension */
-static int hf_xnap_threshold_SINR = -1;           /* Threshold_SINR */
-static int hf_xnap_dl_GBR_PRB_usage_for_MIMO = -1;  /* DL_GBR_PRB_usage_for_MIMO */
-static int hf_xnap_ul_GBR_PRB_usage_for_MIMO = -1;  /* UL_GBR_PRB_usage_for_MIMO */
-static int hf_xnap_dl_non_GBR_PRB_usage_for_MIMO = -1;  /* DL_non_GBR_PRB_usage_for_MIMO */
-static int hf_xnap_ul_non_GBR_PRB_usage_for_MIMO = -1;  /* UL_non_GBR_PRB_usage_for_MIMO */
-static int hf_xnap_dl_Total_PRB_usage_for_MIMO = -1;  /* DL_Total_PRB_usage_for_MIMO */
-static int hf_xnap_ul_Total_PRB_usage_for_MIMO = -1;  /* UL_Total_PRB_usage_for_MIMO */
-static int hf_xnap_handoverTriggerChangeLowerLimit = -1;  /* INTEGER_M20_20 */
-static int hf_xnap_handoverTriggerChangeUpperLimit = -1;  /* INTEGER_M20_20 */
-static int hf_xnap_handoverTriggerChange = -1;    /* INTEGER_M20_20 */
-static int hf_xnap_serving_PLMN = -1;             /* PLMN_Identity */
-static int hf_xnap_equivalent_PLMNs = -1;         /* SEQUENCE_SIZE_1_maxnoofEPLMNs_OF_PLMN_Identity */
-static int hf_xnap_equivalent_PLMNs_item = -1;    /* PLMN_Identity */
-static int hf_xnap_rat_Restrictions = -1;         /* RAT_RestrictionsList */
-static int hf_xnap_forbiddenAreaInformation = -1;  /* ForbiddenAreaList */
-static int hf_xnap_serviceAreaInformation = -1;   /* ServiceAreaList */
-static int hf_xnap_CNTypeRestrictionsForEquivalent_item = -1;  /* CNTypeRestrictionsForEquivalentItem */
-static int hf_xnap_plmn_Identity = -1;            /* PLMN_Identity */
-static int hf_xnap_cn_Type = -1;                  /* T_cn_Type */
-static int hf_xnap_RAT_RestrictionsList_item = -1;  /* RAT_RestrictionsItem */
-static int hf_xnap_rat_RestrictionInformation = -1;  /* RAT_RestrictionInformation */
-static int hf_xnap_ForbiddenAreaList_item = -1;   /* ForbiddenAreaItem */
-static int hf_xnap_forbidden_TACs = -1;           /* SEQUENCE_SIZE_1_maxnoofForbiddenTACs_OF_TAC */
-static int hf_xnap_forbidden_TACs_item = -1;      /* TAC */
-static int hf_xnap_ServiceAreaList_item = -1;     /* ServiceAreaItem */
-static int hf_xnap_allowed_TACs_ServiceArea = -1;  /* SEQUENCE_SIZE_1_maxnoofAllowedAreas_OF_TAC */
-static int hf_xnap_allowed_TACs_ServiceArea_item = -1;  /* TAC */
-static int hf_xnap_not_allowed_TACs_ServiceArea = -1;  /* SEQUENCE_SIZE_1_maxnoofAllowedAreas_OF_TAC */
-static int hf_xnap_not_allowed_TACs_ServiceArea_item = -1;  /* TAC */
-static int hf_xnap_ng_RAN_Node_ResourceCoordinationInfo = -1;  /* NG_RAN_Node_ResourceCoordinationInfo */
-static int hf_xnap_eutra_resource_coordination_info = -1;  /* E_UTRA_ResourceCoordinationInfo */
-static int hf_xnap_nr_resource_coordination_info = -1;  /* NR_ResourceCoordinationInfo */
-static int hf_xnap_e_utra_cell = -1;              /* E_UTRA_CGI */
-static int hf_xnap_ul_coordination_info = -1;     /* BIT_STRING_SIZE_6_4400 */
-static int hf_xnap_dl_coordination_info = -1;     /* BIT_STRING_SIZE_6_4400 */
-static int hf_xnap_nr_cell = -1;                  /* NR_CGI */
-static int hf_xnap_e_utra_coordination_assistance_info = -1;  /* E_UTRA_CoordinationAssistanceInfo */
-static int hf_xnap_nr_coordination_assistance_info = -1;  /* NR_CoordinationAssistanceInfo */
-static int hf_xnap_iAB_MT_Cell_List = -1;         /* IAB_MT_Cell_List */
-static int hf_xnap_NACellResourceConfigurationList_item = -1;  /* NACellResourceConfiguration_Item */
-static int hf_xnap_nAdownlin = -1;                /* T_nAdownlin */
-static int hf_xnap_nAuplink = -1;                 /* T_nAuplink */
-static int hf_xnap_nAflexible = -1;               /* T_nAflexible */
-static int hf_xnap_subframeAssignment = -1;       /* T_subframeAssignment */
-static int hf_xnap_harqOffset = -1;               /* INTEGER_0_9 */
-static int hf_xnap_NeighbourInformation_E_UTRA_item = -1;  /* NeighbourInformation_E_UTRA_Item */
-static int hf_xnap_e_utra_PCI = -1;               /* E_UTRAPCI */
-static int hf_xnap_e_utra_cgi = -1;               /* E_UTRA_CGI */
-static int hf_xnap_earfcn = -1;                   /* E_UTRAARFCN */
-static int hf_xnap_NeighbourInformation_NR_item = -1;  /* NeighbourInformation_NR_Item */
-static int hf_xnap_nr_PCI = -1;                   /* NRPCI */
-static int hf_xnap_nr_mode_info = -1;             /* NeighbourInformation_NR_ModeInfo */
-static int hf_xnap_connectivitySupport = -1;      /* Connectivity_Support */
-static int hf_xnap_measurementTimingConfiguration = -1;  /* T_measurementTimingConfiguration */
-static int hf_xnap_fdd_info = -1;                 /* NeighbourInformation_NR_ModeFDDInfo */
-static int hf_xnap_tdd_info = -1;                 /* NeighbourInformation_NR_ModeTDDInfo */
-static int hf_xnap_ul_NR_FreqInfo = -1;           /* NRFrequencyInfo */
-static int hf_xnap_dl_NR_FequInfo = -1;           /* NRFrequencyInfo */
-static int hf_xnap_ie_Extensions = -1;            /* ProtocolExtensionContainer */
-static int hf_xnap_nr_FreqInfo = -1;              /* NRFrequencyInfo */
-static int hf_xnap_Neighbour_NG_RAN_Node_List_item = -1;  /* Neighbour_NG_RAN_Node_Item */
-static int hf_xnap_globalNG_RANNodeID = -1;       /* GlobalNG_RANNode_ID */
-static int hf_xnap_local_NG_RAN_Node_Identifier = -1;  /* Local_NG_RAN_Node_Identifier */
-static int hf_xnap_NRCarrierList_item = -1;       /* NRCarrierItem */
-static int hf_xnap_carrierSCS = -1;               /* NRSCS */
-static int hf_xnap_offsetToCarrier = -1;          /* INTEGER_0_2199_ */
-static int hf_xnap_carrierBandwidth = -1;         /* INTEGER_0_maxnoofPhysicalResourceBlocks_ */
-static int hf_xnap_nr = -1;                       /* NR_Cell_Identity */
-static int hf_xnap_e_utra = -1;                   /* E_UTRA_Cell_Identity */
-static int hf_xnap_nr_01 = -1;                    /* NRPCI */
-static int hf_xnap_e_utra_01 = -1;                /* E_UTRAPCI */
-static int hf_xnap_NG_RANnode2SSBOffsetsModificationRange_item = -1;  /* SSBOffsetModificationRange */
-static int hf_xnap_dL_GBR_PRB_usage = -1;         /* DL_GBR_PRB_usage */
-static int hf_xnap_uL_GBR_PRB_usage = -1;         /* UL_GBR_PRB_usage */
-static int hf_xnap_dL_non_GBR_PRB_usage = -1;     /* DL_non_GBR_PRB_usage */
-static int hf_xnap_uL_non_GBR_PRB_usage = -1;     /* UL_non_GBR_PRB_usage */
-static int hf_xnap_dL_Total_PRB_usage = -1;       /* DL_Total_PRB_usage */
-static int hf_xnap_uL_Total_PRB_usage = -1;       /* UL_Total_PRB_usage */
-static int hf_xnap_dLTNLOfferedCapacity = -1;     /* OfferedCapacity */
-static int hf_xnap_dLTNLAvailableCapacity = -1;   /* AvailableCapacity */
-static int hf_xnap_uLTNLOfferedCapacity = -1;     /* OfferedCapacity */
-static int hf_xnap_uLTNLAvailableCapacity = -1;   /* AvailableCapacity */
-static int hf_xnap_nonF1TerminatingBHInformation_List = -1;  /* NonF1TerminatingBHInformation_List */
-static int hf_xnap_bAPControlPDURLCCH_List = -1;  /* BAPControlPDURLCCH_List */
-static int hf_xnap_NonF1TerminatingBHInformation_List_item = -1;  /* NonF1TerminatingBHInformation_Item */
-static int hf_xnap_dlNon_F1TerminatingBHInfo = -1;  /* DLNonF1Terminating_BHInfo */
-static int hf_xnap_ulNon_F1TerminatingBHInfo = -1;  /* ULNonF1Terminating_BHInfo */
-static int hf_xnap_nonUPTrafficType = -1;         /* NonUPTrafficType */
-static int hf_xnap_controlPlaneTrafficType = -1;  /* ControlPlaneTrafficType */
-static int hf_xnap_snpn_Information = -1;         /* NPN_Broadcast_Information_SNPN */
-static int hf_xnap_pni_npn_Information = -1;      /* NPN_Broadcast_Information_PNI_NPN */
-static int hf_xnap_broadcastSNPNID_List = -1;     /* BroadcastSNPNID_List */
-static int hf_xnap_broadcastPNI_NPN_ID_Information = -1;  /* BroadcastPNI_NPN_ID_Information */
-static int hf_xnap_snpn_mobility_information = -1;  /* NPNMobilityInformation_SNPN */
-static int hf_xnap_pni_npn_mobility_information = -1;  /* NPNMobilityInformation_PNI_NPN */
-static int hf_xnap_serving_NID = -1;              /* NID */
-static int hf_xnap_allowedPNI_NPN_ID_List = -1;   /* AllowedPNI_NPN_ID_List */
-static int hf_xnap_pni_npn_Information_01 = -1;   /* NPNPagingAssistanceInformation_PNI_NPN */
-static int hf_xnap_sNPN = -1;                     /* NPN_Support_SNPN */
-static int hf_xnap_ie_Extension = -1;             /* ProtocolExtensionContainer */
-static int hf_xnap_fdd_or_tdd = -1;               /* T_fdd_or_tdd */
-static int hf_xnap_fdd = -1;                      /* NPRACHConfiguration_FDD */
-static int hf_xnap_tdd = -1;                      /* NPRACHConfiguration_TDD */
-static int hf_xnap_nprach_CP_length = -1;         /* NPRACH_CP_Length */
-static int hf_xnap_anchorCarrier_NPRACHConfig = -1;  /* T_anchorCarrier_NPRACHConfig */
-static int hf_xnap_anchorCarrier_EDT_NPRACHConfig = -1;  /* T_anchorCarrier_EDT_NPRACHConfig */
-static int hf_xnap_anchorCarrier_Format2_NPRACHConfig = -1;  /* T_anchorCarrier_Format2_NPRACHConfig */
-static int hf_xnap_anchorCarrier_Format2_EDT_NPRACHConfig = -1;  /* T_anchorCarrier_Format2_EDT_NPRACHConfig */
-static int hf_xnap_non_anchorCarrier_NPRACHConfig = -1;  /* T_non_anchorCarrier_NPRACHConfig */
-static int hf_xnap_non_anchorCarrier_Format2_NPRACHConfig = -1;  /* T_non_anchorCarrier_Format2_NPRACHConfig */
-static int hf_xnap_nprach_preambleFormat = -1;    /* NPRACH_preambleFormat */
-static int hf_xnap_anchorCarrier_NPRACHConfigTDD = -1;  /* T_anchorCarrier_NPRACHConfigTDD */
-static int hf_xnap_non_anchorCarrierFequencyConfiglist = -1;  /* Non_AnchorCarrierFrequencylist */
-static int hf_xnap_non_anchorCarrier_NPRACHConfigTDD = -1;  /* T_non_anchorCarrier_NPRACHConfigTDD */
-static int hf_xnap_Non_AnchorCarrierFrequencylist_item = -1;  /* Non_AnchorCarrierFrequencylist_item */
-static int hf_xnap_non_anchorCarrierFrquency = -1;  /* T_non_anchorCarrierFrquency */
-static int hf_xnap_NG_RAN_Cell_Identity_ListinRANPagingArea_item = -1;  /* NG_RAN_Cell_Identity */
-static int hf_xnap_NR_U_Channel_List_item = -1;   /* NR_U_Channel_Item */
-static int hf_xnap_nR_U_ChannelID = -1;           /* NR_U_ChannelID */
-static int hf_xnap_channelOccupancyTimePercentageDL = -1;  /* ChannelOccupancyTimePercentage */
-static int hf_xnap_energyDetectionThreshold = -1;  /* EnergyDetectionThreshold */
-static int hf_xnap_NR_U_ChannelInfo_List_item = -1;  /* NR_U_ChannelInfo_Item */
-static int hf_xnap_nRARFCN = -1;                  /* NRARFCN */
-static int hf_xnap_bandwidth = -1;                /* Bandwidth */
-static int hf_xnap_NRFrequencyBand_List_item = -1;  /* NRFrequencyBandItem */
-static int hf_xnap_nr_frequency_band = -1;        /* NRFrequencyBand */
-static int hf_xnap_supported_SUL_Band_List = -1;  /* SupportedSULBandList */
-static int hf_xnap_nrARFCN = -1;                  /* NRARFCN */
-static int hf_xnap_sul_information = -1;          /* SUL_Information */
-static int hf_xnap_frequencyBand_List = -1;       /* NRFrequencyBand_List */
-static int hf_xnap_fdd_01 = -1;                   /* NRModeInfoFDD */
-static int hf_xnap_tdd_01 = -1;                   /* NRModeInfoTDD */
-static int hf_xnap_ulNRFrequencyInfo = -1;        /* NRFrequencyInfo */
-static int hf_xnap_dlNRFrequencyInfo = -1;        /* NRFrequencyInfo */
-static int hf_xnap_ulNRTransmissonBandwidth = -1;  /* NRTransmissionBandwidth */
-static int hf_xnap_dlNRTransmissonBandwidth = -1;  /* NRTransmissionBandwidth */
-static int hf_xnap_nrTransmissonBandwidth = -1;   /* NRTransmissionBandwidth */
-static int hf_xnap_nRPaging_eDRX_Cycle = -1;      /* NRPaging_eDRX_Cycle */
-static int hf_xnap_nRPaging_Time_Window = -1;     /* NRPaging_Time_Window */
-static int hf_xnap_nRPaging_eDRX_Cycle_Inactive = -1;  /* NRPaging_eDRX_Cycle_Inactive */
-static int hf_xnap_nRSCS = -1;                    /* NRSCS */
-static int hf_xnap_nRNRB = -1;                    /* NRNRB */
-static int hf_xnap_requestedSRSTransmissionCharacteristics = -1;  /* RequestedSRSTransmissionCharacteristics */
-static int hf_xnap_routingID = -1;                /* RoutingID */
-static int hf_xnap_nRPPaTransactionID = -1;       /* INTEGER_0_32767 */
-static int hf_xnap_pER_Scalar = -1;               /* PER_Scalar */
-static int hf_xnap_pER_Exponent = -1;             /* PER_Exponent */
-static int hf_xnap_cNsubgroupID = -1;             /* CNsubgroupID */
-static int hf_xnap_pc5QoSFlowList = -1;           /* PC5QoSFlowList */
-static int hf_xnap_pc5LinkAggregateBitRates = -1;  /* BitRate */
-static int hf_xnap_PC5QoSFlowList_item = -1;      /* PC5QoSFlowItem */
-static int hf_xnap_pQI = -1;                      /* FiveQI */
-static int hf_xnap_pc5FlowBitRates = -1;          /* PC5FlowBitRates */
-static int hf_xnap_range = -1;                    /* Range */
-static int hf_xnap_guaranteedFlowBitRate = -1;    /* BitRate */
-static int hf_xnap_maximumFlowBitRate = -1;       /* BitRate */
-static int hf_xnap_from_S_NG_RAN_node = -1;       /* T_from_S_NG_RAN_node */
-static int hf_xnap_from_M_NG_RAN_node = -1;       /* T_from_M_NG_RAN_node */
-static int hf_xnap_ulPDCPSNLength = -1;           /* T_ulPDCPSNLength */
-static int hf_xnap_dlPDCPSNLength = -1;           /* T_dlPDCPSNLength */
-static int hf_xnap_downlink_session_AMBR = -1;    /* BitRate */
-static int hf_xnap_uplink_session_AMBR = -1;      /* BitRate */
-static int hf_xnap_PDUSession_List_item = -1;     /* PDUSession_ID */
-static int hf_xnap_PDUSession_List_withCause_item = -1;  /* PDUSession_List_withCause_Item */
-static int hf_xnap_pduSessionId = -1;             /* PDUSession_ID */
-static int hf_xnap_PDUSession_List_withDataForwardingFromTarget_item = -1;  /* PDUSession_List_withDataForwardingFromTarget_Item */
-static int hf_xnap_dataforwardinginfoTarget = -1;  /* DataForwardingInfoFromTargetNGRANnode */
-static int hf_xnap_PDUSession_List_withDataForwardingRequest_item = -1;  /* PDUSession_List_withDataForwardingRequest_Item */
-static int hf_xnap_dataforwardingInfofromSource = -1;  /* DataforwardingandOffloadingInfofromSource */
-static int hf_xnap_dRBtoBeReleasedList = -1;      /* DRBToQoSFlowMapping_List */
-static int hf_xnap_PDUSessionResourcesAdmitted_List_item = -1;  /* PDUSessionResourcesAdmitted_Item */
-static int hf_xnap_pduSessionResourceAdmittedInfo = -1;  /* PDUSessionResourceAdmittedInfo */
-static int hf_xnap_dL_NG_U_TNL_Information_Unchanged = -1;  /* T_dL_NG_U_TNL_Information_Unchanged */
-static int hf_xnap_qosFlowsAdmitted_List = -1;    /* QoSFlowsAdmitted_List */
-static int hf_xnap_qosFlowsNotAdmitted_List = -1;  /* QoSFlows_List_withCause */
-static int hf_xnap_dataForwardingInfoFromTarget = -1;  /* DataForwardingInfoFromTargetNGRANnode */
-static int hf_xnap_PDUSessionResourcesNotAdmitted_List_item = -1;  /* PDUSessionResourcesNotAdmitted_Item */
-static int hf_xnap_PDUSessionResourcesToBeSetup_List_item = -1;  /* PDUSessionResourcesToBeSetup_Item */
-static int hf_xnap_s_NSSAI = -1;                  /* S_NSSAI */
-static int hf_xnap_pduSessionAMBR = -1;           /* PDUSessionAggregateMaximumBitRate */
-static int hf_xnap_uL_NG_U_TNLatUPF = -1;         /* UPTransportLayerInformation */
-static int hf_xnap_source_DL_NG_U_TNL_Information = -1;  /* UPTransportLayerInformation */
-static int hf_xnap_securityIndication = -1;       /* SecurityIndication */
-static int hf_xnap_pduSessionType = -1;           /* PDUSessionType */
-static int hf_xnap_pduSessionNetworkInstance = -1;  /* PDUSessionNetworkInstance */
-static int hf_xnap_qosFlowsToBeSetup_List = -1;   /* QoSFlowsToBeSetup_List */
-static int hf_xnap_dataforwardinginfofromSource = -1;  /* DataforwardingandOffloadingInfofromSource */
-static int hf_xnap_qosFlowsToBeSetup_List_01 = -1;  /* QoSFlowsToBeSetup_List_Setup_SNterminated */
-static int hf_xnap_QoSFlowsToBeSetup_List_Setup_SNterminated_item = -1;  /* QoSFlowsToBeSetup_List_Setup_SNterminated_Item */
-static int hf_xnap_qfi = -1;                      /* QoSFlowIdentifier */
-static int hf_xnap_qosFlowLevelQoSParameters = -1;  /* QoSFlowLevelQoSParameters */
-static int hf_xnap_offeredGBRQoSFlowInfo = -1;    /* GBRQoSFlowInfo */
-static int hf_xnap_dL_NG_U_TNLatNG_RAN = -1;      /* UPTransportLayerInformation */
-static int hf_xnap_dRBsToBeSetup = -1;            /* DRBsToBeSetupList_SetupResponse_SNterminated */
-static int hf_xnap_qosFlowsNotAdmittedList = -1;  /* QoSFlows_List_withCause */
-static int hf_xnap_securityResult = -1;           /* SecurityResult */
-static int hf_xnap_DRBsToBeSetupList_SetupResponse_SNterminated_item = -1;  /* DRBsToBeSetupList_SetupResponse_SNterminated_Item */
-static int hf_xnap_sN_UL_PDCP_UP_TNLInfo = -1;    /* UPTransportParameters */
-static int hf_xnap_dRB_QoS = -1;                  /* QoSFlowLevelQoSParameters */
-static int hf_xnap_pDCP_SNLength = -1;            /* PDCPSNLength */
-static int hf_xnap_uL_Configuration = -1;         /* ULConfiguration */
-static int hf_xnap_secondary_SN_UL_PDCP_UP_TNLInfo = -1;  /* UPTransportParameters */
-static int hf_xnap_duplicationActivation = -1;    /* DuplicationActivation */
-static int hf_xnap_qoSFlowsMappedtoDRB_SetupResponse_SNterminated = -1;  /* QoSFlowsMappedtoDRB_SetupResponse_SNterminated */
-static int hf_xnap_QoSFlowsMappedtoDRB_SetupResponse_SNterminated_item = -1;  /* QoSFlowsMappedtoDRB_SetupResponse_SNterminated_Item */
-static int hf_xnap_mCGRequestedGBRQoSFlowInfo = -1;  /* GBRQoSFlowInfo */
-static int hf_xnap_qosFlowMappingIndication = -1;  /* QoSFlowMappingIndication */
-static int hf_xnap_dRBsToBeSetup_01 = -1;         /* DRBsToBeSetupList_Setup_MNterminated */
-static int hf_xnap_DRBsToBeSetupList_Setup_MNterminated_item = -1;  /* DRBsToBeSetupList_Setup_MNterminated_Item */
-static int hf_xnap_mN_UL_PDCP_UP_TNLInfo = -1;    /* UPTransportParameters */
-static int hf_xnap_secondary_MN_UL_PDCP_UP_TNLInfo = -1;  /* UPTransportParameters */
-static int hf_xnap_qoSFlowsMappedtoDRB_Setup_MNterminated = -1;  /* QoSFlowsMappedtoDRB_Setup_MNterminated */
-static int hf_xnap_QoSFlowsMappedtoDRB_Setup_MNterminated_item = -1;  /* QoSFlowsMappedtoDRB_Setup_MNterminated_Item */
-static int hf_xnap_dRBsAdmittedList = -1;         /* DRBsAdmittedList_SetupResponse_MNterminated */
-static int hf_xnap_DRBsAdmittedList_SetupResponse_MNterminated_item = -1;  /* DRBsAdmittedList_SetupResponse_MNterminated_Item */
-static int hf_xnap_sN_DL_SCG_UP_TNLInfo = -1;     /* UPTransportParameters */
-static int hf_xnap_secondary_SN_DL_SCG_UP_TNLInfo = -1;  /* UPTransportParameters */
-static int hf_xnap_lCID = -1;                     /* LCID */
-static int hf_xnap_QoSFlowsMappedtoDRB_SetupResponse_MNterminated_item = -1;  /* QoSFlowsMappedtoDRB_SetupResponse_MNterminated_Item */
-static int hf_xnap_currentQoSParaSetIndex = -1;   /* QoSParaSetIndex */
-static int hf_xnap_qosFlowsToBeModified_List = -1;  /* QoSFlowsToBeSetup_List_Modified_SNterminated */
-static int hf_xnap_qoSFlowsToBeReleased_List = -1;  /* QoSFlows_List_withCause */
-static int hf_xnap_drbsToBeModifiedList = -1;     /* DRBsToBeModified_List_Modified_SNterminated */
-static int hf_xnap_dRBsToBeReleased = -1;         /* DRB_List_withCause */
-static int hf_xnap_QoSFlowsToBeSetup_List_Modified_SNterminated_item = -1;  /* QoSFlowsToBeSetup_List_Modified_SNterminated_Item */
-static int hf_xnap_DRBsToBeModified_List_Modified_SNterminated_item = -1;  /* DRBsToBeModified_List_Modified_SNterminated_Item */
-static int hf_xnap_mN_DL_SCG_UP_TNLInfo = -1;     /* UPTransportParameters */
-static int hf_xnap_secondary_MN_DL_SCG_UP_TNLInfo = -1;  /* UPTransportParameters */
-static int hf_xnap_rlc_status = -1;               /* RLC_Status */
-static int hf_xnap_dRBsToBeModified = -1;         /* DRBsToBeModifiedList_ModificationResponse_SNterminated */
-static int hf_xnap_qosFlowsNotAdmittedTBAdded = -1;  /* QoSFlows_List_withCause */
-static int hf_xnap_qosFlowsReleased = -1;         /* QoSFlows_List_withCause */
-static int hf_xnap_DRBsToBeModifiedList_ModificationResponse_SNterminated_item = -1;  /* DRBsToBeModifiedList_ModificationResponse_SNterminated_Item */
-static int hf_xnap_dRBsToBeModified_01 = -1;      /* DRBsToBeModifiedList_Modification_MNterminated */
-static int hf_xnap_DRBsToBeModifiedList_Modification_MNterminated_item = -1;  /* DRBsToBeModifiedList_Modification_MNterminated_Item */
-static int hf_xnap_pdcpDuplicationConfiguration = -1;  /* PDCPDuplicationConfiguration */
-static int hf_xnap_dRBsAdmittedList_01 = -1;      /* DRBsAdmittedList_ModificationResponse_MNterminated */
-static int hf_xnap_dRBsReleasedList = -1;         /* DRB_List */
-static int hf_xnap_dRBsNotAdmittedSetupModifyList = -1;  /* DRB_List_withCause */
-static int hf_xnap_DRBsAdmittedList_ModificationResponse_MNterminated_item = -1;  /* DRBsAdmittedList_ModificationResponse_MNterminated_Item */
-static int hf_xnap_drbsToBeSetupList = -1;        /* DRBsToBeSetup_List_ModRqd_SNterminated */
-static int hf_xnap_drbsToBeModifiedList_01 = -1;  /* DRBsToBeModified_List_ModRqd_SNterminated */
-static int hf_xnap_DRBsToBeSetup_List_ModRqd_SNterminated_item = -1;  /* DRBsToBeSetup_List_ModRqd_SNterminated_Item */
-static int hf_xnap_sn_UL_PDCP_UPTNLinfo = -1;     /* UPTransportParameters */
-static int hf_xnap_qoSFlowsMappedtoDRB_ModRqd_SNterminated = -1;  /* QoSFlowsSetupMappedtoDRB_ModRqd_SNterminated */
-static int hf_xnap_QoSFlowsSetupMappedtoDRB_ModRqd_SNterminated_item = -1;  /* QoSFlowsSetupMappedtoDRB_ModRqd_SNterminated_Item */
-static int hf_xnap_DRBsToBeModified_List_ModRqd_SNterminated_item = -1;  /* DRBsToBeModified_List_ModRqd_SNterminated_Item */
-static int hf_xnap_qoSFlowsMappedtoDRB_ModRqd_SNterminated_01 = -1;  /* QoSFlowsModifiedMappedtoDRB_ModRqd_SNterminated */
-static int hf_xnap_QoSFlowsModifiedMappedtoDRB_ModRqd_SNterminated_item = -1;  /* QoSFlowsModifiedMappedtoDRB_ModRqd_SNterminated_Item */
-static int hf_xnap_dRBsAdmittedList_02 = -1;      /* DRBsAdmittedList_ModConfirm_SNterminated */
-static int hf_xnap_DRBsAdmittedList_ModConfirm_SNterminated_item = -1;  /* DRBsAdmittedList_ModConfirm_SNterminated_Item */
-static int hf_xnap_mN_DL_CG_UP_TNLInfo = -1;      /* UPTransportParameters */
-static int hf_xnap_secondary_MN_DL_CG_UP_TNLInfo = -1;  /* UPTransportParameters */
-static int hf_xnap_dRBsToBeModified_02 = -1;      /* DRBsToBeModified_List_ModRqd_MNterminated */
-static int hf_xnap_DRBsToBeModified_List_ModRqd_MNterminated_item = -1;  /* DRBsToBeModified_List_ModRqd_MNterminated_Item */
-static int hf_xnap_sN_DL_SCG_UP_TNLInfo_01 = -1;  /* UPTransportLayerInformation */
-static int hf_xnap_secondary_SN_DL_SCG_UP_TNLInfo_01 = -1;  /* UPTransportLayerInformation */
-static int hf_xnap_dRBsToBeSetupList = -1;        /* SEQUENCE_SIZE_1_maxnoofDRBs_OF_DRBsToBeSetupList_BearerSetupComplete_SNterminated_Item */
-static int hf_xnap_dRBsToBeSetupList_item = -1;   /* DRBsToBeSetupList_BearerSetupComplete_SNterminated_Item */
-static int hf_xnap_dRB_ID = -1;                   /* DRB_ID */
-static int hf_xnap_mN_Xn_U_TNLInfoatM = -1;       /* UPTransportLayerInformation */
-static int hf_xnap_PDUSessionResourceSecondaryRATUsageList_item = -1;  /* PDUSessionResourceSecondaryRATUsageItem */
-static int hf_xnap_pDUSessionID = -1;             /* PDUSession_ID */
-static int hf_xnap_secondaryRATUsageInformation = -1;  /* SecondaryRATUsageInformation */
-static int hf_xnap_rATType = -1;                  /* T_rATType */
-static int hf_xnap_pDUSessionTimedReportList = -1;  /* VolumeTimedReportList */
-static int hf_xnap_plmnListforQMC = -1;           /* PLMNListforQMC */
-static int hf_xnap_PLMNListforQMC_item = -1;      /* PLMN_Identity */
-static int hf_xnap_PCIListForMDT_item = -1;       /* NRPCI */
-static int hf_xnap_protectedResourceList = -1;    /* ProtectedE_UTRAResourceList */
-static int hf_xnap_mbsfnControlRegionLength = -1;  /* MBSFNControlRegionLength */
-static int hf_xnap_pDCCHRegionLength = -1;        /* INTEGER_1_3 */
-static int hf_xnap_ProtectedE_UTRAResourceList_item = -1;  /* ProtectedE_UTRAResource_Item */
-static int hf_xnap_resourceType = -1;             /* T_resourceType */
-static int hf_xnap_intra_PRBProtectedResourceFootprint = -1;  /* BIT_STRING_SIZE_84_ */
-static int hf_xnap_protectedFootprintFrequencyPattern = -1;  /* BIT_STRING_SIZE_6_110_ */
-static int hf_xnap_protectedFootprintTimePattern = -1;  /* ProtectedE_UTRAFootprintTimePattern */
-static int hf_xnap_protectedFootprintTimeperiodicity = -1;  /* INTEGER_1_320_ */
-static int hf_xnap_protectedFootrpintStartTime = -1;  /* INTEGER_1_20_ */
-static int hf_xnap_uEAppLayerMeasInfoList = -1;   /* UEAppLayerMeasInfoList */
-static int hf_xnap_UEAppLayerMeasInfoList_item = -1;  /* UEAppLayerMeasInfo_Item */
-static int hf_xnap_uEAppLayerMeasConfigInfo = -1;  /* UEAppLayerMeasConfigInfo */
-static int hf_xnap_non_dynamic = -1;              /* NonDynamic5QIDescriptor */
-static int hf_xnap_dynamic = -1;                  /* Dynamic5QIDescriptor */
-static int hf_xnap_qos_characteristics = -1;      /* QoSCharacteristics */
-static int hf_xnap_allocationAndRetentionPrio = -1;  /* AllocationandRetentionPriority */
-static int hf_xnap_gBRQoSFlowInfo = -1;           /* GBRQoSFlowInfo */
-static int hf_xnap_reflectiveQoS = -1;            /* ReflectiveQoSAttribute */
-static int hf_xnap_additionalQoSflowInfo = -1;    /* T_additionalQoSflowInfo */
-static int hf_xnap_QoSFlowNotificationControlIndicationInfo_item = -1;  /* QoSFlowNotify_Item */
-static int hf_xnap_notificationInformation = -1;  /* T_notificationInformation */
-static int hf_xnap_QoSFlows_List_item = -1;       /* QoSFlow_Item */
-static int hf_xnap_QoSFlows_List_withCause_item = -1;  /* QoSFlowwithCause_Item */
-static int hf_xnap_QoSFlowsAdmitted_List_item = -1;  /* QoSFlowsAdmitted_Item */
-static int hf_xnap_QoSFlowsToBeSetup_List_item = -1;  /* QoSFlowsToBeSetup_Item */
-static int hf_xnap_e_RAB_ID = -1;                 /* E_RAB_ID */
-static int hf_xnap_QoSFlowsUsageReportList_item = -1;  /* QoSFlowsUsageReport_Item */
-static int hf_xnap_rATType_01 = -1;               /* T_rATType_01 */
-static int hf_xnap_qoSFlowsTimedReportList = -1;  /* VolumeTimedReportList */
-static int hf_xnap_RACHReportInformation_item = -1;  /* RACHReportList_Item */
-static int hf_xnap_rACHReport = -1;               /* RACHReportContainer */
-static int hf_xnap_ng_eNB_RadioResourceStatus = -1;  /* NG_eNB_RadioResourceStatus */
-static int hf_xnap_gNB_RadioResourceStatus = -1;  /* GNB_RadioResourceStatus */
-static int hf_xnap_rANAC = -1;                    /* RANAC */
-static int hf_xnap_RANAreaID_List_item = -1;      /* RANAreaID */
-static int hf_xnap_rANPagingAreaChoice = -1;      /* RANPagingAreaChoice */
-static int hf_xnap_cell_List = -1;                /* NG_RAN_Cell_Identity_ListinRANPagingArea */
-static int hf_xnap_rANAreaID_List = -1;           /* RANAreaID_List */
-static int hf_xnap_pagingAttemptCount = -1;       /* INTEGER_1_16_ */
-static int hf_xnap_intendedNumberOfPagingAttempts = -1;  /* INTEGER_1_16_ */
-static int hf_xnap_nextPagingAreaScope = -1;      /* T_nextPagingAreaScope */
-static int hf_xnap_rBsetSize = -1;                /* T_rBsetSize */
-static int hf_xnap_numberofRBSets = -1;           /* INTEGER_1_maxnoofRBsetsPerCell */
-static int hf_xnap_rSN = -1;                      /* RSN */
-static int hf_xnap_ReplacingCells_item = -1;      /* ReplacingCells_Item */
-static int hf_xnap_periodical = -1;               /* Periodical */
-static int hf_xnap_eventTriggered = -1;           /* EventTriggered */
-static int hf_xnap_subframeType = -1;             /* T_subframeType */
-static int hf_xnap_reservedSubframePattern_01 = -1;  /* BIT_STRING_SIZE_10_160 */
-static int hf_xnap_fullReset = -1;                /* ResetRequestTypeInfo_Full */
-static int hf_xnap_partialReset = -1;             /* ResetRequestTypeInfo_Partial */
-static int hf_xnap_ue_contexts_ToBeReleasedList = -1;  /* ResetRequestPartialReleaseList */
-static int hf_xnap_ResetRequestPartialReleaseList_item = -1;  /* ResetRequestPartialReleaseItem */
-static int hf_xnap_ng_ran_node1UEXnAPID = -1;     /* NG_RANnodeUEXnAPID */
-static int hf_xnap_ng_ran_node2UEXnAPID = -1;     /* NG_RANnodeUEXnAPID */
-static int hf_xnap_fullReset_01 = -1;             /* ResetResponseTypeInfo_Full */
-static int hf_xnap_partialReset_01 = -1;          /* ResetResponseTypeInfo_Partial */
-static int hf_xnap_ue_contexts_AdmittedToBeReleasedList = -1;  /* ResetResponsePartialReleaseList */
-static int hf_xnap_ResetResponsePartialReleaseList_item = -1;  /* ResetResponsePartialReleaseItem */
-static int hf_xnap_reestablishment_Indication = -1;  /* Reestablishment_Indication */
-static int hf_xnap_rLCDuplicationStateList = -1;  /* RLCDuplicationStateList */
-static int hf_xnap_rLC_PrimaryIndicator = -1;     /* T_rLC_PrimaryIndicator */
-static int hf_xnap_RLCDuplicationStateList_item = -1;  /* RLCDuplicationState_Item */
-static int hf_xnap_duplicationState = -1;         /* T_duplicationState */
-static int hf_xnap_noofRRCConnections = -1;       /* NoofRRCConnections */
-static int hf_xnap_availableRRCConnectionCapacityValue = -1;  /* AvailableRRCConnectionCapacityValue */
-static int hf_xnap_rRRCReestab_initiated_reporting = -1;  /* RRCReestab_Initiated_Reporting */
-static int hf_xnap_rRCReestab_reporting_wo_UERLFReport = -1;  /* RRCReestab_Initiated_Reporting_wo_UERLFReport */
-static int hf_xnap_rRCReestab_reporting_with_UERLFReport = -1;  /* RRCReestab_Initiated_Reporting_with_UERLFReport */
-static int hf_xnap_failureCellPCI = -1;           /* NG_RAN_CellPCI */
-static int hf_xnap_reestabCellCGI = -1;           /* GlobalNG_RANCell_ID */
-static int hf_xnap_c_RNTI = -1;                   /* C_RNTI */
-static int hf_xnap_shortMAC_I = -1;               /* MAC_I */
-static int hf_xnap_uERLFReportContainer = -1;     /* UERLFReportContainer */
-static int hf_xnap_rRRCSetup_Initiated_Reporting = -1;  /* RRCSetup_Initiated_Reporting */
-static int hf_xnap_rRCSetup_reporting_with_UERLFReport = -1;  /* RRCSetup_Initiated_Reporting_with_UERLFReport */
-static int hf_xnap_S_NSSAIListQoE_item = -1;      /* S_NSSAI */
-static int hf_xnap_ng_ran_TraceID = -1;           /* NG_RANTraceID */
-static int hf_xnap_secondarydataForwardingInfoFromTarget = -1;  /* DataForwardingInfoFromTargetNGRANnode */
-static int hf_xnap_SecondarydataForwardingInfoFromTarget_List_item = -1;  /* SecondarydataForwardingInfoFromTarget_Item */
-static int hf_xnap_sdtindicator = -1;             /* SDTIndicator */
-static int hf_xnap_sdtAssistantInfo = -1;         /* SDTAssistantInfo */
-static int hf_xnap_dRBsToBeSetup_02 = -1;         /* SDT_DRBsToBeSetupList */
-static int hf_xnap_sRBsToBeSetup = -1;            /* SDT_SRBsToBeSetupList */
-static int hf_xnap_SDT_DRBsToBeSetupList_item = -1;  /* SDT_DRBsToBeSetupList_Item */
-static int hf_xnap_uL_TNLInfo = -1;               /* UPTransportLayerInformation */
-static int hf_xnap_dRB_RLC_Bearer_Configuration = -1;  /* T_dRB_RLC_Bearer_Configuration */
-static int hf_xnap_s_nssai = -1;                  /* S_NSSAI */
-static int hf_xnap_flows_Mapped_To_DRB_List = -1;  /* Flows_Mapped_To_DRB_List */
-static int hf_xnap_SDT_SRBsToBeSetupList_item = -1;  /* SDT_SRBsToBeSetupList_Item */
-static int hf_xnap_srb_ID = -1;                   /* SRB_ID */
-static int hf_xnap_sRB_RLC_Bearer_Configuration = -1;  /* T_sRB_RLC_Bearer_Configuration */
-static int hf_xnap_SDTDataForwardingDRBList_item = -1;  /* SDTDataForwardingDRBList_Item */
-static int hf_xnap_dL_TNLInfo = -1;               /* UPTransportLayerInformation */
-static int hf_xnap_pDUSessionUsageReport = -1;    /* PDUSessionUsageReport */
-static int hf_xnap_qosFlowsUsageReportList = -1;  /* QoSFlowsUsageReportList */
-static int hf_xnap_integrityProtectionIndication = -1;  /* T_integrityProtectionIndication */
-static int hf_xnap_confidentialityProtectionIndication = -1;  /* T_confidentialityProtectionIndication */
-static int hf_xnap_maximumIPdatarate = -1;        /* MaximumIPdatarate */
-static int hf_xnap_integrityProtectionResult = -1;  /* T_integrityProtectionResult */
-static int hf_xnap_confidentialityProtectionResult = -1;  /* T_confidentialityProtectionResult */
-static int hf_xnap_sensorMeasConfig = -1;         /* SensorMeasConfig */
-static int hf_xnap_sensorMeasConfigNameList = -1;  /* SensorMeasConfigNameList */
-static int hf_xnap_SensorMeasConfigNameList_item = -1;  /* SensorName */
-static int hf_xnap_uncompensatedBarometricConfig = -1;  /* T_uncompensatedBarometricConfig */
-static int hf_xnap_ueSpeedConfig = -1;            /* T_ueSpeedConfig */
-static int hf_xnap_ueOrientationConfig = -1;      /* T_ueOrientationConfig */
-static int hf_xnap_e_utra_pci = -1;               /* E_UTRAPCI */
-static int hf_xnap_broadcastPLMNs_02 = -1;        /* SEQUENCE_SIZE_1_maxnoofBPLMNs_OF_ServedCellInformation_E_UTRA_perBPLMN */
-static int hf_xnap_broadcastPLMNs_item = -1;      /* ServedCellInformation_E_UTRA_perBPLMN */
-static int hf_xnap_e_utra_mode_info = -1;         /* ServedCellInformation_E_UTRA_ModeInfo */
-static int hf_xnap_numberofAntennaPorts = -1;     /* NumberOfAntennaPorts_E_UTRA */
-static int hf_xnap_prach_configuration = -1;      /* E_UTRAPRACHConfiguration */
-static int hf_xnap_mBSFNsubframeInfo = -1;        /* MBSFNSubframeInfo_E_UTRA */
-static int hf_xnap_multibandInfo = -1;            /* E_UTRAMultibandInfoList */
-static int hf_xnap_freqBandIndicatorPriority = -1;  /* T_freqBandIndicatorPriority */
-static int hf_xnap_bandwidthReducedSI = -1;       /* T_bandwidthReducedSI */
-static int hf_xnap_protectedE_UTRAResourceIndication = -1;  /* ProtectedE_UTRAResourceIndication */
-static int hf_xnap_fdd_02 = -1;                   /* ServedCellInformation_E_UTRA_FDDInfo */
-static int hf_xnap_tdd_02 = -1;                   /* ServedCellInformation_E_UTRA_TDDInfo */
-static int hf_xnap_ul_earfcn = -1;                /* E_UTRAARFCN */
-static int hf_xnap_dl_earfcn = -1;                /* E_UTRAARFCN */
-static int hf_xnap_ul_e_utraTxBW = -1;            /* E_UTRATransmissionBandwidth */
-static int hf_xnap_dl_e_utraTxBW = -1;            /* E_UTRATransmissionBandwidth */
-static int hf_xnap_e_utraTxBW = -1;               /* E_UTRATransmissionBandwidth */
-static int hf_xnap_subframeAssignmnet = -1;       /* T_subframeAssignmnet */
-static int hf_xnap_specialSubframeInfo = -1;      /* SpecialSubframeInfo_E_UTRA */
-static int hf_xnap_ServedCells_E_UTRA_item = -1;  /* ServedCells_E_UTRA_Item */
-static int hf_xnap_served_cell_info_E_UTRA = -1;  /* ServedCellInformation_E_UTRA */
-static int hf_xnap_neighbour_info_NR = -1;        /* NeighbourInformation_NR */
-static int hf_xnap_neighbour_info_E_UTRA = -1;    /* NeighbourInformation_E_UTRA */
-static int hf_xnap_served_Cells_ToAdd_E_UTRA = -1;  /* ServedCells_E_UTRA */
-static int hf_xnap_served_Cells_ToModify_E_UTRA = -1;  /* ServedCells_ToModify_E_UTRA */
-static int hf_xnap_served_Cells_ToDelete_E_UTRA = -1;  /* SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_E_UTRA_CGI */
-static int hf_xnap_served_Cells_ToDelete_E_UTRA_item = -1;  /* E_UTRA_CGI */
-static int hf_xnap_ServedCells_ToModify_E_UTRA_item = -1;  /* ServedCells_ToModify_E_UTRA_Item */
-static int hf_xnap_old_ECGI = -1;                 /* E_UTRA_CGI */
-static int hf_xnap_deactivation_indication = -1;  /* T_deactivation_indication */
-static int hf_xnap_nrPCI = -1;                    /* NRPCI */
-static int hf_xnap_cellID = -1;                   /* NR_CGI */
-static int hf_xnap_broadcastPLMN = -1;            /* BroadcastPLMNs */
-static int hf_xnap_nrModeInfo = -1;               /* NRModeInfo */
-static int hf_xnap_measurementTimingConfiguration_01 = -1;  /* T_measurementTimingConfiguration_01 */
-static int hf_xnap_sFN_Time_Offset = -1;          /* BIT_STRING_SIZE_24 */
-static int hf_xnap_ServedCells_NR_item = -1;      /* ServedCells_NR_Item */
-static int hf_xnap_served_cell_info_NR = -1;      /* ServedCellInformation_NR */
-static int hf_xnap_ServedCells_ToModify_NR_item = -1;  /* ServedCells_ToModify_NR_Item */
-static int hf_xnap_old_NR_CGI = -1;               /* NR_CGI */
-static int hf_xnap_deactivation_indication_01 = -1;  /* T_deactivation_indication_01 */
-static int hf_xnap_ServedCellSpecificInfoReq_NR_item = -1;  /* ServedCellSpecificInfoReq_NR_Item */
-static int hf_xnap_additionalMTCListRequestIndicator = -1;  /* T_additionalMTCListRequestIndicator */
-static int hf_xnap_served_Cells_ToAdd_NR = -1;    /* ServedCells_NR */
-static int hf_xnap_served_Cells_ToModify_NR = -1;  /* ServedCells_ToModify_NR */
-static int hf_xnap_served_Cells_ToDelete_NR = -1;  /* SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_NR_CGI */
-static int hf_xnap_served_Cells_ToDelete_NR_item = -1;  /* NR_CGI */
-static int hf_xnap_ul_onlySharing = -1;           /* SharedResourceType_UL_OnlySharing */
-static int hf_xnap_ul_and_dl_Sharing = -1;        /* SharedResourceType_ULDL_Sharing */
-static int hf_xnap_ul_resourceBitmap = -1;        /* DataTrafficResources */
-static int hf_xnap_ul_resources = -1;             /* SharedResourceType_ULDL_Sharing_UL_Resources */
-static int hf_xnap_dl_resources = -1;             /* SharedResourceType_ULDL_Sharing_DL_Resources */
-static int hf_xnap_unchanged = -1;                /* NULL */
-static int hf_xnap_changed = -1;                  /* SharedResourceType_ULDL_Sharing_UL_ResourcesChanged */
-static int hf_xnap_changed_01 = -1;               /* SharedResourceType_ULDL_Sharing_DL_ResourcesChanged */
-static int hf_xnap_dl_resourceBitmap = -1;        /* DataTrafficResources */
-static int hf_xnap_SliceAvailableCapacity_item = -1;  /* SliceAvailableCapacity_Item */
-static int hf_xnap_pLMNIdentity = -1;             /* PLMN_Identity */
-static int hf_xnap_sNSSAIAvailableCapacity_List = -1;  /* SNSSAIAvailableCapacity_List */
-static int hf_xnap_SNSSAIAvailableCapacity_List_item = -1;  /* SNSSAIAvailableCapacity_Item */
-static int hf_xnap_sNSSAI = -1;                   /* S_NSSAI */
-static int hf_xnap_sliceAvailableCapacityValueDownlink = -1;  /* INTEGER_0_100 */
-static int hf_xnap_sliceAvailableCapacityValueUplink = -1;  /* INTEGER_0_100 */
-static int hf_xnap_SliceRadioResourceStatus_List_item = -1;  /* SliceRadioResourceStatus_Item */
-static int hf_xnap_sNSSAIRadioResourceStatus_List = -1;  /* SNSSAIRadioResourceStatus_List */
-static int hf_xnap_SNSSAIRadioResourceStatus_List_item = -1;  /* SNSSAIRadioResourceStatus_Item */
-static int hf_xnap_slice_DL_GBR_PRB_Usage = -1;   /* Slice_DL_GBR_PRB_Usage */
-static int hf_xnap_slice_UL_GBR_PRB_Usage = -1;   /* Slice_UL_GBR_PRB_Usage */
-static int hf_xnap_slice_DL_non_GBR_PRB_Usage = -1;  /* Slice_DL_non_GBR_PRB_Usage */
-static int hf_xnap_slice_UL_non_GBR_PRB_Usage = -1;  /* Slice_UL_non_GBR_PRB_Usage */
-static int hf_xnap_slice_DL_Total_PRB_Allocation = -1;  /* Slice_DL_Total_PRB_Allocation */
-static int hf_xnap_slice_UL_Total_PRB_Allocation = -1;  /* Slice_UL_Total_PRB_Allocation */
-static int hf_xnap_SliceSupport_List_item = -1;   /* S_NSSAI */
-static int hf_xnap_SliceToReport_List_item = -1;  /* SliceToReport_List_Item */
-static int hf_xnap_sNSSAIlist = -1;               /* SNSSAI_list */
-static int hf_xnap_SNSSAI_list_item = -1;         /* SNSSAI_Item */
-static int hf_xnap_SlotConfiguration_List_item = -1;  /* SlotConfiguration_List_Item */
-static int hf_xnap_slotIndex_01 = -1;             /* INTEGER_0_5119 */
-static int hf_xnap_symbolAllocation_in_Slot = -1;  /* SymbolAllocation_in_Slot */
-static int hf_xnap_sst = -1;                      /* OCTET_STRING_SIZE_1 */
-static int hf_xnap_sd = -1;                       /* OCTET_STRING_SIZE_3 */
-static int hf_xnap_specialSubframePattern = -1;   /* SpecialSubframePatterns_E_UTRA */
-static int hf_xnap_cyclicPrefixDL = -1;           /* CyclicPrefix_E_UTRA_DL */
-static int hf_xnap_cyclicPrefixUL = -1;           /* CyclicPrefix_E_UTRA_UL */
-static int hf_xnap_SSBAreaCapacityValue_List_item = -1;  /* SSBAreaCapacityValue_List_Item */
-static int hf_xnap_sSBIndex = -1;                 /* INTEGER_0_63 */
-static int hf_xnap_ssbAreaCapacityValue = -1;     /* INTEGER_0_100 */
-static int hf_xnap_SSBAreaRadioResourceStatus_List_item = -1;  /* SSBAreaRadioResourceStatus_List_Item */
-static int hf_xnap_ssb_Area_DL_GBR_PRB_usage = -1;  /* DL_GBR_PRB_usage */
-static int hf_xnap_ssb_Area_UL_GBR_PRB_usage = -1;  /* UL_GBR_PRB_usage */
-static int hf_xnap_ssb_Area_dL_non_GBR_PRB_usage = -1;  /* DL_non_GBR_PRB_usage */
-static int hf_xnap_ssb_Area_uL_non_GBR_PRB_usage = -1;  /* UL_non_GBR_PRB_usage */
-static int hf_xnap_ssb_Area_dL_Total_PRB_usage = -1;  /* DL_Total_PRB_usage */
-static int hf_xnap_ssb_Area_uL_Total_PRB_usage = -1;  /* UL_Total_PRB_usage */
-static int hf_xnap_SSB_Coverage_Modification_List_item = -1;  /* SSB_Coverage_Modification_List_Item */
-static int hf_xnap_sSBCoverageState = -1;         /* INTEGER_0_15_ */
-static int hf_xnap_shortBitmap = -1;              /* BIT_STRING_SIZE_4 */
-static int hf_xnap_mediumBitmap = -1;             /* BIT_STRING_SIZE_8 */
-static int hf_xnap_longBitmap = -1;               /* BIT_STRING_SIZE_64 */
-static int hf_xnap_SSBOffsets_List_item = -1;     /* SSBOffsets_Item */
-static int hf_xnap_nG_RANnode1SSBOffsets = -1;    /* SSBOffsetInformation */
-static int hf_xnap_nG_RANnode2ProposedSSBOffsets = -1;  /* SSBOffsetInformation */
-static int hf_xnap_sSBTriggeringOffset = -1;      /* MobilityParametersInformation */
-static int hf_xnap_sSBobilityParametersModificationRange = -1;  /* MobilityParametersModificationRange */
-static int hf_xnap_SSBToReport_List_item = -1;    /* SSBToReport_List_Item */
-static int hf_xnap_SuccessfulHOReportInformation_item = -1;  /* SuccessfulHOReportList_Item */
-static int hf_xnap_successfulHOReport = -1;       /* SuccessfulHOReportContainer */
-static int hf_xnap_sulFrequencyInfo = -1;         /* NRARFCN */
-static int hf_xnap_sulTransmissionBandwidth = -1;  /* NRTransmissionBandwidth */
-static int hf_xnap_Supported_MBS_FSA_ID_List_item = -1;  /* MBS_FrequencySelectionArea_Identity */
-static int hf_xnap_SupportedSULBandList_item = -1;  /* SupportedSULBandItem */
-static int hf_xnap_sulBandItem = -1;              /* SUL_FrequencyBand */
-static int hf_xnap_allDL = -1;                    /* SymbolAllocation_in_Slot_AllDL */
-static int hf_xnap_allUL = -1;                    /* SymbolAllocation_in_Slot_AllUL */
-static int hf_xnap_bothDLandUL = -1;              /* SymbolAllocation_in_Slot_BothDLandUL */
-static int hf_xnap_numberofDLSymbols = -1;        /* INTEGER_0_13 */
-static int hf_xnap_numberofULSymbols = -1;        /* INTEGER_0_13 */
-static int hf_xnap_tAListforMDT = -1;             /* TAListforMDT */
-static int hf_xnap_tAIListforMDT = -1;            /* TAIListforMDT */
-static int hf_xnap_TAIListforMDT_item = -1;       /* TAIforMDT_Item */
-static int hf_xnap_TAINSAGSupportList_item = -1;  /* TAINSAGSupportItem */
-static int hf_xnap_nSAG_ID = -1;                  /* NSAG_ID */
-static int hf_xnap_nSAGSliceSupportList = -1;     /* ExtendedSliceSupportList */
-static int hf_xnap_TAISupport_List_item = -1;     /* TAISupport_Item */
-static int hf_xnap_broadcastPLMNs_03 = -1;        /* SEQUENCE_SIZE_1_maxnoofsupportedPLMNs_OF_BroadcastPLMNinTAISupport_Item */
-static int hf_xnap_broadcastPLMNs_item_01 = -1;   /* BroadcastPLMNinTAISupport_Item */
-static int hf_xnap_TAListforMDT_item = -1;        /* TAC */
-static int hf_xnap_tAListforQMC = -1;             /* TAListforQMC */
-static int hf_xnap_TAListforQMC_item = -1;        /* TAC */
-static int hf_xnap_tAIListforQMC = -1;            /* TAIListforQMC */
-static int hf_xnap_TAIListforQMC_item = -1;       /* TAI_Item */
-static int hf_xnap_nr_02 = -1;                    /* NR_CGI */
-static int hf_xnap_e_utra_02 = -1;                /* E_UTRA_CGI */
-static int hf_xnap_TargetCellList_item = -1;      /* TargetCellList_Item */
-static int hf_xnap_target_cell = -1;              /* Target_CGI */
-static int hf_xnap_timeDistributionIndication = -1;  /* T_timeDistributionIndication */
-static int hf_xnap_uuTimeSynchronizationErrorBudget = -1;  /* INTEGER_0_1000000_ */
-static int hf_xnap_extendedUPTransportLayerAddressesToAdd = -1;  /* ExtTLAs */
-static int hf_xnap_extendedUPTransportLayerAddressesToRemove = -1;  /* ExtTLAs */
-static int hf_xnap_TNLA_To_Add_List_item = -1;    /* TNLA_To_Add_Item */
-static int hf_xnap_tNLAssociationTransportLayerAddress = -1;  /* CPTransportLayerInformation */
-static int hf_xnap_tNLAssociationUsage = -1;      /* TNLAssociationUsage */
-static int hf_xnap_TNLA_To_Update_List_item = -1;  /* TNLA_To_Update_Item */
-static int hf_xnap_TNLA_To_Remove_List_item = -1;  /* TNLA_To_Remove_Item */
-static int hf_xnap_TNLA_Setup_List_item = -1;     /* TNLA_Setup_Item */
-static int hf_xnap_TNLA_Failed_To_Setup_List_item = -1;  /* TNLA_Failed_To_Setup_Item */
-static int hf_xnap_interfaces_to_trace = -1;      /* T_interfaces_to_trace */
-static int hf_xnap_trace_depth = -1;              /* Trace_Depth */
-static int hf_xnap_trace_coll_address = -1;       /* TransportLayerAddress */
-static int hf_xnap_uPTraffic = -1;                /* QoSFlowLevelQoSParameters */
-static int hf_xnap_nonUPTraffic = -1;             /* NonUPTraffic */
-static int hf_xnap_fullRelease = -1;              /* AllTrafficIndication */
-static int hf_xnap_partialRelease = -1;           /* TrafficToBeRelease_List */
-static int hf_xnap_releaseType = -1;              /* TrafficReleaseType */
-static int hf_xnap_TrafficToBeRelease_List_item = -1;  /* TrafficToBeRelease_Item */
-static int hf_xnap_trafficIndex = -1;             /* TrafficIndex */
-static int hf_xnap_bHInfoList = -1;               /* BHInfoList */
-static int hf_xnap_tSCAssistanceInformationDownlink = -1;  /* TSCAssistanceInformation */
-static int hf_xnap_tSCAssistanceInformationUplink = -1;  /* TSCAssistanceInformation */
-static int hf_xnap_periodicity = -1;              /* INTEGER_0_640000_ */
-static int hf_xnap_burstArrivalTime = -1;         /* T_burstArrivalTime */
-static int hf_xnap_dl_UE_AMBR = -1;               /* BitRate */
-static int hf_xnap_ul_UE_AMBR = -1;               /* BitRate */
-static int hf_xnap_qOEReference = -1;             /* QOEReference */
-static int hf_xnap_qOEMeasConfigAppLayerID = -1;  /* QOEMeasConfAppLayerID */
-static int hf_xnap_serviceType = -1;              /* ServiceType */
-static int hf_xnap_qOEMeasStatus = -1;            /* QOEMeasStatus */
-static int hf_xnap_containerAppLayerMeasConfig = -1;  /* ContainerAppLayerMeasConfig */
-static int hf_xnap_mDTAlignmentInfo = -1;         /* MDTAlignmentInfo */
-static int hf_xnap_measCollectionEntityIPAddress = -1;  /* MeasCollectionEntityIPAddress */
-static int hf_xnap_areaScopeOfQMC = -1;           /* AreaScopeOfQMC */
-static int hf_xnap_s_NSSAIListQoE = -1;           /* S_NSSAIListQoE */
-static int hf_xnap_availableRVQoEMetrics = -1;    /* AvailableRVQoEMetrics */
-static int hf_xnap_rRCResume = -1;                /* UEContextIDforRRCResume */
-static int hf_xnap_rRRCReestablishment = -1;      /* UEContextIDforRRCReestablishment */
-static int hf_xnap_i_rnti = -1;                   /* I_RNTI */
-static int hf_xnap_allocated_c_rnti = -1;         /* C_RNTI */
-static int hf_xnap_accessPCI = -1;                /* NG_RAN_CellPCI */
-static int hf_xnap_c_rnti = -1;                   /* C_RNTI */
-static int hf_xnap_ng_c_UE_signalling_ref = -1;   /* AMF_UE_NGAP_ID */
-static int hf_xnap_signalling_TNL_at_source = -1;  /* CPTransportLayerInformation */
-static int hf_xnap_ueSecurityCapabilities = -1;   /* UESecurityCapabilities */
-static int hf_xnap_securityInformation = -1;      /* AS_SecurityInformation */
-static int hf_xnap_ue_AMBR = -1;                  /* UEAggregateMaximumBitRate */
-static int hf_xnap_pduSessionResourcesToBeSetup_List = -1;  /* PDUSessionResourcesToBeSetup_List */
-static int hf_xnap_rrc_Context = -1;              /* T_rrc_Context */
-static int hf_xnap_mobilityRestrictionList = -1;  /* MobilityRestrictionList */
-static int hf_xnap_indexToRatFrequencySelectionPriority = -1;  /* RFSP_Index */
-static int hf_xnap_UEHistoryInformation_item = -1;  /* LastVisitedCell_Item */
-static int hf_xnap_nR = -1;                       /* NRMobilityHistoryReport */
-static int hf_xnap_indexLength10 = -1;            /* BIT_STRING_SIZE_10 */
-static int hf_xnap_UEIdentityIndexList_MBSGroupPaging_item = -1;  /* UEIdentityIndexList_MBSGroupPaging_Item */
-static int hf_xnap_ueIdentityIndexList_MBSGroupPagingValue = -1;  /* UEIdentityIndexList_MBSGroupPagingValue */
-static int hf_xnap_pagingDRX = -1;                /* UESpecificDRX */
-static int hf_xnap_uEIdentityIndexValueMBSGroupPaging = -1;  /* BIT_STRING_SIZE_10 */
-static int hf_xnap_uERadioCapabilityForPagingOfNR = -1;  /* UERadioCapabilityForPagingOfNR */
-static int hf_xnap_uERadioCapabilityForPagingOfEUTRA = -1;  /* UERadioCapabilityForPagingOfEUTRA */
-static int hf_xnap_nR_UERLFReportContainer = -1;  /* UERLFReportContainerNR */
-static int hf_xnap_lTE_UERLFReportContainer = -1;  /* UERLFReportContainerLTE */
-static int hf_xnap_choice_Extension = -1;         /* ProtocolIE_Single_Container */
-static int hf_xnap_ueRLFReportContainerLTE = -1;  /* UERLFReportContainerLTE */
-static int hf_xnap_ueRLFReportContainerLTEExtendBand = -1;  /* UERLFReportContainerLTEExtendBand */
-static int hf_xnap_UESliceMaximumBitRateList_item = -1;  /* UESliceMaximumBitRate_Item */
-static int hf_xnap_dl_UE_Slice_MBR = -1;          /* BitRate */
-static int hf_xnap_ul_UE_Slice_MBR = -1;          /* BitRate */
-static int hf_xnap_nr_EncyptionAlgorithms = -1;   /* T_nr_EncyptionAlgorithms */
-static int hf_xnap_nr_IntegrityProtectionAlgorithms = -1;  /* T_nr_IntegrityProtectionAlgorithms */
-static int hf_xnap_e_utra_EncyptionAlgorithms = -1;  /* T_e_utra_EncyptionAlgorithms */
-static int hf_xnap_e_utra_IntegrityProtectionAlgorithms = -1;  /* T_e_utra_IntegrityProtectionAlgorithms */
-static int hf_xnap_uL_PDCP = -1;                  /* UL_UE_Configuration */
-static int hf_xnap_gtpTunnel = -1;                /* GTPtunnelTransportLayerInformation */
-static int hf_xnap_UPTransportParameters_item = -1;  /* UPTransportParametersItem */
-static int hf_xnap_upTNLInfo = -1;                /* UPTransportLayerInformation */
-static int hf_xnap_cellGroupID = -1;              /* CellGroupID */
-static int hf_xnap_VolumeTimedReportList_item = -1;  /* VolumeTimedReport_Item */
-static int hf_xnap_startTimeStamp = -1;           /* T_startTimeStamp */
-static int hf_xnap_endTimeStamp = -1;             /* T_endTimeStamp */
-static int hf_xnap_usageCountUL = -1;             /* INTEGER_0_18446744073709551615 */
-static int hf_xnap_usageCountDL = -1;             /* INTEGER_0_18446744073709551615 */
-static int hf_xnap_wlanMeasConfig = -1;           /* WLANMeasConfig */
-static int hf_xnap_wlanMeasConfigNameList = -1;   /* WLANMeasConfigNameList */
-static int hf_xnap_wlan_rssi = -1;                /* T_wlan_rssi */
-static int hf_xnap_wlan_rtt = -1;                 /* T_wlan_rtt */
-static int hf_xnap_WLANMeasConfigNameList_item = -1;  /* WLANName */
-static int hf_xnap_protocolIEs = -1;              /* ProtocolIE_Container */
-static int hf_xnap_ng_c_UE_reference = -1;        /* AMF_UE_NGAP_ID */
-static int hf_xnap_cp_TNL_info_source = -1;       /* CPTransportLayerInformation */
-static int hf_xnap_rrc_Context_01 = -1;           /* T_rrc_Context_01 */
-static int hf_xnap_locationReportingInformation = -1;  /* LocationReportingInformation */
-static int hf_xnap_mrl = -1;                      /* MobilityRestrictionList */
-static int hf_xnap_globalNG_RANNode_ID = -1;      /* GlobalNG_RANNode_ID */
-static int hf_xnap_sN_NG_RANnodeUEXnAPID = -1;    /* NG_RANnodeUEXnAPID */
-static int hf_xnap_first_dl_count = -1;           /* FirstDLCount */
-static int hf_xnap_dl_discarding = -1;            /* DLDiscarding */
-static int hf_xnap_dRBsSubjectToEarlyStatusTransfer = -1;  /* DRBsSubjectToEarlyStatusTransfer_List */
-static int hf_xnap_dRBsSubjectToDLDiscarding = -1;  /* DRBsSubjectToDLDiscarding_List */
-static int hf_xnap_PDUSessionToBeAddedAddReq_item = -1;  /* PDUSessionToBeAddedAddReq_Item */
-static int hf_xnap_sN_PDUSessionAMBR = -1;        /* PDUSessionAggregateMaximumBitRate */
-static int hf_xnap_sn_terminated = -1;            /* PDUSessionResourceSetupInfo_SNterminated */
-static int hf_xnap_mn_terminated = -1;            /* PDUSessionResourceSetupInfo_MNterminated */
-static int hf_xnap_PDUSessionAdmittedAddedAddReqAck_item = -1;  /* PDUSessionAdmittedAddedAddReqAck_Item */
-static int hf_xnap_sn_terminated_01 = -1;         /* PDUSessionResourceSetupResponseInfo_SNterminated */
-static int hf_xnap_mn_terminated_01 = -1;         /* PDUSessionResourceSetupResponseInfo_MNterminated */
-static int hf_xnap_pduSessionResourcesNotAdmitted_SNterminated = -1;  /* PDUSessionResourcesNotAdmitted_List */
-static int hf_xnap_pduSessionResourcesNotAdmitted_MNterminated = -1;  /* PDUSessionResourcesNotAdmitted_List */
-static int hf_xnap_responseType_ReconfComplete = -1;  /* ResponseType_ReconfComplete */
-static int hf_xnap_configuration_successfully_applied = -1;  /* Configuration_successfully_applied */
-static int hf_xnap_configuration_rejected_by_M_NG_RANNode = -1;  /* Configuration_rejected_by_M_NG_RANNode */
-static int hf_xnap_m_NG_RANNode_to_S_NG_RANNode_Container = -1;  /* T_m_NG_RANNode_to_S_NG_RANNode_Container */
-static int hf_xnap_m_NG_RANNode_to_S_NG_RANNode_Container_01 = -1;  /* T_m_NG_RANNode_to_S_NG_RANNode_Container_01 */
-static int hf_xnap_s_ng_RANnode_SecurityKey = -1;  /* S_NG_RANnode_SecurityKey */
-static int hf_xnap_s_ng_RANnodeUE_AMBR = -1;      /* UEAggregateMaximumBitRate */
-static int hf_xnap_lowerLayerPresenceStatusChange = -1;  /* LowerLayerPresenceStatusChange */
-static int hf_xnap_pduSessionResourceToBeAdded = -1;  /* PDUSessionsToBeAdded_SNModRequest_List */
-static int hf_xnap_pduSessionResourceToBeModified = -1;  /* PDUSessionsToBeModified_SNModRequest_List */
-static int hf_xnap_pduSessionResourceToBeReleased = -1;  /* PDUSessionsToBeReleased_SNModRequest_List */
-static int hf_xnap_PDUSessionsToBeAdded_SNModRequest_List_item = -1;  /* PDUSessionsToBeAdded_SNModRequest_Item */
-static int hf_xnap_PDUSessionsToBeModified_SNModRequest_List_item = -1;  /* PDUSessionsToBeModified_SNModRequest_Item */
-static int hf_xnap_sn_terminated_02 = -1;         /* PDUSessionResourceModificationInfo_SNterminated */
-static int hf_xnap_mn_terminated_02 = -1;         /* PDUSessionResourceModificationInfo_MNterminated */
-static int hf_xnap_pdu_session_list = -1;         /* PDUSession_List_withCause */
-static int hf_xnap_pduSessionResourcesAdmittedToBeAdded = -1;  /* PDUSessionAdmittedToBeAddedSNModResponse */
-static int hf_xnap_pduSessionResourcesAdmittedToBeModified = -1;  /* PDUSessionAdmittedToBeModifiedSNModResponse */
-static int hf_xnap_pduSessionResourcesAdmittedToBeReleased = -1;  /* PDUSessionAdmittedToBeReleasedSNModResponse */
-static int hf_xnap_PDUSessionAdmittedToBeAddedSNModResponse_item = -1;  /* PDUSessionAdmittedToBeAddedSNModResponse_Item */
-static int hf_xnap_PDUSessionAdmittedToBeModifiedSNModResponse_item = -1;  /* PDUSessionAdmittedToBeModifiedSNModResponse_Item */
-static int hf_xnap_sn_terminated_03 = -1;         /* PDUSessionResourceModificationResponseInfo_SNterminated */
-static int hf_xnap_mn_terminated_03 = -1;         /* PDUSessionResourceModificationResponseInfo_MNterminated */
-static int hf_xnap_sn_terminated_04 = -1;         /* PDUSession_List_withDataForwardingRequest */
-static int hf_xnap_mn_terminated_04 = -1;         /* PDUSession_List_withCause */
-static int hf_xnap_pdu_Session_List = -1;         /* PDUSession_List */
-static int hf_xnap_PDUSessionToBeModifiedSNModRequired_item = -1;  /* PDUSessionToBeModifiedSNModRequired_Item */
-static int hf_xnap_sn_terminated_05 = -1;         /* PDUSessionResourceModRqdInfo_SNterminated */
-static int hf_xnap_mn_terminated_05 = -1;         /* PDUSessionResourceModRqdInfo_MNterminated */
-static int hf_xnap_PDUSessionAdmittedModSNModConfirm_item = -1;  /* PDUSessionAdmittedModSNModConfirm_Item */
-static int hf_xnap_sn_terminated_06 = -1;         /* PDUSessionResourceModConfirmInfo_SNterminated */
-static int hf_xnap_mn_terminated_06 = -1;         /* PDUSessionResourceModConfirmInfo_MNterminated */
-static int hf_xnap_sn_terminated_07 = -1;         /* PDUSession_List_withDataForwardingFromTarget */
-static int hf_xnap_mn_terminated_07 = -1;         /* PDUSession_List */
-static int hf_xnap_pduSessionsToBeReleasedList_SNterminated = -1;  /* PDUSession_List_withDataForwardingRequest */
-static int hf_xnap_pduSessionsReleasedList_SNterminated = -1;  /* PDUSession_List_withDataForwardingFromTarget */
-static int hf_xnap_BearersSubjectToCounterCheck_List_item = -1;  /* BearersSubjectToCounterCheck_Item */
-static int hf_xnap_ul_count = -1;                 /* INTEGER_0_4294967295 */
-static int hf_xnap_dl_count = -1;                 /* INTEGER_0_4294967295 */
-static int hf_xnap_PDUSession_SNChangeRequired_List_item = -1;  /* PDUSession_SNChangeRequired_Item */
-static int hf_xnap_sn_terminated_08 = -1;         /* PDUSessionResourceChangeRequiredInfo_SNterminated */
-static int hf_xnap_mn_terminated_08 = -1;         /* PDUSessionResourceChangeRequiredInfo_MNterminated */
-static int hf_xnap_PDUSession_SNChangeConfirm_List_item = -1;  /* PDUSession_SNChangeConfirm_Item */
-static int hf_xnap_sn_terminated_09 = -1;         /* PDUSessionResourceChangeConfirmInfo_SNterminated */
-static int hf_xnap_mn_terminated_09 = -1;         /* PDUSessionResourceChangeConfirmInfo_MNterminated */
-static int hf_xnap_rrcContainer = -1;             /* OCTET_STRING */
-static int hf_xnap_srbType = -1;                  /* T_srbType */
-static int hf_xnap_deliveryStatus = -1;           /* DeliveryStatus */
-static int hf_xnap_PDUSessionResourcesNotifyList_item = -1;  /* PDUSessionResourcesNotify_Item */
-static int hf_xnap_qosFlowsNotificationContrIndInfo = -1;  /* QoSFlowNotificationControlIndicationInfo */
-static int hf_xnap_PDUSessionResourcesActivityNotifyList_item = -1;  /* PDUSessionResourcesActivityNotify_Item */
-static int hf_xnap_pduSessionLevelUPactivityreport = -1;  /* UserPlaneTrafficActivityReport */
-static int hf_xnap_qosFlowsActivityNotifyList = -1;  /* QoSFlowsActivityNotifyList */
-static int hf_xnap_QoSFlowsActivityNotifyList_item = -1;  /* QoSFlowsActivityNotifyItem */
-static int hf_xnap_gNB_01 = -1;                   /* ProtocolIE_Container */
-static int hf_xnap_ng_eNB_01 = -1;                /* ProtocolIE_Container */
-static int hf_xnap_ng_eNB_02 = -1;                /* RespondingNodeTypeConfigUpdateAck_ng_eNB */
-static int hf_xnap_gNB_02 = -1;                   /* RespondingNodeTypeConfigUpdateAck_gNB */
-static int hf_xnap_served_NR_Cells = -1;          /* ServedCells_NR */
-static int hf_xnap_ng_eNB_03 = -1;                /* ResourceCoordRequest_ng_eNB_initiated */
-static int hf_xnap_gNB_03 = -1;                   /* ResourceCoordRequest_gNB_initiated */
-static int hf_xnap_dataTrafficResourceIndication = -1;  /* DataTrafficResourceIndication */
-static int hf_xnap_spectrumSharingGroupID = -1;   /* SpectrumSharingGroupID */
-static int hf_xnap_listofE_UTRACells = -1;        /* SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_E_UTRA_CGI */
-static int hf_xnap_listofE_UTRACells_item = -1;   /* E_UTRA_CGI */
-static int hf_xnap_listofNRCells = -1;            /* SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_NR_CGI */
-static int hf_xnap_listofNRCells_item = -1;       /* NR_CGI */
-static int hf_xnap_ng_eNB_04 = -1;                /* ResourceCoordResponse_ng_eNB_initiated */
-static int hf_xnap_gNB_04 = -1;                   /* ResourceCoordResponse_gNB_initiated */
-static int hf_xnap_nr_cells = -1;                 /* SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_NR_CGI */
-static int hf_xnap_nr_cells_item = -1;            /* NR_CGI */
-static int hf_xnap_e_utra_cells = -1;             /* SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_E_UTRA_CGI */
-static int hf_xnap_e_utra_cells_item = -1;        /* E_UTRA_CGI */
-static int hf_xnap_privateIEs = -1;               /* PrivateIE_Container */
-static int hf_xnap_TrafficToBeAddedList_item = -1;  /* TrafficToBeAdded_Item */
-static int hf_xnap_trafficProfile = -1;           /* TrafficProfile */
-static int hf_xnap_f1_TerminatingTopologyBHInformation = -1;  /* F1_TerminatingTopologyBHInformation */
-static int hf_xnap_TrafficToBeModifiedList_item = -1;  /* TrafficToBeModified_Item */
-static int hf_xnap_TrafficAddedList_item = -1;    /* TrafficAdded_Item */
-static int hf_xnap_non_F1_TerminatingTopologyBHInformation = -1;  /* Non_F1_TerminatingTopologyBHInformation */
-static int hf_xnap_TrafficModifiedList_item = -1;  /* TrafficModified_Item */
-static int hf_xnap_TrafficNotAddedList_item = -1;  /* TrafficNotAdded_Item */
-static int hf_xnap_casue = -1;                    /* Cause */
-static int hf_xnap_TrafficNotModifiedList_item = -1;  /* TrafficNotModified_Item */
-static int hf_xnap_TrafficReleasedList_item = -1;  /* TrafficReleased_Item */
-static int hf_xnap_TrafficRequiredToBeModifiedList_item = -1;  /* TrafficRequiredToBeModified_Item */
-static int hf_xnap_non_f1_TerminatingTopologyBHInformation = -1;  /* Non_F1_TerminatingTopologyBHInformation */
-static int hf_xnap_IABTNLAddressToBeReleasedList_item = -1;  /* IABTNLAddressToBeReleased_Item */
-static int hf_xnap_iabTNLAddress = -1;            /* IABTNLAddress */
-static int hf_xnap_TrafficRequiredModifiedList_item = -1;  /* TrafficRequiredModified_Item */
-static int hf_xnap_BoundaryNodeCellsList_item = -1;  /* BoundaryNodeCellsList_Item */
-static int hf_xnap_boundaryNodeCellInformation = -1;  /* IABCellInformation */
-static int hf_xnap_ParentNodeCellsList_item = -1;  /* ParentNodeCellsList_Item */
-static int hf_xnap_parentNodeCellInformation = -1;  /* IABCellInformation */
-static int hf_xnap_initiatingMessage = -1;        /* InitiatingMessage */
-static int hf_xnap_successfulOutcome = -1;        /* SuccessfulOutcome */
-static int hf_xnap_unsuccessfulOutcome = -1;      /* UnsuccessfulOutcome */
-static int hf_xnap_initiatingMessage_value = -1;  /* InitiatingMessage_value */
-static int hf_xnap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
-static int hf_xnap_value = -1;                    /* UnsuccessfulOutcome_value */
+static int proto_xnap;
+static int hf_xnap_transportLayerAddressIPv4;
+static int hf_xnap_transportLayerAddressIPv6;
+static int hf_xnap_NG_RANTraceID_TraceID;
+static int hf_xnap_NG_RANTraceID_TraceRecordingSessionReference;
+static int hf_xnap_primaryRATRestriction_e_UTRA;
+static int hf_xnap_primaryRATRestriction_nR;
+static int hf_xnap_primaryRATRestriction_nR_unlicensed;
+static int hf_xnap_primaryRATRestriction_nR_LEO;
+static int hf_xnap_primaryRATRestriction_nR_MEO;
+static int hf_xnap_primaryRATRestriction_nR_GEO;
+static int hf_xnap_primaryRATRestriction_nR_OTHERSAT;
+static int hf_xnap_primaryRATRestriction_reserved;
+static int hf_xnap_secondaryRATRestriction_e_UTRA;
+static int hf_xnap_secondaryRATRestriction_nR;
+static int hf_xnap_secondaryRATRestriction_e_UTRA_unlicensed;
+static int hf_xnap_secondaryRATRestriction_nR_unlicensed;
+static int hf_xnap_secondaryRATRestriction_reserved;
+static int hf_xnap_MDT_Location_Info_GNSS;
+static int hf_xnap_MDT_Location_Info_reserved;
+static int hf_xnap_MeasurementsToActivate_M1;
+static int hf_xnap_MeasurementsToActivate_M2;
+static int hf_xnap_MeasurementsToActivate_M3;
+static int hf_xnap_MeasurementsToActivate_M4;
+static int hf_xnap_MeasurementsToActivate_M5;
+static int hf_xnap_MeasurementsToActivate_LoggingM1FromEventTriggered;
+static int hf_xnap_MeasurementsToActivate_M6;
+static int hf_xnap_MeasurementsToActivate_M7;
+static int hf_xnap_ReportCharacteristics_PRBPeriodic;
+static int hf_xnap_ReportCharacteristics_TNLCapacityIndPeriodic;
+static int hf_xnap_ReportCharacteristics_CompositeAvailableCapacityPeriodic;
+static int hf_xnap_ReportCharacteristics_NumberOfActiveUEs;
+static int hf_xnap_ReportCharacteristics_Reserved;
+static int hf_xnap_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated_PDU;  /* AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated */
+static int hf_xnap_AdditionLocationInformation_PDU;  /* AdditionLocationInformation */
+static int hf_xnap_Additional_PDCP_Duplication_TNL_List_PDU;  /* Additional_PDCP_Duplication_TNL_List */
+static int hf_xnap_Additional_UL_NG_U_TNLatUPF_List_PDU;  /* Additional_UL_NG_U_TNLatUPF_List */
+static int hf_xnap_Additional_Measurement_Timing_Configuration_List_PDU;  /* Additional_Measurement_Timing_Configuration_List */
+static int hf_xnap_ActivationIDforCellActivation_PDU;  /* ActivationIDforCellActivation */
+static int hf_xnap_AlternativeQoSParaSetList_PDU;  /* AlternativeQoSParaSetList */
+static int hf_xnap_AMF_Region_Information_PDU;    /* AMF_Region_Information */
+static int hf_xnap_AssistanceDataForRANPaging_PDU;  /* AssistanceDataForRANPaging */
+static int hf_xnap_BeamMeasurementIndicationM1_PDU;  /* BeamMeasurementIndicationM1 */
+static int hf_xnap_BeamMeasurementsReportConfiguration_PDU;  /* BeamMeasurementsReportConfiguration */
+static int hf_xnap_BPLMN_ID_Info_EUTRA_PDU;       /* BPLMN_ID_Info_EUTRA */
+static int hf_xnap_BPLMN_ID_Info_NR_PDU;          /* BPLMN_ID_Info_NR */
+static int hf_xnap_BitRate_PDU;                   /* BitRate */
+static int hf_xnap_Cause_PDU;                     /* Cause */
+static int hf_xnap_CellAssistanceInfo_NR_PDU;     /* CellAssistanceInfo_NR */
+static int hf_xnap_CellAndCapacityAssistanceInfo_NR_PDU;  /* CellAndCapacityAssistanceInfo_NR */
+static int hf_xnap_CellAndCapacityAssistanceInfo_EUTRA_PDU;  /* CellAndCapacityAssistanceInfo_EUTRA */
+static int hf_xnap_CellAssistanceInfo_EUTRA_PDU;  /* CellAssistanceInfo_EUTRA */
+static int hf_xnap_CellMeasurementResult_PDU;     /* CellMeasurementResult */
+static int hf_xnap_CellToReport_PDU;              /* CellToReport */
+static int hf_xnap_CHOConfiguration_PDU;          /* CHOConfiguration */
+static int hf_xnap_CompositeAvailableCapacity_PDU;  /* CompositeAvailableCapacity */
+static int hf_xnap_CHO_MRDC_EarlyDataForwarding_PDU;  /* CHO_MRDC_EarlyDataForwarding */
+static int hf_xnap_CHO_MRDC_Indicator_PDU;        /* CHO_MRDC_Indicator */
+static int hf_xnap_CHOinformation_Req_PDU;        /* CHOinformation_Req */
+static int hf_xnap_CHOinformation_Ack_PDU;        /* CHOinformation_Ack */
+static int hf_xnap_CHOinformation_AddReq_PDU;     /* CHOinformation_AddReq */
+static int hf_xnap_CHOinformation_ModReq_PDU;     /* CHOinformation_ModReq */
+static int hf_xnap_ConfiguredTACIndication_PDU;   /* ConfiguredTACIndication */
+static int hf_xnap_CoverageModificationCause_PDU;  /* CoverageModificationCause */
+static int hf_xnap_Coverage_Modification_List_PDU;  /* Coverage_Modification_List */
+static int hf_xnap_CPAInformationRequest_PDU;     /* CPAInformationRequest */
+static int hf_xnap_CPAInformationAck_PDU;         /* CPAInformationAck */
+static int hf_xnap_CPCInformationRequired_PDU;    /* CPCInformationRequired */
+static int hf_xnap_CPCInformationConfirm_PDU;     /* CPCInformationConfirm */
+static int hf_xnap_CPAInformationModReq_PDU;      /* CPAInformationModReq */
+static int hf_xnap_CPAInformationModReqAck_PDU;   /* CPAInformationModReqAck */
+static int hf_xnap_CPC_DataForwarding_Indicator_PDU;  /* CPC_DataForwarding_Indicator */
+static int hf_xnap_CPACInformationModRequired_PDU;  /* CPACInformationModRequired */
+static int hf_xnap_CPCInformationUpdate_PDU;      /* CPCInformationUpdate */
+static int hf_xnap_CriticalityDiagnostics_PDU;    /* CriticalityDiagnostics */
+static int hf_xnap_C_RNTI_PDU;                    /* C_RNTI */
+static int hf_xnap_CSI_RSTransmissionIndication_PDU;  /* CSI_RSTransmissionIndication */
+static int hf_xnap_XnUAddressInfoperPDUSession_List_PDU;  /* XnUAddressInfoperPDUSession_List */
+static int hf_xnap_DataForwardingInfoFromTargetE_UTRANnode_PDU;  /* DataForwardingInfoFromTargetE_UTRANnode */
+static int hf_xnap_DAPSRequestInfo_PDU;           /* DAPSRequestInfo */
+static int hf_xnap_DAPSResponseInfo_List_PDU;     /* DAPSResponseInfo_List */
+static int hf_xnap_DesiredActNotificationLevel_PDU;  /* DesiredActNotificationLevel */
+static int hf_xnap_DefaultDRB_Allowed_PDU;        /* DefaultDRB_Allowed */
+static int hf_xnap_DirectForwardingPathAvailability_PDU;  /* DirectForwardingPathAvailability */
+static int hf_xnap_DRB_List_PDU;                  /* DRB_List */
+static int hf_xnap_DRB_List_withCause_PDU;        /* DRB_List_withCause */
+static int hf_xnap_DRB_Number_PDU;                /* DRB_Number */
+static int hf_xnap_DRBsSubjectToStatusTransfer_List_PDU;  /* DRBsSubjectToStatusTransfer_List */
+static int hf_xnap_DuplicationActivation_PDU;     /* DuplicationActivation */
+static int hf_xnap_EarlyMeasurement_PDU;          /* EarlyMeasurement */
+static int hf_xnap_EUTRAPagingeDRXInformation_PDU;  /* EUTRAPagingeDRXInformation */
+static int hf_xnap_EndpointIPAddressAndPort_PDU;  /* EndpointIPAddressAndPort */
+static int hf_xnap_ExcessPacketDelayThresholdConfiguration_PDU;  /* ExcessPacketDelayThresholdConfiguration */
+static int hf_xnap_ExpectedUEActivityBehaviour_PDU;  /* ExpectedUEActivityBehaviour */
+static int hf_xnap_ExpectedUEBehaviour_PDU;       /* ExpectedUEBehaviour */
+static int hf_xnap_ExtendedRATRestrictionInformation_PDU;  /* ExtendedRATRestrictionInformation */
+static int hf_xnap_ExtendedPacketDelayBudget_PDU;  /* ExtendedPacketDelayBudget */
+static int hf_xnap_ExtendedSliceSupportList_PDU;  /* ExtendedSliceSupportList */
+static int hf_xnap_ExtendedUEIdentityIndexValue_PDU;  /* ExtendedUEIdentityIndexValue */
+static int hf_xnap_F1CTrafficContainer_PDU;       /* F1CTrafficContainer */
+static int hf_xnap_F1_terminatingIAB_donorIndicator_PDU;  /* F1_terminatingIAB_donorIndicator */
+static int hf_xnap_FiveGCMobilityRestrictionListContainer_PDU;  /* FiveGCMobilityRestrictionListContainer */
+static int hf_xnap_FiveGProSeAuthorized_PDU;      /* FiveGProSeAuthorized */
+static int hf_xnap_FiveGProSePC5QoSParameters_PDU;  /* FiveGProSePC5QoSParameters */
+static int hf_xnap_FrequencyShift7p5khz_PDU;      /* FrequencyShift7p5khz */
+static int hf_xnap_GNB_DU_Cell_Resource_Configuration_PDU;  /* GNB_DU_Cell_Resource_Configuration */
+static int hf_xnap_GlobalCell_ID_PDU;             /* GlobalCell_ID */
+static int hf_xnap_GlobalNG_RANCell_ID_PDU;       /* GlobalNG_RANCell_ID */
+static int hf_xnap_GlobalNG_RANNode_ID_PDU;       /* GlobalNG_RANNode_ID */
+static int hf_xnap_GUAMI_PDU;                     /* GUAMI */
+static int hf_xnap_HandoverReportType_PDU;        /* HandoverReportType */
+static int hf_xnap_HashedUEIdentityIndexValue_PDU;  /* HashedUEIdentityIndexValue */
+static int hf_xnap_IABNodeIndication_PDU;         /* IABNodeIndication */
+static int hf_xnap_IAB_TNL_Address_Request_PDU;   /* IAB_TNL_Address_Request */
+static int hf_xnap_IAB_TNL_Address_Response_PDU;  /* IAB_TNL_Address_Response */
+static int hf_xnap_IABTNLAddressException_PDU;    /* IABTNLAddressException */
+static int hf_xnap_InitiatingCondition_FailureIndication_PDU;  /* InitiatingCondition_FailureIndication */
+static int hf_xnap_xnap_IntendedTDD_DL_ULConfiguration_NR_PDU;  /* IntendedTDD_DL_ULConfiguration_NR */
+static int hf_xnap_InterfaceInstanceIndication_PDU;  /* InterfaceInstanceIndication */
+static int hf_xnap_Local_NG_RAN_Node_Identifier_PDU;  /* Local_NG_RAN_Node_Identifier */
+static int hf_xnap_Full_and_Short_I_RNTI_Profile_List_PDU;  /* Full_and_Short_I_RNTI_Profile_List */
+static int hf_xnap_SCGUEHistoryInformation_PDU;   /* SCGUEHistoryInformation */
+static int hf_xnap_LocationInformationSNReporting_PDU;  /* LocationInformationSNReporting */
+static int hf_xnap_LocationReportingInformation_PDU;  /* LocationReportingInformation */
+static int hf_xnap_LTEV2XServicesAuthorized_PDU;  /* LTEV2XServicesAuthorized */
+static int hf_xnap_LTEUESidelinkAggregateMaximumBitRate_PDU;  /* LTEUESidelinkAggregateMaximumBitRate */
+static int hf_xnap_M4ReportAmountMDT_PDU;         /* M4ReportAmountMDT */
+static int hf_xnap_M5ReportAmountMDT_PDU;         /* M5ReportAmountMDT */
+static int hf_xnap_M6ReportAmountMDT_PDU;         /* M6ReportAmountMDT */
+static int hf_xnap_M7ReportAmountMDT_PDU;         /* M7ReportAmountMDT */
+static int hf_xnap_MAC_I_PDU;                     /* MAC_I */
+static int hf_xnap_MaskedIMEISV_PDU;              /* MaskedIMEISV */
+static int hf_xnap_MaxIPrate_PDU;                 /* MaxIPrate */
+static int hf_xnap_MBS_Session_ID_PDU;            /* MBS_Session_ID */
+static int hf_xnap_MBS_SessionAssociatedInformation_PDU;  /* MBS_SessionAssociatedInformation */
+static int hf_xnap_MBS_SessionInformation_List_PDU;  /* MBS_SessionInformation_List */
+static int hf_xnap_MBS_SessionInformationResponse_List_PDU;  /* MBS_SessionInformationResponse_List */
+static int hf_xnap_MDT_Configuration_PDU;         /* MDT_Configuration */
+static int hf_xnap_MDTPLMNList_PDU;               /* MDTPLMNList */
+static int hf_xnap_MDTPLMNModificationList_PDU;   /* MDTPLMNModificationList */
+static int hf_xnap_Measurement_ID_PDU;            /* Measurement_ID */
+static int hf_xnap_MIMOPRBusageInformation_PDU;   /* MIMOPRBusageInformation */
+static int hf_xnap_MobilityInformation_PDU;       /* MobilityInformation */
+static int hf_xnap_MobilityParametersModificationRange_PDU;  /* MobilityParametersModificationRange */
+static int hf_xnap_MobilityParametersInformation_PDU;  /* MobilityParametersInformation */
+static int hf_xnap_MobilityRestrictionList_PDU;   /* MobilityRestrictionList */
+static int hf_xnap_CNTypeRestrictionsForEquivalent_PDU;  /* CNTypeRestrictionsForEquivalent */
+static int hf_xnap_CNTypeRestrictionsForServing_PDU;  /* CNTypeRestrictionsForServing */
+static int hf_xnap_MR_DC_ResourceCoordinationInfo_PDU;  /* MR_DC_ResourceCoordinationInfo */
+static int hf_xnap_MessageOversizeNotification_PDU;  /* MessageOversizeNotification */
+static int hf_xnap_NBIoT_UL_DL_AlignmentOffset_PDU;  /* NBIoT_UL_DL_AlignmentOffset */
+static int hf_xnap_NE_DC_TDM_Pattern_PDU;         /* NE_DC_TDM_Pattern */
+static int hf_xnap_Neighbour_NG_RAN_Node_List_PDU;  /* Neighbour_NG_RAN_Node_List */
+static int hf_xnap_NRCarrierList_PDU;             /* NRCarrierList */
+static int hf_xnap_NRCellPRACHConfig_PDU;         /* NRCellPRACHConfig */
+static int hf_xnap_NG_RAN_Cell_Identity_PDU;      /* NG_RAN_Cell_Identity */
+static int hf_xnap_NG_RANnode2SSBOffsetsModificationRange_PDU;  /* NG_RANnode2SSBOffsetsModificationRange */
+static int hf_xnap_NG_RANnodeUEXnAPID_PDU;        /* NG_RANnodeUEXnAPID */
+static int hf_xnap_DL_scheduling_PDCCH_CCE_usage_PDU;  /* DL_scheduling_PDCCH_CCE_usage */
+static int hf_xnap_UL_scheduling_PDCCH_CCE_usage_PDU;  /* UL_scheduling_PDCCH_CCE_usage */
+static int hf_xnap_NoPDUSessionIndication_PDU;    /* NoPDUSessionIndication */
+static int hf_xnap_NPN_Broadcast_Information_PDU;  /* NPN_Broadcast_Information */
+static int hf_xnap_NPNMobilityInformation_PDU;    /* NPNMobilityInformation */
+static int hf_xnap_NPNPagingAssistanceInformation_PDU;  /* NPNPagingAssistanceInformation */
+static int hf_xnap_NPN_Support_PDU;               /* NPN_Support */
+static int hf_xnap_NPRACHConfiguration_PDU;       /* NPRACHConfiguration */
+static int hf_xnap_NR_U_Channel_List_PDU;         /* NR_U_Channel_List */
+static int hf_xnap_NR_U_ChannelInfo_List_PDU;     /* NR_U_ChannelInfo_List */
+static int hf_xnap_NRPagingeDRXInformation_PDU;   /* NRPagingeDRXInformation */
+static int hf_xnap_NRPagingeDRXInformationforRRCINACTIVE_PDU;  /* NRPagingeDRXInformationforRRCINACTIVE */
+static int hf_xnap_NG_RANTraceID_PDU;             /* NG_RANTraceID */
+static int hf_xnap_NonGBRResources_Offered_PDU;   /* NonGBRResources_Offered */
+static int hf_xnap_NRV2XServicesAuthorized_PDU;   /* NRV2XServicesAuthorized */
+static int hf_xnap_NRUESidelinkAggregateMaximumBitRate_PDU;  /* NRUESidelinkAggregateMaximumBitRate */
+static int hf_xnap_OffsetOfNbiotChannelNumberToEARFCN_PDU;  /* OffsetOfNbiotChannelNumberToEARFCN */
+static int hf_xnap_PositioningInformation_PDU;    /* PositioningInformation */
+static int hf_xnap_PagingCause_PDU;               /* PagingCause */
+static int hf_xnap_PEIPSassistanceInformation_PDU;  /* PEIPSassistanceInformation */
+static int hf_xnap_PagingDRX_PDU;                 /* PagingDRX */
+static int hf_xnap_PagingPriority_PDU;            /* PagingPriority */
+static int hf_xnap_PartialListIndicator_PDU;      /* PartialListIndicator */
+static int hf_xnap_PC5QoSParameters_PDU;          /* PC5QoSParameters */
+static int hf_xnap_PDCPChangeIndication_PDU;      /* PDCPChangeIndication */
+static int hf_xnap_PDCPDuplicationConfiguration_PDU;  /* PDCPDuplicationConfiguration */
+static int hf_xnap_PDUSession_List_withCause_PDU;  /* PDUSession_List_withCause */
+static int hf_xnap_PDUSessionResourcesAdmitted_List_PDU;  /* PDUSessionResourcesAdmitted_List */
+static int hf_xnap_PDUSessionResourcesNotAdmitted_List_PDU;  /* PDUSessionResourcesNotAdmitted_List */
+static int hf_xnap_QoSFlowsMappedtoDRB_SetupResponse_MNterminated_PDU;  /* QoSFlowsMappedtoDRB_SetupResponse_MNterminated */
+static int hf_xnap_PDUSessionResourceSecondaryRATUsageList_PDU;  /* PDUSessionResourceSecondaryRATUsageList */
+static int hf_xnap_PDUSessionCommonNetworkInstance_PDU;  /* PDUSessionCommonNetworkInstance */
+static int hf_xnap_PDUSession_PairID_PDU;         /* PDUSession_PairID */
+static int hf_xnap_Permutation_PDU;               /* Permutation */
+static int hf_xnap_PLMN_Identity_PDU;             /* PLMN_Identity */
+static int hf_xnap_PrivacyIndicator_PDU;          /* PrivacyIndicator */
+static int hf_xnap_PSCellChangeHistory_PDU;       /* PSCellChangeHistory */
+static int hf_xnap_PSCellHistoryInformationRetrieve_PDU;  /* PSCellHistoryInformationRetrieve */
+static int hf_xnap_QMCConfigInfo_PDU;             /* QMCConfigInfo */
+static int hf_xnap_QoSFlowMappingIndication_PDU;  /* QoSFlowMappingIndication */
+static int hf_xnap_QoSFlows_List_PDU;             /* QoSFlows_List */
+static int hf_xnap_QoS_Mapping_Information_PDU;   /* QoS_Mapping_Information */
+static int hf_xnap_QoSParaSetNotifyIndex_PDU;     /* QoSParaSetNotifyIndex */
+static int hf_xnap_QosMonitoringRequest_PDU;      /* QosMonitoringRequest */
+static int hf_xnap_QoSMonitoringDisabled_PDU;     /* QoSMonitoringDisabled */
+static int hf_xnap_QosMonitoringReportingFrequency_PDU;  /* QosMonitoringReportingFrequency */
+static int hf_xnap_RACHReportInformation_PDU;     /* RACHReportInformation */
+static int hf_xnap_RANPagingArea_PDU;             /* RANPagingArea */
+static int hf_xnap_RANPagingFailure_PDU;          /* RANPagingFailure */
+static int hf_xnap_Redcap_Bcast_Information_PDU;  /* Redcap_Bcast_Information */
+static int hf_xnap_RedundantQoSFlowIndicator_PDU;  /* RedundantQoSFlowIndicator */
+static int hf_xnap_RedundantPDUSessionInformation_PDU;  /* RedundantPDUSessionInformation */
+static int hf_xnap_ExtendedReportIntervalMDT_PDU;  /* ExtendedReportIntervalMDT */
+static int hf_xnap_ReportCharacteristics_PDU;     /* ReportCharacteristics */
+static int hf_xnap_ReportingPeriodicity_PDU;      /* ReportingPeriodicity */
+static int hf_xnap_RegistrationRequest_PDU;       /* RegistrationRequest */
+static int hf_xnap_ResetRequestTypeInfo_PDU;      /* ResetRequestTypeInfo */
+static int hf_xnap_ResetResponseTypeInfo_PDU;     /* ResetResponseTypeInfo */
+static int hf_xnap_RLCDuplicationInformation_PDU;  /* RLCDuplicationInformation */
+static int hf_xnap_RFSP_Index_PDU;                /* RFSP_Index */
+static int hf_xnap_RRCConfigIndication_PDU;       /* RRCConfigIndication */
+static int hf_xnap_RRCConnReestab_Indicator_PDU;  /* RRCConnReestab_Indicator */
+static int hf_xnap_RRCResumeCause_PDU;            /* RRCResumeCause */
+static int hf_xnap_SCGreconfigNotification_PDU;   /* SCGreconfigNotification */
+static int hf_xnap_SecondarydataForwardingInfoFromTarget_List_PDU;  /* SecondarydataForwardingInfoFromTarget_List */
+static int hf_xnap_SCGActivationRequest_PDU;      /* SCGActivationRequest */
+static int hf_xnap_SCGActivationStatus_PDU;       /* SCGActivationStatus */
+static int hf_xnap_SCGConfigurationQuery_PDU;     /* SCGConfigurationQuery */
+static int hf_xnap_SCGIndicator_PDU;              /* SCGIndicator */
+static int hf_xnap_SCGFailureReportContainer_PDU;  /* SCGFailureReportContainer */
+static int hf_xnap_SDTSupportRequest_PDU;         /* SDTSupportRequest */
+static int hf_xnap_SDT_Termination_Request_PDU;   /* SDT_Termination_Request */
+static int hf_xnap_SDTPartialUEContextInfo_PDU;   /* SDTPartialUEContextInfo */
+static int hf_xnap_SDTDataForwardingDRBList_PDU;  /* SDTDataForwardingDRBList */
+static int hf_xnap_SecurityIndication_PDU;        /* SecurityIndication */
+static int hf_xnap_SecurityResult_PDU;            /* SecurityResult */
+static int hf_xnap_ServedCells_E_UTRA_PDU;        /* ServedCells_E_UTRA */
+static int hf_xnap_ServedCellsToUpdate_E_UTRA_PDU;  /* ServedCellsToUpdate_E_UTRA */
+static int hf_xnap_SFN_Offset_PDU;                /* SFN_Offset */
+static int hf_xnap_ServedCells_NR_PDU;            /* ServedCells_NR */
+static int hf_xnap_ServedCellSpecificInfoReq_NR_PDU;  /* ServedCellSpecificInfoReq_NR */
+static int hf_xnap_ServedCellsToUpdate_NR_PDU;    /* ServedCellsToUpdate_NR */
+static int hf_xnap_SliceRadioResourceStatus_List_PDU;  /* SliceRadioResourceStatus_List */
+static int hf_xnap_S_NG_RANnode_SecurityKey_PDU;  /* S_NG_RANnode_SecurityKey */
+static int hf_xnap_S_NG_RANnode_Addition_Trigger_Ind_PDU;  /* S_NG_RANnode_Addition_Trigger_Ind */
+static int hf_xnap_S_NSSAI_PDU;                   /* S_NSSAI */
+static int hf_xnap_SNMobilityInformation_PDU;     /* SNMobilityInformation */
+static int hf_xnap_SNTriggered_PDU;               /* SNTriggered */
+static int hf_xnap_SplitSessionIndicator_PDU;     /* SplitSessionIndicator */
+static int hf_xnap_SplitSRBsTypes_PDU;            /* SplitSRBsTypes */
+static int hf_xnap_SSB_PositionsInBurst_PDU;      /* SSB_PositionsInBurst */
+static int hf_xnap_SSBOffsets_List_PDU;           /* SSBOffsets_List */
+static int hf_xnap_SuccessfulHOReportInformation_PDU;  /* SuccessfulHOReportInformation */
+static int hf_xnap_Supported_MBS_FSA_ID_List_PDU;  /* Supported_MBS_FSA_ID_List */
+static int hf_xnap_SurvivalTime_PDU;              /* SurvivalTime */
+static int hf_xnap_TAINSAGSupportList_PDU;        /* TAINSAGSupportList */
+static int hf_xnap_TAISupport_List_PDU;           /* TAISupport_List */
+static int hf_xnap_TargetCellinEUTRAN_PDU;        /* TargetCellinEUTRAN */
+static int hf_xnap_Target_CGI_PDU;                /* Target_CGI */
+static int hf_xnap_TDDULDLConfigurationCommonNR_PDU;  /* TDDULDLConfigurationCommonNR */
+static int hf_xnap_TargetCellList_PDU;            /* TargetCellList */
+static int hf_xnap_TimeSynchronizationAssistanceInformation_PDU;  /* TimeSynchronizationAssistanceInformation */
+static int hf_xnap_TimeToWait_PDU;                /* TimeToWait */
+static int hf_xnap_TNLConfigurationInfo_PDU;      /* TNLConfigurationInfo */
+static int hf_xnap_TNLA_To_Add_List_PDU;          /* TNLA_To_Add_List */
+static int hf_xnap_TNLA_To_Update_List_PDU;       /* TNLA_To_Update_List */
+static int hf_xnap_TNLA_To_Remove_List_PDU;       /* TNLA_To_Remove_List */
+static int hf_xnap_TNLA_Setup_List_PDU;           /* TNLA_Setup_List */
+static int hf_xnap_TNLA_Failed_To_Setup_List_PDU;  /* TNLA_Failed_To_Setup_List */
+static int hf_xnap_TransportLayerAddress_PDU;     /* TransportLayerAddress */
+static int hf_xnap_TraceActivation_PDU;           /* TraceActivation */
+static int hf_xnap_TrafficToBeReleaseInformation_PDU;  /* TrafficToBeReleaseInformation */
+static int hf_xnap_TSCTrafficCharacteristics_PDU;  /* TSCTrafficCharacteristics */
+static int hf_xnap_UEAggregateMaximumBitRate_PDU;  /* UEAggregateMaximumBitRate */
+static int hf_xnap_UEContextKeptIndicator_PDU;    /* UEContextKeptIndicator */
+static int hf_xnap_UEContextID_PDU;               /* UEContextID */
+static int hf_xnap_UEContextInfoRetrUECtxtResp_PDU;  /* UEContextInfoRetrUECtxtResp */
+static int hf_xnap_UEHistoryInformation_PDU;      /* UEHistoryInformation */
+static int hf_xnap_UEHistoryInformationFromTheUE_PDU;  /* UEHistoryInformationFromTheUE */
+static int hf_xnap_UEIdentityIndexValue_PDU;      /* UEIdentityIndexValue */
+static int hf_xnap_UEIdentityIndexList_MBSGroupPaging_PDU;  /* UEIdentityIndexList_MBSGroupPaging */
+static int hf_xnap_UERadioCapabilityForPaging_PDU;  /* UERadioCapabilityForPaging */
+static int hf_xnap_UERadioCapabilityID_PDU;       /* UERadioCapabilityID */
+static int hf_xnap_UERANPagingIdentity_PDU;       /* UERANPagingIdentity */
+static int hf_xnap_UERLFReportContainer_PDU;      /* UERLFReportContainer */
+static int hf_xnap_UERLFReportContainerLTEExtension_PDU;  /* UERLFReportContainerLTEExtension */
+static int hf_xnap_UESliceMaximumBitRateList_PDU;  /* UESliceMaximumBitRateList */
+static int hf_xnap_UESecurityCapabilities_PDU;    /* UESecurityCapabilities */
+static int hf_xnap_UESpecificDRX_PDU;             /* UESpecificDRX */
+static int hf_xnap_ULForwardingProposal_PDU;      /* ULForwardingProposal */
+static int hf_xnap_UPTransportLayerInformation_PDU;  /* UPTransportLayerInformation */
+static int hf_xnap_UPTransportParameters_PDU;     /* UPTransportParameters */
+static int hf_xnap_UserPlaneTrafficActivityReport_PDU;  /* UserPlaneTrafficActivityReport */
+static int hf_xnap_URIaddress_PDU;                /* URIaddress */
+static int hf_xnap_XnBenefitValue_PDU;            /* XnBenefitValue */
+static int hf_xnap_HandoverRequest_PDU;           /* HandoverRequest */
+static int hf_xnap_UEContextInfoHORequest_PDU;    /* UEContextInfoHORequest */
+static int hf_xnap_UEContextRefAtSN_HORequest_PDU;  /* UEContextRefAtSN_HORequest */
+static int hf_xnap_HandoverRequestAcknowledge_PDU;  /* HandoverRequestAcknowledge */
+static int hf_xnap_Target2SourceNG_RANnodeTranspContainer_PDU;  /* Target2SourceNG_RANnodeTranspContainer */
+static int hf_xnap_HandoverPreparationFailure_PDU;  /* HandoverPreparationFailure */
+static int hf_xnap_SNStatusTransfer_PDU;          /* SNStatusTransfer */
+static int hf_xnap_UEContextRelease_PDU;          /* UEContextRelease */
+static int hf_xnap_HandoverCancel_PDU;            /* HandoverCancel */
+static int hf_xnap_HandoverSuccess_PDU;           /* HandoverSuccess */
+static int hf_xnap_ConditionalHandoverCancel_PDU;  /* ConditionalHandoverCancel */
+static int hf_xnap_EarlyStatusTransfer_PDU;       /* EarlyStatusTransfer */
+static int hf_xnap_ProcedureStageChoice_PDU;      /* ProcedureStageChoice */
+static int hf_xnap_RANPaging_PDU;                 /* RANPaging */
+static int hf_xnap_RetrieveUEContextRequest_PDU;  /* RetrieveUEContextRequest */
+static int hf_xnap_RetrieveUEContextResponse_PDU;  /* RetrieveUEContextResponse */
+static int hf_xnap_RetrieveUEContextConfirm_PDU;  /* RetrieveUEContextConfirm */
+static int hf_xnap_RetrieveUEContextFailure_PDU;  /* RetrieveUEContextFailure */
+static int hf_xnap_OldtoNewNG_RANnodeResumeContainer_PDU;  /* OldtoNewNG_RANnodeResumeContainer */
+static int hf_xnap_XnUAddressIndication_PDU;      /* XnUAddressIndication */
+static int hf_xnap_SNodeAdditionRequest_PDU;      /* SNodeAdditionRequest */
+static int hf_xnap_MN_to_SN_Container_PDU;        /* MN_to_SN_Container */
+static int hf_xnap_PDUSessionToBeAddedAddReq_PDU;  /* PDUSessionToBeAddedAddReq */
+static int hf_xnap_RequestedFastMCGRecoveryViaSRB3_PDU;  /* RequestedFastMCGRecoveryViaSRB3 */
+static int hf_xnap_SNodeAdditionRequestAcknowledge_PDU;  /* SNodeAdditionRequestAcknowledge */
+static int hf_xnap_SN_to_MN_Container_PDU;        /* SN_to_MN_Container */
+static int hf_xnap_PDUSessionAdmittedAddedAddReqAck_PDU;  /* PDUSessionAdmittedAddedAddReqAck */
+static int hf_xnap_PDUSessionNotAdmittedAddReqAck_PDU;  /* PDUSessionNotAdmittedAddReqAck */
+static int hf_xnap_AvailableFastMCGRecoveryViaSRB3_PDU;  /* AvailableFastMCGRecoveryViaSRB3 */
+static int hf_xnap_SNodeAdditionRequestReject_PDU;  /* SNodeAdditionRequestReject */
+static int hf_xnap_SNodeReconfigurationComplete_PDU;  /* SNodeReconfigurationComplete */
+static int hf_xnap_ResponseInfo_ReconfCompl_PDU;  /* ResponseInfo_ReconfCompl */
+static int hf_xnap_SNodeModificationRequest_PDU;  /* SNodeModificationRequest */
+static int hf_xnap_UEContextInfo_SNModRequest_PDU;  /* UEContextInfo_SNModRequest */
+static int hf_xnap_RequestedFastMCGRecoveryViaSRB3Release_PDU;  /* RequestedFastMCGRecoveryViaSRB3Release */
+static int hf_xnap_SNodeModificationRequestAcknowledge_PDU;  /* SNodeModificationRequestAcknowledge */
+static int hf_xnap_PDUSessionAdmitted_SNModResponse_PDU;  /* PDUSessionAdmitted_SNModResponse */
+static int hf_xnap_PDUSessionNotAdmitted_SNModResponse_PDU;  /* PDUSessionNotAdmitted_SNModResponse */
+static int hf_xnap_PDUSessionDataForwarding_SNModResponse_PDU;  /* PDUSessionDataForwarding_SNModResponse */
+static int hf_xnap_ReleaseFastMCGRecoveryViaSRB3_PDU;  /* ReleaseFastMCGRecoveryViaSRB3 */
+static int hf_xnap_SNodeModificationRequestReject_PDU;  /* SNodeModificationRequestReject */
+static int hf_xnap_SNodeModificationRequired_PDU;  /* SNodeModificationRequired */
+static int hf_xnap_PDUSessionToBeModifiedSNModRequired_PDU;  /* PDUSessionToBeModifiedSNModRequired */
+static int hf_xnap_PDUSessionToBeReleasedSNModRequired_PDU;  /* PDUSessionToBeReleasedSNModRequired */
+static int hf_xnap_SNodeModificationConfirm_PDU;  /* SNodeModificationConfirm */
+static int hf_xnap_PDUSessionAdmittedModSNModConfirm_PDU;  /* PDUSessionAdmittedModSNModConfirm */
+static int hf_xnap_PDUSessionReleasedSNModConfirm_PDU;  /* PDUSessionReleasedSNModConfirm */
+static int hf_xnap_SNodeModificationRefuse_PDU;   /* SNodeModificationRefuse */
+static int hf_xnap_SNodeReleaseRequest_PDU;       /* SNodeReleaseRequest */
+static int hf_xnap_SNodeReleaseRequestAcknowledge_PDU;  /* SNodeReleaseRequestAcknowledge */
+static int hf_xnap_PDUSessionToBeReleasedList_RelReqAck_PDU;  /* PDUSessionToBeReleasedList_RelReqAck */
+static int hf_xnap_SNodeReleaseReject_PDU;        /* SNodeReleaseReject */
+static int hf_xnap_SNodeReleaseRequired_PDU;      /* SNodeReleaseRequired */
+static int hf_xnap_PDUSessionToBeReleasedList_RelRqd_PDU;  /* PDUSessionToBeReleasedList_RelRqd */
+static int hf_xnap_SNodeReleaseConfirm_PDU;       /* SNodeReleaseConfirm */
+static int hf_xnap_PDUSessionReleasedList_RelConf_PDU;  /* PDUSessionReleasedList_RelConf */
+static int hf_xnap_SNodeCounterCheckRequest_PDU;  /* SNodeCounterCheckRequest */
+static int hf_xnap_BearersSubjectToCounterCheck_List_PDU;  /* BearersSubjectToCounterCheck_List */
+static int hf_xnap_SNodeChangeRequired_PDU;       /* SNodeChangeRequired */
+static int hf_xnap_PDUSession_SNChangeRequired_List_PDU;  /* PDUSession_SNChangeRequired_List */
+static int hf_xnap_SNodeChangeConfirm_PDU;        /* SNodeChangeConfirm */
+static int hf_xnap_PDUSession_SNChangeConfirm_List_PDU;  /* PDUSession_SNChangeConfirm_List */
+static int hf_xnap_SNodeChangeRefuse_PDU;         /* SNodeChangeRefuse */
+static int hf_xnap_RRCTransfer_PDU;               /* RRCTransfer */
+static int hf_xnap_SplitSRB_RRCTransfer_PDU;      /* SplitSRB_RRCTransfer */
+static int hf_xnap_UEReportRRCTransfer_PDU;       /* UEReportRRCTransfer */
+static int hf_xnap_FastMCGRecoveryRRCTransfer_PDU;  /* FastMCGRecoveryRRCTransfer */
+static int hf_xnap_SDT_SRB_between_NewNode_OldNode_PDU;  /* SDT_SRB_between_NewNode_OldNode */
+static int hf_xnap_NotificationControlIndication_PDU;  /* NotificationControlIndication */
+static int hf_xnap_PDUSessionResourcesNotifyList_PDU;  /* PDUSessionResourcesNotifyList */
+static int hf_xnap_ActivityNotification_PDU;      /* ActivityNotification */
+static int hf_xnap_PDUSessionResourcesActivityNotifyList_PDU;  /* PDUSessionResourcesActivityNotifyList */
+static int hf_xnap_XnSetupRequest_PDU;            /* XnSetupRequest */
+static int hf_xnap_XnSetupResponse_PDU;           /* XnSetupResponse */
+static int hf_xnap_XnSetupFailure_PDU;            /* XnSetupFailure */
+static int hf_xnap_NGRANNodeConfigurationUpdate_PDU;  /* NGRANNodeConfigurationUpdate */
+static int hf_xnap_ConfigurationUpdateInitiatingNodeChoice_PDU;  /* ConfigurationUpdateInitiatingNodeChoice */
+static int hf_xnap_NGRANNodeConfigurationUpdateAcknowledge_PDU;  /* NGRANNodeConfigurationUpdateAcknowledge */
+static int hf_xnap_RespondingNodeTypeConfigUpdateAck_PDU;  /* RespondingNodeTypeConfigUpdateAck */
+static int hf_xnap_NGRANNodeConfigurationUpdateFailure_PDU;  /* NGRANNodeConfigurationUpdateFailure */
+static int hf_xnap_E_UTRA_NR_CellResourceCoordinationRequest_PDU;  /* E_UTRA_NR_CellResourceCoordinationRequest */
+static int hf_xnap_InitiatingNodeType_ResourceCoordRequest_PDU;  /* InitiatingNodeType_ResourceCoordRequest */
+static int hf_xnap_E_UTRA_NR_CellResourceCoordinationResponse_PDU;  /* E_UTRA_NR_CellResourceCoordinationResponse */
+static int hf_xnap_RespondingNodeType_ResourceCoordResponse_PDU;  /* RespondingNodeType_ResourceCoordResponse */
+static int hf_xnap_SecondaryRATDataUsageReport_PDU;  /* SecondaryRATDataUsageReport */
+static int hf_xnap_XnRemovalRequest_PDU;          /* XnRemovalRequest */
+static int hf_xnap_XnRemovalResponse_PDU;         /* XnRemovalResponse */
+static int hf_xnap_XnRemovalFailure_PDU;          /* XnRemovalFailure */
+static int hf_xnap_CellActivationRequest_PDU;     /* CellActivationRequest */
+static int hf_xnap_ServedCellsToActivate_PDU;     /* ServedCellsToActivate */
+static int hf_xnap_CellActivationResponse_PDU;    /* CellActivationResponse */
+static int hf_xnap_ActivatedServedCells_PDU;      /* ActivatedServedCells */
+static int hf_xnap_CellActivationFailure_PDU;     /* CellActivationFailure */
+static int hf_xnap_ResetRequest_PDU;              /* ResetRequest */
+static int hf_xnap_ResetResponse_PDU;             /* ResetResponse */
+static int hf_xnap_ErrorIndication_PDU;           /* ErrorIndication */
+static int hf_xnap_PrivateMessage_PDU;            /* PrivateMessage */
+static int hf_xnap_TraceStart_PDU;                /* TraceStart */
+static int hf_xnap_DeactivateTrace_PDU;           /* DeactivateTrace */
+static int hf_xnap_FailureIndication_PDU;         /* FailureIndication */
+static int hf_xnap_HandoverReport_PDU;            /* HandoverReport */
+static int hf_xnap_ResourceStatusRequest_PDU;     /* ResourceStatusRequest */
+static int hf_xnap_ResourceStatusResponse_PDU;    /* ResourceStatusResponse */
+static int hf_xnap_ResourceStatusFailure_PDU;     /* ResourceStatusFailure */
+static int hf_xnap_ResourceStatusUpdate_PDU;      /* ResourceStatusUpdate */
+static int hf_xnap_MobilityChangeRequest_PDU;     /* MobilityChangeRequest */
+static int hf_xnap_MobilityChangeAcknowledge_PDU;  /* MobilityChangeAcknowledge */
+static int hf_xnap_MobilityChangeFailure_PDU;     /* MobilityChangeFailure */
+static int hf_xnap_AccessAndMobilityIndication_PDU;  /* AccessAndMobilityIndication */
+static int hf_xnap_CellTrafficTrace_PDU;          /* CellTrafficTrace */
+static int hf_xnap_RANMulticastGroupPaging_PDU;   /* RANMulticastGroupPaging */
+static int hf_xnap_ScgFailureInformationReport_PDU;  /* ScgFailureInformationReport */
+static int hf_xnap_ScgFailureTransfer_PDU;        /* ScgFailureTransfer */
+static int hf_xnap_F1CTrafficTransfer_PDU;        /* F1CTrafficTransfer */
+static int hf_xnap_IABTransportMigrationManagementRequest_PDU;  /* IABTransportMigrationManagementRequest */
+static int hf_xnap_TrafficToBeAddedList_PDU;      /* TrafficToBeAddedList */
+static int hf_xnap_TrafficToBeModifiedList_PDU;   /* TrafficToBeModifiedList */
+static int hf_xnap_IABTransportMigrationManagementResponse_PDU;  /* IABTransportMigrationManagementResponse */
+static int hf_xnap_TrafficAddedList_PDU;          /* TrafficAddedList */
+static int hf_xnap_TrafficModifiedList_PDU;       /* TrafficModifiedList */
+static int hf_xnap_TrafficNotAddedList_PDU;       /* TrafficNotAddedList */
+static int hf_xnap_TrafficNotModifiedList_PDU;    /* TrafficNotModifiedList */
+static int hf_xnap_TrafficReleasedList_PDU;       /* TrafficReleasedList */
+static int hf_xnap_IABTransportMigrationManagementReject_PDU;  /* IABTransportMigrationManagementReject */
+static int hf_xnap_IABTransportMigrationModificationRequest_PDU;  /* IABTransportMigrationModificationRequest */
+static int hf_xnap_TrafficRequiredToBeModifiedList_PDU;  /* TrafficRequiredToBeModifiedList */
+static int hf_xnap_IABTNLAddressToBeReleasedList_PDU;  /* IABTNLAddressToBeReleasedList */
+static int hf_xnap_IABTransportMigrationModificationResponse_PDU;  /* IABTransportMigrationModificationResponse */
+static int hf_xnap_TrafficRequiredModifiedList_PDU;  /* TrafficRequiredModifiedList */
+static int hf_xnap_IABResourceCoordinationRequest_PDU;  /* IABResourceCoordinationRequest */
+static int hf_xnap_BoundaryNodeCellsList_PDU;     /* BoundaryNodeCellsList */
+static int hf_xnap_ParentNodeCellsList_PDU;       /* ParentNodeCellsList */
+static int hf_xnap_IABResourceCoordinationResponse_PDU;  /* IABResourceCoordinationResponse */
+static int hf_xnap_CPCCancel_PDU;                 /* CPCCancel */
+static int hf_xnap_PartialUEContextTransfer_PDU;  /* PartialUEContextTransfer */
+static int hf_xnap_PartialUEContextTransferAcknowledge_PDU;  /* PartialUEContextTransferAcknowledge */
+static int hf_xnap_PartialUEContextTransferFailure_PDU;  /* PartialUEContextTransferFailure */
+static int hf_xnap_XnAP_PDU_PDU;                  /* XnAP_PDU */
+static int hf_xnap_local;                         /* INTEGER_0_maxPrivateIEs */
+static int hf_xnap_global;                        /* OBJECT_IDENTIFIER */
+static int hf_xnap_ProtocolIE_Container_item;     /* ProtocolIE_Field */
+static int hf_xnap_id;                            /* ProtocolIE_ID */
+static int hf_xnap_criticality;                   /* Criticality */
+static int hf_xnap_protocolIE_Field_value;        /* ProtocolIE_Field_value */
+static int hf_xnap_ProtocolExtensionContainer_item;  /* ProtocolExtensionField */
+static int hf_xnap_extension_id;                  /* ProtocolIE_ID */
+static int hf_xnap_extensionValue;                /* T_extensionValue */
+static int hf_xnap_PrivateIE_Container_item;      /* PrivateIE_Field */
+static int hf_xnap_private_id;                    /* PrivateIE_ID */
+static int hf_xnap_privateIE_Field_value;         /* PrivateIE_Field_value */
+static int hf_xnap_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated_item;  /* AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated_Item */
+static int hf_xnap_pDUSessionResourceChangeConfirmInfo_SNterminated;  /* PDUSessionResourceChangeConfirmInfo_SNterminated */
+static int hf_xnap_iE_Extensions;                 /* ProtocolExtensionContainer */
+static int hf_xnap_Additional_PDCP_Duplication_TNL_List_item;  /* Additional_PDCP_Duplication_TNL_Item */
+static int hf_xnap_additional_PDCP_Duplication_UP_TNL_Information;  /* UPTransportLayerInformation */
+static int hf_xnap_additional_UL_NG_U_TNLatUPF;   /* UPTransportLayerInformation */
+static int hf_xnap_Additional_UL_NG_U_TNLatUPF_List_item;  /* Additional_UL_NG_U_TNLatUPF_Item */
+static int hf_xnap_Additional_Measurement_Timing_Configuration_List_item;  /* Additional_Measurement_Timing_Configuration_Item */
+static int hf_xnap_additionalMeasurementTimingConfigurationIndex;  /* INTEGER_0_16 */
+static int hf_xnap_csi_RS_MTC_Configuration_List;  /* CSI_RS_MTC_Configuration_List */
+static int hf_xnap_mBS_QoSFlowsToAdd_List;        /* MBS_QoSFlowsToAdd_List */
+static int hf_xnap_mBS_ServiceArea;               /* MBS_ServiceArea */
+static int hf_xnap_mBS_MappingandDataForwardingRequestInfofromSource;  /* MBS_MappingandDataForwardingRequestInfofromSource */
+static int hf_xnap_priorityLevel;                 /* INTEGER_0_15_ */
+static int hf_xnap_pre_emption_capability;        /* T_pre_emption_capability */
+static int hf_xnap_pre_emption_vulnerability;     /* T_pre_emption_vulnerability */
+static int hf_xnap_AllowedCAG_ID_List_perPLMN_item;  /* CAG_Identifier */
+static int hf_xnap_AllowedPNI_NPN_ID_List_item;   /* AllowedPNI_NPN_ID_Item */
+static int hf_xnap_plmn_id;                       /* PLMN_Identity */
+static int hf_xnap_pni_npn_restricted_information;  /* PNI_NPN_Restricted_Information */
+static int hf_xnap_allowed_CAG_id_list_per_plmn;  /* AllowedCAG_ID_List_perPLMN */
+static int hf_xnap_AlternativeQoSParaSetList_item;  /* AlternativeQoSParaSetItem */
+static int hf_xnap_alternativeQoSParaSetIndex;    /* QoSParaSetIndex */
+static int hf_xnap_guaranteedFlowBitRateDL;       /* BitRate */
+static int hf_xnap_guaranteedFlowBitRateUL;       /* BitRate */
+static int hf_xnap_packetDelayBudget;             /* PacketDelayBudget */
+static int hf_xnap_packetErrorRate;               /* PacketErrorRate */
+static int hf_xnap_AMF_Region_Information_item;   /* GlobalAMF_Region_Information */
+static int hf_xnap_plmn_ID;                       /* PLMN_Identity */
+static int hf_xnap_amf_region_id;                 /* BIT_STRING_SIZE_8 */
+static int hf_xnap_AreaOfInterestInformation_item;  /* AreaOfInterest_Item */
+static int hf_xnap_listOfTAIsinAoI;               /* ListOfTAIsinAoI */
+static int hf_xnap_listOfCellsinAoI;              /* ListOfCells */
+static int hf_xnap_listOfRANNodesinAoI;           /* ListOfRANNodesinAoI */
+static int hf_xnap_requestReferenceID;            /* RequestReferenceID */
+static int hf_xnap_cellBased;                     /* CellBasedMDT_NR */
+static int hf_xnap_tABased;                       /* TABasedMDT */
+static int hf_xnap_tAIBased;                      /* TAIBasedMDT */
+static int hf_xnap_choice_extension;              /* ProtocolIE_Single_Container */
+static int hf_xnap_cellBased_01;                  /* CellBasedMDT_EUTRA */
+static int hf_xnap_AreaScopeOfNeighCellsList_item;  /* AreaScopeOfNeighCellsItem */
+static int hf_xnap_nrFrequencyInfo;               /* NRFrequencyInfo */
+static int hf_xnap_pciListForMDT;                 /* PCIListForMDT */
+static int hf_xnap_cellBased_02;                  /* CellBasedQMC */
+static int hf_xnap_tABased_01;                    /* TABasedQMC */
+static int hf_xnap_tAIBased_01;                   /* TAIBasedQMC */
+static int hf_xnap_pLMNAreaBased;                 /* PLMNAreaBasedQMC */
+static int hf_xnap_key_NG_RAN_Star;               /* BIT_STRING_SIZE_256 */
+static int hf_xnap_ncc;                           /* INTEGER_0_7 */
+static int hf_xnap_ran_paging_attempt_info;       /* RANPagingAttemptInfo */
+static int hf_xnap_Associated_QoSFlowInfo_List_item;  /* Associated_QoSFlowInfo_Item */
+static int hf_xnap_mBS_QoSFlowIdentifier;         /* QoSFlowIdentifier */
+static int hf_xnap_associatedUnicastQoSFlowIdentifier;  /* QoSFlowIdentifier */
+static int hf_xnap_bufferLevel;                   /* T_bufferLevel */
+static int hf_xnap_playoutDelayForMediaStartup;   /* T_playoutDelayForMediaStartup */
+static int hf_xnap_bAPAddress;                    /* BAPAddress */
+static int hf_xnap_bAPPathID;                     /* BAPPathID */
+static int hf_xnap_beamMeasurementsReportQuantity;  /* BeamMeasurementsReportQuantity */
+static int hf_xnap_maxNrofRS_IndexesToReport;     /* MaxNrofRS_IndexesToReport */
+static int hf_xnap_rSRP;                          /* T_rSRP */
+static int hf_xnap_rSRQ;                          /* T_rSRQ */
+static int hf_xnap_sINR;                          /* T_sINR */
+static int hf_xnap_BHInfoList_item;               /* BHInfo_Item */
+static int hf_xnap_bHInfoIndex;                   /* BHInfoIndex */
+static int hf_xnap_BAPControlPDURLCCH_List_item;  /* BAPControlPDURLCCH_Item */
+static int hf_xnap_bHRLCCHID;                     /* BHRLCChannelID */
+static int hf_xnap_nexthopBAPAddress;             /* BAPAddress */
+static int hf_xnap_bluetoothMeasConfig;           /* BluetoothMeasConfig */
+static int hf_xnap_bluetoothMeasConfigNameList;   /* BluetoothMeasConfigNameList */
+static int hf_xnap_bt_rssi;                       /* T_bt_rssi */
+static int hf_xnap_BluetoothMeasConfigNameList_item;  /* BluetoothName */
+static int hf_xnap_BPLMN_ID_Info_EUTRA_item;      /* BPLMN_ID_Info_EUTRA_Item */
+static int hf_xnap_broadcastPLMNs;                /* BroadcastEUTRAPLMNs */
+static int hf_xnap_tac;                           /* TAC */
+static int hf_xnap_e_utraCI;                      /* E_UTRA_Cell_Identity */
+static int hf_xnap_ranac;                         /* RANAC */
+static int hf_xnap_iE_Extension;                  /* ProtocolExtensionContainer */
+static int hf_xnap_BPLMN_ID_Info_NR_item;         /* BPLMN_ID_Info_NR_Item */
+static int hf_xnap_broadcastPLMNs_01;             /* BroadcastPLMNs */
+static int hf_xnap_nr_CI;                         /* NR_Cell_Identity */
+static int hf_xnap_BroadcastCAG_Identifier_List_item;  /* BroadcastCAG_Identifier_Item */
+static int hf_xnap_cag_Identifier;                /* CAG_Identifier */
+static int hf_xnap_BroadcastNID_List_item;        /* BroadcastNID_Item */
+static int hf_xnap_nid;                           /* NID */
+static int hf_xnap_BroadcastPLMNs_item;           /* PLMN_Identity */
+static int hf_xnap_BroadcastEUTRAPLMNs_item;      /* PLMN_Identity */
+static int hf_xnap_tAISliceSupport_List;          /* SliceSupport_List */
+static int hf_xnap_BroadcastPNI_NPN_ID_Information_item;  /* BroadcastPNI_NPN_ID_Information_Item */
+static int hf_xnap_broadcastCAG_Identifier_List;  /* BroadcastCAG_Identifier_List */
+static int hf_xnap_BroadcastSNPNID_List_item;     /* BroadcastSNPNID */
+static int hf_xnap_broadcastNID_List;             /* BroadcastNID_List */
+static int hf_xnap_capacityValue;                 /* CapacityValue */
+static int hf_xnap_ssbAreaCapacityValueList;      /* SSBAreaCapacityValue_List */
+static int hf_xnap_radioNetwork;                  /* CauseRadioNetworkLayer */
+static int hf_xnap_transport;                     /* CauseTransportLayer */
+static int hf_xnap_protocol;                      /* CauseProtocol */
+static int hf_xnap_misc;                          /* CauseMisc */
+static int hf_xnap_limitedNR_List;                /* SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_NR_CGI */
+static int hf_xnap_limitedNR_List_item;           /* NR_CGI */
+static int hf_xnap_full_List;                     /* T_full_List */
+static int hf_xnap_maximumCellListSize;           /* MaximumCellListSize */
+static int hf_xnap_cellAssistanceInfo_NR;         /* CellAssistanceInfo_NR */
+static int hf_xnap_cellAssistanceInfo_EUTRA;      /* CellAssistanceInfo_EUTRA */
+static int hf_xnap_limitedEUTRA_List;             /* SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_E_UTRA_CGI */
+static int hf_xnap_limitedEUTRA_List_item;        /* E_UTRA_CGI */
+static int hf_xnap_full_List_01;                  /* T_full_List_01 */
+static int hf_xnap_cellIdListforMDT_NR;           /* CellIdListforMDT_NR */
+static int hf_xnap_CellIdListforMDT_NR_item;      /* NR_CGI */
+static int hf_xnap_cellIdListforQMC;              /* CellIdListforQMC */
+static int hf_xnap_CellIdListforQMC_item;         /* GlobalNG_RANCell_ID */
+static int hf_xnap_cellIdListforMDT_EUTRA;        /* CellIdListforMDT_EUTRA */
+static int hf_xnap_CellIdListforMDT_EUTRA_item;   /* E_UTRA_CGI */
+static int hf_xnap_CellMeasurementResult_item;    /* CellMeasurementResult_Item */
+static int hf_xnap_cell_ID;                       /* GlobalNG_RANCell_ID */
+static int hf_xnap_radioResourceStatus;           /* RadioResourceStatus */
+static int hf_xnap_tNLCapacityIndicator;          /* TNLCapacityIndicator */
+static int hf_xnap_compositeAvailableCapacityGroup;  /* CompositeAvailableCapacityGroup */
+static int hf_xnap_sliceAvailableCapacity;        /* SliceAvailableCapacity */
+static int hf_xnap_numberofActiveUEs;             /* NumberofActiveUEs */
+static int hf_xnap_rRCConnections;                /* RRCConnections */
+static int hf_xnap_replacingCells;                /* ReplacingCells */
+static int hf_xnap_CellToReport_item;             /* CellToReport_Item */
+static int hf_xnap_sSBToReport_List;              /* SSBToReport_List */
+static int hf_xnap_sliceToReport_List;            /* SliceToReport_List */
+static int hf_xnap_ng_ran_e_utra;                 /* E_UTRA_Cell_Identity */
+static int hf_xnap_ng_ran_nr;                     /* NR_Cell_Identity */
+static int hf_xnap_e_utran;                       /* E_UTRA_Cell_Identity */
+static int hf_xnap_choCandidateCell_List;         /* CHOCandidateCell_List */
+static int hf_xnap_CHOCandidateCell_List_item;    /* CHOCandidateCell_Item */
+static int hf_xnap_choCandidateCellID;            /* GlobalNG_RANCell_ID */
+static int hf_xnap_choExecutionCondition_List;    /* CHOExecutionCondition_List */
+static int hf_xnap_CHOExecutionCondition_List_item;  /* CHOExecutionCondition_Item */
+static int hf_xnap_measObjectContainer;           /* MeasObjectContainer */
+static int hf_xnap_reportConfigContainer;         /* ReportConfigContainer */
+static int hf_xnap_compositeAvailableCapacityDownlink;  /* CompositeAvailableCapacity */
+static int hf_xnap_compositeAvailableCapacityUplink;  /* CompositeAvailableCapacity */
+static int hf_xnap_cellCapacityClassValue;        /* CellCapacityClassValue */
+static int hf_xnap_capacityValueInfo;             /* CapacityValueInfo */
+static int hf_xnap_cho_trigger;                   /* CHOtrigger */
+static int hf_xnap_targetNG_RANnodeUEXnAPID;      /* NG_RANnodeUEXnAPID */
+static int hf_xnap_cHO_EstimatedArrivalProbability;  /* CHO_Probability */
+static int hf_xnap_requestedTargetCellGlobalID;   /* Target_CGI */
+static int hf_xnap_maxCHOoperations;              /* MaxCHOpreparations */
+static int hf_xnap_source_M_NGRAN_node_ID;        /* GlobalNG_RANNode_ID */
+static int hf_xnap_source_M_NGRAN_node_UE_XnAP_ID;  /* NG_RANnodeUEXnAPID */
+static int hf_xnap_conditionalReconfig;           /* T_conditionalReconfig */
+static int hf_xnap_eNDC_Support;                  /* T_eNDC_Support */
+static int hf_xnap_pdcp_SN12;                     /* INTEGER_0_4095 */
+static int hf_xnap_hfn_PDCP_SN12;                 /* INTEGER_0_1048575 */
+static int hf_xnap_pdcp_SN18;                     /* INTEGER_0_262143 */
+static int hf_xnap_hfn_PDCP_SN18;                 /* INTEGER_0_16383 */
+static int hf_xnap_Coverage_Modification_List_item;  /* Coverage_Modification_List_Item */
+static int hf_xnap_globalNG_RANCell_ID;           /* GlobalCell_ID */
+static int hf_xnap_cellCoverageState;             /* INTEGER_0_63_ */
+static int hf_xnap_cellDeploymentStatusIndicator;  /* CellDeploymentStatusIndicator */
+static int hf_xnap_cellReplacingInfo;             /* CellReplacingInfo */
+static int hf_xnap_sSB_Coverage_Modification_List;  /* SSB_Coverage_Modification_List */
+static int hf_xnap_endpointIPAddress;             /* TransportLayerAddress */
+static int hf_xnap_CPACcandidatePSCells_list_item;  /* CPACcandidatePSCells_item */
+static int hf_xnap_pscell_id;                     /* NR_CGI */
+static int hf_xnap_max_no_of_pscells;             /* INTEGER_1_maxnoofPSCellCandidates_ */
+static int hf_xnap_cpac_EstimatedArrivalProbability;  /* CHO_Probability */
+static int hf_xnap_candidate_pscells;             /* CPACcandidatePSCells_list */
+static int hf_xnap_cpc_target_sn_required_list;   /* CPC_target_SN_required_list */
+static int hf_xnap_CPC_target_SN_required_list_item;  /* CPC_target_SN_required_list_Item */
+static int hf_xnap_target_S_NG_RANnodeID;         /* GlobalNG_RANNode_ID */
+static int hf_xnap_cpc_indicator;                 /* CPCindicator */
+static int hf_xnap_sN_to_MN_Container;            /* T_sN_to_MN_Container */
+static int hf_xnap_cpc_target_sn_confirm_list;    /* CPC_target_SN_confirm_list */
+static int hf_xnap_CPC_target_SN_confirm_list_item;  /* CPC_target_SN_confirm_list_Item */
+static int hf_xnap_max_no_of_pscells_01;          /* INTEGER_1_8_ */
+static int hf_xnap_cpc_target_sn_list;            /* CPC_target_SN_mod_list */
+static int hf_xnap_CPC_target_SN_mod_list_item;   /* CPC_target_SN_mod_item */
+static int hf_xnap_candidate_pscells_01;          /* CPCInformationUpdatePSCells_list */
+static int hf_xnap_CPCInformationUpdatePSCells_list_item;  /* CPCInformationUpdatePSCells_item */
+static int hf_xnap_procedureCode;                 /* ProcedureCode */
+static int hf_xnap_triggeringMessage;             /* TriggeringMessage */
+static int hf_xnap_procedureCriticality;          /* Criticality */
+static int hf_xnap_iEsCriticalityDiagnostics;     /* CriticalityDiagnostics_IE_List */
+static int hf_xnap_CriticalityDiagnostics_IE_List_item;  /* CriticalityDiagnostics_IE_List_item */
+static int hf_xnap_iECriticality;                 /* Criticality */
+static int hf_xnap_iE_ID;                         /* ProtocolIE_ID */
+static int hf_xnap_typeOfError;                   /* TypeOfError */
+static int hf_xnap_CSI_RS_MTC_Configuration_List_item;  /* CSI_RS_MTC_Configuration_Item */
+static int hf_xnap_csi_RS_Index;                  /* INTEGER_0_95 */
+static int hf_xnap_csi_RS_Status;                 /* T_csi_RS_Status */
+static int hf_xnap_csi_RS_Neighbour_List;         /* CSI_RS_Neighbour_List */
+static int hf_xnap_CSI_RS_Neighbour_List_item;    /* CSI_RS_Neighbour_Item */
+static int hf_xnap_nr_cgi;                        /* NR_CGI */
+static int hf_xnap_csi_RS_MTC_Neighbour_List;     /* CSI_RS_MTC_Neighbour_List */
+static int hf_xnap_CSI_RS_MTC_Neighbour_List_item;  /* CSI_RS_MTC_Neighbour_Item */
+static int hf_xnap_XnUAddressInfoperPDUSession_List_item;  /* XnUAddressInfoperPDUSession_Item */
+static int hf_xnap_pduSession_ID;                 /* PDUSession_ID */
+static int hf_xnap_dataForwardingInfoFromTargetNGRANnode;  /* DataForwardingInfoFromTargetNGRANnode */
+static int hf_xnap_pduSessionResourceSetupCompleteInfo_SNterm;  /* PDUSessionResourceBearerSetupCompleteInfo_SNterminated */
+static int hf_xnap_dataForwardingInfoFromTargetE_UTRANnode_List;  /* DataForwardingInfoFromTargetE_UTRANnode_List */
+static int hf_xnap_DataForwardingInfoFromTargetE_UTRANnode_List_item;  /* DataForwardingInfoFromTargetE_UTRANnode_Item */
+static int hf_xnap_dlForwardingUPTNLInformation;  /* UPTransportLayerInformation */
+static int hf_xnap_qosFlowsToBeForwarded_List;    /* QoSFlowsToBeForwarded_List */
+static int hf_xnap_QoSFlowsToBeForwarded_List_item;  /* QoSFlowsToBeForwarded_Item */
+static int hf_xnap_qosFlowIdentifier;             /* QoSFlowIdentifier */
+static int hf_xnap_qosFlowsAcceptedForDataForwarding_List;  /* QoSFLowsAcceptedToBeForwarded_List */
+static int hf_xnap_pduSessionLevelDLDataForwardingInfo;  /* UPTransportLayerInformation */
+static int hf_xnap_pduSessionLevelULDataForwardingInfo;  /* UPTransportLayerInformation */
+static int hf_xnap_dataForwardingResponseDRBItemList;  /* DataForwardingResponseDRBItemList */
+static int hf_xnap_QoSFLowsAcceptedToBeForwarded_List_item;  /* QoSFLowsAcceptedToBeForwarded_Item */
+static int hf_xnap_qosFlowsToBeForwarded;         /* QoSFLowsToBeForwarded_List */
+static int hf_xnap_sourceDRBtoQoSFlowMapping;     /* DRBToQoSFlowMapping_List */
+static int hf_xnap_QoSFLowsToBeForwarded_List_item;  /* QoSFLowsToBeForwarded_Item */
+static int hf_xnap_dl_dataforwarding;             /* DLForwarding */
+static int hf_xnap_ul_dataforwarding;             /* ULForwarding */
+static int hf_xnap_DataForwardingResponseDRBItemList_item;  /* DataForwardingResponseDRBItem */
+static int hf_xnap_drb_ID;                        /* DRB_ID */
+static int hf_xnap_dlForwardingUPTNL;             /* UPTransportLayerInformation */
+static int hf_xnap_ulForwardingUPTNL;             /* UPTransportLayerInformation */
+static int hf_xnap_activationSFN;                 /* ActivationSFN */
+static int hf_xnap_sharedResourceType;            /* SharedResourceType */
+static int hf_xnap_reservedSubframePattern;       /* ReservedSubframePattern */
+static int hf_xnap_dapsIndicator;                 /* T_dapsIndicator */
+static int hf_xnap_DAPSResponseInfo_List_item;    /* DAPSResponseInfo_Item */
+static int hf_xnap_drbID;                         /* DRB_ID */
+static int hf_xnap_dapsResponseIndicator;         /* T_dapsResponseIndicator */
+static int hf_xnap_count12bits;                   /* COUNT_PDCP_SN12 */
+static int hf_xnap_count18bits;                   /* COUNT_PDCP_SN18 */
+static int hf_xnap_egressBAPRoutingID;            /* BAPRoutingID */
+static int hf_xnap_egressBHRLCCHID;               /* BHRLCChannelID */
+static int hf_xnap_ingressBAPRoutingID;           /* BAPRoutingID */
+static int hf_xnap_ingressBHRLCCHID;              /* BHRLCChannelID */
+static int hf_xnap_priorhopBAPAddress;            /* BAPAddress */
+static int hf_xnap_iabqosMappingInformation;      /* IAB_QoS_Mapping_Information */
+static int hf_xnap_DRB_List_item;                 /* DRB_ID */
+static int hf_xnap_DRB_List_withCause_item;       /* DRB_List_withCause_Item */
+static int hf_xnap_drb_id;                        /* DRB_ID */
+static int hf_xnap_cause;                         /* Cause */
+static int hf_xnap_rLC_Mode;                      /* RLCMode */
+static int hf_xnap_DRBsSubjectToDLDiscarding_List_item;  /* DRBsSubjectToDLDiscarding_Item */
+static int hf_xnap_dlCount;                       /* DLCountChoice */
+static int hf_xnap_DRBsSubjectToEarlyStatusTransfer_List_item;  /* DRBsSubjectToEarlyStatusTransfer_Item */
+static int hf_xnap_DRBsSubjectToStatusTransfer_List_item;  /* DRBsSubjectToStatusTransfer_Item */
+static int hf_xnap_pdcpStatusTransfer_UL;         /* DRBBStatusTransferChoice */
+static int hf_xnap_pdcpStatusTransfer_DL;         /* DRBBStatusTransferChoice */
+static int hf_xnap_pdcp_sn_12bits;                /* DRBBStatusTransfer12bitsSN */
+static int hf_xnap_pdcp_sn_18bits;                /* DRBBStatusTransfer18bitsSN */
+static int hf_xnap_receiveStatusofPDCPSDU;        /* BIT_STRING_SIZE_1_2048 */
+static int hf_xnap_cOUNTValue;                    /* COUNT_PDCP_SN12 */
+static int hf_xnap_receiveStatusofPDCPSDU_01;     /* BIT_STRING_SIZE_1_131072 */
+static int hf_xnap_cOUNTValue_01;                 /* COUNT_PDCP_SN18 */
+static int hf_xnap_DRBToQoSFlowMapping_List_item;  /* DRBToQoSFlowMapping_Item */
+static int hf_xnap_qosFlows_List;                 /* QoSFlows_List */
+static int hf_xnap_DUF_Slot_Config_List_item;     /* DUF_Slot_Config_Item */
+static int hf_xnap_explicitFormat;                /* ExplicitFormat */
+static int hf_xnap_implicitFormat;                /* ImplicitFormat */
+static int hf_xnap_priorityLevelQoS;              /* PriorityLevelQoS */
+static int hf_xnap_fiveQI;                        /* FiveQI */
+static int hf_xnap_delayCritical;                 /* T_delayCritical */
+static int hf_xnap_averagingWindow;               /* AveragingWindow */
+static int hf_xnap_maximumDataBurstVolume;        /* MaximumDataBurstVolume */
+static int hf_xnap_e_utra_CI;                     /* E_UTRA_Cell_Identity */
+static int hf_xnap_E_UTRAMultibandInfoList_item;  /* E_UTRAFrequencyBandIndicator */
+static int hf_xnap_eutrapaging_eDRX_Cycle;        /* EUTRAPaging_eDRX_Cycle */
+static int hf_xnap_eutrapaging_Time_Window;       /* EUTRAPaging_Time_Window */
+static int hf_xnap_rootSequenceIndex;             /* INTEGER_0_837 */
+static int hf_xnap_zeroCorrelationIndex;          /* INTEGER_0_15 */
+static int hf_xnap_highSpeedFlag;                 /* T_highSpeedFlag */
+static int hf_xnap_prach_FreqOffset;              /* INTEGER_0_94 */
+static int hf_xnap_prach_ConfigIndex;             /* INTEGER_0_63 */
+static int hf_xnap_portNumber;                    /* PortNumber */
+static int hf_xnap_loggedEventTriggeredConfig;    /* LoggedEventTriggeredConfig */
+static int hf_xnap_outOfCoverage;                 /* T_outOfCoverage */
+static int hf_xnap_eventL1;                       /* EventL1 */
+static int hf_xnap_choice_Extensions;             /* ProtocolIE_Single_Container */
+static int hf_xnap_l1Threshold;                   /* MeasurementThresholdL1LoggedMDT */
+static int hf_xnap_hysteresis;                    /* Hysteresis */
+static int hf_xnap_timeToTrigger;                 /* TimeToTrigger */
+static int hf_xnap_threshold_RSRP;                /* Threshold_RSRP */
+static int hf_xnap_threshold_RSRQ;                /* Threshold_RSRQ */
+static int hf_xnap_ExcessPacketDelayThresholdConfiguration_item;  /* ExcessPacketDelayThresholdItem */
+static int hf_xnap_excessPacketDelayThresholdValue;  /* ExcessPacketDelayThresholdValue */
+static int hf_xnap_expectedActivityPeriod;        /* ExpectedActivityPeriod */
+static int hf_xnap_expectedIdlePeriod;            /* ExpectedIdlePeriod */
+static int hf_xnap_sourceOfUEActivityBehaviourInformation;  /* SourceOfUEActivityBehaviourInformation */
+static int hf_xnap_expectedUEActivityBehaviour;   /* ExpectedUEActivityBehaviour */
+static int hf_xnap_expectedHOInterval;            /* ExpectedHOInterval */
+static int hf_xnap_expectedUEMobility;            /* ExpectedUEMobility */
+static int hf_xnap_expectedUEMovingTrajectory;    /* ExpectedUEMovingTrajectory */
+static int hf_xnap_ExpectedUEMovingTrajectory_item;  /* ExpectedUEMovingTrajectoryItem */
+static int hf_xnap_nGRAN_CGI;                     /* GlobalNG_RANCell_ID */
+static int hf_xnap_timeStayedInCell;              /* INTEGER_0_4095 */
+static int hf_xnap_permutation;                   /* Permutation */
+static int hf_xnap_noofDownlinkSymbols;           /* INTEGER_0_14 */
+static int hf_xnap_noofUplinkSymbols;             /* INTEGER_0_14 */
+static int hf_xnap_primaryRATRestriction;         /* T_primaryRATRestriction */
+static int hf_xnap_secondaryRATRestriction;       /* T_secondaryRATRestriction */
+static int hf_xnap_ExtendedSliceSupportList_item;  /* S_NSSAI */
+static int hf_xnap_ExtTLAs_item;                  /* ExtTLA_Item */
+static int hf_xnap_iPsecTLA;                      /* TransportLayerAddress */
+static int hf_xnap_gTPTransportLayerAddresses;    /* GTPTLAs */
+static int hf_xnap_GTPTLAs_item;                  /* GTPTLA_Item */
+static int hf_xnap_gTPTransportLayerAddresses_01;  /* TransportLayerAddress */
+static int hf_xnap_f1TerminatingBHInformation_List;  /* F1TerminatingBHInformation_List */
+static int hf_xnap_F1TerminatingBHInformation_List_item;  /* F1TerminatingBHInformation_Item */
+static int hf_xnap_dLTNLAddress;                  /* IABTNLAddress */
+static int hf_xnap_dlF1TerminatingBHInfo;         /* DLF1Terminating_BHInfo */
+static int hf_xnap_ulF1TerminatingBHInfo;         /* ULF1Terminating_BHInfo */
+static int hf_xnap_fiveGproSeDirectDiscovery;     /* FiveGProSeDirectDiscovery */
+static int hf_xnap_fiveGproSeDirectCommunication;  /* FiveGProSeDirectCommunication */
+static int hf_xnap_fiveGnrProSeLayer2UEtoNetworkRelay;  /* FiveGProSeLayer2UEtoNetworkRelay */
+static int hf_xnap_fiveGnrProSeLayer3UEtoNetworkRelay;  /* FiveGProSeLayer3UEtoNetworkRelay */
+static int hf_xnap_fiveGnrProSeLayer2RemoteUE;    /* FiveGProSeLayer2RemoteUE */
+static int hf_xnap_fiveGProSepc5QoSFlowList;      /* FiveGProSePC5QoSFlowList */
+static int hf_xnap_fiveGproSepc5LinkAggregateBitRates;  /* BitRate */
+static int hf_xnap_FiveGProSePC5QoSFlowList_item;  /* FiveGProSePC5QoSFlowItem */
+static int hf_xnap_fiveGproSepQI;                 /* FiveQI */
+static int hf_xnap_fiveGproSepc5FlowBitRates;     /* FiveGProSePC5FlowBitRates */
+static int hf_xnap_fiveGproSerange;               /* Range */
+static int hf_xnap_fiveGproSeguaranteedFlowBitRate;  /* BitRate */
+static int hf_xnap_fiveGproSemaximumFlowBitRate;  /* BitRate */
+static int hf_xnap_Flows_Mapped_To_DRB_List_item;  /* Flows_Mapped_To_DRB_Item */
+static int hf_xnap_qoSFlowIdentifier;             /* QoSFlowIdentifier */
+static int hf_xnap_qoSFlowLevelQoSParameters;     /* QoSFlowLevelQoSParameters */
+static int hf_xnap_qoSFlowMappingIndication;      /* QoSFlowMappingIndication */
+static int hf_xnap_FreqDomainHSNAconfiguration_List_item;  /* FreqDomainHSNAconfiguration_List_Item */
+static int hf_xnap_rBsetIndex;                    /* INTEGER_0_maxnoofRBsetsPerCell1_ */
+static int hf_xnap_freqDomainSlotHSNAconfiguration_List;  /* FreqDomainSlotHSNAconfiguration_List */
+static int hf_xnap_FreqDomainSlotHSNAconfiguration_List_item;  /* FreqDomainSlotHSNAconfiguration_List_Item */
+static int hf_xnap_slotIndex;                     /* INTEGER_1_maxnoofHSNASlots */
+static int hf_xnap_hSNADownlink;                  /* HSNADownlink */
+static int hf_xnap_hSNAUplink;                    /* HSNAUplink */
+static int hf_xnap_hSNAFlexible;                  /* HSNAFlexible */
+static int hf_xnap_maxFlowBitRateDL;              /* BitRate */
+static int hf_xnap_maxFlowBitRateUL;              /* BitRate */
+static int hf_xnap_notificationControl;           /* T_notificationControl */
+static int hf_xnap_maxPacketLossRateDL;           /* PacketLossRate */
+static int hf_xnap_maxPacketLossRateUL;           /* PacketLossRate */
+static int hf_xnap_gnb_id;                        /* GNB_ID_Choice */
+static int hf_xnap_subcarrierSpacing;             /* SSB_subcarrierSpacing */
+static int hf_xnap_dUFTransmissionPeriodicity;    /* DUFTransmissionPeriodicity */
+static int hf_xnap_dUF_Slot_Config_List;          /* DUF_Slot_Config_List */
+static int hf_xnap_hSNATransmissionPeriodicity;   /* HSNATransmissionPeriodicity */
+static int hf_xnap_hNSASlotConfigList;            /* HSNASlotConfigList */
+static int hf_xnap_rBsetConfiguration;            /* RBsetConfiguration */
+static int hf_xnap_freqDomainHSNAconfiguration_List;  /* FreqDomainHSNAconfiguration_List */
+static int hf_xnap_nACellResourceConfigurationList;  /* NACellResourceConfigurationList */
+static int hf_xnap_gnb_ID;                        /* BIT_STRING_SIZE_22_32 */
+static int hf_xnap_ssbAreaRadioResourceStatus_List;  /* SSBAreaRadioResourceStatus_List */
+static int hf_xnap_cell_type;                     /* Cell_Type_Choice */
+static int hf_xnap_enb_id;                        /* ENB_ID_Choice */
+static int hf_xnap_enb_ID_macro;                  /* BIT_STRING_SIZE_20 */
+static int hf_xnap_enb_ID_shortmacro;             /* BIT_STRING_SIZE_18 */
+static int hf_xnap_enb_ID_longmacro;              /* BIT_STRING_SIZE_21 */
+static int hf_xnap_ng_RAN_Cell_id;                /* NG_RAN_Cell_Identity */
+static int hf_xnap_gNB;                           /* GlobalgNB_ID */
+static int hf_xnap_ng_eNB;                        /* GlobalngeNB_ID */
+static int hf_xnap_tnl_address;                   /* TransportLayerAddress */
+static int hf_xnap_gtp_teid;                      /* GTP_TEID */
+static int hf_xnap_amf_set_id;                    /* BIT_STRING_SIZE_10 */
+static int hf_xnap_amf_pointer;                   /* BIT_STRING_SIZE_6 */
+static int hf_xnap_HSNASlotConfigList_item;       /* HSNASlotConfigItem */
+static int hf_xnap_nRCGI;                         /* NR_CGI */
+static int hf_xnap_iAB_DU_Cell_Resource_Configuration_Mode_Info;  /* IAB_DU_Cell_Resource_Configuration_Mode_Info */
+static int hf_xnap_iAB_STC_Info;                  /* IAB_STC_Info */
+static int hf_xnap_rACH_Config_Common;            /* RACH_Config_Common */
+static int hf_xnap_rACH_Config_Common_IAB;        /* RACH_Config_Common_IAB */
+static int hf_xnap_cSI_RS_Configuration;          /* T_cSI_RS_Configuration */
+static int hf_xnap_sR_Configuration;              /* T_sR_Configuration */
+static int hf_xnap_pDCCH_ConfigSIB1;              /* T_pDCCH_ConfigSIB1 */
+static int hf_xnap_sCS_Common;                    /* T_sCS_Common */
+static int hf_xnap_multiplexingInfo;              /* MultiplexingInfo */
+static int hf_xnap_tDD;                           /* IAB_DU_Cell_Resource_Configuration_TDD_Info */
+static int hf_xnap_fDD;                           /* IAB_DU_Cell_Resource_Configuration_FDD_Info */
+static int hf_xnap_gNB_DU_Cell_Resource_Configuration_FDD_UL;  /* GNB_DU_Cell_Resource_Configuration */
+static int hf_xnap_gNB_DU_Cell_Resource_Configuration_FDD_DL;  /* GNB_DU_Cell_Resource_Configuration */
+static int hf_xnap_uLFrequencyInfo;               /* NRFrequencyInfo */
+static int hf_xnap_dLFrequencyInfo;               /* NRFrequencyInfo */
+static int hf_xnap_uLTransmissionBandwidth;       /* NRTransmissionBandwidth */
+static int hf_xnap_dlTransmissionBandwidth;       /* NRTransmissionBandwidth */
+static int hf_xnap_uLCarrierList;                 /* NRCarrierList */
+static int hf_xnap_dlCarrierList;                 /* NRCarrierList */
+static int hf_xnap_gNB_DU_Cell_Resource_Configuration_TDD;  /* GNB_DU_Cell_Resource_Configuration */
+static int hf_xnap_frequencyInfo;                 /* NRFrequencyInfo */
+static int hf_xnap_transmissionBandwidth;         /* NRTransmissionBandwidth */
+static int hf_xnap_carrierList;                   /* NRCarrierList */
+static int hf_xnap_IAB_MT_Cell_List_item;         /* IAB_MT_Cell_List_Item */
+static int hf_xnap_nRCellIdentity;                /* NR_Cell_Identity */
+static int hf_xnap_dU_RX_MT_RX;                   /* DU_RX_MT_RX */
+static int hf_xnap_dU_TX_MT_TX;                   /* DU_TX_MT_TX */
+static int hf_xnap_dU_RX_MT_TX;                   /* DU_RX_MT_TX */
+static int hf_xnap_dU_TX_MT_RX;                   /* DU_TX_MT_RX */
+static int hf_xnap_dscp;                          /* BIT_STRING_SIZE_6 */
+static int hf_xnap_flow_label;                    /* BIT_STRING_SIZE_20 */
+static int hf_xnap_iAB_STC_Info_List;             /* IAB_STC_Info_List */
+static int hf_xnap_IAB_STC_Info_List_item;        /* IAB_STC_Info_Item */
+static int hf_xnap_sSB_freqInfo;                  /* SSB_freqInfo */
+static int hf_xnap_sSB_subcarrierSpacing;         /* SSB_subcarrierSpacing */
+static int hf_xnap_sSB_transmissionPeriodicity;   /* SSB_transmissionPeriodicity */
+static int hf_xnap_sSB_transmissionTimingOffset;  /* SSB_transmissionTimingOffset */
+static int hf_xnap_sSB_transmissionBitmap;        /* SSB_transmissionBitmap */
+static int hf_xnap_iABIPv4AddressesRequested;     /* IABTNLAddressesRequested */
+static int hf_xnap_iABIPv6RequestType;            /* IABIPv6RequestType */
+static int hf_xnap_iABTNLAddressToRemove_List;    /* IABTNLAddressToRemove_List */
+static int hf_xnap_iPv6Address;                   /* IABTNLAddressesRequested */
+static int hf_xnap_iPv6Prefix;                    /* IABTNLAddressesRequested */
+static int hf_xnap_iABAllocatedTNLAddress_List;   /* IABAllocatedTNLAddress_List */
+static int hf_xnap_IABAllocatedTNLAddress_List_item;  /* IABAllocatedTNLAddress_Item */
+static int hf_xnap_iABTNLAddress;                 /* IABTNLAddress */
+static int hf_xnap_iABTNLAddressUsage;            /* IABTNLAddressUsage */
+static int hf_xnap_associatedDonorDUAddress;      /* BAPAddress */
+static int hf_xnap_iPv4Address;                   /* T_iPv4Address */
+static int hf_xnap_iPv6Address_01;                /* T_iPv6Address */
+static int hf_xnap_iPv6Prefix_01;                 /* T_iPv6Prefix */
+static int hf_xnap_tNLAddressesOrPrefixesRequestedAllTraffic;  /* INTEGER_1_256 */
+static int hf_xnap_tNLAddressesOrPrefixesRequestedF1_C;  /* INTEGER_1_256 */
+static int hf_xnap_tNLAddressesOrPrefixesRequestedF1_U;  /* INTEGER_1_256 */
+static int hf_xnap_tNLAddressesOrPrefixesRequestedNoNF1;  /* INTEGER_1_256 */
+static int hf_xnap_IABTNLAddressToRemove_List_item;  /* IABTNLAddressToRemove_Item */
+static int hf_xnap_IABTNLAddressException_item;   /* IABTNLAddress_Item */
+static int hf_xnap_measurementsToActivate;        /* MeasurementsToActivate */
+static int hf_xnap_m1Configuration;               /* M1Configuration */
+static int hf_xnap_m4Configuration;               /* M4Configuration */
+static int hf_xnap_m5Configuration;               /* M5Configuration */
+static int hf_xnap_mDT_Location_Info;             /* MDT_Location_Info */
+static int hf_xnap_m6Configuration;               /* M6Configuration */
+static int hf_xnap_m7Configuration;               /* M7Configuration */
+static int hf_xnap_bluetoothMeasurementConfiguration;  /* BluetoothMeasurementConfiguration */
+static int hf_xnap_wLANMeasurementConfiguration;  /* WLANMeasurementConfiguration */
+static int hf_xnap_sensorMeasurementConfiguration;  /* SensorMeasurementConfiguration */
+static int hf_xnap_dUFSlotformatIndex;            /* DUFSlotformatIndex */
+static int hf_xnap_rRCReestab;                    /* RRCReestab_initiated */
+static int hf_xnap_rRCSetup;                      /* RRCSetup_initiated */
+static int hf_xnap_nrscs;                         /* NRSCS */
+static int hf_xnap_nrCyclicPrefix;                /* NRCyclicPrefix */
+static int hf_xnap_nrDL_ULTransmissionPeriodicity;  /* NRDL_ULTransmissionPeriodicity */
+static int hf_xnap_slotConfiguration_List;        /* SlotConfiguration_List */
+static int hf_xnap_i_RNTI_full;                   /* BIT_STRING_SIZE_40 */
+static int hf_xnap_i_RNTI_short;                  /* BIT_STRING_SIZE_24 */
+static int hf_xnap_full_I_RNTI_Profile_List;      /* Full_I_RNTI_Profile_List */
+static int hf_xnap_short_I_RNTI_Profile_List;     /* Short_I_RNTI_Profile_List */
+static int hf_xnap_full_I_RNTI_Profile_0;         /* BIT_STRING_SIZE_21 */
+static int hf_xnap_full_I_RNTI_Profile_1;         /* BIT_STRING_SIZE_18 */
+static int hf_xnap_full_I_RNTI_Profile_2;         /* BIT_STRING_SIZE_15 */
+static int hf_xnap_full_I_RNTI_Profile_3;         /* BIT_STRING_SIZE_12 */
+static int hf_xnap_short_I_RNTI_Profile_0;        /* BIT_STRING_SIZE_8 */
+static int hf_xnap_short_I_RNTI_Profile_1;        /* BIT_STRING_SIZE_6 */
+static int hf_xnap_nG_RAN_Cell;                   /* LastVisitedNGRANCellInformation */
+static int hf_xnap_e_UTRAN_Cell;                  /* LastVisitedEUTRANCellInformation */
+static int hf_xnap_uTRAN_Cell;                    /* LastVisitedUTRANCellInformation */
+static int hf_xnap_gERAN_Cell;                    /* LastVisitedGERANCellInformation */
+static int hf_xnap_LastVisitedPSCellList_item;    /* LastVisitedPSCellList_Item */
+static int hf_xnap_lastVisitedPSCellInformation;  /* LastVisitedPSCellInformation */
+static int hf_xnap_lastVisitedPSCellList;         /* LastVisitedPSCellList */
+static int hf_xnap_ListOfCells_item;              /* CellsinAoI_Item */
+static int hf_xnap_pLMN_Identity;                 /* PLMN_Identity */
+static int hf_xnap_ng_ran_cell_id;                /* NG_RAN_Cell_Identity */
+static int hf_xnap_ListOfRANNodesinAoI_item;      /* GlobalNG_RANNodesinAoI_Item */
+static int hf_xnap_global_NG_RAN_Node_ID;         /* GlobalNG_RANNode_ID */
+static int hf_xnap_ListOfTAIsinAoI_item;          /* TAIsinAoI_Item */
+static int hf_xnap_tAC;                           /* TAC */
+static int hf_xnap_eventType;                     /* EventType */
+static int hf_xnap_reportArea;                    /* ReportArea */
+static int hf_xnap_areaOfInterest;                /* AreaOfInterestInformation */
+static int hf_xnap_eventTypeTrigger;              /* EventTypeTrigger */
+static int hf_xnap_loggingInterval;               /* LoggingInterval */
+static int hf_xnap_loggingDuration;               /* LoggingDuration */
+static int hf_xnap_reportType;                    /* ReportType */
+static int hf_xnap_areaScopeOfNeighCellsList;     /* AreaScopeOfNeighCellsList */
+static int hf_xnap_vehicleUE;                     /* VehicleUE */
+static int hf_xnap_pedestrianUE;                  /* PedestrianUE */
+static int hf_xnap_uESidelinkAggregateMaximumBitRate;  /* BitRate */
+static int hf_xnap_s_BasedMDT;                    /* S_BasedMDT */
+static int hf_xnap_m1reportingTrigger;            /* M1ReportingTrigger */
+static int hf_xnap_m1thresholdeventA2;            /* M1ThresholdEventA2 */
+static int hf_xnap_m1periodicReporting;           /* M1PeriodicReporting */
+static int hf_xnap_reportInterval;                /* ReportIntervalMDT */
+static int hf_xnap_reportAmount;                  /* ReportAmountMDT */
+static int hf_xnap_measurementThreshold;          /* MeasurementThresholdA2 */
+static int hf_xnap_m4period;                      /* M4period */
+static int hf_xnap_m4_links_to_log;               /* Links_to_log */
+static int hf_xnap_m5period;                      /* M5period */
+static int hf_xnap_m5_links_to_log;               /* Links_to_log */
+static int hf_xnap_m6report_Interval;             /* M6report_Interval */
+static int hf_xnap_m6_links_to_log;               /* Links_to_log */
+static int hf_xnap_m7period;                      /* M7period */
+static int hf_xnap_m7_links_to_log;               /* Links_to_log */
+static int hf_xnap_maxIPrate_UL;                  /* MaxIPrate */
+static int hf_xnap_oneframe;                      /* BIT_STRING_SIZE_6 */
+static int hf_xnap_fourframes;                    /* BIT_STRING_SIZE_24 */
+static int hf_xnap_MBSFNSubframeInfo_E_UTRA_item;  /* MBSFNSubframeInfo_E_UTRA_Item */
+static int hf_xnap_radioframeAllocationPeriod;    /* T_radioframeAllocationPeriod */
+static int hf_xnap_radioframeAllocationOffset;    /* INTEGER_0_7_ */
+static int hf_xnap_subframeAllocation;            /* MBSFNSubframeAllocation_E_UTRA */
+static int hf_xnap_MBS_MappingandDataForwardingRequestInfofromSource_item;  /* MBS_MappingandDataForwardingRequestInfofromSource_Item */
+static int hf_xnap_mRB_ID;                        /* MRB_ID */
+static int hf_xnap_mBS_QoSFlow_List;              /* MBS_QoSFlow_List */
+static int hf_xnap_mRB_ProgressInformation;       /* MRB_ProgressInformation */
+static int hf_xnap_MBS_DataForwardingResponseInfofromTarget_item;  /* MBS_DataForwardingResponseInfofromTarget_Item */
+static int hf_xnap_MBS_QoSFlow_List_item;         /* QoSFlowIdentifier */
+static int hf_xnap_MBS_QoSFlowsToAdd_List_item;   /* MBS_QoSFlowsToAdd_Item */
+static int hf_xnap_mBS_QosFlowIdentifier;         /* QoSFlowIdentifier */
+static int hf_xnap_mBS_QosFlowLevelQosParameters;  /* QoSFlowLevelQoSParameters */
+static int hf_xnap_locationindependent;           /* MBS_ServiceAreaInformation */
+static int hf_xnap_locationdependent;             /* MBS_ServiceAreaInformationList */
+static int hf_xnap_MBS_ServiceAreaCell_List_item;  /* NR_CGI */
+static int hf_xnap_mBS_ServiceAreaCell_List;      /* MBS_ServiceAreaCell_List */
+static int hf_xnap_mBS_ServiceAreaTAI_List;       /* MBS_ServiceAreaTAI_List */
+static int hf_xnap_MBS_ServiceAreaInformationList_item;  /* MBS_ServiceAreaInformation_Item */
+static int hf_xnap_mBS_Area_Session_ID;           /* MBS_Area_Session_ID */
+static int hf_xnap_mBS_ServiceAreaInformation;    /* MBS_ServiceAreaInformation */
+static int hf_xnap_MBS_ServiceAreaTAI_List_item;  /* MBS_ServiceAreaTAI_Item */
+static int hf_xnap_tMGI;                          /* TMGI */
+static int hf_xnap_nID;                           /* NID */
+static int hf_xnap_MBS_SessionAssociatedInformation_item;  /* MBS_SessionAssociatedInformation_Item */
+static int hf_xnap_mBS_Session_ID;                /* MBS_Session_ID */
+static int hf_xnap_associated_QoSFlowInfo_List;   /* Associated_QoSFlowInfo_List */
+static int hf_xnap_MBS_SessionInformation_List_item;  /* MBS_SessionInformation_Item */
+static int hf_xnap_active_MBS_SessioInformation;  /* Active_MBS_SessionInformation */
+static int hf_xnap_MBS_SessionInformationResponse_List_item;  /* MBS_SessionInformationResponse_Item */
+static int hf_xnap_mBS_DataForwardingResponseInfofromTarget;  /* MBS_DataForwardingResponseInfofromTarget */
+static int hf_xnap_mDT_Configuration_NR;          /* MDT_Configuration_NR */
+static int hf_xnap_mDT_Configuration_EUTRA;       /* MDT_Configuration_EUTRA */
+static int hf_xnap_mdt_Activation;                /* MDT_Activation */
+static int hf_xnap_areaScopeOfMDT_NR;             /* AreaScopeOfMDT_NR */
+static int hf_xnap_mDTMode_NR;                    /* MDTMode_NR */
+static int hf_xnap_signallingBasedMDTPLMNList;    /* MDTPLMNList */
+static int hf_xnap_areaScopeOfMDT_EUTRA;          /* AreaScopeOfMDT_EUTRA */
+static int hf_xnap_mDTMode_EUTRA;                 /* MDTMode_EUTRA */
+static int hf_xnap_MDTPLMNList_item;              /* PLMN_Identity */
+static int hf_xnap_MDTPLMNModificationList_item;  /* PLMN_Identity */
+static int hf_xnap_immediateMDT;                  /* ImmediateMDT_NR */
+static int hf_xnap_loggedMDT;                     /* LoggedMDT_NR */
+static int hf_xnap_mDTMode_NR_Extension;          /* MDTMode_NR_Extension */
+static int hf_xnap_threshold_SINR;                /* Threshold_SINR */
+static int hf_xnap_dl_GBR_PRB_usage_for_MIMO;     /* DL_GBR_PRB_usage_for_MIMO */
+static int hf_xnap_ul_GBR_PRB_usage_for_MIMO;     /* UL_GBR_PRB_usage_for_MIMO */
+static int hf_xnap_dl_non_GBR_PRB_usage_for_MIMO;  /* DL_non_GBR_PRB_usage_for_MIMO */
+static int hf_xnap_ul_non_GBR_PRB_usage_for_MIMO;  /* UL_non_GBR_PRB_usage_for_MIMO */
+static int hf_xnap_dl_Total_PRB_usage_for_MIMO;   /* DL_Total_PRB_usage_for_MIMO */
+static int hf_xnap_ul_Total_PRB_usage_for_MIMO;   /* UL_Total_PRB_usage_for_MIMO */
+static int hf_xnap_handoverTriggerChangeLowerLimit;  /* INTEGER_M20_20 */
+static int hf_xnap_handoverTriggerChangeUpperLimit;  /* INTEGER_M20_20 */
+static int hf_xnap_handoverTriggerChange;         /* INTEGER_M20_20 */
+static int hf_xnap_serving_PLMN;                  /* PLMN_Identity */
+static int hf_xnap_equivalent_PLMNs;              /* SEQUENCE_SIZE_1_maxnoofEPLMNs_OF_PLMN_Identity */
+static int hf_xnap_equivalent_PLMNs_item;         /* PLMN_Identity */
+static int hf_xnap_rat_Restrictions;              /* RAT_RestrictionsList */
+static int hf_xnap_forbiddenAreaInformation;      /* ForbiddenAreaList */
+static int hf_xnap_serviceAreaInformation;        /* ServiceAreaList */
+static int hf_xnap_CNTypeRestrictionsForEquivalent_item;  /* CNTypeRestrictionsForEquivalentItem */
+static int hf_xnap_plmn_Identity;                 /* PLMN_Identity */
+static int hf_xnap_cn_Type;                       /* T_cn_Type */
+static int hf_xnap_RAT_RestrictionsList_item;     /* RAT_RestrictionsItem */
+static int hf_xnap_rat_RestrictionInformation;    /* RAT_RestrictionInformation */
+static int hf_xnap_ForbiddenAreaList_item;        /* ForbiddenAreaItem */
+static int hf_xnap_forbidden_TACs;                /* SEQUENCE_SIZE_1_maxnoofForbiddenTACs_OF_TAC */
+static int hf_xnap_forbidden_TACs_item;           /* TAC */
+static int hf_xnap_ServiceAreaList_item;          /* ServiceAreaItem */
+static int hf_xnap_allowed_TACs_ServiceArea;      /* SEQUENCE_SIZE_1_maxnoofAllowedAreas_OF_TAC */
+static int hf_xnap_allowed_TACs_ServiceArea_item;  /* TAC */
+static int hf_xnap_not_allowed_TACs_ServiceArea;  /* SEQUENCE_SIZE_1_maxnoofAllowedAreas_OF_TAC */
+static int hf_xnap_not_allowed_TACs_ServiceArea_item;  /* TAC */
+static int hf_xnap_ng_RAN_Node_ResourceCoordinationInfo;  /* NG_RAN_Node_ResourceCoordinationInfo */
+static int hf_xnap_eutra_resource_coordination_info;  /* E_UTRA_ResourceCoordinationInfo */
+static int hf_xnap_nr_resource_coordination_info;  /* NR_ResourceCoordinationInfo */
+static int hf_xnap_e_utra_cell;                   /* E_UTRA_CGI */
+static int hf_xnap_ul_coordination_info;          /* BIT_STRING_SIZE_6_4400 */
+static int hf_xnap_dl_coordination_info;          /* BIT_STRING_SIZE_6_4400 */
+static int hf_xnap_nr_cell;                       /* NR_CGI */
+static int hf_xnap_e_utra_coordination_assistance_info;  /* E_UTRA_CoordinationAssistanceInfo */
+static int hf_xnap_nr_coordination_assistance_info;  /* NR_CoordinationAssistanceInfo */
+static int hf_xnap_iAB_MT_Cell_List;              /* IAB_MT_Cell_List */
+static int hf_xnap_NACellResourceConfigurationList_item;  /* NACellResourceConfiguration_Item */
+static int hf_xnap_nAdownlin;                     /* T_nAdownlin */
+static int hf_xnap_nAuplink;                      /* T_nAuplink */
+static int hf_xnap_nAflexible;                    /* T_nAflexible */
+static int hf_xnap_subframeAssignment;            /* T_subframeAssignment */
+static int hf_xnap_harqOffset;                    /* INTEGER_0_9 */
+static int hf_xnap_NeighbourInformation_E_UTRA_item;  /* NeighbourInformation_E_UTRA_Item */
+static int hf_xnap_e_utra_PCI;                    /* E_UTRAPCI */
+static int hf_xnap_e_utra_cgi;                    /* E_UTRA_CGI */
+static int hf_xnap_earfcn;                        /* E_UTRAARFCN */
+static int hf_xnap_NeighbourInformation_NR_item;  /* NeighbourInformation_NR_Item */
+static int hf_xnap_nr_PCI;                        /* NRPCI */
+static int hf_xnap_nr_mode_info;                  /* NeighbourInformation_NR_ModeInfo */
+static int hf_xnap_connectivitySupport;           /* Connectivity_Support */
+static int hf_xnap_measurementTimingConfiguration;  /* T_measurementTimingConfiguration */
+static int hf_xnap_fdd_info;                      /* NeighbourInformation_NR_ModeFDDInfo */
+static int hf_xnap_tdd_info;                      /* NeighbourInformation_NR_ModeTDDInfo */
+static int hf_xnap_ul_NR_FreqInfo;                /* NRFrequencyInfo */
+static int hf_xnap_dl_NR_FequInfo;                /* NRFrequencyInfo */
+static int hf_xnap_ie_Extensions;                 /* ProtocolExtensionContainer */
+static int hf_xnap_nr_FreqInfo;                   /* NRFrequencyInfo */
+static int hf_xnap_Neighbour_NG_RAN_Node_List_item;  /* Neighbour_NG_RAN_Node_Item */
+static int hf_xnap_globalNG_RANNodeID;            /* GlobalNG_RANNode_ID */
+static int hf_xnap_local_NG_RAN_Node_Identifier;  /* Local_NG_RAN_Node_Identifier */
+static int hf_xnap_NRCarrierList_item;            /* NRCarrierItem */
+static int hf_xnap_carrierSCS;                    /* NRSCS */
+static int hf_xnap_offsetToCarrier;               /* INTEGER_0_2199_ */
+static int hf_xnap_carrierBandwidth;              /* INTEGER_0_maxnoofPhysicalResourceBlocks_ */
+static int hf_xnap_nr;                            /* NR_Cell_Identity */
+static int hf_xnap_e_utra;                        /* E_UTRA_Cell_Identity */
+static int hf_xnap_nr_01;                         /* NRPCI */
+static int hf_xnap_e_utra_01;                     /* E_UTRAPCI */
+static int hf_xnap_NG_RANnode2SSBOffsetsModificationRange_item;  /* SSBOffsetModificationRange */
+static int hf_xnap_dL_GBR_PRB_usage;              /* DL_GBR_PRB_usage */
+static int hf_xnap_uL_GBR_PRB_usage;              /* UL_GBR_PRB_usage */
+static int hf_xnap_dL_non_GBR_PRB_usage;          /* DL_non_GBR_PRB_usage */
+static int hf_xnap_uL_non_GBR_PRB_usage;          /* UL_non_GBR_PRB_usage */
+static int hf_xnap_dL_Total_PRB_usage;            /* DL_Total_PRB_usage */
+static int hf_xnap_uL_Total_PRB_usage;            /* UL_Total_PRB_usage */
+static int hf_xnap_dLTNLOfferedCapacity;          /* OfferedCapacity */
+static int hf_xnap_dLTNLAvailableCapacity;        /* AvailableCapacity */
+static int hf_xnap_uLTNLOfferedCapacity;          /* OfferedCapacity */
+static int hf_xnap_uLTNLAvailableCapacity;        /* AvailableCapacity */
+static int hf_xnap_nonF1TerminatingBHInformation_List;  /* NonF1TerminatingBHInformation_List */
+static int hf_xnap_bAPControlPDURLCCH_List;       /* BAPControlPDURLCCH_List */
+static int hf_xnap_NonF1TerminatingBHInformation_List_item;  /* NonF1TerminatingBHInformation_Item */
+static int hf_xnap_dlNon_F1TerminatingBHInfo;     /* DLNonF1Terminating_BHInfo */
+static int hf_xnap_ulNon_F1TerminatingBHInfo;     /* ULNonF1Terminating_BHInfo */
+static int hf_xnap_nonUPTrafficType;              /* NonUPTrafficType */
+static int hf_xnap_controlPlaneTrafficType;       /* ControlPlaneTrafficType */
+static int hf_xnap_snpn_Information;              /* NPN_Broadcast_Information_SNPN */
+static int hf_xnap_pni_npn_Information;           /* NPN_Broadcast_Information_PNI_NPN */
+static int hf_xnap_broadcastSNPNID_List;          /* BroadcastSNPNID_List */
+static int hf_xnap_broadcastPNI_NPN_ID_Information;  /* BroadcastPNI_NPN_ID_Information */
+static int hf_xnap_snpn_mobility_information;     /* NPNMobilityInformation_SNPN */
+static int hf_xnap_pni_npn_mobility_information;  /* NPNMobilityInformation_PNI_NPN */
+static int hf_xnap_serving_NID;                   /* NID */
+static int hf_xnap_allowedPNI_NPN_ID_List;        /* AllowedPNI_NPN_ID_List */
+static int hf_xnap_pni_npn_Information_01;        /* NPNPagingAssistanceInformation_PNI_NPN */
+static int hf_xnap_sNPN;                          /* NPN_Support_SNPN */
+static int hf_xnap_ie_Extension;                  /* ProtocolExtensionContainer */
+static int hf_xnap_fdd_or_tdd;                    /* T_fdd_or_tdd */
+static int hf_xnap_fdd;                           /* NPRACHConfiguration_FDD */
+static int hf_xnap_tdd;                           /* NPRACHConfiguration_TDD */
+static int hf_xnap_nprach_CP_length;              /* NPRACH_CP_Length */
+static int hf_xnap_anchorCarrier_NPRACHConfig;    /* T_anchorCarrier_NPRACHConfig */
+static int hf_xnap_anchorCarrier_EDT_NPRACHConfig;  /* T_anchorCarrier_EDT_NPRACHConfig */
+static int hf_xnap_anchorCarrier_Format2_NPRACHConfig;  /* T_anchorCarrier_Format2_NPRACHConfig */
+static int hf_xnap_anchorCarrier_Format2_EDT_NPRACHConfig;  /* T_anchorCarrier_Format2_EDT_NPRACHConfig */
+static int hf_xnap_non_anchorCarrier_NPRACHConfig;  /* T_non_anchorCarrier_NPRACHConfig */
+static int hf_xnap_non_anchorCarrier_Format2_NPRACHConfig;  /* T_non_anchorCarrier_Format2_NPRACHConfig */
+static int hf_xnap_nprach_preambleFormat;         /* NPRACH_preambleFormat */
+static int hf_xnap_anchorCarrier_NPRACHConfigTDD;  /* T_anchorCarrier_NPRACHConfigTDD */
+static int hf_xnap_non_anchorCarrierFequencyConfiglist;  /* Non_AnchorCarrierFrequencylist */
+static int hf_xnap_non_anchorCarrier_NPRACHConfigTDD;  /* T_non_anchorCarrier_NPRACHConfigTDD */
+static int hf_xnap_Non_AnchorCarrierFrequencylist_item;  /* Non_AnchorCarrierFrequencylist_item */
+static int hf_xnap_non_anchorCarrierFrquency;     /* T_non_anchorCarrierFrquency */
+static int hf_xnap_NG_RAN_Cell_Identity_ListinRANPagingArea_item;  /* NG_RAN_Cell_Identity */
+static int hf_xnap_NR_U_Channel_List_item;        /* NR_U_Channel_Item */
+static int hf_xnap_nR_U_ChannelID;                /* NR_U_ChannelID */
+static int hf_xnap_channelOccupancyTimePercentageDL;  /* ChannelOccupancyTimePercentage */
+static int hf_xnap_energyDetectionThreshold;      /* EnergyDetectionThreshold */
+static int hf_xnap_NR_U_ChannelInfo_List_item;    /* NR_U_ChannelInfo_Item */
+static int hf_xnap_nRARFCN;                       /* NRARFCN */
+static int hf_xnap_bandwidth;                     /* Bandwidth */
+static int hf_xnap_NRFrequencyBand_List_item;     /* NRFrequencyBandItem */
+static int hf_xnap_nr_frequency_band;             /* NRFrequencyBand */
+static int hf_xnap_supported_SUL_Band_List;       /* SupportedSULBandList */
+static int hf_xnap_nrARFCN;                       /* NRARFCN */
+static int hf_xnap_sul_information;               /* SUL_Information */
+static int hf_xnap_frequencyBand_List;            /* NRFrequencyBand_List */
+static int hf_xnap_fdd_01;                        /* NRModeInfoFDD */
+static int hf_xnap_tdd_01;                        /* NRModeInfoTDD */
+static int hf_xnap_ulNRFrequencyInfo;             /* NRFrequencyInfo */
+static int hf_xnap_dlNRFrequencyInfo;             /* NRFrequencyInfo */
+static int hf_xnap_ulNRTransmissonBandwidth;      /* NRTransmissionBandwidth */
+static int hf_xnap_dlNRTransmissonBandwidth;      /* NRTransmissionBandwidth */
+static int hf_xnap_nrTransmissonBandwidth;        /* NRTransmissionBandwidth */
+static int hf_xnap_nRPaging_eDRX_Cycle;           /* NRPaging_eDRX_Cycle */
+static int hf_xnap_nRPaging_Time_Window;          /* NRPaging_Time_Window */
+static int hf_xnap_nRPaging_eDRX_Cycle_Inactive;  /* NRPaging_eDRX_Cycle_Inactive */
+static int hf_xnap_nRSCS;                         /* NRSCS */
+static int hf_xnap_nRNRB;                         /* NRNRB */
+static int hf_xnap_requestedSRSTransmissionCharacteristics;  /* RequestedSRSTransmissionCharacteristics */
+static int hf_xnap_routingID;                     /* RoutingID */
+static int hf_xnap_nRPPaTransactionID;            /* INTEGER_0_32767 */
+static int hf_xnap_pER_Scalar;                    /* PER_Scalar */
+static int hf_xnap_pER_Exponent;                  /* PER_Exponent */
+static int hf_xnap_cNsubgroupID;                  /* CNsubgroupID */
+static int hf_xnap_pc5QoSFlowList;                /* PC5QoSFlowList */
+static int hf_xnap_pc5LinkAggregateBitRates;      /* BitRate */
+static int hf_xnap_PC5QoSFlowList_item;           /* PC5QoSFlowItem */
+static int hf_xnap_pQI;                           /* FiveQI */
+static int hf_xnap_pc5FlowBitRates;               /* PC5FlowBitRates */
+static int hf_xnap_range;                         /* Range */
+static int hf_xnap_guaranteedFlowBitRate;         /* BitRate */
+static int hf_xnap_maximumFlowBitRate;            /* BitRate */
+static int hf_xnap_from_S_NG_RAN_node;            /* T_from_S_NG_RAN_node */
+static int hf_xnap_from_M_NG_RAN_node;            /* T_from_M_NG_RAN_node */
+static int hf_xnap_ulPDCPSNLength;                /* T_ulPDCPSNLength */
+static int hf_xnap_dlPDCPSNLength;                /* T_dlPDCPSNLength */
+static int hf_xnap_downlink_session_AMBR;         /* BitRate */
+static int hf_xnap_uplink_session_AMBR;           /* BitRate */
+static int hf_xnap_PDUSession_List_item;          /* PDUSession_ID */
+static int hf_xnap_PDUSession_List_withCause_item;  /* PDUSession_List_withCause_Item */
+static int hf_xnap_pduSessionId;                  /* PDUSession_ID */
+static int hf_xnap_PDUSession_List_withDataForwardingFromTarget_item;  /* PDUSession_List_withDataForwardingFromTarget_Item */
+static int hf_xnap_dataforwardinginfoTarget;      /* DataForwardingInfoFromTargetNGRANnode */
+static int hf_xnap_PDUSession_List_withDataForwardingRequest_item;  /* PDUSession_List_withDataForwardingRequest_Item */
+static int hf_xnap_dataforwardingInfofromSource;  /* DataforwardingandOffloadingInfofromSource */
+static int hf_xnap_dRBtoBeReleasedList;           /* DRBToQoSFlowMapping_List */
+static int hf_xnap_PDUSessionResourcesAdmitted_List_item;  /* PDUSessionResourcesAdmitted_Item */
+static int hf_xnap_pduSessionResourceAdmittedInfo;  /* PDUSessionResourceAdmittedInfo */
+static int hf_xnap_dL_NG_U_TNL_Information_Unchanged;  /* T_dL_NG_U_TNL_Information_Unchanged */
+static int hf_xnap_qosFlowsAdmitted_List;         /* QoSFlowsAdmitted_List */
+static int hf_xnap_qosFlowsNotAdmitted_List;      /* QoSFlows_List_withCause */
+static int hf_xnap_dataForwardingInfoFromTarget;  /* DataForwardingInfoFromTargetNGRANnode */
+static int hf_xnap_PDUSessionResourcesNotAdmitted_List_item;  /* PDUSessionResourcesNotAdmitted_Item */
+static int hf_xnap_PDUSessionResourcesToBeSetup_List_item;  /* PDUSessionResourcesToBeSetup_Item */
+static int hf_xnap_s_NSSAI;                       /* S_NSSAI */
+static int hf_xnap_pduSessionAMBR;                /* PDUSessionAggregateMaximumBitRate */
+static int hf_xnap_uL_NG_U_TNLatUPF;              /* UPTransportLayerInformation */
+static int hf_xnap_source_DL_NG_U_TNL_Information;  /* UPTransportLayerInformation */
+static int hf_xnap_securityIndication;            /* SecurityIndication */
+static int hf_xnap_pduSessionType;                /* PDUSessionType */
+static int hf_xnap_pduSessionNetworkInstance;     /* PDUSessionNetworkInstance */
+static int hf_xnap_qosFlowsToBeSetup_List;        /* QoSFlowsToBeSetup_List */
+static int hf_xnap_dataforwardinginfofromSource;  /* DataforwardingandOffloadingInfofromSource */
+static int hf_xnap_qosFlowsToBeSetup_List_01;     /* QoSFlowsToBeSetup_List_Setup_SNterminated */
+static int hf_xnap_QoSFlowsToBeSetup_List_Setup_SNterminated_item;  /* QoSFlowsToBeSetup_List_Setup_SNterminated_Item */
+static int hf_xnap_qfi;                           /* QoSFlowIdentifier */
+static int hf_xnap_qosFlowLevelQoSParameters;     /* QoSFlowLevelQoSParameters */
+static int hf_xnap_offeredGBRQoSFlowInfo;         /* GBRQoSFlowInfo */
+static int hf_xnap_dL_NG_U_TNLatNG_RAN;           /* UPTransportLayerInformation */
+static int hf_xnap_dRBsToBeSetup;                 /* DRBsToBeSetupList_SetupResponse_SNterminated */
+static int hf_xnap_qosFlowsNotAdmittedList;       /* QoSFlows_List_withCause */
+static int hf_xnap_securityResult;                /* SecurityResult */
+static int hf_xnap_DRBsToBeSetupList_SetupResponse_SNterminated_item;  /* DRBsToBeSetupList_SetupResponse_SNterminated_Item */
+static int hf_xnap_sN_UL_PDCP_UP_TNLInfo;         /* UPTransportParameters */
+static int hf_xnap_dRB_QoS;                       /* QoSFlowLevelQoSParameters */
+static int hf_xnap_pDCP_SNLength;                 /* PDCPSNLength */
+static int hf_xnap_uL_Configuration;              /* ULConfiguration */
+static int hf_xnap_secondary_SN_UL_PDCP_UP_TNLInfo;  /* UPTransportParameters */
+static int hf_xnap_duplicationActivation;         /* DuplicationActivation */
+static int hf_xnap_qoSFlowsMappedtoDRB_SetupResponse_SNterminated;  /* QoSFlowsMappedtoDRB_SetupResponse_SNterminated */
+static int hf_xnap_QoSFlowsMappedtoDRB_SetupResponse_SNterminated_item;  /* QoSFlowsMappedtoDRB_SetupResponse_SNterminated_Item */
+static int hf_xnap_mCGRequestedGBRQoSFlowInfo;    /* GBRQoSFlowInfo */
+static int hf_xnap_qosFlowMappingIndication;      /* QoSFlowMappingIndication */
+static int hf_xnap_dRBsToBeSetup_01;              /* DRBsToBeSetupList_Setup_MNterminated */
+static int hf_xnap_DRBsToBeSetupList_Setup_MNterminated_item;  /* DRBsToBeSetupList_Setup_MNterminated_Item */
+static int hf_xnap_mN_UL_PDCP_UP_TNLInfo;         /* UPTransportParameters */
+static int hf_xnap_secondary_MN_UL_PDCP_UP_TNLInfo;  /* UPTransportParameters */
+static int hf_xnap_qoSFlowsMappedtoDRB_Setup_MNterminated;  /* QoSFlowsMappedtoDRB_Setup_MNterminated */
+static int hf_xnap_QoSFlowsMappedtoDRB_Setup_MNterminated_item;  /* QoSFlowsMappedtoDRB_Setup_MNterminated_Item */
+static int hf_xnap_dRBsAdmittedList;              /* DRBsAdmittedList_SetupResponse_MNterminated */
+static int hf_xnap_DRBsAdmittedList_SetupResponse_MNterminated_item;  /* DRBsAdmittedList_SetupResponse_MNterminated_Item */
+static int hf_xnap_sN_DL_SCG_UP_TNLInfo;          /* UPTransportParameters */
+static int hf_xnap_secondary_SN_DL_SCG_UP_TNLInfo;  /* UPTransportParameters */
+static int hf_xnap_lCID;                          /* LCID */
+static int hf_xnap_QoSFlowsMappedtoDRB_SetupResponse_MNterminated_item;  /* QoSFlowsMappedtoDRB_SetupResponse_MNterminated_Item */
+static int hf_xnap_currentQoSParaSetIndex;        /* QoSParaSetIndex */
+static int hf_xnap_qosFlowsToBeModified_List;     /* QoSFlowsToBeSetup_List_Modified_SNterminated */
+static int hf_xnap_qoSFlowsToBeReleased_List;     /* QoSFlows_List_withCause */
+static int hf_xnap_drbsToBeModifiedList;          /* DRBsToBeModified_List_Modified_SNterminated */
+static int hf_xnap_dRBsToBeReleased;              /* DRB_List_withCause */
+static int hf_xnap_QoSFlowsToBeSetup_List_Modified_SNterminated_item;  /* QoSFlowsToBeSetup_List_Modified_SNterminated_Item */
+static int hf_xnap_DRBsToBeModified_List_Modified_SNterminated_item;  /* DRBsToBeModified_List_Modified_SNterminated_Item */
+static int hf_xnap_mN_DL_SCG_UP_TNLInfo;          /* UPTransportParameters */
+static int hf_xnap_secondary_MN_DL_SCG_UP_TNLInfo;  /* UPTransportParameters */
+static int hf_xnap_rlc_status;                    /* RLC_Status */
+static int hf_xnap_dRBsToBeModified;              /* DRBsToBeModifiedList_ModificationResponse_SNterminated */
+static int hf_xnap_qosFlowsNotAdmittedTBAdded;    /* QoSFlows_List_withCause */
+static int hf_xnap_qosFlowsReleased;              /* QoSFlows_List_withCause */
+static int hf_xnap_DRBsToBeModifiedList_ModificationResponse_SNterminated_item;  /* DRBsToBeModifiedList_ModificationResponse_SNterminated_Item */
+static int hf_xnap_dRBsToBeModified_01;           /* DRBsToBeModifiedList_Modification_MNterminated */
+static int hf_xnap_DRBsToBeModifiedList_Modification_MNterminated_item;  /* DRBsToBeModifiedList_Modification_MNterminated_Item */
+static int hf_xnap_pdcpDuplicationConfiguration;  /* PDCPDuplicationConfiguration */
+static int hf_xnap_dRBsAdmittedList_01;           /* DRBsAdmittedList_ModificationResponse_MNterminated */
+static int hf_xnap_dRBsReleasedList;              /* DRB_List */
+static int hf_xnap_dRBsNotAdmittedSetupModifyList;  /* DRB_List_withCause */
+static int hf_xnap_DRBsAdmittedList_ModificationResponse_MNterminated_item;  /* DRBsAdmittedList_ModificationResponse_MNterminated_Item */
+static int hf_xnap_drbsToBeSetupList;             /* DRBsToBeSetup_List_ModRqd_SNterminated */
+static int hf_xnap_drbsToBeModifiedList_01;       /* DRBsToBeModified_List_ModRqd_SNterminated */
+static int hf_xnap_DRBsToBeSetup_List_ModRqd_SNterminated_item;  /* DRBsToBeSetup_List_ModRqd_SNterminated_Item */
+static int hf_xnap_sn_UL_PDCP_UPTNLinfo;          /* UPTransportParameters */
+static int hf_xnap_qoSFlowsMappedtoDRB_ModRqd_SNterminated;  /* QoSFlowsSetupMappedtoDRB_ModRqd_SNterminated */
+static int hf_xnap_QoSFlowsSetupMappedtoDRB_ModRqd_SNterminated_item;  /* QoSFlowsSetupMappedtoDRB_ModRqd_SNterminated_Item */
+static int hf_xnap_DRBsToBeModified_List_ModRqd_SNterminated_item;  /* DRBsToBeModified_List_ModRqd_SNterminated_Item */
+static int hf_xnap_qoSFlowsMappedtoDRB_ModRqd_SNterminated_01;  /* QoSFlowsModifiedMappedtoDRB_ModRqd_SNterminated */
+static int hf_xnap_QoSFlowsModifiedMappedtoDRB_ModRqd_SNterminated_item;  /* QoSFlowsModifiedMappedtoDRB_ModRqd_SNterminated_Item */
+static int hf_xnap_dRBsAdmittedList_02;           /* DRBsAdmittedList_ModConfirm_SNterminated */
+static int hf_xnap_DRBsAdmittedList_ModConfirm_SNterminated_item;  /* DRBsAdmittedList_ModConfirm_SNterminated_Item */
+static int hf_xnap_mN_DL_CG_UP_TNLInfo;           /* UPTransportParameters */
+static int hf_xnap_secondary_MN_DL_CG_UP_TNLInfo;  /* UPTransportParameters */
+static int hf_xnap_dRBsToBeModified_02;           /* DRBsToBeModified_List_ModRqd_MNterminated */
+static int hf_xnap_DRBsToBeModified_List_ModRqd_MNterminated_item;  /* DRBsToBeModified_List_ModRqd_MNterminated_Item */
+static int hf_xnap_sN_DL_SCG_UP_TNLInfo_01;       /* UPTransportLayerInformation */
+static int hf_xnap_secondary_SN_DL_SCG_UP_TNLInfo_01;  /* UPTransportLayerInformation */
+static int hf_xnap_dRBsToBeSetupList;             /* SEQUENCE_SIZE_1_maxnoofDRBs_OF_DRBsToBeSetupList_BearerSetupComplete_SNterminated_Item */
+static int hf_xnap_dRBsToBeSetupList_item;        /* DRBsToBeSetupList_BearerSetupComplete_SNterminated_Item */
+static int hf_xnap_dRB_ID;                        /* DRB_ID */
+static int hf_xnap_mN_Xn_U_TNLInfoatM;            /* UPTransportLayerInformation */
+static int hf_xnap_PDUSessionResourceSecondaryRATUsageList_item;  /* PDUSessionResourceSecondaryRATUsageItem */
+static int hf_xnap_pDUSessionID;                  /* PDUSession_ID */
+static int hf_xnap_secondaryRATUsageInformation;  /* SecondaryRATUsageInformation */
+static int hf_xnap_rATType;                       /* T_rATType */
+static int hf_xnap_pDUSessionTimedReportList;     /* VolumeTimedReportList */
+static int hf_xnap_plmnListforQMC;                /* PLMNListforQMC */
+static int hf_xnap_PLMNListforQMC_item;           /* PLMN_Identity */
+static int hf_xnap_PCIListForMDT_item;            /* NRPCI */
+static int hf_xnap_protectedResourceList;         /* ProtectedE_UTRAResourceList */
+static int hf_xnap_mbsfnControlRegionLength;      /* MBSFNControlRegionLength */
+static int hf_xnap_pDCCHRegionLength;             /* INTEGER_1_3 */
+static int hf_xnap_ProtectedE_UTRAResourceList_item;  /* ProtectedE_UTRAResource_Item */
+static int hf_xnap_resourceType;                  /* T_resourceType */
+static int hf_xnap_intra_PRBProtectedResourceFootprint;  /* BIT_STRING_SIZE_84_ */
+static int hf_xnap_protectedFootprintFrequencyPattern;  /* BIT_STRING_SIZE_6_110_ */
+static int hf_xnap_protectedFootprintTimePattern;  /* ProtectedE_UTRAFootprintTimePattern */
+static int hf_xnap_protectedFootprintTimeperiodicity;  /* INTEGER_1_320_ */
+static int hf_xnap_protectedFootrpintStartTime;   /* INTEGER_1_20_ */
+static int hf_xnap_uEAppLayerMeasInfoList;        /* UEAppLayerMeasInfoList */
+static int hf_xnap_UEAppLayerMeasInfoList_item;   /* UEAppLayerMeasInfo_Item */
+static int hf_xnap_uEAppLayerMeasConfigInfo;      /* UEAppLayerMeasConfigInfo */
+static int hf_xnap_non_dynamic;                   /* NonDynamic5QIDescriptor */
+static int hf_xnap_dynamic;                       /* Dynamic5QIDescriptor */
+static int hf_xnap_qos_characteristics;           /* QoSCharacteristics */
+static int hf_xnap_allocationAndRetentionPrio;    /* AllocationandRetentionPriority */
+static int hf_xnap_gBRQoSFlowInfo;                /* GBRQoSFlowInfo */
+static int hf_xnap_reflectiveQoS;                 /* ReflectiveQoSAttribute */
+static int hf_xnap_additionalQoSflowInfo;         /* T_additionalQoSflowInfo */
+static int hf_xnap_QoSFlowNotificationControlIndicationInfo_item;  /* QoSFlowNotify_Item */
+static int hf_xnap_notificationInformation;       /* T_notificationInformation */
+static int hf_xnap_QoSFlows_List_item;            /* QoSFlow_Item */
+static int hf_xnap_QoSFlows_List_withCause_item;  /* QoSFlowwithCause_Item */
+static int hf_xnap_QoSFlowsAdmitted_List_item;    /* QoSFlowsAdmitted_Item */
+static int hf_xnap_QoSFlowsToBeSetup_List_item;   /* QoSFlowsToBeSetup_Item */
+static int hf_xnap_e_RAB_ID;                      /* E_RAB_ID */
+static int hf_xnap_QoSFlowsUsageReportList_item;  /* QoSFlowsUsageReport_Item */
+static int hf_xnap_rATType_01;                    /* T_rATType_01 */
+static int hf_xnap_qoSFlowsTimedReportList;       /* VolumeTimedReportList */
+static int hf_xnap_RACHReportInformation_item;    /* RACHReportList_Item */
+static int hf_xnap_rACHReport;                    /* RACHReportContainer */
+static int hf_xnap_ng_eNB_RadioResourceStatus;    /* NG_eNB_RadioResourceStatus */
+static int hf_xnap_gNB_RadioResourceStatus;       /* GNB_RadioResourceStatus */
+static int hf_xnap_rANAC;                         /* RANAC */
+static int hf_xnap_RANAreaID_List_item;           /* RANAreaID */
+static int hf_xnap_rANPagingAreaChoice;           /* RANPagingAreaChoice */
+static int hf_xnap_cell_List;                     /* NG_RAN_Cell_Identity_ListinRANPagingArea */
+static int hf_xnap_rANAreaID_List;                /* RANAreaID_List */
+static int hf_xnap_pagingAttemptCount;            /* INTEGER_1_16_ */
+static int hf_xnap_intendedNumberOfPagingAttempts;  /* INTEGER_1_16_ */
+static int hf_xnap_nextPagingAreaScope;           /* T_nextPagingAreaScope */
+static int hf_xnap_rBsetSize;                     /* T_rBsetSize */
+static int hf_xnap_numberofRBSets;                /* INTEGER_1_maxnoofRBsetsPerCell */
+static int hf_xnap_rSN;                           /* RSN */
+static int hf_xnap_ReplacingCells_item;           /* ReplacingCells_Item */
+static int hf_xnap_periodical;                    /* Periodical */
+static int hf_xnap_eventTriggered;                /* EventTriggered */
+static int hf_xnap_subframeType;                  /* T_subframeType */
+static int hf_xnap_reservedSubframePattern_01;    /* BIT_STRING_SIZE_10_160 */
+static int hf_xnap_fullReset;                     /* ResetRequestTypeInfo_Full */
+static int hf_xnap_partialReset;                  /* ResetRequestTypeInfo_Partial */
+static int hf_xnap_ue_contexts_ToBeReleasedList;  /* ResetRequestPartialReleaseList */
+static int hf_xnap_ResetRequestPartialReleaseList_item;  /* ResetRequestPartialReleaseItem */
+static int hf_xnap_ng_ran_node1UEXnAPID;          /* NG_RANnodeUEXnAPID */
+static int hf_xnap_ng_ran_node2UEXnAPID;          /* NG_RANnodeUEXnAPID */
+static int hf_xnap_fullReset_01;                  /* ResetResponseTypeInfo_Full */
+static int hf_xnap_partialReset_01;               /* ResetResponseTypeInfo_Partial */
+static int hf_xnap_ue_contexts_AdmittedToBeReleasedList;  /* ResetResponsePartialReleaseList */
+static int hf_xnap_ResetResponsePartialReleaseList_item;  /* ResetResponsePartialReleaseItem */
+static int hf_xnap_reestablishment_Indication;    /* Reestablishment_Indication */
+static int hf_xnap_rLCDuplicationStateList;       /* RLCDuplicationStateList */
+static int hf_xnap_rLC_PrimaryIndicator;          /* T_rLC_PrimaryIndicator */
+static int hf_xnap_RLCDuplicationStateList_item;  /* RLCDuplicationState_Item */
+static int hf_xnap_duplicationState;              /* T_duplicationState */
+static int hf_xnap_noofRRCConnections;            /* NoofRRCConnections */
+static int hf_xnap_availableRRCConnectionCapacityValue;  /* AvailableRRCConnectionCapacityValue */
+static int hf_xnap_rRRCReestab_initiated_reporting;  /* RRCReestab_Initiated_Reporting */
+static int hf_xnap_rRCReestab_reporting_wo_UERLFReport;  /* RRCReestab_Initiated_Reporting_wo_UERLFReport */
+static int hf_xnap_rRCReestab_reporting_with_UERLFReport;  /* RRCReestab_Initiated_Reporting_with_UERLFReport */
+static int hf_xnap_failureCellPCI;                /* NG_RAN_CellPCI */
+static int hf_xnap_reestabCellCGI;                /* GlobalNG_RANCell_ID */
+static int hf_xnap_c_RNTI;                        /* C_RNTI */
+static int hf_xnap_shortMAC_I;                    /* MAC_I */
+static int hf_xnap_uERLFReportContainer;          /* UERLFReportContainer */
+static int hf_xnap_rRRCSetup_Initiated_Reporting;  /* RRCSetup_Initiated_Reporting */
+static int hf_xnap_rRCSetup_reporting_with_UERLFReport;  /* RRCSetup_Initiated_Reporting_with_UERLFReport */
+static int hf_xnap_S_NSSAIListQoE_item;           /* S_NSSAI */
+static int hf_xnap_ng_ran_TraceID;                /* NG_RANTraceID */
+static int hf_xnap_secondarydataForwardingInfoFromTarget;  /* DataForwardingInfoFromTargetNGRANnode */
+static int hf_xnap_SecondarydataForwardingInfoFromTarget_List_item;  /* SecondarydataForwardingInfoFromTarget_Item */
+static int hf_xnap_sdtindicator;                  /* SDTIndicator */
+static int hf_xnap_sdtAssistantInfo;              /* SDTAssistantInfo */
+static int hf_xnap_dRBsToBeSetup_02;              /* SDT_DRBsToBeSetupList */
+static int hf_xnap_sRBsToBeSetup;                 /* SDT_SRBsToBeSetupList */
+static int hf_xnap_SDT_DRBsToBeSetupList_item;    /* SDT_DRBsToBeSetupList_Item */
+static int hf_xnap_uL_TNLInfo;                    /* UPTransportLayerInformation */
+static int hf_xnap_dRB_RLC_Bearer_Configuration;  /* T_dRB_RLC_Bearer_Configuration */
+static int hf_xnap_s_nssai;                       /* S_NSSAI */
+static int hf_xnap_flows_Mapped_To_DRB_List;      /* Flows_Mapped_To_DRB_List */
+static int hf_xnap_SDT_SRBsToBeSetupList_item;    /* SDT_SRBsToBeSetupList_Item */
+static int hf_xnap_srb_ID;                        /* SRB_ID */
+static int hf_xnap_sRB_RLC_Bearer_Configuration;  /* T_sRB_RLC_Bearer_Configuration */
+static int hf_xnap_SDTDataForwardingDRBList_item;  /* SDTDataForwardingDRBList_Item */
+static int hf_xnap_dL_TNLInfo;                    /* UPTransportLayerInformation */
+static int hf_xnap_pDUSessionUsageReport;         /* PDUSessionUsageReport */
+static int hf_xnap_qosFlowsUsageReportList;       /* QoSFlowsUsageReportList */
+static int hf_xnap_integrityProtectionIndication;  /* T_integrityProtectionIndication */
+static int hf_xnap_confidentialityProtectionIndication;  /* T_confidentialityProtectionIndication */
+static int hf_xnap_maximumIPdatarate;             /* MaximumIPdatarate */
+static int hf_xnap_integrityProtectionResult;     /* T_integrityProtectionResult */
+static int hf_xnap_confidentialityProtectionResult;  /* T_confidentialityProtectionResult */
+static int hf_xnap_sensorMeasConfig;              /* SensorMeasConfig */
+static int hf_xnap_sensorMeasConfigNameList;      /* SensorMeasConfigNameList */
+static int hf_xnap_SensorMeasConfigNameList_item;  /* SensorName */
+static int hf_xnap_uncompensatedBarometricConfig;  /* T_uncompensatedBarometricConfig */
+static int hf_xnap_ueSpeedConfig;                 /* T_ueSpeedConfig */
+static int hf_xnap_ueOrientationConfig;           /* T_ueOrientationConfig */
+static int hf_xnap_e_utra_pci;                    /* E_UTRAPCI */
+static int hf_xnap_broadcastPLMNs_02;             /* SEQUENCE_SIZE_1_maxnoofBPLMNs_OF_ServedCellInformation_E_UTRA_perBPLMN */
+static int hf_xnap_broadcastPLMNs_item;           /* ServedCellInformation_E_UTRA_perBPLMN */
+static int hf_xnap_e_utra_mode_info;              /* ServedCellInformation_E_UTRA_ModeInfo */
+static int hf_xnap_numberofAntennaPorts;          /* NumberOfAntennaPorts_E_UTRA */
+static int hf_xnap_prach_configuration;           /* E_UTRAPRACHConfiguration */
+static int hf_xnap_mBSFNsubframeInfo;             /* MBSFNSubframeInfo_E_UTRA */
+static int hf_xnap_multibandInfo;                 /* E_UTRAMultibandInfoList */
+static int hf_xnap_freqBandIndicatorPriority;     /* T_freqBandIndicatorPriority */
+static int hf_xnap_bandwidthReducedSI;            /* T_bandwidthReducedSI */
+static int hf_xnap_protectedE_UTRAResourceIndication;  /* ProtectedE_UTRAResourceIndication */
+static int hf_xnap_fdd_02;                        /* ServedCellInformation_E_UTRA_FDDInfo */
+static int hf_xnap_tdd_02;                        /* ServedCellInformation_E_UTRA_TDDInfo */
+static int hf_xnap_ul_earfcn;                     /* E_UTRAARFCN */
+static int hf_xnap_dl_earfcn;                     /* E_UTRAARFCN */
+static int hf_xnap_ul_e_utraTxBW;                 /* E_UTRATransmissionBandwidth */
+static int hf_xnap_dl_e_utraTxBW;                 /* E_UTRATransmissionBandwidth */
+static int hf_xnap_e_utraTxBW;                    /* E_UTRATransmissionBandwidth */
+static int hf_xnap_subframeAssignmnet;            /* T_subframeAssignmnet */
+static int hf_xnap_specialSubframeInfo;           /* SpecialSubframeInfo_E_UTRA */
+static int hf_xnap_ServedCells_E_UTRA_item;       /* ServedCells_E_UTRA_Item */
+static int hf_xnap_served_cell_info_E_UTRA;       /* ServedCellInformation_E_UTRA */
+static int hf_xnap_neighbour_info_NR;             /* NeighbourInformation_NR */
+static int hf_xnap_neighbour_info_E_UTRA;         /* NeighbourInformation_E_UTRA */
+static int hf_xnap_served_Cells_ToAdd_E_UTRA;     /* ServedCells_E_UTRA */
+static int hf_xnap_served_Cells_ToModify_E_UTRA;  /* ServedCells_ToModify_E_UTRA */
+static int hf_xnap_served_Cells_ToDelete_E_UTRA;  /* SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_E_UTRA_CGI */
+static int hf_xnap_served_Cells_ToDelete_E_UTRA_item;  /* E_UTRA_CGI */
+static int hf_xnap_ServedCells_ToModify_E_UTRA_item;  /* ServedCells_ToModify_E_UTRA_Item */
+static int hf_xnap_old_ECGI;                      /* E_UTRA_CGI */
+static int hf_xnap_deactivation_indication;       /* T_deactivation_indication */
+static int hf_xnap_nrPCI;                         /* NRPCI */
+static int hf_xnap_cellID;                        /* NR_CGI */
+static int hf_xnap_broadcastPLMN;                 /* BroadcastPLMNs */
+static int hf_xnap_nrModeInfo;                    /* NRModeInfo */
+static int hf_xnap_measurementTimingConfiguration_01;  /* T_measurementTimingConfiguration_01 */
+static int hf_xnap_sFN_Time_Offset;               /* BIT_STRING_SIZE_24 */
+static int hf_xnap_ServedCells_NR_item;           /* ServedCells_NR_Item */
+static int hf_xnap_served_cell_info_NR;           /* ServedCellInformation_NR */
+static int hf_xnap_ServedCells_ToModify_NR_item;  /* ServedCells_ToModify_NR_Item */
+static int hf_xnap_old_NR_CGI;                    /* NR_CGI */
+static int hf_xnap_deactivation_indication_01;    /* T_deactivation_indication_01 */
+static int hf_xnap_ServedCellSpecificInfoReq_NR_item;  /* ServedCellSpecificInfoReq_NR_Item */
+static int hf_xnap_additionalMTCListRequestIndicator;  /* T_additionalMTCListRequestIndicator */
+static int hf_xnap_served_Cells_ToAdd_NR;         /* ServedCells_NR */
+static int hf_xnap_served_Cells_ToModify_NR;      /* ServedCells_ToModify_NR */
+static int hf_xnap_served_Cells_ToDelete_NR;      /* SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_NR_CGI */
+static int hf_xnap_served_Cells_ToDelete_NR_item;  /* NR_CGI */
+static int hf_xnap_ul_onlySharing;                /* SharedResourceType_UL_OnlySharing */
+static int hf_xnap_ul_and_dl_Sharing;             /* SharedResourceType_ULDL_Sharing */
+static int hf_xnap_ul_resourceBitmap;             /* DataTrafficResources */
+static int hf_xnap_ul_resources;                  /* SharedResourceType_ULDL_Sharing_UL_Resources */
+static int hf_xnap_dl_resources;                  /* SharedResourceType_ULDL_Sharing_DL_Resources */
+static int hf_xnap_unchanged;                     /* NULL */
+static int hf_xnap_changed;                       /* SharedResourceType_ULDL_Sharing_UL_ResourcesChanged */
+static int hf_xnap_changed_01;                    /* SharedResourceType_ULDL_Sharing_DL_ResourcesChanged */
+static int hf_xnap_dl_resourceBitmap;             /* DataTrafficResources */
+static int hf_xnap_SliceAvailableCapacity_item;   /* SliceAvailableCapacity_Item */
+static int hf_xnap_pLMNIdentity;                  /* PLMN_Identity */
+static int hf_xnap_sNSSAIAvailableCapacity_List;  /* SNSSAIAvailableCapacity_List */
+static int hf_xnap_SNSSAIAvailableCapacity_List_item;  /* SNSSAIAvailableCapacity_Item */
+static int hf_xnap_sNSSAI;                        /* S_NSSAI */
+static int hf_xnap_sliceAvailableCapacityValueDownlink;  /* INTEGER_0_100 */
+static int hf_xnap_sliceAvailableCapacityValueUplink;  /* INTEGER_0_100 */
+static int hf_xnap_SliceRadioResourceStatus_List_item;  /* SliceRadioResourceStatus_Item */
+static int hf_xnap_sNSSAIRadioResourceStatus_List;  /* SNSSAIRadioResourceStatus_List */
+static int hf_xnap_SNSSAIRadioResourceStatus_List_item;  /* SNSSAIRadioResourceStatus_Item */
+static int hf_xnap_slice_DL_GBR_PRB_Usage;        /* Slice_DL_GBR_PRB_Usage */
+static int hf_xnap_slice_UL_GBR_PRB_Usage;        /* Slice_UL_GBR_PRB_Usage */
+static int hf_xnap_slice_DL_non_GBR_PRB_Usage;    /* Slice_DL_non_GBR_PRB_Usage */
+static int hf_xnap_slice_UL_non_GBR_PRB_Usage;    /* Slice_UL_non_GBR_PRB_Usage */
+static int hf_xnap_slice_DL_Total_PRB_Allocation;  /* Slice_DL_Total_PRB_Allocation */
+static int hf_xnap_slice_UL_Total_PRB_Allocation;  /* Slice_UL_Total_PRB_Allocation */
+static int hf_xnap_SliceSupport_List_item;        /* S_NSSAI */
+static int hf_xnap_SliceToReport_List_item;       /* SliceToReport_List_Item */
+static int hf_xnap_sNSSAIlist;                    /* SNSSAI_list */
+static int hf_xnap_SNSSAI_list_item;              /* SNSSAI_Item */
+static int hf_xnap_SlotConfiguration_List_item;   /* SlotConfiguration_List_Item */
+static int hf_xnap_slotIndex_01;                  /* INTEGER_0_5119 */
+static int hf_xnap_symbolAllocation_in_Slot;      /* SymbolAllocation_in_Slot */
+static int hf_xnap_sst;                           /* OCTET_STRING_SIZE_1 */
+static int hf_xnap_sd;                            /* OCTET_STRING_SIZE_3 */
+static int hf_xnap_specialSubframePattern;        /* SpecialSubframePatterns_E_UTRA */
+static int hf_xnap_cyclicPrefixDL;                /* CyclicPrefix_E_UTRA_DL */
+static int hf_xnap_cyclicPrefixUL;                /* CyclicPrefix_E_UTRA_UL */
+static int hf_xnap_SSBAreaCapacityValue_List_item;  /* SSBAreaCapacityValue_List_Item */
+static int hf_xnap_sSBIndex;                      /* INTEGER_0_63 */
+static int hf_xnap_ssbAreaCapacityValue;          /* INTEGER_0_100 */
+static int hf_xnap_SSBAreaRadioResourceStatus_List_item;  /* SSBAreaRadioResourceStatus_List_Item */
+static int hf_xnap_ssb_Area_DL_GBR_PRB_usage;     /* DL_GBR_PRB_usage */
+static int hf_xnap_ssb_Area_UL_GBR_PRB_usage;     /* UL_GBR_PRB_usage */
+static int hf_xnap_ssb_Area_dL_non_GBR_PRB_usage;  /* DL_non_GBR_PRB_usage */
+static int hf_xnap_ssb_Area_uL_non_GBR_PRB_usage;  /* UL_non_GBR_PRB_usage */
+static int hf_xnap_ssb_Area_dL_Total_PRB_usage;   /* DL_Total_PRB_usage */
+static int hf_xnap_ssb_Area_uL_Total_PRB_usage;   /* UL_Total_PRB_usage */
+static int hf_xnap_SSB_Coverage_Modification_List_item;  /* SSB_Coverage_Modification_List_Item */
+static int hf_xnap_sSBCoverageState;              /* INTEGER_0_15_ */
+static int hf_xnap_shortBitmap;                   /* BIT_STRING_SIZE_4 */
+static int hf_xnap_mediumBitmap;                  /* BIT_STRING_SIZE_8 */
+static int hf_xnap_longBitmap;                    /* BIT_STRING_SIZE_64 */
+static int hf_xnap_SSBOffsets_List_item;          /* SSBOffsets_Item */
+static int hf_xnap_nG_RANnode1SSBOffsets;         /* SSBOffsetInformation */
+static int hf_xnap_nG_RANnode2ProposedSSBOffsets;  /* SSBOffsetInformation */
+static int hf_xnap_sSBTriggeringOffset;           /* MobilityParametersInformation */
+static int hf_xnap_sSBobilityParametersModificationRange;  /* MobilityParametersModificationRange */
+static int hf_xnap_SSBToReport_List_item;         /* SSBToReport_List_Item */
+static int hf_xnap_SuccessfulHOReportInformation_item;  /* SuccessfulHOReportList_Item */
+static int hf_xnap_successfulHOReport;            /* SuccessfulHOReportContainer */
+static int hf_xnap_sulFrequencyInfo;              /* NRARFCN */
+static int hf_xnap_sulTransmissionBandwidth;      /* NRTransmissionBandwidth */
+static int hf_xnap_Supported_MBS_FSA_ID_List_item;  /* MBS_FrequencySelectionArea_Identity */
+static int hf_xnap_SupportedSULBandList_item;     /* SupportedSULBandItem */
+static int hf_xnap_sulBandItem;                   /* SUL_FrequencyBand */
+static int hf_xnap_allDL;                         /* SymbolAllocation_in_Slot_AllDL */
+static int hf_xnap_allUL;                         /* SymbolAllocation_in_Slot_AllUL */
+static int hf_xnap_bothDLandUL;                   /* SymbolAllocation_in_Slot_BothDLandUL */
+static int hf_xnap_numberofDLSymbols;             /* INTEGER_0_13 */
+static int hf_xnap_numberofULSymbols;             /* INTEGER_0_13 */
+static int hf_xnap_tAListforMDT;                  /* TAListforMDT */
+static int hf_xnap_tAIListforMDT;                 /* TAIListforMDT */
+static int hf_xnap_TAIListforMDT_item;            /* TAIforMDT_Item */
+static int hf_xnap_TAINSAGSupportList_item;       /* TAINSAGSupportItem */
+static int hf_xnap_nSAG_ID;                       /* NSAG_ID */
+static int hf_xnap_nSAGSliceSupportList;          /* ExtendedSliceSupportList */
+static int hf_xnap_TAISupport_List_item;          /* TAISupport_Item */
+static int hf_xnap_broadcastPLMNs_03;             /* SEQUENCE_SIZE_1_maxnoofsupportedPLMNs_OF_BroadcastPLMNinTAISupport_Item */
+static int hf_xnap_broadcastPLMNs_item_01;        /* BroadcastPLMNinTAISupport_Item */
+static int hf_xnap_TAListforMDT_item;             /* TAC */
+static int hf_xnap_tAListforQMC;                  /* TAListforQMC */
+static int hf_xnap_TAListforQMC_item;             /* TAC */
+static int hf_xnap_tAIListforQMC;                 /* TAIListforQMC */
+static int hf_xnap_TAIListforQMC_item;            /* TAI_Item */
+static int hf_xnap_nr_02;                         /* NR_CGI */
+static int hf_xnap_e_utra_02;                     /* E_UTRA_CGI */
+static int hf_xnap_TargetCellList_item;           /* TargetCellList_Item */
+static int hf_xnap_target_cell;                   /* Target_CGI */
+static int hf_xnap_timeDistributionIndication;    /* T_timeDistributionIndication */
+static int hf_xnap_uuTimeSynchronizationErrorBudget;  /* INTEGER_0_1000000_ */
+static int hf_xnap_extendedUPTransportLayerAddressesToAdd;  /* ExtTLAs */
+static int hf_xnap_extendedUPTransportLayerAddressesToRemove;  /* ExtTLAs */
+static int hf_xnap_TNLA_To_Add_List_item;         /* TNLA_To_Add_Item */
+static int hf_xnap_tNLAssociationTransportLayerAddress;  /* CPTransportLayerInformation */
+static int hf_xnap_tNLAssociationUsage;           /* TNLAssociationUsage */
+static int hf_xnap_TNLA_To_Update_List_item;      /* TNLA_To_Update_Item */
+static int hf_xnap_TNLA_To_Remove_List_item;      /* TNLA_To_Remove_Item */
+static int hf_xnap_TNLA_Setup_List_item;          /* TNLA_Setup_Item */
+static int hf_xnap_TNLA_Failed_To_Setup_List_item;  /* TNLA_Failed_To_Setup_Item */
+static int hf_xnap_interfaces_to_trace;           /* T_interfaces_to_trace */
+static int hf_xnap_trace_depth;                   /* Trace_Depth */
+static int hf_xnap_trace_coll_address;            /* TransportLayerAddress */
+static int hf_xnap_uPTraffic;                     /* QoSFlowLevelQoSParameters */
+static int hf_xnap_nonUPTraffic;                  /* NonUPTraffic */
+static int hf_xnap_fullRelease;                   /* AllTrafficIndication */
+static int hf_xnap_partialRelease;                /* TrafficToBeRelease_List */
+static int hf_xnap_releaseType;                   /* TrafficReleaseType */
+static int hf_xnap_TrafficToBeRelease_List_item;  /* TrafficToBeRelease_Item */
+static int hf_xnap_trafficIndex;                  /* TrafficIndex */
+static int hf_xnap_bHInfoList;                    /* BHInfoList */
+static int hf_xnap_tSCAssistanceInformationDownlink;  /* TSCAssistanceInformation */
+static int hf_xnap_tSCAssistanceInformationUplink;  /* TSCAssistanceInformation */
+static int hf_xnap_periodicity;                   /* INTEGER_0_640000_ */
+static int hf_xnap_burstArrivalTime;              /* T_burstArrivalTime */
+static int hf_xnap_dl_UE_AMBR;                    /* BitRate */
+static int hf_xnap_ul_UE_AMBR;                    /* BitRate */
+static int hf_xnap_qOEReference;                  /* QOEReference */
+static int hf_xnap_qOEMeasConfigAppLayerID;       /* QOEMeasConfAppLayerID */
+static int hf_xnap_serviceType;                   /* ServiceType */
+static int hf_xnap_qOEMeasStatus;                 /* QOEMeasStatus */
+static int hf_xnap_containerAppLayerMeasConfig;   /* ContainerAppLayerMeasConfig */
+static int hf_xnap_mDTAlignmentInfo;              /* MDTAlignmentInfo */
+static int hf_xnap_measCollectionEntityIPAddress;  /* MeasCollectionEntityIPAddress */
+static int hf_xnap_areaScopeOfQMC;                /* AreaScopeOfQMC */
+static int hf_xnap_s_NSSAIListQoE;                /* S_NSSAIListQoE */
+static int hf_xnap_availableRVQoEMetrics;         /* AvailableRVQoEMetrics */
+static int hf_xnap_rRCResume;                     /* UEContextIDforRRCResume */
+static int hf_xnap_rRRCReestablishment;           /* UEContextIDforRRCReestablishment */
+static int hf_xnap_i_rnti;                        /* I_RNTI */
+static int hf_xnap_allocated_c_rnti;              /* C_RNTI */
+static int hf_xnap_accessPCI;                     /* NG_RAN_CellPCI */
+static int hf_xnap_c_rnti;                        /* C_RNTI */
+static int hf_xnap_ng_c_UE_signalling_ref;        /* AMF_UE_NGAP_ID */
+static int hf_xnap_signalling_TNL_at_source;      /* CPTransportLayerInformation */
+static int hf_xnap_ueSecurityCapabilities;        /* UESecurityCapabilities */
+static int hf_xnap_securityInformation;           /* AS_SecurityInformation */
+static int hf_xnap_ue_AMBR;                       /* UEAggregateMaximumBitRate */
+static int hf_xnap_pduSessionResourcesToBeSetup_List;  /* PDUSessionResourcesToBeSetup_List */
+static int hf_xnap_rrc_Context;                   /* T_rrc_Context */
+static int hf_xnap_mobilityRestrictionList;       /* MobilityRestrictionList */
+static int hf_xnap_indexToRatFrequencySelectionPriority;  /* RFSP_Index */
+static int hf_xnap_UEHistoryInformation_item;     /* LastVisitedCell_Item */
+static int hf_xnap_nR;                            /* NRMobilityHistoryReport */
+static int hf_xnap_indexLength10;                 /* BIT_STRING_SIZE_10 */
+static int hf_xnap_UEIdentityIndexList_MBSGroupPaging_item;  /* UEIdentityIndexList_MBSGroupPaging_Item */
+static int hf_xnap_ueIdentityIndexList_MBSGroupPagingValue;  /* UEIdentityIndexList_MBSGroupPagingValue */
+static int hf_xnap_pagingDRX;                     /* UESpecificDRX */
+static int hf_xnap_uEIdentityIndexValueMBSGroupPaging;  /* BIT_STRING_SIZE_10 */
+static int hf_xnap_uERadioCapabilityForPagingOfNR;  /* UERadioCapabilityForPagingOfNR */
+static int hf_xnap_uERadioCapabilityForPagingOfEUTRA;  /* UERadioCapabilityForPagingOfEUTRA */
+static int hf_xnap_nR_UERLFReportContainer;       /* UERLFReportContainerNR */
+static int hf_xnap_lTE_UERLFReportContainer;      /* UERLFReportContainerLTE */
+static int hf_xnap_choice_Extension;              /* ProtocolIE_Single_Container */
+static int hf_xnap_ueRLFReportContainerLTE;       /* UERLFReportContainerLTE */
+static int hf_xnap_ueRLFReportContainerLTEExtendBand;  /* UERLFReportContainerLTEExtendBand */
+static int hf_xnap_UESliceMaximumBitRateList_item;  /* UESliceMaximumBitRate_Item */
+static int hf_xnap_dl_UE_Slice_MBR;               /* BitRate */
+static int hf_xnap_ul_UE_Slice_MBR;               /* BitRate */
+static int hf_xnap_nr_EncyptionAlgorithms;        /* T_nr_EncyptionAlgorithms */
+static int hf_xnap_nr_IntegrityProtectionAlgorithms;  /* T_nr_IntegrityProtectionAlgorithms */
+static int hf_xnap_e_utra_EncyptionAlgorithms;    /* T_e_utra_EncyptionAlgorithms */
+static int hf_xnap_e_utra_IntegrityProtectionAlgorithms;  /* T_e_utra_IntegrityProtectionAlgorithms */
+static int hf_xnap_uL_PDCP;                       /* UL_UE_Configuration */
+static int hf_xnap_gtpTunnel;                     /* GTPtunnelTransportLayerInformation */
+static int hf_xnap_UPTransportParameters_item;    /* UPTransportParametersItem */
+static int hf_xnap_upTNLInfo;                     /* UPTransportLayerInformation */
+static int hf_xnap_cellGroupID;                   /* CellGroupID */
+static int hf_xnap_VolumeTimedReportList_item;    /* VolumeTimedReport_Item */
+static int hf_xnap_startTimeStamp;                /* T_startTimeStamp */
+static int hf_xnap_endTimeStamp;                  /* T_endTimeStamp */
+static int hf_xnap_usageCountUL;                  /* INTEGER_0_18446744073709551615 */
+static int hf_xnap_usageCountDL;                  /* INTEGER_0_18446744073709551615 */
+static int hf_xnap_wlanMeasConfig;                /* WLANMeasConfig */
+static int hf_xnap_wlanMeasConfigNameList;        /* WLANMeasConfigNameList */
+static int hf_xnap_wlan_rssi;                     /* T_wlan_rssi */
+static int hf_xnap_wlan_rtt;                      /* T_wlan_rtt */
+static int hf_xnap_WLANMeasConfigNameList_item;   /* WLANName */
+static int hf_xnap_protocolIEs;                   /* ProtocolIE_Container */
+static int hf_xnap_ng_c_UE_reference;             /* AMF_UE_NGAP_ID */
+static int hf_xnap_cp_TNL_info_source;            /* CPTransportLayerInformation */
+static int hf_xnap_rrc_Context_01;                /* T_rrc_Context_01 */
+static int hf_xnap_locationReportingInformation;  /* LocationReportingInformation */
+static int hf_xnap_mrl;                           /* MobilityRestrictionList */
+static int hf_xnap_globalNG_RANNode_ID;           /* GlobalNG_RANNode_ID */
+static int hf_xnap_sN_NG_RANnodeUEXnAPID;         /* NG_RANnodeUEXnAPID */
+static int hf_xnap_first_dl_count;                /* FirstDLCount */
+static int hf_xnap_dl_discarding;                 /* DLDiscarding */
+static int hf_xnap_dRBsSubjectToEarlyStatusTransfer;  /* DRBsSubjectToEarlyStatusTransfer_List */
+static int hf_xnap_dRBsSubjectToDLDiscarding;     /* DRBsSubjectToDLDiscarding_List */
+static int hf_xnap_PDUSessionToBeAddedAddReq_item;  /* PDUSessionToBeAddedAddReq_Item */
+static int hf_xnap_sN_PDUSessionAMBR;             /* PDUSessionAggregateMaximumBitRate */
+static int hf_xnap_sn_terminated;                 /* PDUSessionResourceSetupInfo_SNterminated */
+static int hf_xnap_mn_terminated;                 /* PDUSessionResourceSetupInfo_MNterminated */
+static int hf_xnap_PDUSessionAdmittedAddedAddReqAck_item;  /* PDUSessionAdmittedAddedAddReqAck_Item */
+static int hf_xnap_sn_terminated_01;              /* PDUSessionResourceSetupResponseInfo_SNterminated */
+static int hf_xnap_mn_terminated_01;              /* PDUSessionResourceSetupResponseInfo_MNterminated */
+static int hf_xnap_pduSessionResourcesNotAdmitted_SNterminated;  /* PDUSessionResourcesNotAdmitted_List */
+static int hf_xnap_pduSessionResourcesNotAdmitted_MNterminated;  /* PDUSessionResourcesNotAdmitted_List */
+static int hf_xnap_responseType_ReconfComplete;   /* ResponseType_ReconfComplete */
+static int hf_xnap_configuration_successfully_applied;  /* Configuration_successfully_applied */
+static int hf_xnap_configuration_rejected_by_M_NG_RANNode;  /* Configuration_rejected_by_M_NG_RANNode */
+static int hf_xnap_m_NG_RANNode_to_S_NG_RANNode_Container;  /* T_m_NG_RANNode_to_S_NG_RANNode_Container */
+static int hf_xnap_m_NG_RANNode_to_S_NG_RANNode_Container_01;  /* T_m_NG_RANNode_to_S_NG_RANNode_Container_01 */
+static int hf_xnap_s_ng_RANnode_SecurityKey;      /* S_NG_RANnode_SecurityKey */
+static int hf_xnap_s_ng_RANnodeUE_AMBR;           /* UEAggregateMaximumBitRate */
+static int hf_xnap_lowerLayerPresenceStatusChange;  /* LowerLayerPresenceStatusChange */
+static int hf_xnap_pduSessionResourceToBeAdded;   /* PDUSessionsToBeAdded_SNModRequest_List */
+static int hf_xnap_pduSessionResourceToBeModified;  /* PDUSessionsToBeModified_SNModRequest_List */
+static int hf_xnap_pduSessionResourceToBeReleased;  /* PDUSessionsToBeReleased_SNModRequest_List */
+static int hf_xnap_PDUSessionsToBeAdded_SNModRequest_List_item;  /* PDUSessionsToBeAdded_SNModRequest_Item */
+static int hf_xnap_PDUSessionsToBeModified_SNModRequest_List_item;  /* PDUSessionsToBeModified_SNModRequest_Item */
+static int hf_xnap_sn_terminated_02;              /* PDUSessionResourceModificationInfo_SNterminated */
+static int hf_xnap_mn_terminated_02;              /* PDUSessionResourceModificationInfo_MNterminated */
+static int hf_xnap_pdu_session_list;              /* PDUSession_List_withCause */
+static int hf_xnap_pduSessionResourcesAdmittedToBeAdded;  /* PDUSessionAdmittedToBeAddedSNModResponse */
+static int hf_xnap_pduSessionResourcesAdmittedToBeModified;  /* PDUSessionAdmittedToBeModifiedSNModResponse */
+static int hf_xnap_pduSessionResourcesAdmittedToBeReleased;  /* PDUSessionAdmittedToBeReleasedSNModResponse */
+static int hf_xnap_PDUSessionAdmittedToBeAddedSNModResponse_item;  /* PDUSessionAdmittedToBeAddedSNModResponse_Item */
+static int hf_xnap_PDUSessionAdmittedToBeModifiedSNModResponse_item;  /* PDUSessionAdmittedToBeModifiedSNModResponse_Item */
+static int hf_xnap_sn_terminated_03;              /* PDUSessionResourceModificationResponseInfo_SNterminated */
+static int hf_xnap_mn_terminated_03;              /* PDUSessionResourceModificationResponseInfo_MNterminated */
+static int hf_xnap_sn_terminated_04;              /* PDUSession_List_withDataForwardingRequest */
+static int hf_xnap_mn_terminated_04;              /* PDUSession_List_withCause */
+static int hf_xnap_pdu_Session_List;              /* PDUSession_List */
+static int hf_xnap_PDUSessionToBeModifiedSNModRequired_item;  /* PDUSessionToBeModifiedSNModRequired_Item */
+static int hf_xnap_sn_terminated_05;              /* PDUSessionResourceModRqdInfo_SNterminated */
+static int hf_xnap_mn_terminated_05;              /* PDUSessionResourceModRqdInfo_MNterminated */
+static int hf_xnap_PDUSessionAdmittedModSNModConfirm_item;  /* PDUSessionAdmittedModSNModConfirm_Item */
+static int hf_xnap_sn_terminated_06;              /* PDUSessionResourceModConfirmInfo_SNterminated */
+static int hf_xnap_mn_terminated_06;              /* PDUSessionResourceModConfirmInfo_MNterminated */
+static int hf_xnap_sn_terminated_07;              /* PDUSession_List_withDataForwardingFromTarget */
+static int hf_xnap_mn_terminated_07;              /* PDUSession_List */
+static int hf_xnap_pduSessionsToBeReleasedList_SNterminated;  /* PDUSession_List_withDataForwardingRequest */
+static int hf_xnap_pduSessionsReleasedList_SNterminated;  /* PDUSession_List_withDataForwardingFromTarget */
+static int hf_xnap_BearersSubjectToCounterCheck_List_item;  /* BearersSubjectToCounterCheck_Item */
+static int hf_xnap_ul_count;                      /* INTEGER_0_4294967295 */
+static int hf_xnap_dl_count;                      /* INTEGER_0_4294967295 */
+static int hf_xnap_PDUSession_SNChangeRequired_List_item;  /* PDUSession_SNChangeRequired_Item */
+static int hf_xnap_sn_terminated_08;              /* PDUSessionResourceChangeRequiredInfo_SNterminated */
+static int hf_xnap_mn_terminated_08;              /* PDUSessionResourceChangeRequiredInfo_MNterminated */
+static int hf_xnap_PDUSession_SNChangeConfirm_List_item;  /* PDUSession_SNChangeConfirm_Item */
+static int hf_xnap_sn_terminated_09;              /* PDUSessionResourceChangeConfirmInfo_SNterminated */
+static int hf_xnap_mn_terminated_09;              /* PDUSessionResourceChangeConfirmInfo_MNterminated */
+static int hf_xnap_rrcContainer;                  /* OCTET_STRING */
+static int hf_xnap_srbType;                       /* T_srbType */
+static int hf_xnap_deliveryStatus;                /* DeliveryStatus */
+static int hf_xnap_PDUSessionResourcesNotifyList_item;  /* PDUSessionResourcesNotify_Item */
+static int hf_xnap_qosFlowsNotificationContrIndInfo;  /* QoSFlowNotificationControlIndicationInfo */
+static int hf_xnap_PDUSessionResourcesActivityNotifyList_item;  /* PDUSessionResourcesActivityNotify_Item */
+static int hf_xnap_pduSessionLevelUPactivityreport;  /* UserPlaneTrafficActivityReport */
+static int hf_xnap_qosFlowsActivityNotifyList;    /* QoSFlowsActivityNotifyList */
+static int hf_xnap_QoSFlowsActivityNotifyList_item;  /* QoSFlowsActivityNotifyItem */
+static int hf_xnap_gNB_01;                        /* ProtocolIE_Container */
+static int hf_xnap_ng_eNB_01;                     /* ProtocolIE_Container */
+static int hf_xnap_ng_eNB_02;                     /* RespondingNodeTypeConfigUpdateAck_ng_eNB */
+static int hf_xnap_gNB_02;                        /* RespondingNodeTypeConfigUpdateAck_gNB */
+static int hf_xnap_served_NR_Cells;               /* ServedCells_NR */
+static int hf_xnap_ng_eNB_03;                     /* ResourceCoordRequest_ng_eNB_initiated */
+static int hf_xnap_gNB_03;                        /* ResourceCoordRequest_gNB_initiated */
+static int hf_xnap_dataTrafficResourceIndication;  /* DataTrafficResourceIndication */
+static int hf_xnap_spectrumSharingGroupID;        /* SpectrumSharingGroupID */
+static int hf_xnap_listofE_UTRACells;             /* SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_E_UTRA_CGI */
+static int hf_xnap_listofE_UTRACells_item;        /* E_UTRA_CGI */
+static int hf_xnap_listofNRCells;                 /* SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_NR_CGI */
+static int hf_xnap_listofNRCells_item;            /* NR_CGI */
+static int hf_xnap_ng_eNB_04;                     /* ResourceCoordResponse_ng_eNB_initiated */
+static int hf_xnap_gNB_04;                        /* ResourceCoordResponse_gNB_initiated */
+static int hf_xnap_nr_cells;                      /* SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_NR_CGI */
+static int hf_xnap_nr_cells_item;                 /* NR_CGI */
+static int hf_xnap_e_utra_cells;                  /* SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_E_UTRA_CGI */
+static int hf_xnap_e_utra_cells_item;             /* E_UTRA_CGI */
+static int hf_xnap_privateIEs;                    /* PrivateIE_Container */
+static int hf_xnap_TrafficToBeAddedList_item;     /* TrafficToBeAdded_Item */
+static int hf_xnap_trafficProfile;                /* TrafficProfile */
+static int hf_xnap_f1_TerminatingTopologyBHInformation;  /* F1_TerminatingTopologyBHInformation */
+static int hf_xnap_TrafficToBeModifiedList_item;  /* TrafficToBeModified_Item */
+static int hf_xnap_TrafficAddedList_item;         /* TrafficAdded_Item */
+static int hf_xnap_non_F1_TerminatingTopologyBHInformation;  /* Non_F1_TerminatingTopologyBHInformation */
+static int hf_xnap_TrafficModifiedList_item;      /* TrafficModified_Item */
+static int hf_xnap_TrafficNotAddedList_item;      /* TrafficNotAdded_Item */
+static int hf_xnap_casue;                         /* Cause */
+static int hf_xnap_TrafficNotModifiedList_item;   /* TrafficNotModified_Item */
+static int hf_xnap_TrafficReleasedList_item;      /* TrafficReleased_Item */
+static int hf_xnap_TrafficRequiredToBeModifiedList_item;  /* TrafficRequiredToBeModified_Item */
+static int hf_xnap_non_f1_TerminatingTopologyBHInformation;  /* Non_F1_TerminatingTopologyBHInformation */
+static int hf_xnap_IABTNLAddressToBeReleasedList_item;  /* IABTNLAddressToBeReleased_Item */
+static int hf_xnap_iabTNLAddress;                 /* IABTNLAddress */
+static int hf_xnap_TrafficRequiredModifiedList_item;  /* TrafficRequiredModified_Item */
+static int hf_xnap_BoundaryNodeCellsList_item;    /* BoundaryNodeCellsList_Item */
+static int hf_xnap_boundaryNodeCellInformation;   /* IABCellInformation */
+static int hf_xnap_ParentNodeCellsList_item;      /* ParentNodeCellsList_Item */
+static int hf_xnap_parentNodeCellInformation;     /* IABCellInformation */
+static int hf_xnap_initiatingMessage;             /* InitiatingMessage */
+static int hf_xnap_successfulOutcome;             /* SuccessfulOutcome */
+static int hf_xnap_unsuccessfulOutcome;           /* UnsuccessfulOutcome */
+static int hf_xnap_initiatingMessage_value;       /* InitiatingMessage_value */
+static int hf_xnap_successfulOutcome_value;       /* SuccessfulOutcome_value */
+static int hf_xnap_value;                         /* UnsuccessfulOutcome_value */
 /* named bits */
-static int hf_xnap_RAT_RestrictionInformation_e_UTRA = -1;
-static int hf_xnap_RAT_RestrictionInformation_nR = -1;
-static int hf_xnap_RAT_RestrictionInformation_nR_unlicensed = -1;
-static int hf_xnap_RAT_RestrictionInformation_nR_LEO = -1;
-static int hf_xnap_RAT_RestrictionInformation_nR_MEO = -1;
-static int hf_xnap_RAT_RestrictionInformation_nR_GEO = -1;
-static int hf_xnap_RAT_RestrictionInformation_nR_OTHERSAT = -1;
-static int hf_xnap_T_interfaces_to_trace_ng_c = -1;
-static int hf_xnap_T_interfaces_to_trace_x_nc = -1;
-static int hf_xnap_T_interfaces_to_trace_uu = -1;
-static int hf_xnap_T_interfaces_to_trace_f1_c = -1;
-static int hf_xnap_T_interfaces_to_trace_e1 = -1;
-static int hf_xnap_T_nr_EncyptionAlgorithms_spare_bit0 = -1;
-static int hf_xnap_T_nr_EncyptionAlgorithms_nea1_128 = -1;
-static int hf_xnap_T_nr_EncyptionAlgorithms_nea2_128 = -1;
-static int hf_xnap_T_nr_EncyptionAlgorithms_nea3_128 = -1;
-static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_spare_bit0 = -1;
-static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia1_128 = -1;
-static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia2_128 = -1;
-static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia3_128 = -1;
-static int hf_xnap_T_e_utra_EncyptionAlgorithms_spare_bit0 = -1;
-static int hf_xnap_T_e_utra_EncyptionAlgorithms_eea1_128 = -1;
-static int hf_xnap_T_e_utra_EncyptionAlgorithms_eea2_128 = -1;
-static int hf_xnap_T_e_utra_EncyptionAlgorithms_eea3_128 = -1;
-static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_spare_bit0 = -1;
-static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia1_128 = -1;
-static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia2_128 = -1;
-static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia3_128 = -1;
+static int hf_xnap_RAT_RestrictionInformation_e_UTRA;
+static int hf_xnap_RAT_RestrictionInformation_nR;
+static int hf_xnap_RAT_RestrictionInformation_nR_unlicensed;
+static int hf_xnap_RAT_RestrictionInformation_nR_LEO;
+static int hf_xnap_RAT_RestrictionInformation_nR_MEO;
+static int hf_xnap_RAT_RestrictionInformation_nR_GEO;
+static int hf_xnap_RAT_RestrictionInformation_nR_OTHERSAT;
+static int hf_xnap_T_interfaces_to_trace_ng_c;
+static int hf_xnap_T_interfaces_to_trace_x_nc;
+static int hf_xnap_T_interfaces_to_trace_uu;
+static int hf_xnap_T_interfaces_to_trace_f1_c;
+static int hf_xnap_T_interfaces_to_trace_e1;
+static int hf_xnap_T_nr_EncyptionAlgorithms_spare_bit0;
+static int hf_xnap_T_nr_EncyptionAlgorithms_nea1_128;
+static int hf_xnap_T_nr_EncyptionAlgorithms_nea2_128;
+static int hf_xnap_T_nr_EncyptionAlgorithms_nea3_128;
+static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_spare_bit0;
+static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia1_128;
+static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia2_128;
+static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia3_128;
+static int hf_xnap_T_e_utra_EncyptionAlgorithms_spare_bit0;
+static int hf_xnap_T_e_utra_EncyptionAlgorithms_eea1_128;
+static int hf_xnap_T_e_utra_EncyptionAlgorithms_eea2_128;
+static int hf_xnap_T_e_utra_EncyptionAlgorithms_eea3_128;
+static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_spare_bit0;
+static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia1_128;
+static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia2_128;
+static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia3_128;
 
 /* Initialize the subtree pointers */
-static gint ett_xnap = -1;
-static gint ett_xnap_RRC_Context = -1;
-static gint ett_nxap_container = -1;
-static gint ett_xnap_PLMN_Identity = -1;
-static gint ett_xnap_measurementTimingConfiguration = -1;
-static gint ett_xnap_TransportLayerAddress = -1;
-static gint ett_xnap_NG_RANTraceID = -1;
-static gint ett_xnap_LastVisitedEUTRANCellInformation = -1;
-static gint ett_xnap_LastVisitedNGRANCellInformation = -1;
-static gint ett_xnap_LastVisitedUTRANCellInformation = -1;
-static gint ett_xnap_LastVisitedGERANCellInformation = -1;
-static gint ett_xnap_UERadioCapabilityForPagingOfNR = -1;
-static gint ett_xnap_UERadioCapabilityForPagingOfEUTRA = -1;
-static gint ett_xnap_FiveGCMobilityRestrictionListContainer = -1;
-static gint ett_xnap_primaryRATRestriction = -1;
-static gint ett_xnap_secondaryRATRestriction = -1;
-static gint ett_xnap_ImmediateMDT_EUTRA = -1;
-static gint ett_xnap_MDT_Location_Info = -1;
-static gint ett_xnap_MeasurementsToActivate = -1;
-static gint ett_xnap_NRMobilityHistoryReport = -1;
-static gint ett_xnap_RACHReportContainer = -1;
-static gint ett_xnap_TargetCellinEUTRAN = -1;
-static gint ett_xnap_TDDULDLConfigurationCommonNR = -1;
-static gint ett_xnap_UERLFReportContainerLTE = -1;
-static gint ett_xnap_UERLFReportContainerNR = -1;
-static gint ett_xnap_burstArrivalTime = -1;
-static gint ett_xnap_ReportCharacteristics = -1;
-static gint ett_xnap_NRCellPRACHConfig = -1;
-static gint ett_xnap_anchorCarrier_NPRACHConfig = -1;
-static gint ett_xnap_anchorCarrier_EDT_NPRACHConfig = -1;
-static gint ett_xnap_anchorCarrier_Format2_NPRACHConfig = -1;
-static gint ett_xnap_anchorCarrier_Format2_EDT_NPRACHConfig = -1;
-static gint ett_xnap_non_anchorCarrier_NPRACHConfig = -1;
-static gint ett_xnap_non_anchorCarrier_Format2_NPRACHConfig = -1;
-static gint ett_xnap_anchorCarrier_NPRACHConfigTDD = -1;
-static gint ett_xnap_non_anchorCarrier_NPRACHConfigTDD = -1;
-static gint ett_xnap_non_anchorCarrierFrequency = -1;
-static gint ett_xnap_cSI_RS_Configuration = -1;
-static gint ett_xnap_sR_Configuration = -1;
-static gint ett_xnap_pDCCH_ConfigSIB1 = -1;
-static gint ett_xnap_sCS_Common = -1;
-static gint ett_xnap_LastVisitedPSCellInformation = -1;
-static gint ett_xnap_MeasObjectContainer = -1;
-static gint ett_xnap_RACH_Config_Common = -1;
-static gint ett_xnap_RACH_Config_Common_IAB = -1;
-static gint ett_xnap_ReportConfigContainer = -1;
-static gint ett_xnap_RLC_Bearer_Configuration = -1;
-static gint ett_xnap_SuccessfulHOReportContainer = -1;
-static gint ett_xnap_UERLFReportContainerLTEExtendBand = -1;
-static gint ett_xnap_MDTMode_EUTRA = -1;
-static gint ett_xnap_PrivateIE_ID = -1;
-static gint ett_xnap_ProtocolIE_Container = -1;
-static gint ett_xnap_ProtocolIE_Field = -1;
-static gint ett_xnap_ProtocolExtensionContainer = -1;
-static gint ett_xnap_ProtocolExtensionField = -1;
-static gint ett_xnap_PrivateIE_Container = -1;
-static gint ett_xnap_PrivateIE_Field = -1;
-static gint ett_xnap_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated = -1;
-static gint ett_xnap_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated_Item = -1;
-static gint ett_xnap_Additional_PDCP_Duplication_TNL_List = -1;
-static gint ett_xnap_Additional_PDCP_Duplication_TNL_Item = -1;
-static gint ett_xnap_Additional_UL_NG_U_TNLatUPF_Item = -1;
-static gint ett_xnap_Additional_UL_NG_U_TNLatUPF_List = -1;
-static gint ett_xnap_Additional_Measurement_Timing_Configuration_List = -1;
-static gint ett_xnap_Additional_Measurement_Timing_Configuration_Item = -1;
-static gint ett_xnap_Active_MBS_SessionInformation = -1;
-static gint ett_xnap_AllocationandRetentionPriority = -1;
-static gint ett_xnap_AllowedCAG_ID_List_perPLMN = -1;
-static gint ett_xnap_AllowedPNI_NPN_ID_List = -1;
-static gint ett_xnap_AllowedPNI_NPN_ID_Item = -1;
-static gint ett_xnap_AlternativeQoSParaSetList = -1;
-static gint ett_xnap_AlternativeQoSParaSetItem = -1;
-static gint ett_xnap_AMF_Region_Information = -1;
-static gint ett_xnap_GlobalAMF_Region_Information = -1;
-static gint ett_xnap_AreaOfInterestInformation = -1;
-static gint ett_xnap_AreaOfInterest_Item = -1;
-static gint ett_xnap_AreaScopeOfMDT_NR = -1;
-static gint ett_xnap_AreaScopeOfMDT_EUTRA = -1;
-static gint ett_xnap_AreaScopeOfNeighCellsList = -1;
-static gint ett_xnap_AreaScopeOfNeighCellsItem = -1;
-static gint ett_xnap_AreaScopeOfQMC = -1;
-static gint ett_xnap_AS_SecurityInformation = -1;
-static gint ett_xnap_AssistanceDataForRANPaging = -1;
-static gint ett_xnap_Associated_QoSFlowInfo_List = -1;
-static gint ett_xnap_Associated_QoSFlowInfo_Item = -1;
-static gint ett_xnap_AvailableRVQoEMetrics = -1;
-static gint ett_xnap_BAPRoutingID = -1;
-static gint ett_xnap_BeamMeasurementsReportConfiguration = -1;
-static gint ett_xnap_BeamMeasurementsReportQuantity = -1;
-static gint ett_xnap_BHInfoList = -1;
-static gint ett_xnap_BHInfo_Item = -1;
-static gint ett_xnap_BAPControlPDURLCCH_List = -1;
-static gint ett_xnap_BAPControlPDURLCCH_Item = -1;
-static gint ett_xnap_BluetoothMeasurementConfiguration = -1;
-static gint ett_xnap_BluetoothMeasConfigNameList = -1;
-static gint ett_xnap_BPLMN_ID_Info_EUTRA = -1;
-static gint ett_xnap_BPLMN_ID_Info_EUTRA_Item = -1;
-static gint ett_xnap_BPLMN_ID_Info_NR = -1;
-static gint ett_xnap_BPLMN_ID_Info_NR_Item = -1;
-static gint ett_xnap_BroadcastCAG_Identifier_List = -1;
-static gint ett_xnap_BroadcastCAG_Identifier_Item = -1;
-static gint ett_xnap_BroadcastNID_List = -1;
-static gint ett_xnap_BroadcastNID_Item = -1;
-static gint ett_xnap_BroadcastPLMNs = -1;
-static gint ett_xnap_BroadcastEUTRAPLMNs = -1;
-static gint ett_xnap_BroadcastPLMNinTAISupport_Item = -1;
-static gint ett_xnap_BroadcastPNI_NPN_ID_Information = -1;
-static gint ett_xnap_BroadcastPNI_NPN_ID_Information_Item = -1;
-static gint ett_xnap_BroadcastSNPNID_List = -1;
-static gint ett_xnap_BroadcastSNPNID = -1;
-static gint ett_xnap_CapacityValueInfo = -1;
-static gint ett_xnap_Cause = -1;
-static gint ett_xnap_CellAssistanceInfo_NR = -1;
-static gint ett_xnap_SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_NR_CGI = -1;
-static gint ett_xnap_CellAndCapacityAssistanceInfo_NR = -1;
-static gint ett_xnap_CellAndCapacityAssistanceInfo_EUTRA = -1;
-static gint ett_xnap_CellAssistanceInfo_EUTRA = -1;
-static gint ett_xnap_SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_E_UTRA_CGI = -1;
-static gint ett_xnap_CellBasedMDT_NR = -1;
-static gint ett_xnap_CellIdListforMDT_NR = -1;
-static gint ett_xnap_CellBasedQMC = -1;
-static gint ett_xnap_CellIdListforQMC = -1;
-static gint ett_xnap_CellBasedMDT_EUTRA = -1;
-static gint ett_xnap_CellIdListforMDT_EUTRA = -1;
-static gint ett_xnap_CellMeasurementResult = -1;
-static gint ett_xnap_CellMeasurementResult_Item = -1;
-static gint ett_xnap_CellReplacingInfo = -1;
-static gint ett_xnap_CellToReport = -1;
-static gint ett_xnap_CellToReport_Item = -1;
-static gint ett_xnap_Cell_Type_Choice = -1;
-static gint ett_xnap_CHOConfiguration = -1;
-static gint ett_xnap_CHOCandidateCell_List = -1;
-static gint ett_xnap_CHOCandidateCell_Item = -1;
-static gint ett_xnap_CHOExecutionCondition_List = -1;
-static gint ett_xnap_CHOExecutionCondition_Item = -1;
-static gint ett_xnap_CompositeAvailableCapacityGroup = -1;
-static gint ett_xnap_CompositeAvailableCapacity = -1;
-static gint ett_xnap_CHOinformation_Req = -1;
-static gint ett_xnap_CHOinformation_Ack = -1;
-static gint ett_xnap_CHOinformation_AddReq = -1;
-static gint ett_xnap_CHOinformation_ModReq = -1;
-static gint ett_xnap_Connectivity_Support = -1;
-static gint ett_xnap_COUNT_PDCP_SN12 = -1;
-static gint ett_xnap_COUNT_PDCP_SN18 = -1;
-static gint ett_xnap_Coverage_Modification_List = -1;
-static gint ett_xnap_Coverage_Modification_List_Item = -1;
-static gint ett_xnap_CPTransportLayerInformation = -1;
-static gint ett_xnap_CPACcandidatePSCells_list = -1;
-static gint ett_xnap_CPACcandidatePSCells_item = -1;
-static gint ett_xnap_CPAInformationRequest = -1;
-static gint ett_xnap_CPAInformationAck = -1;
-static gint ett_xnap_CPCInformationRequired = -1;
-static gint ett_xnap_CPC_target_SN_required_list = -1;
-static gint ett_xnap_CPC_target_SN_required_list_Item = -1;
-static gint ett_xnap_CPCInformationConfirm = -1;
-static gint ett_xnap_CPC_target_SN_confirm_list = -1;
-static gint ett_xnap_CPC_target_SN_confirm_list_Item = -1;
-static gint ett_xnap_CPAInformationModReq = -1;
-static gint ett_xnap_CPAInformationModReqAck = -1;
-static gint ett_xnap_CPACInformationModRequired = -1;
-static gint ett_xnap_CPCInformationUpdate = -1;
-static gint ett_xnap_CPC_target_SN_mod_list = -1;
-static gint ett_xnap_CPC_target_SN_mod_item = -1;
-static gint ett_xnap_CPCInformationUpdatePSCells_list = -1;
-static gint ett_xnap_CPCInformationUpdatePSCells_item = -1;
-static gint ett_xnap_CriticalityDiagnostics = -1;
-static gint ett_xnap_CriticalityDiagnostics_IE_List = -1;
-static gint ett_xnap_CriticalityDiagnostics_IE_List_item = -1;
-static gint ett_xnap_CSI_RS_MTC_Configuration_List = -1;
-static gint ett_xnap_CSI_RS_MTC_Configuration_Item = -1;
-static gint ett_xnap_CSI_RS_Neighbour_List = -1;
-static gint ett_xnap_CSI_RS_Neighbour_Item = -1;
-static gint ett_xnap_CSI_RS_MTC_Neighbour_List = -1;
-static gint ett_xnap_CSI_RS_MTC_Neighbour_Item = -1;
-static gint ett_xnap_XnUAddressInfoperPDUSession_List = -1;
-static gint ett_xnap_XnUAddressInfoperPDUSession_Item = -1;
-static gint ett_xnap_DataForwardingInfoFromTargetE_UTRANnode = -1;
-static gint ett_xnap_DataForwardingInfoFromTargetE_UTRANnode_List = -1;
-static gint ett_xnap_DataForwardingInfoFromTargetE_UTRANnode_Item = -1;
-static gint ett_xnap_QoSFlowsToBeForwarded_List = -1;
-static gint ett_xnap_QoSFlowsToBeForwarded_Item = -1;
-static gint ett_xnap_DataForwardingInfoFromTargetNGRANnode = -1;
-static gint ett_xnap_QoSFLowsAcceptedToBeForwarded_List = -1;
-static gint ett_xnap_QoSFLowsAcceptedToBeForwarded_Item = -1;
-static gint ett_xnap_DataforwardingandOffloadingInfofromSource = -1;
-static gint ett_xnap_QoSFLowsToBeForwarded_List = -1;
-static gint ett_xnap_QoSFLowsToBeForwarded_Item = -1;
-static gint ett_xnap_DataForwardingResponseDRBItemList = -1;
-static gint ett_xnap_DataForwardingResponseDRBItem = -1;
-static gint ett_xnap_DataTrafficResourceIndication = -1;
-static gint ett_xnap_DAPSRequestInfo = -1;
-static gint ett_xnap_DAPSResponseInfo_List = -1;
-static gint ett_xnap_DAPSResponseInfo_Item = -1;
-static gint ett_xnap_DLCountChoice = -1;
-static gint ett_xnap_DLF1Terminating_BHInfo = -1;
-static gint ett_xnap_DLNonF1Terminating_BHInfo = -1;
-static gint ett_xnap_DRB_List = -1;
-static gint ett_xnap_DRB_List_withCause = -1;
-static gint ett_xnap_DRB_List_withCause_Item = -1;
-static gint ett_xnap_DRBsSubjectToDLDiscarding_List = -1;
-static gint ett_xnap_DRBsSubjectToDLDiscarding_Item = -1;
-static gint ett_xnap_DRBsSubjectToEarlyStatusTransfer_List = -1;
-static gint ett_xnap_DRBsSubjectToEarlyStatusTransfer_Item = -1;
-static gint ett_xnap_DRBsSubjectToStatusTransfer_List = -1;
-static gint ett_xnap_DRBsSubjectToStatusTransfer_Item = -1;
-static gint ett_xnap_DRBBStatusTransferChoice = -1;
-static gint ett_xnap_DRBBStatusTransfer12bitsSN = -1;
-static gint ett_xnap_DRBBStatusTransfer18bitsSN = -1;
-static gint ett_xnap_DRBToQoSFlowMapping_List = -1;
-static gint ett_xnap_DRBToQoSFlowMapping_Item = -1;
-static gint ett_xnap_DUF_Slot_Config_List = -1;
-static gint ett_xnap_DUF_Slot_Config_Item = -1;
-static gint ett_xnap_Dynamic5QIDescriptor = -1;
-static gint ett_xnap_E_UTRA_CGI = -1;
-static gint ett_xnap_E_UTRAMultibandInfoList = -1;
-static gint ett_xnap_EUTRAPagingeDRXInformation = -1;
-static gint ett_xnap_E_UTRAPRACHConfiguration = -1;
-static gint ett_xnap_EndpointIPAddressAndPort = -1;
-static gint ett_xnap_EventTriggered = -1;
-static gint ett_xnap_EventTypeTrigger = -1;
-static gint ett_xnap_EventL1 = -1;
-static gint ett_xnap_MeasurementThresholdL1LoggedMDT = -1;
-static gint ett_xnap_ExcessPacketDelayThresholdConfiguration = -1;
-static gint ett_xnap_ExcessPacketDelayThresholdItem = -1;
-static gint ett_xnap_ExpectedUEActivityBehaviour = -1;
-static gint ett_xnap_ExpectedUEBehaviour = -1;
-static gint ett_xnap_ExpectedUEMovingTrajectory = -1;
-static gint ett_xnap_ExpectedUEMovingTrajectoryItem = -1;
-static gint ett_xnap_ExplicitFormat = -1;
-static gint ett_xnap_ExtendedRATRestrictionInformation = -1;
-static gint ett_xnap_ExtendedSliceSupportList = -1;
-static gint ett_xnap_ExtTLAs = -1;
-static gint ett_xnap_ExtTLA_Item = -1;
-static gint ett_xnap_GTPTLAs = -1;
-static gint ett_xnap_GTPTLA_Item = -1;
-static gint ett_xnap_F1_TerminatingTopologyBHInformation = -1;
-static gint ett_xnap_F1TerminatingBHInformation_List = -1;
-static gint ett_xnap_F1TerminatingBHInformation_Item = -1;
-static gint ett_xnap_FiveGProSeAuthorized = -1;
-static gint ett_xnap_FiveGProSePC5QoSParameters = -1;
-static gint ett_xnap_FiveGProSePC5QoSFlowList = -1;
-static gint ett_xnap_FiveGProSePC5QoSFlowItem = -1;
-static gint ett_xnap_FiveGProSePC5FlowBitRates = -1;
-static gint ett_xnap_Flows_Mapped_To_DRB_List = -1;
-static gint ett_xnap_Flows_Mapped_To_DRB_Item = -1;
-static gint ett_xnap_FreqDomainHSNAconfiguration_List = -1;
-static gint ett_xnap_FreqDomainHSNAconfiguration_List_Item = -1;
-static gint ett_xnap_FreqDomainSlotHSNAconfiguration_List = -1;
-static gint ett_xnap_FreqDomainSlotHSNAconfiguration_List_Item = -1;
-static gint ett_xnap_GBRQoSFlowInfo = -1;
-static gint ett_xnap_GlobalgNB_ID = -1;
-static gint ett_xnap_GNB_DU_Cell_Resource_Configuration = -1;
-static gint ett_xnap_GNB_ID_Choice = -1;
-static gint ett_xnap_GNB_RadioResourceStatus = -1;
-static gint ett_xnap_GlobalCell_ID = -1;
-static gint ett_xnap_GlobalngeNB_ID = -1;
-static gint ett_xnap_ENB_ID_Choice = -1;
-static gint ett_xnap_GlobalNG_RANCell_ID = -1;
-static gint ett_xnap_GlobalNG_RANNode_ID = -1;
-static gint ett_xnap_GTPtunnelTransportLayerInformation = -1;
-static gint ett_xnap_GUAMI = -1;
-static gint ett_xnap_HSNASlotConfigList = -1;
-static gint ett_xnap_HSNASlotConfigItem = -1;
-static gint ett_xnap_IABCellInformation = -1;
-static gint ett_xnap_IAB_DU_Cell_Resource_Configuration_Mode_Info = -1;
-static gint ett_xnap_IAB_DU_Cell_Resource_Configuration_FDD_Info = -1;
-static gint ett_xnap_IAB_DU_Cell_Resource_Configuration_TDD_Info = -1;
-static gint ett_xnap_IAB_MT_Cell_List = -1;
-static gint ett_xnap_IAB_MT_Cell_List_Item = -1;
-static gint ett_xnap_IAB_QoS_Mapping_Information = -1;
-static gint ett_xnap_IAB_STC_Info = -1;
-static gint ett_xnap_IAB_STC_Info_List = -1;
-static gint ett_xnap_IAB_STC_Info_Item = -1;
-static gint ett_xnap_IAB_TNL_Address_Request = -1;
-static gint ett_xnap_IABIPv6RequestType = -1;
-static gint ett_xnap_IAB_TNL_Address_Response = -1;
-static gint ett_xnap_IABAllocatedTNLAddress_List = -1;
-static gint ett_xnap_IABAllocatedTNLAddress_Item = -1;
-static gint ett_xnap_IABTNLAddress = -1;
-static gint ett_xnap_IABTNLAddressesRequested = -1;
-static gint ett_xnap_IABTNLAddressToRemove_List = -1;
-static gint ett_xnap_IABTNLAddressToRemove_Item = -1;
-static gint ett_xnap_IABTNLAddressException = -1;
-static gint ett_xnap_IABTNLAddress_Item = -1;
-static gint ett_xnap_ImmediateMDT_NR = -1;
-static gint ett_xnap_ImplicitFormat = -1;
-static gint ett_xnap_InitiatingCondition_FailureIndication = -1;
-static gint ett_xnap_IntendedTDD_DL_ULConfiguration_NR = -1;
-static gint ett_xnap_I_RNTI = -1;
-static gint ett_xnap_Local_NG_RAN_Node_Identifier = -1;
-static gint ett_xnap_Full_and_Short_I_RNTI_Profile_List = -1;
-static gint ett_xnap_Full_I_RNTI_Profile_List = -1;
-static gint ett_xnap_Short_I_RNTI_Profile_List = -1;
-static gint ett_xnap_LastVisitedCell_Item = -1;
-static gint ett_xnap_LastVisitedPSCellList = -1;
-static gint ett_xnap_LastVisitedPSCellList_Item = -1;
-static gint ett_xnap_SCGUEHistoryInformation = -1;
-static gint ett_xnap_ListOfCells = -1;
-static gint ett_xnap_CellsinAoI_Item = -1;
-static gint ett_xnap_ListOfRANNodesinAoI = -1;
-static gint ett_xnap_GlobalNG_RANNodesinAoI_Item = -1;
-static gint ett_xnap_ListOfTAIsinAoI = -1;
-static gint ett_xnap_TAIsinAoI_Item = -1;
-static gint ett_xnap_LocationReportingInformation = -1;
-static gint ett_xnap_LoggedEventTriggeredConfig = -1;
-static gint ett_xnap_LoggedMDT_NR = -1;
-static gint ett_xnap_LTEV2XServicesAuthorized = -1;
-static gint ett_xnap_LTEUESidelinkAggregateMaximumBitRate = -1;
-static gint ett_xnap_MDTAlignmentInfo = -1;
-static gint ett_xnap_M1Configuration = -1;
-static gint ett_xnap_M1PeriodicReporting = -1;
-static gint ett_xnap_M1ThresholdEventA2 = -1;
-static gint ett_xnap_M4Configuration = -1;
-static gint ett_xnap_M5Configuration = -1;
-static gint ett_xnap_M6Configuration = -1;
-static gint ett_xnap_M7Configuration = -1;
-static gint ett_xnap_MaximumIPdatarate = -1;
-static gint ett_xnap_MBSFNSubframeAllocation_E_UTRA = -1;
-static gint ett_xnap_MBSFNSubframeInfo_E_UTRA = -1;
-static gint ett_xnap_MBSFNSubframeInfo_E_UTRA_Item = -1;
-static gint ett_xnap_MBS_MappingandDataForwardingRequestInfofromSource = -1;
-static gint ett_xnap_MBS_MappingandDataForwardingRequestInfofromSource_Item = -1;
-static gint ett_xnap_MBS_DataForwardingResponseInfofromTarget = -1;
-static gint ett_xnap_MBS_DataForwardingResponseInfofromTarget_Item = -1;
-static gint ett_xnap_MBS_QoSFlow_List = -1;
-static gint ett_xnap_MBS_QoSFlowsToAdd_List = -1;
-static gint ett_xnap_MBS_QoSFlowsToAdd_Item = -1;
-static gint ett_xnap_MBS_ServiceArea = -1;
-static gint ett_xnap_MBS_ServiceAreaCell_List = -1;
-static gint ett_xnap_MBS_ServiceAreaInformation = -1;
-static gint ett_xnap_MBS_ServiceAreaInformationList = -1;
-static gint ett_xnap_MBS_ServiceAreaInformation_Item = -1;
-static gint ett_xnap_MBS_ServiceAreaTAI_List = -1;
-static gint ett_xnap_MBS_ServiceAreaTAI_Item = -1;
-static gint ett_xnap_MBS_Session_ID = -1;
-static gint ett_xnap_MBS_SessionAssociatedInformation = -1;
-static gint ett_xnap_MBS_SessionAssociatedInformation_Item = -1;
-static gint ett_xnap_MBS_SessionInformation_List = -1;
-static gint ett_xnap_MBS_SessionInformation_Item = -1;
-static gint ett_xnap_MBS_SessionInformationResponse_List = -1;
-static gint ett_xnap_MBS_SessionInformationResponse_Item = -1;
-static gint ett_xnap_MRB_ProgressInformation = -1;
-static gint ett_xnap_MDT_Configuration = -1;
-static gint ett_xnap_MDT_Configuration_NR = -1;
-static gint ett_xnap_MDT_Configuration_EUTRA = -1;
-static gint ett_xnap_MDTPLMNList = -1;
-static gint ett_xnap_MDTPLMNModificationList = -1;
-static gint ett_xnap_MDTMode_NR = -1;
-static gint ett_xnap_MeasurementThresholdA2 = -1;
-static gint ett_xnap_MIMOPRBusageInformation = -1;
-static gint ett_xnap_MobilityParametersModificationRange = -1;
-static gint ett_xnap_MobilityParametersInformation = -1;
-static gint ett_xnap_MobilityRestrictionList = -1;
-static gint ett_xnap_SEQUENCE_SIZE_1_maxnoofEPLMNs_OF_PLMN_Identity = -1;
-static gint ett_xnap_CNTypeRestrictionsForEquivalent = -1;
-static gint ett_xnap_CNTypeRestrictionsForEquivalentItem = -1;
-static gint ett_xnap_RAT_RestrictionsList = -1;
-static gint ett_xnap_RAT_RestrictionsItem = -1;
-static gint ett_xnap_RAT_RestrictionInformation = -1;
-static gint ett_xnap_ForbiddenAreaList = -1;
-static gint ett_xnap_ForbiddenAreaItem = -1;
-static gint ett_xnap_SEQUENCE_SIZE_1_maxnoofForbiddenTACs_OF_TAC = -1;
-static gint ett_xnap_ServiceAreaList = -1;
-static gint ett_xnap_ServiceAreaItem = -1;
-static gint ett_xnap_SEQUENCE_SIZE_1_maxnoofAllowedAreas_OF_TAC = -1;
-static gint ett_xnap_MR_DC_ResourceCoordinationInfo = -1;
-static gint ett_xnap_NG_RAN_Node_ResourceCoordinationInfo = -1;
-static gint ett_xnap_E_UTRA_ResourceCoordinationInfo = -1;
-static gint ett_xnap_NR_ResourceCoordinationInfo = -1;
-static gint ett_xnap_MessageOversizeNotification = -1;
-static gint ett_xnap_MultiplexingInfo = -1;
-static gint ett_xnap_NACellResourceConfigurationList = -1;
-static gint ett_xnap_NACellResourceConfiguration_Item = -1;
-static gint ett_xnap_NE_DC_TDM_Pattern = -1;
-static gint ett_xnap_NeighbourInformation_E_UTRA = -1;
-static gint ett_xnap_NeighbourInformation_E_UTRA_Item = -1;
-static gint ett_xnap_NeighbourInformation_NR = -1;
-static gint ett_xnap_NeighbourInformation_NR_Item = -1;
-static gint ett_xnap_NeighbourInformation_NR_ModeInfo = -1;
-static gint ett_xnap_NeighbourInformation_NR_ModeFDDInfo = -1;
-static gint ett_xnap_NeighbourInformation_NR_ModeTDDInfo = -1;
-static gint ett_xnap_Neighbour_NG_RAN_Node_List = -1;
-static gint ett_xnap_Neighbour_NG_RAN_Node_Item = -1;
-static gint ett_xnap_NRCarrierList = -1;
-static gint ett_xnap_NRCarrierItem = -1;
-static gint ett_xnap_NG_RAN_Cell_Identity = -1;
-static gint ett_xnap_NG_RAN_CellPCI = -1;
-static gint ett_xnap_NG_RANnode2SSBOffsetsModificationRange = -1;
-static gint ett_xnap_NonDynamic5QIDescriptor = -1;
-static gint ett_xnap_NG_eNB_RadioResourceStatus = -1;
-static gint ett_xnap_TNLCapacityIndicator = -1;
-static gint ett_xnap_Non_F1_TerminatingTopologyBHInformation = -1;
-static gint ett_xnap_NonF1TerminatingBHInformation_List = -1;
-static gint ett_xnap_NonF1TerminatingBHInformation_Item = -1;
-static gint ett_xnap_NonUPTraffic = -1;
-static gint ett_xnap_NPN_Broadcast_Information = -1;
-static gint ett_xnap_NPN_Broadcast_Information_SNPN = -1;
-static gint ett_xnap_NPN_Broadcast_Information_PNI_NPN = -1;
-static gint ett_xnap_NPNMobilityInformation = -1;
-static gint ett_xnap_NPNMobilityInformation_SNPN = -1;
-static gint ett_xnap_NPNMobilityInformation_PNI_NPN = -1;
-static gint ett_xnap_NPNPagingAssistanceInformation = -1;
-static gint ett_xnap_NPNPagingAssistanceInformation_PNI_NPN = -1;
-static gint ett_xnap_NPN_Support = -1;
-static gint ett_xnap_NPN_Support_SNPN = -1;
-static gint ett_xnap_NPRACHConfiguration = -1;
-static gint ett_xnap_T_fdd_or_tdd = -1;
-static gint ett_xnap_NPRACHConfiguration_FDD = -1;
-static gint ett_xnap_NPRACHConfiguration_TDD = -1;
-static gint ett_xnap_Non_AnchorCarrierFrequencylist = -1;
-static gint ett_xnap_Non_AnchorCarrierFrequencylist_item = -1;
-static gint ett_xnap_NG_RAN_Cell_Identity_ListinRANPagingArea = -1;
-static gint ett_xnap_NR_CGI = -1;
-static gint ett_xnap_NR_U_Channel_List = -1;
-static gint ett_xnap_NR_U_Channel_Item = -1;
-static gint ett_xnap_NR_U_ChannelInfo_List = -1;
-static gint ett_xnap_NR_U_ChannelInfo_Item = -1;
-static gint ett_xnap_NRFrequencyBand_List = -1;
-static gint ett_xnap_NRFrequencyBandItem = -1;
-static gint ett_xnap_NRFrequencyInfo = -1;
-static gint ett_xnap_NRModeInfo = -1;
-static gint ett_xnap_NRModeInfoFDD = -1;
-static gint ett_xnap_NRModeInfoTDD = -1;
-static gint ett_xnap_NRPagingeDRXInformation = -1;
-static gint ett_xnap_NRPagingeDRXInformationforRRCINACTIVE = -1;
-static gint ett_xnap_NRTransmissionBandwidth = -1;
-static gint ett_xnap_NRV2XServicesAuthorized = -1;
-static gint ett_xnap_NRUESidelinkAggregateMaximumBitRate = -1;
-static gint ett_xnap_PositioningInformation = -1;
-static gint ett_xnap_PacketErrorRate = -1;
-static gint ett_xnap_PEIPSassistanceInformation = -1;
-static gint ett_xnap_PC5QoSParameters = -1;
-static gint ett_xnap_PC5QoSFlowList = -1;
-static gint ett_xnap_PC5QoSFlowItem = -1;
-static gint ett_xnap_PC5FlowBitRates = -1;
-static gint ett_xnap_PDCPChangeIndication = -1;
-static gint ett_xnap_PDCPSNLength = -1;
-static gint ett_xnap_PDUSessionAggregateMaximumBitRate = -1;
-static gint ett_xnap_PDUSession_List = -1;
-static gint ett_xnap_PDUSession_List_withCause = -1;
-static gint ett_xnap_PDUSession_List_withCause_Item = -1;
-static gint ett_xnap_PDUSession_List_withDataForwardingFromTarget = -1;
-static gint ett_xnap_PDUSession_List_withDataForwardingFromTarget_Item = -1;
-static gint ett_xnap_PDUSession_List_withDataForwardingRequest = -1;
-static gint ett_xnap_PDUSession_List_withDataForwardingRequest_Item = -1;
-static gint ett_xnap_PDUSessionResourcesAdmitted_List = -1;
-static gint ett_xnap_PDUSessionResourcesAdmitted_Item = -1;
-static gint ett_xnap_PDUSessionResourceAdmittedInfo = -1;
-static gint ett_xnap_PDUSessionResourcesNotAdmitted_List = -1;
-static gint ett_xnap_PDUSessionResourcesNotAdmitted_Item = -1;
-static gint ett_xnap_PDUSessionResourcesToBeSetup_List = -1;
-static gint ett_xnap_PDUSessionResourcesToBeSetup_Item = -1;
-static gint ett_xnap_PDUSessionResourceSetupInfo_SNterminated = -1;
-static gint ett_xnap_QoSFlowsToBeSetup_List_Setup_SNterminated = -1;
-static gint ett_xnap_QoSFlowsToBeSetup_List_Setup_SNterminated_Item = -1;
-static gint ett_xnap_PDUSessionResourceSetupResponseInfo_SNterminated = -1;
-static gint ett_xnap_DRBsToBeSetupList_SetupResponse_SNterminated = -1;
-static gint ett_xnap_DRBsToBeSetupList_SetupResponse_SNterminated_Item = -1;
-static gint ett_xnap_QoSFlowsMappedtoDRB_SetupResponse_SNterminated = -1;
-static gint ett_xnap_QoSFlowsMappedtoDRB_SetupResponse_SNterminated_Item = -1;
-static gint ett_xnap_PDUSessionResourceSetupInfo_MNterminated = -1;
-static gint ett_xnap_DRBsToBeSetupList_Setup_MNterminated = -1;
-static gint ett_xnap_DRBsToBeSetupList_Setup_MNterminated_Item = -1;
-static gint ett_xnap_QoSFlowsMappedtoDRB_Setup_MNterminated = -1;
-static gint ett_xnap_QoSFlowsMappedtoDRB_Setup_MNterminated_Item = -1;
-static gint ett_xnap_PDUSessionResourceSetupResponseInfo_MNterminated = -1;
-static gint ett_xnap_DRBsAdmittedList_SetupResponse_MNterminated = -1;
-static gint ett_xnap_DRBsAdmittedList_SetupResponse_MNterminated_Item = -1;
-static gint ett_xnap_QoSFlowsMappedtoDRB_SetupResponse_MNterminated = -1;
-static gint ett_xnap_QoSFlowsMappedtoDRB_SetupResponse_MNterminated_Item = -1;
-static gint ett_xnap_PDUSessionResourceModificationInfo_SNterminated = -1;
-static gint ett_xnap_QoSFlowsToBeSetup_List_Modified_SNterminated = -1;
-static gint ett_xnap_QoSFlowsToBeSetup_List_Modified_SNterminated_Item = -1;
-static gint ett_xnap_DRBsToBeModified_List_Modified_SNterminated = -1;
-static gint ett_xnap_DRBsToBeModified_List_Modified_SNterminated_Item = -1;
-static gint ett_xnap_PDUSessionResourceModificationResponseInfo_SNterminated = -1;
-static gint ett_xnap_DRBsToBeModifiedList_ModificationResponse_SNterminated = -1;
-static gint ett_xnap_DRBsToBeModifiedList_ModificationResponse_SNterminated_Item = -1;
-static gint ett_xnap_PDUSessionResourceModificationInfo_MNterminated = -1;
-static gint ett_xnap_DRBsToBeModifiedList_Modification_MNterminated = -1;
-static gint ett_xnap_DRBsToBeModifiedList_Modification_MNterminated_Item = -1;
-static gint ett_xnap_PDUSessionResourceModificationResponseInfo_MNterminated = -1;
-static gint ett_xnap_DRBsAdmittedList_ModificationResponse_MNterminated = -1;
-static gint ett_xnap_DRBsAdmittedList_ModificationResponse_MNterminated_Item = -1;
-static gint ett_xnap_PDUSessionResourceChangeRequiredInfo_SNterminated = -1;
-static gint ett_xnap_PDUSessionResourceChangeConfirmInfo_SNterminated = -1;
-static gint ett_xnap_PDUSessionResourceChangeRequiredInfo_MNterminated = -1;
-static gint ett_xnap_PDUSessionResourceChangeConfirmInfo_MNterminated = -1;
-static gint ett_xnap_PDUSessionResourceModRqdInfo_SNterminated = -1;
-static gint ett_xnap_DRBsToBeSetup_List_ModRqd_SNterminated = -1;
-static gint ett_xnap_DRBsToBeSetup_List_ModRqd_SNterminated_Item = -1;
-static gint ett_xnap_QoSFlowsSetupMappedtoDRB_ModRqd_SNterminated = -1;
-static gint ett_xnap_QoSFlowsSetupMappedtoDRB_ModRqd_SNterminated_Item = -1;
-static gint ett_xnap_DRBsToBeModified_List_ModRqd_SNterminated = -1;
-static gint ett_xnap_DRBsToBeModified_List_ModRqd_SNterminated_Item = -1;
-static gint ett_xnap_QoSFlowsModifiedMappedtoDRB_ModRqd_SNterminated = -1;
-static gint ett_xnap_QoSFlowsModifiedMappedtoDRB_ModRqd_SNterminated_Item = -1;
-static gint ett_xnap_PDUSessionResourceModConfirmInfo_SNterminated = -1;
-static gint ett_xnap_DRBsAdmittedList_ModConfirm_SNterminated = -1;
-static gint ett_xnap_DRBsAdmittedList_ModConfirm_SNterminated_Item = -1;
-static gint ett_xnap_PDUSessionResourceModRqdInfo_MNterminated = -1;
-static gint ett_xnap_DRBsToBeModified_List_ModRqd_MNterminated = -1;
-static gint ett_xnap_DRBsToBeModified_List_ModRqd_MNterminated_Item = -1;
-static gint ett_xnap_PDUSessionResourceModConfirmInfo_MNterminated = -1;
-static gint ett_xnap_PDUSessionResourceBearerSetupCompleteInfo_SNterminated = -1;
-static gint ett_xnap_SEQUENCE_SIZE_1_maxnoofDRBs_OF_DRBsToBeSetupList_BearerSetupComplete_SNterminated_Item = -1;
-static gint ett_xnap_DRBsToBeSetupList_BearerSetupComplete_SNterminated_Item = -1;
-static gint ett_xnap_PDUSessionResourceSecondaryRATUsageList = -1;
-static gint ett_xnap_PDUSessionResourceSecondaryRATUsageItem = -1;
-static gint ett_xnap_PDUSessionUsageReport = -1;
-static gint ett_xnap_Periodical = -1;
-static gint ett_xnap_PLMNAreaBasedQMC = -1;
-static gint ett_xnap_PLMNListforQMC = -1;
-static gint ett_xnap_PCIListForMDT = -1;
-static gint ett_xnap_ProtectedE_UTRAResourceIndication = -1;
-static gint ett_xnap_ProtectedE_UTRAResourceList = -1;
-static gint ett_xnap_ProtectedE_UTRAResource_Item = -1;
-static gint ett_xnap_ProtectedE_UTRAFootprintTimePattern = -1;
-static gint ett_xnap_QMCConfigInfo = -1;
-static gint ett_xnap_UEAppLayerMeasInfoList = -1;
-static gint ett_xnap_UEAppLayerMeasInfo_Item = -1;
-static gint ett_xnap_QoSCharacteristics = -1;
-static gint ett_xnap_QoSFlowLevelQoSParameters = -1;
-static gint ett_xnap_QoSFlowNotificationControlIndicationInfo = -1;
-static gint ett_xnap_QoSFlowNotify_Item = -1;
-static gint ett_xnap_QoSFlows_List = -1;
-static gint ett_xnap_QoSFlow_Item = -1;
-static gint ett_xnap_QoSFlows_List_withCause = -1;
-static gint ett_xnap_QoSFlowwithCause_Item = -1;
-static gint ett_xnap_QoS_Mapping_Information = -1;
-static gint ett_xnap_QoSFlowsAdmitted_List = -1;
-static gint ett_xnap_QoSFlowsAdmitted_Item = -1;
-static gint ett_xnap_QoSFlowsToBeSetup_List = -1;
-static gint ett_xnap_QoSFlowsToBeSetup_Item = -1;
-static gint ett_xnap_QoSFlowsUsageReportList = -1;
-static gint ett_xnap_QoSFlowsUsageReport_Item = -1;
-static gint ett_xnap_RACHReportInformation = -1;
-static gint ett_xnap_RACHReportList_Item = -1;
-static gint ett_xnap_RadioResourceStatus = -1;
-static gint ett_xnap_RANAreaID = -1;
-static gint ett_xnap_RANAreaID_List = -1;
-static gint ett_xnap_RANPagingArea = -1;
-static gint ett_xnap_RANPagingAreaChoice = -1;
-static gint ett_xnap_RANPagingAttemptInfo = -1;
-static gint ett_xnap_RBsetConfiguration = -1;
-static gint ett_xnap_RedundantPDUSessionInformation = -1;
-static gint ett_xnap_ReplacingCells = -1;
-static gint ett_xnap_ReplacingCells_Item = -1;
-static gint ett_xnap_ReportType = -1;
-static gint ett_xnap_ReservedSubframePattern = -1;
-static gint ett_xnap_ResetRequestTypeInfo = -1;
-static gint ett_xnap_ResetRequestTypeInfo_Full = -1;
-static gint ett_xnap_ResetRequestTypeInfo_Partial = -1;
-static gint ett_xnap_ResetRequestPartialReleaseList = -1;
-static gint ett_xnap_ResetRequestPartialReleaseItem = -1;
-static gint ett_xnap_ResetResponseTypeInfo = -1;
-static gint ett_xnap_ResetResponseTypeInfo_Full = -1;
-static gint ett_xnap_ResetResponseTypeInfo_Partial = -1;
-static gint ett_xnap_ResetResponsePartialReleaseList = -1;
-static gint ett_xnap_ResetResponsePartialReleaseItem = -1;
-static gint ett_xnap_RLC_Status = -1;
-static gint ett_xnap_RLCDuplicationInformation = -1;
-static gint ett_xnap_RLCDuplicationStateList = -1;
-static gint ett_xnap_RLCDuplicationState_Item = -1;
-static gint ett_xnap_RRCConnections = -1;
-static gint ett_xnap_RRCReestab_initiated = -1;
-static gint ett_xnap_RRCReestab_Initiated_Reporting = -1;
-static gint ett_xnap_RRCReestab_Initiated_Reporting_wo_UERLFReport = -1;
-static gint ett_xnap_RRCReestab_Initiated_Reporting_with_UERLFReport = -1;
-static gint ett_xnap_RRCSetup_initiated = -1;
-static gint ett_xnap_RRCSetup_Initiated_Reporting = -1;
-static gint ett_xnap_RRCSetup_Initiated_Reporting_with_UERLFReport = -1;
-static gint ett_xnap_S_NSSAIListQoE = -1;
-static gint ett_xnap_S_BasedMDT = -1;
-static gint ett_xnap_SecondarydataForwardingInfoFromTarget_Item = -1;
-static gint ett_xnap_SecondarydataForwardingInfoFromTarget_List = -1;
-static gint ett_xnap_SDTSupportRequest = -1;
-static gint ett_xnap_SDTPartialUEContextInfo = -1;
-static gint ett_xnap_SDT_DRBsToBeSetupList = -1;
-static gint ett_xnap_SDT_DRBsToBeSetupList_Item = -1;
-static gint ett_xnap_SDT_SRBsToBeSetupList = -1;
-static gint ett_xnap_SDT_SRBsToBeSetupList_Item = -1;
-static gint ett_xnap_SDTDataForwardingDRBList = -1;
-static gint ett_xnap_SDTDataForwardingDRBList_Item = -1;
-static gint ett_xnap_SecondaryRATUsageInformation = -1;
-static gint ett_xnap_SecurityIndication = -1;
-static gint ett_xnap_SecurityResult = -1;
-static gint ett_xnap_SensorMeasurementConfiguration = -1;
-static gint ett_xnap_SensorMeasConfigNameList = -1;
-static gint ett_xnap_SensorName = -1;
-static gint ett_xnap_ServedCellInformation_E_UTRA = -1;
-static gint ett_xnap_SEQUENCE_SIZE_1_maxnoofBPLMNs_OF_ServedCellInformation_E_UTRA_perBPLMN = -1;
-static gint ett_xnap_ServedCellInformation_E_UTRA_perBPLMN = -1;
-static gint ett_xnap_ServedCellInformation_E_UTRA_ModeInfo = -1;
-static gint ett_xnap_ServedCellInformation_E_UTRA_FDDInfo = -1;
-static gint ett_xnap_ServedCellInformation_E_UTRA_TDDInfo = -1;
-static gint ett_xnap_ServedCells_E_UTRA = -1;
-static gint ett_xnap_ServedCells_E_UTRA_Item = -1;
-static gint ett_xnap_ServedCellsToUpdate_E_UTRA = -1;
-static gint ett_xnap_ServedCells_ToModify_E_UTRA = -1;
-static gint ett_xnap_ServedCells_ToModify_E_UTRA_Item = -1;
-static gint ett_xnap_ServedCellInformation_NR = -1;
-static gint ett_xnap_SFN_Offset = -1;
-static gint ett_xnap_ServedCells_NR = -1;
-static gint ett_xnap_ServedCells_NR_Item = -1;
-static gint ett_xnap_ServedCells_ToModify_NR = -1;
-static gint ett_xnap_ServedCells_ToModify_NR_Item = -1;
-static gint ett_xnap_ServedCellSpecificInfoReq_NR = -1;
-static gint ett_xnap_ServedCellSpecificInfoReq_NR_Item = -1;
-static gint ett_xnap_ServedCellsToUpdate_NR = -1;
-static gint ett_xnap_SharedResourceType = -1;
-static gint ett_xnap_SharedResourceType_UL_OnlySharing = -1;
-static gint ett_xnap_SharedResourceType_ULDL_Sharing = -1;
-static gint ett_xnap_SharedResourceType_ULDL_Sharing_UL_Resources = -1;
-static gint ett_xnap_SharedResourceType_ULDL_Sharing_UL_ResourcesChanged = -1;
-static gint ett_xnap_SharedResourceType_ULDL_Sharing_DL_Resources = -1;
-static gint ett_xnap_SharedResourceType_ULDL_Sharing_DL_ResourcesChanged = -1;
-static gint ett_xnap_SliceAvailableCapacity = -1;
-static gint ett_xnap_SliceAvailableCapacity_Item = -1;
-static gint ett_xnap_SNSSAIAvailableCapacity_List = -1;
-static gint ett_xnap_SNSSAIAvailableCapacity_Item = -1;
-static gint ett_xnap_SliceRadioResourceStatus_List = -1;
-static gint ett_xnap_SliceRadioResourceStatus_Item = -1;
-static gint ett_xnap_SNSSAIRadioResourceStatus_List = -1;
-static gint ett_xnap_SNSSAIRadioResourceStatus_Item = -1;
-static gint ett_xnap_SliceSupport_List = -1;
-static gint ett_xnap_SliceToReport_List = -1;
-static gint ett_xnap_SliceToReport_List_Item = -1;
-static gint ett_xnap_SNSSAI_list = -1;
-static gint ett_xnap_SNSSAI_Item = -1;
-static gint ett_xnap_SlotConfiguration_List = -1;
-static gint ett_xnap_SlotConfiguration_List_Item = -1;
-static gint ett_xnap_S_NSSAI = -1;
-static gint ett_xnap_SpecialSubframeInfo_E_UTRA = -1;
-static gint ett_xnap_SSBAreaCapacityValue_List = -1;
-static gint ett_xnap_SSBAreaCapacityValue_List_Item = -1;
-static gint ett_xnap_SSBAreaRadioResourceStatus_List = -1;
-static gint ett_xnap_SSBAreaRadioResourceStatus_List_Item = -1;
-static gint ett_xnap_SSB_Coverage_Modification_List = -1;
-static gint ett_xnap_SSB_Coverage_Modification_List_Item = -1;
-static gint ett_xnap_SSB_PositionsInBurst = -1;
-static gint ett_xnap_SSBOffsets_List = -1;
-static gint ett_xnap_SSBOffsets_Item = -1;
-static gint ett_xnap_SSBOffsetInformation = -1;
-static gint ett_xnap_SSBOffsetModificationRange = -1;
-static gint ett_xnap_SSBToReport_List = -1;
-static gint ett_xnap_SSBToReport_List_Item = -1;
-static gint ett_xnap_SSB_transmissionBitmap = -1;
-static gint ett_xnap_SuccessfulHOReportInformation = -1;
-static gint ett_xnap_SuccessfulHOReportList_Item = -1;
-static gint ett_xnap_SUL_Information = -1;
-static gint ett_xnap_Supported_MBS_FSA_ID_List = -1;
-static gint ett_xnap_SupportedSULBandList = -1;
-static gint ett_xnap_SupportedSULBandItem = -1;
-static gint ett_xnap_SymbolAllocation_in_Slot = -1;
-static gint ett_xnap_SymbolAllocation_in_Slot_AllDL = -1;
-static gint ett_xnap_SymbolAllocation_in_Slot_AllUL = -1;
-static gint ett_xnap_SymbolAllocation_in_Slot_BothDLandUL = -1;
-static gint ett_xnap_TABasedMDT = -1;
-static gint ett_xnap_TAIBasedMDT = -1;
-static gint ett_xnap_TAIListforMDT = -1;
-static gint ett_xnap_TAIforMDT_Item = -1;
-static gint ett_xnap_TAINSAGSupportList = -1;
-static gint ett_xnap_TAINSAGSupportItem = -1;
-static gint ett_xnap_TAISupport_List = -1;
-static gint ett_xnap_TAISupport_Item = -1;
-static gint ett_xnap_SEQUENCE_SIZE_1_maxnoofsupportedPLMNs_OF_BroadcastPLMNinTAISupport_Item = -1;
-static gint ett_xnap_TAListforMDT = -1;
-static gint ett_xnap_TABasedQMC = -1;
-static gint ett_xnap_TAListforQMC = -1;
-static gint ett_xnap_TAIBasedQMC = -1;
-static gint ett_xnap_TAIListforQMC = -1;
-static gint ett_xnap_TAI_Item = -1;
-static gint ett_xnap_Target_CGI = -1;
-static gint ett_xnap_TargetCellList = -1;
-static gint ett_xnap_TargetCellList_Item = -1;
-static gint ett_xnap_TimeSynchronizationAssistanceInformation = -1;
-static gint ett_xnap_TNLConfigurationInfo = -1;
-static gint ett_xnap_TNLA_To_Add_List = -1;
-static gint ett_xnap_TNLA_To_Add_Item = -1;
-static gint ett_xnap_TNLA_To_Update_List = -1;
-static gint ett_xnap_TNLA_To_Update_Item = -1;
-static gint ett_xnap_TNLA_To_Remove_List = -1;
-static gint ett_xnap_TNLA_To_Remove_Item = -1;
-static gint ett_xnap_TNLA_Setup_List = -1;
-static gint ett_xnap_TNLA_Setup_Item = -1;
-static gint ett_xnap_TNLA_Failed_To_Setup_List = -1;
-static gint ett_xnap_TNLA_Failed_To_Setup_Item = -1;
-static gint ett_xnap_TraceActivation = -1;
-static gint ett_xnap_T_interfaces_to_trace = -1;
-static gint ett_xnap_TrafficProfile = -1;
-static gint ett_xnap_TrafficReleaseType = -1;
-static gint ett_xnap_TrafficToBeReleaseInformation = -1;
-static gint ett_xnap_TrafficToBeRelease_List = -1;
-static gint ett_xnap_TrafficToBeRelease_Item = -1;
-static gint ett_xnap_TSCTrafficCharacteristics = -1;
-static gint ett_xnap_TSCAssistanceInformation = -1;
-static gint ett_xnap_UEAggregateMaximumBitRate = -1;
-static gint ett_xnap_UEAppLayerMeasConfigInfo = -1;
-static gint ett_xnap_UEContextID = -1;
-static gint ett_xnap_UEContextIDforRRCResume = -1;
-static gint ett_xnap_UEContextIDforRRCReestablishment = -1;
-static gint ett_xnap_UEContextInfoRetrUECtxtResp = -1;
-static gint ett_xnap_UEHistoryInformation = -1;
-static gint ett_xnap_UEHistoryInformationFromTheUE = -1;
-static gint ett_xnap_UEIdentityIndexValue = -1;
-static gint ett_xnap_UEIdentityIndexList_MBSGroupPaging = -1;
-static gint ett_xnap_UEIdentityIndexList_MBSGroupPaging_Item = -1;
-static gint ett_xnap_UEIdentityIndexList_MBSGroupPagingValue = -1;
-static gint ett_xnap_UERadioCapabilityForPaging = -1;
-static gint ett_xnap_UERANPagingIdentity = -1;
-static gint ett_xnap_UERLFReportContainer = -1;
-static gint ett_xnap_UERLFReportContainerLTEExtension = -1;
-static gint ett_xnap_UESliceMaximumBitRateList = -1;
-static gint ett_xnap_UESliceMaximumBitRate_Item = -1;
-static gint ett_xnap_UESecurityCapabilities = -1;
-static gint ett_xnap_T_nr_EncyptionAlgorithms = -1;
-static gint ett_xnap_T_nr_IntegrityProtectionAlgorithms = -1;
-static gint ett_xnap_T_e_utra_EncyptionAlgorithms = -1;
-static gint ett_xnap_T_e_utra_IntegrityProtectionAlgorithms = -1;
-static gint ett_xnap_ULConfiguration = -1;
-static gint ett_xnap_ULF1Terminating_BHInfo = -1;
-static gint ett_xnap_ULNonF1Terminating_BHInfo = -1;
-static gint ett_xnap_UPTransportLayerInformation = -1;
-static gint ett_xnap_UPTransportParameters = -1;
-static gint ett_xnap_UPTransportParametersItem = -1;
-static gint ett_xnap_VolumeTimedReportList = -1;
-static gint ett_xnap_VolumeTimedReport_Item = -1;
-static gint ett_xnap_WLANMeasurementConfiguration = -1;
-static gint ett_xnap_WLANMeasConfigNameList = -1;
-static gint ett_xnap_HandoverRequest = -1;
-static gint ett_xnap_UEContextInfoHORequest = -1;
-static gint ett_xnap_UEContextRefAtSN_HORequest = -1;
-static gint ett_xnap_HandoverRequestAcknowledge = -1;
-static gint ett_xnap_HandoverPreparationFailure = -1;
-static gint ett_xnap_SNStatusTransfer = -1;
-static gint ett_xnap_UEContextRelease = -1;
-static gint ett_xnap_HandoverCancel = -1;
-static gint ett_xnap_HandoverSuccess = -1;
-static gint ett_xnap_ConditionalHandoverCancel = -1;
-static gint ett_xnap_EarlyStatusTransfer = -1;
-static gint ett_xnap_ProcedureStageChoice = -1;
-static gint ett_xnap_FirstDLCount = -1;
-static gint ett_xnap_DLDiscarding = -1;
-static gint ett_xnap_RANPaging = -1;
-static gint ett_xnap_RetrieveUEContextRequest = -1;
-static gint ett_xnap_RetrieveUEContextResponse = -1;
-static gint ett_xnap_RetrieveUEContextConfirm = -1;
-static gint ett_xnap_RetrieveUEContextFailure = -1;
-static gint ett_xnap_XnUAddressIndication = -1;
-static gint ett_xnap_SNodeAdditionRequest = -1;
-static gint ett_xnap_PDUSessionToBeAddedAddReq = -1;
-static gint ett_xnap_PDUSessionToBeAddedAddReq_Item = -1;
-static gint ett_xnap_SNodeAdditionRequestAcknowledge = -1;
-static gint ett_xnap_PDUSessionAdmittedAddedAddReqAck = -1;
-static gint ett_xnap_PDUSessionAdmittedAddedAddReqAck_Item = -1;
-static gint ett_xnap_PDUSessionNotAdmittedAddReqAck = -1;
-static gint ett_xnap_SNodeAdditionRequestReject = -1;
-static gint ett_xnap_SNodeReconfigurationComplete = -1;
-static gint ett_xnap_ResponseInfo_ReconfCompl = -1;
-static gint ett_xnap_ResponseType_ReconfComplete = -1;
-static gint ett_xnap_Configuration_successfully_applied = -1;
-static gint ett_xnap_Configuration_rejected_by_M_NG_RANNode = -1;
-static gint ett_xnap_SNodeModificationRequest = -1;
-static gint ett_xnap_UEContextInfo_SNModRequest = -1;
-static gint ett_xnap_PDUSessionsToBeAdded_SNModRequest_List = -1;
-static gint ett_xnap_PDUSessionsToBeAdded_SNModRequest_Item = -1;
-static gint ett_xnap_PDUSessionsToBeModified_SNModRequest_List = -1;
-static gint ett_xnap_PDUSessionsToBeModified_SNModRequest_Item = -1;
-static gint ett_xnap_PDUSessionsToBeReleased_SNModRequest_List = -1;
-static gint ett_xnap_SNodeModificationRequestAcknowledge = -1;
-static gint ett_xnap_PDUSessionAdmitted_SNModResponse = -1;
-static gint ett_xnap_PDUSessionAdmittedToBeAddedSNModResponse = -1;
-static gint ett_xnap_PDUSessionAdmittedToBeAddedSNModResponse_Item = -1;
-static gint ett_xnap_PDUSessionAdmittedToBeModifiedSNModResponse = -1;
-static gint ett_xnap_PDUSessionAdmittedToBeModifiedSNModResponse_Item = -1;
-static gint ett_xnap_PDUSessionAdmittedToBeReleasedSNModResponse = -1;
-static gint ett_xnap_PDUSessionNotAdmitted_SNModResponse = -1;
-static gint ett_xnap_PDUSessionDataForwarding_SNModResponse = -1;
-static gint ett_xnap_SNodeModificationRequestReject = -1;
-static gint ett_xnap_SNodeModificationRequired = -1;
-static gint ett_xnap_PDUSessionToBeModifiedSNModRequired = -1;
-static gint ett_xnap_PDUSessionToBeModifiedSNModRequired_Item = -1;
-static gint ett_xnap_PDUSessionToBeReleasedSNModRequired = -1;
-static gint ett_xnap_SNodeModificationConfirm = -1;
-static gint ett_xnap_PDUSessionAdmittedModSNModConfirm = -1;
-static gint ett_xnap_PDUSessionAdmittedModSNModConfirm_Item = -1;
-static gint ett_xnap_PDUSessionReleasedSNModConfirm = -1;
-static gint ett_xnap_SNodeModificationRefuse = -1;
-static gint ett_xnap_SNodeReleaseRequest = -1;
-static gint ett_xnap_SNodeReleaseRequestAcknowledge = -1;
-static gint ett_xnap_PDUSessionToBeReleasedList_RelReqAck = -1;
-static gint ett_xnap_SNodeReleaseReject = -1;
-static gint ett_xnap_SNodeReleaseRequired = -1;
-static gint ett_xnap_PDUSessionToBeReleasedList_RelRqd = -1;
-static gint ett_xnap_SNodeReleaseConfirm = -1;
-static gint ett_xnap_PDUSessionReleasedList_RelConf = -1;
-static gint ett_xnap_SNodeCounterCheckRequest = -1;
-static gint ett_xnap_BearersSubjectToCounterCheck_List = -1;
-static gint ett_xnap_BearersSubjectToCounterCheck_Item = -1;
-static gint ett_xnap_SNodeChangeRequired = -1;
-static gint ett_xnap_PDUSession_SNChangeRequired_List = -1;
-static gint ett_xnap_PDUSession_SNChangeRequired_Item = -1;
-static gint ett_xnap_SNodeChangeConfirm = -1;
-static gint ett_xnap_PDUSession_SNChangeConfirm_List = -1;
-static gint ett_xnap_PDUSession_SNChangeConfirm_Item = -1;
-static gint ett_xnap_SNodeChangeRefuse = -1;
-static gint ett_xnap_RRCTransfer = -1;
-static gint ett_xnap_SplitSRB_RRCTransfer = -1;
-static gint ett_xnap_UEReportRRCTransfer = -1;
-static gint ett_xnap_FastMCGRecoveryRRCTransfer = -1;
-static gint ett_xnap_SDT_SRB_between_NewNode_OldNode = -1;
-static gint ett_xnap_NotificationControlIndication = -1;
-static gint ett_xnap_PDUSessionResourcesNotifyList = -1;
-static gint ett_xnap_PDUSessionResourcesNotify_Item = -1;
-static gint ett_xnap_ActivityNotification = -1;
-static gint ett_xnap_PDUSessionResourcesActivityNotifyList = -1;
-static gint ett_xnap_PDUSessionResourcesActivityNotify_Item = -1;
-static gint ett_xnap_QoSFlowsActivityNotifyList = -1;
-static gint ett_xnap_QoSFlowsActivityNotifyItem = -1;
-static gint ett_xnap_XnSetupRequest = -1;
-static gint ett_xnap_XnSetupResponse = -1;
-static gint ett_xnap_XnSetupFailure = -1;
-static gint ett_xnap_NGRANNodeConfigurationUpdate = -1;
-static gint ett_xnap_ConfigurationUpdateInitiatingNodeChoice = -1;
-static gint ett_xnap_NGRANNodeConfigurationUpdateAcknowledge = -1;
-static gint ett_xnap_RespondingNodeTypeConfigUpdateAck = -1;
-static gint ett_xnap_RespondingNodeTypeConfigUpdateAck_ng_eNB = -1;
-static gint ett_xnap_RespondingNodeTypeConfigUpdateAck_gNB = -1;
-static gint ett_xnap_NGRANNodeConfigurationUpdateFailure = -1;
-static gint ett_xnap_E_UTRA_NR_CellResourceCoordinationRequest = -1;
-static gint ett_xnap_InitiatingNodeType_ResourceCoordRequest = -1;
-static gint ett_xnap_ResourceCoordRequest_ng_eNB_initiated = -1;
-static gint ett_xnap_ResourceCoordRequest_gNB_initiated = -1;
-static gint ett_xnap_E_UTRA_NR_CellResourceCoordinationResponse = -1;
-static gint ett_xnap_RespondingNodeType_ResourceCoordResponse = -1;
-static gint ett_xnap_ResourceCoordResponse_ng_eNB_initiated = -1;
-static gint ett_xnap_ResourceCoordResponse_gNB_initiated = -1;
-static gint ett_xnap_SecondaryRATDataUsageReport = -1;
-static gint ett_xnap_XnRemovalRequest = -1;
-static gint ett_xnap_XnRemovalResponse = -1;
-static gint ett_xnap_XnRemovalFailure = -1;
-static gint ett_xnap_CellActivationRequest = -1;
-static gint ett_xnap_ServedCellsToActivate = -1;
-static gint ett_xnap_CellActivationResponse = -1;
-static gint ett_xnap_ActivatedServedCells = -1;
-static gint ett_xnap_CellActivationFailure = -1;
-static gint ett_xnap_ResetRequest = -1;
-static gint ett_xnap_ResetResponse = -1;
-static gint ett_xnap_ErrorIndication = -1;
-static gint ett_xnap_PrivateMessage = -1;
-static gint ett_xnap_TraceStart = -1;
-static gint ett_xnap_DeactivateTrace = -1;
-static gint ett_xnap_FailureIndication = -1;
-static gint ett_xnap_HandoverReport = -1;
-static gint ett_xnap_ResourceStatusRequest = -1;
-static gint ett_xnap_ResourceStatusResponse = -1;
-static gint ett_xnap_ResourceStatusFailure = -1;
-static gint ett_xnap_ResourceStatusUpdate = -1;
-static gint ett_xnap_MobilityChangeRequest = -1;
-static gint ett_xnap_MobilityChangeAcknowledge = -1;
-static gint ett_xnap_MobilityChangeFailure = -1;
-static gint ett_xnap_AccessAndMobilityIndication = -1;
-static gint ett_xnap_CellTrafficTrace = -1;
-static gint ett_xnap_RANMulticastGroupPaging = -1;
-static gint ett_xnap_ScgFailureInformationReport = -1;
-static gint ett_xnap_ScgFailureTransfer = -1;
-static gint ett_xnap_F1CTrafficTransfer = -1;
-static gint ett_xnap_IABTransportMigrationManagementRequest = -1;
-static gint ett_xnap_TrafficToBeAddedList = -1;
-static gint ett_xnap_TrafficToBeAdded_Item = -1;
-static gint ett_xnap_TrafficToBeModifiedList = -1;
-static gint ett_xnap_TrafficToBeModified_Item = -1;
-static gint ett_xnap_IABTransportMigrationManagementResponse = -1;
-static gint ett_xnap_TrafficAddedList = -1;
-static gint ett_xnap_TrafficAdded_Item = -1;
-static gint ett_xnap_TrafficModifiedList = -1;
-static gint ett_xnap_TrafficModified_Item = -1;
-static gint ett_xnap_TrafficNotAddedList = -1;
-static gint ett_xnap_TrafficNotAdded_Item = -1;
-static gint ett_xnap_TrafficNotModifiedList = -1;
-static gint ett_xnap_TrafficNotModified_Item = -1;
-static gint ett_xnap_TrafficReleasedList = -1;
-static gint ett_xnap_TrafficReleased_Item = -1;
-static gint ett_xnap_IABTransportMigrationManagementReject = -1;
-static gint ett_xnap_IABTransportMigrationModificationRequest = -1;
-static gint ett_xnap_TrafficRequiredToBeModifiedList = -1;
-static gint ett_xnap_TrafficRequiredToBeModified_Item = -1;
-static gint ett_xnap_IABTNLAddressToBeReleasedList = -1;
-static gint ett_xnap_IABTNLAddressToBeReleased_Item = -1;
-static gint ett_xnap_IABTransportMigrationModificationResponse = -1;
-static gint ett_xnap_TrafficRequiredModifiedList = -1;
-static gint ett_xnap_TrafficRequiredModified_Item = -1;
-static gint ett_xnap_IABResourceCoordinationRequest = -1;
-static gint ett_xnap_BoundaryNodeCellsList = -1;
-static gint ett_xnap_BoundaryNodeCellsList_Item = -1;
-static gint ett_xnap_ParentNodeCellsList = -1;
-static gint ett_xnap_ParentNodeCellsList_Item = -1;
-static gint ett_xnap_IABResourceCoordinationResponse = -1;
-static gint ett_xnap_CPCCancel = -1;
-static gint ett_xnap_PartialUEContextTransfer = -1;
-static gint ett_xnap_PartialUEContextTransferAcknowledge = -1;
-static gint ett_xnap_PartialUEContextTransferFailure = -1;
-static gint ett_xnap_XnAP_PDU = -1;
-static gint ett_xnap_InitiatingMessage = -1;
-static gint ett_xnap_SuccessfulOutcome = -1;
-static gint ett_xnap_UnsuccessfulOutcome = -1;
+static gint ett_xnap;
+static gint ett_xnap_RRC_Context;
+static gint ett_nxap_container;
+static gint ett_xnap_PLMN_Identity;
+static gint ett_xnap_measurementTimingConfiguration;
+static gint ett_xnap_TransportLayerAddress;
+static gint ett_xnap_NG_RANTraceID;
+static gint ett_xnap_LastVisitedEUTRANCellInformation;
+static gint ett_xnap_LastVisitedNGRANCellInformation;
+static gint ett_xnap_LastVisitedUTRANCellInformation;
+static gint ett_xnap_LastVisitedGERANCellInformation;
+static gint ett_xnap_UERadioCapabilityForPagingOfNR;
+static gint ett_xnap_UERadioCapabilityForPagingOfEUTRA;
+static gint ett_xnap_FiveGCMobilityRestrictionListContainer;
+static gint ett_xnap_primaryRATRestriction;
+static gint ett_xnap_secondaryRATRestriction;
+static gint ett_xnap_ImmediateMDT_EUTRA;
+static gint ett_xnap_MDT_Location_Info;
+static gint ett_xnap_MeasurementsToActivate;
+static gint ett_xnap_NRMobilityHistoryReport;
+static gint ett_xnap_RACHReportContainer;
+static gint ett_xnap_TargetCellinEUTRAN;
+static gint ett_xnap_TDDULDLConfigurationCommonNR;
+static gint ett_xnap_UERLFReportContainerLTE;
+static gint ett_xnap_UERLFReportContainerNR;
+static gint ett_xnap_burstArrivalTime;
+static gint ett_xnap_ReportCharacteristics;
+static gint ett_xnap_NRCellPRACHConfig;
+static gint ett_xnap_anchorCarrier_NPRACHConfig;
+static gint ett_xnap_anchorCarrier_EDT_NPRACHConfig;
+static gint ett_xnap_anchorCarrier_Format2_NPRACHConfig;
+static gint ett_xnap_anchorCarrier_Format2_EDT_NPRACHConfig;
+static gint ett_xnap_non_anchorCarrier_NPRACHConfig;
+static gint ett_xnap_non_anchorCarrier_Format2_NPRACHConfig;
+static gint ett_xnap_anchorCarrier_NPRACHConfigTDD;
+static gint ett_xnap_non_anchorCarrier_NPRACHConfigTDD;
+static gint ett_xnap_non_anchorCarrierFrequency;
+static gint ett_xnap_cSI_RS_Configuration;
+static gint ett_xnap_sR_Configuration;
+static gint ett_xnap_pDCCH_ConfigSIB1;
+static gint ett_xnap_sCS_Common;
+static gint ett_xnap_LastVisitedPSCellInformation;
+static gint ett_xnap_MeasObjectContainer;
+static gint ett_xnap_RACH_Config_Common;
+static gint ett_xnap_RACH_Config_Common_IAB;
+static gint ett_xnap_ReportConfigContainer;
+static gint ett_xnap_RLC_Bearer_Configuration;
+static gint ett_xnap_SuccessfulHOReportContainer;
+static gint ett_xnap_UERLFReportContainerLTEExtendBand;
+static gint ett_xnap_MDTMode_EUTRA;
+static gint ett_xnap_PrivateIE_ID;
+static gint ett_xnap_ProtocolIE_Container;
+static gint ett_xnap_ProtocolIE_Field;
+static gint ett_xnap_ProtocolExtensionContainer;
+static gint ett_xnap_ProtocolExtensionField;
+static gint ett_xnap_PrivateIE_Container;
+static gint ett_xnap_PrivateIE_Field;
+static gint ett_xnap_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated;
+static gint ett_xnap_AdditionalListofPDUSessionResourceChangeConfirmInfo_SNterminated_Item;
+static gint ett_xnap_Additional_PDCP_Duplication_TNL_List;
+static gint ett_xnap_Additional_PDCP_Duplication_TNL_Item;
+static gint ett_xnap_Additional_UL_NG_U_TNLatUPF_Item;
+static gint ett_xnap_Additional_UL_NG_U_TNLatUPF_List;
+static gint ett_xnap_Additional_Measurement_Timing_Configuration_List;
+static gint ett_xnap_Additional_Measurement_Timing_Configuration_Item;
+static gint ett_xnap_Active_MBS_SessionInformation;
+static gint ett_xnap_AllocationandRetentionPriority;
+static gint ett_xnap_AllowedCAG_ID_List_perPLMN;
+static gint ett_xnap_AllowedPNI_NPN_ID_List;
+static gint ett_xnap_AllowedPNI_NPN_ID_Item;
+static gint ett_xnap_AlternativeQoSParaSetList;
+static gint ett_xnap_AlternativeQoSParaSetItem;
+static gint ett_xnap_AMF_Region_Information;
+static gint ett_xnap_GlobalAMF_Region_Information;
+static gint ett_xnap_AreaOfInterestInformation;
+static gint ett_xnap_AreaOfInterest_Item;
+static gint ett_xnap_AreaScopeOfMDT_NR;
+static gint ett_xnap_AreaScopeOfMDT_EUTRA;
+static gint ett_xnap_AreaScopeOfNeighCellsList;
+static gint ett_xnap_AreaScopeOfNeighCellsItem;
+static gint ett_xnap_AreaScopeOfQMC;
+static gint ett_xnap_AS_SecurityInformation;
+static gint ett_xnap_AssistanceDataForRANPaging;
+static gint ett_xnap_Associated_QoSFlowInfo_List;
+static gint ett_xnap_Associated_QoSFlowInfo_Item;
+static gint ett_xnap_AvailableRVQoEMetrics;
+static gint ett_xnap_BAPRoutingID;
+static gint ett_xnap_BeamMeasurementsReportConfiguration;
+static gint ett_xnap_BeamMeasurementsReportQuantity;
+static gint ett_xnap_BHInfoList;
+static gint ett_xnap_BHInfo_Item;
+static gint ett_xnap_BAPControlPDURLCCH_List;
+static gint ett_xnap_BAPControlPDURLCCH_Item;
+static gint ett_xnap_BluetoothMeasurementConfiguration;
+static gint ett_xnap_BluetoothMeasConfigNameList;
+static gint ett_xnap_BPLMN_ID_Info_EUTRA;
+static gint ett_xnap_BPLMN_ID_Info_EUTRA_Item;
+static gint ett_xnap_BPLMN_ID_Info_NR;
+static gint ett_xnap_BPLMN_ID_Info_NR_Item;
+static gint ett_xnap_BroadcastCAG_Identifier_List;
+static gint ett_xnap_BroadcastCAG_Identifier_Item;
+static gint ett_xnap_BroadcastNID_List;
+static gint ett_xnap_BroadcastNID_Item;
+static gint ett_xnap_BroadcastPLMNs;
+static gint ett_xnap_BroadcastEUTRAPLMNs;
+static gint ett_xnap_BroadcastPLMNinTAISupport_Item;
+static gint ett_xnap_BroadcastPNI_NPN_ID_Information;
+static gint ett_xnap_BroadcastPNI_NPN_ID_Information_Item;
+static gint ett_xnap_BroadcastSNPNID_List;
+static gint ett_xnap_BroadcastSNPNID;
+static gint ett_xnap_CapacityValueInfo;
+static gint ett_xnap_Cause;
+static gint ett_xnap_CellAssistanceInfo_NR;
+static gint ett_xnap_SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_NR_CGI;
+static gint ett_xnap_CellAndCapacityAssistanceInfo_NR;
+static gint ett_xnap_CellAndCapacityAssistanceInfo_EUTRA;
+static gint ett_xnap_CellAssistanceInfo_EUTRA;
+static gint ett_xnap_SEQUENCE_SIZE_1_maxnoofCellsinNG_RANnode_OF_E_UTRA_CGI;
+static gint ett_xnap_CellBasedMDT_NR;
+static gint ett_xnap_CellIdListforMDT_NR;
+static gint ett_xnap_CellBasedQMC;
+static gint ett_xnap_CellIdListforQMC;
+static gint ett_xnap_CellBasedMDT_EUTRA;
+static gint ett_xnap_CellIdListforMDT_EUTRA;
+static gint ett_xnap_CellMeasurementResult;
+static gint ett_xnap_CellMeasurementResult_Item;
+static gint ett_xnap_CellReplacingInfo;
+static gint ett_xnap_CellToReport;
+static gint ett_xnap_CellToReport_Item;
+static gint ett_xnap_Cell_Type_Choice;
+static gint ett_xnap_CHOConfiguration;
+static gint ett_xnap_CHOCandidateCell_List;
+static gint ett_xnap_CHOCandidateCell_Item;
+static gint ett_xnap_CHOExecutionCondition_List;
+static gint ett_xnap_CHOExecutionCondition_Item;
+static gint ett_xnap_CompositeAvailableCapacityGroup;
+static gint ett_xnap_CompositeAvailableCapacity;
+static gint ett_xnap_CHOinformation_Req;
+static gint ett_xnap_CHOinformation_Ack;
+static gint ett_xnap_CHOinformation_AddReq;
+static gint ett_xnap_CHOinformation_ModReq;
+static gint ett_xnap_Connectivity_Support;
+static gint ett_xnap_COUNT_PDCP_SN12;
+static gint ett_xnap_COUNT_PDCP_SN18;
+static gint ett_xnap_Coverage_Modification_List;
+static gint ett_xnap_Coverage_Modification_List_Item;
+static gint ett_xnap_CPTransportLayerInformation;
+static gint ett_xnap_CPACcandidatePSCells_list;
+static gint ett_xnap_CPACcandidatePSCells_item;
+static gint ett_xnap_CPAInformationRequest;
+static gint ett_xnap_CPAInformationAck;
+static gint ett_xnap_CPCInformationRequired;
+static gint ett_xnap_CPC_target_SN_required_list;
+static gint ett_xnap_CPC_target_SN_required_list_Item;
+static gint ett_xnap_CPCInformationConfirm;
+static gint ett_xnap_CPC_target_SN_confirm_list;
+static gint ett_xnap_CPC_target_SN_confirm_list_Item;
+static gint ett_xnap_CPAInformationModReq;
+static gint ett_xnap_CPAInformationModReqAck;
+static gint ett_xnap_CPACInformationModRequired;
+static gint ett_xnap_CPCInformationUpdate;
+static gint ett_xnap_CPC_target_SN_mod_list;
+static gint ett_xnap_CPC_target_SN_mod_item;
+static gint ett_xnap_CPCInformationUpdatePSCells_list;
+static gint ett_xnap_CPCInformationUpdatePSCells_item;
+static gint ett_xnap_CriticalityDiagnostics;
+static gint ett_xnap_CriticalityDiagnostics_IE_List;
+static gint ett_xnap_CriticalityDiagnostics_IE_List_item;
+static gint ett_xnap_CSI_RS_MTC_Configuration_List;
+static gint ett_xnap_CSI_RS_MTC_Configuration_Item;
+static gint ett_xnap_CSI_RS_Neighbour_List;
+static gint ett_xnap_CSI_RS_Neighbour_Item;
+static gint ett_xnap_CSI_RS_MTC_Neighbour_List;
+static gint ett_xnap_CSI_RS_MTC_Neighbour_Item;
+static gint ett_xnap_XnUAddressInfoperPDUSession_List;
+static gint ett_xnap_XnUAddressInfoperPDUSession_Item;
+static gint ett_xnap_DataForwardingInfoFromTargetE_UTRANnode;
+static gint ett_xnap_DataForwardingInfoFromTargetE_UTRANnode_List;
+static gint ett_xnap_DataForwardingInfoFromTargetE_UTRANnode_Item;
+static gint ett_xnap_QoSFlowsToBeForwarded_List;
+static gint ett_xnap_QoSFlowsToBeForwarded_Item;
+static gint ett_xnap_DataForwardingInfoFromTargetNGRANnode;
+static gint ett_xnap_QoSFLowsAcceptedToBeForwarded_List;
+static gint ett_xnap_QoSFLowsAcceptedToBeForwarded_Item;
+static gint ett_xnap_DataforwardingandOffloadingInfofromSource;
+static gint ett_xnap_QoSFLowsToBeForwarded_List;
+static gint ett_xnap_QoSFLowsToBeForwarded_Item;
+static gint ett_xnap_DataForwardingResponseDRBItemList;
+static gint ett_xnap_DataForwardingResponseDRBItem;
+static gint ett_xnap_DataTrafficResourceIndication;
+static gint ett_xnap_DAPSRequestInfo;
+static gint ett_xnap_DAPSResponseInfo_List;
+static gint ett_xnap_DAPSResponseInfo_Item;
+static gint ett_xnap_DLCountChoice;
+static gint ett_xnap_DLF1Terminating_BHInfo;
+static gint ett_xnap_DLNonF1Terminating_BHInfo;
+static gint ett_xnap_DRB_List;
+static gint ett_xnap_DRB_List_withCause;
+static gint ett_xnap_DRB_List_withCause_Item;
+static gint ett_xnap_DRBsSubjectToDLDiscarding_List;
+static gint ett_xnap_DRBsSubjectToDLDiscarding_Item;
+static gint ett_xnap_DRBsSubjectToEarlyStatusTransfer_List;
+static gint ett_xnap_DRBsSubjectToEarlyStatusTransfer_Item;
+static gint ett_xnap_DRBsSubjectToStatusTransfer_List;
+static gint ett_xnap_DRBsSubjectToStatusTransfer_Item;
+static gint ett_xnap_DRBBStatusTransferChoice;
+static gint ett_xnap_DRBBStatusTransfer12bitsSN;
+static gint ett_xnap_DRBBStatusTransfer18bitsSN;
+static gint ett_xnap_DRBToQoSFlowMapping_List;
+static gint ett_xnap_DRBToQoSFlowMapping_Item;
+static gint ett_xnap_DUF_Slot_Config_List;
+static gint ett_xnap_DUF_Slot_Config_Item;
+static gint ett_xnap_Dynamic5QIDescriptor;
+static gint ett_xnap_E_UTRA_CGI;
+static gint ett_xnap_E_UTRAMultibandInfoList;
+static gint ett_xnap_EUTRAPagingeDRXInformation;
+static gint ett_xnap_E_UTRAPRACHConfiguration;
+static gint ett_xnap_EndpointIPAddressAndPort;
+static gint ett_xnap_EventTriggered;
+static gint ett_xnap_EventTypeTrigger;
+static gint ett_xnap_EventL1;
+static gint ett_xnap_MeasurementThresholdL1LoggedMDT;
+static gint ett_xnap_ExcessPacketDelayThresholdConfiguration;
+static gint ett_xnap_ExcessPacketDelayThresholdItem;
+static gint ett_xnap_ExpectedUEActivityBehaviour;
+static gint ett_xnap_ExpectedUEBehaviour;
+static gint ett_xnap_ExpectedUEMovingTrajectory;
+static gint ett_xnap_ExpectedUEMovingTrajectoryItem;
+static gint ett_xnap_ExplicitFormat;
+static gint ett_xnap_ExtendedRATRestrictionInformation;
+static gint ett_xnap_ExtendedSliceSupportList;
+static gint ett_xnap_ExtTLAs;
+static gint ett_xnap_ExtTLA_Item;
+static gint ett_xnap_GTPTLAs;
+static gint ett_xnap_GTPTLA_Item;
+static gint ett_xnap_F1_TerminatingTopologyBHInformation;
+static gint ett_xnap_F1TerminatingBHInformation_List;
+static gint ett_xnap_F1TerminatingBHInformation_Item;
+static gint ett_xnap_FiveGProSeAuthorized;
+static gint ett_xnap_FiveGProSePC5QoSParameters;
+static gint ett_xnap_FiveGProSePC5QoSFlowList;
+static gint ett_xnap_FiveGProSePC5QoSFlowItem;
+static gint ett_xnap_FiveGProSePC5FlowBitRates;
+static gint ett_xnap_Flows_Mapped_To_DRB_List;
+static gint ett_xnap_Flows_Mapped_To_DRB_Item;
+static gint ett_xnap_FreqDomainHSNAconfiguration_List;
+static gint ett_xnap_FreqDomainHSNAconfiguration_List_Item;
+static gint ett_xnap_FreqDomainSlotHSNAconfiguration_List;
+static gint ett_xnap_FreqDomainSlotHSNAconfiguration_List_Item;
+static gint ett_xnap_GBRQoSFlowInfo;
+static gint ett_xnap_GlobalgNB_ID;
+static gint ett_xnap_GNB_DU_Cell_Resource_Configuration;
+static gint ett_xnap_GNB_ID_Choice;
+static gint ett_xnap_GNB_RadioResourceStatus;
+static gint ett_xnap_GlobalCell_ID;
+static gint ett_xnap_GlobalngeNB_ID;
+static gint ett_xnap_ENB_ID_Choice;
+static gint ett_xnap_GlobalNG_RANCell_ID;
+static gint ett_xnap_GlobalNG_RANNode_ID;
+static gint ett_xnap_GTPtunnelTransportLayerInformation;
+static gint ett_xnap_GUAMI;
+static gint ett_xnap_HSNASlotConfigList;
+static gint ett_xnap_HSNASlotConfigItem;
+static gint ett_xnap_IABCellInformation;
+static gint ett_xnap_IAB_DU_Cell_Resource_Configuration_Mode_Info;
+static gint ett_xnap_IAB_DU_Cell_Resource_Configuration_FDD_Info;
+static gint ett_xnap_IAB_DU_Cell_Resource_Configuration_TDD_Info;
+static gint ett_xnap_IAB_MT_Cell_List;
+static gint ett_xnap_IAB_MT_Cell_List_Item;
+static gint ett_xnap_IAB_QoS_Mapping_Information;
+static gint ett_xnap_IAB_STC_Info;
+static gint ett_xnap_IAB_STC_Info_List;
+static gint ett_xnap_IAB_STC_Info_Item;
+static gint ett_xnap_IAB_TNL_Address_Request;
+static gint ett_xnap_IABIPv6RequestType;
+static gint ett_xnap_IAB_TNL_Address_Response;
+static gint ett_xnap_IABAllocatedTNLAddress_List;
+static gint ett_xnap_IABAllocatedTNLAddress_Item;
+static gint ett_xnap_IABTNLAddress;
+static gint ett_xnap_IABTNLAddressesRequested;
+static gint ett_xnap_IABTNLAddressToRemove_List;
+static gint ett_xnap_IABTNLAddressToRemove_Item;
+static gint ett_xnap_IABTNLAddressException;
+static gint ett_xnap_IABTNLAddress_Item;
+static gint ett_xnap_ImmediateMDT_NR;
+static gint ett_xnap_ImplicitFormat;
+static gint ett_xnap_InitiatingCondition_FailureIndication;
+static gint ett_xnap_IntendedTDD_DL_ULConfiguration_NR;
+static gint ett_xnap_I_RNTI;
+static gint ett_xnap_Local_NG_RAN_Node_Identifier;
+static gint ett_xnap_Full_and_Short_I_RNTI_Profile_List;
+static gint ett_xnap_Full_I_RNTI_Profile_List;
+static gint ett_xnap_Short_I_RNTI_Profile_List;
+static gint ett_xnap_LastVisitedCell_Item;
+static gint ett_xnap_LastVisitedPSCellList;
+static gint ett_xnap_LastVisitedPSCellList_Item;
+static gint ett_xnap_SCGUEHistoryInformation;
+static gint ett_xnap_ListOfCells;
+static gint ett_xnap_CellsinAoI_Item;
+static gint ett_xnap_ListOfRANNodesinAoI;
+static gint ett_xnap_GlobalNG_RANNodesinAoI_Item;
+static gint ett_xnap_ListOfTAIsinAoI;
+static gint ett_xnap_TAIsinAoI_Item;
+static gint ett_xnap_LocationReportingInformation;
+static gint ett_xnap_LoggedEventTriggeredConfig;
+static gint ett_xnap_LoggedMDT_NR;
+static gint ett_xnap_LTEV2XServicesAuthorized;
+static gint ett_xnap_LTEUESidelinkAggregateMaximumBitRate;
+static gint ett_xnap_MDTAlignmentInfo;
+static gint ett_xnap_M1Configuration;
+static gint ett_xnap_M1PeriodicReporting;
+static gint ett_xnap_M1ThresholdEventA2;
+static gint ett_xnap_M4Configuration;
+static gint ett_xnap_M5Configuration;
+static gint ett_xnap_M6Configuration;
+static gint ett_xnap_M7Configuration;
+static gint ett_xnap_MaximumIPdatarate;
+static gint ett_xnap_MBSFNSubframeAllocation_E_UTRA;
+static gint ett_xnap_MBSFNSubframeInfo_E_UTRA;
+static gint ett_xnap_MBSFNSubframeInfo_E_UTRA_Item;
+static gint ett_xnap_MBS_MappingandDataForwardingRequestInfofromSource;
+static gint ett_xnap_MBS_MappingandDataForwardingRequestInfofromSource_Item;
+static gint ett_xnap_MBS_DataForwardingResponseInfofromTarget;
+static gint ett_xnap_MBS_DataForwardingResponseInfofromTarget_Item;
+static gint ett_xnap_MBS_QoSFlow_List;
+static gint ett_xnap_MBS_QoSFlowsToAdd_List;
+static gint ett_xnap_MBS_QoSFlowsToAdd_Item;
+static gint ett_xnap_MBS_ServiceArea;
+static gint ett_xnap_MBS_ServiceAreaCell_List;
+static gint ett_xnap_MBS_ServiceAreaInformation;
+static gint ett_xnap_MBS_ServiceAreaInformationList;
+static gint ett_xnap_MBS_ServiceAreaInformation_Item;
+static gint ett_xnap_MBS_ServiceAreaTAI_List;
+static gint ett_xnap_MBS_ServiceAreaTAI_Item;
+static gint ett_xnap_MBS_Session_ID;
+static gint ett_xnap_MBS_SessionAssociatedInformation;
+static gint ett_xnap_MBS_SessionAssociatedInformation_Item;
+static gint ett_xnap_MBS_SessionInformation_List;
+static gint ett_xnap_MBS_SessionInformation_Item;
+static gint ett_xnap_MBS_SessionInformationResponse_List;
+static gint ett_xnap_MBS_SessionInformationResponse_Item;
+static gint ett_xnap_MRB_ProgressInformation;
+static gint ett_xnap_MDT_Configuration;
+static gint ett_xnap_MDT_Configuration_NR;
+static gint ett_xnap_MDT_Configuration_EUTRA;
+static gint ett_xnap_MDTPLMNList;
+static gint ett_xnap_MDTPLMNModificationList;
+static gint ett_xnap_MDTMode_NR;
+static gint ett_xnap_MeasurementThresholdA2;
+static gint ett_xnap_MIMOPRBusageInformation;
+static gint ett_xnap_MobilityParametersModificationRange;
+static gint ett_xnap_MobilityParametersInformation;
+static gint ett_xnap_MobilityRestrictionList;
+static gint ett_xnap_SEQUENCE_SIZE_1_maxnoofEPLMNs_OF_PLMN_Identity;
+static gint ett_xnap_CNTypeRestrictionsForEquivalent;
+static gint ett_xnap_CNTypeRestrictionsForEquivalentItem;
+static gint ett_xnap_RAT_RestrictionsList;
+static gint ett_xnap_RAT_RestrictionsItem;
+static gint ett_xnap_RAT_RestrictionInformation;
+static gint ett_xnap_ForbiddenAreaList;
+static gint ett_xnap_ForbiddenAreaItem;
+static gint ett_xnap_SEQUENCE_SIZE_1_maxnoofForbiddenTACs_OF_TAC;
+static gint ett_xnap_ServiceAreaList;
+static gint ett_xnap_ServiceAreaItem;
+static gint ett_xnap_SEQUENCE_SIZE_1_maxnoofAllowedAreas_OF_TAC;
+static gint ett_xnap_MR_DC_ResourceCoordinationInfo;
+static gint ett_xnap_NG_RAN_Node_ResourceCoordinationInfo;
+static gint ett_xnap_E_UTRA_ResourceCoordinationInfo;
+static gint ett_xnap_NR_ResourceCoordinationInfo;
+static gint ett_xnap_MessageOversizeNotification;
+static gint ett_xnap_MultiplexingInfo;
+static gint ett_xnap_NACellResourceConfigurationList;
+static gint ett_xnap_NACellResourceConfiguration_Item;
+static gint ett_xnap_NE_DC_TDM_Pattern;
+static gint ett_xnap_NeighbourInformation_E_UTRA;
+static gint ett_xnap_NeighbourInformation_E_UTRA_Item;
+static gint ett_xnap_NeighbourInformation_NR;
+static gint ett_xnap_NeighbourInformation_NR_Item;
+static gint ett_xnap_NeighbourInformation_NR_ModeInfo;
+static gint ett_xnap_NeighbourInformation_NR_ModeFDDInfo;
+static gint ett_xnap_NeighbourInformation_NR_ModeTDDInfo;
+static gint ett_xnap_Neighbour_NG_RAN_Node_List;
+static gint ett_xnap_Neighbour_NG_RAN_Node_Item;
+static gint ett_xnap_NRCarrierList;
+static gint ett_xnap_NRCarrierItem;
+static gint ett_xnap_NG_RAN_Cell_Identity;
+static gint ett_xnap_NG_RAN_CellPCI;
+static gint ett_xnap_NG_RANnode2SSBOffsetsModificationRange;
+static gint ett_xnap_NonDynamic5QIDescriptor;
+static gint ett_xnap_NG_eNB_RadioResourceStatus;
+static gint ett_xnap_TNLCapacityIndicator;
+static gint ett_xnap_Non_F1_TerminatingTopologyBHInformation;
+static gint ett_xnap_NonF1TerminatingBHInformation_List;
+static gint ett_xnap_NonF1TerminatingBHInformation_Item;
+static gint ett_xnap_NonUPTraffic;
+static gint ett_xnap_NPN_Broadcast_Information;
+static gint ett_xnap_NPN_Broadcast_Information_SNPN;
+static gint ett_xnap_NPN_Broadcast_Information_PNI_NPN;
+static gint ett_xnap_NPNMobilityInformation;
+static gint ett_xnap_NPNMobilityInformation_SNPN;
+static gint ett_xnap_NPNMobilityInformation_PNI_NPN;
+static gint ett_xnap_NPNPagingAssistanceInformation;
+static gint ett_xnap_NPNPagingAssistanceInformation_PNI_NPN;
+static gint ett_xnap_NPN_Support;
+static gint ett_xnap_NPN_Support_SNPN;
+static gint ett_xnap_NPRACHConfiguration;
+static gint ett_xnap_T_fdd_or_tdd;
+static gint ett_xnap_NPRACHConfiguration_FDD;
+static gint ett_xnap_NPRACHConfiguration_TDD;
+static gint ett_xnap_Non_AnchorCarrierFrequencylist;
+static gint ett_xnap_Non_AnchorCarrierFrequencylist_item;
+static gint ett_xnap_NG_RAN_Cell_Identity_ListinRANPagingArea;
+static gint ett_xnap_NR_CGI;
+static gint ett_xnap_NR_U_Channel_List;
+static gint ett_xnap_NR_U_Channel_Item;
+static gint ett_xnap_NR_U_ChannelInfo_List;
+static gint ett_xnap_NR_U_ChannelInfo_Item;
+static gint ett_xnap_NRFrequencyBand_List;
+static gint ett_xnap_NRFrequencyBandItem;
+static gint ett_xnap_NRFrequencyInfo;
+static gint ett_xnap_NRModeInfo;
+static gint ett_xnap_NRModeInfoFDD;
+static gint ett_xnap_NRModeInfoTDD;
+static gint ett_xnap_NRPagingeDRXInformation;
+static gint ett_xnap_NRPagingeDRXInformationforRRCINACTIVE;
+static gint ett_xnap_NRTransmissionBandwidth;
+static gint ett_xnap_NRV2XServicesAuthorized;
+static gint ett_xnap_NRUESidelinkAggregateMaximumBitRate;
+static gint ett_xnap_PositioningInformation;
+static gint ett_xnap_PacketErrorRate;
+static gint ett_xnap_PEIPSassistanceInformation;
+static gint ett_xnap_PC5QoSParameters;
+static gint ett_xnap_PC5QoSFlowList;
+static gint ett_xnap_PC5QoSFlowItem;
+static gint ett_xnap_PC5FlowBitRates;
+static gint ett_xnap_PDCPChangeIndication;
+static gint ett_xnap_PDCPSNLength;
+static gint ett_xnap_PDUSessionAggregateMaximumBitRate;
+static gint ett_xnap_PDUSession_List;
+static gint ett_xnap_PDUSession_List_withCause;
+static gint ett_xnap_PDUSession_List_withCause_Item;
+static gint ett_xnap_PDUSession_List_withDataForwardingFromTarget;
+static gint ett_xnap_PDUSession_List_withDataForwardingFromTarget_Item;
+static gint ett_xnap_PDUSession_List_withDataForwardingRequest;
+static gint ett_xnap_PDUSession_List_withDataForwardingRequest_Item;
+static gint ett_xnap_PDUSessionResourcesAdmitted_List;
+static gint ett_xnap_PDUSessionResourcesAdmitted_Item;
+static gint ett_xnap_PDUSessionResourceAdmittedInfo;
+static gint ett_xnap_PDUSessionResourcesNotAdmitted_List;
+static gint ett_xnap_PDUSessionResourcesNotAdmitted_Item;
+static gint ett_xnap_PDUSessionResourcesToBeSetup_List;
+static gint ett_xnap_PDUSessionResourcesToBeSetup_Item;
+static gint ett_xnap_PDUSessionResourceSetupInfo_SNterminated;
+static gint ett_xnap_QoSFlowsToBeSetup_List_Setup_SNterminated;
+static gint ett_xnap_QoSFlowsToBeSetup_List_Setup_SNterminated_Item;
+static gint ett_xnap_PDUSessionResourceSetupResponseInfo_SNterminated;
+static gint ett_xnap_DRBsToBeSetupList_SetupResponse_SNterminated;
+static gint ett_xnap_DRBsToBeSetupList_SetupResponse_SNterminated_Item;
+static gint ett_xnap_QoSFlowsMappedtoDRB_SetupResponse_SNterminated;
+static gint ett_xnap_QoSFlowsMappedtoDRB_SetupResponse_SNterminated_Item;
+static gint ett_xnap_PDUSessionResourceSetupInfo_MNterminated;
+static gint ett_xnap_DRBsToBeSetupList_Setup_MNterminated;
+static gint ett_xnap_DRBsToBeSetupList_Setup_MNterminated_Item;
+static gint ett_xnap_QoSFlowsMappedtoDRB_Setup_MNterminated;
+static gint ett_xnap_QoSFlowsMappedtoDRB_Setup_MNterminated_Item;
+static gint ett_xnap_PDUSessionResourceSetupResponseInfo_MNterminated;
+static gint ett_xnap_DRBsAdmittedList_SetupResponse_MNterminated;
+static gint ett_xnap_DRBsAdmittedList_SetupResponse_MNterminated_Item;
+static gint ett_xnap_QoSFlowsMappedtoDRB_SetupResponse_MNterminated;
+static gint ett_xnap_QoSFlowsMappedtoDRB_SetupResponse_MNterminated_Item;
+static gint ett_xnap_PDUSessionResourceModificationInfo_SNterminated;
+static gint ett_xnap_QoSFlowsToBeSetup_List_Modified_SNterminated;
+static gint ett_xnap_QoSFlowsToBeSetup_List_Modified_SNterminated_Item;
+static gint ett_xnap_DRBsToBeModified_List_Modified_SNterminated;
+static gint ett_xnap_DRBsToBeModified_List_Modified_SNterminated_Item;
+static gint ett_xnap_PDUSessionResourceModificationResponseInfo_SNterminated;
+static gint ett_xnap_DRBsToBeModifiedList_ModificationResponse_SNterminated;
+static gint ett_xnap_DRBsToBeModifiedList_ModificationResponse_SNterminated_Item;
+static gint ett_xnap_PDUSessionResourceModificationInfo_MNterminated;
+static gint ett_xnap_DRBsToBeModifiedList_Modification_MNterminated;
+static gint ett_xnap_DRBsToBeModifiedList_Modification_MNterminated_Item;
+static gint ett_xnap_PDUSessionResourceModificationResponseInfo_MNterminated;
+static gint ett_xnap_DRBsAdmittedList_ModificationResponse_MNterminated;
+static gint ett_xnap_DRBsAdmittedList_ModificationResponse_MNterminated_Item;
+static gint ett_xnap_PDUSessionResourceChangeRequiredInfo_SNterminated;
+static gint ett_xnap_PDUSessionResourceChangeConfirmInfo_SNterminated;
+static gint ett_xnap_PDUSessionResourceChangeRequiredInfo_MNterminated;
+static gint ett_xnap_PDUSessionResourceChangeConfirmInfo_MNterminated;
+static gint ett_xnap_PDUSessionResourceModRqdInfo_SNterminated;
+static gint ett_xnap_DRBsToBeSetup_List_ModRqd_SNterminated;
+static gint ett_xnap_DRBsToBeSetup_List_ModRqd_SNterminated_Item;
+static gint ett_xnap_QoSFlowsSetupMappedtoDRB_ModRqd_SNterminated;
+static gint ett_xnap_QoSFlowsSetupMappedtoDRB_ModRqd_SNterminated_Item;
+static gint ett_xnap_DRBsToBeModified_List_ModRqd_SNterminated;
+static gint ett_xnap_DRBsToBeModified_List_ModRqd_SNterminated_Item;
+static gint ett_xnap_QoSFlowsModifiedMappedtoDRB_ModRqd_SNterminated;
+static gint ett_xnap_QoSFlowsModifiedMappedtoDRB_ModRqd_SNterminated_Item;
+static gint ett_xnap_PDUSessionResourceModConfirmInfo_SNterminated;
+static gint ett_xnap_DRBsAdmittedList_ModConfirm_SNterminated;
+static gint ett_xnap_DRBsAdmittedList_ModConfirm_SNterminated_Item;
+static gint ett_xnap_PDUSessionResourceModRqdInfo_MNterminated;
+static gint ett_xnap_DRBsToBeModified_List_ModRqd_MNterminated;
+static gint ett_xnap_DRBsToBeModified_List_ModRqd_MNterminated_Item;
+static gint ett_xnap_PDUSessionResourceModConfirmInfo_MNterminated;
+static gint ett_xnap_PDUSessionResourceBearerSetupCompleteInfo_SNterminated;
+static gint ett_xnap_SEQUENCE_SIZE_1_maxnoofDRBs_OF_DRBsToBeSetupList_BearerSetupComplete_SNterminated_Item;
+static gint ett_xnap_DRBsToBeSetupList_BearerSetupComplete_SNterminated_Item;
+static gint ett_xnap_PDUSessionResourceSecondaryRATUsageList;
+static gint ett_xnap_PDUSessionResourceSecondaryRATUsageItem;
+static gint ett_xnap_PDUSessionUsageReport;
+static gint ett_xnap_Periodical;
+static gint ett_xnap_PLMNAreaBasedQMC;
+static gint ett_xnap_PLMNListforQMC;
+static gint ett_xnap_PCIListForMDT;
+static gint ett_xnap_ProtectedE_UTRAResourceIndication;
+static gint ett_xnap_ProtectedE_UTRAResourceList;
+static gint ett_xnap_ProtectedE_UTRAResource_Item;
+static gint ett_xnap_ProtectedE_UTRAFootprintTimePattern;
+static gint ett_xnap_QMCConfigInfo;
+static gint ett_xnap_UEAppLayerMeasInfoList;
+static gint ett_xnap_UEAppLayerMeasInfo_Item;
+static gint ett_xnap_QoSCharacteristics;
+static gint ett_xnap_QoSFlowLevelQoSParameters;
+static gint ett_xnap_QoSFlowNotificationControlIndicationInfo;
+static gint ett_xnap_QoSFlowNotify_Item;
+static gint ett_xnap_QoSFlows_List;
+static gint ett_xnap_QoSFlow_Item;
+static gint ett_xnap_QoSFlows_List_withCause;
+static gint ett_xnap_QoSFlowwithCause_Item;
+static gint ett_xnap_QoS_Mapping_Information;
+static gint ett_xnap_QoSFlowsAdmitted_List;
+static gint ett_xnap_QoSFlowsAdmitted_Item;
+static gint ett_xnap_QoSFlowsToBeSetup_List;
+static gint ett_xnap_QoSFlowsToBeSetup_Item;
+static gint ett_xnap_QoSFlowsUsageReportList;
+static gint ett_xnap_QoSFlowsUsageReport_Item;
+static gint ett_xnap_RACHReportInformation;
+static gint ett_xnap_RACHReportList_Item;
+static gint ett_xnap_RadioResourceStatus;
+static gint ett_xnap_RANAreaID;
+static gint ett_xnap_RANAreaID_List;
+static gint ett_xnap_RANPagingArea;
+static gint ett_xnap_RANPagingAreaChoice;
+static gint ett_xnap_RANPagingAttemptInfo;
+static gint ett_xnap_RBsetConfiguration;
+static gint ett_xnap_RedundantPDUSessionInformation;
+static gint ett_xnap_ReplacingCells;
+static gint ett_xnap_ReplacingCells_Item;
+static gint ett_xnap_ReportType;
+static gint ett_xnap_ReservedSubframePattern;
+static gint ett_xnap_ResetRequestTypeInfo;
+static gint ett_xnap_ResetRequestTypeInfo_Full;
+static gint ett_xnap_ResetRequestTypeInfo_Partial;
+static gint ett_xnap_ResetRequestPartialReleaseList;
+static gint ett_xnap_ResetRequestPartialReleaseItem;
+static gint ett_xnap_ResetResponseTypeInfo;
+static gint ett_xnap_ResetResponseTypeInfo_Full;
+static gint ett_xnap_ResetResponseTypeInfo_Partial;
+static gint ett_xnap_ResetResponsePartialReleaseList;
+static gint ett_xnap_ResetResponsePartialReleaseItem;
+static gint ett_xnap_RLC_Status;
+static gint ett_xnap_RLCDuplicationInformation;
+static gint ett_xnap_RLCDuplicationStateList;
+static gint ett_xnap_RLCDuplicationState_Item;
+static gint ett_xnap_RRCConnections;
+static gint ett_xnap_RRCReestab_initiated;
+static gint ett_xnap_RRCReestab_Initiated_Reporting;
+static gint ett_xnap_RRCReestab_Initiated_Reporting_wo_UERLFReport;
+static gint ett_xnap_RRCReestab_Initiated_Reporting_with_UERLFReport;
+static gint ett_xnap_RRCSetup_initiated;
+static gint ett_xnap_RRCSetup_Initiated_Reporting;
+static gint ett_xnap_RRCSetup_Initiated_Reporting_with_UERLFReport;
+static gint ett_xnap_S_NSSAIListQoE;
+static gint ett_xnap_S_BasedMDT;
+static gint ett_xnap_SecondarydataForwardingInfoFromTarget_Item;
+static gint ett_xnap_SecondarydataForwardingInfoFromTarget_List;
+static gint ett_xnap_SDTSupportRequest;
+static gint ett_xnap_SDTPartialUEContextInfo;
+static gint ett_xnap_SDT_DRBsToBeSetupList;
+static gint ett_xnap_SDT_DRBsToBeSetupList_Item;
+static gint ett_xnap_SDT_SRBsToBeSetupList;
+static gint ett_xnap_SDT_SRBsToBeSetupList_Item;
+static gint ett_xnap_SDTDataForwardingDRBList;
+static gint ett_xnap_SDTDataForwardingDRBList_Item;
+static gint ett_xnap_SecondaryRATUsageInformation;
+static gint ett_xnap_SecurityIndication;
+static gint ett_xnap_SecurityResult;
+static gint ett_xnap_SensorMeasurementConfiguration;
+static gint ett_xnap_SensorMeasConfigNameList;
+static gint ett_xnap_SensorName;
+static gint ett_xnap_ServedCellInformation_E_UTRA;
+static gint ett_xnap_SEQUENCE_SIZE_1_maxnoofBPLMNs_OF_ServedCellInformation_E_UTRA_perBPLMN;
+static gint ett_xnap_ServedCellInformation_E_UTRA_perBPLMN;
+static gint ett_xnap_ServedCellInformation_E_UTRA_ModeInfo;
+static gint ett_xnap_ServedCellInformation_E_UTRA_FDDInfo;
+static gint ett_xnap_ServedCellInformation_E_UTRA_TDDInfo;
+static gint ett_xnap_ServedCells_E_UTRA;
+static gint ett_xnap_ServedCells_E_UTRA_Item;
+static gint ett_xnap_ServedCellsToUpdate_E_UTRA;
+static gint ett_xnap_ServedCells_ToModify_E_UTRA;
+static gint ett_xnap_ServedCells_ToModify_E_UTRA_Item;
+static gint ett_xnap_ServedCellInformation_NR;
+static gint ett_xnap_SFN_Offset;
+static gint ett_xnap_ServedCells_NR;
+static gint ett_xnap_ServedCells_NR_Item;
+static gint ett_xnap_ServedCells_ToModify_NR;
+static gint ett_xnap_ServedCells_ToModify_NR_Item;
+static gint ett_xnap_ServedCellSpecificInfoReq_NR;
+static gint ett_xnap_ServedCellSpecificInfoReq_NR_Item;
+static gint ett_xnap_ServedCellsToUpdate_NR;
+static gint ett_xnap_SharedResourceType;
+static gint ett_xnap_SharedResourceType_UL_OnlySharing;
+static gint ett_xnap_SharedResourceType_ULDL_Sharing;
+static gint ett_xnap_SharedResourceType_ULDL_Sharing_UL_Resources;
+static gint ett_xnap_SharedResourceType_ULDL_Sharing_UL_ResourcesChanged;
+static gint ett_xnap_SharedResourceType_ULDL_Sharing_DL_Resources;
+static gint ett_xnap_SharedResourceType_ULDL_Sharing_DL_ResourcesChanged;
+static gint ett_xnap_SliceAvailableCapacity;
+static gint ett_xnap_SliceAvailableCapacity_Item;
+static gint ett_xnap_SNSSAIAvailableCapacity_List;
+static gint ett_xnap_SNSSAIAvailableCapacity_Item;
+static gint ett_xnap_SliceRadioResourceStatus_List;
+static gint ett_xnap_SliceRadioResourceStatus_Item;
+static gint ett_xnap_SNSSAIRadioResourceStatus_List;
+static gint ett_xnap_SNSSAIRadioResourceStatus_Item;
+static gint ett_xnap_SliceSupport_List;
+static gint ett_xnap_SliceToReport_List;
+static gint ett_xnap_SliceToReport_List_Item;
+static gint ett_xnap_SNSSAI_list;
+static gint ett_xnap_SNSSAI_Item;
+static gint ett_xnap_SlotConfiguration_List;
+static gint ett_xnap_SlotConfiguration_List_Item;
+static gint ett_xnap_S_NSSAI;
+static gint ett_xnap_SpecialSubframeInfo_E_UTRA;
+static gint ett_xnap_SSBAreaCapacityValue_List;
+static gint ett_xnap_SSBAreaCapacityValue_List_Item;
+static gint ett_xnap_SSBAreaRadioResourceStatus_List;
+static gint ett_xnap_SSBAreaRadioResourceStatus_List_Item;
+static gint ett_xnap_SSB_Coverage_Modification_List;
+static gint ett_xnap_SSB_Coverage_Modification_List_Item;
+static gint ett_xnap_SSB_PositionsInBurst;
+static gint ett_xnap_SSBOffsets_List;
+static gint ett_xnap_SSBOffsets_Item;
+static gint ett_xnap_SSBOffsetInformation;
+static gint ett_xnap_SSBOffsetModificationRange;
+static gint ett_xnap_SSBToReport_List;
+static gint ett_xnap_SSBToReport_List_Item;
+static gint ett_xnap_SSB_transmissionBitmap;
+static gint ett_xnap_SuccessfulHOReportInformation;
+static gint ett_xnap_SuccessfulHOReportList_Item;
+static gint ett_xnap_SUL_Information;
+static gint ett_xnap_Supported_MBS_FSA_ID_List;
+static gint ett_xnap_SupportedSULBandList;
+static gint ett_xnap_SupportedSULBandItem;
+static gint ett_xnap_SymbolAllocation_in_Slot;
+static gint ett_xnap_SymbolAllocation_in_Slot_AllDL;
+static gint ett_xnap_SymbolAllocation_in_Slot_AllUL;
+static gint ett_xnap_SymbolAllocation_in_Slot_BothDLandUL;
+static gint ett_xnap_TABasedMDT;
+static gint ett_xnap_TAIBasedMDT;
+static gint ett_xnap_TAIListforMDT;
+static gint ett_xnap_TAIforMDT_Item;
+static gint ett_xnap_TAINSAGSupportList;
+static gint ett_xnap_TAINSAGSupportItem;
+static gint ett_xnap_TAISupport_List;
+static gint ett_xnap_TAISupport_Item;
+static gint ett_xnap_SEQUENCE_SIZE_1_maxnoofsupportedPLMNs_OF_BroadcastPLMNinTAISupport_Item;
+static gint ett_xnap_TAListforMDT;
+static gint ett_xnap_TABasedQMC;
+static gint ett_xnap_TAListforQMC;
+static gint ett_xnap_TAIBasedQMC;
+static gint ett_xnap_TAIListforQMC;
+static gint ett_xnap_TAI_Item;
+static gint ett_xnap_Target_CGI;
+static gint ett_xnap_TargetCellList;
+static gint ett_xnap_TargetCellList_Item;
+static gint ett_xnap_TimeSynchronizationAssistanceInformation;
+static gint ett_xnap_TNLConfigurationInfo;
+static gint ett_xnap_TNLA_To_Add_List;
+static gint ett_xnap_TNLA_To_Add_Item;
+static gint ett_xnap_TNLA_To_Update_List;
+static gint ett_xnap_TNLA_To_Update_Item;
+static gint ett_xnap_TNLA_To_Remove_List;
+static gint ett_xnap_TNLA_To_Remove_Item;
+static gint ett_xnap_TNLA_Setup_List;
+static gint ett_xnap_TNLA_Setup_Item;
+static gint ett_xnap_TNLA_Failed_To_Setup_List;
+static gint ett_xnap_TNLA_Failed_To_Setup_Item;
+static gint ett_xnap_TraceActivation;
+static gint ett_xnap_T_interfaces_to_trace;
+static gint ett_xnap_TrafficProfile;
+static gint ett_xnap_TrafficReleaseType;
+static gint ett_xnap_TrafficToBeReleaseInformation;
+static gint ett_xnap_TrafficToBeRelease_List;
+static gint ett_xnap_TrafficToBeRelease_Item;
+static gint ett_xnap_TSCTrafficCharacteristics;
+static gint ett_xnap_TSCAssistanceInformation;
+static gint ett_xnap_UEAggregateMaximumBitRate;
+static gint ett_xnap_UEAppLayerMeasConfigInfo;
+static gint ett_xnap_UEContextID;
+static gint ett_xnap_UEContextIDforRRCResume;
+static gint ett_xnap_UEContextIDforRRCReestablishment;
+static gint ett_xnap_UEContextInfoRetrUECtxtResp;
+static gint ett_xnap_UEHistoryInformation;
+static gint ett_xnap_UEHistoryInformationFromTheUE;
+static gint ett_xnap_UEIdentityIndexValue;
+static gint ett_xnap_UEIdentityIndexList_MBSGroupPaging;
+static gint ett_xnap_UEIdentityIndexList_MBSGroupPaging_Item;
+static gint ett_xnap_UEIdentityIndexList_MBSGroupPagingValue;
+static gint ett_xnap_UERadioCapabilityForPaging;
+static gint ett_xnap_UERANPagingIdentity;
+static gint ett_xnap_UERLFReportContainer;
+static gint ett_xnap_UERLFReportContainerLTEExtension;
+static gint ett_xnap_UESliceMaximumBitRateList;
+static gint ett_xnap_UESliceMaximumBitRate_Item;
+static gint ett_xnap_UESecurityCapabilities;
+static gint ett_xnap_T_nr_EncyptionAlgorithms;
+static gint ett_xnap_T_nr_IntegrityProtectionAlgorithms;
+static gint ett_xnap_T_e_utra_EncyptionAlgorithms;
+static gint ett_xnap_T_e_utra_IntegrityProtectionAlgorithms;
+static gint ett_xnap_ULConfiguration;
+static gint ett_xnap_ULF1Terminating_BHInfo;
+static gint ett_xnap_ULNonF1Terminating_BHInfo;
+static gint ett_xnap_UPTransportLayerInformation;
+static gint ett_xnap_UPTransportParameters;
+static gint ett_xnap_UPTransportParametersItem;
+static gint ett_xnap_VolumeTimedReportList;
+static gint ett_xnap_VolumeTimedReport_Item;
+static gint ett_xnap_WLANMeasurementConfiguration;
+static gint ett_xnap_WLANMeasConfigNameList;
+static gint ett_xnap_HandoverRequest;
+static gint ett_xnap_UEContextInfoHORequest;
+static gint ett_xnap_UEContextRefAtSN_HORequest;
+static gint ett_xnap_HandoverRequestAcknowledge;
+static gint ett_xnap_HandoverPreparationFailure;
+static gint ett_xnap_SNStatusTransfer;
+static gint ett_xnap_UEContextRelease;
+static gint ett_xnap_HandoverCancel;
+static gint ett_xnap_HandoverSuccess;
+static gint ett_xnap_ConditionalHandoverCancel;
+static gint ett_xnap_EarlyStatusTransfer;
+static gint ett_xnap_ProcedureStageChoice;
+static gint ett_xnap_FirstDLCount;
+static gint ett_xnap_DLDiscarding;
+static gint ett_xnap_RANPaging;
+static gint ett_xnap_RetrieveUEContextRequest;
+static gint ett_xnap_RetrieveUEContextResponse;
+static gint ett_xnap_RetrieveUEContextConfirm;
+static gint ett_xnap_RetrieveUEContextFailure;
+static gint ett_xnap_XnUAddressIndication;
+static gint ett_xnap_SNodeAdditionRequest;
+static gint ett_xnap_PDUSessionToBeAddedAddReq;
+static gint ett_xnap_PDUSessionToBeAddedAddReq_Item;
+static gint ett_xnap_SNodeAdditionRequestAcknowledge;
+static gint ett_xnap_PDUSessionAdmittedAddedAddReqAck;
+static gint ett_xnap_PDUSessionAdmittedAddedAddReqAck_Item;
+static gint ett_xnap_PDUSessionNotAdmittedAddReqAck;
+static gint ett_xnap_SNodeAdditionRequestReject;
+static gint ett_xnap_SNodeReconfigurationComplete;
+static gint ett_xnap_ResponseInfo_ReconfCompl;
+static gint ett_xnap_ResponseType_ReconfComplete;
+static gint ett_xnap_Configuration_successfully_applied;
+static gint ett_xnap_Configuration_rejected_by_M_NG_RANNode;
+static gint ett_xnap_SNodeModificationRequest;
+static gint ett_xnap_UEContextInfo_SNModRequest;
+static gint ett_xnap_PDUSessionsToBeAdded_SNModRequest_List;
+static gint ett_xnap_PDUSessionsToBeAdded_SNModRequest_Item;
+static gint ett_xnap_PDUSessionsToBeModified_SNModRequest_List;
+static gint ett_xnap_PDUSessionsToBeModified_SNModRequest_Item;
+static gint ett_xnap_PDUSessionsToBeReleased_SNModRequest_List;
+static gint ett_xnap_SNodeModificationRequestAcknowledge;
+static gint ett_xnap_PDUSessionAdmitted_SNModResponse;
+static gint ett_xnap_PDUSessionAdmittedToBeAddedSNModResponse;
+static gint ett_xnap_PDUSessionAdmittedToBeAddedSNModResponse_Item;
+static gint ett_xnap_PDUSessionAdmittedToBeModifiedSNModResponse;
+static gint ett_xnap_PDUSessionAdmittedToBeModifiedSNModResponse_Item;
+static gint ett_xnap_PDUSessionAdmittedToBeReleasedSNModResponse;
+static gint ett_xnap_PDUSessionNotAdmitted_SNModResponse;
+static gint ett_xnap_PDUSessionDataForwarding_SNModResponse;
+static gint ett_xnap_SNodeModificationRequestReject;
+static gint ett_xnap_SNodeModificationRequired;
+static gint ett_xnap_PDUSessionToBeModifiedSNModRequired;
+static gint ett_xnap_PDUSessionToBeModifiedSNModRequired_Item;
+static gint ett_xnap_PDUSessionToBeReleasedSNModRequired;
+static gint ett_xnap_SNodeModificationConfirm;
+static gint ett_xnap_PDUSessionAdmittedModSNModConfirm;
+static gint ett_xnap_PDUSessionAdmittedModSNModConfirm_Item;
+static gint ett_xnap_PDUSessionReleasedSNModConfirm;
+static gint ett_xnap_SNodeModificationRefuse;
+static gint ett_xnap_SNodeReleaseRequest;
+static gint ett_xnap_SNodeReleaseRequestAcknowledge;
+static gint ett_xnap_PDUSessionToBeReleasedList_RelReqAck;
+static gint ett_xnap_SNodeReleaseReject;
+static gint ett_xnap_SNodeReleaseRequired;
+static gint ett_xnap_PDUSessionToBeReleasedList_RelRqd;
+static gint ett_xnap_SNodeReleaseConfirm;
+static gint ett_xnap_PDUSessionReleasedList_RelConf;
+static gint ett_xnap_SNodeCounterCheckRequest;
+static gint ett_xnap_BearersSubjectToCounterCheck_List;
+static gint ett_xnap_BearersSubjectToCounterCheck_Item;
+static gint ett_xnap_SNodeChangeRequired;
+static gint ett_xnap_PDUSession_SNChangeRequired_List;
+static gint ett_xnap_PDUSession_SNChangeRequired_Item;
+static gint ett_xnap_SNodeChangeConfirm;
+static gint ett_xnap_PDUSession_SNChangeConfirm_List;
+static gint ett_xnap_PDUSession_SNChangeConfirm_Item;
+static gint ett_xnap_SNodeChangeRefuse;
+static gint ett_xnap_RRCTransfer;
+static gint ett_xnap_SplitSRB_RRCTransfer;
+static gint ett_xnap_UEReportRRCTransfer;
+static gint ett_xnap_FastMCGRecoveryRRCTransfer;
+static gint ett_xnap_SDT_SRB_between_NewNode_OldNode;
+static gint ett_xnap_NotificationControlIndication;
+static gint ett_xnap_PDUSessionResourcesNotifyList;
+static gint ett_xnap_PDUSessionResourcesNotify_Item;
+static gint ett_xnap_ActivityNotification;
+static gint ett_xnap_PDUSessionResourcesActivityNotifyList;
+static gint ett_xnap_PDUSessionResourcesActivityNotify_Item;
+static gint ett_xnap_QoSFlowsActivityNotifyList;
+static gint ett_xnap_QoSFlowsActivityNotifyItem;
+static gint ett_xnap_XnSetupRequest;
+static gint ett_xnap_XnSetupResponse;
+static gint ett_xnap_XnSetupFailure;
+static gint ett_xnap_NGRANNodeConfigurationUpdate;
+static gint ett_xnap_ConfigurationUpdateInitiatingNodeChoice;
+static gint ett_xnap_NGRANNodeConfigurationUpdateAcknowledge;
+static gint ett_xnap_RespondingNodeTypeConfigUpdateAck;
+static gint ett_xnap_RespondingNodeTypeConfigUpdateAck_ng_eNB;
+static gint ett_xnap_RespondingNodeTypeConfigUpdateAck_gNB;
+static gint ett_xnap_NGRANNodeConfigurationUpdateFailure;
+static gint ett_xnap_E_UTRA_NR_CellResourceCoordinationRequest;
+static gint ett_xnap_InitiatingNodeType_ResourceCoordRequest;
+static gint ett_xnap_ResourceCoordRequest_ng_eNB_initiated;
+static gint ett_xnap_ResourceCoordRequest_gNB_initiated;
+static gint ett_xnap_E_UTRA_NR_CellResourceCoordinationResponse;
+static gint ett_xnap_RespondingNodeType_ResourceCoordResponse;
+static gint ett_xnap_ResourceCoordResponse_ng_eNB_initiated;
+static gint ett_xnap_ResourceCoordResponse_gNB_initiated;
+static gint ett_xnap_SecondaryRATDataUsageReport;
+static gint ett_xnap_XnRemovalRequest;
+static gint ett_xnap_XnRemovalResponse;
+static gint ett_xnap_XnRemovalFailure;
+static gint ett_xnap_CellActivationRequest;
+static gint ett_xnap_ServedCellsToActivate;
+static gint ett_xnap_CellActivationResponse;
+static gint ett_xnap_ActivatedServedCells;
+static gint ett_xnap_CellActivationFailure;
+static gint ett_xnap_ResetRequest;
+static gint ett_xnap_ResetResponse;
+static gint ett_xnap_ErrorIndication;
+static gint ett_xnap_PrivateMessage;
+static gint ett_xnap_TraceStart;
+static gint ett_xnap_DeactivateTrace;
+static gint ett_xnap_FailureIndication;
+static gint ett_xnap_HandoverReport;
+static gint ett_xnap_ResourceStatusRequest;
+static gint ett_xnap_ResourceStatusResponse;
+static gint ett_xnap_ResourceStatusFailure;
+static gint ett_xnap_ResourceStatusUpdate;
+static gint ett_xnap_MobilityChangeRequest;
+static gint ett_xnap_MobilityChangeAcknowledge;
+static gint ett_xnap_MobilityChangeFailure;
+static gint ett_xnap_AccessAndMobilityIndication;
+static gint ett_xnap_CellTrafficTrace;
+static gint ett_xnap_RANMulticastGroupPaging;
+static gint ett_xnap_ScgFailureInformationReport;
+static gint ett_xnap_ScgFailureTransfer;
+static gint ett_xnap_F1CTrafficTransfer;
+static gint ett_xnap_IABTransportMigrationManagementRequest;
+static gint ett_xnap_TrafficToBeAddedList;
+static gint ett_xnap_TrafficToBeAdded_Item;
+static gint ett_xnap_TrafficToBeModifiedList;
+static gint ett_xnap_TrafficToBeModified_Item;
+static gint ett_xnap_IABTransportMigrationManagementResponse;
+static gint ett_xnap_TrafficAddedList;
+static gint ett_xnap_TrafficAdded_Item;
+static gint ett_xnap_TrafficModifiedList;
+static gint ett_xnap_TrafficModified_Item;
+static gint ett_xnap_TrafficNotAddedList;
+static gint ett_xnap_TrafficNotAdded_Item;
+static gint ett_xnap_TrafficNotModifiedList;
+static gint ett_xnap_TrafficNotModified_Item;
+static gint ett_xnap_TrafficReleasedList;
+static gint ett_xnap_TrafficReleased_Item;
+static gint ett_xnap_IABTransportMigrationManagementReject;
+static gint ett_xnap_IABTransportMigrationModificationRequest;
+static gint ett_xnap_TrafficRequiredToBeModifiedList;
+static gint ett_xnap_TrafficRequiredToBeModified_Item;
+static gint ett_xnap_IABTNLAddressToBeReleasedList;
+static gint ett_xnap_IABTNLAddressToBeReleased_Item;
+static gint ett_xnap_IABTransportMigrationModificationResponse;
+static gint ett_xnap_TrafficRequiredModifiedList;
+static gint ett_xnap_TrafficRequiredModified_Item;
+static gint ett_xnap_IABResourceCoordinationRequest;
+static gint ett_xnap_BoundaryNodeCellsList;
+static gint ett_xnap_BoundaryNodeCellsList_Item;
+static gint ett_xnap_ParentNodeCellsList;
+static gint ett_xnap_ParentNodeCellsList_Item;
+static gint ett_xnap_IABResourceCoordinationResponse;
+static gint ett_xnap_CPCCancel;
+static gint ett_xnap_PartialUEContextTransfer;
+static gint ett_xnap_PartialUEContextTransferAcknowledge;
+static gint ett_xnap_PartialUEContextTransferFailure;
+static gint ett_xnap_XnAP_PDU;
+static gint ett_xnap_InitiatingMessage;
+static gint ett_xnap_SuccessfulOutcome;
+static gint ett_xnap_UnsuccessfulOutcome;
 
 enum {
   XNAP_NG_RAN_CONTAINER_AUTOMATIC,

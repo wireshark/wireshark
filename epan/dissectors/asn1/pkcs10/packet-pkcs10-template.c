@@ -43,7 +43,7 @@ void proto_register_pkcs10(void);
 static dissector_handle_t csr_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_pkcs10 = -1;
+static int proto_pkcs10;
 #include "packet-pkcs10-hf.c"
 
 /* Initialize the subtree pointers */

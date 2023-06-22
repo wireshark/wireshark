@@ -35,19 +35,19 @@ void proto_reg_handoff_m2ap(void);
 #include "packet-m2ap-val.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_m2ap = -1;
+static int proto_m2ap;
 
-static int hf_m2ap_IPAddress_v4 = -1;
-static int hf_m2ap_IPAddress_v6 = -1;
+static int hf_m2ap_IPAddress_v4;
+static int hf_m2ap_IPAddress_v6;
 #include "packet-m2ap-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_m2ap = -1;
-static int ett_m2ap_PLMN_Identity = -1;
-static int ett_m2ap_IPAddress = -1;
+static int ett_m2ap;
+static int ett_m2ap_PLMN_Identity;
+static int ett_m2ap_IPAddress;
 #include "packet-m2ap-ett.c"
 
-static expert_field ei_m2ap_invalid_ip_address_len = EI_INIT;
+static expert_field ei_m2ap_invalid_ip_address_len;
 
 struct m2ap_private_data {
   e212_number_type_t number_type;

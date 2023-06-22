@@ -43,26 +43,26 @@ static dissector_handle_t e2ap_handle;
 #include "packet-e2ap-val.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_e2ap = -1;
+static int proto_e2ap;
 #include "packet-e2ap-hf.c"
 
-static int hf_e2ap_unmapped_ran_function_id = -1;
-static int hf_e2ap_ran_function_name_not_recognised = -1;
-static int hf_e2ap_ran_function_setup_frame = -1;
+static int hf_e2ap_unmapped_ran_function_id;
+static int hf_e2ap_ran_function_name_not_recognised;
+static int hf_e2ap_ran_function_setup_frame;
 
-static int hf_e2ap_dissector_version= -1;
-static int hf_e2ap_frame_version = -1;
+static int hf_e2ap_dissector_version;
+static int hf_e2ap_frame_version;
 
-static int hf_e2ap_timestamp_string = -1;
+static int hf_e2ap_timestamp_string;
 
 
 /* Initialize the subtree pointers */
-static gint ett_e2ap = -1;
+static gint ett_e2ap;
 
-static expert_field ei_e2ap_ran_function_names_no_match = EI_INIT;
-static expert_field ei_e2ap_ran_function_id_not_mapped = EI_INIT;
-static expert_field ei_e2ap_ran_function_dissector_mismatch = EI_INIT;
-static expert_field ei_e2ap_ran_function_max_dissectors_registered = EI_INIT;
+static expert_field ei_e2ap_ran_function_names_no_match;
+static expert_field ei_e2ap_ran_function_id_not_mapped;
+static expert_field ei_e2ap_ran_function_dissector_mismatch;
+static expert_field ei_e2ap_ran_function_max_dissectors_registered;
 
 #include "packet-e2ap-ett.c"
 

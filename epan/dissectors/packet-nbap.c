@@ -1517,4940 +1517,4940 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /* Initialize the protocol and registered fields */
-static int proto_nbap = -1;
-static int hf_nbap_transportLayerAddress_ipv4 = -1;
-static int hf_nbap_transportLayerAddress_ipv6 = -1;
-static int hf_nbap_transportLayerAddress_nsap = -1;
-static int hf_nbap_reassembled_information_block = -1;
+static int proto_nbap;
+static int hf_nbap_transportLayerAddress_ipv4;
+static int hf_nbap_transportLayerAddress_ipv6;
+static int hf_nbap_transportLayerAddress_nsap;
+static int hf_nbap_reassembled_information_block;
 
-static int hf_nbap_ActivationInformation_PDU = -1;  /* ActivationInformation */
-static int hf_nbap_Additional_EDCH_Setup_Info_PDU = -1;  /* Additional_EDCH_Setup_Info */
-static int hf_nbap_Additional_EDCH_Cell_Information_Response_List_PDU = -1;  /* Additional_EDCH_Cell_Information_Response_List */
-static int hf_nbap_Additional_EDCH_Cell_Information_Response_RLReconf_List_PDU = -1;  /* Additional_EDCH_Cell_Information_Response_RLReconf_List */
-static int hf_nbap_Additional_EDCH_Cell_Information_Response_RL_Add_List_PDU = -1;  /* Additional_EDCH_Cell_Information_Response_RL_Add_List */
-static int hf_nbap_AdditionalMeasurementValueList_PDU = -1;  /* AdditionalMeasurementValueList */
-static int hf_nbap_AdditionalTimeSlotListLCR_PDU = -1;  /* AdditionalTimeSlotListLCR */
-static int hf_nbap_Active_Pattern_Sequence_Information_PDU = -1;  /* Active_Pattern_Sequence_Information */
-static int hf_nbap_AlternativeFormatReportingIndicator_PDU = -1;  /* AlternativeFormatReportingIndicator */
-static int hf_nbap_Angle_Of_Arrival_Value_LCR_PDU = -1;  /* Angle_Of_Arrival_Value_LCR */
-static int hf_nbap_BCCH_ModificationTime_PDU = -1;  /* BCCH_ModificationTime */
-static int hf_nbap_Best_Cell_Portions_Value_PDU = -1;  /* Best_Cell_Portions_Value */
-static int hf_nbap_Best_Cell_Portions_ValueLCR_PDU = -1;  /* Best_Cell_Portions_ValueLCR */
-static int hf_nbap_BindingID_PDU = -1;            /* BindingID */
-static int hf_nbap_BlockingPriorityIndicator_PDU = -1;  /* BlockingPriorityIndicator */
-static int hf_nbap_BroadcastCommonTransportBearerIndication_PDU = -1;  /* BroadcastCommonTransportBearerIndication */
-static int hf_nbap_BroadcastReference_PDU = -1;   /* BroadcastReference */
-static int hf_nbap_Cause_PDU = -1;                /* Cause */
-static int hf_nbap_Cell_Capability_Container_PDU = -1;  /* Cell_Capability_Container */
-static int hf_nbap_Cell_ERNTI_Status_Information_PDU = -1;  /* Cell_ERNTI_Status_Information */
-static int hf_nbap_CellParameterID_PDU = -1;      /* CellParameterID */
-static int hf_nbap_CellPortion_CapabilityLCR_PDU = -1;  /* CellPortion_CapabilityLCR */
-static int hf_nbap_CellSyncBurstRepetitionPeriod_PDU = -1;  /* CellSyncBurstRepetitionPeriod */
-static int hf_nbap_CFN_PDU = -1;                  /* CFN */
-static int hf_nbap_C_ID_PDU = -1;                 /* C_ID */
-static int hf_nbap_Closedlooptimingadjustmentmode_PDU = -1;  /* Closedlooptimingadjustmentmode */
-static int hf_nbap_Common_EDCH_Capability_PDU = -1;  /* Common_EDCH_Capability */
-static int hf_nbap_Common_E_DCH_HSDPCCH_Capability_PDU = -1;  /* Common_E_DCH_HSDPCCH_Capability */
-static int hf_nbap_Common_EDCH_System_InformationFDD_PDU = -1;  /* Common_EDCH_System_InformationFDD */
-static int hf_nbap_Common_EDCH_System_Information_ResponseFDD_PDU = -1;  /* Common_EDCH_System_Information_ResponseFDD */
-static int hf_nbap_E_RNTI_List_PDU = -1;          /* E_RNTI_List */
-static int hf_nbap_Common_MACFlows_to_DeleteFDD_PDU = -1;  /* Common_MACFlows_to_DeleteFDD */
-static int hf_nbap_CommonMeasurementAccuracy_PDU = -1;  /* CommonMeasurementAccuracy */
-static int hf_nbap_CommonMeasurementType_PDU = -1;  /* CommonMeasurementType */
-static int hf_nbap_CommonPhysicalChannelID_PDU = -1;  /* CommonPhysicalChannelID */
-static int hf_nbap_CommonPhysicalChannelID768_PDU = -1;  /* CommonPhysicalChannelID768 */
-static int hf_nbap_Common_PhysicalChannel_Status_Information_PDU = -1;  /* Common_PhysicalChannel_Status_Information */
-static int hf_nbap_Common_PhysicalChannel_Status_Information768_PDU = -1;  /* Common_PhysicalChannel_Status_Information768 */
-static int hf_nbap_CommonTransportChannel_InformationResponse_PDU = -1;  /* CommonTransportChannel_InformationResponse */
-static int hf_nbap_Common_TransportChannel_Status_Information_PDU = -1;  /* Common_TransportChannel_Status_Information */
-static int hf_nbap_CommunicationControlPortID_PDU = -1;  /* CommunicationControlPortID */
-static int hf_nbap_Compressed_Mode_Deactivation_Flag_PDU = -1;  /* Compressed_Mode_Deactivation_Flag */
-static int hf_nbap_ConfigurationGenerationID_PDU = -1;  /* ConfigurationGenerationID */
-static int hf_nbap_ConstantValue_PDU = -1;        /* ConstantValue */
-static int hf_nbap_ContinuousPacketConnectivityDTX_DRX_Capability_PDU = -1;  /* ContinuousPacketConnectivityDTX_DRX_Capability */
-static int hf_nbap_ContinuousPacketConnectivityDTX_DRX_Information_PDU = -1;  /* ContinuousPacketConnectivityDTX_DRX_Information */
-static int hf_nbap_ContinuousPacketConnectivityHS_SCCH_less_Capability_PDU = -1;  /* ContinuousPacketConnectivityHS_SCCH_less_Capability */
-static int hf_nbap_ContinuousPacketConnectivityHS_SCCH_less_Information_PDU = -1;  /* ContinuousPacketConnectivityHS_SCCH_less_Information */
-static int hf_nbap_ContinuousPacketConnectivityHS_SCCH_less_Information_Response_PDU = -1;  /* ContinuousPacketConnectivityHS_SCCH_less_Information_Response */
-static int hf_nbap_ControlGAP_PDU = -1;           /* ControlGAP */
-static int hf_nbap_CPC_Information_PDU = -1;      /* CPC_Information */
-static int hf_nbap_ContinuousPacketConnectivityHS_SCCH_less_Deactivate_Indicator_PDU = -1;  /* ContinuousPacketConnectivityHS_SCCH_less_Deactivate_Indicator */
-static int hf_nbap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
-static int hf_nbap_CRNC_CommunicationContextID_PDU = -1;  /* CRNC_CommunicationContextID */
-static int hf_nbap_CSBMeasurementID_PDU = -1;     /* CSBMeasurementID */
-static int hf_nbap_CSBTransmissionID_PDU = -1;    /* CSBTransmissionID */
-static int hf_nbap_Common_EDCH_System_InformationLCR_PDU = -1;  /* Common_EDCH_System_InformationLCR */
-static int hf_nbap_Common_EDCH_System_Information_ResponseLCR_PDU = -1;  /* Common_EDCH_System_Information_ResponseLCR */
-static int hf_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseListLCR_Ext_PDU = -1;  /* Ul_common_E_DCH_MACflow_Specific_InfoResponseListLCR_Ext */
-static int hf_nbap_Common_MACFlows_to_DeleteLCR_PDU = -1;  /* Common_MACFlows_to_DeleteLCR */
-static int hf_nbap_CPC_InformationLCR_PDU = -1;   /* CPC_InformationLCR */
-static int hf_nbap_ContinuousPacketConnectivity_DRX_CapabilityLCR_PDU = -1;  /* ContinuousPacketConnectivity_DRX_CapabilityLCR */
-static int hf_nbap_ContinuousPacketConnectivity_DRX_InformationLCR_PDU = -1;  /* ContinuousPacketConnectivity_DRX_InformationLCR */
-static int hf_nbap_E_AGCH_UE_Inactivity_Monitor_Threshold_PDU = -1;  /* E_AGCH_UE_Inactivity_Monitor_Threshold */
-static int hf_nbap_ContinuousPacketConnectivity_DRX_Information_ResponseLCR_PDU = -1;  /* ContinuousPacketConnectivity_DRX_Information_ResponseLCR */
-static int hf_nbap_DCH_FDD_Information_PDU = -1;  /* DCH_FDD_Information */
-static int hf_nbap_DCH_Indicator_For_E_DCH_HSDPA_Operation_PDU = -1;  /* DCH_Indicator_For_E_DCH_HSDPA_Operation */
-static int hf_nbap_DCH_InformationResponse_PDU = -1;  /* DCH_InformationResponse */
-static int hf_nbap_DCH_MeasurementOccasion_Information_PDU = -1;  /* DCH_MeasurementOccasion_Information */
-static int hf_nbap_DCH_TDD_Information_PDU = -1;  /* DCH_TDD_Information */
-static int hf_nbap_FDD_DCHs_to_Modify_PDU = -1;   /* FDD_DCHs_to_Modify */
-static int hf_nbap_TDD_DCHs_to_Modify_PDU = -1;   /* TDD_DCHs_to_Modify */
-static int hf_nbap_DedicatedMeasurementType_PDU = -1;  /* DedicatedMeasurementType */
-static int hf_nbap_DelayedActivation_PDU = -1;    /* DelayedActivation */
-static int hf_nbap_DGANSS_Corrections_Req_PDU = -1;  /* DGANSS_Corrections_Req */
-static int hf_nbap_DGNSS_ValidityPeriod_PDU = -1;  /* DGNSS_ValidityPeriod */
-static int hf_nbap_DiversityMode_PDU = -1;        /* DiversityMode */
-static int hf_nbap_DL_DPCH_TimingAdjustment_PDU = -1;  /* DL_DPCH_TimingAdjustment */
-static int hf_nbap_DL_Power_PDU = -1;             /* DL_Power */
-static int hf_nbap_DL_PowerBalancing_Information_PDU = -1;  /* DL_PowerBalancing_Information */
-static int hf_nbap_DL_PowerBalancing_ActivationIndicator_PDU = -1;  /* DL_PowerBalancing_ActivationIndicator */
-static int hf_nbap_DL_PowerBalancing_UpdatedIndicator_PDU = -1;  /* DL_PowerBalancing_UpdatedIndicator */
-static int hf_nbap_DL_ScramblingCode_PDU = -1;    /* DL_ScramblingCode */
-static int hf_nbap_DL_TimeslotISCPInfo_PDU = -1;  /* DL_TimeslotISCPInfo */
-static int hf_nbap_DL_TimeslotISCPInfoLCR_PDU = -1;  /* DL_TimeslotISCPInfoLCR */
-static int hf_nbap_DL_TPC_Pattern01Count_PDU = -1;  /* DL_TPC_Pattern01Count */
-static int hf_nbap_DLTransmissionBranchLoadValue_PDU = -1;  /* DLTransmissionBranchLoadValue */
-static int hf_nbap_MaxHSDSCH_HSSCCH_Power_per_CELLPORTION_PDU = -1;  /* MaxHSDSCH_HSSCCH_Power_per_CELLPORTION */
-static int hf_nbap_DPC_Mode_PDU = -1;             /* DPC_Mode */
-static int hf_nbap_DPCH_ID768_PDU = -1;           /* DPCH_ID768 */
-static int hf_nbap_DSCH_InformationResponse_PDU = -1;  /* DSCH_InformationResponse */
-static int hf_nbap_DSCH_TDD_Information_PDU = -1;  /* DSCH_TDD_Information */
-static int hf_nbap_Dual_Band_Capability_Info_PDU = -1;  /* Dual_Band_Capability_Info */
-static int hf_nbap_DwPCH_Power_PDU = -1;          /* DwPCH_Power */
-static int hf_nbap_E_AGCH_Table_Choice_PDU = -1;  /* E_AGCH_Table_Choice */
-static int hf_nbap_E_AGCH_FDD_Code_Information_PDU = -1;  /* E_AGCH_FDD_Code_Information */
-static int hf_nbap_E_AI_Capability_PDU = -1;      /* E_AI_Capability */
-static int hf_nbap_E_DCH_Capability_PDU = -1;     /* E_DCH_Capability */
-static int hf_nbap_E_DCHCapacityConsumptionLaw_PDU = -1;  /* E_DCHCapacityConsumptionLaw */
-static int hf_nbap_E_DCH_TDD_CapacityConsumptionLaw_PDU = -1;  /* E_DCH_TDD_CapacityConsumptionLaw */
-static int hf_nbap_E_DCH_TTI2ms_Capability_PDU = -1;  /* E_DCH_TTI2ms_Capability */
-static int hf_nbap_E_DCH_SF_Capability_PDU = -1;  /* E_DCH_SF_Capability */
-static int hf_nbap_E_DCH_HARQ_Combining_Capability_PDU = -1;  /* E_DCH_HARQ_Combining_Capability */
-static int hf_nbap_E_DCH_FDD_DL_Control_Channel_Information_PDU = -1;  /* E_DCH_FDD_DL_Control_Channel_Information */
-static int hf_nbap_E_DCH_FDD_Information_PDU = -1;  /* E_DCH_FDD_Information */
-static int hf_nbap_E_DCH_FDD_Information_Response_PDU = -1;  /* E_DCH_FDD_Information_Response */
-static int hf_nbap_E_DCH_FDD_Information_to_Modify_PDU = -1;  /* E_DCH_FDD_Information_to_Modify */
-static int hf_nbap_E_DCH_FDD_Update_Information_PDU = -1;  /* E_DCH_FDD_Update_Information */
-static int hf_nbap_E_DCH_DL_Control_Channel_Change_Information_PDU = -1;  /* E_DCH_DL_Control_Channel_Change_Information */
-static int hf_nbap_E_DCH_DL_Control_Channel_Grant_Information_PDU = -1;  /* E_DCH_DL_Control_Channel_Grant_Information */
-static int hf_nbap_E_DCH_PowerOffset_for_SchedulingInfo_PDU = -1;  /* E_DCH_PowerOffset_for_SchedulingInfo */
-static int hf_nbap_E_DCH_MACdPDU_SizeCapability_PDU = -1;  /* E_DCH_MACdPDU_SizeCapability */
-static int hf_nbap_E_DCH_MACdPDUSizeFormat_PDU = -1;  /* E_DCH_MACdPDUSizeFormat */
-static int hf_nbap_E_DCH_MACdFlows_Information_PDU = -1;  /* E_DCH_MACdFlows_Information */
-static int hf_nbap_E_DCH_MACdFlows_to_Delete_PDU = -1;  /* E_DCH_MACdFlows_to_Delete */
-static int hf_nbap_E_DCH_Non_serving_Relative_Grant_Down_Commands_PDU = -1;  /* E_DCH_Non_serving_Relative_Grant_Down_Commands */
-static int hf_nbap_Maximum_Target_ReceivedTotalWideBandPower_PDU = -1;  /* Maximum_Target_ReceivedTotalWideBandPower */
-static int hf_nbap_Target_NonServing_EDCH_To_Total_EDCH_Power_Ratio_PDU = -1;  /* Target_NonServing_EDCH_To_Total_EDCH_Power_Ratio */
-static int hf_nbap_E_DCH_RL_Indication_PDU = -1;  /* E_DCH_RL_Indication */
-static int hf_nbap_E_DCH_Serving_Cell_Change_Info_Response_PDU = -1;  /* E_DCH_Serving_Cell_Change_Info_Response */
-static int hf_nbap_EDCH_RACH_Report_Value_PDU = -1;  /* EDCH_RACH_Report_Value */
-static int hf_nbap_E_DPDCH_PowerInterpolation_PDU = -1;  /* E_DPDCH_PowerInterpolation */
-static int hf_nbap_E_DCH_MACdFlows_to_DeleteLCR_PDU = -1;  /* E_DCH_MACdFlows_to_DeleteLCR */
-static int hf_nbap_Enhanced_UE_DRX_InformationLCR_PDU = -1;  /* Enhanced_UE_DRX_InformationLCR */
-static int hf_nbap_End_Of_Audit_Sequence_Indicator_PDU = -1;  /* End_Of_Audit_Sequence_Indicator */
-static int hf_nbap_E_RGCH_E_HICH_FDD_Code_Information_PDU = -1;  /* E_RGCH_E_HICH_FDD_Code_Information */
-static int hf_nbap_E_RNTI_PDU = -1;               /* E_RNTI */
-static int hf_nbap_E_TFCI_Boost_Information_PDU = -1;  /* E_TFCI_Boost_Information */
-static int hf_nbap_E_DCHProvidedBitRate_PDU = -1;  /* E_DCHProvidedBitRate */
-static int hf_nbap_E_DCHProvidedBitRateValueInformation_For_CellPortion_PDU = -1;  /* E_DCHProvidedBitRateValueInformation_For_CellPortion */
-static int hf_nbap_E_HICH_TimeOffset_PDU = -1;    /* E_HICH_TimeOffset */
-static int hf_nbap_E_HICH_TimeOffsetLCR_PDU = -1;  /* E_HICH_TimeOffsetLCR */
-static int hf_nbap_E_DCH_Information_PDU = -1;    /* E_DCH_Information */
-static int hf_nbap_E_DCH_MACdFlow_Retransmission_Timer_PDU = -1;  /* E_DCH_MACdFlow_Retransmission_Timer */
-static int hf_nbap_E_DCH_Information_Response_PDU = -1;  /* E_DCH_Information_Response */
-static int hf_nbap_E_DCH_Information_Reconfig_PDU = -1;  /* E_DCH_Information_Reconfig */
-static int hf_nbap_Maximum_Generated_ReceivedTotalWideBandPowerInOtherCells_PDU = -1;  /* Maximum_Generated_ReceivedTotalWideBandPowerInOtherCells */
-static int hf_nbap_E_DCH_768_Information_PDU = -1;  /* E_DCH_768_Information */
-static int hf_nbap_E_DCH_768_Information_Reconfig_PDU = -1;  /* E_DCH_768_Information_Reconfig */
-static int hf_nbap_E_DCH_LCR_Information_PDU = -1;  /* E_DCH_LCR_Information */
-static int hf_nbap_E_DCH_LCR_Information_Reconfig_PDU = -1;  /* E_DCH_LCR_Information_Reconfig */
-static int hf_nbap_DormantModeIndicator_PDU = -1;  /* DormantModeIndicator */
-static int hf_nbap_Enhanced_FACH_Capability_PDU = -1;  /* Enhanced_FACH_Capability */
-static int hf_nbap_EnhancedHSServingCC_Abort_PDU = -1;  /* EnhancedHSServingCC_Abort */
-static int hf_nbap_Enhanced_PCH_Capability_PDU = -1;  /* Enhanced_PCH_Capability */
-static int hf_nbap_Enhanced_UE_DRX_Capability_PDU = -1;  /* Enhanced_UE_DRX_Capability */
-static int hf_nbap_Enhanced_UE_DRX_InformationFDD_PDU = -1;  /* Enhanced_UE_DRX_InformationFDD */
-static int hf_nbap_Extended_E_DCH_LCRTDD_PhysicalLayerCategory_PDU = -1;  /* Extended_E_DCH_LCRTDD_PhysicalLayerCategory */
-static int hf_nbap_Ext_Max_Bits_MACe_PDU_non_scheduled_PDU = -1;  /* Ext_Max_Bits_MACe_PDU_non_scheduled */
-static int hf_nbap_Ext_Reference_E_TFCI_PO_PDU = -1;  /* Ext_Reference_E_TFCI_PO */
-static int hf_nbap_ExtendedPropagationDelay_PDU = -1;  /* ExtendedPropagationDelay */
-static int hf_nbap_Extended_RNC_ID_PDU = -1;      /* Extended_RNC_ID */
-static int hf_nbap_Extended_Round_Trip_Time_Value_PDU = -1;  /* Extended_Round_Trip_Time_Value */
-static int hf_nbap_Extended_HS_SCCH_ID_PDU = -1;  /* Extended_HS_SCCH_ID */
-static int hf_nbap_Extended_HS_SICH_ID_PDU = -1;  /* Extended_HS_SICH_ID */
-static int hf_nbap_Extended_E_HICH_ID_TDD_PDU = -1;  /* Extended_E_HICH_ID_TDD */
-static int hf_nbap_E_DCH_Semi_PersistentScheduling_Information_LCR_PDU = -1;  /* E_DCH_Semi_PersistentScheduling_Information_LCR */
-static int hf_nbap_E_DCH_Semi_PersistentScheduling_Information_ResponseLCR_PDU = -1;  /* E_DCH_Semi_PersistentScheduling_Information_ResponseLCR */
-static int hf_nbap_Fast_Reconfiguration_Mode_PDU = -1;  /* Fast_Reconfiguration_Mode */
-static int hf_nbap_Fast_Reconfiguration_Permission_PDU = -1;  /* Fast_Reconfiguration_Permission */
-static int hf_nbap_FDD_S_CCPCH_FrameOffset_PDU = -1;  /* FDD_S_CCPCH_FrameOffset */
-static int hf_nbap_F_DPCH_Capability_PDU = -1;    /* F_DPCH_Capability */
-static int hf_nbap_F_DPCH_SlotFormat_PDU = -1;    /* F_DPCH_SlotFormat */
-static int hf_nbap_F_DPCH_SlotFormatCapability_PDU = -1;  /* F_DPCH_SlotFormatCapability */
-static int hf_nbap_FNReportingIndicator_PDU = -1;  /* FNReportingIndicator */
-static int hf_nbap_GANSS_AddIonoModelReq_PDU = -1;  /* GANSS_AddIonoModelReq */
-static int hf_nbap_GANSS_AddNavigationModelsReq_PDU = -1;  /* GANSS_AddNavigationModelsReq */
-static int hf_nbap_GANSS_AddUTCModelsReq_PDU = -1;  /* GANSS_AddUTCModelsReq */
-static int hf_nbap_GANSS_Additional_Ionospheric_Model_PDU = -1;  /* GANSS_Additional_Ionospheric_Model */
-static int hf_nbap_GANSS_Additional_Navigation_Models_PDU = -1;  /* GANSS_Additional_Navigation_Models */
-static int hf_nbap_GANSS_Additional_Time_Models_PDU = -1;  /* GANSS_Additional_Time_Models */
-static int hf_nbap_GANSS_Additional_UTC_Models_PDU = -1;  /* GANSS_Additional_UTC_Models */
-static int hf_nbap_GANSS_ALM_ECEFsbasAlmanacSet_PDU = -1;  /* GANSS_ALM_ECEFsbasAlmanacSet */
-static int hf_nbap_GANSS_ALM_GlonassAlmanacSet_PDU = -1;  /* GANSS_ALM_GlonassAlmanacSet */
-static int hf_nbap_GANSS_ALM_MidiAlmanacSet_PDU = -1;  /* GANSS_ALM_MidiAlmanacSet */
-static int hf_nbap_GANSS_ALM_NAVKeplerianSet_PDU = -1;  /* GANSS_ALM_NAVKeplerianSet */
-static int hf_nbap_GANSS_ALM_ReducedKeplerianSet_PDU = -1;  /* GANSS_ALM_ReducedKeplerianSet */
-static int hf_nbap_GANSS_Auxiliary_Information_PDU = -1;  /* GANSS_Auxiliary_Information */
-static int hf_nbap_GANSS_AuxInfoReq_PDU = -1;     /* GANSS_AuxInfoReq */
-static int hf_nbap_GANSS_Common_Data_PDU = -1;    /* GANSS_Common_Data */
-static int hf_nbap_GANSS_Earth_Orientation_Parameters_PDU = -1;  /* GANSS_Earth_Orientation_Parameters */
-static int hf_nbap_GANSS_EarthOrientParaReq_PDU = -1;  /* GANSS_EarthOrientParaReq */
-static int hf_nbap_GANSS_Generic_Data_PDU = -1;   /* GANSS_Generic_Data */
-static int hf_nbap_GANSS_ID_PDU = -1;             /* GANSS_ID */
-static int hf_nbap_GANSS_Information_PDU = -1;    /* GANSS_Information */
-static int hf_nbap_GANSS_SBAS_ID_PDU = -1;        /* GANSS_SBAS_ID */
-static int hf_nbap_GANSS_Time_ID_PDU = -1;        /* GANSS_Time_ID */
-static int hf_nbap_HARQ_MemoryPartitioningInfoExtForMIMO_PDU = -1;  /* HARQ_MemoryPartitioningInfoExtForMIMO */
-static int hf_nbap_HARQ_Preamble_Mode_PDU = -1;   /* HARQ_Preamble_Mode */
-static int hf_nbap_HARQ_Preamble_Mode_Activation_Indicator_PDU = -1;  /* HARQ_Preamble_Mode_Activation_Indicator */
-static int hf_nbap_HSDPA_Capability_PDU = -1;     /* HSDPA_Capability */
-static int hf_nbap_HS_DSCHProvidedBitRate_PDU = -1;  /* HS_DSCHProvidedBitRate */
-static int hf_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortion_PDU = -1;  /* HS_DSCHProvidedBitRateValueInformation_For_CellPortion */
-static int hf_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortionLCR_PDU = -1;  /* HS_DSCHProvidedBitRateValueInformation_For_CellPortionLCR */
-static int hf_nbap_HS_DSCHRequiredPower_PDU = -1;  /* HS_DSCHRequiredPower */
-static int hf_nbap_HS_DSCHRequiredPowerValue_PDU = -1;  /* HS_DSCHRequiredPowerValue */
-static int hf_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortion_PDU = -1;  /* HS_DSCHRequiredPowerValueInformation_For_CellPortion */
-static int hf_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortionLCR_PDU = -1;  /* HS_DSCHRequiredPowerValueInformation_For_CellPortionLCR */
-static int hf_nbap_HSDSCH_Common_System_InformationFDD_PDU = -1;  /* HSDSCH_Common_System_InformationFDD */
-static int hf_nbap_HSDSCH_Common_System_Information_ResponseFDD_PDU = -1;  /* HSDSCH_Common_System_Information_ResponseFDD */
-static int hf_nbap_HSDSCH_FDD_Information_PDU = -1;  /* HSDSCH_FDD_Information */
-static int hf_nbap_HSDSCH_TDD_Information_PDU = -1;  /* HSDSCH_TDD_Information */
-static int hf_nbap_HSDSCH_Information_to_Modify_PDU = -1;  /* HSDSCH_Information_to_Modify */
-static int hf_nbap_HSDSCH_MACdPDUSizeFormat_PDU = -1;  /* HSDSCH_MACdPDUSizeFormat */
-static int hf_nbap_HSDSCH_MACdPDU_SizeCapability_PDU = -1;  /* HSDSCH_MACdPDU_SizeCapability */
-static int hf_nbap_HSDSCH_Information_to_Modify_Unsynchronised_PDU = -1;  /* HSDSCH_Information_to_Modify_Unsynchronised */
-static int hf_nbap_HSDSCH_FDD_Information_Response_PDU = -1;  /* HSDSCH_FDD_Information_Response */
-static int hf_nbap_HSDSCH_Paging_System_InformationFDD_PDU = -1;  /* HSDSCH_Paging_System_InformationFDD */
-static int hf_nbap_HSDSCH_Paging_System_Information_ResponseFDD_PDU = -1;  /* HSDSCH_Paging_System_Information_ResponseFDD */
-static int hf_nbap_HSDSCH_TDD_Information_Response_PDU = -1;  /* HSDSCH_TDD_Information_Response */
-static int hf_nbap_HSDSCH_MACdFlows_Information_PDU = -1;  /* HSDSCH_MACdFlows_Information */
-static int hf_nbap_HSDSCH_MACdFlows_to_Delete_PDU = -1;  /* HSDSCH_MACdFlows_to_Delete */
-static int hf_nbap_HSDSCH_TBSizeTableIndicator_PDU = -1;  /* HSDSCH_TBSizeTableIndicator */
-static int hf_nbap_HSDSCH_PreconfigurationInfo_PDU = -1;  /* HSDSCH_PreconfigurationInfo */
-static int hf_nbap_Additional_EDCH_Preconfiguration_Information_PDU = -1;  /* Additional_EDCH_Preconfiguration_Information */
-static int hf_nbap_HSDSCH_PreconfigurationSetup_PDU = -1;  /* HSDSCH_PreconfigurationSetup */
-static int hf_nbap_HSSCCH_Specific_InformationRespListTDD768_PDU = -1;  /* HSSCCH_Specific_InformationRespListTDD768 */
-static int hf_nbap_HS_SICH_Reception_Quality_Value_PDU = -1;  /* HS_SICH_Reception_Quality_Value */
-static int hf_nbap_HS_SICH_failed_PDU = -1;       /* HS_SICH_failed */
-static int hf_nbap_HS_SICH_missed_PDU = -1;       /* HS_SICH_missed */
-static int hf_nbap_HS_SICH_total_PDU = -1;        /* HS_SICH_total */
-static int hf_nbap_HS_SICH_Reception_Quality_Measurement_Value_PDU = -1;  /* HS_SICH_Reception_Quality_Measurement_Value */
-static int hf_nbap_HSDSCH_RNTI_PDU = -1;          /* HSDSCH_RNTI */
-static int hf_nbap_HS_PDSCH_FDD_Code_Information_PDU = -1;  /* HS_PDSCH_FDD_Code_Information */
-static int hf_nbap_HS_SICH_ID_PDU = -1;           /* HS_SICH_ID */
-static int hf_nbap_HS_SCCH_FDD_Code_Information_PDU = -1;  /* HS_SCCH_FDD_Code_Information */
-static int hf_nbap_HS_PDSCH_Code_Change_Indicator_PDU = -1;  /* HS_PDSCH_Code_Change_Indicator */
-static int hf_nbap_HS_PDSCH_Code_Change_Grant_PDU = -1;  /* HS_PDSCH_Code_Change_Grant */
-static int hf_nbap_HSDSCH_Configured_Indicator_PDU = -1;  /* HSDSCH_Configured_Indicator */
-static int hf_nbap_HS_DSCH_Serving_Cell_Change_Info_PDU = -1;  /* HS_DSCH_Serving_Cell_Change_Info */
-static int hf_nbap_HS_DSCH_Serving_Cell_Change_Info_Response_PDU = -1;  /* HS_DSCH_Serving_Cell_Change_Info_Response */
-static int hf_nbap_HSDSCH_FDD_Update_Information_PDU = -1;  /* HSDSCH_FDD_Update_Information */
-static int hf_nbap_HSDSCH_TDD_Update_Information_PDU = -1;  /* HSDSCH_TDD_Update_Information */
-static int hf_nbap_HSDSCH_Common_System_InformationLCR_PDU = -1;  /* HSDSCH_Common_System_InformationLCR */
-static int hf_nbap_HSDSCH_Common_System_Information_ResponseLCR_PDU = -1;  /* HSDSCH_Common_System_Information_ResponseLCR */
-static int hf_nbap_HSDSCH_Paging_System_InformationLCR_PDU = -1;  /* HSDSCH_Paging_System_InformationLCR */
-static int hf_nbap_HSDSCH_Paging_System_Information_ResponseLCR_PDU = -1;  /* HSDSCH_Paging_System_Information_ResponseLCR */
-static int hf_nbap_HS_DSCH_Semi_PersistentScheduling_Information_LCR_PDU = -1;  /* HS_DSCH_Semi_PersistentScheduling_Information_LCR */
-static int hf_nbap_RepetitionPeriodIndex_PDU = -1;  /* RepetitionPeriodIndex */
-static int hf_nbap_SPS_Reservation_Indicator_PDU = -1;  /* SPS_Reservation_Indicator */
-static int hf_nbap_HS_DSCH_SPS_Operation_Indicator_PDU = -1;  /* HS_DSCH_SPS_Operation_Indicator */
-static int hf_nbap_HS_DSCH_Semi_PersistentScheduling_Information_ResponseLCR_PDU = -1;  /* HS_DSCH_Semi_PersistentScheduling_Information_ResponseLCR */
-static int hf_nbap_Add_To_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst_PDU = -1;  /* Add_To_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst */
-static int hf_nbap_Non_HS_SCCH_Associated_HS_SICH_InformationList_Ext_PDU = -1;  /* Non_HS_SCCH_Associated_HS_SICH_InformationList_Ext */
-static int hf_nbap_Modify_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst_PDU = -1;  /* Modify_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst */
-static int hf_nbap_Modify_Non_HS_SCCH_Associated_HS_SICH_InformationList_Ext_PDU = -1;  /* Modify_Non_HS_SCCH_Associated_HS_SICH_InformationList_Ext */
-static int hf_nbap_Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst_PDU = -1;  /* Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst */
-static int hf_nbap_Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst_Ext_PDU = -1;  /* Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst_Ext */
-static int hf_nbap_MIMO_ReferenceSignal_InformationListLCR_PDU = -1;  /* MIMO_ReferenceSignal_InformationListLCR */
-static int hf_nbap_HSSICH_ReferenceSignal_InformationLCR_PDU = -1;  /* HSSICH_ReferenceSignal_InformationLCR */
-static int hf_nbap_HSSICH_ReferenceSignal_InformationModifyLCR_PDU = -1;  /* HSSICH_ReferenceSignal_InformationModifyLCR */
-static int hf_nbap_IMB_Parameters_PDU = -1;       /* IMB_Parameters */
-static int hf_nbap_InformationReportCharacteristics_PDU = -1;  /* InformationReportCharacteristics */
-static int hf_nbap_InformationExchangeID_PDU = -1;  /* InformationExchangeID */
-static int hf_nbap_InformationType_PDU = -1;      /* InformationType */
-static int hf_nbap_Initial_DL_DPCH_TimingAdjustment_Allowed_PDU = -1;  /* Initial_DL_DPCH_TimingAdjustment_Allowed */
-static int hf_nbap_InnerLoopDLPCStatus_PDU = -1;  /* InnerLoopDLPCStatus */
-static int hf_nbap_IPMulticastIndication_PDU = -1;  /* IPMulticastIndication */
-static int hf_nbap_IPMulticastDataBearerIndication_PDU = -1;  /* IPMulticastDataBearerIndication */
-static int hf_nbap_IdleIntervalInformation_PDU = -1;  /* IdleIntervalInformation */
-static int hf_nbap_Local_Cell_ID_PDU = -1;        /* Local_Cell_ID */
-static int hf_nbap_LCRTDD_Uplink_Physical_Channel_Capability_PDU = -1;  /* LCRTDD_Uplink_Physical_Channel_Capability */
-static int hf_nbap_MAC_PDU_SizeExtended_PDU = -1;  /* MAC_PDU_SizeExtended */
-static int hf_nbap_MACes_Maximum_Bitrate_LCR_PDU = -1;  /* MACes_Maximum_Bitrate_LCR */
-static int hf_nbap_Maximum_Number_of_Retransmissions_For_E_DCH_PDU = -1;  /* Maximum_Number_of_Retransmissions_For_E_DCH */
-static int hf_nbap_Maximum_Target_ReceivedTotalWideBandPower_LCR_PDU = -1;  /* Maximum_Target_ReceivedTotalWideBandPower_LCR */
-static int hf_nbap_MaximumTransmissionPower_PDU = -1;  /* MaximumTransmissionPower */
-static int hf_nbap_Max_UE_DTX_Cycle_PDU = -1;     /* Max_UE_DTX_Cycle */
-static int hf_nbap_MBMS_Capability_PDU = -1;      /* MBMS_Capability */
-static int hf_nbap_MeasurementFilterCoefficient_PDU = -1;  /* MeasurementFilterCoefficient */
-static int hf_nbap_MeasurementID_PDU = -1;        /* MeasurementID */
-static int hf_nbap_MeasurementRecoveryBehavior_PDU = -1;  /* MeasurementRecoveryBehavior */
-static int hf_nbap_MeasurementRecoveryReportingIndicator_PDU = -1;  /* MeasurementRecoveryReportingIndicator */
-static int hf_nbap_MeasurementRecoverySupportIndicator_PDU = -1;  /* MeasurementRecoverySupportIndicator */
-static int hf_nbap_MessageStructure_PDU = -1;     /* MessageStructure */
-static int hf_nbap_MICH_CFN_PDU = -1;             /* MICH_CFN */
-static int hf_nbap_MidambleShiftLCR_PDU = -1;     /* MidambleShiftLCR */
-static int hf_nbap_MIMO_ActivationIndicator_PDU = -1;  /* MIMO_ActivationIndicator */
-static int hf_nbap_MIMO_Capability_PDU = -1;      /* MIMO_Capability */
-static int hf_nbap_MIMO_Mode_Indicator_PDU = -1;  /* MIMO_Mode_Indicator */
-static int hf_nbap_MIMO_N_M_Ratio_PDU = -1;       /* MIMO_N_M_Ratio */
-static int hf_nbap_MIMO_PilotConfiguration_PDU = -1;  /* MIMO_PilotConfiguration */
-static int hf_nbap_MIMO_PilotConfigurationExtension_PDU = -1;  /* MIMO_PilotConfigurationExtension */
-static int hf_nbap_MIMO_PowerOffsetForS_CPICHCapability_PDU = -1;  /* MIMO_PowerOffsetForS_CPICHCapability */
-static int hf_nbap_MinimumReducedE_DPDCH_GainFactor_PDU = -1;  /* MinimumReducedE_DPDCH_GainFactor */
-static int hf_nbap_Modification_Period_PDU = -1;  /* Modification_Period */
-static int hf_nbap_MAChs_ResetIndicator_PDU = -1;  /* MAChs_ResetIndicator */
-static int hf_nbap_ModulationMBSFN_PDU = -1;      /* ModulationMBSFN */
-static int hf_nbap_ModulationPO_MBSFN_PDU = -1;   /* ModulationPO_MBSFN */
-static int hf_nbap_MBSFN_Only_Mode_Indicator_PDU = -1;  /* MBSFN_Only_Mode_Indicator */
-static int hf_nbap_MBSFN_Only_Mode_Capability_PDU = -1;  /* MBSFN_Only_Mode_Capability */
-static int hf_nbap_Multicarrier_Number_PDU = -1;  /* Multicarrier_Number */
-static int hf_nbap_MultipleFreq_HARQ_MemoryPartitioning_InformationList_PDU = -1;  /* MultipleFreq_HARQ_MemoryPartitioning_InformationList */
-static int hf_nbap_MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR_PDU = -1;  /* MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR */
-static int hf_nbap_Multi_Cell_Capability_Info_PDU = -1;  /* Multi_Cell_Capability_Info */
-static int hf_nbap_Multicell_EDCH_InformationItemIEs_PDU = -1;  /* Multicell_EDCH_InformationItemIEs */
-static int hf_nbap_Multicell_EDCH_RL_Specific_InformationItemIEs_PDU = -1;  /* Multicell_EDCH_RL_Specific_InformationItemIEs */
-static int hf_nbap_MIMO_SFMode_For_HSPDSCHDualStream_PDU = -1;  /* MIMO_SFMode_For_HSPDSCHDualStream */
-static int hf_nbap_NCyclesPerSFNperiod_PDU = -1;  /* NCyclesPerSFNperiod */
-static int hf_nbap_NRepetitionsPerCyclePeriod_PDU = -1;  /* NRepetitionsPerCyclePeriod */
-static int hf_nbap_NeighbouringCellMeasurementInformation_PDU = -1;  /* NeighbouringCellMeasurementInformation */
-static int hf_nbap_NeighbouringTDDCellMeasurementInformationLCR_PDU = -1;  /* NeighbouringTDDCellMeasurementInformationLCR */
-static int hf_nbap_NeighbouringTDDCellMeasurementInformation768_PDU = -1;  /* NeighbouringTDDCellMeasurementInformation768 */
-static int hf_nbap_NonCellSpecificTxDiversity_PDU = -1;  /* NonCellSpecificTxDiversity */
-static int hf_nbap_NI_Information_PDU = -1;       /* NI_Information */
-static int hf_nbap_NodeB_CommunicationContextID_PDU = -1;  /* NodeB_CommunicationContextID */
-static int hf_nbap_NumberOfReportedCellPortions_PDU = -1;  /* NumberOfReportedCellPortions */
-static int hf_nbap_NumberOfReportedCellPortionsLCR_PDU = -1;  /* NumberOfReportedCellPortionsLCR */
-static int hf_nbap_NSubCyclesPerCyclePeriod_PDU = -1;  /* NSubCyclesPerCyclePeriod */
-static int hf_nbap_Number_Of_Supported_Carriers_PDU = -1;  /* Number_Of_Supported_Carriers */
-static int hf_nbap_NoOfTargetCellHS_SCCH_Order_PDU = -1;  /* NoOfTargetCellHS_SCCH_Order */
-static int hf_nbap_Out_of_Sychronization_Window_PDU = -1;  /* Out_of_Sychronization_Window */
-static int hf_nbap_Paging_MACFlows_to_DeleteFDD_PDU = -1;  /* Paging_MACFlows_to_DeleteFDD */
-static int hf_nbap_PhysicalChannelID_for_CommonERNTI_RequestedIndicator_PDU = -1;  /* PhysicalChannelID_for_CommonERNTI_RequestedIndicator */
-static int hf_nbap_PLCCHinformation_PDU = -1;     /* PLCCHinformation */
-static int hf_nbap_PowerAdjustmentType_PDU = -1;  /* PowerAdjustmentType */
-static int hf_nbap_PrecodingWeightSetRestriction_PDU = -1;  /* PrecodingWeightSetRestriction */
-static int hf_nbap_Primary_CPICH_Usage_for_Channel_Estimation_PDU = -1;  /* Primary_CPICH_Usage_for_Channel_Estimation */
-static int hf_nbap_PrimaryScramblingCode_PDU = -1;  /* PrimaryScramblingCode */
-static int hf_nbap_PrimaryCCPCH_RSCP_PDU = -1;    /* PrimaryCCPCH_RSCP */
-static int hf_nbap_PrimaryCCPCH_RSCP_Delta_PDU = -1;  /* PrimaryCCPCH_RSCP_Delta */
-static int hf_nbap_UE_Selected_MBMS_Service_Information_PDU = -1;  /* UE_Selected_MBMS_Service_Information */
-static int hf_nbap_Paging_MACFlows_to_DeleteLCR_PDU = -1;  /* Paging_MACFlows_to_DeleteLCR */
-static int hf_nbap_RL_Specific_DCH_Info_PDU = -1;  /* RL_Specific_DCH_Info */
-static int hf_nbap_RL_Specific_E_DCH_Info_PDU = -1;  /* RL_Specific_E_DCH_Info */
-static int hf_nbap_Reference_ReceivedTotalWideBandPower_PDU = -1;  /* Reference_ReceivedTotalWideBandPower */
-static int hf_nbap_Reference_ReceivedTotalWideBandPowerReporting_PDU = -1;  /* Reference_ReceivedTotalWideBandPowerReporting */
-static int hf_nbap_Reference_ReceivedTotalWideBandPowerSupportIndicator_PDU = -1;  /* Reference_ReceivedTotalWideBandPowerSupportIndicator */
-static int hf_nbap_ReferenceClockAvailability_PDU = -1;  /* ReferenceClockAvailability */
-static int hf_nbap_ReferenceSFNoffset_PDU = -1;   /* ReferenceSFNoffset */
-static int hf_nbap_ReportCharacteristics_PDU = -1;  /* ReportCharacteristics */
-static int hf_nbap_ReportCharacteristicsType_OnModification_PDU = -1;  /* ReportCharacteristicsType_OnModification */
-static int hf_nbap_EDCH_RACH_Report_IncrDecrThres_PDU = -1;  /* EDCH_RACH_Report_IncrDecrThres */
-static int hf_nbap_EDCH_RACH_Report_ThresholdInformation_PDU = -1;  /* EDCH_RACH_Report_ThresholdInformation */
-static int hf_nbap_RL_ID_PDU = -1;                /* RL_ID */
-static int hf_nbap_RL_Set_ID_PDU = -1;            /* RL_Set_ID */
-static int hf_nbap_DL_RLC_PDU_Size_Format_PDU = -1;  /* DL_RLC_PDU_Size_Format */
-static int hf_nbap_Received_total_wide_band_power_For_CellPortion_Value_PDU = -1;  /* Received_total_wide_band_power_For_CellPortion_Value */
-static int hf_nbap_Received_total_wide_band_power_For_CellPortion_ValueLCR_PDU = -1;  /* Received_total_wide_band_power_For_CellPortion_ValueLCR */
-static int hf_nbap_Received_total_wide_band_power_Value_IncrDecrThres_PDU = -1;  /* Received_total_wide_band_power_Value_IncrDecrThres */
-static int hf_nbap_Received_Scheduled_EDCH_Power_Share_For_CellPortion_Value_PDU = -1;  /* Received_Scheduled_EDCH_Power_Share_For_CellPortion_Value */
-static int hf_nbap_Received_Scheduled_EDCH_Power_Share_Value_PDU = -1;  /* Received_Scheduled_EDCH_Power_Share_Value */
-static int hf_nbap_RSEPS_Value_IncrDecrThres_PDU = -1;  /* RSEPS_Value_IncrDecrThres */
-static int hf_nbap_Rx_Timing_Deviation_Value_LCR_PDU = -1;  /* Rx_Timing_Deviation_Value_LCR */
-static int hf_nbap_Rx_Timing_Deviation_Value_768_PDU = -1;  /* Rx_Timing_Deviation_Value_768 */
-static int hf_nbap_Rx_Timing_Deviation_Value_384_ext_PDU = -1;  /* Rx_Timing_Deviation_Value_384_ext */
-static int hf_nbap_RTWP_ReportingIndicator_PDU = -1;  /* RTWP_ReportingIndicator */
-static int hf_nbap_RTWP_CellPortion_ReportingIndicator_PDU = -1;  /* RTWP_CellPortion_ReportingIndicator */
-static int hf_nbap_AdjustmentPeriod_PDU = -1;     /* AdjustmentPeriod */
-static int hf_nbap_E_DPCCH_Power_Boosting_Capability_PDU = -1;  /* E_DPCCH_Power_Boosting_Capability */
-static int hf_nbap_SAT_Info_Almanac_ExtList_PDU = -1;  /* SAT_Info_Almanac_ExtList */
-static int hf_nbap_ScaledAdjustmentRatio_PDU = -1;  /* ScaledAdjustmentRatio */
-static int hf_nbap_MaxAdjustmentStep_PDU = -1;    /* MaxAdjustmentStep */
-static int hf_nbap_SchedulingPriorityIndicator_PDU = -1;  /* SchedulingPriorityIndicator */
-static int hf_nbap_Secondary_CPICH_Information_Change_PDU = -1;  /* Secondary_CPICH_Information_Change */
-static int hf_nbap_Secondary_CCPCH_SlotFormat_Extended_PDU = -1;  /* Secondary_CCPCH_SlotFormat_Extended */
-static int hf_nbap_Serving_E_DCH_RL_ID_PDU = -1;  /* Serving_E_DCH_RL_ID */
-static int hf_nbap_SFN_PDU = -1;                  /* SFN */
-static int hf_nbap_SFNSFNMeasurementThresholdInformation_PDU = -1;  /* SFNSFNMeasurementThresholdInformation */
-static int hf_nbap_SFNSFNMeasurementValueInformation_PDU = -1;  /* SFNSFNMeasurementValueInformation */
-static int hf_nbap_ShutdownTimer_PDU = -1;        /* ShutdownTimer */
-static int hf_nbap_Single_Stream_MIMO_ActivationIndicator_PDU = -1;  /* Single_Stream_MIMO_ActivationIndicator */
-static int hf_nbap_Single_Stream_MIMO_Capability_PDU = -1;  /* Single_Stream_MIMO_Capability */
-static int hf_nbap_Single_Stream_MIMO_Mode_Indicator_PDU = -1;  /* Single_Stream_MIMO_Mode_Indicator */
-static int hf_nbap_SignallingBearerRequestIndicator_PDU = -1;  /* SignallingBearerRequestIndicator */
-static int hf_nbap_SixtyfourQAM_UsageAllowedIndicator_PDU = -1;  /* SixtyfourQAM_UsageAllowedIndicator */
-static int hf_nbap_SixtyfourQAM_DL_UsageIndicator_PDU = -1;  /* SixtyfourQAM_DL_UsageIndicator */
-static int hf_nbap_SixtyfourQAM_DL_Capability_PDU = -1;  /* SixtyfourQAM_DL_Capability */
-static int hf_nbap_SixtyfourQAM_DL_MIMO_Combined_Capability_PDU = -1;  /* SixtyfourQAM_DL_MIMO_Combined_Capability */
-static int hf_nbap_SixteenQAM_UL_Capability_PDU = -1;  /* SixteenQAM_UL_Capability */
-static int hf_nbap_SixteenQAM_UL_Operation_Indicator_PDU = -1;  /* SixteenQAM_UL_Operation_Indicator */
-static int hf_nbap_Start_Of_Audit_Sequence_Indicator_PDU = -1;  /* Start_Of_Audit_Sequence_Indicator */
-static int hf_nbap_SyncCase_PDU = -1;             /* SyncCase */
-static int hf_nbap_SynchronisationReportCharacteristics_PDU = -1;  /* SynchronisationReportCharacteristics */
-static int hf_nbap_SyncDLCodeIdThreInfoLCR_PDU = -1;  /* SyncDLCodeIdThreInfoLCR */
-static int hf_nbap_SynchronisationReportType_PDU = -1;  /* SynchronisationReportType */
-static int hf_nbap_Semi_PersistentScheduling_CapabilityLCR_PDU = -1;  /* Semi_PersistentScheduling_CapabilityLCR */
-static int hf_nbap_T_Cell_PDU = -1;               /* T_Cell */
-static int hf_nbap_TDD_DL_DPCH_TimeSlotFormat_LCR_PDU = -1;  /* TDD_DL_DPCH_TimeSlotFormat_LCR */
-static int hf_nbap_TDD_TPC_DownlinkStepSize_PDU = -1;  /* TDD_TPC_DownlinkStepSize */
-static int hf_nbap_TDD_TPC_UplinkStepSize_LCR_PDU = -1;  /* TDD_TPC_UplinkStepSize_LCR */
-static int hf_nbap_TDD_UL_DPCH_TimeSlotFormat_LCR_PDU = -1;  /* TDD_UL_DPCH_TimeSlotFormat_LCR */
-static int hf_nbap_TFCI_Presence_PDU = -1;        /* TFCI_Presence */
-static int hf_nbap_TimeSlot_PDU = -1;             /* TimeSlot */
-static int hf_nbap_TimeSlotLCR_PDU = -1;          /* TimeSlotLCR */
-static int hf_nbap_TimeslotLCR_Extension_PDU = -1;  /* TimeslotLCR_Extension */
-static int hf_nbap_TimeSlotMeasurementValueListLCR_PDU = -1;  /* TimeSlotMeasurementValueListLCR */
-static int hf_nbap_TimingAdjustmentValue_PDU = -1;  /* TimingAdjustmentValue */
-static int hf_nbap_TimingAdjustmentValueLCR_PDU = -1;  /* TimingAdjustmentValueLCR */
-static int hf_nbap_TimingAdvanceApplied_PDU = -1;  /* TimingAdvanceApplied */
-static int hf_nbap_SynchronisationIndicator_PDU = -1;  /* SynchronisationIndicator */
-static int hf_nbap_TnlQos_PDU = -1;               /* TnlQos */
-static int hf_nbap_Transmission_Gap_Pattern_Sequence_Information_PDU = -1;  /* Transmission_Gap_Pattern_Sequence_Information */
-static int hf_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue_PDU = -1;  /* TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue */
-static int hf_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCHOrE_HICHTransmissionCellPortionValue_PDU = -1;  /* TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCHOrE_HICHTransmissionCellPortionValue */
-static int hf_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValue_PDU = -1;  /* TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValue */
-static int hf_nbap_Transmitted_Carrier_Power_For_CellPortion_Value_PDU = -1;  /* Transmitted_Carrier_Power_For_CellPortion_Value */
-static int hf_nbap_Transmitted_Carrier_Power_For_CellPortion_ValueLCR_PDU = -1;  /* Transmitted_Carrier_Power_For_CellPortion_ValueLCR */
-static int hf_nbap_Transmitted_Carrier_Power_Value_PDU = -1;  /* Transmitted_Carrier_Power_Value */
-static int hf_nbap_TransmissionDiversityApplied_PDU = -1;  /* TransmissionDiversityApplied */
-static int hf_nbap_TransmitDiversityIndicator_PDU = -1;  /* TransmitDiversityIndicator */
-static int hf_nbap_TransportBearerRequestIndicator_PDU = -1;  /* TransportBearerRequestIndicator */
-static int hf_nbap_TransportBearerNotRequestedIndicator_PDU = -1;  /* TransportBearerNotRequestedIndicator */
-static int hf_nbap_TransportBearerNotSetupIndicator_PDU = -1;  /* TransportBearerNotSetupIndicator */
-static int hf_nbap_TransportLayerAddress_PDU = -1;  /* TransportLayerAddress */
-static int hf_nbap_TS0_CapabilityLCR_PDU = -1;    /* TS0_CapabilityLCR */
-static int hf_nbap_TSTD_Indicator_PDU = -1;       /* TSTD_Indicator */
-static int hf_nbap_TSN_Length_PDU = -1;           /* TSN_Length */
-static int hf_nbap_TUTRANGANSSMeasurementThresholdInformation_PDU = -1;  /* TUTRANGANSSMeasurementThresholdInformation */
-static int hf_nbap_TUTRANGANSSMeasurementValueInformation_PDU = -1;  /* TUTRANGANSSMeasurementValueInformation */
-static int hf_nbap_TUTRANGPSMeasurementThresholdInformation_PDU = -1;  /* TUTRANGPSMeasurementThresholdInformation */
-static int hf_nbap_TUTRANGPSMeasurementValueInformation_PDU = -1;  /* TUTRANGPSMeasurementValueInformation */
-static int hf_nbap_TxDiversityOnDLControlChannelsByMIMOUECapability_PDU = -1;  /* TxDiversityOnDLControlChannelsByMIMOUECapability */
-static int hf_nbap_TypeOfError_PDU = -1;          /* TypeOfError */
-static int hf_nbap_UARFCN_PDU = -1;               /* UARFCN */
-static int hf_nbap_UE_AggregateMaximumBitRate_PDU = -1;  /* UE_AggregateMaximumBitRate */
-static int hf_nbap_UE_AggregateMaximumBitRate_Enforcement_Indicator_PDU = -1;  /* UE_AggregateMaximumBitRate_Enforcement_Indicator */
-static int hf_nbap_UE_Capability_Information_PDU = -1;  /* UE_Capability_Information */
-static int hf_nbap_UE_TS0_CapabilityLCR_PDU = -1;  /* UE_TS0_CapabilityLCR */
-static int hf_nbap_UE_SupportIndicatorExtension_PDU = -1;  /* UE_SupportIndicatorExtension */
-static int hf_nbap_LCRTDD_HSDSCH_Physical_Layer_Category_PDU = -1;  /* LCRTDD_HSDSCH_Physical_Layer_Category */
-static int hf_nbap_UL_DPDCH_Indicator_For_E_DCH_Operation_PDU = -1;  /* UL_DPDCH_Indicator_For_E_DCH_Operation */
-static int hf_nbap_UL_SIR_PDU = -1;               /* UL_SIR */
-static int hf_nbap_UL_Synchronisation_Parameters_LCR_PDU = -1;  /* UL_Synchronisation_Parameters_LCR */
-static int hf_nbap_UPPCHPositionLCR_PDU = -1;     /* UPPCHPositionLCR */
-static int hf_nbap_UpPTSInterference_For_CellPortion_Value_PDU = -1;  /* UpPTSInterference_For_CellPortion_Value */
-static int hf_nbap_UpPTSInterferenceValue_PDU = -1;  /* UpPTSInterferenceValue */
-static int hf_nbap_Unidirectional_DCH_Indicator_PDU = -1;  /* Unidirectional_DCH_Indicator */
-static int hf_nbap_USCH_Information_PDU = -1;     /* USCH_Information */
-static int hf_nbap_USCH_InformationResponse_PDU = -1;  /* USCH_InformationResponse */
-static int hf_nbap_UL_TimeslotISCP_For_CellPortion_Value_PDU = -1;  /* UL_TimeslotISCP_For_CellPortion_Value */
-static int hf_nbap_UL_TimeslotISCP_Value_IncrDecrThres_PDU = -1;  /* UL_TimeslotISCP_Value_IncrDecrThres */
-static int hf_nbap_CommonTransportChannelSetupRequestFDD_PDU = -1;  /* CommonTransportChannelSetupRequestFDD */
-static int hf_nbap_CommonPhysicalChannelType_CTCH_SetupRqstFDD_PDU = -1;  /* CommonPhysicalChannelType_CTCH_SetupRqstFDD */
-static int hf_nbap_FACH_ParametersListIE_CTCH_SetupRqstFDD_PDU = -1;  /* FACH_ParametersListIE_CTCH_SetupRqstFDD */
-static int hf_nbap_PCH_ParametersItem_CTCH_SetupRqstFDD_PDU = -1;  /* PCH_ParametersItem_CTCH_SetupRqstFDD */
-static int hf_nbap_MICH_Parameters_CTCH_SetupRqstFDD_PDU = -1;  /* MICH_Parameters_CTCH_SetupRqstFDD */
-static int hf_nbap_RACH_ParametersItem_CTCH_SetupRqstFDD_PDU = -1;  /* RACH_ParametersItem_CTCH_SetupRqstFDD */
-static int hf_nbap_CommonTransportChannelSetupRequestTDD_PDU = -1;  /* CommonTransportChannelSetupRequestTDD */
-static int hf_nbap_CommonPhysicalChannelType_CTCH_SetupRqstTDD_PDU = -1;  /* CommonPhysicalChannelType_CTCH_SetupRqstTDD */
-static int hf_nbap_Secondary_CCPCH_parameterListIE_CTCH_SetupRqstTDD_PDU = -1;  /* Secondary_CCPCH_parameterListIE_CTCH_SetupRqstTDD */
-static int hf_nbap_Secondary_CCPCH_LCR_parameterList_CTCH_SetupRqstTDD_PDU = -1;  /* Secondary_CCPCH_LCR_parameterList_CTCH_SetupRqstTDD */
-static int hf_nbap_Secondary_CCPCH_768_parameterList_CTCH_SetupRqstTDD_PDU = -1;  /* Secondary_CCPCH_768_parameterList_CTCH_SetupRqstTDD */
-static int hf_nbap_FACH_ParametersListIE_CTCH_SetupRqstTDD_PDU = -1;  /* FACH_ParametersListIE_CTCH_SetupRqstTDD */
-static int hf_nbap_PCH_ParametersItem_CTCH_SetupRqstTDD_PDU = -1;  /* PCH_ParametersItem_CTCH_SetupRqstTDD */
-static int hf_nbap_PICH_ParametersItem_CTCH_SetupRqstTDD_PDU = -1;  /* PICH_ParametersItem_CTCH_SetupRqstTDD */
-static int hf_nbap_PICH_LCR_Parameters_CTCH_SetupRqstTDD_PDU = -1;  /* PICH_LCR_Parameters_CTCH_SetupRqstTDD */
-static int hf_nbap_PICH_768_ParametersItem_CTCH_SetupRqstTDD_PDU = -1;  /* PICH_768_ParametersItem_CTCH_SetupRqstTDD */
-static int hf_nbap_MICH_Parameters_CTCH_SetupRqstTDD_PDU = -1;  /* MICH_Parameters_CTCH_SetupRqstTDD */
-static int hf_nbap_TimeSlotConfigurationList_LCR_CTCH_SetupRqstTDD_PDU = -1;  /* TimeSlotConfigurationList_LCR_CTCH_SetupRqstTDD */
-static int hf_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_SetupRqstTDD_PDU = -1;  /* Secondary_CCPCH_parameterExtendedList_CTCH_SetupRqstTDD */
-static int hf_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_SetupRqstTDD_PDU = -1;  /* Secondary_CCPCH_LCR_parameterExtendedList_CTCH_SetupRqstTDD */
-static int hf_nbap_PRACH_ParametersItem_CTCH_SetupRqstTDD_PDU = -1;  /* PRACH_ParametersItem_CTCH_SetupRqstTDD */
-static int hf_nbap_RACH_ParameterItem_CTCH_SetupRqstTDD_PDU = -1;  /* RACH_ParameterItem_CTCH_SetupRqstTDD */
-static int hf_nbap_PRACH_LCR_ParametersList_CTCH_SetupRqstTDD_PDU = -1;  /* PRACH_LCR_ParametersList_CTCH_SetupRqstTDD */
-static int hf_nbap_PRACH_768_ParametersItem_CTCH_SetupRqstTDD_PDU = -1;  /* PRACH_768_ParametersItem_CTCH_SetupRqstTDD */
-static int hf_nbap_FPACH_LCR_Parameters_CTCH_SetupRqstTDD_PDU = -1;  /* FPACH_LCR_Parameters_CTCH_SetupRqstTDD */
-static int hf_nbap_PLCCH_parameters_PDU = -1;     /* PLCCH_parameters */
-static int hf_nbap_E_RUCCH_parameters_PDU = -1;   /* E_RUCCH_parameters */
-static int hf_nbap_E_RUCCH_768_parameters_PDU = -1;  /* E_RUCCH_768_parameters */
-static int hf_nbap_CommonTransportChannelSetupResponse_PDU = -1;  /* CommonTransportChannelSetupResponse */
-static int hf_nbap_FACH_CommonTransportChannel_InformationResponse_PDU = -1;  /* FACH_CommonTransportChannel_InformationResponse */
-static int hf_nbap_CommonTransportChannelSetupFailure_PDU = -1;  /* CommonTransportChannelSetupFailure */
-static int hf_nbap_CommonTransportChannelReconfigurationRequestFDD_PDU = -1;  /* CommonTransportChannelReconfigurationRequestFDD */
-static int hf_nbap_CommonPhysicalChannelType_CTCH_ReconfRqstFDD_PDU = -1;  /* CommonPhysicalChannelType_CTCH_ReconfRqstFDD */
-static int hf_nbap_FACH_ParametersListIE_CTCH_ReconfRqstFDD_PDU = -1;  /* FACH_ParametersListIE_CTCH_ReconfRqstFDD */
-static int hf_nbap_PCH_ParametersItem_CTCH_ReconfRqstFDD_PDU = -1;  /* PCH_ParametersItem_CTCH_ReconfRqstFDD */
-static int hf_nbap_PICH_ParametersItem_CTCH_ReconfRqstFDD_PDU = -1;  /* PICH_ParametersItem_CTCH_ReconfRqstFDD */
-static int hf_nbap_MICH_Parameters_CTCH_ReconfRqstFDD_PDU = -1;  /* MICH_Parameters_CTCH_ReconfRqstFDD */
-static int hf_nbap_PRACH_ParametersListIE_CTCH_ReconfRqstFDD_PDU = -1;  /* PRACH_ParametersListIE_CTCH_ReconfRqstFDD */
-static int hf_nbap_AICH_ParametersListIE_CTCH_ReconfRqstFDD_PDU = -1;  /* AICH_ParametersListIE_CTCH_ReconfRqstFDD */
-static int hf_nbap_CommonTransportChannelReconfigurationRequestTDD_PDU = -1;  /* CommonTransportChannelReconfigurationRequestTDD */
-static int hf_nbap_Secondary_CCPCH_Parameters_CTCH_ReconfRqstTDD_PDU = -1;  /* Secondary_CCPCH_Parameters_CTCH_ReconfRqstTDD */
-static int hf_nbap_Secondary_CCPCHListIE_CTCH_ReconfRqstTDD_PDU = -1;  /* Secondary_CCPCHListIE_CTCH_ReconfRqstTDD */
-static int hf_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_ReconfRqstTDD_PDU = -1;  /* Secondary_CCPCH_parameterExtendedList_CTCH_ReconfRqstTDD */
-static int hf_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_ReconfRqstTDD_PDU = -1;  /* Secondary_CCPCH_LCR_parameterExtendedList_CTCH_ReconfRqstTDD */
-static int hf_nbap_PICH_Parameters_CTCH_ReconfRqstTDD_PDU = -1;  /* PICH_Parameters_CTCH_ReconfRqstTDD */
-static int hf_nbap_FACH_ParametersList_CTCH_ReconfRqstTDD_PDU = -1;  /* FACH_ParametersList_CTCH_ReconfRqstTDD */
-static int hf_nbap_PCH_Parameters_CTCH_ReconfRqstTDD_PDU = -1;  /* PCH_Parameters_CTCH_ReconfRqstTDD */
-static int hf_nbap_FPACH_LCR_Parameters_CTCH_ReconfRqstTDD_PDU = -1;  /* FPACH_LCR_Parameters_CTCH_ReconfRqstTDD */
-static int hf_nbap_MICH_Parameters_CTCH_ReconfRqstTDD_PDU = -1;  /* MICH_Parameters_CTCH_ReconfRqstTDD */
-static int hf_nbap_PLCCH_Parameters_CTCH_ReconfRqstTDD_PDU = -1;  /* PLCCH_Parameters_CTCH_ReconfRqstTDD */
-static int hf_nbap_Secondary_CCPCH_768_Parameters_CTCH_ReconfRqstTDD_PDU = -1;  /* Secondary_CCPCH_768_Parameters_CTCH_ReconfRqstTDD */
-static int hf_nbap_PICH_768_Parameters_CTCH_ReconfRqstTDD_PDU = -1;  /* PICH_768_Parameters_CTCH_ReconfRqstTDD */
-static int hf_nbap_MICH_768_Parameters_CTCH_ReconfRqstTDD_PDU = -1;  /* MICH_768_Parameters_CTCH_ReconfRqstTDD */
-static int hf_nbap_UPPCH_LCR_Parameters_CTCH_ReconfRqstTDD_PDU = -1;  /* UPPCH_LCR_Parameters_CTCH_ReconfRqstTDD */
-static int hf_nbap_CommonTransportChannelReconfigurationResponse_PDU = -1;  /* CommonTransportChannelReconfigurationResponse */
-static int hf_nbap_CommonTransportChannelReconfigurationFailure_PDU = -1;  /* CommonTransportChannelReconfigurationFailure */
-static int hf_nbap_CommonTransportChannelDeletionRequest_PDU = -1;  /* CommonTransportChannelDeletionRequest */
-static int hf_nbap_CommonTransportChannelDeletionResponse_PDU = -1;  /* CommonTransportChannelDeletionResponse */
-static int hf_nbap_BlockResourceRequest_PDU = -1;  /* BlockResourceRequest */
-static int hf_nbap_BlockResourceResponse_PDU = -1;  /* BlockResourceResponse */
-static int hf_nbap_BlockResourceFailure_PDU = -1;  /* BlockResourceFailure */
-static int hf_nbap_UnblockResourceIndication_PDU = -1;  /* UnblockResourceIndication */
-static int hf_nbap_AuditRequiredIndication_PDU = -1;  /* AuditRequiredIndication */
-static int hf_nbap_AuditRequest_PDU = -1;         /* AuditRequest */
-static int hf_nbap_AuditResponse_PDU = -1;        /* AuditResponse */
-static int hf_nbap_Cell_InformationList_AuditRsp_PDU = -1;  /* Cell_InformationList_AuditRsp */
-static int hf_nbap_Cell_InformationItem_AuditRsp_PDU = -1;  /* Cell_InformationItem_AuditRsp */
-static int hf_nbap_FPACH_LCR_InformationList_AuditRsp_PDU = -1;  /* FPACH_LCR_InformationList_AuditRsp */
-static int hf_nbap_HS_DSCH_Resources_Information_AuditRsp_PDU = -1;  /* HS_DSCH_Resources_Information_AuditRsp */
-static int hf_nbap_S_CCPCH_InformationListExt_AuditRsp_PDU = -1;  /* S_CCPCH_InformationListExt_AuditRsp */
-static int hf_nbap_S_CCPCH_LCR_InformationListExt_AuditRsp_PDU = -1;  /* S_CCPCH_LCR_InformationListExt_AuditRsp */
-static int hf_nbap_E_DCH_Resources_Information_AuditRsp_PDU = -1;  /* E_DCH_Resources_Information_AuditRsp */
-static int hf_nbap_PLCCH_InformationList_AuditRsp_PDU = -1;  /* PLCCH_InformationList_AuditRsp */
-static int hf_nbap_S_CCPCH_768_InformationList_AuditRsp_PDU = -1;  /* S_CCPCH_768_InformationList_AuditRsp */
-static int hf_nbap_PRACH_768_InformationList_AuditRsp_PDU = -1;  /* PRACH_768_InformationList_AuditRsp */
-static int hf_nbap_E_RUCCH_InformationList_AuditRsp_PDU = -1;  /* E_RUCCH_InformationList_AuditRsp */
-static int hf_nbap_E_RUCCH_768_InformationList_AuditRsp_PDU = -1;  /* E_RUCCH_768_InformationList_AuditRsp */
-static int hf_nbap_Cell_Frequency_List_Information_LCR_MulFreq_AuditRsp_PDU = -1;  /* Cell_Frequency_List_Information_LCR_MulFreq_AuditRsp */
-static int hf_nbap_Cell_Frequency_List_InformationItem_LCR_MulFreq_AuditRsp_PDU = -1;  /* Cell_Frequency_List_InformationItem_LCR_MulFreq_AuditRsp */
-static int hf_nbap_UPPCH_LCR_InformationList_AuditRsp_PDU = -1;  /* UPPCH_LCR_InformationList_AuditRsp */
-static int hf_nbap_UPPCH_LCR_InformationItem_AuditRsp_PDU = -1;  /* UPPCH_LCR_InformationItem_AuditRsp */
-static int hf_nbap_MultipleFreq_HS_DSCH_Resources_InformationList_AuditRsp_PDU = -1;  /* MultipleFreq_HS_DSCH_Resources_InformationList_AuditRsp */
-static int hf_nbap_MultipleFreq_E_DCH_Resources_InformationList_AuditRsp_PDU = -1;  /* MultipleFreq_E_DCH_Resources_InformationList_AuditRsp */
-static int hf_nbap_CCP_InformationList_AuditRsp_PDU = -1;  /* CCP_InformationList_AuditRsp */
-static int hf_nbap_CCP_InformationItem_AuditRsp_PDU = -1;  /* CCP_InformationItem_AuditRsp */
-static int hf_nbap_Local_Cell_InformationList_AuditRsp_PDU = -1;  /* Local_Cell_InformationList_AuditRsp */
-static int hf_nbap_Local_Cell_InformationItem_AuditRsp_PDU = -1;  /* Local_Cell_InformationItem_AuditRsp */
-static int hf_nbap_Local_Cell_Group_InformationList_AuditRsp_PDU = -1;  /* Local_Cell_Group_InformationList_AuditRsp */
-static int hf_nbap_Local_Cell_Group_InformationItem_AuditRsp_PDU = -1;  /* Local_Cell_Group_InformationItem_AuditRsp */
-static int hf_nbap_Power_Local_Cell_Group_InformationList_AuditRsp_PDU = -1;  /* Power_Local_Cell_Group_InformationList_AuditRsp */
-static int hf_nbap_Power_Local_Cell_Group_InformationItem_AuditRsp_PDU = -1;  /* Power_Local_Cell_Group_InformationItem_AuditRsp */
-static int hf_nbap_AuditFailure_PDU = -1;         /* AuditFailure */
-static int hf_nbap_CommonMeasurementInitiationRequest_PDU = -1;  /* CommonMeasurementInitiationRequest */
-static int hf_nbap_CommonMeasurementObjectType_CM_Rqst_PDU = -1;  /* CommonMeasurementObjectType_CM_Rqst */
-static int hf_nbap_ERACH_CM_Rqst_PDU = -1;        /* ERACH_CM_Rqst */
-static int hf_nbap_PowerLocalCellGroup_CM_Rqst_PDU = -1;  /* PowerLocalCellGroup_CM_Rqst */
-static int hf_nbap_CommonMeasurementInitiationResponse_PDU = -1;  /* CommonMeasurementInitiationResponse */
-static int hf_nbap_CommonMeasurementObjectType_CM_Rsp_PDU = -1;  /* CommonMeasurementObjectType_CM_Rsp */
-static int hf_nbap_ERACH_CM_Rsp_PDU = -1;         /* ERACH_CM_Rsp */
-static int hf_nbap_PowerLocalCellGroup_CM_Rsp_PDU = -1;  /* PowerLocalCellGroup_CM_Rsp */
-static int hf_nbap_CommonMeasurementInitiationFailure_PDU = -1;  /* CommonMeasurementInitiationFailure */
-static int hf_nbap_CommonMeasurementReport_PDU = -1;  /* CommonMeasurementReport */
-static int hf_nbap_CommonMeasurementObjectType_CM_Rprt_PDU = -1;  /* CommonMeasurementObjectType_CM_Rprt */
-static int hf_nbap_ERACH_CM_Rprt_PDU = -1;        /* ERACH_CM_Rprt */
-static int hf_nbap_PowerLocalCellGroup_CM_Rprt_PDU = -1;  /* PowerLocalCellGroup_CM_Rprt */
-static int hf_nbap_CommonMeasurementTerminationRequest_PDU = -1;  /* CommonMeasurementTerminationRequest */
-static int hf_nbap_CommonMeasurementFailureIndication_PDU = -1;  /* CommonMeasurementFailureIndication */
-static int hf_nbap_CellSetupRequestFDD_PDU = -1;  /* CellSetupRequestFDD */
-static int hf_nbap_Synchronisation_Configuration_Cell_SetupRqst_PDU = -1;  /* Synchronisation_Configuration_Cell_SetupRqst */
-static int hf_nbap_PrimarySCH_Information_Cell_SetupRqstFDD_PDU = -1;  /* PrimarySCH_Information_Cell_SetupRqstFDD */
-static int hf_nbap_SecondarySCH_Information_Cell_SetupRqstFDD_PDU = -1;  /* SecondarySCH_Information_Cell_SetupRqstFDD */
-static int hf_nbap_PrimaryCPICH_Information_Cell_SetupRqstFDD_PDU = -1;  /* PrimaryCPICH_Information_Cell_SetupRqstFDD */
-static int hf_nbap_SecondaryCPICH_InformationList_Cell_SetupRqstFDD_PDU = -1;  /* SecondaryCPICH_InformationList_Cell_SetupRqstFDD */
-static int hf_nbap_SecondaryCPICH_InformationItem_Cell_SetupRqstFDD_PDU = -1;  /* SecondaryCPICH_InformationItem_Cell_SetupRqstFDD */
-static int hf_nbap_PrimaryCCPCH_Information_Cell_SetupRqstFDD_PDU = -1;  /* PrimaryCCPCH_Information_Cell_SetupRqstFDD */
-static int hf_nbap_Limited_power_increase_information_Cell_SetupRqstFDD_PDU = -1;  /* Limited_power_increase_information_Cell_SetupRqstFDD */
-static int hf_nbap_IPDLParameter_Information_Cell_SetupRqstFDD_PDU = -1;  /* IPDLParameter_Information_Cell_SetupRqstFDD */
-static int hf_nbap_CellPortion_InformationList_Cell_SetupRqstFDD_PDU = -1;  /* CellPortion_InformationList_Cell_SetupRqstFDD */
-static int hf_nbap_CellPortion_InformationItem_Cell_SetupRqstFDD_PDU = -1;  /* CellPortion_InformationItem_Cell_SetupRqstFDD */
-static int hf_nbap_CellSetupRequestTDD_PDU = -1;  /* CellSetupRequestTDD */
-static int hf_nbap_SCH_Information_Cell_SetupRqstTDD_PDU = -1;  /* SCH_Information_Cell_SetupRqstTDD */
-static int hf_nbap_SyncCaseIndicatorItem_Cell_SetupRqstTDD_PSCH_PDU = -1;  /* SyncCaseIndicatorItem_Cell_SetupRqstTDD_PSCH */
-static int hf_nbap_PCCPCH_Information_Cell_SetupRqstTDD_PDU = -1;  /* PCCPCH_Information_Cell_SetupRqstTDD */
-static int hf_nbap_TimeSlotConfigurationList_Cell_SetupRqstTDD_PDU = -1;  /* TimeSlotConfigurationList_Cell_SetupRqstTDD */
-static int hf_nbap_TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD_PDU = -1;  /* TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD */
-static int hf_nbap_PCCPCH_LCR_Information_Cell_SetupRqstTDD_PDU = -1;  /* PCCPCH_LCR_Information_Cell_SetupRqstTDD */
-static int hf_nbap_DwPCH_LCR_Information_Cell_SetupRqstTDD_PDU = -1;  /* DwPCH_LCR_Information_Cell_SetupRqstTDD */
-static int hf_nbap_IPDLParameter_Information_Cell_SetupRqstTDD_PDU = -1;  /* IPDLParameter_Information_Cell_SetupRqstTDD */
-static int hf_nbap_IPDLParameter_Information_LCR_Cell_SetupRqstTDD_PDU = -1;  /* IPDLParameter_Information_LCR_Cell_SetupRqstTDD */
-static int hf_nbap_PCCPCH_768_Information_Cell_SetupRqstTDD_PDU = -1;  /* PCCPCH_768_Information_Cell_SetupRqstTDD */
-static int hf_nbap_SCH_768_Information_Cell_SetupRqstTDD_PDU = -1;  /* SCH_768_Information_Cell_SetupRqstTDD */
-static int hf_nbap_Cell_Frequency_List_LCR_MulFreq_Cell_SetupRqstTDD_PDU = -1;  /* Cell_Frequency_List_LCR_MulFreq_Cell_SetupRqstTDD */
-static int hf_nbap_CellSetupResponse_PDU = -1;    /* CellSetupResponse */
-static int hf_nbap_CellSetupFailure_PDU = -1;     /* CellSetupFailure */
-static int hf_nbap_CellReconfigurationRequestFDD_PDU = -1;  /* CellReconfigurationRequestFDD */
-static int hf_nbap_Synchronisation_Configuration_Cell_ReconfRqst_PDU = -1;  /* Synchronisation_Configuration_Cell_ReconfRqst */
-static int hf_nbap_PrimarySCH_Information_Cell_ReconfRqstFDD_PDU = -1;  /* PrimarySCH_Information_Cell_ReconfRqstFDD */
-static int hf_nbap_SecondarySCH_Information_Cell_ReconfRqstFDD_PDU = -1;  /* SecondarySCH_Information_Cell_ReconfRqstFDD */
-static int hf_nbap_PrimaryCPICH_Information_Cell_ReconfRqstFDD_PDU = -1;  /* PrimaryCPICH_Information_Cell_ReconfRqstFDD */
-static int hf_nbap_SecondaryCPICH_InformationList_Cell_ReconfRqstFDD_PDU = -1;  /* SecondaryCPICH_InformationList_Cell_ReconfRqstFDD */
-static int hf_nbap_SecondaryCPICH_InformationItem_Cell_ReconfRqstFDD_PDU = -1;  /* SecondaryCPICH_InformationItem_Cell_ReconfRqstFDD */
-static int hf_nbap_PrimaryCCPCH_Information_Cell_ReconfRqstFDD_PDU = -1;  /* PrimaryCCPCH_Information_Cell_ReconfRqstFDD */
-static int hf_nbap_IPDLParameter_Information_Cell_ReconfRqstFDD_PDU = -1;  /* IPDLParameter_Information_Cell_ReconfRqstFDD */
-static int hf_nbap_CellPortion_InformationList_Cell_ReconfRqstFDD_PDU = -1;  /* CellPortion_InformationList_Cell_ReconfRqstFDD */
-static int hf_nbap_CellPortion_InformationItem_Cell_ReconfRqstFDD_PDU = -1;  /* CellPortion_InformationItem_Cell_ReconfRqstFDD */
-static int hf_nbap_CellReconfigurationRequestTDD_PDU = -1;  /* CellReconfigurationRequestTDD */
-static int hf_nbap_SCH_Information_Cell_ReconfRqstTDD_PDU = -1;  /* SCH_Information_Cell_ReconfRqstTDD */
-static int hf_nbap_PCCPCH_Information_Cell_ReconfRqstTDD_PDU = -1;  /* PCCPCH_Information_Cell_ReconfRqstTDD */
-static int hf_nbap_TimeSlotConfigurationList_Cell_ReconfRqstTDD_PDU = -1;  /* TimeSlotConfigurationList_Cell_ReconfRqstTDD */
-static int hf_nbap_TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD_PDU = -1;  /* TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD */
-static int hf_nbap_DwPCH_LCR_Information_Cell_ReconfRqstTDD_PDU = -1;  /* DwPCH_LCR_Information_Cell_ReconfRqstTDD */
-static int hf_nbap_IPDLParameter_Information_Cell_ReconfRqstTDD_PDU = -1;  /* IPDLParameter_Information_Cell_ReconfRqstTDD */
-static int hf_nbap_IPDLParameter_Information_LCR_Cell_ReconfRqstTDD_PDU = -1;  /* IPDLParameter_Information_LCR_Cell_ReconfRqstTDD */
-static int hf_nbap_SCH_768_Information_Cell_ReconfRqstTDD_PDU = -1;  /* SCH_768_Information_Cell_ReconfRqstTDD */
-static int hf_nbap_PCCPCH_768_Information_Cell_ReconfRqstTDD_PDU = -1;  /* PCCPCH_768_Information_Cell_ReconfRqstTDD */
-static int hf_nbap_UARFCN_Adjustment_PDU = -1;    /* UARFCN_Adjustment */
-static int hf_nbap_CellReconfigurationResponse_PDU = -1;  /* CellReconfigurationResponse */
-static int hf_nbap_CellReconfigurationFailure_PDU = -1;  /* CellReconfigurationFailure */
-static int hf_nbap_CellDeletionRequest_PDU = -1;  /* CellDeletionRequest */
-static int hf_nbap_CellDeletionResponse_PDU = -1;  /* CellDeletionResponse */
-static int hf_nbap_ResourceStatusIndication_PDU = -1;  /* ResourceStatusIndication */
-static int hf_nbap_IndicationType_ResourceStatusInd_PDU = -1;  /* IndicationType_ResourceStatusInd */
-static int hf_nbap_Local_Cell_InformationItem_ResourceStatusInd_PDU = -1;  /* Local_Cell_InformationItem_ResourceStatusInd */
-static int hf_nbap_Local_Cell_Group_InformationItem_ResourceStatusInd_PDU = -1;  /* Local_Cell_Group_InformationItem_ResourceStatusInd */
-static int hf_nbap_Power_Local_Cell_Group_InformationList_ResourceStatusInd_PDU = -1;  /* Power_Local_Cell_Group_InformationList_ResourceStatusInd */
-static int hf_nbap_Power_Local_Cell_Group_InformationItem_ResourceStatusInd_PDU = -1;  /* Power_Local_Cell_Group_InformationItem_ResourceStatusInd */
-static int hf_nbap_Local_Cell_InformationItem2_ResourceStatusInd_PDU = -1;  /* Local_Cell_InformationItem2_ResourceStatusInd */
-static int hf_nbap_Local_Cell_Group_InformationItem2_ResourceStatusInd_PDU = -1;  /* Local_Cell_Group_InformationItem2_ResourceStatusInd */
-static int hf_nbap_CCP_InformationItem_ResourceStatusInd_PDU = -1;  /* CCP_InformationItem_ResourceStatusInd */
-static int hf_nbap_Cell_InformationItem_ResourceStatusInd_PDU = -1;  /* Cell_InformationItem_ResourceStatusInd */
-static int hf_nbap_FPACH_LCR_InformationList_ResourceStatusInd_PDU = -1;  /* FPACH_LCR_InformationList_ResourceStatusInd */
-static int hf_nbap_DwPCH_LCR_Information_ResourceStatusInd_PDU = -1;  /* DwPCH_LCR_Information_ResourceStatusInd */
-static int hf_nbap_HS_DSCH_Resources_Information_ResourceStatusInd_PDU = -1;  /* HS_DSCH_Resources_Information_ResourceStatusInd */
-static int hf_nbap_S_CCPCH_InformationListExt_ResourceStatusInd_PDU = -1;  /* S_CCPCH_InformationListExt_ResourceStatusInd */
-static int hf_nbap_S_CCPCH_LCR_InformationListExt_ResourceStatusInd_PDU = -1;  /* S_CCPCH_LCR_InformationListExt_ResourceStatusInd */
-static int hf_nbap_E_DCH_Resources_Information_ResourceStatusInd_PDU = -1;  /* E_DCH_Resources_Information_ResourceStatusInd */
-static int hf_nbap_PLCCH_InformationList_ResourceStatusInd_PDU = -1;  /* PLCCH_InformationList_ResourceStatusInd */
-static int hf_nbap_S_CCPCH_768_InformationList_ResourceStatusInd_PDU = -1;  /* S_CCPCH_768_InformationList_ResourceStatusInd */
-static int hf_nbap_PRACH_768_InformationList_ResourceStatusInd_PDU = -1;  /* PRACH_768_InformationList_ResourceStatusInd */
-static int hf_nbap_E_RUCCH_InformationList_ResourceStatusInd_PDU = -1;  /* E_RUCCH_InformationList_ResourceStatusInd */
-static int hf_nbap_E_RUCCH_768_InformationList_ResourceStatusInd_PDU = -1;  /* E_RUCCH_768_InformationList_ResourceStatusInd */
-static int hf_nbap_Cell_Frequency_List_Information_LCR_MulFreq_ResourceStatusInd_PDU = -1;  /* Cell_Frequency_List_Information_LCR_MulFreq_ResourceStatusInd */
-static int hf_nbap_Cell_Frequency_List_InformationItem_LCR_MulFreq_ResourceStatusInd_PDU = -1;  /* Cell_Frequency_List_InformationItem_LCR_MulFreq_ResourceStatusInd */
-static int hf_nbap_UPPCH_LCR_InformationList_ResourceStatusInd_PDU = -1;  /* UPPCH_LCR_InformationList_ResourceStatusInd */
-static int hf_nbap_UPPCH_LCR_InformationItem_ResourceStatusInd_PDU = -1;  /* UPPCH_LCR_InformationItem_ResourceStatusInd */
-static int hf_nbap_MultipleFreq_HS_DSCH_Resources_InformationList_ResourceStatusInd_PDU = -1;  /* MultipleFreq_HS_DSCH_Resources_InformationList_ResourceStatusInd */
-static int hf_nbap_Power_Local_Cell_Group_InformationList2_ResourceStatusInd_PDU = -1;  /* Power_Local_Cell_Group_InformationList2_ResourceStatusInd */
-static int hf_nbap_Power_Local_Cell_Group_InformationItem2_ResourceStatusInd_PDU = -1;  /* Power_Local_Cell_Group_InformationItem2_ResourceStatusInd */
-static int hf_nbap_MultipleFreq_E_DCH_Resources_InformationList_ResourceStatusInd_PDU = -1;  /* MultipleFreq_E_DCH_Resources_InformationList_ResourceStatusInd */
-static int hf_nbap_SystemInformationUpdateRequest_PDU = -1;  /* SystemInformationUpdateRequest */
-static int hf_nbap_MIB_SB_SIB_InformationList_SystemInfoUpdateRqst_PDU = -1;  /* MIB_SB_SIB_InformationList_SystemInfoUpdateRqst */
-static int hf_nbap_SegmentInformationListIE_SystemInfoUpdate_PDU = -1;  /* SegmentInformationListIE_SystemInfoUpdate */
-static int hf_nbap_SystemInformationUpdateResponse_PDU = -1;  /* SystemInformationUpdateResponse */
-static int hf_nbap_SystemInformationUpdateFailure_PDU = -1;  /* SystemInformationUpdateFailure */
-static int hf_nbap_RadioLinkSetupRequestFDD_PDU = -1;  /* RadioLinkSetupRequestFDD */
-static int hf_nbap_Additional_HS_Cell_Information_RL_Setup_List_PDU = -1;  /* Additional_HS_Cell_Information_RL_Setup_List */
-static int hf_nbap_UL_DPCH_Information_RL_SetupRqstFDD_PDU = -1;  /* UL_DPCH_Information_RL_SetupRqstFDD */
-static int hf_nbap_DL_DPCH_Information_RL_SetupRqstFDD_PDU = -1;  /* DL_DPCH_Information_RL_SetupRqstFDD */
-static int hf_nbap_RL_InformationList_RL_SetupRqstFDD_PDU = -1;  /* RL_InformationList_RL_SetupRqstFDD */
-static int hf_nbap_RL_InformationItem_RL_SetupRqstFDD_PDU = -1;  /* RL_InformationItem_RL_SetupRqstFDD */
-static int hf_nbap_E_DPCH_Information_RL_SetupRqstFDD_PDU = -1;  /* E_DPCH_Information_RL_SetupRqstFDD */
-static int hf_nbap_F_DPCH_Information_RL_SetupRqstFDD_PDU = -1;  /* F_DPCH_Information_RL_SetupRqstFDD */
-static int hf_nbap_RadioLinkSetupRequestTDD_PDU = -1;  /* RadioLinkSetupRequestTDD */
-static int hf_nbap_UL_CCTrCH_InformationList_RL_SetupRqstTDD_PDU = -1;  /* UL_CCTrCH_InformationList_RL_SetupRqstTDD */
-static int hf_nbap_UL_CCTrCH_InformationItem_RL_SetupRqstTDD_PDU = -1;  /* UL_CCTrCH_InformationItem_RL_SetupRqstTDD */
-static int hf_nbap_UL_DPCH_InformationItem_RL_SetupRqstTDD_PDU = -1;  /* UL_DPCH_InformationItem_RL_SetupRqstTDD */
-static int hf_nbap_UL_DPCH_LCR_Information_RL_SetupRqstTDD_PDU = -1;  /* UL_DPCH_LCR_Information_RL_SetupRqstTDD */
-static int hf_nbap_UL_DPCH_768_Information_RL_SetupRqstTDD_PDU = -1;  /* UL_DPCH_768_Information_RL_SetupRqstTDD */
-static int hf_nbap_DL_CCTrCH_InformationList_RL_SetupRqstTDD_PDU = -1;  /* DL_CCTrCH_InformationList_RL_SetupRqstTDD */
-static int hf_nbap_DL_CCTrCH_InformationItem_RL_SetupRqstTDD_PDU = -1;  /* DL_CCTrCH_InformationItem_RL_SetupRqstTDD */
-static int hf_nbap_DL_DPCH_InformationItem_RL_SetupRqstTDD_PDU = -1;  /* DL_DPCH_InformationItem_RL_SetupRqstTDD */
-static int hf_nbap_DL_DPCH_LCR_Information_RL_SetupRqstTDD_PDU = -1;  /* DL_DPCH_LCR_Information_RL_SetupRqstTDD */
-static int hf_nbap_DL_DPCH_768_Information_RL_SetupRqstTDD_PDU = -1;  /* DL_DPCH_768_Information_RL_SetupRqstTDD */
-static int hf_nbap_RL_Information_RL_SetupRqstTDD_PDU = -1;  /* RL_Information_RL_SetupRqstTDD */
-static int hf_nbap_RadioLinkSetupResponseFDD_PDU = -1;  /* RadioLinkSetupResponseFDD */
-static int hf_nbap_Additional_HS_Cell_Information_Response_List_PDU = -1;  /* Additional_HS_Cell_Information_Response_List */
-static int hf_nbap_RL_InformationResponseList_RL_SetupRspFDD_PDU = -1;  /* RL_InformationResponseList_RL_SetupRspFDD */
-static int hf_nbap_RL_InformationResponseItem_RL_SetupRspFDD_PDU = -1;  /* RL_InformationResponseItem_RL_SetupRspFDD */
-static int hf_nbap_RadioLinkSetupResponseTDD_PDU = -1;  /* RadioLinkSetupResponseTDD */
-static int hf_nbap_RL_InformationResponse_RL_SetupRspTDD_PDU = -1;  /* RL_InformationResponse_RL_SetupRspTDD */
-static int hf_nbap_RL_InformationResponse_LCR_RL_SetupRspTDD_PDU = -1;  /* RL_InformationResponse_LCR_RL_SetupRspTDD */
-static int hf_nbap_RadioLinkSetupFailureFDD_PDU = -1;  /* RadioLinkSetupFailureFDD */
-static int hf_nbap_CauseLevel_RL_SetupFailureFDD_PDU = -1;  /* CauseLevel_RL_SetupFailureFDD */
-static int hf_nbap_Unsuccessful_RL_InformationRespItem_RL_SetupFailureFDD_PDU = -1;  /* Unsuccessful_RL_InformationRespItem_RL_SetupFailureFDD */
-static int hf_nbap_Successful_RL_InformationRespItem_RL_SetupFailureFDD_PDU = -1;  /* Successful_RL_InformationRespItem_RL_SetupFailureFDD */
-static int hf_nbap_RadioLinkSetupFailureTDD_PDU = -1;  /* RadioLinkSetupFailureTDD */
-static int hf_nbap_CauseLevel_RL_SetupFailureTDD_PDU = -1;  /* CauseLevel_RL_SetupFailureTDD */
-static int hf_nbap_Unsuccessful_RL_InformationResp_RL_SetupFailureTDD_PDU = -1;  /* Unsuccessful_RL_InformationResp_RL_SetupFailureTDD */
-static int hf_nbap_RadioLinkAdditionRequestFDD_PDU = -1;  /* RadioLinkAdditionRequestFDD */
-static int hf_nbap_Additional_HS_Cell_Information_RL_Addition_List_PDU = -1;  /* Additional_HS_Cell_Information_RL_Addition_List */
-static int hf_nbap_Additional_EDCH_Cell_Information_RL_Add_Req_PDU = -1;  /* Additional_EDCH_Cell_Information_RL_Add_Req */
-static int hf_nbap_RL_InformationList_RL_AdditionRqstFDD_PDU = -1;  /* RL_InformationList_RL_AdditionRqstFDD */
-static int hf_nbap_RL_InformationItem_RL_AdditionRqstFDD_PDU = -1;  /* RL_InformationItem_RL_AdditionRqstFDD */
-static int hf_nbap_E_DPCH_Information_RL_AdditionReqFDD_PDU = -1;  /* E_DPCH_Information_RL_AdditionReqFDD */
-static int hf_nbap_RadioLinkAdditionRequestTDD_PDU = -1;  /* RadioLinkAdditionRequestTDD */
-static int hf_nbap_UL_CCTrCH_InformationList_RL_AdditionRqstTDD_PDU = -1;  /* UL_CCTrCH_InformationList_RL_AdditionRqstTDD */
-static int hf_nbap_UL_DPCH_InformationItem_RL_AdditionRqstTDD_PDU = -1;  /* UL_DPCH_InformationItem_RL_AdditionRqstTDD */
-static int hf_nbap_UL_DPCH_InformationItem_LCR_RL_AdditionRqstTDD_PDU = -1;  /* UL_DPCH_InformationItem_LCR_RL_AdditionRqstTDD */
-static int hf_nbap_UL_DPCH_InformationItem_768_RL_AdditionRqstTDD_PDU = -1;  /* UL_DPCH_InformationItem_768_RL_AdditionRqstTDD */
-static int hf_nbap_DL_CCTrCH_InformationList_RL_AdditionRqstTDD_PDU = -1;  /* DL_CCTrCH_InformationList_RL_AdditionRqstTDD */
-static int hf_nbap_DL_DPCH_InformationItem_RL_AdditionRqstTDD_PDU = -1;  /* DL_DPCH_InformationItem_RL_AdditionRqstTDD */
-static int hf_nbap_DL_DPCH_InformationItem_LCR_RL_AdditionRqstTDD_PDU = -1;  /* DL_DPCH_InformationItem_LCR_RL_AdditionRqstTDD */
-static int hf_nbap_DL_DPCH_InformationItem_768_RL_AdditionRqstTDD_PDU = -1;  /* DL_DPCH_InformationItem_768_RL_AdditionRqstTDD */
-static int hf_nbap_RL_Information_RL_AdditionRqstTDD_PDU = -1;  /* RL_Information_RL_AdditionRqstTDD */
-static int hf_nbap_RadioLinkAdditionResponseFDD_PDU = -1;  /* RadioLinkAdditionResponseFDD */
-static int hf_nbap_Additional_HS_Cell_Change_Information_Response_List_PDU = -1;  /* Additional_HS_Cell_Change_Information_Response_List */
-static int hf_nbap_RL_InformationResponseList_RL_AdditionRspFDD_PDU = -1;  /* RL_InformationResponseList_RL_AdditionRspFDD */
-static int hf_nbap_RL_InformationResponseItem_RL_AdditionRspFDD_PDU = -1;  /* RL_InformationResponseItem_RL_AdditionRspFDD */
-static int hf_nbap_RadioLinkAdditionResponseTDD_PDU = -1;  /* RadioLinkAdditionResponseTDD */
-static int hf_nbap_RL_InformationResponse_RL_AdditionRspTDD_PDU = -1;  /* RL_InformationResponse_RL_AdditionRspTDD */
-static int hf_nbap_RL_InformationResponse_LCR_RL_AdditionRspTDD_PDU = -1;  /* RL_InformationResponse_LCR_RL_AdditionRspTDD */
-static int hf_nbap_RadioLinkAdditionFailureFDD_PDU = -1;  /* RadioLinkAdditionFailureFDD */
-static int hf_nbap_CauseLevel_RL_AdditionFailureFDD_PDU = -1;  /* CauseLevel_RL_AdditionFailureFDD */
-static int hf_nbap_Unsuccessful_RL_InformationRespItem_RL_AdditionFailureFDD_PDU = -1;  /* Unsuccessful_RL_InformationRespItem_RL_AdditionFailureFDD */
-static int hf_nbap_Successful_RL_InformationRespItem_RL_AdditionFailureFDD_PDU = -1;  /* Successful_RL_InformationRespItem_RL_AdditionFailureFDD */
-static int hf_nbap_RadioLinkAdditionFailureTDD_PDU = -1;  /* RadioLinkAdditionFailureTDD */
-static int hf_nbap_CauseLevel_RL_AdditionFailureTDD_PDU = -1;  /* CauseLevel_RL_AdditionFailureTDD */
-static int hf_nbap_Unsuccessful_RL_InformationResp_RL_AdditionFailureTDD_PDU = -1;  /* Unsuccessful_RL_InformationResp_RL_AdditionFailureTDD */
-static int hf_nbap_RadioLinkReconfigurationPrepareFDD_PDU = -1;  /* RadioLinkReconfigurationPrepareFDD */
-static int hf_nbap_Additional_HS_Cell_Information_RL_Reconf_Prep_PDU = -1;  /* Additional_HS_Cell_Information_RL_Reconf_Prep */
-static int hf_nbap_Additional_EDCH_Cell_Information_RL_Reconf_Prep_PDU = -1;  /* Additional_EDCH_Cell_Information_RL_Reconf_Prep */
-static int hf_nbap_UL_DPCH_Information_RL_ReconfPrepFDD_PDU = -1;  /* UL_DPCH_Information_RL_ReconfPrepFDD */
-static int hf_nbap_DL_DPCH_Information_RL_ReconfPrepFDD_PDU = -1;  /* DL_DPCH_Information_RL_ReconfPrepFDD */
-static int hf_nbap_DL_DPCH_Power_Information_RL_ReconfPrepFDD_PDU = -1;  /* DL_DPCH_Power_Information_RL_ReconfPrepFDD */
-static int hf_nbap_DCH_DeleteList_RL_ReconfPrepFDD_PDU = -1;  /* DCH_DeleteList_RL_ReconfPrepFDD */
-static int hf_nbap_RL_InformationList_RL_ReconfPrepFDD_PDU = -1;  /* RL_InformationList_RL_ReconfPrepFDD */
-static int hf_nbap_RL_InformationItem_RL_ReconfPrepFDD_PDU = -1;  /* RL_InformationItem_RL_ReconfPrepFDD */
-static int hf_nbap_E_DPCH_Information_RL_ReconfPrepFDD_PDU = -1;  /* E_DPCH_Information_RL_ReconfPrepFDD */
-static int hf_nbap_F_DPCH_Information_RL_ReconfPrepFDD_PDU = -1;  /* F_DPCH_Information_RL_ReconfPrepFDD */
-static int hf_nbap_RadioLinkReconfigurationPrepareTDD_PDU = -1;  /* RadioLinkReconfigurationPrepareTDD */
-static int hf_nbap_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_PDU = -1;  /* UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD */
-static int hf_nbap_UL_DPCH_InformationAddItem_RL_ReconfPrepTDD_PDU = -1;  /* UL_DPCH_InformationAddItem_RL_ReconfPrepTDD */
-static int hf_nbap_UL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD_PDU = -1;  /* UL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD */
-static int hf_nbap_MultipleRL_UL_DPCH_InformationAddList_RL_ReconfPrepTDD_PDU = -1;  /* MultipleRL_UL_DPCH_InformationAddList_RL_ReconfPrepTDD */
-static int hf_nbap_UL_DPCH_768_InformationAddList_RL_ReconfPrepTDD_PDU = -1;  /* UL_DPCH_768_InformationAddList_RL_ReconfPrepTDD */
-static int hf_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_PDU = -1;  /* UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_UL_DPCH_InformationModify_AddItem_RL_ReconfPrepTDD_PDU = -1;  /* UL_DPCH_InformationModify_AddItem_RL_ReconfPrepTDD */
-static int hf_nbap_UL_DPCH_InformationModify_ModifyItem_RL_ReconfPrepTDD_PDU = -1;  /* UL_DPCH_InformationModify_ModifyItem_RL_ReconfPrepTDD */
-static int hf_nbap_UL_TimeslotLCR_InformationModify_ModifyList_RL_ReconfPrepTDD_PDU = -1;  /* UL_TimeslotLCR_InformationModify_ModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_UL_Timeslot768_InformationModify_ModifyList_RL_ReconfPrepTDD_PDU = -1;  /* UL_Timeslot768_InformationModify_ModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_UL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD_PDU = -1;  /* UL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD */
-static int hf_nbap_UL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD_PDU = -1;  /* UL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD */
-static int hf_nbap_MultipleRL_UL_DPCH_InformationModifyList_RL_ReconfPrepTDD_PDU = -1;  /* MultipleRL_UL_DPCH_InformationModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_UL_DPCH_768_InformationModify_AddList_RL_ReconfPrepTDD_PDU = -1;  /* UL_DPCH_768_InformationModify_AddList_RL_ReconfPrepTDD */
-static int hf_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_PDU = -1;  /* UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD */
-static int hf_nbap_DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_PDU = -1;  /* DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD */
-static int hf_nbap_DL_DPCH_InformationAddItem_RL_ReconfPrepTDD_PDU = -1;  /* DL_DPCH_InformationAddItem_RL_ReconfPrepTDD */
-static int hf_nbap_DL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD_PDU = -1;  /* DL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD */
-static int hf_nbap_MultipleRL_DL_DPCH_InformationAddList_RL_ReconfPrepTDD_PDU = -1;  /* MultipleRL_DL_DPCH_InformationAddList_RL_ReconfPrepTDD */
-static int hf_nbap_DL_DPCH_768_InformationAddList_RL_ReconfPrepTDD_PDU = -1;  /* DL_DPCH_768_InformationAddList_RL_ReconfPrepTDD */
-static int hf_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_PDU = -1;  /* DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_DL_DPCH_InformationModify_AddItem_RL_ReconfPrepTDD_PDU = -1;  /* DL_DPCH_InformationModify_AddItem_RL_ReconfPrepTDD */
-static int hf_nbap_DL_DPCH_InformationModify_ModifyItem_RL_ReconfPrepTDD_PDU = -1;  /* DL_DPCH_InformationModify_ModifyItem_RL_ReconfPrepTDD */
-static int hf_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD_PDU = -1;  /* DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_DL_Timeslot_768_InformationModify_ModifyList_RL_ReconfPrepTDD_PDU = -1;  /* DL_Timeslot_768_InformationModify_ModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_DL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD_PDU = -1;  /* DL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD */
-static int hf_nbap_DL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD_PDU = -1;  /* DL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD */
-static int hf_nbap_MultipleRL_DL_DPCH_InformationModifyList_RL_ReconfPrepTDD_PDU = -1;  /* MultipleRL_DL_DPCH_InformationModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_DL_DPCH_768_InformationModify_AddList_RL_ReconfPrepTDD_PDU = -1;  /* DL_DPCH_768_InformationModify_AddList_RL_ReconfPrepTDD */
-static int hf_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_PDU = -1;  /* DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD */
-static int hf_nbap_DCH_DeleteList_RL_ReconfPrepTDD_PDU = -1;  /* DCH_DeleteList_RL_ReconfPrepTDD */
-static int hf_nbap_DSCH_Information_ModifyList_RL_ReconfPrepTDD_PDU = -1;  /* DSCH_Information_ModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_DSCH_Information_DeleteList_RL_ReconfPrepTDD_PDU = -1;  /* DSCH_Information_DeleteList_RL_ReconfPrepTDD */
-static int hf_nbap_USCH_Information_ModifyList_RL_ReconfPrepTDD_PDU = -1;  /* USCH_Information_ModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_USCH_Information_DeleteList_RL_ReconfPrepTDD_PDU = -1;  /* USCH_Information_DeleteList_RL_ReconfPrepTDD */
-static int hf_nbap_MultipleRL_Information_RL_ReconfPrepTDD_PDU = -1;  /* MultipleRL_Information_RL_ReconfPrepTDD */
-static int hf_nbap_RL_Information_RL_ReconfPrepTDD_PDU = -1;  /* RL_Information_RL_ReconfPrepTDD */
-static int hf_nbap_RadioLinkReconfigurationReady_PDU = -1;  /* RadioLinkReconfigurationReady */
-static int hf_nbap_RL_InformationResponseList_RL_ReconfReady_PDU = -1;  /* RL_InformationResponseList_RL_ReconfReady */
-static int hf_nbap_RL_InformationResponseItem_RL_ReconfReady_PDU = -1;  /* RL_InformationResponseItem_RL_ReconfReady */
-static int hf_nbap_RadioLinkReconfigurationFailure_PDU = -1;  /* RadioLinkReconfigurationFailure */
-static int hf_nbap_CauseLevel_RL_ReconfFailure_PDU = -1;  /* CauseLevel_RL_ReconfFailure */
-static int hf_nbap_RL_ReconfigurationFailureItem_RL_ReconfFailure_PDU = -1;  /* RL_ReconfigurationFailureItem_RL_ReconfFailure */
-static int hf_nbap_RadioLinkReconfigurationCommit_PDU = -1;  /* RadioLinkReconfigurationCommit */
-static int hf_nbap_RadioLinkReconfigurationCancel_PDU = -1;  /* RadioLinkReconfigurationCancel */
-static int hf_nbap_RadioLinkReconfigurationRequestFDD_PDU = -1;  /* RadioLinkReconfigurationRequestFDD */
-static int hf_nbap_Additional_HS_Cell_Information_RL_Reconf_Req_PDU = -1;  /* Additional_HS_Cell_Information_RL_Reconf_Req */
-static int hf_nbap_Additional_EDCH_Cell_Information_RL_Reconf_Req_PDU = -1;  /* Additional_EDCH_Cell_Information_RL_Reconf_Req */
-static int hf_nbap_UL_DPCH_Information_RL_ReconfRqstFDD_PDU = -1;  /* UL_DPCH_Information_RL_ReconfRqstFDD */
-static int hf_nbap_DL_DPCH_Information_RL_ReconfRqstFDD_PDU = -1;  /* DL_DPCH_Information_RL_ReconfRqstFDD */
-static int hf_nbap_DCH_DeleteList_RL_ReconfRqstFDD_PDU = -1;  /* DCH_DeleteList_RL_ReconfRqstFDD */
-static int hf_nbap_RL_InformationList_RL_ReconfRqstFDD_PDU = -1;  /* RL_InformationList_RL_ReconfRqstFDD */
-static int hf_nbap_RL_InformationItem_RL_ReconfRqstFDD_PDU = -1;  /* RL_InformationItem_RL_ReconfRqstFDD */
-static int hf_nbap_E_DPCH_Information_RL_ReconfRqstFDD_PDU = -1;  /* E_DPCH_Information_RL_ReconfRqstFDD */
-static int hf_nbap_RadioLinkReconfigurationRequestTDD_PDU = -1;  /* RadioLinkReconfigurationRequestTDD */
-static int hf_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_PDU = -1;  /* UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD */
-static int hf_nbap_UL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD_PDU = -1;  /* UL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD */
-static int hf_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_PDU = -1;  /* UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD */
-static int hf_nbap_UL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD_PDU = -1;  /* UL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD */
-static int hf_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_PDU = -1;  /* DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD */
-static int hf_nbap_DL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD_PDU = -1;  /* DL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD */
-static int hf_nbap_MultipleRL_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_PDU = -1;  /* MultipleRL_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD */
-static int hf_nbap_DL_DPCH_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD_PDU = -1;  /* DL_DPCH_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD */
-static int hf_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_PDU = -1;  /* DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD */
-static int hf_nbap_DL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD_PDU = -1;  /* DL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD */
-static int hf_nbap_DCH_DeleteList_RL_ReconfRqstTDD_PDU = -1;  /* DCH_DeleteList_RL_ReconfRqstTDD */
-static int hf_nbap_Multiple_RL_Information_RL_ReconfRqstTDD_PDU = -1;  /* Multiple_RL_Information_RL_ReconfRqstTDD */
-static int hf_nbap_RL_Information_RL_ReconfRqstTDD_PDU = -1;  /* RL_Information_RL_ReconfRqstTDD */
-static int hf_nbap_RadioLinkReconfigurationResponse_PDU = -1;  /* RadioLinkReconfigurationResponse */
-static int hf_nbap_RL_InformationResponseList_RL_ReconfRsp_PDU = -1;  /* RL_InformationResponseList_RL_ReconfRsp */
-static int hf_nbap_RL_InformationResponseItem_RL_ReconfRsp_PDU = -1;  /* RL_InformationResponseItem_RL_ReconfRsp */
-static int hf_nbap_RadioLinkDeletionRequest_PDU = -1;  /* RadioLinkDeletionRequest */
-static int hf_nbap_RL_informationList_RL_DeletionRqst_PDU = -1;  /* RL_informationList_RL_DeletionRqst */
-static int hf_nbap_RL_informationItem_RL_DeletionRqst_PDU = -1;  /* RL_informationItem_RL_DeletionRqst */
-static int hf_nbap_RadioLinkDeletionResponse_PDU = -1;  /* RadioLinkDeletionResponse */
-static int hf_nbap_DL_PowerControlRequest_PDU = -1;  /* DL_PowerControlRequest */
-static int hf_nbap_DL_ReferencePowerInformationList_DL_PC_Rqst_PDU = -1;  /* DL_ReferencePowerInformationList_DL_PC_Rqst */
-static int hf_nbap_DL_ReferencePowerInformationItem_DL_PC_Rqst_PDU = -1;  /* DL_ReferencePowerInformationItem_DL_PC_Rqst */
-static int hf_nbap_DL_PowerTimeslotControlRequest_PDU = -1;  /* DL_PowerTimeslotControlRequest */
-static int hf_nbap_DedicatedMeasurementInitiationRequest_PDU = -1;  /* DedicatedMeasurementInitiationRequest */
-static int hf_nbap_DedicatedMeasurementObjectType_DM_Rqst_PDU = -1;  /* DedicatedMeasurementObjectType_DM_Rqst */
-static int hf_nbap_RL_InformationItem_DM_Rqst_PDU = -1;  /* RL_InformationItem_DM_Rqst */
-static int hf_nbap_PUSCH_Info_DM_Rqst_PDU = -1;   /* PUSCH_Info_DM_Rqst */
-static int hf_nbap_HSSICH_Info_DM_Rqst_PDU = -1;  /* HSSICH_Info_DM_Rqst */
-static int hf_nbap_HSSICH_InfoExt_DM_Rqst_PDU = -1;  /* HSSICH_InfoExt_DM_Rqst */
-static int hf_nbap_DedicatedMeasurementInitiationResponse_PDU = -1;  /* DedicatedMeasurementInitiationResponse */
-static int hf_nbap_DedicatedMeasurementObjectType_DM_Rsp_PDU = -1;  /* DedicatedMeasurementObjectType_DM_Rsp */
-static int hf_nbap_RL_InformationItem_DM_Rsp_PDU = -1;  /* RL_InformationItem_DM_Rsp */
-static int hf_nbap_PUSCH_Info_DM_Rsp_PDU = -1;    /* PUSCH_Info_DM_Rsp */
-static int hf_nbap_Multiple_PUSCH_InfoList_DM_Rsp_PDU = -1;  /* Multiple_PUSCH_InfoList_DM_Rsp */
-static int hf_nbap_Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp_PDU = -1;  /* Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp */
-static int hf_nbap_Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp_PDU = -1;  /* Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp */
-static int hf_nbap_Multiple_HSSICHMeasurementValueList_TDD_DM_Rsp_PDU = -1;  /* Multiple_HSSICHMeasurementValueList_TDD_DM_Rsp */
-static int hf_nbap_Multiple_DedicatedMeasurementValueList_768_TDD_DM_Rsp_PDU = -1;  /* Multiple_DedicatedMeasurementValueList_768_TDD_DM_Rsp */
-static int hf_nbap_RL_Set_InformationItem_DM_Rsp_PDU = -1;  /* RL_Set_InformationItem_DM_Rsp */
-static int hf_nbap_DedicatedMeasurementInitiationFailure_PDU = -1;  /* DedicatedMeasurementInitiationFailure */
-static int hf_nbap_DedicatedMeasurementReport_PDU = -1;  /* DedicatedMeasurementReport */
-static int hf_nbap_DedicatedMeasurementObjectType_DM_Rprt_PDU = -1;  /* DedicatedMeasurementObjectType_DM_Rprt */
-static int hf_nbap_RL_InformationItem_DM_Rprt_PDU = -1;  /* RL_InformationItem_DM_Rprt */
-static int hf_nbap_PUSCH_Info_DM_Rprt_PDU = -1;   /* PUSCH_Info_DM_Rprt */
-static int hf_nbap_Multiple_PUSCH_InfoList_DM_Rprt_PDU = -1;  /* Multiple_PUSCH_InfoList_DM_Rprt */
-static int hf_nbap_RL_Set_InformationItem_DM_Rprt_PDU = -1;  /* RL_Set_InformationItem_DM_Rprt */
-static int hf_nbap_DedicatedMeasurementTerminationRequest_PDU = -1;  /* DedicatedMeasurementTerminationRequest */
-static int hf_nbap_DedicatedMeasurementFailureIndication_PDU = -1;  /* DedicatedMeasurementFailureIndication */
-static int hf_nbap_RadioLinkFailureIndication_PDU = -1;  /* RadioLinkFailureIndication */
-static int hf_nbap_Reporting_Object_RL_FailureInd_PDU = -1;  /* Reporting_Object_RL_FailureInd */
-static int hf_nbap_RL_InformationItem_RL_FailureInd_PDU = -1;  /* RL_InformationItem_RL_FailureInd */
-static int hf_nbap_RL_Set_InformationItem_RL_FailureInd_PDU = -1;  /* RL_Set_InformationItem_RL_FailureInd */
-static int hf_nbap_CCTrCH_InformationItem_RL_FailureInd_PDU = -1;  /* CCTrCH_InformationItem_RL_FailureInd */
-static int hf_nbap_RadioLinkPreemptionRequiredIndication_PDU = -1;  /* RadioLinkPreemptionRequiredIndication */
-static int hf_nbap_RL_InformationList_RL_PreemptRequiredInd_PDU = -1;  /* RL_InformationList_RL_PreemptRequiredInd */
-static int hf_nbap_RL_InformationItem_RL_PreemptRequiredInd_PDU = -1;  /* RL_InformationItem_RL_PreemptRequiredInd */
-static int hf_nbap_RadioLinkRestoreIndication_PDU = -1;  /* RadioLinkRestoreIndication */
-static int hf_nbap_Reporting_Object_RL_RestoreInd_PDU = -1;  /* Reporting_Object_RL_RestoreInd */
-static int hf_nbap_RL_InformationItem_RL_RestoreInd_PDU = -1;  /* RL_InformationItem_RL_RestoreInd */
-static int hf_nbap_RL_Set_InformationItem_RL_RestoreInd_PDU = -1;  /* RL_Set_InformationItem_RL_RestoreInd */
-static int hf_nbap_CCTrCH_InformationItem_RL_RestoreInd_PDU = -1;  /* CCTrCH_InformationItem_RL_RestoreInd */
-static int hf_nbap_CompressedModeCommand_PDU = -1;  /* CompressedModeCommand */
-static int hf_nbap_ErrorIndication_PDU = -1;      /* ErrorIndication */
-static int hf_nbap_PrivateMessage_PDU = -1;       /* PrivateMessage */
-static int hf_nbap_PhysicalSharedChannelReconfigurationRequestFDD_PDU = -1;  /* PhysicalSharedChannelReconfigurationRequestFDD */
-static int hf_nbap_HSDPA_And_EDCH_CellPortion_InformationList_PSCH_ReconfRqst_PDU = -1;  /* HSDPA_And_EDCH_CellPortion_InformationList_PSCH_ReconfRqst */
-static int hf_nbap_PhysicalSharedChannelReconfigurationRequestTDD_PDU = -1;  /* PhysicalSharedChannelReconfigurationRequestTDD */
-static int hf_nbap_PDSCHSets_AddList_PSCH_ReconfRqst_PDU = -1;  /* PDSCHSets_AddList_PSCH_ReconfRqst */
-static int hf_nbap_PDSCH_Information_AddItem_PSCH_ReconfRqst_PDU = -1;  /* PDSCH_Information_AddItem_PSCH_ReconfRqst */
-static int hf_nbap_PDSCH_AddInformation_LCR_AddItem_PSCH_ReconfRqst_PDU = -1;  /* PDSCH_AddInformation_LCR_AddItem_PSCH_ReconfRqst */
-static int hf_nbap_PDSCH_AddInformation_768_AddItem_PSCH_ReconfRqst_PDU = -1;  /* PDSCH_AddInformation_768_AddItem_PSCH_ReconfRqst */
-static int hf_nbap_PDSCHSets_ModifyList_PSCH_ReconfRqst_PDU = -1;  /* PDSCHSets_ModifyList_PSCH_ReconfRqst */
-static int hf_nbap_PDSCH_Information_ModifyItem_PSCH_ReconfRqst_PDU = -1;  /* PDSCH_Information_ModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_PDSCH_ModifyInformation_LCR_ModifyItem_PSCH_ReconfRqst_PDU = -1;  /* PDSCH_ModifyInformation_LCR_ModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_PDSCH_ModifyInformation_768_ModifyItem_PSCH_ReconfRqst_PDU = -1;  /* PDSCH_ModifyInformation_768_ModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_PDSCHSets_DeleteList_PSCH_ReconfRqst_PDU = -1;  /* PDSCHSets_DeleteList_PSCH_ReconfRqst */
-static int hf_nbap_PUSCHSets_AddList_PSCH_ReconfRqst_PDU = -1;  /* PUSCHSets_AddList_PSCH_ReconfRqst */
-static int hf_nbap_PUSCH_Information_AddItem_PSCH_ReconfRqst_PDU = -1;  /* PUSCH_Information_AddItem_PSCH_ReconfRqst */
-static int hf_nbap_PUSCH_AddInformation_LCR_AddItem_PSCH_ReconfRqst_PDU = -1;  /* PUSCH_AddInformation_LCR_AddItem_PSCH_ReconfRqst */
-static int hf_nbap_PUSCH_AddInformation_768_AddItem_PSCH_ReconfRqst_PDU = -1;  /* PUSCH_AddInformation_768_AddItem_PSCH_ReconfRqst */
-static int hf_nbap_PUSCHSets_ModifyList_PSCH_ReconfRqst_PDU = -1;  /* PUSCHSets_ModifyList_PSCH_ReconfRqst */
-static int hf_nbap_PUSCH_Information_ModifyItem_PSCH_ReconfRqst_PDU = -1;  /* PUSCH_Information_ModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_PUSCH_ModifyInformation_LCR_ModifyItem_PSCH_ReconfRqst_PDU = -1;  /* PUSCH_ModifyInformation_LCR_ModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_PUSCH_ModifyInformation_768_ModifyItem_PSCH_ReconfRqst_PDU = -1;  /* PUSCH_ModifyInformation_768_ModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_PUSCHSets_DeleteList_PSCH_ReconfRqst_PDU = -1;  /* PUSCHSets_DeleteList_PSCH_ReconfRqst */
-static int hf_nbap_HS_PDSCH_TDD_Information_PSCH_ReconfRqst_PDU = -1;  /* HS_PDSCH_TDD_Information_PSCH_ReconfRqst */
-static int hf_nbap_DL_HS_PDSCH_Timeslot_Information_768_PSCH_ReconfRqst_PDU = -1;  /* DL_HS_PDSCH_Timeslot_Information_768_PSCH_ReconfRqst */
-static int hf_nbap_MultipleFreq_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst_PDU = -1;  /* MultipleFreq_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst */
-static int hf_nbap_MultipleFreq_DL_HS_PDSCH_Timeslot_Information_LCRItem_PSCH_ReconfRqst_PDU = -1;  /* MultipleFreq_DL_HS_PDSCH_Timeslot_Information_LCRItem_PSCH_ReconfRqst */
-static int hf_nbap_Add_To_HS_SCCH_Resource_Pool_PSCH_ReconfRqst_PDU = -1;  /* Add_To_HS_SCCH_Resource_Pool_PSCH_ReconfRqst */
-static int hf_nbap_HS_SCCH_Information_768_PSCH_ReconfRqst_PDU = -1;  /* HS_SCCH_Information_768_PSCH_ReconfRqst */
-static int hf_nbap_HS_SCCH_InformationExt_LCR_PSCH_ReconfRqst_PDU = -1;  /* HS_SCCH_InformationExt_LCR_PSCH_ReconfRqst */
-static int hf_nbap_Modify_HS_SCCH_Resource_Pool_PSCH_ReconfRqst_PDU = -1;  /* Modify_HS_SCCH_Resource_Pool_PSCH_ReconfRqst */
-static int hf_nbap_HS_SCCH_InformationModifyExt_LCR_PSCH_ReconfRqst_PDU = -1;  /* HS_SCCH_InformationModifyExt_LCR_PSCH_ReconfRqst */
-static int hf_nbap_HS_SCCH_InformationModify_768_PSCH_ReconfRqst_PDU = -1;  /* HS_SCCH_InformationModify_768_PSCH_ReconfRqst */
-static int hf_nbap_Delete_From_HS_SCCH_Resource_Pool_PSCH_ReconfRqst_PDU = -1;  /* Delete_From_HS_SCCH_Resource_Pool_PSCH_ReconfRqst */
-static int hf_nbap_E_PUCH_Information_PSCH_ReconfRqst_PDU = -1;  /* E_PUCH_Information_PSCH_ReconfRqst */
-static int hf_nbap_Add_To_E_AGCH_Resource_Pool_PSCH_ReconfRqst_PDU = -1;  /* Add_To_E_AGCH_Resource_Pool_PSCH_ReconfRqst */
-static int hf_nbap_Modify_E_AGCH_Resource_Pool_PSCH_ReconfRqst_PDU = -1;  /* Modify_E_AGCH_Resource_Pool_PSCH_ReconfRqst */
-static int hf_nbap_Delete_From_E_AGCH_Resource_Pool_PSCH_ReconfRqst_PDU = -1;  /* Delete_From_E_AGCH_Resource_Pool_PSCH_ReconfRqst */
-static int hf_nbap_E_HICH_Information_PSCH_ReconfRqst_PDU = -1;  /* E_HICH_Information_PSCH_ReconfRqst */
-static int hf_nbap_E_PUCH_Information_768_PSCH_ReconfRqst_PDU = -1;  /* E_PUCH_Information_768_PSCH_ReconfRqst */
-static int hf_nbap_Add_To_E_AGCH_Resource_Pool_768_PSCH_ReconfRqst_PDU = -1;  /* Add_To_E_AGCH_Resource_Pool_768_PSCH_ReconfRqst */
-static int hf_nbap_Modify_E_AGCH_Resource_Pool_768_PSCH_ReconfRqst_PDU = -1;  /* Modify_E_AGCH_Resource_Pool_768_PSCH_ReconfRqst */
-static int hf_nbap_E_HICH_Information_768_PSCH_ReconfRqst_PDU = -1;  /* E_HICH_Information_768_PSCH_ReconfRqst */
-static int hf_nbap_E_PUCH_Information_LCR_PSCH_ReconfRqst_PDU = -1;  /* E_PUCH_Information_LCR_PSCH_ReconfRqst */
-static int hf_nbap_Add_To_E_AGCH_Resource_Pool_LCR_PSCH_ReconfRqst_PDU = -1;  /* Add_To_E_AGCH_Resource_Pool_LCR_PSCH_ReconfRqst */
-static int hf_nbap_Modify_E_AGCH_Resource_Pool_LCR_PSCH_ReconfRqst_PDU = -1;  /* Modify_E_AGCH_Resource_Pool_LCR_PSCH_ReconfRqst */
-static int hf_nbap_Add_To_E_HICH_Resource_Pool_LCR_PSCH_ReconfRqst_PDU = -1;  /* Add_To_E_HICH_Resource_Pool_LCR_PSCH_ReconfRqst */
-static int hf_nbap_Modify_E_HICH_Resource_Pool_LCR_PSCH_ReconfRqst_PDU = -1;  /* Modify_E_HICH_Resource_Pool_LCR_PSCH_ReconfRqst */
-static int hf_nbap_Delete_From_E_HICH_Resource_Pool_PSCH_ReconfRqst_PDU = -1;  /* Delete_From_E_HICH_Resource_Pool_PSCH_ReconfRqst */
-static int hf_nbap_SYNC_UL_Partition_LCR_PDU = -1;  /* SYNC_UL_Partition_LCR */
-static int hf_nbap_Delete_From_HS_SCCH_Resource_PoolExt_PSCH_ReconfRqst_PDU = -1;  /* Delete_From_HS_SCCH_Resource_PoolExt_PSCH_ReconfRqst */
-static int hf_nbap_MultipleFreq_E_PUCH_Timeslot_InformationList_LCR_PSCH_ReconfRqst_PDU = -1;  /* MultipleFreq_E_PUCH_Timeslot_InformationList_LCR_PSCH_ReconfRqst */
-static int hf_nbap_MultipleFreq_E_PUCH_Timeslot_Information_LCRItem_PSCH_ReconfRqst_PDU = -1;  /* MultipleFreq_E_PUCH_Timeslot_Information_LCRItem_PSCH_ReconfRqst */
-static int hf_nbap_Max_RTWP_perUARFCN_Information_LCR_PSCH_ReconfRqst_PDU = -1;  /* Max_RTWP_perUARFCN_Information_LCR_PSCH_ReconfRqst */
-static int hf_nbap_PhysicalSharedChannelReconfigurationResponse_PDU = -1;  /* PhysicalSharedChannelReconfigurationResponse */
-static int hf_nbap_E_HICH_TimeOffset_ExtensionLCR_PDU = -1;  /* E_HICH_TimeOffset_ExtensionLCR */
-static int hf_nbap_MultipleFreq_E_HICH_TimeOffsetLCR_PDU = -1;  /* MultipleFreq_E_HICH_TimeOffsetLCR */
-static int hf_nbap_PhysicalSharedChannelReconfigurationFailure_PDU = -1;  /* PhysicalSharedChannelReconfigurationFailure */
-static int hf_nbap_CauseLevel_PSCH_ReconfFailure_PDU = -1;  /* CauseLevel_PSCH_ReconfFailure */
-static int hf_nbap_Unsuccessful_PDSCHSetItem_PSCH_ReconfFailureTDD_PDU = -1;  /* Unsuccessful_PDSCHSetItem_PSCH_ReconfFailureTDD */
-static int hf_nbap_Unsuccessful_PUSCHSetItem_PSCH_ReconfFailureTDD_PDU = -1;  /* Unsuccessful_PUSCHSetItem_PSCH_ReconfFailureTDD */
-static int hf_nbap_UARFCNSpecificCauseList_PSCH_ReconfFailureTDD_PDU = -1;  /* UARFCNSpecificCauseList_PSCH_ReconfFailureTDD */
-static int hf_nbap_Unsuccessful_UARFCNItem_PSCH_ReconfFailureTDD_PDU = -1;  /* Unsuccessful_UARFCNItem_PSCH_ReconfFailureTDD */
-static int hf_nbap_E_HICH_TimeOffset_ReconfFailureTDD_PDU = -1;  /* E_HICH_TimeOffset_ReconfFailureTDD */
-static int hf_nbap_Common_System_Information_ResponseLCR_PDU = -1;  /* Common_System_Information_ResponseLCR */
-static int hf_nbap_ResetRequest_PDU = -1;         /* ResetRequest */
-static int hf_nbap_ResetIndicator_PDU = -1;       /* ResetIndicator */
-static int hf_nbap_CommunicationContextInfoItem_Reset_PDU = -1;  /* CommunicationContextInfoItem_Reset */
-static int hf_nbap_CommunicationControlPortInfoItem_Reset_PDU = -1;  /* CommunicationControlPortInfoItem_Reset */
-static int hf_nbap_ResetResponse_PDU = -1;        /* ResetResponse */
-static int hf_nbap_InformationExchangeInitiationRequest_PDU = -1;  /* InformationExchangeInitiationRequest */
-static int hf_nbap_InformationExchangeObjectType_InfEx_Rqst_PDU = -1;  /* InformationExchangeObjectType_InfEx_Rqst */
-static int hf_nbap_InformationExchangeInitiationResponse_PDU = -1;  /* InformationExchangeInitiationResponse */
-static int hf_nbap_InformationExchangeObjectType_InfEx_Rsp_PDU = -1;  /* InformationExchangeObjectType_InfEx_Rsp */
-static int hf_nbap_InformationExchangeInitiationFailure_PDU = -1;  /* InformationExchangeInitiationFailure */
-static int hf_nbap_InformationReport_PDU = -1;    /* InformationReport */
-static int hf_nbap_InformationExchangeObjectType_InfEx_Rprt_PDU = -1;  /* InformationExchangeObjectType_InfEx_Rprt */
-static int hf_nbap_InformationExchangeTerminationRequest_PDU = -1;  /* InformationExchangeTerminationRequest */
-static int hf_nbap_InformationExchangeFailureIndication_PDU = -1;  /* InformationExchangeFailureIndication */
-static int hf_nbap_CellSynchronisationInitiationRequestTDD_PDU = -1;  /* CellSynchronisationInitiationRequestTDD */
-static int hf_nbap_TimeslotInfo_CellSyncInitiationRqstTDD_PDU = -1;  /* TimeslotInfo_CellSyncInitiationRqstTDD */
-static int hf_nbap_CellSyncBurstTransInit_CellSyncInitiationRqstTDD_PDU = -1;  /* CellSyncBurstTransInit_CellSyncInitiationRqstTDD */
-static int hf_nbap_CellSyncBurstMeasureInit_CellSyncInitiationRqstTDD_PDU = -1;  /* CellSyncBurstMeasureInit_CellSyncInitiationRqstTDD */
-static int hf_nbap_SYNCDlCodeId_TransInitLCR_CellSyncInitiationRqstTDD_PDU = -1;  /* SYNCDlCodeId_TransInitLCR_CellSyncInitiationRqstTDD */
-static int hf_nbap_SYNCDlCodeId_MeasureInitLCR_CellSyncInitiationRqstTDD_PDU = -1;  /* SYNCDlCodeId_MeasureInitLCR_CellSyncInitiationRqstTDD */
-static int hf_nbap_CellSynchronisationInitiationResponseTDD_PDU = -1;  /* CellSynchronisationInitiationResponseTDD */
-static int hf_nbap_CellSynchronisationInitiationFailureTDD_PDU = -1;  /* CellSynchronisationInitiationFailureTDD */
-static int hf_nbap_CellSynchronisationReconfigurationRequestTDD_PDU = -1;  /* CellSynchronisationReconfigurationRequestTDD */
-static int hf_nbap_CellSyncBurstTransReconfInfo_CellSyncReconfRqstTDD_PDU = -1;  /* CellSyncBurstTransReconfInfo_CellSyncReconfRqstTDD */
-static int hf_nbap_CellSyncBurstMeasInfo_CellSyncReconfRqstTDD_PDU = -1;  /* CellSyncBurstMeasInfo_CellSyncReconfRqstTDD */
-static int hf_nbap_CellSyncBurstMeasInfoListIE_CellSyncReconfRqstTDD_PDU = -1;  /* CellSyncBurstMeasInfoListIE_CellSyncReconfRqstTDD */
-static int hf_nbap_SYNCDlCodeIdTransReconfInfoLCR_CellSyncReconfRqstTDD_PDU = -1;  /* SYNCDlCodeIdTransReconfInfoLCR_CellSyncReconfRqstTDD */
-static int hf_nbap_SYNCDlCodeIdMeasInfoLCR_CellSyncReconfRqstTDD_PDU = -1;  /* SYNCDlCodeIdMeasInfoLCR_CellSyncReconfRqstTDD */
-static int hf_nbap_CellSynchronisationReconfigurationResponseTDD_PDU = -1;  /* CellSynchronisationReconfigurationResponseTDD */
-static int hf_nbap_CellSynchronisationReconfigurationFailureTDD_PDU = -1;  /* CellSynchronisationReconfigurationFailureTDD */
-static int hf_nbap_CellSynchronisationAdjustmentRequestTDD_PDU = -1;  /* CellSynchronisationAdjustmentRequestTDD */
-static int hf_nbap_CellAdjustmentInfo_SyncAdjustmentRqstTDD_PDU = -1;  /* CellAdjustmentInfo_SyncAdjustmentRqstTDD */
-static int hf_nbap_CellAdjustmentInfoItem_SyncAdjustmentRqstTDD_PDU = -1;  /* CellAdjustmentInfoItem_SyncAdjustmentRqstTDD */
-static int hf_nbap_CellSynchronisationAdjustmentResponseTDD_PDU = -1;  /* CellSynchronisationAdjustmentResponseTDD */
-static int hf_nbap_CellSynchronisationAdjustmentFailureTDD_PDU = -1;  /* CellSynchronisationAdjustmentFailureTDD */
-static int hf_nbap_CauseLevel_SyncAdjustmntFailureTDD_PDU = -1;  /* CauseLevel_SyncAdjustmntFailureTDD */
-static int hf_nbap_Unsuccessful_cell_InformationRespItem_SyncAdjustmntFailureTDD_PDU = -1;  /* Unsuccessful_cell_InformationRespItem_SyncAdjustmntFailureTDD */
-static int hf_nbap_CellSynchronisationTerminationRequestTDD_PDU = -1;  /* CellSynchronisationTerminationRequestTDD */
-static int hf_nbap_CellSynchronisationFailureIndicationTDD_PDU = -1;  /* CellSynchronisationFailureIndicationTDD */
-static int hf_nbap_CellSynchronisationReportTDD_PDU = -1;  /* CellSynchronisationReportTDD */
-static int hf_nbap_CellSyncInfo_CellSyncReprtTDD_PDU = -1;  /* CellSyncInfo_CellSyncReprtTDD */
-static int hf_nbap_SyncReportType_CellSyncReprtTDD_PDU = -1;  /* SyncReportType_CellSyncReprtTDD */
-static int hf_nbap_SyncDLCodeIdsMeasInfoList_CellSyncReprtTDD_PDU = -1;  /* SyncDLCodeIdsMeasInfoList_CellSyncReprtTDD */
-static int hf_nbap_BearerRearrangementIndication_PDU = -1;  /* BearerRearrangementIndication */
-static int hf_nbap_DCH_RearrangeList_Bearer_RearrangeInd_PDU = -1;  /* DCH_RearrangeList_Bearer_RearrangeInd */
-static int hf_nbap_DSCH_RearrangeList_Bearer_RearrangeInd_PDU = -1;  /* DSCH_RearrangeList_Bearer_RearrangeInd */
-static int hf_nbap_USCH_RearrangeList_Bearer_RearrangeInd_PDU = -1;  /* USCH_RearrangeList_Bearer_RearrangeInd */
-static int hf_nbap_HSDSCH_RearrangeList_Bearer_RearrangeInd_PDU = -1;  /* HSDSCH_RearrangeList_Bearer_RearrangeInd */
-static int hf_nbap_E_DCH_RearrangeList_Bearer_RearrangeInd_PDU = -1;  /* E_DCH_RearrangeList_Bearer_RearrangeInd */
-static int hf_nbap_Additional_EDCH_Cell_Information_Bearer_Rearrangement_List_PDU = -1;  /* Additional_EDCH_Cell_Information_Bearer_Rearrangement_List */
-static int hf_nbap_RadioLinkActivationCommandFDD_PDU = -1;  /* RadioLinkActivationCommandFDD */
-static int hf_nbap_DelayedActivationInformationList_RL_ActivationCmdFDD_PDU = -1;  /* DelayedActivationInformationList_RL_ActivationCmdFDD */
-static int hf_nbap_DelayedActivationInformation_RL_ActivationCmdFDD_PDU = -1;  /* DelayedActivationInformation_RL_ActivationCmdFDD */
-static int hf_nbap_RadioLinkActivationCommandTDD_PDU = -1;  /* RadioLinkActivationCommandTDD */
-static int hf_nbap_DelayedActivationInformationList_RL_ActivationCmdTDD_PDU = -1;  /* DelayedActivationInformationList_RL_ActivationCmdTDD */
-static int hf_nbap_DelayedActivationInformation_RL_ActivationCmdTDD_PDU = -1;  /* DelayedActivationInformation_RL_ActivationCmdTDD */
-static int hf_nbap_RadioLinkParameterUpdateIndicationFDD_PDU = -1;  /* RadioLinkParameterUpdateIndicationFDD */
-static int hf_nbap_Additional_HS_Cell_Information_RL_Param_Upd_PDU = -1;  /* Additional_HS_Cell_Information_RL_Param_Upd */
-static int hf_nbap_Additional_EDCH_Cell_Information_RL_Param_Upd_PDU = -1;  /* Additional_EDCH_Cell_Information_RL_Param_Upd */
-static int hf_nbap_RadioLinkParameterUpdateIndicationTDD_PDU = -1;  /* RadioLinkParameterUpdateIndicationTDD */
-static int hf_nbap_MBMSNotificationUpdateCommand_PDU = -1;  /* MBMSNotificationUpdateCommand */
-static int hf_nbap_UEStatusUpdateCommand_PDU = -1;  /* UEStatusUpdateCommand */
-static int hf_nbap_SecondaryULFrequencyReport_PDU = -1;  /* SecondaryULFrequencyReport */
-static int hf_nbap_SecondaryULFrequencyUpdateIndication_PDU = -1;  /* SecondaryULFrequencyUpdateIndication */
-static int hf_nbap_NBAP_PDU_PDU = -1;             /* NBAP_PDU */
-static int hf_nbap_NULL_PDU = -1;                 /* NULL */
-static int hf_nbap_local = -1;                    /* INTEGER_0_maxPrivateIEs */
-static int hf_nbap_global = -1;                   /* OBJECT_IDENTIFIER */
-static int hf_nbap_procedureCode = -1;            /* ProcedureCode */
-static int hf_nbap_ddMode = -1;                   /* DdMode */
-static int hf_nbap_shortTransActionId = -1;       /* T_shortTransActionId */
-static int hf_nbap_longTransActionId = -1;        /* T_longTransActionId */
-static int hf_nbap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
-static int hf_nbap_id = -1;                       /* ProtocolIE_ID */
-static int hf_nbap_criticality = -1;              /* Criticality */
-static int hf_nbap_ie_field_value = -1;           /* ProtocolIE_Field_value */
-static int hf_nbap_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
-static int hf_nbap_extensionValue = -1;           /* T_extensionValue */
-static int hf_nbap_PrivateIE_Container_item = -1;  /* PrivateIE_Field */
-static int hf_nbap_id_01 = -1;                    /* PrivateIE_ID */
-static int hf_nbap_private_value = -1;            /* PrivateIE_Field_value */
-static int hf_nbap_ActivationInformation_item = -1;  /* ActivationInformationItem */
-static int hf_nbap_uU_ActivationState = -1;       /* Uu_ActivationState */
-static int hf_nbap_iE_Extensions = -1;            /* ProtocolExtensionContainer */
-static int hf_nbap_multicell_EDCH_Transport_Bearer_Mode = -1;  /* Multicell_EDCH_Transport_Bearer_Mode */
-static int hf_nbap_additional_EDCH_Cell_Information_Setup = -1;  /* Additional_EDCH_Cell_Information_Setup */
-static int hf_nbap_Additional_EDCH_Cell_Information_Setup_item = -1;  /* Additional_EDCH_FDD_Setup_Cell_Information */
-static int hf_nbap_additional_EDCH_UL_DPCH_Information_Setup = -1;  /* Additional_EDCH_UL_DPCH_Information_Setup */
-static int hf_nbap_additional_EDCH_RL_Specific_Information_To_Setup = -1;  /* Additional_EDCH_RL_Specific_Information_To_Setup_List */
-static int hf_nbap_additional_EDCH_FDD_Information = -1;  /* Additional_EDCH_FDD_Information */
-static int hf_nbap_additional_EDCH_F_DPCH_Information_Setup = -1;  /* Additional_EDCH_F_DPCH_Information */
-static int hf_nbap_multicell_EDCH_Information = -1;  /* Multicell_EDCH_Information */
-static int hf_nbap_ul_ScramblingCode = -1;        /* UL_ScramblingCode */
-static int hf_nbap_ul_SIR_Target = -1;            /* UL_SIR */
-static int hf_nbap_fdd_TPC_DownlinkStepSize = -1;  /* FDD_TPC_DownlinkStepSize */
-static int hf_nbap_limitedPowerIncrease = -1;     /* LimitedPowerIncrease */
-static int hf_nbap_innerLoopDLPCStatus = -1;      /* InnerLoopDLPCStatus */
-static int hf_nbap_Additional_EDCH_RL_Specific_Information_To_Setup_List_item = -1;  /* Additional_EDCH_RL_Specific_Information_To_Setup_ItemIEs */
-static int hf_nbap_eDCH_Additional_RL_ID = -1;    /* RL_ID */
-static int hf_nbap_c_ID = -1;                     /* C_ID */
-static int hf_nbap_firstRLS_indicator = -1;       /* FirstRLS_Indicator */
-static int hf_nbap_propagationDelay = -1;         /* PropagationDelay */
-static int hf_nbap_dl_CodeInformation = -1;       /* FDD_DL_CodeInformation */
-static int hf_nbap_initialDL_transmissionPower = -1;  /* DL_Power */
-static int hf_nbap_maximumDL_power = -1;          /* DL_Power */
-static int hf_nbap_minimumDL_power = -1;          /* DL_Power */
-static int hf_nbap_f_DPCH_SlotFormat = -1;        /* F_DPCH_SlotFormat */
-static int hf_nbap_e_RNTI = -1;                   /* E_RNTI */
-static int hf_nbap_multicell_EDCH_RL_Specific_Information = -1;  /* Multicell_EDCH_RL_Specific_Information */
-static int hf_nbap_Additional_EDCH_Cell_Information_To_Add_List_item = -1;  /* Additional_EDCH_Cell_Information_To_Add_ItemIEs */
-static int hf_nbap_additional_EDCH_RL_Specific_Information_To_Add_ItemIEs = -1;  /* Additional_EDCH_RL_Specific_Information_To_Add_ItemIEs */
-static int hf_nbap_Additional_EDCH_RL_Specific_Information_To_Add_ItemIEs_item = -1;  /* EDCH_Additional_RL_Specific_Information_To_Add_List */
-static int hf_nbap_Additional_EDCH_RL_Specific_Information_To_Modify_List_item = -1;  /* Additional_EDCH_RL_Specific_Information_To_Modify_ItemIEs */
-static int hf_nbap_additional_EDCH_MAC_d_Flows_Specific_Information = -1;  /* Additional_EDCH_MAC_d_Flows_Specific_Info_List */
-static int hf_nbap_hARQ_Process_Allocation_Scheduled_2ms_EDCH = -1;  /* HARQ_Process_Allocation_2ms_EDCH */
-static int hf_nbap_e_DCH_Maximum_Bitrate = -1;    /* E_DCH_Maximum_Bitrate */
-static int hf_nbap_e_DCH_Processing_Overload_Level = -1;  /* E_DCH_Processing_Overload_Level */
-static int hf_nbap_e_DCH_Min_Set_E_TFCI = -1;     /* E_TFCI */
-static int hf_nbap_Additional_EDCH_MAC_d_Flows_Specific_Info_List_item = -1;  /* Additional_EDCH_MAC_d_Flows_Specific_Info */
-static int hf_nbap_e_DCH_MACdFlow_ID = -1;        /* E_DCH_MACdFlow_ID */
-static int hf_nbap_bindingID = -1;                /* BindingID */
-static int hf_nbap_transportLayerAddress = -1;    /* TransportLayerAddress */
-static int hf_nbap_Additional_EDCH_Cell_Information_Response_List_item = -1;  /* Additional_EDCH_FDD_Information_Response_ItemIEs */
-static int hf_nbap_eDCH_Additional_RL_Specific_Information_Response = -1;  /* EDCH_Additional_RL_Specific_Information_Response_List */
-static int hf_nbap_additional_EDCH_MAC_d_Flow_Specific_Information_Response = -1;  /* Additional_EDCH_MAC_d_Flow_Specific_Information_Response_List */
-static int hf_nbap_EDCH_Additional_RL_Specific_Information_Response_List_item = -1;  /* EDCH_Additional_RL_Specific_Information_Response_ItemIEs */
-static int hf_nbap_received_total_wide_band_power = -1;  /* Received_total_wide_band_power_Value */
-static int hf_nbap_dL_PowerBalancing_ActivationIndicator = -1;  /* DL_PowerBalancing_ActivationIndicator */
-static int hf_nbap_rL_Set_ID = -1;                /* RL_Set_ID */
-static int hf_nbap_e_DCH_RL_Set_ID = -1;          /* RL_Set_ID */
-static int hf_nbap_e_DCH_FDD_DL_Control_Channel_Information = -1;  /* E_DCH_FDD_DL_Control_Channel_Information */
-static int hf_nbap_Additional_EDCH_Cell_Information_Response_RLReconf_List_item = -1;  /* Additional_EDCH_FDD_Information_Response_RLReconf_Items */
-static int hf_nbap_additional_EDCH_FDD_Information_Response_ItemIEs = -1;  /* Additional_EDCH_FDD_Information_Response_ItemIEs */
-static int hf_nbap_additional_Modififed_EDCH_FDD_Information_Response_ItemIEs = -1;  /* Additional_Modififed_EDCH_FDD_Information_Response_ItemIEs */
-static int hf_nbap_eDCH_Additional_Modified_RL_Specific_Information_Response = -1;  /* EDCH_Additional_Modified_RL_Specific_Information_Response_List */
-static int hf_nbap_EDCH_Additional_Modified_RL_Specific_Information_Response_List_item = -1;  /* EDCH_Additional_Modified_RL_Specific_Information_Response_List_Items */
-static int hf_nbap_dL_PowerBalancing_UpdatedIndicator = -1;  /* DL_PowerBalancing_UpdatedIndicator */
-static int hf_nbap_Additional_EDCH_MAC_d_Flow_Specific_Information_Response_List_item = -1;  /* Additional_EDCH_MAC_d_Flows_Specific_Info_Response */
-static int hf_nbap_Additional_EDCH_Cell_Information_Response_RL_Add_List_item = -1;  /* Additional_EDCH_Cell_Information_Response_RL_Add_ItemIEs */
-static int hf_nbap_additional_EDCH_FDD_Information_Response = -1;  /* Additional_EDCH_FDD_Information_Response_ItemIEs */
-static int hf_nbap_additional_EDCH_Serving_Cell_Change_Information_Response = -1;  /* E_DCH_Serving_Cell_Change_Info_Response */
-static int hf_nbap_Additional_EDCH_Cell_Information_ConfigurationChange_List_item = -1;  /* Additional_EDCH_ConfigurationChange_Info_ItemIEs */
-static int hf_nbap_additional_EDCH_UL_DPCH_Information_Modify = -1;  /* Additional_EDCH_UL_DPCH_Information_Modify */
-static int hf_nbap_additional_EDCH_RL_Specific_Information_To_Add = -1;  /* Additional_EDCH_RL_Specific_Information_To_Add_ItemIEs */
-static int hf_nbap_additional_EDCH_RL_Specific_Information_To_Modify = -1;  /* Additional_EDCH_RL_Specific_Information_To_Modify_List */
-static int hf_nbap_additional_EDCH_FDD_Information_To_Modify = -1;  /* Additional_EDCH_FDD_Information */
-static int hf_nbap_additional_EDCH_F_DPCH_Information_Modify = -1;  /* Additional_EDCH_F_DPCH_Information */
-static int hf_nbap_Additional_EDCH_Cell_Information_Removal_List_item = -1;  /* Additional_EDCH_Cell_Information_Removal_Info_ItemIEs */
-static int hf_nbap_rL_on_Secondary_UL_Frequency = -1;  /* RL_on_Secondary_UL_Frequency */
-static int hf_nbap_additional_EDCH_DL_Control_Channel_Change_Information = -1;  /* Additional_EDCH_DL_Control_Channel_Change_Information_List */
-static int hf_nbap_Additional_EDCH_DL_Control_Channel_Change_Information_List_item = -1;  /* Additional_EDCH_DL_Control_Channel_Change_Info_ItemIEs */
-static int hf_nbap_AdditionalMeasurementValueList_item = -1;  /* AdditionalMeasurementValue */
-static int hf_nbap_uARFCN = -1;                   /* UARFCN */
-static int hf_nbap_timeSlotMeasurementValueListLCR = -1;  /* TimeSlotMeasurementValueListLCR */
-static int hf_nbap_AdditionalTimeSlotListLCR_item = -1;  /* AdditionalTimeSlotLCR */
-static int hf_nbap_timeslot_InitiatedListLCR = -1;  /* TimeSlot_InitiatedListLCR */
-static int hf_nbap_cMConfigurationChangeCFN = -1;  /* CFN */
-static int hf_nbap_transmission_Gap_Pattern_Sequence_Status = -1;  /* Transmission_Gap_Pattern_Sequence_Status_List */
-static int hf_nbap_Transmission_Gap_Pattern_Sequence_Status_List_item = -1;  /* Transmission_Gap_Pattern_Sequence_Status_List_item */
-static int hf_nbap_tGPSID = -1;                   /* TGPSID */
-static int hf_nbap_tGPRC = -1;                    /* TGPRC */
-static int hf_nbap_tGCFN = -1;                    /* CFN */
-static int hf_nbap_priorityLevel = -1;            /* PriorityLevel */
-static int hf_nbap_pre_emptionCapability = -1;    /* Pre_emptionCapability */
-static int hf_nbap_pre_emptionVulnerability = -1;  /* Pre_emptionVulnerability */
-static int hf_nbap_aOA_LCR = -1;                  /* AOA_LCR */
-static int hf_nbap_aOA_LCR_Accuracy_Class = -1;   /* AOA_LCR_Accuracy_Class */
-static int hf_nbap_bCCH_Specific_HSDSCH_RNTI = -1;  /* HSDSCH_RNTI */
-static int hf_nbap_hSSCCH_Power = -1;             /* DL_Power */
-static int hf_nbap_hSPDSCH_Power = -1;            /* DL_Power */
-static int hf_nbap_Best_Cell_Portions_Value_item = -1;  /* Best_Cell_Portions_Item */
-static int hf_nbap_cellPortionID = -1;            /* CellPortionID */
-static int hf_nbap_sIRValue = -1;                 /* SIR_Value */
-static int hf_nbap_Best_Cell_Portions_ValueLCR_item = -1;  /* Best_Cell_Portions_ItemLCR */
-static int hf_nbap_cellPortionLCRID = -1;         /* CellPortionLCRID */
-static int hf_nbap_rSCPValue = -1;                /* RSCP_Value */
-static int hf_nbap_commonTransportChannelID = -1;  /* CommonTransportChannelID */
-static int hf_nbap_cid = -1;                      /* C_ID */
-static int hf_nbap_radioNetwork = -1;             /* CauseRadioNetwork */
-static int hf_nbap_transport = -1;                /* CauseTransport */
-static int hf_nbap_protocol = -1;                 /* CauseProtocol */
-static int hf_nbap_misc = -1;                     /* CauseMisc */
-static int hf_nbap_Cell_ERNTI_Status_Information_item = -1;  /* Cell_ERNTI_Status_Information_Item */
-static int hf_nbap_vacant_ERNTI = -1;             /* Vacant_ERNTI */
-static int hf_nbap_Vacant_ERNTI_item = -1;        /* E_RNTI */
-static int hf_nbap_initialPhase_0_1048575 = -1;   /* INTEGER_0_1048575_ */
-static int hf_nbap_steadyStatePhase = -1;         /* INTEGER_0_255_ */
-static int hf_nbap_initialPhase = -1;             /* INTEGER_0_524287_ */
-static int hf_nbap_steadyStatePhase_01 = -1;      /* INTEGER_0_127_ */
-static int hf_nbap_CommonChannelsCapacityConsumptionLaw_item = -1;  /* CommonChannelsCapacityConsumptionLaw_item */
-static int hf_nbap_dl_Cost = -1;                  /* INTEGER_0_65535 */
-static int hf_nbap_ul_Cost = -1;                  /* INTEGER_0_65535 */
-static int hf_nbap_common_E_DCH_UL_DPCH_Information = -1;  /* Common_E_DCH_UL_DPCH_InfoItem */
-static int hf_nbap_common_E_DCH_EDPCH_Information = -1;  /* Common_E_DCH_EDPCH_InfoItem */
-static int hf_nbap_common_E_DCH_Information = -1;  /* Common_E_DCH_InfoItem */
-static int hf_nbap_common_E_DCH_HSDPCCH_Information = -1;  /* Common_E_DCH_HSDPCCH_InfoItem */
-static int hf_nbap_common_E_DCH_Preamble_Control_Information = -1;  /* Common_E_DCH_Preamble_Control_InfoItem */
-static int hf_nbap_common_E_DCH_FDPCH_Information = -1;  /* Common_E_DCH_FDPCH_InfoItem */
-static int hf_nbap_common_E_DCH_E_AGCH_ChannelisationCodeNumber = -1;  /* FDD_DL_ChannelisationCodeNumber */
-static int hf_nbap_common_E_DCH_Resource_Combination_Information = -1;  /* Common_E_DCH_Resource_Combination_InfoList */
-static int hf_nbap_ul_common_E_DCH_MACflow_Specific_Information = -1;  /* Ul_common_E_DCH_MACflow_Specific_InfoList */
-static int hf_nbap_uL_SIR_Target = -1;            /* UL_SIR */
-static int hf_nbap_dPC_Mode = -1;                 /* DPC_Mode */
-static int hf_nbap_maxSet_E_DPDCHs = -1;          /* Max_Set_E_DPDCHs */
-static int hf_nbap_ul_PunctureLimit = -1;         /* PunctureLimit */
-static int hf_nbap_e_TFCS_Information = -1;       /* E_TFCS_Information */
-static int hf_nbap_e_TTI = -1;                    /* E_TTI */
-static int hf_nbap_e_DPCCH_PO = -1;               /* E_DPCCH_PO */
-static int hf_nbap_e_RGCH_2_IndexStepThreshold = -1;  /* E_RGCH_2_IndexStepThreshold */
-static int hf_nbap_e_RGCH_3_IndexStepThreshold = -1;  /* E_RGCH_3_IndexStepThreshold */
-static int hf_nbap_hARQ_Info_for_E_DCH = -1;      /* HARQ_Info_for_E_DCH */
-static int hf_nbap_e_DCH_Reference_Power_Offset = -1;  /* E_DCH_Reference_Power_Offset */
-static int hf_nbap_e_DCH_PowerOffset_for_SchedulingInfo = -1;  /* E_DCH_PowerOffset_for_SchedulingInfo */
-static int hf_nbap_max_EDCH_Resource_Allocation_for_CCCH = -1;  /* Max_EDCH_Resource_Allocation_for_CCCH */
-static int hf_nbap_max_Period_for_Collistion_Resolution = -1;  /* Max_Period_for_Collistion_Resolution */
-static int hf_nbap_max_TB_Sizes = -1;             /* Max_TB_Sizes */
-static int hf_nbap_common_E_DCH_ImplicitRelease_Indicator = -1;  /* BOOLEAN */
-static int hf_nbap_ackNackRepetitionFactor = -1;  /* AckNack_RepetitionFactor */
-static int hf_nbap_ackPowerOffset = -1;           /* Ack_Power_Offset */
-static int hf_nbap_nackPowerOffset = -1;          /* Nack_Power_Offset */
-static int hf_nbap_common_E_DCH_CQI_Info = -1;    /* Common_E_DCH_CQI_Info */
-static int hf_nbap_cqiFeedback_CycleK = -1;       /* CQI_Feedback_Cycle */
-static int hf_nbap_cqiRepetitionFactor = -1;      /* CQI_RepetitionFactor */
-static int hf_nbap_cqiPowerOffset = -1;           /* CQI_Power_Offset */
-static int hf_nbap_measurement_Power_Offset = -1;  /* Measurement_Power_Offset */
-static int hf_nbap_commonPhysicalChannelID = -1;  /* CommonPhysicalChannelID */
-static int hf_nbap_common_E_DCH_PreambleSignatures = -1;  /* PreambleSignatures */
-static int hf_nbap_scramblingCodeNumber = -1;     /* ScramblingCodeNumber */
-static int hf_nbap_preambleThreshold = -1;        /* PreambleThreshold */
-static int hf_nbap_e_AI_Indicator = -1;           /* E_AI_Indicator */
-static int hf_nbap_common_E_DCH_AICH_Information = -1;  /* Common_E_DCH_AICH_Information */
-static int hf_nbap_aICH_TransmissionTiming = -1;  /* AICH_TransmissionTiming */
-static int hf_nbap_fdd_dl_ChannelisationCodeNumber = -1;  /* FDD_DL_ChannelisationCodeNumber */
-static int hf_nbap_aICH_Power = -1;               /* AICH_Power */
-static int hf_nbap_sTTD_Indicator = -1;           /* STTD_Indicator */
-static int hf_nbap_Common_E_DCH_Resource_Combination_InfoList_item = -1;  /* Common_E_DCH_Resource_Combination_InfoList_Item */
-static int hf_nbap_soffset = -1;                  /* Soffset */
-static int hf_nbap_f_DPCH_DL_Code_Number = -1;    /* FDD_DL_ChannelisationCodeNumber */
-static int hf_nbap_ul_DPCH_ScramblingCode = -1;   /* UL_ScramblingCode */
-static int hf_nbap_e_RGCH_E_HICH_Channelisation_Code = -1;  /* FDD_DL_ChannelisationCodeNumber */
-static int hf_nbap_e_RGCH_Signature_Sequence = -1;  /* E_RGCH_Signature_Sequence */
-static int hf_nbap_e_HICH_Signature_Sequence = -1;  /* E_HICH_Signature_Sequence */
-static int hf_nbap_Ul_common_E_DCH_MACflow_Specific_InfoList_item = -1;  /* Ul_common_E_DCH_MACflow_Specific_InfoList_Item */
-static int hf_nbap_ul_Common_MACFlowID = -1;      /* Common_MACFlow_ID */
-static int hf_nbap_transportBearerRequestIndicator = -1;  /* TransportBearerRequestIndicator */
-static int hf_nbap_tnlQos = -1;                   /* TnlQos */
-static int hf_nbap_payloadCRC_PresenceIndicator = -1;  /* PayloadCRC_PresenceIndicator */
-static int hf_nbap_bundlingModeIndicator = -1;    /* BundlingModeIndicator */
-static int hf_nbap_common_E_DCH_MACdFlow_Specific_Information = -1;  /* Common_E_DCH_MACdFlow_Specific_InfoList */
-static int hf_nbap_Common_E_DCH_MACdFlow_Specific_InfoList_item = -1;  /* Common_E_DCH_MACdFlow_Specific_InfoList_Item */
-static int hf_nbap_common_e_DCH_MACdFlow_ID = -1;  /* E_DCH_MACdFlow_ID */
-static int hf_nbap_maximum_Number_of_Retransmissions_For_E_DCH = -1;  /* Maximum_Number_of_Retransmissions_For_E_DCH */
-static int hf_nbap_eDCH_HARQ_PO_FDD = -1;         /* E_DCH_HARQ_PO_FDD */
-static int hf_nbap_eDCH_MACdFlow_Multiplexing_List = -1;  /* E_DCH_MACdFlow_Multiplexing_List */
-static int hf_nbap_common_E_DCHLogicalChannelInformation = -1;  /* Common_E_DCH_LogicalChannel_InfoList */
-static int hf_nbap_Common_E_DCH_LogicalChannel_InfoList_item = -1;  /* Common_E_DCH_LogicalChannel_InfoList_Item */
-static int hf_nbap_logicalChannelId = -1;         /* LogicalChannelID */
-static int hf_nbap_maximumMACcPDU_SizeExtended = -1;  /* MAC_PDU_SizeExtended */
-static int hf_nbap_ul_common_E_DCH_MACflow_Specific_InfoResponse = -1;  /* Ul_common_E_DCH_MACflow_Specific_InfoResponseList */
-static int hf_nbap_serving_Grant_Value = -1;      /* E_Serving_Grant_Value */
-static int hf_nbap_E_RNTI_List_item = -1;         /* E_RNTI */
-static int hf_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseList_item = -1;  /* Ul_common_E_DCH_MACflow_Specific_InfoResponseList_Item */
-static int hf_nbap_Common_MACFlows_to_DeleteFDD_item = -1;  /* Common_MACFlows_to_DeleteFDD_Item */
-static int hf_nbap_common_MACFlow_ID = -1;        /* Common_MACFlow_ID */
-static int hf_nbap_CommonMACFlow_Specific_InfoList_item = -1;  /* CommonMACFlow_Specific_InfoItem */
-static int hf_nbap_common_MACFlow_Id = -1;        /* Common_MACFlow_ID */
-static int hf_nbap_tnl_qos = -1;                  /* TnlQos */
-static int hf_nbap_common_MACFlow_PriorityQueue_Information = -1;  /* Common_MACFlow_PriorityQueue_Information */
-static int hf_nbap_CommonMACFlow_Specific_InfoList_Response_item = -1;  /* CommonMACFlow_Specific_InfoItem_Response */
-static int hf_nbap_commonMACFlow_ID = -1;         /* Common_MACFlow_ID */
-static int hf_nbap_hSDSCH_Initial_Capacity_Allocation = -1;  /* HSDSCH_Initial_Capacity_Allocation */
-static int hf_nbap_Common_MACFlow_PriorityQueue_Information_item = -1;  /* Common_MACFlow_PriorityQueue_Item */
-static int hf_nbap_priority_Queue_Information_for_Enhanced_FACH = -1;  /* Priority_Queue_Information_for_Enhanced_FACH_PCH */
-static int hf_nbap_tUTRANGPSMeasurementAccuracyClass = -1;  /* TUTRANGPSAccuracyClass */
-static int hf_nbap_tUTRANGANSSMeasurementAccuracyClass = -1;  /* TUTRANGANSSAccuracyClass */
-static int hf_nbap_transmitted_carrier_power = -1;  /* Transmitted_Carrier_Power_Value */
-static int hf_nbap_acknowledged_prach_preambles = -1;  /* Acknowledged_PRACH_preambles_Value */
-static int hf_nbap_uL_TimeslotISCP = -1;          /* UL_TimeslotISCP_Value */
-static int hf_nbap_notUsed_1_acknowledged_PCPCH_access_preambles = -1;  /* NULL */
-static int hf_nbap_notUsed_2_detected_PCPCH_access_preambles = -1;  /* NULL */
-static int hf_nbap_extension_CommonMeasurementValue = -1;  /* Extension_CommonMeasurementValue */
-static int hf_nbap_measurementAvailable = -1;     /* CommonMeasurementAvailable */
-static int hf_nbap_measurementnotAvailable = -1;  /* CommonMeasurementnotAvailable */
-static int hf_nbap_commonmeasurementValue = -1;   /* CommonMeasurementValue */
-static int hf_nbap_ie_Extensions = -1;            /* ProtocolExtensionContainer */
-static int hf_nbap_resourceOperationalState = -1;  /* ResourceOperationalState */
-static int hf_nbap_availabilityStatus = -1;       /* AvailabilityStatus */
-static int hf_nbap_commonPhysicalChannelID768 = -1;  /* CommonPhysicalChannelID768 */
-static int hf_nbap_uE_DTX_DRX_Offset = -1;        /* UE_DTX_DRX_Offset */
-static int hf_nbap_enabling_Delay = -1;           /* Enabling_Delay */
-static int hf_nbap_dTX_Information = -1;          /* DTX_Information */
-static int hf_nbap_dRX_Information = -1;          /* DRX_Information */
-static int hf_nbap_dTX_Information_to_Modify = -1;  /* DTX_Information_to_Modify */
-static int hf_nbap_dRX_Information_to_Modify = -1;  /* DRX_Information_to_Modify */
-static int hf_nbap_ContinuousPacketConnectivityHS_SCCH_less_Information_item = -1;  /* ContinuousPacketConnectivityHS_SCCH_less_InformationItem */
-static int hf_nbap_transport_Block_Size_Index = -1;  /* Transport_Block_Size_Index */
-static int hf_nbap_hSPDSCH_Second_Code_Support = -1;  /* HSPDSCH_Second_Code_Support */
-static int hf_nbap_hSPDSCH_First_Code_Index = -1;  /* HSPDSCH_First_Code_Index */
-static int hf_nbap_hSPDSCH_Second_Code_Index = -1;  /* HSPDSCH_Second_Code_Index */
-static int hf_nbap_continuousPacketConnectivityDTX_DRX_Information = -1;  /* ContinuousPacketConnectivityDTX_DRX_Information */
-static int hf_nbap_continuousPacketConnectivityDTX_DRX_Information_to_Modify = -1;  /* ContinuousPacketConnectivityDTX_DRX_Information_to_Modify */
-static int hf_nbap_continuousPacketConnectivityHS_SCCH_less_Information = -1;  /* ContinuousPacketConnectivityHS_SCCH_less_Information */
-static int hf_nbap_procedureID = -1;              /* ProcedureID */
-static int hf_nbap_triggeringMessage = -1;        /* TriggeringMessage */
-static int hf_nbap_procedureCriticality = -1;     /* Criticality */
-static int hf_nbap_transactionID = -1;            /* TransactionID */
-static int hf_nbap_iEsCriticalityDiagnostics = -1;  /* CriticalityDiagnostics_IE_List */
-static int hf_nbap_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_List_item */
-static int hf_nbap_iECriticality = -1;            /* Criticality */
-static int hf_nbap_iE_ID = -1;                    /* ProtocolIE_ID */
-static int hf_nbap_repetitionNumber = -1;         /* RepetitionNumber0 */
-static int hf_nbap_ul_common_E_DCH_MACflow_Specific_InformationLCR = -1;  /* Ul_common_E_DCH_MACflow_Specific_InfoListLCR */
-static int hf_nbap_common_E_PUCH_InformationLCR = -1;  /* Common_E_PUCH_InformationLCR */
-static int hf_nbap_e_TFCS_Information_TDD = -1;   /* E_TFCS_Information_TDD */
-static int hf_nbap_maximum_Number_of_Retransmissions_For_SchedulingInfo = -1;  /* Maximum_Number_of_Retransmissions_For_E_DCH */
-static int hf_nbap_eDCH_Retransmission_Timer_SchedulingInfo = -1;  /* E_DCH_MACdFlow_Retransmission_Timer */
-static int hf_nbap_minCR = -1;                    /* CodeRate */
-static int hf_nbap_maxCR = -1;                    /* CodeRate */
-static int hf_nbap_harqInfo = -1;                 /* HARQ_Info_for_E_DCH */
-static int hf_nbap_pRXdes_base_perURAFCN = -1;    /* PRXdes_base_perURAFCN */
-static int hf_nbap_e_PUCH_TPC_StepSize = -1;      /* TDD_TPC_UplinkStepSize_LCR */
-static int hf_nbap_e_AGCH_TPC_StepSize = -1;      /* TDD_TPC_DownlinkStepSize */
-static int hf_nbap_e_PUCH_PowerControlGAP = -1;   /* ControlGAP */
-static int hf_nbap_PRXdes_base_perURAFCN_item = -1;  /* PRXdes_base_Item */
-static int hf_nbap_pRXdes_base = -1;              /* PRXdes_base */
-static int hf_nbap_Ul_common_E_DCH_MACflow_Specific_InfoListLCR_item = -1;  /* Ul_common_E_DCH_MACflow_Specific_InfoList_ItemLCR */
-static int hf_nbap_ul_Common_MACFlowIDLCR = -1;   /* Common_MACFlow_ID_LCR */
-static int hf_nbap_common_E_DCH_MACdFlow_Specific_InformationLCR = -1;  /* Common_E_DCH_MACdFlow_Specific_InfoListLCR */
-static int hf_nbap_Common_E_DCH_MACdFlow_Specific_InfoListLCR_item = -1;  /* Common_E_DCH_MACdFlow_Specific_InfoList_ItemLCR */
-static int hf_nbap_common_e_DCH_MACdFlow_ID_01 = -1;  /* E_DCH_MACdFlow_ID_LCR */
-static int hf_nbap_eDCH_HARQ_PO_TDD = -1;         /* E_DCH_HARQ_PO_TDD */
-static int hf_nbap_eDCH_MACdFlow_Retransmission_Timer = -1;  /* E_DCH_MACdFlow_Retransmission_Timer */
-static int hf_nbap_ul_common_E_DCH_MACflow_Specific_InfoResponseLCR = -1;  /* Ul_common_E_DCH_MACflow_Specific_InfoResponseListLCR */
-static int hf_nbap_common_E_AGCH_ListLCR = -1;    /* Common_E_AGCH_ListLCR */
-static int hf_nbap_common_E_HICH_ListLCR = -1;    /* Common_E_HICH_ListLCR */
-static int hf_nbap_common_E_RNTI_Info_LCR = -1;   /* Common_E_RNTI_Info_LCR */
-static int hf_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseListLCR_item = -1;  /* Ul_common_E_DCH_MACflow_Specific_InfoResponseList_ItemLCR */
-static int hf_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseListLCR_Ext_item = -1;  /* Ul_common_E_DCH_MACflow_Specific_InfoResponseList_ItemLCR */
-static int hf_nbap_ul_Common_MACFlowID_LCR = -1;  /* Common_MACFlow_ID_LCR */
-static int hf_nbap_Common_E_AGCH_ListLCR_item = -1;  /* Common_E_AGCH_ItemLCR */
-static int hf_nbap_e_AGCH_ID = -1;                /* E_AGCH_Id */
-static int hf_nbap_Common_E_HICH_ListLCR_item = -1;  /* Common_E_HICH_ItemLCR */
-static int hf_nbap_eI = -1;                       /* EI */
-static int hf_nbap_e_HICH_ID = -1;                /* E_HICH_ID_LCR */
-static int hf_nbap_Common_E_RNTI_Info_LCR_item = -1;  /* Common_E_RNTI_Info_ItemLCR */
-static int hf_nbap_starting_E_RNTI = -1;          /* E_RNTI */
-static int hf_nbap_number_of_Group = -1;          /* INTEGER_1_32 */
-static int hf_nbap_number_of_e_E_RNTI_perGroup = -1;  /* INTEGER_1_7 */
-static int hf_nbap_Common_MACFlows_to_DeleteLCR_item = -1;  /* Common_MACFlows_to_DeleteLCR_Item */
-static int hf_nbap_common_MACFlow_ID_LCR = -1;    /* Common_MACFlow_ID_LCR */
-static int hf_nbap_CommonMACFlow_Specific_InfoListLCR_item = -1;  /* CommonMACFlow_Specific_InfoItemLCR */
-static int hf_nbap_common_MACFlow_PriorityQueue_InformationLCR = -1;  /* Common_MACFlow_PriorityQueue_Information */
-static int hf_nbap_Common_H_RNTI_InformationLCR_item = -1;  /* Common_H_RNTI_InfoItemLCR */
-static int hf_nbap_common_H_RNTI = -1;            /* HSDSCH_RNTI */
-static int hf_nbap_t_SYNC = -1;                   /* T_SYNC */
-static int hf_nbap_t_PROTECT = -1;                /* T_PROTECT */
-static int hf_nbap_n_PROTECT = -1;                /* N_PROTECT */
-static int hf_nbap_CommonMACFlow_Specific_InfoList_ResponseLCR_item = -1;  /* CommonMACFlow_Specific_InfoItem_ResponseLCR */
-static int hf_nbap_continuousPacketConnectivity_DRX_InformationLCR = -1;  /* ContinuousPacketConnectivity_DRX_InformationLCR */
-static int hf_nbap_continuousPacketConnectivity_DRX_Information_to_Modify_LCR = -1;  /* ContinuousPacketConnectivity_DRX_Information_to_Modify_LCR */
-static int hf_nbap_hS_DSCH_Semi_PersistentScheduling_Information_LCR = -1;  /* HS_DSCH_Semi_PersistentScheduling_Information_LCR */
-static int hf_nbap_hS_DSCH_Semi_PersistentScheduling_Information_to_Modify_LCR = -1;  /* HS_DSCH_Semi_PersistentScheduling_Information_to_Modify_LCR */
-static int hf_nbap_hS_DSCH_SPS_Deactivate_Indicator_LCR = -1;  /* NULL */
-static int hf_nbap_e_DCH_Semi_PersistentScheduling_Information_LCR = -1;  /* E_DCH_Semi_PersistentScheduling_Information_LCR */
-static int hf_nbap_e_DCH_Semi_PersistentScheduling_Information_to_Modify_LCR = -1;  /* E_DCH_Semi_PersistentScheduling_Information_to_Modify_LCR */
-static int hf_nbap_e_DCH_SPS_Deactivate_Indicator_LCR = -1;  /* NULL */
-static int hf_nbap_hS_SCCH_DRX_Information_LCR = -1;  /* HS_SCCH_DRX_Information_LCR */
-static int hf_nbap_e_AGCH_DRX_Information_LCR = -1;  /* E_AGCH_DRX_Information_LCR */
-static int hf_nbap_hS_SCCH_UE_DRX_Cycle_LCR = -1;  /* UE_DRX_Cycle_LCR */
-static int hf_nbap_hS_SCCH_Inactivity_Threshold_for_UE_DRX_Cycle_LCR = -1;  /* Inactivity_Threshold_for_UE_DRX_Cycle_LCR */
-static int hf_nbap_hS_SCCH_UE_DRX_Offset_LCR = -1;  /* UE_DRX_Offset_LCR */
-static int hf_nbap_sameAsHS_SCCH = -1;            /* NULL */
-static int hf_nbap_e_AGCH_DRX_Parameters = -1;    /* E_AGCH_DRX_Parameters */
-static int hf_nbap_e_AGCH_UE_DRX_Cycle_LCR = -1;  /* UE_DRX_Cycle_LCR */
-static int hf_nbap_e_AGCH_UE_Inactivity_Monitor_Threshold = -1;  /* E_AGCH_UE_Inactivity_Monitor_Threshold */
-static int hf_nbap_e_AGCH_UE_DRX_Offset_LCR = -1;  /* UE_DRX_Offset_LCR */
-static int hf_nbap_dRX_Information_to_Modify_LCR = -1;  /* DRX_Information_to_Modify_LCR */
-static int hf_nbap_modify = -1;                   /* DRX_Information_to_Modify_Items_LCR */
-static int hf_nbap_deactivate = -1;               /* NULL */
-static int hf_nbap_hS_SCCH_DRX_Information_ResponseLCR = -1;  /* HS_SCCH_DRX_Information_ResponseLCR */
-static int hf_nbap_e_AGCH_DRX_Information_ResponseLCR = -1;  /* E_AGCH_DRX_Information_ResponseLCR */
-static int hf_nbap_e_AGCH_DRX_Parameters_Response = -1;  /* E_AGCH_DRX_Parameters_Response */
-static int hf_nbap_DCH_FDD_Information_item = -1;  /* DCH_FDD_InformationItem */
-static int hf_nbap_ul_FP_Mode = -1;               /* UL_FP_Mode */
-static int hf_nbap_toAWS = -1;                    /* ToAWS */
-static int hf_nbap_toAWE = -1;                    /* ToAWE */
-static int hf_nbap_dCH_SpecificInformationList = -1;  /* DCH_Specific_FDD_InformationList */
-static int hf_nbap_DCH_Specific_FDD_InformationList_item = -1;  /* DCH_Specific_FDD_Item */
-static int hf_nbap_dCH_ID = -1;                   /* T_dCH_ID */
-static int hf_nbap_ul_TransportFormatSet = -1;    /* T_ul_TransportFormatSet */
-static int hf_nbap_dl_TransportFormatSet = -1;    /* T_dl_TransportFormatSet */
-static int hf_nbap_allocationRetentionPriority = -1;  /* AllocationRetentionPriority */
-static int hf_nbap_frameHandlingPriority = -1;    /* FrameHandlingPriority */
-static int hf_nbap_qE_Selector = -1;              /* QE_Selector */
-static int hf_nbap_DCH_InformationResponse_item = -1;  /* DCH_InformationResponseItem */
-static int hf_nbap_dCH_ID_01 = -1;                /* DCH_ID */
-static int hf_nbap_DCH_MeasurementOccasion_Information_item = -1;  /* DchMeasurementOccasionInformation_Item */
-static int hf_nbap_pattern_Sequence_Identifier = -1;  /* Pattern_Sequence_Identifier */
-static int hf_nbap_status_Flag = -1;              /* Status_Flag */
-static int hf_nbap_measurement_Occasion_Pattern_Sequence_parameters = -1;  /* Measurement_Occasion_Pattern_Sequence_parameters */
-static int hf_nbap_measurement_Occasion_Pattern_Sequence_parameters_k = -1;  /* INTEGER_1_9 */
-static int hf_nbap_measurement_Occasion_Pattern_Sequence_parameters_offset = -1;  /* INTEGER_0_511 */
-static int hf_nbap_measurement_Occasion_Pattern_Sequence_parameters_M_Length = -1;  /* INTEGER_1_512 */
-static int hf_nbap_measurement_Occasion_Pattern_Sequence_parameters_Timeslot_Bitmap = -1;  /* BIT_STRING_SIZE_7 */
-static int hf_nbap_DCH_TDD_Information_item = -1;  /* DCH_TDD_InformationItem */
-static int hf_nbap_dCH_SpecificInformationList_01 = -1;  /* DCH_Specific_TDD_InformationList */
-static int hf_nbap_DCH_Specific_TDD_InformationList_item = -1;  /* DCH_Specific_TDD_Item */
-static int hf_nbap_ul_CCTrCH_ID = -1;             /* CCTrCH_ID */
-static int hf_nbap_dl_CCTrCH_ID = -1;             /* CCTrCH_ID */
-static int hf_nbap_ul_TransportFormatSet_01 = -1;  /* TransportFormatSet */
-static int hf_nbap_dl_TransportFormatSet_01 = -1;  /* TransportFormatSet */
-static int hf_nbap_FDD_DCHs_to_Modify_item = -1;  /* FDD_DCHs_to_ModifyItem */
-static int hf_nbap_dCH_SpecificInformationList_02 = -1;  /* DCH_ModifySpecificInformation_FDD */
-static int hf_nbap_DCH_ModifySpecificInformation_FDD_item = -1;  /* DCH_ModifySpecificItem_FDD */
-static int hf_nbap_dCH_ID_02 = -1;                /* T_dCH_ID_01 */
-static int hf_nbap_ul_TransportFormatSet_02 = -1;  /* T_ul_TransportFormatSet_01 */
-static int hf_nbap_dl_TransportFormatSet_02 = -1;  /* T_dl_TransportFormatSet_01 */
-static int hf_nbap_TDD_DCHs_to_Modify_item = -1;  /* DCH_ModifyItem_TDD */
-static int hf_nbap_dCH_SpecificInformationList_03 = -1;  /* DCH_ModifySpecificInformation_TDD */
-static int hf_nbap_DCH_ModifySpecificInformation_TDD_item = -1;  /* DCH_ModifySpecificItem_TDD */
-static int hf_nbap_DedicatedChannelsCapacityConsumptionLaw_item = -1;  /* DedicatedChannelsCapacityConsumptionLaw_item */
-static int hf_nbap_dl_Cost_1 = -1;                /* INTEGER_0_65535 */
-static int hf_nbap_dl_Cost_2 = -1;                /* INTEGER_0_65535 */
-static int hf_nbap_ul_Cost_1 = -1;                /* INTEGER_0_65535 */
-static int hf_nbap_ul_Cost_2 = -1;                /* INTEGER_0_65535 */
-static int hf_nbap_sIR_Value = -1;                /* SIR_Value */
-static int hf_nbap_sIR_ErrorValue = -1;           /* SIR_Error_Value */
-static int hf_nbap_transmittedCodePowerValue = -1;  /* Transmitted_Code_Power_Value */
-static int hf_nbap_rSCP = -1;                     /* RSCP_Value */
-static int hf_nbap_rxTimingDeviationValue = -1;   /* Rx_Timing_Deviation_Value */
-static int hf_nbap_roundTripTime = -1;            /* Round_Trip_Time_Value */
-static int hf_nbap_extension_DedicatedMeasurementValue = -1;  /* Extension_DedicatedMeasurementValue */
-static int hf_nbap_measurementAvailable_01 = -1;  /* DedicatedMeasurementAvailable */
-static int hf_nbap_measurementnotAvailable_01 = -1;  /* DedicatedMeasurementnotAvailable */
-static int hf_nbap_dedicatedmeasurementValue = -1;  /* DedicatedMeasurementValue */
-static int hf_nbap_cFN = -1;                      /* CFN */
-static int hf_nbap_cfn = -1;                      /* CFN */
-static int hf_nbap_separate_indication = -1;      /* NULL */
-static int hf_nbap_activate = -1;                 /* Activate_Info */
-static int hf_nbap_deactivate_01 = -1;            /* Deactivate_Info */
-static int hf_nbap_activation_type = -1;          /* Execution_Type */
-static int hf_nbap_initial_dl_tx_power = -1;      /* DL_Power */
-static int hf_nbap_firstRLS_Indicator = -1;       /* FirstRLS_Indicator */
-static int hf_nbap_propagation_delay = -1;        /* PropagationDelay */
-static int hf_nbap_deactivation_type = -1;        /* Execution_Type */
-static int hf_nbap_synchronised = -1;             /* CFN */
-static int hf_nbap_unsynchronised = -1;           /* NULL */
-static int hf_nbap_dGANSS_ReferenceTime = -1;     /* INTEGER_0_119 */
-static int hf_nbap_dGANSS_Information = -1;       /* DGANSS_Information */
-static int hf_nbap_dGANSS_Signal_ID = -1;         /* BIT_STRING_SIZE_8 */
-static int hf_nbap_DGANSS_Information_item = -1;  /* DGANSS_InformationItem */
-static int hf_nbap_gANSS_SignalId = -1;           /* GANSS_Signal_ID */
-static int hf_nbap_gANSS_StatusHealth = -1;       /* GANSS_StatusHealth */
-static int hf_nbap_dGANSS_SignalInformation = -1;  /* DGANSS_SignalInformation */
-static int hf_nbap_DGANSS_SignalInformation_item = -1;  /* DGANSS_SignalInformationItem */
-static int hf_nbap_satId = -1;                    /* INTEGER_0_63 */
-static int hf_nbap_gANSS_iod = -1;                /* BIT_STRING_SIZE_10 */
-static int hf_nbap_udre = -1;                     /* UDRE */
-static int hf_nbap_ganss_prc = -1;                /* INTEGER_M2047_2047 */
-static int hf_nbap_ganss_rrc = -1;                /* INTEGER_M127_127 */
-static int hf_nbap_pRCDeviation = -1;             /* PRCDeviation */
-static int hf_nbap_udreGrowthRate = -1;           /* UDREGrowthRate */
-static int hf_nbap_udreValidityTime = -1;         /* UDREValidityTime */
-static int hf_nbap_gpstow = -1;                   /* GPSTOW */
-static int hf_nbap_status_health = -1;            /* GPS_Status_Health */
-static int hf_nbap_satelliteinfo = -1;            /* SAT_Info_DGPSCorrections */
-static int hf_nbap_prcdeviation = -1;             /* PRCDeviation */
-static int hf_nbap_DL_Timeslot_Information_item = -1;  /* DL_Timeslot_InformationItem */
-static int hf_nbap_timeSlot = -1;                 /* TimeSlot */
-static int hf_nbap_midambleShiftAndBurstType = -1;  /* MidambleShiftAndBurstType */
-static int hf_nbap_tFCI_Presence = -1;            /* TFCI_Presence */
-static int hf_nbap_dL_Code_Information = -1;      /* TDD_DL_Code_Information */
-static int hf_nbap_DL_TimeslotLCR_Information_item = -1;  /* DL_TimeslotLCR_InformationItem */
-static int hf_nbap_timeSlotLCR = -1;              /* TimeSlotLCR */
-static int hf_nbap_midambleShiftLCR = -1;         /* MidambleShiftLCR */
-static int hf_nbap_dL_Code_LCR_Information = -1;  /* TDD_DL_Code_LCR_Information */
-static int hf_nbap_DL_Timeslot768_Information_item = -1;  /* DL_Timeslot768_InformationItem */
-static int hf_nbap_midambleShiftAndBurstType768 = -1;  /* MidambleShiftAndBurstType768 */
-static int hf_nbap_dL_Code_768_Information = -1;  /* TDD_DL_Code_768_Information */
-static int hf_nbap_powerAdjustmentType = -1;      /* PowerAdjustmentType */
-static int hf_nbap_dLReferencePower = -1;         /* DL_Power */
-static int hf_nbap_dLReferencePowerList_DL_PC_Rqst = -1;  /* DL_ReferencePowerInformationList */
-static int hf_nbap_maxAdjustmentStep = -1;        /* MaxAdjustmentStep */
-static int hf_nbap_adjustmentPeriod = -1;         /* AdjustmentPeriod */
-static int hf_nbap_adjustmentRatio = -1;          /* ScaledAdjustmentRatio */
-static int hf_nbap_DL_ReferencePowerInformationList_item = -1;  /* DL_ReferencePowerInformationItem */
-static int hf_nbap_rL_ID = -1;                    /* RL_ID */
-static int hf_nbap_dl_Reference_Power = -1;       /* DL_Power */
-static int hf_nbap_DL_TimeslotISCPInfo_item = -1;  /* DL_TimeslotISCPInfoItem */
-static int hf_nbap_dL_TimeslotISCP = -1;          /* DL_TimeslotISCP */
-static int hf_nbap_DL_TimeslotISCPInfoLCR_item = -1;  /* DL_TimeslotISCPInfoItemLCR */
-static int hf_nbap_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst_item = -1;  /* DL_HS_PDSCH_Timeslot_InformationItem_LCR_PSCH_ReconfRqst */
-static int hf_nbap_midambleShiftAndBurstType_01 = -1;  /* MidambleShiftLCR */
-static int hf_nbap_dl_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst = -1;  /* DL_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst */
-static int hf_nbap_maxHSDSCH_HSSCCH_Power = -1;   /* MaximumTransmissionPower */
-static int hf_nbap_MaxHSDSCH_HSSCCH_Power_per_CELLPORTION_item = -1;  /* MaxHSDSCH_HSSCCH_Power_per_CELLPORTION_Item */
-static int hf_nbap_DL_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst_item = -1;  /* TDD_ChannelisationCode */
-static int hf_nbap_uE_DRX_Cycle = -1;             /* UE_DRX_Cycle */
-static int hf_nbap_inactivity_Threshold_for_UE_DRX_Cycle = -1;  /* Inactivity_Threshold_for_UE_DRX_Cycle */
-static int hf_nbap_inactivity_Threshold_for_UE_Grant_Monitoring = -1;  /* Inactivity_Threshold_for_UE_Grant_Monitoring */
-static int hf_nbap_uE_DRX_Grant_Monitoring = -1;  /* UE_DRX_Grant_Monitoring */
-static int hf_nbap_modify_01 = -1;                /* DRX_Information_to_Modify_Items */
-static int hf_nbap_DSCH_InformationResponse_item = -1;  /* DSCH_InformationResponseItem */
-static int hf_nbap_dSCH_ID = -1;                  /* DSCH_ID */
-static int hf_nbap_DSCH_TDD_Information_item = -1;  /* DSCH_TDD_InformationItem */
-static int hf_nbap_cCTrCH_ID = -1;                /* CCTrCH_ID */
-static int hf_nbap_transportFormatSet = -1;       /* TransportFormatSet */
-static int hf_nbap_uE_DTX_Cycle1_2ms = -1;        /* UE_DTX_Cycle1_2ms */
-static int hf_nbap_uE_DTX_Cycle2_2ms = -1;        /* UE_DTX_Cycle2_2ms */
-static int hf_nbap_mAC_DTX_Cycle_2ms = -1;        /* MAC_DTX_Cycle_2ms */
-static int hf_nbap_uE_DTX_Cycle1_10ms = -1;       /* UE_DTX_Cycle1_10ms */
-static int hf_nbap_uE_DTX_Cycle2_10ms = -1;       /* UE_DTX_Cycle2_10ms */
-static int hf_nbap_mAC_DTX_Cycle_10ms = -1;       /* MAC_DTX_Cycle_10ms */
-static int hf_nbap_e_DCH_TTI_Length = -1;         /* E_DCH_TTI_Length */
-static int hf_nbap_inactivity_Threshold_for_UE_DTX_Cycle2 = -1;  /* Inactivity_Threshold_for_UE_DTX_Cycle2 */
-static int hf_nbap_uE_DTX_Long_Preamble = -1;     /* UE_DTX_Long_Preamble */
-static int hf_nbap_mAC_Inactivity_Threshold = -1;  /* MAC_Inactivity_Threshold */
-static int hf_nbap_cQI_DTX_Timer = -1;            /* CQI_DTX_Timer */
-static int hf_nbap_uE_DPCCH_burst1 = -1;          /* UE_DPCCH_burst1 */
-static int hf_nbap_uE_DPCCH_burst2 = -1;          /* UE_DPCCH_burst2 */
-static int hf_nbap_modify_02 = -1;                /* DTX_Information_to_Modify_Items */
-static int hf_nbap_e_DCH_TTI_Length_to_Modify = -1;  /* E_DCH_TTI_Length_to_Modify */
-static int hf_nbap_dual_Band_Capability = -1;     /* Dual_Band_Capability */
-static int hf_nbap_possible_Secondary_Serving_Cell_List = -1;  /* Possible_Secondary_Serving_Cell_List */
-static int hf_nbap_replace = -1;                  /* E_AGCH_FDD_Code_List */
-static int hf_nbap_remove = -1;                   /* NULL */
-static int hf_nbap_E_AGCH_FDD_Code_List_item = -1;  /* FDD_DL_ChannelisationCodeNumber */
-static int hf_nbap_e_DCH_SF_allocation = -1;      /* E_DCH_SF_allocation */
-static int hf_nbap_E_DCH_SF_allocation_item = -1;  /* E_DCH_SF_allocation_item */
-static int hf_nbap_e_AGCH_And_E_RGCH_E_HICH_FDD_Scrambling_Code = -1;  /* DL_ScramblingCode */
-static int hf_nbap_e_AGCH_Channelisation_Code = -1;  /* FDD_DL_ChannelisationCodeNumber */
-static int hf_nbap_primary_e_RNTI = -1;           /* E_RNTI */
-static int hf_nbap_secondary_e_RNTI = -1;         /* E_RNTI */
-static int hf_nbap_primary_Secondary_Grant_Selector = -1;  /* E_Primary_Secondary_Grant_Selector */
-static int hf_nbap_e_RGCH_Release_Indicator = -1;  /* E_RGCH_Release_Indicator */
-static int hf_nbap_e_DCH_MACdFlows_Information = -1;  /* E_DCH_MACdFlows_Information */
-static int hf_nbap_e_DCH_MACdFlow_Specific_InformationResp = -1;  /* E_DCH_MACdFlow_Specific_InformationResp */
-static int hf_nbap_e_DCH_MACdFlow_Specific_Info_to_Modify = -1;  /* E_DCH_MACdFlow_Specific_InfoList_to_Modify */
-static int hf_nbap_mACeReset_Indicator = -1;      /* MACeReset_Indicator */
-static int hf_nbap_e_DCH_MACdFlow_Specific_UpdateInformation = -1;  /* E_DCH_MACdFlow_Specific_UpdateInformation */
-static int hf_nbap_E_DCH_MACdFlow_Specific_UpdateInformation_item = -1;  /* E_DCH_MACdFlow_Specific_UpdateInformation_Item */
-static int hf_nbap_hARQ_Process_Allocation_NonSched_2ms_EDCH = -1;  /* HARQ_Process_Allocation_2ms_EDCH */
-static int hf_nbap_E_DCH_DL_Control_Channel_Change_Information_item = -1;  /* E_DCH_DL_Control_Channel_Change_Information_Item */
-static int hf_nbap_e_DCH_RL_ID = -1;              /* RL_ID */
-static int hf_nbap_E_DCH_DL_Control_Channel_Grant_Information_item = -1;  /* E_DCH_DL_Control_Channel_Grant_Information_Item */
-static int hf_nbap_e_DCH_Non_Scheduled_Transmission_Grant = -1;  /* E_DCH_Non_Scheduled_Transmission_Grant_Items */
-static int hf_nbap_e_DCH_Scheduled_Transmission_Grant = -1;  /* NULL */
-static int hf_nbap_E_DCH_LogicalChannelInformation_item = -1;  /* E_DCH_LogicalChannelInformationItem */
-static int hf_nbap_schedulingPriorityIndicator = -1;  /* SchedulingPriorityIndicator */
-static int hf_nbap_schedulingInformation = -1;    /* SchedulingInformation */
-static int hf_nbap_mACesGuaranteedBitRate = -1;   /* MACesGuaranteedBitRate */
-static int hf_nbap_e_DCH_DDI_Value = -1;          /* E_DCH_DDI_Value */
-static int hf_nbap_mACd_PDU_Size_List = -1;       /* E_DCH_MACdPDU_SizeList */
-static int hf_nbap_E_DCH_MACdPDU_SizeList_item = -1;  /* E_DCH_MACdPDU_SizeListItem */
-static int hf_nbap_mACdPDU_Size = -1;             /* MACdPDU_Size */
-static int hf_nbap_E_DCH_LogicalChannelToModify_item = -1;  /* E_DCH_LogicalChannelToModifyItem */
-static int hf_nbap_mACd_PDU_Size_List_01 = -1;    /* E_DCH_MACdPDU_SizeToModifyList */
-static int hf_nbap_E_DCH_MACdPDU_SizeToModifyList_item = -1;  /* E_DCH_MACdPDU_SizeListItem */
-static int hf_nbap_E_DCH_LogicalChannelToDelete_item = -1;  /* E_DCH_LogicalChannelToDeleteItem */
-static int hf_nbap_e_DCH_MACdFlow_Specific_Info = -1;  /* E_DCH_MACdFlow_Specific_InfoList */
-static int hf_nbap_E_DCH_MACdFlow_Specific_InfoList_item = -1;  /* E_DCH_MACdFlow_Specific_InfoItem */
-static int hf_nbap_eDCH_Grant_Type_Information = -1;  /* E_DCH_Grant_Type_Information */
-static int hf_nbap_eDCHLogicalChannelInformation = -1;  /* E_DCH_LogicalChannelInformation */
-static int hf_nbap_E_DCH_MACdFlow_Specific_InformationResp_item = -1;  /* E_DCH_MACdFlow_Specific_InformationResp_Item */
-static int hf_nbap_E_DCH_MACdFlow_Specific_InfoList_to_Modify_item = -1;  /* E_DCH_MACdFlow_Specific_InfoItem_to_Modify */
-static int hf_nbap_eDCH_LogicalChannelToAdd = -1;  /* E_DCH_LogicalChannelInformation */
-static int hf_nbap_eDCH_LogicalChannelToModify = -1;  /* E_DCH_LogicalChannelToModify */
-static int hf_nbap_eDCH_LogicalChannelToDelete = -1;  /* E_DCH_LogicalChannelToDelete */
-static int hf_nbap_E_DCH_MACdFlows_to_Delete_item = -1;  /* E_DCH_MACdFlow_to_Delete_Item */
-static int hf_nbap_maxBits_MACe_PDU_non_scheduled = -1;  /* Max_Bits_MACe_PDU_non_scheduled */
-static int hf_nbap_hARQ_Process_Allocation_NonSched_2ms = -1;  /* HARQ_Process_Allocation_2ms_EDCH */
-static int hf_nbap_e_DCH_serving_cell_choice = -1;  /* E_DCH_serving_cell_choice */
-static int hf_nbap_e_DCH_serving_cell_change_successful = -1;  /* E_DCH_serving_cell_change_successful */
-static int hf_nbap_e_DCH_serving_cell_change_unsuccessful = -1;  /* E_DCH_serving_cell_change_unsuccessful */
-static int hf_nbap_e_DCH_RL_InformationList_Rsp = -1;  /* E_DCH_RL_InformationList_Rsp */
-static int hf_nbap_E_DCH_RL_InformationList_Rsp_item = -1;  /* E_DCH_RL_InformationList_Rsp_Item */
-static int hf_nbap_rl_ID = -1;                    /* RL_ID */
-static int hf_nbap_e_DCH_FDD_DL_Control_Channel_Info = -1;  /* E_DCH_FDD_DL_Control_Channel_Information */
-static int hf_nbap_cause = -1;                    /* Cause */
-static int hf_nbap_EDCH_RACH_Report_Value_item = -1;  /* EDCH_RACH_Report_Value_item */
-static int hf_nbap_granted_EDCH_RACH_resources = -1;  /* Granted_EDCH_RACH_Resources_Value */
-static int hf_nbap_denied_EDCH_RACH_resources = -1;  /* Denied_EDCH_RACH_Resources_Value */
-static int hf_nbap_two_ms = -1;                   /* DTX_Cycle_2ms_Items */
-static int hf_nbap_ten_ms = -1;                   /* DTX_Cycle_10ms_Items */
-static int hf_nbap_two_ms_01 = -1;                /* DTX_Cycle_2ms_to_Modify_Items */
-static int hf_nbap_ten_ms_01 = -1;                /* DTX_Cycle_10ms_to_Modify_Items */
-static int hf_nbap_E_DCH_MACdFlows_to_DeleteLCR_item = -1;  /* E_DCH_MACdFlow_to_Delete_ItemLCR */
-static int hf_nbap_e_DCH_MACdFlow_ID_LCR = -1;    /* E_DCH_MACdFlow_ID_LCR */
-static int hf_nbap_t321 = -1;                     /* T321 */
-static int hf_nbap_hS_DSCH_DRX_Cycle_FACH = -1;   /* HS_DSCH_DRX_Cycle_FACH */
-static int hf_nbap_hS_DSCH_RX_Burst_FACH = -1;    /* HS_DSCH_RX_Burst_FACH */
-static int hf_nbap_replace_01 = -1;               /* E_RGCH_E_HICH_FDD_Code_List */
-static int hf_nbap_E_RGCH_E_HICH_FDD_Code_List_item = -1;  /* FDD_DL_ChannelisationCodeNumber */
-static int hf_nbap_e_TFCI_BetaEC_Boost = -1;      /* E_TFCI_BetaEC_Boost */
-static int hf_nbap_uL_Delta_T2TP = -1;            /* UL_Delta_T2TP */
-static int hf_nbap_e_DCH_TFCI_Table_Index = -1;   /* E_DCH_TFCI_Table_Index */
-static int hf_nbap_reference_E_TFCI_Information = -1;  /* Reference_E_TFCI_Information */
-static int hf_nbap_E_DCHProvidedBitRate_item = -1;  /* E_DCHProvidedBitRate_Item */
-static int hf_nbap_e_DCHProvidedBitRateValue = -1;  /* E_DCHProvidedBitRateValue */
-static int hf_nbap_E_DCHProvidedBitRateValueInformation_For_CellPortion_item = -1;  /* E_DCHProvidedBitRateValueInformation_For_CellPortion_Item */
-static int hf_nbap_e_DCHProvidedBitRateValue_01 = -1;  /* E_DCHProvidedBitRate */
-static int hf_nbap_e_PUCH_Information = -1;       /* E_PUCH_Information */
-static int hf_nbap_e_DCH_MACdFlows_Information_TDD = -1;  /* E_DCH_MACdFlows_Information_TDD */
-static int hf_nbap_e_DCH_Non_Scheduled_Grant_Info = -1;  /* E_DCH_Non_Scheduled_Grant_Info */
-static int hf_nbap_e_DCH_TDD_Information = -1;    /* E_DCH_TDD_Information */
-static int hf_nbap_n_E_UCCH = -1;                 /* N_E_UCCH */
-static int hf_nbap_e_DCH_QPSK_RefBetaInfo = -1;   /* E_DCH_QPSK_RefBetaInfo */
-static int hf_nbap_e_DCH_sixteenQAM_RefBetaInfo = -1;  /* E_DCH_sixteenQAM_RefBetaInfo */
-static int hf_nbap_E_DCH_QPSK_RefBetaInfo_item = -1;  /* E_DCH_RefBeta_Item */
-static int hf_nbap_E_DCH_sixteenQAM_RefBetaInfo_item = -1;  /* E_DCH_RefBeta_Item */
-static int hf_nbap_refCodeRate = -1;              /* CodeRate_short */
-static int hf_nbap_refBeta = -1;                  /* RefBeta */
-static int hf_nbap_E_DCH_MACdFlows_Information_TDD_item = -1;  /* E_DCH_MACdFlow_InfoTDDItem */
-static int hf_nbap_eDCH_Grant_TypeTDD = -1;       /* E_DCH_Grant_TypeTDD */
-static int hf_nbap_timeslotResource = -1;         /* E_DCH_TimeslotResource */
-static int hf_nbap_powerResource = -1;            /* E_DCH_PowerResource */
-static int hf_nbap_repetitionPeriod = -1;         /* RepetitionPeriod */
-static int hf_nbap_repetitionLength = -1;         /* RepetitionLength */
-static int hf_nbap_tddE_PUCH_Offset = -1;         /* TddE_PUCH_Offset */
-static int hf_nbap_tdd_ChannelisationCode = -1;   /* TDD_ChannelisationCode */
-static int hf_nbap_e_DCH_TDD_Maximum_Bitrate = -1;  /* E_DCH_TDD_Maximum_Bitrate */
-static int hf_nbap_e_DCH_TDD_MACdFlow_Specific_InformationResp = -1;  /* E_DCH_TDD_MACdFlow_Specific_InformationResp */
-static int hf_nbap_e_AGCH_Specific_Information_ResponseTDD = -1;  /* E_AGCH_Specific_InformationRespListTDD */
-static int hf_nbap_scheduled_E_HICH_Specific_InformationResp = -1;  /* Scheduled_E_HICH_Specific_Information_ResponseLCRTDD */
-static int hf_nbap_Scheduled_E_HICH_Specific_Information_ResponseLCRTDD_item = -1;  /* Scheduled_E_HICH_Specific_InformationItem_ResponseLCRTDD */
-static int hf_nbap_e_HICH_ID_TDD = -1;            /* E_HICH_ID_TDD */
-static int hf_nbap_E_DCH_TDD_MACdFlow_Specific_InformationResp_item = -1;  /* E_DCH_TDD_MACdFlow_Specific_InformationResp_Item */
-static int hf_nbap_e_DCH_MacdFlow_Id = -1;        /* E_DCH_MACdFlow_ID */
-static int hf_nbap_E_AGCH_Specific_InformationRespListTDD_item = -1;  /* E_AGCH_Specific_InformationResp_ItemTDD */
-static int hf_nbap_e_AGCH_Id = -1;                /* E_AGCH_Id */
-static int hf_nbap_e_DCH_MACdFlows_to_Add = -1;   /* E_DCH_MACdFlows_Information_TDD */
-static int hf_nbap_e_DCH_MACdFlows_to_Delete = -1;  /* E_DCH_MACdFlows_to_Delete */
-static int hf_nbap_e_DCH_TDD_Information_to_Modify = -1;  /* E_DCH_TDD_Information_to_Modify */
-static int hf_nbap_e_DCH_TDD_Information_to_Modify_List = -1;  /* E_DCH_TDD_Information_to_Modify_List */
-static int hf_nbap_E_DCH_TDD_Information_to_Modify_List_item = -1;  /* E_DCH_MACdFlow_ModifyTDDItem */
-static int hf_nbap_e_DCH_LogicalChannelToAdd = -1;  /* E_DCH_LogicalChannelInformation */
-static int hf_nbap_e_DCH_LogicalChannelToModify = -1;  /* E_DCH_LogicalChannelToModify */
-static int hf_nbap_e_DCH_LogicalChannelToDelete = -1;  /* E_DCH_LogicalChannelToDelete */
-static int hf_nbap_e_DCH_Non_Scheduled_Grant_Info768 = -1;  /* E_DCH_Non_Scheduled_Grant_Info768 */
-static int hf_nbap_e_DCH_TDD_Information768 = -1;  /* E_DCH_TDD_Information768 */
-static int hf_nbap_tdd_ChannelisationCode768 = -1;  /* TDD_ChannelisationCode768 */
-static int hf_nbap_e_DCH_TDD_Maximum_Bitrate768 = -1;  /* E_DCH_TDD_Maximum_Bitrate768 */
-static int hf_nbap_e_PUCH_LCR_Information = -1;   /* E_PUCH_LCR_Information */
-static int hf_nbap_e_DCH_Non_Scheduled_Grant_LCR_Info = -1;  /* E_DCH_Non_Scheduled_Grant_LCR_Info */
-static int hf_nbap_e_DCH_LCRTDD_Information = -1;  /* E_DCH_LCRTDD_Information */
-static int hf_nbap_timeslotResourceLCR = -1;      /* E_DCH_TimeslotResourceLCR */
-static int hf_nbap_subframeNumber = -1;           /* T_subframeNumber */
-static int hf_nbap_n_E_UCCHLCR = -1;              /* N_E_UCCHLCR */
-static int hf_nbap_e_HICH_LCR_Information = -1;   /* E_HICH_LCR_Information */
-static int hf_nbap_signatureSequenceGroupIndex = -1;  /* SignatureSequenceGroupIndex */
-static int hf_nbap_e_DCH_LCRTDD_PhysicalLayerCategory = -1;  /* E_DCH_LCRTDD_PhysicalLayerCategory */
-static int hf_nbap_dRX_Interruption_by_HS_DSCH = -1;  /* DRX_Interruption_by_HS_DSCH */
-static int hf_nbap_repetition_Period_List_LCR = -1;  /* Repetition_Period_List_LCR */
-static int hf_nbap_e_DCH_SPS_Indicator = -1;      /* E_DCH_SPS_Indicator */
-static int hf_nbap_sPS_E_DCH_releted_E_HICH_Information = -1;  /* E_HICH_LCR_Information */
-static int hf_nbap_timeslot_Resource_Related_Information = -1;  /* E_DCH_TimeslotResourceLCR */
-static int hf_nbap_subframeNumber_01 = -1;        /* T_subframeNumber_01 */
-static int hf_nbap_FDD_DL_CodeInformation_item = -1;  /* FDD_DL_CodeInformationItem */
-static int hf_nbap_dl_ScramblingCode = -1;        /* DL_ScramblingCode */
-static int hf_nbap_fdd_DL_ChannelisationCodeNumber = -1;  /* FDD_DL_ChannelisationCodeNumber */
-static int hf_nbap_transmissionGapPatternSequenceCodeInformation = -1;  /* TransmissionGapPatternSequenceCodeInformation */
-static int hf_nbap_navClockModel = -1;            /* GANSS_NAVclockModel */
-static int hf_nbap_cnavClockModel = -1;           /* GANSS_CNAVclockModel */
-static int hf_nbap_glonassClockModel = -1;        /* GANSS_GLONASSclockModel */
-static int hf_nbap_sbasClockModel = -1;           /* GANSS_SBASclockModel */
-static int hf_nbap_navKeplerianSet = -1;          /* GANSS_NavModel_NAVKeplerianSet */
-static int hf_nbap_cnavKeplerianSet = -1;         /* GANSS_NavModel_CNAVKeplerianSet */
-static int hf_nbap_glonassECEF = -1;              /* GANSS_NavModel_GLONASSecef */
-static int hf_nbap_sbasECEF = -1;                 /* GANSS_NavModel_SBASecef */
-static int hf_nbap_dataID = -1;                   /* BIT_STRING_SIZE_2 */
-static int hf_nbap_alpha_beta_parameters = -1;    /* GPS_Ionospheric_Model */
-static int hf_nbap_ganss_Transmission_Time = -1;  /* GANSS_Transmission_Time */
-static int hf_nbap_non_broadcastIndication = -1;  /* T_non_broadcastIndication */
-static int hf_nbap_ganssSatInfoNavList = -1;      /* Ganss_Sat_Info_AddNavList */
-static int hf_nbap_GANSS_Additional_Time_Models_item = -1;  /* GANSS_Time_Model */
-static int hf_nbap_utcModel1 = -1;                /* GANSS_UTCmodelSet1 */
-static int hf_nbap_utcModel2 = -1;                /* GANSS_UTCmodelSet2 */
-static int hf_nbap_utcModel3 = -1;                /* GANSS_UTCmodelSet3 */
-static int hf_nbap_ganss_wk_number = -1;          /* INTEGER_0_255 */
-static int hf_nbap_gANSS_AlmanacModel = -1;       /* GANSS_AlmanacModel */
-static int hf_nbap_gANSS_keplerianParameters = -1;  /* GANSS_KeplerianParametersAlm */
-static int hf_nbap_extension_GANSS_AlmanacModel = -1;  /* Extension_GANSS_AlmanacModel */
-static int hf_nbap_sat_info_SBASecefList = -1;    /* GANSS_SAT_Info_Almanac_SBASecefList */
-static int hf_nbap_sat_info_GLOkpList = -1;       /* GANSS_SAT_Info_Almanac_GLOkpList */
-static int hf_nbap_t_oa = -1;                     /* INTEGER_0_255 */
-static int hf_nbap_sat_info_MIDIkpList = -1;      /* GANSS_SAT_Info_Almanac_MIDIkpList */
-static int hf_nbap_sat_info_NAVkpList = -1;       /* GANSS_SAT_Info_Almanac_NAVkpList */
-static int hf_nbap_sat_info_REDkpList = -1;       /* GANSS_SAT_Info_Almanac_REDkpList */
-static int hf_nbap_ganssID1 = -1;                 /* GANSS_AuxInfoGANSS_ID1 */
-static int hf_nbap_ganssID3 = -1;                 /* GANSS_AuxInfoGANSS_ID3 */
-static int hf_nbap_GANSS_AuxInfoGANSS_ID1_item = -1;  /* GANSS_AuxInfoGANSS_ID1_element */
-static int hf_nbap_svID = -1;                     /* INTEGER_0_63 */
-static int hf_nbap_signalsAvailable = -1;         /* BIT_STRING_SIZE_8 */
-static int hf_nbap_GANSS_AuxInfoGANSS_ID3_item = -1;  /* GANSS_AuxInfoGANSS_ID3_element */
-static int hf_nbap_channelNumber = -1;            /* INTEGER_M7_13 */
-static int hf_nbap_GANSS_Clock_Model_item = -1;   /* GANSS_SatelliteClockModelItem */
-static int hf_nbap_cnavToc = -1;                  /* BIT_STRING_SIZE_11 */
-static int hf_nbap_cnavTop = -1;                  /* BIT_STRING_SIZE_11 */
-static int hf_nbap_cnavURA0 = -1;                 /* BIT_STRING_SIZE_5 */
-static int hf_nbap_cnavURA1 = -1;                 /* BIT_STRING_SIZE_3 */
-static int hf_nbap_cnavURA2 = -1;                 /* BIT_STRING_SIZE_3 */
-static int hf_nbap_cnavAf2 = -1;                  /* BIT_STRING_SIZE_10 */
-static int hf_nbap_cnavAf1 = -1;                  /* BIT_STRING_SIZE_20 */
-static int hf_nbap_cnavAf0 = -1;                  /* BIT_STRING_SIZE_26 */
-static int hf_nbap_cnavTgd = -1;                  /* BIT_STRING_SIZE_13 */
-static int hf_nbap_cnavISCl1cp = -1;              /* BIT_STRING_SIZE_13 */
-static int hf_nbap_cnavISCl1cd = -1;              /* BIT_STRING_SIZE_13 */
-static int hf_nbap_cnavISCl1ca = -1;              /* BIT_STRING_SIZE_13 */
-static int hf_nbap_cnavISCl2c = -1;               /* BIT_STRING_SIZE_13 */
-static int hf_nbap_cnavISCl5i5 = -1;              /* BIT_STRING_SIZE_13 */
-static int hf_nbap_cnavISCl5q5 = -1;              /* BIT_STRING_SIZE_13 */
-static int hf_nbap_ganss_Ionospheric_Model = -1;  /* GANSS_Ionospheric_Model */
-static int hf_nbap_ganss_Rx_Pos = -1;             /* GANSS_RX_Pos */
-static int hf_nbap_ionospheric_Model = -1;        /* BOOLEAN */
-static int hf_nbap_ganssTod = -1;                 /* INTEGER_0_59_ */
-static int hf_nbap_dataBitAssistancelist = -1;    /* GANSS_DataBitAssistanceList */
-static int hf_nbap_GANSS_DataBitAssistanceList_item = -1;  /* GANSS_DataBitAssistanceItem */
-static int hf_nbap_dataBitAssistanceSgnList = -1;  /* GANSS_DataBitAssistanceSgnList */
-static int hf_nbap_GANSS_DataBitAssistanceSgnList_item = -1;  /* GANSS_DataBitAssistanceSgnItem */
-static int hf_nbap_ganss_SignalId = -1;           /* GANSS_Signal_ID */
-static int hf_nbap_ganssDataBits = -1;            /* BIT_STRING_SIZE_1_1024 */
-static int hf_nbap_ganssTod_01 = -1;              /* INTEGER_0_86399 */
-static int hf_nbap_ganss_Data_Bit_Assistance_ReqList = -1;  /* GANSS_Data_Bit_Assistance_ReqList */
-static int hf_nbap_ganss_DataBitInterval = -1;    /* INTEGER_0_15 */
-static int hf_nbap_ganss_SatelliteInfo = -1;      /* T_ganss_SatelliteInfo */
-static int hf_nbap_ganss_SatelliteInfo_item = -1;  /* INTEGER_0_63 */
-static int hf_nbap_b1 = -1;                       /* BIT_STRING_SIZE_11 */
-static int hf_nbap_b2 = -1;                       /* BIT_STRING_SIZE_10 */
-static int hf_nbap_teop = -1;                     /* BIT_STRING_SIZE_16 */
-static int hf_nbap_pmX = -1;                      /* BIT_STRING_SIZE_21 */
-static int hf_nbap_pmXdot = -1;                   /* BIT_STRING_SIZE_15 */
-static int hf_nbap_pmY = -1;                      /* BIT_STRING_SIZE_21 */
-static int hf_nbap_pmYdot = -1;                   /* BIT_STRING_SIZE_15 */
-static int hf_nbap_deltaUT1 = -1;                 /* BIT_STRING_SIZE_31 */
-static int hf_nbap_deltaUT1dot = -1;              /* BIT_STRING_SIZE_19 */
-static int hf_nbap_GANSS_GenericDataInfoReqList_item = -1;  /* GANSS_GenericDataInfoReqItem */
-static int hf_nbap_ganss_Id = -1;                 /* GANSS_ID */
-static int hf_nbap_ganss_Navigation_Model_And_Time_Recovery = -1;  /* BOOLEAN */
-static int hf_nbap_ganss_Time_Model_GNSS_GNSS = -1;  /* BIT_STRING_SIZE_9 */
-static int hf_nbap_ganss_UTC_Model = -1;          /* BOOLEAN */
-static int hf_nbap_ganss_Almanac = -1;            /* BOOLEAN */
-static int hf_nbap_gANSS_GenericDataInfoReqItem_ganss_Real_Time_Integrity = -1;  /* BOOLEAN */
-static int hf_nbap_ganss_Data_Bit_Assistance_Req = -1;  /* GANSS_Data_Bit_Assistance_ReqItem */
-static int hf_nbap_GANSS_Generic_Data_item = -1;  /* GANSS_Generic_DataItem */
-static int hf_nbap_dganss_Correction = -1;        /* DGANSSCorrections */
-static int hf_nbap_ganss_Navigation_Model_And_Time_Recovery_01 = -1;  /* GANSS_Navigation_Model_And_Time_Recovery */
-static int hf_nbap_ganss_Time_Model = -1;         /* GANSS_Time_Model */
-static int hf_nbap_ganss_UTC_TIME = -1;           /* GANSS_UTC_Model */
-static int hf_nbap_ganss_Almanac_01 = -1;         /* GANSS_Almanac */
-static int hf_nbap_ganss_Real_Time_Integrity = -1;  /* GANSS_Real_Time_Integrity */
-static int hf_nbap_ganss_Data_Bit_Assistance = -1;  /* GANSS_Data_Bit_Assistance */
-static int hf_nbap_gloTau = -1;                   /* BIT_STRING_SIZE_22 */
-static int hf_nbap_gloGamma = -1;                 /* BIT_STRING_SIZE_11 */
-static int hf_nbap_gloDeltaTau = -1;              /* BIT_STRING_SIZE_5 */
-static int hf_nbap_gANSS_CommonDataInfoReq = -1;  /* GANSS_CommonDataInfoReq */
-static int hf_nbap_gANSS_GenericDataInfoReqList = -1;  /* GANSS_GenericDataInfoReqList */
-static int hf_nbap_alpha_zero_ionos = -1;         /* BIT_STRING_SIZE_12 */
-static int hf_nbap_alpha_one_ionos = -1;          /* BIT_STRING_SIZE_12 */
-static int hf_nbap_alpha_two_ionos = -1;          /* BIT_STRING_SIZE_12 */
-static int hf_nbap_gANSS_IonosphereRegionalStormFlags = -1;  /* GANSS_IonosphereRegionalStormFlags */
-static int hf_nbap_storm_flag_one = -1;           /* BOOLEAN */
-static int hf_nbap_storm_flag_two = -1;           /* BOOLEAN */
-static int hf_nbap_storm_flag_three = -1;         /* BOOLEAN */
-static int hf_nbap_storm_flag_four = -1;          /* BOOLEAN */
-static int hf_nbap_storm_flag_five = -1;          /* BOOLEAN */
-static int hf_nbap_iod_a = -1;                    /* INTEGER_0_3 */
-static int hf_nbap_gANSS_SatelliteInformationKP = -1;  /* GANSS_SatelliteInformationKP */
-static int hf_nbap_toe_nav = -1;                  /* BIT_STRING_SIZE_14 */
-static int hf_nbap_ganss_omega_nav = -1;          /* BIT_STRING_SIZE_32 */
-static int hf_nbap_delta_n_nav = -1;              /* BIT_STRING_SIZE_16 */
-static int hf_nbap_m_zero_nav = -1;               /* BIT_STRING_SIZE_32 */
-static int hf_nbap_omegadot_nav = -1;             /* BIT_STRING_SIZE_24 */
-static int hf_nbap_ganss_e_nav = -1;              /* BIT_STRING_SIZE_32 */
-static int hf_nbap_idot_nav = -1;                 /* BIT_STRING_SIZE_14 */
-static int hf_nbap_a_sqrt_nav = -1;               /* BIT_STRING_SIZE_32 */
-static int hf_nbap_i_zero_nav = -1;               /* BIT_STRING_SIZE_32 */
-static int hf_nbap_omega_zero_nav = -1;           /* BIT_STRING_SIZE_32 */
-static int hf_nbap_c_rs_nav = -1;                 /* BIT_STRING_SIZE_16 */
-static int hf_nbap_c_is_nav = -1;                 /* BIT_STRING_SIZE_16 */
-static int hf_nbap_c_us_nav = -1;                 /* BIT_STRING_SIZE_16 */
-static int hf_nbap_c_rc_nav = -1;                 /* BIT_STRING_SIZE_16 */
-static int hf_nbap_c_ic_nav = -1;                 /* BIT_STRING_SIZE_16 */
-static int hf_nbap_c_uc_nav = -1;                 /* BIT_STRING_SIZE_16 */
-static int hf_nbap_navToc = -1;                   /* BIT_STRING_SIZE_16 */
-static int hf_nbap_navaf2 = -1;                   /* BIT_STRING_SIZE_8 */
-static int hf_nbap_navaf1 = -1;                   /* BIT_STRING_SIZE_16 */
-static int hf_nbap_navaf0 = -1;                   /* BIT_STRING_SIZE_22 */
-static int hf_nbap_navTgd = -1;                   /* BIT_STRING_SIZE_8 */
-static int hf_nbap_non_broadcastIndication_01 = -1;  /* T_non_broadcastIndication_01 */
-static int hf_nbap_ganssSatInfoNav = -1;          /* GANSS_Sat_Info_Nav */
-static int hf_nbap_cnavURAindex = -1;             /* BIT_STRING_SIZE_5 */
-static int hf_nbap_cnavDeltaA = -1;               /* BIT_STRING_SIZE_26 */
-static int hf_nbap_cnavAdot = -1;                 /* BIT_STRING_SIZE_25 */
-static int hf_nbap_cnavDeltaNo = -1;              /* BIT_STRING_SIZE_17 */
-static int hf_nbap_cnavDeltaNoDot = -1;           /* BIT_STRING_SIZE_23 */
-static int hf_nbap_cnavMo = -1;                   /* BIT_STRING_SIZE_33 */
-static int hf_nbap_cnavE = -1;                    /* BIT_STRING_SIZE_33 */
-static int hf_nbap_cnavOmega = -1;                /* BIT_STRING_SIZE_33 */
-static int hf_nbap_cnavOMEGA0 = -1;               /* BIT_STRING_SIZE_33 */
-static int hf_nbap_cnavDeltaOmegaDot = -1;        /* BIT_STRING_SIZE_17 */
-static int hf_nbap_cnavIo = -1;                   /* BIT_STRING_SIZE_33 */
-static int hf_nbap_cnavIoDot = -1;                /* BIT_STRING_SIZE_15 */
-static int hf_nbap_cnavCis = -1;                  /* BIT_STRING_SIZE_16 */
-static int hf_nbap_cnavCic = -1;                  /* BIT_STRING_SIZE_16 */
-static int hf_nbap_cnavCrs = -1;                  /* BIT_STRING_SIZE_24 */
-static int hf_nbap_cnavCrc = -1;                  /* BIT_STRING_SIZE_24 */
-static int hf_nbap_cnavCus = -1;                  /* BIT_STRING_SIZE_21 */
-static int hf_nbap_cnavCuc = -1;                  /* BIT_STRING_SIZE_21 */
-static int hf_nbap_gloEn = -1;                    /* BIT_STRING_SIZE_5 */
-static int hf_nbap_gloP1 = -1;                    /* BIT_STRING_SIZE_2 */
-static int hf_nbap_gloP2 = -1;                    /* BIT_STRING_SIZE_1 */
-static int hf_nbap_gloM = -1;                     /* BIT_STRING_SIZE_2 */
-static int hf_nbap_gloX = -1;                     /* BIT_STRING_SIZE_27 */
-static int hf_nbap_gloXdot = -1;                  /* BIT_STRING_SIZE_24 */
-static int hf_nbap_gloXdotdot = -1;               /* BIT_STRING_SIZE_5 */
-static int hf_nbap_gloY = -1;                     /* BIT_STRING_SIZE_27 */
-static int hf_nbap_gloYdot = -1;                  /* BIT_STRING_SIZE_24 */
-static int hf_nbap_gloYdotdot = -1;               /* BIT_STRING_SIZE_5 */
-static int hf_nbap_gloZ = -1;                     /* BIT_STRING_SIZE_27 */
-static int hf_nbap_gloZdot = -1;                  /* BIT_STRING_SIZE_24 */
-static int hf_nbap_gloZdotdot = -1;               /* BIT_STRING_SIZE_5 */
-static int hf_nbap_navURA = -1;                   /* BIT_STRING_SIZE_4 */
-static int hf_nbap_navFitFlag = -1;               /* BIT_STRING_SIZE_1 */
-static int hf_nbap_navToe = -1;                   /* BIT_STRING_SIZE_16 */
-static int hf_nbap_navOmega = -1;                 /* BIT_STRING_SIZE_32 */
-static int hf_nbap_navDeltaN = -1;                /* BIT_STRING_SIZE_16 */
-static int hf_nbap_navM0 = -1;                    /* BIT_STRING_SIZE_32 */
-static int hf_nbap_navOmegaADot = -1;             /* BIT_STRING_SIZE_24 */
-static int hf_nbap_navE = -1;                     /* BIT_STRING_SIZE_32 */
-static int hf_nbap_navIDot = -1;                  /* BIT_STRING_SIZE_14 */
-static int hf_nbap_navAPowerHalf = -1;            /* BIT_STRING_SIZE_32 */
-static int hf_nbap_navI0 = -1;                    /* BIT_STRING_SIZE_32 */
-static int hf_nbap_navOmegaA0 = -1;               /* BIT_STRING_SIZE_32 */
-static int hf_nbap_navCrs = -1;                   /* BIT_STRING_SIZE_16 */
-static int hf_nbap_navCis = -1;                   /* BIT_STRING_SIZE_16 */
-static int hf_nbap_navCus = -1;                   /* BIT_STRING_SIZE_16 */
-static int hf_nbap_navCrc = -1;                   /* BIT_STRING_SIZE_16 */
-static int hf_nbap_navCic = -1;                   /* BIT_STRING_SIZE_16 */
-static int hf_nbap_navCuc = -1;                   /* BIT_STRING_SIZE_16 */
-static int hf_nbap_sbasTo = -1;                   /* BIT_STRING_SIZE_13 */
-static int hf_nbap_sbasAccuracy = -1;             /* BIT_STRING_SIZE_4 */
-static int hf_nbap_sbasXg = -1;                   /* BIT_STRING_SIZE_30 */
-static int hf_nbap_sbasYg = -1;                   /* BIT_STRING_SIZE_30 */
-static int hf_nbap_sbasZg = -1;                   /* BIT_STRING_SIZE_25 */
-static int hf_nbap_sbasXgDot = -1;                /* BIT_STRING_SIZE_17 */
-static int hf_nbap_sbasYgDot = -1;                /* BIT_STRING_SIZE_17 */
-static int hf_nbap_sbasZgDot = -1;                /* BIT_STRING_SIZE_18 */
-static int hf_nbap_sbasXgDotDot = -1;             /* BIT_STRING_SIZE_10 */
-static int hf_nbap_sbagYgDotDot = -1;             /* BIT_STRING_SIZE_10 */
-static int hf_nbap_sbasZgDotDot = -1;             /* BIT_STRING_SIZE_10 */
-static int hf_nbap_gANSS_keplerianParameters_01 = -1;  /* GANSS_KeplerianParametersOrb */
-static int hf_nbap_GANSS_Real_Time_Integrity_item = -1;  /* GANSS_RealTimeInformationItem */
-static int hf_nbap_bad_ganss_satId = -1;          /* INTEGER_0_63 */
-static int hf_nbap_bad_ganss_signalId = -1;       /* BIT_STRING_SIZE_8 */
-static int hf_nbap_latitudeSign = -1;             /* T_latitudeSign */
-static int hf_nbap_degreesOfLatitude = -1;        /* INTEGER_0_2147483647 */
-static int hf_nbap_degreesOfLongitude = -1;       /* INTEGER_M2147483648_2147483647 */
-static int hf_nbap_directionOfAltitude = -1;      /* T_directionOfAltitude */
-static int hf_nbap_altitude = -1;                 /* INTEGER_0_32767 */
-static int hf_nbap_t_oc = -1;                     /* BIT_STRING_SIZE_14 */
-static int hf_nbap_a_i2 = -1;                     /* BIT_STRING_SIZE_12 */
-static int hf_nbap_a_i1 = -1;                     /* BIT_STRING_SIZE_18 */
-static int hf_nbap_a_i0 = -1;                     /* BIT_STRING_SIZE_28 */
-static int hf_nbap_t_gd = -1;                     /* BIT_STRING_SIZE_10 */
-static int hf_nbap_model_id = -1;                 /* INTEGER_0_1_ */
-static int hf_nbap_GANSS_SatelliteInformationKP_item = -1;  /* GANSS_SatelliteInformationKPItem */
-static int hf_nbap_ganss_e_alm = -1;              /* BIT_STRING_SIZE_11 */
-static int hf_nbap_ganss_delta_I_alm = -1;        /* BIT_STRING_SIZE_11 */
-static int hf_nbap_ganss_omegadot_alm = -1;       /* BIT_STRING_SIZE_11 */
-static int hf_nbap_ganss_svhealth_alm = -1;       /* BIT_STRING_SIZE_4 */
-static int hf_nbap_ganss_delta_a_sqrt_alm = -1;   /* BIT_STRING_SIZE_17 */
-static int hf_nbap_ganss_omegazero_alm = -1;      /* BIT_STRING_SIZE_16 */
-static int hf_nbap_ganss_m_zero_alm = -1;         /* BIT_STRING_SIZE_16 */
-static int hf_nbap_ganss_omega_alm = -1;          /* BIT_STRING_SIZE_16 */
-static int hf_nbap_ganss_af_zero_alm = -1;        /* BIT_STRING_SIZE_14 */
-static int hf_nbap_ganss_af_one_alm = -1;         /* BIT_STRING_SIZE_11 */
-static int hf_nbap_Ganss_Sat_Info_AddNavList_item = -1;  /* Ganss_Sat_Info_AddNavList_item */
-static int hf_nbap_svHealth = -1;                 /* BIT_STRING_SIZE_6 */
-static int hf_nbap_iod = -1;                      /* BIT_STRING_SIZE_11 */
-static int hf_nbap_ganssAddClockModels = -1;      /* GANSS_AddClockModels */
-static int hf_nbap_ganssAddOrbitModels = -1;      /* GANSS_AddOrbitModels */
-static int hf_nbap_GANSS_SAT_Info_Almanac_GLOkpList_item = -1;  /* GANSS_SAT_Info_Almanac_GLOkp */
-static int hf_nbap_gloAlmNA = -1;                 /* BIT_STRING_SIZE_11 */
-static int hf_nbap_gloAlmnA = -1;                 /* BIT_STRING_SIZE_5 */
-static int hf_nbap_gloAlmHA = -1;                 /* BIT_STRING_SIZE_5 */
-static int hf_nbap_gloAlmLambdaA = -1;            /* BIT_STRING_SIZE_21 */
-static int hf_nbap_gloAlmTlambdaA = -1;           /* BIT_STRING_SIZE_21 */
-static int hf_nbap_gloAlmDeltaIA = -1;            /* BIT_STRING_SIZE_18 */
-static int hf_nbap_gloAkmDeltaTA = -1;            /* BIT_STRING_SIZE_22 */
-static int hf_nbap_gloAlmDeltaTdotA = -1;         /* BIT_STRING_SIZE_7 */
-static int hf_nbap_gloAlmEpsilonA = -1;           /* BIT_STRING_SIZE_15 */
-static int hf_nbap_gloAlmOmegaA = -1;             /* BIT_STRING_SIZE_16 */
-static int hf_nbap_gloAlmTauA = -1;               /* BIT_STRING_SIZE_10 */
-static int hf_nbap_gloAlmCA = -1;                 /* BIT_STRING_SIZE_1 */
-static int hf_nbap_gloAlmMA = -1;                 /* BIT_STRING_SIZE_2 */
-static int hf_nbap_GANSS_SAT_Info_Almanac_MIDIkpList_item = -1;  /* GANSS_SAT_Info_Almanac_MIDIkp */
-static int hf_nbap_midiAlmE = -1;                 /* BIT_STRING_SIZE_11 */
-static int hf_nbap_midiAlmDeltaI = -1;            /* BIT_STRING_SIZE_11 */
-static int hf_nbap_midiAlmOmegaDot = -1;          /* BIT_STRING_SIZE_11 */
-static int hf_nbap_midiAlmSqrtA = -1;             /* BIT_STRING_SIZE_17 */
-static int hf_nbap_midiAlmOmega0 = -1;            /* BIT_STRING_SIZE_16 */
-static int hf_nbap_midiAlmOmega = -1;             /* BIT_STRING_SIZE_16 */
-static int hf_nbap_midiAlmMo = -1;                /* BIT_STRING_SIZE_16 */
-static int hf_nbap_midiAlmaf0 = -1;               /* BIT_STRING_SIZE_11 */
-static int hf_nbap_midiAlmaf1 = -1;               /* BIT_STRING_SIZE_10 */
-static int hf_nbap_midiAlmL1Health = -1;          /* BIT_STRING_SIZE_1 */
-static int hf_nbap_midiAlmL2Health = -1;          /* BIT_STRING_SIZE_1 */
-static int hf_nbap_midiAlmL5Health = -1;          /* BIT_STRING_SIZE_1 */
-static int hf_nbap_GANSS_SAT_Info_Almanac_NAVkpList_item = -1;  /* GANSS_SAT_Info_Almanac_NAVkp */
-static int hf_nbap_navAlmE = -1;                  /* BIT_STRING_SIZE_16 */
-static int hf_nbap_navAlmDeltaI = -1;             /* BIT_STRING_SIZE_16 */
-static int hf_nbap_navAlmOMEGADOT = -1;           /* BIT_STRING_SIZE_16 */
-static int hf_nbap_navAlmSVHealth = -1;           /* BIT_STRING_SIZE_8 */
-static int hf_nbap_navAlmSqrtA = -1;              /* BIT_STRING_SIZE_24 */
-static int hf_nbap_navAlmOMEGAo = -1;             /* BIT_STRING_SIZE_24 */
-static int hf_nbap_navAlmOmega = -1;              /* BIT_STRING_SIZE_24 */
-static int hf_nbap_navAlmMo = -1;                 /* BIT_STRING_SIZE_24 */
-static int hf_nbap_navAlmaf0 = -1;                /* BIT_STRING_SIZE_11 */
-static int hf_nbap_navAlmaf1 = -1;                /* BIT_STRING_SIZE_11 */
-static int hf_nbap_GANSS_SAT_Info_Almanac_REDkpList_item = -1;  /* GANSS_SAT_Info_Almanac_REDkp */
-static int hf_nbap_redAlmDeltaA = -1;             /* BIT_STRING_SIZE_8 */
-static int hf_nbap_redAlmOmega0 = -1;             /* BIT_STRING_SIZE_7 */
-static int hf_nbap_redAlmPhi0 = -1;               /* BIT_STRING_SIZE_7 */
-static int hf_nbap_redAlmL1Health = -1;           /* BIT_STRING_SIZE_1 */
-static int hf_nbap_redAlmL2Health = -1;           /* BIT_STRING_SIZE_1 */
-static int hf_nbap_redAlmL5Health = -1;           /* BIT_STRING_SIZE_1 */
-static int hf_nbap_GANSS_SAT_Info_Almanac_SBASecefList_item = -1;  /* GANSS_SAT_Info_Almanac_SBASecef */
-static int hf_nbap_sbasAlmDataID = -1;            /* BIT_STRING_SIZE_2 */
-static int hf_nbap_sbasAlmHealth = -1;            /* BIT_STRING_SIZE_8 */
-static int hf_nbap_sbasAlmXg = -1;                /* BIT_STRING_SIZE_15 */
-static int hf_nbap_sbasAlmYg = -1;                /* BIT_STRING_SIZE_15 */
-static int hf_nbap_sbasAlmZg = -1;                /* BIT_STRING_SIZE_9 */
-static int hf_nbap_sbasAlmXgdot = -1;             /* BIT_STRING_SIZE_3 */
-static int hf_nbap_sbasAlmYgDot = -1;             /* BIT_STRING_SIZE_3 */
-static int hf_nbap_sbasAlmZgDot = -1;             /* BIT_STRING_SIZE_4 */
-static int hf_nbap_sbasAlmTo = -1;                /* BIT_STRING_SIZE_11 */
-static int hf_nbap_GANSS_Sat_Info_Nav_item = -1;  /* GANSS_Sat_Info_Nav_item */
-static int hf_nbap_svHealth_01 = -1;              /* BIT_STRING_SIZE_5 */
-static int hf_nbap_iod_01 = -1;                   /* BIT_STRING_SIZE_10 */
-static int hf_nbap_ganssClockModel = -1;          /* GANSS_Clock_Model */
-static int hf_nbap_ganssOrbitModel = -1;          /* GANSS_Orbit_Model */
-static int hf_nbap_sbasAgfo = -1;                 /* BIT_STRING_SIZE_12 */
-static int hf_nbap_sbasAgf1 = -1;                 /* BIT_STRING_SIZE_8 */
-static int hf_nbap_ganss_time_model_Ref_Time = -1;  /* INTEGER_0_37799 */
-static int hf_nbap_ganss_t_a0 = -1;               /* INTEGER_M2147483648_2147483647 */
-static int hf_nbap_ganss_t_a1 = -1;               /* INTEGER_M8388608_8388607 */
-static int hf_nbap_ganss_t_a2 = -1;               /* INTEGER_M64_63 */
-static int hf_nbap_gnss_to_id = -1;               /* T_gnss_to_id */
-static int hf_nbap_ganss_wk_number_01 = -1;       /* INTEGER_0_8191 */
-static int hf_nbap_ganssDay = -1;                 /* INTEGER_0_8191 */
-static int hf_nbap_a_one_utc = -1;                /* BIT_STRING_SIZE_24 */
-static int hf_nbap_a_zero_utc = -1;               /* BIT_STRING_SIZE_32 */
-static int hf_nbap_t_ot_utc = -1;                 /* BIT_STRING_SIZE_8 */
-static int hf_nbap_w_n_t_utc = -1;                /* BIT_STRING_SIZE_8 */
-static int hf_nbap_delta_t_ls_utc = -1;           /* BIT_STRING_SIZE_8 */
-static int hf_nbap_w_n_lsf_utc = -1;              /* BIT_STRING_SIZE_8 */
-static int hf_nbap_dn_utc = -1;                   /* BIT_STRING_SIZE_8 */
-static int hf_nbap_delta_t_lsf_utc = -1;          /* BIT_STRING_SIZE_8 */
-static int hf_nbap_utcA0 = -1;                    /* BIT_STRING_SIZE_16 */
-static int hf_nbap_utcA1 = -1;                    /* BIT_STRING_SIZE_13 */
-static int hf_nbap_utcA2 = -1;                    /* BIT_STRING_SIZE_7 */
-static int hf_nbap_utcDeltaTls = -1;              /* BIT_STRING_SIZE_8 */
-static int hf_nbap_utcTot = -1;                   /* BIT_STRING_SIZE_16 */
-static int hf_nbap_utcWNot = -1;                  /* BIT_STRING_SIZE_13 */
-static int hf_nbap_utcWNlsf = -1;                 /* BIT_STRING_SIZE_8 */
-static int hf_nbap_utcDN = -1;                    /* BIT_STRING_SIZE_4 */
-static int hf_nbap_utcDeltaTlsf = -1;             /* BIT_STRING_SIZE_8 */
-static int hf_nbap_nA = -1;                       /* BIT_STRING_SIZE_11 */
-static int hf_nbap_tauC = -1;                     /* BIT_STRING_SIZE_32 */
-static int hf_nbap_deltaUT1_01 = -1;              /* GANSS_DeltaUT1 */
-static int hf_nbap_kp = -1;                       /* BIT_STRING_SIZE_2 */
-static int hf_nbap_utcA1wnt = -1;                 /* BIT_STRING_SIZE_24 */
-static int hf_nbap_utcA0wnt = -1;                 /* BIT_STRING_SIZE_32 */
-static int hf_nbap_utcTot_01 = -1;                /* BIT_STRING_SIZE_8 */
-static int hf_nbap_utcWNt = -1;                   /* BIT_STRING_SIZE_8 */
-static int hf_nbap_utcDN_01 = -1;                 /* BIT_STRING_SIZE_8 */
-static int hf_nbap_utcStandardID = -1;            /* BIT_STRING_SIZE_3 */
-static int hf_nbap_wna_alm = -1;                  /* BIT_STRING_SIZE_8 */
-static int hf_nbap_sat_info_almanac = -1;         /* SAT_Info_Almanac */
-static int hf_nbap_sVGlobalHealth_alm = -1;       /* BIT_STRING_SIZE_364 */
-static int hf_nbap_alpha_zero_ionos_01 = -1;      /* BIT_STRING_SIZE_8 */
-static int hf_nbap_alpha_one_ionos_01 = -1;       /* BIT_STRING_SIZE_8 */
-static int hf_nbap_alpha_two_ionos_01 = -1;       /* BIT_STRING_SIZE_8 */
-static int hf_nbap_alpha_three_ionos = -1;        /* BIT_STRING_SIZE_8 */
-static int hf_nbap_beta_zero_ionos = -1;          /* BIT_STRING_SIZE_8 */
-static int hf_nbap_beta_one_ionos = -1;           /* BIT_STRING_SIZE_8 */
-static int hf_nbap_beta_two_ionos = -1;           /* BIT_STRING_SIZE_8 */
-static int hf_nbap_beta_three_ionos = -1;         /* BIT_STRING_SIZE_8 */
-static int hf_nbap_GPS_Information_item = -1;     /* GPS_Information_Item */
-static int hf_nbap_bad_satellites = -1;           /* GPSBadSat_Info_RealTime_Integrity */
-static int hf_nbap_no_bad_satellites = -1;        /* NULL */
-static int hf_nbap_sat_info = -1;                 /* SATInfo_RealTime_Integrity */
-static int hf_nbap_GPS_NavigationModel_and_TimeRecovery_item = -1;  /* GPS_NavandRecovery_Item */
-static int hf_nbap_tx_tow_nav = -1;               /* INTEGER_0_1048575 */
-static int hf_nbap_sat_id_nav = -1;               /* SAT_ID */
-static int hf_nbap_tlm_message_nav = -1;          /* BIT_STRING_SIZE_14 */
-static int hf_nbap_tlm_revd_c_nav = -1;           /* BIT_STRING_SIZE_2 */
-static int hf_nbap_ho_word_nav = -1;              /* BIT_STRING_SIZE_22 */
-static int hf_nbap_w_n_nav = -1;                  /* BIT_STRING_SIZE_10 */
-static int hf_nbap_ca_or_p_on_l2_nav = -1;        /* BIT_STRING_SIZE_2 */
-static int hf_nbap_user_range_accuracy_index_nav = -1;  /* BIT_STRING_SIZE_4 */
-static int hf_nbap_sv_health_nav = -1;            /* BIT_STRING_SIZE_6 */
-static int hf_nbap_iodc_nav = -1;                 /* BIT_STRING_SIZE_10 */
-static int hf_nbap_l2_p_dataflag_nav = -1;        /* BIT_STRING_SIZE_1 */
-static int hf_nbap_sf1_reserved_nav = -1;         /* BIT_STRING_SIZE_87 */
-static int hf_nbap_t_gd_nav = -1;                 /* BIT_STRING_SIZE_8 */
-static int hf_nbap_t_oc_nav = -1;                 /* BIT_STRING_SIZE_16 */
-static int hf_nbap_a_f_2_nav = -1;                /* BIT_STRING_SIZE_8 */
-static int hf_nbap_a_f_1_nav = -1;                /* BIT_STRING_SIZE_16 */
-static int hf_nbap_a_f_zero_nav = -1;             /* BIT_STRING_SIZE_22 */
-static int hf_nbap_gps_e_nav = -1;                /* BIT_STRING_SIZE_32 */
-static int hf_nbap_t_oe_nav = -1;                 /* BIT_STRING_SIZE_16 */
-static int hf_nbap_fit_interval_flag_nav = -1;    /* BIT_STRING_SIZE_1 */
-static int hf_nbap_aodo_nav = -1;                 /* BIT_STRING_SIZE_5 */
-static int hf_nbap_gps_omega_nav = -1;            /* BIT_STRING_SIZE_32 */
-static int hf_nbap_spare_zero_fill = -1;          /* BIT_STRING_SIZE_20 */
-static int hf_nbap_latitudeSign_01 = -1;          /* T_latitudeSign_01 */
-static int hf_nbap_latitude = -1;                 /* INTEGER_0_8388607 */
-static int hf_nbap_longitude = -1;                /* INTEGER_M8388608_8388607 */
-static int hf_nbap_directionOfAltitude_01 = -1;   /* T_directionOfAltitude_01 */
-static int hf_nbap_implicit = -1;                 /* HARQ_MemoryPartitioning_Implicit */
-static int hf_nbap_explicit = -1;                 /* HARQ_MemoryPartitioning_Explicit */
-static int hf_nbap_number_of_Processes = -1;      /* INTEGER_1_8_ */
-static int hf_nbap_hARQ_MemoryPartitioningList = -1;  /* HARQ_MemoryPartitioningList */
-static int hf_nbap_HARQ_MemoryPartitioningList_item = -1;  /* HARQ_MemoryPartitioningItem */
-static int hf_nbap_HARQ_MemoryPartitioningInfoExtForMIMO_item = -1;  /* HARQ_MemoryPartitioningItem */
-static int hf_nbap_process_Memory_Size = -1;      /* T_process_Memory_Size */
-static int hf_nbap_HS_DSCHProvidedBitRate_item = -1;  /* HS_DSCHProvidedBitRate_Item */
-static int hf_nbap_hS_DSCHProvidedBitRateValue = -1;  /* HS_DSCHProvidedBitRateValue */
-static int hf_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortion_item = -1;  /* HS_DSCHProvidedBitRateValueInformation_For_CellPortion_Item */
-static int hf_nbap_hS_DSCHProvidedBitRateValue_01 = -1;  /* HS_DSCHProvidedBitRate */
-static int hf_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortionLCR_item = -1;  /* HS_DSCHProvidedBitRateValueInformation_For_CellPortionLCR_Item */
-static int hf_nbap_HS_DSCHRequiredPower_item = -1;  /* HS_DSCHRequiredPower_Item */
-static int hf_nbap_hS_DSCHRequiredPowerValue = -1;  /* HS_DSCHRequiredPowerValue */
-static int hf_nbap_hS_DSCHRequiredPowerPerUEInformation = -1;  /* HS_DSCHRequiredPowerPerUEInformation */
-static int hf_nbap_HS_DSCHRequiredPowerPerUEInformation_item = -1;  /* HS_DSCHRequiredPowerPerUEInformation_Item */
-static int hf_nbap_cRNC_CommunicationContextID = -1;  /* CRNC_CommunicationContextID */
-static int hf_nbap_hS_DSCHRequiredPowerPerUEWeight = -1;  /* HS_DSCHRequiredPowerPerUEWeight */
-static int hf_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortion_item = -1;  /* HS_DSCHRequiredPowerValueInformation_For_CellPortion_Item */
-static int hf_nbap_hS_DSCHRequiredPowerValue_01 = -1;  /* HS_DSCHRequiredPower */
-static int hf_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortionLCR_item = -1;  /* HS_DSCHRequiredPowerValueInformation_For_CellPortionLCR_Item */
-static int hf_nbap_hsdpa_PICH_Shared_with_PCH = -1;  /* HSDPA_PICH_Shared_with_PCH */
-static int hf_nbap_hsdpa_PICH_notShared_with_PCH = -1;  /* HSDPA_PICH_notShared_with_PCH */
-static int hf_nbap_hsdpa_PICH_SharedPCH_ID = -1;  /* CommonPhysicalChannelID */
-static int hf_nbap_hSDPA_PICH_notShared_ID = -1;  /* CommonPhysicalChannelID */
-static int hf_nbap_fdd_DL_Channelisation_CodeNumber = -1;  /* FDD_DL_ChannelisationCodeNumber */
-static int hf_nbap_pich_Power = -1;               /* PICH_Power */
-static int hf_nbap_pich_Mode = -1;                /* PICH_Mode */
-static int hf_nbap_sttd_Indicator = -1;           /* STTD_Indicator */
-static int hf_nbap_hsdsch_Common_Information = -1;  /* HSDSCH_Common_Information */
-static int hf_nbap_commonMACFlow_Specific_Information = -1;  /* CommonMACFlow_Specific_InfoList */
-static int hf_nbap_hsSCCH_Specific_Information_ResponseFDD = -1;  /* HSSCCH_Specific_InformationRespListFDD */
-static int hf_nbap_hARQ_MemoryPartitioning = -1;  /* HARQ_MemoryPartitioning */
-static int hf_nbap_commonMACFlow_Specific_Info_Response = -1;  /* CommonMACFlow_Specific_InfoList_Response */
-static int hf_nbap_cCCH_PriorityQueue_Id = -1;    /* PriorityQueue_Id */
-static int hf_nbap_sRB1_PriorityQueue_Id = -1;    /* PriorityQueue_Id */
-static int hf_nbap_associatedCommon_MACFlow = -1;  /* Common_MACFlow_ID */
-static int hf_nbap_fACH_Measurement_Occasion_Cycle_Length_Coefficient = -1;  /* FACH_Measurement_Occasion_Cycle_Length_Coefficient */
-static int hf_nbap_rACH_Measurement_Result = -1;  /* RACH_Measurement_Result */
-static int hf_nbap_bCCH_Specific_HSDSCH_RNTI_Information = -1;  /* BCCH_Specific_HSDSCH_RNTI_Information */
-static int hf_nbap_hSDSCH_MACdFlows_Information = -1;  /* HSDSCH_MACdFlows_Information */
-static int hf_nbap_ueCapability_Info = -1;        /* UE_Capability_Information */
-static int hf_nbap_mAChs_Reordering_Buffer_Size_for_RLC_UM = -1;  /* MAChsReorderingBufferSize_for_RLC_UM */
-static int hf_nbap_hsscch_PowerOffset = -1;       /* HSSCCH_PowerOffset */
-static int hf_nbap_tDD_AckNack_Power_Offset = -1;  /* TDD_AckNack_Power_Offset */
-static int hf_nbap_hsDSCH_MACdFlow_Specific_Info_to_Modify = -1;  /* HSDSCH_MACdFlow_Specific_InfoList_to_Modify */
-static int hf_nbap_priorityQueueInfotoModify = -1;  /* PriorityQueue_InfoList_to_Modify */
-static int hf_nbap_hSSCCHCodeChangeGrant = -1;    /* HSSCCH_Code_Change_Grant */
-static int hf_nbap_tDDAckNackPowerOffset = -1;    /* TDD_AckNack_Power_Offset */
-static int hf_nbap_HSDSCH_MACdFlow_Specific_InfoList_to_Modify_item = -1;  /* HSDSCH_MACdFlow_Specific_InfoItem_to_Modify */
-static int hf_nbap_hsDSCH_MACdFlow_ID = -1;       /* HSDSCH_MACdFlow_ID */
-static int hf_nbap_priorityQueueInfotoModifyUnsynchronised = -1;  /* PriorityQueue_InfoList_to_Modify_Unsynchronised */
-static int hf_nbap_hsDSCH_MACdFlow_Specific_InformationResp = -1;  /* HSDSCH_MACdFlow_Specific_InformationResp */
-static int hf_nbap_sixtyfourQAM_UsageAllowedIndicator = -1;  /* SixtyfourQAM_UsageAllowedIndicator */
-static int hf_nbap_hSDSCH_RNTI = -1;              /* HSDSCH_RNTI */
-static int hf_nbap_sixtyfourQAM_DL_UsageIndicator = -1;  /* SixtyfourQAM_DL_UsageIndicator */
-static int hf_nbap_hSDSCH_TBSizeTableIndicator = -1;  /* HSDSCH_TBSizeTableIndicator */
-static int hf_nbap_hSSCCH_CodeChangeGrant = -1;   /* HSSCCH_Code_Change_Grant */
-static int hf_nbap_hsSCCHCodeChangeIndicator = -1;  /* HSSCCH_CodeChangeIndicator */
-static int hf_nbap_hS_PDSCH_Code_Change_Indicator = -1;  /* HS_PDSCH_Code_Change_Indicator */
-static int hf_nbap_hS_DSCH_Secondary_Serving_cell_choice = -1;  /* HS_DSCH_Secondary_Serving_cell_change_choice */
-static int hf_nbap_hS_Secondary_Serving_cell_change_successful = -1;  /* HS_Secondary_Serving_cell_change_successful */
-static int hf_nbap_hS_Secondary_Serving_cell_change_unsuccessful = -1;  /* HS_Secondary_Serving_cell_change_unsuccessful */
-static int hf_nbap_hS_DSCH_FDD_Secondary_Serving_Information_Response = -1;  /* HS_DSCH_FDD_Secondary_Serving_Information_Response */
-static int hf_nbap_paging_MACFlow_Specific_Information = -1;  /* Paging_MACFlow_Specific_Information */
-static int hf_nbap_number_of_PCCH_transmission = -1;  /* Number_of_PCCH_transmission */
-static int hf_nbap_transport_Block_Size_List = -1;  /* Transport_Block_Size_List */
-static int hf_nbap_HSDSCH_Paging_System_Information_ResponseFDD_item = -1;  /* HSDSCH_Paging_System_Information_ResponseList */
-static int hf_nbap_pagingMACFlow_ID = -1;         /* Paging_MACFlow_ID */
-static int hf_nbap_hSPDSCH_Code_Index = -1;       /* HSPDSCH_Code_Index */
-static int hf_nbap_hsSCCH_Specific_Information_ResponseTDD = -1;  /* HSSCCH_Specific_InformationRespListTDD */
-static int hf_nbap_hsSCCH_Specific_Information_ResponseTDDLCR = -1;  /* HSSCCH_Specific_InformationRespListTDDLCR */
-static int hf_nbap_HSDSCH_MACdFlow_Specific_InformationResp_item = -1;  /* HSDSCH_MACdFlow_Specific_InformationResp_Item */
-static int hf_nbap_hsDSCHMacdFlow_Id = -1;        /* HSDSCH_MACdFlow_ID */
-static int hf_nbap_hSDSCH_MACdFlow_Specific_Info = -1;  /* HSDSCH_MACdFlow_Specific_InfoList */
-static int hf_nbap_priorityQueue_Info = -1;       /* PriorityQueue_InfoList */
-static int hf_nbap_HSDSCH_MACdFlow_Specific_InfoList_item = -1;  /* HSDSCH_MACdFlow_Specific_InfoItem */
-static int hf_nbap_HSDSCH_MACdFlows_to_Delete_item = -1;  /* HSDSCH_MACdFlows_to_Delete_Item */
-static int hf_nbap_HSDSCH_Initial_Capacity_Allocation_item = -1;  /* HSDSCH_Initial_Capacity_AllocationItem */
-static int hf_nbap_maximum_MACdPDU_Size = -1;     /* MACdPDU_Size */
-static int hf_nbap_hSDSCH_InitialWindowSize = -1;  /* HSDSCH_InitialWindowSize */
-static int hf_nbap_setsOfHS_SCCH_Codes = -1;      /* SetsOfHS_SCCH_Codes */
-static int hf_nbap_hARQ_Preamble_Mode_Activation_Indicator = -1;  /* HARQ_Preamble_Mode_Activation_Indicator */
-static int hf_nbap_mIMO_N_M_Ratio = -1;           /* MIMO_N_M_Ratio */
-static int hf_nbap_continuousPacketConnectivityHS_SCCH_less_Information_Response = -1;  /* ContinuousPacketConnectivityHS_SCCH_less_Information_Response */
-static int hf_nbap_Additional_EDCH_Preconfiguration_Information_item = -1;  /* Additional_EDCH_Preconfiguration_Information_ItemIEs */
-static int hf_nbap_mAChsResetScheme = -1;         /* MAChsResetScheme */
-static int hf_nbap_hSDSCH_Physical_Layer_Category = -1;  /* INTEGER_1_64_ */
-static int hf_nbap_secondaryServingCells = -1;    /* SecondaryServingCells */
-static int hf_nbap_numPrimaryHS_SCCH_Codes = -1;  /* NumHS_SCCH_Codes */
-static int hf_nbap_hARQ_Preamble_Mode = -1;       /* HARQ_Preamble_Mode */
-static int hf_nbap_mIMO_ActivationIndicator = -1;  /* MIMO_ActivationIndicator */
-static int hf_nbap_hSDSCH_MACdPDUSizeFormat = -1;  /* HSDSCH_MACdPDUSizeFormat */
-static int hf_nbap_uE_with_enhanced_HS_SCCH_support_indicator = -1;  /* NULL */
-static int hf_nbap_HS_SCCH_PreconfiguredCodes_item = -1;  /* HS_SCCH_PreconfiguredCodesItem */
-static int hf_nbap_hS_SCCH_CodeNumber = -1;       /* HS_SCCH_CodeNumber */
-static int hf_nbap_HSSCCH_Specific_InformationRespListFDD_item = -1;  /* HSSCCH_Codes */
-static int hf_nbap_codeNumber = -1;               /* INTEGER_0_127 */
-static int hf_nbap_HSSCCH_Specific_InformationRespListTDD_item = -1;  /* HSSCCH_Specific_InformationRespItemTDD */
-static int hf_nbap_timeslot = -1;                 /* TimeSlot */
-static int hf_nbap_tDD_ChannelisationCode = -1;   /* TDD_ChannelisationCode */
-static int hf_nbap_hSSICH_Info = -1;              /* HSSICH_Info */
-static int hf_nbap_HSSCCH_Specific_InformationRespListTDDLCR_item = -1;  /* HSSCCH_Specific_InformationRespItemTDDLCR */
-static int hf_nbap_timeslotLCR = -1;              /* TimeSlotLCR */
-static int hf_nbap_first_TDD_ChannelisationCode = -1;  /* TDD_ChannelisationCode */
-static int hf_nbap_second_TDD_ChannelisationCode = -1;  /* TDD_ChannelisationCode */
-static int hf_nbap_hSSICH_InfoLCR = -1;           /* HSSICH_InfoLCR */
-static int hf_nbap_HSSCCH_Specific_InformationRespListTDD768_item = -1;  /* HSSCCH_Specific_InformationRespItemTDD768 */
-static int hf_nbap_tDD_ChannelisationCode768 = -1;  /* TDD_ChannelisationCode768 */
-static int hf_nbap_hSSICH_Info768 = -1;           /* HSSICH_Info768 */
-static int hf_nbap_hsSICH_ID = -1;                /* HS_SICH_ID */
-static int hf_nbap_failed_HS_SICH = -1;           /* HS_SICH_failed */
-static int hf_nbap_missed_HS_SICH = -1;           /* HS_SICH_missed */
-static int hf_nbap_total_HS_SICH = -1;            /* HS_SICH_total */
-static int hf_nbap_number_of_HS_PDSCH_codes = -1;  /* INTEGER_0_maxHS_PDSCHCodeNrComp_1 */
-static int hf_nbap_hS_PDSCH_Start_code_number = -1;  /* HS_PDSCH_Start_code_number */
-static int hf_nbap_replace_02 = -1;               /* HS_SCCH_FDD_Code_List */
-static int hf_nbap_HS_SCCH_FDD_Code_List_item = -1;  /* HS_SCCH_FDD_Code_Information_Item */
-static int hf_nbap_hspdsch_RL_ID = -1;            /* RL_ID */
-static int hf_nbap_hSDSCH_FDD_Information = -1;   /* HSDSCH_FDD_Information */
-static int hf_nbap_hsdsch_RNTI = -1;              /* HSDSCH_RNTI */
-static int hf_nbap_hS_DSCH_serving_cell_choice = -1;  /* HS_DSCH_serving_cell_choice */
-static int hf_nbap_hS_serving_cell_change_successful = -1;  /* HS_serving_cell_change_successful */
-static int hf_nbap_hS_serving_cell_change_unsuccessful = -1;  /* HS_serving_cell_change_unsuccessful */
-static int hf_nbap_hSDSCH_FDD_Information_Response = -1;  /* HSDSCH_FDD_Information_Response */
-static int hf_nbap_hsdpa_PICH_notShared_with_PCHLCR = -1;  /* HSDPA_PICH_notShared_with_PCHLCR */
-static int hf_nbap_tdd_ChannelisationCodeLCR = -1;  /* TDD_ChannelisationCodeLCR */
-static int hf_nbap_tdd_PhysicalChannelOffset = -1;  /* TDD_PhysicalChannelOffset */
-static int hf_nbap_pagingIndicatorLength = -1;    /* PagingIndicatorLength */
-static int hf_nbap_pICH_Power = -1;               /* PICH_Power */
-static int hf_nbap_second_TDD_ChannelisationCodeLCR = -1;  /* TDD_ChannelisationCodeLCR */
-static int hf_nbap_hsdsch_Common_InformationLCR = -1;  /* HSDSCH_Common_InformationLCR */
-static int hf_nbap_commonMACFlow_Specific_InformationLCR = -1;  /* CommonMACFlow_Specific_InfoListLCR */
-static int hf_nbap_common_H_RNTI_InformationLCR = -1;  /* Common_H_RNTI_InformationLCR */
-static int hf_nbap_sync_InformationLCR = -1;      /* Sync_InformationLCR */
-static int hf_nbap_hSSICH_SIRTarget = -1;         /* UL_SIR */
-static int hf_nbap_hSSICH_TPC_StepSize = -1;      /* TDD_TPC_UplinkStepSize_LCR */
-static int hf_nbap_hsSCCH_Specific_Information_ResponseLCR = -1;  /* HSSCCH_Specific_InformationRespListLCR */
-static int hf_nbap_commonMACFlow_Specific_Info_ResponseLCR = -1;  /* CommonMACFlow_Specific_InfoList_ResponseLCR */
-static int hf_nbap_associatedCommon_MACFlowLCR = -1;  /* Common_MACFlow_ID_LCR */
-static int hf_nbap_bCCH_Specific_HSDSCH_RNTI_InformationLCR = -1;  /* BCCH_Specific_HSDSCH_RNTI_InformationLCR */
-static int hf_nbap_paging_MACFlow_Specific_InformationLCR = -1;  /* Paging_MACFlow_Specific_InformationLCR */
-static int hf_nbap_reception_Window_Size = -1;    /* INTEGER_1_16 */
-static int hf_nbap_n_PCH = -1;                    /* INTEGER_1_8 */
-static int hf_nbap_paging_Subchannel_Size = -1;   /* INTEGER_1_3 */
-static int hf_nbap_HSDSCH_Paging_System_Information_ResponseLCR_item = -1;  /* HSDSCH_Paging_System_Information_ResponseListLCR */
-static int hf_nbap_dL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst = -1;  /* DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst */
-static int hf_nbap_HSSCCH_Specific_InformationRespListLCR_item = -1;  /* HSSCCH_Specific_InformationRespItemLCR */
-static int hf_nbap_hS_SCCH_ID_LCR = -1;           /* HS_SCCH_ID_LCR */
-static int hf_nbap_transport_Block_Size_List_01 = -1;  /* Transport_Block_Size_List_LCR */
-static int hf_nbap_hS_DSCH_SPS_Reservation_Indicator = -1;  /* SPS_Reservation_Indicator */
-static int hf_nbap_hS_DSCH_SPS_Operation_Indicator = -1;  /* HS_DSCH_SPS_Operation_Indicator */
-static int hf_nbap_Transport_Block_Size_List_LCR_item = -1;  /* Transport_Block_Size_Item_LCR */
-static int hf_nbap_transport_Block_Size_maping_Index_LCR = -1;  /* Transport_Block_Size_maping_Index_LCR */
-static int hf_nbap_transport_Block_Size_Index_LCR = -1;  /* Transport_Block_Size_Index_LCR */
-static int hf_nbap_Repetition_Period_List_LCR_item = -1;  /* Repetition_Period_Item_LCR */
-static int hf_nbap_repetitionPeriodIndex = -1;    /* RepetitionPeriodIndex */
-static int hf_nbap_logicalChannellevel = -1;      /* LogicalChannellevel */
-static int hf_nbap_priorityQueuelevel = -1;       /* PriorityQueuelevel */
-static int hf_nbap_hS_SICH_InformationList_for_HS_DSCH_SPS = -1;  /* HS_SICH_InformationList_for_HS_DSCH_SPS */
-static int hf_nbap_initial_HS_PDSCH_SPS_Resource = -1;  /* Initial_HS_PDSCH_SPS_Resource */
-static int hf_nbap_buffer_Size_for_HS_DSCH_SPS = -1;  /* Process_Memory_Size */
-static int hf_nbap_number_of_Processes_for_HS_DSCH_SPS = -1;  /* Number_of_Processes_for_HS_DSCH_SPS */
-static int hf_nbap_HS_SICH_InformationList_for_HS_DSCH_SPS_item = -1;  /* HS_SICH_InformationItem_for_HS_DSCH_SPS */
-static int hf_nbap_hS_SICH_Mapping_Index = -1;    /* HS_SICH_Mapping_Index */
-static int hf_nbap_hS_SICH_Type = -1;             /* HS_SICH_Type */
-static int hf_nbap_hS_SCCH_Associated_HS_SICH = -1;  /* HS_SCCH_Associated_HS_SICH */
-static int hf_nbap_non_HS_SCCH_Associated_HS_SICH = -1;  /* Non_HS_SCCH_Associated_HS_SICH */
-static int hf_nbap_extended_HS_SICH_ID = -1;      /* Extended_HS_SICH_ID */
-static int hf_nbap_non_HS_SCCH_Aassociated_HS_SICH_ID = -1;  /* Non_HS_SCCH_Aassociated_HS_SICH_ID */
-static int hf_nbap_hS_PDSCH_Offset = -1;          /* TDD_PhysicalChannelOffset */
-static int hf_nbap_timeslot_Resource_Related_Information_01 = -1;  /* HS_DSCH_TimeslotResourceLCR */
-static int hf_nbap_startCode = -1;                /* TDD_ChannelisationCode */
-static int hf_nbap_endCode = -1;                  /* TDD_ChannelisationCode */
-static int hf_nbap_transport_Block_Size_Index_01 = -1;  /* Transport_Block_Size_Index_LCR */
-static int hf_nbap_modulationType = -1;           /* ModulationSPS_LCR */
-static int hf_nbap_non_HS_SCCH_Associated_HS_SICH_InformationList = -1;  /* Non_HS_SCCH_Associated_HS_SICH_InformationList */
-static int hf_nbap_Non_HS_SCCH_Associated_HS_SICH_InformationList_item = -1;  /* Non_HS_SCCH_Associated_HS_SICH_InformationItem */
-static int hf_nbap_Non_HS_SCCH_Associated_HS_SICH_InformationList_Ext_item = -1;  /* Non_HS_SCCH_Associated_HS_SICH_InformationItem */
-static int hf_nbap_modify_non_HS_SCCH_Associated_HS_SICH_InformationList = -1;  /* Modify_Non_HS_SCCH_Associated_HS_SICH_InformationList */
-static int hf_nbap_Modify_Non_HS_SCCH_Associated_HS_SICH_InformationList_item = -1;  /* Modify_Non_HS_SCCH_Associated_HS_SICH_InformationItem */
-static int hf_nbap_Modify_Non_HS_SCCH_Associated_HS_SICH_InformationList_Ext_item = -1;  /* Modify_Non_HS_SCCH_Associated_HS_SICH_InformationItem */
-static int hf_nbap_Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst_item = -1;  /* Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqstItem */
-static int hf_nbap_Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst_Ext_item = -1;  /* Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqstItem */
-static int hf_nbap_MIMO_ReferenceSignal_InformationListLCR_item = -1;  /* HSSICH_ReferenceSignal_InformationLCR */
-static int hf_nbap_midambleConfigurationLCR = -1;  /* MidambleConfigurationLCR */
-static int hf_nbap_midambleShift = -1;            /* INTEGER_0_15 */
-static int hf_nbap_hSSICH_ReferenceSignal_InformationLCR = -1;  /* HSSICH_ReferenceSignal_InformationLCR */
-static int hf_nbap_sub_Frame_Number = -1;         /* Sub_Frame_Number */
-static int hf_nbap_onDemand = -1;                 /* NULL */
-static int hf_nbap_periodic = -1;                 /* InformationReportCharacteristicsType_ReportPeriodicity */
-static int hf_nbap_onModification = -1;           /* InformationReportCharacteristicsType_OnModification */
-static int hf_nbap_min = -1;                      /* ReportPeriodicity_Scaledmin */
-static int hf_nbap_hours = -1;                    /* ReportPeriodicity_Scaledhour */
-static int hf_nbap_information_thresholds = -1;   /* InformationThresholds */
-static int hf_nbap_dgps = -1;                     /* DGPSThresholds */
-static int hf_nbap_dGANSSThreshold = -1;          /* DGANSSThreshold */
-static int hf_nbap_information_Type_Item = -1;    /* Information_Type_Item */
-static int hf_nbap_gPSInformation = -1;           /* GPS_Information */
-static int hf_nbap_iP_SpacingFDD = -1;            /* T_iP_SpacingFDD */
-static int hf_nbap_iP_Length = -1;                /* T_iP_Length */
-static int hf_nbap_seed = -1;                     /* INTEGER_0_63 */
-static int hf_nbap_burstModeParams = -1;          /* BurstModeParams */
-static int hf_nbap_iP_Offset = -1;                /* INTEGER_0_9 */
-static int hf_nbap_iP_SpacingTDD = -1;            /* T_iP_SpacingTDD */
-static int hf_nbap_iP_Start = -1;                 /* INTEGER_0_4095 */
-static int hf_nbap_iP_Slot = -1;                  /* INTEGER_0_14 */
-static int hf_nbap_iP_PCCPCH = -1;                /* T_iP_PCCPCH */
-static int hf_nbap_iP_SpacingTDD_01 = -1;         /* T_iP_SpacingTDD_01 */
-static int hf_nbap_iP_Sub = -1;                   /* T_iP_Sub */
-static int hf_nbap_cFNOffset = -1;                /* INTEGER_0_255 */
-static int hf_nbap_burstStart = -1;               /* INTEGER_0_15 */
-static int hf_nbap_burstLength = -1;              /* INTEGER_10_25 */
-static int hf_nbap_burstFreq = -1;                /* INTEGER_1_16 */
-static int hf_nbap_idleIntervalInfo_k = -1;       /* T_idleIntervalInfo_k */
-static int hf_nbap_idleIntervalInfo_offset = -1;  /* INTEGER_0_7 */
-static int hf_nbap_maxTimeslotsPerSubFrame = -1;  /* INTEGER_1_6 */
-static int hf_nbap_maxPhysChPerTimeslot = -1;     /* T_maxPhysChPerTimeslot */
-static int hf_nbap_MACdPDU_Size_Indexlist_item = -1;  /* MACdPDU_Size_IndexItem */
-static int hf_nbap_sID = -1;                      /* SID */
-static int hf_nbap_macdPDU_Size = -1;             /* MACdPDU_Size */
-static int hf_nbap_MACdPDU_Size_Indexlist_to_Modify_item = -1;  /* MACdPDU_Size_IndexItem_to_Modify */
-static int hf_nbap_maximum_TB_Size_cell_edge_users = -1;  /* INTEGER_0_5000_ */
-static int hf_nbap_maximum_TB_Size_other_users = -1;  /* INTEGER_0_5000_ */
-static int hf_nbap_MessageStructure_item = -1;    /* MessageStructure_item */
-static int hf_nbap_repetitionNumber_01 = -1;      /* RepetitionNumber1 */
-static int hf_nbap_type1 = -1;                    /* Type1 */
-static int hf_nbap_midambleConfigurationBurstType1And3 = -1;  /* MidambleConfigurationBurstType1And3 */
-static int hf_nbap_midambleAllocationMode = -1;   /* MidambleAllocationMode1 */
-static int hf_nbap_defaultMidamble = -1;          /* NULL */
-static int hf_nbap_commonMidamble = -1;           /* NULL */
-static int hf_nbap_ueSpecificMidamble = -1;       /* MidambleShiftLong */
-static int hf_nbap_type2 = -1;                    /* Type2 */
-static int hf_nbap_midambleConfigurationBurstType2 = -1;  /* MidambleConfigurationBurstType2 */
-static int hf_nbap_midambleAllocationMode_01 = -1;  /* MidambleAllocationMode2 */
-static int hf_nbap_ueSpecificMidamble_01 = -1;    /* MidambleShiftShort */
-static int hf_nbap_type3 = -1;                    /* Type3 */
-static int hf_nbap_midambleAllocationMode_02 = -1;  /* MidambleAllocationMode3 */
-static int hf_nbap_midambleAllocationMode_03 = -1;  /* MidambleAllocationMode */
-static int hf_nbap_midambleShift_01 = -1;         /* MidambleShiftLong */
-static int hf_nbap_type1_01 = -1;                 /* Type7681 */
-static int hf_nbap_midambleAllocationMode_04 = -1;  /* MidambleAllocationMode7681 */
-static int hf_nbap_type2_01 = -1;                 /* Type7682 */
-static int hf_nbap_midambleConfigurationBurstType2_768 = -1;  /* MidambleConfigurationBurstType2_768 */
-static int hf_nbap_midambleAllocationMode_05 = -1;  /* MidambleAllocationMode7682 */
-static int hf_nbap_ueSpecificMidamble_02 = -1;    /* MidambleShiftShort768 */
-static int hf_nbap_type3_01 = -1;                 /* Type7683 */
-static int hf_nbap_midambleAllocationMode_06 = -1;  /* MidambleAllocationMode7683 */
-static int hf_nbap_primary_and_secondary_CPICH = -1;  /* CommonPhysicalChannelID */
-static int hf_nbap_normal_and_diversity_primary_CPICH = -1;  /* NULL */
-static int hf_nbap_primary_and_secondary_CPICH_01 = -1;  /* PrimaryAndSecondaryCPICHContainer */
-static int hf_nbap_normal_and_diversity_primary_CPICH_01 = -1;  /* NormalAndDiversityPrimaryCPICHContainer */
-static int hf_nbap_addPriorityQueue = -1;         /* PriorityQueue_InfoItem_to_Add */
-static int hf_nbap_modifyPriorityQueue = -1;      /* PriorityQueue_InfoItem_to_Modify */
-static int hf_nbap_deletePriorityQueue = -1;      /* PriorityQueue_Id */
-static int hf_nbap_qPSK = -1;                     /* NULL */
-static int hf_nbap_sixteenQAM = -1;               /* MBSFN_CPICH_secondary_CCPCH_power_offset */
-static int hf_nbap_MultipleFreq_HARQ_MemoryPartitioning_InformationList_item = -1;  /* MultipleFreq_HARQ_MemoryPartitioning_InformationItem */
-static int hf_nbap_MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR_item = -1;  /* MultipleFreq_HSPDSCH_InformationItem_ResponseTDDLCR */
-static int hf_nbap_multi_Cell_Capability = -1;    /* Multi_Cell_Capability */
-static int hf_nbap_dL_PowerBalancing_Information = -1;  /* DL_PowerBalancing_Information */
-static int hf_nbap_minimumReducedE_DPDCH_GainFactor = -1;  /* MinimumReducedE_DPDCH_GainFactor */
-static int hf_nbap_secondary_UL_Frequency_Activation_State = -1;  /* Secondary_UL_Frequency_Activation_State */
-static int hf_nbap_extendedPropagationDelay = -1;  /* ExtendedPropagationDelay */
-static int hf_nbap_primary_CPICH_Usage_for_Channel_Estimation = -1;  /* Primary_CPICH_Usage_for_Channel_Estimation */
-static int hf_nbap_secondary_CPICH_Information = -1;  /* CommonPhysicalChannelID */
-static int hf_nbap_secondary_CPICH_Information_Change = -1;  /* Secondary_CPICH_Information_Change */
-static int hf_nbap_e_AGCH_PowerOffset = -1;       /* E_AGCH_PowerOffset */
-static int hf_nbap_e_RGCH_PowerOffset = -1;       /* E_RGCH_PowerOffset */
-static int hf_nbap_e_HICH_PowerOffset = -1;       /* E_HICH_PowerOffset */
-static int hf_nbap_e_DCH_DL_Control_Channel_Grant = -1;  /* NULL */
-static int hf_nbap_NeighbouringCellMeasurementInformation_item = -1;  /* NeighbouringCellMeasurementInformation_item */
-static int hf_nbap_neighbouringFDDCellMeasurementInformation = -1;  /* NeighbouringFDDCellMeasurementInformation */
-static int hf_nbap_neighbouringTDDCellMeasurementInformation = -1;  /* NeighbouringTDDCellMeasurementInformation */
-static int hf_nbap_extension_neighbouringCellMeasurementInformation = -1;  /* Extension_neighbouringCellMeasurementInformation */
-static int hf_nbap_uC_Id = -1;                    /* UC_Id */
-static int hf_nbap_primaryScramblingCode = -1;    /* PrimaryScramblingCode */
-static int hf_nbap_cellParameterID = -1;          /* CellParameterID */
-static int hf_nbap_NI_Information_item = -1;      /* Notification_Indicator */
-static int hf_nbap_Paging_MACFlows_to_DeleteFDD_item = -1;  /* Paging_MACFlows_to_DeleteFDD_Item */
-static int hf_nbap_paging_MACFlow_ID = -1;        /* Paging_MACFlow_ID */
-static int hf_nbap_Paging_MACFlow_Specific_Information_item = -1;  /* Paging_MAC_Flow_Specific_Information_Item */
-static int hf_nbap_paging_MACFlow_Id = -1;        /* Paging_MACFlow_ID */
-static int hf_nbap_hSDPA_associated_PICH_Info = -1;  /* HSDPA_Associated_PICH_Information */
-static int hf_nbap_paging_MACFlow_PriorityQueue_Information = -1;  /* Paging_MACFlow_PriorityQueue_Information */
-static int hf_nbap_Paging_MACFlow_PriorityQueue_Information_item = -1;  /* Paging_MACFlow_PriorityQueue_Item */
-static int hf_nbap_priority_Queue_Information_for_Enhanced_PCH = -1;  /* Priority_Queue_Information_for_Enhanced_FACH_PCH */
-static int hf_nbap_sequenceNumber = -1;           /* PLCCHsequenceNumber */
-static int hf_nbap_Possible_Secondary_Serving_Cell_List_item = -1;  /* Possible_Secondary_Serving_Cell */
-static int hf_nbap_local_Cell_ID = -1;            /* Local_Cell_ID */
-static int hf_nbap_power_Offset_For_Secondary_CPICH_for_MIMO = -1;  /* PowerOffsetForSecondaryCPICHforMIMO */
-static int hf_nbap_priorityQueue_Id = -1;         /* PriorityQueue_Id */
-static int hf_nbap_t1 = -1;                       /* T1 */
-static int hf_nbap_mAC_ehs_Reset_Timer = -1;      /* MAC_ehs_Reset_Timer */
-static int hf_nbap_discardTimer = -1;             /* DiscardTimer */
-static int hf_nbap_mAC_hsWindowSize = -1;         /* MAC_hsWindowSize */
-static int hf_nbap_maximum_MACcPDU_Size = -1;     /* MAC_PDU_SizeExtended */
-static int hf_nbap_PriorityQueue_InfoList_item = -1;  /* PriorityQueue_InfoItem */
-static int hf_nbap_priorityQueueId = -1;          /* PriorityQueue_Id */
-static int hf_nbap_associatedHSDSCH_MACdFlow = -1;  /* HSDSCH_MACdFlow_ID */
-static int hf_nbap_mAChsGuaranteedBitRate = -1;   /* MAChsGuaranteedBitRate */
-static int hf_nbap_macdPDU_Size_Index = -1;       /* MACdPDU_Size_Indexlist */
-static int hf_nbap_rLC_Mode = -1;                 /* RLC_Mode */
-static int hf_nbap_PriorityQueue_InfoList_to_Modify_item = -1;  /* ModifyPriorityQueue */
-static int hf_nbap_macdPDU_Size_Index_to_Modify = -1;  /* MACdPDU_Size_Indexlist_to_Modify */
-static int hf_nbap_PriorityQueue_InfoList_to_Modify_Unsynchronised_item = -1;  /* PriorityQueue_InfoItem_to_Modify_Unsynchronised */
-static int hf_nbap_none = -1;                     /* NULL */
-static int hf_nbap_selected_MBMS_Service = -1;    /* Selected_MBMS_Service */
-static int hf_nbap_selected_MBMS_Service_List = -1;  /* Selected_MBMS_Service_List */
-static int hf_nbap_Selected_MBMS_Service_List_item = -1;  /* Selected_MBMS_Service_Item */
-static int hf_nbap_selected_MBMS_Service_TimeSlot_Information_LCR = -1;  /* Selected_MBMS_Service_TimeSlot_Information_LCR */
-static int hf_nbap_mBMS_Service_TDM_Information = -1;  /* MBMS_Service_TDM_Information */
-static int hf_nbap_Selected_MBMS_Service_TimeSlot_Information_LCR_item = -1;  /* TimeSlotLCR */
-static int hf_nbap_transmission_Time_Interval = -1;  /* T_transmission_Time_Interval */
-static int hf_nbap_tDM_Rep = -1;                  /* INTEGER_2_9 */
-static int hf_nbap_tDM_Offset = -1;               /* INTEGER_0_8 */
-static int hf_nbap_tDM_Length = -1;               /* INTEGER_1_8 */
-static int hf_nbap_Paging_MACFlow_Specific_InformationLCR_item = -1;  /* Paging_MAC_Flow_Specific_Information_ItemLCR */
-static int hf_nbap_hSDPA_associated_PICH_InfoLCR = -1;  /* HSDPA_Associated_PICH_InformationLCR */
-static int hf_nbap_paging_MACFlow_PriorityQueue_InformationLCR = -1;  /* Paging_MACFlow_PriorityQueue_Information */
-static int hf_nbap_Paging_MACFlows_to_DeleteLCR_item = -1;  /* Paging_MACFlows_to_DeleteLCR_Item */
-static int hf_nbap_RL_Specific_DCH_Info_item = -1;  /* RL_Specific_DCH_Info_Item */
-static int hf_nbap_dCH_id = -1;                   /* T_dCH_id */
-static int hf_nbap_transportlayeraddress = -1;    /* TransportLayerAddress */
-static int hf_nbap_rL_Specific_E_DCH_Information = -1;  /* RL_Specific_E_DCH_Information */
-static int hf_nbap_RL_Specific_E_DCH_Information_item = -1;  /* RL_Specific_E_DCH_Information_Item */
-static int hf_nbap_Reference_E_TFCI_Information_item = -1;  /* Reference_E_TFCI_Information_Item */
-static int hf_nbap_reference_E_TFCI = -1;         /* E_TFCI */
-static int hf_nbap_reference_E_TFCI_PO = -1;      /* Reference_E_TFCI_PO */
-static int hf_nbap_periodic_01 = -1;              /* ReportCharacteristicsType_ReportPeriodicity */
-static int hf_nbap_event_a = -1;                  /* ReportCharacteristicsType_EventA */
-static int hf_nbap_event_b = -1;                  /* ReportCharacteristicsType_EventB */
-static int hf_nbap_event_c = -1;                  /* ReportCharacteristicsType_EventC */
-static int hf_nbap_event_d = -1;                  /* ReportCharacteristicsType_EventD */
-static int hf_nbap_event_e = -1;                  /* ReportCharacteristicsType_EventE */
-static int hf_nbap_event_f = -1;                  /* ReportCharacteristicsType_EventF */
-static int hf_nbap_extension_ReportCharacteristics = -1;  /* Extension_ReportCharacteristics */
-static int hf_nbap_measurementThreshold = -1;     /* ReportCharacteristicsType_MeasurementThreshold */
-static int hf_nbap_measurementHysteresisTime = -1;  /* ReportCharacteristicsType_ScaledMeasurementHysteresisTime */
-static int hf_nbap_measurementIncreaseThreshold = -1;  /* ReportCharacteristicsType_MeasurementIncreaseDecreaseThreshold */
-static int hf_nbap_measurementChangeTime = -1;    /* ReportCharacteristicsType_ScaledMeasurementChangeTime */
-static int hf_nbap_measurementDecreaseThreshold = -1;  /* ReportCharacteristicsType_MeasurementIncreaseDecreaseThreshold */
-static int hf_nbap_measurementThreshold1 = -1;    /* ReportCharacteristicsType_MeasurementThreshold */
-static int hf_nbap_measurementThreshold2 = -1;    /* ReportCharacteristicsType_MeasurementThreshold */
-static int hf_nbap_reportPeriodicity = -1;        /* ReportCharacteristicsType_ReportPeriodicity */
-static int hf_nbap_received_total_wide_band_power_01 = -1;  /* Received_total_wide_band_power_Value_IncrDecrThres */
-static int hf_nbap_uL_TimeslotISCP_01 = -1;       /* UL_TimeslotISCP_Value_IncrDecrThres */
-static int hf_nbap_sir = -1;                      /* SIR_Value_IncrDecrThres */
-static int hf_nbap_sir_error = -1;                /* SIR_Error_Value_IncrDecrThres */
-static int hf_nbap_transmitted_code_power = -1;   /* Transmitted_Code_Power_Value_IncrDecrThres */
-static int hf_nbap_rscp = -1;                     /* RSCP_Value_IncrDecrThres */
-static int hf_nbap_round_trip_time = -1;          /* Round_Trip_Time_IncrDecrThres */
-static int hf_nbap_extension_ReportCharacteristicsType_MeasurementIncreaseDecreaseThreshold = -1;  /* Extension_ReportCharacteristicsType_MeasurementIncreaseDecreaseThreshold */
-static int hf_nbap_sir_01 = -1;                   /* SIR_Value */
-static int hf_nbap_sir_error_01 = -1;             /* SIR_Error_Value */
-static int hf_nbap_transmitted_code_power_01 = -1;  /* Transmitted_Code_Power_Value */
-static int hf_nbap_rscp_01 = -1;                  /* RSCP_Value */
-static int hf_nbap_rx_timing_deviation = -1;      /* Rx_Timing_Deviation_Value */
-static int hf_nbap_round_trip_time_01 = -1;       /* Round_Trip_Time_Value */
-static int hf_nbap_extension_ReportCharacteristicsType_MeasurementThreshold = -1;  /* Extension_ReportCharacteristicsType_MeasurementThreshold */
-static int hf_nbap_msec = -1;                     /* MeasurementChangeTime_Scaledmsec */
-static int hf_nbap_msec_01 = -1;                  /* MeasurementHysteresisTime_Scaledmsec */
-static int hf_nbap_msec_02 = -1;                  /* ReportPeriodicity_Scaledmsec */
-static int hf_nbap_Received_total_wide_band_power_For_CellPortion_Value_item = -1;  /* Received_total_wide_band_power_For_CellPortion_Value_Item */
-static int hf_nbap_received_total_wide_band_power_value = -1;  /* Received_total_wide_band_power_Value */
-static int hf_nbap_Received_total_wide_band_power_For_CellPortion_ValueLCR_item = -1;  /* Received_total_wide_band_power_For_CellPortion_ValueLCR_Item */
-static int hf_nbap_Received_Scheduled_EDCH_Power_Share_For_CellPortion_Value_item = -1;  /* Received_Scheduled_EDCH_Power_Share_For_CellPortion_Value_Item */
-static int hf_nbap_received_Scheduled_power_share_value = -1;  /* RSEPS_Value */
-static int hf_nbap_informationAvailable = -1;     /* InformationAvailable */
-static int hf_nbap_informationnotAvailable = -1;  /* InformationnotAvailable */
-static int hf_nbap_requesteddataValue = -1;       /* RequestedDataValue */
-static int hf_nbap_dgps_corrections = -1;         /* DGPSCorrections */
-static int hf_nbap_gps_navandrecovery = -1;       /* GPS_NavigationModel_and_TimeRecovery */
-static int hf_nbap_gps_ionos_model = -1;          /* GPS_Ionospheric_Model */
-static int hf_nbap_gps_utc_model = -1;            /* GPS_UTC_Model */
-static int hf_nbap_gps_almanac = -1;              /* GPS_Almanac */
-static int hf_nbap_gps_rt_integrity = -1;         /* GPS_RealTime_Integrity */
-static int hf_nbap_gpsrxpos = -1;                 /* GPS_RX_POS */
-static int hf_nbap_SAT_Info_Almanac_item = -1;    /* SAT_Info_Almanac_Item */
-static int hf_nbap_data_id = -1;                  /* DATA_ID */
-static int hf_nbap_sat_id = -1;                   /* SAT_ID */
-static int hf_nbap_gps_e_alm = -1;                /* BIT_STRING_SIZE_16 */
-static int hf_nbap_gps_toa_alm = -1;              /* BIT_STRING_SIZE_8 */
-static int hf_nbap_gps_delta_I_alm = -1;          /* BIT_STRING_SIZE_16 */
-static int hf_nbap_omegadot_alm = -1;             /* BIT_STRING_SIZE_16 */
-static int hf_nbap_svhealth_alm = -1;             /* BIT_STRING_SIZE_8 */
-static int hf_nbap_gps_a_sqrt_alm = -1;           /* BIT_STRING_SIZE_24 */
-static int hf_nbap_omegazero_alm = -1;            /* BIT_STRING_SIZE_24 */
-static int hf_nbap_m_zero_alm = -1;               /* BIT_STRING_SIZE_24 */
-static int hf_nbap_gps_omega_alm = -1;            /* BIT_STRING_SIZE_24 */
-static int hf_nbap_gps_af_zero_alm = -1;          /* BIT_STRING_SIZE_11 */
-static int hf_nbap_gps_af_one_alm = -1;           /* BIT_STRING_SIZE_11 */
-static int hf_nbap_SAT_Info_Almanac_ExtList_item = -1;  /* SAT_Info_Almanac_ExtItem */
-static int hf_nbap_SAT_Info_DGPSCorrections_item = -1;  /* SAT_Info_DGPSCorrections_Item */
-static int hf_nbap_iode_dgps = -1;                /* BIT_STRING_SIZE_8 */
-static int hf_nbap_prc = -1;                      /* PRC */
-static int hf_nbap_range_correction_rate = -1;    /* Range_Correction_Rate */
-static int hf_nbap_SATInfo_RealTime_Integrity_item = -1;  /* SAT_Info_RealTime_Integrity_Item */
-static int hf_nbap_bad_sat_id = -1;               /* SAT_ID */
-static int hf_nbap_SecondaryServingCells_item = -1;  /* SecondaryServingCellsItem */
-static int hf_nbap_secondaryC_ID = -1;            /* C_ID */
-static int hf_nbap_numSecondaryHS_SCCH_Codes = -1;  /* NumHS_SCCH_Codes */
-static int hf_nbap_new_secondary_CPICH = -1;      /* CommonPhysicalChannelID */
-static int hf_nbap_secondary_CPICH_shall_not_be_used = -1;  /* NULL */
-static int hf_nbap_serving_E_DCH_RL_in_this_NodeB = -1;  /* Serving_E_DCH_RL_in_this_NodeB */
-static int hf_nbap_serving_E_DCH_RL_not_in_this_NodeB = -1;  /* NULL */
-static int hf_nbap_SetsOfHS_SCCH_Codes_item = -1;  /* SetsOfHS_SCCH_CodesItem */
-static int hf_nbap_hS_SCCH_PreconfiguredCodes = -1;  /* HS_SCCH_PreconfiguredCodes */
-static int hf_nbap_setup = -1;                    /* Additional_EDCH_Setup_Info */
-static int hf_nbap_configurationChange = -1;      /* Additional_EDCH_Cell_Information_ConfigurationChange_List */
-static int hf_nbap_removal = -1;                  /* Additional_EDCH_Cell_Information_Removal_List */
-static int hf_nbap_sFNSFNChangeLimit = -1;        /* SFNSFNChangeLimit */
-static int hf_nbap_predictedSFNSFNDeviationLimit = -1;  /* PredictedSFNSFNDeviationLimit */
-static int hf_nbap_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation = -1;  /* T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation */
-static int hf_nbap_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item = -1;  /* T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item */
-static int hf_nbap_sFNSFNValue = -1;              /* SFNSFNValue */
-static int hf_nbap_sFNSFNQuality = -1;            /* SFNSFNQuality */
-static int hf_nbap_sFNSFNDriftRate = -1;          /* SFNSFNDriftRate */
-static int hf_nbap_sFNSFNDriftRateQuality = -1;   /* SFNSFNDriftRateQuality */
-static int hf_nbap_sFNSFNTimeStampInformation = -1;  /* SFNSFNTimeStampInformation */
-static int hf_nbap_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation = -1;  /* T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation */
-static int hf_nbap_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item = -1;  /* T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item */
-static int hf_nbap_sFNSFNTimeStamp_FDD = -1;      /* SFN */
-static int hf_nbap_sFNSFNTimeStamp_TDD = -1;      /* SFNSFNTimeStamp_TDD */
-static int hf_nbap_sFN = -1;                      /* SFN */
-static int hf_nbap_sFNSFN_FDD = -1;               /* SFNSFN_FDD */
-static int hf_nbap_sFNSFN_TDD = -1;               /* SFNSFN_TDD */
-static int hf_nbap_sFNSFN_TDD768 = -1;            /* SFNSFN_TDD768 */
-static int hf_nbap_synchronisationReportCharacteristicsType = -1;  /* SynchronisationReportCharacteristicsType */
-static int hf_nbap_synchronisationReportCharactThreExc = -1;  /* SynchronisationReportCharactThreExc */
-static int hf_nbap_SynchronisationReportCharactThreExc_item = -1;  /* SynchronisationReportCharactThreInfoItem */
-static int hf_nbap_syncFrameNumber = -1;          /* SyncFrameNumber */
-static int hf_nbap_cellSyncBurstInformation = -1;  /* SEQUENCE_SIZE_1_maxNrOfReceptsPerSyncFrame_OF_SynchronisationReportCharactCellSyncBurstInfoItem */
-static int hf_nbap_cellSyncBurstInformation_item = -1;  /* SynchronisationReportCharactCellSyncBurstInfoItem */
-static int hf_nbap_cellSyncBurstCode = -1;        /* CellSyncBurstCode */
-static int hf_nbap_cellSyncBurstCodeShift = -1;   /* CellSyncBurstCodeShift */
-static int hf_nbap_cellSyncBurstTiming = -1;      /* CellSyncBurstTiming */
-static int hf_nbap_cellSyncBurstTimingThreshold = -1;  /* CellSyncBurstTimingThreshold */
-static int hf_nbap_SyncDLCodeIdThreInfoLCR_item = -1;  /* SyncDLCodeIdThreInfoList */
-static int hf_nbap_syncFrameNoToReceive = -1;     /* SyncFrameNumber */
-static int hf_nbap_syncDLCodeIdInfoLCR = -1;      /* SyncDLCodeInfoListLCR */
-static int hf_nbap_SyncDLCodeInfoListLCR_item = -1;  /* SyncDLCodeInfoItemLCR */
-static int hf_nbap_syncDLCodeId = -1;             /* SYNCDlCodeId */
-static int hf_nbap_syncDLCodeIdArrivTime = -1;    /* CellSyncBurstTimingLCR */
-static int hf_nbap_syncDLCodeIdTimingThre = -1;   /* CellSyncBurstTimingThreshold */
-static int hf_nbap_modulation = -1;               /* Modulation */
-static int hf_nbap_TDD_DL_Code_Information_item = -1;  /* TDD_DL_Code_InformationItem */
-static int hf_nbap_dPCH_ID = -1;                  /* DPCH_ID */
-static int hf_nbap_TDD_DL_Code_LCR_Information_item = -1;  /* TDD_DL_Code_LCR_InformationItem */
-static int hf_nbap_tdd_DL_DPCH_TimeSlotFormat_LCR = -1;  /* TDD_DL_DPCH_TimeSlotFormat_LCR */
-static int hf_nbap_TDD_DL_Code_768_Information_item = -1;  /* TDD_DL_Code_768_InformationItem */
-static int hf_nbap_qPSK_01 = -1;                  /* QPSK_DL_DPCH_TimeSlotFormatTDD_LCR */
-static int hf_nbap_eightPSK = -1;                 /* EightPSK_DL_DPCH_TimeSlotFormatTDD_LCR */
-static int hf_nbap_initialOffset = -1;            /* INTEGER_0_255 */
-static int hf_nbap_noinitialOffset = -1;          /* INTEGER_0_63 */
-static int hf_nbap_signalledGainFactors = -1;     /* T_signalledGainFactors */
-static int hf_nbap_gainFactor = -1;               /* T_gainFactor */
-static int hf_nbap_fdd = -1;                      /* T_fdd */
-static int hf_nbap_betaC = -1;                    /* BetaCD */
-static int hf_nbap_betaD = -1;                    /* BetaCD */
-static int hf_nbap_tdd = -1;                      /* BetaCD */
-static int hf_nbap_refTFCNumber = -1;             /* RefTFCNumber */
-static int hf_nbap_computedGainFactors = -1;      /* RefTFCNumber */
-static int hf_nbap_TDD_UL_Code_Information_item = -1;  /* TDD_UL_Code_InformationItem */
-static int hf_nbap_TDD_UL_Code_LCR_Information_item = -1;  /* TDD_UL_Code_LCR_InformationItem */
-static int hf_nbap_tdd_UL_DPCH_TimeSlotFormat_LCR = -1;  /* TDD_UL_DPCH_TimeSlotFormat_LCR */
-static int hf_nbap_TDD_UL_Code_768_Information_item = -1;  /* TDD_UL_Code_768_InformationItem */
-static int hf_nbap_qPSK_02 = -1;                  /* QPSK_UL_DPCH_TimeSlotFormatTDD_LCR */
-static int hf_nbap_eightPSK_01 = -1;              /* EightPSK_UL_DPCH_TimeSlotFormatTDD_LCR */
-static int hf_nbap_tFCI_SignallingOption = -1;    /* TFCI_SignallingMode_TFCI_SignallingOption */
-static int hf_nbap_not_Used_splitType = -1;       /* NULL */
-static int hf_nbap_not_Used_lengthOfTFCI2 = -1;   /* NULL */
-static int hf_nbap_TimeSlot_InitiatedListLCR_item = -1;  /* TimeSlotLCR */
-static int hf_nbap_TimeSlotMeasurementValueListLCR_item = -1;  /* TimeSlotMeasurementValueLCR */
-static int hf_nbap_commonMeasurementValue = -1;   /* CommonMeasurementValue */
-static int hf_nbap_initialPhase_01 = -1;          /* INTEGER_0_1048575_ */
-static int hf_nbap_dsField = -1;                  /* DsField */
-static int hf_nbap_genericTrafficCategory = -1;   /* GenericTrafficCategory */
-static int hf_nbap_Transmission_Gap_Pattern_Sequence_Information_item = -1;  /* Transmission_Gap_Pattern_Sequence_Information_item */
-static int hf_nbap_tGSN = -1;                     /* TGSN */
-static int hf_nbap_tGL1 = -1;                     /* GapLength */
-static int hf_nbap_tGL2 = -1;                     /* GapLength */
-static int hf_nbap_tGD = -1;                      /* TGD */
-static int hf_nbap_tGPL1 = -1;                    /* GapDuration */
-static int hf_nbap_not_to_be_used_1 = -1;         /* GapDuration */
-static int hf_nbap_uL_DL_mode = -1;               /* UL_DL_mode */
-static int hf_nbap_downlink_Compressed_Mode_Method = -1;  /* Downlink_Compressed_Mode_Method */
-static int hf_nbap_uplink_Compressed_Mode_Method = -1;  /* Uplink_Compressed_Mode_Method */
-static int hf_nbap_dL_FrameType = -1;             /* DL_FrameType */
-static int hf_nbap_delta_SIR1 = -1;               /* DeltaSIR */
-static int hf_nbap_delta_SIR_after1 = -1;         /* DeltaSIR */
-static int hf_nbap_delta_SIR2 = -1;               /* DeltaSIR */
-static int hf_nbap_delta_SIR_after2 = -1;         /* DeltaSIR */
-static int hf_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue_item = -1;  /* TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue_Item */
-static int hf_nbap_transmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValue = -1;  /* TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValue */
-static int hf_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCHOrE_HICHTransmissionCellPortionValue_item = -1;  /* TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCHOrE_HICHTransmissionCellPortionValue_Item */
-static int hf_nbap_Transmitted_Carrier_Power_For_CellPortion_Value_item = -1;  /* Transmitted_Carrier_Power_For_CellPortion_Value_Item */
-static int hf_nbap_transmitted_Carrier_Power_Value = -1;  /* Transmitted_Carrier_Power_Value */
-static int hf_nbap_Transmitted_Carrier_Power_For_CellPortion_ValueLCR_item = -1;  /* Transmitted_Carrier_Power_For_CellPortion_ValueLCR_Item */
-static int hf_nbap_tFCSvalues = -1;               /* T_tFCSvalues */
-static int hf_nbap_no_Split_in_TFCI = -1;         /* TFCS_TFCSList */
-static int hf_nbap_not_Used_split_in_TFCI = -1;   /* NULL */
-static int hf_nbap_TFCS_TFCSList_item = -1;       /* TFCS_TFCSList_item */
-static int hf_nbap_cTFC = -1;                     /* TFCS_CTFC */
-static int hf_nbap_tFC_Beta = -1;                 /* TransportFormatCombination_Beta */
-static int hf_nbap_ctfc2bit = -1;                 /* INTEGER_0_3 */
-static int hf_nbap_ctfc4bit = -1;                 /* INTEGER_0_15 */
-static int hf_nbap_ctfc6bit = -1;                 /* INTEGER_0_63 */
-static int hf_nbap_ctfc8bit = -1;                 /* INTEGER_0_255 */
-static int hf_nbap_ctfc12bit = -1;                /* INTEGER_0_4095 */
-static int hf_nbap_ctfc16bit = -1;                /* INTEGER_0_65535 */
-static int hf_nbap_ctfcmaxbit = -1;               /* INTEGER_0_maxCTFC */
-static int hf_nbap_Transport_Block_Size_List_item = -1;  /* Transport_Block_Size_List_item */
-static int hf_nbap_transport_Block_Size_Index_for_Enhanced_PCH = -1;  /* Transport_Block_Size_Index_for_Enhanced_PCH */
-static int hf_nbap_dynamicParts = -1;             /* TransportFormatSet_DynamicPartList */
-static int hf_nbap_semi_staticPart = -1;          /* TransportFormatSet_Semi_staticPart */
-static int hf_nbap_TransportFormatSet_DynamicPartList_item = -1;  /* TransportFormatSet_DynamicPartList_item */
-static int hf_nbap_nrOfTransportBlocks = -1;      /* TransportFormatSet_NrOfTransportBlocks */
-static int hf_nbap_transportBlockSize = -1;       /* TransportFormatSet_TransportBlockSize */
-static int hf_nbap_mode = -1;                     /* TransportFormatSet_ModeDP */
-static int hf_nbap_transmissionTimeIntervalInformation = -1;  /* TransmissionTimeIntervalInformation */
-static int hf_nbap_TransmissionTimeIntervalInformation_item = -1;  /* TransmissionTimeIntervalInformation_item */
-static int hf_nbap_transmissionTimeInterval = -1;  /* TransportFormatSet_TransmissionTimeIntervalDynamic */
-static int hf_nbap_transmissionTimeInterval_01 = -1;  /* TransportFormatSet_TransmissionTimeIntervalSemiStatic */
-static int hf_nbap_channelCoding = -1;            /* TransportFormatSet_ChannelCodingType */
-static int hf_nbap_codingRate = -1;               /* TransportFormatSet_CodingRate */
-static int hf_nbap_rateMatchingAttribute = -1;    /* TransportFormatSet_RateMatchingAttribute */
-static int hf_nbap_cRC_Size = -1;                 /* TransportFormatSet_CRC_Size */
-static int hf_nbap_mode_01 = -1;                  /* TransportFormatSet_ModeSSP */
-static int hf_nbap_tdd_01 = -1;                   /* TDD_TransportFormatSet_ModeDP */
-static int hf_nbap_notApplicable = -1;            /* NULL */
-static int hf_nbap_tdd_02 = -1;                   /* TransportFormatSet_SecondInterleavingMode */
-static int hf_nbap_mS = -1;                       /* INTEGER_0_16383 */
-static int hf_nbap_lS = -1;                       /* INTEGER_0_4294967295 */
-static int hf_nbap_tUTRANGANSSChangeLimit = -1;   /* INTEGER_1_256 */
-static int hf_nbap_predictedTUTRANGANSSDeviationLimit = -1;  /* INTEGER_1_256 */
-static int hf_nbap_tUTRANGANSS = -1;              /* TUTRANGANSS */
-static int hf_nbap_tUTRANGANSSQuality = -1;       /* INTEGER_0_255 */
-static int hf_nbap_tUTRANGANSSDriftRate = -1;     /* INTEGER_M50_50 */
-static int hf_nbap_tUTRANGANSSDriftRateQuality = -1;  /* INTEGER_0_50 */
-static int hf_nbap_ms_part = -1;                  /* INTEGER_0_16383 */
-static int hf_nbap_ls_part = -1;                  /* INTEGER_0_4294967295 */
-static int hf_nbap_tUTRANGPSChangeLimit = -1;     /* TUTRANGPSChangeLimit */
-static int hf_nbap_predictedTUTRANGPSDeviationLimit = -1;  /* PredictedTUTRANGPSDeviationLimit */
-static int hf_nbap_tUTRANGPS = -1;                /* TUTRANGPS */
-static int hf_nbap_tUTRANGPSQuality = -1;         /* TUTRANGPSQuality */
-static int hf_nbap_tUTRANGPSDriftRate = -1;       /* TUTRANGPSDriftRate */
-static int hf_nbap_tUTRANGPSDriftRateQuality = -1;  /* TUTRANGPSDriftRateQuality */
-static int hf_nbap_rNC_ID = -1;                   /* RNC_ID */
-static int hf_nbap_uE_AggregateMaximumBitRateDownlink = -1;  /* UE_AggregateMaximumBitRateDownlink */
-static int hf_nbap_uE_AggregateMaximumBitRateUplink = -1;  /* UE_AggregateMaximumBitRateUplink */
-static int hf_nbap_hSDSCH_Physical_Layer_Category_01 = -1;  /* T_hSDSCH_Physical_Layer_Category */
-static int hf_nbap_UL_Timeslot_Information_item = -1;  /* UL_Timeslot_InformationItem */
-static int hf_nbap_uL_Code_InformationList = -1;  /* TDD_UL_Code_Information */
-static int hf_nbap_UL_TimeslotLCR_Information_item = -1;  /* UL_TimeslotLCR_InformationItem */
-static int hf_nbap_uL_Code_InformationList_01 = -1;  /* TDD_UL_Code_LCR_Information */
-static int hf_nbap_UL_Timeslot768_Information_item = -1;  /* UL_Timeslot768_InformationItem */
-static int hf_nbap_uL_Code_InformationList_02 = -1;  /* TDD_UL_Code_768_Information */
-static int hf_nbap_uL_ScramblingCodeNumber = -1;  /* UL_ScramblingCodeNumber */
-static int hf_nbap_uL_ScramblingCodeLength = -1;  /* UL_ScramblingCodeLength */
-static int hf_nbap_uL_Synchronisation_StepSize = -1;  /* UL_Synchronisation_StepSize */
-static int hf_nbap_uL_Synchronisation_Frequency = -1;  /* UL_Synchronisation_Frequency */
-static int hf_nbap_UL_TimeSlot_ISCP_Info_item = -1;  /* UL_TimeSlot_ISCP_InfoItem */
-static int hf_nbap_iSCP = -1;                     /* UL_TimeslotISCP_Value */
-static int hf_nbap_UL_TimeSlot_ISCP_LCR_Info_item = -1;  /* UL_TimeSlot_ISCP_LCR_InfoItem */
-static int hf_nbap_UpPTSInterference_For_CellPortion_Value_item = -1;  /* UpPTSInterference_For_CellPortion_Value_Item */
-static int hf_nbap_upPTSInterferenceValue = -1;   /* UpPTSInterferenceValue */
-static int hf_nbap_USCH_Information_item = -1;    /* USCH_InformationItem */
-static int hf_nbap_uSCH_ID = -1;                  /* USCH_ID */
-static int hf_nbap_USCH_InformationResponse_item = -1;  /* USCH_InformationResponseItem */
-static int hf_nbap_UL_TimeslotISCP_For_CellPortion_Value_item = -1;  /* UL_TimeslotISCP_For_CellPortion_Value_Item */
-static int hf_nbap_uL_TimeslotISCP_Value = -1;    /* UL_TimeslotISCP_Value */
-static int hf_nbap_protocolIEs = -1;              /* ProtocolIE_Container */
-static int hf_nbap_protocolExtensions = -1;       /* ProtocolExtensionContainer */
-static int hf_nbap_secondary_CCPCH_parameters = -1;  /* Secondary_CCPCH_CTCH_SetupRqstFDD */
-static int hf_nbap_pRACH_parameters = -1;         /* PRACH_CTCH_SetupRqstFDD */
-static int hf_nbap_notUsed_pCPCHes_parameters = -1;  /* NULL */
-static int hf_nbap_fdd_S_CCPCH_Offset = -1;       /* FDD_S_CCPCH_Offset */
-static int hf_nbap_tFCS = -1;                     /* TFCS */
-static int hf_nbap_secondary_CCPCH_SlotFormat = -1;  /* SecondaryCCPCH_SlotFormat */
-static int hf_nbap_multiplexingPosition = -1;     /* MultiplexingPosition */
-static int hf_nbap_powerOffsetInformation = -1;   /* PowerOffsetInformation_CTCH_SetupRqstFDD */
-static int hf_nbap_fACH_Parameters = -1;          /* FACH_ParametersList_CTCH_SetupRqstFDD */
-static int hf_nbap_pCH_Parameters = -1;           /* PCH_Parameters_CTCH_SetupRqstFDD */
-static int hf_nbap_pO1_ForTFCI_Bits = -1;         /* PowerOffset */
-static int hf_nbap_pO3_ForPilotBits = -1;         /* PowerOffset */
-static int hf_nbap_FACH_ParametersListIE_CTCH_SetupRqstFDD_item = -1;  /* FACH_ParametersItem_CTCH_SetupRqstFDD */
-static int hf_nbap_maxFACH_Power = -1;            /* DL_Power */
-static int hf_nbap_transportFormatSet_01 = -1;    /* T_transportFormatSet */
-static int hf_nbap_pCH_Power = -1;                /* DL_Power */
-static int hf_nbap_pICH_Parameters = -1;          /* PICH_Parameters_CTCH_SetupRqstFDD */
-static int hf_nbap_pICH_Mode = -1;                /* PICH_Mode */
-static int hf_nbap_mICH_Power = -1;               /* PICH_Power */
-static int hf_nbap_mICH_Mode = -1;                /* MICH_Mode */
-static int hf_nbap_preambleSignatures = -1;       /* PreambleSignatures */
-static int hf_nbap_allowedSlotFormatInformation = -1;  /* AllowedSlotFormatInformationList_CTCH_SetupRqstFDD */
-static int hf_nbap_rACH_SubChannelNumbers = -1;   /* RACH_SubChannelNumbers */
-static int hf_nbap_ul_punctureLimit = -1;         /* PunctureLimit */
-static int hf_nbap_rACH_Parameters = -1;          /* RACH_Parameters_CTCH_SetupRqstFDD */
-static int hf_nbap_aICH_Parameters = -1;          /* AICH_Parameters_CTCH_SetupRqstFDD */
-static int hf_nbap_AllowedSlotFormatInformationList_CTCH_SetupRqstFDD_item = -1;  /* AllowedSlotFormatInformationItem_CTCH_SetupRqstFDD */
-static int hf_nbap_rACHSlotFormat = -1;           /* RACH_SlotFormat */
-static int hf_nbap_secondary_CCPCH_parameters_01 = -1;  /* Secondary_CCPCH_CTCH_SetupRqstTDD */
-static int hf_nbap_pRACH_parameters_01 = -1;      /* PRACH_CTCH_SetupRqstTDD */
-static int hf_nbap_extension_CommonPhysicalChannelType_CTCH_SetupRqstTDD = -1;  /* Extension_CommonPhysicalChannelType_CTCH_SetupRqstTDD */
-static int hf_nbap_sCCPCH_CCTrCH_ID = -1;         /* CCTrCH_ID */
-static int hf_nbap_tFCI_Coding = -1;              /* TFCI_Coding */
-static int hf_nbap_punctureLimit = -1;            /* PunctureLimit */
-static int hf_nbap_secondaryCCPCH_parameterList = -1;  /* Secondary_CCPCH_parameterList_CTCH_SetupRqstTDD */
-static int hf_nbap_fACH_ParametersList = -1;      /* FACH_ParametersList_CTCH_SetupRqstTDD */
-static int hf_nbap_pCH_Parameters_01 = -1;        /* PCH_Parameters_CTCH_SetupRqstTDD */
-static int hf_nbap_Secondary_CCPCH_parameterListIE_CTCH_SetupRqstTDD_item = -1;  /* Secondary_CCPCH_parameterItem_CTCH_SetupRqstTDD */
-static int hf_nbap_midambleShiftandBurstType = -1;  /* MidambleShiftAndBurstType */
-static int hf_nbap_s_CCPCH_Power = -1;            /* DL_Power */
-static int hf_nbap_Secondary_CCPCH_LCR_parameterList_CTCH_SetupRqstTDD_item = -1;  /* Secondary_CCPCH_LCR_parameterItem_CTCH_SetupRqstTDD */
-static int hf_nbap_s_CCPCH_TimeSlotFormat_LCR = -1;  /* TDD_DL_DPCH_TimeSlotFormat_LCR */
-static int hf_nbap_Secondary_CCPCH_768_parameterList_CTCH_SetupRqstTDD_item = -1;  /* Secondary_CCPCH_768_parameterItem_CTCH_SetupRqstTDD */
-static int hf_nbap_tFCI_Presence768 = -1;         /* TFCI_Presence */
-static int hf_nbap_midambleShiftandBurstType768 = -1;  /* MidambleShiftAndBurstType768 */
-static int hf_nbap_FACH_ParametersListIE_CTCH_SetupRqstTDD_item = -1;  /* FACH_ParametersItem_CTCH_SetupRqstTDD */
-static int hf_nbap_fACH_CCTrCH_ID = -1;           /* CCTrCH_ID */
-static int hf_nbap_pCH_CCTrCH_ID = -1;            /* CCTrCH_ID */
-static int hf_nbap_pICH_Parameters_01 = -1;       /* PICH_Parameters_CTCH_SetupRqstTDD */
-static int hf_nbap_midambleshiftAndBurstType = -1;  /* MidambleShiftAndBurstType */
-static int hf_nbap_midambleshiftAndBurstType78 = -1;  /* MidambleShiftAndBurstType768 */
-static int hf_nbap_notificationIndicatorLength = -1;  /* NotificationIndicatorLength */
-static int hf_nbap_mICH_TDDOption_Specific_Parameters = -1;  /* MICH_TDDOption_Specific_Parameters_CTCH_SetupRqstTDD */
-static int hf_nbap_hCR_TDD = -1;                  /* MICH_HCR_Parameters_CTCH_SetupRqstTDD */
-static int hf_nbap_lCR_TDD = -1;                  /* MICH_LCR_Parameters_CTCH_SetupRqstTDD */
-static int hf_nbap_cHipRate768_TDD = -1;          /* MICH_768_Parameters_CTCH_SetupRqstTDD */
-static int hf_nbap_tSTD_Indicator = -1;           /* TSTD_Indicator */
-static int hf_nbap_midambleshiftAndBurstType768 = -1;  /* MidambleShiftAndBurstType768 */
-static int hf_nbap_TimeSlotConfigurationList_LCR_CTCH_SetupRqstTDD_item = -1;  /* TimeSlotConfigurationItem_LCR_CTCH_SetupRqstTDD */
-static int hf_nbap_timeslotLCR_Parameter_ID = -1;  /* CellParameterID */
-static int hf_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_SetupRqstTDD_item = -1;  /* Secondary_CCPCH_parameterItem_CTCH_SetupRqstTDD */
-static int hf_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_SetupRqstTDD_item = -1;  /* Secondary_CCPCH_LCR_parameterItem_CTCH_SetupRqstTDD */
-static int hf_nbap_pRACH_Parameters_CTCH_SetupRqstTDD = -1;  /* PRACH_Parameters_CTCH_SetupRqstTDD */
-static int hf_nbap_maxPRACH_MidambleShifts = -1;  /* MaxPRACH_MidambleShifts */
-static int hf_nbap_pRACH_Midamble = -1;           /* PRACH_Midamble */
-static int hf_nbap_rACH = -1;                     /* RACH_Parameter_CTCH_SetupRqstTDD */
-static int hf_nbap_uL_TransportFormatSet = -1;    /* TransportFormatSet */
-static int hf_nbap_PRACH_LCR_ParametersList_CTCH_SetupRqstTDD_item = -1;  /* PRACH_LCR_ParametersItem_CTCH_SetupRqstTDD */
-static int hf_nbap_fPACH_Power = -1;              /* FPACH_Power */
-static int hf_nbap_maxPowerPLCCH = -1;            /* DL_Power */
-static int hf_nbap_maxE_RUCCH_MidambleShifts = -1;  /* MaxPRACH_MidambleShifts */
-static int hf_nbap_e_RUCCH_Midamble = -1;         /* PRACH_Midamble */
-static int hf_nbap_FACH_CommonTransportChannel_InformationResponse_item = -1;  /* CommonTransportChannel_InformationResponse */
-static int hf_nbap_secondary_CCPCH_parameters_02 = -1;  /* Secondary_CCPCHList_CTCH_ReconfRqstFDD */
-static int hf_nbap_pRACH_parameters_02 = -1;      /* PRACHList_CTCH_ReconfRqstFDD */
-static int hf_nbap_notUsed_cPCH_parameters = -1;  /* NULL */
-static int hf_nbap_fACH_ParametersList_CTCH_ReconfRqstFDD = -1;  /* FACH_ParametersList_CTCH_ReconfRqstFDD */
-static int hf_nbap_pCH_Parameters_CTCH_ReconfRqstFDD = -1;  /* PCH_Parameters_CTCH_ReconfRqstFDD */
-static int hf_nbap_pICH_Parameters_CTCH_ReconfRqstFDD = -1;  /* PICH_Parameters_CTCH_ReconfRqstFDD */
-static int hf_nbap_FACH_ParametersListIE_CTCH_ReconfRqstFDD_item = -1;  /* FACH_ParametersItem_CTCH_ReconfRqstFDD */
-static int hf_nbap_pRACH_ParametersList_CTCH_ReconfRqstFDD = -1;  /* PRACH_ParametersList_CTCH_ReconfRqstFDD */
-static int hf_nbap_aICH_ParametersList_CTCH_ReconfRqstFDD = -1;  /* AICH_ParametersList_CTCH_ReconfRqstFDD */
-static int hf_nbap_PRACH_ParametersListIE_CTCH_ReconfRqstFDD_item = -1;  /* PRACH_ParametersItem_CTCH_ReconfRqstFDD */
-static int hf_nbap_allowedSlotFormatInformation_01 = -1;  /* AllowedSlotFormatInformationList_CTCH_ReconfRqstFDD */
-static int hf_nbap_AllowedSlotFormatInformationList_CTCH_ReconfRqstFDD_item = -1;  /* AllowedSlotFormatInformationItem_CTCH_ReconfRqstFDD */
-static int hf_nbap_rACH_SlotFormat = -1;          /* RACH_SlotFormat */
-static int hf_nbap_AICH_ParametersListIE_CTCH_ReconfRqstFDD_item = -1;  /* AICH_ParametersItem_CTCH_ReconfRqstFDD */
-static int hf_nbap_secondaryCCPCHList = -1;       /* Secondary_CCPCHList_CTCH_ReconfRqstTDD */
-static int hf_nbap_Secondary_CCPCHListIE_CTCH_ReconfRqstTDD_item = -1;  /* Secondary_CCPCHItem_CTCH_ReconfRqstTDD */
-static int hf_nbap_sCCPCH_Power = -1;             /* DL_Power */
-static int hf_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_ReconfRqstTDD_item = -1;  /* Secondary_CCPCHItem_CTCH_ReconfRqstTDD */
-static int hf_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_ReconfRqstTDD_item = -1;  /* Secondary_CCPCHItem_CTCH_ReconfRqstTDD */
-static int hf_nbap_FACH_ParametersList_CTCH_ReconfRqstTDD_item = -1;  /* FACH_ParametersItem_CTCH_ReconfRqstTDD */
-static int hf_nbap_commonPhysicalChannelId = -1;  /* CommonPhysicalChannelID */
-static int hf_nbap_fPACHPower = -1;               /* FPACH_Power */
-static int hf_nbap_secondaryCCPCH768List = -1;    /* Secondary_CCPCH_768_List_CTCH_ReconfRqstTDD */
-static int hf_nbap_Secondary_CCPCH_768_List_CTCH_ReconfRqstTDD_item = -1;  /* Secondary_CCPCH_768_Item_CTCH_ReconfRqstTDD */
-static int hf_nbap_uPPCHPositionLCR = -1;         /* UPPCHPositionLCR */
-static int hf_nbap_Cell_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_configurationGenerationID = -1;  /* ConfigurationGenerationID */
-static int hf_nbap_primary_SCH_Information = -1;  /* P_SCH_Information_AuditRsp */
-static int hf_nbap_secondary_SCH_Information = -1;  /* S_SCH_Information_AuditRsp */
-static int hf_nbap_primary_CPICH_Information = -1;  /* P_CPICH_Information_AuditRsp */
-static int hf_nbap_secondary_CPICH_InformationList = -1;  /* S_CPICH_InformationList_AuditRsp */
-static int hf_nbap_primary_CCPCH_Information = -1;  /* P_CCPCH_Information_AuditRsp */
-static int hf_nbap_bCH_Information = -1;          /* BCH_Information_AuditRsp */
-static int hf_nbap_secondary_CCPCH_InformationList = -1;  /* S_CCPCH_InformationList_AuditRsp */
-static int hf_nbap_pCH_Information = -1;          /* PCH_Information_AuditRsp */
-static int hf_nbap_pICH_Information = -1;         /* PICH_Information_AuditRsp */
-static int hf_nbap_fACH_InformationList = -1;     /* FACH_InformationList_AuditRsp */
-static int hf_nbap_pRACH_InformationList = -1;    /* PRACH_InformationList_AuditRsp */
-static int hf_nbap_rACH_InformationList = -1;     /* RACH_InformationList_AuditRsp */
-static int hf_nbap_aICH_InformationList = -1;     /* AICH_InformationList_AuditRsp */
-static int hf_nbap_notUsed_1_pCPCH_InformationList = -1;  /* NULL */
-static int hf_nbap_notUsed_2_cPCH_InformationList = -1;  /* NULL */
-static int hf_nbap_notUsed_3_aP_AICH_InformationList = -1;  /* NULL */
-static int hf_nbap_notUsed_4_cDCA_ICH_InformationList = -1;  /* NULL */
-static int hf_nbap_sCH_Information = -1;          /* SCH_Information_AuditRsp */
-static int hf_nbap_S_CPICH_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_S_CCPCH_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_FACH_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_PRACH_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_RACH_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_AICH_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_FPACH_LCR_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_S_CCPCH_InformationListExt_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_S_CCPCH_LCR_InformationListExt_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_PLCCH_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_S_CCPCH_768_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_PRACH_768_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_E_RUCCH_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_E_RUCCH_768_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_Cell_Frequency_List_Information_LCR_MulFreq_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_UPPCH_LCR_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_MultipleFreq_HS_DSCH_Resources_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_MultipleFreq_E_DCH_Resources_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_CCP_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_communicationControlPortID = -1;  /* CommunicationControlPortID */
-static int hf_nbap_Local_Cell_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_dl_or_global_capacityCredit = -1;  /* DL_or_Global_CapacityCredit */
-static int hf_nbap_ul_capacityCredit = -1;        /* UL_CapacityCredit */
-static int hf_nbap_commonChannelsCapacityConsumptionLaw = -1;  /* CommonChannelsCapacityConsumptionLaw */
-static int hf_nbap_dedicatedChannelsCapacityConsumptionLaw = -1;  /* DedicatedChannelsCapacityConsumptionLaw */
-static int hf_nbap_maximumDL_PowerCapability = -1;  /* MaximumDL_PowerCapability */
-static int hf_nbap_minSpreadingFactor = -1;       /* MinSpreadingFactor */
-static int hf_nbap_minimumDL_PowerCapability = -1;  /* MinimumDL_PowerCapability */
-static int hf_nbap_local_Cell_Group_ID = -1;      /* Local_Cell_ID */
-static int hf_nbap_Local_Cell_Group_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_Power_Local_Cell_Group_InformationList_AuditRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_power_Local_Cell_Group_ID = -1;  /* Local_Cell_ID */
-static int hf_nbap_cell = -1;                     /* Cell_CM_Rqst */
-static int hf_nbap_rACH_01 = -1;                  /* RACH_CM_Rqst */
-static int hf_nbap_notUsed_cPCH = -1;             /* NULL */
-static int hf_nbap_extension_CommonMeasurementObjectType_CM_Rqst = -1;  /* Extension_CommonMeasurementObjectType_CM_Rqst */
-static int hf_nbap_powerLocalCellGroupID = -1;    /* Local_Cell_ID */
-static int hf_nbap_cell_01 = -1;                  /* Cell_CM_Rsp */
-static int hf_nbap_rACH_02 = -1;                  /* RACH_CM_Rsp */
-static int hf_nbap_extension_CommonMeasurementObjectType_CM_Rsp = -1;  /* Extension_CommonMeasurementObjectType_CM_Rsp */
-static int hf_nbap_cell_02 = -1;                  /* Cell_CM_Rprt */
-static int hf_nbap_rACH_03 = -1;                  /* RACH_CM_Rprt */
-static int hf_nbap_extension_CommonMeasurementObjectType_CM_Rprt = -1;  /* Extension_CommonMeasurementObjectType_CM_Rprt */
-static int hf_nbap_commonMeasurementValueInformation = -1;  /* CommonMeasurementValueInformation */
-static int hf_nbap_n_INSYNC_IND = -1;             /* N_INSYNC_IND */
-static int hf_nbap_n_OUTSYNC_IND = -1;            /* N_OUTSYNC_IND */
-static int hf_nbap_t_RLFAILURE = -1;              /* T_RLFAILURE */
-static int hf_nbap_primarySCH_Power = -1;         /* DL_Power */
-static int hf_nbap_secondarySCH_Power = -1;       /* DL_Power */
-static int hf_nbap_primaryCPICH_Power = -1;       /* PrimaryCPICH_Power */
-static int hf_nbap_transmitDiversityIndicator = -1;  /* TransmitDiversityIndicator */
-static int hf_nbap_SecondaryCPICH_InformationList_Cell_SetupRqstFDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_fDD_DL_ChannelisationCodeNumber = -1;  /* FDD_DL_ChannelisationCodeNumber */
-static int hf_nbap_secondaryCPICH_Power = -1;     /* DL_Power */
-static int hf_nbap_bCH_information = -1;          /* BCH_Information_Cell_SetupRqstFDD */
-static int hf_nbap_bCH_Power = -1;                /* DL_Power */
-static int hf_nbap_powerRaiseLimit = -1;          /* PowerRaiseLimit */
-static int hf_nbap_dLPowerAveragingWindowSize = -1;  /* DLPowerAveragingWindowSize */
-static int hf_nbap_iPDL_FDD_Parameters = -1;      /* IPDL_FDD_Parameters */
-static int hf_nbap_iPDL_Indicator = -1;           /* IPDL_Indicator */
-static int hf_nbap_CellPortion_InformationList_Cell_SetupRqstFDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_associatedSecondaryCPICH = -1;  /* CommonPhysicalChannelID */
-static int hf_nbap_maximumTransmissionPowerforCellPortion = -1;  /* MaximumTransmissionPower */
-static int hf_nbap_syncCaseIndicator = -1;        /* SyncCaseIndicator_Cell_SetupRqstTDD_PSCH */
-static int hf_nbap_sCH_Power = -1;                /* DL_Power */
-static int hf_nbap_case1 = -1;                    /* Case1_Cell_SetupRqstTDD */
-static int hf_nbap_case2 = -1;                    /* Case2_Cell_SetupRqstTDD */
-static int hf_nbap_sCH_TimeSlot = -1;             /* SCH_TimeSlot */
-static int hf_nbap_pCCPCH_Power = -1;             /* PCCPCH_Power */
-static int hf_nbap_sCTD_Indicator = -1;           /* SCTD_Indicator */
-static int hf_nbap_TimeSlotConfigurationList_Cell_SetupRqstTDD_item = -1;  /* TimeSlotConfigurationItem_Cell_SetupRqstTDD */
-static int hf_nbap_timeSlotStatus = -1;           /* TimeSlotStatus */
-static int hf_nbap_timeSlotDirection = -1;        /* TimeSlotDirection */
-static int hf_nbap_TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD_item = -1;  /* TimeSlotConfigurationItem_LCR_Cell_SetupRqstTDD */
-static int hf_nbap_dwPCH_Power = -1;              /* DwPCH_Power */
-static int hf_nbap_iPDL_TDD_Parameters = -1;      /* IPDL_TDD_Parameters */
-static int hf_nbap_iPDL_TDD_Parameters_LCR = -1;  /* IPDL_TDD_Parameters_LCR */
-static int hf_nbap_Cell_Frequency_List_LCR_MulFreq_Cell_SetupRqstTDD_item = -1;  /* Cell_Frequency_Item_LCR_MulFreq_Cell_SetupRqstTDD */
-static int hf_nbap_timeSlotConfigurationList_LCR_Cell_SetupRqstTDD = -1;  /* TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD */
-static int hf_nbap_SecondaryCPICH_InformationList_Cell_ReconfRqstFDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_bCH_information_01 = -1;       /* BCH_information_Cell_ReconfRqstFDD */
-static int hf_nbap_CellPortion_InformationList_Cell_ReconfRqstFDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_TimeSlotConfigurationList_Cell_ReconfRqstTDD_item = -1;  /* TimeSlotConfigurationItem_Cell_ReconfRqstTDD */
-static int hf_nbap_TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD_item = -1;  /* TimeSlotConfigurationItem_LCR_Cell_ReconfRqstTDD */
-static int hf_nbap_cell_Frequency_Add_LCR_MulFreq_Cell_ReconfRqstTDD = -1;  /* Cell_Frequency_Add_LCR_MulFreq_Cell_ReconfRqstTDD */
-static int hf_nbap_cell_Frequency_ModifyList_LCR_MulFreq_Cell_ReconfRqstTDD = -1;  /* Cell_Frequency_ModifyList_LCR_MulFreq_Cell_ReconfRqstTDD */
-static int hf_nbap_cell_Frequency_Delete_LCR_MulFreq_Cell_ReconfRqstTDD = -1;  /* Cell_Frequency_Delete_LCR_MulFreq_Cell_ReconfRqstTDD */
-static int hf_nbap_timeSlotConfigurationList_LCR_Cell_ReconfRqstTDD = -1;  /* TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD */
-static int hf_nbap_Cell_Frequency_ModifyList_LCR_MulFreq_Cell_ReconfRqstTDD_item = -1;  /* Cell_Frequency_ModifyItem_LCR_MulFreq_Cell_ReconfRqstTDD */
-static int hf_nbap_no_Failure = -1;               /* No_Failure_ResourceStatusInd */
-static int hf_nbap_serviceImpacting = -1;         /* ServiceImpacting_ResourceStatusInd */
-static int hf_nbap_local_Cell_InformationList = -1;  /* Local_Cell_InformationList_ResourceStatusInd */
-static int hf_nbap_local_Cell_Group_InformationList = -1;  /* Local_Cell_Group_InformationList_ResourceStatusInd */
-static int hf_nbap_Local_Cell_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_local_CellID = -1;             /* Local_Cell_ID */
-static int hf_nbap_addorDeleteIndicator = -1;     /* AddorDeleteIndicator */
-static int hf_nbap_Local_Cell_Group_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_Power_Local_Cell_Group_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_local_Cell_InformationList_01 = -1;  /* Local_Cell_InformationList2_ResourceStatusInd */
-static int hf_nbap_local_Cell_Group_InformationList_01 = -1;  /* Local_Cell_Group_InformationList2_ResourceStatusInd */
-static int hf_nbap_cCP_InformationList = -1;      /* CCP_InformationList_ResourceStatusInd */
-static int hf_nbap_cell_InformationList = -1;     /* Cell_InformationList_ResourceStatusInd */
-static int hf_nbap_Local_Cell_InformationList2_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_maximum_DL_PowerCapability = -1;  /* MaximumDL_PowerCapability */
-static int hf_nbap_Local_Cell_Group_InformationList2_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_CCP_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_Cell_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_primary_SCH_Information_01 = -1;  /* P_SCH_Information_ResourceStatusInd */
-static int hf_nbap_secondary_SCH_Information_01 = -1;  /* S_SCH_Information_ResourceStatusInd */
-static int hf_nbap_primary_CPICH_Information_01 = -1;  /* P_CPICH_Information_ResourceStatusInd */
-static int hf_nbap_secondary_CPICH_Information_01 = -1;  /* S_CPICH_InformationList_ResourceStatusInd */
-static int hf_nbap_primary_CCPCH_Information_01 = -1;  /* P_CCPCH_Information_ResourceStatusInd */
-static int hf_nbap_bCH_Information_01 = -1;       /* BCH_Information_ResourceStatusInd */
-static int hf_nbap_secondary_CCPCH_InformationList_01 = -1;  /* S_CCPCH_InformationList_ResourceStatusInd */
-static int hf_nbap_pCH_Information_01 = -1;       /* PCH_Information_ResourceStatusInd */
-static int hf_nbap_pICH_Information_01 = -1;      /* PICH_Information_ResourceStatusInd */
-static int hf_nbap_fACH_InformationList_01 = -1;  /* FACH_InformationList_ResourceStatusInd */
-static int hf_nbap_pRACH_InformationList_01 = -1;  /* PRACH_InformationList_ResourceStatusInd */
-static int hf_nbap_rACH_InformationList_01 = -1;  /* RACH_InformationList_ResourceStatusInd */
-static int hf_nbap_aICH_InformationList_01 = -1;  /* AICH_InformationList_ResourceStatusInd */
-static int hf_nbap_sCH_Information_01 = -1;       /* SCH_Information_ResourceStatusInd */
-static int hf_nbap_S_CPICH_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_S_CCPCH_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_FACH_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_PRACH_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_RACH_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_AICH_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_FPACH_LCR_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_S_CCPCH_InformationListExt_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_S_CCPCH_LCR_InformationListExt_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_PLCCH_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_S_CCPCH_768_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_PRACH_768_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_E_RUCCH_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_E_RUCCH_768_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_Cell_Frequency_List_Information_LCR_MulFreq_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_UPPCH_LCR_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_MultipleFreq_HS_DSCH_Resources_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_Power_Local_Cell_Group_InformationList2_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_MultipleFreq_E_DCH_Resources_InformationList_ResourceStatusInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_MIB_SB_SIB_InformationList_SystemInfoUpdateRqst_item = -1;  /* MIB_SB_SIB_InformationItem_SystemInfoUpdateRqst */
-static int hf_nbap_iB_Type = -1;                  /* IB_Type */
-static int hf_nbap_iB_OC_ID = -1;                 /* IB_OC_ID */
-static int hf_nbap_deletionIndicator = -1;        /* DeletionIndicator_SystemInfoUpdate */
-static int hf_nbap_no_Deletion = -1;              /* No_Deletion_SystemInfoUpdate */
-static int hf_nbap_yes_Deletion = -1;             /* NULL */
-static int hf_nbap_sIB_Originator = -1;           /* SIB_Originator */
-static int hf_nbap_iB_SG_REP = -1;                /* IB_SG_REP */
-static int hf_nbap_segmentInformationList = -1;   /* SegmentInformationList_SystemInfoUpdate */
-static int hf_nbap_SegmentInformationListIE_SystemInfoUpdate_item = -1;  /* SegmentInformationItem_SystemInfoUpdate */
-static int hf_nbap_iB_SG_POS = -1;                /* IB_SG_POS */
-static int hf_nbap_segment_Type = -1;             /* Segment_Type */
-static int hf_nbap_iB_SG_DATA = -1;               /* IB_SG_DATA */
-static int hf_nbap_Additional_HS_Cell_Information_RL_Setup_List_item = -1;  /* Additional_HS_Cell_Information_RL_Setup_ItemIEs */
-static int hf_nbap_hSPDSCH_RL_ID = -1;            /* RL_ID */
-static int hf_nbap_hS_DSCH_FDD_Secondary_Serving_Information = -1;  /* HS_DSCH_FDD_Secondary_Serving_Information */
-static int hf_nbap_minUL_ChannelisationCodeLength = -1;  /* MinUL_ChannelisationCodeLength */
-static int hf_nbap_maxNrOfUL_DPDCHs = -1;         /* MaxNrOfUL_DPDCHs */
-static int hf_nbap_ul_DPCCH_SlotFormat = -1;      /* UL_DPCCH_SlotFormat */
-static int hf_nbap_diversityMode = -1;            /* DiversityMode */
-static int hf_nbap_not_Used_sSDT_CellID_Length = -1;  /* NULL */
-static int hf_nbap_not_Used_s_FieldLength = -1;   /* NULL */
-static int hf_nbap_dl_DPCH_SlotFormat = -1;       /* DL_DPCH_SlotFormat */
-static int hf_nbap_tFCI_SignallingMode = -1;      /* TFCI_SignallingMode */
-static int hf_nbap_not_Used_pDSCH_RL_ID = -1;     /* NULL */
-static int hf_nbap_not_Used_pDSCH_CodeMapping = -1;  /* NULL */
-static int hf_nbap_powerOffsetInformation_01 = -1;  /* PowerOffsetInformation_RL_SetupRqstFDD */
-static int hf_nbap_pO2_ForTPC_Bits = -1;          /* PowerOffset */
-static int hf_nbap_RL_InformationList_RL_SetupRqstFDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_frameOffset = -1;              /* FrameOffset */
-static int hf_nbap_chipOffset = -1;               /* ChipOffset */
-static int hf_nbap_diversityControlField = -1;    /* DiversityControlField */
-static int hf_nbap_not_Used_sSDT_Cell_Identity = -1;  /* NULL */
-static int hf_nbap_hSDSCH_Configured_Indicator = -1;  /* HSDSCH_Configured_Indicator */
-static int hf_nbap_powerOffsetInformation_02 = -1;  /* PowerOffsetInformation_F_DPCH_RL_SetupRqstFDD */
-static int hf_nbap_UL_CCTrCH_InformationList_RL_SetupRqstTDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_uL_DPCH_Information = -1;      /* UL_DPCH_Information_RL_SetupRqstTDD */
-static int hf_nbap_tdd_DPCHOffset = -1;           /* TDD_DPCHOffset */
-static int hf_nbap_uL_Timeslot_Information = -1;  /* UL_Timeslot_Information */
-static int hf_nbap_uL_TimeslotLCR_Information = -1;  /* UL_TimeslotLCR_Information */
-static int hf_nbap_uL_Timeslot768_Information = -1;  /* UL_Timeslot768_Information */
-static int hf_nbap_DL_CCTrCH_InformationList_RL_SetupRqstTDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_tdd_TPC_DownlinkStepSize = -1;  /* TDD_TPC_DownlinkStepSize */
-static int hf_nbap_cCTrCH_TPCList = -1;           /* CCTrCH_TPCList_RL_SetupRqstTDD */
-static int hf_nbap_dL_DPCH_Information = -1;      /* DL_DPCH_Information_RL_SetupRqstTDD */
-static int hf_nbap_CCTrCH_TPCList_RL_SetupRqstTDD_item = -1;  /* CCTrCH_TPCItem_RL_SetupRqstTDD */
-static int hf_nbap_dL_Timeslot_Information = -1;  /* DL_Timeslot_Information */
-static int hf_nbap_dL_TimeslotLCR_Information = -1;  /* DL_TimeslotLCR_Information */
-static int hf_nbap_tstdIndicator = -1;            /* TSTD_Indicator */
-static int hf_nbap_dL_Timeslot768_Information = -1;  /* DL_Timeslot768_Information */
-static int hf_nbap_specialBurstScheduling = -1;   /* SpecialBurstScheduling */
-static int hf_nbap_dL_TimeSlotISCPInfo = -1;      /* DL_TimeslotISCPInfo */
-static int hf_nbap_Additional_HS_Cell_Information_Response_List_item = -1;  /* Additional_HS_Cell_Information_Response_ItemIEs */
-static int hf_nbap_RL_InformationResponseList_RL_SetupRspFDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_diversityIndication = -1;      /* DiversityIndication_RL_SetupRspFDD */
-static int hf_nbap_not_Used_dSCH_InformationResponseList = -1;  /* NULL */
-static int hf_nbap_sSDT_SupportIndicator = -1;    /* SSDT_SupportIndicator */
-static int hf_nbap_combining = -1;                /* Combining_RL_SetupRspFDD */
-static int hf_nbap_nonCombiningOrFirstRL = -1;    /* NonCombiningOrFirstRL_RL_SetupRspFDD */
-static int hf_nbap_dCH_InformationResponse = -1;  /* DCH_InformationResponse */
-static int hf_nbap_uL_TimeSlot_ISCP_Info = -1;    /* UL_TimeSlot_ISCP_Info */
-static int hf_nbap_ul_PhysCH_SF_Variation = -1;   /* UL_PhysCH_SF_Variation */
-static int hf_nbap_dCH_InformationResponseList = -1;  /* DCH_InformationResponseList_RL_SetupRspTDD */
-static int hf_nbap_dSCH_InformationResponseList = -1;  /* DSCH_InformationResponseList_RL_SetupRspTDD */
-static int hf_nbap_uSCH_InformationResponseList = -1;  /* USCH_InformationResponseList_RL_SetupRspTDD */
-static int hf_nbap_uL_TimeSlot_ISCP_LCR_Info = -1;  /* UL_TimeSlot_ISCP_LCR_Info */
-static int hf_nbap_generalCause = -1;             /* GeneralCauseList_RL_SetupFailureFDD */
-static int hf_nbap_rLSpecificCause = -1;          /* RLSpecificCauseList_RL_SetupFailureFDD */
-static int hf_nbap_unsuccessful_RL_InformationRespList_RL_SetupFailureFDD = -1;  /* Unsuccessful_RL_InformationRespList_RL_SetupFailureFDD */
-static int hf_nbap_successful_RL_InformationRespList_RL_SetupFailureFDD = -1;  /* Successful_RL_InformationRespList_RL_SetupFailureFDD */
-static int hf_nbap_Unsuccessful_RL_InformationRespList_RL_SetupFailureFDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_Successful_RL_InformationRespList_RL_SetupFailureFDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_diversityIndication_01 = -1;   /* DiversityIndication_RL_SetupFailureFDD */
-static int hf_nbap_not_Used_tFCI2_BearerInformationResponse = -1;  /* NULL */
-static int hf_nbap_combining_01 = -1;             /* Combining_RL_SetupFailureFDD */
-static int hf_nbap_nonCombiningOrFirstRL_01 = -1;  /* NonCombiningOrFirstRL_RL_SetupFailureFDD */
-static int hf_nbap_generalCause_01 = -1;          /* GeneralCauseList_RL_SetupFailureTDD */
-static int hf_nbap_rLSpecificCause_01 = -1;       /* RLSpecificCauseList_RL_SetupFailureTDD */
-static int hf_nbap_unsuccessful_RL_InformationRespItem_RL_SetupFailureTDD = -1;  /* Unsuccessful_RL_InformationRespItem_RL_SetupFailureTDD */
-static int hf_nbap_Additional_HS_Cell_Information_RL_Addition_List_item = -1;  /* Additional_HS_Cell_Information_RL_Addition_ItemIEs */
-static int hf_nbap_setup_Or_Addition_Of_EDCH_On_secondary_UL_Frequency = -1;  /* Setup_Or_Addition_Of_EDCH_On_secondary_UL_Frequency */
-static int hf_nbap_addition = -1;                 /* Additional_EDCH_Cell_Information_To_Add_List */
-static int hf_nbap_RL_InformationList_RL_AdditionRqstFDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_initialDL_TransmissionPower = -1;  /* DL_Power */
-static int hf_nbap_maximumDL_Power = -1;          /* DL_Power */
-static int hf_nbap_minimumDL_Power = -1;          /* DL_Power */
-static int hf_nbap_not_Used_sSDT_CellIdentity = -1;  /* NULL */
-static int hf_nbap_UL_CCTrCH_InformationList_RL_AdditionRqstTDD_item = -1;  /* UL_CCTrCH_InformationItem_RL_AdditionRqstTDD */
-static int hf_nbap_uL_DPCH_Information_01 = -1;   /* UL_DPCH_InformationList_RL_AdditionRqstTDD */
-static int hf_nbap_DL_CCTrCH_InformationList_RL_AdditionRqstTDD_item = -1;  /* DL_CCTrCH_InformationItem_RL_AdditionRqstTDD */
-static int hf_nbap_dL_DPCH_Information_01 = -1;   /* DL_DPCH_InformationList_RL_AdditionRqstTDD */
-static int hf_nbap_initial_DL_Transmission_Power = -1;  /* DL_Power */
-static int hf_nbap_Additional_HS_Cell_Change_Information_Response_List_item = -1;  /* Additional_HS_Cell_Change_Information_Response_ItemIEs */
-static int hf_nbap_hS_DSCH_Secondary_Serving_Cell_Change_Information_Response = -1;  /* HS_DSCH_Secondary_Serving_Cell_Change_Information_Response */
-static int hf_nbap_RL_InformationResponseList_RL_AdditionRspFDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_diversityIndication_02 = -1;   /* DiversityIndication_RL_AdditionRspFDD */
-static int hf_nbap_combining_02 = -1;             /* Combining_RL_AdditionRspFDD */
-static int hf_nbap_non_combining = -1;            /* Non_Combining_RL_AdditionRspFDD */
-static int hf_nbap_dCH_Information = -1;          /* DCH_Information_RL_AdditionRspTDD */
-static int hf_nbap_dSCH_InformationResponseList_01 = -1;  /* DSCH_InformationResponseList_RL_AdditionRspTDD */
-static int hf_nbap_uSCH_InformationResponseList_01 = -1;  /* USCH_InformationResponseList_RL_AdditionRspTDD */
-static int hf_nbap_diversityIndication_03 = -1;   /* DiversityIndication_RL_AdditionRspTDD */
-static int hf_nbap_combining_03 = -1;             /* Combining_RL_AdditionRspTDD */
-static int hf_nbap_non_Combining = -1;            /* Non_Combining_RL_AdditionRspTDD */
-static int hf_nbap_uL_TimeSlot_ISCP_InfoLCR = -1;  /* UL_TimeSlot_ISCP_LCR_Info */
-static int hf_nbap_generalCause_02 = -1;          /* GeneralCauseList_RL_AdditionFailureFDD */
-static int hf_nbap_rLSpecificCause_02 = -1;       /* RLSpecificCauseList_RL_AdditionFailureFDD */
-static int hf_nbap_unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD = -1;  /* Unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD */
-static int hf_nbap_successful_RL_InformationRespList_RL_AdditionFailureFDD = -1;  /* Successful_RL_InformationRespList_RL_AdditionFailureFDD */
-static int hf_nbap_Unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_Successful_RL_InformationRespList_RL_AdditionFailureFDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_diversityIndication_04 = -1;   /* DiversityIndication_RL_AdditionFailureFDD */
-static int hf_nbap_combining_04 = -1;             /* Combining_RL_AdditionFailureFDD */
-static int hf_nbap_non_Combining_01 = -1;         /* Non_Combining_RL_AdditionFailureFDD */
-static int hf_nbap_generalCause_03 = -1;          /* GeneralCauseList_RL_AdditionFailureTDD */
-static int hf_nbap_rLSpecificCause_03 = -1;       /* RLSpecificCauseList_RL_AdditionFailureTDD */
-static int hf_nbap_unsuccessful_RL_InformationRespItem_RL_AdditionFailureTDD = -1;  /* Unsuccessful_RL_InformationRespItem_RL_AdditionFailureTDD */
-static int hf_nbap_Additional_HS_Cell_Information_RL_Reconf_Prep_item = -1;  /* Additional_HS_Cell_Information_RL_Reconf_Prep_ItemIEs */
-static int hf_nbap_hS_DSCH_Secondary_Serving_Information_To_Modify = -1;  /* HS_DSCH_Secondary_Serving_Information_To_Modify */
-static int hf_nbap_hS_HS_DSCH_Secondary_Serving_Remove = -1;  /* HS_DSCH_Secondary_Serving_Remove */
-static int hf_nbap_setup_Or_ConfigurationChange_Or_Removal_Of_EDCH_On_secondary_UL_Frequency = -1;  /* Setup_Or_ConfigurationChange_Or_Removal_Of_EDCH_On_secondary_UL_Frequency */
-static int hf_nbap_not_Used_sSDT_CellIDLength = -1;  /* NULL */
-static int hf_nbap_powerOffsetInformation_03 = -1;  /* PowerOffsetInformation_RL_ReconfPrepFDD */
-static int hf_nbap_DCH_DeleteList_RL_ReconfPrepFDD_item = -1;  /* DCH_DeleteItem_RL_ReconfPrepFDD */
-static int hf_nbap_RL_InformationList_RL_ReconfPrepFDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_maxDL_Power = -1;              /* DL_Power */
-static int hf_nbap_minDL_Power = -1;              /* DL_Power */
-static int hf_nbap_not_Used_sSDT_Indication = -1;  /* NULL */
-static int hf_nbap_powerOffsetInformation_04 = -1;  /* PowerOffsetInformation_F_DPCH_RL_ReconfPrepFDD */
-static int hf_nbap_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_item = -1;  /* UL_CCTrCH_InformationAddItem_RL_ReconfPrepTDD */
-static int hf_nbap_ul_DPCH_InformationList = -1;  /* UL_DPCH_InformationAddList_RL_ReconfPrepTDD */
-static int hf_nbap_uL_Timeslot_InformationLCR = -1;  /* UL_TimeslotLCR_Information */
-static int hf_nbap_MultipleRL_UL_DPCH_InformationAddList_RL_ReconfPrepTDD_item = -1;  /* MultipleRL_UL_DPCH_InformationAddListIE_RL_ReconfPrepTDD */
-static int hf_nbap_ul_DPCH_InformationListLCR = -1;  /* UL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD */
-static int hf_nbap_ul_sir_target = -1;            /* UL_SIR */
-static int hf_nbap_tDD_TPC_UplinkStepSize_LCR = -1;  /* TDD_TPC_UplinkStepSize_LCR */
-static int hf_nbap_uL_Timeslot_Information768 = -1;  /* UL_Timeslot768_Information */
-static int hf_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_item = -1;  /* UL_CCTrCH_InformationModifyItem_RL_ReconfPrepTDD */
-static int hf_nbap_ul_DPCH_InformationAddList = -1;  /* UL_DPCH_InformationModify_AddList_RL_ReconfPrepTDD */
-static int hf_nbap_ul_DPCH_InformationModifyList = -1;  /* UL_DPCH_InformationModify_ModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_ul_DPCH_InformationDeleteList = -1;  /* UL_DPCH_InformationModify_DeleteList_RL_ReconfPrepTDD */
-static int hf_nbap_uL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD = -1;  /* UL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_UL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD_item = -1;  /* UL_Timeslot_InformationModify_ModifyItem_RL_ReconfPrepTDD */
-static int hf_nbap_uL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD = -1;  /* UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD_item = -1;  /* UL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDD */
-static int hf_nbap_UL_TimeslotLCR_InformationModify_ModifyList_RL_ReconfPrepTDD_item = -1;  /* UL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD */
-static int hf_nbap_uL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR = -1;  /* UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR */
-static int hf_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR_item = -1;  /* UL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDDLCR */
-static int hf_nbap_UL_Timeslot768_InformationModify_ModifyList_RL_ReconfPrepTDD_item = -1;  /* UL_Timeslot_768_InformationModify_ModifyItem_RL_ReconfPrepTDD */
-static int hf_nbap_uL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD768 = -1;  /* UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD768 */
-static int hf_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD768_item = -1;  /* UL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDD768 */
-static int hf_nbap_UL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD_item = -1;  /* UL_DPCH_InformationModify_DeleteItem_RL_ReconfPrepTDD */
-static int hf_nbap_MultipleRL_UL_DPCH_InformationModifyList_RL_ReconfPrepTDD_item = -1;  /* MultipleRL_UL_DPCH_InformationModifyListIE_RL_ReconfPrepTDD */
-static int hf_nbap_ul_DPCH_InformationAddListLCR = -1;  /* UL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD */
-static int hf_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_item = -1;  /* UL_CCTrCH_InformationDeleteItem_RL_ReconfPrepTDD */
-static int hf_nbap_DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_item = -1;  /* DL_CCTrCH_InformationAddItem_RL_ReconfPrepTDD */
-static int hf_nbap_cCTrCH_TPCList_01 = -1;        /* CCTrCH_TPCAddList_RL_ReconfPrepTDD */
-static int hf_nbap_dl_DPCH_InformationList = -1;  /* DL_DPCH_InformationAddList_RL_ReconfPrepTDD */
-static int hf_nbap_CCTrCH_TPCAddList_RL_ReconfPrepTDD_item = -1;  /* CCTrCH_TPCAddItem_RL_ReconfPrepTDD */
-static int hf_nbap_dL_Timeslot_InformationLCR = -1;  /* DL_TimeslotLCR_Information */
-static int hf_nbap_MultipleRL_DL_DPCH_InformationAddList_RL_ReconfPrepTDD_item = -1;  /* MultipleRL_DL_DPCH_InformationAddListIE_RL_ReconfPrepTDD */
-static int hf_nbap_dl_DPCH_InformationListLCR = -1;  /* DL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD */
-static int hf_nbap_cCTrCH_Initial_DL_Power = -1;  /* DL_Power */
-static int hf_nbap_tDD_TPC_DownlinkStepSize = -1;  /* TDD_TPC_DownlinkStepSize */
-static int hf_nbap_cCTrCH_Maximum_DL_Power_InformationAdd_RL_ReconfPrepTDD = -1;  /* DL_Power */
-static int hf_nbap_cCTrCH_Minimum_DL_Power_InformationAdd_RL_ReconfPrepTDD = -1;  /* DL_Power */
-static int hf_nbap_dL_Timeslot_Information768 = -1;  /* DL_Timeslot768_Information */
-static int hf_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_item = -1;  /* DL_CCTrCH_InformationModifyItem_RL_ReconfPrepTDD */
-static int hf_nbap_cCTrCH_TPCList_02 = -1;        /* CCTrCH_TPCModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_dl_DPCH_InformationAddList = -1;  /* DL_DPCH_InformationModify_AddList_RL_ReconfPrepTDD */
-static int hf_nbap_dl_DPCH_InformationModifyList = -1;  /* DL_DPCH_InformationModify_ModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_dl_DPCH_InformationDeleteList = -1;  /* DL_DPCH_InformationModify_DeleteList_RL_ReconfPrepTDD */
-static int hf_nbap_CCTrCH_TPCModifyList_RL_ReconfPrepTDD_item = -1;  /* CCTrCH_TPCModifyItem_RL_ReconfPrepTDD */
-static int hf_nbap_dL_Timeslot_InformationAddModify_ModifyList_RL_ReconfPrepTDD = -1;  /* DL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_DL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD_item = -1;  /* DL_Timeslot_InformationModify_ModifyItem_RL_ReconfPrepTDD */
-static int hf_nbap_dL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD = -1;  /* DL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_DL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD_item = -1;  /* DL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDD */
-static int hf_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD_item = -1;  /* DL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD */
-static int hf_nbap_dL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD = -1;  /* DL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_DL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD_item = -1;  /* DL_Code_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD */
-static int hf_nbap_DL_Timeslot_768_InformationModify_ModifyList_RL_ReconfPrepTDD_item = -1;  /* DL_Timeslot_768_InformationModify_ModifyItem_RL_ReconfPrepTDD */
-static int hf_nbap_dL_Code_768_InformationModify_ModifyList_RL_ReconfPrepTDD = -1;  /* DL_Code_768_InformationModify_ModifyList_RL_ReconfPrepTDD */
-static int hf_nbap_DL_Code_768_InformationModify_ModifyList_RL_ReconfPrepTDD_item = -1;  /* DL_Code_768_InformationModify_ModifyItem_RL_ReconfPrepTDD */
-static int hf_nbap_dPCH_ID768 = -1;               /* DPCH_ID768 */
-static int hf_nbap_DL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD_item = -1;  /* DL_DPCH_InformationModify_DeleteItem_RL_ReconfPrepTDD */
-static int hf_nbap_MultipleRL_DL_DPCH_InformationModifyList_RL_ReconfPrepTDD_item = -1;  /* MultipleRL_DL_DPCH_InformationModifyListIE_RL_ReconfPrepTDD */
-static int hf_nbap_dl_DPCH_InformationAddListLCR = -1;  /* DL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD */
-static int hf_nbap_tDD_TPC_DownlinkStepSize_InformationModify_RL_ReconfPrepTDD = -1;  /* TDD_TPC_DownlinkStepSize */
-static int hf_nbap_cCTrCH_Maximum_DL_Power_InformationModify_RL_ReconfPrepTDD = -1;  /* DL_Power */
-static int hf_nbap_cCTrCH_Minimum_DL_Power_InformationModify_RL_ReconfPrepTDD = -1;  /* DL_Power */
-static int hf_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_item = -1;  /* DL_CCTrCH_InformationDeleteItem_RL_ReconfPrepTDD */
-static int hf_nbap_DCH_DeleteList_RL_ReconfPrepTDD_item = -1;  /* DCH_DeleteItem_RL_ReconfPrepTDD */
-static int hf_nbap_DSCH_Information_ModifyList_RL_ReconfPrepTDD_item = -1;  /* DSCH_Information_ModifyItem_RL_ReconfPrepTDD */
-static int hf_nbap_DSCH_Information_DeleteList_RL_ReconfPrepTDD_item = -1;  /* DSCH_Information_DeleteItem_RL_ReconfPrepTDD */
-static int hf_nbap_USCH_Information_ModifyList_RL_ReconfPrepTDD_item = -1;  /* USCH_Information_ModifyItem_RL_ReconfPrepTDD */
-static int hf_nbap_USCH_Information_DeleteList_RL_ReconfPrepTDD_item = -1;  /* USCH_Information_DeleteItem_RL_ReconfPrepTDD */
-static int hf_nbap_MultipleRL_Information_RL_ReconfPrepTDD_item = -1;  /* RL_Information_RL_ReconfPrepTDD */
-static int hf_nbap_RL_InformationResponseList_RL_ReconfReady_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_dCH_InformationResponseList_RL_ReconfReady = -1;  /* DCH_InformationResponseList_RL_ReconfReady */
-static int hf_nbap_dSCH_InformationResponseList_RL_ReconfReady = -1;  /* DSCH_InformationResponseList_RL_ReconfReady */
-static int hf_nbap_uSCH_InformationResponseList_RL_ReconfReady = -1;  /* USCH_InformationResponseList_RL_ReconfReady */
-static int hf_nbap_generalCause_04 = -1;          /* GeneralCauseList_RL_ReconfFailure */
-static int hf_nbap_rLSpecificCause_04 = -1;       /* RLSpecificCauseList_RL_ReconfFailure */
-static int hf_nbap_rL_ReconfigurationFailureList_RL_ReconfFailure = -1;  /* RL_ReconfigurationFailureList_RL_ReconfFailure */
-static int hf_nbap_RL_ReconfigurationFailureList_RL_ReconfFailure_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_Additional_HS_Cell_Information_RL_Reconf_Req_item = -1;  /* Additional_HS_Cell_Information_RL_Reconf_Req_ItemIEs */
-static int hf_nbap_hS_DSCH_FDD_Secondary_Serving_Information_To_Modify_Unsynchronised = -1;  /* HS_DSCH_FDD_Secondary_Serving_Information_To_Modify_Unsynchronised */
-static int hf_nbap_hS_DSCH_Secondary_Serving_Remove = -1;  /* HS_DSCH_Secondary_Serving_Remove */
-static int hf_nbap_ul_TFCS = -1;                  /* TFCS */
-static int hf_nbap_dl_TFCS = -1;                  /* TFCS */
-static int hf_nbap_DCH_DeleteList_RL_ReconfRqstFDD_item = -1;  /* DCH_DeleteItem_RL_ReconfRqstFDD */
-static int hf_nbap_RL_InformationList_RL_ReconfRqstFDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_MultipleRL_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_item = -1;  /* MultipleRL_DL_CCTrCH_InformationModifyListIE_RL_ReconfRqstTDD */
-static int hf_nbap_dl_DPCH_LCR_InformationModifyList = -1;  /* DL_DPCH_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD */
-static int hf_nbap_cCTrCH_Maximum_DL_Power_InformationModify_RL_ReconfRqstTDD = -1;  /* DL_Power */
-static int hf_nbap_cCTrCH_Minimum_DL_Power_InformationModify_RL_ReconfRqstTDD = -1;  /* DL_Power */
-static int hf_nbap_dL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD = -1;  /* DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD */
-static int hf_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD_item = -1;  /* DL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfRqstTDD */
-static int hf_nbap_maxPowerLCR = -1;              /* DL_Power */
-static int hf_nbap_minPowerLCR = -1;              /* DL_Power */
-static int hf_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_DCH_DeleteList_RL_ReconfRqstTDD_item = -1;  /* DCH_DeleteItem_RL_ReconfRqstTDD */
-static int hf_nbap_Multiple_RL_Information_RL_ReconfRqstTDD_item = -1;  /* RL_Information_RL_ReconfRqstTDD */
-static int hf_nbap_RL_InformationResponseList_RL_ReconfRsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_dCH_InformationResponseList_RL_ReconfRsp = -1;  /* DCH_InformationResponseList_RL_ReconfRsp */
-static int hf_nbap_RL_informationList_RL_DeletionRqst_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_DL_ReferencePowerInformationList_DL_PC_Rqst_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_dl_ReferencePower = -1;        /* DL_Power */
-static int hf_nbap_rL = -1;                       /* RL_DM_Rqst */
-static int hf_nbap_rLS = -1;                      /* RL_Set_DM_Rqst */
-static int hf_nbap_all_RL = -1;                   /* AllRL_DM_Rqst */
-static int hf_nbap_all_RLS = -1;                  /* AllRL_Set_DM_Rqst */
-static int hf_nbap_rL_InformationList = -1;       /* RL_InformationList_DM_Rqst */
-static int hf_nbap_RL_InformationList_DM_Rqst_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_PUSCH_Info_DM_Rqst_item = -1;  /* PUSCH_ID */
-static int hf_nbap_HSSICH_Info_DM_Rqst_item = -1;  /* HS_SICH_ID */
-static int hf_nbap_HSSICH_InfoExt_DM_Rqst_item = -1;  /* Extended_HS_SICH_ID */
-static int hf_nbap_rL_Set_InformationList_DM_Rqst = -1;  /* RL_Set_InformationList_DM_Rqst */
-static int hf_nbap_RL_Set_InformationList_DM_Rqst_item = -1;  /* RL_Set_InformationItem_DM_Rqst */
-static int hf_nbap_rL_01 = -1;                    /* RL_DM_Rsp */
-static int hf_nbap_rLS_01 = -1;                   /* RL_Set_DM_Rsp */
-static int hf_nbap_all_RL_01 = -1;                /* RL_DM_Rsp */
-static int hf_nbap_all_RLS_01 = -1;               /* RL_Set_DM_Rsp */
-static int hf_nbap_rL_InformationList_DM_Rsp = -1;  /* RL_InformationList_DM_Rsp */
-static int hf_nbap_RL_InformationList_DM_Rsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_dedicatedMeasurementValue = -1;  /* DedicatedMeasurementValue */
-static int hf_nbap_PUSCH_Info_DM_Rsp_item = -1;   /* PUSCH_ID */
-static int hf_nbap_Multiple_PUSCH_InfoList_DM_Rsp_item = -1;  /* Multiple_PUSCH_InfoListIE_DM_Rsp */
-static int hf_nbap_pUSCH_ID = -1;                 /* PUSCH_ID */
-static int hf_nbap_Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp_item = -1;  /* Multiple_DedicatedMeasurementValueItem_TDD_DM_Rsp */
-static int hf_nbap_Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp_item = -1;  /* Multiple_DedicatedMeasurementValueItem_LCR_TDD_DM_Rsp */
-static int hf_nbap_Multiple_HSSICHMeasurementValueList_TDD_DM_Rsp_item = -1;  /* Multiple_HSSICHMeasurementValueItem_TDD_DM_Rsp */
-static int hf_nbap_Multiple_DedicatedMeasurementValueList_768_TDD_DM_Rsp_item = -1;  /* Multiple_DedicatedMeasurementValueItem_768_TDD_DM_Rsp */
-static int hf_nbap_rL_Set_InformationList_DM_Rsp = -1;  /* RL_Set_InformationList_DM_Rsp */
-static int hf_nbap_RL_Set_InformationList_DM_Rsp_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_rL_02 = -1;                    /* RL_DM_Rprt */
-static int hf_nbap_rLS_02 = -1;                   /* RL_Set_DM_Rprt */
-static int hf_nbap_all_RL_02 = -1;                /* RL_DM_Rprt */
-static int hf_nbap_all_RLS_02 = -1;               /* RL_Set_DM_Rprt */
-static int hf_nbap_rL_InformationList_DM_Rprt = -1;  /* RL_InformationList_DM_Rprt */
-static int hf_nbap_RL_InformationList_DM_Rprt_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_dedicatedMeasurementValueInformation = -1;  /* DedicatedMeasurementValueInformation */
-static int hf_nbap_PUSCH_Info_DM_Rprt_item = -1;  /* PUSCH_ID */
-static int hf_nbap_Multiple_PUSCH_InfoList_DM_Rprt_item = -1;  /* Multiple_PUSCH_InfoListIE_DM_Rprt */
-static int hf_nbap_rL_Set_InformationList_DM_Rprt = -1;  /* RL_Set_InformationList_DM_Rprt */
-static int hf_nbap_RL_Set_InformationList_DM_Rprt_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_rL_03 = -1;                    /* RL_RL_FailureInd */
-static int hf_nbap_rL_Set = -1;                   /* RL_Set_RL_FailureInd */
-static int hf_nbap_cCTrCH = -1;                   /* CCTrCH_RL_FailureInd */
-static int hf_nbap_rL_InformationList_RL_FailureInd = -1;  /* RL_InformationList_RL_FailureInd */
-static int hf_nbap_RL_InformationList_RL_FailureInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_rL_Set_InformationList_RL_FailureInd = -1;  /* RL_Set_InformationList_RL_FailureInd */
-static int hf_nbap_RL_Set_InformationList_RL_FailureInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_cCTrCH_InformationList_RL_FailureInd = -1;  /* CCTrCH_InformationList_RL_FailureInd */
-static int hf_nbap_CCTrCH_InformationList_RL_FailureInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_RL_InformationList_RL_PreemptRequiredInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_rL_04 = -1;                    /* RL_RL_RestoreInd */
-static int hf_nbap_rL_Set_01 = -1;                /* RL_Set_RL_RestoreInd */
-static int hf_nbap_cCTrCH_01 = -1;                /* CCTrCH_RL_RestoreInd */
-static int hf_nbap_rL_InformationList_RL_RestoreInd = -1;  /* RL_InformationList_RL_RestoreInd */
-static int hf_nbap_RL_InformationList_RL_RestoreInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_rL_Set_InformationList_RL_RestoreInd = -1;  /* RL_Set_InformationList_RL_RestoreInd */
-static int hf_nbap_RL_Set_InformationList_RL_RestoreInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_cCTrCH_InformationList_RL_RestoreInd = -1;  /* CCTrCH_InformationList_RL_RestoreInd */
-static int hf_nbap_CCTrCH_InformationList_RL_RestoreInd_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_privateIEs = -1;               /* PrivateIE_Container */
-static int hf_nbap_HSDPA_And_EDCH_CellPortion_InformationList_PSCH_ReconfRqst_item = -1;  /* HSDPA_And_EDCH_CellPortion_InformationItem_PSCH_ReconfRqst */
-static int hf_nbap_hS_PDSCH_HS_SCCH_ScramblingCode_PSCH_ReconfRqst = -1;  /* DL_ScramblingCode */
-static int hf_nbap_hS_PDSCH_FDD_Code_Information_PSCH_ReconfRqst = -1;  /* HS_PDSCH_FDD_Code_Information */
-static int hf_nbap_hS_SCCH_FDD_Code_Information_PSCH_ReconfRqst = -1;  /* HS_SCCH_FDD_Code_Information */
-static int hf_nbap_hS_PDSCH_HS_SCCH_E_AGCH_E_RGCH_E_HICH_MaxPower_PSCH_ReconfRqst = -1;  /* MaximumTransmissionPower */
-static int hf_nbap_e_AGCH_FDD_Code_Information = -1;  /* E_AGCH_FDD_Code_Information */
-static int hf_nbap_e_RGCH_E_HICH_FDD_Code_Information = -1;  /* E_RGCH_E_HICH_FDD_Code_Information */
-static int hf_nbap_PDSCHSets_AddList_PSCH_ReconfRqst_item = -1;  /* PDSCHSets_AddItem_PSCH_ReconfRqst */
-static int hf_nbap_pDSCHSet_ID = -1;              /* PDSCHSet_ID */
-static int hf_nbap_pDSCH_InformationList = -1;    /* PDSCH_Information_AddList_PSCH_ReconfRqst */
-static int hf_nbap_dL_Timeslot_InformationAddList_PSCH_ReconfRqst = -1;  /* DL_Timeslot_InformationAddList_PSCH_ReconfRqst */
-static int hf_nbap_DL_Timeslot_InformationAddList_PSCH_ReconfRqst_item = -1;  /* DL_Timeslot_InformationAddItem_PSCH_ReconfRqst */
-static int hf_nbap_dL_Code_InformationAddList_PSCH_ReconfRqst = -1;  /* DL_Code_InformationAddList_PSCH_ReconfRqst */
-static int hf_nbap_DL_Code_InformationAddList_PSCH_ReconfRqst_item = -1;  /* DL_Code_InformationAddItem_PSCH_ReconfRqst */
-static int hf_nbap_pDSCH_ID = -1;                 /* PDSCH_ID */
-static int hf_nbap_dL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst = -1;  /* DL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst */
-static int hf_nbap_DL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst_item = -1;  /* DL_Timeslot_InformationAddItem_LCR_PSCH_ReconfRqst */
-static int hf_nbap_dL_Code_InformationAddList_LCR_PSCH_ReconfRqst = -1;  /* DL_Code_InformationAddList_LCR_PSCH_ReconfRqst */
-static int hf_nbap_DL_Code_InformationAddList_LCR_PSCH_ReconfRqst_item = -1;  /* DL_Code_InformationAddItem_LCR_PSCH_ReconfRqst */
-static int hf_nbap_dL_Timeslot_InformationAddList_768_PSCH_ReconfRqst = -1;  /* DL_Timeslot_InformationAddList_768_PSCH_ReconfRqst */
-static int hf_nbap_DL_Timeslot_InformationAddList_768_PSCH_ReconfRqst_item = -1;  /* DL_Timeslot_InformationAddItem_768_PSCH_ReconfRqst */
-static int hf_nbap_dL_Code_InformationAddList_768_PSCH_ReconfRqst = -1;  /* DL_Code_InformationAddList_768_PSCH_ReconfRqst */
-static int hf_nbap_DL_Code_InformationAddList_768_PSCH_ReconfRqst_item = -1;  /* DL_Code_InformationAddItem_768_PSCH_ReconfRqst */
-static int hf_nbap_pDSCH_ID768 = -1;              /* PDSCH_ID768 */
-static int hf_nbap_PDSCHSets_ModifyList_PSCH_ReconfRqst_item = -1;  /* PDSCHSets_ModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_pDSCH_InformationList_01 = -1;  /* PDSCH_Information_ModifyList_PSCH_ReconfRqst */
-static int hf_nbap_dL_Timeslot_InformationModifyList_PSCH_ReconfRqst = -1;  /* DL_Timeslot_InformationModifyList_PSCH_ReconfRqst */
-static int hf_nbap_DL_Timeslot_InformationModifyList_PSCH_ReconfRqst_item = -1;  /* DL_Timeslot_InformationModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_dL_Code_InformationModifyList_PSCH_ReconfRqst = -1;  /* DL_Code_InformationModifyList_PSCH_ReconfRqst */
-static int hf_nbap_DL_Code_InformationModifyList_PSCH_ReconfRqst_item = -1;  /* DL_Code_InformationModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_dL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst = -1;  /* DL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst */
-static int hf_nbap_DL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst_item = -1;  /* DL_Timeslot_LCR_InformationModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_dL_Code_LCR_InformationModifyList_PSCH_ReconfRqst = -1;  /* DL_Code_LCR_InformationModifyList_PSCH_ReconfRqst */
-static int hf_nbap_DL_Code_LCR_InformationModifyList_PSCH_ReconfRqst_item = -1;  /* DL_Code_LCR_InformationModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_dL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst = -1;  /* DL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst */
-static int hf_nbap_DL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst_item = -1;  /* DL_Timeslot_768_InformationModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_dL_Code_768_InformationModifyList_PSCH_ReconfRqst = -1;  /* DL_Code_768_InformationModifyList_PSCH_ReconfRqst */
-static int hf_nbap_DL_Code_768_InformationModifyList_PSCH_ReconfRqst_item = -1;  /* DL_Code_768_InformationModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_PDSCHSets_DeleteList_PSCH_ReconfRqst_item = -1;  /* PDSCHSets_DeleteItem_PSCH_ReconfRqst */
-static int hf_nbap_PUSCHSets_AddList_PSCH_ReconfRqst_item = -1;  /* PUSCHSets_AddItem_PSCH_ReconfRqst */
-static int hf_nbap_pUSCHSet_ID = -1;              /* PUSCHSet_ID */
-static int hf_nbap_pUSCH_InformationList = -1;    /* PUSCH_Information_AddList_PSCH_ReconfRqst */
-static int hf_nbap_uL_Timeslot_InformationAddList_PSCH_ReconfRqst = -1;  /* UL_Timeslot_InformationAddList_PSCH_ReconfRqst */
-static int hf_nbap_UL_Timeslot_InformationAddList_PSCH_ReconfRqst_item = -1;  /* UL_Timeslot_InformationAddItem_PSCH_ReconfRqst */
-static int hf_nbap_uL_Code_InformationAddList_PSCH_ReconfRqst = -1;  /* UL_Code_InformationAddList_PSCH_ReconfRqst */
-static int hf_nbap_UL_Code_InformationAddList_PSCH_ReconfRqst_item = -1;  /* UL_Code_InformationAddItem_PSCH_ReconfRqst */
-static int hf_nbap_uL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst = -1;  /* UL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst */
-static int hf_nbap_UL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst_item = -1;  /* UL_Timeslot_InformationAddItem_LCR_PSCH_ReconfRqst */
-static int hf_nbap_uL_Code_InformationAddList_LCR_PSCH_ReconfRqst = -1;  /* UL_Code_InformationAddList_LCR_PSCH_ReconfRqst */
-static int hf_nbap_UL_Code_InformationAddList_LCR_PSCH_ReconfRqst_item = -1;  /* UL_Code_InformationAddItem_LCR_PSCH_ReconfRqst */
-static int hf_nbap_uL_Timeslot_InformationAddList_768_PSCH_ReconfRqst = -1;  /* UL_Timeslot_InformationAddList_768_PSCH_ReconfRqst */
-static int hf_nbap_UL_Timeslot_InformationAddList_768_PSCH_ReconfRqst_item = -1;  /* UL_Timeslot_InformationAddItem_768_PSCH_ReconfRqst */
-static int hf_nbap_uL_Code_InformationAddList_768_PSCH_ReconfRqst = -1;  /* UL_Code_InformationAddList_768_PSCH_ReconfRqst */
-static int hf_nbap_UL_Code_InformationAddList_768_PSCH_ReconfRqst_item = -1;  /* UL_Code_InformationAddItem_768_PSCH_ReconfRqst */
-static int hf_nbap_PUSCHSets_ModifyList_PSCH_ReconfRqst_item = -1;  /* PUSCHSets_ModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_pUSCH_InformationList_01 = -1;  /* PUSCH_Information_ModifyList_PSCH_ReconfRqst */
-static int hf_nbap_uL_Timeslot_InformationModifyList_PSCH_ReconfRqst = -1;  /* UL_Timeslot_InformationModifyList_PSCH_ReconfRqst */
-static int hf_nbap_UL_Timeslot_InformationModifyList_PSCH_ReconfRqst_item = -1;  /* UL_Timeslot_InformationModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_uL_Code_InformationModifyList_PSCH_ReconfRqst = -1;  /* UL_Code_InformationModifyList_PSCH_ReconfRqst */
-static int hf_nbap_UL_Code_InformationModifyList_PSCH_ReconfRqst_item = -1;  /* UL_Code_InformationModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_uL_Timeslot_InformationModifyList_LCR_PSCH_ReconfRqst = -1;  /* UL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst */
-static int hf_nbap_UL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst_item = -1;  /* UL_Timeslot_LCR_InformationModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_uL_Code_LCR_InformationModifyList_PSCH_ReconfRqst = -1;  /* UL_Code_LCR_InformationModifyList_PSCH_ReconfRqst */
-static int hf_nbap_UL_Code_LCR_InformationModifyList_PSCH_ReconfRqst_item = -1;  /* UL_Code_LCR_InformationModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_uL_Timeslot_InformationModifyList_768_PSCH_ReconfRqst = -1;  /* UL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst */
-static int hf_nbap_UL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst_item = -1;  /* UL_Timeslot_768_InformationModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_uL_Code_768_InformationModifyList_PSCH_ReconfRqst = -1;  /* UL_Code_768_InformationModifyList_PSCH_ReconfRqst */
-static int hf_nbap_UL_Code_768_InformationModifyList_PSCH_ReconfRqst_item = -1;  /* UL_Code_768_InformationModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_PUSCHSets_DeleteList_PSCH_ReconfRqst_item = -1;  /* PUSCHSets_DeleteItem_PSCH_ReconfRqst */
-static int hf_nbap_dL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst = -1;  /* DL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst */
-static int hf_nbap_DL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst_item = -1;  /* DL_HS_PDSCH_Timeslot_InformationItem_PSCH_ReconfRqst */
-static int hf_nbap_dl_HS_PDSCH_Codelist_PSCH_ReconfRqst = -1;  /* DL_HS_PDSCH_Codelist_PSCH_ReconfRqst */
-static int hf_nbap_DL_HS_PDSCH_Codelist_PSCH_ReconfRqst_item = -1;  /* TDD_ChannelisationCode */
-static int hf_nbap_DL_HS_PDSCH_Timeslot_Information_768_PSCH_ReconfRqst_item = -1;  /* DL_HS_PDSCH_Timeslot_InformationItem_768_PSCH_ReconfRqst */
-static int hf_nbap_dl_HS_PDSCH_Codelist_768_PSCH_ReconfRqst = -1;  /* DL_HS_PDSCH_Codelist_768_PSCH_ReconfRqst */
-static int hf_nbap_DL_HS_PDSCH_Codelist_768_PSCH_ReconfRqst_item = -1;  /* TDD_ChannelisationCode768 */
-static int hf_nbap_MultipleFreq_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_hS_SCCH_Information_PSCH_ReconfRqst = -1;  /* HS_SCCH_Information_PSCH_ReconfRqst */
-static int hf_nbap_hS_SCCH_Information_LCR_PSCH_ReconfRqst = -1;  /* HS_SCCH_Information_LCR_PSCH_ReconfRqst */
-static int hf_nbap_HS_SCCH_Information_PSCH_ReconfRqst_item = -1;  /* HS_SCCH_InformationItem_PSCH_ReconfRqst */
-static int hf_nbap_hS_SCCH_ID = -1;               /* HS_SCCH_ID */
-static int hf_nbap_hS_SCCH_MaxPower = -1;         /* DL_Power */
-static int hf_nbap_hS_SICH_Information = -1;      /* HS_SICH_Information_PSCH_ReconfRqst */
-static int hf_nbap_HS_SCCH_Information_LCR_PSCH_ReconfRqst_item = -1;  /* HS_SCCH_InformationItem_LCR_PSCH_ReconfRqst */
-static int hf_nbap_hS_SICH_Information_LCR = -1;  /* HS_SICH_Information_LCR_PSCH_ReconfRqst */
-static int hf_nbap_HS_SCCH_Information_768_PSCH_ReconfRqst_item = -1;  /* HS_SCCH_InformationItem_768_PSCH_ReconfRqst */
-static int hf_nbap_hS_SICH_Information_768 = -1;  /* HS_SICH_Information_768_PSCH_ReconfRqst */
-static int hf_nbap_HS_SCCH_InformationExt_LCR_PSCH_ReconfRqst_item = -1;  /* HS_SCCH_InformationItem_LCR_PSCH_ReconfRqst */
-static int hf_nbap_hS_SCCH_InformationModify_PSCH_ReconfRqst = -1;  /* HS_SCCH_InformationModify_PSCH_ReconfRqst */
-static int hf_nbap_hS_SCCH_InformationModify_LCR_PSCH_ReconfRqst = -1;  /* HS_SCCH_InformationModify_LCR_PSCH_ReconfRqst */
-static int hf_nbap_hS_SICH_Information_01 = -1;   /* HS_SICH_InformationModify_PSCH_ReconfRqst */
-static int hf_nbap_HS_SCCH_InformationModify_LCR_PSCH_ReconfRqst_item = -1;  /* HS_SCCH_InformationModifyItem_LCR_PSCH_ReconfRqst */
-static int hf_nbap_hS_SICH_Information_LCR_01 = -1;  /* HS_SICH_InformationModify_LCR_PSCH_ReconfRqst */
-static int hf_nbap_HS_SCCH_InformationModifyExt_LCR_PSCH_ReconfRqst_item = -1;  /* HS_SCCH_InformationModifyItem_LCR_PSCH_ReconfRqst */
-static int hf_nbap_HS_SCCH_InformationModify_768_PSCH_ReconfRqst_item = -1;  /* HS_SCCH_InformationModifyItem_768_PSCH_ReconfRqst */
-static int hf_nbap_hS_SICH_Information_768_01 = -1;  /* HS_SICH_InformationModify_768_PSCH_ReconfRqst */
-static int hf_nbap_HS_SCCH_InformationModify_PSCH_ReconfRqst_item = -1;  /* HS_SCCH_InformationModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_Delete_From_HS_SCCH_Resource_Pool_PSCH_ReconfRqst_item = -1;  /* Delete_From_HS_SCCH_Resource_PoolItem_PSCH_ReconfRqst */
-static int hf_nbap_lTGI_Presence = -1;            /* LTGI_Presence */
-static int hf_nbap_sNPL_Reporting_Type = -1;      /* SNPL_Reporting_Type */
-static int hf_nbap_e_PUCH_Timeslot_Info = -1;     /* E_PUCH_Timeslot_Info */
-static int hf_nbap_E_PUCH_Timeslot_Info_item = -1;  /* TimeSlot */
-static int hf_nbap_e_AGCH_Information_PSCH_ReconfRqst = -1;  /* E_AGCH_Information_PSCH_ReconfRqst */
-static int hf_nbap_E_AGCH_Information_PSCH_ReconfRqst_item = -1;  /* E_AGCH_InformationItem_PSCH_ReconfRqst */
-static int hf_nbap_e_AGCH_MaxPower = -1;          /* DL_Power */
-static int hf_nbap_e_AGCH_InformationModify_PSCH_ReconfRqst = -1;  /* E_AGCH_InformationModify_PSCH_ReconfRqst */
-static int hf_nbap_E_AGCH_InformationModify_PSCH_ReconfRqst_item = -1;  /* E_AGCH_InformationModifyItem_PSCH_ReconfRqst */
-static int hf_nbap_Delete_From_E_AGCH_Resource_Pool_PSCH_ReconfRqst_item = -1;  /* Delete_From_E_AGCH_Resource_PoolItem_PSCH_ReconfRqst */
-static int hf_nbap_e_HICH_MaxPower = -1;          /* DL_Power */
-static int hf_nbap_e_AGCH_Information_768_PSCH_ReconfRqst = -1;  /* E_AGCH_Information_768_PSCH_ReconfRqst */
-static int hf_nbap_E_AGCH_Information_768_PSCH_ReconfRqst_item = -1;  /* E_AGCH_InformationItem_768_PSCH_ReconfRqst */
-static int hf_nbap_e_AGCH_InformationModify_768_PSCH_ReconfRqst = -1;  /* E_AGCH_InformationModify_768_PSCH_ReconfRqst */
-static int hf_nbap_E_AGCH_InformationModify_768_PSCH_ReconfRqst_item = -1;  /* E_AGCH_InformationModifyItem_768_PSCH_ReconfRqst */
-static int hf_nbap_e_PUCH_Timeslot_InfoLCR = -1;  /* E_PUCH_Timeslot_InfoLCR */
-static int hf_nbap_E_PUCH_Timeslot_InfoLCR_item = -1;  /* E_PUCH_Timeslot_Item_InfoLCR */
-static int hf_nbap_e_PUCH_Codelist_LCR = -1;      /* E_PUCH_Codelist_LCR */
-static int hf_nbap_E_PUCH_Codelist_LCR_item = -1;  /* TDD_ChannelisationCode */
-static int hf_nbap_e_AGCH_Information_LCR_PSCH_ReconfRqst = -1;  /* E_AGCH_Information_LCR_PSCH_ReconfRqst */
-static int hf_nbap_E_AGCH_Information_LCR_PSCH_ReconfRqst_item = -1;  /* E_AGCH_InformationItem_LCR_PSCH_ReconfRqst */
-static int hf_nbap_e_AGCH_InformationModify_LCR_PSCH_ReconfRqst = -1;  /* E_AGCH_InformationModify_LCR_PSCH_ReconfRqst */
-static int hf_nbap_E_AGCH_InformationModify_LCR_PSCH_ReconfRqst_item = -1;  /* E_AGCH_InformationModifyItem_LCR_PSCH_ReconfRqst */
-static int hf_nbap_e_HICH_Information_LCR_PSCH_ReconfRqst = -1;  /* E_HICH_Information_LCR_PSCH_ReconfRqst */
-static int hf_nbap_E_HICH_Information_LCR_PSCH_ReconfRqst_item = -1;  /* E_HICH_InformationItem_LCR_PSCH_ReconfRqst */
-static int hf_nbap_e_HICH_Type = -1;              /* E_HICH_Type */
-static int hf_nbap_e_HICH_InformationModify_LCR_PSCH_ReconfRqst = -1;  /* E_HICH_InformationModify_LCR_PSCH_ReconfRqst */
-static int hf_nbap_E_HICH_InformationModify_LCR_PSCH_ReconfRqst_item = -1;  /* E_HICH_InformationModifyItem_LCR_PSCH_ReconfRqst */
-static int hf_nbap_Delete_From_E_HICH_Resource_Pool_PSCH_ReconfRqst_item = -1;  /* Delete_From_E_HICH_Resource_PoolItem_PSCH_ReconfRqst */
-static int hf_nbap_eRUCCH_SYNC_UL_codes_bitmap = -1;  /* BIT_STRING_SIZE_8 */
-static int hf_nbap_Delete_From_HS_SCCH_Resource_PoolExt_PSCH_ReconfRqst_item = -1;  /* Delete_From_HS_SCCH_Resource_PoolItem_PSCH_ReconfRqst */
-static int hf_nbap_MultipleFreq_E_PUCH_Timeslot_InformationList_LCR_PSCH_ReconfRqst_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_Max_RTWP_perUARFCN_Information_LCR_PSCH_ReconfRqst_item = -1;  /* Max_RTWP_perUARFCN_Information_LCR_PSCH_ReconfRqst_Item */
-static int hf_nbap_maximum_Target_ReceivedTotalWideBandPower_LCR = -1;  /* Maximum_Target_ReceivedTotalWideBandPower_LCR */
-static int hf_nbap_E_HICH_TimeOffset_ExtensionLCR_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_e_HICH_TimeOffsetLCR = -1;     /* E_HICH_TimeOffsetLCR */
-static int hf_nbap_generalCause_05 = -1;          /* GeneralCauseList_PSCH_ReconfFailure */
-static int hf_nbap_setSpecificCause = -1;         /* SetSpecificCauseList_PSCH_ReconfFailureTDD */
-static int hf_nbap_extension_CauseLevel_PSCH_ReconfFailure = -1;  /* Extension_CauseLevel_PSCH_ReconfFailure */
-static int hf_nbap_unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD = -1;  /* Unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD */
-static int hf_nbap_unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD = -1;  /* Unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD */
-static int hf_nbap_Unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_Unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_UARFCNSpecificCauseList_PSCH_ReconfFailureTDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_E_HICH_TimeOffset_ReconfFailureTDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_hSDSCH_Common_System_Information_ResponseLCR = -1;  /* HSDSCH_Common_System_Information_ResponseLCR */
-static int hf_nbap_hSDSCH_Paging_System_Information_ResponseLCR = -1;  /* HSDSCH_Paging_System_Information_ResponseLCR */
-static int hf_nbap_common_EDCH_System_Information_ResponseLCR = -1;  /* Common_EDCH_System_Information_ResponseLCR */
-static int hf_nbap_communicationContext = -1;     /* CommunicationContextList_Reset */
-static int hf_nbap_communicationControlPort = -1;  /* CommunicationControlPortList_Reset */
-static int hf_nbap_nodeB = -1;                    /* NULL */
-static int hf_nbap_communicationContextInfoList_Reset = -1;  /* CommunicationContextInfoList_Reset */
-static int hf_nbap_CommunicationContextInfoList_Reset_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_communicationContextType_Reset = -1;  /* CommunicationContextType_Reset */
-static int hf_nbap_nodeB_CommunicationContextID = -1;  /* NodeB_CommunicationContextID */
-static int hf_nbap_communicationControlPortInfoList_Reset = -1;  /* CommunicationControlPortInfoList_Reset */
-static int hf_nbap_CommunicationControlPortInfoList_Reset_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_cell_03 = -1;                  /* Cell_InfEx_Rqst */
-static int hf_nbap_cell_04 = -1;                  /* Cell_InfEx_Rsp */
-static int hf_nbap_requestedDataValue = -1;       /* RequestedDataValue */
-static int hf_nbap_cell_05 = -1;                  /* Cell_Inf_Rprt */
-static int hf_nbap_requestedDataValueInformation = -1;  /* RequestedDataValueInformation */
-static int hf_nbap_TimeslotInfo_CellSyncInitiationRqstTDD_item = -1;  /* TimeSlot */
-static int hf_nbap_cSBTransmissionID = -1;        /* CSBTransmissionID */
-static int hf_nbap_sfn = -1;                      /* SFN */
-static int hf_nbap_initialDLTransPower = -1;      /* DL_Power */
-static int hf_nbap_cSBMeasurementID = -1;         /* CSBMeasurementID */
-static int hf_nbap_synchronisationReportType = -1;  /* SynchronisationReportType */
-static int hf_nbap_synchronisationReportCharacteristics = -1;  /* SynchronisationReportCharacteristics */
-static int hf_nbap_sYNCDlCodeId = -1;             /* SYNCDlCodeId */
-static int hf_nbap_CellSyncBurstTransReconfInfo_CellSyncReconfRqstTDD_item = -1;  /* CellSyncBurstTransInfoItem_CellSyncReconfRqstTDD */
-static int hf_nbap_syncFrameNumberToTransmit = -1;  /* SyncFrameNumber */
-static int hf_nbap_dlTransPower = -1;             /* DL_Power */
-static int hf_nbap_cellSyncBurstMeasInfoList_CellSyncReconfRqstTDD = -1;  /* CellSyncBurstMeasInfoList_CellSyncReconfRqstTDD */
-static int hf_nbap_synchronisationReportType_01 = -1;  /* SynchronisationReportTypeIE */
-static int hf_nbap_synchronisationReportCharacteristics_01 = -1;  /* SynchronisationReportCharacteristicsIE */
-static int hf_nbap_CellSyncBurstMeasInfoListIE_CellSyncReconfRqstTDD_item = -1;  /* CellSyncBurstMeasInfoItem_CellSyncReconfRqstTDD */
-static int hf_nbap_syncFrameNrToReceive = -1;     /* SyncFrameNumber */
-static int hf_nbap_syncBurstInfo = -1;            /* CellSyncBurstInfoList_CellSyncReconfRqstTDD */
-static int hf_nbap_CellSyncBurstInfoList_CellSyncReconfRqstTDD_item = -1;  /* CellSyncBurstInfoItem_CellSyncReconfRqstTDD */
-static int hf_nbap_SYNCDlCodeIdTransReconfInfoLCR_CellSyncReconfRqstTDD_item = -1;  /* SYNCDlCodeIdTransReconfItemLCR_CellSyncReconfRqstTDD */
-static int hf_nbap_syncFrameNumberforTransmit = -1;  /* SyncFrameNumber */
-static int hf_nbap_sYNCDlCodeIdMeasInfoList = -1;  /* SYNCDlCodeIdMeasInfoList_CellSyncReconfRqstTDD */
-static int hf_nbap_SYNCDlCodeIdMeasInfoList_CellSyncReconfRqstTDD_item = -1;  /* SYNCDlCodeIdMeasInfoItem_CellSyncReconfRqstTDD */
-static int hf_nbap_sYNCDlCodeIdInfoLCR = -1;      /* SYNCDlCodeIdInfoListLCR_CellSyncReconfRqstTDD */
-static int hf_nbap_SYNCDlCodeIdInfoListLCR_CellSyncReconfRqstTDD_item = -1;  /* SYNCDlCodeIdInfoItemLCR_CellSyncReconfRqstTDD */
-static int hf_nbap_propagationDelayCompensation = -1;  /* TimingAdjustmentValueLCR */
-static int hf_nbap_CellAdjustmentInfo_SyncAdjustmentRqstTDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_frameAdjustmentValue = -1;     /* FrameAdjustmentValue */
-static int hf_nbap_timingAdjustmentValue = -1;    /* TimingAdjustmentValue */
-static int hf_nbap_dLTransPower = -1;             /* DL_Power */
-static int hf_nbap_generalCause_06 = -1;          /* GeneralCauseList_SyncAdjustmntFailureTDD */
-static int hf_nbap_cellSpecificCause = -1;        /* CellSpecificCauseList_SyncAdjustmntFailureTDD */
-static int hf_nbap_unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD = -1;  /* Unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD */
-static int hf_nbap_Unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_CellSyncInfo_CellSyncReprtTDD_item = -1;  /* CellSyncInfoItemIE_CellSyncReprtTDD */
-static int hf_nbap_c_ID_CellSyncReprtTDD = -1;    /* C_ID_IE_CellSyncReprtTDD */
-static int hf_nbap_syncReportType_CellSyncReprtTDD = -1;  /* SyncReportTypeIE_CellSyncReprtTDD */
-static int hf_nbap_intStdPhSyncInfo_CellSyncReprtTDD = -1;  /* IntStdPhCellSyncInfo_CellSyncReprtTDD */
-static int hf_nbap_lateEntrantCell = -1;          /* NULL */
-static int hf_nbap_frequencyAcquisition = -1;     /* NULL */
-static int hf_nbap_cellSyncBurstMeasuredInfo = -1;  /* CellSyncBurstMeasInfoList_CellSyncReprtTDD */
-static int hf_nbap_CellSyncBurstMeasInfoList_CellSyncReprtTDD_item = -1;  /* CellSyncBurstMeasInfoItem_CellSyncReprtTDD */
-static int hf_nbap_cellSyncBurstInfo_CellSyncReprtTDD = -1;  /* SEQUENCE_SIZE_1_maxNrOfReceptsPerSyncFrame_OF_CellSyncBurstInfo_CellSyncReprtTDD */
-static int hf_nbap_cellSyncBurstInfo_CellSyncReprtTDD_item = -1;  /* CellSyncBurstInfo_CellSyncReprtTDD */
-static int hf_nbap_cellSyncBurstAvailable = -1;   /* CellSyncBurstAvailable_CellSyncReprtTDD */
-static int hf_nbap_cellSyncBurstNotAvailable = -1;  /* NULL */
-static int hf_nbap_cellSyncBurstSIR = -1;         /* CellSyncBurstSIR */
-static int hf_nbap_SyncDLCodeIdsMeasInfoList_CellSyncReprtTDD_item = -1;  /* SyncDLCodeIdsMeasInfoItem_CellSyncReprtTDD */
-static int hf_nbap_syncDLCodeIdInfo_CellSyncReprtTDD = -1;  /* SyncDLCodeIdInfo_CellSyncReprtTDD */
-static int hf_nbap_SyncDLCodeIdInfo_CellSyncReprtTDD_item = -1;  /* SyncDLCodeIdItem_CellSyncReprtTDD */
-static int hf_nbap_syncDLCodeIdAvailable = -1;    /* SyncDLCodeIdAvailable_CellSyncReprtTDD */
-static int hf_nbap_syncDLCodeIDNotAvailable = -1;  /* NULL */
-static int hf_nbap_syncDLCodeIdTiming = -1;       /* CellSyncBurstTimingLCR */
-static int hf_nbap_syncDLCodeIdSIR = -1;          /* CellSyncBurstSIR */
-static int hf_nbap_DCH_RearrangeList_Bearer_RearrangeInd_item = -1;  /* DCH_RearrangeItem_Bearer_RearrangeInd */
-static int hf_nbap_DSCH_RearrangeList_Bearer_RearrangeInd_item = -1;  /* DSCH_RearrangeItem_Bearer_RearrangeInd */
-static int hf_nbap_USCH_RearrangeList_Bearer_RearrangeInd_item = -1;  /* USCH_RearrangeItem_Bearer_RearrangeInd */
-static int hf_nbap_HSDSCH_RearrangeList_Bearer_RearrangeInd_item = -1;  /* HSDSCH_RearrangeItem_Bearer_RearrangeInd */
-static int hf_nbap_E_DCH_RearrangeList_Bearer_RearrangeInd_item = -1;  /* E_DCH_RearrangeItem_Bearer_RearrangeInd */
-static int hf_nbap_Additional_EDCH_Cell_Information_Bearer_Rearrangement_List_item = -1;  /* Additional_EDCH_Cell_Information_Bearer_Rearrangement_ItemIEs */
-static int hf_nbap_transport_Bearer_Rearrangement_Indicator_for_Additional_EDCH_Separate_Mode = -1;  /* Transport_Bearer_Rearrangement_Indicator_for_Additional_EDCH_Separate_Mode */
-static int hf_nbap_DelayedActivationInformationList_RL_ActivationCmdFDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_delayed_activation_update = -1;  /* DelayedActivationUpdate */
-static int hf_nbap_DelayedActivationInformationList_RL_ActivationCmdTDD_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_nbap_Additional_HS_Cell_Information_RL_Param_Upd_item = -1;  /* Additional_HS_Cell_Information_RL_Param_Upd_ItemIEs */
-static int hf_nbap_hS_DSCH_FDD_Secondary_Serving_Update_Information = -1;  /* HS_DSCH_FDD_Secondary_Serving_Update_Information */
-static int hf_nbap_Additional_EDCH_Cell_Information_RL_Param_Upd_item = -1;  /* Additional_EDCH_Cell_Information_RL_Param_Upd_ItemIEs */
-static int hf_nbap_additional_EDCH_FDD_Update_Information = -1;  /* Additional_EDCH_FDD_Update_Information */
-static int hf_nbap_initiatingMessage = -1;        /* InitiatingMessage */
-static int hf_nbap_succesfulOutcome = -1;         /* SuccessfulOutcome */
-static int hf_nbap_unsuccesfulOutcome = -1;       /* UnsuccessfulOutcome */
-static int hf_nbap_outcome = -1;                  /* Outcome */
-static int hf_nbap_messageDiscriminator = -1;     /* MessageDiscriminator */
-static int hf_nbap_initiatingMessagevalue = -1;   /* InitiatingMessage_value */
-static int hf_nbap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
-static int hf_nbap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
-static int hf_nbap_outcome_value = -1;            /* Outcome_value */
+static int hf_nbap_ActivationInformation_PDU;     /* ActivationInformation */
+static int hf_nbap_Additional_EDCH_Setup_Info_PDU;  /* Additional_EDCH_Setup_Info */
+static int hf_nbap_Additional_EDCH_Cell_Information_Response_List_PDU;  /* Additional_EDCH_Cell_Information_Response_List */
+static int hf_nbap_Additional_EDCH_Cell_Information_Response_RLReconf_List_PDU;  /* Additional_EDCH_Cell_Information_Response_RLReconf_List */
+static int hf_nbap_Additional_EDCH_Cell_Information_Response_RL_Add_List_PDU;  /* Additional_EDCH_Cell_Information_Response_RL_Add_List */
+static int hf_nbap_AdditionalMeasurementValueList_PDU;  /* AdditionalMeasurementValueList */
+static int hf_nbap_AdditionalTimeSlotListLCR_PDU;  /* AdditionalTimeSlotListLCR */
+static int hf_nbap_Active_Pattern_Sequence_Information_PDU;  /* Active_Pattern_Sequence_Information */
+static int hf_nbap_AlternativeFormatReportingIndicator_PDU;  /* AlternativeFormatReportingIndicator */
+static int hf_nbap_Angle_Of_Arrival_Value_LCR_PDU;  /* Angle_Of_Arrival_Value_LCR */
+static int hf_nbap_BCCH_ModificationTime_PDU;     /* BCCH_ModificationTime */
+static int hf_nbap_Best_Cell_Portions_Value_PDU;  /* Best_Cell_Portions_Value */
+static int hf_nbap_Best_Cell_Portions_ValueLCR_PDU;  /* Best_Cell_Portions_ValueLCR */
+static int hf_nbap_BindingID_PDU;                 /* BindingID */
+static int hf_nbap_BlockingPriorityIndicator_PDU;  /* BlockingPriorityIndicator */
+static int hf_nbap_BroadcastCommonTransportBearerIndication_PDU;  /* BroadcastCommonTransportBearerIndication */
+static int hf_nbap_BroadcastReference_PDU;        /* BroadcastReference */
+static int hf_nbap_Cause_PDU;                     /* Cause */
+static int hf_nbap_Cell_Capability_Container_PDU;  /* Cell_Capability_Container */
+static int hf_nbap_Cell_ERNTI_Status_Information_PDU;  /* Cell_ERNTI_Status_Information */
+static int hf_nbap_CellParameterID_PDU;           /* CellParameterID */
+static int hf_nbap_CellPortion_CapabilityLCR_PDU;  /* CellPortion_CapabilityLCR */
+static int hf_nbap_CellSyncBurstRepetitionPeriod_PDU;  /* CellSyncBurstRepetitionPeriod */
+static int hf_nbap_CFN_PDU;                       /* CFN */
+static int hf_nbap_C_ID_PDU;                      /* C_ID */
+static int hf_nbap_Closedlooptimingadjustmentmode_PDU;  /* Closedlooptimingadjustmentmode */
+static int hf_nbap_Common_EDCH_Capability_PDU;    /* Common_EDCH_Capability */
+static int hf_nbap_Common_E_DCH_HSDPCCH_Capability_PDU;  /* Common_E_DCH_HSDPCCH_Capability */
+static int hf_nbap_Common_EDCH_System_InformationFDD_PDU;  /* Common_EDCH_System_InformationFDD */
+static int hf_nbap_Common_EDCH_System_Information_ResponseFDD_PDU;  /* Common_EDCH_System_Information_ResponseFDD */
+static int hf_nbap_E_RNTI_List_PDU;               /* E_RNTI_List */
+static int hf_nbap_Common_MACFlows_to_DeleteFDD_PDU;  /* Common_MACFlows_to_DeleteFDD */
+static int hf_nbap_CommonMeasurementAccuracy_PDU;  /* CommonMeasurementAccuracy */
+static int hf_nbap_CommonMeasurementType_PDU;     /* CommonMeasurementType */
+static int hf_nbap_CommonPhysicalChannelID_PDU;   /* CommonPhysicalChannelID */
+static int hf_nbap_CommonPhysicalChannelID768_PDU;  /* CommonPhysicalChannelID768 */
+static int hf_nbap_Common_PhysicalChannel_Status_Information_PDU;  /* Common_PhysicalChannel_Status_Information */
+static int hf_nbap_Common_PhysicalChannel_Status_Information768_PDU;  /* Common_PhysicalChannel_Status_Information768 */
+static int hf_nbap_CommonTransportChannel_InformationResponse_PDU;  /* CommonTransportChannel_InformationResponse */
+static int hf_nbap_Common_TransportChannel_Status_Information_PDU;  /* Common_TransportChannel_Status_Information */
+static int hf_nbap_CommunicationControlPortID_PDU;  /* CommunicationControlPortID */
+static int hf_nbap_Compressed_Mode_Deactivation_Flag_PDU;  /* Compressed_Mode_Deactivation_Flag */
+static int hf_nbap_ConfigurationGenerationID_PDU;  /* ConfigurationGenerationID */
+static int hf_nbap_ConstantValue_PDU;             /* ConstantValue */
+static int hf_nbap_ContinuousPacketConnectivityDTX_DRX_Capability_PDU;  /* ContinuousPacketConnectivityDTX_DRX_Capability */
+static int hf_nbap_ContinuousPacketConnectivityDTX_DRX_Information_PDU;  /* ContinuousPacketConnectivityDTX_DRX_Information */
+static int hf_nbap_ContinuousPacketConnectivityHS_SCCH_less_Capability_PDU;  /* ContinuousPacketConnectivityHS_SCCH_less_Capability */
+static int hf_nbap_ContinuousPacketConnectivityHS_SCCH_less_Information_PDU;  /* ContinuousPacketConnectivityHS_SCCH_less_Information */
+static int hf_nbap_ContinuousPacketConnectivityHS_SCCH_less_Information_Response_PDU;  /* ContinuousPacketConnectivityHS_SCCH_less_Information_Response */
+static int hf_nbap_ControlGAP_PDU;                /* ControlGAP */
+static int hf_nbap_CPC_Information_PDU;           /* CPC_Information */
+static int hf_nbap_ContinuousPacketConnectivityHS_SCCH_less_Deactivate_Indicator_PDU;  /* ContinuousPacketConnectivityHS_SCCH_less_Deactivate_Indicator */
+static int hf_nbap_CriticalityDiagnostics_PDU;    /* CriticalityDiagnostics */
+static int hf_nbap_CRNC_CommunicationContextID_PDU;  /* CRNC_CommunicationContextID */
+static int hf_nbap_CSBMeasurementID_PDU;          /* CSBMeasurementID */
+static int hf_nbap_CSBTransmissionID_PDU;         /* CSBTransmissionID */
+static int hf_nbap_Common_EDCH_System_InformationLCR_PDU;  /* Common_EDCH_System_InformationLCR */
+static int hf_nbap_Common_EDCH_System_Information_ResponseLCR_PDU;  /* Common_EDCH_System_Information_ResponseLCR */
+static int hf_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseListLCR_Ext_PDU;  /* Ul_common_E_DCH_MACflow_Specific_InfoResponseListLCR_Ext */
+static int hf_nbap_Common_MACFlows_to_DeleteLCR_PDU;  /* Common_MACFlows_to_DeleteLCR */
+static int hf_nbap_CPC_InformationLCR_PDU;        /* CPC_InformationLCR */
+static int hf_nbap_ContinuousPacketConnectivity_DRX_CapabilityLCR_PDU;  /* ContinuousPacketConnectivity_DRX_CapabilityLCR */
+static int hf_nbap_ContinuousPacketConnectivity_DRX_InformationLCR_PDU;  /* ContinuousPacketConnectivity_DRX_InformationLCR */
+static int hf_nbap_E_AGCH_UE_Inactivity_Monitor_Threshold_PDU;  /* E_AGCH_UE_Inactivity_Monitor_Threshold */
+static int hf_nbap_ContinuousPacketConnectivity_DRX_Information_ResponseLCR_PDU;  /* ContinuousPacketConnectivity_DRX_Information_ResponseLCR */
+static int hf_nbap_DCH_FDD_Information_PDU;       /* DCH_FDD_Information */
+static int hf_nbap_DCH_Indicator_For_E_DCH_HSDPA_Operation_PDU;  /* DCH_Indicator_For_E_DCH_HSDPA_Operation */
+static int hf_nbap_DCH_InformationResponse_PDU;   /* DCH_InformationResponse */
+static int hf_nbap_DCH_MeasurementOccasion_Information_PDU;  /* DCH_MeasurementOccasion_Information */
+static int hf_nbap_DCH_TDD_Information_PDU;       /* DCH_TDD_Information */
+static int hf_nbap_FDD_DCHs_to_Modify_PDU;        /* FDD_DCHs_to_Modify */
+static int hf_nbap_TDD_DCHs_to_Modify_PDU;        /* TDD_DCHs_to_Modify */
+static int hf_nbap_DedicatedMeasurementType_PDU;  /* DedicatedMeasurementType */
+static int hf_nbap_DelayedActivation_PDU;         /* DelayedActivation */
+static int hf_nbap_DGANSS_Corrections_Req_PDU;    /* DGANSS_Corrections_Req */
+static int hf_nbap_DGNSS_ValidityPeriod_PDU;      /* DGNSS_ValidityPeriod */
+static int hf_nbap_DiversityMode_PDU;             /* DiversityMode */
+static int hf_nbap_DL_DPCH_TimingAdjustment_PDU;  /* DL_DPCH_TimingAdjustment */
+static int hf_nbap_DL_Power_PDU;                  /* DL_Power */
+static int hf_nbap_DL_PowerBalancing_Information_PDU;  /* DL_PowerBalancing_Information */
+static int hf_nbap_DL_PowerBalancing_ActivationIndicator_PDU;  /* DL_PowerBalancing_ActivationIndicator */
+static int hf_nbap_DL_PowerBalancing_UpdatedIndicator_PDU;  /* DL_PowerBalancing_UpdatedIndicator */
+static int hf_nbap_DL_ScramblingCode_PDU;         /* DL_ScramblingCode */
+static int hf_nbap_DL_TimeslotISCPInfo_PDU;       /* DL_TimeslotISCPInfo */
+static int hf_nbap_DL_TimeslotISCPInfoLCR_PDU;    /* DL_TimeslotISCPInfoLCR */
+static int hf_nbap_DL_TPC_Pattern01Count_PDU;     /* DL_TPC_Pattern01Count */
+static int hf_nbap_DLTransmissionBranchLoadValue_PDU;  /* DLTransmissionBranchLoadValue */
+static int hf_nbap_MaxHSDSCH_HSSCCH_Power_per_CELLPORTION_PDU;  /* MaxHSDSCH_HSSCCH_Power_per_CELLPORTION */
+static int hf_nbap_DPC_Mode_PDU;                  /* DPC_Mode */
+static int hf_nbap_DPCH_ID768_PDU;                /* DPCH_ID768 */
+static int hf_nbap_DSCH_InformationResponse_PDU;  /* DSCH_InformationResponse */
+static int hf_nbap_DSCH_TDD_Information_PDU;      /* DSCH_TDD_Information */
+static int hf_nbap_Dual_Band_Capability_Info_PDU;  /* Dual_Band_Capability_Info */
+static int hf_nbap_DwPCH_Power_PDU;               /* DwPCH_Power */
+static int hf_nbap_E_AGCH_Table_Choice_PDU;       /* E_AGCH_Table_Choice */
+static int hf_nbap_E_AGCH_FDD_Code_Information_PDU;  /* E_AGCH_FDD_Code_Information */
+static int hf_nbap_E_AI_Capability_PDU;           /* E_AI_Capability */
+static int hf_nbap_E_DCH_Capability_PDU;          /* E_DCH_Capability */
+static int hf_nbap_E_DCHCapacityConsumptionLaw_PDU;  /* E_DCHCapacityConsumptionLaw */
+static int hf_nbap_E_DCH_TDD_CapacityConsumptionLaw_PDU;  /* E_DCH_TDD_CapacityConsumptionLaw */
+static int hf_nbap_E_DCH_TTI2ms_Capability_PDU;   /* E_DCH_TTI2ms_Capability */
+static int hf_nbap_E_DCH_SF_Capability_PDU;       /* E_DCH_SF_Capability */
+static int hf_nbap_E_DCH_HARQ_Combining_Capability_PDU;  /* E_DCH_HARQ_Combining_Capability */
+static int hf_nbap_E_DCH_FDD_DL_Control_Channel_Information_PDU;  /* E_DCH_FDD_DL_Control_Channel_Information */
+static int hf_nbap_E_DCH_FDD_Information_PDU;     /* E_DCH_FDD_Information */
+static int hf_nbap_E_DCH_FDD_Information_Response_PDU;  /* E_DCH_FDD_Information_Response */
+static int hf_nbap_E_DCH_FDD_Information_to_Modify_PDU;  /* E_DCH_FDD_Information_to_Modify */
+static int hf_nbap_E_DCH_FDD_Update_Information_PDU;  /* E_DCH_FDD_Update_Information */
+static int hf_nbap_E_DCH_DL_Control_Channel_Change_Information_PDU;  /* E_DCH_DL_Control_Channel_Change_Information */
+static int hf_nbap_E_DCH_DL_Control_Channel_Grant_Information_PDU;  /* E_DCH_DL_Control_Channel_Grant_Information */
+static int hf_nbap_E_DCH_PowerOffset_for_SchedulingInfo_PDU;  /* E_DCH_PowerOffset_for_SchedulingInfo */
+static int hf_nbap_E_DCH_MACdPDU_SizeCapability_PDU;  /* E_DCH_MACdPDU_SizeCapability */
+static int hf_nbap_E_DCH_MACdPDUSizeFormat_PDU;   /* E_DCH_MACdPDUSizeFormat */
+static int hf_nbap_E_DCH_MACdFlows_Information_PDU;  /* E_DCH_MACdFlows_Information */
+static int hf_nbap_E_DCH_MACdFlows_to_Delete_PDU;  /* E_DCH_MACdFlows_to_Delete */
+static int hf_nbap_E_DCH_Non_serving_Relative_Grant_Down_Commands_PDU;  /* E_DCH_Non_serving_Relative_Grant_Down_Commands */
+static int hf_nbap_Maximum_Target_ReceivedTotalWideBandPower_PDU;  /* Maximum_Target_ReceivedTotalWideBandPower */
+static int hf_nbap_Target_NonServing_EDCH_To_Total_EDCH_Power_Ratio_PDU;  /* Target_NonServing_EDCH_To_Total_EDCH_Power_Ratio */
+static int hf_nbap_E_DCH_RL_Indication_PDU;       /* E_DCH_RL_Indication */
+static int hf_nbap_E_DCH_Serving_Cell_Change_Info_Response_PDU;  /* E_DCH_Serving_Cell_Change_Info_Response */
+static int hf_nbap_EDCH_RACH_Report_Value_PDU;    /* EDCH_RACH_Report_Value */
+static int hf_nbap_E_DPDCH_PowerInterpolation_PDU;  /* E_DPDCH_PowerInterpolation */
+static int hf_nbap_E_DCH_MACdFlows_to_DeleteLCR_PDU;  /* E_DCH_MACdFlows_to_DeleteLCR */
+static int hf_nbap_Enhanced_UE_DRX_InformationLCR_PDU;  /* Enhanced_UE_DRX_InformationLCR */
+static int hf_nbap_End_Of_Audit_Sequence_Indicator_PDU;  /* End_Of_Audit_Sequence_Indicator */
+static int hf_nbap_E_RGCH_E_HICH_FDD_Code_Information_PDU;  /* E_RGCH_E_HICH_FDD_Code_Information */
+static int hf_nbap_E_RNTI_PDU;                    /* E_RNTI */
+static int hf_nbap_E_TFCI_Boost_Information_PDU;  /* E_TFCI_Boost_Information */
+static int hf_nbap_E_DCHProvidedBitRate_PDU;      /* E_DCHProvidedBitRate */
+static int hf_nbap_E_DCHProvidedBitRateValueInformation_For_CellPortion_PDU;  /* E_DCHProvidedBitRateValueInformation_For_CellPortion */
+static int hf_nbap_E_HICH_TimeOffset_PDU;         /* E_HICH_TimeOffset */
+static int hf_nbap_E_HICH_TimeOffsetLCR_PDU;      /* E_HICH_TimeOffsetLCR */
+static int hf_nbap_E_DCH_Information_PDU;         /* E_DCH_Information */
+static int hf_nbap_E_DCH_MACdFlow_Retransmission_Timer_PDU;  /* E_DCH_MACdFlow_Retransmission_Timer */
+static int hf_nbap_E_DCH_Information_Response_PDU;  /* E_DCH_Information_Response */
+static int hf_nbap_E_DCH_Information_Reconfig_PDU;  /* E_DCH_Information_Reconfig */
+static int hf_nbap_Maximum_Generated_ReceivedTotalWideBandPowerInOtherCells_PDU;  /* Maximum_Generated_ReceivedTotalWideBandPowerInOtherCells */
+static int hf_nbap_E_DCH_768_Information_PDU;     /* E_DCH_768_Information */
+static int hf_nbap_E_DCH_768_Information_Reconfig_PDU;  /* E_DCH_768_Information_Reconfig */
+static int hf_nbap_E_DCH_LCR_Information_PDU;     /* E_DCH_LCR_Information */
+static int hf_nbap_E_DCH_LCR_Information_Reconfig_PDU;  /* E_DCH_LCR_Information_Reconfig */
+static int hf_nbap_DormantModeIndicator_PDU;      /* DormantModeIndicator */
+static int hf_nbap_Enhanced_FACH_Capability_PDU;  /* Enhanced_FACH_Capability */
+static int hf_nbap_EnhancedHSServingCC_Abort_PDU;  /* EnhancedHSServingCC_Abort */
+static int hf_nbap_Enhanced_PCH_Capability_PDU;   /* Enhanced_PCH_Capability */
+static int hf_nbap_Enhanced_UE_DRX_Capability_PDU;  /* Enhanced_UE_DRX_Capability */
+static int hf_nbap_Enhanced_UE_DRX_InformationFDD_PDU;  /* Enhanced_UE_DRX_InformationFDD */
+static int hf_nbap_Extended_E_DCH_LCRTDD_PhysicalLayerCategory_PDU;  /* Extended_E_DCH_LCRTDD_PhysicalLayerCategory */
+static int hf_nbap_Ext_Max_Bits_MACe_PDU_non_scheduled_PDU;  /* Ext_Max_Bits_MACe_PDU_non_scheduled */
+static int hf_nbap_Ext_Reference_E_TFCI_PO_PDU;   /* Ext_Reference_E_TFCI_PO */
+static int hf_nbap_ExtendedPropagationDelay_PDU;  /* ExtendedPropagationDelay */
+static int hf_nbap_Extended_RNC_ID_PDU;           /* Extended_RNC_ID */
+static int hf_nbap_Extended_Round_Trip_Time_Value_PDU;  /* Extended_Round_Trip_Time_Value */
+static int hf_nbap_Extended_HS_SCCH_ID_PDU;       /* Extended_HS_SCCH_ID */
+static int hf_nbap_Extended_HS_SICH_ID_PDU;       /* Extended_HS_SICH_ID */
+static int hf_nbap_Extended_E_HICH_ID_TDD_PDU;    /* Extended_E_HICH_ID_TDD */
+static int hf_nbap_E_DCH_Semi_PersistentScheduling_Information_LCR_PDU;  /* E_DCH_Semi_PersistentScheduling_Information_LCR */
+static int hf_nbap_E_DCH_Semi_PersistentScheduling_Information_ResponseLCR_PDU;  /* E_DCH_Semi_PersistentScheduling_Information_ResponseLCR */
+static int hf_nbap_Fast_Reconfiguration_Mode_PDU;  /* Fast_Reconfiguration_Mode */
+static int hf_nbap_Fast_Reconfiguration_Permission_PDU;  /* Fast_Reconfiguration_Permission */
+static int hf_nbap_FDD_S_CCPCH_FrameOffset_PDU;   /* FDD_S_CCPCH_FrameOffset */
+static int hf_nbap_F_DPCH_Capability_PDU;         /* F_DPCH_Capability */
+static int hf_nbap_F_DPCH_SlotFormat_PDU;         /* F_DPCH_SlotFormat */
+static int hf_nbap_F_DPCH_SlotFormatCapability_PDU;  /* F_DPCH_SlotFormatCapability */
+static int hf_nbap_FNReportingIndicator_PDU;      /* FNReportingIndicator */
+static int hf_nbap_GANSS_AddIonoModelReq_PDU;     /* GANSS_AddIonoModelReq */
+static int hf_nbap_GANSS_AddNavigationModelsReq_PDU;  /* GANSS_AddNavigationModelsReq */
+static int hf_nbap_GANSS_AddUTCModelsReq_PDU;     /* GANSS_AddUTCModelsReq */
+static int hf_nbap_GANSS_Additional_Ionospheric_Model_PDU;  /* GANSS_Additional_Ionospheric_Model */
+static int hf_nbap_GANSS_Additional_Navigation_Models_PDU;  /* GANSS_Additional_Navigation_Models */
+static int hf_nbap_GANSS_Additional_Time_Models_PDU;  /* GANSS_Additional_Time_Models */
+static int hf_nbap_GANSS_Additional_UTC_Models_PDU;  /* GANSS_Additional_UTC_Models */
+static int hf_nbap_GANSS_ALM_ECEFsbasAlmanacSet_PDU;  /* GANSS_ALM_ECEFsbasAlmanacSet */
+static int hf_nbap_GANSS_ALM_GlonassAlmanacSet_PDU;  /* GANSS_ALM_GlonassAlmanacSet */
+static int hf_nbap_GANSS_ALM_MidiAlmanacSet_PDU;  /* GANSS_ALM_MidiAlmanacSet */
+static int hf_nbap_GANSS_ALM_NAVKeplerianSet_PDU;  /* GANSS_ALM_NAVKeplerianSet */
+static int hf_nbap_GANSS_ALM_ReducedKeplerianSet_PDU;  /* GANSS_ALM_ReducedKeplerianSet */
+static int hf_nbap_GANSS_Auxiliary_Information_PDU;  /* GANSS_Auxiliary_Information */
+static int hf_nbap_GANSS_AuxInfoReq_PDU;          /* GANSS_AuxInfoReq */
+static int hf_nbap_GANSS_Common_Data_PDU;         /* GANSS_Common_Data */
+static int hf_nbap_GANSS_Earth_Orientation_Parameters_PDU;  /* GANSS_Earth_Orientation_Parameters */
+static int hf_nbap_GANSS_EarthOrientParaReq_PDU;  /* GANSS_EarthOrientParaReq */
+static int hf_nbap_GANSS_Generic_Data_PDU;        /* GANSS_Generic_Data */
+static int hf_nbap_GANSS_ID_PDU;                  /* GANSS_ID */
+static int hf_nbap_GANSS_Information_PDU;         /* GANSS_Information */
+static int hf_nbap_GANSS_SBAS_ID_PDU;             /* GANSS_SBAS_ID */
+static int hf_nbap_GANSS_Time_ID_PDU;             /* GANSS_Time_ID */
+static int hf_nbap_HARQ_MemoryPartitioningInfoExtForMIMO_PDU;  /* HARQ_MemoryPartitioningInfoExtForMIMO */
+static int hf_nbap_HARQ_Preamble_Mode_PDU;        /* HARQ_Preamble_Mode */
+static int hf_nbap_HARQ_Preamble_Mode_Activation_Indicator_PDU;  /* HARQ_Preamble_Mode_Activation_Indicator */
+static int hf_nbap_HSDPA_Capability_PDU;          /* HSDPA_Capability */
+static int hf_nbap_HS_DSCHProvidedBitRate_PDU;    /* HS_DSCHProvidedBitRate */
+static int hf_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortion_PDU;  /* HS_DSCHProvidedBitRateValueInformation_For_CellPortion */
+static int hf_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortionLCR_PDU;  /* HS_DSCHProvidedBitRateValueInformation_For_CellPortionLCR */
+static int hf_nbap_HS_DSCHRequiredPower_PDU;      /* HS_DSCHRequiredPower */
+static int hf_nbap_HS_DSCHRequiredPowerValue_PDU;  /* HS_DSCHRequiredPowerValue */
+static int hf_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortion_PDU;  /* HS_DSCHRequiredPowerValueInformation_For_CellPortion */
+static int hf_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortionLCR_PDU;  /* HS_DSCHRequiredPowerValueInformation_For_CellPortionLCR */
+static int hf_nbap_HSDSCH_Common_System_InformationFDD_PDU;  /* HSDSCH_Common_System_InformationFDD */
+static int hf_nbap_HSDSCH_Common_System_Information_ResponseFDD_PDU;  /* HSDSCH_Common_System_Information_ResponseFDD */
+static int hf_nbap_HSDSCH_FDD_Information_PDU;    /* HSDSCH_FDD_Information */
+static int hf_nbap_HSDSCH_TDD_Information_PDU;    /* HSDSCH_TDD_Information */
+static int hf_nbap_HSDSCH_Information_to_Modify_PDU;  /* HSDSCH_Information_to_Modify */
+static int hf_nbap_HSDSCH_MACdPDUSizeFormat_PDU;  /* HSDSCH_MACdPDUSizeFormat */
+static int hf_nbap_HSDSCH_MACdPDU_SizeCapability_PDU;  /* HSDSCH_MACdPDU_SizeCapability */
+static int hf_nbap_HSDSCH_Information_to_Modify_Unsynchronised_PDU;  /* HSDSCH_Information_to_Modify_Unsynchronised */
+static int hf_nbap_HSDSCH_FDD_Information_Response_PDU;  /* HSDSCH_FDD_Information_Response */
+static int hf_nbap_HSDSCH_Paging_System_InformationFDD_PDU;  /* HSDSCH_Paging_System_InformationFDD */
+static int hf_nbap_HSDSCH_Paging_System_Information_ResponseFDD_PDU;  /* HSDSCH_Paging_System_Information_ResponseFDD */
+static int hf_nbap_HSDSCH_TDD_Information_Response_PDU;  /* HSDSCH_TDD_Information_Response */
+static int hf_nbap_HSDSCH_MACdFlows_Information_PDU;  /* HSDSCH_MACdFlows_Information */
+static int hf_nbap_HSDSCH_MACdFlows_to_Delete_PDU;  /* HSDSCH_MACdFlows_to_Delete */
+static int hf_nbap_HSDSCH_TBSizeTableIndicator_PDU;  /* HSDSCH_TBSizeTableIndicator */
+static int hf_nbap_HSDSCH_PreconfigurationInfo_PDU;  /* HSDSCH_PreconfigurationInfo */
+static int hf_nbap_Additional_EDCH_Preconfiguration_Information_PDU;  /* Additional_EDCH_Preconfiguration_Information */
+static int hf_nbap_HSDSCH_PreconfigurationSetup_PDU;  /* HSDSCH_PreconfigurationSetup */
+static int hf_nbap_HSSCCH_Specific_InformationRespListTDD768_PDU;  /* HSSCCH_Specific_InformationRespListTDD768 */
+static int hf_nbap_HS_SICH_Reception_Quality_Value_PDU;  /* HS_SICH_Reception_Quality_Value */
+static int hf_nbap_HS_SICH_failed_PDU;            /* HS_SICH_failed */
+static int hf_nbap_HS_SICH_missed_PDU;            /* HS_SICH_missed */
+static int hf_nbap_HS_SICH_total_PDU;             /* HS_SICH_total */
+static int hf_nbap_HS_SICH_Reception_Quality_Measurement_Value_PDU;  /* HS_SICH_Reception_Quality_Measurement_Value */
+static int hf_nbap_HSDSCH_RNTI_PDU;               /* HSDSCH_RNTI */
+static int hf_nbap_HS_PDSCH_FDD_Code_Information_PDU;  /* HS_PDSCH_FDD_Code_Information */
+static int hf_nbap_HS_SICH_ID_PDU;                /* HS_SICH_ID */
+static int hf_nbap_HS_SCCH_FDD_Code_Information_PDU;  /* HS_SCCH_FDD_Code_Information */
+static int hf_nbap_HS_PDSCH_Code_Change_Indicator_PDU;  /* HS_PDSCH_Code_Change_Indicator */
+static int hf_nbap_HS_PDSCH_Code_Change_Grant_PDU;  /* HS_PDSCH_Code_Change_Grant */
+static int hf_nbap_HSDSCH_Configured_Indicator_PDU;  /* HSDSCH_Configured_Indicator */
+static int hf_nbap_HS_DSCH_Serving_Cell_Change_Info_PDU;  /* HS_DSCH_Serving_Cell_Change_Info */
+static int hf_nbap_HS_DSCH_Serving_Cell_Change_Info_Response_PDU;  /* HS_DSCH_Serving_Cell_Change_Info_Response */
+static int hf_nbap_HSDSCH_FDD_Update_Information_PDU;  /* HSDSCH_FDD_Update_Information */
+static int hf_nbap_HSDSCH_TDD_Update_Information_PDU;  /* HSDSCH_TDD_Update_Information */
+static int hf_nbap_HSDSCH_Common_System_InformationLCR_PDU;  /* HSDSCH_Common_System_InformationLCR */
+static int hf_nbap_HSDSCH_Common_System_Information_ResponseLCR_PDU;  /* HSDSCH_Common_System_Information_ResponseLCR */
+static int hf_nbap_HSDSCH_Paging_System_InformationLCR_PDU;  /* HSDSCH_Paging_System_InformationLCR */
+static int hf_nbap_HSDSCH_Paging_System_Information_ResponseLCR_PDU;  /* HSDSCH_Paging_System_Information_ResponseLCR */
+static int hf_nbap_HS_DSCH_Semi_PersistentScheduling_Information_LCR_PDU;  /* HS_DSCH_Semi_PersistentScheduling_Information_LCR */
+static int hf_nbap_RepetitionPeriodIndex_PDU;     /* RepetitionPeriodIndex */
+static int hf_nbap_SPS_Reservation_Indicator_PDU;  /* SPS_Reservation_Indicator */
+static int hf_nbap_HS_DSCH_SPS_Operation_Indicator_PDU;  /* HS_DSCH_SPS_Operation_Indicator */
+static int hf_nbap_HS_DSCH_Semi_PersistentScheduling_Information_ResponseLCR_PDU;  /* HS_DSCH_Semi_PersistentScheduling_Information_ResponseLCR */
+static int hf_nbap_Add_To_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst_PDU;  /* Add_To_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst */
+static int hf_nbap_Non_HS_SCCH_Associated_HS_SICH_InformationList_Ext_PDU;  /* Non_HS_SCCH_Associated_HS_SICH_InformationList_Ext */
+static int hf_nbap_Modify_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst_PDU;  /* Modify_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst */
+static int hf_nbap_Modify_Non_HS_SCCH_Associated_HS_SICH_InformationList_Ext_PDU;  /* Modify_Non_HS_SCCH_Associated_HS_SICH_InformationList_Ext */
+static int hf_nbap_Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst_PDU;  /* Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst */
+static int hf_nbap_Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst_Ext_PDU;  /* Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst_Ext */
+static int hf_nbap_MIMO_ReferenceSignal_InformationListLCR_PDU;  /* MIMO_ReferenceSignal_InformationListLCR */
+static int hf_nbap_HSSICH_ReferenceSignal_InformationLCR_PDU;  /* HSSICH_ReferenceSignal_InformationLCR */
+static int hf_nbap_HSSICH_ReferenceSignal_InformationModifyLCR_PDU;  /* HSSICH_ReferenceSignal_InformationModifyLCR */
+static int hf_nbap_IMB_Parameters_PDU;            /* IMB_Parameters */
+static int hf_nbap_InformationReportCharacteristics_PDU;  /* InformationReportCharacteristics */
+static int hf_nbap_InformationExchangeID_PDU;     /* InformationExchangeID */
+static int hf_nbap_InformationType_PDU;           /* InformationType */
+static int hf_nbap_Initial_DL_DPCH_TimingAdjustment_Allowed_PDU;  /* Initial_DL_DPCH_TimingAdjustment_Allowed */
+static int hf_nbap_InnerLoopDLPCStatus_PDU;       /* InnerLoopDLPCStatus */
+static int hf_nbap_IPMulticastIndication_PDU;     /* IPMulticastIndication */
+static int hf_nbap_IPMulticastDataBearerIndication_PDU;  /* IPMulticastDataBearerIndication */
+static int hf_nbap_IdleIntervalInformation_PDU;   /* IdleIntervalInformation */
+static int hf_nbap_Local_Cell_ID_PDU;             /* Local_Cell_ID */
+static int hf_nbap_LCRTDD_Uplink_Physical_Channel_Capability_PDU;  /* LCRTDD_Uplink_Physical_Channel_Capability */
+static int hf_nbap_MAC_PDU_SizeExtended_PDU;      /* MAC_PDU_SizeExtended */
+static int hf_nbap_MACes_Maximum_Bitrate_LCR_PDU;  /* MACes_Maximum_Bitrate_LCR */
+static int hf_nbap_Maximum_Number_of_Retransmissions_For_E_DCH_PDU;  /* Maximum_Number_of_Retransmissions_For_E_DCH */
+static int hf_nbap_Maximum_Target_ReceivedTotalWideBandPower_LCR_PDU;  /* Maximum_Target_ReceivedTotalWideBandPower_LCR */
+static int hf_nbap_MaximumTransmissionPower_PDU;  /* MaximumTransmissionPower */
+static int hf_nbap_Max_UE_DTX_Cycle_PDU;          /* Max_UE_DTX_Cycle */
+static int hf_nbap_MBMS_Capability_PDU;           /* MBMS_Capability */
+static int hf_nbap_MeasurementFilterCoefficient_PDU;  /* MeasurementFilterCoefficient */
+static int hf_nbap_MeasurementID_PDU;             /* MeasurementID */
+static int hf_nbap_MeasurementRecoveryBehavior_PDU;  /* MeasurementRecoveryBehavior */
+static int hf_nbap_MeasurementRecoveryReportingIndicator_PDU;  /* MeasurementRecoveryReportingIndicator */
+static int hf_nbap_MeasurementRecoverySupportIndicator_PDU;  /* MeasurementRecoverySupportIndicator */
+static int hf_nbap_MessageStructure_PDU;          /* MessageStructure */
+static int hf_nbap_MICH_CFN_PDU;                  /* MICH_CFN */
+static int hf_nbap_MidambleShiftLCR_PDU;          /* MidambleShiftLCR */
+static int hf_nbap_MIMO_ActivationIndicator_PDU;  /* MIMO_ActivationIndicator */
+static int hf_nbap_MIMO_Capability_PDU;           /* MIMO_Capability */
+static int hf_nbap_MIMO_Mode_Indicator_PDU;       /* MIMO_Mode_Indicator */
+static int hf_nbap_MIMO_N_M_Ratio_PDU;            /* MIMO_N_M_Ratio */
+static int hf_nbap_MIMO_PilotConfiguration_PDU;   /* MIMO_PilotConfiguration */
+static int hf_nbap_MIMO_PilotConfigurationExtension_PDU;  /* MIMO_PilotConfigurationExtension */
+static int hf_nbap_MIMO_PowerOffsetForS_CPICHCapability_PDU;  /* MIMO_PowerOffsetForS_CPICHCapability */
+static int hf_nbap_MinimumReducedE_DPDCH_GainFactor_PDU;  /* MinimumReducedE_DPDCH_GainFactor */
+static int hf_nbap_Modification_Period_PDU;       /* Modification_Period */
+static int hf_nbap_MAChs_ResetIndicator_PDU;      /* MAChs_ResetIndicator */
+static int hf_nbap_ModulationMBSFN_PDU;           /* ModulationMBSFN */
+static int hf_nbap_ModulationPO_MBSFN_PDU;        /* ModulationPO_MBSFN */
+static int hf_nbap_MBSFN_Only_Mode_Indicator_PDU;  /* MBSFN_Only_Mode_Indicator */
+static int hf_nbap_MBSFN_Only_Mode_Capability_PDU;  /* MBSFN_Only_Mode_Capability */
+static int hf_nbap_Multicarrier_Number_PDU;       /* Multicarrier_Number */
+static int hf_nbap_MultipleFreq_HARQ_MemoryPartitioning_InformationList_PDU;  /* MultipleFreq_HARQ_MemoryPartitioning_InformationList */
+static int hf_nbap_MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR_PDU;  /* MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR */
+static int hf_nbap_Multi_Cell_Capability_Info_PDU;  /* Multi_Cell_Capability_Info */
+static int hf_nbap_Multicell_EDCH_InformationItemIEs_PDU;  /* Multicell_EDCH_InformationItemIEs */
+static int hf_nbap_Multicell_EDCH_RL_Specific_InformationItemIEs_PDU;  /* Multicell_EDCH_RL_Specific_InformationItemIEs */
+static int hf_nbap_MIMO_SFMode_For_HSPDSCHDualStream_PDU;  /* MIMO_SFMode_For_HSPDSCHDualStream */
+static int hf_nbap_NCyclesPerSFNperiod_PDU;       /* NCyclesPerSFNperiod */
+static int hf_nbap_NRepetitionsPerCyclePeriod_PDU;  /* NRepetitionsPerCyclePeriod */
+static int hf_nbap_NeighbouringCellMeasurementInformation_PDU;  /* NeighbouringCellMeasurementInformation */
+static int hf_nbap_NeighbouringTDDCellMeasurementInformationLCR_PDU;  /* NeighbouringTDDCellMeasurementInformationLCR */
+static int hf_nbap_NeighbouringTDDCellMeasurementInformation768_PDU;  /* NeighbouringTDDCellMeasurementInformation768 */
+static int hf_nbap_NonCellSpecificTxDiversity_PDU;  /* NonCellSpecificTxDiversity */
+static int hf_nbap_NI_Information_PDU;            /* NI_Information */
+static int hf_nbap_NodeB_CommunicationContextID_PDU;  /* NodeB_CommunicationContextID */
+static int hf_nbap_NumberOfReportedCellPortions_PDU;  /* NumberOfReportedCellPortions */
+static int hf_nbap_NumberOfReportedCellPortionsLCR_PDU;  /* NumberOfReportedCellPortionsLCR */
+static int hf_nbap_NSubCyclesPerCyclePeriod_PDU;  /* NSubCyclesPerCyclePeriod */
+static int hf_nbap_Number_Of_Supported_Carriers_PDU;  /* Number_Of_Supported_Carriers */
+static int hf_nbap_NoOfTargetCellHS_SCCH_Order_PDU;  /* NoOfTargetCellHS_SCCH_Order */
+static int hf_nbap_Out_of_Sychronization_Window_PDU;  /* Out_of_Sychronization_Window */
+static int hf_nbap_Paging_MACFlows_to_DeleteFDD_PDU;  /* Paging_MACFlows_to_DeleteFDD */
+static int hf_nbap_PhysicalChannelID_for_CommonERNTI_RequestedIndicator_PDU;  /* PhysicalChannelID_for_CommonERNTI_RequestedIndicator */
+static int hf_nbap_PLCCHinformation_PDU;          /* PLCCHinformation */
+static int hf_nbap_PowerAdjustmentType_PDU;       /* PowerAdjustmentType */
+static int hf_nbap_PrecodingWeightSetRestriction_PDU;  /* PrecodingWeightSetRestriction */
+static int hf_nbap_Primary_CPICH_Usage_for_Channel_Estimation_PDU;  /* Primary_CPICH_Usage_for_Channel_Estimation */
+static int hf_nbap_PrimaryScramblingCode_PDU;     /* PrimaryScramblingCode */
+static int hf_nbap_PrimaryCCPCH_RSCP_PDU;         /* PrimaryCCPCH_RSCP */
+static int hf_nbap_PrimaryCCPCH_RSCP_Delta_PDU;   /* PrimaryCCPCH_RSCP_Delta */
+static int hf_nbap_UE_Selected_MBMS_Service_Information_PDU;  /* UE_Selected_MBMS_Service_Information */
+static int hf_nbap_Paging_MACFlows_to_DeleteLCR_PDU;  /* Paging_MACFlows_to_DeleteLCR */
+static int hf_nbap_RL_Specific_DCH_Info_PDU;      /* RL_Specific_DCH_Info */
+static int hf_nbap_RL_Specific_E_DCH_Info_PDU;    /* RL_Specific_E_DCH_Info */
+static int hf_nbap_Reference_ReceivedTotalWideBandPower_PDU;  /* Reference_ReceivedTotalWideBandPower */
+static int hf_nbap_Reference_ReceivedTotalWideBandPowerReporting_PDU;  /* Reference_ReceivedTotalWideBandPowerReporting */
+static int hf_nbap_Reference_ReceivedTotalWideBandPowerSupportIndicator_PDU;  /* Reference_ReceivedTotalWideBandPowerSupportIndicator */
+static int hf_nbap_ReferenceClockAvailability_PDU;  /* ReferenceClockAvailability */
+static int hf_nbap_ReferenceSFNoffset_PDU;        /* ReferenceSFNoffset */
+static int hf_nbap_ReportCharacteristics_PDU;     /* ReportCharacteristics */
+static int hf_nbap_ReportCharacteristicsType_OnModification_PDU;  /* ReportCharacteristicsType_OnModification */
+static int hf_nbap_EDCH_RACH_Report_IncrDecrThres_PDU;  /* EDCH_RACH_Report_IncrDecrThres */
+static int hf_nbap_EDCH_RACH_Report_ThresholdInformation_PDU;  /* EDCH_RACH_Report_ThresholdInformation */
+static int hf_nbap_RL_ID_PDU;                     /* RL_ID */
+static int hf_nbap_RL_Set_ID_PDU;                 /* RL_Set_ID */
+static int hf_nbap_DL_RLC_PDU_Size_Format_PDU;    /* DL_RLC_PDU_Size_Format */
+static int hf_nbap_Received_total_wide_band_power_For_CellPortion_Value_PDU;  /* Received_total_wide_band_power_For_CellPortion_Value */
+static int hf_nbap_Received_total_wide_band_power_For_CellPortion_ValueLCR_PDU;  /* Received_total_wide_band_power_For_CellPortion_ValueLCR */
+static int hf_nbap_Received_total_wide_band_power_Value_IncrDecrThres_PDU;  /* Received_total_wide_band_power_Value_IncrDecrThres */
+static int hf_nbap_Received_Scheduled_EDCH_Power_Share_For_CellPortion_Value_PDU;  /* Received_Scheduled_EDCH_Power_Share_For_CellPortion_Value */
+static int hf_nbap_Received_Scheduled_EDCH_Power_Share_Value_PDU;  /* Received_Scheduled_EDCH_Power_Share_Value */
+static int hf_nbap_RSEPS_Value_IncrDecrThres_PDU;  /* RSEPS_Value_IncrDecrThres */
+static int hf_nbap_Rx_Timing_Deviation_Value_LCR_PDU;  /* Rx_Timing_Deviation_Value_LCR */
+static int hf_nbap_Rx_Timing_Deviation_Value_768_PDU;  /* Rx_Timing_Deviation_Value_768 */
+static int hf_nbap_Rx_Timing_Deviation_Value_384_ext_PDU;  /* Rx_Timing_Deviation_Value_384_ext */
+static int hf_nbap_RTWP_ReportingIndicator_PDU;   /* RTWP_ReportingIndicator */
+static int hf_nbap_RTWP_CellPortion_ReportingIndicator_PDU;  /* RTWP_CellPortion_ReportingIndicator */
+static int hf_nbap_AdjustmentPeriod_PDU;          /* AdjustmentPeriod */
+static int hf_nbap_E_DPCCH_Power_Boosting_Capability_PDU;  /* E_DPCCH_Power_Boosting_Capability */
+static int hf_nbap_SAT_Info_Almanac_ExtList_PDU;  /* SAT_Info_Almanac_ExtList */
+static int hf_nbap_ScaledAdjustmentRatio_PDU;     /* ScaledAdjustmentRatio */
+static int hf_nbap_MaxAdjustmentStep_PDU;         /* MaxAdjustmentStep */
+static int hf_nbap_SchedulingPriorityIndicator_PDU;  /* SchedulingPriorityIndicator */
+static int hf_nbap_Secondary_CPICH_Information_Change_PDU;  /* Secondary_CPICH_Information_Change */
+static int hf_nbap_Secondary_CCPCH_SlotFormat_Extended_PDU;  /* Secondary_CCPCH_SlotFormat_Extended */
+static int hf_nbap_Serving_E_DCH_RL_ID_PDU;       /* Serving_E_DCH_RL_ID */
+static int hf_nbap_SFN_PDU;                       /* SFN */
+static int hf_nbap_SFNSFNMeasurementThresholdInformation_PDU;  /* SFNSFNMeasurementThresholdInformation */
+static int hf_nbap_SFNSFNMeasurementValueInformation_PDU;  /* SFNSFNMeasurementValueInformation */
+static int hf_nbap_ShutdownTimer_PDU;             /* ShutdownTimer */
+static int hf_nbap_Single_Stream_MIMO_ActivationIndicator_PDU;  /* Single_Stream_MIMO_ActivationIndicator */
+static int hf_nbap_Single_Stream_MIMO_Capability_PDU;  /* Single_Stream_MIMO_Capability */
+static int hf_nbap_Single_Stream_MIMO_Mode_Indicator_PDU;  /* Single_Stream_MIMO_Mode_Indicator */
+static int hf_nbap_SignallingBearerRequestIndicator_PDU;  /* SignallingBearerRequestIndicator */
+static int hf_nbap_SixtyfourQAM_UsageAllowedIndicator_PDU;  /* SixtyfourQAM_UsageAllowedIndicator */
+static int hf_nbap_SixtyfourQAM_DL_UsageIndicator_PDU;  /* SixtyfourQAM_DL_UsageIndicator */
+static int hf_nbap_SixtyfourQAM_DL_Capability_PDU;  /* SixtyfourQAM_DL_Capability */
+static int hf_nbap_SixtyfourQAM_DL_MIMO_Combined_Capability_PDU;  /* SixtyfourQAM_DL_MIMO_Combined_Capability */
+static int hf_nbap_SixteenQAM_UL_Capability_PDU;  /* SixteenQAM_UL_Capability */
+static int hf_nbap_SixteenQAM_UL_Operation_Indicator_PDU;  /* SixteenQAM_UL_Operation_Indicator */
+static int hf_nbap_Start_Of_Audit_Sequence_Indicator_PDU;  /* Start_Of_Audit_Sequence_Indicator */
+static int hf_nbap_SyncCase_PDU;                  /* SyncCase */
+static int hf_nbap_SynchronisationReportCharacteristics_PDU;  /* SynchronisationReportCharacteristics */
+static int hf_nbap_SyncDLCodeIdThreInfoLCR_PDU;   /* SyncDLCodeIdThreInfoLCR */
+static int hf_nbap_SynchronisationReportType_PDU;  /* SynchronisationReportType */
+static int hf_nbap_Semi_PersistentScheduling_CapabilityLCR_PDU;  /* Semi_PersistentScheduling_CapabilityLCR */
+static int hf_nbap_T_Cell_PDU;                    /* T_Cell */
+static int hf_nbap_TDD_DL_DPCH_TimeSlotFormat_LCR_PDU;  /* TDD_DL_DPCH_TimeSlotFormat_LCR */
+static int hf_nbap_TDD_TPC_DownlinkStepSize_PDU;  /* TDD_TPC_DownlinkStepSize */
+static int hf_nbap_TDD_TPC_UplinkStepSize_LCR_PDU;  /* TDD_TPC_UplinkStepSize_LCR */
+static int hf_nbap_TDD_UL_DPCH_TimeSlotFormat_LCR_PDU;  /* TDD_UL_DPCH_TimeSlotFormat_LCR */
+static int hf_nbap_TFCI_Presence_PDU;             /* TFCI_Presence */
+static int hf_nbap_TimeSlot_PDU;                  /* TimeSlot */
+static int hf_nbap_TimeSlotLCR_PDU;               /* TimeSlotLCR */
+static int hf_nbap_TimeslotLCR_Extension_PDU;     /* TimeslotLCR_Extension */
+static int hf_nbap_TimeSlotMeasurementValueListLCR_PDU;  /* TimeSlotMeasurementValueListLCR */
+static int hf_nbap_TimingAdjustmentValue_PDU;     /* TimingAdjustmentValue */
+static int hf_nbap_TimingAdjustmentValueLCR_PDU;  /* TimingAdjustmentValueLCR */
+static int hf_nbap_TimingAdvanceApplied_PDU;      /* TimingAdvanceApplied */
+static int hf_nbap_SynchronisationIndicator_PDU;  /* SynchronisationIndicator */
+static int hf_nbap_TnlQos_PDU;                    /* TnlQos */
+static int hf_nbap_Transmission_Gap_Pattern_Sequence_Information_PDU;  /* Transmission_Gap_Pattern_Sequence_Information */
+static int hf_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue_PDU;  /* TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue */
+static int hf_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCHOrE_HICHTransmissionCellPortionValue_PDU;  /* TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCHOrE_HICHTransmissionCellPortionValue */
+static int hf_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValue_PDU;  /* TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValue */
+static int hf_nbap_Transmitted_Carrier_Power_For_CellPortion_Value_PDU;  /* Transmitted_Carrier_Power_For_CellPortion_Value */
+static int hf_nbap_Transmitted_Carrier_Power_For_CellPortion_ValueLCR_PDU;  /* Transmitted_Carrier_Power_For_CellPortion_ValueLCR */
+static int hf_nbap_Transmitted_Carrier_Power_Value_PDU;  /* Transmitted_Carrier_Power_Value */
+static int hf_nbap_TransmissionDiversityApplied_PDU;  /* TransmissionDiversityApplied */
+static int hf_nbap_TransmitDiversityIndicator_PDU;  /* TransmitDiversityIndicator */
+static int hf_nbap_TransportBearerRequestIndicator_PDU;  /* TransportBearerRequestIndicator */
+static int hf_nbap_TransportBearerNotRequestedIndicator_PDU;  /* TransportBearerNotRequestedIndicator */
+static int hf_nbap_TransportBearerNotSetupIndicator_PDU;  /* TransportBearerNotSetupIndicator */
+static int hf_nbap_TransportLayerAddress_PDU;     /* TransportLayerAddress */
+static int hf_nbap_TS0_CapabilityLCR_PDU;         /* TS0_CapabilityLCR */
+static int hf_nbap_TSTD_Indicator_PDU;            /* TSTD_Indicator */
+static int hf_nbap_TSN_Length_PDU;                /* TSN_Length */
+static int hf_nbap_TUTRANGANSSMeasurementThresholdInformation_PDU;  /* TUTRANGANSSMeasurementThresholdInformation */
+static int hf_nbap_TUTRANGANSSMeasurementValueInformation_PDU;  /* TUTRANGANSSMeasurementValueInformation */
+static int hf_nbap_TUTRANGPSMeasurementThresholdInformation_PDU;  /* TUTRANGPSMeasurementThresholdInformation */
+static int hf_nbap_TUTRANGPSMeasurementValueInformation_PDU;  /* TUTRANGPSMeasurementValueInformation */
+static int hf_nbap_TxDiversityOnDLControlChannelsByMIMOUECapability_PDU;  /* TxDiversityOnDLControlChannelsByMIMOUECapability */
+static int hf_nbap_TypeOfError_PDU;               /* TypeOfError */
+static int hf_nbap_UARFCN_PDU;                    /* UARFCN */
+static int hf_nbap_UE_AggregateMaximumBitRate_PDU;  /* UE_AggregateMaximumBitRate */
+static int hf_nbap_UE_AggregateMaximumBitRate_Enforcement_Indicator_PDU;  /* UE_AggregateMaximumBitRate_Enforcement_Indicator */
+static int hf_nbap_UE_Capability_Information_PDU;  /* UE_Capability_Information */
+static int hf_nbap_UE_TS0_CapabilityLCR_PDU;      /* UE_TS0_CapabilityLCR */
+static int hf_nbap_UE_SupportIndicatorExtension_PDU;  /* UE_SupportIndicatorExtension */
+static int hf_nbap_LCRTDD_HSDSCH_Physical_Layer_Category_PDU;  /* LCRTDD_HSDSCH_Physical_Layer_Category */
+static int hf_nbap_UL_DPDCH_Indicator_For_E_DCH_Operation_PDU;  /* UL_DPDCH_Indicator_For_E_DCH_Operation */
+static int hf_nbap_UL_SIR_PDU;                    /* UL_SIR */
+static int hf_nbap_UL_Synchronisation_Parameters_LCR_PDU;  /* UL_Synchronisation_Parameters_LCR */
+static int hf_nbap_UPPCHPositionLCR_PDU;          /* UPPCHPositionLCR */
+static int hf_nbap_UpPTSInterference_For_CellPortion_Value_PDU;  /* UpPTSInterference_For_CellPortion_Value */
+static int hf_nbap_UpPTSInterferenceValue_PDU;    /* UpPTSInterferenceValue */
+static int hf_nbap_Unidirectional_DCH_Indicator_PDU;  /* Unidirectional_DCH_Indicator */
+static int hf_nbap_USCH_Information_PDU;          /* USCH_Information */
+static int hf_nbap_USCH_InformationResponse_PDU;  /* USCH_InformationResponse */
+static int hf_nbap_UL_TimeslotISCP_For_CellPortion_Value_PDU;  /* UL_TimeslotISCP_For_CellPortion_Value */
+static int hf_nbap_UL_TimeslotISCP_Value_IncrDecrThres_PDU;  /* UL_TimeslotISCP_Value_IncrDecrThres */
+static int hf_nbap_CommonTransportChannelSetupRequestFDD_PDU;  /* CommonTransportChannelSetupRequestFDD */
+static int hf_nbap_CommonPhysicalChannelType_CTCH_SetupRqstFDD_PDU;  /* CommonPhysicalChannelType_CTCH_SetupRqstFDD */
+static int hf_nbap_FACH_ParametersListIE_CTCH_SetupRqstFDD_PDU;  /* FACH_ParametersListIE_CTCH_SetupRqstFDD */
+static int hf_nbap_PCH_ParametersItem_CTCH_SetupRqstFDD_PDU;  /* PCH_ParametersItem_CTCH_SetupRqstFDD */
+static int hf_nbap_MICH_Parameters_CTCH_SetupRqstFDD_PDU;  /* MICH_Parameters_CTCH_SetupRqstFDD */
+static int hf_nbap_RACH_ParametersItem_CTCH_SetupRqstFDD_PDU;  /* RACH_ParametersItem_CTCH_SetupRqstFDD */
+static int hf_nbap_CommonTransportChannelSetupRequestTDD_PDU;  /* CommonTransportChannelSetupRequestTDD */
+static int hf_nbap_CommonPhysicalChannelType_CTCH_SetupRqstTDD_PDU;  /* CommonPhysicalChannelType_CTCH_SetupRqstTDD */
+static int hf_nbap_Secondary_CCPCH_parameterListIE_CTCH_SetupRqstTDD_PDU;  /* Secondary_CCPCH_parameterListIE_CTCH_SetupRqstTDD */
+static int hf_nbap_Secondary_CCPCH_LCR_parameterList_CTCH_SetupRqstTDD_PDU;  /* Secondary_CCPCH_LCR_parameterList_CTCH_SetupRqstTDD */
+static int hf_nbap_Secondary_CCPCH_768_parameterList_CTCH_SetupRqstTDD_PDU;  /* Secondary_CCPCH_768_parameterList_CTCH_SetupRqstTDD */
+static int hf_nbap_FACH_ParametersListIE_CTCH_SetupRqstTDD_PDU;  /* FACH_ParametersListIE_CTCH_SetupRqstTDD */
+static int hf_nbap_PCH_ParametersItem_CTCH_SetupRqstTDD_PDU;  /* PCH_ParametersItem_CTCH_SetupRqstTDD */
+static int hf_nbap_PICH_ParametersItem_CTCH_SetupRqstTDD_PDU;  /* PICH_ParametersItem_CTCH_SetupRqstTDD */
+static int hf_nbap_PICH_LCR_Parameters_CTCH_SetupRqstTDD_PDU;  /* PICH_LCR_Parameters_CTCH_SetupRqstTDD */
+static int hf_nbap_PICH_768_ParametersItem_CTCH_SetupRqstTDD_PDU;  /* PICH_768_ParametersItem_CTCH_SetupRqstTDD */
+static int hf_nbap_MICH_Parameters_CTCH_SetupRqstTDD_PDU;  /* MICH_Parameters_CTCH_SetupRqstTDD */
+static int hf_nbap_TimeSlotConfigurationList_LCR_CTCH_SetupRqstTDD_PDU;  /* TimeSlotConfigurationList_LCR_CTCH_SetupRqstTDD */
+static int hf_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_SetupRqstTDD_PDU;  /* Secondary_CCPCH_parameterExtendedList_CTCH_SetupRqstTDD */
+static int hf_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_SetupRqstTDD_PDU;  /* Secondary_CCPCH_LCR_parameterExtendedList_CTCH_SetupRqstTDD */
+static int hf_nbap_PRACH_ParametersItem_CTCH_SetupRqstTDD_PDU;  /* PRACH_ParametersItem_CTCH_SetupRqstTDD */
+static int hf_nbap_RACH_ParameterItem_CTCH_SetupRqstTDD_PDU;  /* RACH_ParameterItem_CTCH_SetupRqstTDD */
+static int hf_nbap_PRACH_LCR_ParametersList_CTCH_SetupRqstTDD_PDU;  /* PRACH_LCR_ParametersList_CTCH_SetupRqstTDD */
+static int hf_nbap_PRACH_768_ParametersItem_CTCH_SetupRqstTDD_PDU;  /* PRACH_768_ParametersItem_CTCH_SetupRqstTDD */
+static int hf_nbap_FPACH_LCR_Parameters_CTCH_SetupRqstTDD_PDU;  /* FPACH_LCR_Parameters_CTCH_SetupRqstTDD */
+static int hf_nbap_PLCCH_parameters_PDU;          /* PLCCH_parameters */
+static int hf_nbap_E_RUCCH_parameters_PDU;        /* E_RUCCH_parameters */
+static int hf_nbap_E_RUCCH_768_parameters_PDU;    /* E_RUCCH_768_parameters */
+static int hf_nbap_CommonTransportChannelSetupResponse_PDU;  /* CommonTransportChannelSetupResponse */
+static int hf_nbap_FACH_CommonTransportChannel_InformationResponse_PDU;  /* FACH_CommonTransportChannel_InformationResponse */
+static int hf_nbap_CommonTransportChannelSetupFailure_PDU;  /* CommonTransportChannelSetupFailure */
+static int hf_nbap_CommonTransportChannelReconfigurationRequestFDD_PDU;  /* CommonTransportChannelReconfigurationRequestFDD */
+static int hf_nbap_CommonPhysicalChannelType_CTCH_ReconfRqstFDD_PDU;  /* CommonPhysicalChannelType_CTCH_ReconfRqstFDD */
+static int hf_nbap_FACH_ParametersListIE_CTCH_ReconfRqstFDD_PDU;  /* FACH_ParametersListIE_CTCH_ReconfRqstFDD */
+static int hf_nbap_PCH_ParametersItem_CTCH_ReconfRqstFDD_PDU;  /* PCH_ParametersItem_CTCH_ReconfRqstFDD */
+static int hf_nbap_PICH_ParametersItem_CTCH_ReconfRqstFDD_PDU;  /* PICH_ParametersItem_CTCH_ReconfRqstFDD */
+static int hf_nbap_MICH_Parameters_CTCH_ReconfRqstFDD_PDU;  /* MICH_Parameters_CTCH_ReconfRqstFDD */
+static int hf_nbap_PRACH_ParametersListIE_CTCH_ReconfRqstFDD_PDU;  /* PRACH_ParametersListIE_CTCH_ReconfRqstFDD */
+static int hf_nbap_AICH_ParametersListIE_CTCH_ReconfRqstFDD_PDU;  /* AICH_ParametersListIE_CTCH_ReconfRqstFDD */
+static int hf_nbap_CommonTransportChannelReconfigurationRequestTDD_PDU;  /* CommonTransportChannelReconfigurationRequestTDD */
+static int hf_nbap_Secondary_CCPCH_Parameters_CTCH_ReconfRqstTDD_PDU;  /* Secondary_CCPCH_Parameters_CTCH_ReconfRqstTDD */
+static int hf_nbap_Secondary_CCPCHListIE_CTCH_ReconfRqstTDD_PDU;  /* Secondary_CCPCHListIE_CTCH_ReconfRqstTDD */
+static int hf_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_ReconfRqstTDD_PDU;  /* Secondary_CCPCH_parameterExtendedList_CTCH_ReconfRqstTDD */
+static int hf_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_ReconfRqstTDD_PDU;  /* Secondary_CCPCH_LCR_parameterExtendedList_CTCH_ReconfRqstTDD */
+static int hf_nbap_PICH_Parameters_CTCH_ReconfRqstTDD_PDU;  /* PICH_Parameters_CTCH_ReconfRqstTDD */
+static int hf_nbap_FACH_ParametersList_CTCH_ReconfRqstTDD_PDU;  /* FACH_ParametersList_CTCH_ReconfRqstTDD */
+static int hf_nbap_PCH_Parameters_CTCH_ReconfRqstTDD_PDU;  /* PCH_Parameters_CTCH_ReconfRqstTDD */
+static int hf_nbap_FPACH_LCR_Parameters_CTCH_ReconfRqstTDD_PDU;  /* FPACH_LCR_Parameters_CTCH_ReconfRqstTDD */
+static int hf_nbap_MICH_Parameters_CTCH_ReconfRqstTDD_PDU;  /* MICH_Parameters_CTCH_ReconfRqstTDD */
+static int hf_nbap_PLCCH_Parameters_CTCH_ReconfRqstTDD_PDU;  /* PLCCH_Parameters_CTCH_ReconfRqstTDD */
+static int hf_nbap_Secondary_CCPCH_768_Parameters_CTCH_ReconfRqstTDD_PDU;  /* Secondary_CCPCH_768_Parameters_CTCH_ReconfRqstTDD */
+static int hf_nbap_PICH_768_Parameters_CTCH_ReconfRqstTDD_PDU;  /* PICH_768_Parameters_CTCH_ReconfRqstTDD */
+static int hf_nbap_MICH_768_Parameters_CTCH_ReconfRqstTDD_PDU;  /* MICH_768_Parameters_CTCH_ReconfRqstTDD */
+static int hf_nbap_UPPCH_LCR_Parameters_CTCH_ReconfRqstTDD_PDU;  /* UPPCH_LCR_Parameters_CTCH_ReconfRqstTDD */
+static int hf_nbap_CommonTransportChannelReconfigurationResponse_PDU;  /* CommonTransportChannelReconfigurationResponse */
+static int hf_nbap_CommonTransportChannelReconfigurationFailure_PDU;  /* CommonTransportChannelReconfigurationFailure */
+static int hf_nbap_CommonTransportChannelDeletionRequest_PDU;  /* CommonTransportChannelDeletionRequest */
+static int hf_nbap_CommonTransportChannelDeletionResponse_PDU;  /* CommonTransportChannelDeletionResponse */
+static int hf_nbap_BlockResourceRequest_PDU;      /* BlockResourceRequest */
+static int hf_nbap_BlockResourceResponse_PDU;     /* BlockResourceResponse */
+static int hf_nbap_BlockResourceFailure_PDU;      /* BlockResourceFailure */
+static int hf_nbap_UnblockResourceIndication_PDU;  /* UnblockResourceIndication */
+static int hf_nbap_AuditRequiredIndication_PDU;   /* AuditRequiredIndication */
+static int hf_nbap_AuditRequest_PDU;              /* AuditRequest */
+static int hf_nbap_AuditResponse_PDU;             /* AuditResponse */
+static int hf_nbap_Cell_InformationList_AuditRsp_PDU;  /* Cell_InformationList_AuditRsp */
+static int hf_nbap_Cell_InformationItem_AuditRsp_PDU;  /* Cell_InformationItem_AuditRsp */
+static int hf_nbap_FPACH_LCR_InformationList_AuditRsp_PDU;  /* FPACH_LCR_InformationList_AuditRsp */
+static int hf_nbap_HS_DSCH_Resources_Information_AuditRsp_PDU;  /* HS_DSCH_Resources_Information_AuditRsp */
+static int hf_nbap_S_CCPCH_InformationListExt_AuditRsp_PDU;  /* S_CCPCH_InformationListExt_AuditRsp */
+static int hf_nbap_S_CCPCH_LCR_InformationListExt_AuditRsp_PDU;  /* S_CCPCH_LCR_InformationListExt_AuditRsp */
+static int hf_nbap_E_DCH_Resources_Information_AuditRsp_PDU;  /* E_DCH_Resources_Information_AuditRsp */
+static int hf_nbap_PLCCH_InformationList_AuditRsp_PDU;  /* PLCCH_InformationList_AuditRsp */
+static int hf_nbap_S_CCPCH_768_InformationList_AuditRsp_PDU;  /* S_CCPCH_768_InformationList_AuditRsp */
+static int hf_nbap_PRACH_768_InformationList_AuditRsp_PDU;  /* PRACH_768_InformationList_AuditRsp */
+static int hf_nbap_E_RUCCH_InformationList_AuditRsp_PDU;  /* E_RUCCH_InformationList_AuditRsp */
+static int hf_nbap_E_RUCCH_768_InformationList_AuditRsp_PDU;  /* E_RUCCH_768_InformationList_AuditRsp */
+static int hf_nbap_Cell_Frequency_List_Information_LCR_MulFreq_AuditRsp_PDU;  /* Cell_Frequency_List_Information_LCR_MulFreq_AuditRsp */
+static int hf_nbap_Cell_Frequency_List_InformationItem_LCR_MulFreq_AuditRsp_PDU;  /* Cell_Frequency_List_InformationItem_LCR_MulFreq_AuditRsp */
+static int hf_nbap_UPPCH_LCR_InformationList_AuditRsp_PDU;  /* UPPCH_LCR_InformationList_AuditRsp */
+static int hf_nbap_UPPCH_LCR_InformationItem_AuditRsp_PDU;  /* UPPCH_LCR_InformationItem_AuditRsp */
+static int hf_nbap_MultipleFreq_HS_DSCH_Resources_InformationList_AuditRsp_PDU;  /* MultipleFreq_HS_DSCH_Resources_InformationList_AuditRsp */
+static int hf_nbap_MultipleFreq_E_DCH_Resources_InformationList_AuditRsp_PDU;  /* MultipleFreq_E_DCH_Resources_InformationList_AuditRsp */
+static int hf_nbap_CCP_InformationList_AuditRsp_PDU;  /* CCP_InformationList_AuditRsp */
+static int hf_nbap_CCP_InformationItem_AuditRsp_PDU;  /* CCP_InformationItem_AuditRsp */
+static int hf_nbap_Local_Cell_InformationList_AuditRsp_PDU;  /* Local_Cell_InformationList_AuditRsp */
+static int hf_nbap_Local_Cell_InformationItem_AuditRsp_PDU;  /* Local_Cell_InformationItem_AuditRsp */
+static int hf_nbap_Local_Cell_Group_InformationList_AuditRsp_PDU;  /* Local_Cell_Group_InformationList_AuditRsp */
+static int hf_nbap_Local_Cell_Group_InformationItem_AuditRsp_PDU;  /* Local_Cell_Group_InformationItem_AuditRsp */
+static int hf_nbap_Power_Local_Cell_Group_InformationList_AuditRsp_PDU;  /* Power_Local_Cell_Group_InformationList_AuditRsp */
+static int hf_nbap_Power_Local_Cell_Group_InformationItem_AuditRsp_PDU;  /* Power_Local_Cell_Group_InformationItem_AuditRsp */
+static int hf_nbap_AuditFailure_PDU;              /* AuditFailure */
+static int hf_nbap_CommonMeasurementInitiationRequest_PDU;  /* CommonMeasurementInitiationRequest */
+static int hf_nbap_CommonMeasurementObjectType_CM_Rqst_PDU;  /* CommonMeasurementObjectType_CM_Rqst */
+static int hf_nbap_ERACH_CM_Rqst_PDU;             /* ERACH_CM_Rqst */
+static int hf_nbap_PowerLocalCellGroup_CM_Rqst_PDU;  /* PowerLocalCellGroup_CM_Rqst */
+static int hf_nbap_CommonMeasurementInitiationResponse_PDU;  /* CommonMeasurementInitiationResponse */
+static int hf_nbap_CommonMeasurementObjectType_CM_Rsp_PDU;  /* CommonMeasurementObjectType_CM_Rsp */
+static int hf_nbap_ERACH_CM_Rsp_PDU;              /* ERACH_CM_Rsp */
+static int hf_nbap_PowerLocalCellGroup_CM_Rsp_PDU;  /* PowerLocalCellGroup_CM_Rsp */
+static int hf_nbap_CommonMeasurementInitiationFailure_PDU;  /* CommonMeasurementInitiationFailure */
+static int hf_nbap_CommonMeasurementReport_PDU;   /* CommonMeasurementReport */
+static int hf_nbap_CommonMeasurementObjectType_CM_Rprt_PDU;  /* CommonMeasurementObjectType_CM_Rprt */
+static int hf_nbap_ERACH_CM_Rprt_PDU;             /* ERACH_CM_Rprt */
+static int hf_nbap_PowerLocalCellGroup_CM_Rprt_PDU;  /* PowerLocalCellGroup_CM_Rprt */
+static int hf_nbap_CommonMeasurementTerminationRequest_PDU;  /* CommonMeasurementTerminationRequest */
+static int hf_nbap_CommonMeasurementFailureIndication_PDU;  /* CommonMeasurementFailureIndication */
+static int hf_nbap_CellSetupRequestFDD_PDU;       /* CellSetupRequestFDD */
+static int hf_nbap_Synchronisation_Configuration_Cell_SetupRqst_PDU;  /* Synchronisation_Configuration_Cell_SetupRqst */
+static int hf_nbap_PrimarySCH_Information_Cell_SetupRqstFDD_PDU;  /* PrimarySCH_Information_Cell_SetupRqstFDD */
+static int hf_nbap_SecondarySCH_Information_Cell_SetupRqstFDD_PDU;  /* SecondarySCH_Information_Cell_SetupRqstFDD */
+static int hf_nbap_PrimaryCPICH_Information_Cell_SetupRqstFDD_PDU;  /* PrimaryCPICH_Information_Cell_SetupRqstFDD */
+static int hf_nbap_SecondaryCPICH_InformationList_Cell_SetupRqstFDD_PDU;  /* SecondaryCPICH_InformationList_Cell_SetupRqstFDD */
+static int hf_nbap_SecondaryCPICH_InformationItem_Cell_SetupRqstFDD_PDU;  /* SecondaryCPICH_InformationItem_Cell_SetupRqstFDD */
+static int hf_nbap_PrimaryCCPCH_Information_Cell_SetupRqstFDD_PDU;  /* PrimaryCCPCH_Information_Cell_SetupRqstFDD */
+static int hf_nbap_Limited_power_increase_information_Cell_SetupRqstFDD_PDU;  /* Limited_power_increase_information_Cell_SetupRqstFDD */
+static int hf_nbap_IPDLParameter_Information_Cell_SetupRqstFDD_PDU;  /* IPDLParameter_Information_Cell_SetupRqstFDD */
+static int hf_nbap_CellPortion_InformationList_Cell_SetupRqstFDD_PDU;  /* CellPortion_InformationList_Cell_SetupRqstFDD */
+static int hf_nbap_CellPortion_InformationItem_Cell_SetupRqstFDD_PDU;  /* CellPortion_InformationItem_Cell_SetupRqstFDD */
+static int hf_nbap_CellSetupRequestTDD_PDU;       /* CellSetupRequestTDD */
+static int hf_nbap_SCH_Information_Cell_SetupRqstTDD_PDU;  /* SCH_Information_Cell_SetupRqstTDD */
+static int hf_nbap_SyncCaseIndicatorItem_Cell_SetupRqstTDD_PSCH_PDU;  /* SyncCaseIndicatorItem_Cell_SetupRqstTDD_PSCH */
+static int hf_nbap_PCCPCH_Information_Cell_SetupRqstTDD_PDU;  /* PCCPCH_Information_Cell_SetupRqstTDD */
+static int hf_nbap_TimeSlotConfigurationList_Cell_SetupRqstTDD_PDU;  /* TimeSlotConfigurationList_Cell_SetupRqstTDD */
+static int hf_nbap_TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD_PDU;  /* TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD */
+static int hf_nbap_PCCPCH_LCR_Information_Cell_SetupRqstTDD_PDU;  /* PCCPCH_LCR_Information_Cell_SetupRqstTDD */
+static int hf_nbap_DwPCH_LCR_Information_Cell_SetupRqstTDD_PDU;  /* DwPCH_LCR_Information_Cell_SetupRqstTDD */
+static int hf_nbap_IPDLParameter_Information_Cell_SetupRqstTDD_PDU;  /* IPDLParameter_Information_Cell_SetupRqstTDD */
+static int hf_nbap_IPDLParameter_Information_LCR_Cell_SetupRqstTDD_PDU;  /* IPDLParameter_Information_LCR_Cell_SetupRqstTDD */
+static int hf_nbap_PCCPCH_768_Information_Cell_SetupRqstTDD_PDU;  /* PCCPCH_768_Information_Cell_SetupRqstTDD */
+static int hf_nbap_SCH_768_Information_Cell_SetupRqstTDD_PDU;  /* SCH_768_Information_Cell_SetupRqstTDD */
+static int hf_nbap_Cell_Frequency_List_LCR_MulFreq_Cell_SetupRqstTDD_PDU;  /* Cell_Frequency_List_LCR_MulFreq_Cell_SetupRqstTDD */
+static int hf_nbap_CellSetupResponse_PDU;         /* CellSetupResponse */
+static int hf_nbap_CellSetupFailure_PDU;          /* CellSetupFailure */
+static int hf_nbap_CellReconfigurationRequestFDD_PDU;  /* CellReconfigurationRequestFDD */
+static int hf_nbap_Synchronisation_Configuration_Cell_ReconfRqst_PDU;  /* Synchronisation_Configuration_Cell_ReconfRqst */
+static int hf_nbap_PrimarySCH_Information_Cell_ReconfRqstFDD_PDU;  /* PrimarySCH_Information_Cell_ReconfRqstFDD */
+static int hf_nbap_SecondarySCH_Information_Cell_ReconfRqstFDD_PDU;  /* SecondarySCH_Information_Cell_ReconfRqstFDD */
+static int hf_nbap_PrimaryCPICH_Information_Cell_ReconfRqstFDD_PDU;  /* PrimaryCPICH_Information_Cell_ReconfRqstFDD */
+static int hf_nbap_SecondaryCPICH_InformationList_Cell_ReconfRqstFDD_PDU;  /* SecondaryCPICH_InformationList_Cell_ReconfRqstFDD */
+static int hf_nbap_SecondaryCPICH_InformationItem_Cell_ReconfRqstFDD_PDU;  /* SecondaryCPICH_InformationItem_Cell_ReconfRqstFDD */
+static int hf_nbap_PrimaryCCPCH_Information_Cell_ReconfRqstFDD_PDU;  /* PrimaryCCPCH_Information_Cell_ReconfRqstFDD */
+static int hf_nbap_IPDLParameter_Information_Cell_ReconfRqstFDD_PDU;  /* IPDLParameter_Information_Cell_ReconfRqstFDD */
+static int hf_nbap_CellPortion_InformationList_Cell_ReconfRqstFDD_PDU;  /* CellPortion_InformationList_Cell_ReconfRqstFDD */
+static int hf_nbap_CellPortion_InformationItem_Cell_ReconfRqstFDD_PDU;  /* CellPortion_InformationItem_Cell_ReconfRqstFDD */
+static int hf_nbap_CellReconfigurationRequestTDD_PDU;  /* CellReconfigurationRequestTDD */
+static int hf_nbap_SCH_Information_Cell_ReconfRqstTDD_PDU;  /* SCH_Information_Cell_ReconfRqstTDD */
+static int hf_nbap_PCCPCH_Information_Cell_ReconfRqstTDD_PDU;  /* PCCPCH_Information_Cell_ReconfRqstTDD */
+static int hf_nbap_TimeSlotConfigurationList_Cell_ReconfRqstTDD_PDU;  /* TimeSlotConfigurationList_Cell_ReconfRqstTDD */
+static int hf_nbap_TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD_PDU;  /* TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD */
+static int hf_nbap_DwPCH_LCR_Information_Cell_ReconfRqstTDD_PDU;  /* DwPCH_LCR_Information_Cell_ReconfRqstTDD */
+static int hf_nbap_IPDLParameter_Information_Cell_ReconfRqstTDD_PDU;  /* IPDLParameter_Information_Cell_ReconfRqstTDD */
+static int hf_nbap_IPDLParameter_Information_LCR_Cell_ReconfRqstTDD_PDU;  /* IPDLParameter_Information_LCR_Cell_ReconfRqstTDD */
+static int hf_nbap_SCH_768_Information_Cell_ReconfRqstTDD_PDU;  /* SCH_768_Information_Cell_ReconfRqstTDD */
+static int hf_nbap_PCCPCH_768_Information_Cell_ReconfRqstTDD_PDU;  /* PCCPCH_768_Information_Cell_ReconfRqstTDD */
+static int hf_nbap_UARFCN_Adjustment_PDU;         /* UARFCN_Adjustment */
+static int hf_nbap_CellReconfigurationResponse_PDU;  /* CellReconfigurationResponse */
+static int hf_nbap_CellReconfigurationFailure_PDU;  /* CellReconfigurationFailure */
+static int hf_nbap_CellDeletionRequest_PDU;       /* CellDeletionRequest */
+static int hf_nbap_CellDeletionResponse_PDU;      /* CellDeletionResponse */
+static int hf_nbap_ResourceStatusIndication_PDU;  /* ResourceStatusIndication */
+static int hf_nbap_IndicationType_ResourceStatusInd_PDU;  /* IndicationType_ResourceStatusInd */
+static int hf_nbap_Local_Cell_InformationItem_ResourceStatusInd_PDU;  /* Local_Cell_InformationItem_ResourceStatusInd */
+static int hf_nbap_Local_Cell_Group_InformationItem_ResourceStatusInd_PDU;  /* Local_Cell_Group_InformationItem_ResourceStatusInd */
+static int hf_nbap_Power_Local_Cell_Group_InformationList_ResourceStatusInd_PDU;  /* Power_Local_Cell_Group_InformationList_ResourceStatusInd */
+static int hf_nbap_Power_Local_Cell_Group_InformationItem_ResourceStatusInd_PDU;  /* Power_Local_Cell_Group_InformationItem_ResourceStatusInd */
+static int hf_nbap_Local_Cell_InformationItem2_ResourceStatusInd_PDU;  /* Local_Cell_InformationItem2_ResourceStatusInd */
+static int hf_nbap_Local_Cell_Group_InformationItem2_ResourceStatusInd_PDU;  /* Local_Cell_Group_InformationItem2_ResourceStatusInd */
+static int hf_nbap_CCP_InformationItem_ResourceStatusInd_PDU;  /* CCP_InformationItem_ResourceStatusInd */
+static int hf_nbap_Cell_InformationItem_ResourceStatusInd_PDU;  /* Cell_InformationItem_ResourceStatusInd */
+static int hf_nbap_FPACH_LCR_InformationList_ResourceStatusInd_PDU;  /* FPACH_LCR_InformationList_ResourceStatusInd */
+static int hf_nbap_DwPCH_LCR_Information_ResourceStatusInd_PDU;  /* DwPCH_LCR_Information_ResourceStatusInd */
+static int hf_nbap_HS_DSCH_Resources_Information_ResourceStatusInd_PDU;  /* HS_DSCH_Resources_Information_ResourceStatusInd */
+static int hf_nbap_S_CCPCH_InformationListExt_ResourceStatusInd_PDU;  /* S_CCPCH_InformationListExt_ResourceStatusInd */
+static int hf_nbap_S_CCPCH_LCR_InformationListExt_ResourceStatusInd_PDU;  /* S_CCPCH_LCR_InformationListExt_ResourceStatusInd */
+static int hf_nbap_E_DCH_Resources_Information_ResourceStatusInd_PDU;  /* E_DCH_Resources_Information_ResourceStatusInd */
+static int hf_nbap_PLCCH_InformationList_ResourceStatusInd_PDU;  /* PLCCH_InformationList_ResourceStatusInd */
+static int hf_nbap_S_CCPCH_768_InformationList_ResourceStatusInd_PDU;  /* S_CCPCH_768_InformationList_ResourceStatusInd */
+static int hf_nbap_PRACH_768_InformationList_ResourceStatusInd_PDU;  /* PRACH_768_InformationList_ResourceStatusInd */
+static int hf_nbap_E_RUCCH_InformationList_ResourceStatusInd_PDU;  /* E_RUCCH_InformationList_ResourceStatusInd */
+static int hf_nbap_E_RUCCH_768_InformationList_ResourceStatusInd_PDU;  /* E_RUCCH_768_InformationList_ResourceStatusInd */
+static int hf_nbap_Cell_Frequency_List_Information_LCR_MulFreq_ResourceStatusInd_PDU;  /* Cell_Frequency_List_Information_LCR_MulFreq_ResourceStatusInd */
+static int hf_nbap_Cell_Frequency_List_InformationItem_LCR_MulFreq_ResourceStatusInd_PDU;  /* Cell_Frequency_List_InformationItem_LCR_MulFreq_ResourceStatusInd */
+static int hf_nbap_UPPCH_LCR_InformationList_ResourceStatusInd_PDU;  /* UPPCH_LCR_InformationList_ResourceStatusInd */
+static int hf_nbap_UPPCH_LCR_InformationItem_ResourceStatusInd_PDU;  /* UPPCH_LCR_InformationItem_ResourceStatusInd */
+static int hf_nbap_MultipleFreq_HS_DSCH_Resources_InformationList_ResourceStatusInd_PDU;  /* MultipleFreq_HS_DSCH_Resources_InformationList_ResourceStatusInd */
+static int hf_nbap_Power_Local_Cell_Group_InformationList2_ResourceStatusInd_PDU;  /* Power_Local_Cell_Group_InformationList2_ResourceStatusInd */
+static int hf_nbap_Power_Local_Cell_Group_InformationItem2_ResourceStatusInd_PDU;  /* Power_Local_Cell_Group_InformationItem2_ResourceStatusInd */
+static int hf_nbap_MultipleFreq_E_DCH_Resources_InformationList_ResourceStatusInd_PDU;  /* MultipleFreq_E_DCH_Resources_InformationList_ResourceStatusInd */
+static int hf_nbap_SystemInformationUpdateRequest_PDU;  /* SystemInformationUpdateRequest */
+static int hf_nbap_MIB_SB_SIB_InformationList_SystemInfoUpdateRqst_PDU;  /* MIB_SB_SIB_InformationList_SystemInfoUpdateRqst */
+static int hf_nbap_SegmentInformationListIE_SystemInfoUpdate_PDU;  /* SegmentInformationListIE_SystemInfoUpdate */
+static int hf_nbap_SystemInformationUpdateResponse_PDU;  /* SystemInformationUpdateResponse */
+static int hf_nbap_SystemInformationUpdateFailure_PDU;  /* SystemInformationUpdateFailure */
+static int hf_nbap_RadioLinkSetupRequestFDD_PDU;  /* RadioLinkSetupRequestFDD */
+static int hf_nbap_Additional_HS_Cell_Information_RL_Setup_List_PDU;  /* Additional_HS_Cell_Information_RL_Setup_List */
+static int hf_nbap_UL_DPCH_Information_RL_SetupRqstFDD_PDU;  /* UL_DPCH_Information_RL_SetupRqstFDD */
+static int hf_nbap_DL_DPCH_Information_RL_SetupRqstFDD_PDU;  /* DL_DPCH_Information_RL_SetupRqstFDD */
+static int hf_nbap_RL_InformationList_RL_SetupRqstFDD_PDU;  /* RL_InformationList_RL_SetupRqstFDD */
+static int hf_nbap_RL_InformationItem_RL_SetupRqstFDD_PDU;  /* RL_InformationItem_RL_SetupRqstFDD */
+static int hf_nbap_E_DPCH_Information_RL_SetupRqstFDD_PDU;  /* E_DPCH_Information_RL_SetupRqstFDD */
+static int hf_nbap_F_DPCH_Information_RL_SetupRqstFDD_PDU;  /* F_DPCH_Information_RL_SetupRqstFDD */
+static int hf_nbap_RadioLinkSetupRequestTDD_PDU;  /* RadioLinkSetupRequestTDD */
+static int hf_nbap_UL_CCTrCH_InformationList_RL_SetupRqstTDD_PDU;  /* UL_CCTrCH_InformationList_RL_SetupRqstTDD */
+static int hf_nbap_UL_CCTrCH_InformationItem_RL_SetupRqstTDD_PDU;  /* UL_CCTrCH_InformationItem_RL_SetupRqstTDD */
+static int hf_nbap_UL_DPCH_InformationItem_RL_SetupRqstTDD_PDU;  /* UL_DPCH_InformationItem_RL_SetupRqstTDD */
+static int hf_nbap_UL_DPCH_LCR_Information_RL_SetupRqstTDD_PDU;  /* UL_DPCH_LCR_Information_RL_SetupRqstTDD */
+static int hf_nbap_UL_DPCH_768_Information_RL_SetupRqstTDD_PDU;  /* UL_DPCH_768_Information_RL_SetupRqstTDD */
+static int hf_nbap_DL_CCTrCH_InformationList_RL_SetupRqstTDD_PDU;  /* DL_CCTrCH_InformationList_RL_SetupRqstTDD */
+static int hf_nbap_DL_CCTrCH_InformationItem_RL_SetupRqstTDD_PDU;  /* DL_CCTrCH_InformationItem_RL_SetupRqstTDD */
+static int hf_nbap_DL_DPCH_InformationItem_RL_SetupRqstTDD_PDU;  /* DL_DPCH_InformationItem_RL_SetupRqstTDD */
+static int hf_nbap_DL_DPCH_LCR_Information_RL_SetupRqstTDD_PDU;  /* DL_DPCH_LCR_Information_RL_SetupRqstTDD */
+static int hf_nbap_DL_DPCH_768_Information_RL_SetupRqstTDD_PDU;  /* DL_DPCH_768_Information_RL_SetupRqstTDD */
+static int hf_nbap_RL_Information_RL_SetupRqstTDD_PDU;  /* RL_Information_RL_SetupRqstTDD */
+static int hf_nbap_RadioLinkSetupResponseFDD_PDU;  /* RadioLinkSetupResponseFDD */
+static int hf_nbap_Additional_HS_Cell_Information_Response_List_PDU;  /* Additional_HS_Cell_Information_Response_List */
+static int hf_nbap_RL_InformationResponseList_RL_SetupRspFDD_PDU;  /* RL_InformationResponseList_RL_SetupRspFDD */
+static int hf_nbap_RL_InformationResponseItem_RL_SetupRspFDD_PDU;  /* RL_InformationResponseItem_RL_SetupRspFDD */
+static int hf_nbap_RadioLinkSetupResponseTDD_PDU;  /* RadioLinkSetupResponseTDD */
+static int hf_nbap_RL_InformationResponse_RL_SetupRspTDD_PDU;  /* RL_InformationResponse_RL_SetupRspTDD */
+static int hf_nbap_RL_InformationResponse_LCR_RL_SetupRspTDD_PDU;  /* RL_InformationResponse_LCR_RL_SetupRspTDD */
+static int hf_nbap_RadioLinkSetupFailureFDD_PDU;  /* RadioLinkSetupFailureFDD */
+static int hf_nbap_CauseLevel_RL_SetupFailureFDD_PDU;  /* CauseLevel_RL_SetupFailureFDD */
+static int hf_nbap_Unsuccessful_RL_InformationRespItem_RL_SetupFailureFDD_PDU;  /* Unsuccessful_RL_InformationRespItem_RL_SetupFailureFDD */
+static int hf_nbap_Successful_RL_InformationRespItem_RL_SetupFailureFDD_PDU;  /* Successful_RL_InformationRespItem_RL_SetupFailureFDD */
+static int hf_nbap_RadioLinkSetupFailureTDD_PDU;  /* RadioLinkSetupFailureTDD */
+static int hf_nbap_CauseLevel_RL_SetupFailureTDD_PDU;  /* CauseLevel_RL_SetupFailureTDD */
+static int hf_nbap_Unsuccessful_RL_InformationResp_RL_SetupFailureTDD_PDU;  /* Unsuccessful_RL_InformationResp_RL_SetupFailureTDD */
+static int hf_nbap_RadioLinkAdditionRequestFDD_PDU;  /* RadioLinkAdditionRequestFDD */
+static int hf_nbap_Additional_HS_Cell_Information_RL_Addition_List_PDU;  /* Additional_HS_Cell_Information_RL_Addition_List */
+static int hf_nbap_Additional_EDCH_Cell_Information_RL_Add_Req_PDU;  /* Additional_EDCH_Cell_Information_RL_Add_Req */
+static int hf_nbap_RL_InformationList_RL_AdditionRqstFDD_PDU;  /* RL_InformationList_RL_AdditionRqstFDD */
+static int hf_nbap_RL_InformationItem_RL_AdditionRqstFDD_PDU;  /* RL_InformationItem_RL_AdditionRqstFDD */
+static int hf_nbap_E_DPCH_Information_RL_AdditionReqFDD_PDU;  /* E_DPCH_Information_RL_AdditionReqFDD */
+static int hf_nbap_RadioLinkAdditionRequestTDD_PDU;  /* RadioLinkAdditionRequestTDD */
+static int hf_nbap_UL_CCTrCH_InformationList_RL_AdditionRqstTDD_PDU;  /* UL_CCTrCH_InformationList_RL_AdditionRqstTDD */
+static int hf_nbap_UL_DPCH_InformationItem_RL_AdditionRqstTDD_PDU;  /* UL_DPCH_InformationItem_RL_AdditionRqstTDD */
+static int hf_nbap_UL_DPCH_InformationItem_LCR_RL_AdditionRqstTDD_PDU;  /* UL_DPCH_InformationItem_LCR_RL_AdditionRqstTDD */
+static int hf_nbap_UL_DPCH_InformationItem_768_RL_AdditionRqstTDD_PDU;  /* UL_DPCH_InformationItem_768_RL_AdditionRqstTDD */
+static int hf_nbap_DL_CCTrCH_InformationList_RL_AdditionRqstTDD_PDU;  /* DL_CCTrCH_InformationList_RL_AdditionRqstTDD */
+static int hf_nbap_DL_DPCH_InformationItem_RL_AdditionRqstTDD_PDU;  /* DL_DPCH_InformationItem_RL_AdditionRqstTDD */
+static int hf_nbap_DL_DPCH_InformationItem_LCR_RL_AdditionRqstTDD_PDU;  /* DL_DPCH_InformationItem_LCR_RL_AdditionRqstTDD */
+static int hf_nbap_DL_DPCH_InformationItem_768_RL_AdditionRqstTDD_PDU;  /* DL_DPCH_InformationItem_768_RL_AdditionRqstTDD */
+static int hf_nbap_RL_Information_RL_AdditionRqstTDD_PDU;  /* RL_Information_RL_AdditionRqstTDD */
+static int hf_nbap_RadioLinkAdditionResponseFDD_PDU;  /* RadioLinkAdditionResponseFDD */
+static int hf_nbap_Additional_HS_Cell_Change_Information_Response_List_PDU;  /* Additional_HS_Cell_Change_Information_Response_List */
+static int hf_nbap_RL_InformationResponseList_RL_AdditionRspFDD_PDU;  /* RL_InformationResponseList_RL_AdditionRspFDD */
+static int hf_nbap_RL_InformationResponseItem_RL_AdditionRspFDD_PDU;  /* RL_InformationResponseItem_RL_AdditionRspFDD */
+static int hf_nbap_RadioLinkAdditionResponseTDD_PDU;  /* RadioLinkAdditionResponseTDD */
+static int hf_nbap_RL_InformationResponse_RL_AdditionRspTDD_PDU;  /* RL_InformationResponse_RL_AdditionRspTDD */
+static int hf_nbap_RL_InformationResponse_LCR_RL_AdditionRspTDD_PDU;  /* RL_InformationResponse_LCR_RL_AdditionRspTDD */
+static int hf_nbap_RadioLinkAdditionFailureFDD_PDU;  /* RadioLinkAdditionFailureFDD */
+static int hf_nbap_CauseLevel_RL_AdditionFailureFDD_PDU;  /* CauseLevel_RL_AdditionFailureFDD */
+static int hf_nbap_Unsuccessful_RL_InformationRespItem_RL_AdditionFailureFDD_PDU;  /* Unsuccessful_RL_InformationRespItem_RL_AdditionFailureFDD */
+static int hf_nbap_Successful_RL_InformationRespItem_RL_AdditionFailureFDD_PDU;  /* Successful_RL_InformationRespItem_RL_AdditionFailureFDD */
+static int hf_nbap_RadioLinkAdditionFailureTDD_PDU;  /* RadioLinkAdditionFailureTDD */
+static int hf_nbap_CauseLevel_RL_AdditionFailureTDD_PDU;  /* CauseLevel_RL_AdditionFailureTDD */
+static int hf_nbap_Unsuccessful_RL_InformationResp_RL_AdditionFailureTDD_PDU;  /* Unsuccessful_RL_InformationResp_RL_AdditionFailureTDD */
+static int hf_nbap_RadioLinkReconfigurationPrepareFDD_PDU;  /* RadioLinkReconfigurationPrepareFDD */
+static int hf_nbap_Additional_HS_Cell_Information_RL_Reconf_Prep_PDU;  /* Additional_HS_Cell_Information_RL_Reconf_Prep */
+static int hf_nbap_Additional_EDCH_Cell_Information_RL_Reconf_Prep_PDU;  /* Additional_EDCH_Cell_Information_RL_Reconf_Prep */
+static int hf_nbap_UL_DPCH_Information_RL_ReconfPrepFDD_PDU;  /* UL_DPCH_Information_RL_ReconfPrepFDD */
+static int hf_nbap_DL_DPCH_Information_RL_ReconfPrepFDD_PDU;  /* DL_DPCH_Information_RL_ReconfPrepFDD */
+static int hf_nbap_DL_DPCH_Power_Information_RL_ReconfPrepFDD_PDU;  /* DL_DPCH_Power_Information_RL_ReconfPrepFDD */
+static int hf_nbap_DCH_DeleteList_RL_ReconfPrepFDD_PDU;  /* DCH_DeleteList_RL_ReconfPrepFDD */
+static int hf_nbap_RL_InformationList_RL_ReconfPrepFDD_PDU;  /* RL_InformationList_RL_ReconfPrepFDD */
+static int hf_nbap_RL_InformationItem_RL_ReconfPrepFDD_PDU;  /* RL_InformationItem_RL_ReconfPrepFDD */
+static int hf_nbap_E_DPCH_Information_RL_ReconfPrepFDD_PDU;  /* E_DPCH_Information_RL_ReconfPrepFDD */
+static int hf_nbap_F_DPCH_Information_RL_ReconfPrepFDD_PDU;  /* F_DPCH_Information_RL_ReconfPrepFDD */
+static int hf_nbap_RadioLinkReconfigurationPrepareTDD_PDU;  /* RadioLinkReconfigurationPrepareTDD */
+static int hf_nbap_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_PDU;  /* UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD */
+static int hf_nbap_UL_DPCH_InformationAddItem_RL_ReconfPrepTDD_PDU;  /* UL_DPCH_InformationAddItem_RL_ReconfPrepTDD */
+static int hf_nbap_UL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD_PDU;  /* UL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD */
+static int hf_nbap_MultipleRL_UL_DPCH_InformationAddList_RL_ReconfPrepTDD_PDU;  /* MultipleRL_UL_DPCH_InformationAddList_RL_ReconfPrepTDD */
+static int hf_nbap_UL_DPCH_768_InformationAddList_RL_ReconfPrepTDD_PDU;  /* UL_DPCH_768_InformationAddList_RL_ReconfPrepTDD */
+static int hf_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_PDU;  /* UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_UL_DPCH_InformationModify_AddItem_RL_ReconfPrepTDD_PDU;  /* UL_DPCH_InformationModify_AddItem_RL_ReconfPrepTDD */
+static int hf_nbap_UL_DPCH_InformationModify_ModifyItem_RL_ReconfPrepTDD_PDU;  /* UL_DPCH_InformationModify_ModifyItem_RL_ReconfPrepTDD */
+static int hf_nbap_UL_TimeslotLCR_InformationModify_ModifyList_RL_ReconfPrepTDD_PDU;  /* UL_TimeslotLCR_InformationModify_ModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_UL_Timeslot768_InformationModify_ModifyList_RL_ReconfPrepTDD_PDU;  /* UL_Timeslot768_InformationModify_ModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_UL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD_PDU;  /* UL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD */
+static int hf_nbap_UL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD_PDU;  /* UL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD */
+static int hf_nbap_MultipleRL_UL_DPCH_InformationModifyList_RL_ReconfPrepTDD_PDU;  /* MultipleRL_UL_DPCH_InformationModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_UL_DPCH_768_InformationModify_AddList_RL_ReconfPrepTDD_PDU;  /* UL_DPCH_768_InformationModify_AddList_RL_ReconfPrepTDD */
+static int hf_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_PDU;  /* UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD */
+static int hf_nbap_DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_PDU;  /* DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD */
+static int hf_nbap_DL_DPCH_InformationAddItem_RL_ReconfPrepTDD_PDU;  /* DL_DPCH_InformationAddItem_RL_ReconfPrepTDD */
+static int hf_nbap_DL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD_PDU;  /* DL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD */
+static int hf_nbap_MultipleRL_DL_DPCH_InformationAddList_RL_ReconfPrepTDD_PDU;  /* MultipleRL_DL_DPCH_InformationAddList_RL_ReconfPrepTDD */
+static int hf_nbap_DL_DPCH_768_InformationAddList_RL_ReconfPrepTDD_PDU;  /* DL_DPCH_768_InformationAddList_RL_ReconfPrepTDD */
+static int hf_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_PDU;  /* DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_DL_DPCH_InformationModify_AddItem_RL_ReconfPrepTDD_PDU;  /* DL_DPCH_InformationModify_AddItem_RL_ReconfPrepTDD */
+static int hf_nbap_DL_DPCH_InformationModify_ModifyItem_RL_ReconfPrepTDD_PDU;  /* DL_DPCH_InformationModify_ModifyItem_RL_ReconfPrepTDD */
+static int hf_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD_PDU;  /* DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_DL_Timeslot_768_InformationModify_ModifyList_RL_ReconfPrepTDD_PDU;  /* DL_Timeslot_768_InformationModify_ModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_DL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD_PDU;  /* DL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD */
+static int hf_nbap_DL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD_PDU;  /* DL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD */
+static int hf_nbap_MultipleRL_DL_DPCH_InformationModifyList_RL_ReconfPrepTDD_PDU;  /* MultipleRL_DL_DPCH_InformationModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_DL_DPCH_768_InformationModify_AddList_RL_ReconfPrepTDD_PDU;  /* DL_DPCH_768_InformationModify_AddList_RL_ReconfPrepTDD */
+static int hf_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_PDU;  /* DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD */
+static int hf_nbap_DCH_DeleteList_RL_ReconfPrepTDD_PDU;  /* DCH_DeleteList_RL_ReconfPrepTDD */
+static int hf_nbap_DSCH_Information_ModifyList_RL_ReconfPrepTDD_PDU;  /* DSCH_Information_ModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_DSCH_Information_DeleteList_RL_ReconfPrepTDD_PDU;  /* DSCH_Information_DeleteList_RL_ReconfPrepTDD */
+static int hf_nbap_USCH_Information_ModifyList_RL_ReconfPrepTDD_PDU;  /* USCH_Information_ModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_USCH_Information_DeleteList_RL_ReconfPrepTDD_PDU;  /* USCH_Information_DeleteList_RL_ReconfPrepTDD */
+static int hf_nbap_MultipleRL_Information_RL_ReconfPrepTDD_PDU;  /* MultipleRL_Information_RL_ReconfPrepTDD */
+static int hf_nbap_RL_Information_RL_ReconfPrepTDD_PDU;  /* RL_Information_RL_ReconfPrepTDD */
+static int hf_nbap_RadioLinkReconfigurationReady_PDU;  /* RadioLinkReconfigurationReady */
+static int hf_nbap_RL_InformationResponseList_RL_ReconfReady_PDU;  /* RL_InformationResponseList_RL_ReconfReady */
+static int hf_nbap_RL_InformationResponseItem_RL_ReconfReady_PDU;  /* RL_InformationResponseItem_RL_ReconfReady */
+static int hf_nbap_RadioLinkReconfigurationFailure_PDU;  /* RadioLinkReconfigurationFailure */
+static int hf_nbap_CauseLevel_RL_ReconfFailure_PDU;  /* CauseLevel_RL_ReconfFailure */
+static int hf_nbap_RL_ReconfigurationFailureItem_RL_ReconfFailure_PDU;  /* RL_ReconfigurationFailureItem_RL_ReconfFailure */
+static int hf_nbap_RadioLinkReconfigurationCommit_PDU;  /* RadioLinkReconfigurationCommit */
+static int hf_nbap_RadioLinkReconfigurationCancel_PDU;  /* RadioLinkReconfigurationCancel */
+static int hf_nbap_RadioLinkReconfigurationRequestFDD_PDU;  /* RadioLinkReconfigurationRequestFDD */
+static int hf_nbap_Additional_HS_Cell_Information_RL_Reconf_Req_PDU;  /* Additional_HS_Cell_Information_RL_Reconf_Req */
+static int hf_nbap_Additional_EDCH_Cell_Information_RL_Reconf_Req_PDU;  /* Additional_EDCH_Cell_Information_RL_Reconf_Req */
+static int hf_nbap_UL_DPCH_Information_RL_ReconfRqstFDD_PDU;  /* UL_DPCH_Information_RL_ReconfRqstFDD */
+static int hf_nbap_DL_DPCH_Information_RL_ReconfRqstFDD_PDU;  /* DL_DPCH_Information_RL_ReconfRqstFDD */
+static int hf_nbap_DCH_DeleteList_RL_ReconfRqstFDD_PDU;  /* DCH_DeleteList_RL_ReconfRqstFDD */
+static int hf_nbap_RL_InformationList_RL_ReconfRqstFDD_PDU;  /* RL_InformationList_RL_ReconfRqstFDD */
+static int hf_nbap_RL_InformationItem_RL_ReconfRqstFDD_PDU;  /* RL_InformationItem_RL_ReconfRqstFDD */
+static int hf_nbap_E_DPCH_Information_RL_ReconfRqstFDD_PDU;  /* E_DPCH_Information_RL_ReconfRqstFDD */
+static int hf_nbap_RadioLinkReconfigurationRequestTDD_PDU;  /* RadioLinkReconfigurationRequestTDD */
+static int hf_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_PDU;  /* UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD */
+static int hf_nbap_UL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD_PDU;  /* UL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD */
+static int hf_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_PDU;  /* UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD */
+static int hf_nbap_UL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD_PDU;  /* UL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD */
+static int hf_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_PDU;  /* DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD */
+static int hf_nbap_DL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD_PDU;  /* DL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD */
+static int hf_nbap_MultipleRL_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_PDU;  /* MultipleRL_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD */
+static int hf_nbap_DL_DPCH_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD_PDU;  /* DL_DPCH_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD */
+static int hf_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_PDU;  /* DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD */
+static int hf_nbap_DL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD_PDU;  /* DL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD */
+static int hf_nbap_DCH_DeleteList_RL_ReconfRqstTDD_PDU;  /* DCH_DeleteList_RL_ReconfRqstTDD */
+static int hf_nbap_Multiple_RL_Information_RL_ReconfRqstTDD_PDU;  /* Multiple_RL_Information_RL_ReconfRqstTDD */
+static int hf_nbap_RL_Information_RL_ReconfRqstTDD_PDU;  /* RL_Information_RL_ReconfRqstTDD */
+static int hf_nbap_RadioLinkReconfigurationResponse_PDU;  /* RadioLinkReconfigurationResponse */
+static int hf_nbap_RL_InformationResponseList_RL_ReconfRsp_PDU;  /* RL_InformationResponseList_RL_ReconfRsp */
+static int hf_nbap_RL_InformationResponseItem_RL_ReconfRsp_PDU;  /* RL_InformationResponseItem_RL_ReconfRsp */
+static int hf_nbap_RadioLinkDeletionRequest_PDU;  /* RadioLinkDeletionRequest */
+static int hf_nbap_RL_informationList_RL_DeletionRqst_PDU;  /* RL_informationList_RL_DeletionRqst */
+static int hf_nbap_RL_informationItem_RL_DeletionRqst_PDU;  /* RL_informationItem_RL_DeletionRqst */
+static int hf_nbap_RadioLinkDeletionResponse_PDU;  /* RadioLinkDeletionResponse */
+static int hf_nbap_DL_PowerControlRequest_PDU;    /* DL_PowerControlRequest */
+static int hf_nbap_DL_ReferencePowerInformationList_DL_PC_Rqst_PDU;  /* DL_ReferencePowerInformationList_DL_PC_Rqst */
+static int hf_nbap_DL_ReferencePowerInformationItem_DL_PC_Rqst_PDU;  /* DL_ReferencePowerInformationItem_DL_PC_Rqst */
+static int hf_nbap_DL_PowerTimeslotControlRequest_PDU;  /* DL_PowerTimeslotControlRequest */
+static int hf_nbap_DedicatedMeasurementInitiationRequest_PDU;  /* DedicatedMeasurementInitiationRequest */
+static int hf_nbap_DedicatedMeasurementObjectType_DM_Rqst_PDU;  /* DedicatedMeasurementObjectType_DM_Rqst */
+static int hf_nbap_RL_InformationItem_DM_Rqst_PDU;  /* RL_InformationItem_DM_Rqst */
+static int hf_nbap_PUSCH_Info_DM_Rqst_PDU;        /* PUSCH_Info_DM_Rqst */
+static int hf_nbap_HSSICH_Info_DM_Rqst_PDU;       /* HSSICH_Info_DM_Rqst */
+static int hf_nbap_HSSICH_InfoExt_DM_Rqst_PDU;    /* HSSICH_InfoExt_DM_Rqst */
+static int hf_nbap_DedicatedMeasurementInitiationResponse_PDU;  /* DedicatedMeasurementInitiationResponse */
+static int hf_nbap_DedicatedMeasurementObjectType_DM_Rsp_PDU;  /* DedicatedMeasurementObjectType_DM_Rsp */
+static int hf_nbap_RL_InformationItem_DM_Rsp_PDU;  /* RL_InformationItem_DM_Rsp */
+static int hf_nbap_PUSCH_Info_DM_Rsp_PDU;         /* PUSCH_Info_DM_Rsp */
+static int hf_nbap_Multiple_PUSCH_InfoList_DM_Rsp_PDU;  /* Multiple_PUSCH_InfoList_DM_Rsp */
+static int hf_nbap_Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp_PDU;  /* Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp */
+static int hf_nbap_Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp_PDU;  /* Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp */
+static int hf_nbap_Multiple_HSSICHMeasurementValueList_TDD_DM_Rsp_PDU;  /* Multiple_HSSICHMeasurementValueList_TDD_DM_Rsp */
+static int hf_nbap_Multiple_DedicatedMeasurementValueList_768_TDD_DM_Rsp_PDU;  /* Multiple_DedicatedMeasurementValueList_768_TDD_DM_Rsp */
+static int hf_nbap_RL_Set_InformationItem_DM_Rsp_PDU;  /* RL_Set_InformationItem_DM_Rsp */
+static int hf_nbap_DedicatedMeasurementInitiationFailure_PDU;  /* DedicatedMeasurementInitiationFailure */
+static int hf_nbap_DedicatedMeasurementReport_PDU;  /* DedicatedMeasurementReport */
+static int hf_nbap_DedicatedMeasurementObjectType_DM_Rprt_PDU;  /* DedicatedMeasurementObjectType_DM_Rprt */
+static int hf_nbap_RL_InformationItem_DM_Rprt_PDU;  /* RL_InformationItem_DM_Rprt */
+static int hf_nbap_PUSCH_Info_DM_Rprt_PDU;        /* PUSCH_Info_DM_Rprt */
+static int hf_nbap_Multiple_PUSCH_InfoList_DM_Rprt_PDU;  /* Multiple_PUSCH_InfoList_DM_Rprt */
+static int hf_nbap_RL_Set_InformationItem_DM_Rprt_PDU;  /* RL_Set_InformationItem_DM_Rprt */
+static int hf_nbap_DedicatedMeasurementTerminationRequest_PDU;  /* DedicatedMeasurementTerminationRequest */
+static int hf_nbap_DedicatedMeasurementFailureIndication_PDU;  /* DedicatedMeasurementFailureIndication */
+static int hf_nbap_RadioLinkFailureIndication_PDU;  /* RadioLinkFailureIndication */
+static int hf_nbap_Reporting_Object_RL_FailureInd_PDU;  /* Reporting_Object_RL_FailureInd */
+static int hf_nbap_RL_InformationItem_RL_FailureInd_PDU;  /* RL_InformationItem_RL_FailureInd */
+static int hf_nbap_RL_Set_InformationItem_RL_FailureInd_PDU;  /* RL_Set_InformationItem_RL_FailureInd */
+static int hf_nbap_CCTrCH_InformationItem_RL_FailureInd_PDU;  /* CCTrCH_InformationItem_RL_FailureInd */
+static int hf_nbap_RadioLinkPreemptionRequiredIndication_PDU;  /* RadioLinkPreemptionRequiredIndication */
+static int hf_nbap_RL_InformationList_RL_PreemptRequiredInd_PDU;  /* RL_InformationList_RL_PreemptRequiredInd */
+static int hf_nbap_RL_InformationItem_RL_PreemptRequiredInd_PDU;  /* RL_InformationItem_RL_PreemptRequiredInd */
+static int hf_nbap_RadioLinkRestoreIndication_PDU;  /* RadioLinkRestoreIndication */
+static int hf_nbap_Reporting_Object_RL_RestoreInd_PDU;  /* Reporting_Object_RL_RestoreInd */
+static int hf_nbap_RL_InformationItem_RL_RestoreInd_PDU;  /* RL_InformationItem_RL_RestoreInd */
+static int hf_nbap_RL_Set_InformationItem_RL_RestoreInd_PDU;  /* RL_Set_InformationItem_RL_RestoreInd */
+static int hf_nbap_CCTrCH_InformationItem_RL_RestoreInd_PDU;  /* CCTrCH_InformationItem_RL_RestoreInd */
+static int hf_nbap_CompressedModeCommand_PDU;     /* CompressedModeCommand */
+static int hf_nbap_ErrorIndication_PDU;           /* ErrorIndication */
+static int hf_nbap_PrivateMessage_PDU;            /* PrivateMessage */
+static int hf_nbap_PhysicalSharedChannelReconfigurationRequestFDD_PDU;  /* PhysicalSharedChannelReconfigurationRequestFDD */
+static int hf_nbap_HSDPA_And_EDCH_CellPortion_InformationList_PSCH_ReconfRqst_PDU;  /* HSDPA_And_EDCH_CellPortion_InformationList_PSCH_ReconfRqst */
+static int hf_nbap_PhysicalSharedChannelReconfigurationRequestTDD_PDU;  /* PhysicalSharedChannelReconfigurationRequestTDD */
+static int hf_nbap_PDSCHSets_AddList_PSCH_ReconfRqst_PDU;  /* PDSCHSets_AddList_PSCH_ReconfRqst */
+static int hf_nbap_PDSCH_Information_AddItem_PSCH_ReconfRqst_PDU;  /* PDSCH_Information_AddItem_PSCH_ReconfRqst */
+static int hf_nbap_PDSCH_AddInformation_LCR_AddItem_PSCH_ReconfRqst_PDU;  /* PDSCH_AddInformation_LCR_AddItem_PSCH_ReconfRqst */
+static int hf_nbap_PDSCH_AddInformation_768_AddItem_PSCH_ReconfRqst_PDU;  /* PDSCH_AddInformation_768_AddItem_PSCH_ReconfRqst */
+static int hf_nbap_PDSCHSets_ModifyList_PSCH_ReconfRqst_PDU;  /* PDSCHSets_ModifyList_PSCH_ReconfRqst */
+static int hf_nbap_PDSCH_Information_ModifyItem_PSCH_ReconfRqst_PDU;  /* PDSCH_Information_ModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_PDSCH_ModifyInformation_LCR_ModifyItem_PSCH_ReconfRqst_PDU;  /* PDSCH_ModifyInformation_LCR_ModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_PDSCH_ModifyInformation_768_ModifyItem_PSCH_ReconfRqst_PDU;  /* PDSCH_ModifyInformation_768_ModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_PDSCHSets_DeleteList_PSCH_ReconfRqst_PDU;  /* PDSCHSets_DeleteList_PSCH_ReconfRqst */
+static int hf_nbap_PUSCHSets_AddList_PSCH_ReconfRqst_PDU;  /* PUSCHSets_AddList_PSCH_ReconfRqst */
+static int hf_nbap_PUSCH_Information_AddItem_PSCH_ReconfRqst_PDU;  /* PUSCH_Information_AddItem_PSCH_ReconfRqst */
+static int hf_nbap_PUSCH_AddInformation_LCR_AddItem_PSCH_ReconfRqst_PDU;  /* PUSCH_AddInformation_LCR_AddItem_PSCH_ReconfRqst */
+static int hf_nbap_PUSCH_AddInformation_768_AddItem_PSCH_ReconfRqst_PDU;  /* PUSCH_AddInformation_768_AddItem_PSCH_ReconfRqst */
+static int hf_nbap_PUSCHSets_ModifyList_PSCH_ReconfRqst_PDU;  /* PUSCHSets_ModifyList_PSCH_ReconfRqst */
+static int hf_nbap_PUSCH_Information_ModifyItem_PSCH_ReconfRqst_PDU;  /* PUSCH_Information_ModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_PUSCH_ModifyInformation_LCR_ModifyItem_PSCH_ReconfRqst_PDU;  /* PUSCH_ModifyInformation_LCR_ModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_PUSCH_ModifyInformation_768_ModifyItem_PSCH_ReconfRqst_PDU;  /* PUSCH_ModifyInformation_768_ModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_PUSCHSets_DeleteList_PSCH_ReconfRqst_PDU;  /* PUSCHSets_DeleteList_PSCH_ReconfRqst */
+static int hf_nbap_HS_PDSCH_TDD_Information_PSCH_ReconfRqst_PDU;  /* HS_PDSCH_TDD_Information_PSCH_ReconfRqst */
+static int hf_nbap_DL_HS_PDSCH_Timeslot_Information_768_PSCH_ReconfRqst_PDU;  /* DL_HS_PDSCH_Timeslot_Information_768_PSCH_ReconfRqst */
+static int hf_nbap_MultipleFreq_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst_PDU;  /* MultipleFreq_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst */
+static int hf_nbap_MultipleFreq_DL_HS_PDSCH_Timeslot_Information_LCRItem_PSCH_ReconfRqst_PDU;  /* MultipleFreq_DL_HS_PDSCH_Timeslot_Information_LCRItem_PSCH_ReconfRqst */
+static int hf_nbap_Add_To_HS_SCCH_Resource_Pool_PSCH_ReconfRqst_PDU;  /* Add_To_HS_SCCH_Resource_Pool_PSCH_ReconfRqst */
+static int hf_nbap_HS_SCCH_Information_768_PSCH_ReconfRqst_PDU;  /* HS_SCCH_Information_768_PSCH_ReconfRqst */
+static int hf_nbap_HS_SCCH_InformationExt_LCR_PSCH_ReconfRqst_PDU;  /* HS_SCCH_InformationExt_LCR_PSCH_ReconfRqst */
+static int hf_nbap_Modify_HS_SCCH_Resource_Pool_PSCH_ReconfRqst_PDU;  /* Modify_HS_SCCH_Resource_Pool_PSCH_ReconfRqst */
+static int hf_nbap_HS_SCCH_InformationModifyExt_LCR_PSCH_ReconfRqst_PDU;  /* HS_SCCH_InformationModifyExt_LCR_PSCH_ReconfRqst */
+static int hf_nbap_HS_SCCH_InformationModify_768_PSCH_ReconfRqst_PDU;  /* HS_SCCH_InformationModify_768_PSCH_ReconfRqst */
+static int hf_nbap_Delete_From_HS_SCCH_Resource_Pool_PSCH_ReconfRqst_PDU;  /* Delete_From_HS_SCCH_Resource_Pool_PSCH_ReconfRqst */
+static int hf_nbap_E_PUCH_Information_PSCH_ReconfRqst_PDU;  /* E_PUCH_Information_PSCH_ReconfRqst */
+static int hf_nbap_Add_To_E_AGCH_Resource_Pool_PSCH_ReconfRqst_PDU;  /* Add_To_E_AGCH_Resource_Pool_PSCH_ReconfRqst */
+static int hf_nbap_Modify_E_AGCH_Resource_Pool_PSCH_ReconfRqst_PDU;  /* Modify_E_AGCH_Resource_Pool_PSCH_ReconfRqst */
+static int hf_nbap_Delete_From_E_AGCH_Resource_Pool_PSCH_ReconfRqst_PDU;  /* Delete_From_E_AGCH_Resource_Pool_PSCH_ReconfRqst */
+static int hf_nbap_E_HICH_Information_PSCH_ReconfRqst_PDU;  /* E_HICH_Information_PSCH_ReconfRqst */
+static int hf_nbap_E_PUCH_Information_768_PSCH_ReconfRqst_PDU;  /* E_PUCH_Information_768_PSCH_ReconfRqst */
+static int hf_nbap_Add_To_E_AGCH_Resource_Pool_768_PSCH_ReconfRqst_PDU;  /* Add_To_E_AGCH_Resource_Pool_768_PSCH_ReconfRqst */
+static int hf_nbap_Modify_E_AGCH_Resource_Pool_768_PSCH_ReconfRqst_PDU;  /* Modify_E_AGCH_Resource_Pool_768_PSCH_ReconfRqst */
+static int hf_nbap_E_HICH_Information_768_PSCH_ReconfRqst_PDU;  /* E_HICH_Information_768_PSCH_ReconfRqst */
+static int hf_nbap_E_PUCH_Information_LCR_PSCH_ReconfRqst_PDU;  /* E_PUCH_Information_LCR_PSCH_ReconfRqst */
+static int hf_nbap_Add_To_E_AGCH_Resource_Pool_LCR_PSCH_ReconfRqst_PDU;  /* Add_To_E_AGCH_Resource_Pool_LCR_PSCH_ReconfRqst */
+static int hf_nbap_Modify_E_AGCH_Resource_Pool_LCR_PSCH_ReconfRqst_PDU;  /* Modify_E_AGCH_Resource_Pool_LCR_PSCH_ReconfRqst */
+static int hf_nbap_Add_To_E_HICH_Resource_Pool_LCR_PSCH_ReconfRqst_PDU;  /* Add_To_E_HICH_Resource_Pool_LCR_PSCH_ReconfRqst */
+static int hf_nbap_Modify_E_HICH_Resource_Pool_LCR_PSCH_ReconfRqst_PDU;  /* Modify_E_HICH_Resource_Pool_LCR_PSCH_ReconfRqst */
+static int hf_nbap_Delete_From_E_HICH_Resource_Pool_PSCH_ReconfRqst_PDU;  /* Delete_From_E_HICH_Resource_Pool_PSCH_ReconfRqst */
+static int hf_nbap_SYNC_UL_Partition_LCR_PDU;     /* SYNC_UL_Partition_LCR */
+static int hf_nbap_Delete_From_HS_SCCH_Resource_PoolExt_PSCH_ReconfRqst_PDU;  /* Delete_From_HS_SCCH_Resource_PoolExt_PSCH_ReconfRqst */
+static int hf_nbap_MultipleFreq_E_PUCH_Timeslot_InformationList_LCR_PSCH_ReconfRqst_PDU;  /* MultipleFreq_E_PUCH_Timeslot_InformationList_LCR_PSCH_ReconfRqst */
+static int hf_nbap_MultipleFreq_E_PUCH_Timeslot_Information_LCRItem_PSCH_ReconfRqst_PDU;  /* MultipleFreq_E_PUCH_Timeslot_Information_LCRItem_PSCH_ReconfRqst */
+static int hf_nbap_Max_RTWP_perUARFCN_Information_LCR_PSCH_ReconfRqst_PDU;  /* Max_RTWP_perUARFCN_Information_LCR_PSCH_ReconfRqst */
+static int hf_nbap_PhysicalSharedChannelReconfigurationResponse_PDU;  /* PhysicalSharedChannelReconfigurationResponse */
+static int hf_nbap_E_HICH_TimeOffset_ExtensionLCR_PDU;  /* E_HICH_TimeOffset_ExtensionLCR */
+static int hf_nbap_MultipleFreq_E_HICH_TimeOffsetLCR_PDU;  /* MultipleFreq_E_HICH_TimeOffsetLCR */
+static int hf_nbap_PhysicalSharedChannelReconfigurationFailure_PDU;  /* PhysicalSharedChannelReconfigurationFailure */
+static int hf_nbap_CauseLevel_PSCH_ReconfFailure_PDU;  /* CauseLevel_PSCH_ReconfFailure */
+static int hf_nbap_Unsuccessful_PDSCHSetItem_PSCH_ReconfFailureTDD_PDU;  /* Unsuccessful_PDSCHSetItem_PSCH_ReconfFailureTDD */
+static int hf_nbap_Unsuccessful_PUSCHSetItem_PSCH_ReconfFailureTDD_PDU;  /* Unsuccessful_PUSCHSetItem_PSCH_ReconfFailureTDD */
+static int hf_nbap_UARFCNSpecificCauseList_PSCH_ReconfFailureTDD_PDU;  /* UARFCNSpecificCauseList_PSCH_ReconfFailureTDD */
+static int hf_nbap_Unsuccessful_UARFCNItem_PSCH_ReconfFailureTDD_PDU;  /* Unsuccessful_UARFCNItem_PSCH_ReconfFailureTDD */
+static int hf_nbap_E_HICH_TimeOffset_ReconfFailureTDD_PDU;  /* E_HICH_TimeOffset_ReconfFailureTDD */
+static int hf_nbap_Common_System_Information_ResponseLCR_PDU;  /* Common_System_Information_ResponseLCR */
+static int hf_nbap_ResetRequest_PDU;              /* ResetRequest */
+static int hf_nbap_ResetIndicator_PDU;            /* ResetIndicator */
+static int hf_nbap_CommunicationContextInfoItem_Reset_PDU;  /* CommunicationContextInfoItem_Reset */
+static int hf_nbap_CommunicationControlPortInfoItem_Reset_PDU;  /* CommunicationControlPortInfoItem_Reset */
+static int hf_nbap_ResetResponse_PDU;             /* ResetResponse */
+static int hf_nbap_InformationExchangeInitiationRequest_PDU;  /* InformationExchangeInitiationRequest */
+static int hf_nbap_InformationExchangeObjectType_InfEx_Rqst_PDU;  /* InformationExchangeObjectType_InfEx_Rqst */
+static int hf_nbap_InformationExchangeInitiationResponse_PDU;  /* InformationExchangeInitiationResponse */
+static int hf_nbap_InformationExchangeObjectType_InfEx_Rsp_PDU;  /* InformationExchangeObjectType_InfEx_Rsp */
+static int hf_nbap_InformationExchangeInitiationFailure_PDU;  /* InformationExchangeInitiationFailure */
+static int hf_nbap_InformationReport_PDU;         /* InformationReport */
+static int hf_nbap_InformationExchangeObjectType_InfEx_Rprt_PDU;  /* InformationExchangeObjectType_InfEx_Rprt */
+static int hf_nbap_InformationExchangeTerminationRequest_PDU;  /* InformationExchangeTerminationRequest */
+static int hf_nbap_InformationExchangeFailureIndication_PDU;  /* InformationExchangeFailureIndication */
+static int hf_nbap_CellSynchronisationInitiationRequestTDD_PDU;  /* CellSynchronisationInitiationRequestTDD */
+static int hf_nbap_TimeslotInfo_CellSyncInitiationRqstTDD_PDU;  /* TimeslotInfo_CellSyncInitiationRqstTDD */
+static int hf_nbap_CellSyncBurstTransInit_CellSyncInitiationRqstTDD_PDU;  /* CellSyncBurstTransInit_CellSyncInitiationRqstTDD */
+static int hf_nbap_CellSyncBurstMeasureInit_CellSyncInitiationRqstTDD_PDU;  /* CellSyncBurstMeasureInit_CellSyncInitiationRqstTDD */
+static int hf_nbap_SYNCDlCodeId_TransInitLCR_CellSyncInitiationRqstTDD_PDU;  /* SYNCDlCodeId_TransInitLCR_CellSyncInitiationRqstTDD */
+static int hf_nbap_SYNCDlCodeId_MeasureInitLCR_CellSyncInitiationRqstTDD_PDU;  /* SYNCDlCodeId_MeasureInitLCR_CellSyncInitiationRqstTDD */
+static int hf_nbap_CellSynchronisationInitiationResponseTDD_PDU;  /* CellSynchronisationInitiationResponseTDD */
+static int hf_nbap_CellSynchronisationInitiationFailureTDD_PDU;  /* CellSynchronisationInitiationFailureTDD */
+static int hf_nbap_CellSynchronisationReconfigurationRequestTDD_PDU;  /* CellSynchronisationReconfigurationRequestTDD */
+static int hf_nbap_CellSyncBurstTransReconfInfo_CellSyncReconfRqstTDD_PDU;  /* CellSyncBurstTransReconfInfo_CellSyncReconfRqstTDD */
+static int hf_nbap_CellSyncBurstMeasInfo_CellSyncReconfRqstTDD_PDU;  /* CellSyncBurstMeasInfo_CellSyncReconfRqstTDD */
+static int hf_nbap_CellSyncBurstMeasInfoListIE_CellSyncReconfRqstTDD_PDU;  /* CellSyncBurstMeasInfoListIE_CellSyncReconfRqstTDD */
+static int hf_nbap_SYNCDlCodeIdTransReconfInfoLCR_CellSyncReconfRqstTDD_PDU;  /* SYNCDlCodeIdTransReconfInfoLCR_CellSyncReconfRqstTDD */
+static int hf_nbap_SYNCDlCodeIdMeasInfoLCR_CellSyncReconfRqstTDD_PDU;  /* SYNCDlCodeIdMeasInfoLCR_CellSyncReconfRqstTDD */
+static int hf_nbap_CellSynchronisationReconfigurationResponseTDD_PDU;  /* CellSynchronisationReconfigurationResponseTDD */
+static int hf_nbap_CellSynchronisationReconfigurationFailureTDD_PDU;  /* CellSynchronisationReconfigurationFailureTDD */
+static int hf_nbap_CellSynchronisationAdjustmentRequestTDD_PDU;  /* CellSynchronisationAdjustmentRequestTDD */
+static int hf_nbap_CellAdjustmentInfo_SyncAdjustmentRqstTDD_PDU;  /* CellAdjustmentInfo_SyncAdjustmentRqstTDD */
+static int hf_nbap_CellAdjustmentInfoItem_SyncAdjustmentRqstTDD_PDU;  /* CellAdjustmentInfoItem_SyncAdjustmentRqstTDD */
+static int hf_nbap_CellSynchronisationAdjustmentResponseTDD_PDU;  /* CellSynchronisationAdjustmentResponseTDD */
+static int hf_nbap_CellSynchronisationAdjustmentFailureTDD_PDU;  /* CellSynchronisationAdjustmentFailureTDD */
+static int hf_nbap_CauseLevel_SyncAdjustmntFailureTDD_PDU;  /* CauseLevel_SyncAdjustmntFailureTDD */
+static int hf_nbap_Unsuccessful_cell_InformationRespItem_SyncAdjustmntFailureTDD_PDU;  /* Unsuccessful_cell_InformationRespItem_SyncAdjustmntFailureTDD */
+static int hf_nbap_CellSynchronisationTerminationRequestTDD_PDU;  /* CellSynchronisationTerminationRequestTDD */
+static int hf_nbap_CellSynchronisationFailureIndicationTDD_PDU;  /* CellSynchronisationFailureIndicationTDD */
+static int hf_nbap_CellSynchronisationReportTDD_PDU;  /* CellSynchronisationReportTDD */
+static int hf_nbap_CellSyncInfo_CellSyncReprtTDD_PDU;  /* CellSyncInfo_CellSyncReprtTDD */
+static int hf_nbap_SyncReportType_CellSyncReprtTDD_PDU;  /* SyncReportType_CellSyncReprtTDD */
+static int hf_nbap_SyncDLCodeIdsMeasInfoList_CellSyncReprtTDD_PDU;  /* SyncDLCodeIdsMeasInfoList_CellSyncReprtTDD */
+static int hf_nbap_BearerRearrangementIndication_PDU;  /* BearerRearrangementIndication */
+static int hf_nbap_DCH_RearrangeList_Bearer_RearrangeInd_PDU;  /* DCH_RearrangeList_Bearer_RearrangeInd */
+static int hf_nbap_DSCH_RearrangeList_Bearer_RearrangeInd_PDU;  /* DSCH_RearrangeList_Bearer_RearrangeInd */
+static int hf_nbap_USCH_RearrangeList_Bearer_RearrangeInd_PDU;  /* USCH_RearrangeList_Bearer_RearrangeInd */
+static int hf_nbap_HSDSCH_RearrangeList_Bearer_RearrangeInd_PDU;  /* HSDSCH_RearrangeList_Bearer_RearrangeInd */
+static int hf_nbap_E_DCH_RearrangeList_Bearer_RearrangeInd_PDU;  /* E_DCH_RearrangeList_Bearer_RearrangeInd */
+static int hf_nbap_Additional_EDCH_Cell_Information_Bearer_Rearrangement_List_PDU;  /* Additional_EDCH_Cell_Information_Bearer_Rearrangement_List */
+static int hf_nbap_RadioLinkActivationCommandFDD_PDU;  /* RadioLinkActivationCommandFDD */
+static int hf_nbap_DelayedActivationInformationList_RL_ActivationCmdFDD_PDU;  /* DelayedActivationInformationList_RL_ActivationCmdFDD */
+static int hf_nbap_DelayedActivationInformation_RL_ActivationCmdFDD_PDU;  /* DelayedActivationInformation_RL_ActivationCmdFDD */
+static int hf_nbap_RadioLinkActivationCommandTDD_PDU;  /* RadioLinkActivationCommandTDD */
+static int hf_nbap_DelayedActivationInformationList_RL_ActivationCmdTDD_PDU;  /* DelayedActivationInformationList_RL_ActivationCmdTDD */
+static int hf_nbap_DelayedActivationInformation_RL_ActivationCmdTDD_PDU;  /* DelayedActivationInformation_RL_ActivationCmdTDD */
+static int hf_nbap_RadioLinkParameterUpdateIndicationFDD_PDU;  /* RadioLinkParameterUpdateIndicationFDD */
+static int hf_nbap_Additional_HS_Cell_Information_RL_Param_Upd_PDU;  /* Additional_HS_Cell_Information_RL_Param_Upd */
+static int hf_nbap_Additional_EDCH_Cell_Information_RL_Param_Upd_PDU;  /* Additional_EDCH_Cell_Information_RL_Param_Upd */
+static int hf_nbap_RadioLinkParameterUpdateIndicationTDD_PDU;  /* RadioLinkParameterUpdateIndicationTDD */
+static int hf_nbap_MBMSNotificationUpdateCommand_PDU;  /* MBMSNotificationUpdateCommand */
+static int hf_nbap_UEStatusUpdateCommand_PDU;     /* UEStatusUpdateCommand */
+static int hf_nbap_SecondaryULFrequencyReport_PDU;  /* SecondaryULFrequencyReport */
+static int hf_nbap_SecondaryULFrequencyUpdateIndication_PDU;  /* SecondaryULFrequencyUpdateIndication */
+static int hf_nbap_NBAP_PDU_PDU;                  /* NBAP_PDU */
+static int hf_nbap_NULL_PDU;                      /* NULL */
+static int hf_nbap_local;                         /* INTEGER_0_maxPrivateIEs */
+static int hf_nbap_global;                        /* OBJECT_IDENTIFIER */
+static int hf_nbap_procedureCode;                 /* ProcedureCode */
+static int hf_nbap_ddMode;                        /* DdMode */
+static int hf_nbap_shortTransActionId;            /* T_shortTransActionId */
+static int hf_nbap_longTransActionId;             /* T_longTransActionId */
+static int hf_nbap_ProtocolIE_Container_item;     /* ProtocolIE_Field */
+static int hf_nbap_id;                            /* ProtocolIE_ID */
+static int hf_nbap_criticality;                   /* Criticality */
+static int hf_nbap_ie_field_value;                /* ProtocolIE_Field_value */
+static int hf_nbap_ProtocolExtensionContainer_item;  /* ProtocolExtensionField */
+static int hf_nbap_extensionValue;                /* T_extensionValue */
+static int hf_nbap_PrivateIE_Container_item;      /* PrivateIE_Field */
+static int hf_nbap_id_01;                         /* PrivateIE_ID */
+static int hf_nbap_private_value;                 /* PrivateIE_Field_value */
+static int hf_nbap_ActivationInformation_item;    /* ActivationInformationItem */
+static int hf_nbap_uU_ActivationState;            /* Uu_ActivationState */
+static int hf_nbap_iE_Extensions;                 /* ProtocolExtensionContainer */
+static int hf_nbap_multicell_EDCH_Transport_Bearer_Mode;  /* Multicell_EDCH_Transport_Bearer_Mode */
+static int hf_nbap_additional_EDCH_Cell_Information_Setup;  /* Additional_EDCH_Cell_Information_Setup */
+static int hf_nbap_Additional_EDCH_Cell_Information_Setup_item;  /* Additional_EDCH_FDD_Setup_Cell_Information */
+static int hf_nbap_additional_EDCH_UL_DPCH_Information_Setup;  /* Additional_EDCH_UL_DPCH_Information_Setup */
+static int hf_nbap_additional_EDCH_RL_Specific_Information_To_Setup;  /* Additional_EDCH_RL_Specific_Information_To_Setup_List */
+static int hf_nbap_additional_EDCH_FDD_Information;  /* Additional_EDCH_FDD_Information */
+static int hf_nbap_additional_EDCH_F_DPCH_Information_Setup;  /* Additional_EDCH_F_DPCH_Information */
+static int hf_nbap_multicell_EDCH_Information;    /* Multicell_EDCH_Information */
+static int hf_nbap_ul_ScramblingCode;             /* UL_ScramblingCode */
+static int hf_nbap_ul_SIR_Target;                 /* UL_SIR */
+static int hf_nbap_fdd_TPC_DownlinkStepSize;      /* FDD_TPC_DownlinkStepSize */
+static int hf_nbap_limitedPowerIncrease;          /* LimitedPowerIncrease */
+static int hf_nbap_innerLoopDLPCStatus;           /* InnerLoopDLPCStatus */
+static int hf_nbap_Additional_EDCH_RL_Specific_Information_To_Setup_List_item;  /* Additional_EDCH_RL_Specific_Information_To_Setup_ItemIEs */
+static int hf_nbap_eDCH_Additional_RL_ID;         /* RL_ID */
+static int hf_nbap_c_ID;                          /* C_ID */
+static int hf_nbap_firstRLS_indicator;            /* FirstRLS_Indicator */
+static int hf_nbap_propagationDelay;              /* PropagationDelay */
+static int hf_nbap_dl_CodeInformation;            /* FDD_DL_CodeInformation */
+static int hf_nbap_initialDL_transmissionPower;   /* DL_Power */
+static int hf_nbap_maximumDL_power;               /* DL_Power */
+static int hf_nbap_minimumDL_power;               /* DL_Power */
+static int hf_nbap_f_DPCH_SlotFormat;             /* F_DPCH_SlotFormat */
+static int hf_nbap_e_RNTI;                        /* E_RNTI */
+static int hf_nbap_multicell_EDCH_RL_Specific_Information;  /* Multicell_EDCH_RL_Specific_Information */
+static int hf_nbap_Additional_EDCH_Cell_Information_To_Add_List_item;  /* Additional_EDCH_Cell_Information_To_Add_ItemIEs */
+static int hf_nbap_additional_EDCH_RL_Specific_Information_To_Add_ItemIEs;  /* Additional_EDCH_RL_Specific_Information_To_Add_ItemIEs */
+static int hf_nbap_Additional_EDCH_RL_Specific_Information_To_Add_ItemIEs_item;  /* EDCH_Additional_RL_Specific_Information_To_Add_List */
+static int hf_nbap_Additional_EDCH_RL_Specific_Information_To_Modify_List_item;  /* Additional_EDCH_RL_Specific_Information_To_Modify_ItemIEs */
+static int hf_nbap_additional_EDCH_MAC_d_Flows_Specific_Information;  /* Additional_EDCH_MAC_d_Flows_Specific_Info_List */
+static int hf_nbap_hARQ_Process_Allocation_Scheduled_2ms_EDCH;  /* HARQ_Process_Allocation_2ms_EDCH */
+static int hf_nbap_e_DCH_Maximum_Bitrate;         /* E_DCH_Maximum_Bitrate */
+static int hf_nbap_e_DCH_Processing_Overload_Level;  /* E_DCH_Processing_Overload_Level */
+static int hf_nbap_e_DCH_Min_Set_E_TFCI;          /* E_TFCI */
+static int hf_nbap_Additional_EDCH_MAC_d_Flows_Specific_Info_List_item;  /* Additional_EDCH_MAC_d_Flows_Specific_Info */
+static int hf_nbap_e_DCH_MACdFlow_ID;             /* E_DCH_MACdFlow_ID */
+static int hf_nbap_bindingID;                     /* BindingID */
+static int hf_nbap_transportLayerAddress;         /* TransportLayerAddress */
+static int hf_nbap_Additional_EDCH_Cell_Information_Response_List_item;  /* Additional_EDCH_FDD_Information_Response_ItemIEs */
+static int hf_nbap_eDCH_Additional_RL_Specific_Information_Response;  /* EDCH_Additional_RL_Specific_Information_Response_List */
+static int hf_nbap_additional_EDCH_MAC_d_Flow_Specific_Information_Response;  /* Additional_EDCH_MAC_d_Flow_Specific_Information_Response_List */
+static int hf_nbap_EDCH_Additional_RL_Specific_Information_Response_List_item;  /* EDCH_Additional_RL_Specific_Information_Response_ItemIEs */
+static int hf_nbap_received_total_wide_band_power;  /* Received_total_wide_band_power_Value */
+static int hf_nbap_dL_PowerBalancing_ActivationIndicator;  /* DL_PowerBalancing_ActivationIndicator */
+static int hf_nbap_rL_Set_ID;                     /* RL_Set_ID */
+static int hf_nbap_e_DCH_RL_Set_ID;               /* RL_Set_ID */
+static int hf_nbap_e_DCH_FDD_DL_Control_Channel_Information;  /* E_DCH_FDD_DL_Control_Channel_Information */
+static int hf_nbap_Additional_EDCH_Cell_Information_Response_RLReconf_List_item;  /* Additional_EDCH_FDD_Information_Response_RLReconf_Items */
+static int hf_nbap_additional_EDCH_FDD_Information_Response_ItemIEs;  /* Additional_EDCH_FDD_Information_Response_ItemIEs */
+static int hf_nbap_additional_Modififed_EDCH_FDD_Information_Response_ItemIEs;  /* Additional_Modififed_EDCH_FDD_Information_Response_ItemIEs */
+static int hf_nbap_eDCH_Additional_Modified_RL_Specific_Information_Response;  /* EDCH_Additional_Modified_RL_Specific_Information_Response_List */
+static int hf_nbap_EDCH_Additional_Modified_RL_Specific_Information_Response_List_item;  /* EDCH_Additional_Modified_RL_Specific_Information_Response_List_Items */
+static int hf_nbap_dL_PowerBalancing_UpdatedIndicator;  /* DL_PowerBalancing_UpdatedIndicator */
+static int hf_nbap_Additional_EDCH_MAC_d_Flow_Specific_Information_Response_List_item;  /* Additional_EDCH_MAC_d_Flows_Specific_Info_Response */
+static int hf_nbap_Additional_EDCH_Cell_Information_Response_RL_Add_List_item;  /* Additional_EDCH_Cell_Information_Response_RL_Add_ItemIEs */
+static int hf_nbap_additional_EDCH_FDD_Information_Response;  /* Additional_EDCH_FDD_Information_Response_ItemIEs */
+static int hf_nbap_additional_EDCH_Serving_Cell_Change_Information_Response;  /* E_DCH_Serving_Cell_Change_Info_Response */
+static int hf_nbap_Additional_EDCH_Cell_Information_ConfigurationChange_List_item;  /* Additional_EDCH_ConfigurationChange_Info_ItemIEs */
+static int hf_nbap_additional_EDCH_UL_DPCH_Information_Modify;  /* Additional_EDCH_UL_DPCH_Information_Modify */
+static int hf_nbap_additional_EDCH_RL_Specific_Information_To_Add;  /* Additional_EDCH_RL_Specific_Information_To_Add_ItemIEs */
+static int hf_nbap_additional_EDCH_RL_Specific_Information_To_Modify;  /* Additional_EDCH_RL_Specific_Information_To_Modify_List */
+static int hf_nbap_additional_EDCH_FDD_Information_To_Modify;  /* Additional_EDCH_FDD_Information */
+static int hf_nbap_additional_EDCH_F_DPCH_Information_Modify;  /* Additional_EDCH_F_DPCH_Information */
+static int hf_nbap_Additional_EDCH_Cell_Information_Removal_List_item;  /* Additional_EDCH_Cell_Information_Removal_Info_ItemIEs */
+static int hf_nbap_rL_on_Secondary_UL_Frequency;  /* RL_on_Secondary_UL_Frequency */
+static int hf_nbap_additional_EDCH_DL_Control_Channel_Change_Information;  /* Additional_EDCH_DL_Control_Channel_Change_Information_List */
+static int hf_nbap_Additional_EDCH_DL_Control_Channel_Change_Information_List_item;  /* Additional_EDCH_DL_Control_Channel_Change_Info_ItemIEs */
+static int hf_nbap_AdditionalMeasurementValueList_item;  /* AdditionalMeasurementValue */
+static int hf_nbap_uARFCN;                        /* UARFCN */
+static int hf_nbap_timeSlotMeasurementValueListLCR;  /* TimeSlotMeasurementValueListLCR */
+static int hf_nbap_AdditionalTimeSlotListLCR_item;  /* AdditionalTimeSlotLCR */
+static int hf_nbap_timeslot_InitiatedListLCR;     /* TimeSlot_InitiatedListLCR */
+static int hf_nbap_cMConfigurationChangeCFN;      /* CFN */
+static int hf_nbap_transmission_Gap_Pattern_Sequence_Status;  /* Transmission_Gap_Pattern_Sequence_Status_List */
+static int hf_nbap_Transmission_Gap_Pattern_Sequence_Status_List_item;  /* Transmission_Gap_Pattern_Sequence_Status_List_item */
+static int hf_nbap_tGPSID;                        /* TGPSID */
+static int hf_nbap_tGPRC;                         /* TGPRC */
+static int hf_nbap_tGCFN;                         /* CFN */
+static int hf_nbap_priorityLevel;                 /* PriorityLevel */
+static int hf_nbap_pre_emptionCapability;         /* Pre_emptionCapability */
+static int hf_nbap_pre_emptionVulnerability;      /* Pre_emptionVulnerability */
+static int hf_nbap_aOA_LCR;                       /* AOA_LCR */
+static int hf_nbap_aOA_LCR_Accuracy_Class;        /* AOA_LCR_Accuracy_Class */
+static int hf_nbap_bCCH_Specific_HSDSCH_RNTI;     /* HSDSCH_RNTI */
+static int hf_nbap_hSSCCH_Power;                  /* DL_Power */
+static int hf_nbap_hSPDSCH_Power;                 /* DL_Power */
+static int hf_nbap_Best_Cell_Portions_Value_item;  /* Best_Cell_Portions_Item */
+static int hf_nbap_cellPortionID;                 /* CellPortionID */
+static int hf_nbap_sIRValue;                      /* SIR_Value */
+static int hf_nbap_Best_Cell_Portions_ValueLCR_item;  /* Best_Cell_Portions_ItemLCR */
+static int hf_nbap_cellPortionLCRID;              /* CellPortionLCRID */
+static int hf_nbap_rSCPValue;                     /* RSCP_Value */
+static int hf_nbap_commonTransportChannelID;      /* CommonTransportChannelID */
+static int hf_nbap_cid;                           /* C_ID */
+static int hf_nbap_radioNetwork;                  /* CauseRadioNetwork */
+static int hf_nbap_transport;                     /* CauseTransport */
+static int hf_nbap_protocol;                      /* CauseProtocol */
+static int hf_nbap_misc;                          /* CauseMisc */
+static int hf_nbap_Cell_ERNTI_Status_Information_item;  /* Cell_ERNTI_Status_Information_Item */
+static int hf_nbap_vacant_ERNTI;                  /* Vacant_ERNTI */
+static int hf_nbap_Vacant_ERNTI_item;             /* E_RNTI */
+static int hf_nbap_initialPhase_0_1048575;        /* INTEGER_0_1048575_ */
+static int hf_nbap_steadyStatePhase;              /* INTEGER_0_255_ */
+static int hf_nbap_initialPhase;                  /* INTEGER_0_524287_ */
+static int hf_nbap_steadyStatePhase_01;           /* INTEGER_0_127_ */
+static int hf_nbap_CommonChannelsCapacityConsumptionLaw_item;  /* CommonChannelsCapacityConsumptionLaw_item */
+static int hf_nbap_dl_Cost;                       /* INTEGER_0_65535 */
+static int hf_nbap_ul_Cost;                       /* INTEGER_0_65535 */
+static int hf_nbap_common_E_DCH_UL_DPCH_Information;  /* Common_E_DCH_UL_DPCH_InfoItem */
+static int hf_nbap_common_E_DCH_EDPCH_Information;  /* Common_E_DCH_EDPCH_InfoItem */
+static int hf_nbap_common_E_DCH_Information;      /* Common_E_DCH_InfoItem */
+static int hf_nbap_common_E_DCH_HSDPCCH_Information;  /* Common_E_DCH_HSDPCCH_InfoItem */
+static int hf_nbap_common_E_DCH_Preamble_Control_Information;  /* Common_E_DCH_Preamble_Control_InfoItem */
+static int hf_nbap_common_E_DCH_FDPCH_Information;  /* Common_E_DCH_FDPCH_InfoItem */
+static int hf_nbap_common_E_DCH_E_AGCH_ChannelisationCodeNumber;  /* FDD_DL_ChannelisationCodeNumber */
+static int hf_nbap_common_E_DCH_Resource_Combination_Information;  /* Common_E_DCH_Resource_Combination_InfoList */
+static int hf_nbap_ul_common_E_DCH_MACflow_Specific_Information;  /* Ul_common_E_DCH_MACflow_Specific_InfoList */
+static int hf_nbap_uL_SIR_Target;                 /* UL_SIR */
+static int hf_nbap_dPC_Mode;                      /* DPC_Mode */
+static int hf_nbap_maxSet_E_DPDCHs;               /* Max_Set_E_DPDCHs */
+static int hf_nbap_ul_PunctureLimit;              /* PunctureLimit */
+static int hf_nbap_e_TFCS_Information;            /* E_TFCS_Information */
+static int hf_nbap_e_TTI;                         /* E_TTI */
+static int hf_nbap_e_DPCCH_PO;                    /* E_DPCCH_PO */
+static int hf_nbap_e_RGCH_2_IndexStepThreshold;   /* E_RGCH_2_IndexStepThreshold */
+static int hf_nbap_e_RGCH_3_IndexStepThreshold;   /* E_RGCH_3_IndexStepThreshold */
+static int hf_nbap_hARQ_Info_for_E_DCH;           /* HARQ_Info_for_E_DCH */
+static int hf_nbap_e_DCH_Reference_Power_Offset;  /* E_DCH_Reference_Power_Offset */
+static int hf_nbap_e_DCH_PowerOffset_for_SchedulingInfo;  /* E_DCH_PowerOffset_for_SchedulingInfo */
+static int hf_nbap_max_EDCH_Resource_Allocation_for_CCCH;  /* Max_EDCH_Resource_Allocation_for_CCCH */
+static int hf_nbap_max_Period_for_Collistion_Resolution;  /* Max_Period_for_Collistion_Resolution */
+static int hf_nbap_max_TB_Sizes;                  /* Max_TB_Sizes */
+static int hf_nbap_common_E_DCH_ImplicitRelease_Indicator;  /* BOOLEAN */
+static int hf_nbap_ackNackRepetitionFactor;       /* AckNack_RepetitionFactor */
+static int hf_nbap_ackPowerOffset;                /* Ack_Power_Offset */
+static int hf_nbap_nackPowerOffset;               /* Nack_Power_Offset */
+static int hf_nbap_common_E_DCH_CQI_Info;         /* Common_E_DCH_CQI_Info */
+static int hf_nbap_cqiFeedback_CycleK;            /* CQI_Feedback_Cycle */
+static int hf_nbap_cqiRepetitionFactor;           /* CQI_RepetitionFactor */
+static int hf_nbap_cqiPowerOffset;                /* CQI_Power_Offset */
+static int hf_nbap_measurement_Power_Offset;      /* Measurement_Power_Offset */
+static int hf_nbap_commonPhysicalChannelID;       /* CommonPhysicalChannelID */
+static int hf_nbap_common_E_DCH_PreambleSignatures;  /* PreambleSignatures */
+static int hf_nbap_scramblingCodeNumber;          /* ScramblingCodeNumber */
+static int hf_nbap_preambleThreshold;             /* PreambleThreshold */
+static int hf_nbap_e_AI_Indicator;                /* E_AI_Indicator */
+static int hf_nbap_common_E_DCH_AICH_Information;  /* Common_E_DCH_AICH_Information */
+static int hf_nbap_aICH_TransmissionTiming;       /* AICH_TransmissionTiming */
+static int hf_nbap_fdd_dl_ChannelisationCodeNumber;  /* FDD_DL_ChannelisationCodeNumber */
+static int hf_nbap_aICH_Power;                    /* AICH_Power */
+static int hf_nbap_sTTD_Indicator;                /* STTD_Indicator */
+static int hf_nbap_Common_E_DCH_Resource_Combination_InfoList_item;  /* Common_E_DCH_Resource_Combination_InfoList_Item */
+static int hf_nbap_soffset;                       /* Soffset */
+static int hf_nbap_f_DPCH_DL_Code_Number;         /* FDD_DL_ChannelisationCodeNumber */
+static int hf_nbap_ul_DPCH_ScramblingCode;        /* UL_ScramblingCode */
+static int hf_nbap_e_RGCH_E_HICH_Channelisation_Code;  /* FDD_DL_ChannelisationCodeNumber */
+static int hf_nbap_e_RGCH_Signature_Sequence;     /* E_RGCH_Signature_Sequence */
+static int hf_nbap_e_HICH_Signature_Sequence;     /* E_HICH_Signature_Sequence */
+static int hf_nbap_Ul_common_E_DCH_MACflow_Specific_InfoList_item;  /* Ul_common_E_DCH_MACflow_Specific_InfoList_Item */
+static int hf_nbap_ul_Common_MACFlowID;           /* Common_MACFlow_ID */
+static int hf_nbap_transportBearerRequestIndicator;  /* TransportBearerRequestIndicator */
+static int hf_nbap_tnlQos;                        /* TnlQos */
+static int hf_nbap_payloadCRC_PresenceIndicator;  /* PayloadCRC_PresenceIndicator */
+static int hf_nbap_bundlingModeIndicator;         /* BundlingModeIndicator */
+static int hf_nbap_common_E_DCH_MACdFlow_Specific_Information;  /* Common_E_DCH_MACdFlow_Specific_InfoList */
+static int hf_nbap_Common_E_DCH_MACdFlow_Specific_InfoList_item;  /* Common_E_DCH_MACdFlow_Specific_InfoList_Item */
+static int hf_nbap_common_e_DCH_MACdFlow_ID;      /* E_DCH_MACdFlow_ID */
+static int hf_nbap_maximum_Number_of_Retransmissions_For_E_DCH;  /* Maximum_Number_of_Retransmissions_For_E_DCH */
+static int hf_nbap_eDCH_HARQ_PO_FDD;              /* E_DCH_HARQ_PO_FDD */
+static int hf_nbap_eDCH_MACdFlow_Multiplexing_List;  /* E_DCH_MACdFlow_Multiplexing_List */
+static int hf_nbap_common_E_DCHLogicalChannelInformation;  /* Common_E_DCH_LogicalChannel_InfoList */
+static int hf_nbap_Common_E_DCH_LogicalChannel_InfoList_item;  /* Common_E_DCH_LogicalChannel_InfoList_Item */
+static int hf_nbap_logicalChannelId;              /* LogicalChannelID */
+static int hf_nbap_maximumMACcPDU_SizeExtended;   /* MAC_PDU_SizeExtended */
+static int hf_nbap_ul_common_E_DCH_MACflow_Specific_InfoResponse;  /* Ul_common_E_DCH_MACflow_Specific_InfoResponseList */
+static int hf_nbap_serving_Grant_Value;           /* E_Serving_Grant_Value */
+static int hf_nbap_E_RNTI_List_item;              /* E_RNTI */
+static int hf_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseList_item;  /* Ul_common_E_DCH_MACflow_Specific_InfoResponseList_Item */
+static int hf_nbap_Common_MACFlows_to_DeleteFDD_item;  /* Common_MACFlows_to_DeleteFDD_Item */
+static int hf_nbap_common_MACFlow_ID;             /* Common_MACFlow_ID */
+static int hf_nbap_CommonMACFlow_Specific_InfoList_item;  /* CommonMACFlow_Specific_InfoItem */
+static int hf_nbap_common_MACFlow_Id;             /* Common_MACFlow_ID */
+static int hf_nbap_tnl_qos;                       /* TnlQos */
+static int hf_nbap_common_MACFlow_PriorityQueue_Information;  /* Common_MACFlow_PriorityQueue_Information */
+static int hf_nbap_CommonMACFlow_Specific_InfoList_Response_item;  /* CommonMACFlow_Specific_InfoItem_Response */
+static int hf_nbap_commonMACFlow_ID;              /* Common_MACFlow_ID */
+static int hf_nbap_hSDSCH_Initial_Capacity_Allocation;  /* HSDSCH_Initial_Capacity_Allocation */
+static int hf_nbap_Common_MACFlow_PriorityQueue_Information_item;  /* Common_MACFlow_PriorityQueue_Item */
+static int hf_nbap_priority_Queue_Information_for_Enhanced_FACH;  /* Priority_Queue_Information_for_Enhanced_FACH_PCH */
+static int hf_nbap_tUTRANGPSMeasurementAccuracyClass;  /* TUTRANGPSAccuracyClass */
+static int hf_nbap_tUTRANGANSSMeasurementAccuracyClass;  /* TUTRANGANSSAccuracyClass */
+static int hf_nbap_transmitted_carrier_power;     /* Transmitted_Carrier_Power_Value */
+static int hf_nbap_acknowledged_prach_preambles;  /* Acknowledged_PRACH_preambles_Value */
+static int hf_nbap_uL_TimeslotISCP;               /* UL_TimeslotISCP_Value */
+static int hf_nbap_notUsed_1_acknowledged_PCPCH_access_preambles;  /* NULL */
+static int hf_nbap_notUsed_2_detected_PCPCH_access_preambles;  /* NULL */
+static int hf_nbap_extension_CommonMeasurementValue;  /* Extension_CommonMeasurementValue */
+static int hf_nbap_measurementAvailable;          /* CommonMeasurementAvailable */
+static int hf_nbap_measurementnotAvailable;       /* CommonMeasurementnotAvailable */
+static int hf_nbap_commonmeasurementValue;        /* CommonMeasurementValue */
+static int hf_nbap_ie_Extensions;                 /* ProtocolExtensionContainer */
+static int hf_nbap_resourceOperationalState;      /* ResourceOperationalState */
+static int hf_nbap_availabilityStatus;            /* AvailabilityStatus */
+static int hf_nbap_commonPhysicalChannelID768;    /* CommonPhysicalChannelID768 */
+static int hf_nbap_uE_DTX_DRX_Offset;             /* UE_DTX_DRX_Offset */
+static int hf_nbap_enabling_Delay;                /* Enabling_Delay */
+static int hf_nbap_dTX_Information;               /* DTX_Information */
+static int hf_nbap_dRX_Information;               /* DRX_Information */
+static int hf_nbap_dTX_Information_to_Modify;     /* DTX_Information_to_Modify */
+static int hf_nbap_dRX_Information_to_Modify;     /* DRX_Information_to_Modify */
+static int hf_nbap_ContinuousPacketConnectivityHS_SCCH_less_Information_item;  /* ContinuousPacketConnectivityHS_SCCH_less_InformationItem */
+static int hf_nbap_transport_Block_Size_Index;    /* Transport_Block_Size_Index */
+static int hf_nbap_hSPDSCH_Second_Code_Support;   /* HSPDSCH_Second_Code_Support */
+static int hf_nbap_hSPDSCH_First_Code_Index;      /* HSPDSCH_First_Code_Index */
+static int hf_nbap_hSPDSCH_Second_Code_Index;     /* HSPDSCH_Second_Code_Index */
+static int hf_nbap_continuousPacketConnectivityDTX_DRX_Information;  /* ContinuousPacketConnectivityDTX_DRX_Information */
+static int hf_nbap_continuousPacketConnectivityDTX_DRX_Information_to_Modify;  /* ContinuousPacketConnectivityDTX_DRX_Information_to_Modify */
+static int hf_nbap_continuousPacketConnectivityHS_SCCH_less_Information;  /* ContinuousPacketConnectivityHS_SCCH_less_Information */
+static int hf_nbap_procedureID;                   /* ProcedureID */
+static int hf_nbap_triggeringMessage;             /* TriggeringMessage */
+static int hf_nbap_procedureCriticality;          /* Criticality */
+static int hf_nbap_transactionID;                 /* TransactionID */
+static int hf_nbap_iEsCriticalityDiagnostics;     /* CriticalityDiagnostics_IE_List */
+static int hf_nbap_CriticalityDiagnostics_IE_List_item;  /* CriticalityDiagnostics_IE_List_item */
+static int hf_nbap_iECriticality;                 /* Criticality */
+static int hf_nbap_iE_ID;                         /* ProtocolIE_ID */
+static int hf_nbap_repetitionNumber;              /* RepetitionNumber0 */
+static int hf_nbap_ul_common_E_DCH_MACflow_Specific_InformationLCR;  /* Ul_common_E_DCH_MACflow_Specific_InfoListLCR */
+static int hf_nbap_common_E_PUCH_InformationLCR;  /* Common_E_PUCH_InformationLCR */
+static int hf_nbap_e_TFCS_Information_TDD;        /* E_TFCS_Information_TDD */
+static int hf_nbap_maximum_Number_of_Retransmissions_For_SchedulingInfo;  /* Maximum_Number_of_Retransmissions_For_E_DCH */
+static int hf_nbap_eDCH_Retransmission_Timer_SchedulingInfo;  /* E_DCH_MACdFlow_Retransmission_Timer */
+static int hf_nbap_minCR;                         /* CodeRate */
+static int hf_nbap_maxCR;                         /* CodeRate */
+static int hf_nbap_harqInfo;                      /* HARQ_Info_for_E_DCH */
+static int hf_nbap_pRXdes_base_perURAFCN;         /* PRXdes_base_perURAFCN */
+static int hf_nbap_e_PUCH_TPC_StepSize;           /* TDD_TPC_UplinkStepSize_LCR */
+static int hf_nbap_e_AGCH_TPC_StepSize;           /* TDD_TPC_DownlinkStepSize */
+static int hf_nbap_e_PUCH_PowerControlGAP;        /* ControlGAP */
+static int hf_nbap_PRXdes_base_perURAFCN_item;    /* PRXdes_base_Item */
+static int hf_nbap_pRXdes_base;                   /* PRXdes_base */
+static int hf_nbap_Ul_common_E_DCH_MACflow_Specific_InfoListLCR_item;  /* Ul_common_E_DCH_MACflow_Specific_InfoList_ItemLCR */
+static int hf_nbap_ul_Common_MACFlowIDLCR;        /* Common_MACFlow_ID_LCR */
+static int hf_nbap_common_E_DCH_MACdFlow_Specific_InformationLCR;  /* Common_E_DCH_MACdFlow_Specific_InfoListLCR */
+static int hf_nbap_Common_E_DCH_MACdFlow_Specific_InfoListLCR_item;  /* Common_E_DCH_MACdFlow_Specific_InfoList_ItemLCR */
+static int hf_nbap_common_e_DCH_MACdFlow_ID_01;   /* E_DCH_MACdFlow_ID_LCR */
+static int hf_nbap_eDCH_HARQ_PO_TDD;              /* E_DCH_HARQ_PO_TDD */
+static int hf_nbap_eDCH_MACdFlow_Retransmission_Timer;  /* E_DCH_MACdFlow_Retransmission_Timer */
+static int hf_nbap_ul_common_E_DCH_MACflow_Specific_InfoResponseLCR;  /* Ul_common_E_DCH_MACflow_Specific_InfoResponseListLCR */
+static int hf_nbap_common_E_AGCH_ListLCR;         /* Common_E_AGCH_ListLCR */
+static int hf_nbap_common_E_HICH_ListLCR;         /* Common_E_HICH_ListLCR */
+static int hf_nbap_common_E_RNTI_Info_LCR;        /* Common_E_RNTI_Info_LCR */
+static int hf_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseListLCR_item;  /* Ul_common_E_DCH_MACflow_Specific_InfoResponseList_ItemLCR */
+static int hf_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseListLCR_Ext_item;  /* Ul_common_E_DCH_MACflow_Specific_InfoResponseList_ItemLCR */
+static int hf_nbap_ul_Common_MACFlowID_LCR;       /* Common_MACFlow_ID_LCR */
+static int hf_nbap_Common_E_AGCH_ListLCR_item;    /* Common_E_AGCH_ItemLCR */
+static int hf_nbap_e_AGCH_ID;                     /* E_AGCH_Id */
+static int hf_nbap_Common_E_HICH_ListLCR_item;    /* Common_E_HICH_ItemLCR */
+static int hf_nbap_eI;                            /* EI */
+static int hf_nbap_e_HICH_ID;                     /* E_HICH_ID_LCR */
+static int hf_nbap_Common_E_RNTI_Info_LCR_item;   /* Common_E_RNTI_Info_ItemLCR */
+static int hf_nbap_starting_E_RNTI;               /* E_RNTI */
+static int hf_nbap_number_of_Group;               /* INTEGER_1_32 */
+static int hf_nbap_number_of_e_E_RNTI_perGroup;   /* INTEGER_1_7 */
+static int hf_nbap_Common_MACFlows_to_DeleteLCR_item;  /* Common_MACFlows_to_DeleteLCR_Item */
+static int hf_nbap_common_MACFlow_ID_LCR;         /* Common_MACFlow_ID_LCR */
+static int hf_nbap_CommonMACFlow_Specific_InfoListLCR_item;  /* CommonMACFlow_Specific_InfoItemLCR */
+static int hf_nbap_common_MACFlow_PriorityQueue_InformationLCR;  /* Common_MACFlow_PriorityQueue_Information */
+static int hf_nbap_Common_H_RNTI_InformationLCR_item;  /* Common_H_RNTI_InfoItemLCR */
+static int hf_nbap_common_H_RNTI;                 /* HSDSCH_RNTI */
+static int hf_nbap_t_SYNC;                        /* T_SYNC */
+static int hf_nbap_t_PROTECT;                     /* T_PROTECT */
+static int hf_nbap_n_PROTECT;                     /* N_PROTECT */
+static int hf_nbap_CommonMACFlow_Specific_InfoList_ResponseLCR_item;  /* CommonMACFlow_Specific_InfoItem_ResponseLCR */
+static int hf_nbap_continuousPacketConnectivity_DRX_InformationLCR;  /* ContinuousPacketConnectivity_DRX_InformationLCR */
+static int hf_nbap_continuousPacketConnectivity_DRX_Information_to_Modify_LCR;  /* ContinuousPacketConnectivity_DRX_Information_to_Modify_LCR */
+static int hf_nbap_hS_DSCH_Semi_PersistentScheduling_Information_LCR;  /* HS_DSCH_Semi_PersistentScheduling_Information_LCR */
+static int hf_nbap_hS_DSCH_Semi_PersistentScheduling_Information_to_Modify_LCR;  /* HS_DSCH_Semi_PersistentScheduling_Information_to_Modify_LCR */
+static int hf_nbap_hS_DSCH_SPS_Deactivate_Indicator_LCR;  /* NULL */
+static int hf_nbap_e_DCH_Semi_PersistentScheduling_Information_LCR;  /* E_DCH_Semi_PersistentScheduling_Information_LCR */
+static int hf_nbap_e_DCH_Semi_PersistentScheduling_Information_to_Modify_LCR;  /* E_DCH_Semi_PersistentScheduling_Information_to_Modify_LCR */
+static int hf_nbap_e_DCH_SPS_Deactivate_Indicator_LCR;  /* NULL */
+static int hf_nbap_hS_SCCH_DRX_Information_LCR;   /* HS_SCCH_DRX_Information_LCR */
+static int hf_nbap_e_AGCH_DRX_Information_LCR;    /* E_AGCH_DRX_Information_LCR */
+static int hf_nbap_hS_SCCH_UE_DRX_Cycle_LCR;      /* UE_DRX_Cycle_LCR */
+static int hf_nbap_hS_SCCH_Inactivity_Threshold_for_UE_DRX_Cycle_LCR;  /* Inactivity_Threshold_for_UE_DRX_Cycle_LCR */
+static int hf_nbap_hS_SCCH_UE_DRX_Offset_LCR;     /* UE_DRX_Offset_LCR */
+static int hf_nbap_sameAsHS_SCCH;                 /* NULL */
+static int hf_nbap_e_AGCH_DRX_Parameters;         /* E_AGCH_DRX_Parameters */
+static int hf_nbap_e_AGCH_UE_DRX_Cycle_LCR;       /* UE_DRX_Cycle_LCR */
+static int hf_nbap_e_AGCH_UE_Inactivity_Monitor_Threshold;  /* E_AGCH_UE_Inactivity_Monitor_Threshold */
+static int hf_nbap_e_AGCH_UE_DRX_Offset_LCR;      /* UE_DRX_Offset_LCR */
+static int hf_nbap_dRX_Information_to_Modify_LCR;  /* DRX_Information_to_Modify_LCR */
+static int hf_nbap_modify;                        /* DRX_Information_to_Modify_Items_LCR */
+static int hf_nbap_deactivate;                    /* NULL */
+static int hf_nbap_hS_SCCH_DRX_Information_ResponseLCR;  /* HS_SCCH_DRX_Information_ResponseLCR */
+static int hf_nbap_e_AGCH_DRX_Information_ResponseLCR;  /* E_AGCH_DRX_Information_ResponseLCR */
+static int hf_nbap_e_AGCH_DRX_Parameters_Response;  /* E_AGCH_DRX_Parameters_Response */
+static int hf_nbap_DCH_FDD_Information_item;      /* DCH_FDD_InformationItem */
+static int hf_nbap_ul_FP_Mode;                    /* UL_FP_Mode */
+static int hf_nbap_toAWS;                         /* ToAWS */
+static int hf_nbap_toAWE;                         /* ToAWE */
+static int hf_nbap_dCH_SpecificInformationList;   /* DCH_Specific_FDD_InformationList */
+static int hf_nbap_DCH_Specific_FDD_InformationList_item;  /* DCH_Specific_FDD_Item */
+static int hf_nbap_dCH_ID;                        /* T_dCH_ID */
+static int hf_nbap_ul_TransportFormatSet;         /* T_ul_TransportFormatSet */
+static int hf_nbap_dl_TransportFormatSet;         /* T_dl_TransportFormatSet */
+static int hf_nbap_allocationRetentionPriority;   /* AllocationRetentionPriority */
+static int hf_nbap_frameHandlingPriority;         /* FrameHandlingPriority */
+static int hf_nbap_qE_Selector;                   /* QE_Selector */
+static int hf_nbap_DCH_InformationResponse_item;  /* DCH_InformationResponseItem */
+static int hf_nbap_dCH_ID_01;                     /* DCH_ID */
+static int hf_nbap_DCH_MeasurementOccasion_Information_item;  /* DchMeasurementOccasionInformation_Item */
+static int hf_nbap_pattern_Sequence_Identifier;   /* Pattern_Sequence_Identifier */
+static int hf_nbap_status_Flag;                   /* Status_Flag */
+static int hf_nbap_measurement_Occasion_Pattern_Sequence_parameters;  /* Measurement_Occasion_Pattern_Sequence_parameters */
+static int hf_nbap_measurement_Occasion_Pattern_Sequence_parameters_k;  /* INTEGER_1_9 */
+static int hf_nbap_measurement_Occasion_Pattern_Sequence_parameters_offset;  /* INTEGER_0_511 */
+static int hf_nbap_measurement_Occasion_Pattern_Sequence_parameters_M_Length;  /* INTEGER_1_512 */
+static int hf_nbap_measurement_Occasion_Pattern_Sequence_parameters_Timeslot_Bitmap;  /* BIT_STRING_SIZE_7 */
+static int hf_nbap_DCH_TDD_Information_item;      /* DCH_TDD_InformationItem */
+static int hf_nbap_dCH_SpecificInformationList_01;  /* DCH_Specific_TDD_InformationList */
+static int hf_nbap_DCH_Specific_TDD_InformationList_item;  /* DCH_Specific_TDD_Item */
+static int hf_nbap_ul_CCTrCH_ID;                  /* CCTrCH_ID */
+static int hf_nbap_dl_CCTrCH_ID;                  /* CCTrCH_ID */
+static int hf_nbap_ul_TransportFormatSet_01;      /* TransportFormatSet */
+static int hf_nbap_dl_TransportFormatSet_01;      /* TransportFormatSet */
+static int hf_nbap_FDD_DCHs_to_Modify_item;       /* FDD_DCHs_to_ModifyItem */
+static int hf_nbap_dCH_SpecificInformationList_02;  /* DCH_ModifySpecificInformation_FDD */
+static int hf_nbap_DCH_ModifySpecificInformation_FDD_item;  /* DCH_ModifySpecificItem_FDD */
+static int hf_nbap_dCH_ID_02;                     /* T_dCH_ID_01 */
+static int hf_nbap_ul_TransportFormatSet_02;      /* T_ul_TransportFormatSet_01 */
+static int hf_nbap_dl_TransportFormatSet_02;      /* T_dl_TransportFormatSet_01 */
+static int hf_nbap_TDD_DCHs_to_Modify_item;       /* DCH_ModifyItem_TDD */
+static int hf_nbap_dCH_SpecificInformationList_03;  /* DCH_ModifySpecificInformation_TDD */
+static int hf_nbap_DCH_ModifySpecificInformation_TDD_item;  /* DCH_ModifySpecificItem_TDD */
+static int hf_nbap_DedicatedChannelsCapacityConsumptionLaw_item;  /* DedicatedChannelsCapacityConsumptionLaw_item */
+static int hf_nbap_dl_Cost_1;                     /* INTEGER_0_65535 */
+static int hf_nbap_dl_Cost_2;                     /* INTEGER_0_65535 */
+static int hf_nbap_ul_Cost_1;                     /* INTEGER_0_65535 */
+static int hf_nbap_ul_Cost_2;                     /* INTEGER_0_65535 */
+static int hf_nbap_sIR_Value;                     /* SIR_Value */
+static int hf_nbap_sIR_ErrorValue;                /* SIR_Error_Value */
+static int hf_nbap_transmittedCodePowerValue;     /* Transmitted_Code_Power_Value */
+static int hf_nbap_rSCP;                          /* RSCP_Value */
+static int hf_nbap_rxTimingDeviationValue;        /* Rx_Timing_Deviation_Value */
+static int hf_nbap_roundTripTime;                 /* Round_Trip_Time_Value */
+static int hf_nbap_extension_DedicatedMeasurementValue;  /* Extension_DedicatedMeasurementValue */
+static int hf_nbap_measurementAvailable_01;       /* DedicatedMeasurementAvailable */
+static int hf_nbap_measurementnotAvailable_01;    /* DedicatedMeasurementnotAvailable */
+static int hf_nbap_dedicatedmeasurementValue;     /* DedicatedMeasurementValue */
+static int hf_nbap_cFN;                           /* CFN */
+static int hf_nbap_cfn;                           /* CFN */
+static int hf_nbap_separate_indication;           /* NULL */
+static int hf_nbap_activate;                      /* Activate_Info */
+static int hf_nbap_deactivate_01;                 /* Deactivate_Info */
+static int hf_nbap_activation_type;               /* Execution_Type */
+static int hf_nbap_initial_dl_tx_power;           /* DL_Power */
+static int hf_nbap_firstRLS_Indicator;            /* FirstRLS_Indicator */
+static int hf_nbap_propagation_delay;             /* PropagationDelay */
+static int hf_nbap_deactivation_type;             /* Execution_Type */
+static int hf_nbap_synchronised;                  /* CFN */
+static int hf_nbap_unsynchronised;                /* NULL */
+static int hf_nbap_dGANSS_ReferenceTime;          /* INTEGER_0_119 */
+static int hf_nbap_dGANSS_Information;            /* DGANSS_Information */
+static int hf_nbap_dGANSS_Signal_ID;              /* BIT_STRING_SIZE_8 */
+static int hf_nbap_DGANSS_Information_item;       /* DGANSS_InformationItem */
+static int hf_nbap_gANSS_SignalId;                /* GANSS_Signal_ID */
+static int hf_nbap_gANSS_StatusHealth;            /* GANSS_StatusHealth */
+static int hf_nbap_dGANSS_SignalInformation;      /* DGANSS_SignalInformation */
+static int hf_nbap_DGANSS_SignalInformation_item;  /* DGANSS_SignalInformationItem */
+static int hf_nbap_satId;                         /* INTEGER_0_63 */
+static int hf_nbap_gANSS_iod;                     /* BIT_STRING_SIZE_10 */
+static int hf_nbap_udre;                          /* UDRE */
+static int hf_nbap_ganss_prc;                     /* INTEGER_M2047_2047 */
+static int hf_nbap_ganss_rrc;                     /* INTEGER_M127_127 */
+static int hf_nbap_pRCDeviation;                  /* PRCDeviation */
+static int hf_nbap_udreGrowthRate;                /* UDREGrowthRate */
+static int hf_nbap_udreValidityTime;              /* UDREValidityTime */
+static int hf_nbap_gpstow;                        /* GPSTOW */
+static int hf_nbap_status_health;                 /* GPS_Status_Health */
+static int hf_nbap_satelliteinfo;                 /* SAT_Info_DGPSCorrections */
+static int hf_nbap_prcdeviation;                  /* PRCDeviation */
+static int hf_nbap_DL_Timeslot_Information_item;  /* DL_Timeslot_InformationItem */
+static int hf_nbap_timeSlot;                      /* TimeSlot */
+static int hf_nbap_midambleShiftAndBurstType;     /* MidambleShiftAndBurstType */
+static int hf_nbap_tFCI_Presence;                 /* TFCI_Presence */
+static int hf_nbap_dL_Code_Information;           /* TDD_DL_Code_Information */
+static int hf_nbap_DL_TimeslotLCR_Information_item;  /* DL_TimeslotLCR_InformationItem */
+static int hf_nbap_timeSlotLCR;                   /* TimeSlotLCR */
+static int hf_nbap_midambleShiftLCR;              /* MidambleShiftLCR */
+static int hf_nbap_dL_Code_LCR_Information;       /* TDD_DL_Code_LCR_Information */
+static int hf_nbap_DL_Timeslot768_Information_item;  /* DL_Timeslot768_InformationItem */
+static int hf_nbap_midambleShiftAndBurstType768;  /* MidambleShiftAndBurstType768 */
+static int hf_nbap_dL_Code_768_Information;       /* TDD_DL_Code_768_Information */
+static int hf_nbap_powerAdjustmentType;           /* PowerAdjustmentType */
+static int hf_nbap_dLReferencePower;              /* DL_Power */
+static int hf_nbap_dLReferencePowerList_DL_PC_Rqst;  /* DL_ReferencePowerInformationList */
+static int hf_nbap_maxAdjustmentStep;             /* MaxAdjustmentStep */
+static int hf_nbap_adjustmentPeriod;              /* AdjustmentPeriod */
+static int hf_nbap_adjustmentRatio;               /* ScaledAdjustmentRatio */
+static int hf_nbap_DL_ReferencePowerInformationList_item;  /* DL_ReferencePowerInformationItem */
+static int hf_nbap_rL_ID;                         /* RL_ID */
+static int hf_nbap_dl_Reference_Power;            /* DL_Power */
+static int hf_nbap_DL_TimeslotISCPInfo_item;      /* DL_TimeslotISCPInfoItem */
+static int hf_nbap_dL_TimeslotISCP;               /* DL_TimeslotISCP */
+static int hf_nbap_DL_TimeslotISCPInfoLCR_item;   /* DL_TimeslotISCPInfoItemLCR */
+static int hf_nbap_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst_item;  /* DL_HS_PDSCH_Timeslot_InformationItem_LCR_PSCH_ReconfRqst */
+static int hf_nbap_midambleShiftAndBurstType_01;  /* MidambleShiftLCR */
+static int hf_nbap_dl_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst;  /* DL_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst */
+static int hf_nbap_maxHSDSCH_HSSCCH_Power;        /* MaximumTransmissionPower */
+static int hf_nbap_MaxHSDSCH_HSSCCH_Power_per_CELLPORTION_item;  /* MaxHSDSCH_HSSCCH_Power_per_CELLPORTION_Item */
+static int hf_nbap_DL_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst_item;  /* TDD_ChannelisationCode */
+static int hf_nbap_uE_DRX_Cycle;                  /* UE_DRX_Cycle */
+static int hf_nbap_inactivity_Threshold_for_UE_DRX_Cycle;  /* Inactivity_Threshold_for_UE_DRX_Cycle */
+static int hf_nbap_inactivity_Threshold_for_UE_Grant_Monitoring;  /* Inactivity_Threshold_for_UE_Grant_Monitoring */
+static int hf_nbap_uE_DRX_Grant_Monitoring;       /* UE_DRX_Grant_Monitoring */
+static int hf_nbap_modify_01;                     /* DRX_Information_to_Modify_Items */
+static int hf_nbap_DSCH_InformationResponse_item;  /* DSCH_InformationResponseItem */
+static int hf_nbap_dSCH_ID;                       /* DSCH_ID */
+static int hf_nbap_DSCH_TDD_Information_item;     /* DSCH_TDD_InformationItem */
+static int hf_nbap_cCTrCH_ID;                     /* CCTrCH_ID */
+static int hf_nbap_transportFormatSet;            /* TransportFormatSet */
+static int hf_nbap_uE_DTX_Cycle1_2ms;             /* UE_DTX_Cycle1_2ms */
+static int hf_nbap_uE_DTX_Cycle2_2ms;             /* UE_DTX_Cycle2_2ms */
+static int hf_nbap_mAC_DTX_Cycle_2ms;             /* MAC_DTX_Cycle_2ms */
+static int hf_nbap_uE_DTX_Cycle1_10ms;            /* UE_DTX_Cycle1_10ms */
+static int hf_nbap_uE_DTX_Cycle2_10ms;            /* UE_DTX_Cycle2_10ms */
+static int hf_nbap_mAC_DTX_Cycle_10ms;            /* MAC_DTX_Cycle_10ms */
+static int hf_nbap_e_DCH_TTI_Length;              /* E_DCH_TTI_Length */
+static int hf_nbap_inactivity_Threshold_for_UE_DTX_Cycle2;  /* Inactivity_Threshold_for_UE_DTX_Cycle2 */
+static int hf_nbap_uE_DTX_Long_Preamble;          /* UE_DTX_Long_Preamble */
+static int hf_nbap_mAC_Inactivity_Threshold;      /* MAC_Inactivity_Threshold */
+static int hf_nbap_cQI_DTX_Timer;                 /* CQI_DTX_Timer */
+static int hf_nbap_uE_DPCCH_burst1;               /* UE_DPCCH_burst1 */
+static int hf_nbap_uE_DPCCH_burst2;               /* UE_DPCCH_burst2 */
+static int hf_nbap_modify_02;                     /* DTX_Information_to_Modify_Items */
+static int hf_nbap_e_DCH_TTI_Length_to_Modify;    /* E_DCH_TTI_Length_to_Modify */
+static int hf_nbap_dual_Band_Capability;          /* Dual_Band_Capability */
+static int hf_nbap_possible_Secondary_Serving_Cell_List;  /* Possible_Secondary_Serving_Cell_List */
+static int hf_nbap_replace;                       /* E_AGCH_FDD_Code_List */
+static int hf_nbap_remove;                        /* NULL */
+static int hf_nbap_E_AGCH_FDD_Code_List_item;     /* FDD_DL_ChannelisationCodeNumber */
+static int hf_nbap_e_DCH_SF_allocation;           /* E_DCH_SF_allocation */
+static int hf_nbap_E_DCH_SF_allocation_item;      /* E_DCH_SF_allocation_item */
+static int hf_nbap_e_AGCH_And_E_RGCH_E_HICH_FDD_Scrambling_Code;  /* DL_ScramblingCode */
+static int hf_nbap_e_AGCH_Channelisation_Code;    /* FDD_DL_ChannelisationCodeNumber */
+static int hf_nbap_primary_e_RNTI;                /* E_RNTI */
+static int hf_nbap_secondary_e_RNTI;              /* E_RNTI */
+static int hf_nbap_primary_Secondary_Grant_Selector;  /* E_Primary_Secondary_Grant_Selector */
+static int hf_nbap_e_RGCH_Release_Indicator;      /* E_RGCH_Release_Indicator */
+static int hf_nbap_e_DCH_MACdFlows_Information;   /* E_DCH_MACdFlows_Information */
+static int hf_nbap_e_DCH_MACdFlow_Specific_InformationResp;  /* E_DCH_MACdFlow_Specific_InformationResp */
+static int hf_nbap_e_DCH_MACdFlow_Specific_Info_to_Modify;  /* E_DCH_MACdFlow_Specific_InfoList_to_Modify */
+static int hf_nbap_mACeReset_Indicator;           /* MACeReset_Indicator */
+static int hf_nbap_e_DCH_MACdFlow_Specific_UpdateInformation;  /* E_DCH_MACdFlow_Specific_UpdateInformation */
+static int hf_nbap_E_DCH_MACdFlow_Specific_UpdateInformation_item;  /* E_DCH_MACdFlow_Specific_UpdateInformation_Item */
+static int hf_nbap_hARQ_Process_Allocation_NonSched_2ms_EDCH;  /* HARQ_Process_Allocation_2ms_EDCH */
+static int hf_nbap_E_DCH_DL_Control_Channel_Change_Information_item;  /* E_DCH_DL_Control_Channel_Change_Information_Item */
+static int hf_nbap_e_DCH_RL_ID;                   /* RL_ID */
+static int hf_nbap_E_DCH_DL_Control_Channel_Grant_Information_item;  /* E_DCH_DL_Control_Channel_Grant_Information_Item */
+static int hf_nbap_e_DCH_Non_Scheduled_Transmission_Grant;  /* E_DCH_Non_Scheduled_Transmission_Grant_Items */
+static int hf_nbap_e_DCH_Scheduled_Transmission_Grant;  /* NULL */
+static int hf_nbap_E_DCH_LogicalChannelInformation_item;  /* E_DCH_LogicalChannelInformationItem */
+static int hf_nbap_schedulingPriorityIndicator;   /* SchedulingPriorityIndicator */
+static int hf_nbap_schedulingInformation;         /* SchedulingInformation */
+static int hf_nbap_mACesGuaranteedBitRate;        /* MACesGuaranteedBitRate */
+static int hf_nbap_e_DCH_DDI_Value;               /* E_DCH_DDI_Value */
+static int hf_nbap_mACd_PDU_Size_List;            /* E_DCH_MACdPDU_SizeList */
+static int hf_nbap_E_DCH_MACdPDU_SizeList_item;   /* E_DCH_MACdPDU_SizeListItem */
+static int hf_nbap_mACdPDU_Size;                  /* MACdPDU_Size */
+static int hf_nbap_E_DCH_LogicalChannelToModify_item;  /* E_DCH_LogicalChannelToModifyItem */
+static int hf_nbap_mACd_PDU_Size_List_01;         /* E_DCH_MACdPDU_SizeToModifyList */
+static int hf_nbap_E_DCH_MACdPDU_SizeToModifyList_item;  /* E_DCH_MACdPDU_SizeListItem */
+static int hf_nbap_E_DCH_LogicalChannelToDelete_item;  /* E_DCH_LogicalChannelToDeleteItem */
+static int hf_nbap_e_DCH_MACdFlow_Specific_Info;  /* E_DCH_MACdFlow_Specific_InfoList */
+static int hf_nbap_E_DCH_MACdFlow_Specific_InfoList_item;  /* E_DCH_MACdFlow_Specific_InfoItem */
+static int hf_nbap_eDCH_Grant_Type_Information;   /* E_DCH_Grant_Type_Information */
+static int hf_nbap_eDCHLogicalChannelInformation;  /* E_DCH_LogicalChannelInformation */
+static int hf_nbap_E_DCH_MACdFlow_Specific_InformationResp_item;  /* E_DCH_MACdFlow_Specific_InformationResp_Item */
+static int hf_nbap_E_DCH_MACdFlow_Specific_InfoList_to_Modify_item;  /* E_DCH_MACdFlow_Specific_InfoItem_to_Modify */
+static int hf_nbap_eDCH_LogicalChannelToAdd;      /* E_DCH_LogicalChannelInformation */
+static int hf_nbap_eDCH_LogicalChannelToModify;   /* E_DCH_LogicalChannelToModify */
+static int hf_nbap_eDCH_LogicalChannelToDelete;   /* E_DCH_LogicalChannelToDelete */
+static int hf_nbap_E_DCH_MACdFlows_to_Delete_item;  /* E_DCH_MACdFlow_to_Delete_Item */
+static int hf_nbap_maxBits_MACe_PDU_non_scheduled;  /* Max_Bits_MACe_PDU_non_scheduled */
+static int hf_nbap_hARQ_Process_Allocation_NonSched_2ms;  /* HARQ_Process_Allocation_2ms_EDCH */
+static int hf_nbap_e_DCH_serving_cell_choice;     /* E_DCH_serving_cell_choice */
+static int hf_nbap_e_DCH_serving_cell_change_successful;  /* E_DCH_serving_cell_change_successful */
+static int hf_nbap_e_DCH_serving_cell_change_unsuccessful;  /* E_DCH_serving_cell_change_unsuccessful */
+static int hf_nbap_e_DCH_RL_InformationList_Rsp;  /* E_DCH_RL_InformationList_Rsp */
+static int hf_nbap_E_DCH_RL_InformationList_Rsp_item;  /* E_DCH_RL_InformationList_Rsp_Item */
+static int hf_nbap_rl_ID;                         /* RL_ID */
+static int hf_nbap_e_DCH_FDD_DL_Control_Channel_Info;  /* E_DCH_FDD_DL_Control_Channel_Information */
+static int hf_nbap_cause;                         /* Cause */
+static int hf_nbap_EDCH_RACH_Report_Value_item;   /* EDCH_RACH_Report_Value_item */
+static int hf_nbap_granted_EDCH_RACH_resources;   /* Granted_EDCH_RACH_Resources_Value */
+static int hf_nbap_denied_EDCH_RACH_resources;    /* Denied_EDCH_RACH_Resources_Value */
+static int hf_nbap_two_ms;                        /* DTX_Cycle_2ms_Items */
+static int hf_nbap_ten_ms;                        /* DTX_Cycle_10ms_Items */
+static int hf_nbap_two_ms_01;                     /* DTX_Cycle_2ms_to_Modify_Items */
+static int hf_nbap_ten_ms_01;                     /* DTX_Cycle_10ms_to_Modify_Items */
+static int hf_nbap_E_DCH_MACdFlows_to_DeleteLCR_item;  /* E_DCH_MACdFlow_to_Delete_ItemLCR */
+static int hf_nbap_e_DCH_MACdFlow_ID_LCR;         /* E_DCH_MACdFlow_ID_LCR */
+static int hf_nbap_t321;                          /* T321 */
+static int hf_nbap_hS_DSCH_DRX_Cycle_FACH;        /* HS_DSCH_DRX_Cycle_FACH */
+static int hf_nbap_hS_DSCH_RX_Burst_FACH;         /* HS_DSCH_RX_Burst_FACH */
+static int hf_nbap_replace_01;                    /* E_RGCH_E_HICH_FDD_Code_List */
+static int hf_nbap_E_RGCH_E_HICH_FDD_Code_List_item;  /* FDD_DL_ChannelisationCodeNumber */
+static int hf_nbap_e_TFCI_BetaEC_Boost;           /* E_TFCI_BetaEC_Boost */
+static int hf_nbap_uL_Delta_T2TP;                 /* UL_Delta_T2TP */
+static int hf_nbap_e_DCH_TFCI_Table_Index;        /* E_DCH_TFCI_Table_Index */
+static int hf_nbap_reference_E_TFCI_Information;  /* Reference_E_TFCI_Information */
+static int hf_nbap_E_DCHProvidedBitRate_item;     /* E_DCHProvidedBitRate_Item */
+static int hf_nbap_e_DCHProvidedBitRateValue;     /* E_DCHProvidedBitRateValue */
+static int hf_nbap_E_DCHProvidedBitRateValueInformation_For_CellPortion_item;  /* E_DCHProvidedBitRateValueInformation_For_CellPortion_Item */
+static int hf_nbap_e_DCHProvidedBitRateValue_01;  /* E_DCHProvidedBitRate */
+static int hf_nbap_e_PUCH_Information;            /* E_PUCH_Information */
+static int hf_nbap_e_DCH_MACdFlows_Information_TDD;  /* E_DCH_MACdFlows_Information_TDD */
+static int hf_nbap_e_DCH_Non_Scheduled_Grant_Info;  /* E_DCH_Non_Scheduled_Grant_Info */
+static int hf_nbap_e_DCH_TDD_Information;         /* E_DCH_TDD_Information */
+static int hf_nbap_n_E_UCCH;                      /* N_E_UCCH */
+static int hf_nbap_e_DCH_QPSK_RefBetaInfo;        /* E_DCH_QPSK_RefBetaInfo */
+static int hf_nbap_e_DCH_sixteenQAM_RefBetaInfo;  /* E_DCH_sixteenQAM_RefBetaInfo */
+static int hf_nbap_E_DCH_QPSK_RefBetaInfo_item;   /* E_DCH_RefBeta_Item */
+static int hf_nbap_E_DCH_sixteenQAM_RefBetaInfo_item;  /* E_DCH_RefBeta_Item */
+static int hf_nbap_refCodeRate;                   /* CodeRate_short */
+static int hf_nbap_refBeta;                       /* RefBeta */
+static int hf_nbap_E_DCH_MACdFlows_Information_TDD_item;  /* E_DCH_MACdFlow_InfoTDDItem */
+static int hf_nbap_eDCH_Grant_TypeTDD;            /* E_DCH_Grant_TypeTDD */
+static int hf_nbap_timeslotResource;              /* E_DCH_TimeslotResource */
+static int hf_nbap_powerResource;                 /* E_DCH_PowerResource */
+static int hf_nbap_repetitionPeriod;              /* RepetitionPeriod */
+static int hf_nbap_repetitionLength;              /* RepetitionLength */
+static int hf_nbap_tddE_PUCH_Offset;              /* TddE_PUCH_Offset */
+static int hf_nbap_tdd_ChannelisationCode;        /* TDD_ChannelisationCode */
+static int hf_nbap_e_DCH_TDD_Maximum_Bitrate;     /* E_DCH_TDD_Maximum_Bitrate */
+static int hf_nbap_e_DCH_TDD_MACdFlow_Specific_InformationResp;  /* E_DCH_TDD_MACdFlow_Specific_InformationResp */
+static int hf_nbap_e_AGCH_Specific_Information_ResponseTDD;  /* E_AGCH_Specific_InformationRespListTDD */
+static int hf_nbap_scheduled_E_HICH_Specific_InformationResp;  /* Scheduled_E_HICH_Specific_Information_ResponseLCRTDD */
+static int hf_nbap_Scheduled_E_HICH_Specific_Information_ResponseLCRTDD_item;  /* Scheduled_E_HICH_Specific_InformationItem_ResponseLCRTDD */
+static int hf_nbap_e_HICH_ID_TDD;                 /* E_HICH_ID_TDD */
+static int hf_nbap_E_DCH_TDD_MACdFlow_Specific_InformationResp_item;  /* E_DCH_TDD_MACdFlow_Specific_InformationResp_Item */
+static int hf_nbap_e_DCH_MacdFlow_Id;             /* E_DCH_MACdFlow_ID */
+static int hf_nbap_E_AGCH_Specific_InformationRespListTDD_item;  /* E_AGCH_Specific_InformationResp_ItemTDD */
+static int hf_nbap_e_AGCH_Id;                     /* E_AGCH_Id */
+static int hf_nbap_e_DCH_MACdFlows_to_Add;        /* E_DCH_MACdFlows_Information_TDD */
+static int hf_nbap_e_DCH_MACdFlows_to_Delete;     /* E_DCH_MACdFlows_to_Delete */
+static int hf_nbap_e_DCH_TDD_Information_to_Modify;  /* E_DCH_TDD_Information_to_Modify */
+static int hf_nbap_e_DCH_TDD_Information_to_Modify_List;  /* E_DCH_TDD_Information_to_Modify_List */
+static int hf_nbap_E_DCH_TDD_Information_to_Modify_List_item;  /* E_DCH_MACdFlow_ModifyTDDItem */
+static int hf_nbap_e_DCH_LogicalChannelToAdd;     /* E_DCH_LogicalChannelInformation */
+static int hf_nbap_e_DCH_LogicalChannelToModify;  /* E_DCH_LogicalChannelToModify */
+static int hf_nbap_e_DCH_LogicalChannelToDelete;  /* E_DCH_LogicalChannelToDelete */
+static int hf_nbap_e_DCH_Non_Scheduled_Grant_Info768;  /* E_DCH_Non_Scheduled_Grant_Info768 */
+static int hf_nbap_e_DCH_TDD_Information768;      /* E_DCH_TDD_Information768 */
+static int hf_nbap_tdd_ChannelisationCode768;     /* TDD_ChannelisationCode768 */
+static int hf_nbap_e_DCH_TDD_Maximum_Bitrate768;  /* E_DCH_TDD_Maximum_Bitrate768 */
+static int hf_nbap_e_PUCH_LCR_Information;        /* E_PUCH_LCR_Information */
+static int hf_nbap_e_DCH_Non_Scheduled_Grant_LCR_Info;  /* E_DCH_Non_Scheduled_Grant_LCR_Info */
+static int hf_nbap_e_DCH_LCRTDD_Information;      /* E_DCH_LCRTDD_Information */
+static int hf_nbap_timeslotResourceLCR;           /* E_DCH_TimeslotResourceLCR */
+static int hf_nbap_subframeNumber;                /* T_subframeNumber */
+static int hf_nbap_n_E_UCCHLCR;                   /* N_E_UCCHLCR */
+static int hf_nbap_e_HICH_LCR_Information;        /* E_HICH_LCR_Information */
+static int hf_nbap_signatureSequenceGroupIndex;   /* SignatureSequenceGroupIndex */
+static int hf_nbap_e_DCH_LCRTDD_PhysicalLayerCategory;  /* E_DCH_LCRTDD_PhysicalLayerCategory */
+static int hf_nbap_dRX_Interruption_by_HS_DSCH;   /* DRX_Interruption_by_HS_DSCH */
+static int hf_nbap_repetition_Period_List_LCR;    /* Repetition_Period_List_LCR */
+static int hf_nbap_e_DCH_SPS_Indicator;           /* E_DCH_SPS_Indicator */
+static int hf_nbap_sPS_E_DCH_releted_E_HICH_Information;  /* E_HICH_LCR_Information */
+static int hf_nbap_timeslot_Resource_Related_Information;  /* E_DCH_TimeslotResourceLCR */
+static int hf_nbap_subframeNumber_01;             /* T_subframeNumber_01 */
+static int hf_nbap_FDD_DL_CodeInformation_item;   /* FDD_DL_CodeInformationItem */
+static int hf_nbap_dl_ScramblingCode;             /* DL_ScramblingCode */
+static int hf_nbap_fdd_DL_ChannelisationCodeNumber;  /* FDD_DL_ChannelisationCodeNumber */
+static int hf_nbap_transmissionGapPatternSequenceCodeInformation;  /* TransmissionGapPatternSequenceCodeInformation */
+static int hf_nbap_navClockModel;                 /* GANSS_NAVclockModel */
+static int hf_nbap_cnavClockModel;                /* GANSS_CNAVclockModel */
+static int hf_nbap_glonassClockModel;             /* GANSS_GLONASSclockModel */
+static int hf_nbap_sbasClockModel;                /* GANSS_SBASclockModel */
+static int hf_nbap_navKeplerianSet;               /* GANSS_NavModel_NAVKeplerianSet */
+static int hf_nbap_cnavKeplerianSet;              /* GANSS_NavModel_CNAVKeplerianSet */
+static int hf_nbap_glonassECEF;                   /* GANSS_NavModel_GLONASSecef */
+static int hf_nbap_sbasECEF;                      /* GANSS_NavModel_SBASecef */
+static int hf_nbap_dataID;                        /* BIT_STRING_SIZE_2 */
+static int hf_nbap_alpha_beta_parameters;         /* GPS_Ionospheric_Model */
+static int hf_nbap_ganss_Transmission_Time;       /* GANSS_Transmission_Time */
+static int hf_nbap_non_broadcastIndication;       /* T_non_broadcastIndication */
+static int hf_nbap_ganssSatInfoNavList;           /* Ganss_Sat_Info_AddNavList */
+static int hf_nbap_GANSS_Additional_Time_Models_item;  /* GANSS_Time_Model */
+static int hf_nbap_utcModel1;                     /* GANSS_UTCmodelSet1 */
+static int hf_nbap_utcModel2;                     /* GANSS_UTCmodelSet2 */
+static int hf_nbap_utcModel3;                     /* GANSS_UTCmodelSet3 */
+static int hf_nbap_ganss_wk_number;               /* INTEGER_0_255 */
+static int hf_nbap_gANSS_AlmanacModel;            /* GANSS_AlmanacModel */
+static int hf_nbap_gANSS_keplerianParameters;     /* GANSS_KeplerianParametersAlm */
+static int hf_nbap_extension_GANSS_AlmanacModel;  /* Extension_GANSS_AlmanacModel */
+static int hf_nbap_sat_info_SBASecefList;         /* GANSS_SAT_Info_Almanac_SBASecefList */
+static int hf_nbap_sat_info_GLOkpList;            /* GANSS_SAT_Info_Almanac_GLOkpList */
+static int hf_nbap_t_oa;                          /* INTEGER_0_255 */
+static int hf_nbap_sat_info_MIDIkpList;           /* GANSS_SAT_Info_Almanac_MIDIkpList */
+static int hf_nbap_sat_info_NAVkpList;            /* GANSS_SAT_Info_Almanac_NAVkpList */
+static int hf_nbap_sat_info_REDkpList;            /* GANSS_SAT_Info_Almanac_REDkpList */
+static int hf_nbap_ganssID1;                      /* GANSS_AuxInfoGANSS_ID1 */
+static int hf_nbap_ganssID3;                      /* GANSS_AuxInfoGANSS_ID3 */
+static int hf_nbap_GANSS_AuxInfoGANSS_ID1_item;   /* GANSS_AuxInfoGANSS_ID1_element */
+static int hf_nbap_svID;                          /* INTEGER_0_63 */
+static int hf_nbap_signalsAvailable;              /* BIT_STRING_SIZE_8 */
+static int hf_nbap_GANSS_AuxInfoGANSS_ID3_item;   /* GANSS_AuxInfoGANSS_ID3_element */
+static int hf_nbap_channelNumber;                 /* INTEGER_M7_13 */
+static int hf_nbap_GANSS_Clock_Model_item;        /* GANSS_SatelliteClockModelItem */
+static int hf_nbap_cnavToc;                       /* BIT_STRING_SIZE_11 */
+static int hf_nbap_cnavTop;                       /* BIT_STRING_SIZE_11 */
+static int hf_nbap_cnavURA0;                      /* BIT_STRING_SIZE_5 */
+static int hf_nbap_cnavURA1;                      /* BIT_STRING_SIZE_3 */
+static int hf_nbap_cnavURA2;                      /* BIT_STRING_SIZE_3 */
+static int hf_nbap_cnavAf2;                       /* BIT_STRING_SIZE_10 */
+static int hf_nbap_cnavAf1;                       /* BIT_STRING_SIZE_20 */
+static int hf_nbap_cnavAf0;                       /* BIT_STRING_SIZE_26 */
+static int hf_nbap_cnavTgd;                       /* BIT_STRING_SIZE_13 */
+static int hf_nbap_cnavISCl1cp;                   /* BIT_STRING_SIZE_13 */
+static int hf_nbap_cnavISCl1cd;                   /* BIT_STRING_SIZE_13 */
+static int hf_nbap_cnavISCl1ca;                   /* BIT_STRING_SIZE_13 */
+static int hf_nbap_cnavISCl2c;                    /* BIT_STRING_SIZE_13 */
+static int hf_nbap_cnavISCl5i5;                   /* BIT_STRING_SIZE_13 */
+static int hf_nbap_cnavISCl5q5;                   /* BIT_STRING_SIZE_13 */
+static int hf_nbap_ganss_Ionospheric_Model;       /* GANSS_Ionospheric_Model */
+static int hf_nbap_ganss_Rx_Pos;                  /* GANSS_RX_Pos */
+static int hf_nbap_ionospheric_Model;             /* BOOLEAN */
+static int hf_nbap_ganssTod;                      /* INTEGER_0_59_ */
+static int hf_nbap_dataBitAssistancelist;         /* GANSS_DataBitAssistanceList */
+static int hf_nbap_GANSS_DataBitAssistanceList_item;  /* GANSS_DataBitAssistanceItem */
+static int hf_nbap_dataBitAssistanceSgnList;      /* GANSS_DataBitAssistanceSgnList */
+static int hf_nbap_GANSS_DataBitAssistanceSgnList_item;  /* GANSS_DataBitAssistanceSgnItem */
+static int hf_nbap_ganss_SignalId;                /* GANSS_Signal_ID */
+static int hf_nbap_ganssDataBits;                 /* BIT_STRING_SIZE_1_1024 */
+static int hf_nbap_ganssTod_01;                   /* INTEGER_0_86399 */
+static int hf_nbap_ganss_Data_Bit_Assistance_ReqList;  /* GANSS_Data_Bit_Assistance_ReqList */
+static int hf_nbap_ganss_DataBitInterval;         /* INTEGER_0_15 */
+static int hf_nbap_ganss_SatelliteInfo;           /* T_ganss_SatelliteInfo */
+static int hf_nbap_ganss_SatelliteInfo_item;      /* INTEGER_0_63 */
+static int hf_nbap_b1;                            /* BIT_STRING_SIZE_11 */
+static int hf_nbap_b2;                            /* BIT_STRING_SIZE_10 */
+static int hf_nbap_teop;                          /* BIT_STRING_SIZE_16 */
+static int hf_nbap_pmX;                           /* BIT_STRING_SIZE_21 */
+static int hf_nbap_pmXdot;                        /* BIT_STRING_SIZE_15 */
+static int hf_nbap_pmY;                           /* BIT_STRING_SIZE_21 */
+static int hf_nbap_pmYdot;                        /* BIT_STRING_SIZE_15 */
+static int hf_nbap_deltaUT1;                      /* BIT_STRING_SIZE_31 */
+static int hf_nbap_deltaUT1dot;                   /* BIT_STRING_SIZE_19 */
+static int hf_nbap_GANSS_GenericDataInfoReqList_item;  /* GANSS_GenericDataInfoReqItem */
+static int hf_nbap_ganss_Id;                      /* GANSS_ID */
+static int hf_nbap_ganss_Navigation_Model_And_Time_Recovery;  /* BOOLEAN */
+static int hf_nbap_ganss_Time_Model_GNSS_GNSS;    /* BIT_STRING_SIZE_9 */
+static int hf_nbap_ganss_UTC_Model;               /* BOOLEAN */
+static int hf_nbap_ganss_Almanac;                 /* BOOLEAN */
+static int hf_nbap_gANSS_GenericDataInfoReqItem_ganss_Real_Time_Integrity;  /* BOOLEAN */
+static int hf_nbap_ganss_Data_Bit_Assistance_Req;  /* GANSS_Data_Bit_Assistance_ReqItem */
+static int hf_nbap_GANSS_Generic_Data_item;       /* GANSS_Generic_DataItem */
+static int hf_nbap_dganss_Correction;             /* DGANSSCorrections */
+static int hf_nbap_ganss_Navigation_Model_And_Time_Recovery_01;  /* GANSS_Navigation_Model_And_Time_Recovery */
+static int hf_nbap_ganss_Time_Model;              /* GANSS_Time_Model */
+static int hf_nbap_ganss_UTC_TIME;                /* GANSS_UTC_Model */
+static int hf_nbap_ganss_Almanac_01;              /* GANSS_Almanac */
+static int hf_nbap_ganss_Real_Time_Integrity;     /* GANSS_Real_Time_Integrity */
+static int hf_nbap_ganss_Data_Bit_Assistance;     /* GANSS_Data_Bit_Assistance */
+static int hf_nbap_gloTau;                        /* BIT_STRING_SIZE_22 */
+static int hf_nbap_gloGamma;                      /* BIT_STRING_SIZE_11 */
+static int hf_nbap_gloDeltaTau;                   /* BIT_STRING_SIZE_5 */
+static int hf_nbap_gANSS_CommonDataInfoReq;       /* GANSS_CommonDataInfoReq */
+static int hf_nbap_gANSS_GenericDataInfoReqList;  /* GANSS_GenericDataInfoReqList */
+static int hf_nbap_alpha_zero_ionos;              /* BIT_STRING_SIZE_12 */
+static int hf_nbap_alpha_one_ionos;               /* BIT_STRING_SIZE_12 */
+static int hf_nbap_alpha_two_ionos;               /* BIT_STRING_SIZE_12 */
+static int hf_nbap_gANSS_IonosphereRegionalStormFlags;  /* GANSS_IonosphereRegionalStormFlags */
+static int hf_nbap_storm_flag_one;                /* BOOLEAN */
+static int hf_nbap_storm_flag_two;                /* BOOLEAN */
+static int hf_nbap_storm_flag_three;              /* BOOLEAN */
+static int hf_nbap_storm_flag_four;               /* BOOLEAN */
+static int hf_nbap_storm_flag_five;               /* BOOLEAN */
+static int hf_nbap_iod_a;                         /* INTEGER_0_3 */
+static int hf_nbap_gANSS_SatelliteInformationKP;  /* GANSS_SatelliteInformationKP */
+static int hf_nbap_toe_nav;                       /* BIT_STRING_SIZE_14 */
+static int hf_nbap_ganss_omega_nav;               /* BIT_STRING_SIZE_32 */
+static int hf_nbap_delta_n_nav;                   /* BIT_STRING_SIZE_16 */
+static int hf_nbap_m_zero_nav;                    /* BIT_STRING_SIZE_32 */
+static int hf_nbap_omegadot_nav;                  /* BIT_STRING_SIZE_24 */
+static int hf_nbap_ganss_e_nav;                   /* BIT_STRING_SIZE_32 */
+static int hf_nbap_idot_nav;                      /* BIT_STRING_SIZE_14 */
+static int hf_nbap_a_sqrt_nav;                    /* BIT_STRING_SIZE_32 */
+static int hf_nbap_i_zero_nav;                    /* BIT_STRING_SIZE_32 */
+static int hf_nbap_omega_zero_nav;                /* BIT_STRING_SIZE_32 */
+static int hf_nbap_c_rs_nav;                      /* BIT_STRING_SIZE_16 */
+static int hf_nbap_c_is_nav;                      /* BIT_STRING_SIZE_16 */
+static int hf_nbap_c_us_nav;                      /* BIT_STRING_SIZE_16 */
+static int hf_nbap_c_rc_nav;                      /* BIT_STRING_SIZE_16 */
+static int hf_nbap_c_ic_nav;                      /* BIT_STRING_SIZE_16 */
+static int hf_nbap_c_uc_nav;                      /* BIT_STRING_SIZE_16 */
+static int hf_nbap_navToc;                        /* BIT_STRING_SIZE_16 */
+static int hf_nbap_navaf2;                        /* BIT_STRING_SIZE_8 */
+static int hf_nbap_navaf1;                        /* BIT_STRING_SIZE_16 */
+static int hf_nbap_navaf0;                        /* BIT_STRING_SIZE_22 */
+static int hf_nbap_navTgd;                        /* BIT_STRING_SIZE_8 */
+static int hf_nbap_non_broadcastIndication_01;    /* T_non_broadcastIndication_01 */
+static int hf_nbap_ganssSatInfoNav;               /* GANSS_Sat_Info_Nav */
+static int hf_nbap_cnavURAindex;                  /* BIT_STRING_SIZE_5 */
+static int hf_nbap_cnavDeltaA;                    /* BIT_STRING_SIZE_26 */
+static int hf_nbap_cnavAdot;                      /* BIT_STRING_SIZE_25 */
+static int hf_nbap_cnavDeltaNo;                   /* BIT_STRING_SIZE_17 */
+static int hf_nbap_cnavDeltaNoDot;                /* BIT_STRING_SIZE_23 */
+static int hf_nbap_cnavMo;                        /* BIT_STRING_SIZE_33 */
+static int hf_nbap_cnavE;                         /* BIT_STRING_SIZE_33 */
+static int hf_nbap_cnavOmega;                     /* BIT_STRING_SIZE_33 */
+static int hf_nbap_cnavOMEGA0;                    /* BIT_STRING_SIZE_33 */
+static int hf_nbap_cnavDeltaOmegaDot;             /* BIT_STRING_SIZE_17 */
+static int hf_nbap_cnavIo;                        /* BIT_STRING_SIZE_33 */
+static int hf_nbap_cnavIoDot;                     /* BIT_STRING_SIZE_15 */
+static int hf_nbap_cnavCis;                       /* BIT_STRING_SIZE_16 */
+static int hf_nbap_cnavCic;                       /* BIT_STRING_SIZE_16 */
+static int hf_nbap_cnavCrs;                       /* BIT_STRING_SIZE_24 */
+static int hf_nbap_cnavCrc;                       /* BIT_STRING_SIZE_24 */
+static int hf_nbap_cnavCus;                       /* BIT_STRING_SIZE_21 */
+static int hf_nbap_cnavCuc;                       /* BIT_STRING_SIZE_21 */
+static int hf_nbap_gloEn;                         /* BIT_STRING_SIZE_5 */
+static int hf_nbap_gloP1;                         /* BIT_STRING_SIZE_2 */
+static int hf_nbap_gloP2;                         /* BIT_STRING_SIZE_1 */
+static int hf_nbap_gloM;                          /* BIT_STRING_SIZE_2 */
+static int hf_nbap_gloX;                          /* BIT_STRING_SIZE_27 */
+static int hf_nbap_gloXdot;                       /* BIT_STRING_SIZE_24 */
+static int hf_nbap_gloXdotdot;                    /* BIT_STRING_SIZE_5 */
+static int hf_nbap_gloY;                          /* BIT_STRING_SIZE_27 */
+static int hf_nbap_gloYdot;                       /* BIT_STRING_SIZE_24 */
+static int hf_nbap_gloYdotdot;                    /* BIT_STRING_SIZE_5 */
+static int hf_nbap_gloZ;                          /* BIT_STRING_SIZE_27 */
+static int hf_nbap_gloZdot;                       /* BIT_STRING_SIZE_24 */
+static int hf_nbap_gloZdotdot;                    /* BIT_STRING_SIZE_5 */
+static int hf_nbap_navURA;                        /* BIT_STRING_SIZE_4 */
+static int hf_nbap_navFitFlag;                    /* BIT_STRING_SIZE_1 */
+static int hf_nbap_navToe;                        /* BIT_STRING_SIZE_16 */
+static int hf_nbap_navOmega;                      /* BIT_STRING_SIZE_32 */
+static int hf_nbap_navDeltaN;                     /* BIT_STRING_SIZE_16 */
+static int hf_nbap_navM0;                         /* BIT_STRING_SIZE_32 */
+static int hf_nbap_navOmegaADot;                  /* BIT_STRING_SIZE_24 */
+static int hf_nbap_navE;                          /* BIT_STRING_SIZE_32 */
+static int hf_nbap_navIDot;                       /* BIT_STRING_SIZE_14 */
+static int hf_nbap_navAPowerHalf;                 /* BIT_STRING_SIZE_32 */
+static int hf_nbap_navI0;                         /* BIT_STRING_SIZE_32 */
+static int hf_nbap_navOmegaA0;                    /* BIT_STRING_SIZE_32 */
+static int hf_nbap_navCrs;                        /* BIT_STRING_SIZE_16 */
+static int hf_nbap_navCis;                        /* BIT_STRING_SIZE_16 */
+static int hf_nbap_navCus;                        /* BIT_STRING_SIZE_16 */
+static int hf_nbap_navCrc;                        /* BIT_STRING_SIZE_16 */
+static int hf_nbap_navCic;                        /* BIT_STRING_SIZE_16 */
+static int hf_nbap_navCuc;                        /* BIT_STRING_SIZE_16 */
+static int hf_nbap_sbasTo;                        /* BIT_STRING_SIZE_13 */
+static int hf_nbap_sbasAccuracy;                  /* BIT_STRING_SIZE_4 */
+static int hf_nbap_sbasXg;                        /* BIT_STRING_SIZE_30 */
+static int hf_nbap_sbasYg;                        /* BIT_STRING_SIZE_30 */
+static int hf_nbap_sbasZg;                        /* BIT_STRING_SIZE_25 */
+static int hf_nbap_sbasXgDot;                     /* BIT_STRING_SIZE_17 */
+static int hf_nbap_sbasYgDot;                     /* BIT_STRING_SIZE_17 */
+static int hf_nbap_sbasZgDot;                     /* BIT_STRING_SIZE_18 */
+static int hf_nbap_sbasXgDotDot;                  /* BIT_STRING_SIZE_10 */
+static int hf_nbap_sbagYgDotDot;                  /* BIT_STRING_SIZE_10 */
+static int hf_nbap_sbasZgDotDot;                  /* BIT_STRING_SIZE_10 */
+static int hf_nbap_gANSS_keplerianParameters_01;  /* GANSS_KeplerianParametersOrb */
+static int hf_nbap_GANSS_Real_Time_Integrity_item;  /* GANSS_RealTimeInformationItem */
+static int hf_nbap_bad_ganss_satId;               /* INTEGER_0_63 */
+static int hf_nbap_bad_ganss_signalId;            /* BIT_STRING_SIZE_8 */
+static int hf_nbap_latitudeSign;                  /* T_latitudeSign */
+static int hf_nbap_degreesOfLatitude;             /* INTEGER_0_2147483647 */
+static int hf_nbap_degreesOfLongitude;            /* INTEGER_M2147483648_2147483647 */
+static int hf_nbap_directionOfAltitude;           /* T_directionOfAltitude */
+static int hf_nbap_altitude;                      /* INTEGER_0_32767 */
+static int hf_nbap_t_oc;                          /* BIT_STRING_SIZE_14 */
+static int hf_nbap_a_i2;                          /* BIT_STRING_SIZE_12 */
+static int hf_nbap_a_i1;                          /* BIT_STRING_SIZE_18 */
+static int hf_nbap_a_i0;                          /* BIT_STRING_SIZE_28 */
+static int hf_nbap_t_gd;                          /* BIT_STRING_SIZE_10 */
+static int hf_nbap_model_id;                      /* INTEGER_0_1_ */
+static int hf_nbap_GANSS_SatelliteInformationKP_item;  /* GANSS_SatelliteInformationKPItem */
+static int hf_nbap_ganss_e_alm;                   /* BIT_STRING_SIZE_11 */
+static int hf_nbap_ganss_delta_I_alm;             /* BIT_STRING_SIZE_11 */
+static int hf_nbap_ganss_omegadot_alm;            /* BIT_STRING_SIZE_11 */
+static int hf_nbap_ganss_svhealth_alm;            /* BIT_STRING_SIZE_4 */
+static int hf_nbap_ganss_delta_a_sqrt_alm;        /* BIT_STRING_SIZE_17 */
+static int hf_nbap_ganss_omegazero_alm;           /* BIT_STRING_SIZE_16 */
+static int hf_nbap_ganss_m_zero_alm;              /* BIT_STRING_SIZE_16 */
+static int hf_nbap_ganss_omega_alm;               /* BIT_STRING_SIZE_16 */
+static int hf_nbap_ganss_af_zero_alm;             /* BIT_STRING_SIZE_14 */
+static int hf_nbap_ganss_af_one_alm;              /* BIT_STRING_SIZE_11 */
+static int hf_nbap_Ganss_Sat_Info_AddNavList_item;  /* Ganss_Sat_Info_AddNavList_item */
+static int hf_nbap_svHealth;                      /* BIT_STRING_SIZE_6 */
+static int hf_nbap_iod;                           /* BIT_STRING_SIZE_11 */
+static int hf_nbap_ganssAddClockModels;           /* GANSS_AddClockModels */
+static int hf_nbap_ganssAddOrbitModels;           /* GANSS_AddOrbitModels */
+static int hf_nbap_GANSS_SAT_Info_Almanac_GLOkpList_item;  /* GANSS_SAT_Info_Almanac_GLOkp */
+static int hf_nbap_gloAlmNA;                      /* BIT_STRING_SIZE_11 */
+static int hf_nbap_gloAlmnA;                      /* BIT_STRING_SIZE_5 */
+static int hf_nbap_gloAlmHA;                      /* BIT_STRING_SIZE_5 */
+static int hf_nbap_gloAlmLambdaA;                 /* BIT_STRING_SIZE_21 */
+static int hf_nbap_gloAlmTlambdaA;                /* BIT_STRING_SIZE_21 */
+static int hf_nbap_gloAlmDeltaIA;                 /* BIT_STRING_SIZE_18 */
+static int hf_nbap_gloAkmDeltaTA;                 /* BIT_STRING_SIZE_22 */
+static int hf_nbap_gloAlmDeltaTdotA;              /* BIT_STRING_SIZE_7 */
+static int hf_nbap_gloAlmEpsilonA;                /* BIT_STRING_SIZE_15 */
+static int hf_nbap_gloAlmOmegaA;                  /* BIT_STRING_SIZE_16 */
+static int hf_nbap_gloAlmTauA;                    /* BIT_STRING_SIZE_10 */
+static int hf_nbap_gloAlmCA;                      /* BIT_STRING_SIZE_1 */
+static int hf_nbap_gloAlmMA;                      /* BIT_STRING_SIZE_2 */
+static int hf_nbap_GANSS_SAT_Info_Almanac_MIDIkpList_item;  /* GANSS_SAT_Info_Almanac_MIDIkp */
+static int hf_nbap_midiAlmE;                      /* BIT_STRING_SIZE_11 */
+static int hf_nbap_midiAlmDeltaI;                 /* BIT_STRING_SIZE_11 */
+static int hf_nbap_midiAlmOmegaDot;               /* BIT_STRING_SIZE_11 */
+static int hf_nbap_midiAlmSqrtA;                  /* BIT_STRING_SIZE_17 */
+static int hf_nbap_midiAlmOmega0;                 /* BIT_STRING_SIZE_16 */
+static int hf_nbap_midiAlmOmega;                  /* BIT_STRING_SIZE_16 */
+static int hf_nbap_midiAlmMo;                     /* BIT_STRING_SIZE_16 */
+static int hf_nbap_midiAlmaf0;                    /* BIT_STRING_SIZE_11 */
+static int hf_nbap_midiAlmaf1;                    /* BIT_STRING_SIZE_10 */
+static int hf_nbap_midiAlmL1Health;               /* BIT_STRING_SIZE_1 */
+static int hf_nbap_midiAlmL2Health;               /* BIT_STRING_SIZE_1 */
+static int hf_nbap_midiAlmL5Health;               /* BIT_STRING_SIZE_1 */
+static int hf_nbap_GANSS_SAT_Info_Almanac_NAVkpList_item;  /* GANSS_SAT_Info_Almanac_NAVkp */
+static int hf_nbap_navAlmE;                       /* BIT_STRING_SIZE_16 */
+static int hf_nbap_navAlmDeltaI;                  /* BIT_STRING_SIZE_16 */
+static int hf_nbap_navAlmOMEGADOT;                /* BIT_STRING_SIZE_16 */
+static int hf_nbap_navAlmSVHealth;                /* BIT_STRING_SIZE_8 */
+static int hf_nbap_navAlmSqrtA;                   /* BIT_STRING_SIZE_24 */
+static int hf_nbap_navAlmOMEGAo;                  /* BIT_STRING_SIZE_24 */
+static int hf_nbap_navAlmOmega;                   /* BIT_STRING_SIZE_24 */
+static int hf_nbap_navAlmMo;                      /* BIT_STRING_SIZE_24 */
+static int hf_nbap_navAlmaf0;                     /* BIT_STRING_SIZE_11 */
+static int hf_nbap_navAlmaf1;                     /* BIT_STRING_SIZE_11 */
+static int hf_nbap_GANSS_SAT_Info_Almanac_REDkpList_item;  /* GANSS_SAT_Info_Almanac_REDkp */
+static int hf_nbap_redAlmDeltaA;                  /* BIT_STRING_SIZE_8 */
+static int hf_nbap_redAlmOmega0;                  /* BIT_STRING_SIZE_7 */
+static int hf_nbap_redAlmPhi0;                    /* BIT_STRING_SIZE_7 */
+static int hf_nbap_redAlmL1Health;                /* BIT_STRING_SIZE_1 */
+static int hf_nbap_redAlmL2Health;                /* BIT_STRING_SIZE_1 */
+static int hf_nbap_redAlmL5Health;                /* BIT_STRING_SIZE_1 */
+static int hf_nbap_GANSS_SAT_Info_Almanac_SBASecefList_item;  /* GANSS_SAT_Info_Almanac_SBASecef */
+static int hf_nbap_sbasAlmDataID;                 /* BIT_STRING_SIZE_2 */
+static int hf_nbap_sbasAlmHealth;                 /* BIT_STRING_SIZE_8 */
+static int hf_nbap_sbasAlmXg;                     /* BIT_STRING_SIZE_15 */
+static int hf_nbap_sbasAlmYg;                     /* BIT_STRING_SIZE_15 */
+static int hf_nbap_sbasAlmZg;                     /* BIT_STRING_SIZE_9 */
+static int hf_nbap_sbasAlmXgdot;                  /* BIT_STRING_SIZE_3 */
+static int hf_nbap_sbasAlmYgDot;                  /* BIT_STRING_SIZE_3 */
+static int hf_nbap_sbasAlmZgDot;                  /* BIT_STRING_SIZE_4 */
+static int hf_nbap_sbasAlmTo;                     /* BIT_STRING_SIZE_11 */
+static int hf_nbap_GANSS_Sat_Info_Nav_item;       /* GANSS_Sat_Info_Nav_item */
+static int hf_nbap_svHealth_01;                   /* BIT_STRING_SIZE_5 */
+static int hf_nbap_iod_01;                        /* BIT_STRING_SIZE_10 */
+static int hf_nbap_ganssClockModel;               /* GANSS_Clock_Model */
+static int hf_nbap_ganssOrbitModel;               /* GANSS_Orbit_Model */
+static int hf_nbap_sbasAgfo;                      /* BIT_STRING_SIZE_12 */
+static int hf_nbap_sbasAgf1;                      /* BIT_STRING_SIZE_8 */
+static int hf_nbap_ganss_time_model_Ref_Time;     /* INTEGER_0_37799 */
+static int hf_nbap_ganss_t_a0;                    /* INTEGER_M2147483648_2147483647 */
+static int hf_nbap_ganss_t_a1;                    /* INTEGER_M8388608_8388607 */
+static int hf_nbap_ganss_t_a2;                    /* INTEGER_M64_63 */
+static int hf_nbap_gnss_to_id;                    /* T_gnss_to_id */
+static int hf_nbap_ganss_wk_number_01;            /* INTEGER_0_8191 */
+static int hf_nbap_ganssDay;                      /* INTEGER_0_8191 */
+static int hf_nbap_a_one_utc;                     /* BIT_STRING_SIZE_24 */
+static int hf_nbap_a_zero_utc;                    /* BIT_STRING_SIZE_32 */
+static int hf_nbap_t_ot_utc;                      /* BIT_STRING_SIZE_8 */
+static int hf_nbap_w_n_t_utc;                     /* BIT_STRING_SIZE_8 */
+static int hf_nbap_delta_t_ls_utc;                /* BIT_STRING_SIZE_8 */
+static int hf_nbap_w_n_lsf_utc;                   /* BIT_STRING_SIZE_8 */
+static int hf_nbap_dn_utc;                        /* BIT_STRING_SIZE_8 */
+static int hf_nbap_delta_t_lsf_utc;               /* BIT_STRING_SIZE_8 */
+static int hf_nbap_utcA0;                         /* BIT_STRING_SIZE_16 */
+static int hf_nbap_utcA1;                         /* BIT_STRING_SIZE_13 */
+static int hf_nbap_utcA2;                         /* BIT_STRING_SIZE_7 */
+static int hf_nbap_utcDeltaTls;                   /* BIT_STRING_SIZE_8 */
+static int hf_nbap_utcTot;                        /* BIT_STRING_SIZE_16 */
+static int hf_nbap_utcWNot;                       /* BIT_STRING_SIZE_13 */
+static int hf_nbap_utcWNlsf;                      /* BIT_STRING_SIZE_8 */
+static int hf_nbap_utcDN;                         /* BIT_STRING_SIZE_4 */
+static int hf_nbap_utcDeltaTlsf;                  /* BIT_STRING_SIZE_8 */
+static int hf_nbap_nA;                            /* BIT_STRING_SIZE_11 */
+static int hf_nbap_tauC;                          /* BIT_STRING_SIZE_32 */
+static int hf_nbap_deltaUT1_01;                   /* GANSS_DeltaUT1 */
+static int hf_nbap_kp;                            /* BIT_STRING_SIZE_2 */
+static int hf_nbap_utcA1wnt;                      /* BIT_STRING_SIZE_24 */
+static int hf_nbap_utcA0wnt;                      /* BIT_STRING_SIZE_32 */
+static int hf_nbap_utcTot_01;                     /* BIT_STRING_SIZE_8 */
+static int hf_nbap_utcWNt;                        /* BIT_STRING_SIZE_8 */
+static int hf_nbap_utcDN_01;                      /* BIT_STRING_SIZE_8 */
+static int hf_nbap_utcStandardID;                 /* BIT_STRING_SIZE_3 */
+static int hf_nbap_wna_alm;                       /* BIT_STRING_SIZE_8 */
+static int hf_nbap_sat_info_almanac;              /* SAT_Info_Almanac */
+static int hf_nbap_sVGlobalHealth_alm;            /* BIT_STRING_SIZE_364 */
+static int hf_nbap_alpha_zero_ionos_01;           /* BIT_STRING_SIZE_8 */
+static int hf_nbap_alpha_one_ionos_01;            /* BIT_STRING_SIZE_8 */
+static int hf_nbap_alpha_two_ionos_01;            /* BIT_STRING_SIZE_8 */
+static int hf_nbap_alpha_three_ionos;             /* BIT_STRING_SIZE_8 */
+static int hf_nbap_beta_zero_ionos;               /* BIT_STRING_SIZE_8 */
+static int hf_nbap_beta_one_ionos;                /* BIT_STRING_SIZE_8 */
+static int hf_nbap_beta_two_ionos;                /* BIT_STRING_SIZE_8 */
+static int hf_nbap_beta_three_ionos;              /* BIT_STRING_SIZE_8 */
+static int hf_nbap_GPS_Information_item;          /* GPS_Information_Item */
+static int hf_nbap_bad_satellites;                /* GPSBadSat_Info_RealTime_Integrity */
+static int hf_nbap_no_bad_satellites;             /* NULL */
+static int hf_nbap_sat_info;                      /* SATInfo_RealTime_Integrity */
+static int hf_nbap_GPS_NavigationModel_and_TimeRecovery_item;  /* GPS_NavandRecovery_Item */
+static int hf_nbap_tx_tow_nav;                    /* INTEGER_0_1048575 */
+static int hf_nbap_sat_id_nav;                    /* SAT_ID */
+static int hf_nbap_tlm_message_nav;               /* BIT_STRING_SIZE_14 */
+static int hf_nbap_tlm_revd_c_nav;                /* BIT_STRING_SIZE_2 */
+static int hf_nbap_ho_word_nav;                   /* BIT_STRING_SIZE_22 */
+static int hf_nbap_w_n_nav;                       /* BIT_STRING_SIZE_10 */
+static int hf_nbap_ca_or_p_on_l2_nav;             /* BIT_STRING_SIZE_2 */
+static int hf_nbap_user_range_accuracy_index_nav;  /* BIT_STRING_SIZE_4 */
+static int hf_nbap_sv_health_nav;                 /* BIT_STRING_SIZE_6 */
+static int hf_nbap_iodc_nav;                      /* BIT_STRING_SIZE_10 */
+static int hf_nbap_l2_p_dataflag_nav;             /* BIT_STRING_SIZE_1 */
+static int hf_nbap_sf1_reserved_nav;              /* BIT_STRING_SIZE_87 */
+static int hf_nbap_t_gd_nav;                      /* BIT_STRING_SIZE_8 */
+static int hf_nbap_t_oc_nav;                      /* BIT_STRING_SIZE_16 */
+static int hf_nbap_a_f_2_nav;                     /* BIT_STRING_SIZE_8 */
+static int hf_nbap_a_f_1_nav;                     /* BIT_STRING_SIZE_16 */
+static int hf_nbap_a_f_zero_nav;                  /* BIT_STRING_SIZE_22 */
+static int hf_nbap_gps_e_nav;                     /* BIT_STRING_SIZE_32 */
+static int hf_nbap_t_oe_nav;                      /* BIT_STRING_SIZE_16 */
+static int hf_nbap_fit_interval_flag_nav;         /* BIT_STRING_SIZE_1 */
+static int hf_nbap_aodo_nav;                      /* BIT_STRING_SIZE_5 */
+static int hf_nbap_gps_omega_nav;                 /* BIT_STRING_SIZE_32 */
+static int hf_nbap_spare_zero_fill;               /* BIT_STRING_SIZE_20 */
+static int hf_nbap_latitudeSign_01;               /* T_latitudeSign_01 */
+static int hf_nbap_latitude;                      /* INTEGER_0_8388607 */
+static int hf_nbap_longitude;                     /* INTEGER_M8388608_8388607 */
+static int hf_nbap_directionOfAltitude_01;        /* T_directionOfAltitude_01 */
+static int hf_nbap_implicit;                      /* HARQ_MemoryPartitioning_Implicit */
+static int hf_nbap_explicit;                      /* HARQ_MemoryPartitioning_Explicit */
+static int hf_nbap_number_of_Processes;           /* INTEGER_1_8_ */
+static int hf_nbap_hARQ_MemoryPartitioningList;   /* HARQ_MemoryPartitioningList */
+static int hf_nbap_HARQ_MemoryPartitioningList_item;  /* HARQ_MemoryPartitioningItem */
+static int hf_nbap_HARQ_MemoryPartitioningInfoExtForMIMO_item;  /* HARQ_MemoryPartitioningItem */
+static int hf_nbap_process_Memory_Size;           /* T_process_Memory_Size */
+static int hf_nbap_HS_DSCHProvidedBitRate_item;   /* HS_DSCHProvidedBitRate_Item */
+static int hf_nbap_hS_DSCHProvidedBitRateValue;   /* HS_DSCHProvidedBitRateValue */
+static int hf_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortion_item;  /* HS_DSCHProvidedBitRateValueInformation_For_CellPortion_Item */
+static int hf_nbap_hS_DSCHProvidedBitRateValue_01;  /* HS_DSCHProvidedBitRate */
+static int hf_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortionLCR_item;  /* HS_DSCHProvidedBitRateValueInformation_For_CellPortionLCR_Item */
+static int hf_nbap_HS_DSCHRequiredPower_item;     /* HS_DSCHRequiredPower_Item */
+static int hf_nbap_hS_DSCHRequiredPowerValue;     /* HS_DSCHRequiredPowerValue */
+static int hf_nbap_hS_DSCHRequiredPowerPerUEInformation;  /* HS_DSCHRequiredPowerPerUEInformation */
+static int hf_nbap_HS_DSCHRequiredPowerPerUEInformation_item;  /* HS_DSCHRequiredPowerPerUEInformation_Item */
+static int hf_nbap_cRNC_CommunicationContextID;   /* CRNC_CommunicationContextID */
+static int hf_nbap_hS_DSCHRequiredPowerPerUEWeight;  /* HS_DSCHRequiredPowerPerUEWeight */
+static int hf_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortion_item;  /* HS_DSCHRequiredPowerValueInformation_For_CellPortion_Item */
+static int hf_nbap_hS_DSCHRequiredPowerValue_01;  /* HS_DSCHRequiredPower */
+static int hf_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortionLCR_item;  /* HS_DSCHRequiredPowerValueInformation_For_CellPortionLCR_Item */
+static int hf_nbap_hsdpa_PICH_Shared_with_PCH;    /* HSDPA_PICH_Shared_with_PCH */
+static int hf_nbap_hsdpa_PICH_notShared_with_PCH;  /* HSDPA_PICH_notShared_with_PCH */
+static int hf_nbap_hsdpa_PICH_SharedPCH_ID;       /* CommonPhysicalChannelID */
+static int hf_nbap_hSDPA_PICH_notShared_ID;       /* CommonPhysicalChannelID */
+static int hf_nbap_fdd_DL_Channelisation_CodeNumber;  /* FDD_DL_ChannelisationCodeNumber */
+static int hf_nbap_pich_Power;                    /* PICH_Power */
+static int hf_nbap_pich_Mode;                     /* PICH_Mode */
+static int hf_nbap_sttd_Indicator;                /* STTD_Indicator */
+static int hf_nbap_hsdsch_Common_Information;     /* HSDSCH_Common_Information */
+static int hf_nbap_commonMACFlow_Specific_Information;  /* CommonMACFlow_Specific_InfoList */
+static int hf_nbap_hsSCCH_Specific_Information_ResponseFDD;  /* HSSCCH_Specific_InformationRespListFDD */
+static int hf_nbap_hARQ_MemoryPartitioning;       /* HARQ_MemoryPartitioning */
+static int hf_nbap_commonMACFlow_Specific_Info_Response;  /* CommonMACFlow_Specific_InfoList_Response */
+static int hf_nbap_cCCH_PriorityQueue_Id;         /* PriorityQueue_Id */
+static int hf_nbap_sRB1_PriorityQueue_Id;         /* PriorityQueue_Id */
+static int hf_nbap_associatedCommon_MACFlow;      /* Common_MACFlow_ID */
+static int hf_nbap_fACH_Measurement_Occasion_Cycle_Length_Coefficient;  /* FACH_Measurement_Occasion_Cycle_Length_Coefficient */
+static int hf_nbap_rACH_Measurement_Result;       /* RACH_Measurement_Result */
+static int hf_nbap_bCCH_Specific_HSDSCH_RNTI_Information;  /* BCCH_Specific_HSDSCH_RNTI_Information */
+static int hf_nbap_hSDSCH_MACdFlows_Information;  /* HSDSCH_MACdFlows_Information */
+static int hf_nbap_ueCapability_Info;             /* UE_Capability_Information */
+static int hf_nbap_mAChs_Reordering_Buffer_Size_for_RLC_UM;  /* MAChsReorderingBufferSize_for_RLC_UM */
+static int hf_nbap_hsscch_PowerOffset;            /* HSSCCH_PowerOffset */
+static int hf_nbap_tDD_AckNack_Power_Offset;      /* TDD_AckNack_Power_Offset */
+static int hf_nbap_hsDSCH_MACdFlow_Specific_Info_to_Modify;  /* HSDSCH_MACdFlow_Specific_InfoList_to_Modify */
+static int hf_nbap_priorityQueueInfotoModify;     /* PriorityQueue_InfoList_to_Modify */
+static int hf_nbap_hSSCCHCodeChangeGrant;         /* HSSCCH_Code_Change_Grant */
+static int hf_nbap_tDDAckNackPowerOffset;         /* TDD_AckNack_Power_Offset */
+static int hf_nbap_HSDSCH_MACdFlow_Specific_InfoList_to_Modify_item;  /* HSDSCH_MACdFlow_Specific_InfoItem_to_Modify */
+static int hf_nbap_hsDSCH_MACdFlow_ID;            /* HSDSCH_MACdFlow_ID */
+static int hf_nbap_priorityQueueInfotoModifyUnsynchronised;  /* PriorityQueue_InfoList_to_Modify_Unsynchronised */
+static int hf_nbap_hsDSCH_MACdFlow_Specific_InformationResp;  /* HSDSCH_MACdFlow_Specific_InformationResp */
+static int hf_nbap_sixtyfourQAM_UsageAllowedIndicator;  /* SixtyfourQAM_UsageAllowedIndicator */
+static int hf_nbap_hSDSCH_RNTI;                   /* HSDSCH_RNTI */
+static int hf_nbap_sixtyfourQAM_DL_UsageIndicator;  /* SixtyfourQAM_DL_UsageIndicator */
+static int hf_nbap_hSDSCH_TBSizeTableIndicator;   /* HSDSCH_TBSizeTableIndicator */
+static int hf_nbap_hSSCCH_CodeChangeGrant;        /* HSSCCH_Code_Change_Grant */
+static int hf_nbap_hsSCCHCodeChangeIndicator;     /* HSSCCH_CodeChangeIndicator */
+static int hf_nbap_hS_PDSCH_Code_Change_Indicator;  /* HS_PDSCH_Code_Change_Indicator */
+static int hf_nbap_hS_DSCH_Secondary_Serving_cell_choice;  /* HS_DSCH_Secondary_Serving_cell_change_choice */
+static int hf_nbap_hS_Secondary_Serving_cell_change_successful;  /* HS_Secondary_Serving_cell_change_successful */
+static int hf_nbap_hS_Secondary_Serving_cell_change_unsuccessful;  /* HS_Secondary_Serving_cell_change_unsuccessful */
+static int hf_nbap_hS_DSCH_FDD_Secondary_Serving_Information_Response;  /* HS_DSCH_FDD_Secondary_Serving_Information_Response */
+static int hf_nbap_paging_MACFlow_Specific_Information;  /* Paging_MACFlow_Specific_Information */
+static int hf_nbap_number_of_PCCH_transmission;   /* Number_of_PCCH_transmission */
+static int hf_nbap_transport_Block_Size_List;     /* Transport_Block_Size_List */
+static int hf_nbap_HSDSCH_Paging_System_Information_ResponseFDD_item;  /* HSDSCH_Paging_System_Information_ResponseList */
+static int hf_nbap_pagingMACFlow_ID;              /* Paging_MACFlow_ID */
+static int hf_nbap_hSPDSCH_Code_Index;            /* HSPDSCH_Code_Index */
+static int hf_nbap_hsSCCH_Specific_Information_ResponseTDD;  /* HSSCCH_Specific_InformationRespListTDD */
+static int hf_nbap_hsSCCH_Specific_Information_ResponseTDDLCR;  /* HSSCCH_Specific_InformationRespListTDDLCR */
+static int hf_nbap_HSDSCH_MACdFlow_Specific_InformationResp_item;  /* HSDSCH_MACdFlow_Specific_InformationResp_Item */
+static int hf_nbap_hsDSCHMacdFlow_Id;             /* HSDSCH_MACdFlow_ID */
+static int hf_nbap_hSDSCH_MACdFlow_Specific_Info;  /* HSDSCH_MACdFlow_Specific_InfoList */
+static int hf_nbap_priorityQueue_Info;            /* PriorityQueue_InfoList */
+static int hf_nbap_HSDSCH_MACdFlow_Specific_InfoList_item;  /* HSDSCH_MACdFlow_Specific_InfoItem */
+static int hf_nbap_HSDSCH_MACdFlows_to_Delete_item;  /* HSDSCH_MACdFlows_to_Delete_Item */
+static int hf_nbap_HSDSCH_Initial_Capacity_Allocation_item;  /* HSDSCH_Initial_Capacity_AllocationItem */
+static int hf_nbap_maximum_MACdPDU_Size;          /* MACdPDU_Size */
+static int hf_nbap_hSDSCH_InitialWindowSize;      /* HSDSCH_InitialWindowSize */
+static int hf_nbap_setsOfHS_SCCH_Codes;           /* SetsOfHS_SCCH_Codes */
+static int hf_nbap_hARQ_Preamble_Mode_Activation_Indicator;  /* HARQ_Preamble_Mode_Activation_Indicator */
+static int hf_nbap_mIMO_N_M_Ratio;                /* MIMO_N_M_Ratio */
+static int hf_nbap_continuousPacketConnectivityHS_SCCH_less_Information_Response;  /* ContinuousPacketConnectivityHS_SCCH_less_Information_Response */
+static int hf_nbap_Additional_EDCH_Preconfiguration_Information_item;  /* Additional_EDCH_Preconfiguration_Information_ItemIEs */
+static int hf_nbap_mAChsResetScheme;              /* MAChsResetScheme */
+static int hf_nbap_hSDSCH_Physical_Layer_Category;  /* INTEGER_1_64_ */
+static int hf_nbap_secondaryServingCells;         /* SecondaryServingCells */
+static int hf_nbap_numPrimaryHS_SCCH_Codes;       /* NumHS_SCCH_Codes */
+static int hf_nbap_hARQ_Preamble_Mode;            /* HARQ_Preamble_Mode */
+static int hf_nbap_mIMO_ActivationIndicator;      /* MIMO_ActivationIndicator */
+static int hf_nbap_hSDSCH_MACdPDUSizeFormat;      /* HSDSCH_MACdPDUSizeFormat */
+static int hf_nbap_uE_with_enhanced_HS_SCCH_support_indicator;  /* NULL */
+static int hf_nbap_HS_SCCH_PreconfiguredCodes_item;  /* HS_SCCH_PreconfiguredCodesItem */
+static int hf_nbap_hS_SCCH_CodeNumber;            /* HS_SCCH_CodeNumber */
+static int hf_nbap_HSSCCH_Specific_InformationRespListFDD_item;  /* HSSCCH_Codes */
+static int hf_nbap_codeNumber;                    /* INTEGER_0_127 */
+static int hf_nbap_HSSCCH_Specific_InformationRespListTDD_item;  /* HSSCCH_Specific_InformationRespItemTDD */
+static int hf_nbap_timeslot;                      /* TimeSlot */
+static int hf_nbap_tDD_ChannelisationCode;        /* TDD_ChannelisationCode */
+static int hf_nbap_hSSICH_Info;                   /* HSSICH_Info */
+static int hf_nbap_HSSCCH_Specific_InformationRespListTDDLCR_item;  /* HSSCCH_Specific_InformationRespItemTDDLCR */
+static int hf_nbap_timeslotLCR;                   /* TimeSlotLCR */
+static int hf_nbap_first_TDD_ChannelisationCode;  /* TDD_ChannelisationCode */
+static int hf_nbap_second_TDD_ChannelisationCode;  /* TDD_ChannelisationCode */
+static int hf_nbap_hSSICH_InfoLCR;                /* HSSICH_InfoLCR */
+static int hf_nbap_HSSCCH_Specific_InformationRespListTDD768_item;  /* HSSCCH_Specific_InformationRespItemTDD768 */
+static int hf_nbap_tDD_ChannelisationCode768;     /* TDD_ChannelisationCode768 */
+static int hf_nbap_hSSICH_Info768;                /* HSSICH_Info768 */
+static int hf_nbap_hsSICH_ID;                     /* HS_SICH_ID */
+static int hf_nbap_failed_HS_SICH;                /* HS_SICH_failed */
+static int hf_nbap_missed_HS_SICH;                /* HS_SICH_missed */
+static int hf_nbap_total_HS_SICH;                 /* HS_SICH_total */
+static int hf_nbap_number_of_HS_PDSCH_codes;      /* INTEGER_0_maxHS_PDSCHCodeNrComp_1 */
+static int hf_nbap_hS_PDSCH_Start_code_number;    /* HS_PDSCH_Start_code_number */
+static int hf_nbap_replace_02;                    /* HS_SCCH_FDD_Code_List */
+static int hf_nbap_HS_SCCH_FDD_Code_List_item;    /* HS_SCCH_FDD_Code_Information_Item */
+static int hf_nbap_hspdsch_RL_ID;                 /* RL_ID */
+static int hf_nbap_hSDSCH_FDD_Information;        /* HSDSCH_FDD_Information */
+static int hf_nbap_hsdsch_RNTI;                   /* HSDSCH_RNTI */
+static int hf_nbap_hS_DSCH_serving_cell_choice;   /* HS_DSCH_serving_cell_choice */
+static int hf_nbap_hS_serving_cell_change_successful;  /* HS_serving_cell_change_successful */
+static int hf_nbap_hS_serving_cell_change_unsuccessful;  /* HS_serving_cell_change_unsuccessful */
+static int hf_nbap_hSDSCH_FDD_Information_Response;  /* HSDSCH_FDD_Information_Response */
+static int hf_nbap_hsdpa_PICH_notShared_with_PCHLCR;  /* HSDPA_PICH_notShared_with_PCHLCR */
+static int hf_nbap_tdd_ChannelisationCodeLCR;     /* TDD_ChannelisationCodeLCR */
+static int hf_nbap_tdd_PhysicalChannelOffset;     /* TDD_PhysicalChannelOffset */
+static int hf_nbap_pagingIndicatorLength;         /* PagingIndicatorLength */
+static int hf_nbap_pICH_Power;                    /* PICH_Power */
+static int hf_nbap_second_TDD_ChannelisationCodeLCR;  /* TDD_ChannelisationCodeLCR */
+static int hf_nbap_hsdsch_Common_InformationLCR;  /* HSDSCH_Common_InformationLCR */
+static int hf_nbap_commonMACFlow_Specific_InformationLCR;  /* CommonMACFlow_Specific_InfoListLCR */
+static int hf_nbap_common_H_RNTI_InformationLCR;  /* Common_H_RNTI_InformationLCR */
+static int hf_nbap_sync_InformationLCR;           /* Sync_InformationLCR */
+static int hf_nbap_hSSICH_SIRTarget;              /* UL_SIR */
+static int hf_nbap_hSSICH_TPC_StepSize;           /* TDD_TPC_UplinkStepSize_LCR */
+static int hf_nbap_hsSCCH_Specific_Information_ResponseLCR;  /* HSSCCH_Specific_InformationRespListLCR */
+static int hf_nbap_commonMACFlow_Specific_Info_ResponseLCR;  /* CommonMACFlow_Specific_InfoList_ResponseLCR */
+static int hf_nbap_associatedCommon_MACFlowLCR;   /* Common_MACFlow_ID_LCR */
+static int hf_nbap_bCCH_Specific_HSDSCH_RNTI_InformationLCR;  /* BCCH_Specific_HSDSCH_RNTI_InformationLCR */
+static int hf_nbap_paging_MACFlow_Specific_InformationLCR;  /* Paging_MACFlow_Specific_InformationLCR */
+static int hf_nbap_reception_Window_Size;         /* INTEGER_1_16 */
+static int hf_nbap_n_PCH;                         /* INTEGER_1_8 */
+static int hf_nbap_paging_Subchannel_Size;        /* INTEGER_1_3 */
+static int hf_nbap_HSDSCH_Paging_System_Information_ResponseLCR_item;  /* HSDSCH_Paging_System_Information_ResponseListLCR */
+static int hf_nbap_dL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst;  /* DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst */
+static int hf_nbap_HSSCCH_Specific_InformationRespListLCR_item;  /* HSSCCH_Specific_InformationRespItemLCR */
+static int hf_nbap_hS_SCCH_ID_LCR;                /* HS_SCCH_ID_LCR */
+static int hf_nbap_transport_Block_Size_List_01;  /* Transport_Block_Size_List_LCR */
+static int hf_nbap_hS_DSCH_SPS_Reservation_Indicator;  /* SPS_Reservation_Indicator */
+static int hf_nbap_hS_DSCH_SPS_Operation_Indicator;  /* HS_DSCH_SPS_Operation_Indicator */
+static int hf_nbap_Transport_Block_Size_List_LCR_item;  /* Transport_Block_Size_Item_LCR */
+static int hf_nbap_transport_Block_Size_maping_Index_LCR;  /* Transport_Block_Size_maping_Index_LCR */
+static int hf_nbap_transport_Block_Size_Index_LCR;  /* Transport_Block_Size_Index_LCR */
+static int hf_nbap_Repetition_Period_List_LCR_item;  /* Repetition_Period_Item_LCR */
+static int hf_nbap_repetitionPeriodIndex;         /* RepetitionPeriodIndex */
+static int hf_nbap_logicalChannellevel;           /* LogicalChannellevel */
+static int hf_nbap_priorityQueuelevel;            /* PriorityQueuelevel */
+static int hf_nbap_hS_SICH_InformationList_for_HS_DSCH_SPS;  /* HS_SICH_InformationList_for_HS_DSCH_SPS */
+static int hf_nbap_initial_HS_PDSCH_SPS_Resource;  /* Initial_HS_PDSCH_SPS_Resource */
+static int hf_nbap_buffer_Size_for_HS_DSCH_SPS;   /* Process_Memory_Size */
+static int hf_nbap_number_of_Processes_for_HS_DSCH_SPS;  /* Number_of_Processes_for_HS_DSCH_SPS */
+static int hf_nbap_HS_SICH_InformationList_for_HS_DSCH_SPS_item;  /* HS_SICH_InformationItem_for_HS_DSCH_SPS */
+static int hf_nbap_hS_SICH_Mapping_Index;         /* HS_SICH_Mapping_Index */
+static int hf_nbap_hS_SICH_Type;                  /* HS_SICH_Type */
+static int hf_nbap_hS_SCCH_Associated_HS_SICH;    /* HS_SCCH_Associated_HS_SICH */
+static int hf_nbap_non_HS_SCCH_Associated_HS_SICH;  /* Non_HS_SCCH_Associated_HS_SICH */
+static int hf_nbap_extended_HS_SICH_ID;           /* Extended_HS_SICH_ID */
+static int hf_nbap_non_HS_SCCH_Aassociated_HS_SICH_ID;  /* Non_HS_SCCH_Aassociated_HS_SICH_ID */
+static int hf_nbap_hS_PDSCH_Offset;               /* TDD_PhysicalChannelOffset */
+static int hf_nbap_timeslot_Resource_Related_Information_01;  /* HS_DSCH_TimeslotResourceLCR */
+static int hf_nbap_startCode;                     /* TDD_ChannelisationCode */
+static int hf_nbap_endCode;                       /* TDD_ChannelisationCode */
+static int hf_nbap_transport_Block_Size_Index_01;  /* Transport_Block_Size_Index_LCR */
+static int hf_nbap_modulationType;                /* ModulationSPS_LCR */
+static int hf_nbap_non_HS_SCCH_Associated_HS_SICH_InformationList;  /* Non_HS_SCCH_Associated_HS_SICH_InformationList */
+static int hf_nbap_Non_HS_SCCH_Associated_HS_SICH_InformationList_item;  /* Non_HS_SCCH_Associated_HS_SICH_InformationItem */
+static int hf_nbap_Non_HS_SCCH_Associated_HS_SICH_InformationList_Ext_item;  /* Non_HS_SCCH_Associated_HS_SICH_InformationItem */
+static int hf_nbap_modify_non_HS_SCCH_Associated_HS_SICH_InformationList;  /* Modify_Non_HS_SCCH_Associated_HS_SICH_InformationList */
+static int hf_nbap_Modify_Non_HS_SCCH_Associated_HS_SICH_InformationList_item;  /* Modify_Non_HS_SCCH_Associated_HS_SICH_InformationItem */
+static int hf_nbap_Modify_Non_HS_SCCH_Associated_HS_SICH_InformationList_Ext_item;  /* Modify_Non_HS_SCCH_Associated_HS_SICH_InformationItem */
+static int hf_nbap_Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst_item;  /* Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqstItem */
+static int hf_nbap_Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst_Ext_item;  /* Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqstItem */
+static int hf_nbap_MIMO_ReferenceSignal_InformationListLCR_item;  /* HSSICH_ReferenceSignal_InformationLCR */
+static int hf_nbap_midambleConfigurationLCR;      /* MidambleConfigurationLCR */
+static int hf_nbap_midambleShift;                 /* INTEGER_0_15 */
+static int hf_nbap_hSSICH_ReferenceSignal_InformationLCR;  /* HSSICH_ReferenceSignal_InformationLCR */
+static int hf_nbap_sub_Frame_Number;              /* Sub_Frame_Number */
+static int hf_nbap_onDemand;                      /* NULL */
+static int hf_nbap_periodic;                      /* InformationReportCharacteristicsType_ReportPeriodicity */
+static int hf_nbap_onModification;                /* InformationReportCharacteristicsType_OnModification */
+static int hf_nbap_min;                           /* ReportPeriodicity_Scaledmin */
+static int hf_nbap_hours;                         /* ReportPeriodicity_Scaledhour */
+static int hf_nbap_information_thresholds;        /* InformationThresholds */
+static int hf_nbap_dgps;                          /* DGPSThresholds */
+static int hf_nbap_dGANSSThreshold;               /* DGANSSThreshold */
+static int hf_nbap_information_Type_Item;         /* Information_Type_Item */
+static int hf_nbap_gPSInformation;                /* GPS_Information */
+static int hf_nbap_iP_SpacingFDD;                 /* T_iP_SpacingFDD */
+static int hf_nbap_iP_Length;                     /* T_iP_Length */
+static int hf_nbap_seed;                          /* INTEGER_0_63 */
+static int hf_nbap_burstModeParams;               /* BurstModeParams */
+static int hf_nbap_iP_Offset;                     /* INTEGER_0_9 */
+static int hf_nbap_iP_SpacingTDD;                 /* T_iP_SpacingTDD */
+static int hf_nbap_iP_Start;                      /* INTEGER_0_4095 */
+static int hf_nbap_iP_Slot;                       /* INTEGER_0_14 */
+static int hf_nbap_iP_PCCPCH;                     /* T_iP_PCCPCH */
+static int hf_nbap_iP_SpacingTDD_01;              /* T_iP_SpacingTDD_01 */
+static int hf_nbap_iP_Sub;                        /* T_iP_Sub */
+static int hf_nbap_cFNOffset;                     /* INTEGER_0_255 */
+static int hf_nbap_burstStart;                    /* INTEGER_0_15 */
+static int hf_nbap_burstLength;                   /* INTEGER_10_25 */
+static int hf_nbap_burstFreq;                     /* INTEGER_1_16 */
+static int hf_nbap_idleIntervalInfo_k;            /* T_idleIntervalInfo_k */
+static int hf_nbap_idleIntervalInfo_offset;       /* INTEGER_0_7 */
+static int hf_nbap_maxTimeslotsPerSubFrame;       /* INTEGER_1_6 */
+static int hf_nbap_maxPhysChPerTimeslot;          /* T_maxPhysChPerTimeslot */
+static int hf_nbap_MACdPDU_Size_Indexlist_item;   /* MACdPDU_Size_IndexItem */
+static int hf_nbap_sID;                           /* SID */
+static int hf_nbap_macdPDU_Size;                  /* MACdPDU_Size */
+static int hf_nbap_MACdPDU_Size_Indexlist_to_Modify_item;  /* MACdPDU_Size_IndexItem_to_Modify */
+static int hf_nbap_maximum_TB_Size_cell_edge_users;  /* INTEGER_0_5000_ */
+static int hf_nbap_maximum_TB_Size_other_users;   /* INTEGER_0_5000_ */
+static int hf_nbap_MessageStructure_item;         /* MessageStructure_item */
+static int hf_nbap_repetitionNumber_01;           /* RepetitionNumber1 */
+static int hf_nbap_type1;                         /* Type1 */
+static int hf_nbap_midambleConfigurationBurstType1And3;  /* MidambleConfigurationBurstType1And3 */
+static int hf_nbap_midambleAllocationMode;        /* MidambleAllocationMode1 */
+static int hf_nbap_defaultMidamble;               /* NULL */
+static int hf_nbap_commonMidamble;                /* NULL */
+static int hf_nbap_ueSpecificMidamble;            /* MidambleShiftLong */
+static int hf_nbap_type2;                         /* Type2 */
+static int hf_nbap_midambleConfigurationBurstType2;  /* MidambleConfigurationBurstType2 */
+static int hf_nbap_midambleAllocationMode_01;     /* MidambleAllocationMode2 */
+static int hf_nbap_ueSpecificMidamble_01;         /* MidambleShiftShort */
+static int hf_nbap_type3;                         /* Type3 */
+static int hf_nbap_midambleAllocationMode_02;     /* MidambleAllocationMode3 */
+static int hf_nbap_midambleAllocationMode_03;     /* MidambleAllocationMode */
+static int hf_nbap_midambleShift_01;              /* MidambleShiftLong */
+static int hf_nbap_type1_01;                      /* Type7681 */
+static int hf_nbap_midambleAllocationMode_04;     /* MidambleAllocationMode7681 */
+static int hf_nbap_type2_01;                      /* Type7682 */
+static int hf_nbap_midambleConfigurationBurstType2_768;  /* MidambleConfigurationBurstType2_768 */
+static int hf_nbap_midambleAllocationMode_05;     /* MidambleAllocationMode7682 */
+static int hf_nbap_ueSpecificMidamble_02;         /* MidambleShiftShort768 */
+static int hf_nbap_type3_01;                      /* Type7683 */
+static int hf_nbap_midambleAllocationMode_06;     /* MidambleAllocationMode7683 */
+static int hf_nbap_primary_and_secondary_CPICH;   /* CommonPhysicalChannelID */
+static int hf_nbap_normal_and_diversity_primary_CPICH;  /* NULL */
+static int hf_nbap_primary_and_secondary_CPICH_01;  /* PrimaryAndSecondaryCPICHContainer */
+static int hf_nbap_normal_and_diversity_primary_CPICH_01;  /* NormalAndDiversityPrimaryCPICHContainer */
+static int hf_nbap_addPriorityQueue;              /* PriorityQueue_InfoItem_to_Add */
+static int hf_nbap_modifyPriorityQueue;           /* PriorityQueue_InfoItem_to_Modify */
+static int hf_nbap_deletePriorityQueue;           /* PriorityQueue_Id */
+static int hf_nbap_qPSK;                          /* NULL */
+static int hf_nbap_sixteenQAM;                    /* MBSFN_CPICH_secondary_CCPCH_power_offset */
+static int hf_nbap_MultipleFreq_HARQ_MemoryPartitioning_InformationList_item;  /* MultipleFreq_HARQ_MemoryPartitioning_InformationItem */
+static int hf_nbap_MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR_item;  /* MultipleFreq_HSPDSCH_InformationItem_ResponseTDDLCR */
+static int hf_nbap_multi_Cell_Capability;         /* Multi_Cell_Capability */
+static int hf_nbap_dL_PowerBalancing_Information;  /* DL_PowerBalancing_Information */
+static int hf_nbap_minimumReducedE_DPDCH_GainFactor;  /* MinimumReducedE_DPDCH_GainFactor */
+static int hf_nbap_secondary_UL_Frequency_Activation_State;  /* Secondary_UL_Frequency_Activation_State */
+static int hf_nbap_extendedPropagationDelay;      /* ExtendedPropagationDelay */
+static int hf_nbap_primary_CPICH_Usage_for_Channel_Estimation;  /* Primary_CPICH_Usage_for_Channel_Estimation */
+static int hf_nbap_secondary_CPICH_Information;   /* CommonPhysicalChannelID */
+static int hf_nbap_secondary_CPICH_Information_Change;  /* Secondary_CPICH_Information_Change */
+static int hf_nbap_e_AGCH_PowerOffset;            /* E_AGCH_PowerOffset */
+static int hf_nbap_e_RGCH_PowerOffset;            /* E_RGCH_PowerOffset */
+static int hf_nbap_e_HICH_PowerOffset;            /* E_HICH_PowerOffset */
+static int hf_nbap_e_DCH_DL_Control_Channel_Grant;  /* NULL */
+static int hf_nbap_NeighbouringCellMeasurementInformation_item;  /* NeighbouringCellMeasurementInformation_item */
+static int hf_nbap_neighbouringFDDCellMeasurementInformation;  /* NeighbouringFDDCellMeasurementInformation */
+static int hf_nbap_neighbouringTDDCellMeasurementInformation;  /* NeighbouringTDDCellMeasurementInformation */
+static int hf_nbap_extension_neighbouringCellMeasurementInformation;  /* Extension_neighbouringCellMeasurementInformation */
+static int hf_nbap_uC_Id;                         /* UC_Id */
+static int hf_nbap_primaryScramblingCode;         /* PrimaryScramblingCode */
+static int hf_nbap_cellParameterID;               /* CellParameterID */
+static int hf_nbap_NI_Information_item;           /* Notification_Indicator */
+static int hf_nbap_Paging_MACFlows_to_DeleteFDD_item;  /* Paging_MACFlows_to_DeleteFDD_Item */
+static int hf_nbap_paging_MACFlow_ID;             /* Paging_MACFlow_ID */
+static int hf_nbap_Paging_MACFlow_Specific_Information_item;  /* Paging_MAC_Flow_Specific_Information_Item */
+static int hf_nbap_paging_MACFlow_Id;             /* Paging_MACFlow_ID */
+static int hf_nbap_hSDPA_associated_PICH_Info;    /* HSDPA_Associated_PICH_Information */
+static int hf_nbap_paging_MACFlow_PriorityQueue_Information;  /* Paging_MACFlow_PriorityQueue_Information */
+static int hf_nbap_Paging_MACFlow_PriorityQueue_Information_item;  /* Paging_MACFlow_PriorityQueue_Item */
+static int hf_nbap_priority_Queue_Information_for_Enhanced_PCH;  /* Priority_Queue_Information_for_Enhanced_FACH_PCH */
+static int hf_nbap_sequenceNumber;                /* PLCCHsequenceNumber */
+static int hf_nbap_Possible_Secondary_Serving_Cell_List_item;  /* Possible_Secondary_Serving_Cell */
+static int hf_nbap_local_Cell_ID;                 /* Local_Cell_ID */
+static int hf_nbap_power_Offset_For_Secondary_CPICH_for_MIMO;  /* PowerOffsetForSecondaryCPICHforMIMO */
+static int hf_nbap_priorityQueue_Id;              /* PriorityQueue_Id */
+static int hf_nbap_t1;                            /* T1 */
+static int hf_nbap_mAC_ehs_Reset_Timer;           /* MAC_ehs_Reset_Timer */
+static int hf_nbap_discardTimer;                  /* DiscardTimer */
+static int hf_nbap_mAC_hsWindowSize;              /* MAC_hsWindowSize */
+static int hf_nbap_maximum_MACcPDU_Size;          /* MAC_PDU_SizeExtended */
+static int hf_nbap_PriorityQueue_InfoList_item;   /* PriorityQueue_InfoItem */
+static int hf_nbap_priorityQueueId;               /* PriorityQueue_Id */
+static int hf_nbap_associatedHSDSCH_MACdFlow;     /* HSDSCH_MACdFlow_ID */
+static int hf_nbap_mAChsGuaranteedBitRate;        /* MAChsGuaranteedBitRate */
+static int hf_nbap_macdPDU_Size_Index;            /* MACdPDU_Size_Indexlist */
+static int hf_nbap_rLC_Mode;                      /* RLC_Mode */
+static int hf_nbap_PriorityQueue_InfoList_to_Modify_item;  /* ModifyPriorityQueue */
+static int hf_nbap_macdPDU_Size_Index_to_Modify;  /* MACdPDU_Size_Indexlist_to_Modify */
+static int hf_nbap_PriorityQueue_InfoList_to_Modify_Unsynchronised_item;  /* PriorityQueue_InfoItem_to_Modify_Unsynchronised */
+static int hf_nbap_none;                          /* NULL */
+static int hf_nbap_selected_MBMS_Service;         /* Selected_MBMS_Service */
+static int hf_nbap_selected_MBMS_Service_List;    /* Selected_MBMS_Service_List */
+static int hf_nbap_Selected_MBMS_Service_List_item;  /* Selected_MBMS_Service_Item */
+static int hf_nbap_selected_MBMS_Service_TimeSlot_Information_LCR;  /* Selected_MBMS_Service_TimeSlot_Information_LCR */
+static int hf_nbap_mBMS_Service_TDM_Information;  /* MBMS_Service_TDM_Information */
+static int hf_nbap_Selected_MBMS_Service_TimeSlot_Information_LCR_item;  /* TimeSlotLCR */
+static int hf_nbap_transmission_Time_Interval;    /* T_transmission_Time_Interval */
+static int hf_nbap_tDM_Rep;                       /* INTEGER_2_9 */
+static int hf_nbap_tDM_Offset;                    /* INTEGER_0_8 */
+static int hf_nbap_tDM_Length;                    /* INTEGER_1_8 */
+static int hf_nbap_Paging_MACFlow_Specific_InformationLCR_item;  /* Paging_MAC_Flow_Specific_Information_ItemLCR */
+static int hf_nbap_hSDPA_associated_PICH_InfoLCR;  /* HSDPA_Associated_PICH_InformationLCR */
+static int hf_nbap_paging_MACFlow_PriorityQueue_InformationLCR;  /* Paging_MACFlow_PriorityQueue_Information */
+static int hf_nbap_Paging_MACFlows_to_DeleteLCR_item;  /* Paging_MACFlows_to_DeleteLCR_Item */
+static int hf_nbap_RL_Specific_DCH_Info_item;     /* RL_Specific_DCH_Info_Item */
+static int hf_nbap_dCH_id;                        /* T_dCH_id */
+static int hf_nbap_transportlayeraddress;         /* TransportLayerAddress */
+static int hf_nbap_rL_Specific_E_DCH_Information;  /* RL_Specific_E_DCH_Information */
+static int hf_nbap_RL_Specific_E_DCH_Information_item;  /* RL_Specific_E_DCH_Information_Item */
+static int hf_nbap_Reference_E_TFCI_Information_item;  /* Reference_E_TFCI_Information_Item */
+static int hf_nbap_reference_E_TFCI;              /* E_TFCI */
+static int hf_nbap_reference_E_TFCI_PO;           /* Reference_E_TFCI_PO */
+static int hf_nbap_periodic_01;                   /* ReportCharacteristicsType_ReportPeriodicity */
+static int hf_nbap_event_a;                       /* ReportCharacteristicsType_EventA */
+static int hf_nbap_event_b;                       /* ReportCharacteristicsType_EventB */
+static int hf_nbap_event_c;                       /* ReportCharacteristicsType_EventC */
+static int hf_nbap_event_d;                       /* ReportCharacteristicsType_EventD */
+static int hf_nbap_event_e;                       /* ReportCharacteristicsType_EventE */
+static int hf_nbap_event_f;                       /* ReportCharacteristicsType_EventF */
+static int hf_nbap_extension_ReportCharacteristics;  /* Extension_ReportCharacteristics */
+static int hf_nbap_measurementThreshold;          /* ReportCharacteristicsType_MeasurementThreshold */
+static int hf_nbap_measurementHysteresisTime;     /* ReportCharacteristicsType_ScaledMeasurementHysteresisTime */
+static int hf_nbap_measurementIncreaseThreshold;  /* ReportCharacteristicsType_MeasurementIncreaseDecreaseThreshold */
+static int hf_nbap_measurementChangeTime;         /* ReportCharacteristicsType_ScaledMeasurementChangeTime */
+static int hf_nbap_measurementDecreaseThreshold;  /* ReportCharacteristicsType_MeasurementIncreaseDecreaseThreshold */
+static int hf_nbap_measurementThreshold1;         /* ReportCharacteristicsType_MeasurementThreshold */
+static int hf_nbap_measurementThreshold2;         /* ReportCharacteristicsType_MeasurementThreshold */
+static int hf_nbap_reportPeriodicity;             /* ReportCharacteristicsType_ReportPeriodicity */
+static int hf_nbap_received_total_wide_band_power_01;  /* Received_total_wide_band_power_Value_IncrDecrThres */
+static int hf_nbap_uL_TimeslotISCP_01;            /* UL_TimeslotISCP_Value_IncrDecrThres */
+static int hf_nbap_sir;                           /* SIR_Value_IncrDecrThres */
+static int hf_nbap_sir_error;                     /* SIR_Error_Value_IncrDecrThres */
+static int hf_nbap_transmitted_code_power;        /* Transmitted_Code_Power_Value_IncrDecrThres */
+static int hf_nbap_rscp;                          /* RSCP_Value_IncrDecrThres */
+static int hf_nbap_round_trip_time;               /* Round_Trip_Time_IncrDecrThres */
+static int hf_nbap_extension_ReportCharacteristicsType_MeasurementIncreaseDecreaseThreshold;  /* Extension_ReportCharacteristicsType_MeasurementIncreaseDecreaseThreshold */
+static int hf_nbap_sir_01;                        /* SIR_Value */
+static int hf_nbap_sir_error_01;                  /* SIR_Error_Value */
+static int hf_nbap_transmitted_code_power_01;     /* Transmitted_Code_Power_Value */
+static int hf_nbap_rscp_01;                       /* RSCP_Value */
+static int hf_nbap_rx_timing_deviation;           /* Rx_Timing_Deviation_Value */
+static int hf_nbap_round_trip_time_01;            /* Round_Trip_Time_Value */
+static int hf_nbap_extension_ReportCharacteristicsType_MeasurementThreshold;  /* Extension_ReportCharacteristicsType_MeasurementThreshold */
+static int hf_nbap_msec;                          /* MeasurementChangeTime_Scaledmsec */
+static int hf_nbap_msec_01;                       /* MeasurementHysteresisTime_Scaledmsec */
+static int hf_nbap_msec_02;                       /* ReportPeriodicity_Scaledmsec */
+static int hf_nbap_Received_total_wide_band_power_For_CellPortion_Value_item;  /* Received_total_wide_band_power_For_CellPortion_Value_Item */
+static int hf_nbap_received_total_wide_band_power_value;  /* Received_total_wide_band_power_Value */
+static int hf_nbap_Received_total_wide_band_power_For_CellPortion_ValueLCR_item;  /* Received_total_wide_band_power_For_CellPortion_ValueLCR_Item */
+static int hf_nbap_Received_Scheduled_EDCH_Power_Share_For_CellPortion_Value_item;  /* Received_Scheduled_EDCH_Power_Share_For_CellPortion_Value_Item */
+static int hf_nbap_received_Scheduled_power_share_value;  /* RSEPS_Value */
+static int hf_nbap_informationAvailable;          /* InformationAvailable */
+static int hf_nbap_informationnotAvailable;       /* InformationnotAvailable */
+static int hf_nbap_requesteddataValue;            /* RequestedDataValue */
+static int hf_nbap_dgps_corrections;              /* DGPSCorrections */
+static int hf_nbap_gps_navandrecovery;            /* GPS_NavigationModel_and_TimeRecovery */
+static int hf_nbap_gps_ionos_model;               /* GPS_Ionospheric_Model */
+static int hf_nbap_gps_utc_model;                 /* GPS_UTC_Model */
+static int hf_nbap_gps_almanac;                   /* GPS_Almanac */
+static int hf_nbap_gps_rt_integrity;              /* GPS_RealTime_Integrity */
+static int hf_nbap_gpsrxpos;                      /* GPS_RX_POS */
+static int hf_nbap_SAT_Info_Almanac_item;         /* SAT_Info_Almanac_Item */
+static int hf_nbap_data_id;                       /* DATA_ID */
+static int hf_nbap_sat_id;                        /* SAT_ID */
+static int hf_nbap_gps_e_alm;                     /* BIT_STRING_SIZE_16 */
+static int hf_nbap_gps_toa_alm;                   /* BIT_STRING_SIZE_8 */
+static int hf_nbap_gps_delta_I_alm;               /* BIT_STRING_SIZE_16 */
+static int hf_nbap_omegadot_alm;                  /* BIT_STRING_SIZE_16 */
+static int hf_nbap_svhealth_alm;                  /* BIT_STRING_SIZE_8 */
+static int hf_nbap_gps_a_sqrt_alm;                /* BIT_STRING_SIZE_24 */
+static int hf_nbap_omegazero_alm;                 /* BIT_STRING_SIZE_24 */
+static int hf_nbap_m_zero_alm;                    /* BIT_STRING_SIZE_24 */
+static int hf_nbap_gps_omega_alm;                 /* BIT_STRING_SIZE_24 */
+static int hf_nbap_gps_af_zero_alm;               /* BIT_STRING_SIZE_11 */
+static int hf_nbap_gps_af_one_alm;                /* BIT_STRING_SIZE_11 */
+static int hf_nbap_SAT_Info_Almanac_ExtList_item;  /* SAT_Info_Almanac_ExtItem */
+static int hf_nbap_SAT_Info_DGPSCorrections_item;  /* SAT_Info_DGPSCorrections_Item */
+static int hf_nbap_iode_dgps;                     /* BIT_STRING_SIZE_8 */
+static int hf_nbap_prc;                           /* PRC */
+static int hf_nbap_range_correction_rate;         /* Range_Correction_Rate */
+static int hf_nbap_SATInfo_RealTime_Integrity_item;  /* SAT_Info_RealTime_Integrity_Item */
+static int hf_nbap_bad_sat_id;                    /* SAT_ID */
+static int hf_nbap_SecondaryServingCells_item;    /* SecondaryServingCellsItem */
+static int hf_nbap_secondaryC_ID;                 /* C_ID */
+static int hf_nbap_numSecondaryHS_SCCH_Codes;     /* NumHS_SCCH_Codes */
+static int hf_nbap_new_secondary_CPICH;           /* CommonPhysicalChannelID */
+static int hf_nbap_secondary_CPICH_shall_not_be_used;  /* NULL */
+static int hf_nbap_serving_E_DCH_RL_in_this_NodeB;  /* Serving_E_DCH_RL_in_this_NodeB */
+static int hf_nbap_serving_E_DCH_RL_not_in_this_NodeB;  /* NULL */
+static int hf_nbap_SetsOfHS_SCCH_Codes_item;      /* SetsOfHS_SCCH_CodesItem */
+static int hf_nbap_hS_SCCH_PreconfiguredCodes;    /* HS_SCCH_PreconfiguredCodes */
+static int hf_nbap_setup;                         /* Additional_EDCH_Setup_Info */
+static int hf_nbap_configurationChange;           /* Additional_EDCH_Cell_Information_ConfigurationChange_List */
+static int hf_nbap_removal;                       /* Additional_EDCH_Cell_Information_Removal_List */
+static int hf_nbap_sFNSFNChangeLimit;             /* SFNSFNChangeLimit */
+static int hf_nbap_predictedSFNSFNDeviationLimit;  /* PredictedSFNSFNDeviationLimit */
+static int hf_nbap_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation;  /* T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation */
+static int hf_nbap_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item;  /* T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item */
+static int hf_nbap_sFNSFNValue;                   /* SFNSFNValue */
+static int hf_nbap_sFNSFNQuality;                 /* SFNSFNQuality */
+static int hf_nbap_sFNSFNDriftRate;               /* SFNSFNDriftRate */
+static int hf_nbap_sFNSFNDriftRateQuality;        /* SFNSFNDriftRateQuality */
+static int hf_nbap_sFNSFNTimeStampInformation;    /* SFNSFNTimeStampInformation */
+static int hf_nbap_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation;  /* T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation */
+static int hf_nbap_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item;  /* T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item */
+static int hf_nbap_sFNSFNTimeStamp_FDD;           /* SFN */
+static int hf_nbap_sFNSFNTimeStamp_TDD;           /* SFNSFNTimeStamp_TDD */
+static int hf_nbap_sFN;                           /* SFN */
+static int hf_nbap_sFNSFN_FDD;                    /* SFNSFN_FDD */
+static int hf_nbap_sFNSFN_TDD;                    /* SFNSFN_TDD */
+static int hf_nbap_sFNSFN_TDD768;                 /* SFNSFN_TDD768 */
+static int hf_nbap_synchronisationReportCharacteristicsType;  /* SynchronisationReportCharacteristicsType */
+static int hf_nbap_synchronisationReportCharactThreExc;  /* SynchronisationReportCharactThreExc */
+static int hf_nbap_SynchronisationReportCharactThreExc_item;  /* SynchronisationReportCharactThreInfoItem */
+static int hf_nbap_syncFrameNumber;               /* SyncFrameNumber */
+static int hf_nbap_cellSyncBurstInformation;      /* SEQUENCE_SIZE_1_maxNrOfReceptsPerSyncFrame_OF_SynchronisationReportCharactCellSyncBurstInfoItem */
+static int hf_nbap_cellSyncBurstInformation_item;  /* SynchronisationReportCharactCellSyncBurstInfoItem */
+static int hf_nbap_cellSyncBurstCode;             /* CellSyncBurstCode */
+static int hf_nbap_cellSyncBurstCodeShift;        /* CellSyncBurstCodeShift */
+static int hf_nbap_cellSyncBurstTiming;           /* CellSyncBurstTiming */
+static int hf_nbap_cellSyncBurstTimingThreshold;  /* CellSyncBurstTimingThreshold */
+static int hf_nbap_SyncDLCodeIdThreInfoLCR_item;  /* SyncDLCodeIdThreInfoList */
+static int hf_nbap_syncFrameNoToReceive;          /* SyncFrameNumber */
+static int hf_nbap_syncDLCodeIdInfoLCR;           /* SyncDLCodeInfoListLCR */
+static int hf_nbap_SyncDLCodeInfoListLCR_item;    /* SyncDLCodeInfoItemLCR */
+static int hf_nbap_syncDLCodeId;                  /* SYNCDlCodeId */
+static int hf_nbap_syncDLCodeIdArrivTime;         /* CellSyncBurstTimingLCR */
+static int hf_nbap_syncDLCodeIdTimingThre;        /* CellSyncBurstTimingThreshold */
+static int hf_nbap_modulation;                    /* Modulation */
+static int hf_nbap_TDD_DL_Code_Information_item;  /* TDD_DL_Code_InformationItem */
+static int hf_nbap_dPCH_ID;                       /* DPCH_ID */
+static int hf_nbap_TDD_DL_Code_LCR_Information_item;  /* TDD_DL_Code_LCR_InformationItem */
+static int hf_nbap_tdd_DL_DPCH_TimeSlotFormat_LCR;  /* TDD_DL_DPCH_TimeSlotFormat_LCR */
+static int hf_nbap_TDD_DL_Code_768_Information_item;  /* TDD_DL_Code_768_InformationItem */
+static int hf_nbap_qPSK_01;                       /* QPSK_DL_DPCH_TimeSlotFormatTDD_LCR */
+static int hf_nbap_eightPSK;                      /* EightPSK_DL_DPCH_TimeSlotFormatTDD_LCR */
+static int hf_nbap_initialOffset;                 /* INTEGER_0_255 */
+static int hf_nbap_noinitialOffset;               /* INTEGER_0_63 */
+static int hf_nbap_signalledGainFactors;          /* T_signalledGainFactors */
+static int hf_nbap_gainFactor;                    /* T_gainFactor */
+static int hf_nbap_fdd;                           /* T_fdd */
+static int hf_nbap_betaC;                         /* BetaCD */
+static int hf_nbap_betaD;                         /* BetaCD */
+static int hf_nbap_tdd;                           /* BetaCD */
+static int hf_nbap_refTFCNumber;                  /* RefTFCNumber */
+static int hf_nbap_computedGainFactors;           /* RefTFCNumber */
+static int hf_nbap_TDD_UL_Code_Information_item;  /* TDD_UL_Code_InformationItem */
+static int hf_nbap_TDD_UL_Code_LCR_Information_item;  /* TDD_UL_Code_LCR_InformationItem */
+static int hf_nbap_tdd_UL_DPCH_TimeSlotFormat_LCR;  /* TDD_UL_DPCH_TimeSlotFormat_LCR */
+static int hf_nbap_TDD_UL_Code_768_Information_item;  /* TDD_UL_Code_768_InformationItem */
+static int hf_nbap_qPSK_02;                       /* QPSK_UL_DPCH_TimeSlotFormatTDD_LCR */
+static int hf_nbap_eightPSK_01;                   /* EightPSK_UL_DPCH_TimeSlotFormatTDD_LCR */
+static int hf_nbap_tFCI_SignallingOption;         /* TFCI_SignallingMode_TFCI_SignallingOption */
+static int hf_nbap_not_Used_splitType;            /* NULL */
+static int hf_nbap_not_Used_lengthOfTFCI2;        /* NULL */
+static int hf_nbap_TimeSlot_InitiatedListLCR_item;  /* TimeSlotLCR */
+static int hf_nbap_TimeSlotMeasurementValueListLCR_item;  /* TimeSlotMeasurementValueLCR */
+static int hf_nbap_commonMeasurementValue;        /* CommonMeasurementValue */
+static int hf_nbap_initialPhase_01;               /* INTEGER_0_1048575_ */
+static int hf_nbap_dsField;                       /* DsField */
+static int hf_nbap_genericTrafficCategory;        /* GenericTrafficCategory */
+static int hf_nbap_Transmission_Gap_Pattern_Sequence_Information_item;  /* Transmission_Gap_Pattern_Sequence_Information_item */
+static int hf_nbap_tGSN;                          /* TGSN */
+static int hf_nbap_tGL1;                          /* GapLength */
+static int hf_nbap_tGL2;                          /* GapLength */
+static int hf_nbap_tGD;                           /* TGD */
+static int hf_nbap_tGPL1;                         /* GapDuration */
+static int hf_nbap_not_to_be_used_1;              /* GapDuration */
+static int hf_nbap_uL_DL_mode;                    /* UL_DL_mode */
+static int hf_nbap_downlink_Compressed_Mode_Method;  /* Downlink_Compressed_Mode_Method */
+static int hf_nbap_uplink_Compressed_Mode_Method;  /* Uplink_Compressed_Mode_Method */
+static int hf_nbap_dL_FrameType;                  /* DL_FrameType */
+static int hf_nbap_delta_SIR1;                    /* DeltaSIR */
+static int hf_nbap_delta_SIR_after1;              /* DeltaSIR */
+static int hf_nbap_delta_SIR2;                    /* DeltaSIR */
+static int hf_nbap_delta_SIR_after2;              /* DeltaSIR */
+static int hf_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue_item;  /* TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue_Item */
+static int hf_nbap_transmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValue;  /* TransmittedCarrierPowerOfAllCodesNotUsedForHSTransmissionValue */
+static int hf_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCHOrE_HICHTransmissionCellPortionValue_item;  /* TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCHOrE_HICHTransmissionCellPortionValue_Item */
+static int hf_nbap_Transmitted_Carrier_Power_For_CellPortion_Value_item;  /* Transmitted_Carrier_Power_For_CellPortion_Value_Item */
+static int hf_nbap_transmitted_Carrier_Power_Value;  /* Transmitted_Carrier_Power_Value */
+static int hf_nbap_Transmitted_Carrier_Power_For_CellPortion_ValueLCR_item;  /* Transmitted_Carrier_Power_For_CellPortion_ValueLCR_Item */
+static int hf_nbap_tFCSvalues;                    /* T_tFCSvalues */
+static int hf_nbap_no_Split_in_TFCI;              /* TFCS_TFCSList */
+static int hf_nbap_not_Used_split_in_TFCI;        /* NULL */
+static int hf_nbap_TFCS_TFCSList_item;            /* TFCS_TFCSList_item */
+static int hf_nbap_cTFC;                          /* TFCS_CTFC */
+static int hf_nbap_tFC_Beta;                      /* TransportFormatCombination_Beta */
+static int hf_nbap_ctfc2bit;                      /* INTEGER_0_3 */
+static int hf_nbap_ctfc4bit;                      /* INTEGER_0_15 */
+static int hf_nbap_ctfc6bit;                      /* INTEGER_0_63 */
+static int hf_nbap_ctfc8bit;                      /* INTEGER_0_255 */
+static int hf_nbap_ctfc12bit;                     /* INTEGER_0_4095 */
+static int hf_nbap_ctfc16bit;                     /* INTEGER_0_65535 */
+static int hf_nbap_ctfcmaxbit;                    /* INTEGER_0_maxCTFC */
+static int hf_nbap_Transport_Block_Size_List_item;  /* Transport_Block_Size_List_item */
+static int hf_nbap_transport_Block_Size_Index_for_Enhanced_PCH;  /* Transport_Block_Size_Index_for_Enhanced_PCH */
+static int hf_nbap_dynamicParts;                  /* TransportFormatSet_DynamicPartList */
+static int hf_nbap_semi_staticPart;               /* TransportFormatSet_Semi_staticPart */
+static int hf_nbap_TransportFormatSet_DynamicPartList_item;  /* TransportFormatSet_DynamicPartList_item */
+static int hf_nbap_nrOfTransportBlocks;           /* TransportFormatSet_NrOfTransportBlocks */
+static int hf_nbap_transportBlockSize;            /* TransportFormatSet_TransportBlockSize */
+static int hf_nbap_mode;                          /* TransportFormatSet_ModeDP */
+static int hf_nbap_transmissionTimeIntervalInformation;  /* TransmissionTimeIntervalInformation */
+static int hf_nbap_TransmissionTimeIntervalInformation_item;  /* TransmissionTimeIntervalInformation_item */
+static int hf_nbap_transmissionTimeInterval;      /* TransportFormatSet_TransmissionTimeIntervalDynamic */
+static int hf_nbap_transmissionTimeInterval_01;   /* TransportFormatSet_TransmissionTimeIntervalSemiStatic */
+static int hf_nbap_channelCoding;                 /* TransportFormatSet_ChannelCodingType */
+static int hf_nbap_codingRate;                    /* TransportFormatSet_CodingRate */
+static int hf_nbap_rateMatchingAttribute;         /* TransportFormatSet_RateMatchingAttribute */
+static int hf_nbap_cRC_Size;                      /* TransportFormatSet_CRC_Size */
+static int hf_nbap_mode_01;                       /* TransportFormatSet_ModeSSP */
+static int hf_nbap_tdd_01;                        /* TDD_TransportFormatSet_ModeDP */
+static int hf_nbap_notApplicable;                 /* NULL */
+static int hf_nbap_tdd_02;                        /* TransportFormatSet_SecondInterleavingMode */
+static int hf_nbap_mS;                            /* INTEGER_0_16383 */
+static int hf_nbap_lS;                            /* INTEGER_0_4294967295 */
+static int hf_nbap_tUTRANGANSSChangeLimit;        /* INTEGER_1_256 */
+static int hf_nbap_predictedTUTRANGANSSDeviationLimit;  /* INTEGER_1_256 */
+static int hf_nbap_tUTRANGANSS;                   /* TUTRANGANSS */
+static int hf_nbap_tUTRANGANSSQuality;            /* INTEGER_0_255 */
+static int hf_nbap_tUTRANGANSSDriftRate;          /* INTEGER_M50_50 */
+static int hf_nbap_tUTRANGANSSDriftRateQuality;   /* INTEGER_0_50 */
+static int hf_nbap_ms_part;                       /* INTEGER_0_16383 */
+static int hf_nbap_ls_part;                       /* INTEGER_0_4294967295 */
+static int hf_nbap_tUTRANGPSChangeLimit;          /* TUTRANGPSChangeLimit */
+static int hf_nbap_predictedTUTRANGPSDeviationLimit;  /* PredictedTUTRANGPSDeviationLimit */
+static int hf_nbap_tUTRANGPS;                     /* TUTRANGPS */
+static int hf_nbap_tUTRANGPSQuality;              /* TUTRANGPSQuality */
+static int hf_nbap_tUTRANGPSDriftRate;            /* TUTRANGPSDriftRate */
+static int hf_nbap_tUTRANGPSDriftRateQuality;     /* TUTRANGPSDriftRateQuality */
+static int hf_nbap_rNC_ID;                        /* RNC_ID */
+static int hf_nbap_uE_AggregateMaximumBitRateDownlink;  /* UE_AggregateMaximumBitRateDownlink */
+static int hf_nbap_uE_AggregateMaximumBitRateUplink;  /* UE_AggregateMaximumBitRateUplink */
+static int hf_nbap_hSDSCH_Physical_Layer_Category_01;  /* T_hSDSCH_Physical_Layer_Category */
+static int hf_nbap_UL_Timeslot_Information_item;  /* UL_Timeslot_InformationItem */
+static int hf_nbap_uL_Code_InformationList;       /* TDD_UL_Code_Information */
+static int hf_nbap_UL_TimeslotLCR_Information_item;  /* UL_TimeslotLCR_InformationItem */
+static int hf_nbap_uL_Code_InformationList_01;    /* TDD_UL_Code_LCR_Information */
+static int hf_nbap_UL_Timeslot768_Information_item;  /* UL_Timeslot768_InformationItem */
+static int hf_nbap_uL_Code_InformationList_02;    /* TDD_UL_Code_768_Information */
+static int hf_nbap_uL_ScramblingCodeNumber;       /* UL_ScramblingCodeNumber */
+static int hf_nbap_uL_ScramblingCodeLength;       /* UL_ScramblingCodeLength */
+static int hf_nbap_uL_Synchronisation_StepSize;   /* UL_Synchronisation_StepSize */
+static int hf_nbap_uL_Synchronisation_Frequency;  /* UL_Synchronisation_Frequency */
+static int hf_nbap_UL_TimeSlot_ISCP_Info_item;    /* UL_TimeSlot_ISCP_InfoItem */
+static int hf_nbap_iSCP;                          /* UL_TimeslotISCP_Value */
+static int hf_nbap_UL_TimeSlot_ISCP_LCR_Info_item;  /* UL_TimeSlot_ISCP_LCR_InfoItem */
+static int hf_nbap_UpPTSInterference_For_CellPortion_Value_item;  /* UpPTSInterference_For_CellPortion_Value_Item */
+static int hf_nbap_upPTSInterferenceValue;        /* UpPTSInterferenceValue */
+static int hf_nbap_USCH_Information_item;         /* USCH_InformationItem */
+static int hf_nbap_uSCH_ID;                       /* USCH_ID */
+static int hf_nbap_USCH_InformationResponse_item;  /* USCH_InformationResponseItem */
+static int hf_nbap_UL_TimeslotISCP_For_CellPortion_Value_item;  /* UL_TimeslotISCP_For_CellPortion_Value_Item */
+static int hf_nbap_uL_TimeslotISCP_Value;         /* UL_TimeslotISCP_Value */
+static int hf_nbap_protocolIEs;                   /* ProtocolIE_Container */
+static int hf_nbap_protocolExtensions;            /* ProtocolExtensionContainer */
+static int hf_nbap_secondary_CCPCH_parameters;    /* Secondary_CCPCH_CTCH_SetupRqstFDD */
+static int hf_nbap_pRACH_parameters;              /* PRACH_CTCH_SetupRqstFDD */
+static int hf_nbap_notUsed_pCPCHes_parameters;    /* NULL */
+static int hf_nbap_fdd_S_CCPCH_Offset;            /* FDD_S_CCPCH_Offset */
+static int hf_nbap_tFCS;                          /* TFCS */
+static int hf_nbap_secondary_CCPCH_SlotFormat;    /* SecondaryCCPCH_SlotFormat */
+static int hf_nbap_multiplexingPosition;          /* MultiplexingPosition */
+static int hf_nbap_powerOffsetInformation;        /* PowerOffsetInformation_CTCH_SetupRqstFDD */
+static int hf_nbap_fACH_Parameters;               /* FACH_ParametersList_CTCH_SetupRqstFDD */
+static int hf_nbap_pCH_Parameters;                /* PCH_Parameters_CTCH_SetupRqstFDD */
+static int hf_nbap_pO1_ForTFCI_Bits;              /* PowerOffset */
+static int hf_nbap_pO3_ForPilotBits;              /* PowerOffset */
+static int hf_nbap_FACH_ParametersListIE_CTCH_SetupRqstFDD_item;  /* FACH_ParametersItem_CTCH_SetupRqstFDD */
+static int hf_nbap_maxFACH_Power;                 /* DL_Power */
+static int hf_nbap_transportFormatSet_01;         /* T_transportFormatSet */
+static int hf_nbap_pCH_Power;                     /* DL_Power */
+static int hf_nbap_pICH_Parameters;               /* PICH_Parameters_CTCH_SetupRqstFDD */
+static int hf_nbap_pICH_Mode;                     /* PICH_Mode */
+static int hf_nbap_mICH_Power;                    /* PICH_Power */
+static int hf_nbap_mICH_Mode;                     /* MICH_Mode */
+static int hf_nbap_preambleSignatures;            /* PreambleSignatures */
+static int hf_nbap_allowedSlotFormatInformation;  /* AllowedSlotFormatInformationList_CTCH_SetupRqstFDD */
+static int hf_nbap_rACH_SubChannelNumbers;        /* RACH_SubChannelNumbers */
+static int hf_nbap_ul_punctureLimit;              /* PunctureLimit */
+static int hf_nbap_rACH_Parameters;               /* RACH_Parameters_CTCH_SetupRqstFDD */
+static int hf_nbap_aICH_Parameters;               /* AICH_Parameters_CTCH_SetupRqstFDD */
+static int hf_nbap_AllowedSlotFormatInformationList_CTCH_SetupRqstFDD_item;  /* AllowedSlotFormatInformationItem_CTCH_SetupRqstFDD */
+static int hf_nbap_rACHSlotFormat;                /* RACH_SlotFormat */
+static int hf_nbap_secondary_CCPCH_parameters_01;  /* Secondary_CCPCH_CTCH_SetupRqstTDD */
+static int hf_nbap_pRACH_parameters_01;           /* PRACH_CTCH_SetupRqstTDD */
+static int hf_nbap_extension_CommonPhysicalChannelType_CTCH_SetupRqstTDD;  /* Extension_CommonPhysicalChannelType_CTCH_SetupRqstTDD */
+static int hf_nbap_sCCPCH_CCTrCH_ID;              /* CCTrCH_ID */
+static int hf_nbap_tFCI_Coding;                   /* TFCI_Coding */
+static int hf_nbap_punctureLimit;                 /* PunctureLimit */
+static int hf_nbap_secondaryCCPCH_parameterList;  /* Secondary_CCPCH_parameterList_CTCH_SetupRqstTDD */
+static int hf_nbap_fACH_ParametersList;           /* FACH_ParametersList_CTCH_SetupRqstTDD */
+static int hf_nbap_pCH_Parameters_01;             /* PCH_Parameters_CTCH_SetupRqstTDD */
+static int hf_nbap_Secondary_CCPCH_parameterListIE_CTCH_SetupRqstTDD_item;  /* Secondary_CCPCH_parameterItem_CTCH_SetupRqstTDD */
+static int hf_nbap_midambleShiftandBurstType;     /* MidambleShiftAndBurstType */
+static int hf_nbap_s_CCPCH_Power;                 /* DL_Power */
+static int hf_nbap_Secondary_CCPCH_LCR_parameterList_CTCH_SetupRqstTDD_item;  /* Secondary_CCPCH_LCR_parameterItem_CTCH_SetupRqstTDD */
+static int hf_nbap_s_CCPCH_TimeSlotFormat_LCR;    /* TDD_DL_DPCH_TimeSlotFormat_LCR */
+static int hf_nbap_Secondary_CCPCH_768_parameterList_CTCH_SetupRqstTDD_item;  /* Secondary_CCPCH_768_parameterItem_CTCH_SetupRqstTDD */
+static int hf_nbap_tFCI_Presence768;              /* TFCI_Presence */
+static int hf_nbap_midambleShiftandBurstType768;  /* MidambleShiftAndBurstType768 */
+static int hf_nbap_FACH_ParametersListIE_CTCH_SetupRqstTDD_item;  /* FACH_ParametersItem_CTCH_SetupRqstTDD */
+static int hf_nbap_fACH_CCTrCH_ID;                /* CCTrCH_ID */
+static int hf_nbap_pCH_CCTrCH_ID;                 /* CCTrCH_ID */
+static int hf_nbap_pICH_Parameters_01;            /* PICH_Parameters_CTCH_SetupRqstTDD */
+static int hf_nbap_midambleshiftAndBurstType;     /* MidambleShiftAndBurstType */
+static int hf_nbap_midambleshiftAndBurstType78;   /* MidambleShiftAndBurstType768 */
+static int hf_nbap_notificationIndicatorLength;   /* NotificationIndicatorLength */
+static int hf_nbap_mICH_TDDOption_Specific_Parameters;  /* MICH_TDDOption_Specific_Parameters_CTCH_SetupRqstTDD */
+static int hf_nbap_hCR_TDD;                       /* MICH_HCR_Parameters_CTCH_SetupRqstTDD */
+static int hf_nbap_lCR_TDD;                       /* MICH_LCR_Parameters_CTCH_SetupRqstTDD */
+static int hf_nbap_cHipRate768_TDD;               /* MICH_768_Parameters_CTCH_SetupRqstTDD */
+static int hf_nbap_tSTD_Indicator;                /* TSTD_Indicator */
+static int hf_nbap_midambleshiftAndBurstType768;  /* MidambleShiftAndBurstType768 */
+static int hf_nbap_TimeSlotConfigurationList_LCR_CTCH_SetupRqstTDD_item;  /* TimeSlotConfigurationItem_LCR_CTCH_SetupRqstTDD */
+static int hf_nbap_timeslotLCR_Parameter_ID;      /* CellParameterID */
+static int hf_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_SetupRqstTDD_item;  /* Secondary_CCPCH_parameterItem_CTCH_SetupRqstTDD */
+static int hf_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_SetupRqstTDD_item;  /* Secondary_CCPCH_LCR_parameterItem_CTCH_SetupRqstTDD */
+static int hf_nbap_pRACH_Parameters_CTCH_SetupRqstTDD;  /* PRACH_Parameters_CTCH_SetupRqstTDD */
+static int hf_nbap_maxPRACH_MidambleShifts;       /* MaxPRACH_MidambleShifts */
+static int hf_nbap_pRACH_Midamble;                /* PRACH_Midamble */
+static int hf_nbap_rACH;                          /* RACH_Parameter_CTCH_SetupRqstTDD */
+static int hf_nbap_uL_TransportFormatSet;         /* TransportFormatSet */
+static int hf_nbap_PRACH_LCR_ParametersList_CTCH_SetupRqstTDD_item;  /* PRACH_LCR_ParametersItem_CTCH_SetupRqstTDD */
+static int hf_nbap_fPACH_Power;                   /* FPACH_Power */
+static int hf_nbap_maxPowerPLCCH;                 /* DL_Power */
+static int hf_nbap_maxE_RUCCH_MidambleShifts;     /* MaxPRACH_MidambleShifts */
+static int hf_nbap_e_RUCCH_Midamble;              /* PRACH_Midamble */
+static int hf_nbap_FACH_CommonTransportChannel_InformationResponse_item;  /* CommonTransportChannel_InformationResponse */
+static int hf_nbap_secondary_CCPCH_parameters_02;  /* Secondary_CCPCHList_CTCH_ReconfRqstFDD */
+static int hf_nbap_pRACH_parameters_02;           /* PRACHList_CTCH_ReconfRqstFDD */
+static int hf_nbap_notUsed_cPCH_parameters;       /* NULL */
+static int hf_nbap_fACH_ParametersList_CTCH_ReconfRqstFDD;  /* FACH_ParametersList_CTCH_ReconfRqstFDD */
+static int hf_nbap_pCH_Parameters_CTCH_ReconfRqstFDD;  /* PCH_Parameters_CTCH_ReconfRqstFDD */
+static int hf_nbap_pICH_Parameters_CTCH_ReconfRqstFDD;  /* PICH_Parameters_CTCH_ReconfRqstFDD */
+static int hf_nbap_FACH_ParametersListIE_CTCH_ReconfRqstFDD_item;  /* FACH_ParametersItem_CTCH_ReconfRqstFDD */
+static int hf_nbap_pRACH_ParametersList_CTCH_ReconfRqstFDD;  /* PRACH_ParametersList_CTCH_ReconfRqstFDD */
+static int hf_nbap_aICH_ParametersList_CTCH_ReconfRqstFDD;  /* AICH_ParametersList_CTCH_ReconfRqstFDD */
+static int hf_nbap_PRACH_ParametersListIE_CTCH_ReconfRqstFDD_item;  /* PRACH_ParametersItem_CTCH_ReconfRqstFDD */
+static int hf_nbap_allowedSlotFormatInformation_01;  /* AllowedSlotFormatInformationList_CTCH_ReconfRqstFDD */
+static int hf_nbap_AllowedSlotFormatInformationList_CTCH_ReconfRqstFDD_item;  /* AllowedSlotFormatInformationItem_CTCH_ReconfRqstFDD */
+static int hf_nbap_rACH_SlotFormat;               /* RACH_SlotFormat */
+static int hf_nbap_AICH_ParametersListIE_CTCH_ReconfRqstFDD_item;  /* AICH_ParametersItem_CTCH_ReconfRqstFDD */
+static int hf_nbap_secondaryCCPCHList;            /* Secondary_CCPCHList_CTCH_ReconfRqstTDD */
+static int hf_nbap_Secondary_CCPCHListIE_CTCH_ReconfRqstTDD_item;  /* Secondary_CCPCHItem_CTCH_ReconfRqstTDD */
+static int hf_nbap_sCCPCH_Power;                  /* DL_Power */
+static int hf_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_ReconfRqstTDD_item;  /* Secondary_CCPCHItem_CTCH_ReconfRqstTDD */
+static int hf_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_ReconfRqstTDD_item;  /* Secondary_CCPCHItem_CTCH_ReconfRqstTDD */
+static int hf_nbap_FACH_ParametersList_CTCH_ReconfRqstTDD_item;  /* FACH_ParametersItem_CTCH_ReconfRqstTDD */
+static int hf_nbap_commonPhysicalChannelId;       /* CommonPhysicalChannelID */
+static int hf_nbap_fPACHPower;                    /* FPACH_Power */
+static int hf_nbap_secondaryCCPCH768List;         /* Secondary_CCPCH_768_List_CTCH_ReconfRqstTDD */
+static int hf_nbap_Secondary_CCPCH_768_List_CTCH_ReconfRqstTDD_item;  /* Secondary_CCPCH_768_Item_CTCH_ReconfRqstTDD */
+static int hf_nbap_uPPCHPositionLCR;              /* UPPCHPositionLCR */
+static int hf_nbap_Cell_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_configurationGenerationID;     /* ConfigurationGenerationID */
+static int hf_nbap_primary_SCH_Information;       /* P_SCH_Information_AuditRsp */
+static int hf_nbap_secondary_SCH_Information;     /* S_SCH_Information_AuditRsp */
+static int hf_nbap_primary_CPICH_Information;     /* P_CPICH_Information_AuditRsp */
+static int hf_nbap_secondary_CPICH_InformationList;  /* S_CPICH_InformationList_AuditRsp */
+static int hf_nbap_primary_CCPCH_Information;     /* P_CCPCH_Information_AuditRsp */
+static int hf_nbap_bCH_Information;               /* BCH_Information_AuditRsp */
+static int hf_nbap_secondary_CCPCH_InformationList;  /* S_CCPCH_InformationList_AuditRsp */
+static int hf_nbap_pCH_Information;               /* PCH_Information_AuditRsp */
+static int hf_nbap_pICH_Information;              /* PICH_Information_AuditRsp */
+static int hf_nbap_fACH_InformationList;          /* FACH_InformationList_AuditRsp */
+static int hf_nbap_pRACH_InformationList;         /* PRACH_InformationList_AuditRsp */
+static int hf_nbap_rACH_InformationList;          /* RACH_InformationList_AuditRsp */
+static int hf_nbap_aICH_InformationList;          /* AICH_InformationList_AuditRsp */
+static int hf_nbap_notUsed_1_pCPCH_InformationList;  /* NULL */
+static int hf_nbap_notUsed_2_cPCH_InformationList;  /* NULL */
+static int hf_nbap_notUsed_3_aP_AICH_InformationList;  /* NULL */
+static int hf_nbap_notUsed_4_cDCA_ICH_InformationList;  /* NULL */
+static int hf_nbap_sCH_Information;               /* SCH_Information_AuditRsp */
+static int hf_nbap_S_CPICH_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_S_CCPCH_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_FACH_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_PRACH_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_RACH_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_AICH_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_FPACH_LCR_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_S_CCPCH_InformationListExt_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_S_CCPCH_LCR_InformationListExt_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_PLCCH_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_S_CCPCH_768_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_PRACH_768_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_E_RUCCH_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_E_RUCCH_768_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_Cell_Frequency_List_Information_LCR_MulFreq_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_UPPCH_LCR_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_MultipleFreq_HS_DSCH_Resources_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_MultipleFreq_E_DCH_Resources_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_CCP_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_communicationControlPortID;    /* CommunicationControlPortID */
+static int hf_nbap_Local_Cell_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_dl_or_global_capacityCredit;   /* DL_or_Global_CapacityCredit */
+static int hf_nbap_ul_capacityCredit;             /* UL_CapacityCredit */
+static int hf_nbap_commonChannelsCapacityConsumptionLaw;  /* CommonChannelsCapacityConsumptionLaw */
+static int hf_nbap_dedicatedChannelsCapacityConsumptionLaw;  /* DedicatedChannelsCapacityConsumptionLaw */
+static int hf_nbap_maximumDL_PowerCapability;     /* MaximumDL_PowerCapability */
+static int hf_nbap_minSpreadingFactor;            /* MinSpreadingFactor */
+static int hf_nbap_minimumDL_PowerCapability;     /* MinimumDL_PowerCapability */
+static int hf_nbap_local_Cell_Group_ID;           /* Local_Cell_ID */
+static int hf_nbap_Local_Cell_Group_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_Power_Local_Cell_Group_InformationList_AuditRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_power_Local_Cell_Group_ID;     /* Local_Cell_ID */
+static int hf_nbap_cell;                          /* Cell_CM_Rqst */
+static int hf_nbap_rACH_01;                       /* RACH_CM_Rqst */
+static int hf_nbap_notUsed_cPCH;                  /* NULL */
+static int hf_nbap_extension_CommonMeasurementObjectType_CM_Rqst;  /* Extension_CommonMeasurementObjectType_CM_Rqst */
+static int hf_nbap_powerLocalCellGroupID;         /* Local_Cell_ID */
+static int hf_nbap_cell_01;                       /* Cell_CM_Rsp */
+static int hf_nbap_rACH_02;                       /* RACH_CM_Rsp */
+static int hf_nbap_extension_CommonMeasurementObjectType_CM_Rsp;  /* Extension_CommonMeasurementObjectType_CM_Rsp */
+static int hf_nbap_cell_02;                       /* Cell_CM_Rprt */
+static int hf_nbap_rACH_03;                       /* RACH_CM_Rprt */
+static int hf_nbap_extension_CommonMeasurementObjectType_CM_Rprt;  /* Extension_CommonMeasurementObjectType_CM_Rprt */
+static int hf_nbap_commonMeasurementValueInformation;  /* CommonMeasurementValueInformation */
+static int hf_nbap_n_INSYNC_IND;                  /* N_INSYNC_IND */
+static int hf_nbap_n_OUTSYNC_IND;                 /* N_OUTSYNC_IND */
+static int hf_nbap_t_RLFAILURE;                   /* T_RLFAILURE */
+static int hf_nbap_primarySCH_Power;              /* DL_Power */
+static int hf_nbap_secondarySCH_Power;            /* DL_Power */
+static int hf_nbap_primaryCPICH_Power;            /* PrimaryCPICH_Power */
+static int hf_nbap_transmitDiversityIndicator;    /* TransmitDiversityIndicator */
+static int hf_nbap_SecondaryCPICH_InformationList_Cell_SetupRqstFDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_fDD_DL_ChannelisationCodeNumber;  /* FDD_DL_ChannelisationCodeNumber */
+static int hf_nbap_secondaryCPICH_Power;          /* DL_Power */
+static int hf_nbap_bCH_information;               /* BCH_Information_Cell_SetupRqstFDD */
+static int hf_nbap_bCH_Power;                     /* DL_Power */
+static int hf_nbap_powerRaiseLimit;               /* PowerRaiseLimit */
+static int hf_nbap_dLPowerAveragingWindowSize;    /* DLPowerAveragingWindowSize */
+static int hf_nbap_iPDL_FDD_Parameters;           /* IPDL_FDD_Parameters */
+static int hf_nbap_iPDL_Indicator;                /* IPDL_Indicator */
+static int hf_nbap_CellPortion_InformationList_Cell_SetupRqstFDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_associatedSecondaryCPICH;      /* CommonPhysicalChannelID */
+static int hf_nbap_maximumTransmissionPowerforCellPortion;  /* MaximumTransmissionPower */
+static int hf_nbap_syncCaseIndicator;             /* SyncCaseIndicator_Cell_SetupRqstTDD_PSCH */
+static int hf_nbap_sCH_Power;                     /* DL_Power */
+static int hf_nbap_case1;                         /* Case1_Cell_SetupRqstTDD */
+static int hf_nbap_case2;                         /* Case2_Cell_SetupRqstTDD */
+static int hf_nbap_sCH_TimeSlot;                  /* SCH_TimeSlot */
+static int hf_nbap_pCCPCH_Power;                  /* PCCPCH_Power */
+static int hf_nbap_sCTD_Indicator;                /* SCTD_Indicator */
+static int hf_nbap_TimeSlotConfigurationList_Cell_SetupRqstTDD_item;  /* TimeSlotConfigurationItem_Cell_SetupRqstTDD */
+static int hf_nbap_timeSlotStatus;                /* TimeSlotStatus */
+static int hf_nbap_timeSlotDirection;             /* TimeSlotDirection */
+static int hf_nbap_TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD_item;  /* TimeSlotConfigurationItem_LCR_Cell_SetupRqstTDD */
+static int hf_nbap_dwPCH_Power;                   /* DwPCH_Power */
+static int hf_nbap_iPDL_TDD_Parameters;           /* IPDL_TDD_Parameters */
+static int hf_nbap_iPDL_TDD_Parameters_LCR;       /* IPDL_TDD_Parameters_LCR */
+static int hf_nbap_Cell_Frequency_List_LCR_MulFreq_Cell_SetupRqstTDD_item;  /* Cell_Frequency_Item_LCR_MulFreq_Cell_SetupRqstTDD */
+static int hf_nbap_timeSlotConfigurationList_LCR_Cell_SetupRqstTDD;  /* TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD */
+static int hf_nbap_SecondaryCPICH_InformationList_Cell_ReconfRqstFDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_bCH_information_01;            /* BCH_information_Cell_ReconfRqstFDD */
+static int hf_nbap_CellPortion_InformationList_Cell_ReconfRqstFDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_TimeSlotConfigurationList_Cell_ReconfRqstTDD_item;  /* TimeSlotConfigurationItem_Cell_ReconfRqstTDD */
+static int hf_nbap_TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD_item;  /* TimeSlotConfigurationItem_LCR_Cell_ReconfRqstTDD */
+static int hf_nbap_cell_Frequency_Add_LCR_MulFreq_Cell_ReconfRqstTDD;  /* Cell_Frequency_Add_LCR_MulFreq_Cell_ReconfRqstTDD */
+static int hf_nbap_cell_Frequency_ModifyList_LCR_MulFreq_Cell_ReconfRqstTDD;  /* Cell_Frequency_ModifyList_LCR_MulFreq_Cell_ReconfRqstTDD */
+static int hf_nbap_cell_Frequency_Delete_LCR_MulFreq_Cell_ReconfRqstTDD;  /* Cell_Frequency_Delete_LCR_MulFreq_Cell_ReconfRqstTDD */
+static int hf_nbap_timeSlotConfigurationList_LCR_Cell_ReconfRqstTDD;  /* TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD */
+static int hf_nbap_Cell_Frequency_ModifyList_LCR_MulFreq_Cell_ReconfRqstTDD_item;  /* Cell_Frequency_ModifyItem_LCR_MulFreq_Cell_ReconfRqstTDD */
+static int hf_nbap_no_Failure;                    /* No_Failure_ResourceStatusInd */
+static int hf_nbap_serviceImpacting;              /* ServiceImpacting_ResourceStatusInd */
+static int hf_nbap_local_Cell_InformationList;    /* Local_Cell_InformationList_ResourceStatusInd */
+static int hf_nbap_local_Cell_Group_InformationList;  /* Local_Cell_Group_InformationList_ResourceStatusInd */
+static int hf_nbap_Local_Cell_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_local_CellID;                  /* Local_Cell_ID */
+static int hf_nbap_addorDeleteIndicator;          /* AddorDeleteIndicator */
+static int hf_nbap_Local_Cell_Group_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_Power_Local_Cell_Group_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_local_Cell_InformationList_01;  /* Local_Cell_InformationList2_ResourceStatusInd */
+static int hf_nbap_local_Cell_Group_InformationList_01;  /* Local_Cell_Group_InformationList2_ResourceStatusInd */
+static int hf_nbap_cCP_InformationList;           /* CCP_InformationList_ResourceStatusInd */
+static int hf_nbap_cell_InformationList;          /* Cell_InformationList_ResourceStatusInd */
+static int hf_nbap_Local_Cell_InformationList2_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_maximum_DL_PowerCapability;    /* MaximumDL_PowerCapability */
+static int hf_nbap_Local_Cell_Group_InformationList2_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_CCP_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_Cell_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_primary_SCH_Information_01;    /* P_SCH_Information_ResourceStatusInd */
+static int hf_nbap_secondary_SCH_Information_01;  /* S_SCH_Information_ResourceStatusInd */
+static int hf_nbap_primary_CPICH_Information_01;  /* P_CPICH_Information_ResourceStatusInd */
+static int hf_nbap_secondary_CPICH_Information_01;  /* S_CPICH_InformationList_ResourceStatusInd */
+static int hf_nbap_primary_CCPCH_Information_01;  /* P_CCPCH_Information_ResourceStatusInd */
+static int hf_nbap_bCH_Information_01;            /* BCH_Information_ResourceStatusInd */
+static int hf_nbap_secondary_CCPCH_InformationList_01;  /* S_CCPCH_InformationList_ResourceStatusInd */
+static int hf_nbap_pCH_Information_01;            /* PCH_Information_ResourceStatusInd */
+static int hf_nbap_pICH_Information_01;           /* PICH_Information_ResourceStatusInd */
+static int hf_nbap_fACH_InformationList_01;       /* FACH_InformationList_ResourceStatusInd */
+static int hf_nbap_pRACH_InformationList_01;      /* PRACH_InformationList_ResourceStatusInd */
+static int hf_nbap_rACH_InformationList_01;       /* RACH_InformationList_ResourceStatusInd */
+static int hf_nbap_aICH_InformationList_01;       /* AICH_InformationList_ResourceStatusInd */
+static int hf_nbap_sCH_Information_01;            /* SCH_Information_ResourceStatusInd */
+static int hf_nbap_S_CPICH_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_S_CCPCH_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_FACH_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_PRACH_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_RACH_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_AICH_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_FPACH_LCR_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_S_CCPCH_InformationListExt_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_S_CCPCH_LCR_InformationListExt_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_PLCCH_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_S_CCPCH_768_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_PRACH_768_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_E_RUCCH_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_E_RUCCH_768_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_Cell_Frequency_List_Information_LCR_MulFreq_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_UPPCH_LCR_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_MultipleFreq_HS_DSCH_Resources_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_Power_Local_Cell_Group_InformationList2_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_MultipleFreq_E_DCH_Resources_InformationList_ResourceStatusInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_MIB_SB_SIB_InformationList_SystemInfoUpdateRqst_item;  /* MIB_SB_SIB_InformationItem_SystemInfoUpdateRqst */
+static int hf_nbap_iB_Type;                       /* IB_Type */
+static int hf_nbap_iB_OC_ID;                      /* IB_OC_ID */
+static int hf_nbap_deletionIndicator;             /* DeletionIndicator_SystemInfoUpdate */
+static int hf_nbap_no_Deletion;                   /* No_Deletion_SystemInfoUpdate */
+static int hf_nbap_yes_Deletion;                  /* NULL */
+static int hf_nbap_sIB_Originator;                /* SIB_Originator */
+static int hf_nbap_iB_SG_REP;                     /* IB_SG_REP */
+static int hf_nbap_segmentInformationList;        /* SegmentInformationList_SystemInfoUpdate */
+static int hf_nbap_SegmentInformationListIE_SystemInfoUpdate_item;  /* SegmentInformationItem_SystemInfoUpdate */
+static int hf_nbap_iB_SG_POS;                     /* IB_SG_POS */
+static int hf_nbap_segment_Type;                  /* Segment_Type */
+static int hf_nbap_iB_SG_DATA;                    /* IB_SG_DATA */
+static int hf_nbap_Additional_HS_Cell_Information_RL_Setup_List_item;  /* Additional_HS_Cell_Information_RL_Setup_ItemIEs */
+static int hf_nbap_hSPDSCH_RL_ID;                 /* RL_ID */
+static int hf_nbap_hS_DSCH_FDD_Secondary_Serving_Information;  /* HS_DSCH_FDD_Secondary_Serving_Information */
+static int hf_nbap_minUL_ChannelisationCodeLength;  /* MinUL_ChannelisationCodeLength */
+static int hf_nbap_maxNrOfUL_DPDCHs;              /* MaxNrOfUL_DPDCHs */
+static int hf_nbap_ul_DPCCH_SlotFormat;           /* UL_DPCCH_SlotFormat */
+static int hf_nbap_diversityMode;                 /* DiversityMode */
+static int hf_nbap_not_Used_sSDT_CellID_Length;   /* NULL */
+static int hf_nbap_not_Used_s_FieldLength;        /* NULL */
+static int hf_nbap_dl_DPCH_SlotFormat;            /* DL_DPCH_SlotFormat */
+static int hf_nbap_tFCI_SignallingMode;           /* TFCI_SignallingMode */
+static int hf_nbap_not_Used_pDSCH_RL_ID;          /* NULL */
+static int hf_nbap_not_Used_pDSCH_CodeMapping;    /* NULL */
+static int hf_nbap_powerOffsetInformation_01;     /* PowerOffsetInformation_RL_SetupRqstFDD */
+static int hf_nbap_pO2_ForTPC_Bits;               /* PowerOffset */
+static int hf_nbap_RL_InformationList_RL_SetupRqstFDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_frameOffset;                   /* FrameOffset */
+static int hf_nbap_chipOffset;                    /* ChipOffset */
+static int hf_nbap_diversityControlField;         /* DiversityControlField */
+static int hf_nbap_not_Used_sSDT_Cell_Identity;   /* NULL */
+static int hf_nbap_hSDSCH_Configured_Indicator;   /* HSDSCH_Configured_Indicator */
+static int hf_nbap_powerOffsetInformation_02;     /* PowerOffsetInformation_F_DPCH_RL_SetupRqstFDD */
+static int hf_nbap_UL_CCTrCH_InformationList_RL_SetupRqstTDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_uL_DPCH_Information;           /* UL_DPCH_Information_RL_SetupRqstTDD */
+static int hf_nbap_tdd_DPCHOffset;                /* TDD_DPCHOffset */
+static int hf_nbap_uL_Timeslot_Information;       /* UL_Timeslot_Information */
+static int hf_nbap_uL_TimeslotLCR_Information;    /* UL_TimeslotLCR_Information */
+static int hf_nbap_uL_Timeslot768_Information;    /* UL_Timeslot768_Information */
+static int hf_nbap_DL_CCTrCH_InformationList_RL_SetupRqstTDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_tdd_TPC_DownlinkStepSize;      /* TDD_TPC_DownlinkStepSize */
+static int hf_nbap_cCTrCH_TPCList;                /* CCTrCH_TPCList_RL_SetupRqstTDD */
+static int hf_nbap_dL_DPCH_Information;           /* DL_DPCH_Information_RL_SetupRqstTDD */
+static int hf_nbap_CCTrCH_TPCList_RL_SetupRqstTDD_item;  /* CCTrCH_TPCItem_RL_SetupRqstTDD */
+static int hf_nbap_dL_Timeslot_Information;       /* DL_Timeslot_Information */
+static int hf_nbap_dL_TimeslotLCR_Information;    /* DL_TimeslotLCR_Information */
+static int hf_nbap_tstdIndicator;                 /* TSTD_Indicator */
+static int hf_nbap_dL_Timeslot768_Information;    /* DL_Timeslot768_Information */
+static int hf_nbap_specialBurstScheduling;        /* SpecialBurstScheduling */
+static int hf_nbap_dL_TimeSlotISCPInfo;           /* DL_TimeslotISCPInfo */
+static int hf_nbap_Additional_HS_Cell_Information_Response_List_item;  /* Additional_HS_Cell_Information_Response_ItemIEs */
+static int hf_nbap_RL_InformationResponseList_RL_SetupRspFDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_diversityIndication;           /* DiversityIndication_RL_SetupRspFDD */
+static int hf_nbap_not_Used_dSCH_InformationResponseList;  /* NULL */
+static int hf_nbap_sSDT_SupportIndicator;         /* SSDT_SupportIndicator */
+static int hf_nbap_combining;                     /* Combining_RL_SetupRspFDD */
+static int hf_nbap_nonCombiningOrFirstRL;         /* NonCombiningOrFirstRL_RL_SetupRspFDD */
+static int hf_nbap_dCH_InformationResponse;       /* DCH_InformationResponse */
+static int hf_nbap_uL_TimeSlot_ISCP_Info;         /* UL_TimeSlot_ISCP_Info */
+static int hf_nbap_ul_PhysCH_SF_Variation;        /* UL_PhysCH_SF_Variation */
+static int hf_nbap_dCH_InformationResponseList;   /* DCH_InformationResponseList_RL_SetupRspTDD */
+static int hf_nbap_dSCH_InformationResponseList;  /* DSCH_InformationResponseList_RL_SetupRspTDD */
+static int hf_nbap_uSCH_InformationResponseList;  /* USCH_InformationResponseList_RL_SetupRspTDD */
+static int hf_nbap_uL_TimeSlot_ISCP_LCR_Info;     /* UL_TimeSlot_ISCP_LCR_Info */
+static int hf_nbap_generalCause;                  /* GeneralCauseList_RL_SetupFailureFDD */
+static int hf_nbap_rLSpecificCause;               /* RLSpecificCauseList_RL_SetupFailureFDD */
+static int hf_nbap_unsuccessful_RL_InformationRespList_RL_SetupFailureFDD;  /* Unsuccessful_RL_InformationRespList_RL_SetupFailureFDD */
+static int hf_nbap_successful_RL_InformationRespList_RL_SetupFailureFDD;  /* Successful_RL_InformationRespList_RL_SetupFailureFDD */
+static int hf_nbap_Unsuccessful_RL_InformationRespList_RL_SetupFailureFDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_Successful_RL_InformationRespList_RL_SetupFailureFDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_diversityIndication_01;        /* DiversityIndication_RL_SetupFailureFDD */
+static int hf_nbap_not_Used_tFCI2_BearerInformationResponse;  /* NULL */
+static int hf_nbap_combining_01;                  /* Combining_RL_SetupFailureFDD */
+static int hf_nbap_nonCombiningOrFirstRL_01;      /* NonCombiningOrFirstRL_RL_SetupFailureFDD */
+static int hf_nbap_generalCause_01;               /* GeneralCauseList_RL_SetupFailureTDD */
+static int hf_nbap_rLSpecificCause_01;            /* RLSpecificCauseList_RL_SetupFailureTDD */
+static int hf_nbap_unsuccessful_RL_InformationRespItem_RL_SetupFailureTDD;  /* Unsuccessful_RL_InformationRespItem_RL_SetupFailureTDD */
+static int hf_nbap_Additional_HS_Cell_Information_RL_Addition_List_item;  /* Additional_HS_Cell_Information_RL_Addition_ItemIEs */
+static int hf_nbap_setup_Or_Addition_Of_EDCH_On_secondary_UL_Frequency;  /* Setup_Or_Addition_Of_EDCH_On_secondary_UL_Frequency */
+static int hf_nbap_addition;                      /* Additional_EDCH_Cell_Information_To_Add_List */
+static int hf_nbap_RL_InformationList_RL_AdditionRqstFDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_initialDL_TransmissionPower;   /* DL_Power */
+static int hf_nbap_maximumDL_Power;               /* DL_Power */
+static int hf_nbap_minimumDL_Power;               /* DL_Power */
+static int hf_nbap_not_Used_sSDT_CellIdentity;    /* NULL */
+static int hf_nbap_UL_CCTrCH_InformationList_RL_AdditionRqstTDD_item;  /* UL_CCTrCH_InformationItem_RL_AdditionRqstTDD */
+static int hf_nbap_uL_DPCH_Information_01;        /* UL_DPCH_InformationList_RL_AdditionRqstTDD */
+static int hf_nbap_DL_CCTrCH_InformationList_RL_AdditionRqstTDD_item;  /* DL_CCTrCH_InformationItem_RL_AdditionRqstTDD */
+static int hf_nbap_dL_DPCH_Information_01;        /* DL_DPCH_InformationList_RL_AdditionRqstTDD */
+static int hf_nbap_initial_DL_Transmission_Power;  /* DL_Power */
+static int hf_nbap_Additional_HS_Cell_Change_Information_Response_List_item;  /* Additional_HS_Cell_Change_Information_Response_ItemIEs */
+static int hf_nbap_hS_DSCH_Secondary_Serving_Cell_Change_Information_Response;  /* HS_DSCH_Secondary_Serving_Cell_Change_Information_Response */
+static int hf_nbap_RL_InformationResponseList_RL_AdditionRspFDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_diversityIndication_02;        /* DiversityIndication_RL_AdditionRspFDD */
+static int hf_nbap_combining_02;                  /* Combining_RL_AdditionRspFDD */
+static int hf_nbap_non_combining;                 /* Non_Combining_RL_AdditionRspFDD */
+static int hf_nbap_dCH_Information;               /* DCH_Information_RL_AdditionRspTDD */
+static int hf_nbap_dSCH_InformationResponseList_01;  /* DSCH_InformationResponseList_RL_AdditionRspTDD */
+static int hf_nbap_uSCH_InformationResponseList_01;  /* USCH_InformationResponseList_RL_AdditionRspTDD */
+static int hf_nbap_diversityIndication_03;        /* DiversityIndication_RL_AdditionRspTDD */
+static int hf_nbap_combining_03;                  /* Combining_RL_AdditionRspTDD */
+static int hf_nbap_non_Combining;                 /* Non_Combining_RL_AdditionRspTDD */
+static int hf_nbap_uL_TimeSlot_ISCP_InfoLCR;      /* UL_TimeSlot_ISCP_LCR_Info */
+static int hf_nbap_generalCause_02;               /* GeneralCauseList_RL_AdditionFailureFDD */
+static int hf_nbap_rLSpecificCause_02;            /* RLSpecificCauseList_RL_AdditionFailureFDD */
+static int hf_nbap_unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD;  /* Unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD */
+static int hf_nbap_successful_RL_InformationRespList_RL_AdditionFailureFDD;  /* Successful_RL_InformationRespList_RL_AdditionFailureFDD */
+static int hf_nbap_Unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_Successful_RL_InformationRespList_RL_AdditionFailureFDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_diversityIndication_04;        /* DiversityIndication_RL_AdditionFailureFDD */
+static int hf_nbap_combining_04;                  /* Combining_RL_AdditionFailureFDD */
+static int hf_nbap_non_Combining_01;              /* Non_Combining_RL_AdditionFailureFDD */
+static int hf_nbap_generalCause_03;               /* GeneralCauseList_RL_AdditionFailureTDD */
+static int hf_nbap_rLSpecificCause_03;            /* RLSpecificCauseList_RL_AdditionFailureTDD */
+static int hf_nbap_unsuccessful_RL_InformationRespItem_RL_AdditionFailureTDD;  /* Unsuccessful_RL_InformationRespItem_RL_AdditionFailureTDD */
+static int hf_nbap_Additional_HS_Cell_Information_RL_Reconf_Prep_item;  /* Additional_HS_Cell_Information_RL_Reconf_Prep_ItemIEs */
+static int hf_nbap_hS_DSCH_Secondary_Serving_Information_To_Modify;  /* HS_DSCH_Secondary_Serving_Information_To_Modify */
+static int hf_nbap_hS_HS_DSCH_Secondary_Serving_Remove;  /* HS_DSCH_Secondary_Serving_Remove */
+static int hf_nbap_setup_Or_ConfigurationChange_Or_Removal_Of_EDCH_On_secondary_UL_Frequency;  /* Setup_Or_ConfigurationChange_Or_Removal_Of_EDCH_On_secondary_UL_Frequency */
+static int hf_nbap_not_Used_sSDT_CellIDLength;    /* NULL */
+static int hf_nbap_powerOffsetInformation_03;     /* PowerOffsetInformation_RL_ReconfPrepFDD */
+static int hf_nbap_DCH_DeleteList_RL_ReconfPrepFDD_item;  /* DCH_DeleteItem_RL_ReconfPrepFDD */
+static int hf_nbap_RL_InformationList_RL_ReconfPrepFDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_maxDL_Power;                   /* DL_Power */
+static int hf_nbap_minDL_Power;                   /* DL_Power */
+static int hf_nbap_not_Used_sSDT_Indication;      /* NULL */
+static int hf_nbap_powerOffsetInformation_04;     /* PowerOffsetInformation_F_DPCH_RL_ReconfPrepFDD */
+static int hf_nbap_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_item;  /* UL_CCTrCH_InformationAddItem_RL_ReconfPrepTDD */
+static int hf_nbap_ul_DPCH_InformationList;       /* UL_DPCH_InformationAddList_RL_ReconfPrepTDD */
+static int hf_nbap_uL_Timeslot_InformationLCR;    /* UL_TimeslotLCR_Information */
+static int hf_nbap_MultipleRL_UL_DPCH_InformationAddList_RL_ReconfPrepTDD_item;  /* MultipleRL_UL_DPCH_InformationAddListIE_RL_ReconfPrepTDD */
+static int hf_nbap_ul_DPCH_InformationListLCR;    /* UL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD */
+static int hf_nbap_ul_sir_target;                 /* UL_SIR */
+static int hf_nbap_tDD_TPC_UplinkStepSize_LCR;    /* TDD_TPC_UplinkStepSize_LCR */
+static int hf_nbap_uL_Timeslot_Information768;    /* UL_Timeslot768_Information */
+static int hf_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_item;  /* UL_CCTrCH_InformationModifyItem_RL_ReconfPrepTDD */
+static int hf_nbap_ul_DPCH_InformationAddList;    /* UL_DPCH_InformationModify_AddList_RL_ReconfPrepTDD */
+static int hf_nbap_ul_DPCH_InformationModifyList;  /* UL_DPCH_InformationModify_ModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_ul_DPCH_InformationDeleteList;  /* UL_DPCH_InformationModify_DeleteList_RL_ReconfPrepTDD */
+static int hf_nbap_uL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD;  /* UL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_UL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD_item;  /* UL_Timeslot_InformationModify_ModifyItem_RL_ReconfPrepTDD */
+static int hf_nbap_uL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD;  /* UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD_item;  /* UL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDD */
+static int hf_nbap_UL_TimeslotLCR_InformationModify_ModifyList_RL_ReconfPrepTDD_item;  /* UL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD */
+static int hf_nbap_uL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR;  /* UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR */
+static int hf_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR_item;  /* UL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDDLCR */
+static int hf_nbap_UL_Timeslot768_InformationModify_ModifyList_RL_ReconfPrepTDD_item;  /* UL_Timeslot_768_InformationModify_ModifyItem_RL_ReconfPrepTDD */
+static int hf_nbap_uL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD768;  /* UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD768 */
+static int hf_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD768_item;  /* UL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDD768 */
+static int hf_nbap_UL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD_item;  /* UL_DPCH_InformationModify_DeleteItem_RL_ReconfPrepTDD */
+static int hf_nbap_MultipleRL_UL_DPCH_InformationModifyList_RL_ReconfPrepTDD_item;  /* MultipleRL_UL_DPCH_InformationModifyListIE_RL_ReconfPrepTDD */
+static int hf_nbap_ul_DPCH_InformationAddListLCR;  /* UL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD */
+static int hf_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_item;  /* UL_CCTrCH_InformationDeleteItem_RL_ReconfPrepTDD */
+static int hf_nbap_DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD_item;  /* DL_CCTrCH_InformationAddItem_RL_ReconfPrepTDD */
+static int hf_nbap_cCTrCH_TPCList_01;             /* CCTrCH_TPCAddList_RL_ReconfPrepTDD */
+static int hf_nbap_dl_DPCH_InformationList;       /* DL_DPCH_InformationAddList_RL_ReconfPrepTDD */
+static int hf_nbap_CCTrCH_TPCAddList_RL_ReconfPrepTDD_item;  /* CCTrCH_TPCAddItem_RL_ReconfPrepTDD */
+static int hf_nbap_dL_Timeslot_InformationLCR;    /* DL_TimeslotLCR_Information */
+static int hf_nbap_MultipleRL_DL_DPCH_InformationAddList_RL_ReconfPrepTDD_item;  /* MultipleRL_DL_DPCH_InformationAddListIE_RL_ReconfPrepTDD */
+static int hf_nbap_dl_DPCH_InformationListLCR;    /* DL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD */
+static int hf_nbap_cCTrCH_Initial_DL_Power;       /* DL_Power */
+static int hf_nbap_tDD_TPC_DownlinkStepSize;      /* TDD_TPC_DownlinkStepSize */
+static int hf_nbap_cCTrCH_Maximum_DL_Power_InformationAdd_RL_ReconfPrepTDD;  /* DL_Power */
+static int hf_nbap_cCTrCH_Minimum_DL_Power_InformationAdd_RL_ReconfPrepTDD;  /* DL_Power */
+static int hf_nbap_dL_Timeslot_Information768;    /* DL_Timeslot768_Information */
+static int hf_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD_item;  /* DL_CCTrCH_InformationModifyItem_RL_ReconfPrepTDD */
+static int hf_nbap_cCTrCH_TPCList_02;             /* CCTrCH_TPCModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_dl_DPCH_InformationAddList;    /* DL_DPCH_InformationModify_AddList_RL_ReconfPrepTDD */
+static int hf_nbap_dl_DPCH_InformationModifyList;  /* DL_DPCH_InformationModify_ModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_dl_DPCH_InformationDeleteList;  /* DL_DPCH_InformationModify_DeleteList_RL_ReconfPrepTDD */
+static int hf_nbap_CCTrCH_TPCModifyList_RL_ReconfPrepTDD_item;  /* CCTrCH_TPCModifyItem_RL_ReconfPrepTDD */
+static int hf_nbap_dL_Timeslot_InformationAddModify_ModifyList_RL_ReconfPrepTDD;  /* DL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_DL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD_item;  /* DL_Timeslot_InformationModify_ModifyItem_RL_ReconfPrepTDD */
+static int hf_nbap_dL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD;  /* DL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_DL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD_item;  /* DL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDD */
+static int hf_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD_item;  /* DL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD */
+static int hf_nbap_dL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD;  /* DL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_DL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD_item;  /* DL_Code_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD */
+static int hf_nbap_DL_Timeslot_768_InformationModify_ModifyList_RL_ReconfPrepTDD_item;  /* DL_Timeslot_768_InformationModify_ModifyItem_RL_ReconfPrepTDD */
+static int hf_nbap_dL_Code_768_InformationModify_ModifyList_RL_ReconfPrepTDD;  /* DL_Code_768_InformationModify_ModifyList_RL_ReconfPrepTDD */
+static int hf_nbap_DL_Code_768_InformationModify_ModifyList_RL_ReconfPrepTDD_item;  /* DL_Code_768_InformationModify_ModifyItem_RL_ReconfPrepTDD */
+static int hf_nbap_dPCH_ID768;                    /* DPCH_ID768 */
+static int hf_nbap_DL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD_item;  /* DL_DPCH_InformationModify_DeleteItem_RL_ReconfPrepTDD */
+static int hf_nbap_MultipleRL_DL_DPCH_InformationModifyList_RL_ReconfPrepTDD_item;  /* MultipleRL_DL_DPCH_InformationModifyListIE_RL_ReconfPrepTDD */
+static int hf_nbap_dl_DPCH_InformationAddListLCR;  /* DL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD */
+static int hf_nbap_tDD_TPC_DownlinkStepSize_InformationModify_RL_ReconfPrepTDD;  /* TDD_TPC_DownlinkStepSize */
+static int hf_nbap_cCTrCH_Maximum_DL_Power_InformationModify_RL_ReconfPrepTDD;  /* DL_Power */
+static int hf_nbap_cCTrCH_Minimum_DL_Power_InformationModify_RL_ReconfPrepTDD;  /* DL_Power */
+static int hf_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD_item;  /* DL_CCTrCH_InformationDeleteItem_RL_ReconfPrepTDD */
+static int hf_nbap_DCH_DeleteList_RL_ReconfPrepTDD_item;  /* DCH_DeleteItem_RL_ReconfPrepTDD */
+static int hf_nbap_DSCH_Information_ModifyList_RL_ReconfPrepTDD_item;  /* DSCH_Information_ModifyItem_RL_ReconfPrepTDD */
+static int hf_nbap_DSCH_Information_DeleteList_RL_ReconfPrepTDD_item;  /* DSCH_Information_DeleteItem_RL_ReconfPrepTDD */
+static int hf_nbap_USCH_Information_ModifyList_RL_ReconfPrepTDD_item;  /* USCH_Information_ModifyItem_RL_ReconfPrepTDD */
+static int hf_nbap_USCH_Information_DeleteList_RL_ReconfPrepTDD_item;  /* USCH_Information_DeleteItem_RL_ReconfPrepTDD */
+static int hf_nbap_MultipleRL_Information_RL_ReconfPrepTDD_item;  /* RL_Information_RL_ReconfPrepTDD */
+static int hf_nbap_RL_InformationResponseList_RL_ReconfReady_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_dCH_InformationResponseList_RL_ReconfReady;  /* DCH_InformationResponseList_RL_ReconfReady */
+static int hf_nbap_dSCH_InformationResponseList_RL_ReconfReady;  /* DSCH_InformationResponseList_RL_ReconfReady */
+static int hf_nbap_uSCH_InformationResponseList_RL_ReconfReady;  /* USCH_InformationResponseList_RL_ReconfReady */
+static int hf_nbap_generalCause_04;               /* GeneralCauseList_RL_ReconfFailure */
+static int hf_nbap_rLSpecificCause_04;            /* RLSpecificCauseList_RL_ReconfFailure */
+static int hf_nbap_rL_ReconfigurationFailureList_RL_ReconfFailure;  /* RL_ReconfigurationFailureList_RL_ReconfFailure */
+static int hf_nbap_RL_ReconfigurationFailureList_RL_ReconfFailure_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_Additional_HS_Cell_Information_RL_Reconf_Req_item;  /* Additional_HS_Cell_Information_RL_Reconf_Req_ItemIEs */
+static int hf_nbap_hS_DSCH_FDD_Secondary_Serving_Information_To_Modify_Unsynchronised;  /* HS_DSCH_FDD_Secondary_Serving_Information_To_Modify_Unsynchronised */
+static int hf_nbap_hS_DSCH_Secondary_Serving_Remove;  /* HS_DSCH_Secondary_Serving_Remove */
+static int hf_nbap_ul_TFCS;                       /* TFCS */
+static int hf_nbap_dl_TFCS;                       /* TFCS */
+static int hf_nbap_DCH_DeleteList_RL_ReconfRqstFDD_item;  /* DCH_DeleteItem_RL_ReconfRqstFDD */
+static int hf_nbap_RL_InformationList_RL_ReconfRqstFDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_MultipleRL_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD_item;  /* MultipleRL_DL_CCTrCH_InformationModifyListIE_RL_ReconfRqstTDD */
+static int hf_nbap_dl_DPCH_LCR_InformationModifyList;  /* DL_DPCH_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD */
+static int hf_nbap_cCTrCH_Maximum_DL_Power_InformationModify_RL_ReconfRqstTDD;  /* DL_Power */
+static int hf_nbap_cCTrCH_Minimum_DL_Power_InformationModify_RL_ReconfRqstTDD;  /* DL_Power */
+static int hf_nbap_dL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD;  /* DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD */
+static int hf_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD_item;  /* DL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfRqstTDD */
+static int hf_nbap_maxPowerLCR;                   /* DL_Power */
+static int hf_nbap_minPowerLCR;                   /* DL_Power */
+static int hf_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_DCH_DeleteList_RL_ReconfRqstTDD_item;  /* DCH_DeleteItem_RL_ReconfRqstTDD */
+static int hf_nbap_Multiple_RL_Information_RL_ReconfRqstTDD_item;  /* RL_Information_RL_ReconfRqstTDD */
+static int hf_nbap_RL_InformationResponseList_RL_ReconfRsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_dCH_InformationResponseList_RL_ReconfRsp;  /* DCH_InformationResponseList_RL_ReconfRsp */
+static int hf_nbap_RL_informationList_RL_DeletionRqst_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_DL_ReferencePowerInformationList_DL_PC_Rqst_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_dl_ReferencePower;             /* DL_Power */
+static int hf_nbap_rL;                            /* RL_DM_Rqst */
+static int hf_nbap_rLS;                           /* RL_Set_DM_Rqst */
+static int hf_nbap_all_RL;                        /* AllRL_DM_Rqst */
+static int hf_nbap_all_RLS;                       /* AllRL_Set_DM_Rqst */
+static int hf_nbap_rL_InformationList;            /* RL_InformationList_DM_Rqst */
+static int hf_nbap_RL_InformationList_DM_Rqst_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_PUSCH_Info_DM_Rqst_item;       /* PUSCH_ID */
+static int hf_nbap_HSSICH_Info_DM_Rqst_item;      /* HS_SICH_ID */
+static int hf_nbap_HSSICH_InfoExt_DM_Rqst_item;   /* Extended_HS_SICH_ID */
+static int hf_nbap_rL_Set_InformationList_DM_Rqst;  /* RL_Set_InformationList_DM_Rqst */
+static int hf_nbap_RL_Set_InformationList_DM_Rqst_item;  /* RL_Set_InformationItem_DM_Rqst */
+static int hf_nbap_rL_01;                         /* RL_DM_Rsp */
+static int hf_nbap_rLS_01;                        /* RL_Set_DM_Rsp */
+static int hf_nbap_all_RL_01;                     /* RL_DM_Rsp */
+static int hf_nbap_all_RLS_01;                    /* RL_Set_DM_Rsp */
+static int hf_nbap_rL_InformationList_DM_Rsp;     /* RL_InformationList_DM_Rsp */
+static int hf_nbap_RL_InformationList_DM_Rsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_dedicatedMeasurementValue;     /* DedicatedMeasurementValue */
+static int hf_nbap_PUSCH_Info_DM_Rsp_item;        /* PUSCH_ID */
+static int hf_nbap_Multiple_PUSCH_InfoList_DM_Rsp_item;  /* Multiple_PUSCH_InfoListIE_DM_Rsp */
+static int hf_nbap_pUSCH_ID;                      /* PUSCH_ID */
+static int hf_nbap_Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp_item;  /* Multiple_DedicatedMeasurementValueItem_TDD_DM_Rsp */
+static int hf_nbap_Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp_item;  /* Multiple_DedicatedMeasurementValueItem_LCR_TDD_DM_Rsp */
+static int hf_nbap_Multiple_HSSICHMeasurementValueList_TDD_DM_Rsp_item;  /* Multiple_HSSICHMeasurementValueItem_TDD_DM_Rsp */
+static int hf_nbap_Multiple_DedicatedMeasurementValueList_768_TDD_DM_Rsp_item;  /* Multiple_DedicatedMeasurementValueItem_768_TDD_DM_Rsp */
+static int hf_nbap_rL_Set_InformationList_DM_Rsp;  /* RL_Set_InformationList_DM_Rsp */
+static int hf_nbap_RL_Set_InformationList_DM_Rsp_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_rL_02;                         /* RL_DM_Rprt */
+static int hf_nbap_rLS_02;                        /* RL_Set_DM_Rprt */
+static int hf_nbap_all_RL_02;                     /* RL_DM_Rprt */
+static int hf_nbap_all_RLS_02;                    /* RL_Set_DM_Rprt */
+static int hf_nbap_rL_InformationList_DM_Rprt;    /* RL_InformationList_DM_Rprt */
+static int hf_nbap_RL_InformationList_DM_Rprt_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_dedicatedMeasurementValueInformation;  /* DedicatedMeasurementValueInformation */
+static int hf_nbap_PUSCH_Info_DM_Rprt_item;       /* PUSCH_ID */
+static int hf_nbap_Multiple_PUSCH_InfoList_DM_Rprt_item;  /* Multiple_PUSCH_InfoListIE_DM_Rprt */
+static int hf_nbap_rL_Set_InformationList_DM_Rprt;  /* RL_Set_InformationList_DM_Rprt */
+static int hf_nbap_RL_Set_InformationList_DM_Rprt_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_rL_03;                         /* RL_RL_FailureInd */
+static int hf_nbap_rL_Set;                        /* RL_Set_RL_FailureInd */
+static int hf_nbap_cCTrCH;                        /* CCTrCH_RL_FailureInd */
+static int hf_nbap_rL_InformationList_RL_FailureInd;  /* RL_InformationList_RL_FailureInd */
+static int hf_nbap_RL_InformationList_RL_FailureInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_rL_Set_InformationList_RL_FailureInd;  /* RL_Set_InformationList_RL_FailureInd */
+static int hf_nbap_RL_Set_InformationList_RL_FailureInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_cCTrCH_InformationList_RL_FailureInd;  /* CCTrCH_InformationList_RL_FailureInd */
+static int hf_nbap_CCTrCH_InformationList_RL_FailureInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_RL_InformationList_RL_PreemptRequiredInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_rL_04;                         /* RL_RL_RestoreInd */
+static int hf_nbap_rL_Set_01;                     /* RL_Set_RL_RestoreInd */
+static int hf_nbap_cCTrCH_01;                     /* CCTrCH_RL_RestoreInd */
+static int hf_nbap_rL_InformationList_RL_RestoreInd;  /* RL_InformationList_RL_RestoreInd */
+static int hf_nbap_RL_InformationList_RL_RestoreInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_rL_Set_InformationList_RL_RestoreInd;  /* RL_Set_InformationList_RL_RestoreInd */
+static int hf_nbap_RL_Set_InformationList_RL_RestoreInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_cCTrCH_InformationList_RL_RestoreInd;  /* CCTrCH_InformationList_RL_RestoreInd */
+static int hf_nbap_CCTrCH_InformationList_RL_RestoreInd_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_privateIEs;                    /* PrivateIE_Container */
+static int hf_nbap_HSDPA_And_EDCH_CellPortion_InformationList_PSCH_ReconfRqst_item;  /* HSDPA_And_EDCH_CellPortion_InformationItem_PSCH_ReconfRqst */
+static int hf_nbap_hS_PDSCH_HS_SCCH_ScramblingCode_PSCH_ReconfRqst;  /* DL_ScramblingCode */
+static int hf_nbap_hS_PDSCH_FDD_Code_Information_PSCH_ReconfRqst;  /* HS_PDSCH_FDD_Code_Information */
+static int hf_nbap_hS_SCCH_FDD_Code_Information_PSCH_ReconfRqst;  /* HS_SCCH_FDD_Code_Information */
+static int hf_nbap_hS_PDSCH_HS_SCCH_E_AGCH_E_RGCH_E_HICH_MaxPower_PSCH_ReconfRqst;  /* MaximumTransmissionPower */
+static int hf_nbap_e_AGCH_FDD_Code_Information;   /* E_AGCH_FDD_Code_Information */
+static int hf_nbap_e_RGCH_E_HICH_FDD_Code_Information;  /* E_RGCH_E_HICH_FDD_Code_Information */
+static int hf_nbap_PDSCHSets_AddList_PSCH_ReconfRqst_item;  /* PDSCHSets_AddItem_PSCH_ReconfRqst */
+static int hf_nbap_pDSCHSet_ID;                   /* PDSCHSet_ID */
+static int hf_nbap_pDSCH_InformationList;         /* PDSCH_Information_AddList_PSCH_ReconfRqst */
+static int hf_nbap_dL_Timeslot_InformationAddList_PSCH_ReconfRqst;  /* DL_Timeslot_InformationAddList_PSCH_ReconfRqst */
+static int hf_nbap_DL_Timeslot_InformationAddList_PSCH_ReconfRqst_item;  /* DL_Timeslot_InformationAddItem_PSCH_ReconfRqst */
+static int hf_nbap_dL_Code_InformationAddList_PSCH_ReconfRqst;  /* DL_Code_InformationAddList_PSCH_ReconfRqst */
+static int hf_nbap_DL_Code_InformationAddList_PSCH_ReconfRqst_item;  /* DL_Code_InformationAddItem_PSCH_ReconfRqst */
+static int hf_nbap_pDSCH_ID;                      /* PDSCH_ID */
+static int hf_nbap_dL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst;  /* DL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst */
+static int hf_nbap_DL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst_item;  /* DL_Timeslot_InformationAddItem_LCR_PSCH_ReconfRqst */
+static int hf_nbap_dL_Code_InformationAddList_LCR_PSCH_ReconfRqst;  /* DL_Code_InformationAddList_LCR_PSCH_ReconfRqst */
+static int hf_nbap_DL_Code_InformationAddList_LCR_PSCH_ReconfRqst_item;  /* DL_Code_InformationAddItem_LCR_PSCH_ReconfRqst */
+static int hf_nbap_dL_Timeslot_InformationAddList_768_PSCH_ReconfRqst;  /* DL_Timeslot_InformationAddList_768_PSCH_ReconfRqst */
+static int hf_nbap_DL_Timeslot_InformationAddList_768_PSCH_ReconfRqst_item;  /* DL_Timeslot_InformationAddItem_768_PSCH_ReconfRqst */
+static int hf_nbap_dL_Code_InformationAddList_768_PSCH_ReconfRqst;  /* DL_Code_InformationAddList_768_PSCH_ReconfRqst */
+static int hf_nbap_DL_Code_InformationAddList_768_PSCH_ReconfRqst_item;  /* DL_Code_InformationAddItem_768_PSCH_ReconfRqst */
+static int hf_nbap_pDSCH_ID768;                   /* PDSCH_ID768 */
+static int hf_nbap_PDSCHSets_ModifyList_PSCH_ReconfRqst_item;  /* PDSCHSets_ModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_pDSCH_InformationList_01;      /* PDSCH_Information_ModifyList_PSCH_ReconfRqst */
+static int hf_nbap_dL_Timeslot_InformationModifyList_PSCH_ReconfRqst;  /* DL_Timeslot_InformationModifyList_PSCH_ReconfRqst */
+static int hf_nbap_DL_Timeslot_InformationModifyList_PSCH_ReconfRqst_item;  /* DL_Timeslot_InformationModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_dL_Code_InformationModifyList_PSCH_ReconfRqst;  /* DL_Code_InformationModifyList_PSCH_ReconfRqst */
+static int hf_nbap_DL_Code_InformationModifyList_PSCH_ReconfRqst_item;  /* DL_Code_InformationModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_dL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst;  /* DL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst */
+static int hf_nbap_DL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst_item;  /* DL_Timeslot_LCR_InformationModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_dL_Code_LCR_InformationModifyList_PSCH_ReconfRqst;  /* DL_Code_LCR_InformationModifyList_PSCH_ReconfRqst */
+static int hf_nbap_DL_Code_LCR_InformationModifyList_PSCH_ReconfRqst_item;  /* DL_Code_LCR_InformationModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_dL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst;  /* DL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst */
+static int hf_nbap_DL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst_item;  /* DL_Timeslot_768_InformationModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_dL_Code_768_InformationModifyList_PSCH_ReconfRqst;  /* DL_Code_768_InformationModifyList_PSCH_ReconfRqst */
+static int hf_nbap_DL_Code_768_InformationModifyList_PSCH_ReconfRqst_item;  /* DL_Code_768_InformationModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_PDSCHSets_DeleteList_PSCH_ReconfRqst_item;  /* PDSCHSets_DeleteItem_PSCH_ReconfRqst */
+static int hf_nbap_PUSCHSets_AddList_PSCH_ReconfRqst_item;  /* PUSCHSets_AddItem_PSCH_ReconfRqst */
+static int hf_nbap_pUSCHSet_ID;                   /* PUSCHSet_ID */
+static int hf_nbap_pUSCH_InformationList;         /* PUSCH_Information_AddList_PSCH_ReconfRqst */
+static int hf_nbap_uL_Timeslot_InformationAddList_PSCH_ReconfRqst;  /* UL_Timeslot_InformationAddList_PSCH_ReconfRqst */
+static int hf_nbap_UL_Timeslot_InformationAddList_PSCH_ReconfRqst_item;  /* UL_Timeslot_InformationAddItem_PSCH_ReconfRqst */
+static int hf_nbap_uL_Code_InformationAddList_PSCH_ReconfRqst;  /* UL_Code_InformationAddList_PSCH_ReconfRqst */
+static int hf_nbap_UL_Code_InformationAddList_PSCH_ReconfRqst_item;  /* UL_Code_InformationAddItem_PSCH_ReconfRqst */
+static int hf_nbap_uL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst;  /* UL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst */
+static int hf_nbap_UL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst_item;  /* UL_Timeslot_InformationAddItem_LCR_PSCH_ReconfRqst */
+static int hf_nbap_uL_Code_InformationAddList_LCR_PSCH_ReconfRqst;  /* UL_Code_InformationAddList_LCR_PSCH_ReconfRqst */
+static int hf_nbap_UL_Code_InformationAddList_LCR_PSCH_ReconfRqst_item;  /* UL_Code_InformationAddItem_LCR_PSCH_ReconfRqst */
+static int hf_nbap_uL_Timeslot_InformationAddList_768_PSCH_ReconfRqst;  /* UL_Timeslot_InformationAddList_768_PSCH_ReconfRqst */
+static int hf_nbap_UL_Timeslot_InformationAddList_768_PSCH_ReconfRqst_item;  /* UL_Timeslot_InformationAddItem_768_PSCH_ReconfRqst */
+static int hf_nbap_uL_Code_InformationAddList_768_PSCH_ReconfRqst;  /* UL_Code_InformationAddList_768_PSCH_ReconfRqst */
+static int hf_nbap_UL_Code_InformationAddList_768_PSCH_ReconfRqst_item;  /* UL_Code_InformationAddItem_768_PSCH_ReconfRqst */
+static int hf_nbap_PUSCHSets_ModifyList_PSCH_ReconfRqst_item;  /* PUSCHSets_ModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_pUSCH_InformationList_01;      /* PUSCH_Information_ModifyList_PSCH_ReconfRqst */
+static int hf_nbap_uL_Timeslot_InformationModifyList_PSCH_ReconfRqst;  /* UL_Timeslot_InformationModifyList_PSCH_ReconfRqst */
+static int hf_nbap_UL_Timeslot_InformationModifyList_PSCH_ReconfRqst_item;  /* UL_Timeslot_InformationModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_uL_Code_InformationModifyList_PSCH_ReconfRqst;  /* UL_Code_InformationModifyList_PSCH_ReconfRqst */
+static int hf_nbap_UL_Code_InformationModifyList_PSCH_ReconfRqst_item;  /* UL_Code_InformationModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_uL_Timeslot_InformationModifyList_LCR_PSCH_ReconfRqst;  /* UL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst */
+static int hf_nbap_UL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst_item;  /* UL_Timeslot_LCR_InformationModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_uL_Code_LCR_InformationModifyList_PSCH_ReconfRqst;  /* UL_Code_LCR_InformationModifyList_PSCH_ReconfRqst */
+static int hf_nbap_UL_Code_LCR_InformationModifyList_PSCH_ReconfRqst_item;  /* UL_Code_LCR_InformationModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_uL_Timeslot_InformationModifyList_768_PSCH_ReconfRqst;  /* UL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst */
+static int hf_nbap_UL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst_item;  /* UL_Timeslot_768_InformationModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_uL_Code_768_InformationModifyList_PSCH_ReconfRqst;  /* UL_Code_768_InformationModifyList_PSCH_ReconfRqst */
+static int hf_nbap_UL_Code_768_InformationModifyList_PSCH_ReconfRqst_item;  /* UL_Code_768_InformationModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_PUSCHSets_DeleteList_PSCH_ReconfRqst_item;  /* PUSCHSets_DeleteItem_PSCH_ReconfRqst */
+static int hf_nbap_dL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst;  /* DL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst */
+static int hf_nbap_DL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst_item;  /* DL_HS_PDSCH_Timeslot_InformationItem_PSCH_ReconfRqst */
+static int hf_nbap_dl_HS_PDSCH_Codelist_PSCH_ReconfRqst;  /* DL_HS_PDSCH_Codelist_PSCH_ReconfRqst */
+static int hf_nbap_DL_HS_PDSCH_Codelist_PSCH_ReconfRqst_item;  /* TDD_ChannelisationCode */
+static int hf_nbap_DL_HS_PDSCH_Timeslot_Information_768_PSCH_ReconfRqst_item;  /* DL_HS_PDSCH_Timeslot_InformationItem_768_PSCH_ReconfRqst */
+static int hf_nbap_dl_HS_PDSCH_Codelist_768_PSCH_ReconfRqst;  /* DL_HS_PDSCH_Codelist_768_PSCH_ReconfRqst */
+static int hf_nbap_DL_HS_PDSCH_Codelist_768_PSCH_ReconfRqst_item;  /* TDD_ChannelisationCode768 */
+static int hf_nbap_MultipleFreq_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_hS_SCCH_Information_PSCH_ReconfRqst;  /* HS_SCCH_Information_PSCH_ReconfRqst */
+static int hf_nbap_hS_SCCH_Information_LCR_PSCH_ReconfRqst;  /* HS_SCCH_Information_LCR_PSCH_ReconfRqst */
+static int hf_nbap_HS_SCCH_Information_PSCH_ReconfRqst_item;  /* HS_SCCH_InformationItem_PSCH_ReconfRqst */
+static int hf_nbap_hS_SCCH_ID;                    /* HS_SCCH_ID */
+static int hf_nbap_hS_SCCH_MaxPower;              /* DL_Power */
+static int hf_nbap_hS_SICH_Information;           /* HS_SICH_Information_PSCH_ReconfRqst */
+static int hf_nbap_HS_SCCH_Information_LCR_PSCH_ReconfRqst_item;  /* HS_SCCH_InformationItem_LCR_PSCH_ReconfRqst */
+static int hf_nbap_hS_SICH_Information_LCR;       /* HS_SICH_Information_LCR_PSCH_ReconfRqst */
+static int hf_nbap_HS_SCCH_Information_768_PSCH_ReconfRqst_item;  /* HS_SCCH_InformationItem_768_PSCH_ReconfRqst */
+static int hf_nbap_hS_SICH_Information_768;       /* HS_SICH_Information_768_PSCH_ReconfRqst */
+static int hf_nbap_HS_SCCH_InformationExt_LCR_PSCH_ReconfRqst_item;  /* HS_SCCH_InformationItem_LCR_PSCH_ReconfRqst */
+static int hf_nbap_hS_SCCH_InformationModify_PSCH_ReconfRqst;  /* HS_SCCH_InformationModify_PSCH_ReconfRqst */
+static int hf_nbap_hS_SCCH_InformationModify_LCR_PSCH_ReconfRqst;  /* HS_SCCH_InformationModify_LCR_PSCH_ReconfRqst */
+static int hf_nbap_hS_SICH_Information_01;        /* HS_SICH_InformationModify_PSCH_ReconfRqst */
+static int hf_nbap_HS_SCCH_InformationModify_LCR_PSCH_ReconfRqst_item;  /* HS_SCCH_InformationModifyItem_LCR_PSCH_ReconfRqst */
+static int hf_nbap_hS_SICH_Information_LCR_01;    /* HS_SICH_InformationModify_LCR_PSCH_ReconfRqst */
+static int hf_nbap_HS_SCCH_InformationModifyExt_LCR_PSCH_ReconfRqst_item;  /* HS_SCCH_InformationModifyItem_LCR_PSCH_ReconfRqst */
+static int hf_nbap_HS_SCCH_InformationModify_768_PSCH_ReconfRqst_item;  /* HS_SCCH_InformationModifyItem_768_PSCH_ReconfRqst */
+static int hf_nbap_hS_SICH_Information_768_01;    /* HS_SICH_InformationModify_768_PSCH_ReconfRqst */
+static int hf_nbap_HS_SCCH_InformationModify_PSCH_ReconfRqst_item;  /* HS_SCCH_InformationModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_Delete_From_HS_SCCH_Resource_Pool_PSCH_ReconfRqst_item;  /* Delete_From_HS_SCCH_Resource_PoolItem_PSCH_ReconfRqst */
+static int hf_nbap_lTGI_Presence;                 /* LTGI_Presence */
+static int hf_nbap_sNPL_Reporting_Type;           /* SNPL_Reporting_Type */
+static int hf_nbap_e_PUCH_Timeslot_Info;          /* E_PUCH_Timeslot_Info */
+static int hf_nbap_E_PUCH_Timeslot_Info_item;     /* TimeSlot */
+static int hf_nbap_e_AGCH_Information_PSCH_ReconfRqst;  /* E_AGCH_Information_PSCH_ReconfRqst */
+static int hf_nbap_E_AGCH_Information_PSCH_ReconfRqst_item;  /* E_AGCH_InformationItem_PSCH_ReconfRqst */
+static int hf_nbap_e_AGCH_MaxPower;               /* DL_Power */
+static int hf_nbap_e_AGCH_InformationModify_PSCH_ReconfRqst;  /* E_AGCH_InformationModify_PSCH_ReconfRqst */
+static int hf_nbap_E_AGCH_InformationModify_PSCH_ReconfRqst_item;  /* E_AGCH_InformationModifyItem_PSCH_ReconfRqst */
+static int hf_nbap_Delete_From_E_AGCH_Resource_Pool_PSCH_ReconfRqst_item;  /* Delete_From_E_AGCH_Resource_PoolItem_PSCH_ReconfRqst */
+static int hf_nbap_e_HICH_MaxPower;               /* DL_Power */
+static int hf_nbap_e_AGCH_Information_768_PSCH_ReconfRqst;  /* E_AGCH_Information_768_PSCH_ReconfRqst */
+static int hf_nbap_E_AGCH_Information_768_PSCH_ReconfRqst_item;  /* E_AGCH_InformationItem_768_PSCH_ReconfRqst */
+static int hf_nbap_e_AGCH_InformationModify_768_PSCH_ReconfRqst;  /* E_AGCH_InformationModify_768_PSCH_ReconfRqst */
+static int hf_nbap_E_AGCH_InformationModify_768_PSCH_ReconfRqst_item;  /* E_AGCH_InformationModifyItem_768_PSCH_ReconfRqst */
+static int hf_nbap_e_PUCH_Timeslot_InfoLCR;       /* E_PUCH_Timeslot_InfoLCR */
+static int hf_nbap_E_PUCH_Timeslot_InfoLCR_item;  /* E_PUCH_Timeslot_Item_InfoLCR */
+static int hf_nbap_e_PUCH_Codelist_LCR;           /* E_PUCH_Codelist_LCR */
+static int hf_nbap_E_PUCH_Codelist_LCR_item;      /* TDD_ChannelisationCode */
+static int hf_nbap_e_AGCH_Information_LCR_PSCH_ReconfRqst;  /* E_AGCH_Information_LCR_PSCH_ReconfRqst */
+static int hf_nbap_E_AGCH_Information_LCR_PSCH_ReconfRqst_item;  /* E_AGCH_InformationItem_LCR_PSCH_ReconfRqst */
+static int hf_nbap_e_AGCH_InformationModify_LCR_PSCH_ReconfRqst;  /* E_AGCH_InformationModify_LCR_PSCH_ReconfRqst */
+static int hf_nbap_E_AGCH_InformationModify_LCR_PSCH_ReconfRqst_item;  /* E_AGCH_InformationModifyItem_LCR_PSCH_ReconfRqst */
+static int hf_nbap_e_HICH_Information_LCR_PSCH_ReconfRqst;  /* E_HICH_Information_LCR_PSCH_ReconfRqst */
+static int hf_nbap_E_HICH_Information_LCR_PSCH_ReconfRqst_item;  /* E_HICH_InformationItem_LCR_PSCH_ReconfRqst */
+static int hf_nbap_e_HICH_Type;                   /* E_HICH_Type */
+static int hf_nbap_e_HICH_InformationModify_LCR_PSCH_ReconfRqst;  /* E_HICH_InformationModify_LCR_PSCH_ReconfRqst */
+static int hf_nbap_E_HICH_InformationModify_LCR_PSCH_ReconfRqst_item;  /* E_HICH_InformationModifyItem_LCR_PSCH_ReconfRqst */
+static int hf_nbap_Delete_From_E_HICH_Resource_Pool_PSCH_ReconfRqst_item;  /* Delete_From_E_HICH_Resource_PoolItem_PSCH_ReconfRqst */
+static int hf_nbap_eRUCCH_SYNC_UL_codes_bitmap;   /* BIT_STRING_SIZE_8 */
+static int hf_nbap_Delete_From_HS_SCCH_Resource_PoolExt_PSCH_ReconfRqst_item;  /* Delete_From_HS_SCCH_Resource_PoolItem_PSCH_ReconfRqst */
+static int hf_nbap_MultipleFreq_E_PUCH_Timeslot_InformationList_LCR_PSCH_ReconfRqst_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_Max_RTWP_perUARFCN_Information_LCR_PSCH_ReconfRqst_item;  /* Max_RTWP_perUARFCN_Information_LCR_PSCH_ReconfRqst_Item */
+static int hf_nbap_maximum_Target_ReceivedTotalWideBandPower_LCR;  /* Maximum_Target_ReceivedTotalWideBandPower_LCR */
+static int hf_nbap_E_HICH_TimeOffset_ExtensionLCR_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_e_HICH_TimeOffsetLCR;          /* E_HICH_TimeOffsetLCR */
+static int hf_nbap_generalCause_05;               /* GeneralCauseList_PSCH_ReconfFailure */
+static int hf_nbap_setSpecificCause;              /* SetSpecificCauseList_PSCH_ReconfFailureTDD */
+static int hf_nbap_extension_CauseLevel_PSCH_ReconfFailure;  /* Extension_CauseLevel_PSCH_ReconfFailure */
+static int hf_nbap_unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD;  /* Unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD */
+static int hf_nbap_unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD;  /* Unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD */
+static int hf_nbap_Unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_Unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_UARFCNSpecificCauseList_PSCH_ReconfFailureTDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_E_HICH_TimeOffset_ReconfFailureTDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_hSDSCH_Common_System_Information_ResponseLCR;  /* HSDSCH_Common_System_Information_ResponseLCR */
+static int hf_nbap_hSDSCH_Paging_System_Information_ResponseLCR;  /* HSDSCH_Paging_System_Information_ResponseLCR */
+static int hf_nbap_common_EDCH_System_Information_ResponseLCR;  /* Common_EDCH_System_Information_ResponseLCR */
+static int hf_nbap_communicationContext;          /* CommunicationContextList_Reset */
+static int hf_nbap_communicationControlPort;      /* CommunicationControlPortList_Reset */
+static int hf_nbap_nodeB;                         /* NULL */
+static int hf_nbap_communicationContextInfoList_Reset;  /* CommunicationContextInfoList_Reset */
+static int hf_nbap_CommunicationContextInfoList_Reset_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_communicationContextType_Reset;  /* CommunicationContextType_Reset */
+static int hf_nbap_nodeB_CommunicationContextID;  /* NodeB_CommunicationContextID */
+static int hf_nbap_communicationControlPortInfoList_Reset;  /* CommunicationControlPortInfoList_Reset */
+static int hf_nbap_CommunicationControlPortInfoList_Reset_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_cell_03;                       /* Cell_InfEx_Rqst */
+static int hf_nbap_cell_04;                       /* Cell_InfEx_Rsp */
+static int hf_nbap_requestedDataValue;            /* RequestedDataValue */
+static int hf_nbap_cell_05;                       /* Cell_Inf_Rprt */
+static int hf_nbap_requestedDataValueInformation;  /* RequestedDataValueInformation */
+static int hf_nbap_TimeslotInfo_CellSyncInitiationRqstTDD_item;  /* TimeSlot */
+static int hf_nbap_cSBTransmissionID;             /* CSBTransmissionID */
+static int hf_nbap_sfn;                           /* SFN */
+static int hf_nbap_initialDLTransPower;           /* DL_Power */
+static int hf_nbap_cSBMeasurementID;              /* CSBMeasurementID */
+static int hf_nbap_synchronisationReportType;     /* SynchronisationReportType */
+static int hf_nbap_synchronisationReportCharacteristics;  /* SynchronisationReportCharacteristics */
+static int hf_nbap_sYNCDlCodeId;                  /* SYNCDlCodeId */
+static int hf_nbap_CellSyncBurstTransReconfInfo_CellSyncReconfRqstTDD_item;  /* CellSyncBurstTransInfoItem_CellSyncReconfRqstTDD */
+static int hf_nbap_syncFrameNumberToTransmit;     /* SyncFrameNumber */
+static int hf_nbap_dlTransPower;                  /* DL_Power */
+static int hf_nbap_cellSyncBurstMeasInfoList_CellSyncReconfRqstTDD;  /* CellSyncBurstMeasInfoList_CellSyncReconfRqstTDD */
+static int hf_nbap_synchronisationReportType_01;  /* SynchronisationReportTypeIE */
+static int hf_nbap_synchronisationReportCharacteristics_01;  /* SynchronisationReportCharacteristicsIE */
+static int hf_nbap_CellSyncBurstMeasInfoListIE_CellSyncReconfRqstTDD_item;  /* CellSyncBurstMeasInfoItem_CellSyncReconfRqstTDD */
+static int hf_nbap_syncFrameNrToReceive;          /* SyncFrameNumber */
+static int hf_nbap_syncBurstInfo;                 /* CellSyncBurstInfoList_CellSyncReconfRqstTDD */
+static int hf_nbap_CellSyncBurstInfoList_CellSyncReconfRqstTDD_item;  /* CellSyncBurstInfoItem_CellSyncReconfRqstTDD */
+static int hf_nbap_SYNCDlCodeIdTransReconfInfoLCR_CellSyncReconfRqstTDD_item;  /* SYNCDlCodeIdTransReconfItemLCR_CellSyncReconfRqstTDD */
+static int hf_nbap_syncFrameNumberforTransmit;    /* SyncFrameNumber */
+static int hf_nbap_sYNCDlCodeIdMeasInfoList;      /* SYNCDlCodeIdMeasInfoList_CellSyncReconfRqstTDD */
+static int hf_nbap_SYNCDlCodeIdMeasInfoList_CellSyncReconfRqstTDD_item;  /* SYNCDlCodeIdMeasInfoItem_CellSyncReconfRqstTDD */
+static int hf_nbap_sYNCDlCodeIdInfoLCR;           /* SYNCDlCodeIdInfoListLCR_CellSyncReconfRqstTDD */
+static int hf_nbap_SYNCDlCodeIdInfoListLCR_CellSyncReconfRqstTDD_item;  /* SYNCDlCodeIdInfoItemLCR_CellSyncReconfRqstTDD */
+static int hf_nbap_propagationDelayCompensation;  /* TimingAdjustmentValueLCR */
+static int hf_nbap_CellAdjustmentInfo_SyncAdjustmentRqstTDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_frameAdjustmentValue;          /* FrameAdjustmentValue */
+static int hf_nbap_timingAdjustmentValue;         /* TimingAdjustmentValue */
+static int hf_nbap_dLTransPower;                  /* DL_Power */
+static int hf_nbap_generalCause_06;               /* GeneralCauseList_SyncAdjustmntFailureTDD */
+static int hf_nbap_cellSpecificCause;             /* CellSpecificCauseList_SyncAdjustmntFailureTDD */
+static int hf_nbap_unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD;  /* Unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD */
+static int hf_nbap_Unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_CellSyncInfo_CellSyncReprtTDD_item;  /* CellSyncInfoItemIE_CellSyncReprtTDD */
+static int hf_nbap_c_ID_CellSyncReprtTDD;         /* C_ID_IE_CellSyncReprtTDD */
+static int hf_nbap_syncReportType_CellSyncReprtTDD;  /* SyncReportTypeIE_CellSyncReprtTDD */
+static int hf_nbap_intStdPhSyncInfo_CellSyncReprtTDD;  /* IntStdPhCellSyncInfo_CellSyncReprtTDD */
+static int hf_nbap_lateEntrantCell;               /* NULL */
+static int hf_nbap_frequencyAcquisition;          /* NULL */
+static int hf_nbap_cellSyncBurstMeasuredInfo;     /* CellSyncBurstMeasInfoList_CellSyncReprtTDD */
+static int hf_nbap_CellSyncBurstMeasInfoList_CellSyncReprtTDD_item;  /* CellSyncBurstMeasInfoItem_CellSyncReprtTDD */
+static int hf_nbap_cellSyncBurstInfo_CellSyncReprtTDD;  /* SEQUENCE_SIZE_1_maxNrOfReceptsPerSyncFrame_OF_CellSyncBurstInfo_CellSyncReprtTDD */
+static int hf_nbap_cellSyncBurstInfo_CellSyncReprtTDD_item;  /* CellSyncBurstInfo_CellSyncReprtTDD */
+static int hf_nbap_cellSyncBurstAvailable;        /* CellSyncBurstAvailable_CellSyncReprtTDD */
+static int hf_nbap_cellSyncBurstNotAvailable;     /* NULL */
+static int hf_nbap_cellSyncBurstSIR;              /* CellSyncBurstSIR */
+static int hf_nbap_SyncDLCodeIdsMeasInfoList_CellSyncReprtTDD_item;  /* SyncDLCodeIdsMeasInfoItem_CellSyncReprtTDD */
+static int hf_nbap_syncDLCodeIdInfo_CellSyncReprtTDD;  /* SyncDLCodeIdInfo_CellSyncReprtTDD */
+static int hf_nbap_SyncDLCodeIdInfo_CellSyncReprtTDD_item;  /* SyncDLCodeIdItem_CellSyncReprtTDD */
+static int hf_nbap_syncDLCodeIdAvailable;         /* SyncDLCodeIdAvailable_CellSyncReprtTDD */
+static int hf_nbap_syncDLCodeIDNotAvailable;      /* NULL */
+static int hf_nbap_syncDLCodeIdTiming;            /* CellSyncBurstTimingLCR */
+static int hf_nbap_syncDLCodeIdSIR;               /* CellSyncBurstSIR */
+static int hf_nbap_DCH_RearrangeList_Bearer_RearrangeInd_item;  /* DCH_RearrangeItem_Bearer_RearrangeInd */
+static int hf_nbap_DSCH_RearrangeList_Bearer_RearrangeInd_item;  /* DSCH_RearrangeItem_Bearer_RearrangeInd */
+static int hf_nbap_USCH_RearrangeList_Bearer_RearrangeInd_item;  /* USCH_RearrangeItem_Bearer_RearrangeInd */
+static int hf_nbap_HSDSCH_RearrangeList_Bearer_RearrangeInd_item;  /* HSDSCH_RearrangeItem_Bearer_RearrangeInd */
+static int hf_nbap_E_DCH_RearrangeList_Bearer_RearrangeInd_item;  /* E_DCH_RearrangeItem_Bearer_RearrangeInd */
+static int hf_nbap_Additional_EDCH_Cell_Information_Bearer_Rearrangement_List_item;  /* Additional_EDCH_Cell_Information_Bearer_Rearrangement_ItemIEs */
+static int hf_nbap_transport_Bearer_Rearrangement_Indicator_for_Additional_EDCH_Separate_Mode;  /* Transport_Bearer_Rearrangement_Indicator_for_Additional_EDCH_Separate_Mode */
+static int hf_nbap_DelayedActivationInformationList_RL_ActivationCmdFDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_delayed_activation_update;     /* DelayedActivationUpdate */
+static int hf_nbap_DelayedActivationInformationList_RL_ActivationCmdTDD_item;  /* ProtocolIE_Single_Container */
+static int hf_nbap_Additional_HS_Cell_Information_RL_Param_Upd_item;  /* Additional_HS_Cell_Information_RL_Param_Upd_ItemIEs */
+static int hf_nbap_hS_DSCH_FDD_Secondary_Serving_Update_Information;  /* HS_DSCH_FDD_Secondary_Serving_Update_Information */
+static int hf_nbap_Additional_EDCH_Cell_Information_RL_Param_Upd_item;  /* Additional_EDCH_Cell_Information_RL_Param_Upd_ItemIEs */
+static int hf_nbap_additional_EDCH_FDD_Update_Information;  /* Additional_EDCH_FDD_Update_Information */
+static int hf_nbap_initiatingMessage;             /* InitiatingMessage */
+static int hf_nbap_succesfulOutcome;              /* SuccessfulOutcome */
+static int hf_nbap_unsuccesfulOutcome;            /* UnsuccessfulOutcome */
+static int hf_nbap_outcome;                       /* Outcome */
+static int hf_nbap_messageDiscriminator;          /* MessageDiscriminator */
+static int hf_nbap_initiatingMessagevalue;        /* InitiatingMessage_value */
+static int hf_nbap_successfulOutcome_value;       /* SuccessfulOutcome_value */
+static int hf_nbap_unsuccessfulOutcome_value;     /* UnsuccessfulOutcome_value */
+static int hf_nbap_outcome_value;                 /* Outcome_value */
 /* named bits */
-static int hf_nbap_PreambleSignatures_signature15 = -1;
-static int hf_nbap_PreambleSignatures_signature14 = -1;
-static int hf_nbap_PreambleSignatures_signature13 = -1;
-static int hf_nbap_PreambleSignatures_signature12 = -1;
-static int hf_nbap_PreambleSignatures_signature11 = -1;
-static int hf_nbap_PreambleSignatures_signature10 = -1;
-static int hf_nbap_PreambleSignatures_signature9 = -1;
-static int hf_nbap_PreambleSignatures_signature8 = -1;
-static int hf_nbap_PreambleSignatures_signature7 = -1;
-static int hf_nbap_PreambleSignatures_signature6 = -1;
-static int hf_nbap_PreambleSignatures_signature5 = -1;
-static int hf_nbap_PreambleSignatures_signature4 = -1;
-static int hf_nbap_PreambleSignatures_signature3 = -1;
-static int hf_nbap_PreambleSignatures_signature2 = -1;
-static int hf_nbap_PreambleSignatures_signature1 = -1;
-static int hf_nbap_PreambleSignatures_signature0 = -1;
-static int hf_nbap_RACH_SubChannelNumbers_subCh11 = -1;
-static int hf_nbap_RACH_SubChannelNumbers_subCh10 = -1;
-static int hf_nbap_RACH_SubChannelNumbers_subCh9 = -1;
-static int hf_nbap_RACH_SubChannelNumbers_subCh8 = -1;
-static int hf_nbap_RACH_SubChannelNumbers_subCh7 = -1;
-static int hf_nbap_RACH_SubChannelNumbers_subCh6 = -1;
-static int hf_nbap_RACH_SubChannelNumbers_subCh5 = -1;
-static int hf_nbap_RACH_SubChannelNumbers_subCh4 = -1;
-static int hf_nbap_RACH_SubChannelNumbers_subCh3 = -1;
-static int hf_nbap_RACH_SubChannelNumbers_subCh2 = -1;
-static int hf_nbap_RACH_SubChannelNumbers_subCh1 = -1;
-static int hf_nbap_RACH_SubChannelNumbers_subCh0 = -1;
+static int hf_nbap_PreambleSignatures_signature15;
+static int hf_nbap_PreambleSignatures_signature14;
+static int hf_nbap_PreambleSignatures_signature13;
+static int hf_nbap_PreambleSignatures_signature12;
+static int hf_nbap_PreambleSignatures_signature11;
+static int hf_nbap_PreambleSignatures_signature10;
+static int hf_nbap_PreambleSignatures_signature9;
+static int hf_nbap_PreambleSignatures_signature8;
+static int hf_nbap_PreambleSignatures_signature7;
+static int hf_nbap_PreambleSignatures_signature6;
+static int hf_nbap_PreambleSignatures_signature5;
+static int hf_nbap_PreambleSignatures_signature4;
+static int hf_nbap_PreambleSignatures_signature3;
+static int hf_nbap_PreambleSignatures_signature2;
+static int hf_nbap_PreambleSignatures_signature1;
+static int hf_nbap_PreambleSignatures_signature0;
+static int hf_nbap_RACH_SubChannelNumbers_subCh11;
+static int hf_nbap_RACH_SubChannelNumbers_subCh10;
+static int hf_nbap_RACH_SubChannelNumbers_subCh9;
+static int hf_nbap_RACH_SubChannelNumbers_subCh8;
+static int hf_nbap_RACH_SubChannelNumbers_subCh7;
+static int hf_nbap_RACH_SubChannelNumbers_subCh6;
+static int hf_nbap_RACH_SubChannelNumbers_subCh5;
+static int hf_nbap_RACH_SubChannelNumbers_subCh4;
+static int hf_nbap_RACH_SubChannelNumbers_subCh3;
+static int hf_nbap_RACH_SubChannelNumbers_subCh2;
+static int hf_nbap_RACH_SubChannelNumbers_subCh1;
+static int hf_nbap_RACH_SubChannelNumbers_subCh0;
 
 /* Initialize the subtree pointers */
-static int ett_nbap = -1;
-static int ett_nbap_TransportLayerAddress = -1;
-static int ett_nbap_TransportLayerAddress_nsap = -1;
-static int ett_nbap_ib_sg_data = -1;
+static int ett_nbap;
+static int ett_nbap_TransportLayerAddress;
+static int ett_nbap_TransportLayerAddress_nsap;
+static int ett_nbap_ib_sg_data;
 
-static gint ett_nbap_PrivateIE_ID = -1;
-static gint ett_nbap_ProcedureID = -1;
-static gint ett_nbap_TransactionID = -1;
-static gint ett_nbap_ProtocolIE_Container = -1;
-static gint ett_nbap_ProtocolIE_Field = -1;
-static gint ett_nbap_ProtocolExtensionContainer = -1;
-static gint ett_nbap_ProtocolExtensionField = -1;
-static gint ett_nbap_PrivateIE_Container = -1;
-static gint ett_nbap_PrivateIE_Field = -1;
-static gint ett_nbap_ActivationInformation = -1;
-static gint ett_nbap_ActivationInformationItem = -1;
-static gint ett_nbap_Additional_EDCH_Setup_Info = -1;
-static gint ett_nbap_Additional_EDCH_Cell_Information_Setup = -1;
-static gint ett_nbap_Additional_EDCH_FDD_Setup_Cell_Information = -1;
-static gint ett_nbap_Additional_EDCH_UL_DPCH_Information_Setup = -1;
-static gint ett_nbap_Additional_EDCH_F_DPCH_Information = -1;
-static gint ett_nbap_Additional_EDCH_RL_Specific_Information_To_Setup_List = -1;
-static gint ett_nbap_Additional_EDCH_RL_Specific_Information_To_Setup_ItemIEs = -1;
-static gint ett_nbap_Additional_EDCH_Cell_Information_To_Add_List = -1;
-static gint ett_nbap_Additional_EDCH_Cell_Information_To_Add_ItemIEs = -1;
-static gint ett_nbap_Additional_EDCH_RL_Specific_Information_To_Add_ItemIEs = -1;
-static gint ett_nbap_EDCH_Additional_RL_Specific_Information_To_Add_List = -1;
-static gint ett_nbap_Additional_EDCH_RL_Specific_Information_To_Modify_List = -1;
-static gint ett_nbap_Additional_EDCH_RL_Specific_Information_To_Modify_ItemIEs = -1;
-static gint ett_nbap_Additional_EDCH_FDD_Information = -1;
-static gint ett_nbap_Additional_EDCH_MAC_d_Flows_Specific_Info_List = -1;
-static gint ett_nbap_Additional_EDCH_MAC_d_Flows_Specific_Info = -1;
-static gint ett_nbap_Additional_EDCH_Cell_Information_Response_List = -1;
-static gint ett_nbap_Additional_EDCH_FDD_Information_Response_ItemIEs = -1;
-static gint ett_nbap_EDCH_Additional_RL_Specific_Information_Response_List = -1;
-static gint ett_nbap_EDCH_Additional_RL_Specific_Information_Response_ItemIEs = -1;
-static gint ett_nbap_Additional_EDCH_Cell_Information_Response_RLReconf_List = -1;
-static gint ett_nbap_Additional_EDCH_FDD_Information_Response_RLReconf_Items = -1;
-static gint ett_nbap_Additional_Modififed_EDCH_FDD_Information_Response_ItemIEs = -1;
-static gint ett_nbap_EDCH_Additional_Modified_RL_Specific_Information_Response_List = -1;
-static gint ett_nbap_EDCH_Additional_Modified_RL_Specific_Information_Response_List_Items = -1;
-static gint ett_nbap_Additional_EDCH_MAC_d_Flow_Specific_Information_Response_List = -1;
-static gint ett_nbap_Additional_EDCH_MAC_d_Flows_Specific_Info_Response = -1;
-static gint ett_nbap_Additional_EDCH_Cell_Information_Response_RL_Add_List = -1;
-static gint ett_nbap_Additional_EDCH_Cell_Information_Response_RL_Add_ItemIEs = -1;
-static gint ett_nbap_Additional_EDCH_Cell_Information_ConfigurationChange_List = -1;
-static gint ett_nbap_Additional_EDCH_ConfigurationChange_Info_ItemIEs = -1;
-static gint ett_nbap_Additional_EDCH_UL_DPCH_Information_Modify = -1;
-static gint ett_nbap_Additional_EDCH_Cell_Information_Removal_List = -1;
-static gint ett_nbap_Additional_EDCH_Cell_Information_Removal_Info_ItemIEs = -1;
-static gint ett_nbap_Additional_EDCH_FDD_Update_Information = -1;
-static gint ett_nbap_Additional_EDCH_DL_Control_Channel_Change_Information_List = -1;
-static gint ett_nbap_Additional_EDCH_DL_Control_Channel_Change_Info_ItemIEs = -1;
-static gint ett_nbap_AdditionalMeasurementValueList = -1;
-static gint ett_nbap_AdditionalMeasurementValue = -1;
-static gint ett_nbap_AdditionalTimeSlotListLCR = -1;
-static gint ett_nbap_AdditionalTimeSlotLCR = -1;
-static gint ett_nbap_Active_Pattern_Sequence_Information = -1;
-static gint ett_nbap_Transmission_Gap_Pattern_Sequence_Status_List = -1;
-static gint ett_nbap_Transmission_Gap_Pattern_Sequence_Status_List_item = -1;
-static gint ett_nbap_AllocationRetentionPriority = -1;
-static gint ett_nbap_Angle_Of_Arrival_Value_LCR = -1;
-static gint ett_nbap_BCCH_Specific_HSDSCH_RNTI_Information = -1;
-static gint ett_nbap_BCCH_Specific_HSDSCH_RNTI_InformationLCR = -1;
-static gint ett_nbap_Best_Cell_Portions_Value = -1;
-static gint ett_nbap_Best_Cell_Portions_Item = -1;
-static gint ett_nbap_Best_Cell_Portions_ValueLCR = -1;
-static gint ett_nbap_Best_Cell_Portions_ItemLCR = -1;
-static gint ett_nbap_BroadcastCommonTransportBearerIndication = -1;
-static gint ett_nbap_Cause = -1;
-static gint ett_nbap_Cell_ERNTI_Status_Information = -1;
-static gint ett_nbap_Cell_ERNTI_Status_Information_Item = -1;
-static gint ett_nbap_Vacant_ERNTI = -1;
-static gint ett_nbap_CellSyncBurstTiming = -1;
-static gint ett_nbap_CellSyncBurstTimingLCR = -1;
-static gint ett_nbap_CommonChannelsCapacityConsumptionLaw = -1;
-static gint ett_nbap_CommonChannelsCapacityConsumptionLaw_item = -1;
-static gint ett_nbap_Common_EDCH_System_InformationFDD = -1;
-static gint ett_nbap_Common_E_DCH_UL_DPCH_InfoItem = -1;
-static gint ett_nbap_Common_E_DCH_EDPCH_InfoItem = -1;
-static gint ett_nbap_Common_E_DCH_InfoItem = -1;
-static gint ett_nbap_Common_E_DCH_HSDPCCH_InfoItem = -1;
-static gint ett_nbap_Common_E_DCH_CQI_Info = -1;
-static gint ett_nbap_Common_E_DCH_Preamble_Control_InfoItem = -1;
-static gint ett_nbap_Common_E_DCH_AICH_Information = -1;
-static gint ett_nbap_Common_E_DCH_FDPCH_InfoItem = -1;
-static gint ett_nbap_Common_E_DCH_Resource_Combination_InfoList = -1;
-static gint ett_nbap_Common_E_DCH_Resource_Combination_InfoList_Item = -1;
-static gint ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoList = -1;
-static gint ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoList_Item = -1;
-static gint ett_nbap_Common_E_DCH_MACdFlow_Specific_InfoList = -1;
-static gint ett_nbap_Common_E_DCH_MACdFlow_Specific_InfoList_Item = -1;
-static gint ett_nbap_Common_E_DCH_LogicalChannel_InfoList = -1;
-static gint ett_nbap_Common_E_DCH_LogicalChannel_InfoList_Item = -1;
-static gint ett_nbap_Common_EDCH_System_Information_ResponseFDD = -1;
-static gint ett_nbap_E_RNTI_List = -1;
-static gint ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseList = -1;
-static gint ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseList_Item = -1;
-static gint ett_nbap_Common_MACFlows_to_DeleteFDD = -1;
-static gint ett_nbap_Common_MACFlows_to_DeleteFDD_Item = -1;
-static gint ett_nbap_CommonMACFlow_Specific_InfoList = -1;
-static gint ett_nbap_CommonMACFlow_Specific_InfoItem = -1;
-static gint ett_nbap_CommonMACFlow_Specific_InfoList_Response = -1;
-static gint ett_nbap_CommonMACFlow_Specific_InfoItem_Response = -1;
-static gint ett_nbap_Common_MACFlow_PriorityQueue_Information = -1;
-static gint ett_nbap_Common_MACFlow_PriorityQueue_Item = -1;
-static gint ett_nbap_CommonMeasurementAccuracy = -1;
-static gint ett_nbap_CommonMeasurementValue = -1;
-static gint ett_nbap_CommonMeasurementValueInformation = -1;
-static gint ett_nbap_CommonMeasurementAvailable = -1;
-static gint ett_nbap_Common_PhysicalChannel_Status_Information = -1;
-static gint ett_nbap_Common_PhysicalChannel_Status_Information768 = -1;
-static gint ett_nbap_CommonTransportChannel_InformationResponse = -1;
-static gint ett_nbap_Common_TransportChannel_Status_Information = -1;
-static gint ett_nbap_ContinuousPacketConnectivityDTX_DRX_Information = -1;
-static gint ett_nbap_ContinuousPacketConnectivityDTX_DRX_Information_to_Modify = -1;
-static gint ett_nbap_ContinuousPacketConnectivityHS_SCCH_less_Information = -1;
-static gint ett_nbap_ContinuousPacketConnectivityHS_SCCH_less_InformationItem = -1;
-static gint ett_nbap_ContinuousPacketConnectivityHS_SCCH_less_Information_Response = -1;
-static gint ett_nbap_CPC_Information = -1;
-static gint ett_nbap_CriticalityDiagnostics = -1;
-static gint ett_nbap_CriticalityDiagnostics_IE_List = -1;
-static gint ett_nbap_CriticalityDiagnostics_IE_List_item = -1;
-static gint ett_nbap_Common_EDCH_System_InformationLCR = -1;
-static gint ett_nbap_Common_E_PUCH_InformationLCR = -1;
-static gint ett_nbap_PRXdes_base_perURAFCN = -1;
-static gint ett_nbap_PRXdes_base_Item = -1;
-static gint ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoListLCR = -1;
-static gint ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoList_ItemLCR = -1;
-static gint ett_nbap_Common_E_DCH_MACdFlow_Specific_InfoListLCR = -1;
-static gint ett_nbap_Common_E_DCH_MACdFlow_Specific_InfoList_ItemLCR = -1;
-static gint ett_nbap_Common_EDCH_System_Information_ResponseLCR = -1;
-static gint ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseListLCR = -1;
-static gint ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseListLCR_Ext = -1;
-static gint ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseList_ItemLCR = -1;
-static gint ett_nbap_Common_E_AGCH_ListLCR = -1;
-static gint ett_nbap_Common_E_AGCH_ItemLCR = -1;
-static gint ett_nbap_Common_E_HICH_ListLCR = -1;
-static gint ett_nbap_Common_E_HICH_ItemLCR = -1;
-static gint ett_nbap_Common_E_RNTI_Info_LCR = -1;
-static gint ett_nbap_Common_E_RNTI_Info_ItemLCR = -1;
-static gint ett_nbap_Common_MACFlows_to_DeleteLCR = -1;
-static gint ett_nbap_Common_MACFlows_to_DeleteLCR_Item = -1;
-static gint ett_nbap_CommonMACFlow_Specific_InfoListLCR = -1;
-static gint ett_nbap_CommonMACFlow_Specific_InfoItemLCR = -1;
-static gint ett_nbap_Common_H_RNTI_InformationLCR = -1;
-static gint ett_nbap_Common_H_RNTI_InfoItemLCR = -1;
-static gint ett_nbap_Sync_InformationLCR = -1;
-static gint ett_nbap_CommonMACFlow_Specific_InfoList_ResponseLCR = -1;
-static gint ett_nbap_CommonMACFlow_Specific_InfoItem_ResponseLCR = -1;
-static gint ett_nbap_CPC_InformationLCR = -1;
-static gint ett_nbap_ContinuousPacketConnectivity_DRX_InformationLCR = -1;
-static gint ett_nbap_HS_SCCH_DRX_Information_LCR = -1;
-static gint ett_nbap_E_AGCH_DRX_Information_LCR = -1;
-static gint ett_nbap_E_AGCH_DRX_Parameters = -1;
-static gint ett_nbap_ContinuousPacketConnectivity_DRX_Information_to_Modify_LCR = -1;
-static gint ett_nbap_DRX_Information_to_Modify_LCR = -1;
-static gint ett_nbap_DRX_Information_to_Modify_Items_LCR = -1;
-static gint ett_nbap_ContinuousPacketConnectivity_DRX_Information_ResponseLCR = -1;
-static gint ett_nbap_HS_SCCH_DRX_Information_ResponseLCR = -1;
-static gint ett_nbap_E_AGCH_DRX_Information_ResponseLCR = -1;
-static gint ett_nbap_E_AGCH_DRX_Parameters_Response = -1;
-static gint ett_nbap_DCH_FDD_Information = -1;
-static gint ett_nbap_DCH_FDD_InformationItem = -1;
-static gint ett_nbap_DCH_Specific_FDD_InformationList = -1;
-static gint ett_nbap_DCH_Specific_FDD_Item = -1;
-static gint ett_nbap_DCH_InformationResponse = -1;
-static gint ett_nbap_DCH_InformationResponseItem = -1;
-static gint ett_nbap_DCH_MeasurementOccasion_Information = -1;
-static gint ett_nbap_DchMeasurementOccasionInformation_Item = -1;
-static gint ett_nbap_Measurement_Occasion_Pattern_Sequence_parameters = -1;
-static gint ett_nbap_DCH_TDD_Information = -1;
-static gint ett_nbap_DCH_TDD_InformationItem = -1;
-static gint ett_nbap_DCH_Specific_TDD_InformationList = -1;
-static gint ett_nbap_DCH_Specific_TDD_Item = -1;
-static gint ett_nbap_FDD_DCHs_to_Modify = -1;
-static gint ett_nbap_FDD_DCHs_to_ModifyItem = -1;
-static gint ett_nbap_DCH_ModifySpecificInformation_FDD = -1;
-static gint ett_nbap_DCH_ModifySpecificItem_FDD = -1;
-static gint ett_nbap_TDD_DCHs_to_Modify = -1;
-static gint ett_nbap_DCH_ModifyItem_TDD = -1;
-static gint ett_nbap_DCH_ModifySpecificInformation_TDD = -1;
-static gint ett_nbap_DCH_ModifySpecificItem_TDD = -1;
-static gint ett_nbap_DedicatedChannelsCapacityConsumptionLaw = -1;
-static gint ett_nbap_DedicatedChannelsCapacityConsumptionLaw_item = -1;
-static gint ett_nbap_DedicatedMeasurementValue = -1;
-static gint ett_nbap_DedicatedMeasurementValueInformation = -1;
-static gint ett_nbap_DedicatedMeasurementAvailable = -1;
-static gint ett_nbap_DelayedActivation = -1;
-static gint ett_nbap_DelayedActivationUpdate = -1;
-static gint ett_nbap_Activate_Info = -1;
-static gint ett_nbap_Deactivate_Info = -1;
-static gint ett_nbap_Execution_Type = -1;
-static gint ett_nbap_DGANSSCorrections = -1;
-static gint ett_nbap_DGANSS_Corrections_Req = -1;
-static gint ett_nbap_DGANSS_Information = -1;
-static gint ett_nbap_DGANSS_InformationItem = -1;
-static gint ett_nbap_DGANSS_SignalInformation = -1;
-static gint ett_nbap_DGANSS_SignalInformationItem = -1;
-static gint ett_nbap_DGANSSThreshold = -1;
-static gint ett_nbap_DGNSS_ValidityPeriod = -1;
-static gint ett_nbap_DGPSCorrections = -1;
-static gint ett_nbap_DGPSThresholds = -1;
-static gint ett_nbap_DL_Timeslot_Information = -1;
-static gint ett_nbap_DL_Timeslot_InformationItem = -1;
-static gint ett_nbap_DL_TimeslotLCR_Information = -1;
-static gint ett_nbap_DL_TimeslotLCR_InformationItem = -1;
-static gint ett_nbap_DL_Timeslot768_Information = -1;
-static gint ett_nbap_DL_Timeslot768_InformationItem = -1;
-static gint ett_nbap_DL_PowerBalancing_Information = -1;
-static gint ett_nbap_DL_ReferencePowerInformationList = -1;
-static gint ett_nbap_DL_ReferencePowerInformationItem = -1;
-static gint ett_nbap_DL_TimeslotISCPInfo = -1;
-static gint ett_nbap_DL_TimeslotISCPInfoItem = -1;
-static gint ett_nbap_DL_TimeslotISCPInfoLCR = -1;
-static gint ett_nbap_DL_TimeslotISCPInfoItemLCR = -1;
-static gint ett_nbap_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_HS_PDSCH_Timeslot_InformationItem_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_MaxHSDSCH_HSSCCH_Power_per_CELLPORTION = -1;
-static gint ett_nbap_MaxHSDSCH_HSSCCH_Power_per_CELLPORTION_Item = -1;
-static gint ett_nbap_DL_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DRX_Information = -1;
-static gint ett_nbap_DRX_Information_to_Modify = -1;
-static gint ett_nbap_DRX_Information_to_Modify_Items = -1;
-static gint ett_nbap_DSCH_InformationResponse = -1;
-static gint ett_nbap_DSCH_InformationResponseItem = -1;
-static gint ett_nbap_DSCH_TDD_Information = -1;
-static gint ett_nbap_DSCH_TDD_InformationItem = -1;
-static gint ett_nbap_DTX_Cycle_2ms_Items = -1;
-static gint ett_nbap_DTX_Cycle_2ms_to_Modify_Items = -1;
-static gint ett_nbap_DTX_Cycle_10ms_Items = -1;
-static gint ett_nbap_DTX_Cycle_10ms_to_Modify_Items = -1;
-static gint ett_nbap_DTX_Information = -1;
-static gint ett_nbap_DTX_Information_to_Modify = -1;
-static gint ett_nbap_DTX_Information_to_Modify_Items = -1;
-static gint ett_nbap_Dual_Band_Capability_Info = -1;
-static gint ett_nbap_E_AGCH_FDD_Code_Information = -1;
-static gint ett_nbap_E_AGCH_FDD_Code_List = -1;
-static gint ett_nbap_E_DCHCapacityConsumptionLaw = -1;
-static gint ett_nbap_E_DCH_TDD_CapacityConsumptionLaw = -1;
-static gint ett_nbap_E_DCH_SF_allocation = -1;
-static gint ett_nbap_E_DCH_SF_allocation_item = -1;
-static gint ett_nbap_E_DCH_FDD_DL_Control_Channel_Information = -1;
-static gint ett_nbap_E_DCH_FDD_Information = -1;
-static gint ett_nbap_E_DCH_FDD_Information_Response = -1;
-static gint ett_nbap_E_DCH_FDD_Information_to_Modify = -1;
-static gint ett_nbap_E_DCH_FDD_Update_Information = -1;
-static gint ett_nbap_E_DCH_MACdFlow_Specific_UpdateInformation = -1;
-static gint ett_nbap_E_DCH_MACdFlow_Specific_UpdateInformation_Item = -1;
-static gint ett_nbap_E_DCH_DL_Control_Channel_Change_Information = -1;
-static gint ett_nbap_E_DCH_DL_Control_Channel_Change_Information_Item = -1;
-static gint ett_nbap_E_DCH_DL_Control_Channel_Grant_Information = -1;
-static gint ett_nbap_E_DCH_DL_Control_Channel_Grant_Information_Item = -1;
-static gint ett_nbap_E_DCH_Grant_Type_Information = -1;
-static gint ett_nbap_E_DCH_LogicalChannelInformation = -1;
-static gint ett_nbap_E_DCH_LogicalChannelInformationItem = -1;
-static gint ett_nbap_E_DCH_MACdPDU_SizeList = -1;
-static gint ett_nbap_E_DCH_MACdPDU_SizeListItem = -1;
-static gint ett_nbap_E_DCH_LogicalChannelToModify = -1;
-static gint ett_nbap_E_DCH_LogicalChannelToModifyItem = -1;
-static gint ett_nbap_E_DCH_MACdPDU_SizeToModifyList = -1;
-static gint ett_nbap_E_DCH_LogicalChannelToDelete = -1;
-static gint ett_nbap_E_DCH_LogicalChannelToDeleteItem = -1;
-static gint ett_nbap_E_DCH_MACdFlows_Information = -1;
-static gint ett_nbap_E_DCH_MACdFlow_Specific_InfoList = -1;
-static gint ett_nbap_E_DCH_MACdFlow_Specific_InfoItem = -1;
-static gint ett_nbap_E_DCH_MACdFlow_Specific_InformationResp = -1;
-static gint ett_nbap_E_DCH_MACdFlow_Specific_InformationResp_Item = -1;
-static gint ett_nbap_E_DCH_MACdFlow_Specific_InfoList_to_Modify = -1;
-static gint ett_nbap_E_DCH_MACdFlow_Specific_InfoItem_to_Modify = -1;
-static gint ett_nbap_E_DCH_MACdFlows_to_Delete = -1;
-static gint ett_nbap_E_DCH_MACdFlow_to_Delete_Item = -1;
-static gint ett_nbap_E_DCH_Non_Scheduled_Transmission_Grant_Items = -1;
-static gint ett_nbap_E_DCH_Serving_Cell_Change_Info_Response = -1;
-static gint ett_nbap_E_DCH_serving_cell_choice = -1;
-static gint ett_nbap_E_DCH_serving_cell_change_successful = -1;
-static gint ett_nbap_E_DCH_RL_InformationList_Rsp = -1;
-static gint ett_nbap_E_DCH_RL_InformationList_Rsp_Item = -1;
-static gint ett_nbap_E_DCH_serving_cell_change_unsuccessful = -1;
-static gint ett_nbap_EDCH_RACH_Report_Value = -1;
-static gint ett_nbap_EDCH_RACH_Report_Value_item = -1;
-static gint ett_nbap_E_DCH_TTI_Length = -1;
-static gint ett_nbap_E_DCH_TTI_Length_to_Modify = -1;
-static gint ett_nbap_E_DCH_MACdFlows_to_DeleteLCR = -1;
-static gint ett_nbap_E_DCH_MACdFlow_to_Delete_ItemLCR = -1;
-static gint ett_nbap_Enhanced_UE_DRX_InformationLCR = -1;
-static gint ett_nbap_E_RGCH_E_HICH_FDD_Code_Information = -1;
-static gint ett_nbap_E_RGCH_E_HICH_FDD_Code_List = -1;
-static gint ett_nbap_E_TFCI_Boost_Information = -1;
-static gint ett_nbap_E_TFCS_Information = -1;
-static gint ett_nbap_E_DCHProvidedBitRate = -1;
-static gint ett_nbap_E_DCHProvidedBitRate_Item = -1;
-static gint ett_nbap_E_DCHProvidedBitRateValueInformation_For_CellPortion = -1;
-static gint ett_nbap_E_DCHProvidedBitRateValueInformation_For_CellPortion_Item = -1;
-static gint ett_nbap_E_DCH_Information = -1;
-static gint ett_nbap_E_PUCH_Information = -1;
-static gint ett_nbap_E_TFCS_Information_TDD = -1;
-static gint ett_nbap_E_DCH_QPSK_RefBetaInfo = -1;
-static gint ett_nbap_E_DCH_sixteenQAM_RefBetaInfo = -1;
-static gint ett_nbap_E_DCH_RefBeta_Item = -1;
-static gint ett_nbap_E_DCH_MACdFlows_Information_TDD = -1;
-static gint ett_nbap_E_DCH_MACdFlow_InfoTDDItem = -1;
-static gint ett_nbap_E_DCH_Non_Scheduled_Grant_Info = -1;
-static gint ett_nbap_E_DCH_TDD_Information = -1;
-static gint ett_nbap_E_DCH_Information_Response = -1;
-static gint ett_nbap_Scheduled_E_HICH_Specific_Information_ResponseLCRTDD = -1;
-static gint ett_nbap_Scheduled_E_HICH_Specific_InformationItem_ResponseLCRTDD = -1;
-static gint ett_nbap_E_DCH_TDD_MACdFlow_Specific_InformationResp = -1;
-static gint ett_nbap_E_DCH_TDD_MACdFlow_Specific_InformationResp_Item = -1;
-static gint ett_nbap_E_AGCH_Specific_InformationRespListTDD = -1;
-static gint ett_nbap_E_AGCH_Specific_InformationResp_ItemTDD = -1;
-static gint ett_nbap_E_DCH_Information_Reconfig = -1;
-static gint ett_nbap_E_DCH_TDD_Information_to_Modify = -1;
-static gint ett_nbap_E_DCH_TDD_Information_to_Modify_List = -1;
-static gint ett_nbap_E_DCH_MACdFlow_ModifyTDDItem = -1;
-static gint ett_nbap_E_DCH_768_Information = -1;
-static gint ett_nbap_E_DCH_Non_Scheduled_Grant_Info768 = -1;
-static gint ett_nbap_E_DCH_TDD_Information768 = -1;
-static gint ett_nbap_E_DCH_768_Information_Reconfig = -1;
-static gint ett_nbap_E_DCH_LCR_Information = -1;
-static gint ett_nbap_E_PUCH_LCR_Information = -1;
-static gint ett_nbap_E_DCH_Non_Scheduled_Grant_LCR_Info = -1;
-static gint ett_nbap_E_HICH_LCR_Information = -1;
-static gint ett_nbap_E_DCH_LCRTDD_Information = -1;
-static gint ett_nbap_E_DCH_LCR_Information_Reconfig = -1;
-static gint ett_nbap_Enhanced_UE_DRX_InformationFDD = -1;
-static gint ett_nbap_E_DCH_Semi_PersistentScheduling_Information_LCR = -1;
-static gint ett_nbap_E_DCH_Semi_PersistentScheduling_Information_to_Modify_LCR = -1;
-static gint ett_nbap_E_DCH_Semi_PersistentScheduling_Information_ResponseLCR = -1;
-static gint ett_nbap_FDD_DL_CodeInformation = -1;
-static gint ett_nbap_FDD_DL_CodeInformationItem = -1;
-static gint ett_nbap_GANSS_AddClockModels = -1;
-static gint ett_nbap_GANSS_AddOrbitModels = -1;
-static gint ett_nbap_GANSS_Additional_Ionospheric_Model = -1;
-static gint ett_nbap_GANSS_Additional_Navigation_Models = -1;
-static gint ett_nbap_GANSS_Additional_Time_Models = -1;
-static gint ett_nbap_GANSS_Additional_UTC_Models = -1;
-static gint ett_nbap_GANSS_Almanac = -1;
-static gint ett_nbap_GANSS_AlmanacModel = -1;
-static gint ett_nbap_GANSS_ALM_ECEFsbasAlmanacSet = -1;
-static gint ett_nbap_GANSS_ALM_GlonassAlmanacSet = -1;
-static gint ett_nbap_GANSS_ALM_MidiAlmanacSet = -1;
-static gint ett_nbap_GANSS_ALM_NAVKeplerianSet = -1;
-static gint ett_nbap_GANSS_ALM_ReducedKeplerianSet = -1;
-static gint ett_nbap_GANSS_Auxiliary_Information = -1;
-static gint ett_nbap_GANSS_AuxInfoGANSS_ID1 = -1;
-static gint ett_nbap_GANSS_AuxInfoGANSS_ID1_element = -1;
-static gint ett_nbap_GANSS_AuxInfoGANSS_ID3 = -1;
-static gint ett_nbap_GANSS_AuxInfoGANSS_ID3_element = -1;
-static gint ett_nbap_GANSS_Clock_Model = -1;
-static gint ett_nbap_GANSS_CNAVclockModel = -1;
-static gint ett_nbap_GANSS_Common_Data = -1;
-static gint ett_nbap_GANSS_CommonDataInfoReq = -1;
-static gint ett_nbap_GANSS_Data_Bit_Assistance = -1;
-static gint ett_nbap_GANSS_DataBitAssistanceList = -1;
-static gint ett_nbap_GANSS_DataBitAssistanceItem = -1;
-static gint ett_nbap_GANSS_DataBitAssistanceSgnList = -1;
-static gint ett_nbap_GANSS_DataBitAssistanceSgnItem = -1;
-static gint ett_nbap_GANSS_Data_Bit_Assistance_ReqItem = -1;
-static gint ett_nbap_GANSS_Data_Bit_Assistance_ReqList = -1;
-static gint ett_nbap_T_ganss_SatelliteInfo = -1;
-static gint ett_nbap_GANSS_DeltaUT1 = -1;
-static gint ett_nbap_GANSS_Earth_Orientation_Parameters = -1;
-static gint ett_nbap_GANSS_GenericDataInfoReqList = -1;
-static gint ett_nbap_GANSS_GenericDataInfoReqItem = -1;
-static gint ett_nbap_GANSS_Generic_Data = -1;
-static gint ett_nbap_GANSS_Generic_DataItem = -1;
-static gint ett_nbap_GANSS_GLONASSclockModel = -1;
-static gint ett_nbap_GANSS_Information = -1;
-static gint ett_nbap_GANSS_Ionospheric_Model = -1;
-static gint ett_nbap_GANSS_IonosphereRegionalStormFlags = -1;
-static gint ett_nbap_GANSS_KeplerianParametersAlm = -1;
-static gint ett_nbap_GANSS_KeplerianParametersOrb = -1;
-static gint ett_nbap_GANSS_NAVclockModel = -1;
-static gint ett_nbap_GANSS_Navigation_Model_And_Time_Recovery = -1;
-static gint ett_nbap_GANSS_NavModel_CNAVKeplerianSet = -1;
-static gint ett_nbap_GANSS_NavModel_GLONASSecef = -1;
-static gint ett_nbap_GANSS_NavModel_NAVKeplerianSet = -1;
-static gint ett_nbap_GANSS_NavModel_SBASecef = -1;
-static gint ett_nbap_GANSS_Orbit_Model = -1;
-static gint ett_nbap_GANSS_Real_Time_Integrity = -1;
-static gint ett_nbap_GANSS_RealTimeInformationItem = -1;
-static gint ett_nbap_GANSS_RX_Pos = -1;
-static gint ett_nbap_GANSS_SatelliteClockModelItem = -1;
-static gint ett_nbap_GANSS_SatelliteInformationKP = -1;
-static gint ett_nbap_GANSS_SatelliteInformationKPItem = -1;
-static gint ett_nbap_Ganss_Sat_Info_AddNavList = -1;
-static gint ett_nbap_Ganss_Sat_Info_AddNavList_item = -1;
-static gint ett_nbap_GANSS_SAT_Info_Almanac_GLOkpList = -1;
-static gint ett_nbap_GANSS_SAT_Info_Almanac_GLOkp = -1;
-static gint ett_nbap_GANSS_SAT_Info_Almanac_MIDIkpList = -1;
-static gint ett_nbap_GANSS_SAT_Info_Almanac_MIDIkp = -1;
-static gint ett_nbap_GANSS_SAT_Info_Almanac_NAVkpList = -1;
-static gint ett_nbap_GANSS_SAT_Info_Almanac_NAVkp = -1;
-static gint ett_nbap_GANSS_SAT_Info_Almanac_REDkpList = -1;
-static gint ett_nbap_GANSS_SAT_Info_Almanac_REDkp = -1;
-static gint ett_nbap_GANSS_SAT_Info_Almanac_SBASecefList = -1;
-static gint ett_nbap_GANSS_SAT_Info_Almanac_SBASecef = -1;
-static gint ett_nbap_GANSS_Sat_Info_Nav = -1;
-static gint ett_nbap_GANSS_Sat_Info_Nav_item = -1;
-static gint ett_nbap_GANSS_SBASclockModel = -1;
-static gint ett_nbap_GANSS_Time_Model = -1;
-static gint ett_nbap_GANSS_Transmission_Time = -1;
-static gint ett_nbap_GANSS_UTC_Model = -1;
-static gint ett_nbap_GANSS_UTCmodelSet1 = -1;
-static gint ett_nbap_GANSS_UTCmodelSet2 = -1;
-static gint ett_nbap_GANSS_UTCmodelSet3 = -1;
-static gint ett_nbap_GPS_Almanac = -1;
-static gint ett_nbap_GPS_Ionospheric_Model = -1;
-static gint ett_nbap_GPS_Information = -1;
-static gint ett_nbap_GPS_RealTime_Integrity = -1;
-static gint ett_nbap_GPSBadSat_Info_RealTime_Integrity = -1;
-static gint ett_nbap_GPS_NavigationModel_and_TimeRecovery = -1;
-static gint ett_nbap_GPS_NavandRecovery_Item = -1;
-static gint ett_nbap_GPS_RX_POS = -1;
-static gint ett_nbap_GPS_UTC_Model = -1;
-static gint ett_nbap_HARQ_MemoryPartitioning = -1;
-static gint ett_nbap_HARQ_MemoryPartitioning_Implicit = -1;
-static gint ett_nbap_HARQ_MemoryPartitioning_Explicit = -1;
-static gint ett_nbap_HARQ_MemoryPartitioningList = -1;
-static gint ett_nbap_HARQ_MemoryPartitioningInfoExtForMIMO = -1;
-static gint ett_nbap_HARQ_MemoryPartitioningItem = -1;
-static gint ett_nbap_HS_DSCHProvidedBitRate = -1;
-static gint ett_nbap_HS_DSCHProvidedBitRate_Item = -1;
-static gint ett_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortion = -1;
-static gint ett_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortion_Item = -1;
-static gint ett_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortionLCR = -1;
-static gint ett_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortionLCR_Item = -1;
-static gint ett_nbap_HS_DSCHRequiredPower = -1;
-static gint ett_nbap_HS_DSCHRequiredPower_Item = -1;
-static gint ett_nbap_HS_DSCHRequiredPowerPerUEInformation = -1;
-static gint ett_nbap_HS_DSCHRequiredPowerPerUEInformation_Item = -1;
-static gint ett_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortion = -1;
-static gint ett_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortion_Item = -1;
-static gint ett_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortionLCR = -1;
-static gint ett_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortionLCR_Item = -1;
-static gint ett_nbap_HSDPA_Associated_PICH_Information = -1;
-static gint ett_nbap_HSDPA_PICH_Shared_with_PCH = -1;
-static gint ett_nbap_HSDPA_PICH_notShared_with_PCH = -1;
-static gint ett_nbap_HSDSCH_Common_System_InformationFDD = -1;
-static gint ett_nbap_HSDSCH_Common_System_Information_ResponseFDD = -1;
-static gint ett_nbap_HSDSCH_Common_Information = -1;
-static gint ett_nbap_HSDSCH_FDD_Information = -1;
-static gint ett_nbap_HSDSCH_TDD_Information = -1;
-static gint ett_nbap_HSDSCH_Information_to_Modify = -1;
-static gint ett_nbap_HSDSCH_MACdFlow_Specific_InfoList_to_Modify = -1;
-static gint ett_nbap_HSDSCH_MACdFlow_Specific_InfoItem_to_Modify = -1;
-static gint ett_nbap_HSDSCH_Information_to_Modify_Unsynchronised = -1;
-static gint ett_nbap_HSDSCH_FDD_Information_Response = -1;
-static gint ett_nbap_HS_DSCH_FDD_Secondary_Serving_Information = -1;
-static gint ett_nbap_HS_DSCH_FDD_Secondary_Serving_Information_Response = -1;
-static gint ett_nbap_HS_DSCH_Secondary_Serving_Information_To_Modify = -1;
-static gint ett_nbap_HS_DSCH_FDD_Secondary_Serving_Information_To_Modify_Unsynchronised = -1;
-static gint ett_nbap_HS_DSCH_FDD_Secondary_Serving_Update_Information = -1;
-static gint ett_nbap_HS_DSCH_Secondary_Serving_Cell_Change_Information_Response = -1;
-static gint ett_nbap_HS_DSCH_Secondary_Serving_cell_change_choice = -1;
-static gint ett_nbap_HS_Secondary_Serving_cell_change_successful = -1;
-static gint ett_nbap_HS_Secondary_Serving_cell_change_unsuccessful = -1;
-static gint ett_nbap_HSDSCH_Paging_System_InformationFDD = -1;
-static gint ett_nbap_HSDSCH_Paging_System_Information_ResponseFDD = -1;
-static gint ett_nbap_HSDSCH_Paging_System_Information_ResponseList = -1;
-static gint ett_nbap_HSDSCH_TDD_Information_Response = -1;
-static gint ett_nbap_HSDSCH_MACdFlow_Specific_InformationResp = -1;
-static gint ett_nbap_HSDSCH_MACdFlow_Specific_InformationResp_Item = -1;
-static gint ett_nbap_HSDSCH_MACdFlows_Information = -1;
-static gint ett_nbap_HSDSCH_MACdFlow_Specific_InfoList = -1;
-static gint ett_nbap_HSDSCH_MACdFlow_Specific_InfoItem = -1;
-static gint ett_nbap_HSDSCH_MACdFlows_to_Delete = -1;
-static gint ett_nbap_HSDSCH_MACdFlows_to_Delete_Item = -1;
-static gint ett_nbap_HSDSCH_Initial_Capacity_Allocation = -1;
-static gint ett_nbap_HSDSCH_Initial_Capacity_AllocationItem = -1;
-static gint ett_nbap_HSDSCH_PreconfigurationInfo = -1;
-static gint ett_nbap_Additional_EDCH_Preconfiguration_Information = -1;
-static gint ett_nbap_Additional_EDCH_Preconfiguration_Information_ItemIEs = -1;
-static gint ett_nbap_HSDSCH_PreconfigurationSetup = -1;
-static gint ett_nbap_HS_SCCH_PreconfiguredCodes = -1;
-static gint ett_nbap_HS_SCCH_PreconfiguredCodesItem = -1;
-static gint ett_nbap_HSSCCH_Specific_InformationRespListFDD = -1;
-static gint ett_nbap_HSSCCH_Codes = -1;
-static gint ett_nbap_HSSCCH_Specific_InformationRespListTDD = -1;
-static gint ett_nbap_HSSCCH_Specific_InformationRespItemTDD = -1;
-static gint ett_nbap_HSSCCH_Specific_InformationRespListTDDLCR = -1;
-static gint ett_nbap_HSSCCH_Specific_InformationRespItemTDDLCR = -1;
-static gint ett_nbap_HSSCCH_Specific_InformationRespListTDD768 = -1;
-static gint ett_nbap_HSSCCH_Specific_InformationRespItemTDD768 = -1;
-static gint ett_nbap_HSSICH_Info = -1;
-static gint ett_nbap_HSSICH_InfoLCR = -1;
-static gint ett_nbap_HSSICH_Info768 = -1;
-static gint ett_nbap_HS_SICH_Reception_Quality_Value = -1;
-static gint ett_nbap_HS_PDSCH_FDD_Code_Information = -1;
-static gint ett_nbap_HS_SCCH_FDD_Code_Information = -1;
-static gint ett_nbap_HS_SCCH_FDD_Code_List = -1;
-static gint ett_nbap_HS_DSCH_Serving_Cell_Change_Info = -1;
-static gint ett_nbap_HS_DSCH_Serving_Cell_Change_Info_Response = -1;
-static gint ett_nbap_HS_DSCH_serving_cell_choice = -1;
-static gint ett_nbap_HS_serving_cell_change_successful = -1;
-static gint ett_nbap_HS_serving_cell_change_unsuccessful = -1;
-static gint ett_nbap_HSDSCH_FDD_Update_Information = -1;
-static gint ett_nbap_HSDSCH_TDD_Update_Information = -1;
-static gint ett_nbap_HSDPA_Associated_PICH_InformationLCR = -1;
-static gint ett_nbap_HSDPA_PICH_notShared_with_PCHLCR = -1;
-static gint ett_nbap_HSDSCH_Common_System_InformationLCR = -1;
-static gint ett_nbap_HSDSCH_Common_System_Information_ResponseLCR = -1;
-static gint ett_nbap_HSDSCH_Common_InformationLCR = -1;
-static gint ett_nbap_HSDSCH_Paging_System_InformationLCR = -1;
-static gint ett_nbap_HSDSCH_Paging_System_Information_ResponseLCR = -1;
-static gint ett_nbap_HSDSCH_Paging_System_Information_ResponseListLCR = -1;
-static gint ett_nbap_HSSCCH_Specific_InformationRespListLCR = -1;
-static gint ett_nbap_HSSCCH_Specific_InformationRespItemLCR = -1;
-static gint ett_nbap_HS_DSCH_Semi_PersistentScheduling_Information_LCR = -1;
-static gint ett_nbap_Transport_Block_Size_List_LCR = -1;
-static gint ett_nbap_Transport_Block_Size_Item_LCR = -1;
-static gint ett_nbap_Repetition_Period_List_LCR = -1;
-static gint ett_nbap_Repetition_Period_Item_LCR = -1;
-static gint ett_nbap_HS_DSCH_SPS_Operation_Indicator = -1;
-static gint ett_nbap_HS_DSCH_Semi_PersistentScheduling_Information_to_Modify_LCR = -1;
-static gint ett_nbap_HS_DSCH_Semi_PersistentScheduling_Information_ResponseLCR = -1;
-static gint ett_nbap_HS_SICH_InformationList_for_HS_DSCH_SPS = -1;
-static gint ett_nbap_HS_SICH_InformationItem_for_HS_DSCH_SPS = -1;
-static gint ett_nbap_HS_SICH_Type = -1;
-static gint ett_nbap_HS_SCCH_Associated_HS_SICH = -1;
-static gint ett_nbap_Non_HS_SCCH_Associated_HS_SICH = -1;
-static gint ett_nbap_Initial_HS_PDSCH_SPS_Resource = -1;
-static gint ett_nbap_Add_To_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Non_HS_SCCH_Associated_HS_SICH_InformationList = -1;
-static gint ett_nbap_Non_HS_SCCH_Associated_HS_SICH_InformationList_Ext = -1;
-static gint ett_nbap_Non_HS_SCCH_Associated_HS_SICH_InformationItem = -1;
-static gint ett_nbap_Modify_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Modify_Non_HS_SCCH_Associated_HS_SICH_InformationList = -1;
-static gint ett_nbap_Modify_Non_HS_SCCH_Associated_HS_SICH_InformationList_Ext = -1;
-static gint ett_nbap_Modify_Non_HS_SCCH_Associated_HS_SICH_InformationItem = -1;
-static gint ett_nbap_Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst_Ext = -1;
-static gint ett_nbap_Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqstItem = -1;
-static gint ett_nbap_MIMO_ReferenceSignal_InformationListLCR = -1;
-static gint ett_nbap_HSSICH_ReferenceSignal_InformationLCR = -1;
-static gint ett_nbap_HSSICH_ReferenceSignal_InformationModifyLCR = -1;
-static gint ett_nbap_IMB_Parameters = -1;
-static gint ett_nbap_InformationReportCharacteristics = -1;
-static gint ett_nbap_InformationReportCharacteristicsType_ReportPeriodicity = -1;
-static gint ett_nbap_InformationReportCharacteristicsType_OnModification = -1;
-static gint ett_nbap_InformationThresholds = -1;
-static gint ett_nbap_InformationType = -1;
-static gint ett_nbap_IPDL_FDD_Parameters = -1;
-static gint ett_nbap_IPDL_TDD_Parameters = -1;
-static gint ett_nbap_IPDL_TDD_Parameters_LCR = -1;
-static gint ett_nbap_IPMulticastIndication = -1;
-static gint ett_nbap_BurstModeParams = -1;
-static gint ett_nbap_IdleIntervalInformation = -1;
-static gint ett_nbap_LCRTDD_Uplink_Physical_Channel_Capability = -1;
-static gint ett_nbap_MACdPDU_Size_Indexlist = -1;
-static gint ett_nbap_MACdPDU_Size_IndexItem = -1;
-static gint ett_nbap_MACdPDU_Size_Indexlist_to_Modify = -1;
-static gint ett_nbap_MACdPDU_Size_IndexItem_to_Modify = -1;
-static gint ett_nbap_Max_TB_Sizes = -1;
-static gint ett_nbap_MessageStructure = -1;
-static gint ett_nbap_MessageStructure_item = -1;
-static gint ett_nbap_MidambleShiftAndBurstType = -1;
-static gint ett_nbap_Type1 = -1;
-static gint ett_nbap_MidambleAllocationMode1 = -1;
-static gint ett_nbap_Type2 = -1;
-static gint ett_nbap_MidambleAllocationMode2 = -1;
-static gint ett_nbap_Type3 = -1;
-static gint ett_nbap_MidambleAllocationMode3 = -1;
-static gint ett_nbap_MidambleShiftLCR = -1;
-static gint ett_nbap_MidambleShiftAndBurstType768 = -1;
-static gint ett_nbap_Type7681 = -1;
-static gint ett_nbap_MidambleAllocationMode7681 = -1;
-static gint ett_nbap_Type7682 = -1;
-static gint ett_nbap_MidambleAllocationMode7682 = -1;
-static gint ett_nbap_Type7683 = -1;
-static gint ett_nbap_MidambleAllocationMode7683 = -1;
-static gint ett_nbap_MIMO_PilotConfiguration = -1;
-static gint ett_nbap_MIMO_PilotConfigurationExtension = -1;
-static gint ett_nbap_ModifyPriorityQueue = -1;
-static gint ett_nbap_ModulationPO_MBSFN = -1;
-static gint ett_nbap_MultipleFreq_HARQ_MemoryPartitioning_InformationList = -1;
-static gint ett_nbap_MultipleFreq_HARQ_MemoryPartitioning_InformationItem = -1;
-static gint ett_nbap_MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR = -1;
-static gint ett_nbap_MultipleFreq_HSPDSCH_InformationItem_ResponseTDDLCR = -1;
-static gint ett_nbap_Multi_Cell_Capability_Info = -1;
-static gint ett_nbap_Multicell_EDCH_InformationItemIEs = -1;
-static gint ett_nbap_Multicell_EDCH_RL_Specific_InformationItemIEs = -1;
-static gint ett_nbap_NeighbouringCellMeasurementInformation = -1;
-static gint ett_nbap_NeighbouringCellMeasurementInformation_item = -1;
-static gint ett_nbap_NeighbouringFDDCellMeasurementInformation = -1;
-static gint ett_nbap_NeighbouringTDDCellMeasurementInformation = -1;
-static gint ett_nbap_NeighbouringTDDCellMeasurementInformationLCR = -1;
-static gint ett_nbap_NeighbouringTDDCellMeasurementInformation768 = -1;
-static gint ett_nbap_NI_Information = -1;
-static gint ett_nbap_NormalAndDiversityPrimaryCPICHContainer = -1;
-static gint ett_nbap_Paging_MACFlows_to_DeleteFDD = -1;
-static gint ett_nbap_Paging_MACFlows_to_DeleteFDD_Item = -1;
-static gint ett_nbap_Paging_MACFlow_Specific_Information = -1;
-static gint ett_nbap_Paging_MAC_Flow_Specific_Information_Item = -1;
-static gint ett_nbap_Paging_MACFlow_PriorityQueue_Information = -1;
-static gint ett_nbap_Paging_MACFlow_PriorityQueue_Item = -1;
-static gint ett_nbap_PLCCHinformation = -1;
-static gint ett_nbap_Possible_Secondary_Serving_Cell_List = -1;
-static gint ett_nbap_Possible_Secondary_Serving_Cell = -1;
-static gint ett_nbap_PreambleSignatures = -1;
-static gint ett_nbap_PrimaryAndSecondaryCPICHContainer = -1;
-static gint ett_nbap_Priority_Queue_Information_for_Enhanced_FACH_PCH = -1;
-static gint ett_nbap_PriorityQueue_InfoList = -1;
-static gint ett_nbap_PriorityQueue_InfoItem = -1;
-static gint ett_nbap_PriorityQueue_InfoList_to_Modify = -1;
-static gint ett_nbap_PriorityQueue_InfoItem_to_Add = -1;
-static gint ett_nbap_PriorityQueue_InfoItem_to_Modify = -1;
-static gint ett_nbap_PriorityQueue_InfoList_to_Modify_Unsynchronised = -1;
-static gint ett_nbap_PriorityQueue_InfoItem_to_Modify_Unsynchronised = -1;
-static gint ett_nbap_UE_Selected_MBMS_Service_Information = -1;
-static gint ett_nbap_Selected_MBMS_Service = -1;
-static gint ett_nbap_Selected_MBMS_Service_List = -1;
-static gint ett_nbap_Selected_MBMS_Service_Item = -1;
-static gint ett_nbap_Selected_MBMS_Service_TimeSlot_Information_LCR = -1;
-static gint ett_nbap_MBMS_Service_TDM_Information = -1;
-static gint ett_nbap_Paging_MACFlow_Specific_InformationLCR = -1;
-static gint ett_nbap_Paging_MAC_Flow_Specific_Information_ItemLCR = -1;
-static gint ett_nbap_Paging_MACFlows_to_DeleteLCR = -1;
-static gint ett_nbap_Paging_MACFlows_to_DeleteLCR_Item = -1;
-static gint ett_nbap_RACH_SubChannelNumbers = -1;
-static gint ett_nbap_RL_Specific_DCH_Info = -1;
-static gint ett_nbap_RL_Specific_DCH_Info_Item = -1;
-static gint ett_nbap_RL_Specific_E_DCH_Info = -1;
-static gint ett_nbap_RL_Specific_E_DCH_Information = -1;
-static gint ett_nbap_RL_Specific_E_DCH_Information_Item = -1;
-static gint ett_nbap_Reference_E_TFCI_Information = -1;
-static gint ett_nbap_Reference_E_TFCI_Information_Item = -1;
-static gint ett_nbap_ReportCharacteristics = -1;
-static gint ett_nbap_ReportCharacteristicsType_EventA = -1;
-static gint ett_nbap_ReportCharacteristicsType_EventB = -1;
-static gint ett_nbap_ReportCharacteristicsType_EventC = -1;
-static gint ett_nbap_ReportCharacteristicsType_EventD = -1;
-static gint ett_nbap_ReportCharacteristicsType_EventE = -1;
-static gint ett_nbap_ReportCharacteristicsType_EventF = -1;
-static gint ett_nbap_ReportCharacteristicsType_OnModification = -1;
-static gint ett_nbap_ReportCharacteristicsType_MeasurementIncreaseDecreaseThreshold = -1;
-static gint ett_nbap_EDCH_RACH_Report_IncrDecrThres = -1;
-static gint ett_nbap_ReportCharacteristicsType_MeasurementThreshold = -1;
-static gint ett_nbap_EDCH_RACH_Report_ThresholdInformation = -1;
-static gint ett_nbap_ReportCharacteristicsType_ScaledMeasurementChangeTime = -1;
-static gint ett_nbap_ReportCharacteristicsType_ScaledMeasurementHysteresisTime = -1;
-static gint ett_nbap_ReportCharacteristicsType_ReportPeriodicity = -1;
-static gint ett_nbap_Received_total_wide_band_power_For_CellPortion_Value = -1;
-static gint ett_nbap_Received_total_wide_band_power_For_CellPortion_Value_Item = -1;
-static gint ett_nbap_Received_total_wide_band_power_For_CellPortion_ValueLCR = -1;
-static gint ett_nbap_Received_total_wide_band_power_For_CellPortion_ValueLCR_Item = -1;
-static gint ett_nbap_Received_Scheduled_EDCH_Power_Share_For_CellPortion_Value = -1;
-static gint ett_nbap_Received_Scheduled_EDCH_Power_Share_For_CellPortion_Value_Item = -1;
-static gint ett_nbap_Received_Scheduled_EDCH_Power_Share_Value = -1;
-static gint ett_nbap_RequestedDataValueInformation = -1;
-static gint ett_nbap_InformationAvailable = -1;
-static gint ett_nbap_RequestedDataValue = -1;
-static gint ett_nbap_SAT_Info_Almanac = -1;
-static gint ett_nbap_SAT_Info_Almanac_Item = -1;
-static gint ett_nbap_SAT_Info_Almanac_ExtList = -1;
-static gint ett_nbap_SAT_Info_Almanac_ExtItem = -1;
-static gint ett_nbap_SAT_Info_DGPSCorrections = -1;
-static gint ett_nbap_SAT_Info_DGPSCorrections_Item = -1;
-static gint ett_nbap_SATInfo_RealTime_Integrity = -1;
-static gint ett_nbap_SAT_Info_RealTime_Integrity_Item = -1;
-static gint ett_nbap_SecondaryServingCells = -1;
-static gint ett_nbap_SecondaryServingCellsItem = -1;
-static gint ett_nbap_Secondary_CPICH_Information_Change = -1;
-static gint ett_nbap_Serving_E_DCH_RL_ID = -1;
-static gint ett_nbap_Serving_E_DCH_RL_in_this_NodeB = -1;
-static gint ett_nbap_SetsOfHS_SCCH_Codes = -1;
-static gint ett_nbap_SetsOfHS_SCCH_CodesItem = -1;
-static gint ett_nbap_Setup_Or_ConfigurationChange_Or_Removal_Of_EDCH_On_secondary_UL_Frequency = -1;
-static gint ett_nbap_SFNSFNMeasurementThresholdInformation = -1;
-static gint ett_nbap_SFNSFNMeasurementValueInformation = -1;
-static gint ett_nbap_T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation = -1;
-static gint ett_nbap_T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item = -1;
-static gint ett_nbap_T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation = -1;
-static gint ett_nbap_T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item = -1;
-static gint ett_nbap_SFNSFNTimeStampInformation = -1;
-static gint ett_nbap_SFNSFNTimeStamp_TDD = -1;
-static gint ett_nbap_SFNSFNValue = -1;
-static gint ett_nbap_SynchronisationReportCharacteristics = -1;
-static gint ett_nbap_SynchronisationReportCharactThreExc = -1;
-static gint ett_nbap_SynchronisationReportCharactThreInfoItem = -1;
-static gint ett_nbap_SEQUENCE_SIZE_1_maxNrOfReceptsPerSyncFrame_OF_SynchronisationReportCharactCellSyncBurstInfoItem = -1;
-static gint ett_nbap_SynchronisationReportCharactCellSyncBurstInfoItem = -1;
-static gint ett_nbap_SyncDLCodeIdThreInfoLCR = -1;
-static gint ett_nbap_SyncDLCodeIdThreInfoList = -1;
-static gint ett_nbap_SyncDLCodeInfoListLCR = -1;
-static gint ett_nbap_SyncDLCodeInfoItemLCR = -1;
-static gint ett_nbap_TDD_ChannelisationCodeLCR = -1;
-static gint ett_nbap_TDD_DL_Code_Information = -1;
-static gint ett_nbap_TDD_DL_Code_InformationItem = -1;
-static gint ett_nbap_TDD_DL_Code_LCR_Information = -1;
-static gint ett_nbap_TDD_DL_Code_LCR_InformationItem = -1;
-static gint ett_nbap_TDD_DL_Code_768_Information = -1;
-static gint ett_nbap_TDD_DL_Code_768_InformationItem = -1;
-static gint ett_nbap_TDD_DL_DPCH_TimeSlotFormat_LCR = -1;
-static gint ett_nbap_TDD_DPCHOffset = -1;
-static gint ett_nbap_TransportFormatCombination_Beta = -1;
-static gint ett_nbap_T_signalledGainFactors = -1;
-static gint ett_nbap_T_gainFactor = -1;
-static gint ett_nbap_T_fdd = -1;
-static gint ett_nbap_TDD_UL_Code_Information = -1;
-static gint ett_nbap_TDD_UL_Code_InformationItem = -1;
-static gint ett_nbap_TDD_UL_Code_LCR_Information = -1;
-static gint ett_nbap_TDD_UL_Code_LCR_InformationItem = -1;
-static gint ett_nbap_TDD_UL_Code_768_Information = -1;
-static gint ett_nbap_TDD_UL_Code_768_InformationItem = -1;
-static gint ett_nbap_TDD_UL_DPCH_TimeSlotFormat_LCR = -1;
-static gint ett_nbap_TFCI_SignallingMode = -1;
-static gint ett_nbap_TimeSlot_InitiatedListLCR = -1;
-static gint ett_nbap_TimeSlotMeasurementValueListLCR = -1;
-static gint ett_nbap_TimeSlotMeasurementValueLCR = -1;
-static gint ett_nbap_TimingAdjustmentValue = -1;
-static gint ett_nbap_TimingAdjustmentValueLCR = -1;
-static gint ett_nbap_TnlQos = -1;
-static gint ett_nbap_Transmission_Gap_Pattern_Sequence_Information = -1;
-static gint ett_nbap_Transmission_Gap_Pattern_Sequence_Information_item = -1;
-static gint ett_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue = -1;
-static gint ett_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue_Item = -1;
-static gint ett_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCHOrE_HICHTransmissionCellPortionValue = -1;
-static gint ett_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCHOrE_HICHTransmissionCellPortionValue_Item = -1;
-static gint ett_nbap_Transmitted_Carrier_Power_For_CellPortion_Value = -1;
-static gint ett_nbap_Transmitted_Carrier_Power_For_CellPortion_Value_Item = -1;
-static gint ett_nbap_Transmitted_Carrier_Power_For_CellPortion_ValueLCR = -1;
-static gint ett_nbap_Transmitted_Carrier_Power_For_CellPortion_ValueLCR_Item = -1;
-static gint ett_nbap_TFCS = -1;
-static gint ett_nbap_T_tFCSvalues = -1;
-static gint ett_nbap_TFCS_TFCSList = -1;
-static gint ett_nbap_TFCS_TFCSList_item = -1;
-static gint ett_nbap_TFCS_CTFC = -1;
-static gint ett_nbap_Transport_Block_Size_List = -1;
-static gint ett_nbap_Transport_Block_Size_List_item = -1;
-static gint ett_nbap_TransportFormatSet = -1;
-static gint ett_nbap_TransportFormatSet_DynamicPartList = -1;
-static gint ett_nbap_TransportFormatSet_DynamicPartList_item = -1;
-static gint ett_nbap_TDD_TransportFormatSet_ModeDP = -1;
-static gint ett_nbap_TransmissionTimeIntervalInformation = -1;
-static gint ett_nbap_TransmissionTimeIntervalInformation_item = -1;
-static gint ett_nbap_TransportFormatSet_Semi_staticPart = -1;
-static gint ett_nbap_TransportFormatSet_ModeDP = -1;
-static gint ett_nbap_TransportFormatSet_ModeSSP = -1;
-static gint ett_nbap_TUTRANGANSS = -1;
-static gint ett_nbap_TUTRANGANSSMeasurementThresholdInformation = -1;
-static gint ett_nbap_TUTRANGANSSMeasurementValueInformation = -1;
-static gint ett_nbap_TUTRANGPS = -1;
-static gint ett_nbap_TUTRANGPSMeasurementThresholdInformation = -1;
-static gint ett_nbap_TUTRANGPSMeasurementValueInformation = -1;
-static gint ett_nbap_UC_Id = -1;
-static gint ett_nbap_UE_AggregateMaximumBitRate = -1;
-static gint ett_nbap_UE_Capability_Information = -1;
-static gint ett_nbap_UL_Timeslot_Information = -1;
-static gint ett_nbap_UL_Timeslot_InformationItem = -1;
-static gint ett_nbap_UL_TimeslotLCR_Information = -1;
-static gint ett_nbap_UL_TimeslotLCR_InformationItem = -1;
-static gint ett_nbap_UL_Timeslot768_Information = -1;
-static gint ett_nbap_UL_Timeslot768_InformationItem = -1;
-static gint ett_nbap_UL_ScramblingCode = -1;
-static gint ett_nbap_UL_Synchronisation_Parameters_LCR = -1;
-static gint ett_nbap_UL_TimeSlot_ISCP_Info = -1;
-static gint ett_nbap_UL_TimeSlot_ISCP_InfoItem = -1;
-static gint ett_nbap_UL_TimeSlot_ISCP_LCR_Info = -1;
-static gint ett_nbap_UL_TimeSlot_ISCP_LCR_InfoItem = -1;
-static gint ett_nbap_UpPTSInterference_For_CellPortion_Value = -1;
-static gint ett_nbap_UpPTSInterference_For_CellPortion_Value_Item = -1;
-static gint ett_nbap_USCH_Information = -1;
-static gint ett_nbap_USCH_InformationItem = -1;
-static gint ett_nbap_USCH_InformationResponse = -1;
-static gint ett_nbap_USCH_InformationResponseItem = -1;
-static gint ett_nbap_UL_TimeslotISCP_For_CellPortion_Value = -1;
-static gint ett_nbap_UL_TimeslotISCP_For_CellPortion_Value_Item = -1;
-static gint ett_nbap_CommonTransportChannelSetupRequestFDD = -1;
-static gint ett_nbap_CommonPhysicalChannelType_CTCH_SetupRqstFDD = -1;
-static gint ett_nbap_Secondary_CCPCH_CTCH_SetupRqstFDD = -1;
-static gint ett_nbap_PowerOffsetInformation_CTCH_SetupRqstFDD = -1;
-static gint ett_nbap_FACH_ParametersListIE_CTCH_SetupRqstFDD = -1;
-static gint ett_nbap_FACH_ParametersItem_CTCH_SetupRqstFDD = -1;
-static gint ett_nbap_PCH_ParametersItem_CTCH_SetupRqstFDD = -1;
-static gint ett_nbap_PICH_Parameters_CTCH_SetupRqstFDD = -1;
-static gint ett_nbap_MICH_Parameters_CTCH_SetupRqstFDD = -1;
-static gint ett_nbap_PRACH_CTCH_SetupRqstFDD = -1;
-static gint ett_nbap_AllowedSlotFormatInformationList_CTCH_SetupRqstFDD = -1;
-static gint ett_nbap_AllowedSlotFormatInformationItem_CTCH_SetupRqstFDD = -1;
-static gint ett_nbap_RACH_ParametersItem_CTCH_SetupRqstFDD = -1;
-static gint ett_nbap_AICH_Parameters_CTCH_SetupRqstFDD = -1;
-static gint ett_nbap_CommonTransportChannelSetupRequestTDD = -1;
-static gint ett_nbap_CommonPhysicalChannelType_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_Secondary_CCPCH_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_Secondary_CCPCH_parameterListIE_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_Secondary_CCPCH_parameterItem_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_Secondary_CCPCH_LCR_parameterList_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_Secondary_CCPCH_LCR_parameterItem_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_Secondary_CCPCH_768_parameterList_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_Secondary_CCPCH_768_parameterItem_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_FACH_ParametersListIE_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_FACH_ParametersItem_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_PCH_ParametersItem_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_PICH_ParametersItem_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_PICH_LCR_Parameters_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_PICH_768_ParametersItem_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_MICH_Parameters_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_MICH_TDDOption_Specific_Parameters_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_MICH_HCR_Parameters_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_MICH_LCR_Parameters_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_MICH_768_Parameters_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_TimeSlotConfigurationList_LCR_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_TimeSlotConfigurationItem_LCR_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_PRACH_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_PRACH_ParametersItem_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_RACH_ParameterItem_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_PRACH_LCR_ParametersList_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_PRACH_LCR_ParametersItem_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_PRACH_768_ParametersItem_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_FPACH_LCR_Parameters_CTCH_SetupRqstTDD = -1;
-static gint ett_nbap_PLCCH_parameters = -1;
-static gint ett_nbap_E_RUCCH_parameters = -1;
-static gint ett_nbap_E_RUCCH_768_parameters = -1;
-static gint ett_nbap_CommonTransportChannelSetupResponse = -1;
-static gint ett_nbap_FACH_CommonTransportChannel_InformationResponse = -1;
-static gint ett_nbap_CommonTransportChannelSetupFailure = -1;
-static gint ett_nbap_CommonTransportChannelReconfigurationRequestFDD = -1;
-static gint ett_nbap_CommonPhysicalChannelType_CTCH_ReconfRqstFDD = -1;
-static gint ett_nbap_Secondary_CCPCHList_CTCH_ReconfRqstFDD = -1;
-static gint ett_nbap_FACH_ParametersListIE_CTCH_ReconfRqstFDD = -1;
-static gint ett_nbap_FACH_ParametersItem_CTCH_ReconfRqstFDD = -1;
-static gint ett_nbap_PCH_ParametersItem_CTCH_ReconfRqstFDD = -1;
-static gint ett_nbap_PICH_ParametersItem_CTCH_ReconfRqstFDD = -1;
-static gint ett_nbap_MICH_Parameters_CTCH_ReconfRqstFDD = -1;
-static gint ett_nbap_PRACHList_CTCH_ReconfRqstFDD = -1;
-static gint ett_nbap_PRACH_ParametersListIE_CTCH_ReconfRqstFDD = -1;
-static gint ett_nbap_PRACH_ParametersItem_CTCH_ReconfRqstFDD = -1;
-static gint ett_nbap_AllowedSlotFormatInformationList_CTCH_ReconfRqstFDD = -1;
-static gint ett_nbap_AllowedSlotFormatInformationItem_CTCH_ReconfRqstFDD = -1;
-static gint ett_nbap_AICH_ParametersListIE_CTCH_ReconfRqstFDD = -1;
-static gint ett_nbap_AICH_ParametersItem_CTCH_ReconfRqstFDD = -1;
-static gint ett_nbap_CommonTransportChannelReconfigurationRequestTDD = -1;
-static gint ett_nbap_Secondary_CCPCH_Parameters_CTCH_ReconfRqstTDD = -1;
-static gint ett_nbap_Secondary_CCPCHListIE_CTCH_ReconfRqstTDD = -1;
-static gint ett_nbap_Secondary_CCPCHItem_CTCH_ReconfRqstTDD = -1;
-static gint ett_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_ReconfRqstTDD = -1;
-static gint ett_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_ReconfRqstTDD = -1;
-static gint ett_nbap_PICH_Parameters_CTCH_ReconfRqstTDD = -1;
-static gint ett_nbap_FACH_ParametersList_CTCH_ReconfRqstTDD = -1;
-static gint ett_nbap_FACH_ParametersItem_CTCH_ReconfRqstTDD = -1;
-static gint ett_nbap_PCH_Parameters_CTCH_ReconfRqstTDD = -1;
-static gint ett_nbap_FPACH_LCR_Parameters_CTCH_ReconfRqstTDD = -1;
-static gint ett_nbap_MICH_Parameters_CTCH_ReconfRqstTDD = -1;
-static gint ett_nbap_PLCCH_Parameters_CTCH_ReconfRqstTDD = -1;
-static gint ett_nbap_Secondary_CCPCH_768_Parameters_CTCH_ReconfRqstTDD = -1;
-static gint ett_nbap_Secondary_CCPCH_768_List_CTCH_ReconfRqstTDD = -1;
-static gint ett_nbap_Secondary_CCPCH_768_Item_CTCH_ReconfRqstTDD = -1;
-static gint ett_nbap_PICH_768_Parameters_CTCH_ReconfRqstTDD = -1;
-static gint ett_nbap_MICH_768_Parameters_CTCH_ReconfRqstTDD = -1;
-static gint ett_nbap_UPPCH_LCR_Parameters_CTCH_ReconfRqstTDD = -1;
-static gint ett_nbap_CommonTransportChannelReconfigurationResponse = -1;
-static gint ett_nbap_CommonTransportChannelReconfigurationFailure = -1;
-static gint ett_nbap_CommonTransportChannelDeletionRequest = -1;
-static gint ett_nbap_CommonTransportChannelDeletionResponse = -1;
-static gint ett_nbap_BlockResourceRequest = -1;
-static gint ett_nbap_BlockResourceResponse = -1;
-static gint ett_nbap_BlockResourceFailure = -1;
-static gint ett_nbap_UnblockResourceIndication = -1;
-static gint ett_nbap_AuditRequiredIndication = -1;
-static gint ett_nbap_AuditRequest = -1;
-static gint ett_nbap_AuditResponse = -1;
-static gint ett_nbap_Cell_InformationList_AuditRsp = -1;
-static gint ett_nbap_Cell_InformationItem_AuditRsp = -1;
-static gint ett_nbap_S_CPICH_InformationList_AuditRsp = -1;
-static gint ett_nbap_S_CCPCH_InformationList_AuditRsp = -1;
-static gint ett_nbap_FACH_InformationList_AuditRsp = -1;
-static gint ett_nbap_PRACH_InformationList_AuditRsp = -1;
-static gint ett_nbap_RACH_InformationList_AuditRsp = -1;
-static gint ett_nbap_AICH_InformationList_AuditRsp = -1;
-static gint ett_nbap_FPACH_LCR_InformationList_AuditRsp = -1;
-static gint ett_nbap_HS_DSCH_Resources_Information_AuditRsp = -1;
-static gint ett_nbap_S_CCPCH_InformationListExt_AuditRsp = -1;
-static gint ett_nbap_S_CCPCH_LCR_InformationListExt_AuditRsp = -1;
-static gint ett_nbap_E_DCH_Resources_Information_AuditRsp = -1;
-static gint ett_nbap_PLCCH_InformationList_AuditRsp = -1;
-static gint ett_nbap_S_CCPCH_768_InformationList_AuditRsp = -1;
-static gint ett_nbap_PRACH_768_InformationList_AuditRsp = -1;
-static gint ett_nbap_E_RUCCH_InformationList_AuditRsp = -1;
-static gint ett_nbap_E_RUCCH_768_InformationList_AuditRsp = -1;
-static gint ett_nbap_Cell_Frequency_List_Information_LCR_MulFreq_AuditRsp = -1;
-static gint ett_nbap_Cell_Frequency_List_InformationItem_LCR_MulFreq_AuditRsp = -1;
-static gint ett_nbap_UPPCH_LCR_InformationList_AuditRsp = -1;
-static gint ett_nbap_UPPCH_LCR_InformationItem_AuditRsp = -1;
-static gint ett_nbap_MultipleFreq_HS_DSCH_Resources_InformationList_AuditRsp = -1;
-static gint ett_nbap_MultipleFreq_E_DCH_Resources_InformationList_AuditRsp = -1;
-static gint ett_nbap_CCP_InformationList_AuditRsp = -1;
-static gint ett_nbap_CCP_InformationItem_AuditRsp = -1;
-static gint ett_nbap_Local_Cell_InformationList_AuditRsp = -1;
-static gint ett_nbap_Local_Cell_InformationItem_AuditRsp = -1;
-static gint ett_nbap_Local_Cell_Group_InformationList_AuditRsp = -1;
-static gint ett_nbap_Local_Cell_Group_InformationItem_AuditRsp = -1;
-static gint ett_nbap_Power_Local_Cell_Group_InformationList_AuditRsp = -1;
-static gint ett_nbap_Power_Local_Cell_Group_InformationItem_AuditRsp = -1;
-static gint ett_nbap_AuditFailure = -1;
-static gint ett_nbap_CommonMeasurementInitiationRequest = -1;
-static gint ett_nbap_CommonMeasurementObjectType_CM_Rqst = -1;
-static gint ett_nbap_ERACH_CM_Rqst = -1;
-static gint ett_nbap_Cell_CM_Rqst = -1;
-static gint ett_nbap_RACH_CM_Rqst = -1;
-static gint ett_nbap_PowerLocalCellGroup_CM_Rqst = -1;
-static gint ett_nbap_CommonMeasurementInitiationResponse = -1;
-static gint ett_nbap_CommonMeasurementObjectType_CM_Rsp = -1;
-static gint ett_nbap_ERACH_CM_Rsp = -1;
-static gint ett_nbap_Cell_CM_Rsp = -1;
-static gint ett_nbap_RACH_CM_Rsp = -1;
-static gint ett_nbap_PowerLocalCellGroup_CM_Rsp = -1;
-static gint ett_nbap_CommonMeasurementInitiationFailure = -1;
-static gint ett_nbap_CommonMeasurementReport = -1;
-static gint ett_nbap_CommonMeasurementObjectType_CM_Rprt = -1;
-static gint ett_nbap_ERACH_CM_Rprt = -1;
-static gint ett_nbap_Cell_CM_Rprt = -1;
-static gint ett_nbap_RACH_CM_Rprt = -1;
-static gint ett_nbap_PowerLocalCellGroup_CM_Rprt = -1;
-static gint ett_nbap_CommonMeasurementTerminationRequest = -1;
-static gint ett_nbap_CommonMeasurementFailureIndication = -1;
-static gint ett_nbap_CellSetupRequestFDD = -1;
-static gint ett_nbap_Synchronisation_Configuration_Cell_SetupRqst = -1;
-static gint ett_nbap_PrimarySCH_Information_Cell_SetupRqstFDD = -1;
-static gint ett_nbap_SecondarySCH_Information_Cell_SetupRqstFDD = -1;
-static gint ett_nbap_PrimaryCPICH_Information_Cell_SetupRqstFDD = -1;
-static gint ett_nbap_SecondaryCPICH_InformationList_Cell_SetupRqstFDD = -1;
-static gint ett_nbap_SecondaryCPICH_InformationItem_Cell_SetupRqstFDD = -1;
-static gint ett_nbap_PrimaryCCPCH_Information_Cell_SetupRqstFDD = -1;
-static gint ett_nbap_BCH_Information_Cell_SetupRqstFDD = -1;
-static gint ett_nbap_Limited_power_increase_information_Cell_SetupRqstFDD = -1;
-static gint ett_nbap_IPDLParameter_Information_Cell_SetupRqstFDD = -1;
-static gint ett_nbap_CellPortion_InformationList_Cell_SetupRqstFDD = -1;
-static gint ett_nbap_CellPortion_InformationItem_Cell_SetupRqstFDD = -1;
-static gint ett_nbap_CellSetupRequestTDD = -1;
-static gint ett_nbap_SCH_Information_Cell_SetupRqstTDD = -1;
-static gint ett_nbap_SyncCaseIndicatorItem_Cell_SetupRqstTDD_PSCH = -1;
-static gint ett_nbap_Case1_Cell_SetupRqstTDD = -1;
-static gint ett_nbap_Case2_Cell_SetupRqstTDD = -1;
-static gint ett_nbap_PCCPCH_Information_Cell_SetupRqstTDD = -1;
-static gint ett_nbap_TimeSlotConfigurationList_Cell_SetupRqstTDD = -1;
-static gint ett_nbap_TimeSlotConfigurationItem_Cell_SetupRqstTDD = -1;
-static gint ett_nbap_TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD = -1;
-static gint ett_nbap_TimeSlotConfigurationItem_LCR_Cell_SetupRqstTDD = -1;
-static gint ett_nbap_PCCPCH_LCR_Information_Cell_SetupRqstTDD = -1;
-static gint ett_nbap_DwPCH_LCR_Information_Cell_SetupRqstTDD = -1;
-static gint ett_nbap_IPDLParameter_Information_Cell_SetupRqstTDD = -1;
-static gint ett_nbap_IPDLParameter_Information_LCR_Cell_SetupRqstTDD = -1;
-static gint ett_nbap_PCCPCH_768_Information_Cell_SetupRqstTDD = -1;
-static gint ett_nbap_SCH_768_Information_Cell_SetupRqstTDD = -1;
-static gint ett_nbap_Cell_Frequency_List_LCR_MulFreq_Cell_SetupRqstTDD = -1;
-static gint ett_nbap_Cell_Frequency_Item_LCR_MulFreq_Cell_SetupRqstTDD = -1;
-static gint ett_nbap_CellSetupResponse = -1;
-static gint ett_nbap_CellSetupFailure = -1;
-static gint ett_nbap_CellReconfigurationRequestFDD = -1;
-static gint ett_nbap_Synchronisation_Configuration_Cell_ReconfRqst = -1;
-static gint ett_nbap_PrimarySCH_Information_Cell_ReconfRqstFDD = -1;
-static gint ett_nbap_SecondarySCH_Information_Cell_ReconfRqstFDD = -1;
-static gint ett_nbap_PrimaryCPICH_Information_Cell_ReconfRqstFDD = -1;
-static gint ett_nbap_SecondaryCPICH_InformationList_Cell_ReconfRqstFDD = -1;
-static gint ett_nbap_SecondaryCPICH_InformationItem_Cell_ReconfRqstFDD = -1;
-static gint ett_nbap_PrimaryCCPCH_Information_Cell_ReconfRqstFDD = -1;
-static gint ett_nbap_BCH_information_Cell_ReconfRqstFDD = -1;
-static gint ett_nbap_IPDLParameter_Information_Cell_ReconfRqstFDD = -1;
-static gint ett_nbap_CellPortion_InformationList_Cell_ReconfRqstFDD = -1;
-static gint ett_nbap_CellPortion_InformationItem_Cell_ReconfRqstFDD = -1;
-static gint ett_nbap_CellReconfigurationRequestTDD = -1;
-static gint ett_nbap_SCH_Information_Cell_ReconfRqstTDD = -1;
-static gint ett_nbap_PCCPCH_Information_Cell_ReconfRqstTDD = -1;
-static gint ett_nbap_TimeSlotConfigurationList_Cell_ReconfRqstTDD = -1;
-static gint ett_nbap_TimeSlotConfigurationItem_Cell_ReconfRqstTDD = -1;
-static gint ett_nbap_TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD = -1;
-static gint ett_nbap_TimeSlotConfigurationItem_LCR_Cell_ReconfRqstTDD = -1;
-static gint ett_nbap_DwPCH_LCR_Information_Cell_ReconfRqstTDD = -1;
-static gint ett_nbap_IPDLParameter_Information_Cell_ReconfRqstTDD = -1;
-static gint ett_nbap_IPDLParameter_Information_LCR_Cell_ReconfRqstTDD = -1;
-static gint ett_nbap_SCH_768_Information_Cell_ReconfRqstTDD = -1;
-static gint ett_nbap_PCCPCH_768_Information_Cell_ReconfRqstTDD = -1;
-static gint ett_nbap_UARFCN_Adjustment = -1;
-static gint ett_nbap_Cell_Frequency_Add_LCR_MulFreq_Cell_ReconfRqstTDD = -1;
-static gint ett_nbap_Cell_Frequency_ModifyList_LCR_MulFreq_Cell_ReconfRqstTDD = -1;
-static gint ett_nbap_Cell_Frequency_ModifyItem_LCR_MulFreq_Cell_ReconfRqstTDD = -1;
-static gint ett_nbap_Cell_Frequency_Delete_LCR_MulFreq_Cell_ReconfRqstTDD = -1;
-static gint ett_nbap_CellReconfigurationResponse = -1;
-static gint ett_nbap_CellReconfigurationFailure = -1;
-static gint ett_nbap_CellDeletionRequest = -1;
-static gint ett_nbap_CellDeletionResponse = -1;
-static gint ett_nbap_ResourceStatusIndication = -1;
-static gint ett_nbap_IndicationType_ResourceStatusInd = -1;
-static gint ett_nbap_No_Failure_ResourceStatusInd = -1;
-static gint ett_nbap_Local_Cell_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_Local_Cell_InformationItem_ResourceStatusInd = -1;
-static gint ett_nbap_Local_Cell_Group_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_Local_Cell_Group_InformationItem_ResourceStatusInd = -1;
-static gint ett_nbap_Power_Local_Cell_Group_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_Power_Local_Cell_Group_InformationItem_ResourceStatusInd = -1;
-static gint ett_nbap_ServiceImpacting_ResourceStatusInd = -1;
-static gint ett_nbap_Local_Cell_InformationList2_ResourceStatusInd = -1;
-static gint ett_nbap_Local_Cell_InformationItem2_ResourceStatusInd = -1;
-static gint ett_nbap_Local_Cell_Group_InformationList2_ResourceStatusInd = -1;
-static gint ett_nbap_Local_Cell_Group_InformationItem2_ResourceStatusInd = -1;
-static gint ett_nbap_CCP_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_CCP_InformationItem_ResourceStatusInd = -1;
-static gint ett_nbap_Cell_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_Cell_InformationItem_ResourceStatusInd = -1;
-static gint ett_nbap_S_CPICH_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_S_CCPCH_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_FACH_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_PRACH_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_RACH_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_AICH_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_FPACH_LCR_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_HS_DSCH_Resources_Information_ResourceStatusInd = -1;
-static gint ett_nbap_S_CCPCH_InformationListExt_ResourceStatusInd = -1;
-static gint ett_nbap_S_CCPCH_LCR_InformationListExt_ResourceStatusInd = -1;
-static gint ett_nbap_E_DCH_Resources_Information_ResourceStatusInd = -1;
-static gint ett_nbap_PLCCH_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_S_CCPCH_768_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_PRACH_768_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_E_RUCCH_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_E_RUCCH_768_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_Cell_Frequency_List_Information_LCR_MulFreq_ResourceStatusInd = -1;
-static gint ett_nbap_Cell_Frequency_List_InformationItem_LCR_MulFreq_ResourceStatusInd = -1;
-static gint ett_nbap_UPPCH_LCR_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_UPPCH_LCR_InformationItem_ResourceStatusInd = -1;
-static gint ett_nbap_MultipleFreq_HS_DSCH_Resources_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_Power_Local_Cell_Group_InformationList2_ResourceStatusInd = -1;
-static gint ett_nbap_Power_Local_Cell_Group_InformationItem2_ResourceStatusInd = -1;
-static gint ett_nbap_MultipleFreq_E_DCH_Resources_InformationList_ResourceStatusInd = -1;
-static gint ett_nbap_SystemInformationUpdateRequest = -1;
-static gint ett_nbap_MIB_SB_SIB_InformationList_SystemInfoUpdateRqst = -1;
-static gint ett_nbap_MIB_SB_SIB_InformationItem_SystemInfoUpdateRqst = -1;
-static gint ett_nbap_DeletionIndicator_SystemInfoUpdate = -1;
-static gint ett_nbap_No_Deletion_SystemInfoUpdate = -1;
-static gint ett_nbap_SegmentInformationListIE_SystemInfoUpdate = -1;
-static gint ett_nbap_SegmentInformationItem_SystemInfoUpdate = -1;
-static gint ett_nbap_SystemInformationUpdateResponse = -1;
-static gint ett_nbap_SystemInformationUpdateFailure = -1;
-static gint ett_nbap_RadioLinkSetupRequestFDD = -1;
-static gint ett_nbap_Additional_HS_Cell_Information_RL_Setup_List = -1;
-static gint ett_nbap_Additional_HS_Cell_Information_RL_Setup_ItemIEs = -1;
-static gint ett_nbap_UL_DPCH_Information_RL_SetupRqstFDD = -1;
-static gint ett_nbap_DL_DPCH_Information_RL_SetupRqstFDD = -1;
-static gint ett_nbap_PowerOffsetInformation_RL_SetupRqstFDD = -1;
-static gint ett_nbap_RL_InformationList_RL_SetupRqstFDD = -1;
-static gint ett_nbap_RL_InformationItem_RL_SetupRqstFDD = -1;
-static gint ett_nbap_E_DPCH_Information_RL_SetupRqstFDD = -1;
-static gint ett_nbap_F_DPCH_Information_RL_SetupRqstFDD = -1;
-static gint ett_nbap_PowerOffsetInformation_F_DPCH_RL_SetupRqstFDD = -1;
-static gint ett_nbap_RadioLinkSetupRequestTDD = -1;
-static gint ett_nbap_UL_CCTrCH_InformationList_RL_SetupRqstTDD = -1;
-static gint ett_nbap_UL_CCTrCH_InformationItem_RL_SetupRqstTDD = -1;
-static gint ett_nbap_UL_DPCH_InformationItem_RL_SetupRqstTDD = -1;
-static gint ett_nbap_UL_DPCH_LCR_Information_RL_SetupRqstTDD = -1;
-static gint ett_nbap_UL_DPCH_768_Information_RL_SetupRqstTDD = -1;
-static gint ett_nbap_DL_CCTrCH_InformationList_RL_SetupRqstTDD = -1;
-static gint ett_nbap_DL_CCTrCH_InformationItem_RL_SetupRqstTDD = -1;
-static gint ett_nbap_CCTrCH_TPCList_RL_SetupRqstTDD = -1;
-static gint ett_nbap_CCTrCH_TPCItem_RL_SetupRqstTDD = -1;
-static gint ett_nbap_DL_DPCH_InformationItem_RL_SetupRqstTDD = -1;
-static gint ett_nbap_DL_DPCH_LCR_Information_RL_SetupRqstTDD = -1;
-static gint ett_nbap_DL_DPCH_768_Information_RL_SetupRqstTDD = -1;
-static gint ett_nbap_RL_Information_RL_SetupRqstTDD = -1;
-static gint ett_nbap_RadioLinkSetupResponseFDD = -1;
-static gint ett_nbap_Additional_HS_Cell_Information_Response_List = -1;
-static gint ett_nbap_Additional_HS_Cell_Information_Response_ItemIEs = -1;
-static gint ett_nbap_RL_InformationResponseList_RL_SetupRspFDD = -1;
-static gint ett_nbap_RL_InformationResponseItem_RL_SetupRspFDD = -1;
-static gint ett_nbap_DiversityIndication_RL_SetupRspFDD = -1;
-static gint ett_nbap_Combining_RL_SetupRspFDD = -1;
-static gint ett_nbap_NonCombiningOrFirstRL_RL_SetupRspFDD = -1;
-static gint ett_nbap_RadioLinkSetupResponseTDD = -1;
-static gint ett_nbap_RL_InformationResponse_RL_SetupRspTDD = -1;
-static gint ett_nbap_RL_InformationResponse_LCR_RL_SetupRspTDD = -1;
-static gint ett_nbap_RadioLinkSetupFailureFDD = -1;
-static gint ett_nbap_CauseLevel_RL_SetupFailureFDD = -1;
-static gint ett_nbap_GeneralCauseList_RL_SetupFailureFDD = -1;
-static gint ett_nbap_RLSpecificCauseList_RL_SetupFailureFDD = -1;
-static gint ett_nbap_Unsuccessful_RL_InformationRespList_RL_SetupFailureFDD = -1;
-static gint ett_nbap_Unsuccessful_RL_InformationRespItem_RL_SetupFailureFDD = -1;
-static gint ett_nbap_Successful_RL_InformationRespList_RL_SetupFailureFDD = -1;
-static gint ett_nbap_Successful_RL_InformationRespItem_RL_SetupFailureFDD = -1;
-static gint ett_nbap_DiversityIndication_RL_SetupFailureFDD = -1;
-static gint ett_nbap_Combining_RL_SetupFailureFDD = -1;
-static gint ett_nbap_NonCombiningOrFirstRL_RL_SetupFailureFDD = -1;
-static gint ett_nbap_RadioLinkSetupFailureTDD = -1;
-static gint ett_nbap_CauseLevel_RL_SetupFailureTDD = -1;
-static gint ett_nbap_GeneralCauseList_RL_SetupFailureTDD = -1;
-static gint ett_nbap_RLSpecificCauseList_RL_SetupFailureTDD = -1;
-static gint ett_nbap_Unsuccessful_RL_InformationResp_RL_SetupFailureTDD = -1;
-static gint ett_nbap_RadioLinkAdditionRequestFDD = -1;
-static gint ett_nbap_Additional_HS_Cell_Information_RL_Addition_List = -1;
-static gint ett_nbap_Additional_EDCH_Cell_Information_RL_Add_Req = -1;
-static gint ett_nbap_Setup_Or_Addition_Of_EDCH_On_secondary_UL_Frequency = -1;
-static gint ett_nbap_Additional_HS_Cell_Information_RL_Addition_ItemIEs = -1;
-static gint ett_nbap_RL_InformationList_RL_AdditionRqstFDD = -1;
-static gint ett_nbap_RL_InformationItem_RL_AdditionRqstFDD = -1;
-static gint ett_nbap_E_DPCH_Information_RL_AdditionReqFDD = -1;
-static gint ett_nbap_RadioLinkAdditionRequestTDD = -1;
-static gint ett_nbap_UL_CCTrCH_InformationList_RL_AdditionRqstTDD = -1;
-static gint ett_nbap_UL_CCTrCH_InformationItem_RL_AdditionRqstTDD = -1;
-static gint ett_nbap_UL_DPCH_InformationItem_RL_AdditionRqstTDD = -1;
-static gint ett_nbap_UL_DPCH_InformationItem_LCR_RL_AdditionRqstTDD = -1;
-static gint ett_nbap_UL_DPCH_InformationItem_768_RL_AdditionRqstTDD = -1;
-static gint ett_nbap_DL_CCTrCH_InformationList_RL_AdditionRqstTDD = -1;
-static gint ett_nbap_DL_CCTrCH_InformationItem_RL_AdditionRqstTDD = -1;
-static gint ett_nbap_DL_DPCH_InformationItem_RL_AdditionRqstTDD = -1;
-static gint ett_nbap_DL_DPCH_InformationItem_LCR_RL_AdditionRqstTDD = -1;
-static gint ett_nbap_DL_DPCH_InformationItem_768_RL_AdditionRqstTDD = -1;
-static gint ett_nbap_RL_Information_RL_AdditionRqstTDD = -1;
-static gint ett_nbap_RadioLinkAdditionResponseFDD = -1;
-static gint ett_nbap_Additional_HS_Cell_Change_Information_Response_List = -1;
-static gint ett_nbap_Additional_HS_Cell_Change_Information_Response_ItemIEs = -1;
-static gint ett_nbap_RL_InformationResponseList_RL_AdditionRspFDD = -1;
-static gint ett_nbap_RL_InformationResponseItem_RL_AdditionRspFDD = -1;
-static gint ett_nbap_DiversityIndication_RL_AdditionRspFDD = -1;
-static gint ett_nbap_Combining_RL_AdditionRspFDD = -1;
-static gint ett_nbap_Non_Combining_RL_AdditionRspFDD = -1;
-static gint ett_nbap_RadioLinkAdditionResponseTDD = -1;
-static gint ett_nbap_RL_InformationResponse_RL_AdditionRspTDD = -1;
-static gint ett_nbap_DCH_Information_RL_AdditionRspTDD = -1;
-static gint ett_nbap_DiversityIndication_RL_AdditionRspTDD = -1;
-static gint ett_nbap_Combining_RL_AdditionRspTDD = -1;
-static gint ett_nbap_Non_Combining_RL_AdditionRspTDD = -1;
-static gint ett_nbap_RL_InformationResponse_LCR_RL_AdditionRspTDD = -1;
-static gint ett_nbap_RadioLinkAdditionFailureFDD = -1;
-static gint ett_nbap_CauseLevel_RL_AdditionFailureFDD = -1;
-static gint ett_nbap_GeneralCauseList_RL_AdditionFailureFDD = -1;
-static gint ett_nbap_RLSpecificCauseList_RL_AdditionFailureFDD = -1;
-static gint ett_nbap_Unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD = -1;
-static gint ett_nbap_Unsuccessful_RL_InformationRespItem_RL_AdditionFailureFDD = -1;
-static gint ett_nbap_Successful_RL_InformationRespList_RL_AdditionFailureFDD = -1;
-static gint ett_nbap_Successful_RL_InformationRespItem_RL_AdditionFailureFDD = -1;
-static gint ett_nbap_DiversityIndication_RL_AdditionFailureFDD = -1;
-static gint ett_nbap_Combining_RL_AdditionFailureFDD = -1;
-static gint ett_nbap_Non_Combining_RL_AdditionFailureFDD = -1;
-static gint ett_nbap_RadioLinkAdditionFailureTDD = -1;
-static gint ett_nbap_CauseLevel_RL_AdditionFailureTDD = -1;
-static gint ett_nbap_GeneralCauseList_RL_AdditionFailureTDD = -1;
-static gint ett_nbap_RLSpecificCauseList_RL_AdditionFailureTDD = -1;
-static gint ett_nbap_Unsuccessful_RL_InformationResp_RL_AdditionFailureTDD = -1;
-static gint ett_nbap_RadioLinkReconfigurationPrepareFDD = -1;
-static gint ett_nbap_Additional_HS_Cell_Information_RL_Reconf_Prep = -1;
-static gint ett_nbap_Additional_HS_Cell_Information_RL_Reconf_Prep_ItemIEs = -1;
-static gint ett_nbap_Additional_EDCH_Cell_Information_RL_Reconf_Prep = -1;
-static gint ett_nbap_UL_DPCH_Information_RL_ReconfPrepFDD = -1;
-static gint ett_nbap_DL_DPCH_Information_RL_ReconfPrepFDD = -1;
-static gint ett_nbap_DL_DPCH_Power_Information_RL_ReconfPrepFDD = -1;
-static gint ett_nbap_PowerOffsetInformation_RL_ReconfPrepFDD = -1;
-static gint ett_nbap_DCH_DeleteList_RL_ReconfPrepFDD = -1;
-static gint ett_nbap_DCH_DeleteItem_RL_ReconfPrepFDD = -1;
-static gint ett_nbap_RL_InformationList_RL_ReconfPrepFDD = -1;
-static gint ett_nbap_RL_InformationItem_RL_ReconfPrepFDD = -1;
-static gint ett_nbap_E_DPCH_Information_RL_ReconfPrepFDD = -1;
-static gint ett_nbap_F_DPCH_Information_RL_ReconfPrepFDD = -1;
-static gint ett_nbap_PowerOffsetInformation_F_DPCH_RL_ReconfPrepFDD = -1;
-static gint ett_nbap_RadioLinkReconfigurationPrepareTDD = -1;
-static gint ett_nbap_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_CCTrCH_InformationAddItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_DPCH_InformationAddItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_MultipleRL_UL_DPCH_InformationAddList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_MultipleRL_UL_DPCH_InformationAddListIE_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_DPCH_768_InformationAddList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_CCTrCH_InformationModifyItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_DPCH_InformationModify_AddItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_DPCH_InformationModify_ModifyItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_Timeslot_InformationModify_ModifyItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_TimeslotLCR_InformationModify_ModifyList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR = -1;
-static gint ett_nbap_UL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDDLCR = -1;
-static gint ett_nbap_UL_Timeslot768_InformationModify_ModifyList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_Timeslot_768_InformationModify_ModifyItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD768 = -1;
-static gint ett_nbap_UL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDD768 = -1;
-static gint ett_nbap_UL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_DPCH_InformationModify_DeleteItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_MultipleRL_UL_DPCH_InformationModifyList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_MultipleRL_UL_DPCH_InformationModifyListIE_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_DPCH_768_InformationModify_AddList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_UL_CCTrCH_InformationDeleteItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_CCTrCH_InformationAddItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_CCTrCH_TPCAddList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_CCTrCH_TPCAddItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_DPCH_InformationAddItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_MultipleRL_DL_DPCH_InformationAddList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_MultipleRL_DL_DPCH_InformationAddListIE_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_DPCH_768_InformationAddList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_CCTrCH_InformationModifyItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_CCTrCH_TPCModifyList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_CCTrCH_TPCModifyItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_DPCH_InformationModify_AddItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_DPCH_InformationModify_ModifyItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_Timeslot_InformationModify_ModifyItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_Code_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_Timeslot_768_InformationModify_ModifyList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_Timeslot_768_InformationModify_ModifyItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_Code_768_InformationModify_ModifyList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_Code_768_InformationModify_ModifyItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_DPCH_InformationModify_DeleteItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_MultipleRL_DL_DPCH_InformationModifyList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_MultipleRL_DL_DPCH_InformationModifyListIE_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_DPCH_768_InformationModify_AddList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DL_CCTrCH_InformationDeleteItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DCH_DeleteList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DCH_DeleteItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DSCH_Information_ModifyList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DSCH_Information_ModifyItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DSCH_Information_DeleteList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_DSCH_Information_DeleteItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_USCH_Information_ModifyList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_USCH_Information_ModifyItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_USCH_Information_DeleteList_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_USCH_Information_DeleteItem_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_MultipleRL_Information_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_RL_Information_RL_ReconfPrepTDD = -1;
-static gint ett_nbap_RadioLinkReconfigurationReady = -1;
-static gint ett_nbap_RL_InformationResponseList_RL_ReconfReady = -1;
-static gint ett_nbap_RL_InformationResponseItem_RL_ReconfReady = -1;
-static gint ett_nbap_RadioLinkReconfigurationFailure = -1;
-static gint ett_nbap_CauseLevel_RL_ReconfFailure = -1;
-static gint ett_nbap_GeneralCauseList_RL_ReconfFailure = -1;
-static gint ett_nbap_RLSpecificCauseList_RL_ReconfFailure = -1;
-static gint ett_nbap_RL_ReconfigurationFailureList_RL_ReconfFailure = -1;
-static gint ett_nbap_RL_ReconfigurationFailureItem_RL_ReconfFailure = -1;
-static gint ett_nbap_RadioLinkReconfigurationCommit = -1;
-static gint ett_nbap_RadioLinkReconfigurationCancel = -1;
-static gint ett_nbap_RadioLinkReconfigurationRequestFDD = -1;
-static gint ett_nbap_Additional_HS_Cell_Information_RL_Reconf_Req = -1;
-static gint ett_nbap_Additional_HS_Cell_Information_RL_Reconf_Req_ItemIEs = -1;
-static gint ett_nbap_Additional_EDCH_Cell_Information_RL_Reconf_Req = -1;
-static gint ett_nbap_UL_DPCH_Information_RL_ReconfRqstFDD = -1;
-static gint ett_nbap_DL_DPCH_Information_RL_ReconfRqstFDD = -1;
-static gint ett_nbap_DCH_DeleteList_RL_ReconfRqstFDD = -1;
-static gint ett_nbap_DCH_DeleteItem_RL_ReconfRqstFDD = -1;
-static gint ett_nbap_RL_InformationList_RL_ReconfRqstFDD = -1;
-static gint ett_nbap_RL_InformationItem_RL_ReconfRqstFDD = -1;
-static gint ett_nbap_E_DPCH_Information_RL_ReconfRqstFDD = -1;
-static gint ett_nbap_RadioLinkReconfigurationRequestTDD = -1;
-static gint ett_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD = -1;
-static gint ett_nbap_UL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD = -1;
-static gint ett_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD = -1;
-static gint ett_nbap_UL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD = -1;
-static gint ett_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD = -1;
-static gint ett_nbap_DL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD = -1;
-static gint ett_nbap_MultipleRL_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD = -1;
-static gint ett_nbap_MultipleRL_DL_CCTrCH_InformationModifyListIE_RL_ReconfRqstTDD = -1;
-static gint ett_nbap_DL_DPCH_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD = -1;
-static gint ett_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD = -1;
-static gint ett_nbap_DL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfRqstTDD = -1;
-static gint ett_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD = -1;
-static gint ett_nbap_DL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD = -1;
-static gint ett_nbap_DCH_DeleteList_RL_ReconfRqstTDD = -1;
-static gint ett_nbap_DCH_DeleteItem_RL_ReconfRqstTDD = -1;
-static gint ett_nbap_Multiple_RL_Information_RL_ReconfRqstTDD = -1;
-static gint ett_nbap_RL_Information_RL_ReconfRqstTDD = -1;
-static gint ett_nbap_RadioLinkReconfigurationResponse = -1;
-static gint ett_nbap_RL_InformationResponseList_RL_ReconfRsp = -1;
-static gint ett_nbap_RL_InformationResponseItem_RL_ReconfRsp = -1;
-static gint ett_nbap_RadioLinkDeletionRequest = -1;
-static gint ett_nbap_RL_informationList_RL_DeletionRqst = -1;
-static gint ett_nbap_RL_informationItem_RL_DeletionRqst = -1;
-static gint ett_nbap_RadioLinkDeletionResponse = -1;
-static gint ett_nbap_DL_PowerControlRequest = -1;
-static gint ett_nbap_DL_ReferencePowerInformationList_DL_PC_Rqst = -1;
-static gint ett_nbap_DL_ReferencePowerInformationItem_DL_PC_Rqst = -1;
-static gint ett_nbap_DL_PowerTimeslotControlRequest = -1;
-static gint ett_nbap_DedicatedMeasurementInitiationRequest = -1;
-static gint ett_nbap_DedicatedMeasurementObjectType_DM_Rqst = -1;
-static gint ett_nbap_RL_DM_Rqst = -1;
-static gint ett_nbap_RL_InformationList_DM_Rqst = -1;
-static gint ett_nbap_RL_InformationItem_DM_Rqst = -1;
-static gint ett_nbap_PUSCH_Info_DM_Rqst = -1;
-static gint ett_nbap_HSSICH_Info_DM_Rqst = -1;
-static gint ett_nbap_HSSICH_InfoExt_DM_Rqst = -1;
-static gint ett_nbap_RL_Set_DM_Rqst = -1;
-static gint ett_nbap_RL_Set_InformationList_DM_Rqst = -1;
-static gint ett_nbap_RL_Set_InformationItem_DM_Rqst = -1;
-static gint ett_nbap_DedicatedMeasurementInitiationResponse = -1;
-static gint ett_nbap_DedicatedMeasurementObjectType_DM_Rsp = -1;
-static gint ett_nbap_RL_DM_Rsp = -1;
-static gint ett_nbap_RL_InformationList_DM_Rsp = -1;
-static gint ett_nbap_RL_InformationItem_DM_Rsp = -1;
-static gint ett_nbap_PUSCH_Info_DM_Rsp = -1;
-static gint ett_nbap_Multiple_PUSCH_InfoList_DM_Rsp = -1;
-static gint ett_nbap_Multiple_PUSCH_InfoListIE_DM_Rsp = -1;
-static gint ett_nbap_Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp = -1;
-static gint ett_nbap_Multiple_DedicatedMeasurementValueItem_TDD_DM_Rsp = -1;
-static gint ett_nbap_Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp = -1;
-static gint ett_nbap_Multiple_DedicatedMeasurementValueItem_LCR_TDD_DM_Rsp = -1;
-static gint ett_nbap_Multiple_HSSICHMeasurementValueList_TDD_DM_Rsp = -1;
-static gint ett_nbap_Multiple_HSSICHMeasurementValueItem_TDD_DM_Rsp = -1;
-static gint ett_nbap_Multiple_DedicatedMeasurementValueList_768_TDD_DM_Rsp = -1;
-static gint ett_nbap_Multiple_DedicatedMeasurementValueItem_768_TDD_DM_Rsp = -1;
-static gint ett_nbap_RL_Set_DM_Rsp = -1;
-static gint ett_nbap_RL_Set_InformationList_DM_Rsp = -1;
-static gint ett_nbap_RL_Set_InformationItem_DM_Rsp = -1;
-static gint ett_nbap_DedicatedMeasurementInitiationFailure = -1;
-static gint ett_nbap_DedicatedMeasurementReport = -1;
-static gint ett_nbap_DedicatedMeasurementObjectType_DM_Rprt = -1;
-static gint ett_nbap_RL_DM_Rprt = -1;
-static gint ett_nbap_RL_InformationList_DM_Rprt = -1;
-static gint ett_nbap_RL_InformationItem_DM_Rprt = -1;
-static gint ett_nbap_PUSCH_Info_DM_Rprt = -1;
-static gint ett_nbap_Multiple_PUSCH_InfoList_DM_Rprt = -1;
-static gint ett_nbap_Multiple_PUSCH_InfoListIE_DM_Rprt = -1;
-static gint ett_nbap_RL_Set_DM_Rprt = -1;
-static gint ett_nbap_RL_Set_InformationList_DM_Rprt = -1;
-static gint ett_nbap_RL_Set_InformationItem_DM_Rprt = -1;
-static gint ett_nbap_DedicatedMeasurementTerminationRequest = -1;
-static gint ett_nbap_DedicatedMeasurementFailureIndication = -1;
-static gint ett_nbap_RadioLinkFailureIndication = -1;
-static gint ett_nbap_Reporting_Object_RL_FailureInd = -1;
-static gint ett_nbap_RL_RL_FailureInd = -1;
-static gint ett_nbap_RL_InformationList_RL_FailureInd = -1;
-static gint ett_nbap_RL_InformationItem_RL_FailureInd = -1;
-static gint ett_nbap_RL_Set_RL_FailureInd = -1;
-static gint ett_nbap_RL_Set_InformationList_RL_FailureInd = -1;
-static gint ett_nbap_RL_Set_InformationItem_RL_FailureInd = -1;
-static gint ett_nbap_CCTrCH_RL_FailureInd = -1;
-static gint ett_nbap_CCTrCH_InformationList_RL_FailureInd = -1;
-static gint ett_nbap_CCTrCH_InformationItem_RL_FailureInd = -1;
-static gint ett_nbap_RadioLinkPreemptionRequiredIndication = -1;
-static gint ett_nbap_RL_InformationList_RL_PreemptRequiredInd = -1;
-static gint ett_nbap_RL_InformationItem_RL_PreemptRequiredInd = -1;
-static gint ett_nbap_RadioLinkRestoreIndication = -1;
-static gint ett_nbap_Reporting_Object_RL_RestoreInd = -1;
-static gint ett_nbap_RL_RL_RestoreInd = -1;
-static gint ett_nbap_RL_InformationList_RL_RestoreInd = -1;
-static gint ett_nbap_RL_InformationItem_RL_RestoreInd = -1;
-static gint ett_nbap_RL_Set_RL_RestoreInd = -1;
-static gint ett_nbap_RL_Set_InformationList_RL_RestoreInd = -1;
-static gint ett_nbap_RL_Set_InformationItem_RL_RestoreInd = -1;
-static gint ett_nbap_CCTrCH_RL_RestoreInd = -1;
-static gint ett_nbap_CCTrCH_InformationList_RL_RestoreInd = -1;
-static gint ett_nbap_CCTrCH_InformationItem_RL_RestoreInd = -1;
-static gint ett_nbap_CompressedModeCommand = -1;
-static gint ett_nbap_ErrorIndication = -1;
-static gint ett_nbap_PrivateMessage = -1;
-static gint ett_nbap_PhysicalSharedChannelReconfigurationRequestFDD = -1;
-static gint ett_nbap_HSDPA_And_EDCH_CellPortion_InformationList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HSDPA_And_EDCH_CellPortion_InformationItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PhysicalSharedChannelReconfigurationRequestTDD = -1;
-static gint ett_nbap_PDSCHSets_AddList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PDSCHSets_AddItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PDSCH_Information_AddItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Timeslot_InformationAddList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Timeslot_InformationAddItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Code_InformationAddList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Code_InformationAddItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PDSCH_AddInformation_LCR_AddItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Timeslot_InformationAddItem_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Code_InformationAddList_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Code_InformationAddItem_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PDSCH_AddInformation_768_AddItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Timeslot_InformationAddList_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Timeslot_InformationAddItem_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Code_InformationAddList_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Code_InformationAddItem_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PDSCHSets_ModifyList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PDSCHSets_ModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PDSCH_Information_ModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Timeslot_InformationModifyList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Timeslot_InformationModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Code_InformationModifyList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Code_InformationModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PDSCH_ModifyInformation_LCR_ModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Timeslot_LCR_InformationModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Code_LCR_InformationModifyList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Code_LCR_InformationModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PDSCH_ModifyInformation_768_ModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Timeslot_768_InformationModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Code_768_InformationModifyList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_Code_768_InformationModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PDSCHSets_DeleteList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PDSCHSets_DeleteItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PUSCHSets_AddList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PUSCHSets_AddItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PUSCH_Information_AddItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Timeslot_InformationAddList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Timeslot_InformationAddItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Code_InformationAddList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Code_InformationAddItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PUSCH_AddInformation_LCR_AddItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Timeslot_InformationAddItem_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Code_InformationAddList_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Code_InformationAddItem_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PUSCH_AddInformation_768_AddItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Timeslot_InformationAddList_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Timeslot_InformationAddItem_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Code_InformationAddList_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Code_InformationAddItem_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PUSCHSets_ModifyList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PUSCHSets_ModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PUSCH_Information_ModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Timeslot_InformationModifyList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Timeslot_InformationModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Code_InformationModifyList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Code_InformationModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PUSCH_ModifyInformation_LCR_ModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Timeslot_LCR_InformationModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Code_LCR_InformationModifyList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Code_LCR_InformationModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PUSCH_ModifyInformation_768_ModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Timeslot_768_InformationModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Code_768_InformationModifyList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_UL_Code_768_InformationModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PUSCHSets_DeleteList_PSCH_ReconfRqst = -1;
-static gint ett_nbap_PUSCHSets_DeleteItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_PDSCH_TDD_Information_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_HS_PDSCH_Timeslot_InformationItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_HS_PDSCH_Codelist_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_HS_PDSCH_Timeslot_Information_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_HS_PDSCH_Timeslot_InformationItem_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_DL_HS_PDSCH_Codelist_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_MultipleFreq_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_MultipleFreq_DL_HS_PDSCH_Timeslot_Information_LCRItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Add_To_HS_SCCH_Resource_Pool_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SCCH_Information_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SCCH_InformationItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SICH_Information_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SCCH_Information_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SCCH_InformationItem_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SICH_Information_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SCCH_Information_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SCCH_InformationItem_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SICH_Information_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SCCH_InformationExt_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Modify_HS_SCCH_Resource_Pool_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SCCH_InformationModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SICH_InformationModify_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SCCH_InformationModify_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SCCH_InformationModifyItem_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SCCH_InformationModifyExt_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SICH_InformationModify_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SCCH_InformationModify_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SCCH_InformationModifyItem_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SICH_InformationModify_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_HS_SCCH_InformationModify_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Delete_From_HS_SCCH_Resource_Pool_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Delete_From_HS_SCCH_Resource_PoolItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_PUCH_Information_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_PUCH_Timeslot_Info = -1;
-static gint ett_nbap_Add_To_E_AGCH_Resource_Pool_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_AGCH_Information_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_AGCH_InformationItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Modify_E_AGCH_Resource_Pool_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_AGCH_InformationModify_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_AGCH_InformationModifyItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Delete_From_E_AGCH_Resource_Pool_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Delete_From_E_AGCH_Resource_PoolItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_HICH_Information_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_PUCH_Information_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Add_To_E_AGCH_Resource_Pool_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_AGCH_Information_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_AGCH_InformationItem_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Modify_E_AGCH_Resource_Pool_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_AGCH_InformationModify_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_AGCH_InformationModifyItem_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_HICH_Information_768_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_PUCH_Information_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_PUCH_Timeslot_InfoLCR = -1;
-static gint ett_nbap_E_PUCH_Timeslot_Item_InfoLCR = -1;
-static gint ett_nbap_E_PUCH_Codelist_LCR = -1;
-static gint ett_nbap_Add_To_E_AGCH_Resource_Pool_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_AGCH_Information_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_AGCH_InformationItem_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Modify_E_AGCH_Resource_Pool_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_AGCH_InformationModify_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_AGCH_InformationModifyItem_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Add_To_E_HICH_Resource_Pool_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_HICH_Information_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_HICH_InformationItem_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Modify_E_HICH_Resource_Pool_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_HICH_InformationModify_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_E_HICH_InformationModifyItem_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Delete_From_E_HICH_Resource_Pool_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Delete_From_E_HICH_Resource_PoolItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_SYNC_UL_Partition_LCR = -1;
-static gint ett_nbap_Delete_From_HS_SCCH_Resource_PoolExt_PSCH_ReconfRqst = -1;
-static gint ett_nbap_MultipleFreq_E_PUCH_Timeslot_InformationList_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_MultipleFreq_E_PUCH_Timeslot_Information_LCRItem_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Max_RTWP_perUARFCN_Information_LCR_PSCH_ReconfRqst = -1;
-static gint ett_nbap_Max_RTWP_perUARFCN_Information_LCR_PSCH_ReconfRqst_Item = -1;
-static gint ett_nbap_PhysicalSharedChannelReconfigurationResponse = -1;
-static gint ett_nbap_E_HICH_TimeOffset_ExtensionLCR = -1;
-static gint ett_nbap_MultipleFreq_E_HICH_TimeOffsetLCR = -1;
-static gint ett_nbap_PhysicalSharedChannelReconfigurationFailure = -1;
-static gint ett_nbap_CauseLevel_PSCH_ReconfFailure = -1;
-static gint ett_nbap_GeneralCauseList_PSCH_ReconfFailure = -1;
-static gint ett_nbap_SetSpecificCauseList_PSCH_ReconfFailureTDD = -1;
-static gint ett_nbap_Unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD = -1;
-static gint ett_nbap_Unsuccessful_PDSCHSetItem_PSCH_ReconfFailureTDD = -1;
-static gint ett_nbap_Unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD = -1;
-static gint ett_nbap_Unsuccessful_PUSCHSetItem_PSCH_ReconfFailureTDD = -1;
-static gint ett_nbap_UARFCNSpecificCauseList_PSCH_ReconfFailureTDD = -1;
-static gint ett_nbap_Unsuccessful_UARFCNItem_PSCH_ReconfFailureTDD = -1;
-static gint ett_nbap_E_HICH_TimeOffset_ReconfFailureTDD = -1;
-static gint ett_nbap_Common_System_Information_ResponseLCR = -1;
-static gint ett_nbap_ResetRequest = -1;
-static gint ett_nbap_ResetIndicator = -1;
-static gint ett_nbap_CommunicationContextList_Reset = -1;
-static gint ett_nbap_CommunicationContextInfoList_Reset = -1;
-static gint ett_nbap_CommunicationContextInfoItem_Reset = -1;
-static gint ett_nbap_CommunicationContextType_Reset = -1;
-static gint ett_nbap_CommunicationControlPortList_Reset = -1;
-static gint ett_nbap_CommunicationControlPortInfoList_Reset = -1;
-static gint ett_nbap_CommunicationControlPortInfoItem_Reset = -1;
-static gint ett_nbap_ResetResponse = -1;
-static gint ett_nbap_InformationExchangeInitiationRequest = -1;
-static gint ett_nbap_InformationExchangeObjectType_InfEx_Rqst = -1;
-static gint ett_nbap_Cell_InfEx_Rqst = -1;
-static gint ett_nbap_InformationExchangeInitiationResponse = -1;
-static gint ett_nbap_InformationExchangeObjectType_InfEx_Rsp = -1;
-static gint ett_nbap_Cell_InfEx_Rsp = -1;
-static gint ett_nbap_InformationExchangeInitiationFailure = -1;
-static gint ett_nbap_InformationReport = -1;
-static gint ett_nbap_InformationExchangeObjectType_InfEx_Rprt = -1;
-static gint ett_nbap_Cell_Inf_Rprt = -1;
-static gint ett_nbap_InformationExchangeTerminationRequest = -1;
-static gint ett_nbap_InformationExchangeFailureIndication = -1;
-static gint ett_nbap_CellSynchronisationInitiationRequestTDD = -1;
-static gint ett_nbap_TimeslotInfo_CellSyncInitiationRqstTDD = -1;
-static gint ett_nbap_CellSyncBurstTransInit_CellSyncInitiationRqstTDD = -1;
-static gint ett_nbap_CellSyncBurstMeasureInit_CellSyncInitiationRqstTDD = -1;
-static gint ett_nbap_SYNCDlCodeId_TransInitLCR_CellSyncInitiationRqstTDD = -1;
-static gint ett_nbap_SYNCDlCodeId_MeasureInitLCR_CellSyncInitiationRqstTDD = -1;
-static gint ett_nbap_CellSynchronisationInitiationResponseTDD = -1;
-static gint ett_nbap_CellSynchronisationInitiationFailureTDD = -1;
-static gint ett_nbap_CellSynchronisationReconfigurationRequestTDD = -1;
-static gint ett_nbap_CellSyncBurstTransReconfInfo_CellSyncReconfRqstTDD = -1;
-static gint ett_nbap_CellSyncBurstTransInfoItem_CellSyncReconfRqstTDD = -1;
-static gint ett_nbap_CellSyncBurstMeasInfo_CellSyncReconfRqstTDD = -1;
-static gint ett_nbap_CellSyncBurstMeasInfoListIE_CellSyncReconfRqstTDD = -1;
-static gint ett_nbap_CellSyncBurstMeasInfoItem_CellSyncReconfRqstTDD = -1;
-static gint ett_nbap_CellSyncBurstInfoList_CellSyncReconfRqstTDD = -1;
-static gint ett_nbap_CellSyncBurstInfoItem_CellSyncReconfRqstTDD = -1;
-static gint ett_nbap_SYNCDlCodeIdTransReconfInfoLCR_CellSyncReconfRqstTDD = -1;
-static gint ett_nbap_SYNCDlCodeIdTransReconfItemLCR_CellSyncReconfRqstTDD = -1;
-static gint ett_nbap_SYNCDlCodeIdMeasInfoLCR_CellSyncReconfRqstTDD = -1;
-static gint ett_nbap_SYNCDlCodeIdMeasInfoList_CellSyncReconfRqstTDD = -1;
-static gint ett_nbap_SYNCDlCodeIdMeasInfoItem_CellSyncReconfRqstTDD = -1;
-static gint ett_nbap_SYNCDlCodeIdInfoListLCR_CellSyncReconfRqstTDD = -1;
-static gint ett_nbap_SYNCDlCodeIdInfoItemLCR_CellSyncReconfRqstTDD = -1;
-static gint ett_nbap_CellSynchronisationReconfigurationResponseTDD = -1;
-static gint ett_nbap_CellSynchronisationReconfigurationFailureTDD = -1;
-static gint ett_nbap_CellSynchronisationAdjustmentRequestTDD = -1;
-static gint ett_nbap_CellAdjustmentInfo_SyncAdjustmentRqstTDD = -1;
-static gint ett_nbap_CellAdjustmentInfoItem_SyncAdjustmentRqstTDD = -1;
-static gint ett_nbap_CellSynchronisationAdjustmentResponseTDD = -1;
-static gint ett_nbap_CellSynchronisationAdjustmentFailureTDD = -1;
-static gint ett_nbap_CauseLevel_SyncAdjustmntFailureTDD = -1;
-static gint ett_nbap_GeneralCauseList_SyncAdjustmntFailureTDD = -1;
-static gint ett_nbap_CellSpecificCauseList_SyncAdjustmntFailureTDD = -1;
-static gint ett_nbap_Unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD = -1;
-static gint ett_nbap_Unsuccessful_cell_InformationRespItem_SyncAdjustmntFailureTDD = -1;
-static gint ett_nbap_CellSynchronisationTerminationRequestTDD = -1;
-static gint ett_nbap_CellSynchronisationFailureIndicationTDD = -1;
-static gint ett_nbap_CellSynchronisationReportTDD = -1;
-static gint ett_nbap_CellSyncInfo_CellSyncReprtTDD = -1;
-static gint ett_nbap_CellSyncInfoItemIE_CellSyncReprtTDD = -1;
-static gint ett_nbap_SyncReportType_CellSyncReprtTDD = -1;
-static gint ett_nbap_IntStdPhCellSyncInfo_CellSyncReprtTDD = -1;
-static gint ett_nbap_CellSyncBurstMeasInfoList_CellSyncReprtTDD = -1;
-static gint ett_nbap_CellSyncBurstMeasInfoItem_CellSyncReprtTDD = -1;
-static gint ett_nbap_SEQUENCE_SIZE_1_maxNrOfReceptsPerSyncFrame_OF_CellSyncBurstInfo_CellSyncReprtTDD = -1;
-static gint ett_nbap_CellSyncBurstInfo_CellSyncReprtTDD = -1;
-static gint ett_nbap_CellSyncBurstAvailable_CellSyncReprtTDD = -1;
-static gint ett_nbap_SyncDLCodeIdsMeasInfoList_CellSyncReprtTDD = -1;
-static gint ett_nbap_SyncDLCodeIdsMeasInfoItem_CellSyncReprtTDD = -1;
-static gint ett_nbap_SyncDLCodeIdInfo_CellSyncReprtTDD = -1;
-static gint ett_nbap_SyncDLCodeIdItem_CellSyncReprtTDD = -1;
-static gint ett_nbap_SyncDLCodeIdAvailable_CellSyncReprtTDD = -1;
-static gint ett_nbap_BearerRearrangementIndication = -1;
-static gint ett_nbap_DCH_RearrangeList_Bearer_RearrangeInd = -1;
-static gint ett_nbap_DCH_RearrangeItem_Bearer_RearrangeInd = -1;
-static gint ett_nbap_DSCH_RearrangeList_Bearer_RearrangeInd = -1;
-static gint ett_nbap_DSCH_RearrangeItem_Bearer_RearrangeInd = -1;
-static gint ett_nbap_USCH_RearrangeList_Bearer_RearrangeInd = -1;
-static gint ett_nbap_USCH_RearrangeItem_Bearer_RearrangeInd = -1;
-static gint ett_nbap_HSDSCH_RearrangeList_Bearer_RearrangeInd = -1;
-static gint ett_nbap_HSDSCH_RearrangeItem_Bearer_RearrangeInd = -1;
-static gint ett_nbap_E_DCH_RearrangeList_Bearer_RearrangeInd = -1;
-static gint ett_nbap_E_DCH_RearrangeItem_Bearer_RearrangeInd = -1;
-static gint ett_nbap_Additional_EDCH_Cell_Information_Bearer_Rearrangement_List = -1;
-static gint ett_nbap_Additional_EDCH_Cell_Information_Bearer_Rearrangement_ItemIEs = -1;
-static gint ett_nbap_RadioLinkActivationCommandFDD = -1;
-static gint ett_nbap_DelayedActivationInformationList_RL_ActivationCmdFDD = -1;
-static gint ett_nbap_DelayedActivationInformation_RL_ActivationCmdFDD = -1;
-static gint ett_nbap_RadioLinkActivationCommandTDD = -1;
-static gint ett_nbap_DelayedActivationInformationList_RL_ActivationCmdTDD = -1;
-static gint ett_nbap_DelayedActivationInformation_RL_ActivationCmdTDD = -1;
-static gint ett_nbap_RadioLinkParameterUpdateIndicationFDD = -1;
-static gint ett_nbap_Additional_HS_Cell_Information_RL_Param_Upd = -1;
-static gint ett_nbap_Additional_HS_Cell_Information_RL_Param_Upd_ItemIEs = -1;
-static gint ett_nbap_Additional_EDCH_Cell_Information_RL_Param_Upd = -1;
-static gint ett_nbap_Additional_EDCH_Cell_Information_RL_Param_Upd_ItemIEs = -1;
-static gint ett_nbap_RadioLinkParameterUpdateIndicationTDD = -1;
-static gint ett_nbap_MBMSNotificationUpdateCommand = -1;
-static gint ett_nbap_UEStatusUpdateCommand = -1;
-static gint ett_nbap_SecondaryULFrequencyReport = -1;
-static gint ett_nbap_SecondaryULFrequencyUpdateIndication = -1;
-static gint ett_nbap_NBAP_PDU = -1;
-static gint ett_nbap_InitiatingMessage = -1;
-static gint ett_nbap_SuccessfulOutcome = -1;
-static gint ett_nbap_UnsuccessfulOutcome = -1;
-static gint ett_nbap_Outcome = -1;
+static gint ett_nbap_PrivateIE_ID;
+static gint ett_nbap_ProcedureID;
+static gint ett_nbap_TransactionID;
+static gint ett_nbap_ProtocolIE_Container;
+static gint ett_nbap_ProtocolIE_Field;
+static gint ett_nbap_ProtocolExtensionContainer;
+static gint ett_nbap_ProtocolExtensionField;
+static gint ett_nbap_PrivateIE_Container;
+static gint ett_nbap_PrivateIE_Field;
+static gint ett_nbap_ActivationInformation;
+static gint ett_nbap_ActivationInformationItem;
+static gint ett_nbap_Additional_EDCH_Setup_Info;
+static gint ett_nbap_Additional_EDCH_Cell_Information_Setup;
+static gint ett_nbap_Additional_EDCH_FDD_Setup_Cell_Information;
+static gint ett_nbap_Additional_EDCH_UL_DPCH_Information_Setup;
+static gint ett_nbap_Additional_EDCH_F_DPCH_Information;
+static gint ett_nbap_Additional_EDCH_RL_Specific_Information_To_Setup_List;
+static gint ett_nbap_Additional_EDCH_RL_Specific_Information_To_Setup_ItemIEs;
+static gint ett_nbap_Additional_EDCH_Cell_Information_To_Add_List;
+static gint ett_nbap_Additional_EDCH_Cell_Information_To_Add_ItemIEs;
+static gint ett_nbap_Additional_EDCH_RL_Specific_Information_To_Add_ItemIEs;
+static gint ett_nbap_EDCH_Additional_RL_Specific_Information_To_Add_List;
+static gint ett_nbap_Additional_EDCH_RL_Specific_Information_To_Modify_List;
+static gint ett_nbap_Additional_EDCH_RL_Specific_Information_To_Modify_ItemIEs;
+static gint ett_nbap_Additional_EDCH_FDD_Information;
+static gint ett_nbap_Additional_EDCH_MAC_d_Flows_Specific_Info_List;
+static gint ett_nbap_Additional_EDCH_MAC_d_Flows_Specific_Info;
+static gint ett_nbap_Additional_EDCH_Cell_Information_Response_List;
+static gint ett_nbap_Additional_EDCH_FDD_Information_Response_ItemIEs;
+static gint ett_nbap_EDCH_Additional_RL_Specific_Information_Response_List;
+static gint ett_nbap_EDCH_Additional_RL_Specific_Information_Response_ItemIEs;
+static gint ett_nbap_Additional_EDCH_Cell_Information_Response_RLReconf_List;
+static gint ett_nbap_Additional_EDCH_FDD_Information_Response_RLReconf_Items;
+static gint ett_nbap_Additional_Modififed_EDCH_FDD_Information_Response_ItemIEs;
+static gint ett_nbap_EDCH_Additional_Modified_RL_Specific_Information_Response_List;
+static gint ett_nbap_EDCH_Additional_Modified_RL_Specific_Information_Response_List_Items;
+static gint ett_nbap_Additional_EDCH_MAC_d_Flow_Specific_Information_Response_List;
+static gint ett_nbap_Additional_EDCH_MAC_d_Flows_Specific_Info_Response;
+static gint ett_nbap_Additional_EDCH_Cell_Information_Response_RL_Add_List;
+static gint ett_nbap_Additional_EDCH_Cell_Information_Response_RL_Add_ItemIEs;
+static gint ett_nbap_Additional_EDCH_Cell_Information_ConfigurationChange_List;
+static gint ett_nbap_Additional_EDCH_ConfigurationChange_Info_ItemIEs;
+static gint ett_nbap_Additional_EDCH_UL_DPCH_Information_Modify;
+static gint ett_nbap_Additional_EDCH_Cell_Information_Removal_List;
+static gint ett_nbap_Additional_EDCH_Cell_Information_Removal_Info_ItemIEs;
+static gint ett_nbap_Additional_EDCH_FDD_Update_Information;
+static gint ett_nbap_Additional_EDCH_DL_Control_Channel_Change_Information_List;
+static gint ett_nbap_Additional_EDCH_DL_Control_Channel_Change_Info_ItemIEs;
+static gint ett_nbap_AdditionalMeasurementValueList;
+static gint ett_nbap_AdditionalMeasurementValue;
+static gint ett_nbap_AdditionalTimeSlotListLCR;
+static gint ett_nbap_AdditionalTimeSlotLCR;
+static gint ett_nbap_Active_Pattern_Sequence_Information;
+static gint ett_nbap_Transmission_Gap_Pattern_Sequence_Status_List;
+static gint ett_nbap_Transmission_Gap_Pattern_Sequence_Status_List_item;
+static gint ett_nbap_AllocationRetentionPriority;
+static gint ett_nbap_Angle_Of_Arrival_Value_LCR;
+static gint ett_nbap_BCCH_Specific_HSDSCH_RNTI_Information;
+static gint ett_nbap_BCCH_Specific_HSDSCH_RNTI_InformationLCR;
+static gint ett_nbap_Best_Cell_Portions_Value;
+static gint ett_nbap_Best_Cell_Portions_Item;
+static gint ett_nbap_Best_Cell_Portions_ValueLCR;
+static gint ett_nbap_Best_Cell_Portions_ItemLCR;
+static gint ett_nbap_BroadcastCommonTransportBearerIndication;
+static gint ett_nbap_Cause;
+static gint ett_nbap_Cell_ERNTI_Status_Information;
+static gint ett_nbap_Cell_ERNTI_Status_Information_Item;
+static gint ett_nbap_Vacant_ERNTI;
+static gint ett_nbap_CellSyncBurstTiming;
+static gint ett_nbap_CellSyncBurstTimingLCR;
+static gint ett_nbap_CommonChannelsCapacityConsumptionLaw;
+static gint ett_nbap_CommonChannelsCapacityConsumptionLaw_item;
+static gint ett_nbap_Common_EDCH_System_InformationFDD;
+static gint ett_nbap_Common_E_DCH_UL_DPCH_InfoItem;
+static gint ett_nbap_Common_E_DCH_EDPCH_InfoItem;
+static gint ett_nbap_Common_E_DCH_InfoItem;
+static gint ett_nbap_Common_E_DCH_HSDPCCH_InfoItem;
+static gint ett_nbap_Common_E_DCH_CQI_Info;
+static gint ett_nbap_Common_E_DCH_Preamble_Control_InfoItem;
+static gint ett_nbap_Common_E_DCH_AICH_Information;
+static gint ett_nbap_Common_E_DCH_FDPCH_InfoItem;
+static gint ett_nbap_Common_E_DCH_Resource_Combination_InfoList;
+static gint ett_nbap_Common_E_DCH_Resource_Combination_InfoList_Item;
+static gint ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoList;
+static gint ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoList_Item;
+static gint ett_nbap_Common_E_DCH_MACdFlow_Specific_InfoList;
+static gint ett_nbap_Common_E_DCH_MACdFlow_Specific_InfoList_Item;
+static gint ett_nbap_Common_E_DCH_LogicalChannel_InfoList;
+static gint ett_nbap_Common_E_DCH_LogicalChannel_InfoList_Item;
+static gint ett_nbap_Common_EDCH_System_Information_ResponseFDD;
+static gint ett_nbap_E_RNTI_List;
+static gint ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseList;
+static gint ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseList_Item;
+static gint ett_nbap_Common_MACFlows_to_DeleteFDD;
+static gint ett_nbap_Common_MACFlows_to_DeleteFDD_Item;
+static gint ett_nbap_CommonMACFlow_Specific_InfoList;
+static gint ett_nbap_CommonMACFlow_Specific_InfoItem;
+static gint ett_nbap_CommonMACFlow_Specific_InfoList_Response;
+static gint ett_nbap_CommonMACFlow_Specific_InfoItem_Response;
+static gint ett_nbap_Common_MACFlow_PriorityQueue_Information;
+static gint ett_nbap_Common_MACFlow_PriorityQueue_Item;
+static gint ett_nbap_CommonMeasurementAccuracy;
+static gint ett_nbap_CommonMeasurementValue;
+static gint ett_nbap_CommonMeasurementValueInformation;
+static gint ett_nbap_CommonMeasurementAvailable;
+static gint ett_nbap_Common_PhysicalChannel_Status_Information;
+static gint ett_nbap_Common_PhysicalChannel_Status_Information768;
+static gint ett_nbap_CommonTransportChannel_InformationResponse;
+static gint ett_nbap_Common_TransportChannel_Status_Information;
+static gint ett_nbap_ContinuousPacketConnectivityDTX_DRX_Information;
+static gint ett_nbap_ContinuousPacketConnectivityDTX_DRX_Information_to_Modify;
+static gint ett_nbap_ContinuousPacketConnectivityHS_SCCH_less_Information;
+static gint ett_nbap_ContinuousPacketConnectivityHS_SCCH_less_InformationItem;
+static gint ett_nbap_ContinuousPacketConnectivityHS_SCCH_less_Information_Response;
+static gint ett_nbap_CPC_Information;
+static gint ett_nbap_CriticalityDiagnostics;
+static gint ett_nbap_CriticalityDiagnostics_IE_List;
+static gint ett_nbap_CriticalityDiagnostics_IE_List_item;
+static gint ett_nbap_Common_EDCH_System_InformationLCR;
+static gint ett_nbap_Common_E_PUCH_InformationLCR;
+static gint ett_nbap_PRXdes_base_perURAFCN;
+static gint ett_nbap_PRXdes_base_Item;
+static gint ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoListLCR;
+static gint ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoList_ItemLCR;
+static gint ett_nbap_Common_E_DCH_MACdFlow_Specific_InfoListLCR;
+static gint ett_nbap_Common_E_DCH_MACdFlow_Specific_InfoList_ItemLCR;
+static gint ett_nbap_Common_EDCH_System_Information_ResponseLCR;
+static gint ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseListLCR;
+static gint ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseListLCR_Ext;
+static gint ett_nbap_Ul_common_E_DCH_MACflow_Specific_InfoResponseList_ItemLCR;
+static gint ett_nbap_Common_E_AGCH_ListLCR;
+static gint ett_nbap_Common_E_AGCH_ItemLCR;
+static gint ett_nbap_Common_E_HICH_ListLCR;
+static gint ett_nbap_Common_E_HICH_ItemLCR;
+static gint ett_nbap_Common_E_RNTI_Info_LCR;
+static gint ett_nbap_Common_E_RNTI_Info_ItemLCR;
+static gint ett_nbap_Common_MACFlows_to_DeleteLCR;
+static gint ett_nbap_Common_MACFlows_to_DeleteLCR_Item;
+static gint ett_nbap_CommonMACFlow_Specific_InfoListLCR;
+static gint ett_nbap_CommonMACFlow_Specific_InfoItemLCR;
+static gint ett_nbap_Common_H_RNTI_InformationLCR;
+static gint ett_nbap_Common_H_RNTI_InfoItemLCR;
+static gint ett_nbap_Sync_InformationLCR;
+static gint ett_nbap_CommonMACFlow_Specific_InfoList_ResponseLCR;
+static gint ett_nbap_CommonMACFlow_Specific_InfoItem_ResponseLCR;
+static gint ett_nbap_CPC_InformationLCR;
+static gint ett_nbap_ContinuousPacketConnectivity_DRX_InformationLCR;
+static gint ett_nbap_HS_SCCH_DRX_Information_LCR;
+static gint ett_nbap_E_AGCH_DRX_Information_LCR;
+static gint ett_nbap_E_AGCH_DRX_Parameters;
+static gint ett_nbap_ContinuousPacketConnectivity_DRX_Information_to_Modify_LCR;
+static gint ett_nbap_DRX_Information_to_Modify_LCR;
+static gint ett_nbap_DRX_Information_to_Modify_Items_LCR;
+static gint ett_nbap_ContinuousPacketConnectivity_DRX_Information_ResponseLCR;
+static gint ett_nbap_HS_SCCH_DRX_Information_ResponseLCR;
+static gint ett_nbap_E_AGCH_DRX_Information_ResponseLCR;
+static gint ett_nbap_E_AGCH_DRX_Parameters_Response;
+static gint ett_nbap_DCH_FDD_Information;
+static gint ett_nbap_DCH_FDD_InformationItem;
+static gint ett_nbap_DCH_Specific_FDD_InformationList;
+static gint ett_nbap_DCH_Specific_FDD_Item;
+static gint ett_nbap_DCH_InformationResponse;
+static gint ett_nbap_DCH_InformationResponseItem;
+static gint ett_nbap_DCH_MeasurementOccasion_Information;
+static gint ett_nbap_DchMeasurementOccasionInformation_Item;
+static gint ett_nbap_Measurement_Occasion_Pattern_Sequence_parameters;
+static gint ett_nbap_DCH_TDD_Information;
+static gint ett_nbap_DCH_TDD_InformationItem;
+static gint ett_nbap_DCH_Specific_TDD_InformationList;
+static gint ett_nbap_DCH_Specific_TDD_Item;
+static gint ett_nbap_FDD_DCHs_to_Modify;
+static gint ett_nbap_FDD_DCHs_to_ModifyItem;
+static gint ett_nbap_DCH_ModifySpecificInformation_FDD;
+static gint ett_nbap_DCH_ModifySpecificItem_FDD;
+static gint ett_nbap_TDD_DCHs_to_Modify;
+static gint ett_nbap_DCH_ModifyItem_TDD;
+static gint ett_nbap_DCH_ModifySpecificInformation_TDD;
+static gint ett_nbap_DCH_ModifySpecificItem_TDD;
+static gint ett_nbap_DedicatedChannelsCapacityConsumptionLaw;
+static gint ett_nbap_DedicatedChannelsCapacityConsumptionLaw_item;
+static gint ett_nbap_DedicatedMeasurementValue;
+static gint ett_nbap_DedicatedMeasurementValueInformation;
+static gint ett_nbap_DedicatedMeasurementAvailable;
+static gint ett_nbap_DelayedActivation;
+static gint ett_nbap_DelayedActivationUpdate;
+static gint ett_nbap_Activate_Info;
+static gint ett_nbap_Deactivate_Info;
+static gint ett_nbap_Execution_Type;
+static gint ett_nbap_DGANSSCorrections;
+static gint ett_nbap_DGANSS_Corrections_Req;
+static gint ett_nbap_DGANSS_Information;
+static gint ett_nbap_DGANSS_InformationItem;
+static gint ett_nbap_DGANSS_SignalInformation;
+static gint ett_nbap_DGANSS_SignalInformationItem;
+static gint ett_nbap_DGANSSThreshold;
+static gint ett_nbap_DGNSS_ValidityPeriod;
+static gint ett_nbap_DGPSCorrections;
+static gint ett_nbap_DGPSThresholds;
+static gint ett_nbap_DL_Timeslot_Information;
+static gint ett_nbap_DL_Timeslot_InformationItem;
+static gint ett_nbap_DL_TimeslotLCR_Information;
+static gint ett_nbap_DL_TimeslotLCR_InformationItem;
+static gint ett_nbap_DL_Timeslot768_Information;
+static gint ett_nbap_DL_Timeslot768_InformationItem;
+static gint ett_nbap_DL_PowerBalancing_Information;
+static gint ett_nbap_DL_ReferencePowerInformationList;
+static gint ett_nbap_DL_ReferencePowerInformationItem;
+static gint ett_nbap_DL_TimeslotISCPInfo;
+static gint ett_nbap_DL_TimeslotISCPInfoItem;
+static gint ett_nbap_DL_TimeslotISCPInfoLCR;
+static gint ett_nbap_DL_TimeslotISCPInfoItemLCR;
+static gint ett_nbap_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_DL_HS_PDSCH_Timeslot_InformationItem_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_MaxHSDSCH_HSSCCH_Power_per_CELLPORTION;
+static gint ett_nbap_MaxHSDSCH_HSSCCH_Power_per_CELLPORTION_Item;
+static gint ett_nbap_DL_HS_PDSCH_Codelist_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_DRX_Information;
+static gint ett_nbap_DRX_Information_to_Modify;
+static gint ett_nbap_DRX_Information_to_Modify_Items;
+static gint ett_nbap_DSCH_InformationResponse;
+static gint ett_nbap_DSCH_InformationResponseItem;
+static gint ett_nbap_DSCH_TDD_Information;
+static gint ett_nbap_DSCH_TDD_InformationItem;
+static gint ett_nbap_DTX_Cycle_2ms_Items;
+static gint ett_nbap_DTX_Cycle_2ms_to_Modify_Items;
+static gint ett_nbap_DTX_Cycle_10ms_Items;
+static gint ett_nbap_DTX_Cycle_10ms_to_Modify_Items;
+static gint ett_nbap_DTX_Information;
+static gint ett_nbap_DTX_Information_to_Modify;
+static gint ett_nbap_DTX_Information_to_Modify_Items;
+static gint ett_nbap_Dual_Band_Capability_Info;
+static gint ett_nbap_E_AGCH_FDD_Code_Information;
+static gint ett_nbap_E_AGCH_FDD_Code_List;
+static gint ett_nbap_E_DCHCapacityConsumptionLaw;
+static gint ett_nbap_E_DCH_TDD_CapacityConsumptionLaw;
+static gint ett_nbap_E_DCH_SF_allocation;
+static gint ett_nbap_E_DCH_SF_allocation_item;
+static gint ett_nbap_E_DCH_FDD_DL_Control_Channel_Information;
+static gint ett_nbap_E_DCH_FDD_Information;
+static gint ett_nbap_E_DCH_FDD_Information_Response;
+static gint ett_nbap_E_DCH_FDD_Information_to_Modify;
+static gint ett_nbap_E_DCH_FDD_Update_Information;
+static gint ett_nbap_E_DCH_MACdFlow_Specific_UpdateInformation;
+static gint ett_nbap_E_DCH_MACdFlow_Specific_UpdateInformation_Item;
+static gint ett_nbap_E_DCH_DL_Control_Channel_Change_Information;
+static gint ett_nbap_E_DCH_DL_Control_Channel_Change_Information_Item;
+static gint ett_nbap_E_DCH_DL_Control_Channel_Grant_Information;
+static gint ett_nbap_E_DCH_DL_Control_Channel_Grant_Information_Item;
+static gint ett_nbap_E_DCH_Grant_Type_Information;
+static gint ett_nbap_E_DCH_LogicalChannelInformation;
+static gint ett_nbap_E_DCH_LogicalChannelInformationItem;
+static gint ett_nbap_E_DCH_MACdPDU_SizeList;
+static gint ett_nbap_E_DCH_MACdPDU_SizeListItem;
+static gint ett_nbap_E_DCH_LogicalChannelToModify;
+static gint ett_nbap_E_DCH_LogicalChannelToModifyItem;
+static gint ett_nbap_E_DCH_MACdPDU_SizeToModifyList;
+static gint ett_nbap_E_DCH_LogicalChannelToDelete;
+static gint ett_nbap_E_DCH_LogicalChannelToDeleteItem;
+static gint ett_nbap_E_DCH_MACdFlows_Information;
+static gint ett_nbap_E_DCH_MACdFlow_Specific_InfoList;
+static gint ett_nbap_E_DCH_MACdFlow_Specific_InfoItem;
+static gint ett_nbap_E_DCH_MACdFlow_Specific_InformationResp;
+static gint ett_nbap_E_DCH_MACdFlow_Specific_InformationResp_Item;
+static gint ett_nbap_E_DCH_MACdFlow_Specific_InfoList_to_Modify;
+static gint ett_nbap_E_DCH_MACdFlow_Specific_InfoItem_to_Modify;
+static gint ett_nbap_E_DCH_MACdFlows_to_Delete;
+static gint ett_nbap_E_DCH_MACdFlow_to_Delete_Item;
+static gint ett_nbap_E_DCH_Non_Scheduled_Transmission_Grant_Items;
+static gint ett_nbap_E_DCH_Serving_Cell_Change_Info_Response;
+static gint ett_nbap_E_DCH_serving_cell_choice;
+static gint ett_nbap_E_DCH_serving_cell_change_successful;
+static gint ett_nbap_E_DCH_RL_InformationList_Rsp;
+static gint ett_nbap_E_DCH_RL_InformationList_Rsp_Item;
+static gint ett_nbap_E_DCH_serving_cell_change_unsuccessful;
+static gint ett_nbap_EDCH_RACH_Report_Value;
+static gint ett_nbap_EDCH_RACH_Report_Value_item;
+static gint ett_nbap_E_DCH_TTI_Length;
+static gint ett_nbap_E_DCH_TTI_Length_to_Modify;
+static gint ett_nbap_E_DCH_MACdFlows_to_DeleteLCR;
+static gint ett_nbap_E_DCH_MACdFlow_to_Delete_ItemLCR;
+static gint ett_nbap_Enhanced_UE_DRX_InformationLCR;
+static gint ett_nbap_E_RGCH_E_HICH_FDD_Code_Information;
+static gint ett_nbap_E_RGCH_E_HICH_FDD_Code_List;
+static gint ett_nbap_E_TFCI_Boost_Information;
+static gint ett_nbap_E_TFCS_Information;
+static gint ett_nbap_E_DCHProvidedBitRate;
+static gint ett_nbap_E_DCHProvidedBitRate_Item;
+static gint ett_nbap_E_DCHProvidedBitRateValueInformation_For_CellPortion;
+static gint ett_nbap_E_DCHProvidedBitRateValueInformation_For_CellPortion_Item;
+static gint ett_nbap_E_DCH_Information;
+static gint ett_nbap_E_PUCH_Information;
+static gint ett_nbap_E_TFCS_Information_TDD;
+static gint ett_nbap_E_DCH_QPSK_RefBetaInfo;
+static gint ett_nbap_E_DCH_sixteenQAM_RefBetaInfo;
+static gint ett_nbap_E_DCH_RefBeta_Item;
+static gint ett_nbap_E_DCH_MACdFlows_Information_TDD;
+static gint ett_nbap_E_DCH_MACdFlow_InfoTDDItem;
+static gint ett_nbap_E_DCH_Non_Scheduled_Grant_Info;
+static gint ett_nbap_E_DCH_TDD_Information;
+static gint ett_nbap_E_DCH_Information_Response;
+static gint ett_nbap_Scheduled_E_HICH_Specific_Information_ResponseLCRTDD;
+static gint ett_nbap_Scheduled_E_HICH_Specific_InformationItem_ResponseLCRTDD;
+static gint ett_nbap_E_DCH_TDD_MACdFlow_Specific_InformationResp;
+static gint ett_nbap_E_DCH_TDD_MACdFlow_Specific_InformationResp_Item;
+static gint ett_nbap_E_AGCH_Specific_InformationRespListTDD;
+static gint ett_nbap_E_AGCH_Specific_InformationResp_ItemTDD;
+static gint ett_nbap_E_DCH_Information_Reconfig;
+static gint ett_nbap_E_DCH_TDD_Information_to_Modify;
+static gint ett_nbap_E_DCH_TDD_Information_to_Modify_List;
+static gint ett_nbap_E_DCH_MACdFlow_ModifyTDDItem;
+static gint ett_nbap_E_DCH_768_Information;
+static gint ett_nbap_E_DCH_Non_Scheduled_Grant_Info768;
+static gint ett_nbap_E_DCH_TDD_Information768;
+static gint ett_nbap_E_DCH_768_Information_Reconfig;
+static gint ett_nbap_E_DCH_LCR_Information;
+static gint ett_nbap_E_PUCH_LCR_Information;
+static gint ett_nbap_E_DCH_Non_Scheduled_Grant_LCR_Info;
+static gint ett_nbap_E_HICH_LCR_Information;
+static gint ett_nbap_E_DCH_LCRTDD_Information;
+static gint ett_nbap_E_DCH_LCR_Information_Reconfig;
+static gint ett_nbap_Enhanced_UE_DRX_InformationFDD;
+static gint ett_nbap_E_DCH_Semi_PersistentScheduling_Information_LCR;
+static gint ett_nbap_E_DCH_Semi_PersistentScheduling_Information_to_Modify_LCR;
+static gint ett_nbap_E_DCH_Semi_PersistentScheduling_Information_ResponseLCR;
+static gint ett_nbap_FDD_DL_CodeInformation;
+static gint ett_nbap_FDD_DL_CodeInformationItem;
+static gint ett_nbap_GANSS_AddClockModels;
+static gint ett_nbap_GANSS_AddOrbitModels;
+static gint ett_nbap_GANSS_Additional_Ionospheric_Model;
+static gint ett_nbap_GANSS_Additional_Navigation_Models;
+static gint ett_nbap_GANSS_Additional_Time_Models;
+static gint ett_nbap_GANSS_Additional_UTC_Models;
+static gint ett_nbap_GANSS_Almanac;
+static gint ett_nbap_GANSS_AlmanacModel;
+static gint ett_nbap_GANSS_ALM_ECEFsbasAlmanacSet;
+static gint ett_nbap_GANSS_ALM_GlonassAlmanacSet;
+static gint ett_nbap_GANSS_ALM_MidiAlmanacSet;
+static gint ett_nbap_GANSS_ALM_NAVKeplerianSet;
+static gint ett_nbap_GANSS_ALM_ReducedKeplerianSet;
+static gint ett_nbap_GANSS_Auxiliary_Information;
+static gint ett_nbap_GANSS_AuxInfoGANSS_ID1;
+static gint ett_nbap_GANSS_AuxInfoGANSS_ID1_element;
+static gint ett_nbap_GANSS_AuxInfoGANSS_ID3;
+static gint ett_nbap_GANSS_AuxInfoGANSS_ID3_element;
+static gint ett_nbap_GANSS_Clock_Model;
+static gint ett_nbap_GANSS_CNAVclockModel;
+static gint ett_nbap_GANSS_Common_Data;
+static gint ett_nbap_GANSS_CommonDataInfoReq;
+static gint ett_nbap_GANSS_Data_Bit_Assistance;
+static gint ett_nbap_GANSS_DataBitAssistanceList;
+static gint ett_nbap_GANSS_DataBitAssistanceItem;
+static gint ett_nbap_GANSS_DataBitAssistanceSgnList;
+static gint ett_nbap_GANSS_DataBitAssistanceSgnItem;
+static gint ett_nbap_GANSS_Data_Bit_Assistance_ReqItem;
+static gint ett_nbap_GANSS_Data_Bit_Assistance_ReqList;
+static gint ett_nbap_T_ganss_SatelliteInfo;
+static gint ett_nbap_GANSS_DeltaUT1;
+static gint ett_nbap_GANSS_Earth_Orientation_Parameters;
+static gint ett_nbap_GANSS_GenericDataInfoReqList;
+static gint ett_nbap_GANSS_GenericDataInfoReqItem;
+static gint ett_nbap_GANSS_Generic_Data;
+static gint ett_nbap_GANSS_Generic_DataItem;
+static gint ett_nbap_GANSS_GLONASSclockModel;
+static gint ett_nbap_GANSS_Information;
+static gint ett_nbap_GANSS_Ionospheric_Model;
+static gint ett_nbap_GANSS_IonosphereRegionalStormFlags;
+static gint ett_nbap_GANSS_KeplerianParametersAlm;
+static gint ett_nbap_GANSS_KeplerianParametersOrb;
+static gint ett_nbap_GANSS_NAVclockModel;
+static gint ett_nbap_GANSS_Navigation_Model_And_Time_Recovery;
+static gint ett_nbap_GANSS_NavModel_CNAVKeplerianSet;
+static gint ett_nbap_GANSS_NavModel_GLONASSecef;
+static gint ett_nbap_GANSS_NavModel_NAVKeplerianSet;
+static gint ett_nbap_GANSS_NavModel_SBASecef;
+static gint ett_nbap_GANSS_Orbit_Model;
+static gint ett_nbap_GANSS_Real_Time_Integrity;
+static gint ett_nbap_GANSS_RealTimeInformationItem;
+static gint ett_nbap_GANSS_RX_Pos;
+static gint ett_nbap_GANSS_SatelliteClockModelItem;
+static gint ett_nbap_GANSS_SatelliteInformationKP;
+static gint ett_nbap_GANSS_SatelliteInformationKPItem;
+static gint ett_nbap_Ganss_Sat_Info_AddNavList;
+static gint ett_nbap_Ganss_Sat_Info_AddNavList_item;
+static gint ett_nbap_GANSS_SAT_Info_Almanac_GLOkpList;
+static gint ett_nbap_GANSS_SAT_Info_Almanac_GLOkp;
+static gint ett_nbap_GANSS_SAT_Info_Almanac_MIDIkpList;
+static gint ett_nbap_GANSS_SAT_Info_Almanac_MIDIkp;
+static gint ett_nbap_GANSS_SAT_Info_Almanac_NAVkpList;
+static gint ett_nbap_GANSS_SAT_Info_Almanac_NAVkp;
+static gint ett_nbap_GANSS_SAT_Info_Almanac_REDkpList;
+static gint ett_nbap_GANSS_SAT_Info_Almanac_REDkp;
+static gint ett_nbap_GANSS_SAT_Info_Almanac_SBASecefList;
+static gint ett_nbap_GANSS_SAT_Info_Almanac_SBASecef;
+static gint ett_nbap_GANSS_Sat_Info_Nav;
+static gint ett_nbap_GANSS_Sat_Info_Nav_item;
+static gint ett_nbap_GANSS_SBASclockModel;
+static gint ett_nbap_GANSS_Time_Model;
+static gint ett_nbap_GANSS_Transmission_Time;
+static gint ett_nbap_GANSS_UTC_Model;
+static gint ett_nbap_GANSS_UTCmodelSet1;
+static gint ett_nbap_GANSS_UTCmodelSet2;
+static gint ett_nbap_GANSS_UTCmodelSet3;
+static gint ett_nbap_GPS_Almanac;
+static gint ett_nbap_GPS_Ionospheric_Model;
+static gint ett_nbap_GPS_Information;
+static gint ett_nbap_GPS_RealTime_Integrity;
+static gint ett_nbap_GPSBadSat_Info_RealTime_Integrity;
+static gint ett_nbap_GPS_NavigationModel_and_TimeRecovery;
+static gint ett_nbap_GPS_NavandRecovery_Item;
+static gint ett_nbap_GPS_RX_POS;
+static gint ett_nbap_GPS_UTC_Model;
+static gint ett_nbap_HARQ_MemoryPartitioning;
+static gint ett_nbap_HARQ_MemoryPartitioning_Implicit;
+static gint ett_nbap_HARQ_MemoryPartitioning_Explicit;
+static gint ett_nbap_HARQ_MemoryPartitioningList;
+static gint ett_nbap_HARQ_MemoryPartitioningInfoExtForMIMO;
+static gint ett_nbap_HARQ_MemoryPartitioningItem;
+static gint ett_nbap_HS_DSCHProvidedBitRate;
+static gint ett_nbap_HS_DSCHProvidedBitRate_Item;
+static gint ett_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortion;
+static gint ett_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortion_Item;
+static gint ett_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortionLCR;
+static gint ett_nbap_HS_DSCHProvidedBitRateValueInformation_For_CellPortionLCR_Item;
+static gint ett_nbap_HS_DSCHRequiredPower;
+static gint ett_nbap_HS_DSCHRequiredPower_Item;
+static gint ett_nbap_HS_DSCHRequiredPowerPerUEInformation;
+static gint ett_nbap_HS_DSCHRequiredPowerPerUEInformation_Item;
+static gint ett_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortion;
+static gint ett_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortion_Item;
+static gint ett_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortionLCR;
+static gint ett_nbap_HS_DSCHRequiredPowerValueInformation_For_CellPortionLCR_Item;
+static gint ett_nbap_HSDPA_Associated_PICH_Information;
+static gint ett_nbap_HSDPA_PICH_Shared_with_PCH;
+static gint ett_nbap_HSDPA_PICH_notShared_with_PCH;
+static gint ett_nbap_HSDSCH_Common_System_InformationFDD;
+static gint ett_nbap_HSDSCH_Common_System_Information_ResponseFDD;
+static gint ett_nbap_HSDSCH_Common_Information;
+static gint ett_nbap_HSDSCH_FDD_Information;
+static gint ett_nbap_HSDSCH_TDD_Information;
+static gint ett_nbap_HSDSCH_Information_to_Modify;
+static gint ett_nbap_HSDSCH_MACdFlow_Specific_InfoList_to_Modify;
+static gint ett_nbap_HSDSCH_MACdFlow_Specific_InfoItem_to_Modify;
+static gint ett_nbap_HSDSCH_Information_to_Modify_Unsynchronised;
+static gint ett_nbap_HSDSCH_FDD_Information_Response;
+static gint ett_nbap_HS_DSCH_FDD_Secondary_Serving_Information;
+static gint ett_nbap_HS_DSCH_FDD_Secondary_Serving_Information_Response;
+static gint ett_nbap_HS_DSCH_Secondary_Serving_Information_To_Modify;
+static gint ett_nbap_HS_DSCH_FDD_Secondary_Serving_Information_To_Modify_Unsynchronised;
+static gint ett_nbap_HS_DSCH_FDD_Secondary_Serving_Update_Information;
+static gint ett_nbap_HS_DSCH_Secondary_Serving_Cell_Change_Information_Response;
+static gint ett_nbap_HS_DSCH_Secondary_Serving_cell_change_choice;
+static gint ett_nbap_HS_Secondary_Serving_cell_change_successful;
+static gint ett_nbap_HS_Secondary_Serving_cell_change_unsuccessful;
+static gint ett_nbap_HSDSCH_Paging_System_InformationFDD;
+static gint ett_nbap_HSDSCH_Paging_System_Information_ResponseFDD;
+static gint ett_nbap_HSDSCH_Paging_System_Information_ResponseList;
+static gint ett_nbap_HSDSCH_TDD_Information_Response;
+static gint ett_nbap_HSDSCH_MACdFlow_Specific_InformationResp;
+static gint ett_nbap_HSDSCH_MACdFlow_Specific_InformationResp_Item;
+static gint ett_nbap_HSDSCH_MACdFlows_Information;
+static gint ett_nbap_HSDSCH_MACdFlow_Specific_InfoList;
+static gint ett_nbap_HSDSCH_MACdFlow_Specific_InfoItem;
+static gint ett_nbap_HSDSCH_MACdFlows_to_Delete;
+static gint ett_nbap_HSDSCH_MACdFlows_to_Delete_Item;
+static gint ett_nbap_HSDSCH_Initial_Capacity_Allocation;
+static gint ett_nbap_HSDSCH_Initial_Capacity_AllocationItem;
+static gint ett_nbap_HSDSCH_PreconfigurationInfo;
+static gint ett_nbap_Additional_EDCH_Preconfiguration_Information;
+static gint ett_nbap_Additional_EDCH_Preconfiguration_Information_ItemIEs;
+static gint ett_nbap_HSDSCH_PreconfigurationSetup;
+static gint ett_nbap_HS_SCCH_PreconfiguredCodes;
+static gint ett_nbap_HS_SCCH_PreconfiguredCodesItem;
+static gint ett_nbap_HSSCCH_Specific_InformationRespListFDD;
+static gint ett_nbap_HSSCCH_Codes;
+static gint ett_nbap_HSSCCH_Specific_InformationRespListTDD;
+static gint ett_nbap_HSSCCH_Specific_InformationRespItemTDD;
+static gint ett_nbap_HSSCCH_Specific_InformationRespListTDDLCR;
+static gint ett_nbap_HSSCCH_Specific_InformationRespItemTDDLCR;
+static gint ett_nbap_HSSCCH_Specific_InformationRespListTDD768;
+static gint ett_nbap_HSSCCH_Specific_InformationRespItemTDD768;
+static gint ett_nbap_HSSICH_Info;
+static gint ett_nbap_HSSICH_InfoLCR;
+static gint ett_nbap_HSSICH_Info768;
+static gint ett_nbap_HS_SICH_Reception_Quality_Value;
+static gint ett_nbap_HS_PDSCH_FDD_Code_Information;
+static gint ett_nbap_HS_SCCH_FDD_Code_Information;
+static gint ett_nbap_HS_SCCH_FDD_Code_List;
+static gint ett_nbap_HS_DSCH_Serving_Cell_Change_Info;
+static gint ett_nbap_HS_DSCH_Serving_Cell_Change_Info_Response;
+static gint ett_nbap_HS_DSCH_serving_cell_choice;
+static gint ett_nbap_HS_serving_cell_change_successful;
+static gint ett_nbap_HS_serving_cell_change_unsuccessful;
+static gint ett_nbap_HSDSCH_FDD_Update_Information;
+static gint ett_nbap_HSDSCH_TDD_Update_Information;
+static gint ett_nbap_HSDPA_Associated_PICH_InformationLCR;
+static gint ett_nbap_HSDPA_PICH_notShared_with_PCHLCR;
+static gint ett_nbap_HSDSCH_Common_System_InformationLCR;
+static gint ett_nbap_HSDSCH_Common_System_Information_ResponseLCR;
+static gint ett_nbap_HSDSCH_Common_InformationLCR;
+static gint ett_nbap_HSDSCH_Paging_System_InformationLCR;
+static gint ett_nbap_HSDSCH_Paging_System_Information_ResponseLCR;
+static gint ett_nbap_HSDSCH_Paging_System_Information_ResponseListLCR;
+static gint ett_nbap_HSSCCH_Specific_InformationRespListLCR;
+static gint ett_nbap_HSSCCH_Specific_InformationRespItemLCR;
+static gint ett_nbap_HS_DSCH_Semi_PersistentScheduling_Information_LCR;
+static gint ett_nbap_Transport_Block_Size_List_LCR;
+static gint ett_nbap_Transport_Block_Size_Item_LCR;
+static gint ett_nbap_Repetition_Period_List_LCR;
+static gint ett_nbap_Repetition_Period_Item_LCR;
+static gint ett_nbap_HS_DSCH_SPS_Operation_Indicator;
+static gint ett_nbap_HS_DSCH_Semi_PersistentScheduling_Information_to_Modify_LCR;
+static gint ett_nbap_HS_DSCH_Semi_PersistentScheduling_Information_ResponseLCR;
+static gint ett_nbap_HS_SICH_InformationList_for_HS_DSCH_SPS;
+static gint ett_nbap_HS_SICH_InformationItem_for_HS_DSCH_SPS;
+static gint ett_nbap_HS_SICH_Type;
+static gint ett_nbap_HS_SCCH_Associated_HS_SICH;
+static gint ett_nbap_Non_HS_SCCH_Associated_HS_SICH;
+static gint ett_nbap_Initial_HS_PDSCH_SPS_Resource;
+static gint ett_nbap_Add_To_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_Non_HS_SCCH_Associated_HS_SICH_InformationList;
+static gint ett_nbap_Non_HS_SCCH_Associated_HS_SICH_InformationList_Ext;
+static gint ett_nbap_Non_HS_SCCH_Associated_HS_SICH_InformationItem;
+static gint ett_nbap_Modify_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_Modify_Non_HS_SCCH_Associated_HS_SICH_InformationList;
+static gint ett_nbap_Modify_Non_HS_SCCH_Associated_HS_SICH_InformationList_Ext;
+static gint ett_nbap_Modify_Non_HS_SCCH_Associated_HS_SICH_InformationItem;
+static gint ett_nbap_Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqst_Ext;
+static gint ett_nbap_Delete_From_Non_HS_SCCH_Associated_HS_SICH_Resource_Pool_LCR_PSCH_ReconfRqstItem;
+static gint ett_nbap_MIMO_ReferenceSignal_InformationListLCR;
+static gint ett_nbap_HSSICH_ReferenceSignal_InformationLCR;
+static gint ett_nbap_HSSICH_ReferenceSignal_InformationModifyLCR;
+static gint ett_nbap_IMB_Parameters;
+static gint ett_nbap_InformationReportCharacteristics;
+static gint ett_nbap_InformationReportCharacteristicsType_ReportPeriodicity;
+static gint ett_nbap_InformationReportCharacteristicsType_OnModification;
+static gint ett_nbap_InformationThresholds;
+static gint ett_nbap_InformationType;
+static gint ett_nbap_IPDL_FDD_Parameters;
+static gint ett_nbap_IPDL_TDD_Parameters;
+static gint ett_nbap_IPDL_TDD_Parameters_LCR;
+static gint ett_nbap_IPMulticastIndication;
+static gint ett_nbap_BurstModeParams;
+static gint ett_nbap_IdleIntervalInformation;
+static gint ett_nbap_LCRTDD_Uplink_Physical_Channel_Capability;
+static gint ett_nbap_MACdPDU_Size_Indexlist;
+static gint ett_nbap_MACdPDU_Size_IndexItem;
+static gint ett_nbap_MACdPDU_Size_Indexlist_to_Modify;
+static gint ett_nbap_MACdPDU_Size_IndexItem_to_Modify;
+static gint ett_nbap_Max_TB_Sizes;
+static gint ett_nbap_MessageStructure;
+static gint ett_nbap_MessageStructure_item;
+static gint ett_nbap_MidambleShiftAndBurstType;
+static gint ett_nbap_Type1;
+static gint ett_nbap_MidambleAllocationMode1;
+static gint ett_nbap_Type2;
+static gint ett_nbap_MidambleAllocationMode2;
+static gint ett_nbap_Type3;
+static gint ett_nbap_MidambleAllocationMode3;
+static gint ett_nbap_MidambleShiftLCR;
+static gint ett_nbap_MidambleShiftAndBurstType768;
+static gint ett_nbap_Type7681;
+static gint ett_nbap_MidambleAllocationMode7681;
+static gint ett_nbap_Type7682;
+static gint ett_nbap_MidambleAllocationMode7682;
+static gint ett_nbap_Type7683;
+static gint ett_nbap_MidambleAllocationMode7683;
+static gint ett_nbap_MIMO_PilotConfiguration;
+static gint ett_nbap_MIMO_PilotConfigurationExtension;
+static gint ett_nbap_ModifyPriorityQueue;
+static gint ett_nbap_ModulationPO_MBSFN;
+static gint ett_nbap_MultipleFreq_HARQ_MemoryPartitioning_InformationList;
+static gint ett_nbap_MultipleFreq_HARQ_MemoryPartitioning_InformationItem;
+static gint ett_nbap_MultipleFreq_HSPDSCH_InformationList_ResponseTDDLCR;
+static gint ett_nbap_MultipleFreq_HSPDSCH_InformationItem_ResponseTDDLCR;
+static gint ett_nbap_Multi_Cell_Capability_Info;
+static gint ett_nbap_Multicell_EDCH_InformationItemIEs;
+static gint ett_nbap_Multicell_EDCH_RL_Specific_InformationItemIEs;
+static gint ett_nbap_NeighbouringCellMeasurementInformation;
+static gint ett_nbap_NeighbouringCellMeasurementInformation_item;
+static gint ett_nbap_NeighbouringFDDCellMeasurementInformation;
+static gint ett_nbap_NeighbouringTDDCellMeasurementInformation;
+static gint ett_nbap_NeighbouringTDDCellMeasurementInformationLCR;
+static gint ett_nbap_NeighbouringTDDCellMeasurementInformation768;
+static gint ett_nbap_NI_Information;
+static gint ett_nbap_NormalAndDiversityPrimaryCPICHContainer;
+static gint ett_nbap_Paging_MACFlows_to_DeleteFDD;
+static gint ett_nbap_Paging_MACFlows_to_DeleteFDD_Item;
+static gint ett_nbap_Paging_MACFlow_Specific_Information;
+static gint ett_nbap_Paging_MAC_Flow_Specific_Information_Item;
+static gint ett_nbap_Paging_MACFlow_PriorityQueue_Information;
+static gint ett_nbap_Paging_MACFlow_PriorityQueue_Item;
+static gint ett_nbap_PLCCHinformation;
+static gint ett_nbap_Possible_Secondary_Serving_Cell_List;
+static gint ett_nbap_Possible_Secondary_Serving_Cell;
+static gint ett_nbap_PreambleSignatures;
+static gint ett_nbap_PrimaryAndSecondaryCPICHContainer;
+static gint ett_nbap_Priority_Queue_Information_for_Enhanced_FACH_PCH;
+static gint ett_nbap_PriorityQueue_InfoList;
+static gint ett_nbap_PriorityQueue_InfoItem;
+static gint ett_nbap_PriorityQueue_InfoList_to_Modify;
+static gint ett_nbap_PriorityQueue_InfoItem_to_Add;
+static gint ett_nbap_PriorityQueue_InfoItem_to_Modify;
+static gint ett_nbap_PriorityQueue_InfoList_to_Modify_Unsynchronised;
+static gint ett_nbap_PriorityQueue_InfoItem_to_Modify_Unsynchronised;
+static gint ett_nbap_UE_Selected_MBMS_Service_Information;
+static gint ett_nbap_Selected_MBMS_Service;
+static gint ett_nbap_Selected_MBMS_Service_List;
+static gint ett_nbap_Selected_MBMS_Service_Item;
+static gint ett_nbap_Selected_MBMS_Service_TimeSlot_Information_LCR;
+static gint ett_nbap_MBMS_Service_TDM_Information;
+static gint ett_nbap_Paging_MACFlow_Specific_InformationLCR;
+static gint ett_nbap_Paging_MAC_Flow_Specific_Information_ItemLCR;
+static gint ett_nbap_Paging_MACFlows_to_DeleteLCR;
+static gint ett_nbap_Paging_MACFlows_to_DeleteLCR_Item;
+static gint ett_nbap_RACH_SubChannelNumbers;
+static gint ett_nbap_RL_Specific_DCH_Info;
+static gint ett_nbap_RL_Specific_DCH_Info_Item;
+static gint ett_nbap_RL_Specific_E_DCH_Info;
+static gint ett_nbap_RL_Specific_E_DCH_Information;
+static gint ett_nbap_RL_Specific_E_DCH_Information_Item;
+static gint ett_nbap_Reference_E_TFCI_Information;
+static gint ett_nbap_Reference_E_TFCI_Information_Item;
+static gint ett_nbap_ReportCharacteristics;
+static gint ett_nbap_ReportCharacteristicsType_EventA;
+static gint ett_nbap_ReportCharacteristicsType_EventB;
+static gint ett_nbap_ReportCharacteristicsType_EventC;
+static gint ett_nbap_ReportCharacteristicsType_EventD;
+static gint ett_nbap_ReportCharacteristicsType_EventE;
+static gint ett_nbap_ReportCharacteristicsType_EventF;
+static gint ett_nbap_ReportCharacteristicsType_OnModification;
+static gint ett_nbap_ReportCharacteristicsType_MeasurementIncreaseDecreaseThreshold;
+static gint ett_nbap_EDCH_RACH_Report_IncrDecrThres;
+static gint ett_nbap_ReportCharacteristicsType_MeasurementThreshold;
+static gint ett_nbap_EDCH_RACH_Report_ThresholdInformation;
+static gint ett_nbap_ReportCharacteristicsType_ScaledMeasurementChangeTime;
+static gint ett_nbap_ReportCharacteristicsType_ScaledMeasurementHysteresisTime;
+static gint ett_nbap_ReportCharacteristicsType_ReportPeriodicity;
+static gint ett_nbap_Received_total_wide_band_power_For_CellPortion_Value;
+static gint ett_nbap_Received_total_wide_band_power_For_CellPortion_Value_Item;
+static gint ett_nbap_Received_total_wide_band_power_For_CellPortion_ValueLCR;
+static gint ett_nbap_Received_total_wide_band_power_For_CellPortion_ValueLCR_Item;
+static gint ett_nbap_Received_Scheduled_EDCH_Power_Share_For_CellPortion_Value;
+static gint ett_nbap_Received_Scheduled_EDCH_Power_Share_For_CellPortion_Value_Item;
+static gint ett_nbap_Received_Scheduled_EDCH_Power_Share_Value;
+static gint ett_nbap_RequestedDataValueInformation;
+static gint ett_nbap_InformationAvailable;
+static gint ett_nbap_RequestedDataValue;
+static gint ett_nbap_SAT_Info_Almanac;
+static gint ett_nbap_SAT_Info_Almanac_Item;
+static gint ett_nbap_SAT_Info_Almanac_ExtList;
+static gint ett_nbap_SAT_Info_Almanac_ExtItem;
+static gint ett_nbap_SAT_Info_DGPSCorrections;
+static gint ett_nbap_SAT_Info_DGPSCorrections_Item;
+static gint ett_nbap_SATInfo_RealTime_Integrity;
+static gint ett_nbap_SAT_Info_RealTime_Integrity_Item;
+static gint ett_nbap_SecondaryServingCells;
+static gint ett_nbap_SecondaryServingCellsItem;
+static gint ett_nbap_Secondary_CPICH_Information_Change;
+static gint ett_nbap_Serving_E_DCH_RL_ID;
+static gint ett_nbap_Serving_E_DCH_RL_in_this_NodeB;
+static gint ett_nbap_SetsOfHS_SCCH_Codes;
+static gint ett_nbap_SetsOfHS_SCCH_CodesItem;
+static gint ett_nbap_Setup_Or_ConfigurationChange_Or_Removal_Of_EDCH_On_secondary_UL_Frequency;
+static gint ett_nbap_SFNSFNMeasurementThresholdInformation;
+static gint ett_nbap_SFNSFNMeasurementValueInformation;
+static gint ett_nbap_T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation;
+static gint ett_nbap_T_successfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item;
+static gint ett_nbap_T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation;
+static gint ett_nbap_T_unsuccessfullNeighbouringCellSFNSFNObservedTimeDifferenceMeasurementInformation_item;
+static gint ett_nbap_SFNSFNTimeStampInformation;
+static gint ett_nbap_SFNSFNTimeStamp_TDD;
+static gint ett_nbap_SFNSFNValue;
+static gint ett_nbap_SynchronisationReportCharacteristics;
+static gint ett_nbap_SynchronisationReportCharactThreExc;
+static gint ett_nbap_SynchronisationReportCharactThreInfoItem;
+static gint ett_nbap_SEQUENCE_SIZE_1_maxNrOfReceptsPerSyncFrame_OF_SynchronisationReportCharactCellSyncBurstInfoItem;
+static gint ett_nbap_SynchronisationReportCharactCellSyncBurstInfoItem;
+static gint ett_nbap_SyncDLCodeIdThreInfoLCR;
+static gint ett_nbap_SyncDLCodeIdThreInfoList;
+static gint ett_nbap_SyncDLCodeInfoListLCR;
+static gint ett_nbap_SyncDLCodeInfoItemLCR;
+static gint ett_nbap_TDD_ChannelisationCodeLCR;
+static gint ett_nbap_TDD_DL_Code_Information;
+static gint ett_nbap_TDD_DL_Code_InformationItem;
+static gint ett_nbap_TDD_DL_Code_LCR_Information;
+static gint ett_nbap_TDD_DL_Code_LCR_InformationItem;
+static gint ett_nbap_TDD_DL_Code_768_Information;
+static gint ett_nbap_TDD_DL_Code_768_InformationItem;
+static gint ett_nbap_TDD_DL_DPCH_TimeSlotFormat_LCR;
+static gint ett_nbap_TDD_DPCHOffset;
+static gint ett_nbap_TransportFormatCombination_Beta;
+static gint ett_nbap_T_signalledGainFactors;
+static gint ett_nbap_T_gainFactor;
+static gint ett_nbap_T_fdd;
+static gint ett_nbap_TDD_UL_Code_Information;
+static gint ett_nbap_TDD_UL_Code_InformationItem;
+static gint ett_nbap_TDD_UL_Code_LCR_Information;
+static gint ett_nbap_TDD_UL_Code_LCR_InformationItem;
+static gint ett_nbap_TDD_UL_Code_768_Information;
+static gint ett_nbap_TDD_UL_Code_768_InformationItem;
+static gint ett_nbap_TDD_UL_DPCH_TimeSlotFormat_LCR;
+static gint ett_nbap_TFCI_SignallingMode;
+static gint ett_nbap_TimeSlot_InitiatedListLCR;
+static gint ett_nbap_TimeSlotMeasurementValueListLCR;
+static gint ett_nbap_TimeSlotMeasurementValueLCR;
+static gint ett_nbap_TimingAdjustmentValue;
+static gint ett_nbap_TimingAdjustmentValueLCR;
+static gint ett_nbap_TnlQos;
+static gint ett_nbap_Transmission_Gap_Pattern_Sequence_Information;
+static gint ett_nbap_Transmission_Gap_Pattern_Sequence_Information_item;
+static gint ett_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue;
+static gint ett_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCH_E_RGCHOrE_HICHTransmissionCellPortionValue_Item;
+static gint ett_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCHOrE_HICHTransmissionCellPortionValue;
+static gint ett_nbap_TransmittedCarrierPowerOfAllCodesNotUsedForHS_PDSCH_HS_SCCH_E_AGCHOrE_HICHTransmissionCellPortionValue_Item;
+static gint ett_nbap_Transmitted_Carrier_Power_For_CellPortion_Value;
+static gint ett_nbap_Transmitted_Carrier_Power_For_CellPortion_Value_Item;
+static gint ett_nbap_Transmitted_Carrier_Power_For_CellPortion_ValueLCR;
+static gint ett_nbap_Transmitted_Carrier_Power_For_CellPortion_ValueLCR_Item;
+static gint ett_nbap_TFCS;
+static gint ett_nbap_T_tFCSvalues;
+static gint ett_nbap_TFCS_TFCSList;
+static gint ett_nbap_TFCS_TFCSList_item;
+static gint ett_nbap_TFCS_CTFC;
+static gint ett_nbap_Transport_Block_Size_List;
+static gint ett_nbap_Transport_Block_Size_List_item;
+static gint ett_nbap_TransportFormatSet;
+static gint ett_nbap_TransportFormatSet_DynamicPartList;
+static gint ett_nbap_TransportFormatSet_DynamicPartList_item;
+static gint ett_nbap_TDD_TransportFormatSet_ModeDP;
+static gint ett_nbap_TransmissionTimeIntervalInformation;
+static gint ett_nbap_TransmissionTimeIntervalInformation_item;
+static gint ett_nbap_TransportFormatSet_Semi_staticPart;
+static gint ett_nbap_TransportFormatSet_ModeDP;
+static gint ett_nbap_TransportFormatSet_ModeSSP;
+static gint ett_nbap_TUTRANGANSS;
+static gint ett_nbap_TUTRANGANSSMeasurementThresholdInformation;
+static gint ett_nbap_TUTRANGANSSMeasurementValueInformation;
+static gint ett_nbap_TUTRANGPS;
+static gint ett_nbap_TUTRANGPSMeasurementThresholdInformation;
+static gint ett_nbap_TUTRANGPSMeasurementValueInformation;
+static gint ett_nbap_UC_Id;
+static gint ett_nbap_UE_AggregateMaximumBitRate;
+static gint ett_nbap_UE_Capability_Information;
+static gint ett_nbap_UL_Timeslot_Information;
+static gint ett_nbap_UL_Timeslot_InformationItem;
+static gint ett_nbap_UL_TimeslotLCR_Information;
+static gint ett_nbap_UL_TimeslotLCR_InformationItem;
+static gint ett_nbap_UL_Timeslot768_Information;
+static gint ett_nbap_UL_Timeslot768_InformationItem;
+static gint ett_nbap_UL_ScramblingCode;
+static gint ett_nbap_UL_Synchronisation_Parameters_LCR;
+static gint ett_nbap_UL_TimeSlot_ISCP_Info;
+static gint ett_nbap_UL_TimeSlot_ISCP_InfoItem;
+static gint ett_nbap_UL_TimeSlot_ISCP_LCR_Info;
+static gint ett_nbap_UL_TimeSlot_ISCP_LCR_InfoItem;
+static gint ett_nbap_UpPTSInterference_For_CellPortion_Value;
+static gint ett_nbap_UpPTSInterference_For_CellPortion_Value_Item;
+static gint ett_nbap_USCH_Information;
+static gint ett_nbap_USCH_InformationItem;
+static gint ett_nbap_USCH_InformationResponse;
+static gint ett_nbap_USCH_InformationResponseItem;
+static gint ett_nbap_UL_TimeslotISCP_For_CellPortion_Value;
+static gint ett_nbap_UL_TimeslotISCP_For_CellPortion_Value_Item;
+static gint ett_nbap_CommonTransportChannelSetupRequestFDD;
+static gint ett_nbap_CommonPhysicalChannelType_CTCH_SetupRqstFDD;
+static gint ett_nbap_Secondary_CCPCH_CTCH_SetupRqstFDD;
+static gint ett_nbap_PowerOffsetInformation_CTCH_SetupRqstFDD;
+static gint ett_nbap_FACH_ParametersListIE_CTCH_SetupRqstFDD;
+static gint ett_nbap_FACH_ParametersItem_CTCH_SetupRqstFDD;
+static gint ett_nbap_PCH_ParametersItem_CTCH_SetupRqstFDD;
+static gint ett_nbap_PICH_Parameters_CTCH_SetupRqstFDD;
+static gint ett_nbap_MICH_Parameters_CTCH_SetupRqstFDD;
+static gint ett_nbap_PRACH_CTCH_SetupRqstFDD;
+static gint ett_nbap_AllowedSlotFormatInformationList_CTCH_SetupRqstFDD;
+static gint ett_nbap_AllowedSlotFormatInformationItem_CTCH_SetupRqstFDD;
+static gint ett_nbap_RACH_ParametersItem_CTCH_SetupRqstFDD;
+static gint ett_nbap_AICH_Parameters_CTCH_SetupRqstFDD;
+static gint ett_nbap_CommonTransportChannelSetupRequestTDD;
+static gint ett_nbap_CommonPhysicalChannelType_CTCH_SetupRqstTDD;
+static gint ett_nbap_Secondary_CCPCH_CTCH_SetupRqstTDD;
+static gint ett_nbap_Secondary_CCPCH_parameterListIE_CTCH_SetupRqstTDD;
+static gint ett_nbap_Secondary_CCPCH_parameterItem_CTCH_SetupRqstTDD;
+static gint ett_nbap_Secondary_CCPCH_LCR_parameterList_CTCH_SetupRqstTDD;
+static gint ett_nbap_Secondary_CCPCH_LCR_parameterItem_CTCH_SetupRqstTDD;
+static gint ett_nbap_Secondary_CCPCH_768_parameterList_CTCH_SetupRqstTDD;
+static gint ett_nbap_Secondary_CCPCH_768_parameterItem_CTCH_SetupRqstTDD;
+static gint ett_nbap_FACH_ParametersListIE_CTCH_SetupRqstTDD;
+static gint ett_nbap_FACH_ParametersItem_CTCH_SetupRqstTDD;
+static gint ett_nbap_PCH_ParametersItem_CTCH_SetupRqstTDD;
+static gint ett_nbap_PICH_ParametersItem_CTCH_SetupRqstTDD;
+static gint ett_nbap_PICH_LCR_Parameters_CTCH_SetupRqstTDD;
+static gint ett_nbap_PICH_768_ParametersItem_CTCH_SetupRqstTDD;
+static gint ett_nbap_MICH_Parameters_CTCH_SetupRqstTDD;
+static gint ett_nbap_MICH_TDDOption_Specific_Parameters_CTCH_SetupRqstTDD;
+static gint ett_nbap_MICH_HCR_Parameters_CTCH_SetupRqstTDD;
+static gint ett_nbap_MICH_LCR_Parameters_CTCH_SetupRqstTDD;
+static gint ett_nbap_MICH_768_Parameters_CTCH_SetupRqstTDD;
+static gint ett_nbap_TimeSlotConfigurationList_LCR_CTCH_SetupRqstTDD;
+static gint ett_nbap_TimeSlotConfigurationItem_LCR_CTCH_SetupRqstTDD;
+static gint ett_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_SetupRqstTDD;
+static gint ett_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_SetupRqstTDD;
+static gint ett_nbap_PRACH_CTCH_SetupRqstTDD;
+static gint ett_nbap_PRACH_ParametersItem_CTCH_SetupRqstTDD;
+static gint ett_nbap_RACH_ParameterItem_CTCH_SetupRqstTDD;
+static gint ett_nbap_PRACH_LCR_ParametersList_CTCH_SetupRqstTDD;
+static gint ett_nbap_PRACH_LCR_ParametersItem_CTCH_SetupRqstTDD;
+static gint ett_nbap_PRACH_768_ParametersItem_CTCH_SetupRqstTDD;
+static gint ett_nbap_FPACH_LCR_Parameters_CTCH_SetupRqstTDD;
+static gint ett_nbap_PLCCH_parameters;
+static gint ett_nbap_E_RUCCH_parameters;
+static gint ett_nbap_E_RUCCH_768_parameters;
+static gint ett_nbap_CommonTransportChannelSetupResponse;
+static gint ett_nbap_FACH_CommonTransportChannel_InformationResponse;
+static gint ett_nbap_CommonTransportChannelSetupFailure;
+static gint ett_nbap_CommonTransportChannelReconfigurationRequestFDD;
+static gint ett_nbap_CommonPhysicalChannelType_CTCH_ReconfRqstFDD;
+static gint ett_nbap_Secondary_CCPCHList_CTCH_ReconfRqstFDD;
+static gint ett_nbap_FACH_ParametersListIE_CTCH_ReconfRqstFDD;
+static gint ett_nbap_FACH_ParametersItem_CTCH_ReconfRqstFDD;
+static gint ett_nbap_PCH_ParametersItem_CTCH_ReconfRqstFDD;
+static gint ett_nbap_PICH_ParametersItem_CTCH_ReconfRqstFDD;
+static gint ett_nbap_MICH_Parameters_CTCH_ReconfRqstFDD;
+static gint ett_nbap_PRACHList_CTCH_ReconfRqstFDD;
+static gint ett_nbap_PRACH_ParametersListIE_CTCH_ReconfRqstFDD;
+static gint ett_nbap_PRACH_ParametersItem_CTCH_ReconfRqstFDD;
+static gint ett_nbap_AllowedSlotFormatInformationList_CTCH_ReconfRqstFDD;
+static gint ett_nbap_AllowedSlotFormatInformationItem_CTCH_ReconfRqstFDD;
+static gint ett_nbap_AICH_ParametersListIE_CTCH_ReconfRqstFDD;
+static gint ett_nbap_AICH_ParametersItem_CTCH_ReconfRqstFDD;
+static gint ett_nbap_CommonTransportChannelReconfigurationRequestTDD;
+static gint ett_nbap_Secondary_CCPCH_Parameters_CTCH_ReconfRqstTDD;
+static gint ett_nbap_Secondary_CCPCHListIE_CTCH_ReconfRqstTDD;
+static gint ett_nbap_Secondary_CCPCHItem_CTCH_ReconfRqstTDD;
+static gint ett_nbap_Secondary_CCPCH_parameterExtendedList_CTCH_ReconfRqstTDD;
+static gint ett_nbap_Secondary_CCPCH_LCR_parameterExtendedList_CTCH_ReconfRqstTDD;
+static gint ett_nbap_PICH_Parameters_CTCH_ReconfRqstTDD;
+static gint ett_nbap_FACH_ParametersList_CTCH_ReconfRqstTDD;
+static gint ett_nbap_FACH_ParametersItem_CTCH_ReconfRqstTDD;
+static gint ett_nbap_PCH_Parameters_CTCH_ReconfRqstTDD;
+static gint ett_nbap_FPACH_LCR_Parameters_CTCH_ReconfRqstTDD;
+static gint ett_nbap_MICH_Parameters_CTCH_ReconfRqstTDD;
+static gint ett_nbap_PLCCH_Parameters_CTCH_ReconfRqstTDD;
+static gint ett_nbap_Secondary_CCPCH_768_Parameters_CTCH_ReconfRqstTDD;
+static gint ett_nbap_Secondary_CCPCH_768_List_CTCH_ReconfRqstTDD;
+static gint ett_nbap_Secondary_CCPCH_768_Item_CTCH_ReconfRqstTDD;
+static gint ett_nbap_PICH_768_Parameters_CTCH_ReconfRqstTDD;
+static gint ett_nbap_MICH_768_Parameters_CTCH_ReconfRqstTDD;
+static gint ett_nbap_UPPCH_LCR_Parameters_CTCH_ReconfRqstTDD;
+static gint ett_nbap_CommonTransportChannelReconfigurationResponse;
+static gint ett_nbap_CommonTransportChannelReconfigurationFailure;
+static gint ett_nbap_CommonTransportChannelDeletionRequest;
+static gint ett_nbap_CommonTransportChannelDeletionResponse;
+static gint ett_nbap_BlockResourceRequest;
+static gint ett_nbap_BlockResourceResponse;
+static gint ett_nbap_BlockResourceFailure;
+static gint ett_nbap_UnblockResourceIndication;
+static gint ett_nbap_AuditRequiredIndication;
+static gint ett_nbap_AuditRequest;
+static gint ett_nbap_AuditResponse;
+static gint ett_nbap_Cell_InformationList_AuditRsp;
+static gint ett_nbap_Cell_InformationItem_AuditRsp;
+static gint ett_nbap_S_CPICH_InformationList_AuditRsp;
+static gint ett_nbap_S_CCPCH_InformationList_AuditRsp;
+static gint ett_nbap_FACH_InformationList_AuditRsp;
+static gint ett_nbap_PRACH_InformationList_AuditRsp;
+static gint ett_nbap_RACH_InformationList_AuditRsp;
+static gint ett_nbap_AICH_InformationList_AuditRsp;
+static gint ett_nbap_FPACH_LCR_InformationList_AuditRsp;
+static gint ett_nbap_HS_DSCH_Resources_Information_AuditRsp;
+static gint ett_nbap_S_CCPCH_InformationListExt_AuditRsp;
+static gint ett_nbap_S_CCPCH_LCR_InformationListExt_AuditRsp;
+static gint ett_nbap_E_DCH_Resources_Information_AuditRsp;
+static gint ett_nbap_PLCCH_InformationList_AuditRsp;
+static gint ett_nbap_S_CCPCH_768_InformationList_AuditRsp;
+static gint ett_nbap_PRACH_768_InformationList_AuditRsp;
+static gint ett_nbap_E_RUCCH_InformationList_AuditRsp;
+static gint ett_nbap_E_RUCCH_768_InformationList_AuditRsp;
+static gint ett_nbap_Cell_Frequency_List_Information_LCR_MulFreq_AuditRsp;
+static gint ett_nbap_Cell_Frequency_List_InformationItem_LCR_MulFreq_AuditRsp;
+static gint ett_nbap_UPPCH_LCR_InformationList_AuditRsp;
+static gint ett_nbap_UPPCH_LCR_InformationItem_AuditRsp;
+static gint ett_nbap_MultipleFreq_HS_DSCH_Resources_InformationList_AuditRsp;
+static gint ett_nbap_MultipleFreq_E_DCH_Resources_InformationList_AuditRsp;
+static gint ett_nbap_CCP_InformationList_AuditRsp;
+static gint ett_nbap_CCP_InformationItem_AuditRsp;
+static gint ett_nbap_Local_Cell_InformationList_AuditRsp;
+static gint ett_nbap_Local_Cell_InformationItem_AuditRsp;
+static gint ett_nbap_Local_Cell_Group_InformationList_AuditRsp;
+static gint ett_nbap_Local_Cell_Group_InformationItem_AuditRsp;
+static gint ett_nbap_Power_Local_Cell_Group_InformationList_AuditRsp;
+static gint ett_nbap_Power_Local_Cell_Group_InformationItem_AuditRsp;
+static gint ett_nbap_AuditFailure;
+static gint ett_nbap_CommonMeasurementInitiationRequest;
+static gint ett_nbap_CommonMeasurementObjectType_CM_Rqst;
+static gint ett_nbap_ERACH_CM_Rqst;
+static gint ett_nbap_Cell_CM_Rqst;
+static gint ett_nbap_RACH_CM_Rqst;
+static gint ett_nbap_PowerLocalCellGroup_CM_Rqst;
+static gint ett_nbap_CommonMeasurementInitiationResponse;
+static gint ett_nbap_CommonMeasurementObjectType_CM_Rsp;
+static gint ett_nbap_ERACH_CM_Rsp;
+static gint ett_nbap_Cell_CM_Rsp;
+static gint ett_nbap_RACH_CM_Rsp;
+static gint ett_nbap_PowerLocalCellGroup_CM_Rsp;
+static gint ett_nbap_CommonMeasurementInitiationFailure;
+static gint ett_nbap_CommonMeasurementReport;
+static gint ett_nbap_CommonMeasurementObjectType_CM_Rprt;
+static gint ett_nbap_ERACH_CM_Rprt;
+static gint ett_nbap_Cell_CM_Rprt;
+static gint ett_nbap_RACH_CM_Rprt;
+static gint ett_nbap_PowerLocalCellGroup_CM_Rprt;
+static gint ett_nbap_CommonMeasurementTerminationRequest;
+static gint ett_nbap_CommonMeasurementFailureIndication;
+static gint ett_nbap_CellSetupRequestFDD;
+static gint ett_nbap_Synchronisation_Configuration_Cell_SetupRqst;
+static gint ett_nbap_PrimarySCH_Information_Cell_SetupRqstFDD;
+static gint ett_nbap_SecondarySCH_Information_Cell_SetupRqstFDD;
+static gint ett_nbap_PrimaryCPICH_Information_Cell_SetupRqstFDD;
+static gint ett_nbap_SecondaryCPICH_InformationList_Cell_SetupRqstFDD;
+static gint ett_nbap_SecondaryCPICH_InformationItem_Cell_SetupRqstFDD;
+static gint ett_nbap_PrimaryCCPCH_Information_Cell_SetupRqstFDD;
+static gint ett_nbap_BCH_Information_Cell_SetupRqstFDD;
+static gint ett_nbap_Limited_power_increase_information_Cell_SetupRqstFDD;
+static gint ett_nbap_IPDLParameter_Information_Cell_SetupRqstFDD;
+static gint ett_nbap_CellPortion_InformationList_Cell_SetupRqstFDD;
+static gint ett_nbap_CellPortion_InformationItem_Cell_SetupRqstFDD;
+static gint ett_nbap_CellSetupRequestTDD;
+static gint ett_nbap_SCH_Information_Cell_SetupRqstTDD;
+static gint ett_nbap_SyncCaseIndicatorItem_Cell_SetupRqstTDD_PSCH;
+static gint ett_nbap_Case1_Cell_SetupRqstTDD;
+static gint ett_nbap_Case2_Cell_SetupRqstTDD;
+static gint ett_nbap_PCCPCH_Information_Cell_SetupRqstTDD;
+static gint ett_nbap_TimeSlotConfigurationList_Cell_SetupRqstTDD;
+static gint ett_nbap_TimeSlotConfigurationItem_Cell_SetupRqstTDD;
+static gint ett_nbap_TimeSlotConfigurationList_LCR_Cell_SetupRqstTDD;
+static gint ett_nbap_TimeSlotConfigurationItem_LCR_Cell_SetupRqstTDD;
+static gint ett_nbap_PCCPCH_LCR_Information_Cell_SetupRqstTDD;
+static gint ett_nbap_DwPCH_LCR_Information_Cell_SetupRqstTDD;
+static gint ett_nbap_IPDLParameter_Information_Cell_SetupRqstTDD;
+static gint ett_nbap_IPDLParameter_Information_LCR_Cell_SetupRqstTDD;
+static gint ett_nbap_PCCPCH_768_Information_Cell_SetupRqstTDD;
+static gint ett_nbap_SCH_768_Information_Cell_SetupRqstTDD;
+static gint ett_nbap_Cell_Frequency_List_LCR_MulFreq_Cell_SetupRqstTDD;
+static gint ett_nbap_Cell_Frequency_Item_LCR_MulFreq_Cell_SetupRqstTDD;
+static gint ett_nbap_CellSetupResponse;
+static gint ett_nbap_CellSetupFailure;
+static gint ett_nbap_CellReconfigurationRequestFDD;
+static gint ett_nbap_Synchronisation_Configuration_Cell_ReconfRqst;
+static gint ett_nbap_PrimarySCH_Information_Cell_ReconfRqstFDD;
+static gint ett_nbap_SecondarySCH_Information_Cell_ReconfRqstFDD;
+static gint ett_nbap_PrimaryCPICH_Information_Cell_ReconfRqstFDD;
+static gint ett_nbap_SecondaryCPICH_InformationList_Cell_ReconfRqstFDD;
+static gint ett_nbap_SecondaryCPICH_InformationItem_Cell_ReconfRqstFDD;
+static gint ett_nbap_PrimaryCCPCH_Information_Cell_ReconfRqstFDD;
+static gint ett_nbap_BCH_information_Cell_ReconfRqstFDD;
+static gint ett_nbap_IPDLParameter_Information_Cell_ReconfRqstFDD;
+static gint ett_nbap_CellPortion_InformationList_Cell_ReconfRqstFDD;
+static gint ett_nbap_CellPortion_InformationItem_Cell_ReconfRqstFDD;
+static gint ett_nbap_CellReconfigurationRequestTDD;
+static gint ett_nbap_SCH_Information_Cell_ReconfRqstTDD;
+static gint ett_nbap_PCCPCH_Information_Cell_ReconfRqstTDD;
+static gint ett_nbap_TimeSlotConfigurationList_Cell_ReconfRqstTDD;
+static gint ett_nbap_TimeSlotConfigurationItem_Cell_ReconfRqstTDD;
+static gint ett_nbap_TimeSlotConfigurationList_LCR_Cell_ReconfRqstTDD;
+static gint ett_nbap_TimeSlotConfigurationItem_LCR_Cell_ReconfRqstTDD;
+static gint ett_nbap_DwPCH_LCR_Information_Cell_ReconfRqstTDD;
+static gint ett_nbap_IPDLParameter_Information_Cell_ReconfRqstTDD;
+static gint ett_nbap_IPDLParameter_Information_LCR_Cell_ReconfRqstTDD;
+static gint ett_nbap_SCH_768_Information_Cell_ReconfRqstTDD;
+static gint ett_nbap_PCCPCH_768_Information_Cell_ReconfRqstTDD;
+static gint ett_nbap_UARFCN_Adjustment;
+static gint ett_nbap_Cell_Frequency_Add_LCR_MulFreq_Cell_ReconfRqstTDD;
+static gint ett_nbap_Cell_Frequency_ModifyList_LCR_MulFreq_Cell_ReconfRqstTDD;
+static gint ett_nbap_Cell_Frequency_ModifyItem_LCR_MulFreq_Cell_ReconfRqstTDD;
+static gint ett_nbap_Cell_Frequency_Delete_LCR_MulFreq_Cell_ReconfRqstTDD;
+static gint ett_nbap_CellReconfigurationResponse;
+static gint ett_nbap_CellReconfigurationFailure;
+static gint ett_nbap_CellDeletionRequest;
+static gint ett_nbap_CellDeletionResponse;
+static gint ett_nbap_ResourceStatusIndication;
+static gint ett_nbap_IndicationType_ResourceStatusInd;
+static gint ett_nbap_No_Failure_ResourceStatusInd;
+static gint ett_nbap_Local_Cell_InformationList_ResourceStatusInd;
+static gint ett_nbap_Local_Cell_InformationItem_ResourceStatusInd;
+static gint ett_nbap_Local_Cell_Group_InformationList_ResourceStatusInd;
+static gint ett_nbap_Local_Cell_Group_InformationItem_ResourceStatusInd;
+static gint ett_nbap_Power_Local_Cell_Group_InformationList_ResourceStatusInd;
+static gint ett_nbap_Power_Local_Cell_Group_InformationItem_ResourceStatusInd;
+static gint ett_nbap_ServiceImpacting_ResourceStatusInd;
+static gint ett_nbap_Local_Cell_InformationList2_ResourceStatusInd;
+static gint ett_nbap_Local_Cell_InformationItem2_ResourceStatusInd;
+static gint ett_nbap_Local_Cell_Group_InformationList2_ResourceStatusInd;
+static gint ett_nbap_Local_Cell_Group_InformationItem2_ResourceStatusInd;
+static gint ett_nbap_CCP_InformationList_ResourceStatusInd;
+static gint ett_nbap_CCP_InformationItem_ResourceStatusInd;
+static gint ett_nbap_Cell_InformationList_ResourceStatusInd;
+static gint ett_nbap_Cell_InformationItem_ResourceStatusInd;
+static gint ett_nbap_S_CPICH_InformationList_ResourceStatusInd;
+static gint ett_nbap_S_CCPCH_InformationList_ResourceStatusInd;
+static gint ett_nbap_FACH_InformationList_ResourceStatusInd;
+static gint ett_nbap_PRACH_InformationList_ResourceStatusInd;
+static gint ett_nbap_RACH_InformationList_ResourceStatusInd;
+static gint ett_nbap_AICH_InformationList_ResourceStatusInd;
+static gint ett_nbap_FPACH_LCR_InformationList_ResourceStatusInd;
+static gint ett_nbap_HS_DSCH_Resources_Information_ResourceStatusInd;
+static gint ett_nbap_S_CCPCH_InformationListExt_ResourceStatusInd;
+static gint ett_nbap_S_CCPCH_LCR_InformationListExt_ResourceStatusInd;
+static gint ett_nbap_E_DCH_Resources_Information_ResourceStatusInd;
+static gint ett_nbap_PLCCH_InformationList_ResourceStatusInd;
+static gint ett_nbap_S_CCPCH_768_InformationList_ResourceStatusInd;
+static gint ett_nbap_PRACH_768_InformationList_ResourceStatusInd;
+static gint ett_nbap_E_RUCCH_InformationList_ResourceStatusInd;
+static gint ett_nbap_E_RUCCH_768_InformationList_ResourceStatusInd;
+static gint ett_nbap_Cell_Frequency_List_Information_LCR_MulFreq_ResourceStatusInd;
+static gint ett_nbap_Cell_Frequency_List_InformationItem_LCR_MulFreq_ResourceStatusInd;
+static gint ett_nbap_UPPCH_LCR_InformationList_ResourceStatusInd;
+static gint ett_nbap_UPPCH_LCR_InformationItem_ResourceStatusInd;
+static gint ett_nbap_MultipleFreq_HS_DSCH_Resources_InformationList_ResourceStatusInd;
+static gint ett_nbap_Power_Local_Cell_Group_InformationList2_ResourceStatusInd;
+static gint ett_nbap_Power_Local_Cell_Group_InformationItem2_ResourceStatusInd;
+static gint ett_nbap_MultipleFreq_E_DCH_Resources_InformationList_ResourceStatusInd;
+static gint ett_nbap_SystemInformationUpdateRequest;
+static gint ett_nbap_MIB_SB_SIB_InformationList_SystemInfoUpdateRqst;
+static gint ett_nbap_MIB_SB_SIB_InformationItem_SystemInfoUpdateRqst;
+static gint ett_nbap_DeletionIndicator_SystemInfoUpdate;
+static gint ett_nbap_No_Deletion_SystemInfoUpdate;
+static gint ett_nbap_SegmentInformationListIE_SystemInfoUpdate;
+static gint ett_nbap_SegmentInformationItem_SystemInfoUpdate;
+static gint ett_nbap_SystemInformationUpdateResponse;
+static gint ett_nbap_SystemInformationUpdateFailure;
+static gint ett_nbap_RadioLinkSetupRequestFDD;
+static gint ett_nbap_Additional_HS_Cell_Information_RL_Setup_List;
+static gint ett_nbap_Additional_HS_Cell_Information_RL_Setup_ItemIEs;
+static gint ett_nbap_UL_DPCH_Information_RL_SetupRqstFDD;
+static gint ett_nbap_DL_DPCH_Information_RL_SetupRqstFDD;
+static gint ett_nbap_PowerOffsetInformation_RL_SetupRqstFDD;
+static gint ett_nbap_RL_InformationList_RL_SetupRqstFDD;
+static gint ett_nbap_RL_InformationItem_RL_SetupRqstFDD;
+static gint ett_nbap_E_DPCH_Information_RL_SetupRqstFDD;
+static gint ett_nbap_F_DPCH_Information_RL_SetupRqstFDD;
+static gint ett_nbap_PowerOffsetInformation_F_DPCH_RL_SetupRqstFDD;
+static gint ett_nbap_RadioLinkSetupRequestTDD;
+static gint ett_nbap_UL_CCTrCH_InformationList_RL_SetupRqstTDD;
+static gint ett_nbap_UL_CCTrCH_InformationItem_RL_SetupRqstTDD;
+static gint ett_nbap_UL_DPCH_InformationItem_RL_SetupRqstTDD;
+static gint ett_nbap_UL_DPCH_LCR_Information_RL_SetupRqstTDD;
+static gint ett_nbap_UL_DPCH_768_Information_RL_SetupRqstTDD;
+static gint ett_nbap_DL_CCTrCH_InformationList_RL_SetupRqstTDD;
+static gint ett_nbap_DL_CCTrCH_InformationItem_RL_SetupRqstTDD;
+static gint ett_nbap_CCTrCH_TPCList_RL_SetupRqstTDD;
+static gint ett_nbap_CCTrCH_TPCItem_RL_SetupRqstTDD;
+static gint ett_nbap_DL_DPCH_InformationItem_RL_SetupRqstTDD;
+static gint ett_nbap_DL_DPCH_LCR_Information_RL_SetupRqstTDD;
+static gint ett_nbap_DL_DPCH_768_Information_RL_SetupRqstTDD;
+static gint ett_nbap_RL_Information_RL_SetupRqstTDD;
+static gint ett_nbap_RadioLinkSetupResponseFDD;
+static gint ett_nbap_Additional_HS_Cell_Information_Response_List;
+static gint ett_nbap_Additional_HS_Cell_Information_Response_ItemIEs;
+static gint ett_nbap_RL_InformationResponseList_RL_SetupRspFDD;
+static gint ett_nbap_RL_InformationResponseItem_RL_SetupRspFDD;
+static gint ett_nbap_DiversityIndication_RL_SetupRspFDD;
+static gint ett_nbap_Combining_RL_SetupRspFDD;
+static gint ett_nbap_NonCombiningOrFirstRL_RL_SetupRspFDD;
+static gint ett_nbap_RadioLinkSetupResponseTDD;
+static gint ett_nbap_RL_InformationResponse_RL_SetupRspTDD;
+static gint ett_nbap_RL_InformationResponse_LCR_RL_SetupRspTDD;
+static gint ett_nbap_RadioLinkSetupFailureFDD;
+static gint ett_nbap_CauseLevel_RL_SetupFailureFDD;
+static gint ett_nbap_GeneralCauseList_RL_SetupFailureFDD;
+static gint ett_nbap_RLSpecificCauseList_RL_SetupFailureFDD;
+static gint ett_nbap_Unsuccessful_RL_InformationRespList_RL_SetupFailureFDD;
+static gint ett_nbap_Unsuccessful_RL_InformationRespItem_RL_SetupFailureFDD;
+static gint ett_nbap_Successful_RL_InformationRespList_RL_SetupFailureFDD;
+static gint ett_nbap_Successful_RL_InformationRespItem_RL_SetupFailureFDD;
+static gint ett_nbap_DiversityIndication_RL_SetupFailureFDD;
+static gint ett_nbap_Combining_RL_SetupFailureFDD;
+static gint ett_nbap_NonCombiningOrFirstRL_RL_SetupFailureFDD;
+static gint ett_nbap_RadioLinkSetupFailureTDD;
+static gint ett_nbap_CauseLevel_RL_SetupFailureTDD;
+static gint ett_nbap_GeneralCauseList_RL_SetupFailureTDD;
+static gint ett_nbap_RLSpecificCauseList_RL_SetupFailureTDD;
+static gint ett_nbap_Unsuccessful_RL_InformationResp_RL_SetupFailureTDD;
+static gint ett_nbap_RadioLinkAdditionRequestFDD;
+static gint ett_nbap_Additional_HS_Cell_Information_RL_Addition_List;
+static gint ett_nbap_Additional_EDCH_Cell_Information_RL_Add_Req;
+static gint ett_nbap_Setup_Or_Addition_Of_EDCH_On_secondary_UL_Frequency;
+static gint ett_nbap_Additional_HS_Cell_Information_RL_Addition_ItemIEs;
+static gint ett_nbap_RL_InformationList_RL_AdditionRqstFDD;
+static gint ett_nbap_RL_InformationItem_RL_AdditionRqstFDD;
+static gint ett_nbap_E_DPCH_Information_RL_AdditionReqFDD;
+static gint ett_nbap_RadioLinkAdditionRequestTDD;
+static gint ett_nbap_UL_CCTrCH_InformationList_RL_AdditionRqstTDD;
+static gint ett_nbap_UL_CCTrCH_InformationItem_RL_AdditionRqstTDD;
+static gint ett_nbap_UL_DPCH_InformationItem_RL_AdditionRqstTDD;
+static gint ett_nbap_UL_DPCH_InformationItem_LCR_RL_AdditionRqstTDD;
+static gint ett_nbap_UL_DPCH_InformationItem_768_RL_AdditionRqstTDD;
+static gint ett_nbap_DL_CCTrCH_InformationList_RL_AdditionRqstTDD;
+static gint ett_nbap_DL_CCTrCH_InformationItem_RL_AdditionRqstTDD;
+static gint ett_nbap_DL_DPCH_InformationItem_RL_AdditionRqstTDD;
+static gint ett_nbap_DL_DPCH_InformationItem_LCR_RL_AdditionRqstTDD;
+static gint ett_nbap_DL_DPCH_InformationItem_768_RL_AdditionRqstTDD;
+static gint ett_nbap_RL_Information_RL_AdditionRqstTDD;
+static gint ett_nbap_RadioLinkAdditionResponseFDD;
+static gint ett_nbap_Additional_HS_Cell_Change_Information_Response_List;
+static gint ett_nbap_Additional_HS_Cell_Change_Information_Response_ItemIEs;
+static gint ett_nbap_RL_InformationResponseList_RL_AdditionRspFDD;
+static gint ett_nbap_RL_InformationResponseItem_RL_AdditionRspFDD;
+static gint ett_nbap_DiversityIndication_RL_AdditionRspFDD;
+static gint ett_nbap_Combining_RL_AdditionRspFDD;
+static gint ett_nbap_Non_Combining_RL_AdditionRspFDD;
+static gint ett_nbap_RadioLinkAdditionResponseTDD;
+static gint ett_nbap_RL_InformationResponse_RL_AdditionRspTDD;
+static gint ett_nbap_DCH_Information_RL_AdditionRspTDD;
+static gint ett_nbap_DiversityIndication_RL_AdditionRspTDD;
+static gint ett_nbap_Combining_RL_AdditionRspTDD;
+static gint ett_nbap_Non_Combining_RL_AdditionRspTDD;
+static gint ett_nbap_RL_InformationResponse_LCR_RL_AdditionRspTDD;
+static gint ett_nbap_RadioLinkAdditionFailureFDD;
+static gint ett_nbap_CauseLevel_RL_AdditionFailureFDD;
+static gint ett_nbap_GeneralCauseList_RL_AdditionFailureFDD;
+static gint ett_nbap_RLSpecificCauseList_RL_AdditionFailureFDD;
+static gint ett_nbap_Unsuccessful_RL_InformationRespList_RL_AdditionFailureFDD;
+static gint ett_nbap_Unsuccessful_RL_InformationRespItem_RL_AdditionFailureFDD;
+static gint ett_nbap_Successful_RL_InformationRespList_RL_AdditionFailureFDD;
+static gint ett_nbap_Successful_RL_InformationRespItem_RL_AdditionFailureFDD;
+static gint ett_nbap_DiversityIndication_RL_AdditionFailureFDD;
+static gint ett_nbap_Combining_RL_AdditionFailureFDD;
+static gint ett_nbap_Non_Combining_RL_AdditionFailureFDD;
+static gint ett_nbap_RadioLinkAdditionFailureTDD;
+static gint ett_nbap_CauseLevel_RL_AdditionFailureTDD;
+static gint ett_nbap_GeneralCauseList_RL_AdditionFailureTDD;
+static gint ett_nbap_RLSpecificCauseList_RL_AdditionFailureTDD;
+static gint ett_nbap_Unsuccessful_RL_InformationResp_RL_AdditionFailureTDD;
+static gint ett_nbap_RadioLinkReconfigurationPrepareFDD;
+static gint ett_nbap_Additional_HS_Cell_Information_RL_Reconf_Prep;
+static gint ett_nbap_Additional_HS_Cell_Information_RL_Reconf_Prep_ItemIEs;
+static gint ett_nbap_Additional_EDCH_Cell_Information_RL_Reconf_Prep;
+static gint ett_nbap_UL_DPCH_Information_RL_ReconfPrepFDD;
+static gint ett_nbap_DL_DPCH_Information_RL_ReconfPrepFDD;
+static gint ett_nbap_DL_DPCH_Power_Information_RL_ReconfPrepFDD;
+static gint ett_nbap_PowerOffsetInformation_RL_ReconfPrepFDD;
+static gint ett_nbap_DCH_DeleteList_RL_ReconfPrepFDD;
+static gint ett_nbap_DCH_DeleteItem_RL_ReconfPrepFDD;
+static gint ett_nbap_RL_InformationList_RL_ReconfPrepFDD;
+static gint ett_nbap_RL_InformationItem_RL_ReconfPrepFDD;
+static gint ett_nbap_E_DPCH_Information_RL_ReconfPrepFDD;
+static gint ett_nbap_F_DPCH_Information_RL_ReconfPrepFDD;
+static gint ett_nbap_PowerOffsetInformation_F_DPCH_RL_ReconfPrepFDD;
+static gint ett_nbap_RadioLinkReconfigurationPrepareTDD;
+static gint ett_nbap_UL_CCTrCH_InformationAddList_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_CCTrCH_InformationAddItem_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_DPCH_InformationAddItem_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD;
+static gint ett_nbap_MultipleRL_UL_DPCH_InformationAddList_RL_ReconfPrepTDD;
+static gint ett_nbap_MultipleRL_UL_DPCH_InformationAddListIE_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_DPCH_768_InformationAddList_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_CCTrCH_InformationModifyItem_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_DPCH_InformationModify_AddItem_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_DPCH_InformationModify_ModifyItem_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_Timeslot_InformationModify_ModifyItem_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_TimeslotLCR_InformationModify_ModifyList_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDDLCR;
+static gint ett_nbap_UL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDDLCR;
+static gint ett_nbap_UL_Timeslot768_InformationModify_ModifyList_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_Timeslot_768_InformationModify_ModifyItem_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD768;
+static gint ett_nbap_UL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDD768;
+static gint ett_nbap_UL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_DPCH_InformationModify_DeleteItem_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD;
+static gint ett_nbap_MultipleRL_UL_DPCH_InformationModifyList_RL_ReconfPrepTDD;
+static gint ett_nbap_MultipleRL_UL_DPCH_InformationModifyListIE_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_DPCH_768_InformationModify_AddList_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD;
+static gint ett_nbap_UL_CCTrCH_InformationDeleteItem_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_CCTrCH_InformationAddList_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_CCTrCH_InformationAddItem_RL_ReconfPrepTDD;
+static gint ett_nbap_CCTrCH_TPCAddList_RL_ReconfPrepTDD;
+static gint ett_nbap_CCTrCH_TPCAddItem_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_DPCH_InformationAddItem_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_DPCH_LCR_InformationAddList_RL_ReconfPrepTDD;
+static gint ett_nbap_MultipleRL_DL_DPCH_InformationAddList_RL_ReconfPrepTDD;
+static gint ett_nbap_MultipleRL_DL_DPCH_InformationAddListIE_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_DPCH_768_InformationAddList_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_CCTrCH_InformationModifyItem_RL_ReconfPrepTDD;
+static gint ett_nbap_CCTrCH_TPCModifyList_RL_ReconfPrepTDD;
+static gint ett_nbap_CCTrCH_TPCModifyItem_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_DPCH_InformationModify_AddItem_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_DPCH_InformationModify_ModifyItem_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_Timeslot_InformationModify_ModifyList_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_Timeslot_InformationModify_ModifyItem_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_Code_InformationModify_ModifyList_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_Code_InformationModify_ModifyItem_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_Code_LCR_InformationModify_ModifyList_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_Code_LCR_InformationModify_ModifyItem_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_Timeslot_768_InformationModify_ModifyList_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_Timeslot_768_InformationModify_ModifyItem_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_Code_768_InformationModify_ModifyList_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_Code_768_InformationModify_ModifyItem_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_DPCH_InformationModify_DeleteListIE_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_DPCH_InformationModify_DeleteItem_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_DPCH_LCR_InformationModify_AddList_RL_ReconfPrepTDD;
+static gint ett_nbap_MultipleRL_DL_DPCH_InformationModifyList_RL_ReconfPrepTDD;
+static gint ett_nbap_MultipleRL_DL_DPCH_InformationModifyListIE_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_DPCH_768_InformationModify_AddList_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfPrepTDD;
+static gint ett_nbap_DL_CCTrCH_InformationDeleteItem_RL_ReconfPrepTDD;
+static gint ett_nbap_DCH_DeleteList_RL_ReconfPrepTDD;
+static gint ett_nbap_DCH_DeleteItem_RL_ReconfPrepTDD;
+static gint ett_nbap_DSCH_Information_ModifyList_RL_ReconfPrepTDD;
+static gint ett_nbap_DSCH_Information_ModifyItem_RL_ReconfPrepTDD;
+static gint ett_nbap_DSCH_Information_DeleteList_RL_ReconfPrepTDD;
+static gint ett_nbap_DSCH_Information_DeleteItem_RL_ReconfPrepTDD;
+static gint ett_nbap_USCH_Information_ModifyList_RL_ReconfPrepTDD;
+static gint ett_nbap_USCH_Information_ModifyItem_RL_ReconfPrepTDD;
+static gint ett_nbap_USCH_Information_DeleteList_RL_ReconfPrepTDD;
+static gint ett_nbap_USCH_Information_DeleteItem_RL_ReconfPrepTDD;
+static gint ett_nbap_MultipleRL_Information_RL_ReconfPrepTDD;
+static gint ett_nbap_RL_Information_RL_ReconfPrepTDD;
+static gint ett_nbap_RadioLinkReconfigurationReady;
+static gint ett_nbap_RL_InformationResponseList_RL_ReconfReady;
+static gint ett_nbap_RL_InformationResponseItem_RL_ReconfReady;
+static gint ett_nbap_RadioLinkReconfigurationFailure;
+static gint ett_nbap_CauseLevel_RL_ReconfFailure;
+static gint ett_nbap_GeneralCauseList_RL_ReconfFailure;
+static gint ett_nbap_RLSpecificCauseList_RL_ReconfFailure;
+static gint ett_nbap_RL_ReconfigurationFailureList_RL_ReconfFailure;
+static gint ett_nbap_RL_ReconfigurationFailureItem_RL_ReconfFailure;
+static gint ett_nbap_RadioLinkReconfigurationCommit;
+static gint ett_nbap_RadioLinkReconfigurationCancel;
+static gint ett_nbap_RadioLinkReconfigurationRequestFDD;
+static gint ett_nbap_Additional_HS_Cell_Information_RL_Reconf_Req;
+static gint ett_nbap_Additional_HS_Cell_Information_RL_Reconf_Req_ItemIEs;
+static gint ett_nbap_Additional_EDCH_Cell_Information_RL_Reconf_Req;
+static gint ett_nbap_UL_DPCH_Information_RL_ReconfRqstFDD;
+static gint ett_nbap_DL_DPCH_Information_RL_ReconfRqstFDD;
+static gint ett_nbap_DCH_DeleteList_RL_ReconfRqstFDD;
+static gint ett_nbap_DCH_DeleteItem_RL_ReconfRqstFDD;
+static gint ett_nbap_RL_InformationList_RL_ReconfRqstFDD;
+static gint ett_nbap_RL_InformationItem_RL_ReconfRqstFDD;
+static gint ett_nbap_E_DPCH_Information_RL_ReconfRqstFDD;
+static gint ett_nbap_RadioLinkReconfigurationRequestTDD;
+static gint ett_nbap_UL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD;
+static gint ett_nbap_UL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD;
+static gint ett_nbap_UL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD;
+static gint ett_nbap_UL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD;
+static gint ett_nbap_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD;
+static gint ett_nbap_DL_CCTrCH_InformationModifyItem_RL_ReconfRqstTDD;
+static gint ett_nbap_MultipleRL_DL_CCTrCH_InformationModifyList_RL_ReconfRqstTDD;
+static gint ett_nbap_MultipleRL_DL_CCTrCH_InformationModifyListIE_RL_ReconfRqstTDD;
+static gint ett_nbap_DL_DPCH_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD;
+static gint ett_nbap_DL_Timeslot_LCR_InformationModify_ModifyList_RL_ReconfRqstTDD;
+static gint ett_nbap_DL_Timeslot_LCR_InformationModify_ModifyItem_RL_ReconfRqstTDD;
+static gint ett_nbap_DL_CCTrCH_InformationDeleteList_RL_ReconfRqstTDD;
+static gint ett_nbap_DL_CCTrCH_InformationDeleteItem_RL_ReconfRqstTDD;
+static gint ett_nbap_DCH_DeleteList_RL_ReconfRqstTDD;
+static gint ett_nbap_DCH_DeleteItem_RL_ReconfRqstTDD;
+static gint ett_nbap_Multiple_RL_Information_RL_ReconfRqstTDD;
+static gint ett_nbap_RL_Information_RL_ReconfRqstTDD;
+static gint ett_nbap_RadioLinkReconfigurationResponse;
+static gint ett_nbap_RL_InformationResponseList_RL_ReconfRsp;
+static gint ett_nbap_RL_InformationResponseItem_RL_ReconfRsp;
+static gint ett_nbap_RadioLinkDeletionRequest;
+static gint ett_nbap_RL_informationList_RL_DeletionRqst;
+static gint ett_nbap_RL_informationItem_RL_DeletionRqst;
+static gint ett_nbap_RadioLinkDeletionResponse;
+static gint ett_nbap_DL_PowerControlRequest;
+static gint ett_nbap_DL_ReferencePowerInformationList_DL_PC_Rqst;
+static gint ett_nbap_DL_ReferencePowerInformationItem_DL_PC_Rqst;
+static gint ett_nbap_DL_PowerTimeslotControlRequest;
+static gint ett_nbap_DedicatedMeasurementInitiationRequest;
+static gint ett_nbap_DedicatedMeasurementObjectType_DM_Rqst;
+static gint ett_nbap_RL_DM_Rqst;
+static gint ett_nbap_RL_InformationList_DM_Rqst;
+static gint ett_nbap_RL_InformationItem_DM_Rqst;
+static gint ett_nbap_PUSCH_Info_DM_Rqst;
+static gint ett_nbap_HSSICH_Info_DM_Rqst;
+static gint ett_nbap_HSSICH_InfoExt_DM_Rqst;
+static gint ett_nbap_RL_Set_DM_Rqst;
+static gint ett_nbap_RL_Set_InformationList_DM_Rqst;
+static gint ett_nbap_RL_Set_InformationItem_DM_Rqst;
+static gint ett_nbap_DedicatedMeasurementInitiationResponse;
+static gint ett_nbap_DedicatedMeasurementObjectType_DM_Rsp;
+static gint ett_nbap_RL_DM_Rsp;
+static gint ett_nbap_RL_InformationList_DM_Rsp;
+static gint ett_nbap_RL_InformationItem_DM_Rsp;
+static gint ett_nbap_PUSCH_Info_DM_Rsp;
+static gint ett_nbap_Multiple_PUSCH_InfoList_DM_Rsp;
+static gint ett_nbap_Multiple_PUSCH_InfoListIE_DM_Rsp;
+static gint ett_nbap_Multiple_DedicatedMeasurementValueList_TDD_DM_Rsp;
+static gint ett_nbap_Multiple_DedicatedMeasurementValueItem_TDD_DM_Rsp;
+static gint ett_nbap_Multiple_DedicatedMeasurementValueList_LCR_TDD_DM_Rsp;
+static gint ett_nbap_Multiple_DedicatedMeasurementValueItem_LCR_TDD_DM_Rsp;
+static gint ett_nbap_Multiple_HSSICHMeasurementValueList_TDD_DM_Rsp;
+static gint ett_nbap_Multiple_HSSICHMeasurementValueItem_TDD_DM_Rsp;
+static gint ett_nbap_Multiple_DedicatedMeasurementValueList_768_TDD_DM_Rsp;
+static gint ett_nbap_Multiple_DedicatedMeasurementValueItem_768_TDD_DM_Rsp;
+static gint ett_nbap_RL_Set_DM_Rsp;
+static gint ett_nbap_RL_Set_InformationList_DM_Rsp;
+static gint ett_nbap_RL_Set_InformationItem_DM_Rsp;
+static gint ett_nbap_DedicatedMeasurementInitiationFailure;
+static gint ett_nbap_DedicatedMeasurementReport;
+static gint ett_nbap_DedicatedMeasurementObjectType_DM_Rprt;
+static gint ett_nbap_RL_DM_Rprt;
+static gint ett_nbap_RL_InformationList_DM_Rprt;
+static gint ett_nbap_RL_InformationItem_DM_Rprt;
+static gint ett_nbap_PUSCH_Info_DM_Rprt;
+static gint ett_nbap_Multiple_PUSCH_InfoList_DM_Rprt;
+static gint ett_nbap_Multiple_PUSCH_InfoListIE_DM_Rprt;
+static gint ett_nbap_RL_Set_DM_Rprt;
+static gint ett_nbap_RL_Set_InformationList_DM_Rprt;
+static gint ett_nbap_RL_Set_InformationItem_DM_Rprt;
+static gint ett_nbap_DedicatedMeasurementTerminationRequest;
+static gint ett_nbap_DedicatedMeasurementFailureIndication;
+static gint ett_nbap_RadioLinkFailureIndication;
+static gint ett_nbap_Reporting_Object_RL_FailureInd;
+static gint ett_nbap_RL_RL_FailureInd;
+static gint ett_nbap_RL_InformationList_RL_FailureInd;
+static gint ett_nbap_RL_InformationItem_RL_FailureInd;
+static gint ett_nbap_RL_Set_RL_FailureInd;
+static gint ett_nbap_RL_Set_InformationList_RL_FailureInd;
+static gint ett_nbap_RL_Set_InformationItem_RL_FailureInd;
+static gint ett_nbap_CCTrCH_RL_FailureInd;
+static gint ett_nbap_CCTrCH_InformationList_RL_FailureInd;
+static gint ett_nbap_CCTrCH_InformationItem_RL_FailureInd;
+static gint ett_nbap_RadioLinkPreemptionRequiredIndication;
+static gint ett_nbap_RL_InformationList_RL_PreemptRequiredInd;
+static gint ett_nbap_RL_InformationItem_RL_PreemptRequiredInd;
+static gint ett_nbap_RadioLinkRestoreIndication;
+static gint ett_nbap_Reporting_Object_RL_RestoreInd;
+static gint ett_nbap_RL_RL_RestoreInd;
+static gint ett_nbap_RL_InformationList_RL_RestoreInd;
+static gint ett_nbap_RL_InformationItem_RL_RestoreInd;
+static gint ett_nbap_RL_Set_RL_RestoreInd;
+static gint ett_nbap_RL_Set_InformationList_RL_RestoreInd;
+static gint ett_nbap_RL_Set_InformationItem_RL_RestoreInd;
+static gint ett_nbap_CCTrCH_RL_RestoreInd;
+static gint ett_nbap_CCTrCH_InformationList_RL_RestoreInd;
+static gint ett_nbap_CCTrCH_InformationItem_RL_RestoreInd;
+static gint ett_nbap_CompressedModeCommand;
+static gint ett_nbap_ErrorIndication;
+static gint ett_nbap_PrivateMessage;
+static gint ett_nbap_PhysicalSharedChannelReconfigurationRequestFDD;
+static gint ett_nbap_HSDPA_And_EDCH_CellPortion_InformationList_PSCH_ReconfRqst;
+static gint ett_nbap_HSDPA_And_EDCH_CellPortion_InformationItem_PSCH_ReconfRqst;
+static gint ett_nbap_PhysicalSharedChannelReconfigurationRequestTDD;
+static gint ett_nbap_PDSCHSets_AddList_PSCH_ReconfRqst;
+static gint ett_nbap_PDSCHSets_AddItem_PSCH_ReconfRqst;
+static gint ett_nbap_PDSCH_Information_AddItem_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Timeslot_InformationAddList_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Timeslot_InformationAddItem_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Code_InformationAddList_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Code_InformationAddItem_PSCH_ReconfRqst;
+static gint ett_nbap_PDSCH_AddInformation_LCR_AddItem_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Timeslot_InformationAddItem_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Code_InformationAddList_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Code_InformationAddItem_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_PDSCH_AddInformation_768_AddItem_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Timeslot_InformationAddList_768_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Timeslot_InformationAddItem_768_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Code_InformationAddList_768_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Code_InformationAddItem_768_PSCH_ReconfRqst;
+static gint ett_nbap_PDSCHSets_ModifyList_PSCH_ReconfRqst;
+static gint ett_nbap_PDSCHSets_ModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_PDSCH_Information_ModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Timeslot_InformationModifyList_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Timeslot_InformationModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Code_InformationModifyList_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Code_InformationModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_PDSCH_ModifyInformation_LCR_ModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Timeslot_LCR_InformationModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Code_LCR_InformationModifyList_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Code_LCR_InformationModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_PDSCH_ModifyInformation_768_ModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Timeslot_768_InformationModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Code_768_InformationModifyList_PSCH_ReconfRqst;
+static gint ett_nbap_DL_Code_768_InformationModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_PDSCHSets_DeleteList_PSCH_ReconfRqst;
+static gint ett_nbap_PDSCHSets_DeleteItem_PSCH_ReconfRqst;
+static gint ett_nbap_PUSCHSets_AddList_PSCH_ReconfRqst;
+static gint ett_nbap_PUSCHSets_AddItem_PSCH_ReconfRqst;
+static gint ett_nbap_PUSCH_Information_AddItem_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Timeslot_InformationAddList_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Timeslot_InformationAddItem_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Code_InformationAddList_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Code_InformationAddItem_PSCH_ReconfRqst;
+static gint ett_nbap_PUSCH_AddInformation_LCR_AddItem_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Timeslot_InformationAddList_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Timeslot_InformationAddItem_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Code_InformationAddList_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Code_InformationAddItem_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_PUSCH_AddInformation_768_AddItem_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Timeslot_InformationAddList_768_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Timeslot_InformationAddItem_768_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Code_InformationAddList_768_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Code_InformationAddItem_768_PSCH_ReconfRqst;
+static gint ett_nbap_PUSCHSets_ModifyList_PSCH_ReconfRqst;
+static gint ett_nbap_PUSCHSets_ModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_PUSCH_Information_ModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Timeslot_InformationModifyList_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Timeslot_InformationModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Code_InformationModifyList_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Code_InformationModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_PUSCH_ModifyInformation_LCR_ModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Timeslot_LCR_InformationModifyList_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Timeslot_LCR_InformationModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Code_LCR_InformationModifyList_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Code_LCR_InformationModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_PUSCH_ModifyInformation_768_ModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Timeslot_768_InformationModifyList_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Timeslot_768_InformationModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Code_768_InformationModifyList_PSCH_ReconfRqst;
+static gint ett_nbap_UL_Code_768_InformationModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_PUSCHSets_DeleteList_PSCH_ReconfRqst;
+static gint ett_nbap_PUSCHSets_DeleteItem_PSCH_ReconfRqst;
+static gint ett_nbap_HS_PDSCH_TDD_Information_PSCH_ReconfRqst;
+static gint ett_nbap_DL_HS_PDSCH_Timeslot_Information_PSCH_ReconfRqst;
+static gint ett_nbap_DL_HS_PDSCH_Timeslot_InformationItem_PSCH_ReconfRqst;
+static gint ett_nbap_DL_HS_PDSCH_Codelist_PSCH_ReconfRqst;
+static gint ett_nbap_DL_HS_PDSCH_Timeslot_Information_768_PSCH_ReconfRqst;
+static gint ett_nbap_DL_HS_PDSCH_Timeslot_InformationItem_768_PSCH_ReconfRqst;
+static gint ett_nbap_DL_HS_PDSCH_Codelist_768_PSCH_ReconfRqst;
+static gint ett_nbap_MultipleFreq_DL_HS_PDSCH_Timeslot_Information_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_MultipleFreq_DL_HS_PDSCH_Timeslot_Information_LCRItem_PSCH_ReconfRqst;
+static gint ett_nbap_Add_To_HS_SCCH_Resource_Pool_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SCCH_Information_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SCCH_InformationItem_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SICH_Information_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SCCH_Information_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SCCH_InformationItem_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SICH_Information_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SCCH_Information_768_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SCCH_InformationItem_768_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SICH_Information_768_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SCCH_InformationExt_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_Modify_HS_SCCH_Resource_Pool_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SCCH_InformationModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SICH_InformationModify_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SCCH_InformationModify_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SCCH_InformationModifyItem_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SCCH_InformationModifyExt_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SICH_InformationModify_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SCCH_InformationModify_768_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SCCH_InformationModifyItem_768_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SICH_InformationModify_768_PSCH_ReconfRqst;
+static gint ett_nbap_HS_SCCH_InformationModify_PSCH_ReconfRqst;
+static gint ett_nbap_Delete_From_HS_SCCH_Resource_Pool_PSCH_ReconfRqst;
+static gint ett_nbap_Delete_From_HS_SCCH_Resource_PoolItem_PSCH_ReconfRqst;
+static gint ett_nbap_E_PUCH_Information_PSCH_ReconfRqst;
+static gint ett_nbap_E_PUCH_Timeslot_Info;
+static gint ett_nbap_Add_To_E_AGCH_Resource_Pool_PSCH_ReconfRqst;
+static gint ett_nbap_E_AGCH_Information_PSCH_ReconfRqst;
+static gint ett_nbap_E_AGCH_InformationItem_PSCH_ReconfRqst;
+static gint ett_nbap_Modify_E_AGCH_Resource_Pool_PSCH_ReconfRqst;
+static gint ett_nbap_E_AGCH_InformationModify_PSCH_ReconfRqst;
+static gint ett_nbap_E_AGCH_InformationModifyItem_PSCH_ReconfRqst;
+static gint ett_nbap_Delete_From_E_AGCH_Resource_Pool_PSCH_ReconfRqst;
+static gint ett_nbap_Delete_From_E_AGCH_Resource_PoolItem_PSCH_ReconfRqst;
+static gint ett_nbap_E_HICH_Information_PSCH_ReconfRqst;
+static gint ett_nbap_E_PUCH_Information_768_PSCH_ReconfRqst;
+static gint ett_nbap_Add_To_E_AGCH_Resource_Pool_768_PSCH_ReconfRqst;
+static gint ett_nbap_E_AGCH_Information_768_PSCH_ReconfRqst;
+static gint ett_nbap_E_AGCH_InformationItem_768_PSCH_ReconfRqst;
+static gint ett_nbap_Modify_E_AGCH_Resource_Pool_768_PSCH_ReconfRqst;
+static gint ett_nbap_E_AGCH_InformationModify_768_PSCH_ReconfRqst;
+static gint ett_nbap_E_AGCH_InformationModifyItem_768_PSCH_ReconfRqst;
+static gint ett_nbap_E_HICH_Information_768_PSCH_ReconfRqst;
+static gint ett_nbap_E_PUCH_Information_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_E_PUCH_Timeslot_InfoLCR;
+static gint ett_nbap_E_PUCH_Timeslot_Item_InfoLCR;
+static gint ett_nbap_E_PUCH_Codelist_LCR;
+static gint ett_nbap_Add_To_E_AGCH_Resource_Pool_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_E_AGCH_Information_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_E_AGCH_InformationItem_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_Modify_E_AGCH_Resource_Pool_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_E_AGCH_InformationModify_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_E_AGCH_InformationModifyItem_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_Add_To_E_HICH_Resource_Pool_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_E_HICH_Information_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_E_HICH_InformationItem_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_Modify_E_HICH_Resource_Pool_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_E_HICH_InformationModify_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_E_HICH_InformationModifyItem_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_Delete_From_E_HICH_Resource_Pool_PSCH_ReconfRqst;
+static gint ett_nbap_Delete_From_E_HICH_Resource_PoolItem_PSCH_ReconfRqst;
+static gint ett_nbap_SYNC_UL_Partition_LCR;
+static gint ett_nbap_Delete_From_HS_SCCH_Resource_PoolExt_PSCH_ReconfRqst;
+static gint ett_nbap_MultipleFreq_E_PUCH_Timeslot_InformationList_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_MultipleFreq_E_PUCH_Timeslot_Information_LCRItem_PSCH_ReconfRqst;
+static gint ett_nbap_Max_RTWP_perUARFCN_Information_LCR_PSCH_ReconfRqst;
+static gint ett_nbap_Max_RTWP_perUARFCN_Information_LCR_PSCH_ReconfRqst_Item;
+static gint ett_nbap_PhysicalSharedChannelReconfigurationResponse;
+static gint ett_nbap_E_HICH_TimeOffset_ExtensionLCR;
+static gint ett_nbap_MultipleFreq_E_HICH_TimeOffsetLCR;
+static gint ett_nbap_PhysicalSharedChannelReconfigurationFailure;
+static gint ett_nbap_CauseLevel_PSCH_ReconfFailure;
+static gint ett_nbap_GeneralCauseList_PSCH_ReconfFailure;
+static gint ett_nbap_SetSpecificCauseList_PSCH_ReconfFailureTDD;
+static gint ett_nbap_Unsuccessful_PDSCHSetList_PSCH_ReconfFailureTDD;
+static gint ett_nbap_Unsuccessful_PDSCHSetItem_PSCH_ReconfFailureTDD;
+static gint ett_nbap_Unsuccessful_PUSCHSetList_PSCH_ReconfFailureTDD;
+static gint ett_nbap_Unsuccessful_PUSCHSetItem_PSCH_ReconfFailureTDD;
+static gint ett_nbap_UARFCNSpecificCauseList_PSCH_ReconfFailureTDD;
+static gint ett_nbap_Unsuccessful_UARFCNItem_PSCH_ReconfFailureTDD;
+static gint ett_nbap_E_HICH_TimeOffset_ReconfFailureTDD;
+static gint ett_nbap_Common_System_Information_ResponseLCR;
+static gint ett_nbap_ResetRequest;
+static gint ett_nbap_ResetIndicator;
+static gint ett_nbap_CommunicationContextList_Reset;
+static gint ett_nbap_CommunicationContextInfoList_Reset;
+static gint ett_nbap_CommunicationContextInfoItem_Reset;
+static gint ett_nbap_CommunicationContextType_Reset;
+static gint ett_nbap_CommunicationControlPortList_Reset;
+static gint ett_nbap_CommunicationControlPortInfoList_Reset;
+static gint ett_nbap_CommunicationControlPortInfoItem_Reset;
+static gint ett_nbap_ResetResponse;
+static gint ett_nbap_InformationExchangeInitiationRequest;
+static gint ett_nbap_InformationExchangeObjectType_InfEx_Rqst;
+static gint ett_nbap_Cell_InfEx_Rqst;
+static gint ett_nbap_InformationExchangeInitiationResponse;
+static gint ett_nbap_InformationExchangeObjectType_InfEx_Rsp;
+static gint ett_nbap_Cell_InfEx_Rsp;
+static gint ett_nbap_InformationExchangeInitiationFailure;
+static gint ett_nbap_InformationReport;
+static gint ett_nbap_InformationExchangeObjectType_InfEx_Rprt;
+static gint ett_nbap_Cell_Inf_Rprt;
+static gint ett_nbap_InformationExchangeTerminationRequest;
+static gint ett_nbap_InformationExchangeFailureIndication;
+static gint ett_nbap_CellSynchronisationInitiationRequestTDD;
+static gint ett_nbap_TimeslotInfo_CellSyncInitiationRqstTDD;
+static gint ett_nbap_CellSyncBurstTransInit_CellSyncInitiationRqstTDD;
+static gint ett_nbap_CellSyncBurstMeasureInit_CellSyncInitiationRqstTDD;
+static gint ett_nbap_SYNCDlCodeId_TransInitLCR_CellSyncInitiationRqstTDD;
+static gint ett_nbap_SYNCDlCodeId_MeasureInitLCR_CellSyncInitiationRqstTDD;
+static gint ett_nbap_CellSynchronisationInitiationResponseTDD;
+static gint ett_nbap_CellSynchronisationInitiationFailureTDD;
+static gint ett_nbap_CellSynchronisationReconfigurationRequestTDD;
+static gint ett_nbap_CellSyncBurstTransReconfInfo_CellSyncReconfRqstTDD;
+static gint ett_nbap_CellSyncBurstTransInfoItem_CellSyncReconfRqstTDD;
+static gint ett_nbap_CellSyncBurstMeasInfo_CellSyncReconfRqstTDD;
+static gint ett_nbap_CellSyncBurstMeasInfoListIE_CellSyncReconfRqstTDD;
+static gint ett_nbap_CellSyncBurstMeasInfoItem_CellSyncReconfRqstTDD;
+static gint ett_nbap_CellSyncBurstInfoList_CellSyncReconfRqstTDD;
+static gint ett_nbap_CellSyncBurstInfoItem_CellSyncReconfRqstTDD;
+static gint ett_nbap_SYNCDlCodeIdTransReconfInfoLCR_CellSyncReconfRqstTDD;
+static gint ett_nbap_SYNCDlCodeIdTransReconfItemLCR_CellSyncReconfRqstTDD;
+static gint ett_nbap_SYNCDlCodeIdMeasInfoLCR_CellSyncReconfRqstTDD;
+static gint ett_nbap_SYNCDlCodeIdMeasInfoList_CellSyncReconfRqstTDD;
+static gint ett_nbap_SYNCDlCodeIdMeasInfoItem_CellSyncReconfRqstTDD;
+static gint ett_nbap_SYNCDlCodeIdInfoListLCR_CellSyncReconfRqstTDD;
+static gint ett_nbap_SYNCDlCodeIdInfoItemLCR_CellSyncReconfRqstTDD;
+static gint ett_nbap_CellSynchronisationReconfigurationResponseTDD;
+static gint ett_nbap_CellSynchronisationReconfigurationFailureTDD;
+static gint ett_nbap_CellSynchronisationAdjustmentRequestTDD;
+static gint ett_nbap_CellAdjustmentInfo_SyncAdjustmentRqstTDD;
+static gint ett_nbap_CellAdjustmentInfoItem_SyncAdjustmentRqstTDD;
+static gint ett_nbap_CellSynchronisationAdjustmentResponseTDD;
+static gint ett_nbap_CellSynchronisationAdjustmentFailureTDD;
+static gint ett_nbap_CauseLevel_SyncAdjustmntFailureTDD;
+static gint ett_nbap_GeneralCauseList_SyncAdjustmntFailureTDD;
+static gint ett_nbap_CellSpecificCauseList_SyncAdjustmntFailureTDD;
+static gint ett_nbap_Unsuccessful_cell_InformationRespList_SyncAdjustmntFailureTDD;
+static gint ett_nbap_Unsuccessful_cell_InformationRespItem_SyncAdjustmntFailureTDD;
+static gint ett_nbap_CellSynchronisationTerminationRequestTDD;
+static gint ett_nbap_CellSynchronisationFailureIndicationTDD;
+static gint ett_nbap_CellSynchronisationReportTDD;
+static gint ett_nbap_CellSyncInfo_CellSyncReprtTDD;
+static gint ett_nbap_CellSyncInfoItemIE_CellSyncReprtTDD;
+static gint ett_nbap_SyncReportType_CellSyncReprtTDD;
+static gint ett_nbap_IntStdPhCellSyncInfo_CellSyncReprtTDD;
+static gint ett_nbap_CellSyncBurstMeasInfoList_CellSyncReprtTDD;
+static gint ett_nbap_CellSyncBurstMeasInfoItem_CellSyncReprtTDD;
+static gint ett_nbap_SEQUENCE_SIZE_1_maxNrOfReceptsPerSyncFrame_OF_CellSyncBurstInfo_CellSyncReprtTDD;
+static gint ett_nbap_CellSyncBurstInfo_CellSyncReprtTDD;
+static gint ett_nbap_CellSyncBurstAvailable_CellSyncReprtTDD;
+static gint ett_nbap_SyncDLCodeIdsMeasInfoList_CellSyncReprtTDD;
+static gint ett_nbap_SyncDLCodeIdsMeasInfoItem_CellSyncReprtTDD;
+static gint ett_nbap_SyncDLCodeIdInfo_CellSyncReprtTDD;
+static gint ett_nbap_SyncDLCodeIdItem_CellSyncReprtTDD;
+static gint ett_nbap_SyncDLCodeIdAvailable_CellSyncReprtTDD;
+static gint ett_nbap_BearerRearrangementIndication;
+static gint ett_nbap_DCH_RearrangeList_Bearer_RearrangeInd;
+static gint ett_nbap_DCH_RearrangeItem_Bearer_RearrangeInd;
+static gint ett_nbap_DSCH_RearrangeList_Bearer_RearrangeInd;
+static gint ett_nbap_DSCH_RearrangeItem_Bearer_RearrangeInd;
+static gint ett_nbap_USCH_RearrangeList_Bearer_RearrangeInd;
+static gint ett_nbap_USCH_RearrangeItem_Bearer_RearrangeInd;
+static gint ett_nbap_HSDSCH_RearrangeList_Bearer_RearrangeInd;
+static gint ett_nbap_HSDSCH_RearrangeItem_Bearer_RearrangeInd;
+static gint ett_nbap_E_DCH_RearrangeList_Bearer_RearrangeInd;
+static gint ett_nbap_E_DCH_RearrangeItem_Bearer_RearrangeInd;
+static gint ett_nbap_Additional_EDCH_Cell_Information_Bearer_Rearrangement_List;
+static gint ett_nbap_Additional_EDCH_Cell_Information_Bearer_Rearrangement_ItemIEs;
+static gint ett_nbap_RadioLinkActivationCommandFDD;
+static gint ett_nbap_DelayedActivationInformationList_RL_ActivationCmdFDD;
+static gint ett_nbap_DelayedActivationInformation_RL_ActivationCmdFDD;
+static gint ett_nbap_RadioLinkActivationCommandTDD;
+static gint ett_nbap_DelayedActivationInformationList_RL_ActivationCmdTDD;
+static gint ett_nbap_DelayedActivationInformation_RL_ActivationCmdTDD;
+static gint ett_nbap_RadioLinkParameterUpdateIndicationFDD;
+static gint ett_nbap_Additional_HS_Cell_Information_RL_Param_Upd;
+static gint ett_nbap_Additional_HS_Cell_Information_RL_Param_Upd_ItemIEs;
+static gint ett_nbap_Additional_EDCH_Cell_Information_RL_Param_Upd;
+static gint ett_nbap_Additional_EDCH_Cell_Information_RL_Param_Upd_ItemIEs;
+static gint ett_nbap_RadioLinkParameterUpdateIndicationTDD;
+static gint ett_nbap_MBMSNotificationUpdateCommand;
+static gint ett_nbap_UEStatusUpdateCommand;
+static gint ett_nbap_SecondaryULFrequencyReport;
+static gint ett_nbap_SecondaryULFrequencyUpdateIndication;
+static gint ett_nbap_NBAP_PDU;
+static gint ett_nbap_InitiatingMessage;
+static gint ett_nbap_SuccessfulOutcome;
+static gint ett_nbap_UnsuccessfulOutcome;
+static gint ett_nbap_Outcome;
 
-static expert_field ei_nbap_no_find_port_info = EI_INIT;
-static expert_field ei_nbap_no_set_comm_context_id = EI_INIT;
-static expert_field ei_nbap_hsdsch_entity_not_specified = EI_INIT;
+static expert_field ei_nbap_no_find_port_info;
+static expert_field ei_nbap_no_set_comm_context_id;
+static expert_field ei_nbap_hsdsch_entity_not_specified;
 
 extern int proto_fp;
 

@@ -40,274 +40,274 @@ void proto_register_cms(void);
 void proto_reg_handoff_cms(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_cms = -1;
-static int hf_cms_ci_contentType = -1;
-static int hf_cms_ContentInfo_PDU = -1;           /* ContentInfo */
-static int hf_cms_ContentType_PDU = -1;           /* ContentType */
-static int hf_cms_SignedData_PDU = -1;            /* SignedData */
-static int hf_cms_EnvelopedData_PDU = -1;         /* EnvelopedData */
-static int hf_cms_EncryptedContentInfo_PDU = -1;  /* EncryptedContentInfo */
-static int hf_cms_DigestedData_PDU = -1;          /* DigestedData */
-static int hf_cms_EncryptedData_PDU = -1;         /* EncryptedData */
-static int hf_cms_AuthenticatedData_PDU = -1;     /* AuthenticatedData */
-static int hf_cms_KeyEncryptionAlgorithmIdentifier_PDU = -1;  /* KeyEncryptionAlgorithmIdentifier */
-static int hf_cms_IssuerAndSerialNumber_PDU = -1;  /* IssuerAndSerialNumber */
-static int hf_cms_MessageDigest_PDU = -1;         /* MessageDigest */
-static int hf_cms_SigningTime_PDU = -1;           /* SigningTime */
-static int hf_cms_Countersignature_PDU = -1;      /* Countersignature */
-static int hf_cms_KeyWrapAlgorithm_PDU = -1;      /* KeyWrapAlgorithm */
-static int hf_cms_RC2WrapParameter_PDU = -1;      /* RC2WrapParameter */
-static int hf_cms_IV_PDU = -1;                    /* IV */
-static int hf_cms_SMIMECapabilities_PDU = -1;     /* SMIMECapabilities */
-static int hf_cms_SMIMEEncryptionKeyPreference_PDU = -1;  /* SMIMEEncryptionKeyPreference */
-static int hf_cms_RC2CBCParameters_PDU = -1;      /* RC2CBCParameters */
-static int hf_cms_AuthEnvelopedData_PDU = -1;     /* AuthEnvelopedData */
-static int hf_cms_CCMParameters_PDU = -1;         /* CCMParameters */
-static int hf_cms_GCMParameters_PDU = -1;         /* GCMParameters */
-static int hf_cms_FirmwarePkgData_PDU = -1;       /* FirmwarePkgData */
-static int hf_cms_FirmwarePackageIdentifier_PDU = -1;  /* FirmwarePackageIdentifier */
-static int hf_cms_TargetHardwareIdentifiers_PDU = -1;  /* TargetHardwareIdentifiers */
-static int hf_cms_DecryptKeyIdentifier_PDU = -1;  /* DecryptKeyIdentifier */
-static int hf_cms_ImplementedCryptoAlgorithms_PDU = -1;  /* ImplementedCryptoAlgorithms */
-static int hf_cms_ImplementedCompressAlgorithms_PDU = -1;  /* ImplementedCompressAlgorithms */
-static int hf_cms_CommunityIdentifiers_PDU = -1;  /* CommunityIdentifiers */
-static int hf_cms_FirmwarePackageInfo_PDU = -1;   /* FirmwarePackageInfo */
-static int hf_cms_WrappedFirmwareKey_PDU = -1;    /* WrappedFirmwareKey */
-static int hf_cms_FirmwarePackageLoadReceipt_PDU = -1;  /* FirmwarePackageLoadReceipt */
-static int hf_cms_FirmwarePackageLoadError_PDU = -1;  /* FirmwarePackageLoadError */
-static int hf_cms_HardwareModuleName_PDU = -1;    /* HardwareModuleName */
-static int hf_cms_FirmwarePackageMessageDigest_PDU = -1;  /* FirmwarePackageMessageDigest */
-static int hf_cms_contentType = -1;               /* ContentType */
-static int hf_cms_content = -1;                   /* T_content */
-static int hf_cms_version = -1;                   /* CMSVersion */
-static int hf_cms_digestAlgorithms = -1;          /* DigestAlgorithmIdentifiers */
-static int hf_cms_encapContentInfo = -1;          /* EncapsulatedContentInfo */
-static int hf_cms_certificates = -1;              /* CertificateSet */
-static int hf_cms_crls = -1;                      /* RevocationInfoChoices */
-static int hf_cms_signerInfos = -1;               /* SignerInfos */
-static int hf_cms_DigestAlgorithmIdentifiers_item = -1;  /* DigestAlgorithmIdentifier */
-static int hf_cms_SignerInfos_item = -1;          /* SignerInfo */
-static int hf_cms_eContentType = -1;              /* ContentType */
-static int hf_cms_eContent = -1;                  /* T_eContent */
-static int hf_cms_sid = -1;                       /* SignerIdentifier */
-static int hf_cms_digestAlgorithm = -1;           /* DigestAlgorithmIdentifier */
-static int hf_cms_signedAttrs = -1;               /* SignedAttributes */
-static int hf_cms_signatureAlgorithm = -1;        /* SignatureAlgorithmIdentifier */
-static int hf_cms_signatureValue = -1;            /* SignatureValue */
-static int hf_cms_unsignedAttrs = -1;             /* UnsignedAttributes */
-static int hf_cms_issuerAndSerialNumber = -1;     /* IssuerAndSerialNumber */
-static int hf_cms_subjectKeyIdentifier = -1;      /* SubjectKeyIdentifier */
-static int hf_cms_SignedAttributes_item = -1;     /* Attribute */
-static int hf_cms_UnsignedAttributes_item = -1;   /* Attribute */
-static int hf_cms_attrType = -1;                  /* T_attrType */
-static int hf_cms_attrValues = -1;                /* SET_OF_AttributeValue */
-static int hf_cms_attrValues_item = -1;           /* AttributeValue */
-static int hf_cms_originatorInfo = -1;            /* OriginatorInfo */
-static int hf_cms_recipientInfos = -1;            /* RecipientInfos */
-static int hf_cms_encryptedContentInfo = -1;      /* EncryptedContentInfo */
-static int hf_cms_unprotectedAttrs = -1;          /* UnprotectedAttributes */
-static int hf_cms_certs = -1;                     /* CertificateSet */
-static int hf_cms_RecipientInfos_item = -1;       /* RecipientInfo */
-static int hf_cms_encryptedContentType = -1;      /* ContentType */
-static int hf_cms_contentEncryptionAlgorithm = -1;  /* ContentEncryptionAlgorithmIdentifier */
-static int hf_cms_encryptedContent = -1;          /* EncryptedContent */
-static int hf_cms_UnprotectedAttributes_item = -1;  /* Attribute */
-static int hf_cms_ktri = -1;                      /* KeyTransRecipientInfo */
-static int hf_cms_kari = -1;                      /* KeyAgreeRecipientInfo */
-static int hf_cms_kekri = -1;                     /* KEKRecipientInfo */
-static int hf_cms_pwri = -1;                      /* PasswordRecipientInfo */
-static int hf_cms_ori = -1;                       /* OtherRecipientInfo */
-static int hf_cms_rid = -1;                       /* RecipientIdentifier */
-static int hf_cms_keyEncryptionAlgorithm = -1;    /* KeyEncryptionAlgorithmIdentifier */
-static int hf_cms_encryptedKey = -1;              /* EncryptedKey */
-static int hf_cms_originator = -1;                /* OriginatorIdentifierOrKey */
-static int hf_cms_ukm = -1;                       /* UserKeyingMaterial */
-static int hf_cms_recipientEncryptedKeys = -1;    /* RecipientEncryptedKeys */
-static int hf_cms_originatorKey = -1;             /* OriginatorPublicKey */
-static int hf_cms_algorithm = -1;                 /* AlgorithmIdentifier */
-static int hf_cms_publicKey = -1;                 /* BIT_STRING */
-static int hf_cms_RecipientEncryptedKeys_item = -1;  /* RecipientEncryptedKey */
-static int hf_cms_rekRid = -1;                    /* KeyAgreeRecipientIdentifier */
-static int hf_cms_rKeyId = -1;                    /* RecipientKeyIdentifier */
-static int hf_cms_date = -1;                      /* GeneralizedTime */
-static int hf_cms_other = -1;                     /* OtherKeyAttribute */
-static int hf_cms_kekid = -1;                     /* KEKIdentifier */
-static int hf_cms_keyIdentifier = -1;             /* OCTET_STRING */
-static int hf_cms_keyDerivationAlgorithm = -1;    /* KeyDerivationAlgorithmIdentifier */
-static int hf_cms_oriType = -1;                   /* T_oriType */
-static int hf_cms_oriValue = -1;                  /* T_oriValue */
-static int hf_cms_digest = -1;                    /* Digest */
-static int hf_cms_macAlgorithm = -1;              /* MessageAuthenticationCodeAlgorithm */
-static int hf_cms_authAttrs = -1;                 /* AuthAttributes */
-static int hf_cms_mac = -1;                       /* MessageAuthenticationCode */
-static int hf_cms_unauthAttrs = -1;               /* UnauthAttributes */
-static int hf_cms_AuthAttributes_item = -1;       /* Attribute */
-static int hf_cms_UnauthAttributes_item = -1;     /* Attribute */
-static int hf_cms_RevocationInfoChoices_item = -1;  /* RevocationInfoChoice */
-static int hf_cms_crl = -1;                       /* CertificateList */
-static int hf_cms_otherRIC = -1;                  /* OtherRevocationInfoFormat */
-static int hf_cms_otherRevInfoFormat = -1;        /* T_otherRevInfoFormat */
-static int hf_cms_otherRevInfo = -1;              /* T_otherRevInfo */
-static int hf_cms_certificate = -1;               /* Certificate */
-static int hf_cms_extendedCertificate = -1;       /* ExtendedCertificate */
-static int hf_cms_v1AttrCert = -1;                /* AttributeCertificateV1 */
-static int hf_cms_v2AttrCert = -1;                /* AttributeCertificateV2 */
-static int hf_cms_CertificateSet_item = -1;       /* CertificateChoices */
-static int hf_cms_issuer = -1;                    /* Name */
-static int hf_cms_serialNumber = -1;              /* CertificateSerialNumber */
-static int hf_cms_keyAttrId = -1;                 /* T_keyAttrId */
-static int hf_cms_keyAttr = -1;                   /* T_keyAttr */
-static int hf_cms_utcTime = -1;                   /* UTCTime */
-static int hf_cms_generalTime = -1;               /* GeneralizedTime */
-static int hf_cms_rc2ParameterVersion = -1;       /* INTEGER */
-static int hf_cms_iv = -1;                        /* OCTET_STRING */
-static int hf_cms_extendedCertificateInfo = -1;   /* ExtendedCertificateInfo */
-static int hf_cms_signature = -1;                 /* Signature */
-static int hf_cms_attributes = -1;                /* UnauthAttributes */
-static int hf_cms_SMIMECapabilities_item = -1;    /* SMIMECapability */
-static int hf_cms_capability = -1;                /* T_capability */
-static int hf_cms_parameters = -1;                /* T_parameters */
-static int hf_cms_recipientKeyId = -1;            /* RecipientKeyIdentifier */
-static int hf_cms_subjectAltKeyIdentifier = -1;   /* SubjectKeyIdentifier */
-static int hf_cms_rc2WrapParameter = -1;          /* RC2WrapParameter */
-static int hf_cms_rc2CBCParameter = -1;           /* RC2CBCParameter */
-static int hf_cms_authEncryptedContentInfo = -1;  /* EncryptedContentInfo */
-static int hf_cms_aes_nonce = -1;                 /* OCTET_STRING_SIZE_7_13 */
-static int hf_cms_aes_ICVlen = -1;                /* AES_CCM_ICVlen */
-static int hf_cms_aes_nonce_01 = -1;              /* OCTET_STRING */
-static int hf_cms_aes_ICVlen_01 = -1;             /* AES_GCM_ICVlen */
-static int hf_cms_acInfo = -1;                    /* AttributeCertificateInfoV1 */
-static int hf_cms_signatureAlgorithm_v1 = -1;     /* AlgorithmIdentifier */
-static int hf_cms_signatureValue_v1 = -1;         /* BIT_STRING */
-static int hf_cms_version_v1 = -1;                /* AttCertVersionV1 */
-static int hf_cms_subject = -1;                   /* T_subject */
-static int hf_cms_baseCertificateID = -1;         /* IssuerSerial */
-static int hf_cms_subjectName = -1;               /* GeneralNames */
-static int hf_cms_issuer_v1 = -1;                 /* GeneralNames */
-static int hf_cms_signature_v1 = -1;              /* AlgorithmIdentifier */
-static int hf_cms_attCertValidityPeriod = -1;     /* AttCertValidityPeriod */
-static int hf_cms_attributes_v1 = -1;             /* SEQUENCE_OF_Attribute */
-static int hf_cms_attributes_v1_item = -1;        /* Attribute */
-static int hf_cms_issuerUniqueID = -1;            /* UniqueIdentifier */
-static int hf_cms_extensions = -1;                /* Extensions */
-static int hf_cms_name = -1;                      /* PreferredOrLegacyPackageIdentifier */
-static int hf_cms_stale = -1;                     /* PreferredOrLegacyStalePackageIdentifier */
-static int hf_cms_preferred = -1;                 /* PreferredPackageIdentifier */
-static int hf_cms_legacy = -1;                    /* OCTET_STRING */
-static int hf_cms_fwPkgID = -1;                   /* OBJECT_IDENTIFIER */
-static int hf_cms_verNum = -1;                    /* INTEGER_0_MAX */
-static int hf_cms_preferredStaleVerNum = -1;      /* INTEGER_0_MAX */
-static int hf_cms_legacyStaleVersion = -1;        /* OCTET_STRING */
-static int hf_cms_TargetHardwareIdentifiers_item = -1;  /* OBJECT_IDENTIFIER */
-static int hf_cms_ImplementedCryptoAlgorithms_item = -1;  /* OBJECT_IDENTIFIER */
-static int hf_cms_ImplementedCompressAlgorithms_item = -1;  /* OBJECT_IDENTIFIER */
-static int hf_cms_CommunityIdentifiers_item = -1;  /* CommunityIdentifier */
-static int hf_cms_communityOID = -1;              /* OBJECT_IDENTIFIER */
-static int hf_cms_hwModuleList = -1;              /* HardwareModules */
-static int hf_cms_hwType = -1;                    /* OBJECT_IDENTIFIER */
-static int hf_cms_hwSerialEntries = -1;           /* SEQUENCE_OF_HardwareSerialEntry */
-static int hf_cms_hwSerialEntries_item = -1;      /* HardwareSerialEntry */
-static int hf_cms_all = -1;                       /* NULL */
-static int hf_cms_single = -1;                    /* OCTET_STRING */
-static int hf_cms_block = -1;                     /* T_block */
-static int hf_cms_low = -1;                       /* OCTET_STRING */
-static int hf_cms_high = -1;                      /* OCTET_STRING */
-static int hf_cms_fwPkgType = -1;                 /* INTEGER */
-static int hf_cms_dependencies = -1;              /* SEQUENCE_OF_PreferredOrLegacyPackageIdentifier */
-static int hf_cms_dependencies_item = -1;         /* PreferredOrLegacyPackageIdentifier */
-static int hf_cms_fwReceiptVersion = -1;          /* FWReceiptVersion */
-static int hf_cms_hwSerialNum = -1;               /* OCTET_STRING */
-static int hf_cms_fwPkgName = -1;                 /* PreferredOrLegacyPackageIdentifier */
-static int hf_cms_trustAnchorKeyID = -1;          /* OCTET_STRING */
-static int hf_cms_decryptKeyID = -1;              /* OCTET_STRING */
-static int hf_cms_fwErrorVersion = -1;            /* FWErrorVersion */
-static int hf_cms_errorCode = -1;                 /* FirmwarePackageLoadErrorCode */
-static int hf_cms_vendorErrorCode = -1;           /* VendorLoadErrorCode */
-static int hf_cms_config = -1;                    /* SEQUENCE_OF_CurrentFWConfig */
-static int hf_cms_config_item = -1;               /* CurrentFWConfig */
-static int hf_cms_msgDigest = -1;                 /* OCTET_STRING */
+static int proto_cms;
+static int hf_cms_ci_contentType;
+static int hf_cms_ContentInfo_PDU;                /* ContentInfo */
+static int hf_cms_ContentType_PDU;                /* ContentType */
+static int hf_cms_SignedData_PDU;                 /* SignedData */
+static int hf_cms_EnvelopedData_PDU;              /* EnvelopedData */
+static int hf_cms_EncryptedContentInfo_PDU;       /* EncryptedContentInfo */
+static int hf_cms_DigestedData_PDU;               /* DigestedData */
+static int hf_cms_EncryptedData_PDU;              /* EncryptedData */
+static int hf_cms_AuthenticatedData_PDU;          /* AuthenticatedData */
+static int hf_cms_KeyEncryptionAlgorithmIdentifier_PDU;  /* KeyEncryptionAlgorithmIdentifier */
+static int hf_cms_IssuerAndSerialNumber_PDU;      /* IssuerAndSerialNumber */
+static int hf_cms_MessageDigest_PDU;              /* MessageDigest */
+static int hf_cms_SigningTime_PDU;                /* SigningTime */
+static int hf_cms_Countersignature_PDU;           /* Countersignature */
+static int hf_cms_KeyWrapAlgorithm_PDU;           /* KeyWrapAlgorithm */
+static int hf_cms_RC2WrapParameter_PDU;           /* RC2WrapParameter */
+static int hf_cms_IV_PDU;                         /* IV */
+static int hf_cms_SMIMECapabilities_PDU;          /* SMIMECapabilities */
+static int hf_cms_SMIMEEncryptionKeyPreference_PDU;  /* SMIMEEncryptionKeyPreference */
+static int hf_cms_RC2CBCParameters_PDU;           /* RC2CBCParameters */
+static int hf_cms_AuthEnvelopedData_PDU;          /* AuthEnvelopedData */
+static int hf_cms_CCMParameters_PDU;              /* CCMParameters */
+static int hf_cms_GCMParameters_PDU;              /* GCMParameters */
+static int hf_cms_FirmwarePkgData_PDU;            /* FirmwarePkgData */
+static int hf_cms_FirmwarePackageIdentifier_PDU;  /* FirmwarePackageIdentifier */
+static int hf_cms_TargetHardwareIdentifiers_PDU;  /* TargetHardwareIdentifiers */
+static int hf_cms_DecryptKeyIdentifier_PDU;       /* DecryptKeyIdentifier */
+static int hf_cms_ImplementedCryptoAlgorithms_PDU;  /* ImplementedCryptoAlgorithms */
+static int hf_cms_ImplementedCompressAlgorithms_PDU;  /* ImplementedCompressAlgorithms */
+static int hf_cms_CommunityIdentifiers_PDU;       /* CommunityIdentifiers */
+static int hf_cms_FirmwarePackageInfo_PDU;        /* FirmwarePackageInfo */
+static int hf_cms_WrappedFirmwareKey_PDU;         /* WrappedFirmwareKey */
+static int hf_cms_FirmwarePackageLoadReceipt_PDU;  /* FirmwarePackageLoadReceipt */
+static int hf_cms_FirmwarePackageLoadError_PDU;   /* FirmwarePackageLoadError */
+static int hf_cms_HardwareModuleName_PDU;         /* HardwareModuleName */
+static int hf_cms_FirmwarePackageMessageDigest_PDU;  /* FirmwarePackageMessageDigest */
+static int hf_cms_contentType;                    /* ContentType */
+static int hf_cms_content;                        /* T_content */
+static int hf_cms_version;                        /* CMSVersion */
+static int hf_cms_digestAlgorithms;               /* DigestAlgorithmIdentifiers */
+static int hf_cms_encapContentInfo;               /* EncapsulatedContentInfo */
+static int hf_cms_certificates;                   /* CertificateSet */
+static int hf_cms_crls;                           /* RevocationInfoChoices */
+static int hf_cms_signerInfos;                    /* SignerInfos */
+static int hf_cms_DigestAlgorithmIdentifiers_item;  /* DigestAlgorithmIdentifier */
+static int hf_cms_SignerInfos_item;               /* SignerInfo */
+static int hf_cms_eContentType;                   /* ContentType */
+static int hf_cms_eContent;                       /* T_eContent */
+static int hf_cms_sid;                            /* SignerIdentifier */
+static int hf_cms_digestAlgorithm;                /* DigestAlgorithmIdentifier */
+static int hf_cms_signedAttrs;                    /* SignedAttributes */
+static int hf_cms_signatureAlgorithm;             /* SignatureAlgorithmIdentifier */
+static int hf_cms_signatureValue;                 /* SignatureValue */
+static int hf_cms_unsignedAttrs;                  /* UnsignedAttributes */
+static int hf_cms_issuerAndSerialNumber;          /* IssuerAndSerialNumber */
+static int hf_cms_subjectKeyIdentifier;           /* SubjectKeyIdentifier */
+static int hf_cms_SignedAttributes_item;          /* Attribute */
+static int hf_cms_UnsignedAttributes_item;        /* Attribute */
+static int hf_cms_attrType;                       /* T_attrType */
+static int hf_cms_attrValues;                     /* SET_OF_AttributeValue */
+static int hf_cms_attrValues_item;                /* AttributeValue */
+static int hf_cms_originatorInfo;                 /* OriginatorInfo */
+static int hf_cms_recipientInfos;                 /* RecipientInfos */
+static int hf_cms_encryptedContentInfo;           /* EncryptedContentInfo */
+static int hf_cms_unprotectedAttrs;               /* UnprotectedAttributes */
+static int hf_cms_certs;                          /* CertificateSet */
+static int hf_cms_RecipientInfos_item;            /* RecipientInfo */
+static int hf_cms_encryptedContentType;           /* ContentType */
+static int hf_cms_contentEncryptionAlgorithm;     /* ContentEncryptionAlgorithmIdentifier */
+static int hf_cms_encryptedContent;               /* EncryptedContent */
+static int hf_cms_UnprotectedAttributes_item;     /* Attribute */
+static int hf_cms_ktri;                           /* KeyTransRecipientInfo */
+static int hf_cms_kari;                           /* KeyAgreeRecipientInfo */
+static int hf_cms_kekri;                          /* KEKRecipientInfo */
+static int hf_cms_pwri;                           /* PasswordRecipientInfo */
+static int hf_cms_ori;                            /* OtherRecipientInfo */
+static int hf_cms_rid;                            /* RecipientIdentifier */
+static int hf_cms_keyEncryptionAlgorithm;         /* KeyEncryptionAlgorithmIdentifier */
+static int hf_cms_encryptedKey;                   /* EncryptedKey */
+static int hf_cms_originator;                     /* OriginatorIdentifierOrKey */
+static int hf_cms_ukm;                            /* UserKeyingMaterial */
+static int hf_cms_recipientEncryptedKeys;         /* RecipientEncryptedKeys */
+static int hf_cms_originatorKey;                  /* OriginatorPublicKey */
+static int hf_cms_algorithm;                      /* AlgorithmIdentifier */
+static int hf_cms_publicKey;                      /* BIT_STRING */
+static int hf_cms_RecipientEncryptedKeys_item;    /* RecipientEncryptedKey */
+static int hf_cms_rekRid;                         /* KeyAgreeRecipientIdentifier */
+static int hf_cms_rKeyId;                         /* RecipientKeyIdentifier */
+static int hf_cms_date;                           /* GeneralizedTime */
+static int hf_cms_other;                          /* OtherKeyAttribute */
+static int hf_cms_kekid;                          /* KEKIdentifier */
+static int hf_cms_keyIdentifier;                  /* OCTET_STRING */
+static int hf_cms_keyDerivationAlgorithm;         /* KeyDerivationAlgorithmIdentifier */
+static int hf_cms_oriType;                        /* T_oriType */
+static int hf_cms_oriValue;                       /* T_oriValue */
+static int hf_cms_digest;                         /* Digest */
+static int hf_cms_macAlgorithm;                   /* MessageAuthenticationCodeAlgorithm */
+static int hf_cms_authAttrs;                      /* AuthAttributes */
+static int hf_cms_mac;                            /* MessageAuthenticationCode */
+static int hf_cms_unauthAttrs;                    /* UnauthAttributes */
+static int hf_cms_AuthAttributes_item;            /* Attribute */
+static int hf_cms_UnauthAttributes_item;          /* Attribute */
+static int hf_cms_RevocationInfoChoices_item;     /* RevocationInfoChoice */
+static int hf_cms_crl;                            /* CertificateList */
+static int hf_cms_otherRIC;                       /* OtherRevocationInfoFormat */
+static int hf_cms_otherRevInfoFormat;             /* T_otherRevInfoFormat */
+static int hf_cms_otherRevInfo;                   /* T_otherRevInfo */
+static int hf_cms_certificate;                    /* Certificate */
+static int hf_cms_extendedCertificate;            /* ExtendedCertificate */
+static int hf_cms_v1AttrCert;                     /* AttributeCertificateV1 */
+static int hf_cms_v2AttrCert;                     /* AttributeCertificateV2 */
+static int hf_cms_CertificateSet_item;            /* CertificateChoices */
+static int hf_cms_issuer;                         /* Name */
+static int hf_cms_serialNumber;                   /* CertificateSerialNumber */
+static int hf_cms_keyAttrId;                      /* T_keyAttrId */
+static int hf_cms_keyAttr;                        /* T_keyAttr */
+static int hf_cms_utcTime;                        /* UTCTime */
+static int hf_cms_generalTime;                    /* GeneralizedTime */
+static int hf_cms_rc2ParameterVersion;            /* INTEGER */
+static int hf_cms_iv;                             /* OCTET_STRING */
+static int hf_cms_extendedCertificateInfo;        /* ExtendedCertificateInfo */
+static int hf_cms_signature;                      /* Signature */
+static int hf_cms_attributes;                     /* UnauthAttributes */
+static int hf_cms_SMIMECapabilities_item;         /* SMIMECapability */
+static int hf_cms_capability;                     /* T_capability */
+static int hf_cms_parameters;                     /* T_parameters */
+static int hf_cms_recipientKeyId;                 /* RecipientKeyIdentifier */
+static int hf_cms_subjectAltKeyIdentifier;        /* SubjectKeyIdentifier */
+static int hf_cms_rc2WrapParameter;               /* RC2WrapParameter */
+static int hf_cms_rc2CBCParameter;                /* RC2CBCParameter */
+static int hf_cms_authEncryptedContentInfo;       /* EncryptedContentInfo */
+static int hf_cms_aes_nonce;                      /* OCTET_STRING_SIZE_7_13 */
+static int hf_cms_aes_ICVlen;                     /* AES_CCM_ICVlen */
+static int hf_cms_aes_nonce_01;                   /* OCTET_STRING */
+static int hf_cms_aes_ICVlen_01;                  /* AES_GCM_ICVlen */
+static int hf_cms_acInfo;                         /* AttributeCertificateInfoV1 */
+static int hf_cms_signatureAlgorithm_v1;          /* AlgorithmIdentifier */
+static int hf_cms_signatureValue_v1;              /* BIT_STRING */
+static int hf_cms_version_v1;                     /* AttCertVersionV1 */
+static int hf_cms_subject;                        /* T_subject */
+static int hf_cms_baseCertificateID;              /* IssuerSerial */
+static int hf_cms_subjectName;                    /* GeneralNames */
+static int hf_cms_issuer_v1;                      /* GeneralNames */
+static int hf_cms_signature_v1;                   /* AlgorithmIdentifier */
+static int hf_cms_attCertValidityPeriod;          /* AttCertValidityPeriod */
+static int hf_cms_attributes_v1;                  /* SEQUENCE_OF_Attribute */
+static int hf_cms_attributes_v1_item;             /* Attribute */
+static int hf_cms_issuerUniqueID;                 /* UniqueIdentifier */
+static int hf_cms_extensions;                     /* Extensions */
+static int hf_cms_name;                           /* PreferredOrLegacyPackageIdentifier */
+static int hf_cms_stale;                          /* PreferredOrLegacyStalePackageIdentifier */
+static int hf_cms_preferred;                      /* PreferredPackageIdentifier */
+static int hf_cms_legacy;                         /* OCTET_STRING */
+static int hf_cms_fwPkgID;                        /* OBJECT_IDENTIFIER */
+static int hf_cms_verNum;                         /* INTEGER_0_MAX */
+static int hf_cms_preferredStaleVerNum;           /* INTEGER_0_MAX */
+static int hf_cms_legacyStaleVersion;             /* OCTET_STRING */
+static int hf_cms_TargetHardwareIdentifiers_item;  /* OBJECT_IDENTIFIER */
+static int hf_cms_ImplementedCryptoAlgorithms_item;  /* OBJECT_IDENTIFIER */
+static int hf_cms_ImplementedCompressAlgorithms_item;  /* OBJECT_IDENTIFIER */
+static int hf_cms_CommunityIdentifiers_item;      /* CommunityIdentifier */
+static int hf_cms_communityOID;                   /* OBJECT_IDENTIFIER */
+static int hf_cms_hwModuleList;                   /* HardwareModules */
+static int hf_cms_hwType;                         /* OBJECT_IDENTIFIER */
+static int hf_cms_hwSerialEntries;                /* SEQUENCE_OF_HardwareSerialEntry */
+static int hf_cms_hwSerialEntries_item;           /* HardwareSerialEntry */
+static int hf_cms_all;                            /* NULL */
+static int hf_cms_single;                         /* OCTET_STRING */
+static int hf_cms_block;                          /* T_block */
+static int hf_cms_low;                            /* OCTET_STRING */
+static int hf_cms_high;                           /* OCTET_STRING */
+static int hf_cms_fwPkgType;                      /* INTEGER */
+static int hf_cms_dependencies;                   /* SEQUENCE_OF_PreferredOrLegacyPackageIdentifier */
+static int hf_cms_dependencies_item;              /* PreferredOrLegacyPackageIdentifier */
+static int hf_cms_fwReceiptVersion;               /* FWReceiptVersion */
+static int hf_cms_hwSerialNum;                    /* OCTET_STRING */
+static int hf_cms_fwPkgName;                      /* PreferredOrLegacyPackageIdentifier */
+static int hf_cms_trustAnchorKeyID;               /* OCTET_STRING */
+static int hf_cms_decryptKeyID;                   /* OCTET_STRING */
+static int hf_cms_fwErrorVersion;                 /* FWErrorVersion */
+static int hf_cms_errorCode;                      /* FirmwarePackageLoadErrorCode */
+static int hf_cms_vendorErrorCode;                /* VendorLoadErrorCode */
+static int hf_cms_config;                         /* SEQUENCE_OF_CurrentFWConfig */
+static int hf_cms_config_item;                    /* CurrentFWConfig */
+static int hf_cms_msgDigest;                      /* OCTET_STRING */
 
 /* Initialize the subtree pointers */
-static gint ett_cms = -1;
-static gint ett_cms_ContentInfo = -1;
-static gint ett_cms_SignedData = -1;
-static gint ett_cms_DigestAlgorithmIdentifiers = -1;
-static gint ett_cms_SignerInfos = -1;
-static gint ett_cms_EncapsulatedContentInfo = -1;
-static gint ett_cms_SignerInfo = -1;
-static gint ett_cms_SignerIdentifier = -1;
-static gint ett_cms_SignedAttributes = -1;
-static gint ett_cms_UnsignedAttributes = -1;
-static gint ett_cms_Attribute = -1;
-static gint ett_cms_SET_OF_AttributeValue = -1;
-static gint ett_cms_EnvelopedData = -1;
-static gint ett_cms_OriginatorInfo = -1;
-static gint ett_cms_RecipientInfos = -1;
-static gint ett_cms_EncryptedContentInfo = -1;
-static gint ett_cms_UnprotectedAttributes = -1;
-static gint ett_cms_RecipientInfo = -1;
-static gint ett_cms_KeyTransRecipientInfo = -1;
-static gint ett_cms_RecipientIdentifier = -1;
-static gint ett_cms_KeyAgreeRecipientInfo = -1;
-static gint ett_cms_OriginatorIdentifierOrKey = -1;
-static gint ett_cms_OriginatorPublicKey = -1;
-static gint ett_cms_RecipientEncryptedKeys = -1;
-static gint ett_cms_RecipientEncryptedKey = -1;
-static gint ett_cms_KeyAgreeRecipientIdentifier = -1;
-static gint ett_cms_RecipientKeyIdentifier = -1;
-static gint ett_cms_KEKRecipientInfo = -1;
-static gint ett_cms_KEKIdentifier = -1;
-static gint ett_cms_PasswordRecipientInfo = -1;
-static gint ett_cms_OtherRecipientInfo = -1;
-static gint ett_cms_DigestedData = -1;
-static gint ett_cms_EncryptedData = -1;
-static gint ett_cms_AuthenticatedData = -1;
-static gint ett_cms_AuthAttributes = -1;
-static gint ett_cms_UnauthAttributes = -1;
-static gint ett_cms_RevocationInfoChoices = -1;
-static gint ett_cms_RevocationInfoChoice = -1;
-static gint ett_cms_OtherRevocationInfoFormat = -1;
-static gint ett_cms_CertificateChoices = -1;
-static gint ett_cms_CertificateSet = -1;
-static gint ett_cms_IssuerAndSerialNumber = -1;
-static gint ett_cms_OtherKeyAttribute = -1;
-static gint ett_cms_Time = -1;
-static gint ett_cms_RC2CBCParameter = -1;
-static gint ett_cms_ExtendedCertificate = -1;
-static gint ett_cms_ExtendedCertificateInfo = -1;
-static gint ett_cms_DigestInfo = -1;
-static gint ett_cms_SMIMECapabilities = -1;
-static gint ett_cms_SMIMECapability = -1;
-static gint ett_cms_SMIMEEncryptionKeyPreference = -1;
-static gint ett_cms_RC2CBCParameters = -1;
-static gint ett_cms_AuthEnvelopedData = -1;
-static gint ett_cms_CCMParameters = -1;
-static gint ett_cms_GCMParameters = -1;
-static gint ett_cms_AttributeCertificateV1 = -1;
-static gint ett_cms_AttributeCertificateInfoV1 = -1;
-static gint ett_cms_T_subject = -1;
-static gint ett_cms_SEQUENCE_OF_Attribute = -1;
-static gint ett_cms_FirmwarePackageIdentifier = -1;
-static gint ett_cms_PreferredOrLegacyPackageIdentifier = -1;
-static gint ett_cms_PreferredPackageIdentifier = -1;
-static gint ett_cms_PreferredOrLegacyStalePackageIdentifier = -1;
-static gint ett_cms_TargetHardwareIdentifiers = -1;
-static gint ett_cms_ImplementedCryptoAlgorithms = -1;
-static gint ett_cms_ImplementedCompressAlgorithms = -1;
-static gint ett_cms_CommunityIdentifiers = -1;
-static gint ett_cms_CommunityIdentifier = -1;
-static gint ett_cms_HardwareModules = -1;
-static gint ett_cms_SEQUENCE_OF_HardwareSerialEntry = -1;
-static gint ett_cms_HardwareSerialEntry = -1;
-static gint ett_cms_T_block = -1;
-static gint ett_cms_FirmwarePackageInfo = -1;
-static gint ett_cms_SEQUENCE_OF_PreferredOrLegacyPackageIdentifier = -1;
-static gint ett_cms_FirmwarePackageLoadReceipt = -1;
-static gint ett_cms_FirmwarePackageLoadError = -1;
-static gint ett_cms_SEQUENCE_OF_CurrentFWConfig = -1;
-static gint ett_cms_CurrentFWConfig = -1;
-static gint ett_cms_HardwareModuleName = -1;
-static gint ett_cms_FirmwarePackageMessageDigest = -1;
+static gint ett_cms;
+static gint ett_cms_ContentInfo;
+static gint ett_cms_SignedData;
+static gint ett_cms_DigestAlgorithmIdentifiers;
+static gint ett_cms_SignerInfos;
+static gint ett_cms_EncapsulatedContentInfo;
+static gint ett_cms_SignerInfo;
+static gint ett_cms_SignerIdentifier;
+static gint ett_cms_SignedAttributes;
+static gint ett_cms_UnsignedAttributes;
+static gint ett_cms_Attribute;
+static gint ett_cms_SET_OF_AttributeValue;
+static gint ett_cms_EnvelopedData;
+static gint ett_cms_OriginatorInfo;
+static gint ett_cms_RecipientInfos;
+static gint ett_cms_EncryptedContentInfo;
+static gint ett_cms_UnprotectedAttributes;
+static gint ett_cms_RecipientInfo;
+static gint ett_cms_KeyTransRecipientInfo;
+static gint ett_cms_RecipientIdentifier;
+static gint ett_cms_KeyAgreeRecipientInfo;
+static gint ett_cms_OriginatorIdentifierOrKey;
+static gint ett_cms_OriginatorPublicKey;
+static gint ett_cms_RecipientEncryptedKeys;
+static gint ett_cms_RecipientEncryptedKey;
+static gint ett_cms_KeyAgreeRecipientIdentifier;
+static gint ett_cms_RecipientKeyIdentifier;
+static gint ett_cms_KEKRecipientInfo;
+static gint ett_cms_KEKIdentifier;
+static gint ett_cms_PasswordRecipientInfo;
+static gint ett_cms_OtherRecipientInfo;
+static gint ett_cms_DigestedData;
+static gint ett_cms_EncryptedData;
+static gint ett_cms_AuthenticatedData;
+static gint ett_cms_AuthAttributes;
+static gint ett_cms_UnauthAttributes;
+static gint ett_cms_RevocationInfoChoices;
+static gint ett_cms_RevocationInfoChoice;
+static gint ett_cms_OtherRevocationInfoFormat;
+static gint ett_cms_CertificateChoices;
+static gint ett_cms_CertificateSet;
+static gint ett_cms_IssuerAndSerialNumber;
+static gint ett_cms_OtherKeyAttribute;
+static gint ett_cms_Time;
+static gint ett_cms_RC2CBCParameter;
+static gint ett_cms_ExtendedCertificate;
+static gint ett_cms_ExtendedCertificateInfo;
+static gint ett_cms_DigestInfo;
+static gint ett_cms_SMIMECapabilities;
+static gint ett_cms_SMIMECapability;
+static gint ett_cms_SMIMEEncryptionKeyPreference;
+static gint ett_cms_RC2CBCParameters;
+static gint ett_cms_AuthEnvelopedData;
+static gint ett_cms_CCMParameters;
+static gint ett_cms_GCMParameters;
+static gint ett_cms_AttributeCertificateV1;
+static gint ett_cms_AttributeCertificateInfoV1;
+static gint ett_cms_T_subject;
+static gint ett_cms_SEQUENCE_OF_Attribute;
+static gint ett_cms_FirmwarePackageIdentifier;
+static gint ett_cms_PreferredOrLegacyPackageIdentifier;
+static gint ett_cms_PreferredPackageIdentifier;
+static gint ett_cms_PreferredOrLegacyStalePackageIdentifier;
+static gint ett_cms_TargetHardwareIdentifiers;
+static gint ett_cms_ImplementedCryptoAlgorithms;
+static gint ett_cms_ImplementedCompressAlgorithms;
+static gint ett_cms_CommunityIdentifiers;
+static gint ett_cms_CommunityIdentifier;
+static gint ett_cms_HardwareModules;
+static gint ett_cms_SEQUENCE_OF_HardwareSerialEntry;
+static gint ett_cms_HardwareSerialEntry;
+static gint ett_cms_T_block;
+static gint ett_cms_FirmwarePackageInfo;
+static gint ett_cms_SEQUENCE_OF_PreferredOrLegacyPackageIdentifier;
+static gint ett_cms_FirmwarePackageLoadReceipt;
+static gint ett_cms_FirmwarePackageLoadError;
+static gint ett_cms_SEQUENCE_OF_CurrentFWConfig;
+static gint ett_cms_CurrentFWConfig;
+static gint ett_cms_HardwareModuleName;
+static gint ett_cms_FirmwarePackageMessageDigest;
 
 static dissector_handle_t cms_handle = NULL;
 

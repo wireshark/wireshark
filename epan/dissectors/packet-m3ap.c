@@ -90,163 +90,163 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /* Initialize the protocol and registered fields */
-static int proto_m3ap = -1;
+static int proto_m3ap;
 
-static int hf_m3ap_Absolute_Time_ofMBMS_Data_value = -1;
-static int hf_m3ap_IPAddress_v4 = -1;
-static int hf_m3ap_IPAddress_v6 = -1;
+static int hf_m3ap_Absolute_Time_ofMBMS_Data_value;
+static int hf_m3ap_IPAddress_v4;
+static int hf_m3ap_IPAddress_v6;
 
-static int hf_m3ap_Absolute_Time_ofMBMS_Data_PDU = -1;  /* Absolute_Time_ofMBMS_Data */
-static int hf_m3ap_AllocationAndRetentionPriority_PDU = -1;  /* AllocationAndRetentionPriority */
-static int hf_m3ap_Cause_PDU = -1;                /* Cause */
-static int hf_m3ap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
-static int hf_m3ap_Global_MCE_ID_PDU = -1;        /* Global_MCE_ID */
-static int hf_m3ap_MBMS_Cell_List_PDU = -1;       /* MBMS_Cell_List */
-static int hf_m3ap_MBMS_E_RAB_QoS_Parameters_PDU = -1;  /* MBMS_E_RAB_QoS_Parameters */
-static int hf_m3ap_MBMS_Service_associatedLogicalM3_ConnectionItem_PDU = -1;  /* MBMS_Service_associatedLogicalM3_ConnectionItem */
-static int hf_m3ap_MBMS_Service_Area_PDU = -1;    /* MBMS_Service_Area */
-static int hf_m3ap_MBMS_Session_Duration_PDU = -1;  /* MBMS_Session_Duration */
-static int hf_m3ap_MBMS_Session_ID_PDU = -1;      /* MBMS_Session_ID */
-static int hf_m3ap_MCE_MBMS_M3AP_ID_PDU = -1;     /* MCE_MBMS_M3AP_ID */
-static int hf_m3ap_MCEname_PDU = -1;              /* MCEname */
-static int hf_m3ap_MinimumTimeToMBMSDataTransfer_PDU = -1;  /* MinimumTimeToMBMSDataTransfer */
-static int hf_m3ap_MME_MBMS_M3AP_ID_PDU = -1;     /* MME_MBMS_M3AP_ID */
-static int hf_m3ap_Reestablishment_PDU = -1;      /* Reestablishment */
-static int hf_m3ap_TimeToWait_PDU = -1;           /* TimeToWait */
-static int hf_m3ap_TMGI_PDU = -1;                 /* TMGI */
-static int hf_m3ap_TNL_Information_PDU = -1;      /* TNL_Information */
-static int hf_m3ap_MBMSSessionStartRequest_PDU = -1;  /* MBMSSessionStartRequest */
-static int hf_m3ap_MBMSSessionStartResponse_PDU = -1;  /* MBMSSessionStartResponse */
-static int hf_m3ap_MBMSSessionStartFailure_PDU = -1;  /* MBMSSessionStartFailure */
-static int hf_m3ap_MBMSSessionStopRequest_PDU = -1;  /* MBMSSessionStopRequest */
-static int hf_m3ap_MBMSSessionStopResponse_PDU = -1;  /* MBMSSessionStopResponse */
-static int hf_m3ap_MBMSSessionUpdateRequest_PDU = -1;  /* MBMSSessionUpdateRequest */
-static int hf_m3ap_MBMSSessionUpdateResponse_PDU = -1;  /* MBMSSessionUpdateResponse */
-static int hf_m3ap_MBMSSessionUpdateFailure_PDU = -1;  /* MBMSSessionUpdateFailure */
-static int hf_m3ap_ErrorIndication_PDU = -1;      /* ErrorIndication */
-static int hf_m3ap_Reset_PDU = -1;                /* Reset */
-static int hf_m3ap_ResetType_PDU = -1;            /* ResetType */
-static int hf_m3ap_ResetAcknowledge_PDU = -1;     /* ResetAcknowledge */
-static int hf_m3ap_MBMS_Service_associatedLogicalM3_ConnectionListResAck_PDU = -1;  /* MBMS_Service_associatedLogicalM3_ConnectionListResAck */
-static int hf_m3ap_PrivateMessage_PDU = -1;       /* PrivateMessage */
-static int hf_m3ap_M3SetupRequest_PDU = -1;       /* M3SetupRequest */
-static int hf_m3ap_MBMSServiceAreaListItem_PDU = -1;  /* MBMSServiceAreaListItem */
-static int hf_m3ap_M3SetupResponse_PDU = -1;      /* M3SetupResponse */
-static int hf_m3ap_M3SetupFailure_PDU = -1;       /* M3SetupFailure */
-static int hf_m3ap_MCEConfigurationUpdate_PDU = -1;  /* MCEConfigurationUpdate */
-static int hf_m3ap_MCEConfigurationUpdateAcknowledge_PDU = -1;  /* MCEConfigurationUpdateAcknowledge */
-static int hf_m3ap_MCEConfigurationUpdateFailure_PDU = -1;  /* MCEConfigurationUpdateFailure */
-static int hf_m3ap_M3AP_PDU_PDU = -1;             /* M3AP_PDU */
-static int hf_m3ap_local = -1;                    /* INTEGER_0_maxPrivateIEs */
-static int hf_m3ap_global = -1;                   /* OBJECT_IDENTIFIER */
-static int hf_m3ap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
-static int hf_m3ap_id = -1;                       /* ProtocolIE_ID */
-static int hf_m3ap_criticality = -1;              /* Criticality */
-static int hf_m3ap_ie_field_value = -1;           /* T_ie_field_value */
-static int hf_m3ap_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
-static int hf_m3ap_ext_id = -1;                   /* ProtocolIE_ID */
-static int hf_m3ap_extensionValue = -1;           /* T_extensionValue */
-static int hf_m3ap_PrivateIE_Container_item = -1;  /* PrivateIE_Field */
-static int hf_m3ap_private_id = -1;               /* PrivateIE_ID */
-static int hf_m3ap_private_value = -1;            /* T_private_value */
-static int hf_m3ap_priorityLevel = -1;            /* PriorityLevel */
-static int hf_m3ap_pre_emptionCapability = -1;    /* Pre_emptionCapability */
-static int hf_m3ap_pre_emptionVulnerability = -1;  /* Pre_emptionVulnerability */
-static int hf_m3ap_iE_Extensions = -1;            /* ProtocolExtensionContainer */
-static int hf_m3ap_radioNetwork = -1;             /* CauseRadioNetwork */
-static int hf_m3ap_transport = -1;                /* CauseTransport */
-static int hf_m3ap_nAS = -1;                      /* CauseNAS */
-static int hf_m3ap_protocol = -1;                 /* CauseProtocol */
-static int hf_m3ap_misc = -1;                     /* CauseMisc */
-static int hf_m3ap_procedureCode = -1;            /* ProcedureCode */
-static int hf_m3ap_triggeringMessage = -1;        /* TriggeringMessage */
-static int hf_m3ap_procedureCriticality = -1;     /* Criticality */
-static int hf_m3ap_iEsCriticalityDiagnostics = -1;  /* CriticalityDiagnostics_IE_List */
-static int hf_m3ap_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_List_item */
-static int hf_m3ap_iECriticality = -1;            /* Criticality */
-static int hf_m3ap_iE_ID = -1;                    /* ProtocolIE_ID */
-static int hf_m3ap_typeOfError = -1;              /* TypeOfError */
-static int hf_m3ap_pLMN_Identity = -1;            /* PLMN_Identity */
-static int hf_m3ap_eUTRANcellIdentifier = -1;     /* EUTRANCellIdentifier */
-static int hf_m3ap_mCE_ID = -1;                   /* MCE_ID */
-static int hf_m3ap_extendedMCE_ID = -1;           /* ExtendedMCE_ID */
-static int hf_m3ap_mBMS_E_RAB_MaximumBitrateDL = -1;  /* BitRate */
-static int hf_m3ap_mBMS_E_RAB_GuaranteedBitrateDL = -1;  /* BitRate */
-static int hf_m3ap_MBMS_Cell_List_item = -1;      /* ECGI */
-static int hf_m3ap_qCI = -1;                      /* QCI */
-static int hf_m3ap_gbrQosInformation = -1;        /* GBR_QosInformation */
-static int hf_m3ap_mME_MBMS_M3AP_ID = -1;         /* MME_MBMS_M3AP_ID */
-static int hf_m3ap_mCE_MBMS_M3AP_ID = -1;         /* MCE_MBMS_M3AP_ID */
-static int hf_m3ap_pLMNidentity = -1;             /* PLMN_Identity */
-static int hf_m3ap_serviceID = -1;                /* OCTET_STRING_SIZE_3 */
-static int hf_m3ap_iPMCAddress = -1;              /* IPAddress */
-static int hf_m3ap_iPSourceAddress = -1;          /* IPAddress */
-static int hf_m3ap_gTP_DLTEID = -1;               /* GTP_TEID */
-static int hf_m3ap_protocolIEs = -1;              /* ProtocolIE_Container */
-static int hf_m3ap_m3_Interface = -1;             /* ResetAll */
-static int hf_m3ap_partOfM3_Interface = -1;       /* MBMS_Service_associatedLogicalM3_ConnectionListRes */
-static int hf_m3ap_MBMS_Service_associatedLogicalM3_ConnectionListRes_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_m3ap_MBMS_Service_associatedLogicalM3_ConnectionListResAck_item = -1;  /* ProtocolIE_Single_Container */
-static int hf_m3ap_privateIEs = -1;               /* PrivateIE_Container */
-static int hf_m3ap_MBMSServiceAreaListItem_item = -1;  /* MBMSServiceArea1 */
-static int hf_m3ap_initiatingMessage = -1;        /* InitiatingMessage */
-static int hf_m3ap_successfulOutcome = -1;        /* SuccessfulOutcome */
-static int hf_m3ap_unsuccessfulOutcome = -1;      /* UnsuccessfulOutcome */
-static int hf_m3ap_initiatingMessagevalue = -1;   /* InitiatingMessage_value */
-static int hf_m3ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
-static int hf_m3ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
+static int hf_m3ap_Absolute_Time_ofMBMS_Data_PDU;  /* Absolute_Time_ofMBMS_Data */
+static int hf_m3ap_AllocationAndRetentionPriority_PDU;  /* AllocationAndRetentionPriority */
+static int hf_m3ap_Cause_PDU;                     /* Cause */
+static int hf_m3ap_CriticalityDiagnostics_PDU;    /* CriticalityDiagnostics */
+static int hf_m3ap_Global_MCE_ID_PDU;             /* Global_MCE_ID */
+static int hf_m3ap_MBMS_Cell_List_PDU;            /* MBMS_Cell_List */
+static int hf_m3ap_MBMS_E_RAB_QoS_Parameters_PDU;  /* MBMS_E_RAB_QoS_Parameters */
+static int hf_m3ap_MBMS_Service_associatedLogicalM3_ConnectionItem_PDU;  /* MBMS_Service_associatedLogicalM3_ConnectionItem */
+static int hf_m3ap_MBMS_Service_Area_PDU;         /* MBMS_Service_Area */
+static int hf_m3ap_MBMS_Session_Duration_PDU;     /* MBMS_Session_Duration */
+static int hf_m3ap_MBMS_Session_ID_PDU;           /* MBMS_Session_ID */
+static int hf_m3ap_MCE_MBMS_M3AP_ID_PDU;          /* MCE_MBMS_M3AP_ID */
+static int hf_m3ap_MCEname_PDU;                   /* MCEname */
+static int hf_m3ap_MinimumTimeToMBMSDataTransfer_PDU;  /* MinimumTimeToMBMSDataTransfer */
+static int hf_m3ap_MME_MBMS_M3AP_ID_PDU;          /* MME_MBMS_M3AP_ID */
+static int hf_m3ap_Reestablishment_PDU;           /* Reestablishment */
+static int hf_m3ap_TimeToWait_PDU;                /* TimeToWait */
+static int hf_m3ap_TMGI_PDU;                      /* TMGI */
+static int hf_m3ap_TNL_Information_PDU;           /* TNL_Information */
+static int hf_m3ap_MBMSSessionStartRequest_PDU;   /* MBMSSessionStartRequest */
+static int hf_m3ap_MBMSSessionStartResponse_PDU;  /* MBMSSessionStartResponse */
+static int hf_m3ap_MBMSSessionStartFailure_PDU;   /* MBMSSessionStartFailure */
+static int hf_m3ap_MBMSSessionStopRequest_PDU;    /* MBMSSessionStopRequest */
+static int hf_m3ap_MBMSSessionStopResponse_PDU;   /* MBMSSessionStopResponse */
+static int hf_m3ap_MBMSSessionUpdateRequest_PDU;  /* MBMSSessionUpdateRequest */
+static int hf_m3ap_MBMSSessionUpdateResponse_PDU;  /* MBMSSessionUpdateResponse */
+static int hf_m3ap_MBMSSessionUpdateFailure_PDU;  /* MBMSSessionUpdateFailure */
+static int hf_m3ap_ErrorIndication_PDU;           /* ErrorIndication */
+static int hf_m3ap_Reset_PDU;                     /* Reset */
+static int hf_m3ap_ResetType_PDU;                 /* ResetType */
+static int hf_m3ap_ResetAcknowledge_PDU;          /* ResetAcknowledge */
+static int hf_m3ap_MBMS_Service_associatedLogicalM3_ConnectionListResAck_PDU;  /* MBMS_Service_associatedLogicalM3_ConnectionListResAck */
+static int hf_m3ap_PrivateMessage_PDU;            /* PrivateMessage */
+static int hf_m3ap_M3SetupRequest_PDU;            /* M3SetupRequest */
+static int hf_m3ap_MBMSServiceAreaListItem_PDU;   /* MBMSServiceAreaListItem */
+static int hf_m3ap_M3SetupResponse_PDU;           /* M3SetupResponse */
+static int hf_m3ap_M3SetupFailure_PDU;            /* M3SetupFailure */
+static int hf_m3ap_MCEConfigurationUpdate_PDU;    /* MCEConfigurationUpdate */
+static int hf_m3ap_MCEConfigurationUpdateAcknowledge_PDU;  /* MCEConfigurationUpdateAcknowledge */
+static int hf_m3ap_MCEConfigurationUpdateFailure_PDU;  /* MCEConfigurationUpdateFailure */
+static int hf_m3ap_M3AP_PDU_PDU;                  /* M3AP_PDU */
+static int hf_m3ap_local;                         /* INTEGER_0_maxPrivateIEs */
+static int hf_m3ap_global;                        /* OBJECT_IDENTIFIER */
+static int hf_m3ap_ProtocolIE_Container_item;     /* ProtocolIE_Field */
+static int hf_m3ap_id;                            /* ProtocolIE_ID */
+static int hf_m3ap_criticality;                   /* Criticality */
+static int hf_m3ap_ie_field_value;                /* T_ie_field_value */
+static int hf_m3ap_ProtocolExtensionContainer_item;  /* ProtocolExtensionField */
+static int hf_m3ap_ext_id;                        /* ProtocolIE_ID */
+static int hf_m3ap_extensionValue;                /* T_extensionValue */
+static int hf_m3ap_PrivateIE_Container_item;      /* PrivateIE_Field */
+static int hf_m3ap_private_id;                    /* PrivateIE_ID */
+static int hf_m3ap_private_value;                 /* T_private_value */
+static int hf_m3ap_priorityLevel;                 /* PriorityLevel */
+static int hf_m3ap_pre_emptionCapability;         /* Pre_emptionCapability */
+static int hf_m3ap_pre_emptionVulnerability;      /* Pre_emptionVulnerability */
+static int hf_m3ap_iE_Extensions;                 /* ProtocolExtensionContainer */
+static int hf_m3ap_radioNetwork;                  /* CauseRadioNetwork */
+static int hf_m3ap_transport;                     /* CauseTransport */
+static int hf_m3ap_nAS;                           /* CauseNAS */
+static int hf_m3ap_protocol;                      /* CauseProtocol */
+static int hf_m3ap_misc;                          /* CauseMisc */
+static int hf_m3ap_procedureCode;                 /* ProcedureCode */
+static int hf_m3ap_triggeringMessage;             /* TriggeringMessage */
+static int hf_m3ap_procedureCriticality;          /* Criticality */
+static int hf_m3ap_iEsCriticalityDiagnostics;     /* CriticalityDiagnostics_IE_List */
+static int hf_m3ap_CriticalityDiagnostics_IE_List_item;  /* CriticalityDiagnostics_IE_List_item */
+static int hf_m3ap_iECriticality;                 /* Criticality */
+static int hf_m3ap_iE_ID;                         /* ProtocolIE_ID */
+static int hf_m3ap_typeOfError;                   /* TypeOfError */
+static int hf_m3ap_pLMN_Identity;                 /* PLMN_Identity */
+static int hf_m3ap_eUTRANcellIdentifier;          /* EUTRANCellIdentifier */
+static int hf_m3ap_mCE_ID;                        /* MCE_ID */
+static int hf_m3ap_extendedMCE_ID;                /* ExtendedMCE_ID */
+static int hf_m3ap_mBMS_E_RAB_MaximumBitrateDL;   /* BitRate */
+static int hf_m3ap_mBMS_E_RAB_GuaranteedBitrateDL;  /* BitRate */
+static int hf_m3ap_MBMS_Cell_List_item;           /* ECGI */
+static int hf_m3ap_qCI;                           /* QCI */
+static int hf_m3ap_gbrQosInformation;             /* GBR_QosInformation */
+static int hf_m3ap_mME_MBMS_M3AP_ID;              /* MME_MBMS_M3AP_ID */
+static int hf_m3ap_mCE_MBMS_M3AP_ID;              /* MCE_MBMS_M3AP_ID */
+static int hf_m3ap_pLMNidentity;                  /* PLMN_Identity */
+static int hf_m3ap_serviceID;                     /* OCTET_STRING_SIZE_3 */
+static int hf_m3ap_iPMCAddress;                   /* IPAddress */
+static int hf_m3ap_iPSourceAddress;               /* IPAddress */
+static int hf_m3ap_gTP_DLTEID;                    /* GTP_TEID */
+static int hf_m3ap_protocolIEs;                   /* ProtocolIE_Container */
+static int hf_m3ap_m3_Interface;                  /* ResetAll */
+static int hf_m3ap_partOfM3_Interface;            /* MBMS_Service_associatedLogicalM3_ConnectionListRes */
+static int hf_m3ap_MBMS_Service_associatedLogicalM3_ConnectionListRes_item;  /* ProtocolIE_Single_Container */
+static int hf_m3ap_MBMS_Service_associatedLogicalM3_ConnectionListResAck_item;  /* ProtocolIE_Single_Container */
+static int hf_m3ap_privateIEs;                    /* PrivateIE_Container */
+static int hf_m3ap_MBMSServiceAreaListItem_item;  /* MBMSServiceArea1 */
+static int hf_m3ap_initiatingMessage;             /* InitiatingMessage */
+static int hf_m3ap_successfulOutcome;             /* SuccessfulOutcome */
+static int hf_m3ap_unsuccessfulOutcome;           /* UnsuccessfulOutcome */
+static int hf_m3ap_initiatingMessagevalue;        /* InitiatingMessage_value */
+static int hf_m3ap_successfulOutcome_value;       /* SuccessfulOutcome_value */
+static int hf_m3ap_unsuccessfulOutcome_value;     /* UnsuccessfulOutcome_value */
 
 /* Initialize the subtree pointers */
-static int ett_m3ap = -1;
-static int ett_m3ap_IPAddress = -1;
-static gint ett_m3ap_PrivateIE_ID = -1;
-static gint ett_m3ap_ProtocolIE_Container = -1;
-static gint ett_m3ap_ProtocolIE_Field = -1;
-static gint ett_m3ap_ProtocolExtensionContainer = -1;
-static gint ett_m3ap_ProtocolExtensionField = -1;
-static gint ett_m3ap_PrivateIE_Container = -1;
-static gint ett_m3ap_PrivateIE_Field = -1;
-static gint ett_m3ap_AllocationAndRetentionPriority = -1;
-static gint ett_m3ap_Cause = -1;
-static gint ett_m3ap_CriticalityDiagnostics = -1;
-static gint ett_m3ap_CriticalityDiagnostics_IE_List = -1;
-static gint ett_m3ap_CriticalityDiagnostics_IE_List_item = -1;
-static gint ett_m3ap_ECGI = -1;
-static gint ett_m3ap_Global_MCE_ID = -1;
-static gint ett_m3ap_GBR_QosInformation = -1;
-static gint ett_m3ap_MBMS_Cell_List = -1;
-static gint ett_m3ap_MBMS_E_RAB_QoS_Parameters = -1;
-static gint ett_m3ap_MBMS_Service_associatedLogicalM3_ConnectionItem = -1;
-static gint ett_m3ap_TMGI = -1;
-static gint ett_m3ap_TNL_Information = -1;
-static gint ett_m3ap_MBMSSessionStartRequest = -1;
-static gint ett_m3ap_MBMSSessionStartResponse = -1;
-static gint ett_m3ap_MBMSSessionStartFailure = -1;
-static gint ett_m3ap_MBMSSessionStopRequest = -1;
-static gint ett_m3ap_MBMSSessionStopResponse = -1;
-static gint ett_m3ap_MBMSSessionUpdateRequest = -1;
-static gint ett_m3ap_MBMSSessionUpdateResponse = -1;
-static gint ett_m3ap_MBMSSessionUpdateFailure = -1;
-static gint ett_m3ap_ErrorIndication = -1;
-static gint ett_m3ap_Reset = -1;
-static gint ett_m3ap_ResetType = -1;
-static gint ett_m3ap_MBMS_Service_associatedLogicalM3_ConnectionListRes = -1;
-static gint ett_m3ap_ResetAcknowledge = -1;
-static gint ett_m3ap_MBMS_Service_associatedLogicalM3_ConnectionListResAck = -1;
-static gint ett_m3ap_PrivateMessage = -1;
-static gint ett_m3ap_M3SetupRequest = -1;
-static gint ett_m3ap_MBMSServiceAreaListItem = -1;
-static gint ett_m3ap_M3SetupResponse = -1;
-static gint ett_m3ap_M3SetupFailure = -1;
-static gint ett_m3ap_MCEConfigurationUpdate = -1;
-static gint ett_m3ap_MCEConfigurationUpdateAcknowledge = -1;
-static gint ett_m3ap_MCEConfigurationUpdateFailure = -1;
-static gint ett_m3ap_M3AP_PDU = -1;
-static gint ett_m3ap_InitiatingMessage = -1;
-static gint ett_m3ap_SuccessfulOutcome = -1;
-static gint ett_m3ap_UnsuccessfulOutcome = -1;
+static int ett_m3ap;
+static int ett_m3ap_IPAddress;
+static gint ett_m3ap_PrivateIE_ID;
+static gint ett_m3ap_ProtocolIE_Container;
+static gint ett_m3ap_ProtocolIE_Field;
+static gint ett_m3ap_ProtocolExtensionContainer;
+static gint ett_m3ap_ProtocolExtensionField;
+static gint ett_m3ap_PrivateIE_Container;
+static gint ett_m3ap_PrivateIE_Field;
+static gint ett_m3ap_AllocationAndRetentionPriority;
+static gint ett_m3ap_Cause;
+static gint ett_m3ap_CriticalityDiagnostics;
+static gint ett_m3ap_CriticalityDiagnostics_IE_List;
+static gint ett_m3ap_CriticalityDiagnostics_IE_List_item;
+static gint ett_m3ap_ECGI;
+static gint ett_m3ap_Global_MCE_ID;
+static gint ett_m3ap_GBR_QosInformation;
+static gint ett_m3ap_MBMS_Cell_List;
+static gint ett_m3ap_MBMS_E_RAB_QoS_Parameters;
+static gint ett_m3ap_MBMS_Service_associatedLogicalM3_ConnectionItem;
+static gint ett_m3ap_TMGI;
+static gint ett_m3ap_TNL_Information;
+static gint ett_m3ap_MBMSSessionStartRequest;
+static gint ett_m3ap_MBMSSessionStartResponse;
+static gint ett_m3ap_MBMSSessionStartFailure;
+static gint ett_m3ap_MBMSSessionStopRequest;
+static gint ett_m3ap_MBMSSessionStopResponse;
+static gint ett_m3ap_MBMSSessionUpdateRequest;
+static gint ett_m3ap_MBMSSessionUpdateResponse;
+static gint ett_m3ap_MBMSSessionUpdateFailure;
+static gint ett_m3ap_ErrorIndication;
+static gint ett_m3ap_Reset;
+static gint ett_m3ap_ResetType;
+static gint ett_m3ap_MBMS_Service_associatedLogicalM3_ConnectionListRes;
+static gint ett_m3ap_ResetAcknowledge;
+static gint ett_m3ap_MBMS_Service_associatedLogicalM3_ConnectionListResAck;
+static gint ett_m3ap_PrivateMessage;
+static gint ett_m3ap_M3SetupRequest;
+static gint ett_m3ap_MBMSServiceAreaListItem;
+static gint ett_m3ap_M3SetupResponse;
+static gint ett_m3ap_M3SetupFailure;
+static gint ett_m3ap_MCEConfigurationUpdate;
+static gint ett_m3ap_MCEConfigurationUpdateAcknowledge;
+static gint ett_m3ap_MCEConfigurationUpdateFailure;
+static gint ett_m3ap_M3AP_PDU;
+static gint ett_m3ap_InitiatingMessage;
+static gint ett_m3ap_SuccessfulOutcome;
+static gint ett_m3ap_UnsuccessfulOutcome;
 
-static expert_field ei_m3ap_invalid_ip_address_len = EI_INIT;
+static expert_field ei_m3ap_invalid_ip_address_len;
 
 struct m3ap_private_data {
   e212_number_type_t number_type;

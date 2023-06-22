@@ -35,14 +35,14 @@ void proto_reg_handoff_p7(void);
 static int seqno = 0;
 
 /* Initialize the protocol and registered fields */
-static int proto_p7 = -1;
+static int proto_p7;
 
 #include "packet-p7-val.h"
 
 #include "packet-p7-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_p7 = -1;
+static gint ett_p7;
 #include "packet-p7-ett.c"
 
 #include "packet-p7-table.c"   /* operation and error codes */

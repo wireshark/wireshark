@@ -33,7 +33,7 @@ void proto_register_ros(void);
 void proto_reg_handoff_ros(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_ros = -1;
+static int proto_ros;
 
 static proto_tree *top_tree=NULL;
 static guint32 opcode;
@@ -54,62 +54,62 @@ typedef struct ros_call_response {
   guint invokeId;
 } ros_call_response_t;
 
-static int hf_ros_response_in = -1;
-static int hf_ros_response_to = -1;
-static int hf_ros_time = -1;
+static int hf_ros_response_in;
+static int hf_ros_response_to;
+static int hf_ros_time;
 
 
-static int hf_ros_invoke = -1;                    /* Invoke */
-static int hf_ros_returnResult = -1;              /* ReturnResult */
-static int hf_ros_returnError = -1;               /* ReturnError */
-static int hf_ros_reject = -1;                    /* T_reject */
-static int hf_ros_bind_invoke = -1;               /* T_bind_invoke */
-static int hf_ros_bind_result = -1;               /* T_bind_result */
-static int hf_ros_bind_error = -1;                /* T_bind_error */
-static int hf_ros_unbind_invoke = -1;             /* T_unbind_invoke */
-static int hf_ros_unbind_result = -1;             /* T_unbind_result */
-static int hf_ros_unbind_error = -1;              /* T_unbind_error */
-static int hf_ros_invokeId = -1;                  /* InvokeId */
-static int hf_ros_linkedId = -1;                  /* INTEGER */
-static int hf_ros_opcode = -1;                    /* OperationCode */
-static int hf_ros_argument = -1;                  /* T_argument */
-static int hf_ros_result = -1;                    /* T_result */
-static int hf_ros_operationResult = -1;           /* OperationResult */
-static int hf_ros_errcode = -1;                   /* ErrorCode */
-static int hf_ros_parameter = -1;                 /* T_parameter */
-static int hf_ros_problem = -1;                   /* T_problem */
-static int hf_ros_general = -1;                   /* GeneralProblem */
-static int hf_ros_invokeProblem = -1;             /* InvokeProblem */
-static int hf_ros_rejectResult = -1;              /* ReturnResultProblem */
-static int hf_ros_rejectError = -1;               /* ReturnErrorProblem */
-static int hf_ros_present = -1;                   /* T_present */
-static int hf_ros_absent = -1;                    /* NULL */
-static int hf_ros_local = -1;                     /* INTEGER */
-static int hf_ros_global = -1;                    /* OBJECT_IDENTIFIER */
+static int hf_ros_invoke;                         /* Invoke */
+static int hf_ros_returnResult;                   /* ReturnResult */
+static int hf_ros_returnError;                    /* ReturnError */
+static int hf_ros_reject;                         /* T_reject */
+static int hf_ros_bind_invoke;                    /* T_bind_invoke */
+static int hf_ros_bind_result;                    /* T_bind_result */
+static int hf_ros_bind_error;                     /* T_bind_error */
+static int hf_ros_unbind_invoke;                  /* T_unbind_invoke */
+static int hf_ros_unbind_result;                  /* T_unbind_result */
+static int hf_ros_unbind_error;                   /* T_unbind_error */
+static int hf_ros_invokeId;                       /* InvokeId */
+static int hf_ros_linkedId;                       /* INTEGER */
+static int hf_ros_opcode;                         /* OperationCode */
+static int hf_ros_argument;                       /* T_argument */
+static int hf_ros_result;                         /* T_result */
+static int hf_ros_operationResult;                /* OperationResult */
+static int hf_ros_errcode;                        /* ErrorCode */
+static int hf_ros_parameter;                      /* T_parameter */
+static int hf_ros_problem;                        /* T_problem */
+static int hf_ros_general;                        /* GeneralProblem */
+static int hf_ros_invokeProblem;                  /* InvokeProblem */
+static int hf_ros_rejectResult;                   /* ReturnResultProblem */
+static int hf_ros_rejectError;                    /* ReturnErrorProblem */
+static int hf_ros_present;                        /* T_present */
+static int hf_ros_absent;                         /* NULL */
+static int hf_ros_local;                          /* INTEGER */
+static int hf_ros_global;                         /* OBJECT_IDENTIFIER */
 
 /* Initialize the subtree pointers */
-static gint ett_ros = -1;
-static gint ett_ros_unknown = -1;
-static gint ett_ros_invoke_argument = -1;
-static gint ett_ros_return_result = -1;
-static gint ett_ros_bind_invoke = -1;
-static gint ett_ros_bind_result = -1;
-static gint ett_ros_bind_error = -1;
-static gint ett_ros_unbind_invoke = -1;
-static gint ett_ros_unbind_result = -1;
-static gint ett_ros_unbind_error = -1;
-static gint ett_ros_ROS = -1;
-static gint ett_ros_Invoke = -1;
-static gint ett_ros_ReturnResult = -1;
-static gint ett_ros_T_result = -1;
-static gint ett_ros_ReturnError = -1;
-static gint ett_ros_Reject = -1;
-static gint ett_ros_T_problem = -1;
-static gint ett_ros_InvokeId = -1;
-static gint ett_ros_Code = -1;
+static gint ett_ros;
+static gint ett_ros_unknown;
+static gint ett_ros_invoke_argument;
+static gint ett_ros_return_result;
+static gint ett_ros_bind_invoke;
+static gint ett_ros_bind_result;
+static gint ett_ros_bind_error;
+static gint ett_ros_unbind_invoke;
+static gint ett_ros_unbind_result;
+static gint ett_ros_unbind_error;
+static gint ett_ros_ROS;
+static gint ett_ros_Invoke;
+static gint ett_ros_ReturnResult;
+static gint ett_ros_T_result;
+static gint ett_ros_ReturnError;
+static gint ett_ros_Reject;
+static gint ett_ros_T_problem;
+static gint ett_ros_InvokeId;
+static gint ett_ros_Code;
 
-static expert_field ei_ros_dissector_oid_not_implemented = EI_INIT;
-static expert_field ei_ros_unknown_ros_pdu = EI_INIT;
+static expert_field ei_ros_dissector_oid_not_implemented;
+static expert_field ei_ros_unknown_ros_pdu;
 
 static dissector_table_t ros_oid_dissector_table=NULL;
 

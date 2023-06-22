@@ -51,7 +51,7 @@ void proto_register_ranap(void);
 void proto_reg_handoff_ranap(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_ranap = -1;
+static int proto_ranap;
 
 /* initialise sub-dissector handles */
 static dissector_handle_t rrc_s_to_trnc_handle = NULL;
@@ -59,16 +59,16 @@ static dissector_handle_t rrc_t_to_srnc_handle = NULL;
 static dissector_handle_t rrc_ho_to_utran_cmd = NULL;
 static dissector_handle_t bssgp_handle = NULL;
 
-static int hf_ranap_transportLayerAddress_ipv4 = -1;
-static int hf_ranap_transportLayerAddress_ipv6 = -1;
-static int hf_ranap_transportLayerAddress_nsap = -1;
+static int hf_ranap_transportLayerAddress_ipv4;
+static int hf_ranap_transportLayerAddress_ipv6;
+static int hf_ranap_transportLayerAddress_nsap;
 
 #include "packet-ranap-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_ranap = -1;
-static int ett_ranap_transportLayerAddress = -1;
-static int ett_ranap_transportLayerAddress_nsap = -1;
+static int ett_ranap;
+static int ett_ranap_transportLayerAddress;
+static int ett_ranap_transportLayerAddress_nsap;
 
 #include "packet-ranap-ett.c"
 

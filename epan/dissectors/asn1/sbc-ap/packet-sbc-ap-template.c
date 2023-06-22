@@ -42,24 +42,24 @@ static dissector_handle_t sbc_ap_handle=NULL;
 #include "packet-sbc-ap-val.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_sbc_ap = -1;
+static int proto_sbc_ap;
 
-static int hf_sbc_ap_Serial_Number_gs = -1;
-static int hf_sbc_ap_Serial_Number_msg_code = -1;
-static int hf_sbc_ap_Serial_Number_upd_nb = -1;
-static int hf_sbc_ap_Warning_Type_value = -1;
-static int hf_sbc_ap_Warning_Type_emergency_user_alert = -1;
-static int hf_sbc_ap_Warning_Type_popup = -1;
-static int hf_sbc_ap_Warning_Message_Contents_nb_pages = -1;
-static int hf_sbc_ap_Warning_Message_Contents_decoded_page = -1;
+static int hf_sbc_ap_Serial_Number_gs;
+static int hf_sbc_ap_Serial_Number_msg_code;
+static int hf_sbc_ap_Serial_Number_upd_nb;
+static int hf_sbc_ap_Warning_Type_value;
+static int hf_sbc_ap_Warning_Type_emergency_user_alert;
+static int hf_sbc_ap_Warning_Type_popup;
+static int hf_sbc_ap_Warning_Message_Contents_nb_pages;
+static int hf_sbc_ap_Warning_Message_Contents_decoded_page;
 #include "packet-sbc-ap-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_sbc_ap = -1;
-static int ett_sbc_ap_Serial_Number = -1;
-static int ett_sbc_ap_Warning_Type = -1;
-static int ett_sbc_ap_Data_Coding_Scheme = -1;
-static int ett_sbc_ap_Warning_Message_Contents = -1;
+static int ett_sbc_ap;
+static int ett_sbc_ap_Serial_Number;
+static int ett_sbc_ap_Warning_Type;
+static int ett_sbc_ap_Data_Coding_Scheme;
+static int ett_sbc_ap_Warning_Message_Contents;
 
 #include "packet-sbc-ap-ett.c"
 

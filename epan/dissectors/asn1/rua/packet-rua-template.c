@@ -36,12 +36,12 @@ void proto_register_rua(void);
 #include "packet-rua-val.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_rua = -1;
+static int proto_rua;
 
 #include "packet-rua-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_rua = -1;
+static int ett_rua;
 
  /* initialise sub-dissector handles */
  static dissector_handle_t ranap_handle = NULL;

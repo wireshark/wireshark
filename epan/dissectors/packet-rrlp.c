@@ -41,1085 +41,1085 @@ void proto_register_rrlp(void);
 void proto_reg_handoff_rrlp(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_rrlp = -1;
+static int proto_rrlp;
 
 
-static int hf_rrlp_PDU_PDU = -1;                  /* PDU */
-static int hf_rrlp_privateExtensionList = -1;     /* PrivateExtensionList */
-static int hf_rrlp_pcs_Extensions = -1;           /* PCS_Extensions */
-static int hf_rrlp_PrivateExtensionList_item = -1;  /* PrivateExtension */
-static int hf_rrlp_extId = -1;                    /* OBJECT_IDENTIFIER */
-static int hf_rrlp_extType = -1;                  /* T_extType */
-static int hf_rrlp_referenceNumber = -1;          /* INTEGER_0_7 */
-static int hf_rrlp_component = -1;                /* RRLP_Component */
-static int hf_rrlp_msrPositionReq = -1;           /* MsrPosition_Req */
-static int hf_rrlp_msrPositionRsp = -1;           /* MsrPosition_Rsp */
-static int hf_rrlp_assistanceData = -1;           /* AssistanceData */
-static int hf_rrlp_assistanceDataAck = -1;        /* NULL */
-static int hf_rrlp_protocolError = -1;            /* ProtocolError */
-static int hf_rrlp_posCapabilityReq = -1;         /* PosCapability_Req */
-static int hf_rrlp_posCapabilityRsp = -1;         /* PosCapability_Rsp */
-static int hf_rrlp_positionInstruct = -1;         /* PositionInstruct */
-static int hf_rrlp_referenceAssistData = -1;      /* ReferenceAssistData */
-static int hf_rrlp_msrAssistData = -1;            /* MsrAssistData */
-static int hf_rrlp_systemInfoAssistData = -1;     /* SystemInfoAssistData */
-static int hf_rrlp_gps_AssistData = -1;           /* GPS_AssistData */
-static int hf_rrlp_extensionContainer = -1;       /* ExtensionContainer */
-static int hf_rrlp_rel98_MsrPosition_Req_extension = -1;  /* Rel98_MsrPosition_Req_Extension */
-static int hf_rrlp_rel5_MsrPosition_Req_extension = -1;  /* Rel5_MsrPosition_Req_Extension */
-static int hf_rrlp_rel7_MsrPosition_Req_extension = -1;  /* Rel7_MsrPosition_Req_Extension */
-static int hf_rrlp_multipleSets = -1;             /* MultipleSets */
-static int hf_rrlp_referenceIdentity = -1;        /* ReferenceIdentity */
-static int hf_rrlp_otd_MeasureInfo = -1;          /* OTD_MeasureInfo */
-static int hf_rrlp_locationInfo = -1;             /* LocationInfo */
-static int hf_rrlp_gps_MeasureInfo = -1;          /* GPS_MeasureInfo */
-static int hf_rrlp_locationError = -1;            /* LocationError */
-static int hf_rrlp_rel_98_MsrPosition_Rsp_Extension = -1;  /* Rel_98_MsrPosition_Rsp_Extension */
-static int hf_rrlp_rel_5_MsrPosition_Rsp_Extension = -1;  /* Rel_5_MsrPosition_Rsp_Extension */
-static int hf_rrlp_rel_7_MsrPosition_Rsp_Extension = -1;  /* Rel_7_MsrPosition_Rsp_Extension */
-static int hf_rrlp_moreAssDataToBeSent = -1;      /* MoreAssDataToBeSent */
-static int hf_rrlp_rel98_AssistanceData_Extension = -1;  /* Rel98_AssistanceData_Extension */
-static int hf_rrlp_rel5_AssistanceData_Extension = -1;  /* Rel5_AssistanceData_Extension */
-static int hf_rrlp_rel7_AssistanceData_Extension = -1;  /* Rel7_AssistanceData_Extension */
-static int hf_rrlp_errorCause = -1;               /* ErrorCodes */
-static int hf_rrlp_rel_5_ProtocolError_Extension = -1;  /* Rel_5_ProtocolError_Extension */
-static int hf_rrlp_extended_reference = -1;       /* Extended_reference */
-static int hf_rrlp_gANSSPositionMethods = -1;     /* GANSSPositionMethods */
-static int hf_rrlp_posCapabilities = -1;          /* PosCapabilities */
-static int hf_rrlp_assistanceSupported = -1;      /* AssistanceSupported */
-static int hf_rrlp_assistanceNeeded = -1;         /* AssistanceNeeded */
-static int hf_rrlp_methodType = -1;               /* MethodType */
-static int hf_rrlp_positionMethod = -1;           /* PositionMethod */
-static int hf_rrlp_measureResponseTime = -1;      /* MeasureResponseTime */
-static int hf_rrlp_useMultipleSets = -1;          /* UseMultipleSets */
-static int hf_rrlp_environmentCharacter = -1;     /* EnvironmentCharacter */
-static int hf_rrlp_msAssisted = -1;               /* AccuracyOpt */
-static int hf_rrlp_msBased = -1;                  /* Accuracy */
-static int hf_rrlp_msBasedPref = -1;              /* Accuracy */
-static int hf_rrlp_msAssistedPref = -1;           /* Accuracy */
-static int hf_rrlp_accuracy = -1;                 /* Accuracy */
-static int hf_rrlp_bcchCarrier = -1;              /* BCCHCarrier */
-static int hf_rrlp_bsic = -1;                     /* BSIC */
-static int hf_rrlp_timeSlotScheme = -1;           /* TimeSlotScheme */
-static int hf_rrlp_btsPosition = -1;              /* BTSPosition */
-static int hf_rrlp_msrAssistList = -1;            /* SeqOfMsrAssistBTS */
-static int hf_rrlp_SeqOfMsrAssistBTS_item = -1;   /* MsrAssistBTS */
-static int hf_rrlp_multiFrameOffset = -1;         /* MultiFrameOffset */
-static int hf_rrlp_roughRTD = -1;                 /* RoughRTD */
-static int hf_rrlp_calcAssistanceBTS = -1;        /* CalcAssistanceBTS */
-static int hf_rrlp_systemInfoAssistList = -1;     /* SeqOfSystemInfoAssistBTS */
-static int hf_rrlp_SeqOfSystemInfoAssistBTS_item = -1;  /* SystemInfoAssistBTS */
-static int hf_rrlp_notPresent = -1;               /* NULL */
-static int hf_rrlp_present = -1;                  /* AssistBTSData */
-static int hf_rrlp_fineRTD = -1;                  /* FineRTD */
-static int hf_rrlp_referenceWGS84 = -1;           /* ReferenceWGS84 */
-static int hf_rrlp_relativeNorth = -1;            /* RelDistance */
-static int hf_rrlp_relativeEast = -1;             /* RelDistance */
-static int hf_rrlp_relativeAlt = -1;              /* RelativeAlt */
-static int hf_rrlp_nbrOfSets = -1;                /* INTEGER_2_3 */
-static int hf_rrlp_nbrOfReferenceBTSs = -1;       /* INTEGER_1_3 */
-static int hf_rrlp_referenceRelation = -1;        /* ReferenceRelation */
-static int hf_rrlp_refBTSList = -1;               /* SeqOfReferenceIdentityType */
-static int hf_rrlp_SeqOfReferenceIdentityType_item = -1;  /* ReferenceIdentityType */
-static int hf_rrlp_bsicAndCarrier = -1;           /* BSICAndCarrier */
-static int hf_rrlp_ci = -1;                       /* CellID */
-static int hf_rrlp_requestIndex = -1;             /* RequestIndex */
-static int hf_rrlp_systemInfoIndex = -1;          /* SystemInfoIndex */
-static int hf_rrlp_ciAndLAC = -1;                 /* CellIDAndLAC */
-static int hf_rrlp_carrier = -1;                  /* BCCHCarrier */
-static int hf_rrlp_referenceLAC = -1;             /* LAC */
-static int hf_rrlp_referenceCI = -1;              /* CellID */
-static int hf_rrlp_otdMsrFirstSets = -1;          /* OTD_MsrElementFirst */
-static int hf_rrlp_otdMsrRestSets = -1;           /* SeqOfOTD_MsrElementRest */
-static int hf_rrlp_SeqOfOTD_MsrElementRest_item = -1;  /* OTD_MsrElementRest */
-static int hf_rrlp_refFrameNumber = -1;           /* INTEGER_0_42431 */
-static int hf_rrlp_referenceTimeSlot = -1;        /* ModuloTimeSlot */
-static int hf_rrlp_toaMeasurementsOfRef = -1;     /* TOA_MeasurementsOfRef */
-static int hf_rrlp_stdResolution = -1;            /* StdResolution */
-static int hf_rrlp_taCorrection = -1;             /* INTEGER_0_960 */
-static int hf_rrlp_otd_FirstSetMsrs = -1;         /* SeqOfOTD_FirstSetMsrs */
-static int hf_rrlp_SeqOfOTD_FirstSetMsrs_item = -1;  /* OTD_FirstSetMsrs */
-static int hf_rrlp_otd_MsrsOfOtherSets = -1;      /* SeqOfOTD_MsrsOfOtherSets */
-static int hf_rrlp_SeqOfOTD_MsrsOfOtherSets_item = -1;  /* OTD_MsrsOfOtherSets */
-static int hf_rrlp_refQuality = -1;               /* RefQuality */
-static int hf_rrlp_numOfMeasurements = -1;        /* NumOfMeasurements */
-static int hf_rrlp_identityNotPresent = -1;       /* OTD_Measurement */
-static int hf_rrlp_identityPresent = -1;          /* OTD_MeasurementWithID */
-static int hf_rrlp_nborTimeSlot = -1;             /* ModuloTimeSlot */
-static int hf_rrlp_eotdQuality = -1;              /* EOTDQuality */
-static int hf_rrlp_otdValue = -1;                 /* OTDValue */
-static int hf_rrlp_neighborIdentity = -1;         /* NeighborIdentity */
-static int hf_rrlp_nbrOfMeasurements = -1;        /* INTEGER_0_7 */
-static int hf_rrlp_stdOfEOTD = -1;                /* INTEGER_0_31 */
-static int hf_rrlp_multiFrameCarrier = -1;        /* MultiFrameCarrier */
-static int hf_rrlp_refFrame = -1;                 /* INTEGER_0_65535 */
-static int hf_rrlp_gpsTOW = -1;                   /* INTEGER_0_14399999 */
-static int hf_rrlp_fixType = -1;                  /* FixType */
-static int hf_rrlp_posEstimate = -1;              /* Ext_GeographicalInformation */
-static int hf_rrlp_gpsMsrSetList = -1;            /* SeqOfGPS_MsrSetElement */
-static int hf_rrlp_SeqOfGPS_MsrSetElement_item = -1;  /* GPS_MsrSetElement */
-static int hf_rrlp_gpsTOW_01 = -1;                /* GPSTOW24b */
-static int hf_rrlp_gps_msrList = -1;              /* SeqOfGPS_MsrElement */
-static int hf_rrlp_SeqOfGPS_MsrElement_item = -1;  /* GPS_MsrElement */
-static int hf_rrlp_satelliteID = -1;              /* SatelliteID */
-static int hf_rrlp_cNo = -1;                      /* INTEGER_0_63 */
-static int hf_rrlp_doppler = -1;                  /* INTEGER_M32768_32767 */
-static int hf_rrlp_wholeChips = -1;               /* INTEGER_0_1022 */
-static int hf_rrlp_fracChips = -1;                /* INTEGER_0_1024 */
-static int hf_rrlp_mpathIndic = -1;               /* MpathIndic */
-static int hf_rrlp_pseuRangeRMSErr = -1;          /* INTEGER_0_63 */
-static int hf_rrlp_locErrorReason = -1;           /* LocErrorReason */
-static int hf_rrlp_additionalAssistanceData = -1;  /* AdditionalAssistanceData */
-static int hf_rrlp_gpsAssistanceData = -1;        /* GPSAssistanceData */
-static int hf_rrlp_ganssAssistanceData = -1;      /* GANSSAssistanceData */
-static int hf_rrlp_controlHeader = -1;            /* ControlHeader */
-static int hf_rrlp_referenceTime = -1;            /* ReferenceTime */
-static int hf_rrlp_refLocation = -1;              /* RefLocation */
-static int hf_rrlp_dgpsCorrections = -1;          /* DGPSCorrections */
-static int hf_rrlp_navigationModel = -1;          /* NavigationModel */
-static int hf_rrlp_ionosphericModel = -1;         /* IonosphericModel */
-static int hf_rrlp_utcModel = -1;                 /* UTCModel */
-static int hf_rrlp_almanac = -1;                  /* Almanac */
-static int hf_rrlp_acquisAssist = -1;             /* AcquisAssist */
-static int hf_rrlp_realTimeIntegrity = -1;        /* SeqOf_BadSatelliteSet */
-static int hf_rrlp_gpsTime = -1;                  /* GPSTime */
-static int hf_rrlp_gsmTime = -1;                  /* GSMTime */
-static int hf_rrlp_gpsTowAssist = -1;             /* GPSTOWAssist */
-static int hf_rrlp_gpsTOW23b = -1;                /* GPSTOW23b */
-static int hf_rrlp_gpsWeek = -1;                  /* GPSWeek */
-static int hf_rrlp_GPSTOWAssist_item = -1;        /* GPSTOWAssistElement */
-static int hf_rrlp_tlmWord = -1;                  /* TLMWord */
-static int hf_rrlp_antiSpoof = -1;                /* AntiSpoofFlag */
-static int hf_rrlp_alert = -1;                    /* AlertFlag */
-static int hf_rrlp_tlmRsvdBits = -1;              /* TLMReservedBits */
-static int hf_rrlp_frameNumber = -1;              /* FrameNumber */
-static int hf_rrlp_timeSlot = -1;                 /* TimeSlot */
-static int hf_rrlp_bitNumber = -1;                /* BitNumber */
-static int hf_rrlp_threeDLocation = -1;           /* Ext_GeographicalInformation */
-static int hf_rrlp_gpsTOW_02 = -1;                /* INTEGER_0_604799 */
-static int hf_rrlp_status = -1;                   /* INTEGER_0_7 */
-static int hf_rrlp_satList = -1;                  /* SeqOfSatElement */
-static int hf_rrlp_SeqOfSatElement_item = -1;     /* SatElement */
-static int hf_rrlp_iode = -1;                     /* INTEGER_0_239 */
-static int hf_rrlp_udre = -1;                     /* INTEGER_0_3 */
-static int hf_rrlp_pseudoRangeCor = -1;           /* INTEGER_M2047_2047 */
-static int hf_rrlp_rangeRateCor = -1;             /* INTEGER_M127_127 */
-static int hf_rrlp_deltaPseudoRangeCor2 = -1;     /* INTEGER_M127_127 */
-static int hf_rrlp_deltaRangeRateCor2 = -1;       /* INTEGER_M7_7 */
-static int hf_rrlp_deltaPseudoRangeCor3 = -1;     /* INTEGER_M127_127 */
-static int hf_rrlp_deltaRangeRateCor3 = -1;       /* INTEGER_M7_7 */
-static int hf_rrlp_navModelList = -1;             /* SeqOfNavModelElement */
-static int hf_rrlp_SeqOfNavModelElement_item = -1;  /* NavModelElement */
-static int hf_rrlp_satStatus = -1;                /* SatStatus */
-static int hf_rrlp_newSatelliteAndModelUC = -1;   /* UncompressedEphemeris */
-static int hf_rrlp_oldSatelliteAndModel = -1;     /* NULL */
-static int hf_rrlp_newNaviModelUC = -1;           /* UncompressedEphemeris */
-static int hf_rrlp_ephemCodeOnL2 = -1;            /* INTEGER_0_3 */
-static int hf_rrlp_ephemURA = -1;                 /* INTEGER_0_15 */
-static int hf_rrlp_ephemSVhealth = -1;            /* INTEGER_0_63 */
-static int hf_rrlp_ephemIODC = -1;                /* INTEGER_0_1023 */
-static int hf_rrlp_ephemL2Pflag = -1;             /* INTEGER_0_1 */
-static int hf_rrlp_ephemSF1Rsvd = -1;             /* EphemerisSubframe1Reserved */
-static int hf_rrlp_ephemTgd = -1;                 /* INTEGER_M128_127 */
-static int hf_rrlp_ephemToc = -1;                 /* INTEGER_0_37799 */
-static int hf_rrlp_ephemAF2 = -1;                 /* INTEGER_M128_127 */
-static int hf_rrlp_ephemAF1 = -1;                 /* INTEGER_M32768_32767 */
-static int hf_rrlp_ephemAF0 = -1;                 /* INTEGER_M2097152_2097151 */
-static int hf_rrlp_ephemCrs = -1;                 /* INTEGER_M32768_32767 */
-static int hf_rrlp_ephemDeltaN = -1;              /* INTEGER_M32768_32767 */
-static int hf_rrlp_ephemM0 = -1;                  /* INTEGER_M2147483648_2147483647 */
-static int hf_rrlp_ephemCuc = -1;                 /* INTEGER_M32768_32767 */
-static int hf_rrlp_ephemE = -1;                   /* INTEGER_0_4294967295 */
-static int hf_rrlp_ephemCus = -1;                 /* INTEGER_M32768_32767 */
-static int hf_rrlp_ephemAPowerHalf = -1;          /* INTEGER_0_4294967295 */
-static int hf_rrlp_ephemToe = -1;                 /* INTEGER_0_37799 */
-static int hf_rrlp_ephemFitFlag = -1;             /* INTEGER_0_1 */
-static int hf_rrlp_ephemAODA = -1;                /* INTEGER_0_31 */
-static int hf_rrlp_ephemCic = -1;                 /* INTEGER_M32768_32767 */
-static int hf_rrlp_ephemOmegaA0 = -1;             /* INTEGER_M2147483648_2147483647 */
-static int hf_rrlp_ephemCis = -1;                 /* INTEGER_M32768_32767 */
-static int hf_rrlp_ephemI0 = -1;                  /* INTEGER_M2147483648_2147483647 */
-static int hf_rrlp_ephemCrc = -1;                 /* INTEGER_M32768_32767 */
-static int hf_rrlp_ephemW = -1;                   /* INTEGER_M2147483648_2147483647 */
-static int hf_rrlp_ephemOmegaADot = -1;           /* INTEGER_M8388608_8388607 */
-static int hf_rrlp_ephemIDot = -1;                /* INTEGER_M8192_8191 */
-static int hf_rrlp_reserved1 = -1;                /* INTEGER_0_8388607 */
-static int hf_rrlp_reserved2 = -1;                /* INTEGER_0_16777215 */
-static int hf_rrlp_reserved3 = -1;                /* INTEGER_0_16777215 */
-static int hf_rrlp_reserved4 = -1;                /* INTEGER_0_65535 */
-static int hf_rrlp_alfa0 = -1;                    /* INTEGER_M128_127 */
-static int hf_rrlp_alfa1 = -1;                    /* INTEGER_M128_127 */
-static int hf_rrlp_alfa2 = -1;                    /* INTEGER_M128_127 */
-static int hf_rrlp_alfa3 = -1;                    /* INTEGER_M128_127 */
-static int hf_rrlp_beta0 = -1;                    /* INTEGER_M128_127 */
-static int hf_rrlp_beta1 = -1;                    /* INTEGER_M128_127 */
-static int hf_rrlp_beta2 = -1;                    /* INTEGER_M128_127 */
-static int hf_rrlp_beta3 = -1;                    /* INTEGER_M128_127 */
-static int hf_rrlp_utcA1 = -1;                    /* INTEGER_M8388608_8388607 */
-static int hf_rrlp_utcA0 = -1;                    /* INTEGER_M2147483648_2147483647 */
-static int hf_rrlp_utcTot = -1;                   /* INTEGER_0_255 */
-static int hf_rrlp_utcWNt = -1;                   /* INTEGER_0_255 */
-static int hf_rrlp_utcDeltaTls = -1;              /* INTEGER_M128_127 */
-static int hf_rrlp_utcWNlsf = -1;                 /* INTEGER_0_255 */
-static int hf_rrlp_utcDN = -1;                    /* INTEGER_M128_127 */
-static int hf_rrlp_utcDeltaTlsf = -1;             /* INTEGER_M128_127 */
-static int hf_rrlp_alamanacWNa = -1;              /* INTEGER_0_255 */
-static int hf_rrlp_almanacList = -1;              /* SeqOfAlmanacElement */
-static int hf_rrlp_SeqOfAlmanacElement_item = -1;  /* AlmanacElement */
-static int hf_rrlp_almanacE = -1;                 /* INTEGER_0_65535 */
-static int hf_rrlp_alamanacToa = -1;              /* INTEGER_0_255 */
-static int hf_rrlp_almanacKsii = -1;              /* INTEGER_M32768_32767 */
-static int hf_rrlp_almanacOmegaDot = -1;          /* INTEGER_M32768_32767 */
-static int hf_rrlp_almanacSVhealth = -1;          /* INTEGER_0_255 */
-static int hf_rrlp_almanacAPowerHalf = -1;        /* INTEGER_0_16777215 */
-static int hf_rrlp_almanacOmega0 = -1;            /* INTEGER_M8388608_8388607 */
-static int hf_rrlp_almanacW = -1;                 /* INTEGER_M8388608_8388607 */
-static int hf_rrlp_almanacM0 = -1;                /* INTEGER_M8388608_8388607 */
-static int hf_rrlp_almanacAF0 = -1;               /* INTEGER_M1024_1023 */
-static int hf_rrlp_almanacAF1 = -1;               /* INTEGER_M1024_1023 */
-static int hf_rrlp_timeRelation = -1;             /* TimeRelation */
-static int hf_rrlp_acquisList = -1;               /* SeqOfAcquisElement */
-static int hf_rrlp_SeqOfAcquisElement_item = -1;  /* AcquisElement */
-static int hf_rrlp_gpsTOW_03 = -1;                /* GPSTOW23b */
-static int hf_rrlp_svid = -1;                     /* SatelliteID */
-static int hf_rrlp_doppler0 = -1;                 /* INTEGER_M2048_2047 */
-static int hf_rrlp_addionalDoppler = -1;          /* AddionalDopplerFields */
-static int hf_rrlp_codePhase = -1;                /* INTEGER_0_1022 */
-static int hf_rrlp_intCodePhase = -1;             /* INTEGER_0_19 */
-static int hf_rrlp_gpsBitNumber = -1;             /* INTEGER_0_3 */
-static int hf_rrlp_codePhaseSearchWindow = -1;    /* INTEGER_0_15 */
-static int hf_rrlp_addionalAngle = -1;            /* AddionalAngleFields */
-static int hf_rrlp_doppler1 = -1;                 /* INTEGER_0_63 */
-static int hf_rrlp_dopplerUncertainty = -1;       /* INTEGER_0_7 */
-static int hf_rrlp_azimuth = -1;                  /* INTEGER_0_31 */
-static int hf_rrlp_elevation = -1;                /* INTEGER_0_7 */
-static int hf_rrlp_SeqOf_BadSatelliteSet_item = -1;  /* SatelliteID */
-static int hf_rrlp_rel98_Ext_ExpOTD = -1;         /* Rel98_Ext_ExpOTD */
-static int hf_rrlp_gpsTimeAssistanceMeasurementRequest = -1;  /* NULL */
-static int hf_rrlp_gpsReferenceTimeUncertainty = -1;  /* GPSReferenceTimeUncertainty */
-static int hf_rrlp_msrAssistData_R98_ExpOTD = -1;  /* MsrAssistData_R98_ExpOTD */
-static int hf_rrlp_systemInfoAssistData_R98_ExpOTD = -1;  /* SystemInfoAssistData_R98_ExpOTD */
-static int hf_rrlp_msrAssistList_R98_ExpOTD = -1;  /* SeqOfMsrAssistBTS_R98_ExpOTD */
-static int hf_rrlp_SeqOfMsrAssistBTS_R98_ExpOTD_item = -1;  /* MsrAssistBTS_R98_ExpOTD */
-static int hf_rrlp_expectedOTD = -1;              /* ExpectedOTD */
-static int hf_rrlp_expOTDUncertainty = -1;        /* ExpOTDUncertainty */
-static int hf_rrlp_systemInfoAssistListR98_ExpOTD = -1;  /* SeqOfSystemInfoAssistBTS_R98_ExpOTD */
-static int hf_rrlp_SeqOfSystemInfoAssistBTS_R98_ExpOTD_item = -1;  /* SystemInfoAssistBTS_R98_ExpOTD */
-static int hf_rrlp_present_01 = -1;               /* AssistBTSData_R98_ExpOTD */
-static int hf_rrlp_expOTDuncertainty = -1;        /* ExpOTDUncertainty */
-static int hf_rrlp_referenceFrameMSB = -1;        /* INTEGER_0_63 */
-static int hf_rrlp_gpsTowSubms = -1;              /* INTEGER_0_9999 */
-static int hf_rrlp_deltaTow = -1;                 /* INTEGER_0_127 */
-static int hf_rrlp_rel_98_Ext_MeasureInfo = -1;   /* T_rel_98_Ext_MeasureInfo */
-static int hf_rrlp_otd_MeasureInfo_R98_Ext = -1;  /* OTD_MeasureInfo_R98_Ext */
-static int hf_rrlp_timeAssistanceMeasurements = -1;  /* GPSTimeAssistanceMeasurements */
-static int hf_rrlp_otdMsrFirstSets_R98_Ext = -1;  /* OTD_MsrElementFirst_R98_Ext */
-static int hf_rrlp_otd_FirstSetMsrs_R98_Ext = -1;  /* SeqOfOTD_FirstSetMsrs_R98_Ext */
-static int hf_rrlp_SeqOfOTD_FirstSetMsrs_R98_Ext_item = -1;  /* OTD_FirstSetMsrs */
-static int hf_rrlp_otd_MeasureInfo_5_Ext = -1;    /* OTD_MeasureInfo_5_Ext */
-static int hf_rrlp_ulPseudoSegInd = -1;           /* UlPseudoSegInd */
-static int hf_rrlp_smlc_code = -1;                /* INTEGER_0_63 */
-static int hf_rrlp_transaction_ID = -1;           /* INTEGER_0_262143 */
-static int hf_rrlp_velocityRequested = -1;        /* NULL */
-static int hf_rrlp_ganssPositionMethod = -1;      /* GANSSPositioningMethod */
-static int hf_rrlp_ganss_AssistData = -1;         /* GANSS_AssistData */
-static int hf_rrlp_ganssCarrierPhaseMeasurementRequest = -1;  /* NULL */
-static int hf_rrlp_ganssTODGSMTimeAssociationMeasurementRequest = -1;  /* NULL */
-static int hf_rrlp_requiredResponseTime = -1;     /* RequiredResponseTime */
-static int hf_rrlp_add_GPS_AssistData = -1;       /* Add_GPS_AssistData */
-static int hf_rrlp_ganssMultiFreqMeasurementRequest = -1;  /* NULL */
-static int hf_rrlp_ganss_controlHeader = -1;      /* GANSS_ControlHeader */
-static int hf_rrlp_ganssCommonAssistData = -1;    /* GANSSCommonAssistData */
-static int hf_rrlp_ganssGenericAssistDataList = -1;  /* SeqOfGANSSGenericAssistDataElement */
-static int hf_rrlp_ganssReferenceTime = -1;       /* GANSSReferenceTime */
-static int hf_rrlp_ganssRefLocation = -1;         /* GANSSRefLocation */
-static int hf_rrlp_ganssIonosphericModel = -1;    /* GANSSIonosphericModel */
-static int hf_rrlp_ganssAddIonosphericModel = -1;  /* GANSSAddIonosphericModel */
-static int hf_rrlp_ganssEarthOrientParam = -1;    /* GANSSEarthOrientParam */
-static int hf_rrlp_ganssReferenceTime_R10_Ext = -1;  /* GANSSReferenceTime_R10_Ext */
-static int hf_rrlp_SeqOfGANSSGenericAssistDataElement_item = -1;  /* GANSSGenericAssistDataElement */
-static int hf_rrlp_ganssID = -1;                  /* INTEGER_0_7 */
-static int hf_rrlp_ganssTimeModel = -1;           /* SeqOfGANSSTimeModel */
-static int hf_rrlp_ganssDiffCorrections = -1;     /* GANSSDiffCorrections */
-static int hf_rrlp_ganssNavigationModel = -1;     /* GANSSNavModel */
-static int hf_rrlp_ganssRealTimeIntegrity = -1;   /* GANSSRealTimeIntegrity */
-static int hf_rrlp_ganssDataBitAssist = -1;       /* GANSSDataBitAssist */
-static int hf_rrlp_ganssRefMeasurementAssist = -1;  /* GANSSRefMeasurementAssist */
-static int hf_rrlp_ganssAlmanacModel = -1;        /* GANSSAlmanacModel */
-static int hf_rrlp_ganssUTCModel = -1;            /* GANSSUTCModel */
-static int hf_rrlp_ganssEphemerisExtension = -1;  /* GANSSEphemerisExtension */
-static int hf_rrlp_ganssEphemerisExtCheck = -1;   /* GANSSEphemerisExtensionCheck */
-static int hf_rrlp_sbasID = -1;                   /* INTEGER_0_7 */
-static int hf_rrlp_ganssAddUTCModel = -1;         /* GANSSAddUTCModel */
-static int hf_rrlp_ganssAuxiliaryInfo = -1;       /* GANSSAuxiliaryInformation */
-static int hf_rrlp_ganssDiffCorrectionsValidityPeriod = -1;  /* GANSSDiffCorrectionsValidityPeriod */
-static int hf_rrlp_ganssTimeModel_R10_Ext = -1;   /* SeqOfGANSSTimeModel_R10_Ext */
-static int hf_rrlp_ganssRefMeasurementAssist_R10_Ext = -1;  /* GANSSRefMeasurementAssist_R10_Ext */
-static int hf_rrlp_ganssAlmanacModel_R10_Ext = -1;  /* GANSSAlmanacModel_R10_Ext */
-static int hf_rrlp_ganssRefTimeInfo = -1;         /* GANSSRefTimeInfo */
-static int hf_rrlp_ganssTOD_GSMTimeAssociation = -1;  /* GANSSTOD_GSMTimeAssociation */
-static int hf_rrlp_ganssDay = -1;                 /* INTEGER_0_8191 */
-static int hf_rrlp_ganssTOD = -1;                 /* GANSSTOD */
-static int hf_rrlp_ganssTODUncertainty = -1;      /* GANSSTODUncertainty */
-static int hf_rrlp_ganssTimeID = -1;              /* INTEGER_0_7 */
-static int hf_rrlp_ganssDayCycleNumber = -1;      /* INTEGER_0_7 */
-static int hf_rrlp_frameDrift = -1;               /* FrameDrift */
-static int hf_rrlp_ganssIonoModel = -1;           /* GANSSIonosphereModel */
-static int hf_rrlp_ganssIonoStormFlags = -1;      /* GANSSIonoStormFlags */
-static int hf_rrlp_ai0 = -1;                      /* INTEGER_0_4095 */
-static int hf_rrlp_ai1 = -1;                      /* INTEGER_0_4095 */
-static int hf_rrlp_ai2 = -1;                      /* INTEGER_0_4095 */
-static int hf_rrlp_ionoStormFlag1 = -1;           /* INTEGER_0_1 */
-static int hf_rrlp_ionoStormFlag2 = -1;           /* INTEGER_0_1 */
-static int hf_rrlp_ionoStormFlag3 = -1;           /* INTEGER_0_1 */
-static int hf_rrlp_ionoStormFlag4 = -1;           /* INTEGER_0_1 */
-static int hf_rrlp_ionoStormFlag5 = -1;           /* INTEGER_0_1 */
-static int hf_rrlp_dataID = -1;                   /* BIT_STRING_SIZE_2 */
-static int hf_rrlp_ionoModel = -1;                /* IonosphericModel */
-static int hf_rrlp_teop = -1;                     /* INTEGER_0_65535 */
-static int hf_rrlp_pmX = -1;                      /* INTEGER_M1048576_1048575 */
-static int hf_rrlp_pmXdot = -1;                   /* INTEGER_M16384_16383 */
-static int hf_rrlp_pmY = -1;                      /* INTEGER_M1048576_1048575 */
-static int hf_rrlp_pmYdot = -1;                   /* INTEGER_M16384_16383 */
-static int hf_rrlp_deltaUT1 = -1;                 /* INTEGER_M1073741824_1073741823 */
-static int hf_rrlp_deltaUT1dot = -1;              /* INTEGER_M262144_262143 */
-static int hf_rrlp_SeqOfGANSSTimeModel_item = -1;  /* GANSSTimeModelElement */
-static int hf_rrlp_ganssTimeModelRefTime = -1;    /* INTEGER_0_65535 */
-static int hf_rrlp_tA0 = -1;                      /* TA0 */
-static int hf_rrlp_tA1 = -1;                      /* TA1 */
-static int hf_rrlp_tA2 = -1;                      /* TA2 */
-static int hf_rrlp_gnssTOID = -1;                 /* INTEGER_0_7 */
-static int hf_rrlp_weekNumber = -1;               /* INTEGER_0_8191 */
-static int hf_rrlp_SeqOfGANSSTimeModel_R10_Ext_item = -1;  /* GANSSTimeModelElement_R10_Ext */
-static int hf_rrlp_deltaT = -1;                   /* INTEGER_M128_127 */
-static int hf_rrlp_dganssRefTime = -1;            /* INTEGER_0_119 */
-static int hf_rrlp_sgnTypeList = -1;              /* SeqOfSgnTypeElement */
-static int hf_rrlp_SeqOfSgnTypeElement_item = -1;  /* SgnTypeElement */
-static int hf_rrlp_ganssSignalID = -1;            /* GANSSSignalID */
-static int hf_rrlp_ganssStatusHealth = -1;        /* INTEGER_0_7 */
-static int hf_rrlp_dganssSgnList = -1;            /* SeqOfDGANSSSgnElement */
-static int hf_rrlp_SeqOfDGANSSSgnElement_item = -1;  /* DGANSSSgnElement */
-static int hf_rrlp_svID = -1;                     /* SVID */
-static int hf_rrlp_iod = -1;                      /* INTEGER_0_1023 */
-static int hf_rrlp_nonBroadcastIndFlag = -1;      /* INTEGER_0_1 */
-static int hf_rrlp_ganssSatelliteList = -1;       /* SeqOfGANSSSatelliteElement */
-static int hf_rrlp_SeqOfGANSSSatelliteElement_item = -1;  /* GANSSSatelliteElement */
-static int hf_rrlp_svHealth = -1;                 /* BIT_STRING_SIZE_5 */
-static int hf_rrlp_ganssClockModel = -1;          /* GANSSClockModel */
-static int hf_rrlp_ganssOrbitModel = -1;          /* GANSSOrbitModel */
-static int hf_rrlp_svHealthMSB = -1;              /* BIT_STRING_SIZE_1 */
-static int hf_rrlp_iodMSB = -1;                   /* INTEGER_0_1 */
-static int hf_rrlp_keplerianSet = -1;             /* NavModel_KeplerianSet */
-static int hf_rrlp_navKeplerianSet = -1;          /* NavModel_NAVKeplerianSet */
-static int hf_rrlp_cnavKeplerianSet = -1;         /* NavModel_CNAVKeplerianSet */
-static int hf_rrlp_glonassECEF = -1;              /* NavModel_GLONASSecef */
-static int hf_rrlp_sbasECEF = -1;                 /* NavModel_SBASecef */
-static int hf_rrlp_keplerToe = -1;                /* INTEGER_0_16383 */
-static int hf_rrlp_keplerW = -1;                  /* INTEGER_M2147483648_2147483647 */
-static int hf_rrlp_keplerDeltaN = -1;             /* INTEGER_M32768_32767 */
-static int hf_rrlp_keplerM0 = -1;                 /* INTEGER_M2147483648_2147483647 */
-static int hf_rrlp_keplerOmegaDot = -1;           /* INTEGER_M8388608_8388607 */
-static int hf_rrlp_keplerE = -1;                  /* INTEGER_0_4294967295 */
-static int hf_rrlp_keplerIDot = -1;               /* INTEGER_M8192_8191 */
-static int hf_rrlp_keplerAPowerHalf = -1;         /* INTEGER_0_4294967295 */
-static int hf_rrlp_keplerI0 = -1;                 /* INTEGER_M2147483648_2147483647 */
-static int hf_rrlp_keplerOmega0 = -1;             /* INTEGER_M2147483648_2147483647 */
-static int hf_rrlp_keplerCrs = -1;                /* INTEGER_M32768_32767 */
-static int hf_rrlp_keplerCis = -1;                /* INTEGER_M32768_32767 */
-static int hf_rrlp_keplerCus = -1;                /* INTEGER_M32768_32767 */
-static int hf_rrlp_keplerCrc = -1;                /* INTEGER_M32768_32767 */
-static int hf_rrlp_keplerCic = -1;                /* INTEGER_M32768_32767 */
-static int hf_rrlp_keplerCuc = -1;                /* INTEGER_M32768_32767 */
-static int hf_rrlp_navURA = -1;                   /* INTEGER_0_15 */
-static int hf_rrlp_navFitFlag = -1;               /* INTEGER_0_1 */
-static int hf_rrlp_navToe = -1;                   /* INTEGER_0_37799 */
-static int hf_rrlp_navOmega = -1;                 /* INTEGER_M2147483648_2147483647 */
-static int hf_rrlp_navDeltaN = -1;                /* INTEGER_M32768_32767 */
-static int hf_rrlp_navM0 = -1;                    /* INTEGER_M2147483648_2147483647 */
-static int hf_rrlp_navOmegaADot = -1;             /* INTEGER_M8388608_8388607 */
-static int hf_rrlp_navE = -1;                     /* INTEGER_0_4294967295 */
-static int hf_rrlp_navIDot = -1;                  /* INTEGER_M8192_8191 */
-static int hf_rrlp_navAPowerHalf = -1;            /* INTEGER_0_4294967295 */
-static int hf_rrlp_navI0 = -1;                    /* INTEGER_M2147483648_2147483647 */
-static int hf_rrlp_navOmegaA0 = -1;               /* INTEGER_M2147483648_2147483647 */
-static int hf_rrlp_navCrs = -1;                   /* INTEGER_M32768_32767 */
-static int hf_rrlp_navCis = -1;                   /* INTEGER_M32768_32767 */
-static int hf_rrlp_navCus = -1;                   /* INTEGER_M32768_32767 */
-static int hf_rrlp_navCrc = -1;                   /* INTEGER_M32768_32767 */
-static int hf_rrlp_navCic = -1;                   /* INTEGER_M32768_32767 */
-static int hf_rrlp_navCuc = -1;                   /* INTEGER_M32768_32767 */
-static int hf_rrlp_cnavTop = -1;                  /* INTEGER_0_2015 */
-static int hf_rrlp_cnavURAindex = -1;             /* INTEGER_M16_15 */
-static int hf_rrlp_cnavDeltaA = -1;               /* INTEGER_M33554432_33554431 */
-static int hf_rrlp_cnavAdot = -1;                 /* INTEGER_M16777216_16777215 */
-static int hf_rrlp_cnavDeltaNo = -1;              /* INTEGER_M65536_65535 */
-static int hf_rrlp_cnavDeltaNoDot = -1;           /* INTEGER_M4194304_4194303 */
-static int hf_rrlp_cnavMo = -1;                   /* INTEGER_M4294967296_4294967295 */
-static int hf_rrlp_cnavE = -1;                    /* INTEGER_0_8589934591 */
-static int hf_rrlp_cnavOmega = -1;                /* INTEGER_M4294967296_4294967295 */
-static int hf_rrlp_cnavOMEGA0 = -1;               /* INTEGER_M4294967296_4294967295 */
-static int hf_rrlp_cnavDeltaOmegaDot = -1;        /* INTEGER_M65536_65535 */
-static int hf_rrlp_cnavIo = -1;                   /* INTEGER_M4294967296_4294967295 */
-static int hf_rrlp_cnavIoDot = -1;                /* INTEGER_M16384_16383 */
-static int hf_rrlp_cnavCis = -1;                  /* INTEGER_M32768_32767 */
-static int hf_rrlp_cnavCic = -1;                  /* INTEGER_M32768_32767 */
-static int hf_rrlp_cnavCrs = -1;                  /* INTEGER_M8388608_8388607 */
-static int hf_rrlp_cnavCrc = -1;                  /* INTEGER_M8388608_8388607 */
-static int hf_rrlp_cnavCus = -1;                  /* INTEGER_M1048576_1048575 */
-static int hf_rrlp_cnavCuc = -1;                  /* INTEGER_M1048576_1048575 */
-static int hf_rrlp_gloEn = -1;                    /* INTEGER_0_31 */
-static int hf_rrlp_gloP1 = -1;                    /* BIT_STRING_SIZE_2 */
-static int hf_rrlp_gloP2 = -1;                    /* BOOLEAN */
-static int hf_rrlp_gloM = -1;                     /* INTEGER_0_3 */
-static int hf_rrlp_gloX = -1;                     /* INTEGER_M67108864_67108863 */
-static int hf_rrlp_gloXdot = -1;                  /* INTEGER_M8388608_8388607 */
-static int hf_rrlp_gloXdotdot = -1;               /* INTEGER_M16_15 */
-static int hf_rrlp_gloY = -1;                     /* INTEGER_M67108864_67108863 */
-static int hf_rrlp_gloYdot = -1;                  /* INTEGER_M8388608_8388607 */
-static int hf_rrlp_gloYdotdot = -1;               /* INTEGER_M16_15 */
-static int hf_rrlp_gloZ = -1;                     /* INTEGER_M67108864_67108863 */
-static int hf_rrlp_gloZdot = -1;                  /* INTEGER_M8388608_8388607 */
-static int hf_rrlp_gloZdotdot = -1;               /* INTEGER_M16_15 */
-static int hf_rrlp_sbasTo = -1;                   /* INTEGER_0_5399 */
-static int hf_rrlp_sbasAccuracy = -1;             /* BIT_STRING_SIZE_4 */
-static int hf_rrlp_sbasXg = -1;                   /* INTEGER_M536870912_536870911 */
-static int hf_rrlp_sbasYg = -1;                   /* INTEGER_M536870912_536870911 */
-static int hf_rrlp_sbasZg = -1;                   /* INTEGER_M16777216_16777215 */
-static int hf_rrlp_sbasXgDot = -1;                /* INTEGER_M65536_65535 */
-static int hf_rrlp_sbasYgDot = -1;                /* INTEGER_M65536_65535 */
-static int hf_rrlp_sbasZgDot = -1;                /* INTEGER_M131072_131071 */
-static int hf_rrlp_sbasXgDotDot = -1;             /* INTEGER_M512_511 */
-static int hf_rrlp_sbagYgDotDot = -1;             /* INTEGER_M512_511 */
-static int hf_rrlp_sbasZgDotDot = -1;             /* INTEGER_M512_511 */
-static int hf_rrlp_standardClockModelList = -1;   /* SeqOfStandardClockModelElement */
-static int hf_rrlp_navClockModel = -1;            /* NAVclockModel */
-static int hf_rrlp_cnavClockModel = -1;           /* CNAVclockModel */
-static int hf_rrlp_glonassClockModel = -1;        /* GLONASSclockModel */
-static int hf_rrlp_sbasClockModel = -1;           /* SBASclockModel */
-static int hf_rrlp_SeqOfStandardClockModelElement_item = -1;  /* StandardClockModelElement */
-static int hf_rrlp_stanClockToc = -1;             /* INTEGER_0_16383 */
-static int hf_rrlp_stanClockAF2 = -1;             /* INTEGER_M2048_2047 */
-static int hf_rrlp_stanClockAF1 = -1;             /* INTEGER_M131072_131071 */
-static int hf_rrlp_stanClockAF0 = -1;             /* INTEGER_M134217728_134217727 */
-static int hf_rrlp_stanClockTgd = -1;             /* INTEGER_M512_511 */
-static int hf_rrlp_stanModelID = -1;              /* INTEGER_0_1 */
-static int hf_rrlp_navToc = -1;                   /* INTEGER_0_37799 */
-static int hf_rrlp_navaf2 = -1;                   /* INTEGER_M128_127 */
-static int hf_rrlp_navaf1 = -1;                   /* INTEGER_M32768_32767 */
-static int hf_rrlp_navaf0 = -1;                   /* INTEGER_M2097152_2097151 */
-static int hf_rrlp_navTgd = -1;                   /* INTEGER_M128_127 */
-static int hf_rrlp_cnavToc = -1;                  /* INTEGER_0_2015 */
-static int hf_rrlp_cnavURA0 = -1;                 /* INTEGER_M16_15 */
-static int hf_rrlp_cnavURA1 = -1;                 /* INTEGER_0_7 */
-static int hf_rrlp_cnavURA2 = -1;                 /* INTEGER_0_7 */
-static int hf_rrlp_cnavAf2 = -1;                  /* INTEGER_M512_511 */
-static int hf_rrlp_cnavAf1 = -1;                  /* INTEGER_M524288_524287 */
-static int hf_rrlp_cnavAf0 = -1;                  /* INTEGER_M33554432_33554431 */
-static int hf_rrlp_cnavTgd = -1;                  /* INTEGER_M4096_4095 */
-static int hf_rrlp_cnavISCl1cp = -1;              /* INTEGER_M4096_4095 */
-static int hf_rrlp_cnavISCl1cd = -1;              /* INTEGER_M4096_4095 */
-static int hf_rrlp_cnavISCl1ca = -1;              /* INTEGER_M4096_4095 */
-static int hf_rrlp_cnavISCl2c = -1;               /* INTEGER_M4096_4095 */
-static int hf_rrlp_cnavISCl5i5 = -1;              /* INTEGER_M4096_4095 */
-static int hf_rrlp_cnavISCl5q5 = -1;              /* INTEGER_M4096_4095 */
-static int hf_rrlp_gloTau = -1;                   /* INTEGER_M2097152_2097151 */
-static int hf_rrlp_gloGamma = -1;                 /* INTEGER_M1024_1023 */
-static int hf_rrlp_gloDeltaTau = -1;              /* INTEGER_M16_15 */
-static int hf_rrlp_sbasAgfo = -1;                 /* INTEGER_M2048_2047 */
-static int hf_rrlp_sbasAgf1 = -1;                 /* INTEGER_M128_127 */
-static int hf_rrlp_ganssBadSignalList = -1;       /* SeqOfBadSignalElement */
-static int hf_rrlp_SeqOfBadSignalElement_item = -1;  /* BadSignalElement */
-static int hf_rrlp_badSVID = -1;                  /* SVID */
-static int hf_rrlp_badSignalID = -1;              /* GANSSSignals */
-static int hf_rrlp_ganssTOD_01 = -1;              /* INTEGER_0_59 */
-static int hf_rrlp_ganssDataBitsSatList = -1;     /* SeqOfGanssDataBitsElement */
-static int hf_rrlp_SeqOfGanssDataBitsElement_item = -1;  /* GanssDataBitsElement */
-static int hf_rrlp_ganssDataBitsSgnList = -1;     /* Seq_OfGANSSDataBitsSgn */
-static int hf_rrlp_Seq_OfGANSSDataBitsSgn_item = -1;  /* GANSSDataBitsSgnElement */
-static int hf_rrlp_ganssSignalType = -1;          /* GANSSSignalID */
-static int hf_rrlp_ganssDataBits = -1;            /* SeqOf_GANSSDataBits */
-static int hf_rrlp_SeqOf_GANSSDataBits_item = -1;  /* GANSSDataBit */
-static int hf_rrlp_ganssRefMeasAssistList = -1;   /* SeqOfGANSSRefMeasurementElement */
-static int hf_rrlp_SeqOfGANSSRefMeasurementElement_item = -1;  /* GANSSRefMeasurementElement */
-static int hf_rrlp_additionalDoppler = -1;        /* AdditionalDopplerFields */
-static int hf_rrlp_intCodePhase_01 = -1;          /* INTEGER_0_127 */
-static int hf_rrlp_codePhaseSearchWindow_01 = -1;  /* INTEGER_0_31 */
-static int hf_rrlp_additionalAngle = -1;          /* AddionalAngleFields */
-static int hf_rrlp_dopplerUncertainty_01 = -1;    /* INTEGER_0_4 */
-static int hf_rrlp_GANSSRefMeasurementAssist_R10_Ext_item = -1;  /* GANSSRefMeasurement_R10_Ext_Element */
-static int hf_rrlp_azimuthLSB = -1;               /* INTEGER_0_15 */
-static int hf_rrlp_elevationLSB = -1;             /* INTEGER_0_15 */
-static int hf_rrlp_weekNumber_01 = -1;            /* INTEGER_0_255 */
-static int hf_rrlp_toa = -1;                      /* INTEGER_0_255 */
-static int hf_rrlp_ioda = -1;                     /* INTEGER_0_3 */
-static int hf_rrlp_ganssAlmanacList = -1;         /* SeqOfGANSSAlmanacElement */
-static int hf_rrlp_SeqOfGANSSAlmanacElement_item = -1;  /* GANSSAlmanacElement */
-static int hf_rrlp_keplerianAlmanacSet = -1;      /* Almanac_KeplerianSet */
-static int hf_rrlp_keplerianNAVAlmanac = -1;      /* Almanac_NAVKeplerianSet */
-static int hf_rrlp_keplerianReducedAlmanac = -1;  /* Almanac_ReducedKeplerianSet */
-static int hf_rrlp_keplerianMidiAlmanac = -1;     /* Almanac_MidiAlmanacSet */
-static int hf_rrlp_keplerianGLONASS = -1;         /* Almanac_GlonassAlmanacSet */
-static int hf_rrlp_ecefSBASAlmanac = -1;          /* Almanac_ECEFsbasAlmanacSet */
-static int hf_rrlp_kepAlmanacE = -1;              /* INTEGER_0_2047 */
-static int hf_rrlp_kepAlmanacDeltaI = -1;         /* INTEGER_M1024_1023 */
-static int hf_rrlp_kepAlmanacOmegaDot = -1;       /* INTEGER_M1024_1023 */
-static int hf_rrlp_kepSVHealth = -1;              /* INTEGER_0_15 */
-static int hf_rrlp_kepAlmanacAPowerHalf = -1;     /* INTEGER_M65536_65535 */
-static int hf_rrlp_kepAlmanacOmega0 = -1;         /* INTEGER_M32768_32767 */
-static int hf_rrlp_kepAlmanacW = -1;              /* INTEGER_M32768_32767 */
-static int hf_rrlp_kepAlmanacM0 = -1;             /* INTEGER_M32768_32767 */
-static int hf_rrlp_kepAlmanacAF0 = -1;            /* INTEGER_M8192_8191 */
-static int hf_rrlp_kepAlmanacAF1 = -1;            /* INTEGER_M1024_1023 */
-static int hf_rrlp_navAlmE = -1;                  /* INTEGER_0_65535 */
-static int hf_rrlp_navAlmDeltaI = -1;             /* INTEGER_M32768_32767 */
-static int hf_rrlp_navAlmOMEGADOT = -1;           /* INTEGER_M32768_32767 */
-static int hf_rrlp_navAlmSVHealth = -1;           /* INTEGER_0_255 */
-static int hf_rrlp_navAlmSqrtA = -1;              /* INTEGER_0_16777215 */
-static int hf_rrlp_navAlmOMEGAo = -1;             /* INTEGER_M8388608_8388607 */
-static int hf_rrlp_navAlmOmega = -1;              /* INTEGER_M8388608_8388607 */
-static int hf_rrlp_navAlmMo = -1;                 /* INTEGER_M8388608_8388607 */
-static int hf_rrlp_navAlmaf0 = -1;                /* INTEGER_M1024_1023 */
-static int hf_rrlp_navAlmaf1 = -1;                /* INTEGER_M1024_1023 */
-static int hf_rrlp_redAlmDeltaA = -1;             /* INTEGER_M128_127 */
-static int hf_rrlp_redAlmOmega0 = -1;             /* INTEGER_M64_63 */
-static int hf_rrlp_redAlmPhi0 = -1;               /* INTEGER_M64_63 */
-static int hf_rrlp_redAlmL1Health = -1;           /* BOOLEAN */
-static int hf_rrlp_redAlmL2Health = -1;           /* BOOLEAN */
-static int hf_rrlp_redAlmL5Health = -1;           /* BOOLEAN */
-static int hf_rrlp_midiAlmE = -1;                 /* INTEGER_0_2047 */
-static int hf_rrlp_midiAlmDeltaI = -1;            /* INTEGER_M1024_1023 */
-static int hf_rrlp_midiAlmOmegaDot = -1;          /* INTEGER_M1024_1023 */
-static int hf_rrlp_midiAlmSqrtA = -1;             /* INTEGER_0_131071 */
-static int hf_rrlp_midiAlmOmega0 = -1;            /* INTEGER_M32768_32767 */
-static int hf_rrlp_midiAlmOmega = -1;             /* INTEGER_M32768_32767 */
-static int hf_rrlp_midiAlmMo = -1;                /* INTEGER_M32768_32767 */
-static int hf_rrlp_midiAlmaf0 = -1;               /* INTEGER_M1024_1023 */
-static int hf_rrlp_midiAlmaf1 = -1;               /* INTEGER_M512_511 */
-static int hf_rrlp_midiAlmL1Health = -1;          /* BOOLEAN */
-static int hf_rrlp_midiAlmL2Health = -1;          /* BOOLEAN */
-static int hf_rrlp_midiAlmL5Health = -1;          /* BOOLEAN */
-static int hf_rrlp_gloAlmNA = -1;                 /* INTEGER_1_1461 */
-static int hf_rrlp_gloAlmnA = -1;                 /* INTEGER_1_24 */
-static int hf_rrlp_gloAlmHA = -1;                 /* INTEGER_0_31 */
-static int hf_rrlp_gloAlmLambdaA = -1;            /* INTEGER_M1048576_1048575 */
-static int hf_rrlp_gloAlmtlambdaA = -1;           /* INTEGER_0_2097151 */
-static int hf_rrlp_gloAlmDeltaIa = -1;            /* INTEGER_M131072_131071 */
-static int hf_rrlp_gloAlmDeltaTA = -1;            /* INTEGER_M2097152_2097151 */
-static int hf_rrlp_gloAlmDeltaTdotA = -1;         /* INTEGER_M64_63 */
-static int hf_rrlp_gloAlmEpsilonA = -1;           /* INTEGER_0_32767 */
-static int hf_rrlp_gloAlmOmegaA = -1;             /* INTEGER_M32768_32767 */
-static int hf_rrlp_gloAlmTauA = -1;               /* INTEGER_M512_511 */
-static int hf_rrlp_gloAlmCA = -1;                 /* INTEGER_0_1 */
-static int hf_rrlp_gloAlmMA = -1;                 /* BIT_STRING_SIZE_2 */
-static int hf_rrlp_sbasAlmDataID = -1;            /* INTEGER_0_3 */
-static int hf_rrlp_sbasAlmHealth = -1;            /* BIT_STRING_SIZE_8 */
-static int hf_rrlp_sbasAlmXg = -1;                /* INTEGER_M16384_16383 */
-static int hf_rrlp_sbasAlmYg = -1;                /* INTEGER_M16384_16383 */
-static int hf_rrlp_sbasAlmZg = -1;                /* INTEGER_M256_255 */
-static int hf_rrlp_sbasAlmXgdot = -1;             /* INTEGER_M4_3 */
-static int hf_rrlp_sbasAlmYgDot = -1;             /* INTEGER_M4_3 */
-static int hf_rrlp_sbasAlmZgDot = -1;             /* INTEGER_M8_7 */
-static int hf_rrlp_sbasAlmTo = -1;                /* INTEGER_0_2047 */
-static int hf_rrlp_completeAlmanacProvided = -1;  /* BOOLEAN */
-static int hf_rrlp_ganssUtcA1 = -1;               /* INTEGER_M8388608_8388607 */
-static int hf_rrlp_ganssUtcA0 = -1;               /* INTEGER_M2147483648_2147483647 */
-static int hf_rrlp_ganssUtcTot = -1;              /* INTEGER_0_255 */
-static int hf_rrlp_ganssUtcWNt = -1;              /* INTEGER_0_255 */
-static int hf_rrlp_ganssUtcDeltaTls = -1;         /* INTEGER_M128_127 */
-static int hf_rrlp_ganssUtcWNlsf = -1;            /* INTEGER_0_255 */
-static int hf_rrlp_ganssUtcDN = -1;               /* INTEGER_M128_127 */
-static int hf_rrlp_ganssUtcDeltaTlsf = -1;        /* INTEGER_M128_127 */
-static int hf_rrlp_ganssEphemerisHeader = -1;     /* GANSSEphemerisExtensionHeader */
-static int hf_rrlp_ganssReferenceSet = -1;        /* SeqOfGANSSRefOrbit */
-static int hf_rrlp_ganssephemerisDeltasMatrix = -1;  /* GANSSEphemerisDeltaMatrix */
-static int hf_rrlp_timeAtEstimation = -1;         /* GANSSEphemerisExtensionTime */
-static int hf_rrlp_validityPeriod = -1;           /* INTEGER_1_8 */
-static int hf_rrlp_ephemerisExtensionDuration = -1;  /* INTEGER_1_512 */
-static int hf_rrlp_ganssEphExtDay = -1;           /* INTEGER_0_8191 */
-static int hf_rrlp_ganssEphExtTOD = -1;           /* GANSSTOD */
-static int hf_rrlp_keplerToe_01 = -1;             /* INTEGER_0_37799 */
-static int hf_rrlp_SeqOfGANSSRefOrbit_item = -1;  /* GANSSReferenceOrbit */
-static int hf_rrlp_ganssOrbitModel_01 = -1;       /* ReferenceNavModel */
-static int hf_rrlp_GANSSEphemerisDeltaMatrix_item = -1;  /* GANSSEphemerisDeltaEpoch */
-static int hf_rrlp_ganssDeltaEpochHeader = -1;    /* GANSSDeltaEpochHeader */
-static int hf_rrlp_ganssDeltaElementList = -1;    /* GANSSDeltaElementList */
-static int hf_rrlp_ephemerisDeltaSizes = -1;      /* GANSSEphemerisDeltaBitSizes */
-static int hf_rrlp_ephemerisDeltaScales = -1;     /* GANSSEphemerisDeltaScales */
-static int hf_rrlp_GANSSDeltaElementList_item = -1;  /* OCTET_STRING_SIZE_1_49 */
-static int hf_rrlp_bitsize_delta_omega = -1;      /* INTEGER_1_32 */
-static int hf_rrlp_bitsize_delta_deltaN = -1;     /* INTEGER_1_16 */
-static int hf_rrlp_bitsize_delta_m0 = -1;         /* INTEGER_1_32 */
-static int hf_rrlp_bitsize_delta_omegadot = -1;   /* INTEGER_1_24 */
-static int hf_rrlp_bitsize_delta_e = -1;          /* INTEGER_1_32 */
-static int hf_rrlp_bitsize_delta_idot = -1;       /* INTEGER_1_14 */
-static int hf_rrlp_bitsize_delta_sqrtA = -1;      /* INTEGER_1_32 */
-static int hf_rrlp_bitsize_delta_i0 = -1;         /* INTEGER_1_32 */
-static int hf_rrlp_bitsize_delta_omega0 = -1;     /* INTEGER_1_32 */
-static int hf_rrlp_bitsize_delta_crs = -1;        /* INTEGER_1_16 */
-static int hf_rrlp_bitsize_delta_cis = -1;        /* INTEGER_1_16 */
-static int hf_rrlp_bitsize_delta_cus = -1;        /* INTEGER_1_16 */
-static int hf_rrlp_bitsize_delta_crc = -1;        /* INTEGER_1_16 */
-static int hf_rrlp_bitsize_delta_cic = -1;        /* INTEGER_1_16 */
-static int hf_rrlp_bitsize_delta_cuc = -1;        /* INTEGER_1_16 */
-static int hf_rrlp_bitsize_delta_tgd1 = -1;       /* INTEGER_1_10 */
-static int hf_rrlp_bitsize_delta_tgd2 = -1;       /* INTEGER_1_10 */
-static int hf_rrlp_scale_delta_omega = -1;        /* INTEGER_M16_15 */
-static int hf_rrlp_scale_delta_deltaN = -1;       /* INTEGER_M16_15 */
-static int hf_rrlp_scale_delta_m0 = -1;           /* INTEGER_M16_15 */
-static int hf_rrlp_scale_delta_omegadot = -1;     /* INTEGER_M16_15 */
-static int hf_rrlp_scale_delta_e = -1;            /* INTEGER_M16_15 */
-static int hf_rrlp_scale_delta_idot = -1;         /* INTEGER_M16_15 */
-static int hf_rrlp_scale_delta_sqrtA = -1;        /* INTEGER_M16_15 */
-static int hf_rrlp_scale_delta_i0 = -1;           /* INTEGER_M16_15 */
-static int hf_rrlp_scale_delta_omega0 = -1;       /* INTEGER_M16_15 */
-static int hf_rrlp_scale_delta_crs = -1;          /* INTEGER_M16_15 */
-static int hf_rrlp_scale_delta_cis = -1;          /* INTEGER_M16_15 */
-static int hf_rrlp_scale_delta_cus = -1;          /* INTEGER_M16_15 */
-static int hf_rrlp_scale_delta_crc = -1;          /* INTEGER_M16_15 */
-static int hf_rrlp_scale_delta_cic = -1;          /* INTEGER_M16_15 */
-static int hf_rrlp_scale_delta_cuc = -1;          /* INTEGER_M16_15 */
-static int hf_rrlp_scale_delta_tgd1 = -1;         /* INTEGER_M16_15 */
-static int hf_rrlp_scale_delta_tgd2 = -1;         /* INTEGER_M16_15 */
-static int hf_rrlp_ganssBeginTime = -1;           /* GANSSEphemerisExtensionTime */
-static int hf_rrlp_ganssEndTime = -1;             /* GANSSEphemerisExtensionTime */
-static int hf_rrlp_ganssSatEventsInfo = -1;       /* GANSSSatEventsInfo */
-static int hf_rrlp_eventOccured = -1;             /* BIT_STRING_SIZE_64 */
-static int hf_rrlp_futureEventNoted = -1;         /* BIT_STRING_SIZE_64 */
-static int hf_rrlp_utcModel2 = -1;                /* UTCmodelSet2 */
-static int hf_rrlp_utcModel3 = -1;                /* UTCmodelSet3 */
-static int hf_rrlp_utcModel4 = -1;                /* UTCmodelSet4 */
-static int hf_rrlp_utcA0_01 = -1;                 /* INTEGER_M32768_32767 */
-static int hf_rrlp_utcA1_01 = -1;                 /* INTEGER_M4096_4095 */
-static int hf_rrlp_utcA2 = -1;                    /* INTEGER_M64_63 */
-static int hf_rrlp_utcTot_01 = -1;                /* INTEGER_0_65535 */
-static int hf_rrlp_utcWNot = -1;                  /* INTEGER_0_8191 */
-static int hf_rrlp_utcDN_01 = -1;                 /* BIT_STRING_SIZE_4 */
-static int hf_rrlp_nA = -1;                       /* INTEGER_1_1461 */
-static int hf_rrlp_tauC = -1;                     /* INTEGER_M2147483648_2147483647 */
-static int hf_rrlp_b1 = -1;                       /* INTEGER_M1024_1023 */
-static int hf_rrlp_b2 = -1;                       /* INTEGER_M512_511 */
-static int hf_rrlp_kp = -1;                       /* BIT_STRING_SIZE_2 */
-static int hf_rrlp_utcA1wnt = -1;                 /* INTEGER_M8388608_8388607 */
-static int hf_rrlp_utcA0wnt = -1;                 /* INTEGER_M2147483648_2147483647 */
-static int hf_rrlp_utcStandardID = -1;            /* INTEGER_0_7 */
-static int hf_rrlp_ganssID1 = -1;                 /* GANSS_ID1 */
-static int hf_rrlp_ganssID3 = -1;                 /* GANSS_ID3 */
-static int hf_rrlp_GANSS_ID1_item = -1;           /* GANSS_ID1_element */
-static int hf_rrlp_signalsAvailable = -1;         /* GANSSSignals */
-static int hf_rrlp_GANSS_ID3_item = -1;           /* GANSS_ID3_element */
-static int hf_rrlp_channelNumber = -1;            /* INTEGER_M7_13 */
-static int hf_rrlp_GANSSDiffCorrectionsValidityPeriod_item = -1;  /* DGANSSExtensionSgnTypeElement */
-static int hf_rrlp_dganssExtensionSgnList = -1;   /* SeqOfDGANSSExtensionSgnElement */
-static int hf_rrlp_SeqOfDGANSSExtensionSgnElement_item = -1;  /* DGANSSExtensionSgnElement */
-static int hf_rrlp_udreGrowthRate = -1;           /* INTEGER_0_7 */
-static int hf_rrlp_udreValidityTime = -1;         /* INTEGER_0_7 */
-static int hf_rrlp_add_GPS_controlHeader = -1;    /* Add_GPS_ControlHeader */
-static int hf_rrlp_gpsEphemerisExtension = -1;    /* GPSEphemerisExtension */
-static int hf_rrlp_gpsEphemerisExtensionCheck = -1;  /* GPSEphemerisExtensionCheck */
-static int hf_rrlp_dgpsCorrectionsValidityPeriod = -1;  /* DGPSCorrectionsValidityPeriod */
-static int hf_rrlp_gpsReferenceTime_R10_Ext = -1;  /* GPSReferenceTime_R10_Ext */
-static int hf_rrlp_gpsAcquisAssist_R10_Ext = -1;  /* GPSAcquisAssist_R10_Ext */
-static int hf_rrlp_gpsAlmanac_R10_Ext = -1;       /* GPSAlmanac_R10_Ext */
-static int hf_rrlp_af2 = -1;                      /* INTEGER_M128_127 */
-static int hf_rrlp_af1 = -1;                      /* INTEGER_M32768_32767 */
-static int hf_rrlp_af0 = -1;                      /* INTEGER_M2097152_2097151 */
-static int hf_rrlp_tgd = -1;                      /* INTEGER_M128_127 */
-static int hf_rrlp_gpsEphemerisHeader = -1;       /* GPSEphemerisExtensionHeader */
-static int hf_rrlp_gpsReferenceSet = -1;          /* SeqOfGPSRefOrbit */
-static int hf_rrlp_gpsephemerisDeltaMatrix = -1;  /* GPSEphemerisDeltaMatrix */
-static int hf_rrlp_timeofEstimation = -1;         /* GPSEphemerisExtensionTime */
-static int hf_rrlp_SeqOfGPSRefOrbit_item = -1;    /* GPSReferenceOrbit */
-static int hf_rrlp_gpsOrbitModel = -1;            /* ReferenceNavModel */
-static int hf_rrlp_gpsClockModel = -1;            /* GPSClockModel */
-static int hf_rrlp_GPSEphemerisDeltaMatrix_item = -1;  /* GPSEphemerisDeltaEpoch */
-static int hf_rrlp_gpsDeltaEpochHeader = -1;      /* GPSDeltaEpochHeader */
-static int hf_rrlp_gpsDeltaElementList = -1;      /* GPSDeltaElementList */
-static int hf_rrlp_ephemerisDeltaSizes_01 = -1;   /* GPSEphemerisDeltaBitSizes */
-static int hf_rrlp_ephemerisDeltaScales_01 = -1;  /* GPSEphemerisDeltaScales */
-static int hf_rrlp_GPSDeltaElementList_item = -1;  /* OCTET_STRING_SIZE_1_47 */
-static int hf_rrlp_bitsize_delta_tgd = -1;        /* INTEGER_1_10 */
-static int hf_rrlp_scale_delta_tgd = -1;          /* INTEGER_M16_15 */
-static int hf_rrlp_gpsBeginTime = -1;             /* GPSEphemerisExtensionTime */
-static int hf_rrlp_gpsEndTime = -1;               /* GPSEphemerisExtensionTime */
-static int hf_rrlp_gpsSatEventsInfo = -1;         /* GPSSatEventsInfo */
-static int hf_rrlp_eventOccured_01 = -1;          /* BIT_STRING_SIZE_32 */
-static int hf_rrlp_futureEventNoted_01 = -1;      /* BIT_STRING_SIZE_32 */
-static int hf_rrlp_DGPSCorrectionsValidityPeriod_item = -1;  /* DGPSExtensionSatElement */
-static int hf_rrlp_gpsWeekCycleNumber = -1;       /* INTEGER_0_7 */
-static int hf_rrlp_GPSAcquisAssist_R10_Ext_item = -1;  /* GPSAcquisAssist_R10_Ext_Element */
-static int hf_rrlp_velEstimate = -1;              /* VelocityEstimate */
-static int hf_rrlp_ganssLocationInfo = -1;        /* GANSSLocationInfo */
-static int hf_rrlp_ganssMeasureInfo = -1;         /* GANSSMeasureInfo */
-static int hf_rrlp_referenceFrame = -1;           /* ReferenceFrame */
-static int hf_rrlp_ganssTODm = -1;                /* GANSSTODm */
-static int hf_rrlp_ganssTODFrac = -1;             /* INTEGER_0_16384 */
-static int hf_rrlp_posData = -1;                  /* PositionData */
-static int hf_rrlp_stationaryIndication = -1;     /* INTEGER_0_1 */
-static int hf_rrlp_referenceFN = -1;              /* INTEGER_0_65535 */
-static int hf_rrlp_referenceFNMSB = -1;           /* INTEGER_0_63 */
-static int hf_rrlp_ganssMsrSetList = -1;          /* SeqOfGANSS_MsrSetElement */
-static int hf_rrlp_SeqOfGANSS_MsrSetElement_item = -1;  /* GANSS_MsrSetElement */
-static int hf_rrlp_deltaGANSSTOD = -1;            /* INTEGER_0_127 */
-static int hf_rrlp_ganss_MsrElementList = -1;     /* SeqOfGANSS_MsrElement */
-static int hf_rrlp_SeqOfGANSS_MsrElement_item = -1;  /* GANSS_MsrElement */
-static int hf_rrlp_ganss_SgnTypeList = -1;        /* SeqOfGANSS_SgnTypeElement */
-static int hf_rrlp_SeqOfGANSS_SgnTypeElement_item = -1;  /* GANSS_SgnTypeElement */
-static int hf_rrlp_ganssCodePhaseAmbiguity = -1;  /* INTEGER_0_127 */
-static int hf_rrlp_ganss_SgnList = -1;            /* SeqOfGANSS_SgnElement */
-static int hf_rrlp_SeqOfGANSS_SgnElement_item = -1;  /* GANSS_SgnElement */
-static int hf_rrlp_mpathDet = -1;                 /* MpathIndic */
-static int hf_rrlp_carrierQualityInd = -1;        /* INTEGER_0_3 */
-static int hf_rrlp_codePhase_01 = -1;             /* INTEGER_0_2097151 */
-static int hf_rrlp_integerCodePhase = -1;         /* INTEGER_0_127 */
-static int hf_rrlp_codePhaseRMSError = -1;        /* INTEGER_0_63 */
-static int hf_rrlp_adr = -1;                      /* INTEGER_0_33554431 */
-static int hf_rrlp_nonGANSSpositionMethods = -1;  /* NonGANSSPositionMethods */
-static int hf_rrlp_multipleMeasurementSets = -1;  /* MultipleMeasurementSets */
-static int hf_rrlp_GANSSPositionMethods_item = -1;  /* GANSSPositionMethod */
-static int hf_rrlp_gANSSPositioningMethodTypes = -1;  /* GANSSPositioningMethodTypes */
-static int hf_rrlp_gANSSSignals = -1;             /* GANSSSignals */
-static int hf_rrlp_sbasID_01 = -1;                /* SBASID */
-static int hf_rrlp_gpsAssistance = -1;            /* GPSAssistance */
-static int hf_rrlp_gANSSAssistanceSet = -1;       /* GANSSAssistanceSet */
-static int hf_rrlp_gANSSAdditionalAssistanceChoices = -1;  /* GANSSAdditionalAssistanceChoices */
-static int hf_rrlp_commonGANSSAssistance = -1;    /* CommonGANSSAssistance */
-static int hf_rrlp_specificGANSSAssistance = -1;  /* SpecificGANSSAssistance */
-static int hf_rrlp_SpecificGANSSAssistance_item = -1;  /* GANSSAssistanceForOneGANSS */
-static int hf_rrlp_gANSSAssistance = -1;          /* GANSSAssistance */
-static int hf_rrlp_GANSSAdditionalAssistanceChoices_item = -1;  /* GANSSAdditionalAssistanceChoicesForOneGANSS */
-static int hf_rrlp_ganssClockModelChoice = -1;    /* GANSSModelID */
-static int hf_rrlp_gannsOrbitModelChoice = -1;    /* GANSSModelID */
-static int hf_rrlp_ganssAlmanacModelChoice = -1;  /* GANSSModelID */
-static int hf_rrlp_ganssAdditionalUTCModelChoice = -1;  /* GANSSModelID */
+static int hf_rrlp_PDU_PDU;                       /* PDU */
+static int hf_rrlp_privateExtensionList;          /* PrivateExtensionList */
+static int hf_rrlp_pcs_Extensions;                /* PCS_Extensions */
+static int hf_rrlp_PrivateExtensionList_item;     /* PrivateExtension */
+static int hf_rrlp_extId;                         /* OBJECT_IDENTIFIER */
+static int hf_rrlp_extType;                       /* T_extType */
+static int hf_rrlp_referenceNumber;               /* INTEGER_0_7 */
+static int hf_rrlp_component;                     /* RRLP_Component */
+static int hf_rrlp_msrPositionReq;                /* MsrPosition_Req */
+static int hf_rrlp_msrPositionRsp;                /* MsrPosition_Rsp */
+static int hf_rrlp_assistanceData;                /* AssistanceData */
+static int hf_rrlp_assistanceDataAck;             /* NULL */
+static int hf_rrlp_protocolError;                 /* ProtocolError */
+static int hf_rrlp_posCapabilityReq;              /* PosCapability_Req */
+static int hf_rrlp_posCapabilityRsp;              /* PosCapability_Rsp */
+static int hf_rrlp_positionInstruct;              /* PositionInstruct */
+static int hf_rrlp_referenceAssistData;           /* ReferenceAssistData */
+static int hf_rrlp_msrAssistData;                 /* MsrAssistData */
+static int hf_rrlp_systemInfoAssistData;          /* SystemInfoAssistData */
+static int hf_rrlp_gps_AssistData;                /* GPS_AssistData */
+static int hf_rrlp_extensionContainer;            /* ExtensionContainer */
+static int hf_rrlp_rel98_MsrPosition_Req_extension;  /* Rel98_MsrPosition_Req_Extension */
+static int hf_rrlp_rel5_MsrPosition_Req_extension;  /* Rel5_MsrPosition_Req_Extension */
+static int hf_rrlp_rel7_MsrPosition_Req_extension;  /* Rel7_MsrPosition_Req_Extension */
+static int hf_rrlp_multipleSets;                  /* MultipleSets */
+static int hf_rrlp_referenceIdentity;             /* ReferenceIdentity */
+static int hf_rrlp_otd_MeasureInfo;               /* OTD_MeasureInfo */
+static int hf_rrlp_locationInfo;                  /* LocationInfo */
+static int hf_rrlp_gps_MeasureInfo;               /* GPS_MeasureInfo */
+static int hf_rrlp_locationError;                 /* LocationError */
+static int hf_rrlp_rel_98_MsrPosition_Rsp_Extension;  /* Rel_98_MsrPosition_Rsp_Extension */
+static int hf_rrlp_rel_5_MsrPosition_Rsp_Extension;  /* Rel_5_MsrPosition_Rsp_Extension */
+static int hf_rrlp_rel_7_MsrPosition_Rsp_Extension;  /* Rel_7_MsrPosition_Rsp_Extension */
+static int hf_rrlp_moreAssDataToBeSent;           /* MoreAssDataToBeSent */
+static int hf_rrlp_rel98_AssistanceData_Extension;  /* Rel98_AssistanceData_Extension */
+static int hf_rrlp_rel5_AssistanceData_Extension;  /* Rel5_AssistanceData_Extension */
+static int hf_rrlp_rel7_AssistanceData_Extension;  /* Rel7_AssistanceData_Extension */
+static int hf_rrlp_errorCause;                    /* ErrorCodes */
+static int hf_rrlp_rel_5_ProtocolError_Extension;  /* Rel_5_ProtocolError_Extension */
+static int hf_rrlp_extended_reference;            /* Extended_reference */
+static int hf_rrlp_gANSSPositionMethods;          /* GANSSPositionMethods */
+static int hf_rrlp_posCapabilities;               /* PosCapabilities */
+static int hf_rrlp_assistanceSupported;           /* AssistanceSupported */
+static int hf_rrlp_assistanceNeeded;              /* AssistanceNeeded */
+static int hf_rrlp_methodType;                    /* MethodType */
+static int hf_rrlp_positionMethod;                /* PositionMethod */
+static int hf_rrlp_measureResponseTime;           /* MeasureResponseTime */
+static int hf_rrlp_useMultipleSets;               /* UseMultipleSets */
+static int hf_rrlp_environmentCharacter;          /* EnvironmentCharacter */
+static int hf_rrlp_msAssisted;                    /* AccuracyOpt */
+static int hf_rrlp_msBased;                       /* Accuracy */
+static int hf_rrlp_msBasedPref;                   /* Accuracy */
+static int hf_rrlp_msAssistedPref;                /* Accuracy */
+static int hf_rrlp_accuracy;                      /* Accuracy */
+static int hf_rrlp_bcchCarrier;                   /* BCCHCarrier */
+static int hf_rrlp_bsic;                          /* BSIC */
+static int hf_rrlp_timeSlotScheme;                /* TimeSlotScheme */
+static int hf_rrlp_btsPosition;                   /* BTSPosition */
+static int hf_rrlp_msrAssistList;                 /* SeqOfMsrAssistBTS */
+static int hf_rrlp_SeqOfMsrAssistBTS_item;        /* MsrAssistBTS */
+static int hf_rrlp_multiFrameOffset;              /* MultiFrameOffset */
+static int hf_rrlp_roughRTD;                      /* RoughRTD */
+static int hf_rrlp_calcAssistanceBTS;             /* CalcAssistanceBTS */
+static int hf_rrlp_systemInfoAssistList;          /* SeqOfSystemInfoAssistBTS */
+static int hf_rrlp_SeqOfSystemInfoAssistBTS_item;  /* SystemInfoAssistBTS */
+static int hf_rrlp_notPresent;                    /* NULL */
+static int hf_rrlp_present;                       /* AssistBTSData */
+static int hf_rrlp_fineRTD;                       /* FineRTD */
+static int hf_rrlp_referenceWGS84;                /* ReferenceWGS84 */
+static int hf_rrlp_relativeNorth;                 /* RelDistance */
+static int hf_rrlp_relativeEast;                  /* RelDistance */
+static int hf_rrlp_relativeAlt;                   /* RelativeAlt */
+static int hf_rrlp_nbrOfSets;                     /* INTEGER_2_3 */
+static int hf_rrlp_nbrOfReferenceBTSs;            /* INTEGER_1_3 */
+static int hf_rrlp_referenceRelation;             /* ReferenceRelation */
+static int hf_rrlp_refBTSList;                    /* SeqOfReferenceIdentityType */
+static int hf_rrlp_SeqOfReferenceIdentityType_item;  /* ReferenceIdentityType */
+static int hf_rrlp_bsicAndCarrier;                /* BSICAndCarrier */
+static int hf_rrlp_ci;                            /* CellID */
+static int hf_rrlp_requestIndex;                  /* RequestIndex */
+static int hf_rrlp_systemInfoIndex;               /* SystemInfoIndex */
+static int hf_rrlp_ciAndLAC;                      /* CellIDAndLAC */
+static int hf_rrlp_carrier;                       /* BCCHCarrier */
+static int hf_rrlp_referenceLAC;                  /* LAC */
+static int hf_rrlp_referenceCI;                   /* CellID */
+static int hf_rrlp_otdMsrFirstSets;               /* OTD_MsrElementFirst */
+static int hf_rrlp_otdMsrRestSets;                /* SeqOfOTD_MsrElementRest */
+static int hf_rrlp_SeqOfOTD_MsrElementRest_item;  /* OTD_MsrElementRest */
+static int hf_rrlp_refFrameNumber;                /* INTEGER_0_42431 */
+static int hf_rrlp_referenceTimeSlot;             /* ModuloTimeSlot */
+static int hf_rrlp_toaMeasurementsOfRef;          /* TOA_MeasurementsOfRef */
+static int hf_rrlp_stdResolution;                 /* StdResolution */
+static int hf_rrlp_taCorrection;                  /* INTEGER_0_960 */
+static int hf_rrlp_otd_FirstSetMsrs;              /* SeqOfOTD_FirstSetMsrs */
+static int hf_rrlp_SeqOfOTD_FirstSetMsrs_item;    /* OTD_FirstSetMsrs */
+static int hf_rrlp_otd_MsrsOfOtherSets;           /* SeqOfOTD_MsrsOfOtherSets */
+static int hf_rrlp_SeqOfOTD_MsrsOfOtherSets_item;  /* OTD_MsrsOfOtherSets */
+static int hf_rrlp_refQuality;                    /* RefQuality */
+static int hf_rrlp_numOfMeasurements;             /* NumOfMeasurements */
+static int hf_rrlp_identityNotPresent;            /* OTD_Measurement */
+static int hf_rrlp_identityPresent;               /* OTD_MeasurementWithID */
+static int hf_rrlp_nborTimeSlot;                  /* ModuloTimeSlot */
+static int hf_rrlp_eotdQuality;                   /* EOTDQuality */
+static int hf_rrlp_otdValue;                      /* OTDValue */
+static int hf_rrlp_neighborIdentity;              /* NeighborIdentity */
+static int hf_rrlp_nbrOfMeasurements;             /* INTEGER_0_7 */
+static int hf_rrlp_stdOfEOTD;                     /* INTEGER_0_31 */
+static int hf_rrlp_multiFrameCarrier;             /* MultiFrameCarrier */
+static int hf_rrlp_refFrame;                      /* INTEGER_0_65535 */
+static int hf_rrlp_gpsTOW;                        /* INTEGER_0_14399999 */
+static int hf_rrlp_fixType;                       /* FixType */
+static int hf_rrlp_posEstimate;                   /* Ext_GeographicalInformation */
+static int hf_rrlp_gpsMsrSetList;                 /* SeqOfGPS_MsrSetElement */
+static int hf_rrlp_SeqOfGPS_MsrSetElement_item;   /* GPS_MsrSetElement */
+static int hf_rrlp_gpsTOW_01;                     /* GPSTOW24b */
+static int hf_rrlp_gps_msrList;                   /* SeqOfGPS_MsrElement */
+static int hf_rrlp_SeqOfGPS_MsrElement_item;      /* GPS_MsrElement */
+static int hf_rrlp_satelliteID;                   /* SatelliteID */
+static int hf_rrlp_cNo;                           /* INTEGER_0_63 */
+static int hf_rrlp_doppler;                       /* INTEGER_M32768_32767 */
+static int hf_rrlp_wholeChips;                    /* INTEGER_0_1022 */
+static int hf_rrlp_fracChips;                     /* INTEGER_0_1024 */
+static int hf_rrlp_mpathIndic;                    /* MpathIndic */
+static int hf_rrlp_pseuRangeRMSErr;               /* INTEGER_0_63 */
+static int hf_rrlp_locErrorReason;                /* LocErrorReason */
+static int hf_rrlp_additionalAssistanceData;      /* AdditionalAssistanceData */
+static int hf_rrlp_gpsAssistanceData;             /* GPSAssistanceData */
+static int hf_rrlp_ganssAssistanceData;           /* GANSSAssistanceData */
+static int hf_rrlp_controlHeader;                 /* ControlHeader */
+static int hf_rrlp_referenceTime;                 /* ReferenceTime */
+static int hf_rrlp_refLocation;                   /* RefLocation */
+static int hf_rrlp_dgpsCorrections;               /* DGPSCorrections */
+static int hf_rrlp_navigationModel;               /* NavigationModel */
+static int hf_rrlp_ionosphericModel;              /* IonosphericModel */
+static int hf_rrlp_utcModel;                      /* UTCModel */
+static int hf_rrlp_almanac;                       /* Almanac */
+static int hf_rrlp_acquisAssist;                  /* AcquisAssist */
+static int hf_rrlp_realTimeIntegrity;             /* SeqOf_BadSatelliteSet */
+static int hf_rrlp_gpsTime;                       /* GPSTime */
+static int hf_rrlp_gsmTime;                       /* GSMTime */
+static int hf_rrlp_gpsTowAssist;                  /* GPSTOWAssist */
+static int hf_rrlp_gpsTOW23b;                     /* GPSTOW23b */
+static int hf_rrlp_gpsWeek;                       /* GPSWeek */
+static int hf_rrlp_GPSTOWAssist_item;             /* GPSTOWAssistElement */
+static int hf_rrlp_tlmWord;                       /* TLMWord */
+static int hf_rrlp_antiSpoof;                     /* AntiSpoofFlag */
+static int hf_rrlp_alert;                         /* AlertFlag */
+static int hf_rrlp_tlmRsvdBits;                   /* TLMReservedBits */
+static int hf_rrlp_frameNumber;                   /* FrameNumber */
+static int hf_rrlp_timeSlot;                      /* TimeSlot */
+static int hf_rrlp_bitNumber;                     /* BitNumber */
+static int hf_rrlp_threeDLocation;                /* Ext_GeographicalInformation */
+static int hf_rrlp_gpsTOW_02;                     /* INTEGER_0_604799 */
+static int hf_rrlp_status;                        /* INTEGER_0_7 */
+static int hf_rrlp_satList;                       /* SeqOfSatElement */
+static int hf_rrlp_SeqOfSatElement_item;          /* SatElement */
+static int hf_rrlp_iode;                          /* INTEGER_0_239 */
+static int hf_rrlp_udre;                          /* INTEGER_0_3 */
+static int hf_rrlp_pseudoRangeCor;                /* INTEGER_M2047_2047 */
+static int hf_rrlp_rangeRateCor;                  /* INTEGER_M127_127 */
+static int hf_rrlp_deltaPseudoRangeCor2;          /* INTEGER_M127_127 */
+static int hf_rrlp_deltaRangeRateCor2;            /* INTEGER_M7_7 */
+static int hf_rrlp_deltaPseudoRangeCor3;          /* INTEGER_M127_127 */
+static int hf_rrlp_deltaRangeRateCor3;            /* INTEGER_M7_7 */
+static int hf_rrlp_navModelList;                  /* SeqOfNavModelElement */
+static int hf_rrlp_SeqOfNavModelElement_item;     /* NavModelElement */
+static int hf_rrlp_satStatus;                     /* SatStatus */
+static int hf_rrlp_newSatelliteAndModelUC;        /* UncompressedEphemeris */
+static int hf_rrlp_oldSatelliteAndModel;          /* NULL */
+static int hf_rrlp_newNaviModelUC;                /* UncompressedEphemeris */
+static int hf_rrlp_ephemCodeOnL2;                 /* INTEGER_0_3 */
+static int hf_rrlp_ephemURA;                      /* INTEGER_0_15 */
+static int hf_rrlp_ephemSVhealth;                 /* INTEGER_0_63 */
+static int hf_rrlp_ephemIODC;                     /* INTEGER_0_1023 */
+static int hf_rrlp_ephemL2Pflag;                  /* INTEGER_0_1 */
+static int hf_rrlp_ephemSF1Rsvd;                  /* EphemerisSubframe1Reserved */
+static int hf_rrlp_ephemTgd;                      /* INTEGER_M128_127 */
+static int hf_rrlp_ephemToc;                      /* INTEGER_0_37799 */
+static int hf_rrlp_ephemAF2;                      /* INTEGER_M128_127 */
+static int hf_rrlp_ephemAF1;                      /* INTEGER_M32768_32767 */
+static int hf_rrlp_ephemAF0;                      /* INTEGER_M2097152_2097151 */
+static int hf_rrlp_ephemCrs;                      /* INTEGER_M32768_32767 */
+static int hf_rrlp_ephemDeltaN;                   /* INTEGER_M32768_32767 */
+static int hf_rrlp_ephemM0;                       /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_ephemCuc;                      /* INTEGER_M32768_32767 */
+static int hf_rrlp_ephemE;                        /* INTEGER_0_4294967295 */
+static int hf_rrlp_ephemCus;                      /* INTEGER_M32768_32767 */
+static int hf_rrlp_ephemAPowerHalf;               /* INTEGER_0_4294967295 */
+static int hf_rrlp_ephemToe;                      /* INTEGER_0_37799 */
+static int hf_rrlp_ephemFitFlag;                  /* INTEGER_0_1 */
+static int hf_rrlp_ephemAODA;                     /* INTEGER_0_31 */
+static int hf_rrlp_ephemCic;                      /* INTEGER_M32768_32767 */
+static int hf_rrlp_ephemOmegaA0;                  /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_ephemCis;                      /* INTEGER_M32768_32767 */
+static int hf_rrlp_ephemI0;                       /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_ephemCrc;                      /* INTEGER_M32768_32767 */
+static int hf_rrlp_ephemW;                        /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_ephemOmegaADot;                /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_ephemIDot;                     /* INTEGER_M8192_8191 */
+static int hf_rrlp_reserved1;                     /* INTEGER_0_8388607 */
+static int hf_rrlp_reserved2;                     /* INTEGER_0_16777215 */
+static int hf_rrlp_reserved3;                     /* INTEGER_0_16777215 */
+static int hf_rrlp_reserved4;                     /* INTEGER_0_65535 */
+static int hf_rrlp_alfa0;                         /* INTEGER_M128_127 */
+static int hf_rrlp_alfa1;                         /* INTEGER_M128_127 */
+static int hf_rrlp_alfa2;                         /* INTEGER_M128_127 */
+static int hf_rrlp_alfa3;                         /* INTEGER_M128_127 */
+static int hf_rrlp_beta0;                         /* INTEGER_M128_127 */
+static int hf_rrlp_beta1;                         /* INTEGER_M128_127 */
+static int hf_rrlp_beta2;                         /* INTEGER_M128_127 */
+static int hf_rrlp_beta3;                         /* INTEGER_M128_127 */
+static int hf_rrlp_utcA1;                         /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_utcA0;                         /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_utcTot;                        /* INTEGER_0_255 */
+static int hf_rrlp_utcWNt;                        /* INTEGER_0_255 */
+static int hf_rrlp_utcDeltaTls;                   /* INTEGER_M128_127 */
+static int hf_rrlp_utcWNlsf;                      /* INTEGER_0_255 */
+static int hf_rrlp_utcDN;                         /* INTEGER_M128_127 */
+static int hf_rrlp_utcDeltaTlsf;                  /* INTEGER_M128_127 */
+static int hf_rrlp_alamanacWNa;                   /* INTEGER_0_255 */
+static int hf_rrlp_almanacList;                   /* SeqOfAlmanacElement */
+static int hf_rrlp_SeqOfAlmanacElement_item;      /* AlmanacElement */
+static int hf_rrlp_almanacE;                      /* INTEGER_0_65535 */
+static int hf_rrlp_alamanacToa;                   /* INTEGER_0_255 */
+static int hf_rrlp_almanacKsii;                   /* INTEGER_M32768_32767 */
+static int hf_rrlp_almanacOmegaDot;               /* INTEGER_M32768_32767 */
+static int hf_rrlp_almanacSVhealth;               /* INTEGER_0_255 */
+static int hf_rrlp_almanacAPowerHalf;             /* INTEGER_0_16777215 */
+static int hf_rrlp_almanacOmega0;                 /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_almanacW;                      /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_almanacM0;                     /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_almanacAF0;                    /* INTEGER_M1024_1023 */
+static int hf_rrlp_almanacAF1;                    /* INTEGER_M1024_1023 */
+static int hf_rrlp_timeRelation;                  /* TimeRelation */
+static int hf_rrlp_acquisList;                    /* SeqOfAcquisElement */
+static int hf_rrlp_SeqOfAcquisElement_item;       /* AcquisElement */
+static int hf_rrlp_gpsTOW_03;                     /* GPSTOW23b */
+static int hf_rrlp_svid;                          /* SatelliteID */
+static int hf_rrlp_doppler0;                      /* INTEGER_M2048_2047 */
+static int hf_rrlp_addionalDoppler;               /* AddionalDopplerFields */
+static int hf_rrlp_codePhase;                     /* INTEGER_0_1022 */
+static int hf_rrlp_intCodePhase;                  /* INTEGER_0_19 */
+static int hf_rrlp_gpsBitNumber;                  /* INTEGER_0_3 */
+static int hf_rrlp_codePhaseSearchWindow;         /* INTEGER_0_15 */
+static int hf_rrlp_addionalAngle;                 /* AddionalAngleFields */
+static int hf_rrlp_doppler1;                      /* INTEGER_0_63 */
+static int hf_rrlp_dopplerUncertainty;            /* INTEGER_0_7 */
+static int hf_rrlp_azimuth;                       /* INTEGER_0_31 */
+static int hf_rrlp_elevation;                     /* INTEGER_0_7 */
+static int hf_rrlp_SeqOf_BadSatelliteSet_item;    /* SatelliteID */
+static int hf_rrlp_rel98_Ext_ExpOTD;              /* Rel98_Ext_ExpOTD */
+static int hf_rrlp_gpsTimeAssistanceMeasurementRequest;  /* NULL */
+static int hf_rrlp_gpsReferenceTimeUncertainty;   /* GPSReferenceTimeUncertainty */
+static int hf_rrlp_msrAssistData_R98_ExpOTD;      /* MsrAssistData_R98_ExpOTD */
+static int hf_rrlp_systemInfoAssistData_R98_ExpOTD;  /* SystemInfoAssistData_R98_ExpOTD */
+static int hf_rrlp_msrAssistList_R98_ExpOTD;      /* SeqOfMsrAssistBTS_R98_ExpOTD */
+static int hf_rrlp_SeqOfMsrAssistBTS_R98_ExpOTD_item;  /* MsrAssistBTS_R98_ExpOTD */
+static int hf_rrlp_expectedOTD;                   /* ExpectedOTD */
+static int hf_rrlp_expOTDUncertainty;             /* ExpOTDUncertainty */
+static int hf_rrlp_systemInfoAssistListR98_ExpOTD;  /* SeqOfSystemInfoAssistBTS_R98_ExpOTD */
+static int hf_rrlp_SeqOfSystemInfoAssistBTS_R98_ExpOTD_item;  /* SystemInfoAssistBTS_R98_ExpOTD */
+static int hf_rrlp_present_01;                    /* AssistBTSData_R98_ExpOTD */
+static int hf_rrlp_expOTDuncertainty;             /* ExpOTDUncertainty */
+static int hf_rrlp_referenceFrameMSB;             /* INTEGER_0_63 */
+static int hf_rrlp_gpsTowSubms;                   /* INTEGER_0_9999 */
+static int hf_rrlp_deltaTow;                      /* INTEGER_0_127 */
+static int hf_rrlp_rel_98_Ext_MeasureInfo;        /* T_rel_98_Ext_MeasureInfo */
+static int hf_rrlp_otd_MeasureInfo_R98_Ext;       /* OTD_MeasureInfo_R98_Ext */
+static int hf_rrlp_timeAssistanceMeasurements;    /* GPSTimeAssistanceMeasurements */
+static int hf_rrlp_otdMsrFirstSets_R98_Ext;       /* OTD_MsrElementFirst_R98_Ext */
+static int hf_rrlp_otd_FirstSetMsrs_R98_Ext;      /* SeqOfOTD_FirstSetMsrs_R98_Ext */
+static int hf_rrlp_SeqOfOTD_FirstSetMsrs_R98_Ext_item;  /* OTD_FirstSetMsrs */
+static int hf_rrlp_otd_MeasureInfo_5_Ext;         /* OTD_MeasureInfo_5_Ext */
+static int hf_rrlp_ulPseudoSegInd;                /* UlPseudoSegInd */
+static int hf_rrlp_smlc_code;                     /* INTEGER_0_63 */
+static int hf_rrlp_transaction_ID;                /* INTEGER_0_262143 */
+static int hf_rrlp_velocityRequested;             /* NULL */
+static int hf_rrlp_ganssPositionMethod;           /* GANSSPositioningMethod */
+static int hf_rrlp_ganss_AssistData;              /* GANSS_AssistData */
+static int hf_rrlp_ganssCarrierPhaseMeasurementRequest;  /* NULL */
+static int hf_rrlp_ganssTODGSMTimeAssociationMeasurementRequest;  /* NULL */
+static int hf_rrlp_requiredResponseTime;          /* RequiredResponseTime */
+static int hf_rrlp_add_GPS_AssistData;            /* Add_GPS_AssistData */
+static int hf_rrlp_ganssMultiFreqMeasurementRequest;  /* NULL */
+static int hf_rrlp_ganss_controlHeader;           /* GANSS_ControlHeader */
+static int hf_rrlp_ganssCommonAssistData;         /* GANSSCommonAssistData */
+static int hf_rrlp_ganssGenericAssistDataList;    /* SeqOfGANSSGenericAssistDataElement */
+static int hf_rrlp_ganssReferenceTime;            /* GANSSReferenceTime */
+static int hf_rrlp_ganssRefLocation;              /* GANSSRefLocation */
+static int hf_rrlp_ganssIonosphericModel;         /* GANSSIonosphericModel */
+static int hf_rrlp_ganssAddIonosphericModel;      /* GANSSAddIonosphericModel */
+static int hf_rrlp_ganssEarthOrientParam;         /* GANSSEarthOrientParam */
+static int hf_rrlp_ganssReferenceTime_R10_Ext;    /* GANSSReferenceTime_R10_Ext */
+static int hf_rrlp_SeqOfGANSSGenericAssistDataElement_item;  /* GANSSGenericAssistDataElement */
+static int hf_rrlp_ganssID;                       /* INTEGER_0_7 */
+static int hf_rrlp_ganssTimeModel;                /* SeqOfGANSSTimeModel */
+static int hf_rrlp_ganssDiffCorrections;          /* GANSSDiffCorrections */
+static int hf_rrlp_ganssNavigationModel;          /* GANSSNavModel */
+static int hf_rrlp_ganssRealTimeIntegrity;        /* GANSSRealTimeIntegrity */
+static int hf_rrlp_ganssDataBitAssist;            /* GANSSDataBitAssist */
+static int hf_rrlp_ganssRefMeasurementAssist;     /* GANSSRefMeasurementAssist */
+static int hf_rrlp_ganssAlmanacModel;             /* GANSSAlmanacModel */
+static int hf_rrlp_ganssUTCModel;                 /* GANSSUTCModel */
+static int hf_rrlp_ganssEphemerisExtension;       /* GANSSEphemerisExtension */
+static int hf_rrlp_ganssEphemerisExtCheck;        /* GANSSEphemerisExtensionCheck */
+static int hf_rrlp_sbasID;                        /* INTEGER_0_7 */
+static int hf_rrlp_ganssAddUTCModel;              /* GANSSAddUTCModel */
+static int hf_rrlp_ganssAuxiliaryInfo;            /* GANSSAuxiliaryInformation */
+static int hf_rrlp_ganssDiffCorrectionsValidityPeriod;  /* GANSSDiffCorrectionsValidityPeriod */
+static int hf_rrlp_ganssTimeModel_R10_Ext;        /* SeqOfGANSSTimeModel_R10_Ext */
+static int hf_rrlp_ganssRefMeasurementAssist_R10_Ext;  /* GANSSRefMeasurementAssist_R10_Ext */
+static int hf_rrlp_ganssAlmanacModel_R10_Ext;     /* GANSSAlmanacModel_R10_Ext */
+static int hf_rrlp_ganssRefTimeInfo;              /* GANSSRefTimeInfo */
+static int hf_rrlp_ganssTOD_GSMTimeAssociation;   /* GANSSTOD_GSMTimeAssociation */
+static int hf_rrlp_ganssDay;                      /* INTEGER_0_8191 */
+static int hf_rrlp_ganssTOD;                      /* GANSSTOD */
+static int hf_rrlp_ganssTODUncertainty;           /* GANSSTODUncertainty */
+static int hf_rrlp_ganssTimeID;                   /* INTEGER_0_7 */
+static int hf_rrlp_ganssDayCycleNumber;           /* INTEGER_0_7 */
+static int hf_rrlp_frameDrift;                    /* FrameDrift */
+static int hf_rrlp_ganssIonoModel;                /* GANSSIonosphereModel */
+static int hf_rrlp_ganssIonoStormFlags;           /* GANSSIonoStormFlags */
+static int hf_rrlp_ai0;                           /* INTEGER_0_4095 */
+static int hf_rrlp_ai1;                           /* INTEGER_0_4095 */
+static int hf_rrlp_ai2;                           /* INTEGER_0_4095 */
+static int hf_rrlp_ionoStormFlag1;                /* INTEGER_0_1 */
+static int hf_rrlp_ionoStormFlag2;                /* INTEGER_0_1 */
+static int hf_rrlp_ionoStormFlag3;                /* INTEGER_0_1 */
+static int hf_rrlp_ionoStormFlag4;                /* INTEGER_0_1 */
+static int hf_rrlp_ionoStormFlag5;                /* INTEGER_0_1 */
+static int hf_rrlp_dataID;                        /* BIT_STRING_SIZE_2 */
+static int hf_rrlp_ionoModel;                     /* IonosphericModel */
+static int hf_rrlp_teop;                          /* INTEGER_0_65535 */
+static int hf_rrlp_pmX;                           /* INTEGER_M1048576_1048575 */
+static int hf_rrlp_pmXdot;                        /* INTEGER_M16384_16383 */
+static int hf_rrlp_pmY;                           /* INTEGER_M1048576_1048575 */
+static int hf_rrlp_pmYdot;                        /* INTEGER_M16384_16383 */
+static int hf_rrlp_deltaUT1;                      /* INTEGER_M1073741824_1073741823 */
+static int hf_rrlp_deltaUT1dot;                   /* INTEGER_M262144_262143 */
+static int hf_rrlp_SeqOfGANSSTimeModel_item;      /* GANSSTimeModelElement */
+static int hf_rrlp_ganssTimeModelRefTime;         /* INTEGER_0_65535 */
+static int hf_rrlp_tA0;                           /* TA0 */
+static int hf_rrlp_tA1;                           /* TA1 */
+static int hf_rrlp_tA2;                           /* TA2 */
+static int hf_rrlp_gnssTOID;                      /* INTEGER_0_7 */
+static int hf_rrlp_weekNumber;                    /* INTEGER_0_8191 */
+static int hf_rrlp_SeqOfGANSSTimeModel_R10_Ext_item;  /* GANSSTimeModelElement_R10_Ext */
+static int hf_rrlp_deltaT;                        /* INTEGER_M128_127 */
+static int hf_rrlp_dganssRefTime;                 /* INTEGER_0_119 */
+static int hf_rrlp_sgnTypeList;                   /* SeqOfSgnTypeElement */
+static int hf_rrlp_SeqOfSgnTypeElement_item;      /* SgnTypeElement */
+static int hf_rrlp_ganssSignalID;                 /* GANSSSignalID */
+static int hf_rrlp_ganssStatusHealth;             /* INTEGER_0_7 */
+static int hf_rrlp_dganssSgnList;                 /* SeqOfDGANSSSgnElement */
+static int hf_rrlp_SeqOfDGANSSSgnElement_item;    /* DGANSSSgnElement */
+static int hf_rrlp_svID;                          /* SVID */
+static int hf_rrlp_iod;                           /* INTEGER_0_1023 */
+static int hf_rrlp_nonBroadcastIndFlag;           /* INTEGER_0_1 */
+static int hf_rrlp_ganssSatelliteList;            /* SeqOfGANSSSatelliteElement */
+static int hf_rrlp_SeqOfGANSSSatelliteElement_item;  /* GANSSSatelliteElement */
+static int hf_rrlp_svHealth;                      /* BIT_STRING_SIZE_5 */
+static int hf_rrlp_ganssClockModel;               /* GANSSClockModel */
+static int hf_rrlp_ganssOrbitModel;               /* GANSSOrbitModel */
+static int hf_rrlp_svHealthMSB;                   /* BIT_STRING_SIZE_1 */
+static int hf_rrlp_iodMSB;                        /* INTEGER_0_1 */
+static int hf_rrlp_keplerianSet;                  /* NavModel_KeplerianSet */
+static int hf_rrlp_navKeplerianSet;               /* NavModel_NAVKeplerianSet */
+static int hf_rrlp_cnavKeplerianSet;              /* NavModel_CNAVKeplerianSet */
+static int hf_rrlp_glonassECEF;                   /* NavModel_GLONASSecef */
+static int hf_rrlp_sbasECEF;                      /* NavModel_SBASecef */
+static int hf_rrlp_keplerToe;                     /* INTEGER_0_16383 */
+static int hf_rrlp_keplerW;                       /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_keplerDeltaN;                  /* INTEGER_M32768_32767 */
+static int hf_rrlp_keplerM0;                      /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_keplerOmegaDot;                /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_keplerE;                       /* INTEGER_0_4294967295 */
+static int hf_rrlp_keplerIDot;                    /* INTEGER_M8192_8191 */
+static int hf_rrlp_keplerAPowerHalf;              /* INTEGER_0_4294967295 */
+static int hf_rrlp_keplerI0;                      /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_keplerOmega0;                  /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_keplerCrs;                     /* INTEGER_M32768_32767 */
+static int hf_rrlp_keplerCis;                     /* INTEGER_M32768_32767 */
+static int hf_rrlp_keplerCus;                     /* INTEGER_M32768_32767 */
+static int hf_rrlp_keplerCrc;                     /* INTEGER_M32768_32767 */
+static int hf_rrlp_keplerCic;                     /* INTEGER_M32768_32767 */
+static int hf_rrlp_keplerCuc;                     /* INTEGER_M32768_32767 */
+static int hf_rrlp_navURA;                        /* INTEGER_0_15 */
+static int hf_rrlp_navFitFlag;                    /* INTEGER_0_1 */
+static int hf_rrlp_navToe;                        /* INTEGER_0_37799 */
+static int hf_rrlp_navOmega;                      /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_navDeltaN;                     /* INTEGER_M32768_32767 */
+static int hf_rrlp_navM0;                         /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_navOmegaADot;                  /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_navE;                          /* INTEGER_0_4294967295 */
+static int hf_rrlp_navIDot;                       /* INTEGER_M8192_8191 */
+static int hf_rrlp_navAPowerHalf;                 /* INTEGER_0_4294967295 */
+static int hf_rrlp_navI0;                         /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_navOmegaA0;                    /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_navCrs;                        /* INTEGER_M32768_32767 */
+static int hf_rrlp_navCis;                        /* INTEGER_M32768_32767 */
+static int hf_rrlp_navCus;                        /* INTEGER_M32768_32767 */
+static int hf_rrlp_navCrc;                        /* INTEGER_M32768_32767 */
+static int hf_rrlp_navCic;                        /* INTEGER_M32768_32767 */
+static int hf_rrlp_navCuc;                        /* INTEGER_M32768_32767 */
+static int hf_rrlp_cnavTop;                       /* INTEGER_0_2015 */
+static int hf_rrlp_cnavURAindex;                  /* INTEGER_M16_15 */
+static int hf_rrlp_cnavDeltaA;                    /* INTEGER_M33554432_33554431 */
+static int hf_rrlp_cnavAdot;                      /* INTEGER_M16777216_16777215 */
+static int hf_rrlp_cnavDeltaNo;                   /* INTEGER_M65536_65535 */
+static int hf_rrlp_cnavDeltaNoDot;                /* INTEGER_M4194304_4194303 */
+static int hf_rrlp_cnavMo;                        /* INTEGER_M4294967296_4294967295 */
+static int hf_rrlp_cnavE;                         /* INTEGER_0_8589934591 */
+static int hf_rrlp_cnavOmega;                     /* INTEGER_M4294967296_4294967295 */
+static int hf_rrlp_cnavOMEGA0;                    /* INTEGER_M4294967296_4294967295 */
+static int hf_rrlp_cnavDeltaOmegaDot;             /* INTEGER_M65536_65535 */
+static int hf_rrlp_cnavIo;                        /* INTEGER_M4294967296_4294967295 */
+static int hf_rrlp_cnavIoDot;                     /* INTEGER_M16384_16383 */
+static int hf_rrlp_cnavCis;                       /* INTEGER_M32768_32767 */
+static int hf_rrlp_cnavCic;                       /* INTEGER_M32768_32767 */
+static int hf_rrlp_cnavCrs;                       /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_cnavCrc;                       /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_cnavCus;                       /* INTEGER_M1048576_1048575 */
+static int hf_rrlp_cnavCuc;                       /* INTEGER_M1048576_1048575 */
+static int hf_rrlp_gloEn;                         /* INTEGER_0_31 */
+static int hf_rrlp_gloP1;                         /* BIT_STRING_SIZE_2 */
+static int hf_rrlp_gloP2;                         /* BOOLEAN */
+static int hf_rrlp_gloM;                          /* INTEGER_0_3 */
+static int hf_rrlp_gloX;                          /* INTEGER_M67108864_67108863 */
+static int hf_rrlp_gloXdot;                       /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_gloXdotdot;                    /* INTEGER_M16_15 */
+static int hf_rrlp_gloY;                          /* INTEGER_M67108864_67108863 */
+static int hf_rrlp_gloYdot;                       /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_gloYdotdot;                    /* INTEGER_M16_15 */
+static int hf_rrlp_gloZ;                          /* INTEGER_M67108864_67108863 */
+static int hf_rrlp_gloZdot;                       /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_gloZdotdot;                    /* INTEGER_M16_15 */
+static int hf_rrlp_sbasTo;                        /* INTEGER_0_5399 */
+static int hf_rrlp_sbasAccuracy;                  /* BIT_STRING_SIZE_4 */
+static int hf_rrlp_sbasXg;                        /* INTEGER_M536870912_536870911 */
+static int hf_rrlp_sbasYg;                        /* INTEGER_M536870912_536870911 */
+static int hf_rrlp_sbasZg;                        /* INTEGER_M16777216_16777215 */
+static int hf_rrlp_sbasXgDot;                     /* INTEGER_M65536_65535 */
+static int hf_rrlp_sbasYgDot;                     /* INTEGER_M65536_65535 */
+static int hf_rrlp_sbasZgDot;                     /* INTEGER_M131072_131071 */
+static int hf_rrlp_sbasXgDotDot;                  /* INTEGER_M512_511 */
+static int hf_rrlp_sbagYgDotDot;                  /* INTEGER_M512_511 */
+static int hf_rrlp_sbasZgDotDot;                  /* INTEGER_M512_511 */
+static int hf_rrlp_standardClockModelList;        /* SeqOfStandardClockModelElement */
+static int hf_rrlp_navClockModel;                 /* NAVclockModel */
+static int hf_rrlp_cnavClockModel;                /* CNAVclockModel */
+static int hf_rrlp_glonassClockModel;             /* GLONASSclockModel */
+static int hf_rrlp_sbasClockModel;                /* SBASclockModel */
+static int hf_rrlp_SeqOfStandardClockModelElement_item;  /* StandardClockModelElement */
+static int hf_rrlp_stanClockToc;                  /* INTEGER_0_16383 */
+static int hf_rrlp_stanClockAF2;                  /* INTEGER_M2048_2047 */
+static int hf_rrlp_stanClockAF1;                  /* INTEGER_M131072_131071 */
+static int hf_rrlp_stanClockAF0;                  /* INTEGER_M134217728_134217727 */
+static int hf_rrlp_stanClockTgd;                  /* INTEGER_M512_511 */
+static int hf_rrlp_stanModelID;                   /* INTEGER_0_1 */
+static int hf_rrlp_navToc;                        /* INTEGER_0_37799 */
+static int hf_rrlp_navaf2;                        /* INTEGER_M128_127 */
+static int hf_rrlp_navaf1;                        /* INTEGER_M32768_32767 */
+static int hf_rrlp_navaf0;                        /* INTEGER_M2097152_2097151 */
+static int hf_rrlp_navTgd;                        /* INTEGER_M128_127 */
+static int hf_rrlp_cnavToc;                       /* INTEGER_0_2015 */
+static int hf_rrlp_cnavURA0;                      /* INTEGER_M16_15 */
+static int hf_rrlp_cnavURA1;                      /* INTEGER_0_7 */
+static int hf_rrlp_cnavURA2;                      /* INTEGER_0_7 */
+static int hf_rrlp_cnavAf2;                       /* INTEGER_M512_511 */
+static int hf_rrlp_cnavAf1;                       /* INTEGER_M524288_524287 */
+static int hf_rrlp_cnavAf0;                       /* INTEGER_M33554432_33554431 */
+static int hf_rrlp_cnavTgd;                       /* INTEGER_M4096_4095 */
+static int hf_rrlp_cnavISCl1cp;                   /* INTEGER_M4096_4095 */
+static int hf_rrlp_cnavISCl1cd;                   /* INTEGER_M4096_4095 */
+static int hf_rrlp_cnavISCl1ca;                   /* INTEGER_M4096_4095 */
+static int hf_rrlp_cnavISCl2c;                    /* INTEGER_M4096_4095 */
+static int hf_rrlp_cnavISCl5i5;                   /* INTEGER_M4096_4095 */
+static int hf_rrlp_cnavISCl5q5;                   /* INTEGER_M4096_4095 */
+static int hf_rrlp_gloTau;                        /* INTEGER_M2097152_2097151 */
+static int hf_rrlp_gloGamma;                      /* INTEGER_M1024_1023 */
+static int hf_rrlp_gloDeltaTau;                   /* INTEGER_M16_15 */
+static int hf_rrlp_sbasAgfo;                      /* INTEGER_M2048_2047 */
+static int hf_rrlp_sbasAgf1;                      /* INTEGER_M128_127 */
+static int hf_rrlp_ganssBadSignalList;            /* SeqOfBadSignalElement */
+static int hf_rrlp_SeqOfBadSignalElement_item;    /* BadSignalElement */
+static int hf_rrlp_badSVID;                       /* SVID */
+static int hf_rrlp_badSignalID;                   /* GANSSSignals */
+static int hf_rrlp_ganssTOD_01;                   /* INTEGER_0_59 */
+static int hf_rrlp_ganssDataBitsSatList;          /* SeqOfGanssDataBitsElement */
+static int hf_rrlp_SeqOfGanssDataBitsElement_item;  /* GanssDataBitsElement */
+static int hf_rrlp_ganssDataBitsSgnList;          /* Seq_OfGANSSDataBitsSgn */
+static int hf_rrlp_Seq_OfGANSSDataBitsSgn_item;   /* GANSSDataBitsSgnElement */
+static int hf_rrlp_ganssSignalType;               /* GANSSSignalID */
+static int hf_rrlp_ganssDataBits;                 /* SeqOf_GANSSDataBits */
+static int hf_rrlp_SeqOf_GANSSDataBits_item;      /* GANSSDataBit */
+static int hf_rrlp_ganssRefMeasAssistList;        /* SeqOfGANSSRefMeasurementElement */
+static int hf_rrlp_SeqOfGANSSRefMeasurementElement_item;  /* GANSSRefMeasurementElement */
+static int hf_rrlp_additionalDoppler;             /* AdditionalDopplerFields */
+static int hf_rrlp_intCodePhase_01;               /* INTEGER_0_127 */
+static int hf_rrlp_codePhaseSearchWindow_01;      /* INTEGER_0_31 */
+static int hf_rrlp_additionalAngle;               /* AddionalAngleFields */
+static int hf_rrlp_dopplerUncertainty_01;         /* INTEGER_0_4 */
+static int hf_rrlp_GANSSRefMeasurementAssist_R10_Ext_item;  /* GANSSRefMeasurement_R10_Ext_Element */
+static int hf_rrlp_azimuthLSB;                    /* INTEGER_0_15 */
+static int hf_rrlp_elevationLSB;                  /* INTEGER_0_15 */
+static int hf_rrlp_weekNumber_01;                 /* INTEGER_0_255 */
+static int hf_rrlp_toa;                           /* INTEGER_0_255 */
+static int hf_rrlp_ioda;                          /* INTEGER_0_3 */
+static int hf_rrlp_ganssAlmanacList;              /* SeqOfGANSSAlmanacElement */
+static int hf_rrlp_SeqOfGANSSAlmanacElement_item;  /* GANSSAlmanacElement */
+static int hf_rrlp_keplerianAlmanacSet;           /* Almanac_KeplerianSet */
+static int hf_rrlp_keplerianNAVAlmanac;           /* Almanac_NAVKeplerianSet */
+static int hf_rrlp_keplerianReducedAlmanac;       /* Almanac_ReducedKeplerianSet */
+static int hf_rrlp_keplerianMidiAlmanac;          /* Almanac_MidiAlmanacSet */
+static int hf_rrlp_keplerianGLONASS;              /* Almanac_GlonassAlmanacSet */
+static int hf_rrlp_ecefSBASAlmanac;               /* Almanac_ECEFsbasAlmanacSet */
+static int hf_rrlp_kepAlmanacE;                   /* INTEGER_0_2047 */
+static int hf_rrlp_kepAlmanacDeltaI;              /* INTEGER_M1024_1023 */
+static int hf_rrlp_kepAlmanacOmegaDot;            /* INTEGER_M1024_1023 */
+static int hf_rrlp_kepSVHealth;                   /* INTEGER_0_15 */
+static int hf_rrlp_kepAlmanacAPowerHalf;          /* INTEGER_M65536_65535 */
+static int hf_rrlp_kepAlmanacOmega0;              /* INTEGER_M32768_32767 */
+static int hf_rrlp_kepAlmanacW;                   /* INTEGER_M32768_32767 */
+static int hf_rrlp_kepAlmanacM0;                  /* INTEGER_M32768_32767 */
+static int hf_rrlp_kepAlmanacAF0;                 /* INTEGER_M8192_8191 */
+static int hf_rrlp_kepAlmanacAF1;                 /* INTEGER_M1024_1023 */
+static int hf_rrlp_navAlmE;                       /* INTEGER_0_65535 */
+static int hf_rrlp_navAlmDeltaI;                  /* INTEGER_M32768_32767 */
+static int hf_rrlp_navAlmOMEGADOT;                /* INTEGER_M32768_32767 */
+static int hf_rrlp_navAlmSVHealth;                /* INTEGER_0_255 */
+static int hf_rrlp_navAlmSqrtA;                   /* INTEGER_0_16777215 */
+static int hf_rrlp_navAlmOMEGAo;                  /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_navAlmOmega;                   /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_navAlmMo;                      /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_navAlmaf0;                     /* INTEGER_M1024_1023 */
+static int hf_rrlp_navAlmaf1;                     /* INTEGER_M1024_1023 */
+static int hf_rrlp_redAlmDeltaA;                  /* INTEGER_M128_127 */
+static int hf_rrlp_redAlmOmega0;                  /* INTEGER_M64_63 */
+static int hf_rrlp_redAlmPhi0;                    /* INTEGER_M64_63 */
+static int hf_rrlp_redAlmL1Health;                /* BOOLEAN */
+static int hf_rrlp_redAlmL2Health;                /* BOOLEAN */
+static int hf_rrlp_redAlmL5Health;                /* BOOLEAN */
+static int hf_rrlp_midiAlmE;                      /* INTEGER_0_2047 */
+static int hf_rrlp_midiAlmDeltaI;                 /* INTEGER_M1024_1023 */
+static int hf_rrlp_midiAlmOmegaDot;               /* INTEGER_M1024_1023 */
+static int hf_rrlp_midiAlmSqrtA;                  /* INTEGER_0_131071 */
+static int hf_rrlp_midiAlmOmega0;                 /* INTEGER_M32768_32767 */
+static int hf_rrlp_midiAlmOmega;                  /* INTEGER_M32768_32767 */
+static int hf_rrlp_midiAlmMo;                     /* INTEGER_M32768_32767 */
+static int hf_rrlp_midiAlmaf0;                    /* INTEGER_M1024_1023 */
+static int hf_rrlp_midiAlmaf1;                    /* INTEGER_M512_511 */
+static int hf_rrlp_midiAlmL1Health;               /* BOOLEAN */
+static int hf_rrlp_midiAlmL2Health;               /* BOOLEAN */
+static int hf_rrlp_midiAlmL5Health;               /* BOOLEAN */
+static int hf_rrlp_gloAlmNA;                      /* INTEGER_1_1461 */
+static int hf_rrlp_gloAlmnA;                      /* INTEGER_1_24 */
+static int hf_rrlp_gloAlmHA;                      /* INTEGER_0_31 */
+static int hf_rrlp_gloAlmLambdaA;                 /* INTEGER_M1048576_1048575 */
+static int hf_rrlp_gloAlmtlambdaA;                /* INTEGER_0_2097151 */
+static int hf_rrlp_gloAlmDeltaIa;                 /* INTEGER_M131072_131071 */
+static int hf_rrlp_gloAlmDeltaTA;                 /* INTEGER_M2097152_2097151 */
+static int hf_rrlp_gloAlmDeltaTdotA;              /* INTEGER_M64_63 */
+static int hf_rrlp_gloAlmEpsilonA;                /* INTEGER_0_32767 */
+static int hf_rrlp_gloAlmOmegaA;                  /* INTEGER_M32768_32767 */
+static int hf_rrlp_gloAlmTauA;                    /* INTEGER_M512_511 */
+static int hf_rrlp_gloAlmCA;                      /* INTEGER_0_1 */
+static int hf_rrlp_gloAlmMA;                      /* BIT_STRING_SIZE_2 */
+static int hf_rrlp_sbasAlmDataID;                 /* INTEGER_0_3 */
+static int hf_rrlp_sbasAlmHealth;                 /* BIT_STRING_SIZE_8 */
+static int hf_rrlp_sbasAlmXg;                     /* INTEGER_M16384_16383 */
+static int hf_rrlp_sbasAlmYg;                     /* INTEGER_M16384_16383 */
+static int hf_rrlp_sbasAlmZg;                     /* INTEGER_M256_255 */
+static int hf_rrlp_sbasAlmXgdot;                  /* INTEGER_M4_3 */
+static int hf_rrlp_sbasAlmYgDot;                  /* INTEGER_M4_3 */
+static int hf_rrlp_sbasAlmZgDot;                  /* INTEGER_M8_7 */
+static int hf_rrlp_sbasAlmTo;                     /* INTEGER_0_2047 */
+static int hf_rrlp_completeAlmanacProvided;       /* BOOLEAN */
+static int hf_rrlp_ganssUtcA1;                    /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_ganssUtcA0;                    /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_ganssUtcTot;                   /* INTEGER_0_255 */
+static int hf_rrlp_ganssUtcWNt;                   /* INTEGER_0_255 */
+static int hf_rrlp_ganssUtcDeltaTls;              /* INTEGER_M128_127 */
+static int hf_rrlp_ganssUtcWNlsf;                 /* INTEGER_0_255 */
+static int hf_rrlp_ganssUtcDN;                    /* INTEGER_M128_127 */
+static int hf_rrlp_ganssUtcDeltaTlsf;             /* INTEGER_M128_127 */
+static int hf_rrlp_ganssEphemerisHeader;          /* GANSSEphemerisExtensionHeader */
+static int hf_rrlp_ganssReferenceSet;             /* SeqOfGANSSRefOrbit */
+static int hf_rrlp_ganssephemerisDeltasMatrix;    /* GANSSEphemerisDeltaMatrix */
+static int hf_rrlp_timeAtEstimation;              /* GANSSEphemerisExtensionTime */
+static int hf_rrlp_validityPeriod;                /* INTEGER_1_8 */
+static int hf_rrlp_ephemerisExtensionDuration;    /* INTEGER_1_512 */
+static int hf_rrlp_ganssEphExtDay;                /* INTEGER_0_8191 */
+static int hf_rrlp_ganssEphExtTOD;                /* GANSSTOD */
+static int hf_rrlp_keplerToe_01;                  /* INTEGER_0_37799 */
+static int hf_rrlp_SeqOfGANSSRefOrbit_item;       /* GANSSReferenceOrbit */
+static int hf_rrlp_ganssOrbitModel_01;            /* ReferenceNavModel */
+static int hf_rrlp_GANSSEphemerisDeltaMatrix_item;  /* GANSSEphemerisDeltaEpoch */
+static int hf_rrlp_ganssDeltaEpochHeader;         /* GANSSDeltaEpochHeader */
+static int hf_rrlp_ganssDeltaElementList;         /* GANSSDeltaElementList */
+static int hf_rrlp_ephemerisDeltaSizes;           /* GANSSEphemerisDeltaBitSizes */
+static int hf_rrlp_ephemerisDeltaScales;          /* GANSSEphemerisDeltaScales */
+static int hf_rrlp_GANSSDeltaElementList_item;    /* OCTET_STRING_SIZE_1_49 */
+static int hf_rrlp_bitsize_delta_omega;           /* INTEGER_1_32 */
+static int hf_rrlp_bitsize_delta_deltaN;          /* INTEGER_1_16 */
+static int hf_rrlp_bitsize_delta_m0;              /* INTEGER_1_32 */
+static int hf_rrlp_bitsize_delta_omegadot;        /* INTEGER_1_24 */
+static int hf_rrlp_bitsize_delta_e;               /* INTEGER_1_32 */
+static int hf_rrlp_bitsize_delta_idot;            /* INTEGER_1_14 */
+static int hf_rrlp_bitsize_delta_sqrtA;           /* INTEGER_1_32 */
+static int hf_rrlp_bitsize_delta_i0;              /* INTEGER_1_32 */
+static int hf_rrlp_bitsize_delta_omega0;          /* INTEGER_1_32 */
+static int hf_rrlp_bitsize_delta_crs;             /* INTEGER_1_16 */
+static int hf_rrlp_bitsize_delta_cis;             /* INTEGER_1_16 */
+static int hf_rrlp_bitsize_delta_cus;             /* INTEGER_1_16 */
+static int hf_rrlp_bitsize_delta_crc;             /* INTEGER_1_16 */
+static int hf_rrlp_bitsize_delta_cic;             /* INTEGER_1_16 */
+static int hf_rrlp_bitsize_delta_cuc;             /* INTEGER_1_16 */
+static int hf_rrlp_bitsize_delta_tgd1;            /* INTEGER_1_10 */
+static int hf_rrlp_bitsize_delta_tgd2;            /* INTEGER_1_10 */
+static int hf_rrlp_scale_delta_omega;             /* INTEGER_M16_15 */
+static int hf_rrlp_scale_delta_deltaN;            /* INTEGER_M16_15 */
+static int hf_rrlp_scale_delta_m0;                /* INTEGER_M16_15 */
+static int hf_rrlp_scale_delta_omegadot;          /* INTEGER_M16_15 */
+static int hf_rrlp_scale_delta_e;                 /* INTEGER_M16_15 */
+static int hf_rrlp_scale_delta_idot;              /* INTEGER_M16_15 */
+static int hf_rrlp_scale_delta_sqrtA;             /* INTEGER_M16_15 */
+static int hf_rrlp_scale_delta_i0;                /* INTEGER_M16_15 */
+static int hf_rrlp_scale_delta_omega0;            /* INTEGER_M16_15 */
+static int hf_rrlp_scale_delta_crs;               /* INTEGER_M16_15 */
+static int hf_rrlp_scale_delta_cis;               /* INTEGER_M16_15 */
+static int hf_rrlp_scale_delta_cus;               /* INTEGER_M16_15 */
+static int hf_rrlp_scale_delta_crc;               /* INTEGER_M16_15 */
+static int hf_rrlp_scale_delta_cic;               /* INTEGER_M16_15 */
+static int hf_rrlp_scale_delta_cuc;               /* INTEGER_M16_15 */
+static int hf_rrlp_scale_delta_tgd1;              /* INTEGER_M16_15 */
+static int hf_rrlp_scale_delta_tgd2;              /* INTEGER_M16_15 */
+static int hf_rrlp_ganssBeginTime;                /* GANSSEphemerisExtensionTime */
+static int hf_rrlp_ganssEndTime;                  /* GANSSEphemerisExtensionTime */
+static int hf_rrlp_ganssSatEventsInfo;            /* GANSSSatEventsInfo */
+static int hf_rrlp_eventOccured;                  /* BIT_STRING_SIZE_64 */
+static int hf_rrlp_futureEventNoted;              /* BIT_STRING_SIZE_64 */
+static int hf_rrlp_utcModel2;                     /* UTCmodelSet2 */
+static int hf_rrlp_utcModel3;                     /* UTCmodelSet3 */
+static int hf_rrlp_utcModel4;                     /* UTCmodelSet4 */
+static int hf_rrlp_utcA0_01;                      /* INTEGER_M32768_32767 */
+static int hf_rrlp_utcA1_01;                      /* INTEGER_M4096_4095 */
+static int hf_rrlp_utcA2;                         /* INTEGER_M64_63 */
+static int hf_rrlp_utcTot_01;                     /* INTEGER_0_65535 */
+static int hf_rrlp_utcWNot;                       /* INTEGER_0_8191 */
+static int hf_rrlp_utcDN_01;                      /* BIT_STRING_SIZE_4 */
+static int hf_rrlp_nA;                            /* INTEGER_1_1461 */
+static int hf_rrlp_tauC;                          /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_b1;                            /* INTEGER_M1024_1023 */
+static int hf_rrlp_b2;                            /* INTEGER_M512_511 */
+static int hf_rrlp_kp;                            /* BIT_STRING_SIZE_2 */
+static int hf_rrlp_utcA1wnt;                      /* INTEGER_M8388608_8388607 */
+static int hf_rrlp_utcA0wnt;                      /* INTEGER_M2147483648_2147483647 */
+static int hf_rrlp_utcStandardID;                 /* INTEGER_0_7 */
+static int hf_rrlp_ganssID1;                      /* GANSS_ID1 */
+static int hf_rrlp_ganssID3;                      /* GANSS_ID3 */
+static int hf_rrlp_GANSS_ID1_item;                /* GANSS_ID1_element */
+static int hf_rrlp_signalsAvailable;              /* GANSSSignals */
+static int hf_rrlp_GANSS_ID3_item;                /* GANSS_ID3_element */
+static int hf_rrlp_channelNumber;                 /* INTEGER_M7_13 */
+static int hf_rrlp_GANSSDiffCorrectionsValidityPeriod_item;  /* DGANSSExtensionSgnTypeElement */
+static int hf_rrlp_dganssExtensionSgnList;        /* SeqOfDGANSSExtensionSgnElement */
+static int hf_rrlp_SeqOfDGANSSExtensionSgnElement_item;  /* DGANSSExtensionSgnElement */
+static int hf_rrlp_udreGrowthRate;                /* INTEGER_0_7 */
+static int hf_rrlp_udreValidityTime;              /* INTEGER_0_7 */
+static int hf_rrlp_add_GPS_controlHeader;         /* Add_GPS_ControlHeader */
+static int hf_rrlp_gpsEphemerisExtension;         /* GPSEphemerisExtension */
+static int hf_rrlp_gpsEphemerisExtensionCheck;    /* GPSEphemerisExtensionCheck */
+static int hf_rrlp_dgpsCorrectionsValidityPeriod;  /* DGPSCorrectionsValidityPeriod */
+static int hf_rrlp_gpsReferenceTime_R10_Ext;      /* GPSReferenceTime_R10_Ext */
+static int hf_rrlp_gpsAcquisAssist_R10_Ext;       /* GPSAcquisAssist_R10_Ext */
+static int hf_rrlp_gpsAlmanac_R10_Ext;            /* GPSAlmanac_R10_Ext */
+static int hf_rrlp_af2;                           /* INTEGER_M128_127 */
+static int hf_rrlp_af1;                           /* INTEGER_M32768_32767 */
+static int hf_rrlp_af0;                           /* INTEGER_M2097152_2097151 */
+static int hf_rrlp_tgd;                           /* INTEGER_M128_127 */
+static int hf_rrlp_gpsEphemerisHeader;            /* GPSEphemerisExtensionHeader */
+static int hf_rrlp_gpsReferenceSet;               /* SeqOfGPSRefOrbit */
+static int hf_rrlp_gpsephemerisDeltaMatrix;       /* GPSEphemerisDeltaMatrix */
+static int hf_rrlp_timeofEstimation;              /* GPSEphemerisExtensionTime */
+static int hf_rrlp_SeqOfGPSRefOrbit_item;         /* GPSReferenceOrbit */
+static int hf_rrlp_gpsOrbitModel;                 /* ReferenceNavModel */
+static int hf_rrlp_gpsClockModel;                 /* GPSClockModel */
+static int hf_rrlp_GPSEphemerisDeltaMatrix_item;  /* GPSEphemerisDeltaEpoch */
+static int hf_rrlp_gpsDeltaEpochHeader;           /* GPSDeltaEpochHeader */
+static int hf_rrlp_gpsDeltaElementList;           /* GPSDeltaElementList */
+static int hf_rrlp_ephemerisDeltaSizes_01;        /* GPSEphemerisDeltaBitSizes */
+static int hf_rrlp_ephemerisDeltaScales_01;       /* GPSEphemerisDeltaScales */
+static int hf_rrlp_GPSDeltaElementList_item;      /* OCTET_STRING_SIZE_1_47 */
+static int hf_rrlp_bitsize_delta_tgd;             /* INTEGER_1_10 */
+static int hf_rrlp_scale_delta_tgd;               /* INTEGER_M16_15 */
+static int hf_rrlp_gpsBeginTime;                  /* GPSEphemerisExtensionTime */
+static int hf_rrlp_gpsEndTime;                    /* GPSEphemerisExtensionTime */
+static int hf_rrlp_gpsSatEventsInfo;              /* GPSSatEventsInfo */
+static int hf_rrlp_eventOccured_01;               /* BIT_STRING_SIZE_32 */
+static int hf_rrlp_futureEventNoted_01;           /* BIT_STRING_SIZE_32 */
+static int hf_rrlp_DGPSCorrectionsValidityPeriod_item;  /* DGPSExtensionSatElement */
+static int hf_rrlp_gpsWeekCycleNumber;            /* INTEGER_0_7 */
+static int hf_rrlp_GPSAcquisAssist_R10_Ext_item;  /* GPSAcquisAssist_R10_Ext_Element */
+static int hf_rrlp_velEstimate;                   /* VelocityEstimate */
+static int hf_rrlp_ganssLocationInfo;             /* GANSSLocationInfo */
+static int hf_rrlp_ganssMeasureInfo;              /* GANSSMeasureInfo */
+static int hf_rrlp_referenceFrame;                /* ReferenceFrame */
+static int hf_rrlp_ganssTODm;                     /* GANSSTODm */
+static int hf_rrlp_ganssTODFrac;                  /* INTEGER_0_16384 */
+static int hf_rrlp_posData;                       /* PositionData */
+static int hf_rrlp_stationaryIndication;          /* INTEGER_0_1 */
+static int hf_rrlp_referenceFN;                   /* INTEGER_0_65535 */
+static int hf_rrlp_referenceFNMSB;                /* INTEGER_0_63 */
+static int hf_rrlp_ganssMsrSetList;               /* SeqOfGANSS_MsrSetElement */
+static int hf_rrlp_SeqOfGANSS_MsrSetElement_item;  /* GANSS_MsrSetElement */
+static int hf_rrlp_deltaGANSSTOD;                 /* INTEGER_0_127 */
+static int hf_rrlp_ganss_MsrElementList;          /* SeqOfGANSS_MsrElement */
+static int hf_rrlp_SeqOfGANSS_MsrElement_item;    /* GANSS_MsrElement */
+static int hf_rrlp_ganss_SgnTypeList;             /* SeqOfGANSS_SgnTypeElement */
+static int hf_rrlp_SeqOfGANSS_SgnTypeElement_item;  /* GANSS_SgnTypeElement */
+static int hf_rrlp_ganssCodePhaseAmbiguity;       /* INTEGER_0_127 */
+static int hf_rrlp_ganss_SgnList;                 /* SeqOfGANSS_SgnElement */
+static int hf_rrlp_SeqOfGANSS_SgnElement_item;    /* GANSS_SgnElement */
+static int hf_rrlp_mpathDet;                      /* MpathIndic */
+static int hf_rrlp_carrierQualityInd;             /* INTEGER_0_3 */
+static int hf_rrlp_codePhase_01;                  /* INTEGER_0_2097151 */
+static int hf_rrlp_integerCodePhase;              /* INTEGER_0_127 */
+static int hf_rrlp_codePhaseRMSError;             /* INTEGER_0_63 */
+static int hf_rrlp_adr;                           /* INTEGER_0_33554431 */
+static int hf_rrlp_nonGANSSpositionMethods;       /* NonGANSSPositionMethods */
+static int hf_rrlp_multipleMeasurementSets;       /* MultipleMeasurementSets */
+static int hf_rrlp_GANSSPositionMethods_item;     /* GANSSPositionMethod */
+static int hf_rrlp_gANSSPositioningMethodTypes;   /* GANSSPositioningMethodTypes */
+static int hf_rrlp_gANSSSignals;                  /* GANSSSignals */
+static int hf_rrlp_sbasID_01;                     /* SBASID */
+static int hf_rrlp_gpsAssistance;                 /* GPSAssistance */
+static int hf_rrlp_gANSSAssistanceSet;            /* GANSSAssistanceSet */
+static int hf_rrlp_gANSSAdditionalAssistanceChoices;  /* GANSSAdditionalAssistanceChoices */
+static int hf_rrlp_commonGANSSAssistance;         /* CommonGANSSAssistance */
+static int hf_rrlp_specificGANSSAssistance;       /* SpecificGANSSAssistance */
+static int hf_rrlp_SpecificGANSSAssistance_item;  /* GANSSAssistanceForOneGANSS */
+static int hf_rrlp_gANSSAssistance;               /* GANSSAssistance */
+static int hf_rrlp_GANSSAdditionalAssistanceChoices_item;  /* GANSSAdditionalAssistanceChoicesForOneGANSS */
+static int hf_rrlp_ganssClockModelChoice;         /* GANSSModelID */
+static int hf_rrlp_gannsOrbitModelChoice;         /* GANSSModelID */
+static int hf_rrlp_ganssAlmanacModelChoice;       /* GANSSModelID */
+static int hf_rrlp_ganssAdditionalUTCModelChoice;  /* GANSSModelID */
 /* named bits */
-static int hf_rrlp_GANSSPositioningMethod_gps = -1;
-static int hf_rrlp_GANSSPositioningMethod_galileo = -1;
-static int hf_rrlp_GANSSPositioningMethod_sbas = -1;
-static int hf_rrlp_GANSSPositioningMethod_modernizedGPS = -1;
-static int hf_rrlp_GANSSPositioningMethod_qzss = -1;
-static int hf_rrlp_GANSSPositioningMethod_glonass = -1;
-static int hf_rrlp_PositionData_e_otd = -1;
-static int hf_rrlp_PositionData_gps = -1;
-static int hf_rrlp_PositionData_galileo = -1;
-static int hf_rrlp_PositionData_sbas = -1;
-static int hf_rrlp_PositionData_modernizedGPS = -1;
-static int hf_rrlp_PositionData_qzss = -1;
-static int hf_rrlp_PositionData_glonass = -1;
-static int hf_rrlp_NonGANSSPositionMethods_msAssistedEOTD = -1;
-static int hf_rrlp_NonGANSSPositionMethods_msBasedEOTD = -1;
-static int hf_rrlp_NonGANSSPositionMethods_msAssistedGPS = -1;
-static int hf_rrlp_NonGANSSPositionMethods_msBasedGPS = -1;
-static int hf_rrlp_NonGANSSPositionMethods_standaloneGPS = -1;
-static int hf_rrlp_GANSSPositioningMethodTypes_msAssisted = -1;
-static int hf_rrlp_GANSSPositioningMethodTypes_msBased = -1;
-static int hf_rrlp_GANSSPositioningMethodTypes_standalone = -1;
-static int hf_rrlp_GANSSSignals_signal1 = -1;
-static int hf_rrlp_GANSSSignals_signal2 = -1;
-static int hf_rrlp_GANSSSignals_signal3 = -1;
-static int hf_rrlp_GANSSSignals_signal4 = -1;
-static int hf_rrlp_GANSSSignals_signal5 = -1;
-static int hf_rrlp_GANSSSignals_signal6 = -1;
-static int hf_rrlp_GANSSSignals_signal7 = -1;
-static int hf_rrlp_GANSSSignals_signal8 = -1;
-static int hf_rrlp_SBASID_waas = -1;
-static int hf_rrlp_SBASID_egnos = -1;
-static int hf_rrlp_SBASID_masas = -1;
-static int hf_rrlp_SBASID_gagan = -1;
-static int hf_rrlp_MultipleMeasurementSets_eotd = -1;
-static int hf_rrlp_MultipleMeasurementSets_gps = -1;
-static int hf_rrlp_MultipleMeasurementSets_ganss = -1;
-static int hf_rrlp_GPSAssistance_almanac = -1;
-static int hf_rrlp_GPSAssistance_uTCmodel = -1;
-static int hf_rrlp_GPSAssistance_ionosphericModel = -1;
-static int hf_rrlp_GPSAssistance_navigationmodel = -1;
-static int hf_rrlp_GPSAssistance_dGPScorrections = -1;
-static int hf_rrlp_GPSAssistance_referenceLocation = -1;
-static int hf_rrlp_GPSAssistance_referenceTime = -1;
-static int hf_rrlp_GPSAssistance_acquisitionAssistance = -1;
-static int hf_rrlp_GPSAssistance_realTimeIntegrity = -1;
-static int hf_rrlp_GPSAssistance_ephemerisExtension = -1;
-static int hf_rrlp_GPSAssistance_ephemerisExtensionCheck = -1;
-static int hf_rrlp_CommonGANSSAssistance_referenceTime = -1;
-static int hf_rrlp_CommonGANSSAssistance_referenceLocation = -1;
-static int hf_rrlp_CommonGANSSAssistance_spare_bit2 = -1;
-static int hf_rrlp_CommonGANSSAssistance_ionosphericModel = -1;
-static int hf_rrlp_CommonGANSSAssistance_addIonosphericModel = -1;
-static int hf_rrlp_CommonGANSSAssistance_earthOrientationParam = -1;
-static int hf_rrlp_GANSSAssistance_realTimeIntegrity = -1;
-static int hf_rrlp_GANSSAssistance_differentialCorrections = -1;
-static int hf_rrlp_GANSSAssistance_almanac = -1;
-static int hf_rrlp_GANSSAssistance_referenceMeasurementInformation = -1;
-static int hf_rrlp_GANSSAssistance_navigationModel = -1;
-static int hf_rrlp_GANSSAssistance_timeModelGNSS_UTC = -1;
-static int hf_rrlp_GANSSAssistance_timeModelGNSS_GNSS = -1;
-static int hf_rrlp_GANSSAssistance_databitassistance = -1;
-static int hf_rrlp_GANSSAssistance_ephemerisExtension = -1;
-static int hf_rrlp_GANSSAssistance_ephemerisExtensionCheck = -1;
-static int hf_rrlp_GANSSAssistance_addUTCmodel = -1;
-static int hf_rrlp_GANSSAssistance_auxiliaryInformation = -1;
-static int hf_rrlp_GANSSModelID_model1 = -1;
-static int hf_rrlp_GANSSModelID_model2 = -1;
-static int hf_rrlp_GANSSModelID_model3 = -1;
-static int hf_rrlp_GANSSModelID_model4 = -1;
-static int hf_rrlp_GANSSModelID_model5 = -1;
-static int hf_rrlp_GANSSModelID_model6 = -1;
-static int hf_rrlp_GANSSModelID_model7 = -1;
-static int hf_rrlp_GANSSModelID_model8 = -1;
+static int hf_rrlp_GANSSPositioningMethod_gps;
+static int hf_rrlp_GANSSPositioningMethod_galileo;
+static int hf_rrlp_GANSSPositioningMethod_sbas;
+static int hf_rrlp_GANSSPositioningMethod_modernizedGPS;
+static int hf_rrlp_GANSSPositioningMethod_qzss;
+static int hf_rrlp_GANSSPositioningMethod_glonass;
+static int hf_rrlp_PositionData_e_otd;
+static int hf_rrlp_PositionData_gps;
+static int hf_rrlp_PositionData_galileo;
+static int hf_rrlp_PositionData_sbas;
+static int hf_rrlp_PositionData_modernizedGPS;
+static int hf_rrlp_PositionData_qzss;
+static int hf_rrlp_PositionData_glonass;
+static int hf_rrlp_NonGANSSPositionMethods_msAssistedEOTD;
+static int hf_rrlp_NonGANSSPositionMethods_msBasedEOTD;
+static int hf_rrlp_NonGANSSPositionMethods_msAssistedGPS;
+static int hf_rrlp_NonGANSSPositionMethods_msBasedGPS;
+static int hf_rrlp_NonGANSSPositionMethods_standaloneGPS;
+static int hf_rrlp_GANSSPositioningMethodTypes_msAssisted;
+static int hf_rrlp_GANSSPositioningMethodTypes_msBased;
+static int hf_rrlp_GANSSPositioningMethodTypes_standalone;
+static int hf_rrlp_GANSSSignals_signal1;
+static int hf_rrlp_GANSSSignals_signal2;
+static int hf_rrlp_GANSSSignals_signal3;
+static int hf_rrlp_GANSSSignals_signal4;
+static int hf_rrlp_GANSSSignals_signal5;
+static int hf_rrlp_GANSSSignals_signal6;
+static int hf_rrlp_GANSSSignals_signal7;
+static int hf_rrlp_GANSSSignals_signal8;
+static int hf_rrlp_SBASID_waas;
+static int hf_rrlp_SBASID_egnos;
+static int hf_rrlp_SBASID_masas;
+static int hf_rrlp_SBASID_gagan;
+static int hf_rrlp_MultipleMeasurementSets_eotd;
+static int hf_rrlp_MultipleMeasurementSets_gps;
+static int hf_rrlp_MultipleMeasurementSets_ganss;
+static int hf_rrlp_GPSAssistance_almanac;
+static int hf_rrlp_GPSAssistance_uTCmodel;
+static int hf_rrlp_GPSAssistance_ionosphericModel;
+static int hf_rrlp_GPSAssistance_navigationmodel;
+static int hf_rrlp_GPSAssistance_dGPScorrections;
+static int hf_rrlp_GPSAssistance_referenceLocation;
+static int hf_rrlp_GPSAssistance_referenceTime;
+static int hf_rrlp_GPSAssistance_acquisitionAssistance;
+static int hf_rrlp_GPSAssistance_realTimeIntegrity;
+static int hf_rrlp_GPSAssistance_ephemerisExtension;
+static int hf_rrlp_GPSAssistance_ephemerisExtensionCheck;
+static int hf_rrlp_CommonGANSSAssistance_referenceTime;
+static int hf_rrlp_CommonGANSSAssistance_referenceLocation;
+static int hf_rrlp_CommonGANSSAssistance_spare_bit2;
+static int hf_rrlp_CommonGANSSAssistance_ionosphericModel;
+static int hf_rrlp_CommonGANSSAssistance_addIonosphericModel;
+static int hf_rrlp_CommonGANSSAssistance_earthOrientationParam;
+static int hf_rrlp_GANSSAssistance_realTimeIntegrity;
+static int hf_rrlp_GANSSAssistance_differentialCorrections;
+static int hf_rrlp_GANSSAssistance_almanac;
+static int hf_rrlp_GANSSAssistance_referenceMeasurementInformation;
+static int hf_rrlp_GANSSAssistance_navigationModel;
+static int hf_rrlp_GANSSAssistance_timeModelGNSS_UTC;
+static int hf_rrlp_GANSSAssistance_timeModelGNSS_GNSS;
+static int hf_rrlp_GANSSAssistance_databitassistance;
+static int hf_rrlp_GANSSAssistance_ephemerisExtension;
+static int hf_rrlp_GANSSAssistance_ephemerisExtensionCheck;
+static int hf_rrlp_GANSSAssistance_addUTCmodel;
+static int hf_rrlp_GANSSAssistance_auxiliaryInformation;
+static int hf_rrlp_GANSSModelID_model1;
+static int hf_rrlp_GANSSModelID_model2;
+static int hf_rrlp_GANSSModelID_model3;
+static int hf_rrlp_GANSSModelID_model4;
+static int hf_rrlp_GANSSModelID_model5;
+static int hf_rrlp_GANSSModelID_model6;
+static int hf_rrlp_GANSSModelID_model7;
+static int hf_rrlp_GANSSModelID_model8;
 
 /* Initialize the subtree pointers */
-static gint ett_rrlp = -1;
-static gint ett_rrlp_ExtensionContainer = -1;
-static gint ett_rrlp_PrivateExtensionList = -1;
-static gint ett_rrlp_PrivateExtension = -1;
-static gint ett_rrlp_PCS_Extensions = -1;
-static gint ett_rrlp_PDU = -1;
-static gint ett_rrlp_RRLP_Component = -1;
-static gint ett_rrlp_MsrPosition_Req = -1;
-static gint ett_rrlp_MsrPosition_Rsp = -1;
-static gint ett_rrlp_AssistanceData = -1;
-static gint ett_rrlp_ProtocolError = -1;
-static gint ett_rrlp_PosCapability_Req = -1;
-static gint ett_rrlp_PosCapability_Rsp = -1;
-static gint ett_rrlp_PositionInstruct = -1;
-static gint ett_rrlp_MethodType = -1;
-static gint ett_rrlp_AccuracyOpt = -1;
-static gint ett_rrlp_ReferenceAssistData = -1;
-static gint ett_rrlp_MsrAssistData = -1;
-static gint ett_rrlp_SeqOfMsrAssistBTS = -1;
-static gint ett_rrlp_MsrAssistBTS = -1;
-static gint ett_rrlp_SystemInfoAssistData = -1;
-static gint ett_rrlp_SeqOfSystemInfoAssistBTS = -1;
-static gint ett_rrlp_SystemInfoAssistBTS = -1;
-static gint ett_rrlp_AssistBTSData = -1;
-static gint ett_rrlp_CalcAssistanceBTS = -1;
-static gint ett_rrlp_ReferenceWGS84 = -1;
-static gint ett_rrlp_MultipleSets = -1;
-static gint ett_rrlp_ReferenceIdentity = -1;
-static gint ett_rrlp_SeqOfReferenceIdentityType = -1;
-static gint ett_rrlp_ReferenceIdentityType = -1;
-static gint ett_rrlp_BSICAndCarrier = -1;
-static gint ett_rrlp_CellIDAndLAC = -1;
-static gint ett_rrlp_OTD_MeasureInfo = -1;
-static gint ett_rrlp_SeqOfOTD_MsrElementRest = -1;
-static gint ett_rrlp_OTD_MsrElementFirst = -1;
-static gint ett_rrlp_SeqOfOTD_FirstSetMsrs = -1;
-static gint ett_rrlp_OTD_MsrElementRest = -1;
-static gint ett_rrlp_SeqOfOTD_MsrsOfOtherSets = -1;
-static gint ett_rrlp_TOA_MeasurementsOfRef = -1;
-static gint ett_rrlp_OTD_MsrsOfOtherSets = -1;
-static gint ett_rrlp_OTD_Measurement = -1;
-static gint ett_rrlp_OTD_MeasurementWithID = -1;
-static gint ett_rrlp_EOTDQuality = -1;
-static gint ett_rrlp_NeighborIdentity = -1;
-static gint ett_rrlp_MultiFrameCarrier = -1;
-static gint ett_rrlp_LocationInfo = -1;
-static gint ett_rrlp_GPS_MeasureInfo = -1;
-static gint ett_rrlp_SeqOfGPS_MsrSetElement = -1;
-static gint ett_rrlp_GPS_MsrSetElement = -1;
-static gint ett_rrlp_SeqOfGPS_MsrElement = -1;
-static gint ett_rrlp_GPS_MsrElement = -1;
-static gint ett_rrlp_LocationError = -1;
-static gint ett_rrlp_AdditionalAssistanceData = -1;
-static gint ett_rrlp_GPS_AssistData = -1;
-static gint ett_rrlp_ControlHeader = -1;
-static gint ett_rrlp_ReferenceTime = -1;
-static gint ett_rrlp_GPSTime = -1;
-static gint ett_rrlp_GPSTOWAssist = -1;
-static gint ett_rrlp_GPSTOWAssistElement = -1;
-static gint ett_rrlp_GSMTime = -1;
-static gint ett_rrlp_RefLocation = -1;
-static gint ett_rrlp_DGPSCorrections = -1;
-static gint ett_rrlp_SeqOfSatElement = -1;
-static gint ett_rrlp_SatElement = -1;
-static gint ett_rrlp_NavigationModel = -1;
-static gint ett_rrlp_SeqOfNavModelElement = -1;
-static gint ett_rrlp_NavModelElement = -1;
-static gint ett_rrlp_SatStatus = -1;
-static gint ett_rrlp_UncompressedEphemeris = -1;
-static gint ett_rrlp_EphemerisSubframe1Reserved = -1;
-static gint ett_rrlp_IonosphericModel = -1;
-static gint ett_rrlp_UTCModel = -1;
-static gint ett_rrlp_Almanac = -1;
-static gint ett_rrlp_SeqOfAlmanacElement = -1;
-static gint ett_rrlp_AlmanacElement = -1;
-static gint ett_rrlp_AcquisAssist = -1;
-static gint ett_rrlp_SeqOfAcquisElement = -1;
-static gint ett_rrlp_TimeRelation = -1;
-static gint ett_rrlp_AcquisElement = -1;
-static gint ett_rrlp_AddionalDopplerFields = -1;
-static gint ett_rrlp_AddionalAngleFields = -1;
-static gint ett_rrlp_SeqOf_BadSatelliteSet = -1;
-static gint ett_rrlp_Rel98_MsrPosition_Req_Extension = -1;
-static gint ett_rrlp_Rel98_AssistanceData_Extension = -1;
-static gint ett_rrlp_Rel98_Ext_ExpOTD = -1;
-static gint ett_rrlp_MsrAssistData_R98_ExpOTD = -1;
-static gint ett_rrlp_SeqOfMsrAssistBTS_R98_ExpOTD = -1;
-static gint ett_rrlp_MsrAssistBTS_R98_ExpOTD = -1;
-static gint ett_rrlp_SystemInfoAssistData_R98_ExpOTD = -1;
-static gint ett_rrlp_SeqOfSystemInfoAssistBTS_R98_ExpOTD = -1;
-static gint ett_rrlp_SystemInfoAssistBTS_R98_ExpOTD = -1;
-static gint ett_rrlp_AssistBTSData_R98_ExpOTD = -1;
-static gint ett_rrlp_GPSTimeAssistanceMeasurements = -1;
-static gint ett_rrlp_Rel_98_MsrPosition_Rsp_Extension = -1;
-static gint ett_rrlp_T_rel_98_Ext_MeasureInfo = -1;
-static gint ett_rrlp_OTD_MeasureInfo_R98_Ext = -1;
-static gint ett_rrlp_OTD_MsrElementFirst_R98_Ext = -1;
-static gint ett_rrlp_SeqOfOTD_FirstSetMsrs_R98_Ext = -1;
-static gint ett_rrlp_Rel_5_MsrPosition_Rsp_Extension = -1;
-static gint ett_rrlp_Extended_reference = -1;
-static gint ett_rrlp_Rel5_MsrPosition_Req_Extension = -1;
-static gint ett_rrlp_Rel5_AssistanceData_Extension = -1;
-static gint ett_rrlp_Rel_5_ProtocolError_Extension = -1;
-static gint ett_rrlp_Rel7_MsrPosition_Req_Extension = -1;
-static gint ett_rrlp_GANSSPositioningMethod = -1;
-static gint ett_rrlp_GANSS_AssistData = -1;
-static gint ett_rrlp_GANSS_ControlHeader = -1;
-static gint ett_rrlp_GANSSCommonAssistData = -1;
-static gint ett_rrlp_SeqOfGANSSGenericAssistDataElement = -1;
-static gint ett_rrlp_GANSSGenericAssistDataElement = -1;
-static gint ett_rrlp_GANSSReferenceTime = -1;
-static gint ett_rrlp_GANSSRefTimeInfo = -1;
-static gint ett_rrlp_GANSSReferenceTime_R10_Ext = -1;
-static gint ett_rrlp_GANSSTOD_GSMTimeAssociation = -1;
-static gint ett_rrlp_GANSSRefLocation = -1;
-static gint ett_rrlp_GANSSIonosphericModel = -1;
-static gint ett_rrlp_GANSSIonosphereModel = -1;
-static gint ett_rrlp_GANSSIonoStormFlags = -1;
-static gint ett_rrlp_GANSSAddIonosphericModel = -1;
-static gint ett_rrlp_GANSSEarthOrientParam = -1;
-static gint ett_rrlp_SeqOfGANSSTimeModel = -1;
-static gint ett_rrlp_GANSSTimeModelElement = -1;
-static gint ett_rrlp_SeqOfGANSSTimeModel_R10_Ext = -1;
-static gint ett_rrlp_GANSSTimeModelElement_R10_Ext = -1;
-static gint ett_rrlp_GANSSDiffCorrections = -1;
-static gint ett_rrlp_SeqOfSgnTypeElement = -1;
-static gint ett_rrlp_SgnTypeElement = -1;
-static gint ett_rrlp_SeqOfDGANSSSgnElement = -1;
-static gint ett_rrlp_DGANSSSgnElement = -1;
-static gint ett_rrlp_GANSSNavModel = -1;
-static gint ett_rrlp_SeqOfGANSSSatelliteElement = -1;
-static gint ett_rrlp_GANSSSatelliteElement = -1;
-static gint ett_rrlp_GANSSOrbitModel = -1;
-static gint ett_rrlp_NavModel_KeplerianSet = -1;
-static gint ett_rrlp_NavModel_NAVKeplerianSet = -1;
-static gint ett_rrlp_NavModel_CNAVKeplerianSet = -1;
-static gint ett_rrlp_NavModel_GLONASSecef = -1;
-static gint ett_rrlp_NavModel_SBASecef = -1;
-static gint ett_rrlp_GANSSClockModel = -1;
-static gint ett_rrlp_SeqOfStandardClockModelElement = -1;
-static gint ett_rrlp_StandardClockModelElement = -1;
-static gint ett_rrlp_NAVclockModel = -1;
-static gint ett_rrlp_CNAVclockModel = -1;
-static gint ett_rrlp_GLONASSclockModel = -1;
-static gint ett_rrlp_SBASclockModel = -1;
-static gint ett_rrlp_GANSSRealTimeIntegrity = -1;
-static gint ett_rrlp_SeqOfBadSignalElement = -1;
-static gint ett_rrlp_BadSignalElement = -1;
-static gint ett_rrlp_GANSSDataBitAssist = -1;
-static gint ett_rrlp_SeqOfGanssDataBitsElement = -1;
-static gint ett_rrlp_GanssDataBitsElement = -1;
-static gint ett_rrlp_Seq_OfGANSSDataBitsSgn = -1;
-static gint ett_rrlp_GANSSDataBitsSgnElement = -1;
-static gint ett_rrlp_SeqOf_GANSSDataBits = -1;
-static gint ett_rrlp_GANSSRefMeasurementAssist = -1;
-static gint ett_rrlp_SeqOfGANSSRefMeasurementElement = -1;
-static gint ett_rrlp_GANSSRefMeasurementElement = -1;
-static gint ett_rrlp_AdditionalDopplerFields = -1;
-static gint ett_rrlp_GANSSRefMeasurementAssist_R10_Ext = -1;
-static gint ett_rrlp_GANSSRefMeasurement_R10_Ext_Element = -1;
-static gint ett_rrlp_GANSSAlmanacModel = -1;
-static gint ett_rrlp_SeqOfGANSSAlmanacElement = -1;
-static gint ett_rrlp_GANSSAlmanacElement = -1;
-static gint ett_rrlp_Almanac_KeplerianSet = -1;
-static gint ett_rrlp_Almanac_NAVKeplerianSet = -1;
-static gint ett_rrlp_Almanac_ReducedKeplerianSet = -1;
-static gint ett_rrlp_Almanac_MidiAlmanacSet = -1;
-static gint ett_rrlp_Almanac_GlonassAlmanacSet = -1;
-static gint ett_rrlp_Almanac_ECEFsbasAlmanacSet = -1;
-static gint ett_rrlp_GANSSAlmanacModel_R10_Ext = -1;
-static gint ett_rrlp_GANSSUTCModel = -1;
-static gint ett_rrlp_GANSSEphemerisExtension = -1;
-static gint ett_rrlp_GANSSEphemerisExtensionHeader = -1;
-static gint ett_rrlp_GANSSEphemerisExtensionTime = -1;
-static gint ett_rrlp_ReferenceNavModel = -1;
-static gint ett_rrlp_SeqOfGANSSRefOrbit = -1;
-static gint ett_rrlp_GANSSReferenceOrbit = -1;
-static gint ett_rrlp_GANSSEphemerisDeltaMatrix = -1;
-static gint ett_rrlp_GANSSEphemerisDeltaEpoch = -1;
-static gint ett_rrlp_GANSSDeltaEpochHeader = -1;
-static gint ett_rrlp_GANSSDeltaElementList = -1;
-static gint ett_rrlp_GANSSEphemerisDeltaBitSizes = -1;
-static gint ett_rrlp_GANSSEphemerisDeltaScales = -1;
-static gint ett_rrlp_GANSSEphemerisExtensionCheck = -1;
-static gint ett_rrlp_GANSSSatEventsInfo = -1;
-static gint ett_rrlp_GANSSAddUTCModel = -1;
-static gint ett_rrlp_UTCmodelSet2 = -1;
-static gint ett_rrlp_UTCmodelSet3 = -1;
-static gint ett_rrlp_UTCmodelSet4 = -1;
-static gint ett_rrlp_GANSSAuxiliaryInformation = -1;
-static gint ett_rrlp_GANSS_ID1 = -1;
-static gint ett_rrlp_GANSS_ID1_element = -1;
-static gint ett_rrlp_GANSS_ID3 = -1;
-static gint ett_rrlp_GANSS_ID3_element = -1;
-static gint ett_rrlp_GANSSDiffCorrectionsValidityPeriod = -1;
-static gint ett_rrlp_DGANSSExtensionSgnTypeElement = -1;
-static gint ett_rrlp_SeqOfDGANSSExtensionSgnElement = -1;
-static gint ett_rrlp_DGANSSExtensionSgnElement = -1;
-static gint ett_rrlp_Add_GPS_AssistData = -1;
-static gint ett_rrlp_Add_GPS_ControlHeader = -1;
-static gint ett_rrlp_GPSClockModel = -1;
-static gint ett_rrlp_GPSEphemerisExtension = -1;
-static gint ett_rrlp_GPSEphemerisExtensionHeader = -1;
-static gint ett_rrlp_GPSEphemerisExtensionTime = -1;
-static gint ett_rrlp_SeqOfGPSRefOrbit = -1;
-static gint ett_rrlp_GPSReferenceOrbit = -1;
-static gint ett_rrlp_GPSEphemerisDeltaMatrix = -1;
-static gint ett_rrlp_GPSEphemerisDeltaEpoch = -1;
-static gint ett_rrlp_GPSDeltaEpochHeader = -1;
-static gint ett_rrlp_GPSDeltaElementList = -1;
-static gint ett_rrlp_GPSEphemerisDeltaBitSizes = -1;
-static gint ett_rrlp_GPSEphemerisDeltaScales = -1;
-static gint ett_rrlp_GPSEphemerisExtensionCheck = -1;
-static gint ett_rrlp_GPSSatEventsInfo = -1;
-static gint ett_rrlp_DGPSCorrectionsValidityPeriod = -1;
-static gint ett_rrlp_DGPSExtensionSatElement = -1;
-static gint ett_rrlp_GPSReferenceTime_R10_Ext = -1;
-static gint ett_rrlp_GPSAcquisAssist_R10_Ext = -1;
-static gint ett_rrlp_GPSAcquisAssist_R10_Ext_Element = -1;
-static gint ett_rrlp_GPSAlmanac_R10_Ext = -1;
-static gint ett_rrlp_Rel_7_MsrPosition_Rsp_Extension = -1;
-static gint ett_rrlp_GANSSLocationInfo = -1;
-static gint ett_rrlp_PositionData = -1;
-static gint ett_rrlp_ReferenceFrame = -1;
-static gint ett_rrlp_GANSSMeasureInfo = -1;
-static gint ett_rrlp_SeqOfGANSS_MsrSetElement = -1;
-static gint ett_rrlp_GANSS_MsrSetElement = -1;
-static gint ett_rrlp_SeqOfGANSS_MsrElement = -1;
-static gint ett_rrlp_GANSS_MsrElement = -1;
-static gint ett_rrlp_SeqOfGANSS_SgnTypeElement = -1;
-static gint ett_rrlp_GANSS_SgnTypeElement = -1;
-static gint ett_rrlp_SeqOfGANSS_SgnElement = -1;
-static gint ett_rrlp_GANSS_SgnElement = -1;
-static gint ett_rrlp_Rel7_AssistanceData_Extension = -1;
-static gint ett_rrlp_PosCapabilities = -1;
-static gint ett_rrlp_NonGANSSPositionMethods = -1;
-static gint ett_rrlp_GANSSPositionMethods = -1;
-static gint ett_rrlp_GANSSPositionMethod = -1;
-static gint ett_rrlp_GANSSPositioningMethodTypes = -1;
-static gint ett_rrlp_GANSSSignals = -1;
-static gint ett_rrlp_SBASID = -1;
-static gint ett_rrlp_MultipleMeasurementSets = -1;
-static gint ett_rrlp_AssistanceSupported = -1;
-static gint ett_rrlp_GPSAssistance = -1;
-static gint ett_rrlp_GANSSAssistanceSet = -1;
-static gint ett_rrlp_CommonGANSSAssistance = -1;
-static gint ett_rrlp_SpecificGANSSAssistance = -1;
-static gint ett_rrlp_GANSSAssistanceForOneGANSS = -1;
-static gint ett_rrlp_GANSSAssistance = -1;
-static gint ett_rrlp_GANSSAdditionalAssistanceChoices = -1;
-static gint ett_rrlp_GANSSAdditionalAssistanceChoicesForOneGANSS = -1;
-static gint ett_rrlp_GANSSModelID = -1;
-static gint ett_rrlp_AssistanceNeeded = -1;
+static gint ett_rrlp;
+static gint ett_rrlp_ExtensionContainer;
+static gint ett_rrlp_PrivateExtensionList;
+static gint ett_rrlp_PrivateExtension;
+static gint ett_rrlp_PCS_Extensions;
+static gint ett_rrlp_PDU;
+static gint ett_rrlp_RRLP_Component;
+static gint ett_rrlp_MsrPosition_Req;
+static gint ett_rrlp_MsrPosition_Rsp;
+static gint ett_rrlp_AssistanceData;
+static gint ett_rrlp_ProtocolError;
+static gint ett_rrlp_PosCapability_Req;
+static gint ett_rrlp_PosCapability_Rsp;
+static gint ett_rrlp_PositionInstruct;
+static gint ett_rrlp_MethodType;
+static gint ett_rrlp_AccuracyOpt;
+static gint ett_rrlp_ReferenceAssistData;
+static gint ett_rrlp_MsrAssistData;
+static gint ett_rrlp_SeqOfMsrAssistBTS;
+static gint ett_rrlp_MsrAssistBTS;
+static gint ett_rrlp_SystemInfoAssistData;
+static gint ett_rrlp_SeqOfSystemInfoAssistBTS;
+static gint ett_rrlp_SystemInfoAssistBTS;
+static gint ett_rrlp_AssistBTSData;
+static gint ett_rrlp_CalcAssistanceBTS;
+static gint ett_rrlp_ReferenceWGS84;
+static gint ett_rrlp_MultipleSets;
+static gint ett_rrlp_ReferenceIdentity;
+static gint ett_rrlp_SeqOfReferenceIdentityType;
+static gint ett_rrlp_ReferenceIdentityType;
+static gint ett_rrlp_BSICAndCarrier;
+static gint ett_rrlp_CellIDAndLAC;
+static gint ett_rrlp_OTD_MeasureInfo;
+static gint ett_rrlp_SeqOfOTD_MsrElementRest;
+static gint ett_rrlp_OTD_MsrElementFirst;
+static gint ett_rrlp_SeqOfOTD_FirstSetMsrs;
+static gint ett_rrlp_OTD_MsrElementRest;
+static gint ett_rrlp_SeqOfOTD_MsrsOfOtherSets;
+static gint ett_rrlp_TOA_MeasurementsOfRef;
+static gint ett_rrlp_OTD_MsrsOfOtherSets;
+static gint ett_rrlp_OTD_Measurement;
+static gint ett_rrlp_OTD_MeasurementWithID;
+static gint ett_rrlp_EOTDQuality;
+static gint ett_rrlp_NeighborIdentity;
+static gint ett_rrlp_MultiFrameCarrier;
+static gint ett_rrlp_LocationInfo;
+static gint ett_rrlp_GPS_MeasureInfo;
+static gint ett_rrlp_SeqOfGPS_MsrSetElement;
+static gint ett_rrlp_GPS_MsrSetElement;
+static gint ett_rrlp_SeqOfGPS_MsrElement;
+static gint ett_rrlp_GPS_MsrElement;
+static gint ett_rrlp_LocationError;
+static gint ett_rrlp_AdditionalAssistanceData;
+static gint ett_rrlp_GPS_AssistData;
+static gint ett_rrlp_ControlHeader;
+static gint ett_rrlp_ReferenceTime;
+static gint ett_rrlp_GPSTime;
+static gint ett_rrlp_GPSTOWAssist;
+static gint ett_rrlp_GPSTOWAssistElement;
+static gint ett_rrlp_GSMTime;
+static gint ett_rrlp_RefLocation;
+static gint ett_rrlp_DGPSCorrections;
+static gint ett_rrlp_SeqOfSatElement;
+static gint ett_rrlp_SatElement;
+static gint ett_rrlp_NavigationModel;
+static gint ett_rrlp_SeqOfNavModelElement;
+static gint ett_rrlp_NavModelElement;
+static gint ett_rrlp_SatStatus;
+static gint ett_rrlp_UncompressedEphemeris;
+static gint ett_rrlp_EphemerisSubframe1Reserved;
+static gint ett_rrlp_IonosphericModel;
+static gint ett_rrlp_UTCModel;
+static gint ett_rrlp_Almanac;
+static gint ett_rrlp_SeqOfAlmanacElement;
+static gint ett_rrlp_AlmanacElement;
+static gint ett_rrlp_AcquisAssist;
+static gint ett_rrlp_SeqOfAcquisElement;
+static gint ett_rrlp_TimeRelation;
+static gint ett_rrlp_AcquisElement;
+static gint ett_rrlp_AddionalDopplerFields;
+static gint ett_rrlp_AddionalAngleFields;
+static gint ett_rrlp_SeqOf_BadSatelliteSet;
+static gint ett_rrlp_Rel98_MsrPosition_Req_Extension;
+static gint ett_rrlp_Rel98_AssistanceData_Extension;
+static gint ett_rrlp_Rel98_Ext_ExpOTD;
+static gint ett_rrlp_MsrAssistData_R98_ExpOTD;
+static gint ett_rrlp_SeqOfMsrAssistBTS_R98_ExpOTD;
+static gint ett_rrlp_MsrAssistBTS_R98_ExpOTD;
+static gint ett_rrlp_SystemInfoAssistData_R98_ExpOTD;
+static gint ett_rrlp_SeqOfSystemInfoAssistBTS_R98_ExpOTD;
+static gint ett_rrlp_SystemInfoAssistBTS_R98_ExpOTD;
+static gint ett_rrlp_AssistBTSData_R98_ExpOTD;
+static gint ett_rrlp_GPSTimeAssistanceMeasurements;
+static gint ett_rrlp_Rel_98_MsrPosition_Rsp_Extension;
+static gint ett_rrlp_T_rel_98_Ext_MeasureInfo;
+static gint ett_rrlp_OTD_MeasureInfo_R98_Ext;
+static gint ett_rrlp_OTD_MsrElementFirst_R98_Ext;
+static gint ett_rrlp_SeqOfOTD_FirstSetMsrs_R98_Ext;
+static gint ett_rrlp_Rel_5_MsrPosition_Rsp_Extension;
+static gint ett_rrlp_Extended_reference;
+static gint ett_rrlp_Rel5_MsrPosition_Req_Extension;
+static gint ett_rrlp_Rel5_AssistanceData_Extension;
+static gint ett_rrlp_Rel_5_ProtocolError_Extension;
+static gint ett_rrlp_Rel7_MsrPosition_Req_Extension;
+static gint ett_rrlp_GANSSPositioningMethod;
+static gint ett_rrlp_GANSS_AssistData;
+static gint ett_rrlp_GANSS_ControlHeader;
+static gint ett_rrlp_GANSSCommonAssistData;
+static gint ett_rrlp_SeqOfGANSSGenericAssistDataElement;
+static gint ett_rrlp_GANSSGenericAssistDataElement;
+static gint ett_rrlp_GANSSReferenceTime;
+static gint ett_rrlp_GANSSRefTimeInfo;
+static gint ett_rrlp_GANSSReferenceTime_R10_Ext;
+static gint ett_rrlp_GANSSTOD_GSMTimeAssociation;
+static gint ett_rrlp_GANSSRefLocation;
+static gint ett_rrlp_GANSSIonosphericModel;
+static gint ett_rrlp_GANSSIonosphereModel;
+static gint ett_rrlp_GANSSIonoStormFlags;
+static gint ett_rrlp_GANSSAddIonosphericModel;
+static gint ett_rrlp_GANSSEarthOrientParam;
+static gint ett_rrlp_SeqOfGANSSTimeModel;
+static gint ett_rrlp_GANSSTimeModelElement;
+static gint ett_rrlp_SeqOfGANSSTimeModel_R10_Ext;
+static gint ett_rrlp_GANSSTimeModelElement_R10_Ext;
+static gint ett_rrlp_GANSSDiffCorrections;
+static gint ett_rrlp_SeqOfSgnTypeElement;
+static gint ett_rrlp_SgnTypeElement;
+static gint ett_rrlp_SeqOfDGANSSSgnElement;
+static gint ett_rrlp_DGANSSSgnElement;
+static gint ett_rrlp_GANSSNavModel;
+static gint ett_rrlp_SeqOfGANSSSatelliteElement;
+static gint ett_rrlp_GANSSSatelliteElement;
+static gint ett_rrlp_GANSSOrbitModel;
+static gint ett_rrlp_NavModel_KeplerianSet;
+static gint ett_rrlp_NavModel_NAVKeplerianSet;
+static gint ett_rrlp_NavModel_CNAVKeplerianSet;
+static gint ett_rrlp_NavModel_GLONASSecef;
+static gint ett_rrlp_NavModel_SBASecef;
+static gint ett_rrlp_GANSSClockModel;
+static gint ett_rrlp_SeqOfStandardClockModelElement;
+static gint ett_rrlp_StandardClockModelElement;
+static gint ett_rrlp_NAVclockModel;
+static gint ett_rrlp_CNAVclockModel;
+static gint ett_rrlp_GLONASSclockModel;
+static gint ett_rrlp_SBASclockModel;
+static gint ett_rrlp_GANSSRealTimeIntegrity;
+static gint ett_rrlp_SeqOfBadSignalElement;
+static gint ett_rrlp_BadSignalElement;
+static gint ett_rrlp_GANSSDataBitAssist;
+static gint ett_rrlp_SeqOfGanssDataBitsElement;
+static gint ett_rrlp_GanssDataBitsElement;
+static gint ett_rrlp_Seq_OfGANSSDataBitsSgn;
+static gint ett_rrlp_GANSSDataBitsSgnElement;
+static gint ett_rrlp_SeqOf_GANSSDataBits;
+static gint ett_rrlp_GANSSRefMeasurementAssist;
+static gint ett_rrlp_SeqOfGANSSRefMeasurementElement;
+static gint ett_rrlp_GANSSRefMeasurementElement;
+static gint ett_rrlp_AdditionalDopplerFields;
+static gint ett_rrlp_GANSSRefMeasurementAssist_R10_Ext;
+static gint ett_rrlp_GANSSRefMeasurement_R10_Ext_Element;
+static gint ett_rrlp_GANSSAlmanacModel;
+static gint ett_rrlp_SeqOfGANSSAlmanacElement;
+static gint ett_rrlp_GANSSAlmanacElement;
+static gint ett_rrlp_Almanac_KeplerianSet;
+static gint ett_rrlp_Almanac_NAVKeplerianSet;
+static gint ett_rrlp_Almanac_ReducedKeplerianSet;
+static gint ett_rrlp_Almanac_MidiAlmanacSet;
+static gint ett_rrlp_Almanac_GlonassAlmanacSet;
+static gint ett_rrlp_Almanac_ECEFsbasAlmanacSet;
+static gint ett_rrlp_GANSSAlmanacModel_R10_Ext;
+static gint ett_rrlp_GANSSUTCModel;
+static gint ett_rrlp_GANSSEphemerisExtension;
+static gint ett_rrlp_GANSSEphemerisExtensionHeader;
+static gint ett_rrlp_GANSSEphemerisExtensionTime;
+static gint ett_rrlp_ReferenceNavModel;
+static gint ett_rrlp_SeqOfGANSSRefOrbit;
+static gint ett_rrlp_GANSSReferenceOrbit;
+static gint ett_rrlp_GANSSEphemerisDeltaMatrix;
+static gint ett_rrlp_GANSSEphemerisDeltaEpoch;
+static gint ett_rrlp_GANSSDeltaEpochHeader;
+static gint ett_rrlp_GANSSDeltaElementList;
+static gint ett_rrlp_GANSSEphemerisDeltaBitSizes;
+static gint ett_rrlp_GANSSEphemerisDeltaScales;
+static gint ett_rrlp_GANSSEphemerisExtensionCheck;
+static gint ett_rrlp_GANSSSatEventsInfo;
+static gint ett_rrlp_GANSSAddUTCModel;
+static gint ett_rrlp_UTCmodelSet2;
+static gint ett_rrlp_UTCmodelSet3;
+static gint ett_rrlp_UTCmodelSet4;
+static gint ett_rrlp_GANSSAuxiliaryInformation;
+static gint ett_rrlp_GANSS_ID1;
+static gint ett_rrlp_GANSS_ID1_element;
+static gint ett_rrlp_GANSS_ID3;
+static gint ett_rrlp_GANSS_ID3_element;
+static gint ett_rrlp_GANSSDiffCorrectionsValidityPeriod;
+static gint ett_rrlp_DGANSSExtensionSgnTypeElement;
+static gint ett_rrlp_SeqOfDGANSSExtensionSgnElement;
+static gint ett_rrlp_DGANSSExtensionSgnElement;
+static gint ett_rrlp_Add_GPS_AssistData;
+static gint ett_rrlp_Add_GPS_ControlHeader;
+static gint ett_rrlp_GPSClockModel;
+static gint ett_rrlp_GPSEphemerisExtension;
+static gint ett_rrlp_GPSEphemerisExtensionHeader;
+static gint ett_rrlp_GPSEphemerisExtensionTime;
+static gint ett_rrlp_SeqOfGPSRefOrbit;
+static gint ett_rrlp_GPSReferenceOrbit;
+static gint ett_rrlp_GPSEphemerisDeltaMatrix;
+static gint ett_rrlp_GPSEphemerisDeltaEpoch;
+static gint ett_rrlp_GPSDeltaEpochHeader;
+static gint ett_rrlp_GPSDeltaElementList;
+static gint ett_rrlp_GPSEphemerisDeltaBitSizes;
+static gint ett_rrlp_GPSEphemerisDeltaScales;
+static gint ett_rrlp_GPSEphemerisExtensionCheck;
+static gint ett_rrlp_GPSSatEventsInfo;
+static gint ett_rrlp_DGPSCorrectionsValidityPeriod;
+static gint ett_rrlp_DGPSExtensionSatElement;
+static gint ett_rrlp_GPSReferenceTime_R10_Ext;
+static gint ett_rrlp_GPSAcquisAssist_R10_Ext;
+static gint ett_rrlp_GPSAcquisAssist_R10_Ext_Element;
+static gint ett_rrlp_GPSAlmanac_R10_Ext;
+static gint ett_rrlp_Rel_7_MsrPosition_Rsp_Extension;
+static gint ett_rrlp_GANSSLocationInfo;
+static gint ett_rrlp_PositionData;
+static gint ett_rrlp_ReferenceFrame;
+static gint ett_rrlp_GANSSMeasureInfo;
+static gint ett_rrlp_SeqOfGANSS_MsrSetElement;
+static gint ett_rrlp_GANSS_MsrSetElement;
+static gint ett_rrlp_SeqOfGANSS_MsrElement;
+static gint ett_rrlp_GANSS_MsrElement;
+static gint ett_rrlp_SeqOfGANSS_SgnTypeElement;
+static gint ett_rrlp_GANSS_SgnTypeElement;
+static gint ett_rrlp_SeqOfGANSS_SgnElement;
+static gint ett_rrlp_GANSS_SgnElement;
+static gint ett_rrlp_Rel7_AssistanceData_Extension;
+static gint ett_rrlp_PosCapabilities;
+static gint ett_rrlp_NonGANSSPositionMethods;
+static gint ett_rrlp_GANSSPositionMethods;
+static gint ett_rrlp_GANSSPositionMethod;
+static gint ett_rrlp_GANSSPositioningMethodTypes;
+static gint ett_rrlp_GANSSSignals;
+static gint ett_rrlp_SBASID;
+static gint ett_rrlp_MultipleMeasurementSets;
+static gint ett_rrlp_AssistanceSupported;
+static gint ett_rrlp_GPSAssistance;
+static gint ett_rrlp_GANSSAssistanceSet;
+static gint ett_rrlp_CommonGANSSAssistance;
+static gint ett_rrlp_SpecificGANSSAssistance;
+static gint ett_rrlp_GANSSAssistanceForOneGANSS;
+static gint ett_rrlp_GANSSAssistance;
+static gint ett_rrlp_GANSSAdditionalAssistanceChoices;
+static gint ett_rrlp_GANSSAdditionalAssistanceChoicesForOneGANSS;
+static gint ett_rrlp_GANSSModelID;
+static gint ett_rrlp_AssistanceNeeded;
 
 /* Include constants */
 #define maxNumOfPrivateExtensions      10

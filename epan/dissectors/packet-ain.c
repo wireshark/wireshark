@@ -46,693 +46,693 @@ void proto_reg_handoff_ain(void);
 
 
 /* Initialize the protocol and registered fields */
-static int proto_ain = -1;
+static int proto_ain;
 
 static dissector_handle_t   ain_handle;
 
 /* include constants */
 #define noInvokeId                     NULL
 
-static int hf_ain_ext_type_oid = -1;
-static int hf_ain_odd_even_indicator = -1;
-static int hf_ain_nature_of_address = -1;
-static int hf_ain_numbering_plan = -1;
-static int hf_ain_bcd_digits = -1;
-static int hf_ain_carrier_selection = -1;
-static int hf_ain_nature_of_carrier = -1;
-static int hf_ain_nr_digits = -1;
-static int hf_ain_carrier_bcd_digits = -1;
-static int hf_ain_amaslpid = -1;
+static int hf_ain_ext_type_oid;
+static int hf_ain_odd_even_indicator;
+static int hf_ain_nature_of_address;
+static int hf_ain_numbering_plan;
+static int hf_ain_bcd_digits;
+static int hf_ain_carrier_selection;
+static int hf_ain_nature_of_carrier;
+static int hf_ain_nr_digits;
+static int hf_ain_carrier_bcd_digits;
+static int hf_ain_amaslpid;
 
-static int hf_ain_CallInfoFromResourceArg_PDU = -1;  /* CallInfoFromResourceArg */
-static int hf_ain_CloseArg_PDU = -1;              /* CloseArg */
-static int hf_ain_CTRClearArg_PDU = -1;           /* CTRClearArg */
-static int hf_ain_FailureOutcomeArg_PDU = -1;     /* FailureOutcomeArg */
-static int hf_ain_InfoAnalyzedArg_PDU = -1;       /* InfoAnalyzedArg */
-static int hf_ain_InfoCollectedArg_PDU = -1;      /* InfoCollectedArg */
-static int hf_ain_NetworkBusyArg_PDU = -1;        /* NetworkBusyArg */
-static int hf_ain_OAnswerArg_PDU = -1;            /* OAnswerArg */
-static int hf_ain_OAbandonArg_PDU = -1;           /* OAbandonArg */
-static int hf_ain_ODisconnectArg_PDU = -1;        /* ODisconnectArg */
-static int hf_ain_OMidCallArg_PDU = -1;           /* OMidCallArg */
-static int hf_ain_ONoAnswerArg_PDU = -1;          /* ONoAnswerArg */
-static int hf_ain_OSuspendedArg_PDU = -1;         /* OSuspendedArg */
-static int hf_ain_OTermSeizedArg_PDU = -1;        /* OTermSeizedArg */
-static int hf_ain_OriginationAttemptArg_PDU = -1;  /* OriginationAttemptArg */
-static int hf_ain_ResourceClearArg_PDU = -1;      /* ResourceClearArg */
-static int hf_ain_RES_resourceClear_PDU = -1;     /* RES_resourceClear */
-static int hf_ain_SuccessOutcomeArg_PDU = -1;     /* SuccessOutcomeArg */
-static int hf_ain_TAnswerArg_PDU = -1;            /* TAnswerArg */
-static int hf_ain_TBusyArg_PDU = -1;              /* TBusyArg */
-static int hf_ain_TDisconnectArg_PDU = -1;        /* TDisconnectArg */
-static int hf_ain_TDTMFEnteredArg_PDU = -1;       /* TDTMFEnteredArg */
-static int hf_ain_TMidCallArg_PDU = -1;           /* TMidCallArg */
-static int hf_ain_TNoAnswerArg_PDU = -1;          /* TNoAnswerArg */
-static int hf_ain_TerminationAttemptArg_PDU = -1;  /* TerminationAttemptArg */
-static int hf_ain_TermResourceAvailableArg_PDU = -1;  /* TermResourceAvailableArg */
-static int hf_ain_TimeoutArg_PDU = -1;            /* TimeoutArg */
-static int hf_ain_AnalyzeRouteArg_PDU = -1;       /* AnalyzeRouteArg */
-static int hf_ain_AuthorizeTerminationArg_PDU = -1;  /* AuthorizeTerminationArg */
-static int hf_ain_CancelResourceEventArg_PDU = -1;  /* CancelResourceEventArg */
-static int hf_ain_CollectInformationArg_PDU = -1;  /* CollectInformationArg */
-static int hf_ain_ConnectToResourceArg_PDU = -1;  /* ConnectToResourceArg */
-static int hf_ain_ContinueArg_PDU = -1;           /* ContinueArg */
-static int hf_ain_CreateCallArg_PDU = -1;         /* CreateCallArg */
-static int hf_ain_CreateCallRes_PDU = -1;         /* CreateCallRes */
-static int hf_ain_DisconnectArg_PDU = -1;         /* DisconnectArg */
-static int hf_ain_DisconnectLegArg_PDU = -1;      /* DisconnectLegArg */
-static int hf_ain_ForwardCallArg_PDU = -1;        /* ForwardCallArg */
-static int hf_ain_MergeCallArg_PDU = -1;          /* MergeCallArg */
-static int hf_ain_MoveLegArg_PDU = -1;            /* MoveLegArg */
-static int hf_ain_OfferCallArg_PDU = -1;          /* OfferCallArg */
-static int hf_ain_OriginateCallArg_PDU = -1;      /* OriginateCallArg */
-static int hf_ain_ReconnectArg_PDU = -1;          /* ReconnectArg */
-static int hf_ain_SendToResourceArg_PDU = -1;     /* SendToResourceArg */
-static int hf_ain_RES_sendToResource_PDU = -1;    /* RES_sendToResource */
-static int hf_ain_SetTimerArg_PDU = -1;           /* SetTimerArg */
-static int hf_ain_TimerUpdated_PDU = -1;          /* TimerUpdated */
-static int hf_ain_SplitLegArg_PDU = -1;           /* SplitLegArg */
-static int hf_ain_AcgArg_PDU = -1;                /* AcgArg */
-static int hf_ain_AcgGlobalCtrlRestoreArg_PDU = -1;  /* AcgGlobalCtrlRestoreArg */
-static int hf_ain_RES_acgGlobalCtrlRestore_PDU = -1;  /* RES_acgGlobalCtrlRestore */
-static int hf_ain_AcgOverflowArg_PDU = -1;        /* AcgOverflowArg */
-static int hf_ain_ActivityTestArg_PDU = -1;       /* ActivityTestArg */
-static int hf_ain_RES_activityTest_PDU = -1;      /* RES_activityTest */
-static int hf_ain_CallTypeRequestArg_PDU = -1;    /* CallTypeRequestArg */
-static int hf_ain_RES_callTypeRequest_PDU = -1;   /* RES_callTypeRequest */
-static int hf_ain_ControlRequestArg_PDU = -1;     /* ControlRequestArg */
-static int hf_ain_EchoRequestArg_PDU = -1;        /* EchoRequestArg */
-static int hf_ain_RES_echoRequest_PDU = -1;       /* RES_echoRequest */
-static int hf_ain_FurnishAMAInformationArg_PDU = -1;  /* FurnishAMAInformationArg */
-static int hf_ain_MonitorForChangeArg_PDU = -1;   /* MonitorForChangeArg */
-static int hf_ain_MonitorSuccessArg_PDU = -1;     /* MonitorSuccessArg */
-static int hf_ain_NCADataArg_PDU = -1;            /* NCADataArg */
-static int hf_ain_NCARequestArg_PDU = -1;         /* NCARequestArg */
-static int hf_ain_RES_nCARequest_PDU = -1;        /* RES_nCARequest */
-static int hf_ain_QueryRequestArg_PDU = -1;       /* QueryRequestArg */
-static int hf_ain_RES_queryRequest_PDU = -1;      /* RES_queryRequest */
-static int hf_ain_RequestReportBCMEventArg_PDU = -1;  /* RequestReportBCMEventArg */
-static int hf_ain_StatusReportedArg_PDU = -1;     /* StatusReportedArg */
-static int hf_ain_TerminationNotificationArg_PDU = -1;  /* TerminationNotificationArg */
-static int hf_ain_UpdateArg_PDU = -1;             /* UpdateArg */
-static int hf_ain_RES_update_PDU = -1;            /* RES_update */
-static int hf_ain_UpdateRequestArg_PDU = -1;      /* UpdateRequestArg */
-static int hf_ain_RES_updateRequest_PDU = -1;     /* RES_updateRequest */
-static int hf_ain_PAR_applicationError_PDU = -1;  /* PAR_applicationError */
-static int hf_ain_PAR_failureReport_PDU = -1;     /* PAR_failureReport */
-static int hf_ain_iPReturnBlock = -1;             /* IPReturnBlock */
-static int hf_ain_amp1 = -1;                      /* Amp1 */
-static int hf_ain_amp2 = -1;                      /* Amp2 */
-static int hf_ain_extensionParameter = -1;        /* ExtensionParameter */
-static int hf_ain_userID = -1;                    /* UserID */
-static int hf_ain_bearerCapability = -1;          /* BearerCapability */
-static int hf_ain_closeCause = -1;                /* CloseCause */
-static int hf_ain_clearCause = -1;                /* ClearCause */
-static int hf_ain_legID = -1;                     /* LegID */
-static int hf_ain_ccID = -1;                      /* CcID */
-static int hf_ain_bCMType = -1;                   /* BCMType */
-static int hf_ain_pointInCall = -1;               /* PointInCall */
-static int hf_ain_collectedDigits = -1;           /* CollectedDigits */
-static int hf_ain_collectedAddressInfo = -1;      /* CollectedAddressInfo */
-static int hf_ain_carrier = -1;                   /* Carrier */
-static int hf_ain_failureCause = -1;              /* FailureCause */
-static int hf_ain_aMAMeasurement = -1;            /* AMAMeasurement */
-static int hf_ain_clearCauseData = -1;            /* ClearCauseData */
-static int hf_ain_notificationIndicator = -1;     /* NotificationIndicator */
-static int hf_ain_calledPartyID = -1;             /* CalledPartyID */
-static int hf_ain_lata = -1;                      /* Lata */
-static int hf_ain_triggerCriteriaType = -1;       /* TriggerCriteriaType */
-static int hf_ain_chargeNumber = -1;              /* ChargeNumber */
-static int hf_ain_callingPartyID = -1;            /* CallingPartyID */
-static int hf_ain_callingPartyBGID = -1;          /* CallingPartyBGID */
-static int hf_ain_chargePartyStationType = -1;    /* ChargePartyStationType */
-static int hf_ain_accessCode = -1;                /* AccessCode */
-static int hf_ain_verticalServiceCode = -1;       /* VerticalServiceCode */
-static int hf_ain_tcm = -1;                       /* Tcm */
-static int hf_ain_originalCalledPartyID = -1;     /* OriginalCalledPartyID */
-static int hf_ain_redirectingPartyID = -1;        /* RedirectingPartyID */
-static int hf_ain_redirectionInformation = -1;    /* RedirectionInformation */
-static int hf_ain_aCGEncountered = -1;            /* ACGEncountered */
-static int hf_ain_sap = -1;                       /* Sap */
-static int hf_ain_sTRConnection = -1;             /* STRConnection */
-static int hf_ain_aMASequenceNumber = -1;         /* AMASequenceNumber */
-static int hf_ain_genericAddressList = -1;        /* GenericAddressList */
-static int hf_ain_networkSpecificFacilities = -1;  /* NetworkSpecificFacilities */
-static int hf_ain_cTRConnection = -1;             /* CTRConnection */
-static int hf_ain_jurisdictionInformation = -1;   /* JurisdictionInformation */
-static int hf_ain_prefix = -1;                    /* Prefix */
-static int hf_ain_callingGeodeticLocation = -1;   /* CallingGeodeticLocation */
-static int hf_ain_triggerInformation = -1;        /* TriggerInformation */
-static int hf_ain_disconnectCause = -1;           /* DisconnectCause */
-static int hf_ain_featureActivatorID = -1;        /* FeatureActivatorID */
-static int hf_ain_busyCause = -1;                 /* BusyCause */
-static int hf_ain_busyType = -1;                  /* BusyType */
-static int hf_ain_calledPartyStationType = -1;    /* CalledPartyStationType */
-static int hf_ain_genericName = -1;               /* GenericName */
-static int hf_ain_dTMFDigitsDetected = -1;        /* DTMFDigitsDetected */
-static int hf_ain_rTPServiceIndicator = -1;       /* RTPServiceIndicator */
-static int hf_ain_outpulseNumber = -1;            /* OutpulseNumber */
-static int hf_ain_primaryTrunkGroup = -1;         /* PrimaryTrunkGroup */
-static int hf_ain_alternateTrunkGroup = -1;       /* AlternateTrunkGroup */
-static int hf_ain_secondAlternateTrunkGroup = -1;  /* SecondAlternateTrunkGroup */
-static int hf_ain_alternateCarrier = -1;          /* AlternateCarrier */
-static int hf_ain_secondAlternateCarrier = -1;    /* SecondAlternateCarrier */
-static int hf_ain_passiveLegTreatment = -1;       /* PassiveLegTreatment */
-static int hf_ain_primaryBillingIndicator = -1;   /* PrimaryBillingIndicator */
-static int hf_ain_alternateBillingIndicator = -1;  /* AlternateBillingIndicator */
-static int hf_ain_secondAlternateBillingIndicator = -1;  /* SecondAlternateBillingIndicator */
-static int hf_ain_overflowBillingIndicator = -1;  /* OverflowBillingIndicator */
-static int hf_ain_aMAAlternateBillingNumber = -1;  /* AMAAlternateBillingNumber */
-static int hf_ain_aMABusinessCustomerID = -1;     /* AMABusinessCustomerID */
-static int hf_ain_aMALineNumberList = -1;         /* SEQUENCE_SIZE_1_2_OF_AMALineNumber */
-static int hf_ain_aMALineNumberList_item = -1;    /* AMALineNumber */
-static int hf_ain_aMAslpID = -1;                  /* AMAslpID */
-static int hf_ain_aMADigitsDialedWCList = -1;     /* SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC */
-static int hf_ain_aMADigitsDialedWCList_item = -1;  /* AMADigitsDialedWC */
-static int hf_ain_serviceProviderID = -1;         /* ServiceProviderID */
-static int hf_ain_serviceContext = -1;            /* ServiceContext */
-static int hf_ain_aMABillingFeature = -1;         /* AMABillingFeature */
-static int hf_ain_carrierUsage = -1;              /* CarrierUsage */
-static int hf_ain_forwardCallIndicator = -1;      /* ForwardCallIndicator */
-static int hf_ain_aMAServiceProviderID = -1;      /* AMAServiceProviderID */
-static int hf_ain_genericDigitsList = -1;         /* GenericDigitsList */
-static int hf_ain_applyRestrictions = -1;         /* ApplyRestrictions */
-static int hf_ain_displayText = -1;               /* DisplayText */
-static int hf_ain_controllingLegTreatment = -1;   /* ControllingLegTreatment */
-static int hf_ain_aMAserviceProviderID = -1;      /* AMAServiceProviderID */
-static int hf_ain_dPConverter = -1;               /* DPConverter */
-static int hf_ain_alternateDialingPlanInd = -1;   /* AlternateDialingPlanInd */
-static int hf_ain_resourceType = -1;              /* ResourceType */
-static int hf_ain_strParameterBlock = -1;         /* StrParameterBlock */
-static int hf_ain_disconnectFlag = -1;            /* DisconnectFlag */
-static int hf_ain_destinationAddress = -1;        /* DestinationAddress */
-static int hf_ain_aMAMeasure = -1;                /* AMAMeasure */
-static int hf_ain_notificationDuration = -1;      /* NotificationDuration */
-static int hf_ain_wakeUpDuration = -1;            /* WakeUpDuration */
-static int hf_ain_oSIIndicator = -1;              /* OSIIndicator */
-static int hf_ain_rTPReroutingNumber = -1;        /* RTPReroutingNumber */
-static int hf_ain_csID = -1;                      /* CsID */
-static int hf_ain_lampTreatment = -1;             /* LampTreatment */
-static int hf_ain_secondAlternatecarrier = -1;    /* SecondAlternateCarrier */
-static int hf_ain_answerIndicator = -1;           /* AnswerIndicator */
-static int hf_ain_extendedRinging = -1;           /* ExtendedRinging */
-static int hf_ain_tSTRCTimer = -1;                /* TSTRCTimer */
-static int hf_ain_partyID = -1;                   /* PartyID */
-static int hf_ain_partyOnHold = -1;               /* PartyOnHold */
-static int hf_ain_sSPResponseMessageTimerT1 = -1;  /* SSPResponseMessageTimerT1 */
-static int hf_ain_controlCauseIndicator = -1;     /* ControlCauseIndicator */
-static int hf_ain_gapDuration = -1;               /* GapDuration */
-static int hf_ain_gapInterval = -1;               /* GapInterval */
-static int hf_ain_translationType = -1;           /* TranslationType */
-static int hf_ain_globalTitleAddress = -1;        /* GlobalTitleAddress */
-static int hf_ain_aCGGlobalOverride = -1;         /* ACGGlobalOverride */
-static int hf_ain_actResult = -1;                 /* ActResult */
-static int hf_ain_transID = -1;                   /* TransID */
-static int hf_ain_callType = -1;                  /* CallType */
-static int hf_ain_congestionLevel = -1;           /* CongestionLevel */
-static int hf_ain_ssignalingPointCode = -1;       /* SignalingPointCode */
-static int hf_ain_subsystemNumber = -1;           /* SubsystemNumber */
-static int hf_ain_applicationIndicator = -1;      /* ApplicationIndicator */
-static int hf_ain_aaMABAFModules = -1;            /* AMABAFModules */
-static int hf_ain_aMASetHexABIndicator = -1;      /* AMASetHexABIndicator */
-static int hf_ain_facilityStatus = -1;            /* FacilityStatus */
-static int hf_ain_monitorTime = -1;               /* MonitorTime */
-static int hf_ain_facilityGID = -1;               /* FacilityGID */
-static int hf_ain_facilityMemberID = -1;          /* FacilityMemberID */
-static int hf_ain_controlEncountered = -1;        /* ControlEncountered */
-static int hf_ain_id = -1;                        /* T_id */
-static int hf_ain_srhrGroupID = -1;               /* SrhrGroupID */
-static int hf_ain_envelopeEncodingAuthority = -1;  /* EnvelopeEncodingAuthority */
-static int hf_ain_envelopContent = -1;            /* EnvelopContent */
-static int hf_ain_securityEnvelope = -1;          /* SecurityEnvelope */
-static int hf_ain_infoProvided = -1;              /* InfoProvided */
-static int hf_ain_provideInfo = -1;               /* ProvideInfo */
-static int hf_ain_eDPRequest = -1;                /* EDPRequest */
-static int hf_ain_eDPNotification = -1;           /* EDPNotification */
-static int hf_ain_oNoAnswerTimer = -1;            /* ONoAnswerTimer */
-static int hf_ain_tNoAnswerTimer = -1;            /* TNoAnswerTimer */
-static int hf_ain_timeoutTimer = -1;              /* TimeoutTimer */
-static int hf_ain_oDTMFDigitsString = -1;         /* ODTMFDigitsString */
-static int hf_ain_oDTMFNumberOfDigits = -1;       /* ODTMFNumberOfDigits */
-static int hf_ain_tDTMFDigitString = -1;          /* TDTMFDigitString */
-static int hf_ain_tDTMFNumberOfDigits = -1;       /* TDTMFNumberOfDigits */
-static int hf_ain_statusCause = -1;               /* StatusCause */
-static int hf_ain_echoData = -1;                  /* EchoData */
-static int hf_ain_terminationIndicator = -1;      /* TerminationIndicator */
-static int hf_ain_connectTime = -1;               /* ConnectTime */
-static int hf_ain_resultCause = -1;               /* ResultCause */
-static int hf_ain_administrableObject = -1;       /* AdministrableObject */
-static int hf_ain_editListType = -1;              /* EditListType */
-static int hf_ain_triggerCriteriaFlag = -1;       /* TriggerCriteriaFlag */
-static int hf_ain_applicationErrorString = -1;    /* ApplicationErrorString */
-static int hf_ain_failureCauseData = -1;          /* FailureCauseData */
-static int hf_ain_triggerItemAssignment = -1;     /* TriggerItemAssignment */
-static int hf_ain_sSPUserResource = -1;           /* SSPUserResource */
-static int hf_ain_srhrGroup = -1;                 /* SrhrGroup */
-static int hf_ain_networkTestDesignator = -1;     /* NetworkTestDesignator */
-static int hf_ain_operationsMonitoringAssignment = -1;  /* OperationsMonitoringAssignment */
-static int hf_ain_sSPUserResourceID = -1;         /* SSPUserResourceID */
-static int hf_ain_triggerItemID = -1;             /* TriggerItemID */
-static int hf_ain_activationStateCode = -1;       /* ActivationStateCode */
-static int hf_ain_potentialUse = -1;              /* PotentialUse */
-static int hf_ain_sSPUserResourceSubID = -1;      /* SSPUserResourceSubID */
-static int hf_ain_dn = -1;                        /* Dn */
-static int hf_ain_dnCtID = -1;                    /* DnCtID */
-static int hf_ain_spid = -1;                      /* Spid */
-static int hf_ain_trunkGroupID = -1;              /* TrunkGroupID */
-static int hf_ain_localSSPID = -1;                /* LocalSSPID */
-static int hf_ain_publicDialingPlanID = -1;       /* PublicDialingPlanID */
-static int hf_ain_pRIOfficeEquipmentID = -1;      /* PRIOfficeEquipmentID */
-static int hf_ain_basicBusinessGroupID = -1;      /* BasicBusinessGroupID */
-static int hf_ain_basicBusinessGroupDialingPlanID = -1;  /* BasicBusinessGroupDialingPlanID */
-static int hf_ain_aFRPatternID = -1;              /* AFRPatternID */
-static int hf_ain_officeEquipmentID = -1;         /* OfficeEquipmentID */
-static int hf_ain_ct = -1;                        /* Ct */
-static int hf_ain_dPNumber = -1;                  /* DPNumber */
-static int hf_ain_triggerItemSubnumber = -1;      /* TriggerItemSubnumber */
-static int hf_ain_iSDNBChannelID = -1;            /* ISDNBChannelID */
-static int hf_ain_pRIDS1ID = -1;                  /* PRIDS1ID */
-static int hf_ain_pRIDS0ID = -1;                  /* PRIDS0ID */
-static int hf_ain_updateGroups = -1;              /* UpdateGroups */
-static int hf_ain_cancelInterdigitTimer = -1;     /* CancelInterdigitTimer */
-static int hf_ain_updateGroup1 = -1;              /* UpdateGroup1 */
-static int hf_ain_updateGroup2 = -1;              /* UpdateGroup2 */
-static int hf_ain_updateGroup3 = -1;              /* UpdateGroup3 */
-static int hf_ain_updateGroup4 = -1;              /* UpdateGroup4 */
-static int hf_ain_updateGroup5 = -1;              /* UpdateGroup5 */
-static int hf_ain_updateGroup6 = -1;              /* UpdateGroup6 */
-static int hf_ain_updateGroup7 = -1;              /* UpdateGroup7 */
-static int hf_ain_updateGroup8 = -1;              /* UpdateGroup8 */
-static int hf_ain_updateGroup9 = -1;              /* UpdateGroup9 */
-static int hf_ain_service1 = -1;                  /* Service1 */
-static int hf_ain_action1 = -1;                   /* Action1 */
-static int hf_ain_service2 = -1;                  /* Service2 */
-static int hf_ain_action2 = -1;                   /* Action2 */
-static int hf_ain_delayInterval = -1;             /* DelayInterval */
-static int hf_ain_service3 = -1;                  /* Service3 */
-static int hf_ain_action3 = -1;                   /* Action3 */
-static int hf_ain_editSpecificEntry = -1;         /* EditSpecificEntry */
-static int hf_ain_editAllEntries = -1;            /* EditAllEntries */
-static int hf_ain_entry = -1;                     /* Entry */
-static int hf_ain_speedCallingCode = -1;          /* SpeedCallingCode */
-static int hf_ain_memorySlot = -1;                /* MemorySlot1 */
-static int hf_ain_service4 = -1;                  /* Service4 */
-static int hf_ain_action4 = -1;                   /* Action4 */
-static int hf_ain_forwardingDn = -1;              /* ForwardingDn */
-static int hf_ain_set = -1;                       /* Set */
-static int hf_ain_clear = -1;                     /* Clear */
-static int hf_ain_service5 = -1;                  /* Service5 */
-static int hf_ain_action5 = -1;                   /* Action5 */
-static int hf_ain_service6 = -1;                  /* Service6 */
-static int hf_ain_action6 = -1;                   /* Action6 */
-static int hf_ain_service7 = -1;                  /* Service7 */
-static int hf_ain_action7 = -1;                   /* Action7 */
-static int hf_ain_toggle = -1;                    /* Toggle */
-static int hf_ain_service8 = -1;                  /* Service8 */
-static int hf_ain_action8 = -1;                   /* Action8 */
-static int hf_ain_action8_invoke = -1;            /* Invoke8 */
-static int hf_ain_service9 = -1;                  /* Service9 */
-static int hf_ain_action9 = -1;                   /* Action9 */
-static int hf_ain_changeList = -1;                /* ChangeList */
-static int hf_ain_srhrID = -1;                    /* SrhrID */
-static int hf_ain_ntdID = -1;                     /* NtdID */
-static int hf_ain_ntdIndirectID = -1;             /* NtdIndirectID */
-static int hf_ain_operationsMonitoredItemID = -1;  /* OperationsMonitoredItemID */
-static int hf_ain_aMATimeDuration = -1;           /* AMATimeDuration */
-static int hf_ain_aMATimeGuard = -1;              /* AMATimeGuard */
-static int hf_ain_ampAINNodeID = -1;              /* AmpAINNodeID */
-static int hf_ain_ampCLogSeqNo = -1;              /* AmpCLogSeqNo */
-static int hf_ain_ampCLogRepInd = -1;             /* AmpCLogRepInd */
-static int hf_ain_ampCallProgInd = -1;            /* AmpCallProgInd */
-static int hf_ain_ampTestReqInd = -1;             /* AmpTestReqInd */
-static int hf_ain_ampCLogName = -1;               /* AmpCLogName */
-static int hf_ain_ampSvcProvID = -1;              /* AmpSvcProvID */
-static int hf_ain_spcID = -1;                     /* SpcID */
-static int hf_ain_iSDNDeviceID = -1;              /* ISDNDeviceID */
-static int hf_ain_ocn = -1;                       /* Ocn */
-static int hf_ain_errorCause = -1;                /* ErrorCause */
-static int hf_ain_failedMessage = -1;             /* FailedMessage */
-static int hf_ain__untag_item = -1;               /* DisplayInformation */
-static int hf_ain_blank = -1;                     /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_skip = -1;                      /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_continuation = -1;              /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_calledAddress = -1;             /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_cause = -1;                     /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_progressIndicator = -1;         /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_displayInformation_notificationIndicator = -1;  /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_prompt = -1;                    /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_accumulatedDigits = -1;         /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_status = -1;                    /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_inband = -1;                    /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_callingAddress = -1;            /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_reason = -1;                    /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_callingPartyName = -1;          /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_calledPartyName = -1;           /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_originalCalledName = -1;        /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_redirectingName = -1;           /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_connectedName = -1;             /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_origRestrictions = -1;          /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_dateTimeOfDay = -1;             /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_callAppearanceID = -1;          /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_featureAddress = -1;            /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_redirectionName = -1;           /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_redirectionNumber = -1;         /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_redirectingNumber = -1;         /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_originalCalledNumber = -1;      /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_connectedNumber = -1;           /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_text = -1;                      /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_redirectingReason = -1;         /* OCTET_STRING_SIZE_1_20 */
-static int hf_ain_assignmentAuthority = -1;       /* T_assignmentAuthority */
-static int hf_ain_parameters = -1;                /* T_parameters */
-static int hf_ain_mlhg = -1;                      /* Mlhg */
-static int hf_ain_opCode = -1;                    /* INTEGER */
-static int hf_ain_parameter = -1;                 /* OCTET_STRING */
-static int hf_ain_invParms = -1;                  /* InvParms */
-static int hf_ain_InvParms_item = -1;             /* Parms */
-static int hf_ain_oDTMFNumberofDigits = -1;       /* ODTMFNumberOfDigits */
-static int hf_ain_timerUpdated = -1;              /* TimerUpdated */
-static int hf_ain_derviceProviderID = -1;         /* ServiceProviderID */
-static int hf_ain_aMABAFModules = -1;             /* AMABAFModules */
-static int hf_ain_aMALineNumber = -1;             /* AMALineNumber */
-static int hf_ain_aMADigitsDialedWC = -1;         /* AMADigitsDialedWC */
-static int hf_ain_genericAddress = -1;            /* GenericAddress */
-static int hf_ain_signalingPointCode = -1;        /* SignalingPointCode */
-static int hf_ain_nationalGapInterval = -1;       /* NationalGapInterval */
-static int hf_ain_privateGapInterval = -1;        /* PrivateGapInterval */
-static int hf_ain__untag_item_01 = -1;            /* GenericAddress */
-static int hf_ain__untag_item_02 = -1;            /* GenericDigits */
-static int hf_ain_entireList = -1;                /* EntireList */
-static int hf_ain_memorySlot_01 = -1;             /* MemorySlot */
-static int hf_ain_listSize = -1;                  /* ListSize */
-static int hf_ain_forwardToDn = -1;               /* ForwardToDn */
-static int hf_ain_empty = -1;                     /* Empty */
-static int hf_ain_EntireList_item = -1;           /* Entry2 */
-static int hf_ain_privateDn = -1;                 /* PrivateDn */
-static int hf_ain_incoming = -1;                  /* Incoming */
-static int hf_ain_outgoing = -1;                  /* Outgoing */
-static int hf_ain_aINDigits = -1;                 /* AINDigits */
-static int hf_ain_timestamp = -1;                 /* Timestamp */
-static int hf_ain_requestGroups = -1;             /* RequestGroups */
-static int hf_ain_requestMemorySlot = -1;         /* RequestMemorySlot */
-static int hf_ain_requestGroup1 = -1;             /* RequestGroup1 */
-static int hf_ain_requestGroup2 = -1;             /* RequestGroup2 */
-static int hf_ain_requestGroup3 = -1;             /* RequestGroup3 */
-static int hf_ain_requestGroup4 = -1;             /* RequestGroup4 */
-static int hf_ain_requestGroup5 = -1;             /* RequestGroup5 */
-static int hf_ain_requestGroup6 = -1;             /* RequestGroup6 */
-static int hf_ain_request1 = -1;                  /* Request1 */
-static int hf_ain_request2 = -1;                  /* Request2 */
-static int hf_ain_request3 = -1;                  /* Request3 */
-static int hf_ain_request4 = -1;                  /* Request4 */
-static int hf_ain_request5 = -1;                  /* Request5 */
-static int hf_ain_request6 = -1;                  /* Request6 */
-static int hf_ain_msrID = -1;                     /* MsrID */
-static int hf_ain_announcementBlock = -1;         /* AnnouncementBlock */
-static int hf_ain_announcementDigitBlock = -1;    /* AnnouncementDigitBlock */
-static int hf_ain_flexParameterBlock = -1;        /* FlexParameterBlock */
-static int hf_ain_uninterAnnounceBlock = -1;      /* UninterAnnounceBlock */
-static int hf_ain_interAnnounceBlock = -1;        /* InterAnnounceBlock */
-static int hf_ain_UninterAnnounceBlock_item = -1;  /* AnnounceElement */
-static int hf_ain_InterAnnounceBlock_item = -1;   /* AnnounceElement */
-static int hf_ain_maximumDigits = -1;             /* MaximumDigits */
-static int hf_ain_intervalTime = -1;              /* IntervalTime */
-static int hf_ain_localSSPTime = -1;              /* LocalSSPTime */
-static int hf_ain_absoluteSCPTime = -1;           /* AbsoluteSCPTime */
-static int hf_ain_bri = -1;                       /* T_bri */
-static int hf_ain_privateFacilityGID = -1;        /* PrivateFacilityGID */
-static int hf_ain_aDSIcpeID = -1;                 /* ADSIcpeID */
-static int hf_ain_local = -1;                     /* T_local */
-static int hf_ain_global = -1;                    /* OBJECT_IDENTIFIER */
-static int hf_ain_invoke = -1;                    /* Invoke */
-static int hf_ain_returnResult = -1;              /* ReturnResult */
-static int hf_ain_returnError = -1;               /* ReturnError */
-static int hf_ain_reject = -1;                    /* Reject */
-static int hf_ain_invokeId = -1;                  /* InvokeId */
-static int hf_ain_linkedId = -1;                  /* T_linkedId */
-static int hf_ain_present = -1;                   /* T_present */
-static int hf_ain_absent = -1;                    /* NULL */
-static int hf_ain_opcode = -1;                    /* Code */
-static int hf_ain_argument = -1;                  /* T_argument */
-static int hf_ain_result = -1;                    /* T_result */
-static int hf_ain_result_01 = -1;                 /* T_result_01 */
-static int hf_ain_errcode = -1;                   /* Code */
-static int hf_ain_parameter_01 = -1;              /* T_parameter */
-static int hf_ain_problem = -1;                   /* T_problem */
-static int hf_ain_general = -1;                   /* GeneralProblem */
-static int hf_ain_invokeproblem = -1;             /* InvokeProblem */
-static int hf_ain_returnResult_01 = -1;           /* ReturnResultProblem */
-static int hf_ain_returnError_01 = -1;            /* ReturnErrorProblem */
-static int hf_ain_present_01 = -1;                /* INTEGER */
-static int hf_ain_InvokeId_present = -1;          /* InvokeId_present */
+static int hf_ain_CallInfoFromResourceArg_PDU;    /* CallInfoFromResourceArg */
+static int hf_ain_CloseArg_PDU;                   /* CloseArg */
+static int hf_ain_CTRClearArg_PDU;                /* CTRClearArg */
+static int hf_ain_FailureOutcomeArg_PDU;          /* FailureOutcomeArg */
+static int hf_ain_InfoAnalyzedArg_PDU;            /* InfoAnalyzedArg */
+static int hf_ain_InfoCollectedArg_PDU;           /* InfoCollectedArg */
+static int hf_ain_NetworkBusyArg_PDU;             /* NetworkBusyArg */
+static int hf_ain_OAnswerArg_PDU;                 /* OAnswerArg */
+static int hf_ain_OAbandonArg_PDU;                /* OAbandonArg */
+static int hf_ain_ODisconnectArg_PDU;             /* ODisconnectArg */
+static int hf_ain_OMidCallArg_PDU;                /* OMidCallArg */
+static int hf_ain_ONoAnswerArg_PDU;               /* ONoAnswerArg */
+static int hf_ain_OSuspendedArg_PDU;              /* OSuspendedArg */
+static int hf_ain_OTermSeizedArg_PDU;             /* OTermSeizedArg */
+static int hf_ain_OriginationAttemptArg_PDU;      /* OriginationAttemptArg */
+static int hf_ain_ResourceClearArg_PDU;           /* ResourceClearArg */
+static int hf_ain_RES_resourceClear_PDU;          /* RES_resourceClear */
+static int hf_ain_SuccessOutcomeArg_PDU;          /* SuccessOutcomeArg */
+static int hf_ain_TAnswerArg_PDU;                 /* TAnswerArg */
+static int hf_ain_TBusyArg_PDU;                   /* TBusyArg */
+static int hf_ain_TDisconnectArg_PDU;             /* TDisconnectArg */
+static int hf_ain_TDTMFEnteredArg_PDU;            /* TDTMFEnteredArg */
+static int hf_ain_TMidCallArg_PDU;                /* TMidCallArg */
+static int hf_ain_TNoAnswerArg_PDU;               /* TNoAnswerArg */
+static int hf_ain_TerminationAttemptArg_PDU;      /* TerminationAttemptArg */
+static int hf_ain_TermResourceAvailableArg_PDU;   /* TermResourceAvailableArg */
+static int hf_ain_TimeoutArg_PDU;                 /* TimeoutArg */
+static int hf_ain_AnalyzeRouteArg_PDU;            /* AnalyzeRouteArg */
+static int hf_ain_AuthorizeTerminationArg_PDU;    /* AuthorizeTerminationArg */
+static int hf_ain_CancelResourceEventArg_PDU;     /* CancelResourceEventArg */
+static int hf_ain_CollectInformationArg_PDU;      /* CollectInformationArg */
+static int hf_ain_ConnectToResourceArg_PDU;       /* ConnectToResourceArg */
+static int hf_ain_ContinueArg_PDU;                /* ContinueArg */
+static int hf_ain_CreateCallArg_PDU;              /* CreateCallArg */
+static int hf_ain_CreateCallRes_PDU;              /* CreateCallRes */
+static int hf_ain_DisconnectArg_PDU;              /* DisconnectArg */
+static int hf_ain_DisconnectLegArg_PDU;           /* DisconnectLegArg */
+static int hf_ain_ForwardCallArg_PDU;             /* ForwardCallArg */
+static int hf_ain_MergeCallArg_PDU;               /* MergeCallArg */
+static int hf_ain_MoveLegArg_PDU;                 /* MoveLegArg */
+static int hf_ain_OfferCallArg_PDU;               /* OfferCallArg */
+static int hf_ain_OriginateCallArg_PDU;           /* OriginateCallArg */
+static int hf_ain_ReconnectArg_PDU;               /* ReconnectArg */
+static int hf_ain_SendToResourceArg_PDU;          /* SendToResourceArg */
+static int hf_ain_RES_sendToResource_PDU;         /* RES_sendToResource */
+static int hf_ain_SetTimerArg_PDU;                /* SetTimerArg */
+static int hf_ain_TimerUpdated_PDU;               /* TimerUpdated */
+static int hf_ain_SplitLegArg_PDU;                /* SplitLegArg */
+static int hf_ain_AcgArg_PDU;                     /* AcgArg */
+static int hf_ain_AcgGlobalCtrlRestoreArg_PDU;    /* AcgGlobalCtrlRestoreArg */
+static int hf_ain_RES_acgGlobalCtrlRestore_PDU;   /* RES_acgGlobalCtrlRestore */
+static int hf_ain_AcgOverflowArg_PDU;             /* AcgOverflowArg */
+static int hf_ain_ActivityTestArg_PDU;            /* ActivityTestArg */
+static int hf_ain_RES_activityTest_PDU;           /* RES_activityTest */
+static int hf_ain_CallTypeRequestArg_PDU;         /* CallTypeRequestArg */
+static int hf_ain_RES_callTypeRequest_PDU;        /* RES_callTypeRequest */
+static int hf_ain_ControlRequestArg_PDU;          /* ControlRequestArg */
+static int hf_ain_EchoRequestArg_PDU;             /* EchoRequestArg */
+static int hf_ain_RES_echoRequest_PDU;            /* RES_echoRequest */
+static int hf_ain_FurnishAMAInformationArg_PDU;   /* FurnishAMAInformationArg */
+static int hf_ain_MonitorForChangeArg_PDU;        /* MonitorForChangeArg */
+static int hf_ain_MonitorSuccessArg_PDU;          /* MonitorSuccessArg */
+static int hf_ain_NCADataArg_PDU;                 /* NCADataArg */
+static int hf_ain_NCARequestArg_PDU;              /* NCARequestArg */
+static int hf_ain_RES_nCARequest_PDU;             /* RES_nCARequest */
+static int hf_ain_QueryRequestArg_PDU;            /* QueryRequestArg */
+static int hf_ain_RES_queryRequest_PDU;           /* RES_queryRequest */
+static int hf_ain_RequestReportBCMEventArg_PDU;   /* RequestReportBCMEventArg */
+static int hf_ain_StatusReportedArg_PDU;          /* StatusReportedArg */
+static int hf_ain_TerminationNotificationArg_PDU;  /* TerminationNotificationArg */
+static int hf_ain_UpdateArg_PDU;                  /* UpdateArg */
+static int hf_ain_RES_update_PDU;                 /* RES_update */
+static int hf_ain_UpdateRequestArg_PDU;           /* UpdateRequestArg */
+static int hf_ain_RES_updateRequest_PDU;          /* RES_updateRequest */
+static int hf_ain_PAR_applicationError_PDU;       /* PAR_applicationError */
+static int hf_ain_PAR_failureReport_PDU;          /* PAR_failureReport */
+static int hf_ain_iPReturnBlock;                  /* IPReturnBlock */
+static int hf_ain_amp1;                           /* Amp1 */
+static int hf_ain_amp2;                           /* Amp2 */
+static int hf_ain_extensionParameter;             /* ExtensionParameter */
+static int hf_ain_userID;                         /* UserID */
+static int hf_ain_bearerCapability;               /* BearerCapability */
+static int hf_ain_closeCause;                     /* CloseCause */
+static int hf_ain_clearCause;                     /* ClearCause */
+static int hf_ain_legID;                          /* LegID */
+static int hf_ain_ccID;                           /* CcID */
+static int hf_ain_bCMType;                        /* BCMType */
+static int hf_ain_pointInCall;                    /* PointInCall */
+static int hf_ain_collectedDigits;                /* CollectedDigits */
+static int hf_ain_collectedAddressInfo;           /* CollectedAddressInfo */
+static int hf_ain_carrier;                        /* Carrier */
+static int hf_ain_failureCause;                   /* FailureCause */
+static int hf_ain_aMAMeasurement;                 /* AMAMeasurement */
+static int hf_ain_clearCauseData;                 /* ClearCauseData */
+static int hf_ain_notificationIndicator;          /* NotificationIndicator */
+static int hf_ain_calledPartyID;                  /* CalledPartyID */
+static int hf_ain_lata;                           /* Lata */
+static int hf_ain_triggerCriteriaType;            /* TriggerCriteriaType */
+static int hf_ain_chargeNumber;                   /* ChargeNumber */
+static int hf_ain_callingPartyID;                 /* CallingPartyID */
+static int hf_ain_callingPartyBGID;               /* CallingPartyBGID */
+static int hf_ain_chargePartyStationType;         /* ChargePartyStationType */
+static int hf_ain_accessCode;                     /* AccessCode */
+static int hf_ain_verticalServiceCode;            /* VerticalServiceCode */
+static int hf_ain_tcm;                            /* Tcm */
+static int hf_ain_originalCalledPartyID;          /* OriginalCalledPartyID */
+static int hf_ain_redirectingPartyID;             /* RedirectingPartyID */
+static int hf_ain_redirectionInformation;         /* RedirectionInformation */
+static int hf_ain_aCGEncountered;                 /* ACGEncountered */
+static int hf_ain_sap;                            /* Sap */
+static int hf_ain_sTRConnection;                  /* STRConnection */
+static int hf_ain_aMASequenceNumber;              /* AMASequenceNumber */
+static int hf_ain_genericAddressList;             /* GenericAddressList */
+static int hf_ain_networkSpecificFacilities;      /* NetworkSpecificFacilities */
+static int hf_ain_cTRConnection;                  /* CTRConnection */
+static int hf_ain_jurisdictionInformation;        /* JurisdictionInformation */
+static int hf_ain_prefix;                         /* Prefix */
+static int hf_ain_callingGeodeticLocation;        /* CallingGeodeticLocation */
+static int hf_ain_triggerInformation;             /* TriggerInformation */
+static int hf_ain_disconnectCause;                /* DisconnectCause */
+static int hf_ain_featureActivatorID;             /* FeatureActivatorID */
+static int hf_ain_busyCause;                      /* BusyCause */
+static int hf_ain_busyType;                       /* BusyType */
+static int hf_ain_calledPartyStationType;         /* CalledPartyStationType */
+static int hf_ain_genericName;                    /* GenericName */
+static int hf_ain_dTMFDigitsDetected;             /* DTMFDigitsDetected */
+static int hf_ain_rTPServiceIndicator;            /* RTPServiceIndicator */
+static int hf_ain_outpulseNumber;                 /* OutpulseNumber */
+static int hf_ain_primaryTrunkGroup;              /* PrimaryTrunkGroup */
+static int hf_ain_alternateTrunkGroup;            /* AlternateTrunkGroup */
+static int hf_ain_secondAlternateTrunkGroup;      /* SecondAlternateTrunkGroup */
+static int hf_ain_alternateCarrier;               /* AlternateCarrier */
+static int hf_ain_secondAlternateCarrier;         /* SecondAlternateCarrier */
+static int hf_ain_passiveLegTreatment;            /* PassiveLegTreatment */
+static int hf_ain_primaryBillingIndicator;        /* PrimaryBillingIndicator */
+static int hf_ain_alternateBillingIndicator;      /* AlternateBillingIndicator */
+static int hf_ain_secondAlternateBillingIndicator;  /* SecondAlternateBillingIndicator */
+static int hf_ain_overflowBillingIndicator;       /* OverflowBillingIndicator */
+static int hf_ain_aMAAlternateBillingNumber;      /* AMAAlternateBillingNumber */
+static int hf_ain_aMABusinessCustomerID;          /* AMABusinessCustomerID */
+static int hf_ain_aMALineNumberList;              /* SEQUENCE_SIZE_1_2_OF_AMALineNumber */
+static int hf_ain_aMALineNumberList_item;         /* AMALineNumber */
+static int hf_ain_aMAslpID;                       /* AMAslpID */
+static int hf_ain_aMADigitsDialedWCList;          /* SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC */
+static int hf_ain_aMADigitsDialedWCList_item;     /* AMADigitsDialedWC */
+static int hf_ain_serviceProviderID;              /* ServiceProviderID */
+static int hf_ain_serviceContext;                 /* ServiceContext */
+static int hf_ain_aMABillingFeature;              /* AMABillingFeature */
+static int hf_ain_carrierUsage;                   /* CarrierUsage */
+static int hf_ain_forwardCallIndicator;           /* ForwardCallIndicator */
+static int hf_ain_aMAServiceProviderID;           /* AMAServiceProviderID */
+static int hf_ain_genericDigitsList;              /* GenericDigitsList */
+static int hf_ain_applyRestrictions;              /* ApplyRestrictions */
+static int hf_ain_displayText;                    /* DisplayText */
+static int hf_ain_controllingLegTreatment;        /* ControllingLegTreatment */
+static int hf_ain_aMAserviceProviderID;           /* AMAServiceProviderID */
+static int hf_ain_dPConverter;                    /* DPConverter */
+static int hf_ain_alternateDialingPlanInd;        /* AlternateDialingPlanInd */
+static int hf_ain_resourceType;                   /* ResourceType */
+static int hf_ain_strParameterBlock;              /* StrParameterBlock */
+static int hf_ain_disconnectFlag;                 /* DisconnectFlag */
+static int hf_ain_destinationAddress;             /* DestinationAddress */
+static int hf_ain_aMAMeasure;                     /* AMAMeasure */
+static int hf_ain_notificationDuration;           /* NotificationDuration */
+static int hf_ain_wakeUpDuration;                 /* WakeUpDuration */
+static int hf_ain_oSIIndicator;                   /* OSIIndicator */
+static int hf_ain_rTPReroutingNumber;             /* RTPReroutingNumber */
+static int hf_ain_csID;                           /* CsID */
+static int hf_ain_lampTreatment;                  /* LampTreatment */
+static int hf_ain_secondAlternatecarrier;         /* SecondAlternateCarrier */
+static int hf_ain_answerIndicator;                /* AnswerIndicator */
+static int hf_ain_extendedRinging;                /* ExtendedRinging */
+static int hf_ain_tSTRCTimer;                     /* TSTRCTimer */
+static int hf_ain_partyID;                        /* PartyID */
+static int hf_ain_partyOnHold;                    /* PartyOnHold */
+static int hf_ain_sSPResponseMessageTimerT1;      /* SSPResponseMessageTimerT1 */
+static int hf_ain_controlCauseIndicator;          /* ControlCauseIndicator */
+static int hf_ain_gapDuration;                    /* GapDuration */
+static int hf_ain_gapInterval;                    /* GapInterval */
+static int hf_ain_translationType;                /* TranslationType */
+static int hf_ain_globalTitleAddress;             /* GlobalTitleAddress */
+static int hf_ain_aCGGlobalOverride;              /* ACGGlobalOverride */
+static int hf_ain_actResult;                      /* ActResult */
+static int hf_ain_transID;                        /* TransID */
+static int hf_ain_callType;                       /* CallType */
+static int hf_ain_congestionLevel;                /* CongestionLevel */
+static int hf_ain_ssignalingPointCode;            /* SignalingPointCode */
+static int hf_ain_subsystemNumber;                /* SubsystemNumber */
+static int hf_ain_applicationIndicator;           /* ApplicationIndicator */
+static int hf_ain_aaMABAFModules;                 /* AMABAFModules */
+static int hf_ain_aMASetHexABIndicator;           /* AMASetHexABIndicator */
+static int hf_ain_facilityStatus;                 /* FacilityStatus */
+static int hf_ain_monitorTime;                    /* MonitorTime */
+static int hf_ain_facilityGID;                    /* FacilityGID */
+static int hf_ain_facilityMemberID;               /* FacilityMemberID */
+static int hf_ain_controlEncountered;             /* ControlEncountered */
+static int hf_ain_id;                             /* T_id */
+static int hf_ain_srhrGroupID;                    /* SrhrGroupID */
+static int hf_ain_envelopeEncodingAuthority;      /* EnvelopeEncodingAuthority */
+static int hf_ain_envelopContent;                 /* EnvelopContent */
+static int hf_ain_securityEnvelope;               /* SecurityEnvelope */
+static int hf_ain_infoProvided;                   /* InfoProvided */
+static int hf_ain_provideInfo;                    /* ProvideInfo */
+static int hf_ain_eDPRequest;                     /* EDPRequest */
+static int hf_ain_eDPNotification;                /* EDPNotification */
+static int hf_ain_oNoAnswerTimer;                 /* ONoAnswerTimer */
+static int hf_ain_tNoAnswerTimer;                 /* TNoAnswerTimer */
+static int hf_ain_timeoutTimer;                   /* TimeoutTimer */
+static int hf_ain_oDTMFDigitsString;              /* ODTMFDigitsString */
+static int hf_ain_oDTMFNumberOfDigits;            /* ODTMFNumberOfDigits */
+static int hf_ain_tDTMFDigitString;               /* TDTMFDigitString */
+static int hf_ain_tDTMFNumberOfDigits;            /* TDTMFNumberOfDigits */
+static int hf_ain_statusCause;                    /* StatusCause */
+static int hf_ain_echoData;                       /* EchoData */
+static int hf_ain_terminationIndicator;           /* TerminationIndicator */
+static int hf_ain_connectTime;                    /* ConnectTime */
+static int hf_ain_resultCause;                    /* ResultCause */
+static int hf_ain_administrableObject;            /* AdministrableObject */
+static int hf_ain_editListType;                   /* EditListType */
+static int hf_ain_triggerCriteriaFlag;            /* TriggerCriteriaFlag */
+static int hf_ain_applicationErrorString;         /* ApplicationErrorString */
+static int hf_ain_failureCauseData;               /* FailureCauseData */
+static int hf_ain_triggerItemAssignment;          /* TriggerItemAssignment */
+static int hf_ain_sSPUserResource;                /* SSPUserResource */
+static int hf_ain_srhrGroup;                      /* SrhrGroup */
+static int hf_ain_networkTestDesignator;          /* NetworkTestDesignator */
+static int hf_ain_operationsMonitoringAssignment;  /* OperationsMonitoringAssignment */
+static int hf_ain_sSPUserResourceID;              /* SSPUserResourceID */
+static int hf_ain_triggerItemID;                  /* TriggerItemID */
+static int hf_ain_activationStateCode;            /* ActivationStateCode */
+static int hf_ain_potentialUse;                   /* PotentialUse */
+static int hf_ain_sSPUserResourceSubID;           /* SSPUserResourceSubID */
+static int hf_ain_dn;                             /* Dn */
+static int hf_ain_dnCtID;                         /* DnCtID */
+static int hf_ain_spid;                           /* Spid */
+static int hf_ain_trunkGroupID;                   /* TrunkGroupID */
+static int hf_ain_localSSPID;                     /* LocalSSPID */
+static int hf_ain_publicDialingPlanID;            /* PublicDialingPlanID */
+static int hf_ain_pRIOfficeEquipmentID;           /* PRIOfficeEquipmentID */
+static int hf_ain_basicBusinessGroupID;           /* BasicBusinessGroupID */
+static int hf_ain_basicBusinessGroupDialingPlanID;  /* BasicBusinessGroupDialingPlanID */
+static int hf_ain_aFRPatternID;                   /* AFRPatternID */
+static int hf_ain_officeEquipmentID;              /* OfficeEquipmentID */
+static int hf_ain_ct;                             /* Ct */
+static int hf_ain_dPNumber;                       /* DPNumber */
+static int hf_ain_triggerItemSubnumber;           /* TriggerItemSubnumber */
+static int hf_ain_iSDNBChannelID;                 /* ISDNBChannelID */
+static int hf_ain_pRIDS1ID;                       /* PRIDS1ID */
+static int hf_ain_pRIDS0ID;                       /* PRIDS0ID */
+static int hf_ain_updateGroups;                   /* UpdateGroups */
+static int hf_ain_cancelInterdigitTimer;          /* CancelInterdigitTimer */
+static int hf_ain_updateGroup1;                   /* UpdateGroup1 */
+static int hf_ain_updateGroup2;                   /* UpdateGroup2 */
+static int hf_ain_updateGroup3;                   /* UpdateGroup3 */
+static int hf_ain_updateGroup4;                   /* UpdateGroup4 */
+static int hf_ain_updateGroup5;                   /* UpdateGroup5 */
+static int hf_ain_updateGroup6;                   /* UpdateGroup6 */
+static int hf_ain_updateGroup7;                   /* UpdateGroup7 */
+static int hf_ain_updateGroup8;                   /* UpdateGroup8 */
+static int hf_ain_updateGroup9;                   /* UpdateGroup9 */
+static int hf_ain_service1;                       /* Service1 */
+static int hf_ain_action1;                        /* Action1 */
+static int hf_ain_service2;                       /* Service2 */
+static int hf_ain_action2;                        /* Action2 */
+static int hf_ain_delayInterval;                  /* DelayInterval */
+static int hf_ain_service3;                       /* Service3 */
+static int hf_ain_action3;                        /* Action3 */
+static int hf_ain_editSpecificEntry;              /* EditSpecificEntry */
+static int hf_ain_editAllEntries;                 /* EditAllEntries */
+static int hf_ain_entry;                          /* Entry */
+static int hf_ain_speedCallingCode;               /* SpeedCallingCode */
+static int hf_ain_memorySlot;                     /* MemorySlot1 */
+static int hf_ain_service4;                       /* Service4 */
+static int hf_ain_action4;                        /* Action4 */
+static int hf_ain_forwardingDn;                   /* ForwardingDn */
+static int hf_ain_set;                            /* Set */
+static int hf_ain_clear;                          /* Clear */
+static int hf_ain_service5;                       /* Service5 */
+static int hf_ain_action5;                        /* Action5 */
+static int hf_ain_service6;                       /* Service6 */
+static int hf_ain_action6;                        /* Action6 */
+static int hf_ain_service7;                       /* Service7 */
+static int hf_ain_action7;                        /* Action7 */
+static int hf_ain_toggle;                         /* Toggle */
+static int hf_ain_service8;                       /* Service8 */
+static int hf_ain_action8;                        /* Action8 */
+static int hf_ain_action8_invoke;                 /* Invoke8 */
+static int hf_ain_service9;                       /* Service9 */
+static int hf_ain_action9;                        /* Action9 */
+static int hf_ain_changeList;                     /* ChangeList */
+static int hf_ain_srhrID;                         /* SrhrID */
+static int hf_ain_ntdID;                          /* NtdID */
+static int hf_ain_ntdIndirectID;                  /* NtdIndirectID */
+static int hf_ain_operationsMonitoredItemID;      /* OperationsMonitoredItemID */
+static int hf_ain_aMATimeDuration;                /* AMATimeDuration */
+static int hf_ain_aMATimeGuard;                   /* AMATimeGuard */
+static int hf_ain_ampAINNodeID;                   /* AmpAINNodeID */
+static int hf_ain_ampCLogSeqNo;                   /* AmpCLogSeqNo */
+static int hf_ain_ampCLogRepInd;                  /* AmpCLogRepInd */
+static int hf_ain_ampCallProgInd;                 /* AmpCallProgInd */
+static int hf_ain_ampTestReqInd;                  /* AmpTestReqInd */
+static int hf_ain_ampCLogName;                    /* AmpCLogName */
+static int hf_ain_ampSvcProvID;                   /* AmpSvcProvID */
+static int hf_ain_spcID;                          /* SpcID */
+static int hf_ain_iSDNDeviceID;                   /* ISDNDeviceID */
+static int hf_ain_ocn;                            /* Ocn */
+static int hf_ain_errorCause;                     /* ErrorCause */
+static int hf_ain_failedMessage;                  /* FailedMessage */
+static int hf_ain__untag_item;                    /* DisplayInformation */
+static int hf_ain_blank;                          /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_skip;                           /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_continuation;                   /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_calledAddress;                  /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_cause;                          /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_progressIndicator;              /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_displayInformation_notificationIndicator;  /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_prompt;                         /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_accumulatedDigits;              /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_status;                         /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_inband;                         /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_callingAddress;                 /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_reason;                         /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_callingPartyName;               /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_calledPartyName;                /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_originalCalledName;             /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_redirectingName;                /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_connectedName;                  /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_origRestrictions;               /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_dateTimeOfDay;                  /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_callAppearanceID;               /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_featureAddress;                 /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_redirectionName;                /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_redirectionNumber;              /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_redirectingNumber;              /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_originalCalledNumber;           /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_connectedNumber;                /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_text;                           /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_redirectingReason;              /* OCTET_STRING_SIZE_1_20 */
+static int hf_ain_assignmentAuthority;            /* T_assignmentAuthority */
+static int hf_ain_parameters;                     /* T_parameters */
+static int hf_ain_mlhg;                           /* Mlhg */
+static int hf_ain_opCode;                         /* INTEGER */
+static int hf_ain_parameter;                      /* OCTET_STRING */
+static int hf_ain_invParms;                       /* InvParms */
+static int hf_ain_InvParms_item;                  /* Parms */
+static int hf_ain_oDTMFNumberofDigits;            /* ODTMFNumberOfDigits */
+static int hf_ain_timerUpdated;                   /* TimerUpdated */
+static int hf_ain_derviceProviderID;              /* ServiceProviderID */
+static int hf_ain_aMABAFModules;                  /* AMABAFModules */
+static int hf_ain_aMALineNumber;                  /* AMALineNumber */
+static int hf_ain_aMADigitsDialedWC;              /* AMADigitsDialedWC */
+static int hf_ain_genericAddress;                 /* GenericAddress */
+static int hf_ain_signalingPointCode;             /* SignalingPointCode */
+static int hf_ain_nationalGapInterval;            /* NationalGapInterval */
+static int hf_ain_privateGapInterval;             /* PrivateGapInterval */
+static int hf_ain__untag_item_01;                 /* GenericAddress */
+static int hf_ain__untag_item_02;                 /* GenericDigits */
+static int hf_ain_entireList;                     /* EntireList */
+static int hf_ain_memorySlot_01;                  /* MemorySlot */
+static int hf_ain_listSize;                       /* ListSize */
+static int hf_ain_forwardToDn;                    /* ForwardToDn */
+static int hf_ain_empty;                          /* Empty */
+static int hf_ain_EntireList_item;                /* Entry2 */
+static int hf_ain_privateDn;                      /* PrivateDn */
+static int hf_ain_incoming;                       /* Incoming */
+static int hf_ain_outgoing;                       /* Outgoing */
+static int hf_ain_aINDigits;                      /* AINDigits */
+static int hf_ain_timestamp;                      /* Timestamp */
+static int hf_ain_requestGroups;                  /* RequestGroups */
+static int hf_ain_requestMemorySlot;              /* RequestMemorySlot */
+static int hf_ain_requestGroup1;                  /* RequestGroup1 */
+static int hf_ain_requestGroup2;                  /* RequestGroup2 */
+static int hf_ain_requestGroup3;                  /* RequestGroup3 */
+static int hf_ain_requestGroup4;                  /* RequestGroup4 */
+static int hf_ain_requestGroup5;                  /* RequestGroup5 */
+static int hf_ain_requestGroup6;                  /* RequestGroup6 */
+static int hf_ain_request1;                       /* Request1 */
+static int hf_ain_request2;                       /* Request2 */
+static int hf_ain_request3;                       /* Request3 */
+static int hf_ain_request4;                       /* Request4 */
+static int hf_ain_request5;                       /* Request5 */
+static int hf_ain_request6;                       /* Request6 */
+static int hf_ain_msrID;                          /* MsrID */
+static int hf_ain_announcementBlock;              /* AnnouncementBlock */
+static int hf_ain_announcementDigitBlock;         /* AnnouncementDigitBlock */
+static int hf_ain_flexParameterBlock;             /* FlexParameterBlock */
+static int hf_ain_uninterAnnounceBlock;           /* UninterAnnounceBlock */
+static int hf_ain_interAnnounceBlock;             /* InterAnnounceBlock */
+static int hf_ain_UninterAnnounceBlock_item;      /* AnnounceElement */
+static int hf_ain_InterAnnounceBlock_item;        /* AnnounceElement */
+static int hf_ain_maximumDigits;                  /* MaximumDigits */
+static int hf_ain_intervalTime;                   /* IntervalTime */
+static int hf_ain_localSSPTime;                   /* LocalSSPTime */
+static int hf_ain_absoluteSCPTime;                /* AbsoluteSCPTime */
+static int hf_ain_bri;                            /* T_bri */
+static int hf_ain_privateFacilityGID;             /* PrivateFacilityGID */
+static int hf_ain_aDSIcpeID;                      /* ADSIcpeID */
+static int hf_ain_local;                          /* T_local */
+static int hf_ain_global;                         /* OBJECT_IDENTIFIER */
+static int hf_ain_invoke;                         /* Invoke */
+static int hf_ain_returnResult;                   /* ReturnResult */
+static int hf_ain_returnError;                    /* ReturnError */
+static int hf_ain_reject;                         /* Reject */
+static int hf_ain_invokeId;                       /* InvokeId */
+static int hf_ain_linkedId;                       /* T_linkedId */
+static int hf_ain_present;                        /* T_present */
+static int hf_ain_absent;                         /* NULL */
+static int hf_ain_opcode;                         /* Code */
+static int hf_ain_argument;                       /* T_argument */
+static int hf_ain_result;                         /* T_result */
+static int hf_ain_result_01;                      /* T_result_01 */
+static int hf_ain_errcode;                        /* Code */
+static int hf_ain_parameter_01;                   /* T_parameter */
+static int hf_ain_problem;                        /* T_problem */
+static int hf_ain_general;                        /* GeneralProblem */
+static int hf_ain_invokeproblem;                  /* InvokeProblem */
+static int hf_ain_returnResult_01;                /* ReturnResultProblem */
+static int hf_ain_returnError_01;                 /* ReturnErrorProblem */
+static int hf_ain_present_01;                     /* INTEGER */
+static int hf_ain_InvokeId_present;               /* InvokeId_present */
 /* named bits */
-static int hf_ain_ApplyRestrictions_U_code = -1;
-static int hf_ain_ApplyRestrictions_U_toll = -1;
-static int hf_ain_EDPNotification_U_oCalledPartyBusy = -1;
-static int hf_ain_EDPNotification_U_oNoAnswer = -1;
-static int hf_ain_EDPNotification_U_oTermSeized = -1;
-static int hf_ain_EDPNotification_U_oAnswer = -1;
-static int hf_ain_EDPNotification_U_tBusy = -1;
-static int hf_ain_EDPNotification_U_tNoAnswer = -1;
-static int hf_ain_EDPNotification_U_termResourceAvailable = -1;
-static int hf_ain_EDPNotification_U_tAnswer = -1;
-static int hf_ain_EDPNotification_U_networkBusy = -1;
-static int hf_ain_EDPNotification_U_oSuspended = -1;
-static int hf_ain_EDPNotification_U_oDisconnectCalled = -1;
-static int hf_ain_EDPNotification_U_oDisconnect = -1;
-static int hf_ain_EDPNotification_U_oAbandon = -1;
-static int hf_ain_EDPNotification_U_featureActivator = -1;
-static int hf_ain_EDPNotification_U_switchHookFlash = -1;
-static int hf_ain_EDPNotification_U_success = -1;
-static int hf_ain_EDPNotification_U_tDisconnect = -1;
-static int hf_ain_EDPNotification_U_timeout = -1;
-static int hf_ain_EDPNotification_U_originationAttempt = -1;
-static int hf_ain_EDPNotification_U_oDTMFEntered = -1;
-static int hf_ain_EDPNotification_U_tDTMFEntered = -1;
-static int hf_ain_EDPRequest_U_oCalledPartyBusy = -1;
-static int hf_ain_EDPRequest_U_oNoAnswer = -1;
-static int hf_ain_EDPRequest_U_oTermSeized = -1;
-static int hf_ain_EDPRequest_U_oAnswer = -1;
-static int hf_ain_EDPRequest_U_tBusy = -1;
-static int hf_ain_EDPRequest_U_tNoAnswer = -1;
-static int hf_ain_EDPRequest_U_termResourceAvailable = -1;
-static int hf_ain_EDPRequest_U_tAnswer = -1;
-static int hf_ain_EDPRequest_U_networkBusy = -1;
-static int hf_ain_EDPRequest_U_oSuspended = -1;
-static int hf_ain_EDPRequest_U_oDisconnectCalled = -1;
-static int hf_ain_EDPRequest_U_oDisconnect = -1;
-static int hf_ain_EDPRequest_U_oAbandon = -1;
-static int hf_ain_EDPRequest_U_featureActivator = -1;
-static int hf_ain_EDPRequest_U_switchHookFlash = -1;
-static int hf_ain_EDPRequest_U_success = -1;
-static int hf_ain_EDPRequest_U_tDisconnect = -1;
-static int hf_ain_EDPRequest_U_timeout = -1;
-static int hf_ain_EDPRequest_U_originationAttempt = -1;
-static int hf_ain_EDPRequest_U_oDTMFEntered = -1;
-static int hf_ain_EDPRequest_U_tDTMFEntered = -1;
-static int hf_ain_Empty_entireList = -1;
-static int hf_ain_Empty_outgoingmemorySlot = -1;
-static int hf_ain_Empty_incomingmemorySlot = -1;
-static int hf_ain_Empty_forwardToDn = -1;
-static int hf_ain_Request1_activationStatus = -1;
-static int hf_ain_Request2_activationStatus = -1;
-static int hf_ain_Request2_delayInterval = -1;
-static int hf_ain_Request3_activationStatus = -1;
-static int hf_ain_Request3_entireList = -1;
-static int hf_ain_Request3_listSize = -1;
-static int hf_ain_Request4_activationStatus = -1;
-static int hf_ain_Request4_forwardingDn = -1;
-static int hf_ain_Request5_activationStatus = -1;
-static int hf_ain_Request5_forwardingDn = -1;
-static int hf_ain_Request5_entireList = -1;
-static int hf_ain_Request5_listSize = -1;
-static int hf_ain_Request6_delayInterval = -1;
-static int hf_ain_RequestMemorySlot_incoming = -1;
-static int hf_ain_RequestMemorySlot_outgoing = -1;
+static int hf_ain_ApplyRestrictions_U_code;
+static int hf_ain_ApplyRestrictions_U_toll;
+static int hf_ain_EDPNotification_U_oCalledPartyBusy;
+static int hf_ain_EDPNotification_U_oNoAnswer;
+static int hf_ain_EDPNotification_U_oTermSeized;
+static int hf_ain_EDPNotification_U_oAnswer;
+static int hf_ain_EDPNotification_U_tBusy;
+static int hf_ain_EDPNotification_U_tNoAnswer;
+static int hf_ain_EDPNotification_U_termResourceAvailable;
+static int hf_ain_EDPNotification_U_tAnswer;
+static int hf_ain_EDPNotification_U_networkBusy;
+static int hf_ain_EDPNotification_U_oSuspended;
+static int hf_ain_EDPNotification_U_oDisconnectCalled;
+static int hf_ain_EDPNotification_U_oDisconnect;
+static int hf_ain_EDPNotification_U_oAbandon;
+static int hf_ain_EDPNotification_U_featureActivator;
+static int hf_ain_EDPNotification_U_switchHookFlash;
+static int hf_ain_EDPNotification_U_success;
+static int hf_ain_EDPNotification_U_tDisconnect;
+static int hf_ain_EDPNotification_U_timeout;
+static int hf_ain_EDPNotification_U_originationAttempt;
+static int hf_ain_EDPNotification_U_oDTMFEntered;
+static int hf_ain_EDPNotification_U_tDTMFEntered;
+static int hf_ain_EDPRequest_U_oCalledPartyBusy;
+static int hf_ain_EDPRequest_U_oNoAnswer;
+static int hf_ain_EDPRequest_U_oTermSeized;
+static int hf_ain_EDPRequest_U_oAnswer;
+static int hf_ain_EDPRequest_U_tBusy;
+static int hf_ain_EDPRequest_U_tNoAnswer;
+static int hf_ain_EDPRequest_U_termResourceAvailable;
+static int hf_ain_EDPRequest_U_tAnswer;
+static int hf_ain_EDPRequest_U_networkBusy;
+static int hf_ain_EDPRequest_U_oSuspended;
+static int hf_ain_EDPRequest_U_oDisconnectCalled;
+static int hf_ain_EDPRequest_U_oDisconnect;
+static int hf_ain_EDPRequest_U_oAbandon;
+static int hf_ain_EDPRequest_U_featureActivator;
+static int hf_ain_EDPRequest_U_switchHookFlash;
+static int hf_ain_EDPRequest_U_success;
+static int hf_ain_EDPRequest_U_tDisconnect;
+static int hf_ain_EDPRequest_U_timeout;
+static int hf_ain_EDPRequest_U_originationAttempt;
+static int hf_ain_EDPRequest_U_oDTMFEntered;
+static int hf_ain_EDPRequest_U_tDTMFEntered;
+static int hf_ain_Empty_entireList;
+static int hf_ain_Empty_outgoingmemorySlot;
+static int hf_ain_Empty_incomingmemorySlot;
+static int hf_ain_Empty_forwardToDn;
+static int hf_ain_Request1_activationStatus;
+static int hf_ain_Request2_activationStatus;
+static int hf_ain_Request2_delayInterval;
+static int hf_ain_Request3_activationStatus;
+static int hf_ain_Request3_entireList;
+static int hf_ain_Request3_listSize;
+static int hf_ain_Request4_activationStatus;
+static int hf_ain_Request4_forwardingDn;
+static int hf_ain_Request5_activationStatus;
+static int hf_ain_Request5_forwardingDn;
+static int hf_ain_Request5_entireList;
+static int hf_ain_Request5_listSize;
+static int hf_ain_Request6_delayInterval;
+static int hf_ain_RequestMemorySlot_incoming;
+static int hf_ain_RequestMemorySlot_outgoing;
 
 /* Initialize the subtree pointers */
-static int ett_ain = -1;
-static int ett_ain_digits = -1;
-static int ett_ain_carrierformat = -1;
-static int ett_ain_amaslpid = -1;
+static int ett_ain;
+static int ett_ain_digits;
+static int ett_ain_carrierformat;
+static int ett_ain_amaslpid;
 
-static gint ett_ain_CallInfoFromResourceArg = -1;
-static gint ett_ain_CloseArg = -1;
-static gint ett_ain_CTRClearArg = -1;
-static gint ett_ain_FailureOutcomeArg = -1;
-static gint ett_ain_InfoAnalyzedArg = -1;
-static gint ett_ain_InfoCollectedArg = -1;
-static gint ett_ain_NetworkBusyArg = -1;
-static gint ett_ain_OAnswerArg = -1;
-static gint ett_ain_OAbandonArg = -1;
-static gint ett_ain_ODisconnectArg = -1;
-static gint ett_ain_OMidCallArg = -1;
-static gint ett_ain_ONoAnswerArg = -1;
-static gint ett_ain_OSuspendedArg = -1;
-static gint ett_ain_OTermSeizedArg = -1;
-static gint ett_ain_OriginationAttemptArg = -1;
-static gint ett_ain_RES_resourceClear = -1;
-static gint ett_ain_ResourceClearArg = -1;
-static gint ett_ain_SuccessOutcomeArg = -1;
-static gint ett_ain_TAnswerArg = -1;
-static gint ett_ain_TBusyArg = -1;
-static gint ett_ain_TDisconnectArg = -1;
-static gint ett_ain_TDTMFEnteredArg = -1;
-static gint ett_ain_TMidCallArg = -1;
-static gint ett_ain_TNoAnswerArg = -1;
-static gint ett_ain_TerminationAttemptArg = -1;
-static gint ett_ain_TermResourceAvailableArg = -1;
-static gint ett_ain_TimeoutArg = -1;
-static gint ett_ain_AnalyzeRouteArg = -1;
-static gint ett_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber = -1;
-static gint ett_ain_SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC = -1;
-static gint ett_ain_AuthorizeTerminationArg = -1;
-static gint ett_ain_CancelResourceEventArg = -1;
-static gint ett_ain_CollectInformationArg = -1;
-static gint ett_ain_ConnectToResourceArg = -1;
-static gint ett_ain_ContinueArg = -1;
-static gint ett_ain_CreateCallArg = -1;
-static gint ett_ain_CreateCallRes = -1;
-static gint ett_ain_DisconnectArg = -1;
-static gint ett_ain_DisconnectLegArg = -1;
-static gint ett_ain_ForwardCallArg = -1;
-static gint ett_ain_MergeCallArg = -1;
-static gint ett_ain_MoveLegArg = -1;
-static gint ett_ain_OfferCallArg = -1;
-static gint ett_ain_OriginateCallArg = -1;
-static gint ett_ain_ReconnectArg = -1;
-static gint ett_ain_RES_sendToResource = -1;
-static gint ett_ain_SendToResourceArg = -1;
-static gint ett_ain_SetTimerArg = -1;
-static gint ett_ain_SplitLegArg = -1;
-static gint ett_ain_AcgArg = -1;
-static gint ett_ain_RES_acgGlobalCtrlRestore = -1;
-static gint ett_ain_AcgGlobalCtrlRestoreArg = -1;
-static gint ett_ain_AcgOverflowArg = -1;
-static gint ett_ain_RES_activityTest = -1;
-static gint ett_ain_ActivityTestArg = -1;
-static gint ett_ain_RES_callTypeRequest = -1;
-static gint ett_ain_CallTypeRequestArg = -1;
-static gint ett_ain_ControlRequestArg = -1;
-static gint ett_ain_RES_echoRequest = -1;
-static gint ett_ain_EchoRequestArg = -1;
-static gint ett_ain_FurnishAMAInformationArg = -1;
-static gint ett_ain_MonitorForChangeArg = -1;
-static gint ett_ain_MonitorSuccessArg = -1;
-static gint ett_ain_NCADataArg = -1;
-static gint ett_ain_T_id = -1;
-static gint ett_ain_RES_nCARequest = -1;
-static gint ett_ain_NCARequestArg = -1;
-static gint ett_ain_RES_queryRequest = -1;
-static gint ett_ain_QueryRequestArg = -1;
-static gint ett_ain_RequestReportBCMEventArg = -1;
-static gint ett_ain_StatusReportedArg = -1;
-static gint ett_ain_TerminationNotificationArg = -1;
-static gint ett_ain_RES_update = -1;
-static gint ett_ain_UpdateArg = -1;
-static gint ett_ain_RES_updateRequest = -1;
-static gint ett_ain_UpdateRequestArg = -1;
-static gint ett_ain_PAR_applicationError = -1;
-static gint ett_ain_PAR_failureReport = -1;
-static gint ett_ain_AdministrableObject = -1;
-static gint ett_ain_TriggerItemAssignment_U = -1;
-static gint ett_ain_SSPUserResourceID = -1;
-static gint ett_ain_DnCtID = -1;
-static gint ett_ain_TriggerItemID = -1;
-static gint ett_ain_SSPUserResourceSubID = -1;
-static gint ett_ain_ISDNBChannelID = -1;
-static gint ett_ain_SSPUserResource_U = -1;
-static gint ett_ain_UpdateGroups = -1;
-static gint ett_ain_UpdateGroup1 = -1;
-static gint ett_ain_Action1 = -1;
-static gint ett_ain_UpdateGroup2 = -1;
-static gint ett_ain_Action2 = -1;
-static gint ett_ain_UpdateGroup3 = -1;
-static gint ett_ain_Action3 = -1;
-static gint ett_ain_EditSpecificEntry = -1;
-static gint ett_ain_Entry = -1;
-static gint ett_ain_UpdateGroup4 = -1;
-static gint ett_ain_Action4 = -1;
-static gint ett_ain_ForwardingDn = -1;
-static gint ett_ain_Set = -1;
-static gint ett_ain_UpdateGroup5 = -1;
-static gint ett_ain_Action5 = -1;
-static gint ett_ain_UpdateGroup6 = -1;
-static gint ett_ain_Action6 = -1;
-static gint ett_ain_UpdateGroup7 = -1;
-static gint ett_ain_Action7 = -1;
-static gint ett_ain_UpdateGroup8 = -1;
-static gint ett_ain_Action8 = -1;
-static gint ett_ain_UpdateGroup9 = -1;
-static gint ett_ain_Action9 = -1;
-static gint ett_ain_ChangeList = -1;
-static gint ett_ain_SrhrGroup_U = -1;
-static gint ett_ain_NetworkTestDesignator_U = -1;
-static gint ett_ain_NtdID = -1;
-static gint ett_ain_OperationsMonitoringAssignment_U = -1;
-static gint ett_ain_OperationsMonitoredItemID = -1;
-static gint ett_ain_AMAMeasurement_U = -1;
-static gint ett_ain_Amp2_U = -1;
-static gint ett_ain_AmpAINNodeID = -1;
-static gint ett_ain_AmpSvcProvID = -1;
-static gint ett_ain_ApplicationErrorString_U = -1;
-static gint ett_ain_ApplyRestrictions_U = -1;
-static gint ett_ain_SEQUENCE_SIZE_1_15_OF_DisplayInformation = -1;
-static gint ett_ain_DisplayInformation = -1;
-static gint ett_ain_EDPNotification_U = -1;
-static gint ett_ain_EDPRequest_U = -1;
-static gint ett_ain_ExtensionParameter = -1;
-static gint ett_ain_FacilityGID = -1;
-static gint ett_ain_FailedMessage_U = -1;
-static gint ett_ain_InvParms = -1;
-static gint ett_ain_Parms = -1;
-static gint ett_ain_GapInterval = -1;
-static gint ett_ain_SEQUENCE_SIZE_1_5_OF_GenericAddress = -1;
-static gint ett_ain_SEQUENCE_SIZE_1_5_OF_GenericDigits = -1;
-static gint ett_ain_InfoProvided_U = -1;
-static gint ett_ain_EntireList = -1;
-static gint ett_ain_Entry2 = -1;
-static gint ett_ain_MemorySlot = -1;
-static gint ett_ain_Incoming = -1;
-static gint ett_ain_Outgoing = -1;
-static gint ett_ain_Empty = -1;
-static gint ett_ain_ProvideInfo_U = -1;
-static gint ett_ain_RequestGroups = -1;
-static gint ett_ain_RequestGroup1 = -1;
-static gint ett_ain_Request1 = -1;
-static gint ett_ain_RequestGroup2 = -1;
-static gint ett_ain_Request2 = -1;
-static gint ett_ain_RequestGroup3 = -1;
-static gint ett_ain_Request3 = -1;
-static gint ett_ain_RequestGroup4 = -1;
-static gint ett_ain_Request4 = -1;
-static gint ett_ain_RequestGroup5 = -1;
-static gint ett_ain_Request5 = -1;
-static gint ett_ain_RequestGroup6 = -1;
-static gint ett_ain_Request6 = -1;
-static gint ett_ain_RequestMemorySlot = -1;
-static gint ett_ain_ServiceProviderID = -1;
-static gint ett_ain_StrParameterBlock_U = -1;
-static gint ett_ain_AnnouncementBlock = -1;
-static gint ett_ain_UninterAnnounceBlock = -1;
-static gint ett_ain_InterAnnounceBlock = -1;
-static gint ett_ain_AnnouncementDigitBlock = -1;
-static gint ett_ain_TimeoutTimer_U = -1;
-static gint ett_ain_UserID_U = -1;
-static gint ett_ain_T_bri = -1;
-static gint ett_ain_Code = -1;
-static gint ett_ain_ROS = -1;
-static gint ett_ain_Invoke = -1;
-static gint ett_ain_T_linkedId = -1;
-static gint ett_ain_ReturnResult = -1;
-static gint ett_ain_T_result = -1;
-static gint ett_ain_ReturnError = -1;
-static gint ett_ain_Reject = -1;
-static gint ett_ain_T_problem = -1;
-static gint ett_ain_InvokeId = -1;
+static gint ett_ain_CallInfoFromResourceArg;
+static gint ett_ain_CloseArg;
+static gint ett_ain_CTRClearArg;
+static gint ett_ain_FailureOutcomeArg;
+static gint ett_ain_InfoAnalyzedArg;
+static gint ett_ain_InfoCollectedArg;
+static gint ett_ain_NetworkBusyArg;
+static gint ett_ain_OAnswerArg;
+static gint ett_ain_OAbandonArg;
+static gint ett_ain_ODisconnectArg;
+static gint ett_ain_OMidCallArg;
+static gint ett_ain_ONoAnswerArg;
+static gint ett_ain_OSuspendedArg;
+static gint ett_ain_OTermSeizedArg;
+static gint ett_ain_OriginationAttemptArg;
+static gint ett_ain_RES_resourceClear;
+static gint ett_ain_ResourceClearArg;
+static gint ett_ain_SuccessOutcomeArg;
+static gint ett_ain_TAnswerArg;
+static gint ett_ain_TBusyArg;
+static gint ett_ain_TDisconnectArg;
+static gint ett_ain_TDTMFEnteredArg;
+static gint ett_ain_TMidCallArg;
+static gint ett_ain_TNoAnswerArg;
+static gint ett_ain_TerminationAttemptArg;
+static gint ett_ain_TermResourceAvailableArg;
+static gint ett_ain_TimeoutArg;
+static gint ett_ain_AnalyzeRouteArg;
+static gint ett_ain_SEQUENCE_SIZE_1_2_OF_AMALineNumber;
+static gint ett_ain_SEQUENCE_SIZE_1_5_OF_AMADigitsDialedWC;
+static gint ett_ain_AuthorizeTerminationArg;
+static gint ett_ain_CancelResourceEventArg;
+static gint ett_ain_CollectInformationArg;
+static gint ett_ain_ConnectToResourceArg;
+static gint ett_ain_ContinueArg;
+static gint ett_ain_CreateCallArg;
+static gint ett_ain_CreateCallRes;
+static gint ett_ain_DisconnectArg;
+static gint ett_ain_DisconnectLegArg;
+static gint ett_ain_ForwardCallArg;
+static gint ett_ain_MergeCallArg;
+static gint ett_ain_MoveLegArg;
+static gint ett_ain_OfferCallArg;
+static gint ett_ain_OriginateCallArg;
+static gint ett_ain_ReconnectArg;
+static gint ett_ain_RES_sendToResource;
+static gint ett_ain_SendToResourceArg;
+static gint ett_ain_SetTimerArg;
+static gint ett_ain_SplitLegArg;
+static gint ett_ain_AcgArg;
+static gint ett_ain_RES_acgGlobalCtrlRestore;
+static gint ett_ain_AcgGlobalCtrlRestoreArg;
+static gint ett_ain_AcgOverflowArg;
+static gint ett_ain_RES_activityTest;
+static gint ett_ain_ActivityTestArg;
+static gint ett_ain_RES_callTypeRequest;
+static gint ett_ain_CallTypeRequestArg;
+static gint ett_ain_ControlRequestArg;
+static gint ett_ain_RES_echoRequest;
+static gint ett_ain_EchoRequestArg;
+static gint ett_ain_FurnishAMAInformationArg;
+static gint ett_ain_MonitorForChangeArg;
+static gint ett_ain_MonitorSuccessArg;
+static gint ett_ain_NCADataArg;
+static gint ett_ain_T_id;
+static gint ett_ain_RES_nCARequest;
+static gint ett_ain_NCARequestArg;
+static gint ett_ain_RES_queryRequest;
+static gint ett_ain_QueryRequestArg;
+static gint ett_ain_RequestReportBCMEventArg;
+static gint ett_ain_StatusReportedArg;
+static gint ett_ain_TerminationNotificationArg;
+static gint ett_ain_RES_update;
+static gint ett_ain_UpdateArg;
+static gint ett_ain_RES_updateRequest;
+static gint ett_ain_UpdateRequestArg;
+static gint ett_ain_PAR_applicationError;
+static gint ett_ain_PAR_failureReport;
+static gint ett_ain_AdministrableObject;
+static gint ett_ain_TriggerItemAssignment_U;
+static gint ett_ain_SSPUserResourceID;
+static gint ett_ain_DnCtID;
+static gint ett_ain_TriggerItemID;
+static gint ett_ain_SSPUserResourceSubID;
+static gint ett_ain_ISDNBChannelID;
+static gint ett_ain_SSPUserResource_U;
+static gint ett_ain_UpdateGroups;
+static gint ett_ain_UpdateGroup1;
+static gint ett_ain_Action1;
+static gint ett_ain_UpdateGroup2;
+static gint ett_ain_Action2;
+static gint ett_ain_UpdateGroup3;
+static gint ett_ain_Action3;
+static gint ett_ain_EditSpecificEntry;
+static gint ett_ain_Entry;
+static gint ett_ain_UpdateGroup4;
+static gint ett_ain_Action4;
+static gint ett_ain_ForwardingDn;
+static gint ett_ain_Set;
+static gint ett_ain_UpdateGroup5;
+static gint ett_ain_Action5;
+static gint ett_ain_UpdateGroup6;
+static gint ett_ain_Action6;
+static gint ett_ain_UpdateGroup7;
+static gint ett_ain_Action7;
+static gint ett_ain_UpdateGroup8;
+static gint ett_ain_Action8;
+static gint ett_ain_UpdateGroup9;
+static gint ett_ain_Action9;
+static gint ett_ain_ChangeList;
+static gint ett_ain_SrhrGroup_U;
+static gint ett_ain_NetworkTestDesignator_U;
+static gint ett_ain_NtdID;
+static gint ett_ain_OperationsMonitoringAssignment_U;
+static gint ett_ain_OperationsMonitoredItemID;
+static gint ett_ain_AMAMeasurement_U;
+static gint ett_ain_Amp2_U;
+static gint ett_ain_AmpAINNodeID;
+static gint ett_ain_AmpSvcProvID;
+static gint ett_ain_ApplicationErrorString_U;
+static gint ett_ain_ApplyRestrictions_U;
+static gint ett_ain_SEQUENCE_SIZE_1_15_OF_DisplayInformation;
+static gint ett_ain_DisplayInformation;
+static gint ett_ain_EDPNotification_U;
+static gint ett_ain_EDPRequest_U;
+static gint ett_ain_ExtensionParameter;
+static gint ett_ain_FacilityGID;
+static gint ett_ain_FailedMessage_U;
+static gint ett_ain_InvParms;
+static gint ett_ain_Parms;
+static gint ett_ain_GapInterval;
+static gint ett_ain_SEQUENCE_SIZE_1_5_OF_GenericAddress;
+static gint ett_ain_SEQUENCE_SIZE_1_5_OF_GenericDigits;
+static gint ett_ain_InfoProvided_U;
+static gint ett_ain_EntireList;
+static gint ett_ain_Entry2;
+static gint ett_ain_MemorySlot;
+static gint ett_ain_Incoming;
+static gint ett_ain_Outgoing;
+static gint ett_ain_Empty;
+static gint ett_ain_ProvideInfo_U;
+static gint ett_ain_RequestGroups;
+static gint ett_ain_RequestGroup1;
+static gint ett_ain_Request1;
+static gint ett_ain_RequestGroup2;
+static gint ett_ain_Request2;
+static gint ett_ain_RequestGroup3;
+static gint ett_ain_Request3;
+static gint ett_ain_RequestGroup4;
+static gint ett_ain_Request4;
+static gint ett_ain_RequestGroup5;
+static gint ett_ain_Request5;
+static gint ett_ain_RequestGroup6;
+static gint ett_ain_Request6;
+static gint ett_ain_RequestMemorySlot;
+static gint ett_ain_ServiceProviderID;
+static gint ett_ain_StrParameterBlock_U;
+static gint ett_ain_AnnouncementBlock;
+static gint ett_ain_UninterAnnounceBlock;
+static gint ett_ain_InterAnnounceBlock;
+static gint ett_ain_AnnouncementDigitBlock;
+static gint ett_ain_TimeoutTimer_U;
+static gint ett_ain_UserID_U;
+static gint ett_ain_T_bri;
+static gint ett_ain_Code;
+static gint ett_ain_ROS;
+static gint ett_ain_Invoke;
+static gint ett_ain_T_linkedId;
+static gint ett_ain_ReturnResult;
+static gint ett_ain_T_result;
+static gint ett_ain_ReturnError;
+static gint ett_ain_Reject;
+static gint ett_ain_T_problem;
+static gint ett_ain_InvokeId;
 
-static expert_field ei_ain_unknown_invokeData = EI_INIT;
-static expert_field ei_ain_unknown_returnResultData = EI_INIT;
-static expert_field ei_ain_unknown_returnErrorData = EI_INIT;
+static expert_field ei_ain_unknown_invokeData;
+static expert_field ei_ain_unknown_returnResultData;
+static expert_field ei_ain_unknown_returnErrorData;
 
 /* Global variables */
 static guint32 opcode = 0;

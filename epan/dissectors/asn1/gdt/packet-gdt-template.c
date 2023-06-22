@@ -28,13 +28,13 @@
 #define PFNAME "gdt"
 
 /* Initialize the protocol and registered fields */
-static int proto_gdt = -1;
+static int proto_gdt;
 static dissector_handle_t gdt_handle = NULL;
 
 #include "packet-gdt-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_gdt = -1;
+static int ett_gdt;
 #include "packet-gdt-ett.c"
 
 #include "packet-gdt-fn.c"

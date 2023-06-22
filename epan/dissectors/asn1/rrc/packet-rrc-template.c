@@ -320,31 +320,31 @@ static int hf_urnti_current;
 #include "packet-rrc-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_rrc = -1;
+static int ett_rrc;
 
 #include "packet-rrc-ett.c"
 
-static gint ett_rrc_eutraFeatureGroupIndicators = -1;
-static gint ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo = -1;
-static gint ett_rrc_ims_info = -1;
-static gint ett_rrc_cellIdentity = -1;
-static gint ett_rrc_sib_data_var = -1;
+static gint ett_rrc_eutraFeatureGroupIndicators;
+static gint ett_rrc_cn_CommonGSM_MAP_NAS_SysInfo;
+static gint ett_rrc_ims_info;
+static gint ett_rrc_cellIdentity;
+static gint ett_rrc_sib_data_var;
 
-static expert_field ei_rrc_no_hrnti = EI_INIT;
+static expert_field ei_rrc_no_hrnti;
 
 /* Global variables */
 static proto_tree *top_tree;
 
-static int hf_rrc_eutra_feat_group_ind_1 = -1;
-static int hf_rrc_eutra_feat_group_ind_2 = -1;
-static int hf_rrc_eutra_feat_group_ind_3 = -1;
-static int hf_rrc_eutra_feat_group_ind_4 = -1;
-static int hf_rrc_ims_info_atgw_trans_det_cont_type = -1;
-static int hf_rrc_ims_info_atgw_udp_port = -1;
-static int hf_rrc_ims_info_atgw_ipv4 = -1;
-static int hf_rrc_ims_info_atgw_ipv6 = -1;
-static int hf_rrc_cellIdentity_rnc_id = -1;
-static int hf_rrc_cellIdentity_c_id = -1;
+static int hf_rrc_eutra_feat_group_ind_1;
+static int hf_rrc_eutra_feat_group_ind_2;
+static int hf_rrc_eutra_feat_group_ind_3;
+static int hf_rrc_eutra_feat_group_ind_4;
+static int hf_rrc_ims_info_atgw_trans_det_cont_type;
+static int hf_rrc_ims_info_atgw_udp_port;
+static int hf_rrc_ims_info_atgw_ipv4;
+static int hf_rrc_ims_info_atgw_ipv6;
+static int hf_rrc_cellIdentity_rnc_id;
+static int hf_rrc_cellIdentity_c_id;
 
 static const true_false_string rrc_eutra_feat_group_ind_1_val = {
   "UTRA CELL_PCH to EUTRA RRC_IDLE cell reselection - Supported",

@@ -27,23 +27,23 @@
 void proto_register_q932(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_q932 = -1;
-static int hf_q932_ie_type = -1;
-static int hf_q932_ie_len = -1;
-static int hf_q932_ie_data = -1;
-static int hf_q932_pp = -1;
-static int hf_q932_nd = -1;
+static int proto_q932;
+static int hf_q932_ie_type;
+static int hf_q932_ie_len;
+static int hf_q932_ie_data;
+static int hf_q932_pp;
+static int hf_q932_nd;
 #include "packet-q932-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_q932 = -1;
-static gint ett_q932_ie = -1;
+static gint ett_q932;
+static gint ett_q932_ie;
 #include "packet-q932-ett.c"
 
-static expert_field ei_q932_dse_not_supported = EI_INIT;
-static expert_field ei_q932_acse_not_supported = EI_INIT;
-static expert_field ei_q932_unknown_component = EI_INIT;
-static expert_field ei_q932_asn1_encoded = EI_INIT;
+static expert_field ei_q932_dse_not_supported;
+static expert_field ei_q932_acse_not_supported;
+static expert_field ei_q932_unknown_component;
+static expert_field ei_q932_asn1_encoded;
 
 
 /* Preferences */

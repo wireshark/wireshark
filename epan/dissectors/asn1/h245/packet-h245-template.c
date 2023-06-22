@@ -58,12 +58,12 @@ static dissector_handle_t h263_handle = NULL;
 static dissector_handle_t amr_handle = NULL;
 
 static void init_h245_packet_info(h245_packet_info *pi);
-static int hf_h245_pdu_type = -1;
-static int hf_h245Manufacturer = -1;
-static int hf_h245_subMessageIdentifier_standard = -1;
+static int hf_h245_pdu_type;
+static int hf_h245Manufacturer;
+static int hf_h245_subMessageIdentifier_standard;
 static int h245_tap = -1;
 static int h245dg_tap = -1;
-static int hf_h245_debug_dissector_try_string = -1;
+static int hf_h245_debug_dissector_try_string;
 
 h245_packet_info *h245_pi=NULL;
 
@@ -370,12 +370,12 @@ static void print_info_column(column_info *cinfo, const gint32 *value,
 }
 
 /* Initialize the protocol and registered fields */
-static int proto_h245 = -1;
+static int proto_h245;
 #include "packet-h245-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_h245 = -1;
-static int ett_h245_returnedFunction = -1;
+static int ett_h245;
+static int ett_h245_returnedFunction;
 #include "packet-h245-ett.c"
 
 /* Forward declarations */

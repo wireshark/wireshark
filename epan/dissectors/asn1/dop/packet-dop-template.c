@@ -39,7 +39,7 @@ void proto_register_dop(void);
 void proto_reg_handoff_dop(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_dop = -1;
+static int proto_dop;
 
 static const char *binding_type = NULL; /* binding_type */
 
@@ -48,15 +48,15 @@ static int call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int off
 #include "packet-dop-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_dop = -1;
-static gint ett_dop_unknown = -1;
+static gint ett_dop;
+static gint ett_dop_unknown;
 #include "packet-dop-ett.c"
 
-static expert_field ei_dop_unknown_binding_parameter = EI_INIT;
-static expert_field ei_dop_unsupported_opcode = EI_INIT;
-static expert_field ei_dop_unsupported_errcode = EI_INIT;
-static expert_field ei_dop_unsupported_pdu = EI_INIT;
-static expert_field ei_dop_zero_pdu = EI_INIT;
+static expert_field ei_dop_unknown_binding_parameter;
+static expert_field ei_dop_unsupported_opcode;
+static expert_field ei_dop_unsupported_errcode;
+static expert_field ei_dop_unsupported_pdu;
+static expert_field ei_dop_zero_pdu;
 
 static dissector_handle_t dop_handle = NULL;
 

@@ -105,7 +105,7 @@ void proto_reg_handoff_z3950(void);
 void proto_register_z3950(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_z3950 = -1;
+static int proto_z3950;
 static int global_z3950_port = Z3950_PORT;
 static gboolean z3950_desegment = TRUE;
 
@@ -653,11 +653,11 @@ static const value_string z3950_bib1_diagconditions[] = {
 
 #include "packet-z3950-hf.c"
 
-static int hf_z3950_referenceId_printable = -1;
-static int hf_z3950_general_printable = -1;
+static int hf_z3950_referenceId_printable;
+static int hf_z3950_general_printable;
 
 /* Initialize the subtree pointers */
-static int ett_z3950 = -1;
+static int ett_z3950;
 
 #include "packet-z3950-ett.c"
 
@@ -666,52 +666,52 @@ static int ett_z3950 = -1;
 static int dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * data _U_);
 
 /* MARC fields */
-static int hf_marc_record = -1;
-static int hf_marc_record_terminator = -1;
-static int hf_marc_leader = -1;
-static int hf_marc_leader_length = -1;
-static int hf_marc_leader_status = -1;
-static int hf_marc_leader_type = -1;
-static int hf_marc_leader_biblevel = -1;
-static int hf_marc_leader_control = -1;
-static int hf_marc_leader_encoding = -1;
-static int hf_marc_leader_indicator_count = -1;
-static int hf_marc_leader_subfield_count = -1;
-static int hf_marc_leader_data_offset = -1;
-static int hf_marc_leader_encoding_level = -1;
-static int hf_marc_leader_descriptive_cataloging = -1;
-static int hf_marc_leader_multipart_level = -1;
-static int hf_marc_leader_length_of_field_length = -1;
-static int hf_marc_leader_starting_character_position_length = -1;
-static int hf_marc_leader_implementation_defined_length = -1;
-static int hf_marc_directory = -1;
-static int hf_marc_directory_entry = -1;
-static int hf_marc_directory_entry_tag = -1;
-static int hf_marc_directory_entry_length = -1;
-static int hf_marc_directory_entry_starting_position = -1;
-static int hf_marc_directory_terminator = -1;
-static int hf_marc_fields = -1;
-static int hf_marc_field = -1;
-static int hf_marc_field_control = -1;
-static int hf_marc_field_terminator = -1;
-static int hf_marc_field_indicator1 = -1;
-static int hf_marc_field_indicator2 = -1;
-static int hf_marc_field_subfield_indicator = -1;
-static int hf_marc_field_subfield_tag = -1;
-static int hf_marc_field_subfield = -1;
+static int hf_marc_record;
+static int hf_marc_record_terminator;
+static int hf_marc_leader;
+static int hf_marc_leader_length;
+static int hf_marc_leader_status;
+static int hf_marc_leader_type;
+static int hf_marc_leader_biblevel;
+static int hf_marc_leader_control;
+static int hf_marc_leader_encoding;
+static int hf_marc_leader_indicator_count;
+static int hf_marc_leader_subfield_count;
+static int hf_marc_leader_data_offset;
+static int hf_marc_leader_encoding_level;
+static int hf_marc_leader_descriptive_cataloging;
+static int hf_marc_leader_multipart_level;
+static int hf_marc_leader_length_of_field_length;
+static int hf_marc_leader_starting_character_position_length;
+static int hf_marc_leader_implementation_defined_length;
+static int hf_marc_directory;
+static int hf_marc_directory_entry;
+static int hf_marc_directory_entry_tag;
+static int hf_marc_directory_entry_length;
+static int hf_marc_directory_entry_starting_position;
+static int hf_marc_directory_terminator;
+static int hf_marc_fields;
+static int hf_marc_field;
+static int hf_marc_field_control;
+static int hf_marc_field_terminator;
+static int hf_marc_field_indicator1;
+static int hf_marc_field_indicator2;
+static int hf_marc_field_subfield_indicator;
+static int hf_marc_field_subfield_tag;
+static int hf_marc_field_subfield;
 
 /* MARC subtree pointers */
-static int ett_marc_record = -1;
-static int ett_marc_leader = -1;
-static int ett_marc_directory = -1;
-static int ett_marc_directory_entry = -1;
-static int ett_marc_fields = -1;
-static int ett_marc_field = -1;
+static int ett_marc_record;
+static int ett_marc_leader;
+static int ett_marc_directory;
+static int ett_marc_directory_entry;
+static int ett_marc_fields;
+static int ett_marc_field;
 
 /* MARC expert fields */
-static expert_field ei_marc_invalid_length = EI_INIT;
-static expert_field ei_marc_invalid_value = EI_INIT;
-static expert_field ei_marc_invalid_record_length = EI_INIT;
+static expert_field ei_marc_invalid_length;
+static expert_field ei_marc_invalid_value;
+static expert_field ei_marc_invalid_record_length;
 
 /* MARC value strings */
 

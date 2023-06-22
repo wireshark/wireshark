@@ -22,12 +22,12 @@
 void proto_register_glow(void);
 
 static dissector_handle_t glow_handle=NULL;
-static int proto_glow = -1;
+static int proto_glow;
 
 #include "packet-glow-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_glow = -1;
+static int ett_glow;
 
 #include "packet-glow-ett.c"
 

@@ -32,57 +32,57 @@ void proto_register_pkcs1(void);
 void proto_reg_handoff_pkcs1(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_pkcs1 = -1;
-static int hf_pkcs1_DSA_Params_PDU = -1;          /* DSA_Params */
-static int hf_pkcs1_DomainParameters_PDU = -1;    /* DomainParameters */
-static int hf_pkcs1_KEA_Params_Id_PDU = -1;       /* KEA_Params_Id */
-static int hf_pkcs1_HashAlgorithm_PDU = -1;       /* HashAlgorithm */
-static int hf_pkcs1_RSASSA_PSS_params_PDU = -1;   /* RSASSA_PSS_params */
-static int hf_pkcs1_ECParameters_PDU = -1;        /* ECParameters */
-static int hf_pkcs1_Prime_p_PDU = -1;             /* Prime_p */
-static int hf_pkcs1_modulus = -1;                 /* INTEGER */
-static int hf_pkcs1_publicExponent = -1;          /* INTEGER */
-static int hf_pkcs1_digestAlgorithm = -1;         /* DigestAlgorithmIdentifier */
-static int hf_pkcs1_digest = -1;                  /* Digest */
-static int hf_pkcs1_p = -1;                       /* INTEGER */
-static int hf_pkcs1_q = -1;                       /* INTEGER */
-static int hf_pkcs1_g = -1;                       /* INTEGER */
-static int hf_pkcs1_j = -1;                       /* INTEGER */
-static int hf_pkcs1_validationParams = -1;        /* ValidationParams */
-static int hf_pkcs1_seed = -1;                    /* BIT_STRING */
-static int hf_pkcs1_pgenCounter = -1;             /* INTEGER */
-static int hf_pkcs1_hashAlgorithm = -1;           /* HashAlgorithm */
-static int hf_pkcs1_maskGenAlgorithm = -1;        /* MaskGenAlgorithm */
-static int hf_pkcs1_saltLength = -1;              /* INTEGER */
-static int hf_pkcs1_trailerField = -1;            /* INTEGER */
-static int hf_pkcs1_specifiedCurve = -1;          /* SpecifiedECDomain */
-static int hf_pkcs1_namedCurve = -1;              /* OBJECT_IDENTIFIER */
-static int hf_pkcs1_version = -1;                 /* ECPVer */
-static int hf_pkcs1_fieldID = -1;                 /* FieldID */
-static int hf_pkcs1_curve = -1;                   /* Curve */
-static int hf_pkcs1_base = -1;                    /* ECPoint */
-static int hf_pkcs1_order = -1;                   /* INTEGER */
-static int hf_pkcs1_cofactor = -1;                /* INTEGER */
-static int hf_pkcs1_fieldType = -1;               /* T_fieldType */
-static int hf_pkcs1_parameters = -1;              /* T_parameters */
-static int hf_pkcs1_a = -1;                       /* FieldElement */
-static int hf_pkcs1_b = -1;                       /* FieldElement */
-static int hf_pkcs1_r = -1;                       /* INTEGER */
-static int hf_pkcs1_s = -1;                       /* INTEGER */
+static int proto_pkcs1;
+static int hf_pkcs1_DSA_Params_PDU;               /* DSA_Params */
+static int hf_pkcs1_DomainParameters_PDU;         /* DomainParameters */
+static int hf_pkcs1_KEA_Params_Id_PDU;            /* KEA_Params_Id */
+static int hf_pkcs1_HashAlgorithm_PDU;            /* HashAlgorithm */
+static int hf_pkcs1_RSASSA_PSS_params_PDU;        /* RSASSA_PSS_params */
+static int hf_pkcs1_ECParameters_PDU;             /* ECParameters */
+static int hf_pkcs1_Prime_p_PDU;                  /* Prime_p */
+static int hf_pkcs1_modulus;                      /* INTEGER */
+static int hf_pkcs1_publicExponent;               /* INTEGER */
+static int hf_pkcs1_digestAlgorithm;              /* DigestAlgorithmIdentifier */
+static int hf_pkcs1_digest;                       /* Digest */
+static int hf_pkcs1_p;                            /* INTEGER */
+static int hf_pkcs1_q;                            /* INTEGER */
+static int hf_pkcs1_g;                            /* INTEGER */
+static int hf_pkcs1_j;                            /* INTEGER */
+static int hf_pkcs1_validationParams;             /* ValidationParams */
+static int hf_pkcs1_seed;                         /* BIT_STRING */
+static int hf_pkcs1_pgenCounter;                  /* INTEGER */
+static int hf_pkcs1_hashAlgorithm;                /* HashAlgorithm */
+static int hf_pkcs1_maskGenAlgorithm;             /* MaskGenAlgorithm */
+static int hf_pkcs1_saltLength;                   /* INTEGER */
+static int hf_pkcs1_trailerField;                 /* INTEGER */
+static int hf_pkcs1_specifiedCurve;               /* SpecifiedECDomain */
+static int hf_pkcs1_namedCurve;                   /* OBJECT_IDENTIFIER */
+static int hf_pkcs1_version;                      /* ECPVer */
+static int hf_pkcs1_fieldID;                      /* FieldID */
+static int hf_pkcs1_curve;                        /* Curve */
+static int hf_pkcs1_base;                         /* ECPoint */
+static int hf_pkcs1_order;                        /* INTEGER */
+static int hf_pkcs1_cofactor;                     /* INTEGER */
+static int hf_pkcs1_fieldType;                    /* T_fieldType */
+static int hf_pkcs1_parameters;                   /* T_parameters */
+static int hf_pkcs1_a;                            /* FieldElement */
+static int hf_pkcs1_b;                            /* FieldElement */
+static int hf_pkcs1_r;                            /* INTEGER */
+static int hf_pkcs1_s;                            /* INTEGER */
 
 /* Initialize the subtree pointers */
-static gint ett_pkcs1_RSAPublicKey = -1;
-static gint ett_pkcs1_DigestInfo = -1;
-static gint ett_pkcs1_DSA_Params = -1;
-static gint ett_pkcs1_DomainParameters = -1;
-static gint ett_pkcs1_ValidationParams = -1;
-static gint ett_pkcs1_RSASSA_PSS_params = -1;
-static gint ett_pkcs1_ECParameters = -1;
-static gint ett_pkcs1_SpecifiedECDomain = -1;
-static gint ett_pkcs1_FieldID = -1;
-static gint ett_pkcs1_Curve = -1;
-static gint ett_pkcs1_DSA_Sig_Value = -1;
-static gint ett_pkcs1_ECDSA_Sig_Value = -1;
+static gint ett_pkcs1_RSAPublicKey;
+static gint ett_pkcs1_DigestInfo;
+static gint ett_pkcs1_DSA_Params;
+static gint ett_pkcs1_DomainParameters;
+static gint ett_pkcs1_ValidationParams;
+static gint ett_pkcs1_RSASSA_PSS_params;
+static gint ett_pkcs1_ECParameters;
+static gint ett_pkcs1_SpecifiedECDomain;
+static gint ett_pkcs1_FieldID;
+static gint ett_pkcs1_Curve;
+static gint ett_pkcs1_DSA_Sig_Value;
+static gint ett_pkcs1_ECDSA_Sig_Value;
 
 
 

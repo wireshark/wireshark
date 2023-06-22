@@ -34,37 +34,37 @@ void proto_reg_handoff_pkixqualified(void);
 
 
 /* Initialize the protocol and registered fields */
-static int proto_pkixqualified = -1;
-static int hf_pkixqualified_Generalizedtime_PDU = -1;  /* Generalizedtime */
-static int hf_pkixqualified_Directorystring_PDU = -1;  /* Directorystring */
-static int hf_pkixqualified_Printablestring_PDU = -1;  /* Printablestring */
-static int hf_pkixqualified_BiometricSyntax_PDU = -1;  /* BiometricSyntax */
-static int hf_pkixqualified_QCStatements_PDU = -1;  /* QCStatements */
-static int hf_pkixqualified_SemanticsInformation_PDU = -1;  /* SemanticsInformation */
-static int hf_pkixqualified_XmppAddr_PDU = -1;    /* XmppAddr */
-static int hf_pkixqualified_SRVName_PDU = -1;     /* SRVName */
-static int hf_pkixqualified_BiometricSyntax_item = -1;  /* BiometricData */
-static int hf_pkixqualified_typeOfBiometricData = -1;  /* TypeOfBiometricData */
-static int hf_pkixqualified_hashAlgorithm = -1;   /* AlgorithmIdentifier */
-static int hf_pkixqualified_biometricDataHash = -1;  /* OCTET_STRING */
-static int hf_pkixqualified_sourceDataUri = -1;   /* IA5String */
-static int hf_pkixqualified_predefinedBiometricType = -1;  /* PredefinedBiometricType */
-static int hf_pkixqualified_biometricDataOid = -1;  /* OBJECT_IDENTIFIER */
-static int hf_pkixqualified_QCStatements_item = -1;  /* QCStatement */
-static int hf_pkixqualified_statementId = -1;     /* T_statementId */
-static int hf_pkixqualified_statementInfo = -1;   /* T_statementInfo */
-static int hf_pkixqualified_semanticsIdentifier = -1;  /* OBJECT_IDENTIFIER */
-static int hf_pkixqualified_nameRegistrationAuthorities = -1;  /* NameRegistrationAuthorities */
-static int hf_pkixqualified_NameRegistrationAuthorities_item = -1;  /* GeneralName */
+static int proto_pkixqualified;
+static int hf_pkixqualified_Generalizedtime_PDU;  /* Generalizedtime */
+static int hf_pkixqualified_Directorystring_PDU;  /* Directorystring */
+static int hf_pkixqualified_Printablestring_PDU;  /* Printablestring */
+static int hf_pkixqualified_BiometricSyntax_PDU;  /* BiometricSyntax */
+static int hf_pkixqualified_QCStatements_PDU;     /* QCStatements */
+static int hf_pkixqualified_SemanticsInformation_PDU;  /* SemanticsInformation */
+static int hf_pkixqualified_XmppAddr_PDU;         /* XmppAddr */
+static int hf_pkixqualified_SRVName_PDU;          /* SRVName */
+static int hf_pkixqualified_BiometricSyntax_item;  /* BiometricData */
+static int hf_pkixqualified_typeOfBiometricData;  /* TypeOfBiometricData */
+static int hf_pkixqualified_hashAlgorithm;        /* AlgorithmIdentifier */
+static int hf_pkixqualified_biometricDataHash;    /* OCTET_STRING */
+static int hf_pkixqualified_sourceDataUri;        /* IA5String */
+static int hf_pkixqualified_predefinedBiometricType;  /* PredefinedBiometricType */
+static int hf_pkixqualified_biometricDataOid;     /* OBJECT_IDENTIFIER */
+static int hf_pkixqualified_QCStatements_item;    /* QCStatement */
+static int hf_pkixqualified_statementId;          /* T_statementId */
+static int hf_pkixqualified_statementInfo;        /* T_statementInfo */
+static int hf_pkixqualified_semanticsIdentifier;  /* OBJECT_IDENTIFIER */
+static int hf_pkixqualified_nameRegistrationAuthorities;  /* NameRegistrationAuthorities */
+static int hf_pkixqualified_NameRegistrationAuthorities_item;  /* GeneralName */
 
 /* Initialize the subtree pointers */
-static gint ett_pkixqualified_BiometricSyntax = -1;
-static gint ett_pkixqualified_BiometricData = -1;
-static gint ett_pkixqualified_TypeOfBiometricData = -1;
-static gint ett_pkixqualified_QCStatements = -1;
-static gint ett_pkixqualified_QCStatement = -1;
-static gint ett_pkixqualified_SemanticsInformation = -1;
-static gint ett_pkixqualified_NameRegistrationAuthorities = -1;
+static gint ett_pkixqualified_BiometricSyntax;
+static gint ett_pkixqualified_BiometricData;
+static gint ett_pkixqualified_TypeOfBiometricData;
+static gint ett_pkixqualified_QCStatements;
+static gint ett_pkixqualified_QCStatement;
+static gint ett_pkixqualified_SemanticsInformation;
+static gint ett_pkixqualified_NameRegistrationAuthorities;
 
 static const char *object_identifier_id;
 

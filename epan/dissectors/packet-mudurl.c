@@ -32,8 +32,8 @@ void proto_reg_handoff_mudurl(void);
 
 
 /* Initialize the protocol and registered fields */
-static int proto_mudurl = -1;
-static int hf_mudurl_MUDURLSyntax_PDU = -1;       /* MUDURLSyntax */
+static int proto_mudurl;
+static int hf_mudurl_MUDURLSyntax_PDU;            /* MUDURLSyntax */
 
 /* Initialize the subtree pointers */
 /* #include "packet-mudurl-ett.c" */

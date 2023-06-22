@@ -23,62 +23,62 @@
 
 #include "packet-per.h"
 
-static int hf_mpeg_pes_prefix = -1;               /* OCTET_STRING_SIZE_3 */
-static int hf_mpeg_pes_stream = -1;               /* T_stream */
-static int hf_mpeg_pes_length = -1;               /* INTEGER_0_65535 */
-static int hf_mpeg_pes_must_be_one = -1;          /* BOOLEAN */
-static int hf_mpeg_pes_stream_must_be_zero = -1;  /* BOOLEAN */
-static int hf_mpeg_pes_scrambling_control = -1;   /* T_scrambling_control */
-static int hf_mpeg_pes_priority = -1;             /* BOOLEAN */
-static int hf_mpeg_pes_data_alignment = -1;       /* BOOLEAN */
-static int hf_mpeg_pes_copyright = -1;            /* BOOLEAN */
-static int hf_mpeg_pes_original = -1;             /* BOOLEAN */
-static int hf_mpeg_pes_pts_flag = -1;             /* BOOLEAN */
-static int hf_mpeg_pes_dts_flag = -1;             /* BOOLEAN */
-static int hf_mpeg_pes_escr_flag = -1;            /* BOOLEAN */
-static int hf_mpeg_pes_es_rate_flag = -1;         /* BOOLEAN */
-static int hf_mpeg_pes_dsm_trick_mode_flag = -1;  /* BOOLEAN */
-static int hf_mpeg_pes_additional_copy_info_flag = -1;  /* BOOLEAN */
-static int hf_mpeg_pes_crc_flag = -1;             /* BOOLEAN */
-static int hf_mpeg_pes_extension_flag = -1;       /* BOOLEAN */
-static int hf_mpeg_pes_header_data_length = -1;   /* INTEGER_0_255 */
-static int hf_mpeg_pes_horizontal_size = -1;      /* BIT_STRING_SIZE_12 */
-static int hf_mpeg_pes_vertical_size = -1;        /* BIT_STRING_SIZE_12 */
-static int hf_mpeg_pes_aspect_ratio = -1;         /* T_aspect_ratio */
-static int hf_mpeg_pes_frame_rate = -1;           /* T_frame_rate */
-static int hf_mpeg_pes_bit_rate = -1;             /* BIT_STRING_SIZE_18 */
-static int hf_mpeg_pes_vbv_buffer_size = -1;      /* BIT_STRING_SIZE_10 */
-static int hf_mpeg_pes_constrained_parameters_flag = -1;  /* BOOLEAN */
-static int hf_mpeg_pes_load_intra_quantiser_matrix = -1;  /* BOOLEAN */
-static int hf_mpeg_pes_load_non_intra_quantiser_matrix = -1;  /* BOOLEAN */
-static int hf_mpeg_pes_must_be_0001 = -1;         /* BIT_STRING_SIZE_4 */
-static int hf_mpeg_pes_profile_and_level = -1;    /* INTEGER_0_255 */
-static int hf_mpeg_pes_progressive_sequence = -1;  /* BOOLEAN */
-static int hf_mpeg_pes_chroma_format = -1;        /* INTEGER_0_3 */
-static int hf_mpeg_pes_horizontal_size_extension = -1;  /* INTEGER_0_3 */
-static int hf_mpeg_pes_vertical_size_extension = -1;  /* INTEGER_0_3 */
-static int hf_mpeg_pes_bit_rate_extension = -1;   /* BIT_STRING_SIZE_12 */
-static int hf_mpeg_pes_vbv_buffer_size_extension = -1;  /* INTEGER_0_255 */
-static int hf_mpeg_pes_low_delay = -1;            /* BOOLEAN */
-static int hf_mpeg_pes_frame_rate_extension_n = -1;  /* INTEGER_0_3 */
-static int hf_mpeg_pes_frame_rate_extension_d = -1;  /* INTEGER_0_3 */
-static int hf_mpeg_pes_drop_frame_flag = -1;      /* BOOLEAN */
-static int hf_mpeg_pes_hour = -1;                 /* INTEGER_0_32 */
-static int hf_mpeg_pes_minute = -1;               /* INTEGER_0_64 */
-static int hf_mpeg_pes_second = -1;               /* INTEGER_0_64 */
-static int hf_mpeg_pes_frame = -1;                /* INTEGER_0_64 */
-static int hf_mpeg_pes_closed_gop = -1;           /* BOOLEAN */
-static int hf_mpeg_pes_broken_gop = -1;           /* BOOLEAN */
-static int hf_mpeg_pes_must_be_zero = -1;         /* BIT_STRING_SIZE_5 */
-static int hf_mpeg_pes_temporal_sequence_number = -1;  /* BIT_STRING_SIZE_10 */
-static int hf_mpeg_pes_frame_type = -1;           /* T_frame_type */
-static int hf_mpeg_pes_vbv_delay = -1;            /* BIT_STRING_SIZE_16 */
-static gint ett_mpeg_pes_PES = -1;
-static gint ett_mpeg_pes_Stream = -1;
-static gint ett_mpeg_pes_Sequence_header = -1;
-static gint ett_mpeg_pes_Sequence_extension = -1;
-static gint ett_mpeg_pes_Group_of_pictures = -1;
-static gint ett_mpeg_pes_Picture = -1;
+static int hf_mpeg_pes_prefix;                    /* OCTET_STRING_SIZE_3 */
+static int hf_mpeg_pes_stream;                    /* T_stream */
+static int hf_mpeg_pes_length;                    /* INTEGER_0_65535 */
+static int hf_mpeg_pes_must_be_one;               /* BOOLEAN */
+static int hf_mpeg_pes_stream_must_be_zero;       /* BOOLEAN */
+static int hf_mpeg_pes_scrambling_control;        /* T_scrambling_control */
+static int hf_mpeg_pes_priority;                  /* BOOLEAN */
+static int hf_mpeg_pes_data_alignment;            /* BOOLEAN */
+static int hf_mpeg_pes_copyright;                 /* BOOLEAN */
+static int hf_mpeg_pes_original;                  /* BOOLEAN */
+static int hf_mpeg_pes_pts_flag;                  /* BOOLEAN */
+static int hf_mpeg_pes_dts_flag;                  /* BOOLEAN */
+static int hf_mpeg_pes_escr_flag;                 /* BOOLEAN */
+static int hf_mpeg_pes_es_rate_flag;              /* BOOLEAN */
+static int hf_mpeg_pes_dsm_trick_mode_flag;       /* BOOLEAN */
+static int hf_mpeg_pes_additional_copy_info_flag;  /* BOOLEAN */
+static int hf_mpeg_pes_crc_flag;                  /* BOOLEAN */
+static int hf_mpeg_pes_extension_flag;            /* BOOLEAN */
+static int hf_mpeg_pes_header_data_length;        /* INTEGER_0_255 */
+static int hf_mpeg_pes_horizontal_size;           /* BIT_STRING_SIZE_12 */
+static int hf_mpeg_pes_vertical_size;             /* BIT_STRING_SIZE_12 */
+static int hf_mpeg_pes_aspect_ratio;              /* T_aspect_ratio */
+static int hf_mpeg_pes_frame_rate;                /* T_frame_rate */
+static int hf_mpeg_pes_bit_rate;                  /* BIT_STRING_SIZE_18 */
+static int hf_mpeg_pes_vbv_buffer_size;           /* BIT_STRING_SIZE_10 */
+static int hf_mpeg_pes_constrained_parameters_flag;  /* BOOLEAN */
+static int hf_mpeg_pes_load_intra_quantiser_matrix;  /* BOOLEAN */
+static int hf_mpeg_pes_load_non_intra_quantiser_matrix;  /* BOOLEAN */
+static int hf_mpeg_pes_must_be_0001;              /* BIT_STRING_SIZE_4 */
+static int hf_mpeg_pes_profile_and_level;         /* INTEGER_0_255 */
+static int hf_mpeg_pes_progressive_sequence;      /* BOOLEAN */
+static int hf_mpeg_pes_chroma_format;             /* INTEGER_0_3 */
+static int hf_mpeg_pes_horizontal_size_extension;  /* INTEGER_0_3 */
+static int hf_mpeg_pes_vertical_size_extension;   /* INTEGER_0_3 */
+static int hf_mpeg_pes_bit_rate_extension;        /* BIT_STRING_SIZE_12 */
+static int hf_mpeg_pes_vbv_buffer_size_extension;  /* INTEGER_0_255 */
+static int hf_mpeg_pes_low_delay;                 /* BOOLEAN */
+static int hf_mpeg_pes_frame_rate_extension_n;    /* INTEGER_0_3 */
+static int hf_mpeg_pes_frame_rate_extension_d;    /* INTEGER_0_3 */
+static int hf_mpeg_pes_drop_frame_flag;           /* BOOLEAN */
+static int hf_mpeg_pes_hour;                      /* INTEGER_0_32 */
+static int hf_mpeg_pes_minute;                    /* INTEGER_0_64 */
+static int hf_mpeg_pes_second;                    /* INTEGER_0_64 */
+static int hf_mpeg_pes_frame;                     /* INTEGER_0_64 */
+static int hf_mpeg_pes_closed_gop;                /* BOOLEAN */
+static int hf_mpeg_pes_broken_gop;                /* BOOLEAN */
+static int hf_mpeg_pes_must_be_zero;              /* BIT_STRING_SIZE_5 */
+static int hf_mpeg_pes_temporal_sequence_number;  /* BIT_STRING_SIZE_10 */
+static int hf_mpeg_pes_frame_type;                /* T_frame_type */
+static int hf_mpeg_pes_vbv_delay;                 /* BIT_STRING_SIZE_16 */
+static gint ett_mpeg_pes_PES;
+static gint ett_mpeg_pes_Stream;
+static gint ett_mpeg_pes_Sequence_header;
+static gint ett_mpeg_pes_Sequence_extension;
+static gint ett_mpeg_pes_Group_of_pictures;
+static gint ett_mpeg_pes_Picture;
 
 
 static int
@@ -445,47 +445,47 @@ dissect_mpeg_pes_Picture(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 void proto_register_mpeg_pes(void);
 void proto_reg_handoff_mpeg_pes(void);
 
-static int proto_mpeg = -1;
-static int proto_mpeg_pes = -1;
+static int proto_mpeg;
+static int proto_mpeg_pes;
 
-static int ett_mpeg_pes_pack_header = -1;
-static int ett_mpeg_pes_header_data = -1;
-static int ett_mpeg_pes_trick_mode = -1;
+static int ett_mpeg_pes_pack_header;
+static int ett_mpeg_pes_header_data;
+static int ett_mpeg_pes_trick_mode;
 
-static int hf_mpeg_pes_pack_header = -1;
-static int hf_mpeg_pes_scr = -1;
-static int hf_mpeg_pes_program_mux_rate = -1;
-static int hf_mpeg_pes_stuffing_length = -1;
-static int hf_mpeg_pes_stuffing = -1;
-static int hf_mpeg_pes_extension = -1;
-static int hf_mpeg_pes_header_data = -1;
-static int hf_mpeg_pes_pts = -1;
-static int hf_mpeg_pes_dts = -1;
-static int hf_mpeg_pes_escr = -1;
-static int hf_mpeg_pes_es_rate = -1;
-static int hf_mpeg_pes_dsm_trick_mode = -1;
-static int hf_mpeg_pes_dsm_trick_mode_control = -1;
-static int hf_mpeg_pes_dsm_trick_mode_field_id = -1;
-static int hf_mpeg_pes_dsm_trick_mode_intra_slice_refresh = -1;
-static int hf_mpeg_pes_dsm_trick_mode_frequency_truncation = -1;
-static int hf_mpeg_pes_dsm_trick_mode_rep_cntrl = -1;
-static int hf_mpeg_pes_copy_info = -1;
-static int hf_mpeg_pes_crc = -1;
-static int hf_mpeg_pes_extension_flags = -1;
-static int hf_mpeg_pes_private_data = -1;
-static int hf_mpeg_pes_pack_length = -1;
-static int hf_mpeg_pes_sequence = -1;
-static int hf_mpeg_pes_pstd_buffer = -1;
-static int hf_mpeg_pes_extension2 = -1;
-static int hf_mpeg_pes_padding = -1;
-static int hf_mpeg_pes_data = -1;
+static int hf_mpeg_pes_pack_header;
+static int hf_mpeg_pes_scr;
+static int hf_mpeg_pes_program_mux_rate;
+static int hf_mpeg_pes_stuffing_length;
+static int hf_mpeg_pes_stuffing;
+static int hf_mpeg_pes_extension;
+static int hf_mpeg_pes_header_data;
+static int hf_mpeg_pes_pts;
+static int hf_mpeg_pes_dts;
+static int hf_mpeg_pes_escr;
+static int hf_mpeg_pes_es_rate;
+static int hf_mpeg_pes_dsm_trick_mode;
+static int hf_mpeg_pes_dsm_trick_mode_control;
+static int hf_mpeg_pes_dsm_trick_mode_field_id;
+static int hf_mpeg_pes_dsm_trick_mode_intra_slice_refresh;
+static int hf_mpeg_pes_dsm_trick_mode_frequency_truncation;
+static int hf_mpeg_pes_dsm_trick_mode_rep_cntrl;
+static int hf_mpeg_pes_copy_info;
+static int hf_mpeg_pes_crc;
+static int hf_mpeg_pes_extension_flags;
+static int hf_mpeg_pes_private_data;
+static int hf_mpeg_pes_pack_length;
+static int hf_mpeg_pes_sequence;
+static int hf_mpeg_pes_pstd_buffer;
+static int hf_mpeg_pes_extension2;
+static int hf_mpeg_pes_padding;
+static int hf_mpeg_pes_data;
 
-static int hf_mpeg_video_sequence_header = -1;
-static int hf_mpeg_video_sequence_extension = -1;
-static int hf_mpeg_video_group_of_pictures = -1;
-static int hf_mpeg_video_picture = -1;
-static int hf_mpeg_video_quantization_matrix = -1;
-static int hf_mpeg_video_data = -1;
+static int hf_mpeg_video_sequence_header;
+static int hf_mpeg_video_sequence_extension;
+static int hf_mpeg_video_group_of_pictures;
+static int hf_mpeg_video_picture;
+static int hf_mpeg_video_quantization_matrix;
+static int hf_mpeg_video_data;
 
 static dissector_handle_t mpeg_handle;
 

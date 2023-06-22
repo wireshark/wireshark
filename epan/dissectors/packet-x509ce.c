@@ -35,282 +35,282 @@ void proto_register_x509ce(void);
 void proto_reg_handoff_x509ce(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_x509ce = -1;
-static int hf_x509ce_id_ce_invalidityDate = -1;
-static int hf_x509ce_id_ce_baseUpdateTime = -1;
-static int hf_x509ce_object_identifier_id = -1;
-static int hf_x509ce_IPAddress_ipv4 = -1;
-static int hf_x509ce_IPAddress_ipv6 = -1;
-static int hf_x509ce_AuthorityKeyIdentifier_PDU = -1;  /* AuthorityKeyIdentifier */
-static int hf_x509ce_SubjectKeyIdentifier_PDU = -1;  /* SubjectKeyIdentifier */
-static int hf_x509ce_KeyUsage_PDU = -1;           /* KeyUsage */
-static int hf_x509ce_KeyPurposeIDs_PDU = -1;      /* KeyPurposeIDs */
-static int hf_x509ce_PrivateKeyUsagePeriod_PDU = -1;  /* PrivateKeyUsagePeriod */
-static int hf_x509ce_CertificatePoliciesSyntax_PDU = -1;  /* CertificatePoliciesSyntax */
-static int hf_x509ce_PolicyMappingsSyntax_PDU = -1;  /* PolicyMappingsSyntax */
-static int hf_x509ce_GeneralNames_PDU = -1;       /* GeneralNames */
-static int hf_x509ce_AttributesSyntax_PDU = -1;   /* AttributesSyntax */
-static int hf_x509ce_BasicConstraintsSyntax_PDU = -1;  /* BasicConstraintsSyntax */
-static int hf_x509ce_NameConstraintsSyntax_PDU = -1;  /* NameConstraintsSyntax */
-static int hf_x509ce_PolicyConstraintsSyntax_PDU = -1;  /* PolicyConstraintsSyntax */
-static int hf_x509ce_SkipCerts_PDU = -1;          /* SkipCerts */
-static int hf_x509ce_CRLNumber_PDU = -1;          /* CRLNumber */
-static int hf_x509ce_CRLReason_PDU = -1;          /* CRLReason */
-static int hf_x509ce_HoldInstruction_PDU = -1;    /* HoldInstruction */
-static int hf_x509ce_CRLScopeSyntax_PDU = -1;     /* CRLScopeSyntax */
-static int hf_x509ce_StatusReferrals_PDU = -1;    /* StatusReferrals */
-static int hf_x509ce_CRLStreamIdentifier_PDU = -1;  /* CRLStreamIdentifier */
-static int hf_x509ce_OrderedListSyntax_PDU = -1;  /* OrderedListSyntax */
-static int hf_x509ce_DeltaInformation_PDU = -1;   /* DeltaInformation */
-static int hf_x509ce_CRLDistPointsSyntax_PDU = -1;  /* CRLDistPointsSyntax */
-static int hf_x509ce_IssuingDistPointSyntax_PDU = -1;  /* IssuingDistPointSyntax */
-static int hf_x509ce_BaseCRLNumber_PDU = -1;      /* BaseCRLNumber */
-static int hf_x509ce_ToBeRevokedSyntax_PDU = -1;  /* ToBeRevokedSyntax */
-static int hf_x509ce_RevokedGroupsSyntax_PDU = -1;  /* RevokedGroupsSyntax */
-static int hf_x509ce_ExpiredCertsOnCRL_PDU = -1;  /* ExpiredCertsOnCRL */
-static int hf_x509ce_AAIssuingDistPointSyntax_PDU = -1;  /* AAIssuingDistPointSyntax */
-static int hf_x509ce_CertificateAssertion_PDU = -1;  /* CertificateAssertion */
-static int hf_x509ce_CertificatePairExactAssertion_PDU = -1;  /* CertificatePairExactAssertion */
-static int hf_x509ce_CertificatePairAssertion_PDU = -1;  /* CertificatePairAssertion */
-static int hf_x509ce_CertificateListExactAssertion_PDU = -1;  /* CertificateListExactAssertion */
-static int hf_x509ce_CertificateListAssertion_PDU = -1;  /* CertificateListAssertion */
-static int hf_x509ce_PkiPathMatchSyntax_PDU = -1;  /* PkiPathMatchSyntax */
-static int hf_x509ce_EnhancedCertificateAssertion_PDU = -1;  /* EnhancedCertificateAssertion */
-static int hf_x509ce_CertificateTemplate_PDU = -1;  /* CertificateTemplate */
-static int hf_x509ce_NtdsCaSecurity_PDU = -1;     /* NtdsCaSecurity */
-static int hf_x509ce_NtdsObjectSid_PDU = -1;      /* NtdsObjectSid */
-static int hf_x509ce_EntrustVersionInfo_PDU = -1;  /* EntrustVersionInfo */
-static int hf_x509ce_NFTypes_PDU = -1;            /* NFTypes */
-static int hf_x509ce_ScramblerCapabilities_PDU = -1;  /* ScramblerCapabilities */
-static int hf_x509ce_CiplusInfo_PDU = -1;         /* CiplusInfo */
-static int hf_x509ce_CicamBrandId_PDU = -1;       /* CicamBrandId */
-static int hf_x509ce_SecurityLevel_PDU = -1;      /* SecurityLevel */
-static int hf_x509ce_keyIdentifier = -1;          /* KeyIdentifier */
-static int hf_x509ce_authorityCertIssuer = -1;    /* GeneralNames */
-static int hf_x509ce_authorityCertSerialNumber = -1;  /* CertificateSerialNumber */
-static int hf_x509ce_KeyPurposeIDs_item = -1;     /* KeyPurposeId */
-static int hf_x509ce_notBefore = -1;              /* GeneralizedTime */
-static int hf_x509ce_notAfter = -1;               /* GeneralizedTime */
-static int hf_x509ce_CertificatePoliciesSyntax_item = -1;  /* PolicyInformation */
-static int hf_x509ce_policyIdentifier = -1;       /* CertPolicyId */
-static int hf_x509ce_policyQualifiers = -1;       /* SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo */
-static int hf_x509ce_policyQualifiers_item = -1;  /* PolicyQualifierInfo */
-static int hf_x509ce_policyQualifierId = -1;      /* T_policyQualifierId */
-static int hf_x509ce_qualifier = -1;              /* T_qualifier */
-static int hf_x509ce_PolicyMappingsSyntax_item = -1;  /* PolicyMappingsSyntax_item */
-static int hf_x509ce_issuerDomainPolicy = -1;     /* CertPolicyId */
-static int hf_x509ce_subjectDomainPolicy = -1;    /* CertPolicyId */
-static int hf_x509ce_GeneralNames_item = -1;      /* GeneralName */
-static int hf_x509ce_otherName = -1;              /* OtherName */
-static int hf_x509ce_rfc822Name = -1;             /* IA5String */
-static int hf_x509ce_dNSName = -1;                /* IA5String */
-static int hf_x509ce_x400Address = -1;            /* ORAddress */
-static int hf_x509ce_directoryName = -1;          /* Name */
-static int hf_x509ce_ediPartyName = -1;           /* EDIPartyName */
-static int hf_x509ce_uniformResourceIdentifier = -1;  /* T_uniformResourceIdentifier */
-static int hf_x509ce_iPAddress = -1;              /* T_iPAddress */
-static int hf_x509ce_registeredID = -1;           /* OBJECT_IDENTIFIER */
-static int hf_x509ce_type_id = -1;                /* OtherNameType */
-static int hf_x509ce_value = -1;                  /* OtherNameValue */
-static int hf_x509ce_nameAssigner = -1;           /* DirectoryString */
-static int hf_x509ce_partyName = -1;              /* DirectoryString */
-static int hf_x509ce_AttributesSyntax_item = -1;  /* Attribute */
-static int hf_x509ce_cA = -1;                     /* BOOLEAN */
-static int hf_x509ce_pathLenConstraint = -1;      /* INTEGER_0_MAX */
-static int hf_x509ce_permittedSubtrees = -1;      /* GeneralSubtrees */
-static int hf_x509ce_excludedSubtrees = -1;       /* GeneralSubtrees */
-static int hf_x509ce_GeneralSubtrees_item = -1;   /* GeneralSubtree */
-static int hf_x509ce_base = -1;                   /* GeneralName */
-static int hf_x509ce_minimum = -1;                /* BaseDistance */
-static int hf_x509ce_maximum = -1;                /* BaseDistance */
-static int hf_x509ce_requireExplicitPolicy = -1;  /* SkipCerts */
-static int hf_x509ce_inhibitPolicyMapping = -1;   /* SkipCerts */
-static int hf_x509ce_CRLScopeSyntax_item = -1;    /* PerAuthorityScope */
-static int hf_x509ce_authorityName = -1;          /* GeneralName */
-static int hf_x509ce_distributionPoint = -1;      /* DistributionPointName */
-static int hf_x509ce_onlyContains = -1;           /* OnlyCertificateTypes */
-static int hf_x509ce_onlySomeReasons = -1;        /* ReasonFlags */
-static int hf_x509ce_serialNumberRange = -1;      /* NumberRange */
-static int hf_x509ce_subjectKeyIdRange = -1;      /* NumberRange */
-static int hf_x509ce_nameSubtrees = -1;           /* GeneralNames */
-static int hf_x509ce_baseRevocationInfo = -1;     /* BaseRevocationInfo */
-static int hf_x509ce_startingNumber = -1;         /* INTEGER */
-static int hf_x509ce_endingNumber = -1;           /* INTEGER */
-static int hf_x509ce_modulus = -1;                /* INTEGER */
-static int hf_x509ce_cRLStreamIdentifier = -1;    /* CRLStreamIdentifier */
-static int hf_x509ce_cRLNumber = -1;              /* CRLNumber */
-static int hf_x509ce_baseThisUpdate = -1;         /* GeneralizedTime */
-static int hf_x509ce_StatusReferrals_item = -1;   /* StatusReferral */
-static int hf_x509ce_cRLReferral = -1;            /* CRLReferral */
-static int hf_x509ce_crlr_issuer = -1;            /* GeneralName */
-static int hf_x509ce_location = -1;               /* GeneralName */
-static int hf_x509ce_deltaRefInfo = -1;           /* DeltaRefInfo */
-static int hf_x509ce_cRLScope = -1;               /* CRLScopeSyntax */
-static int hf_x509ce_lastUpdate = -1;             /* GeneralizedTime */
-static int hf_x509ce_lastChangedCRL = -1;         /* GeneralizedTime */
-static int hf_x509ce_deltaLocation = -1;          /* GeneralName */
-static int hf_x509ce_lastDelta = -1;              /* GeneralizedTime */
-static int hf_x509ce_nextDelta = -1;              /* GeneralizedTime */
-static int hf_x509ce_CRLDistPointsSyntax_item = -1;  /* DistributionPoint */
-static int hf_x509ce_reasons = -1;                /* ReasonFlags */
-static int hf_x509ce_cRLIssuer = -1;              /* GeneralNames */
-static int hf_x509ce_fullName = -1;               /* GeneralNames */
-static int hf_x509ce_nameRelativeToCRLIssuer = -1;  /* RelativeDistinguishedName */
-static int hf_x509ce_onlyContainsUserPublicKeyCerts = -1;  /* BOOLEAN */
-static int hf_x509ce_onlyContainsCACerts = -1;    /* BOOLEAN */
-static int hf_x509ce_indirectCRL = -1;            /* BOOLEAN */
-static int hf_x509ce_ToBeRevokedSyntax_item = -1;  /* ToBeRevokedGroup */
-static int hf_x509ce_certificateIssuer = -1;      /* GeneralName */
-static int hf_x509ce_reasonInfo = -1;             /* ReasonInfo */
-static int hf_x509ce_revocationTime = -1;         /* GeneralizedTime */
-static int hf_x509ce_certificateGroup = -1;       /* CertificateGroup */
-static int hf_x509ce_reasonCode = -1;             /* CRLReason */
-static int hf_x509ce_holdInstructionCode = -1;    /* HoldInstruction */
-static int hf_x509ce_serialNumbers = -1;          /* CertificateSerialNumbers */
-static int hf_x509ce_certificateGroupNumberRange = -1;  /* CertificateGroupNumberRange */
-static int hf_x509ce_nameSubtree = -1;            /* GeneralName */
-static int hf_x509ce_CertificateSerialNumbers_item = -1;  /* CertificateSerialNumber */
-static int hf_x509ce_RevokedGroupsSyntax_item = -1;  /* RevokedGroup */
-static int hf_x509ce_invalidityDate = -1;         /* GeneralizedTime */
-static int hf_x509ce_revokedcertificateGroup = -1;  /* RevokedCertificateGroup */
-static int hf_x509ce_containsUserAttributeCerts = -1;  /* BOOLEAN */
-static int hf_x509ce_containsAACerts = -1;        /* BOOLEAN */
-static int hf_x509ce_containsSOAPublicKeyCerts = -1;  /* BOOLEAN */
-static int hf_x509ce_serialNumber = -1;           /* CertificateSerialNumber */
-static int hf_x509ce_issuer = -1;                 /* Name */
-static int hf_x509ce_subjectKeyIdentifier = -1;   /* SubjectKeyIdentifier */
-static int hf_x509ce_authorityKeyIdentifier = -1;  /* AuthorityKeyIdentifier */
-static int hf_x509ce_certificateValid = -1;       /* Time */
-static int hf_x509ce_privateKeyValid = -1;        /* GeneralizedTime */
-static int hf_x509ce_subjectPublicKeyAlgID = -1;  /* OBJECT_IDENTIFIER */
-static int hf_x509ce_keyUsage = -1;               /* KeyUsage */
-static int hf_x509ce_subjectAltNameType = -1;     /* AltNameType */
-static int hf_x509ce_policy = -1;                 /* CertPolicySet */
-static int hf_x509ce_pathToName = -1;             /* Name */
-static int hf_x509ce_subject = -1;                /* Name */
-static int hf_x509ce_nameConstraints = -1;        /* NameConstraintsSyntax */
-static int hf_x509ce_builtinNameForm = -1;        /* T_builtinNameForm */
-static int hf_x509ce_otherNameForm = -1;          /* OBJECT_IDENTIFIER */
-static int hf_x509ce_CertPolicySet_item = -1;     /* CertPolicyId */
-static int hf_x509ce_cpea_issuedToThisCAAssertion = -1;  /* CertificateExactAssertion */
-static int hf_x509ce_cpea_issuedByThisCAAssertion = -1;  /* CertificateExactAssertion */
-static int hf_x509ce_issuedToThisCAAssertion = -1;  /* CertificateAssertion */
-static int hf_x509ce_issuedByThisCAAssertion = -1;  /* CertificateAssertion */
-static int hf_x509ce_thisUpdate = -1;             /* Time */
-static int hf_x509ce_minCRLNumber = -1;           /* CRLNumber */
-static int hf_x509ce_maxCRLNumber = -1;           /* CRLNumber */
-static int hf_x509ce_reasonFlags = -1;            /* ReasonFlags */
-static int hf_x509ce_dateAndTime = -1;            /* Time */
-static int hf_x509ce_firstIssuer = -1;            /* Name */
-static int hf_x509ce_lastSubject = -1;            /* Name */
-static int hf_x509ce_subjectAltName = -1;         /* AltName */
-static int hf_x509ce_enhancedPathToName = -1;     /* GeneralNames */
-static int hf_x509ce_altnameType = -1;            /* AltNameType */
-static int hf_x509ce_altNameValue = -1;           /* GeneralName */
-static int hf_x509ce_templateID = -1;             /* OBJECT_IDENTIFIER */
-static int hf_x509ce_templateMajorVersion = -1;   /* INTEGER */
-static int hf_x509ce_templateMinorVersion = -1;   /* INTEGER */
-static int hf_x509ce_ntdsObjectSid = -1;          /* NtdsObjectSid */
-static int hf_x509ce_type_id_01 = -1;             /* OBJECT_IDENTIFIER */
-static int hf_x509ce_sid = -1;                    /* PrintableString */
-static int hf_x509ce_entrustVers = -1;            /* GeneralString */
-static int hf_x509ce_entrustVersInfoFlags = -1;   /* EntrustInfoFlags */
-static int hf_x509ce_NFTypes_item = -1;           /* NFType */
-static int hf_x509ce_capability = -1;             /* INTEGER_0_MAX */
-static int hf_x509ce_version = -1;                /* INTEGER_0_MAX */
+static int proto_x509ce;
+static int hf_x509ce_id_ce_invalidityDate;
+static int hf_x509ce_id_ce_baseUpdateTime;
+static int hf_x509ce_object_identifier_id;
+static int hf_x509ce_IPAddress_ipv4;
+static int hf_x509ce_IPAddress_ipv6;
+static int hf_x509ce_AuthorityKeyIdentifier_PDU;  /* AuthorityKeyIdentifier */
+static int hf_x509ce_SubjectKeyIdentifier_PDU;    /* SubjectKeyIdentifier */
+static int hf_x509ce_KeyUsage_PDU;                /* KeyUsage */
+static int hf_x509ce_KeyPurposeIDs_PDU;           /* KeyPurposeIDs */
+static int hf_x509ce_PrivateKeyUsagePeriod_PDU;   /* PrivateKeyUsagePeriod */
+static int hf_x509ce_CertificatePoliciesSyntax_PDU;  /* CertificatePoliciesSyntax */
+static int hf_x509ce_PolicyMappingsSyntax_PDU;    /* PolicyMappingsSyntax */
+static int hf_x509ce_GeneralNames_PDU;            /* GeneralNames */
+static int hf_x509ce_AttributesSyntax_PDU;        /* AttributesSyntax */
+static int hf_x509ce_BasicConstraintsSyntax_PDU;  /* BasicConstraintsSyntax */
+static int hf_x509ce_NameConstraintsSyntax_PDU;   /* NameConstraintsSyntax */
+static int hf_x509ce_PolicyConstraintsSyntax_PDU;  /* PolicyConstraintsSyntax */
+static int hf_x509ce_SkipCerts_PDU;               /* SkipCerts */
+static int hf_x509ce_CRLNumber_PDU;               /* CRLNumber */
+static int hf_x509ce_CRLReason_PDU;               /* CRLReason */
+static int hf_x509ce_HoldInstruction_PDU;         /* HoldInstruction */
+static int hf_x509ce_CRLScopeSyntax_PDU;          /* CRLScopeSyntax */
+static int hf_x509ce_StatusReferrals_PDU;         /* StatusReferrals */
+static int hf_x509ce_CRLStreamIdentifier_PDU;     /* CRLStreamIdentifier */
+static int hf_x509ce_OrderedListSyntax_PDU;       /* OrderedListSyntax */
+static int hf_x509ce_DeltaInformation_PDU;        /* DeltaInformation */
+static int hf_x509ce_CRLDistPointsSyntax_PDU;     /* CRLDistPointsSyntax */
+static int hf_x509ce_IssuingDistPointSyntax_PDU;  /* IssuingDistPointSyntax */
+static int hf_x509ce_BaseCRLNumber_PDU;           /* BaseCRLNumber */
+static int hf_x509ce_ToBeRevokedSyntax_PDU;       /* ToBeRevokedSyntax */
+static int hf_x509ce_RevokedGroupsSyntax_PDU;     /* RevokedGroupsSyntax */
+static int hf_x509ce_ExpiredCertsOnCRL_PDU;       /* ExpiredCertsOnCRL */
+static int hf_x509ce_AAIssuingDistPointSyntax_PDU;  /* AAIssuingDistPointSyntax */
+static int hf_x509ce_CertificateAssertion_PDU;    /* CertificateAssertion */
+static int hf_x509ce_CertificatePairExactAssertion_PDU;  /* CertificatePairExactAssertion */
+static int hf_x509ce_CertificatePairAssertion_PDU;  /* CertificatePairAssertion */
+static int hf_x509ce_CertificateListExactAssertion_PDU;  /* CertificateListExactAssertion */
+static int hf_x509ce_CertificateListAssertion_PDU;  /* CertificateListAssertion */
+static int hf_x509ce_PkiPathMatchSyntax_PDU;      /* PkiPathMatchSyntax */
+static int hf_x509ce_EnhancedCertificateAssertion_PDU;  /* EnhancedCertificateAssertion */
+static int hf_x509ce_CertificateTemplate_PDU;     /* CertificateTemplate */
+static int hf_x509ce_NtdsCaSecurity_PDU;          /* NtdsCaSecurity */
+static int hf_x509ce_NtdsObjectSid_PDU;           /* NtdsObjectSid */
+static int hf_x509ce_EntrustVersionInfo_PDU;      /* EntrustVersionInfo */
+static int hf_x509ce_NFTypes_PDU;                 /* NFTypes */
+static int hf_x509ce_ScramblerCapabilities_PDU;   /* ScramblerCapabilities */
+static int hf_x509ce_CiplusInfo_PDU;              /* CiplusInfo */
+static int hf_x509ce_CicamBrandId_PDU;            /* CicamBrandId */
+static int hf_x509ce_SecurityLevel_PDU;           /* SecurityLevel */
+static int hf_x509ce_keyIdentifier;               /* KeyIdentifier */
+static int hf_x509ce_authorityCertIssuer;         /* GeneralNames */
+static int hf_x509ce_authorityCertSerialNumber;   /* CertificateSerialNumber */
+static int hf_x509ce_KeyPurposeIDs_item;          /* KeyPurposeId */
+static int hf_x509ce_notBefore;                   /* GeneralizedTime */
+static int hf_x509ce_notAfter;                    /* GeneralizedTime */
+static int hf_x509ce_CertificatePoliciesSyntax_item;  /* PolicyInformation */
+static int hf_x509ce_policyIdentifier;            /* CertPolicyId */
+static int hf_x509ce_policyQualifiers;            /* SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo */
+static int hf_x509ce_policyQualifiers_item;       /* PolicyQualifierInfo */
+static int hf_x509ce_policyQualifierId;           /* T_policyQualifierId */
+static int hf_x509ce_qualifier;                   /* T_qualifier */
+static int hf_x509ce_PolicyMappingsSyntax_item;   /* PolicyMappingsSyntax_item */
+static int hf_x509ce_issuerDomainPolicy;          /* CertPolicyId */
+static int hf_x509ce_subjectDomainPolicy;         /* CertPolicyId */
+static int hf_x509ce_GeneralNames_item;           /* GeneralName */
+static int hf_x509ce_otherName;                   /* OtherName */
+static int hf_x509ce_rfc822Name;                  /* IA5String */
+static int hf_x509ce_dNSName;                     /* IA5String */
+static int hf_x509ce_x400Address;                 /* ORAddress */
+static int hf_x509ce_directoryName;               /* Name */
+static int hf_x509ce_ediPartyName;                /* EDIPartyName */
+static int hf_x509ce_uniformResourceIdentifier;   /* T_uniformResourceIdentifier */
+static int hf_x509ce_iPAddress;                   /* T_iPAddress */
+static int hf_x509ce_registeredID;                /* OBJECT_IDENTIFIER */
+static int hf_x509ce_type_id;                     /* OtherNameType */
+static int hf_x509ce_value;                       /* OtherNameValue */
+static int hf_x509ce_nameAssigner;                /* DirectoryString */
+static int hf_x509ce_partyName;                   /* DirectoryString */
+static int hf_x509ce_AttributesSyntax_item;       /* Attribute */
+static int hf_x509ce_cA;                          /* BOOLEAN */
+static int hf_x509ce_pathLenConstraint;           /* INTEGER_0_MAX */
+static int hf_x509ce_permittedSubtrees;           /* GeneralSubtrees */
+static int hf_x509ce_excludedSubtrees;            /* GeneralSubtrees */
+static int hf_x509ce_GeneralSubtrees_item;        /* GeneralSubtree */
+static int hf_x509ce_base;                        /* GeneralName */
+static int hf_x509ce_minimum;                     /* BaseDistance */
+static int hf_x509ce_maximum;                     /* BaseDistance */
+static int hf_x509ce_requireExplicitPolicy;       /* SkipCerts */
+static int hf_x509ce_inhibitPolicyMapping;        /* SkipCerts */
+static int hf_x509ce_CRLScopeSyntax_item;         /* PerAuthorityScope */
+static int hf_x509ce_authorityName;               /* GeneralName */
+static int hf_x509ce_distributionPoint;           /* DistributionPointName */
+static int hf_x509ce_onlyContains;                /* OnlyCertificateTypes */
+static int hf_x509ce_onlySomeReasons;             /* ReasonFlags */
+static int hf_x509ce_serialNumberRange;           /* NumberRange */
+static int hf_x509ce_subjectKeyIdRange;           /* NumberRange */
+static int hf_x509ce_nameSubtrees;                /* GeneralNames */
+static int hf_x509ce_baseRevocationInfo;          /* BaseRevocationInfo */
+static int hf_x509ce_startingNumber;              /* INTEGER */
+static int hf_x509ce_endingNumber;                /* INTEGER */
+static int hf_x509ce_modulus;                     /* INTEGER */
+static int hf_x509ce_cRLStreamIdentifier;         /* CRLStreamIdentifier */
+static int hf_x509ce_cRLNumber;                   /* CRLNumber */
+static int hf_x509ce_baseThisUpdate;              /* GeneralizedTime */
+static int hf_x509ce_StatusReferrals_item;        /* StatusReferral */
+static int hf_x509ce_cRLReferral;                 /* CRLReferral */
+static int hf_x509ce_crlr_issuer;                 /* GeneralName */
+static int hf_x509ce_location;                    /* GeneralName */
+static int hf_x509ce_deltaRefInfo;                /* DeltaRefInfo */
+static int hf_x509ce_cRLScope;                    /* CRLScopeSyntax */
+static int hf_x509ce_lastUpdate;                  /* GeneralizedTime */
+static int hf_x509ce_lastChangedCRL;              /* GeneralizedTime */
+static int hf_x509ce_deltaLocation;               /* GeneralName */
+static int hf_x509ce_lastDelta;                   /* GeneralizedTime */
+static int hf_x509ce_nextDelta;                   /* GeneralizedTime */
+static int hf_x509ce_CRLDistPointsSyntax_item;    /* DistributionPoint */
+static int hf_x509ce_reasons;                     /* ReasonFlags */
+static int hf_x509ce_cRLIssuer;                   /* GeneralNames */
+static int hf_x509ce_fullName;                    /* GeneralNames */
+static int hf_x509ce_nameRelativeToCRLIssuer;     /* RelativeDistinguishedName */
+static int hf_x509ce_onlyContainsUserPublicKeyCerts;  /* BOOLEAN */
+static int hf_x509ce_onlyContainsCACerts;         /* BOOLEAN */
+static int hf_x509ce_indirectCRL;                 /* BOOLEAN */
+static int hf_x509ce_ToBeRevokedSyntax_item;      /* ToBeRevokedGroup */
+static int hf_x509ce_certificateIssuer;           /* GeneralName */
+static int hf_x509ce_reasonInfo;                  /* ReasonInfo */
+static int hf_x509ce_revocationTime;              /* GeneralizedTime */
+static int hf_x509ce_certificateGroup;            /* CertificateGroup */
+static int hf_x509ce_reasonCode;                  /* CRLReason */
+static int hf_x509ce_holdInstructionCode;         /* HoldInstruction */
+static int hf_x509ce_serialNumbers;               /* CertificateSerialNumbers */
+static int hf_x509ce_certificateGroupNumberRange;  /* CertificateGroupNumberRange */
+static int hf_x509ce_nameSubtree;                 /* GeneralName */
+static int hf_x509ce_CertificateSerialNumbers_item;  /* CertificateSerialNumber */
+static int hf_x509ce_RevokedGroupsSyntax_item;    /* RevokedGroup */
+static int hf_x509ce_invalidityDate;              /* GeneralizedTime */
+static int hf_x509ce_revokedcertificateGroup;     /* RevokedCertificateGroup */
+static int hf_x509ce_containsUserAttributeCerts;  /* BOOLEAN */
+static int hf_x509ce_containsAACerts;             /* BOOLEAN */
+static int hf_x509ce_containsSOAPublicKeyCerts;   /* BOOLEAN */
+static int hf_x509ce_serialNumber;                /* CertificateSerialNumber */
+static int hf_x509ce_issuer;                      /* Name */
+static int hf_x509ce_subjectKeyIdentifier;        /* SubjectKeyIdentifier */
+static int hf_x509ce_authorityKeyIdentifier;      /* AuthorityKeyIdentifier */
+static int hf_x509ce_certificateValid;            /* Time */
+static int hf_x509ce_privateKeyValid;             /* GeneralizedTime */
+static int hf_x509ce_subjectPublicKeyAlgID;       /* OBJECT_IDENTIFIER */
+static int hf_x509ce_keyUsage;                    /* KeyUsage */
+static int hf_x509ce_subjectAltNameType;          /* AltNameType */
+static int hf_x509ce_policy;                      /* CertPolicySet */
+static int hf_x509ce_pathToName;                  /* Name */
+static int hf_x509ce_subject;                     /* Name */
+static int hf_x509ce_nameConstraints;             /* NameConstraintsSyntax */
+static int hf_x509ce_builtinNameForm;             /* T_builtinNameForm */
+static int hf_x509ce_otherNameForm;               /* OBJECT_IDENTIFIER */
+static int hf_x509ce_CertPolicySet_item;          /* CertPolicyId */
+static int hf_x509ce_cpea_issuedToThisCAAssertion;  /* CertificateExactAssertion */
+static int hf_x509ce_cpea_issuedByThisCAAssertion;  /* CertificateExactAssertion */
+static int hf_x509ce_issuedToThisCAAssertion;     /* CertificateAssertion */
+static int hf_x509ce_issuedByThisCAAssertion;     /* CertificateAssertion */
+static int hf_x509ce_thisUpdate;                  /* Time */
+static int hf_x509ce_minCRLNumber;                /* CRLNumber */
+static int hf_x509ce_maxCRLNumber;                /* CRLNumber */
+static int hf_x509ce_reasonFlags;                 /* ReasonFlags */
+static int hf_x509ce_dateAndTime;                 /* Time */
+static int hf_x509ce_firstIssuer;                 /* Name */
+static int hf_x509ce_lastSubject;                 /* Name */
+static int hf_x509ce_subjectAltName;              /* AltName */
+static int hf_x509ce_enhancedPathToName;          /* GeneralNames */
+static int hf_x509ce_altnameType;                 /* AltNameType */
+static int hf_x509ce_altNameValue;                /* GeneralName */
+static int hf_x509ce_templateID;                  /* OBJECT_IDENTIFIER */
+static int hf_x509ce_templateMajorVersion;        /* INTEGER */
+static int hf_x509ce_templateMinorVersion;        /* INTEGER */
+static int hf_x509ce_ntdsObjectSid;               /* NtdsObjectSid */
+static int hf_x509ce_type_id_01;                  /* OBJECT_IDENTIFIER */
+static int hf_x509ce_sid;                         /* PrintableString */
+static int hf_x509ce_entrustVers;                 /* GeneralString */
+static int hf_x509ce_entrustVersInfoFlags;        /* EntrustInfoFlags */
+static int hf_x509ce_NFTypes_item;                /* NFType */
+static int hf_x509ce_capability;                  /* INTEGER_0_MAX */
+static int hf_x509ce_version;                     /* INTEGER_0_MAX */
 /* named bits */
-static int hf_x509ce_KeyUsage_digitalSignature = -1;
-static int hf_x509ce_KeyUsage_contentCommitment = -1;
-static int hf_x509ce_KeyUsage_keyEncipherment = -1;
-static int hf_x509ce_KeyUsage_dataEncipherment = -1;
-static int hf_x509ce_KeyUsage_keyAgreement = -1;
-static int hf_x509ce_KeyUsage_keyCertSign = -1;
-static int hf_x509ce_KeyUsage_cRLSign = -1;
-static int hf_x509ce_KeyUsage_encipherOnly = -1;
-static int hf_x509ce_KeyUsage_decipherOnly = -1;
-static int hf_x509ce_OnlyCertificateTypes_user = -1;
-static int hf_x509ce_OnlyCertificateTypes_authority = -1;
-static int hf_x509ce_OnlyCertificateTypes_attribute = -1;
-static int hf_x509ce_ReasonFlags_unused = -1;
-static int hf_x509ce_ReasonFlags_keyCompromise = -1;
-static int hf_x509ce_ReasonFlags_cACompromise = -1;
-static int hf_x509ce_ReasonFlags_affiliationChanged = -1;
-static int hf_x509ce_ReasonFlags_superseded = -1;
-static int hf_x509ce_ReasonFlags_cessationOfOperation = -1;
-static int hf_x509ce_ReasonFlags_certificateHold = -1;
-static int hf_x509ce_ReasonFlags_privilegeWithdrawn = -1;
-static int hf_x509ce_ReasonFlags_aACompromise = -1;
-static int hf_x509ce_EntrustInfoFlags_keyUpdateAllowed = -1;
-static int hf_x509ce_EntrustInfoFlags_newExtensions = -1;
-static int hf_x509ce_EntrustInfoFlags_pKIXCertificate = -1;
-static int hf_x509ce_EntrustInfoFlags_enterpriseCategory = -1;
-static int hf_x509ce_EntrustInfoFlags_webCategory = -1;
-static int hf_x509ce_EntrustInfoFlags_sETCategory = -1;
+static int hf_x509ce_KeyUsage_digitalSignature;
+static int hf_x509ce_KeyUsage_contentCommitment;
+static int hf_x509ce_KeyUsage_keyEncipherment;
+static int hf_x509ce_KeyUsage_dataEncipherment;
+static int hf_x509ce_KeyUsage_keyAgreement;
+static int hf_x509ce_KeyUsage_keyCertSign;
+static int hf_x509ce_KeyUsage_cRLSign;
+static int hf_x509ce_KeyUsage_encipherOnly;
+static int hf_x509ce_KeyUsage_decipherOnly;
+static int hf_x509ce_OnlyCertificateTypes_user;
+static int hf_x509ce_OnlyCertificateTypes_authority;
+static int hf_x509ce_OnlyCertificateTypes_attribute;
+static int hf_x509ce_ReasonFlags_unused;
+static int hf_x509ce_ReasonFlags_keyCompromise;
+static int hf_x509ce_ReasonFlags_cACompromise;
+static int hf_x509ce_ReasonFlags_affiliationChanged;
+static int hf_x509ce_ReasonFlags_superseded;
+static int hf_x509ce_ReasonFlags_cessationOfOperation;
+static int hf_x509ce_ReasonFlags_certificateHold;
+static int hf_x509ce_ReasonFlags_privilegeWithdrawn;
+static int hf_x509ce_ReasonFlags_aACompromise;
+static int hf_x509ce_EntrustInfoFlags_keyUpdateAllowed;
+static int hf_x509ce_EntrustInfoFlags_newExtensions;
+static int hf_x509ce_EntrustInfoFlags_pKIXCertificate;
+static int hf_x509ce_EntrustInfoFlags_enterpriseCategory;
+static int hf_x509ce_EntrustInfoFlags_webCategory;
+static int hf_x509ce_EntrustInfoFlags_sETCategory;
 
 /* Initialize the subtree pointers */
-static gint ett_x509ce_AuthorityKeyIdentifier = -1;
-static gint ett_x509ce_KeyUsage = -1;
-static gint ett_x509ce_KeyPurposeIDs = -1;
-static gint ett_x509ce_PrivateKeyUsagePeriod = -1;
-static gint ett_x509ce_CertificatePoliciesSyntax = -1;
-static gint ett_x509ce_PolicyInformation = -1;
-static gint ett_x509ce_SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo = -1;
-static gint ett_x509ce_PolicyQualifierInfo = -1;
-static gint ett_x509ce_PolicyMappingsSyntax = -1;
-static gint ett_x509ce_PolicyMappingsSyntax_item = -1;
-static gint ett_x509ce_GeneralNames = -1;
-static gint ett_x509ce_GeneralName = -1;
-static gint ett_x509ce_OtherName = -1;
-static gint ett_x509ce_EDIPartyName = -1;
-static gint ett_x509ce_AttributesSyntax = -1;
-static gint ett_x509ce_BasicConstraintsSyntax = -1;
-static gint ett_x509ce_NameConstraintsSyntax = -1;
-static gint ett_x509ce_GeneralSubtrees = -1;
-static gint ett_x509ce_GeneralSubtree = -1;
-static gint ett_x509ce_PolicyConstraintsSyntax = -1;
-static gint ett_x509ce_CRLScopeSyntax = -1;
-static gint ett_x509ce_PerAuthorityScope = -1;
-static gint ett_x509ce_OnlyCertificateTypes = -1;
-static gint ett_x509ce_NumberRange = -1;
-static gint ett_x509ce_BaseRevocationInfo = -1;
-static gint ett_x509ce_StatusReferrals = -1;
-static gint ett_x509ce_StatusReferral = -1;
-static gint ett_x509ce_CRLReferral = -1;
-static gint ett_x509ce_DeltaRefInfo = -1;
-static gint ett_x509ce_DeltaInformation = -1;
-static gint ett_x509ce_CRLDistPointsSyntax = -1;
-static gint ett_x509ce_DistributionPoint = -1;
-static gint ett_x509ce_DistributionPointName = -1;
-static gint ett_x509ce_ReasonFlags = -1;
-static gint ett_x509ce_IssuingDistPointSyntax = -1;
-static gint ett_x509ce_ToBeRevokedSyntax = -1;
-static gint ett_x509ce_ToBeRevokedGroup = -1;
-static gint ett_x509ce_ReasonInfo = -1;
-static gint ett_x509ce_CertificateGroup = -1;
-static gint ett_x509ce_CertificateGroupNumberRange = -1;
-static gint ett_x509ce_CertificateSerialNumbers = -1;
-static gint ett_x509ce_RevokedGroupsSyntax = -1;
-static gint ett_x509ce_RevokedGroup = -1;
-static gint ett_x509ce_RevokedCertificateGroup = -1;
-static gint ett_x509ce_AAIssuingDistPointSyntax = -1;
-static gint ett_x509ce_CertificateExactAssertion = -1;
-static gint ett_x509ce_CertificateAssertion = -1;
-static gint ett_x509ce_AltNameType = -1;
-static gint ett_x509ce_CertPolicySet = -1;
-static gint ett_x509ce_CertificatePairExactAssertion = -1;
-static gint ett_x509ce_CertificatePairAssertion = -1;
-static gint ett_x509ce_CertificateListExactAssertion = -1;
-static gint ett_x509ce_CertificateListAssertion = -1;
-static gint ett_x509ce_PkiPathMatchSyntax = -1;
-static gint ett_x509ce_EnhancedCertificateAssertion = -1;
-static gint ett_x509ce_AltName = -1;
-static gint ett_x509ce_CertificateTemplate = -1;
-static gint ett_x509ce_NtdsCaSecurity = -1;
-static gint ett_x509ce_NtdsObjectSid_U = -1;
-static gint ett_x509ce_EntrustVersionInfo = -1;
-static gint ett_x509ce_EntrustInfoFlags = -1;
-static gint ett_x509ce_NFTypes = -1;
-static gint ett_x509ce_ScramblerCapabilities = -1;
+static gint ett_x509ce_AuthorityKeyIdentifier;
+static gint ett_x509ce_KeyUsage;
+static gint ett_x509ce_KeyPurposeIDs;
+static gint ett_x509ce_PrivateKeyUsagePeriod;
+static gint ett_x509ce_CertificatePoliciesSyntax;
+static gint ett_x509ce_PolicyInformation;
+static gint ett_x509ce_SEQUENCE_SIZE_1_MAX_OF_PolicyQualifierInfo;
+static gint ett_x509ce_PolicyQualifierInfo;
+static gint ett_x509ce_PolicyMappingsSyntax;
+static gint ett_x509ce_PolicyMappingsSyntax_item;
+static gint ett_x509ce_GeneralNames;
+static gint ett_x509ce_GeneralName;
+static gint ett_x509ce_OtherName;
+static gint ett_x509ce_EDIPartyName;
+static gint ett_x509ce_AttributesSyntax;
+static gint ett_x509ce_BasicConstraintsSyntax;
+static gint ett_x509ce_NameConstraintsSyntax;
+static gint ett_x509ce_GeneralSubtrees;
+static gint ett_x509ce_GeneralSubtree;
+static gint ett_x509ce_PolicyConstraintsSyntax;
+static gint ett_x509ce_CRLScopeSyntax;
+static gint ett_x509ce_PerAuthorityScope;
+static gint ett_x509ce_OnlyCertificateTypes;
+static gint ett_x509ce_NumberRange;
+static gint ett_x509ce_BaseRevocationInfo;
+static gint ett_x509ce_StatusReferrals;
+static gint ett_x509ce_StatusReferral;
+static gint ett_x509ce_CRLReferral;
+static gint ett_x509ce_DeltaRefInfo;
+static gint ett_x509ce_DeltaInformation;
+static gint ett_x509ce_CRLDistPointsSyntax;
+static gint ett_x509ce_DistributionPoint;
+static gint ett_x509ce_DistributionPointName;
+static gint ett_x509ce_ReasonFlags;
+static gint ett_x509ce_IssuingDistPointSyntax;
+static gint ett_x509ce_ToBeRevokedSyntax;
+static gint ett_x509ce_ToBeRevokedGroup;
+static gint ett_x509ce_ReasonInfo;
+static gint ett_x509ce_CertificateGroup;
+static gint ett_x509ce_CertificateGroupNumberRange;
+static gint ett_x509ce_CertificateSerialNumbers;
+static gint ett_x509ce_RevokedGroupsSyntax;
+static gint ett_x509ce_RevokedGroup;
+static gint ett_x509ce_RevokedCertificateGroup;
+static gint ett_x509ce_AAIssuingDistPointSyntax;
+static gint ett_x509ce_CertificateExactAssertion;
+static gint ett_x509ce_CertificateAssertion;
+static gint ett_x509ce_AltNameType;
+static gint ett_x509ce_CertPolicySet;
+static gint ett_x509ce_CertificatePairExactAssertion;
+static gint ett_x509ce_CertificatePairAssertion;
+static gint ett_x509ce_CertificateListExactAssertion;
+static gint ett_x509ce_CertificateListAssertion;
+static gint ett_x509ce_PkiPathMatchSyntax;
+static gint ett_x509ce_EnhancedCertificateAssertion;
+static gint ett_x509ce_AltName;
+static gint ett_x509ce_CertificateTemplate;
+static gint ett_x509ce_NtdsCaSecurity;
+static gint ett_x509ce_NtdsObjectSid_U;
+static gint ett_x509ce_EntrustVersionInfo;
+static gint ett_x509ce_EntrustInfoFlags;
+static gint ett_x509ce_NFTypes;
+static gint ett_x509ce_ScramblerCapabilities;
 
 
 int

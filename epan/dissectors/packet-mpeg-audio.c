@@ -22,30 +22,30 @@
 
 #include "packet-per.h"
 
-static int hf_mpeg_audio_sync = -1;               /* BIT_STRING_SIZE_11 */
-static int hf_mpeg_audio_version = -1;            /* T_version */
-static int hf_mpeg_audio_layer = -1;              /* T_layer */
-static int hf_mpeg_audio_protection = -1;         /* T_protection */
-static int hf_mpeg_audio_bitrate = -1;            /* INTEGER_0_15 */
-static int hf_mpeg_audio_frequency = -1;          /* INTEGER_0_3 */
-static int hf_mpeg_audio_padding = -1;            /* BOOLEAN */
-static int hf_mpeg_audio_private = -1;            /* BOOLEAN */
-static int hf_mpeg_audio_channel_mode = -1;       /* T_channel_mode */
-static int hf_mpeg_audio_mode_extension = -1;     /* INTEGER_0_3 */
-static int hf_mpeg_audio_copyright = -1;          /* BOOLEAN */
-static int hf_mpeg_audio_original = -1;           /* BOOLEAN */
-static int hf_mpeg_audio_emphasis = -1;           /* T_emphasis */
-static int hf_mpeg_audio_tag = -1;                /* OCTET_STRING_SIZE_3 */
-static int hf_mpeg_audio_title = -1;              /* OCTET_STRING_SIZE_30 */
-static int hf_mpeg_audio_artist = -1;             /* OCTET_STRING_SIZE_30 */
-static int hf_mpeg_audio_album = -1;              /* OCTET_STRING_SIZE_30 */
-static int hf_mpeg_audio_year = -1;               /* OCTET_STRING_SIZE_4 */
-static int hf_mpeg_audio_comment = -1;            /* OCTET_STRING_SIZE_28 */
-static int hf_mpeg_audio_must_be_zero = -1;       /* INTEGER_0_255 */
-static int hf_mpeg_audio_track = -1;              /* INTEGER_0_255 */
-static int hf_mpeg_audio_genre = -1;              /* T_genre */
-static gint ett_mpeg_audio_Audio = -1;
-static gint ett_mpeg_audio_ID3v1 = -1;
+static int hf_mpeg_audio_sync;                    /* BIT_STRING_SIZE_11 */
+static int hf_mpeg_audio_version;                 /* T_version */
+static int hf_mpeg_audio_layer;                   /* T_layer */
+static int hf_mpeg_audio_protection;              /* T_protection */
+static int hf_mpeg_audio_bitrate;                 /* INTEGER_0_15 */
+static int hf_mpeg_audio_frequency;               /* INTEGER_0_3 */
+static int hf_mpeg_audio_padding;                 /* BOOLEAN */
+static int hf_mpeg_audio_private;                 /* BOOLEAN */
+static int hf_mpeg_audio_channel_mode;            /* T_channel_mode */
+static int hf_mpeg_audio_mode_extension;          /* INTEGER_0_3 */
+static int hf_mpeg_audio_copyright;               /* BOOLEAN */
+static int hf_mpeg_audio_original;                /* BOOLEAN */
+static int hf_mpeg_audio_emphasis;                /* T_emphasis */
+static int hf_mpeg_audio_tag;                     /* OCTET_STRING_SIZE_3 */
+static int hf_mpeg_audio_title;                   /* OCTET_STRING_SIZE_30 */
+static int hf_mpeg_audio_artist;                  /* OCTET_STRING_SIZE_30 */
+static int hf_mpeg_audio_album;                   /* OCTET_STRING_SIZE_30 */
+static int hf_mpeg_audio_year;                    /* OCTET_STRING_SIZE_4 */
+static int hf_mpeg_audio_comment;                 /* OCTET_STRING_SIZE_28 */
+static int hf_mpeg_audio_must_be_zero;            /* INTEGER_0_255 */
+static int hf_mpeg_audio_track;                   /* INTEGER_0_255 */
+static int hf_mpeg_audio_genre;                   /* T_genre */
+static gint ett_mpeg_audio_Audio;
+static gint ett_mpeg_audio_ID3v1;
 
 
 static int
@@ -417,15 +417,15 @@ void proto_reg_handoff_mpeg_audio(void);
 
 dissector_handle_t mpeg_audio_handle;
 
-static int proto_mpeg_audio = -1;
+static int proto_mpeg_audio;
 static dissector_handle_t id3v2_handle;
 
-static int hf_mpeg_audio_header = -1;
-static int hf_mpeg_audio_data = -1;
-static int hf_mpeg_audio_padbytes = -1;
-static int hf_id3v1 = -1;
+static int hf_mpeg_audio_header;
+static int hf_mpeg_audio_data;
+static int hf_mpeg_audio_padbytes;
+static int hf_id3v1;
 
-static int ett_mpeg_audio = -1;
+static int ett_mpeg_audio;
 
 static gboolean
 test_mpeg_audio(tvbuff_t *tvb, int offset)

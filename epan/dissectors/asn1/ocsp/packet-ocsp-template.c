@@ -34,11 +34,11 @@ static dissector_handle_t ocsp_response_handle;
 
 /* Initialize the protocol and registered fields */
 int proto_ocsp = -1;
-static int hf_ocsp_responseType_id = -1;
+static int hf_ocsp_responseType_id;
 #include "packet-ocsp-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_ocsp = -1;
+static gint ett_ocsp;
 #include "packet-ocsp-ett.c"
 
 #include "packet-ocsp-fn.c"

@@ -34,51 +34,51 @@ void proto_reg_handoff_smrse(void);
 static dissector_handle_t smrse_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_smrse = -1;
-static int hf_smrse_reserved = -1;
-static int hf_smrse_tag = -1;
-static int hf_smrse_length = -1;
-static int hf_smrse_Octet_Format = -1;
-static int hf_smrse_sc_address = -1;              /* SMS_Address */
-static int hf_smrse_password = -1;                /* Password */
-static int hf_smrse_address_type = -1;            /* T_address_type */
-static int hf_smrse_numbering_plan = -1;          /* T_numbering_plan */
-static int hf_smrse_address_value = -1;           /* T_address_value */
-static int hf_smrse_octet_format = -1;            /* T_octet_format */
-static int hf_smrse_connect_fail_reason = -1;     /* Connect_fail */
-static int hf_smrse_mt_priority_request = -1;     /* BOOLEAN */
-static int hf_smrse_mt_mms = -1;                  /* BOOLEAN */
-static int hf_smrse_mt_message_reference = -1;    /* RP_MR */
-static int hf_smrse_mt_originating_address = -1;  /* SMS_Address */
-static int hf_smrse_mt_destination_address = -1;  /* SMS_Address */
-static int hf_smrse_mt_user_data = -1;            /* RP_UD */
-static int hf_smrse_mt_origVMSCAddr = -1;         /* SMS_Address */
-static int hf_smrse_mt_tariffClass = -1;          /* SM_TC */
-static int hf_smrse_mo_message_reference = -1;    /* RP_MR */
-static int hf_smrse_mo_originating_address = -1;  /* SMS_Address */
-static int hf_smrse_mo_user_data = -1;            /* RP_UD */
-static int hf_smrse_origVMSCAddr = -1;            /* SMS_Address */
-static int hf_smrse_moimsi = -1;                  /* IMSI_Address */
-static int hf_smrse_message_reference = -1;       /* RP_MR */
-static int hf_smrse_error_reason = -1;            /* Error_reason */
-static int hf_smrse_msg_waiting_set = -1;         /* BOOLEAN */
-static int hf_smrse_alerting_MS_ISDN = -1;        /* SMS_Address */
-static int hf_smrse_sm_diag_info = -1;            /* RP_UD */
-static int hf_smrse_ms_address = -1;              /* SMS_Address */
+static int proto_smrse;
+static int hf_smrse_reserved;
+static int hf_smrse_tag;
+static int hf_smrse_length;
+static int hf_smrse_Octet_Format;
+static int hf_smrse_sc_address;                   /* SMS_Address */
+static int hf_smrse_password;                     /* Password */
+static int hf_smrse_address_type;                 /* T_address_type */
+static int hf_smrse_numbering_plan;               /* T_numbering_plan */
+static int hf_smrse_address_value;                /* T_address_value */
+static int hf_smrse_octet_format;                 /* T_octet_format */
+static int hf_smrse_connect_fail_reason;          /* Connect_fail */
+static int hf_smrse_mt_priority_request;          /* BOOLEAN */
+static int hf_smrse_mt_mms;                       /* BOOLEAN */
+static int hf_smrse_mt_message_reference;         /* RP_MR */
+static int hf_smrse_mt_originating_address;       /* SMS_Address */
+static int hf_smrse_mt_destination_address;       /* SMS_Address */
+static int hf_smrse_mt_user_data;                 /* RP_UD */
+static int hf_smrse_mt_origVMSCAddr;              /* SMS_Address */
+static int hf_smrse_mt_tariffClass;               /* SM_TC */
+static int hf_smrse_mo_message_reference;         /* RP_MR */
+static int hf_smrse_mo_originating_address;       /* SMS_Address */
+static int hf_smrse_mo_user_data;                 /* RP_UD */
+static int hf_smrse_origVMSCAddr;                 /* SMS_Address */
+static int hf_smrse_moimsi;                       /* IMSI_Address */
+static int hf_smrse_message_reference;            /* RP_MR */
+static int hf_smrse_error_reason;                 /* Error_reason */
+static int hf_smrse_msg_waiting_set;              /* BOOLEAN */
+static int hf_smrse_alerting_MS_ISDN;             /* SMS_Address */
+static int hf_smrse_sm_diag_info;                 /* RP_UD */
+static int hf_smrse_ms_address;                   /* SMS_Address */
 
 /* Initialize the subtree pointers */
-static gint ett_smrse = -1;
-static gint ett_smrse_SMR_Bind = -1;
-static gint ett_smrse_SMS_Address = -1;
-static gint ett_smrse_T_address_value = -1;
-static gint ett_smrse_SMR_Bind_Confirm = -1;
-static gint ett_smrse_SMR_Bind_Failure = -1;
-static gint ett_smrse_SMR_Unbind = -1;
-static gint ett_smrse_RPDataMT = -1;
-static gint ett_smrse_RPDataMO = -1;
-static gint ett_smrse_RPAck = -1;
-static gint ett_smrse_RPError = -1;
-static gint ett_smrse_RPAlertSC = -1;
+static gint ett_smrse;
+static gint ett_smrse_SMR_Bind;
+static gint ett_smrse_SMS_Address;
+static gint ett_smrse_T_address_value;
+static gint ett_smrse_SMR_Bind_Confirm;
+static gint ett_smrse_SMR_Bind_Failure;
+static gint ett_smrse_SMR_Unbind;
+static gint ett_smrse_RPDataMT;
+static gint ett_smrse_RPDataMO;
+static gint ett_smrse_RPAck;
+static gint ett_smrse_RPError;
+static gint ett_smrse_RPAlertSC;
 
 
 

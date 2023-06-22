@@ -30,69 +30,69 @@ void proto_register_logotypecertextn(void);
 void proto_reg_handoff_logotypecertextn(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_logotypecertextn = -1;
-static int hf_logotypecertextn_LogotypeExtn_PDU = -1;  /* LogotypeExtn */
-static int hf_logotypecertextn_communityLogos = -1;  /* SEQUENCE_OF_LogotypeInfo */
-static int hf_logotypecertextn_communityLogos_item = -1;  /* LogotypeInfo */
-static int hf_logotypecertextn_issuerLogo = -1;   /* LogotypeInfo */
-static int hf_logotypecertextn_subjectLogo = -1;  /* LogotypeInfo */
-static int hf_logotypecertextn_otherLogos = -1;   /* SEQUENCE_OF_OtherLogotypeInfo */
-static int hf_logotypecertextn_otherLogos_item = -1;  /* OtherLogotypeInfo */
-static int hf_logotypecertextn_direct = -1;       /* LogotypeData */
-static int hf_logotypecertextn_indirect = -1;     /* LogotypeReference */
-static int hf_logotypecertextn_image = -1;        /* SEQUENCE_OF_LogotypeImage */
-static int hf_logotypecertextn_image_item = -1;   /* LogotypeImage */
-static int hf_logotypecertextn_audio = -1;        /* SEQUENCE_OF_LogotypeAudio */
-static int hf_logotypecertextn_audio_item = -1;   /* LogotypeAudio */
-static int hf_logotypecertextn_imageDetails = -1;  /* LogotypeDetails */
-static int hf_logotypecertextn_imageInfo = -1;    /* LogotypeImageInfo */
-static int hf_logotypecertextn_audioDetails = -1;  /* LogotypeDetails */
-static int hf_logotypecertextn_audioInfo = -1;    /* LogotypeAudioInfo */
-static int hf_logotypecertextn_mediaType = -1;    /* IA5String */
-static int hf_logotypecertextn_logotypeHash = -1;  /* SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue */
-static int hf_logotypecertextn_logotypeHash_item = -1;  /* HashAlgAndValue */
-static int hf_logotypecertextn_logotypeURI = -1;  /* T_logotypeURI */
-static int hf_logotypecertextn_logotypeURI_item = -1;  /* T_logotypeURI_item */
-static int hf_logotypecertextn_type = -1;         /* LogotypeImageType */
-static int hf_logotypecertextn_fileSize = -1;     /* INTEGER */
-static int hf_logotypecertextn_xSize = -1;        /* INTEGER */
-static int hf_logotypecertextn_ySize = -1;        /* INTEGER */
-static int hf_logotypecertextn_resolution = -1;   /* LogotypeImageResolution */
-static int hf_logotypecertextn_language = -1;     /* IA5String */
-static int hf_logotypecertextn_numBits = -1;      /* INTEGER */
-static int hf_logotypecertextn_tableSize = -1;    /* INTEGER */
-static int hf_logotypecertextn_playTime = -1;     /* INTEGER */
-static int hf_logotypecertextn_channels = -1;     /* INTEGER */
-static int hf_logotypecertextn_sampleRate = -1;   /* INTEGER */
-static int hf_logotypecertextn_logotypeType = -1;  /* OBJECT_IDENTIFIER */
-static int hf_logotypecertextn_info = -1;         /* LogotypeInfo */
-static int hf_logotypecertextn_refStructHash = -1;  /* SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue */
-static int hf_logotypecertextn_refStructHash_item = -1;  /* HashAlgAndValue */
-static int hf_logotypecertextn_refStructURI = -1;  /* T_refStructURI */
-static int hf_logotypecertextn_refStructURI_item = -1;  /* T_refStructURI_item */
-static int hf_logotypecertextn_hashAlg = -1;      /* AlgorithmIdentifier */
-static int hf_logotypecertextn_hashValue = -1;    /* OCTET_STRING */
+static int proto_logotypecertextn;
+static int hf_logotypecertextn_LogotypeExtn_PDU;  /* LogotypeExtn */
+static int hf_logotypecertextn_communityLogos;    /* SEQUENCE_OF_LogotypeInfo */
+static int hf_logotypecertextn_communityLogos_item;  /* LogotypeInfo */
+static int hf_logotypecertextn_issuerLogo;        /* LogotypeInfo */
+static int hf_logotypecertextn_subjectLogo;       /* LogotypeInfo */
+static int hf_logotypecertextn_otherLogos;        /* SEQUENCE_OF_OtherLogotypeInfo */
+static int hf_logotypecertextn_otherLogos_item;   /* OtherLogotypeInfo */
+static int hf_logotypecertextn_direct;            /* LogotypeData */
+static int hf_logotypecertextn_indirect;          /* LogotypeReference */
+static int hf_logotypecertextn_image;             /* SEQUENCE_OF_LogotypeImage */
+static int hf_logotypecertextn_image_item;        /* LogotypeImage */
+static int hf_logotypecertextn_audio;             /* SEQUENCE_OF_LogotypeAudio */
+static int hf_logotypecertextn_audio_item;        /* LogotypeAudio */
+static int hf_logotypecertextn_imageDetails;      /* LogotypeDetails */
+static int hf_logotypecertextn_imageInfo;         /* LogotypeImageInfo */
+static int hf_logotypecertextn_audioDetails;      /* LogotypeDetails */
+static int hf_logotypecertextn_audioInfo;         /* LogotypeAudioInfo */
+static int hf_logotypecertextn_mediaType;         /* IA5String */
+static int hf_logotypecertextn_logotypeHash;      /* SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue */
+static int hf_logotypecertextn_logotypeHash_item;  /* HashAlgAndValue */
+static int hf_logotypecertextn_logotypeURI;       /* T_logotypeURI */
+static int hf_logotypecertextn_logotypeURI_item;  /* T_logotypeURI_item */
+static int hf_logotypecertextn_type;              /* LogotypeImageType */
+static int hf_logotypecertextn_fileSize;          /* INTEGER */
+static int hf_logotypecertextn_xSize;             /* INTEGER */
+static int hf_logotypecertextn_ySize;             /* INTEGER */
+static int hf_logotypecertextn_resolution;        /* LogotypeImageResolution */
+static int hf_logotypecertextn_language;          /* IA5String */
+static int hf_logotypecertextn_numBits;           /* INTEGER */
+static int hf_logotypecertextn_tableSize;         /* INTEGER */
+static int hf_logotypecertextn_playTime;          /* INTEGER */
+static int hf_logotypecertextn_channels;          /* INTEGER */
+static int hf_logotypecertextn_sampleRate;        /* INTEGER */
+static int hf_logotypecertextn_logotypeType;      /* OBJECT_IDENTIFIER */
+static int hf_logotypecertextn_info;              /* LogotypeInfo */
+static int hf_logotypecertextn_refStructHash;     /* SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue */
+static int hf_logotypecertextn_refStructHash_item;  /* HashAlgAndValue */
+static int hf_logotypecertextn_refStructURI;      /* T_refStructURI */
+static int hf_logotypecertextn_refStructURI_item;  /* T_refStructURI_item */
+static int hf_logotypecertextn_hashAlg;           /* AlgorithmIdentifier */
+static int hf_logotypecertextn_hashValue;         /* OCTET_STRING */
 
 /* Initialize the subtree pointers */
-static gint ett_logotypecertextn_LogotypeExtn = -1;
-static gint ett_logotypecertextn_SEQUENCE_OF_LogotypeInfo = -1;
-static gint ett_logotypecertextn_SEQUENCE_OF_OtherLogotypeInfo = -1;
-static gint ett_logotypecertextn_LogotypeInfo = -1;
-static gint ett_logotypecertextn_LogotypeData = -1;
-static gint ett_logotypecertextn_SEQUENCE_OF_LogotypeImage = -1;
-static gint ett_logotypecertextn_SEQUENCE_OF_LogotypeAudio = -1;
-static gint ett_logotypecertextn_LogotypeImage = -1;
-static gint ett_logotypecertextn_LogotypeAudio = -1;
-static gint ett_logotypecertextn_LogotypeDetails = -1;
-static gint ett_logotypecertextn_SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue = -1;
-static gint ett_logotypecertextn_T_logotypeURI = -1;
-static gint ett_logotypecertextn_LogotypeImageInfo = -1;
-static gint ett_logotypecertextn_LogotypeImageResolution = -1;
-static gint ett_logotypecertextn_LogotypeAudioInfo = -1;
-static gint ett_logotypecertextn_OtherLogotypeInfo = -1;
-static gint ett_logotypecertextn_LogotypeReference = -1;
-static gint ett_logotypecertextn_T_refStructURI = -1;
-static gint ett_logotypecertextn_HashAlgAndValue = -1;
+static gint ett_logotypecertextn_LogotypeExtn;
+static gint ett_logotypecertextn_SEQUENCE_OF_LogotypeInfo;
+static gint ett_logotypecertextn_SEQUENCE_OF_OtherLogotypeInfo;
+static gint ett_logotypecertextn_LogotypeInfo;
+static gint ett_logotypecertextn_LogotypeData;
+static gint ett_logotypecertextn_SEQUENCE_OF_LogotypeImage;
+static gint ett_logotypecertextn_SEQUENCE_OF_LogotypeAudio;
+static gint ett_logotypecertextn_LogotypeImage;
+static gint ett_logotypecertextn_LogotypeAudio;
+static gint ett_logotypecertextn_LogotypeDetails;
+static gint ett_logotypecertextn_SEQUENCE_SIZE_1_MAX_OF_HashAlgAndValue;
+static gint ett_logotypecertextn_T_logotypeURI;
+static gint ett_logotypecertextn_LogotypeImageInfo;
+static gint ett_logotypecertextn_LogotypeImageResolution;
+static gint ett_logotypecertextn_LogotypeAudioInfo;
+static gint ett_logotypecertextn_OtherLogotypeInfo;
+static gint ett_logotypecertextn_LogotypeReference;
+static gint ett_logotypecertextn_T_refStructURI;
+static gint ett_logotypecertextn_HashAlgAndValue;
 
 
 

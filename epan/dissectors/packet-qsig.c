@@ -666,898 +666,898 @@ static const value_string qsig_str_error[] = {
 };
 
 /* Initialize the protocol and registered fields */
-static int proto_qsig = -1;
-static int hf_qsig_operation = -1;
-static int hf_qsig_service = -1;
-static int hf_qsig_error = -1;
-static int hf_qsig_ie_type = -1;
-static int hf_qsig_ie_type_cs4 = -1;
-static int hf_qsig_ie_type_cs5 = -1;
-static int hf_qsig_ie_len = -1;
-static int hf_qsig_ie_data = -1;
-static int hf_qsig_tc = -1;
-static int hf_qsig_pc = -1;
+static int proto_qsig;
+static int hf_qsig_operation;
+static int hf_qsig_service;
+static int hf_qsig_error;
+static int hf_qsig_ie_type;
+static int hf_qsig_ie_type_cs4;
+static int hf_qsig_ie_type_cs5;
+static int hf_qsig_ie_len;
+static int hf_qsig_ie_data;
+static int hf_qsig_tc;
+static int hf_qsig_pc;
 
 /* --- Modules Manufacturer-specific-service-extension-class-asn1-97 PSS1-generic-parameters-definition-asn1-97 Addressing-Data-Elements-asn1-97 --- --- --- */
 
-static int hf_qsig_extensionId = -1;              /* T_extensionId */
-static int hf_qsig_extensionArgument = -1;        /* T_extensionArgument */
-static int hf_qsig_presentationAllowedAddressS = -1;  /* AddressScreened */
-static int hf_qsig_presentationRestricted = -1;   /* NULL */
-static int hf_qsig_numberNotAvailableDueToInterworking = -1;  /* NULL */
-static int hf_qsig_presentationRestrictedAddressS = -1;  /* AddressScreened */
-static int hf_qsig_presentationAllowedAddressU = -1;  /* Address */
-static int hf_qsig_presentationRestrictedAddressU = -1;  /* Address */
-static int hf_qsig_presentationAllowedAddressNS = -1;  /* NumberScreened */
-static int hf_qsig_presentationRestrictedAddressNS = -1;  /* NumberScreened */
-static int hf_qsig_presentationAllowedAddressNU = -1;  /* PartyNumber */
-static int hf_qsig_presentationRestrictedAddressNU = -1;  /* PartyNumber */
-static int hf_qsig_partyNumber = -1;              /* PartyNumber */
-static int hf_qsig_screeningIndicator = -1;       /* ScreeningIndicator */
-static int hf_qsig_partySubaddress = -1;          /* PartySubaddress */
-static int hf_qsig_unknownPartyNumber = -1;       /* NumberDigits */
-static int hf_qsig_publicPartyNumber = -1;        /* PublicPartyNumber */
-static int hf_qsig_dataPartyNumber = -1;          /* NumberDigits */
-static int hf_qsig_telexPartyNumber = -1;         /* NumberDigits */
-static int hf_qsig_privatePartyNumber = -1;       /* PrivatePartyNumber */
-static int hf_qsig_nationalStandardPartyNumber = -1;  /* NumberDigits */
-static int hf_qsig_publicTypeOfNumber = -1;       /* PublicTypeOfNumber */
-static int hf_qsig_publicNumberDigits = -1;       /* NumberDigits */
-static int hf_qsig_privateTypeOfNumber = -1;      /* PrivateTypeOfNumber */
-static int hf_qsig_privateNumberDigits = -1;      /* NumberDigits */
-static int hf_qsig_userSpecifiedSubaddress = -1;  /* UserSpecifiedSubaddress */
-static int hf_qsig_nSAPSubaddress = -1;           /* NSAPSubaddress */
-static int hf_qsig_subaddressInformation = -1;    /* SubaddressInformation */
-static int hf_qsig_oddCountIndicator = -1;        /* BOOLEAN */
+static int hf_qsig_extensionId;                   /* T_extensionId */
+static int hf_qsig_extensionArgument;             /* T_extensionArgument */
+static int hf_qsig_presentationAllowedAddressS;   /* AddressScreened */
+static int hf_qsig_presentationRestricted;        /* NULL */
+static int hf_qsig_numberNotAvailableDueToInterworking;  /* NULL */
+static int hf_qsig_presentationRestrictedAddressS;  /* AddressScreened */
+static int hf_qsig_presentationAllowedAddressU;   /* Address */
+static int hf_qsig_presentationRestrictedAddressU;  /* Address */
+static int hf_qsig_presentationAllowedAddressNS;  /* NumberScreened */
+static int hf_qsig_presentationRestrictedAddressNS;  /* NumberScreened */
+static int hf_qsig_presentationAllowedAddressNU;  /* PartyNumber */
+static int hf_qsig_presentationRestrictedAddressNU;  /* PartyNumber */
+static int hf_qsig_partyNumber;                   /* PartyNumber */
+static int hf_qsig_screeningIndicator;            /* ScreeningIndicator */
+static int hf_qsig_partySubaddress;               /* PartySubaddress */
+static int hf_qsig_unknownPartyNumber;            /* NumberDigits */
+static int hf_qsig_publicPartyNumber;             /* PublicPartyNumber */
+static int hf_qsig_dataPartyNumber;               /* NumberDigits */
+static int hf_qsig_telexPartyNumber;              /* NumberDigits */
+static int hf_qsig_privatePartyNumber;            /* PrivatePartyNumber */
+static int hf_qsig_nationalStandardPartyNumber;   /* NumberDigits */
+static int hf_qsig_publicTypeOfNumber;            /* PublicTypeOfNumber */
+static int hf_qsig_publicNumberDigits;            /* NumberDigits */
+static int hf_qsig_privateTypeOfNumber;           /* PrivateTypeOfNumber */
+static int hf_qsig_privateNumberDigits;           /* NumberDigits */
+static int hf_qsig_userSpecifiedSubaddress;       /* UserSpecifiedSubaddress */
+static int hf_qsig_nSAPSubaddress;                /* NSAPSubaddress */
+static int hf_qsig_subaddressInformation;         /* SubaddressInformation */
+static int hf_qsig_oddCountIndicator;             /* BOOLEAN */
 
 /* --- Module Name-Operations-asn1-97 --- --- ---                             */
 
-static int hf_qsig_na_qsig_na_NameArg_PDU = -1;   /* NameArg */
-static int hf_qsig_na_name = -1;                  /* Name */
-static int hf_qsig_na_nameSequence = -1;          /* T_nameSequence */
-static int hf_qsig_na_extensionNA = -1;           /* NameExtension */
-static int hf_qsig_na_single = -1;                /* Extension */
-static int hf_qsig_na_multiple = -1;              /* SEQUENCE_OF_Extension */
-static int hf_qsig_na_multiple_item = -1;         /* Extension */
-static int hf_qsig_na_namePresentationAllowed = -1;  /* NamePresentationAllowed */
-static int hf_qsig_na_namePresentationRestricted = -1;  /* NamePresentationRestricted */
-static int hf_qsig_na_nameNotAvailable = -1;      /* NameNotAvailable */
-static int hf_qsig_na_namePresentationAllowedSimple = -1;  /* NameData */
-static int hf_qsig_na_namePresentationAllowedExtended = -1;  /* NameSet */
-static int hf_qsig_na_namePresentationRestrictedSimple = -1;  /* NameData */
-static int hf_qsig_na_namePresentationRestrictedExtended = -1;  /* NameSet */
-static int hf_qsig_na_namePresentationRestrictedNull = -1;  /* NULL */
-static int hf_qsig_na_nameData = -1;              /* NameData */
-static int hf_qsig_na_characterSet = -1;          /* CharacterSet */
+static int hf_qsig_na_qsig_na_NameArg_PDU;        /* NameArg */
+static int hf_qsig_na_name;                       /* Name */
+static int hf_qsig_na_nameSequence;               /* T_nameSequence */
+static int hf_qsig_na_extensionNA;                /* NameExtension */
+static int hf_qsig_na_single;                     /* Extension */
+static int hf_qsig_na_multiple;                   /* SEQUENCE_OF_Extension */
+static int hf_qsig_na_multiple_item;              /* Extension */
+static int hf_qsig_na_namePresentationAllowed;    /* NamePresentationAllowed */
+static int hf_qsig_na_namePresentationRestricted;  /* NamePresentationRestricted */
+static int hf_qsig_na_nameNotAvailable;           /* NameNotAvailable */
+static int hf_qsig_na_namePresentationAllowedSimple;  /* NameData */
+static int hf_qsig_na_namePresentationAllowedExtended;  /* NameSet */
+static int hf_qsig_na_namePresentationRestrictedSimple;  /* NameData */
+static int hf_qsig_na_namePresentationRestrictedExtended;  /* NameSet */
+static int hf_qsig_na_namePresentationRestrictedNull;  /* NULL */
+static int hf_qsig_na_nameData;                   /* NameData */
+static int hf_qsig_na_characterSet;               /* CharacterSet */
 
 /* --- Module Call-Diversion-Operations-asn1-97 --- --- ---                   */
 
-static int hf_qsig_cf_qsig_cf_ARG_activateDiversionQ_PDU = -1;  /* ARG_activateDiversionQ */
-static int hf_qsig_cf_qsig_cf_RES_activateDiversionQ_PDU = -1;  /* RES_activateDiversionQ */
-static int hf_qsig_cf_qsig_cf_ARG_deactivateDiversionQ_PDU = -1;  /* ARG_deactivateDiversionQ */
-static int hf_qsig_cf_qsig_cf_RES_deactivateDiversionQ_PDU = -1;  /* RES_deactivateDiversionQ */
-static int hf_qsig_cf_qsig_cf_ARG_interrogateDiversionQ_PDU = -1;  /* ARG_interrogateDiversionQ */
-static int hf_qsig_cf_qsig_cf_IntResultList_PDU = -1;  /* IntResultList */
-static int hf_qsig_cf_qsig_cf_ARG_checkRestriction_PDU = -1;  /* ARG_checkRestriction */
-static int hf_qsig_cf_qsig_cf_RES_checkRestriction_PDU = -1;  /* RES_checkRestriction */
-static int hf_qsig_cf_qsig_cf_ARG_callRerouteing_PDU = -1;  /* ARG_callRerouteing */
-static int hf_qsig_cf_qsig_cf_RES_callRerouteing_PDU = -1;  /* RES_callRerouteing */
-static int hf_qsig_cf_qsig_cf_ARG_divertingLegInformation1_PDU = -1;  /* ARG_divertingLegInformation1 */
-static int hf_qsig_cf_qsig_cf_ARG_divertingLegInformation2_PDU = -1;  /* ARG_divertingLegInformation2 */
-static int hf_qsig_cf_qsig_cf_ARG_divertingLegInformation3_PDU = -1;  /* ARG_divertingLegInformation3 */
-static int hf_qsig_cf_qsig_cf_ARG_cfnrDivertedLegFailed_PDU = -1;  /* ARG_cfnrDivertedLegFailed */
-static int hf_qsig_cf_qsig_cf_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_cf_procedure = -1;             /* Procedure */
-static int hf_qsig_cf_basicService = -1;          /* BasicService */
-static int hf_qsig_cf_divertedToAddress = -1;     /* Address */
-static int hf_qsig_cf_servedUserNr = -1;          /* PartyNumber */
-static int hf_qsig_cf_activatingUserNr = -1;      /* PartyNumber */
-static int hf_qsig_cf_extensionAD = -1;           /* ADExtension */
-static int hf_qsig_cf_single = -1;                /* Extension */
-static int hf_qsig_cf_multiple = -1;              /* SEQUENCE_OF_Extension */
-static int hf_qsig_cf_multiple_item = -1;         /* Extension */
-static int hf_qsig_cf_null = -1;                  /* NULL */
-static int hf_qsig_cf_deactivatingUserNr = -1;    /* PartyNumber */
-static int hf_qsig_cf_extensionDD = -1;           /* DDExtension */
-static int hf_qsig_cf_interrogatingUserNr = -1;   /* PartyNumber */
-static int hf_qsig_cf_extensionID = -1;           /* IDExtension */
-static int hf_qsig_cf_divertedToNr = -1;          /* PartyNumber */
-static int hf_qsig_cf_extensionCHR = -1;          /* CHRExtension */
-static int hf_qsig_cf_rerouteingReason = -1;      /* DiversionReason */
-static int hf_qsig_cf_originalRerouteingReason = -1;  /* DiversionReason */
-static int hf_qsig_cf_calledAddress = -1;         /* Address */
-static int hf_qsig_cf_diversionCounter = -1;      /* INTEGER_1_15 */
-static int hf_qsig_cf_pSS1InfoElement = -1;       /* PSS1InformationElement */
-static int hf_qsig_cf_lastRerouteingNr = -1;      /* PresentedNumberUnscreened */
-static int hf_qsig_cf_subscriptionOption = -1;    /* SubscriptionOption */
-static int hf_qsig_cf_callingPartySubaddress = -1;  /* PartySubaddress */
-static int hf_qsig_cf_callingNumber = -1;         /* PresentedNumberScreened */
-static int hf_qsig_cf_callingName = -1;           /* Name */
-static int hf_qsig_cf_originalCalledNr = -1;      /* PresentedNumberUnscreened */
-static int hf_qsig_cf_redirectingName = -1;       /* Name */
-static int hf_qsig_cf_originalCalledName = -1;    /* Name */
-static int hf_qsig_cf_extensionCRR = -1;          /* CRRExtension */
-static int hf_qsig_cf_diversionReason = -1;       /* DiversionReason */
-static int hf_qsig_cf_nominatedNr = -1;           /* PartyNumber */
-static int hf_qsig_cf_extensionDLI1 = -1;         /* DLI1Extension */
-static int hf_qsig_cf_originalDiversionReason = -1;  /* DiversionReason */
-static int hf_qsig_cf_divertingNr = -1;           /* PresentedNumberUnscreened */
-static int hf_qsig_cf_extensionDLI2 = -1;         /* DLI2Extension */
-static int hf_qsig_cf_presentationAllowedIndicator = -1;  /* PresentationAllowedIndicator */
-static int hf_qsig_cf_redirectionName = -1;       /* Name */
-static int hf_qsig_cf_extensionDLI3 = -1;         /* DLI3Extension */
-static int hf_qsig_cf_IntResultList_item = -1;    /* IntResult */
-static int hf_qsig_cf_remoteEnabled = -1;         /* BOOLEAN */
-static int hf_qsig_cf_extensionIR = -1;           /* IRExtension */
+static int hf_qsig_cf_qsig_cf_ARG_activateDiversionQ_PDU;  /* ARG_activateDiversionQ */
+static int hf_qsig_cf_qsig_cf_RES_activateDiversionQ_PDU;  /* RES_activateDiversionQ */
+static int hf_qsig_cf_qsig_cf_ARG_deactivateDiversionQ_PDU;  /* ARG_deactivateDiversionQ */
+static int hf_qsig_cf_qsig_cf_RES_deactivateDiversionQ_PDU;  /* RES_deactivateDiversionQ */
+static int hf_qsig_cf_qsig_cf_ARG_interrogateDiversionQ_PDU;  /* ARG_interrogateDiversionQ */
+static int hf_qsig_cf_qsig_cf_IntResultList_PDU;  /* IntResultList */
+static int hf_qsig_cf_qsig_cf_ARG_checkRestriction_PDU;  /* ARG_checkRestriction */
+static int hf_qsig_cf_qsig_cf_RES_checkRestriction_PDU;  /* RES_checkRestriction */
+static int hf_qsig_cf_qsig_cf_ARG_callRerouteing_PDU;  /* ARG_callRerouteing */
+static int hf_qsig_cf_qsig_cf_RES_callRerouteing_PDU;  /* RES_callRerouteing */
+static int hf_qsig_cf_qsig_cf_ARG_divertingLegInformation1_PDU;  /* ARG_divertingLegInformation1 */
+static int hf_qsig_cf_qsig_cf_ARG_divertingLegInformation2_PDU;  /* ARG_divertingLegInformation2 */
+static int hf_qsig_cf_qsig_cf_ARG_divertingLegInformation3_PDU;  /* ARG_divertingLegInformation3 */
+static int hf_qsig_cf_qsig_cf_ARG_cfnrDivertedLegFailed_PDU;  /* ARG_cfnrDivertedLegFailed */
+static int hf_qsig_cf_qsig_cf_Extension_PDU;      /* Extension */
+static int hf_qsig_cf_procedure;                  /* Procedure */
+static int hf_qsig_cf_basicService;               /* BasicService */
+static int hf_qsig_cf_divertedToAddress;          /* Address */
+static int hf_qsig_cf_servedUserNr;               /* PartyNumber */
+static int hf_qsig_cf_activatingUserNr;           /* PartyNumber */
+static int hf_qsig_cf_extensionAD;                /* ADExtension */
+static int hf_qsig_cf_single;                     /* Extension */
+static int hf_qsig_cf_multiple;                   /* SEQUENCE_OF_Extension */
+static int hf_qsig_cf_multiple_item;              /* Extension */
+static int hf_qsig_cf_null;                       /* NULL */
+static int hf_qsig_cf_deactivatingUserNr;         /* PartyNumber */
+static int hf_qsig_cf_extensionDD;                /* DDExtension */
+static int hf_qsig_cf_interrogatingUserNr;        /* PartyNumber */
+static int hf_qsig_cf_extensionID;                /* IDExtension */
+static int hf_qsig_cf_divertedToNr;               /* PartyNumber */
+static int hf_qsig_cf_extensionCHR;               /* CHRExtension */
+static int hf_qsig_cf_rerouteingReason;           /* DiversionReason */
+static int hf_qsig_cf_originalRerouteingReason;   /* DiversionReason */
+static int hf_qsig_cf_calledAddress;              /* Address */
+static int hf_qsig_cf_diversionCounter;           /* INTEGER_1_15 */
+static int hf_qsig_cf_pSS1InfoElement;            /* PSS1InformationElement */
+static int hf_qsig_cf_lastRerouteingNr;           /* PresentedNumberUnscreened */
+static int hf_qsig_cf_subscriptionOption;         /* SubscriptionOption */
+static int hf_qsig_cf_callingPartySubaddress;     /* PartySubaddress */
+static int hf_qsig_cf_callingNumber;              /* PresentedNumberScreened */
+static int hf_qsig_cf_callingName;                /* Name */
+static int hf_qsig_cf_originalCalledNr;           /* PresentedNumberUnscreened */
+static int hf_qsig_cf_redirectingName;            /* Name */
+static int hf_qsig_cf_originalCalledName;         /* Name */
+static int hf_qsig_cf_extensionCRR;               /* CRRExtension */
+static int hf_qsig_cf_diversionReason;            /* DiversionReason */
+static int hf_qsig_cf_nominatedNr;                /* PartyNumber */
+static int hf_qsig_cf_extensionDLI1;              /* DLI1Extension */
+static int hf_qsig_cf_originalDiversionReason;    /* DiversionReason */
+static int hf_qsig_cf_divertingNr;                /* PresentedNumberUnscreened */
+static int hf_qsig_cf_extensionDLI2;              /* DLI2Extension */
+static int hf_qsig_cf_presentationAllowedIndicator;  /* PresentationAllowedIndicator */
+static int hf_qsig_cf_redirectionName;            /* Name */
+static int hf_qsig_cf_extensionDLI3;              /* DLI3Extension */
+static int hf_qsig_cf_IntResultList_item;         /* IntResult */
+static int hf_qsig_cf_remoteEnabled;              /* BOOLEAN */
+static int hf_qsig_cf_extensionIR;                /* IRExtension */
 
 /* --- Module Path-Replacement-Operations-asn1-97 --- --- ---                 */
 
-static int hf_qsig_pr_qsig_pr_DummyArg_PDU = -1;  /* DummyArg */
-static int hf_qsig_pr_qsig_pr_PRProposeArg_PDU = -1;  /* PRProposeArg */
-static int hf_qsig_pr_qsig_pr_PRSetupArg_PDU = -1;  /* PRSetupArg */
-static int hf_qsig_pr_qsig_pr_DummyResult_PDU = -1;  /* DummyResult */
-static int hf_qsig_pr_qsig_pr_PRRetainArg_PDU = -1;  /* PRRetainArg */
-static int hf_qsig_pr_qsig_pr_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_pr_callIdentity = -1;          /* CallIdentity */
-static int hf_qsig_pr_rerouteingNumber = -1;      /* PartyNumber */
-static int hf_qsig_pr_extensionPRP = -1;          /* PRPExtension */
-static int hf_qsig_pr_single = -1;                /* Extension */
-static int hf_qsig_pr_multiple = -1;              /* SEQUENCE_OF_Extension */
-static int hf_qsig_pr_multiple_item = -1;         /* Extension */
-static int hf_qsig_pr_extensionPRS = -1;          /* PRSExtension */
-static int hf_qsig_pr_extensionPRR = -1;          /* PRRExtension */
-static int hf_qsig_pr_null = -1;                  /* NULL */
+static int hf_qsig_pr_qsig_pr_DummyArg_PDU;       /* DummyArg */
+static int hf_qsig_pr_qsig_pr_PRProposeArg_PDU;   /* PRProposeArg */
+static int hf_qsig_pr_qsig_pr_PRSetupArg_PDU;     /* PRSetupArg */
+static int hf_qsig_pr_qsig_pr_DummyResult_PDU;    /* DummyResult */
+static int hf_qsig_pr_qsig_pr_PRRetainArg_PDU;    /* PRRetainArg */
+static int hf_qsig_pr_qsig_pr_Extension_PDU;      /* Extension */
+static int hf_qsig_pr_callIdentity;               /* CallIdentity */
+static int hf_qsig_pr_rerouteingNumber;           /* PartyNumber */
+static int hf_qsig_pr_extensionPRP;               /* PRPExtension */
+static int hf_qsig_pr_single;                     /* Extension */
+static int hf_qsig_pr_multiple;                   /* SEQUENCE_OF_Extension */
+static int hf_qsig_pr_multiple_item;              /* Extension */
+static int hf_qsig_pr_extensionPRS;               /* PRSExtension */
+static int hf_qsig_pr_extensionPRR;               /* PRRExtension */
+static int hf_qsig_pr_null;                       /* NULL */
 
 /* --- Module Call-Transfer-Operations-asn1-97 --- --- ---                    */
 
-static int hf_qsig_ct_qsig_ct_DummyArg_PDU = -1;  /* DummyArg */
-static int hf_qsig_ct_qsig_ct_CTIdentifyRes_PDU = -1;  /* CTIdentifyRes */
-static int hf_qsig_ct_qsig_ct_CTInitiateArg_PDU = -1;  /* CTInitiateArg */
-static int hf_qsig_ct_qsig_ct_DummyRes_PDU = -1;  /* DummyRes */
-static int hf_qsig_ct_qsig_ct_CTSetupArg_PDU = -1;  /* CTSetupArg */
-static int hf_qsig_ct_qsig_ct_CTActiveArg_PDU = -1;  /* CTActiveArg */
-static int hf_qsig_ct_qsig_ct_CTCompleteArg_PDU = -1;  /* CTCompleteArg */
-static int hf_qsig_ct_qsig_ct_CTUpdateArg_PDU = -1;  /* CTUpdateArg */
-static int hf_qsig_ct_qsig_ct_SubaddressTransferArg_PDU = -1;  /* SubaddressTransferArg */
-static int hf_qsig_ct_qsig_ct_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_ct_null = -1;                  /* NULL */
-static int hf_qsig_ct_single = -1;                /* Extension */
-static int hf_qsig_ct_multiple = -1;              /* SEQUENCE_OF_Extension */
-static int hf_qsig_ct_multiple_item = -1;         /* Extension */
-static int hf_qsig_ct_callIdentity = -1;          /* CallIdentity */
-static int hf_qsig_ct_rerouteingNumber = -1;      /* PartyNumber */
-static int hf_qsig_ct_resultExtension = -1;       /* T_resultExtension */
-static int hf_qsig_ct_argumentExtensionCTI = -1;  /* CTIargumentExtension */
-static int hf_qsig_ct_argumentExtensionCTS = -1;  /* CTSargumentExtension */
-static int hf_qsig_ct_connectedAddress = -1;      /* PresentedAddressScreened */
-static int hf_qsig_ct_basicCallInfoElements = -1;  /* PSS1InformationElement */
-static int hf_qsig_ct_connectedName = -1;         /* Name */
-static int hf_qsig_ct_argumentExtensionCTA = -1;  /* CTAargumentExtension */
-static int hf_qsig_ct_endDesignation = -1;        /* EndDesignation */
-static int hf_qsig_ct_redirectionNumber = -1;     /* PresentedNumberScreened */
-static int hf_qsig_ct_redirectionName = -1;       /* Name */
-static int hf_qsig_ct_callStatus = -1;            /* CallStatus */
-static int hf_qsig_ct_argumentExtensionCTC = -1;  /* CTCargumentExtension */
-static int hf_qsig_ct_argumentExtensionCTU = -1;  /* CTUargumentExtension */
-static int hf_qsig_ct_redirectionSubaddress = -1;  /* PartySubaddress */
-static int hf_qsig_ct_argumentExtensionST = -1;   /* STargumentExtension */
+static int hf_qsig_ct_qsig_ct_DummyArg_PDU;       /* DummyArg */
+static int hf_qsig_ct_qsig_ct_CTIdentifyRes_PDU;  /* CTIdentifyRes */
+static int hf_qsig_ct_qsig_ct_CTInitiateArg_PDU;  /* CTInitiateArg */
+static int hf_qsig_ct_qsig_ct_DummyRes_PDU;       /* DummyRes */
+static int hf_qsig_ct_qsig_ct_CTSetupArg_PDU;     /* CTSetupArg */
+static int hf_qsig_ct_qsig_ct_CTActiveArg_PDU;    /* CTActiveArg */
+static int hf_qsig_ct_qsig_ct_CTCompleteArg_PDU;  /* CTCompleteArg */
+static int hf_qsig_ct_qsig_ct_CTUpdateArg_PDU;    /* CTUpdateArg */
+static int hf_qsig_ct_qsig_ct_SubaddressTransferArg_PDU;  /* SubaddressTransferArg */
+static int hf_qsig_ct_qsig_ct_Extension_PDU;      /* Extension */
+static int hf_qsig_ct_null;                       /* NULL */
+static int hf_qsig_ct_single;                     /* Extension */
+static int hf_qsig_ct_multiple;                   /* SEQUENCE_OF_Extension */
+static int hf_qsig_ct_multiple_item;              /* Extension */
+static int hf_qsig_ct_callIdentity;               /* CallIdentity */
+static int hf_qsig_ct_rerouteingNumber;           /* PartyNumber */
+static int hf_qsig_ct_resultExtension;            /* T_resultExtension */
+static int hf_qsig_ct_argumentExtensionCTI;       /* CTIargumentExtension */
+static int hf_qsig_ct_argumentExtensionCTS;       /* CTSargumentExtension */
+static int hf_qsig_ct_connectedAddress;           /* PresentedAddressScreened */
+static int hf_qsig_ct_basicCallInfoElements;      /* PSS1InformationElement */
+static int hf_qsig_ct_connectedName;              /* Name */
+static int hf_qsig_ct_argumentExtensionCTA;       /* CTAargumentExtension */
+static int hf_qsig_ct_endDesignation;             /* EndDesignation */
+static int hf_qsig_ct_redirectionNumber;          /* PresentedNumberScreened */
+static int hf_qsig_ct_redirectionName;            /* Name */
+static int hf_qsig_ct_callStatus;                 /* CallStatus */
+static int hf_qsig_ct_argumentExtensionCTC;       /* CTCargumentExtension */
+static int hf_qsig_ct_argumentExtensionCTU;       /* CTUargumentExtension */
+static int hf_qsig_ct_redirectionSubaddress;      /* PartySubaddress */
+static int hf_qsig_ct_argumentExtensionST;        /* STargumentExtension */
 
 /* --- Module SS-CC-Operations-asn1-97 --- --- ---                            */
 
-static int hf_qsig_cc_qsig_cc_CcRequestArg_PDU = -1;  /* CcRequestArg */
-static int hf_qsig_cc_qsig_cc_CcRequestRes_PDU = -1;  /* CcRequestRes */
-static int hf_qsig_cc_qsig_cc_CcOptionalArg_PDU = -1;  /* CcOptionalArg */
-static int hf_qsig_cc_qsig_cc_CcExtension_PDU = -1;  /* CcExtension */
-static int hf_qsig_cc_qsig_cc_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_cc_numberA = -1;               /* PresentedNumberUnscreened */
-static int hf_qsig_cc_numberB = -1;               /* PartyNumber */
-static int hf_qsig_cc_service = -1;               /* PSS1InformationElement */
-static int hf_qsig_cc_subaddrA = -1;              /* PartySubaddress */
-static int hf_qsig_cc_subaddrB = -1;              /* PartySubaddress */
-static int hf_qsig_cc_can_retain_service = -1;    /* BOOLEAN */
-static int hf_qsig_cc_retain_sig_connection = -1;  /* BOOLEAN */
-static int hf_qsig_cc_extension = -1;             /* CcExtension */
-static int hf_qsig_cc_no_path_reservation = -1;   /* BOOLEAN */
-static int hf_qsig_cc_retain_service = -1;        /* BOOLEAN */
-static int hf_qsig_cc_fullArg = -1;               /* T_fullArg */
-static int hf_qsig_cc_numberA_01 = -1;            /* PartyNumber */
-static int hf_qsig_cc_extArg = -1;                /* CcExtension */
-static int hf_qsig_cc_none = -1;                  /* NULL */
-static int hf_qsig_cc_single = -1;                /* Extension */
-static int hf_qsig_cc_multiple = -1;              /* SEQUENCE_OF_Extension */
-static int hf_qsig_cc_multiple_item = -1;         /* Extension */
+static int hf_qsig_cc_qsig_cc_CcRequestArg_PDU;   /* CcRequestArg */
+static int hf_qsig_cc_qsig_cc_CcRequestRes_PDU;   /* CcRequestRes */
+static int hf_qsig_cc_qsig_cc_CcOptionalArg_PDU;  /* CcOptionalArg */
+static int hf_qsig_cc_qsig_cc_CcExtension_PDU;    /* CcExtension */
+static int hf_qsig_cc_qsig_cc_Extension_PDU;      /* Extension */
+static int hf_qsig_cc_numberA;                    /* PresentedNumberUnscreened */
+static int hf_qsig_cc_numberB;                    /* PartyNumber */
+static int hf_qsig_cc_service;                    /* PSS1InformationElement */
+static int hf_qsig_cc_subaddrA;                   /* PartySubaddress */
+static int hf_qsig_cc_subaddrB;                   /* PartySubaddress */
+static int hf_qsig_cc_can_retain_service;         /* BOOLEAN */
+static int hf_qsig_cc_retain_sig_connection;      /* BOOLEAN */
+static int hf_qsig_cc_extension;                  /* CcExtension */
+static int hf_qsig_cc_no_path_reservation;        /* BOOLEAN */
+static int hf_qsig_cc_retain_service;             /* BOOLEAN */
+static int hf_qsig_cc_fullArg;                    /* T_fullArg */
+static int hf_qsig_cc_numberA_01;                 /* PartyNumber */
+static int hf_qsig_cc_extArg;                     /* CcExtension */
+static int hf_qsig_cc_none;                       /* NULL */
+static int hf_qsig_cc_single;                     /* Extension */
+static int hf_qsig_cc_multiple;                   /* SEQUENCE_OF_Extension */
+static int hf_qsig_cc_multiple_item;              /* Extension */
 
 /* --- Module Call-Offer-Operations-asn1-97 --- --- ---                       */
 
-static int hf_qsig_co_qsig_co_PathRetainArg_PDU = -1;  /* PathRetainArg */
-static int hf_qsig_co_qsig_co_ServiceAvailableArg_PDU = -1;  /* ServiceAvailableArg */
-static int hf_qsig_co_qsig_co_DummyArg_PDU = -1;  /* DummyArg */
-static int hf_qsig_co_qsig_co_DummyRes_PDU = -1;  /* DummyRes */
-static int hf_qsig_co_qsig_co_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_co_serviceList = -1;           /* ServiceList */
-static int hf_qsig_co_extendedServiceList = -1;   /* T_extendedServiceList */
-static int hf_qsig_co_extension = -1;             /* Extension */
-static int hf_qsig_co_extendedServiceList_01 = -1;  /* T_extendedServiceList_01 */
-static int hf_qsig_co_null = -1;                  /* NULL */
-static int hf_qsig_co_sequenceOfExtn = -1;        /* SEQUENCE_OF_Extension */
-static int hf_qsig_co_sequenceOfExtn_item = -1;   /* Extension */
+static int hf_qsig_co_qsig_co_PathRetainArg_PDU;  /* PathRetainArg */
+static int hf_qsig_co_qsig_co_ServiceAvailableArg_PDU;  /* ServiceAvailableArg */
+static int hf_qsig_co_qsig_co_DummyArg_PDU;       /* DummyArg */
+static int hf_qsig_co_qsig_co_DummyRes_PDU;       /* DummyRes */
+static int hf_qsig_co_qsig_co_Extension_PDU;      /* Extension */
+static int hf_qsig_co_serviceList;                /* ServiceList */
+static int hf_qsig_co_extendedServiceList;        /* T_extendedServiceList */
+static int hf_qsig_co_extension;                  /* Extension */
+static int hf_qsig_co_extendedServiceList_01;     /* T_extendedServiceList_01 */
+static int hf_qsig_co_null;                       /* NULL */
+static int hf_qsig_co_sequenceOfExtn;             /* SEQUENCE_OF_Extension */
+static int hf_qsig_co_sequenceOfExtn_item;        /* Extension */
 /* named bits */
-static int hf_qsig_co_ServiceList_callOffer = -1;
+static int hf_qsig_co_ServiceList_callOffer;
 
 /* --- Module Do-Not-Disturb-Operations-asn1-97 --- --- ---                   */
 
-static int hf_qsig_dnd_qsig_dnd_DNDActivateArg_PDU = -1;  /* DNDActivateArg */
-static int hf_qsig_dnd_qsig_dnd_DNDActivateRes_PDU = -1;  /* DNDActivateRes */
-static int hf_qsig_dnd_qsig_dnd_DNDDeactivateArg_PDU = -1;  /* DNDDeactivateArg */
-static int hf_qsig_dnd_qsig_dnd_DummyRes_PDU = -1;  /* DummyRes */
-static int hf_qsig_dnd_qsig_dnd_DNDInterrogateArg_PDU = -1;  /* DNDInterrogateArg */
-static int hf_qsig_dnd_qsig_dnd_DNDInterrogateRes_PDU = -1;  /* DNDInterrogateRes */
-static int hf_qsig_dnd_qsig_dnd_DNDOverrideArg_PDU = -1;  /* DNDOverrideArg */
-static int hf_qsig_dnd_qsig_dnd_PathRetainArg_PDU = -1;  /* PathRetainArg */
-static int hf_qsig_dnd_qsig_dnd_ServiceAvailableArg_PDU = -1;  /* ServiceAvailableArg */
-static int hf_qsig_dnd_qsig_dnd_DummyArg_PDU = -1;  /* DummyArg */
-static int hf_qsig_dnd_qsig_dnd_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_dnd_null = -1;                 /* NULL */
-static int hf_qsig_dnd_extension = -1;            /* Extension */
-static int hf_qsig_dnd_sequenceOfExtn = -1;       /* SEQUENCE_OF_Extension */
-static int hf_qsig_dnd_sequenceOfExtn_item = -1;  /* Extension */
-static int hf_qsig_dnd_basicService = -1;         /* BasicService */
-static int hf_qsig_dnd_servedUserNr = -1;         /* PartyNumber */
-static int hf_qsig_dnd_argumentExtensionDNDA = -1;  /* DNDAargumentExtension */
-static int hf_qsig_dnd_status = -1;               /* T_status */
-static int hf_qsig_dnd_status_item = -1;          /* T_status_item */
-static int hf_qsig_dnd_dndProtectionLevel = -1;   /* DNDProtectionLevel */
-static int hf_qsig_dnd_resultExtension = -1;      /* T_resultExtension */
-static int hf_qsig_dnd_argumentExtensionDNDD = -1;  /* DNDDargumentExtension */
-static int hf_qsig_dnd_argumentExtensionDNDI = -1;  /* DNDIargumentExtension */
-static int hf_qsig_dnd_status_01 = -1;            /* T_status_01 */
-static int hf_qsig_dnd_status_item_01 = -1;       /* T_status_item_01 */
-static int hf_qsig_dnd_resultExtension_01 = -1;   /* T_resultExtension_01 */
-static int hf_qsig_dnd_dndoCapabilityLevel = -1;  /* DNDOCapabilityLevel */
-static int hf_qsig_dnd_argumentExtensionDNDO = -1;  /* DNDOargumentExtension */
-static int hf_qsig_dnd_serviceList = -1;          /* ServiceList */
-static int hf_qsig_dnd_extendedServiceList = -1;  /* T_extendedServiceList */
-static int hf_qsig_dnd_extendedServiceList_01 = -1;  /* T_extendedServiceList_01 */
+static int hf_qsig_dnd_qsig_dnd_DNDActivateArg_PDU;  /* DNDActivateArg */
+static int hf_qsig_dnd_qsig_dnd_DNDActivateRes_PDU;  /* DNDActivateRes */
+static int hf_qsig_dnd_qsig_dnd_DNDDeactivateArg_PDU;  /* DNDDeactivateArg */
+static int hf_qsig_dnd_qsig_dnd_DummyRes_PDU;     /* DummyRes */
+static int hf_qsig_dnd_qsig_dnd_DNDInterrogateArg_PDU;  /* DNDInterrogateArg */
+static int hf_qsig_dnd_qsig_dnd_DNDInterrogateRes_PDU;  /* DNDInterrogateRes */
+static int hf_qsig_dnd_qsig_dnd_DNDOverrideArg_PDU;  /* DNDOverrideArg */
+static int hf_qsig_dnd_qsig_dnd_PathRetainArg_PDU;  /* PathRetainArg */
+static int hf_qsig_dnd_qsig_dnd_ServiceAvailableArg_PDU;  /* ServiceAvailableArg */
+static int hf_qsig_dnd_qsig_dnd_DummyArg_PDU;     /* DummyArg */
+static int hf_qsig_dnd_qsig_dnd_Extension_PDU;    /* Extension */
+static int hf_qsig_dnd_null;                      /* NULL */
+static int hf_qsig_dnd_extension;                 /* Extension */
+static int hf_qsig_dnd_sequenceOfExtn;            /* SEQUENCE_OF_Extension */
+static int hf_qsig_dnd_sequenceOfExtn_item;       /* Extension */
+static int hf_qsig_dnd_basicService;              /* BasicService */
+static int hf_qsig_dnd_servedUserNr;              /* PartyNumber */
+static int hf_qsig_dnd_argumentExtensionDNDA;     /* DNDAargumentExtension */
+static int hf_qsig_dnd_status;                    /* T_status */
+static int hf_qsig_dnd_status_item;               /* T_status_item */
+static int hf_qsig_dnd_dndProtectionLevel;        /* DNDProtectionLevel */
+static int hf_qsig_dnd_resultExtension;           /* T_resultExtension */
+static int hf_qsig_dnd_argumentExtensionDNDD;     /* DNDDargumentExtension */
+static int hf_qsig_dnd_argumentExtensionDNDI;     /* DNDIargumentExtension */
+static int hf_qsig_dnd_status_01;                 /* T_status_01 */
+static int hf_qsig_dnd_status_item_01;            /* T_status_item_01 */
+static int hf_qsig_dnd_resultExtension_01;        /* T_resultExtension_01 */
+static int hf_qsig_dnd_dndoCapabilityLevel;       /* DNDOCapabilityLevel */
+static int hf_qsig_dnd_argumentExtensionDNDO;     /* DNDOargumentExtension */
+static int hf_qsig_dnd_serviceList;               /* ServiceList */
+static int hf_qsig_dnd_extendedServiceList;       /* T_extendedServiceList */
+static int hf_qsig_dnd_extendedServiceList_01;    /* T_extendedServiceList_01 */
 /* named bits */
-static int hf_qsig_dnd_ServiceList_spare_bit0 = -1;
-static int hf_qsig_dnd_ServiceList_dndo_low = -1;
-static int hf_qsig_dnd_ServiceList_dndo_medium = -1;
-static int hf_qsig_dnd_ServiceList_dndo_high = -1;
+static int hf_qsig_dnd_ServiceList_spare_bit0;
+static int hf_qsig_dnd_ServiceList_dndo_low;
+static int hf_qsig_dnd_ServiceList_dndo_medium;
+static int hf_qsig_dnd_ServiceList_dndo_high;
 
 /* --- Module Call-Intrusion-Operations-asn1-97 --- --- ---                   */
 
-static int hf_qsig_ci_qsig_ci_PathRetainArg_PDU = -1;  /* PathRetainArg */
-static int hf_qsig_ci_qsig_ci_ServiceAvailableArg_PDU = -1;  /* ServiceAvailableArg */
-static int hf_qsig_ci_qsig_ci_CIRequestArg_PDU = -1;  /* CIRequestArg */
-static int hf_qsig_ci_qsig_ci_CIRequestRes_PDU = -1;  /* CIRequestRes */
-static int hf_qsig_ci_qsig_ci_DummyArg_PDU = -1;  /* DummyArg */
-static int hf_qsig_ci_qsig_ci_CIGetCIPLRes_PDU = -1;  /* CIGetCIPLRes */
-static int hf_qsig_ci_qsig_ci_DummyRes_PDU = -1;  /* DummyRes */
-static int hf_qsig_ci_qsig_ci_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_ci_serviceList = -1;           /* ServiceList */
-static int hf_qsig_ci_extendedServiceList = -1;   /* T_extendedServiceList */
-static int hf_qsig_ci_extension = -1;             /* Extension */
-static int hf_qsig_ci_extendedServiceList_01 = -1;  /* T_extendedServiceList_01 */
-static int hf_qsig_ci_null = -1;                  /* NULL */
-static int hf_qsig_ci_sequenceOfExtn = -1;        /* SEQUENCE_OF_Extension */
-static int hf_qsig_ci_sequenceOfExtn_item = -1;   /* Extension */
-static int hf_qsig_ci_ciCapabilityLevel = -1;     /* CICapabilityLevel */
-static int hf_qsig_ci_argumentExtension = -1;     /* T_argumentExtension */
-static int hf_qsig_ci_ciUnwantedUserStatus = -1;  /* CIUnwantedUserStatus */
-static int hf_qsig_ci_resultExtension = -1;       /* T_resultExtension */
-static int hf_qsig_ci_ciProtectionLevel = -1;     /* CIProtectionLevel */
-static int hf_qsig_ci_resultExtension_01 = -1;    /* T_resultExtension_01 */
+static int hf_qsig_ci_qsig_ci_PathRetainArg_PDU;  /* PathRetainArg */
+static int hf_qsig_ci_qsig_ci_ServiceAvailableArg_PDU;  /* ServiceAvailableArg */
+static int hf_qsig_ci_qsig_ci_CIRequestArg_PDU;   /* CIRequestArg */
+static int hf_qsig_ci_qsig_ci_CIRequestRes_PDU;   /* CIRequestRes */
+static int hf_qsig_ci_qsig_ci_DummyArg_PDU;       /* DummyArg */
+static int hf_qsig_ci_qsig_ci_CIGetCIPLRes_PDU;   /* CIGetCIPLRes */
+static int hf_qsig_ci_qsig_ci_DummyRes_PDU;       /* DummyRes */
+static int hf_qsig_ci_qsig_ci_Extension_PDU;      /* Extension */
+static int hf_qsig_ci_serviceList;                /* ServiceList */
+static int hf_qsig_ci_extendedServiceList;        /* T_extendedServiceList */
+static int hf_qsig_ci_extension;                  /* Extension */
+static int hf_qsig_ci_extendedServiceList_01;     /* T_extendedServiceList_01 */
+static int hf_qsig_ci_null;                       /* NULL */
+static int hf_qsig_ci_sequenceOfExtn;             /* SEQUENCE_OF_Extension */
+static int hf_qsig_ci_sequenceOfExtn_item;        /* Extension */
+static int hf_qsig_ci_ciCapabilityLevel;          /* CICapabilityLevel */
+static int hf_qsig_ci_argumentExtension;          /* T_argumentExtension */
+static int hf_qsig_ci_ciUnwantedUserStatus;       /* CIUnwantedUserStatus */
+static int hf_qsig_ci_resultExtension;            /* T_resultExtension */
+static int hf_qsig_ci_ciProtectionLevel;          /* CIProtectionLevel */
+static int hf_qsig_ci_resultExtension_01;         /* T_resultExtension_01 */
 /* named bits */
-static int hf_qsig_ci_ServiceList_spare_bit0 = -1;
-static int hf_qsig_ci_ServiceList_spare_bit1 = -1;
-static int hf_qsig_ci_ServiceList_spare_bit2 = -1;
-static int hf_qsig_ci_ServiceList_spare_bit3 = -1;
-static int hf_qsig_ci_ServiceList_ci_low = -1;
-static int hf_qsig_ci_ServiceList_ci_medium = -1;
-static int hf_qsig_ci_ServiceList_ci_high = -1;
+static int hf_qsig_ci_ServiceList_spare_bit0;
+static int hf_qsig_ci_ServiceList_spare_bit1;
+static int hf_qsig_ci_ServiceList_spare_bit2;
+static int hf_qsig_ci_ServiceList_spare_bit3;
+static int hf_qsig_ci_ServiceList_ci_low;
+static int hf_qsig_ci_ServiceList_ci_medium;
+static int hf_qsig_ci_ServiceList_ci_high;
 
 /* --- Module SS-AOC-Operations-asn1-97 --- --- ---                           */
 
-static int hf_qsig_aoc_qsig_aoc_AocRateArg_PDU = -1;  /* AocRateArg */
-static int hf_qsig_aoc_qsig_aoc_AocInterimArg_PDU = -1;  /* AocInterimArg */
-static int hf_qsig_aoc_qsig_aoc_AocFinalArg_PDU = -1;  /* AocFinalArg */
-static int hf_qsig_aoc_qsig_aoc_ChargeRequestArg_PDU = -1;  /* ChargeRequestArg */
-static int hf_qsig_aoc_qsig_aoc_ChargeRequestRes_PDU = -1;  /* ChargeRequestRes */
-static int hf_qsig_aoc_qsig_aoc_DummyArg_PDU = -1;  /* DummyArg */
-static int hf_qsig_aoc_qsig_aoc_AocCompleteArg_PDU = -1;  /* AocCompleteArg */
-static int hf_qsig_aoc_qsig_aoc_AocCompleteRes_PDU = -1;  /* AocCompleteRes */
-static int hf_qsig_aoc_qsig_aoc_AocDivChargeReqArg_PDU = -1;  /* AocDivChargeReqArg */
-static int hf_qsig_aoc_qsig_aoc_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_aoc_aocRate = -1;              /* T_aocRate */
-static int hf_qsig_aoc_chargeNotAvailable = -1;   /* NULL */
-static int hf_qsig_aoc_aocSCurrencyInfoList = -1;  /* AOCSCurrencyInfoList */
-static int hf_qsig_aoc_rateArgExtension = -1;     /* T_rateArgExtension */
-static int hf_qsig_aoc_extension = -1;            /* Extension */
-static int hf_qsig_aoc_multipleExtension = -1;    /* SEQUENCE_OF_Extension */
-static int hf_qsig_aoc_multipleExtension_item = -1;  /* Extension */
-static int hf_qsig_aoc_interimCharge = -1;        /* T_interimCharge */
-static int hf_qsig_aoc_freeOfCharge = -1;         /* NULL */
-static int hf_qsig_aoc_specificCurrency = -1;     /* T_specificCurrency */
-static int hf_qsig_aoc_recordedCurrency = -1;     /* RecordedCurrency */
-static int hf_qsig_aoc_interimBillingId = -1;     /* InterimBillingId */
-static int hf_qsig_aoc_interimArgExtension = -1;  /* T_interimArgExtension */
-static int hf_qsig_aoc_finalCharge = -1;          /* T_finalCharge */
-static int hf_qsig_aoc_specificCurrency_01 = -1;  /* T_specificCurrency_01 */
-static int hf_qsig_aoc_finalBillingId = -1;       /* FinalBillingId */
-static int hf_qsig_aoc_chargingAssociation = -1;  /* ChargingAssociation */
-static int hf_qsig_aoc_finalArgExtension = -1;    /* T_finalArgExtension */
-static int hf_qsig_aoc_AOCSCurrencyInfoList_item = -1;  /* AOCSCurrencyInfo */
-static int hf_qsig_aoc_chargedItem = -1;          /* ChargedItem */
-static int hf_qsig_aoc_rateType = -1;             /* T_rateType */
-static int hf_qsig_aoc_durationCurrency = -1;     /* DurationCurrency */
-static int hf_qsig_aoc_flatRateCurrency = -1;     /* FlatRateCurrency */
-static int hf_qsig_aoc_volumeRateCurrency = -1;   /* VolumeRateCurrency */
-static int hf_qsig_aoc_specialChargingCode = -1;  /* SpecialChargingCode */
-static int hf_qsig_aoc_currencyInfoNotAvailable = -1;  /* NULL */
-static int hf_qsig_aoc_freeOfChargefromBeginning = -1;  /* NULL */
-static int hf_qsig_aoc_dCurrency = -1;            /* Currency */
-static int hf_qsig_aoc_dAmount = -1;              /* Amount */
-static int hf_qsig_aoc_dChargingType = -1;        /* ChargingType */
-static int hf_qsig_aoc_dTime = -1;                /* Time */
-static int hf_qsig_aoc_dGranularity = -1;         /* Time */
-static int hf_qsig_aoc_fRCurrency = -1;           /* Currency */
-static int hf_qsig_aoc_fRAmount = -1;             /* Amount */
-static int hf_qsig_aoc_vRCurrency = -1;           /* Currency */
-static int hf_qsig_aoc_vRAmount = -1;             /* Amount */
-static int hf_qsig_aoc_vRVolumeUnit = -1;         /* VolumeUnit */
-static int hf_qsig_aoc_rCurrency = -1;            /* Currency */
-static int hf_qsig_aoc_rAmount = -1;              /* Amount */
-static int hf_qsig_aoc_currencyAmount = -1;       /* CurrencyAmount */
-static int hf_qsig_aoc_multiplier = -1;           /* Multiplier */
-static int hf_qsig_aoc_lengthOfTimeUnit = -1;     /* LengthOfTimeUnit */
-static int hf_qsig_aoc_scale = -1;                /* Scale */
-static int hf_qsig_aoc_chargeNumber = -1;         /* PartyNumber */
-static int hf_qsig_aoc_chargeIdentifier = -1;     /* ChargeIdentifier */
-static int hf_qsig_aoc_adviceModeCombinations = -1;  /* SEQUENCE_SIZE_0_7_OF_AdviceModeCombination */
-static int hf_qsig_aoc_adviceModeCombinations_item = -1;  /* AdviceModeCombination */
-static int hf_qsig_aoc_chargeReqArgExtension = -1;  /* T_chargeReqArgExtension */
-static int hf_qsig_aoc_adviceModeCombination = -1;  /* AdviceModeCombination */
-static int hf_qsig_aoc_chargeReqResExtension = -1;  /* T_chargeReqResExtension */
-static int hf_qsig_aoc_none = -1;                 /* NULL */
-static int hf_qsig_aoc_chargedUser = -1;          /* PartyNumber */
-static int hf_qsig_aoc_completeArgExtension = -1;  /* T_completeArgExtension */
-static int hf_qsig_aoc_chargingOption = -1;       /* ChargingOption */
-static int hf_qsig_aoc_completeResExtension = -1;  /* T_completeResExtension */
-static int hf_qsig_aoc_divertingUser = -1;        /* PartyNumber */
-static int hf_qsig_aoc_diversionType = -1;        /* DiversionType */
-static int hf_qsig_aoc_aocDivChargeReqArgExt = -1;  /* T_aocDivChargeReqArgExt */
+static int hf_qsig_aoc_qsig_aoc_AocRateArg_PDU;   /* AocRateArg */
+static int hf_qsig_aoc_qsig_aoc_AocInterimArg_PDU;  /* AocInterimArg */
+static int hf_qsig_aoc_qsig_aoc_AocFinalArg_PDU;  /* AocFinalArg */
+static int hf_qsig_aoc_qsig_aoc_ChargeRequestArg_PDU;  /* ChargeRequestArg */
+static int hf_qsig_aoc_qsig_aoc_ChargeRequestRes_PDU;  /* ChargeRequestRes */
+static int hf_qsig_aoc_qsig_aoc_DummyArg_PDU;     /* DummyArg */
+static int hf_qsig_aoc_qsig_aoc_AocCompleteArg_PDU;  /* AocCompleteArg */
+static int hf_qsig_aoc_qsig_aoc_AocCompleteRes_PDU;  /* AocCompleteRes */
+static int hf_qsig_aoc_qsig_aoc_AocDivChargeReqArg_PDU;  /* AocDivChargeReqArg */
+static int hf_qsig_aoc_qsig_aoc_Extension_PDU;    /* Extension */
+static int hf_qsig_aoc_aocRate;                   /* T_aocRate */
+static int hf_qsig_aoc_chargeNotAvailable;        /* NULL */
+static int hf_qsig_aoc_aocSCurrencyInfoList;      /* AOCSCurrencyInfoList */
+static int hf_qsig_aoc_rateArgExtension;          /* T_rateArgExtension */
+static int hf_qsig_aoc_extension;                 /* Extension */
+static int hf_qsig_aoc_multipleExtension;         /* SEQUENCE_OF_Extension */
+static int hf_qsig_aoc_multipleExtension_item;    /* Extension */
+static int hf_qsig_aoc_interimCharge;             /* T_interimCharge */
+static int hf_qsig_aoc_freeOfCharge;              /* NULL */
+static int hf_qsig_aoc_specificCurrency;          /* T_specificCurrency */
+static int hf_qsig_aoc_recordedCurrency;          /* RecordedCurrency */
+static int hf_qsig_aoc_interimBillingId;          /* InterimBillingId */
+static int hf_qsig_aoc_interimArgExtension;       /* T_interimArgExtension */
+static int hf_qsig_aoc_finalCharge;               /* T_finalCharge */
+static int hf_qsig_aoc_specificCurrency_01;       /* T_specificCurrency_01 */
+static int hf_qsig_aoc_finalBillingId;            /* FinalBillingId */
+static int hf_qsig_aoc_chargingAssociation;       /* ChargingAssociation */
+static int hf_qsig_aoc_finalArgExtension;         /* T_finalArgExtension */
+static int hf_qsig_aoc_AOCSCurrencyInfoList_item;  /* AOCSCurrencyInfo */
+static int hf_qsig_aoc_chargedItem;               /* ChargedItem */
+static int hf_qsig_aoc_rateType;                  /* T_rateType */
+static int hf_qsig_aoc_durationCurrency;          /* DurationCurrency */
+static int hf_qsig_aoc_flatRateCurrency;          /* FlatRateCurrency */
+static int hf_qsig_aoc_volumeRateCurrency;        /* VolumeRateCurrency */
+static int hf_qsig_aoc_specialChargingCode;       /* SpecialChargingCode */
+static int hf_qsig_aoc_currencyInfoNotAvailable;  /* NULL */
+static int hf_qsig_aoc_freeOfChargefromBeginning;  /* NULL */
+static int hf_qsig_aoc_dCurrency;                 /* Currency */
+static int hf_qsig_aoc_dAmount;                   /* Amount */
+static int hf_qsig_aoc_dChargingType;             /* ChargingType */
+static int hf_qsig_aoc_dTime;                     /* Time */
+static int hf_qsig_aoc_dGranularity;              /* Time */
+static int hf_qsig_aoc_fRCurrency;                /* Currency */
+static int hf_qsig_aoc_fRAmount;                  /* Amount */
+static int hf_qsig_aoc_vRCurrency;                /* Currency */
+static int hf_qsig_aoc_vRAmount;                  /* Amount */
+static int hf_qsig_aoc_vRVolumeUnit;              /* VolumeUnit */
+static int hf_qsig_aoc_rCurrency;                 /* Currency */
+static int hf_qsig_aoc_rAmount;                   /* Amount */
+static int hf_qsig_aoc_currencyAmount;            /* CurrencyAmount */
+static int hf_qsig_aoc_multiplier;                /* Multiplier */
+static int hf_qsig_aoc_lengthOfTimeUnit;          /* LengthOfTimeUnit */
+static int hf_qsig_aoc_scale;                     /* Scale */
+static int hf_qsig_aoc_chargeNumber;              /* PartyNumber */
+static int hf_qsig_aoc_chargeIdentifier;          /* ChargeIdentifier */
+static int hf_qsig_aoc_adviceModeCombinations;    /* SEQUENCE_SIZE_0_7_OF_AdviceModeCombination */
+static int hf_qsig_aoc_adviceModeCombinations_item;  /* AdviceModeCombination */
+static int hf_qsig_aoc_chargeReqArgExtension;     /* T_chargeReqArgExtension */
+static int hf_qsig_aoc_adviceModeCombination;     /* AdviceModeCombination */
+static int hf_qsig_aoc_chargeReqResExtension;     /* T_chargeReqResExtension */
+static int hf_qsig_aoc_none;                      /* NULL */
+static int hf_qsig_aoc_chargedUser;               /* PartyNumber */
+static int hf_qsig_aoc_completeArgExtension;      /* T_completeArgExtension */
+static int hf_qsig_aoc_chargingOption;            /* ChargingOption */
+static int hf_qsig_aoc_completeResExtension;      /* T_completeResExtension */
+static int hf_qsig_aoc_divertingUser;             /* PartyNumber */
+static int hf_qsig_aoc_diversionType;             /* DiversionType */
+static int hf_qsig_aoc_aocDivChargeReqArgExt;     /* T_aocDivChargeReqArgExt */
 
 /* --- Module Recall-Operations-asn1-97 --- --- ---                           */
 
-static int hf_qsig_re_qsig_re_ReAlertingArg_PDU = -1;  /* ReAlertingArg */
-static int hf_qsig_re_qsig_re_ReAnswerArg_PDU = -1;  /* ReAnswerArg */
-static int hf_qsig_re_alertedNumber = -1;         /* PresentedNumberScreened */
-static int hf_qsig_re_alertedName = -1;           /* Name */
-static int hf_qsig_re_argumentExtension = -1;     /* T_argumentExtension */
-static int hf_qsig_re_extension = -1;             /* Extension */
-static int hf_qsig_re_multipleExtension = -1;     /* SEQUENCE_OF_Extension */
-static int hf_qsig_re_multipleExtension_item = -1;  /* Extension */
-static int hf_qsig_re_connectedNumber = -1;       /* PresentedNumberScreened */
-static int hf_qsig_re_connectedSubaddress = -1;   /* PartySubaddress */
-static int hf_qsig_re_connectedName = -1;         /* Name */
-static int hf_qsig_re_argumentExtension_01 = -1;  /* T_argumentExtension_01 */
+static int hf_qsig_re_qsig_re_ReAlertingArg_PDU;  /* ReAlertingArg */
+static int hf_qsig_re_qsig_re_ReAnswerArg_PDU;    /* ReAnswerArg */
+static int hf_qsig_re_alertedNumber;              /* PresentedNumberScreened */
+static int hf_qsig_re_alertedName;                /* Name */
+static int hf_qsig_re_argumentExtension;          /* T_argumentExtension */
+static int hf_qsig_re_extension;                  /* Extension */
+static int hf_qsig_re_multipleExtension;          /* SEQUENCE_OF_Extension */
+static int hf_qsig_re_multipleExtension_item;     /* Extension */
+static int hf_qsig_re_connectedNumber;            /* PresentedNumberScreened */
+static int hf_qsig_re_connectedSubaddress;        /* PartySubaddress */
+static int hf_qsig_re_connectedName;              /* Name */
+static int hf_qsig_re_argumentExtension_01;       /* T_argumentExtension_01 */
 
 /* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
 
-static int hf_qsig_sync_qsig_sync_SynchronizationReqArg_PDU = -1;  /* SynchronizationReqArg */
-static int hf_qsig_sync_qsig_sync_SynchronizationReqRes_PDU = -1;  /* SynchronizationReqRes */
-static int hf_qsig_sync_qsig_sync_SynchronizationInfoArg_PDU = -1;  /* SynchronizationInfoArg */
-static int hf_qsig_sync_qsig_sync_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_sync_action = -1;              /* Action */
-static int hf_qsig_sync_argExtension = -1;        /* ArgExtension */
-static int hf_qsig_sync_response = -1;            /* BOOLEAN */
-static int hf_qsig_sync_stateinfo = -1;           /* T_stateinfo */
-static int hf_qsig_sync_extension = -1;           /* Extension */
-static int hf_qsig_sync_sequOfExtn = -1;          /* SEQUENCE_OF_Extension */
-static int hf_qsig_sync_sequOfExtn_item = -1;     /* Extension */
+static int hf_qsig_sync_qsig_sync_SynchronizationReqArg_PDU;  /* SynchronizationReqArg */
+static int hf_qsig_sync_qsig_sync_SynchronizationReqRes_PDU;  /* SynchronizationReqRes */
+static int hf_qsig_sync_qsig_sync_SynchronizationInfoArg_PDU;  /* SynchronizationInfoArg */
+static int hf_qsig_sync_qsig_sync_Extension_PDU;  /* Extension */
+static int hf_qsig_sync_action;                   /* Action */
+static int hf_qsig_sync_argExtension;             /* ArgExtension */
+static int hf_qsig_sync_response;                 /* BOOLEAN */
+static int hf_qsig_sync_stateinfo;                /* T_stateinfo */
+static int hf_qsig_sync_extension;                /* Extension */
+static int hf_qsig_sync_sequOfExtn;               /* SEQUENCE_OF_Extension */
+static int hf_qsig_sync_sequOfExtn_item;          /* Extension */
 
 /* --- Module Call-Interception-Operations-asn1-97 --- --- ---                */
 
-static int hf_qsig_cint_qsig_cint_CintInformation1Arg_PDU = -1;  /* CintInformation1Arg */
-static int hf_qsig_cint_qsig_cint_CintInformation2Arg_PDU = -1;  /* CintInformation2Arg */
-static int hf_qsig_cint_qsig_cint_CintCondArg_PDU = -1;  /* CintCondArg */
-static int hf_qsig_cint_qsig_cint_CintExtension_PDU = -1;  /* CintExtension */
-static int hf_qsig_cint_interceptionCause = -1;   /* CintCause */
-static int hf_qsig_cint_interceptedToNumber = -1;  /* PartyNumber */
-static int hf_qsig_cint_extension = -1;           /* CintExtension */
-static int hf_qsig_cint_calledNumber = -1;        /* PresentedNumberUnscreened */
-static int hf_qsig_cint_originalCalledNumber = -1;  /* PresentedNumberUnscreened */
-static int hf_qsig_cint_calledName = -1;          /* Name */
-static int hf_qsig_cint_originalCalledName = -1;  /* Name */
-static int hf_qsig_cint_interceptionCause_01 = -1;  /* Condition */
-static int hf_qsig_cint_none = -1;                /* NULL */
-static int hf_qsig_cint_single = -1;              /* Extension */
-static int hf_qsig_cint_multiple = -1;            /* SEQUENCE_OF_Extension */
-static int hf_qsig_cint_multiple_item = -1;       /* Extension */
+static int hf_qsig_cint_qsig_cint_CintInformation1Arg_PDU;  /* CintInformation1Arg */
+static int hf_qsig_cint_qsig_cint_CintInformation2Arg_PDU;  /* CintInformation2Arg */
+static int hf_qsig_cint_qsig_cint_CintCondArg_PDU;  /* CintCondArg */
+static int hf_qsig_cint_qsig_cint_CintExtension_PDU;  /* CintExtension */
+static int hf_qsig_cint_interceptionCause;        /* CintCause */
+static int hf_qsig_cint_interceptedToNumber;      /* PartyNumber */
+static int hf_qsig_cint_extension;                /* CintExtension */
+static int hf_qsig_cint_calledNumber;             /* PresentedNumberUnscreened */
+static int hf_qsig_cint_originalCalledNumber;     /* PresentedNumberUnscreened */
+static int hf_qsig_cint_calledName;               /* Name */
+static int hf_qsig_cint_originalCalledName;       /* Name */
+static int hf_qsig_cint_interceptionCause_01;     /* Condition */
+static int hf_qsig_cint_none;                     /* NULL */
+static int hf_qsig_cint_single;                   /* Extension */
+static int hf_qsig_cint_multiple;                 /* SEQUENCE_OF_Extension */
+static int hf_qsig_cint_multiple_item;            /* Extension */
 
 /* --- Module Common-Information-Operations-asn1-97 --- --- ---               */
 
-static int hf_qsig_cmn_qsig_cmn_DummyArg_PDU = -1;  /* DummyArg */
-static int hf_qsig_cmn_qsig_cmn_CmnArg_PDU = -1;  /* CmnArg */
-static int hf_qsig_cmn_featureIdentifier = -1;    /* FeatureIdList */
-static int hf_qsig_cmn_ssDNDOprotectionLevel = -1;  /* INTEGER_0_3 */
-static int hf_qsig_cmn_ssCIprotectionLevel = -1;  /* INTEGER_0_3 */
-static int hf_qsig_cmn_equipmentIdentity = -1;    /* EquipmentId */
-static int hf_qsig_cmn_partyCategory = -1;        /* PartyCategory */
-static int hf_qsig_cmn_extension = -1;            /* T_extension */
-static int hf_qsig_cmn_single = -1;               /* Extension */
-static int hf_qsig_cmn_multiple = -1;             /* SEQUENCE_OF_Extension */
-static int hf_qsig_cmn_multiple_item = -1;        /* Extension */
-static int hf_qsig_cmn_null = -1;                 /* NULL */
-static int hf_qsig_cmn_nodeId = -1;               /* IA5String_SIZE_1_10 */
-static int hf_qsig_cmn_groupId = -1;              /* IA5String_SIZE_1_10 */
-static int hf_qsig_cmn_unitId = -1;               /* IA5String_SIZE_1_10 */
+static int hf_qsig_cmn_qsig_cmn_DummyArg_PDU;     /* DummyArg */
+static int hf_qsig_cmn_qsig_cmn_CmnArg_PDU;       /* CmnArg */
+static int hf_qsig_cmn_featureIdentifier;         /* FeatureIdList */
+static int hf_qsig_cmn_ssDNDOprotectionLevel;     /* INTEGER_0_3 */
+static int hf_qsig_cmn_ssCIprotectionLevel;       /* INTEGER_0_3 */
+static int hf_qsig_cmn_equipmentIdentity;         /* EquipmentId */
+static int hf_qsig_cmn_partyCategory;             /* PartyCategory */
+static int hf_qsig_cmn_extension;                 /* T_extension */
+static int hf_qsig_cmn_single;                    /* Extension */
+static int hf_qsig_cmn_multiple;                  /* SEQUENCE_OF_Extension */
+static int hf_qsig_cmn_multiple_item;             /* Extension */
+static int hf_qsig_cmn_null;                      /* NULL */
+static int hf_qsig_cmn_nodeId;                    /* IA5String_SIZE_1_10 */
+static int hf_qsig_cmn_groupId;                   /* IA5String_SIZE_1_10 */
+static int hf_qsig_cmn_unitId;                    /* IA5String_SIZE_1_10 */
 /* named bits */
-static int hf_qsig_cmn_FeatureIdList_reserved = -1;
-static int hf_qsig_cmn_FeatureIdList_ssCFreRoutingSupported = -1;
-static int hf_qsig_cmn_FeatureIdList_ssCTreRoutingSupported = -1;
-static int hf_qsig_cmn_FeatureIdList_ssCCBSpossible = -1;
-static int hf_qsig_cmn_FeatureIdList_ssCCNRpossible = -1;
-static int hf_qsig_cmn_FeatureIdList_ssCOsupported = -1;
-static int hf_qsig_cmn_FeatureIdList_ssCIforcedRelease = -1;
-static int hf_qsig_cmn_FeatureIdList_ssCIisolation = -1;
-static int hf_qsig_cmn_FeatureIdList_ssCIwaitOnBusy = -1;
-static int hf_qsig_cmn_FeatureIdList_ssAOCsupportChargeRateProvAtGatewPinx = -1;
-static int hf_qsig_cmn_FeatureIdList_ssAOCsupportInterimChargeProvAtGatewPinx = -1;
-static int hf_qsig_cmn_FeatureIdList_ssAOCsupportFinalChargeProvAtGatewPinx = -1;
-static int hf_qsig_cmn_FeatureIdList_anfPRsupportedAtCooperatingPinx = -1;
-static int hf_qsig_cmn_FeatureIdList_anfCINTcanInterceptImmediate = -1;
-static int hf_qsig_cmn_FeatureIdList_anfCINTcanInterceptDelayed = -1;
-static int hf_qsig_cmn_FeatureIdList_anfWTMIreRoutingSupported = -1;
-static int hf_qsig_cmn_FeatureIdList_anfPUMIreRoutingSupported = -1;
-static int hf_qsig_cmn_FeatureIdList_ssSSCTreRoutingSupported = -1;
+static int hf_qsig_cmn_FeatureIdList_reserved;
+static int hf_qsig_cmn_FeatureIdList_ssCFreRoutingSupported;
+static int hf_qsig_cmn_FeatureIdList_ssCTreRoutingSupported;
+static int hf_qsig_cmn_FeatureIdList_ssCCBSpossible;
+static int hf_qsig_cmn_FeatureIdList_ssCCNRpossible;
+static int hf_qsig_cmn_FeatureIdList_ssCOsupported;
+static int hf_qsig_cmn_FeatureIdList_ssCIforcedRelease;
+static int hf_qsig_cmn_FeatureIdList_ssCIisolation;
+static int hf_qsig_cmn_FeatureIdList_ssCIwaitOnBusy;
+static int hf_qsig_cmn_FeatureIdList_ssAOCsupportChargeRateProvAtGatewPinx;
+static int hf_qsig_cmn_FeatureIdList_ssAOCsupportInterimChargeProvAtGatewPinx;
+static int hf_qsig_cmn_FeatureIdList_ssAOCsupportFinalChargeProvAtGatewPinx;
+static int hf_qsig_cmn_FeatureIdList_anfPRsupportedAtCooperatingPinx;
+static int hf_qsig_cmn_FeatureIdList_anfCINTcanInterceptImmediate;
+static int hf_qsig_cmn_FeatureIdList_anfCINTcanInterceptDelayed;
+static int hf_qsig_cmn_FeatureIdList_anfWTMIreRoutingSupported;
+static int hf_qsig_cmn_FeatureIdList_anfPUMIreRoutingSupported;
+static int hf_qsig_cmn_FeatureIdList_ssSSCTreRoutingSupported;
 
 /* --- Module Call-Interruption-Operations-asn1-97 --- --- ---                */
 
-static int hf_qsig_cpi_qsig_cpi_CPIRequestArg_PDU = -1;  /* CPIRequestArg */
-static int hf_qsig_cpi_qsig_cpi_CPIPRequestArg_PDU = -1;  /* CPIPRequestArg */
-static int hf_qsig_cpi_cpiCapabilityLevel = -1;   /* CPICapabilityLevel */
-static int hf_qsig_cpi_argumentExtension = -1;    /* T_argumentExtension */
-static int hf_qsig_cpi_extension = -1;            /* Extension */
-static int hf_qsig_cpi_sequenceOfExtn = -1;       /* SEQUENCE_OF_Extension */
-static int hf_qsig_cpi_sequenceOfExtn_item = -1;  /* Extension */
-static int hf_qsig_cpi_cpiProtectionLevel = -1;   /* CPIProtectionLevel */
-static int hf_qsig_cpi_argumentExtension_01 = -1;  /* T_argumentExtension_01 */
+static int hf_qsig_cpi_qsig_cpi_CPIRequestArg_PDU;  /* CPIRequestArg */
+static int hf_qsig_cpi_qsig_cpi_CPIPRequestArg_PDU;  /* CPIPRequestArg */
+static int hf_qsig_cpi_cpiCapabilityLevel;        /* CPICapabilityLevel */
+static int hf_qsig_cpi_argumentExtension;         /* T_argumentExtension */
+static int hf_qsig_cpi_extension;                 /* Extension */
+static int hf_qsig_cpi_sequenceOfExtn;            /* SEQUENCE_OF_Extension */
+static int hf_qsig_cpi_sequenceOfExtn_item;       /* Extension */
+static int hf_qsig_cpi_cpiProtectionLevel;        /* CPIProtectionLevel */
+static int hf_qsig_cpi_argumentExtension_01;      /* T_argumentExtension_01 */
 
 /* --- Module PUM-Registration-Operations-asn1-97 --- --- ---                 */
 
-static int hf_qsig_pumr_qsig_pumr_PumRegistrArg_PDU = -1;  /* PumRegistrArg */
-static int hf_qsig_pumr_qsig_pumr_PumRegistrRes_PDU = -1;  /* PumRegistrRes */
-static int hf_qsig_pumr_qsig_pumr_PumDelRegArg_PDU = -1;  /* PumDelRegArg */
-static int hf_qsig_pumr_qsig_pumr_DummyRes_PDU = -1;  /* DummyRes */
-static int hf_qsig_pumr_qsig_pumr_PumDe_regArg_PDU = -1;  /* PumDe_regArg */
-static int hf_qsig_pumr_qsig_pumr_PumInterrogArg_PDU = -1;  /* PumInterrogArg */
-static int hf_qsig_pumr_qsig_pumr_PumInterrogRes_PDU = -1;  /* PumInterrogRes */
-static int hf_qsig_pumr_qsig_pumr_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_pumr_pumRUserId = -1;          /* RpumUserId */
-static int hf_qsig_pumr_pumNumber = -1;           /* PartyNumber */
-static int hf_qsig_pumr_alternativeId = -1;       /* AlternativeId */
-static int hf_qsig_pumr_basicService = -1;        /* BasicService */
-static int hf_qsig_pumr_hostingAddr = -1;         /* PartyNumber */
-static int hf_qsig_pumr_activatingUserAddr = -1;  /* PartyNumber */
-static int hf_qsig_pumr_serviceOption = -1;       /* ServiceOption */
-static int hf_qsig_pumr_sessionParams = -1;       /* SessionParams */
-static int hf_qsig_pumr_userPin = -1;             /* T_userPin */
-static int hf_qsig_pumr_pumUserPin = -1;          /* UserPin */
-static int hf_qsig_pumr_activatingUserPin = -1;   /* UserPin */
-static int hf_qsig_pumr_argExtension = -1;        /* PumrExtension */
-static int hf_qsig_pumr_null = -1;                /* NULL */
-static int hf_qsig_pumr_extension = -1;           /* Extension */
-static int hf_qsig_pumr_sequOfExtn = -1;          /* SEQUENCE_OF_Extension */
-static int hf_qsig_pumr_sequOfExtn_item = -1;     /* Extension */
-static int hf_qsig_pumr_pumXUserId = -1;          /* XpumUserId */
-static int hf_qsig_pumr_pumDUserId = -1;          /* DpumUserId */
-static int hf_qsig_pumr_userPin_01 = -1;          /* T_userPin_01 */
-static int hf_qsig_pumr_pumIUserId = -1;          /* IpumUserId */
-static int hf_qsig_pumr_homeInfoOnly = -1;        /* BOOLEAN */
-static int hf_qsig_pumr_userPin_02 = -1;          /* T_userPin_02 */
-static int hf_qsig_pumr_PumInterrogRes_item = -1;  /* PumInterrogRes_item */
-static int hf_qsig_pumr_interrogParams = -1;      /* SessionParams */
-static int hf_qsig_pumr_durationOfSession = -1;   /* INTEGER */
-static int hf_qsig_pumr_numberOfOutgCalls = -1;   /* INTEGER */
+static int hf_qsig_pumr_qsig_pumr_PumRegistrArg_PDU;  /* PumRegistrArg */
+static int hf_qsig_pumr_qsig_pumr_PumRegistrRes_PDU;  /* PumRegistrRes */
+static int hf_qsig_pumr_qsig_pumr_PumDelRegArg_PDU;  /* PumDelRegArg */
+static int hf_qsig_pumr_qsig_pumr_DummyRes_PDU;   /* DummyRes */
+static int hf_qsig_pumr_qsig_pumr_PumDe_regArg_PDU;  /* PumDe_regArg */
+static int hf_qsig_pumr_qsig_pumr_PumInterrogArg_PDU;  /* PumInterrogArg */
+static int hf_qsig_pumr_qsig_pumr_PumInterrogRes_PDU;  /* PumInterrogRes */
+static int hf_qsig_pumr_qsig_pumr_Extension_PDU;  /* Extension */
+static int hf_qsig_pumr_pumRUserId;               /* RpumUserId */
+static int hf_qsig_pumr_pumNumber;                /* PartyNumber */
+static int hf_qsig_pumr_alternativeId;            /* AlternativeId */
+static int hf_qsig_pumr_basicService;             /* BasicService */
+static int hf_qsig_pumr_hostingAddr;              /* PartyNumber */
+static int hf_qsig_pumr_activatingUserAddr;       /* PartyNumber */
+static int hf_qsig_pumr_serviceOption;            /* ServiceOption */
+static int hf_qsig_pumr_sessionParams;            /* SessionParams */
+static int hf_qsig_pumr_userPin;                  /* T_userPin */
+static int hf_qsig_pumr_pumUserPin;               /* UserPin */
+static int hf_qsig_pumr_activatingUserPin;        /* UserPin */
+static int hf_qsig_pumr_argExtension;             /* PumrExtension */
+static int hf_qsig_pumr_null;                     /* NULL */
+static int hf_qsig_pumr_extension;                /* Extension */
+static int hf_qsig_pumr_sequOfExtn;               /* SEQUENCE_OF_Extension */
+static int hf_qsig_pumr_sequOfExtn_item;          /* Extension */
+static int hf_qsig_pumr_pumXUserId;               /* XpumUserId */
+static int hf_qsig_pumr_pumDUserId;               /* DpumUserId */
+static int hf_qsig_pumr_userPin_01;               /* T_userPin_01 */
+static int hf_qsig_pumr_pumIUserId;               /* IpumUserId */
+static int hf_qsig_pumr_homeInfoOnly;             /* BOOLEAN */
+static int hf_qsig_pumr_userPin_02;               /* T_userPin_02 */
+static int hf_qsig_pumr_PumInterrogRes_item;      /* PumInterrogRes_item */
+static int hf_qsig_pumr_interrogParams;           /* SessionParams */
+static int hf_qsig_pumr_durationOfSession;        /* INTEGER */
+static int hf_qsig_pumr_numberOfOutgCalls;        /* INTEGER */
 
 /* --- Module Private-User-Mobility-Call-Handling-Operations-asn1-97 --- --- --- */
 
-static int hf_qsig_pumch_qsig_pumch_EnquiryArg_PDU = -1;  /* EnquiryArg */
-static int hf_qsig_pumch_qsig_pumch_EnquiryRes_PDU = -1;  /* EnquiryRes */
-static int hf_qsig_pumch_qsig_pumch_DivertArg_PDU = -1;  /* DivertArg */
-static int hf_qsig_pumch_qsig_pumch_DummyRes_PDU = -1;  /* DummyRes */
-static int hf_qsig_pumch_qsig_pumch_InformArg_PDU = -1;  /* InformArg */
-static int hf_qsig_pumch_qsig_pumch_PumoArg_PDU = -1;  /* PumoArg */
-static int hf_qsig_pumch_qsig_pumch_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_pumch_pisnNumber = -1;         /* PartyNumber */
-static int hf_qsig_pumch_qSIGInfoElement = -1;    /* PSS1InformationElement */
-static int hf_qsig_pumch_argExtension = -1;       /* PumiExtension */
-static int hf_qsig_pumch_hostingAddr = -1;        /* PartyNumber */
-static int hf_qsig_pumch_callingNumber = -1;      /* PresentedNumberScreened */
-static int hf_qsig_pumch_pumIdentity = -1;        /* PumIdentity */
-static int hf_qsig_pumch_callingUserSub = -1;     /* PartySubaddress */
-static int hf_qsig_pumch_callingUserName = -1;    /* Name */
-static int hf_qsig_pumch_pumUserSub = -1;         /* PartySubaddress */
-static int hf_qsig_pumch_currLocation = -1;       /* CurrLocation */
-static int hf_qsig_pumch_cfuActivated = -1;       /* CfuActivated */
-static int hf_qsig_pumch_divToAddress = -1;       /* Address */
-static int hf_qsig_pumch_divOptions = -1;         /* SubscriptionOption */
-static int hf_qsig_pumch_pumName = -1;            /* Name */
-static int hf_qsig_pumch_null = -1;               /* NULL */
-static int hf_qsig_pumch_extension = -1;          /* Extension */
-static int hf_qsig_pumch_sequOfExtn = -1;         /* SEQUENCE_OF_Extension */
-static int hf_qsig_pumch_sequOfExtn_item = -1;    /* Extension */
-static int hf_qsig_pumch_alternativeId = -1;      /* AlternativeId */
-static int hf_qsig_pumch_both = -1;               /* T_both */
-static int hf_qsig_pumch_destinationNumber = -1;  /* PartyNumber */
-static int hf_qsig_pumch_sendingComplete = -1;    /* NULL */
-static int hf_qsig_pumch_pumoaextension = -1;     /* T_pumoaextension */
-static int hf_qsig_pumch_single = -1;             /* Extension */
-static int hf_qsig_pumch_multiple = -1;           /* SEQUENCE_OF_Extension */
-static int hf_qsig_pumch_multiple_item = -1;      /* Extension */
+static int hf_qsig_pumch_qsig_pumch_EnquiryArg_PDU;  /* EnquiryArg */
+static int hf_qsig_pumch_qsig_pumch_EnquiryRes_PDU;  /* EnquiryRes */
+static int hf_qsig_pumch_qsig_pumch_DivertArg_PDU;  /* DivertArg */
+static int hf_qsig_pumch_qsig_pumch_DummyRes_PDU;  /* DummyRes */
+static int hf_qsig_pumch_qsig_pumch_InformArg_PDU;  /* InformArg */
+static int hf_qsig_pumch_qsig_pumch_PumoArg_PDU;  /* PumoArg */
+static int hf_qsig_pumch_qsig_pumch_Extension_PDU;  /* Extension */
+static int hf_qsig_pumch_pisnNumber;              /* PartyNumber */
+static int hf_qsig_pumch_qSIGInfoElement;         /* PSS1InformationElement */
+static int hf_qsig_pumch_argExtension;            /* PumiExtension */
+static int hf_qsig_pumch_hostingAddr;             /* PartyNumber */
+static int hf_qsig_pumch_callingNumber;           /* PresentedNumberScreened */
+static int hf_qsig_pumch_pumIdentity;             /* PumIdentity */
+static int hf_qsig_pumch_callingUserSub;          /* PartySubaddress */
+static int hf_qsig_pumch_callingUserName;         /* Name */
+static int hf_qsig_pumch_pumUserSub;              /* PartySubaddress */
+static int hf_qsig_pumch_currLocation;            /* CurrLocation */
+static int hf_qsig_pumch_cfuActivated;            /* CfuActivated */
+static int hf_qsig_pumch_divToAddress;            /* Address */
+static int hf_qsig_pumch_divOptions;              /* SubscriptionOption */
+static int hf_qsig_pumch_pumName;                 /* Name */
+static int hf_qsig_pumch_null;                    /* NULL */
+static int hf_qsig_pumch_extension;               /* Extension */
+static int hf_qsig_pumch_sequOfExtn;              /* SEQUENCE_OF_Extension */
+static int hf_qsig_pumch_sequOfExtn_item;         /* Extension */
+static int hf_qsig_pumch_alternativeId;           /* AlternativeId */
+static int hf_qsig_pumch_both;                    /* T_both */
+static int hf_qsig_pumch_destinationNumber;       /* PartyNumber */
+static int hf_qsig_pumch_sendingComplete;         /* NULL */
+static int hf_qsig_pumch_pumoaextension;          /* T_pumoaextension */
+static int hf_qsig_pumch_single;                  /* Extension */
+static int hf_qsig_pumch_multiple;                /* SEQUENCE_OF_Extension */
+static int hf_qsig_pumch_multiple_item;           /* Extension */
 
 /* --- Module Single-Step-Call-Transfer-Operations-asn1-97 --- --- ---        */
 
-static int hf_qsig_ssct_qsig_ssct_SSCTInitiateArg_PDU = -1;  /* SSCTInitiateArg */
-static int hf_qsig_ssct_qsig_ssct_DummyRes_PDU = -1;  /* DummyRes */
-static int hf_qsig_ssct_qsig_ssct_SSCTSetupArg_PDU = -1;  /* SSCTSetupArg */
-static int hf_qsig_ssct_qsig_ssct_DummyArg_PDU = -1;  /* DummyArg */
-static int hf_qsig_ssct_qsig_ssct_SSCTDigitInfoArg_PDU = -1;  /* SSCTDigitInfoArg */
-static int hf_qsig_ssct_qsig_ssct_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_ssct_null = -1;                /* NULL */
-static int hf_qsig_ssct_single = -1;              /* Extension */
-static int hf_qsig_ssct_multiple = -1;            /* SEQUENCE_OF_Extension */
-static int hf_qsig_ssct_multiple_item = -1;       /* Extension */
-static int hf_qsig_ssct_rerouteingNumber = -1;    /* PartyNumber */
-static int hf_qsig_ssct_transferredAddress = -1;  /* PresentedAddressScreened */
-static int hf_qsig_ssct_awaitConnect = -1;        /* AwaitConnect */
-static int hf_qsig_ssct_transferredName = -1;     /* Name */
-static int hf_qsig_ssct_transferringAddress = -1;  /* PresentedAddressScreened */
-static int hf_qsig_ssct_transferringName = -1;    /* Name */
-static int hf_qsig_ssct_argumentExtensionSSCTI = -1;  /* SSCTIargumentExtension */
-static int hf_qsig_ssct_argumentExtensionSSCTS = -1;  /* SSCTSargumentExtension */
-static int hf_qsig_ssct_reroutingNumber = -1;     /* PartyNumber */
-static int hf_qsig_ssct_sendingComplete = -1;     /* NULL */
-static int hf_qsig_ssct_argumentExtensionSSCTD = -1;  /* SSCTDargumentExtension */
+static int hf_qsig_ssct_qsig_ssct_SSCTInitiateArg_PDU;  /* SSCTInitiateArg */
+static int hf_qsig_ssct_qsig_ssct_DummyRes_PDU;   /* DummyRes */
+static int hf_qsig_ssct_qsig_ssct_SSCTSetupArg_PDU;  /* SSCTSetupArg */
+static int hf_qsig_ssct_qsig_ssct_DummyArg_PDU;   /* DummyArg */
+static int hf_qsig_ssct_qsig_ssct_SSCTDigitInfoArg_PDU;  /* SSCTDigitInfoArg */
+static int hf_qsig_ssct_qsig_ssct_Extension_PDU;  /* Extension */
+static int hf_qsig_ssct_null;                     /* NULL */
+static int hf_qsig_ssct_single;                   /* Extension */
+static int hf_qsig_ssct_multiple;                 /* SEQUENCE_OF_Extension */
+static int hf_qsig_ssct_multiple_item;            /* Extension */
+static int hf_qsig_ssct_rerouteingNumber;         /* PartyNumber */
+static int hf_qsig_ssct_transferredAddress;       /* PresentedAddressScreened */
+static int hf_qsig_ssct_awaitConnect;             /* AwaitConnect */
+static int hf_qsig_ssct_transferredName;          /* Name */
+static int hf_qsig_ssct_transferringAddress;      /* PresentedAddressScreened */
+static int hf_qsig_ssct_transferringName;         /* Name */
+static int hf_qsig_ssct_argumentExtensionSSCTI;   /* SSCTIargumentExtension */
+static int hf_qsig_ssct_argumentExtensionSSCTS;   /* SSCTSargumentExtension */
+static int hf_qsig_ssct_reroutingNumber;          /* PartyNumber */
+static int hf_qsig_ssct_sendingComplete;          /* NULL */
+static int hf_qsig_ssct_argumentExtensionSSCTD;   /* SSCTDargumentExtension */
 
 /* --- Module WTM-Location-Registration-Operations-asn1-97 --- --- ---        */
 
-static int hf_qsig_wtmlr_qsig_wtmlr_LocUpdArg_PDU = -1;  /* LocUpdArg */
-static int hf_qsig_wtmlr_qsig_wtmlr_DummyRes_PDU = -1;  /* DummyRes */
-static int hf_qsig_wtmlr_qsig_wtmlr_LocDelArg_PDU = -1;  /* LocDelArg */
-static int hf_qsig_wtmlr_qsig_wtmlr_LocDeRegArg_PDU = -1;  /* LocDeRegArg */
-static int hf_qsig_wtmlr_qsig_wtmlr_PisnEnqArg_PDU = -1;  /* PisnEnqArg */
-static int hf_qsig_wtmlr_qsig_wtmlr_PisnEnqRes_PDU = -1;  /* PisnEnqRes */
-static int hf_qsig_wtmlr_qsig_wtmlr_GetRRCInfArg_PDU = -1;  /* GetRRCInfArg */
-static int hf_qsig_wtmlr_qsig_wtmlr_GetRRCInfRes_PDU = -1;  /* GetRRCInfRes */
-static int hf_qsig_wtmlr_qsig_wtmlr_LocInfoCheckArg_PDU = -1;  /* LocInfoCheckArg */
-static int hf_qsig_wtmlr_qsig_wtmlr_LocInfoCheckRes_PDU = -1;  /* LocInfoCheckRes */
-static int hf_qsig_wtmlr_qsig_wtmlr_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_wtmlr_wtmUserId = -1;          /* WtmUserId */
-static int hf_qsig_wtmlr_basicService = -1;       /* BasicService */
-static int hf_qsig_wtmlr_visitPINX = -1;          /* PartyNumber */
-static int hf_qsig_wtmlr_argExtension = -1;       /* LrExtension */
-static int hf_qsig_wtmlr_null = -1;               /* NULL */
-static int hf_qsig_wtmlr_extension = -1;          /* Extension */
-static int hf_qsig_wtmlr_sequOfExtn = -1;         /* SEQUENCE_OF_Extension */
-static int hf_qsig_wtmlr_sequOfExtn_item = -1;    /* Extension */
-static int hf_qsig_wtmlr_alternativeId = -1;      /* AlternativeId */
-static int hf_qsig_wtmlr_resExtension = -1;       /* LrExtension */
-static int hf_qsig_wtmlr_rrClass = -1;            /* RRClass */
-static int hf_qsig_wtmlr_checkResult = -1;        /* CheckResult */
-static int hf_qsig_wtmlr_pisnNumber = -1;         /* PartyNumber */
+static int hf_qsig_wtmlr_qsig_wtmlr_LocUpdArg_PDU;  /* LocUpdArg */
+static int hf_qsig_wtmlr_qsig_wtmlr_DummyRes_PDU;  /* DummyRes */
+static int hf_qsig_wtmlr_qsig_wtmlr_LocDelArg_PDU;  /* LocDelArg */
+static int hf_qsig_wtmlr_qsig_wtmlr_LocDeRegArg_PDU;  /* LocDeRegArg */
+static int hf_qsig_wtmlr_qsig_wtmlr_PisnEnqArg_PDU;  /* PisnEnqArg */
+static int hf_qsig_wtmlr_qsig_wtmlr_PisnEnqRes_PDU;  /* PisnEnqRes */
+static int hf_qsig_wtmlr_qsig_wtmlr_GetRRCInfArg_PDU;  /* GetRRCInfArg */
+static int hf_qsig_wtmlr_qsig_wtmlr_GetRRCInfRes_PDU;  /* GetRRCInfRes */
+static int hf_qsig_wtmlr_qsig_wtmlr_LocInfoCheckArg_PDU;  /* LocInfoCheckArg */
+static int hf_qsig_wtmlr_qsig_wtmlr_LocInfoCheckRes_PDU;  /* LocInfoCheckRes */
+static int hf_qsig_wtmlr_qsig_wtmlr_Extension_PDU;  /* Extension */
+static int hf_qsig_wtmlr_wtmUserId;               /* WtmUserId */
+static int hf_qsig_wtmlr_basicService;            /* BasicService */
+static int hf_qsig_wtmlr_visitPINX;               /* PartyNumber */
+static int hf_qsig_wtmlr_argExtension;            /* LrExtension */
+static int hf_qsig_wtmlr_null;                    /* NULL */
+static int hf_qsig_wtmlr_extension;               /* Extension */
+static int hf_qsig_wtmlr_sequOfExtn;              /* SEQUENCE_OF_Extension */
+static int hf_qsig_wtmlr_sequOfExtn_item;         /* Extension */
+static int hf_qsig_wtmlr_alternativeId;           /* AlternativeId */
+static int hf_qsig_wtmlr_resExtension;            /* LrExtension */
+static int hf_qsig_wtmlr_rrClass;                 /* RRClass */
+static int hf_qsig_wtmlr_checkResult;             /* CheckResult */
+static int hf_qsig_wtmlr_pisnNumber;              /* PartyNumber */
 
 /* --- Module Wireless-Terminal-Call-Handling-Operations-asn1-97 --- --- ---  */
 
-static int hf_qsig_wtmch_qsig_wtmch_EnquiryArg_PDU = -1;  /* EnquiryArg */
-static int hf_qsig_wtmch_qsig_wtmch_EnquiryRes_PDU = -1;  /* EnquiryRes */
-static int hf_qsig_wtmch_qsig_wtmch_DivertArg_PDU = -1;  /* DivertArg */
-static int hf_qsig_wtmch_qsig_wtmch_DummyRes_PDU = -1;  /* DummyRes */
-static int hf_qsig_wtmch_qsig_wtmch_InformArg_PDU = -1;  /* InformArg */
-static int hf_qsig_wtmch_qsig_wtmch_WtmoArg_PDU = -1;  /* WtmoArg */
-static int hf_qsig_wtmch_qsig_wtmch_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_wtmch_pisnNumber = -1;         /* PartyNumber */
-static int hf_qsig_wtmch_qSIGInfoElement = -1;    /* PSS1InformationElement */
-static int hf_qsig_wtmch_argExtension = -1;       /* WtmiExtension */
-static int hf_qsig_wtmch_visitPINX = -1;          /* PartyNumber */
-static int hf_qsig_wtmch_callingNumber = -1;      /* PresentedNumberScreened */
-static int hf_qsig_wtmch_wtmIdentity = -1;        /* WtmIdentity */
-static int hf_qsig_wtmch_callingUserSub = -1;     /* PartySubaddress */
-static int hf_qsig_wtmch_callingName = -1;        /* Name */
-static int hf_qsig_wtmch_wtmUserSub = -1;         /* PartySubaddress */
-static int hf_qsig_wtmch_currLocation = -1;       /* CurrLocation */
-static int hf_qsig_wtmch_cfuActivated = -1;       /* CfuActivated */
-static int hf_qsig_wtmch_divToAddress = -1;       /* Address */
-static int hf_qsig_wtmch_divOptions = -1;         /* SubscriptionOption */
-static int hf_qsig_wtmch_wtmName = -1;            /* Name */
-static int hf_qsig_wtmch_null = -1;               /* NULL */
-static int hf_qsig_wtmch_extension = -1;          /* Extension */
-static int hf_qsig_wtmch_sequOfExtn = -1;         /* SEQUENCE_OF_Extension */
-static int hf_qsig_wtmch_sequOfExtn_item = -1;    /* Extension */
-static int hf_qsig_wtmch_alternativeId = -1;      /* AlternativeId */
-static int hf_qsig_wtmch_both = -1;               /* T_both */
-static int hf_qsig_wtmch_destinationNumber = -1;  /* PartyNumber */
-static int hf_qsig_wtmch_sendingComplete = -1;    /* NULL */
-static int hf_qsig_wtmch_wtmoaextension = -1;     /* T_wtmoaextension */
-static int hf_qsig_wtmch_single = -1;             /* Extension */
-static int hf_qsig_wtmch_multiple = -1;           /* SEQUENCE_OF_Extension */
-static int hf_qsig_wtmch_multiple_item = -1;      /* Extension */
+static int hf_qsig_wtmch_qsig_wtmch_EnquiryArg_PDU;  /* EnquiryArg */
+static int hf_qsig_wtmch_qsig_wtmch_EnquiryRes_PDU;  /* EnquiryRes */
+static int hf_qsig_wtmch_qsig_wtmch_DivertArg_PDU;  /* DivertArg */
+static int hf_qsig_wtmch_qsig_wtmch_DummyRes_PDU;  /* DummyRes */
+static int hf_qsig_wtmch_qsig_wtmch_InformArg_PDU;  /* InformArg */
+static int hf_qsig_wtmch_qsig_wtmch_WtmoArg_PDU;  /* WtmoArg */
+static int hf_qsig_wtmch_qsig_wtmch_Extension_PDU;  /* Extension */
+static int hf_qsig_wtmch_pisnNumber;              /* PartyNumber */
+static int hf_qsig_wtmch_qSIGInfoElement;         /* PSS1InformationElement */
+static int hf_qsig_wtmch_argExtension;            /* WtmiExtension */
+static int hf_qsig_wtmch_visitPINX;               /* PartyNumber */
+static int hf_qsig_wtmch_callingNumber;           /* PresentedNumberScreened */
+static int hf_qsig_wtmch_wtmIdentity;             /* WtmIdentity */
+static int hf_qsig_wtmch_callingUserSub;          /* PartySubaddress */
+static int hf_qsig_wtmch_callingName;             /* Name */
+static int hf_qsig_wtmch_wtmUserSub;              /* PartySubaddress */
+static int hf_qsig_wtmch_currLocation;            /* CurrLocation */
+static int hf_qsig_wtmch_cfuActivated;            /* CfuActivated */
+static int hf_qsig_wtmch_divToAddress;            /* Address */
+static int hf_qsig_wtmch_divOptions;              /* SubscriptionOption */
+static int hf_qsig_wtmch_wtmName;                 /* Name */
+static int hf_qsig_wtmch_null;                    /* NULL */
+static int hf_qsig_wtmch_extension;               /* Extension */
+static int hf_qsig_wtmch_sequOfExtn;              /* SEQUENCE_OF_Extension */
+static int hf_qsig_wtmch_sequOfExtn_item;         /* Extension */
+static int hf_qsig_wtmch_alternativeId;           /* AlternativeId */
+static int hf_qsig_wtmch_both;                    /* T_both */
+static int hf_qsig_wtmch_destinationNumber;       /* PartyNumber */
+static int hf_qsig_wtmch_sendingComplete;         /* NULL */
+static int hf_qsig_wtmch_wtmoaextension;          /* T_wtmoaextension */
+static int hf_qsig_wtmch_single;                  /* Extension */
+static int hf_qsig_wtmch_multiple;                /* SEQUENCE_OF_Extension */
+static int hf_qsig_wtmch_multiple_item;           /* Extension */
 
 /* --- Module WTM-Authentication-Operations-asn1-97 --- --- ---               */
 
-static int hf_qsig_wtmau_qsig_wtmau_AuthWtmArg_PDU = -1;  /* AuthWtmArg */
-static int hf_qsig_wtmau_qsig_wtmau_AuthWtmRes_PDU = -1;  /* AuthWtmRes */
-static int hf_qsig_wtmau_qsig_wtmau_WtatParamArg_PDU = -1;  /* WtatParamArg */
-static int hf_qsig_wtmau_qsig_wtmau_WtatParamRes_PDU = -1;  /* WtatParamRes */
-static int hf_qsig_wtmau_qsig_wtmau_WtanParamArg_PDU = -1;  /* WtanParamArg */
-static int hf_qsig_wtmau_qsig_wtmau_WtanParamRes_PDU = -1;  /* WtanParamRes */
-static int hf_qsig_wtmau_qsig_wtmau_ARG_transferAuthParam_PDU = -1;  /* ARG_transferAuthParam */
-static int hf_qsig_wtmau_qsig_wtmau_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_wtmau_wtmUserId = -1;          /* WtmUserId */
-static int hf_qsig_wtmau_calcWtatInfo = -1;       /* CalcWtatInfo */
-static int hf_qsig_wtmau_dummyExtension = -1;     /* DummyExtension */
-static int hf_qsig_wtmau_autWtmResValue = -1;     /* T_autWtmResValue */
-static int hf_qsig_wtmau_canCompute = -1;         /* CanCompute */
-static int hf_qsig_wtmau_authChallenge = -1;      /* AuthChallenge */
-static int hf_qsig_wtmau_wtatParamInfo = -1;      /* WtatParamInfo */
-static int hf_qsig_wtmau_authAlgorithm = -1;      /* AuthAlgorithm */
-static int hf_qsig_wtmau_pisnNumber = -1;         /* PartyNumber */
-static int hf_qsig_wtmau_alternativeId = -1;      /* AlternativeId */
-static int hf_qsig_wtmau_wtanParamInfo = -1;      /* WtanParamInfo */
-static int hf_qsig_wtmau_wtatParamInfoChoice = -1;  /* T_wtatParamInfoChoice */
-static int hf_qsig_wtmau_authSessionKeyInfo = -1;  /* AuthSessionKeyInfo */
-static int hf_qsig_wtmau_authKey = -1;            /* AuthKey */
-static int hf_qsig_wtmau_challLen = -1;           /* INTEGER_1_8 */
-static int hf_qsig_wtmau_calcWtanInfo = -1;       /* CalcWtanInfo */
-static int hf_qsig_wtmau_authSessionKey = -1;     /* AuthSessionKey */
-static int hf_qsig_wtmau_calculationParam = -1;   /* CalculationParam */
-static int hf_qsig_wtmau_CalcWtatInfo_item = -1;  /* CalcWtatInfoUnit */
-static int hf_qsig_wtmau_authResponse = -1;       /* AuthResponse */
-static int hf_qsig_wtmau_derivedCipherKey = -1;   /* DerivedCipherKey */
-static int hf_qsig_wtmau_extension = -1;          /* Extension */
-static int hf_qsig_wtmau_sequOfExtn = -1;         /* SEQUENCE_OF_Extension */
-static int hf_qsig_wtmau_sequOfExtn_item = -1;    /* Extension */
-static int hf_qsig_wtmau_authAlg = -1;            /* DefinedIDs */
-static int hf_qsig_wtmau_param = -1;              /* T_param */
+static int hf_qsig_wtmau_qsig_wtmau_AuthWtmArg_PDU;  /* AuthWtmArg */
+static int hf_qsig_wtmau_qsig_wtmau_AuthWtmRes_PDU;  /* AuthWtmRes */
+static int hf_qsig_wtmau_qsig_wtmau_WtatParamArg_PDU;  /* WtatParamArg */
+static int hf_qsig_wtmau_qsig_wtmau_WtatParamRes_PDU;  /* WtatParamRes */
+static int hf_qsig_wtmau_qsig_wtmau_WtanParamArg_PDU;  /* WtanParamArg */
+static int hf_qsig_wtmau_qsig_wtmau_WtanParamRes_PDU;  /* WtanParamRes */
+static int hf_qsig_wtmau_qsig_wtmau_ARG_transferAuthParam_PDU;  /* ARG_transferAuthParam */
+static int hf_qsig_wtmau_qsig_wtmau_Extension_PDU;  /* Extension */
+static int hf_qsig_wtmau_wtmUserId;               /* WtmUserId */
+static int hf_qsig_wtmau_calcWtatInfo;            /* CalcWtatInfo */
+static int hf_qsig_wtmau_dummyExtension;          /* DummyExtension */
+static int hf_qsig_wtmau_autWtmResValue;          /* T_autWtmResValue */
+static int hf_qsig_wtmau_canCompute;              /* CanCompute */
+static int hf_qsig_wtmau_authChallenge;           /* AuthChallenge */
+static int hf_qsig_wtmau_wtatParamInfo;           /* WtatParamInfo */
+static int hf_qsig_wtmau_authAlgorithm;           /* AuthAlgorithm */
+static int hf_qsig_wtmau_pisnNumber;              /* PartyNumber */
+static int hf_qsig_wtmau_alternativeId;           /* AlternativeId */
+static int hf_qsig_wtmau_wtanParamInfo;           /* WtanParamInfo */
+static int hf_qsig_wtmau_wtatParamInfoChoice;     /* T_wtatParamInfoChoice */
+static int hf_qsig_wtmau_authSessionKeyInfo;      /* AuthSessionKeyInfo */
+static int hf_qsig_wtmau_authKey;                 /* AuthKey */
+static int hf_qsig_wtmau_challLen;                /* INTEGER_1_8 */
+static int hf_qsig_wtmau_calcWtanInfo;            /* CalcWtanInfo */
+static int hf_qsig_wtmau_authSessionKey;          /* AuthSessionKey */
+static int hf_qsig_wtmau_calculationParam;        /* CalculationParam */
+static int hf_qsig_wtmau_CalcWtatInfo_item;       /* CalcWtatInfoUnit */
+static int hf_qsig_wtmau_authResponse;            /* AuthResponse */
+static int hf_qsig_wtmau_derivedCipherKey;        /* DerivedCipherKey */
+static int hf_qsig_wtmau_extension;               /* Extension */
+static int hf_qsig_wtmau_sequOfExtn;              /* SEQUENCE_OF_Extension */
+static int hf_qsig_wtmau_sequOfExtn_item;         /* Extension */
+static int hf_qsig_wtmau_authAlg;                 /* DefinedIDs */
+static int hf_qsig_wtmau_param;                   /* T_param */
 
 /* --- Module SS-SD-Operations-asn1-97 --- --- ---                            */
 
-static int hf_qsig_sd_qsig_sd_DisplayArg_PDU = -1;  /* DisplayArg */
-static int hf_qsig_sd_qsig_sd_KeypadArg_PDU = -1;  /* KeypadArg */
-static int hf_qsig_sd_qsig_sd_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_sd_displayString = -1;         /* DisplayString */
-static int hf_qsig_sd_sdextension = -1;           /* SDExtension */
-static int hf_qsig_sd_displayStringNormal = -1;   /* BMPStringNormal */
-static int hf_qsig_sd_displayStringExtended = -1;  /* BMPStringExtended */
-static int hf_qsig_sd_keypadString = -1;          /* BMPStringNormal */
-static int hf_qsig_sd_extension = -1;             /* Extension */
-static int hf_qsig_sd_multipleExtension = -1;     /* SEQUENCE_OF_Extension */
-static int hf_qsig_sd_multipleExtension_item = -1;  /* Extension */
+static int hf_qsig_sd_qsig_sd_DisplayArg_PDU;     /* DisplayArg */
+static int hf_qsig_sd_qsig_sd_KeypadArg_PDU;      /* KeypadArg */
+static int hf_qsig_sd_qsig_sd_Extension_PDU;      /* Extension */
+static int hf_qsig_sd_displayString;              /* DisplayString */
+static int hf_qsig_sd_sdextension;                /* SDExtension */
+static int hf_qsig_sd_displayStringNormal;        /* BMPStringNormal */
+static int hf_qsig_sd_displayStringExtended;      /* BMPStringExtended */
+static int hf_qsig_sd_keypadString;               /* BMPStringNormal */
+static int hf_qsig_sd_extension;                  /* Extension */
+static int hf_qsig_sd_multipleExtension;          /* SEQUENCE_OF_Extension */
+static int hf_qsig_sd_multipleExtension_item;     /* Extension */
 
 /* --- Module Call-Identification-and-Call-Linkage-Operations-asn1-97 --- --- --- */
 
-static int hf_qsig_cidl_qsig_cidl_CallIdentificationAssignArg_PDU = -1;  /* CallIdentificationAssignArg */
-static int hf_qsig_cidl_qsig_cidl_CallIdentificationUpdateArg_PDU = -1;  /* CallIdentificationUpdateArg */
-static int hf_qsig_cidl_globalCallID = -1;        /* CallIdentificationData */
-static int hf_qsig_cidl_threadID = -1;            /* CallIdentificationData */
-static int hf_qsig_cidl_legID = -1;               /* CallIdentificationData */
-static int hf_qsig_cidl_extensiont = -1;          /* ExtensionType */
-static int hf_qsig_cidl_switchingSubDomainName = -1;  /* SwitchingSubDomainName */
-static int hf_qsig_cidl_linkageID = -1;           /* T_linkageID */
-static int hf_qsig_cidl_subDomainID = -1;         /* SubDomainID */
-static int hf_qsig_cidl_globallyUniqueID = -1;    /* GloballyUniqueID */
-static int hf_qsig_cidl_timeStamp = -1;           /* TimeStamp */
-static int hf_qsig_cidl_extension = -1;           /* Extension */
-static int hf_qsig_cidl_sequenceOfExt = -1;       /* SEQUENCE_OF_Extension */
-static int hf_qsig_cidl_sequenceOfExt_item = -1;  /* Extension */
+static int hf_qsig_cidl_qsig_cidl_CallIdentificationAssignArg_PDU;  /* CallIdentificationAssignArg */
+static int hf_qsig_cidl_qsig_cidl_CallIdentificationUpdateArg_PDU;  /* CallIdentificationUpdateArg */
+static int hf_qsig_cidl_globalCallID;             /* CallIdentificationData */
+static int hf_qsig_cidl_threadID;                 /* CallIdentificationData */
+static int hf_qsig_cidl_legID;                    /* CallIdentificationData */
+static int hf_qsig_cidl_extensiont;               /* ExtensionType */
+static int hf_qsig_cidl_switchingSubDomainName;   /* SwitchingSubDomainName */
+static int hf_qsig_cidl_linkageID;                /* T_linkageID */
+static int hf_qsig_cidl_subDomainID;              /* SubDomainID */
+static int hf_qsig_cidl_globallyUniqueID;         /* GloballyUniqueID */
+static int hf_qsig_cidl_timeStamp;                /* TimeStamp */
+static int hf_qsig_cidl_extension;                /* Extension */
+static int hf_qsig_cidl_sequenceOfExt;            /* SEQUENCE_OF_Extension */
+static int hf_qsig_cidl_sequenceOfExt_item;       /* Extension */
 
 /* --- Module Short-Message-Service-Operations-asn1-97 --- --- ---            */
 
-static int hf_qsig_sms_qsig_sms_SmsSubmitArg_PDU = -1;  /* SmsSubmitArg */
-static int hf_qsig_sms_qsig_sms_SmsSubmitRes_PDU = -1;  /* SmsSubmitRes */
-static int hf_qsig_sms_qsig_sms_SmsDeliverArg_PDU = -1;  /* SmsDeliverArg */
-static int hf_qsig_sms_qsig_sms_SmsDeliverRes_PDU = -1;  /* SmsDeliverRes */
-static int hf_qsig_sms_qsig_sms_SmsStatusReportArg_PDU = -1;  /* SmsStatusReportArg */
-static int hf_qsig_sms_qsig_sms_SmsStatusReportRes_PDU = -1;  /* SmsStatusReportRes */
-static int hf_qsig_sms_qsig_sms_SmsCommandArg_PDU = -1;  /* SmsCommandArg */
-static int hf_qsig_sms_qsig_sms_SmsCommandRes_PDU = -1;  /* SmsCommandRes */
-static int hf_qsig_sms_qsig_sms_ScAlertArg_PDU = -1;  /* ScAlertArg */
-static int hf_qsig_sms_qsig_sms_DummyRes_PDU = -1;  /* DummyRes */
-static int hf_qsig_sms_qsig_sms_PAR_smsDeliverError_PDU = -1;  /* PAR_smsDeliverError */
-static int hf_qsig_sms_qsig_sms_PAR_smsSubmitError_PDU = -1;  /* PAR_smsSubmitError */
-static int hf_qsig_sms_qsig_sms_PAR_smsStatusReportError_PDU = -1;  /* PAR_smsStatusReportError */
-static int hf_qsig_sms_qsig_sms_PAR_smsCommandError_PDU = -1;  /* PAR_smsCommandError */
-static int hf_qsig_sms_qsig_sms_SmsExtension_PDU = -1;  /* SmsExtension */
-static int hf_qsig_sms_destinationAddress = -1;   /* PartyNumber */
-static int hf_qsig_sms_originatingAddress = -1;   /* PartyNumber */
-static int hf_qsig_sms_messageReference = -1;     /* MessageReference */
-static int hf_qsig_sms_smSubmitParameter = -1;    /* SmSubmitParameter */
-static int hf_qsig_sms_userData = -1;             /* UserData */
-static int hf_qsig_sms_smsExtension = -1;         /* SmsExtension */
-static int hf_qsig_sms_serviceCentreTimeStamp = -1;  /* ServiceCentreTimeStamp */
-static int hf_qsig_sms_protocolIdentifier = -1;   /* ProtocolIdentifier */
-static int hf_qsig_sms_originatingName = -1;      /* Name */
-static int hf_qsig_sms_smDeliverParameter = -1;   /* SmDeliverParameter */
-static int hf_qsig_sms_smsDeliverResponseChoice = -1;  /* SmsDeliverResChoice */
-static int hf_qsig_sms_dischargeTime = -1;        /* DischargeTime */
-static int hf_qsig_sms_recipientAddress = -1;     /* PartyNumber */
-static int hf_qsig_sms_recipientName = -1;        /* Name */
-static int hf_qsig_sms_status = -1;               /* Status */
-static int hf_qsig_sms_priority = -1;             /* BOOLEAN */
-static int hf_qsig_sms_moreMessagesToSend = -1;   /* BOOLEAN */
-static int hf_qsig_sms_statusReportQualifier = -1;  /* BOOLEAN */
-static int hf_qsig_sms_smsStatusReportResponseChoice = -1;  /* SmsStatusReportResponseChoice */
-static int hf_qsig_sms_messageNumber = -1;        /* MessageReference */
-static int hf_qsig_sms_commandType = -1;          /* CommandType */
-static int hf_qsig_sms_commandData = -1;          /* CommandData */
-static int hf_qsig_sms_statusReportRequest = -1;  /* BOOLEAN */
-static int hf_qsig_sms_null = -1;                 /* NULL */
-static int hf_qsig_sms_validityPeriod = -1;       /* ValidityPeriod */
-static int hf_qsig_sms_replyPath = -1;            /* BOOLEAN */
-static int hf_qsig_sms_rejectDuplicates = -1;     /* BOOLEAN */
-static int hf_qsig_sms_statusReportIndication = -1;  /* BOOLEAN */
-static int hf_qsig_sms_resChoiceSeq = -1;         /* ResChoiceSeq */
-static int hf_qsig_sms_single = -1;               /* Extension */
-static int hf_qsig_sms_multiple = -1;             /* SEQUENCE_OF_Extension */
-static int hf_qsig_sms_multiple_item = -1;        /* Extension */
-static int hf_qsig_sms_validityPeriodRel = -1;    /* ValidityPeriodRel */
-static int hf_qsig_sms_validityPeriodAbs = -1;    /* ValidityPeriodAbs */
-static int hf_qsig_sms_validityPeriodEnh = -1;    /* ValidityPeriodEnh */
-static int hf_qsig_sms_singleShotSM = -1;         /* BOOLEAN */
-static int hf_qsig_sms_enhancedVP = -1;           /* EnhancedVP */
-static int hf_qsig_sms_validityPeriodSec = -1;    /* INTEGER_0_255 */
-static int hf_qsig_sms_validityPeriodSemi = -1;   /* ValidityPeriodSemi */
-static int hf_qsig_sms_userDataHeader = -1;       /* UserDataHeader */
-static int hf_qsig_sms_class = -1;                /* INTEGER_0_3 */
-static int hf_qsig_sms_compressed = -1;           /* BOOLEAN */
-static int hf_qsig_sms_shortMessageText = -1;     /* ShortMessageText */
-static int hf_qsig_sms_shortMessageTextType = -1;  /* ShortMessageTextType */
-static int hf_qsig_sms_shortMessageTextData = -1;  /* ShortMessageTextData */
-static int hf_qsig_sms_UserDataHeader_item = -1;  /* UserDataHeaderChoice */
-static int hf_qsig_sms_smscControlParameterHeader = -1;  /* SmscControlParameterHeader */
-static int hf_qsig_sms_concatenated8BitSMHeader = -1;  /* Concatenated8BitSMHeader */
-static int hf_qsig_sms_concatenated16BitSMHeader = -1;  /* Concatenated16BitSMHeader */
-static int hf_qsig_sms_applicationPort8BitHeader = -1;  /* ApplicationPort8BitHeader */
-static int hf_qsig_sms_applicationPort16BitHeader = -1;  /* ApplicationPort16BitHeader */
-static int hf_qsig_sms_dataHeaderSourceIndicator = -1;  /* DataHeaderSourceIndicator */
-static int hf_qsig_sms_wirelessControlHeader = -1;  /* WirelessControlHeader */
-static int hf_qsig_sms_genericUserValue = -1;     /* GenericUserValue */
-static int hf_qsig_sms_concatenated8BitSMReferenceNumber = -1;  /* INTEGER_0_255 */
-static int hf_qsig_sms_maximumNumberOf8BitSMInConcatenatedSM = -1;  /* INTEGER_0_255 */
-static int hf_qsig_sms_sequenceNumberOf8BitSM = -1;  /* INTEGER_0_255 */
-static int hf_qsig_sms_concatenated16BitSMReferenceNumber = -1;  /* INTEGER_0_65536 */
-static int hf_qsig_sms_maximumNumberOf16BitSMInConcatenatedSM = -1;  /* INTEGER_0_255 */
-static int hf_qsig_sms_sequenceNumberOf16BitSM = -1;  /* INTEGER_0_255 */
-static int hf_qsig_sms_destination8BitPort = -1;  /* INTEGER_0_255 */
-static int hf_qsig_sms_originator8BitPort = -1;   /* INTEGER_0_255 */
-static int hf_qsig_sms_destination16BitPort = -1;  /* INTEGER_0_65536 */
-static int hf_qsig_sms_originator16BitPort = -1;  /* INTEGER_0_65536 */
-static int hf_qsig_sms_parameterValue = -1;       /* INTEGER_0_255 */
-static int hf_qsig_sms_genericUserData = -1;      /* OCTET_STRING */
-static int hf_qsig_sms_failureCause = -1;         /* FailureCause */
-static int hf_qsig_sms_scAddressSaved = -1;       /* BOOLEAN */
+static int hf_qsig_sms_qsig_sms_SmsSubmitArg_PDU;  /* SmsSubmitArg */
+static int hf_qsig_sms_qsig_sms_SmsSubmitRes_PDU;  /* SmsSubmitRes */
+static int hf_qsig_sms_qsig_sms_SmsDeliverArg_PDU;  /* SmsDeliverArg */
+static int hf_qsig_sms_qsig_sms_SmsDeliverRes_PDU;  /* SmsDeliverRes */
+static int hf_qsig_sms_qsig_sms_SmsStatusReportArg_PDU;  /* SmsStatusReportArg */
+static int hf_qsig_sms_qsig_sms_SmsStatusReportRes_PDU;  /* SmsStatusReportRes */
+static int hf_qsig_sms_qsig_sms_SmsCommandArg_PDU;  /* SmsCommandArg */
+static int hf_qsig_sms_qsig_sms_SmsCommandRes_PDU;  /* SmsCommandRes */
+static int hf_qsig_sms_qsig_sms_ScAlertArg_PDU;   /* ScAlertArg */
+static int hf_qsig_sms_qsig_sms_DummyRes_PDU;     /* DummyRes */
+static int hf_qsig_sms_qsig_sms_PAR_smsDeliverError_PDU;  /* PAR_smsDeliverError */
+static int hf_qsig_sms_qsig_sms_PAR_smsSubmitError_PDU;  /* PAR_smsSubmitError */
+static int hf_qsig_sms_qsig_sms_PAR_smsStatusReportError_PDU;  /* PAR_smsStatusReportError */
+static int hf_qsig_sms_qsig_sms_PAR_smsCommandError_PDU;  /* PAR_smsCommandError */
+static int hf_qsig_sms_qsig_sms_SmsExtension_PDU;  /* SmsExtension */
+static int hf_qsig_sms_destinationAddress;        /* PartyNumber */
+static int hf_qsig_sms_originatingAddress;        /* PartyNumber */
+static int hf_qsig_sms_messageReference;          /* MessageReference */
+static int hf_qsig_sms_smSubmitParameter;         /* SmSubmitParameter */
+static int hf_qsig_sms_userData;                  /* UserData */
+static int hf_qsig_sms_smsExtension;              /* SmsExtension */
+static int hf_qsig_sms_serviceCentreTimeStamp;    /* ServiceCentreTimeStamp */
+static int hf_qsig_sms_protocolIdentifier;        /* ProtocolIdentifier */
+static int hf_qsig_sms_originatingName;           /* Name */
+static int hf_qsig_sms_smDeliverParameter;        /* SmDeliverParameter */
+static int hf_qsig_sms_smsDeliverResponseChoice;  /* SmsDeliverResChoice */
+static int hf_qsig_sms_dischargeTime;             /* DischargeTime */
+static int hf_qsig_sms_recipientAddress;          /* PartyNumber */
+static int hf_qsig_sms_recipientName;             /* Name */
+static int hf_qsig_sms_status;                    /* Status */
+static int hf_qsig_sms_priority;                  /* BOOLEAN */
+static int hf_qsig_sms_moreMessagesToSend;        /* BOOLEAN */
+static int hf_qsig_sms_statusReportQualifier;     /* BOOLEAN */
+static int hf_qsig_sms_smsStatusReportResponseChoice;  /* SmsStatusReportResponseChoice */
+static int hf_qsig_sms_messageNumber;             /* MessageReference */
+static int hf_qsig_sms_commandType;               /* CommandType */
+static int hf_qsig_sms_commandData;               /* CommandData */
+static int hf_qsig_sms_statusReportRequest;       /* BOOLEAN */
+static int hf_qsig_sms_null;                      /* NULL */
+static int hf_qsig_sms_validityPeriod;            /* ValidityPeriod */
+static int hf_qsig_sms_replyPath;                 /* BOOLEAN */
+static int hf_qsig_sms_rejectDuplicates;          /* BOOLEAN */
+static int hf_qsig_sms_statusReportIndication;    /* BOOLEAN */
+static int hf_qsig_sms_resChoiceSeq;              /* ResChoiceSeq */
+static int hf_qsig_sms_single;                    /* Extension */
+static int hf_qsig_sms_multiple;                  /* SEQUENCE_OF_Extension */
+static int hf_qsig_sms_multiple_item;             /* Extension */
+static int hf_qsig_sms_validityPeriodRel;         /* ValidityPeriodRel */
+static int hf_qsig_sms_validityPeriodAbs;         /* ValidityPeriodAbs */
+static int hf_qsig_sms_validityPeriodEnh;         /* ValidityPeriodEnh */
+static int hf_qsig_sms_singleShotSM;              /* BOOLEAN */
+static int hf_qsig_sms_enhancedVP;                /* EnhancedVP */
+static int hf_qsig_sms_validityPeriodSec;         /* INTEGER_0_255 */
+static int hf_qsig_sms_validityPeriodSemi;        /* ValidityPeriodSemi */
+static int hf_qsig_sms_userDataHeader;            /* UserDataHeader */
+static int hf_qsig_sms_class;                     /* INTEGER_0_3 */
+static int hf_qsig_sms_compressed;                /* BOOLEAN */
+static int hf_qsig_sms_shortMessageText;          /* ShortMessageText */
+static int hf_qsig_sms_shortMessageTextType;      /* ShortMessageTextType */
+static int hf_qsig_sms_shortMessageTextData;      /* ShortMessageTextData */
+static int hf_qsig_sms_UserDataHeader_item;       /* UserDataHeaderChoice */
+static int hf_qsig_sms_smscControlParameterHeader;  /* SmscControlParameterHeader */
+static int hf_qsig_sms_concatenated8BitSMHeader;  /* Concatenated8BitSMHeader */
+static int hf_qsig_sms_concatenated16BitSMHeader;  /* Concatenated16BitSMHeader */
+static int hf_qsig_sms_applicationPort8BitHeader;  /* ApplicationPort8BitHeader */
+static int hf_qsig_sms_applicationPort16BitHeader;  /* ApplicationPort16BitHeader */
+static int hf_qsig_sms_dataHeaderSourceIndicator;  /* DataHeaderSourceIndicator */
+static int hf_qsig_sms_wirelessControlHeader;     /* WirelessControlHeader */
+static int hf_qsig_sms_genericUserValue;          /* GenericUserValue */
+static int hf_qsig_sms_concatenated8BitSMReferenceNumber;  /* INTEGER_0_255 */
+static int hf_qsig_sms_maximumNumberOf8BitSMInConcatenatedSM;  /* INTEGER_0_255 */
+static int hf_qsig_sms_sequenceNumberOf8BitSM;    /* INTEGER_0_255 */
+static int hf_qsig_sms_concatenated16BitSMReferenceNumber;  /* INTEGER_0_65536 */
+static int hf_qsig_sms_maximumNumberOf16BitSMInConcatenatedSM;  /* INTEGER_0_255 */
+static int hf_qsig_sms_sequenceNumberOf16BitSM;   /* INTEGER_0_255 */
+static int hf_qsig_sms_destination8BitPort;       /* INTEGER_0_255 */
+static int hf_qsig_sms_originator8BitPort;        /* INTEGER_0_255 */
+static int hf_qsig_sms_destination16BitPort;      /* INTEGER_0_65536 */
+static int hf_qsig_sms_originator16BitPort;       /* INTEGER_0_65536 */
+static int hf_qsig_sms_parameterValue;            /* INTEGER_0_255 */
+static int hf_qsig_sms_genericUserData;           /* OCTET_STRING */
+static int hf_qsig_sms_failureCause;              /* FailureCause */
+static int hf_qsig_sms_scAddressSaved;            /* BOOLEAN */
 /* named bits */
-static int hf_qsig_sms_SmscControlParameterHeader_sRforTransactionCompleted = -1;
-static int hf_qsig_sms_SmscControlParameterHeader_sRforPermanentError = -1;
-static int hf_qsig_sms_SmscControlParameterHeader_sRforTempErrorSCnotTrying = -1;
-static int hf_qsig_sms_SmscControlParameterHeader_sRforTempErrorSCstillTrying = -1;
-static int hf_qsig_sms_SmscControlParameterHeader_spare_bit4 = -1;
-static int hf_qsig_sms_SmscControlParameterHeader_spare_bit5 = -1;
-static int hf_qsig_sms_SmscControlParameterHeader_cancelSRRforConcatenatedSM = -1;
-static int hf_qsig_sms_SmscControlParameterHeader_includeOrigUDHintoSR = -1;
+static int hf_qsig_sms_SmscControlParameterHeader_sRforTransactionCompleted;
+static int hf_qsig_sms_SmscControlParameterHeader_sRforPermanentError;
+static int hf_qsig_sms_SmscControlParameterHeader_sRforTempErrorSCnotTrying;
+static int hf_qsig_sms_SmscControlParameterHeader_sRforTempErrorSCstillTrying;
+static int hf_qsig_sms_SmscControlParameterHeader_spare_bit4;
+static int hf_qsig_sms_SmscControlParameterHeader_spare_bit5;
+static int hf_qsig_sms_SmscControlParameterHeader_cancelSRRforConcatenatedSM;
+static int hf_qsig_sms_SmscControlParameterHeader_includeOrigUDHintoSR;
 
 /* --- Module SS-MCR-Operations-asn97 --- --- ---                             */
 
-static int hf_qsig_mcr_qsig_mcr_MCRequestArg_PDU = -1;  /* MCRequestArg */
-static int hf_qsig_mcr_qsig_mcr_MCRequestResult_PDU = -1;  /* MCRequestResult */
-static int hf_qsig_mcr_qsig_mcr_MCInformArg_PDU = -1;  /* MCInformArg */
-static int hf_qsig_mcr_qsig_mcr_MCAlertingArg_PDU = -1;  /* MCAlertingArg */
-static int hf_qsig_mcr_qsig_mcr_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_mcr_callType = -1;             /* CallType */
-static int hf_qsig_mcr_retainOrigCall = -1;       /* BOOLEAN */
-static int hf_qsig_mcr_destinationAddress = -1;   /* PresentedAddressUnscreened */
-static int hf_qsig_mcr_requestingAddress = -1;    /* PresentedAddressUnscreened */
-static int hf_qsig_mcr_cooperatingAddress = -1;   /* PresentedAddressUnscreened */
-static int hf_qsig_mcr_correlation = -1;          /* Correlation */
-static int hf_qsig_mcr_extensions = -1;           /* MCRExtensions */
-static int hf_qsig_mcr_basicService = -1;         /* BasicService */
-static int hf_qsig_mcr_cisc = -1;                 /* NULL */
-static int hf_qsig_mcr_correlationData = -1;      /* CallIdentity */
-static int hf_qsig_mcr_correlationReason = -1;    /* CorrelationReason */
-static int hf_qsig_mcr_none = -1;                 /* NULL */
-static int hf_qsig_mcr_single = -1;               /* Extension */
-static int hf_qsig_mcr_multiple = -1;             /* SEQUENCE_OF_Extension */
-static int hf_qsig_mcr_multiple_item = -1;        /* Extension */
+static int hf_qsig_mcr_qsig_mcr_MCRequestArg_PDU;  /* MCRequestArg */
+static int hf_qsig_mcr_qsig_mcr_MCRequestResult_PDU;  /* MCRequestResult */
+static int hf_qsig_mcr_qsig_mcr_MCInformArg_PDU;  /* MCInformArg */
+static int hf_qsig_mcr_qsig_mcr_MCAlertingArg_PDU;  /* MCAlertingArg */
+static int hf_qsig_mcr_qsig_mcr_Extension_PDU;    /* Extension */
+static int hf_qsig_mcr_callType;                  /* CallType */
+static int hf_qsig_mcr_retainOrigCall;            /* BOOLEAN */
+static int hf_qsig_mcr_destinationAddress;        /* PresentedAddressUnscreened */
+static int hf_qsig_mcr_requestingAddress;         /* PresentedAddressUnscreened */
+static int hf_qsig_mcr_cooperatingAddress;        /* PresentedAddressUnscreened */
+static int hf_qsig_mcr_correlation;               /* Correlation */
+static int hf_qsig_mcr_extensions;                /* MCRExtensions */
+static int hf_qsig_mcr_basicService;              /* BasicService */
+static int hf_qsig_mcr_cisc;                      /* NULL */
+static int hf_qsig_mcr_correlationData;           /* CallIdentity */
+static int hf_qsig_mcr_correlationReason;         /* CorrelationReason */
+static int hf_qsig_mcr_none;                      /* NULL */
+static int hf_qsig_mcr_single;                    /* Extension */
+static int hf_qsig_mcr_multiple;                  /* SEQUENCE_OF_Extension */
+static int hf_qsig_mcr_multiple_item;             /* Extension */
 
 /* --- Module SS-MCM-Operations-asn1-97 --- --- ---                           */
 
-static int hf_qsig_mcm_qsig_mcm_MCMNewMsgArg_PDU = -1;  /* MCMNewMsgArg */
-static int hf_qsig_mcm_qsig_mcm_MCMDummyRes_PDU = -1;  /* MCMDummyRes */
-static int hf_qsig_mcm_qsig_mcm_MCMNoNewMsgArg_PDU = -1;  /* MCMNoNewMsgArg */
-static int hf_qsig_mcm_qsig_mcm_MCMUpdateArg_PDU = -1;  /* MCMUpdateArg */
-static int hf_qsig_mcm_qsig_mcm_MCMUpdateReqArg_PDU = -1;  /* MCMUpdateReqArg */
-static int hf_qsig_mcm_qsig_mcm_MCMUpdateReqRes_PDU = -1;  /* MCMUpdateReqRes */
-static int hf_qsig_mcm_qsig_mcm_MCMServiceArg_PDU = -1;  /* MCMServiceArg */
-static int hf_qsig_mcm_qsig_mcm_MCMInterrogateArg_PDU = -1;  /* MCMInterrogateArg */
-static int hf_qsig_mcm_qsig_mcm_MCMInterrogateRes_PDU = -1;  /* MCMInterrogateRes */
-static int hf_qsig_mcm_qsig_mcm_MCMailboxFullArg_PDU = -1;  /* MCMailboxFullArg */
-static int hf_qsig_mcm_qsig_mcm_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_mcm_partyInfo = -1;            /* PartyInfo */
-static int hf_qsig_mcm_mailboxFullFor = -1;       /* MailboxFullFor */
-static int hf_qsig_mcm_extensions = -1;           /* MCMExtensions */
-static int hf_qsig_mcm_MailboxFullFor_item = -1;  /* MailboxFullPar */
-static int hf_qsig_mcm_messageType = -1;          /* MessageType */
-static int hf_qsig_mcm_capacityReached = -1;      /* INTEGER_0_100 */
-static int hf_qsig_mcm_mCMChange = -1;            /* MCMChange */
-static int hf_qsig_mcm_activateMCM = -1;          /* SEQUENCE_OF_MCMServiceInfo */
-static int hf_qsig_mcm_activateMCM_item = -1;     /* MCMServiceInfo */
-static int hf_qsig_mcm_deactivateMCM = -1;        /* SEQUENCE_OF_MessageType */
-static int hf_qsig_mcm_deactivateMCM_item = -1;   /* MessageType */
-static int hf_qsig_mcm_setToDefaultValues = -1;   /* NULL */
-static int hf_qsig_mcm_mCMModeNew = -1;           /* MCMMode */
-static int hf_qsig_mcm_mCMModeRetrieved = -1;     /* MCMMode */
-static int hf_qsig_mcm_interrogateInfo = -1;      /* SEQUENCE_OF_MessageType */
-static int hf_qsig_mcm_interrogateInfo_item = -1;  /* MessageType */
-static int hf_qsig_mcm_interrogateResult = -1;    /* SEQUENCE_OF_MCMServiceInfo */
-static int hf_qsig_mcm_interrogateResult_item = -1;  /* MCMServiceInfo */
-static int hf_qsig_mcm_servedUserNr = -1;         /* PartyNumber */
-static int hf_qsig_mcm_specificMessageType = -1;  /* MessageType */
-static int hf_qsig_mcm_msgCentreId = -1;          /* MsgCentreId */
-static int hf_qsig_mcm_nrOfMessages = -1;         /* NrOfMessages */
-static int hf_qsig_mcm_originatingNr = -1;        /* PartyNumber */
-static int hf_qsig_mcm_timestamp = -1;            /* TimeStamp */
-static int hf_qsig_mcm_priority = -1;             /* INTEGER_0_9 */
-static int hf_qsig_mcm_argumentExtMCMNew = -1;    /* MCMNewArgumentExt */
-static int hf_qsig_mcm_extension = -1;            /* Extension */
-static int hf_qsig_mcm_multipleExtension = -1;    /* SEQUENCE_OF_Extension */
-static int hf_qsig_mcm_multipleExtension_item = -1;  /* Extension */
-static int hf_qsig_mcm_argumentExtMCMNoNew = -1;  /* MCMNoNewArgumentExt */
-static int hf_qsig_mcm_updateInfo = -1;           /* UpdateInfo */
-static int hf_qsig_mcm_moreInfoFollows = -1;      /* BOOLEAN */
-static int hf_qsig_mcm_argumentExtMCMUpdArg = -1;  /* MCMUpdArgArgumentExt */
-static int hf_qsig_mcm_MCMUpdateReqRes_item = -1;  /* MCMUpdateReqResElt */
-static int hf_qsig_mcm_argumentExtMCMUpdRes = -1;  /* MCMUpdResArgumentExt */
-static int hf_qsig_mcm_messageCentreID = -1;      /* MsgCentreId */
-static int hf_qsig_mcm_newMsgInfoOnly = -1;       /* MessageInfo */
-static int hf_qsig_mcm_retrievedMsgInfoOnly = -1;  /* MessageInfo */
-static int hf_qsig_mcm_allMsgInfo = -1;           /* AllMsgInfo */
-static int hf_qsig_mcm_newMsgInfo = -1;           /* MessageInfo */
-static int hf_qsig_mcm_retrievedMsgInfo = -1;     /* MessageInfo */
-static int hf_qsig_mcm_completeInfo = -1;         /* CompleteInfo */
-static int hf_qsig_mcm_compressedInfo = -1;       /* CompressedInfo */
-static int hf_qsig_mcm_noMsgsOfMsgType = -1;      /* NULL */
-static int hf_qsig_mcm_CompleteInfo_item = -1;    /* AddressHeader */
-static int hf_qsig_mcm_originatorNr = -1;         /* PartyNumber */
-static int hf_qsig_mcm_timeStamp = -1;            /* TimeStamp */
-static int hf_qsig_mcm_ahpriority = -1;           /* Priority */
-static int hf_qsig_mcm_lastTimeStamp = -1;        /* TimeStamp */
-static int hf_qsig_mcm_highestPriority = -1;      /* Priority */
-static int hf_qsig_mcm_integer = -1;              /* INTEGER_0_65535 */
-static int hf_qsig_mcm_partyNumber = -1;          /* PartyNumber */
-static int hf_qsig_mcm_numericString = -1;        /* NumericString_SIZE_1_10 */
-static int hf_qsig_mcm_none = -1;                 /* NULL */
+static int hf_qsig_mcm_qsig_mcm_MCMNewMsgArg_PDU;  /* MCMNewMsgArg */
+static int hf_qsig_mcm_qsig_mcm_MCMDummyRes_PDU;  /* MCMDummyRes */
+static int hf_qsig_mcm_qsig_mcm_MCMNoNewMsgArg_PDU;  /* MCMNoNewMsgArg */
+static int hf_qsig_mcm_qsig_mcm_MCMUpdateArg_PDU;  /* MCMUpdateArg */
+static int hf_qsig_mcm_qsig_mcm_MCMUpdateReqArg_PDU;  /* MCMUpdateReqArg */
+static int hf_qsig_mcm_qsig_mcm_MCMUpdateReqRes_PDU;  /* MCMUpdateReqRes */
+static int hf_qsig_mcm_qsig_mcm_MCMServiceArg_PDU;  /* MCMServiceArg */
+static int hf_qsig_mcm_qsig_mcm_MCMInterrogateArg_PDU;  /* MCMInterrogateArg */
+static int hf_qsig_mcm_qsig_mcm_MCMInterrogateRes_PDU;  /* MCMInterrogateRes */
+static int hf_qsig_mcm_qsig_mcm_MCMailboxFullArg_PDU;  /* MCMailboxFullArg */
+static int hf_qsig_mcm_qsig_mcm_Extension_PDU;    /* Extension */
+static int hf_qsig_mcm_partyInfo;                 /* PartyInfo */
+static int hf_qsig_mcm_mailboxFullFor;            /* MailboxFullFor */
+static int hf_qsig_mcm_extensions;                /* MCMExtensions */
+static int hf_qsig_mcm_MailboxFullFor_item;       /* MailboxFullPar */
+static int hf_qsig_mcm_messageType;               /* MessageType */
+static int hf_qsig_mcm_capacityReached;           /* INTEGER_0_100 */
+static int hf_qsig_mcm_mCMChange;                 /* MCMChange */
+static int hf_qsig_mcm_activateMCM;               /* SEQUENCE_OF_MCMServiceInfo */
+static int hf_qsig_mcm_activateMCM_item;          /* MCMServiceInfo */
+static int hf_qsig_mcm_deactivateMCM;             /* SEQUENCE_OF_MessageType */
+static int hf_qsig_mcm_deactivateMCM_item;        /* MessageType */
+static int hf_qsig_mcm_setToDefaultValues;        /* NULL */
+static int hf_qsig_mcm_mCMModeNew;                /* MCMMode */
+static int hf_qsig_mcm_mCMModeRetrieved;          /* MCMMode */
+static int hf_qsig_mcm_interrogateInfo;           /* SEQUENCE_OF_MessageType */
+static int hf_qsig_mcm_interrogateInfo_item;      /* MessageType */
+static int hf_qsig_mcm_interrogateResult;         /* SEQUENCE_OF_MCMServiceInfo */
+static int hf_qsig_mcm_interrogateResult_item;    /* MCMServiceInfo */
+static int hf_qsig_mcm_servedUserNr;              /* PartyNumber */
+static int hf_qsig_mcm_specificMessageType;       /* MessageType */
+static int hf_qsig_mcm_msgCentreId;               /* MsgCentreId */
+static int hf_qsig_mcm_nrOfMessages;              /* NrOfMessages */
+static int hf_qsig_mcm_originatingNr;             /* PartyNumber */
+static int hf_qsig_mcm_timestamp;                 /* TimeStamp */
+static int hf_qsig_mcm_priority;                  /* INTEGER_0_9 */
+static int hf_qsig_mcm_argumentExtMCMNew;         /* MCMNewArgumentExt */
+static int hf_qsig_mcm_extension;                 /* Extension */
+static int hf_qsig_mcm_multipleExtension;         /* SEQUENCE_OF_Extension */
+static int hf_qsig_mcm_multipleExtension_item;    /* Extension */
+static int hf_qsig_mcm_argumentExtMCMNoNew;       /* MCMNoNewArgumentExt */
+static int hf_qsig_mcm_updateInfo;                /* UpdateInfo */
+static int hf_qsig_mcm_moreInfoFollows;           /* BOOLEAN */
+static int hf_qsig_mcm_argumentExtMCMUpdArg;      /* MCMUpdArgArgumentExt */
+static int hf_qsig_mcm_MCMUpdateReqRes_item;      /* MCMUpdateReqResElt */
+static int hf_qsig_mcm_argumentExtMCMUpdRes;      /* MCMUpdResArgumentExt */
+static int hf_qsig_mcm_messageCentreID;           /* MsgCentreId */
+static int hf_qsig_mcm_newMsgInfoOnly;            /* MessageInfo */
+static int hf_qsig_mcm_retrievedMsgInfoOnly;      /* MessageInfo */
+static int hf_qsig_mcm_allMsgInfo;                /* AllMsgInfo */
+static int hf_qsig_mcm_newMsgInfo;                /* MessageInfo */
+static int hf_qsig_mcm_retrievedMsgInfo;          /* MessageInfo */
+static int hf_qsig_mcm_completeInfo;              /* CompleteInfo */
+static int hf_qsig_mcm_compressedInfo;            /* CompressedInfo */
+static int hf_qsig_mcm_noMsgsOfMsgType;           /* NULL */
+static int hf_qsig_mcm_CompleteInfo_item;         /* AddressHeader */
+static int hf_qsig_mcm_originatorNr;              /* PartyNumber */
+static int hf_qsig_mcm_timeStamp;                 /* TimeStamp */
+static int hf_qsig_mcm_ahpriority;                /* Priority */
+static int hf_qsig_mcm_lastTimeStamp;             /* TimeStamp */
+static int hf_qsig_mcm_highestPriority;           /* Priority */
+static int hf_qsig_mcm_integer;                   /* INTEGER_0_65535 */
+static int hf_qsig_mcm_partyNumber;               /* PartyNumber */
+static int hf_qsig_mcm_numericString;             /* NumericString_SIZE_1_10 */
+static int hf_qsig_mcm_none;                      /* NULL */
 
 /* --- Module SS-MID-Operations-asn1-97 --- --- ---                           */
 
-static int hf_qsig_mid_qsig_mid_MIDMailboxAuthArg_PDU = -1;  /* MIDMailboxAuthArg */
-static int hf_qsig_mid_qsig_mid_MIDDummyRes_PDU = -1;  /* MIDDummyRes */
-static int hf_qsig_mid_qsig_mid_MIDMailboxIDArg_PDU = -1;  /* MIDMailboxIDArg */
-static int hf_qsig_mid_qsig_mid_Extension_PDU = -1;  /* Extension */
-static int hf_qsig_mid_partyInfo = -1;            /* PartyInfo */
-static int hf_qsig_mid_servedUserName = -1;       /* Name */
-static int hf_qsig_mid_mailBox = -1;              /* String */
-static int hf_qsig_mid_password = -1;             /* String */
-static int hf_qsig_mid_extensions = -1;           /* MIDExtensions */
-static int hf_qsig_mid_servedUserNr = -1;         /* PresentedAddressUnscreened */
-static int hf_qsig_mid_messageType = -1;          /* MessageType */
-static int hf_qsig_mid_messageCentreID = -1;      /* MsgCentreId */
-static int hf_qsig_mid_stringBmp = -1;            /* BMPString */
-static int hf_qsig_mid_stringUtf8 = -1;           /* UTF8String */
-static int hf_qsig_mid_none = -1;                 /* NULL */
-static int hf_qsig_mid_extension = -1;            /* Extension */
-static int hf_qsig_mid_multipleExtension = -1;    /* SEQUENCE_OF_Extension */
-static int hf_qsig_mid_multipleExtension_item = -1;  /* Extension */
+static int hf_qsig_mid_qsig_mid_MIDMailboxAuthArg_PDU;  /* MIDMailboxAuthArg */
+static int hf_qsig_mid_qsig_mid_MIDDummyRes_PDU;  /* MIDDummyRes */
+static int hf_qsig_mid_qsig_mid_MIDMailboxIDArg_PDU;  /* MIDMailboxIDArg */
+static int hf_qsig_mid_qsig_mid_Extension_PDU;    /* Extension */
+static int hf_qsig_mid_partyInfo;                 /* PartyInfo */
+static int hf_qsig_mid_servedUserName;            /* Name */
+static int hf_qsig_mid_mailBox;                   /* String */
+static int hf_qsig_mid_password;                  /* String */
+static int hf_qsig_mid_extensions;                /* MIDExtensions */
+static int hf_qsig_mid_servedUserNr;              /* PresentedAddressUnscreened */
+static int hf_qsig_mid_messageType;               /* MessageType */
+static int hf_qsig_mid_messageCentreID;           /* MsgCentreId */
+static int hf_qsig_mid_stringBmp;                 /* BMPString */
+static int hf_qsig_mid_stringUtf8;                /* UTF8String */
+static int hf_qsig_mid_none;                      /* NULL */
+static int hf_qsig_mid_extension;                 /* Extension */
+static int hf_qsig_mid_multipleExtension;         /* SEQUENCE_OF_Extension */
+static int hf_qsig_mid_multipleExtension_item;    /* Extension */
 
 static int *hf_qsig_ie_type_arr[] = {
   NULL,
@@ -1571,452 +1571,452 @@ static int *hf_qsig_ie_type_arr[] = {
 };
 
 /* Initialize the subtree pointers */
-static gint ett_qsig = -1;
-static gint ett_qsig_ie = -1;
-static gint ett_qsig_unknown_extension = -1;
+static gint ett_qsig;
+static gint ett_qsig_ie;
+static gint ett_qsig_unknown_extension;
 
 /* --- Modules Manufacturer-specific-service-extension-class-asn1-97 PSS1-generic-parameters-definition-asn1-97 Addressing-Data-Elements-asn1-97 --- --- --- */
 
-static gint ett_qsig_Extension = -1;
-static gint ett_qsig_PresentedAddressScreened = -1;
-static gint ett_qsig_PresentedAddressUnscreened = -1;
-static gint ett_qsig_PresentedNumberScreened = -1;
-static gint ett_qsig_PresentedNumberUnscreened = -1;
-static gint ett_qsig_AddressScreened = -1;
-static gint ett_qsig_NumberScreened = -1;
-static gint ett_qsig_Address = -1;
-static gint ett_qsig_PartyNumber = -1;
-static gint ett_qsig_PublicPartyNumber = -1;
-static gint ett_qsig_PrivatePartyNumber = -1;
-static gint ett_qsig_PartySubaddress = -1;
-static gint ett_qsig_UserSpecifiedSubaddress = -1;
+static gint ett_qsig_Extension;
+static gint ett_qsig_PresentedAddressScreened;
+static gint ett_qsig_PresentedAddressUnscreened;
+static gint ett_qsig_PresentedNumberScreened;
+static gint ett_qsig_PresentedNumberUnscreened;
+static gint ett_qsig_AddressScreened;
+static gint ett_qsig_NumberScreened;
+static gint ett_qsig_Address;
+static gint ett_qsig_PartyNumber;
+static gint ett_qsig_PublicPartyNumber;
+static gint ett_qsig_PrivatePartyNumber;
+static gint ett_qsig_PartySubaddress;
+static gint ett_qsig_UserSpecifiedSubaddress;
 
 /* --- Module Name-Operations-asn1-97 --- --- ---                             */
 
-static gint ett_qsig_na_NameArg = -1;
-static gint ett_qsig_na_T_nameSequence = -1;
-static gint ett_qsig_na_NameExtension = -1;
-static gint ett_qsig_na_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_na_Name = -1;
-static gint ett_qsig_na_NamePresentationAllowed = -1;
-static gint ett_qsig_na_NamePresentationRestricted = -1;
-static gint ett_qsig_na_NameSet = -1;
+static gint ett_qsig_na_NameArg;
+static gint ett_qsig_na_T_nameSequence;
+static gint ett_qsig_na_NameExtension;
+static gint ett_qsig_na_SEQUENCE_OF_Extension;
+static gint ett_qsig_na_Name;
+static gint ett_qsig_na_NamePresentationAllowed;
+static gint ett_qsig_na_NamePresentationRestricted;
+static gint ett_qsig_na_NameSet;
 
 /* --- Module Call-Diversion-Operations-asn1-97 --- --- ---                   */
 
-static gint ett_qsig_cf_ARG_activateDiversionQ = -1;
-static gint ett_qsig_cf_ADExtension = -1;
-static gint ett_qsig_cf_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_cf_RES_activateDiversionQ = -1;
-static gint ett_qsig_cf_ARG_deactivateDiversionQ = -1;
-static gint ett_qsig_cf_DDExtension = -1;
-static gint ett_qsig_cf_RES_deactivateDiversionQ = -1;
-static gint ett_qsig_cf_ARG_interrogateDiversionQ = -1;
-static gint ett_qsig_cf_IDExtension = -1;
-static gint ett_qsig_cf_ARG_checkRestriction = -1;
-static gint ett_qsig_cf_CHRExtension = -1;
-static gint ett_qsig_cf_RES_checkRestriction = -1;
-static gint ett_qsig_cf_ARG_callRerouteing = -1;
-static gint ett_qsig_cf_CRRExtension = -1;
-static gint ett_qsig_cf_RES_callRerouteing = -1;
-static gint ett_qsig_cf_ARG_divertingLegInformation1 = -1;
-static gint ett_qsig_cf_DLI1Extension = -1;
-static gint ett_qsig_cf_ARG_divertingLegInformation2 = -1;
-static gint ett_qsig_cf_DLI2Extension = -1;
-static gint ett_qsig_cf_ARG_divertingLegInformation3 = -1;
-static gint ett_qsig_cf_DLI3Extension = -1;
-static gint ett_qsig_cf_ARG_cfnrDivertedLegFailed = -1;
-static gint ett_qsig_cf_IntResultList = -1;
-static gint ett_qsig_cf_IntResult = -1;
-static gint ett_qsig_cf_IRExtension = -1;
+static gint ett_qsig_cf_ARG_activateDiversionQ;
+static gint ett_qsig_cf_ADExtension;
+static gint ett_qsig_cf_SEQUENCE_OF_Extension;
+static gint ett_qsig_cf_RES_activateDiversionQ;
+static gint ett_qsig_cf_ARG_deactivateDiversionQ;
+static gint ett_qsig_cf_DDExtension;
+static gint ett_qsig_cf_RES_deactivateDiversionQ;
+static gint ett_qsig_cf_ARG_interrogateDiversionQ;
+static gint ett_qsig_cf_IDExtension;
+static gint ett_qsig_cf_ARG_checkRestriction;
+static gint ett_qsig_cf_CHRExtension;
+static gint ett_qsig_cf_RES_checkRestriction;
+static gint ett_qsig_cf_ARG_callRerouteing;
+static gint ett_qsig_cf_CRRExtension;
+static gint ett_qsig_cf_RES_callRerouteing;
+static gint ett_qsig_cf_ARG_divertingLegInformation1;
+static gint ett_qsig_cf_DLI1Extension;
+static gint ett_qsig_cf_ARG_divertingLegInformation2;
+static gint ett_qsig_cf_DLI2Extension;
+static gint ett_qsig_cf_ARG_divertingLegInformation3;
+static gint ett_qsig_cf_DLI3Extension;
+static gint ett_qsig_cf_ARG_cfnrDivertedLegFailed;
+static gint ett_qsig_cf_IntResultList;
+static gint ett_qsig_cf_IntResult;
+static gint ett_qsig_cf_IRExtension;
 
 /* --- Module Path-Replacement-Operations-asn1-97 --- --- ---                 */
 
-static gint ett_qsig_pr_PRProposeArg = -1;
-static gint ett_qsig_pr_PRPExtension = -1;
-static gint ett_qsig_pr_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_pr_PRSetupArg = -1;
-static gint ett_qsig_pr_PRSExtension = -1;
-static gint ett_qsig_pr_PRRetainArg = -1;
-static gint ett_qsig_pr_PRRExtension = -1;
-static gint ett_qsig_pr_DummyResult = -1;
-static gint ett_qsig_pr_DummyArg = -1;
+static gint ett_qsig_pr_PRProposeArg;
+static gint ett_qsig_pr_PRPExtension;
+static gint ett_qsig_pr_SEQUENCE_OF_Extension;
+static gint ett_qsig_pr_PRSetupArg;
+static gint ett_qsig_pr_PRSExtension;
+static gint ett_qsig_pr_PRRetainArg;
+static gint ett_qsig_pr_PRRExtension;
+static gint ett_qsig_pr_DummyResult;
+static gint ett_qsig_pr_DummyArg;
 
 /* --- Module Call-Transfer-Operations-asn1-97 --- --- ---                    */
 
-static gint ett_qsig_ct_DummyArg = -1;
-static gint ett_qsig_ct_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_ct_DummyRes = -1;
-static gint ett_qsig_ct_CTIdentifyRes = -1;
-static gint ett_qsig_ct_T_resultExtension = -1;
-static gint ett_qsig_ct_CTInitiateArg = -1;
-static gint ett_qsig_ct_CTIargumentExtension = -1;
-static gint ett_qsig_ct_CTSetupArg = -1;
-static gint ett_qsig_ct_CTSargumentExtension = -1;
-static gint ett_qsig_ct_CTActiveArg = -1;
-static gint ett_qsig_ct_CTAargumentExtension = -1;
-static gint ett_qsig_ct_CTCompleteArg = -1;
-static gint ett_qsig_ct_CTCargumentExtension = -1;
-static gint ett_qsig_ct_CTUpdateArg = -1;
-static gint ett_qsig_ct_CTUargumentExtension = -1;
-static gint ett_qsig_ct_SubaddressTransferArg = -1;
-static gint ett_qsig_ct_STargumentExtension = -1;
+static gint ett_qsig_ct_DummyArg;
+static gint ett_qsig_ct_SEQUENCE_OF_Extension;
+static gint ett_qsig_ct_DummyRes;
+static gint ett_qsig_ct_CTIdentifyRes;
+static gint ett_qsig_ct_T_resultExtension;
+static gint ett_qsig_ct_CTInitiateArg;
+static gint ett_qsig_ct_CTIargumentExtension;
+static gint ett_qsig_ct_CTSetupArg;
+static gint ett_qsig_ct_CTSargumentExtension;
+static gint ett_qsig_ct_CTActiveArg;
+static gint ett_qsig_ct_CTAargumentExtension;
+static gint ett_qsig_ct_CTCompleteArg;
+static gint ett_qsig_ct_CTCargumentExtension;
+static gint ett_qsig_ct_CTUpdateArg;
+static gint ett_qsig_ct_CTUargumentExtension;
+static gint ett_qsig_ct_SubaddressTransferArg;
+static gint ett_qsig_ct_STargumentExtension;
 
 /* --- Module SS-CC-Operations-asn1-97 --- --- ---                            */
 
-static gint ett_qsig_cc_CcRequestArg = -1;
-static gint ett_qsig_cc_CcRequestRes = -1;
-static gint ett_qsig_cc_CcOptionalArg = -1;
-static gint ett_qsig_cc_T_fullArg = -1;
-static gint ett_qsig_cc_CcExtension = -1;
-static gint ett_qsig_cc_SEQUENCE_OF_Extension = -1;
+static gint ett_qsig_cc_CcRequestArg;
+static gint ett_qsig_cc_CcRequestRes;
+static gint ett_qsig_cc_CcOptionalArg;
+static gint ett_qsig_cc_T_fullArg;
+static gint ett_qsig_cc_CcExtension;
+static gint ett_qsig_cc_SEQUENCE_OF_Extension;
 
 /* --- Module Call-Offer-Operations-asn1-97 --- --- ---                       */
 
-static gint ett_qsig_co_PathRetainArg = -1;
-static gint ett_qsig_co_T_extendedServiceList = -1;
-static gint ett_qsig_co_ServiceAvailableArg = -1;
-static gint ett_qsig_co_T_extendedServiceList_01 = -1;
-static gint ett_qsig_co_ServiceList = -1;
-static gint ett_qsig_co_DummyArg = -1;
-static gint ett_qsig_co_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_co_DummyRes = -1;
+static gint ett_qsig_co_PathRetainArg;
+static gint ett_qsig_co_T_extendedServiceList;
+static gint ett_qsig_co_ServiceAvailableArg;
+static gint ett_qsig_co_T_extendedServiceList_01;
+static gint ett_qsig_co_ServiceList;
+static gint ett_qsig_co_DummyArg;
+static gint ett_qsig_co_SEQUENCE_OF_Extension;
+static gint ett_qsig_co_DummyRes;
 
 /* --- Module Do-Not-Disturb-Operations-asn1-97 --- --- ---                   */
 
-static gint ett_qsig_dnd_DummyArg = -1;
-static gint ett_qsig_dnd_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_dnd_DummyRes = -1;
-static gint ett_qsig_dnd_DNDActivateArg = -1;
-static gint ett_qsig_dnd_DNDAargumentExtension = -1;
-static gint ett_qsig_dnd_DNDActivateRes = -1;
-static gint ett_qsig_dnd_T_status = -1;
-static gint ett_qsig_dnd_T_status_item = -1;
-static gint ett_qsig_dnd_T_resultExtension = -1;
-static gint ett_qsig_dnd_DNDDeactivateArg = -1;
-static gint ett_qsig_dnd_DNDDargumentExtension = -1;
-static gint ett_qsig_dnd_DNDInterrogateArg = -1;
-static gint ett_qsig_dnd_DNDIargumentExtension = -1;
-static gint ett_qsig_dnd_DNDInterrogateRes = -1;
-static gint ett_qsig_dnd_T_status_01 = -1;
-static gint ett_qsig_dnd_T_status_item_01 = -1;
-static gint ett_qsig_dnd_T_resultExtension_01 = -1;
-static gint ett_qsig_dnd_DNDOverrideArg = -1;
-static gint ett_qsig_dnd_DNDOargumentExtension = -1;
-static gint ett_qsig_dnd_PathRetainArg = -1;
-static gint ett_qsig_dnd_T_extendedServiceList = -1;
-static gint ett_qsig_dnd_ServiceAvailableArg = -1;
-static gint ett_qsig_dnd_T_extendedServiceList_01 = -1;
-static gint ett_qsig_dnd_ServiceList = -1;
+static gint ett_qsig_dnd_DummyArg;
+static gint ett_qsig_dnd_SEQUENCE_OF_Extension;
+static gint ett_qsig_dnd_DummyRes;
+static gint ett_qsig_dnd_DNDActivateArg;
+static gint ett_qsig_dnd_DNDAargumentExtension;
+static gint ett_qsig_dnd_DNDActivateRes;
+static gint ett_qsig_dnd_T_status;
+static gint ett_qsig_dnd_T_status_item;
+static gint ett_qsig_dnd_T_resultExtension;
+static gint ett_qsig_dnd_DNDDeactivateArg;
+static gint ett_qsig_dnd_DNDDargumentExtension;
+static gint ett_qsig_dnd_DNDInterrogateArg;
+static gint ett_qsig_dnd_DNDIargumentExtension;
+static gint ett_qsig_dnd_DNDInterrogateRes;
+static gint ett_qsig_dnd_T_status_01;
+static gint ett_qsig_dnd_T_status_item_01;
+static gint ett_qsig_dnd_T_resultExtension_01;
+static gint ett_qsig_dnd_DNDOverrideArg;
+static gint ett_qsig_dnd_DNDOargumentExtension;
+static gint ett_qsig_dnd_PathRetainArg;
+static gint ett_qsig_dnd_T_extendedServiceList;
+static gint ett_qsig_dnd_ServiceAvailableArg;
+static gint ett_qsig_dnd_T_extendedServiceList_01;
+static gint ett_qsig_dnd_ServiceList;
 
 /* --- Module Call-Intrusion-Operations-asn1-97 --- --- ---                   */
 
-static gint ett_qsig_ci_PathRetainArg = -1;
-static gint ett_qsig_ci_T_extendedServiceList = -1;
-static gint ett_qsig_ci_ServiceAvailableArg = -1;
-static gint ett_qsig_ci_T_extendedServiceList_01 = -1;
-static gint ett_qsig_ci_ServiceList = -1;
-static gint ett_qsig_ci_DummyArg = -1;
-static gint ett_qsig_ci_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_ci_DummyRes = -1;
-static gint ett_qsig_ci_CIRequestArg = -1;
-static gint ett_qsig_ci_T_argumentExtension = -1;
-static gint ett_qsig_ci_CIRequestRes = -1;
-static gint ett_qsig_ci_T_resultExtension = -1;
-static gint ett_qsig_ci_CIGetCIPLRes = -1;
-static gint ett_qsig_ci_T_resultExtension_01 = -1;
+static gint ett_qsig_ci_PathRetainArg;
+static gint ett_qsig_ci_T_extendedServiceList;
+static gint ett_qsig_ci_ServiceAvailableArg;
+static gint ett_qsig_ci_T_extendedServiceList_01;
+static gint ett_qsig_ci_ServiceList;
+static gint ett_qsig_ci_DummyArg;
+static gint ett_qsig_ci_SEQUENCE_OF_Extension;
+static gint ett_qsig_ci_DummyRes;
+static gint ett_qsig_ci_CIRequestArg;
+static gint ett_qsig_ci_T_argumentExtension;
+static gint ett_qsig_ci_CIRequestRes;
+static gint ett_qsig_ci_T_resultExtension;
+static gint ett_qsig_ci_CIGetCIPLRes;
+static gint ett_qsig_ci_T_resultExtension_01;
 
 /* --- Module SS-AOC-Operations-asn1-97 --- --- ---                           */
 
-static gint ett_qsig_aoc_AocRateArg = -1;
-static gint ett_qsig_aoc_T_aocRate = -1;
-static gint ett_qsig_aoc_T_rateArgExtension = -1;
-static gint ett_qsig_aoc_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_aoc_AocInterimArg = -1;
-static gint ett_qsig_aoc_T_interimCharge = -1;
-static gint ett_qsig_aoc_T_specificCurrency = -1;
-static gint ett_qsig_aoc_T_interimArgExtension = -1;
-static gint ett_qsig_aoc_AocFinalArg = -1;
-static gint ett_qsig_aoc_T_finalCharge = -1;
-static gint ett_qsig_aoc_T_specificCurrency_01 = -1;
-static gint ett_qsig_aoc_T_finalArgExtension = -1;
-static gint ett_qsig_aoc_AOCSCurrencyInfoList = -1;
-static gint ett_qsig_aoc_AOCSCurrencyInfo = -1;
-static gint ett_qsig_aoc_T_rateType = -1;
-static gint ett_qsig_aoc_DurationCurrency = -1;
-static gint ett_qsig_aoc_FlatRateCurrency = -1;
-static gint ett_qsig_aoc_VolumeRateCurrency = -1;
-static gint ett_qsig_aoc_RecordedCurrency = -1;
-static gint ett_qsig_aoc_Amount = -1;
-static gint ett_qsig_aoc_Time = -1;
-static gint ett_qsig_aoc_ChargingAssociation = -1;
-static gint ett_qsig_aoc_ChargeRequestArg = -1;
-static gint ett_qsig_aoc_SEQUENCE_SIZE_0_7_OF_AdviceModeCombination = -1;
-static gint ett_qsig_aoc_T_chargeReqArgExtension = -1;
-static gint ett_qsig_aoc_ChargeRequestRes = -1;
-static gint ett_qsig_aoc_T_chargeReqResExtension = -1;
-static gint ett_qsig_aoc_DummyArg = -1;
-static gint ett_qsig_aoc_AocCompleteArg = -1;
-static gint ett_qsig_aoc_T_completeArgExtension = -1;
-static gint ett_qsig_aoc_AocCompleteRes = -1;
-static gint ett_qsig_aoc_T_completeResExtension = -1;
-static gint ett_qsig_aoc_AocDivChargeReqArg = -1;
-static gint ett_qsig_aoc_T_aocDivChargeReqArgExt = -1;
+static gint ett_qsig_aoc_AocRateArg;
+static gint ett_qsig_aoc_T_aocRate;
+static gint ett_qsig_aoc_T_rateArgExtension;
+static gint ett_qsig_aoc_SEQUENCE_OF_Extension;
+static gint ett_qsig_aoc_AocInterimArg;
+static gint ett_qsig_aoc_T_interimCharge;
+static gint ett_qsig_aoc_T_specificCurrency;
+static gint ett_qsig_aoc_T_interimArgExtension;
+static gint ett_qsig_aoc_AocFinalArg;
+static gint ett_qsig_aoc_T_finalCharge;
+static gint ett_qsig_aoc_T_specificCurrency_01;
+static gint ett_qsig_aoc_T_finalArgExtension;
+static gint ett_qsig_aoc_AOCSCurrencyInfoList;
+static gint ett_qsig_aoc_AOCSCurrencyInfo;
+static gint ett_qsig_aoc_T_rateType;
+static gint ett_qsig_aoc_DurationCurrency;
+static gint ett_qsig_aoc_FlatRateCurrency;
+static gint ett_qsig_aoc_VolumeRateCurrency;
+static gint ett_qsig_aoc_RecordedCurrency;
+static gint ett_qsig_aoc_Amount;
+static gint ett_qsig_aoc_Time;
+static gint ett_qsig_aoc_ChargingAssociation;
+static gint ett_qsig_aoc_ChargeRequestArg;
+static gint ett_qsig_aoc_SEQUENCE_SIZE_0_7_OF_AdviceModeCombination;
+static gint ett_qsig_aoc_T_chargeReqArgExtension;
+static gint ett_qsig_aoc_ChargeRequestRes;
+static gint ett_qsig_aoc_T_chargeReqResExtension;
+static gint ett_qsig_aoc_DummyArg;
+static gint ett_qsig_aoc_AocCompleteArg;
+static gint ett_qsig_aoc_T_completeArgExtension;
+static gint ett_qsig_aoc_AocCompleteRes;
+static gint ett_qsig_aoc_T_completeResExtension;
+static gint ett_qsig_aoc_AocDivChargeReqArg;
+static gint ett_qsig_aoc_T_aocDivChargeReqArgExt;
 
 /* --- Module Recall-Operations-asn1-97 --- --- ---                           */
 
-static gint ett_qsig_re_ReAlertingArg = -1;
-static gint ett_qsig_re_T_argumentExtension = -1;
-static gint ett_qsig_re_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_re_ReAnswerArg = -1;
-static gint ett_qsig_re_T_argumentExtension_01 = -1;
+static gint ett_qsig_re_ReAlertingArg;
+static gint ett_qsig_re_T_argumentExtension;
+static gint ett_qsig_re_SEQUENCE_OF_Extension;
+static gint ett_qsig_re_ReAnswerArg;
+static gint ett_qsig_re_T_argumentExtension_01;
 
 /* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
 
-static gint ett_qsig_sync_SynchronizationReqArg = -1;
-static gint ett_qsig_sync_SynchronizationReqRes = -1;
-static gint ett_qsig_sync_SynchronizationInfoArg = -1;
-static gint ett_qsig_sync_ArgExtension = -1;
-static gint ett_qsig_sync_SEQUENCE_OF_Extension = -1;
+static gint ett_qsig_sync_SynchronizationReqArg;
+static gint ett_qsig_sync_SynchronizationReqRes;
+static gint ett_qsig_sync_SynchronizationInfoArg;
+static gint ett_qsig_sync_ArgExtension;
+static gint ett_qsig_sync_SEQUENCE_OF_Extension;
 
 /* --- Module Call-Interception-Operations-asn1-97 --- --- ---                */
 
-static gint ett_qsig_cint_CintInformation1Arg = -1;
-static gint ett_qsig_cint_CintInformation2Arg = -1;
-static gint ett_qsig_cint_CintCondArg = -1;
-static gint ett_qsig_cint_CintExtension = -1;
-static gint ett_qsig_cint_SEQUENCE_OF_Extension = -1;
+static gint ett_qsig_cint_CintInformation1Arg;
+static gint ett_qsig_cint_CintInformation2Arg;
+static gint ett_qsig_cint_CintCondArg;
+static gint ett_qsig_cint_CintExtension;
+static gint ett_qsig_cint_SEQUENCE_OF_Extension;
 
 /* --- Module Common-Information-Operations-asn1-97 --- --- ---               */
 
-static gint ett_qsig_cmn_CmnArg = -1;
-static gint ett_qsig_cmn_T_extension = -1;
-static gint ett_qsig_cmn_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_cmn_DummyArg = -1;
-static gint ett_qsig_cmn_FeatureIdList = -1;
-static gint ett_qsig_cmn_EquipmentId = -1;
+static gint ett_qsig_cmn_CmnArg;
+static gint ett_qsig_cmn_T_extension;
+static gint ett_qsig_cmn_SEQUENCE_OF_Extension;
+static gint ett_qsig_cmn_DummyArg;
+static gint ett_qsig_cmn_FeatureIdList;
+static gint ett_qsig_cmn_EquipmentId;
 
 /* --- Module Call-Interruption-Operations-asn1-97 --- --- ---                */
 
-static gint ett_qsig_cpi_CPIRequestArg = -1;
-static gint ett_qsig_cpi_T_argumentExtension = -1;
-static gint ett_qsig_cpi_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_cpi_CPIPRequestArg = -1;
-static gint ett_qsig_cpi_T_argumentExtension_01 = -1;
+static gint ett_qsig_cpi_CPIRequestArg;
+static gint ett_qsig_cpi_T_argumentExtension;
+static gint ett_qsig_cpi_SEQUENCE_OF_Extension;
+static gint ett_qsig_cpi_CPIPRequestArg;
+static gint ett_qsig_cpi_T_argumentExtension_01;
 
 /* --- Module PUM-Registration-Operations-asn1-97 --- --- ---                 */
 
-static gint ett_qsig_pumr_PumRegistrArg = -1;
-static gint ett_qsig_pumr_RpumUserId = -1;
-static gint ett_qsig_pumr_T_userPin = -1;
-static gint ett_qsig_pumr_PumRegistrRes = -1;
-static gint ett_qsig_pumr_DummyRes = -1;
-static gint ett_qsig_pumr_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_pumr_PumDelRegArg = -1;
-static gint ett_qsig_pumr_XpumUserId = -1;
-static gint ett_qsig_pumr_PumDe_regArg = -1;
-static gint ett_qsig_pumr_DpumUserId = -1;
-static gint ett_qsig_pumr_T_userPin_01 = -1;
-static gint ett_qsig_pumr_PumInterrogArg = -1;
-static gint ett_qsig_pumr_IpumUserId = -1;
-static gint ett_qsig_pumr_T_userPin_02 = -1;
-static gint ett_qsig_pumr_PumInterrogRes = -1;
-static gint ett_qsig_pumr_PumInterrogRes_item = -1;
-static gint ett_qsig_pumr_SessionParams = -1;
-static gint ett_qsig_pumr_PumrExtension = -1;
+static gint ett_qsig_pumr_PumRegistrArg;
+static gint ett_qsig_pumr_RpumUserId;
+static gint ett_qsig_pumr_T_userPin;
+static gint ett_qsig_pumr_PumRegistrRes;
+static gint ett_qsig_pumr_DummyRes;
+static gint ett_qsig_pumr_SEQUENCE_OF_Extension;
+static gint ett_qsig_pumr_PumDelRegArg;
+static gint ett_qsig_pumr_XpumUserId;
+static gint ett_qsig_pumr_PumDe_regArg;
+static gint ett_qsig_pumr_DpumUserId;
+static gint ett_qsig_pumr_T_userPin_01;
+static gint ett_qsig_pumr_PumInterrogArg;
+static gint ett_qsig_pumr_IpumUserId;
+static gint ett_qsig_pumr_T_userPin_02;
+static gint ett_qsig_pumr_PumInterrogRes;
+static gint ett_qsig_pumr_PumInterrogRes_item;
+static gint ett_qsig_pumr_SessionParams;
+static gint ett_qsig_pumr_PumrExtension;
 
 /* --- Module Private-User-Mobility-Call-Handling-Operations-asn1-97 --- --- --- */
 
-static gint ett_qsig_pumch_EnquiryArg = -1;
-static gint ett_qsig_pumch_DivertArg = -1;
-static gint ett_qsig_pumch_InformArg = -1;
-static gint ett_qsig_pumch_EnquiryRes = -1;
-static gint ett_qsig_pumch_CurrLocation = -1;
-static gint ett_qsig_pumch_CfuActivated = -1;
-static gint ett_qsig_pumch_DummyRes = -1;
-static gint ett_qsig_pumch_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_pumch_PumiExtension = -1;
-static gint ett_qsig_pumch_PumIdentity = -1;
-static gint ett_qsig_pumch_T_both = -1;
-static gint ett_qsig_pumch_PumoArg = -1;
-static gint ett_qsig_pumch_T_pumoaextension = -1;
+static gint ett_qsig_pumch_EnquiryArg;
+static gint ett_qsig_pumch_DivertArg;
+static gint ett_qsig_pumch_InformArg;
+static gint ett_qsig_pumch_EnquiryRes;
+static gint ett_qsig_pumch_CurrLocation;
+static gint ett_qsig_pumch_CfuActivated;
+static gint ett_qsig_pumch_DummyRes;
+static gint ett_qsig_pumch_SEQUENCE_OF_Extension;
+static gint ett_qsig_pumch_PumiExtension;
+static gint ett_qsig_pumch_PumIdentity;
+static gint ett_qsig_pumch_T_both;
+static gint ett_qsig_pumch_PumoArg;
+static gint ett_qsig_pumch_T_pumoaextension;
 
 /* --- Module Single-Step-Call-Transfer-Operations-asn1-97 --- --- ---        */
 
-static gint ett_qsig_ssct_DummyArg = -1;
-static gint ett_qsig_ssct_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_ssct_DummyRes = -1;
-static gint ett_qsig_ssct_SSCTInitiateArg = -1;
-static gint ett_qsig_ssct_SSCTIargumentExtension = -1;
-static gint ett_qsig_ssct_SSCTSetupArg = -1;
-static gint ett_qsig_ssct_SSCTSargumentExtension = -1;
-static gint ett_qsig_ssct_SSCTDigitInfoArg = -1;
-static gint ett_qsig_ssct_SSCTDargumentExtension = -1;
+static gint ett_qsig_ssct_DummyArg;
+static gint ett_qsig_ssct_SEQUENCE_OF_Extension;
+static gint ett_qsig_ssct_DummyRes;
+static gint ett_qsig_ssct_SSCTInitiateArg;
+static gint ett_qsig_ssct_SSCTIargumentExtension;
+static gint ett_qsig_ssct_SSCTSetupArg;
+static gint ett_qsig_ssct_SSCTSargumentExtension;
+static gint ett_qsig_ssct_SSCTDigitInfoArg;
+static gint ett_qsig_ssct_SSCTDargumentExtension;
 
 /* --- Module WTM-Location-Registration-Operations-asn1-97 --- --- ---        */
 
-static gint ett_qsig_wtmlr_LocUpdArg = -1;
-static gint ett_qsig_wtmlr_DummyRes = -1;
-static gint ett_qsig_wtmlr_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_wtmlr_LocDelArg = -1;
-static gint ett_qsig_wtmlr_LocDeRegArg = -1;
-static gint ett_qsig_wtmlr_PisnEnqArg = -1;
-static gint ett_qsig_wtmlr_PisnEnqRes = -1;
-static gint ett_qsig_wtmlr_GetRRCInfArg = -1;
-static gint ett_qsig_wtmlr_GetRRCInfRes = -1;
-static gint ett_qsig_wtmlr_LocInfoCheckArg = -1;
-static gint ett_qsig_wtmlr_LocInfoCheckRes = -1;
-static gint ett_qsig_wtmlr_WtmUserId = -1;
-static gint ett_qsig_wtmlr_LrExtension = -1;
+static gint ett_qsig_wtmlr_LocUpdArg;
+static gint ett_qsig_wtmlr_DummyRes;
+static gint ett_qsig_wtmlr_SEQUENCE_OF_Extension;
+static gint ett_qsig_wtmlr_LocDelArg;
+static gint ett_qsig_wtmlr_LocDeRegArg;
+static gint ett_qsig_wtmlr_PisnEnqArg;
+static gint ett_qsig_wtmlr_PisnEnqRes;
+static gint ett_qsig_wtmlr_GetRRCInfArg;
+static gint ett_qsig_wtmlr_GetRRCInfRes;
+static gint ett_qsig_wtmlr_LocInfoCheckArg;
+static gint ett_qsig_wtmlr_LocInfoCheckRes;
+static gint ett_qsig_wtmlr_WtmUserId;
+static gint ett_qsig_wtmlr_LrExtension;
 
 /* --- Module Wireless-Terminal-Call-Handling-Operations-asn1-97 --- --- ---  */
 
-static gint ett_qsig_wtmch_EnquiryArg = -1;
-static gint ett_qsig_wtmch_DivertArg = -1;
-static gint ett_qsig_wtmch_InformArg = -1;
-static gint ett_qsig_wtmch_EnquiryRes = -1;
-static gint ett_qsig_wtmch_CurrLocation = -1;
-static gint ett_qsig_wtmch_CfuActivated = -1;
-static gint ett_qsig_wtmch_DummyRes = -1;
-static gint ett_qsig_wtmch_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_wtmch_WtmiExtension = -1;
-static gint ett_qsig_wtmch_WtmIdentity = -1;
-static gint ett_qsig_wtmch_T_both = -1;
-static gint ett_qsig_wtmch_WtmoArg = -1;
-static gint ett_qsig_wtmch_T_wtmoaextension = -1;
+static gint ett_qsig_wtmch_EnquiryArg;
+static gint ett_qsig_wtmch_DivertArg;
+static gint ett_qsig_wtmch_InformArg;
+static gint ett_qsig_wtmch_EnquiryRes;
+static gint ett_qsig_wtmch_CurrLocation;
+static gint ett_qsig_wtmch_CfuActivated;
+static gint ett_qsig_wtmch_DummyRes;
+static gint ett_qsig_wtmch_SEQUENCE_OF_Extension;
+static gint ett_qsig_wtmch_WtmiExtension;
+static gint ett_qsig_wtmch_WtmIdentity;
+static gint ett_qsig_wtmch_T_both;
+static gint ett_qsig_wtmch_WtmoArg;
+static gint ett_qsig_wtmch_T_wtmoaextension;
 
 /* --- Module WTM-Authentication-Operations-asn1-97 --- --- ---               */
 
-static gint ett_qsig_wtmau_AuthWtmArg = -1;
-static gint ett_qsig_wtmau_AuthWtmRes = -1;
-static gint ett_qsig_wtmau_WtatParamArg = -1;
-static gint ett_qsig_wtmau_WtatParamRes = -1;
-static gint ett_qsig_wtmau_WtanParamArg = -1;
-static gint ett_qsig_wtmau_WtmUserId = -1;
-static gint ett_qsig_wtmau_WtanParamRes = -1;
-static gint ett_qsig_wtmau_ARG_transferAuthParam = -1;
-static gint ett_qsig_wtmau_WtatParamInfo = -1;
-static gint ett_qsig_wtmau_T_wtatParamInfoChoice = -1;
-static gint ett_qsig_wtmau_WtanParamInfo = -1;
-static gint ett_qsig_wtmau_AuthSessionKeyInfo = -1;
-static gint ett_qsig_wtmau_CalcWtatInfo = -1;
-static gint ett_qsig_wtmau_CalcWtatInfoUnit = -1;
-static gint ett_qsig_wtmau_CalcWtanInfo = -1;
-static gint ett_qsig_wtmau_DummyExtension = -1;
-static gint ett_qsig_wtmau_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_wtmau_AuthAlgorithm = -1;
+static gint ett_qsig_wtmau_AuthWtmArg;
+static gint ett_qsig_wtmau_AuthWtmRes;
+static gint ett_qsig_wtmau_WtatParamArg;
+static gint ett_qsig_wtmau_WtatParamRes;
+static gint ett_qsig_wtmau_WtanParamArg;
+static gint ett_qsig_wtmau_WtmUserId;
+static gint ett_qsig_wtmau_WtanParamRes;
+static gint ett_qsig_wtmau_ARG_transferAuthParam;
+static gint ett_qsig_wtmau_WtatParamInfo;
+static gint ett_qsig_wtmau_T_wtatParamInfoChoice;
+static gint ett_qsig_wtmau_WtanParamInfo;
+static gint ett_qsig_wtmau_AuthSessionKeyInfo;
+static gint ett_qsig_wtmau_CalcWtatInfo;
+static gint ett_qsig_wtmau_CalcWtatInfoUnit;
+static gint ett_qsig_wtmau_CalcWtanInfo;
+static gint ett_qsig_wtmau_DummyExtension;
+static gint ett_qsig_wtmau_SEQUENCE_OF_Extension;
+static gint ett_qsig_wtmau_AuthAlgorithm;
 
 /* --- Module SS-SD-Operations-asn1-97 --- --- ---                            */
 
-static gint ett_qsig_sd_DisplayArg = -1;
-static gint ett_qsig_sd_DisplayString = -1;
-static gint ett_qsig_sd_KeypadArg = -1;
-static gint ett_qsig_sd_SDExtension = -1;
-static gint ett_qsig_sd_SEQUENCE_OF_Extension = -1;
+static gint ett_qsig_sd_DisplayArg;
+static gint ett_qsig_sd_DisplayString;
+static gint ett_qsig_sd_KeypadArg;
+static gint ett_qsig_sd_SDExtension;
+static gint ett_qsig_sd_SEQUENCE_OF_Extension;
 
 /* --- Module Call-Identification-and-Call-Linkage-Operations-asn1-97 --- --- --- */
 
-static gint ett_qsig_cidl_CallIdentificationAssignArg = -1;
-static gint ett_qsig_cidl_CallIdentificationUpdateArg = -1;
-static gint ett_qsig_cidl_CallIdentificationData = -1;
-static gint ett_qsig_cidl_T_linkageID = -1;
-static gint ett_qsig_cidl_ExtensionType = -1;
-static gint ett_qsig_cidl_SEQUENCE_OF_Extension = -1;
+static gint ett_qsig_cidl_CallIdentificationAssignArg;
+static gint ett_qsig_cidl_CallIdentificationUpdateArg;
+static gint ett_qsig_cidl_CallIdentificationData;
+static gint ett_qsig_cidl_T_linkageID;
+static gint ett_qsig_cidl_ExtensionType;
+static gint ett_qsig_cidl_SEQUENCE_OF_Extension;
 
 /* --- Module Short-Message-Service-Operations-asn1-97 --- --- ---            */
 
-static gint ett_qsig_sms_SmsSubmitArg = -1;
-static gint ett_qsig_sms_SmsSubmitRes = -1;
-static gint ett_qsig_sms_SmsDeliverArg = -1;
-static gint ett_qsig_sms_SmsDeliverRes = -1;
-static gint ett_qsig_sms_SmsStatusReportArg = -1;
-static gint ett_qsig_sms_SmsStatusReportRes = -1;
-static gint ett_qsig_sms_SmsCommandArg = -1;
-static gint ett_qsig_sms_SmsCommandRes = -1;
-static gint ett_qsig_sms_ScAlertArg = -1;
-static gint ett_qsig_sms_DummyRes = -1;
-static gint ett_qsig_sms_SmSubmitParameter = -1;
-static gint ett_qsig_sms_SmDeliverParameter = -1;
-static gint ett_qsig_sms_SmsDeliverResChoice = -1;
-static gint ett_qsig_sms_ResChoiceSeq = -1;
-static gint ett_qsig_sms_SmsStatusReportResponseChoice = -1;
-static gint ett_qsig_sms_SmsExtension = -1;
-static gint ett_qsig_sms_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_sms_ValidityPeriod = -1;
-static gint ett_qsig_sms_ValidityPeriodEnh = -1;
-static gint ett_qsig_sms_EnhancedVP = -1;
-static gint ett_qsig_sms_UserData = -1;
-static gint ett_qsig_sms_ShortMessageText = -1;
-static gint ett_qsig_sms_UserDataHeader = -1;
-static gint ett_qsig_sms_UserDataHeaderChoice = -1;
-static gint ett_qsig_sms_SmscControlParameterHeader = -1;
-static gint ett_qsig_sms_Concatenated8BitSMHeader = -1;
-static gint ett_qsig_sms_Concatenated16BitSMHeader = -1;
-static gint ett_qsig_sms_ApplicationPort8BitHeader = -1;
-static gint ett_qsig_sms_ApplicationPort16BitHeader = -1;
-static gint ett_qsig_sms_GenericUserValue = -1;
-static gint ett_qsig_sms_PAR_smsDeliverError = -1;
-static gint ett_qsig_sms_PAR_smsSubmitError = -1;
-static gint ett_qsig_sms_PAR_smsStatusReportError = -1;
-static gint ett_qsig_sms_PAR_smsCommandError = -1;
+static gint ett_qsig_sms_SmsSubmitArg;
+static gint ett_qsig_sms_SmsSubmitRes;
+static gint ett_qsig_sms_SmsDeliverArg;
+static gint ett_qsig_sms_SmsDeliverRes;
+static gint ett_qsig_sms_SmsStatusReportArg;
+static gint ett_qsig_sms_SmsStatusReportRes;
+static gint ett_qsig_sms_SmsCommandArg;
+static gint ett_qsig_sms_SmsCommandRes;
+static gint ett_qsig_sms_ScAlertArg;
+static gint ett_qsig_sms_DummyRes;
+static gint ett_qsig_sms_SmSubmitParameter;
+static gint ett_qsig_sms_SmDeliverParameter;
+static gint ett_qsig_sms_SmsDeliverResChoice;
+static gint ett_qsig_sms_ResChoiceSeq;
+static gint ett_qsig_sms_SmsStatusReportResponseChoice;
+static gint ett_qsig_sms_SmsExtension;
+static gint ett_qsig_sms_SEQUENCE_OF_Extension;
+static gint ett_qsig_sms_ValidityPeriod;
+static gint ett_qsig_sms_ValidityPeriodEnh;
+static gint ett_qsig_sms_EnhancedVP;
+static gint ett_qsig_sms_UserData;
+static gint ett_qsig_sms_ShortMessageText;
+static gint ett_qsig_sms_UserDataHeader;
+static gint ett_qsig_sms_UserDataHeaderChoice;
+static gint ett_qsig_sms_SmscControlParameterHeader;
+static gint ett_qsig_sms_Concatenated8BitSMHeader;
+static gint ett_qsig_sms_Concatenated16BitSMHeader;
+static gint ett_qsig_sms_ApplicationPort8BitHeader;
+static gint ett_qsig_sms_ApplicationPort16BitHeader;
+static gint ett_qsig_sms_GenericUserValue;
+static gint ett_qsig_sms_PAR_smsDeliverError;
+static gint ett_qsig_sms_PAR_smsSubmitError;
+static gint ett_qsig_sms_PAR_smsStatusReportError;
+static gint ett_qsig_sms_PAR_smsCommandError;
 
 /* --- Module SS-MCR-Operations-asn97 --- --- ---                             */
 
-static gint ett_qsig_mcr_MCRequestArg = -1;
-static gint ett_qsig_mcr_MCRequestResult = -1;
-static gint ett_qsig_mcr_MCInformArg = -1;
-static gint ett_qsig_mcr_MCAlertingArg = -1;
-static gint ett_qsig_mcr_CallType = -1;
-static gint ett_qsig_mcr_Correlation = -1;
-static gint ett_qsig_mcr_MCRExtensions = -1;
-static gint ett_qsig_mcr_SEQUENCE_OF_Extension = -1;
+static gint ett_qsig_mcr_MCRequestArg;
+static gint ett_qsig_mcr_MCRequestResult;
+static gint ett_qsig_mcr_MCInformArg;
+static gint ett_qsig_mcr_MCAlertingArg;
+static gint ett_qsig_mcr_CallType;
+static gint ett_qsig_mcr_Correlation;
+static gint ett_qsig_mcr_MCRExtensions;
+static gint ett_qsig_mcr_SEQUENCE_OF_Extension;
 
 /* --- Module SS-MCM-Operations-asn1-97 --- --- ---                           */
 
-static gint ett_qsig_mcm_MCMailboxFullArg = -1;
-static gint ett_qsig_mcm_MailboxFullFor = -1;
-static gint ett_qsig_mcm_MailboxFullPar = -1;
-static gint ett_qsig_mcm_MCMServiceArg = -1;
-static gint ett_qsig_mcm_MCMChange = -1;
-static gint ett_qsig_mcm_SEQUENCE_OF_MCMServiceInfo = -1;
-static gint ett_qsig_mcm_SEQUENCE_OF_MessageType = -1;
-static gint ett_qsig_mcm_MCMServiceInfo = -1;
-static gint ett_qsig_mcm_MCMInterrogateArg = -1;
-static gint ett_qsig_mcm_MCMInterrogateRes = -1;
-static gint ett_qsig_mcm_MCMNewMsgArg = -1;
-static gint ett_qsig_mcm_MCMNewArgumentExt = -1;
-static gint ett_qsig_mcm_SEQUENCE_OF_Extension = -1;
-static gint ett_qsig_mcm_MCMNoNewMsgArg = -1;
-static gint ett_qsig_mcm_MCMNoNewArgumentExt = -1;
-static gint ett_qsig_mcm_MCMUpdateArg = -1;
-static gint ett_qsig_mcm_MCMUpdateReqArg = -1;
-static gint ett_qsig_mcm_MCMUpdArgArgumentExt = -1;
-static gint ett_qsig_mcm_MCMUpdateReqRes = -1;
-static gint ett_qsig_mcm_MCMUpdateReqResElt = -1;
-static gint ett_qsig_mcm_MCMUpdResArgumentExt = -1;
-static gint ett_qsig_mcm_PartyInfo = -1;
-static gint ett_qsig_mcm_UpdateInfo = -1;
-static gint ett_qsig_mcm_AllMsgInfo = -1;
-static gint ett_qsig_mcm_MessageInfo = -1;
-static gint ett_qsig_mcm_CompleteInfo = -1;
-static gint ett_qsig_mcm_AddressHeader = -1;
-static gint ett_qsig_mcm_CompressedInfo = -1;
-static gint ett_qsig_mcm_MsgCentreId = -1;
-static gint ett_qsig_mcm_MCMExtensions = -1;
+static gint ett_qsig_mcm_MCMailboxFullArg;
+static gint ett_qsig_mcm_MailboxFullFor;
+static gint ett_qsig_mcm_MailboxFullPar;
+static gint ett_qsig_mcm_MCMServiceArg;
+static gint ett_qsig_mcm_MCMChange;
+static gint ett_qsig_mcm_SEQUENCE_OF_MCMServiceInfo;
+static gint ett_qsig_mcm_SEQUENCE_OF_MessageType;
+static gint ett_qsig_mcm_MCMServiceInfo;
+static gint ett_qsig_mcm_MCMInterrogateArg;
+static gint ett_qsig_mcm_MCMInterrogateRes;
+static gint ett_qsig_mcm_MCMNewMsgArg;
+static gint ett_qsig_mcm_MCMNewArgumentExt;
+static gint ett_qsig_mcm_SEQUENCE_OF_Extension;
+static gint ett_qsig_mcm_MCMNoNewMsgArg;
+static gint ett_qsig_mcm_MCMNoNewArgumentExt;
+static gint ett_qsig_mcm_MCMUpdateArg;
+static gint ett_qsig_mcm_MCMUpdateReqArg;
+static gint ett_qsig_mcm_MCMUpdArgArgumentExt;
+static gint ett_qsig_mcm_MCMUpdateReqRes;
+static gint ett_qsig_mcm_MCMUpdateReqResElt;
+static gint ett_qsig_mcm_MCMUpdResArgumentExt;
+static gint ett_qsig_mcm_PartyInfo;
+static gint ett_qsig_mcm_UpdateInfo;
+static gint ett_qsig_mcm_AllMsgInfo;
+static gint ett_qsig_mcm_MessageInfo;
+static gint ett_qsig_mcm_CompleteInfo;
+static gint ett_qsig_mcm_AddressHeader;
+static gint ett_qsig_mcm_CompressedInfo;
+static gint ett_qsig_mcm_MsgCentreId;
+static gint ett_qsig_mcm_MCMExtensions;
 
 /* --- Module SS-MID-Operations-asn1-97 --- --- ---                           */
 
-static gint ett_qsig_mid_MIDMailboxAuthArg = -1;
-static gint ett_qsig_mid_MIDMailboxIDArg = -1;
-static gint ett_qsig_mid_PartyInfo = -1;
-static gint ett_qsig_mid_String = -1;
-static gint ett_qsig_mid_MIDExtensions = -1;
-static gint ett_qsig_mid_SEQUENCE_OF_Extension = -1;
-static gint ett_cnq_PSS1InformationElement = -1;
+static gint ett_qsig_mid_MIDMailboxAuthArg;
+static gint ett_qsig_mid_MIDMailboxIDArg;
+static gint ett_qsig_mid_PartyInfo;
+static gint ett_qsig_mid_String;
+static gint ett_qsig_mid_MIDExtensions;
+static gint ett_qsig_mid_SEQUENCE_OF_Extension;
+static gint ett_cnq_PSS1InformationElement;
 
-/* static expert_field ei_qsig_unsupported_arg_type = EI_INIT; */
-static expert_field ei_qsig_unsupported_result_type = EI_INIT;
-static expert_field ei_qsig_unsupported_error_type = EI_INIT;
+/* static expert_field ei_qsig_unsupported_arg_type; */
+static expert_field ei_qsig_unsupported_result_type;
+static expert_field ei_qsig_unsupported_error_type;
 
 /* Preferences */
 

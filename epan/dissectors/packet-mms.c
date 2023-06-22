@@ -34,914 +34,914 @@ void proto_register_mms(void);
 void proto_reg_handoff_mms(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_mms = -1;
+static int proto_mms;
 
-static int hf_mms_confirmed_RequestPDU = -1;      /* Confirmed_RequestPDU */
-static int hf_mms_confirmed_ResponsePDU = -1;     /* Confirmed_ResponsePDU */
-static int hf_mms_confirmed_ErrorPDU = -1;        /* Confirmed_ErrorPDU */
-static int hf_mms_unconfirmed_PDU = -1;           /* Unconfirmed_PDU */
-static int hf_mms_rejectPDU = -1;                 /* RejectPDU */
-static int hf_mms_cancel_RequestPDU = -1;         /* Cancel_RequestPDU */
-static int hf_mms_cancel_ResponsePDU = -1;        /* Cancel_ResponsePDU */
-static int hf_mms_cancel_ErrorPDU = -1;           /* Cancel_ErrorPDU */
-static int hf_mms_initiate_RequestPDU = -1;       /* Initiate_RequestPDU */
-static int hf_mms_initiate_ResponsePDU = -1;      /* Initiate_ResponsePDU */
-static int hf_mms_initiate_ErrorPDU = -1;         /* Initiate_ErrorPDU */
-static int hf_mms_conclude_RequestPDU = -1;       /* Conclude_RequestPDU */
-static int hf_mms_conclude_ResponsePDU = -1;      /* Conclude_ResponsePDU */
-static int hf_mms_conclude_ErrorPDU = -1;         /* Conclude_ErrorPDU */
-static int hf_mms_invokeID = -1;                  /* Unsigned32 */
-static int hf_mms_listOfModifier = -1;            /* SEQUENCE_OF_Modifier */
-static int hf_mms_listOfModifier_item = -1;       /* Modifier */
-static int hf_mms_confirmedServiceRequest = -1;   /* ConfirmedServiceRequest */
-static int hf_mms_cs_request_detail = -1;         /* CS_Request_Detail */
-static int hf_mms_unconfirmedService = -1;        /* UnconfirmedService */
-static int hf_mms_confirmedServiceResponse = -1;  /* ConfirmedServiceResponse */
-static int hf_mms_modifierPosition = -1;          /* Unsigned32 */
-static int hf_mms_serviceError = -1;              /* ServiceError */
-static int hf_mms_informationReport = -1;         /* InformationReport */
-static int hf_mms_unsolicitedStatus = -1;         /* UnsolicitedStatus */
-static int hf_mms_eventNotification = -1;         /* EventNotification */
-static int hf_mms_attach_To_Event_Condition = -1;  /* AttachToEventCondition */
-static int hf_mms_attach_To_Semaphore = -1;       /* AttachToSemaphore */
-static int hf_mms_status = -1;                    /* Status_Request */
-static int hf_mms_getNameList = -1;               /* GetNameList_Request */
-static int hf_mms_identify = -1;                  /* Identify_Request */
-static int hf_mms_rename = -1;                    /* Rename_Request */
-static int hf_mms_read = -1;                      /* Read_Request */
-static int hf_mms_write = -1;                     /* Write_Request */
-static int hf_mms_getVariableAccessAttributes = -1;  /* GetVariableAccessAttributes_Request */
-static int hf_mms_defineNamedVariable = -1;       /* DefineNamedVariable_Request */
-static int hf_mms_defineScatteredAccess = -1;     /* DefineScatteredAccess_Request */
-static int hf_mms_getScatteredAccessAttributes = -1;  /* GetScatteredAccessAttributes_Request */
-static int hf_mms_deleteVariableAccess = -1;      /* DeleteVariableAccess_Request */
-static int hf_mms_defineNamedVariableList = -1;   /* DefineNamedVariableList_Request */
-static int hf_mms_getNamedVariableListAttributes = -1;  /* GetNamedVariableListAttributes_Request */
-static int hf_mms_deleteNamedVariableList = -1;   /* DeleteNamedVariableList_Request */
-static int hf_mms_defineNamedType = -1;           /* DefineNamedType_Request */
-static int hf_mms_getNamedTypeAttributes = -1;    /* GetNamedTypeAttributes_Request */
-static int hf_mms_deleteNamedType = -1;           /* DeleteNamedType_Request */
-static int hf_mms_input = -1;                     /* Input_Request */
-static int hf_mms_output = -1;                    /* Output_Request */
-static int hf_mms_takeControl = -1;               /* TakeControl_Request */
-static int hf_mms_relinquishControl = -1;         /* RelinquishControl_Request */
-static int hf_mms_defineSemaphore = -1;           /* DefineSemaphore_Request */
-static int hf_mms_deleteSemaphore = -1;           /* DeleteSemaphore_Request */
-static int hf_mms_reportSemaphoreStatus = -1;     /* ReportSemaphoreStatus_Request */
-static int hf_mms_reportPoolSemaphoreStatus = -1;  /* ReportPoolSemaphoreStatus_Request */
-static int hf_mms_reportSemaphoreEntryStatus = -1;  /* ReportSemaphoreEntryStatus_Request */
-static int hf_mms_initiateDownloadSequence = -1;  /* InitiateDownloadSequence_Request */
-static int hf_mms_downloadSegment = -1;           /* DownloadSegment_Request */
-static int hf_mms_terminateDownloadSequence = -1;  /* TerminateDownloadSequence_Request */
-static int hf_mms_initiateUploadSequence = -1;    /* InitiateUploadSequence_Request */
-static int hf_mms_uploadSegment = -1;             /* UploadSegment_Request */
-static int hf_mms_terminateUploadSequence = -1;   /* TerminateUploadSequence_Request */
-static int hf_mms_requestDomainDownload = -1;     /* RequestDomainDownload_Request */
-static int hf_mms_requestDomainUpload = -1;       /* RequestDomainUpload_Request */
-static int hf_mms_loadDomainContent = -1;         /* LoadDomainContent_Request */
-static int hf_mms_storeDomainContent = -1;        /* StoreDomainContent_Request */
-static int hf_mms_deleteDomain = -1;              /* DeleteDomain_Request */
-static int hf_mms_getDomainAttributes = -1;       /* GetDomainAttributes_Request */
-static int hf_mms_createProgramInvocation = -1;   /* CreateProgramInvocation_Request */
-static int hf_mms_deleteProgramInvocation = -1;   /* DeleteProgramInvocation_Request */
-static int hf_mms_start = -1;                     /* Start_Request */
-static int hf_mms_stop = -1;                      /* Stop_Request */
-static int hf_mms_resume = -1;                    /* Resume_Request */
-static int hf_mms_reset = -1;                     /* Reset_Request */
-static int hf_mms_kill = -1;                      /* Kill_Request */
-static int hf_mms_getProgramInvocationAttributes = -1;  /* GetProgramInvocationAttributes_Request */
-static int hf_mms_obtainFile = -1;                /* ObtainFile_Request */
-static int hf_mms_defineEventCondition = -1;      /* DefineEventCondition_Request */
-static int hf_mms_confirmedServiceRequest_deleteEventCondition = -1;  /* DeleteEventCondition_Request */
-static int hf_mms_getEventConditionAttributes = -1;  /* GetEventConditionAttributes_Request */
-static int hf_mms_reportEventConditionStatus = -1;  /* ReportEventConditionStatus_Request */
-static int hf_mms_alterEventConditionMonitoring = -1;  /* AlterEventConditionMonitoring_Request */
-static int hf_mms_triggerEvent = -1;              /* TriggerEvent_Request */
-static int hf_mms_defineEventAction = -1;         /* DefineEventAction_Request */
-static int hf_mms_confirmedServiceRequest_deleteEventAction = -1;  /* DeleteEventAction_Request */
-static int hf_mms_getEventActionAttributes = -1;  /* GetEventActionAttributes_Request */
-static int hf_mms_reportEventActionStatus = -1;   /* ReportEventActionStatus_Request */
-static int hf_mms_defineEventEnrollment = -1;     /* DefineEventEnrollment_Request */
-static int hf_mms_confirmedServiceRequest_deleteEventEnrollment = -1;  /* DeleteEventEnrollment_Request */
-static int hf_mms_alterEventEnrollment = -1;      /* AlterEventEnrollment_Request */
-static int hf_mms_reportEventEnrollmentStatus = -1;  /* ReportEventEnrollmentStatus_Request */
-static int hf_mms_getEventEnrollmentAttributes = -1;  /* GetEventEnrollmentAttributes_Request */
-static int hf_mms_acknowledgeEventNotification = -1;  /* AcknowledgeEventNotification_Request */
-static int hf_mms_getAlarmSummary = -1;           /* GetAlarmSummary_Request */
-static int hf_mms_getAlarmEnrollmentSummary = -1;  /* GetAlarmEnrollmentSummary_Request */
-static int hf_mms_readJournal = -1;               /* ReadJournal_Request */
-static int hf_mms_writeJournal = -1;              /* WriteJournal_Request */
-static int hf_mms_initializeJournal = -1;         /* InitializeJournal_Request */
-static int hf_mms_reportJournalStatus = -1;       /* ReportJournalStatus_Request */
-static int hf_mms_createJournal = -1;             /* CreateJournal_Request */
-static int hf_mms_deleteJournal = -1;             /* DeleteJournal_Request */
-static int hf_mms_getCapabilityList = -1;         /* GetCapabilityList_Request */
-static int hf_mms_fileOpen = -1;                  /* FileOpen_Request */
-static int hf_mms_fileRead = -1;                  /* FileRead_Request */
-static int hf_mms_fileClose = -1;                 /* FileClose_Request */
-static int hf_mms_fileRename = -1;                /* FileRename_Request */
-static int hf_mms_fileDelete = -1;                /* FileDelete_Request */
-static int hf_mms_fileDirectory = -1;             /* FileDirectory_Request */
-static int hf_mms_foo = -1;                       /* INTEGER */
-static int hf_mms_status_01 = -1;                 /* Status_Response */
-static int hf_mms_getNameList_01 = -1;            /* GetNameList_Response */
-static int hf_mms_identify_01 = -1;               /* Identify_Response */
-static int hf_mms_rename_01 = -1;                 /* Rename_Response */
-static int hf_mms_read_01 = -1;                   /* Read_Response */
-static int hf_mms_write_01 = -1;                  /* Write_Response */
-static int hf_mms_getVariableAccessAttributes_01 = -1;  /* GetVariableAccessAttributes_Response */
-static int hf_mms_defineNamedVariable_01 = -1;    /* DefineNamedVariable_Response */
-static int hf_mms_defineScatteredAccess_01 = -1;  /* DefineScatteredAccess_Response */
-static int hf_mms_getScatteredAccessAttributes_01 = -1;  /* GetScatteredAccessAttributes_Response */
-static int hf_mms_deleteVariableAccess_01 = -1;   /* DeleteVariableAccess_Response */
-static int hf_mms_defineNamedVariableList_01 = -1;  /* DefineNamedVariableList_Response */
-static int hf_mms_getNamedVariableListAttributes_01 = -1;  /* GetNamedVariableListAttributes_Response */
-static int hf_mms_deleteNamedVariableList_01 = -1;  /* DeleteNamedVariableList_Response */
-static int hf_mms_defineNamedType_01 = -1;        /* DefineNamedType_Response */
-static int hf_mms_getNamedTypeAttributes_01 = -1;  /* GetNamedTypeAttributes_Response */
-static int hf_mms_deleteNamedType_01 = -1;        /* DeleteNamedType_Response */
-static int hf_mms_input_01 = -1;                  /* Input_Response */
-static int hf_mms_output_01 = -1;                 /* Output_Response */
-static int hf_mms_takeControl_01 = -1;            /* TakeControl_Response */
-static int hf_mms_relinquishControl_01 = -1;      /* RelinquishControl_Response */
-static int hf_mms_defineSemaphore_01 = -1;        /* DefineSemaphore_Response */
-static int hf_mms_deleteSemaphore_01 = -1;        /* DeleteSemaphore_Response */
-static int hf_mms_reportSemaphoreStatus_01 = -1;  /* ReportSemaphoreStatus_Response */
-static int hf_mms_reportPoolSemaphoreStatus_01 = -1;  /* ReportPoolSemaphoreStatus_Response */
-static int hf_mms_reportSemaphoreEntryStatus_01 = -1;  /* ReportSemaphoreEntryStatus_Response */
-static int hf_mms_initiateDownloadSequence_01 = -1;  /* InitiateDownloadSequence_Response */
-static int hf_mms_downloadSegment_01 = -1;        /* DownloadSegment_Response */
-static int hf_mms_terminateDownloadSequence_01 = -1;  /* TerminateDownloadSequence_Response */
-static int hf_mms_initiateUploadSequence_01 = -1;  /* InitiateUploadSequence_Response */
-static int hf_mms_uploadSegment_01 = -1;          /* UploadSegment_Response */
-static int hf_mms_terminateUploadSequence_01 = -1;  /* TerminateUploadSequence_Response */
-static int hf_mms_requestDomainDownLoad = -1;     /* RequestDomainDownload_Response */
-static int hf_mms_requestDomainUpload_01 = -1;    /* RequestDomainUpload_Response */
-static int hf_mms_loadDomainContent_01 = -1;      /* LoadDomainContent_Response */
-static int hf_mms_storeDomainContent_01 = -1;     /* StoreDomainContent_Response */
-static int hf_mms_deleteDomain_01 = -1;           /* DeleteDomain_Response */
-static int hf_mms_getDomainAttributes_01 = -1;    /* GetDomainAttributes_Response */
-static int hf_mms_createProgramInvocation_01 = -1;  /* CreateProgramInvocation_Response */
-static int hf_mms_deleteProgramInvocation_01 = -1;  /* DeleteProgramInvocation_Response */
-static int hf_mms_start_01 = -1;                  /* Start_Response */
-static int hf_mms_stop_01 = -1;                   /* Stop_Response */
-static int hf_mms_resume_01 = -1;                 /* Resume_Response */
-static int hf_mms_reset_01 = -1;                  /* Reset_Response */
-static int hf_mms_kill_01 = -1;                   /* Kill_Response */
-static int hf_mms_getProgramInvocationAttributes_01 = -1;  /* GetProgramInvocationAttributes_Response */
-static int hf_mms_obtainFile_01 = -1;             /* ObtainFile_Response */
-static int hf_mms_fileOpen_01 = -1;               /* FileOpen_Response */
-static int hf_mms_defineEventCondition_01 = -1;   /* DefineEventCondition_Response */
-static int hf_mms_confirmedServiceResponse_deleteEventCondition = -1;  /* DeleteEventCondition_Response */
-static int hf_mms_getEventConditionAttributes_01 = -1;  /* GetEventConditionAttributes_Response */
-static int hf_mms_reportEventConditionStatus_01 = -1;  /* ReportEventConditionStatus_Response */
-static int hf_mms_alterEventConditionMonitoring_01 = -1;  /* AlterEventConditionMonitoring_Response */
-static int hf_mms_triggerEvent_01 = -1;           /* TriggerEvent_Response */
-static int hf_mms_defineEventAction_01 = -1;      /* DefineEventAction_Response */
-static int hf_mms_deleteEventAction = -1;         /* DeleteEventAction_Response */
-static int hf_mms_getEventActionAttributes_01 = -1;  /* GetEventActionAttributes_Response */
-static int hf_mms_reportActionStatus = -1;        /* ReportEventActionStatus_Response */
-static int hf_mms_defineEventEnrollment_01 = -1;  /* DefineEventEnrollment_Response */
-static int hf_mms_confirmedServiceResponse_deleteEventEnrollment = -1;  /* DeleteEventEnrollment_Response */
-static int hf_mms_alterEventEnrollment_01 = -1;   /* AlterEventEnrollment_Response */
-static int hf_mms_reportEventEnrollmentStatus_01 = -1;  /* ReportEventEnrollmentStatus_Response */
-static int hf_mms_getEventEnrollmentAttributes_01 = -1;  /* GetEventEnrollmentAttributes_Response */
-static int hf_mms_acknowledgeEventNotification_01 = -1;  /* AcknowledgeEventNotification_Response */
-static int hf_mms_getAlarmSummary_01 = -1;        /* GetAlarmSummary_Response */
-static int hf_mms_getAlarmEnrollmentSummary_01 = -1;  /* GetAlarmEnrollmentSummary_Response */
-static int hf_mms_readJournal_01 = -1;            /* ReadJournal_Response */
-static int hf_mms_writeJournal_01 = -1;           /* WriteJournal_Response */
-static int hf_mms_initializeJournal_01 = -1;      /* InitializeJournal_Response */
-static int hf_mms_reportJournalStatus_01 = -1;    /* ReportJournalStatus_Response */
-static int hf_mms_createJournal_01 = -1;          /* CreateJournal_Response */
-static int hf_mms_deleteJournal_01 = -1;          /* DeleteJournal_Response */
-static int hf_mms_getCapabilityList_01 = -1;      /* GetCapabilityList_Response */
-static int hf_mms_fileRead_01 = -1;               /* FileRead_Response */
-static int hf_mms_fileClose_01 = -1;              /* FileClose_Response */
-static int hf_mms_fileRename_01 = -1;             /* FileRename_Response */
-static int hf_mms_fileDelete_01 = -1;             /* FileDelete_Response */
-static int hf_mms_fileDirectory_01 = -1;          /* FileDirectory_Response */
-static int hf_mms_FileName_item = -1;             /* GraphicString */
-static int hf_mms_vmd_specific = -1;              /* Identifier */
-static int hf_mms_domain_specific = -1;           /* T_domain_specific */
-static int hf_mms_domainId = -1;                  /* Identifier */
-static int hf_mms_itemId = -1;                    /* Identifier */
-static int hf_mms_aa_specific = -1;               /* Identifier */
-static int hf_mms_ap_title = -1;                  /* T_ap_title */
-static int hf_mms_ap_invocation_id = -1;          /* T_ap_invocation_id */
-static int hf_mms_ae_qualifier = -1;              /* T_ae_qualifier */
-static int hf_mms_ae_invocation_id = -1;          /* T_ae_invocation_id */
-static int hf_mms_localDetailCalling = -1;        /* Integer32 */
-static int hf_mms_proposedMaxServOutstandingCalling = -1;  /* Integer16 */
-static int hf_mms_proposedMaxServOutstandingCalled = -1;  /* Integer16 */
-static int hf_mms_proposedDataStructureNestingLevel = -1;  /* Integer8 */
-static int hf_mms_mmsInitRequestDetail = -1;      /* InitRequestDetail */
-static int hf_mms_proposedVersionNumber = -1;     /* Integer16 */
-static int hf_mms_proposedParameterCBB = -1;      /* ParameterSupportOptions */
-static int hf_mms_servicesSupportedCalling = -1;  /* ServiceSupportOptions */
-static int hf_mms_localDetailCalled = -1;         /* Integer32 */
-static int hf_mms_negociatedMaxServOutstandingCalling = -1;  /* Integer16 */
-static int hf_mms_negociatedMaxServOutstandingCalled = -1;  /* Integer16 */
-static int hf_mms_negociatedDataStructureNestingLevel = -1;  /* Integer8 */
-static int hf_mms_mmsInitResponseDetail = -1;     /* InitResponseDetail */
-static int hf_mms_negociatedVersionNumber = -1;   /* Integer16 */
-static int hf_mms_negociatedParameterCBB = -1;    /* ParameterSupportOptions */
-static int hf_mms_servicesSupportedCalled = -1;   /* ServiceSupportOptions */
-static int hf_mms_originalInvokeID = -1;          /* Unsigned32 */
-static int hf_mms_errorClass = -1;                /* T_errorClass */
-static int hf_mms_vmd_state = -1;                 /* T_vmd_state */
-static int hf_mms_application_reference = -1;     /* T_application_reference */
-static int hf_mms_definition = -1;                /* T_definition */
-static int hf_mms_resource = -1;                  /* T_resource */
-static int hf_mms_service = -1;                   /* T_service */
-static int hf_mms_service_preempt = -1;           /* T_service_preempt */
-static int hf_mms_time_resolution = -1;           /* T_time_resolution */
-static int hf_mms_access = -1;                    /* T_access */
-static int hf_mms_initiate = -1;                  /* T_initiate */
-static int hf_mms_conclude = -1;                  /* T_conclude */
-static int hf_mms_cancel = -1;                    /* T_cancel */
-static int hf_mms_file = -1;                      /* T_file */
-static int hf_mms_others = -1;                    /* INTEGER */
-static int hf_mms_additionalCode = -1;            /* INTEGER */
-static int hf_mms_additionalDescription = -1;     /* VisibleString */
-static int hf_mms_serviceSpecificInformation = -1;  /* T_serviceSpecificInformation */
-static int hf_mms_obtainFile_02 = -1;             /* ObtainFile_Error */
-static int hf_mms_start_02 = -1;                  /* Start_Error */
-static int hf_mms_stop_02 = -1;                   /* Stop_Error */
-static int hf_mms_resume_02 = -1;                 /* Resume_Error */
-static int hf_mms_reset_02 = -1;                  /* Reset_Error */
-static int hf_mms_deleteVariableAccess_02 = -1;   /* DeleteVariableAccess_Error */
-static int hf_mms_deleteNamedVariableList_02 = -1;  /* DeleteNamedVariableList_Error */
-static int hf_mms_deleteNamedType_02 = -1;        /* DeleteNamedType_Error */
-static int hf_mms_defineEventEnrollment_Error = -1;  /* DefineEventEnrollment_Error */
-static int hf_mms_fileRename_02 = -1;             /* FileRename_Error */
-static int hf_mms_additionalService = -1;         /* AdditionalService_Error */
-static int hf_mms_changeAccessControl = -1;       /* ChangeAccessControl_Error */
-static int hf_mms_defineEcl = -1;                 /* DefineEventConditionList_Error */
-static int hf_mms_addECLReference = -1;           /* AddEventConditionListReference_Error */
-static int hf_mms_removeECLReference = -1;        /* RemoveEventConditionListReference_Error */
-static int hf_mms_initiateUC = -1;                /* InitiateUnitControl_Error */
-static int hf_mms_startUC = -1;                   /* StartUnitControl_Error */
-static int hf_mms_stopUC = -1;                    /* StopUnitControl_Error */
-static int hf_mms_deleteUC = -1;                  /* DeleteUnitControl_Error */
-static int hf_mms_loadUCFromFile = -1;            /* LoadUnitControlFromFile_Error */
-static int hf_mms_eventCondition = -1;            /* ObjectName */
-static int hf_mms_eventConditionList = -1;        /* ObjectName */
-static int hf_mms_domain = -1;                    /* Identifier */
-static int hf_mms_programInvocation = -1;         /* Identifier */
-static int hf_mms_programInvocationName = -1;     /* Identifier */
-static int hf_mms_programInvocationState = -1;    /* ProgramInvocationState */
-static int hf_mms_none = -1;                      /* NULL */
-static int hf_mms_rejectReason = -1;              /* T_rejectReason */
-static int hf_mms_confirmed_requestPDU = -1;      /* T_confirmed_requestPDU */
-static int hf_mms_confirmed_responsePDU = -1;     /* T_confirmed_responsePDU */
-static int hf_mms_confirmed_errorPDU = -1;        /* T_confirmed_errorPDU */
-static int hf_mms_unconfirmedPDU = -1;            /* T_unconfirmedPDU */
-static int hf_mms_pdu_error = -1;                 /* T_pdu_error */
-static int hf_mms_cancel_requestPDU = -1;         /* T_cancel_requestPDU */
-static int hf_mms_cancel_responsePDU = -1;        /* T_cancel_responsePDU */
-static int hf_mms_cancel_errorPDU = -1;           /* T_cancel_errorPDU */
-static int hf_mms_conclude_requestPDU = -1;       /* T_conclude_requestPDU */
-static int hf_mms_conclude_responsePDU = -1;      /* T_conclude_responsePDU */
-static int hf_mms_conclude_errorPDU = -1;         /* T_conclude_errorPDU */
-static int hf_mms_vmdLogicalStatus = -1;          /* T_vmdLogicalStatus */
-static int hf_mms_vmdPhysicalStatus = -1;         /* T_vmdPhysicalStatus */
-static int hf_mms_localDetail = -1;               /* BIT_STRING_SIZE_0_128 */
-static int hf_mms_extendedObjectClass = -1;       /* T_extendedObjectClass */
-static int hf_mms_objectClass = -1;               /* T_objectClass */
-static int hf_mms_objectScope = -1;               /* T_objectScope */
-static int hf_mms_vmdSpecific = -1;               /* NULL */
-static int hf_mms_domainSpecific = -1;            /* Identifier */
-static int hf_mms_aaSpecific = -1;                /* NULL */
-static int hf_mms_getNameList_Request_continueAfter = -1;  /* Identifier */
-static int hf_mms_listOfIdentifier = -1;          /* SEQUENCE_OF_Identifier */
-static int hf_mms_listOfIdentifier_item = -1;     /* Identifier */
-static int hf_mms_moreFollows = -1;               /* BOOLEAN */
-static int hf_mms_vendorName = -1;                /* VisibleString */
-static int hf_mms_modelName = -1;                 /* VisibleString */
-static int hf_mms_revision = -1;                  /* VisibleString */
-static int hf_mms_listOfAbstractSyntaxes = -1;    /* T_listOfAbstractSyntaxes */
-static int hf_mms_listOfAbstractSyntaxes_item = -1;  /* OBJECT_IDENTIFIER */
-static int hf_mms_extendedObjectClass_01 = -1;    /* T_extendedObjectClass_01 */
-static int hf_mms_objectClass_01 = -1;            /* T_objectClass_01 */
-static int hf_mms_currentName = -1;               /* ObjectName */
-static int hf_mms_newIdentifier = -1;             /* Identifier */
-static int hf_mms_getCapabilityList_Request_continueAfter = -1;  /* VisibleString */
-static int hf_mms_listOfCapabilities = -1;        /* T_listOfCapabilities */
-static int hf_mms_listOfCapabilities_item = -1;   /* VisibleString */
-static int hf_mms_domainName = -1;                /* Identifier */
-static int hf_mms_listOfCapabilities_01 = -1;     /* T_listOfCapabilities_01 */
-static int hf_mms_sharable = -1;                  /* BOOLEAN */
-static int hf_mms_loadData = -1;                  /* T_loadData */
-static int hf_mms_non_coded = -1;                 /* OCTET_STRING */
-static int hf_mms_coded = -1;                     /* EXTERNALt */
-static int hf_mms_discard = -1;                   /* ServiceError */
-static int hf_mms_ulsmID = -1;                    /* Integer32 */
-static int hf_mms_listOfCapabilities_02 = -1;     /* T_listOfCapabilities_02 */
-static int hf_mms_loadData_01 = -1;               /* T_loadData_01 */
-static int hf_mms_listOfCapabilities_03 = -1;     /* T_listOfCapabilities_03 */
-static int hf_mms_fileName = -1;                  /* FileName */
-static int hf_mms_listOfCapabilities_04 = -1;     /* T_listOfCapabilities_04 */
-static int hf_mms_thirdParty = -1;                /* ApplicationReference */
-static int hf_mms_filenName = -1;                 /* FileName */
-static int hf_mms_listOfCapabilities_05 = -1;     /* T_listOfCapabilities_05 */
-static int hf_mms_getDomainAttributes_Response_state = -1;  /* DomainState */
-static int hf_mms_mmsDeletable = -1;              /* BOOLEAN */
-static int hf_mms_listOfProgramInvocations = -1;  /* SEQUENCE_OF_Identifier */
-static int hf_mms_listOfProgramInvocations_item = -1;  /* Identifier */
-static int hf_mms_uploadInProgress = -1;          /* Integer8 */
-static int hf_mms_listOfDomainName = -1;          /* SEQUENCE_OF_Identifier */
-static int hf_mms_listOfDomainName_item = -1;     /* Identifier */
-static int hf_mms_reusable = -1;                  /* BOOLEAN */
-static int hf_mms_monitorType = -1;               /* BOOLEAN */
-static int hf_mms_executionArgument = -1;         /* T_executionArgument */
-static int hf_mms_simpleString = -1;              /* VisibleString */
-static int hf_mms_encodedString = -1;             /* EXTERNALt */
-static int hf_mms_executionArgument_01 = -1;      /* T_executionArgument_01 */
-static int hf_mms_getProgramInvocationAttributes_Response_state = -1;  /* ProgramInvocationState */
-static int hf_mms_listOfDomainNames = -1;         /* SEQUENCE_OF_Identifier */
-static int hf_mms_listOfDomainNames_item = -1;    /* Identifier */
-static int hf_mms_monitor = -1;                   /* BOOLEAN */
-static int hf_mms_startArgument = -1;             /* VisibleString */
-static int hf_mms_executionArgument_02 = -1;      /* T_executionArgument_02 */
-static int hf_mms_typeName = -1;                  /* ObjectName */
-static int hf_mms_array = -1;                     /* T_array */
-static int hf_mms_packed = -1;                    /* BOOLEAN */
-static int hf_mms_numberOfElements = -1;          /* Unsigned32 */
-static int hf_mms_elementType = -1;               /* TypeSpecification */
-static int hf_mms_structure = -1;                 /* T_structure */
-static int hf_mms_components = -1;                /* T_components */
-static int hf_mms_components_item = -1;           /* T_components_item */
-static int hf_mms_componentName = -1;             /* Identifier */
-static int hf_mms_componentType = -1;             /* TypeSpecification */
-static int hf_mms_boolean = -1;                   /* NULL */
-static int hf_mms_typeSpecification_bit_string = -1;  /* Integer32 */
-static int hf_mms_integer = -1;                   /* Unsigned8 */
-static int hf_mms_unsigned = -1;                  /* Unsigned8 */
-static int hf_mms_typeSpecification_octet_string = -1;  /* Integer32 */
-static int hf_mms_typeSpecification_visible_string = -1;  /* Integer32 */
-static int hf_mms_generalized_time = -1;          /* NULL */
-static int hf_mms_typeSpecification_binary_time = -1;  /* BOOLEAN */
-static int hf_mms_bcd = -1;                       /* Unsigned8 */
-static int hf_mms_objId = -1;                     /* NULL */
-static int hf_mms_AlternateAccess_item = -1;      /* AlternateAccess_item */
-static int hf_mms_unnamed = -1;                   /* AlternateAccessSelection */
-static int hf_mms_named = -1;                     /* T_named */
-static int hf_mms_accesst = -1;                   /* AlternateAccessSelection */
-static int hf_mms_selectAlternateAccess = -1;     /* T_selectAlternateAccess */
-static int hf_mms_accessSelection = -1;           /* T_accessSelection */
-static int hf_mms_component = -1;                 /* Identifier */
-static int hf_mms_index = -1;                     /* Unsigned32 */
-static int hf_mms_indexRange = -1;                /* T_indexRange */
-static int hf_mms_lowIndex = -1;                  /* Unsigned32 */
-static int hf_mms_allElements = -1;               /* NULL */
-static int hf_mms_alternateAccess = -1;           /* AlternateAccess */
-static int hf_mms_selectAccess = -1;              /* T_selectAccess */
-static int hf_mms_indexRange_01 = -1;             /* T_indexRange_01 */
-static int hf_mms_nmberOfElements = -1;           /* Unsigned32 */
-static int hf_mms_specificationWithResult = -1;   /* BOOLEAN */
-static int hf_mms_variableAccessSpecificatn = -1;  /* VariableAccessSpecification */
-static int hf_mms_listOfAccessResult = -1;        /* SEQUENCE_OF_AccessResult */
-static int hf_mms_listOfAccessResult_item = -1;   /* AccessResult */
-static int hf_mms_listOfData = -1;                /* SEQUENCE_OF_Data */
-static int hf_mms_listOfData_item = -1;           /* Data */
-static int hf_mms_Write_Response_item = -1;       /* Write_Response_item */
-static int hf_mms_failure = -1;                   /* DataAccessError */
-static int hf_mms_success = -1;                   /* NULL */
-static int hf_mms_variableAccessSpecification = -1;  /* VariableAccessSpecification */
-static int hf_mms_name = -1;                      /* ObjectName */
-static int hf_mms_address = -1;                   /* Address */
-static int hf_mms_typeSpecification = -1;         /* TypeSpecification */
-static int hf_mms_variableName = -1;              /* ObjectName */
-static int hf_mms_scatteredAccessName = -1;       /* ObjectName */
-static int hf_mms_scatteredAccessDescription = -1;  /* ScatteredAccessDescription */
-static int hf_mms_scopeOfDelete = -1;             /* T_scopeOfDelete */
-static int hf_mms_listOfName = -1;                /* SEQUENCE_OF_ObjectName */
-static int hf_mms_listOfName_item = -1;           /* ObjectName */
-static int hf_mms_numberMatched = -1;             /* Unsigned32 */
-static int hf_mms_numberDeleted = -1;             /* Unsigned32 */
-static int hf_mms_variableListName = -1;          /* ObjectName */
-static int hf_mms_listOfVariable = -1;            /* T_listOfVariable */
-static int hf_mms_listOfVariable_item = -1;       /* T_listOfVariable_item */
-static int hf_mms_variableSpecification = -1;     /* VariableSpecification */
-static int hf_mms_listOfVariable_01 = -1;         /* T_listOfVariable_01 */
-static int hf_mms_listOfVariable_item_01 = -1;    /* T_listOfVariable_item_01 */
-static int hf_mms_scopeOfDelete_01 = -1;          /* T_scopeOfDelete_01 */
-static int hf_mms_listOfVariableListName = -1;    /* SEQUENCE_OF_ObjectName */
-static int hf_mms_listOfVariableListName_item = -1;  /* ObjectName */
-static int hf_mms_scopeOfDelete_02 = -1;          /* T_scopeOfDelete_02 */
-static int hf_mms_listOfTypeName = -1;            /* SEQUENCE_OF_ObjectName */
-static int hf_mms_listOfTypeName_item = -1;       /* ObjectName */
-static int hf_mms_success_01 = -1;                /* Data */
-static int hf_mms_array_01 = -1;                  /* SEQUENCE_OF_Data */
-static int hf_mms_array_item = -1;                /* Data */
-static int hf_mms_structure_01 = -1;              /* SEQUENCE_OF_Data */
-static int hf_mms_structure_item = -1;            /* Data */
-static int hf_mms_boolean_01 = -1;                /* BOOLEAN */
-static int hf_mms_data_bit_string = -1;           /* BIT_STRING */
-static int hf_mms_integer_01 = -1;                /* INTEGER */
-static int hf_mms_unsigned_01 = -1;               /* INTEGER */
-static int hf_mms_floating_point = -1;            /* FloatingPoint */
-static int hf_mms_data_octet_string = -1;         /* OCTET_STRING */
-static int hf_mms_data_visible_string = -1;       /* VisibleString */
-static int hf_mms_data_binary_time = -1;          /* TimeOfDay */
-static int hf_mms_bcd_01 = -1;                    /* INTEGER */
-static int hf_mms_booleanArray = -1;              /* BIT_STRING */
-static int hf_mms_objId_01 = -1;                  /* OBJECT_IDENTIFIER */
-static int hf_mms_mMSString = -1;                 /* MMSString */
-static int hf_mms_utc_time = -1;                  /* UtcTime */
-static int hf_mms_listOfVariable_02 = -1;         /* T_listOfVariable_02 */
-static int hf_mms_listOfVariable_item_02 = -1;    /* T_listOfVariable_item_02 */
-static int hf_mms_ScatteredAccessDescription_item = -1;  /* ScatteredAccessDescription_item */
-static int hf_mms_variableDescription = -1;       /* T_variableDescription */
-static int hf_mms_invalidated = -1;               /* NULL */
-static int hf_mms_numericAddress = -1;            /* Unsigned32 */
-static int hf_mms_symbolicAddress = -1;           /* VisibleString */
-static int hf_mms_unconstrainedAddress = -1;      /* OCTET_STRING */
-static int hf_mms_semaphoreName = -1;             /* ObjectName */
-static int hf_mms_namedToken = -1;                /* Identifier */
-static int hf_mms_priority = -1;                  /* Priority */
-static int hf_mms_acceptableDelay = -1;           /* Unsigned32 */
-static int hf_mms_controlTimeOut = -1;            /* Unsigned32 */
-static int hf_mms_abortOnTimeOut = -1;            /* BOOLEAN */
-static int hf_mms_relinquishIfConnectionLost = -1;  /* BOOLEAN */
-static int hf_mms_applicationToPreempt = -1;      /* ApplicationReference */
-static int hf_mms_noResult = -1;                  /* NULL */
-static int hf_mms_numbersOfTokens = -1;           /* Unsigned16 */
-static int hf_mms_class = -1;                     /* T_class */
-static int hf_mms_numberOfTokens = -1;            /* Unsigned16 */
-static int hf_mms_numberOfOwnedTokens = -1;       /* Unsigned16 */
-static int hf_mms_numberOfHungTokens = -1;        /* Unsigned16 */
-static int hf_mms_nameToStartAfter = -1;          /* Identifier */
-static int hf_mms_listOfNamedTokens = -1;         /* T_listOfNamedTokens */
-static int hf_mms_listOfNamedTokens_item = -1;    /* T_listOfNamedTokens_item */
-static int hf_mms_freeNamedToken = -1;            /* Identifier */
-static int hf_mms_ownedNamedToken = -1;           /* Identifier */
-static int hf_mms_hungNamedToken = -1;            /* Identifier */
-static int hf_mms_reportSemaphoreEntryStatus_Request_state = -1;  /* T_reportSemaphoreEntryStatus_Request_state */
-static int hf_mms_entryIdToStartAfter = -1;       /* OCTET_STRING */
-static int hf_mms_listOfSemaphoreEntry = -1;      /* SEQUENCE_OF_SemaphoreEntry */
-static int hf_mms_listOfSemaphoreEntry_item = -1;  /* SemaphoreEntry */
-static int hf_mms_entryId = -1;                   /* OCTET_STRING */
-static int hf_mms_entryClass = -1;                /* T_entryClass */
-static int hf_mms_applicationReference = -1;      /* ApplicationReference */
-static int hf_mms_remainingTimeOut = -1;          /* Unsigned32 */
-static int hf_mms_operatorStationName = -1;       /* Identifier */
-static int hf_mms_echo = -1;                      /* BOOLEAN */
-static int hf_mms_listOfPromptData = -1;          /* T_listOfPromptData */
-static int hf_mms_listOfPromptData_item = -1;     /* VisibleString */
-static int hf_mms_inputTimeOut = -1;              /* Unsigned32 */
-static int hf_mms_listOfOutputData = -1;          /* T_listOfOutputData */
-static int hf_mms_listOfOutputData_item = -1;     /* VisibleString */
-static int hf_mms_eventConditionName = -1;        /* ObjectName */
-static int hf_mms_class_01 = -1;                  /* EC_Class */
-static int hf_mms_prio_rity = -1;                 /* Priority */
-static int hf_mms_severity = -1;                  /* Unsigned8 */
-static int hf_mms_alarmSummaryReports = -1;       /* BOOLEAN */
-static int hf_mms_monitoredVariable = -1;         /* VariableSpecification */
-static int hf_mms_evaluationInterval = -1;        /* Unsigned32 */
-static int hf_mms_specific = -1;                  /* SEQUENCE_OF_ObjectName */
-static int hf_mms_specific_item = -1;             /* ObjectName */
-static int hf_mms_aa_specific_01 = -1;            /* NULL */
-static int hf_mms_vmd = -1;                       /* NULL */
-static int hf_mms_monitoredVariable_01 = -1;      /* T_monitoredVariable */
-static int hf_mms_variableReference = -1;         /* VariableSpecification */
-static int hf_mms_undefined = -1;                 /* NULL */
-static int hf_mms_currentState = -1;              /* EC_State */
-static int hf_mms_numberOfEventEnrollments = -1;  /* Unsigned32 */
-static int hf_mms_enabled = -1;                   /* BOOLEAN */
-static int hf_mms_timeOfLastTransitionToActive = -1;  /* EventTime */
-static int hf_mms_timeOfLastTransitionToIdle = -1;  /* EventTime */
-static int hf_mms_eventActionName = -1;           /* ObjectName */
-static int hf_mms_eventEnrollmentName = -1;       /* ObjectName */
-static int hf_mms_eventConditionTransition = -1;  /* Transitions */
-static int hf_mms_alarmAcknowledgementRule = -1;  /* AlarmAckRule */
-static int hf_mms_clientApplication = -1;         /* ApplicationReference */
-static int hf_mms_ec = -1;                        /* ObjectName */
-static int hf_mms_ea = -1;                        /* ObjectName */
-static int hf_mms_scopeOfRequest = -1;            /* T_scopeOfRequest */
-static int hf_mms_eventEnrollmentNames = -1;      /* SEQUENCE_OF_ObjectName */
-static int hf_mms_eventEnrollmentNames_item = -1;  /* ObjectName */
-static int hf_mms_getEventEnrollmentAttributes_Request_continueAfter = -1;  /* ObjectName */
-static int hf_mms_eventConditionName_01 = -1;     /* T_eventConditionName */
-static int hf_mms_eventActionName_01 = -1;        /* T_eventActionName */
-static int hf_mms_eventAction = -1;               /* ObjectName */
-static int hf_mms_enrollmentClass = -1;           /* EE_Class */
-static int hf_mms_duration = -1;                  /* EE_Duration */
-static int hf_mms_remainingAcceptableDelay = -1;  /* Unsigned32 */
-static int hf_mms_listOfEventEnrollment = -1;     /* SEQUENCE_OF_EventEnrollment */
-static int hf_mms_listOfEventEnrollment_item = -1;  /* EventEnrollment */
-static int hf_mms_eventConditionTransitions = -1;  /* Transitions */
-static int hf_mms_notificationLost = -1;          /* BOOLEAN */
-static int hf_mms_alarmAcknowledgmentRule = -1;   /* AlarmAckRule */
-static int hf_mms_currentState_01 = -1;           /* EE_State */
-static int hf_mms_currentState_02 = -1;           /* T_currentState */
-static int hf_mms_alterEventEnrollment_Response_currentState_state = -1;  /* EE_State */
-static int hf_mms_transitionTime = -1;            /* EventTime */
-static int hf_mms_acknowledgedState = -1;         /* EC_State */
-static int hf_mms_timeOfAcknowledgedTransition = -1;  /* EventTime */
-static int hf_mms_enrollmentsOnly = -1;           /* BOOLEAN */
-static int hf_mms_activeAlarmsOnly = -1;          /* BOOLEAN */
-static int hf_mms_acknowledgmentFilter = -1;      /* T_acknowledgmentFilter */
-static int hf_mms_severityFilter = -1;            /* T_severityFilter */
-static int hf_mms_mostSevere = -1;                /* Unsigned8 */
-static int hf_mms_leastSevere = -1;               /* Unsigned8 */
-static int hf_mms_continueAfter = -1;             /* ObjectName */
-static int hf_mms_listOfAlarmSummary = -1;        /* SEQUENCE_OF_AlarmSummary */
-static int hf_mms_listOfAlarmSummary_item = -1;   /* AlarmSummary */
-static int hf_mms_unacknowledgedState = -1;       /* T_unacknowledgedState */
-static int hf_mms_acknowledgmentFilter_01 = -1;   /* T_acknowledgmentFilter_01 */
-static int hf_mms_severityFilter_01 = -1;         /* T_severityFilter_01 */
-static int hf_mms_getAlarmEnrollmentSummary_Request_continueAfter = -1;  /* ObjectName */
-static int hf_mms_listOfAlarmEnrollmentSummary = -1;  /* SEQUENCE_OF_AlarmEnrollmentSummary */
-static int hf_mms_listOfAlarmEnrollmentSummary_item = -1;  /* AlarmEnrollmentSummary */
-static int hf_mms_enrollementState = -1;          /* EE_State */
-static int hf_mms_timeActiveAcknowledged = -1;    /* EventTime */
-static int hf_mms_timeIdleAcknowledged = -1;      /* EventTime */
-static int hf_mms_eventConditionName_02 = -1;     /* T_eventConditionName_01 */
-static int hf_mms_actionResult = -1;              /* T_actionResult */
-static int hf_mms_eventActioName = -1;            /* ObjectName */
-static int hf_mms_eventActionResult = -1;         /* T_eventActionResult */
-static int hf_mms_success_02 = -1;                /* ConfirmedServiceResponse */
-static int hf_mms_failure_01 = -1;                /* ServiceError */
-static int hf_mms_causingTransitions = -1;        /* Transitions */
-static int hf_mms_timeOfDayT = -1;                /* TimeOfDay */
-static int hf_mms_timeSequenceIdentifier = -1;    /* Unsigned32 */
-static int hf_mms_journalName = -1;               /* ObjectName */
-static int hf_mms_rangeStartSpecification = -1;   /* T_rangeStartSpecification */
-static int hf_mms_startingTime = -1;              /* TimeOfDay */
-static int hf_mms_startingEntry = -1;             /* OCTET_STRING */
-static int hf_mms_rangeStopSpecification = -1;    /* T_rangeStopSpecification */
-static int hf_mms_endingTime = -1;                /* TimeOfDay */
-static int hf_mms_numberOfEntries = -1;           /* Integer32 */
-static int hf_mms_listOfVariables = -1;           /* T_listOfVariables */
-static int hf_mms_listOfVariables_item = -1;      /* VisibleString */
-static int hf_mms_entryToStartAfter = -1;         /* T_entryToStartAfter */
-static int hf_mms_timeSpecification = -1;         /* TimeOfDay */
-static int hf_mms_entrySpecification = -1;        /* OCTET_STRING */
-static int hf_mms_listOfJournalEntry = -1;        /* SEQUENCE_OF_JournalEntry */
-static int hf_mms_listOfJournalEntry_item = -1;   /* JournalEntry */
-static int hf_mms_entryIdentifier = -1;           /* OCTET_STRING */
-static int hf_mms_originatingApplication = -1;    /* ApplicationReference */
-static int hf_mms_entryContent = -1;              /* EntryContent */
-static int hf_mms_listOfJournalEntry_01 = -1;     /* SEQUENCE_OF_EntryContent */
-static int hf_mms_listOfJournalEntry_item_01 = -1;  /* EntryContent */
-static int hf_mms_limitSpecification = -1;        /* T_limitSpecification */
-static int hf_mms_limitingTime = -1;              /* TimeOfDay */
-static int hf_mms_limitingEntry = -1;             /* OCTET_STRING */
-static int hf_mms_currentEntries = -1;            /* Unsigned32 */
-static int hf_mms_occurenceTime = -1;             /* TimeOfDay */
-static int hf_mms_additionalDetail = -1;          /* JOU_Additional_Detail */
-static int hf_mms_entryForm = -1;                 /* T_entryForm */
-static int hf_mms_data = -1;                      /* T_data */
-static int hf_mms_event = -1;                     /* T_event */
-static int hf_mms_listOfVariables_01 = -1;        /* T_listOfVariables_01 */
-static int hf_mms_listOfVariables_item_01 = -1;   /* T_listOfVariables_item */
-static int hf_mms_variableTag = -1;               /* VisibleString */
-static int hf_mms_valueSpecification = -1;        /* Data */
-static int hf_mms_annotation = -1;                /* VisibleString */
-static int hf_mms_sourceFileServer = -1;          /* ApplicationReference */
-static int hf_mms_sourceFile = -1;                /* FileName */
-static int hf_mms_destinationFile = -1;           /* FileName */
-static int hf_mms_initialPosition = -1;           /* Unsigned32 */
-static int hf_mms_frsmID = -1;                    /* Integer32 */
-static int hf_mms_fileAttributes = -1;            /* FileAttributes */
-static int hf_mms_fileData = -1;                  /* OCTET_STRING */
-static int hf_mms_currentFileName = -1;           /* FileName */
-static int hf_mms_newFileName = -1;               /* FileName */
-static int hf_mms_fileSpecification = -1;         /* FileName */
-static int hf_mms_fileDirectory_Request_continueAfter = -1;  /* FileName */
-static int hf_mms_listOfDirectoryEntry = -1;      /* SEQUENCE_OF_DirectoryEntry */
-static int hf_mms_listOfDirectoryEntry_item = -1;  /* DirectoryEntry */
-static int hf_mms_filename = -1;                  /* FileName */
-static int hf_mms_sizeOfFile = -1;                /* Unsigned32 */
-static int hf_mms_lastModified = -1;              /* GeneralizedTime */
+static int hf_mms_confirmed_RequestPDU;           /* Confirmed_RequestPDU */
+static int hf_mms_confirmed_ResponsePDU;          /* Confirmed_ResponsePDU */
+static int hf_mms_confirmed_ErrorPDU;             /* Confirmed_ErrorPDU */
+static int hf_mms_unconfirmed_PDU;                /* Unconfirmed_PDU */
+static int hf_mms_rejectPDU;                      /* RejectPDU */
+static int hf_mms_cancel_RequestPDU;              /* Cancel_RequestPDU */
+static int hf_mms_cancel_ResponsePDU;             /* Cancel_ResponsePDU */
+static int hf_mms_cancel_ErrorPDU;                /* Cancel_ErrorPDU */
+static int hf_mms_initiate_RequestPDU;            /* Initiate_RequestPDU */
+static int hf_mms_initiate_ResponsePDU;           /* Initiate_ResponsePDU */
+static int hf_mms_initiate_ErrorPDU;              /* Initiate_ErrorPDU */
+static int hf_mms_conclude_RequestPDU;            /* Conclude_RequestPDU */
+static int hf_mms_conclude_ResponsePDU;           /* Conclude_ResponsePDU */
+static int hf_mms_conclude_ErrorPDU;              /* Conclude_ErrorPDU */
+static int hf_mms_invokeID;                       /* Unsigned32 */
+static int hf_mms_listOfModifier;                 /* SEQUENCE_OF_Modifier */
+static int hf_mms_listOfModifier_item;            /* Modifier */
+static int hf_mms_confirmedServiceRequest;        /* ConfirmedServiceRequest */
+static int hf_mms_cs_request_detail;              /* CS_Request_Detail */
+static int hf_mms_unconfirmedService;             /* UnconfirmedService */
+static int hf_mms_confirmedServiceResponse;       /* ConfirmedServiceResponse */
+static int hf_mms_modifierPosition;               /* Unsigned32 */
+static int hf_mms_serviceError;                   /* ServiceError */
+static int hf_mms_informationReport;              /* InformationReport */
+static int hf_mms_unsolicitedStatus;              /* UnsolicitedStatus */
+static int hf_mms_eventNotification;              /* EventNotification */
+static int hf_mms_attach_To_Event_Condition;      /* AttachToEventCondition */
+static int hf_mms_attach_To_Semaphore;            /* AttachToSemaphore */
+static int hf_mms_status;                         /* Status_Request */
+static int hf_mms_getNameList;                    /* GetNameList_Request */
+static int hf_mms_identify;                       /* Identify_Request */
+static int hf_mms_rename;                         /* Rename_Request */
+static int hf_mms_read;                           /* Read_Request */
+static int hf_mms_write;                          /* Write_Request */
+static int hf_mms_getVariableAccessAttributes;    /* GetVariableAccessAttributes_Request */
+static int hf_mms_defineNamedVariable;            /* DefineNamedVariable_Request */
+static int hf_mms_defineScatteredAccess;          /* DefineScatteredAccess_Request */
+static int hf_mms_getScatteredAccessAttributes;   /* GetScatteredAccessAttributes_Request */
+static int hf_mms_deleteVariableAccess;           /* DeleteVariableAccess_Request */
+static int hf_mms_defineNamedVariableList;        /* DefineNamedVariableList_Request */
+static int hf_mms_getNamedVariableListAttributes;  /* GetNamedVariableListAttributes_Request */
+static int hf_mms_deleteNamedVariableList;        /* DeleteNamedVariableList_Request */
+static int hf_mms_defineNamedType;                /* DefineNamedType_Request */
+static int hf_mms_getNamedTypeAttributes;         /* GetNamedTypeAttributes_Request */
+static int hf_mms_deleteNamedType;                /* DeleteNamedType_Request */
+static int hf_mms_input;                          /* Input_Request */
+static int hf_mms_output;                         /* Output_Request */
+static int hf_mms_takeControl;                    /* TakeControl_Request */
+static int hf_mms_relinquishControl;              /* RelinquishControl_Request */
+static int hf_mms_defineSemaphore;                /* DefineSemaphore_Request */
+static int hf_mms_deleteSemaphore;                /* DeleteSemaphore_Request */
+static int hf_mms_reportSemaphoreStatus;          /* ReportSemaphoreStatus_Request */
+static int hf_mms_reportPoolSemaphoreStatus;      /* ReportPoolSemaphoreStatus_Request */
+static int hf_mms_reportSemaphoreEntryStatus;     /* ReportSemaphoreEntryStatus_Request */
+static int hf_mms_initiateDownloadSequence;       /* InitiateDownloadSequence_Request */
+static int hf_mms_downloadSegment;                /* DownloadSegment_Request */
+static int hf_mms_terminateDownloadSequence;      /* TerminateDownloadSequence_Request */
+static int hf_mms_initiateUploadSequence;         /* InitiateUploadSequence_Request */
+static int hf_mms_uploadSegment;                  /* UploadSegment_Request */
+static int hf_mms_terminateUploadSequence;        /* TerminateUploadSequence_Request */
+static int hf_mms_requestDomainDownload;          /* RequestDomainDownload_Request */
+static int hf_mms_requestDomainUpload;            /* RequestDomainUpload_Request */
+static int hf_mms_loadDomainContent;              /* LoadDomainContent_Request */
+static int hf_mms_storeDomainContent;             /* StoreDomainContent_Request */
+static int hf_mms_deleteDomain;                   /* DeleteDomain_Request */
+static int hf_mms_getDomainAttributes;            /* GetDomainAttributes_Request */
+static int hf_mms_createProgramInvocation;        /* CreateProgramInvocation_Request */
+static int hf_mms_deleteProgramInvocation;        /* DeleteProgramInvocation_Request */
+static int hf_mms_start;                          /* Start_Request */
+static int hf_mms_stop;                           /* Stop_Request */
+static int hf_mms_resume;                         /* Resume_Request */
+static int hf_mms_reset;                          /* Reset_Request */
+static int hf_mms_kill;                           /* Kill_Request */
+static int hf_mms_getProgramInvocationAttributes;  /* GetProgramInvocationAttributes_Request */
+static int hf_mms_obtainFile;                     /* ObtainFile_Request */
+static int hf_mms_defineEventCondition;           /* DefineEventCondition_Request */
+static int hf_mms_confirmedServiceRequest_deleteEventCondition;  /* DeleteEventCondition_Request */
+static int hf_mms_getEventConditionAttributes;    /* GetEventConditionAttributes_Request */
+static int hf_mms_reportEventConditionStatus;     /* ReportEventConditionStatus_Request */
+static int hf_mms_alterEventConditionMonitoring;  /* AlterEventConditionMonitoring_Request */
+static int hf_mms_triggerEvent;                   /* TriggerEvent_Request */
+static int hf_mms_defineEventAction;              /* DefineEventAction_Request */
+static int hf_mms_confirmedServiceRequest_deleteEventAction;  /* DeleteEventAction_Request */
+static int hf_mms_getEventActionAttributes;       /* GetEventActionAttributes_Request */
+static int hf_mms_reportEventActionStatus;        /* ReportEventActionStatus_Request */
+static int hf_mms_defineEventEnrollment;          /* DefineEventEnrollment_Request */
+static int hf_mms_confirmedServiceRequest_deleteEventEnrollment;  /* DeleteEventEnrollment_Request */
+static int hf_mms_alterEventEnrollment;           /* AlterEventEnrollment_Request */
+static int hf_mms_reportEventEnrollmentStatus;    /* ReportEventEnrollmentStatus_Request */
+static int hf_mms_getEventEnrollmentAttributes;   /* GetEventEnrollmentAttributes_Request */
+static int hf_mms_acknowledgeEventNotification;   /* AcknowledgeEventNotification_Request */
+static int hf_mms_getAlarmSummary;                /* GetAlarmSummary_Request */
+static int hf_mms_getAlarmEnrollmentSummary;      /* GetAlarmEnrollmentSummary_Request */
+static int hf_mms_readJournal;                    /* ReadJournal_Request */
+static int hf_mms_writeJournal;                   /* WriteJournal_Request */
+static int hf_mms_initializeJournal;              /* InitializeJournal_Request */
+static int hf_mms_reportJournalStatus;            /* ReportJournalStatus_Request */
+static int hf_mms_createJournal;                  /* CreateJournal_Request */
+static int hf_mms_deleteJournal;                  /* DeleteJournal_Request */
+static int hf_mms_getCapabilityList;              /* GetCapabilityList_Request */
+static int hf_mms_fileOpen;                       /* FileOpen_Request */
+static int hf_mms_fileRead;                       /* FileRead_Request */
+static int hf_mms_fileClose;                      /* FileClose_Request */
+static int hf_mms_fileRename;                     /* FileRename_Request */
+static int hf_mms_fileDelete;                     /* FileDelete_Request */
+static int hf_mms_fileDirectory;                  /* FileDirectory_Request */
+static int hf_mms_foo;                            /* INTEGER */
+static int hf_mms_status_01;                      /* Status_Response */
+static int hf_mms_getNameList_01;                 /* GetNameList_Response */
+static int hf_mms_identify_01;                    /* Identify_Response */
+static int hf_mms_rename_01;                      /* Rename_Response */
+static int hf_mms_read_01;                        /* Read_Response */
+static int hf_mms_write_01;                       /* Write_Response */
+static int hf_mms_getVariableAccessAttributes_01;  /* GetVariableAccessAttributes_Response */
+static int hf_mms_defineNamedVariable_01;         /* DefineNamedVariable_Response */
+static int hf_mms_defineScatteredAccess_01;       /* DefineScatteredAccess_Response */
+static int hf_mms_getScatteredAccessAttributes_01;  /* GetScatteredAccessAttributes_Response */
+static int hf_mms_deleteVariableAccess_01;        /* DeleteVariableAccess_Response */
+static int hf_mms_defineNamedVariableList_01;     /* DefineNamedVariableList_Response */
+static int hf_mms_getNamedVariableListAttributes_01;  /* GetNamedVariableListAttributes_Response */
+static int hf_mms_deleteNamedVariableList_01;     /* DeleteNamedVariableList_Response */
+static int hf_mms_defineNamedType_01;             /* DefineNamedType_Response */
+static int hf_mms_getNamedTypeAttributes_01;      /* GetNamedTypeAttributes_Response */
+static int hf_mms_deleteNamedType_01;             /* DeleteNamedType_Response */
+static int hf_mms_input_01;                       /* Input_Response */
+static int hf_mms_output_01;                      /* Output_Response */
+static int hf_mms_takeControl_01;                 /* TakeControl_Response */
+static int hf_mms_relinquishControl_01;           /* RelinquishControl_Response */
+static int hf_mms_defineSemaphore_01;             /* DefineSemaphore_Response */
+static int hf_mms_deleteSemaphore_01;             /* DeleteSemaphore_Response */
+static int hf_mms_reportSemaphoreStatus_01;       /* ReportSemaphoreStatus_Response */
+static int hf_mms_reportPoolSemaphoreStatus_01;   /* ReportPoolSemaphoreStatus_Response */
+static int hf_mms_reportSemaphoreEntryStatus_01;  /* ReportSemaphoreEntryStatus_Response */
+static int hf_mms_initiateDownloadSequence_01;    /* InitiateDownloadSequence_Response */
+static int hf_mms_downloadSegment_01;             /* DownloadSegment_Response */
+static int hf_mms_terminateDownloadSequence_01;   /* TerminateDownloadSequence_Response */
+static int hf_mms_initiateUploadSequence_01;      /* InitiateUploadSequence_Response */
+static int hf_mms_uploadSegment_01;               /* UploadSegment_Response */
+static int hf_mms_terminateUploadSequence_01;     /* TerminateUploadSequence_Response */
+static int hf_mms_requestDomainDownLoad;          /* RequestDomainDownload_Response */
+static int hf_mms_requestDomainUpload_01;         /* RequestDomainUpload_Response */
+static int hf_mms_loadDomainContent_01;           /* LoadDomainContent_Response */
+static int hf_mms_storeDomainContent_01;          /* StoreDomainContent_Response */
+static int hf_mms_deleteDomain_01;                /* DeleteDomain_Response */
+static int hf_mms_getDomainAttributes_01;         /* GetDomainAttributes_Response */
+static int hf_mms_createProgramInvocation_01;     /* CreateProgramInvocation_Response */
+static int hf_mms_deleteProgramInvocation_01;     /* DeleteProgramInvocation_Response */
+static int hf_mms_start_01;                       /* Start_Response */
+static int hf_mms_stop_01;                        /* Stop_Response */
+static int hf_mms_resume_01;                      /* Resume_Response */
+static int hf_mms_reset_01;                       /* Reset_Response */
+static int hf_mms_kill_01;                        /* Kill_Response */
+static int hf_mms_getProgramInvocationAttributes_01;  /* GetProgramInvocationAttributes_Response */
+static int hf_mms_obtainFile_01;                  /* ObtainFile_Response */
+static int hf_mms_fileOpen_01;                    /* FileOpen_Response */
+static int hf_mms_defineEventCondition_01;        /* DefineEventCondition_Response */
+static int hf_mms_confirmedServiceResponse_deleteEventCondition;  /* DeleteEventCondition_Response */
+static int hf_mms_getEventConditionAttributes_01;  /* GetEventConditionAttributes_Response */
+static int hf_mms_reportEventConditionStatus_01;  /* ReportEventConditionStatus_Response */
+static int hf_mms_alterEventConditionMonitoring_01;  /* AlterEventConditionMonitoring_Response */
+static int hf_mms_triggerEvent_01;                /* TriggerEvent_Response */
+static int hf_mms_defineEventAction_01;           /* DefineEventAction_Response */
+static int hf_mms_deleteEventAction;              /* DeleteEventAction_Response */
+static int hf_mms_getEventActionAttributes_01;    /* GetEventActionAttributes_Response */
+static int hf_mms_reportActionStatus;             /* ReportEventActionStatus_Response */
+static int hf_mms_defineEventEnrollment_01;       /* DefineEventEnrollment_Response */
+static int hf_mms_confirmedServiceResponse_deleteEventEnrollment;  /* DeleteEventEnrollment_Response */
+static int hf_mms_alterEventEnrollment_01;        /* AlterEventEnrollment_Response */
+static int hf_mms_reportEventEnrollmentStatus_01;  /* ReportEventEnrollmentStatus_Response */
+static int hf_mms_getEventEnrollmentAttributes_01;  /* GetEventEnrollmentAttributes_Response */
+static int hf_mms_acknowledgeEventNotification_01;  /* AcknowledgeEventNotification_Response */
+static int hf_mms_getAlarmSummary_01;             /* GetAlarmSummary_Response */
+static int hf_mms_getAlarmEnrollmentSummary_01;   /* GetAlarmEnrollmentSummary_Response */
+static int hf_mms_readJournal_01;                 /* ReadJournal_Response */
+static int hf_mms_writeJournal_01;                /* WriteJournal_Response */
+static int hf_mms_initializeJournal_01;           /* InitializeJournal_Response */
+static int hf_mms_reportJournalStatus_01;         /* ReportJournalStatus_Response */
+static int hf_mms_createJournal_01;               /* CreateJournal_Response */
+static int hf_mms_deleteJournal_01;               /* DeleteJournal_Response */
+static int hf_mms_getCapabilityList_01;           /* GetCapabilityList_Response */
+static int hf_mms_fileRead_01;                    /* FileRead_Response */
+static int hf_mms_fileClose_01;                   /* FileClose_Response */
+static int hf_mms_fileRename_01;                  /* FileRename_Response */
+static int hf_mms_fileDelete_01;                  /* FileDelete_Response */
+static int hf_mms_fileDirectory_01;               /* FileDirectory_Response */
+static int hf_mms_FileName_item;                  /* GraphicString */
+static int hf_mms_vmd_specific;                   /* Identifier */
+static int hf_mms_domain_specific;                /* T_domain_specific */
+static int hf_mms_domainId;                       /* Identifier */
+static int hf_mms_itemId;                         /* Identifier */
+static int hf_mms_aa_specific;                    /* Identifier */
+static int hf_mms_ap_title;                       /* T_ap_title */
+static int hf_mms_ap_invocation_id;               /* T_ap_invocation_id */
+static int hf_mms_ae_qualifier;                   /* T_ae_qualifier */
+static int hf_mms_ae_invocation_id;               /* T_ae_invocation_id */
+static int hf_mms_localDetailCalling;             /* Integer32 */
+static int hf_mms_proposedMaxServOutstandingCalling;  /* Integer16 */
+static int hf_mms_proposedMaxServOutstandingCalled;  /* Integer16 */
+static int hf_mms_proposedDataStructureNestingLevel;  /* Integer8 */
+static int hf_mms_mmsInitRequestDetail;           /* InitRequestDetail */
+static int hf_mms_proposedVersionNumber;          /* Integer16 */
+static int hf_mms_proposedParameterCBB;           /* ParameterSupportOptions */
+static int hf_mms_servicesSupportedCalling;       /* ServiceSupportOptions */
+static int hf_mms_localDetailCalled;              /* Integer32 */
+static int hf_mms_negociatedMaxServOutstandingCalling;  /* Integer16 */
+static int hf_mms_negociatedMaxServOutstandingCalled;  /* Integer16 */
+static int hf_mms_negociatedDataStructureNestingLevel;  /* Integer8 */
+static int hf_mms_mmsInitResponseDetail;          /* InitResponseDetail */
+static int hf_mms_negociatedVersionNumber;        /* Integer16 */
+static int hf_mms_negociatedParameterCBB;         /* ParameterSupportOptions */
+static int hf_mms_servicesSupportedCalled;        /* ServiceSupportOptions */
+static int hf_mms_originalInvokeID;               /* Unsigned32 */
+static int hf_mms_errorClass;                     /* T_errorClass */
+static int hf_mms_vmd_state;                      /* T_vmd_state */
+static int hf_mms_application_reference;          /* T_application_reference */
+static int hf_mms_definition;                     /* T_definition */
+static int hf_mms_resource;                       /* T_resource */
+static int hf_mms_service;                        /* T_service */
+static int hf_mms_service_preempt;                /* T_service_preempt */
+static int hf_mms_time_resolution;                /* T_time_resolution */
+static int hf_mms_access;                         /* T_access */
+static int hf_mms_initiate;                       /* T_initiate */
+static int hf_mms_conclude;                       /* T_conclude */
+static int hf_mms_cancel;                         /* T_cancel */
+static int hf_mms_file;                           /* T_file */
+static int hf_mms_others;                         /* INTEGER */
+static int hf_mms_additionalCode;                 /* INTEGER */
+static int hf_mms_additionalDescription;          /* VisibleString */
+static int hf_mms_serviceSpecificInformation;     /* T_serviceSpecificInformation */
+static int hf_mms_obtainFile_02;                  /* ObtainFile_Error */
+static int hf_mms_start_02;                       /* Start_Error */
+static int hf_mms_stop_02;                        /* Stop_Error */
+static int hf_mms_resume_02;                      /* Resume_Error */
+static int hf_mms_reset_02;                       /* Reset_Error */
+static int hf_mms_deleteVariableAccess_02;        /* DeleteVariableAccess_Error */
+static int hf_mms_deleteNamedVariableList_02;     /* DeleteNamedVariableList_Error */
+static int hf_mms_deleteNamedType_02;             /* DeleteNamedType_Error */
+static int hf_mms_defineEventEnrollment_Error;    /* DefineEventEnrollment_Error */
+static int hf_mms_fileRename_02;                  /* FileRename_Error */
+static int hf_mms_additionalService;              /* AdditionalService_Error */
+static int hf_mms_changeAccessControl;            /* ChangeAccessControl_Error */
+static int hf_mms_defineEcl;                      /* DefineEventConditionList_Error */
+static int hf_mms_addECLReference;                /* AddEventConditionListReference_Error */
+static int hf_mms_removeECLReference;             /* RemoveEventConditionListReference_Error */
+static int hf_mms_initiateUC;                     /* InitiateUnitControl_Error */
+static int hf_mms_startUC;                        /* StartUnitControl_Error */
+static int hf_mms_stopUC;                         /* StopUnitControl_Error */
+static int hf_mms_deleteUC;                       /* DeleteUnitControl_Error */
+static int hf_mms_loadUCFromFile;                 /* LoadUnitControlFromFile_Error */
+static int hf_mms_eventCondition;                 /* ObjectName */
+static int hf_mms_eventConditionList;             /* ObjectName */
+static int hf_mms_domain;                         /* Identifier */
+static int hf_mms_programInvocation;              /* Identifier */
+static int hf_mms_programInvocationName;          /* Identifier */
+static int hf_mms_programInvocationState;         /* ProgramInvocationState */
+static int hf_mms_none;                           /* NULL */
+static int hf_mms_rejectReason;                   /* T_rejectReason */
+static int hf_mms_confirmed_requestPDU;           /* T_confirmed_requestPDU */
+static int hf_mms_confirmed_responsePDU;          /* T_confirmed_responsePDU */
+static int hf_mms_confirmed_errorPDU;             /* T_confirmed_errorPDU */
+static int hf_mms_unconfirmedPDU;                 /* T_unconfirmedPDU */
+static int hf_mms_pdu_error;                      /* T_pdu_error */
+static int hf_mms_cancel_requestPDU;              /* T_cancel_requestPDU */
+static int hf_mms_cancel_responsePDU;             /* T_cancel_responsePDU */
+static int hf_mms_cancel_errorPDU;                /* T_cancel_errorPDU */
+static int hf_mms_conclude_requestPDU;            /* T_conclude_requestPDU */
+static int hf_mms_conclude_responsePDU;           /* T_conclude_responsePDU */
+static int hf_mms_conclude_errorPDU;              /* T_conclude_errorPDU */
+static int hf_mms_vmdLogicalStatus;               /* T_vmdLogicalStatus */
+static int hf_mms_vmdPhysicalStatus;              /* T_vmdPhysicalStatus */
+static int hf_mms_localDetail;                    /* BIT_STRING_SIZE_0_128 */
+static int hf_mms_extendedObjectClass;            /* T_extendedObjectClass */
+static int hf_mms_objectClass;                    /* T_objectClass */
+static int hf_mms_objectScope;                    /* T_objectScope */
+static int hf_mms_vmdSpecific;                    /* NULL */
+static int hf_mms_domainSpecific;                 /* Identifier */
+static int hf_mms_aaSpecific;                     /* NULL */
+static int hf_mms_getNameList_Request_continueAfter;  /* Identifier */
+static int hf_mms_listOfIdentifier;               /* SEQUENCE_OF_Identifier */
+static int hf_mms_listOfIdentifier_item;          /* Identifier */
+static int hf_mms_moreFollows;                    /* BOOLEAN */
+static int hf_mms_vendorName;                     /* VisibleString */
+static int hf_mms_modelName;                      /* VisibleString */
+static int hf_mms_revision;                       /* VisibleString */
+static int hf_mms_listOfAbstractSyntaxes;         /* T_listOfAbstractSyntaxes */
+static int hf_mms_listOfAbstractSyntaxes_item;    /* OBJECT_IDENTIFIER */
+static int hf_mms_extendedObjectClass_01;         /* T_extendedObjectClass_01 */
+static int hf_mms_objectClass_01;                 /* T_objectClass_01 */
+static int hf_mms_currentName;                    /* ObjectName */
+static int hf_mms_newIdentifier;                  /* Identifier */
+static int hf_mms_getCapabilityList_Request_continueAfter;  /* VisibleString */
+static int hf_mms_listOfCapabilities;             /* T_listOfCapabilities */
+static int hf_mms_listOfCapabilities_item;        /* VisibleString */
+static int hf_mms_domainName;                     /* Identifier */
+static int hf_mms_listOfCapabilities_01;          /* T_listOfCapabilities_01 */
+static int hf_mms_sharable;                       /* BOOLEAN */
+static int hf_mms_loadData;                       /* T_loadData */
+static int hf_mms_non_coded;                      /* OCTET_STRING */
+static int hf_mms_coded;                          /* EXTERNALt */
+static int hf_mms_discard;                        /* ServiceError */
+static int hf_mms_ulsmID;                         /* Integer32 */
+static int hf_mms_listOfCapabilities_02;          /* T_listOfCapabilities_02 */
+static int hf_mms_loadData_01;                    /* T_loadData_01 */
+static int hf_mms_listOfCapabilities_03;          /* T_listOfCapabilities_03 */
+static int hf_mms_fileName;                       /* FileName */
+static int hf_mms_listOfCapabilities_04;          /* T_listOfCapabilities_04 */
+static int hf_mms_thirdParty;                     /* ApplicationReference */
+static int hf_mms_filenName;                      /* FileName */
+static int hf_mms_listOfCapabilities_05;          /* T_listOfCapabilities_05 */
+static int hf_mms_getDomainAttributes_Response_state;  /* DomainState */
+static int hf_mms_mmsDeletable;                   /* BOOLEAN */
+static int hf_mms_listOfProgramInvocations;       /* SEQUENCE_OF_Identifier */
+static int hf_mms_listOfProgramInvocations_item;  /* Identifier */
+static int hf_mms_uploadInProgress;               /* Integer8 */
+static int hf_mms_listOfDomainName;               /* SEQUENCE_OF_Identifier */
+static int hf_mms_listOfDomainName_item;          /* Identifier */
+static int hf_mms_reusable;                       /* BOOLEAN */
+static int hf_mms_monitorType;                    /* BOOLEAN */
+static int hf_mms_executionArgument;              /* T_executionArgument */
+static int hf_mms_simpleString;                   /* VisibleString */
+static int hf_mms_encodedString;                  /* EXTERNALt */
+static int hf_mms_executionArgument_01;           /* T_executionArgument_01 */
+static int hf_mms_getProgramInvocationAttributes_Response_state;  /* ProgramInvocationState */
+static int hf_mms_listOfDomainNames;              /* SEQUENCE_OF_Identifier */
+static int hf_mms_listOfDomainNames_item;         /* Identifier */
+static int hf_mms_monitor;                        /* BOOLEAN */
+static int hf_mms_startArgument;                  /* VisibleString */
+static int hf_mms_executionArgument_02;           /* T_executionArgument_02 */
+static int hf_mms_typeName;                       /* ObjectName */
+static int hf_mms_array;                          /* T_array */
+static int hf_mms_packed;                         /* BOOLEAN */
+static int hf_mms_numberOfElements;               /* Unsigned32 */
+static int hf_mms_elementType;                    /* TypeSpecification */
+static int hf_mms_structure;                      /* T_structure */
+static int hf_mms_components;                     /* T_components */
+static int hf_mms_components_item;                /* T_components_item */
+static int hf_mms_componentName;                  /* Identifier */
+static int hf_mms_componentType;                  /* TypeSpecification */
+static int hf_mms_boolean;                        /* NULL */
+static int hf_mms_typeSpecification_bit_string;   /* Integer32 */
+static int hf_mms_integer;                        /* Unsigned8 */
+static int hf_mms_unsigned;                       /* Unsigned8 */
+static int hf_mms_typeSpecification_octet_string;  /* Integer32 */
+static int hf_mms_typeSpecification_visible_string;  /* Integer32 */
+static int hf_mms_generalized_time;               /* NULL */
+static int hf_mms_typeSpecification_binary_time;  /* BOOLEAN */
+static int hf_mms_bcd;                            /* Unsigned8 */
+static int hf_mms_objId;                          /* NULL */
+static int hf_mms_AlternateAccess_item;           /* AlternateAccess_item */
+static int hf_mms_unnamed;                        /* AlternateAccessSelection */
+static int hf_mms_named;                          /* T_named */
+static int hf_mms_accesst;                        /* AlternateAccessSelection */
+static int hf_mms_selectAlternateAccess;          /* T_selectAlternateAccess */
+static int hf_mms_accessSelection;                /* T_accessSelection */
+static int hf_mms_component;                      /* Identifier */
+static int hf_mms_index;                          /* Unsigned32 */
+static int hf_mms_indexRange;                     /* T_indexRange */
+static int hf_mms_lowIndex;                       /* Unsigned32 */
+static int hf_mms_allElements;                    /* NULL */
+static int hf_mms_alternateAccess;                /* AlternateAccess */
+static int hf_mms_selectAccess;                   /* T_selectAccess */
+static int hf_mms_indexRange_01;                  /* T_indexRange_01 */
+static int hf_mms_nmberOfElements;                /* Unsigned32 */
+static int hf_mms_specificationWithResult;        /* BOOLEAN */
+static int hf_mms_variableAccessSpecificatn;      /* VariableAccessSpecification */
+static int hf_mms_listOfAccessResult;             /* SEQUENCE_OF_AccessResult */
+static int hf_mms_listOfAccessResult_item;        /* AccessResult */
+static int hf_mms_listOfData;                     /* SEQUENCE_OF_Data */
+static int hf_mms_listOfData_item;                /* Data */
+static int hf_mms_Write_Response_item;            /* Write_Response_item */
+static int hf_mms_failure;                        /* DataAccessError */
+static int hf_mms_success;                        /* NULL */
+static int hf_mms_variableAccessSpecification;    /* VariableAccessSpecification */
+static int hf_mms_name;                           /* ObjectName */
+static int hf_mms_address;                        /* Address */
+static int hf_mms_typeSpecification;              /* TypeSpecification */
+static int hf_mms_variableName;                   /* ObjectName */
+static int hf_mms_scatteredAccessName;            /* ObjectName */
+static int hf_mms_scatteredAccessDescription;     /* ScatteredAccessDescription */
+static int hf_mms_scopeOfDelete;                  /* T_scopeOfDelete */
+static int hf_mms_listOfName;                     /* SEQUENCE_OF_ObjectName */
+static int hf_mms_listOfName_item;                /* ObjectName */
+static int hf_mms_numberMatched;                  /* Unsigned32 */
+static int hf_mms_numberDeleted;                  /* Unsigned32 */
+static int hf_mms_variableListName;               /* ObjectName */
+static int hf_mms_listOfVariable;                 /* T_listOfVariable */
+static int hf_mms_listOfVariable_item;            /* T_listOfVariable_item */
+static int hf_mms_variableSpecification;          /* VariableSpecification */
+static int hf_mms_listOfVariable_01;              /* T_listOfVariable_01 */
+static int hf_mms_listOfVariable_item_01;         /* T_listOfVariable_item_01 */
+static int hf_mms_scopeOfDelete_01;               /* T_scopeOfDelete_01 */
+static int hf_mms_listOfVariableListName;         /* SEQUENCE_OF_ObjectName */
+static int hf_mms_listOfVariableListName_item;    /* ObjectName */
+static int hf_mms_scopeOfDelete_02;               /* T_scopeOfDelete_02 */
+static int hf_mms_listOfTypeName;                 /* SEQUENCE_OF_ObjectName */
+static int hf_mms_listOfTypeName_item;            /* ObjectName */
+static int hf_mms_success_01;                     /* Data */
+static int hf_mms_array_01;                       /* SEQUENCE_OF_Data */
+static int hf_mms_array_item;                     /* Data */
+static int hf_mms_structure_01;                   /* SEQUENCE_OF_Data */
+static int hf_mms_structure_item;                 /* Data */
+static int hf_mms_boolean_01;                     /* BOOLEAN */
+static int hf_mms_data_bit_string;                /* BIT_STRING */
+static int hf_mms_integer_01;                     /* INTEGER */
+static int hf_mms_unsigned_01;                    /* INTEGER */
+static int hf_mms_floating_point;                 /* FloatingPoint */
+static int hf_mms_data_octet_string;              /* OCTET_STRING */
+static int hf_mms_data_visible_string;            /* VisibleString */
+static int hf_mms_data_binary_time;               /* TimeOfDay */
+static int hf_mms_bcd_01;                         /* INTEGER */
+static int hf_mms_booleanArray;                   /* BIT_STRING */
+static int hf_mms_objId_01;                       /* OBJECT_IDENTIFIER */
+static int hf_mms_mMSString;                      /* MMSString */
+static int hf_mms_utc_time;                       /* UtcTime */
+static int hf_mms_listOfVariable_02;              /* T_listOfVariable_02 */
+static int hf_mms_listOfVariable_item_02;         /* T_listOfVariable_item_02 */
+static int hf_mms_ScatteredAccessDescription_item;  /* ScatteredAccessDescription_item */
+static int hf_mms_variableDescription;            /* T_variableDescription */
+static int hf_mms_invalidated;                    /* NULL */
+static int hf_mms_numericAddress;                 /* Unsigned32 */
+static int hf_mms_symbolicAddress;                /* VisibleString */
+static int hf_mms_unconstrainedAddress;           /* OCTET_STRING */
+static int hf_mms_semaphoreName;                  /* ObjectName */
+static int hf_mms_namedToken;                     /* Identifier */
+static int hf_mms_priority;                       /* Priority */
+static int hf_mms_acceptableDelay;                /* Unsigned32 */
+static int hf_mms_controlTimeOut;                 /* Unsigned32 */
+static int hf_mms_abortOnTimeOut;                 /* BOOLEAN */
+static int hf_mms_relinquishIfConnectionLost;     /* BOOLEAN */
+static int hf_mms_applicationToPreempt;           /* ApplicationReference */
+static int hf_mms_noResult;                       /* NULL */
+static int hf_mms_numbersOfTokens;                /* Unsigned16 */
+static int hf_mms_class;                          /* T_class */
+static int hf_mms_numberOfTokens;                 /* Unsigned16 */
+static int hf_mms_numberOfOwnedTokens;            /* Unsigned16 */
+static int hf_mms_numberOfHungTokens;             /* Unsigned16 */
+static int hf_mms_nameToStartAfter;               /* Identifier */
+static int hf_mms_listOfNamedTokens;              /* T_listOfNamedTokens */
+static int hf_mms_listOfNamedTokens_item;         /* T_listOfNamedTokens_item */
+static int hf_mms_freeNamedToken;                 /* Identifier */
+static int hf_mms_ownedNamedToken;                /* Identifier */
+static int hf_mms_hungNamedToken;                 /* Identifier */
+static int hf_mms_reportSemaphoreEntryStatus_Request_state;  /* T_reportSemaphoreEntryStatus_Request_state */
+static int hf_mms_entryIdToStartAfter;            /* OCTET_STRING */
+static int hf_mms_listOfSemaphoreEntry;           /* SEQUENCE_OF_SemaphoreEntry */
+static int hf_mms_listOfSemaphoreEntry_item;      /* SemaphoreEntry */
+static int hf_mms_entryId;                        /* OCTET_STRING */
+static int hf_mms_entryClass;                     /* T_entryClass */
+static int hf_mms_applicationReference;           /* ApplicationReference */
+static int hf_mms_remainingTimeOut;               /* Unsigned32 */
+static int hf_mms_operatorStationName;            /* Identifier */
+static int hf_mms_echo;                           /* BOOLEAN */
+static int hf_mms_listOfPromptData;               /* T_listOfPromptData */
+static int hf_mms_listOfPromptData_item;          /* VisibleString */
+static int hf_mms_inputTimeOut;                   /* Unsigned32 */
+static int hf_mms_listOfOutputData;               /* T_listOfOutputData */
+static int hf_mms_listOfOutputData_item;          /* VisibleString */
+static int hf_mms_eventConditionName;             /* ObjectName */
+static int hf_mms_class_01;                       /* EC_Class */
+static int hf_mms_prio_rity;                      /* Priority */
+static int hf_mms_severity;                       /* Unsigned8 */
+static int hf_mms_alarmSummaryReports;            /* BOOLEAN */
+static int hf_mms_monitoredVariable;              /* VariableSpecification */
+static int hf_mms_evaluationInterval;             /* Unsigned32 */
+static int hf_mms_specific;                       /* SEQUENCE_OF_ObjectName */
+static int hf_mms_specific_item;                  /* ObjectName */
+static int hf_mms_aa_specific_01;                 /* NULL */
+static int hf_mms_vmd;                            /* NULL */
+static int hf_mms_monitoredVariable_01;           /* T_monitoredVariable */
+static int hf_mms_variableReference;              /* VariableSpecification */
+static int hf_mms_undefined;                      /* NULL */
+static int hf_mms_currentState;                   /* EC_State */
+static int hf_mms_numberOfEventEnrollments;       /* Unsigned32 */
+static int hf_mms_enabled;                        /* BOOLEAN */
+static int hf_mms_timeOfLastTransitionToActive;   /* EventTime */
+static int hf_mms_timeOfLastTransitionToIdle;     /* EventTime */
+static int hf_mms_eventActionName;                /* ObjectName */
+static int hf_mms_eventEnrollmentName;            /* ObjectName */
+static int hf_mms_eventConditionTransition;       /* Transitions */
+static int hf_mms_alarmAcknowledgementRule;       /* AlarmAckRule */
+static int hf_mms_clientApplication;              /* ApplicationReference */
+static int hf_mms_ec;                             /* ObjectName */
+static int hf_mms_ea;                             /* ObjectName */
+static int hf_mms_scopeOfRequest;                 /* T_scopeOfRequest */
+static int hf_mms_eventEnrollmentNames;           /* SEQUENCE_OF_ObjectName */
+static int hf_mms_eventEnrollmentNames_item;      /* ObjectName */
+static int hf_mms_getEventEnrollmentAttributes_Request_continueAfter;  /* ObjectName */
+static int hf_mms_eventConditionName_01;          /* T_eventConditionName */
+static int hf_mms_eventActionName_01;             /* T_eventActionName */
+static int hf_mms_eventAction;                    /* ObjectName */
+static int hf_mms_enrollmentClass;                /* EE_Class */
+static int hf_mms_duration;                       /* EE_Duration */
+static int hf_mms_remainingAcceptableDelay;       /* Unsigned32 */
+static int hf_mms_listOfEventEnrollment;          /* SEQUENCE_OF_EventEnrollment */
+static int hf_mms_listOfEventEnrollment_item;     /* EventEnrollment */
+static int hf_mms_eventConditionTransitions;      /* Transitions */
+static int hf_mms_notificationLost;               /* BOOLEAN */
+static int hf_mms_alarmAcknowledgmentRule;        /* AlarmAckRule */
+static int hf_mms_currentState_01;                /* EE_State */
+static int hf_mms_currentState_02;                /* T_currentState */
+static int hf_mms_alterEventEnrollment_Response_currentState_state;  /* EE_State */
+static int hf_mms_transitionTime;                 /* EventTime */
+static int hf_mms_acknowledgedState;              /* EC_State */
+static int hf_mms_timeOfAcknowledgedTransition;   /* EventTime */
+static int hf_mms_enrollmentsOnly;                /* BOOLEAN */
+static int hf_mms_activeAlarmsOnly;               /* BOOLEAN */
+static int hf_mms_acknowledgmentFilter;           /* T_acknowledgmentFilter */
+static int hf_mms_severityFilter;                 /* T_severityFilter */
+static int hf_mms_mostSevere;                     /* Unsigned8 */
+static int hf_mms_leastSevere;                    /* Unsigned8 */
+static int hf_mms_continueAfter;                  /* ObjectName */
+static int hf_mms_listOfAlarmSummary;             /* SEQUENCE_OF_AlarmSummary */
+static int hf_mms_listOfAlarmSummary_item;        /* AlarmSummary */
+static int hf_mms_unacknowledgedState;            /* T_unacknowledgedState */
+static int hf_mms_acknowledgmentFilter_01;        /* T_acknowledgmentFilter_01 */
+static int hf_mms_severityFilter_01;              /* T_severityFilter_01 */
+static int hf_mms_getAlarmEnrollmentSummary_Request_continueAfter;  /* ObjectName */
+static int hf_mms_listOfAlarmEnrollmentSummary;   /* SEQUENCE_OF_AlarmEnrollmentSummary */
+static int hf_mms_listOfAlarmEnrollmentSummary_item;  /* AlarmEnrollmentSummary */
+static int hf_mms_enrollementState;               /* EE_State */
+static int hf_mms_timeActiveAcknowledged;         /* EventTime */
+static int hf_mms_timeIdleAcknowledged;           /* EventTime */
+static int hf_mms_eventConditionName_02;          /* T_eventConditionName_01 */
+static int hf_mms_actionResult;                   /* T_actionResult */
+static int hf_mms_eventActioName;                 /* ObjectName */
+static int hf_mms_eventActionResult;              /* T_eventActionResult */
+static int hf_mms_success_02;                     /* ConfirmedServiceResponse */
+static int hf_mms_failure_01;                     /* ServiceError */
+static int hf_mms_causingTransitions;             /* Transitions */
+static int hf_mms_timeOfDayT;                     /* TimeOfDay */
+static int hf_mms_timeSequenceIdentifier;         /* Unsigned32 */
+static int hf_mms_journalName;                    /* ObjectName */
+static int hf_mms_rangeStartSpecification;        /* T_rangeStartSpecification */
+static int hf_mms_startingTime;                   /* TimeOfDay */
+static int hf_mms_startingEntry;                  /* OCTET_STRING */
+static int hf_mms_rangeStopSpecification;         /* T_rangeStopSpecification */
+static int hf_mms_endingTime;                     /* TimeOfDay */
+static int hf_mms_numberOfEntries;                /* Integer32 */
+static int hf_mms_listOfVariables;                /* T_listOfVariables */
+static int hf_mms_listOfVariables_item;           /* VisibleString */
+static int hf_mms_entryToStartAfter;              /* T_entryToStartAfter */
+static int hf_mms_timeSpecification;              /* TimeOfDay */
+static int hf_mms_entrySpecification;             /* OCTET_STRING */
+static int hf_mms_listOfJournalEntry;             /* SEQUENCE_OF_JournalEntry */
+static int hf_mms_listOfJournalEntry_item;        /* JournalEntry */
+static int hf_mms_entryIdentifier;                /* OCTET_STRING */
+static int hf_mms_originatingApplication;         /* ApplicationReference */
+static int hf_mms_entryContent;                   /* EntryContent */
+static int hf_mms_listOfJournalEntry_01;          /* SEQUENCE_OF_EntryContent */
+static int hf_mms_listOfJournalEntry_item_01;     /* EntryContent */
+static int hf_mms_limitSpecification;             /* T_limitSpecification */
+static int hf_mms_limitingTime;                   /* TimeOfDay */
+static int hf_mms_limitingEntry;                  /* OCTET_STRING */
+static int hf_mms_currentEntries;                 /* Unsigned32 */
+static int hf_mms_occurenceTime;                  /* TimeOfDay */
+static int hf_mms_additionalDetail;               /* JOU_Additional_Detail */
+static int hf_mms_entryForm;                      /* T_entryForm */
+static int hf_mms_data;                           /* T_data */
+static int hf_mms_event;                          /* T_event */
+static int hf_mms_listOfVariables_01;             /* T_listOfVariables_01 */
+static int hf_mms_listOfVariables_item_01;        /* T_listOfVariables_item */
+static int hf_mms_variableTag;                    /* VisibleString */
+static int hf_mms_valueSpecification;             /* Data */
+static int hf_mms_annotation;                     /* VisibleString */
+static int hf_mms_sourceFileServer;               /* ApplicationReference */
+static int hf_mms_sourceFile;                     /* FileName */
+static int hf_mms_destinationFile;                /* FileName */
+static int hf_mms_initialPosition;                /* Unsigned32 */
+static int hf_mms_frsmID;                         /* Integer32 */
+static int hf_mms_fileAttributes;                 /* FileAttributes */
+static int hf_mms_fileData;                       /* OCTET_STRING */
+static int hf_mms_currentFileName;                /* FileName */
+static int hf_mms_newFileName;                    /* FileName */
+static int hf_mms_fileSpecification;              /* FileName */
+static int hf_mms_fileDirectory_Request_continueAfter;  /* FileName */
+static int hf_mms_listOfDirectoryEntry;           /* SEQUENCE_OF_DirectoryEntry */
+static int hf_mms_listOfDirectoryEntry_item;      /* DirectoryEntry */
+static int hf_mms_filename;                       /* FileName */
+static int hf_mms_sizeOfFile;                     /* Unsigned32 */
+static int hf_mms_lastModified;                   /* GeneralizedTime */
 /* named bits */
-static int hf_mms_ParameterSupportOptions_str1 = -1;
-static int hf_mms_ParameterSupportOptions_str2 = -1;
-static int hf_mms_ParameterSupportOptions_vnam = -1;
-static int hf_mms_ParameterSupportOptions_valt = -1;
-static int hf_mms_ParameterSupportOptions_vadr = -1;
-static int hf_mms_ParameterSupportOptions_vsca = -1;
-static int hf_mms_ParameterSupportOptions_tpy = -1;
-static int hf_mms_ParameterSupportOptions_vlis = -1;
-static int hf_mms_ParameterSupportOptions_real = -1;
-static int hf_mms_ParameterSupportOptions_spare_bit9 = -1;
-static int hf_mms_ParameterSupportOptions_cei = -1;
-static int hf_mms_ServiceSupportOptions_status = -1;
-static int hf_mms_ServiceSupportOptions_getNameList = -1;
-static int hf_mms_ServiceSupportOptions_identify = -1;
-static int hf_mms_ServiceSupportOptions_rename = -1;
-static int hf_mms_ServiceSupportOptions_read = -1;
-static int hf_mms_ServiceSupportOptions_write = -1;
-static int hf_mms_ServiceSupportOptions_getVariableAccessAttributes = -1;
-static int hf_mms_ServiceSupportOptions_defineNamedVariable = -1;
-static int hf_mms_ServiceSupportOptions_defineScatteredAccess = -1;
-static int hf_mms_ServiceSupportOptions_getScatteredAccessAttributes = -1;
-static int hf_mms_ServiceSupportOptions_deleteVariableAccess = -1;
-static int hf_mms_ServiceSupportOptions_defineNamedVariableList = -1;
-static int hf_mms_ServiceSupportOptions_getNamedVariableListAttributes = -1;
-static int hf_mms_ServiceSupportOptions_deleteNamedVariableList = -1;
-static int hf_mms_ServiceSupportOptions_defineNamedType = -1;
-static int hf_mms_ServiceSupportOptions_getNamedTypeAttributes = -1;
-static int hf_mms_ServiceSupportOptions_deleteNamedType = -1;
-static int hf_mms_ServiceSupportOptions_input = -1;
-static int hf_mms_ServiceSupportOptions_output = -1;
-static int hf_mms_ServiceSupportOptions_takeControl = -1;
-static int hf_mms_ServiceSupportOptions_relinquishControl = -1;
-static int hf_mms_ServiceSupportOptions_defineSemaphore = -1;
-static int hf_mms_ServiceSupportOptions_deleteSemaphore = -1;
-static int hf_mms_ServiceSupportOptions_reportSemaphoreStatus = -1;
-static int hf_mms_ServiceSupportOptions_reportPoolSemaphoreStatus = -1;
-static int hf_mms_ServiceSupportOptions_reportSemaphoreEntryStatus = -1;
-static int hf_mms_ServiceSupportOptions_initiateDownloadSequence = -1;
-static int hf_mms_ServiceSupportOptions_downloadSegment = -1;
-static int hf_mms_ServiceSupportOptions_terminateDownloadSequence = -1;
-static int hf_mms_ServiceSupportOptions_initiateUploadSequence = -1;
-static int hf_mms_ServiceSupportOptions_uploadSegment = -1;
-static int hf_mms_ServiceSupportOptions_terminateUploadSequence = -1;
-static int hf_mms_ServiceSupportOptions_requestDomainDownload = -1;
-static int hf_mms_ServiceSupportOptions_requestDomainUpload = -1;
-static int hf_mms_ServiceSupportOptions_loadDomainContent = -1;
-static int hf_mms_ServiceSupportOptions_storeDomainContent = -1;
-static int hf_mms_ServiceSupportOptions_deleteDomain = -1;
-static int hf_mms_ServiceSupportOptions_getDomainAttributes = -1;
-static int hf_mms_ServiceSupportOptions_createProgramInvocation = -1;
-static int hf_mms_ServiceSupportOptions_deleteProgramInvocation = -1;
-static int hf_mms_ServiceSupportOptions_start = -1;
-static int hf_mms_ServiceSupportOptions_stop = -1;
-static int hf_mms_ServiceSupportOptions_resume = -1;
-static int hf_mms_ServiceSupportOptions_reset = -1;
-static int hf_mms_ServiceSupportOptions_kill = -1;
-static int hf_mms_ServiceSupportOptions_getProgramInvocationAttributes = -1;
-static int hf_mms_ServiceSupportOptions_obtainFile = -1;
-static int hf_mms_ServiceSupportOptions_defineEventCondition = -1;
-static int hf_mms_ServiceSupportOptions_deleteEventCondition = -1;
-static int hf_mms_ServiceSupportOptions_getEventConditionAttributes = -1;
-static int hf_mms_ServiceSupportOptions_reportEventConditionStatus = -1;
-static int hf_mms_ServiceSupportOptions_alterEventConditionMonitoring = -1;
-static int hf_mms_ServiceSupportOptions_triggerEvent = -1;
-static int hf_mms_ServiceSupportOptions_defineEventAction = -1;
-static int hf_mms_ServiceSupportOptions_deleteEventAction = -1;
-static int hf_mms_ServiceSupportOptions_getEventActionAttributes = -1;
-static int hf_mms_ServiceSupportOptions_reportActionStatus = -1;
-static int hf_mms_ServiceSupportOptions_defineEventEnrollment = -1;
-static int hf_mms_ServiceSupportOptions_deleteEventEnrollment = -1;
-static int hf_mms_ServiceSupportOptions_alterEventEnrollment = -1;
-static int hf_mms_ServiceSupportOptions_reportEventEnrollmentStatus = -1;
-static int hf_mms_ServiceSupportOptions_getEventEnrollmentAttributes = -1;
-static int hf_mms_ServiceSupportOptions_acknowledgeEventNotification = -1;
-static int hf_mms_ServiceSupportOptions_getAlarmSummary = -1;
-static int hf_mms_ServiceSupportOptions_getAlarmEnrollmentSummary = -1;
-static int hf_mms_ServiceSupportOptions_readJournal = -1;
-static int hf_mms_ServiceSupportOptions_writeJournal = -1;
-static int hf_mms_ServiceSupportOptions_initializeJournal = -1;
-static int hf_mms_ServiceSupportOptions_reportJournalStatus = -1;
-static int hf_mms_ServiceSupportOptions_createJournal = -1;
-static int hf_mms_ServiceSupportOptions_deleteJournal = -1;
-static int hf_mms_ServiceSupportOptions_getCapabilityList = -1;
-static int hf_mms_ServiceSupportOptions_fileOpen = -1;
-static int hf_mms_ServiceSupportOptions_fileRead = -1;
-static int hf_mms_ServiceSupportOptions_fileClose = -1;
-static int hf_mms_ServiceSupportOptions_fileRename = -1;
-static int hf_mms_ServiceSupportOptions_fileDelete = -1;
-static int hf_mms_ServiceSupportOptions_fileDirectory = -1;
-static int hf_mms_ServiceSupportOptions_unsolicitedStatus = -1;
-static int hf_mms_ServiceSupportOptions_informationReport = -1;
-static int hf_mms_ServiceSupportOptions_eventNotification = -1;
-static int hf_mms_ServiceSupportOptions_attachToEventCondition = -1;
-static int hf_mms_ServiceSupportOptions_attachToSemaphore = -1;
-static int hf_mms_ServiceSupportOptions_conclude = -1;
-static int hf_mms_ServiceSupportOptions_cancel = -1;
-static int hf_mms_Transitions_idle_to_disabled = -1;
-static int hf_mms_Transitions_active_to_disabled = -1;
-static int hf_mms_Transitions_disabled_to_idle = -1;
-static int hf_mms_Transitions_active_to_idle = -1;
-static int hf_mms_Transitions_disabled_to_active = -1;
-static int hf_mms_Transitions_idle_to_active = -1;
-static int hf_mms_Transitions_any_to_deleted = -1;
+static int hf_mms_ParameterSupportOptions_str1;
+static int hf_mms_ParameterSupportOptions_str2;
+static int hf_mms_ParameterSupportOptions_vnam;
+static int hf_mms_ParameterSupportOptions_valt;
+static int hf_mms_ParameterSupportOptions_vadr;
+static int hf_mms_ParameterSupportOptions_vsca;
+static int hf_mms_ParameterSupportOptions_tpy;
+static int hf_mms_ParameterSupportOptions_vlis;
+static int hf_mms_ParameterSupportOptions_real;
+static int hf_mms_ParameterSupportOptions_spare_bit9;
+static int hf_mms_ParameterSupportOptions_cei;
+static int hf_mms_ServiceSupportOptions_status;
+static int hf_mms_ServiceSupportOptions_getNameList;
+static int hf_mms_ServiceSupportOptions_identify;
+static int hf_mms_ServiceSupportOptions_rename;
+static int hf_mms_ServiceSupportOptions_read;
+static int hf_mms_ServiceSupportOptions_write;
+static int hf_mms_ServiceSupportOptions_getVariableAccessAttributes;
+static int hf_mms_ServiceSupportOptions_defineNamedVariable;
+static int hf_mms_ServiceSupportOptions_defineScatteredAccess;
+static int hf_mms_ServiceSupportOptions_getScatteredAccessAttributes;
+static int hf_mms_ServiceSupportOptions_deleteVariableAccess;
+static int hf_mms_ServiceSupportOptions_defineNamedVariableList;
+static int hf_mms_ServiceSupportOptions_getNamedVariableListAttributes;
+static int hf_mms_ServiceSupportOptions_deleteNamedVariableList;
+static int hf_mms_ServiceSupportOptions_defineNamedType;
+static int hf_mms_ServiceSupportOptions_getNamedTypeAttributes;
+static int hf_mms_ServiceSupportOptions_deleteNamedType;
+static int hf_mms_ServiceSupportOptions_input;
+static int hf_mms_ServiceSupportOptions_output;
+static int hf_mms_ServiceSupportOptions_takeControl;
+static int hf_mms_ServiceSupportOptions_relinquishControl;
+static int hf_mms_ServiceSupportOptions_defineSemaphore;
+static int hf_mms_ServiceSupportOptions_deleteSemaphore;
+static int hf_mms_ServiceSupportOptions_reportSemaphoreStatus;
+static int hf_mms_ServiceSupportOptions_reportPoolSemaphoreStatus;
+static int hf_mms_ServiceSupportOptions_reportSemaphoreEntryStatus;
+static int hf_mms_ServiceSupportOptions_initiateDownloadSequence;
+static int hf_mms_ServiceSupportOptions_downloadSegment;
+static int hf_mms_ServiceSupportOptions_terminateDownloadSequence;
+static int hf_mms_ServiceSupportOptions_initiateUploadSequence;
+static int hf_mms_ServiceSupportOptions_uploadSegment;
+static int hf_mms_ServiceSupportOptions_terminateUploadSequence;
+static int hf_mms_ServiceSupportOptions_requestDomainDownload;
+static int hf_mms_ServiceSupportOptions_requestDomainUpload;
+static int hf_mms_ServiceSupportOptions_loadDomainContent;
+static int hf_mms_ServiceSupportOptions_storeDomainContent;
+static int hf_mms_ServiceSupportOptions_deleteDomain;
+static int hf_mms_ServiceSupportOptions_getDomainAttributes;
+static int hf_mms_ServiceSupportOptions_createProgramInvocation;
+static int hf_mms_ServiceSupportOptions_deleteProgramInvocation;
+static int hf_mms_ServiceSupportOptions_start;
+static int hf_mms_ServiceSupportOptions_stop;
+static int hf_mms_ServiceSupportOptions_resume;
+static int hf_mms_ServiceSupportOptions_reset;
+static int hf_mms_ServiceSupportOptions_kill;
+static int hf_mms_ServiceSupportOptions_getProgramInvocationAttributes;
+static int hf_mms_ServiceSupportOptions_obtainFile;
+static int hf_mms_ServiceSupportOptions_defineEventCondition;
+static int hf_mms_ServiceSupportOptions_deleteEventCondition;
+static int hf_mms_ServiceSupportOptions_getEventConditionAttributes;
+static int hf_mms_ServiceSupportOptions_reportEventConditionStatus;
+static int hf_mms_ServiceSupportOptions_alterEventConditionMonitoring;
+static int hf_mms_ServiceSupportOptions_triggerEvent;
+static int hf_mms_ServiceSupportOptions_defineEventAction;
+static int hf_mms_ServiceSupportOptions_deleteEventAction;
+static int hf_mms_ServiceSupportOptions_getEventActionAttributes;
+static int hf_mms_ServiceSupportOptions_reportActionStatus;
+static int hf_mms_ServiceSupportOptions_defineEventEnrollment;
+static int hf_mms_ServiceSupportOptions_deleteEventEnrollment;
+static int hf_mms_ServiceSupportOptions_alterEventEnrollment;
+static int hf_mms_ServiceSupportOptions_reportEventEnrollmentStatus;
+static int hf_mms_ServiceSupportOptions_getEventEnrollmentAttributes;
+static int hf_mms_ServiceSupportOptions_acknowledgeEventNotification;
+static int hf_mms_ServiceSupportOptions_getAlarmSummary;
+static int hf_mms_ServiceSupportOptions_getAlarmEnrollmentSummary;
+static int hf_mms_ServiceSupportOptions_readJournal;
+static int hf_mms_ServiceSupportOptions_writeJournal;
+static int hf_mms_ServiceSupportOptions_initializeJournal;
+static int hf_mms_ServiceSupportOptions_reportJournalStatus;
+static int hf_mms_ServiceSupportOptions_createJournal;
+static int hf_mms_ServiceSupportOptions_deleteJournal;
+static int hf_mms_ServiceSupportOptions_getCapabilityList;
+static int hf_mms_ServiceSupportOptions_fileOpen;
+static int hf_mms_ServiceSupportOptions_fileRead;
+static int hf_mms_ServiceSupportOptions_fileClose;
+static int hf_mms_ServiceSupportOptions_fileRename;
+static int hf_mms_ServiceSupportOptions_fileDelete;
+static int hf_mms_ServiceSupportOptions_fileDirectory;
+static int hf_mms_ServiceSupportOptions_unsolicitedStatus;
+static int hf_mms_ServiceSupportOptions_informationReport;
+static int hf_mms_ServiceSupportOptions_eventNotification;
+static int hf_mms_ServiceSupportOptions_attachToEventCondition;
+static int hf_mms_ServiceSupportOptions_attachToSemaphore;
+static int hf_mms_ServiceSupportOptions_conclude;
+static int hf_mms_ServiceSupportOptions_cancel;
+static int hf_mms_Transitions_idle_to_disabled;
+static int hf_mms_Transitions_active_to_disabled;
+static int hf_mms_Transitions_disabled_to_idle;
+static int hf_mms_Transitions_active_to_idle;
+static int hf_mms_Transitions_disabled_to_active;
+static int hf_mms_Transitions_idle_to_active;
+static int hf_mms_Transitions_any_to_deleted;
 
 /* Initialize the subtree pointers */
-static gint ett_mms = -1;
-static gint ett_mms_MMSpdu = -1;
-static gint ett_mms_Confirmed_RequestPDU = -1;
-static gint ett_mms_SEQUENCE_OF_Modifier = -1;
-static gint ett_mms_Unconfirmed_PDU = -1;
-static gint ett_mms_Confirmed_ResponsePDU = -1;
-static gint ett_mms_Confirmed_ErrorPDU = -1;
-static gint ett_mms_UnconfirmedService = -1;
-static gint ett_mms_Modifier = -1;
-static gint ett_mms_ConfirmedServiceRequest = -1;
-static gint ett_mms_CS_Request_Detail = -1;
-static gint ett_mms_ConfirmedServiceResponse = -1;
-static gint ett_mms_FileName = -1;
-static gint ett_mms_ObjectName = -1;
-static gint ett_mms_T_domain_specific = -1;
-static gint ett_mms_ApplicationReference = -1;
-static gint ett_mms_Initiate_RequestPDU = -1;
-static gint ett_mms_InitRequestDetail = -1;
-static gint ett_mms_Initiate_ResponsePDU = -1;
-static gint ett_mms_InitResponseDetail = -1;
-static gint ett_mms_ParameterSupportOptions = -1;
-static gint ett_mms_ServiceSupportOptions = -1;
-static gint ett_mms_Cancel_ErrorPDU = -1;
-static gint ett_mms_ServiceError = -1;
-static gint ett_mms_T_errorClass = -1;
-static gint ett_mms_T_serviceSpecificInformation = -1;
-static gint ett_mms_AdditionalService_Error = -1;
-static gint ett_mms_RemoveEventConditionListReference_Error = -1;
-static gint ett_mms_InitiateUnitControl_Error = -1;
-static gint ett_mms_StartUnitControl_Error = -1;
-static gint ett_mms_StopUnitControl_Error = -1;
-static gint ett_mms_DeleteUnitControl_Error = -1;
-static gint ett_mms_LoadUnitControlFromFile_Error = -1;
-static gint ett_mms_RejectPDU = -1;
-static gint ett_mms_T_rejectReason = -1;
-static gint ett_mms_Status_Response = -1;
-static gint ett_mms_GetNameList_Request = -1;
-static gint ett_mms_T_extendedObjectClass = -1;
-static gint ett_mms_T_objectScope = -1;
-static gint ett_mms_GetNameList_Response = -1;
-static gint ett_mms_SEQUENCE_OF_Identifier = -1;
-static gint ett_mms_Identify_Response = -1;
-static gint ett_mms_T_listOfAbstractSyntaxes = -1;
-static gint ett_mms_Rename_Request = -1;
-static gint ett_mms_T_extendedObjectClass_01 = -1;
-static gint ett_mms_GetCapabilityList_Request = -1;
-static gint ett_mms_GetCapabilityList_Response = -1;
-static gint ett_mms_T_listOfCapabilities = -1;
-static gint ett_mms_InitiateDownloadSequence_Request = -1;
-static gint ett_mms_T_listOfCapabilities_01 = -1;
-static gint ett_mms_DownloadSegment_Response = -1;
-static gint ett_mms_T_loadData = -1;
-static gint ett_mms_TerminateDownloadSequence_Request = -1;
-static gint ett_mms_InitiateUploadSequence_Response = -1;
-static gint ett_mms_T_listOfCapabilities_02 = -1;
-static gint ett_mms_UploadSegment_Response = -1;
-static gint ett_mms_T_loadData_01 = -1;
-static gint ett_mms_RequestDomainDownload_Request = -1;
-static gint ett_mms_T_listOfCapabilities_03 = -1;
-static gint ett_mms_RequestDomainUpload_Request = -1;
-static gint ett_mms_LoadDomainContent_Request = -1;
-static gint ett_mms_T_listOfCapabilities_04 = -1;
-static gint ett_mms_StoreDomainContent_Request = -1;
-static gint ett_mms_GetDomainAttributes_Response = -1;
-static gint ett_mms_T_listOfCapabilities_05 = -1;
-static gint ett_mms_CreateProgramInvocation_Request = -1;
-static gint ett_mms_Start_Request = -1;
-static gint ett_mms_T_executionArgument = -1;
-static gint ett_mms_Stop_Request = -1;
-static gint ett_mms_Resume_Request = -1;
-static gint ett_mms_T_executionArgument_01 = -1;
-static gint ett_mms_Reset_Request = -1;
-static gint ett_mms_Kill_Request = -1;
-static gint ett_mms_GetProgramInvocationAttributes_Response = -1;
-static gint ett_mms_T_executionArgument_02 = -1;
-static gint ett_mms_TypeSpecification = -1;
-static gint ett_mms_T_array = -1;
-static gint ett_mms_T_structure = -1;
-static gint ett_mms_T_components = -1;
-static gint ett_mms_T_components_item = -1;
-static gint ett_mms_AlternateAccess = -1;
-static gint ett_mms_AlternateAccess_item = -1;
-static gint ett_mms_T_named = -1;
-static gint ett_mms_AlternateAccessSelection = -1;
-static gint ett_mms_T_selectAlternateAccess = -1;
-static gint ett_mms_T_accessSelection = -1;
-static gint ett_mms_T_indexRange = -1;
-static gint ett_mms_T_selectAccess = -1;
-static gint ett_mms_T_indexRange_01 = -1;
-static gint ett_mms_Read_Request = -1;
-static gint ett_mms_Read_Response = -1;
-static gint ett_mms_SEQUENCE_OF_AccessResult = -1;
-static gint ett_mms_Write_Request = -1;
-static gint ett_mms_SEQUENCE_OF_Data = -1;
-static gint ett_mms_Write_Response = -1;
-static gint ett_mms_Write_Response_item = -1;
-static gint ett_mms_InformationReport = -1;
-static gint ett_mms_GetVariableAccessAttributes_Request = -1;
-static gint ett_mms_GetVariableAccessAttributes_Response = -1;
-static gint ett_mms_DefineNamedVariable_Request = -1;
-static gint ett_mms_DefineScatteredAccess_Request = -1;
-static gint ett_mms_GetScatteredAccessAttributes_Response = -1;
-static gint ett_mms_DeleteVariableAccess_Request = -1;
-static gint ett_mms_SEQUENCE_OF_ObjectName = -1;
-static gint ett_mms_DeleteVariableAccess_Response = -1;
-static gint ett_mms_DefineNamedVariableList_Request = -1;
-static gint ett_mms_T_listOfVariable = -1;
-static gint ett_mms_T_listOfVariable_item = -1;
-static gint ett_mms_GetNamedVariableListAttributes_Response = -1;
-static gint ett_mms_T_listOfVariable_01 = -1;
-static gint ett_mms_T_listOfVariable_item_01 = -1;
-static gint ett_mms_DeleteNamedVariableList_Request = -1;
-static gint ett_mms_DeleteNamedVariableList_Response = -1;
-static gint ett_mms_DefineNamedType_Request = -1;
-static gint ett_mms_GetNamedTypeAttributes_Response = -1;
-static gint ett_mms_DeleteNamedType_Request = -1;
-static gint ett_mms_DeleteNamedType_Response = -1;
-static gint ett_mms_AccessResult = -1;
-static gint ett_mms_Data = -1;
-static gint ett_mms_VariableAccessSpecification = -1;
-static gint ett_mms_T_listOfVariable_02 = -1;
-static gint ett_mms_T_listOfVariable_item_02 = -1;
-static gint ett_mms_ScatteredAccessDescription = -1;
-static gint ett_mms_ScatteredAccessDescription_item = -1;
-static gint ett_mms_VariableSpecification = -1;
-static gint ett_mms_T_variableDescription = -1;
-static gint ett_mms_Address = -1;
-static gint ett_mms_TakeControl_Request = -1;
-static gint ett_mms_TakeControl_Response = -1;
-static gint ett_mms_RelinquishControl_Request = -1;
-static gint ett_mms_DefineSemaphore_Request = -1;
-static gint ett_mms_ReportSemaphoreStatus_Response = -1;
-static gint ett_mms_ReportPoolSemaphoreStatus_Request = -1;
-static gint ett_mms_ReportPoolSemaphoreStatus_Response = -1;
-static gint ett_mms_T_listOfNamedTokens = -1;
-static gint ett_mms_T_listOfNamedTokens_item = -1;
-static gint ett_mms_ReportSemaphoreEntryStatus_Request = -1;
-static gint ett_mms_ReportSemaphoreEntryStatus_Response = -1;
-static gint ett_mms_SEQUENCE_OF_SemaphoreEntry = -1;
-static gint ett_mms_AttachToSemaphore = -1;
-static gint ett_mms_SemaphoreEntry = -1;
-static gint ett_mms_Input_Request = -1;
-static gint ett_mms_T_listOfPromptData = -1;
-static gint ett_mms_Output_Request = -1;
-static gint ett_mms_T_listOfOutputData = -1;
-static gint ett_mms_DefineEventCondition_Request = -1;
-static gint ett_mms_DeleteEventCondition_Request = -1;
-static gint ett_mms_GetEventConditionAttributes_Response = -1;
-static gint ett_mms_T_monitoredVariable = -1;
-static gint ett_mms_ReportEventConditionStatus_Response = -1;
-static gint ett_mms_AlterEventConditionMonitoring_Request = -1;
-static gint ett_mms_TriggerEvent_Request = -1;
-static gint ett_mms_DefineEventAction_Request = -1;
-static gint ett_mms_DeleteEventAction_Request = -1;
-static gint ett_mms_GetEventActionAttributes_Response = -1;
-static gint ett_mms_DefineEventEnrollment_Request = -1;
-static gint ett_mms_DeleteEventEnrollment_Request = -1;
-static gint ett_mms_GetEventEnrollmentAttributes_Request = -1;
-static gint ett_mms_EventEnrollment = -1;
-static gint ett_mms_T_eventConditionName = -1;
-static gint ett_mms_T_eventActionName = -1;
-static gint ett_mms_GetEventEnrollmentAttributes_Response = -1;
-static gint ett_mms_SEQUENCE_OF_EventEnrollment = -1;
-static gint ett_mms_ReportEventEnrollmentStatus_Response = -1;
-static gint ett_mms_AlterEventEnrollment_Request = -1;
-static gint ett_mms_AlterEventEnrollment_Response = -1;
-static gint ett_mms_T_currentState = -1;
-static gint ett_mms_AcknowledgeEventNotification_Request = -1;
-static gint ett_mms_GetAlarmSummary_Request = -1;
-static gint ett_mms_T_severityFilter = -1;
-static gint ett_mms_GetAlarmSummary_Response = -1;
-static gint ett_mms_SEQUENCE_OF_AlarmSummary = -1;
-static gint ett_mms_AlarmSummary = -1;
-static gint ett_mms_GetAlarmEnrollmentSummary_Request = -1;
-static gint ett_mms_T_severityFilter_01 = -1;
-static gint ett_mms_GetAlarmEnrollmentSummary_Response = -1;
-static gint ett_mms_SEQUENCE_OF_AlarmEnrollmentSummary = -1;
-static gint ett_mms_AlarmEnrollmentSummary = -1;
-static gint ett_mms_EventNotification = -1;
-static gint ett_mms_T_eventConditionName_01 = -1;
-static gint ett_mms_T_actionResult = -1;
-static gint ett_mms_T_eventActionResult = -1;
-static gint ett_mms_AttachToEventCondition = -1;
-static gint ett_mms_EventTime = -1;
-static gint ett_mms_Transitions = -1;
-static gint ett_mms_ReadJournal_Request = -1;
-static gint ett_mms_T_rangeStartSpecification = -1;
-static gint ett_mms_T_rangeStopSpecification = -1;
-static gint ett_mms_T_listOfVariables = -1;
-static gint ett_mms_T_entryToStartAfter = -1;
-static gint ett_mms_ReadJournal_Response = -1;
-static gint ett_mms_SEQUENCE_OF_JournalEntry = -1;
-static gint ett_mms_JournalEntry = -1;
-static gint ett_mms_WriteJournal_Request = -1;
-static gint ett_mms_SEQUENCE_OF_EntryContent = -1;
-static gint ett_mms_InitializeJournal_Request = -1;
-static gint ett_mms_T_limitSpecification = -1;
-static gint ett_mms_ReportJournalStatus_Response = -1;
-static gint ett_mms_CreateJournal_Request = -1;
-static gint ett_mms_DeleteJournal_Request = -1;
-static gint ett_mms_EntryContent = -1;
-static gint ett_mms_T_entryForm = -1;
-static gint ett_mms_T_data = -1;
-static gint ett_mms_T_event = -1;
-static gint ett_mms_T_listOfVariables_01 = -1;
-static gint ett_mms_T_listOfVariables_item = -1;
-static gint ett_mms_ObtainFile_Request = -1;
-static gint ett_mms_FileOpen_Request = -1;
-static gint ett_mms_FileOpen_Response = -1;
-static gint ett_mms_FileRead_Response = -1;
-static gint ett_mms_FileRename_Request = -1;
-static gint ett_mms_FileDirectory_Request = -1;
-static gint ett_mms_FileDirectory_Response = -1;
-static gint ett_mms_SEQUENCE_OF_DirectoryEntry = -1;
-static gint ett_mms_DirectoryEntry = -1;
-static gint ett_mms_FileAttributes = -1;
+static gint ett_mms;
+static gint ett_mms_MMSpdu;
+static gint ett_mms_Confirmed_RequestPDU;
+static gint ett_mms_SEQUENCE_OF_Modifier;
+static gint ett_mms_Unconfirmed_PDU;
+static gint ett_mms_Confirmed_ResponsePDU;
+static gint ett_mms_Confirmed_ErrorPDU;
+static gint ett_mms_UnconfirmedService;
+static gint ett_mms_Modifier;
+static gint ett_mms_ConfirmedServiceRequest;
+static gint ett_mms_CS_Request_Detail;
+static gint ett_mms_ConfirmedServiceResponse;
+static gint ett_mms_FileName;
+static gint ett_mms_ObjectName;
+static gint ett_mms_T_domain_specific;
+static gint ett_mms_ApplicationReference;
+static gint ett_mms_Initiate_RequestPDU;
+static gint ett_mms_InitRequestDetail;
+static gint ett_mms_Initiate_ResponsePDU;
+static gint ett_mms_InitResponseDetail;
+static gint ett_mms_ParameterSupportOptions;
+static gint ett_mms_ServiceSupportOptions;
+static gint ett_mms_Cancel_ErrorPDU;
+static gint ett_mms_ServiceError;
+static gint ett_mms_T_errorClass;
+static gint ett_mms_T_serviceSpecificInformation;
+static gint ett_mms_AdditionalService_Error;
+static gint ett_mms_RemoveEventConditionListReference_Error;
+static gint ett_mms_InitiateUnitControl_Error;
+static gint ett_mms_StartUnitControl_Error;
+static gint ett_mms_StopUnitControl_Error;
+static gint ett_mms_DeleteUnitControl_Error;
+static gint ett_mms_LoadUnitControlFromFile_Error;
+static gint ett_mms_RejectPDU;
+static gint ett_mms_T_rejectReason;
+static gint ett_mms_Status_Response;
+static gint ett_mms_GetNameList_Request;
+static gint ett_mms_T_extendedObjectClass;
+static gint ett_mms_T_objectScope;
+static gint ett_mms_GetNameList_Response;
+static gint ett_mms_SEQUENCE_OF_Identifier;
+static gint ett_mms_Identify_Response;
+static gint ett_mms_T_listOfAbstractSyntaxes;
+static gint ett_mms_Rename_Request;
+static gint ett_mms_T_extendedObjectClass_01;
+static gint ett_mms_GetCapabilityList_Request;
+static gint ett_mms_GetCapabilityList_Response;
+static gint ett_mms_T_listOfCapabilities;
+static gint ett_mms_InitiateDownloadSequence_Request;
+static gint ett_mms_T_listOfCapabilities_01;
+static gint ett_mms_DownloadSegment_Response;
+static gint ett_mms_T_loadData;
+static gint ett_mms_TerminateDownloadSequence_Request;
+static gint ett_mms_InitiateUploadSequence_Response;
+static gint ett_mms_T_listOfCapabilities_02;
+static gint ett_mms_UploadSegment_Response;
+static gint ett_mms_T_loadData_01;
+static gint ett_mms_RequestDomainDownload_Request;
+static gint ett_mms_T_listOfCapabilities_03;
+static gint ett_mms_RequestDomainUpload_Request;
+static gint ett_mms_LoadDomainContent_Request;
+static gint ett_mms_T_listOfCapabilities_04;
+static gint ett_mms_StoreDomainContent_Request;
+static gint ett_mms_GetDomainAttributes_Response;
+static gint ett_mms_T_listOfCapabilities_05;
+static gint ett_mms_CreateProgramInvocation_Request;
+static gint ett_mms_Start_Request;
+static gint ett_mms_T_executionArgument;
+static gint ett_mms_Stop_Request;
+static gint ett_mms_Resume_Request;
+static gint ett_mms_T_executionArgument_01;
+static gint ett_mms_Reset_Request;
+static gint ett_mms_Kill_Request;
+static gint ett_mms_GetProgramInvocationAttributes_Response;
+static gint ett_mms_T_executionArgument_02;
+static gint ett_mms_TypeSpecification;
+static gint ett_mms_T_array;
+static gint ett_mms_T_structure;
+static gint ett_mms_T_components;
+static gint ett_mms_T_components_item;
+static gint ett_mms_AlternateAccess;
+static gint ett_mms_AlternateAccess_item;
+static gint ett_mms_T_named;
+static gint ett_mms_AlternateAccessSelection;
+static gint ett_mms_T_selectAlternateAccess;
+static gint ett_mms_T_accessSelection;
+static gint ett_mms_T_indexRange;
+static gint ett_mms_T_selectAccess;
+static gint ett_mms_T_indexRange_01;
+static gint ett_mms_Read_Request;
+static gint ett_mms_Read_Response;
+static gint ett_mms_SEQUENCE_OF_AccessResult;
+static gint ett_mms_Write_Request;
+static gint ett_mms_SEQUENCE_OF_Data;
+static gint ett_mms_Write_Response;
+static gint ett_mms_Write_Response_item;
+static gint ett_mms_InformationReport;
+static gint ett_mms_GetVariableAccessAttributes_Request;
+static gint ett_mms_GetVariableAccessAttributes_Response;
+static gint ett_mms_DefineNamedVariable_Request;
+static gint ett_mms_DefineScatteredAccess_Request;
+static gint ett_mms_GetScatteredAccessAttributes_Response;
+static gint ett_mms_DeleteVariableAccess_Request;
+static gint ett_mms_SEQUENCE_OF_ObjectName;
+static gint ett_mms_DeleteVariableAccess_Response;
+static gint ett_mms_DefineNamedVariableList_Request;
+static gint ett_mms_T_listOfVariable;
+static gint ett_mms_T_listOfVariable_item;
+static gint ett_mms_GetNamedVariableListAttributes_Response;
+static gint ett_mms_T_listOfVariable_01;
+static gint ett_mms_T_listOfVariable_item_01;
+static gint ett_mms_DeleteNamedVariableList_Request;
+static gint ett_mms_DeleteNamedVariableList_Response;
+static gint ett_mms_DefineNamedType_Request;
+static gint ett_mms_GetNamedTypeAttributes_Response;
+static gint ett_mms_DeleteNamedType_Request;
+static gint ett_mms_DeleteNamedType_Response;
+static gint ett_mms_AccessResult;
+static gint ett_mms_Data;
+static gint ett_mms_VariableAccessSpecification;
+static gint ett_mms_T_listOfVariable_02;
+static gint ett_mms_T_listOfVariable_item_02;
+static gint ett_mms_ScatteredAccessDescription;
+static gint ett_mms_ScatteredAccessDescription_item;
+static gint ett_mms_VariableSpecification;
+static gint ett_mms_T_variableDescription;
+static gint ett_mms_Address;
+static gint ett_mms_TakeControl_Request;
+static gint ett_mms_TakeControl_Response;
+static gint ett_mms_RelinquishControl_Request;
+static gint ett_mms_DefineSemaphore_Request;
+static gint ett_mms_ReportSemaphoreStatus_Response;
+static gint ett_mms_ReportPoolSemaphoreStatus_Request;
+static gint ett_mms_ReportPoolSemaphoreStatus_Response;
+static gint ett_mms_T_listOfNamedTokens;
+static gint ett_mms_T_listOfNamedTokens_item;
+static gint ett_mms_ReportSemaphoreEntryStatus_Request;
+static gint ett_mms_ReportSemaphoreEntryStatus_Response;
+static gint ett_mms_SEQUENCE_OF_SemaphoreEntry;
+static gint ett_mms_AttachToSemaphore;
+static gint ett_mms_SemaphoreEntry;
+static gint ett_mms_Input_Request;
+static gint ett_mms_T_listOfPromptData;
+static gint ett_mms_Output_Request;
+static gint ett_mms_T_listOfOutputData;
+static gint ett_mms_DefineEventCondition_Request;
+static gint ett_mms_DeleteEventCondition_Request;
+static gint ett_mms_GetEventConditionAttributes_Response;
+static gint ett_mms_T_monitoredVariable;
+static gint ett_mms_ReportEventConditionStatus_Response;
+static gint ett_mms_AlterEventConditionMonitoring_Request;
+static gint ett_mms_TriggerEvent_Request;
+static gint ett_mms_DefineEventAction_Request;
+static gint ett_mms_DeleteEventAction_Request;
+static gint ett_mms_GetEventActionAttributes_Response;
+static gint ett_mms_DefineEventEnrollment_Request;
+static gint ett_mms_DeleteEventEnrollment_Request;
+static gint ett_mms_GetEventEnrollmentAttributes_Request;
+static gint ett_mms_EventEnrollment;
+static gint ett_mms_T_eventConditionName;
+static gint ett_mms_T_eventActionName;
+static gint ett_mms_GetEventEnrollmentAttributes_Response;
+static gint ett_mms_SEQUENCE_OF_EventEnrollment;
+static gint ett_mms_ReportEventEnrollmentStatus_Response;
+static gint ett_mms_AlterEventEnrollment_Request;
+static gint ett_mms_AlterEventEnrollment_Response;
+static gint ett_mms_T_currentState;
+static gint ett_mms_AcknowledgeEventNotification_Request;
+static gint ett_mms_GetAlarmSummary_Request;
+static gint ett_mms_T_severityFilter;
+static gint ett_mms_GetAlarmSummary_Response;
+static gint ett_mms_SEQUENCE_OF_AlarmSummary;
+static gint ett_mms_AlarmSummary;
+static gint ett_mms_GetAlarmEnrollmentSummary_Request;
+static gint ett_mms_T_severityFilter_01;
+static gint ett_mms_GetAlarmEnrollmentSummary_Response;
+static gint ett_mms_SEQUENCE_OF_AlarmEnrollmentSummary;
+static gint ett_mms_AlarmEnrollmentSummary;
+static gint ett_mms_EventNotification;
+static gint ett_mms_T_eventConditionName_01;
+static gint ett_mms_T_actionResult;
+static gint ett_mms_T_eventActionResult;
+static gint ett_mms_AttachToEventCondition;
+static gint ett_mms_EventTime;
+static gint ett_mms_Transitions;
+static gint ett_mms_ReadJournal_Request;
+static gint ett_mms_T_rangeStartSpecification;
+static gint ett_mms_T_rangeStopSpecification;
+static gint ett_mms_T_listOfVariables;
+static gint ett_mms_T_entryToStartAfter;
+static gint ett_mms_ReadJournal_Response;
+static gint ett_mms_SEQUENCE_OF_JournalEntry;
+static gint ett_mms_JournalEntry;
+static gint ett_mms_WriteJournal_Request;
+static gint ett_mms_SEQUENCE_OF_EntryContent;
+static gint ett_mms_InitializeJournal_Request;
+static gint ett_mms_T_limitSpecification;
+static gint ett_mms_ReportJournalStatus_Response;
+static gint ett_mms_CreateJournal_Request;
+static gint ett_mms_DeleteJournal_Request;
+static gint ett_mms_EntryContent;
+static gint ett_mms_T_entryForm;
+static gint ett_mms_T_data;
+static gint ett_mms_T_event;
+static gint ett_mms_T_listOfVariables_01;
+static gint ett_mms_T_listOfVariables_item;
+static gint ett_mms_ObtainFile_Request;
+static gint ett_mms_FileOpen_Request;
+static gint ett_mms_FileOpen_Response;
+static gint ett_mms_FileRead_Response;
+static gint ett_mms_FileRename_Request;
+static gint ett_mms_FileDirectory_Request;
+static gint ett_mms_FileDirectory_Response;
+static gint ett_mms_SEQUENCE_OF_DirectoryEntry;
+static gint ett_mms_DirectoryEntry;
+static gint ett_mms_FileAttributes;
 
-static expert_field ei_mms_mal_timeofday_encoding = EI_INIT;
-static expert_field ei_mms_mal_utctime_encoding = EI_INIT;
-static expert_field ei_mms_zero_pdu = EI_INIT;
+static expert_field ei_mms_mal_timeofday_encoding;
+static expert_field ei_mms_mal_utctime_encoding;
+static expert_field ei_mms_zero_pdu;
 
 /*****************************************************************************/
 /* Packet private data                                                       */
@@ -1935,7 +1935,7 @@ dissect_mms_TimeOfDay(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 		milliseconds = tvb_get_ntohl(tvb, offset);
 		ptime = signed_time_msecs_to_str(actx->pinfo->pool, milliseconds);
 
-		if(hf_index >= 0)
+		if(hf_index > 0)
 		{
 			proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
 		}
@@ -1954,7 +1954,7 @@ dissect_mms_TimeOfDay(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 		ts.nsecs = (milliseconds % 1000) * 1000000U;
 
 		ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, TRUE);
-		if(hf_index >= 0)
+		if(hf_index > 0)
 		{
 			proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
 		}
@@ -1964,7 +1964,7 @@ dissect_mms_TimeOfDay(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 	proto_tree_add_expert_format(tree, actx->pinfo, &ei_mms_mal_timeofday_encoding,
 			tvb, offset, len, "BER Error: malformed TimeOfDay encoding, length must be 4 or 6 bytes");
-	if(hf_index >= 0)
+	if(hf_index > 0)
 	{
 		proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
 	}
@@ -2011,7 +2011,7 @@ dissect_mms_UtcTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
 	{
 		proto_tree_add_expert_format(tree, actx->pinfo, &ei_mms_mal_utctime_encoding,
 				tvb, offset, len, "BER Error: malformed IEC61850 UTCTime encoding, length must be 8 bytes");
-		if(hf_index >= 0)
+		if(hf_index > 0)
 		{
 			proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
 		}
@@ -2027,7 +2027,7 @@ dissect_mms_UtcTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
 
 	ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, TRUE);
 
-	if(hf_index >= 0)
+	if(hf_index > 0)
 	{
 		proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
 	}

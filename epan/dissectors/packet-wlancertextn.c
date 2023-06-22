@@ -34,12 +34,12 @@ void proto_register_wlancertextn(void);
 void proto_reg_handoff_wlancertextn(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_wlancertextn = -1;
-static int hf_wlancertextn_SSIDList_PDU = -1;     /* SSIDList */
-static int hf_wlancertextn_SSIDList_item = -1;    /* SSID */
+static int proto_wlancertextn;
+static int hf_wlancertextn_SSIDList_PDU;          /* SSIDList */
+static int hf_wlancertextn_SSIDList_item;         /* SSID */
 
 /* Initialize the subtree pointers */
-static gint ett_wlancertextn_SSIDList = -1;
+static gint ett_wlancertextn_SSIDList;
 
 
 

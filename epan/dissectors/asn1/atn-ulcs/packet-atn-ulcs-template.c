@@ -121,7 +121,7 @@ static heur_dissector_list_t atn_ulcs_heur_subdissector_list;
 static dissector_handle_t atn_cm_handle = NULL;
 static dissector_handle_t atn_cpdlc_handle = NULL;
 
-static int proto_atn_ulcs          = -1;
+static int proto_atn_ulcs;
 static guint32 ulcs_context_value = 0;
 static const char *object_identifier_id;
 
@@ -177,8 +177,8 @@ static gint dissect_atn_ulcs(
 #include "packet-atn-ulcs-hf.c"
 
 #include "packet-atn-ulcs-ett.c"
-static gint ett_atn_ulcs = -1;
-static gint ett_atn_acse = -1;
+static gint ett_atn_ulcs;
+static gint ett_atn_acse;
 
 #include "packet-atn-ulcs-fn.c"
 
@@ -223,12 +223,12 @@ static const per_choice_t External_encoding_choice[] =
 #define SES_PARAM_B2_MASK     0x02
 #define SES_PARAM_B1_MASK     0x01
 
-static int hf_atn_ses_type = -1;
-static int hf_atn_ses_param_ind = -1;
-static int hf_atn_ses_param_b1 = -1;
-static int hf_atn_ses_param_b2 = -1;
+static int hf_atn_ses_type;
+static int hf_atn_ses_param_ind;
+static int hf_atn_ses_param_b1;
+static int hf_atn_ses_param_b2;
 
-static gint ett_atn_ses = -1;
+static gint ett_atn_ses;
 
 #define ATN_SES_PROTO "ICAO Doc9705 ULCS Session (ISO 8326/8327-1:1994)"
 
@@ -273,9 +273,9 @@ const value_string atn_ses_type[] =
 /* ATN Presentation layer */
 #define ATN_PRES_PROTO "ICAO Doc9705 ULCS Presentation (ISO 8822/8823-1:1994)"
 
-static int hf_atn_pres_err   = -1;
-static int hf_atn_pres_pdu_type = -1;
-static gint ett_atn_pres    = -1;
+static int hf_atn_pres_err;
+static int hf_atn_pres_pdu_type;
+static gint ett_atn_pres;
 
 #define ATN_SES_PRES_MASK 0xf803
 #define PRES_CPR_ER_MASK    0x70

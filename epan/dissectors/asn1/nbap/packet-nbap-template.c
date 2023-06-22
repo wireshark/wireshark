@@ -60,25 +60,25 @@ static dissector_handle_t fp_handle;
 #include "packet-nbap-val.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_nbap = -1;
-static int hf_nbap_transportLayerAddress_ipv4 = -1;
-static int hf_nbap_transportLayerAddress_ipv6 = -1;
-static int hf_nbap_transportLayerAddress_nsap = -1;
-static int hf_nbap_reassembled_information_block = -1;
+static int proto_nbap;
+static int hf_nbap_transportLayerAddress_ipv4;
+static int hf_nbap_transportLayerAddress_ipv6;
+static int hf_nbap_transportLayerAddress_nsap;
+static int hf_nbap_reassembled_information_block;
 
 #include "packet-nbap-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_nbap = -1;
-static int ett_nbap_TransportLayerAddress = -1;
-static int ett_nbap_TransportLayerAddress_nsap = -1;
-static int ett_nbap_ib_sg_data = -1;
+static int ett_nbap;
+static int ett_nbap_TransportLayerAddress;
+static int ett_nbap_TransportLayerAddress_nsap;
+static int ett_nbap_ib_sg_data;
 
 #include "packet-nbap-ett.c"
 
-static expert_field ei_nbap_no_find_port_info = EI_INIT;
-static expert_field ei_nbap_no_set_comm_context_id = EI_INIT;
-static expert_field ei_nbap_hsdsch_entity_not_specified = EI_INIT;
+static expert_field ei_nbap_no_find_port_info;
+static expert_field ei_nbap_no_set_comm_context_id;
+static expert_field ei_nbap_hsdsch_entity_not_specified;
 
 extern int proto_fp;
 

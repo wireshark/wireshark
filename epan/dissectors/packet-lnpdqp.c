@@ -40,38 +40,38 @@ void proto_reg_handoff_lnpdqp(void);
 void proto_register_lnpdqp(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_lnpdqp = -1;
+static int proto_lnpdqp;
 
 
-static int hf_lnpdqp_type_of_digits = -1;
-static int hf_lnpdqp_nature_of_number = -1;
-static int hf_lnpdqp_digits_enc = -1;
-static int hf_lnpdqp_np = -1;
-static int hf_lnpdqp_nr_digits = -1;
-static int hf_lnpdqp_bcd_digits = -1;
-static int hf_lnpdqp_ia5_digits = -1;
+static int hf_lnpdqp_type_of_digits;
+static int hf_lnpdqp_nature_of_number;
+static int hf_lnpdqp_digits_enc;
+static int hf_lnpdqp_np;
+static int hf_lnpdqp_nr_digits;
+static int hf_lnpdqp_bcd_digits;
+static int hf_lnpdqp_ia5_digits;
 
 /* asn2wrs/the ber dissector does not handle the same tag used multiple times
  * in asn1 description, do some magic to handle.
  */
-static int hf_lnpdqp_networkRoutingNumber = -1;   /* Digits */
-static int hf_lnpdqp_callingPartyANI = -1;        /* Digits */
-static int hf_lnpdqp_originatingLATA = -1;        /* Digits */
-static int hf_lnpdqp_carrierID = -1;              /* Digits */
+static int hf_lnpdqp_networkRoutingNumber;   /* Digits */
+static int hf_lnpdqp_callingPartyANI;        /* Digits */
+static int hf_lnpdqp_originatingLATA;        /* Digits */
+static int hf_lnpdqp_carrierID;              /* Digits */
 
-static int hf_lnpdqp_ConnectionControlArg_PDU = -1;  /* ConnectionControlArg */
-static int hf_lnpdqp_ProvideInstructionArg_PDU = -1;  /* ProvideInstructionArg */
-static int hf_lnpdqp_digits = -1;                 /* Digits */
-static int hf_lnpdqp_billingIndicators = -1;      /* BillingIndicators */
-static int hf_lnpdqp_calledPartyNumber = -1;      /* ServiceKey */
-static int hf_lnpdqp_oli = -1;                    /* OriginatingStationType */
+static int hf_lnpdqp_ConnectionControlArg_PDU;    /* ConnectionControlArg */
+static int hf_lnpdqp_ProvideInstructionArg_PDU;   /* ProvideInstructionArg */
+static int hf_lnpdqp_digits;                      /* Digits */
+static int hf_lnpdqp_billingIndicators;           /* BillingIndicators */
+static int hf_lnpdqp_calledPartyNumber;           /* ServiceKey */
+static int hf_lnpdqp_oli;                         /* OriginatingStationType */
 
-static int ett_lnpdqp = -1;
-static int ett_lnpdqp_digitstype = -1;
-static int ett_lnpdqp_digits = -1;
-static gint ett_lnpdqp_ConnectionControlArg_U = -1;
-static gint ett_lnpdqp_ProvideInstructionArg_U = -1;
-static gint ett_lnpdqp_ServiceKey = -1;
+static int ett_lnpdqp;
+static int ett_lnpdqp_digitstype;
+static int ett_lnpdqp_digits;
+static gint ett_lnpdqp_ConnectionControlArg_U;
+static gint ett_lnpdqp_ProvideInstructionArg_U;
+static gint ett_lnpdqp_ServiceKey;
 
 
 /* Type of Digits (octet 1, bits A-H) */

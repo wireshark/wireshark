@@ -41,827 +41,827 @@
 #define PFNAME "p1"
 
 /* Initialize the protocol and registered fields */
-static int proto_p1 = -1;
-static int proto_p3 = -1;
+static int proto_p1;
+static int proto_p3;
 
-static int hf_p1_MTS_APDU_PDU = -1;
-static int hf_p1_MTABindArgument_PDU = -1;
-static int hf_p1_MTABindResult_PDU = -1;
-static int hf_p1_MTABindError_PDU = -1;
+static int hf_p1_MTS_APDU_PDU;
+static int hf_p1_MTABindArgument_PDU;
+static int hf_p1_MTABindResult_PDU;
+static int hf_p1_MTABindError_PDU;
 
-static int hf_p1_InternalTraceInformation_PDU = -1;  /* InternalTraceInformation */
-static int hf_p1_InternalTraceInformationElement_PDU = -1;  /* InternalTraceInformationElement */
-static int hf_p1_TraceInformation_PDU = -1;       /* TraceInformation */
-static int hf_p1_TraceInformationElement_PDU = -1;  /* TraceInformationElement */
-static int hf_p1_MTSBindArgument_PDU = -1;        /* MTSBindArgument */
-static int hf_p1_MTSBindResult_PDU = -1;          /* MTSBindResult */
-static int hf_p1_PAR_mts_bind_error_PDU = -1;     /* PAR_mts_bind_error */
-static int hf_p1_MessageSubmissionArgument_PDU = -1;  /* MessageSubmissionArgument */
-static int hf_p1_MessageSubmissionResult_PDU = -1;  /* MessageSubmissionResult */
-static int hf_p1_ProbeSubmissionArgument_PDU = -1;  /* ProbeSubmissionArgument */
-static int hf_p1_ProbeSubmissionResult_PDU = -1;  /* ProbeSubmissionResult */
-static int hf_p1_CancelDeferredDeliveryArgument_PDU = -1;  /* CancelDeferredDeliveryArgument */
-static int hf_p1_CancelDeferredDeliveryResult_PDU = -1;  /* CancelDeferredDeliveryResult */
-static int hf_p1_SubmissionControlArgument_PDU = -1;  /* SubmissionControlArgument */
-static int hf_p1_SubmissionControlResult_PDU = -1;  /* SubmissionControlResult */
-static int hf_p1_PAR_submission_control_violated_PDU = -1;  /* PAR_submission_control_violated */
-static int hf_p1_PAR_element_of_service_not_subscribed_PDU = -1;  /* PAR_element_of_service_not_subscribed */
-static int hf_p1_PAR_deferred_delivery_cancellation_rejected_PDU = -1;  /* PAR_deferred_delivery_cancellation_rejected */
-static int hf_p1_PAR_originator_invalid_PDU = -1;  /* PAR_originator_invalid */
-static int hf_p1_ImproperlySpecifiedRecipients_PDU = -1;  /* ImproperlySpecifiedRecipients */
-static int hf_p1_PAR_message_submission_identifier_invalid_PDU = -1;  /* PAR_message_submission_identifier_invalid */
-static int hf_p1_PAR_inconsistent_request_PDU = -1;  /* PAR_inconsistent_request */
-static int hf_p1_SecurityProblem_PDU = -1;        /* SecurityProblem */
-static int hf_p1_PAR_unsupported_critical_function_PDU = -1;  /* PAR_unsupported_critical_function */
-static int hf_p1_PAR_remote_bind_error_PDU = -1;  /* PAR_remote_bind_error */
-static int hf_p1_MessageSubmissionTime_PDU = -1;  /* MessageSubmissionTime */
-static int hf_p1_MessageDeliveryArgument_PDU = -1;  /* MessageDeliveryArgument */
-static int hf_p1_MessageDeliveryResult_PDU = -1;  /* MessageDeliveryResult */
-static int hf_p1_ReportDeliveryArgument_PDU = -1;  /* ReportDeliveryArgument */
-static int hf_p1_ReportDeliveryResult_PDU = -1;   /* ReportDeliveryResult */
-static int hf_p1_DeliveryControlArgument_PDU = -1;  /* DeliveryControlArgument */
-static int hf_p1_DeliveryControlResult_PDU = -1;  /* DeliveryControlResult */
-static int hf_p1_PAR_delivery_control_violated_PDU = -1;  /* PAR_delivery_control_violated */
-static int hf_p1_PAR_control_violates_registration_PDU = -1;  /* PAR_control_violates_registration */
-static int hf_p1_RefusedOperation_PDU = -1;       /* RefusedOperation */
-static int hf_p1_RecipientCertificate_PDU = -1;   /* RecipientCertificate */
-static int hf_p1_ProofOfDelivery_PDU = -1;        /* ProofOfDelivery */
-static int hf_p1_RegisterArgument_PDU = -1;       /* RegisterArgument */
-static int hf_p1_RegisterResult_PDU = -1;         /* RegisterResult */
-static int hf_p1_ChangeCredentialsArgument_PDU = -1;  /* ChangeCredentialsArgument */
-static int hf_p1_RES_change_credentials_PDU = -1;  /* RES_change_credentials */
-static int hf_p1_PAR_register_rejected_PDU = -1;  /* PAR_register_rejected */
-static int hf_p1_PAR_new_credentials_unacceptable_PDU = -1;  /* PAR_new_credentials_unacceptable */
-static int hf_p1_PAR_old_credentials_incorrectly_specified_PDU = -1;  /* PAR_old_credentials_incorrectly_specified */
-static int hf_p1_MessageSubmissionEnvelope_PDU = -1;  /* MessageSubmissionEnvelope */
-static int hf_p1_PerRecipientMessageSubmissionFields_PDU = -1;  /* PerRecipientMessageSubmissionFields */
-static int hf_p1_ProbeSubmissionEnvelope_PDU = -1;  /* ProbeSubmissionEnvelope */
-static int hf_p1_PerRecipientProbeSubmissionFields_PDU = -1;  /* PerRecipientProbeSubmissionFields */
-static int hf_p1_MessageDeliveryEnvelope_PDU = -1;  /* MessageDeliveryEnvelope */
-static int hf_p1_ReportDeliveryEnvelope_PDU = -1;  /* ReportDeliveryEnvelope */
-static int hf_p1_PerRecipientReportDeliveryFields_PDU = -1;  /* PerRecipientReportDeliveryFields */
-static int hf_p1_ExtendedContentType_PDU = -1;    /* ExtendedContentType */
-static int hf_p1_ContentIdentifier_PDU = -1;      /* ContentIdentifier */
-static int hf_p1_PerMessageIndicators_PDU = -1;   /* PerMessageIndicators */
-static int hf_p1_OriginatorReportRequest_PDU = -1;  /* OriginatorReportRequest */
-static int hf_p1_DeferredDeliveryTime_PDU = -1;   /* DeferredDeliveryTime */
-static int hf_p1_Priority_PDU = -1;               /* Priority */
-static int hf_p1_ContentLength_PDU = -1;          /* ContentLength */
-static int hf_p1_MessageDeliveryTime_PDU = -1;    /* MessageDeliveryTime */
-static int hf_p1_DeliveryFlags_PDU = -1;          /* DeliveryFlags */
-static int hf_p1_SubjectSubmissionIdentifier_PDU = -1;  /* SubjectSubmissionIdentifier */
-static int hf_p1_RecipientReassignmentProhibited_PDU = -1;  /* RecipientReassignmentProhibited */
-static int hf_p1_OriginatorRequestedAlternateRecipient_PDU = -1;  /* OriginatorRequestedAlternateRecipient */
-static int hf_p1_DLExpansionProhibited_PDU = -1;  /* DLExpansionProhibited */
-static int hf_p1_ConversionWithLossProhibited_PDU = -1;  /* ConversionWithLossProhibited */
-static int hf_p1_LatestDeliveryTime_PDU = -1;     /* LatestDeliveryTime */
-static int hf_p1_RequestedDeliveryMethod_PDU = -1;  /* RequestedDeliveryMethod */
-static int hf_p1_PhysicalForwardingProhibited_PDU = -1;  /* PhysicalForwardingProhibited */
-static int hf_p1_PhysicalForwardingAddressRequest_PDU = -1;  /* PhysicalForwardingAddressRequest */
-static int hf_p1_PhysicalDeliveryModes_PDU = -1;  /* PhysicalDeliveryModes */
-static int hf_p1_RegisteredMailType_PDU = -1;     /* RegisteredMailType */
-static int hf_p1_RecipientNumberForAdvice_PDU = -1;  /* RecipientNumberForAdvice */
-static int hf_p1_PhysicalRenditionAttributes_PDU = -1;  /* PhysicalRenditionAttributes */
-static int hf_p1_OriginatorReturnAddress_PDU = -1;  /* OriginatorReturnAddress */
-static int hf_p1_PhysicalDeliveryReportRequest_PDU = -1;  /* PhysicalDeliveryReportRequest */
-static int hf_p1_OriginatorCertificate_PDU = -1;  /* OriginatorCertificate */
-static int hf_p1_MessageToken_PDU = -1;           /* MessageToken */
-static int hf_p1_ContentConfidentialityAlgorithmIdentifier_PDU = -1;  /* ContentConfidentialityAlgorithmIdentifier */
-static int hf_p1_ContentIntegrityCheck_PDU = -1;  /* ContentIntegrityCheck */
-static int hf_p1_MessageOriginAuthenticationCheck_PDU = -1;  /* MessageOriginAuthenticationCheck */
-static int hf_p1_p1_MessageSecurityLabel_PDU = -1;  /* MessageSecurityLabel */
-static int hf_p1_ProofOfSubmissionRequest_PDU = -1;  /* ProofOfSubmissionRequest */
-static int hf_p1_ProofOfDeliveryRequest_PDU = -1;  /* ProofOfDeliveryRequest */
-static int hf_p1_ContentCorrelator_PDU = -1;      /* ContentCorrelator */
-static int hf_p1_ProbeOriginAuthenticationCheck_PDU = -1;  /* ProbeOriginAuthenticationCheck */
-static int hf_p1_RedirectionHistory_PDU = -1;     /* RedirectionHistory */
-static int hf_p1_Redirection_PDU = -1;            /* Redirection */
-static int hf_p1_DLExpansionHistory_PDU = -1;     /* DLExpansionHistory */
-static int hf_p1_DLExpansion_PDU = -1;            /* DLExpansion */
-static int hf_p1_PhysicalForwardingAddress_PDU = -1;  /* PhysicalForwardingAddress */
-static int hf_p1_OriginatorAndDLExpansionHistory_PDU = -1;  /* OriginatorAndDLExpansionHistory */
-static int hf_p1_ReportingDLName_PDU = -1;        /* ReportingDLName */
-static int hf_p1_ReportingMTACertificate_PDU = -1;  /* ReportingMTACertificate */
-static int hf_p1_ReportOriginAuthenticationCheck_PDU = -1;  /* ReportOriginAuthenticationCheck */
-static int hf_p1_OriginatingMTACertificate_PDU = -1;  /* OriginatingMTACertificate */
-static int hf_p1_ProofOfSubmission_PDU = -1;      /* ProofOfSubmission */
-static int hf_p1_ReportingMTAName_PDU = -1;       /* ReportingMTAName */
-static int hf_p1_ExtendedCertificates_PDU = -1;   /* ExtendedCertificates */
-static int hf_p1_DLExemptedRecipients_PDU = -1;   /* DLExemptedRecipients */
-static int hf_p1_CertificateSelectors_PDU = -1;   /* CertificateSelectors */
-static int hf_p1_Content_PDU = -1;                /* Content */
-static int hf_p1_MTSIdentifier_PDU = -1;          /* MTSIdentifier */
-static int hf_p1_ORName_PDU = -1;                 /* ORName */
-static int hf_p1_ORAddress_PDU = -1;              /* ORAddress */
-static int hf_p1_CommonName_PDU = -1;             /* CommonName */
-static int hf_p1_TeletexCommonName_PDU = -1;      /* TeletexCommonName */
-static int hf_p1_UniversalCommonName_PDU = -1;    /* UniversalCommonName */
-static int hf_p1_TeletexOrganizationName_PDU = -1;  /* TeletexOrganizationName */
-static int hf_p1_UniversalOrganizationName_PDU = -1;  /* UniversalOrganizationName */
-static int hf_p1_TeletexPersonalName_PDU = -1;    /* TeletexPersonalName */
-static int hf_p1_UniversalPersonalName_PDU = -1;  /* UniversalPersonalName */
-static int hf_p1_TeletexOrganizationalUnitNames_PDU = -1;  /* TeletexOrganizationalUnitNames */
-static int hf_p1_UniversalOrganizationalUnitNames_PDU = -1;  /* UniversalOrganizationalUnitNames */
-static int hf_p1_PDSName_PDU = -1;                /* PDSName */
-static int hf_p1_PhysicalDeliveryCountryName_PDU = -1;  /* PhysicalDeliveryCountryName */
-static int hf_p1_PostalCode_PDU = -1;             /* PostalCode */
-static int hf_p1_PhysicalDeliveryOfficeName_PDU = -1;  /* PhysicalDeliveryOfficeName */
-static int hf_p1_UniversalPhysicalDeliveryOfficeName_PDU = -1;  /* UniversalPhysicalDeliveryOfficeName */
-static int hf_p1_PhysicalDeliveryOfficeNumber_PDU = -1;  /* PhysicalDeliveryOfficeNumber */
-static int hf_p1_UniversalPhysicalDeliveryOfficeNumber_PDU = -1;  /* UniversalPhysicalDeliveryOfficeNumber */
-static int hf_p1_ExtensionORAddressComponents_PDU = -1;  /* ExtensionORAddressComponents */
-static int hf_p1_UniversalExtensionORAddressComponents_PDU = -1;  /* UniversalExtensionORAddressComponents */
-static int hf_p1_PhysicalDeliveryPersonalName_PDU = -1;  /* PhysicalDeliveryPersonalName */
-static int hf_p1_UniversalPhysicalDeliveryPersonalName_PDU = -1;  /* UniversalPhysicalDeliveryPersonalName */
-static int hf_p1_PhysicalDeliveryOrganizationName_PDU = -1;  /* PhysicalDeliveryOrganizationName */
-static int hf_p1_UniversalPhysicalDeliveryOrganizationName_PDU = -1;  /* UniversalPhysicalDeliveryOrganizationName */
-static int hf_p1_ExtensionPhysicalDeliveryAddressComponents_PDU = -1;  /* ExtensionPhysicalDeliveryAddressComponents */
-static int hf_p1_UniversalExtensionPhysicalDeliveryAddressComponents_PDU = -1;  /* UniversalExtensionPhysicalDeliveryAddressComponents */
-static int hf_p1_UnformattedPostalAddress_PDU = -1;  /* UnformattedPostalAddress */
-static int hf_p1_UniversalUnformattedPostalAddress_PDU = -1;  /* UniversalUnformattedPostalAddress */
-static int hf_p1_StreetAddress_PDU = -1;          /* StreetAddress */
-static int hf_p1_UniversalStreetAddress_PDU = -1;  /* UniversalStreetAddress */
-static int hf_p1_PostOfficeBoxAddress_PDU = -1;   /* PostOfficeBoxAddress */
-static int hf_p1_UniversalPostOfficeBoxAddress_PDU = -1;  /* UniversalPostOfficeBoxAddress */
-static int hf_p1_PosteRestanteAddress_PDU = -1;   /* PosteRestanteAddress */
-static int hf_p1_UniversalPosteRestanteAddress_PDU = -1;  /* UniversalPosteRestanteAddress */
-static int hf_p1_UniquePostalName_PDU = -1;       /* UniquePostalName */
-static int hf_p1_UniversalUniquePostalName_PDU = -1;  /* UniversalUniquePostalName */
-static int hf_p1_LocalPostalAttributes_PDU = -1;  /* LocalPostalAttributes */
-static int hf_p1_UniversalLocalPostalAttributes_PDU = -1;  /* UniversalLocalPostalAttributes */
-static int hf_p1_ExtendedNetworkAddress_PDU = -1;  /* ExtendedNetworkAddress */
-static int hf_p1_TerminalType_PDU = -1;           /* TerminalType */
-static int hf_p1_TeletexDomainDefinedAttributes_PDU = -1;  /* TeletexDomainDefinedAttributes */
-static int hf_p1_UniversalDomainDefinedAttributes_PDU = -1;  /* UniversalDomainDefinedAttributes */
-static int hf_p1_ExtendedEncodedInformationType_PDU = -1;  /* ExtendedEncodedInformationType */
-static int hf_p1_MTANameAndOptionalGDI_PDU = -1;  /* MTANameAndOptionalGDI */
-static int hf_p1_AsymmetricToken_PDU = -1;        /* AsymmetricToken */
-static int hf_p1_BindTokenSignedData_PDU = -1;    /* BindTokenSignedData */
-static int hf_p1_MessageTokenSignedData_PDU = -1;  /* MessageTokenSignedData */
-static int hf_p1_MessageTokenEncryptedData_PDU = -1;  /* MessageTokenEncryptedData */
-static int hf_p1_BindTokenEncryptedData_PDU = -1;  /* BindTokenEncryptedData */
-static int hf_p1_SecurityClassification_PDU = -1;  /* SecurityClassification */
-static int hf_p1_unauthenticated = -1;            /* NULL */
-static int hf_p1_authenticated_argument = -1;     /* AuthenticatedArgument */
-static int hf_p1_authenticated_initiator_name = -1;  /* MTAName */
-static int hf_p1_initiator_credentials = -1;      /* InitiatorCredentials */
-static int hf_p1_security_context = -1;           /* SecurityContext */
-static int hf_p1_authenticated_result = -1;       /* AuthenticatedResult */
-static int hf_p1_authenticated_responder_name = -1;  /* MTAName */
-static int hf_p1_responder_credentials = -1;      /* ResponderCredentials */
-static int hf_p1_message = -1;                    /* Message */
-static int hf_p1_probe = -1;                      /* Probe */
-static int hf_p1_report = -1;                     /* Report */
-static int hf_p1_message_envelope = -1;           /* MessageTransferEnvelope */
-static int hf_p1_content = -1;                    /* Content */
-static int hf_p1_report_envelope = -1;            /* ReportTransferEnvelope */
-static int hf_p1_report_content = -1;             /* ReportTransferContent */
-static int hf_p1_message_identifier = -1;         /* MessageIdentifier */
-static int hf_p1_perMessageTransferFields_originator_name = -1;  /* MTAOriginatorName */
-static int hf_p1_original_encoded_information_types = -1;  /* OriginalEncodedInformationTypes */
-static int hf_p1_content_type = -1;               /* ContentType */
-static int hf_p1_content_identifier = -1;         /* ContentIdentifier */
-static int hf_p1_priority = -1;                   /* Priority */
-static int hf_p1_per_message_indicators = -1;     /* PerMessageIndicators */
-static int hf_p1_deferred_delivery_time = -1;     /* DeferredDeliveryTime */
-static int hf_p1_per_domain_bilateral_information = -1;  /* SEQUENCE_SIZE_1_ub_transfers_OF_PerDomainBilateralInformation */
-static int hf_p1_per_domain_bilateral_information_item = -1;  /* PerDomainBilateralInformation */
-static int hf_p1_trace_information = -1;          /* TraceInformation */
-static int hf_p1_extensions = -1;                 /* SET_OF_ExtensionField */
-static int hf_p1_extensions_item = -1;            /* ExtensionField */
-static int hf_p1_recipient_name = -1;             /* MTARecipientName */
-static int hf_p1_originally_specified_recipient_number = -1;  /* OriginallySpecifiedRecipientNumber */
-static int hf_p1_per_recipient_indicators = -1;   /* PerRecipientIndicators */
-static int hf_p1_explicit_conversion = -1;        /* ExplicitConversion */
-static int hf_p1_probe_identifier = -1;           /* ProbeIdentifier */
-static int hf_p1_perProbeTransferFields_originator_name = -1;  /* MTAOriginatorName */
-static int hf_p1_content_length = -1;             /* ContentLength */
-static int hf_p1_report_identifier = -1;          /* ReportIdentifier */
-static int hf_p1_report_destination_name = -1;    /* ReportDestinationName */
-static int hf_p1_subject_identifier = -1;         /* SubjectIdentifier */
-static int hf_p1_subject_intermediate_trace_information = -1;  /* SubjectIntermediateTraceInformation */
-static int hf_p1_returned_content = -1;           /* Content */
-static int hf_p1_additional_information = -1;     /* AdditionalInformation */
-static int hf_p1_mta_actual_recipient_name = -1;  /* MTAActualRecipientName */
-static int hf_p1_last_trace_information = -1;     /* LastTraceInformation */
-static int hf_p1_report_originally_intended_recipient_name = -1;  /* OriginallyIntendedRecipientName */
-static int hf_p1_supplementary_information = -1;  /* SupplementaryInformation */
-static int hf_p1_country_name = -1;               /* CountryName */
-static int hf_p1_bilateral_domain = -1;           /* T_bilateral_domain */
-static int hf_p1_administration_domain_name = -1;  /* AdministrationDomainName */
-static int hf_p1_private_domain = -1;             /* T_private_domain */
-static int hf_p1_private_domain_identifier = -1;  /* PrivateDomainIdentifier */
-static int hf_p1_bilateral_information = -1;      /* T_bilateral_information */
-static int hf_p1_arrival_time = -1;               /* ArrivalTime */
-static int hf_p1_converted_encoded_information_types = -1;  /* ConvertedEncodedInformationTypes */
-static int hf_p1_trace_report_type = -1;          /* ReportType */
-static int hf_p1_InternalTraceInformation_item = -1;  /* InternalTraceInformationElement */
-static int hf_p1_global_domain_identifier = -1;   /* GlobalDomainIdentifier */
-static int hf_p1_mta_name = -1;                   /* MTAName */
-static int hf_p1_mta_supplied_information = -1;   /* MTASuppliedInformation */
-static int hf_p1__untag_item = -1;                /* TraceInformationElement */
-static int hf_p1_domain_supplied_information = -1;  /* DomainSuppliedInformation */
-static int hf_p1_deferred_time = -1;              /* DeferredTime */
-static int hf_p1_other_actions = -1;              /* OtherActions */
-static int hf_p1_initiator_name = -1;             /* ObjectName */
-static int hf_p1_messages_waiting = -1;           /* MessagesWaiting */
-static int hf_p1_responder_name = -1;             /* ObjectName */
-static int hf_p1_user_agent = -1;                 /* ORAddressAndOptionalDirectoryName */
-static int hf_p1_mTA = -1;                        /* MTAName */
-static int hf_p1_message_store = -1;              /* ORAddressAndOptionalDirectoryName */
-static int hf_p1_urgent = -1;                     /* DeliveryQueue */
-static int hf_p1_normal = -1;                     /* DeliveryQueue */
-static int hf_p1_non_urgent = -1;                 /* DeliveryQueue */
-static int hf_p1_messages = -1;                   /* INTEGER_0_ub_queue_size */
-static int hf_p1_delivery_queue_octets = -1;      /* INTEGER_0_ub_content_length */
-static int hf_p1_simple = -1;                     /* Password */
-static int hf_p1_strong = -1;                     /* StrongCredentials */
-static int hf_p1_protected = -1;                  /* ProtectedPassword */
-static int hf_p1_ia5_string = -1;                 /* IA5String_SIZE_0_ub_password_length */
-static int hf_p1_octet_string = -1;               /* OCTET_STRING_SIZE_0_ub_password_length */
-static int hf_p1_bind_token = -1;                 /* Token */
-static int hf_p1_certificate = -1;                /* Certificates */
-static int hf_p1_certificate_selector = -1;       /* CertificateAssertion */
-static int hf_p1_signature = -1;                  /* Signature */
-static int hf_p1_time1 = -1;                      /* UTCTime */
-static int hf_p1_time2 = -1;                      /* UTCTime */
-static int hf_p1_random1 = -1;                    /* BIT_STRING */
-static int hf_p1_random2 = -1;                    /* BIT_STRING */
-static int hf_p1_algorithmIdentifier = -1;        /* AlgorithmIdentifier */
-static int hf_p1_encrypted = -1;                  /* BIT_STRING */
-static int hf_p1_SecurityContext_item = -1;       /* SecurityLabel */
-static int hf_p1_message_submission_envelope = -1;  /* MessageSubmissionEnvelope */
-static int hf_p1_message_submission_identifier = -1;  /* MessageSubmissionIdentifier */
-static int hf_p1_message_submission_time = -1;    /* MessageSubmissionTime */
-static int hf_p1_probe_submission_identifier = -1;  /* ProbeSubmissionIdentifier */
-static int hf_p1_probe_submission_time = -1;      /* ProbeSubmissionTime */
-static int hf_p1_ImproperlySpecifiedRecipients_item = -1;  /* RecipientName */
-static int hf_p1_waiting_operations = -1;         /* Operations */
-static int hf_p1_waiting_messages = -1;           /* WaitingMessages */
-static int hf_p1_waiting_content_types = -1;      /* SET_SIZE_0_ub_content_types_OF_ContentType */
-static int hf_p1_waiting_content_types_item = -1;  /* ContentType */
-static int hf_p1_waiting_encoded_information_types = -1;  /* EncodedInformationTypes */
-static int hf_p1_recipient_certificate = -1;      /* RecipientCertificate */
-static int hf_p1_proof_of_delivery = -1;          /* ProofOfDelivery */
-static int hf_p1_empty_result = -1;               /* NULL */
-static int hf_p1_max_extensions = -1;             /* SET_SIZE_1_MAX_OF_ExtensionField */
-static int hf_p1_max_extensions_item = -1;        /* ExtensionField */
-static int hf_p1_restrict = -1;                   /* BOOLEAN */
-static int hf_p1_permissible_operations = -1;     /* Operations */
-static int hf_p1_permissible_maximum_content_length = -1;  /* ContentLength */
-static int hf_p1_permissible_lowest_priority = -1;  /* Priority */
-static int hf_p1_permissible_content_types = -1;  /* ContentTypes */
-static int hf_p1_permissible_encoded_information_types = -1;  /* PermissibleEncodedInformationTypes */
-static int hf_p1_permissible_security_context = -1;  /* SecurityContext */
-static int hf_p1_refused_argument = -1;           /* T_refused_argument */
-static int hf_p1_built_in_argument = -1;          /* RefusedArgument */
-static int hf_p1_refused_extension = -1;          /* T_refused_extension */
-static int hf_p1_refusal_reason = -1;             /* RefusalReason */
-static int hf_p1_user_name = -1;                  /* UserName */
-static int hf_p1_user_address = -1;               /* UserAddress */
-static int hf_p1_deliverable_class = -1;          /* SET_SIZE_1_ub_deliverable_class_OF_DeliverableClass */
-static int hf_p1_deliverable_class_item = -1;     /* DeliverableClass */
-static int hf_p1_default_delivery_controls = -1;  /* DefaultDeliveryControls */
-static int hf_p1_redirections = -1;               /* Redirections */
-static int hf_p1_restricted_delivery = -1;        /* RestrictedDelivery */
-static int hf_p1_retrieve_registrations = -1;     /* RegistrationTypes */
-static int hf_p1_non_empty_result = -1;           /* T_non_empty_result */
-static int hf_p1_registered_information = -1;     /* RegisterArgument */
-static int hf_p1_old_credentials = -1;            /* Credentials */
-static int hf_p1_new_credentials = -1;            /* Credentials */
-static int hf_p1_x121 = -1;                       /* T_x121 */
-static int hf_p1_x121_address = -1;               /* T_x121_address */
-static int hf_p1_tsap_id = -1;                    /* PrintableString_SIZE_1_ub_tsap_id_length */
-static int hf_p1_presentation = -1;               /* PSAPAddress */
-static int hf_p1_Redirections_item = -1;          /* RecipientRedirection */
-static int hf_p1_redirection_classes = -1;        /* SET_SIZE_1_ub_redirection_classes_OF_RedirectionClass */
-static int hf_p1_redirection_classes_item = -1;   /* RedirectionClass */
-static int hf_p1_recipient_assigned_alternate_recipient = -1;  /* RecipientAssignedAlternateRecipient */
-static int hf_p1_content_types = -1;              /* ContentTypes */
-static int hf_p1_maximum_content_length = -1;     /* ContentLength */
-static int hf_p1_encoded_information_types_constraints = -1;  /* EncodedInformationTypesConstraints */
-static int hf_p1_security_labels = -1;            /* SecurityContext */
-static int hf_p1_class_priority = -1;             /* SET_OF_Priority */
-static int hf_p1_class_priority_item = -1;        /* Priority */
-static int hf_p1_objects = -1;                    /* T_objects */
-static int hf_p1_applies_only_to = -1;            /* SEQUENCE_OF_Restriction */
-static int hf_p1_applies_only_to_item = -1;       /* Restriction */
-static int hf_p1_unacceptable_eits = -1;          /* ExtendedEncodedInformationTypes */
-static int hf_p1_acceptable_eits = -1;            /* ExtendedEncodedInformationTypes */
-static int hf_p1_exclusively_acceptable_eits = -1;  /* ExtendedEncodedInformationTypes */
-static int hf_p1_RestrictedDelivery_item = -1;    /* Restriction */
-static int hf_p1_permitted = -1;                  /* BOOLEAN */
-static int hf_p1_source_type = -1;                /* T_source_type */
-static int hf_p1_source_name = -1;                /* ExactOrPattern */
-static int hf_p1_exact_match = -1;                /* ORName */
-static int hf_p1_pattern_match = -1;              /* ORName */
-static int hf_p1_standard_parameters = -1;        /* T_standard_parameters */
-static int hf_p1_type_extensions = -1;            /* T_type_extensions */
-static int hf_p1_type_extensions_item = -1;       /* T_type_extensions_item */
-static int hf_p1_perMessageSubmissionFields_originator_name = -1;  /* OriginatorName */
-static int hf_p1_submission_recipient_name = -1;  /* RecipientName */
-static int hf_p1_originator_report_request = -1;  /* OriginatorReportRequest */
-static int hf_p1_perProbeSubmissionFields_originator_name = -1;  /* OriginatorName */
-static int hf_p1_probe_recipient_name = -1;       /* RecipientName */
-static int hf_p1_message_delivery_identifier = -1;  /* MessageDeliveryIdentifier */
-static int hf_p1_message_delivery_time = -1;      /* MessageDeliveryTime */
-static int hf_p1_other_fields = -1;               /* OtherMessageDeliveryFields */
-static int hf_p1_delivered_content_type = -1;     /* DeliveredContentType */
-static int hf_p1_delivered_originator_name = -1;  /* DeliveredOriginatorName */
-static int hf_p1_delivery_flags = -1;             /* DeliveryFlags */
-static int hf_p1_other_recipient_names = -1;      /* OtherRecipientNames */
-static int hf_p1_this_recipient_name = -1;        /* ThisRecipientName */
-static int hf_p1_originally_intended_recipient_name = -1;  /* OriginallyIntendedRecipientName */
-static int hf_p1_subject_submission_identifier = -1;  /* SubjectSubmissionIdentifier */
-static int hf_p1_actual_recipient_name = -1;      /* ActualRecipientName */
-static int hf_p1_delivery_report_type = -1;       /* ReportType */
-static int hf_p1_delivery = -1;                   /* DeliveryReport */
-static int hf_p1_non_delivery = -1;               /* NonDeliveryReport */
-static int hf_p1_type_of_MTS_user = -1;           /* TypeOfMTSUser */
-static int hf_p1_non_delivery_reason_code = -1;   /* NonDeliveryReasonCode */
-static int hf_p1_non_delivery_diagnostic_code = -1;  /* NonDeliveryDiagnosticCode */
-static int hf_p1_ContentTypes_item = -1;          /* ContentType */
-static int hf_p1_built_in = -1;                   /* BuiltInContentType */
-static int hf_p1_extended = -1;                   /* ExtendedContentType */
-static int hf_p1_OtherRecipientNames_item = -1;   /* OtherRecipientName */
-static int hf_p1_standard_extension = -1;         /* StandardExtension */
-static int hf_p1_private_extension = -1;          /* T_private_extension */
-static int hf_p1_extension_type = -1;             /* ExtensionType */
-static int hf_p1_criticality = -1;                /* Criticality */
-static int hf_p1_extension_value = -1;            /* ExtensionValue */
-static int hf_p1_RequestedDeliveryMethod_item = -1;  /* RequestedDeliveryMethod_item */
-static int hf_p1_ia5text = -1;                    /* IA5String */
-static int hf_p1_octets = -1;                     /* OCTET_STRING */
-static int hf_p1_RedirectionHistory_item = -1;    /* Redirection */
-static int hf_p1_intended_recipient_name = -1;    /* IntendedRecipientName */
-static int hf_p1_redirection_reason = -1;         /* RedirectionReason */
-static int hf_p1_intended_recipient = -1;         /* ORAddressAndOptionalDirectoryName */
-static int hf_p1_redirection_time = -1;           /* Time */
-static int hf_p1_DLExpansionHistory_item = -1;    /* DLExpansion */
-static int hf_p1_dl = -1;                         /* ORAddressAndOptionalDirectoryName */
-static int hf_p1_dl_expansion_time = -1;          /* Time */
-static int hf_p1_OriginatorAndDLExpansionHistory_item = -1;  /* OriginatorAndDLExpansion */
-static int hf_p1_originator_or_dl_name = -1;      /* ORAddressAndOptionalDirectoryName */
-static int hf_p1_origination_or_expansion_time = -1;  /* Time */
-static int hf_p1_domain = -1;                     /* GlobalDomainIdentifier */
-static int hf_p1_mta_directory_name = -1;         /* Name */
-static int hf_p1_ExtendedCertificates_item = -1;  /* ExtendedCertificate */
-static int hf_p1_directory_entry = -1;            /* Name */
-static int hf_p1_DLExemptedRecipients_item = -1;  /* ORAddressAndOrDirectoryName */
-static int hf_p1_encryption_recipient = -1;       /* CertificateAssertion */
-static int hf_p1_encryption_originator = -1;      /* CertificateAssertion */
-static int hf_p1_selectors_content_integrity_check = -1;  /* CertificateAssertion */
-static int hf_p1_token_signature = -1;            /* CertificateAssertion */
-static int hf_p1_message_origin_authentication = -1;  /* CertificateAssertion */
-static int hf_p1_local_identifier = -1;           /* LocalIdentifier */
-static int hf_p1_numeric_private_domain_identifier = -1;  /* T_numeric_private_domain_identifier */
-static int hf_p1_printable_private_domain_identifier = -1;  /* T_printable_private_domain_identifier */
-static int hf_p1_built_in_standard_attributes = -1;  /* BuiltInStandardAttributes */
-static int hf_p1_built_in_domain_defined_attributes = -1;  /* BuiltInDomainDefinedAttributes */
-static int hf_p1_extension_attributes = -1;       /* ExtensionAttributes */
-static int hf_p1_network_address = -1;            /* NetworkAddress */
-static int hf_p1_terminal_identifier = -1;        /* TerminalIdentifier */
-static int hf_p1_private_domain_name = -1;        /* PrivateDomainName */
-static int hf_p1_organization_name = -1;          /* OrganizationName */
-static int hf_p1_numeric_user_identifier = -1;    /* NumericUserIdentifier */
-static int hf_p1_personal_name = -1;              /* PersonalName */
-static int hf_p1_organizational_unit_names = -1;  /* OrganizationalUnitNames */
-static int hf_p1_x121_dcc_code = -1;              /* T_x121_dcc_code */
-static int hf_p1_iso_3166_alpha2_code = -1;       /* T_iso_3166_alpha2_code */
-static int hf_p1_numeric = -1;                    /* T_numeric */
-static int hf_p1_printable = -1;                  /* T_printable */
-static int hf_p1_numeric_private_domain_name = -1;  /* T_numeric_private_domain_name */
-static int hf_p1_printable_private_domain_name = -1;  /* T_printable_private_domain_name */
-static int hf_p1_printable_surname = -1;          /* T_printable_surname */
-static int hf_p1_printable_given_name = -1;       /* T_printable_given_name */
-static int hf_p1_printable_initials = -1;         /* T_printable_initials */
-static int hf_p1_printable_generation_qualifier = -1;  /* T_printable_generation_qualifier */
-static int hf_p1_OrganizationalUnitNames_item = -1;  /* OrganizationalUnitName */
-static int hf_p1_BuiltInDomainDefinedAttributes_item = -1;  /* BuiltInDomainDefinedAttribute */
-static int hf_p1_printable_type = -1;             /* T_printable_type */
-static int hf_p1_printable_value = -1;            /* T_printable_value */
-static int hf_p1_ExtensionAttributes_item = -1;   /* ExtensionAttribute */
-static int hf_p1_extension_attribute_type = -1;   /* ExtensionAttributeType */
-static int hf_p1_extension_attribute_value = -1;  /* T_extension_attribute_value */
-static int hf_p1_teletex_surname = -1;            /* T_teletex_surname */
-static int hf_p1_teletex_given_name = -1;         /* T_teletex_given_name */
-static int hf_p1_teletex_initials = -1;           /* T_teletex_initials */
-static int hf_p1_teletex_generation_qualifier = -1;  /* T_teletex_generation_qualifier */
-static int hf_p1_universal_surname = -1;          /* UniversalOrBMPString */
-static int hf_p1_universal_given_name = -1;       /* UniversalOrBMPString */
-static int hf_p1_universal_initials = -1;         /* UniversalOrBMPString */
-static int hf_p1_universal_generation_qualifier = -1;  /* UniversalOrBMPString */
-static int hf_p1_TeletexOrganizationalUnitNames_item = -1;  /* TeletexOrganizationalUnitName */
-static int hf_p1_UniversalOrganizationalUnitNames_item = -1;  /* UniversalOrganizationalUnitName */
-static int hf_p1_character_encoding = -1;         /* T_character_encoding */
-static int hf_p1_two_octets = -1;                 /* BMPString_SIZE_1_ub_string_length */
-static int hf_p1_four_octets = -1;                /* UniversalString_SIZE_1_ub_string_length */
-static int hf_p1_iso_639_language_code = -1;      /* PrintableString_SIZE_CONSTR001 */
-static int hf_p1_x121_dcc_code_01 = -1;           /* T_x121_dcc_code_01 */
-static int hf_p1_iso_3166_alpha2_code_01 = -1;    /* T_iso_3166_alpha2_code_01 */
-static int hf_p1_numeric_code = -1;               /* T_numeric_code */
-static int hf_p1_printable_code = -1;             /* PrintableString_SIZE_1_ub_postal_code_length */
-static int hf_p1_printable_address = -1;          /* T_printable_address */
-static int hf_p1_printable_address_item = -1;     /* PrintableString_SIZE_1_ub_pds_parameter_length */
-static int hf_p1_teletex_string = -1;             /* TeletexString_SIZE_1_ub_unformatted_address_length */
-static int hf_p1_printable_string = -1;           /* PrintableString_SIZE_1_ub_pds_parameter_length */
-static int hf_p1_pds_teletex_string = -1;         /* TeletexString_SIZE_1_ub_pds_parameter_length */
-static int hf_p1_e163_4_address = -1;             /* T_e163_4_address */
-static int hf_p1_number = -1;                     /* NumericString_SIZE_1_ub_e163_4_number_length */
-static int hf_p1_sub_address = -1;                /* NumericString_SIZE_1_ub_e163_4_sub_address_length */
-static int hf_p1_psap_address = -1;               /* PresentationAddress */
-static int hf_p1_TeletexDomainDefinedAttributes_item = -1;  /* TeletexDomainDefinedAttribute */
-static int hf_p1_type = -1;                       /* T_type */
-static int hf_p1_teletex_value = -1;              /* T_teletex_value */
-static int hf_p1_UniversalDomainDefinedAttributes_item = -1;  /* UniversalDomainDefinedAttribute */
-static int hf_p1_universal_type = -1;             /* UniversalOrBMPString */
-static int hf_p1_universal_value = -1;            /* UniversalOrBMPString */
-static int hf_p1_ExtendedEncodedInformationTypes_item = -1;  /* ExtendedEncodedInformationType */
-static int hf_p1_g3_facsimile = -1;               /* G3FacsimileNonBasicParameters */
-static int hf_p1_teletex = -1;                    /* TeletexNonBasicParameters */
-static int hf_p1_graphic_character_sets = -1;     /* TeletexString */
-static int hf_p1_control_character_sets = -1;     /* TeletexString */
-static int hf_p1_page_formats = -1;               /* OCTET_STRING */
-static int hf_p1_miscellaneous_terminal_capabilities = -1;  /* TeletexString */
-static int hf_p1_private_use = -1;                /* OCTET_STRING */
-static int hf_p1_token_type_identifier = -1;      /* TokenTypeIdentifier */
-static int hf_p1_token = -1;                      /* TokenTypeData */
-static int hf_p1_signature_algorithm_identifier = -1;  /* AlgorithmIdentifier */
-static int hf_p1_name = -1;                       /* T_name */
-static int hf_p1_token_recipient_name = -1;       /* RecipientName */
-static int hf_p1_token_mta = -1;                  /* MTANameAndOptionalGDI */
-static int hf_p1_time = -1;                       /* Time */
-static int hf_p1_signed_data = -1;                /* TokenData */
-static int hf_p1_encryption_algorithm_identifier = -1;  /* AlgorithmIdentifier */
-static int hf_p1_encrypted_data = -1;             /* BIT_STRING */
-static int hf_p1_asymmetric_token_data = -1;      /* AsymmetricTokenData */
-static int hf_p1_algorithm_identifier = -1;       /* AlgorithmIdentifier */
-static int hf_p1_token_data_type = -1;            /* TokenDataType */
-static int hf_p1_value = -1;                      /* T_value */
-static int hf_p1_content_confidentiality_algorithm_identifier = -1;  /* ContentConfidentialityAlgorithmIdentifier */
-static int hf_p1_content_integrity_check = -1;    /* ContentIntegrityCheck */
-static int hf_p1_message_security_label = -1;     /* MessageSecurityLabel */
-static int hf_p1_proof_of_delivery_request = -1;  /* ProofOfDeliveryRequest */
-static int hf_p1_message_sequence_number = -1;    /* INTEGER */
-static int hf_p1_content_confidentiality_key = -1;  /* EncryptionKey */
-static int hf_p1_content_integrity_key = -1;      /* EncryptionKey */
-static int hf_p1_security_policy_identifier = -1;  /* SecurityPolicyIdentifier */
-static int hf_p1_security_classification = -1;    /* SecurityClassification */
-static int hf_p1_privacy_mark = -1;               /* PrivacyMark */
-static int hf_p1_security_categories = -1;        /* SecurityCategories */
-static int hf_p1_SecurityCategories_item = -1;    /* SecurityCategory */
-static int hf_p1_category_type = -1;              /* SecurityCategoryIdentifier */
-static int hf_p1_category_value = -1;             /* CategoryValue */
-static int hf_p1_mta_originator_name = -1;        /* MTAOriginatorName */
-static int hf_p1_per_recipient_message_fields = -1;  /* SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientMessageTransferFields */
-static int hf_p1_per_recipient_message_fields_item = -1;  /* PerRecipientMessageTransferFields */
-static int hf_p1_per_recipient_probe_transfer_fields = -1;  /* SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeTransferFields */
-static int hf_p1_per_recipient_probe_transfer_fields_item = -1;  /* PerRecipientProbeTransferFields */
-static int hf_p1_per_recipient_report_fields = -1;  /* SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientReportTransferFields */
-static int hf_p1_per_recipient_report_fields_item = -1;  /* PerRecipientReportTransferFields */
-static int hf_p1_routing_action = -1;             /* RoutingAction */
-static int hf_p1_attempted = -1;                  /* T_attempted */
-static int hf_p1_mta = -1;                        /* MTAName */
-static int hf_p1_attempted_domain = -1;           /* GlobalDomainIdentifier */
-static int hf_p1_per_recipient_report_delivery_fields = -1;  /* SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientReportDeliveryFields */
-static int hf_p1_per_recipient_report_delivery_fields_item = -1;  /* PerRecipientReportDeliveryFields */
-static int hf_p1_mts_originator_name = -1;        /* OriginatorName */
-static int hf_p1_per_recipient_message_submission_fields = -1;  /* SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientMessageSubmissionFields */
-static int hf_p1_per_recipient_message_submission_fields_item = -1;  /* PerRecipientMessageSubmissionFields */
-static int hf_p1_per_recipient_probe_submission_fields = -1;  /* SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields */
-static int hf_p1_per_recipient_probe_submission_fields_item = -1;  /* PerRecipientProbeSubmissionFields */
-static int hf_p1_directory_name = -1;             /* Name */
-static int hf_p1_built_in_encoded_information_types = -1;  /* BuiltInEncodedInformationTypes */
-static int hf_p1_extended_encoded_information_types = -1;  /* ExtendedEncodedInformationTypes */
+static int hf_p1_InternalTraceInformation_PDU;    /* InternalTraceInformation */
+static int hf_p1_InternalTraceInformationElement_PDU;  /* InternalTraceInformationElement */
+static int hf_p1_TraceInformation_PDU;            /* TraceInformation */
+static int hf_p1_TraceInformationElement_PDU;     /* TraceInformationElement */
+static int hf_p1_MTSBindArgument_PDU;             /* MTSBindArgument */
+static int hf_p1_MTSBindResult_PDU;               /* MTSBindResult */
+static int hf_p1_PAR_mts_bind_error_PDU;          /* PAR_mts_bind_error */
+static int hf_p1_MessageSubmissionArgument_PDU;   /* MessageSubmissionArgument */
+static int hf_p1_MessageSubmissionResult_PDU;     /* MessageSubmissionResult */
+static int hf_p1_ProbeSubmissionArgument_PDU;     /* ProbeSubmissionArgument */
+static int hf_p1_ProbeSubmissionResult_PDU;       /* ProbeSubmissionResult */
+static int hf_p1_CancelDeferredDeliveryArgument_PDU;  /* CancelDeferredDeliveryArgument */
+static int hf_p1_CancelDeferredDeliveryResult_PDU;  /* CancelDeferredDeliveryResult */
+static int hf_p1_SubmissionControlArgument_PDU;   /* SubmissionControlArgument */
+static int hf_p1_SubmissionControlResult_PDU;     /* SubmissionControlResult */
+static int hf_p1_PAR_submission_control_violated_PDU;  /* PAR_submission_control_violated */
+static int hf_p1_PAR_element_of_service_not_subscribed_PDU;  /* PAR_element_of_service_not_subscribed */
+static int hf_p1_PAR_deferred_delivery_cancellation_rejected_PDU;  /* PAR_deferred_delivery_cancellation_rejected */
+static int hf_p1_PAR_originator_invalid_PDU;      /* PAR_originator_invalid */
+static int hf_p1_ImproperlySpecifiedRecipients_PDU;  /* ImproperlySpecifiedRecipients */
+static int hf_p1_PAR_message_submission_identifier_invalid_PDU;  /* PAR_message_submission_identifier_invalid */
+static int hf_p1_PAR_inconsistent_request_PDU;    /* PAR_inconsistent_request */
+static int hf_p1_SecurityProblem_PDU;             /* SecurityProblem */
+static int hf_p1_PAR_unsupported_critical_function_PDU;  /* PAR_unsupported_critical_function */
+static int hf_p1_PAR_remote_bind_error_PDU;       /* PAR_remote_bind_error */
+static int hf_p1_MessageSubmissionTime_PDU;       /* MessageSubmissionTime */
+static int hf_p1_MessageDeliveryArgument_PDU;     /* MessageDeliveryArgument */
+static int hf_p1_MessageDeliveryResult_PDU;       /* MessageDeliveryResult */
+static int hf_p1_ReportDeliveryArgument_PDU;      /* ReportDeliveryArgument */
+static int hf_p1_ReportDeliveryResult_PDU;        /* ReportDeliveryResult */
+static int hf_p1_DeliveryControlArgument_PDU;     /* DeliveryControlArgument */
+static int hf_p1_DeliveryControlResult_PDU;       /* DeliveryControlResult */
+static int hf_p1_PAR_delivery_control_violated_PDU;  /* PAR_delivery_control_violated */
+static int hf_p1_PAR_control_violates_registration_PDU;  /* PAR_control_violates_registration */
+static int hf_p1_RefusedOperation_PDU;            /* RefusedOperation */
+static int hf_p1_RecipientCertificate_PDU;        /* RecipientCertificate */
+static int hf_p1_ProofOfDelivery_PDU;             /* ProofOfDelivery */
+static int hf_p1_RegisterArgument_PDU;            /* RegisterArgument */
+static int hf_p1_RegisterResult_PDU;              /* RegisterResult */
+static int hf_p1_ChangeCredentialsArgument_PDU;   /* ChangeCredentialsArgument */
+static int hf_p1_RES_change_credentials_PDU;      /* RES_change_credentials */
+static int hf_p1_PAR_register_rejected_PDU;       /* PAR_register_rejected */
+static int hf_p1_PAR_new_credentials_unacceptable_PDU;  /* PAR_new_credentials_unacceptable */
+static int hf_p1_PAR_old_credentials_incorrectly_specified_PDU;  /* PAR_old_credentials_incorrectly_specified */
+static int hf_p1_MessageSubmissionEnvelope_PDU;   /* MessageSubmissionEnvelope */
+static int hf_p1_PerRecipientMessageSubmissionFields_PDU;  /* PerRecipientMessageSubmissionFields */
+static int hf_p1_ProbeSubmissionEnvelope_PDU;     /* ProbeSubmissionEnvelope */
+static int hf_p1_PerRecipientProbeSubmissionFields_PDU;  /* PerRecipientProbeSubmissionFields */
+static int hf_p1_MessageDeliveryEnvelope_PDU;     /* MessageDeliveryEnvelope */
+static int hf_p1_ReportDeliveryEnvelope_PDU;      /* ReportDeliveryEnvelope */
+static int hf_p1_PerRecipientReportDeliveryFields_PDU;  /* PerRecipientReportDeliveryFields */
+static int hf_p1_ExtendedContentType_PDU;         /* ExtendedContentType */
+static int hf_p1_ContentIdentifier_PDU;           /* ContentIdentifier */
+static int hf_p1_PerMessageIndicators_PDU;        /* PerMessageIndicators */
+static int hf_p1_OriginatorReportRequest_PDU;     /* OriginatorReportRequest */
+static int hf_p1_DeferredDeliveryTime_PDU;        /* DeferredDeliveryTime */
+static int hf_p1_Priority_PDU;                    /* Priority */
+static int hf_p1_ContentLength_PDU;               /* ContentLength */
+static int hf_p1_MessageDeliveryTime_PDU;         /* MessageDeliveryTime */
+static int hf_p1_DeliveryFlags_PDU;               /* DeliveryFlags */
+static int hf_p1_SubjectSubmissionIdentifier_PDU;  /* SubjectSubmissionIdentifier */
+static int hf_p1_RecipientReassignmentProhibited_PDU;  /* RecipientReassignmentProhibited */
+static int hf_p1_OriginatorRequestedAlternateRecipient_PDU;  /* OriginatorRequestedAlternateRecipient */
+static int hf_p1_DLExpansionProhibited_PDU;       /* DLExpansionProhibited */
+static int hf_p1_ConversionWithLossProhibited_PDU;  /* ConversionWithLossProhibited */
+static int hf_p1_LatestDeliveryTime_PDU;          /* LatestDeliveryTime */
+static int hf_p1_RequestedDeliveryMethod_PDU;     /* RequestedDeliveryMethod */
+static int hf_p1_PhysicalForwardingProhibited_PDU;  /* PhysicalForwardingProhibited */
+static int hf_p1_PhysicalForwardingAddressRequest_PDU;  /* PhysicalForwardingAddressRequest */
+static int hf_p1_PhysicalDeliveryModes_PDU;       /* PhysicalDeliveryModes */
+static int hf_p1_RegisteredMailType_PDU;          /* RegisteredMailType */
+static int hf_p1_RecipientNumberForAdvice_PDU;    /* RecipientNumberForAdvice */
+static int hf_p1_PhysicalRenditionAttributes_PDU;  /* PhysicalRenditionAttributes */
+static int hf_p1_OriginatorReturnAddress_PDU;     /* OriginatorReturnAddress */
+static int hf_p1_PhysicalDeliveryReportRequest_PDU;  /* PhysicalDeliveryReportRequest */
+static int hf_p1_OriginatorCertificate_PDU;       /* OriginatorCertificate */
+static int hf_p1_MessageToken_PDU;                /* MessageToken */
+static int hf_p1_ContentConfidentialityAlgorithmIdentifier_PDU;  /* ContentConfidentialityAlgorithmIdentifier */
+static int hf_p1_ContentIntegrityCheck_PDU;       /* ContentIntegrityCheck */
+static int hf_p1_MessageOriginAuthenticationCheck_PDU;  /* MessageOriginAuthenticationCheck */
+static int hf_p1_p1_MessageSecurityLabel_PDU;     /* MessageSecurityLabel */
+static int hf_p1_ProofOfSubmissionRequest_PDU;    /* ProofOfSubmissionRequest */
+static int hf_p1_ProofOfDeliveryRequest_PDU;      /* ProofOfDeliveryRequest */
+static int hf_p1_ContentCorrelator_PDU;           /* ContentCorrelator */
+static int hf_p1_ProbeOriginAuthenticationCheck_PDU;  /* ProbeOriginAuthenticationCheck */
+static int hf_p1_RedirectionHistory_PDU;          /* RedirectionHistory */
+static int hf_p1_Redirection_PDU;                 /* Redirection */
+static int hf_p1_DLExpansionHistory_PDU;          /* DLExpansionHistory */
+static int hf_p1_DLExpansion_PDU;                 /* DLExpansion */
+static int hf_p1_PhysicalForwardingAddress_PDU;   /* PhysicalForwardingAddress */
+static int hf_p1_OriginatorAndDLExpansionHistory_PDU;  /* OriginatorAndDLExpansionHistory */
+static int hf_p1_ReportingDLName_PDU;             /* ReportingDLName */
+static int hf_p1_ReportingMTACertificate_PDU;     /* ReportingMTACertificate */
+static int hf_p1_ReportOriginAuthenticationCheck_PDU;  /* ReportOriginAuthenticationCheck */
+static int hf_p1_OriginatingMTACertificate_PDU;   /* OriginatingMTACertificate */
+static int hf_p1_ProofOfSubmission_PDU;           /* ProofOfSubmission */
+static int hf_p1_ReportingMTAName_PDU;            /* ReportingMTAName */
+static int hf_p1_ExtendedCertificates_PDU;        /* ExtendedCertificates */
+static int hf_p1_DLExemptedRecipients_PDU;        /* DLExemptedRecipients */
+static int hf_p1_CertificateSelectors_PDU;        /* CertificateSelectors */
+static int hf_p1_Content_PDU;                     /* Content */
+static int hf_p1_MTSIdentifier_PDU;               /* MTSIdentifier */
+static int hf_p1_ORName_PDU;                      /* ORName */
+static int hf_p1_ORAddress_PDU;                   /* ORAddress */
+static int hf_p1_CommonName_PDU;                  /* CommonName */
+static int hf_p1_TeletexCommonName_PDU;           /* TeletexCommonName */
+static int hf_p1_UniversalCommonName_PDU;         /* UniversalCommonName */
+static int hf_p1_TeletexOrganizationName_PDU;     /* TeletexOrganizationName */
+static int hf_p1_UniversalOrganizationName_PDU;   /* UniversalOrganizationName */
+static int hf_p1_TeletexPersonalName_PDU;         /* TeletexPersonalName */
+static int hf_p1_UniversalPersonalName_PDU;       /* UniversalPersonalName */
+static int hf_p1_TeletexOrganizationalUnitNames_PDU;  /* TeletexOrganizationalUnitNames */
+static int hf_p1_UniversalOrganizationalUnitNames_PDU;  /* UniversalOrganizationalUnitNames */
+static int hf_p1_PDSName_PDU;                     /* PDSName */
+static int hf_p1_PhysicalDeliveryCountryName_PDU;  /* PhysicalDeliveryCountryName */
+static int hf_p1_PostalCode_PDU;                  /* PostalCode */
+static int hf_p1_PhysicalDeliveryOfficeName_PDU;  /* PhysicalDeliveryOfficeName */
+static int hf_p1_UniversalPhysicalDeliveryOfficeName_PDU;  /* UniversalPhysicalDeliveryOfficeName */
+static int hf_p1_PhysicalDeliveryOfficeNumber_PDU;  /* PhysicalDeliveryOfficeNumber */
+static int hf_p1_UniversalPhysicalDeliveryOfficeNumber_PDU;  /* UniversalPhysicalDeliveryOfficeNumber */
+static int hf_p1_ExtensionORAddressComponents_PDU;  /* ExtensionORAddressComponents */
+static int hf_p1_UniversalExtensionORAddressComponents_PDU;  /* UniversalExtensionORAddressComponents */
+static int hf_p1_PhysicalDeliveryPersonalName_PDU;  /* PhysicalDeliveryPersonalName */
+static int hf_p1_UniversalPhysicalDeliveryPersonalName_PDU;  /* UniversalPhysicalDeliveryPersonalName */
+static int hf_p1_PhysicalDeliveryOrganizationName_PDU;  /* PhysicalDeliveryOrganizationName */
+static int hf_p1_UniversalPhysicalDeliveryOrganizationName_PDU;  /* UniversalPhysicalDeliveryOrganizationName */
+static int hf_p1_ExtensionPhysicalDeliveryAddressComponents_PDU;  /* ExtensionPhysicalDeliveryAddressComponents */
+static int hf_p1_UniversalExtensionPhysicalDeliveryAddressComponents_PDU;  /* UniversalExtensionPhysicalDeliveryAddressComponents */
+static int hf_p1_UnformattedPostalAddress_PDU;    /* UnformattedPostalAddress */
+static int hf_p1_UniversalUnformattedPostalAddress_PDU;  /* UniversalUnformattedPostalAddress */
+static int hf_p1_StreetAddress_PDU;               /* StreetAddress */
+static int hf_p1_UniversalStreetAddress_PDU;      /* UniversalStreetAddress */
+static int hf_p1_PostOfficeBoxAddress_PDU;        /* PostOfficeBoxAddress */
+static int hf_p1_UniversalPostOfficeBoxAddress_PDU;  /* UniversalPostOfficeBoxAddress */
+static int hf_p1_PosteRestanteAddress_PDU;        /* PosteRestanteAddress */
+static int hf_p1_UniversalPosteRestanteAddress_PDU;  /* UniversalPosteRestanteAddress */
+static int hf_p1_UniquePostalName_PDU;            /* UniquePostalName */
+static int hf_p1_UniversalUniquePostalName_PDU;   /* UniversalUniquePostalName */
+static int hf_p1_LocalPostalAttributes_PDU;       /* LocalPostalAttributes */
+static int hf_p1_UniversalLocalPostalAttributes_PDU;  /* UniversalLocalPostalAttributes */
+static int hf_p1_ExtendedNetworkAddress_PDU;      /* ExtendedNetworkAddress */
+static int hf_p1_TerminalType_PDU;                /* TerminalType */
+static int hf_p1_TeletexDomainDefinedAttributes_PDU;  /* TeletexDomainDefinedAttributes */
+static int hf_p1_UniversalDomainDefinedAttributes_PDU;  /* UniversalDomainDefinedAttributes */
+static int hf_p1_ExtendedEncodedInformationType_PDU;  /* ExtendedEncodedInformationType */
+static int hf_p1_MTANameAndOptionalGDI_PDU;       /* MTANameAndOptionalGDI */
+static int hf_p1_AsymmetricToken_PDU;             /* AsymmetricToken */
+static int hf_p1_BindTokenSignedData_PDU;         /* BindTokenSignedData */
+static int hf_p1_MessageTokenSignedData_PDU;      /* MessageTokenSignedData */
+static int hf_p1_MessageTokenEncryptedData_PDU;   /* MessageTokenEncryptedData */
+static int hf_p1_BindTokenEncryptedData_PDU;      /* BindTokenEncryptedData */
+static int hf_p1_SecurityClassification_PDU;      /* SecurityClassification */
+static int hf_p1_unauthenticated;                 /* NULL */
+static int hf_p1_authenticated_argument;          /* AuthenticatedArgument */
+static int hf_p1_authenticated_initiator_name;    /* MTAName */
+static int hf_p1_initiator_credentials;           /* InitiatorCredentials */
+static int hf_p1_security_context;                /* SecurityContext */
+static int hf_p1_authenticated_result;            /* AuthenticatedResult */
+static int hf_p1_authenticated_responder_name;    /* MTAName */
+static int hf_p1_responder_credentials;           /* ResponderCredentials */
+static int hf_p1_message;                         /* Message */
+static int hf_p1_probe;                           /* Probe */
+static int hf_p1_report;                          /* Report */
+static int hf_p1_message_envelope;                /* MessageTransferEnvelope */
+static int hf_p1_content;                         /* Content */
+static int hf_p1_report_envelope;                 /* ReportTransferEnvelope */
+static int hf_p1_report_content;                  /* ReportTransferContent */
+static int hf_p1_message_identifier;              /* MessageIdentifier */
+static int hf_p1_perMessageTransferFields_originator_name;  /* MTAOriginatorName */
+static int hf_p1_original_encoded_information_types;  /* OriginalEncodedInformationTypes */
+static int hf_p1_content_type;                    /* ContentType */
+static int hf_p1_content_identifier;              /* ContentIdentifier */
+static int hf_p1_priority;                        /* Priority */
+static int hf_p1_per_message_indicators;          /* PerMessageIndicators */
+static int hf_p1_deferred_delivery_time;          /* DeferredDeliveryTime */
+static int hf_p1_per_domain_bilateral_information;  /* SEQUENCE_SIZE_1_ub_transfers_OF_PerDomainBilateralInformation */
+static int hf_p1_per_domain_bilateral_information_item;  /* PerDomainBilateralInformation */
+static int hf_p1_trace_information;               /* TraceInformation */
+static int hf_p1_extensions;                      /* SET_OF_ExtensionField */
+static int hf_p1_extensions_item;                 /* ExtensionField */
+static int hf_p1_recipient_name;                  /* MTARecipientName */
+static int hf_p1_originally_specified_recipient_number;  /* OriginallySpecifiedRecipientNumber */
+static int hf_p1_per_recipient_indicators;        /* PerRecipientIndicators */
+static int hf_p1_explicit_conversion;             /* ExplicitConversion */
+static int hf_p1_probe_identifier;                /* ProbeIdentifier */
+static int hf_p1_perProbeTransferFields_originator_name;  /* MTAOriginatorName */
+static int hf_p1_content_length;                  /* ContentLength */
+static int hf_p1_report_identifier;               /* ReportIdentifier */
+static int hf_p1_report_destination_name;         /* ReportDestinationName */
+static int hf_p1_subject_identifier;              /* SubjectIdentifier */
+static int hf_p1_subject_intermediate_trace_information;  /* SubjectIntermediateTraceInformation */
+static int hf_p1_returned_content;                /* Content */
+static int hf_p1_additional_information;          /* AdditionalInformation */
+static int hf_p1_mta_actual_recipient_name;       /* MTAActualRecipientName */
+static int hf_p1_last_trace_information;          /* LastTraceInformation */
+static int hf_p1_report_originally_intended_recipient_name;  /* OriginallyIntendedRecipientName */
+static int hf_p1_supplementary_information;       /* SupplementaryInformation */
+static int hf_p1_country_name;                    /* CountryName */
+static int hf_p1_bilateral_domain;                /* T_bilateral_domain */
+static int hf_p1_administration_domain_name;      /* AdministrationDomainName */
+static int hf_p1_private_domain;                  /* T_private_domain */
+static int hf_p1_private_domain_identifier;       /* PrivateDomainIdentifier */
+static int hf_p1_bilateral_information;           /* T_bilateral_information */
+static int hf_p1_arrival_time;                    /* ArrivalTime */
+static int hf_p1_converted_encoded_information_types;  /* ConvertedEncodedInformationTypes */
+static int hf_p1_trace_report_type;               /* ReportType */
+static int hf_p1_InternalTraceInformation_item;   /* InternalTraceInformationElement */
+static int hf_p1_global_domain_identifier;        /* GlobalDomainIdentifier */
+static int hf_p1_mta_name;                        /* MTAName */
+static int hf_p1_mta_supplied_information;        /* MTASuppliedInformation */
+static int hf_p1__untag_item;                     /* TraceInformationElement */
+static int hf_p1_domain_supplied_information;     /* DomainSuppliedInformation */
+static int hf_p1_deferred_time;                   /* DeferredTime */
+static int hf_p1_other_actions;                   /* OtherActions */
+static int hf_p1_initiator_name;                  /* ObjectName */
+static int hf_p1_messages_waiting;                /* MessagesWaiting */
+static int hf_p1_responder_name;                  /* ObjectName */
+static int hf_p1_user_agent;                      /* ORAddressAndOptionalDirectoryName */
+static int hf_p1_mTA;                             /* MTAName */
+static int hf_p1_message_store;                   /* ORAddressAndOptionalDirectoryName */
+static int hf_p1_urgent;                          /* DeliveryQueue */
+static int hf_p1_normal;                          /* DeliveryQueue */
+static int hf_p1_non_urgent;                      /* DeliveryQueue */
+static int hf_p1_messages;                        /* INTEGER_0_ub_queue_size */
+static int hf_p1_delivery_queue_octets;           /* INTEGER_0_ub_content_length */
+static int hf_p1_simple;                          /* Password */
+static int hf_p1_strong;                          /* StrongCredentials */
+static int hf_p1_protected;                       /* ProtectedPassword */
+static int hf_p1_ia5_string;                      /* IA5String_SIZE_0_ub_password_length */
+static int hf_p1_octet_string;                    /* OCTET_STRING_SIZE_0_ub_password_length */
+static int hf_p1_bind_token;                      /* Token */
+static int hf_p1_certificate;                     /* Certificates */
+static int hf_p1_certificate_selector;            /* CertificateAssertion */
+static int hf_p1_signature;                       /* Signature */
+static int hf_p1_time1;                           /* UTCTime */
+static int hf_p1_time2;                           /* UTCTime */
+static int hf_p1_random1;                         /* BIT_STRING */
+static int hf_p1_random2;                         /* BIT_STRING */
+static int hf_p1_algorithmIdentifier;             /* AlgorithmIdentifier */
+static int hf_p1_encrypted;                       /* BIT_STRING */
+static int hf_p1_SecurityContext_item;            /* SecurityLabel */
+static int hf_p1_message_submission_envelope;     /* MessageSubmissionEnvelope */
+static int hf_p1_message_submission_identifier;   /* MessageSubmissionIdentifier */
+static int hf_p1_message_submission_time;         /* MessageSubmissionTime */
+static int hf_p1_probe_submission_identifier;     /* ProbeSubmissionIdentifier */
+static int hf_p1_probe_submission_time;           /* ProbeSubmissionTime */
+static int hf_p1_ImproperlySpecifiedRecipients_item;  /* RecipientName */
+static int hf_p1_waiting_operations;              /* Operations */
+static int hf_p1_waiting_messages;                /* WaitingMessages */
+static int hf_p1_waiting_content_types;           /* SET_SIZE_0_ub_content_types_OF_ContentType */
+static int hf_p1_waiting_content_types_item;      /* ContentType */
+static int hf_p1_waiting_encoded_information_types;  /* EncodedInformationTypes */
+static int hf_p1_recipient_certificate;           /* RecipientCertificate */
+static int hf_p1_proof_of_delivery;               /* ProofOfDelivery */
+static int hf_p1_empty_result;                    /* NULL */
+static int hf_p1_max_extensions;                  /* SET_SIZE_1_MAX_OF_ExtensionField */
+static int hf_p1_max_extensions_item;             /* ExtensionField */
+static int hf_p1_restrict;                        /* BOOLEAN */
+static int hf_p1_permissible_operations;          /* Operations */
+static int hf_p1_permissible_maximum_content_length;  /* ContentLength */
+static int hf_p1_permissible_lowest_priority;     /* Priority */
+static int hf_p1_permissible_content_types;       /* ContentTypes */
+static int hf_p1_permissible_encoded_information_types;  /* PermissibleEncodedInformationTypes */
+static int hf_p1_permissible_security_context;    /* SecurityContext */
+static int hf_p1_refused_argument;                /* T_refused_argument */
+static int hf_p1_built_in_argument;               /* RefusedArgument */
+static int hf_p1_refused_extension;               /* T_refused_extension */
+static int hf_p1_refusal_reason;                  /* RefusalReason */
+static int hf_p1_user_name;                       /* UserName */
+static int hf_p1_user_address;                    /* UserAddress */
+static int hf_p1_deliverable_class;               /* SET_SIZE_1_ub_deliverable_class_OF_DeliverableClass */
+static int hf_p1_deliverable_class_item;          /* DeliverableClass */
+static int hf_p1_default_delivery_controls;       /* DefaultDeliveryControls */
+static int hf_p1_redirections;                    /* Redirections */
+static int hf_p1_restricted_delivery;             /* RestrictedDelivery */
+static int hf_p1_retrieve_registrations;          /* RegistrationTypes */
+static int hf_p1_non_empty_result;                /* T_non_empty_result */
+static int hf_p1_registered_information;          /* RegisterArgument */
+static int hf_p1_old_credentials;                 /* Credentials */
+static int hf_p1_new_credentials;                 /* Credentials */
+static int hf_p1_x121;                            /* T_x121 */
+static int hf_p1_x121_address;                    /* T_x121_address */
+static int hf_p1_tsap_id;                         /* PrintableString_SIZE_1_ub_tsap_id_length */
+static int hf_p1_presentation;                    /* PSAPAddress */
+static int hf_p1_Redirections_item;               /* RecipientRedirection */
+static int hf_p1_redirection_classes;             /* SET_SIZE_1_ub_redirection_classes_OF_RedirectionClass */
+static int hf_p1_redirection_classes_item;        /* RedirectionClass */
+static int hf_p1_recipient_assigned_alternate_recipient;  /* RecipientAssignedAlternateRecipient */
+static int hf_p1_content_types;                   /* ContentTypes */
+static int hf_p1_maximum_content_length;          /* ContentLength */
+static int hf_p1_encoded_information_types_constraints;  /* EncodedInformationTypesConstraints */
+static int hf_p1_security_labels;                 /* SecurityContext */
+static int hf_p1_class_priority;                  /* SET_OF_Priority */
+static int hf_p1_class_priority_item;             /* Priority */
+static int hf_p1_objects;                         /* T_objects */
+static int hf_p1_applies_only_to;                 /* SEQUENCE_OF_Restriction */
+static int hf_p1_applies_only_to_item;            /* Restriction */
+static int hf_p1_unacceptable_eits;               /* ExtendedEncodedInformationTypes */
+static int hf_p1_acceptable_eits;                 /* ExtendedEncodedInformationTypes */
+static int hf_p1_exclusively_acceptable_eits;     /* ExtendedEncodedInformationTypes */
+static int hf_p1_RestrictedDelivery_item;         /* Restriction */
+static int hf_p1_permitted;                       /* BOOLEAN */
+static int hf_p1_source_type;                     /* T_source_type */
+static int hf_p1_source_name;                     /* ExactOrPattern */
+static int hf_p1_exact_match;                     /* ORName */
+static int hf_p1_pattern_match;                   /* ORName */
+static int hf_p1_standard_parameters;             /* T_standard_parameters */
+static int hf_p1_type_extensions;                 /* T_type_extensions */
+static int hf_p1_type_extensions_item;            /* T_type_extensions_item */
+static int hf_p1_perMessageSubmissionFields_originator_name;  /* OriginatorName */
+static int hf_p1_submission_recipient_name;       /* RecipientName */
+static int hf_p1_originator_report_request;       /* OriginatorReportRequest */
+static int hf_p1_perProbeSubmissionFields_originator_name;  /* OriginatorName */
+static int hf_p1_probe_recipient_name;            /* RecipientName */
+static int hf_p1_message_delivery_identifier;     /* MessageDeliveryIdentifier */
+static int hf_p1_message_delivery_time;           /* MessageDeliveryTime */
+static int hf_p1_other_fields;                    /* OtherMessageDeliveryFields */
+static int hf_p1_delivered_content_type;          /* DeliveredContentType */
+static int hf_p1_delivered_originator_name;       /* DeliveredOriginatorName */
+static int hf_p1_delivery_flags;                  /* DeliveryFlags */
+static int hf_p1_other_recipient_names;           /* OtherRecipientNames */
+static int hf_p1_this_recipient_name;             /* ThisRecipientName */
+static int hf_p1_originally_intended_recipient_name;  /* OriginallyIntendedRecipientName */
+static int hf_p1_subject_submission_identifier;   /* SubjectSubmissionIdentifier */
+static int hf_p1_actual_recipient_name;           /* ActualRecipientName */
+static int hf_p1_delivery_report_type;            /* ReportType */
+static int hf_p1_delivery;                        /* DeliveryReport */
+static int hf_p1_non_delivery;                    /* NonDeliveryReport */
+static int hf_p1_type_of_MTS_user;                /* TypeOfMTSUser */
+static int hf_p1_non_delivery_reason_code;        /* NonDeliveryReasonCode */
+static int hf_p1_non_delivery_diagnostic_code;    /* NonDeliveryDiagnosticCode */
+static int hf_p1_ContentTypes_item;               /* ContentType */
+static int hf_p1_built_in;                        /* BuiltInContentType */
+static int hf_p1_extended;                        /* ExtendedContentType */
+static int hf_p1_OtherRecipientNames_item;        /* OtherRecipientName */
+static int hf_p1_standard_extension;              /* StandardExtension */
+static int hf_p1_private_extension;               /* T_private_extension */
+static int hf_p1_extension_type;                  /* ExtensionType */
+static int hf_p1_criticality;                     /* Criticality */
+static int hf_p1_extension_value;                 /* ExtensionValue */
+static int hf_p1_RequestedDeliveryMethod_item;    /* RequestedDeliveryMethod_item */
+static int hf_p1_ia5text;                         /* IA5String */
+static int hf_p1_octets;                          /* OCTET_STRING */
+static int hf_p1_RedirectionHistory_item;         /* Redirection */
+static int hf_p1_intended_recipient_name;         /* IntendedRecipientName */
+static int hf_p1_redirection_reason;              /* RedirectionReason */
+static int hf_p1_intended_recipient;              /* ORAddressAndOptionalDirectoryName */
+static int hf_p1_redirection_time;                /* Time */
+static int hf_p1_DLExpansionHistory_item;         /* DLExpansion */
+static int hf_p1_dl;                              /* ORAddressAndOptionalDirectoryName */
+static int hf_p1_dl_expansion_time;               /* Time */
+static int hf_p1_OriginatorAndDLExpansionHistory_item;  /* OriginatorAndDLExpansion */
+static int hf_p1_originator_or_dl_name;           /* ORAddressAndOptionalDirectoryName */
+static int hf_p1_origination_or_expansion_time;   /* Time */
+static int hf_p1_domain;                          /* GlobalDomainIdentifier */
+static int hf_p1_mta_directory_name;              /* Name */
+static int hf_p1_ExtendedCertificates_item;       /* ExtendedCertificate */
+static int hf_p1_directory_entry;                 /* Name */
+static int hf_p1_DLExemptedRecipients_item;       /* ORAddressAndOrDirectoryName */
+static int hf_p1_encryption_recipient;            /* CertificateAssertion */
+static int hf_p1_encryption_originator;           /* CertificateAssertion */
+static int hf_p1_selectors_content_integrity_check;  /* CertificateAssertion */
+static int hf_p1_token_signature;                 /* CertificateAssertion */
+static int hf_p1_message_origin_authentication;   /* CertificateAssertion */
+static int hf_p1_local_identifier;                /* LocalIdentifier */
+static int hf_p1_numeric_private_domain_identifier;  /* T_numeric_private_domain_identifier */
+static int hf_p1_printable_private_domain_identifier;  /* T_printable_private_domain_identifier */
+static int hf_p1_built_in_standard_attributes;    /* BuiltInStandardAttributes */
+static int hf_p1_built_in_domain_defined_attributes;  /* BuiltInDomainDefinedAttributes */
+static int hf_p1_extension_attributes;            /* ExtensionAttributes */
+static int hf_p1_network_address;                 /* NetworkAddress */
+static int hf_p1_terminal_identifier;             /* TerminalIdentifier */
+static int hf_p1_private_domain_name;             /* PrivateDomainName */
+static int hf_p1_organization_name;               /* OrganizationName */
+static int hf_p1_numeric_user_identifier;         /* NumericUserIdentifier */
+static int hf_p1_personal_name;                   /* PersonalName */
+static int hf_p1_organizational_unit_names;       /* OrganizationalUnitNames */
+static int hf_p1_x121_dcc_code;                   /* T_x121_dcc_code */
+static int hf_p1_iso_3166_alpha2_code;            /* T_iso_3166_alpha2_code */
+static int hf_p1_numeric;                         /* T_numeric */
+static int hf_p1_printable;                       /* T_printable */
+static int hf_p1_numeric_private_domain_name;     /* T_numeric_private_domain_name */
+static int hf_p1_printable_private_domain_name;   /* T_printable_private_domain_name */
+static int hf_p1_printable_surname;               /* T_printable_surname */
+static int hf_p1_printable_given_name;            /* T_printable_given_name */
+static int hf_p1_printable_initials;              /* T_printable_initials */
+static int hf_p1_printable_generation_qualifier;  /* T_printable_generation_qualifier */
+static int hf_p1_OrganizationalUnitNames_item;    /* OrganizationalUnitName */
+static int hf_p1_BuiltInDomainDefinedAttributes_item;  /* BuiltInDomainDefinedAttribute */
+static int hf_p1_printable_type;                  /* T_printable_type */
+static int hf_p1_printable_value;                 /* T_printable_value */
+static int hf_p1_ExtensionAttributes_item;        /* ExtensionAttribute */
+static int hf_p1_extension_attribute_type;        /* ExtensionAttributeType */
+static int hf_p1_extension_attribute_value;       /* T_extension_attribute_value */
+static int hf_p1_teletex_surname;                 /* T_teletex_surname */
+static int hf_p1_teletex_given_name;              /* T_teletex_given_name */
+static int hf_p1_teletex_initials;                /* T_teletex_initials */
+static int hf_p1_teletex_generation_qualifier;    /* T_teletex_generation_qualifier */
+static int hf_p1_universal_surname;               /* UniversalOrBMPString */
+static int hf_p1_universal_given_name;            /* UniversalOrBMPString */
+static int hf_p1_universal_initials;              /* UniversalOrBMPString */
+static int hf_p1_universal_generation_qualifier;  /* UniversalOrBMPString */
+static int hf_p1_TeletexOrganizationalUnitNames_item;  /* TeletexOrganizationalUnitName */
+static int hf_p1_UniversalOrganizationalUnitNames_item;  /* UniversalOrganizationalUnitName */
+static int hf_p1_character_encoding;              /* T_character_encoding */
+static int hf_p1_two_octets;                      /* BMPString_SIZE_1_ub_string_length */
+static int hf_p1_four_octets;                     /* UniversalString_SIZE_1_ub_string_length */
+static int hf_p1_iso_639_language_code;           /* PrintableString_SIZE_CONSTR001 */
+static int hf_p1_x121_dcc_code_01;                /* T_x121_dcc_code_01 */
+static int hf_p1_iso_3166_alpha2_code_01;         /* T_iso_3166_alpha2_code_01 */
+static int hf_p1_numeric_code;                    /* T_numeric_code */
+static int hf_p1_printable_code;                  /* PrintableString_SIZE_1_ub_postal_code_length */
+static int hf_p1_printable_address;               /* T_printable_address */
+static int hf_p1_printable_address_item;          /* PrintableString_SIZE_1_ub_pds_parameter_length */
+static int hf_p1_teletex_string;                  /* TeletexString_SIZE_1_ub_unformatted_address_length */
+static int hf_p1_printable_string;                /* PrintableString_SIZE_1_ub_pds_parameter_length */
+static int hf_p1_pds_teletex_string;              /* TeletexString_SIZE_1_ub_pds_parameter_length */
+static int hf_p1_e163_4_address;                  /* T_e163_4_address */
+static int hf_p1_number;                          /* NumericString_SIZE_1_ub_e163_4_number_length */
+static int hf_p1_sub_address;                     /* NumericString_SIZE_1_ub_e163_4_sub_address_length */
+static int hf_p1_psap_address;                    /* PresentationAddress */
+static int hf_p1_TeletexDomainDefinedAttributes_item;  /* TeletexDomainDefinedAttribute */
+static int hf_p1_type;                            /* T_type */
+static int hf_p1_teletex_value;                   /* T_teletex_value */
+static int hf_p1_UniversalDomainDefinedAttributes_item;  /* UniversalDomainDefinedAttribute */
+static int hf_p1_universal_type;                  /* UniversalOrBMPString */
+static int hf_p1_universal_value;                 /* UniversalOrBMPString */
+static int hf_p1_ExtendedEncodedInformationTypes_item;  /* ExtendedEncodedInformationType */
+static int hf_p1_g3_facsimile;                    /* G3FacsimileNonBasicParameters */
+static int hf_p1_teletex;                         /* TeletexNonBasicParameters */
+static int hf_p1_graphic_character_sets;          /* TeletexString */
+static int hf_p1_control_character_sets;          /* TeletexString */
+static int hf_p1_page_formats;                    /* OCTET_STRING */
+static int hf_p1_miscellaneous_terminal_capabilities;  /* TeletexString */
+static int hf_p1_private_use;                     /* OCTET_STRING */
+static int hf_p1_token_type_identifier;           /* TokenTypeIdentifier */
+static int hf_p1_token;                           /* TokenTypeData */
+static int hf_p1_signature_algorithm_identifier;  /* AlgorithmIdentifier */
+static int hf_p1_name;                            /* T_name */
+static int hf_p1_token_recipient_name;            /* RecipientName */
+static int hf_p1_token_mta;                       /* MTANameAndOptionalGDI */
+static int hf_p1_time;                            /* Time */
+static int hf_p1_signed_data;                     /* TokenData */
+static int hf_p1_encryption_algorithm_identifier;  /* AlgorithmIdentifier */
+static int hf_p1_encrypted_data;                  /* BIT_STRING */
+static int hf_p1_asymmetric_token_data;           /* AsymmetricTokenData */
+static int hf_p1_algorithm_identifier;            /* AlgorithmIdentifier */
+static int hf_p1_token_data_type;                 /* TokenDataType */
+static int hf_p1_value;                           /* T_value */
+static int hf_p1_content_confidentiality_algorithm_identifier;  /* ContentConfidentialityAlgorithmIdentifier */
+static int hf_p1_content_integrity_check;         /* ContentIntegrityCheck */
+static int hf_p1_message_security_label;          /* MessageSecurityLabel */
+static int hf_p1_proof_of_delivery_request;       /* ProofOfDeliveryRequest */
+static int hf_p1_message_sequence_number;         /* INTEGER */
+static int hf_p1_content_confidentiality_key;     /* EncryptionKey */
+static int hf_p1_content_integrity_key;           /* EncryptionKey */
+static int hf_p1_security_policy_identifier;      /* SecurityPolicyIdentifier */
+static int hf_p1_security_classification;         /* SecurityClassification */
+static int hf_p1_privacy_mark;                    /* PrivacyMark */
+static int hf_p1_security_categories;             /* SecurityCategories */
+static int hf_p1_SecurityCategories_item;         /* SecurityCategory */
+static int hf_p1_category_type;                   /* SecurityCategoryIdentifier */
+static int hf_p1_category_value;                  /* CategoryValue */
+static int hf_p1_mta_originator_name;             /* MTAOriginatorName */
+static int hf_p1_per_recipient_message_fields;    /* SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientMessageTransferFields */
+static int hf_p1_per_recipient_message_fields_item;  /* PerRecipientMessageTransferFields */
+static int hf_p1_per_recipient_probe_transfer_fields;  /* SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeTransferFields */
+static int hf_p1_per_recipient_probe_transfer_fields_item;  /* PerRecipientProbeTransferFields */
+static int hf_p1_per_recipient_report_fields;     /* SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientReportTransferFields */
+static int hf_p1_per_recipient_report_fields_item;  /* PerRecipientReportTransferFields */
+static int hf_p1_routing_action;                  /* RoutingAction */
+static int hf_p1_attempted;                       /* T_attempted */
+static int hf_p1_mta;                             /* MTAName */
+static int hf_p1_attempted_domain;                /* GlobalDomainIdentifier */
+static int hf_p1_per_recipient_report_delivery_fields;  /* SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientReportDeliveryFields */
+static int hf_p1_per_recipient_report_delivery_fields_item;  /* PerRecipientReportDeliveryFields */
+static int hf_p1_mts_originator_name;             /* OriginatorName */
+static int hf_p1_per_recipient_message_submission_fields;  /* SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientMessageSubmissionFields */
+static int hf_p1_per_recipient_message_submission_fields_item;  /* PerRecipientMessageSubmissionFields */
+static int hf_p1_per_recipient_probe_submission_fields;  /* SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields */
+static int hf_p1_per_recipient_probe_submission_fields_item;  /* PerRecipientProbeSubmissionFields */
+static int hf_p1_directory_name;                  /* Name */
+static int hf_p1_built_in_encoded_information_types;  /* BuiltInEncodedInformationTypes */
+static int hf_p1_extended_encoded_information_types;  /* ExtendedEncodedInformationTypes */
 /* named bits */
-static int hf_p1_PerRecipientIndicators_responsibility = -1;
-static int hf_p1_PerRecipientIndicators_originating_MTA_report = -1;
-static int hf_p1_PerRecipientIndicators_originating_MTA_non_delivery_report = -1;
-static int hf_p1_PerRecipientIndicators_originator_report = -1;
-static int hf_p1_PerRecipientIndicators_originator_non_delivery_report = -1;
-static int hf_p1_PerRecipientIndicators_reserved_5 = -1;
-static int hf_p1_PerRecipientIndicators_reserved_6 = -1;
-static int hf_p1_PerRecipientIndicators_reserved_7 = -1;
-static int hf_p1_OtherActions_redirected = -1;
-static int hf_p1_OtherActions_dl_operation = -1;
-static int hf_p1_Operations_probe_submission_or_report_delivery = -1;
-static int hf_p1_Operations_message_submission_or_message_delivery = -1;
-static int hf_p1_WaitingMessages_long_content = -1;
-static int hf_p1_WaitingMessages_low_priority = -1;
-static int hf_p1_WaitingMessages_other_security_labels = -1;
-static int hf_p1_T_source_type_originated_by = -1;
-static int hf_p1_T_source_type_redirected_by = -1;
-static int hf_p1_T_source_type_dl_expanded_by = -1;
-static int hf_p1_T_standard_parameters_user_name = -1;
-static int hf_p1_T_standard_parameters_user_address = -1;
-static int hf_p1_T_standard_parameters_deliverable_class = -1;
-static int hf_p1_T_standard_parameters_default_delivery_controls = -1;
-static int hf_p1_T_standard_parameters_redirections = -1;
-static int hf_p1_T_standard_parameters_restricted_delivery = -1;
-static int hf_p1_PerMessageIndicators_U_disclosure_of_other_recipients = -1;
-static int hf_p1_PerMessageIndicators_U_implicit_conversion_prohibited = -1;
-static int hf_p1_PerMessageIndicators_U_alternate_recipient_allowed = -1;
-static int hf_p1_PerMessageIndicators_U_content_return_request = -1;
-static int hf_p1_PerMessageIndicators_U_reserved = -1;
-static int hf_p1_PerMessageIndicators_U_bit_5 = -1;
-static int hf_p1_PerMessageIndicators_U_bit_6 = -1;
-static int hf_p1_PerMessageIndicators_U_service_message = -1;
-static int hf_p1_OriginatorReportRequest_spare_bit0 = -1;
-static int hf_p1_OriginatorReportRequest_spare_bit1 = -1;
-static int hf_p1_OriginatorReportRequest_spare_bit2 = -1;
-static int hf_p1_OriginatorReportRequest_report = -1;
-static int hf_p1_OriginatorReportRequest_non_delivery_report = -1;
-static int hf_p1_DeliveryFlags_spare_bit0 = -1;
-static int hf_p1_DeliveryFlags_implicit_conversion_prohibited = -1;
-static int hf_p1_Criticality_for_submission = -1;
-static int hf_p1_Criticality_for_transfer = -1;
-static int hf_p1_Criticality_for_delivery = -1;
-static int hf_p1_PhysicalDeliveryModes_ordinary_mail = -1;
-static int hf_p1_PhysicalDeliveryModes_special_delivery = -1;
-static int hf_p1_PhysicalDeliveryModes_express_mail = -1;
-static int hf_p1_PhysicalDeliveryModes_counter_collection = -1;
-static int hf_p1_PhysicalDeliveryModes_counter_collection_with_telephone_advice = -1;
-static int hf_p1_PhysicalDeliveryModes_counter_collection_with_telex_advice = -1;
-static int hf_p1_PhysicalDeliveryModes_counter_collection_with_teletex_advice = -1;
-static int hf_p1_PhysicalDeliveryModes_bureau_fax_delivery = -1;
-static int hf_p1_BuiltInEncodedInformationTypes_unknown = -1;
-static int hf_p1_BuiltInEncodedInformationTypes_telex = -1;
-static int hf_p1_BuiltInEncodedInformationTypes_ia5_text = -1;
-static int hf_p1_BuiltInEncodedInformationTypes_g3_facsimile = -1;
-static int hf_p1_BuiltInEncodedInformationTypes_g4_class_1 = -1;
-static int hf_p1_BuiltInEncodedInformationTypes_teletex = -1;
-static int hf_p1_BuiltInEncodedInformationTypes_videotex = -1;
-static int hf_p1_BuiltInEncodedInformationTypes_voice = -1;
-static int hf_p1_BuiltInEncodedInformationTypes_sfd = -1;
-static int hf_p1_BuiltInEncodedInformationTypes_mixed_mode = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit0 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit1 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit2 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit3 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit4 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit5 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit6 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit7 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_two_dimensional = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_fine_resolution = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit10 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit11 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit12 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit13 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit14 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit15 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit16 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit17 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit18 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit19 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_unlimited_length = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_b4_length = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_a3_width = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_b4_width = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit24 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_t6_coding = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit26 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit27 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit28 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit29 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_uncompressed = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit31 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit32 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit33 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit34 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit35 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit36 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_width_middle_864_of_1728 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_width_middle_1216_of_1728 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit39 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit40 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit41 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit42 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit43 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_resolution_type = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_resolution_400x400 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_resolution_300x300 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_resolution_8x15 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit48 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_edi = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_dtm = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_bft = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit52 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit53 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit54 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit55 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit56 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit57 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_mixed_mode = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit59 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_character_mode = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit61 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit62 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit63 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit64 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_twelve_bits = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_preferred_huffmann = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_full_colour = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_jpeg = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit69 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_spare_bit70 = -1;
-static int hf_p1_G3FacsimileNonBasicParameters_processable_mode_26 = -1;
+static int hf_p1_PerRecipientIndicators_responsibility;
+static int hf_p1_PerRecipientIndicators_originating_MTA_report;
+static int hf_p1_PerRecipientIndicators_originating_MTA_non_delivery_report;
+static int hf_p1_PerRecipientIndicators_originator_report;
+static int hf_p1_PerRecipientIndicators_originator_non_delivery_report;
+static int hf_p1_PerRecipientIndicators_reserved_5;
+static int hf_p1_PerRecipientIndicators_reserved_6;
+static int hf_p1_PerRecipientIndicators_reserved_7;
+static int hf_p1_OtherActions_redirected;
+static int hf_p1_OtherActions_dl_operation;
+static int hf_p1_Operations_probe_submission_or_report_delivery;
+static int hf_p1_Operations_message_submission_or_message_delivery;
+static int hf_p1_WaitingMessages_long_content;
+static int hf_p1_WaitingMessages_low_priority;
+static int hf_p1_WaitingMessages_other_security_labels;
+static int hf_p1_T_source_type_originated_by;
+static int hf_p1_T_source_type_redirected_by;
+static int hf_p1_T_source_type_dl_expanded_by;
+static int hf_p1_T_standard_parameters_user_name;
+static int hf_p1_T_standard_parameters_user_address;
+static int hf_p1_T_standard_parameters_deliverable_class;
+static int hf_p1_T_standard_parameters_default_delivery_controls;
+static int hf_p1_T_standard_parameters_redirections;
+static int hf_p1_T_standard_parameters_restricted_delivery;
+static int hf_p1_PerMessageIndicators_U_disclosure_of_other_recipients;
+static int hf_p1_PerMessageIndicators_U_implicit_conversion_prohibited;
+static int hf_p1_PerMessageIndicators_U_alternate_recipient_allowed;
+static int hf_p1_PerMessageIndicators_U_content_return_request;
+static int hf_p1_PerMessageIndicators_U_reserved;
+static int hf_p1_PerMessageIndicators_U_bit_5;
+static int hf_p1_PerMessageIndicators_U_bit_6;
+static int hf_p1_PerMessageIndicators_U_service_message;
+static int hf_p1_OriginatorReportRequest_spare_bit0;
+static int hf_p1_OriginatorReportRequest_spare_bit1;
+static int hf_p1_OriginatorReportRequest_spare_bit2;
+static int hf_p1_OriginatorReportRequest_report;
+static int hf_p1_OriginatorReportRequest_non_delivery_report;
+static int hf_p1_DeliveryFlags_spare_bit0;
+static int hf_p1_DeliveryFlags_implicit_conversion_prohibited;
+static int hf_p1_Criticality_for_submission;
+static int hf_p1_Criticality_for_transfer;
+static int hf_p1_Criticality_for_delivery;
+static int hf_p1_PhysicalDeliveryModes_ordinary_mail;
+static int hf_p1_PhysicalDeliveryModes_special_delivery;
+static int hf_p1_PhysicalDeliveryModes_express_mail;
+static int hf_p1_PhysicalDeliveryModes_counter_collection;
+static int hf_p1_PhysicalDeliveryModes_counter_collection_with_telephone_advice;
+static int hf_p1_PhysicalDeliveryModes_counter_collection_with_telex_advice;
+static int hf_p1_PhysicalDeliveryModes_counter_collection_with_teletex_advice;
+static int hf_p1_PhysicalDeliveryModes_bureau_fax_delivery;
+static int hf_p1_BuiltInEncodedInformationTypes_unknown;
+static int hf_p1_BuiltInEncodedInformationTypes_telex;
+static int hf_p1_BuiltInEncodedInformationTypes_ia5_text;
+static int hf_p1_BuiltInEncodedInformationTypes_g3_facsimile;
+static int hf_p1_BuiltInEncodedInformationTypes_g4_class_1;
+static int hf_p1_BuiltInEncodedInformationTypes_teletex;
+static int hf_p1_BuiltInEncodedInformationTypes_videotex;
+static int hf_p1_BuiltInEncodedInformationTypes_voice;
+static int hf_p1_BuiltInEncodedInformationTypes_sfd;
+static int hf_p1_BuiltInEncodedInformationTypes_mixed_mode;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit0;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit2;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit3;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit4;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit5;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit6;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit7;
+static int hf_p1_G3FacsimileNonBasicParameters_two_dimensional;
+static int hf_p1_G3FacsimileNonBasicParameters_fine_resolution;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit10;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit11;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit12;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit13;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit14;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit15;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit16;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit17;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit18;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit19;
+static int hf_p1_G3FacsimileNonBasicParameters_unlimited_length;
+static int hf_p1_G3FacsimileNonBasicParameters_b4_length;
+static int hf_p1_G3FacsimileNonBasicParameters_a3_width;
+static int hf_p1_G3FacsimileNonBasicParameters_b4_width;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit24;
+static int hf_p1_G3FacsimileNonBasicParameters_t6_coding;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit26;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit27;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit28;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit29;
+static int hf_p1_G3FacsimileNonBasicParameters_uncompressed;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit31;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit32;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit33;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit34;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit35;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit36;
+static int hf_p1_G3FacsimileNonBasicParameters_width_middle_864_of_1728;
+static int hf_p1_G3FacsimileNonBasicParameters_width_middle_1216_of_1728;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit39;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit40;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit41;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit42;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit43;
+static int hf_p1_G3FacsimileNonBasicParameters_resolution_type;
+static int hf_p1_G3FacsimileNonBasicParameters_resolution_400x400;
+static int hf_p1_G3FacsimileNonBasicParameters_resolution_300x300;
+static int hf_p1_G3FacsimileNonBasicParameters_resolution_8x15;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit48;
+static int hf_p1_G3FacsimileNonBasicParameters_edi;
+static int hf_p1_G3FacsimileNonBasicParameters_dtm;
+static int hf_p1_G3FacsimileNonBasicParameters_bft;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit52;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit53;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit54;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit55;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit56;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit57;
+static int hf_p1_G3FacsimileNonBasicParameters_mixed_mode;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit59;
+static int hf_p1_G3FacsimileNonBasicParameters_character_mode;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit61;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit62;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit63;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit64;
+static int hf_p1_G3FacsimileNonBasicParameters_twelve_bits;
+static int hf_p1_G3FacsimileNonBasicParameters_preferred_huffmann;
+static int hf_p1_G3FacsimileNonBasicParameters_full_colour;
+static int hf_p1_G3FacsimileNonBasicParameters_jpeg;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit69;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit70;
+static int hf_p1_G3FacsimileNonBasicParameters_processable_mode_26;
 
 /* Initialize the subtree pointers */
-static gint ett_p1 = -1;
-static gint ett_p3 = -1;
-static gint ett_p1_content_unknown = -1;
-static gint ett_p1_bilateral_information = -1;
-static gint ett_p1_additional_information = -1;
-static gint ett_p1_unknown_standard_extension = -1;
-static gint ett_p1_unknown_extension_attribute_type = -1;
-static gint ett_p1_unknown_tokendata_type = -1;
-static gint ett_p1_MTABindArgument = -1;
-static gint ett_p1_AuthenticatedArgument = -1;
-static gint ett_p1_MTABindResult = -1;
-static gint ett_p1_AuthenticatedResult = -1;
-static gint ett_p1_MTS_APDU = -1;
-static gint ett_p1_Message = -1;
-static gint ett_p1_Report = -1;
-static gint ett_p1_MessageTransferEnvelope = -1;
-static gint ett_p1_PerMessageTransferFields = -1;
-static gint ett_p1_SEQUENCE_SIZE_1_ub_transfers_OF_PerDomainBilateralInformation = -1;
-static gint ett_p1_SET_OF_ExtensionField = -1;
-static gint ett_p1_PerRecipientMessageTransferFields = -1;
-static gint ett_p1_ProbeTransferEnvelope = -1;
-static gint ett_p1_PerProbeTransferFields = -1;
-static gint ett_p1_PerRecipientProbeTransferFields = -1;
-static gint ett_p1_ReportTransferEnvelope = -1;
-static gint ett_p1_ReportTransferContent = -1;
-static gint ett_p1_PerReportTransferFields = -1;
-static gint ett_p1_PerRecipientReportTransferFields = -1;
-static gint ett_p1_PerDomainBilateralInformation = -1;
-static gint ett_p1_T_bilateral_domain = -1;
-static gint ett_p1_T_private_domain = -1;
-static gint ett_p1_PerRecipientIndicators = -1;
-static gint ett_p1_LastTraceInformation = -1;
-static gint ett_p1_InternalTraceInformation = -1;
-static gint ett_p1_InternalTraceInformationElement = -1;
-static gint ett_p1_MTASuppliedInformation = -1;
-static gint ett_p1_SEQUENCE_SIZE_1_ub_transfers_OF_TraceInformationElement = -1;
-static gint ett_p1_TraceInformationElement = -1;
-static gint ett_p1_DomainSuppliedInformation = -1;
-static gint ett_p1_AdditionalActions = -1;
-static gint ett_p1_OtherActions = -1;
-static gint ett_p1_MTSBindArgument = -1;
-static gint ett_p1_MTSBindResult = -1;
-static gint ett_p1_ObjectName = -1;
-static gint ett_p1_MessagesWaiting = -1;
-static gint ett_p1_DeliveryQueue = -1;
-static gint ett_p1_Credentials = -1;
-static gint ett_p1_Password = -1;
-static gint ett_p1_StrongCredentials = -1;
-static gint ett_p1_ProtectedPassword = -1;
-static gint ett_p1_Signature = -1;
-static gint ett_p1_SecurityContext = -1;
-static gint ett_p1_MessageSubmissionArgument = -1;
-static gint ett_p1_MessageSubmissionResult = -1;
-static gint ett_p1_ProbeSubmissionResult = -1;
-static gint ett_p1_ImproperlySpecifiedRecipients = -1;
-static gint ett_p1_Waiting = -1;
-static gint ett_p1_SET_SIZE_0_ub_content_types_OF_ContentType = -1;
-static gint ett_p1_Operations = -1;
-static gint ett_p1_WaitingMessages = -1;
-static gint ett_p1_MessageDeliveryArgument = -1;
-static gint ett_p1_MessageDeliveryResult = -1;
-static gint ett_p1_ReportDeliveryArgument = -1;
-static gint ett_p1_ReportDeliveryResult = -1;
-static gint ett_p1_SET_SIZE_1_MAX_OF_ExtensionField = -1;
-static gint ett_p1_DeliveryControlArgument = -1;
-static gint ett_p1_DeliveryControlResult = -1;
-static gint ett_p1_RefusedOperation = -1;
-static gint ett_p1_T_refused_argument = -1;
-static gint ett_p1_Controls = -1;
-static gint ett_p1_RegisterArgument = -1;
-static gint ett_p1_SET_SIZE_1_ub_deliverable_class_OF_DeliverableClass = -1;
-static gint ett_p1_RegisterResult = -1;
-static gint ett_p1_T_non_empty_result = -1;
-static gint ett_p1_ChangeCredentialsArgument = -1;
-static gint ett_p1_UserAddress = -1;
-static gint ett_p1_T_x121 = -1;
-static gint ett_p1_Redirections = -1;
-static gint ett_p1_RecipientRedirection = -1;
-static gint ett_p1_SET_SIZE_1_ub_redirection_classes_OF_RedirectionClass = -1;
-static gint ett_p1_MessageClass = -1;
-static gint ett_p1_SET_OF_Priority = -1;
-static gint ett_p1_SEQUENCE_OF_Restriction = -1;
-static gint ett_p1_EncodedInformationTypesConstraints = -1;
-static gint ett_p1_RestrictedDelivery = -1;
-static gint ett_p1_Restriction = -1;
-static gint ett_p1_T_source_type = -1;
-static gint ett_p1_ExactOrPattern = -1;
-static gint ett_p1_RegistrationTypes = -1;
-static gint ett_p1_T_standard_parameters = -1;
-static gint ett_p1_T_type_extensions = -1;
-static gint ett_p1_MessageSubmissionEnvelope = -1;
-static gint ett_p1_PerMessageSubmissionFields = -1;
-static gint ett_p1_PerRecipientMessageSubmissionFields = -1;
-static gint ett_p1_ProbeSubmissionEnvelope = -1;
-static gint ett_p1_PerProbeSubmissionFields = -1;
-static gint ett_p1_PerRecipientProbeSubmissionFields = -1;
-static gint ett_p1_MessageDeliveryEnvelope = -1;
-static gint ett_p1_OtherMessageDeliveryFields = -1;
-static gint ett_p1_ReportDeliveryEnvelope = -1;
-static gint ett_p1_PerReportDeliveryFields = -1;
-static gint ett_p1_PerRecipientReportDeliveryFields = -1;
-static gint ett_p1_ReportType = -1;
-static gint ett_p1_DeliveryReport = -1;
-static gint ett_p1_NonDeliveryReport = -1;
-static gint ett_p1_ContentTypes = -1;
-static gint ett_p1_ContentType = -1;
-static gint ett_p1_DeliveredContentType = -1;
-static gint ett_p1_PerMessageIndicators_U = -1;
-static gint ett_p1_OriginatorReportRequest = -1;
-static gint ett_p1_DeliveryFlags = -1;
-static gint ett_p1_OtherRecipientNames = -1;
-static gint ett_p1_ExtensionType = -1;
-static gint ett_p1_Criticality = -1;
-static gint ett_p1_ExtensionField = -1;
-static gint ett_p1_RequestedDeliveryMethod = -1;
-static gint ett_p1_PhysicalDeliveryModes = -1;
-static gint ett_p1_ContentCorrelator = -1;
-static gint ett_p1_RedirectionHistory = -1;
-static gint ett_p1_Redirection = -1;
-static gint ett_p1_IntendedRecipientName = -1;
-static gint ett_p1_DLExpansionHistory = -1;
-static gint ett_p1_DLExpansion = -1;
-static gint ett_p1_OriginatorAndDLExpansionHistory = -1;
-static gint ett_p1_OriginatorAndDLExpansion = -1;
-static gint ett_p1_PerRecipientDeliveryReportFields = -1;
-static gint ett_p1_PerRecipientNonDeliveryReportFields = -1;
-static gint ett_p1_ReportingMTAName = -1;
-static gint ett_p1_ExtendedCertificates = -1;
-static gint ett_p1_ExtendedCertificate = -1;
-static gint ett_p1_DLExemptedRecipients = -1;
-static gint ett_p1_CertificateSelectors = -1;
-static gint ett_p1_MTSIdentifier_U = -1;
-static gint ett_p1_GlobalDomainIdentifier_U = -1;
-static gint ett_p1_PrivateDomainIdentifier = -1;
-static gint ett_p1_ORName_U = -1;
-static gint ett_p1_ORAddress = -1;
-static gint ett_p1_BuiltInStandardAttributes = -1;
-static gint ett_p1_CountryName_U = -1;
-static gint ett_p1_AdministrationDomainName_U = -1;
-static gint ett_p1_PrivateDomainName = -1;
-static gint ett_p1_PersonalName = -1;
-static gint ett_p1_OrganizationalUnitNames = -1;
-static gint ett_p1_BuiltInDomainDefinedAttributes = -1;
-static gint ett_p1_BuiltInDomainDefinedAttribute = -1;
-static gint ett_p1_ExtensionAttributes = -1;
-static gint ett_p1_ExtensionAttribute = -1;
-static gint ett_p1_TeletexPersonalName = -1;
-static gint ett_p1_UniversalPersonalName = -1;
-static gint ett_p1_TeletexOrganizationalUnitNames = -1;
-static gint ett_p1_UniversalOrganizationalUnitNames = -1;
-static gint ett_p1_UniversalOrBMPString = -1;
-static gint ett_p1_T_character_encoding = -1;
-static gint ett_p1_PhysicalDeliveryCountryName = -1;
-static gint ett_p1_PostalCode = -1;
-static gint ett_p1_UnformattedPostalAddress = -1;
-static gint ett_p1_T_printable_address = -1;
-static gint ett_p1_PDSParameter = -1;
-static gint ett_p1_ExtendedNetworkAddress = -1;
-static gint ett_p1_T_e163_4_address = -1;
-static gint ett_p1_TeletexDomainDefinedAttributes = -1;
-static gint ett_p1_TeletexDomainDefinedAttribute = -1;
-static gint ett_p1_UniversalDomainDefinedAttributes = -1;
-static gint ett_p1_UniversalDomainDefinedAttribute = -1;
-static gint ett_p1_EncodedInformationTypes_U = -1;
-static gint ett_p1_BuiltInEncodedInformationTypes = -1;
-static gint ett_p1_ExtendedEncodedInformationTypes = -1;
-static gint ett_p1_NonBasicParameters = -1;
-static gint ett_p1_G3FacsimileNonBasicParameters = -1;
-static gint ett_p1_TeletexNonBasicParameters = -1;
-static gint ett_p1_Token = -1;
-static gint ett_p1_AsymmetricTokenData = -1;
-static gint ett_p1_T_name = -1;
-static gint ett_p1_MTANameAndOptionalGDI = -1;
-static gint ett_p1_AsymmetricToken = -1;
-static gint ett_p1_TokenData = -1;
-static gint ett_p1_MessageTokenSignedData = -1;
-static gint ett_p1_MessageTokenEncryptedData = -1;
-static gint ett_p1_SecurityLabel = -1;
-static gint ett_p1_SecurityCategories = -1;
-static gint ett_p1_SecurityCategory = -1;
-static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientMessageTransferFields = -1;
-static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeTransferFields = -1;
-static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientReportTransferFields = -1;
-static gint ett_p1_T_attempted = -1;
-static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientReportDeliveryFields = -1;
-static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientMessageSubmissionFields = -1;
-static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields = -1;
+static gint ett_p1;
+static gint ett_p3;
+static gint ett_p1_content_unknown;
+static gint ett_p1_bilateral_information;
+static gint ett_p1_additional_information;
+static gint ett_p1_unknown_standard_extension;
+static gint ett_p1_unknown_extension_attribute_type;
+static gint ett_p1_unknown_tokendata_type;
+static gint ett_p1_MTABindArgument;
+static gint ett_p1_AuthenticatedArgument;
+static gint ett_p1_MTABindResult;
+static gint ett_p1_AuthenticatedResult;
+static gint ett_p1_MTS_APDU;
+static gint ett_p1_Message;
+static gint ett_p1_Report;
+static gint ett_p1_MessageTransferEnvelope;
+static gint ett_p1_PerMessageTransferFields;
+static gint ett_p1_SEQUENCE_SIZE_1_ub_transfers_OF_PerDomainBilateralInformation;
+static gint ett_p1_SET_OF_ExtensionField;
+static gint ett_p1_PerRecipientMessageTransferFields;
+static gint ett_p1_ProbeTransferEnvelope;
+static gint ett_p1_PerProbeTransferFields;
+static gint ett_p1_PerRecipientProbeTransferFields;
+static gint ett_p1_ReportTransferEnvelope;
+static gint ett_p1_ReportTransferContent;
+static gint ett_p1_PerReportTransferFields;
+static gint ett_p1_PerRecipientReportTransferFields;
+static gint ett_p1_PerDomainBilateralInformation;
+static gint ett_p1_T_bilateral_domain;
+static gint ett_p1_T_private_domain;
+static gint ett_p1_PerRecipientIndicators;
+static gint ett_p1_LastTraceInformation;
+static gint ett_p1_InternalTraceInformation;
+static gint ett_p1_InternalTraceInformationElement;
+static gint ett_p1_MTASuppliedInformation;
+static gint ett_p1_SEQUENCE_SIZE_1_ub_transfers_OF_TraceInformationElement;
+static gint ett_p1_TraceInformationElement;
+static gint ett_p1_DomainSuppliedInformation;
+static gint ett_p1_AdditionalActions;
+static gint ett_p1_OtherActions;
+static gint ett_p1_MTSBindArgument;
+static gint ett_p1_MTSBindResult;
+static gint ett_p1_ObjectName;
+static gint ett_p1_MessagesWaiting;
+static gint ett_p1_DeliveryQueue;
+static gint ett_p1_Credentials;
+static gint ett_p1_Password;
+static gint ett_p1_StrongCredentials;
+static gint ett_p1_ProtectedPassword;
+static gint ett_p1_Signature;
+static gint ett_p1_SecurityContext;
+static gint ett_p1_MessageSubmissionArgument;
+static gint ett_p1_MessageSubmissionResult;
+static gint ett_p1_ProbeSubmissionResult;
+static gint ett_p1_ImproperlySpecifiedRecipients;
+static gint ett_p1_Waiting;
+static gint ett_p1_SET_SIZE_0_ub_content_types_OF_ContentType;
+static gint ett_p1_Operations;
+static gint ett_p1_WaitingMessages;
+static gint ett_p1_MessageDeliveryArgument;
+static gint ett_p1_MessageDeliveryResult;
+static gint ett_p1_ReportDeliveryArgument;
+static gint ett_p1_ReportDeliveryResult;
+static gint ett_p1_SET_SIZE_1_MAX_OF_ExtensionField;
+static gint ett_p1_DeliveryControlArgument;
+static gint ett_p1_DeliveryControlResult;
+static gint ett_p1_RefusedOperation;
+static gint ett_p1_T_refused_argument;
+static gint ett_p1_Controls;
+static gint ett_p1_RegisterArgument;
+static gint ett_p1_SET_SIZE_1_ub_deliverable_class_OF_DeliverableClass;
+static gint ett_p1_RegisterResult;
+static gint ett_p1_T_non_empty_result;
+static gint ett_p1_ChangeCredentialsArgument;
+static gint ett_p1_UserAddress;
+static gint ett_p1_T_x121;
+static gint ett_p1_Redirections;
+static gint ett_p1_RecipientRedirection;
+static gint ett_p1_SET_SIZE_1_ub_redirection_classes_OF_RedirectionClass;
+static gint ett_p1_MessageClass;
+static gint ett_p1_SET_OF_Priority;
+static gint ett_p1_SEQUENCE_OF_Restriction;
+static gint ett_p1_EncodedInformationTypesConstraints;
+static gint ett_p1_RestrictedDelivery;
+static gint ett_p1_Restriction;
+static gint ett_p1_T_source_type;
+static gint ett_p1_ExactOrPattern;
+static gint ett_p1_RegistrationTypes;
+static gint ett_p1_T_standard_parameters;
+static gint ett_p1_T_type_extensions;
+static gint ett_p1_MessageSubmissionEnvelope;
+static gint ett_p1_PerMessageSubmissionFields;
+static gint ett_p1_PerRecipientMessageSubmissionFields;
+static gint ett_p1_ProbeSubmissionEnvelope;
+static gint ett_p1_PerProbeSubmissionFields;
+static gint ett_p1_PerRecipientProbeSubmissionFields;
+static gint ett_p1_MessageDeliveryEnvelope;
+static gint ett_p1_OtherMessageDeliveryFields;
+static gint ett_p1_ReportDeliveryEnvelope;
+static gint ett_p1_PerReportDeliveryFields;
+static gint ett_p1_PerRecipientReportDeliveryFields;
+static gint ett_p1_ReportType;
+static gint ett_p1_DeliveryReport;
+static gint ett_p1_NonDeliveryReport;
+static gint ett_p1_ContentTypes;
+static gint ett_p1_ContentType;
+static gint ett_p1_DeliveredContentType;
+static gint ett_p1_PerMessageIndicators_U;
+static gint ett_p1_OriginatorReportRequest;
+static gint ett_p1_DeliveryFlags;
+static gint ett_p1_OtherRecipientNames;
+static gint ett_p1_ExtensionType;
+static gint ett_p1_Criticality;
+static gint ett_p1_ExtensionField;
+static gint ett_p1_RequestedDeliveryMethod;
+static gint ett_p1_PhysicalDeliveryModes;
+static gint ett_p1_ContentCorrelator;
+static gint ett_p1_RedirectionHistory;
+static gint ett_p1_Redirection;
+static gint ett_p1_IntendedRecipientName;
+static gint ett_p1_DLExpansionHistory;
+static gint ett_p1_DLExpansion;
+static gint ett_p1_OriginatorAndDLExpansionHistory;
+static gint ett_p1_OriginatorAndDLExpansion;
+static gint ett_p1_PerRecipientDeliveryReportFields;
+static gint ett_p1_PerRecipientNonDeliveryReportFields;
+static gint ett_p1_ReportingMTAName;
+static gint ett_p1_ExtendedCertificates;
+static gint ett_p1_ExtendedCertificate;
+static gint ett_p1_DLExemptedRecipients;
+static gint ett_p1_CertificateSelectors;
+static gint ett_p1_MTSIdentifier_U;
+static gint ett_p1_GlobalDomainIdentifier_U;
+static gint ett_p1_PrivateDomainIdentifier;
+static gint ett_p1_ORName_U;
+static gint ett_p1_ORAddress;
+static gint ett_p1_BuiltInStandardAttributes;
+static gint ett_p1_CountryName_U;
+static gint ett_p1_AdministrationDomainName_U;
+static gint ett_p1_PrivateDomainName;
+static gint ett_p1_PersonalName;
+static gint ett_p1_OrganizationalUnitNames;
+static gint ett_p1_BuiltInDomainDefinedAttributes;
+static gint ett_p1_BuiltInDomainDefinedAttribute;
+static gint ett_p1_ExtensionAttributes;
+static gint ett_p1_ExtensionAttribute;
+static gint ett_p1_TeletexPersonalName;
+static gint ett_p1_UniversalPersonalName;
+static gint ett_p1_TeletexOrganizationalUnitNames;
+static gint ett_p1_UniversalOrganizationalUnitNames;
+static gint ett_p1_UniversalOrBMPString;
+static gint ett_p1_T_character_encoding;
+static gint ett_p1_PhysicalDeliveryCountryName;
+static gint ett_p1_PostalCode;
+static gint ett_p1_UnformattedPostalAddress;
+static gint ett_p1_T_printable_address;
+static gint ett_p1_PDSParameter;
+static gint ett_p1_ExtendedNetworkAddress;
+static gint ett_p1_T_e163_4_address;
+static gint ett_p1_TeletexDomainDefinedAttributes;
+static gint ett_p1_TeletexDomainDefinedAttribute;
+static gint ett_p1_UniversalDomainDefinedAttributes;
+static gint ett_p1_UniversalDomainDefinedAttribute;
+static gint ett_p1_EncodedInformationTypes_U;
+static gint ett_p1_BuiltInEncodedInformationTypes;
+static gint ett_p1_ExtendedEncodedInformationTypes;
+static gint ett_p1_NonBasicParameters;
+static gint ett_p1_G3FacsimileNonBasicParameters;
+static gint ett_p1_TeletexNonBasicParameters;
+static gint ett_p1_Token;
+static gint ett_p1_AsymmetricTokenData;
+static gint ett_p1_T_name;
+static gint ett_p1_MTANameAndOptionalGDI;
+static gint ett_p1_AsymmetricToken;
+static gint ett_p1_TokenData;
+static gint ett_p1_MessageTokenSignedData;
+static gint ett_p1_MessageTokenEncryptedData;
+static gint ett_p1_SecurityLabel;
+static gint ett_p1_SecurityCategories;
+static gint ett_p1_SecurityCategory;
+static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientMessageTransferFields;
+static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeTransferFields;
+static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientReportTransferFields;
+static gint ett_p1_T_attempted;
+static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientReportDeliveryFields;
+static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientMessageSubmissionFields;
+static gint ett_p1_SEQUENCE_SIZE_1_ub_recipients_OF_PerRecipientProbeSubmissionFields;
 
-static expert_field ei_p1_unknown_extension_attribute_type = EI_INIT;
-static expert_field ei_p1_unknown_standard_extension = EI_INIT;
-static expert_field ei_p1_unknown_built_in_content_type = EI_INIT;
-static expert_field ei_p1_unknown_tokendata_type = EI_INIT;
-static expert_field ei_p1_unsupported_pdu = EI_INIT;
-static expert_field ei_p1_zero_pdu = EI_INIT;
+static expert_field ei_p1_unknown_extension_attribute_type;
+static expert_field ei_p1_unknown_standard_extension;
+static expert_field ei_p1_unknown_built_in_content_type;
+static expert_field ei_p1_unknown_tokendata_type;
+static expert_field ei_p1_unsupported_pdu;
+static expert_field ei_p1_zero_pdu;
 
 /* Dissector tables */
 static dissector_table_t p1_extension_dissector_table;

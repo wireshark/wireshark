@@ -38,598 +38,598 @@ void proto_register_ftam(void);
 void proto_reg_handoff_ftam(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_ftam = -1;
+static int proto_ftam;
 
 /* Declare the function to avoid a compiler warning */
 static int dissect_ftam_OR_Set(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 
-static int hf_ftam_unstructured_text = -1;              /* ISO FTAM unstructured text */
-static int hf_ftam_unstructured_binary = -1;            /* ISO FTAM unstructured binary */
-static int hf_ftam_fTAM_Regime_PDU = -1;          /* FTAM_Regime_PDU */
-static int hf_ftam_file_PDU = -1;                 /* File_PDU */
-static int hf_ftam_bulk_Data_PDU = -1;            /* Bulk_Data_PDU */
-static int hf_ftam_fSM_PDU = -1;                  /* FSM_PDU */
-static int hf_ftam_f_initialize_request = -1;     /* F_INITIALIZE_request */
-static int hf_ftam_f_initialize_response = -1;    /* F_INITIALIZE_response */
-static int hf_ftam_f_terminate_request = -1;      /* F_TERMINATE_request */
-static int hf_ftam_f_terminate_response = -1;     /* F_TERMINATE_response */
-static int hf_ftam_f_u_abort_request = -1;        /* F_U_ABORT_request */
-static int hf_ftam_f_p_abort_request = -1;        /* F_P_ABORT_request */
-static int hf_ftam_protocol_Version = -1;         /* Protocol_Version */
-static int hf_ftam_implementation_information = -1;  /* Implementation_Information */
-static int hf_ftam_presentation_tontext_management = -1;  /* BOOLEAN */
-static int hf_ftam_service_class = -1;            /* Service_Class */
-static int hf_ftam_functional_units = -1;         /* Functional_Units */
-static int hf_ftam_attribute_groups = -1;         /* Attribute_Groups */
-static int hf_ftam_shared_ASE_information = -1;   /* Shared_ASE_Information */
-static int hf_ftam_ftam_quality_of_Service = -1;  /* FTAM_Quality_of_Service */
-static int hf_ftam_contents_type_list = -1;       /* Contents_Type_List */
-static int hf_ftam_initiator_identity = -1;       /* User_Identity */
-static int hf_ftam_account = -1;                  /* Account */
-static int hf_ftam_filestore_password = -1;       /* Password */
-static int hf_ftam_checkpoint_window = -1;        /* INTEGER */
-static int hf_ftam_state_result = -1;             /* State_Result */
-static int hf_ftam_action_result = -1;            /* Action_Result */
-static int hf_ftam_diagnostic = -1;               /* Diagnostic */
-static int hf_ftam__untag_item = -1;              /* Contents_Type_List_item */
-static int hf_ftam_document_type_name = -1;       /* Document_Type_Name */
-static int hf_ftam_abstract_Syntax_name = -1;     /* Abstract_Syntax_Name */
-static int hf_ftam_charging = -1;                 /* Charging */
-static int hf_ftam_f_select_request = -1;         /* F_SELECT_request */
-static int hf_ftam_f_select_response = -1;        /* F_SELECT_response */
-static int hf_ftam_f_deselect_request = -1;       /* F_DESELECT_request */
-static int hf_ftam_f_deselect_response = -1;      /* F_DESELECT_response */
-static int hf_ftam_f_create_request = -1;         /* F_CREATE_request */
-static int hf_ftam_f_create_response = -1;        /* F_CREATE_response */
-static int hf_ftam_f_delete_request = -1;         /* F_DELETE_request */
-static int hf_ftam_f_delete_response = -1;        /* F_DELETE_response */
-static int hf_ftam_f_read_attrib_request = -1;    /* F_READ_ATTRIB_request */
-static int hf_ftam_f_read_attrib_response = -1;   /* F_READ_ATTRIB_response */
-static int hf_ftam_f_Change_attrib_reques = -1;   /* F_CHANGE_ATTRIB_request */
-static int hf_ftam_f_Change_attrib_respon = -1;   /* F_CHANGE_ATTRIB_response */
-static int hf_ftam_f_open_request = -1;           /* F_OPEN_request */
-static int hf_ftam_f_open_response = -1;          /* F_OPEN_response */
-static int hf_ftam_f_close_request = -1;          /* F_CLOSE_request */
-static int hf_ftam_f_close_response = -1;         /* F_CLOSE_response */
-static int hf_ftam_f_begin_group_request = -1;    /* F_BEGIN_GROUP_request */
-static int hf_ftam_f_begin_group_response = -1;   /* F_BEGIN_GROUP_response */
-static int hf_ftam_f_end_group_request = -1;      /* F_END_GROUP_request */
-static int hf_ftam_f_end_group_response = -1;     /* F_END_GROUP_response */
-static int hf_ftam_f_recover_request = -1;        /* F_RECOVER_request */
-static int hf_ftam_f_recover_response = -1;       /* F_RECOVER_response */
-static int hf_ftam_f_locate_request = -1;         /* F_LOCATE_request */
-static int hf_ftam_f_locate_response = -1;        /* F_LOCATE_response */
-static int hf_ftam_f_erase_request = -1;          /* F_ERASE_request */
-static int hf_ftam_f_erase_response = -1;         /* F_ERASE_response */
-static int hf_ftam_select_attributes = -1;        /* Select_Attributes */
-static int hf_ftam_requested_access = -1;         /* Access_Request */
-static int hf_ftam_access_passwords = -1;         /* Access_Passwords */
-static int hf_ftam_path_access_passwords = -1;    /* Path_Access_Passwords */
-static int hf_ftam_concurrency_control = -1;      /* Concurrency_Control */
-static int hf_ftam_referent_indicator = -1;       /* Referent_Indicator */
-static int hf_ftam_override = -1;                 /* Override */
-static int hf_ftam_initial_attributes = -1;       /* Create_Attributes */
-static int hf_ftam_create_password = -1;          /* Password */
-static int hf_ftam_attribute_names = -1;          /* Attribute_Names */
-static int hf_ftam_attribute_extension_names = -1;  /* Attribute_Extension_Names */
-static int hf_ftam_read_attributes = -1;          /* Read_Attributes */
-static int hf_ftam_attributes = -1;               /* Change_Attributes */
-static int hf_ftam_processing_mode = -1;          /* T_processing_mode */
-static int hf_ftam_open_contents_type = -1;       /* T_open_contents_type */
-static int hf_ftam_unknown = -1;                  /* NULL */
-static int hf_ftam_proposed = -1;                 /* Contents_Type_Attribute */
-static int hf_ftam_enable_fadu_locking = -1;      /* BOOLEAN */
-static int hf_ftam_activity_identifier = -1;      /* Activity_Identifier */
-static int hf_ftam_request_recovery_mode = -1;    /* T_request_recovery_mode */
-static int hf_ftam_remove_contexts = -1;          /* SET_OF_Abstract_Syntax_Name */
-static int hf_ftam_remove_contexts_item = -1;     /* Abstract_Syntax_Name */
-static int hf_ftam_define_contexts = -1;          /* SET_OF_Abstract_Syntax_Name */
-static int hf_ftam_define_contexts_item = -1;     /* Abstract_Syntax_Name */
-static int hf_ftam_degree_of_overlap = -1;        /* Degree_Of_Overlap */
-static int hf_ftam_transfer_window = -1;          /* INTEGER */
-static int hf_ftam_contents_type = -1;            /* Contents_Type_Attribute */
-static int hf_ftam_response_recovery_mode = -1;   /* T_response_recovery_mode */
-static int hf_ftam_presentation_action = -1;      /* BOOLEAN */
-static int hf_ftam_threshold = -1;                /* INTEGER */
-static int hf_ftam_bulk_transfer_number = -1;     /* INTEGER */
-static int hf_ftam_recovefy_Point = -1;           /* INTEGER */
-static int hf_ftam_concurrent_bulk_transfer_number = -1;  /* INTEGER */
-static int hf_ftam_concurrent_recovery_point = -1;  /* INTEGER */
-static int hf_ftam_last_transfer_end_read_response = -1;  /* INTEGER */
-static int hf_ftam_last_transfer_end_write_response = -1;  /* INTEGER */
-static int hf_ftam_recovety_Point = -1;           /* INTEGER */
-static int hf_ftam_last_transfer_end_read_request = -1;  /* INTEGER */
-static int hf_ftam_last_transfer_end_write_request = -1;  /* INTEGER */
-static int hf_ftam_file_access_data_unit_identity = -1;  /* FADU_Identity */
-static int hf_ftam_fadu_lock = -1;                /* FADU_Lock */
-static int hf_ftam_f_read_request = -1;           /* F_READ_request */
-static int hf_ftam_f_write_request = -1;          /* F_WRITE_request */
-static int hf_ftam_f_data_end_request = -1;       /* F_DATA_END_request */
-static int hf_ftam_f_transfer_end_request = -1;   /* F_TRANSFER_END_request */
-static int hf_ftam_f_transfer_end_response = -1;  /* F_TRANSFER_END_response */
-static int hf_ftam_f_cancel_request = -1;         /* F_CANCEL_request */
-static int hf_ftam_f_cancel_response = -1;        /* F_CANCEL_response */
-static int hf_ftam_f_restart_request = -1;        /* F_RESTART_request */
-static int hf_ftam_f_restart_response = -1;       /* F_RESTART_response */
-static int hf_ftam_read_access_context = -1;      /* Access_Context */
-static int hf_ftam_transfer_number = -1;          /* INTEGER */
-static int hf_ftam_file_access_data_unit_Operation = -1;  /* T_file_access_data_unit_Operation */
-static int hf_ftam_request_type = -1;             /* Request_Type */
-static int hf_ftam_checkpoint_identifier = -1;    /* INTEGER */
-static int hf_ftam_access_context = -1;           /* T_access_context */
-static int hf_ftam_level_number = -1;             /* INTEGER */
-static int hf_ftam_read_password = -1;            /* Password */
-static int hf_ftam_insert_password = -1;          /* Password */
-static int hf_ftam_replace_password = -1;         /* Password */
-static int hf_ftam_extend_password = -1;          /* Password */
-static int hf_ftam_erase_password = -1;           /* Password */
-static int hf_ftam_read_attribute_password = -1;  /* Password */
-static int hf_ftam_change_attribute_password = -1;  /* Password */
-static int hf_ftam_delete_password = -1;          /* Password */
-static int hf_ftam_pass_passwords = -1;           /* Pass_Passwords */
-static int hf_ftam_link_password = -1;            /* Password */
-static int hf_ftam_pathname = -1;                 /* Pathname_Attribute */
-static int hf_ftam_storage_account = -1;          /* Account_Attribute */
-static int hf_ftam_object_availability = -1;      /* Object_Availability_Attribute */
-static int hf_ftam_future_Object_size = -1;       /* Object_Size_Attribute */
-static int hf_ftam_change_attributes_access_control = -1;  /* Access_Control_Change_Attribute */
-static int hf_ftam_change_path_access_control = -1;  /* Access_Control_Change_Attribute */
-static int hf_ftam_legal_qualification = -1;      /* Legal_Qualification_Attribute */
-static int hf_ftam_private_use = -1;              /* Private_Use_Attribute */
-static int hf_ftam_attribute_extensions = -1;     /* Attribute_Extensions */
-static int hf_ftam__untag_item_01 = -1;           /* Charging_item */
-static int hf_ftam_resource_identifier = -1;      /* GraphicString */
-static int hf_ftam_charging_unit = -1;            /* GraphicString */
-static int hf_ftam_charging_value = -1;           /* INTEGER */
-static int hf_ftam_read = -1;                     /* Lock */
-static int hf_ftam_insert = -1;                   /* Lock */
-static int hf_ftam_replace = -1;                  /* Lock */
-static int hf_ftam_extend = -1;                   /* Lock */
-static int hf_ftam_erase = -1;                    /* Lock */
-static int hf_ftam_read_attribute = -1;           /* Lock */
-static int hf_ftam_change_attribute = -1;         /* Lock */
-static int hf_ftam_delete_Object = -1;            /* Lock */
-static int hf_ftam_object_type = -1;              /* Object_Type_Attribute */
-static int hf_ftam_permitted_actions = -1;        /* Permitted_Actions_Attribute */
-static int hf_ftam_access_control = -1;           /* Access_Control_Attribute */
-static int hf_ftam_path_access_control = -1;      /* Access_Control_Attribute */
-static int hf_ftam__untag_item_02 = -1;           /* Diagnostic_item */
-static int hf_ftam_diagnostic_type = -1;          /* T_diagnostic_type */
-static int hf_ftam_error_identifier = -1;         /* INTEGER */
-static int hf_ftam_error_observer = -1;           /* Entity_Reference */
-static int hf_ftam_error_Source = -1;             /* Entity_Reference */
-static int hf_ftam_suggested_delay = -1;          /* INTEGER */
-static int hf_ftam_further_details = -1;          /* GraphicString */
-static int hf_ftam_first_last = -1;               /* T_first_last */
-static int hf_ftam_relative = -1;                 /* T_relative */
-static int hf_ftam_begin_end = -1;                /* T_begin_end */
-static int hf_ftam_single_name = -1;              /* Node_Name */
-static int hf_ftam_name_list = -1;                /* SEQUENCE_OF_Node_Name */
-static int hf_ftam_name_list_item = -1;           /* Node_Name */
-static int hf_ftam_fadu_number = -1;              /* INTEGER */
-static int hf_ftam_graphicString = -1;            /* GraphicString */
-static int hf_ftam_octetString = -1;              /* OCTET_STRING */
-static int hf_ftam_linked_Object = -1;            /* Pathname_Attribute */
-static int hf_ftam_child_objects = -1;            /* Child_Objects_Attribute */
-static int hf_ftam_primaty_pathname = -1;         /* Pathname_Attribute */
-static int hf_ftam_date_and_time_of_creation = -1;  /* Date_and_Time_Attribute */
-static int hf_ftam_date_and_time_of_last_modification = -1;  /* Date_and_Time_Attribute */
-static int hf_ftam_date_and_time_of_last_read_access = -1;  /* Date_and_Time_Attribute */
-static int hf_ftam_date_and_time_of_last_attribute_modification = -1;  /* Date_and_Time_Attribute */
-static int hf_ftam_identity_of_creator = -1;      /* User_Identity_Attribute */
-static int hf_ftam_identity_of_last_modifier = -1;  /* User_Identity_Attribute */
-static int hf_ftam_identity_of_last_reader = -1;  /* User_Identity_Attribute */
-static int hf_ftam_identity_last_attribute_modifier = -1;  /* User_Identity_Attribute */
-static int hf_ftam_object_size = -1;              /* Object_Size_Attribute */
-static int hf_ftam_no_value_available = -1;       /* NULL */
-static int hf_ftam_actual_values3 = -1;           /* SET_OF_Access_Control_Element */
-static int hf_ftam_actual_values3_item = -1;      /* Access_Control_Element */
-static int hf_ftam_actual_values1 = -1;           /* T_actual_values1 */
-static int hf_ftam_insert_values = -1;            /* SET_OF_Access_Control_Element */
-static int hf_ftam_insert_values_item = -1;       /* Access_Control_Element */
-static int hf_ftam_delete_values = -1;            /* SET_OF_Access_Control_Element */
-static int hf_ftam_delete_values_item = -1;       /* Access_Control_Element */
-static int hf_ftam_action_list = -1;              /* Access_Request */
-static int hf_ftam_concurrency_access = -1;       /* Concurrency_Access */
-static int hf_ftam_identity = -1;                 /* User_Identity */
-static int hf_ftam_passwords = -1;                /* Access_Passwords */
-static int hf_ftam_location = -1;                 /* Application_Entity_Title */
-static int hf_ftam_read_key = -1;                 /* Concurrency_Key */
-static int hf_ftam_insert_key = -1;               /* Concurrency_Key */
-static int hf_ftam_replace_key = -1;              /* Concurrency_Key */
-static int hf_ftam_extend_key = -1;               /* Concurrency_Key */
-static int hf_ftam_erase_key = -1;                /* Concurrency_Key */
-static int hf_ftam_read_attribute_key = -1;       /* Concurrency_Key */
-static int hf_ftam_change_attribute_key = -1;     /* Concurrency_Key */
-static int hf_ftam_delete_Object_key = -1;        /* Concurrency_Key */
-static int hf_ftam_actual_values2 = -1;           /* Account */
-static int hf_ftam_document_type = -1;            /* T_document_type */
-static int hf_ftam_parameter = -1;                /* T_parameter */
-static int hf_ftam_constraint_set_and_abstract_Syntax = -1;  /* T_constraint_set_and_abstract_Syntax */
-static int hf_ftam_constraint_set_name = -1;      /* Constraint_Set_Name */
-static int hf_ftam_actual_values5 = -1;           /* GeneralizedTime */
-static int hf_ftam_actual_values8 = -1;           /* T_actual_values8 */
-static int hf_ftam_incomplete_pathname = -1;      /* Pathname */
-static int hf_ftam_complete_pathname = -1;        /* Pathname */
-static int hf_ftam_actual_values7 = -1;           /* INTEGER */
-static int hf_ftam_actual_values9 = -1;           /* GraphicString */
-static int hf_ftam_abstract_Syntax_not_supported = -1;  /* NULL */
-static int hf_ftam_actual_values4 = -1;           /* EXTERNAL */
-static int hf_ftam_actual_values6 = -1;           /* User_Identity */
-static int hf_ftam_Child_Objects_Attribute_item = -1;  /* GraphicString */
-static int hf_ftam_f_Change_prefix_request = -1;  /* F_CHANGE_PREFIX_request */
-static int hf_ftam_f_Change_prefix_response = -1;  /* F_CHANGE_PREFIX_response */
-static int hf_ftam_f_list_request = -1;           /* F_LIST_request */
-static int hf_ftam_f_list_response = -1;          /* F_LIST_response */
-static int hf_ftam_f_group_select_request = -1;   /* F_GROUP_SELECT_request */
-static int hf_ftam_f_group_select_response = -1;  /* F_GROUP_SELECT_response */
-static int hf_ftam_f_group_delete_request = -1;   /* F_GROUP_DELETE_request */
-static int hf_ftam_f_group_delete_response = -1;  /* F_GROUP_DELETE_response */
-static int hf_ftam_f_group_move_request = -1;     /* F_GROUP_MOVE_request */
-static int hf_ftam_f_group_move_response = -1;    /* F_GROUP_MOVE_response */
-static int hf_ftam_f_group_copy_request = -1;     /* F_GROUP_COPY_request */
-static int hf_ftam_f_group_copy_response = -1;    /* F_GROUP_COPY_response */
-static int hf_ftam_f_group_list_request = -1;     /* F_GROUP_LIST_request */
-static int hf_ftam_f_group_list_response = -1;    /* F_GROUP_LIST_response */
-static int hf_ftam_f_group_Change_attrib_request = -1;  /* F_GROUP_CHANGE_ATTRIB_request */
-static int hf_ftam_f_group_Change_attrib_response = -1;  /* F_GROUP_CHANGE_ATTRIB_response */
-static int hf_ftam_f_select_another_request = -1;  /* F_SELECT_ANOTHER_request */
-static int hf_ftam_f_select_another_response = -1;  /* F_SELECT_ANOTHER_response */
-static int hf_ftam_f_create_directory_request = -1;  /* F_CREATE_DIRECTORY_request */
-static int hf_ftam_f_create_directory_response = -1;  /* F_CREATE_DIRECTORY_response */
-static int hf_ftam_f_link_request = -1;           /* F_LINK_request */
-static int hf_ftam_f_link_response = -1;          /* F_LINK_response */
-static int hf_ftam_f_unlink_request = -1;         /* F_UNLINK_request */
-static int hf_ftam_f_unlink_response = -1;        /* F_UNLINK_response */
-static int hf_ftam_f_read_link_attrib_request = -1;  /* F_READ_LINK_ATTRIB_request */
-static int hf_ftam_f_read_link_attrib_response = -1;  /* F_READ_LINK_ATTRIB_response */
-static int hf_ftam_f_Change_link_attrib_request = -1;  /* F_CHANGE_LINK_ATTRIB_request */
-static int hf_ftam_f_Change_Iink_attrib_response = -1;  /* F_CHANGE_LINK_ATTRIB_response */
-static int hf_ftam_f_move_request = -1;           /* F_MOVE_request */
-static int hf_ftam_f_move_response = -1;          /* F_MOVE_response */
-static int hf_ftam_f_copy_request = -1;           /* F_COPY_request */
-static int hf_ftam_f_copy_response = -1;          /* F_COPY_response */
-static int hf_ftam_reset = -1;                    /* BOOLEAN */
-static int hf_ftam_destination_file_directory = -1;  /* Destination_File_Directory */
-static int hf_ftam_attribute_value_asset_tions = -1;  /* Attribute_Value_Assertions */
-static int hf_ftam_scope = -1;                    /* Scope */
-static int hf_ftam_objects_attributes_list = -1;  /* Objects_Attributes_List */
-static int hf_ftam_attribute_value_assertions = -1;  /* Attribute_Value_Assertions */
-static int hf_ftam_maximum_set_size = -1;         /* INTEGER */
-static int hf_ftam_request_Operation_result = -1;  /* Request_Operation_Result */
-static int hf_ftam_operation_result = -1;         /* Operation_Result */
-static int hf_ftam_error_action = -1;             /* Error_Action */
-static int hf_ftam_last_member_indicator = -1;    /* BOOLEAN */
-static int hf_ftam_shared_ASE_infonnation = -1;   /* Shared_ASE_Information */
-static int hf_ftam_target_object = -1;            /* Pathname_Attribute */
-static int hf_ftam_target_Object = -1;            /* Pathname_Attribute */
-static int hf_ftam_read_link_attributes = -1;     /* Read_Attributes */
-static int hf_ftam_Attribute_Extension_Names_item = -1;  /* Attribute_Extension_Set_Name */
-static int hf_ftam_extension_set_identifier = -1;  /* Extension_Set_Identifier */
-static int hf_ftam_extension_attribute_names = -1;  /* SEQUENCE_OF_Extension_Attribute_identifier */
-static int hf_ftam_extension_attribute_names_item = -1;  /* Extension_Attribute_identifier */
-static int hf_ftam_Attribute_Extensions_item = -1;  /* Attribute_Extension_Set */
-static int hf_ftam_extension_set_attributes = -1;  /* SEQUENCE_OF_Extension_Attribute */
-static int hf_ftam_extension_set_attributes_item = -1;  /* Extension_Attribute */
-static int hf_ftam_extension_attribute_identifier = -1;  /* T_extension_attribute_identifier */
-static int hf_ftam_extension_attribute = -1;      /* T_extension_attribute */
-static int hf_ftam__untag_item_03 = -1;           /* T__untag_item */
-static int hf_ftam_root_directory = -1;           /* Pathname_Attribute */
-static int hf_ftam_retrieval_scope = -1;          /* T_retrieval_scope */
-static int hf_ftam_OR_Set_item = -1;              /* AND_Set */
-static int hf_ftam_AND_Set_item = -1;             /* AND_Set_item */
-static int hf_ftam_pathname_Pattern = -1;         /* Pathname_Pattern */
-static int hf_ftam_object_type_Pattern = -1;      /* Integer_Pattern */
-static int hf_ftam_permitted_actions_Pattern = -1;  /* Bitstring_Pattern */
-static int hf_ftam_contents_type_Pattern = -1;    /* Contents_Type_Pattern */
-static int hf_ftam_linked_Object_Pattern = -1;    /* Pathname_Pattern */
-static int hf_ftam_child_objects_Pattern = -1;    /* Pathname_Pattern */
-static int hf_ftam_primaty_pathname_Pattern = -1;  /* Pathname_Pattern */
-static int hf_ftam_storage_account_Pattern = -1;  /* String_Pattern */
-static int hf_ftam_date_and_time_of_creation_Pattern = -1;  /* Date_and_Time_Pattern */
-static int hf_ftam_date_and_time_of_last_modification_Pattern = -1;  /* Date_and_Time_Pattern */
-static int hf_ftam_date_and_time_of_last_read_access_Pattern = -1;  /* Date_and_Time_Pattern */
-static int hf_ftam_date_and_time_of_last_attribute_modification_Pattern = -1;  /* Date_and_Time_Pattern */
-static int hf_ftam_identity_of_creator_Pattern = -1;  /* User_Identity_Pattern */
-static int hf_ftam_identity_of_last_modifier_Pattern = -1;  /* User_Identity_Pattern */
-static int hf_ftam_identity_of_last_reader_Pattern = -1;  /* User_Identity_Pattern */
-static int hf_ftam_identity_of_last_attribute_modifier_Pattern = -1;  /* User_Identity_Pattern */
-static int hf_ftam_object_availabiiity_Pattern = -1;  /* Boolean_Pattern */
-static int hf_ftam_object_size_Pattern = -1;      /* Integer_Pattern */
-static int hf_ftam_future_object_size_Pattern = -1;  /* Integer_Pattern */
-static int hf_ftam_legal_quailfication_Pattern = -1;  /* String_Pattern */
-static int hf_ftam_attribute_extensions_pattern = -1;  /* Attribute_Extensions_Pattern */
-static int hf_ftam_equality_comparision = -1;     /* Equality_Comparision */
-static int hf_ftam_pathname_value = -1;           /* T_pathname_value */
-static int hf_ftam_pathname_value_item = -1;      /* T_pathname_value_item */
-static int hf_ftam_string_match = -1;             /* String_Pattern */
-static int hf_ftam_any_match = -1;                /* NULL */
-static int hf_ftam_string_value = -1;             /* T_string_value */
-static int hf_ftam_string_value_item = -1;        /* T_string_value_item */
-static int hf_ftam_substring_match = -1;          /* GraphicString */
-static int hf_ftam_number_of_characters_match = -1;  /* INTEGER */
-static int hf_ftam_match_bitstring = -1;          /* BIT_STRING */
-static int hf_ftam_significance_bitstring = -1;   /* BIT_STRING */
-static int hf_ftam_relational_camparision = -1;   /* Equality_Comparision */
-static int hf_ftam_time_and_date_value = -1;      /* GeneralizedTime */
-static int hf_ftam_relational_comparision = -1;   /* Relational_Comparision */
-static int hf_ftam_integer_value = -1;            /* INTEGER */
-static int hf_ftam_object_identifier_value = -1;  /* OBJECT_IDENTIFIER */
-static int hf_ftam_boolean_value = -1;            /* BOOLEAN */
-static int hf_ftam_document_type_Pattern = -1;    /* Object_Identifier_Pattern */
-static int hf_ftam_constraint_set_abstract_Syntax_Pattern = -1;  /* T_constraint_set_abstract_Syntax_Pattern */
-static int hf_ftam_constraint_Set_Pattern = -1;   /* Object_Identifier_Pattern */
-static int hf_ftam_abstract_Syntax_Pattern = -1;  /* Object_Identifier_Pattern */
-static int hf_ftam_Attribute_Extensions_Pattern_item = -1;  /* Attribute_Extensions_Pattern_item */
-static int hf_ftam_extension_set_attribute_Patterns = -1;  /* T_extension_set_attribute_Patterns */
-static int hf_ftam_extension_set_attribute_Patterns_item = -1;  /* T_extension_set_attribute_Patterns_item */
-static int hf_ftam_attribute_extension_attribute_identifier = -1;  /* T_attribute_extension_attribute_identifier */
-static int hf_ftam_extension_attribute_Pattern = -1;  /* T_extension_attribute_Pattern */
-static int hf_ftam__untag_item_04 = -1;           /* Read_Attributes */
-static int hf_ftam_success_Object_count = -1;     /* INTEGER */
-static int hf_ftam_success_Object_names = -1;     /* SEQUENCE_OF_Pathname */
-static int hf_ftam_success_Object_names_item = -1;  /* Pathname */
-static int hf_ftam_Pathname_item = -1;            /* GraphicString */
-static int hf_ftam_Pass_Passwords_item = -1;      /* Password */
-static int hf_ftam__untag_item_05 = -1;           /* Path_Access_Passwords_item */
-static int hf_ftam_ap = -1;                       /* AP_title */
-static int hf_ftam_ae = -1;                       /* AE_qualifier */
+static int hf_ftam_unstructured_text;              /* ISO FTAM unstructured text */
+static int hf_ftam_unstructured_binary;            /* ISO FTAM unstructured binary */
+static int hf_ftam_fTAM_Regime_PDU;               /* FTAM_Regime_PDU */
+static int hf_ftam_file_PDU;                      /* File_PDU */
+static int hf_ftam_bulk_Data_PDU;                 /* Bulk_Data_PDU */
+static int hf_ftam_fSM_PDU;                       /* FSM_PDU */
+static int hf_ftam_f_initialize_request;          /* F_INITIALIZE_request */
+static int hf_ftam_f_initialize_response;         /* F_INITIALIZE_response */
+static int hf_ftam_f_terminate_request;           /* F_TERMINATE_request */
+static int hf_ftam_f_terminate_response;          /* F_TERMINATE_response */
+static int hf_ftam_f_u_abort_request;             /* F_U_ABORT_request */
+static int hf_ftam_f_p_abort_request;             /* F_P_ABORT_request */
+static int hf_ftam_protocol_Version;              /* Protocol_Version */
+static int hf_ftam_implementation_information;    /* Implementation_Information */
+static int hf_ftam_presentation_tontext_management;  /* BOOLEAN */
+static int hf_ftam_service_class;                 /* Service_Class */
+static int hf_ftam_functional_units;              /* Functional_Units */
+static int hf_ftam_attribute_groups;              /* Attribute_Groups */
+static int hf_ftam_shared_ASE_information;        /* Shared_ASE_Information */
+static int hf_ftam_ftam_quality_of_Service;       /* FTAM_Quality_of_Service */
+static int hf_ftam_contents_type_list;            /* Contents_Type_List */
+static int hf_ftam_initiator_identity;            /* User_Identity */
+static int hf_ftam_account;                       /* Account */
+static int hf_ftam_filestore_password;            /* Password */
+static int hf_ftam_checkpoint_window;             /* INTEGER */
+static int hf_ftam_state_result;                  /* State_Result */
+static int hf_ftam_action_result;                 /* Action_Result */
+static int hf_ftam_diagnostic;                    /* Diagnostic */
+static int hf_ftam__untag_item;                   /* Contents_Type_List_item */
+static int hf_ftam_document_type_name;            /* Document_Type_Name */
+static int hf_ftam_abstract_Syntax_name;          /* Abstract_Syntax_Name */
+static int hf_ftam_charging;                      /* Charging */
+static int hf_ftam_f_select_request;              /* F_SELECT_request */
+static int hf_ftam_f_select_response;             /* F_SELECT_response */
+static int hf_ftam_f_deselect_request;            /* F_DESELECT_request */
+static int hf_ftam_f_deselect_response;           /* F_DESELECT_response */
+static int hf_ftam_f_create_request;              /* F_CREATE_request */
+static int hf_ftam_f_create_response;             /* F_CREATE_response */
+static int hf_ftam_f_delete_request;              /* F_DELETE_request */
+static int hf_ftam_f_delete_response;             /* F_DELETE_response */
+static int hf_ftam_f_read_attrib_request;         /* F_READ_ATTRIB_request */
+static int hf_ftam_f_read_attrib_response;        /* F_READ_ATTRIB_response */
+static int hf_ftam_f_Change_attrib_reques;        /* F_CHANGE_ATTRIB_request */
+static int hf_ftam_f_Change_attrib_respon;        /* F_CHANGE_ATTRIB_response */
+static int hf_ftam_f_open_request;                /* F_OPEN_request */
+static int hf_ftam_f_open_response;               /* F_OPEN_response */
+static int hf_ftam_f_close_request;               /* F_CLOSE_request */
+static int hf_ftam_f_close_response;              /* F_CLOSE_response */
+static int hf_ftam_f_begin_group_request;         /* F_BEGIN_GROUP_request */
+static int hf_ftam_f_begin_group_response;        /* F_BEGIN_GROUP_response */
+static int hf_ftam_f_end_group_request;           /* F_END_GROUP_request */
+static int hf_ftam_f_end_group_response;          /* F_END_GROUP_response */
+static int hf_ftam_f_recover_request;             /* F_RECOVER_request */
+static int hf_ftam_f_recover_response;            /* F_RECOVER_response */
+static int hf_ftam_f_locate_request;              /* F_LOCATE_request */
+static int hf_ftam_f_locate_response;             /* F_LOCATE_response */
+static int hf_ftam_f_erase_request;               /* F_ERASE_request */
+static int hf_ftam_f_erase_response;              /* F_ERASE_response */
+static int hf_ftam_select_attributes;             /* Select_Attributes */
+static int hf_ftam_requested_access;              /* Access_Request */
+static int hf_ftam_access_passwords;              /* Access_Passwords */
+static int hf_ftam_path_access_passwords;         /* Path_Access_Passwords */
+static int hf_ftam_concurrency_control;           /* Concurrency_Control */
+static int hf_ftam_referent_indicator;            /* Referent_Indicator */
+static int hf_ftam_override;                      /* Override */
+static int hf_ftam_initial_attributes;            /* Create_Attributes */
+static int hf_ftam_create_password;               /* Password */
+static int hf_ftam_attribute_names;               /* Attribute_Names */
+static int hf_ftam_attribute_extension_names;     /* Attribute_Extension_Names */
+static int hf_ftam_read_attributes;               /* Read_Attributes */
+static int hf_ftam_attributes;                    /* Change_Attributes */
+static int hf_ftam_processing_mode;               /* T_processing_mode */
+static int hf_ftam_open_contents_type;            /* T_open_contents_type */
+static int hf_ftam_unknown;                       /* NULL */
+static int hf_ftam_proposed;                      /* Contents_Type_Attribute */
+static int hf_ftam_enable_fadu_locking;           /* BOOLEAN */
+static int hf_ftam_activity_identifier;           /* Activity_Identifier */
+static int hf_ftam_request_recovery_mode;         /* T_request_recovery_mode */
+static int hf_ftam_remove_contexts;               /* SET_OF_Abstract_Syntax_Name */
+static int hf_ftam_remove_contexts_item;          /* Abstract_Syntax_Name */
+static int hf_ftam_define_contexts;               /* SET_OF_Abstract_Syntax_Name */
+static int hf_ftam_define_contexts_item;          /* Abstract_Syntax_Name */
+static int hf_ftam_degree_of_overlap;             /* Degree_Of_Overlap */
+static int hf_ftam_transfer_window;               /* INTEGER */
+static int hf_ftam_contents_type;                 /* Contents_Type_Attribute */
+static int hf_ftam_response_recovery_mode;        /* T_response_recovery_mode */
+static int hf_ftam_presentation_action;           /* BOOLEAN */
+static int hf_ftam_threshold;                     /* INTEGER */
+static int hf_ftam_bulk_transfer_number;          /* INTEGER */
+static int hf_ftam_recovefy_Point;                /* INTEGER */
+static int hf_ftam_concurrent_bulk_transfer_number;  /* INTEGER */
+static int hf_ftam_concurrent_recovery_point;     /* INTEGER */
+static int hf_ftam_last_transfer_end_read_response;  /* INTEGER */
+static int hf_ftam_last_transfer_end_write_response;  /* INTEGER */
+static int hf_ftam_recovety_Point;                /* INTEGER */
+static int hf_ftam_last_transfer_end_read_request;  /* INTEGER */
+static int hf_ftam_last_transfer_end_write_request;  /* INTEGER */
+static int hf_ftam_file_access_data_unit_identity;  /* FADU_Identity */
+static int hf_ftam_fadu_lock;                     /* FADU_Lock */
+static int hf_ftam_f_read_request;                /* F_READ_request */
+static int hf_ftam_f_write_request;               /* F_WRITE_request */
+static int hf_ftam_f_data_end_request;            /* F_DATA_END_request */
+static int hf_ftam_f_transfer_end_request;        /* F_TRANSFER_END_request */
+static int hf_ftam_f_transfer_end_response;       /* F_TRANSFER_END_response */
+static int hf_ftam_f_cancel_request;              /* F_CANCEL_request */
+static int hf_ftam_f_cancel_response;             /* F_CANCEL_response */
+static int hf_ftam_f_restart_request;             /* F_RESTART_request */
+static int hf_ftam_f_restart_response;            /* F_RESTART_response */
+static int hf_ftam_read_access_context;           /* Access_Context */
+static int hf_ftam_transfer_number;               /* INTEGER */
+static int hf_ftam_file_access_data_unit_Operation;  /* T_file_access_data_unit_Operation */
+static int hf_ftam_request_type;                  /* Request_Type */
+static int hf_ftam_checkpoint_identifier;         /* INTEGER */
+static int hf_ftam_access_context;                /* T_access_context */
+static int hf_ftam_level_number;                  /* INTEGER */
+static int hf_ftam_read_password;                 /* Password */
+static int hf_ftam_insert_password;               /* Password */
+static int hf_ftam_replace_password;              /* Password */
+static int hf_ftam_extend_password;               /* Password */
+static int hf_ftam_erase_password;                /* Password */
+static int hf_ftam_read_attribute_password;       /* Password */
+static int hf_ftam_change_attribute_password;     /* Password */
+static int hf_ftam_delete_password;               /* Password */
+static int hf_ftam_pass_passwords;                /* Pass_Passwords */
+static int hf_ftam_link_password;                 /* Password */
+static int hf_ftam_pathname;                      /* Pathname_Attribute */
+static int hf_ftam_storage_account;               /* Account_Attribute */
+static int hf_ftam_object_availability;           /* Object_Availability_Attribute */
+static int hf_ftam_future_Object_size;            /* Object_Size_Attribute */
+static int hf_ftam_change_attributes_access_control;  /* Access_Control_Change_Attribute */
+static int hf_ftam_change_path_access_control;    /* Access_Control_Change_Attribute */
+static int hf_ftam_legal_qualification;           /* Legal_Qualification_Attribute */
+static int hf_ftam_private_use;                   /* Private_Use_Attribute */
+static int hf_ftam_attribute_extensions;          /* Attribute_Extensions */
+static int hf_ftam__untag_item_01;                /* Charging_item */
+static int hf_ftam_resource_identifier;           /* GraphicString */
+static int hf_ftam_charging_unit;                 /* GraphicString */
+static int hf_ftam_charging_value;                /* INTEGER */
+static int hf_ftam_read;                          /* Lock */
+static int hf_ftam_insert;                        /* Lock */
+static int hf_ftam_replace;                       /* Lock */
+static int hf_ftam_extend;                        /* Lock */
+static int hf_ftam_erase;                         /* Lock */
+static int hf_ftam_read_attribute;                /* Lock */
+static int hf_ftam_change_attribute;              /* Lock */
+static int hf_ftam_delete_Object;                 /* Lock */
+static int hf_ftam_object_type;                   /* Object_Type_Attribute */
+static int hf_ftam_permitted_actions;             /* Permitted_Actions_Attribute */
+static int hf_ftam_access_control;                /* Access_Control_Attribute */
+static int hf_ftam_path_access_control;           /* Access_Control_Attribute */
+static int hf_ftam__untag_item_02;                /* Diagnostic_item */
+static int hf_ftam_diagnostic_type;               /* T_diagnostic_type */
+static int hf_ftam_error_identifier;              /* INTEGER */
+static int hf_ftam_error_observer;                /* Entity_Reference */
+static int hf_ftam_error_Source;                  /* Entity_Reference */
+static int hf_ftam_suggested_delay;               /* INTEGER */
+static int hf_ftam_further_details;               /* GraphicString */
+static int hf_ftam_first_last;                    /* T_first_last */
+static int hf_ftam_relative;                      /* T_relative */
+static int hf_ftam_begin_end;                     /* T_begin_end */
+static int hf_ftam_single_name;                   /* Node_Name */
+static int hf_ftam_name_list;                     /* SEQUENCE_OF_Node_Name */
+static int hf_ftam_name_list_item;                /* Node_Name */
+static int hf_ftam_fadu_number;                   /* INTEGER */
+static int hf_ftam_graphicString;                 /* GraphicString */
+static int hf_ftam_octetString;                   /* OCTET_STRING */
+static int hf_ftam_linked_Object;                 /* Pathname_Attribute */
+static int hf_ftam_child_objects;                 /* Child_Objects_Attribute */
+static int hf_ftam_primaty_pathname;              /* Pathname_Attribute */
+static int hf_ftam_date_and_time_of_creation;     /* Date_and_Time_Attribute */
+static int hf_ftam_date_and_time_of_last_modification;  /* Date_and_Time_Attribute */
+static int hf_ftam_date_and_time_of_last_read_access;  /* Date_and_Time_Attribute */
+static int hf_ftam_date_and_time_of_last_attribute_modification;  /* Date_and_Time_Attribute */
+static int hf_ftam_identity_of_creator;           /* User_Identity_Attribute */
+static int hf_ftam_identity_of_last_modifier;     /* User_Identity_Attribute */
+static int hf_ftam_identity_of_last_reader;       /* User_Identity_Attribute */
+static int hf_ftam_identity_last_attribute_modifier;  /* User_Identity_Attribute */
+static int hf_ftam_object_size;                   /* Object_Size_Attribute */
+static int hf_ftam_no_value_available;            /* NULL */
+static int hf_ftam_actual_values3;                /* SET_OF_Access_Control_Element */
+static int hf_ftam_actual_values3_item;           /* Access_Control_Element */
+static int hf_ftam_actual_values1;                /* T_actual_values1 */
+static int hf_ftam_insert_values;                 /* SET_OF_Access_Control_Element */
+static int hf_ftam_insert_values_item;            /* Access_Control_Element */
+static int hf_ftam_delete_values;                 /* SET_OF_Access_Control_Element */
+static int hf_ftam_delete_values_item;            /* Access_Control_Element */
+static int hf_ftam_action_list;                   /* Access_Request */
+static int hf_ftam_concurrency_access;            /* Concurrency_Access */
+static int hf_ftam_identity;                      /* User_Identity */
+static int hf_ftam_passwords;                     /* Access_Passwords */
+static int hf_ftam_location;                      /* Application_Entity_Title */
+static int hf_ftam_read_key;                      /* Concurrency_Key */
+static int hf_ftam_insert_key;                    /* Concurrency_Key */
+static int hf_ftam_replace_key;                   /* Concurrency_Key */
+static int hf_ftam_extend_key;                    /* Concurrency_Key */
+static int hf_ftam_erase_key;                     /* Concurrency_Key */
+static int hf_ftam_read_attribute_key;            /* Concurrency_Key */
+static int hf_ftam_change_attribute_key;          /* Concurrency_Key */
+static int hf_ftam_delete_Object_key;             /* Concurrency_Key */
+static int hf_ftam_actual_values2;                /* Account */
+static int hf_ftam_document_type;                 /* T_document_type */
+static int hf_ftam_parameter;                     /* T_parameter */
+static int hf_ftam_constraint_set_and_abstract_Syntax;  /* T_constraint_set_and_abstract_Syntax */
+static int hf_ftam_constraint_set_name;           /* Constraint_Set_Name */
+static int hf_ftam_actual_values5;                /* GeneralizedTime */
+static int hf_ftam_actual_values8;                /* T_actual_values8 */
+static int hf_ftam_incomplete_pathname;           /* Pathname */
+static int hf_ftam_complete_pathname;             /* Pathname */
+static int hf_ftam_actual_values7;                /* INTEGER */
+static int hf_ftam_actual_values9;                /* GraphicString */
+static int hf_ftam_abstract_Syntax_not_supported;  /* NULL */
+static int hf_ftam_actual_values4;                /* EXTERNAL */
+static int hf_ftam_actual_values6;                /* User_Identity */
+static int hf_ftam_Child_Objects_Attribute_item;  /* GraphicString */
+static int hf_ftam_f_Change_prefix_request;       /* F_CHANGE_PREFIX_request */
+static int hf_ftam_f_Change_prefix_response;      /* F_CHANGE_PREFIX_response */
+static int hf_ftam_f_list_request;                /* F_LIST_request */
+static int hf_ftam_f_list_response;               /* F_LIST_response */
+static int hf_ftam_f_group_select_request;        /* F_GROUP_SELECT_request */
+static int hf_ftam_f_group_select_response;       /* F_GROUP_SELECT_response */
+static int hf_ftam_f_group_delete_request;        /* F_GROUP_DELETE_request */
+static int hf_ftam_f_group_delete_response;       /* F_GROUP_DELETE_response */
+static int hf_ftam_f_group_move_request;          /* F_GROUP_MOVE_request */
+static int hf_ftam_f_group_move_response;         /* F_GROUP_MOVE_response */
+static int hf_ftam_f_group_copy_request;          /* F_GROUP_COPY_request */
+static int hf_ftam_f_group_copy_response;         /* F_GROUP_COPY_response */
+static int hf_ftam_f_group_list_request;          /* F_GROUP_LIST_request */
+static int hf_ftam_f_group_list_response;         /* F_GROUP_LIST_response */
+static int hf_ftam_f_group_Change_attrib_request;  /* F_GROUP_CHANGE_ATTRIB_request */
+static int hf_ftam_f_group_Change_attrib_response;  /* F_GROUP_CHANGE_ATTRIB_response */
+static int hf_ftam_f_select_another_request;      /* F_SELECT_ANOTHER_request */
+static int hf_ftam_f_select_another_response;     /* F_SELECT_ANOTHER_response */
+static int hf_ftam_f_create_directory_request;    /* F_CREATE_DIRECTORY_request */
+static int hf_ftam_f_create_directory_response;   /* F_CREATE_DIRECTORY_response */
+static int hf_ftam_f_link_request;                /* F_LINK_request */
+static int hf_ftam_f_link_response;               /* F_LINK_response */
+static int hf_ftam_f_unlink_request;              /* F_UNLINK_request */
+static int hf_ftam_f_unlink_response;             /* F_UNLINK_response */
+static int hf_ftam_f_read_link_attrib_request;    /* F_READ_LINK_ATTRIB_request */
+static int hf_ftam_f_read_link_attrib_response;   /* F_READ_LINK_ATTRIB_response */
+static int hf_ftam_f_Change_link_attrib_request;  /* F_CHANGE_LINK_ATTRIB_request */
+static int hf_ftam_f_Change_Iink_attrib_response;  /* F_CHANGE_LINK_ATTRIB_response */
+static int hf_ftam_f_move_request;                /* F_MOVE_request */
+static int hf_ftam_f_move_response;               /* F_MOVE_response */
+static int hf_ftam_f_copy_request;                /* F_COPY_request */
+static int hf_ftam_f_copy_response;               /* F_COPY_response */
+static int hf_ftam_reset;                         /* BOOLEAN */
+static int hf_ftam_destination_file_directory;    /* Destination_File_Directory */
+static int hf_ftam_attribute_value_asset_tions;   /* Attribute_Value_Assertions */
+static int hf_ftam_scope;                         /* Scope */
+static int hf_ftam_objects_attributes_list;       /* Objects_Attributes_List */
+static int hf_ftam_attribute_value_assertions;    /* Attribute_Value_Assertions */
+static int hf_ftam_maximum_set_size;              /* INTEGER */
+static int hf_ftam_request_Operation_result;      /* Request_Operation_Result */
+static int hf_ftam_operation_result;              /* Operation_Result */
+static int hf_ftam_error_action;                  /* Error_Action */
+static int hf_ftam_last_member_indicator;         /* BOOLEAN */
+static int hf_ftam_shared_ASE_infonnation;        /* Shared_ASE_Information */
+static int hf_ftam_target_object;                 /* Pathname_Attribute */
+static int hf_ftam_target_Object;                 /* Pathname_Attribute */
+static int hf_ftam_read_link_attributes;          /* Read_Attributes */
+static int hf_ftam_Attribute_Extension_Names_item;  /* Attribute_Extension_Set_Name */
+static int hf_ftam_extension_set_identifier;      /* Extension_Set_Identifier */
+static int hf_ftam_extension_attribute_names;     /* SEQUENCE_OF_Extension_Attribute_identifier */
+static int hf_ftam_extension_attribute_names_item;  /* Extension_Attribute_identifier */
+static int hf_ftam_Attribute_Extensions_item;     /* Attribute_Extension_Set */
+static int hf_ftam_extension_set_attributes;      /* SEQUENCE_OF_Extension_Attribute */
+static int hf_ftam_extension_set_attributes_item;  /* Extension_Attribute */
+static int hf_ftam_extension_attribute_identifier;  /* T_extension_attribute_identifier */
+static int hf_ftam_extension_attribute;           /* T_extension_attribute */
+static int hf_ftam__untag_item_03;                /* T__untag_item */
+static int hf_ftam_root_directory;                /* Pathname_Attribute */
+static int hf_ftam_retrieval_scope;               /* T_retrieval_scope */
+static int hf_ftam_OR_Set_item;                   /* AND_Set */
+static int hf_ftam_AND_Set_item;                  /* AND_Set_item */
+static int hf_ftam_pathname_Pattern;              /* Pathname_Pattern */
+static int hf_ftam_object_type_Pattern;           /* Integer_Pattern */
+static int hf_ftam_permitted_actions_Pattern;     /* Bitstring_Pattern */
+static int hf_ftam_contents_type_Pattern;         /* Contents_Type_Pattern */
+static int hf_ftam_linked_Object_Pattern;         /* Pathname_Pattern */
+static int hf_ftam_child_objects_Pattern;         /* Pathname_Pattern */
+static int hf_ftam_primaty_pathname_Pattern;      /* Pathname_Pattern */
+static int hf_ftam_storage_account_Pattern;       /* String_Pattern */
+static int hf_ftam_date_and_time_of_creation_Pattern;  /* Date_and_Time_Pattern */
+static int hf_ftam_date_and_time_of_last_modification_Pattern;  /* Date_and_Time_Pattern */
+static int hf_ftam_date_and_time_of_last_read_access_Pattern;  /* Date_and_Time_Pattern */
+static int hf_ftam_date_and_time_of_last_attribute_modification_Pattern;  /* Date_and_Time_Pattern */
+static int hf_ftam_identity_of_creator_Pattern;   /* User_Identity_Pattern */
+static int hf_ftam_identity_of_last_modifier_Pattern;  /* User_Identity_Pattern */
+static int hf_ftam_identity_of_last_reader_Pattern;  /* User_Identity_Pattern */
+static int hf_ftam_identity_of_last_attribute_modifier_Pattern;  /* User_Identity_Pattern */
+static int hf_ftam_object_availabiiity_Pattern;   /* Boolean_Pattern */
+static int hf_ftam_object_size_Pattern;           /* Integer_Pattern */
+static int hf_ftam_future_object_size_Pattern;    /* Integer_Pattern */
+static int hf_ftam_legal_quailfication_Pattern;   /* String_Pattern */
+static int hf_ftam_attribute_extensions_pattern;  /* Attribute_Extensions_Pattern */
+static int hf_ftam_equality_comparision;          /* Equality_Comparision */
+static int hf_ftam_pathname_value;                /* T_pathname_value */
+static int hf_ftam_pathname_value_item;           /* T_pathname_value_item */
+static int hf_ftam_string_match;                  /* String_Pattern */
+static int hf_ftam_any_match;                     /* NULL */
+static int hf_ftam_string_value;                  /* T_string_value */
+static int hf_ftam_string_value_item;             /* T_string_value_item */
+static int hf_ftam_substring_match;               /* GraphicString */
+static int hf_ftam_number_of_characters_match;    /* INTEGER */
+static int hf_ftam_match_bitstring;               /* BIT_STRING */
+static int hf_ftam_significance_bitstring;        /* BIT_STRING */
+static int hf_ftam_relational_camparision;        /* Equality_Comparision */
+static int hf_ftam_time_and_date_value;           /* GeneralizedTime */
+static int hf_ftam_relational_comparision;        /* Relational_Comparision */
+static int hf_ftam_integer_value;                 /* INTEGER */
+static int hf_ftam_object_identifier_value;       /* OBJECT_IDENTIFIER */
+static int hf_ftam_boolean_value;                 /* BOOLEAN */
+static int hf_ftam_document_type_Pattern;         /* Object_Identifier_Pattern */
+static int hf_ftam_constraint_set_abstract_Syntax_Pattern;  /* T_constraint_set_abstract_Syntax_Pattern */
+static int hf_ftam_constraint_Set_Pattern;        /* Object_Identifier_Pattern */
+static int hf_ftam_abstract_Syntax_Pattern;       /* Object_Identifier_Pattern */
+static int hf_ftam_Attribute_Extensions_Pattern_item;  /* Attribute_Extensions_Pattern_item */
+static int hf_ftam_extension_set_attribute_Patterns;  /* T_extension_set_attribute_Patterns */
+static int hf_ftam_extension_set_attribute_Patterns_item;  /* T_extension_set_attribute_Patterns_item */
+static int hf_ftam_attribute_extension_attribute_identifier;  /* T_attribute_extension_attribute_identifier */
+static int hf_ftam_extension_attribute_Pattern;   /* T_extension_attribute_Pattern */
+static int hf_ftam__untag_item_04;                /* Read_Attributes */
+static int hf_ftam_success_Object_count;          /* INTEGER */
+static int hf_ftam_success_Object_names;          /* SEQUENCE_OF_Pathname */
+static int hf_ftam_success_Object_names_item;     /* Pathname */
+static int hf_ftam_Pathname_item;                 /* GraphicString */
+static int hf_ftam_Pass_Passwords_item;           /* Password */
+static int hf_ftam__untag_item_05;                /* Path_Access_Passwords_item */
+static int hf_ftam_ap;                            /* AP_title */
+static int hf_ftam_ae;                            /* AE_qualifier */
 /* named bits */
-static int hf_ftam_Protocol_Version_U_version_1 = -1;
-static int hf_ftam_Protocol_Version_U_version_2 = -1;
-static int hf_ftam_Service_Class_U_unconstrained_class = -1;
-static int hf_ftam_Service_Class_U_management_class = -1;
-static int hf_ftam_Service_Class_U_transfer_class = -1;
-static int hf_ftam_Service_Class_U_transfer_and_management_class = -1;
-static int hf_ftam_Service_Class_U_access_class = -1;
-static int hf_ftam_Functional_Units_U_spare_bit0 = -1;
-static int hf_ftam_Functional_Units_U_spare_bit1 = -1;
-static int hf_ftam_Functional_Units_U_read = -1;
-static int hf_ftam_Functional_Units_U_write = -1;
-static int hf_ftam_Functional_Units_U_file_access = -1;
-static int hf_ftam_Functional_Units_U_limited_file_management = -1;
-static int hf_ftam_Functional_Units_U_enhanced_file_management = -1;
-static int hf_ftam_Functional_Units_U_grouping = -1;
-static int hf_ftam_Functional_Units_U_fadu_locking = -1;
-static int hf_ftam_Functional_Units_U_recovery = -1;
-static int hf_ftam_Functional_Units_U_restart_data_transfer = -1;
-static int hf_ftam_Functional_Units_U_limited_filestore_management = -1;
-static int hf_ftam_Functional_Units_U_enhanced_filestore_management = -1;
-static int hf_ftam_Functional_Units_U_object_manipulation = -1;
-static int hf_ftam_Functional_Units_U_group_manipulation = -1;
-static int hf_ftam_Functional_Units_U_consecutive_access = -1;
-static int hf_ftam_Functional_Units_U_concurrent_access = -1;
-static int hf_ftam_Attribute_Groups_U_storage = -1;
-static int hf_ftam_Attribute_Groups_U_security = -1;
-static int hf_ftam_Attribute_Groups_U_private = -1;
-static int hf_ftam_Attribute_Groups_U_extension = -1;
-static int hf_ftam_T_processing_mode_f_read = -1;
-static int hf_ftam_T_processing_mode_f_insert = -1;
-static int hf_ftam_T_processing_mode_f_replace = -1;
-static int hf_ftam_T_processing_mode_f_extend = -1;
-static int hf_ftam_T_processing_mode_f_erase = -1;
-static int hf_ftam_Access_Request_U_read = -1;
-static int hf_ftam_Access_Request_U_insert = -1;
-static int hf_ftam_Access_Request_U_replace = -1;
-static int hf_ftam_Access_Request_U_extend = -1;
-static int hf_ftam_Access_Request_U_erase = -1;
-static int hf_ftam_Access_Request_U_read_attribute = -1;
-static int hf_ftam_Access_Request_U_change_attribute = -1;
-static int hf_ftam_Access_Request_U_delete_Object = -1;
-static int hf_ftam_Concurrency_Key_not_required = -1;
-static int hf_ftam_Concurrency_Key_shared = -1;
-static int hf_ftam_Concurrency_Key_exclusive = -1;
-static int hf_ftam_Concurrency_Key_no_access = -1;
-static int hf_ftam_Permitted_Actions_Attribute_read = -1;
-static int hf_ftam_Permitted_Actions_Attribute_insert = -1;
-static int hf_ftam_Permitted_Actions_Attribute_replace = -1;
-static int hf_ftam_Permitted_Actions_Attribute_extend = -1;
-static int hf_ftam_Permitted_Actions_Attribute_erase = -1;
-static int hf_ftam_Permitted_Actions_Attribute_read_attribute = -1;
-static int hf_ftam_Permitted_Actions_Attribute_change_attribute = -1;
-static int hf_ftam_Permitted_Actions_Attribute_delete_Object = -1;
-static int hf_ftam_Permitted_Actions_Attribute_traversal = -1;
-static int hf_ftam_Permitted_Actions_Attribute_reverse_traversal = -1;
-static int hf_ftam_Permitted_Actions_Attribute_random_Order = -1;
-static int hf_ftam_Permitted_Actions_Attribute_pass = -1;
-static int hf_ftam_Permitted_Actions_Attribute_link = -1;
-static int hf_ftam_Equality_Comparision_no_value_available_matches = -1;
-static int hf_ftam_Equality_Comparision_equals_matches = -1;
-static int hf_ftam_Relational_Comparision_no_value_available_matches = -1;
-static int hf_ftam_Relational_Comparision_equals_matches = -1;
-static int hf_ftam_Relational_Comparision_less_than_matches = -1;
-static int hf_ftam_Relational_Comparision_greater_than_matches = -1;
-static int hf_ftam_Attribute_Names_read_pathname = -1;
-static int hf_ftam_Attribute_Names_read_permitted_actions = -1;
-static int hf_ftam_Attribute_Names_read_contents_type = -1;
-static int hf_ftam_Attribute_Names_read_storage_account = -1;
-static int hf_ftam_Attribute_Names_read_date_and_time_of_creation = -1;
-static int hf_ftam_Attribute_Names_read_date_and_time_of_last_modification = -1;
-static int hf_ftam_Attribute_Names_read_date_and_time_of_last_read_access = -1;
-static int hf_ftam_Attribute_Names_read_date_and_time_of_last_attribute_modification = -1;
-static int hf_ftam_Attribute_Names_read_identity_of_creator = -1;
-static int hf_ftam_Attribute_Names_read_identity_of_last_modifier = -1;
-static int hf_ftam_Attribute_Names_read_identity_of_last_reader = -1;
-static int hf_ftam_Attribute_Names_read_identity_of_last_attribute_modifier = -1;
-static int hf_ftam_Attribute_Names_read_Object_availability = -1;
-static int hf_ftam_Attribute_Names_read_Object_size = -1;
-static int hf_ftam_Attribute_Names_read_future_Object_size = -1;
-static int hf_ftam_Attribute_Names_read_access_control = -1;
-static int hf_ftam_Attribute_Names_read_l8gal_qualifiCatiOnS = -1;
-static int hf_ftam_Attribute_Names_read_private_use = -1;
-static int hf_ftam_Attribute_Names_read_Object_type = -1;
-static int hf_ftam_Attribute_Names_read_linked_Object = -1;
-static int hf_ftam_Attribute_Names_read_primary_pathname = -1;
-static int hf_ftam_Attribute_Names_read_path_access_control = -1;
-static int hf_ftam_Attribute_Names_spare_bit22 = -1;
-static int hf_ftam_Attribute_Names_read_Child_objects = -1;
+static int hf_ftam_Protocol_Version_U_version_1;
+static int hf_ftam_Protocol_Version_U_version_2;
+static int hf_ftam_Service_Class_U_unconstrained_class;
+static int hf_ftam_Service_Class_U_management_class;
+static int hf_ftam_Service_Class_U_transfer_class;
+static int hf_ftam_Service_Class_U_transfer_and_management_class;
+static int hf_ftam_Service_Class_U_access_class;
+static int hf_ftam_Functional_Units_U_spare_bit0;
+static int hf_ftam_Functional_Units_U_spare_bit1;
+static int hf_ftam_Functional_Units_U_read;
+static int hf_ftam_Functional_Units_U_write;
+static int hf_ftam_Functional_Units_U_file_access;
+static int hf_ftam_Functional_Units_U_limited_file_management;
+static int hf_ftam_Functional_Units_U_enhanced_file_management;
+static int hf_ftam_Functional_Units_U_grouping;
+static int hf_ftam_Functional_Units_U_fadu_locking;
+static int hf_ftam_Functional_Units_U_recovery;
+static int hf_ftam_Functional_Units_U_restart_data_transfer;
+static int hf_ftam_Functional_Units_U_limited_filestore_management;
+static int hf_ftam_Functional_Units_U_enhanced_filestore_management;
+static int hf_ftam_Functional_Units_U_object_manipulation;
+static int hf_ftam_Functional_Units_U_group_manipulation;
+static int hf_ftam_Functional_Units_U_consecutive_access;
+static int hf_ftam_Functional_Units_U_concurrent_access;
+static int hf_ftam_Attribute_Groups_U_storage;
+static int hf_ftam_Attribute_Groups_U_security;
+static int hf_ftam_Attribute_Groups_U_private;
+static int hf_ftam_Attribute_Groups_U_extension;
+static int hf_ftam_T_processing_mode_f_read;
+static int hf_ftam_T_processing_mode_f_insert;
+static int hf_ftam_T_processing_mode_f_replace;
+static int hf_ftam_T_processing_mode_f_extend;
+static int hf_ftam_T_processing_mode_f_erase;
+static int hf_ftam_Access_Request_U_read;
+static int hf_ftam_Access_Request_U_insert;
+static int hf_ftam_Access_Request_U_replace;
+static int hf_ftam_Access_Request_U_extend;
+static int hf_ftam_Access_Request_U_erase;
+static int hf_ftam_Access_Request_U_read_attribute;
+static int hf_ftam_Access_Request_U_change_attribute;
+static int hf_ftam_Access_Request_U_delete_Object;
+static int hf_ftam_Concurrency_Key_not_required;
+static int hf_ftam_Concurrency_Key_shared;
+static int hf_ftam_Concurrency_Key_exclusive;
+static int hf_ftam_Concurrency_Key_no_access;
+static int hf_ftam_Permitted_Actions_Attribute_read;
+static int hf_ftam_Permitted_Actions_Attribute_insert;
+static int hf_ftam_Permitted_Actions_Attribute_replace;
+static int hf_ftam_Permitted_Actions_Attribute_extend;
+static int hf_ftam_Permitted_Actions_Attribute_erase;
+static int hf_ftam_Permitted_Actions_Attribute_read_attribute;
+static int hf_ftam_Permitted_Actions_Attribute_change_attribute;
+static int hf_ftam_Permitted_Actions_Attribute_delete_Object;
+static int hf_ftam_Permitted_Actions_Attribute_traversal;
+static int hf_ftam_Permitted_Actions_Attribute_reverse_traversal;
+static int hf_ftam_Permitted_Actions_Attribute_random_Order;
+static int hf_ftam_Permitted_Actions_Attribute_pass;
+static int hf_ftam_Permitted_Actions_Attribute_link;
+static int hf_ftam_Equality_Comparision_no_value_available_matches;
+static int hf_ftam_Equality_Comparision_equals_matches;
+static int hf_ftam_Relational_Comparision_no_value_available_matches;
+static int hf_ftam_Relational_Comparision_equals_matches;
+static int hf_ftam_Relational_Comparision_less_than_matches;
+static int hf_ftam_Relational_Comparision_greater_than_matches;
+static int hf_ftam_Attribute_Names_read_pathname;
+static int hf_ftam_Attribute_Names_read_permitted_actions;
+static int hf_ftam_Attribute_Names_read_contents_type;
+static int hf_ftam_Attribute_Names_read_storage_account;
+static int hf_ftam_Attribute_Names_read_date_and_time_of_creation;
+static int hf_ftam_Attribute_Names_read_date_and_time_of_last_modification;
+static int hf_ftam_Attribute_Names_read_date_and_time_of_last_read_access;
+static int hf_ftam_Attribute_Names_read_date_and_time_of_last_attribute_modification;
+static int hf_ftam_Attribute_Names_read_identity_of_creator;
+static int hf_ftam_Attribute_Names_read_identity_of_last_modifier;
+static int hf_ftam_Attribute_Names_read_identity_of_last_reader;
+static int hf_ftam_Attribute_Names_read_identity_of_last_attribute_modifier;
+static int hf_ftam_Attribute_Names_read_Object_availability;
+static int hf_ftam_Attribute_Names_read_Object_size;
+static int hf_ftam_Attribute_Names_read_future_Object_size;
+static int hf_ftam_Attribute_Names_read_access_control;
+static int hf_ftam_Attribute_Names_read_l8gal_qualifiCatiOnS;
+static int hf_ftam_Attribute_Names_read_private_use;
+static int hf_ftam_Attribute_Names_read_Object_type;
+static int hf_ftam_Attribute_Names_read_linked_Object;
+static int hf_ftam_Attribute_Names_read_primary_pathname;
+static int hf_ftam_Attribute_Names_read_path_access_control;
+static int hf_ftam_Attribute_Names_spare_bit22;
+static int hf_ftam_Attribute_Names_read_Child_objects;
 
 /* Initialize the subtree pointers */
-static gint ett_ftam = -1;
-static gint ett_ftam_PDU = -1;
-static gint ett_ftam_FTAM_Regime_PDU = -1;
-static gint ett_ftam_F_INITIALIZE_request = -1;
-static gint ett_ftam_F_INITIALIZE_response = -1;
-static gint ett_ftam_Protocol_Version_U = -1;
-static gint ett_ftam_Service_Class_U = -1;
-static gint ett_ftam_Functional_Units_U = -1;
-static gint ett_ftam_Attribute_Groups_U = -1;
-static gint ett_ftam_Contents_Type_List_U = -1;
-static gint ett_ftam_Contents_Type_List_item = -1;
-static gint ett_ftam_F_TERMINATE_request = -1;
-static gint ett_ftam_F_TERMINATE_response = -1;
-static gint ett_ftam_F_U_ABORT_request = -1;
-static gint ett_ftam_F_P_ABORT_request = -1;
-static gint ett_ftam_File_PDU = -1;
-static gint ett_ftam_F_SELECT_request = -1;
-static gint ett_ftam_F_SELECT_response = -1;
-static gint ett_ftam_F_DESELECT_request = -1;
-static gint ett_ftam_F_DESELECT_response = -1;
-static gint ett_ftam_F_CREATE_request = -1;
-static gint ett_ftam_F_CREATE_response = -1;
-static gint ett_ftam_F_DELETE_request = -1;
-static gint ett_ftam_F_DELETE_response = -1;
-static gint ett_ftam_F_READ_ATTRIB_request = -1;
-static gint ett_ftam_F_READ_ATTRIB_response = -1;
-static gint ett_ftam_F_CHANGE_ATTRIB_request = -1;
-static gint ett_ftam_F_CHANGE_ATTRIB_response = -1;
-static gint ett_ftam_F_OPEN_request = -1;
-static gint ett_ftam_T_processing_mode = -1;
-static gint ett_ftam_T_open_contents_type = -1;
-static gint ett_ftam_SET_OF_Abstract_Syntax_Name = -1;
-static gint ett_ftam_F_OPEN_response = -1;
-static gint ett_ftam_F_CLOSE_request = -1;
-static gint ett_ftam_F_CLOSE_response = -1;
-static gint ett_ftam_F_BEGIN_GROUP_request = -1;
-static gint ett_ftam_F_BEGIN_GROUP_response = -1;
-static gint ett_ftam_F_END_GROUP_request = -1;
-static gint ett_ftam_F_END_GROUP_response = -1;
-static gint ett_ftam_F_RECOVER_request = -1;
-static gint ett_ftam_F_RECOVER_response = -1;
-static gint ett_ftam_F_LOCATE_request = -1;
-static gint ett_ftam_F_LOCATE_response = -1;
-static gint ett_ftam_F_ERASE_request = -1;
-static gint ett_ftam_F_ERASE_response = -1;
-static gint ett_ftam_Bulk_Data_PDU = -1;
-static gint ett_ftam_F_READ_request = -1;
-static gint ett_ftam_F_WRITE_request = -1;
-static gint ett_ftam_F_DATA_END_request = -1;
-static gint ett_ftam_F_TRANSFER_END_request = -1;
-static gint ett_ftam_F_TRANSFER_END_response = -1;
-static gint ett_ftam_F_CANCEL_request = -1;
-static gint ett_ftam_F_CANCEL_response = -1;
-static gint ett_ftam_F_RESTART_request = -1;
-static gint ett_ftam_F_RESTART_response = -1;
-static gint ett_ftam_Access_Context_U = -1;
-static gint ett_ftam_Access_Passwords_U = -1;
-static gint ett_ftam_Access_Request_U = -1;
-static gint ett_ftam_Change_Attributes_U = -1;
-static gint ett_ftam_Charging_U = -1;
-static gint ett_ftam_Charging_item = -1;
-static gint ett_ftam_Concurrency_Control_U = -1;
-static gint ett_ftam_Create_Attributes_U = -1;
-static gint ett_ftam_Diagnostic_U = -1;
-static gint ett_ftam_Diagnostic_item = -1;
-static gint ett_ftam_FADU_Identity_U = -1;
-static gint ett_ftam_SEQUENCE_OF_Node_Name = -1;
-static gint ett_ftam_Password_U = -1;
-static gint ett_ftam_Read_Attributes_U = -1;
-static gint ett_ftam_Select_Attributes_U = -1;
-static gint ett_ftam_Access_Control_Attribute = -1;
-static gint ett_ftam_SET_OF_Access_Control_Element = -1;
-static gint ett_ftam_Access_Control_Change_Attribute = -1;
-static gint ett_ftam_T_actual_values1 = -1;
-static gint ett_ftam_Access_Control_Element = -1;
-static gint ett_ftam_Concurrency_Access = -1;
-static gint ett_ftam_Concurrency_Key = -1;
-static gint ett_ftam_Account_Attribute = -1;
-static gint ett_ftam_Contents_Type_Attribute = -1;
-static gint ett_ftam_T_document_type = -1;
-static gint ett_ftam_T_constraint_set_and_abstract_Syntax = -1;
-static gint ett_ftam_Date_and_Time_Attribute = -1;
-static gint ett_ftam_Object_Availability_Attribute = -1;
-static gint ett_ftam_Pathname_Attribute = -1;
-static gint ett_ftam_Object_Size_Attribute = -1;
-static gint ett_ftam_Legal_Qualification_Attribute = -1;
-static gint ett_ftam_Permitted_Actions_Attribute = -1;
-static gint ett_ftam_Private_Use_Attribute = -1;
-static gint ett_ftam_User_Identity_Attribute = -1;
-static gint ett_ftam_Child_Objects_Attribute = -1;
-static gint ett_ftam_FSM_PDU = -1;
-static gint ett_ftam_F_CHANGE_PREFIX_request = -1;
-static gint ett_ftam_F_CHANGE_PREFIX_response = -1;
-static gint ett_ftam_F_LIST_request = -1;
-static gint ett_ftam_F_LIST_response = -1;
-static gint ett_ftam_F_GROUP_SELECT_request = -1;
-static gint ett_ftam_F_GROUP_SELECT_response = -1;
-static gint ett_ftam_F_GROUP_DELETE_request = -1;
-static gint ett_ftam_F_GROUP_DELETE_response = -1;
-static gint ett_ftam_F_GROUP_MOVE_request = -1;
-static gint ett_ftam_F_GROUP_MOVE_response = -1;
-static gint ett_ftam_F_GROUP_COPY_request = -1;
-static gint ett_ftam_F_GROUP_COPY_response = -1;
-static gint ett_ftam_F_GROUP_LIST_request = -1;
-static gint ett_ftam_F_GROUP_LIST_response = -1;
-static gint ett_ftam_F_GROUP_CHANGE_ATTRIB_request = -1;
-static gint ett_ftam_F_GROUP_CHANGE_ATTRIB_response = -1;
-static gint ett_ftam_F_SELECT_ANOTHER_request = -1;
-static gint ett_ftam_F_SELECT_ANOTHER_response = -1;
-static gint ett_ftam_F_CREATE_DIRECTORY_request = -1;
-static gint ett_ftam_F_CREATE_DIRECTORY_response = -1;
-static gint ett_ftam_F_LINK_request = -1;
-static gint ett_ftam_F_LINK_response = -1;
-static gint ett_ftam_F_UNLINK_request = -1;
-static gint ett_ftam_F_UNLINK_response = -1;
-static gint ett_ftam_F_READ_LINK_ATTRIB_request = -1;
-static gint ett_ftam_F_READ_LINK_ATTRIB_response = -1;
-static gint ett_ftam_F_CHANGE_LINK_ATTRIB_request = -1;
-static gint ett_ftam_F_CHANGE_LINK_ATTRIB_response = -1;
-static gint ett_ftam_F_MOVE_request = -1;
-static gint ett_ftam_F_MOVE_response = -1;
-static gint ett_ftam_F_COPY_request = -1;
-static gint ett_ftam_F_COPY_response = -1;
-static gint ett_ftam_Attribute_Extension_Names = -1;
-static gint ett_ftam_Attribute_Extension_Set_Name = -1;
-static gint ett_ftam_SEQUENCE_OF_Extension_Attribute_identifier = -1;
-static gint ett_ftam_Attribute_Extensions = -1;
-static gint ett_ftam_Attribute_Extension_Set = -1;
-static gint ett_ftam_SEQUENCE_OF_Extension_Attribute = -1;
-static gint ett_ftam_Extension_Attribute = -1;
-static gint ett_ftam_Scope_U = -1;
-static gint ett_ftam_T__untag_item = -1;
-static gint ett_ftam_OR_Set = -1;
-static gint ett_ftam_AND_Set = -1;
-static gint ett_ftam_AND_Set_item = -1;
-static gint ett_ftam_Equality_Comparision = -1;
-static gint ett_ftam_Relational_Comparision = -1;
-static gint ett_ftam_Pathname_Pattern = -1;
-static gint ett_ftam_T_pathname_value = -1;
-static gint ett_ftam_T_pathname_value_item = -1;
-static gint ett_ftam_String_Pattern = -1;
-static gint ett_ftam_T_string_value = -1;
-static gint ett_ftam_T_string_value_item = -1;
-static gint ett_ftam_Bitstring_Pattern = -1;
-static gint ett_ftam_Date_and_Time_Pattern = -1;
-static gint ett_ftam_Integer_Pattern = -1;
-static gint ett_ftam_Object_Identifier_Pattern = -1;
-static gint ett_ftam_Boolean_Pattern = -1;
-static gint ett_ftam_Contents_Type_Pattern = -1;
-static gint ett_ftam_T_constraint_set_abstract_Syntax_Pattern = -1;
-static gint ett_ftam_Attribute_Extensions_Pattern = -1;
-static gint ett_ftam_Attribute_Extensions_Pattern_item = -1;
-static gint ett_ftam_T_extension_set_attribute_Patterns = -1;
-static gint ett_ftam_T_extension_set_attribute_Patterns_item = -1;
-static gint ett_ftam_SEQUENCE_OF_Read_Attributes = -1;
-static gint ett_ftam_Operation_Result_U = -1;
-static gint ett_ftam_SEQUENCE_OF_Pathname = -1;
-static gint ett_ftam_Pathname = -1;
-static gint ett_ftam_Pass_Passwords = -1;
-static gint ett_ftam_Path_Access_Passwords_U = -1;
-static gint ett_ftam_Path_Access_Passwords_item = -1;
-static gint ett_ftam_Attribute_Names = -1;
-static gint ett_ftam_AE_title = -1;
+static gint ett_ftam;
+static gint ett_ftam_PDU;
+static gint ett_ftam_FTAM_Regime_PDU;
+static gint ett_ftam_F_INITIALIZE_request;
+static gint ett_ftam_F_INITIALIZE_response;
+static gint ett_ftam_Protocol_Version_U;
+static gint ett_ftam_Service_Class_U;
+static gint ett_ftam_Functional_Units_U;
+static gint ett_ftam_Attribute_Groups_U;
+static gint ett_ftam_Contents_Type_List_U;
+static gint ett_ftam_Contents_Type_List_item;
+static gint ett_ftam_F_TERMINATE_request;
+static gint ett_ftam_F_TERMINATE_response;
+static gint ett_ftam_F_U_ABORT_request;
+static gint ett_ftam_F_P_ABORT_request;
+static gint ett_ftam_File_PDU;
+static gint ett_ftam_F_SELECT_request;
+static gint ett_ftam_F_SELECT_response;
+static gint ett_ftam_F_DESELECT_request;
+static gint ett_ftam_F_DESELECT_response;
+static gint ett_ftam_F_CREATE_request;
+static gint ett_ftam_F_CREATE_response;
+static gint ett_ftam_F_DELETE_request;
+static gint ett_ftam_F_DELETE_response;
+static gint ett_ftam_F_READ_ATTRIB_request;
+static gint ett_ftam_F_READ_ATTRIB_response;
+static gint ett_ftam_F_CHANGE_ATTRIB_request;
+static gint ett_ftam_F_CHANGE_ATTRIB_response;
+static gint ett_ftam_F_OPEN_request;
+static gint ett_ftam_T_processing_mode;
+static gint ett_ftam_T_open_contents_type;
+static gint ett_ftam_SET_OF_Abstract_Syntax_Name;
+static gint ett_ftam_F_OPEN_response;
+static gint ett_ftam_F_CLOSE_request;
+static gint ett_ftam_F_CLOSE_response;
+static gint ett_ftam_F_BEGIN_GROUP_request;
+static gint ett_ftam_F_BEGIN_GROUP_response;
+static gint ett_ftam_F_END_GROUP_request;
+static gint ett_ftam_F_END_GROUP_response;
+static gint ett_ftam_F_RECOVER_request;
+static gint ett_ftam_F_RECOVER_response;
+static gint ett_ftam_F_LOCATE_request;
+static gint ett_ftam_F_LOCATE_response;
+static gint ett_ftam_F_ERASE_request;
+static gint ett_ftam_F_ERASE_response;
+static gint ett_ftam_Bulk_Data_PDU;
+static gint ett_ftam_F_READ_request;
+static gint ett_ftam_F_WRITE_request;
+static gint ett_ftam_F_DATA_END_request;
+static gint ett_ftam_F_TRANSFER_END_request;
+static gint ett_ftam_F_TRANSFER_END_response;
+static gint ett_ftam_F_CANCEL_request;
+static gint ett_ftam_F_CANCEL_response;
+static gint ett_ftam_F_RESTART_request;
+static gint ett_ftam_F_RESTART_response;
+static gint ett_ftam_Access_Context_U;
+static gint ett_ftam_Access_Passwords_U;
+static gint ett_ftam_Access_Request_U;
+static gint ett_ftam_Change_Attributes_U;
+static gint ett_ftam_Charging_U;
+static gint ett_ftam_Charging_item;
+static gint ett_ftam_Concurrency_Control_U;
+static gint ett_ftam_Create_Attributes_U;
+static gint ett_ftam_Diagnostic_U;
+static gint ett_ftam_Diagnostic_item;
+static gint ett_ftam_FADU_Identity_U;
+static gint ett_ftam_SEQUENCE_OF_Node_Name;
+static gint ett_ftam_Password_U;
+static gint ett_ftam_Read_Attributes_U;
+static gint ett_ftam_Select_Attributes_U;
+static gint ett_ftam_Access_Control_Attribute;
+static gint ett_ftam_SET_OF_Access_Control_Element;
+static gint ett_ftam_Access_Control_Change_Attribute;
+static gint ett_ftam_T_actual_values1;
+static gint ett_ftam_Access_Control_Element;
+static gint ett_ftam_Concurrency_Access;
+static gint ett_ftam_Concurrency_Key;
+static gint ett_ftam_Account_Attribute;
+static gint ett_ftam_Contents_Type_Attribute;
+static gint ett_ftam_T_document_type;
+static gint ett_ftam_T_constraint_set_and_abstract_Syntax;
+static gint ett_ftam_Date_and_Time_Attribute;
+static gint ett_ftam_Object_Availability_Attribute;
+static gint ett_ftam_Pathname_Attribute;
+static gint ett_ftam_Object_Size_Attribute;
+static gint ett_ftam_Legal_Qualification_Attribute;
+static gint ett_ftam_Permitted_Actions_Attribute;
+static gint ett_ftam_Private_Use_Attribute;
+static gint ett_ftam_User_Identity_Attribute;
+static gint ett_ftam_Child_Objects_Attribute;
+static gint ett_ftam_FSM_PDU;
+static gint ett_ftam_F_CHANGE_PREFIX_request;
+static gint ett_ftam_F_CHANGE_PREFIX_response;
+static gint ett_ftam_F_LIST_request;
+static gint ett_ftam_F_LIST_response;
+static gint ett_ftam_F_GROUP_SELECT_request;
+static gint ett_ftam_F_GROUP_SELECT_response;
+static gint ett_ftam_F_GROUP_DELETE_request;
+static gint ett_ftam_F_GROUP_DELETE_response;
+static gint ett_ftam_F_GROUP_MOVE_request;
+static gint ett_ftam_F_GROUP_MOVE_response;
+static gint ett_ftam_F_GROUP_COPY_request;
+static gint ett_ftam_F_GROUP_COPY_response;
+static gint ett_ftam_F_GROUP_LIST_request;
+static gint ett_ftam_F_GROUP_LIST_response;
+static gint ett_ftam_F_GROUP_CHANGE_ATTRIB_request;
+static gint ett_ftam_F_GROUP_CHANGE_ATTRIB_response;
+static gint ett_ftam_F_SELECT_ANOTHER_request;
+static gint ett_ftam_F_SELECT_ANOTHER_response;
+static gint ett_ftam_F_CREATE_DIRECTORY_request;
+static gint ett_ftam_F_CREATE_DIRECTORY_response;
+static gint ett_ftam_F_LINK_request;
+static gint ett_ftam_F_LINK_response;
+static gint ett_ftam_F_UNLINK_request;
+static gint ett_ftam_F_UNLINK_response;
+static gint ett_ftam_F_READ_LINK_ATTRIB_request;
+static gint ett_ftam_F_READ_LINK_ATTRIB_response;
+static gint ett_ftam_F_CHANGE_LINK_ATTRIB_request;
+static gint ett_ftam_F_CHANGE_LINK_ATTRIB_response;
+static gint ett_ftam_F_MOVE_request;
+static gint ett_ftam_F_MOVE_response;
+static gint ett_ftam_F_COPY_request;
+static gint ett_ftam_F_COPY_response;
+static gint ett_ftam_Attribute_Extension_Names;
+static gint ett_ftam_Attribute_Extension_Set_Name;
+static gint ett_ftam_SEQUENCE_OF_Extension_Attribute_identifier;
+static gint ett_ftam_Attribute_Extensions;
+static gint ett_ftam_Attribute_Extension_Set;
+static gint ett_ftam_SEQUENCE_OF_Extension_Attribute;
+static gint ett_ftam_Extension_Attribute;
+static gint ett_ftam_Scope_U;
+static gint ett_ftam_T__untag_item;
+static gint ett_ftam_OR_Set;
+static gint ett_ftam_AND_Set;
+static gint ett_ftam_AND_Set_item;
+static gint ett_ftam_Equality_Comparision;
+static gint ett_ftam_Relational_Comparision;
+static gint ett_ftam_Pathname_Pattern;
+static gint ett_ftam_T_pathname_value;
+static gint ett_ftam_T_pathname_value_item;
+static gint ett_ftam_String_Pattern;
+static gint ett_ftam_T_string_value;
+static gint ett_ftam_T_string_value_item;
+static gint ett_ftam_Bitstring_Pattern;
+static gint ett_ftam_Date_and_Time_Pattern;
+static gint ett_ftam_Integer_Pattern;
+static gint ett_ftam_Object_Identifier_Pattern;
+static gint ett_ftam_Boolean_Pattern;
+static gint ett_ftam_Contents_Type_Pattern;
+static gint ett_ftam_T_constraint_set_abstract_Syntax_Pattern;
+static gint ett_ftam_Attribute_Extensions_Pattern;
+static gint ett_ftam_Attribute_Extensions_Pattern_item;
+static gint ett_ftam_T_extension_set_attribute_Patterns;
+static gint ett_ftam_T_extension_set_attribute_Patterns_item;
+static gint ett_ftam_SEQUENCE_OF_Read_Attributes;
+static gint ett_ftam_Operation_Result_U;
+static gint ett_ftam_SEQUENCE_OF_Pathname;
+static gint ett_ftam_Pathname;
+static gint ett_ftam_Pass_Passwords;
+static gint ett_ftam_Path_Access_Passwords_U;
+static gint ett_ftam_Path_Access_Passwords_item;
+static gint ett_ftam_Attribute_Names;
+static gint ett_ftam_AE_title;
 
-static expert_field ei_ftam_zero_pdu = EI_INIT;
+static expert_field ei_ftam_zero_pdu;
 
 
 static int * const Protocol_Version_U_bits[] = {

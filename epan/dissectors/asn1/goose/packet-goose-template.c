@@ -34,40 +34,40 @@ void proto_register_goose(void);
 void proto_reg_handoff_goose(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_goose = -1;
-static int proto_r_goose = -1;
+static int proto_goose;
+static int proto_r_goose;
 
-static int hf_goose_session_header = -1;
-static int hf_goose_spdu_id = -1;
-static int hf_goose_session_hdr_length = -1;
-static int hf_goose_hdr_length = -1;
-static int hf_goose_content_id = -1;
-static int hf_goose_spdu_lenth = -1;
-static int hf_goose_spdu_num = -1;
-static int hf_goose_version = -1;
-static int hf_goose_security_info = -1;
-static int hf_goose_current_key_t = -1;
-static int hf_goose_next_key_t = -1;
-static int hf_goose_key_id = -1;
-static int hf_goose_init_vec_length = -1;
-static int hf_goose_init_vec = -1;
-static int hf_goose_session_user_info = -1;
-static int hf_goose_payload = -1;
-static int hf_goose_payload_length = -1;
-static int hf_goose_apdu_tag = -1;
-static int hf_goose_apdu_simulation = -1;
-static int hf_goose_apdu_appid = -1;
-static int hf_goose_apdu_length = -1;
-static int hf_goose_padding_tag = -1;
-static int hf_goose_padding_length = -1;
-static int hf_goose_padding = -1;
-static int hf_goose_hmac = -1;
-static int hf_goose_appid = -1;
-static int hf_goose_length = -1;
-static int hf_goose_reserve1 = -1;
-static int hf_goose_reserve1_s_bit = -1;
-static int hf_goose_reserve2 = -1;
-static int hf_goose_float_value = -1;
+static int hf_goose_session_header;
+static int hf_goose_spdu_id;
+static int hf_goose_session_hdr_length;
+static int hf_goose_hdr_length;
+static int hf_goose_content_id;
+static int hf_goose_spdu_lenth;
+static int hf_goose_spdu_num;
+static int hf_goose_version;
+static int hf_goose_security_info;
+static int hf_goose_current_key_t;
+static int hf_goose_next_key_t;
+static int hf_goose_key_id;
+static int hf_goose_init_vec_length;
+static int hf_goose_init_vec;
+static int hf_goose_session_user_info;
+static int hf_goose_payload;
+static int hf_goose_payload_length;
+static int hf_goose_apdu_tag;
+static int hf_goose_apdu_simulation;
+static int hf_goose_apdu_appid;
+static int hf_goose_apdu_length;
+static int hf_goose_padding_tag;
+static int hf_goose_padding_length;
+static int hf_goose_padding;
+static int hf_goose_hmac;
+static int hf_goose_appid;
+static int hf_goose_length;
+static int hf_goose_reserve1;
+static int hf_goose_reserve1_s_bit;
+static int hf_goose_reserve2;
+static int hf_goose_float_value;
 
 
 /* Bit fields in the Reserved fields */
@@ -79,9 +79,9 @@ typedef struct _goose_chk_data{
 }goose_chk_data_t;
 #define GOOSE_CHK_DATA_LEN	(sizeof(goose_chk_data_t))
 
-static expert_field ei_goose_mal_utctime = EI_INIT;
-static expert_field ei_goose_zero_pdu = EI_INIT;
-static expert_field ei_goose_invalid_sim = EI_INIT;
+static expert_field ei_goose_mal_utctime;
+static expert_field ei_goose_zero_pdu;
+static expert_field ei_goose_invalid_sim;
 
 #define SINGLE_FLOAT_EXP_BITS	8
 #define FLOAT_ENC_LENGTH		5
@@ -89,15 +89,15 @@ static expert_field ei_goose_invalid_sim = EI_INIT;
 #include "packet-goose-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_r_goose = -1;
-static int ett_session_header = -1;
-static int ett_security_info = -1;
-static int ett_session_user_info = -1;
-static int ett_payload = -1;
-static int ett_padding = -1;
-static int ett_goose = -1;
-static int ett_reserve1 = -1;
-static int ett_expert_inf_sim = -1;
+static int ett_r_goose;
+static int ett_session_header;
+static int ett_security_info;
+static int ett_session_user_info;
+static int ett_payload;
+static int ett_padding;
+static int ett_goose;
+static int ett_reserve1;
+static int ett_expert_inf_sim;
 
 #include "packet-goose-ett.c"
 

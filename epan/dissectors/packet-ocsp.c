@@ -39,81 +39,81 @@ static dissector_handle_t ocsp_response_handle;
 
 /* Initialize the protocol and registered fields */
 int proto_ocsp = -1;
-static int hf_ocsp_responseType_id = -1;
-static int hf_ocsp_BasicOCSPResponse_PDU = -1;    /* BasicOCSPResponse */
-static int hf_ocsp_ArchiveCutoff_PDU = -1;        /* ArchiveCutoff */
-static int hf_ocsp_AcceptableResponses_PDU = -1;  /* AcceptableResponses */
-static int hf_ocsp_ServiceLocator_PDU = -1;       /* ServiceLocator */
-static int hf_ocsp_CrlID_PDU = -1;                /* CrlID */
-static int hf_ocsp_ReOcspNonce_PDU = -1;          /* ReOcspNonce */
-static int hf_ocsp_NULL_PDU = -1;                 /* NULL */
-static int hf_ocsp_tbsRequest = -1;               /* TBSRequest */
-static int hf_ocsp_optionalSignature = -1;        /* Signature */
-static int hf_ocsp_version = -1;                  /* Version */
-static int hf_ocsp_requestorName = -1;            /* GeneralName */
-static int hf_ocsp_requestList = -1;              /* SEQUENCE_OF_Request */
-static int hf_ocsp_requestList_item = -1;         /* Request */
-static int hf_ocsp_requestExtensions = -1;        /* Extensions */
-static int hf_ocsp_signatureAlgorithm = -1;       /* AlgorithmIdentifier */
-static int hf_ocsp_signature = -1;                /* BIT_STRING */
-static int hf_ocsp_certs = -1;                    /* SEQUENCE_OF_Certificate */
-static int hf_ocsp_certs_item = -1;               /* Certificate */
-static int hf_ocsp_reqCert = -1;                  /* CertID */
-static int hf_ocsp_singleRequestExtensions = -1;  /* Extensions */
-static int hf_ocsp_hashAlgorithm = -1;            /* AlgorithmIdentifier */
-static int hf_ocsp_issuerNameHash = -1;           /* OCTET_STRING */
-static int hf_ocsp_issuerKeyHash = -1;            /* OCTET_STRING */
-static int hf_ocsp_serialNumber = -1;             /* CertificateSerialNumber */
-static int hf_ocsp_responseStatus = -1;           /* OCSPResponseStatus */
-static int hf_ocsp_responseBytes = -1;            /* ResponseBytes */
-static int hf_ocsp_responseType = -1;             /* T_responseType */
-static int hf_ocsp_response = -1;                 /* T_response */
-static int hf_ocsp_tbsResponseData = -1;          /* ResponseData */
-static int hf_ocsp_responderID = -1;              /* ResponderID */
-static int hf_ocsp_producedAt = -1;               /* GeneralizedTime */
-static int hf_ocsp_responses = -1;                /* SEQUENCE_OF_SingleResponse */
-static int hf_ocsp_responses_item = -1;           /* SingleResponse */
-static int hf_ocsp_responseExtensions = -1;       /* Extensions */
-static int hf_ocsp_byName = -1;                   /* Name */
-static int hf_ocsp_byKey = -1;                    /* KeyHash */
-static int hf_ocsp_certID = -1;                   /* CertID */
-static int hf_ocsp_certStatus = -1;               /* CertStatus */
-static int hf_ocsp_thisUpdate = -1;               /* GeneralizedTime */
-static int hf_ocsp_nextUpdate = -1;               /* GeneralizedTime */
-static int hf_ocsp_singleExtensions = -1;         /* Extensions */
-static int hf_ocsp_good = -1;                     /* NULL */
-static int hf_ocsp_revoked = -1;                  /* RevokedInfo */
-static int hf_ocsp_unknown = -1;                  /* UnknownInfo */
-static int hf_ocsp_revocationTime = -1;           /* GeneralizedTime */
-static int hf_ocsp_revocationReason = -1;         /* CRLReason */
-static int hf_ocsp_AcceptableResponses_item = -1;  /* OBJECT_IDENTIFIER */
-static int hf_ocsp_issuer = -1;                   /* Name */
-static int hf_ocsp_locator = -1;                  /* AuthorityInfoAccessSyntax */
-static int hf_ocsp_crlUrl = -1;                   /* IA5String */
-static int hf_ocsp_crlNum = -1;                   /* INTEGER */
-static int hf_ocsp_crlTime = -1;                  /* GeneralizedTime */
+static int hf_ocsp_responseType_id;
+static int hf_ocsp_BasicOCSPResponse_PDU;         /* BasicOCSPResponse */
+static int hf_ocsp_ArchiveCutoff_PDU;             /* ArchiveCutoff */
+static int hf_ocsp_AcceptableResponses_PDU;       /* AcceptableResponses */
+static int hf_ocsp_ServiceLocator_PDU;            /* ServiceLocator */
+static int hf_ocsp_CrlID_PDU;                     /* CrlID */
+static int hf_ocsp_ReOcspNonce_PDU;               /* ReOcspNonce */
+static int hf_ocsp_NULL_PDU;                      /* NULL */
+static int hf_ocsp_tbsRequest;                    /* TBSRequest */
+static int hf_ocsp_optionalSignature;             /* Signature */
+static int hf_ocsp_version;                       /* Version */
+static int hf_ocsp_requestorName;                 /* GeneralName */
+static int hf_ocsp_requestList;                   /* SEQUENCE_OF_Request */
+static int hf_ocsp_requestList_item;              /* Request */
+static int hf_ocsp_requestExtensions;             /* Extensions */
+static int hf_ocsp_signatureAlgorithm;            /* AlgorithmIdentifier */
+static int hf_ocsp_signature;                     /* BIT_STRING */
+static int hf_ocsp_certs;                         /* SEQUENCE_OF_Certificate */
+static int hf_ocsp_certs_item;                    /* Certificate */
+static int hf_ocsp_reqCert;                       /* CertID */
+static int hf_ocsp_singleRequestExtensions;       /* Extensions */
+static int hf_ocsp_hashAlgorithm;                 /* AlgorithmIdentifier */
+static int hf_ocsp_issuerNameHash;                /* OCTET_STRING */
+static int hf_ocsp_issuerKeyHash;                 /* OCTET_STRING */
+static int hf_ocsp_serialNumber;                  /* CertificateSerialNumber */
+static int hf_ocsp_responseStatus;                /* OCSPResponseStatus */
+static int hf_ocsp_responseBytes;                 /* ResponseBytes */
+static int hf_ocsp_responseType;                  /* T_responseType */
+static int hf_ocsp_response;                      /* T_response */
+static int hf_ocsp_tbsResponseData;               /* ResponseData */
+static int hf_ocsp_responderID;                   /* ResponderID */
+static int hf_ocsp_producedAt;                    /* GeneralizedTime */
+static int hf_ocsp_responses;                     /* SEQUENCE_OF_SingleResponse */
+static int hf_ocsp_responses_item;                /* SingleResponse */
+static int hf_ocsp_responseExtensions;            /* Extensions */
+static int hf_ocsp_byName;                        /* Name */
+static int hf_ocsp_byKey;                         /* KeyHash */
+static int hf_ocsp_certID;                        /* CertID */
+static int hf_ocsp_certStatus;                    /* CertStatus */
+static int hf_ocsp_thisUpdate;                    /* GeneralizedTime */
+static int hf_ocsp_nextUpdate;                    /* GeneralizedTime */
+static int hf_ocsp_singleExtensions;              /* Extensions */
+static int hf_ocsp_good;                          /* NULL */
+static int hf_ocsp_revoked;                       /* RevokedInfo */
+static int hf_ocsp_unknown;                       /* UnknownInfo */
+static int hf_ocsp_revocationTime;                /* GeneralizedTime */
+static int hf_ocsp_revocationReason;              /* CRLReason */
+static int hf_ocsp_AcceptableResponses_item;      /* OBJECT_IDENTIFIER */
+static int hf_ocsp_issuer;                        /* Name */
+static int hf_ocsp_locator;                       /* AuthorityInfoAccessSyntax */
+static int hf_ocsp_crlUrl;                        /* IA5String */
+static int hf_ocsp_crlNum;                        /* INTEGER */
+static int hf_ocsp_crlTime;                       /* GeneralizedTime */
 
 /* Initialize the subtree pointers */
-static gint ett_ocsp = -1;
-static gint ett_ocsp_OCSPRequest = -1;
-static gint ett_ocsp_TBSRequest = -1;
-static gint ett_ocsp_SEQUENCE_OF_Request = -1;
-static gint ett_ocsp_Signature = -1;
-static gint ett_ocsp_SEQUENCE_OF_Certificate = -1;
-static gint ett_ocsp_Request = -1;
-static gint ett_ocsp_CertID = -1;
-static gint ett_ocsp_OCSPResponse = -1;
-static gint ett_ocsp_ResponseBytes = -1;
-static gint ett_ocsp_BasicOCSPResponse = -1;
-static gint ett_ocsp_ResponseData = -1;
-static gint ett_ocsp_SEQUENCE_OF_SingleResponse = -1;
-static gint ett_ocsp_ResponderID = -1;
-static gint ett_ocsp_SingleResponse = -1;
-static gint ett_ocsp_CertStatus = -1;
-static gint ett_ocsp_RevokedInfo = -1;
-static gint ett_ocsp_AcceptableResponses = -1;
-static gint ett_ocsp_ServiceLocator = -1;
-static gint ett_ocsp_CrlID = -1;
+static gint ett_ocsp;
+static gint ett_ocsp_OCSPRequest;
+static gint ett_ocsp_TBSRequest;
+static gint ett_ocsp_SEQUENCE_OF_Request;
+static gint ett_ocsp_Signature;
+static gint ett_ocsp_SEQUENCE_OF_Certificate;
+static gint ett_ocsp_Request;
+static gint ett_ocsp_CertID;
+static gint ett_ocsp_OCSPResponse;
+static gint ett_ocsp_ResponseBytes;
+static gint ett_ocsp_BasicOCSPResponse;
+static gint ett_ocsp_ResponseData;
+static gint ett_ocsp_SEQUENCE_OF_SingleResponse;
+static gint ett_ocsp_ResponderID;
+static gint ett_ocsp_SingleResponse;
+static gint ett_ocsp_CertStatus;
+static gint ett_ocsp_RevokedInfo;
+static gint ett_ocsp_AcceptableResponses;
+static gint ett_ocsp_ServiceLocator;
+static gint ett_ocsp_CrlID;
 
 
 

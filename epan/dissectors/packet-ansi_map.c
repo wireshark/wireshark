@@ -111,1020 +111,1020 @@ static dissector_handle_t ansi_map_handle=NULL;
 
 /* Initialize the protocol and registered fields */
 static int ansi_map_tap = -1;
-static int proto_ansi_map = -1;
+static int proto_ansi_map;
 
 #if 0
-static int hf_ansi_map_op_code_fam = -1;
-static int hf_ansi_map_op_code = -1;
+static int hf_ansi_map_op_code_fam;
+static int hf_ansi_map_op_code;
 #endif
 
-static int hf_ansi_map_reservedBitH = -1;
-static int hf_ansi_map_reservedBitHG = -1;
-static int hf_ansi_map_reservedBitHGFE = -1;
-static int hf_ansi_map_reservedBitFED = -1;
-static int hf_ansi_map_reservedBitD = -1;
-static int hf_ansi_map_reservedBitED = -1;
+static int hf_ansi_map_reservedBitH;
+static int hf_ansi_map_reservedBitHG;
+static int hf_ansi_map_reservedBitHGFE;
+static int hf_ansi_map_reservedBitFED;
+static int hf_ansi_map_reservedBitD;
+static int hf_ansi_map_reservedBitED;
 
-static int hf_ansi_map_type_of_digits = -1;
-static int hf_ansi_map_na = -1;
-static int hf_ansi_map_pi = -1;
-static int hf_ansi_map_navail = -1;
-static int hf_ansi_map_si = -1;
-static int hf_ansi_map_digits_enc = -1;
-static int hf_ansi_map_np = -1;
-static int hf_ansi_map_nr_digits = -1;
-static int hf_ansi_map_bcd_digits = -1;
-static int hf_ansi_map_ia5_digits = -1;
-static int hf_ansi_map_subaddr_type = -1;
-static int hf_ansi_map_subaddr_odd_even = -1;
-static int hf_ansi_alertcode_cadence = -1;
-static int hf_ansi_alertcode_pitch = -1;
-static int hf_ansi_alertcode_alertaction = -1;
-static int hf_ansi_map_announcementcode_tone = -1;
-static int hf_ansi_map_announcementcode_class = -1;
-static int hf_ansi_map_announcementcode_std_ann = -1;
-static int hf_ansi_map_announcementcode_cust_ann = -1;
-static int hf_ansi_map_authorizationperiod_period = -1;
-static int hf_ansi_map_value = -1;
-static int hf_ansi_map_msc_type = -1;
-static int hf_ansi_map_handoffstate_pi = -1;
-static int hf_ansi_map_tgn = -1;
-static int hf_ansi_map_tmn = -1;
-static int hf_ansi_map_messagewaitingnotificationcount_tom = -1;
-static int hf_ansi_map_messagewaitingnotificationcount_no_mw = -1;
-static int hf_ansi_map_messagewaitingnotificationtype_mwi = -1;
-static int hf_ansi_map_messagewaitingnotificationtype_apt = -1;
-static int hf_ansi_map_messagewaitingnotificationtype_pt = -1;
+static int hf_ansi_map_type_of_digits;
+static int hf_ansi_map_na;
+static int hf_ansi_map_pi;
+static int hf_ansi_map_navail;
+static int hf_ansi_map_si;
+static int hf_ansi_map_digits_enc;
+static int hf_ansi_map_np;
+static int hf_ansi_map_nr_digits;
+static int hf_ansi_map_bcd_digits;
+static int hf_ansi_map_ia5_digits;
+static int hf_ansi_map_subaddr_type;
+static int hf_ansi_map_subaddr_odd_even;
+static int hf_ansi_alertcode_cadence;
+static int hf_ansi_alertcode_pitch;
+static int hf_ansi_alertcode_alertaction;
+static int hf_ansi_map_announcementcode_tone;
+static int hf_ansi_map_announcementcode_class;
+static int hf_ansi_map_announcementcode_std_ann;
+static int hf_ansi_map_announcementcode_cust_ann;
+static int hf_ansi_map_authorizationperiod_period;
+static int hf_ansi_map_value;
+static int hf_ansi_map_msc_type;
+static int hf_ansi_map_handoffstate_pi;
+static int hf_ansi_map_tgn;
+static int hf_ansi_map_tmn;
+static int hf_ansi_map_messagewaitingnotificationcount_tom;
+static int hf_ansi_map_messagewaitingnotificationcount_no_mw;
+static int hf_ansi_map_messagewaitingnotificationtype_mwi;
+static int hf_ansi_map_messagewaitingnotificationtype_apt;
+static int hf_ansi_map_messagewaitingnotificationtype_pt;
 
-static int hf_ansi_map_trans_cap_prof = -1;
-static int hf_ansi_map_trans_cap_busy = -1;
-static int hf_ansi_map_trans_cap_ann = -1;
-static int hf_ansi_map_trans_cap_rui = -1;
-static int hf_ansi_map_trans_cap_spini = -1;
-static int hf_ansi_map_trans_cap_uzci = -1;
-static int hf_ansi_map_trans_cap_ndss = -1;
-static int hf_ansi_map_trans_cap_nami = -1;
-static int hf_ansi_trans_cap_multerm = -1;
-static int hf_ansi_map_terminationtriggers_busy = -1;
-static int hf_ansi_map_terminationtriggers_rf = -1;
-static int hf_ansi_map_terminationtriggers_npr = -1;
-static int hf_ansi_map_terminationtriggers_na = -1;
-static int hf_ansi_map_terminationtriggers_nr = -1;
-static int hf_ansi_trans_cap_tl = -1;
-static int hf_ansi_map_cdmaserviceoption = -1;
-static int hf_ansi_trans_cap_waddr = -1;
-static int hf_ansi_map_MarketID = -1;
-static int hf_ansi_map_swno = -1;
-static int hf_ansi_map_idno = -1;
-static int hf_ansi_map_segcount = -1;
-static int hf_ansi_map_sms_originationrestrictions_fmc = -1;
-static int hf_ansi_map_sms_originationrestrictions_direct = -1;
-static int hf_ansi_map_sms_originationrestrictions_default = -1;
-static int hf_ansi_map_systemcapabilities_auth = -1;
-static int hf_ansi_map_systemcapabilities_se = -1;
-static int hf_ansi_map_systemcapabilities_vp = -1;
-static int hf_ansi_map_systemcapabilities_cave = -1;
-static int hf_ansi_map_systemcapabilities_ssd = -1;
-static int hf_ansi_map_systemcapabilities_dp = -1;
+static int hf_ansi_map_trans_cap_prof;
+static int hf_ansi_map_trans_cap_busy;
+static int hf_ansi_map_trans_cap_ann;
+static int hf_ansi_map_trans_cap_rui;
+static int hf_ansi_map_trans_cap_spini;
+static int hf_ansi_map_trans_cap_uzci;
+static int hf_ansi_map_trans_cap_ndss;
+static int hf_ansi_map_trans_cap_nami;
+static int hf_ansi_trans_cap_multerm;
+static int hf_ansi_map_terminationtriggers_busy;
+static int hf_ansi_map_terminationtriggers_rf;
+static int hf_ansi_map_terminationtriggers_npr;
+static int hf_ansi_map_terminationtriggers_na;
+static int hf_ansi_map_terminationtriggers_nr;
+static int hf_ansi_trans_cap_tl;
+static int hf_ansi_map_cdmaserviceoption;
+static int hf_ansi_trans_cap_waddr;
+static int hf_ansi_map_MarketID;
+static int hf_ansi_map_swno;
+static int hf_ansi_map_idno;
+static int hf_ansi_map_segcount;
+static int hf_ansi_map_sms_originationrestrictions_fmc;
+static int hf_ansi_map_sms_originationrestrictions_direct;
+static int hf_ansi_map_sms_originationrestrictions_default;
+static int hf_ansi_map_systemcapabilities_auth;
+static int hf_ansi_map_systemcapabilities_se;
+static int hf_ansi_map_systemcapabilities_vp;
+static int hf_ansi_map_systemcapabilities_cave;
+static int hf_ansi_map_systemcapabilities_ssd;
+static int hf_ansi_map_systemcapabilities_dp;
 
-static int hf_ansi_map_mslocation_lat = -1;
-static int hf_ansi_map_mslocation_long = -1;
-static int hf_ansi_map_mslocation_res = -1;
-static int hf_ansi_map_nampscallmode_namps = -1;
-static int hf_ansi_map_nampscallmode_amps = -1;
-static int hf_ansi_map_nampschanneldata_navca = -1;
-static int hf_ansi_map_nampschanneldata_CCIndicator = -1;
+static int hf_ansi_map_mslocation_lat;
+static int hf_ansi_map_mslocation_long;
+static int hf_ansi_map_mslocation_res;
+static int hf_ansi_map_nampscallmode_namps;
+static int hf_ansi_map_nampscallmode_amps;
+static int hf_ansi_map_nampschanneldata_navca;
+static int hf_ansi_map_nampschanneldata_CCIndicator;
 
-static int hf_ansi_map_callingfeaturesindicator_cfufa = -1;
-static int hf_ansi_map_callingfeaturesindicator_cfbfa = -1;
-static int hf_ansi_map_callingfeaturesindicator_cfnafa = -1;
-static int hf_ansi_map_callingfeaturesindicator_cwfa = -1;
-static int hf_ansi_map_callingfeaturesindicator_3wcfa = -1;
-static int hf_ansi_map_callingfeaturesindicator_pcwfa =-1;
-static int hf_ansi_map_callingfeaturesindicator_dpfa = -1;
-static int hf_ansi_map_callingfeaturesindicator_ahfa = -1;
-static int hf_ansi_map_callingfeaturesindicator_uscfvmfa = -1;
-static int hf_ansi_map_callingfeaturesindicator_uscfmsfa = -1;
-static int hf_ansi_map_callingfeaturesindicator_uscfnrfa = -1;
-static int hf_ansi_map_callingfeaturesindicator_cpdsfa = -1;
-static int hf_ansi_map_callingfeaturesindicator_ccsfa = -1;
-static int hf_ansi_map_callingfeaturesindicator_epefa = -1;
-static int hf_ansi_map_callingfeaturesindicator_cdfa = -1;
-static int hf_ansi_map_callingfeaturesindicator_vpfa = -1;
-static int hf_ansi_map_callingfeaturesindicator_ctfa = -1;
-static int hf_ansi_map_callingfeaturesindicator_cnip1fa = -1;
-static int hf_ansi_map_callingfeaturesindicator_cnip2fa = -1;
-static int hf_ansi_map_callingfeaturesindicator_cnirfa = -1;
-static int hf_ansi_map_callingfeaturesindicator_cniroverfa = -1;
-static int hf_ansi_map_cdmacallmode_cdma = -1;
-static int hf_ansi_map_cdmacallmode_amps = -1;
-static int hf_ansi_map_cdmacallmode_namps = -1;
-static int hf_ansi_map_cdmacallmode_cls1 = -1;
-static int hf_ansi_map_cdmacallmode_cls2 = -1;
-static int hf_ansi_map_cdmacallmode_cls3 = -1;
-static int hf_ansi_map_cdmacallmode_cls4 = -1;
-static int hf_ansi_map_cdmacallmode_cls5 = -1;
-static int hf_ansi_map_cdmacallmode_cls6 = -1;
-static int hf_ansi_map_cdmacallmode_cls7 = -1;
-static int hf_ansi_map_cdmacallmode_cls8 = -1;
-static int hf_ansi_map_cdmacallmode_cls9 = -1;
-static int hf_ansi_map_cdmacallmode_cls10 = -1;
-static int hf_ansi_map_cdmachanneldata_Frame_Offset = -1;
-static int hf_ansi_map_cdmachanneldata_CDMA_ch_no = -1;
-static int hf_ansi_map_cdmachanneldata_band_cls = -1;
-static int hf_ansi_map_cdmachanneldata_lc_mask_b6 = -1;
-static int hf_ansi_map_cdmachanneldata_lc_mask_b5 = -1;
-static int hf_ansi_map_cdmachanneldata_lc_mask_b4 = -1;
-static int hf_ansi_map_cdmachanneldata_lc_mask_b3 = -1;
-static int hf_ansi_map_cdmachanneldata_lc_mask_b2 = -1;
-static int hf_ansi_map_cdmachanneldata_lc_mask_b1 = -1;
-static int hf_ansi_map_cdmachanneldata_np_ext = -1;
-static int hf_ansi_map_cdmachanneldata_nominal_pwr = -1;
-static int hf_ansi_map_cdmachanneldata_nr_preamble = -1;
+static int hf_ansi_map_callingfeaturesindicator_cfufa;
+static int hf_ansi_map_callingfeaturesindicator_cfbfa;
+static int hf_ansi_map_callingfeaturesindicator_cfnafa;
+static int hf_ansi_map_callingfeaturesindicator_cwfa;
+static int hf_ansi_map_callingfeaturesindicator_3wcfa;
+static int hf_ansi_map_callingfeaturesindicator_pcwfa;
+static int hf_ansi_map_callingfeaturesindicator_dpfa;
+static int hf_ansi_map_callingfeaturesindicator_ahfa;
+static int hf_ansi_map_callingfeaturesindicator_uscfvmfa;
+static int hf_ansi_map_callingfeaturesindicator_uscfmsfa;
+static int hf_ansi_map_callingfeaturesindicator_uscfnrfa;
+static int hf_ansi_map_callingfeaturesindicator_cpdsfa;
+static int hf_ansi_map_callingfeaturesindicator_ccsfa;
+static int hf_ansi_map_callingfeaturesindicator_epefa;
+static int hf_ansi_map_callingfeaturesindicator_cdfa;
+static int hf_ansi_map_callingfeaturesindicator_vpfa;
+static int hf_ansi_map_callingfeaturesindicator_ctfa;
+static int hf_ansi_map_callingfeaturesindicator_cnip1fa;
+static int hf_ansi_map_callingfeaturesindicator_cnip2fa;
+static int hf_ansi_map_callingfeaturesindicator_cnirfa;
+static int hf_ansi_map_callingfeaturesindicator_cniroverfa;
+static int hf_ansi_map_cdmacallmode_cdma;
+static int hf_ansi_map_cdmacallmode_amps;
+static int hf_ansi_map_cdmacallmode_namps;
+static int hf_ansi_map_cdmacallmode_cls1;
+static int hf_ansi_map_cdmacallmode_cls2;
+static int hf_ansi_map_cdmacallmode_cls3;
+static int hf_ansi_map_cdmacallmode_cls4;
+static int hf_ansi_map_cdmacallmode_cls5;
+static int hf_ansi_map_cdmacallmode_cls6;
+static int hf_ansi_map_cdmacallmode_cls7;
+static int hf_ansi_map_cdmacallmode_cls8;
+static int hf_ansi_map_cdmacallmode_cls9;
+static int hf_ansi_map_cdmacallmode_cls10;
+static int hf_ansi_map_cdmachanneldata_Frame_Offset;
+static int hf_ansi_map_cdmachanneldata_CDMA_ch_no;
+static int hf_ansi_map_cdmachanneldata_band_cls;
+static int hf_ansi_map_cdmachanneldata_lc_mask_b6;
+static int hf_ansi_map_cdmachanneldata_lc_mask_b5;
+static int hf_ansi_map_cdmachanneldata_lc_mask_b4;
+static int hf_ansi_map_cdmachanneldata_lc_mask_b3;
+static int hf_ansi_map_cdmachanneldata_lc_mask_b2;
+static int hf_ansi_map_cdmachanneldata_lc_mask_b1;
+static int hf_ansi_map_cdmachanneldata_np_ext;
+static int hf_ansi_map_cdmachanneldata_nominal_pwr;
+static int hf_ansi_map_cdmachanneldata_nr_preamble;
 
-static int hf_ansi_map_cdmastationclassmark_pc = -1;
-static int hf_ansi_map_cdmastationclassmark_dtx = -1;
-static int hf_ansi_map_cdmastationclassmark_smi = -1;
-static int hf_ansi_map_cdmastationclassmark_dmi = -1;
-static int hf_ansi_map_channeldata_vmac = -1;
-static int hf_ansi_map_channeldata_dtx = -1;
-static int hf_ansi_map_channeldata_scc = -1;
-static int hf_ansi_map_channeldata_chno = -1;
-static int hf_ansi_map_ConfidentialityModes_vp = -1;
-static int hf_ansi_map_controlchanneldata_dcc = -1;
-static int hf_ansi_map_controlchanneldata_cmac = -1;
-static int hf_ansi_map_controlchanneldata_chno = -1;
-static int hf_ansi_map_controlchanneldata_sdcc1 = -1;
-static int hf_ansi_map_controlchanneldata_sdcc2 = -1;
-static int hf_ansi_map_ConfidentialityModes_se = -1;
-static int hf_ansi_map_deniedauthorizationperiod_period = -1;
-static int hf_ansi_map_ConfidentialityModes_dp = -1;
+static int hf_ansi_map_cdmastationclassmark_pc;
+static int hf_ansi_map_cdmastationclassmark_dtx;
+static int hf_ansi_map_cdmastationclassmark_smi;
+static int hf_ansi_map_cdmastationclassmark_dmi;
+static int hf_ansi_map_channeldata_vmac;
+static int hf_ansi_map_channeldata_dtx;
+static int hf_ansi_map_channeldata_scc;
+static int hf_ansi_map_channeldata_chno;
+static int hf_ansi_map_ConfidentialityModes_vp;
+static int hf_ansi_map_controlchanneldata_dcc;
+static int hf_ansi_map_controlchanneldata_cmac;
+static int hf_ansi_map_controlchanneldata_chno;
+static int hf_ansi_map_controlchanneldata_sdcc1;
+static int hf_ansi_map_controlchanneldata_sdcc2;
+static int hf_ansi_map_ConfidentialityModes_se;
+static int hf_ansi_map_deniedauthorizationperiod_period;
+static int hf_ansi_map_ConfidentialityModes_dp;
 
-static int hf_ansi_map_originationtriggers_all = -1;
-static int hf_ansi_map_originationtriggers_local = -1;
-static int hf_ansi_map_originationtriggers_ilata = -1;
-static int hf_ansi_map_originationtriggers_olata = -1;
-static int hf_ansi_map_originationtriggers_int = -1;
-static int hf_ansi_map_originationtriggers_wz = -1;
-static int hf_ansi_map_originationtriggers_unrec = -1;
-static int hf_ansi_map_originationtriggers_rvtc = -1;
-static int hf_ansi_map_originationtriggers_star = -1;
-static int hf_ansi_map_originationtriggers_ds = -1;
-static int hf_ansi_map_originationtriggers_pound = -1;
-static int hf_ansi_map_originationtriggers_dp = -1;
-static int hf_ansi_map_originationtriggers_pa = -1;
-static int hf_ansi_map_originationtriggers_nodig = -1;
-static int hf_ansi_map_originationtriggers_onedig = -1;
-static int hf_ansi_map_originationtriggers_twodig = -1;
-static int hf_ansi_map_originationtriggers_threedig = -1;
-static int hf_ansi_map_originationtriggers_fourdig = -1;
-static int hf_ansi_map_originationtriggers_fivedig = -1;
-static int hf_ansi_map_originationtriggers_sixdig = -1;
-static int hf_ansi_map_originationtriggers_sevendig = -1;
-static int hf_ansi_map_originationtriggers_eightdig = -1;
-static int hf_ansi_map_originationtriggers_ninedig = -1;
-static int hf_ansi_map_originationtriggers_tendig = -1;
-static int hf_ansi_map_originationtriggers_elevendig = -1;
-static int hf_ansi_map_originationtriggers_twelvedig = -1;
-static int hf_ansi_map_originationtriggers_thirteendig = -1;
-static int hf_ansi_map_originationtriggers_fourteendig = -1;
-static int hf_ansi_map_originationtriggers_fifteendig = -1;
-static int hf_ansi_map_triggercapability_init = -1;
-static int hf_ansi_map_triggercapability_kdigit = -1;
-static int hf_ansi_map_triggercapability_all = -1;
-static int hf_ansi_map_triggercapability_rvtc = -1;
-static int hf_ansi_map_triggercapability_oaa = -1;
-static int hf_ansi_map_triggercapability_oans = -1;
-static int hf_ansi_map_triggercapability_odisc = -1;
-static int hf_ansi_map_triggercapability_ona = -1;
-static int hf_ansi_map_triggercapability_ct = -1;
-static int hf_ansi_map_triggercapability_unrec =-1;
-static int hf_ansi_map_triggercapability_pa = -1;
-static int hf_ansi_map_triggercapability_at = -1;
-static int hf_ansi_map_triggercapability_cgraa = -1;
-static int hf_ansi_map_triggercapability_it = -1;
-static int hf_ansi_map_triggercapability_cdraa = -1;
-static int hf_ansi_map_triggercapability_obsy = -1;
-static int hf_ansi_map_triggercapability_tra = -1;
-static int hf_ansi_map_triggercapability_tbusy = -1;
-static int hf_ansi_map_triggercapability_tna = -1;
-static int hf_ansi_map_triggercapability_tans = -1;
-static int hf_ansi_map_triggercapability_tdisc = -1;
-static int hf_ansi_map_winoperationscapability_conn = -1;
-static int hf_ansi_map_winoperationscapability_ccdir = -1;
-static int hf_ansi_map_winoperationscapability_pos = -1;
-static int hf_ansi_map_PACA_Level = -1;
-static int hf_ansi_map_pacaindicator_pa = -1;
+static int hf_ansi_map_originationtriggers_all;
+static int hf_ansi_map_originationtriggers_local;
+static int hf_ansi_map_originationtriggers_ilata;
+static int hf_ansi_map_originationtriggers_olata;
+static int hf_ansi_map_originationtriggers_int;
+static int hf_ansi_map_originationtriggers_wz;
+static int hf_ansi_map_originationtriggers_unrec;
+static int hf_ansi_map_originationtriggers_rvtc;
+static int hf_ansi_map_originationtriggers_star;
+static int hf_ansi_map_originationtriggers_ds;
+static int hf_ansi_map_originationtriggers_pound;
+static int hf_ansi_map_originationtriggers_dp;
+static int hf_ansi_map_originationtriggers_pa;
+static int hf_ansi_map_originationtriggers_nodig;
+static int hf_ansi_map_originationtriggers_onedig;
+static int hf_ansi_map_originationtriggers_twodig;
+static int hf_ansi_map_originationtriggers_threedig;
+static int hf_ansi_map_originationtriggers_fourdig;
+static int hf_ansi_map_originationtriggers_fivedig;
+static int hf_ansi_map_originationtriggers_sixdig;
+static int hf_ansi_map_originationtriggers_sevendig;
+static int hf_ansi_map_originationtriggers_eightdig;
+static int hf_ansi_map_originationtriggers_ninedig;
+static int hf_ansi_map_originationtriggers_tendig;
+static int hf_ansi_map_originationtriggers_elevendig;
+static int hf_ansi_map_originationtriggers_twelvedig;
+static int hf_ansi_map_originationtriggers_thirteendig;
+static int hf_ansi_map_originationtriggers_fourteendig;
+static int hf_ansi_map_originationtriggers_fifteendig;
+static int hf_ansi_map_triggercapability_init;
+static int hf_ansi_map_triggercapability_kdigit;
+static int hf_ansi_map_triggercapability_all;
+static int hf_ansi_map_triggercapability_rvtc;
+static int hf_ansi_map_triggercapability_oaa;
+static int hf_ansi_map_triggercapability_oans;
+static int hf_ansi_map_triggercapability_odisc;
+static int hf_ansi_map_triggercapability_ona;
+static int hf_ansi_map_triggercapability_ct;
+static int hf_ansi_map_triggercapability_unrec;
+static int hf_ansi_map_triggercapability_pa;
+static int hf_ansi_map_triggercapability_at;
+static int hf_ansi_map_triggercapability_cgraa;
+static int hf_ansi_map_triggercapability_it;
+static int hf_ansi_map_triggercapability_cdraa;
+static int hf_ansi_map_triggercapability_obsy;
+static int hf_ansi_map_triggercapability_tra;
+static int hf_ansi_map_triggercapability_tbusy;
+static int hf_ansi_map_triggercapability_tna;
+static int hf_ansi_map_triggercapability_tans;
+static int hf_ansi_map_triggercapability_tdisc;
+static int hf_ansi_map_winoperationscapability_conn;
+static int hf_ansi_map_winoperationscapability_ccdir;
+static int hf_ansi_map_winoperationscapability_pos;
+static int hf_ansi_map_PACA_Level;
+static int hf_ansi_map_pacaindicator_pa;
 
-static int hf_ansi_map_point_code = -1;
-static int hf_ansi_map_SSN = -1;
-static int hf_ansi_map_win_trigger_list = -1;
+static int hf_ansi_map_point_code;
+static int hf_ansi_map_SSN;
+static int hf_ansi_map_win_trigger_list;
 
-static int hf_ansi_map_electronicSerialNumber = -1;  /* ElectronicSerialNumber */
-static int hf_ansi_map_msid = -1;                 /* MSID */
-static int hf_ansi_map_authenticationAlgorithmVersion = -1;  /* AuthenticationAlgorithmVersion */
-static int hf_ansi_map_authenticationResponseReauthentication = -1;  /* AuthenticationResponseReauthentication */
-static int hf_ansi_map_authenticationResponseUniqueChallenge = -1;  /* AuthenticationResponseUniqueChallenge */
-static int hf_ansi_map_callHistoryCount = -1;     /* CallHistoryCount */
-static int hf_ansi_map_cdmaPrivateLongCodeMask = -1;  /* CDMAPrivateLongCodeMask */
-static int hf_ansi_map_carrierDigits = -1;        /* CarrierDigits */
-static int hf_ansi_map_caveKey = -1;              /* CaveKey */
-static int hf_ansi_map_denyAccess = -1;           /* DenyAccess */
-static int hf_ansi_map_destinationDigits = -1;    /* DestinationDigits */
-static int hf_ansi_map_locationAreaID = -1;       /* LocationAreaID */
-static int hf_ansi_map_randomVariableReauthentication = -1;  /* RandomVariableReauthentication */
-static int hf_ansi_map_meid = -1;                 /* MEID */
-static int hf_ansi_map_mobileStationMIN = -1;     /* MobileStationMIN */
-static int hf_ansi_map_mscid = -1;                /* MSCID */
-static int hf_ansi_map_randomVariableSSD = -1;    /* RandomVariableSSD */
-static int hf_ansi_map_randomVariableUniqueChallenge = -1;  /* RandomVariableUniqueChallenge */
-static int hf_ansi_map_routingDigits = -1;        /* RoutingDigits */
-static int hf_ansi_map_senderIdentificationNumber = -1;  /* SenderIdentificationNumber */
-static int hf_ansi_map_sharedSecretData = -1;     /* SharedSecretData */
-static int hf_ansi_map_signalingMessageEncryptionKey = -1;  /* SignalingMessageEncryptionKey */
-static int hf_ansi_map_ssdnotShared = -1;         /* SSDNotShared */
-static int hf_ansi_map_updateCount = -1;          /* UpdateCount */
-static int hf_ansi_map_interMSCCircuitID = -1;    /* InterMSCCircuitID */
-static int hf_ansi_map_mobileIdentificationNumber = -1;  /* MobileIdentificationNumber */
-static int hf_ansi_map_countUpdateReport = -1;    /* CountUpdateReport */
-static int hf_ansi_map_uniqueChallengeReport = -1;  /* UniqueChallengeReport */
-static int hf_ansi_map_reportType = -1;           /* ReportType */
-static int hf_ansi_map_systemAccessType = -1;     /* SystemAccessType */
-static int hf_ansi_map_systemCapabilities = -1;   /* SystemCapabilities */
-static int hf_ansi_map_callHistoryCountExpected = -1;  /* CallHistoryCountExpected */
-static int hf_ansi_map_reportType2 = -1;          /* ReportType */
-static int hf_ansi_map_terminalType = -1;         /* TerminalType */
-static int hf_ansi_map_authenticationData = -1;   /* AuthenticationData */
-static int hf_ansi_map_authenticationResponse = -1;  /* AuthenticationResponse */
-static int hf_ansi_map_cdmaNetworkIdentification = -1;  /* CDMANetworkIdentification */
-static int hf_ansi_map_confidentialityModes = -1;  /* ConfidentialityModes */
-static int hf_ansi_map_controlChannelMode = -1;   /* ControlChannelMode */
-static int hf_ansi_map_digits = -1;               /* Digits */
-static int hf_ansi_map_pc_ssn = -1;               /* PC_SSN */
-static int hf_ansi_map_randomVariable = -1;       /* RandomVariable */
-static int hf_ansi_map_serviceRedirectionCause = -1;  /* ServiceRedirectionCause */
-static int hf_ansi_map_suspiciousAccess = -1;     /* SuspiciousAccess */
-static int hf_ansi_map_transactionCapability = -1;  /* TransactionCapability */
-static int hf_ansi_map_analogRedirectRecord = -1;  /* AnalogRedirectRecord */
-static int hf_ansi_map_cdmaRedirectRecord = -1;   /* CDMARedirectRecord */
-static int hf_ansi_map_dataKey = -1;              /* DataKey */
-static int hf_ansi_map_roamingIndication = -1;    /* RoamingIndication */
-static int hf_ansi_map_serviceRedirectionInfo = -1;  /* ServiceRedirectionInfo */
-static int hf_ansi_map_voicePrivacyMask = -1;     /* VoicePrivacyMask */
-static int hf_ansi_map_reauthenticationReport = -1;  /* ReauthenticationReport */
-static int hf_ansi_map_serviceIndicator = -1;     /* ServiceIndicator */
-static int hf_ansi_map_signalingMessageEncryptionReport = -1;  /* SignalingMessageEncryptionReport */
-static int hf_ansi_map_ssdUpdateReport = -1;      /* SSDUpdateReport */
-static int hf_ansi_map_voicePrivacyReport = -1;   /* VoicePrivacyReport */
-static int hf_ansi_map_randomVariableBaseStation = -1;  /* RandomVariableBaseStation */
-static int hf_ansi_map_authenticationResponseBaseStation = -1;  /* AuthenticationResponseBaseStation */
-static int hf_ansi_map_billingID = -1;            /* BillingID */
-static int hf_ansi_map_channelData = -1;          /* ChannelData */
-static int hf_ansi_map_interSwitchCount = -1;     /* InterSwitchCount */
-static int hf_ansi_map_servingCellID = -1;        /* ServingCellID */
-static int hf_ansi_map_stationClassMark = -1;     /* StationClassMark */
-static int hf_ansi_map_targetCellID = -1;         /* TargetCellID */
-static int hf_ansi_map_handoffReason = -1;        /* HandoffReason */
-static int hf_ansi_map_handoffState = -1;         /* HandoffState */
-static int hf_ansi_map_tdmaBurstIndicator = -1;   /* TDMABurstIndicator */
-static int hf_ansi_map_tdmaCallMode = -1;         /* TDMACallMode */
-static int hf_ansi_map_tdmaChannelData = -1;      /* TDMAChannelData */
-static int hf_ansi_map_baseStationManufacturerCode = -1;  /* BaseStationManufacturerCode */
-static int hf_ansi_map_alertCode = -1;            /* AlertCode */
-static int hf_ansi_map_cdma2000HandoffInvokeIOSData = -1;  /* CDMA2000HandoffInvokeIOSData */
-static int hf_ansi_map_cdmaBandClassList = -1;    /* CDMABandClassList */
-static int hf_ansi_map_cdmaCallMode = -1;         /* CDMACallMode */
-static int hf_ansi_map_cdmaChannelData = -1;      /* CDMAChannelData */
-static int hf_ansi_map_cdmaConnectionReferenceList = -1;  /* CDMAConnectionReferenceList */
-static int hf_ansi_map_cdmaMobileProtocolRevision = -1;  /* CDMAMobileProtocolRevision */
-static int hf_ansi_map_cdmaMSMeasuredChannelIdentity = -1;  /* CDMAMSMeasuredChannelIdentity */
-static int hf_ansi_map_cdmaServiceConfigurationRecord = -1;  /* CDMAServiceConfigurationRecord */
-static int hf_ansi_map_cdmaServiceOptionList = -1;  /* CDMAServiceOptionList */
-static int hf_ansi_map_cdmaServingOneWayDelay = -1;  /* CDMAServingOneWayDelay */
-static int hf_ansi_map_cdmaStationClassMark = -1;  /* CDMAStationClassMark */
-static int hf_ansi_map_cdmaStationClassMark2 = -1;  /* CDMAStationClassMark2 */
-static int hf_ansi_map_cdmaTargetMAHOList = -1;   /* CDMATargetMAHOList */
-static int hf_ansi_map_cdmaTargetMeasurementList = -1;  /* CDMATargetMeasurementList */
-static int hf_ansi_map_dataPrivacyParameters = -1;  /* DataPrivacyParameters */
-static int hf_ansi_map_ilspInformation = -1;      /* ISLPInformation */
-static int hf_ansi_map_msLocation = -1;           /* MSLocation */
-static int hf_ansi_map_nampsCallMode = -1;        /* NAMPSCallMode */
-static int hf_ansi_map_nampsChannelData = -1;     /* NAMPSChannelData */
-static int hf_ansi_map_nonPublicData = -1;        /* NonPublicData */
-static int hf_ansi_map_pdsnAddress = -1;          /* PDSNAddress */
-static int hf_ansi_map_pdsnProtocolType = -1;     /* PDSNProtocolType */
-static int hf_ansi_map_qosPriority = -1;          /* QoSPriority */
-static int hf_ansi_map_systemOperatorCode = -1;   /* SystemOperatorCode */
-static int hf_ansi_map_tdmaBandwidth = -1;        /* TDMABandwidth */
-static int hf_ansi_map_tdmaServiceCode = -1;      /* TDMAServiceCode */
-static int hf_ansi_map_tdmaTerminalCapability = -1;  /* TDMATerminalCapability */
-static int hf_ansi_map_tdmaVoiceCoder = -1;       /* TDMAVoiceCoder */
-static int hf_ansi_map_userZoneData = -1;         /* UserZoneData */
-static int hf_ansi_map_bsmcstatus = -1;           /* BSMCStatus */
-static int hf_ansi_map_cdma2000HandoffResponseIOSData = -1;  /* CDMA2000HandoffResponseIOSData */
-static int hf_ansi_map_cdmaCodeChannelList = -1;  /* CDMACodeChannelList */
-static int hf_ansi_map_cdmaSearchParameters = -1;  /* CDMASearchParameters */
-static int hf_ansi_map_cdmaSearchWindow = -1;     /* CDMASearchWindow */
-static int hf_ansi_map_sOCStatus = -1;            /* SOCStatus */
-static int hf_ansi_map_releaseReason = -1;        /* ReleaseReason */
-static int hf_ansi_map_acgencountered = -1;       /* ACGEncountered */
-static int hf_ansi_map_callingPartyName = -1;     /* CallingPartyName */
-static int hf_ansi_map_callingPartyNumberDigits1 = -1;  /* CallingPartyNumberDigits1 */
-static int hf_ansi_map_callingPartyNumberDigits2 = -1;  /* CallingPartyNumberDigits2 */
-static int hf_ansi_map_callingPartySubaddress = -1;  /* CallingPartySubaddress */
-static int hf_ansi_map_conferenceCallingIndicator = -1;  /* ConferenceCallingIndicator */
-static int hf_ansi_map_mobileDirectoryNumber = -1;  /* MobileDirectoryNumber */
-static int hf_ansi_map_mSCIdentificationNumber = -1;  /* MSCIdentificationNumber */
-static int hf_ansi_map_oneTimeFeatureIndicator = -1;  /* OneTimeFeatureIndicator */
-static int hf_ansi_map_systemMyTypeCode = -1;     /* SystemMyTypeCode */
-static int hf_ansi_map_featureResult = -1;        /* FeatureResult */
-static int hf_ansi_map_accessDeniedReason = -1;   /* AccessDeniedReason */
-static int hf_ansi_map_actionCode = -1;           /* ActionCode */
-static int hf_ansi_map_announcementList = -1;     /* AnnouncementList */
-static int hf_ansi_map_callingPartyNumberString1 = -1;  /* CallingPartyNumberString1 */
-static int hf_ansi_map_callingPartyNumberString2 = -1;  /* CallingPartyNumberString2 */
-static int hf_ansi_map_digits_Destination = -1;   /* Digits */
-static int hf_ansi_map_displayText = -1;          /* DisplayText */
-static int hf_ansi_map_displayText2 = -1;         /* DisplayText2 */
-static int hf_ansi_map_dmh_AccountCodeDigits = -1;  /* DMH_AccountCodeDigits */
-static int hf_ansi_map_dmh_AlternateBillingDigits = -1;  /* DMH_AlternateBillingDigits */
-static int hf_ansi_map_dmh_BillingDigits = -1;    /* DMH_BillingDigits */
-static int hf_ansi_map_dmh_RedirectionIndicator = -1;  /* DMH_RedirectionIndicator */
-static int hf_ansi_map_groupInformation = -1;     /* GroupInformation */
-static int hf_ansi_map_noAnswerTime = -1;         /* NoAnswerTime */
-static int hf_ansi_map_pACAIndicator = -1;        /* PACAIndicator */
-static int hf_ansi_map_pilotNumber = -1;          /* PilotNumber */
-static int hf_ansi_map_preferredLanguageIndicator = -1;  /* PreferredLanguageIndicator */
-static int hf_ansi_map_redirectingNumberDigits = -1;  /* RedirectingNumberDigits */
-static int hf_ansi_map_redirectingNumberString = -1;  /* RedirectingNumberString */
-static int hf_ansi_map_redirectingSubaddress = -1;  /* RedirectingSubaddress */
-static int hf_ansi_map_resumePIC = -1;            /* ResumePIC */
-static int hf_ansi_map_terminationList = -1;      /* TerminationList */
-static int hf_ansi_map_terminationTriggers = -1;  /* TerminationTriggers */
-static int hf_ansi_map_triggerAddressList = -1;   /* TriggerAddressList */
-static int hf_ansi_map_emergencyServicesRoutingDigits = -1;  /* EmergencyServicesRoutingDigits */
-static int hf_ansi_map_targetCellIDList = -1;     /* TargetCellIDList */
-static int hf_ansi_map_signalQuality = -1;        /* SignalQuality */
-static int hf_ansi_map_targetMeasurementList = -1;  /* TargetMeasurementList */
-static int hf_ansi_map_alertResult = -1;          /* AlertResult */
-static int hf_ansi_map_messageWaitingNotificationCount = -1;  /* MessageWaitingNotificationCount */
-static int hf_ansi_map_messageWaitingNotificationType = -1;  /* MessageWaitingNotificationType */
-static int hf_ansi_map_cdmaBandClass = -1;        /* CDMABandClass */
-static int hf_ansi_map_cdmaServiceOption = -1;    /* CDMAServiceOption */
-static int hf_ansi_map_cdmaSlotCycleIndex = -1;   /* CDMASlotCycleIndex */
-static int hf_ansi_map_extendedMSCID = -1;        /* ExtendedMSCID */
-static int hf_ansi_map_extendedSystemMyTypeCode = -1;  /* ExtendedSystemMyTypeCode */
-static int hf_ansi_map_imsi = -1;                 /* IMSI */
-static int hf_ansi_map_legInformation = -1;       /* LegInformation */
-static int hf_ansi_map_mSIDUsage = -1;            /* MSIDUsage */
-static int hf_ansi_map_networkTMSI = -1;          /* NetworkTMSI */
-static int hf_ansi_map_pageCount = -1;            /* PageCount */
-static int hf_ansi_map_pageIndicator = -1;        /* PageIndicator */
-static int hf_ansi_map_pageResponseTime = -1;     /* PageResponseTime */
-static int hf_ansi_map_pilotBillingID = -1;       /* PilotBillingID */
-static int hf_ansi_map_redirectingPartyName = -1;  /* RedirectingPartyName */
-static int hf_ansi_map_tdmaDataFeaturesIndicator = -1;  /* TDMADataFeaturesIndicator */
-static int hf_ansi_map_terminationTreatment = -1;  /* TerminationTreatment */
-static int hf_ansi_map_conditionallyDeniedReason = -1;  /* ConditionallyDeniedReason */
-static int hf_ansi_map_pagingFrameClass = -1;     /* PagingFrameClass */
-static int hf_ansi_map_pSID_RSIDList = -1;        /* PSID_RSIDList */
-static int hf_ansi_map_randc = -1;                /* RANDC */
-static int hf_ansi_map_tdmaDataMode = -1;         /* TDMADataMode */
-static int hf_ansi_map_changeServiceAttributes = -1;  /* ChangeServiceAttributes */
-static int hf_ansi_map_edirectingSubaddress = -1;  /* RedirectingSubaddress */
-static int hf_ansi_map_setupResult = -1;          /* SetupResult */
-static int hf_ansi_map_terminationAccessType = -1;  /* TerminationAccessType */
-static int hf_ansi_map_triggerType = -1;          /* TriggerType */
-static int hf_ansi_map_winCapability = -1;        /* WINCapability */
-static int hf_ansi_map_callingPartyCategory = -1;  /* CallingPartyCategory */
-static int hf_ansi_map_controlNetworkID = -1;     /* ControlNetworkID */
-static int hf_ansi_map_digits_carrier = -1;       /* Digits */
-static int hf_ansi_map_digits_dest = -1;          /* Digits */
-static int hf_ansi_map_dmh_ServiceID = -1;        /* DMH_ServiceID */
-static int hf_ansi_map_lectronicSerialNumber = -1;  /* ElectronicSerialNumber */
-static int hf_ansi_map_deregistrationType = -1;   /* DeregistrationType */
-static int hf_ansi_map_servicesResult = -1;       /* ServicesResult */
-static int hf_ansi_map_sms_MessageWaitingIndicator = -1;  /* SMS_MessageWaitingIndicator */
-static int hf_ansi_map_originationTriggers = -1;  /* OriginationTriggers */
-static int hf_ansi_map_featureIndicator = -1;     /* FeatureIndicator */
-static int hf_ansi_map_dmh_ChargeInformation = -1;  /* DMH_ChargeInformation */
-static int hf_ansi_map_qualificationInformationCode = -1;  /* QualificationInformationCode */
-static int hf_ansi_map_authorizationDenied = -1;  /* AuthorizationDenied */
-static int hf_ansi_map_authorizationPeriod = -1;  /* AuthorizationPeriod */
-static int hf_ansi_map_deniedAuthorizationPeriod = -1;  /* DeniedAuthorizationPeriod */
-static int hf_ansi_map_authenticationCapability = -1;  /* AuthenticationCapability */
-static int hf_ansi_map_callingFeaturesIndicator = -1;  /* CallingFeaturesIndicator */
-static int hf_ansi_map_geographicAuthorization = -1;  /* GeographicAuthorization */
-static int hf_ansi_map_meidValidated = -1;        /* MEIDValidated */
-static int hf_ansi_map_mobilePositionCapability = -1;  /* MobilePositionCapability */
-static int hf_ansi_map_originationIndicator = -1;  /* OriginationIndicator */
-static int hf_ansi_map_restrictionDigits = -1;    /* RestrictionDigits */
-static int hf_ansi_map_sms_OriginationRestrictions = -1;  /* SMS_OriginationRestrictions */
-static int hf_ansi_map_sms_TerminationRestrictions = -1;  /* SMS_TerminationRestrictions */
-static int hf_ansi_map_spinipin = -1;             /* SPINIPIN */
-static int hf_ansi_map_spiniTriggers = -1;        /* SPINITriggers */
-static int hf_ansi_map_terminationRestrictionCode = -1;  /* TerminationRestrictionCode */
-static int hf_ansi_map_userGroup = -1;            /* UserGroup */
-static int hf_ansi_map_lirMode = -1;              /* LIRMode */
-static int hf_ansi_map_randValidTime = -1;        /* RANDValidTime */
-static int hf_ansi_map_redirectionReason = -1;    /* RedirectionReason */
-static int hf_ansi_map_cancellationType = -1;     /* CancellationType */
-static int hf_ansi_map_controlChannelData = -1;   /* ControlChannelData */
-static int hf_ansi_map_receivedSignalQuality = -1;  /* ReceivedSignalQuality */
-static int hf_ansi_map_systemAccessData = -1;     /* SystemAccessData */
-static int hf_ansi_map_cancellationDenied = -1;   /* CancellationDenied */
-static int hf_ansi_map_availabilityType = -1;     /* AvailabilityType */
-static int hf_ansi_map_borderCellAccess = -1;     /* BorderCellAccess */
-static int hf_ansi_map_msc_Address = -1;          /* MSC_Address */
-static int hf_ansi_map_sms_Address = -1;          /* SMS_Address */
-static int hf_ansi_map_mpcAddress = -1;           /* MPCAddress */
-static int hf_ansi_map_mpcAddressList = -1;       /* MPCAddressList */
-static int hf_ansi_map_digits_Carrier = -1;       /* Digits */
-static int hf_ansi_map_digitCollectionControl = -1;  /* DigitCollectionControl */
-static int hf_ansi_map_trunkStatus = -1;          /* TrunkStatus */
-static int hf_ansi_map_voiceMailboxNumber = -1;   /* VoiceMailboxNumber */
-static int hf_ansi_map_voiceMailboxPIN = -1;      /* VoiceMailboxPIN */
-static int hf_ansi_map_sms_BearerData = -1;       /* SMS_BearerData */
-static int hf_ansi_map_sms_TeleserviceIdentifier = -1;  /* SMS_TeleserviceIdentifier */
-static int hf_ansi_map_sms_ChargeIndicator = -1;  /* SMS_ChargeIndicator */
-static int hf_ansi_map_sms_DestinationAddress = -1;  /* SMS_DestinationAddress */
-static int hf_ansi_map_sms_OriginalDestinationAddress = -1;  /* SMS_OriginalDestinationAddress */
-static int hf_ansi_map_sms_OriginalDestinationSubaddress = -1;  /* SMS_OriginalDestinationSubaddress */
-static int hf_ansi_map_sms_OriginalOriginatingAddress = -1;  /* SMS_OriginalOriginatingAddress */
-static int hf_ansi_map_sms_OriginalOriginatingSubaddress = -1;  /* SMS_OriginalOriginatingSubaddress */
-static int hf_ansi_map_sms_OriginatingAddress = -1;  /* SMS_OriginatingAddress */
-static int hf_ansi_map_sms_CauseCode = -1;        /* SMS_CauseCode */
-static int hf_ansi_map_cdmaServingOneWayDelay2 = -1;  /* CDMAServingOneWayDelay2 */
-static int hf_ansi_map_interMessageTime = -1;     /* InterMessageTime */
-static int hf_ansi_map_newlyAssignedIMSI = -1;    /* NewlyAssignedIMSI */
-static int hf_ansi_map_newlyAssignedMIN = -1;     /* NewlyAssignedMIN */
-static int hf_ansi_map_newMINExtension = -1;      /* NewMINExtension */
-static int hf_ansi_map_sms_MessageCount = -1;     /* SMS_MessageCount */
-static int hf_ansi_map_sms_NotificationIndicator = -1;  /* SMS_NotificationIndicator */
-static int hf_ansi_map_teleservice_Priority = -1;  /* Teleservice_Priority */
-static int hf_ansi_map_temporaryReferenceNumber = -1;  /* TemporaryReferenceNumber */
-static int hf_ansi_map_mobileStationMSID = -1;    /* MobileStationMSID */
-static int hf_ansi_map_sms_TransactionID = -1;    /* SMS_TransactionID */
-static int hf_ansi_map_sms_AccessDeniedReason = -1;  /* SMS_AccessDeniedReason */
-static int hf_ansi_map_seizureType = -1;          /* SeizureType */
-static int hf_ansi_map_requiredParametersMask = -1;  /* RequiredParametersMask */
-static int hf_ansi_map_reasonList = -1;           /* ReasonList */
-static int hf_ansi_map_networkTMSIExpirationTime = -1;  /* NetworkTMSIExpirationTime */
-static int hf_ansi_map_newNetworkTMSI = -1;       /* NewNetworkTMSI */
-static int hf_ansi_map_serviceID = -1;            /* ServiceID */
-static int hf_ansi_map_dataAccessElementList = -1;  /* DataAccessElementList */
-static int hf_ansi_map_timeDateOffset = -1;       /* TimeDateOffset */
-static int hf_ansi_map_timeOfDay = -1;            /* TimeOfDay */
-static int hf_ansi_map_dmd_BillingIndicator = -1;  /* DMH_BillingIndicator */
-static int hf_ansi_map_failureType = -1;          /* FailureType */
-static int hf_ansi_map_failureCause = -1;         /* FailureCause */
-static int hf_ansi_map_outingDigits = -1;         /* RoutingDigits */
-static int hf_ansi_map_databaseKey = -1;          /* DatabaseKey */
-static int hf_ansi_map_modificationRequestList = -1;  /* ModificationRequestList */
-static int hf_ansi_map_modificationResultList = -1;  /* ModificationResultList */
-static int hf_ansi_map_serviceDataAccessElementList = -1;  /* ServiceDataAccessElementList */
-static int hf_ansi_map_privateSpecializedResource = -1;  /* PrivateSpecializedResource */
-static int hf_ansi_map_specializedResource = -1;  /* SpecializedResource */
-static int hf_ansi_map_executeScript = -1;        /* ExecuteScript */
-static int hf_ansi_map_scriptResult = -1;         /* ScriptResult */
-static int hf_ansi_map_tdmaVoiceMode = -1;        /* TDMAVoiceMode */
-static int hf_ansi_map_callStatus = -1;           /* CallStatus */
-static int hf_ansi_map_releaseCause = -1;         /* ReleaseCause */
-static int hf_ansi_map_callRecoveryIDList = -1;   /* CallRecoveryIDList */
-static int hf_ansi_map_positionInformationCode = -1;  /* PositionInformationCode */
-static int hf_ansi_map_mSStatus = -1;             /* MSStatus */
-static int hf_ansi_map_pSID_RSIDInformation = -1;  /* PSID_RSIDInformation */
-static int hf_ansi_map_positionRequestType = -1;  /* PositionRequestType */
-static int hf_ansi_map_lcsBillingID = -1;         /* LCSBillingID */
-static int hf_ansi_map_lcs_Client_ID = -1;        /* LCS_Client_ID */
-static int hf_ansi_map_dtxIndication = -1;        /* DTXIndication */
-static int hf_ansi_map_cdmaCodeChannel = -1;      /* CDMACodeChannel */
-static int hf_ansi_map_cdmaMobileCapabilities = -1;  /* CDMAMobileCapabilities */
-static int hf_ansi_map_cdmaPSMMList = -1;         /* CDMAPSMMList */
-static int hf_ansi_map_tdma_MAHO_CELLID = -1;     /* TDMA_MAHO_CELLID */
-static int hf_ansi_map_tdma_MAHO_CHANNEL = -1;    /* TDMA_MAHO_CHANNEL */
-static int hf_ansi_map_tdma_TimeAlignment = -1;   /* TDMA_TimeAlignment */
-static int hf_ansi_map_pqos_HorizontalPosition = -1;  /* PQOS_HorizontalPosition */
-static int hf_ansi_map_pqos_HorizontalVelocity = -1;  /* PQOS_HorizontalVelocity */
-static int hf_ansi_map_pqos_MaximumPositionAge = -1;  /* PQOS_MaximumPositionAge */
-static int hf_ansi_map_pqos_PositionPriority = -1;  /* PQOS_PositionPriority */
-static int hf_ansi_map_pqos_ResponseTime = -1;    /* PQOS_ResponseTime */
-static int hf_ansi_map_pqos_VerticalPosition = -1;  /* PQOS_VerticalPosition */
-static int hf_ansi_map_pqos_VerticalVelocity = -1;  /* PQOS_VerticalVelocity */
-static int hf_ansi_map_cdmaPSMMCount = -1;        /* CDMAPSMMCount */
-static int hf_ansi_map_lirAuthorization = -1;     /* LIRAuthorization */
-static int hf_ansi_map_mpcid = -1;                /* MPCID */
-static int hf_ansi_map_tdma_MAHORequest = -1;     /* TDMA_MAHORequest */
-static int hf_ansi_map_positionResult = -1;       /* PositionResult */
-static int hf_ansi_map_positionInformation = -1;  /* PositionInformation */
-static int hf_ansi_map_controlType = -1;          /* ControlType */
-static int hf_ansi_map_destinationAddress = -1;   /* DestinationAddress */
-static int hf_ansi_map_gapDuration = -1;          /* GapDuration */
-static int hf_ansi_map_gapInterval = -1;          /* GapInterval */
-static int hf_ansi_map_invokingNEType = -1;       /* InvokingNEType */
-static int hf_ansi_map_range = -1;                /* Range */
-static int hf_ansi_map_meidStatus = -1;           /* MEIDStatus */
-static int hf_ansi_map_aKeyProtocolVersion = -1;  /* AKeyProtocolVersion */
-static int hf_ansi_map_mobileStationPartialKey = -1;  /* MobileStationPartialKey */
-static int hf_ansi_map_newlyAssignedMSID = -1;    /* NewlyAssignedMSID */
-static int hf_ansi_map_baseStationPartialKey = -1;  /* BaseStationPartialKey */
-static int hf_ansi_map_modulusValue = -1;         /* ModulusValue */
-static int hf_ansi_map_otasp_ResultCode = -1;     /* OTASP_ResultCode */
-static int hf_ansi_map_primitiveValue = -1;       /* PrimitiveValue */
-static int hf_ansi_map_record_Type = -1;          /* Record_Type */
-static int hf_ansi_map_information_Record = -1;   /* Information_Record */
-static int hf_ansi_map_cdma2000MobileSupportedCapabilities = -1;  /* CDMA2000MobileSupportedCapabilities */
-static int hf_ansi_map_announcementCode1 = -1;    /* AnnouncementCode */
-static int hf_ansi_map_announcementCode2 = -1;    /* AnnouncementCode */
-static int hf_ansi_map_cdmaPilotPN = -1;          /* CDMAPilotPN */
-static int hf_ansi_map_cdmaPowerCombinedIndicator = -1;  /* CDMAPowerCombinedIndicator */
-static int hf_ansi_map_CDMACodeChannelList_item = -1;  /* CDMACodeChannelInformation */
-static int hf_ansi_map_cdmaPilotStrength = -1;    /* CDMAPilotStrength */
-static int hf_ansi_map_cdmaTargetOneWayDelay = -1;  /* CDMATargetOneWayDelay */
-static int hf_ansi_map_CDMATargetMAHOList_item = -1;  /* CDMATargetMAHOInformation */
-static int hf_ansi_map_cdmaSignalQuality = -1;    /* CDMASignalQuality */
-static int hf_ansi_map_CDMATargetMeasurementList_item = -1;  /* CDMATargetMeasurementInformation */
-static int hf_ansi_map_TargetMeasurementList_item = -1;  /* TargetMeasurementInformation */
-static int hf_ansi_map_TerminationList_item = -1;  /* TerminationList_item */
-static int hf_ansi_map_intersystemTermination = -1;  /* IntersystemTermination */
-static int hf_ansi_map_localTermination = -1;     /* LocalTermination */
-static int hf_ansi_map_pstnTermination = -1;      /* PSTNTermination */
-static int hf_ansi_map_CDMABandClassList_item = -1;  /* CDMABandClassInformation */
-static int hf_ansi_map_CDMAServiceOptionList_item = -1;  /* CDMAServiceOption */
-static int hf_ansi_map_pSID_RSIDInformation1 = -1;  /* PSID_RSIDInformation */
-static int hf_ansi_map_targetCellID1 = -1;        /* TargetCellID */
-static int hf_ansi_map_cdmaConnectionReference = -1;  /* CDMAConnectionReference */
-static int hf_ansi_map_cdmaState = -1;            /* CDMAState */
-static int hf_ansi_map_cdmaServiceOptionConnectionIdentifier = -1;  /* CDMAServiceOptionConnectionIdentifier */
-static int hf_ansi_map_CDMAConnectionReferenceList_item = -1;  /* CDMAConnectionReferenceList_item */
-static int hf_ansi_map_cdmaConnectionReferenceInformation = -1;  /* CDMAConnectionReferenceInformation */
-static int hf_ansi_map_cdmaConnectionReferenceInformation2 = -1;  /* CDMAConnectionReferenceInformation */
-static int hf_ansi_map_analogRedirectInfo = -1;   /* AnalogRedirectInfo */
-static int hf_ansi_map_CDMAChannelNumberList_item = -1;  /* CDMAChannelNumberList_item */
-static int hf_ansi_map_cdmaChannelNumber = -1;    /* CDMAChannelNumber */
-static int hf_ansi_map_cdmaChannelNumber2 = -1;   /* CDMAChannelNumber */
-static int hf_ansi_map_cdmaChannelNumberList = -1;  /* CDMAChannelNumberList */
-static int hf_ansi_map_dataID = -1;               /* DataID */
-static int hf_ansi_map_change = -1;               /* Change */
-static int hf_ansi_map_dataValue = -1;            /* DataValue */
-static int hf_ansi_map_DataAccessElementList_item = -1;  /* DataAccessElementList_item */
-static int hf_ansi_map_dataAccessElement1 = -1;   /* DataAccessElement */
-static int hf_ansi_map_dataAccessElement2 = -1;   /* DataAccessElement */
-static int hf_ansi_map_dataResult = -1;           /* DataResult */
-static int hf_ansi_map_DataUpdateResultList_item = -1;  /* DataUpdateResult */
-static int hf_ansi_map_globalTitle = -1;          /* GlobalTitle */
-static int hf_ansi_map_pC_SSN = -1;               /* PC_SSN */
-static int hf_ansi_map_scriptName = -1;           /* ScriptName */
-static int hf_ansi_map_scriptArgument = -1;       /* ScriptArgument */
-static int hf_ansi_map_allOrNone = -1;            /* AllOrNone */
-static int hf_ansi_map_ModificationRequestList_item = -1;  /* ModificationRequest */
-static int hf_ansi_map_serviceDataResultList = -1;  /* ServiceDataResultList */
-static int hf_ansi_map_ModificationResultList_item = -1;  /* ModificationResult */
-static int hf_ansi_map_ServiceDataAccessElementList_item = -1;  /* ServiceDataAccessElement */
-static int hf_ansi_map_dataUpdateResultList = -1;  /* DataUpdateResultList */
-static int hf_ansi_map_ServiceDataResultList_item = -1;  /* ServiceDataResult */
-static int hf_ansi_map_triggerList = -1;          /* TriggerList */
-static int hf_ansi_map_triggerListOpt = -1;       /* TriggerList */
-static int hf_ansi_map_wIN_TriggerList = -1;      /* WIN_TriggerList */
-static int hf_ansi_map_triggerCapability = -1;    /* TriggerCapability */
-static int hf_ansi_map_wINOperationsCapability = -1;  /* WINOperationsCapability */
-static int hf_ansi_map_CallRecoveryIDList_item = -1;  /* CallRecoveryID */
-static int hf_ansi_map_generalizedTime = -1;      /* GeneralizedTime */
-static int hf_ansi_map_geographicPosition = -1;   /* GeographicPosition */
-static int hf_ansi_map_positionSource = -1;       /* PositionSource */
-static int hf_ansi_map_horizontal_Velocity = -1;  /* Horizontal_Velocity */
-static int hf_ansi_map_vertical_Velocity = -1;    /* Vertical_Velocity */
-static int hf_ansi_map_sCFOverloadGapInterval = -1;  /* SCFOverloadGapInterval */
-static int hf_ansi_map_serviceManagementSystemGapInterval = -1;  /* ServiceManagementSystemGapInterval */
-static int hf_ansi_map_CDMAPSMMList_item = -1;    /* CDMAPSMMList_item */
-static int hf_ansi_map_cdmaTargetMAHOList2 = -1;  /* CDMATargetMAHOList */
-static int hf_ansi_map_mpcAddress2 = -1;          /* MPCAddress */
-static int hf_ansi_map_mobileStationIMSI = -1;    /* MobileStationIMSI */
-static int hf_ansi_map_handoffMeasurementRequest = -1;  /* HandoffMeasurementRequest */
-static int hf_ansi_map_facilitiesDirective = -1;  /* FacilitiesDirective */
-static int hf_ansi_map_handoffBack = -1;          /* HandoffBack */
-static int hf_ansi_map_facilitiesRelease = -1;    /* FacilitiesRelease */
-static int hf_ansi_map_qualificationRequest = -1;  /* QualificationRequest */
-static int hf_ansi_map_qualificationDirective = -1;  /* QualificationDirective */
-static int hf_ansi_map_blocking = -1;             /* Blocking */
-static int hf_ansi_map_unblocking = -1;           /* Unblocking */
-static int hf_ansi_map_resetCircuit = -1;         /* ResetCircuit */
-static int hf_ansi_map_trunkTest = -1;            /* TrunkTest */
-static int hf_ansi_map_trunkTestDisconnect = -1;  /* TrunkTestDisconnect */
-static int hf_ansi_map_registrationNotification = -1;  /* RegistrationNotification */
-static int hf_ansi_map_registrationCancellation = -1;  /* RegistrationCancellation */
-static int hf_ansi_map_locationRequest = -1;      /* LocationRequest */
-static int hf_ansi_map_routingRequest = -1;       /* RoutingRequest */
-static int hf_ansi_map_featureRequest = -1;       /* FeatureRequest */
-static int hf_ansi_map_unreliableRoamerDataDirective = -1;  /* UnreliableRoamerDataDirective */
-static int hf_ansi_map_mSInactive = -1;           /* MSInactive */
-static int hf_ansi_map_transferToNumberRequest = -1;  /* TransferToNumberRequest */
-static int hf_ansi_map_redirectionRequest = -1;   /* RedirectionRequest */
-static int hf_ansi_map_handoffToThird = -1;       /* HandoffToThird */
-static int hf_ansi_map_flashRequest = -1;         /* FlashRequest */
-static int hf_ansi_map_authenticationDirective = -1;  /* AuthenticationDirective */
-static int hf_ansi_map_authenticationRequest = -1;  /* AuthenticationRequest */
-static int hf_ansi_map_baseStationChallenge = -1;  /* BaseStationChallenge */
-static int hf_ansi_map_authenticationFailureReport = -1;  /* AuthenticationFailureReport */
-static int hf_ansi_map_countRequest = -1;         /* CountRequest */
-static int hf_ansi_map_interSystemPage = -1;      /* InterSystemPage */
-static int hf_ansi_map_unsolicitedResponse = -1;  /* UnsolicitedResponse */
-static int hf_ansi_map_bulkDeregistration = -1;   /* BulkDeregistration */
-static int hf_ansi_map_handoffMeasurementRequest2 = -1;  /* HandoffMeasurementRequest2 */
-static int hf_ansi_map_facilitiesDirective2 = -1;  /* FacilitiesDirective2 */
-static int hf_ansi_map_handoffBack2 = -1;         /* HandoffBack2 */
-static int hf_ansi_map_handoffToThird2 = -1;      /* HandoffToThird2 */
-static int hf_ansi_map_authenticationDirectiveForward = -1;  /* AuthenticationDirectiveForward */
-static int hf_ansi_map_authenticationStatusReport = -1;  /* AuthenticationStatusReport */
-static int hf_ansi_map_informationDirective = -1;  /* InformationDirective */
-static int hf_ansi_map_informationForward = -1;   /* InformationForward */
-static int hf_ansi_map_interSystemAnswer = -1;    /* InterSystemAnswer */
-static int hf_ansi_map_interSystemPage2 = -1;     /* InterSystemPage2 */
-static int hf_ansi_map_interSystemSetup = -1;     /* InterSystemSetup */
-static int hf_ansi_map_originationRequest = -1;   /* OriginationRequest */
-static int hf_ansi_map_randomVariableRequest = -1;  /* RandomVariableRequest */
-static int hf_ansi_map_redirectionDirective = -1;  /* RedirectionDirective */
-static int hf_ansi_map_remoteUserInteractionDirective = -1;  /* RemoteUserInteractionDirective */
-static int hf_ansi_map_sMSDeliveryBackward = -1;  /* SMSDeliveryBackward */
-static int hf_ansi_map_sMSDeliveryForward = -1;   /* SMSDeliveryForward */
-static int hf_ansi_map_sMSDeliveryPointToPoint = -1;  /* SMSDeliveryPointToPoint */
-static int hf_ansi_map_sMSNotification = -1;      /* SMSNotification */
-static int hf_ansi_map_sMSRequest = -1;           /* SMSRequest */
-static int hf_ansi_map_oTASPRequest = -1;         /* OTASPRequest */
-static int hf_ansi_map_changeFacilities = -1;     /* ChangeFacilities */
-static int hf_ansi_map_changeService = -1;        /* ChangeService */
-static int hf_ansi_map_parameterRequest = -1;     /* ParameterRequest */
-static int hf_ansi_map_tMSIDirective = -1;        /* TMSIDirective */
-static int hf_ansi_map_numberPortabilityRequest = -1;  /* NumberPortabilityRequest */
-static int hf_ansi_map_serviceRequest = -1;       /* ServiceRequest */
-static int hf_ansi_map_analyzedInformation = -1;  /* AnalyzedInformation */
-static int hf_ansi_map_connectionFailureReport = -1;  /* ConnectionFailureReport */
-static int hf_ansi_map_connectResource = -1;      /* ConnectResource */
-static int hf_ansi_map_facilitySelectedAndAvailable = -1;  /* FacilitySelectedAndAvailable */
-static int hf_ansi_map_modify = -1;               /* Modify */
-static int hf_ansi_map_search = -1;               /* Search */
-static int hf_ansi_map_seizeResource = -1;        /* SeizeResource */
-static int hf_ansi_map_sRFDirective = -1;         /* SRFDirective */
-static int hf_ansi_map_tBusy = -1;                /* TBusy */
-static int hf_ansi_map_tNoAnswer = -1;            /* TNoAnswer */
-static int hf_ansi_map_smsDeliveryPointToPointAck = -1;  /* SMSDeliveryPointToPointAck */
-static int hf_ansi_map_messageDirective = -1;     /* MessageDirective */
-static int hf_ansi_map_bulkDisconnection = -1;    /* BulkDisconnection */
-static int hf_ansi_map_callControlDirective = -1;  /* CallControlDirective */
-static int hf_ansi_map_oAnswer = -1;              /* OAnswer */
-static int hf_ansi_map_oDisconnect = -1;          /* ODisconnect */
-static int hf_ansi_map_callRecoveryReport = -1;   /* CallRecoveryReport */
-static int hf_ansi_map_tAnswer = -1;              /* TAnswer */
-static int hf_ansi_map_tDisconnect = -1;          /* TDisconnect */
-static int hf_ansi_map_unreliableCallData = -1;   /* UnreliableCallData */
-static int hf_ansi_map_oCalledPartyBusy = -1;     /* OCalledPartyBusy */
-static int hf_ansi_map_oNoAnswer = -1;            /* ONoAnswer */
-static int hf_ansi_map_positionRequest = -1;      /* PositionRequest */
-static int hf_ansi_map_positionRequestForward = -1;  /* PositionRequestForward */
-static int hf_ansi_map_callTerminationReport = -1;  /* CallTerminationReport */
-static int hf_ansi_map_geoPositionRequest = -1;   /* GeoPositionRequest */
-static int hf_ansi_map_interSystemPositionRequest = -1;  /* InterSystemPositionRequest */
-static int hf_ansi_map_interSystemPositionRequestForward = -1;  /* InterSystemPositionRequestForward */
-static int hf_ansi_map_aCGDirective = -1;         /* ACGDirective */
-static int hf_ansi_map_roamerDatabaseVerificationRequest = -1;  /* RoamerDatabaseVerificationRequest */
-static int hf_ansi_map_addService = -1;           /* AddService */
-static int hf_ansi_map_dropService = -1;          /* DropService */
-static int hf_ansi_map_lcsParameterRequest = -1;  /* LCSParameterRequest */
-static int hf_ansi_map_checkMEID = -1;            /* CheckMEID */
-static int hf_ansi_map_positionEventNotification = -1;  /* PositionEventNotification */
-static int hf_ansi_map_statusRequest = -1;        /* StatusRequest */
-static int hf_ansi_map_interSystemSMSDeliveryPointToPoint = -1;  /* InterSystemSMSDeliveryPointToPoint */
-static int hf_ansi_map_qualificationRequest2 = -1;  /* QualificationRequest2 */
-static int hf_ansi_map_handoffMeasurementRequestRes = -1;  /* HandoffMeasurementRequestRes */
-static int hf_ansi_map_facilitiesDirectiveRes = -1;  /* FacilitiesDirectiveRes */
-static int hf_ansi_map_handoffBackRes = -1;       /* HandoffBackRes */
-static int hf_ansi_map_facilitiesReleaseRes = -1;  /* FacilitiesReleaseRes */
-static int hf_ansi_map_qualificationDirectiveRes = -1;  /* QualificationDirectiveRes */
-static int hf_ansi_map_qualificationRequestRes = -1;  /* QualificationRequestRes */
-static int hf_ansi_map_resetCircuitRes = -1;      /* ResetCircuitRes */
-static int hf_ansi_map_registrationNotificationRes = -1;  /* RegistrationNotificationRes */
-static int hf_ansi_map_registrationCancellationRes = -1;  /* RegistrationCancellationRes */
-static int hf_ansi_map_locationRequestRes = -1;   /* LocationRequestRes */
-static int hf_ansi_map_routingRequestRes = -1;    /* RoutingRequestRes */
-static int hf_ansi_map_featureRequestRes = -1;    /* FeatureRequestRes */
-static int hf_ansi_map_transferToNumberRequestRes = -1;  /* TransferToNumberRequestRes */
-static int hf_ansi_map_handoffToThirdRes = -1;    /* HandoffToThirdRes */
-static int hf_ansi_map_authenticationDirectiveRes = -1;  /* AuthenticationDirectiveRes */
-static int hf_ansi_map_authenticationRequestRes = -1;  /* AuthenticationRequestRes */
-static int hf_ansi_map_baseStationChallengeRes = -1;  /* BaseStationChallengeRes */
-static int hf_ansi_map_authenticationFailureReportRes = -1;  /* AuthenticationFailureReportRes */
-static int hf_ansi_map_countRequestRes = -1;      /* CountRequestRes */
-static int hf_ansi_map_interSystemPageRes = -1;   /* InterSystemPageRes */
-static int hf_ansi_map_unsolicitedResponseRes = -1;  /* UnsolicitedResponseRes */
-static int hf_ansi_map_handoffMeasurementRequest2Res = -1;  /* HandoffMeasurementRequest2Res */
-static int hf_ansi_map_facilitiesDirective2Res = -1;  /* FacilitiesDirective2Res */
-static int hf_ansi_map_handoffBack2Res = -1;      /* HandoffBack2Res */
-static int hf_ansi_map_handoffToThird2Res = -1;   /* HandoffToThird2Res */
-static int hf_ansi_map_authenticationDirectiveForwardRes = -1;  /* AuthenticationDirectiveForwardRes */
-static int hf_ansi_map_authenticationStatusReportRes = -1;  /* AuthenticationStatusReportRes */
-static int hf_ansi_map_informationDirectiveRes = -1;  /* InformationDirectiveRes */
-static int hf_ansi_map_informationForwardRes = -1;  /* InformationForwardRes */
-static int hf_ansi_map_interSystemPage2Res = -1;  /* InterSystemPage2Res */
-static int hf_ansi_map_interSystemSetupRes = -1;  /* InterSystemSetupRes */
-static int hf_ansi_map_originationRequestRes = -1;  /* OriginationRequestRes */
-static int hf_ansi_map_randomVariableRequestRes = -1;  /* RandomVariableRequestRes */
-static int hf_ansi_map_remoteUserInteractionDirectiveRes = -1;  /* RemoteUserInteractionDirectiveRes */
-static int hf_ansi_map_sMSDeliveryBackwardRes = -1;  /* SMSDeliveryBackwardRes */
-static int hf_ansi_map_sMSDeliveryForwardRes = -1;  /* SMSDeliveryForwardRes */
-static int hf_ansi_map_sMSDeliveryPointToPointRes = -1;  /* SMSDeliveryPointToPointRes */
-static int hf_ansi_map_sMSNotificationRes = -1;   /* SMSNotificationRes */
-static int hf_ansi_map_sMSRequestRes = -1;        /* SMSRequestRes */
-static int hf_ansi_map_oTASPRequestRes = -1;      /* OTASPRequestRes */
-static int hf_ansi_map_changeFacilitiesRes = -1;  /* ChangeFacilitiesRes */
-static int hf_ansi_map_changeServiceRes = -1;     /* ChangeServiceRes */
-static int hf_ansi_map_parameterRequestRes = -1;  /* ParameterRequestRes */
-static int hf_ansi_map_tMSIDirectiveRes = -1;     /* TMSIDirectiveRes */
-static int hf_ansi_map_numberPortabilityRequestRes = -1;  /* NumberPortabilityRequestRes */
-static int hf_ansi_map_serviceRequestRes = -1;    /* ServiceRequestRes */
-static int hf_ansi_map_analyzedInformationRes = -1;  /* AnalyzedInformationRes */
-static int hf_ansi_map_facilitySelectedAndAvailableRes = -1;  /* FacilitySelectedAndAvailableRes */
-static int hf_ansi_map_modifyRes = -1;            /* ModifyRes */
-static int hf_ansi_map_searchRes = -1;            /* SearchRes */
-static int hf_ansi_map_seizeResourceRes = -1;     /* SeizeResourceRes */
-static int hf_ansi_map_sRFDirectiveRes = -1;      /* SRFDirectiveRes */
-static int hf_ansi_map_tBusyRes = -1;             /* TBusyRes */
-static int hf_ansi_map_tNoAnswerRes = -1;         /* TNoAnswerRes */
-static int hf_ansi_map_callControlDirectiveRes = -1;  /* CallControlDirectiveRes */
-static int hf_ansi_map_oDisconnectRes = -1;       /* ODisconnectRes */
-static int hf_ansi_map_tDisconnectRes = -1;       /* TDisconnectRes */
-static int hf_ansi_map_oCalledPartyBusyRes = -1;  /* OCalledPartyBusyRes */
-static int hf_ansi_map_oNoAnswerRes = -1;         /* ONoAnswerRes */
-static int hf_ansi_map_positionRequestRes = -1;   /* PositionRequestRes */
-static int hf_ansi_map_positionRequestForwardRes = -1;  /* PositionRequestForwardRes */
-static int hf_ansi_map_interSystemPositionRequestRes = -1;  /* InterSystemPositionRequestRes */
-static int hf_ansi_map_interSystemPositionRequestForwardRes = -1;  /* InterSystemPositionRequestForwardRes */
-static int hf_ansi_map_roamerDatabaseVerificationRequestRes = -1;  /* RoamerDatabaseVerificationRequestRes */
-static int hf_ansi_map_addServiceRes = -1;        /* AddServiceRes */
-static int hf_ansi_map_dropServiceRes = -1;       /* DropServiceRes */
-static int hf_ansi_map_interSystemSMSPage = -1;   /* InterSystemSMSPage */
-static int hf_ansi_map_lcsParameterRequestRes = -1;  /* LCSParameterRequestRes */
-static int hf_ansi_map_checkMEIDRes = -1;         /* CheckMEIDRes */
-static int hf_ansi_map_statusRequestRes = -1;     /* StatusRequestRes */
-static int hf_ansi_map_interSystemSMSDeliveryPointToPointRes = -1;  /* InterSystemSMSDeliveryPointToPointRes */
-static int hf_ansi_map_qualificationRequest2Res = -1;  /* QualificationRequest2Res */
+static int hf_ansi_map_electronicSerialNumber;    /* ElectronicSerialNumber */
+static int hf_ansi_map_msid;                      /* MSID */
+static int hf_ansi_map_authenticationAlgorithmVersion;  /* AuthenticationAlgorithmVersion */
+static int hf_ansi_map_authenticationResponseReauthentication;  /* AuthenticationResponseReauthentication */
+static int hf_ansi_map_authenticationResponseUniqueChallenge;  /* AuthenticationResponseUniqueChallenge */
+static int hf_ansi_map_callHistoryCount;          /* CallHistoryCount */
+static int hf_ansi_map_cdmaPrivateLongCodeMask;   /* CDMAPrivateLongCodeMask */
+static int hf_ansi_map_carrierDigits;             /* CarrierDigits */
+static int hf_ansi_map_caveKey;                   /* CaveKey */
+static int hf_ansi_map_denyAccess;                /* DenyAccess */
+static int hf_ansi_map_destinationDigits;         /* DestinationDigits */
+static int hf_ansi_map_locationAreaID;            /* LocationAreaID */
+static int hf_ansi_map_randomVariableReauthentication;  /* RandomVariableReauthentication */
+static int hf_ansi_map_meid;                      /* MEID */
+static int hf_ansi_map_mobileStationMIN;          /* MobileStationMIN */
+static int hf_ansi_map_mscid;                     /* MSCID */
+static int hf_ansi_map_randomVariableSSD;         /* RandomVariableSSD */
+static int hf_ansi_map_randomVariableUniqueChallenge;  /* RandomVariableUniqueChallenge */
+static int hf_ansi_map_routingDigits;             /* RoutingDigits */
+static int hf_ansi_map_senderIdentificationNumber;  /* SenderIdentificationNumber */
+static int hf_ansi_map_sharedSecretData;          /* SharedSecretData */
+static int hf_ansi_map_signalingMessageEncryptionKey;  /* SignalingMessageEncryptionKey */
+static int hf_ansi_map_ssdnotShared;              /* SSDNotShared */
+static int hf_ansi_map_updateCount;               /* UpdateCount */
+static int hf_ansi_map_interMSCCircuitID;         /* InterMSCCircuitID */
+static int hf_ansi_map_mobileIdentificationNumber;  /* MobileIdentificationNumber */
+static int hf_ansi_map_countUpdateReport;         /* CountUpdateReport */
+static int hf_ansi_map_uniqueChallengeReport;     /* UniqueChallengeReport */
+static int hf_ansi_map_reportType;                /* ReportType */
+static int hf_ansi_map_systemAccessType;          /* SystemAccessType */
+static int hf_ansi_map_systemCapabilities;        /* SystemCapabilities */
+static int hf_ansi_map_callHistoryCountExpected;  /* CallHistoryCountExpected */
+static int hf_ansi_map_reportType2;               /* ReportType */
+static int hf_ansi_map_terminalType;              /* TerminalType */
+static int hf_ansi_map_authenticationData;        /* AuthenticationData */
+static int hf_ansi_map_authenticationResponse;    /* AuthenticationResponse */
+static int hf_ansi_map_cdmaNetworkIdentification;  /* CDMANetworkIdentification */
+static int hf_ansi_map_confidentialityModes;      /* ConfidentialityModes */
+static int hf_ansi_map_controlChannelMode;        /* ControlChannelMode */
+static int hf_ansi_map_digits;                    /* Digits */
+static int hf_ansi_map_pc_ssn;                    /* PC_SSN */
+static int hf_ansi_map_randomVariable;            /* RandomVariable */
+static int hf_ansi_map_serviceRedirectionCause;   /* ServiceRedirectionCause */
+static int hf_ansi_map_suspiciousAccess;          /* SuspiciousAccess */
+static int hf_ansi_map_transactionCapability;     /* TransactionCapability */
+static int hf_ansi_map_analogRedirectRecord;      /* AnalogRedirectRecord */
+static int hf_ansi_map_cdmaRedirectRecord;        /* CDMARedirectRecord */
+static int hf_ansi_map_dataKey;                   /* DataKey */
+static int hf_ansi_map_roamingIndication;         /* RoamingIndication */
+static int hf_ansi_map_serviceRedirectionInfo;    /* ServiceRedirectionInfo */
+static int hf_ansi_map_voicePrivacyMask;          /* VoicePrivacyMask */
+static int hf_ansi_map_reauthenticationReport;    /* ReauthenticationReport */
+static int hf_ansi_map_serviceIndicator;          /* ServiceIndicator */
+static int hf_ansi_map_signalingMessageEncryptionReport;  /* SignalingMessageEncryptionReport */
+static int hf_ansi_map_ssdUpdateReport;           /* SSDUpdateReport */
+static int hf_ansi_map_voicePrivacyReport;        /* VoicePrivacyReport */
+static int hf_ansi_map_randomVariableBaseStation;  /* RandomVariableBaseStation */
+static int hf_ansi_map_authenticationResponseBaseStation;  /* AuthenticationResponseBaseStation */
+static int hf_ansi_map_billingID;                 /* BillingID */
+static int hf_ansi_map_channelData;               /* ChannelData */
+static int hf_ansi_map_interSwitchCount;          /* InterSwitchCount */
+static int hf_ansi_map_servingCellID;             /* ServingCellID */
+static int hf_ansi_map_stationClassMark;          /* StationClassMark */
+static int hf_ansi_map_targetCellID;              /* TargetCellID */
+static int hf_ansi_map_handoffReason;             /* HandoffReason */
+static int hf_ansi_map_handoffState;              /* HandoffState */
+static int hf_ansi_map_tdmaBurstIndicator;        /* TDMABurstIndicator */
+static int hf_ansi_map_tdmaCallMode;              /* TDMACallMode */
+static int hf_ansi_map_tdmaChannelData;           /* TDMAChannelData */
+static int hf_ansi_map_baseStationManufacturerCode;  /* BaseStationManufacturerCode */
+static int hf_ansi_map_alertCode;                 /* AlertCode */
+static int hf_ansi_map_cdma2000HandoffInvokeIOSData;  /* CDMA2000HandoffInvokeIOSData */
+static int hf_ansi_map_cdmaBandClassList;         /* CDMABandClassList */
+static int hf_ansi_map_cdmaCallMode;              /* CDMACallMode */
+static int hf_ansi_map_cdmaChannelData;           /* CDMAChannelData */
+static int hf_ansi_map_cdmaConnectionReferenceList;  /* CDMAConnectionReferenceList */
+static int hf_ansi_map_cdmaMobileProtocolRevision;  /* CDMAMobileProtocolRevision */
+static int hf_ansi_map_cdmaMSMeasuredChannelIdentity;  /* CDMAMSMeasuredChannelIdentity */
+static int hf_ansi_map_cdmaServiceConfigurationRecord;  /* CDMAServiceConfigurationRecord */
+static int hf_ansi_map_cdmaServiceOptionList;     /* CDMAServiceOptionList */
+static int hf_ansi_map_cdmaServingOneWayDelay;    /* CDMAServingOneWayDelay */
+static int hf_ansi_map_cdmaStationClassMark;      /* CDMAStationClassMark */
+static int hf_ansi_map_cdmaStationClassMark2;     /* CDMAStationClassMark2 */
+static int hf_ansi_map_cdmaTargetMAHOList;        /* CDMATargetMAHOList */
+static int hf_ansi_map_cdmaTargetMeasurementList;  /* CDMATargetMeasurementList */
+static int hf_ansi_map_dataPrivacyParameters;     /* DataPrivacyParameters */
+static int hf_ansi_map_ilspInformation;           /* ISLPInformation */
+static int hf_ansi_map_msLocation;                /* MSLocation */
+static int hf_ansi_map_nampsCallMode;             /* NAMPSCallMode */
+static int hf_ansi_map_nampsChannelData;          /* NAMPSChannelData */
+static int hf_ansi_map_nonPublicData;             /* NonPublicData */
+static int hf_ansi_map_pdsnAddress;               /* PDSNAddress */
+static int hf_ansi_map_pdsnProtocolType;          /* PDSNProtocolType */
+static int hf_ansi_map_qosPriority;               /* QoSPriority */
+static int hf_ansi_map_systemOperatorCode;        /* SystemOperatorCode */
+static int hf_ansi_map_tdmaBandwidth;             /* TDMABandwidth */
+static int hf_ansi_map_tdmaServiceCode;           /* TDMAServiceCode */
+static int hf_ansi_map_tdmaTerminalCapability;    /* TDMATerminalCapability */
+static int hf_ansi_map_tdmaVoiceCoder;            /* TDMAVoiceCoder */
+static int hf_ansi_map_userZoneData;              /* UserZoneData */
+static int hf_ansi_map_bsmcstatus;                /* BSMCStatus */
+static int hf_ansi_map_cdma2000HandoffResponseIOSData;  /* CDMA2000HandoffResponseIOSData */
+static int hf_ansi_map_cdmaCodeChannelList;       /* CDMACodeChannelList */
+static int hf_ansi_map_cdmaSearchParameters;      /* CDMASearchParameters */
+static int hf_ansi_map_cdmaSearchWindow;          /* CDMASearchWindow */
+static int hf_ansi_map_sOCStatus;                 /* SOCStatus */
+static int hf_ansi_map_releaseReason;             /* ReleaseReason */
+static int hf_ansi_map_acgencountered;            /* ACGEncountered */
+static int hf_ansi_map_callingPartyName;          /* CallingPartyName */
+static int hf_ansi_map_callingPartyNumberDigits1;  /* CallingPartyNumberDigits1 */
+static int hf_ansi_map_callingPartyNumberDigits2;  /* CallingPartyNumberDigits2 */
+static int hf_ansi_map_callingPartySubaddress;    /* CallingPartySubaddress */
+static int hf_ansi_map_conferenceCallingIndicator;  /* ConferenceCallingIndicator */
+static int hf_ansi_map_mobileDirectoryNumber;     /* MobileDirectoryNumber */
+static int hf_ansi_map_mSCIdentificationNumber;   /* MSCIdentificationNumber */
+static int hf_ansi_map_oneTimeFeatureIndicator;   /* OneTimeFeatureIndicator */
+static int hf_ansi_map_systemMyTypeCode;          /* SystemMyTypeCode */
+static int hf_ansi_map_featureResult;             /* FeatureResult */
+static int hf_ansi_map_accessDeniedReason;        /* AccessDeniedReason */
+static int hf_ansi_map_actionCode;                /* ActionCode */
+static int hf_ansi_map_announcementList;          /* AnnouncementList */
+static int hf_ansi_map_callingPartyNumberString1;  /* CallingPartyNumberString1 */
+static int hf_ansi_map_callingPartyNumberString2;  /* CallingPartyNumberString2 */
+static int hf_ansi_map_digits_Destination;        /* Digits */
+static int hf_ansi_map_displayText;               /* DisplayText */
+static int hf_ansi_map_displayText2;              /* DisplayText2 */
+static int hf_ansi_map_dmh_AccountCodeDigits;     /* DMH_AccountCodeDigits */
+static int hf_ansi_map_dmh_AlternateBillingDigits;  /* DMH_AlternateBillingDigits */
+static int hf_ansi_map_dmh_BillingDigits;         /* DMH_BillingDigits */
+static int hf_ansi_map_dmh_RedirectionIndicator;  /* DMH_RedirectionIndicator */
+static int hf_ansi_map_groupInformation;          /* GroupInformation */
+static int hf_ansi_map_noAnswerTime;              /* NoAnswerTime */
+static int hf_ansi_map_pACAIndicator;             /* PACAIndicator */
+static int hf_ansi_map_pilotNumber;               /* PilotNumber */
+static int hf_ansi_map_preferredLanguageIndicator;  /* PreferredLanguageIndicator */
+static int hf_ansi_map_redirectingNumberDigits;   /* RedirectingNumberDigits */
+static int hf_ansi_map_redirectingNumberString;   /* RedirectingNumberString */
+static int hf_ansi_map_redirectingSubaddress;     /* RedirectingSubaddress */
+static int hf_ansi_map_resumePIC;                 /* ResumePIC */
+static int hf_ansi_map_terminationList;           /* TerminationList */
+static int hf_ansi_map_terminationTriggers;       /* TerminationTriggers */
+static int hf_ansi_map_triggerAddressList;        /* TriggerAddressList */
+static int hf_ansi_map_emergencyServicesRoutingDigits;  /* EmergencyServicesRoutingDigits */
+static int hf_ansi_map_targetCellIDList;          /* TargetCellIDList */
+static int hf_ansi_map_signalQuality;             /* SignalQuality */
+static int hf_ansi_map_targetMeasurementList;     /* TargetMeasurementList */
+static int hf_ansi_map_alertResult;               /* AlertResult */
+static int hf_ansi_map_messageWaitingNotificationCount;  /* MessageWaitingNotificationCount */
+static int hf_ansi_map_messageWaitingNotificationType;  /* MessageWaitingNotificationType */
+static int hf_ansi_map_cdmaBandClass;             /* CDMABandClass */
+static int hf_ansi_map_cdmaServiceOption;         /* CDMAServiceOption */
+static int hf_ansi_map_cdmaSlotCycleIndex;        /* CDMASlotCycleIndex */
+static int hf_ansi_map_extendedMSCID;             /* ExtendedMSCID */
+static int hf_ansi_map_extendedSystemMyTypeCode;  /* ExtendedSystemMyTypeCode */
+static int hf_ansi_map_imsi;                      /* IMSI */
+static int hf_ansi_map_legInformation;            /* LegInformation */
+static int hf_ansi_map_mSIDUsage;                 /* MSIDUsage */
+static int hf_ansi_map_networkTMSI;               /* NetworkTMSI */
+static int hf_ansi_map_pageCount;                 /* PageCount */
+static int hf_ansi_map_pageIndicator;             /* PageIndicator */
+static int hf_ansi_map_pageResponseTime;          /* PageResponseTime */
+static int hf_ansi_map_pilotBillingID;            /* PilotBillingID */
+static int hf_ansi_map_redirectingPartyName;      /* RedirectingPartyName */
+static int hf_ansi_map_tdmaDataFeaturesIndicator;  /* TDMADataFeaturesIndicator */
+static int hf_ansi_map_terminationTreatment;      /* TerminationTreatment */
+static int hf_ansi_map_conditionallyDeniedReason;  /* ConditionallyDeniedReason */
+static int hf_ansi_map_pagingFrameClass;          /* PagingFrameClass */
+static int hf_ansi_map_pSID_RSIDList;             /* PSID_RSIDList */
+static int hf_ansi_map_randc;                     /* RANDC */
+static int hf_ansi_map_tdmaDataMode;              /* TDMADataMode */
+static int hf_ansi_map_changeServiceAttributes;   /* ChangeServiceAttributes */
+static int hf_ansi_map_edirectingSubaddress;      /* RedirectingSubaddress */
+static int hf_ansi_map_setupResult;               /* SetupResult */
+static int hf_ansi_map_terminationAccessType;     /* TerminationAccessType */
+static int hf_ansi_map_triggerType;               /* TriggerType */
+static int hf_ansi_map_winCapability;             /* WINCapability */
+static int hf_ansi_map_callingPartyCategory;      /* CallingPartyCategory */
+static int hf_ansi_map_controlNetworkID;          /* ControlNetworkID */
+static int hf_ansi_map_digits_carrier;            /* Digits */
+static int hf_ansi_map_digits_dest;               /* Digits */
+static int hf_ansi_map_dmh_ServiceID;             /* DMH_ServiceID */
+static int hf_ansi_map_lectronicSerialNumber;     /* ElectronicSerialNumber */
+static int hf_ansi_map_deregistrationType;        /* DeregistrationType */
+static int hf_ansi_map_servicesResult;            /* ServicesResult */
+static int hf_ansi_map_sms_MessageWaitingIndicator;  /* SMS_MessageWaitingIndicator */
+static int hf_ansi_map_originationTriggers;       /* OriginationTriggers */
+static int hf_ansi_map_featureIndicator;          /* FeatureIndicator */
+static int hf_ansi_map_dmh_ChargeInformation;     /* DMH_ChargeInformation */
+static int hf_ansi_map_qualificationInformationCode;  /* QualificationInformationCode */
+static int hf_ansi_map_authorizationDenied;       /* AuthorizationDenied */
+static int hf_ansi_map_authorizationPeriod;       /* AuthorizationPeriod */
+static int hf_ansi_map_deniedAuthorizationPeriod;  /* DeniedAuthorizationPeriod */
+static int hf_ansi_map_authenticationCapability;  /* AuthenticationCapability */
+static int hf_ansi_map_callingFeaturesIndicator;  /* CallingFeaturesIndicator */
+static int hf_ansi_map_geographicAuthorization;   /* GeographicAuthorization */
+static int hf_ansi_map_meidValidated;             /* MEIDValidated */
+static int hf_ansi_map_mobilePositionCapability;  /* MobilePositionCapability */
+static int hf_ansi_map_originationIndicator;      /* OriginationIndicator */
+static int hf_ansi_map_restrictionDigits;         /* RestrictionDigits */
+static int hf_ansi_map_sms_OriginationRestrictions;  /* SMS_OriginationRestrictions */
+static int hf_ansi_map_sms_TerminationRestrictions;  /* SMS_TerminationRestrictions */
+static int hf_ansi_map_spinipin;                  /* SPINIPIN */
+static int hf_ansi_map_spiniTriggers;             /* SPINITriggers */
+static int hf_ansi_map_terminationRestrictionCode;  /* TerminationRestrictionCode */
+static int hf_ansi_map_userGroup;                 /* UserGroup */
+static int hf_ansi_map_lirMode;                   /* LIRMode */
+static int hf_ansi_map_randValidTime;             /* RANDValidTime */
+static int hf_ansi_map_redirectionReason;         /* RedirectionReason */
+static int hf_ansi_map_cancellationType;          /* CancellationType */
+static int hf_ansi_map_controlChannelData;        /* ControlChannelData */
+static int hf_ansi_map_receivedSignalQuality;     /* ReceivedSignalQuality */
+static int hf_ansi_map_systemAccessData;          /* SystemAccessData */
+static int hf_ansi_map_cancellationDenied;        /* CancellationDenied */
+static int hf_ansi_map_availabilityType;          /* AvailabilityType */
+static int hf_ansi_map_borderCellAccess;          /* BorderCellAccess */
+static int hf_ansi_map_msc_Address;               /* MSC_Address */
+static int hf_ansi_map_sms_Address;               /* SMS_Address */
+static int hf_ansi_map_mpcAddress;                /* MPCAddress */
+static int hf_ansi_map_mpcAddressList;            /* MPCAddressList */
+static int hf_ansi_map_digits_Carrier;            /* Digits */
+static int hf_ansi_map_digitCollectionControl;    /* DigitCollectionControl */
+static int hf_ansi_map_trunkStatus;               /* TrunkStatus */
+static int hf_ansi_map_voiceMailboxNumber;        /* VoiceMailboxNumber */
+static int hf_ansi_map_voiceMailboxPIN;           /* VoiceMailboxPIN */
+static int hf_ansi_map_sms_BearerData;            /* SMS_BearerData */
+static int hf_ansi_map_sms_TeleserviceIdentifier;  /* SMS_TeleserviceIdentifier */
+static int hf_ansi_map_sms_ChargeIndicator;       /* SMS_ChargeIndicator */
+static int hf_ansi_map_sms_DestinationAddress;    /* SMS_DestinationAddress */
+static int hf_ansi_map_sms_OriginalDestinationAddress;  /* SMS_OriginalDestinationAddress */
+static int hf_ansi_map_sms_OriginalDestinationSubaddress;  /* SMS_OriginalDestinationSubaddress */
+static int hf_ansi_map_sms_OriginalOriginatingAddress;  /* SMS_OriginalOriginatingAddress */
+static int hf_ansi_map_sms_OriginalOriginatingSubaddress;  /* SMS_OriginalOriginatingSubaddress */
+static int hf_ansi_map_sms_OriginatingAddress;    /* SMS_OriginatingAddress */
+static int hf_ansi_map_sms_CauseCode;             /* SMS_CauseCode */
+static int hf_ansi_map_cdmaServingOneWayDelay2;   /* CDMAServingOneWayDelay2 */
+static int hf_ansi_map_interMessageTime;          /* InterMessageTime */
+static int hf_ansi_map_newlyAssignedIMSI;         /* NewlyAssignedIMSI */
+static int hf_ansi_map_newlyAssignedMIN;          /* NewlyAssignedMIN */
+static int hf_ansi_map_newMINExtension;           /* NewMINExtension */
+static int hf_ansi_map_sms_MessageCount;          /* SMS_MessageCount */
+static int hf_ansi_map_sms_NotificationIndicator;  /* SMS_NotificationIndicator */
+static int hf_ansi_map_teleservice_Priority;      /* Teleservice_Priority */
+static int hf_ansi_map_temporaryReferenceNumber;  /* TemporaryReferenceNumber */
+static int hf_ansi_map_mobileStationMSID;         /* MobileStationMSID */
+static int hf_ansi_map_sms_TransactionID;         /* SMS_TransactionID */
+static int hf_ansi_map_sms_AccessDeniedReason;    /* SMS_AccessDeniedReason */
+static int hf_ansi_map_seizureType;               /* SeizureType */
+static int hf_ansi_map_requiredParametersMask;    /* RequiredParametersMask */
+static int hf_ansi_map_reasonList;                /* ReasonList */
+static int hf_ansi_map_networkTMSIExpirationTime;  /* NetworkTMSIExpirationTime */
+static int hf_ansi_map_newNetworkTMSI;            /* NewNetworkTMSI */
+static int hf_ansi_map_serviceID;                 /* ServiceID */
+static int hf_ansi_map_dataAccessElementList;     /* DataAccessElementList */
+static int hf_ansi_map_timeDateOffset;            /* TimeDateOffset */
+static int hf_ansi_map_timeOfDay;                 /* TimeOfDay */
+static int hf_ansi_map_dmd_BillingIndicator;      /* DMH_BillingIndicator */
+static int hf_ansi_map_failureType;               /* FailureType */
+static int hf_ansi_map_failureCause;              /* FailureCause */
+static int hf_ansi_map_outingDigits;              /* RoutingDigits */
+static int hf_ansi_map_databaseKey;               /* DatabaseKey */
+static int hf_ansi_map_modificationRequestList;   /* ModificationRequestList */
+static int hf_ansi_map_modificationResultList;    /* ModificationResultList */
+static int hf_ansi_map_serviceDataAccessElementList;  /* ServiceDataAccessElementList */
+static int hf_ansi_map_privateSpecializedResource;  /* PrivateSpecializedResource */
+static int hf_ansi_map_specializedResource;       /* SpecializedResource */
+static int hf_ansi_map_executeScript;             /* ExecuteScript */
+static int hf_ansi_map_scriptResult;              /* ScriptResult */
+static int hf_ansi_map_tdmaVoiceMode;             /* TDMAVoiceMode */
+static int hf_ansi_map_callStatus;                /* CallStatus */
+static int hf_ansi_map_releaseCause;              /* ReleaseCause */
+static int hf_ansi_map_callRecoveryIDList;        /* CallRecoveryIDList */
+static int hf_ansi_map_positionInformationCode;   /* PositionInformationCode */
+static int hf_ansi_map_mSStatus;                  /* MSStatus */
+static int hf_ansi_map_pSID_RSIDInformation;      /* PSID_RSIDInformation */
+static int hf_ansi_map_positionRequestType;       /* PositionRequestType */
+static int hf_ansi_map_lcsBillingID;              /* LCSBillingID */
+static int hf_ansi_map_lcs_Client_ID;             /* LCS_Client_ID */
+static int hf_ansi_map_dtxIndication;             /* DTXIndication */
+static int hf_ansi_map_cdmaCodeChannel;           /* CDMACodeChannel */
+static int hf_ansi_map_cdmaMobileCapabilities;    /* CDMAMobileCapabilities */
+static int hf_ansi_map_cdmaPSMMList;              /* CDMAPSMMList */
+static int hf_ansi_map_tdma_MAHO_CELLID;          /* TDMA_MAHO_CELLID */
+static int hf_ansi_map_tdma_MAHO_CHANNEL;         /* TDMA_MAHO_CHANNEL */
+static int hf_ansi_map_tdma_TimeAlignment;        /* TDMA_TimeAlignment */
+static int hf_ansi_map_pqos_HorizontalPosition;   /* PQOS_HorizontalPosition */
+static int hf_ansi_map_pqos_HorizontalVelocity;   /* PQOS_HorizontalVelocity */
+static int hf_ansi_map_pqos_MaximumPositionAge;   /* PQOS_MaximumPositionAge */
+static int hf_ansi_map_pqos_PositionPriority;     /* PQOS_PositionPriority */
+static int hf_ansi_map_pqos_ResponseTime;         /* PQOS_ResponseTime */
+static int hf_ansi_map_pqos_VerticalPosition;     /* PQOS_VerticalPosition */
+static int hf_ansi_map_pqos_VerticalVelocity;     /* PQOS_VerticalVelocity */
+static int hf_ansi_map_cdmaPSMMCount;             /* CDMAPSMMCount */
+static int hf_ansi_map_lirAuthorization;          /* LIRAuthorization */
+static int hf_ansi_map_mpcid;                     /* MPCID */
+static int hf_ansi_map_tdma_MAHORequest;          /* TDMA_MAHORequest */
+static int hf_ansi_map_positionResult;            /* PositionResult */
+static int hf_ansi_map_positionInformation;       /* PositionInformation */
+static int hf_ansi_map_controlType;               /* ControlType */
+static int hf_ansi_map_destinationAddress;        /* DestinationAddress */
+static int hf_ansi_map_gapDuration;               /* GapDuration */
+static int hf_ansi_map_gapInterval;               /* GapInterval */
+static int hf_ansi_map_invokingNEType;            /* InvokingNEType */
+static int hf_ansi_map_range;                     /* Range */
+static int hf_ansi_map_meidStatus;                /* MEIDStatus */
+static int hf_ansi_map_aKeyProtocolVersion;       /* AKeyProtocolVersion */
+static int hf_ansi_map_mobileStationPartialKey;   /* MobileStationPartialKey */
+static int hf_ansi_map_newlyAssignedMSID;         /* NewlyAssignedMSID */
+static int hf_ansi_map_baseStationPartialKey;     /* BaseStationPartialKey */
+static int hf_ansi_map_modulusValue;              /* ModulusValue */
+static int hf_ansi_map_otasp_ResultCode;          /* OTASP_ResultCode */
+static int hf_ansi_map_primitiveValue;            /* PrimitiveValue */
+static int hf_ansi_map_record_Type;               /* Record_Type */
+static int hf_ansi_map_information_Record;        /* Information_Record */
+static int hf_ansi_map_cdma2000MobileSupportedCapabilities;  /* CDMA2000MobileSupportedCapabilities */
+static int hf_ansi_map_announcementCode1;         /* AnnouncementCode */
+static int hf_ansi_map_announcementCode2;         /* AnnouncementCode */
+static int hf_ansi_map_cdmaPilotPN;               /* CDMAPilotPN */
+static int hf_ansi_map_cdmaPowerCombinedIndicator;  /* CDMAPowerCombinedIndicator */
+static int hf_ansi_map_CDMACodeChannelList_item;  /* CDMACodeChannelInformation */
+static int hf_ansi_map_cdmaPilotStrength;         /* CDMAPilotStrength */
+static int hf_ansi_map_cdmaTargetOneWayDelay;     /* CDMATargetOneWayDelay */
+static int hf_ansi_map_CDMATargetMAHOList_item;   /* CDMATargetMAHOInformation */
+static int hf_ansi_map_cdmaSignalQuality;         /* CDMASignalQuality */
+static int hf_ansi_map_CDMATargetMeasurementList_item;  /* CDMATargetMeasurementInformation */
+static int hf_ansi_map_TargetMeasurementList_item;  /* TargetMeasurementInformation */
+static int hf_ansi_map_TerminationList_item;      /* TerminationList_item */
+static int hf_ansi_map_intersystemTermination;    /* IntersystemTermination */
+static int hf_ansi_map_localTermination;          /* LocalTermination */
+static int hf_ansi_map_pstnTermination;           /* PSTNTermination */
+static int hf_ansi_map_CDMABandClassList_item;    /* CDMABandClassInformation */
+static int hf_ansi_map_CDMAServiceOptionList_item;  /* CDMAServiceOption */
+static int hf_ansi_map_pSID_RSIDInformation1;     /* PSID_RSIDInformation */
+static int hf_ansi_map_targetCellID1;             /* TargetCellID */
+static int hf_ansi_map_cdmaConnectionReference;   /* CDMAConnectionReference */
+static int hf_ansi_map_cdmaState;                 /* CDMAState */
+static int hf_ansi_map_cdmaServiceOptionConnectionIdentifier;  /* CDMAServiceOptionConnectionIdentifier */
+static int hf_ansi_map_CDMAConnectionReferenceList_item;  /* CDMAConnectionReferenceList_item */
+static int hf_ansi_map_cdmaConnectionReferenceInformation;  /* CDMAConnectionReferenceInformation */
+static int hf_ansi_map_cdmaConnectionReferenceInformation2;  /* CDMAConnectionReferenceInformation */
+static int hf_ansi_map_analogRedirectInfo;        /* AnalogRedirectInfo */
+static int hf_ansi_map_CDMAChannelNumberList_item;  /* CDMAChannelNumberList_item */
+static int hf_ansi_map_cdmaChannelNumber;         /* CDMAChannelNumber */
+static int hf_ansi_map_cdmaChannelNumber2;        /* CDMAChannelNumber */
+static int hf_ansi_map_cdmaChannelNumberList;     /* CDMAChannelNumberList */
+static int hf_ansi_map_dataID;                    /* DataID */
+static int hf_ansi_map_change;                    /* Change */
+static int hf_ansi_map_dataValue;                 /* DataValue */
+static int hf_ansi_map_DataAccessElementList_item;  /* DataAccessElementList_item */
+static int hf_ansi_map_dataAccessElement1;        /* DataAccessElement */
+static int hf_ansi_map_dataAccessElement2;        /* DataAccessElement */
+static int hf_ansi_map_dataResult;                /* DataResult */
+static int hf_ansi_map_DataUpdateResultList_item;  /* DataUpdateResult */
+static int hf_ansi_map_globalTitle;               /* GlobalTitle */
+static int hf_ansi_map_pC_SSN;                    /* PC_SSN */
+static int hf_ansi_map_scriptName;                /* ScriptName */
+static int hf_ansi_map_scriptArgument;            /* ScriptArgument */
+static int hf_ansi_map_allOrNone;                 /* AllOrNone */
+static int hf_ansi_map_ModificationRequestList_item;  /* ModificationRequest */
+static int hf_ansi_map_serviceDataResultList;     /* ServiceDataResultList */
+static int hf_ansi_map_ModificationResultList_item;  /* ModificationResult */
+static int hf_ansi_map_ServiceDataAccessElementList_item;  /* ServiceDataAccessElement */
+static int hf_ansi_map_dataUpdateResultList;      /* DataUpdateResultList */
+static int hf_ansi_map_ServiceDataResultList_item;  /* ServiceDataResult */
+static int hf_ansi_map_triggerList;               /* TriggerList */
+static int hf_ansi_map_triggerListOpt;            /* TriggerList */
+static int hf_ansi_map_wIN_TriggerList;           /* WIN_TriggerList */
+static int hf_ansi_map_triggerCapability;         /* TriggerCapability */
+static int hf_ansi_map_wINOperationsCapability;   /* WINOperationsCapability */
+static int hf_ansi_map_CallRecoveryIDList_item;   /* CallRecoveryID */
+static int hf_ansi_map_generalizedTime;           /* GeneralizedTime */
+static int hf_ansi_map_geographicPosition;        /* GeographicPosition */
+static int hf_ansi_map_positionSource;            /* PositionSource */
+static int hf_ansi_map_horizontal_Velocity;       /* Horizontal_Velocity */
+static int hf_ansi_map_vertical_Velocity;         /* Vertical_Velocity */
+static int hf_ansi_map_sCFOverloadGapInterval;    /* SCFOverloadGapInterval */
+static int hf_ansi_map_serviceManagementSystemGapInterval;  /* ServiceManagementSystemGapInterval */
+static int hf_ansi_map_CDMAPSMMList_item;         /* CDMAPSMMList_item */
+static int hf_ansi_map_cdmaTargetMAHOList2;       /* CDMATargetMAHOList */
+static int hf_ansi_map_mpcAddress2;               /* MPCAddress */
+static int hf_ansi_map_mobileStationIMSI;         /* MobileStationIMSI */
+static int hf_ansi_map_handoffMeasurementRequest;  /* HandoffMeasurementRequest */
+static int hf_ansi_map_facilitiesDirective;       /* FacilitiesDirective */
+static int hf_ansi_map_handoffBack;               /* HandoffBack */
+static int hf_ansi_map_facilitiesRelease;         /* FacilitiesRelease */
+static int hf_ansi_map_qualificationRequest;      /* QualificationRequest */
+static int hf_ansi_map_qualificationDirective;    /* QualificationDirective */
+static int hf_ansi_map_blocking;                  /* Blocking */
+static int hf_ansi_map_unblocking;                /* Unblocking */
+static int hf_ansi_map_resetCircuit;              /* ResetCircuit */
+static int hf_ansi_map_trunkTest;                 /* TrunkTest */
+static int hf_ansi_map_trunkTestDisconnect;       /* TrunkTestDisconnect */
+static int hf_ansi_map_registrationNotification;  /* RegistrationNotification */
+static int hf_ansi_map_registrationCancellation;  /* RegistrationCancellation */
+static int hf_ansi_map_locationRequest;           /* LocationRequest */
+static int hf_ansi_map_routingRequest;            /* RoutingRequest */
+static int hf_ansi_map_featureRequest;            /* FeatureRequest */
+static int hf_ansi_map_unreliableRoamerDataDirective;  /* UnreliableRoamerDataDirective */
+static int hf_ansi_map_mSInactive;                /* MSInactive */
+static int hf_ansi_map_transferToNumberRequest;   /* TransferToNumberRequest */
+static int hf_ansi_map_redirectionRequest;        /* RedirectionRequest */
+static int hf_ansi_map_handoffToThird;            /* HandoffToThird */
+static int hf_ansi_map_flashRequest;              /* FlashRequest */
+static int hf_ansi_map_authenticationDirective;   /* AuthenticationDirective */
+static int hf_ansi_map_authenticationRequest;     /* AuthenticationRequest */
+static int hf_ansi_map_baseStationChallenge;      /* BaseStationChallenge */
+static int hf_ansi_map_authenticationFailureReport;  /* AuthenticationFailureReport */
+static int hf_ansi_map_countRequest;              /* CountRequest */
+static int hf_ansi_map_interSystemPage;           /* InterSystemPage */
+static int hf_ansi_map_unsolicitedResponse;       /* UnsolicitedResponse */
+static int hf_ansi_map_bulkDeregistration;        /* BulkDeregistration */
+static int hf_ansi_map_handoffMeasurementRequest2;  /* HandoffMeasurementRequest2 */
+static int hf_ansi_map_facilitiesDirective2;      /* FacilitiesDirective2 */
+static int hf_ansi_map_handoffBack2;              /* HandoffBack2 */
+static int hf_ansi_map_handoffToThird2;           /* HandoffToThird2 */
+static int hf_ansi_map_authenticationDirectiveForward;  /* AuthenticationDirectiveForward */
+static int hf_ansi_map_authenticationStatusReport;  /* AuthenticationStatusReport */
+static int hf_ansi_map_informationDirective;      /* InformationDirective */
+static int hf_ansi_map_informationForward;        /* InformationForward */
+static int hf_ansi_map_interSystemAnswer;         /* InterSystemAnswer */
+static int hf_ansi_map_interSystemPage2;          /* InterSystemPage2 */
+static int hf_ansi_map_interSystemSetup;          /* InterSystemSetup */
+static int hf_ansi_map_originationRequest;        /* OriginationRequest */
+static int hf_ansi_map_randomVariableRequest;     /* RandomVariableRequest */
+static int hf_ansi_map_redirectionDirective;      /* RedirectionDirective */
+static int hf_ansi_map_remoteUserInteractionDirective;  /* RemoteUserInteractionDirective */
+static int hf_ansi_map_sMSDeliveryBackward;       /* SMSDeliveryBackward */
+static int hf_ansi_map_sMSDeliveryForward;        /* SMSDeliveryForward */
+static int hf_ansi_map_sMSDeliveryPointToPoint;   /* SMSDeliveryPointToPoint */
+static int hf_ansi_map_sMSNotification;           /* SMSNotification */
+static int hf_ansi_map_sMSRequest;                /* SMSRequest */
+static int hf_ansi_map_oTASPRequest;              /* OTASPRequest */
+static int hf_ansi_map_changeFacilities;          /* ChangeFacilities */
+static int hf_ansi_map_changeService;             /* ChangeService */
+static int hf_ansi_map_parameterRequest;          /* ParameterRequest */
+static int hf_ansi_map_tMSIDirective;             /* TMSIDirective */
+static int hf_ansi_map_numberPortabilityRequest;  /* NumberPortabilityRequest */
+static int hf_ansi_map_serviceRequest;            /* ServiceRequest */
+static int hf_ansi_map_analyzedInformation;       /* AnalyzedInformation */
+static int hf_ansi_map_connectionFailureReport;   /* ConnectionFailureReport */
+static int hf_ansi_map_connectResource;           /* ConnectResource */
+static int hf_ansi_map_facilitySelectedAndAvailable;  /* FacilitySelectedAndAvailable */
+static int hf_ansi_map_modify;                    /* Modify */
+static int hf_ansi_map_search;                    /* Search */
+static int hf_ansi_map_seizeResource;             /* SeizeResource */
+static int hf_ansi_map_sRFDirective;              /* SRFDirective */
+static int hf_ansi_map_tBusy;                     /* TBusy */
+static int hf_ansi_map_tNoAnswer;                 /* TNoAnswer */
+static int hf_ansi_map_smsDeliveryPointToPointAck;  /* SMSDeliveryPointToPointAck */
+static int hf_ansi_map_messageDirective;          /* MessageDirective */
+static int hf_ansi_map_bulkDisconnection;         /* BulkDisconnection */
+static int hf_ansi_map_callControlDirective;      /* CallControlDirective */
+static int hf_ansi_map_oAnswer;                   /* OAnswer */
+static int hf_ansi_map_oDisconnect;               /* ODisconnect */
+static int hf_ansi_map_callRecoveryReport;        /* CallRecoveryReport */
+static int hf_ansi_map_tAnswer;                   /* TAnswer */
+static int hf_ansi_map_tDisconnect;               /* TDisconnect */
+static int hf_ansi_map_unreliableCallData;        /* UnreliableCallData */
+static int hf_ansi_map_oCalledPartyBusy;          /* OCalledPartyBusy */
+static int hf_ansi_map_oNoAnswer;                 /* ONoAnswer */
+static int hf_ansi_map_positionRequest;           /* PositionRequest */
+static int hf_ansi_map_positionRequestForward;    /* PositionRequestForward */
+static int hf_ansi_map_callTerminationReport;     /* CallTerminationReport */
+static int hf_ansi_map_geoPositionRequest;        /* GeoPositionRequest */
+static int hf_ansi_map_interSystemPositionRequest;  /* InterSystemPositionRequest */
+static int hf_ansi_map_interSystemPositionRequestForward;  /* InterSystemPositionRequestForward */
+static int hf_ansi_map_aCGDirective;              /* ACGDirective */
+static int hf_ansi_map_roamerDatabaseVerificationRequest;  /* RoamerDatabaseVerificationRequest */
+static int hf_ansi_map_addService;                /* AddService */
+static int hf_ansi_map_dropService;               /* DropService */
+static int hf_ansi_map_lcsParameterRequest;       /* LCSParameterRequest */
+static int hf_ansi_map_checkMEID;                 /* CheckMEID */
+static int hf_ansi_map_positionEventNotification;  /* PositionEventNotification */
+static int hf_ansi_map_statusRequest;             /* StatusRequest */
+static int hf_ansi_map_interSystemSMSDeliveryPointToPoint;  /* InterSystemSMSDeliveryPointToPoint */
+static int hf_ansi_map_qualificationRequest2;     /* QualificationRequest2 */
+static int hf_ansi_map_handoffMeasurementRequestRes;  /* HandoffMeasurementRequestRes */
+static int hf_ansi_map_facilitiesDirectiveRes;    /* FacilitiesDirectiveRes */
+static int hf_ansi_map_handoffBackRes;            /* HandoffBackRes */
+static int hf_ansi_map_facilitiesReleaseRes;      /* FacilitiesReleaseRes */
+static int hf_ansi_map_qualificationDirectiveRes;  /* QualificationDirectiveRes */
+static int hf_ansi_map_qualificationRequestRes;   /* QualificationRequestRes */
+static int hf_ansi_map_resetCircuitRes;           /* ResetCircuitRes */
+static int hf_ansi_map_registrationNotificationRes;  /* RegistrationNotificationRes */
+static int hf_ansi_map_registrationCancellationRes;  /* RegistrationCancellationRes */
+static int hf_ansi_map_locationRequestRes;        /* LocationRequestRes */
+static int hf_ansi_map_routingRequestRes;         /* RoutingRequestRes */
+static int hf_ansi_map_featureRequestRes;         /* FeatureRequestRes */
+static int hf_ansi_map_transferToNumberRequestRes;  /* TransferToNumberRequestRes */
+static int hf_ansi_map_handoffToThirdRes;         /* HandoffToThirdRes */
+static int hf_ansi_map_authenticationDirectiveRes;  /* AuthenticationDirectiveRes */
+static int hf_ansi_map_authenticationRequestRes;  /* AuthenticationRequestRes */
+static int hf_ansi_map_baseStationChallengeRes;   /* BaseStationChallengeRes */
+static int hf_ansi_map_authenticationFailureReportRes;  /* AuthenticationFailureReportRes */
+static int hf_ansi_map_countRequestRes;           /* CountRequestRes */
+static int hf_ansi_map_interSystemPageRes;        /* InterSystemPageRes */
+static int hf_ansi_map_unsolicitedResponseRes;    /* UnsolicitedResponseRes */
+static int hf_ansi_map_handoffMeasurementRequest2Res;  /* HandoffMeasurementRequest2Res */
+static int hf_ansi_map_facilitiesDirective2Res;   /* FacilitiesDirective2Res */
+static int hf_ansi_map_handoffBack2Res;           /* HandoffBack2Res */
+static int hf_ansi_map_handoffToThird2Res;        /* HandoffToThird2Res */
+static int hf_ansi_map_authenticationDirectiveForwardRes;  /* AuthenticationDirectiveForwardRes */
+static int hf_ansi_map_authenticationStatusReportRes;  /* AuthenticationStatusReportRes */
+static int hf_ansi_map_informationDirectiveRes;   /* InformationDirectiveRes */
+static int hf_ansi_map_informationForwardRes;     /* InformationForwardRes */
+static int hf_ansi_map_interSystemPage2Res;       /* InterSystemPage2Res */
+static int hf_ansi_map_interSystemSetupRes;       /* InterSystemSetupRes */
+static int hf_ansi_map_originationRequestRes;     /* OriginationRequestRes */
+static int hf_ansi_map_randomVariableRequestRes;  /* RandomVariableRequestRes */
+static int hf_ansi_map_remoteUserInteractionDirectiveRes;  /* RemoteUserInteractionDirectiveRes */
+static int hf_ansi_map_sMSDeliveryBackwardRes;    /* SMSDeliveryBackwardRes */
+static int hf_ansi_map_sMSDeliveryForwardRes;     /* SMSDeliveryForwardRes */
+static int hf_ansi_map_sMSDeliveryPointToPointRes;  /* SMSDeliveryPointToPointRes */
+static int hf_ansi_map_sMSNotificationRes;        /* SMSNotificationRes */
+static int hf_ansi_map_sMSRequestRes;             /* SMSRequestRes */
+static int hf_ansi_map_oTASPRequestRes;           /* OTASPRequestRes */
+static int hf_ansi_map_changeFacilitiesRes;       /* ChangeFacilitiesRes */
+static int hf_ansi_map_changeServiceRes;          /* ChangeServiceRes */
+static int hf_ansi_map_parameterRequestRes;       /* ParameterRequestRes */
+static int hf_ansi_map_tMSIDirectiveRes;          /* TMSIDirectiveRes */
+static int hf_ansi_map_numberPortabilityRequestRes;  /* NumberPortabilityRequestRes */
+static int hf_ansi_map_serviceRequestRes;         /* ServiceRequestRes */
+static int hf_ansi_map_analyzedInformationRes;    /* AnalyzedInformationRes */
+static int hf_ansi_map_facilitySelectedAndAvailableRes;  /* FacilitySelectedAndAvailableRes */
+static int hf_ansi_map_modifyRes;                 /* ModifyRes */
+static int hf_ansi_map_searchRes;                 /* SearchRes */
+static int hf_ansi_map_seizeResourceRes;          /* SeizeResourceRes */
+static int hf_ansi_map_sRFDirectiveRes;           /* SRFDirectiveRes */
+static int hf_ansi_map_tBusyRes;                  /* TBusyRes */
+static int hf_ansi_map_tNoAnswerRes;              /* TNoAnswerRes */
+static int hf_ansi_map_callControlDirectiveRes;   /* CallControlDirectiveRes */
+static int hf_ansi_map_oDisconnectRes;            /* ODisconnectRes */
+static int hf_ansi_map_tDisconnectRes;            /* TDisconnectRes */
+static int hf_ansi_map_oCalledPartyBusyRes;       /* OCalledPartyBusyRes */
+static int hf_ansi_map_oNoAnswerRes;              /* ONoAnswerRes */
+static int hf_ansi_map_positionRequestRes;        /* PositionRequestRes */
+static int hf_ansi_map_positionRequestForwardRes;  /* PositionRequestForwardRes */
+static int hf_ansi_map_interSystemPositionRequestRes;  /* InterSystemPositionRequestRes */
+static int hf_ansi_map_interSystemPositionRequestForwardRes;  /* InterSystemPositionRequestForwardRes */
+static int hf_ansi_map_roamerDatabaseVerificationRequestRes;  /* RoamerDatabaseVerificationRequestRes */
+static int hf_ansi_map_addServiceRes;             /* AddServiceRes */
+static int hf_ansi_map_dropServiceRes;            /* DropServiceRes */
+static int hf_ansi_map_interSystemSMSPage;        /* InterSystemSMSPage */
+static int hf_ansi_map_lcsParameterRequestRes;    /* LCSParameterRequestRes */
+static int hf_ansi_map_checkMEIDRes;              /* CheckMEIDRes */
+static int hf_ansi_map_statusRequestRes;          /* StatusRequestRes */
+static int hf_ansi_map_interSystemSMSDeliveryPointToPointRes;  /* InterSystemSMSDeliveryPointToPointRes */
+static int hf_ansi_map_qualificationRequest2Res;  /* QualificationRequest2Res */
 
 /* Initialize the subtree pointers */
-static gint ett_ansi_map = -1;
-static gint ett_mintype = -1;
-static gint ett_digitstype = -1;
-static gint ett_billingid = -1;
-static gint ett_sms_bearer_data = -1;
-static gint ett_sms_teleserviceIdentifier = -1;
-static gint ett_extendedmscid = -1;
-static gint ett_extendedsystemmytypecode = -1;
-static gint ett_handoffstate = -1;
-static gint ett_mscid = -1;
-static gint ett_cdmachanneldata = -1;
-static gint ett_cdmastationclassmark = -1;
-static gint ett_channeldata = -1;
-static gint ett_confidentialitymodes = -1;
-static gint ett_controlchanneldata = -1;
-static gint ett_CDMA2000HandoffInvokeIOSData = -1;
-static gint ett_CDMA2000HandoffResponseIOSData = -1;
-static gint ett_originationtriggers = -1;
-static gint ett_pacaindicator = -1;
-static gint ett_callingpartyname = -1;
-static gint ett_triggercapability = -1;
-static gint ett_winoperationscapability = -1;
-static gint ett_win_trigger_list = -1;
-static gint ett_controlnetworkid = -1;
-static gint ett_transactioncapability = -1;
-static gint ett_cdmaserviceoption = -1;
-static gint ett_systemcapabilities = -1;
-static gint ett_sms_originationrestrictions = -1;
+static gint ett_ansi_map;
+static gint ett_mintype;
+static gint ett_digitstype;
+static gint ett_billingid;
+static gint ett_sms_bearer_data;
+static gint ett_sms_teleserviceIdentifier;
+static gint ett_extendedmscid;
+static gint ett_extendedsystemmytypecode;
+static gint ett_handoffstate;
+static gint ett_mscid;
+static gint ett_cdmachanneldata;
+static gint ett_cdmastationclassmark;
+static gint ett_channeldata;
+static gint ett_confidentialitymodes;
+static gint ett_controlchanneldata;
+static gint ett_CDMA2000HandoffInvokeIOSData;
+static gint ett_CDMA2000HandoffResponseIOSData;
+static gint ett_originationtriggers;
+static gint ett_pacaindicator;
+static gint ett_callingpartyname;
+static gint ett_triggercapability;
+static gint ett_winoperationscapability;
+static gint ett_win_trigger_list;
+static gint ett_controlnetworkid;
+static gint ett_transactioncapability;
+static gint ett_cdmaserviceoption;
+static gint ett_systemcapabilities;
+static gint ett_sms_originationrestrictions;
 
-static gint ett_ansi_map_AuthenticationDirective_U = -1;
-static gint ett_ansi_map_AuthenticationDirectiveRes_U = -1;
-static gint ett_ansi_map_AuthenticationDirectiveForward_U = -1;
-static gint ett_ansi_map_AuthenticationDirectiveForwardRes_U = -1;
-static gint ett_ansi_map_AuthenticationFailureReport_U = -1;
-static gint ett_ansi_map_AuthenticationFailureReportRes_U = -1;
-static gint ett_ansi_map_AuthenticationRequest_U = -1;
-static gint ett_ansi_map_AuthenticationRequestRes_U = -1;
-static gint ett_ansi_map_AuthenticationStatusReport_U = -1;
-static gint ett_ansi_map_AuthenticationStatusReportRes_U = -1;
-static gint ett_ansi_map_BaseStationChallenge_U = -1;
-static gint ett_ansi_map_BaseStationChallengeRes_U = -1;
-static gint ett_ansi_map_Blocking_U = -1;
-static gint ett_ansi_map_BulkDeregistration_U = -1;
-static gint ett_ansi_map_CountRequest_U = -1;
-static gint ett_ansi_map_CountRequestRes_U = -1;
-static gint ett_ansi_map_FacilitiesDirective_U = -1;
-static gint ett_ansi_map_FacilitiesDirectiveRes_U = -1;
-static gint ett_ansi_map_FacilitiesDirective2_U = -1;
-static gint ett_ansi_map_FacilitiesDirective2Res_U = -1;
-static gint ett_ansi_map_FacilitiesRelease_U = -1;
-static gint ett_ansi_map_FacilitiesReleaseRes_U = -1;
-static gint ett_ansi_map_FeatureRequest_U = -1;
-static gint ett_ansi_map_FeatureRequestRes_U = -1;
-static gint ett_ansi_map_FlashRequest_U = -1;
-static gint ett_ansi_map_HandoffBack_U = -1;
-static gint ett_ansi_map_HandoffBackRes_U = -1;
-static gint ett_ansi_map_HandoffBack2_U = -1;
-static gint ett_ansi_map_HandoffBack2Res_U = -1;
-static gint ett_ansi_map_HandoffMeasurementRequest_U = -1;
-static gint ett_ansi_map_HandoffMeasurementRequestRes_U = -1;
-static gint ett_ansi_map_HandoffMeasurementRequest2_U = -1;
-static gint ett_ansi_map_HandoffMeasurementRequest2Res_U = -1;
-static gint ett_ansi_map_HandoffToThird_U = -1;
-static gint ett_ansi_map_HandoffToThirdRes_U = -1;
-static gint ett_ansi_map_HandoffToThird2_U = -1;
-static gint ett_ansi_map_HandoffToThird2Res_U = -1;
-static gint ett_ansi_map_InformationDirective_U = -1;
-static gint ett_ansi_map_InformationDirectiveRes_U = -1;
-static gint ett_ansi_map_InformationForward_U = -1;
-static gint ett_ansi_map_InformationForwardRes_U = -1;
-static gint ett_ansi_map_InterSystemAnswer_U = -1;
-static gint ett_ansi_map_InterSystemPage_U = -1;
-static gint ett_ansi_map_InterSystemPageRes_U = -1;
-static gint ett_ansi_map_InterSystemPage2_U = -1;
-static gint ett_ansi_map_InterSystemPage2Res_U = -1;
-static gint ett_ansi_map_InterSystemSetup_U = -1;
-static gint ett_ansi_map_InterSystemSetupRes_U = -1;
-static gint ett_ansi_map_LocationRequest_U = -1;
-static gint ett_ansi_map_LocationRequestRes_U = -1;
-static gint ett_ansi_map_MSInactive_U = -1;
-static gint ett_ansi_map_OriginationRequest_U = -1;
-static gint ett_ansi_map_OriginationRequestRes_U = -1;
-static gint ett_ansi_map_QualificationDirective_U = -1;
-static gint ett_ansi_map_QualificationDirectiveRes_U = -1;
-static gint ett_ansi_map_QualificationRequest_U = -1;
-static gint ett_ansi_map_QualificationRequestRes_U = -1;
-static gint ett_ansi_map_RandomVariableRequest_U = -1;
-static gint ett_ansi_map_RandomVariableRequestRes_U = -1;
-static gint ett_ansi_map_RedirectionDirective_U = -1;
-static gint ett_ansi_map_RedirectionRequest_U = -1;
-static gint ett_ansi_map_RegistrationCancellation_U = -1;
-static gint ett_ansi_map_RegistrationCancellationRes_U = -1;
-static gint ett_ansi_map_RegistrationNotification_U = -1;
-static gint ett_ansi_map_RegistrationNotificationRes_U = -1;
-static gint ett_ansi_map_RemoteUserInteractionDirective_U = -1;
-static gint ett_ansi_map_RemoteUserInteractionDirectiveRes_U = -1;
-static gint ett_ansi_map_ResetCircuit_U = -1;
-static gint ett_ansi_map_ResetCircuitRes_U = -1;
-static gint ett_ansi_map_RoutingRequest_U = -1;
-static gint ett_ansi_map_RoutingRequestRes_U = -1;
-static gint ett_ansi_map_SMSDeliveryBackward_U = -1;
-static gint ett_ansi_map_SMSDeliveryBackwardRes_U = -1;
-static gint ett_ansi_map_SMSDeliveryForward_U = -1;
-static gint ett_ansi_map_SMSDeliveryForwardRes_U = -1;
-static gint ett_ansi_map_SMSDeliveryPointToPoint_U = -1;
-static gint ett_ansi_map_SMSDeliveryPointToPointRes_U = -1;
-static gint ett_ansi_map_SMSDeliveryPointToPointAck_U = -1;
-static gint ett_ansi_map_SMSNotification_U = -1;
-static gint ett_ansi_map_SMSNotificationRes_U = -1;
-static gint ett_ansi_map_SMSRequest_U = -1;
-static gint ett_ansi_map_SMSRequestRes_U = -1;
-static gint ett_ansi_map_TransferToNumberRequest_U = -1;
-static gint ett_ansi_map_TransferToNumberRequestRes_U = -1;
-static gint ett_ansi_map_TrunkTest_U = -1;
-static gint ett_ansi_map_TrunkTestDisconnect_U = -1;
-static gint ett_ansi_map_Unblocking_U = -1;
-static gint ett_ansi_map_UnreliableRoamerDataDirective_U = -1;
-static gint ett_ansi_map_UnsolicitedResponse_U = -1;
-static gint ett_ansi_map_UnsolicitedResponseRes_U = -1;
-static gint ett_ansi_map_ParameterRequest_U = -1;
-static gint ett_ansi_map_ParameterRequestRes_U = -1;
-static gint ett_ansi_map_TMSIDirective_U = -1;
-static gint ett_ansi_map_TMSIDirectiveRes_U = -1;
-static gint ett_ansi_map_NumberPortabilityRequest_U = -1;
-static gint ett_ansi_map_NumberPortabilityRequestRes_U = -1;
-static gint ett_ansi_map_ServiceRequest_U = -1;
-static gint ett_ansi_map_ServiceRequestRes_U = -1;
-static gint ett_ansi_map_AnalyzedInformation_U = -1;
-static gint ett_ansi_map_AnalyzedInformationRes_U = -1;
-static gint ett_ansi_map_ConnectionFailureReport_U = -1;
-static gint ett_ansi_map_ConnectResource_U = -1;
-static gint ett_ansi_map_FacilitySelectedAndAvailable_U = -1;
-static gint ett_ansi_map_FacilitySelectedAndAvailableRes_U = -1;
-static gint ett_ansi_map_Modify_U = -1;
-static gint ett_ansi_map_ModifyRes_U = -1;
-static gint ett_ansi_map_Search_U = -1;
-static gint ett_ansi_map_SearchRes_U = -1;
-static gint ett_ansi_map_SeizeResource_U = -1;
-static gint ett_ansi_map_SeizeResourceRes_U = -1;
-static gint ett_ansi_map_SRFDirective_U = -1;
-static gint ett_ansi_map_SRFDirectiveRes_U = -1;
-static gint ett_ansi_map_TBusy_U = -1;
-static gint ett_ansi_map_TBusyRes_U = -1;
-static gint ett_ansi_map_TNoAnswer_U = -1;
-static gint ett_ansi_map_TNoAnswerRes_U = -1;
-static gint ett_ansi_map_ChangeFacilities_U = -1;
-static gint ett_ansi_map_ChangeFacilitiesRes_U = -1;
-static gint ett_ansi_map_ChangeService_U = -1;
-static gint ett_ansi_map_ChangeServiceRes_U = -1;
-static gint ett_ansi_map_MessageDirective_U = -1;
-static gint ett_ansi_map_BulkDisconnection_U = -1;
-static gint ett_ansi_map_CallControlDirective_U = -1;
-static gint ett_ansi_map_CallControlDirectiveRes_U = -1;
-static gint ett_ansi_map_OAnswer_U = -1;
-static gint ett_ansi_map_ODisconnect_U = -1;
-static gint ett_ansi_map_ODisconnectRes_U = -1;
-static gint ett_ansi_map_CallRecoveryReport_U = -1;
-static gint ett_ansi_map_TAnswer_U = -1;
-static gint ett_ansi_map_TDisconnect_U = -1;
-static gint ett_ansi_map_TDisconnectRes_U = -1;
-static gint ett_ansi_map_UnreliableCallData_U = -1;
-static gint ett_ansi_map_OCalledPartyBusy_U = -1;
-static gint ett_ansi_map_OCalledPartyBusyRes_U = -1;
-static gint ett_ansi_map_ONoAnswer_U = -1;
-static gint ett_ansi_map_ONoAnswerRes_U = -1;
-static gint ett_ansi_map_PositionRequest_U = -1;
-static gint ett_ansi_map_PositionRequestRes_U = -1;
-static gint ett_ansi_map_PositionRequestForward_U = -1;
-static gint ett_ansi_map_PositionRequestForwardRes_U = -1;
-static gint ett_ansi_map_CallTerminationReport_U = -1;
-static gint ett_ansi_map_GeoPositionRequest_U = -1;
-static gint ett_ansi_map_InterSystemPositionRequest_U = -1;
-static gint ett_ansi_map_InterSystemPositionRequestRes_U = -1;
-static gint ett_ansi_map_InterSystemPositionRequestForward_U = -1;
-static gint ett_ansi_map_InterSystemPositionRequestForwardRes_U = -1;
-static gint ett_ansi_map_ACGDirective_U = -1;
-static gint ett_ansi_map_RoamerDatabaseVerificationRequest_U = -1;
-static gint ett_ansi_map_RoamerDatabaseVerificationRequestRes_U = -1;
-static gint ett_ansi_map_LCSParameterRequest_U = -1;
-static gint ett_ansi_map_LCSParameterRequestRes_U = -1;
-static gint ett_ansi_map_CheckMEID_U = -1;
-static gint ett_ansi_map_CheckMEIDRes_U = -1;
-static gint ett_ansi_map_AddService_U = -1;
-static gint ett_ansi_map_AddServiceRes_U = -1;
-static gint ett_ansi_map_DropService_U = -1;
-static gint ett_ansi_map_DropServiceRes_U = -1;
-static gint ett_ansi_map_PositionEventNotification_U = -1;
-static gint ett_ansi_map_OTASPRequest_U = -1;
-static gint ett_ansi_map_OTASPRequestRes_U = -1;
-static gint ett_ansi_map_StatusRequest_U = -1;
-static gint ett_ansi_map_StatusRequestRes_U = -1;
-static gint ett_ansi_map_InterSystemSMSDeliveryPointToPoint_U = -1;
-static gint ett_ansi_map_InterSystemSMSDeliveryPointToPointRes_U = -1;
-static gint ett_ansi_map_InterSystemSMSPage_U = -1;
-static gint ett_ansi_map_QualificationRequest2_U = -1;
-static gint ett_ansi_map_QualificationRequest2Res_U = -1;
-static gint ett_ansi_map_AnnouncementList = -1;
-static gint ett_ansi_map_CDMACodeChannelInformation = -1;
-static gint ett_ansi_map_CDMACodeChannelList = -1;
-static gint ett_ansi_map_CDMATargetMAHOInformation = -1;
-static gint ett_ansi_map_CDMATargetMAHOList = -1;
-static gint ett_ansi_map_CDMATargetMeasurementInformation = -1;
-static gint ett_ansi_map_CDMATargetMeasurementList = -1;
-static gint ett_ansi_map_IntersystemTermination = -1;
-static gint ett_ansi_map_LocalTermination = -1;
-static gint ett_ansi_map_PSTNTermination = -1;
-static gint ett_ansi_map_TargetMeasurementInformation = -1;
-static gint ett_ansi_map_TargetMeasurementList = -1;
-static gint ett_ansi_map_TerminationList = -1;
-static gint ett_ansi_map_TerminationList_item = -1;
-static gint ett_ansi_map_CDMABandClassInformation = -1;
-static gint ett_ansi_map_CDMABandClassList = -1;
-static gint ett_ansi_map_CDMAServiceOptionList = -1;
-static gint ett_ansi_map_PSID_RSIDList = -1;
-static gint ett_ansi_map_TargetCellIDList = -1;
-static gint ett_ansi_map_CDMAConnectionReferenceInformation = -1;
-static gint ett_ansi_map_CDMAConnectionReferenceList = -1;
-static gint ett_ansi_map_CDMAConnectionReferenceList_item = -1;
-static gint ett_ansi_map_AnalogRedirectRecord = -1;
-static gint ett_ansi_map_CDMAChannelNumberList = -1;
-static gint ett_ansi_map_CDMAChannelNumberList_item = -1;
-static gint ett_ansi_map_CDMARedirectRecord = -1;
-static gint ett_ansi_map_MSID = -1;
-static gint ett_ansi_map_DataAccessElement = -1;
-static gint ett_ansi_map_DataAccessElementList = -1;
-static gint ett_ansi_map_DataAccessElementList_item = -1;
-static gint ett_ansi_map_DataUpdateResult = -1;
-static gint ett_ansi_map_DataUpdateResultList = -1;
-static gint ett_ansi_map_DestinationAddress = -1;
-static gint ett_ansi_map_ExecuteScript = -1;
-static gint ett_ansi_map_ModificationRequest = -1;
-static gint ett_ansi_map_ModificationRequestList = -1;
-static gint ett_ansi_map_ModificationResult = -1;
-static gint ett_ansi_map_ModificationResultList = -1;
-static gint ett_ansi_map_ServiceDataAccessElement = -1;
-static gint ett_ansi_map_ServiceDataAccessElementList = -1;
-static gint ett_ansi_map_ServiceDataResult = -1;
-static gint ett_ansi_map_ServiceDataResultList = -1;
-static gint ett_ansi_map_TriggerAddressList = -1;
-static gint ett_ansi_map_TriggerList = -1;
-static gint ett_ansi_map_WINCapability = -1;
-static gint ett_ansi_map_CallRecoveryID = -1;
-static gint ett_ansi_map_CallRecoveryIDList = -1;
-static gint ett_ansi_map_PositionInformation = -1;
-static gint ett_ansi_map_GapInterval = -1;
-static gint ett_ansi_map_CDMAPSMMList = -1;
-static gint ett_ansi_map_CDMAPSMMList_item = -1;
-static gint ett_ansi_map_MPCAddressList = -1;
-static gint ett_ansi_map_MobileStationMSID = -1;
-static gint ett_ansi_map_NewlyAssignedMSID = -1;
-static gint ett_ansi_map_InvokeData = -1;
-static gint ett_ansi_map_ReturnData = -1;
+static gint ett_ansi_map_AuthenticationDirective_U;
+static gint ett_ansi_map_AuthenticationDirectiveRes_U;
+static gint ett_ansi_map_AuthenticationDirectiveForward_U;
+static gint ett_ansi_map_AuthenticationDirectiveForwardRes_U;
+static gint ett_ansi_map_AuthenticationFailureReport_U;
+static gint ett_ansi_map_AuthenticationFailureReportRes_U;
+static gint ett_ansi_map_AuthenticationRequest_U;
+static gint ett_ansi_map_AuthenticationRequestRes_U;
+static gint ett_ansi_map_AuthenticationStatusReport_U;
+static gint ett_ansi_map_AuthenticationStatusReportRes_U;
+static gint ett_ansi_map_BaseStationChallenge_U;
+static gint ett_ansi_map_BaseStationChallengeRes_U;
+static gint ett_ansi_map_Blocking_U;
+static gint ett_ansi_map_BulkDeregistration_U;
+static gint ett_ansi_map_CountRequest_U;
+static gint ett_ansi_map_CountRequestRes_U;
+static gint ett_ansi_map_FacilitiesDirective_U;
+static gint ett_ansi_map_FacilitiesDirectiveRes_U;
+static gint ett_ansi_map_FacilitiesDirective2_U;
+static gint ett_ansi_map_FacilitiesDirective2Res_U;
+static gint ett_ansi_map_FacilitiesRelease_U;
+static gint ett_ansi_map_FacilitiesReleaseRes_U;
+static gint ett_ansi_map_FeatureRequest_U;
+static gint ett_ansi_map_FeatureRequestRes_U;
+static gint ett_ansi_map_FlashRequest_U;
+static gint ett_ansi_map_HandoffBack_U;
+static gint ett_ansi_map_HandoffBackRes_U;
+static gint ett_ansi_map_HandoffBack2_U;
+static gint ett_ansi_map_HandoffBack2Res_U;
+static gint ett_ansi_map_HandoffMeasurementRequest_U;
+static gint ett_ansi_map_HandoffMeasurementRequestRes_U;
+static gint ett_ansi_map_HandoffMeasurementRequest2_U;
+static gint ett_ansi_map_HandoffMeasurementRequest2Res_U;
+static gint ett_ansi_map_HandoffToThird_U;
+static gint ett_ansi_map_HandoffToThirdRes_U;
+static gint ett_ansi_map_HandoffToThird2_U;
+static gint ett_ansi_map_HandoffToThird2Res_U;
+static gint ett_ansi_map_InformationDirective_U;
+static gint ett_ansi_map_InformationDirectiveRes_U;
+static gint ett_ansi_map_InformationForward_U;
+static gint ett_ansi_map_InformationForwardRes_U;
+static gint ett_ansi_map_InterSystemAnswer_U;
+static gint ett_ansi_map_InterSystemPage_U;
+static gint ett_ansi_map_InterSystemPageRes_U;
+static gint ett_ansi_map_InterSystemPage2_U;
+static gint ett_ansi_map_InterSystemPage2Res_U;
+static gint ett_ansi_map_InterSystemSetup_U;
+static gint ett_ansi_map_InterSystemSetupRes_U;
+static gint ett_ansi_map_LocationRequest_U;
+static gint ett_ansi_map_LocationRequestRes_U;
+static gint ett_ansi_map_MSInactive_U;
+static gint ett_ansi_map_OriginationRequest_U;
+static gint ett_ansi_map_OriginationRequestRes_U;
+static gint ett_ansi_map_QualificationDirective_U;
+static gint ett_ansi_map_QualificationDirectiveRes_U;
+static gint ett_ansi_map_QualificationRequest_U;
+static gint ett_ansi_map_QualificationRequestRes_U;
+static gint ett_ansi_map_RandomVariableRequest_U;
+static gint ett_ansi_map_RandomVariableRequestRes_U;
+static gint ett_ansi_map_RedirectionDirective_U;
+static gint ett_ansi_map_RedirectionRequest_U;
+static gint ett_ansi_map_RegistrationCancellation_U;
+static gint ett_ansi_map_RegistrationCancellationRes_U;
+static gint ett_ansi_map_RegistrationNotification_U;
+static gint ett_ansi_map_RegistrationNotificationRes_U;
+static gint ett_ansi_map_RemoteUserInteractionDirective_U;
+static gint ett_ansi_map_RemoteUserInteractionDirectiveRes_U;
+static gint ett_ansi_map_ResetCircuit_U;
+static gint ett_ansi_map_ResetCircuitRes_U;
+static gint ett_ansi_map_RoutingRequest_U;
+static gint ett_ansi_map_RoutingRequestRes_U;
+static gint ett_ansi_map_SMSDeliveryBackward_U;
+static gint ett_ansi_map_SMSDeliveryBackwardRes_U;
+static gint ett_ansi_map_SMSDeliveryForward_U;
+static gint ett_ansi_map_SMSDeliveryForwardRes_U;
+static gint ett_ansi_map_SMSDeliveryPointToPoint_U;
+static gint ett_ansi_map_SMSDeliveryPointToPointRes_U;
+static gint ett_ansi_map_SMSDeliveryPointToPointAck_U;
+static gint ett_ansi_map_SMSNotification_U;
+static gint ett_ansi_map_SMSNotificationRes_U;
+static gint ett_ansi_map_SMSRequest_U;
+static gint ett_ansi_map_SMSRequestRes_U;
+static gint ett_ansi_map_TransferToNumberRequest_U;
+static gint ett_ansi_map_TransferToNumberRequestRes_U;
+static gint ett_ansi_map_TrunkTest_U;
+static gint ett_ansi_map_TrunkTestDisconnect_U;
+static gint ett_ansi_map_Unblocking_U;
+static gint ett_ansi_map_UnreliableRoamerDataDirective_U;
+static gint ett_ansi_map_UnsolicitedResponse_U;
+static gint ett_ansi_map_UnsolicitedResponseRes_U;
+static gint ett_ansi_map_ParameterRequest_U;
+static gint ett_ansi_map_ParameterRequestRes_U;
+static gint ett_ansi_map_TMSIDirective_U;
+static gint ett_ansi_map_TMSIDirectiveRes_U;
+static gint ett_ansi_map_NumberPortabilityRequest_U;
+static gint ett_ansi_map_NumberPortabilityRequestRes_U;
+static gint ett_ansi_map_ServiceRequest_U;
+static gint ett_ansi_map_ServiceRequestRes_U;
+static gint ett_ansi_map_AnalyzedInformation_U;
+static gint ett_ansi_map_AnalyzedInformationRes_U;
+static gint ett_ansi_map_ConnectionFailureReport_U;
+static gint ett_ansi_map_ConnectResource_U;
+static gint ett_ansi_map_FacilitySelectedAndAvailable_U;
+static gint ett_ansi_map_FacilitySelectedAndAvailableRes_U;
+static gint ett_ansi_map_Modify_U;
+static gint ett_ansi_map_ModifyRes_U;
+static gint ett_ansi_map_Search_U;
+static gint ett_ansi_map_SearchRes_U;
+static gint ett_ansi_map_SeizeResource_U;
+static gint ett_ansi_map_SeizeResourceRes_U;
+static gint ett_ansi_map_SRFDirective_U;
+static gint ett_ansi_map_SRFDirectiveRes_U;
+static gint ett_ansi_map_TBusy_U;
+static gint ett_ansi_map_TBusyRes_U;
+static gint ett_ansi_map_TNoAnswer_U;
+static gint ett_ansi_map_TNoAnswerRes_U;
+static gint ett_ansi_map_ChangeFacilities_U;
+static gint ett_ansi_map_ChangeFacilitiesRes_U;
+static gint ett_ansi_map_ChangeService_U;
+static gint ett_ansi_map_ChangeServiceRes_U;
+static gint ett_ansi_map_MessageDirective_U;
+static gint ett_ansi_map_BulkDisconnection_U;
+static gint ett_ansi_map_CallControlDirective_U;
+static gint ett_ansi_map_CallControlDirectiveRes_U;
+static gint ett_ansi_map_OAnswer_U;
+static gint ett_ansi_map_ODisconnect_U;
+static gint ett_ansi_map_ODisconnectRes_U;
+static gint ett_ansi_map_CallRecoveryReport_U;
+static gint ett_ansi_map_TAnswer_U;
+static gint ett_ansi_map_TDisconnect_U;
+static gint ett_ansi_map_TDisconnectRes_U;
+static gint ett_ansi_map_UnreliableCallData_U;
+static gint ett_ansi_map_OCalledPartyBusy_U;
+static gint ett_ansi_map_OCalledPartyBusyRes_U;
+static gint ett_ansi_map_ONoAnswer_U;
+static gint ett_ansi_map_ONoAnswerRes_U;
+static gint ett_ansi_map_PositionRequest_U;
+static gint ett_ansi_map_PositionRequestRes_U;
+static gint ett_ansi_map_PositionRequestForward_U;
+static gint ett_ansi_map_PositionRequestForwardRes_U;
+static gint ett_ansi_map_CallTerminationReport_U;
+static gint ett_ansi_map_GeoPositionRequest_U;
+static gint ett_ansi_map_InterSystemPositionRequest_U;
+static gint ett_ansi_map_InterSystemPositionRequestRes_U;
+static gint ett_ansi_map_InterSystemPositionRequestForward_U;
+static gint ett_ansi_map_InterSystemPositionRequestForwardRes_U;
+static gint ett_ansi_map_ACGDirective_U;
+static gint ett_ansi_map_RoamerDatabaseVerificationRequest_U;
+static gint ett_ansi_map_RoamerDatabaseVerificationRequestRes_U;
+static gint ett_ansi_map_LCSParameterRequest_U;
+static gint ett_ansi_map_LCSParameterRequestRes_U;
+static gint ett_ansi_map_CheckMEID_U;
+static gint ett_ansi_map_CheckMEIDRes_U;
+static gint ett_ansi_map_AddService_U;
+static gint ett_ansi_map_AddServiceRes_U;
+static gint ett_ansi_map_DropService_U;
+static gint ett_ansi_map_DropServiceRes_U;
+static gint ett_ansi_map_PositionEventNotification_U;
+static gint ett_ansi_map_OTASPRequest_U;
+static gint ett_ansi_map_OTASPRequestRes_U;
+static gint ett_ansi_map_StatusRequest_U;
+static gint ett_ansi_map_StatusRequestRes_U;
+static gint ett_ansi_map_InterSystemSMSDeliveryPointToPoint_U;
+static gint ett_ansi_map_InterSystemSMSDeliveryPointToPointRes_U;
+static gint ett_ansi_map_InterSystemSMSPage_U;
+static gint ett_ansi_map_QualificationRequest2_U;
+static gint ett_ansi_map_QualificationRequest2Res_U;
+static gint ett_ansi_map_AnnouncementList;
+static gint ett_ansi_map_CDMACodeChannelInformation;
+static gint ett_ansi_map_CDMACodeChannelList;
+static gint ett_ansi_map_CDMATargetMAHOInformation;
+static gint ett_ansi_map_CDMATargetMAHOList;
+static gint ett_ansi_map_CDMATargetMeasurementInformation;
+static gint ett_ansi_map_CDMATargetMeasurementList;
+static gint ett_ansi_map_IntersystemTermination;
+static gint ett_ansi_map_LocalTermination;
+static gint ett_ansi_map_PSTNTermination;
+static gint ett_ansi_map_TargetMeasurementInformation;
+static gint ett_ansi_map_TargetMeasurementList;
+static gint ett_ansi_map_TerminationList;
+static gint ett_ansi_map_TerminationList_item;
+static gint ett_ansi_map_CDMABandClassInformation;
+static gint ett_ansi_map_CDMABandClassList;
+static gint ett_ansi_map_CDMAServiceOptionList;
+static gint ett_ansi_map_PSID_RSIDList;
+static gint ett_ansi_map_TargetCellIDList;
+static gint ett_ansi_map_CDMAConnectionReferenceInformation;
+static gint ett_ansi_map_CDMAConnectionReferenceList;
+static gint ett_ansi_map_CDMAConnectionReferenceList_item;
+static gint ett_ansi_map_AnalogRedirectRecord;
+static gint ett_ansi_map_CDMAChannelNumberList;
+static gint ett_ansi_map_CDMAChannelNumberList_item;
+static gint ett_ansi_map_CDMARedirectRecord;
+static gint ett_ansi_map_MSID;
+static gint ett_ansi_map_DataAccessElement;
+static gint ett_ansi_map_DataAccessElementList;
+static gint ett_ansi_map_DataAccessElementList_item;
+static gint ett_ansi_map_DataUpdateResult;
+static gint ett_ansi_map_DataUpdateResultList;
+static gint ett_ansi_map_DestinationAddress;
+static gint ett_ansi_map_ExecuteScript;
+static gint ett_ansi_map_ModificationRequest;
+static gint ett_ansi_map_ModificationRequestList;
+static gint ett_ansi_map_ModificationResult;
+static gint ett_ansi_map_ModificationResultList;
+static gint ett_ansi_map_ServiceDataAccessElement;
+static gint ett_ansi_map_ServiceDataAccessElementList;
+static gint ett_ansi_map_ServiceDataResult;
+static gint ett_ansi_map_ServiceDataResultList;
+static gint ett_ansi_map_TriggerAddressList;
+static gint ett_ansi_map_TriggerList;
+static gint ett_ansi_map_WINCapability;
+static gint ett_ansi_map_CallRecoveryID;
+static gint ett_ansi_map_CallRecoveryIDList;
+static gint ett_ansi_map_PositionInformation;
+static gint ett_ansi_map_GapInterval;
+static gint ett_ansi_map_CDMAPSMMList;
+static gint ett_ansi_map_CDMAPSMMList_item;
+static gint ett_ansi_map_MPCAddressList;
+static gint ett_ansi_map_MobileStationMSID;
+static gint ett_ansi_map_NewlyAssignedMSID;
+static gint ett_ansi_map_InvokeData;
+static gint ett_ansi_map_ReturnData;
 
-static expert_field ei_ansi_map_nr_not_used = EI_INIT;
-static expert_field ei_ansi_map_unknown_invokeData_blob = EI_INIT;
-static expert_field ei_ansi_map_no_data = EI_INIT;
+static expert_field ei_ansi_map_nr_not_used;
+static expert_field ei_ansi_map_unknown_invokeData_blob;
+static expert_field ei_ansi_map_no_data;
 
 /* Global variables */
 static dissector_table_t is637_tele_id_dissector_table; /* IS-637 Teleservice ID */

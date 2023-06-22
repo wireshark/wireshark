@@ -30,56 +30,56 @@ void proto_register_h283(void);
 void proto_reg_handoff_h283(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_h283 = -1;
-static int hf_h283_LCTPDU_PDU = -1;               /* LCTPDU */
-static int hf_h283_t35CountryCode = -1;           /* INTEGER_0_255 */
-static int hf_h283_t35Extension = -1;             /* INTEGER_0_255 */
-static int hf_h283_manufacturerCode = -1;         /* INTEGER_0_65535 */
-static int hf_h283_object = -1;                   /* OBJECT_IDENTIFIER */
-static int hf_h283_h221NonStandard = -1;          /* H221NonStandard */
-static int hf_h283_nonStandardIdentifier = -1;    /* NonStandardIdentifier */
-static int hf_h283_data = -1;                     /* OCTET_STRING */
-static int hf_h283_srcAddr = -1;                  /* MTAddress */
-static int hf_h283_dstAddr = -1;                  /* MTAddress */
-static int hf_h283_timestamp = -1;                /* INTEGER_0_4294967295 */
-static int hf_h283_seqNumber = -1;                /* INTEGER_0_65535 */
-static int hf_h283_pduType = -1;                  /* T_pduType */
-static int hf_h283_ack = -1;                      /* NULL */
-static int hf_h283_rdcData = -1;                  /* RDCData */
-static int hf_h283_nonStandardParameters = -1;    /* SEQUENCE_OF_NonStandardParameter */
-static int hf_h283_nonStandardParameters_item = -1;  /* NonStandardParameter */
-static int hf_h283_mAddress = -1;                 /* INTEGER_0_65535 */
-static int hf_h283_tAddress = -1;                 /* INTEGER_0_65535 */
-static int hf_h283_reliable = -1;                 /* BOOLEAN */
-static int hf_h283_dataType = -1;                 /* T_dataType */
-static int hf_h283_lctMessage = -1;               /* LCTMessage */
-static int hf_h283_rdcPDU = -1;                   /* T_rdcPDU */
-static int hf_h283_lctRequest = -1;               /* LCTRequest */
-static int hf_h283_lctResponse = -1;              /* LCTResponse */
-static int hf_h283_lctIndication = -1;            /* LCTIndication */
-static int hf_h283_nonStandardMessage = -1;       /* NonStandardMessage */
-static int hf_h283_announceReq = -1;              /* NULL */
-static int hf_h283_deviceListReq = -1;            /* NULL */
-static int hf_h283_announceResp = -1;             /* NULL */
-static int hf_h283_deviceListResp = -1;           /* T_deviceListResp */
-static int hf_h283_deviceChange = -1;             /* NULL */
+static int proto_h283;
+static int hf_h283_LCTPDU_PDU;                    /* LCTPDU */
+static int hf_h283_t35CountryCode;                /* INTEGER_0_255 */
+static int hf_h283_t35Extension;                  /* INTEGER_0_255 */
+static int hf_h283_manufacturerCode;              /* INTEGER_0_65535 */
+static int hf_h283_object;                        /* OBJECT_IDENTIFIER */
+static int hf_h283_h221NonStandard;               /* H221NonStandard */
+static int hf_h283_nonStandardIdentifier;         /* NonStandardIdentifier */
+static int hf_h283_data;                          /* OCTET_STRING */
+static int hf_h283_srcAddr;                       /* MTAddress */
+static int hf_h283_dstAddr;                       /* MTAddress */
+static int hf_h283_timestamp;                     /* INTEGER_0_4294967295 */
+static int hf_h283_seqNumber;                     /* INTEGER_0_65535 */
+static int hf_h283_pduType;                       /* T_pduType */
+static int hf_h283_ack;                           /* NULL */
+static int hf_h283_rdcData;                       /* RDCData */
+static int hf_h283_nonStandardParameters;         /* SEQUENCE_OF_NonStandardParameter */
+static int hf_h283_nonStandardParameters_item;    /* NonStandardParameter */
+static int hf_h283_mAddress;                      /* INTEGER_0_65535 */
+static int hf_h283_tAddress;                      /* INTEGER_0_65535 */
+static int hf_h283_reliable;                      /* BOOLEAN */
+static int hf_h283_dataType;                      /* T_dataType */
+static int hf_h283_lctMessage;                    /* LCTMessage */
+static int hf_h283_rdcPDU;                        /* T_rdcPDU */
+static int hf_h283_lctRequest;                    /* LCTRequest */
+static int hf_h283_lctResponse;                   /* LCTResponse */
+static int hf_h283_lctIndication;                 /* LCTIndication */
+static int hf_h283_nonStandardMessage;            /* NonStandardMessage */
+static int hf_h283_announceReq;                   /* NULL */
+static int hf_h283_deviceListReq;                 /* NULL */
+static int hf_h283_announceResp;                  /* NULL */
+static int hf_h283_deviceListResp;                /* T_deviceListResp */
+static int hf_h283_deviceChange;                  /* NULL */
 
 /* Initialize the subtree pointers */
-static int ett_h283 = -1;
-static gint ett_h283_H221NonStandard = -1;
-static gint ett_h283_NonStandardIdentifier = -1;
-static gint ett_h283_NonStandardParameter = -1;
-static gint ett_h283_LCTPDU = -1;
-static gint ett_h283_T_pduType = -1;
-static gint ett_h283_SEQUENCE_OF_NonStandardParameter = -1;
-static gint ett_h283_MTAddress = -1;
-static gint ett_h283_RDCData = -1;
-static gint ett_h283_T_dataType = -1;
-static gint ett_h283_LCTMessage = -1;
-static gint ett_h283_LCTRequest = -1;
-static gint ett_h283_LCTResponse = -1;
-static gint ett_h283_LCTIndication = -1;
-static gint ett_h283_NonStandardMessage = -1;
+static int ett_h283;
+static gint ett_h283_H221NonStandard;
+static gint ett_h283_NonStandardIdentifier;
+static gint ett_h283_NonStandardParameter;
+static gint ett_h283_LCTPDU;
+static gint ett_h283_T_pduType;
+static gint ett_h283_SEQUENCE_OF_NonStandardParameter;
+static gint ett_h283_MTAddress;
+static gint ett_h283_RDCData;
+static gint ett_h283_T_dataType;
+static gint ett_h283_LCTMessage;
+static gint ett_h283_LCTRequest;
+static gint ett_h283_LCTResponse;
+static gint ett_h283_LCTIndication;
+static gint ett_h283_NonStandardMessage;
 
 /* Subdissectors */
 static dissector_handle_t rdc_pdu_handle;

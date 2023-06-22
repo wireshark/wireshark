@@ -28,27 +28,27 @@ void proto_register_ns_cert_exts(void);
 void proto_reg_handoff_ns_cert_exts(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_ns_cert_exts = -1;
-static int hf_ns_cert_exts_BaseUrl_PDU = -1;      /* BaseUrl */
-static int hf_ns_cert_exts_RevocationUrl_PDU = -1;  /* RevocationUrl */
-static int hf_ns_cert_exts_CaRevocationUrl_PDU = -1;  /* CaRevocationUrl */
-static int hf_ns_cert_exts_CaPolicyUrl_PDU = -1;  /* CaPolicyUrl */
-static int hf_ns_cert_exts_Comment_PDU = -1;      /* Comment */
-static int hf_ns_cert_exts_SslServerName_PDU = -1;  /* SslServerName */
-static int hf_ns_cert_exts_CertRenewalUrl_PDU = -1;  /* CertRenewalUrl */
-static int hf_ns_cert_exts_CertType_PDU = -1;     /* CertType */
+static int proto_ns_cert_exts;
+static int hf_ns_cert_exts_BaseUrl_PDU;           /* BaseUrl */
+static int hf_ns_cert_exts_RevocationUrl_PDU;     /* RevocationUrl */
+static int hf_ns_cert_exts_CaRevocationUrl_PDU;   /* CaRevocationUrl */
+static int hf_ns_cert_exts_CaPolicyUrl_PDU;       /* CaPolicyUrl */
+static int hf_ns_cert_exts_Comment_PDU;           /* Comment */
+static int hf_ns_cert_exts_SslServerName_PDU;     /* SslServerName */
+static int hf_ns_cert_exts_CertRenewalUrl_PDU;    /* CertRenewalUrl */
+static int hf_ns_cert_exts_CertType_PDU;          /* CertType */
 /* named bits */
-static int hf_ns_cert_exts_CertType_ssl_client = -1;
-static int hf_ns_cert_exts_CertType_ssl_server = -1;
-static int hf_ns_cert_exts_CertType_smime = -1;
-static int hf_ns_cert_exts_CertType_object_signing = -1;
-static int hf_ns_cert_exts_CertType_reserved_for_future_use = -1;
-static int hf_ns_cert_exts_CertType_ssl_ca = -1;
-static int hf_ns_cert_exts_CertType_smime_ca = -1;
-static int hf_ns_cert_exts_CertType_object_signing_ca = -1;
+static int hf_ns_cert_exts_CertType_ssl_client;
+static int hf_ns_cert_exts_CertType_ssl_server;
+static int hf_ns_cert_exts_CertType_smime;
+static int hf_ns_cert_exts_CertType_object_signing;
+static int hf_ns_cert_exts_CertType_reserved_for_future_use;
+static int hf_ns_cert_exts_CertType_ssl_ca;
+static int hf_ns_cert_exts_CertType_smime_ca;
+static int hf_ns_cert_exts_CertType_object_signing_ca;
 
 /* Initialize the subtree pointers */
-static gint ett_ns_cert_exts_CertType = -1;
+static gint ett_ns_cert_exts_CertType;
 
 
 

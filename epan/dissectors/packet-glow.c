@@ -27,148 +27,148 @@
 void proto_register_glow(void);
 
 static dissector_handle_t glow_handle=NULL;
-static int proto_glow = -1;
+static int proto_glow;
 
-static int hf_glow_Root_PDU = -1;                 /* Root */
-static int hf_glow_number = -1;                   /* Integer32 */
-static int hf_glow_element = -1;                  /* TemplateElement */
-static int hf_glow_description = -1;              /* EmberString */
-static int hf_glow_path = -1;                     /* RELATIVE_OID */
-static int hf_glow_parameter = -1;                /* Parameter */
-static int hf_glow_node = -1;                     /* Node */
-static int hf_glow_matrix = -1;                   /* Matrix */
-static int hf_glow_function = -1;                 /* Function */
-static int hf_glow_contents = -1;                 /* ParameterContents */
-static int hf_glow_children = -1;                 /* ElementCollection */
-static int hf_glow_identifier = -1;               /* EmberString */
-static int hf_glow_value = -1;                    /* Value */
-static int hf_glow_minimum = -1;                  /* MinMax */
-static int hf_glow_maximum = -1;                  /* MinMax */
-static int hf_glow_access = -1;                   /* ParameterAccess */
-static int hf_glow_format = -1;                   /* EmberString */
-static int hf_glow_enumeration = -1;              /* EmberString */
-static int hf_glow_factor = -1;                   /* Integer32 */
-static int hf_glow_isOnline = -1;                 /* BOOLEAN */
-static int hf_glow_formula = -1;                  /* EmberString */
-static int hf_glow_step = -1;                     /* Integer32 */
-static int hf_glow_default = -1;                  /* Value */
-static int hf_glow_type = -1;                     /* ParameterType */
-static int hf_glow_streamIdentifier = -1;         /* Integer32 */
-static int hf_glow_enumMap = -1;                  /* StringIntegerCollection */
-static int hf_glow_streamDescriptor = -1;         /* StreamDescription */
-static int hf_glow_schemaIdentifiers = -1;        /* EmberString */
-static int hf_glow_templateReference = -1;        /* RELATIVE_OID */
-static int hf_glow_integer = -1;                  /* Integer64 */
-static int hf_glow_real = -1;                     /* REAL */
-static int hf_glow_string = -1;                   /* EmberString */
-static int hf_glow_boolean = -1;                  /* BOOLEAN */
-static int hf_glow_octets = -1;                   /* OCTET_STRING */
-static int hf_glow_null = -1;                     /* NULL */
-static int hf_glow_entryString = -1;              /* EmberString */
-static int hf_glow_entryInteger = -1;             /* Integer32 */
-static int hf_glow__untag_item = -1;              /* StringIntegerPair */
-static int hf_glow_streamFormat = -1;             /* StreamFormat */
-static int hf_glow_offset = -1;                   /* Integer32 */
-static int hf_glow_number_01 = -1;                /* CommandType */
-static int hf_glow_options = -1;                  /* T_options */
-static int hf_glow_dirFieldMask = -1;             /* FieldFlags */
-static int hf_glow_invocation = -1;               /* Invocation */
-static int hf_glow_contents_01 = -1;              /* NodeContents */
-static int hf_glow_isRoot = -1;                   /* BOOLEAN */
-static int hf_glow_contents_02 = -1;              /* MatrixContents */
-static int hf_glow_targetList = -1;               /* TargetCollection */
-static int hf_glow_sourceList = -1;               /* SourceCollection */
-static int hf_glow_connections = -1;              /* ConnectionCollection */
-static int hf_glow_type_01 = -1;                  /* MatrixType */
-static int hf_glow_addressingMode = -1;           /* MatrixAddressingMode */
-static int hf_glow_targetCount = -1;              /* Integer32 */
-static int hf_glow_sourceCount = -1;              /* Integer32 */
-static int hf_glow_maximumTotalConnects = -1;     /* Integer32 */
-static int hf_glow_maximumConnectsPerTarget = -1;  /* Integer32 */
-static int hf_glow_parametersLocation = -1;       /* ParametersLocation */
-static int hf_glow_gainParameterNumber = -1;      /* Integer32 */
-static int hf_glow_labels = -1;                   /* LabelCollection */
-static int hf_glow_basePath = -1;                 /* RELATIVE_OID */
-static int hf_glow_inline = -1;                   /* Integer32 */
-static int hf_glow_LabelCollection_item = -1;     /* Label */
-static int hf_glow_TargetCollection_item = -1;    /* Target */
-static int hf_glow_SourceCollection_item = -1;    /* Source */
-static int hf_glow_ConnectionCollection_item = -1;  /* Connection */
-static int hf_glow_target = -1;                   /* Integer32 */
-static int hf_glow_sources = -1;                  /* PackedNumbers */
-static int hf_glow_operation = -1;                /* ConnectionOperation */
-static int hf_glow_disposition = -1;              /* ConnectionDisposition */
-static int hf_glow_contents_03 = -1;              /* FunctionContents */
-static int hf_glow_arguments = -1;                /* TupleDescription */
-static int hf_glow_result = -1;                   /* TupleDescription */
-static int hf_glow_TupleDescription_item = -1;    /* TupleItemDescription */
-static int hf_glow_name = -1;                     /* EmberString */
-static int hf_glow_invocationId = -1;             /* Integer32 */
-static int hf_glow_arguments_01 = -1;             /* Tuple */
-static int hf_glow_Tuple_item = -1;               /* Value */
-static int hf_glow_success = -1;                  /* BOOLEAN */
-static int hf_glow_result_01 = -1;                /* Tuple */
-static int hf_glow__untag_item_01 = -1;           /* Element */
-static int hf_glow_command = -1;                  /* Command */
-static int hf_glow_template = -1;                 /* Template */
-static int hf_glow_streamValue = -1;              /* Value */
-static int hf_glow__untag_item_02 = -1;           /* StreamEntry */
-static int hf_glow_elements = -1;                 /* RootElementCollection */
-static int hf_glow_streams = -1;                  /* StreamCollection */
-static int hf_glow_invocationResult = -1;         /* InvocationResult */
-static int hf_glow__untag_item_03 = -1;           /* RootElement */
-static int hf_glow_element_01 = -1;               /* Element */
-static int hf_glow_qualifiedParameter = -1;       /* QualifiedParameter */
-static int hf_glow_qualifiedNode = -1;            /* QualifiedNode */
-static int hf_glow_qualifiedMatrix = -1;          /* QualifiedMatrix */
-static int hf_glow_qualifiedFunction = -1;        /* QualifiedFunction */
-static int hf_glow_qualifiedTemplate = -1;        /* QualifiedTemplate */
+static int hf_glow_Root_PDU;                      /* Root */
+static int hf_glow_number;                        /* Integer32 */
+static int hf_glow_element;                       /* TemplateElement */
+static int hf_glow_description;                   /* EmberString */
+static int hf_glow_path;                          /* RELATIVE_OID */
+static int hf_glow_parameter;                     /* Parameter */
+static int hf_glow_node;                          /* Node */
+static int hf_glow_matrix;                        /* Matrix */
+static int hf_glow_function;                      /* Function */
+static int hf_glow_contents;                      /* ParameterContents */
+static int hf_glow_children;                      /* ElementCollection */
+static int hf_glow_identifier;                    /* EmberString */
+static int hf_glow_value;                         /* Value */
+static int hf_glow_minimum;                       /* MinMax */
+static int hf_glow_maximum;                       /* MinMax */
+static int hf_glow_access;                        /* ParameterAccess */
+static int hf_glow_format;                        /* EmberString */
+static int hf_glow_enumeration;                   /* EmberString */
+static int hf_glow_factor;                        /* Integer32 */
+static int hf_glow_isOnline;                      /* BOOLEAN */
+static int hf_glow_formula;                       /* EmberString */
+static int hf_glow_step;                          /* Integer32 */
+static int hf_glow_default;                       /* Value */
+static int hf_glow_type;                          /* ParameterType */
+static int hf_glow_streamIdentifier;              /* Integer32 */
+static int hf_glow_enumMap;                       /* StringIntegerCollection */
+static int hf_glow_streamDescriptor;              /* StreamDescription */
+static int hf_glow_schemaIdentifiers;             /* EmberString */
+static int hf_glow_templateReference;             /* RELATIVE_OID */
+static int hf_glow_integer;                       /* Integer64 */
+static int hf_glow_real;                          /* REAL */
+static int hf_glow_string;                        /* EmberString */
+static int hf_glow_boolean;                       /* BOOLEAN */
+static int hf_glow_octets;                        /* OCTET_STRING */
+static int hf_glow_null;                          /* NULL */
+static int hf_glow_entryString;                   /* EmberString */
+static int hf_glow_entryInteger;                  /* Integer32 */
+static int hf_glow__untag_item;                   /* StringIntegerPair */
+static int hf_glow_streamFormat;                  /* StreamFormat */
+static int hf_glow_offset;                        /* Integer32 */
+static int hf_glow_number_01;                     /* CommandType */
+static int hf_glow_options;                       /* T_options */
+static int hf_glow_dirFieldMask;                  /* FieldFlags */
+static int hf_glow_invocation;                    /* Invocation */
+static int hf_glow_contents_01;                   /* NodeContents */
+static int hf_glow_isRoot;                        /* BOOLEAN */
+static int hf_glow_contents_02;                   /* MatrixContents */
+static int hf_glow_targetList;                    /* TargetCollection */
+static int hf_glow_sourceList;                    /* SourceCollection */
+static int hf_glow_connections;                   /* ConnectionCollection */
+static int hf_glow_type_01;                       /* MatrixType */
+static int hf_glow_addressingMode;                /* MatrixAddressingMode */
+static int hf_glow_targetCount;                   /* Integer32 */
+static int hf_glow_sourceCount;                   /* Integer32 */
+static int hf_glow_maximumTotalConnects;          /* Integer32 */
+static int hf_glow_maximumConnectsPerTarget;      /* Integer32 */
+static int hf_glow_parametersLocation;            /* ParametersLocation */
+static int hf_glow_gainParameterNumber;           /* Integer32 */
+static int hf_glow_labels;                        /* LabelCollection */
+static int hf_glow_basePath;                      /* RELATIVE_OID */
+static int hf_glow_inline;                        /* Integer32 */
+static int hf_glow_LabelCollection_item;          /* Label */
+static int hf_glow_TargetCollection_item;         /* Target */
+static int hf_glow_SourceCollection_item;         /* Source */
+static int hf_glow_ConnectionCollection_item;     /* Connection */
+static int hf_glow_target;                        /* Integer32 */
+static int hf_glow_sources;                       /* PackedNumbers */
+static int hf_glow_operation;                     /* ConnectionOperation */
+static int hf_glow_disposition;                   /* ConnectionDisposition */
+static int hf_glow_contents_03;                   /* FunctionContents */
+static int hf_glow_arguments;                     /* TupleDescription */
+static int hf_glow_result;                        /* TupleDescription */
+static int hf_glow_TupleDescription_item;         /* TupleItemDescription */
+static int hf_glow_name;                          /* EmberString */
+static int hf_glow_invocationId;                  /* Integer32 */
+static int hf_glow_arguments_01;                  /* Tuple */
+static int hf_glow_Tuple_item;                    /* Value */
+static int hf_glow_success;                       /* BOOLEAN */
+static int hf_glow_result_01;                     /* Tuple */
+static int hf_glow__untag_item_01;                /* Element */
+static int hf_glow_command;                       /* Command */
+static int hf_glow_template;                      /* Template */
+static int hf_glow_streamValue;                   /* Value */
+static int hf_glow__untag_item_02;                /* StreamEntry */
+static int hf_glow_elements;                      /* RootElementCollection */
+static int hf_glow_streams;                       /* StreamCollection */
+static int hf_glow_invocationResult;              /* InvocationResult */
+static int hf_glow__untag_item_03;                /* RootElement */
+static int hf_glow_element_01;                    /* Element */
+static int hf_glow_qualifiedParameter;            /* QualifiedParameter */
+static int hf_glow_qualifiedNode;                 /* QualifiedNode */
+static int hf_glow_qualifiedMatrix;               /* QualifiedMatrix */
+static int hf_glow_qualifiedFunction;             /* QualifiedFunction */
+static int hf_glow_qualifiedTemplate;             /* QualifiedTemplate */
 
 /* Initialize the subtree pointers */
-static int ett_glow = -1;
+static int ett_glow;
 
-static gint ett_glow_Template_U = -1;
-static gint ett_glow_QualifiedTemplate_U = -1;
-static gint ett_glow_TemplateElement = -1;
-static gint ett_glow_Parameter_U = -1;
-static gint ett_glow_QualifiedParameter_U = -1;
-static gint ett_glow_ParameterContents = -1;
-static gint ett_glow_Value = -1;
-static gint ett_glow_MinMax = -1;
-static gint ett_glow_StringIntegerPair_U = -1;
-static gint ett_glow_SEQUENCE_OF_StringIntegerPair = -1;
-static gint ett_glow_StreamDescription_U = -1;
-static gint ett_glow_Command_U = -1;
-static gint ett_glow_T_options = -1;
-static gint ett_glow_Node_U = -1;
-static gint ett_glow_QualifiedNode_U = -1;
-static gint ett_glow_NodeContents = -1;
-static gint ett_glow_Matrix_U = -1;
-static gint ett_glow_MatrixContents = -1;
-static gint ett_glow_ParametersLocation = -1;
-static gint ett_glow_LabelCollection = -1;
-static gint ett_glow_Label_U = -1;
-static gint ett_glow_TargetCollection = -1;
-static gint ett_glow_Signal = -1;
-static gint ett_glow_SourceCollection = -1;
-static gint ett_glow_ConnectionCollection = -1;
-static gint ett_glow_Connection_U = -1;
-static gint ett_glow_QualifiedMatrix_U = -1;
-static gint ett_glow_Function_U = -1;
-static gint ett_glow_QualifiedFunction_U = -1;
-static gint ett_glow_FunctionContents = -1;
-static gint ett_glow_TupleDescription = -1;
-static gint ett_glow_TupleItemDescription_U = -1;
-static gint ett_glow_Invocation_U = -1;
-static gint ett_glow_Tuple = -1;
-static gint ett_glow_InvocationResult_U = -1;
-static gint ett_glow_SEQUENCE_OF_Element = -1;
-static gint ett_glow_Element = -1;
-static gint ett_glow_StreamEntry_U = -1;
-static gint ett_glow_SEQUENCE_OF_StreamEntry = -1;
-static gint ett_glow_Root_U = -1;
-static gint ett_glow_SEQUENCE_OF_RootElement = -1;
-static gint ett_glow_RootElement = -1;
+static gint ett_glow_Template_U;
+static gint ett_glow_QualifiedTemplate_U;
+static gint ett_glow_TemplateElement;
+static gint ett_glow_Parameter_U;
+static gint ett_glow_QualifiedParameter_U;
+static gint ett_glow_ParameterContents;
+static gint ett_glow_Value;
+static gint ett_glow_MinMax;
+static gint ett_glow_StringIntegerPair_U;
+static gint ett_glow_SEQUENCE_OF_StringIntegerPair;
+static gint ett_glow_StreamDescription_U;
+static gint ett_glow_Command_U;
+static gint ett_glow_T_options;
+static gint ett_glow_Node_U;
+static gint ett_glow_QualifiedNode_U;
+static gint ett_glow_NodeContents;
+static gint ett_glow_Matrix_U;
+static gint ett_glow_MatrixContents;
+static gint ett_glow_ParametersLocation;
+static gint ett_glow_LabelCollection;
+static gint ett_glow_Label_U;
+static gint ett_glow_TargetCollection;
+static gint ett_glow_Signal;
+static gint ett_glow_SourceCollection;
+static gint ett_glow_ConnectionCollection;
+static gint ett_glow_Connection_U;
+static gint ett_glow_QualifiedMatrix_U;
+static gint ett_glow_Function_U;
+static gint ett_glow_QualifiedFunction_U;
+static gint ett_glow_FunctionContents;
+static gint ett_glow_TupleDescription;
+static gint ett_glow_TupleItemDescription_U;
+static gint ett_glow_Invocation_U;
+static gint ett_glow_Tuple;
+static gint ett_glow_InvocationResult_U;
+static gint ett_glow_SEQUENCE_OF_Element;
+static gint ett_glow_Element;
+static gint ett_glow_StreamEntry_U;
+static gint ett_glow_SEQUENCE_OF_StreamEntry;
+static gint ett_glow_Root_U;
+static gint ett_glow_SEQUENCE_OF_RootElement;
+static gint ett_glow_RootElement;
 
 /*--- Cyclic dependencies ---*/
 

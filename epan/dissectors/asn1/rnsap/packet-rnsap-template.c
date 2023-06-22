@@ -53,17 +53,17 @@ static dissector_handle_t rrc_dl_ccch_handle = NULL;
 static dissector_handle_t rrc_ul_ccch_handle = NULL;
 
 /* Initialize the protocol and registered fields */
-static int proto_rnsap = -1;
+static int proto_rnsap;
 
-static int hf_rnsap_transportLayerAddress_ipv4 = -1;
-static int hf_rnsap_transportLayerAddress_ipv6 = -1;
-static int hf_rnsap_transportLayerAddress_nsap = -1;
+static int hf_rnsap_transportLayerAddress_ipv4;
+static int hf_rnsap_transportLayerAddress_ipv6;
+static int hf_rnsap_transportLayerAddress_nsap;
 #include "packet-rnsap-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_rnsap = -1;
-static int ett_rnsap_transportLayerAddress = -1;
-static int ett_rnsap_transportLayerAddress_nsap = -1;
+static int ett_rnsap;
+static int ett_rnsap_transportLayerAddress;
+static int ett_rnsap_transportLayerAddress_nsap;
 
 #include "packet-rnsap-ett.c"
 

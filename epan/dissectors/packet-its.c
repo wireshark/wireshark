@@ -114,88 +114,88 @@ void proto_register_its(void);
 
 static dissector_handle_t its_handle;
 
-static expert_field ei_its_no_sub_dis = EI_INIT;
+static expert_field ei_its_no_sub_dis;
 
 // TAP
 static int its_tap = -1;
 
 // Protocols
-static int proto_its = -1;
-static int proto_its_denm = -1;
-static int proto_its_denmv1 = -1;
-static int proto_its_cam = -1;
-static int proto_its_camv1 = -1;
-static int proto_its_evcsn = -1;
-static int proto_its_evrsr = -1;
-static int proto_its_ivimv1 = -1;
-static int proto_its_ivim = -1;
-static int proto_its_tistpg = -1;
-static int proto_its_ssem = -1;
-static int proto_its_srem = -1;
-static int proto_its_rtcmemv1 = -1;
-static int proto_its_rtcmem = -1;
-static int proto_its_mapemv1 = -1;
-static int proto_its_mapem = -1;
-static int proto_its_spatemv1 = -1;
-static int proto_its_spatem = -1;
-static int proto_its_cpm = -1;
-static int proto_its_imzm = -1;
-static int proto_its_vam = -1;
-static int proto_addgrpc = -1;
+static int proto_its;
+static int proto_its_denm;
+static int proto_its_denmv1;
+static int proto_its_cam;
+static int proto_its_camv1;
+static int proto_its_evcsn;
+static int proto_its_evrsr;
+static int proto_its_ivimv1;
+static int proto_its_ivim;
+static int proto_its_tistpg;
+static int proto_its_ssem;
+static int proto_its_srem;
+static int proto_its_rtcmemv1;
+static int proto_its_rtcmem;
+static int proto_its_mapemv1;
+static int proto_its_mapem;
+static int proto_its_spatemv1;
+static int proto_its_spatem;
+static int proto_its_cpm;
+static int proto_its_imzm;
+static int proto_its_vam;
+static int proto_addgrpc;
 
 /*
  * DENM SSP
  */
-static int hf_denmssp_version = -1;
-static int hf_denmssp_flags = -1;
-static int hf_denmssp_trafficCondition = -1;
-static int hf_denmssp_accident = -1;
-static int hf_denmssp_roadworks = -1;
-static int hf_denmssp_adverseWeatherConditionAdhesion = -1;
-static int hf_denmssp_hazardousLocationSurfaceCondition = -1;
-static int hf_denmssp_hazardousLocationObstacleOnTheRoad = -1;
-static int hf_denmssp_hazardousLocationAnimalOnTheRoad = -1;
-static int hf_denmssp_humanPresenceOnTheRoad = -1;
-static int hf_denmssp_wrongWayDriving = -1;
-static int hf_denmssp_rescueAndRecoveryWorkInProgress = -1;
-static int hf_denmssp_ExtremeWeatherCondition = -1;
-static int hf_denmssp_adverseWeatherConditionVisibility = -1;
-static int hf_denmssp_adverseWeatherConditionPrecipitation = -1;
-static int hf_denmssp_slowVehicle = -1;
-static int hf_denmssp_dangerousEndOfQueue = -1;
-static int hf_denmssp_vehicleBreakdown = -1;
-static int hf_denmssp_postCrash = -1;
-static int hf_denmssp_humanProblem = -1;
-static int hf_denmssp_stationaryVehicle = -1;
-static int hf_denmssp_emergencyVehicleApproaching = -1;
-static int hf_denmssp_hazardousLocationDangerousCurve = -1;
-static int hf_denmssp_collisionRisk = -1;
-static int hf_denmssp_signalViolation = -1;
-static int hf_denmssp_dangerousSituation = -1;
+static int hf_denmssp_version;
+static int hf_denmssp_flags;
+static int hf_denmssp_trafficCondition;
+static int hf_denmssp_accident;
+static int hf_denmssp_roadworks;
+static int hf_denmssp_adverseWeatherConditionAdhesion;
+static int hf_denmssp_hazardousLocationSurfaceCondition;
+static int hf_denmssp_hazardousLocationObstacleOnTheRoad;
+static int hf_denmssp_hazardousLocationAnimalOnTheRoad;
+static int hf_denmssp_humanPresenceOnTheRoad;
+static int hf_denmssp_wrongWayDriving;
+static int hf_denmssp_rescueAndRecoveryWorkInProgress;
+static int hf_denmssp_ExtremeWeatherCondition;
+static int hf_denmssp_adverseWeatherConditionVisibility;
+static int hf_denmssp_adverseWeatherConditionPrecipitation;
+static int hf_denmssp_slowVehicle;
+static int hf_denmssp_dangerousEndOfQueue;
+static int hf_denmssp_vehicleBreakdown;
+static int hf_denmssp_postCrash;
+static int hf_denmssp_humanProblem;
+static int hf_denmssp_stationaryVehicle;
+static int hf_denmssp_emergencyVehicleApproaching;
+static int hf_denmssp_hazardousLocationDangerousCurve;
+static int hf_denmssp_collisionRisk;
+static int hf_denmssp_signalViolation;
+static int hf_denmssp_dangerousSituation;
 
 /*
  * CAM SSP
  */
-static int hf_camssp_version = -1;
-static int hf_camssp_flags = -1;
-static int hf_camssp_cenDsrcTollingZone = -1;
-static int hf_camssp_publicTransport = -1;
-static int hf_camssp_specialTransport = -1;
-static int hf_camssp_dangerousGoods = -1;
-static int hf_camssp_roadwork = -1;
-static int hf_camssp_rescue = -1;
-static int hf_camssp_emergency = -1;
-static int hf_camssp_safetyCar = -1;
-static int hf_camssp_closedLanes = -1;
-static int hf_camssp_requestForRightOfWay = -1;
-static int hf_camssp_requestForFreeCrossingAtATrafficLight = -1;
-static int hf_camssp_noPassing = -1;
-static int hf_camssp_noPassingForTrucks = -1;
-static int hf_camssp_speedLimit = -1;
-static int hf_camssp_reserved = -1;
+static int hf_camssp_version;
+static int hf_camssp_flags;
+static int hf_camssp_cenDsrcTollingZone;
+static int hf_camssp_publicTransport;
+static int hf_camssp_specialTransport;
+static int hf_camssp_dangerousGoods;
+static int hf_camssp_roadwork;
+static int hf_camssp_rescue;
+static int hf_camssp_emergency;
+static int hf_camssp_safetyCar;
+static int hf_camssp_closedLanes;
+static int hf_camssp_requestForRightOfWay;
+static int hf_camssp_requestForFreeCrossingAtATrafficLight;
+static int hf_camssp_noPassing;
+static int hf_camssp_noPassingForTrucks;
+static int hf_camssp_speedLimit;
+static int hf_camssp_reserved;
 
-static gint ett_denmssp_flags = -1;
-static gint ett_camssp_flags = -1;
+static gint ett_denmssp_flags;
+static gint ett_camssp_flags;
 
 // Subdissectors
 static dissector_table_t its_version_subdissector_table;
@@ -308,2375 +308,2375 @@ static int dissect_camssp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
 /* --- Module ETSI-ITS-CDD --- --- ---                                        */
 
-static int hf_its_its_ItsPduHeader_PDU = -1;      /* ItsPduHeader */
-static int hf_its_polarAcceleration = -1;         /* AccelerationPolarWithZ */
-static int hf_its_cartesianAcceleration = -1;     /* AccelerationCartesian */
-static int hf_its_accelerationMagnitude = -1;     /* AccelerationMagnitude */
-static int hf_its_accelerationDirection = -1;     /* CartesianAngle */
-static int hf_its_zAcceleration = -1;             /* AccelerationComponent */
-static int hf_its_xAcceleration = -1;             /* AccelerationComponent */
-static int hf_its_yAcceleration = -1;             /* AccelerationComponent */
-static int hf_its_value = -1;                     /* AccelerationValue */
-static int hf_its_confidence = -1;                /* AccelerationConfidence */
-static int hf_its_accelOrDecel = -1;              /* AccelerationChange */
-static int hf_its_actionDeltaTime = -1;           /* DeltaTimeTenthOfSecond */
-static int hf_its_accelerationMagnitudeValue = -1;  /* AccelerationMagnitudeValue */
-static int hf_its_accelerationConfidence = -1;    /* AccelerationConfidence */
-static int hf_its_originatingStationId = -1;      /* StationId */
-static int hf_its_sequenceNumber = -1;            /* SequenceNumber */
-static int hf_its_originatingStationId_01 = -1;   /* StationID */
-static int hf_its_ActionIdList_item = -1;         /* ActionId */
-static int hf_its_altitudeValue = -1;             /* AltitudeValue */
-static int hf_its_altitudeConfidence = -1;        /* AltitudeConfidence */
-static int hf_its_stationType = -1;               /* TrafficParticipantType */
-static int hf_its_referencePosition = -1;         /* ReferencePositionWithConfidence */
-static int hf_its_value_01 = -1;                  /* CartesianAngleValue */
-static int hf_its_confidence_01 = -1;             /* AngleConfidence */
-static int hf_its_value_02 = -1;                  /* CartesianAngularVelocityComponentValue */
-static int hf_its_confidence_02 = -1;             /* AngularSpeedConfidence */
-static int hf_its_value_03 = -1;                  /* CartesianCoordinateLarge */
-static int hf_its_confidence_03 = -1;             /* CoordinateConfidence */
-static int hf_its_xCoordinate = -1;               /* CartesianCoordinate */
-static int hf_its_yCoordinate = -1;               /* CartesianCoordinate */
-static int hf_its_zCoordinate = -1;               /* CartesianCoordinate */
-static int hf_its_xCoordinate_01 = -1;            /* CartesianCoordinateWithConfidence */
-static int hf_its_yCoordinate_01 = -1;            /* CartesianCoordinateWithConfidence */
-static int hf_its_zCoordinate_01 = -1;            /* CartesianCoordinateWithConfidence */
-static int hf_its_causeCode = -1;                 /* CauseCodeType */
-static int hf_its_subCauseCode = -1;              /* SubCauseCodeType */
-static int hf_its_reserved0 = -1;                 /* SubCauseCodeType */
-static int hf_its_trafficCondition1 = -1;         /* TrafficConditionSubCauseCode */
-static int hf_its_accident2 = -1;                 /* AccidentSubCauseCode */
-static int hf_its_roadworks3 = -1;                /* RoadworksSubCauseCode */
-static int hf_its_reserved4 = -1;                 /* SubCauseCodeType */
-static int hf_its_impassability5 = -1;            /* SubCauseCodeType */
-static int hf_its_adverseWeatherCondition_Adhesion6 = -1;  /* AdverseWeatherCondition_AdhesionSubCauseCode */
-static int hf_its_aquaplaning7 = -1;              /* SubCauseCodeType */
-static int hf_its_reserved8 = -1;                 /* SubCauseCodeType */
-static int hf_its_hazardousLocation_SurfaceCondition9 = -1;  /* HazardousLocation_SurfaceConditionSubCauseCode */
-static int hf_its_hazardousLocation_ObstacleOnTheRoad10 = -1;  /* HazardousLocation_ObstacleOnTheRoadSubCauseCode */
-static int hf_its_hazardousLocation_AnimalOnTheRoad11 = -1;  /* HazardousLocation_AnimalOnTheRoadSubCauseCode */
-static int hf_its_humanPresenceOnTheRoad12 = -1;  /* HumanPresenceOnTheRoadSubCauseCode */
-static int hf_its_reserved13 = -1;                /* SubCauseCodeType */
-static int hf_its_wrongWayDriving14 = -1;         /* WrongWayDrivingSubCauseCode */
-static int hf_its_rescueAndRecoveryWorkInProgress15 = -1;  /* RescueAndRecoveryWorkInProgressSubCauseCode */
-static int hf_its_reserved16 = -1;                /* SubCauseCodeType */
-static int hf_its_adverseWeatherCondition_ExtremeWeatherCondition17 = -1;  /* AdverseWeatherCondition_ExtremeWeatherConditionSubCauseCode */
-static int hf_its_adverseWeatherCondition_Visibility18 = -1;  /* AdverseWeatherCondition_VisibilitySubCauseCode */
-static int hf_its_adverseWeatherCondition_Precipitation19 = -1;  /* AdverseWeatherCondition_PrecipitationSubCauseCode */
-static int hf_its_violence20 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved21 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved22 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved23 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved24 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved25 = -1;                /* SubCauseCodeType */
-static int hf_its_slowVehicle26 = -1;             /* SlowVehicleSubCauseCode */
-static int hf_its_dangerousEndOfQueue27 = -1;     /* DangerousEndOfQueueSubCauseCode */
-static int hf_its_reserved28 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved29 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved30 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved31 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved32 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved33 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved34 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved35 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved36 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved37 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved38 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved39 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved40 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved41 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved42 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved43 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved44 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved45 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved46 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved47 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved48 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved49 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved50 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved51 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved52 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved53 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved54 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved55 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved56 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved57 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved58 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved59 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved60 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved61 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved62 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved63 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved64 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved65 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved66 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved67 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved68 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved69 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved70 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved71 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved72 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved73 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved74 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved75 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved76 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved77 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved78 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved79 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved80 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved81 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved82 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved83 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved84 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved85 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved86 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved87 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved88 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved89 = -1;                /* SubCauseCodeType */
-static int hf_its_reserved90 = -1;                /* SubCauseCodeType */
-static int hf_its_vehicleBreakdown91 = -1;        /* VehicleBreakdownSubCauseCode */
-static int hf_its_postCrash92 = -1;               /* PostCrashSubCauseCode */
-static int hf_its_humanProblem93 = -1;            /* HumanProblemSubCauseCode */
-static int hf_its_stationaryVehicle94 = -1;       /* StationaryVehicleSubCauseCode */
-static int hf_its_emergencyVehicleApproaching95 = -1;  /* EmergencyVehicleApproachingSubCauseCode */
-static int hf_its_hazardousLocation_DangerousCurve96 = -1;  /* HazardousLocation_DangerousCurveSubCauseCode */
-static int hf_its_collisionRisk97 = -1;           /* CollisionRiskSubCauseCode */
-static int hf_its_signalViolation98 = -1;         /* SignalViolationSubCauseCode */
-static int hf_its_dangerousSituation99 = -1;      /* DangerousSituationSubCauseCode */
-static int hf_its_railwayLevelCrossing100 = -1;   /* RailwayLevelCrossingSubCauseCode */
-static int hf_its_reserved101 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved102 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved103 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved104 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved105 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved106 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved107 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved108 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved109 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved110 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved111 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved112 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved113 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved114 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved115 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved116 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved117 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved118 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved119 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved120 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved121 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved122 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved123 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved124 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved125 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved126 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved127 = -1;               /* SubCauseCodeType */
-static int hf_its_reserved128 = -1;               /* SubCauseCodeType */
-static int hf_its_ccAndScc = -1;                  /* CauseCodeChoice */
-static int hf_its_protectedZoneLatitude = -1;     /* Latitude */
-static int hf_its_protectedZoneLongitude = -1;    /* Longitude */
-static int hf_its_cenDsrcTollingZoneId = -1;      /* ProtectedZoneId */
-static int hf_its_shapeReferencePoint = -1;       /* CartesianPosition3d */
-static int hf_its_radius = -1;                    /* StandardLength12b */
-static int hf_its_height = -1;                    /* StandardLength12b */
-static int hf_its_innerhardShoulderStatus = -1;   /* HardShoulderStatus */
-static int hf_its_outerhardShoulderStatus = -1;   /* HardShoulderStatus */
-static int hf_its_drivingLaneStatus = -1;         /* DrivingLaneStatus */
-static int hf_its_clusterBreakupReason = -1;      /* ClusterBreakupReason */
-static int hf_its_breakupTime = -1;               /* DeltaTimeQuarterSecond */
-static int hf_its_clusterId = -1;                 /* Identifier1B */
-static int hf_its_joinTime = -1;                  /* DeltaTimeQuarterSecond */
-static int hf_its_clusterLeaveReason = -1;        /* ClusterLeaveReason */
-static int hf_its_CorrelationColumn_item = -1;    /* CorrelationCellValue */
-static int hf_its_curvatureValue = -1;            /* CurvatureValue */
-static int hf_its_curvatureConfidence = -1;       /* CurvatureConfidence */
-static int hf_its_dangerousGoodsType = -1;        /* DangerousGoodsBasic */
-static int hf_its_unNumber = -1;                  /* INTEGER_0_9999 */
-static int hf_its_elevatedTemperature = -1;       /* BOOLEAN */
-static int hf_its_tunnelsRestricted = -1;         /* BOOLEAN */
-static int hf_its_limitedQuantity = -1;           /* BOOLEAN */
-static int hf_its_emergencyActionCode = -1;       /* IA5String_SIZE_1_24 */
-static int hf_its_phoneNumber = -1;               /* PhoneNumber */
-static int hf_its_companyName = -1;               /* UTF8String_SIZE_1_24 */
-static int hf_its_deltaLatitude = -1;             /* DeltaLatitude */
-static int hf_its_deltaLongitude = -1;            /* DeltaLongitude */
-static int hf_its_deltaAltitude = -1;             /* DeltaAltitude */
-static int hf_its_DigitalMap_item = -1;           /* ReferencePosition */
-static int hf_its_semiMajorAxisLength = -1;       /* StandardLength12b */
-static int hf_its_semiMinorAxisLength = -1;       /* StandardLength12b */
-static int hf_its_orientation = -1;               /* Wgs84AngleValue */
-static int hf_its_zAngle = -1;                    /* CartesianAngle */
-static int hf_its_yAngle = -1;                    /* CartesianAngle */
-static int hf_its_xAngle = -1;                    /* CartesianAngle */
-static int hf_its_euVehicleCategoryL = -1;        /* EuVehicleCategoryL */
-static int hf_its_euVehicleCategoryM = -1;        /* EuVehicleCategoryM */
-static int hf_its_euVehicleCategoryN = -1;        /* EuVehicleCategoryN */
-static int hf_its_euVehicleCategoryO = -1;        /* EuVehicleCategoryO */
-static int hf_its_euVehicleCategoryT = -1;        /* NULL */
-static int hf_its_euVehicleCategoryG = -1;        /* NULL */
-static int hf_its_EventHistory_item = -1;         /* EventPoint */
-static int hf_its_eventPosition = -1;             /* DeltaReferencePosition */
-static int hf_its_eventDeltaTime = -1;            /* PathDeltaTime */
-static int hf_its_informationQuality = -1;        /* InformationQuality */
-static int hf_its_trafficLanePosition = -1;       /* LanePosition */
-static int hf_its_nonTrafficLanePosition = -1;    /* LanePositionAndType */
-static int hf_its_trafficIslandPosition = -1;     /* TrafficIslandPosition */
-static int hf_its_mapPosition = -1;               /* MapPosition */
-static int hf_its_headingValue = -1;              /* HeadingValue */
-static int hf_its_headingConfidence = -1;         /* HeadingConfidence */
-static int hf_its_direction = -1;                 /* TurningDirection */
-static int hf_its_centreFrequency = -1;           /* INTEGER_1_99999 */
-static int hf_its_channelWidth = -1;              /* INTEGER_0_9999 */
-static int hf_its_exponent = -1;                  /* INTEGER_0_15 */
-static int hf_its_zoneDefinition = -1;            /* InterferenceManagementZoneDefinition */
-static int hf_its_managementInfo = -1;            /* InterferenceManagementInfo */
-static int hf_its_interferenceManagementZoneLatitude = -1;  /* Latitude */
-static int hf_its_interferenceManagementZoneLongitude = -1;  /* Longitude */
-static int hf_its_interferenceManagementZoneId = -1;  /* ProtectedZoneId */
-static int hf_its_interferenceManagementZoneShape = -1;  /* Shape */
-static int hf_its_InterferenceManagementInfo_item = -1;  /* InterferenceManagementInfoPerChannel */
-static int hf_its_interferenceManagementChannel = -1;  /* InterferenceManagementChannel */
-static int hf_its_interferenceManagementZoneType = -1;  /* InterferenceManagementZoneType */
-static int hf_its_interferenceManagementMitigationType = -1;  /* MitigationForTechnologies */
-static int hf_its_expiryTime = -1;                /* TimestampIts */
-static int hf_its_InterferenceManagementZones_item = -1;  /* InterferenceManagementZone */
-static int hf_its_region = -1;                    /* Identifier2B */
-static int hf_its_id = -1;                        /* Identifier2B */
-static int hf_its_ItineraryPath_item = -1;        /* ReferencePosition */
-static int hf_its_protocolVersion = -1;           /* ProtocolVersion */
-static int hf_its_messageId = -1;                 /* MessageId */
-static int hf_its_stationId = -1;                 /* StationId */
-static int hf_its_transversalPosition = -1;       /* LanePosition */
-static int hf_its_laneType = -1;                  /* LaneType */
-static int hf_its_lateralAccelerationValue = -1;  /* LateralAccelerationValue */
-static int hf_its_lateralAccelerationConfidence = -1;  /* AccelerationConfidence */
-static int hf_its_longitudinalAccelerationValue = -1;  /* LongitudinalAccelerationValue */
-static int hf_its_longitudinalAccelerationConfidence = -1;  /* AccelerationConfidence */
-static int hf_its_longitudinalLanePositionValue = -1;  /* LongitudinalLanePositionValue */
-static int hf_its_longitudinalLanePositionConfidence = -1;  /* LongitudinalLanePositionConfidence */
-static int hf_its_LowerTriangularPositiveSemidefiniteMatrices_item = -1;  /* LowerTriangularPositiveSemidefiniteMatrix */
-static int hf_its_componentsIncludedIntheMatrix = -1;  /* MatrixIncludedComponents */
-static int hf_its_matrix = -1;                    /* LowerTriangularPositiveSemidefiniteMatrixColumns */
-static int hf_its_LowerTriangularPositiveSemidefiniteMatrixColumns_item = -1;  /* CorrelationColumn */
-static int hf_its_mapReference = -1;              /* MapReference */
-static int hf_its_laneId = -1;                    /* Identifier1B */
-static int hf_its_connectionId = -1;              /* Identifier1B */
-static int hf_its_longitudinalLanePosition = -1;  /* LongitudinalLanePosition */
-static int hf_its_roadsegment = -1;               /* RoadSegmentReferenceId */
-static int hf_its_intersection = -1;              /* IntersectionReferenceId */
-static int hf_its_mantissa = -1;                  /* INTEGER_1_100 */
-static int hf_its_exponent_01 = -1;               /* INTEGER_M5_2 */
-static int hf_its_totalMsgNo = -1;                /* CardinalNumber3b */
-static int hf_its_thisMsgNo = -1;                 /* OrdinalNumber3b */
-static int hf_its_MitigationForTechnologies_item = -1;  /* MitigationPerTechnologyClass */
-static int hf_its_accessTechnologyClass = -1;     /* AccessTechnologyClass */
-static int hf_its_lowDutyCycle = -1;              /* INTEGER_0_10000 */
-static int hf_its_powerReduction = -1;            /* INTEGER_0_30 */
-static int hf_its_dmcToffLimit = -1;              /* INTEGER_0_1200 */
-static int hf_its_dmcTonLimit = -1;               /* INTEGER_0_20 */
-static int hf_its_vehicleSubClass = -1;           /* TrafficParticipantType */
-static int hf_its_vruSubClass = -1;               /* VruProfileAndSubprofile */
-static int hf_its_groupSubClass = -1;             /* VruClusterInformation */
-static int hf_its_otherSubClass = -1;             /* OtherSubClass */
-static int hf_its_ObjectClassDescription_item = -1;  /* ObjectClassWithConfidence */
-static int hf_its_objectClass = -1;               /* ObjectClass */
-static int hf_its_confidence_04 = -1;             /* ConfidenceLevel */
-static int hf_its_value_04 = -1;                  /* ObjectDimensionValue */
-static int hf_its_confidence_05 = -1;             /* ObjectDimensionConfidence */
-static int hf_its_Path_item = -1;                 /* PathPoint */
-static int hf_its_PathHistory_item = -1;          /* PathPoint */
-static int hf_its_PathPredicted_item = -1;        /* PathPointPredicted */
-static int hf_its_pathPosition = -1;              /* DeltaReferencePosition */
-static int hf_its_pathDeltaTime = -1;             /* PathDeltaTime */
-static int hf_its_horizontalPositionConfidence = -1;  /* PosConfidenceEllipse */
-static int hf_its_pathDeltaTime_01 = -1;          /* DeltaTimeTenthOfSecond */
-static int hf_its_objectId = -1;                  /* Identifier2B */
-static int hf_its_measurementDeltaTime = -1;      /* DeltaTimeMilliSecondSigned */
-static int hf_its_position = -1;                  /* CartesianPosition3dWithConfidence */
-static int hf_its_velocity = -1;                  /* Velocity3dWithConfidence */
-static int hf_its_acceleration = -1;              /* Acceleration3dWithConfidence */
-static int hf_its_angles = -1;                    /* EulerAnglesWithConfidence */
-static int hf_its_zAngularVelocity = -1;          /* CartesianAngularVelocityComponent */
-static int hf_its_lowerTriangularCorrelationMatrices = -1;  /* LowerTriangularPositiveSemidefiniteMatrices */
-static int hf_its_objectDimensionZ = -1;          /* ObjectDimension */
-static int hf_its_objectDimensionY = -1;          /* ObjectDimension */
-static int hf_its_objectDimensionX = -1;          /* ObjectDimension */
-static int hf_its_objectAge = -1;                 /* DeltaTimeMilliSecondSigned */
-static int hf_its_objectPerceptionQuality = -1;   /* ObjectPerceptionQuality */
-static int hf_its_sensorIdList = -1;              /* SequenceOfIdentifier1B */
-static int hf_its_classification = -1;            /* ObjectClassDescription */
-static int hf_its_polygon = -1;                   /* SequenceOfCartesianPosition3d_SIZE_3_16_ */
-static int hf_its_semiMajorConfidence = -1;       /* SemiAxisLength */
-static int hf_its_semiMinorConfidence = -1;       /* SemiAxisLength */
-static int hf_its_semiMajorOrientation = -1;      /* HeadingValue */
-static int hf_its_semiMajorAxisLength_01 = -1;    /* SemiAxisLength */
-static int hf_its_semiMinorAxisLength_01 = -1;    /* SemiAxisLength */
-static int hf_its_semiMajorAxisOrientation = -1;  /* Wgs84AngleValue */
-static int hf_its_PositionOfPillars_item = -1;    /* PosPillar */
-static int hf_its_protectedZoneType = -1;         /* ProtectedZoneType */
-static int hf_its_protectedZoneRadius = -1;       /* ProtectedZoneRadius */
-static int hf_its_protectedZoneId = -1;           /* ProtectedZoneId */
-static int hf_its_ProtectedCommunicationZonesRSU_item = -1;  /* ProtectedCommunicationZone */
-static int hf_its_ptActivationType = -1;          /* PtActivationType */
-static int hf_its_ptActivationData = -1;          /* PtActivationData */
-static int hf_its_range = -1;                     /* StandardLength12b */
-static int hf_its_stationaryHorizontalOpeningAngleStart = -1;  /* Wgs84AngleValue */
-static int hf_its_stationaryHorizontalOpeningAngleEnd = -1;  /* Wgs84AngleValue */
-static int hf_its_verticalOpeningAngleStart = -1;  /* CartesianAngleValue */
-static int hf_its_verticalOpeningAngleEnd = -1;   /* CartesianAngleValue */
-static int hf_its_refPointId = -1;                /* Identifier1B */
-static int hf_its_xCoordinate_02 = -1;            /* CartesianCoordinateSmall */
-static int hf_its_yCoordinate_02 = -1;            /* CartesianCoordinateSmall */
-static int hf_its_zCoordinate_02 = -1;            /* CartesianCoordinateSmall */
-static int hf_its_radialShapesList = -1;          /* RadialShapesList */
-static int hf_its_RadialShapesList_item = -1;     /* RadialShapeDetails */
-static int hf_its_horizontalOpeningAngleStart = -1;  /* CartesianAngleValue */
-static int hf_its_horizontalOpeningAngleEnd = -1;  /* CartesianAngleValue */
-static int hf_its_centerPoint = -1;               /* CartesianPosition3d */
-static int hf_its_semiLength = -1;                /* StandardLength12b */
-static int hf_its_semiBreadth = -1;               /* StandardLength12b */
-static int hf_its_latitude = -1;                  /* Latitude */
-static int hf_its_longitude = -1;                 /* Longitude */
-static int hf_its_positionConfidenceEllipse = -1;  /* PosConfidenceEllipse */
-static int hf_its_altitude = -1;                  /* Altitude */
-static int hf_its_positionConfidenceEllipse_01 = -1;  /* PositionConfidenceEllipse */
-static int hf_its_RestrictedTypes_item = -1;      /* StationType */
-static int hf_its_subjectStation = -1;            /* StationId */
-static int hf_its_safeDistanceIndicator = -1;     /* SafeDistanceIndicator */
-static int hf_its_timeToCollision = -1;           /* DeltaTimeTenthOfSecond */
-static int hf_its_SequenceOfCartesianPosition3d_item = -1;  /* CartesianPosition3d */
-static int hf_its_SequenceOfIdentifier1B_item = -1;  /* Identifier1B */
-static int hf_its_SequenceOfSafeDistanceIndication_item = -1;  /* SafeDistanceIndication */
-static int hf_its_SequenceOfTrajectoryInterceptionIndication_item = -1;  /* TrajectoryInterceptionIndication */
-static int hf_its_rectangular = -1;               /* RectangularShape */
-static int hf_its_circular = -1;                  /* CircularShape */
-static int hf_its_polygonal = -1;                 /* PolygonalShape */
-static int hf_its_elliptical = -1;                /* EllipticalShape */
-static int hf_its_radial = -1;                    /* RadialShape */
-static int hf_its_radialShapes = -1;              /* RadialShapes */
-static int hf_its_speedValue = -1;                /* SpeedValue */
-static int hf_its_speedConfidence = -1;           /* SpeedConfidence */
-static int hf_its_lossProbability = -1;           /* StabilityLossProbability */
-static int hf_its_steeringWheelAngleValue = -1;   /* SteeringWheelAngleValue */
-static int hf_its_steeringWheelAngleConfidence = -1;  /* SteeringWheelAngleConfidence */
-static int hf_its_Traces_item = -1;               /* Path */
-static int hf_its_oneSide = -1;                   /* LanePositionAndType */
-static int hf_its_otherSide = -1;                 /* LanePositionAndType */
-static int hf_its_hitchPointOffset = -1;          /* StandardLength1B */
-static int hf_its_frontOverhang = -1;             /* StandardLength1B */
-static int hf_its_rearOverhang = -1;              /* StandardLength1B */
-static int hf_its_trailerWidth = -1;              /* VehicleWidth */
-static int hf_its_hitchAngle = -1;                /* CartesianAngle */
-static int hf_its_trajectoryInterceptionProbability = -1;  /* TrajectoryInterceptionProbability */
-static int hf_its_trajectoryInterceptionConfidence = -1;  /* TrajectoryInterceptionConfidence */
-static int hf_its_vlnContent = -1;                /* INTEGER_0_127 */
-static int hf_its_vlnExtension = -1;              /* Ext1 */
-static int hf_its_e1Content = -1;                 /* INTEGER_128_16511 */
-static int hf_its_e2Extension = -1;               /* Ext2 */
-static int hf_its_e2Content = -1;                 /* INTEGER_16512_2113663 */
-static int hf_its_e1Extension = -1;               /* Ext3 */
-static int hf_its_verticalAccelerationValue = -1;  /* VerticalAccelerationValue */
-static int hf_its_verticalAccelerationConfidence = -1;  /* AccelerationConfidence */
-static int hf_its_wMInumber = -1;                 /* WMInumber */
-static int hf_its_vDS = -1;                       /* VDS */
-static int hf_its_vehicleLengthValue = -1;        /* VehicleLengthValue */
-static int hf_its_vehicleLengthConfidenceIndication = -1;  /* VehicleLengthConfidenceIndication */
-static int hf_its_polarVelocity = -1;             /* VelocityPolarWithZ */
-static int hf_its_cartesianVelocity = -1;         /* VelocityCartesian */
-static int hf_its_xVelocity = -1;                 /* VelocityComponent */
-static int hf_its_yVelocity = -1;                 /* VelocityComponent */
-static int hf_its_zVelocity = -1;                 /* VelocityComponent */
-static int hf_its_value_05 = -1;                  /* VelocityComponentValue */
-static int hf_its_confidence_06 = -1;             /* SpeedConfidence */
-static int hf_its_velocityMagnitude = -1;         /* Speed */
-static int hf_its_velocityDirection = -1;         /* CartesianAngle */
-static int hf_its_clusterBoundingBoxShape = -1;   /* Shape */
-static int hf_its_clusterCardinalitySize = -1;    /* CardinalNumber1B */
-static int hf_its_clusterProfiles = -1;           /* VruClusterProfiles */
-static int hf_its_vehicular = -1;                 /* ExteriorLights */
-static int hf_its_vruSpecific = -1;               /* VruSpecificExteriorLights */
-static int hf_its_pedestrian = -1;                /* VruSubProfilePedestrian */
-static int hf_its_bicyclistAndLightVruVehicle = -1;  /* VruSubProfileBicyclist */
-static int hf_its_motorcyclist = -1;              /* VruSubProfileMotorcyclist */
-static int hf_its_animal = -1;                    /* VruSubProfileAnimal */
-static int hf_its_value_06 = -1;                  /* Wgs84AngleValue */
-static int hf_its_confidence_07 = -1;             /* Wgs84AngleConfidence */
-static int hf_its_yawRateValue = -1;              /* YawRateValue */
-static int hf_its_yawRateConfidence = -1;         /* YawRateConfidence */
+static int hf_its_its_ItsPduHeader_PDU;           /* ItsPduHeader */
+static int hf_its_polarAcceleration;              /* AccelerationPolarWithZ */
+static int hf_its_cartesianAcceleration;          /* AccelerationCartesian */
+static int hf_its_accelerationMagnitude;          /* AccelerationMagnitude */
+static int hf_its_accelerationDirection;          /* CartesianAngle */
+static int hf_its_zAcceleration;                  /* AccelerationComponent */
+static int hf_its_xAcceleration;                  /* AccelerationComponent */
+static int hf_its_yAcceleration;                  /* AccelerationComponent */
+static int hf_its_value;                          /* AccelerationValue */
+static int hf_its_confidence;                     /* AccelerationConfidence */
+static int hf_its_accelOrDecel;                   /* AccelerationChange */
+static int hf_its_actionDeltaTime;                /* DeltaTimeTenthOfSecond */
+static int hf_its_accelerationMagnitudeValue;     /* AccelerationMagnitudeValue */
+static int hf_its_accelerationConfidence;         /* AccelerationConfidence */
+static int hf_its_originatingStationId;           /* StationId */
+static int hf_its_sequenceNumber;                 /* SequenceNumber */
+static int hf_its_originatingStationId_01;        /* StationID */
+static int hf_its_ActionIdList_item;              /* ActionId */
+static int hf_its_altitudeValue;                  /* AltitudeValue */
+static int hf_its_altitudeConfidence;             /* AltitudeConfidence */
+static int hf_its_stationType;                    /* TrafficParticipantType */
+static int hf_its_referencePosition;              /* ReferencePositionWithConfidence */
+static int hf_its_value_01;                       /* CartesianAngleValue */
+static int hf_its_confidence_01;                  /* AngleConfidence */
+static int hf_its_value_02;                       /* CartesianAngularVelocityComponentValue */
+static int hf_its_confidence_02;                  /* AngularSpeedConfidence */
+static int hf_its_value_03;                       /* CartesianCoordinateLarge */
+static int hf_its_confidence_03;                  /* CoordinateConfidence */
+static int hf_its_xCoordinate;                    /* CartesianCoordinate */
+static int hf_its_yCoordinate;                    /* CartesianCoordinate */
+static int hf_its_zCoordinate;                    /* CartesianCoordinate */
+static int hf_its_xCoordinate_01;                 /* CartesianCoordinateWithConfidence */
+static int hf_its_yCoordinate_01;                 /* CartesianCoordinateWithConfidence */
+static int hf_its_zCoordinate_01;                 /* CartesianCoordinateWithConfidence */
+static int hf_its_causeCode;                      /* CauseCodeType */
+static int hf_its_subCauseCode;                   /* SubCauseCodeType */
+static int hf_its_reserved0;                      /* SubCauseCodeType */
+static int hf_its_trafficCondition1;              /* TrafficConditionSubCauseCode */
+static int hf_its_accident2;                      /* AccidentSubCauseCode */
+static int hf_its_roadworks3;                     /* RoadworksSubCauseCode */
+static int hf_its_reserved4;                      /* SubCauseCodeType */
+static int hf_its_impassability5;                 /* SubCauseCodeType */
+static int hf_its_adverseWeatherCondition_Adhesion6;  /* AdverseWeatherCondition_AdhesionSubCauseCode */
+static int hf_its_aquaplaning7;                   /* SubCauseCodeType */
+static int hf_its_reserved8;                      /* SubCauseCodeType */
+static int hf_its_hazardousLocation_SurfaceCondition9;  /* HazardousLocation_SurfaceConditionSubCauseCode */
+static int hf_its_hazardousLocation_ObstacleOnTheRoad10;  /* HazardousLocation_ObstacleOnTheRoadSubCauseCode */
+static int hf_its_hazardousLocation_AnimalOnTheRoad11;  /* HazardousLocation_AnimalOnTheRoadSubCauseCode */
+static int hf_its_humanPresenceOnTheRoad12;       /* HumanPresenceOnTheRoadSubCauseCode */
+static int hf_its_reserved13;                     /* SubCauseCodeType */
+static int hf_its_wrongWayDriving14;              /* WrongWayDrivingSubCauseCode */
+static int hf_its_rescueAndRecoveryWorkInProgress15;  /* RescueAndRecoveryWorkInProgressSubCauseCode */
+static int hf_its_reserved16;                     /* SubCauseCodeType */
+static int hf_its_adverseWeatherCondition_ExtremeWeatherCondition17;  /* AdverseWeatherCondition_ExtremeWeatherConditionSubCauseCode */
+static int hf_its_adverseWeatherCondition_Visibility18;  /* AdverseWeatherCondition_VisibilitySubCauseCode */
+static int hf_its_adverseWeatherCondition_Precipitation19;  /* AdverseWeatherCondition_PrecipitationSubCauseCode */
+static int hf_its_violence20;                     /* SubCauseCodeType */
+static int hf_its_reserved21;                     /* SubCauseCodeType */
+static int hf_its_reserved22;                     /* SubCauseCodeType */
+static int hf_its_reserved23;                     /* SubCauseCodeType */
+static int hf_its_reserved24;                     /* SubCauseCodeType */
+static int hf_its_reserved25;                     /* SubCauseCodeType */
+static int hf_its_slowVehicle26;                  /* SlowVehicleSubCauseCode */
+static int hf_its_dangerousEndOfQueue27;          /* DangerousEndOfQueueSubCauseCode */
+static int hf_its_reserved28;                     /* SubCauseCodeType */
+static int hf_its_reserved29;                     /* SubCauseCodeType */
+static int hf_its_reserved30;                     /* SubCauseCodeType */
+static int hf_its_reserved31;                     /* SubCauseCodeType */
+static int hf_its_reserved32;                     /* SubCauseCodeType */
+static int hf_its_reserved33;                     /* SubCauseCodeType */
+static int hf_its_reserved34;                     /* SubCauseCodeType */
+static int hf_its_reserved35;                     /* SubCauseCodeType */
+static int hf_its_reserved36;                     /* SubCauseCodeType */
+static int hf_its_reserved37;                     /* SubCauseCodeType */
+static int hf_its_reserved38;                     /* SubCauseCodeType */
+static int hf_its_reserved39;                     /* SubCauseCodeType */
+static int hf_its_reserved40;                     /* SubCauseCodeType */
+static int hf_its_reserved41;                     /* SubCauseCodeType */
+static int hf_its_reserved42;                     /* SubCauseCodeType */
+static int hf_its_reserved43;                     /* SubCauseCodeType */
+static int hf_its_reserved44;                     /* SubCauseCodeType */
+static int hf_its_reserved45;                     /* SubCauseCodeType */
+static int hf_its_reserved46;                     /* SubCauseCodeType */
+static int hf_its_reserved47;                     /* SubCauseCodeType */
+static int hf_its_reserved48;                     /* SubCauseCodeType */
+static int hf_its_reserved49;                     /* SubCauseCodeType */
+static int hf_its_reserved50;                     /* SubCauseCodeType */
+static int hf_its_reserved51;                     /* SubCauseCodeType */
+static int hf_its_reserved52;                     /* SubCauseCodeType */
+static int hf_its_reserved53;                     /* SubCauseCodeType */
+static int hf_its_reserved54;                     /* SubCauseCodeType */
+static int hf_its_reserved55;                     /* SubCauseCodeType */
+static int hf_its_reserved56;                     /* SubCauseCodeType */
+static int hf_its_reserved57;                     /* SubCauseCodeType */
+static int hf_its_reserved58;                     /* SubCauseCodeType */
+static int hf_its_reserved59;                     /* SubCauseCodeType */
+static int hf_its_reserved60;                     /* SubCauseCodeType */
+static int hf_its_reserved61;                     /* SubCauseCodeType */
+static int hf_its_reserved62;                     /* SubCauseCodeType */
+static int hf_its_reserved63;                     /* SubCauseCodeType */
+static int hf_its_reserved64;                     /* SubCauseCodeType */
+static int hf_its_reserved65;                     /* SubCauseCodeType */
+static int hf_its_reserved66;                     /* SubCauseCodeType */
+static int hf_its_reserved67;                     /* SubCauseCodeType */
+static int hf_its_reserved68;                     /* SubCauseCodeType */
+static int hf_its_reserved69;                     /* SubCauseCodeType */
+static int hf_its_reserved70;                     /* SubCauseCodeType */
+static int hf_its_reserved71;                     /* SubCauseCodeType */
+static int hf_its_reserved72;                     /* SubCauseCodeType */
+static int hf_its_reserved73;                     /* SubCauseCodeType */
+static int hf_its_reserved74;                     /* SubCauseCodeType */
+static int hf_its_reserved75;                     /* SubCauseCodeType */
+static int hf_its_reserved76;                     /* SubCauseCodeType */
+static int hf_its_reserved77;                     /* SubCauseCodeType */
+static int hf_its_reserved78;                     /* SubCauseCodeType */
+static int hf_its_reserved79;                     /* SubCauseCodeType */
+static int hf_its_reserved80;                     /* SubCauseCodeType */
+static int hf_its_reserved81;                     /* SubCauseCodeType */
+static int hf_its_reserved82;                     /* SubCauseCodeType */
+static int hf_its_reserved83;                     /* SubCauseCodeType */
+static int hf_its_reserved84;                     /* SubCauseCodeType */
+static int hf_its_reserved85;                     /* SubCauseCodeType */
+static int hf_its_reserved86;                     /* SubCauseCodeType */
+static int hf_its_reserved87;                     /* SubCauseCodeType */
+static int hf_its_reserved88;                     /* SubCauseCodeType */
+static int hf_its_reserved89;                     /* SubCauseCodeType */
+static int hf_its_reserved90;                     /* SubCauseCodeType */
+static int hf_its_vehicleBreakdown91;             /* VehicleBreakdownSubCauseCode */
+static int hf_its_postCrash92;                    /* PostCrashSubCauseCode */
+static int hf_its_humanProblem93;                 /* HumanProblemSubCauseCode */
+static int hf_its_stationaryVehicle94;            /* StationaryVehicleSubCauseCode */
+static int hf_its_emergencyVehicleApproaching95;  /* EmergencyVehicleApproachingSubCauseCode */
+static int hf_its_hazardousLocation_DangerousCurve96;  /* HazardousLocation_DangerousCurveSubCauseCode */
+static int hf_its_collisionRisk97;                /* CollisionRiskSubCauseCode */
+static int hf_its_signalViolation98;              /* SignalViolationSubCauseCode */
+static int hf_its_dangerousSituation99;           /* DangerousSituationSubCauseCode */
+static int hf_its_railwayLevelCrossing100;        /* RailwayLevelCrossingSubCauseCode */
+static int hf_its_reserved101;                    /* SubCauseCodeType */
+static int hf_its_reserved102;                    /* SubCauseCodeType */
+static int hf_its_reserved103;                    /* SubCauseCodeType */
+static int hf_its_reserved104;                    /* SubCauseCodeType */
+static int hf_its_reserved105;                    /* SubCauseCodeType */
+static int hf_its_reserved106;                    /* SubCauseCodeType */
+static int hf_its_reserved107;                    /* SubCauseCodeType */
+static int hf_its_reserved108;                    /* SubCauseCodeType */
+static int hf_its_reserved109;                    /* SubCauseCodeType */
+static int hf_its_reserved110;                    /* SubCauseCodeType */
+static int hf_its_reserved111;                    /* SubCauseCodeType */
+static int hf_its_reserved112;                    /* SubCauseCodeType */
+static int hf_its_reserved113;                    /* SubCauseCodeType */
+static int hf_its_reserved114;                    /* SubCauseCodeType */
+static int hf_its_reserved115;                    /* SubCauseCodeType */
+static int hf_its_reserved116;                    /* SubCauseCodeType */
+static int hf_its_reserved117;                    /* SubCauseCodeType */
+static int hf_its_reserved118;                    /* SubCauseCodeType */
+static int hf_its_reserved119;                    /* SubCauseCodeType */
+static int hf_its_reserved120;                    /* SubCauseCodeType */
+static int hf_its_reserved121;                    /* SubCauseCodeType */
+static int hf_its_reserved122;                    /* SubCauseCodeType */
+static int hf_its_reserved123;                    /* SubCauseCodeType */
+static int hf_its_reserved124;                    /* SubCauseCodeType */
+static int hf_its_reserved125;                    /* SubCauseCodeType */
+static int hf_its_reserved126;                    /* SubCauseCodeType */
+static int hf_its_reserved127;                    /* SubCauseCodeType */
+static int hf_its_reserved128;                    /* SubCauseCodeType */
+static int hf_its_ccAndScc;                       /* CauseCodeChoice */
+static int hf_its_protectedZoneLatitude;          /* Latitude */
+static int hf_its_protectedZoneLongitude;         /* Longitude */
+static int hf_its_cenDsrcTollingZoneId;           /* ProtectedZoneId */
+static int hf_its_shapeReferencePoint;            /* CartesianPosition3d */
+static int hf_its_radius;                         /* StandardLength12b */
+static int hf_its_height;                         /* StandardLength12b */
+static int hf_its_innerhardShoulderStatus;        /* HardShoulderStatus */
+static int hf_its_outerhardShoulderStatus;        /* HardShoulderStatus */
+static int hf_its_drivingLaneStatus;              /* DrivingLaneStatus */
+static int hf_its_clusterBreakupReason;           /* ClusterBreakupReason */
+static int hf_its_breakupTime;                    /* DeltaTimeQuarterSecond */
+static int hf_its_clusterId;                      /* Identifier1B */
+static int hf_its_joinTime;                       /* DeltaTimeQuarterSecond */
+static int hf_its_clusterLeaveReason;             /* ClusterLeaveReason */
+static int hf_its_CorrelationColumn_item;         /* CorrelationCellValue */
+static int hf_its_curvatureValue;                 /* CurvatureValue */
+static int hf_its_curvatureConfidence;            /* CurvatureConfidence */
+static int hf_its_dangerousGoodsType;             /* DangerousGoodsBasic */
+static int hf_its_unNumber;                       /* INTEGER_0_9999 */
+static int hf_its_elevatedTemperature;            /* BOOLEAN */
+static int hf_its_tunnelsRestricted;              /* BOOLEAN */
+static int hf_its_limitedQuantity;                /* BOOLEAN */
+static int hf_its_emergencyActionCode;            /* IA5String_SIZE_1_24 */
+static int hf_its_phoneNumber;                    /* PhoneNumber */
+static int hf_its_companyName;                    /* UTF8String_SIZE_1_24 */
+static int hf_its_deltaLatitude;                  /* DeltaLatitude */
+static int hf_its_deltaLongitude;                 /* DeltaLongitude */
+static int hf_its_deltaAltitude;                  /* DeltaAltitude */
+static int hf_its_DigitalMap_item;                /* ReferencePosition */
+static int hf_its_semiMajorAxisLength;            /* StandardLength12b */
+static int hf_its_semiMinorAxisLength;            /* StandardLength12b */
+static int hf_its_orientation;                    /* Wgs84AngleValue */
+static int hf_its_zAngle;                         /* CartesianAngle */
+static int hf_its_yAngle;                         /* CartesianAngle */
+static int hf_its_xAngle;                         /* CartesianAngle */
+static int hf_its_euVehicleCategoryL;             /* EuVehicleCategoryL */
+static int hf_its_euVehicleCategoryM;             /* EuVehicleCategoryM */
+static int hf_its_euVehicleCategoryN;             /* EuVehicleCategoryN */
+static int hf_its_euVehicleCategoryO;             /* EuVehicleCategoryO */
+static int hf_its_euVehicleCategoryT;             /* NULL */
+static int hf_its_euVehicleCategoryG;             /* NULL */
+static int hf_its_EventHistory_item;              /* EventPoint */
+static int hf_its_eventPosition;                  /* DeltaReferencePosition */
+static int hf_its_eventDeltaTime;                 /* PathDeltaTime */
+static int hf_its_informationQuality;             /* InformationQuality */
+static int hf_its_trafficLanePosition;            /* LanePosition */
+static int hf_its_nonTrafficLanePosition;         /* LanePositionAndType */
+static int hf_its_trafficIslandPosition;          /* TrafficIslandPosition */
+static int hf_its_mapPosition;                    /* MapPosition */
+static int hf_its_headingValue;                   /* HeadingValue */
+static int hf_its_headingConfidence;              /* HeadingConfidence */
+static int hf_its_direction;                      /* TurningDirection */
+static int hf_its_centreFrequency;                /* INTEGER_1_99999 */
+static int hf_its_channelWidth;                   /* INTEGER_0_9999 */
+static int hf_its_exponent;                       /* INTEGER_0_15 */
+static int hf_its_zoneDefinition;                 /* InterferenceManagementZoneDefinition */
+static int hf_its_managementInfo;                 /* InterferenceManagementInfo */
+static int hf_its_interferenceManagementZoneLatitude;  /* Latitude */
+static int hf_its_interferenceManagementZoneLongitude;  /* Longitude */
+static int hf_its_interferenceManagementZoneId;   /* ProtectedZoneId */
+static int hf_its_interferenceManagementZoneShape;  /* Shape */
+static int hf_its_InterferenceManagementInfo_item;  /* InterferenceManagementInfoPerChannel */
+static int hf_its_interferenceManagementChannel;  /* InterferenceManagementChannel */
+static int hf_its_interferenceManagementZoneType;  /* InterferenceManagementZoneType */
+static int hf_its_interferenceManagementMitigationType;  /* MitigationForTechnologies */
+static int hf_its_expiryTime;                     /* TimestampIts */
+static int hf_its_InterferenceManagementZones_item;  /* InterferenceManagementZone */
+static int hf_its_region;                         /* Identifier2B */
+static int hf_its_id;                             /* Identifier2B */
+static int hf_its_ItineraryPath_item;             /* ReferencePosition */
+static int hf_its_protocolVersion;                /* ProtocolVersion */
+static int hf_its_messageId;                      /* MessageId */
+static int hf_its_stationId;                      /* StationId */
+static int hf_its_transversalPosition;            /* LanePosition */
+static int hf_its_laneType;                       /* LaneType */
+static int hf_its_lateralAccelerationValue;       /* LateralAccelerationValue */
+static int hf_its_lateralAccelerationConfidence;  /* AccelerationConfidence */
+static int hf_its_longitudinalAccelerationValue;  /* LongitudinalAccelerationValue */
+static int hf_its_longitudinalAccelerationConfidence;  /* AccelerationConfidence */
+static int hf_its_longitudinalLanePositionValue;  /* LongitudinalLanePositionValue */
+static int hf_its_longitudinalLanePositionConfidence;  /* LongitudinalLanePositionConfidence */
+static int hf_its_LowerTriangularPositiveSemidefiniteMatrices_item;  /* LowerTriangularPositiveSemidefiniteMatrix */
+static int hf_its_componentsIncludedIntheMatrix;  /* MatrixIncludedComponents */
+static int hf_its_matrix;                         /* LowerTriangularPositiveSemidefiniteMatrixColumns */
+static int hf_its_LowerTriangularPositiveSemidefiniteMatrixColumns_item;  /* CorrelationColumn */
+static int hf_its_mapReference;                   /* MapReference */
+static int hf_its_laneId;                         /* Identifier1B */
+static int hf_its_connectionId;                   /* Identifier1B */
+static int hf_its_longitudinalLanePosition;       /* LongitudinalLanePosition */
+static int hf_its_roadsegment;                    /* RoadSegmentReferenceId */
+static int hf_its_intersection;                   /* IntersectionReferenceId */
+static int hf_its_mantissa;                       /* INTEGER_1_100 */
+static int hf_its_exponent_01;                    /* INTEGER_M5_2 */
+static int hf_its_totalMsgNo;                     /* CardinalNumber3b */
+static int hf_its_thisMsgNo;                      /* OrdinalNumber3b */
+static int hf_its_MitigationForTechnologies_item;  /* MitigationPerTechnologyClass */
+static int hf_its_accessTechnologyClass;          /* AccessTechnologyClass */
+static int hf_its_lowDutyCycle;                   /* INTEGER_0_10000 */
+static int hf_its_powerReduction;                 /* INTEGER_0_30 */
+static int hf_its_dmcToffLimit;                   /* INTEGER_0_1200 */
+static int hf_its_dmcTonLimit;                    /* INTEGER_0_20 */
+static int hf_its_vehicleSubClass;                /* TrafficParticipantType */
+static int hf_its_vruSubClass;                    /* VruProfileAndSubprofile */
+static int hf_its_groupSubClass;                  /* VruClusterInformation */
+static int hf_its_otherSubClass;                  /* OtherSubClass */
+static int hf_its_ObjectClassDescription_item;    /* ObjectClassWithConfidence */
+static int hf_its_objectClass;                    /* ObjectClass */
+static int hf_its_confidence_04;                  /* ConfidenceLevel */
+static int hf_its_value_04;                       /* ObjectDimensionValue */
+static int hf_its_confidence_05;                  /* ObjectDimensionConfidence */
+static int hf_its_Path_item;                      /* PathPoint */
+static int hf_its_PathHistory_item;               /* PathPoint */
+static int hf_its_PathPredicted_item;             /* PathPointPredicted */
+static int hf_its_pathPosition;                   /* DeltaReferencePosition */
+static int hf_its_pathDeltaTime;                  /* PathDeltaTime */
+static int hf_its_horizontalPositionConfidence;   /* PosConfidenceEllipse */
+static int hf_its_pathDeltaTime_01;               /* DeltaTimeTenthOfSecond */
+static int hf_its_objectId;                       /* Identifier2B */
+static int hf_its_measurementDeltaTime;           /* DeltaTimeMilliSecondSigned */
+static int hf_its_position;                       /* CartesianPosition3dWithConfidence */
+static int hf_its_velocity;                       /* Velocity3dWithConfidence */
+static int hf_its_acceleration;                   /* Acceleration3dWithConfidence */
+static int hf_its_angles;                         /* EulerAnglesWithConfidence */
+static int hf_its_zAngularVelocity;               /* CartesianAngularVelocityComponent */
+static int hf_its_lowerTriangularCorrelationMatrices;  /* LowerTriangularPositiveSemidefiniteMatrices */
+static int hf_its_objectDimensionZ;               /* ObjectDimension */
+static int hf_its_objectDimensionY;               /* ObjectDimension */
+static int hf_its_objectDimensionX;               /* ObjectDimension */
+static int hf_its_objectAge;                      /* DeltaTimeMilliSecondSigned */
+static int hf_its_objectPerceptionQuality;        /* ObjectPerceptionQuality */
+static int hf_its_sensorIdList;                   /* SequenceOfIdentifier1B */
+static int hf_its_classification;                 /* ObjectClassDescription */
+static int hf_its_polygon;                        /* SequenceOfCartesianPosition3d_SIZE_3_16_ */
+static int hf_its_semiMajorConfidence;            /* SemiAxisLength */
+static int hf_its_semiMinorConfidence;            /* SemiAxisLength */
+static int hf_its_semiMajorOrientation;           /* HeadingValue */
+static int hf_its_semiMajorAxisLength_01;         /* SemiAxisLength */
+static int hf_its_semiMinorAxisLength_01;         /* SemiAxisLength */
+static int hf_its_semiMajorAxisOrientation;       /* Wgs84AngleValue */
+static int hf_its_PositionOfPillars_item;         /* PosPillar */
+static int hf_its_protectedZoneType;              /* ProtectedZoneType */
+static int hf_its_protectedZoneRadius;            /* ProtectedZoneRadius */
+static int hf_its_protectedZoneId;                /* ProtectedZoneId */
+static int hf_its_ProtectedCommunicationZonesRSU_item;  /* ProtectedCommunicationZone */
+static int hf_its_ptActivationType;               /* PtActivationType */
+static int hf_its_ptActivationData;               /* PtActivationData */
+static int hf_its_range;                          /* StandardLength12b */
+static int hf_its_stationaryHorizontalOpeningAngleStart;  /* Wgs84AngleValue */
+static int hf_its_stationaryHorizontalOpeningAngleEnd;  /* Wgs84AngleValue */
+static int hf_its_verticalOpeningAngleStart;      /* CartesianAngleValue */
+static int hf_its_verticalOpeningAngleEnd;        /* CartesianAngleValue */
+static int hf_its_refPointId;                     /* Identifier1B */
+static int hf_its_xCoordinate_02;                 /* CartesianCoordinateSmall */
+static int hf_its_yCoordinate_02;                 /* CartesianCoordinateSmall */
+static int hf_its_zCoordinate_02;                 /* CartesianCoordinateSmall */
+static int hf_its_radialShapesList;               /* RadialShapesList */
+static int hf_its_RadialShapesList_item;          /* RadialShapeDetails */
+static int hf_its_horizontalOpeningAngleStart;    /* CartesianAngleValue */
+static int hf_its_horizontalOpeningAngleEnd;      /* CartesianAngleValue */
+static int hf_its_centerPoint;                    /* CartesianPosition3d */
+static int hf_its_semiLength;                     /* StandardLength12b */
+static int hf_its_semiBreadth;                    /* StandardLength12b */
+static int hf_its_latitude;                       /* Latitude */
+static int hf_its_longitude;                      /* Longitude */
+static int hf_its_positionConfidenceEllipse;      /* PosConfidenceEllipse */
+static int hf_its_altitude;                       /* Altitude */
+static int hf_its_positionConfidenceEllipse_01;   /* PositionConfidenceEllipse */
+static int hf_its_RestrictedTypes_item;           /* StationType */
+static int hf_its_subjectStation;                 /* StationId */
+static int hf_its_safeDistanceIndicator;          /* SafeDistanceIndicator */
+static int hf_its_timeToCollision;                /* DeltaTimeTenthOfSecond */
+static int hf_its_SequenceOfCartesianPosition3d_item;  /* CartesianPosition3d */
+static int hf_its_SequenceOfIdentifier1B_item;    /* Identifier1B */
+static int hf_its_SequenceOfSafeDistanceIndication_item;  /* SafeDistanceIndication */
+static int hf_its_SequenceOfTrajectoryInterceptionIndication_item;  /* TrajectoryInterceptionIndication */
+static int hf_its_rectangular;                    /* RectangularShape */
+static int hf_its_circular;                       /* CircularShape */
+static int hf_its_polygonal;                      /* PolygonalShape */
+static int hf_its_elliptical;                     /* EllipticalShape */
+static int hf_its_radial;                         /* RadialShape */
+static int hf_its_radialShapes;                   /* RadialShapes */
+static int hf_its_speedValue;                     /* SpeedValue */
+static int hf_its_speedConfidence;                /* SpeedConfidence */
+static int hf_its_lossProbability;                /* StabilityLossProbability */
+static int hf_its_steeringWheelAngleValue;        /* SteeringWheelAngleValue */
+static int hf_its_steeringWheelAngleConfidence;   /* SteeringWheelAngleConfidence */
+static int hf_its_Traces_item;                    /* Path */
+static int hf_its_oneSide;                        /* LanePositionAndType */
+static int hf_its_otherSide;                      /* LanePositionAndType */
+static int hf_its_hitchPointOffset;               /* StandardLength1B */
+static int hf_its_frontOverhang;                  /* StandardLength1B */
+static int hf_its_rearOverhang;                   /* StandardLength1B */
+static int hf_its_trailerWidth;                   /* VehicleWidth */
+static int hf_its_hitchAngle;                     /* CartesianAngle */
+static int hf_its_trajectoryInterceptionProbability;  /* TrajectoryInterceptionProbability */
+static int hf_its_trajectoryInterceptionConfidence;  /* TrajectoryInterceptionConfidence */
+static int hf_its_vlnContent;                     /* INTEGER_0_127 */
+static int hf_its_vlnExtension;                   /* Ext1 */
+static int hf_its_e1Content;                      /* INTEGER_128_16511 */
+static int hf_its_e2Extension;                    /* Ext2 */
+static int hf_its_e2Content;                      /* INTEGER_16512_2113663 */
+static int hf_its_e1Extension;                    /* Ext3 */
+static int hf_its_verticalAccelerationValue;      /* VerticalAccelerationValue */
+static int hf_its_verticalAccelerationConfidence;  /* AccelerationConfidence */
+static int hf_its_wMInumber;                      /* WMInumber */
+static int hf_its_vDS;                            /* VDS */
+static int hf_its_vehicleLengthValue;             /* VehicleLengthValue */
+static int hf_its_vehicleLengthConfidenceIndication;  /* VehicleLengthConfidenceIndication */
+static int hf_its_polarVelocity;                  /* VelocityPolarWithZ */
+static int hf_its_cartesianVelocity;              /* VelocityCartesian */
+static int hf_its_xVelocity;                      /* VelocityComponent */
+static int hf_its_yVelocity;                      /* VelocityComponent */
+static int hf_its_zVelocity;                      /* VelocityComponent */
+static int hf_its_value_05;                       /* VelocityComponentValue */
+static int hf_its_confidence_06;                  /* SpeedConfidence */
+static int hf_its_velocityMagnitude;              /* Speed */
+static int hf_its_velocityDirection;              /* CartesianAngle */
+static int hf_its_clusterBoundingBoxShape;        /* Shape */
+static int hf_its_clusterCardinalitySize;         /* CardinalNumber1B */
+static int hf_its_clusterProfiles;                /* VruClusterProfiles */
+static int hf_its_vehicular;                      /* ExteriorLights */
+static int hf_its_vruSpecific;                    /* VruSpecificExteriorLights */
+static int hf_its_pedestrian;                     /* VruSubProfilePedestrian */
+static int hf_its_bicyclistAndLightVruVehicle;    /* VruSubProfileBicyclist */
+static int hf_its_motorcyclist;                   /* VruSubProfileMotorcyclist */
+static int hf_its_animal;                         /* VruSubProfileAnimal */
+static int hf_its_value_06;                       /* Wgs84AngleValue */
+static int hf_its_confidence_07;                  /* Wgs84AngleConfidence */
+static int hf_its_yawRateValue;                   /* YawRateValue */
+static int hf_its_yawRateConfidence;              /* YawRateConfidence */
 /* named bits */
-static int hf_its_AccelerationControl_brakePedalEngaged = -1;
-static int hf_its_AccelerationControl_gasPedalEngaged = -1;
-static int hf_its_AccelerationControl_emergencyBrakeEngaged = -1;
-static int hf_its_AccelerationControl_collisionWarningEngaged = -1;
-static int hf_its_AccelerationControl_accEngaged = -1;
-static int hf_its_AccelerationControl_cruiseControlEngaged = -1;
-static int hf_its_AccelerationControl_speedLimiterEngaged = -1;
-static int hf_its_EmergencyPriority_requestForRightOfWay = -1;
-static int hf_its_EmergencyPriority_requestForFreeCrossingAtATrafficLight = -1;
-static int hf_its_EnergyStorageType_hydrogenStorage = -1;
-static int hf_its_EnergyStorageType_electricEnergyStorage = -1;
-static int hf_its_EnergyStorageType_liquidPropaneGas = -1;
-static int hf_its_EnergyStorageType_compressedNaturalGas = -1;
-static int hf_its_EnergyStorageType_diesel = -1;
-static int hf_its_EnergyStorageType_gasoline = -1;
-static int hf_its_EnergyStorageType_ammonia = -1;
-static int hf_its_ExteriorLights_lowBeamHeadlightsOn = -1;
-static int hf_its_ExteriorLights_highBeamHeadlightsOn = -1;
-static int hf_its_ExteriorLights_leftTurnSignalOn = -1;
-static int hf_its_ExteriorLights_rightTurnSignalOn = -1;
-static int hf_its_ExteriorLights_daytimeRunningLightsOn = -1;
-static int hf_its_ExteriorLights_reverseLightOn = -1;
-static int hf_its_ExteriorLights_fogLightOn = -1;
-static int hf_its_ExteriorLights_parkingLightsOn = -1;
-static int hf_its_LightBarSirenInUse_lightBarActivated = -1;
-static int hf_its_LightBarSirenInUse_sirenActivated = -1;
-static int hf_its_MatrixIncludedComponents_xPosition = -1;
-static int hf_its_MatrixIncludedComponents_yPosition = -1;
-static int hf_its_MatrixIncludedComponents_zPosition = -1;
-static int hf_its_MatrixIncludedComponents_xVelocityOrVelocityMagnitude = -1;
-static int hf_its_MatrixIncludedComponents_yVelocityOrVelocityDirection = -1;
-static int hf_its_MatrixIncludedComponents_zSpeed = -1;
-static int hf_its_MatrixIncludedComponents_xAccelOrAccelMagnitude = -1;
-static int hf_its_MatrixIncludedComponents_yAccelOrAccelDirection = -1;
-static int hf_its_MatrixIncludedComponents_zAcceleration = -1;
-static int hf_its_MatrixIncludedComponents_zAngle = -1;
-static int hf_its_MatrixIncludedComponents_yAngle = -1;
-static int hf_its_MatrixIncludedComponents_xAngle = -1;
-static int hf_its_MatrixIncludedComponents_zAngularVelocity = -1;
-static int hf_its_PositionOfOccupants_row1LeftOccupied = -1;
-static int hf_its_PositionOfOccupants_row1RightOccupied = -1;
-static int hf_its_PositionOfOccupants_row1MidOccupied = -1;
-static int hf_its_PositionOfOccupants_row1NotDetectable = -1;
-static int hf_its_PositionOfOccupants_row1NotPresent = -1;
-static int hf_its_PositionOfOccupants_row2LeftOccupied = -1;
-static int hf_its_PositionOfOccupants_row2RightOccupied = -1;
-static int hf_its_PositionOfOccupants_row2MidOccupied = -1;
-static int hf_its_PositionOfOccupants_row2NotDetectable = -1;
-static int hf_its_PositionOfOccupants_row2NotPresent = -1;
-static int hf_its_PositionOfOccupants_row3LeftOccupied = -1;
-static int hf_its_PositionOfOccupants_row3RightOccupied = -1;
-static int hf_its_PositionOfOccupants_row3MidOccupied = -1;
-static int hf_its_PositionOfOccupants_row3NotDetectable = -1;
-static int hf_its_PositionOfOccupants_row3NotPresent = -1;
-static int hf_its_PositionOfOccupants_row4LeftOccupied = -1;
-static int hf_its_PositionOfOccupants_row4RightOccupied = -1;
-static int hf_its_PositionOfOccupants_row4MidOccupied = -1;
-static int hf_its_PositionOfOccupants_row4NotDetectable = -1;
-static int hf_its_PositionOfOccupants_row4NotPresent = -1;
-static int hf_its_SpecialTransportType_heavyLoad = -1;
-static int hf_its_SpecialTransportType_excessWidth = -1;
-static int hf_its_SpecialTransportType_excessLength = -1;
-static int hf_its_SpecialTransportType_excessHeight = -1;
-static int hf_its_VruClusterProfiles_pedestrian = -1;
-static int hf_its_VruClusterProfiles_bicyclist = -1;
-static int hf_its_VruClusterProfiles_motorcyclist = -1;
-static int hf_its_VruClusterProfiles_animal = -1;
-static int hf_its_VruSpecificExteriorLights_unavailable = -1;
-static int hf_its_VruSpecificExteriorLights_backFlashLight = -1;
-static int hf_its_VruSpecificExteriorLights_helmetLight = -1;
-static int hf_its_VruSpecificExteriorLights_armLight = -1;
-static int hf_its_VruSpecificExteriorLights_legLight = -1;
-static int hf_its_VruSpecificExteriorLights_wheelLight = -1;
+static int hf_its_AccelerationControl_brakePedalEngaged;
+static int hf_its_AccelerationControl_gasPedalEngaged;
+static int hf_its_AccelerationControl_emergencyBrakeEngaged;
+static int hf_its_AccelerationControl_collisionWarningEngaged;
+static int hf_its_AccelerationControl_accEngaged;
+static int hf_its_AccelerationControl_cruiseControlEngaged;
+static int hf_its_AccelerationControl_speedLimiterEngaged;
+static int hf_its_EmergencyPriority_requestForRightOfWay;
+static int hf_its_EmergencyPriority_requestForFreeCrossingAtATrafficLight;
+static int hf_its_EnergyStorageType_hydrogenStorage;
+static int hf_its_EnergyStorageType_electricEnergyStorage;
+static int hf_its_EnergyStorageType_liquidPropaneGas;
+static int hf_its_EnergyStorageType_compressedNaturalGas;
+static int hf_its_EnergyStorageType_diesel;
+static int hf_its_EnergyStorageType_gasoline;
+static int hf_its_EnergyStorageType_ammonia;
+static int hf_its_ExteriorLights_lowBeamHeadlightsOn;
+static int hf_its_ExteriorLights_highBeamHeadlightsOn;
+static int hf_its_ExteriorLights_leftTurnSignalOn;
+static int hf_its_ExteriorLights_rightTurnSignalOn;
+static int hf_its_ExteriorLights_daytimeRunningLightsOn;
+static int hf_its_ExteriorLights_reverseLightOn;
+static int hf_its_ExteriorLights_fogLightOn;
+static int hf_its_ExteriorLights_parkingLightsOn;
+static int hf_its_LightBarSirenInUse_lightBarActivated;
+static int hf_its_LightBarSirenInUse_sirenActivated;
+static int hf_its_MatrixIncludedComponents_xPosition;
+static int hf_its_MatrixIncludedComponents_yPosition;
+static int hf_its_MatrixIncludedComponents_zPosition;
+static int hf_its_MatrixIncludedComponents_xVelocityOrVelocityMagnitude;
+static int hf_its_MatrixIncludedComponents_yVelocityOrVelocityDirection;
+static int hf_its_MatrixIncludedComponents_zSpeed;
+static int hf_its_MatrixIncludedComponents_xAccelOrAccelMagnitude;
+static int hf_its_MatrixIncludedComponents_yAccelOrAccelDirection;
+static int hf_its_MatrixIncludedComponents_zAcceleration;
+static int hf_its_MatrixIncludedComponents_zAngle;
+static int hf_its_MatrixIncludedComponents_yAngle;
+static int hf_its_MatrixIncludedComponents_xAngle;
+static int hf_its_MatrixIncludedComponents_zAngularVelocity;
+static int hf_its_PositionOfOccupants_row1LeftOccupied;
+static int hf_its_PositionOfOccupants_row1RightOccupied;
+static int hf_its_PositionOfOccupants_row1MidOccupied;
+static int hf_its_PositionOfOccupants_row1NotDetectable;
+static int hf_its_PositionOfOccupants_row1NotPresent;
+static int hf_its_PositionOfOccupants_row2LeftOccupied;
+static int hf_its_PositionOfOccupants_row2RightOccupied;
+static int hf_its_PositionOfOccupants_row2MidOccupied;
+static int hf_its_PositionOfOccupants_row2NotDetectable;
+static int hf_its_PositionOfOccupants_row2NotPresent;
+static int hf_its_PositionOfOccupants_row3LeftOccupied;
+static int hf_its_PositionOfOccupants_row3RightOccupied;
+static int hf_its_PositionOfOccupants_row3MidOccupied;
+static int hf_its_PositionOfOccupants_row3NotDetectable;
+static int hf_its_PositionOfOccupants_row3NotPresent;
+static int hf_its_PositionOfOccupants_row4LeftOccupied;
+static int hf_its_PositionOfOccupants_row4RightOccupied;
+static int hf_its_PositionOfOccupants_row4MidOccupied;
+static int hf_its_PositionOfOccupants_row4NotDetectable;
+static int hf_its_PositionOfOccupants_row4NotPresent;
+static int hf_its_SpecialTransportType_heavyLoad;
+static int hf_its_SpecialTransportType_excessWidth;
+static int hf_its_SpecialTransportType_excessLength;
+static int hf_its_SpecialTransportType_excessHeight;
+static int hf_its_VruClusterProfiles_pedestrian;
+static int hf_its_VruClusterProfiles_bicyclist;
+static int hf_its_VruClusterProfiles_motorcyclist;
+static int hf_its_VruClusterProfiles_animal;
+static int hf_its_VruSpecificExteriorLights_unavailable;
+static int hf_its_VruSpecificExteriorLights_backFlashLight;
+static int hf_its_VruSpecificExteriorLights_helmetLight;
+static int hf_its_VruSpecificExteriorLights_armLight;
+static int hf_its_VruSpecificExteriorLights_legLight;
+static int hf_its_VruSpecificExteriorLights_wheelLight;
 
 /* --- Module ITS-ContainerV1 --- --- ---                                     */
 
-static int hf_itsv1_latitude = -1;                /* Latitude */
-static int hf_itsv1_longitude = -1;               /* Longitude */
-static int hf_itsv1_positionConfidenceEllipse = -1;  /* PosConfidenceEllipse */
-static int hf_itsv1_altitude = -1;                /* Altitude */
-static int hf_itsv1_deltaLatitude = -1;           /* DeltaLatitude */
-static int hf_itsv1_deltaLongitude = -1;          /* DeltaLongitude */
-static int hf_itsv1_deltaAltitude = -1;           /* DeltaAltitude */
-static int hf_itsv1_altitudeValue = -1;           /* AltitudeValue */
-static int hf_itsv1_altitudeConfidence = -1;      /* AltitudeConfidence */
-static int hf_itsv1_semiMajorConfidence = -1;     /* SemiAxisLength */
-static int hf_itsv1_semiMinorConfidence = -1;     /* SemiAxisLength */
-static int hf_itsv1_semiMajorOrientation = -1;    /* HeadingValue */
-static int hf_itsv1_pathPosition = -1;            /* DeltaReferencePosition */
-static int hf_itsv1_pathDeltaTime = -1;           /* PathDeltaTime */
-static int hf_itsv1_ptActivationType = -1;        /* PtActivationType */
-static int hf_itsv1_ptActivationData = -1;        /* PtActivationData */
-static int hf_itsv1_causeCode = -1;               /* CauseCodeTypeV1 */
-static int hf_itsv1_subCauseCode = -1;            /* SubCauseCodeTypeV1 */
-static int hf_itsv1_curvatureValue = -1;          /* CurvatureValue */
-static int hf_itsv1_curvatureConfidence = -1;     /* CurvatureConfidence */
-static int hf_itsv1_headingValue = -1;            /* HeadingValue */
-static int hf_itsv1_headingConfidence = -1;       /* HeadingConfidence */
-static int hf_itsv1_hardShoulderStatus = -1;      /* HardShoulderStatus */
-static int hf_itsv1_drivingLaneStatus = -1;       /* DrivingLaneStatus */
-static int hf_itsv1_speedValue = -1;              /* SpeedValue */
-static int hf_itsv1_speedConfidence = -1;         /* SpeedConfidence */
-static int hf_itsv1_longitudinalAccelerationValue = -1;  /* LongitudinalAccelerationValue */
-static int hf_itsv1_longitudinalAccelerationConfidence = -1;  /* AccelerationConfidence */
-static int hf_itsv1_lateralAccelerationValue = -1;  /* LateralAccelerationValue */
-static int hf_itsv1_lateralAccelerationConfidence = -1;  /* AccelerationConfidence */
-static int hf_itsv1_verticalAccelerationValue = -1;  /* VerticalAccelerationValue */
-static int hf_itsv1_verticalAccelerationConfidence = -1;  /* AccelerationConfidence */
-static int hf_itsv1_dangerousGoodsType = -1;      /* DangerousGoodsBasic */
-static int hf_itsv1_unNumber = -1;                /* INTEGER_0_9999 */
-static int hf_itsv1_elevatedTemperature = -1;     /* BOOLEAN */
-static int hf_itsv1_tunnelsRestricted = -1;       /* BOOLEAN */
-static int hf_itsv1_limitedQuantity = -1;         /* BOOLEAN */
-static int hf_itsv1_emergencyActionCode = -1;     /* IA5String_SIZE_1_24 */
-static int hf_itsv1_phoneNumber = -1;             /* IA5String_SIZE_1_24 */
-static int hf_itsv1_companyName = -1;             /* UTF8String_SIZE_1_24 */
-static int hf_itsv1_wMInumber = -1;               /* WMInumber */
-static int hf_itsv1_vDS = -1;                     /* VDS */
-static int hf_itsv1_vehicleLengthValue = -1;      /* VehicleLengthValue */
-static int hf_itsv1_vehicleLengthConfidenceIndication = -1;  /* VehicleLengthConfidenceIndication */
-static int hf_itsv1_PathHistory_item = -1;        /* PathPoint */
-static int hf_itsv1_steeringWheelAngleValue = -1;  /* SteeringWheelAngleValue */
-static int hf_itsv1_steeringWheelAngleConfidence = -1;  /* SteeringWheelAngleConfidence */
-static int hf_itsv1_yawRateValue = -1;            /* YawRateValue */
-static int hf_itsv1_yawRateConfidence = -1;       /* YawRateConfidence */
-static int hf_itsv1_originatingStationID = -1;    /* StationID */
-static int hf_itsv1_sequenceNumber = -1;          /* SequenceNumber */
-static int hf_itsv1_ItineraryPath_item = -1;      /* ReferencePosition */
-static int hf_itsv1_protectedZoneType = -1;       /* ProtectedZoneType */
-static int hf_itsv1_expiryTime = -1;              /* TimestampIts */
-static int hf_itsv1_protectedZoneLatitude = -1;   /* Latitude */
-static int hf_itsv1_protectedZoneLongitude = -1;  /* Longitude */
-static int hf_itsv1_protectedZoneRadius = -1;     /* ProtectedZoneRadius */
-static int hf_itsv1_protectedZoneID = -1;         /* ProtectedZoneID */
-static int hf_itsv1_Traces_item = -1;             /* PathHistory */
-static int hf_itsv1_PositionOfPillars_item = -1;  /* PosPillar */
-static int hf_itsv1_RestrictedTypes_item = -1;    /* StationType */
-static int hf_itsv1_EventHistory_item = -1;       /* EventPoint */
-static int hf_itsv1_eventPosition = -1;           /* DeltaReferencePosition */
-static int hf_itsv1_eventDeltaTime = -1;          /* PathDeltaTime */
-static int hf_itsv1_informationQuality = -1;      /* InformationQuality */
-static int hf_itsv1_ProtectedCommunicationZonesRSU_item = -1;  /* ProtectedCommunicationZone */
-static int hf_itsv1_cenDsrcTollingZoneID = -1;    /* CenDsrcTollingZoneID */
+static int hf_itsv1_latitude;                     /* Latitude */
+static int hf_itsv1_longitude;                    /* Longitude */
+static int hf_itsv1_positionConfidenceEllipse;    /* PosConfidenceEllipse */
+static int hf_itsv1_altitude;                     /* Altitude */
+static int hf_itsv1_deltaLatitude;                /* DeltaLatitude */
+static int hf_itsv1_deltaLongitude;               /* DeltaLongitude */
+static int hf_itsv1_deltaAltitude;                /* DeltaAltitude */
+static int hf_itsv1_altitudeValue;                /* AltitudeValue */
+static int hf_itsv1_altitudeConfidence;           /* AltitudeConfidence */
+static int hf_itsv1_semiMajorConfidence;          /* SemiAxisLength */
+static int hf_itsv1_semiMinorConfidence;          /* SemiAxisLength */
+static int hf_itsv1_semiMajorOrientation;         /* HeadingValue */
+static int hf_itsv1_pathPosition;                 /* DeltaReferencePosition */
+static int hf_itsv1_pathDeltaTime;                /* PathDeltaTime */
+static int hf_itsv1_ptActivationType;             /* PtActivationType */
+static int hf_itsv1_ptActivationData;             /* PtActivationData */
+static int hf_itsv1_causeCode;                    /* CauseCodeTypeV1 */
+static int hf_itsv1_subCauseCode;                 /* SubCauseCodeTypeV1 */
+static int hf_itsv1_curvatureValue;               /* CurvatureValue */
+static int hf_itsv1_curvatureConfidence;          /* CurvatureConfidence */
+static int hf_itsv1_headingValue;                 /* HeadingValue */
+static int hf_itsv1_headingConfidence;            /* HeadingConfidence */
+static int hf_itsv1_hardShoulderStatus;           /* HardShoulderStatus */
+static int hf_itsv1_drivingLaneStatus;            /* DrivingLaneStatus */
+static int hf_itsv1_speedValue;                   /* SpeedValue */
+static int hf_itsv1_speedConfidence;              /* SpeedConfidence */
+static int hf_itsv1_longitudinalAccelerationValue;  /* LongitudinalAccelerationValue */
+static int hf_itsv1_longitudinalAccelerationConfidence;  /* AccelerationConfidence */
+static int hf_itsv1_lateralAccelerationValue;     /* LateralAccelerationValue */
+static int hf_itsv1_lateralAccelerationConfidence;  /* AccelerationConfidence */
+static int hf_itsv1_verticalAccelerationValue;    /* VerticalAccelerationValue */
+static int hf_itsv1_verticalAccelerationConfidence;  /* AccelerationConfidence */
+static int hf_itsv1_dangerousGoodsType;           /* DangerousGoodsBasic */
+static int hf_itsv1_unNumber;                     /* INTEGER_0_9999 */
+static int hf_itsv1_elevatedTemperature;          /* BOOLEAN */
+static int hf_itsv1_tunnelsRestricted;            /* BOOLEAN */
+static int hf_itsv1_limitedQuantity;              /* BOOLEAN */
+static int hf_itsv1_emergencyActionCode;          /* IA5String_SIZE_1_24 */
+static int hf_itsv1_phoneNumber;                  /* IA5String_SIZE_1_24 */
+static int hf_itsv1_companyName;                  /* UTF8String_SIZE_1_24 */
+static int hf_itsv1_wMInumber;                    /* WMInumber */
+static int hf_itsv1_vDS;                          /* VDS */
+static int hf_itsv1_vehicleLengthValue;           /* VehicleLengthValue */
+static int hf_itsv1_vehicleLengthConfidenceIndication;  /* VehicleLengthConfidenceIndication */
+static int hf_itsv1_PathHistory_item;             /* PathPoint */
+static int hf_itsv1_steeringWheelAngleValue;      /* SteeringWheelAngleValue */
+static int hf_itsv1_steeringWheelAngleConfidence;  /* SteeringWheelAngleConfidence */
+static int hf_itsv1_yawRateValue;                 /* YawRateValue */
+static int hf_itsv1_yawRateConfidence;            /* YawRateConfidence */
+static int hf_itsv1_originatingStationID;         /* StationID */
+static int hf_itsv1_sequenceNumber;               /* SequenceNumber */
+static int hf_itsv1_ItineraryPath_item;           /* ReferencePosition */
+static int hf_itsv1_protectedZoneType;            /* ProtectedZoneType */
+static int hf_itsv1_expiryTime;                   /* TimestampIts */
+static int hf_itsv1_protectedZoneLatitude;        /* Latitude */
+static int hf_itsv1_protectedZoneLongitude;       /* Longitude */
+static int hf_itsv1_protectedZoneRadius;          /* ProtectedZoneRadius */
+static int hf_itsv1_protectedZoneID;              /* ProtectedZoneID */
+static int hf_itsv1_Traces_item;                  /* PathHistory */
+static int hf_itsv1_PositionOfPillars_item;       /* PosPillar */
+static int hf_itsv1_RestrictedTypes_item;         /* StationType */
+static int hf_itsv1_EventHistory_item;            /* EventPoint */
+static int hf_itsv1_eventPosition;                /* DeltaReferencePosition */
+static int hf_itsv1_eventDeltaTime;               /* PathDeltaTime */
+static int hf_itsv1_informationQuality;           /* InformationQuality */
+static int hf_itsv1_ProtectedCommunicationZonesRSU_item;  /* ProtectedCommunicationZone */
+static int hf_itsv1_cenDsrcTollingZoneID;         /* CenDsrcTollingZoneID */
 /* named bits */
-static int hf_itsv1_AccelerationControl_brakePedalEngaged = -1;
-static int hf_itsv1_AccelerationControl_gasPedalEngaged = -1;
-static int hf_itsv1_AccelerationControl_emergencyBrakeEngaged = -1;
-static int hf_itsv1_AccelerationControl_collisionWarningEngaged = -1;
-static int hf_itsv1_AccelerationControl_accEngaged = -1;
-static int hf_itsv1_AccelerationControl_cruiseControlEngaged = -1;
-static int hf_itsv1_AccelerationControl_speedLimiterEngaged = -1;
-static int hf_itsv1_DrivingLaneStatus_spare_bit0 = -1;
-static int hf_itsv1_DrivingLaneStatus_outermostLaneClosed = -1;
-static int hf_itsv1_DrivingLaneStatus_secondLaneFromOutsideClosed = -1;
-static int hf_itsv1_ExteriorLights_lowBeamHeadlightsOn = -1;
-static int hf_itsv1_ExteriorLights_highBeamHeadlightsOn = -1;
-static int hf_itsv1_ExteriorLights_leftTurnSignalOn = -1;
-static int hf_itsv1_ExteriorLights_rightTurnSignalOn = -1;
-static int hf_itsv1_ExteriorLights_daytimeRunningLightsOn = -1;
-static int hf_itsv1_ExteriorLights_reverseLightOn = -1;
-static int hf_itsv1_ExteriorLights_fogLightOn = -1;
-static int hf_itsv1_ExteriorLights_parkingLightsOn = -1;
-static int hf_itsv1_SpecialTransportType_heavyLoad = -1;
-static int hf_itsv1_SpecialTransportType_excessWidth = -1;
-static int hf_itsv1_SpecialTransportType_excessLength = -1;
-static int hf_itsv1_SpecialTransportType_excessHeight = -1;
-static int hf_itsv1_LightBarSirenInUse_lightBarActivated = -1;
-static int hf_itsv1_LightBarSirenInUse_sirenActivated = -1;
-static int hf_itsv1_PositionOfOccupants_row1LeftOccupied = -1;
-static int hf_itsv1_PositionOfOccupants_row1RightOccupied = -1;
-static int hf_itsv1_PositionOfOccupants_row1MidOccupied = -1;
-static int hf_itsv1_PositionOfOccupants_row1NotDetectable = -1;
-static int hf_itsv1_PositionOfOccupants_row1NotPresent = -1;
-static int hf_itsv1_PositionOfOccupants_row2LeftOccupied = -1;
-static int hf_itsv1_PositionOfOccupants_row2RightOccupied = -1;
-static int hf_itsv1_PositionOfOccupants_row2MidOccupied = -1;
-static int hf_itsv1_PositionOfOccupants_row2NotDetectable = -1;
-static int hf_itsv1_PositionOfOccupants_row2NotPresent = -1;
-static int hf_itsv1_PositionOfOccupants_row3LeftOccupied = -1;
-static int hf_itsv1_PositionOfOccupants_row3RightOccupied = -1;
-static int hf_itsv1_PositionOfOccupants_row3MidOccupied = -1;
-static int hf_itsv1_PositionOfOccupants_row3NotDetectable = -1;
-static int hf_itsv1_PositionOfOccupants_row3NotPresent = -1;
-static int hf_itsv1_PositionOfOccupants_row4LeftOccupied = -1;
-static int hf_itsv1_PositionOfOccupants_row4RightOccupied = -1;
-static int hf_itsv1_PositionOfOccupants_row4MidOccupied = -1;
-static int hf_itsv1_PositionOfOccupants_row4NotDetectable = -1;
-static int hf_itsv1_PositionOfOccupants_row4NotPresent = -1;
-static int hf_itsv1_EnergyStorageType_hydrogenStorage = -1;
-static int hf_itsv1_EnergyStorageType_electricEnergyStorage = -1;
-static int hf_itsv1_EnergyStorageType_liquidPropaneGas = -1;
-static int hf_itsv1_EnergyStorageType_compressedNaturalGas = -1;
-static int hf_itsv1_EnergyStorageType_diesel = -1;
-static int hf_itsv1_EnergyStorageType_gasoline = -1;
-static int hf_itsv1_EnergyStorageType_ammonia = -1;
-static int hf_itsv1_EmergencyPriority_requestForRightOfWay = -1;
-static int hf_itsv1_EmergencyPriority_requestForFreeCrossingAtATrafficLight = -1;
+static int hf_itsv1_AccelerationControl_brakePedalEngaged;
+static int hf_itsv1_AccelerationControl_gasPedalEngaged;
+static int hf_itsv1_AccelerationControl_emergencyBrakeEngaged;
+static int hf_itsv1_AccelerationControl_collisionWarningEngaged;
+static int hf_itsv1_AccelerationControl_accEngaged;
+static int hf_itsv1_AccelerationControl_cruiseControlEngaged;
+static int hf_itsv1_AccelerationControl_speedLimiterEngaged;
+static int hf_itsv1_DrivingLaneStatus_spare_bit0;
+static int hf_itsv1_DrivingLaneStatus_outermostLaneClosed;
+static int hf_itsv1_DrivingLaneStatus_secondLaneFromOutsideClosed;
+static int hf_itsv1_ExteriorLights_lowBeamHeadlightsOn;
+static int hf_itsv1_ExteriorLights_highBeamHeadlightsOn;
+static int hf_itsv1_ExteriorLights_leftTurnSignalOn;
+static int hf_itsv1_ExteriorLights_rightTurnSignalOn;
+static int hf_itsv1_ExteriorLights_daytimeRunningLightsOn;
+static int hf_itsv1_ExteriorLights_reverseLightOn;
+static int hf_itsv1_ExteriorLights_fogLightOn;
+static int hf_itsv1_ExteriorLights_parkingLightsOn;
+static int hf_itsv1_SpecialTransportType_heavyLoad;
+static int hf_itsv1_SpecialTransportType_excessWidth;
+static int hf_itsv1_SpecialTransportType_excessLength;
+static int hf_itsv1_SpecialTransportType_excessHeight;
+static int hf_itsv1_LightBarSirenInUse_lightBarActivated;
+static int hf_itsv1_LightBarSirenInUse_sirenActivated;
+static int hf_itsv1_PositionOfOccupants_row1LeftOccupied;
+static int hf_itsv1_PositionOfOccupants_row1RightOccupied;
+static int hf_itsv1_PositionOfOccupants_row1MidOccupied;
+static int hf_itsv1_PositionOfOccupants_row1NotDetectable;
+static int hf_itsv1_PositionOfOccupants_row1NotPresent;
+static int hf_itsv1_PositionOfOccupants_row2LeftOccupied;
+static int hf_itsv1_PositionOfOccupants_row2RightOccupied;
+static int hf_itsv1_PositionOfOccupants_row2MidOccupied;
+static int hf_itsv1_PositionOfOccupants_row2NotDetectable;
+static int hf_itsv1_PositionOfOccupants_row2NotPresent;
+static int hf_itsv1_PositionOfOccupants_row3LeftOccupied;
+static int hf_itsv1_PositionOfOccupants_row3RightOccupied;
+static int hf_itsv1_PositionOfOccupants_row3MidOccupied;
+static int hf_itsv1_PositionOfOccupants_row3NotDetectable;
+static int hf_itsv1_PositionOfOccupants_row3NotPresent;
+static int hf_itsv1_PositionOfOccupants_row4LeftOccupied;
+static int hf_itsv1_PositionOfOccupants_row4RightOccupied;
+static int hf_itsv1_PositionOfOccupants_row4MidOccupied;
+static int hf_itsv1_PositionOfOccupants_row4NotDetectable;
+static int hf_itsv1_PositionOfOccupants_row4NotPresent;
+static int hf_itsv1_EnergyStorageType_hydrogenStorage;
+static int hf_itsv1_EnergyStorageType_electricEnergyStorage;
+static int hf_itsv1_EnergyStorageType_liquidPropaneGas;
+static int hf_itsv1_EnergyStorageType_compressedNaturalGas;
+static int hf_itsv1_EnergyStorageType_diesel;
+static int hf_itsv1_EnergyStorageType_gasoline;
+static int hf_itsv1_EnergyStorageType_ammonia;
+static int hf_itsv1_EmergencyPriority_requestForRightOfWay;
+static int hf_itsv1_EmergencyPriority_requestForFreeCrossingAtATrafficLight;
 
 /* --- Module EfcDsrcApplication --- --- ---                                  */
 
-static int hf_dsrc_app_maxLadenweightOnAxle1 = -1;  /* Int2 */
-static int hf_dsrc_app_maxLadenweightOnAxle2 = -1;  /* Int2 */
-static int hf_dsrc_app_maxLadenweightOnAxle3 = -1;  /* Int2 */
-static int hf_dsrc_app_maxLadenweightOnAxle4 = -1;  /* Int2 */
-static int hf_dsrc_app_maxLadenweightOnAxle5 = -1;  /* Int2 */
-static int hf_dsrc_app_particulate = -1;          /* T_particulate */
-static int hf_dsrc_app_unitType = -1;             /* UnitType */
-static int hf_dsrc_app_value = -1;                /* INTEGER_0_32767 */
-static int hf_dsrc_app_absorptionCoeff = -1;      /* Int2 */
-static int hf_dsrc_app_euroValue = -1;            /* EuroValue */
-static int hf_dsrc_app_copValue = -1;             /* CopValue */
-static int hf_dsrc_app_emissionCO = -1;           /* INTEGER_0_32767 */
-static int hf_dsrc_app_emissionHC = -1;           /* Int2 */
-static int hf_dsrc_app_emissionNOX = -1;          /* Int2 */
-static int hf_dsrc_app_emissionHCNOX = -1;        /* Int2 */
-static int hf_dsrc_app_numberOfSeats = -1;        /* Int1 */
-static int hf_dsrc_app_numberOfStandingPlaces = -1;  /* Int1 */
-static int hf_dsrc_app_countryCode = -1;          /* CountryCode */
-static int hf_dsrc_app_providerIdentifier = -1;   /* AVIAEIIssuerIdentifier */
-static int hf_dsrc_app_soundstationary = -1;      /* Int1 */
-static int hf_dsrc_app_sounddriveby = -1;         /* Int1 */
-static int hf_dsrc_app_vehicleLengthOverall = -1;  /* Int1 */
-static int hf_dsrc_app_vehicleHeigthOverall = -1;  /* Int1 */
-static int hf_dsrc_app_vehicleWidthOverall = -1;  /* Int1 */
-static int hf_dsrc_app_vehicleMaxLadenWeight = -1;  /* Int2 */
-static int hf_dsrc_app_vehicleTrainMaximumWeight = -1;  /* Int2 */
-static int hf_dsrc_app_vehicleWeightUnladen = -1;  /* Int2 */
+static int hf_dsrc_app_maxLadenweightOnAxle1;     /* Int2 */
+static int hf_dsrc_app_maxLadenweightOnAxle2;     /* Int2 */
+static int hf_dsrc_app_maxLadenweightOnAxle3;     /* Int2 */
+static int hf_dsrc_app_maxLadenweightOnAxle4;     /* Int2 */
+static int hf_dsrc_app_maxLadenweightOnAxle5;     /* Int2 */
+static int hf_dsrc_app_particulate;               /* T_particulate */
+static int hf_dsrc_app_unitType;                  /* UnitType */
+static int hf_dsrc_app_value;                     /* INTEGER_0_32767 */
+static int hf_dsrc_app_absorptionCoeff;           /* Int2 */
+static int hf_dsrc_app_euroValue;                 /* EuroValue */
+static int hf_dsrc_app_copValue;                  /* CopValue */
+static int hf_dsrc_app_emissionCO;                /* INTEGER_0_32767 */
+static int hf_dsrc_app_emissionHC;                /* Int2 */
+static int hf_dsrc_app_emissionNOX;               /* Int2 */
+static int hf_dsrc_app_emissionHCNOX;             /* Int2 */
+static int hf_dsrc_app_numberOfSeats;             /* Int1 */
+static int hf_dsrc_app_numberOfStandingPlaces;    /* Int1 */
+static int hf_dsrc_app_countryCode;               /* CountryCode */
+static int hf_dsrc_app_providerIdentifier;        /* AVIAEIIssuerIdentifier */
+static int hf_dsrc_app_soundstationary;           /* Int1 */
+static int hf_dsrc_app_sounddriveby;              /* Int1 */
+static int hf_dsrc_app_vehicleLengthOverall;      /* Int1 */
+static int hf_dsrc_app_vehicleHeigthOverall;      /* Int1 */
+static int hf_dsrc_app_vehicleWidthOverall;       /* Int1 */
+static int hf_dsrc_app_vehicleMaxLadenWeight;     /* Int2 */
+static int hf_dsrc_app_vehicleTrainMaximumWeight;  /* Int2 */
+static int hf_dsrc_app_vehicleWeightUnladen;      /* Int2 */
 
 /* --- Module DSRC --- --- ---                                                */
 
-static int hf_dsrc_dsrc_MapData_PDU = -1;         /* MapData */
-static int hf_dsrc_dsrc_RTCMcorrections_PDU = -1;  /* RTCMcorrections */
-static int hf_dsrc_dsrc_SPAT_PDU = -1;            /* SPAT */
-static int hf_dsrc_dsrc_SignalRequestMessage_PDU = -1;  /* SignalRequestMessage */
-static int hf_dsrc_dsrc_SignalStatusMessage_PDU = -1;  /* SignalStatusMessage */
-static int hf_dsrc_regionId = -1;                 /* RegionId */
-static int hf_dsrc_regExtValue = -1;              /* T_regExtValue */
-static int hf_dsrc_mdTimeStamp = -1;              /* MinuteOfTheYear */
-static int hf_dsrc_msgIssueRevision = -1;         /* MsgCount */
-static int hf_dsrc_layerType = -1;                /* LayerType */
-static int hf_dsrc_layerID = -1;                  /* LayerID */
-static int hf_dsrc_mdIntersections = -1;          /* IntersectionGeometryList */
-static int hf_dsrc_roadSegments = -1;             /* RoadSegmentList */
-static int hf_dsrc_dataParameters = -1;           /* DataParameters */
-static int hf_dsrc_restrictionList = -1;          /* RestrictionClassList */
-static int hf_dsrc_mapRegional = -1;              /* T_MAPRegional */
-static int hf_dsrc_mapRegional_item = -1;         /* RegionalExtension */
-static int hf_dsrc_msgCnt = -1;                   /* MsgCount */
-static int hf_dsrc_rev = -1;                      /* RTCM_Revision */
-static int hf_dsrc_timeStamp = -1;                /* MinuteOfTheYear */
-static int hf_dsrc_anchorPoint = -1;              /* FullPositionVector */
-static int hf_dsrc_rtcmHeader = -1;               /* RTCMheader */
-static int hf_dsrc_msgs = -1;                     /* RTCMmessageList */
-static int hf_dsrc_regional = -1;                 /* SEQUENCE_SIZE_1_4_OF_RegionalExtension */
-static int hf_dsrc_regional_item = -1;            /* RegionalExtension */
-static int hf_dsrc_spatTimeStamp = -1;            /* MinuteOfTheYear */
-static int hf_dsrc_name = -1;                     /* DescriptiveName */
-static int hf_dsrc_spatIntersections = -1;        /* IntersectionStateList */
-static int hf_dsrc_spatRegional = -1;             /* T_SPATRegional */
-static int hf_dsrc_spatRegional_item = -1;        /* RegionalExtension */
-static int hf_dsrc_srmTimeStamp = -1;             /* MinuteOfTheYear */
-static int hf_dsrc_second = -1;                   /* DSecond */
-static int hf_dsrc_sequenceNumber = -1;           /* MsgCount */
-static int hf_dsrc_requests = -1;                 /* SignalRequestList */
-static int hf_dsrc_requestor = -1;                /* RequestorDescription */
-static int hf_dsrc_srmRegional = -1;              /* T_SRMRegional */
-static int hf_dsrc_srmRegional_item = -1;         /* RegionalExtension */
-static int hf_dsrc_ssmTimeStamp = -1;             /* MinuteOfTheYear */
-static int hf_dsrc_ssmStatus = -1;                /* SignalStatusList */
-static int hf_dsrc_ssmRegional = -1;              /* T_SSMRegional */
-static int hf_dsrc_ssmRegional_item = -1;         /* RegionalExtension */
-static int hf_dsrc_asType = -1;                   /* AdvisorySpeedType */
-static int hf_dsrc_asSpeed = -1;                  /* SpeedAdvice */
-static int hf_dsrc_asConfidence = -1;             /* SpeedConfidenceDSRC */
-static int hf_dsrc_distance = -1;                 /* ZoneLength */
-static int hf_dsrc_class = -1;                    /* RestrictionClassID */
-static int hf_dsrc_asRegional = -1;               /* T_AdvisorySpeedRegional */
-static int hf_dsrc_asRegional_item = -1;          /* RegionalExtension */
-static int hf_dsrc_AdvisorySpeedList_item = -1;   /* AdvisorySpeed */
-static int hf_dsrc_antOffsetX = -1;               /* Offset_B12 */
-static int hf_dsrc_antOffsetY = -1;               /* Offset_B09 */
-static int hf_dsrc_antOffsetZ = -1;               /* Offset_B10 */
-static int hf_dsrc_referenceLaneId = -1;          /* LaneID */
-static int hf_dsrc_offsetXaxis = -1;              /* T_offsetXaxis */
-static int hf_dsrc_small = -1;                    /* DrivenLineOffsetSm */
-static int hf_dsrc_large = -1;                    /* DrivenLineOffsetLg */
-static int hf_dsrc_offsetYaxis = -1;              /* T_offsetYaxis */
-static int hf_dsrc_rotateXY = -1;                 /* Angle */
-static int hf_dsrc_scaleXaxis = -1;               /* Scale_B12 */
-static int hf_dsrc_scaleYaxis = -1;               /* Scale_B12 */
-static int hf_dsrc_clRegional = -1;               /* T_ComputedLaneRegional */
-static int hf_dsrc_clRegional_item = -1;          /* RegionalExtension */
-static int hf_dsrc_ConnectsToList_item = -1;      /* Connection */
-static int hf_dsrc_lane = -1;                     /* LaneID */
-static int hf_dsrc_maneuver = -1;                 /* AllowedManeuvers */
-static int hf_dsrc_connectingLane = -1;           /* ConnectingLane */
-static int hf_dsrc_remoteIntersection = -1;       /* IntersectionReferenceID */
-static int hf_dsrc_signalGroup = -1;              /* SignalGroupID */
-static int hf_dsrc_userClass = -1;                /* RestrictionClassID */
-static int hf_dsrc_connectionID = -1;             /* LaneConnectionID */
-static int hf_dsrc_queueLength = -1;              /* ZoneLength */
-static int hf_dsrc_availableStorageLength = -1;   /* ZoneLength */
-static int hf_dsrc_waitOnStop = -1;               /* WaitOnStopline */
-static int hf_dsrc_pedBicycleDetect = -1;         /* PedestrianBicycleDetect */
-static int hf_dsrc_cmaRegional = -1;              /* T_ConnectionManeuverAssistRegional */
-static int hf_dsrc_cmaRegional_item = -1;         /* RegionalExtension */
-static int hf_dsrc_processMethod = -1;            /* IA5String_SIZE_1_255 */
-static int hf_dsrc_processAgency = -1;            /* IA5String_SIZE_1_255 */
-static int hf_dsrc_lastCheckedDate = -1;          /* IA5String_SIZE_1_255 */
-static int hf_dsrc_geoidUsed = -1;                /* IA5String_SIZE_1_255 */
-static int hf_dsrc_year = -1;                     /* DYear */
-static int hf_dsrc_month = -1;                    /* DMonth */
-static int hf_dsrc_day = -1;                      /* DDay */
-static int hf_dsrc_hour = -1;                     /* DHour */
-static int hf_dsrc_minute = -1;                   /* DMinute */
-static int hf_dsrc_offset = -1;                   /* DOffset */
-static int hf_dsrc_EnabledLaneList_item = -1;     /* LaneID */
-static int hf_dsrc_utcTime = -1;                  /* DDateTime */
-static int hf_dsrc_long = -1;                     /* Longitude */
-static int hf_dsrc_lat = -1;                      /* Latitude */
-static int hf_dsrc_fpvElevation = -1;             /* Elevation */
-static int hf_dsrc_fpvHeading = -1;               /* HeadingDSRC */
-static int hf_dsrc_fpvSpeed = -1;                 /* TransmissionAndSpeed */
-static int hf_dsrc_posAccuracy = -1;              /* PositionalAccuracy */
-static int hf_dsrc_timeConfidence = -1;           /* TimeConfidence */
-static int hf_dsrc_posConfidence = -1;            /* PositionConfidenceSet */
-static int hf_dsrc_speedConfidence = -1;          /* SpeedandHeadingandThrottleConfidence */
-static int hf_dsrc_laneID = -1;                   /* LaneID */
-static int hf_dsrc_ingressApproach = -1;          /* ApproachID */
-static int hf_dsrc_egressApproach = -1;           /* ApproachID */
-static int hf_dsrc_laneAttributes = -1;           /* LaneAttributes */
-static int hf_dsrc_maneuvers = -1;                /* AllowedManeuvers */
-static int hf_dsrc_nodeList = -1;                 /* NodeListXY */
-static int hf_dsrc_connectsTo = -1;               /* ConnectsToList */
-static int hf_dsrc_overlays = -1;                 /* OverlayLaneList */
-static int hf_dsrc_glRegional = -1;               /* T_GenericLaneRegional */
-static int hf_dsrc_glRegional_item = -1;          /* RegionalExtension */
-static int hf_dsrc_approach = -1;                 /* ApproachID */
-static int hf_dsrc_connection = -1;               /* LaneConnectionID */
-static int hf_dsrc_igId = -1;                     /* IntersectionReferenceID */
-static int hf_dsrc_revision = -1;                 /* MsgCount */
-static int hf_dsrc_refPoint = -1;                 /* Position3D */
-static int hf_dsrc_laneWidth = -1;                /* LaneWidth */
-static int hf_dsrc_speedLimits = -1;              /* SpeedLimitList */
-static int hf_dsrc_laneSet = -1;                  /* LaneList */
-static int hf_dsrc_preemptPriorityData = -1;      /* PreemptPriorityList */
-static int hf_dsrc_igRegional = -1;               /* T_IntersectionGeometryRegional */
-static int hf_dsrc_igRegional_item = -1;          /* RegionalExtension */
-static int hf_dsrc_IntersectionGeometryList_item = -1;  /* IntersectionGeometry */
-static int hf_dsrc_region = -1;                   /* RoadRegulatorID */
-static int hf_dsrc_irId = -1;                     /* IntersectionID */
-static int hf_dsrc_isId = -1;                     /* IntersectionReferenceID */
-static int hf_dsrc_isStatus = -1;                 /* IntersectionStatusObject */
-static int hf_dsrc_moy = -1;                      /* MinuteOfTheYear */
-static int hf_dsrc_isTimeStamp = -1;              /* DSecond */
-static int hf_dsrc_enabledLanes = -1;             /* EnabledLaneList */
-static int hf_dsrc_states = -1;                   /* MovementList */
-static int hf_dsrc_maneuverAssistList = -1;       /* ManeuverAssistList */
-static int hf_dsrc_isRegional = -1;               /* T_IntersectionStateRegional */
-static int hf_dsrc_isRegional_item = -1;          /* RegionalExtension */
-static int hf_dsrc_IntersectionStateList_item = -1;  /* IntersectionState */
-static int hf_dsrc_directionalUse = -1;           /* LaneDirection */
-static int hf_dsrc_sharedWith = -1;               /* LaneSharing */
-static int hf_dsrc_laneType = -1;                 /* LaneTypeAttributes */
-static int hf_dsrc_laRegional = -1;               /* RegionalExtension */
-static int hf_dsrc_pathEndPointAngle = -1;        /* DeltaAngle */
-static int hf_dsrc_laneCrownPointCenter = -1;     /* RoadwayCrownAngle */
-static int hf_dsrc_laneCrownPointLeft = -1;       /* RoadwayCrownAngle */
-static int hf_dsrc_laneCrownPointRight = -1;      /* RoadwayCrownAngle */
-static int hf_dsrc_laneAngle = -1;                /* MergeDivergeNodeAngle */
-static int hf_dsrc_ldaRegional = -1;              /* T_LaneDataAttributeRegional */
-static int hf_dsrc_ldaRegional_item = -1;         /* RegionalExtension */
-static int hf_dsrc_LaneDataAttributeList_item = -1;  /* LaneDataAttribute */
-static int hf_dsrc_LaneList_item = -1;            /* GenericLane */
-static int hf_dsrc_vehicle = -1;                  /* LaneAttributes_Vehicle */
-static int hf_dsrc_crosswalk = -1;                /* LaneAttributes_Crosswalk */
-static int hf_dsrc_bikeLane = -1;                 /* LaneAttributes_Bike */
-static int hf_dsrc_sidewalk = -1;                 /* LaneAttributes_Sidewalk */
-static int hf_dsrc_median = -1;                   /* LaneAttributes_Barrier */
-static int hf_dsrc_striping = -1;                 /* LaneAttributes_Striping */
-static int hf_dsrc_trackedVehicle = -1;           /* LaneAttributes_TrackedVehicle */
-static int hf_dsrc_parking = -1;                  /* LaneAttributes_Parking */
-static int hf_dsrc_ManeuverAssistList_item = -1;  /* ConnectionManeuverAssist */
-static int hf_dsrc_eventState = -1;               /* MovementPhaseState */
-static int hf_dsrc_timing = -1;                   /* TimeChangeDetails */
-static int hf_dsrc_speeds = -1;                   /* AdvisorySpeedList */
-static int hf_dsrc_meRegional = -1;               /* T_MovementEventRegional */
-static int hf_dsrc_meRegional_item = -1;          /* RegionalExtension */
-static int hf_dsrc_MovementEventList_item = -1;   /* MovementEvent */
-static int hf_dsrc_MovementList_item = -1;        /* MovementState */
-static int hf_dsrc_movementName = -1;             /* DescriptiveName */
-static int hf_dsrc_state_time_speed = -1;         /* MovementEventList */
-static int hf_dsrc_msRegional = -1;               /* T_MovementStateRegional */
-static int hf_dsrc_msRegional_item = -1;          /* RegionalExtension */
-static int hf_dsrc_localNode = -1;                /* NodeAttributeXYList */
-static int hf_dsrc_disabled = -1;                 /* SegmentAttributeXYList */
-static int hf_dsrc_enabled = -1;                  /* SegmentAttributeXYList */
-static int hf_dsrc_data = -1;                     /* LaneDataAttributeList */
-static int hf_dsrc_dWidth = -1;                   /* Offset_B10 */
-static int hf_dsrc_dElevation = -1;               /* Offset_B10 */
-static int hf_dsrc_nasxyRegional = -1;            /* T_NodeAttributeSetXYRegional */
-static int hf_dsrc_nasxyRegional_item = -1;       /* RegionalExtension */
-static int hf_dsrc_NodeAttributeXYList_item = -1;  /* NodeAttributeXY */
-static int hf_dsrc_lon = -1;                      /* Longitude */
-static int hf_dsrc_n20bX = -1;                    /* Offset_B10 */
-static int hf_dsrc_n20bY = -1;                    /* Offset_B10 */
-static int hf_dsrc_n22bX = -1;                    /* Offset_B11 */
-static int hf_dsrc_n22bY = -1;                    /* Offset_B11 */
-static int hf_dsrc_n24bX = -1;                    /* Offset_B12 */
-static int hf_dsrc_n24bY = -1;                    /* Offset_B12 */
-static int hf_dsrc_n26bX = -1;                    /* Offset_B13 */
-static int hf_dsrc_n26bY = -1;                    /* Offset_B13 */
-static int hf_dsrc_n28bX = -1;                    /* Offset_B14 */
-static int hf_dsrc_n28bY = -1;                    /* Offset_B14 */
-static int hf_dsrc_n32bX = -1;                    /* Offset_B16 */
-static int hf_dsrc_n32bY = -1;                    /* Offset_B16 */
-static int hf_dsrc_nodes = -1;                    /* NodeSetXY */
-static int hf_dsrc_computed = -1;                 /* ComputedLane */
-static int hf_dsrc_node_XY1 = -1;                 /* Node_XY_20b */
-static int hf_dsrc_node_XY2 = -1;                 /* Node_XY_22b */
-static int hf_dsrc_node_XY3 = -1;                 /* Node_XY_24b */
-static int hf_dsrc_node_XY4 = -1;                 /* Node_XY_26b */
-static int hf_dsrc_node_XY5 = -1;                 /* Node_XY_28b */
-static int hf_dsrc_node_XY6 = -1;                 /* Node_XY_32b */
-static int hf_dsrc_node_LatLon = -1;              /* Node_LLmD_64b */
-static int hf_dsrc_nopxyRegional = -1;            /* RegionalExtension */
-static int hf_dsrc_delta = -1;                    /* NodeOffsetPointXY */
-static int hf_dsrc_attributes = -1;               /* NodeAttributeSetXY */
-static int hf_dsrc_NodeSetXY_item = -1;           /* NodeXY */
-static int hf_dsrc_OverlayLaneList_item = -1;     /* LaneID */
-static int hf_dsrc_semiMajor = -1;                /* SemiMajorAxisAccuracy */
-static int hf_dsrc_semiMinor = -1;                /* SemiMinorAxisAccuracy */
-static int hf_dsrc_orientation = -1;              /* SemiMajorAxisOrientation */
-static int hf_dsrc_pos = -1;                      /* PositionConfidence */
-static int hf_dsrc_pcsElevation = -1;             /* ElevationConfidence */
-static int hf_dsrc_p3dElevation = -1;             /* Elevation */
-static int hf_dsrc_p3dRegional = -1;              /* T_Position3DRegional */
-static int hf_dsrc_p3dRegional_item = -1;         /* RegionalExtension */
-static int hf_dsrc_PreemptPriorityList_item = -1;  /* SignalControlZone */
-static int hf_dsrc_rslType = -1;                  /* SpeedLimitType */
-static int hf_dsrc_rslSpeed = -1;                 /* Velocity */
-static int hf_dsrc_rdId = -1;                     /* VehicleID */
-static int hf_dsrc_rdType = -1;                   /* RequestorType */
-static int hf_dsrc_rdPosition = -1;               /* RequestorPositionVector */
-static int hf_dsrc_routeName = -1;                /* DescriptiveName */
-static int hf_dsrc_transitStatus = -1;            /* TransitVehicleStatus */
-static int hf_dsrc_transitOccupancy = -1;         /* TransitVehicleOccupancy */
-static int hf_dsrc_transitSchedule = -1;          /* DeltaTime */
-static int hf_dsrc_rdRegional = -1;               /* T_RequestorDescriptionRegional */
-static int hf_dsrc_rdRegional_item = -1;          /* RegionalExtension */
-static int hf_dsrc_rpvPosition = -1;              /* Position3D */
-static int hf_dsrc_rpvHeading = -1;               /* Angle */
-static int hf_dsrc_rpvSpeed = -1;                 /* TransmissionAndSpeed */
-static int hf_dsrc_role = -1;                     /* BasicVehicleRole */
-static int hf_dsrc_subrole = -1;                  /* RequestSubRole */
-static int hf_dsrc_rtRequest = -1;                /* RequestImportanceLevel */
-static int hf_dsrc_iso3883 = -1;                  /* Iso3833VehicleType */
-static int hf_dsrc_hpmsType = -1;                 /* VehicleType */
-static int hf_dsrc_rtRegional = -1;               /* RegionalExtension */
-static int hf_dsrc_scaId = -1;                    /* RestrictionClassID */
-static int hf_dsrc_users = -1;                    /* RestrictionUserTypeList */
-static int hf_dsrc_RestrictionClassList_item = -1;  /* RestrictionClassAssignment */
-static int hf_dsrc_basicType = -1;                /* RestrictionAppliesTo */
-static int hf_dsrc_rutRegional = -1;              /* T_RestrictionUserTypeRegional */
-static int hf_dsrc_rutRegional_item = -1;         /* RegionalExtension */
-static int hf_dsrc_RestrictionUserTypeList_item = -1;  /* RestrictionUserType */
-static int hf_dsrc_RoadLaneSetList_item = -1;     /* GenericLane */
-static int hf_dsrc_rsrId = -1;                    /* RoadSegmentID */
-static int hf_dsrc_rsId = -1;                     /* RoadSegmentReferenceID */
-static int hf_dsrc_roadLaneSet = -1;              /* RoadLaneSetList */
-static int hf_dsrc_rsRegional = -1;               /* T_RoadSegmentRegional */
-static int hf_dsrc_rsRegional_item = -1;          /* RegionalExtension */
-static int hf_dsrc_RoadSegmentList_item = -1;     /* RoadSegment */
-static int hf_dsrc_status = -1;                   /* GNSSstatus */
-static int hf_dsrc_offsetSet = -1;                /* AntennaOffsetSet */
-static int hf_dsrc_RTCMmessageList_item = -1;     /* RTCMmessage */
-static int hf_dsrc_SegmentAttributeXYList_item = -1;  /* SegmentAttributeXY */
-static int hf_dsrc_zone = -1;                     /* RegionalExtension */
-static int hf_dsrc_sriId = -1;                    /* VehicleID */
-static int hf_dsrc_sriRequest = -1;               /* RequestID */
-static int hf_dsrc_typeData = -1;                 /* RequestorType */
-static int hf_dsrc_srId = -1;                     /* IntersectionReferenceID */
-static int hf_dsrc_requestID = -1;                /* RequestID */
-static int hf_dsrc_requestType = -1;              /* PriorityRequestType */
-static int hf_dsrc_inBoundLane = -1;              /* IntersectionAccessPoint */
-static int hf_dsrc_outBoundLane = -1;             /* IntersectionAccessPoint */
-static int hf_dsrc_srRegional = -1;               /* T_SignalRequestRegional */
-static int hf_dsrc_srRegional_item = -1;          /* RegionalExtension */
-static int hf_dsrc_SignalRequestList_item = -1;   /* SignalRequestPackage */
-static int hf_dsrc_srpRequest = -1;               /* SignalRequest */
-static int hf_dsrc_srpMinute = -1;                /* MinuteOfTheYear */
-static int hf_dsrc_duration = -1;                 /* DSecond */
-static int hf_dsrc_srpRegional = -1;              /* T_SignalRequestPackageRegional */
-static int hf_dsrc_srpRegional_item = -1;         /* RegionalExtension */
-static int hf_dsrc_ssId = -1;                     /* IntersectionReferenceID */
-static int hf_dsrc_sigStatus = -1;                /* SignalStatusPackageList */
-static int hf_dsrc_ssRegional = -1;               /* T_SignalStatusRegional */
-static int hf_dsrc_ssRegional_item = -1;          /* RegionalExtension */
-static int hf_dsrc_SignalStatusList_item = -1;    /* SignalStatus */
-static int hf_dsrc_SignalStatusPackageList_item = -1;  /* SignalStatusPackage */
-static int hf_dsrc_requester = -1;                /* SignalRequesterInfo */
-static int hf_dsrc_inboundOn = -1;                /* IntersectionAccessPoint */
-static int hf_dsrc_outboundOn = -1;               /* IntersectionAccessPoint */
-static int hf_dsrc_sspMinute = -1;                /* MinuteOfTheYear */
-static int hf_dsrc_sspStatus = -1;                /* PrioritizationResponseStatus */
-static int hf_dsrc_sspRegional = -1;              /* T_SignalStatusPackageRegional */
-static int hf_dsrc_sspRegional_item = -1;         /* RegionalExtension */
-static int hf_dsrc_shtcheading = -1;              /* HeadingConfidenceDSRC */
-static int hf_dsrc_shtcSpeed = -1;                /* SpeedConfidenceDSRC */
-static int hf_dsrc_throttle = -1;                 /* ThrottleConfidence */
-static int hf_dsrc_SpeedLimitList_item = -1;      /* RegulatorySpeedLimit */
-static int hf_dsrc_startTime = -1;                /* TimeMark */
-static int hf_dsrc_minEndTime = -1;               /* TimeMark */
-static int hf_dsrc_maxEndTime = -1;               /* TimeMark */
-static int hf_dsrc_likelyTime = -1;               /* TimeMark */
-static int hf_dsrc_tcdConfidence = -1;            /* TimeIntervalConfidence */
-static int hf_dsrc_nextTime = -1;                 /* TimeMark */
-static int hf_dsrc_transmisson = -1;              /* TransmissionState */
-static int hf_dsrc_tasSpeed = -1;                 /* Velocity */
-static int hf_dsrc_entityID = -1;                 /* TemporaryID */
-static int hf_dsrc_stationID = -1;                /* StationID */
+static int hf_dsrc_dsrc_MapData_PDU;              /* MapData */
+static int hf_dsrc_dsrc_RTCMcorrections_PDU;      /* RTCMcorrections */
+static int hf_dsrc_dsrc_SPAT_PDU;                 /* SPAT */
+static int hf_dsrc_dsrc_SignalRequestMessage_PDU;  /* SignalRequestMessage */
+static int hf_dsrc_dsrc_SignalStatusMessage_PDU;  /* SignalStatusMessage */
+static int hf_dsrc_regionId;                      /* RegionId */
+static int hf_dsrc_regExtValue;                   /* T_regExtValue */
+static int hf_dsrc_mdTimeStamp;                   /* MinuteOfTheYear */
+static int hf_dsrc_msgIssueRevision;              /* MsgCount */
+static int hf_dsrc_layerType;                     /* LayerType */
+static int hf_dsrc_layerID;                       /* LayerID */
+static int hf_dsrc_mdIntersections;               /* IntersectionGeometryList */
+static int hf_dsrc_roadSegments;                  /* RoadSegmentList */
+static int hf_dsrc_dataParameters;                /* DataParameters */
+static int hf_dsrc_restrictionList;               /* RestrictionClassList */
+static int hf_dsrc_mapRegional;                   /* T_MAPRegional */
+static int hf_dsrc_mapRegional_item;              /* RegionalExtension */
+static int hf_dsrc_msgCnt;                        /* MsgCount */
+static int hf_dsrc_rev;                           /* RTCM_Revision */
+static int hf_dsrc_timeStamp;                     /* MinuteOfTheYear */
+static int hf_dsrc_anchorPoint;                   /* FullPositionVector */
+static int hf_dsrc_rtcmHeader;                    /* RTCMheader */
+static int hf_dsrc_msgs;                          /* RTCMmessageList */
+static int hf_dsrc_regional;                      /* SEQUENCE_SIZE_1_4_OF_RegionalExtension */
+static int hf_dsrc_regional_item;                 /* RegionalExtension */
+static int hf_dsrc_spatTimeStamp;                 /* MinuteOfTheYear */
+static int hf_dsrc_name;                          /* DescriptiveName */
+static int hf_dsrc_spatIntersections;             /* IntersectionStateList */
+static int hf_dsrc_spatRegional;                  /* T_SPATRegional */
+static int hf_dsrc_spatRegional_item;             /* RegionalExtension */
+static int hf_dsrc_srmTimeStamp;                  /* MinuteOfTheYear */
+static int hf_dsrc_second;                        /* DSecond */
+static int hf_dsrc_sequenceNumber;                /* MsgCount */
+static int hf_dsrc_requests;                      /* SignalRequestList */
+static int hf_dsrc_requestor;                     /* RequestorDescription */
+static int hf_dsrc_srmRegional;                   /* T_SRMRegional */
+static int hf_dsrc_srmRegional_item;              /* RegionalExtension */
+static int hf_dsrc_ssmTimeStamp;                  /* MinuteOfTheYear */
+static int hf_dsrc_ssmStatus;                     /* SignalStatusList */
+static int hf_dsrc_ssmRegional;                   /* T_SSMRegional */
+static int hf_dsrc_ssmRegional_item;              /* RegionalExtension */
+static int hf_dsrc_asType;                        /* AdvisorySpeedType */
+static int hf_dsrc_asSpeed;                       /* SpeedAdvice */
+static int hf_dsrc_asConfidence;                  /* SpeedConfidenceDSRC */
+static int hf_dsrc_distance;                      /* ZoneLength */
+static int hf_dsrc_class;                         /* RestrictionClassID */
+static int hf_dsrc_asRegional;                    /* T_AdvisorySpeedRegional */
+static int hf_dsrc_asRegional_item;               /* RegionalExtension */
+static int hf_dsrc_AdvisorySpeedList_item;        /* AdvisorySpeed */
+static int hf_dsrc_antOffsetX;                    /* Offset_B12 */
+static int hf_dsrc_antOffsetY;                    /* Offset_B09 */
+static int hf_dsrc_antOffsetZ;                    /* Offset_B10 */
+static int hf_dsrc_referenceLaneId;               /* LaneID */
+static int hf_dsrc_offsetXaxis;                   /* T_offsetXaxis */
+static int hf_dsrc_small;                         /* DrivenLineOffsetSm */
+static int hf_dsrc_large;                         /* DrivenLineOffsetLg */
+static int hf_dsrc_offsetYaxis;                   /* T_offsetYaxis */
+static int hf_dsrc_rotateXY;                      /* Angle */
+static int hf_dsrc_scaleXaxis;                    /* Scale_B12 */
+static int hf_dsrc_scaleYaxis;                    /* Scale_B12 */
+static int hf_dsrc_clRegional;                    /* T_ComputedLaneRegional */
+static int hf_dsrc_clRegional_item;               /* RegionalExtension */
+static int hf_dsrc_ConnectsToList_item;           /* Connection */
+static int hf_dsrc_lane;                          /* LaneID */
+static int hf_dsrc_maneuver;                      /* AllowedManeuvers */
+static int hf_dsrc_connectingLane;                /* ConnectingLane */
+static int hf_dsrc_remoteIntersection;            /* IntersectionReferenceID */
+static int hf_dsrc_signalGroup;                   /* SignalGroupID */
+static int hf_dsrc_userClass;                     /* RestrictionClassID */
+static int hf_dsrc_connectionID;                  /* LaneConnectionID */
+static int hf_dsrc_queueLength;                   /* ZoneLength */
+static int hf_dsrc_availableStorageLength;        /* ZoneLength */
+static int hf_dsrc_waitOnStop;                    /* WaitOnStopline */
+static int hf_dsrc_pedBicycleDetect;              /* PedestrianBicycleDetect */
+static int hf_dsrc_cmaRegional;                   /* T_ConnectionManeuverAssistRegional */
+static int hf_dsrc_cmaRegional_item;              /* RegionalExtension */
+static int hf_dsrc_processMethod;                 /* IA5String_SIZE_1_255 */
+static int hf_dsrc_processAgency;                 /* IA5String_SIZE_1_255 */
+static int hf_dsrc_lastCheckedDate;               /* IA5String_SIZE_1_255 */
+static int hf_dsrc_geoidUsed;                     /* IA5String_SIZE_1_255 */
+static int hf_dsrc_year;                          /* DYear */
+static int hf_dsrc_month;                         /* DMonth */
+static int hf_dsrc_day;                           /* DDay */
+static int hf_dsrc_hour;                          /* DHour */
+static int hf_dsrc_minute;                        /* DMinute */
+static int hf_dsrc_offset;                        /* DOffset */
+static int hf_dsrc_EnabledLaneList_item;          /* LaneID */
+static int hf_dsrc_utcTime;                       /* DDateTime */
+static int hf_dsrc_long;                          /* Longitude */
+static int hf_dsrc_lat;                           /* Latitude */
+static int hf_dsrc_fpvElevation;                  /* Elevation */
+static int hf_dsrc_fpvHeading;                    /* HeadingDSRC */
+static int hf_dsrc_fpvSpeed;                      /* TransmissionAndSpeed */
+static int hf_dsrc_posAccuracy;                   /* PositionalAccuracy */
+static int hf_dsrc_timeConfidence;                /* TimeConfidence */
+static int hf_dsrc_posConfidence;                 /* PositionConfidenceSet */
+static int hf_dsrc_speedConfidence;               /* SpeedandHeadingandThrottleConfidence */
+static int hf_dsrc_laneID;                        /* LaneID */
+static int hf_dsrc_ingressApproach;               /* ApproachID */
+static int hf_dsrc_egressApproach;                /* ApproachID */
+static int hf_dsrc_laneAttributes;                /* LaneAttributes */
+static int hf_dsrc_maneuvers;                     /* AllowedManeuvers */
+static int hf_dsrc_nodeList;                      /* NodeListXY */
+static int hf_dsrc_connectsTo;                    /* ConnectsToList */
+static int hf_dsrc_overlays;                      /* OverlayLaneList */
+static int hf_dsrc_glRegional;                    /* T_GenericLaneRegional */
+static int hf_dsrc_glRegional_item;               /* RegionalExtension */
+static int hf_dsrc_approach;                      /* ApproachID */
+static int hf_dsrc_connection;                    /* LaneConnectionID */
+static int hf_dsrc_igId;                          /* IntersectionReferenceID */
+static int hf_dsrc_revision;                      /* MsgCount */
+static int hf_dsrc_refPoint;                      /* Position3D */
+static int hf_dsrc_laneWidth;                     /* LaneWidth */
+static int hf_dsrc_speedLimits;                   /* SpeedLimitList */
+static int hf_dsrc_laneSet;                       /* LaneList */
+static int hf_dsrc_preemptPriorityData;           /* PreemptPriorityList */
+static int hf_dsrc_igRegional;                    /* T_IntersectionGeometryRegional */
+static int hf_dsrc_igRegional_item;               /* RegionalExtension */
+static int hf_dsrc_IntersectionGeometryList_item;  /* IntersectionGeometry */
+static int hf_dsrc_region;                        /* RoadRegulatorID */
+static int hf_dsrc_irId;                          /* IntersectionID */
+static int hf_dsrc_isId;                          /* IntersectionReferenceID */
+static int hf_dsrc_isStatus;                      /* IntersectionStatusObject */
+static int hf_dsrc_moy;                           /* MinuteOfTheYear */
+static int hf_dsrc_isTimeStamp;                   /* DSecond */
+static int hf_dsrc_enabledLanes;                  /* EnabledLaneList */
+static int hf_dsrc_states;                        /* MovementList */
+static int hf_dsrc_maneuverAssistList;            /* ManeuverAssistList */
+static int hf_dsrc_isRegional;                    /* T_IntersectionStateRegional */
+static int hf_dsrc_isRegional_item;               /* RegionalExtension */
+static int hf_dsrc_IntersectionStateList_item;    /* IntersectionState */
+static int hf_dsrc_directionalUse;                /* LaneDirection */
+static int hf_dsrc_sharedWith;                    /* LaneSharing */
+static int hf_dsrc_laneType;                      /* LaneTypeAttributes */
+static int hf_dsrc_laRegional;                    /* RegionalExtension */
+static int hf_dsrc_pathEndPointAngle;             /* DeltaAngle */
+static int hf_dsrc_laneCrownPointCenter;          /* RoadwayCrownAngle */
+static int hf_dsrc_laneCrownPointLeft;            /* RoadwayCrownAngle */
+static int hf_dsrc_laneCrownPointRight;           /* RoadwayCrownAngle */
+static int hf_dsrc_laneAngle;                     /* MergeDivergeNodeAngle */
+static int hf_dsrc_ldaRegional;                   /* T_LaneDataAttributeRegional */
+static int hf_dsrc_ldaRegional_item;              /* RegionalExtension */
+static int hf_dsrc_LaneDataAttributeList_item;    /* LaneDataAttribute */
+static int hf_dsrc_LaneList_item;                 /* GenericLane */
+static int hf_dsrc_vehicle;                       /* LaneAttributes_Vehicle */
+static int hf_dsrc_crosswalk;                     /* LaneAttributes_Crosswalk */
+static int hf_dsrc_bikeLane;                      /* LaneAttributes_Bike */
+static int hf_dsrc_sidewalk;                      /* LaneAttributes_Sidewalk */
+static int hf_dsrc_median;                        /* LaneAttributes_Barrier */
+static int hf_dsrc_striping;                      /* LaneAttributes_Striping */
+static int hf_dsrc_trackedVehicle;                /* LaneAttributes_TrackedVehicle */
+static int hf_dsrc_parking;                       /* LaneAttributes_Parking */
+static int hf_dsrc_ManeuverAssistList_item;       /* ConnectionManeuverAssist */
+static int hf_dsrc_eventState;                    /* MovementPhaseState */
+static int hf_dsrc_timing;                        /* TimeChangeDetails */
+static int hf_dsrc_speeds;                        /* AdvisorySpeedList */
+static int hf_dsrc_meRegional;                    /* T_MovementEventRegional */
+static int hf_dsrc_meRegional_item;               /* RegionalExtension */
+static int hf_dsrc_MovementEventList_item;        /* MovementEvent */
+static int hf_dsrc_MovementList_item;             /* MovementState */
+static int hf_dsrc_movementName;                  /* DescriptiveName */
+static int hf_dsrc_state_time_speed;              /* MovementEventList */
+static int hf_dsrc_msRegional;                    /* T_MovementStateRegional */
+static int hf_dsrc_msRegional_item;               /* RegionalExtension */
+static int hf_dsrc_localNode;                     /* NodeAttributeXYList */
+static int hf_dsrc_disabled;                      /* SegmentAttributeXYList */
+static int hf_dsrc_enabled;                       /* SegmentAttributeXYList */
+static int hf_dsrc_data;                          /* LaneDataAttributeList */
+static int hf_dsrc_dWidth;                        /* Offset_B10 */
+static int hf_dsrc_dElevation;                    /* Offset_B10 */
+static int hf_dsrc_nasxyRegional;                 /* T_NodeAttributeSetXYRegional */
+static int hf_dsrc_nasxyRegional_item;            /* RegionalExtension */
+static int hf_dsrc_NodeAttributeXYList_item;      /* NodeAttributeXY */
+static int hf_dsrc_lon;                           /* Longitude */
+static int hf_dsrc_n20bX;                         /* Offset_B10 */
+static int hf_dsrc_n20bY;                         /* Offset_B10 */
+static int hf_dsrc_n22bX;                         /* Offset_B11 */
+static int hf_dsrc_n22bY;                         /* Offset_B11 */
+static int hf_dsrc_n24bX;                         /* Offset_B12 */
+static int hf_dsrc_n24bY;                         /* Offset_B12 */
+static int hf_dsrc_n26bX;                         /* Offset_B13 */
+static int hf_dsrc_n26bY;                         /* Offset_B13 */
+static int hf_dsrc_n28bX;                         /* Offset_B14 */
+static int hf_dsrc_n28bY;                         /* Offset_B14 */
+static int hf_dsrc_n32bX;                         /* Offset_B16 */
+static int hf_dsrc_n32bY;                         /* Offset_B16 */
+static int hf_dsrc_nodes;                         /* NodeSetXY */
+static int hf_dsrc_computed;                      /* ComputedLane */
+static int hf_dsrc_node_XY1;                      /* Node_XY_20b */
+static int hf_dsrc_node_XY2;                      /* Node_XY_22b */
+static int hf_dsrc_node_XY3;                      /* Node_XY_24b */
+static int hf_dsrc_node_XY4;                      /* Node_XY_26b */
+static int hf_dsrc_node_XY5;                      /* Node_XY_28b */
+static int hf_dsrc_node_XY6;                      /* Node_XY_32b */
+static int hf_dsrc_node_LatLon;                   /* Node_LLmD_64b */
+static int hf_dsrc_nopxyRegional;                 /* RegionalExtension */
+static int hf_dsrc_delta;                         /* NodeOffsetPointXY */
+static int hf_dsrc_attributes;                    /* NodeAttributeSetXY */
+static int hf_dsrc_NodeSetXY_item;                /* NodeXY */
+static int hf_dsrc_OverlayLaneList_item;          /* LaneID */
+static int hf_dsrc_semiMajor;                     /* SemiMajorAxisAccuracy */
+static int hf_dsrc_semiMinor;                     /* SemiMinorAxisAccuracy */
+static int hf_dsrc_orientation;                   /* SemiMajorAxisOrientation */
+static int hf_dsrc_pos;                           /* PositionConfidence */
+static int hf_dsrc_pcsElevation;                  /* ElevationConfidence */
+static int hf_dsrc_p3dElevation;                  /* Elevation */
+static int hf_dsrc_p3dRegional;                   /* T_Position3DRegional */
+static int hf_dsrc_p3dRegional_item;              /* RegionalExtension */
+static int hf_dsrc_PreemptPriorityList_item;      /* SignalControlZone */
+static int hf_dsrc_rslType;                       /* SpeedLimitType */
+static int hf_dsrc_rslSpeed;                      /* Velocity */
+static int hf_dsrc_rdId;                          /* VehicleID */
+static int hf_dsrc_rdType;                        /* RequestorType */
+static int hf_dsrc_rdPosition;                    /* RequestorPositionVector */
+static int hf_dsrc_routeName;                     /* DescriptiveName */
+static int hf_dsrc_transitStatus;                 /* TransitVehicleStatus */
+static int hf_dsrc_transitOccupancy;              /* TransitVehicleOccupancy */
+static int hf_dsrc_transitSchedule;               /* DeltaTime */
+static int hf_dsrc_rdRegional;                    /* T_RequestorDescriptionRegional */
+static int hf_dsrc_rdRegional_item;               /* RegionalExtension */
+static int hf_dsrc_rpvPosition;                   /* Position3D */
+static int hf_dsrc_rpvHeading;                    /* Angle */
+static int hf_dsrc_rpvSpeed;                      /* TransmissionAndSpeed */
+static int hf_dsrc_role;                          /* BasicVehicleRole */
+static int hf_dsrc_subrole;                       /* RequestSubRole */
+static int hf_dsrc_rtRequest;                     /* RequestImportanceLevel */
+static int hf_dsrc_iso3883;                       /* Iso3833VehicleType */
+static int hf_dsrc_hpmsType;                      /* VehicleType */
+static int hf_dsrc_rtRegional;                    /* RegionalExtension */
+static int hf_dsrc_scaId;                         /* RestrictionClassID */
+static int hf_dsrc_users;                         /* RestrictionUserTypeList */
+static int hf_dsrc_RestrictionClassList_item;     /* RestrictionClassAssignment */
+static int hf_dsrc_basicType;                     /* RestrictionAppliesTo */
+static int hf_dsrc_rutRegional;                   /* T_RestrictionUserTypeRegional */
+static int hf_dsrc_rutRegional_item;              /* RegionalExtension */
+static int hf_dsrc_RestrictionUserTypeList_item;  /* RestrictionUserType */
+static int hf_dsrc_RoadLaneSetList_item;          /* GenericLane */
+static int hf_dsrc_rsrId;                         /* RoadSegmentID */
+static int hf_dsrc_rsId;                          /* RoadSegmentReferenceID */
+static int hf_dsrc_roadLaneSet;                   /* RoadLaneSetList */
+static int hf_dsrc_rsRegional;                    /* T_RoadSegmentRegional */
+static int hf_dsrc_rsRegional_item;               /* RegionalExtension */
+static int hf_dsrc_RoadSegmentList_item;          /* RoadSegment */
+static int hf_dsrc_status;                        /* GNSSstatus */
+static int hf_dsrc_offsetSet;                     /* AntennaOffsetSet */
+static int hf_dsrc_RTCMmessageList_item;          /* RTCMmessage */
+static int hf_dsrc_SegmentAttributeXYList_item;   /* SegmentAttributeXY */
+static int hf_dsrc_zone;                          /* RegionalExtension */
+static int hf_dsrc_sriId;                         /* VehicleID */
+static int hf_dsrc_sriRequest;                    /* RequestID */
+static int hf_dsrc_typeData;                      /* RequestorType */
+static int hf_dsrc_srId;                          /* IntersectionReferenceID */
+static int hf_dsrc_requestID;                     /* RequestID */
+static int hf_dsrc_requestType;                   /* PriorityRequestType */
+static int hf_dsrc_inBoundLane;                   /* IntersectionAccessPoint */
+static int hf_dsrc_outBoundLane;                  /* IntersectionAccessPoint */
+static int hf_dsrc_srRegional;                    /* T_SignalRequestRegional */
+static int hf_dsrc_srRegional_item;               /* RegionalExtension */
+static int hf_dsrc_SignalRequestList_item;        /* SignalRequestPackage */
+static int hf_dsrc_srpRequest;                    /* SignalRequest */
+static int hf_dsrc_srpMinute;                     /* MinuteOfTheYear */
+static int hf_dsrc_duration;                      /* DSecond */
+static int hf_dsrc_srpRegional;                   /* T_SignalRequestPackageRegional */
+static int hf_dsrc_srpRegional_item;              /* RegionalExtension */
+static int hf_dsrc_ssId;                          /* IntersectionReferenceID */
+static int hf_dsrc_sigStatus;                     /* SignalStatusPackageList */
+static int hf_dsrc_ssRegional;                    /* T_SignalStatusRegional */
+static int hf_dsrc_ssRegional_item;               /* RegionalExtension */
+static int hf_dsrc_SignalStatusList_item;         /* SignalStatus */
+static int hf_dsrc_SignalStatusPackageList_item;  /* SignalStatusPackage */
+static int hf_dsrc_requester;                     /* SignalRequesterInfo */
+static int hf_dsrc_inboundOn;                     /* IntersectionAccessPoint */
+static int hf_dsrc_outboundOn;                    /* IntersectionAccessPoint */
+static int hf_dsrc_sspMinute;                     /* MinuteOfTheYear */
+static int hf_dsrc_sspStatus;                     /* PrioritizationResponseStatus */
+static int hf_dsrc_sspRegional;                   /* T_SignalStatusPackageRegional */
+static int hf_dsrc_sspRegional_item;              /* RegionalExtension */
+static int hf_dsrc_shtcheading;                   /* HeadingConfidenceDSRC */
+static int hf_dsrc_shtcSpeed;                     /* SpeedConfidenceDSRC */
+static int hf_dsrc_throttle;                      /* ThrottleConfidence */
+static int hf_dsrc_SpeedLimitList_item;           /* RegulatorySpeedLimit */
+static int hf_dsrc_startTime;                     /* TimeMark */
+static int hf_dsrc_minEndTime;                    /* TimeMark */
+static int hf_dsrc_maxEndTime;                    /* TimeMark */
+static int hf_dsrc_likelyTime;                    /* TimeMark */
+static int hf_dsrc_tcdConfidence;                 /* TimeIntervalConfidence */
+static int hf_dsrc_nextTime;                      /* TimeMark */
+static int hf_dsrc_transmisson;                   /* TransmissionState */
+static int hf_dsrc_tasSpeed;                      /* Velocity */
+static int hf_dsrc_entityID;                      /* TemporaryID */
+static int hf_dsrc_stationID;                     /* StationID */
 /* named bits */
-static int hf_dsrc_LaneSharing_overlappingLaneDescriptionProvided = -1;
-static int hf_dsrc_LaneSharing_multipleLanesTreatedAsOneLane = -1;
-static int hf_dsrc_LaneSharing_otherNonMotorizedTrafficTypes = -1;
-static int hf_dsrc_LaneSharing_individualMotorizedVehicleTraffic = -1;
-static int hf_dsrc_LaneSharing_busVehicleTraffic = -1;
-static int hf_dsrc_LaneSharing_taxiVehicleTraffic = -1;
-static int hf_dsrc_LaneSharing_pedestriansTraffic = -1;
-static int hf_dsrc_LaneSharing_cyclistVehicleTraffic = -1;
-static int hf_dsrc_LaneSharing_trackedVehicleTraffic = -1;
-static int hf_dsrc_LaneSharing_pedestrianTraffic = -1;
-static int hf_dsrc_AllowedManeuvers_maneuverStraightAllowed = -1;
-static int hf_dsrc_AllowedManeuvers_maneuverLeftAllowed = -1;
-static int hf_dsrc_AllowedManeuvers_maneuverRightAllowed = -1;
-static int hf_dsrc_AllowedManeuvers_maneuverUTurnAllowed = -1;
-static int hf_dsrc_AllowedManeuvers_maneuverLeftTurnOnRedAllowed = -1;
-static int hf_dsrc_AllowedManeuvers_maneuverRightTurnOnRedAllowed = -1;
-static int hf_dsrc_AllowedManeuvers_maneuverLaneChangeAllowed = -1;
-static int hf_dsrc_AllowedManeuvers_maneuverNoStoppingAllowed = -1;
-static int hf_dsrc_AllowedManeuvers_yieldAllwaysRequired = -1;
-static int hf_dsrc_AllowedManeuvers_goWithHalt = -1;
-static int hf_dsrc_AllowedManeuvers_caution = -1;
-static int hf_dsrc_AllowedManeuvers_reserved1 = -1;
-static int hf_dsrc_GNSSstatus_unavailable = -1;
-static int hf_dsrc_GNSSstatus_isHealthy = -1;
-static int hf_dsrc_GNSSstatus_isMonitored = -1;
-static int hf_dsrc_GNSSstatus_baseStationType = -1;
-static int hf_dsrc_GNSSstatus_aPDOPofUnder5 = -1;
-static int hf_dsrc_GNSSstatus_inViewOfUnder5 = -1;
-static int hf_dsrc_GNSSstatus_localCorrectionsPresent = -1;
-static int hf_dsrc_GNSSstatus_networkCorrectionsPresent = -1;
-static int hf_dsrc_IntersectionStatusObject_manualControlIsEnabled = -1;
-static int hf_dsrc_IntersectionStatusObject_stopTimeIsActivated = -1;
-static int hf_dsrc_IntersectionStatusObject_failureFlash = -1;
-static int hf_dsrc_IntersectionStatusObject_preemptIsActive = -1;
-static int hf_dsrc_IntersectionStatusObject_signalPriorityIsActive = -1;
-static int hf_dsrc_IntersectionStatusObject_fixedTimeOperation = -1;
-static int hf_dsrc_IntersectionStatusObject_trafficDependentOperation = -1;
-static int hf_dsrc_IntersectionStatusObject_standbyOperation = -1;
-static int hf_dsrc_IntersectionStatusObject_failureMode = -1;
-static int hf_dsrc_IntersectionStatusObject_off = -1;
-static int hf_dsrc_IntersectionStatusObject_recentMAPmessageUpdate = -1;
-static int hf_dsrc_IntersectionStatusObject_recentChangeInMAPassignedLanesIDsUsed = -1;
-static int hf_dsrc_IntersectionStatusObject_noValidMAPisAvailableAtThisTime = -1;
-static int hf_dsrc_IntersectionStatusObject_noValidSPATisAvailableAtThisTime = -1;
-static int hf_dsrc_LaneAttributes_Barrier_median_RevocableLane = -1;
-static int hf_dsrc_LaneAttributes_Barrier_median = -1;
-static int hf_dsrc_LaneAttributes_Barrier_whiteLineHashing = -1;
-static int hf_dsrc_LaneAttributes_Barrier_stripedLines = -1;
-static int hf_dsrc_LaneAttributes_Barrier_doubleStripedLines = -1;
-static int hf_dsrc_LaneAttributes_Barrier_trafficCones = -1;
-static int hf_dsrc_LaneAttributes_Barrier_constructionBarrier = -1;
-static int hf_dsrc_LaneAttributes_Barrier_trafficChannels = -1;
-static int hf_dsrc_LaneAttributes_Barrier_lowCurbs = -1;
-static int hf_dsrc_LaneAttributes_Barrier_highCurbs = -1;
-static int hf_dsrc_LaneAttributes_Bike_bikeRevocableLane = -1;
-static int hf_dsrc_LaneAttributes_Bike_pedestrianUseAllowed = -1;
-static int hf_dsrc_LaneAttributes_Bike_isBikeFlyOverLane = -1;
-static int hf_dsrc_LaneAttributes_Bike_fixedCycleTime = -1;
-static int hf_dsrc_LaneAttributes_Bike_biDirectionalCycleTimes = -1;
-static int hf_dsrc_LaneAttributes_Bike_isolatedByBarrier = -1;
-static int hf_dsrc_LaneAttributes_Bike_unsignalizedSegmentsPresent = -1;
-static int hf_dsrc_LaneAttributes_Crosswalk_crosswalkRevocableLane = -1;
-static int hf_dsrc_LaneAttributes_Crosswalk_bicyleUseAllowed = -1;
-static int hf_dsrc_LaneAttributes_Crosswalk_isXwalkFlyOverLane = -1;
-static int hf_dsrc_LaneAttributes_Crosswalk_fixedCycleTime = -1;
-static int hf_dsrc_LaneAttributes_Crosswalk_biDirectionalCycleTimes = -1;
-static int hf_dsrc_LaneAttributes_Crosswalk_hasPushToWalkButton = -1;
-static int hf_dsrc_LaneAttributes_Crosswalk_audioSupport = -1;
-static int hf_dsrc_LaneAttributes_Crosswalk_rfSignalRequestPresent = -1;
-static int hf_dsrc_LaneAttributes_Crosswalk_unsignalizedSegmentsPresent = -1;
-static int hf_dsrc_LaneAttributes_Parking_parkingRevocableLane = -1;
-static int hf_dsrc_LaneAttributes_Parking_parallelParkingInUse = -1;
-static int hf_dsrc_LaneAttributes_Parking_headInParkingInUse = -1;
-static int hf_dsrc_LaneAttributes_Parking_doNotParkZone = -1;
-static int hf_dsrc_LaneAttributes_Parking_parkingForBusUse = -1;
-static int hf_dsrc_LaneAttributes_Parking_parkingForTaxiUse = -1;
-static int hf_dsrc_LaneAttributes_Parking_noPublicParkingUse = -1;
-static int hf_dsrc_LaneAttributes_Sidewalk_sidewalk_RevocableLane = -1;
-static int hf_dsrc_LaneAttributes_Sidewalk_bicyleUseAllowed = -1;
-static int hf_dsrc_LaneAttributes_Sidewalk_isSidewalkFlyOverLane = -1;
-static int hf_dsrc_LaneAttributes_Sidewalk_walkBikes = -1;
-static int hf_dsrc_LaneAttributes_Striping_stripeToConnectingLanesRevocableLane = -1;
-static int hf_dsrc_LaneAttributes_Striping_stripeDrawOnLeft = -1;
-static int hf_dsrc_LaneAttributes_Striping_stripeDrawOnRight = -1;
-static int hf_dsrc_LaneAttributes_Striping_stripeToConnectingLanesLeft = -1;
-static int hf_dsrc_LaneAttributes_Striping_stripeToConnectingLanesRight = -1;
-static int hf_dsrc_LaneAttributes_Striping_stripeToConnectingLanesAhead = -1;
-static int hf_dsrc_LaneAttributes_TrackedVehicle_spec_RevocableLane = -1;
-static int hf_dsrc_LaneAttributes_TrackedVehicle_spec_commuterRailRoadTrack = -1;
-static int hf_dsrc_LaneAttributes_TrackedVehicle_spec_lightRailRoadTrack = -1;
-static int hf_dsrc_LaneAttributes_TrackedVehicle_spec_heavyRailRoadTrack = -1;
-static int hf_dsrc_LaneAttributes_TrackedVehicle_spec_otherRailType = -1;
-static int hf_dsrc_LaneAttributes_Vehicle_isVehicleRevocableLane = -1;
-static int hf_dsrc_LaneAttributes_Vehicle_isVehicleFlyOverLane = -1;
-static int hf_dsrc_LaneAttributes_Vehicle_hovLaneUseOnly = -1;
-static int hf_dsrc_LaneAttributes_Vehicle_restrictedToBusUse = -1;
-static int hf_dsrc_LaneAttributes_Vehicle_restrictedToTaxiUse = -1;
-static int hf_dsrc_LaneAttributes_Vehicle_restrictedFromPublicUse = -1;
-static int hf_dsrc_LaneAttributes_Vehicle_hasIRbeaconCoverage = -1;
-static int hf_dsrc_LaneAttributes_Vehicle_permissionOnRequest = -1;
-static int hf_dsrc_LaneDirection_ingressPath = -1;
-static int hf_dsrc_LaneDirection_egressPath = -1;
-static int hf_dsrc_TransitVehicleStatus_loading = -1;
-static int hf_dsrc_TransitVehicleStatus_anADAuse = -1;
-static int hf_dsrc_TransitVehicleStatus_aBikeLoad = -1;
-static int hf_dsrc_TransitVehicleStatus_doorOpen = -1;
-static int hf_dsrc_TransitVehicleStatus_charging = -1;
-static int hf_dsrc_TransitVehicleStatus_atStopLine = -1;
+static int hf_dsrc_LaneSharing_overlappingLaneDescriptionProvided;
+static int hf_dsrc_LaneSharing_multipleLanesTreatedAsOneLane;
+static int hf_dsrc_LaneSharing_otherNonMotorizedTrafficTypes;
+static int hf_dsrc_LaneSharing_individualMotorizedVehicleTraffic;
+static int hf_dsrc_LaneSharing_busVehicleTraffic;
+static int hf_dsrc_LaneSharing_taxiVehicleTraffic;
+static int hf_dsrc_LaneSharing_pedestriansTraffic;
+static int hf_dsrc_LaneSharing_cyclistVehicleTraffic;
+static int hf_dsrc_LaneSharing_trackedVehicleTraffic;
+static int hf_dsrc_LaneSharing_pedestrianTraffic;
+static int hf_dsrc_AllowedManeuvers_maneuverStraightAllowed;
+static int hf_dsrc_AllowedManeuvers_maneuverLeftAllowed;
+static int hf_dsrc_AllowedManeuvers_maneuverRightAllowed;
+static int hf_dsrc_AllowedManeuvers_maneuverUTurnAllowed;
+static int hf_dsrc_AllowedManeuvers_maneuverLeftTurnOnRedAllowed;
+static int hf_dsrc_AllowedManeuvers_maneuverRightTurnOnRedAllowed;
+static int hf_dsrc_AllowedManeuvers_maneuverLaneChangeAllowed;
+static int hf_dsrc_AllowedManeuvers_maneuverNoStoppingAllowed;
+static int hf_dsrc_AllowedManeuvers_yieldAllwaysRequired;
+static int hf_dsrc_AllowedManeuvers_goWithHalt;
+static int hf_dsrc_AllowedManeuvers_caution;
+static int hf_dsrc_AllowedManeuvers_reserved1;
+static int hf_dsrc_GNSSstatus_unavailable;
+static int hf_dsrc_GNSSstatus_isHealthy;
+static int hf_dsrc_GNSSstatus_isMonitored;
+static int hf_dsrc_GNSSstatus_baseStationType;
+static int hf_dsrc_GNSSstatus_aPDOPofUnder5;
+static int hf_dsrc_GNSSstatus_inViewOfUnder5;
+static int hf_dsrc_GNSSstatus_localCorrectionsPresent;
+static int hf_dsrc_GNSSstatus_networkCorrectionsPresent;
+static int hf_dsrc_IntersectionStatusObject_manualControlIsEnabled;
+static int hf_dsrc_IntersectionStatusObject_stopTimeIsActivated;
+static int hf_dsrc_IntersectionStatusObject_failureFlash;
+static int hf_dsrc_IntersectionStatusObject_preemptIsActive;
+static int hf_dsrc_IntersectionStatusObject_signalPriorityIsActive;
+static int hf_dsrc_IntersectionStatusObject_fixedTimeOperation;
+static int hf_dsrc_IntersectionStatusObject_trafficDependentOperation;
+static int hf_dsrc_IntersectionStatusObject_standbyOperation;
+static int hf_dsrc_IntersectionStatusObject_failureMode;
+static int hf_dsrc_IntersectionStatusObject_off;
+static int hf_dsrc_IntersectionStatusObject_recentMAPmessageUpdate;
+static int hf_dsrc_IntersectionStatusObject_recentChangeInMAPassignedLanesIDsUsed;
+static int hf_dsrc_IntersectionStatusObject_noValidMAPisAvailableAtThisTime;
+static int hf_dsrc_IntersectionStatusObject_noValidSPATisAvailableAtThisTime;
+static int hf_dsrc_LaneAttributes_Barrier_median_RevocableLane;
+static int hf_dsrc_LaneAttributes_Barrier_median;
+static int hf_dsrc_LaneAttributes_Barrier_whiteLineHashing;
+static int hf_dsrc_LaneAttributes_Barrier_stripedLines;
+static int hf_dsrc_LaneAttributes_Barrier_doubleStripedLines;
+static int hf_dsrc_LaneAttributes_Barrier_trafficCones;
+static int hf_dsrc_LaneAttributes_Barrier_constructionBarrier;
+static int hf_dsrc_LaneAttributes_Barrier_trafficChannels;
+static int hf_dsrc_LaneAttributes_Barrier_lowCurbs;
+static int hf_dsrc_LaneAttributes_Barrier_highCurbs;
+static int hf_dsrc_LaneAttributes_Bike_bikeRevocableLane;
+static int hf_dsrc_LaneAttributes_Bike_pedestrianUseAllowed;
+static int hf_dsrc_LaneAttributes_Bike_isBikeFlyOverLane;
+static int hf_dsrc_LaneAttributes_Bike_fixedCycleTime;
+static int hf_dsrc_LaneAttributes_Bike_biDirectionalCycleTimes;
+static int hf_dsrc_LaneAttributes_Bike_isolatedByBarrier;
+static int hf_dsrc_LaneAttributes_Bike_unsignalizedSegmentsPresent;
+static int hf_dsrc_LaneAttributes_Crosswalk_crosswalkRevocableLane;
+static int hf_dsrc_LaneAttributes_Crosswalk_bicyleUseAllowed;
+static int hf_dsrc_LaneAttributes_Crosswalk_isXwalkFlyOverLane;
+static int hf_dsrc_LaneAttributes_Crosswalk_fixedCycleTime;
+static int hf_dsrc_LaneAttributes_Crosswalk_biDirectionalCycleTimes;
+static int hf_dsrc_LaneAttributes_Crosswalk_hasPushToWalkButton;
+static int hf_dsrc_LaneAttributes_Crosswalk_audioSupport;
+static int hf_dsrc_LaneAttributes_Crosswalk_rfSignalRequestPresent;
+static int hf_dsrc_LaneAttributes_Crosswalk_unsignalizedSegmentsPresent;
+static int hf_dsrc_LaneAttributes_Parking_parkingRevocableLane;
+static int hf_dsrc_LaneAttributes_Parking_parallelParkingInUse;
+static int hf_dsrc_LaneAttributes_Parking_headInParkingInUse;
+static int hf_dsrc_LaneAttributes_Parking_doNotParkZone;
+static int hf_dsrc_LaneAttributes_Parking_parkingForBusUse;
+static int hf_dsrc_LaneAttributes_Parking_parkingForTaxiUse;
+static int hf_dsrc_LaneAttributes_Parking_noPublicParkingUse;
+static int hf_dsrc_LaneAttributes_Sidewalk_sidewalk_RevocableLane;
+static int hf_dsrc_LaneAttributes_Sidewalk_bicyleUseAllowed;
+static int hf_dsrc_LaneAttributes_Sidewalk_isSidewalkFlyOverLane;
+static int hf_dsrc_LaneAttributes_Sidewalk_walkBikes;
+static int hf_dsrc_LaneAttributes_Striping_stripeToConnectingLanesRevocableLane;
+static int hf_dsrc_LaneAttributes_Striping_stripeDrawOnLeft;
+static int hf_dsrc_LaneAttributes_Striping_stripeDrawOnRight;
+static int hf_dsrc_LaneAttributes_Striping_stripeToConnectingLanesLeft;
+static int hf_dsrc_LaneAttributes_Striping_stripeToConnectingLanesRight;
+static int hf_dsrc_LaneAttributes_Striping_stripeToConnectingLanesAhead;
+static int hf_dsrc_LaneAttributes_TrackedVehicle_spec_RevocableLane;
+static int hf_dsrc_LaneAttributes_TrackedVehicle_spec_commuterRailRoadTrack;
+static int hf_dsrc_LaneAttributes_TrackedVehicle_spec_lightRailRoadTrack;
+static int hf_dsrc_LaneAttributes_TrackedVehicle_spec_heavyRailRoadTrack;
+static int hf_dsrc_LaneAttributes_TrackedVehicle_spec_otherRailType;
+static int hf_dsrc_LaneAttributes_Vehicle_isVehicleRevocableLane;
+static int hf_dsrc_LaneAttributes_Vehicle_isVehicleFlyOverLane;
+static int hf_dsrc_LaneAttributes_Vehicle_hovLaneUseOnly;
+static int hf_dsrc_LaneAttributes_Vehicle_restrictedToBusUse;
+static int hf_dsrc_LaneAttributes_Vehicle_restrictedToTaxiUse;
+static int hf_dsrc_LaneAttributes_Vehicle_restrictedFromPublicUse;
+static int hf_dsrc_LaneAttributes_Vehicle_hasIRbeaconCoverage;
+static int hf_dsrc_LaneAttributes_Vehicle_permissionOnRequest;
+static int hf_dsrc_LaneDirection_ingressPath;
+static int hf_dsrc_LaneDirection_egressPath;
+static int hf_dsrc_TransitVehicleStatus_loading;
+static int hf_dsrc_TransitVehicleStatus_anADAuse;
+static int hf_dsrc_TransitVehicleStatus_aBikeLoad;
+static int hf_dsrc_TransitVehicleStatus_doorOpen;
+static int hf_dsrc_TransitVehicleStatus_charging;
+static int hf_dsrc_TransitVehicleStatus_atStopLine;
 
 /* --- Module AddGrpC --- --- ---                                             */
 
-static int hf_AddGrpC_AddGrpC_ConnectionManeuverAssist_addGrpC_PDU = -1;  /* ConnectionManeuverAssist_addGrpC */
-static int hf_AddGrpC_AddGrpC_ConnectionTrajectory_addGrpC_PDU = -1;  /* ConnectionTrajectory_addGrpC */
-static int hf_AddGrpC_AddGrpC_IntersectionState_addGrpC_PDU = -1;  /* IntersectionState_addGrpC */
-static int hf_AddGrpC_AddGrpC_LaneAttributes_addGrpC_PDU = -1;  /* LaneAttributes_addGrpC */
-static int hf_AddGrpC_AddGrpC_MapData_addGrpC_PDU = -1;  /* MapData_addGrpC */
-static int hf_AddGrpC_AddGrpC_MovementEvent_addGrpC_PDU = -1;  /* MovementEvent_addGrpC */
-static int hf_AddGrpC_AddGrpC_NodeAttributeSet_addGrpC_PDU = -1;  /* NodeAttributeSet_addGrpC */
-static int hf_AddGrpC_AddGrpC_Position3D_addGrpC_PDU = -1;  /* Position3D_addGrpC */
-static int hf_AddGrpC_AddGrpC_RestrictionUserType_addGrpC_PDU = -1;  /* RestrictionUserType_addGrpC */
-static int hf_AddGrpC_AddGrpC_RequestorDescription_addGrpC_PDU = -1;  /* RequestorDescription_addGrpC */
-static int hf_AddGrpC_AddGrpC_SignalStatusPackage_addGrpC_PDU = -1;  /* SignalStatusPackage_addGrpC */
-static int hf_AddGrpC_itsStationPosition = -1;    /* ItsStationPositionList */
-static int hf_AddGrpC_nodes = -1;                 /* NodeSetXY */
-static int hf_AddGrpC_connectionID = -1;          /* LaneConnectionID */
-static int hf_AddGrpC_activePrioritizations = -1;  /* PrioritizationResponseList */
-static int hf_AddGrpC_maxVehicleHeight = -1;      /* VehicleHeight */
-static int hf_AddGrpC_maxVehicleWeight = -1;      /* VehicleMass */
-static int hf_AddGrpC_signalHeadLocations = -1;   /* SignalHeadLocationList */
-static int hf_AddGrpC_stateChangeReason = -1;     /* ExceptionalCondition */
-static int hf_AddGrpC_ptvRequest = -1;            /* PtvRequestType */
-static int hf_AddGrpC_nodeLink = -1;              /* NodeLink */
-static int hf_AddGrpC_node = -1;                  /* Node */
-static int hf_AddGrpC_altitude = -1;              /* Altitude */
-static int hf_AddGrpC_emission = -1;              /* EmissionType */
-static int hf_AddGrpC_fuel = -1;                  /* FuelType */
-static int hf_AddGrpC_batteryStatus = -1;         /* BatteryStatus */
-static int hf_AddGrpC_synchToSchedule = -1;       /* DeltaTime */
-static int hf_AddGrpC_rejectedReason = -1;        /* RejectedReason */
-static int hf_AddGrpC_stationID = -1;             /* StationID */
-static int hf_AddGrpC_laneID = -1;                /* LaneID */
-static int hf_AddGrpC_nodeXY = -1;                /* NodeOffsetPointXY */
-static int hf_AddGrpC_timeReference = -1;         /* TimeReference */
-static int hf_AddGrpC_ItsStationPositionList_item = -1;  /* ItsStationPosition */
-static int hf_AddGrpC_id = -1;                    /* INTEGER */
-static int hf_AddGrpC_lane = -1;                  /* LaneID */
-static int hf_AddGrpC_intersectionID = -1;        /* IntersectionID */
-static int hf_AddGrpC_NodeLink_item = -1;         /* Node */
-static int hf_AddGrpC_priorState = -1;            /* PrioritizationResponseStatus */
-static int hf_AddGrpC_signalGroup = -1;           /* SignalGroupID */
-static int hf_AddGrpC_PrioritizationResponseList_item = -1;  /* PrioritizationResponse */
-static int hf_AddGrpC_nodeZ = -1;                 /* DeltaAltitude */
-static int hf_AddGrpC_signalGroupID = -1;         /* SignalGroupID */
-static int hf_AddGrpC_SignalHeadLocationList_item = -1;  /* SignalHeadLocation */
+static int hf_AddGrpC_AddGrpC_ConnectionManeuverAssist_addGrpC_PDU;  /* ConnectionManeuverAssist_addGrpC */
+static int hf_AddGrpC_AddGrpC_ConnectionTrajectory_addGrpC_PDU;  /* ConnectionTrajectory_addGrpC */
+static int hf_AddGrpC_AddGrpC_IntersectionState_addGrpC_PDU;  /* IntersectionState_addGrpC */
+static int hf_AddGrpC_AddGrpC_LaneAttributes_addGrpC_PDU;  /* LaneAttributes_addGrpC */
+static int hf_AddGrpC_AddGrpC_MapData_addGrpC_PDU;  /* MapData_addGrpC */
+static int hf_AddGrpC_AddGrpC_MovementEvent_addGrpC_PDU;  /* MovementEvent_addGrpC */
+static int hf_AddGrpC_AddGrpC_NodeAttributeSet_addGrpC_PDU;  /* NodeAttributeSet_addGrpC */
+static int hf_AddGrpC_AddGrpC_Position3D_addGrpC_PDU;  /* Position3D_addGrpC */
+static int hf_AddGrpC_AddGrpC_RestrictionUserType_addGrpC_PDU;  /* RestrictionUserType_addGrpC */
+static int hf_AddGrpC_AddGrpC_RequestorDescription_addGrpC_PDU;  /* RequestorDescription_addGrpC */
+static int hf_AddGrpC_AddGrpC_SignalStatusPackage_addGrpC_PDU;  /* SignalStatusPackage_addGrpC */
+static int hf_AddGrpC_itsStationPosition;         /* ItsStationPositionList */
+static int hf_AddGrpC_nodes;                      /* NodeSetXY */
+static int hf_AddGrpC_connectionID;               /* LaneConnectionID */
+static int hf_AddGrpC_activePrioritizations;      /* PrioritizationResponseList */
+static int hf_AddGrpC_maxVehicleHeight;           /* VehicleHeight */
+static int hf_AddGrpC_maxVehicleWeight;           /* VehicleMass */
+static int hf_AddGrpC_signalHeadLocations;        /* SignalHeadLocationList */
+static int hf_AddGrpC_stateChangeReason;          /* ExceptionalCondition */
+static int hf_AddGrpC_ptvRequest;                 /* PtvRequestType */
+static int hf_AddGrpC_nodeLink;                   /* NodeLink */
+static int hf_AddGrpC_node;                       /* Node */
+static int hf_AddGrpC_altitude;                   /* Altitude */
+static int hf_AddGrpC_emission;                   /* EmissionType */
+static int hf_AddGrpC_fuel;                       /* FuelType */
+static int hf_AddGrpC_batteryStatus;              /* BatteryStatus */
+static int hf_AddGrpC_synchToSchedule;            /* DeltaTime */
+static int hf_AddGrpC_rejectedReason;             /* RejectedReason */
+static int hf_AddGrpC_stationID;                  /* StationID */
+static int hf_AddGrpC_laneID;                     /* LaneID */
+static int hf_AddGrpC_nodeXY;                     /* NodeOffsetPointXY */
+static int hf_AddGrpC_timeReference;              /* TimeReference */
+static int hf_AddGrpC_ItsStationPositionList_item;  /* ItsStationPosition */
+static int hf_AddGrpC_id;                         /* INTEGER */
+static int hf_AddGrpC_lane;                       /* LaneID */
+static int hf_AddGrpC_intersectionID;             /* IntersectionID */
+static int hf_AddGrpC_NodeLink_item;              /* Node */
+static int hf_AddGrpC_priorState;                 /* PrioritizationResponseStatus */
+static int hf_AddGrpC_signalGroup;                /* SignalGroupID */
+static int hf_AddGrpC_PrioritizationResponseList_item;  /* PrioritizationResponse */
+static int hf_AddGrpC_nodeZ;                      /* DeltaAltitude */
+static int hf_AddGrpC_signalGroupID;              /* SignalGroupID */
+static int hf_AddGrpC_SignalHeadLocationList_item;  /* SignalHeadLocation */
 
 /* --- Module GDD --- --- ---                                                 */
 
-static int hf_gdd_pictogramCode = -1;             /* Pictogram */
-static int hf_gdd_attributes = -1;                /* GddAttributes */
-static int hf_gdd_countryCode = -1;               /* Pictogram_countryCode */
-static int hf_gdd_serviceCategoryCode = -1;       /* Pictogram_serviceCategory */
-static int hf_gdd_pictogramCategoryCode = -1;     /* Pictogram_category */
-static int hf_gdd_trafficSignPictogram = -1;      /* Pictogram_trafficSign */
-static int hf_gdd_publicFacilitiesPictogram = -1;  /* Pictogram_publicFacilitySign */
-static int hf_gdd_ambientOrRoadConditionPictogram = -1;  /* Pictogram_conditionsSign */
-static int hf_gdd_nature = -1;                    /* Pictogram_nature */
-static int hf_gdd_serialNumber = -1;              /* Pictogram_serialNumber */
-static int hf_gdd_GddAttributes_item = -1;        /* GddAttributes_item */
-static int hf_gdd_dtm = -1;                       /* InternationalSign_applicablePeriod */
-static int hf_gdd_edt = -1;                       /* InternationalSign_exemptedApplicablePeriod */
-static int hf_gdd_dfl = -1;                       /* InternationalSign_directionalFlowOfLane */
-static int hf_gdd_ved = -1;                       /* InternationalSign_applicableVehicleDimensions */
-static int hf_gdd_spe = -1;                       /* InternationalSign_speedLimits */
-static int hf_gdd_roi = -1;                       /* InternationalSign_rateOfIncline */
-static int hf_gdd_dbv = -1;                       /* InternationalSign_distanceBetweenVehicles */
-static int hf_gdd_ddd = -1;                       /* InternationalSign_destinationInformation */
-static int hf_gdd_set = -1;                       /* InternationalSign_section */
-static int hf_gdd_nol = -1;                       /* InternationalSign_numberOfLane */
-static int hf_gdd_year = -1;                      /* T_year */
-static int hf_gdd_yearRangeStartYear = -1;        /* Year */
-static int hf_gdd_yearRangeEndYear = -1;          /* Year */
-static int hf_gdd_month_day = -1;                 /* T_month_day */
-static int hf_gdd_dateRangeStartMonthDate = -1;   /* MonthDay */
-static int hf_gdd_dateRangeEndMonthDate = -1;     /* MonthDay */
-static int hf_gdd_repeatingPeriodDayTypes = -1;   /* RPDT */
-static int hf_gdd_hourMinutes = -1;               /* T_hourMinutes */
-static int hf_gdd_timeRangeStartTime = -1;        /* HoursMinutes */
-static int hf_gdd_timeRangeEndTime = -1;          /* HoursMinutes */
-static int hf_gdd_dateRangeOfWeek = -1;           /* DayOfWeek */
-static int hf_gdd_durationHourminute = -1;        /* HoursMinutes */
-static int hf_gdd_month = -1;                     /* MonthDay_month */
-static int hf_gdd_day = -1;                       /* MonthDay_day */
-static int hf_gdd_hours = -1;                     /* HoursMinutes_hours */
-static int hf_gdd_mins = -1;                      /* HoursMinutes_mins */
-static int hf_gdd_startingPointLength = -1;       /* Distance */
-static int hf_gdd_continuityLength = -1;          /* Distance */
-static int hf_gdd_vehicleHeight = -1;             /* Distance */
-static int hf_gdd_vehicleWidth = -1;              /* Distance */
-static int hf_gdd_vehicleLength = -1;             /* Distance */
-static int hf_gdd_vehicleWeight = -1;             /* Weight */
-static int hf_gdd_dValue = -1;                    /* INTEGER_1_16384 */
-static int hf_gdd_unit = -1;                      /* T_unit */
-static int hf_gdd_wValue = -1;                    /* INTEGER_1_16384 */
-static int hf_gdd_unit_01 = -1;                   /* T_unit_01 */
-static int hf_gdd_speedLimitMax = -1;             /* INTEGER_0_250 */
-static int hf_gdd_speedLimitMin = -1;             /* INTEGER_0_250 */
-static int hf_gdd_unit_02 = -1;                   /* T_unit_02 */
-static int hf_gdd_junctionDirection = -1;         /* DistinInfo_junctionDirection */
-static int hf_gdd_roundaboutCwDirection = -1;     /* DistinInfo_roundaboutCwDirection */
-static int hf_gdd_roundaboutCcwDirection = -1;    /* DistinInfo_roundaboutCcwDirection */
-static int hf_gdd_ioList = -1;                    /* SEQUENCE_SIZE_1_8__OF_DestinationInformationIO */
-static int hf_gdd_ioList_item = -1;               /* DestinationInformationIO */
-static int hf_gdd_arrowDirection = -1;            /* IO_arrowDirection */
-static int hf_gdd_destPlace = -1;                 /* SEQUENCE_SIZE_1_4__OF_DestinationPlace */
-static int hf_gdd_destPlace_item = -1;            /* DestinationPlace */
-static int hf_gdd_destRoad = -1;                  /* SEQUENCE_SIZE_1_4__OF_DestinationRoad */
-static int hf_gdd_destRoad_item = -1;             /* DestinationRoad */
-static int hf_gdd_roadNumberIdentifier = -1;      /* IO_roadNumberIdentifier */
-static int hf_gdd_streetName = -1;                /* IO_streetName */
-static int hf_gdd_streetNameText = -1;            /* IO_streetNameText */
-static int hf_gdd_distanceToDivergingPoint = -1;  /* DistanceOrDuration */
-static int hf_gdd_distanceToDestinationPlace = -1;  /* DistanceOrDuration */
-static int hf_gdd_destType = -1;                  /* DestinationType */
-static int hf_gdd_destRSCode = -1;                /* GddStructure */
-static int hf_gdd_destBlob = -1;                  /* DestPlace_destBlob */
-static int hf_gdd_placeNameIdentification = -1;   /* DestPlace_placeNameIdentification */
-static int hf_gdd_placeNameText = -1;             /* DestPlace_placeNameText */
-static int hf_gdd_derType = -1;                   /* DestinationRoadType */
-static int hf_gdd_roadNumberIdentifier_01 = -1;   /* DestRoad_roadNumberIdentifier */
-static int hf_gdd_roadNumberText = -1;            /* DestRoad_roadNumberText */
-static int hf_gdd_dodValue = -1;                  /* DistOrDuration_value */
-static int hf_gdd_unit_03 = -1;                   /* DistOrDuration_Units */
+static int hf_gdd_pictogramCode;                  /* Pictogram */
+static int hf_gdd_attributes;                     /* GddAttributes */
+static int hf_gdd_countryCode;                    /* Pictogram_countryCode */
+static int hf_gdd_serviceCategoryCode;            /* Pictogram_serviceCategory */
+static int hf_gdd_pictogramCategoryCode;          /* Pictogram_category */
+static int hf_gdd_trafficSignPictogram;           /* Pictogram_trafficSign */
+static int hf_gdd_publicFacilitiesPictogram;      /* Pictogram_publicFacilitySign */
+static int hf_gdd_ambientOrRoadConditionPictogram;  /* Pictogram_conditionsSign */
+static int hf_gdd_nature;                         /* Pictogram_nature */
+static int hf_gdd_serialNumber;                   /* Pictogram_serialNumber */
+static int hf_gdd_GddAttributes_item;             /* GddAttributes_item */
+static int hf_gdd_dtm;                            /* InternationalSign_applicablePeriod */
+static int hf_gdd_edt;                            /* InternationalSign_exemptedApplicablePeriod */
+static int hf_gdd_dfl;                            /* InternationalSign_directionalFlowOfLane */
+static int hf_gdd_ved;                            /* InternationalSign_applicableVehicleDimensions */
+static int hf_gdd_spe;                            /* InternationalSign_speedLimits */
+static int hf_gdd_roi;                            /* InternationalSign_rateOfIncline */
+static int hf_gdd_dbv;                            /* InternationalSign_distanceBetweenVehicles */
+static int hf_gdd_ddd;                            /* InternationalSign_destinationInformation */
+static int hf_gdd_set;                            /* InternationalSign_section */
+static int hf_gdd_nol;                            /* InternationalSign_numberOfLane */
+static int hf_gdd_year;                           /* T_year */
+static int hf_gdd_yearRangeStartYear;             /* Year */
+static int hf_gdd_yearRangeEndYear;               /* Year */
+static int hf_gdd_month_day;                      /* T_month_day */
+static int hf_gdd_dateRangeStartMonthDate;        /* MonthDay */
+static int hf_gdd_dateRangeEndMonthDate;          /* MonthDay */
+static int hf_gdd_repeatingPeriodDayTypes;        /* RPDT */
+static int hf_gdd_hourMinutes;                    /* T_hourMinutes */
+static int hf_gdd_timeRangeStartTime;             /* HoursMinutes */
+static int hf_gdd_timeRangeEndTime;               /* HoursMinutes */
+static int hf_gdd_dateRangeOfWeek;                /* DayOfWeek */
+static int hf_gdd_durationHourminute;             /* HoursMinutes */
+static int hf_gdd_month;                          /* MonthDay_month */
+static int hf_gdd_day;                            /* MonthDay_day */
+static int hf_gdd_hours;                          /* HoursMinutes_hours */
+static int hf_gdd_mins;                           /* HoursMinutes_mins */
+static int hf_gdd_startingPointLength;            /* Distance */
+static int hf_gdd_continuityLength;               /* Distance */
+static int hf_gdd_vehicleHeight;                  /* Distance */
+static int hf_gdd_vehicleWidth;                   /* Distance */
+static int hf_gdd_vehicleLength;                  /* Distance */
+static int hf_gdd_vehicleWeight;                  /* Weight */
+static int hf_gdd_dValue;                         /* INTEGER_1_16384 */
+static int hf_gdd_unit;                           /* T_unit */
+static int hf_gdd_wValue;                         /* INTEGER_1_16384 */
+static int hf_gdd_unit_01;                        /* T_unit_01 */
+static int hf_gdd_speedLimitMax;                  /* INTEGER_0_250 */
+static int hf_gdd_speedLimitMin;                  /* INTEGER_0_250 */
+static int hf_gdd_unit_02;                        /* T_unit_02 */
+static int hf_gdd_junctionDirection;              /* DistinInfo_junctionDirection */
+static int hf_gdd_roundaboutCwDirection;          /* DistinInfo_roundaboutCwDirection */
+static int hf_gdd_roundaboutCcwDirection;         /* DistinInfo_roundaboutCcwDirection */
+static int hf_gdd_ioList;                         /* SEQUENCE_SIZE_1_8__OF_DestinationInformationIO */
+static int hf_gdd_ioList_item;                    /* DestinationInformationIO */
+static int hf_gdd_arrowDirection;                 /* IO_arrowDirection */
+static int hf_gdd_destPlace;                      /* SEQUENCE_SIZE_1_4__OF_DestinationPlace */
+static int hf_gdd_destPlace_item;                 /* DestinationPlace */
+static int hf_gdd_destRoad;                       /* SEQUENCE_SIZE_1_4__OF_DestinationRoad */
+static int hf_gdd_destRoad_item;                  /* DestinationRoad */
+static int hf_gdd_roadNumberIdentifier;           /* IO_roadNumberIdentifier */
+static int hf_gdd_streetName;                     /* IO_streetName */
+static int hf_gdd_streetNameText;                 /* IO_streetNameText */
+static int hf_gdd_distanceToDivergingPoint;       /* DistanceOrDuration */
+static int hf_gdd_distanceToDestinationPlace;     /* DistanceOrDuration */
+static int hf_gdd_destType;                       /* DestinationType */
+static int hf_gdd_destRSCode;                     /* GddStructure */
+static int hf_gdd_destBlob;                       /* DestPlace_destBlob */
+static int hf_gdd_placeNameIdentification;        /* DestPlace_placeNameIdentification */
+static int hf_gdd_placeNameText;                  /* DestPlace_placeNameText */
+static int hf_gdd_derType;                        /* DestinationRoadType */
+static int hf_gdd_roadNumberIdentifier_01;        /* DestRoad_roadNumberIdentifier */
+static int hf_gdd_roadNumberText;                 /* DestRoad_roadNumberText */
+static int hf_gdd_dodValue;                       /* DistOrDuration_value */
+static int hf_gdd_unit_03;                        /* DistOrDuration_Units */
 /* named bits */
-static int hf_gdd_RPDT_national_holiday = -1;
-static int hf_gdd_RPDT_even_days = -1;
-static int hf_gdd_RPDT_odd_days = -1;
-static int hf_gdd_RPDT_market_day = -1;
-static int hf_gdd_DayOfWeek_unused = -1;
-static int hf_gdd_DayOfWeek_monday = -1;
-static int hf_gdd_DayOfWeek_tuesday = -1;
-static int hf_gdd_DayOfWeek_wednesday = -1;
-static int hf_gdd_DayOfWeek_thursday = -1;
-static int hf_gdd_DayOfWeek_friday = -1;
-static int hf_gdd_DayOfWeek_saturday = -1;
-static int hf_gdd_DayOfWeek_sunday = -1;
+static int hf_gdd_RPDT_national_holiday;
+static int hf_gdd_RPDT_even_days;
+static int hf_gdd_RPDT_odd_days;
+static int hf_gdd_RPDT_market_day;
+static int hf_gdd_DayOfWeek_unused;
+static int hf_gdd_DayOfWeek_monday;
+static int hf_gdd_DayOfWeek_tuesday;
+static int hf_gdd_DayOfWeek_wednesday;
+static int hf_gdd_DayOfWeek_thursday;
+static int hf_gdd_DayOfWeek_friday;
+static int hf_gdd_DayOfWeek_saturday;
+static int hf_gdd_DayOfWeek_sunday;
 
 /* --- Module IVI --- --- ---                                                 */
 
-static int hf_ivi_ivi_IviStructure_PDU = -1;      /* IviStructure */
-static int hf_ivi_mandatory = -1;                 /* IviManagementContainer */
-static int hf_ivi_optional = -1;                  /* IviContainers */
-static int hf_ivi_IviContainers_item = -1;        /* IviContainer */
-static int hf_ivi_glc = -1;                       /* GeographicLocationContainer */
-static int hf_ivi_giv = -1;                       /* GeneralIviContainer */
-static int hf_ivi_rcc = -1;                       /* RoadConfigurationContainer */
-static int hf_ivi_tc = -1;                        /* TextContainer */
-static int hf_ivi_lac = -1;                       /* LayoutContainer */
-static int hf_ivi_avc = -1;                       /* AutomatedVehicleContainer */
-static int hf_ivi_mlc = -1;                       /* MapLocationContainer */
-static int hf_ivi_rsc = -1;                       /* RoadSurfaceContainer */
-static int hf_ivi_serviceProviderId = -1;         /* Provider */
-static int hf_ivi_iviIdentificationNumber = -1;   /* IviIdentificationNumber */
-static int hf_ivi_timeStamp = -1;                 /* TimestampIts */
-static int hf_ivi_validFrom = -1;                 /* TimestampIts */
-static int hf_ivi_validTo = -1;                   /* TimestampIts */
-static int hf_ivi_connectedIviStructures = -1;    /* IviIdentificationNumbers */
-static int hf_ivi_iviStatus = -1;                 /* IviStatus */
-static int hf_ivi_connectedDenms = -1;            /* ConnectedDenms */
-static int hf_ivi_referencePosition = -1;         /* ReferencePosition */
-static int hf_ivi_referencePositionTime = -1;     /* TimestampIts */
-static int hf_ivi_referencePositionHeading = -1;  /* Heading */
-static int hf_ivi_referencePositionSpeed = -1;    /* Speed */
-static int hf_ivi_parts = -1;                     /* GlcParts */
-static int hf_ivi_GlcParts_item = -1;             /* GlcPart */
-static int hf_ivi_zoneId = -1;                    /* Zid */
-static int hf_ivi_laneNumber = -1;                /* LanePosition */
-static int hf_ivi_zoneExtension = -1;             /* INTEGER_0_255 */
-static int hf_ivi_zoneHeading = -1;               /* HeadingValue */
-static int hf_ivi_zone = -1;                      /* Zone */
-static int hf_ivi_GeneralIviContainer_item = -1;  /* GicPart */
-static int hf_ivi_gpDetectionZoneIds = -1;        /* T_GicPartDetectionZoneIds */
-static int hf_ivi_its_Rrid = -1;                  /* VarLengthNumber */
-static int hf_ivi_gpRelevanceZoneIds = -1;        /* T_GicPartRelevanceZoneIds */
-static int hf_ivi_direction = -1;                 /* Direction */
-static int hf_ivi_gpDriverAwarenessZoneIds = -1;  /* T_GicPartDriverAwarenessZoneIds */
-static int hf_ivi_minimumAwarenessTime = -1;      /* INTEGER_0_255 */
-static int hf_ivi_applicableLanes = -1;           /* LanePositions */
-static int hf_ivi_iviType = -1;                   /* IviType */
-static int hf_ivi_iviPurpose = -1;                /* IviPurpose */
-static int hf_ivi_laneStatus = -1;                /* LaneStatus */
-static int hf_ivi_vehicleCharacteristics = -1;    /* VehicleCharacteristicsList */
-static int hf_ivi_driverCharacteristics = -1;     /* DriverCharacteristics */
-static int hf_ivi_layoutId = -1;                  /* INTEGER_1_4_ */
-static int hf_ivi_preStoredlayoutId = -1;         /* INTEGER_1_64_ */
-static int hf_ivi_roadSignCodes = -1;             /* RoadSignCodes */
-static int hf_ivi_extraText = -1;                 /* T_GicPartExtraText */
-static int hf_ivi_RoadConfigurationContainer_item = -1;  /* RccPart */
-static int hf_ivi_relevanceZoneIds = -1;          /* ZoneIds */
-static int hf_ivi_roadType = -1;                  /* RoadType */
-static int hf_ivi_laneConfiguration = -1;         /* LaneConfiguration */
-static int hf_ivi_RoadSurfaceContainer_item = -1;  /* RscPart */
-static int hf_ivi_detectionZoneIds = -1;          /* ZoneIds */
-static int hf_ivi_roadSurfaceStaticCharacteristics = -1;  /* RoadSurfaceStaticCharacteristics */
-static int hf_ivi_roadSurfaceDynamicCharacteristics = -1;  /* RoadSurfaceDynamicCharacteristics */
-static int hf_ivi_TextContainer_item = -1;        /* TcPart */
-static int hf_ivi_tpDetectionZoneIds = -1;        /* T_TcPartDetectionZoneIds */
-static int hf_ivi_tpRelevanceZoneIds = -1;        /* T_TcPartRelevanceZoneIds */
-static int hf_ivi_tpDriverAwarenessZoneIds = -1;  /* T_TcPartDriverAwarenessZoneIds */
-static int hf_ivi_text = -1;                      /* T_TcPartText */
-static int hf_ivi_data = -1;                      /* OCTET_STRING */
-static int hf_ivi_height = -1;                    /* INTEGER_10_73 */
-static int hf_ivi_width = -1;                     /* INTEGER_10_265 */
-static int hf_ivi_layoutComponents = -1;          /* LayoutComponents */
-static int hf_ivi_AutomatedVehicleContainer_item = -1;  /* AvcPart */
-static int hf_ivi_automatedVehicleRules = -1;     /* AutomatedVehicleRules */
-static int hf_ivi_platooningRules = -1;           /* PlatooningRules */
-static int hf_ivi_reference = -1;                 /* MapReference */
-static int hf_ivi_parts_01 = -1;                  /* MlcParts */
-static int hf_ivi_MlcParts_item = -1;             /* MlcPart */
-static int hf_ivi_laneIds = -1;                   /* LaneIds */
-static int hf_ivi_AbsolutePositions_item = -1;    /* AbsolutePosition */
-static int hf_ivi_AbsolutePositionsWAltitude_item = -1;  /* AbsolutePositionWAltitude */
-static int hf_ivi_AutomatedVehicleRules_item = -1;  /* AutomatedVehicleRule */
-static int hf_ivi_ConnectedDenms_item = -1;       /* ActionID */
-static int hf_ivi_DeltaPositions_item = -1;       /* DeltaPosition */
-static int hf_ivi_DeltaReferencePositions_item = -1;  /* DeltaReferencePosition */
-static int hf_ivi_ConstraintTextLines1_item = -1;  /* Text */
-static int hf_ivi_ConstraintTextLines2_item = -1;  /* Text */
-static int hf_ivi_IviIdentificationNumbers_item = -1;  /* IviIdentificationNumber */
-static int hf_ivi_ISO14823Attributes_item = -1;   /* ISO14823Attribute */
-static int hf_ivi_LaneConfiguration_item = -1;    /* LaneInformation */
-static int hf_ivi_LaneIds_item = -1;              /* LaneID */
-static int hf_ivi_LanePositions_item = -1;        /* LanePosition */
-static int hf_ivi_LayoutComponents_item = -1;     /* LayoutComponent */
-static int hf_ivi_PlatooningRules_item = -1;      /* PlatooningRule */
-static int hf_ivi_RoadSignCodes_item = -1;        /* RSCode */
-static int hf_ivi_TextLines_item = -1;            /* Text */
-static int hf_ivi_TrailerCharacteristicsList_item = -1;  /* TrailerCharacteristics */
-static int hf_ivi_TrailerCharacteristicsFixValuesList_item = -1;  /* VehicleCharacteristicsFixValues */
-static int hf_ivi_TrailerCharacteristicsRangesList_item = -1;  /* VehicleCharacteristicsRanges */
-static int hf_ivi_SaeAutomationLevels_item = -1;  /* SaeAutomationLevel */
-static int hf_ivi_VehicleCharacteristicsFixValuesList_item = -1;  /* VehicleCharacteristicsFixValues */
-static int hf_ivi_VehicleCharacteristicsList_item = -1;  /* CompleteVehicleCharacteristics */
-static int hf_ivi_VehicleCharacteristicsRangesList_item = -1;  /* VehicleCharacteristicsRanges */
-static int hf_ivi_ValidityPeriods_item = -1;      /* InternationalSign_applicablePeriod */
-static int hf_ivi_ZoneIds_item = -1;              /* Zid */
-static int hf_ivi_latitude = -1;                  /* Latitude */
-static int hf_ivi_longitude = -1;                 /* Longitude */
-static int hf_ivi_altitude = -1;                  /* Altitude */
-static int hf_ivi_owner = -1;                     /* Provider */
-static int hf_ivi_version = -1;                   /* INTEGER_0_255 */
-static int hf_ivi_acPictogramCode = -1;           /* INTEGER_0_65535 */
-static int hf_ivi_acValue = -1;                   /* INTEGER_0_65535 */
-static int hf_ivi_unit = -1;                      /* RSCUnit */
-static int hf_ivi_attributes = -1;                /* ISO14823Attributes */
-static int hf_ivi_priority = -1;                  /* PriorityLevel */
-static int hf_ivi_allowedSaeAutomationLevels = -1;  /* SaeAutomationLevels */
-static int hf_ivi_minGapBetweenVehicles = -1;     /* GapBetweenVehicles */
-static int hf_ivi_recGapBetweenVehicles = -1;     /* GapBetweenVehicles */
-static int hf_ivi_automatedVehicleMaxSpeedLimit = -1;  /* SpeedValue */
-static int hf_ivi_automatedVehicleMinSpeedLimit = -1;  /* SpeedValue */
-static int hf_ivi_automatedVehicleSpeedRecommendation = -1;  /* SpeedValue */
-static int hf_ivi_extraText_01 = -1;              /* ConstraintTextLines2 */
-static int hf_ivi_tractor = -1;                   /* TractorCharacteristics */
-static int hf_ivi_trailer = -1;                   /* TrailerCharacteristicsList */
-static int hf_ivi_train = -1;                     /* TrainCharacteristics */
-static int hf_ivi_laneWidth = -1;                 /* IviLaneWidth */
-static int hf_ivi_offsetDistance = -1;            /* INTEGER_M32768_32767 */
-static int hf_ivi_offsetPosition = -1;            /* DeltaReferencePosition */
-static int hf_ivi_deltaLatitude = -1;             /* DeltaLatitude */
-static int hf_ivi_deltaLongitude = -1;            /* DeltaLongitude */
-static int hf_ivi_dtm = -1;                       /* InternationalSign_applicablePeriod */
-static int hf_ivi_edt = -1;                       /* InternationalSign_exemptedApplicablePeriod */
-static int hf_ivi_dfl = -1;                       /* InternationalSign_directionalFlowOfLane */
-static int hf_ivi_ved = -1;                       /* InternationalSign_applicableVehicleDimensions */
-static int hf_ivi_spe = -1;                       /* InternationalSign_speedLimits */
-static int hf_ivi_roi = -1;                       /* InternationalSign_rateOfIncline */
-static int hf_ivi_dbv = -1;                       /* InternationalSign_distanceBetweenVehicles */
-static int hf_ivi_ddd = -1;                       /* InternationalSign_destinationInformation */
-static int hf_ivi_icPictogramCode = -1;           /* T_icPictogramCode */
-static int hf_ivi_countryCode = -1;               /* OCTET_STRING_SIZE_2 */
-static int hf_ivi_serviceCategoryCode = -1;       /* T_serviceCategoryCode */
-static int hf_ivi_trafficSignPictogram = -1;      /* T_trafficSignPictogram */
-static int hf_ivi_publicFacilitiesPictogram = -1;  /* T_publicFacilitiesPictogram */
-static int hf_ivi_ambientOrRoadConditionPictogram = -1;  /* T_ambientOrRoadConditionPictogram */
-static int hf_ivi_pictogramCategoryCode = -1;     /* T_pictogramCategoryCode */
-static int hf_ivi_nature = -1;                    /* INTEGER_1_9 */
-static int hf_ivi_serialNumber = -1;              /* INTEGER_0_99 */
-static int hf_ivi_liValidity = -1;                /* InternationalSign_applicablePeriod */
-static int hf_ivi_laneType = -1;                  /* LaneType */
-static int hf_ivi_laneTypeQualifier = -1;         /* CompleteVehicleCharacteristics */
-static int hf_ivi_laneCharacteristics = -1;       /* LaneCharacteristics */
-static int hf_ivi_laneSurfaceStaticCharacteristics = -1;  /* RoadSurfaceStaticCharacteristics */
-static int hf_ivi_laneSurfaceDynamicCharacteristics = -1;  /* RoadSurfaceDynamicCharacteristics */
-static int hf_ivi_zoneDefinitionAccuracy = -1;    /* DefinitionAccuracy */
-static int hf_ivi_existinglaneMarkingStatus = -1;  /* LaneMarkingStatus */
-static int hf_ivi_newlaneMarkingColour = -1;      /* MarkingColour */
-static int hf_ivi_laneDelimitationLeft = -1;      /* LaneDelimitation */
-static int hf_ivi_laneDelimitationRight = -1;     /* LaneDelimitation */
-static int hf_ivi_mergingWith = -1;               /* Zid */
-static int hf_ivi_lcLayoutComponentId = -1;       /* INTEGER_1_8_ */
-static int hf_ivi_x = -1;                         /* INTEGER_10_265 */
-static int hf_ivi_y = -1;                         /* INTEGER_10_73 */
-static int hf_ivi_textScripting = -1;             /* T_textScripting */
-static int hf_ivi_goodsType = -1;                 /* GoodsType */
-static int hf_ivi_dangerousGoodsType = -1;        /* DangerousGoodsBasic */
-static int hf_ivi_specialTransportType = -1;      /* SpecialTransportType */
-static int hf_ivi_roadsegment = -1;               /* RoadSegmentReferenceID */
-static int hf_ivi_intersection = -1;              /* IntersectionReferenceID */
-static int hf_ivi_maxNoOfVehicles = -1;           /* MaxNoOfVehicles */
-static int hf_ivi_maxLenghtOfPlatoon = -1;        /* MaxLenghtOfPlatoon */
-static int hf_ivi_platoonMaxSpeedLimit = -1;      /* SpeedValue */
-static int hf_ivi_platoonMinSpeedLimit = -1;      /* SpeedValue */
-static int hf_ivi_platoonSpeedRecommendation = -1;  /* SpeedValue */
-static int hf_ivi_deltaPositions = -1;            /* DeltaPositions */
-static int hf_ivi_deltaPositionsWithAltitude = -1;  /* DeltaReferencePositions */
-static int hf_ivi_absolutePositions = -1;         /* AbsolutePositions */
-static int hf_ivi_absolutePositionsWithAltitude = -1;  /* AbsolutePositionsWAltitude */
-static int hf_ivi_condition = -1;                 /* Condition */
-static int hf_ivi_temperature = -1;               /* Temperature */
-static int hf_ivi_iceOrWaterDepth = -1;           /* Depth */
-static int hf_ivi_treatment = -1;                 /* TreatmentType */
-static int hf_ivi_frictionCoefficient = -1;       /* FrictionCoefficient */
-static int hf_ivi_material = -1;                  /* MaterialType */
-static int hf_ivi_wear = -1;                      /* WearLevel */
-static int hf_ivi_avBankingAngle = -1;            /* BankingAngle */
-static int hf_ivi_rscLayoutComponentId = -1;      /* INTEGER_1_4_ */
-static int hf_ivi_code = -1;                      /* T_code */
-static int hf_ivi_viennaConvention = -1;          /* VcCode */
-static int hf_ivi_iso14823 = -1;                  /* ISO14823Code */
-static int hf_ivi_itisCodes = -1;                 /* INTEGER_0_65535 */
-static int hf_ivi_anyCatalogue = -1;              /* AnyCatalogue */
-static int hf_ivi_line = -1;                      /* PolygonalLine */
-static int hf_ivi_tLayoutComponentId = -1;        /* INTEGER_1_4_ */
-static int hf_ivi_language = -1;                  /* T_language */
-static int hf_ivi_textContent = -1;               /* UTF8String */
-static int hf_ivi_toEqualTo = -1;                 /* T_TractorCharactEqualTo */
-static int hf_ivi_toNotEqualTo = -1;              /* T_TractorCharactNotEqualTo */
-static int hf_ivi_ranges = -1;                    /* VehicleCharacteristicsRangesList */
-static int hf_ivi_teEqualTo = -1;                 /* T_TrailerCharactEqualTo */
-static int hf_ivi_teNotEqualTo = -1;              /* T_TrailerCharactNotEqualTo */
-static int hf_ivi_ranges_01 = -1;                 /* TrailerCharacteristicsRangesList */
-static int hf_ivi_roadSignClass = -1;             /* VcClass */
-static int hf_ivi_roadSignCode = -1;              /* INTEGER_1_64 */
-static int hf_ivi_vcOption = -1;                  /* VcOption */
-static int hf_ivi_vcValidity = -1;                /* ValidityPeriods */
-static int hf_ivi_vcValue = -1;                   /* INTEGER_0_65535 */
-static int hf_ivi_simpleVehicleType = -1;         /* StationType */
-static int hf_ivi_euVehicleCategoryCode = -1;     /* EuVehicleCategoryCode */
-static int hf_ivi_iso3833VehicleType = -1;        /* Iso3833VehicleType */
-static int hf_ivi_euroAndCo2value = -1;           /* EnvironmentalCharacteristics */
-static int hf_ivi_engineCharacteristics = -1;     /* EngineCharacteristics */
-static int hf_ivi_loadType = -1;                  /* LoadType */
-static int hf_ivi_usage = -1;                     /* VehicleRole */
-static int hf_ivi_comparisonOperator = -1;        /* ComparisonOperator */
-static int hf_ivi_limits = -1;                    /* T_limits */
-static int hf_ivi_numberOfAxles = -1;             /* INTEGER_0_7 */
-static int hf_ivi_vehicleDimensions = -1;         /* VehicleDimensions */
-static int hf_ivi_vehicleWeightLimits = -1;       /* VehicleWeightLimits */
-static int hf_ivi_axleWeightLimits = -1;          /* AxleWeightLimits */
-static int hf_ivi_passengerCapacity = -1;         /* PassengerCapacity */
-static int hf_ivi_exhaustEmissionValues = -1;     /* ExhaustEmissionValues */
-static int hf_ivi_dieselEmissionValues = -1;      /* DieselEmissionValues */
-static int hf_ivi_soundLevel = -1;                /* SoundLevel */
-static int hf_ivi_segment = -1;                   /* Segment */
-static int hf_ivi_area = -1;                      /* PolygonalLine */
-static int hf_ivi_computedSegment = -1;           /* ComputedSegment */
-static int dummy_hf_ivi_eag_field = -1; /* never registered */
+static int hf_ivi_ivi_IviStructure_PDU;           /* IviStructure */
+static int hf_ivi_mandatory;                      /* IviManagementContainer */
+static int hf_ivi_optional;                       /* IviContainers */
+static int hf_ivi_IviContainers_item;             /* IviContainer */
+static int hf_ivi_glc;                            /* GeographicLocationContainer */
+static int hf_ivi_giv;                            /* GeneralIviContainer */
+static int hf_ivi_rcc;                            /* RoadConfigurationContainer */
+static int hf_ivi_tc;                             /* TextContainer */
+static int hf_ivi_lac;                            /* LayoutContainer */
+static int hf_ivi_avc;                            /* AutomatedVehicleContainer */
+static int hf_ivi_mlc;                            /* MapLocationContainer */
+static int hf_ivi_rsc;                            /* RoadSurfaceContainer */
+static int hf_ivi_serviceProviderId;              /* Provider */
+static int hf_ivi_iviIdentificationNumber;        /* IviIdentificationNumber */
+static int hf_ivi_timeStamp;                      /* TimestampIts */
+static int hf_ivi_validFrom;                      /* TimestampIts */
+static int hf_ivi_validTo;                        /* TimestampIts */
+static int hf_ivi_connectedIviStructures;         /* IviIdentificationNumbers */
+static int hf_ivi_iviStatus;                      /* IviStatus */
+static int hf_ivi_connectedDenms;                 /* ConnectedDenms */
+static int hf_ivi_referencePosition;              /* ReferencePosition */
+static int hf_ivi_referencePositionTime;          /* TimestampIts */
+static int hf_ivi_referencePositionHeading;       /* Heading */
+static int hf_ivi_referencePositionSpeed;         /* Speed */
+static int hf_ivi_parts;                          /* GlcParts */
+static int hf_ivi_GlcParts_item;                  /* GlcPart */
+static int hf_ivi_zoneId;                         /* Zid */
+static int hf_ivi_laneNumber;                     /* LanePosition */
+static int hf_ivi_zoneExtension;                  /* INTEGER_0_255 */
+static int hf_ivi_zoneHeading;                    /* HeadingValue */
+static int hf_ivi_zone;                           /* Zone */
+static int hf_ivi_GeneralIviContainer_item;       /* GicPart */
+static int hf_ivi_gpDetectionZoneIds;             /* T_GicPartDetectionZoneIds */
+static int hf_ivi_its_Rrid;                       /* VarLengthNumber */
+static int hf_ivi_gpRelevanceZoneIds;             /* T_GicPartRelevanceZoneIds */
+static int hf_ivi_direction;                      /* Direction */
+static int hf_ivi_gpDriverAwarenessZoneIds;       /* T_GicPartDriverAwarenessZoneIds */
+static int hf_ivi_minimumAwarenessTime;           /* INTEGER_0_255 */
+static int hf_ivi_applicableLanes;                /* LanePositions */
+static int hf_ivi_iviType;                        /* IviType */
+static int hf_ivi_iviPurpose;                     /* IviPurpose */
+static int hf_ivi_laneStatus;                     /* LaneStatus */
+static int hf_ivi_vehicleCharacteristics;         /* VehicleCharacteristicsList */
+static int hf_ivi_driverCharacteristics;          /* DriverCharacteristics */
+static int hf_ivi_layoutId;                       /* INTEGER_1_4_ */
+static int hf_ivi_preStoredlayoutId;              /* INTEGER_1_64_ */
+static int hf_ivi_roadSignCodes;                  /* RoadSignCodes */
+static int hf_ivi_extraText;                      /* T_GicPartExtraText */
+static int hf_ivi_RoadConfigurationContainer_item;  /* RccPart */
+static int hf_ivi_relevanceZoneIds;               /* ZoneIds */
+static int hf_ivi_roadType;                       /* RoadType */
+static int hf_ivi_laneConfiguration;              /* LaneConfiguration */
+static int hf_ivi_RoadSurfaceContainer_item;      /* RscPart */
+static int hf_ivi_detectionZoneIds;               /* ZoneIds */
+static int hf_ivi_roadSurfaceStaticCharacteristics;  /* RoadSurfaceStaticCharacteristics */
+static int hf_ivi_roadSurfaceDynamicCharacteristics;  /* RoadSurfaceDynamicCharacteristics */
+static int hf_ivi_TextContainer_item;             /* TcPart */
+static int hf_ivi_tpDetectionZoneIds;             /* T_TcPartDetectionZoneIds */
+static int hf_ivi_tpRelevanceZoneIds;             /* T_TcPartRelevanceZoneIds */
+static int hf_ivi_tpDriverAwarenessZoneIds;       /* T_TcPartDriverAwarenessZoneIds */
+static int hf_ivi_text;                           /* T_TcPartText */
+static int hf_ivi_data;                           /* OCTET_STRING */
+static int hf_ivi_height;                         /* INTEGER_10_73 */
+static int hf_ivi_width;                          /* INTEGER_10_265 */
+static int hf_ivi_layoutComponents;               /* LayoutComponents */
+static int hf_ivi_AutomatedVehicleContainer_item;  /* AvcPart */
+static int hf_ivi_automatedVehicleRules;          /* AutomatedVehicleRules */
+static int hf_ivi_platooningRules;                /* PlatooningRules */
+static int hf_ivi_reference;                      /* MapReference */
+static int hf_ivi_parts_01;                       /* MlcParts */
+static int hf_ivi_MlcParts_item;                  /* MlcPart */
+static int hf_ivi_laneIds;                        /* LaneIds */
+static int hf_ivi_AbsolutePositions_item;         /* AbsolutePosition */
+static int hf_ivi_AbsolutePositionsWAltitude_item;  /* AbsolutePositionWAltitude */
+static int hf_ivi_AutomatedVehicleRules_item;     /* AutomatedVehicleRule */
+static int hf_ivi_ConnectedDenms_item;            /* ActionID */
+static int hf_ivi_DeltaPositions_item;            /* DeltaPosition */
+static int hf_ivi_DeltaReferencePositions_item;   /* DeltaReferencePosition */
+static int hf_ivi_ConstraintTextLines1_item;      /* Text */
+static int hf_ivi_ConstraintTextLines2_item;      /* Text */
+static int hf_ivi_IviIdentificationNumbers_item;  /* IviIdentificationNumber */
+static int hf_ivi_ISO14823Attributes_item;        /* ISO14823Attribute */
+static int hf_ivi_LaneConfiguration_item;         /* LaneInformation */
+static int hf_ivi_LaneIds_item;                   /* LaneID */
+static int hf_ivi_LanePositions_item;             /* LanePosition */
+static int hf_ivi_LayoutComponents_item;          /* LayoutComponent */
+static int hf_ivi_PlatooningRules_item;           /* PlatooningRule */
+static int hf_ivi_RoadSignCodes_item;             /* RSCode */
+static int hf_ivi_TextLines_item;                 /* Text */
+static int hf_ivi_TrailerCharacteristicsList_item;  /* TrailerCharacteristics */
+static int hf_ivi_TrailerCharacteristicsFixValuesList_item;  /* VehicleCharacteristicsFixValues */
+static int hf_ivi_TrailerCharacteristicsRangesList_item;  /* VehicleCharacteristicsRanges */
+static int hf_ivi_SaeAutomationLevels_item;       /* SaeAutomationLevel */
+static int hf_ivi_VehicleCharacteristicsFixValuesList_item;  /* VehicleCharacteristicsFixValues */
+static int hf_ivi_VehicleCharacteristicsList_item;  /* CompleteVehicleCharacteristics */
+static int hf_ivi_VehicleCharacteristicsRangesList_item;  /* VehicleCharacteristicsRanges */
+static int hf_ivi_ValidityPeriods_item;           /* InternationalSign_applicablePeriod */
+static int hf_ivi_ZoneIds_item;                   /* Zid */
+static int hf_ivi_latitude;                       /* Latitude */
+static int hf_ivi_longitude;                      /* Longitude */
+static int hf_ivi_altitude;                       /* Altitude */
+static int hf_ivi_owner;                          /* Provider */
+static int hf_ivi_version;                        /* INTEGER_0_255 */
+static int hf_ivi_acPictogramCode;                /* INTEGER_0_65535 */
+static int hf_ivi_acValue;                        /* INTEGER_0_65535 */
+static int hf_ivi_unit;                           /* RSCUnit */
+static int hf_ivi_attributes;                     /* ISO14823Attributes */
+static int hf_ivi_priority;                       /* PriorityLevel */
+static int hf_ivi_allowedSaeAutomationLevels;     /* SaeAutomationLevels */
+static int hf_ivi_minGapBetweenVehicles;          /* GapBetweenVehicles */
+static int hf_ivi_recGapBetweenVehicles;          /* GapBetweenVehicles */
+static int hf_ivi_automatedVehicleMaxSpeedLimit;  /* SpeedValue */
+static int hf_ivi_automatedVehicleMinSpeedLimit;  /* SpeedValue */
+static int hf_ivi_automatedVehicleSpeedRecommendation;  /* SpeedValue */
+static int hf_ivi_extraText_01;                   /* ConstraintTextLines2 */
+static int hf_ivi_tractor;                        /* TractorCharacteristics */
+static int hf_ivi_trailer;                        /* TrailerCharacteristicsList */
+static int hf_ivi_train;                          /* TrainCharacteristics */
+static int hf_ivi_laneWidth;                      /* IviLaneWidth */
+static int hf_ivi_offsetDistance;                 /* INTEGER_M32768_32767 */
+static int hf_ivi_offsetPosition;                 /* DeltaReferencePosition */
+static int hf_ivi_deltaLatitude;                  /* DeltaLatitude */
+static int hf_ivi_deltaLongitude;                 /* DeltaLongitude */
+static int hf_ivi_dtm;                            /* InternationalSign_applicablePeriod */
+static int hf_ivi_edt;                            /* InternationalSign_exemptedApplicablePeriod */
+static int hf_ivi_dfl;                            /* InternationalSign_directionalFlowOfLane */
+static int hf_ivi_ved;                            /* InternationalSign_applicableVehicleDimensions */
+static int hf_ivi_spe;                            /* InternationalSign_speedLimits */
+static int hf_ivi_roi;                            /* InternationalSign_rateOfIncline */
+static int hf_ivi_dbv;                            /* InternationalSign_distanceBetweenVehicles */
+static int hf_ivi_ddd;                            /* InternationalSign_destinationInformation */
+static int hf_ivi_icPictogramCode;                /* T_icPictogramCode */
+static int hf_ivi_countryCode;                    /* OCTET_STRING_SIZE_2 */
+static int hf_ivi_serviceCategoryCode;            /* T_serviceCategoryCode */
+static int hf_ivi_trafficSignPictogram;           /* T_trafficSignPictogram */
+static int hf_ivi_publicFacilitiesPictogram;      /* T_publicFacilitiesPictogram */
+static int hf_ivi_ambientOrRoadConditionPictogram;  /* T_ambientOrRoadConditionPictogram */
+static int hf_ivi_pictogramCategoryCode;          /* T_pictogramCategoryCode */
+static int hf_ivi_nature;                         /* INTEGER_1_9 */
+static int hf_ivi_serialNumber;                   /* INTEGER_0_99 */
+static int hf_ivi_liValidity;                     /* InternationalSign_applicablePeriod */
+static int hf_ivi_laneType;                       /* LaneType */
+static int hf_ivi_laneTypeQualifier;              /* CompleteVehicleCharacteristics */
+static int hf_ivi_laneCharacteristics;            /* LaneCharacteristics */
+static int hf_ivi_laneSurfaceStaticCharacteristics;  /* RoadSurfaceStaticCharacteristics */
+static int hf_ivi_laneSurfaceDynamicCharacteristics;  /* RoadSurfaceDynamicCharacteristics */
+static int hf_ivi_zoneDefinitionAccuracy;         /* DefinitionAccuracy */
+static int hf_ivi_existinglaneMarkingStatus;      /* LaneMarkingStatus */
+static int hf_ivi_newlaneMarkingColour;           /* MarkingColour */
+static int hf_ivi_laneDelimitationLeft;           /* LaneDelimitation */
+static int hf_ivi_laneDelimitationRight;          /* LaneDelimitation */
+static int hf_ivi_mergingWith;                    /* Zid */
+static int hf_ivi_lcLayoutComponentId;            /* INTEGER_1_8_ */
+static int hf_ivi_x;                              /* INTEGER_10_265 */
+static int hf_ivi_y;                              /* INTEGER_10_73 */
+static int hf_ivi_textScripting;                  /* T_textScripting */
+static int hf_ivi_goodsType;                      /* GoodsType */
+static int hf_ivi_dangerousGoodsType;             /* DangerousGoodsBasic */
+static int hf_ivi_specialTransportType;           /* SpecialTransportType */
+static int hf_ivi_roadsegment;                    /* RoadSegmentReferenceID */
+static int hf_ivi_intersection;                   /* IntersectionReferenceID */
+static int hf_ivi_maxNoOfVehicles;                /* MaxNoOfVehicles */
+static int hf_ivi_maxLenghtOfPlatoon;             /* MaxLenghtOfPlatoon */
+static int hf_ivi_platoonMaxSpeedLimit;           /* SpeedValue */
+static int hf_ivi_platoonMinSpeedLimit;           /* SpeedValue */
+static int hf_ivi_platoonSpeedRecommendation;     /* SpeedValue */
+static int hf_ivi_deltaPositions;                 /* DeltaPositions */
+static int hf_ivi_deltaPositionsWithAltitude;     /* DeltaReferencePositions */
+static int hf_ivi_absolutePositions;              /* AbsolutePositions */
+static int hf_ivi_absolutePositionsWithAltitude;  /* AbsolutePositionsWAltitude */
+static int hf_ivi_condition;                      /* Condition */
+static int hf_ivi_temperature;                    /* Temperature */
+static int hf_ivi_iceOrWaterDepth;                /* Depth */
+static int hf_ivi_treatment;                      /* TreatmentType */
+static int hf_ivi_frictionCoefficient;            /* FrictionCoefficient */
+static int hf_ivi_material;                       /* MaterialType */
+static int hf_ivi_wear;                           /* WearLevel */
+static int hf_ivi_avBankingAngle;                 /* BankingAngle */
+static int hf_ivi_rscLayoutComponentId;           /* INTEGER_1_4_ */
+static int hf_ivi_code;                           /* T_code */
+static int hf_ivi_viennaConvention;               /* VcCode */
+static int hf_ivi_iso14823;                       /* ISO14823Code */
+static int hf_ivi_itisCodes;                      /* INTEGER_0_65535 */
+static int hf_ivi_anyCatalogue;                   /* AnyCatalogue */
+static int hf_ivi_line;                           /* PolygonalLine */
+static int hf_ivi_tLayoutComponentId;             /* INTEGER_1_4_ */
+static int hf_ivi_language;                       /* T_language */
+static int hf_ivi_textContent;                    /* UTF8String */
+static int hf_ivi_toEqualTo;                      /* T_TractorCharactEqualTo */
+static int hf_ivi_toNotEqualTo;                   /* T_TractorCharactNotEqualTo */
+static int hf_ivi_ranges;                         /* VehicleCharacteristicsRangesList */
+static int hf_ivi_teEqualTo;                      /* T_TrailerCharactEqualTo */
+static int hf_ivi_teNotEqualTo;                   /* T_TrailerCharactNotEqualTo */
+static int hf_ivi_ranges_01;                      /* TrailerCharacteristicsRangesList */
+static int hf_ivi_roadSignClass;                  /* VcClass */
+static int hf_ivi_roadSignCode;                   /* INTEGER_1_64 */
+static int hf_ivi_vcOption;                       /* VcOption */
+static int hf_ivi_vcValidity;                     /* ValidityPeriods */
+static int hf_ivi_vcValue;                        /* INTEGER_0_65535 */
+static int hf_ivi_simpleVehicleType;              /* StationType */
+static int hf_ivi_euVehicleCategoryCode;          /* EuVehicleCategoryCode */
+static int hf_ivi_iso3833VehicleType;             /* Iso3833VehicleType */
+static int hf_ivi_euroAndCo2value;                /* EnvironmentalCharacteristics */
+static int hf_ivi_engineCharacteristics;          /* EngineCharacteristics */
+static int hf_ivi_loadType;                       /* LoadType */
+static int hf_ivi_usage;                          /* VehicleRole */
+static int hf_ivi_comparisonOperator;             /* ComparisonOperator */
+static int hf_ivi_limits;                         /* T_limits */
+static int hf_ivi_numberOfAxles;                  /* INTEGER_0_7 */
+static int hf_ivi_vehicleDimensions;              /* VehicleDimensions */
+static int hf_ivi_vehicleWeightLimits;            /* VehicleWeightLimits */
+static int hf_ivi_axleWeightLimits;               /* AxleWeightLimits */
+static int hf_ivi_passengerCapacity;              /* PassengerCapacity */
+static int hf_ivi_exhaustEmissionValues;          /* ExhaustEmissionValues */
+static int hf_ivi_dieselEmissionValues;           /* DieselEmissionValues */
+static int hf_ivi_soundLevel;                     /* SoundLevel */
+static int hf_ivi_segment;                        /* Segment */
+static int hf_ivi_area;                           /* PolygonalLine */
+static int hf_ivi_computedSegment;                /* ComputedSegment */
+static int dummy_hf_ivi_eag_field; /* never registered */
 
 /* --- Module CAMv1-PDU-Descriptions --- --- ---                              */
 
-static int hf_camv1_camv1_CoopAwarenessV1_PDU = -1;  /* CoopAwarenessV1 */
-static int hf_camv1_generationDeltaTime = -1;     /* GenerationDeltaTime */
-static int hf_camv1_camParameters = -1;           /* CamParameters */
-static int hf_camv1_basicContainer = -1;          /* BasicContainer */
-static int hf_camv1_highFrequencyContainer = -1;  /* HighFrequencyContainer */
-static int hf_camv1_lowFrequencyContainer = -1;   /* LowFrequencyContainer */
-static int hf_camv1_specialVehicleContainer = -1;  /* SpecialVehicleContainer */
-static int hf_camv1_basicVehicleContainerHighFrequency = -1;  /* BasicVehicleContainerHighFrequency */
-static int hf_camv1_rsuContainerHighFrequency = -1;  /* RSUContainerHighFrequency */
-static int hf_camv1_basicVehicleContainerLowFrequency = -1;  /* BasicVehicleContainerLowFrequency */
-static int hf_camv1_publicTransportContainer = -1;  /* PublicTransportContainer */
-static int hf_camv1_specialTransportContainer = -1;  /* SpecialTransportContainer */
-static int hf_camv1_dangerousGoodsContainer = -1;  /* DangerousGoodsContainer */
-static int hf_camv1_roadWorksContainerBasic = -1;  /* RoadWorksContainerBasic */
-static int hf_camv1_rescueContainer = -1;         /* RescueContainer */
-static int hf_camv1_emergencyContainer = -1;      /* EmergencyContainer */
-static int hf_camv1_safetyCarContainer = -1;      /* SafetyCarContainer */
-static int hf_camv1_stationType = -1;             /* StationType */
-static int hf_camv1_referencePosition = -1;       /* ReferencePosition */
-static int hf_camv1_heading = -1;                 /* Heading */
-static int hf_camv1_speed = -1;                   /* Speed */
-static int hf_camv1_driveDirection = -1;          /* DriveDirection */
-static int hf_camv1_vehicleLength = -1;           /* VehicleLength */
-static int hf_camv1_vehicleWidth = -1;            /* VehicleWidth */
-static int hf_camv1_longitudinalAcceleration = -1;  /* LongitudinalAcceleration */
-static int hf_camv1_curvature = -1;               /* Curvature */
-static int hf_camv1_curvatureCalculationMode = -1;  /* CurvatureCalculationMode */
-static int hf_camv1_yawRate = -1;                 /* YawRate */
-static int hf_camv1_accelerationControl = -1;     /* AccelerationControl */
-static int hf_camv1_lanePosition = -1;            /* LanePosition */
-static int hf_camv1_steeringWheelAngle = -1;      /* SteeringWheelAngle */
-static int hf_camv1_lateralAcceleration = -1;     /* LateralAcceleration */
-static int hf_camv1_verticalAcceleration = -1;    /* VerticalAcceleration */
-static int hf_camv1_performanceClass = -1;        /* PerformanceClass */
-static int hf_camv1_cenDsrcTollingZone = -1;      /* CenDsrcTollingZone */
-static int hf_camv1_vehicleRole = -1;             /* VehicleRole */
-static int hf_camv1_exteriorLights = -1;          /* ExteriorLights */
-static int hf_camv1_pathHistory = -1;             /* PathHistory */
-static int hf_camv1_embarkationStatus = -1;       /* EmbarkationStatus */
-static int hf_camv1_ptActivation = -1;            /* PtActivation */
-static int hf_camv1_specialTransportType = -1;    /* SpecialTransportType */
-static int hf_camv1_lightBarSirenInUse = -1;      /* LightBarSirenInUse */
-static int hf_camv1_dangerousGoodsBasic = -1;     /* DangerousGoodsBasic */
-static int hf_camv1_roadworksSubCauseCode = -1;   /* RoadworksSubCauseCode */
-static int hf_camv1_closedLanes = -1;             /* ClosedLanes */
-static int hf_camv1_incidentIndication = -1;      /* CauseCode */
-static int hf_camv1_emergencyPriority = -1;       /* EmergencyPriority */
-static int hf_camv1_trafficRule = -1;             /* TrafficRule */
-static int hf_camv1_speedLimit = -1;              /* SpeedLimit */
-static int hf_camv1_protectedCommunicationZonesRSU = -1;  /* ProtectedCommunicationZonesRSU */
+static int hf_camv1_camv1_CoopAwarenessV1_PDU;    /* CoopAwarenessV1 */
+static int hf_camv1_generationDeltaTime;          /* GenerationDeltaTime */
+static int hf_camv1_camParameters;                /* CamParameters */
+static int hf_camv1_basicContainer;               /* BasicContainer */
+static int hf_camv1_highFrequencyContainer;       /* HighFrequencyContainer */
+static int hf_camv1_lowFrequencyContainer;        /* LowFrequencyContainer */
+static int hf_camv1_specialVehicleContainer;      /* SpecialVehicleContainer */
+static int hf_camv1_basicVehicleContainerHighFrequency;  /* BasicVehicleContainerHighFrequency */
+static int hf_camv1_rsuContainerHighFrequency;    /* RSUContainerHighFrequency */
+static int hf_camv1_basicVehicleContainerLowFrequency;  /* BasicVehicleContainerLowFrequency */
+static int hf_camv1_publicTransportContainer;     /* PublicTransportContainer */
+static int hf_camv1_specialTransportContainer;    /* SpecialTransportContainer */
+static int hf_camv1_dangerousGoodsContainer;      /* DangerousGoodsContainer */
+static int hf_camv1_roadWorksContainerBasic;      /* RoadWorksContainerBasic */
+static int hf_camv1_rescueContainer;              /* RescueContainer */
+static int hf_camv1_emergencyContainer;           /* EmergencyContainer */
+static int hf_camv1_safetyCarContainer;           /* SafetyCarContainer */
+static int hf_camv1_stationType;                  /* StationType */
+static int hf_camv1_referencePosition;            /* ReferencePosition */
+static int hf_camv1_heading;                      /* Heading */
+static int hf_camv1_speed;                        /* Speed */
+static int hf_camv1_driveDirection;               /* DriveDirection */
+static int hf_camv1_vehicleLength;                /* VehicleLength */
+static int hf_camv1_vehicleWidth;                 /* VehicleWidth */
+static int hf_camv1_longitudinalAcceleration;     /* LongitudinalAcceleration */
+static int hf_camv1_curvature;                    /* Curvature */
+static int hf_camv1_curvatureCalculationMode;     /* CurvatureCalculationMode */
+static int hf_camv1_yawRate;                      /* YawRate */
+static int hf_camv1_accelerationControl;          /* AccelerationControl */
+static int hf_camv1_lanePosition;                 /* LanePosition */
+static int hf_camv1_steeringWheelAngle;           /* SteeringWheelAngle */
+static int hf_camv1_lateralAcceleration;          /* LateralAcceleration */
+static int hf_camv1_verticalAcceleration;         /* VerticalAcceleration */
+static int hf_camv1_performanceClass;             /* PerformanceClass */
+static int hf_camv1_cenDsrcTollingZone;           /* CenDsrcTollingZone */
+static int hf_camv1_vehicleRole;                  /* VehicleRole */
+static int hf_camv1_exteriorLights;               /* ExteriorLights */
+static int hf_camv1_pathHistory;                  /* PathHistory */
+static int hf_camv1_embarkationStatus;            /* EmbarkationStatus */
+static int hf_camv1_ptActivation;                 /* PtActivation */
+static int hf_camv1_specialTransportType;         /* SpecialTransportType */
+static int hf_camv1_lightBarSirenInUse;           /* LightBarSirenInUse */
+static int hf_camv1_dangerousGoodsBasic;          /* DangerousGoodsBasic */
+static int hf_camv1_roadworksSubCauseCode;        /* RoadworksSubCauseCode */
+static int hf_camv1_closedLanes;                  /* ClosedLanes */
+static int hf_camv1_incidentIndication;           /* CauseCode */
+static int hf_camv1_emergencyPriority;            /* EmergencyPriority */
+static int hf_camv1_trafficRule;                  /* TrafficRule */
+static int hf_camv1_speedLimit;                   /* SpeedLimit */
+static int hf_camv1_protectedCommunicationZonesRSU;  /* ProtectedCommunicationZonesRSU */
 
 /* --- Module CAM-PDU-Descriptions --- --- ---                                */
 
-static int hf_cam_cam_CoopAwareness_PDU = -1;     /* CoopAwareness */
-static int hf_cam_generationDeltaTime = -1;       /* GenerationDeltaTime */
-static int hf_cam_camParameters = -1;             /* CamParameters */
-static int hf_cam_basicContainer = -1;            /* BasicContainer */
-static int hf_cam_highFrequencyContainer = -1;    /* HighFrequencyContainer */
-static int hf_cam_lowFrequencyContainer = -1;     /* LowFrequencyContainer */
-static int hf_cam_specialVehicleContainer = -1;   /* SpecialVehicleContainer */
-static int hf_cam_basicVehicleContainerHighFrequency = -1;  /* BasicVehicleContainerHighFrequency */
-static int hf_cam_rsuContainerHighFrequency = -1;  /* RSUContainerHighFrequency */
-static int hf_cam_basicVehicleContainerLowFrequency = -1;  /* BasicVehicleContainerLowFrequency */
-static int hf_cam_publicTransportContainer = -1;  /* PublicTransportContainer */
-static int hf_cam_specialTransportContainer = -1;  /* SpecialTransportContainer */
-static int hf_cam_dangerousGoodsContainer = -1;   /* DangerousGoodsContainer */
-static int hf_cam_roadWorksContainerBasic = -1;   /* RoadWorksContainerBasic */
-static int hf_cam_rescueContainer = -1;           /* RescueContainer */
-static int hf_cam_emergencyContainer = -1;        /* EmergencyContainer */
-static int hf_cam_safetyCarContainer = -1;        /* SafetyCarContainer */
-static int hf_cam_stationType = -1;               /* StationType */
-static int hf_cam_referencePosition = -1;         /* ReferencePosition */
-static int hf_cam_heading = -1;                   /* Heading */
-static int hf_cam_speed = -1;                     /* Speed */
-static int hf_cam_driveDirection = -1;            /* DriveDirection */
-static int hf_cam_vehicleLength = -1;             /* VehicleLength */
-static int hf_cam_vehicleWidth = -1;              /* VehicleWidth */
-static int hf_cam_longitudinalAcceleration = -1;  /* LongitudinalAcceleration */
-static int hf_cam_curvature = -1;                 /* Curvature */
-static int hf_cam_curvatureCalculationMode = -1;  /* CurvatureCalculationMode */
-static int hf_cam_yawRate = -1;                   /* YawRate */
-static int hf_cam_accelerationControl = -1;       /* AccelerationControl */
-static int hf_cam_lanePosition = -1;              /* LanePosition */
-static int hf_cam_steeringWheelAngle = -1;        /* SteeringWheelAngle */
-static int hf_cam_lateralAcceleration = -1;       /* LateralAcceleration */
-static int hf_cam_verticalAcceleration = -1;      /* VerticalAcceleration */
-static int hf_cam_performanceClass = -1;          /* PerformanceClass */
-static int hf_cam_cenDsrcTollingZone = -1;        /* CenDsrcTollingZone */
-static int hf_cam_vehicleRole = -1;               /* VehicleRole */
-static int hf_cam_exteriorLights = -1;            /* ExteriorLights */
-static int hf_cam_pathHistory = -1;               /* PathHistory */
-static int hf_cam_embarkationStatus = -1;         /* EmbarkationStatus */
-static int hf_cam_ptActivation = -1;              /* PtActivation */
-static int hf_cam_specialTransportType = -1;      /* SpecialTransportType */
-static int hf_cam_lightBarSirenInUse = -1;        /* LightBarSirenInUse */
-static int hf_cam_dangerousGoodsBasic = -1;       /* DangerousGoodsBasic */
-static int hf_cam_roadworksSubCauseCode = -1;     /* RoadworksSubCauseCode */
-static int hf_cam_closedLanes = -1;               /* ClosedLanes */
-static int hf_cam_incidentIndication = -1;        /* CauseCode */
-static int hf_cam_emergencyPriority = -1;         /* EmergencyPriority */
-static int hf_cam_trafficRule = -1;               /* TrafficRule */
-static int hf_cam_speedLimit = -1;                /* SpeedLimit */
-static int hf_cam_protectedCommunicationZonesRSU = -1;  /* ProtectedCommunicationZonesRSU */
+static int hf_cam_cam_CoopAwareness_PDU;          /* CoopAwareness */
+static int hf_cam_generationDeltaTime;            /* GenerationDeltaTime */
+static int hf_cam_camParameters;                  /* CamParameters */
+static int hf_cam_basicContainer;                 /* BasicContainer */
+static int hf_cam_highFrequencyContainer;         /* HighFrequencyContainer */
+static int hf_cam_lowFrequencyContainer;          /* LowFrequencyContainer */
+static int hf_cam_specialVehicleContainer;        /* SpecialVehicleContainer */
+static int hf_cam_basicVehicleContainerHighFrequency;  /* BasicVehicleContainerHighFrequency */
+static int hf_cam_rsuContainerHighFrequency;      /* RSUContainerHighFrequency */
+static int hf_cam_basicVehicleContainerLowFrequency;  /* BasicVehicleContainerLowFrequency */
+static int hf_cam_publicTransportContainer;       /* PublicTransportContainer */
+static int hf_cam_specialTransportContainer;      /* SpecialTransportContainer */
+static int hf_cam_dangerousGoodsContainer;        /* DangerousGoodsContainer */
+static int hf_cam_roadWorksContainerBasic;        /* RoadWorksContainerBasic */
+static int hf_cam_rescueContainer;                /* RescueContainer */
+static int hf_cam_emergencyContainer;             /* EmergencyContainer */
+static int hf_cam_safetyCarContainer;             /* SafetyCarContainer */
+static int hf_cam_stationType;                    /* StationType */
+static int hf_cam_referencePosition;              /* ReferencePosition */
+static int hf_cam_heading;                        /* Heading */
+static int hf_cam_speed;                          /* Speed */
+static int hf_cam_driveDirection;                 /* DriveDirection */
+static int hf_cam_vehicleLength;                  /* VehicleLength */
+static int hf_cam_vehicleWidth;                   /* VehicleWidth */
+static int hf_cam_longitudinalAcceleration;       /* LongitudinalAcceleration */
+static int hf_cam_curvature;                      /* Curvature */
+static int hf_cam_curvatureCalculationMode;       /* CurvatureCalculationMode */
+static int hf_cam_yawRate;                        /* YawRate */
+static int hf_cam_accelerationControl;            /* AccelerationControl */
+static int hf_cam_lanePosition;                   /* LanePosition */
+static int hf_cam_steeringWheelAngle;             /* SteeringWheelAngle */
+static int hf_cam_lateralAcceleration;            /* LateralAcceleration */
+static int hf_cam_verticalAcceleration;           /* VerticalAcceleration */
+static int hf_cam_performanceClass;               /* PerformanceClass */
+static int hf_cam_cenDsrcTollingZone;             /* CenDsrcTollingZone */
+static int hf_cam_vehicleRole;                    /* VehicleRole */
+static int hf_cam_exteriorLights;                 /* ExteriorLights */
+static int hf_cam_pathHistory;                    /* PathHistory */
+static int hf_cam_embarkationStatus;              /* EmbarkationStatus */
+static int hf_cam_ptActivation;                   /* PtActivation */
+static int hf_cam_specialTransportType;           /* SpecialTransportType */
+static int hf_cam_lightBarSirenInUse;             /* LightBarSirenInUse */
+static int hf_cam_dangerousGoodsBasic;            /* DangerousGoodsBasic */
+static int hf_cam_roadworksSubCauseCode;          /* RoadworksSubCauseCode */
+static int hf_cam_closedLanes;                    /* ClosedLanes */
+static int hf_cam_incidentIndication;             /* CauseCode */
+static int hf_cam_emergencyPriority;              /* EmergencyPriority */
+static int hf_cam_trafficRule;                    /* TrafficRule */
+static int hf_cam_speedLimit;                     /* SpeedLimit */
+static int hf_cam_protectedCommunicationZonesRSU;  /* ProtectedCommunicationZonesRSU */
 
 /* --- Module DENMv1-PDU-Descriptions --- --- ---                             */
 
-static int hf_denmv1_denmv1_DecentralizedEnvironmentalNotificationMessageV1_PDU = -1;  /* DecentralizedEnvironmentalNotificationMessageV1 */
-static int hf_denmv1_management = -1;             /* ManagementContainer */
-static int hf_denmv1_situation = -1;              /* SituationContainer */
-static int hf_denmv1_location = -1;               /* LocationContainer */
-static int hf_denmv1_alacarte = -1;               /* AlacarteContainer */
-static int hf_denmv1_actionID = -1;               /* ActionID */
-static int hf_denmv1_detectionTime = -1;          /* TimestampIts */
-static int hf_denmv1_referenceTime = -1;          /* TimestampIts */
-static int hf_denmv1_termination = -1;            /* Termination */
-static int hf_denmv1_eventPosition = -1;          /* ReferencePosition */
-static int hf_denmv1_relevanceDistance = -1;      /* RelevanceDistance */
-static int hf_denmv1_relevanceTrafficDirection = -1;  /* RelevanceTrafficDirection */
-static int hf_denmv1_validityDuration = -1;       /* ValidityDuration */
-static int hf_denmv1_transmissionInterval = -1;   /* TransmissionInterval */
-static int hf_denmv1_stationType = -1;            /* StationType */
-static int hf_denmv1_informationQuality = -1;     /* InformationQuality */
-static int hf_denmv1_eventType = -1;              /* CauseCode */
-static int hf_denmv1_linkedCause = -1;            /* CauseCode */
-static int hf_denmv1_eventHistory = -1;           /* EventHistory */
-static int hf_denmv1_eventSpeed = -1;             /* Speed */
-static int hf_denmv1_eventPositionHeading = -1;   /* Heading */
-static int hf_denmv1_traces = -1;                 /* Traces */
-static int hf_denmv1_roadType = -1;               /* RoadType */
-static int hf_denmv1_heightLonCarrLeft = -1;      /* HeightLonCarr */
-static int hf_denmv1_heightLonCarrRight = -1;     /* HeightLonCarr */
-static int hf_denmv1_posLonCarrLeft = -1;         /* PosLonCarr */
-static int hf_denmv1_posLonCarrRight = -1;        /* PosLonCarr */
-static int hf_denmv1_positionOfPillars = -1;      /* PositionOfPillars */
-static int hf_denmv1_posCentMass = -1;            /* PosCentMass */
-static int hf_denmv1_wheelBaseVehicle = -1;       /* WheelBaseVehicle */
-static int hf_denmv1_turningRadius = -1;          /* TurningRadius */
-static int hf_denmv1_posFrontAx = -1;             /* PosFrontAx */
-static int hf_denmv1_positionOfOccupants = -1;    /* PositionOfOccupants */
-static int hf_denmv1_vehicleMass = -1;            /* VehicleMass */
-static int hf_denmv1_requestResponseIndication = -1;  /* RequestResponseIndication */
-static int hf_denmv1_lightBarSirenInUse = -1;     /* LightBarSirenInUse */
-static int hf_denmv1_closedLanes = -1;            /* ClosedLanes */
-static int hf_denmv1_restriction = -1;            /* RestrictedTypes */
-static int hf_denmv1_speedLimit = -1;             /* SpeedLimit */
-static int hf_denmv1_incidentIndication = -1;     /* CauseCode */
-static int hf_denmv1_recommendedPath = -1;        /* ItineraryPath */
-static int hf_denmv1_startingPointSpeedLimit = -1;  /* DeltaReferencePosition */
-static int hf_denmv1_trafficFlowRule = -1;        /* TrafficRule */
-static int hf_denmv1_referenceDenms = -1;         /* ReferenceDenms */
-static int hf_denmv1_stationarySince = -1;        /* StationarySince */
-static int hf_denmv1_stationaryCause = -1;        /* CauseCode */
-static int hf_denmv1_carryingDangerousGoods = -1;  /* DangerousGoodsExtended */
-static int hf_denmv1_numberOfOccupants = -1;      /* NumberOfOccupants */
-static int hf_denmv1_vehicleIdentification = -1;  /* VehicleIdentification */
-static int hf_denmv1_energyStorageType = -1;      /* EnergyStorageType */
-static int hf_denmv1_lanePosition = -1;           /* LanePosition */
-static int hf_denmv1_impactReduction = -1;        /* ImpactReductionContainer */
-static int hf_denmv1_externalTemperature = -1;    /* Temperature */
-static int hf_denmv1_roadWorks = -1;              /* RoadWorksContainerExtended */
-static int hf_denmv1_positioningSolution = -1;    /* PositioningSolutionType */
-static int hf_denmv1_stationaryVehicle = -1;      /* StationaryVehicleContainer */
-static int hf_denmv1_ReferenceDenms_item = -1;    /* ActionID */
+static int hf_denmv1_denmv1_DecentralizedEnvironmentalNotificationMessageV1_PDU;  /* DecentralizedEnvironmentalNotificationMessageV1 */
+static int hf_denmv1_management;                  /* ManagementContainer */
+static int hf_denmv1_situation;                   /* SituationContainer */
+static int hf_denmv1_location;                    /* LocationContainer */
+static int hf_denmv1_alacarte;                    /* AlacarteContainer */
+static int hf_denmv1_actionID;                    /* ActionID */
+static int hf_denmv1_detectionTime;               /* TimestampIts */
+static int hf_denmv1_referenceTime;               /* TimestampIts */
+static int hf_denmv1_termination;                 /* Termination */
+static int hf_denmv1_eventPosition;               /* ReferencePosition */
+static int hf_denmv1_relevanceDistance;           /* RelevanceDistance */
+static int hf_denmv1_relevanceTrafficDirection;   /* RelevanceTrafficDirection */
+static int hf_denmv1_validityDuration;            /* ValidityDuration */
+static int hf_denmv1_transmissionInterval;        /* TransmissionInterval */
+static int hf_denmv1_stationType;                 /* StationType */
+static int hf_denmv1_informationQuality;          /* InformationQuality */
+static int hf_denmv1_eventType;                   /* CauseCode */
+static int hf_denmv1_linkedCause;                 /* CauseCode */
+static int hf_denmv1_eventHistory;                /* EventHistory */
+static int hf_denmv1_eventSpeed;                  /* Speed */
+static int hf_denmv1_eventPositionHeading;        /* Heading */
+static int hf_denmv1_traces;                      /* Traces */
+static int hf_denmv1_roadType;                    /* RoadType */
+static int hf_denmv1_heightLonCarrLeft;           /* HeightLonCarr */
+static int hf_denmv1_heightLonCarrRight;          /* HeightLonCarr */
+static int hf_denmv1_posLonCarrLeft;              /* PosLonCarr */
+static int hf_denmv1_posLonCarrRight;             /* PosLonCarr */
+static int hf_denmv1_positionOfPillars;           /* PositionOfPillars */
+static int hf_denmv1_posCentMass;                 /* PosCentMass */
+static int hf_denmv1_wheelBaseVehicle;            /* WheelBaseVehicle */
+static int hf_denmv1_turningRadius;               /* TurningRadius */
+static int hf_denmv1_posFrontAx;                  /* PosFrontAx */
+static int hf_denmv1_positionOfOccupants;         /* PositionOfOccupants */
+static int hf_denmv1_vehicleMass;                 /* VehicleMass */
+static int hf_denmv1_requestResponseIndication;   /* RequestResponseIndication */
+static int hf_denmv1_lightBarSirenInUse;          /* LightBarSirenInUse */
+static int hf_denmv1_closedLanes;                 /* ClosedLanes */
+static int hf_denmv1_restriction;                 /* RestrictedTypes */
+static int hf_denmv1_speedLimit;                  /* SpeedLimit */
+static int hf_denmv1_incidentIndication;          /* CauseCode */
+static int hf_denmv1_recommendedPath;             /* ItineraryPath */
+static int hf_denmv1_startingPointSpeedLimit;     /* DeltaReferencePosition */
+static int hf_denmv1_trafficFlowRule;             /* TrafficRule */
+static int hf_denmv1_referenceDenms;              /* ReferenceDenms */
+static int hf_denmv1_stationarySince;             /* StationarySince */
+static int hf_denmv1_stationaryCause;             /* CauseCode */
+static int hf_denmv1_carryingDangerousGoods;      /* DangerousGoodsExtended */
+static int hf_denmv1_numberOfOccupants;           /* NumberOfOccupants */
+static int hf_denmv1_vehicleIdentification;       /* VehicleIdentification */
+static int hf_denmv1_energyStorageType;           /* EnergyStorageType */
+static int hf_denmv1_lanePosition;                /* LanePosition */
+static int hf_denmv1_impactReduction;             /* ImpactReductionContainer */
+static int hf_denmv1_externalTemperature;         /* Temperature */
+static int hf_denmv1_roadWorks;                   /* RoadWorksContainerExtended */
+static int hf_denmv1_positioningSolution;         /* PositioningSolutionType */
+static int hf_denmv1_stationaryVehicle;           /* StationaryVehicleContainer */
+static int hf_denmv1_ReferenceDenms_item;         /* ActionID */
 
 /* --- Module DENM-PDU-Description --- --- ---                                */
 
-static int hf_denm_denm_DenmPayload_PDU = -1;     /* DenmPayload */
-static int hf_denm_management = -1;               /* ManagementContainer */
-static int hf_denm_situation = -1;                /* SituationContainer */
-static int hf_denm_location = -1;                 /* LocationContainer */
-static int hf_denm_alacarte = -1;                 /* AlacarteContainer */
-static int hf_denm_actionId = -1;                 /* ActionId */
-static int hf_denm_detectionTime = -1;            /* TimestampIts */
-static int hf_denm_referenceTime = -1;            /* TimestampIts */
-static int hf_denm_termination = -1;              /* Termination */
-static int hf_denm_eventPosition = -1;            /* ReferencePosition */
-static int hf_denm_awarenessDistance = -1;        /* StandardLength3b */
-static int hf_denm_awarenessTrafficDirection = -1;  /* TrafficDirection */
-static int hf_denm_validityDuration = -1;         /* DeltaTimeSecond */
-static int hf_denm_transmissionInterval = -1;     /* DeltaTimeMilliSecondPositive */
-static int hf_denm_stationType = -1;              /* StationType */
-static int hf_denm_informationQuality = -1;       /* InformationQuality */
-static int hf_denm_eventType = -1;                /* CauseCodeV2 */
-static int hf_denm_linkedCause = -1;              /* CauseCodeV2 */
-static int hf_denm_eventZone = -1;                /* EventZone */
-static int hf_denm_eventSpeed = -1;               /* Speed */
-static int hf_denm_eventPositionHeading = -1;     /* Wgs84Angle */
-static int hf_denm_traces = -1;                   /* Traces */
-static int hf_denm_roadType = -1;                 /* RoadType */
-static int hf_denm_heightLonCarrLeft = -1;        /* HeightLonCarr */
-static int hf_denm_heightLonCarrRight = -1;       /* HeightLonCarr */
-static int hf_denm_posLonCarrLeft = -1;           /* PosLonCarr */
-static int hf_denm_posLonCarrRight = -1;          /* PosLonCarr */
-static int hf_denm_positionOfPillars = -1;        /* PositionOfPillars */
-static int hf_denm_posCentMass = -1;              /* PosCentMass */
-static int hf_denm_wheelBaseVehicle = -1;         /* WheelBaseVehicle */
-static int hf_denm_turningRadius = -1;            /* TurningRadius */
-static int hf_denm_posFrontAx = -1;               /* PosFrontAx */
-static int hf_denm_positionOfOccupants = -1;      /* PositionOfOccupants */
-static int hf_denm_vehicleMass = -1;              /* VehicleMass */
-static int hf_denm_requestResponseIndication = -1;  /* RequestResponseIndication */
-static int hf_denm_lightBarSirenInUse = -1;       /* LightBarSirenInUse */
-static int hf_denm_closedLanes = -1;              /* ClosedLanes */
-static int hf_denm_restriction = -1;              /* RestrictedTypes */
-static int hf_denm_speedLimit = -1;               /* SpeedLimit */
-static int hf_denm_incidentIndication = -1;       /* CauseCodeV2 */
-static int hf_denm_recommendedPath = -1;          /* ItineraryPath */
-static int hf_denm_startingPointSpeedLimit = -1;  /* DeltaReferencePosition */
-static int hf_denm_trafficFlowRule = -1;          /* TrafficRule */
-static int hf_denm_referenceDenms = -1;           /* ActionIdList */
-static int hf_denm_stationarySince = -1;          /* StationarySince */
-static int hf_denm_stationaryCause = -1;          /* CauseCodeV2 */
-static int hf_denm_carryingDangerousGoods = -1;   /* DangerousGoodsExtended */
-static int hf_denm_numberOfOccupants = -1;        /* NumberOfOccupants */
-static int hf_denm_vehicleIdentification = -1;    /* VehicleIdentification */
-static int hf_denm_energyStorageType = -1;        /* EnergyStorageType */
-static int hf_denm_lanePosition = -1;             /* LanePosition */
-static int hf_denm_impactReduction = -1;          /* ImpactReductionContainer */
-static int hf_denm_externalTemperature = -1;      /* Temperature */
-static int hf_denm_roadWorks = -1;                /* RoadWorksContainerExtended */
-static int hf_denm_positioningSolution = -1;      /* PositioningSolutionType */
-static int hf_denm_stationaryVehicle = -1;        /* StationaryVehicleContainer */
+static int hf_denm_denm_DenmPayload_PDU;          /* DenmPayload */
+static int hf_denm_management;                    /* ManagementContainer */
+static int hf_denm_situation;                     /* SituationContainer */
+static int hf_denm_location;                      /* LocationContainer */
+static int hf_denm_alacarte;                      /* AlacarteContainer */
+static int hf_denm_actionId;                      /* ActionId */
+static int hf_denm_detectionTime;                 /* TimestampIts */
+static int hf_denm_referenceTime;                 /* TimestampIts */
+static int hf_denm_termination;                   /* Termination */
+static int hf_denm_eventPosition;                 /* ReferencePosition */
+static int hf_denm_awarenessDistance;             /* StandardLength3b */
+static int hf_denm_awarenessTrafficDirection;     /* TrafficDirection */
+static int hf_denm_validityDuration;              /* DeltaTimeSecond */
+static int hf_denm_transmissionInterval;          /* DeltaTimeMilliSecondPositive */
+static int hf_denm_stationType;                   /* StationType */
+static int hf_denm_informationQuality;            /* InformationQuality */
+static int hf_denm_eventType;                     /* CauseCodeV2 */
+static int hf_denm_linkedCause;                   /* CauseCodeV2 */
+static int hf_denm_eventZone;                     /* EventZone */
+static int hf_denm_eventSpeed;                    /* Speed */
+static int hf_denm_eventPositionHeading;          /* Wgs84Angle */
+static int hf_denm_traces;                        /* Traces */
+static int hf_denm_roadType;                      /* RoadType */
+static int hf_denm_heightLonCarrLeft;             /* HeightLonCarr */
+static int hf_denm_heightLonCarrRight;            /* HeightLonCarr */
+static int hf_denm_posLonCarrLeft;                /* PosLonCarr */
+static int hf_denm_posLonCarrRight;               /* PosLonCarr */
+static int hf_denm_positionOfPillars;             /* PositionOfPillars */
+static int hf_denm_posCentMass;                   /* PosCentMass */
+static int hf_denm_wheelBaseVehicle;              /* WheelBaseVehicle */
+static int hf_denm_turningRadius;                 /* TurningRadius */
+static int hf_denm_posFrontAx;                    /* PosFrontAx */
+static int hf_denm_positionOfOccupants;           /* PositionOfOccupants */
+static int hf_denm_vehicleMass;                   /* VehicleMass */
+static int hf_denm_requestResponseIndication;     /* RequestResponseIndication */
+static int hf_denm_lightBarSirenInUse;            /* LightBarSirenInUse */
+static int hf_denm_closedLanes;                   /* ClosedLanes */
+static int hf_denm_restriction;                   /* RestrictedTypes */
+static int hf_denm_speedLimit;                    /* SpeedLimit */
+static int hf_denm_incidentIndication;            /* CauseCodeV2 */
+static int hf_denm_recommendedPath;               /* ItineraryPath */
+static int hf_denm_startingPointSpeedLimit;       /* DeltaReferencePosition */
+static int hf_denm_trafficFlowRule;               /* TrafficRule */
+static int hf_denm_referenceDenms;                /* ActionIdList */
+static int hf_denm_stationarySince;               /* StationarySince */
+static int hf_denm_stationaryCause;               /* CauseCodeV2 */
+static int hf_denm_carryingDangerousGoods;        /* DangerousGoodsExtended */
+static int hf_denm_numberOfOccupants;             /* NumberOfOccupants */
+static int hf_denm_vehicleIdentification;         /* VehicleIdentification */
+static int hf_denm_energyStorageType;             /* EnergyStorageType */
+static int hf_denm_lanePosition;                  /* LanePosition */
+static int hf_denm_impactReduction;               /* ImpactReductionContainer */
+static int hf_denm_externalTemperature;           /* Temperature */
+static int hf_denm_roadWorks;                     /* RoadWorksContainerExtended */
+static int hf_denm_positioningSolution;           /* PositioningSolutionType */
+static int hf_denm_stationaryVehicle;             /* StationaryVehicleContainer */
 
 /* --- Module TIS-TPG-Transactions-Descriptions --- --- ---                   */
 
-static int hf_tistpg_tistpg_TisTpgTransaction_PDU = -1;  /* TisTpgTransaction */
-static int hf_tistpg_drm = -1;                    /* TisTpgDRM */
-static int hf_tistpg_snm = -1;                    /* TisTpgSNM */
-static int hf_tistpg_trm = -1;                    /* TisTpgTRM */
-static int hf_tistpg_tcm = -1;                    /* TisTpgTCM */
-static int hf_tistpg_vdrm = -1;                   /* TisTpgVDRM */
-static int hf_tistpg_vdpm = -1;                   /* TisTpgVDPM */
-static int hf_tistpg_eofm = -1;                   /* TisTpgEOFM */
-static int hf_tistpg_drmManagement = -1;          /* TisTpgDRM_Management */
-static int hf_tistpg_drmSituation = -1;           /* TisTpgDRM_Situation */
-static int hf_tistpg_drmLocation = -1;            /* TisTpgDRM_Location */
-static int hf_tistpg_generationTime = -1;         /* TimestampIts */
-static int hf_tistpg_vehicleType = -1;            /* UNVehicleClassifcation */
-static int hf_tistpg_costumerContract = -1;       /* CustomerContract */
-static int hf_tistpg_tisProfile = -1;             /* TisProfile */
-static int hf_tistpg_causeCode = -1;              /* CauseCode */
-static int hf_tistpg_vehiclePosition = -1;        /* ReferencePosition */
-static int hf_tistpg_vehicleSpeed = -1;           /* Speed */
-static int hf_tistpg_vehicleHeading = -1;         /* Heading */
-static int hf_tistpg_requestedPosition = -1;      /* ReferencePosition */
-static int hf_tistpg_searchRange = -1;            /* SearchRange */
-static int hf_tistpg_searchCondition = -1;        /* SearchCondition */
-static int hf_tistpg_snmManagement = -1;          /* TisTpgSNM_Management */
-static int hf_tistpg_tpgContainer = -1;           /* TpgNotifContainer */
-static int hf_tistpg_totalTpgStations = -1;       /* TotalTpgStations */
-static int hf_tistpg_trmManagement = -1;          /* TisTpgTRM_Management */
-static int hf_tistpg_trmSituation = -1;           /* TisTpgTRM_Situation */
-static int hf_tistpg_trmLocation = -1;            /* TisTpgTRM_Location */
-static int hf_tistpg_tpgStationID = -1;           /* StationID */
-static int hf_tistpg_reservationStatus = -1;      /* ReservationStatus */
-static int hf_tistpg_costumercontract = -1;       /* CustomerContract */
-static int hf_tistpg_reservationID = -1;          /* ReservationID */
-static int hf_tistpg_estArrivalTime = -1;         /* TimestampIts */
-static int hf_tistpg_proposedPairingID = -1;      /* PairingID */
-static int hf_tistpg_tcmManagement = -1;          /* TisTpgTCM_Management */
-static int hf_tistpg_tcmSituation = -1;           /* TisTpgTCM_Situation */
-static int hf_tistpg_tcmLocation = -1;            /* TisTpgTCM_Location */
-static int hf_tistpg_reservedTpg = -1;            /* INTEGER_1_65535 */
-static int hf_tistpg_tpgAutomationLevel = -1;     /* TpgAutomation */
-static int hf_tistpg_pairingID = -1;              /* PairingID */
-static int hf_tistpg_reservationTimeLimit = -1;   /* TimestampIts */
-static int hf_tistpg_cancellationCondition = -1;  /* CancellationCondition */
-static int hf_tistpg_tpgLocation = -1;            /* ReferencePosition */
-static int hf_tistpg_address = -1;                /* UTF8String_SIZE_1_128 */
-static int hf_tistpg_vdrmManagement = -1;         /* TisTpgVDRM_Management */
-static int hf_tistpg_fillingStatus = -1;          /* FillingStatus */
-static int hf_tistpg_automationLevel = -1;        /* TpgAutomation */
-static int hf_tistpg_vdpmManagement = -1;         /* TisTpgVDPM_Management */
-static int hf_tistpg_placardTable = -1;           /* PlacardTable */
-static int hf_tistpg_vehicleSpecificData = -1;    /* VehicleSpecificData */
-static int hf_tistpg_language = -1;               /* Language */
-static int hf_tistpg_tyreTempCondition = -1;      /* TyreTempCondition */
-static int hf_tistpg_currentVehicleConfiguration = -1;  /* PressureConfiguration */
-static int hf_tistpg_frontLeftTyreData = -1;      /* TyreData */
-static int hf_tistpg_frontRightTyreData = -1;     /* TyreData */
-static int hf_tistpg_rearLeftTyreData = -1;       /* TyreData */
-static int hf_tistpg_rearRightTyreData = -1;      /* TyreData */
-static int hf_tistpg_spareTyreData = -1;          /* TyreData */
-static int hf_tistpg_eofmManagement = -1;         /* TisTpgEOFM_Management */
-static int hf_tistpg_numberOfAppliedPressure = -1;  /* NumberOfAppliedPressure */
-static int hf_tistpg_appliedTyrePressures = -1;   /* AppliedTyrePressures */
-static int hf_tistpg_PlacardTable_item = -1;      /* TyreSetVariant */
-static int hf_tistpg_variantID = -1;              /* TyreSetVariantID */
-static int hf_tistpg_frontAxleDimension = -1;     /* TyreSidewallInformation */
-static int hf_tistpg_rearAxleDimension = -1;      /* TyreSidewallInformation */
-static int hf_tistpg_pressureVariantsList = -1;   /* PressureVariantsList */
-static int hf_tistpg_PressureVariantsList_item = -1;  /* PressureVariant */
-static int hf_tistpg_pressureConfiguration = -1;  /* PressureConfiguration */
-static int hf_tistpg_frontAxlePressure = -1;      /* AxlePlacardPressure */
-static int hf_tistpg_rearAxlePressure = -1;       /* AxlePlacardPressure */
-static int hf_tistpg_currentTyrePressure = -1;    /* T_currentTyrePressure */
-static int hf_tistpg_tyrePressureValue = -1;      /* TyrePressure */
-static int hf_tistpg_unavailable = -1;            /* NULL */
-static int hf_tistpg_tyreSidewallInformation = -1;  /* T_tyreSidewallInformation */
-static int hf_tistpg_tyreSidewallInformationValue = -1;  /* TyreSidewallInformation */
-static int hf_tistpg_currentInsideAirTemperature = -1;  /* T_currentInsideAirTemperature */
-static int hf_tistpg_tyreAirTemperatureValue = -1;  /* TyreAirTemperature */
-static int hf_tistpg_recommendedTyrePressure = -1;  /* T_recommendedTyrePressure */
-static int hf_tistpg_axlePlacardPressureValue = -1;  /* AxlePlacardPressure */
-static int hf_tistpg_tin = -1;                    /* T_tin */
-static int hf_tistpg_tinValue = -1;               /* TIN */
-static int hf_tistpg_sensorState = -1;            /* T_sensorState */
-static int hf_tistpg_sensorStateValue = -1;       /* SensorState */
-static int hf_tistpg_tpgNumber = -1;              /* TpgNumber */
-static int hf_tistpg_tpgProvider = -1;            /* TpgProvider */
-static int hf_tistpg_accessibility = -1;          /* Accessibility */
-static int hf_tistpg_phoneNumber = -1;            /* PhoneNumber */
-static int hf_tistpg_digitalMap = -1;             /* DigitalMap */
-static int hf_tistpg_openingDaysHours = -1;       /* OpeningDaysHours */
-static int hf_tistpg_bookingInfo = -1;            /* BookingInfo */
-static int hf_tistpg_availableTpgNumber = -1;     /* AvailableTpgNumber */
-static int hf_tistpg_AppliedTyrePressures_item = -1;  /* AppliedTyrePressure */
-static int hf_tistpg_TpgNotifContainer_item = -1;  /* TpgStationData */
+static int hf_tistpg_tistpg_TisTpgTransaction_PDU;  /* TisTpgTransaction */
+static int hf_tistpg_drm;                         /* TisTpgDRM */
+static int hf_tistpg_snm;                         /* TisTpgSNM */
+static int hf_tistpg_trm;                         /* TisTpgTRM */
+static int hf_tistpg_tcm;                         /* TisTpgTCM */
+static int hf_tistpg_vdrm;                        /* TisTpgVDRM */
+static int hf_tistpg_vdpm;                        /* TisTpgVDPM */
+static int hf_tistpg_eofm;                        /* TisTpgEOFM */
+static int hf_tistpg_drmManagement;               /* TisTpgDRM_Management */
+static int hf_tistpg_drmSituation;                /* TisTpgDRM_Situation */
+static int hf_tistpg_drmLocation;                 /* TisTpgDRM_Location */
+static int hf_tistpg_generationTime;              /* TimestampIts */
+static int hf_tistpg_vehicleType;                 /* UNVehicleClassifcation */
+static int hf_tistpg_costumerContract;            /* CustomerContract */
+static int hf_tistpg_tisProfile;                  /* TisProfile */
+static int hf_tistpg_causeCode;                   /* CauseCode */
+static int hf_tistpg_vehiclePosition;             /* ReferencePosition */
+static int hf_tistpg_vehicleSpeed;                /* Speed */
+static int hf_tistpg_vehicleHeading;              /* Heading */
+static int hf_tistpg_requestedPosition;           /* ReferencePosition */
+static int hf_tistpg_searchRange;                 /* SearchRange */
+static int hf_tistpg_searchCondition;             /* SearchCondition */
+static int hf_tistpg_snmManagement;               /* TisTpgSNM_Management */
+static int hf_tistpg_tpgContainer;                /* TpgNotifContainer */
+static int hf_tistpg_totalTpgStations;            /* TotalTpgStations */
+static int hf_tistpg_trmManagement;               /* TisTpgTRM_Management */
+static int hf_tistpg_trmSituation;                /* TisTpgTRM_Situation */
+static int hf_tistpg_trmLocation;                 /* TisTpgTRM_Location */
+static int hf_tistpg_tpgStationID;                /* StationID */
+static int hf_tistpg_reservationStatus;           /* ReservationStatus */
+static int hf_tistpg_costumercontract;            /* CustomerContract */
+static int hf_tistpg_reservationID;               /* ReservationID */
+static int hf_tistpg_estArrivalTime;              /* TimestampIts */
+static int hf_tistpg_proposedPairingID;           /* PairingID */
+static int hf_tistpg_tcmManagement;               /* TisTpgTCM_Management */
+static int hf_tistpg_tcmSituation;                /* TisTpgTCM_Situation */
+static int hf_tistpg_tcmLocation;                 /* TisTpgTCM_Location */
+static int hf_tistpg_reservedTpg;                 /* INTEGER_1_65535 */
+static int hf_tistpg_tpgAutomationLevel;          /* TpgAutomation */
+static int hf_tistpg_pairingID;                   /* PairingID */
+static int hf_tistpg_reservationTimeLimit;        /* TimestampIts */
+static int hf_tistpg_cancellationCondition;       /* CancellationCondition */
+static int hf_tistpg_tpgLocation;                 /* ReferencePosition */
+static int hf_tistpg_address;                     /* UTF8String_SIZE_1_128 */
+static int hf_tistpg_vdrmManagement;              /* TisTpgVDRM_Management */
+static int hf_tistpg_fillingStatus;               /* FillingStatus */
+static int hf_tistpg_automationLevel;             /* TpgAutomation */
+static int hf_tistpg_vdpmManagement;              /* TisTpgVDPM_Management */
+static int hf_tistpg_placardTable;                /* PlacardTable */
+static int hf_tistpg_vehicleSpecificData;         /* VehicleSpecificData */
+static int hf_tistpg_language;                    /* Language */
+static int hf_tistpg_tyreTempCondition;           /* TyreTempCondition */
+static int hf_tistpg_currentVehicleConfiguration;  /* PressureConfiguration */
+static int hf_tistpg_frontLeftTyreData;           /* TyreData */
+static int hf_tistpg_frontRightTyreData;          /* TyreData */
+static int hf_tistpg_rearLeftTyreData;            /* TyreData */
+static int hf_tistpg_rearRightTyreData;           /* TyreData */
+static int hf_tistpg_spareTyreData;               /* TyreData */
+static int hf_tistpg_eofmManagement;              /* TisTpgEOFM_Management */
+static int hf_tistpg_numberOfAppliedPressure;     /* NumberOfAppliedPressure */
+static int hf_tistpg_appliedTyrePressures;        /* AppliedTyrePressures */
+static int hf_tistpg_PlacardTable_item;           /* TyreSetVariant */
+static int hf_tistpg_variantID;                   /* TyreSetVariantID */
+static int hf_tistpg_frontAxleDimension;          /* TyreSidewallInformation */
+static int hf_tistpg_rearAxleDimension;           /* TyreSidewallInformation */
+static int hf_tistpg_pressureVariantsList;        /* PressureVariantsList */
+static int hf_tistpg_PressureVariantsList_item;   /* PressureVariant */
+static int hf_tistpg_pressureConfiguration;       /* PressureConfiguration */
+static int hf_tistpg_frontAxlePressure;           /* AxlePlacardPressure */
+static int hf_tistpg_rearAxlePressure;            /* AxlePlacardPressure */
+static int hf_tistpg_currentTyrePressure;         /* T_currentTyrePressure */
+static int hf_tistpg_tyrePressureValue;           /* TyrePressure */
+static int hf_tistpg_unavailable;                 /* NULL */
+static int hf_tistpg_tyreSidewallInformation;     /* T_tyreSidewallInformation */
+static int hf_tistpg_tyreSidewallInformationValue;  /* TyreSidewallInformation */
+static int hf_tistpg_currentInsideAirTemperature;  /* T_currentInsideAirTemperature */
+static int hf_tistpg_tyreAirTemperatureValue;     /* TyreAirTemperature */
+static int hf_tistpg_recommendedTyrePressure;     /* T_recommendedTyrePressure */
+static int hf_tistpg_axlePlacardPressureValue;    /* AxlePlacardPressure */
+static int hf_tistpg_tin;                         /* T_tin */
+static int hf_tistpg_tinValue;                    /* TIN */
+static int hf_tistpg_sensorState;                 /* T_sensorState */
+static int hf_tistpg_sensorStateValue;            /* SensorState */
+static int hf_tistpg_tpgNumber;                   /* TpgNumber */
+static int hf_tistpg_tpgProvider;                 /* TpgProvider */
+static int hf_tistpg_accessibility;               /* Accessibility */
+static int hf_tistpg_phoneNumber;                 /* PhoneNumber */
+static int hf_tistpg_digitalMap;                  /* DigitalMap */
+static int hf_tistpg_openingDaysHours;            /* OpeningDaysHours */
+static int hf_tistpg_bookingInfo;                 /* BookingInfo */
+static int hf_tistpg_availableTpgNumber;          /* AvailableTpgNumber */
+static int hf_tistpg_AppliedTyrePressures_item;   /* AppliedTyrePressure */
+static int hf_tistpg_TpgNotifContainer_item;      /* TpgStationData */
 /* named bits */
-static int hf_tistpg_TpgAutomation_fullAutomated = -1;
-static int hf_tistpg_TpgAutomation_semiAutomated = -1;
-static int hf_tistpg_TpgAutomation_manual = -1;
-static int hf_tistpg_TpgAutomation_reserved = -1;
-static int hf_tistpg_TisProfile_reserved = -1;
-static int hf_tistpg_TisProfile_profileOne = -1;
-static int hf_tistpg_TisProfile_profileTwo = -1;
-static int hf_tistpg_TisProfile_profileThree = -1;
+static int hf_tistpg_TpgAutomation_fullAutomated;
+static int hf_tistpg_TpgAutomation_semiAutomated;
+static int hf_tistpg_TpgAutomation_manual;
+static int hf_tistpg_TpgAutomation_reserved;
+static int hf_tistpg_TisProfile_reserved;
+static int hf_tistpg_TisProfile_profileOne;
+static int hf_tistpg_TisProfile_profileTwo;
+static int hf_tistpg_TisProfile_profileThree;
 
 /* --- Module EVCSN-PDU-Descriptions --- --- ---                              */
 
-static int hf_evcsn_evcsn_EVChargingSpotNotificationPOIMessage_PDU = -1;  /* EVChargingSpotNotificationPOIMessage */
-static int hf_evcsn_poiHeader = -1;               /* ItsPOIHeader */
-static int hf_evcsn_evcsnData = -1;               /* ItsEVCSNData */
-static int hf_evcsn_poiType = -1;                 /* POIType */
-static int hf_evcsn_timeStamp = -1;               /* TimestampIts */
-static int hf_evcsn_relayCapable = -1;            /* BOOLEAN */
-static int hf_evcsn_totalNumberOfStations = -1;   /* NumberStations */
-static int hf_evcsn_chargingStationsData = -1;    /* SEQUENCE_SIZE_1_256_OF_ItsChargingStationData */
-static int hf_evcsn_chargingStationsData_item = -1;  /* ItsChargingStationData */
-static int hf_evcsn_chargingStationID = -1;       /* StationID */
-static int hf_evcsn_utilityDistributorId = -1;    /* UTF8String_SIZE_1_32 */
-static int hf_evcsn_providerID = -1;              /* UTF8String_SIZE_1_32 */
-static int hf_evcsn_chargingStationLocation = -1;  /* ReferencePosition */
-static int hf_evcsn_address = -1;                 /* UTF8String */
-static int hf_evcsn_phoneNumber = -1;             /* NumericString_SIZE_1_16 */
-static int hf_evcsn_accessibility = -1;           /* UTF8String_SIZE_1_32 */
-static int hf_evcsn_digitalMap = -1;              /* DigitalMap */
-static int hf_evcsn_openingDaysHours = -1;        /* UTF8String */
-static int hf_evcsn_pricing = -1;                 /* UTF8String */
-static int hf_evcsn_bookingContactInfo = -1;      /* UTF8String */
-static int hf_evcsn_payment = -1;                 /* UTF8String */
-static int hf_evcsn_chargingSpotsAvailable = -1;  /* ItsChargingSpots */
-static int hf_evcsn_ItsChargingSpots_item = -1;   /* ItsChargingSpotDataElements */
-static int hf_evcsn_type = -1;                    /* ChargingSpotType */
-static int hf_evcsn_evEquipmentID = -1;           /* UTF8String */
-static int hf_evcsn_typeOfReceptacle = -1;        /* TypeOfReceptacle */
-static int hf_evcsn_energyAvailability = -1;      /* UTF8String */
-static int hf_evcsn_parkingPlacesData = -1;       /* ParkingPlacesData */
-static int hf_evcsn_ParkingPlacesData_item = -1;  /* SpotAvailability */
-static int hf_evcsn_maxWaitingTimeMinutes = -1;   /* INTEGER_0_1400 */
-static int hf_evcsn_blocking = -1;                /* BOOLEAN */
+static int hf_evcsn_evcsn_EVChargingSpotNotificationPOIMessage_PDU;  /* EVChargingSpotNotificationPOIMessage */
+static int hf_evcsn_poiHeader;                    /* ItsPOIHeader */
+static int hf_evcsn_evcsnData;                    /* ItsEVCSNData */
+static int hf_evcsn_poiType;                      /* POIType */
+static int hf_evcsn_timeStamp;                    /* TimestampIts */
+static int hf_evcsn_relayCapable;                 /* BOOLEAN */
+static int hf_evcsn_totalNumberOfStations;        /* NumberStations */
+static int hf_evcsn_chargingStationsData;         /* SEQUENCE_SIZE_1_256_OF_ItsChargingStationData */
+static int hf_evcsn_chargingStationsData_item;    /* ItsChargingStationData */
+static int hf_evcsn_chargingStationID;            /* StationID */
+static int hf_evcsn_utilityDistributorId;         /* UTF8String_SIZE_1_32 */
+static int hf_evcsn_providerID;                   /* UTF8String_SIZE_1_32 */
+static int hf_evcsn_chargingStationLocation;      /* ReferencePosition */
+static int hf_evcsn_address;                      /* UTF8String */
+static int hf_evcsn_phoneNumber;                  /* NumericString_SIZE_1_16 */
+static int hf_evcsn_accessibility;                /* UTF8String_SIZE_1_32 */
+static int hf_evcsn_digitalMap;                   /* DigitalMap */
+static int hf_evcsn_openingDaysHours;             /* UTF8String */
+static int hf_evcsn_pricing;                      /* UTF8String */
+static int hf_evcsn_bookingContactInfo;           /* UTF8String */
+static int hf_evcsn_payment;                      /* UTF8String */
+static int hf_evcsn_chargingSpotsAvailable;       /* ItsChargingSpots */
+static int hf_evcsn_ItsChargingSpots_item;        /* ItsChargingSpotDataElements */
+static int hf_evcsn_type;                         /* ChargingSpotType */
+static int hf_evcsn_evEquipmentID;                /* UTF8String */
+static int hf_evcsn_typeOfReceptacle;             /* TypeOfReceptacle */
+static int hf_evcsn_energyAvailability;           /* UTF8String */
+static int hf_evcsn_parkingPlacesData;            /* ParkingPlacesData */
+static int hf_evcsn_ParkingPlacesData_item;       /* SpotAvailability */
+static int hf_evcsn_maxWaitingTimeMinutes;        /* INTEGER_0_1400 */
+static int hf_evcsn_blocking;                     /* BOOLEAN */
 /* named bits */
-static int hf_evcsn_ChargingSpotType_standardChargeMode1 = -1;
-static int hf_evcsn_ChargingSpotType_standardChargeMode2 = -1;
-static int hf_evcsn_ChargingSpotType_standardOrFastChargeMode3 = -1;
-static int hf_evcsn_ChargingSpotType_fastChargeWithExternalCharger = -1;
-static int hf_evcsn_ChargingSpotType_spare_bit4 = -1;
-static int hf_evcsn_ChargingSpotType_spare_bit5 = -1;
-static int hf_evcsn_ChargingSpotType_spare_bit6 = -1;
-static int hf_evcsn_ChargingSpotType_spare_bit7 = -1;
-static int hf_evcsn_ChargingSpotType_quickDrop = -1;
-static int hf_evcsn_ChargingSpotType_spare_bit9 = -1;
-static int hf_evcsn_ChargingSpotType_spare_bit10 = -1;
-static int hf_evcsn_ChargingSpotType_spare_bit11 = -1;
-static int hf_evcsn_ChargingSpotType_inductiveChargeWhileStationary = -1;
-static int hf_evcsn_ChargingSpotType_spare_bit13 = -1;
-static int hf_evcsn_ChargingSpotType_inductiveChargeWhileDriving = -1;
+static int hf_evcsn_ChargingSpotType_standardChargeMode1;
+static int hf_evcsn_ChargingSpotType_standardChargeMode2;
+static int hf_evcsn_ChargingSpotType_standardOrFastChargeMode3;
+static int hf_evcsn_ChargingSpotType_fastChargeWithExternalCharger;
+static int hf_evcsn_ChargingSpotType_spare_bit4;
+static int hf_evcsn_ChargingSpotType_spare_bit5;
+static int hf_evcsn_ChargingSpotType_spare_bit6;
+static int hf_evcsn_ChargingSpotType_spare_bit7;
+static int hf_evcsn_ChargingSpotType_quickDrop;
+static int hf_evcsn_ChargingSpotType_spare_bit9;
+static int hf_evcsn_ChargingSpotType_spare_bit10;
+static int hf_evcsn_ChargingSpotType_spare_bit11;
+static int hf_evcsn_ChargingSpotType_inductiveChargeWhileStationary;
+static int hf_evcsn_ChargingSpotType_spare_bit13;
+static int hf_evcsn_ChargingSpotType_inductiveChargeWhileDriving;
 
 /* --- Module EV-RechargingSpotReservation-PDU-Descriptions --- --- ---       */
 
-static int hf_evrsr_evrsr_EV_RSR_MessageBody_PDU = -1;  /* EV_RSR_MessageBody */
-static int hf_evrsr_preReservationRequestMessage = -1;  /* PreReservationRequestMessage */
-static int hf_evrsr_preReservationResponseMessage = -1;  /* PreReservationResponseMessage */
-static int hf_evrsr_reservationRequestMessage = -1;  /* ReservationRequestMessage */
-static int hf_evrsr_reservationResponseMessage = -1;  /* ReservationResponseMessage */
-static int hf_evrsr_cancellationRequestMessage = -1;  /* CancellationRequestMessage */
-static int hf_evrsr_cancellationResponseMessage = -1;  /* CancellationResponseMessage */
-static int hf_evrsr_updateRequestMessage = -1;    /* UpdateRequestMessage */
-static int hf_evrsr_updateResponseMessage = -1;   /* UpdateResponseMessage */
-static int hf_evrsr_evse_ID = -1;                 /* EVSE_ID */
-static int hf_evrsr_arrivalTime = -1;             /* TimestampUTC */
-static int hf_evrsr_departureTime = -1;           /* TimestampUTC */
-static int hf_evrsr_rechargingType = -1;          /* RechargingType */
-static int hf_evrsr_batteryType = -1;             /* BatteryType */
-static int hf_evrsr_preReservation_ID = -1;       /* PreReservation_ID */
-static int hf_evrsr_availabilityStatus = -1;      /* AvailabilityStatus */
-static int hf_evrsr_preReservationExpirationTime = -1;  /* TimestampUTC */
-static int hf_evrsr_supportedPaymentTypes = -1;   /* SupportedPaymentTypes */
-static int hf_evrsr_currentTime = -1;             /* TimestampUTC */
-static int hf_evrsr_eAmount = -1;                 /* EAmount */
-static int hf_evrsr_eAmountMin = -1;              /* EAmount */
-static int hf_evrsr_paymentType = -1;             /* PaymentType */
-static int hf_evrsr_payment_ID = -1;              /* Payment_ID */
-static int hf_evrsr_secondPayment_ID = -1;        /* Payment_ID */
-static int hf_evrsr_pairing_ID = -1;              /* Pairing_ID */
-static int hf_evrsr_reservationResponseCode = -1;  /* ReservationResponseCode */
-static int hf_evrsr_reservation_ID = -1;          /* Reservation_ID */
-static int hf_evrsr_reservation_Password = -1;    /* Reservation_Password */
-static int hf_evrsr_stationDetails = -1;          /* StationDetails */
-static int hf_evrsr_chargingSpotLabel = -1;       /* ChargingSpotLabel */
-static int hf_evrsr_expirationTime = -1;          /* TimestampUTC */
-static int hf_evrsr_freeCancelTimeLimit = -1;     /* TimestampUTC */
-static int hf_evrsr_cancellationResponseCode = -1;  /* CancellationResponseCode */
-static int hf_evrsr_updatedArrivalTime = -1;      /* TimestampUTC */
-static int hf_evrsr_updatedDepartureTime = -1;    /* TimestampUTC */
-static int hf_evrsr_updateResponseCode = -1;      /* UpdateResponseCode */
-static int hf_evrsr_contractID = -1;              /* ContractID */
-static int hf_evrsr_externalIdentificationMeans = -1;  /* ExternalIdentificationMeans */
-static int hf_evrsr_rechargingMode = -1;          /* RechargingMode */
-static int hf_evrsr_powerSource = -1;             /* PowerSource */
+static int hf_evrsr_evrsr_EV_RSR_MessageBody_PDU;  /* EV_RSR_MessageBody */
+static int hf_evrsr_preReservationRequestMessage;  /* PreReservationRequestMessage */
+static int hf_evrsr_preReservationResponseMessage;  /* PreReservationResponseMessage */
+static int hf_evrsr_reservationRequestMessage;    /* ReservationRequestMessage */
+static int hf_evrsr_reservationResponseMessage;   /* ReservationResponseMessage */
+static int hf_evrsr_cancellationRequestMessage;   /* CancellationRequestMessage */
+static int hf_evrsr_cancellationResponseMessage;  /* CancellationResponseMessage */
+static int hf_evrsr_updateRequestMessage;         /* UpdateRequestMessage */
+static int hf_evrsr_updateResponseMessage;        /* UpdateResponseMessage */
+static int hf_evrsr_evse_ID;                      /* EVSE_ID */
+static int hf_evrsr_arrivalTime;                  /* TimestampUTC */
+static int hf_evrsr_departureTime;                /* TimestampUTC */
+static int hf_evrsr_rechargingType;               /* RechargingType */
+static int hf_evrsr_batteryType;                  /* BatteryType */
+static int hf_evrsr_preReservation_ID;            /* PreReservation_ID */
+static int hf_evrsr_availabilityStatus;           /* AvailabilityStatus */
+static int hf_evrsr_preReservationExpirationTime;  /* TimestampUTC */
+static int hf_evrsr_supportedPaymentTypes;        /* SupportedPaymentTypes */
+static int hf_evrsr_currentTime;                  /* TimestampUTC */
+static int hf_evrsr_eAmount;                      /* EAmount */
+static int hf_evrsr_eAmountMin;                   /* EAmount */
+static int hf_evrsr_paymentType;                  /* PaymentType */
+static int hf_evrsr_payment_ID;                   /* Payment_ID */
+static int hf_evrsr_secondPayment_ID;             /* Payment_ID */
+static int hf_evrsr_pairing_ID;                   /* Pairing_ID */
+static int hf_evrsr_reservationResponseCode;      /* ReservationResponseCode */
+static int hf_evrsr_reservation_ID;               /* Reservation_ID */
+static int hf_evrsr_reservation_Password;         /* Reservation_Password */
+static int hf_evrsr_stationDetails;               /* StationDetails */
+static int hf_evrsr_chargingSpotLabel;            /* ChargingSpotLabel */
+static int hf_evrsr_expirationTime;               /* TimestampUTC */
+static int hf_evrsr_freeCancelTimeLimit;          /* TimestampUTC */
+static int hf_evrsr_cancellationResponseCode;     /* CancellationResponseCode */
+static int hf_evrsr_updatedArrivalTime;           /* TimestampUTC */
+static int hf_evrsr_updatedDepartureTime;         /* TimestampUTC */
+static int hf_evrsr_updateResponseCode;           /* UpdateResponseCode */
+static int hf_evrsr_contractID;                   /* ContractID */
+static int hf_evrsr_externalIdentificationMeans;  /* ExternalIdentificationMeans */
+static int hf_evrsr_rechargingMode;               /* RechargingMode */
+static int hf_evrsr_powerSource;                  /* PowerSource */
 /* named bits */
-static int hf_evrsr_SupportedPaymentTypes_contract = -1;
-static int hf_evrsr_SupportedPaymentTypes_externalIdentification = -1;
+static int hf_evrsr_SupportedPaymentTypes_contract;
+static int hf_evrsr_SupportedPaymentTypes_externalIdentification;
 
 /* --- Module CPM-OriginatingStationContainers --- --- ---                    */
 
-static int hf_cpm_cpm_OriginatingVehicleContainer_PDU = -1;  /* OriginatingVehicleContainer */
-static int hf_cpm_cpm_OriginatingRsuContainer_PDU = -1;  /* OriginatingRsuContainer */
-static int hf_cpm_orientationAngle = -1;          /* Wgs84Angle */
-static int hf_cpm_pitchAngle = -1;                /* CartesianAngle */
-static int hf_cpm_rollAngle = -1;                 /* CartesianAngle */
-static int hf_cpm_trailerDataSet = -1;            /* TrailerDataSet */
-static int hf_cpm_mapReference = -1;              /* MapReference */
-static int hf_cpm_TrailerDataSet_item = -1;       /* TrailerData */
+static int hf_cpm_cpm_OriginatingVehicleContainer_PDU;  /* OriginatingVehicleContainer */
+static int hf_cpm_cpm_OriginatingRsuContainer_PDU;  /* OriginatingRsuContainer */
+static int hf_cpm_orientationAngle;               /* Wgs84Angle */
+static int hf_cpm_pitchAngle;                     /* CartesianAngle */
+static int hf_cpm_rollAngle;                      /* CartesianAngle */
+static int hf_cpm_trailerDataSet;                 /* TrailerDataSet */
+static int hf_cpm_mapReference;                   /* MapReference */
+static int hf_cpm_TrailerDataSet_item;            /* TrailerData */
 
 /* --- Module CPM-PDU-Descriptions --- --- ---                                */
 
-static int hf_cpm_cpm_CollectivePerceptionMessage_PDU = -1;  /* CollectivePerceptionMessage */
-static int hf_cpm_header = -1;                    /* ItsPduHeader */
-static int hf_cpm_payload = -1;                   /* CpmPayload */
-static int hf_cpm_managementContainer = -1;       /* ManagementContainer */
-static int hf_cpm_cpmContainers = -1;             /* ConstraintWrappedCpmContainers */
-static int hf_cpm_referenceTime = -1;             /* TimestampIts */
-static int hf_cpm_referencePosition = -1;         /* ReferencePosition */
-static int hf_cpm_segmentationInfo = -1;          /* MessageSegmentationInfo */
-static int hf_cpm_messageRateRange = -1;          /* MessageRateRange */
-static int hf_cpm_containerId = -1;               /* CpmContainerId */
-static int hf_cpm_containerData = -1;             /* T_containerData */
-static int hf_cpm_WrappedCpmContainers_item = -1;  /* WrappedCpmContainer */
-static int hf_cpm_messageRateMin = -1;            /* MessageRateHz */
-static int hf_cpm_messageRateMax = -1;            /* MessageRateHz */
+static int hf_cpm_cpm_CollectivePerceptionMessage_PDU;  /* CollectivePerceptionMessage */
+static int hf_cpm_header;                         /* ItsPduHeader */
+static int hf_cpm_payload;                        /* CpmPayload */
+static int hf_cpm_managementContainer;            /* ManagementContainer */
+static int hf_cpm_cpmContainers;                  /* ConstraintWrappedCpmContainers */
+static int hf_cpm_referenceTime;                  /* TimestampIts */
+static int hf_cpm_referencePosition;              /* ReferencePosition */
+static int hf_cpm_segmentationInfo;               /* MessageSegmentationInfo */
+static int hf_cpm_messageRateRange;               /* MessageRateRange */
+static int hf_cpm_containerId;                    /* CpmContainerId */
+static int hf_cpm_containerData;                  /* T_containerData */
+static int hf_cpm_WrappedCpmContainers_item;      /* WrappedCpmContainer */
+static int hf_cpm_messageRateMin;                 /* MessageRateHz */
+static int hf_cpm_messageRateMax;                 /* MessageRateHz */
 
 /* --- Module CPM-PerceivedObjectContainer --- --- ---                        */
 
-static int hf_cpm_cpm_PerceivedObjectContainer_PDU = -1;  /* PerceivedObjectContainer */
-static int hf_cpm_numberOfPerceivedObjects = -1;  /* CardinalNumber1B */
-static int hf_cpm_perceivedObjects = -1;          /* PerceivedObjects */
-static int hf_cpm_PerceivedObjects_item = -1;     /* PerceivedObject */
+static int hf_cpm_cpm_PerceivedObjectContainer_PDU;  /* PerceivedObjectContainer */
+static int hf_cpm_numberOfPerceivedObjects;       /* CardinalNumber1B */
+static int hf_cpm_perceivedObjects;               /* PerceivedObjects */
+static int hf_cpm_PerceivedObjects_item;          /* PerceivedObject */
 
 /* --- Module CPM-PerceptionRegionContainer --- --- ---                       */
 
-static int hf_cpm_cpm_PerceptionRegionContainer_PDU = -1;  /* PerceptionRegionContainer */
-static int hf_cpm_PerceptionRegionContainer_item = -1;  /* PerceptionRegion */
-static int hf_cpm_measurementDeltaTime = -1;      /* DeltaTimeMilliSecondSigned */
-static int hf_cpm_perceptionRegionPerceptionRegionConfidence = -1;  /* ConfidenceLevel */
-static int hf_cpm_perceptionRegionPerceptionRegionShape = -1;  /* Shape */
-static int hf_cpm_perceptionRegionShadowingApplies = -1;  /* T_PerceptionRegionShadowingApplies */
-static int hf_cpm_sensorIdList = -1;              /* SequenceOfIdentifier1B */
-static int hf_cpm_perceptionRegionNumberOfPerceivedObjects = -1;  /* T_PerceptionRegionNumberOfPerceivedObjects */
-static int hf_cpm_perceivedObjectIds = -1;        /* PerceivedObjectIds */
-static int hf_cpm_PerceivedObjectIds_item = -1;   /* Identifier2B */
+static int hf_cpm_cpm_PerceptionRegionContainer_PDU;  /* PerceptionRegionContainer */
+static int hf_cpm_PerceptionRegionContainer_item;  /* PerceptionRegion */
+static int hf_cpm_measurementDeltaTime;           /* DeltaTimeMilliSecondSigned */
+static int hf_cpm_perceptionRegionPerceptionRegionConfidence;  /* ConfidenceLevel */
+static int hf_cpm_perceptionRegionPerceptionRegionShape;  /* Shape */
+static int hf_cpm_perceptionRegionShadowingApplies;  /* T_PerceptionRegionShadowingApplies */
+static int hf_cpm_sensorIdList;                   /* SequenceOfIdentifier1B */
+static int hf_cpm_perceptionRegionNumberOfPerceivedObjects;  /* T_PerceptionRegionNumberOfPerceivedObjects */
+static int hf_cpm_perceivedObjectIds;             /* PerceivedObjectIds */
+static int hf_cpm_PerceivedObjectIds_item;        /* Identifier2B */
 
 /* --- Module CPM-SensorInformationContainer --- --- ---                      */
 
-static int hf_cpm_cpm_SensorInformationContainer_PDU = -1;  /* SensorInformationContainer */
-static int hf_cpm_SensorInformationContainer_item = -1;  /* SensorInformation */
-static int hf_cpm_sensorId = -1;                  /* Identifier1B */
-static int hf_cpm_sensorType = -1;                /* SensorType */
-static int hf_cpm_perceptionRegionShape = -1;     /* Shape */
-static int hf_cpm_perceptionRegionConfidence = -1;  /* ConfidenceLevel */
-static int hf_cpm_shadowingApplies = -1;          /* BOOLEAN */
+static int hf_cpm_cpm_SensorInformationContainer_PDU;  /* SensorInformationContainer */
+static int hf_cpm_SensorInformationContainer_item;  /* SensorInformation */
+static int hf_cpm_sensorId;                       /* Identifier1B */
+static int hf_cpm_sensorType;                     /* SensorType */
+static int hf_cpm_perceptionRegionShape;          /* Shape */
+static int hf_cpm_perceptionRegionConfidence;     /* ConfidenceLevel */
+static int hf_cpm_shadowingApplies;               /* BOOLEAN */
 
 /* --- Module VAM-PDU-Descriptions --- --- ---                                */
 
-static int hf_vam_vam_VruAwareness_PDU = -1;      /* VruAwareness */
-static int hf_vam_generationDeltaTime = -1;       /* GenerationDeltaTime */
-static int hf_vam_vamParameters = -1;             /* VamParameters */
-static int hf_vam_basicContainer = -1;            /* BasicContainer */
-static int hf_vam_vruHighFrequencyContainer = -1;  /* VruHighFrequencyContainer */
-static int hf_vam_vruLowFrequencyContainer = -1;  /* VruLowFrequencyContainer */
-static int hf_vam_vruClusterInformationContainer = -1;  /* VruClusterInformationContainer */
-static int hf_vam_vruClusterOperationContainer = -1;  /* VruClusterOperationContainer */
-static int hf_vam_vruMotionPredictionContainer = -1;  /* VruMotionPredictionContainer */
-static int hf_vam_heading = -1;                   /* Wgs84Angle */
-static int hf_vam_speed = -1;                     /* Speed */
-static int hf_vam_longitudinalAcceleration = -1;  /* LongitudinalAcceleration */
-static int hf_vam_curvature = -1;                 /* Curvature */
-static int hf_vam_curvatureCalculationMode = -1;  /* CurvatureCalculationMode */
-static int hf_vam_yawRate = -1;                   /* YawRate */
-static int hf_vam_lateralAcceleration = -1;       /* LateralAcceleration */
-static int hf_vam_verticalAcceleration = -1;      /* VerticalAcceleration */
-static int hf_vam_vruLanePosition = -1;           /* GeneralizedLanePosition */
-static int hf_vam_environment = -1;               /* VruEnvironment */
-static int hf_vam_movementControl = -1;           /* VruMovementControl */
-static int hf_vam_orientation = -1;               /* Wgs84Angle */
-static int hf_vam_rollAngle = -1;                 /* CartesianAngle */
-static int hf_vam_deviceUsage = -1;               /* VruDeviceUsage */
-static int hf_vam_profileAndSubprofile = -1;      /* VruProfileAndSubprofile */
-static int hf_vam_sizeClass = -1;                 /* VruSizeClass */
-static int hf_vam_exteriorLights = -1;            /* VruExteriorLights */
-static int hf_vam_vruClusterInformation = -1;     /* VruClusterInformation */
-static int hf_vam_clusterJoinInfo = -1;           /* ClusterJoinInfo */
-static int hf_vam_clusterLeaveInfo = -1;          /* ClusterLeaveInfo */
-static int hf_vam_clusterBreakupInfo = -1;        /* ClusterBreakupInfo */
-static int hf_vam_clusterIdChangeTimeInfo = -1;   /* DeltaTimeQuarterSecond */
-static int hf_vam_pathHistory = -1;               /* PathHistory */
-static int hf_vam_pathPrediction = -1;            /* PathPredicted */
-static int hf_vam_safeDistance = -1;              /* SequenceOfSafeDistanceIndication */
-static int hf_vam_trajectoryInterceptionIndication = -1;  /* SequenceOfTrajectoryInterceptionIndication */
-static int hf_vam_accelerationChangeIndication = -1;  /* AccelerationChangeIndication */
-static int hf_vam_headingChangeIndication = -1;   /* HeadingChangeIndication */
-static int hf_vam_stabilityChangeIndication = -1;  /* StabilityChangeIndication */
+static int hf_vam_vam_VruAwareness_PDU;           /* VruAwareness */
+static int hf_vam_generationDeltaTime;            /* GenerationDeltaTime */
+static int hf_vam_vamParameters;                  /* VamParameters */
+static int hf_vam_basicContainer;                 /* BasicContainer */
+static int hf_vam_vruHighFrequencyContainer;      /* VruHighFrequencyContainer */
+static int hf_vam_vruLowFrequencyContainer;       /* VruLowFrequencyContainer */
+static int hf_vam_vruClusterInformationContainer;  /* VruClusterInformationContainer */
+static int hf_vam_vruClusterOperationContainer;   /* VruClusterOperationContainer */
+static int hf_vam_vruMotionPredictionContainer;   /* VruMotionPredictionContainer */
+static int hf_vam_heading;                        /* Wgs84Angle */
+static int hf_vam_speed;                          /* Speed */
+static int hf_vam_longitudinalAcceleration;       /* LongitudinalAcceleration */
+static int hf_vam_curvature;                      /* Curvature */
+static int hf_vam_curvatureCalculationMode;       /* CurvatureCalculationMode */
+static int hf_vam_yawRate;                        /* YawRate */
+static int hf_vam_lateralAcceleration;            /* LateralAcceleration */
+static int hf_vam_verticalAcceleration;           /* VerticalAcceleration */
+static int hf_vam_vruLanePosition;                /* GeneralizedLanePosition */
+static int hf_vam_environment;                    /* VruEnvironment */
+static int hf_vam_movementControl;                /* VruMovementControl */
+static int hf_vam_orientation;                    /* Wgs84Angle */
+static int hf_vam_rollAngle;                      /* CartesianAngle */
+static int hf_vam_deviceUsage;                    /* VruDeviceUsage */
+static int hf_vam_profileAndSubprofile;           /* VruProfileAndSubprofile */
+static int hf_vam_sizeClass;                      /* VruSizeClass */
+static int hf_vam_exteriorLights;                 /* VruExteriorLights */
+static int hf_vam_vruClusterInformation;          /* VruClusterInformation */
+static int hf_vam_clusterJoinInfo;                /* ClusterJoinInfo */
+static int hf_vam_clusterLeaveInfo;               /* ClusterLeaveInfo */
+static int hf_vam_clusterBreakupInfo;             /* ClusterBreakupInfo */
+static int hf_vam_clusterIdChangeTimeInfo;        /* DeltaTimeQuarterSecond */
+static int hf_vam_pathHistory;                    /* PathHistory */
+static int hf_vam_pathPrediction;                 /* PathPredicted */
+static int hf_vam_safeDistance;                   /* SequenceOfSafeDistanceIndication */
+static int hf_vam_trajectoryInterceptionIndication;  /* SequenceOfTrajectoryInterceptionIndication */
+static int hf_vam_accelerationChangeIndication;   /* AccelerationChangeIndication */
+static int hf_vam_headingChangeIndication;        /* HeadingChangeIndication */
+static int hf_vam_stabilityChangeIndication;      /* StabilityChangeIndication */
 
 /* --- Module IMZM-PDU-Descriptions --- --- ---                               */
 
-static int hf_imzm_imzm_InterferenceManagementZoneMessage_PDU = -1;  /* InterferenceManagementZoneMessage */
-static int hf_imzm_generationDeltaTime = -1;      /* GenerationDeltaTime */
-static int hf_imzm_imzmParameters = -1;           /* ImzmParameters */
-static int hf_imzm_basicContainer = -1;           /* BasicContainer */
-static int hf_imzm_imzmContainer = -1;            /* ImzmContainer */
-static int hf_imzm_interferenceManagementZones = -1;  /* InterferenceManagementZones */
+static int hf_imzm_imzm_InterferenceManagementZoneMessage_PDU;  /* InterferenceManagementZoneMessage */
+static int hf_imzm_generationDeltaTime;           /* GenerationDeltaTime */
+static int hf_imzm_imzmParameters;                /* ImzmParameters */
+static int hf_imzm_basicContainer;                /* BasicContainer */
+static int hf_imzm_imzmContainer;                 /* ImzmContainer */
+static int hf_imzm_interferenceManagementZones;   /* InterferenceManagementZones */
 
-static gint ett_its = -1;
+static gint ett_its;
 
 
 /* --- Module ETSI-ITS-CDD --- --- ---                                        */
 
-static gint ett_its_AccelerationControl = -1;
-static gint ett_its_EmergencyPriority = -1;
-static gint ett_its_EnergyStorageType = -1;
-static gint ett_its_ExteriorLights = -1;
-static gint ett_its_LightBarSirenInUse = -1;
-static gint ett_its_MatrixIncludedComponents = -1;
-static gint ett_its_PositionOfOccupants = -1;
-static gint ett_its_SpecialTransportType = -1;
-static gint ett_its_VruClusterProfiles = -1;
-static gint ett_its_VruSpecificExteriorLights = -1;
-static gint ett_its_Acceleration3dWithConfidence = -1;
-static gint ett_its_AccelerationPolarWithZ = -1;
-static gint ett_its_AccelerationCartesian = -1;
-static gint ett_its_AccelerationComponent = -1;
-static gint ett_its_AccelerationChangeIndication = -1;
-static gint ett_its_AccelerationMagnitude = -1;
-static gint ett_its_ActionId = -1;
-static gint ett_its_ActionID = -1;
-static gint ett_its_ActionIdList = -1;
-static gint ett_its_Altitude = -1;
-static gint ett_its_BasicContainer = -1;
-static gint ett_its_CartesianAngle = -1;
-static gint ett_its_CartesianAngularVelocityComponent = -1;
-static gint ett_its_CartesianCoordinateWithConfidence = -1;
-static gint ett_its_CartesianPosition3d = -1;
-static gint ett_its_CartesianPosition3dWithConfidence = -1;
-static gint ett_its_CauseCode = -1;
-static gint ett_its_CauseCodeChoice = -1;
-static gint ett_its_CauseCodeV2 = -1;
-static gint ett_its_CenDsrcTollingZone = -1;
-static gint ett_its_CircularShape = -1;
-static gint ett_its_ClosedLanes = -1;
-static gint ett_its_ClusterBreakupInfo = -1;
-static gint ett_its_ClusterJoinInfo = -1;
-static gint ett_its_ClusterLeaveInfo = -1;
-static gint ett_its_CorrelationColumn = -1;
-static gint ett_its_Curvature = -1;
-static gint ett_its_DangerousGoodsExtended = -1;
-static gint ett_its_DeltaReferencePosition = -1;
-static gint ett_its_DigitalMap = -1;
-static gint ett_its_EllipticalShape = -1;
-static gint ett_its_EulerAnglesWithConfidence = -1;
-static gint ett_its_EuVehicleCategoryCode = -1;
-static gint ett_its_EventHistory = -1;
-static gint ett_its_EventPoint = -1;
-static gint ett_its_GeneralizedLanePosition = -1;
-static gint ett_its_Heading = -1;
-static gint ett_its_HeadingChangeIndication = -1;
-static gint ett_its_InterferenceManagementChannel = -1;
-static gint ett_its_InterferenceManagementZone = -1;
-static gint ett_its_InterferenceManagementZoneDefinition = -1;
-static gint ett_its_InterferenceManagementInfo = -1;
-static gint ett_its_InterferenceManagementInfoPerChannel = -1;
-static gint ett_its_InterferenceManagementZones = -1;
-static gint ett_its_IntersectionReferenceId = -1;
-static gint ett_its_ItineraryPath = -1;
-static gint ett_its_ItsPduHeader = -1;
-static gint ett_its_LanePositionAndType = -1;
-static gint ett_its_LateralAcceleration = -1;
-static gint ett_its_LongitudinalAcceleration = -1;
-static gint ett_its_LongitudinalLanePosition = -1;
-static gint ett_its_LowerTriangularPositiveSemidefiniteMatrices = -1;
-static gint ett_its_LowerTriangularPositiveSemidefiniteMatrix = -1;
-static gint ett_its_LowerTriangularPositiveSemidefiniteMatrixColumns = -1;
-static gint ett_its_MapPosition = -1;
-static gint ett_its_MapReference = -1;
-static gint ett_its_MessageRateHz = -1;
-static gint ett_its_MessageSegmentationInfo = -1;
-static gint ett_its_MitigationForTechnologies = -1;
-static gint ett_its_MitigationPerTechnologyClass = -1;
-static gint ett_its_ObjectClass = -1;
-static gint ett_its_ObjectClassDescription = -1;
-static gint ett_its_ObjectClassWithConfidence = -1;
-static gint ett_its_ObjectDimension = -1;
-static gint ett_its_Path = -1;
-static gint ett_its_PathHistory = -1;
-static gint ett_its_PathPredicted = -1;
-static gint ett_its_PathPoint = -1;
-static gint ett_its_PathPointPredicted = -1;
-static gint ett_its_PerceivedObject = -1;
-static gint ett_its_PolygonalShape = -1;
-static gint ett_its_PosConfidenceEllipse = -1;
-static gint ett_its_PositionConfidenceEllipse = -1;
-static gint ett_its_PositionOfPillars = -1;
-static gint ett_its_ProtectedCommunicationZone = -1;
-static gint ett_its_ProtectedCommunicationZonesRSU = -1;
-static gint ett_its_PtActivation = -1;
-static gint ett_its_RadialShape = -1;
-static gint ett_its_RadialShapes = -1;
-static gint ett_its_RadialShapesList = -1;
-static gint ett_its_RadialShapeDetails = -1;
-static gint ett_its_RectangularShape = -1;
-static gint ett_its_ReferencePosition = -1;
-static gint ett_its_ReferencePositionWithConfidence = -1;
-static gint ett_its_RestrictedTypes = -1;
-static gint ett_its_RoadSegmentReferenceId = -1;
-static gint ett_its_SafeDistanceIndication = -1;
-static gint ett_its_SequenceOfCartesianPosition3d = -1;
-static gint ett_its_SequenceOfIdentifier1B = -1;
-static gint ett_its_SequenceOfSafeDistanceIndication = -1;
-static gint ett_its_SequenceOfTrajectoryInterceptionIndication = -1;
-static gint ett_its_Shape = -1;
-static gint ett_its_Speed = -1;
-static gint ett_its_StabilityChangeIndication = -1;
-static gint ett_its_SteeringWheelAngle = -1;
-static gint ett_its_Traces = -1;
-static gint ett_its_TrafficIslandPosition = -1;
-static gint ett_its_TrailerData = -1;
-static gint ett_its_TrajectoryInterceptionIndication = -1;
-static gint ett_its_VarLengthNumber = -1;
-static gint ett_its_Ext1 = -1;
-static gint ett_its_Ext2 = -1;
-static gint ett_its_VerticalAcceleration = -1;
-static gint ett_its_VehicleIdentification = -1;
-static gint ett_its_VehicleLength = -1;
-static gint ett_its_Velocity3dWithConfidence = -1;
-static gint ett_its_VelocityCartesian = -1;
-static gint ett_its_VelocityComponent = -1;
-static gint ett_its_VelocityPolarWithZ = -1;
-static gint ett_its_VruClusterInformation = -1;
-static gint ett_its_VruExteriorLights = -1;
-static gint ett_its_VruProfileAndSubprofile = -1;
-static gint ett_its_Wgs84Angle = -1;
-static gint ett_its_YawRate = -1;
+static gint ett_its_AccelerationControl;
+static gint ett_its_EmergencyPriority;
+static gint ett_its_EnergyStorageType;
+static gint ett_its_ExteriorLights;
+static gint ett_its_LightBarSirenInUse;
+static gint ett_its_MatrixIncludedComponents;
+static gint ett_its_PositionOfOccupants;
+static gint ett_its_SpecialTransportType;
+static gint ett_its_VruClusterProfiles;
+static gint ett_its_VruSpecificExteriorLights;
+static gint ett_its_Acceleration3dWithConfidence;
+static gint ett_its_AccelerationPolarWithZ;
+static gint ett_its_AccelerationCartesian;
+static gint ett_its_AccelerationComponent;
+static gint ett_its_AccelerationChangeIndication;
+static gint ett_its_AccelerationMagnitude;
+static gint ett_its_ActionId;
+static gint ett_its_ActionID;
+static gint ett_its_ActionIdList;
+static gint ett_its_Altitude;
+static gint ett_its_BasicContainer;
+static gint ett_its_CartesianAngle;
+static gint ett_its_CartesianAngularVelocityComponent;
+static gint ett_its_CartesianCoordinateWithConfidence;
+static gint ett_its_CartesianPosition3d;
+static gint ett_its_CartesianPosition3dWithConfidence;
+static gint ett_its_CauseCode;
+static gint ett_its_CauseCodeChoice;
+static gint ett_its_CauseCodeV2;
+static gint ett_its_CenDsrcTollingZone;
+static gint ett_its_CircularShape;
+static gint ett_its_ClosedLanes;
+static gint ett_its_ClusterBreakupInfo;
+static gint ett_its_ClusterJoinInfo;
+static gint ett_its_ClusterLeaveInfo;
+static gint ett_its_CorrelationColumn;
+static gint ett_its_Curvature;
+static gint ett_its_DangerousGoodsExtended;
+static gint ett_its_DeltaReferencePosition;
+static gint ett_its_DigitalMap;
+static gint ett_its_EllipticalShape;
+static gint ett_its_EulerAnglesWithConfidence;
+static gint ett_its_EuVehicleCategoryCode;
+static gint ett_its_EventHistory;
+static gint ett_its_EventPoint;
+static gint ett_its_GeneralizedLanePosition;
+static gint ett_its_Heading;
+static gint ett_its_HeadingChangeIndication;
+static gint ett_its_InterferenceManagementChannel;
+static gint ett_its_InterferenceManagementZone;
+static gint ett_its_InterferenceManagementZoneDefinition;
+static gint ett_its_InterferenceManagementInfo;
+static gint ett_its_InterferenceManagementInfoPerChannel;
+static gint ett_its_InterferenceManagementZones;
+static gint ett_its_IntersectionReferenceId;
+static gint ett_its_ItineraryPath;
+static gint ett_its_ItsPduHeader;
+static gint ett_its_LanePositionAndType;
+static gint ett_its_LateralAcceleration;
+static gint ett_its_LongitudinalAcceleration;
+static gint ett_its_LongitudinalLanePosition;
+static gint ett_its_LowerTriangularPositiveSemidefiniteMatrices;
+static gint ett_its_LowerTriangularPositiveSemidefiniteMatrix;
+static gint ett_its_LowerTriangularPositiveSemidefiniteMatrixColumns;
+static gint ett_its_MapPosition;
+static gint ett_its_MapReference;
+static gint ett_its_MessageRateHz;
+static gint ett_its_MessageSegmentationInfo;
+static gint ett_its_MitigationForTechnologies;
+static gint ett_its_MitigationPerTechnologyClass;
+static gint ett_its_ObjectClass;
+static gint ett_its_ObjectClassDescription;
+static gint ett_its_ObjectClassWithConfidence;
+static gint ett_its_ObjectDimension;
+static gint ett_its_Path;
+static gint ett_its_PathHistory;
+static gint ett_its_PathPredicted;
+static gint ett_its_PathPoint;
+static gint ett_its_PathPointPredicted;
+static gint ett_its_PerceivedObject;
+static gint ett_its_PolygonalShape;
+static gint ett_its_PosConfidenceEllipse;
+static gint ett_its_PositionConfidenceEllipse;
+static gint ett_its_PositionOfPillars;
+static gint ett_its_ProtectedCommunicationZone;
+static gint ett_its_ProtectedCommunicationZonesRSU;
+static gint ett_its_PtActivation;
+static gint ett_its_RadialShape;
+static gint ett_its_RadialShapes;
+static gint ett_its_RadialShapesList;
+static gint ett_its_RadialShapeDetails;
+static gint ett_its_RectangularShape;
+static gint ett_its_ReferencePosition;
+static gint ett_its_ReferencePositionWithConfidence;
+static gint ett_its_RestrictedTypes;
+static gint ett_its_RoadSegmentReferenceId;
+static gint ett_its_SafeDistanceIndication;
+static gint ett_its_SequenceOfCartesianPosition3d;
+static gint ett_its_SequenceOfIdentifier1B;
+static gint ett_its_SequenceOfSafeDistanceIndication;
+static gint ett_its_SequenceOfTrajectoryInterceptionIndication;
+static gint ett_its_Shape;
+static gint ett_its_Speed;
+static gint ett_its_StabilityChangeIndication;
+static gint ett_its_SteeringWheelAngle;
+static gint ett_its_Traces;
+static gint ett_its_TrafficIslandPosition;
+static gint ett_its_TrailerData;
+static gint ett_its_TrajectoryInterceptionIndication;
+static gint ett_its_VarLengthNumber;
+static gint ett_its_Ext1;
+static gint ett_its_Ext2;
+static gint ett_its_VerticalAcceleration;
+static gint ett_its_VehicleIdentification;
+static gint ett_its_VehicleLength;
+static gint ett_its_Velocity3dWithConfidence;
+static gint ett_its_VelocityCartesian;
+static gint ett_its_VelocityComponent;
+static gint ett_its_VelocityPolarWithZ;
+static gint ett_its_VruClusterInformation;
+static gint ett_its_VruExteriorLights;
+static gint ett_its_VruProfileAndSubprofile;
+static gint ett_its_Wgs84Angle;
+static gint ett_its_YawRate;
 
 /* --- Module ITS-ContainerV1 --- --- ---                                     */
 
-static gint ett_itsv1_ReferencePosition = -1;
-static gint ett_itsv1_DeltaReferencePosition = -1;
-static gint ett_itsv1_Altitude = -1;
-static gint ett_itsv1_PosConfidenceEllipse = -1;
-static gint ett_itsv1_PathPoint = -1;
-static gint ett_itsv1_PtActivation = -1;
-static gint ett_itsv1_AccelerationControl = -1;
-static gint ett_itsv1_CauseCode = -1;
-static gint ett_itsv1_Curvature = -1;
-static gint ett_itsv1_Heading = -1;
-static gint ett_itsv1_ClosedLanes = -1;
-static gint ett_itsv1_DrivingLaneStatus = -1;
-static gint ett_itsv1_Speed = -1;
-static gint ett_itsv1_LongitudinalAcceleration = -1;
-static gint ett_itsv1_LateralAcceleration = -1;
-static gint ett_itsv1_VerticalAcceleration = -1;
-static gint ett_itsv1_ExteriorLights = -1;
-static gint ett_itsv1_DangerousGoodsExtended = -1;
-static gint ett_itsv1_SpecialTransportType = -1;
-static gint ett_itsv1_LightBarSirenInUse = -1;
-static gint ett_itsv1_PositionOfOccupants = -1;
-static gint ett_itsv1_VehicleIdentification = -1;
-static gint ett_itsv1_EnergyStorageType = -1;
-static gint ett_itsv1_VehicleLength = -1;
-static gint ett_itsv1_PathHistory = -1;
-static gint ett_itsv1_EmergencyPriority = -1;
-static gint ett_itsv1_SteeringWheelAngle = -1;
-static gint ett_itsv1_YawRate = -1;
-static gint ett_itsv1_ActionID = -1;
-static gint ett_itsv1_ItineraryPath = -1;
-static gint ett_itsv1_ProtectedCommunicationZone = -1;
-static gint ett_itsv1_Traces = -1;
-static gint ett_itsv1_PositionOfPillars = -1;
-static gint ett_itsv1_RestrictedTypes = -1;
-static gint ett_itsv1_EventHistory = -1;
-static gint ett_itsv1_EventPoint = -1;
-static gint ett_itsv1_ProtectedCommunicationZonesRSU = -1;
-static gint ett_itsv1_CenDsrcTollingZone = -1;
+static gint ett_itsv1_ReferencePosition;
+static gint ett_itsv1_DeltaReferencePosition;
+static gint ett_itsv1_Altitude;
+static gint ett_itsv1_PosConfidenceEllipse;
+static gint ett_itsv1_PathPoint;
+static gint ett_itsv1_PtActivation;
+static gint ett_itsv1_AccelerationControl;
+static gint ett_itsv1_CauseCode;
+static gint ett_itsv1_Curvature;
+static gint ett_itsv1_Heading;
+static gint ett_itsv1_ClosedLanes;
+static gint ett_itsv1_DrivingLaneStatus;
+static gint ett_itsv1_Speed;
+static gint ett_itsv1_LongitudinalAcceleration;
+static gint ett_itsv1_LateralAcceleration;
+static gint ett_itsv1_VerticalAcceleration;
+static gint ett_itsv1_ExteriorLights;
+static gint ett_itsv1_DangerousGoodsExtended;
+static gint ett_itsv1_SpecialTransportType;
+static gint ett_itsv1_LightBarSirenInUse;
+static gint ett_itsv1_PositionOfOccupants;
+static gint ett_itsv1_VehicleIdentification;
+static gint ett_itsv1_EnergyStorageType;
+static gint ett_itsv1_VehicleLength;
+static gint ett_itsv1_PathHistory;
+static gint ett_itsv1_EmergencyPriority;
+static gint ett_itsv1_SteeringWheelAngle;
+static gint ett_itsv1_YawRate;
+static gint ett_itsv1_ActionID;
+static gint ett_itsv1_ItineraryPath;
+static gint ett_itsv1_ProtectedCommunicationZone;
+static gint ett_itsv1_Traces;
+static gint ett_itsv1_PositionOfPillars;
+static gint ett_itsv1_RestrictedTypes;
+static gint ett_itsv1_EventHistory;
+static gint ett_itsv1_EventPoint;
+static gint ett_itsv1_ProtectedCommunicationZonesRSU;
+static gint ett_itsv1_CenDsrcTollingZone;
 
 /* --- Module AVIAEINumberingAndDataStructures --- --- ---                    */
 
 
 /* --- Module EfcDsrcApplication --- --- ---                                  */
 
-static gint ett_dsrc_app_AxleWeightLimits = -1;
-static gint ett_dsrc_app_DieselEmissionValues = -1;
-static gint ett_dsrc_app_T_particulate = -1;
-static gint ett_dsrc_app_EnvironmentalCharacteristics = -1;
-static gint ett_dsrc_app_ExhaustEmissionValues = -1;
-static gint ett_dsrc_app_PassengerCapacity = -1;
-static gint ett_dsrc_app_Provider = -1;
-static gint ett_dsrc_app_SoundLevel = -1;
-static gint ett_dsrc_app_VehicleDimensions = -1;
-static gint ett_dsrc_app_VehicleWeightLimits = -1;
+static gint ett_dsrc_app_AxleWeightLimits;
+static gint ett_dsrc_app_DieselEmissionValues;
+static gint ett_dsrc_app_T_particulate;
+static gint ett_dsrc_app_EnvironmentalCharacteristics;
+static gint ett_dsrc_app_ExhaustEmissionValues;
+static gint ett_dsrc_app_PassengerCapacity;
+static gint ett_dsrc_app_Provider;
+static gint ett_dsrc_app_SoundLevel;
+static gint ett_dsrc_app_VehicleDimensions;
+static gint ett_dsrc_app_VehicleWeightLimits;
 
 /* --- Module DSRC --- --- ---                                                */
 
-static gint ett_dsrc_RegionalExtension = -1;
-static gint ett_dsrc_MapData = -1;
-static gint ett_dsrc_T_MAPRegional = -1;
-static gint ett_dsrc_RTCMcorrections = -1;
-static gint ett_dsrc_SEQUENCE_SIZE_1_4_OF_RegionalExtension = -1;
-static gint ett_dsrc_SPAT = -1;
-static gint ett_dsrc_T_SPATRegional = -1;
-static gint ett_dsrc_SignalRequestMessage = -1;
-static gint ett_dsrc_T_SRMRegional = -1;
-static gint ett_dsrc_SignalStatusMessage = -1;
-static gint ett_dsrc_T_SSMRegional = -1;
-static gint ett_dsrc_AdvisorySpeed = -1;
-static gint ett_dsrc_T_AdvisorySpeedRegional = -1;
-static gint ett_dsrc_AdvisorySpeedList = -1;
-static gint ett_dsrc_AntennaOffsetSet = -1;
-static gint ett_dsrc_ComputedLane = -1;
-static gint ett_dsrc_T_offsetXaxis = -1;
-static gint ett_dsrc_T_offsetYaxis = -1;
-static gint ett_dsrc_T_ComputedLaneRegional = -1;
-static gint ett_dsrc_ConnectsToList = -1;
-static gint ett_dsrc_ConnectingLane = -1;
-static gint ett_dsrc_Connection = -1;
-static gint ett_dsrc_ConnectionManeuverAssist = -1;
-static gint ett_dsrc_T_ConnectionManeuverAssistRegional = -1;
-static gint ett_dsrc_DataParameters = -1;
-static gint ett_dsrc_DDateTime = -1;
-static gint ett_dsrc_EnabledLaneList = -1;
-static gint ett_dsrc_FullPositionVector = -1;
-static gint ett_dsrc_GenericLane = -1;
-static gint ett_dsrc_T_GenericLaneRegional = -1;
-static gint ett_dsrc_IntersectionAccessPoint = -1;
-static gint ett_dsrc_IntersectionGeometry = -1;
-static gint ett_dsrc_T_IntersectionGeometryRegional = -1;
-static gint ett_dsrc_IntersectionGeometryList = -1;
-static gint ett_dsrc_IntersectionReferenceID = -1;
-static gint ett_dsrc_IntersectionState = -1;
-static gint ett_dsrc_T_IntersectionStateRegional = -1;
-static gint ett_dsrc_IntersectionStateList = -1;
-static gint ett_dsrc_LaneAttributes = -1;
-static gint ett_dsrc_LaneDataAttribute = -1;
-static gint ett_dsrc_T_LaneDataAttributeRegional = -1;
-static gint ett_dsrc_LaneDataAttributeList = -1;
-static gint ett_dsrc_LaneList = -1;
-static gint ett_dsrc_LaneSharing = -1;
-static gint ett_dsrc_LaneTypeAttributes = -1;
-static gint ett_dsrc_ManeuverAssistList = -1;
-static gint ett_dsrc_MovementEvent = -1;
-static gint ett_dsrc_T_MovementEventRegional = -1;
-static gint ett_dsrc_MovementEventList = -1;
-static gint ett_dsrc_MovementList = -1;
-static gint ett_dsrc_MovementState = -1;
-static gint ett_dsrc_T_MovementStateRegional = -1;
-static gint ett_dsrc_NodeAttributeSetXY = -1;
-static gint ett_dsrc_T_NodeAttributeSetXYRegional = -1;
-static gint ett_dsrc_NodeAttributeXYList = -1;
-static gint ett_dsrc_Node_LLmD_64b = -1;
-static gint ett_dsrc_Node_XY_20b = -1;
-static gint ett_dsrc_Node_XY_22b = -1;
-static gint ett_dsrc_Node_XY_24b = -1;
-static gint ett_dsrc_Node_XY_26b = -1;
-static gint ett_dsrc_Node_XY_28b = -1;
-static gint ett_dsrc_Node_XY_32b = -1;
-static gint ett_dsrc_NodeListXY = -1;
-static gint ett_dsrc_NodeOffsetPointXY = -1;
-static gint ett_dsrc_NodeXY = -1;
-static gint ett_dsrc_NodeSetXY = -1;
-static gint ett_dsrc_OverlayLaneList = -1;
-static gint ett_dsrc_PositionalAccuracy = -1;
-static gint ett_dsrc_PositionConfidenceSet = -1;
-static gint ett_dsrc_Position3D = -1;
-static gint ett_dsrc_T_Position3DRegional = -1;
-static gint ett_dsrc_PreemptPriorityList = -1;
-static gint ett_dsrc_RegulatorySpeedLimit = -1;
-static gint ett_dsrc_RequestorDescription = -1;
-static gint ett_dsrc_T_RequestorDescriptionRegional = -1;
-static gint ett_dsrc_RequestorPositionVector = -1;
-static gint ett_dsrc_RequestorType = -1;
-static gint ett_dsrc_RestrictionClassAssignment = -1;
-static gint ett_dsrc_RestrictionClassList = -1;
-static gint ett_dsrc_RestrictionUserType = -1;
-static gint ett_dsrc_T_RestrictionUserTypeRegional = -1;
-static gint ett_dsrc_RestrictionUserTypeList = -1;
-static gint ett_dsrc_RoadLaneSetList = -1;
-static gint ett_dsrc_RoadSegmentReferenceID = -1;
-static gint ett_dsrc_RoadSegment = -1;
-static gint ett_dsrc_T_RoadSegmentRegional = -1;
-static gint ett_dsrc_RoadSegmentList = -1;
-static gint ett_dsrc_RTCMheader = -1;
-static gint ett_dsrc_RTCMmessageList = -1;
-static gint ett_dsrc_SegmentAttributeXYList = -1;
-static gint ett_dsrc_SignalControlZone = -1;
-static gint ett_dsrc_SignalRequesterInfo = -1;
-static gint ett_dsrc_SignalRequest = -1;
-static gint ett_dsrc_T_SignalRequestRegional = -1;
-static gint ett_dsrc_SignalRequestList = -1;
-static gint ett_dsrc_SignalRequestPackage = -1;
-static gint ett_dsrc_T_SignalRequestPackageRegional = -1;
-static gint ett_dsrc_SignalStatus = -1;
-static gint ett_dsrc_T_SignalStatusRegional = -1;
-static gint ett_dsrc_SignalStatusList = -1;
-static gint ett_dsrc_SignalStatusPackageList = -1;
-static gint ett_dsrc_SignalStatusPackage = -1;
-static gint ett_dsrc_T_SignalStatusPackageRegional = -1;
-static gint ett_dsrc_SpeedandHeadingandThrottleConfidence = -1;
-static gint ett_dsrc_SpeedLimitList = -1;
-static gint ett_dsrc_TimeChangeDetails = -1;
-static gint ett_dsrc_TransmissionAndSpeed = -1;
-static gint ett_dsrc_VehicleID = -1;
-static gint ett_dsrc_AllowedManeuvers = -1;
-static gint ett_dsrc_GNSSstatus = -1;
-static gint ett_dsrc_IntersectionStatusObject = -1;
-static gint ett_dsrc_LaneAttributes_Barrier = -1;
-static gint ett_dsrc_LaneAttributes_Bike = -1;
-static gint ett_dsrc_LaneAttributes_Crosswalk = -1;
-static gint ett_dsrc_LaneAttributes_Parking = -1;
-static gint ett_dsrc_LaneAttributes_Sidewalk = -1;
-static gint ett_dsrc_LaneAttributes_Striping = -1;
-static gint ett_dsrc_LaneAttributes_TrackedVehicle = -1;
-static gint ett_dsrc_LaneAttributes_Vehicle = -1;
-static gint ett_dsrc_LaneDirection = -1;
-static gint ett_dsrc_TransitVehicleStatus = -1;
+static gint ett_dsrc_RegionalExtension;
+static gint ett_dsrc_MapData;
+static gint ett_dsrc_T_MAPRegional;
+static gint ett_dsrc_RTCMcorrections;
+static gint ett_dsrc_SEQUENCE_SIZE_1_4_OF_RegionalExtension;
+static gint ett_dsrc_SPAT;
+static gint ett_dsrc_T_SPATRegional;
+static gint ett_dsrc_SignalRequestMessage;
+static gint ett_dsrc_T_SRMRegional;
+static gint ett_dsrc_SignalStatusMessage;
+static gint ett_dsrc_T_SSMRegional;
+static gint ett_dsrc_AdvisorySpeed;
+static gint ett_dsrc_T_AdvisorySpeedRegional;
+static gint ett_dsrc_AdvisorySpeedList;
+static gint ett_dsrc_AntennaOffsetSet;
+static gint ett_dsrc_ComputedLane;
+static gint ett_dsrc_T_offsetXaxis;
+static gint ett_dsrc_T_offsetYaxis;
+static gint ett_dsrc_T_ComputedLaneRegional;
+static gint ett_dsrc_ConnectsToList;
+static gint ett_dsrc_ConnectingLane;
+static gint ett_dsrc_Connection;
+static gint ett_dsrc_ConnectionManeuverAssist;
+static gint ett_dsrc_T_ConnectionManeuverAssistRegional;
+static gint ett_dsrc_DataParameters;
+static gint ett_dsrc_DDateTime;
+static gint ett_dsrc_EnabledLaneList;
+static gint ett_dsrc_FullPositionVector;
+static gint ett_dsrc_GenericLane;
+static gint ett_dsrc_T_GenericLaneRegional;
+static gint ett_dsrc_IntersectionAccessPoint;
+static gint ett_dsrc_IntersectionGeometry;
+static gint ett_dsrc_T_IntersectionGeometryRegional;
+static gint ett_dsrc_IntersectionGeometryList;
+static gint ett_dsrc_IntersectionReferenceID;
+static gint ett_dsrc_IntersectionState;
+static gint ett_dsrc_T_IntersectionStateRegional;
+static gint ett_dsrc_IntersectionStateList;
+static gint ett_dsrc_LaneAttributes;
+static gint ett_dsrc_LaneDataAttribute;
+static gint ett_dsrc_T_LaneDataAttributeRegional;
+static gint ett_dsrc_LaneDataAttributeList;
+static gint ett_dsrc_LaneList;
+static gint ett_dsrc_LaneSharing;
+static gint ett_dsrc_LaneTypeAttributes;
+static gint ett_dsrc_ManeuverAssistList;
+static gint ett_dsrc_MovementEvent;
+static gint ett_dsrc_T_MovementEventRegional;
+static gint ett_dsrc_MovementEventList;
+static gint ett_dsrc_MovementList;
+static gint ett_dsrc_MovementState;
+static gint ett_dsrc_T_MovementStateRegional;
+static gint ett_dsrc_NodeAttributeSetXY;
+static gint ett_dsrc_T_NodeAttributeSetXYRegional;
+static gint ett_dsrc_NodeAttributeXYList;
+static gint ett_dsrc_Node_LLmD_64b;
+static gint ett_dsrc_Node_XY_20b;
+static gint ett_dsrc_Node_XY_22b;
+static gint ett_dsrc_Node_XY_24b;
+static gint ett_dsrc_Node_XY_26b;
+static gint ett_dsrc_Node_XY_28b;
+static gint ett_dsrc_Node_XY_32b;
+static gint ett_dsrc_NodeListXY;
+static gint ett_dsrc_NodeOffsetPointXY;
+static gint ett_dsrc_NodeXY;
+static gint ett_dsrc_NodeSetXY;
+static gint ett_dsrc_OverlayLaneList;
+static gint ett_dsrc_PositionalAccuracy;
+static gint ett_dsrc_PositionConfidenceSet;
+static gint ett_dsrc_Position3D;
+static gint ett_dsrc_T_Position3DRegional;
+static gint ett_dsrc_PreemptPriorityList;
+static gint ett_dsrc_RegulatorySpeedLimit;
+static gint ett_dsrc_RequestorDescription;
+static gint ett_dsrc_T_RequestorDescriptionRegional;
+static gint ett_dsrc_RequestorPositionVector;
+static gint ett_dsrc_RequestorType;
+static gint ett_dsrc_RestrictionClassAssignment;
+static gint ett_dsrc_RestrictionClassList;
+static gint ett_dsrc_RestrictionUserType;
+static gint ett_dsrc_T_RestrictionUserTypeRegional;
+static gint ett_dsrc_RestrictionUserTypeList;
+static gint ett_dsrc_RoadLaneSetList;
+static gint ett_dsrc_RoadSegmentReferenceID;
+static gint ett_dsrc_RoadSegment;
+static gint ett_dsrc_T_RoadSegmentRegional;
+static gint ett_dsrc_RoadSegmentList;
+static gint ett_dsrc_RTCMheader;
+static gint ett_dsrc_RTCMmessageList;
+static gint ett_dsrc_SegmentAttributeXYList;
+static gint ett_dsrc_SignalControlZone;
+static gint ett_dsrc_SignalRequesterInfo;
+static gint ett_dsrc_SignalRequest;
+static gint ett_dsrc_T_SignalRequestRegional;
+static gint ett_dsrc_SignalRequestList;
+static gint ett_dsrc_SignalRequestPackage;
+static gint ett_dsrc_T_SignalRequestPackageRegional;
+static gint ett_dsrc_SignalStatus;
+static gint ett_dsrc_T_SignalStatusRegional;
+static gint ett_dsrc_SignalStatusList;
+static gint ett_dsrc_SignalStatusPackageList;
+static gint ett_dsrc_SignalStatusPackage;
+static gint ett_dsrc_T_SignalStatusPackageRegional;
+static gint ett_dsrc_SpeedandHeadingandThrottleConfidence;
+static gint ett_dsrc_SpeedLimitList;
+static gint ett_dsrc_TimeChangeDetails;
+static gint ett_dsrc_TransmissionAndSpeed;
+static gint ett_dsrc_VehicleID;
+static gint ett_dsrc_AllowedManeuvers;
+static gint ett_dsrc_GNSSstatus;
+static gint ett_dsrc_IntersectionStatusObject;
+static gint ett_dsrc_LaneAttributes_Barrier;
+static gint ett_dsrc_LaneAttributes_Bike;
+static gint ett_dsrc_LaneAttributes_Crosswalk;
+static gint ett_dsrc_LaneAttributes_Parking;
+static gint ett_dsrc_LaneAttributes_Sidewalk;
+static gint ett_dsrc_LaneAttributes_Striping;
+static gint ett_dsrc_LaneAttributes_TrackedVehicle;
+static gint ett_dsrc_LaneAttributes_Vehicle;
+static gint ett_dsrc_LaneDirection;
+static gint ett_dsrc_TransitVehicleStatus;
 
 /* --- Module AddGrpC --- --- ---                                             */
 
-static gint ett_AddGrpC_ConnectionManeuverAssist_addGrpC = -1;
-static gint ett_AddGrpC_ConnectionTrajectory_addGrpC = -1;
-static gint ett_AddGrpC_IntersectionState_addGrpC = -1;
-static gint ett_AddGrpC_LaneAttributes_addGrpC = -1;
-static gint ett_AddGrpC_MapData_addGrpC = -1;
-static gint ett_AddGrpC_MovementEvent_addGrpC = -1;
-static gint ett_AddGrpC_NodeAttributeSet_addGrpC = -1;
-static gint ett_AddGrpC_Position3D_addGrpC = -1;
-static gint ett_AddGrpC_RestrictionUserType_addGrpC = -1;
-static gint ett_AddGrpC_RequestorDescription_addGrpC = -1;
-static gint ett_AddGrpC_SignalStatusPackage_addGrpC = -1;
-static gint ett_AddGrpC_ItsStationPosition = -1;
-static gint ett_AddGrpC_ItsStationPositionList = -1;
-static gint ett_AddGrpC_Node = -1;
-static gint ett_AddGrpC_NodeLink = -1;
-static gint ett_AddGrpC_PrioritizationResponse = -1;
-static gint ett_AddGrpC_PrioritizationResponseList = -1;
-static gint ett_AddGrpC_SignalHeadLocation = -1;
-static gint ett_AddGrpC_SignalHeadLocationList = -1;
+static gint ett_AddGrpC_ConnectionManeuverAssist_addGrpC;
+static gint ett_AddGrpC_ConnectionTrajectory_addGrpC;
+static gint ett_AddGrpC_IntersectionState_addGrpC;
+static gint ett_AddGrpC_LaneAttributes_addGrpC;
+static gint ett_AddGrpC_MapData_addGrpC;
+static gint ett_AddGrpC_MovementEvent_addGrpC;
+static gint ett_AddGrpC_NodeAttributeSet_addGrpC;
+static gint ett_AddGrpC_Position3D_addGrpC;
+static gint ett_AddGrpC_RestrictionUserType_addGrpC;
+static gint ett_AddGrpC_RequestorDescription_addGrpC;
+static gint ett_AddGrpC_SignalStatusPackage_addGrpC;
+static gint ett_AddGrpC_ItsStationPosition;
+static gint ett_AddGrpC_ItsStationPositionList;
+static gint ett_AddGrpC_Node;
+static gint ett_AddGrpC_NodeLink;
+static gint ett_AddGrpC_PrioritizationResponse;
+static gint ett_AddGrpC_PrioritizationResponseList;
+static gint ett_AddGrpC_SignalHeadLocation;
+static gint ett_AddGrpC_SignalHeadLocationList;
 
 /* --- Module REGION --- --- ---                                              */
 
 
 /* --- Module GDD --- --- ---                                                 */
 
-static gint ett_gdd_GddStructure = -1;
-static gint ett_gdd_Pictogram = -1;
-static gint ett_gdd_Pictogram_serviceCategory = -1;
-static gint ett_gdd_Pictogram_category = -1;
-static gint ett_gdd_GddAttributes = -1;
-static gint ett_gdd_GddAttributes_item = -1;
-static gint ett_gdd_InternationalSign_applicablePeriod = -1;
-static gint ett_gdd_T_year = -1;
-static gint ett_gdd_T_month_day = -1;
-static gint ett_gdd_T_hourMinutes = -1;
-static gint ett_gdd_MonthDay = -1;
-static gint ett_gdd_HoursMinutes = -1;
-static gint ett_gdd_RPDT = -1;
-static gint ett_gdd_DayOfWeek = -1;
-static gint ett_gdd_InternationalSign_section = -1;
-static gint ett_gdd_InternationalSign_applicableVehicleDimensions = -1;
-static gint ett_gdd_Distance = -1;
-static gint ett_gdd_Weight = -1;
-static gint ett_gdd_InternationalSign_speedLimits = -1;
-static gint ett_gdd_InternationalSign_destinationInformation = -1;
-static gint ett_gdd_SEQUENCE_SIZE_1_8__OF_DestinationInformationIO = -1;
-static gint ett_gdd_DestinationInformationIO = -1;
-static gint ett_gdd_SEQUENCE_SIZE_1_4__OF_DestinationPlace = -1;
-static gint ett_gdd_SEQUENCE_SIZE_1_4__OF_DestinationRoad = -1;
-static gint ett_gdd_DestinationPlace = -1;
-static gint ett_gdd_DestinationRoad = -1;
-static gint ett_gdd_DistanceOrDuration = -1;
+static gint ett_gdd_GddStructure;
+static gint ett_gdd_Pictogram;
+static gint ett_gdd_Pictogram_serviceCategory;
+static gint ett_gdd_Pictogram_category;
+static gint ett_gdd_GddAttributes;
+static gint ett_gdd_GddAttributes_item;
+static gint ett_gdd_InternationalSign_applicablePeriod;
+static gint ett_gdd_T_year;
+static gint ett_gdd_T_month_day;
+static gint ett_gdd_T_hourMinutes;
+static gint ett_gdd_MonthDay;
+static gint ett_gdd_HoursMinutes;
+static gint ett_gdd_RPDT;
+static gint ett_gdd_DayOfWeek;
+static gint ett_gdd_InternationalSign_section;
+static gint ett_gdd_InternationalSign_applicableVehicleDimensions;
+static gint ett_gdd_Distance;
+static gint ett_gdd_Weight;
+static gint ett_gdd_InternationalSign_speedLimits;
+static gint ett_gdd_InternationalSign_destinationInformation;
+static gint ett_gdd_SEQUENCE_SIZE_1_8__OF_DestinationInformationIO;
+static gint ett_gdd_DestinationInformationIO;
+static gint ett_gdd_SEQUENCE_SIZE_1_4__OF_DestinationPlace;
+static gint ett_gdd_SEQUENCE_SIZE_1_4__OF_DestinationRoad;
+static gint ett_gdd_DestinationPlace;
+static gint ett_gdd_DestinationRoad;
+static gint ett_gdd_DistanceOrDuration;
 
 /* --- Module IVI --- --- ---                                                 */
 
-static gint ett_ivi_IviStructure = -1;
-static gint ett_ivi_IviContainers = -1;
-static gint ett_ivi_IviContainer = -1;
-static gint ett_ivi_IviManagementContainer = -1;
-static gint ett_ivi_GeographicLocationContainer = -1;
-static gint ett_ivi_GlcParts = -1;
-static gint ett_ivi_GlcPart = -1;
-static gint ett_ivi_GeneralIviContainer = -1;
-static gint ett_ivi_GicPart = -1;
-static gint ett_ivi_RoadConfigurationContainer = -1;
-static gint ett_ivi_RccPart = -1;
-static gint ett_ivi_RoadSurfaceContainer = -1;
-static gint ett_ivi_RscPart = -1;
-static gint ett_ivi_TextContainer = -1;
-static gint ett_ivi_TcPart = -1;
-static gint ett_ivi_LayoutContainer = -1;
-static gint ett_ivi_AutomatedVehicleContainer = -1;
-static gint ett_ivi_AvcPart = -1;
-static gint ett_ivi_MapLocationContainer = -1;
-static gint ett_ivi_MlcParts = -1;
-static gint ett_ivi_MlcPart = -1;
-static gint ett_ivi_AbsolutePositions = -1;
-static gint ett_ivi_AbsolutePositionsWAltitude = -1;
-static gint ett_ivi_AutomatedVehicleRules = -1;
-static gint ett_ivi_ConnectedDenms = -1;
-static gint ett_ivi_DeltaPositions = -1;
-static gint ett_ivi_DeltaReferencePositions = -1;
-static gint ett_ivi_ConstraintTextLines1 = -1;
-static gint ett_ivi_ConstraintTextLines2 = -1;
-static gint ett_ivi_IviIdentificationNumbers = -1;
-static gint ett_ivi_ISO14823Attributes = -1;
-static gint ett_ivi_LaneConfiguration = -1;
-static gint ett_ivi_LaneIds = -1;
-static gint ett_ivi_LanePositions = -1;
-static gint ett_ivi_LayoutComponents = -1;
-static gint ett_ivi_PlatooningRules = -1;
-static gint ett_ivi_RoadSignCodes = -1;
-static gint ett_ivi_TextLines = -1;
-static gint ett_ivi_TrailerCharacteristicsList = -1;
-static gint ett_ivi_TrailerCharacteristicsFixValuesList = -1;
-static gint ett_ivi_TrailerCharacteristicsRangesList = -1;
-static gint ett_ivi_SaeAutomationLevels = -1;
-static gint ett_ivi_VehicleCharacteristicsFixValuesList = -1;
-static gint ett_ivi_VehicleCharacteristicsList = -1;
-static gint ett_ivi_VehicleCharacteristicsRangesList = -1;
-static gint ett_ivi_ValidityPeriods = -1;
-static gint ett_ivi_ZoneIds = -1;
-static gint ett_ivi_AbsolutePosition = -1;
-static gint ett_ivi_AbsolutePositionWAltitude = -1;
-static gint ett_ivi_AnyCatalogue = -1;
-static gint ett_ivi_AutomatedVehicleRule = -1;
-static gint ett_ivi_CompleteVehicleCharacteristics = -1;
-static gint ett_ivi_ComputedSegment = -1;
-static gint ett_ivi_DeltaPosition = -1;
-static gint ett_ivi_ISO14823Attribute = -1;
-static gint ett_ivi_ISO14823Code = -1;
-static gint ett_ivi_T_icPictogramCode = -1;
-static gint ett_ivi_T_serviceCategoryCode = -1;
-static gint ett_ivi_T_pictogramCategoryCode = -1;
-static gint ett_ivi_LaneInformation = -1;
-static gint ett_ivi_LaneCharacteristics = -1;
-static gint ett_ivi_LayoutComponent = -1;
-static gint ett_ivi_LoadType = -1;
-static gint ett_ivi_MapReference = -1;
-static gint ett_ivi_PlatooningRule = -1;
-static gint ett_ivi_PolygonalLine = -1;
-static gint ett_ivi_RoadSurfaceDynamicCharacteristics = -1;
-static gint ett_ivi_RoadSurfaceStaticCharacteristics = -1;
-static gint ett_ivi_RSCode = -1;
-static gint ett_ivi_T_code = -1;
-static gint ett_ivi_Segment = -1;
-static gint ett_ivi_Text = -1;
-static gint ett_ivi_TractorCharacteristics = -1;
-static gint ett_ivi_TrailerCharacteristics = -1;
-static gint ett_ivi_VcCode = -1;
-static gint ett_ivi_VehicleCharacteristicsFixValues = -1;
-static gint ett_ivi_VehicleCharacteristicsRanges = -1;
-static gint ett_ivi_T_limits = -1;
-static gint ett_ivi_Zone = -1;
+static gint ett_ivi_IviStructure;
+static gint ett_ivi_IviContainers;
+static gint ett_ivi_IviContainer;
+static gint ett_ivi_IviManagementContainer;
+static gint ett_ivi_GeographicLocationContainer;
+static gint ett_ivi_GlcParts;
+static gint ett_ivi_GlcPart;
+static gint ett_ivi_GeneralIviContainer;
+static gint ett_ivi_GicPart;
+static gint ett_ivi_RoadConfigurationContainer;
+static gint ett_ivi_RccPart;
+static gint ett_ivi_RoadSurfaceContainer;
+static gint ett_ivi_RscPart;
+static gint ett_ivi_TextContainer;
+static gint ett_ivi_TcPart;
+static gint ett_ivi_LayoutContainer;
+static gint ett_ivi_AutomatedVehicleContainer;
+static gint ett_ivi_AvcPart;
+static gint ett_ivi_MapLocationContainer;
+static gint ett_ivi_MlcParts;
+static gint ett_ivi_MlcPart;
+static gint ett_ivi_AbsolutePositions;
+static gint ett_ivi_AbsolutePositionsWAltitude;
+static gint ett_ivi_AutomatedVehicleRules;
+static gint ett_ivi_ConnectedDenms;
+static gint ett_ivi_DeltaPositions;
+static gint ett_ivi_DeltaReferencePositions;
+static gint ett_ivi_ConstraintTextLines1;
+static gint ett_ivi_ConstraintTextLines2;
+static gint ett_ivi_IviIdentificationNumbers;
+static gint ett_ivi_ISO14823Attributes;
+static gint ett_ivi_LaneConfiguration;
+static gint ett_ivi_LaneIds;
+static gint ett_ivi_LanePositions;
+static gint ett_ivi_LayoutComponents;
+static gint ett_ivi_PlatooningRules;
+static gint ett_ivi_RoadSignCodes;
+static gint ett_ivi_TextLines;
+static gint ett_ivi_TrailerCharacteristicsList;
+static gint ett_ivi_TrailerCharacteristicsFixValuesList;
+static gint ett_ivi_TrailerCharacteristicsRangesList;
+static gint ett_ivi_SaeAutomationLevels;
+static gint ett_ivi_VehicleCharacteristicsFixValuesList;
+static gint ett_ivi_VehicleCharacteristicsList;
+static gint ett_ivi_VehicleCharacteristicsRangesList;
+static gint ett_ivi_ValidityPeriods;
+static gint ett_ivi_ZoneIds;
+static gint ett_ivi_AbsolutePosition;
+static gint ett_ivi_AbsolutePositionWAltitude;
+static gint ett_ivi_AnyCatalogue;
+static gint ett_ivi_AutomatedVehicleRule;
+static gint ett_ivi_CompleteVehicleCharacteristics;
+static gint ett_ivi_ComputedSegment;
+static gint ett_ivi_DeltaPosition;
+static gint ett_ivi_ISO14823Attribute;
+static gint ett_ivi_ISO14823Code;
+static gint ett_ivi_T_icPictogramCode;
+static gint ett_ivi_T_serviceCategoryCode;
+static gint ett_ivi_T_pictogramCategoryCode;
+static gint ett_ivi_LaneInformation;
+static gint ett_ivi_LaneCharacteristics;
+static gint ett_ivi_LayoutComponent;
+static gint ett_ivi_LoadType;
+static gint ett_ivi_MapReference;
+static gint ett_ivi_PlatooningRule;
+static gint ett_ivi_PolygonalLine;
+static gint ett_ivi_RoadSurfaceDynamicCharacteristics;
+static gint ett_ivi_RoadSurfaceStaticCharacteristics;
+static gint ett_ivi_RSCode;
+static gint ett_ivi_T_code;
+static gint ett_ivi_Segment;
+static gint ett_ivi_Text;
+static gint ett_ivi_TractorCharacteristics;
+static gint ett_ivi_TrailerCharacteristics;
+static gint ett_ivi_VcCode;
+static gint ett_ivi_VehicleCharacteristicsFixValues;
+static gint ett_ivi_VehicleCharacteristicsRanges;
+static gint ett_ivi_T_limits;
+static gint ett_ivi_Zone;
 
 /* --- Module SPATEM-PDU-Descriptions --- --- ---                             */
 
@@ -2698,181 +2698,181 @@ static gint ett_ivi_Zone = -1;
 
 /* --- Module CAMv1-PDU-Descriptions --- --- ---                              */
 
-static gint ett_camv1_CoopAwarenessV1 = -1;
-static gint ett_camv1_CamParameters = -1;
-static gint ett_camv1_HighFrequencyContainer = -1;
-static gint ett_camv1_LowFrequencyContainer = -1;
-static gint ett_camv1_SpecialVehicleContainer = -1;
-static gint ett_camv1_BasicContainer = -1;
-static gint ett_camv1_BasicVehicleContainerHighFrequency = -1;
-static gint ett_camv1_BasicVehicleContainerLowFrequency = -1;
-static gint ett_camv1_PublicTransportContainer = -1;
-static gint ett_camv1_SpecialTransportContainer = -1;
-static gint ett_camv1_DangerousGoodsContainer = -1;
-static gint ett_camv1_RoadWorksContainerBasic = -1;
-static gint ett_camv1_RescueContainer = -1;
-static gint ett_camv1_EmergencyContainer = -1;
-static gint ett_camv1_SafetyCarContainer = -1;
-static gint ett_camv1_RSUContainerHighFrequency = -1;
+static gint ett_camv1_CoopAwarenessV1;
+static gint ett_camv1_CamParameters;
+static gint ett_camv1_HighFrequencyContainer;
+static gint ett_camv1_LowFrequencyContainer;
+static gint ett_camv1_SpecialVehicleContainer;
+static gint ett_camv1_BasicContainer;
+static gint ett_camv1_BasicVehicleContainerHighFrequency;
+static gint ett_camv1_BasicVehicleContainerLowFrequency;
+static gint ett_camv1_PublicTransportContainer;
+static gint ett_camv1_SpecialTransportContainer;
+static gint ett_camv1_DangerousGoodsContainer;
+static gint ett_camv1_RoadWorksContainerBasic;
+static gint ett_camv1_RescueContainer;
+static gint ett_camv1_EmergencyContainer;
+static gint ett_camv1_SafetyCarContainer;
+static gint ett_camv1_RSUContainerHighFrequency;
 
 /* --- Module CAM-PDU-Descriptions --- --- ---                                */
 
-static gint ett_cam_CoopAwareness = -1;
-static gint ett_cam_CamParameters = -1;
-static gint ett_cam_HighFrequencyContainer = -1;
-static gint ett_cam_LowFrequencyContainer = -1;
-static gint ett_cam_SpecialVehicleContainer = -1;
-static gint ett_cam_BasicContainer = -1;
-static gint ett_cam_BasicVehicleContainerHighFrequency = -1;
-static gint ett_cam_BasicVehicleContainerLowFrequency = -1;
-static gint ett_cam_PublicTransportContainer = -1;
-static gint ett_cam_SpecialTransportContainer = -1;
-static gint ett_cam_DangerousGoodsContainer = -1;
-static gint ett_cam_RoadWorksContainerBasic = -1;
-static gint ett_cam_RescueContainer = -1;
-static gint ett_cam_EmergencyContainer = -1;
-static gint ett_cam_SafetyCarContainer = -1;
-static gint ett_cam_RSUContainerHighFrequency = -1;
+static gint ett_cam_CoopAwareness;
+static gint ett_cam_CamParameters;
+static gint ett_cam_HighFrequencyContainer;
+static gint ett_cam_LowFrequencyContainer;
+static gint ett_cam_SpecialVehicleContainer;
+static gint ett_cam_BasicContainer;
+static gint ett_cam_BasicVehicleContainerHighFrequency;
+static gint ett_cam_BasicVehicleContainerLowFrequency;
+static gint ett_cam_PublicTransportContainer;
+static gint ett_cam_SpecialTransportContainer;
+static gint ett_cam_DangerousGoodsContainer;
+static gint ett_cam_RoadWorksContainerBasic;
+static gint ett_cam_RescueContainer;
+static gint ett_cam_EmergencyContainer;
+static gint ett_cam_SafetyCarContainer;
+static gint ett_cam_RSUContainerHighFrequency;
 
 /* --- Module DENMv1-PDU-Descriptions --- --- ---                             */
 
-static gint ett_denmv1_DecentralizedEnvironmentalNotificationMessageV1 = -1;
-static gint ett_denmv1_ManagementContainer = -1;
-static gint ett_denmv1_SituationContainer = -1;
-static gint ett_denmv1_LocationContainer = -1;
-static gint ett_denmv1_ImpactReductionContainer = -1;
-static gint ett_denmv1_RoadWorksContainerExtended = -1;
-static gint ett_denmv1_StationaryVehicleContainer = -1;
-static gint ett_denmv1_AlacarteContainer = -1;
-static gint ett_denmv1_ReferenceDenms = -1;
+static gint ett_denmv1_DecentralizedEnvironmentalNotificationMessageV1;
+static gint ett_denmv1_ManagementContainer;
+static gint ett_denmv1_SituationContainer;
+static gint ett_denmv1_LocationContainer;
+static gint ett_denmv1_ImpactReductionContainer;
+static gint ett_denmv1_RoadWorksContainerExtended;
+static gint ett_denmv1_StationaryVehicleContainer;
+static gint ett_denmv1_AlacarteContainer;
+static gint ett_denmv1_ReferenceDenms;
 
 /* --- Module DENM-PDU-Description --- --- ---                                */
 
-static gint ett_denm_DenmPayload = -1;
-static gint ett_denm_ManagementContainer = -1;
-static gint ett_denm_SituationContainer = -1;
-static gint ett_denm_LocationContainer = -1;
-static gint ett_denm_ImpactReductionContainer = -1;
-static gint ett_denm_RoadWorksContainerExtended = -1;
-static gint ett_denm_StationaryVehicleContainer = -1;
-static gint ett_denm_AlacarteContainer = -1;
+static gint ett_denm_DenmPayload;
+static gint ett_denm_ManagementContainer;
+static gint ett_denm_SituationContainer;
+static gint ett_denm_LocationContainer;
+static gint ett_denm_ImpactReductionContainer;
+static gint ett_denm_RoadWorksContainerExtended;
+static gint ett_denm_StationaryVehicleContainer;
+static gint ett_denm_AlacarteContainer;
 
 /* --- Module TIS-TPG-Transactions-Descriptions --- --- ---                   */
 
-static gint ett_tistpg_TisTpgTransaction = -1;
-static gint ett_tistpg_TisTpgDRM = -1;
-static gint ett_tistpg_TisTpgDRM_Management = -1;
-static gint ett_tistpg_TisTpgDRM_Situation = -1;
-static gint ett_tistpg_TisTpgDRM_Location = -1;
-static gint ett_tistpg_TisTpgSNM = -1;
-static gint ett_tistpg_TisTpgSNM_Management = -1;
-static gint ett_tistpg_TisTpgTRM = -1;
-static gint ett_tistpg_TisTpgTRM_Management = -1;
-static gint ett_tistpg_TisTpgTRM_Situation = -1;
-static gint ett_tistpg_TisTpgTRM_Location = -1;
-static gint ett_tistpg_TisTpgTCM = -1;
-static gint ett_tistpg_TisTpgTCM_Management = -1;
-static gint ett_tistpg_TisTpgTCM_Situation = -1;
-static gint ett_tistpg_TisTpgTCM_Location = -1;
-static gint ett_tistpg_TisTpgVDRM = -1;
-static gint ett_tistpg_TisTpgVDRM_Management = -1;
-static gint ett_tistpg_TisTpgVDPM = -1;
-static gint ett_tistpg_TisTpgVDPM_Management = -1;
-static gint ett_tistpg_VehicleSpecificData = -1;
-static gint ett_tistpg_TisTpgEOFM = -1;
-static gint ett_tistpg_TisTpgEOFM_Management = -1;
-static gint ett_tistpg_PlacardTable = -1;
-static gint ett_tistpg_TyreSetVariant = -1;
-static gint ett_tistpg_PressureVariantsList = -1;
-static gint ett_tistpg_PressureVariant = -1;
-static gint ett_tistpg_TyreData = -1;
-static gint ett_tistpg_T_currentTyrePressure = -1;
-static gint ett_tistpg_T_tyreSidewallInformation = -1;
-static gint ett_tistpg_T_currentInsideAirTemperature = -1;
-static gint ett_tistpg_T_recommendedTyrePressure = -1;
-static gint ett_tistpg_T_tin = -1;
-static gint ett_tistpg_T_sensorState = -1;
-static gint ett_tistpg_AppliedTyrePressure = -1;
-static gint ett_tistpg_TpgStationData = -1;
-static gint ett_tistpg_AppliedTyrePressures = -1;
-static gint ett_tistpg_TpgNotifContainer = -1;
-static gint ett_tistpg_TpgAutomation = -1;
-static gint ett_tistpg_TisProfile = -1;
+static gint ett_tistpg_TisTpgTransaction;
+static gint ett_tistpg_TisTpgDRM;
+static gint ett_tistpg_TisTpgDRM_Management;
+static gint ett_tistpg_TisTpgDRM_Situation;
+static gint ett_tistpg_TisTpgDRM_Location;
+static gint ett_tistpg_TisTpgSNM;
+static gint ett_tistpg_TisTpgSNM_Management;
+static gint ett_tistpg_TisTpgTRM;
+static gint ett_tistpg_TisTpgTRM_Management;
+static gint ett_tistpg_TisTpgTRM_Situation;
+static gint ett_tistpg_TisTpgTRM_Location;
+static gint ett_tistpg_TisTpgTCM;
+static gint ett_tistpg_TisTpgTCM_Management;
+static gint ett_tistpg_TisTpgTCM_Situation;
+static gint ett_tistpg_TisTpgTCM_Location;
+static gint ett_tistpg_TisTpgVDRM;
+static gint ett_tistpg_TisTpgVDRM_Management;
+static gint ett_tistpg_TisTpgVDPM;
+static gint ett_tistpg_TisTpgVDPM_Management;
+static gint ett_tistpg_VehicleSpecificData;
+static gint ett_tistpg_TisTpgEOFM;
+static gint ett_tistpg_TisTpgEOFM_Management;
+static gint ett_tistpg_PlacardTable;
+static gint ett_tistpg_TyreSetVariant;
+static gint ett_tistpg_PressureVariantsList;
+static gint ett_tistpg_PressureVariant;
+static gint ett_tistpg_TyreData;
+static gint ett_tistpg_T_currentTyrePressure;
+static gint ett_tistpg_T_tyreSidewallInformation;
+static gint ett_tistpg_T_currentInsideAirTemperature;
+static gint ett_tistpg_T_recommendedTyrePressure;
+static gint ett_tistpg_T_tin;
+static gint ett_tistpg_T_sensorState;
+static gint ett_tistpg_AppliedTyrePressure;
+static gint ett_tistpg_TpgStationData;
+static gint ett_tistpg_AppliedTyrePressures;
+static gint ett_tistpg_TpgNotifContainer;
+static gint ett_tistpg_TpgAutomation;
+static gint ett_tistpg_TisProfile;
 
 /* --- Module EVCSN-PDU-Descriptions --- --- ---                              */
 
-static gint ett_evcsn_EVChargingSpotNotificationPOIMessage = -1;
-static gint ett_evcsn_ItsPOIHeader = -1;
-static gint ett_evcsn_ItsEVCSNData = -1;
-static gint ett_evcsn_SEQUENCE_SIZE_1_256_OF_ItsChargingStationData = -1;
-static gint ett_evcsn_ItsChargingStationData = -1;
-static gint ett_evcsn_ItsChargingSpots = -1;
-static gint ett_evcsn_ItsChargingSpotDataElements = -1;
-static gint ett_evcsn_ChargingSpotType = -1;
-static gint ett_evcsn_ParkingPlacesData = -1;
-static gint ett_evcsn_SpotAvailability = -1;
+static gint ett_evcsn_EVChargingSpotNotificationPOIMessage;
+static gint ett_evcsn_ItsPOIHeader;
+static gint ett_evcsn_ItsEVCSNData;
+static gint ett_evcsn_SEQUENCE_SIZE_1_256_OF_ItsChargingStationData;
+static gint ett_evcsn_ItsChargingStationData;
+static gint ett_evcsn_ItsChargingSpots;
+static gint ett_evcsn_ItsChargingSpotDataElements;
+static gint ett_evcsn_ChargingSpotType;
+static gint ett_evcsn_ParkingPlacesData;
+static gint ett_evcsn_SpotAvailability;
 
 /* --- Module EV-RechargingSpotReservation-PDU-Descriptions --- --- ---       */
 
-static gint ett_evrsr_EV_RSR_MessageBody = -1;
-static gint ett_evrsr_PreReservationRequestMessage = -1;
-static gint ett_evrsr_PreReservationResponseMessage = -1;
-static gint ett_evrsr_ReservationRequestMessage = -1;
-static gint ett_evrsr_ReservationResponseMessage = -1;
-static gint ett_evrsr_CancellationRequestMessage = -1;
-static gint ett_evrsr_CancellationResponseMessage = -1;
-static gint ett_evrsr_UpdateRequestMessage = -1;
-static gint ett_evrsr_UpdateResponseMessage = -1;
-static gint ett_evrsr_Payment_ID = -1;
-static gint ett_evrsr_RechargingType = -1;
-static gint ett_evrsr_SupportedPaymentTypes = -1;
+static gint ett_evrsr_EV_RSR_MessageBody;
+static gint ett_evrsr_PreReservationRequestMessage;
+static gint ett_evrsr_PreReservationResponseMessage;
+static gint ett_evrsr_ReservationRequestMessage;
+static gint ett_evrsr_ReservationResponseMessage;
+static gint ett_evrsr_CancellationRequestMessage;
+static gint ett_evrsr_CancellationResponseMessage;
+static gint ett_evrsr_UpdateRequestMessage;
+static gint ett_evrsr_UpdateResponseMessage;
+static gint ett_evrsr_Payment_ID;
+static gint ett_evrsr_RechargingType;
+static gint ett_evrsr_SupportedPaymentTypes;
 
 /* --- Module CPM-OriginatingStationContainers --- --- ---                    */
 
-static gint ett_cpm_OriginatingVehicleContainer = -1;
-static gint ett_cpm_OriginatingRsuContainer = -1;
-static gint ett_cpm_TrailerDataSet = -1;
+static gint ett_cpm_OriginatingVehicleContainer;
+static gint ett_cpm_OriginatingRsuContainer;
+static gint ett_cpm_TrailerDataSet;
 
 /* --- Module CPM-PDU-Descriptions --- --- ---                                */
 
-static gint ett_cpm_CollectivePerceptionMessage = -1;
-static gint ett_cpm_CpmPayload = -1;
-static gint ett_cpm_ManagementContainer = -1;
-static gint ett_cpm_WrappedCpmContainer = -1;
-static gint ett_cpm_WrappedCpmContainers = -1;
-static gint ett_cpm_MessageRateRange = -1;
+static gint ett_cpm_CollectivePerceptionMessage;
+static gint ett_cpm_CpmPayload;
+static gint ett_cpm_ManagementContainer;
+static gint ett_cpm_WrappedCpmContainer;
+static gint ett_cpm_WrappedCpmContainers;
+static gint ett_cpm_MessageRateRange;
 
 /* --- Module CPM-PerceivedObjectContainer --- --- ---                        */
 
-static gint ett_cpm_PerceivedObjectContainer = -1;
-static gint ett_cpm_PerceivedObjects = -1;
+static gint ett_cpm_PerceivedObjectContainer;
+static gint ett_cpm_PerceivedObjects;
 
 /* --- Module CPM-PerceptionRegionContainer --- --- ---                       */
 
-static gint ett_cpm_PerceptionRegionContainer = -1;
-static gint ett_cpm_PerceptionRegion = -1;
-static gint ett_cpm_PerceivedObjectIds = -1;
+static gint ett_cpm_PerceptionRegionContainer;
+static gint ett_cpm_PerceptionRegion;
+static gint ett_cpm_PerceivedObjectIds;
 
 /* --- Module CPM-SensorInformationContainer --- --- ---                      */
 
-static gint ett_cpm_SensorInformationContainer = -1;
-static gint ett_cpm_SensorInformation = -1;
+static gint ett_cpm_SensorInformationContainer;
+static gint ett_cpm_SensorInformation;
 
 /* --- Module VAM-PDU-Descriptions --- --- ---                                */
 
-static gint ett_vam_VruAwareness = -1;
-static gint ett_vam_VamParameters = -1;
-static gint ett_vam_VruHighFrequencyContainer = -1;
-static gint ett_vam_VruLowFrequencyContainer = -1;
-static gint ett_vam_VruClusterInformationContainer = -1;
-static gint ett_vam_VruClusterOperationContainer = -1;
-static gint ett_vam_VruMotionPredictionContainer = -1;
+static gint ett_vam_VruAwareness;
+static gint ett_vam_VamParameters;
+static gint ett_vam_VruHighFrequencyContainer;
+static gint ett_vam_VruLowFrequencyContainer;
+static gint ett_vam_VruClusterInformationContainer;
+static gint ett_vam_VruClusterOperationContainer;
+static gint ett_vam_VruMotionPredictionContainer;
 
 /* --- Module IMZM-PDU-Descriptions --- --- ---                               */
 
-static gint ett_imzm_InterferenceManagementZoneMessage = -1;
-static gint ett_imzm_ImzmParameters = -1;
-static gint ett_imzm_ImzmContainer = -1;
+static gint ett_imzm_InterferenceManagementZoneMessage;
+static gint ett_imzm_ImzmParameters;
+static gint ett_imzm_ImzmContainer;
 
 // Deal with cause/subcause code management
 struct { CauseCodeType_enum cause; int* hf; } cause_to_subcause[] = {

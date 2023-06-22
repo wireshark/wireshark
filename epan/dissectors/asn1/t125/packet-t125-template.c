@@ -39,12 +39,12 @@ void proto_register_t125(void);
 void proto_reg_handoff_t125(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_t125 = -1;
+static int proto_t125;
 static proto_tree *top_tree = NULL;
 #include "packet-t125-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_t125 = -1;
+static int ett_t125;
 
 #include "packet-t125-ett.c"
 

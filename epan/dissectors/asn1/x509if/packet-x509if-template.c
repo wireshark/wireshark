@@ -30,9 +30,9 @@ void proto_register_x509if(void);
 void proto_reg_handoff_x509if(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_x509if = -1;
-static int hf_x509if_object_identifier_id = -1;
-static int hf_x509if_any_string = -1;
+static int proto_x509if;
+static int hf_x509if_object_identifier_id;
+static int hf_x509if_any_string;
 #include "packet-x509if-hf.c"
 
 /* Initialize the subtree pointers */

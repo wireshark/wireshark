@@ -442,7 +442,7 @@ void proto_register_ranap(void);
 void proto_reg_handoff_ranap(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_ranap = -1;
+static int proto_ranap;
 
 /* initialise sub-dissector handles */
 static dissector_handle_t rrc_s_to_trnc_handle = NULL;
@@ -450,1158 +450,1158 @@ static dissector_handle_t rrc_t_to_srnc_handle = NULL;
 static dissector_handle_t rrc_ho_to_utran_cmd = NULL;
 static dissector_handle_t bssgp_handle = NULL;
 
-static int hf_ranap_transportLayerAddress_ipv4 = -1;
-static int hf_ranap_transportLayerAddress_ipv6 = -1;
-static int hf_ranap_transportLayerAddress_nsap = -1;
+static int hf_ranap_transportLayerAddress_ipv4;
+static int hf_ranap_transportLayerAddress_ipv6;
+static int hf_ranap_transportLayerAddress_nsap;
 
-static int hf_ranap_AccuracyFulfilmentIndicator_PDU = -1;  /* AccuracyFulfilmentIndicator */
-static int hf_ranap_Additional_CSPS_coordination_information_PDU = -1;  /* Additional_CSPS_coordination_information */
-static int hf_ranap_Additional_PositioningDataSet_PDU = -1;  /* Additional_PositioningDataSet */
-static int hf_ranap_Alt_RAB_Parameters_PDU = -1;  /* Alt_RAB_Parameters */
-static int hf_ranap_Alt_RAB_Parameter_ExtendedGuaranteedBitrateInf_PDU = -1;  /* Alt_RAB_Parameter_ExtendedGuaranteedBitrateInf */
-static int hf_ranap_Alt_RAB_Parameter_SupportedGuaranteedBitrateInf_PDU = -1;  /* Alt_RAB_Parameter_SupportedGuaranteedBitrateInf */
-static int hf_ranap_Alt_RAB_Parameter_ExtendedMaxBitrateInf_PDU = -1;  /* Alt_RAB_Parameter_ExtendedMaxBitrateInf */
-static int hf_ranap_Alt_RAB_Parameter_SupportedMaxBitrateInf_PDU = -1;  /* Alt_RAB_Parameter_SupportedMaxBitrateInf */
-static int hf_ranap_AlternativeRABConfigurationRequest_PDU = -1;  /* AlternativeRABConfigurationRequest */
-static int hf_ranap_UE_Application_Layer_Measurement_Configuration_PDU = -1;  /* UE_Application_Layer_Measurement_Configuration */
-static int hf_ranap_UE_Application_Layer_Measurement_Configuration_For_Relocation_PDU = -1;  /* UE_Application_Layer_Measurement_Configuration_For_Relocation */
-static int hf_ranap_APN_PDU = -1;                 /* APN */
-static int hf_ranap_AreaIdentity_PDU = -1;        /* AreaIdentity */
-static int hf_ranap_Ass_RAB_Parameters_PDU = -1;  /* Ass_RAB_Parameters */
-static int hf_ranap_Ass_RAB_Parameter_ExtendedGuaranteedBitrateList_PDU = -1;  /* Ass_RAB_Parameter_ExtendedGuaranteedBitrateList */
-static int hf_ranap_Ass_RAB_Parameter_ExtendedMaxBitrateList_PDU = -1;  /* Ass_RAB_Parameter_ExtendedMaxBitrateList */
-static int hf_ranap_BarometricPressure_PDU = -1;  /* BarometricPressure */
-static int hf_ranap_BroadcastAssistanceDataDecipheringKeys_PDU = -1;  /* BroadcastAssistanceDataDecipheringKeys */
-static int hf_ranap_ranap_Cause_PDU = -1;         /* Cause */
-static int hf_ranap_Cell_Access_Mode_PDU = -1;    /* Cell_Access_Mode */
-static int hf_ranap_CellLoadInformationGroup_PDU = -1;  /* CellLoadInformationGroup */
-static int hf_ranap_CivicAddress_PDU = -1;        /* CivicAddress */
-static int hf_ranap_ClientType_PDU = -1;          /* ClientType */
-static int hf_ranap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
-static int hf_ranap_MessageStructure_PDU = -1;    /* MessageStructure */
-static int hf_ranap_ChosenEncryptionAlgorithm_PDU = -1;  /* ChosenEncryptionAlgorithm */
-static int hf_ranap_ChosenIntegrityProtectionAlgorithm_PDU = -1;  /* ChosenIntegrityProtectionAlgorithm */
-static int hf_ranap_ClassmarkInformation2_PDU = -1;  /* ClassmarkInformation2 */
-static int hf_ranap_ClassmarkInformation3_PDU = -1;  /* ClassmarkInformation3 */
-static int hf_ranap_CN_DomainIndicator_PDU = -1;  /* CN_DomainIndicator */
-static int hf_ranap_Correlation_ID_PDU = -1;      /* Correlation_ID */
-static int hf_ranap_CSFB_Information_PDU = -1;    /* CSFB_Information */
-static int hf_ranap_CSG_Id_PDU = -1;              /* CSG_Id */
-static int hf_ranap_CSG_Id_List_PDU = -1;         /* CSG_Id_List */
-static int hf_ranap_CSG_Membership_Status_PDU = -1;  /* CSG_Membership_Status */
-static int hf_ranap_DCN_ID_PDU = -1;              /* DCN_ID */
-static int hf_ranap_DeltaRAListofIdleModeUEs_PDU = -1;  /* DeltaRAListofIdleModeUEs */
-static int hf_ranap_DRX_CycleLengthCoefficient_PDU = -1;  /* DRX_CycleLengthCoefficient */
-static int hf_ranap_EARFCN_Extended_PDU = -1;     /* EARFCN_Extended */
-static int hf_ranap_E_DCH_MAC_d_Flow_ID_PDU = -1;  /* E_DCH_MAC_d_Flow_ID */
-static int hf_ranap_EncryptionInformation_PDU = -1;  /* EncryptionInformation */
-static int hf_ranap_EncryptionKey_PDU = -1;       /* EncryptionKey */
-static int hf_ranap_End_Of_CSFB_PDU = -1;         /* End_Of_CSFB */
-static int hf_ranap_E_UTRAN_Service_Handover_PDU = -1;  /* E_UTRAN_Service_Handover */
-static int hf_ranap_ExtendedRNC_ID_PDU = -1;      /* ExtendedRNC_ID */
-static int hf_ranap_FrequenceLayerConvergenceFlag_PDU = -1;  /* FrequenceLayerConvergenceFlag */
-static int hf_ranap_GANSS_PositioningDataSet_PDU = -1;  /* GANSS_PositioningDataSet */
-static int hf_ranap_GERAN_BSC_Container_PDU = -1;  /* GERAN_BSC_Container */
-static int hf_ranap_GERAN_Classmark_PDU = -1;     /* GERAN_Classmark */
-static int hf_ranap_GlobalCN_ID_PDU = -1;         /* GlobalCN_ID */
-static int hf_ranap_GlobalRNC_ID_PDU = -1;        /* GlobalRNC_ID */
-static int hf_ranap_HigherBitratesThan16MbpsFlag_PDU = -1;  /* HigherBitratesThan16MbpsFlag */
-static int hf_ranap_HS_DSCH_MAC_d_Flow_ID_PDU = -1;  /* HS_DSCH_MAC_d_Flow_ID */
-static int hf_ranap_IMSI_PDU = -1;                /* IMSI */
-static int hf_ranap_IncludeVelocity_PDU = -1;     /* IncludeVelocity */
-static int hf_ranap_InformationExchangeID_PDU = -1;  /* InformationExchangeID */
-static int hf_ranap_InformationExchangeType_PDU = -1;  /* InformationExchangeType */
-static int hf_ranap_InformationRequested_PDU = -1;  /* InformationRequested */
-static int hf_ranap_InformationRequestType_PDU = -1;  /* InformationRequestType */
-static int hf_ranap_InformationTransferID_PDU = -1;  /* InformationTransferID */
-static int hf_ranap_InformationTransferType_PDU = -1;  /* InformationTransferType */
-static int hf_ranap_IntegrityProtectionInformation_PDU = -1;  /* IntegrityProtectionInformation */
-static int hf_ranap_IntegrityProtectionKey_PDU = -1;  /* IntegrityProtectionKey */
-static int hf_ranap_InterSystemInformationTransferType_PDU = -1;  /* InterSystemInformationTransferType */
-static int hf_ranap_ranap_InterSystemInformation_TransparentContainer_PDU = -1;  /* InterSystemInformation_TransparentContainer */
-static int hf_ranap_IPMulticastAddress_PDU = -1;  /* IPMulticastAddress */
-static int hf_ranap_IuSignallingConnectionIdentifier_PDU = -1;  /* IuSignallingConnectionIdentifier */
-static int hf_ranap_IuTransportAssociation_PDU = -1;  /* IuTransportAssociation */
-static int hf_ranap_KeyStatus_PDU = -1;           /* KeyStatus */
-static int hf_ranap_LAI_PDU = -1;                 /* LAI */
-static int hf_ranap_LastKnownServiceArea_PDU = -1;  /* LastKnownServiceArea */
-static int hf_ranap_ranap_LastVisitedUTRANCell_Item_PDU = -1;  /* LastVisitedUTRANCell_Item */
-static int hf_ranap_LHN_ID_PDU = -1;              /* LHN_ID */
-static int hf_ranap_LocationRelatedDataRequestType_PDU = -1;  /* LocationRelatedDataRequestType */
-static int hf_ranap_LocationRelatedDataRequestTypeSpecificToGERANIuMode_PDU = -1;  /* LocationRelatedDataRequestTypeSpecificToGERANIuMode */
-static int hf_ranap_L3_Information_PDU = -1;      /* L3_Information */
-static int hf_ranap_M4Report_PDU = -1;            /* M4Report */
-static int hf_ranap_M5Report_PDU = -1;            /* M5Report */
-static int hf_ranap_M6Report_PDU = -1;            /* M6Report */
-static int hf_ranap_M7Report_PDU = -1;            /* M7Report */
-static int hf_ranap_Management_Based_MDT_Allowed_PDU = -1;  /* Management_Based_MDT_Allowed */
-static int hf_ranap_MBMSBearerServiceType_PDU = -1;  /* MBMSBearerServiceType */
-static int hf_ranap_MBMSCNDe_Registration_PDU = -1;  /* MBMSCNDe_Registration */
-static int hf_ranap_MBMSCountingInformation_PDU = -1;  /* MBMSCountingInformation */
-static int hf_ranap_MBMSLinkingInformation_PDU = -1;  /* MBMSLinkingInformation */
-static int hf_ranap_MBMSRegistrationRequestType_PDU = -1;  /* MBMSRegistrationRequestType */
-static int hf_ranap_MBMSServiceArea_PDU = -1;     /* MBMSServiceArea */
-static int hf_ranap_MBMSSessionDuration_PDU = -1;  /* MBMSSessionDuration */
-static int hf_ranap_MBMSSessionIdentity_PDU = -1;  /* MBMSSessionIdentity */
-static int hf_ranap_MBMSSessionRepetitionNumber_PDU = -1;  /* MBMSSessionRepetitionNumber */
-static int hf_ranap_MDT_Configuration_PDU = -1;   /* MDT_Configuration */
-static int hf_ranap_MDT_PLMN_List_PDU = -1;       /* MDT_PLMN_List */
-static int hf_ranap_MSISDN_PDU = -1;              /* MSISDN */
-static int hf_ranap_NAS_PDU_PDU = -1;             /* NAS_PDU */
-static int hf_ranap_NAS_SequenceNumber_PDU = -1;  /* NAS_SequenceNumber */
-static int hf_ranap_NewBSS_To_OldBSS_Information_PDU = -1;  /* NewBSS_To_OldBSS_Information */
-static int hf_ranap_NonSearchingIndication_PDU = -1;  /* NonSearchingIndication */
-static int hf_ranap_NumberOfSteps_PDU = -1;       /* NumberOfSteps */
-static int hf_ranap_Offload_RAB_Parameters_PDU = -1;  /* Offload_RAB_Parameters */
-static int hf_ranap_OldBSS_ToNewBSS_Information_PDU = -1;  /* OldBSS_ToNewBSS_Information */
-static int hf_ranap_OMC_ID_PDU = -1;              /* OMC_ID */
-static int hf_ranap_Out_Of_UTRAN_PDU = -1;        /* Out_Of_UTRAN */
-static int hf_ranap_PagingAreaID_PDU = -1;        /* PagingAreaID */
-static int hf_ranap_PagingCause_PDU = -1;         /* PagingCause */
-static int hf_ranap_PDP_TypeInformation_PDU = -1;  /* PDP_TypeInformation */
-static int hf_ranap_PDP_TypeInformation_extension_PDU = -1;  /* PDP_TypeInformation_extension */
-static int hf_ranap_PeriodicLocationInfo_PDU = -1;  /* PeriodicLocationInfo */
-static int hf_ranap_PermanentNAS_UE_ID_PDU = -1;  /* PermanentNAS_UE_ID */
-static int hf_ranap_PLMNidentity_PDU = -1;        /* PLMNidentity */
-static int hf_ranap_PositioningPriority_PDU = -1;  /* PositioningPriority */
-static int hf_ranap_PositionData_PDU = -1;        /* PositionData */
-static int hf_ranap_PositionDataSpecificToGERANIuMode_PDU = -1;  /* PositionDataSpecificToGERANIuMode */
-static int hf_ranap_Priority_Class_Indicator_PDU = -1;  /* Priority_Class_Indicator */
-static int hf_ranap_ProvidedData_PDU = -1;        /* ProvidedData */
-static int hf_ranap_PowerSavingIndicator_PDU = -1;  /* PowerSavingIndicator */
-static int hf_ranap_P_TMSI_PDU = -1;              /* P_TMSI */
-static int hf_ranap_RAB_ID_PDU = -1;              /* RAB_ID */
-static int hf_ranap_RAB_Parameter_ExtendedGuaranteedBitrateList_PDU = -1;  /* RAB_Parameter_ExtendedGuaranteedBitrateList */
-static int hf_ranap_RAB_Parameter_ExtendedMaxBitrateList_PDU = -1;  /* RAB_Parameter_ExtendedMaxBitrateList */
-static int hf_ranap_RAB_Parameters_PDU = -1;      /* RAB_Parameters */
-static int hf_ranap_RABParametersList_PDU = -1;   /* RABParametersList */
-static int hf_ranap_RAC_PDU = -1;                 /* RAC */
-static int hf_ranap_RAListofIdleModeUEs_PDU = -1;  /* RAListofIdleModeUEs */
-static int hf_ranap_LAListofIdleModeUEs_PDU = -1;  /* LAListofIdleModeUEs */
-static int hf_ranap_RAT_Type_PDU = -1;            /* RAT_Type */
-static int hf_ranap_RedirectAttemptFlag_PDU = -1;  /* RedirectAttemptFlag */
-static int hf_ranap_RedirectionCompleted_PDU = -1;  /* RedirectionCompleted */
-static int hf_ranap_RejectCauseValue_PDU = -1;    /* RejectCauseValue */
-static int hf_ranap_RelocationType_PDU = -1;      /* RelocationType */
-static int hf_ranap_RequestedGANSSAssistanceData_PDU = -1;  /* RequestedGANSSAssistanceData */
-static int hf_ranap_Requested_RAB_Parameter_ExtendedMaxBitrateList_PDU = -1;  /* Requested_RAB_Parameter_ExtendedMaxBitrateList */
-static int hf_ranap_Requested_RAB_Parameter_ExtendedGuaranteedBitrateList_PDU = -1;  /* Requested_RAB_Parameter_ExtendedGuaranteedBitrateList */
-static int hf_ranap_RequestType_PDU = -1;         /* RequestType */
-static int hf_ranap_ResponseTime_PDU = -1;        /* ResponseTime */
-static int hf_ranap_RNSAPRelocationParameters_PDU = -1;  /* RNSAPRelocationParameters */
-static int hf_ranap_RRC_Container_PDU = -1;       /* RRC_Container */
-static int hf_ranap_RSRVCC_HO_Indication_PDU = -1;  /* RSRVCC_HO_Indication */
-static int hf_ranap_RSRVCC_Information_PDU = -1;  /* RSRVCC_Information */
-static int hf_ranap_RSRVCC_Operation_Possible_PDU = -1;  /* RSRVCC_Operation_Possible */
-static int hf_ranap_SAI_PDU = -1;                 /* SAI */
-static int hf_ranap_SAPI_PDU = -1;                /* SAPI */
-static int hf_ranap_SessionUpdateID_PDU = -1;     /* SessionUpdateID */
-static int hf_ranap_Session_Re_establishment_Indicator_PDU = -1;  /* Session_Re_establishment_Indicator */
-static int hf_ranap_SignallingIndication_PDU = -1;  /* SignallingIndication */
-static int hf_ranap_SGSN_Group_Identity_PDU = -1;  /* SGSN_Group_Identity */
-static int hf_ranap_SNA_Access_Information_PDU = -1;  /* SNA_Access_Information */
-static int hf_ranap_ranap_Source_ToTarget_TransparentContainer_PDU = -1;  /* Source_ToTarget_TransparentContainer */
-static int hf_ranap_ranap_SourceCellID_PDU = -1;  /* SourceCellID */
-static int hf_ranap_SourceBSS_ToTargetBSS_TransparentContainer_PDU = -1;  /* SourceBSS_ToTargetBSS_TransparentContainer */
-static int hf_ranap_SourceID_PDU = -1;            /* SourceID */
-static int hf_ranap_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU = -1;  /* SourceRNC_ToTargetRNC_TransparentContainer */
-static int hf_ranap_IRAT_Measurement_Configuration_PDU = -1;  /* IRAT_Measurement_Configuration */
-static int hf_ranap_RSRQ_Type_PDU = -1;           /* RSRQ_Type */
-static int hf_ranap_RSRQ_Extension_PDU = -1;      /* RSRQ_Extension */
-static int hf_ranap_SubscriberProfileIDforRFP_PDU = -1;  /* SubscriberProfileIDforRFP */
-static int hf_ranap_SupportedRAB_ParameterBitrateList_PDU = -1;  /* SupportedRAB_ParameterBitrateList */
-static int hf_ranap_SRB_TrCH_Mapping_PDU = -1;    /* SRB_TrCH_Mapping */
-static int hf_ranap_SRVCC_HO_Indication_PDU = -1;  /* SRVCC_HO_Indication */
-static int hf_ranap_SRVCC_Information_PDU = -1;   /* SRVCC_Information */
-static int hf_ranap_SRVCC_Operation_Possible_PDU = -1;  /* SRVCC_Operation_Possible */
-static int hf_ranap_Target_ToSource_TransparentContainer_PDU = -1;  /* Target_ToSource_TransparentContainer */
-static int hf_ranap_TargetBSS_ToSourceBSS_TransparentContainer_PDU = -1;  /* TargetBSS_ToSourceBSS_TransparentContainer */
-static int hf_ranap_TargetID_PDU = -1;            /* TargetID */
-static int hf_ranap_ranap_TargetRNC_ID_PDU = -1;  /* TargetRNC_ID */
-static int hf_ranap_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU = -1;  /* TargetRNC_ToSourceRNC_TransparentContainer */
-static int hf_ranap_TemporaryUE_ID_PDU = -1;      /* TemporaryUE_ID */
-static int hf_ranap_Time_UE_StayedInCell_EnhancedGranularity_PDU = -1;  /* Time_UE_StayedInCell_EnhancedGranularity */
-static int hf_ranap_TimeToMBMSDataTransfer_PDU = -1;  /* TimeToMBMSDataTransfer */
-static int hf_ranap_TimingDifferenceULDL_PDU = -1;  /* TimingDifferenceULDL */
-static int hf_ranap_TMGI_PDU = -1;                /* TMGI */
-static int hf_ranap_TracePropagationParameters_PDU = -1;  /* TracePropagationParameters */
-static int hf_ranap_TraceRecordingSessionInformation_PDU = -1;  /* TraceRecordingSessionInformation */
-static int hf_ranap_TraceRecordingSessionReference_PDU = -1;  /* TraceRecordingSessionReference */
-static int hf_ranap_TraceReference_PDU = -1;      /* TraceReference */
-static int hf_ranap_TraceType_PDU = -1;           /* TraceType */
-static int hf_ranap_TransportLayerAddress_PDU = -1;  /* TransportLayerAddress */
-static int hf_ranap_TriggerID_PDU = -1;           /* TriggerID */
-static int hf_ranap_TunnelInformation_PDU = -1;   /* TunnelInformation */
-static int hf_ranap_TypeOfError_PDU = -1;         /* TypeOfError */
-static int hf_ranap_UE_AggregateMaximumBitRate_PDU = -1;  /* UE_AggregateMaximumBitRate */
-static int hf_ranap_UE_History_Information_PDU = -1;  /* UE_History_Information */
-static int hf_ranap_UE_ID_PDU = -1;               /* UE_ID */
-static int hf_ranap_UE_Usage_Type_PDU = -1;       /* UE_Usage_Type */
-static int hf_ranap_UERegistrationQueryResult_PDU = -1;  /* UERegistrationQueryResult */
-static int hf_ranap_UESBI_Iu_PDU = -1;            /* UESBI_Iu */
-static int hf_ranap_UTRAN_CellID_PDU = -1;        /* UTRAN_CellID */
-static int hf_ranap_VelocityEstimate_PDU = -1;    /* VelocityEstimate */
-static int hf_ranap_VerticalAccuracyCode_PDU = -1;  /* VerticalAccuracyCode */
-static int hf_ranap_VoiceSupportMatchIndicator_PDU = -1;  /* VoiceSupportMatchIndicator */
-static int hf_ranap_Iu_ReleaseCommand_PDU = -1;   /* Iu_ReleaseCommand */
-static int hf_ranap_Iu_ReleaseComplete_PDU = -1;  /* Iu_ReleaseComplete */
-static int hf_ranap_RAB_DataVolumeReportList_PDU = -1;  /* RAB_DataVolumeReportList */
-static int hf_ranap_RAB_DataVolumeReportItem_PDU = -1;  /* RAB_DataVolumeReportItem */
-static int hf_ranap_RAB_ReleasedList_IuRelComp_PDU = -1;  /* RAB_ReleasedList_IuRelComp */
-static int hf_ranap_RAB_ReleasedItem_IuRelComp_PDU = -1;  /* RAB_ReleasedItem_IuRelComp */
-static int hf_ranap_RelocationRequired_PDU = -1;  /* RelocationRequired */
-static int hf_ranap_RelocationCommand_PDU = -1;   /* RelocationCommand */
-static int hf_ranap_RAB_RelocationReleaseList_PDU = -1;  /* RAB_RelocationReleaseList */
-static int hf_ranap_RAB_RelocationReleaseItem_PDU = -1;  /* RAB_RelocationReleaseItem */
-static int hf_ranap_RAB_DataForwardingList_PDU = -1;  /* RAB_DataForwardingList */
-static int hf_ranap_RAB_DataForwardingItem_PDU = -1;  /* RAB_DataForwardingItem */
-static int hf_ranap_RelocationPreparationFailure_PDU = -1;  /* RelocationPreparationFailure */
-static int hf_ranap_RelocationRequest_PDU = -1;   /* RelocationRequest */
-static int hf_ranap_RAB_SetupList_RelocReq_PDU = -1;  /* RAB_SetupList_RelocReq */
-static int hf_ranap_RAB_SetupItem_RelocReq_PDU = -1;  /* RAB_SetupItem_RelocReq */
-static int hf_ranap_CNMBMSLinkingInformation_PDU = -1;  /* CNMBMSLinkingInformation */
-static int hf_ranap_JoinedMBMSBearerService_IEs_PDU = -1;  /* JoinedMBMSBearerService_IEs */
-static int hf_ranap_RelocationRequestAcknowledge_PDU = -1;  /* RelocationRequestAcknowledge */
-static int hf_ranap_RAB_SetupList_RelocReqAck_PDU = -1;  /* RAB_SetupList_RelocReqAck */
-static int hf_ranap_RAB_SetupItem_RelocReqAck_PDU = -1;  /* RAB_SetupItem_RelocReqAck */
-static int hf_ranap_RAB_FailedList_PDU = -1;      /* RAB_FailedList */
-static int hf_ranap_RAB_FailedItem_PDU = -1;      /* RAB_FailedItem */
-static int hf_ranap_RelocationFailure_PDU = -1;   /* RelocationFailure */
-static int hf_ranap_RelocationCancel_PDU = -1;    /* RelocationCancel */
-static int hf_ranap_RelocationCancelAcknowledge_PDU = -1;  /* RelocationCancelAcknowledge */
-static int hf_ranap_SRNS_ContextRequest_PDU = -1;  /* SRNS_ContextRequest */
-static int hf_ranap_RAB_DataForwardingList_SRNS_CtxReq_PDU = -1;  /* RAB_DataForwardingList_SRNS_CtxReq */
-static int hf_ranap_RAB_DataForwardingItem_SRNS_CtxReq_PDU = -1;  /* RAB_DataForwardingItem_SRNS_CtxReq */
-static int hf_ranap_SRNS_ContextResponse_PDU = -1;  /* SRNS_ContextResponse */
-static int hf_ranap_RAB_ContextList_PDU = -1;     /* RAB_ContextList */
-static int hf_ranap_RAB_ContextItem_PDU = -1;     /* RAB_ContextItem */
-static int hf_ranap_RAB_ContextFailedtoTransferList_PDU = -1;  /* RAB_ContextFailedtoTransferList */
-static int hf_ranap_RABs_ContextFailedtoTransferItem_PDU = -1;  /* RABs_ContextFailedtoTransferItem */
-static int hf_ranap_SecurityModeCommand_PDU = -1;  /* SecurityModeCommand */
-static int hf_ranap_SecurityModeComplete_PDU = -1;  /* SecurityModeComplete */
-static int hf_ranap_SecurityModeReject_PDU = -1;  /* SecurityModeReject */
-static int hf_ranap_DataVolumeReportRequest_PDU = -1;  /* DataVolumeReportRequest */
-static int hf_ranap_RAB_DataVolumeReportRequestList_PDU = -1;  /* RAB_DataVolumeReportRequestList */
-static int hf_ranap_RAB_DataVolumeReportRequestItem_PDU = -1;  /* RAB_DataVolumeReportRequestItem */
-static int hf_ranap_DataVolumeReport_PDU = -1;    /* DataVolumeReport */
-static int hf_ranap_RAB_FailedtoReportList_PDU = -1;  /* RAB_FailedtoReportList */
-static int hf_ranap_RABs_failed_to_reportItem_PDU = -1;  /* RABs_failed_to_reportItem */
-static int hf_ranap_Reset_PDU = -1;               /* Reset */
-static int hf_ranap_ResetAcknowledge_PDU = -1;    /* ResetAcknowledge */
-static int hf_ranap_ResetResource_PDU = -1;       /* ResetResource */
-static int hf_ranap_ResetResourceList_PDU = -1;   /* ResetResourceList */
-static int hf_ranap_ResetResourceItem_PDU = -1;   /* ResetResourceItem */
-static int hf_ranap_ResetResourceAcknowledge_PDU = -1;  /* ResetResourceAcknowledge */
-static int hf_ranap_ResetResourceAckList_PDU = -1;  /* ResetResourceAckList */
-static int hf_ranap_ResetResourceAckItem_PDU = -1;  /* ResetResourceAckItem */
-static int hf_ranap_RAB_ReleaseRequest_PDU = -1;  /* RAB_ReleaseRequest */
-static int hf_ranap_RAB_ReleaseList_PDU = -1;     /* RAB_ReleaseList */
-static int hf_ranap_RAB_ReleaseItem_PDU = -1;     /* RAB_ReleaseItem */
-static int hf_ranap_Iu_ReleaseRequest_PDU = -1;   /* Iu_ReleaseRequest */
-static int hf_ranap_RelocationDetect_PDU = -1;    /* RelocationDetect */
-static int hf_ranap_RelocationComplete_PDU = -1;  /* RelocationComplete */
-static int hf_ranap_EnhancedRelocationCompleteRequest_PDU = -1;  /* EnhancedRelocationCompleteRequest */
-static int hf_ranap_RAB_SetupList_EnhancedRelocCompleteReq_PDU = -1;  /* RAB_SetupList_EnhancedRelocCompleteReq */
-static int hf_ranap_RAB_SetupItem_EnhancedRelocCompleteReq_PDU = -1;  /* RAB_SetupItem_EnhancedRelocCompleteReq */
-static int hf_ranap_EnhancedRelocationCompleteResponse_PDU = -1;  /* EnhancedRelocationCompleteResponse */
-static int hf_ranap_RAB_SetupList_EnhancedRelocCompleteRes_PDU = -1;  /* RAB_SetupList_EnhancedRelocCompleteRes */
-static int hf_ranap_RAB_SetupItem_EnhancedRelocCompleteRes_PDU = -1;  /* RAB_SetupItem_EnhancedRelocCompleteRes */
-static int hf_ranap_RAB_ToBeReleasedList_EnhancedRelocCompleteRes_PDU = -1;  /* RAB_ToBeReleasedList_EnhancedRelocCompleteRes */
-static int hf_ranap_RAB_ToBeReleasedItem_EnhancedRelocCompleteRes_PDU = -1;  /* RAB_ToBeReleasedItem_EnhancedRelocCompleteRes */
-static int hf_ranap_EnhancedRelocationCompleteFailure_PDU = -1;  /* EnhancedRelocationCompleteFailure */
-static int hf_ranap_EnhancedRelocationCompleteConfirm_PDU = -1;  /* EnhancedRelocationCompleteConfirm */
-static int hf_ranap_Paging_PDU = -1;              /* Paging */
-static int hf_ranap_CommonID_PDU = -1;            /* CommonID */
-static int hf_ranap_CN_InvokeTrace_PDU = -1;      /* CN_InvokeTrace */
-static int hf_ranap_CN_DeactivateTrace_PDU = -1;  /* CN_DeactivateTrace */
-static int hf_ranap_LocationReportingControl_PDU = -1;  /* LocationReportingControl */
-static int hf_ranap_LocationReport_PDU = -1;      /* LocationReport */
-static int hf_ranap_InitialUE_Message_PDU = -1;   /* InitialUE_Message */
-static int hf_ranap_DirectTransfer_PDU = -1;      /* DirectTransfer */
-static int hf_ranap_RedirectionIndication_PDU = -1;  /* RedirectionIndication */
-static int hf_ranap_Overload_PDU = -1;            /* Overload */
-static int hf_ranap_ErrorIndication_PDU = -1;     /* ErrorIndication */
-static int hf_ranap_SRNS_DataForwardCommand_PDU = -1;  /* SRNS_DataForwardCommand */
-static int hf_ranap_ForwardSRNS_Context_PDU = -1;  /* ForwardSRNS_Context */
-static int hf_ranap_RAB_AssignmentRequest_PDU = -1;  /* RAB_AssignmentRequest */
-static int hf_ranap_RAB_SetupOrModifyList_PDU = -1;  /* RAB_SetupOrModifyList */
-static int hf_ranap_RAB_SetupOrModifyItemFirst_PDU = -1;  /* RAB_SetupOrModifyItemFirst */
-static int hf_ranap_TransportLayerInformation_PDU = -1;  /* TransportLayerInformation */
-static int hf_ranap_RAB_SetupOrModifyItemSecond_PDU = -1;  /* RAB_SetupOrModifyItemSecond */
-static int hf_ranap_RAB_AssignmentResponse_PDU = -1;  /* RAB_AssignmentResponse */
-static int hf_ranap_RAB_SetupOrModifiedList_PDU = -1;  /* RAB_SetupOrModifiedList */
-static int hf_ranap_RAB_SetupOrModifiedItem_PDU = -1;  /* RAB_SetupOrModifiedItem */
-static int hf_ranap_RAB_ReleasedList_PDU = -1;    /* RAB_ReleasedList */
-static int hf_ranap_RAB_ReleasedItem_PDU = -1;    /* RAB_ReleasedItem */
-static int hf_ranap_RAB_QueuedList_PDU = -1;      /* RAB_QueuedList */
-static int hf_ranap_RAB_QueuedItem_PDU = -1;      /* RAB_QueuedItem */
-static int hf_ranap_RAB_ReleaseFailedList_PDU = -1;  /* RAB_ReleaseFailedList */
-static int hf_ranap_GERAN_Iumode_RAB_FailedList_RABAssgntResponse_PDU = -1;  /* GERAN_Iumode_RAB_FailedList_RABAssgntResponse */
-static int hf_ranap_GERAN_Iumode_RAB_Failed_RABAssgntResponse_Item_PDU = -1;  /* GERAN_Iumode_RAB_Failed_RABAssgntResponse_Item */
-static int hf_ranap_PrivateMessage_PDU = -1;      /* PrivateMessage */
-static int hf_ranap_RANAP_RelocationInformation_PDU = -1;  /* RANAP_RelocationInformation */
-static int hf_ranap_DirectTransferInformationList_RANAP_RelocInf_PDU = -1;  /* DirectTransferInformationList_RANAP_RelocInf */
-static int hf_ranap_DirectTransferInformationItem_RANAP_RelocInf_PDU = -1;  /* DirectTransferInformationItem_RANAP_RelocInf */
-static int hf_ranap_RAB_ContextList_RANAP_RelocInf_PDU = -1;  /* RAB_ContextList_RANAP_RelocInf */
-static int hf_ranap_RAB_ContextItem_RANAP_RelocInf_PDU = -1;  /* RAB_ContextItem_RANAP_RelocInf */
-static int hf_ranap_RANAP_EnhancedRelocationInformationRequest_PDU = -1;  /* RANAP_EnhancedRelocationInformationRequest */
-static int hf_ranap_RAB_SetupList_EnhRelocInfoReq_PDU = -1;  /* RAB_SetupList_EnhRelocInfoReq */
-static int hf_ranap_RAB_SetupItem_EnhRelocInfoReq_PDU = -1;  /* RAB_SetupItem_EnhRelocInfoReq */
-static int hf_ranap_RANAP_EnhancedRelocationInformationResponse_PDU = -1;  /* RANAP_EnhancedRelocationInformationResponse */
-static int hf_ranap_RAB_SetupList_EnhRelocInfoRes_PDU = -1;  /* RAB_SetupList_EnhRelocInfoRes */
-static int hf_ranap_RAB_SetupItem_EnhRelocInfoRes_PDU = -1;  /* RAB_SetupItem_EnhRelocInfoRes */
-static int hf_ranap_RAB_FailedList_EnhRelocInfoRes_PDU = -1;  /* RAB_FailedList_EnhRelocInfoRes */
-static int hf_ranap_RAB_FailedItem_EnhRelocInfoRes_PDU = -1;  /* RAB_FailedItem_EnhRelocInfoRes */
-static int hf_ranap_RAB_ModifyRequest_PDU = -1;   /* RAB_ModifyRequest */
-static int hf_ranap_RAB_ModifyList_PDU = -1;      /* RAB_ModifyList */
-static int hf_ranap_RAB_ModifyItem_PDU = -1;      /* RAB_ModifyItem */
-static int hf_ranap_LocationRelatedDataRequest_PDU = -1;  /* LocationRelatedDataRequest */
-static int hf_ranap_LocationRelatedDataResponse_PDU = -1;  /* LocationRelatedDataResponse */
-static int hf_ranap_LocationRelatedDataFailure_PDU = -1;  /* LocationRelatedDataFailure */
-static int hf_ranap_InformationTransferIndication_PDU = -1;  /* InformationTransferIndication */
-static int hf_ranap_InformationTransferConfirmation_PDU = -1;  /* InformationTransferConfirmation */
-static int hf_ranap_InformationTransferFailure_PDU = -1;  /* InformationTransferFailure */
-static int hf_ranap_UESpecificInformationIndication_PDU = -1;  /* UESpecificInformationIndication */
-static int hf_ranap_DirectInformationTransfer_PDU = -1;  /* DirectInformationTransfer */
-static int hf_ranap_UplinkInformationExchangeRequest_PDU = -1;  /* UplinkInformationExchangeRequest */
-static int hf_ranap_UplinkInformationExchangeResponse_PDU = -1;  /* UplinkInformationExchangeResponse */
-static int hf_ranap_UplinkInformationExchangeFailure_PDU = -1;  /* UplinkInformationExchangeFailure */
-static int hf_ranap_MBMSSessionStart_PDU = -1;    /* MBMSSessionStart */
-static int hf_ranap_MBMSSynchronisationInformation_PDU = -1;  /* MBMSSynchronisationInformation */
-static int hf_ranap_MBMSSessionStartResponse_PDU = -1;  /* MBMSSessionStartResponse */
-static int hf_ranap_MBMSSessionStartFailure_PDU = -1;  /* MBMSSessionStartFailure */
-static int hf_ranap_MBMSSessionUpdate_PDU = -1;   /* MBMSSessionUpdate */
-static int hf_ranap_MBMSSessionUpdateResponse_PDU = -1;  /* MBMSSessionUpdateResponse */
-static int hf_ranap_MBMSSessionUpdateFailure_PDU = -1;  /* MBMSSessionUpdateFailure */
-static int hf_ranap_MBMSSessionStop_PDU = -1;     /* MBMSSessionStop */
-static int hf_ranap_MBMSSessionStopResponse_PDU = -1;  /* MBMSSessionStopResponse */
-static int hf_ranap_MBMSUELinkingRequest_PDU = -1;  /* MBMSUELinkingRequest */
-static int hf_ranap_LeftMBMSBearerService_IEs_PDU = -1;  /* LeftMBMSBearerService_IEs */
-static int hf_ranap_MBMSUELinkingResponse_PDU = -1;  /* MBMSUELinkingResponse */
-static int hf_ranap_UnsuccessfulLinking_IEs_PDU = -1;  /* UnsuccessfulLinking_IEs */
-static int hf_ranap_MBMSRegistrationRequest_PDU = -1;  /* MBMSRegistrationRequest */
-static int hf_ranap_MBMSRegistrationResponse_PDU = -1;  /* MBMSRegistrationResponse */
-static int hf_ranap_MBMSRegistrationFailure_PDU = -1;  /* MBMSRegistrationFailure */
-static int hf_ranap_MBMSCNDe_RegistrationRequest_PDU = -1;  /* MBMSCNDe_RegistrationRequest */
-static int hf_ranap_MBMSCNDe_RegistrationResponse_PDU = -1;  /* MBMSCNDe_RegistrationResponse */
-static int hf_ranap_MBMSRABEstablishmentIndication_PDU = -1;  /* MBMSRABEstablishmentIndication */
-static int hf_ranap_MBMSRABReleaseRequest_PDU = -1;  /* MBMSRABReleaseRequest */
-static int hf_ranap_MBMSRABRelease_PDU = -1;      /* MBMSRABRelease */
-static int hf_ranap_MBMSRABReleaseFailure_PDU = -1;  /* MBMSRABReleaseFailure */
-static int hf_ranap_SRVCC_CSKeysRequest_PDU = -1;  /* SRVCC_CSKeysRequest */
-static int hf_ranap_SRVCC_CSKeysResponse_PDU = -1;  /* SRVCC_CSKeysResponse */
-static int hf_ranap_UeRadioCapabilityMatchRequest_PDU = -1;  /* UeRadioCapabilityMatchRequest */
-static int hf_ranap_UeRadioCapabilityMatchResponse_PDU = -1;  /* UeRadioCapabilityMatchResponse */
-static int hf_ranap_UeRegistrationQueryRequest_PDU = -1;  /* UeRegistrationQueryRequest */
-static int hf_ranap_UeRegistrationQueryResponse_PDU = -1;  /* UeRegistrationQueryResponse */
-static int hf_ranap_RerouteNASRequest_PDU = -1;   /* RerouteNASRequest */
-static int hf_ranap_RANAP_PDU_PDU = -1;           /* RANAP_PDU */
-static int hf_ranap_local = -1;                   /* INTEGER_0_65535 */
-static int hf_ranap_global = -1;                  /* OBJECT_IDENTIFIER */
-static int hf_ranap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
-static int hf_ranap_id = -1;                      /* ProtocolIE_ID */
-static int hf_ranap_criticality = -1;             /* Criticality */
-static int hf_ranap_ie_field_value = -1;          /* T_ie_field_value */
-static int hf_ranap_ProtocolIE_ContainerPair_item = -1;  /* ProtocolIE_FieldPair */
-static int hf_ranap_firstCriticality = -1;        /* Criticality */
-static int hf_ranap_firstValue = -1;              /* T_firstValue */
-static int hf_ranap_secondCriticality = -1;       /* Criticality */
-static int hf_ranap_secondValue = -1;             /* T_secondValue */
-static int hf_ranap_ProtocolIE_ContainerList_item = -1;  /* ProtocolIE_Container */
-static int hf_ranap_ProtocolIE_ContainerPairList_item = -1;  /* ProtocolIE_ContainerPair */
-static int hf_ranap_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
-static int hf_ranap_ext_id = -1;                  /* ProtocolExtensionID */
-static int hf_ranap_extensionValue = -1;          /* T_extensionValue */
-static int hf_ranap_PrivateIE_Container_item = -1;  /* PrivateIE_Field */
-static int hf_ranap_private_id = -1;              /* PrivateIE_ID */
-static int hf_ranap_private_value = -1;           /* T_private_value */
-static int hf_ranap_old_LAI = -1;                 /* LAI */
-static int hf_ranap_old_RAC = -1;                 /* RAC */
-static int hf_ranap_nRI = -1;                     /* BIT_STRING_SIZE_10 */
-static int hf_ranap_uE_is_Attaching = -1;         /* NULL */
-static int hf_ranap_iE_Extensions = -1;           /* ProtocolExtensionContainer */
-static int hf_ranap_Additional_PositioningDataSet_item = -1;  /* Additional_PositioningMethodAndUsage */
-static int hf_ranap_priorityLevel = -1;           /* PriorityLevel */
-static int hf_ranap_pre_emptionCapability = -1;   /* Pre_emptionCapability */
-static int hf_ranap_pre_emptionVulnerability = -1;  /* Pre_emptionVulnerability */
-static int hf_ranap_queuingAllowed = -1;          /* QueuingAllowed */
-static int hf_ranap_altMaxBitrateInf = -1;        /* Alt_RAB_Parameter_MaxBitrateInf */
-static int hf_ranap_altGuaranteedBitRateInf = -1;  /* Alt_RAB_Parameter_GuaranteedBitrateInf */
-static int hf_ranap_altExtendedGuaranteedBitrateType = -1;  /* Alt_RAB_Parameter_GuaranteedBitrateType */
-static int hf_ranap_altExtendedGuaranteedBitrates = -1;  /* Alt_RAB_Parameter_ExtendedGuaranteedBitrates */
-static int hf_ranap_Alt_RAB_Parameter_ExtendedGuaranteedBitrates_item = -1;  /* Alt_RAB_Parameter_ExtendedGuaranteedBitrateList */
-static int hf_ranap_Alt_RAB_Parameter_ExtendedGuaranteedBitrateList_item = -1;  /* ExtendedGuaranteedBitrate */
-static int hf_ranap_altGuaranteedBitrateType = -1;  /* Alt_RAB_Parameter_GuaranteedBitrateType */
-static int hf_ranap_altGuaranteedBitrates = -1;   /* Alt_RAB_Parameter_GuaranteedBitrates */
-static int hf_ranap_Alt_RAB_Parameter_GuaranteedBitrates_item = -1;  /* Alt_RAB_Parameter_GuaranteedBitrateList */
-static int hf_ranap_Alt_RAB_Parameter_GuaranteedBitrateList_item = -1;  /* GuaranteedBitrate */
-static int hf_ranap_altSupportedGuaranteedBitrateType = -1;  /* Alt_RAB_Parameter_GuaranteedBitrateType */
-static int hf_ranap_altSupportedGuaranteedBitrates = -1;  /* Alt_RAB_Parameter_SupportedGuaranteedBitrates */
-static int hf_ranap_Alt_RAB_Parameter_SupportedGuaranteedBitrates_item = -1;  /* SupportedRAB_ParameterBitrateList */
-static int hf_ranap_altExtendedMaxBitrateType = -1;  /* Alt_RAB_Parameter_MaxBitrateType */
-static int hf_ranap_altExtendedMaxBitrates = -1;  /* Alt_RAB_Parameter_ExtendedMaxBitrates */
-static int hf_ranap_Alt_RAB_Parameter_ExtendedMaxBitrates_item = -1;  /* Alt_RAB_Parameter_ExtendedMaxBitrateList */
-static int hf_ranap_Alt_RAB_Parameter_ExtendedMaxBitrateList_item = -1;  /* ExtendedMaxBitrate */
-static int hf_ranap_altMaxBitrateType = -1;       /* Alt_RAB_Parameter_MaxBitrateType */
-static int hf_ranap_altMaxBitrates = -1;          /* Alt_RAB_Parameter_MaxBitrates */
-static int hf_ranap_Alt_RAB_Parameter_MaxBitrates_item = -1;  /* Alt_RAB_Parameter_MaxBitrateList */
-static int hf_ranap_Alt_RAB_Parameter_MaxBitrateList_item = -1;  /* MaxBitrate */
-static int hf_ranap_altSupportedMaxBitrateType = -1;  /* Alt_RAB_Parameter_MaxBitrateType */
-static int hf_ranap_altSupportedMaxBitrates = -1;  /* Alt_RAB_Parameter_SupportedMaxBitrates */
-static int hf_ranap_Alt_RAB_Parameter_SupportedMaxBitrates_item = -1;  /* SupportedRAB_ParameterBitrateList */
-static int hf_ranap_applicationLayerContainerForMeasurementConfiguration = -1;  /* OCTET_STRING_SIZE_1_1000 */
-static int hf_ranap_areaScopeForUEApplicationLayerMeasurementConfiguration = -1;  /* AreaScopeForUEApplicationLayerMeasurementConfiguration */
-static int hf_ranap_traceReference = -1;          /* TraceReference */
-static int hf_ranap_tracePropagationParameters = -1;  /* TracePropagationParameters */
-static int hf_ranap_traceCollectionEntityIPAddress = -1;  /* TransportLayerAddress */
-static int hf_ranap_cellbased = -1;               /* CellBased */
-static int hf_ranap_labased = -1;                 /* LABased */
-static int hf_ranap_rabased = -1;                 /* RABased */
-static int hf_ranap_plmn_area_based = -1;         /* PLMNBased */
-static int hf_ranap_sAI = -1;                     /* SAI */
-static int hf_ranap_geographicalArea = -1;        /* GeographicalArea */
-static int hf_ranap_assMaxBitrateInf = -1;        /* Ass_RAB_Parameter_MaxBitrateList */
-static int hf_ranap_assGuaranteedBitRateInf = -1;  /* Ass_RAB_Parameter_GuaranteedBitrateList */
-static int hf_ranap_Ass_RAB_Parameter_ExtendedGuaranteedBitrateList_item = -1;  /* ExtendedGuaranteedBitrate */
-static int hf_ranap_Ass_RAB_Parameter_ExtendedMaxBitrateList_item = -1;  /* ExtendedMaxBitrate */
-static int hf_ranap_Ass_RAB_Parameter_GuaranteedBitrateList_item = -1;  /* GuaranteedBitrate */
-static int hf_ranap_Ass_RAB_Parameter_MaxBitrateList_item = -1;  /* MaxBitrate */
-static int hf_ranap_AuthorisedPLMNs_item = -1;    /* AuthorisedPLMNs_item */
-static int hf_ranap_pLMNidentity = -1;            /* PLMNidentity */
-static int hf_ranap_authorisedSNAsList = -1;      /* AuthorisedSNAs */
-static int hf_ranap_AuthorisedSNAs_item = -1;     /* SNAC */
-static int hf_ranap_cipheringKeyFlag = -1;        /* BIT_STRING_SIZE_1 */
-static int hf_ranap_currentDecipheringKey = -1;   /* BIT_STRING_SIZE_56 */
-static int hf_ranap_nextDecipheringKey = -1;      /* BIT_STRING_SIZE_56 */
-static int hf_ranap_radioNetwork = -1;            /* CauseRadioNetwork */
-static int hf_ranap_transmissionNetwork = -1;     /* CauseTransmissionNetwork */
-static int hf_ranap_nAS = -1;                     /* CauseNAS */
-static int hf_ranap_protocol = -1;                /* CauseProtocol */
-static int hf_ranap_misc = -1;                    /* CauseMisc */
-static int hf_ranap_non_Standard = -1;            /* CauseNon_Standard */
-static int hf_ranap_radioNetworkExtension = -1;   /* CauseRadioNetworkExtension */
-static int hf_ranap_cellIdList = -1;              /* CellIdList */
-static int hf_ranap_CellIdList_item = -1;         /* Cell_Id */
-static int hf_ranap_cell_Capacity_Class_Value = -1;  /* Cell_Capacity_Class_Value */
-static int hf_ranap_loadValue = -1;               /* LoadValue */
-static int hf_ranap_rTLoadValue = -1;             /* RTLoadValue */
-static int hf_ranap_nRTLoadInformationValue = -1;  /* NRTLoadInformationValue */
-static int hf_ranap_sourceCellID = -1;            /* SourceCellID */
-static int hf_ranap_uplinkCellLoadInformation = -1;  /* CellLoadInformation */
-static int hf_ranap_downlinkCellLoadInformation = -1;  /* CellLoadInformation */
-static int hf_ranap_procedureCode = -1;           /* ProcedureCode */
-static int hf_ranap_triggeringMessage = -1;       /* TriggeringMessage */
-static int hf_ranap_procedureCriticality = -1;    /* Criticality */
-static int hf_ranap_iEsCriticalityDiagnostics = -1;  /* CriticalityDiagnostics_IE_List */
-static int hf_ranap_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_List_item */
-static int hf_ranap_iECriticality = -1;           /* Criticality */
-static int hf_ranap_iE_ID = -1;                   /* ProtocolIE_ID */
-static int hf_ranap_repetitionNumber = -1;        /* RepetitionNumber0 */
-static int hf_ranap_MessageStructure_item = -1;   /* MessageStructure_item */
-static int hf_ranap_item_repetitionNumber = -1;   /* RepetitionNumber1 */
-static int hf_ranap_lAC = -1;                     /* LAC */
-static int hf_ranap_cI = -1;                      /* CI */
-static int hf_ranap_CSG_Id_List_item = -1;        /* CSG_Id */
-static int hf_ranap_newRAListofIdleModeUEs = -1;  /* NewRAListofIdleModeUEs */
-static int hf_ranap_rAListwithNoIdleModeUEsAnyMore = -1;  /* RAListwithNoIdleModeUEsAnyMore */
-static int hf_ranap_NewRAListofIdleModeUEs_item = -1;  /* RAC */
-static int hf_ranap_RAListwithNoIdleModeUEsAnyMore_item = -1;  /* RAC */
-static int hf_ranap_macroENB_ID = -1;             /* BIT_STRING_SIZE_20 */
-static int hf_ranap_homeENB_ID = -1;              /* BIT_STRING_SIZE_28 */
-static int hf_ranap_short_macroENB_ID = -1;       /* BIT_STRING_SIZE_18 */
-static int hf_ranap_long_macroENB_ID = -1;        /* BIT_STRING_SIZE_21 */
-static int hf_ranap_permittedAlgorithms = -1;     /* PermittedEncryptionAlgorithms */
-static int hf_ranap_key = -1;                     /* EncryptionKey */
-static int hf_ranap_iMEIlist = -1;                /* IMEIList */
-static int hf_ranap_iMEISVlist = -1;              /* IMEISVList */
-static int hf_ranap_iMEIgroup = -1;               /* IMEIGroup */
-static int hf_ranap_iMEISVgroup = -1;             /* IMEISVGroup */
-static int hf_ranap_measurementQuantity = -1;     /* MeasurementQuantity */
-static int hf_ranap_threshold = -1;               /* INTEGER_M120_165 */
-static int hf_ranap_threshold_01 = -1;            /* INTEGER_M120_M25 */
-static int hf_ranap_GANSS_PositioningDataSet_item = -1;  /* GANSS_PositioningMethodAndUsage */
-static int hf_ranap_point = -1;                   /* GA_Point */
-static int hf_ranap_pointWithUnCertainty = -1;    /* GA_PointWithUnCertainty */
-static int hf_ranap_polygon = -1;                 /* GA_Polygon */
-static int hf_ranap_pointWithUncertaintyEllipse = -1;  /* GA_PointWithUnCertaintyEllipse */
-static int hf_ranap_pointWithAltitude = -1;       /* GA_PointWithAltitude */
-static int hf_ranap_pointWithAltitudeAndUncertaintyEllipsoid = -1;  /* GA_PointWithAltitudeAndUncertaintyEllipsoid */
-static int hf_ranap_ellipsoidArc = -1;            /* GA_EllipsoidArc */
-static int hf_ranap_latitudeSign = -1;            /* T_latitudeSign */
-static int hf_ranap_latitude = -1;                /* INTEGER_0_8388607 */
-static int hf_ranap_longitude = -1;               /* INTEGER_M8388608_8388607 */
-static int hf_ranap_directionOfAltitude = -1;     /* T_directionOfAltitude */
-static int hf_ranap_altitude = -1;                /* INTEGER_0_32767 */
-static int hf_ranap_geographicalCoordinates = -1;  /* GeographicalCoordinates */
-static int hf_ranap_innerRadius = -1;             /* INTEGER_0_65535 */
-static int hf_ranap_uncertaintyRadius = -1;       /* INTEGER_0_127 */
-static int hf_ranap_offsetAngle = -1;             /* INTEGER_0_179 */
-static int hf_ranap_includedAngle = -1;           /* INTEGER_0_179 */
-static int hf_ranap_confidence = -1;              /* INTEGER_0_127 */
-static int hf_ranap_altitudeAndDirection = -1;    /* GA_AltitudeAndDirection */
-static int hf_ranap_uncertaintyEllipse = -1;      /* GA_UncertaintyEllipse */
-static int hf_ranap_uncertaintyAltitude = -1;     /* INTEGER_0_127 */
-static int hf_ranap_uncertaintyCode = -1;         /* INTEGER_0_127 */
-static int hf_ranap_GA_Polygon_item = -1;         /* GA_Polygon_item */
-static int hf_ranap_uncertaintySemi_major = -1;   /* INTEGER_0_127 */
-static int hf_ranap_uncertaintySemi_minor = -1;   /* INTEGER_0_127 */
-static int hf_ranap_orientationOfMajorAxis = -1;  /* INTEGER_0_179 */
-static int hf_ranap_lAI = -1;                     /* LAI */
-static int hf_ranap_rAC = -1;                     /* RAC */
-static int hf_ranap_cN_ID = -1;                   /* CN_ID */
-static int hf_ranap_rNC_ID = -1;                  /* RNC_ID */
-static int hf_ranap_iMEI = -1;                    /* IMEI */
-static int hf_ranap_iMEIMask = -1;                /* BIT_STRING_SIZE_7 */
-static int hf_ranap_IMEIList_item = -1;           /* IMEI */
-static int hf_ranap_iMEISV = -1;                  /* IMEISV */
-static int hf_ranap_iMEISVMask = -1;              /* BIT_STRING_SIZE_7 */
-static int hf_ranap_IMEISVList_item = -1;         /* IMEISV */
-static int hf_ranap_measurementsToActivate = -1;  /* MeasurementsToActivate */
-static int hf_ranap_m1report = -1;                /* M1Report */
-static int hf_ranap_m2report = -1;                /* M2Report */
-static int hf_ranap_requestedMBMSIPMulticastAddressandAPNRequest = -1;  /* RequestedMBMSIPMulticastAddressandAPNRequest */
-static int hf_ranap_requestedMulticastServiceList = -1;  /* RequestedMulticastServiceList */
-static int hf_ranap_mBMSIPMulticastAddressandAPNRequest = -1;  /* MBMSIPMulticastAddressandAPNRequest */
-static int hf_ranap_permanentNAS_UE_ID = -1;      /* PermanentNAS_UE_ID */
-static int hf_ranap_rNCTraceInformation = -1;     /* RNCTraceInformation */
-static int hf_ranap_permittedAlgorithms_01 = -1;  /* PermittedIntegrityProtectionAlgorithms */
-static int hf_ranap_key_01 = -1;                  /* IntegrityProtectionKey */
-static int hf_ranap_rIM_Transfer = -1;            /* RIM_Transfer */
-static int hf_ranap_gTP_TEI = -1;                 /* GTP_TEI */
-static int hf_ranap_bindingID = -1;               /* BindingID */
-static int hf_ranap_LA_LIST_item = -1;            /* LA_LIST_item */
-static int hf_ranap_listOF_SNAs = -1;             /* ListOF_SNAs */
-static int hf_ranap_ageOfSAI = -1;                /* INTEGER_0_32767 */
-static int hf_ranap_uTRAN_CellID = -1;            /* UTRAN_CellID */
-static int hf_ranap_cellType = -1;                /* CellType */
-static int hf_ranap_time_UE_StayedInCell = -1;    /* Time_UE_StayedInCell */
-static int hf_ranap_ListOF_SNAs_item = -1;        /* SNAC */
-static int hf_ranap_ListOfInterfacesToTrace_item = -1;  /* InterfacesToTraceItem */
-static int hf_ranap_interface = -1;               /* T_interface */
-static int hf_ranap_requestedLocationRelatedDataType = -1;  /* RequestedLocationRelatedDataType */
-static int hf_ranap_requestedGPSAssistanceData = -1;  /* RequestedGPSAssistanceData */
-static int hf_ranap_reportChangeOfSAI = -1;       /* ReportChangeOfSAI */
-static int hf_ranap_periodicReportingIndicator = -1;  /* PeriodicReportingIndicator */
-static int hf_ranap_directReportingIndicator = -1;  /* DirectReportingIndicator */
-static int hf_ranap_verticalAccuracyCode = -1;    /* VerticalAccuracyCode */
-static int hf_ranap_positioningPriorityChangeSAI = -1;  /* PositioningPriority */
-static int hf_ranap_positioningPriorityDirect = -1;  /* PositioningPriority */
-static int hf_ranap_clientTypePeriodic = -1;      /* ClientType */
-static int hf_ranap_clientTypeDirect = -1;        /* ClientType */
-static int hf_ranap_responseTime = -1;            /* ResponseTime */
-static int hf_ranap_includeVelocity = -1;         /* IncludeVelocity */
-static int hf_ranap_periodicLocationInfo = -1;    /* PeriodicLocationInfo */
-static int hf_ranap_periodic = -1;                /* MDT_Report_Parameters */
-static int hf_ranap_event1F = -1;                 /* Event1F_Parameters */
-static int hf_ranap_event1I = -1;                 /* Event1I_Parameters */
-static int hf_ranap_all = -1;                     /* NULL */
-static int hf_ranap_m4_collection_parameters = -1;  /* M4_Collection_Parameters */
-static int hf_ranap_m4_period = -1;               /* M4_Period */
-static int hf_ranap_m4_threshold = -1;            /* M4_Threshold */
-static int hf_ranap_when_available = -1;          /* NULL */
-static int hf_ranap_m5_period = -1;               /* M5_Period */
-static int hf_ranap_m6_period = -1;               /* M6_Period */
-static int hf_ranap_m6_links_to_log = -1;         /* Links_to_log */
-static int hf_ranap_m7_period = -1;               /* M7_Period */
-static int hf_ranap_m7_links_to_log = -1;         /* Links_to_log */
-static int hf_ranap_MBMSIPMulticastAddressandAPNRequest_item = -1;  /* TMGI */
-static int hf_ranap_plmn_area_based_01 = -1;      /* NULL */
-static int hf_ranap_mdtActivation = -1;           /* MDT_Activation */
-static int hf_ranap_mdtAreaScope = -1;            /* MDTAreaScope */
-static int hf_ranap_mdtMode = -1;                 /* MDTMode */
-static int hf_ranap_immediateMDT = -1;            /* ImmediateMDT */
-static int hf_ranap_loggedMDT = -1;               /* LoggedMDT */
-static int hf_ranap_MDT_PLMN_List_item = -1;      /* PLMNidentity */
-static int hf_ranap_reportInterval = -1;          /* ReportInterval */
-static int hf_ranap_reportAmount = -1;            /* ReportAmount */
-static int hf_ranap_accessPointName = -1;         /* Offload_RAB_Parameters_APN */
-static int hf_ranap_chargingCharacteristics = -1;  /* Offload_RAB_Parameters_ChargingCharacteristics */
-static int hf_ranap_rAI = -1;                     /* RAI */
-static int hf_ranap_PDP_TypeInformation_item = -1;  /* PDP_Type */
-static int hf_ranap_PDP_TypeInformation_extension_item = -1;  /* PDP_Type_extension */
-static int hf_ranap_reportingAmount = -1;         /* INTEGER_1_8639999_ */
-static int hf_ranap_reportingInterval = -1;       /* INTEGER_1_8639999_ */
-static int hf_ranap_iMSI = -1;                    /* IMSI */
-static int hf_ranap_PermittedEncryptionAlgorithms_item = -1;  /* EncryptionAlgorithm */
-static int hf_ranap_PermittedIntegrityProtectionAlgorithms_item = -1;  /* IntegrityProtectionAlgorithm */
-static int hf_ranap_laiList = -1;                 /* LAI_List */
-static int hf_ranap_LAI_List_item = -1;           /* LAI */
-static int hf_ranap_loggingInterval = -1;         /* LoggingInterval */
-static int hf_ranap_loggingDuration = -1;         /* LoggingDuration */
-static int hf_ranap_plmnList = -1;                /* PLMNList */
-static int hf_ranap_PLMNList_item = -1;           /* PLMNidentity */
-static int hf_ranap_PLMNs_in_shared_network_item = -1;  /* PLMNs_in_shared_network_item */
-static int hf_ranap_lA_LIST = -1;                 /* LA_LIST */
-static int hf_ranap_PositioningDataSet_item = -1;  /* PositioningMethodAndUsage */
-static int hf_ranap_positioningDataDiscriminator = -1;  /* PositioningDataDiscriminator */
-static int hf_ranap_positioningDataSet = -1;      /* PositioningDataSet */
-static int hf_ranap_shared_network_information = -1;  /* Shared_Network_Information */
-static int hf_ranap_raiList = -1;                 /* RAI_List */
-static int hf_ranap_RAI_List_item = -1;           /* RAI */
-static int hf_ranap_RABDataVolumeReport_item = -1;  /* RABDataVolumeReport_item */
-static int hf_ranap_dl_UnsuccessfullyTransmittedDataVolume = -1;  /* UnsuccessfullyTransmittedDataVolume */
-static int hf_ranap_dataVolumeReference = -1;     /* DataVolumeReference */
-static int hf_ranap_RAB_Parameter_ExtendedGuaranteedBitrateList_item = -1;  /* ExtendedGuaranteedBitrate */
-static int hf_ranap_RAB_Parameter_ExtendedMaxBitrateList_item = -1;  /* ExtendedMaxBitrate */
-static int hf_ranap_RAB_Parameter_GuaranteedBitrateList_item = -1;  /* GuaranteedBitrate */
-static int hf_ranap_RAB_Parameter_MaxBitrateList_item = -1;  /* MaxBitrate */
-static int hf_ranap_trafficClass = -1;            /* TrafficClass */
-static int hf_ranap_rAB_AsymmetryIndicator = -1;  /* RAB_AsymmetryIndicator */
-static int hf_ranap_maxBitrate = -1;              /* RAB_Parameter_MaxBitrateList */
-static int hf_ranap_guaranteedBitRate = -1;       /* RAB_Parameter_GuaranteedBitrateList */
-static int hf_ranap_deliveryOrder = -1;           /* DeliveryOrder */
-static int hf_ranap_maxSDU_Size = -1;             /* MaxSDU_Size */
-static int hf_ranap_sDU_Parameters = -1;          /* SDU_Parameters */
-static int hf_ranap_transferDelay = -1;           /* TransferDelay */
-static int hf_ranap_trafficHandlingPriority = -1;  /* TrafficHandlingPriority */
-static int hf_ranap_allocationOrRetentionPriority = -1;  /* AllocationOrRetentionPriority */
-static int hf_ranap_sourceStatisticsDescriptor = -1;  /* SourceStatisticsDescriptor */
-static int hf_ranap_relocationRequirement = -1;   /* RelocationRequirement */
-static int hf_ranap_RABParametersList_item = -1;  /* RABParametersList_item */
-static int hf_ranap_rab_Id = -1;                  /* RAB_ID */
-static int hf_ranap_cn_domain = -1;               /* CN_DomainIndicator */
-static int hf_ranap_rabDataVolumeReport = -1;     /* RABDataVolumeReport */
-static int hf_ranap_upInformation = -1;           /* UPInformation */
-static int hf_ranap_RAB_TrCH_Mapping_item = -1;   /* RAB_TrCH_MappingItem */
-static int hf_ranap_rAB_ID = -1;                  /* RAB_ID */
-static int hf_ranap_trCH_ID_List = -1;            /* TrCH_ID_List */
-static int hf_ranap_notEmptyRAListofIdleModeUEs = -1;  /* NotEmptyRAListofIdleModeUEs */
-static int hf_ranap_emptyFullRAListofIdleModeUEs = -1;  /* T_emptyFullRAListofIdleModeUEs */
-static int hf_ranap_rAofIdleModeUEs = -1;         /* RAofIdleModeUEs */
-static int hf_ranap_RAofIdleModeUEs_item = -1;    /* RAC */
-static int hf_ranap_LAListofIdleModeUEs_item = -1;  /* LAI */
-static int hf_ranap_RequestedMBMSIPMulticastAddressandAPNRequest_item = -1;  /* MBMSIPMulticastAddressandAPNlist */
-static int hf_ranap_tMGI = -1;                    /* TMGI */
-static int hf_ranap_iPMulticastAddress = -1;      /* IPMulticastAddress */
-static int hf_ranap_aPN = -1;                     /* APN */
-static int hf_ranap_RequestedMulticastServiceList_item = -1;  /* TMGI */
-static int hf_ranap_requestedMaxBitrates = -1;    /* Requested_RAB_Parameter_MaxBitrateList */
-static int hf_ranap_requestedGuaranteedBitrates = -1;  /* Requested_RAB_Parameter_GuaranteedBitrateList */
-static int hf_ranap_Requested_RAB_Parameter_ExtendedMaxBitrateList_item = -1;  /* ExtendedMaxBitrate */
-static int hf_ranap_Requested_RAB_Parameter_ExtendedGuaranteedBitrateList_item = -1;  /* ExtendedGuaranteedBitrate */
-static int hf_ranap_Requested_RAB_Parameter_MaxBitrateList_item = -1;  /* MaxBitrate */
-static int hf_ranap_Requested_RAB_Parameter_GuaranteedBitrateList_item = -1;  /* GuaranteedBitrate */
-static int hf_ranap_event = -1;                   /* Event */
-static int hf_ranap_reportArea = -1;              /* ReportArea */
-static int hf_ranap_accuracyCode = -1;            /* INTEGER_0_127 */
-static int hf_ranap_mantissa = -1;                /* INTEGER_1_9 */
-static int hf_ranap_exponent = -1;                /* INTEGER_1_8 */
-static int hf_ranap_rIMInformation = -1;          /* RIMInformation */
-static int hf_ranap_rIMRoutingAddress = -1;       /* RIMRoutingAddress */
-static int hf_ranap_targetRNC_ID = -1;            /* TargetRNC_ID */
-static int hf_ranap_gERAN_Cell_ID = -1;           /* GERAN_Cell_ID */
-static int hf_ranap_targeteNB_ID = -1;            /* TargetENB_ID */
-static int hf_ranap_traceActivationIndicator = -1;  /* T_traceActivationIndicator */
-static int hf_ranap_equipmentsToBeTraced = -1;    /* EquipmentsToBeTraced */
-static int hf_ranap_rabParmetersList = -1;        /* RABParametersList */
-static int hf_ranap_locationReporting = -1;       /* LocationReportingTransferInformation */
-static int hf_ranap_traceInformation = -1;        /* TraceInformation */
-static int hf_ranap_sourceSAI = -1;               /* SAI */
-static int hf_ranap_nonce = -1;                   /* BIT_STRING_SIZE_128 */
-static int hf_ranap_iMSInformation = -1;          /* OCTET_STRING_SIZE_1_maxSizeOfIMSInfo */
-static int hf_ranap_sAC = -1;                     /* SAC */
-static int hf_ranap_pLMNs_in_shared_network = -1;  /* PLMNs_in_shared_network */
-static int hf_ranap_exponent_1_8 = -1;            /* INTEGER_1_6 */
-static int hf_ranap_SDU_FormatInformationParameters_item = -1;  /* SDU_FormatInformationParameters_item */
-static int hf_ranap_subflowSDU_Size = -1;         /* SubflowSDU_Size */
-static int hf_ranap_rAB_SubflowCombinationBitRate = -1;  /* RAB_SubflowCombinationBitRate */
-static int hf_ranap_SDU_Parameters_item = -1;     /* SDU_Parameters_item */
-static int hf_ranap_sDU_ErrorRatio = -1;          /* SDU_ErrorRatio */
-static int hf_ranap_residualBitErrorRatio = -1;   /* ResidualBitErrorRatio */
-static int hf_ranap_deliveryOfErroneousSDU = -1;  /* DeliveryOfErroneousSDU */
-static int hf_ranap_sDU_FormatInformationParameters = -1;  /* SDU_FormatInformationParameters */
-static int hf_ranap_null_NRI = -1;                /* Null_NRI */
-static int hf_ranap_sGSN_Group_ID = -1;           /* SGSN_Group_ID */
-static int hf_ranap_authorisedPLMNs = -1;         /* AuthorisedPLMNs */
-static int hf_ranap_sourceUTRANCellID = -1;       /* SourceUTRANCellID */
-static int hf_ranap_sourceGERANCellID = -1;       /* CGI */
-static int hf_ranap_sourceRNC_ID = -1;            /* SourceRNC_ID */
-static int hf_ranap_rRC_Container = -1;           /* RRC_Container */
-static int hf_ranap_numberOfIuInstances = -1;     /* NumberOfIuInstances */
-static int hf_ranap_relocationType = -1;          /* RelocationType */
-static int hf_ranap_chosenIntegrityProtectionAlgorithm = -1;  /* ChosenIntegrityProtectionAlgorithm */
-static int hf_ranap_integrityProtectionKey = -1;  /* IntegrityProtectionKey */
-static int hf_ranap_chosenEncryptionAlgorithForSignalling = -1;  /* ChosenEncryptionAlgorithm */
-static int hf_ranap_cipheringKey = -1;            /* EncryptionKey */
-static int hf_ranap_chosenEncryptionAlgorithForCS = -1;  /* ChosenEncryptionAlgorithm */
-static int hf_ranap_chosenEncryptionAlgorithForPS = -1;  /* ChosenEncryptionAlgorithm */
-static int hf_ranap_d_RNTI = -1;                  /* D_RNTI */
-static int hf_ranap_targetCellId = -1;            /* TargetCellId */
-static int hf_ranap_rAB_TrCH_Mapping = -1;        /* RAB_TrCH_Mapping */
-static int hf_ranap_rSRP = -1;                    /* INTEGER_0_97 */
-static int hf_ranap_rSRQ = -1;                    /* INTEGER_0_34 */
-static int hf_ranap_iRATmeasurementParameters = -1;  /* IRATmeasurementParameters */
-static int hf_ranap_measurementDuration = -1;     /* INTEGER_1_100 */
-static int hf_ranap_eUTRANFrequencies = -1;       /* EUTRANFrequencies */
-static int hf_ranap_allSymbols = -1;              /* BOOLEAN */
-static int hf_ranap_wideBand = -1;                /* BOOLEAN */
-static int hf_ranap_EUTRANFrequencies_item = -1;  /* EUTRANFrequencies_item */
-static int hf_ranap_earfcn = -1;                  /* INTEGER_0_65535 */
-static int hf_ranap_measBand = -1;                /* MeasBand */
-static int hf_ranap_SupportedRAB_ParameterBitrateList_item = -1;  /* SupportedBitrate */
-static int hf_ranap_uTRANcellID = -1;             /* TargetCellId */
-static int hf_ranap_SRB_TrCH_Mapping_item = -1;   /* SRB_TrCH_MappingItem */
-static int hf_ranap_sRB_ID = -1;                  /* SRB_ID */
-static int hf_ranap_trCH_ID = -1;                 /* TrCH_ID */
-static int hf_ranap_tAC = -1;                     /* TAC */
-static int hf_ranap_cGI = -1;                     /* CGI */
-static int hf_ranap_eNB_ID = -1;                  /* ENB_ID */
-static int hf_ranap_selectedTAI = -1;             /* TAI */
-static int hf_ranap_tMSI = -1;                    /* TMSI */
-static int hf_ranap_p_TMSI = -1;                  /* P_TMSI */
-static int hf_ranap_serviceID = -1;               /* OCTET_STRING_SIZE_3 */
-static int hf_ranap_ue_identity = -1;             /* UE_ID */
-static int hf_ranap_traceRecordingSessionReference = -1;  /* TraceRecordingSessionReference */
-static int hf_ranap_traceDepth = -1;              /* TraceDepth */
-static int hf_ranap_listOfInterfacesToTrace = -1;  /* ListOfInterfacesToTrace */
-static int hf_ranap_dCH_ID = -1;                  /* DCH_ID */
-static int hf_ranap_dSCH_ID = -1;                 /* DSCH_ID */
-static int hf_ranap_uSCH_ID = -1;                 /* USCH_ID */
-static int hf_ranap_TrCH_ID_List_item = -1;       /* TrCH_ID */
-static int hf_ranap_transportLayerAddress = -1;   /* TransportLayerAddress */
-static int hf_ranap_uDP_Port_Number = -1;         /* Port_Number */
-static int hf_ranap_uE_AggregateMaximumBitRateDownlink = -1;  /* UE_AggregateMaximumBitRateDownlink */
-static int hf_ranap_uE_AggregateMaximumBitRateUplink = -1;  /* UE_AggregateMaximumBitRateUplink */
-static int hf_ranap_imsi = -1;                    /* IMSI */
-static int hf_ranap_imei = -1;                    /* IMEI */
-static int hf_ranap_imeisv = -1;                  /* IMEISV */
-static int hf_ranap_uE_IsServed = -1;             /* UE_IsServed */
-static int hf_ranap_uE_IsNotServed = -1;          /* UE_IsNotServed */
-static int hf_ranap_uESBI_IuA = -1;               /* UESBI_IuA */
-static int hf_ranap_uESBI_IuB = -1;               /* UESBI_IuB */
-static int hf_ranap_frameSeqNoUL = -1;            /* FrameSequenceNumber */
-static int hf_ranap_frameSeqNoDL = -1;            /* FrameSequenceNumber */
-static int hf_ranap_pdu14FrameSeqNoUL = -1;       /* PDUType14FrameSequenceNumber */
-static int hf_ranap_pdu14FrameSeqNoDL = -1;       /* PDUType14FrameSequenceNumber */
-static int hf_ranap_dataPDUType = -1;             /* DataPDUType */
-static int hf_ranap_upinitialisationFrame = -1;   /* UPInitialisationFrame */
-static int hf_ranap_cellID = -1;                  /* TargetCellId */
-static int hf_ranap_horizontalVelocity = -1;      /* HorizontalVelocity */
-static int hf_ranap_horizontalWithVerticalVelocity = -1;  /* HorizontalWithVerticalVelocity */
-static int hf_ranap_horizontalVelocityWithUncertainty = -1;  /* HorizontalVelocityWithUncertainty */
-static int hf_ranap_horizontalWithVeritcalVelocityAndUncertainty = -1;  /* HorizontalWithVerticalVelocityAndUncertainty */
-static int hf_ranap_horizontalSpeedAndBearing = -1;  /* HorizontalSpeedAndBearing */
-static int hf_ranap_veritcalVelocity = -1;        /* VerticalVelocity */
-static int hf_ranap_uncertaintySpeed = -1;        /* INTEGER_0_255 */
-static int hf_ranap_horizontalUncertaintySpeed = -1;  /* INTEGER_0_255 */
-static int hf_ranap_verticalUncertaintySpeed = -1;  /* INTEGER_0_255 */
-static int hf_ranap_bearing = -1;                 /* INTEGER_0_359 */
-static int hf_ranap_horizontalSpeed = -1;         /* INTEGER_0_2047 */
-static int hf_ranap_veritcalSpeed = -1;           /* INTEGER_0_255 */
-static int hf_ranap_veritcalSpeedDirection = -1;  /* VerticalSpeedDirection */
-static int hf_ranap_protocolIEs = -1;             /* ProtocolIE_Container */
-static int hf_ranap_protocolExtensions = -1;      /* ProtocolExtensionContainer */
-static int hf_ranap_rab_dl_UnsuccessfullyTransmittedDataVolume = -1;  /* DataVolumeList */
-static int hf_ranap_dL_GTP_PDU_SequenceNumber = -1;  /* DL_GTP_PDU_SequenceNumber */
-static int hf_ranap_uL_GTP_PDU_SequenceNumber = -1;  /* UL_GTP_PDU_SequenceNumber */
-static int hf_ranap_iuTransportAssociation = -1;  /* IuTransportAssociation */
-static int hf_ranap_nAS_SynchronisationIndicator = -1;  /* NAS_SynchronisationIndicator */
-static int hf_ranap_rAB_Parameters = -1;          /* RAB_Parameters */
-static int hf_ranap_dataVolumeReportingIndication = -1;  /* DataVolumeReportingIndication */
-static int hf_ranap_pDP_TypeInformation = -1;     /* PDP_TypeInformation */
-static int hf_ranap_userPlaneInformation = -1;    /* UserPlaneInformation */
-static int hf_ranap_service_Handover = -1;        /* Service_Handover */
-static int hf_ranap_userPlaneMode = -1;           /* UserPlaneMode */
-static int hf_ranap_uP_ModeVersions = -1;         /* UP_ModeVersions */
-static int hf_ranap_joinedMBMSBearerService_IEs = -1;  /* JoinedMBMSBearerService_IEs */
-static int hf_ranap_JoinedMBMSBearerService_IEs_item = -1;  /* JoinedMBMSBearerService_IEs_item */
-static int hf_ranap_mBMS_PTP_RAB_ID = -1;         /* MBMS_PTP_RAB_ID */
-static int hf_ranap_cause = -1;                   /* Cause */
-static int hf_ranap_dl_GTP_PDU_SequenceNumber = -1;  /* DL_GTP_PDU_SequenceNumber */
-static int hf_ranap_ul_GTP_PDU_SequenceNumber = -1;  /* UL_GTP_PDU_SequenceNumber */
-static int hf_ranap_dl_N_PDU_SequenceNumber = -1;  /* DL_N_PDU_SequenceNumber */
-static int hf_ranap_ul_N_PDU_SequenceNumber = -1;  /* UL_N_PDU_SequenceNumber */
-static int hf_ranap_iuSigConId = -1;              /* IuSignallingConnectionIdentifier */
-static int hf_ranap_transportLayerAddressReq1 = -1;  /* TransportLayerAddress */
-static int hf_ranap_iuTransportAssociationReq1 = -1;  /* IuTransportAssociation */
-static int hf_ranap_ass_RAB_Parameters = -1;      /* Ass_RAB_Parameters */
-static int hf_ranap_transportLayerAddressRes1 = -1;  /* TransportLayerAddress */
-static int hf_ranap_iuTransportAssociationRes1 = -1;  /* IuTransportAssociation */
-static int hf_ranap_rab2beReleasedList = -1;      /* RAB_ToBeReleasedList_EnhancedRelocCompleteRes */
-static int hf_ranap_transportLayerInformation = -1;  /* TransportLayerInformation */
-static int hf_ranap_dl_dataVolumes = -1;          /* DataVolumeList */
-static int hf_ranap_DataVolumeList_item = -1;     /* DataVolumeList_item */
-static int hf_ranap_gERAN_Classmark = -1;         /* GERAN_Classmark */
-static int hf_ranap_privateIEs = -1;              /* PrivateIE_Container */
-static int hf_ranap_nAS_PDU = -1;                 /* NAS_PDU */
-static int hf_ranap_sAPI = -1;                    /* SAPI */
-static int hf_ranap_cN_DomainIndicator = -1;      /* CN_DomainIndicator */
-static int hf_ranap_dataForwardingInformation = -1;  /* TNLInformationEnhRelInfoReq */
-static int hf_ranap_sourceSideIuULTNLInfo = -1;   /* TNLInformationEnhRelInfoReq */
-static int hf_ranap_alt_RAB_Parameters = -1;      /* Alt_RAB_Parameters */
-static int hf_ranap_dataForwardingInformation_01 = -1;  /* TNLInformationEnhRelInfoRes */
-static int hf_ranap_dl_forwardingTransportLayerAddress = -1;  /* TransportLayerAddress */
-static int hf_ranap_dl_forwardingTransportAssociation = -1;  /* IuTransportAssociation */
-static int hf_ranap_requested_RAB_Parameter_Values = -1;  /* Requested_RAB_Parameter_Values */
-static int hf_ranap_mBMSHCIndicator = -1;         /* MBMSHCIndicator */
-static int hf_ranap_gTPDLTEID = -1;               /* GTP_TEI */
-static int hf_ranap_LeftMBMSBearerService_IEs_item = -1;  /* LeftMBMSBearerService_IEs_item */
-static int hf_ranap_UnsuccessfulLinking_IEs_item = -1;  /* UnsuccessfulLinking_IEs_item */
-static int hf_ranap_initiatingMessage = -1;       /* InitiatingMessage */
-static int hf_ranap_successfulOutcome = -1;       /* SuccessfulOutcome */
-static int hf_ranap_unsuccessfulOutcome = -1;     /* UnsuccessfulOutcome */
-static int hf_ranap_outcome = -1;                 /* Outcome */
-static int hf_ranap_initiatingMessagevalue = -1;  /* InitiatingMessage_value */
-static int hf_ranap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
-static int hf_ranap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
-static int hf_ranap_value = -1;                   /* T_value */
+static int hf_ranap_AccuracyFulfilmentIndicator_PDU;  /* AccuracyFulfilmentIndicator */
+static int hf_ranap_Additional_CSPS_coordination_information_PDU;  /* Additional_CSPS_coordination_information */
+static int hf_ranap_Additional_PositioningDataSet_PDU;  /* Additional_PositioningDataSet */
+static int hf_ranap_Alt_RAB_Parameters_PDU;       /* Alt_RAB_Parameters */
+static int hf_ranap_Alt_RAB_Parameter_ExtendedGuaranteedBitrateInf_PDU;  /* Alt_RAB_Parameter_ExtendedGuaranteedBitrateInf */
+static int hf_ranap_Alt_RAB_Parameter_SupportedGuaranteedBitrateInf_PDU;  /* Alt_RAB_Parameter_SupportedGuaranteedBitrateInf */
+static int hf_ranap_Alt_RAB_Parameter_ExtendedMaxBitrateInf_PDU;  /* Alt_RAB_Parameter_ExtendedMaxBitrateInf */
+static int hf_ranap_Alt_RAB_Parameter_SupportedMaxBitrateInf_PDU;  /* Alt_RAB_Parameter_SupportedMaxBitrateInf */
+static int hf_ranap_AlternativeRABConfigurationRequest_PDU;  /* AlternativeRABConfigurationRequest */
+static int hf_ranap_UE_Application_Layer_Measurement_Configuration_PDU;  /* UE_Application_Layer_Measurement_Configuration */
+static int hf_ranap_UE_Application_Layer_Measurement_Configuration_For_Relocation_PDU;  /* UE_Application_Layer_Measurement_Configuration_For_Relocation */
+static int hf_ranap_APN_PDU;                      /* APN */
+static int hf_ranap_AreaIdentity_PDU;             /* AreaIdentity */
+static int hf_ranap_Ass_RAB_Parameters_PDU;       /* Ass_RAB_Parameters */
+static int hf_ranap_Ass_RAB_Parameter_ExtendedGuaranteedBitrateList_PDU;  /* Ass_RAB_Parameter_ExtendedGuaranteedBitrateList */
+static int hf_ranap_Ass_RAB_Parameter_ExtendedMaxBitrateList_PDU;  /* Ass_RAB_Parameter_ExtendedMaxBitrateList */
+static int hf_ranap_BarometricPressure_PDU;       /* BarometricPressure */
+static int hf_ranap_BroadcastAssistanceDataDecipheringKeys_PDU;  /* BroadcastAssistanceDataDecipheringKeys */
+static int hf_ranap_ranap_Cause_PDU;              /* Cause */
+static int hf_ranap_Cell_Access_Mode_PDU;         /* Cell_Access_Mode */
+static int hf_ranap_CellLoadInformationGroup_PDU;  /* CellLoadInformationGroup */
+static int hf_ranap_CivicAddress_PDU;             /* CivicAddress */
+static int hf_ranap_ClientType_PDU;               /* ClientType */
+static int hf_ranap_CriticalityDiagnostics_PDU;   /* CriticalityDiagnostics */
+static int hf_ranap_MessageStructure_PDU;         /* MessageStructure */
+static int hf_ranap_ChosenEncryptionAlgorithm_PDU;  /* ChosenEncryptionAlgorithm */
+static int hf_ranap_ChosenIntegrityProtectionAlgorithm_PDU;  /* ChosenIntegrityProtectionAlgorithm */
+static int hf_ranap_ClassmarkInformation2_PDU;    /* ClassmarkInformation2 */
+static int hf_ranap_ClassmarkInformation3_PDU;    /* ClassmarkInformation3 */
+static int hf_ranap_CN_DomainIndicator_PDU;       /* CN_DomainIndicator */
+static int hf_ranap_Correlation_ID_PDU;           /* Correlation_ID */
+static int hf_ranap_CSFB_Information_PDU;         /* CSFB_Information */
+static int hf_ranap_CSG_Id_PDU;                   /* CSG_Id */
+static int hf_ranap_CSG_Id_List_PDU;              /* CSG_Id_List */
+static int hf_ranap_CSG_Membership_Status_PDU;    /* CSG_Membership_Status */
+static int hf_ranap_DCN_ID_PDU;                   /* DCN_ID */
+static int hf_ranap_DeltaRAListofIdleModeUEs_PDU;  /* DeltaRAListofIdleModeUEs */
+static int hf_ranap_DRX_CycleLengthCoefficient_PDU;  /* DRX_CycleLengthCoefficient */
+static int hf_ranap_EARFCN_Extended_PDU;          /* EARFCN_Extended */
+static int hf_ranap_E_DCH_MAC_d_Flow_ID_PDU;      /* E_DCH_MAC_d_Flow_ID */
+static int hf_ranap_EncryptionInformation_PDU;    /* EncryptionInformation */
+static int hf_ranap_EncryptionKey_PDU;            /* EncryptionKey */
+static int hf_ranap_End_Of_CSFB_PDU;              /* End_Of_CSFB */
+static int hf_ranap_E_UTRAN_Service_Handover_PDU;  /* E_UTRAN_Service_Handover */
+static int hf_ranap_ExtendedRNC_ID_PDU;           /* ExtendedRNC_ID */
+static int hf_ranap_FrequenceLayerConvergenceFlag_PDU;  /* FrequenceLayerConvergenceFlag */
+static int hf_ranap_GANSS_PositioningDataSet_PDU;  /* GANSS_PositioningDataSet */
+static int hf_ranap_GERAN_BSC_Container_PDU;      /* GERAN_BSC_Container */
+static int hf_ranap_GERAN_Classmark_PDU;          /* GERAN_Classmark */
+static int hf_ranap_GlobalCN_ID_PDU;              /* GlobalCN_ID */
+static int hf_ranap_GlobalRNC_ID_PDU;             /* GlobalRNC_ID */
+static int hf_ranap_HigherBitratesThan16MbpsFlag_PDU;  /* HigherBitratesThan16MbpsFlag */
+static int hf_ranap_HS_DSCH_MAC_d_Flow_ID_PDU;    /* HS_DSCH_MAC_d_Flow_ID */
+static int hf_ranap_IMSI_PDU;                     /* IMSI */
+static int hf_ranap_IncludeVelocity_PDU;          /* IncludeVelocity */
+static int hf_ranap_InformationExchangeID_PDU;    /* InformationExchangeID */
+static int hf_ranap_InformationExchangeType_PDU;  /* InformationExchangeType */
+static int hf_ranap_InformationRequested_PDU;     /* InformationRequested */
+static int hf_ranap_InformationRequestType_PDU;   /* InformationRequestType */
+static int hf_ranap_InformationTransferID_PDU;    /* InformationTransferID */
+static int hf_ranap_InformationTransferType_PDU;  /* InformationTransferType */
+static int hf_ranap_IntegrityProtectionInformation_PDU;  /* IntegrityProtectionInformation */
+static int hf_ranap_IntegrityProtectionKey_PDU;   /* IntegrityProtectionKey */
+static int hf_ranap_InterSystemInformationTransferType_PDU;  /* InterSystemInformationTransferType */
+static int hf_ranap_ranap_InterSystemInformation_TransparentContainer_PDU;  /* InterSystemInformation_TransparentContainer */
+static int hf_ranap_IPMulticastAddress_PDU;       /* IPMulticastAddress */
+static int hf_ranap_IuSignallingConnectionIdentifier_PDU;  /* IuSignallingConnectionIdentifier */
+static int hf_ranap_IuTransportAssociation_PDU;   /* IuTransportAssociation */
+static int hf_ranap_KeyStatus_PDU;                /* KeyStatus */
+static int hf_ranap_LAI_PDU;                      /* LAI */
+static int hf_ranap_LastKnownServiceArea_PDU;     /* LastKnownServiceArea */
+static int hf_ranap_ranap_LastVisitedUTRANCell_Item_PDU;  /* LastVisitedUTRANCell_Item */
+static int hf_ranap_LHN_ID_PDU;                   /* LHN_ID */
+static int hf_ranap_LocationRelatedDataRequestType_PDU;  /* LocationRelatedDataRequestType */
+static int hf_ranap_LocationRelatedDataRequestTypeSpecificToGERANIuMode_PDU;  /* LocationRelatedDataRequestTypeSpecificToGERANIuMode */
+static int hf_ranap_L3_Information_PDU;           /* L3_Information */
+static int hf_ranap_M4Report_PDU;                 /* M4Report */
+static int hf_ranap_M5Report_PDU;                 /* M5Report */
+static int hf_ranap_M6Report_PDU;                 /* M6Report */
+static int hf_ranap_M7Report_PDU;                 /* M7Report */
+static int hf_ranap_Management_Based_MDT_Allowed_PDU;  /* Management_Based_MDT_Allowed */
+static int hf_ranap_MBMSBearerServiceType_PDU;    /* MBMSBearerServiceType */
+static int hf_ranap_MBMSCNDe_Registration_PDU;    /* MBMSCNDe_Registration */
+static int hf_ranap_MBMSCountingInformation_PDU;  /* MBMSCountingInformation */
+static int hf_ranap_MBMSLinkingInformation_PDU;   /* MBMSLinkingInformation */
+static int hf_ranap_MBMSRegistrationRequestType_PDU;  /* MBMSRegistrationRequestType */
+static int hf_ranap_MBMSServiceArea_PDU;          /* MBMSServiceArea */
+static int hf_ranap_MBMSSessionDuration_PDU;      /* MBMSSessionDuration */
+static int hf_ranap_MBMSSessionIdentity_PDU;      /* MBMSSessionIdentity */
+static int hf_ranap_MBMSSessionRepetitionNumber_PDU;  /* MBMSSessionRepetitionNumber */
+static int hf_ranap_MDT_Configuration_PDU;        /* MDT_Configuration */
+static int hf_ranap_MDT_PLMN_List_PDU;            /* MDT_PLMN_List */
+static int hf_ranap_MSISDN_PDU;                   /* MSISDN */
+static int hf_ranap_NAS_PDU_PDU;                  /* NAS_PDU */
+static int hf_ranap_NAS_SequenceNumber_PDU;       /* NAS_SequenceNumber */
+static int hf_ranap_NewBSS_To_OldBSS_Information_PDU;  /* NewBSS_To_OldBSS_Information */
+static int hf_ranap_NonSearchingIndication_PDU;   /* NonSearchingIndication */
+static int hf_ranap_NumberOfSteps_PDU;            /* NumberOfSteps */
+static int hf_ranap_Offload_RAB_Parameters_PDU;   /* Offload_RAB_Parameters */
+static int hf_ranap_OldBSS_ToNewBSS_Information_PDU;  /* OldBSS_ToNewBSS_Information */
+static int hf_ranap_OMC_ID_PDU;                   /* OMC_ID */
+static int hf_ranap_Out_Of_UTRAN_PDU;             /* Out_Of_UTRAN */
+static int hf_ranap_PagingAreaID_PDU;             /* PagingAreaID */
+static int hf_ranap_PagingCause_PDU;              /* PagingCause */
+static int hf_ranap_PDP_TypeInformation_PDU;      /* PDP_TypeInformation */
+static int hf_ranap_PDP_TypeInformation_extension_PDU;  /* PDP_TypeInformation_extension */
+static int hf_ranap_PeriodicLocationInfo_PDU;     /* PeriodicLocationInfo */
+static int hf_ranap_PermanentNAS_UE_ID_PDU;       /* PermanentNAS_UE_ID */
+static int hf_ranap_PLMNidentity_PDU;             /* PLMNidentity */
+static int hf_ranap_PositioningPriority_PDU;      /* PositioningPriority */
+static int hf_ranap_PositionData_PDU;             /* PositionData */
+static int hf_ranap_PositionDataSpecificToGERANIuMode_PDU;  /* PositionDataSpecificToGERANIuMode */
+static int hf_ranap_Priority_Class_Indicator_PDU;  /* Priority_Class_Indicator */
+static int hf_ranap_ProvidedData_PDU;             /* ProvidedData */
+static int hf_ranap_PowerSavingIndicator_PDU;     /* PowerSavingIndicator */
+static int hf_ranap_P_TMSI_PDU;                   /* P_TMSI */
+static int hf_ranap_RAB_ID_PDU;                   /* RAB_ID */
+static int hf_ranap_RAB_Parameter_ExtendedGuaranteedBitrateList_PDU;  /* RAB_Parameter_ExtendedGuaranteedBitrateList */
+static int hf_ranap_RAB_Parameter_ExtendedMaxBitrateList_PDU;  /* RAB_Parameter_ExtendedMaxBitrateList */
+static int hf_ranap_RAB_Parameters_PDU;           /* RAB_Parameters */
+static int hf_ranap_RABParametersList_PDU;        /* RABParametersList */
+static int hf_ranap_RAC_PDU;                      /* RAC */
+static int hf_ranap_RAListofIdleModeUEs_PDU;      /* RAListofIdleModeUEs */
+static int hf_ranap_LAListofIdleModeUEs_PDU;      /* LAListofIdleModeUEs */
+static int hf_ranap_RAT_Type_PDU;                 /* RAT_Type */
+static int hf_ranap_RedirectAttemptFlag_PDU;      /* RedirectAttemptFlag */
+static int hf_ranap_RedirectionCompleted_PDU;     /* RedirectionCompleted */
+static int hf_ranap_RejectCauseValue_PDU;         /* RejectCauseValue */
+static int hf_ranap_RelocationType_PDU;           /* RelocationType */
+static int hf_ranap_RequestedGANSSAssistanceData_PDU;  /* RequestedGANSSAssistanceData */
+static int hf_ranap_Requested_RAB_Parameter_ExtendedMaxBitrateList_PDU;  /* Requested_RAB_Parameter_ExtendedMaxBitrateList */
+static int hf_ranap_Requested_RAB_Parameter_ExtendedGuaranteedBitrateList_PDU;  /* Requested_RAB_Parameter_ExtendedGuaranteedBitrateList */
+static int hf_ranap_RequestType_PDU;              /* RequestType */
+static int hf_ranap_ResponseTime_PDU;             /* ResponseTime */
+static int hf_ranap_RNSAPRelocationParameters_PDU;  /* RNSAPRelocationParameters */
+static int hf_ranap_RRC_Container_PDU;            /* RRC_Container */
+static int hf_ranap_RSRVCC_HO_Indication_PDU;     /* RSRVCC_HO_Indication */
+static int hf_ranap_RSRVCC_Information_PDU;       /* RSRVCC_Information */
+static int hf_ranap_RSRVCC_Operation_Possible_PDU;  /* RSRVCC_Operation_Possible */
+static int hf_ranap_SAI_PDU;                      /* SAI */
+static int hf_ranap_SAPI_PDU;                     /* SAPI */
+static int hf_ranap_SessionUpdateID_PDU;          /* SessionUpdateID */
+static int hf_ranap_Session_Re_establishment_Indicator_PDU;  /* Session_Re_establishment_Indicator */
+static int hf_ranap_SignallingIndication_PDU;     /* SignallingIndication */
+static int hf_ranap_SGSN_Group_Identity_PDU;      /* SGSN_Group_Identity */
+static int hf_ranap_SNA_Access_Information_PDU;   /* SNA_Access_Information */
+static int hf_ranap_ranap_Source_ToTarget_TransparentContainer_PDU;  /* Source_ToTarget_TransparentContainer */
+static int hf_ranap_ranap_SourceCellID_PDU;       /* SourceCellID */
+static int hf_ranap_SourceBSS_ToTargetBSS_TransparentContainer_PDU;  /* SourceBSS_ToTargetBSS_TransparentContainer */
+static int hf_ranap_SourceID_PDU;                 /* SourceID */
+static int hf_ranap_ranap_SourceRNC_ToTargetRNC_TransparentContainer_PDU;  /* SourceRNC_ToTargetRNC_TransparentContainer */
+static int hf_ranap_IRAT_Measurement_Configuration_PDU;  /* IRAT_Measurement_Configuration */
+static int hf_ranap_RSRQ_Type_PDU;                /* RSRQ_Type */
+static int hf_ranap_RSRQ_Extension_PDU;           /* RSRQ_Extension */
+static int hf_ranap_SubscriberProfileIDforRFP_PDU;  /* SubscriberProfileIDforRFP */
+static int hf_ranap_SupportedRAB_ParameterBitrateList_PDU;  /* SupportedRAB_ParameterBitrateList */
+static int hf_ranap_SRB_TrCH_Mapping_PDU;         /* SRB_TrCH_Mapping */
+static int hf_ranap_SRVCC_HO_Indication_PDU;      /* SRVCC_HO_Indication */
+static int hf_ranap_SRVCC_Information_PDU;        /* SRVCC_Information */
+static int hf_ranap_SRVCC_Operation_Possible_PDU;  /* SRVCC_Operation_Possible */
+static int hf_ranap_Target_ToSource_TransparentContainer_PDU;  /* Target_ToSource_TransparentContainer */
+static int hf_ranap_TargetBSS_ToSourceBSS_TransparentContainer_PDU;  /* TargetBSS_ToSourceBSS_TransparentContainer */
+static int hf_ranap_TargetID_PDU;                 /* TargetID */
+static int hf_ranap_ranap_TargetRNC_ID_PDU;       /* TargetRNC_ID */
+static int hf_ranap_ranap_TargetRNC_ToSourceRNC_TransparentContainer_PDU;  /* TargetRNC_ToSourceRNC_TransparentContainer */
+static int hf_ranap_TemporaryUE_ID_PDU;           /* TemporaryUE_ID */
+static int hf_ranap_Time_UE_StayedInCell_EnhancedGranularity_PDU;  /* Time_UE_StayedInCell_EnhancedGranularity */
+static int hf_ranap_TimeToMBMSDataTransfer_PDU;   /* TimeToMBMSDataTransfer */
+static int hf_ranap_TimingDifferenceULDL_PDU;     /* TimingDifferenceULDL */
+static int hf_ranap_TMGI_PDU;                     /* TMGI */
+static int hf_ranap_TracePropagationParameters_PDU;  /* TracePropagationParameters */
+static int hf_ranap_TraceRecordingSessionInformation_PDU;  /* TraceRecordingSessionInformation */
+static int hf_ranap_TraceRecordingSessionReference_PDU;  /* TraceRecordingSessionReference */
+static int hf_ranap_TraceReference_PDU;           /* TraceReference */
+static int hf_ranap_TraceType_PDU;                /* TraceType */
+static int hf_ranap_TransportLayerAddress_PDU;    /* TransportLayerAddress */
+static int hf_ranap_TriggerID_PDU;                /* TriggerID */
+static int hf_ranap_TunnelInformation_PDU;        /* TunnelInformation */
+static int hf_ranap_TypeOfError_PDU;              /* TypeOfError */
+static int hf_ranap_UE_AggregateMaximumBitRate_PDU;  /* UE_AggregateMaximumBitRate */
+static int hf_ranap_UE_History_Information_PDU;   /* UE_History_Information */
+static int hf_ranap_UE_ID_PDU;                    /* UE_ID */
+static int hf_ranap_UE_Usage_Type_PDU;            /* UE_Usage_Type */
+static int hf_ranap_UERegistrationQueryResult_PDU;  /* UERegistrationQueryResult */
+static int hf_ranap_UESBI_Iu_PDU;                 /* UESBI_Iu */
+static int hf_ranap_UTRAN_CellID_PDU;             /* UTRAN_CellID */
+static int hf_ranap_VelocityEstimate_PDU;         /* VelocityEstimate */
+static int hf_ranap_VerticalAccuracyCode_PDU;     /* VerticalAccuracyCode */
+static int hf_ranap_VoiceSupportMatchIndicator_PDU;  /* VoiceSupportMatchIndicator */
+static int hf_ranap_Iu_ReleaseCommand_PDU;        /* Iu_ReleaseCommand */
+static int hf_ranap_Iu_ReleaseComplete_PDU;       /* Iu_ReleaseComplete */
+static int hf_ranap_RAB_DataVolumeReportList_PDU;  /* RAB_DataVolumeReportList */
+static int hf_ranap_RAB_DataVolumeReportItem_PDU;  /* RAB_DataVolumeReportItem */
+static int hf_ranap_RAB_ReleasedList_IuRelComp_PDU;  /* RAB_ReleasedList_IuRelComp */
+static int hf_ranap_RAB_ReleasedItem_IuRelComp_PDU;  /* RAB_ReleasedItem_IuRelComp */
+static int hf_ranap_RelocationRequired_PDU;       /* RelocationRequired */
+static int hf_ranap_RelocationCommand_PDU;        /* RelocationCommand */
+static int hf_ranap_RAB_RelocationReleaseList_PDU;  /* RAB_RelocationReleaseList */
+static int hf_ranap_RAB_RelocationReleaseItem_PDU;  /* RAB_RelocationReleaseItem */
+static int hf_ranap_RAB_DataForwardingList_PDU;   /* RAB_DataForwardingList */
+static int hf_ranap_RAB_DataForwardingItem_PDU;   /* RAB_DataForwardingItem */
+static int hf_ranap_RelocationPreparationFailure_PDU;  /* RelocationPreparationFailure */
+static int hf_ranap_RelocationRequest_PDU;        /* RelocationRequest */
+static int hf_ranap_RAB_SetupList_RelocReq_PDU;   /* RAB_SetupList_RelocReq */
+static int hf_ranap_RAB_SetupItem_RelocReq_PDU;   /* RAB_SetupItem_RelocReq */
+static int hf_ranap_CNMBMSLinkingInformation_PDU;  /* CNMBMSLinkingInformation */
+static int hf_ranap_JoinedMBMSBearerService_IEs_PDU;  /* JoinedMBMSBearerService_IEs */
+static int hf_ranap_RelocationRequestAcknowledge_PDU;  /* RelocationRequestAcknowledge */
+static int hf_ranap_RAB_SetupList_RelocReqAck_PDU;  /* RAB_SetupList_RelocReqAck */
+static int hf_ranap_RAB_SetupItem_RelocReqAck_PDU;  /* RAB_SetupItem_RelocReqAck */
+static int hf_ranap_RAB_FailedList_PDU;           /* RAB_FailedList */
+static int hf_ranap_RAB_FailedItem_PDU;           /* RAB_FailedItem */
+static int hf_ranap_RelocationFailure_PDU;        /* RelocationFailure */
+static int hf_ranap_RelocationCancel_PDU;         /* RelocationCancel */
+static int hf_ranap_RelocationCancelAcknowledge_PDU;  /* RelocationCancelAcknowledge */
+static int hf_ranap_SRNS_ContextRequest_PDU;      /* SRNS_ContextRequest */
+static int hf_ranap_RAB_DataForwardingList_SRNS_CtxReq_PDU;  /* RAB_DataForwardingList_SRNS_CtxReq */
+static int hf_ranap_RAB_DataForwardingItem_SRNS_CtxReq_PDU;  /* RAB_DataForwardingItem_SRNS_CtxReq */
+static int hf_ranap_SRNS_ContextResponse_PDU;     /* SRNS_ContextResponse */
+static int hf_ranap_RAB_ContextList_PDU;          /* RAB_ContextList */
+static int hf_ranap_RAB_ContextItem_PDU;          /* RAB_ContextItem */
+static int hf_ranap_RAB_ContextFailedtoTransferList_PDU;  /* RAB_ContextFailedtoTransferList */
+static int hf_ranap_RABs_ContextFailedtoTransferItem_PDU;  /* RABs_ContextFailedtoTransferItem */
+static int hf_ranap_SecurityModeCommand_PDU;      /* SecurityModeCommand */
+static int hf_ranap_SecurityModeComplete_PDU;     /* SecurityModeComplete */
+static int hf_ranap_SecurityModeReject_PDU;       /* SecurityModeReject */
+static int hf_ranap_DataVolumeReportRequest_PDU;  /* DataVolumeReportRequest */
+static int hf_ranap_RAB_DataVolumeReportRequestList_PDU;  /* RAB_DataVolumeReportRequestList */
+static int hf_ranap_RAB_DataVolumeReportRequestItem_PDU;  /* RAB_DataVolumeReportRequestItem */
+static int hf_ranap_DataVolumeReport_PDU;         /* DataVolumeReport */
+static int hf_ranap_RAB_FailedtoReportList_PDU;   /* RAB_FailedtoReportList */
+static int hf_ranap_RABs_failed_to_reportItem_PDU;  /* RABs_failed_to_reportItem */
+static int hf_ranap_Reset_PDU;                    /* Reset */
+static int hf_ranap_ResetAcknowledge_PDU;         /* ResetAcknowledge */
+static int hf_ranap_ResetResource_PDU;            /* ResetResource */
+static int hf_ranap_ResetResourceList_PDU;        /* ResetResourceList */
+static int hf_ranap_ResetResourceItem_PDU;        /* ResetResourceItem */
+static int hf_ranap_ResetResourceAcknowledge_PDU;  /* ResetResourceAcknowledge */
+static int hf_ranap_ResetResourceAckList_PDU;     /* ResetResourceAckList */
+static int hf_ranap_ResetResourceAckItem_PDU;     /* ResetResourceAckItem */
+static int hf_ranap_RAB_ReleaseRequest_PDU;       /* RAB_ReleaseRequest */
+static int hf_ranap_RAB_ReleaseList_PDU;          /* RAB_ReleaseList */
+static int hf_ranap_RAB_ReleaseItem_PDU;          /* RAB_ReleaseItem */
+static int hf_ranap_Iu_ReleaseRequest_PDU;        /* Iu_ReleaseRequest */
+static int hf_ranap_RelocationDetect_PDU;         /* RelocationDetect */
+static int hf_ranap_RelocationComplete_PDU;       /* RelocationComplete */
+static int hf_ranap_EnhancedRelocationCompleteRequest_PDU;  /* EnhancedRelocationCompleteRequest */
+static int hf_ranap_RAB_SetupList_EnhancedRelocCompleteReq_PDU;  /* RAB_SetupList_EnhancedRelocCompleteReq */
+static int hf_ranap_RAB_SetupItem_EnhancedRelocCompleteReq_PDU;  /* RAB_SetupItem_EnhancedRelocCompleteReq */
+static int hf_ranap_EnhancedRelocationCompleteResponse_PDU;  /* EnhancedRelocationCompleteResponse */
+static int hf_ranap_RAB_SetupList_EnhancedRelocCompleteRes_PDU;  /* RAB_SetupList_EnhancedRelocCompleteRes */
+static int hf_ranap_RAB_SetupItem_EnhancedRelocCompleteRes_PDU;  /* RAB_SetupItem_EnhancedRelocCompleteRes */
+static int hf_ranap_RAB_ToBeReleasedList_EnhancedRelocCompleteRes_PDU;  /* RAB_ToBeReleasedList_EnhancedRelocCompleteRes */
+static int hf_ranap_RAB_ToBeReleasedItem_EnhancedRelocCompleteRes_PDU;  /* RAB_ToBeReleasedItem_EnhancedRelocCompleteRes */
+static int hf_ranap_EnhancedRelocationCompleteFailure_PDU;  /* EnhancedRelocationCompleteFailure */
+static int hf_ranap_EnhancedRelocationCompleteConfirm_PDU;  /* EnhancedRelocationCompleteConfirm */
+static int hf_ranap_Paging_PDU;                   /* Paging */
+static int hf_ranap_CommonID_PDU;                 /* CommonID */
+static int hf_ranap_CN_InvokeTrace_PDU;           /* CN_InvokeTrace */
+static int hf_ranap_CN_DeactivateTrace_PDU;       /* CN_DeactivateTrace */
+static int hf_ranap_LocationReportingControl_PDU;  /* LocationReportingControl */
+static int hf_ranap_LocationReport_PDU;           /* LocationReport */
+static int hf_ranap_InitialUE_Message_PDU;        /* InitialUE_Message */
+static int hf_ranap_DirectTransfer_PDU;           /* DirectTransfer */
+static int hf_ranap_RedirectionIndication_PDU;    /* RedirectionIndication */
+static int hf_ranap_Overload_PDU;                 /* Overload */
+static int hf_ranap_ErrorIndication_PDU;          /* ErrorIndication */
+static int hf_ranap_SRNS_DataForwardCommand_PDU;  /* SRNS_DataForwardCommand */
+static int hf_ranap_ForwardSRNS_Context_PDU;      /* ForwardSRNS_Context */
+static int hf_ranap_RAB_AssignmentRequest_PDU;    /* RAB_AssignmentRequest */
+static int hf_ranap_RAB_SetupOrModifyList_PDU;    /* RAB_SetupOrModifyList */
+static int hf_ranap_RAB_SetupOrModifyItemFirst_PDU;  /* RAB_SetupOrModifyItemFirst */
+static int hf_ranap_TransportLayerInformation_PDU;  /* TransportLayerInformation */
+static int hf_ranap_RAB_SetupOrModifyItemSecond_PDU;  /* RAB_SetupOrModifyItemSecond */
+static int hf_ranap_RAB_AssignmentResponse_PDU;   /* RAB_AssignmentResponse */
+static int hf_ranap_RAB_SetupOrModifiedList_PDU;  /* RAB_SetupOrModifiedList */
+static int hf_ranap_RAB_SetupOrModifiedItem_PDU;  /* RAB_SetupOrModifiedItem */
+static int hf_ranap_RAB_ReleasedList_PDU;         /* RAB_ReleasedList */
+static int hf_ranap_RAB_ReleasedItem_PDU;         /* RAB_ReleasedItem */
+static int hf_ranap_RAB_QueuedList_PDU;           /* RAB_QueuedList */
+static int hf_ranap_RAB_QueuedItem_PDU;           /* RAB_QueuedItem */
+static int hf_ranap_RAB_ReleaseFailedList_PDU;    /* RAB_ReleaseFailedList */
+static int hf_ranap_GERAN_Iumode_RAB_FailedList_RABAssgntResponse_PDU;  /* GERAN_Iumode_RAB_FailedList_RABAssgntResponse */
+static int hf_ranap_GERAN_Iumode_RAB_Failed_RABAssgntResponse_Item_PDU;  /* GERAN_Iumode_RAB_Failed_RABAssgntResponse_Item */
+static int hf_ranap_PrivateMessage_PDU;           /* PrivateMessage */
+static int hf_ranap_RANAP_RelocationInformation_PDU;  /* RANAP_RelocationInformation */
+static int hf_ranap_DirectTransferInformationList_RANAP_RelocInf_PDU;  /* DirectTransferInformationList_RANAP_RelocInf */
+static int hf_ranap_DirectTransferInformationItem_RANAP_RelocInf_PDU;  /* DirectTransferInformationItem_RANAP_RelocInf */
+static int hf_ranap_RAB_ContextList_RANAP_RelocInf_PDU;  /* RAB_ContextList_RANAP_RelocInf */
+static int hf_ranap_RAB_ContextItem_RANAP_RelocInf_PDU;  /* RAB_ContextItem_RANAP_RelocInf */
+static int hf_ranap_RANAP_EnhancedRelocationInformationRequest_PDU;  /* RANAP_EnhancedRelocationInformationRequest */
+static int hf_ranap_RAB_SetupList_EnhRelocInfoReq_PDU;  /* RAB_SetupList_EnhRelocInfoReq */
+static int hf_ranap_RAB_SetupItem_EnhRelocInfoReq_PDU;  /* RAB_SetupItem_EnhRelocInfoReq */
+static int hf_ranap_RANAP_EnhancedRelocationInformationResponse_PDU;  /* RANAP_EnhancedRelocationInformationResponse */
+static int hf_ranap_RAB_SetupList_EnhRelocInfoRes_PDU;  /* RAB_SetupList_EnhRelocInfoRes */
+static int hf_ranap_RAB_SetupItem_EnhRelocInfoRes_PDU;  /* RAB_SetupItem_EnhRelocInfoRes */
+static int hf_ranap_RAB_FailedList_EnhRelocInfoRes_PDU;  /* RAB_FailedList_EnhRelocInfoRes */
+static int hf_ranap_RAB_FailedItem_EnhRelocInfoRes_PDU;  /* RAB_FailedItem_EnhRelocInfoRes */
+static int hf_ranap_RAB_ModifyRequest_PDU;        /* RAB_ModifyRequest */
+static int hf_ranap_RAB_ModifyList_PDU;           /* RAB_ModifyList */
+static int hf_ranap_RAB_ModifyItem_PDU;           /* RAB_ModifyItem */
+static int hf_ranap_LocationRelatedDataRequest_PDU;  /* LocationRelatedDataRequest */
+static int hf_ranap_LocationRelatedDataResponse_PDU;  /* LocationRelatedDataResponse */
+static int hf_ranap_LocationRelatedDataFailure_PDU;  /* LocationRelatedDataFailure */
+static int hf_ranap_InformationTransferIndication_PDU;  /* InformationTransferIndication */
+static int hf_ranap_InformationTransferConfirmation_PDU;  /* InformationTransferConfirmation */
+static int hf_ranap_InformationTransferFailure_PDU;  /* InformationTransferFailure */
+static int hf_ranap_UESpecificInformationIndication_PDU;  /* UESpecificInformationIndication */
+static int hf_ranap_DirectInformationTransfer_PDU;  /* DirectInformationTransfer */
+static int hf_ranap_UplinkInformationExchangeRequest_PDU;  /* UplinkInformationExchangeRequest */
+static int hf_ranap_UplinkInformationExchangeResponse_PDU;  /* UplinkInformationExchangeResponse */
+static int hf_ranap_UplinkInformationExchangeFailure_PDU;  /* UplinkInformationExchangeFailure */
+static int hf_ranap_MBMSSessionStart_PDU;         /* MBMSSessionStart */
+static int hf_ranap_MBMSSynchronisationInformation_PDU;  /* MBMSSynchronisationInformation */
+static int hf_ranap_MBMSSessionStartResponse_PDU;  /* MBMSSessionStartResponse */
+static int hf_ranap_MBMSSessionStartFailure_PDU;  /* MBMSSessionStartFailure */
+static int hf_ranap_MBMSSessionUpdate_PDU;        /* MBMSSessionUpdate */
+static int hf_ranap_MBMSSessionUpdateResponse_PDU;  /* MBMSSessionUpdateResponse */
+static int hf_ranap_MBMSSessionUpdateFailure_PDU;  /* MBMSSessionUpdateFailure */
+static int hf_ranap_MBMSSessionStop_PDU;          /* MBMSSessionStop */
+static int hf_ranap_MBMSSessionStopResponse_PDU;  /* MBMSSessionStopResponse */
+static int hf_ranap_MBMSUELinkingRequest_PDU;     /* MBMSUELinkingRequest */
+static int hf_ranap_LeftMBMSBearerService_IEs_PDU;  /* LeftMBMSBearerService_IEs */
+static int hf_ranap_MBMSUELinkingResponse_PDU;    /* MBMSUELinkingResponse */
+static int hf_ranap_UnsuccessfulLinking_IEs_PDU;  /* UnsuccessfulLinking_IEs */
+static int hf_ranap_MBMSRegistrationRequest_PDU;  /* MBMSRegistrationRequest */
+static int hf_ranap_MBMSRegistrationResponse_PDU;  /* MBMSRegistrationResponse */
+static int hf_ranap_MBMSRegistrationFailure_PDU;  /* MBMSRegistrationFailure */
+static int hf_ranap_MBMSCNDe_RegistrationRequest_PDU;  /* MBMSCNDe_RegistrationRequest */
+static int hf_ranap_MBMSCNDe_RegistrationResponse_PDU;  /* MBMSCNDe_RegistrationResponse */
+static int hf_ranap_MBMSRABEstablishmentIndication_PDU;  /* MBMSRABEstablishmentIndication */
+static int hf_ranap_MBMSRABReleaseRequest_PDU;    /* MBMSRABReleaseRequest */
+static int hf_ranap_MBMSRABRelease_PDU;           /* MBMSRABRelease */
+static int hf_ranap_MBMSRABReleaseFailure_PDU;    /* MBMSRABReleaseFailure */
+static int hf_ranap_SRVCC_CSKeysRequest_PDU;      /* SRVCC_CSKeysRequest */
+static int hf_ranap_SRVCC_CSKeysResponse_PDU;     /* SRVCC_CSKeysResponse */
+static int hf_ranap_UeRadioCapabilityMatchRequest_PDU;  /* UeRadioCapabilityMatchRequest */
+static int hf_ranap_UeRadioCapabilityMatchResponse_PDU;  /* UeRadioCapabilityMatchResponse */
+static int hf_ranap_UeRegistrationQueryRequest_PDU;  /* UeRegistrationQueryRequest */
+static int hf_ranap_UeRegistrationQueryResponse_PDU;  /* UeRegistrationQueryResponse */
+static int hf_ranap_RerouteNASRequest_PDU;        /* RerouteNASRequest */
+static int hf_ranap_RANAP_PDU_PDU;                /* RANAP_PDU */
+static int hf_ranap_local;                        /* INTEGER_0_65535 */
+static int hf_ranap_global;                       /* OBJECT_IDENTIFIER */
+static int hf_ranap_ProtocolIE_Container_item;    /* ProtocolIE_Field */
+static int hf_ranap_id;                           /* ProtocolIE_ID */
+static int hf_ranap_criticality;                  /* Criticality */
+static int hf_ranap_ie_field_value;               /* T_ie_field_value */
+static int hf_ranap_ProtocolIE_ContainerPair_item;  /* ProtocolIE_FieldPair */
+static int hf_ranap_firstCriticality;             /* Criticality */
+static int hf_ranap_firstValue;                   /* T_firstValue */
+static int hf_ranap_secondCriticality;            /* Criticality */
+static int hf_ranap_secondValue;                  /* T_secondValue */
+static int hf_ranap_ProtocolIE_ContainerList_item;  /* ProtocolIE_Container */
+static int hf_ranap_ProtocolIE_ContainerPairList_item;  /* ProtocolIE_ContainerPair */
+static int hf_ranap_ProtocolExtensionContainer_item;  /* ProtocolExtensionField */
+static int hf_ranap_ext_id;                       /* ProtocolExtensionID */
+static int hf_ranap_extensionValue;               /* T_extensionValue */
+static int hf_ranap_PrivateIE_Container_item;     /* PrivateIE_Field */
+static int hf_ranap_private_id;                   /* PrivateIE_ID */
+static int hf_ranap_private_value;                /* T_private_value */
+static int hf_ranap_old_LAI;                      /* LAI */
+static int hf_ranap_old_RAC;                      /* RAC */
+static int hf_ranap_nRI;                          /* BIT_STRING_SIZE_10 */
+static int hf_ranap_uE_is_Attaching;              /* NULL */
+static int hf_ranap_iE_Extensions;                /* ProtocolExtensionContainer */
+static int hf_ranap_Additional_PositioningDataSet_item;  /* Additional_PositioningMethodAndUsage */
+static int hf_ranap_priorityLevel;                /* PriorityLevel */
+static int hf_ranap_pre_emptionCapability;        /* Pre_emptionCapability */
+static int hf_ranap_pre_emptionVulnerability;     /* Pre_emptionVulnerability */
+static int hf_ranap_queuingAllowed;               /* QueuingAllowed */
+static int hf_ranap_altMaxBitrateInf;             /* Alt_RAB_Parameter_MaxBitrateInf */
+static int hf_ranap_altGuaranteedBitRateInf;      /* Alt_RAB_Parameter_GuaranteedBitrateInf */
+static int hf_ranap_altExtendedGuaranteedBitrateType;  /* Alt_RAB_Parameter_GuaranteedBitrateType */
+static int hf_ranap_altExtendedGuaranteedBitrates;  /* Alt_RAB_Parameter_ExtendedGuaranteedBitrates */
+static int hf_ranap_Alt_RAB_Parameter_ExtendedGuaranteedBitrates_item;  /* Alt_RAB_Parameter_ExtendedGuaranteedBitrateList */
+static int hf_ranap_Alt_RAB_Parameter_ExtendedGuaranteedBitrateList_item;  /* ExtendedGuaranteedBitrate */
+static int hf_ranap_altGuaranteedBitrateType;     /* Alt_RAB_Parameter_GuaranteedBitrateType */
+static int hf_ranap_altGuaranteedBitrates;        /* Alt_RAB_Parameter_GuaranteedBitrates */
+static int hf_ranap_Alt_RAB_Parameter_GuaranteedBitrates_item;  /* Alt_RAB_Parameter_GuaranteedBitrateList */
+static int hf_ranap_Alt_RAB_Parameter_GuaranteedBitrateList_item;  /* GuaranteedBitrate */
+static int hf_ranap_altSupportedGuaranteedBitrateType;  /* Alt_RAB_Parameter_GuaranteedBitrateType */
+static int hf_ranap_altSupportedGuaranteedBitrates;  /* Alt_RAB_Parameter_SupportedGuaranteedBitrates */
+static int hf_ranap_Alt_RAB_Parameter_SupportedGuaranteedBitrates_item;  /* SupportedRAB_ParameterBitrateList */
+static int hf_ranap_altExtendedMaxBitrateType;    /* Alt_RAB_Parameter_MaxBitrateType */
+static int hf_ranap_altExtendedMaxBitrates;       /* Alt_RAB_Parameter_ExtendedMaxBitrates */
+static int hf_ranap_Alt_RAB_Parameter_ExtendedMaxBitrates_item;  /* Alt_RAB_Parameter_ExtendedMaxBitrateList */
+static int hf_ranap_Alt_RAB_Parameter_ExtendedMaxBitrateList_item;  /* ExtendedMaxBitrate */
+static int hf_ranap_altMaxBitrateType;            /* Alt_RAB_Parameter_MaxBitrateType */
+static int hf_ranap_altMaxBitrates;               /* Alt_RAB_Parameter_MaxBitrates */
+static int hf_ranap_Alt_RAB_Parameter_MaxBitrates_item;  /* Alt_RAB_Parameter_MaxBitrateList */
+static int hf_ranap_Alt_RAB_Parameter_MaxBitrateList_item;  /* MaxBitrate */
+static int hf_ranap_altSupportedMaxBitrateType;   /* Alt_RAB_Parameter_MaxBitrateType */
+static int hf_ranap_altSupportedMaxBitrates;      /* Alt_RAB_Parameter_SupportedMaxBitrates */
+static int hf_ranap_Alt_RAB_Parameter_SupportedMaxBitrates_item;  /* SupportedRAB_ParameterBitrateList */
+static int hf_ranap_applicationLayerContainerForMeasurementConfiguration;  /* OCTET_STRING_SIZE_1_1000 */
+static int hf_ranap_areaScopeForUEApplicationLayerMeasurementConfiguration;  /* AreaScopeForUEApplicationLayerMeasurementConfiguration */
+static int hf_ranap_traceReference;               /* TraceReference */
+static int hf_ranap_tracePropagationParameters;   /* TracePropagationParameters */
+static int hf_ranap_traceCollectionEntityIPAddress;  /* TransportLayerAddress */
+static int hf_ranap_cellbased;                    /* CellBased */
+static int hf_ranap_labased;                      /* LABased */
+static int hf_ranap_rabased;                      /* RABased */
+static int hf_ranap_plmn_area_based;              /* PLMNBased */
+static int hf_ranap_sAI;                          /* SAI */
+static int hf_ranap_geographicalArea;             /* GeographicalArea */
+static int hf_ranap_assMaxBitrateInf;             /* Ass_RAB_Parameter_MaxBitrateList */
+static int hf_ranap_assGuaranteedBitRateInf;      /* Ass_RAB_Parameter_GuaranteedBitrateList */
+static int hf_ranap_Ass_RAB_Parameter_ExtendedGuaranteedBitrateList_item;  /* ExtendedGuaranteedBitrate */
+static int hf_ranap_Ass_RAB_Parameter_ExtendedMaxBitrateList_item;  /* ExtendedMaxBitrate */
+static int hf_ranap_Ass_RAB_Parameter_GuaranteedBitrateList_item;  /* GuaranteedBitrate */
+static int hf_ranap_Ass_RAB_Parameter_MaxBitrateList_item;  /* MaxBitrate */
+static int hf_ranap_AuthorisedPLMNs_item;         /* AuthorisedPLMNs_item */
+static int hf_ranap_pLMNidentity;                 /* PLMNidentity */
+static int hf_ranap_authorisedSNAsList;           /* AuthorisedSNAs */
+static int hf_ranap_AuthorisedSNAs_item;          /* SNAC */
+static int hf_ranap_cipheringKeyFlag;             /* BIT_STRING_SIZE_1 */
+static int hf_ranap_currentDecipheringKey;        /* BIT_STRING_SIZE_56 */
+static int hf_ranap_nextDecipheringKey;           /* BIT_STRING_SIZE_56 */
+static int hf_ranap_radioNetwork;                 /* CauseRadioNetwork */
+static int hf_ranap_transmissionNetwork;          /* CauseTransmissionNetwork */
+static int hf_ranap_nAS;                          /* CauseNAS */
+static int hf_ranap_protocol;                     /* CauseProtocol */
+static int hf_ranap_misc;                         /* CauseMisc */
+static int hf_ranap_non_Standard;                 /* CauseNon_Standard */
+static int hf_ranap_radioNetworkExtension;        /* CauseRadioNetworkExtension */
+static int hf_ranap_cellIdList;                   /* CellIdList */
+static int hf_ranap_CellIdList_item;              /* Cell_Id */
+static int hf_ranap_cell_Capacity_Class_Value;    /* Cell_Capacity_Class_Value */
+static int hf_ranap_loadValue;                    /* LoadValue */
+static int hf_ranap_rTLoadValue;                  /* RTLoadValue */
+static int hf_ranap_nRTLoadInformationValue;      /* NRTLoadInformationValue */
+static int hf_ranap_sourceCellID;                 /* SourceCellID */
+static int hf_ranap_uplinkCellLoadInformation;    /* CellLoadInformation */
+static int hf_ranap_downlinkCellLoadInformation;  /* CellLoadInformation */
+static int hf_ranap_procedureCode;                /* ProcedureCode */
+static int hf_ranap_triggeringMessage;            /* TriggeringMessage */
+static int hf_ranap_procedureCriticality;         /* Criticality */
+static int hf_ranap_iEsCriticalityDiagnostics;    /* CriticalityDiagnostics_IE_List */
+static int hf_ranap_CriticalityDiagnostics_IE_List_item;  /* CriticalityDiagnostics_IE_List_item */
+static int hf_ranap_iECriticality;                /* Criticality */
+static int hf_ranap_iE_ID;                        /* ProtocolIE_ID */
+static int hf_ranap_repetitionNumber;             /* RepetitionNumber0 */
+static int hf_ranap_MessageStructure_item;        /* MessageStructure_item */
+static int hf_ranap_item_repetitionNumber;        /* RepetitionNumber1 */
+static int hf_ranap_lAC;                          /* LAC */
+static int hf_ranap_cI;                           /* CI */
+static int hf_ranap_CSG_Id_List_item;             /* CSG_Id */
+static int hf_ranap_newRAListofIdleModeUEs;       /* NewRAListofIdleModeUEs */
+static int hf_ranap_rAListwithNoIdleModeUEsAnyMore;  /* RAListwithNoIdleModeUEsAnyMore */
+static int hf_ranap_NewRAListofIdleModeUEs_item;  /* RAC */
+static int hf_ranap_RAListwithNoIdleModeUEsAnyMore_item;  /* RAC */
+static int hf_ranap_macroENB_ID;                  /* BIT_STRING_SIZE_20 */
+static int hf_ranap_homeENB_ID;                   /* BIT_STRING_SIZE_28 */
+static int hf_ranap_short_macroENB_ID;            /* BIT_STRING_SIZE_18 */
+static int hf_ranap_long_macroENB_ID;             /* BIT_STRING_SIZE_21 */
+static int hf_ranap_permittedAlgorithms;          /* PermittedEncryptionAlgorithms */
+static int hf_ranap_key;                          /* EncryptionKey */
+static int hf_ranap_iMEIlist;                     /* IMEIList */
+static int hf_ranap_iMEISVlist;                   /* IMEISVList */
+static int hf_ranap_iMEIgroup;                    /* IMEIGroup */
+static int hf_ranap_iMEISVgroup;                  /* IMEISVGroup */
+static int hf_ranap_measurementQuantity;          /* MeasurementQuantity */
+static int hf_ranap_threshold;                    /* INTEGER_M120_165 */
+static int hf_ranap_threshold_01;                 /* INTEGER_M120_M25 */
+static int hf_ranap_GANSS_PositioningDataSet_item;  /* GANSS_PositioningMethodAndUsage */
+static int hf_ranap_point;                        /* GA_Point */
+static int hf_ranap_pointWithUnCertainty;         /* GA_PointWithUnCertainty */
+static int hf_ranap_polygon;                      /* GA_Polygon */
+static int hf_ranap_pointWithUncertaintyEllipse;  /* GA_PointWithUnCertaintyEllipse */
+static int hf_ranap_pointWithAltitude;            /* GA_PointWithAltitude */
+static int hf_ranap_pointWithAltitudeAndUncertaintyEllipsoid;  /* GA_PointWithAltitudeAndUncertaintyEllipsoid */
+static int hf_ranap_ellipsoidArc;                 /* GA_EllipsoidArc */
+static int hf_ranap_latitudeSign;                 /* T_latitudeSign */
+static int hf_ranap_latitude;                     /* INTEGER_0_8388607 */
+static int hf_ranap_longitude;                    /* INTEGER_M8388608_8388607 */
+static int hf_ranap_directionOfAltitude;          /* T_directionOfAltitude */
+static int hf_ranap_altitude;                     /* INTEGER_0_32767 */
+static int hf_ranap_geographicalCoordinates;      /* GeographicalCoordinates */
+static int hf_ranap_innerRadius;                  /* INTEGER_0_65535 */
+static int hf_ranap_uncertaintyRadius;            /* INTEGER_0_127 */
+static int hf_ranap_offsetAngle;                  /* INTEGER_0_179 */
+static int hf_ranap_includedAngle;                /* INTEGER_0_179 */
+static int hf_ranap_confidence;                   /* INTEGER_0_127 */
+static int hf_ranap_altitudeAndDirection;         /* GA_AltitudeAndDirection */
+static int hf_ranap_uncertaintyEllipse;           /* GA_UncertaintyEllipse */
+static int hf_ranap_uncertaintyAltitude;          /* INTEGER_0_127 */
+static int hf_ranap_uncertaintyCode;              /* INTEGER_0_127 */
+static int hf_ranap_GA_Polygon_item;              /* GA_Polygon_item */
+static int hf_ranap_uncertaintySemi_major;        /* INTEGER_0_127 */
+static int hf_ranap_uncertaintySemi_minor;        /* INTEGER_0_127 */
+static int hf_ranap_orientationOfMajorAxis;       /* INTEGER_0_179 */
+static int hf_ranap_lAI;                          /* LAI */
+static int hf_ranap_rAC;                          /* RAC */
+static int hf_ranap_cN_ID;                        /* CN_ID */
+static int hf_ranap_rNC_ID;                       /* RNC_ID */
+static int hf_ranap_iMEI;                         /* IMEI */
+static int hf_ranap_iMEIMask;                     /* BIT_STRING_SIZE_7 */
+static int hf_ranap_IMEIList_item;                /* IMEI */
+static int hf_ranap_iMEISV;                       /* IMEISV */
+static int hf_ranap_iMEISVMask;                   /* BIT_STRING_SIZE_7 */
+static int hf_ranap_IMEISVList_item;              /* IMEISV */
+static int hf_ranap_measurementsToActivate;       /* MeasurementsToActivate */
+static int hf_ranap_m1report;                     /* M1Report */
+static int hf_ranap_m2report;                     /* M2Report */
+static int hf_ranap_requestedMBMSIPMulticastAddressandAPNRequest;  /* RequestedMBMSIPMulticastAddressandAPNRequest */
+static int hf_ranap_requestedMulticastServiceList;  /* RequestedMulticastServiceList */
+static int hf_ranap_mBMSIPMulticastAddressandAPNRequest;  /* MBMSIPMulticastAddressandAPNRequest */
+static int hf_ranap_permanentNAS_UE_ID;           /* PermanentNAS_UE_ID */
+static int hf_ranap_rNCTraceInformation;          /* RNCTraceInformation */
+static int hf_ranap_permittedAlgorithms_01;       /* PermittedIntegrityProtectionAlgorithms */
+static int hf_ranap_key_01;                       /* IntegrityProtectionKey */
+static int hf_ranap_rIM_Transfer;                 /* RIM_Transfer */
+static int hf_ranap_gTP_TEI;                      /* GTP_TEI */
+static int hf_ranap_bindingID;                    /* BindingID */
+static int hf_ranap_LA_LIST_item;                 /* LA_LIST_item */
+static int hf_ranap_listOF_SNAs;                  /* ListOF_SNAs */
+static int hf_ranap_ageOfSAI;                     /* INTEGER_0_32767 */
+static int hf_ranap_uTRAN_CellID;                 /* UTRAN_CellID */
+static int hf_ranap_cellType;                     /* CellType */
+static int hf_ranap_time_UE_StayedInCell;         /* Time_UE_StayedInCell */
+static int hf_ranap_ListOF_SNAs_item;             /* SNAC */
+static int hf_ranap_ListOfInterfacesToTrace_item;  /* InterfacesToTraceItem */
+static int hf_ranap_interface;                    /* T_interface */
+static int hf_ranap_requestedLocationRelatedDataType;  /* RequestedLocationRelatedDataType */
+static int hf_ranap_requestedGPSAssistanceData;   /* RequestedGPSAssistanceData */
+static int hf_ranap_reportChangeOfSAI;            /* ReportChangeOfSAI */
+static int hf_ranap_periodicReportingIndicator;   /* PeriodicReportingIndicator */
+static int hf_ranap_directReportingIndicator;     /* DirectReportingIndicator */
+static int hf_ranap_verticalAccuracyCode;         /* VerticalAccuracyCode */
+static int hf_ranap_positioningPriorityChangeSAI;  /* PositioningPriority */
+static int hf_ranap_positioningPriorityDirect;    /* PositioningPriority */
+static int hf_ranap_clientTypePeriodic;           /* ClientType */
+static int hf_ranap_clientTypeDirect;             /* ClientType */
+static int hf_ranap_responseTime;                 /* ResponseTime */
+static int hf_ranap_includeVelocity;              /* IncludeVelocity */
+static int hf_ranap_periodicLocationInfo;         /* PeriodicLocationInfo */
+static int hf_ranap_periodic;                     /* MDT_Report_Parameters */
+static int hf_ranap_event1F;                      /* Event1F_Parameters */
+static int hf_ranap_event1I;                      /* Event1I_Parameters */
+static int hf_ranap_all;                          /* NULL */
+static int hf_ranap_m4_collection_parameters;     /* M4_Collection_Parameters */
+static int hf_ranap_m4_period;                    /* M4_Period */
+static int hf_ranap_m4_threshold;                 /* M4_Threshold */
+static int hf_ranap_when_available;               /* NULL */
+static int hf_ranap_m5_period;                    /* M5_Period */
+static int hf_ranap_m6_period;                    /* M6_Period */
+static int hf_ranap_m6_links_to_log;              /* Links_to_log */
+static int hf_ranap_m7_period;                    /* M7_Period */
+static int hf_ranap_m7_links_to_log;              /* Links_to_log */
+static int hf_ranap_MBMSIPMulticastAddressandAPNRequest_item;  /* TMGI */
+static int hf_ranap_plmn_area_based_01;           /* NULL */
+static int hf_ranap_mdtActivation;                /* MDT_Activation */
+static int hf_ranap_mdtAreaScope;                 /* MDTAreaScope */
+static int hf_ranap_mdtMode;                      /* MDTMode */
+static int hf_ranap_immediateMDT;                 /* ImmediateMDT */
+static int hf_ranap_loggedMDT;                    /* LoggedMDT */
+static int hf_ranap_MDT_PLMN_List_item;           /* PLMNidentity */
+static int hf_ranap_reportInterval;               /* ReportInterval */
+static int hf_ranap_reportAmount;                 /* ReportAmount */
+static int hf_ranap_accessPointName;              /* Offload_RAB_Parameters_APN */
+static int hf_ranap_chargingCharacteristics;      /* Offload_RAB_Parameters_ChargingCharacteristics */
+static int hf_ranap_rAI;                          /* RAI */
+static int hf_ranap_PDP_TypeInformation_item;     /* PDP_Type */
+static int hf_ranap_PDP_TypeInformation_extension_item;  /* PDP_Type_extension */
+static int hf_ranap_reportingAmount;              /* INTEGER_1_8639999_ */
+static int hf_ranap_reportingInterval;            /* INTEGER_1_8639999_ */
+static int hf_ranap_iMSI;                         /* IMSI */
+static int hf_ranap_PermittedEncryptionAlgorithms_item;  /* EncryptionAlgorithm */
+static int hf_ranap_PermittedIntegrityProtectionAlgorithms_item;  /* IntegrityProtectionAlgorithm */
+static int hf_ranap_laiList;                      /* LAI_List */
+static int hf_ranap_LAI_List_item;                /* LAI */
+static int hf_ranap_loggingInterval;              /* LoggingInterval */
+static int hf_ranap_loggingDuration;              /* LoggingDuration */
+static int hf_ranap_plmnList;                     /* PLMNList */
+static int hf_ranap_PLMNList_item;                /* PLMNidentity */
+static int hf_ranap_PLMNs_in_shared_network_item;  /* PLMNs_in_shared_network_item */
+static int hf_ranap_lA_LIST;                      /* LA_LIST */
+static int hf_ranap_PositioningDataSet_item;      /* PositioningMethodAndUsage */
+static int hf_ranap_positioningDataDiscriminator;  /* PositioningDataDiscriminator */
+static int hf_ranap_positioningDataSet;           /* PositioningDataSet */
+static int hf_ranap_shared_network_information;   /* Shared_Network_Information */
+static int hf_ranap_raiList;                      /* RAI_List */
+static int hf_ranap_RAI_List_item;                /* RAI */
+static int hf_ranap_RABDataVolumeReport_item;     /* RABDataVolumeReport_item */
+static int hf_ranap_dl_UnsuccessfullyTransmittedDataVolume;  /* UnsuccessfullyTransmittedDataVolume */
+static int hf_ranap_dataVolumeReference;          /* DataVolumeReference */
+static int hf_ranap_RAB_Parameter_ExtendedGuaranteedBitrateList_item;  /* ExtendedGuaranteedBitrate */
+static int hf_ranap_RAB_Parameter_ExtendedMaxBitrateList_item;  /* ExtendedMaxBitrate */
+static int hf_ranap_RAB_Parameter_GuaranteedBitrateList_item;  /* GuaranteedBitrate */
+static int hf_ranap_RAB_Parameter_MaxBitrateList_item;  /* MaxBitrate */
+static int hf_ranap_trafficClass;                 /* TrafficClass */
+static int hf_ranap_rAB_AsymmetryIndicator;       /* RAB_AsymmetryIndicator */
+static int hf_ranap_maxBitrate;                   /* RAB_Parameter_MaxBitrateList */
+static int hf_ranap_guaranteedBitRate;            /* RAB_Parameter_GuaranteedBitrateList */
+static int hf_ranap_deliveryOrder;                /* DeliveryOrder */
+static int hf_ranap_maxSDU_Size;                  /* MaxSDU_Size */
+static int hf_ranap_sDU_Parameters;               /* SDU_Parameters */
+static int hf_ranap_transferDelay;                /* TransferDelay */
+static int hf_ranap_trafficHandlingPriority;      /* TrafficHandlingPriority */
+static int hf_ranap_allocationOrRetentionPriority;  /* AllocationOrRetentionPriority */
+static int hf_ranap_sourceStatisticsDescriptor;   /* SourceStatisticsDescriptor */
+static int hf_ranap_relocationRequirement;        /* RelocationRequirement */
+static int hf_ranap_RABParametersList_item;       /* RABParametersList_item */
+static int hf_ranap_rab_Id;                       /* RAB_ID */
+static int hf_ranap_cn_domain;                    /* CN_DomainIndicator */
+static int hf_ranap_rabDataVolumeReport;          /* RABDataVolumeReport */
+static int hf_ranap_upInformation;                /* UPInformation */
+static int hf_ranap_RAB_TrCH_Mapping_item;        /* RAB_TrCH_MappingItem */
+static int hf_ranap_rAB_ID;                       /* RAB_ID */
+static int hf_ranap_trCH_ID_List;                 /* TrCH_ID_List */
+static int hf_ranap_notEmptyRAListofIdleModeUEs;  /* NotEmptyRAListofIdleModeUEs */
+static int hf_ranap_emptyFullRAListofIdleModeUEs;  /* T_emptyFullRAListofIdleModeUEs */
+static int hf_ranap_rAofIdleModeUEs;              /* RAofIdleModeUEs */
+static int hf_ranap_RAofIdleModeUEs_item;         /* RAC */
+static int hf_ranap_LAListofIdleModeUEs_item;     /* LAI */
+static int hf_ranap_RequestedMBMSIPMulticastAddressandAPNRequest_item;  /* MBMSIPMulticastAddressandAPNlist */
+static int hf_ranap_tMGI;                         /* TMGI */
+static int hf_ranap_iPMulticastAddress;           /* IPMulticastAddress */
+static int hf_ranap_aPN;                          /* APN */
+static int hf_ranap_RequestedMulticastServiceList_item;  /* TMGI */
+static int hf_ranap_requestedMaxBitrates;         /* Requested_RAB_Parameter_MaxBitrateList */
+static int hf_ranap_requestedGuaranteedBitrates;  /* Requested_RAB_Parameter_GuaranteedBitrateList */
+static int hf_ranap_Requested_RAB_Parameter_ExtendedMaxBitrateList_item;  /* ExtendedMaxBitrate */
+static int hf_ranap_Requested_RAB_Parameter_ExtendedGuaranteedBitrateList_item;  /* ExtendedGuaranteedBitrate */
+static int hf_ranap_Requested_RAB_Parameter_MaxBitrateList_item;  /* MaxBitrate */
+static int hf_ranap_Requested_RAB_Parameter_GuaranteedBitrateList_item;  /* GuaranteedBitrate */
+static int hf_ranap_event;                        /* Event */
+static int hf_ranap_reportArea;                   /* ReportArea */
+static int hf_ranap_accuracyCode;                 /* INTEGER_0_127 */
+static int hf_ranap_mantissa;                     /* INTEGER_1_9 */
+static int hf_ranap_exponent;                     /* INTEGER_1_8 */
+static int hf_ranap_rIMInformation;               /* RIMInformation */
+static int hf_ranap_rIMRoutingAddress;            /* RIMRoutingAddress */
+static int hf_ranap_targetRNC_ID;                 /* TargetRNC_ID */
+static int hf_ranap_gERAN_Cell_ID;                /* GERAN_Cell_ID */
+static int hf_ranap_targeteNB_ID;                 /* TargetENB_ID */
+static int hf_ranap_traceActivationIndicator;     /* T_traceActivationIndicator */
+static int hf_ranap_equipmentsToBeTraced;         /* EquipmentsToBeTraced */
+static int hf_ranap_rabParmetersList;             /* RABParametersList */
+static int hf_ranap_locationReporting;            /* LocationReportingTransferInformation */
+static int hf_ranap_traceInformation;             /* TraceInformation */
+static int hf_ranap_sourceSAI;                    /* SAI */
+static int hf_ranap_nonce;                        /* BIT_STRING_SIZE_128 */
+static int hf_ranap_iMSInformation;               /* OCTET_STRING_SIZE_1_maxSizeOfIMSInfo */
+static int hf_ranap_sAC;                          /* SAC */
+static int hf_ranap_pLMNs_in_shared_network;      /* PLMNs_in_shared_network */
+static int hf_ranap_exponent_1_8;                 /* INTEGER_1_6 */
+static int hf_ranap_SDU_FormatInformationParameters_item;  /* SDU_FormatInformationParameters_item */
+static int hf_ranap_subflowSDU_Size;              /* SubflowSDU_Size */
+static int hf_ranap_rAB_SubflowCombinationBitRate;  /* RAB_SubflowCombinationBitRate */
+static int hf_ranap_SDU_Parameters_item;          /* SDU_Parameters_item */
+static int hf_ranap_sDU_ErrorRatio;               /* SDU_ErrorRatio */
+static int hf_ranap_residualBitErrorRatio;        /* ResidualBitErrorRatio */
+static int hf_ranap_deliveryOfErroneousSDU;       /* DeliveryOfErroneousSDU */
+static int hf_ranap_sDU_FormatInformationParameters;  /* SDU_FormatInformationParameters */
+static int hf_ranap_null_NRI;                     /* Null_NRI */
+static int hf_ranap_sGSN_Group_ID;                /* SGSN_Group_ID */
+static int hf_ranap_authorisedPLMNs;              /* AuthorisedPLMNs */
+static int hf_ranap_sourceUTRANCellID;            /* SourceUTRANCellID */
+static int hf_ranap_sourceGERANCellID;            /* CGI */
+static int hf_ranap_sourceRNC_ID;                 /* SourceRNC_ID */
+static int hf_ranap_rRC_Container;                /* RRC_Container */
+static int hf_ranap_numberOfIuInstances;          /* NumberOfIuInstances */
+static int hf_ranap_relocationType;               /* RelocationType */
+static int hf_ranap_chosenIntegrityProtectionAlgorithm;  /* ChosenIntegrityProtectionAlgorithm */
+static int hf_ranap_integrityProtectionKey;       /* IntegrityProtectionKey */
+static int hf_ranap_chosenEncryptionAlgorithForSignalling;  /* ChosenEncryptionAlgorithm */
+static int hf_ranap_cipheringKey;                 /* EncryptionKey */
+static int hf_ranap_chosenEncryptionAlgorithForCS;  /* ChosenEncryptionAlgorithm */
+static int hf_ranap_chosenEncryptionAlgorithForPS;  /* ChosenEncryptionAlgorithm */
+static int hf_ranap_d_RNTI;                       /* D_RNTI */
+static int hf_ranap_targetCellId;                 /* TargetCellId */
+static int hf_ranap_rAB_TrCH_Mapping;             /* RAB_TrCH_Mapping */
+static int hf_ranap_rSRP;                         /* INTEGER_0_97 */
+static int hf_ranap_rSRQ;                         /* INTEGER_0_34 */
+static int hf_ranap_iRATmeasurementParameters;    /* IRATmeasurementParameters */
+static int hf_ranap_measurementDuration;          /* INTEGER_1_100 */
+static int hf_ranap_eUTRANFrequencies;            /* EUTRANFrequencies */
+static int hf_ranap_allSymbols;                   /* BOOLEAN */
+static int hf_ranap_wideBand;                     /* BOOLEAN */
+static int hf_ranap_EUTRANFrequencies_item;       /* EUTRANFrequencies_item */
+static int hf_ranap_earfcn;                       /* INTEGER_0_65535 */
+static int hf_ranap_measBand;                     /* MeasBand */
+static int hf_ranap_SupportedRAB_ParameterBitrateList_item;  /* SupportedBitrate */
+static int hf_ranap_uTRANcellID;                  /* TargetCellId */
+static int hf_ranap_SRB_TrCH_Mapping_item;        /* SRB_TrCH_MappingItem */
+static int hf_ranap_sRB_ID;                       /* SRB_ID */
+static int hf_ranap_trCH_ID;                      /* TrCH_ID */
+static int hf_ranap_tAC;                          /* TAC */
+static int hf_ranap_cGI;                          /* CGI */
+static int hf_ranap_eNB_ID;                       /* ENB_ID */
+static int hf_ranap_selectedTAI;                  /* TAI */
+static int hf_ranap_tMSI;                         /* TMSI */
+static int hf_ranap_p_TMSI;                       /* P_TMSI */
+static int hf_ranap_serviceID;                    /* OCTET_STRING_SIZE_3 */
+static int hf_ranap_ue_identity;                  /* UE_ID */
+static int hf_ranap_traceRecordingSessionReference;  /* TraceRecordingSessionReference */
+static int hf_ranap_traceDepth;                   /* TraceDepth */
+static int hf_ranap_listOfInterfacesToTrace;      /* ListOfInterfacesToTrace */
+static int hf_ranap_dCH_ID;                       /* DCH_ID */
+static int hf_ranap_dSCH_ID;                      /* DSCH_ID */
+static int hf_ranap_uSCH_ID;                      /* USCH_ID */
+static int hf_ranap_TrCH_ID_List_item;            /* TrCH_ID */
+static int hf_ranap_transportLayerAddress;        /* TransportLayerAddress */
+static int hf_ranap_uDP_Port_Number;              /* Port_Number */
+static int hf_ranap_uE_AggregateMaximumBitRateDownlink;  /* UE_AggregateMaximumBitRateDownlink */
+static int hf_ranap_uE_AggregateMaximumBitRateUplink;  /* UE_AggregateMaximumBitRateUplink */
+static int hf_ranap_imsi;                         /* IMSI */
+static int hf_ranap_imei;                         /* IMEI */
+static int hf_ranap_imeisv;                       /* IMEISV */
+static int hf_ranap_uE_IsServed;                  /* UE_IsServed */
+static int hf_ranap_uE_IsNotServed;               /* UE_IsNotServed */
+static int hf_ranap_uESBI_IuA;                    /* UESBI_IuA */
+static int hf_ranap_uESBI_IuB;                    /* UESBI_IuB */
+static int hf_ranap_frameSeqNoUL;                 /* FrameSequenceNumber */
+static int hf_ranap_frameSeqNoDL;                 /* FrameSequenceNumber */
+static int hf_ranap_pdu14FrameSeqNoUL;            /* PDUType14FrameSequenceNumber */
+static int hf_ranap_pdu14FrameSeqNoDL;            /* PDUType14FrameSequenceNumber */
+static int hf_ranap_dataPDUType;                  /* DataPDUType */
+static int hf_ranap_upinitialisationFrame;        /* UPInitialisationFrame */
+static int hf_ranap_cellID;                       /* TargetCellId */
+static int hf_ranap_horizontalVelocity;           /* HorizontalVelocity */
+static int hf_ranap_horizontalWithVerticalVelocity;  /* HorizontalWithVerticalVelocity */
+static int hf_ranap_horizontalVelocityWithUncertainty;  /* HorizontalVelocityWithUncertainty */
+static int hf_ranap_horizontalWithVeritcalVelocityAndUncertainty;  /* HorizontalWithVerticalVelocityAndUncertainty */
+static int hf_ranap_horizontalSpeedAndBearing;    /* HorizontalSpeedAndBearing */
+static int hf_ranap_veritcalVelocity;             /* VerticalVelocity */
+static int hf_ranap_uncertaintySpeed;             /* INTEGER_0_255 */
+static int hf_ranap_horizontalUncertaintySpeed;   /* INTEGER_0_255 */
+static int hf_ranap_verticalUncertaintySpeed;     /* INTEGER_0_255 */
+static int hf_ranap_bearing;                      /* INTEGER_0_359 */
+static int hf_ranap_horizontalSpeed;              /* INTEGER_0_2047 */
+static int hf_ranap_veritcalSpeed;                /* INTEGER_0_255 */
+static int hf_ranap_veritcalSpeedDirection;       /* VerticalSpeedDirection */
+static int hf_ranap_protocolIEs;                  /* ProtocolIE_Container */
+static int hf_ranap_protocolExtensions;           /* ProtocolExtensionContainer */
+static int hf_ranap_rab_dl_UnsuccessfullyTransmittedDataVolume;  /* DataVolumeList */
+static int hf_ranap_dL_GTP_PDU_SequenceNumber;    /* DL_GTP_PDU_SequenceNumber */
+static int hf_ranap_uL_GTP_PDU_SequenceNumber;    /* UL_GTP_PDU_SequenceNumber */
+static int hf_ranap_iuTransportAssociation;       /* IuTransportAssociation */
+static int hf_ranap_nAS_SynchronisationIndicator;  /* NAS_SynchronisationIndicator */
+static int hf_ranap_rAB_Parameters;               /* RAB_Parameters */
+static int hf_ranap_dataVolumeReportingIndication;  /* DataVolumeReportingIndication */
+static int hf_ranap_pDP_TypeInformation;          /* PDP_TypeInformation */
+static int hf_ranap_userPlaneInformation;         /* UserPlaneInformation */
+static int hf_ranap_service_Handover;             /* Service_Handover */
+static int hf_ranap_userPlaneMode;                /* UserPlaneMode */
+static int hf_ranap_uP_ModeVersions;              /* UP_ModeVersions */
+static int hf_ranap_joinedMBMSBearerService_IEs;  /* JoinedMBMSBearerService_IEs */
+static int hf_ranap_JoinedMBMSBearerService_IEs_item;  /* JoinedMBMSBearerService_IEs_item */
+static int hf_ranap_mBMS_PTP_RAB_ID;              /* MBMS_PTP_RAB_ID */
+static int hf_ranap_cause;                        /* Cause */
+static int hf_ranap_dl_GTP_PDU_SequenceNumber;    /* DL_GTP_PDU_SequenceNumber */
+static int hf_ranap_ul_GTP_PDU_SequenceNumber;    /* UL_GTP_PDU_SequenceNumber */
+static int hf_ranap_dl_N_PDU_SequenceNumber;      /* DL_N_PDU_SequenceNumber */
+static int hf_ranap_ul_N_PDU_SequenceNumber;      /* UL_N_PDU_SequenceNumber */
+static int hf_ranap_iuSigConId;                   /* IuSignallingConnectionIdentifier */
+static int hf_ranap_transportLayerAddressReq1;    /* TransportLayerAddress */
+static int hf_ranap_iuTransportAssociationReq1;   /* IuTransportAssociation */
+static int hf_ranap_ass_RAB_Parameters;           /* Ass_RAB_Parameters */
+static int hf_ranap_transportLayerAddressRes1;    /* TransportLayerAddress */
+static int hf_ranap_iuTransportAssociationRes1;   /* IuTransportAssociation */
+static int hf_ranap_rab2beReleasedList;           /* RAB_ToBeReleasedList_EnhancedRelocCompleteRes */
+static int hf_ranap_transportLayerInformation;    /* TransportLayerInformation */
+static int hf_ranap_dl_dataVolumes;               /* DataVolumeList */
+static int hf_ranap_DataVolumeList_item;          /* DataVolumeList_item */
+static int hf_ranap_gERAN_Classmark;              /* GERAN_Classmark */
+static int hf_ranap_privateIEs;                   /* PrivateIE_Container */
+static int hf_ranap_nAS_PDU;                      /* NAS_PDU */
+static int hf_ranap_sAPI;                         /* SAPI */
+static int hf_ranap_cN_DomainIndicator;           /* CN_DomainIndicator */
+static int hf_ranap_dataForwardingInformation;    /* TNLInformationEnhRelInfoReq */
+static int hf_ranap_sourceSideIuULTNLInfo;        /* TNLInformationEnhRelInfoReq */
+static int hf_ranap_alt_RAB_Parameters;           /* Alt_RAB_Parameters */
+static int hf_ranap_dataForwardingInformation_01;  /* TNLInformationEnhRelInfoRes */
+static int hf_ranap_dl_forwardingTransportLayerAddress;  /* TransportLayerAddress */
+static int hf_ranap_dl_forwardingTransportAssociation;  /* IuTransportAssociation */
+static int hf_ranap_requested_RAB_Parameter_Values;  /* Requested_RAB_Parameter_Values */
+static int hf_ranap_mBMSHCIndicator;              /* MBMSHCIndicator */
+static int hf_ranap_gTPDLTEID;                    /* GTP_TEI */
+static int hf_ranap_LeftMBMSBearerService_IEs_item;  /* LeftMBMSBearerService_IEs_item */
+static int hf_ranap_UnsuccessfulLinking_IEs_item;  /* UnsuccessfulLinking_IEs_item */
+static int hf_ranap_initiatingMessage;            /* InitiatingMessage */
+static int hf_ranap_successfulOutcome;            /* SuccessfulOutcome */
+static int hf_ranap_unsuccessfulOutcome;          /* UnsuccessfulOutcome */
+static int hf_ranap_outcome;                      /* Outcome */
+static int hf_ranap_initiatingMessagevalue;       /* InitiatingMessage_value */
+static int hf_ranap_successfulOutcome_value;      /* SuccessfulOutcome_value */
+static int hf_ranap_unsuccessfulOutcome_value;    /* UnsuccessfulOutcome_value */
+static int hf_ranap_value;                        /* T_value */
 
 /* Initialize the subtree pointers */
-static int ett_ranap = -1;
-static int ett_ranap_transportLayerAddress = -1;
-static int ett_ranap_transportLayerAddress_nsap = -1;
+static int ett_ranap;
+static int ett_ranap_transportLayerAddress;
+static int ett_ranap_transportLayerAddress_nsap;
 
-static gint ett_ranap_PrivateIE_ID = -1;
-static gint ett_ranap_ProtocolIE_Container = -1;
-static gint ett_ranap_ProtocolIE_Field = -1;
-static gint ett_ranap_ProtocolIE_ContainerPair = -1;
-static gint ett_ranap_ProtocolIE_FieldPair = -1;
-static gint ett_ranap_ProtocolIE_ContainerList = -1;
-static gint ett_ranap_ProtocolIE_ContainerPairList = -1;
-static gint ett_ranap_ProtocolExtensionContainer = -1;
-static gint ett_ranap_ProtocolExtensionField = -1;
-static gint ett_ranap_PrivateIE_Container = -1;
-static gint ett_ranap_PrivateIE_Field = -1;
-static gint ett_ranap_Additional_CSPS_coordination_information = -1;
-static gint ett_ranap_Additional_PositioningDataSet = -1;
-static gint ett_ranap_AllocationOrRetentionPriority = -1;
-static gint ett_ranap_Alt_RAB_Parameters = -1;
-static gint ett_ranap_Alt_RAB_Parameter_ExtendedGuaranteedBitrateInf = -1;
-static gint ett_ranap_Alt_RAB_Parameter_ExtendedGuaranteedBitrates = -1;
-static gint ett_ranap_Alt_RAB_Parameter_ExtendedGuaranteedBitrateList = -1;
-static gint ett_ranap_Alt_RAB_Parameter_GuaranteedBitrateInf = -1;
-static gint ett_ranap_Alt_RAB_Parameter_GuaranteedBitrates = -1;
-static gint ett_ranap_Alt_RAB_Parameter_GuaranteedBitrateList = -1;
-static gint ett_ranap_Alt_RAB_Parameter_SupportedGuaranteedBitrateInf = -1;
-static gint ett_ranap_Alt_RAB_Parameter_SupportedGuaranteedBitrates = -1;
-static gint ett_ranap_Alt_RAB_Parameter_ExtendedMaxBitrateInf = -1;
-static gint ett_ranap_Alt_RAB_Parameter_ExtendedMaxBitrates = -1;
-static gint ett_ranap_Alt_RAB_Parameter_ExtendedMaxBitrateList = -1;
-static gint ett_ranap_Alt_RAB_Parameter_MaxBitrateInf = -1;
-static gint ett_ranap_Alt_RAB_Parameter_MaxBitrates = -1;
-static gint ett_ranap_Alt_RAB_Parameter_MaxBitrateList = -1;
-static gint ett_ranap_Alt_RAB_Parameter_SupportedMaxBitrateInf = -1;
-static gint ett_ranap_Alt_RAB_Parameter_SupportedMaxBitrates = -1;
-static gint ett_ranap_UE_Application_Layer_Measurement_Configuration = -1;
-static gint ett_ranap_UE_Application_Layer_Measurement_Configuration_For_Relocation = -1;
-static gint ett_ranap_AreaScopeForUEApplicationLayerMeasurementConfiguration = -1;
-static gint ett_ranap_AreaIdentity = -1;
-static gint ett_ranap_Ass_RAB_Parameters = -1;
-static gint ett_ranap_Ass_RAB_Parameter_ExtendedGuaranteedBitrateList = -1;
-static gint ett_ranap_Ass_RAB_Parameter_ExtendedMaxBitrateList = -1;
-static gint ett_ranap_Ass_RAB_Parameter_GuaranteedBitrateList = -1;
-static gint ett_ranap_Ass_RAB_Parameter_MaxBitrateList = -1;
-static gint ett_ranap_AuthorisedPLMNs = -1;
-static gint ett_ranap_AuthorisedPLMNs_item = -1;
-static gint ett_ranap_AuthorisedSNAs = -1;
-static gint ett_ranap_BroadcastAssistanceDataDecipheringKeys = -1;
-static gint ett_ranap_Cause = -1;
-static gint ett_ranap_CellBased = -1;
-static gint ett_ranap_CellIdList = -1;
-static gint ett_ranap_CellLoadInformation = -1;
-static gint ett_ranap_CellLoadInformationGroup = -1;
-static gint ett_ranap_CriticalityDiagnostics = -1;
-static gint ett_ranap_CriticalityDiagnostics_IE_List = -1;
-static gint ett_ranap_CriticalityDiagnostics_IE_List_item = -1;
-static gint ett_ranap_MessageStructure = -1;
-static gint ett_ranap_MessageStructure_item = -1;
-static gint ett_ranap_CGI = -1;
-static gint ett_ranap_CSG_Id_List = -1;
-static gint ett_ranap_DeltaRAListofIdleModeUEs = -1;
-static gint ett_ranap_NewRAListofIdleModeUEs = -1;
-static gint ett_ranap_RAListwithNoIdleModeUEsAnyMore = -1;
-static gint ett_ranap_ENB_ID = -1;
-static gint ett_ranap_EncryptionInformation = -1;
-static gint ett_ranap_EquipmentsToBeTraced = -1;
-static gint ett_ranap_Event1F_Parameters = -1;
-static gint ett_ranap_Event1I_Parameters = -1;
-static gint ett_ranap_GANSS_PositioningDataSet = -1;
-static gint ett_ranap_GeographicalArea = -1;
-static gint ett_ranap_GeographicalCoordinates = -1;
-static gint ett_ranap_GA_AltitudeAndDirection = -1;
-static gint ett_ranap_GA_EllipsoidArc = -1;
-static gint ett_ranap_GA_Point = -1;
-static gint ett_ranap_GA_PointWithAltitude = -1;
-static gint ett_ranap_GA_PointWithAltitudeAndUncertaintyEllipsoid = -1;
-static gint ett_ranap_GA_PointWithUnCertainty = -1;
-static gint ett_ranap_GA_PointWithUnCertaintyEllipse = -1;
-static gint ett_ranap_GA_Polygon = -1;
-static gint ett_ranap_GA_Polygon_item = -1;
-static gint ett_ranap_GA_UncertaintyEllipse = -1;
-static gint ett_ranap_GERAN_Cell_ID = -1;
-static gint ett_ranap_GlobalCN_ID = -1;
-static gint ett_ranap_GlobalRNC_ID = -1;
-static gint ett_ranap_IMEIGroup = -1;
-static gint ett_ranap_IMEIList = -1;
-static gint ett_ranap_IMEISVGroup = -1;
-static gint ett_ranap_IMEISVList = -1;
-static gint ett_ranap_ImmediateMDT = -1;
-static gint ett_ranap_InformationRequested = -1;
-static gint ett_ranap_InformationRequestType = -1;
-static gint ett_ranap_InformationTransferType = -1;
-static gint ett_ranap_IntegrityProtectionInformation = -1;
-static gint ett_ranap_InterSystemInformationTransferType = -1;
-static gint ett_ranap_InterSystemInformation_TransparentContainer = -1;
-static gint ett_ranap_IuTransportAssociation = -1;
-static gint ett_ranap_LA_LIST = -1;
-static gint ett_ranap_LA_LIST_item = -1;
-static gint ett_ranap_LAI = -1;
-static gint ett_ranap_LastKnownServiceArea = -1;
-static gint ett_ranap_LastVisitedUTRANCell_Item = -1;
-static gint ett_ranap_ListOF_SNAs = -1;
-static gint ett_ranap_ListOfInterfacesToTrace = -1;
-static gint ett_ranap_InterfacesToTraceItem = -1;
-static gint ett_ranap_LocationRelatedDataRequestType = -1;
-static gint ett_ranap_LocationReportingTransferInformation = -1;
-static gint ett_ranap_M1Report = -1;
-static gint ett_ranap_M2Report = -1;
-static gint ett_ranap_M4Report = -1;
-static gint ett_ranap_M4_Collection_Parameters = -1;
-static gint ett_ranap_M5Report = -1;
-static gint ett_ranap_M6Report = -1;
-static gint ett_ranap_M7Report = -1;
-static gint ett_ranap_MBMSIPMulticastAddressandAPNRequest = -1;
-static gint ett_ranap_MDTAreaScope = -1;
-static gint ett_ranap_MDT_Configuration = -1;
-static gint ett_ranap_MDTMode = -1;
-static gint ett_ranap_MDT_PLMN_List = -1;
-static gint ett_ranap_MDT_Report_Parameters = -1;
-static gint ett_ranap_Offload_RAB_Parameters = -1;
-static gint ett_ranap_PagingAreaID = -1;
-static gint ett_ranap_PDP_TypeInformation = -1;
-static gint ett_ranap_PDP_TypeInformation_extension = -1;
-static gint ett_ranap_PeriodicLocationInfo = -1;
-static gint ett_ranap_PermanentNAS_UE_ID = -1;
-static gint ett_ranap_PermittedEncryptionAlgorithms = -1;
-static gint ett_ranap_PermittedIntegrityProtectionAlgorithms = -1;
-static gint ett_ranap_LABased = -1;
-static gint ett_ranap_LAI_List = -1;
-static gint ett_ranap_LoggedMDT = -1;
-static gint ett_ranap_PLMNBased = -1;
-static gint ett_ranap_PLMNList = -1;
-static gint ett_ranap_PLMNs_in_shared_network = -1;
-static gint ett_ranap_PLMNs_in_shared_network_item = -1;
-static gint ett_ranap_PositioningDataSet = -1;
-static gint ett_ranap_PositionData = -1;
-static gint ett_ranap_ProvidedData = -1;
-static gint ett_ranap_RABased = -1;
-static gint ett_ranap_RAI_List = -1;
-static gint ett_ranap_RABDataVolumeReport = -1;
-static gint ett_ranap_RABDataVolumeReport_item = -1;
-static gint ett_ranap_RAB_Parameter_ExtendedGuaranteedBitrateList = -1;
-static gint ett_ranap_RAB_Parameter_ExtendedMaxBitrateList = -1;
-static gint ett_ranap_RAB_Parameter_GuaranteedBitrateList = -1;
-static gint ett_ranap_RAB_Parameter_MaxBitrateList = -1;
-static gint ett_ranap_RAB_Parameters = -1;
-static gint ett_ranap_RABParametersList = -1;
-static gint ett_ranap_RABParametersList_item = -1;
-static gint ett_ranap_RAB_TrCH_Mapping = -1;
-static gint ett_ranap_RAB_TrCH_MappingItem = -1;
-static gint ett_ranap_RAI = -1;
-static gint ett_ranap_RAListofIdleModeUEs = -1;
-static gint ett_ranap_NotEmptyRAListofIdleModeUEs = -1;
-static gint ett_ranap_RAofIdleModeUEs = -1;
-static gint ett_ranap_LAListofIdleModeUEs = -1;
-static gint ett_ranap_RequestedMBMSIPMulticastAddressandAPNRequest = -1;
-static gint ett_ranap_MBMSIPMulticastAddressandAPNlist = -1;
-static gint ett_ranap_RequestedMulticastServiceList = -1;
-static gint ett_ranap_Requested_RAB_Parameter_Values = -1;
-static gint ett_ranap_Requested_RAB_Parameter_ExtendedMaxBitrateList = -1;
-static gint ett_ranap_Requested_RAB_Parameter_ExtendedGuaranteedBitrateList = -1;
-static gint ett_ranap_Requested_RAB_Parameter_MaxBitrateList = -1;
-static gint ett_ranap_Requested_RAB_Parameter_GuaranteedBitrateList = -1;
-static gint ett_ranap_RequestType = -1;
-static gint ett_ranap_ResidualBitErrorRatio = -1;
-static gint ett_ranap_RIM_Transfer = -1;
-static gint ett_ranap_RIMRoutingAddress = -1;
-static gint ett_ranap_RNCTraceInformation = -1;
-static gint ett_ranap_RNSAPRelocationParameters = -1;
-static gint ett_ranap_RSRVCC_Information = -1;
-static gint ett_ranap_SAI = -1;
-static gint ett_ranap_Shared_Network_Information = -1;
-static gint ett_ranap_SDU_ErrorRatio = -1;
-static gint ett_ranap_SDU_FormatInformationParameters = -1;
-static gint ett_ranap_SDU_FormatInformationParameters_item = -1;
-static gint ett_ranap_SDU_Parameters = -1;
-static gint ett_ranap_SDU_Parameters_item = -1;
-static gint ett_ranap_SGSN_Group_Identity = -1;
-static gint ett_ranap_SNA_Access_Information = -1;
-static gint ett_ranap_SourceCellID = -1;
-static gint ett_ranap_SourceID = -1;
-static gint ett_ranap_SourceRNC_ID = -1;
-static gint ett_ranap_SourceRNC_ToTargetRNC_TransparentContainer = -1;
-static gint ett_ranap_IRAT_Measurement_Configuration = -1;
-static gint ett_ranap_IRATmeasurementParameters = -1;
-static gint ett_ranap_RSRQ_Type = -1;
-static gint ett_ranap_EUTRANFrequencies = -1;
-static gint ett_ranap_EUTRANFrequencies_item = -1;
-static gint ett_ranap_SupportedRAB_ParameterBitrateList = -1;
-static gint ett_ranap_SourceUTRANCellID = -1;
-static gint ett_ranap_SRB_TrCH_Mapping = -1;
-static gint ett_ranap_SRB_TrCH_MappingItem = -1;
-static gint ett_ranap_SRVCC_Information = -1;
-static gint ett_ranap_TAI = -1;
-static gint ett_ranap_TargetID = -1;
-static gint ett_ranap_TargetENB_ID = -1;
-static gint ett_ranap_TargetRNC_ID = -1;
-static gint ett_ranap_TargetRNC_ToSourceRNC_TransparentContainer = -1;
-static gint ett_ranap_TemporaryUE_ID = -1;
-static gint ett_ranap_TMGI = -1;
-static gint ett_ranap_TraceInformation = -1;
-static gint ett_ranap_TracePropagationParameters = -1;
-static gint ett_ranap_TraceRecordingSessionInformation = -1;
-static gint ett_ranap_TrCH_ID = -1;
-static gint ett_ranap_TrCH_ID_List = -1;
-static gint ett_ranap_TunnelInformation = -1;
-static gint ett_ranap_UE_AggregateMaximumBitRate = -1;
-static gint ett_ranap_UE_ID = -1;
-static gint ett_ranap_UE_IsNotServed = -1;
-static gint ett_ranap_UE_IsServed = -1;
-static gint ett_ranap_UERegistrationQueryResult = -1;
-static gint ett_ranap_UESBI_Iu = -1;
-static gint ett_ranap_UPInformation = -1;
-static gint ett_ranap_UTRAN_CellID = -1;
-static gint ett_ranap_VelocityEstimate = -1;
-static gint ett_ranap_HorizontalVelocity = -1;
-static gint ett_ranap_HorizontalWithVerticalVelocity = -1;
-static gint ett_ranap_HorizontalVelocityWithUncertainty = -1;
-static gint ett_ranap_HorizontalWithVerticalVelocityAndUncertainty = -1;
-static gint ett_ranap_HorizontalSpeedAndBearing = -1;
-static gint ett_ranap_VerticalVelocity = -1;
-static gint ett_ranap_Iu_ReleaseCommand = -1;
-static gint ett_ranap_Iu_ReleaseComplete = -1;
-static gint ett_ranap_RAB_DataVolumeReportItem = -1;
-static gint ett_ranap_RAB_ReleasedItem_IuRelComp = -1;
-static gint ett_ranap_RelocationRequired = -1;
-static gint ett_ranap_RelocationCommand = -1;
-static gint ett_ranap_RAB_RelocationReleaseItem = -1;
-static gint ett_ranap_RAB_DataForwardingItem = -1;
-static gint ett_ranap_RelocationPreparationFailure = -1;
-static gint ett_ranap_RelocationRequest = -1;
-static gint ett_ranap_RAB_SetupItem_RelocReq = -1;
-static gint ett_ranap_UserPlaneInformation = -1;
-static gint ett_ranap_CNMBMSLinkingInformation = -1;
-static gint ett_ranap_JoinedMBMSBearerService_IEs = -1;
-static gint ett_ranap_JoinedMBMSBearerService_IEs_item = -1;
-static gint ett_ranap_RelocationRequestAcknowledge = -1;
-static gint ett_ranap_RAB_SetupItem_RelocReqAck = -1;
-static gint ett_ranap_RAB_FailedItem = -1;
-static gint ett_ranap_RelocationFailure = -1;
-static gint ett_ranap_RelocationCancel = -1;
-static gint ett_ranap_RelocationCancelAcknowledge = -1;
-static gint ett_ranap_SRNS_ContextRequest = -1;
-static gint ett_ranap_RAB_DataForwardingItem_SRNS_CtxReq = -1;
-static gint ett_ranap_SRNS_ContextResponse = -1;
-static gint ett_ranap_RAB_ContextItem = -1;
-static gint ett_ranap_RABs_ContextFailedtoTransferItem = -1;
-static gint ett_ranap_SecurityModeCommand = -1;
-static gint ett_ranap_SecurityModeComplete = -1;
-static gint ett_ranap_SecurityModeReject = -1;
-static gint ett_ranap_DataVolumeReportRequest = -1;
-static gint ett_ranap_RAB_DataVolumeReportRequestItem = -1;
-static gint ett_ranap_DataVolumeReport = -1;
-static gint ett_ranap_RABs_failed_to_reportItem = -1;
-static gint ett_ranap_Reset = -1;
-static gint ett_ranap_ResetAcknowledge = -1;
-static gint ett_ranap_ResetResource = -1;
-static gint ett_ranap_ResetResourceItem = -1;
-static gint ett_ranap_ResetResourceAcknowledge = -1;
-static gint ett_ranap_ResetResourceAckItem = -1;
-static gint ett_ranap_RAB_ReleaseRequest = -1;
-static gint ett_ranap_RAB_ReleaseItem = -1;
-static gint ett_ranap_Iu_ReleaseRequest = -1;
-static gint ett_ranap_RelocationDetect = -1;
-static gint ett_ranap_RelocationComplete = -1;
-static gint ett_ranap_EnhancedRelocationCompleteRequest = -1;
-static gint ett_ranap_RAB_SetupItem_EnhancedRelocCompleteReq = -1;
-static gint ett_ranap_EnhancedRelocationCompleteResponse = -1;
-static gint ett_ranap_RAB_SetupItem_EnhancedRelocCompleteRes = -1;
-static gint ett_ranap_RAB_ToBeReleasedItem_EnhancedRelocCompleteRes = -1;
-static gint ett_ranap_EnhancedRelocationCompleteFailure = -1;
-static gint ett_ranap_EnhancedRelocationCompleteConfirm = -1;
-static gint ett_ranap_Paging = -1;
-static gint ett_ranap_CommonID = -1;
-static gint ett_ranap_CN_InvokeTrace = -1;
-static gint ett_ranap_CN_DeactivateTrace = -1;
-static gint ett_ranap_LocationReportingControl = -1;
-static gint ett_ranap_LocationReport = -1;
-static gint ett_ranap_InitialUE_Message = -1;
-static gint ett_ranap_DirectTransfer = -1;
-static gint ett_ranap_Overload = -1;
-static gint ett_ranap_ErrorIndication = -1;
-static gint ett_ranap_SRNS_DataForwardCommand = -1;
-static gint ett_ranap_ForwardSRNS_Context = -1;
-static gint ett_ranap_RAB_AssignmentRequest = -1;
-static gint ett_ranap_RAB_SetupOrModifyItemFirst = -1;
-static gint ett_ranap_TransportLayerInformation = -1;
-static gint ett_ranap_RAB_SetupOrModifyItemSecond = -1;
-static gint ett_ranap_RAB_AssignmentResponse = -1;
-static gint ett_ranap_RAB_SetupOrModifiedItem = -1;
-static gint ett_ranap_RAB_ReleasedItem = -1;
-static gint ett_ranap_DataVolumeList = -1;
-static gint ett_ranap_DataVolumeList_item = -1;
-static gint ett_ranap_RAB_QueuedItem = -1;
-static gint ett_ranap_GERAN_Iumode_RAB_Failed_RABAssgntResponse_Item = -1;
-static gint ett_ranap_PrivateMessage = -1;
-static gint ett_ranap_RANAP_RelocationInformation = -1;
-static gint ett_ranap_DirectTransferInformationItem_RANAP_RelocInf = -1;
-static gint ett_ranap_RAB_ContextItem_RANAP_RelocInf = -1;
-static gint ett_ranap_RANAP_EnhancedRelocationInformationRequest = -1;
-static gint ett_ranap_RAB_SetupItem_EnhRelocInfoReq = -1;
-static gint ett_ranap_TNLInformationEnhRelInfoReq = -1;
-static gint ett_ranap_RANAP_EnhancedRelocationInformationResponse = -1;
-static gint ett_ranap_RAB_SetupItem_EnhRelocInfoRes = -1;
-static gint ett_ranap_RAB_FailedItem_EnhRelocInfoRes = -1;
-static gint ett_ranap_TNLInformationEnhRelInfoRes = -1;
-static gint ett_ranap_RAB_ModifyRequest = -1;
-static gint ett_ranap_RAB_ModifyItem = -1;
-static gint ett_ranap_LocationRelatedDataRequest = -1;
-static gint ett_ranap_LocationRelatedDataResponse = -1;
-static gint ett_ranap_LocationRelatedDataFailure = -1;
-static gint ett_ranap_InformationTransferIndication = -1;
-static gint ett_ranap_InformationTransferConfirmation = -1;
-static gint ett_ranap_InformationTransferFailure = -1;
-static gint ett_ranap_UESpecificInformationIndication = -1;
-static gint ett_ranap_DirectInformationTransfer = -1;
-static gint ett_ranap_UplinkInformationExchangeRequest = -1;
-static gint ett_ranap_UplinkInformationExchangeResponse = -1;
-static gint ett_ranap_UplinkInformationExchangeFailure = -1;
-static gint ett_ranap_MBMSSessionStart = -1;
-static gint ett_ranap_MBMSSynchronisationInformation = -1;
-static gint ett_ranap_MBMSSessionStartResponse = -1;
-static gint ett_ranap_MBMSSessionStartFailure = -1;
-static gint ett_ranap_MBMSSessionUpdate = -1;
-static gint ett_ranap_MBMSSessionUpdateResponse = -1;
-static gint ett_ranap_MBMSSessionUpdateFailure = -1;
-static gint ett_ranap_MBMSSessionStop = -1;
-static gint ett_ranap_MBMSSessionStopResponse = -1;
-static gint ett_ranap_MBMSUELinkingRequest = -1;
-static gint ett_ranap_LeftMBMSBearerService_IEs = -1;
-static gint ett_ranap_LeftMBMSBearerService_IEs_item = -1;
-static gint ett_ranap_MBMSUELinkingResponse = -1;
-static gint ett_ranap_UnsuccessfulLinking_IEs = -1;
-static gint ett_ranap_UnsuccessfulLinking_IEs_item = -1;
-static gint ett_ranap_MBMSRegistrationRequest = -1;
-static gint ett_ranap_MBMSRegistrationResponse = -1;
-static gint ett_ranap_MBMSRegistrationFailure = -1;
-static gint ett_ranap_MBMSCNDe_RegistrationRequest = -1;
-static gint ett_ranap_MBMSCNDe_RegistrationResponse = -1;
-static gint ett_ranap_MBMSRABEstablishmentIndication = -1;
-static gint ett_ranap_MBMSRABReleaseRequest = -1;
-static gint ett_ranap_MBMSRABRelease = -1;
-static gint ett_ranap_MBMSRABReleaseFailure = -1;
-static gint ett_ranap_SRVCC_CSKeysRequest = -1;
-static gint ett_ranap_SRVCC_CSKeysResponse = -1;
-static gint ett_ranap_UeRadioCapabilityMatchRequest = -1;
-static gint ett_ranap_UeRadioCapabilityMatchResponse = -1;
-static gint ett_ranap_UeRegistrationQueryRequest = -1;
-static gint ett_ranap_UeRegistrationQueryResponse = -1;
-static gint ett_ranap_RerouteNASRequest = -1;
-static gint ett_ranap_RANAP_PDU = -1;
-static gint ett_ranap_InitiatingMessage = -1;
-static gint ett_ranap_SuccessfulOutcome = -1;
-static gint ett_ranap_UnsuccessfulOutcome = -1;
-static gint ett_ranap_Outcome = -1;
+static gint ett_ranap_PrivateIE_ID;
+static gint ett_ranap_ProtocolIE_Container;
+static gint ett_ranap_ProtocolIE_Field;
+static gint ett_ranap_ProtocolIE_ContainerPair;
+static gint ett_ranap_ProtocolIE_FieldPair;
+static gint ett_ranap_ProtocolIE_ContainerList;
+static gint ett_ranap_ProtocolIE_ContainerPairList;
+static gint ett_ranap_ProtocolExtensionContainer;
+static gint ett_ranap_ProtocolExtensionField;
+static gint ett_ranap_PrivateIE_Container;
+static gint ett_ranap_PrivateIE_Field;
+static gint ett_ranap_Additional_CSPS_coordination_information;
+static gint ett_ranap_Additional_PositioningDataSet;
+static gint ett_ranap_AllocationOrRetentionPriority;
+static gint ett_ranap_Alt_RAB_Parameters;
+static gint ett_ranap_Alt_RAB_Parameter_ExtendedGuaranteedBitrateInf;
+static gint ett_ranap_Alt_RAB_Parameter_ExtendedGuaranteedBitrates;
+static gint ett_ranap_Alt_RAB_Parameter_ExtendedGuaranteedBitrateList;
+static gint ett_ranap_Alt_RAB_Parameter_GuaranteedBitrateInf;
+static gint ett_ranap_Alt_RAB_Parameter_GuaranteedBitrates;
+static gint ett_ranap_Alt_RAB_Parameter_GuaranteedBitrateList;
+static gint ett_ranap_Alt_RAB_Parameter_SupportedGuaranteedBitrateInf;
+static gint ett_ranap_Alt_RAB_Parameter_SupportedGuaranteedBitrates;
+static gint ett_ranap_Alt_RAB_Parameter_ExtendedMaxBitrateInf;
+static gint ett_ranap_Alt_RAB_Parameter_ExtendedMaxBitrates;
+static gint ett_ranap_Alt_RAB_Parameter_ExtendedMaxBitrateList;
+static gint ett_ranap_Alt_RAB_Parameter_MaxBitrateInf;
+static gint ett_ranap_Alt_RAB_Parameter_MaxBitrates;
+static gint ett_ranap_Alt_RAB_Parameter_MaxBitrateList;
+static gint ett_ranap_Alt_RAB_Parameter_SupportedMaxBitrateInf;
+static gint ett_ranap_Alt_RAB_Parameter_SupportedMaxBitrates;
+static gint ett_ranap_UE_Application_Layer_Measurement_Configuration;
+static gint ett_ranap_UE_Application_Layer_Measurement_Configuration_For_Relocation;
+static gint ett_ranap_AreaScopeForUEApplicationLayerMeasurementConfiguration;
+static gint ett_ranap_AreaIdentity;
+static gint ett_ranap_Ass_RAB_Parameters;
+static gint ett_ranap_Ass_RAB_Parameter_ExtendedGuaranteedBitrateList;
+static gint ett_ranap_Ass_RAB_Parameter_ExtendedMaxBitrateList;
+static gint ett_ranap_Ass_RAB_Parameter_GuaranteedBitrateList;
+static gint ett_ranap_Ass_RAB_Parameter_MaxBitrateList;
+static gint ett_ranap_AuthorisedPLMNs;
+static gint ett_ranap_AuthorisedPLMNs_item;
+static gint ett_ranap_AuthorisedSNAs;
+static gint ett_ranap_BroadcastAssistanceDataDecipheringKeys;
+static gint ett_ranap_Cause;
+static gint ett_ranap_CellBased;
+static gint ett_ranap_CellIdList;
+static gint ett_ranap_CellLoadInformation;
+static gint ett_ranap_CellLoadInformationGroup;
+static gint ett_ranap_CriticalityDiagnostics;
+static gint ett_ranap_CriticalityDiagnostics_IE_List;
+static gint ett_ranap_CriticalityDiagnostics_IE_List_item;
+static gint ett_ranap_MessageStructure;
+static gint ett_ranap_MessageStructure_item;
+static gint ett_ranap_CGI;
+static gint ett_ranap_CSG_Id_List;
+static gint ett_ranap_DeltaRAListofIdleModeUEs;
+static gint ett_ranap_NewRAListofIdleModeUEs;
+static gint ett_ranap_RAListwithNoIdleModeUEsAnyMore;
+static gint ett_ranap_ENB_ID;
+static gint ett_ranap_EncryptionInformation;
+static gint ett_ranap_EquipmentsToBeTraced;
+static gint ett_ranap_Event1F_Parameters;
+static gint ett_ranap_Event1I_Parameters;
+static gint ett_ranap_GANSS_PositioningDataSet;
+static gint ett_ranap_GeographicalArea;
+static gint ett_ranap_GeographicalCoordinates;
+static gint ett_ranap_GA_AltitudeAndDirection;
+static gint ett_ranap_GA_EllipsoidArc;
+static gint ett_ranap_GA_Point;
+static gint ett_ranap_GA_PointWithAltitude;
+static gint ett_ranap_GA_PointWithAltitudeAndUncertaintyEllipsoid;
+static gint ett_ranap_GA_PointWithUnCertainty;
+static gint ett_ranap_GA_PointWithUnCertaintyEllipse;
+static gint ett_ranap_GA_Polygon;
+static gint ett_ranap_GA_Polygon_item;
+static gint ett_ranap_GA_UncertaintyEllipse;
+static gint ett_ranap_GERAN_Cell_ID;
+static gint ett_ranap_GlobalCN_ID;
+static gint ett_ranap_GlobalRNC_ID;
+static gint ett_ranap_IMEIGroup;
+static gint ett_ranap_IMEIList;
+static gint ett_ranap_IMEISVGroup;
+static gint ett_ranap_IMEISVList;
+static gint ett_ranap_ImmediateMDT;
+static gint ett_ranap_InformationRequested;
+static gint ett_ranap_InformationRequestType;
+static gint ett_ranap_InformationTransferType;
+static gint ett_ranap_IntegrityProtectionInformation;
+static gint ett_ranap_InterSystemInformationTransferType;
+static gint ett_ranap_InterSystemInformation_TransparentContainer;
+static gint ett_ranap_IuTransportAssociation;
+static gint ett_ranap_LA_LIST;
+static gint ett_ranap_LA_LIST_item;
+static gint ett_ranap_LAI;
+static gint ett_ranap_LastKnownServiceArea;
+static gint ett_ranap_LastVisitedUTRANCell_Item;
+static gint ett_ranap_ListOF_SNAs;
+static gint ett_ranap_ListOfInterfacesToTrace;
+static gint ett_ranap_InterfacesToTraceItem;
+static gint ett_ranap_LocationRelatedDataRequestType;
+static gint ett_ranap_LocationReportingTransferInformation;
+static gint ett_ranap_M1Report;
+static gint ett_ranap_M2Report;
+static gint ett_ranap_M4Report;
+static gint ett_ranap_M4_Collection_Parameters;
+static gint ett_ranap_M5Report;
+static gint ett_ranap_M6Report;
+static gint ett_ranap_M7Report;
+static gint ett_ranap_MBMSIPMulticastAddressandAPNRequest;
+static gint ett_ranap_MDTAreaScope;
+static gint ett_ranap_MDT_Configuration;
+static gint ett_ranap_MDTMode;
+static gint ett_ranap_MDT_PLMN_List;
+static gint ett_ranap_MDT_Report_Parameters;
+static gint ett_ranap_Offload_RAB_Parameters;
+static gint ett_ranap_PagingAreaID;
+static gint ett_ranap_PDP_TypeInformation;
+static gint ett_ranap_PDP_TypeInformation_extension;
+static gint ett_ranap_PeriodicLocationInfo;
+static gint ett_ranap_PermanentNAS_UE_ID;
+static gint ett_ranap_PermittedEncryptionAlgorithms;
+static gint ett_ranap_PermittedIntegrityProtectionAlgorithms;
+static gint ett_ranap_LABased;
+static gint ett_ranap_LAI_List;
+static gint ett_ranap_LoggedMDT;
+static gint ett_ranap_PLMNBased;
+static gint ett_ranap_PLMNList;
+static gint ett_ranap_PLMNs_in_shared_network;
+static gint ett_ranap_PLMNs_in_shared_network_item;
+static gint ett_ranap_PositioningDataSet;
+static gint ett_ranap_PositionData;
+static gint ett_ranap_ProvidedData;
+static gint ett_ranap_RABased;
+static gint ett_ranap_RAI_List;
+static gint ett_ranap_RABDataVolumeReport;
+static gint ett_ranap_RABDataVolumeReport_item;
+static gint ett_ranap_RAB_Parameter_ExtendedGuaranteedBitrateList;
+static gint ett_ranap_RAB_Parameter_ExtendedMaxBitrateList;
+static gint ett_ranap_RAB_Parameter_GuaranteedBitrateList;
+static gint ett_ranap_RAB_Parameter_MaxBitrateList;
+static gint ett_ranap_RAB_Parameters;
+static gint ett_ranap_RABParametersList;
+static gint ett_ranap_RABParametersList_item;
+static gint ett_ranap_RAB_TrCH_Mapping;
+static gint ett_ranap_RAB_TrCH_MappingItem;
+static gint ett_ranap_RAI;
+static gint ett_ranap_RAListofIdleModeUEs;
+static gint ett_ranap_NotEmptyRAListofIdleModeUEs;
+static gint ett_ranap_RAofIdleModeUEs;
+static gint ett_ranap_LAListofIdleModeUEs;
+static gint ett_ranap_RequestedMBMSIPMulticastAddressandAPNRequest;
+static gint ett_ranap_MBMSIPMulticastAddressandAPNlist;
+static gint ett_ranap_RequestedMulticastServiceList;
+static gint ett_ranap_Requested_RAB_Parameter_Values;
+static gint ett_ranap_Requested_RAB_Parameter_ExtendedMaxBitrateList;
+static gint ett_ranap_Requested_RAB_Parameter_ExtendedGuaranteedBitrateList;
+static gint ett_ranap_Requested_RAB_Parameter_MaxBitrateList;
+static gint ett_ranap_Requested_RAB_Parameter_GuaranteedBitrateList;
+static gint ett_ranap_RequestType;
+static gint ett_ranap_ResidualBitErrorRatio;
+static gint ett_ranap_RIM_Transfer;
+static gint ett_ranap_RIMRoutingAddress;
+static gint ett_ranap_RNCTraceInformation;
+static gint ett_ranap_RNSAPRelocationParameters;
+static gint ett_ranap_RSRVCC_Information;
+static gint ett_ranap_SAI;
+static gint ett_ranap_Shared_Network_Information;
+static gint ett_ranap_SDU_ErrorRatio;
+static gint ett_ranap_SDU_FormatInformationParameters;
+static gint ett_ranap_SDU_FormatInformationParameters_item;
+static gint ett_ranap_SDU_Parameters;
+static gint ett_ranap_SDU_Parameters_item;
+static gint ett_ranap_SGSN_Group_Identity;
+static gint ett_ranap_SNA_Access_Information;
+static gint ett_ranap_SourceCellID;
+static gint ett_ranap_SourceID;
+static gint ett_ranap_SourceRNC_ID;
+static gint ett_ranap_SourceRNC_ToTargetRNC_TransparentContainer;
+static gint ett_ranap_IRAT_Measurement_Configuration;
+static gint ett_ranap_IRATmeasurementParameters;
+static gint ett_ranap_RSRQ_Type;
+static gint ett_ranap_EUTRANFrequencies;
+static gint ett_ranap_EUTRANFrequencies_item;
+static gint ett_ranap_SupportedRAB_ParameterBitrateList;
+static gint ett_ranap_SourceUTRANCellID;
+static gint ett_ranap_SRB_TrCH_Mapping;
+static gint ett_ranap_SRB_TrCH_MappingItem;
+static gint ett_ranap_SRVCC_Information;
+static gint ett_ranap_TAI;
+static gint ett_ranap_TargetID;
+static gint ett_ranap_TargetENB_ID;
+static gint ett_ranap_TargetRNC_ID;
+static gint ett_ranap_TargetRNC_ToSourceRNC_TransparentContainer;
+static gint ett_ranap_TemporaryUE_ID;
+static gint ett_ranap_TMGI;
+static gint ett_ranap_TraceInformation;
+static gint ett_ranap_TracePropagationParameters;
+static gint ett_ranap_TraceRecordingSessionInformation;
+static gint ett_ranap_TrCH_ID;
+static gint ett_ranap_TrCH_ID_List;
+static gint ett_ranap_TunnelInformation;
+static gint ett_ranap_UE_AggregateMaximumBitRate;
+static gint ett_ranap_UE_ID;
+static gint ett_ranap_UE_IsNotServed;
+static gint ett_ranap_UE_IsServed;
+static gint ett_ranap_UERegistrationQueryResult;
+static gint ett_ranap_UESBI_Iu;
+static gint ett_ranap_UPInformation;
+static gint ett_ranap_UTRAN_CellID;
+static gint ett_ranap_VelocityEstimate;
+static gint ett_ranap_HorizontalVelocity;
+static gint ett_ranap_HorizontalWithVerticalVelocity;
+static gint ett_ranap_HorizontalVelocityWithUncertainty;
+static gint ett_ranap_HorizontalWithVerticalVelocityAndUncertainty;
+static gint ett_ranap_HorizontalSpeedAndBearing;
+static gint ett_ranap_VerticalVelocity;
+static gint ett_ranap_Iu_ReleaseCommand;
+static gint ett_ranap_Iu_ReleaseComplete;
+static gint ett_ranap_RAB_DataVolumeReportItem;
+static gint ett_ranap_RAB_ReleasedItem_IuRelComp;
+static gint ett_ranap_RelocationRequired;
+static gint ett_ranap_RelocationCommand;
+static gint ett_ranap_RAB_RelocationReleaseItem;
+static gint ett_ranap_RAB_DataForwardingItem;
+static gint ett_ranap_RelocationPreparationFailure;
+static gint ett_ranap_RelocationRequest;
+static gint ett_ranap_RAB_SetupItem_RelocReq;
+static gint ett_ranap_UserPlaneInformation;
+static gint ett_ranap_CNMBMSLinkingInformation;
+static gint ett_ranap_JoinedMBMSBearerService_IEs;
+static gint ett_ranap_JoinedMBMSBearerService_IEs_item;
+static gint ett_ranap_RelocationRequestAcknowledge;
+static gint ett_ranap_RAB_SetupItem_RelocReqAck;
+static gint ett_ranap_RAB_FailedItem;
+static gint ett_ranap_RelocationFailure;
+static gint ett_ranap_RelocationCancel;
+static gint ett_ranap_RelocationCancelAcknowledge;
+static gint ett_ranap_SRNS_ContextRequest;
+static gint ett_ranap_RAB_DataForwardingItem_SRNS_CtxReq;
+static gint ett_ranap_SRNS_ContextResponse;
+static gint ett_ranap_RAB_ContextItem;
+static gint ett_ranap_RABs_ContextFailedtoTransferItem;
+static gint ett_ranap_SecurityModeCommand;
+static gint ett_ranap_SecurityModeComplete;
+static gint ett_ranap_SecurityModeReject;
+static gint ett_ranap_DataVolumeReportRequest;
+static gint ett_ranap_RAB_DataVolumeReportRequestItem;
+static gint ett_ranap_DataVolumeReport;
+static gint ett_ranap_RABs_failed_to_reportItem;
+static gint ett_ranap_Reset;
+static gint ett_ranap_ResetAcknowledge;
+static gint ett_ranap_ResetResource;
+static gint ett_ranap_ResetResourceItem;
+static gint ett_ranap_ResetResourceAcknowledge;
+static gint ett_ranap_ResetResourceAckItem;
+static gint ett_ranap_RAB_ReleaseRequest;
+static gint ett_ranap_RAB_ReleaseItem;
+static gint ett_ranap_Iu_ReleaseRequest;
+static gint ett_ranap_RelocationDetect;
+static gint ett_ranap_RelocationComplete;
+static gint ett_ranap_EnhancedRelocationCompleteRequest;
+static gint ett_ranap_RAB_SetupItem_EnhancedRelocCompleteReq;
+static gint ett_ranap_EnhancedRelocationCompleteResponse;
+static gint ett_ranap_RAB_SetupItem_EnhancedRelocCompleteRes;
+static gint ett_ranap_RAB_ToBeReleasedItem_EnhancedRelocCompleteRes;
+static gint ett_ranap_EnhancedRelocationCompleteFailure;
+static gint ett_ranap_EnhancedRelocationCompleteConfirm;
+static gint ett_ranap_Paging;
+static gint ett_ranap_CommonID;
+static gint ett_ranap_CN_InvokeTrace;
+static gint ett_ranap_CN_DeactivateTrace;
+static gint ett_ranap_LocationReportingControl;
+static gint ett_ranap_LocationReport;
+static gint ett_ranap_InitialUE_Message;
+static gint ett_ranap_DirectTransfer;
+static gint ett_ranap_Overload;
+static gint ett_ranap_ErrorIndication;
+static gint ett_ranap_SRNS_DataForwardCommand;
+static gint ett_ranap_ForwardSRNS_Context;
+static gint ett_ranap_RAB_AssignmentRequest;
+static gint ett_ranap_RAB_SetupOrModifyItemFirst;
+static gint ett_ranap_TransportLayerInformation;
+static gint ett_ranap_RAB_SetupOrModifyItemSecond;
+static gint ett_ranap_RAB_AssignmentResponse;
+static gint ett_ranap_RAB_SetupOrModifiedItem;
+static gint ett_ranap_RAB_ReleasedItem;
+static gint ett_ranap_DataVolumeList;
+static gint ett_ranap_DataVolumeList_item;
+static gint ett_ranap_RAB_QueuedItem;
+static gint ett_ranap_GERAN_Iumode_RAB_Failed_RABAssgntResponse_Item;
+static gint ett_ranap_PrivateMessage;
+static gint ett_ranap_RANAP_RelocationInformation;
+static gint ett_ranap_DirectTransferInformationItem_RANAP_RelocInf;
+static gint ett_ranap_RAB_ContextItem_RANAP_RelocInf;
+static gint ett_ranap_RANAP_EnhancedRelocationInformationRequest;
+static gint ett_ranap_RAB_SetupItem_EnhRelocInfoReq;
+static gint ett_ranap_TNLInformationEnhRelInfoReq;
+static gint ett_ranap_RANAP_EnhancedRelocationInformationResponse;
+static gint ett_ranap_RAB_SetupItem_EnhRelocInfoRes;
+static gint ett_ranap_RAB_FailedItem_EnhRelocInfoRes;
+static gint ett_ranap_TNLInformationEnhRelInfoRes;
+static gint ett_ranap_RAB_ModifyRequest;
+static gint ett_ranap_RAB_ModifyItem;
+static gint ett_ranap_LocationRelatedDataRequest;
+static gint ett_ranap_LocationRelatedDataResponse;
+static gint ett_ranap_LocationRelatedDataFailure;
+static gint ett_ranap_InformationTransferIndication;
+static gint ett_ranap_InformationTransferConfirmation;
+static gint ett_ranap_InformationTransferFailure;
+static gint ett_ranap_UESpecificInformationIndication;
+static gint ett_ranap_DirectInformationTransfer;
+static gint ett_ranap_UplinkInformationExchangeRequest;
+static gint ett_ranap_UplinkInformationExchangeResponse;
+static gint ett_ranap_UplinkInformationExchangeFailure;
+static gint ett_ranap_MBMSSessionStart;
+static gint ett_ranap_MBMSSynchronisationInformation;
+static gint ett_ranap_MBMSSessionStartResponse;
+static gint ett_ranap_MBMSSessionStartFailure;
+static gint ett_ranap_MBMSSessionUpdate;
+static gint ett_ranap_MBMSSessionUpdateResponse;
+static gint ett_ranap_MBMSSessionUpdateFailure;
+static gint ett_ranap_MBMSSessionStop;
+static gint ett_ranap_MBMSSessionStopResponse;
+static gint ett_ranap_MBMSUELinkingRequest;
+static gint ett_ranap_LeftMBMSBearerService_IEs;
+static gint ett_ranap_LeftMBMSBearerService_IEs_item;
+static gint ett_ranap_MBMSUELinkingResponse;
+static gint ett_ranap_UnsuccessfulLinking_IEs;
+static gint ett_ranap_UnsuccessfulLinking_IEs_item;
+static gint ett_ranap_MBMSRegistrationRequest;
+static gint ett_ranap_MBMSRegistrationResponse;
+static gint ett_ranap_MBMSRegistrationFailure;
+static gint ett_ranap_MBMSCNDe_RegistrationRequest;
+static gint ett_ranap_MBMSCNDe_RegistrationResponse;
+static gint ett_ranap_MBMSRABEstablishmentIndication;
+static gint ett_ranap_MBMSRABReleaseRequest;
+static gint ett_ranap_MBMSRABRelease;
+static gint ett_ranap_MBMSRABReleaseFailure;
+static gint ett_ranap_SRVCC_CSKeysRequest;
+static gint ett_ranap_SRVCC_CSKeysResponse;
+static gint ett_ranap_UeRadioCapabilityMatchRequest;
+static gint ett_ranap_UeRadioCapabilityMatchResponse;
+static gint ett_ranap_UeRegistrationQueryRequest;
+static gint ett_ranap_UeRegistrationQueryResponse;
+static gint ett_ranap_RerouteNASRequest;
+static gint ett_ranap_RANAP_PDU;
+static gint ett_ranap_InitiatingMessage;
+static gint ett_ranap_SuccessfulOutcome;
+static gint ett_ranap_UnsuccessfulOutcome;
+static gint ett_ranap_Outcome;
 
 /*****************************************************************************/
 /* Packet private data                                                       */

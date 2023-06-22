@@ -44,53 +44,53 @@ void proto_reg_handoff_spnego(void);
 static dissector_handle_t spnego_wrap_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_spnego = -1;
-static int proto_spnego_krb5 = -1;
+static int proto_spnego;
+static int proto_spnego_krb5;
 
 
-static int hf_spnego_wraptoken = -1;
+static int hf_spnego_wraptoken;
 static int hf_spnego_krb5_oid;
-static int hf_spnego_krb5 = -1;
-static int hf_spnego_krb5_tok_id = -1;
-static int hf_spnego_krb5_sgn_alg = -1;
-static int hf_spnego_krb5_seal_alg = -1;
-static int hf_spnego_krb5_snd_seq = -1;
-static int hf_spnego_krb5_sgn_cksum = -1;
-static int hf_spnego_krb5_confounder = -1;
-static int hf_spnego_krb5_filler = -1;
-static int hf_spnego_krb5_cfx_flags = -1;
-static int hf_spnego_krb5_cfx_flags_01 = -1;
-static int hf_spnego_krb5_cfx_flags_02 = -1;
-static int hf_spnego_krb5_cfx_flags_04 = -1;
-static int hf_spnego_krb5_cfx_ec = -1;
-static int hf_spnego_krb5_cfx_rrc = -1;
-static int hf_spnego_krb5_cfx_seq = -1;
+static int hf_spnego_krb5;
+static int hf_spnego_krb5_tok_id;
+static int hf_spnego_krb5_sgn_alg;
+static int hf_spnego_krb5_seal_alg;
+static int hf_spnego_krb5_snd_seq;
+static int hf_spnego_krb5_sgn_cksum;
+static int hf_spnego_krb5_confounder;
+static int hf_spnego_krb5_filler;
+static int hf_spnego_krb5_cfx_flags;
+static int hf_spnego_krb5_cfx_flags_01;
+static int hf_spnego_krb5_cfx_flags_02;
+static int hf_spnego_krb5_cfx_flags_04;
+static int hf_spnego_krb5_cfx_ec;
+static int hf_spnego_krb5_cfx_rrc;
+static int hf_spnego_krb5_cfx_seq;
 
-static int hf_spnego_negTokenInit = -1;           /* T_negTokenInit */
-static int hf_spnego_negTokenTarg = -1;           /* NegTokenTarg */
-static int hf_spnego_MechTypeList_item = -1;      /* MechType */
-static int hf_spnego_mechTypes = -1;              /* MechTypeList */
-static int hf_spnego_reqFlags = -1;               /* ContextFlags */
-static int hf_spnego_mechToken = -1;              /* T_mechToken */
-static int hf_spnego_mechListMIC = -1;            /* OCTET_STRING */
-static int hf_spnego_hintName = -1;               /* GeneralString */
-static int hf_spnego_hintAddress = -1;            /* OCTET_STRING */
-static int hf_spnego_mechToken_01 = -1;           /* OCTET_STRING */
-static int hf_spnego_negHints = -1;               /* NegHints */
-static int hf_spnego_negResult = -1;              /* T_negResult */
-static int hf_spnego_supportedMech = -1;          /* T_supportedMech */
-static int hf_spnego_responseToken = -1;          /* T_responseToken */
-static int hf_spnego_mechListMIC_01 = -1;         /* T_mechListMIC */
-static int hf_spnego_thisMech = -1;               /* MechType */
-static int hf_spnego_innerContextToken = -1;      /* InnerContextToken */
+static int hf_spnego_negTokenInit;                /* T_negTokenInit */
+static int hf_spnego_negTokenTarg;                /* NegTokenTarg */
+static int hf_spnego_MechTypeList_item;           /* MechType */
+static int hf_spnego_mechTypes;                   /* MechTypeList */
+static int hf_spnego_reqFlags;                    /* ContextFlags */
+static int hf_spnego_mechToken;                   /* T_mechToken */
+static int hf_spnego_mechListMIC;                 /* OCTET_STRING */
+static int hf_spnego_hintName;                    /* GeneralString */
+static int hf_spnego_hintAddress;                 /* OCTET_STRING */
+static int hf_spnego_mechToken_01;                /* OCTET_STRING */
+static int hf_spnego_negHints;                    /* NegHints */
+static int hf_spnego_negResult;                   /* T_negResult */
+static int hf_spnego_supportedMech;               /* T_supportedMech */
+static int hf_spnego_responseToken;               /* T_responseToken */
+static int hf_spnego_mechListMIC_01;              /* T_mechListMIC */
+static int hf_spnego_thisMech;                    /* MechType */
+static int hf_spnego_innerContextToken;           /* InnerContextToken */
 /* named bits */
-static int hf_spnego_ContextFlags_delegFlag = -1;
-static int hf_spnego_ContextFlags_mutualFlag = -1;
-static int hf_spnego_ContextFlags_replayFlag = -1;
-static int hf_spnego_ContextFlags_sequenceFlag = -1;
-static int hf_spnego_ContextFlags_anonFlag = -1;
-static int hf_spnego_ContextFlags_confFlag = -1;
-static int hf_spnego_ContextFlags_integFlag = -1;
+static int hf_spnego_ContextFlags_delegFlag;
+static int hf_spnego_ContextFlags_mutualFlag;
+static int hf_spnego_ContextFlags_replayFlag;
+static int hf_spnego_ContextFlags_sequenceFlag;
+static int hf_spnego_ContextFlags_anonFlag;
+static int hf_spnego_ContextFlags_confFlag;
+static int hf_spnego_ContextFlags_integFlag;
 
 /* Global variables */
 static const char *MechType_oid;
@@ -99,22 +99,22 @@ gboolean saw_mechanism = FALSE;
 
 
 /* Initialize the subtree pointers */
-static gint ett_spnego = -1;
-static gint ett_spnego_wraptoken = -1;
-static gint ett_spnego_krb5 = -1;
-static gint ett_spnego_krb5_cfx_flags = -1;
+static gint ett_spnego;
+static gint ett_spnego_wraptoken;
+static gint ett_spnego_krb5;
+static gint ett_spnego_krb5_cfx_flags;
 
-static gint ett_spnego_NegotiationToken = -1;
-static gint ett_spnego_MechTypeList = -1;
-static gint ett_spnego_NegTokenInit = -1;
-static gint ett_spnego_NegHints = -1;
-static gint ett_spnego_NegTokenInit2 = -1;
-static gint ett_spnego_ContextFlags = -1;
-static gint ett_spnego_NegTokenTarg = -1;
-static gint ett_spnego_InitialContextToken_U = -1;
+static gint ett_spnego_NegotiationToken;
+static gint ett_spnego_MechTypeList;
+static gint ett_spnego_NegTokenInit;
+static gint ett_spnego_NegHints;
+static gint ett_spnego_NegTokenInit2;
+static gint ett_spnego_ContextFlags;
+static gint ett_spnego_NegTokenTarg;
+static gint ett_spnego_InitialContextToken_U;
 
-static expert_field ei_spnego_decrypted_keytype = EI_INIT;
-static expert_field ei_spnego_unknown_header = EI_INIT;
+static expert_field ei_spnego_decrypted_keytype;
+static expert_field ei_spnego_unknown_header;
 
 static dissector_handle_t spnego_handle;
 static dissector_handle_t spnego_krb5_handle;

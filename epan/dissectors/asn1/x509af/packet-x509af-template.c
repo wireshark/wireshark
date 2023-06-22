@@ -37,13 +37,13 @@ void proto_reg_handoff_x509af(void);
 static dissector_handle_t pkix_crl_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_x509af = -1;
-static int hf_x509af_algorithm_id = -1;
-static int hf_x509af_extension_id = -1;
+static int proto_x509af;
+static int hf_x509af_algorithm_id;
+static int hf_x509af_extension_id;
 #include "packet-x509af-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_pkix_crl = -1;
+static gint ett_pkix_crl;
 #include "packet-x509af-ett.c"
 static const char *algorithm_id = NULL;
 static void

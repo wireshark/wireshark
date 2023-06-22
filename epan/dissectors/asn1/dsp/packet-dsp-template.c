@@ -37,18 +37,18 @@ void proto_register_dsp(void);
 void proto_reg_handoff_dsp(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_dsp = -1;
+static int proto_dsp;
 
 #include "packet-dsp-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_dsp = -1;
+static gint ett_dsp;
 #include "packet-dsp-ett.c"
 
-static expert_field ei_dsp_unsupported_opcode = EI_INIT;
-static expert_field ei_dsp_unsupported_errcode = EI_INIT;
-static expert_field ei_dsp_unsupported_pdu = EI_INIT;
-static expert_field ei_dsp_zero_pdu = EI_INIT;
+static expert_field ei_dsp_unsupported_opcode;
+static expert_field ei_dsp_unsupported_errcode;
+static expert_field ei_dsp_unsupported_pdu;
+static expert_field ei_dsp_zero_pdu;
 
 #include "packet-dsp-fn.c"
 

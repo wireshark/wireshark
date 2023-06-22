@@ -47,19 +47,19 @@ static guint cmp_alternate_http_port = 0;
 static guint cmp_alternate_tcp_style_http_port = 0;
 
 /* Initialize the protocol and registered fields */
-static int proto_cmp = -1;
-static int hf_cmp_type_oid = -1;
-static int hf_cmp_tcptrans_len = -1;
-static int hf_cmp_tcptrans_type = -1;
-static int hf_cmp_tcptrans_poll_ref = -1;
-static int hf_cmp_tcptrans_next_poll_ref = -1;
-static int hf_cmp_tcptrans_ttcb = -1;
-static int hf_cmp_tcptrans10_version = -1;
-static int hf_cmp_tcptrans10_flags = -1;
+static int proto_cmp;
+static int hf_cmp_type_oid;
+static int hf_cmp_tcptrans_len;
+static int hf_cmp_tcptrans_type;
+static int hf_cmp_tcptrans_poll_ref;
+static int hf_cmp_tcptrans_next_poll_ref;
+static int hf_cmp_tcptrans_ttcb;
+static int hf_cmp_tcptrans10_version;
+static int hf_cmp_tcptrans10_flags;
 #include "packet-cmp-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_cmp = -1;
+static gint ett_cmp;
 #include "packet-cmp-ett.c"
 #include "packet-cmp-fn.c"
 

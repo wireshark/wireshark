@@ -31,15 +31,15 @@ void proto_register_nist_csor(void);
 void proto_reg_handoff_nist_csor(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_nist_csor = -1;
-static int hf_nist_csor_CFBParameters_PDU = -1;   /* CFBParameters */
-static int hf_nist_csor_AES_IV_PDU = -1;          /* AES_IV */
-static int hf_nist_csor_ShakeOutputLen_PDU = -1;  /* ShakeOutputLen */
-static int hf_nist_csor_aes_IV = -1;              /* AES_IV */
-static int hf_nist_csor_numberOfBits = -1;        /* NumberOfBits */
+static int proto_nist_csor;
+static int hf_nist_csor_CFBParameters_PDU;        /* CFBParameters */
+static int hf_nist_csor_AES_IV_PDU;               /* AES_IV */
+static int hf_nist_csor_ShakeOutputLen_PDU;       /* ShakeOutputLen */
+static int hf_nist_csor_aes_IV;                   /* AES_IV */
+static int hf_nist_csor_numberOfBits;             /* NumberOfBits */
 
 /* Initialize the subtree pointers */
-static gint ett_nist_csor_CFBParameters = -1;
+static gint ett_nist_csor_CFBParameters;
 
 
 int

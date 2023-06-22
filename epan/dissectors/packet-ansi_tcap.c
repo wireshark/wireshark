@@ -43,81 +43,81 @@ void proto_reg_handoff_ansi_tcap(void);
 static gint ansi_tcap_response_matching_type = ANSI_TCAP_TID_ONLY;
 
 /* Initialize the protocol and registered fields */
-static int proto_ansi_tcap = -1;
+static int proto_ansi_tcap;
 
 #if 0
-static int hf_ansi_tcapsrt_SessionId = -1;
-static int hf_ansi_tcapsrt_Duplicate = -1;
-static int hf_ansi_tcapsrt_BeginSession = -1;
-static int hf_ansi_tcapsrt_EndSession = -1;
-static int hf_ansi_tcapsrt_SessionTime = -1;
+static int hf_ansi_tcapsrt_SessionId;
+static int hf_ansi_tcapsrt_Duplicate;
+static int hf_ansi_tcapsrt_BeginSession;
+static int hf_ansi_tcapsrt_EndSession;
+static int hf_ansi_tcapsrt_SessionTime;
 #endif
-static int hf_ansi_tcap_bit_h = -1;
-static int hf_ansi_tcap_op_family = -1;
-static int hf_ansi_tcap_op_specifier = -1;
+static int hf_ansi_tcap_bit_h;
+static int hf_ansi_tcap_op_family;
+static int hf_ansi_tcap_op_specifier;
 
-static int hf_ansi_tcap_national = -1;            /* T_national */
-static int hf_ansi_tcap_private = -1;             /* T_private */
-static int hf_ansi_tcap_national_01 = -1;         /* INTEGER_M128_127 */
-static int hf_ansi_tcap_ec_private = -1;          /* ANSIMAPPrivateErrorcode */
-static int hf_ansi_tcap_unidirectional = -1;      /* T_unidirectional */
-static int hf_ansi_tcap_queryWithPerm = -1;       /* T_queryWithPerm */
-static int hf_ansi_tcap_queryWithoutPerm = -1;    /* T_queryWithoutPerm */
-static int hf_ansi_tcap_response = -1;            /* T_response */
-static int hf_ansi_tcap_conversationWithPerm = -1;  /* T_conversationWithPerm */
-static int hf_ansi_tcap_conversationWithoutPerm = -1;  /* T_conversationWithoutPerm */
-static int hf_ansi_tcap_abort = -1;               /* T_abort */
-static int hf_ansi_tcap_identifier = -1;          /* TransactionID */
-static int hf_ansi_tcap_dialoguePortion = -1;     /* DialoguePortion */
-static int hf_ansi_tcap_componentPortion = -1;    /* ComponentSequence */
-static int hf_ansi_tcap_dialogPortion = -1;       /* DialoguePortion */
-static int hf_ansi_tcap_causeInformation = -1;    /* T_causeInformation */
-static int hf_ansi_tcap_abortCause = -1;          /* P_Abort_cause */
-static int hf_ansi_tcap_abort_userInformation = -1;  /* UserAbortInformation */
-static int hf_ansi_tcap_version = -1;             /* ProtocolVersion */
-static int hf_ansi_tcap_applicationContext = -1;  /* T_applicationContext */
-static int hf_ansi_tcap_integerApplicationId = -1;  /* IntegerApplicationContext */
-static int hf_ansi_tcap_objectApplicationId = -1;  /* ObjectIDApplicationContext */
-static int hf_ansi_tcap_userInformation = -1;     /* UserInformation */
-static int hf_ansi_tcap_securityContext = -1;     /* T_securityContext */
-static int hf_ansi_tcap_integerSecurityId = -1;   /* INTEGER */
-static int hf_ansi_tcap_objectSecurityId = -1;    /* OBJECT_IDENTIFIER */
-static int hf_ansi_tcap_confidentiality = -1;     /* Confidentiality */
-static int hf_ansi_tcap__untag_item = -1;         /* EXTERNAL */
-static int hf_ansi_tcap_confidentialityId = -1;   /* T_confidentialityId */
-static int hf_ansi_tcap_integerConfidentialityId = -1;  /* INTEGER */
-static int hf_ansi_tcap_objectConfidentialityId = -1;  /* OBJECT_IDENTIFIER */
-static int hf_ansi_tcap__untag_item_01 = -1;      /* ComponentPDU */
-static int hf_ansi_tcap_invokeLast = -1;          /* Invoke */
-static int hf_ansi_tcap_returnResultLast = -1;    /* ReturnResult */
-static int hf_ansi_tcap_returnError = -1;         /* ReturnError */
-static int hf_ansi_tcap_reject = -1;              /* Reject */
-static int hf_ansi_tcap_invokeNotLast = -1;       /* Invoke */
-static int hf_ansi_tcap_returnResultNotLast = -1;  /* ReturnResult */
-static int hf_ansi_tcap_componentIDs = -1;        /* T_componentIDs */
-static int hf_ansi_tcap_operationCode = -1;       /* OperationCode */
-static int hf_ansi_tcap_invoke_parameter = -1;    /* T_invoke_parameter */
-static int hf_ansi_tcap_componentID = -1;         /* T_componentID */
-static int hf_ansi_tcap_returnResult_parameter = -1;  /* T_returnResult_parameter */
-static int hf_ansi_tcap_componentID_01 = -1;      /* T_componentID_01 */
-static int hf_ansi_tcap_errorCode = -1;           /* ErrorCode */
-static int hf_ansi_tcap_returnError_parameter = -1;  /* T_returnError_parameter */
-static int hf_ansi_tcap_componentID_02 = -1;      /* OCTET_STRING_SIZE_0_1 */
-static int hf_ansi_tcap_rejectProblem = -1;       /* Problem */
-static int hf_ansi_tcap_reject_parameter = -1;    /* T_reject_parameter */
-static int hf_ansi_tcap_paramSequence = -1;       /* T_paramSequence */
-static int hf_ansi_tcap_paramSet = -1;            /* T_paramSet */
+static int hf_ansi_tcap_national;                 /* T_national */
+static int hf_ansi_tcap_private;                  /* T_private */
+static int hf_ansi_tcap_national_01;              /* INTEGER_M128_127 */
+static int hf_ansi_tcap_ec_private;               /* ANSIMAPPrivateErrorcode */
+static int hf_ansi_tcap_unidirectional;           /* T_unidirectional */
+static int hf_ansi_tcap_queryWithPerm;            /* T_queryWithPerm */
+static int hf_ansi_tcap_queryWithoutPerm;         /* T_queryWithoutPerm */
+static int hf_ansi_tcap_response;                 /* T_response */
+static int hf_ansi_tcap_conversationWithPerm;     /* T_conversationWithPerm */
+static int hf_ansi_tcap_conversationWithoutPerm;  /* T_conversationWithoutPerm */
+static int hf_ansi_tcap_abort;                    /* T_abort */
+static int hf_ansi_tcap_identifier;               /* TransactionID */
+static int hf_ansi_tcap_dialoguePortion;          /* DialoguePortion */
+static int hf_ansi_tcap_componentPortion;         /* ComponentSequence */
+static int hf_ansi_tcap_dialogPortion;            /* DialoguePortion */
+static int hf_ansi_tcap_causeInformation;         /* T_causeInformation */
+static int hf_ansi_tcap_abortCause;               /* P_Abort_cause */
+static int hf_ansi_tcap_abort_userInformation;    /* UserAbortInformation */
+static int hf_ansi_tcap_version;                  /* ProtocolVersion */
+static int hf_ansi_tcap_applicationContext;       /* T_applicationContext */
+static int hf_ansi_tcap_integerApplicationId;     /* IntegerApplicationContext */
+static int hf_ansi_tcap_objectApplicationId;      /* ObjectIDApplicationContext */
+static int hf_ansi_tcap_userInformation;          /* UserInformation */
+static int hf_ansi_tcap_securityContext;          /* T_securityContext */
+static int hf_ansi_tcap_integerSecurityId;        /* INTEGER */
+static int hf_ansi_tcap_objectSecurityId;         /* OBJECT_IDENTIFIER */
+static int hf_ansi_tcap_confidentiality;          /* Confidentiality */
+static int hf_ansi_tcap__untag_item;              /* EXTERNAL */
+static int hf_ansi_tcap_confidentialityId;        /* T_confidentialityId */
+static int hf_ansi_tcap_integerConfidentialityId;  /* INTEGER */
+static int hf_ansi_tcap_objectConfidentialityId;  /* OBJECT_IDENTIFIER */
+static int hf_ansi_tcap__untag_item_01;           /* ComponentPDU */
+static int hf_ansi_tcap_invokeLast;               /* Invoke */
+static int hf_ansi_tcap_returnResultLast;         /* ReturnResult */
+static int hf_ansi_tcap_returnError;              /* ReturnError */
+static int hf_ansi_tcap_reject;                   /* Reject */
+static int hf_ansi_tcap_invokeNotLast;            /* Invoke */
+static int hf_ansi_tcap_returnResultNotLast;      /* ReturnResult */
+static int hf_ansi_tcap_componentIDs;             /* T_componentIDs */
+static int hf_ansi_tcap_operationCode;            /* OperationCode */
+static int hf_ansi_tcap_invoke_parameter;         /* T_invoke_parameter */
+static int hf_ansi_tcap_componentID;              /* T_componentID */
+static int hf_ansi_tcap_returnResult_parameter;   /* T_returnResult_parameter */
+static int hf_ansi_tcap_componentID_01;           /* T_componentID_01 */
+static int hf_ansi_tcap_errorCode;                /* ErrorCode */
+static int hf_ansi_tcap_returnError_parameter;    /* T_returnError_parameter */
+static int hf_ansi_tcap_componentID_02;           /* OCTET_STRING_SIZE_0_1 */
+static int hf_ansi_tcap_rejectProblem;            /* Problem */
+static int hf_ansi_tcap_reject_parameter;         /* T_reject_parameter */
+static int hf_ansi_tcap_paramSequence;            /* T_paramSequence */
+static int hf_ansi_tcap_paramSet;                 /* T_paramSet */
 
 /* Initialize the subtree pointers */
-static gint ett_tcap = -1;
-static gint ett_param = -1;
-static gint ett_ansi_tcap_op_code_nat = -1;
+static gint ett_tcap;
+static gint ett_param;
+static gint ett_ansi_tcap_op_code_nat;
 
-static gint ett_otid = -1;
-static gint ett_dtid = -1;
-static gint ett_ansi_tcap_stat = -1;
+static gint ett_otid;
+static gint ett_dtid;
+static gint ett_ansi_tcap_stat;
 
-static expert_field ei_ansi_tcap_dissector_not_implemented = EI_INIT;
+static expert_field ei_ansi_tcap_dissector_not_implemented;
 
 static struct tcapsrt_info_t * gp_tcapsrt_info;
 static gboolean tcap_subdissector_used=FALSE;
@@ -127,28 +127,28 @@ static struct tcaphash_context_t * gp_tcap_context=NULL;
 /* Note the high bit should be masked off when registering in this table (0x7fff)*/
 static dissector_table_t  ansi_tcap_national_opcode_table; /* National Operation Codes */
 
-static gint ett_ansi_tcap_OperationCode = -1;
-static gint ett_ansi_tcap_ErrorCode = -1;
-static gint ett_ansi_tcap_PackageType = -1;
-static gint ett_ansi_tcap_UniTransactionPDU = -1;
-static gint ett_ansi_tcap_TransactionPDU = -1;
-static gint ett_ansi_tcap_Abort = -1;
-static gint ett_ansi_tcap_T_causeInformation = -1;
-static gint ett_ansi_tcap_DialoguePortion_U = -1;
-static gint ett_ansi_tcap_T_applicationContext = -1;
-static gint ett_ansi_tcap_T_securityContext = -1;
-static gint ett_ansi_tcap_UserInformation_U = -1;
-static gint ett_ansi_tcap_Confidentiality = -1;
-static gint ett_ansi_tcap_T_confidentialityId = -1;
-static gint ett_ansi_tcap_SEQUENCE_OF_ComponentPDU = -1;
-static gint ett_ansi_tcap_ComponentPDU = -1;
-static gint ett_ansi_tcap_Invoke = -1;
-static gint ett_ansi_tcap_ReturnResult = -1;
-static gint ett_ansi_tcap_ReturnError = -1;
-static gint ett_ansi_tcap_Reject = -1;
-static gint ett_ansi_tcap_T_reject_parameter = -1;
-static gint ett_ansi_tcap_T_paramSequence = -1;
-static gint ett_ansi_tcap_T_paramSet = -1;
+static gint ett_ansi_tcap_OperationCode;
+static gint ett_ansi_tcap_ErrorCode;
+static gint ett_ansi_tcap_PackageType;
+static gint ett_ansi_tcap_UniTransactionPDU;
+static gint ett_ansi_tcap_TransactionPDU;
+static gint ett_ansi_tcap_Abort;
+static gint ett_ansi_tcap_T_causeInformation;
+static gint ett_ansi_tcap_DialoguePortion_U;
+static gint ett_ansi_tcap_T_applicationContext;
+static gint ett_ansi_tcap_T_securityContext;
+static gint ett_ansi_tcap_UserInformation_U;
+static gint ett_ansi_tcap_Confidentiality;
+static gint ett_ansi_tcap_T_confidentialityId;
+static gint ett_ansi_tcap_SEQUENCE_OF_ComponentPDU;
+static gint ett_ansi_tcap_ComponentPDU;
+static gint ett_ansi_tcap_Invoke;
+static gint ett_ansi_tcap_ReturnResult;
+static gint ett_ansi_tcap_ReturnError;
+static gint ett_ansi_tcap_Reject;
+static gint ett_ansi_tcap_T_reject_parameter;
+static gint ett_ansi_tcap_T_paramSequence;
+static gint ett_ansi_tcap_T_paramSet;
 
 #define MAX_SSN 254
 

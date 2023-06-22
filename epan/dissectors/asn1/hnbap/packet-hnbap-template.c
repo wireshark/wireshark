@@ -38,13 +38,13 @@ void proto_register_hnbap(void);
 #include "packet-hnbap-val.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_hnbap = -1;
+static int proto_hnbap;
 
 #include "packet-hnbap-hf.c"
 
 /* Initialize the subtree pointers */
-static int ett_hnbap = -1;
-static int ett_hnbap_imsi = -1;
+static int ett_hnbap;
+static int ett_hnbap_imsi;
 #include "packet-hnbap-ett.c"
 
 struct hnbap_private_data {

@@ -37,7 +37,7 @@
 #define PFNAME "p22"
 
 /* Initialize the protocol and registered fields */
-static int proto_p22 = -1;
+static int proto_p22;
 
 static const value_string charsetreg_vals [] = {
   { 1, "C0: (ISO/IEC 6429)"},
@@ -316,512 +316,512 @@ static const value_string charsetreg_vals [] = {
 #define ub_subject_field               128
 #define ub_telephone_number            32
 
-static int hf_p22_InformationObject_PDU = -1;     /* InformationObject */
-static int hf_p22_Heading_PDU = -1;               /* Heading */
-static int hf_p22_ORDescriptor_PDU = -1;          /* ORDescriptor */
-static int hf_p22_ThisIPMField_PDU = -1;          /* ThisIPMField */
-static int hf_p22_OriginatorField_PDU = -1;       /* OriginatorField */
-static int hf_p22_AuthorizingUsersSubfield_PDU = -1;  /* AuthorizingUsersSubfield */
-static int hf_p22_PrimaryRecipientsSubfield_PDU = -1;  /* PrimaryRecipientsSubfield */
-static int hf_p22_CopyRecipientsSubfield_PDU = -1;  /* CopyRecipientsSubfield */
-static int hf_p22_BlindCopyRecipientsSubfield_PDU = -1;  /* BlindCopyRecipientsSubfield */
-static int hf_p22_RepliedToIPMField_PDU = -1;     /* RepliedToIPMField */
-static int hf_p22_ObsoletedIPMsSubfield_PDU = -1;  /* ObsoletedIPMsSubfield */
-static int hf_p22_RelatedIPMsSubfield_PDU = -1;   /* RelatedIPMsSubfield */
-static int hf_p22_SubjectField_PDU = -1;          /* SubjectField */
-static int hf_p22_ExpiryTimeField_PDU = -1;       /* ExpiryTimeField */
-static int hf_p22_ReplyTimeField_PDU = -1;        /* ReplyTimeField */
-static int hf_p22_ReplyRecipientsSubfield_PDU = -1;  /* ReplyRecipientsSubfield */
-static int hf_p22_ImportanceField_PDU = -1;       /* ImportanceField */
-static int hf_p22_SensitivityField_PDU = -1;      /* SensitivityField */
-static int hf_p22_AutoForwardedField_PDU = -1;    /* AutoForwardedField */
-static int hf_p22_Body_PDU = -1;                  /* Body */
-static int hf_p22_IA5TextParameters_PDU = -1;     /* IA5TextParameters */
-static int hf_p22_IA5TextData_PDU = -1;           /* IA5TextData */
-static int hf_p22_G3FacsimileParameters_PDU = -1;  /* G3FacsimileParameters */
-static int hf_p22_G3FacsimileData_PDU = -1;       /* G3FacsimileData */
-static int hf_p22_G4Class1BodyPart_PDU = -1;      /* G4Class1BodyPart */
-static int hf_p22_MixedModeBodyPart_PDU = -1;     /* MixedModeBodyPart */
-static int hf_p22_TeletexParameters_PDU = -1;     /* TeletexParameters */
-static int hf_p22_TeletexData_PDU = -1;           /* TeletexData */
-static int hf_p22_VideotexParameters_PDU = -1;    /* VideotexParameters */
-static int hf_p22_VideotexData_PDU = -1;          /* VideotexData */
-static int hf_p22_EncryptedParameters_PDU = -1;   /* EncryptedParameters */
-static int hf_p22_EncryptedData_PDU = -1;         /* EncryptedData */
-static int hf_p22_MessageParameters_PDU = -1;     /* MessageParameters */
-static int hf_p22_MessageData_PDU = -1;           /* MessageData */
-static int hf_p22_BilaterallyDefinedBodyPart_PDU = -1;  /* BilaterallyDefinedBodyPart */
-static int hf_p22_IPN_PDU = -1;                   /* IPN */
-static int hf_p22_AbsenceAdvice_PDU = -1;         /* AbsenceAdvice */
-static int hf_p22_ChangeOfAddressAdvice_PDU = -1;  /* ChangeOfAddressAdvice */
-static int hf_p22_IPMAssemblyInstructions_PDU = -1;  /* IPMAssemblyInstructions */
-static int hf_p22_IncompleteCopy_PDU = -1;        /* IncompleteCopy */
-static int hf_p22_Languages_PDU = -1;             /* Languages */
-static int hf_p22_Language_PDU = -1;              /* Language */
-static int hf_p22_AutoSubmitted_PDU = -1;         /* AutoSubmitted */
-static int hf_p22_BodyPartSignatures_PDU = -1;    /* BodyPartSignatures */
-static int hf_p22_IPMSecurityLabel_PDU = -1;      /* IPMSecurityLabel */
-static int hf_p22_BodyPartSecurityLabel_PDU = -1;  /* BodyPartSecurityLabel */
-static int hf_p22_AuthorizationTime_PDU = -1;     /* AuthorizationTime */
-static int hf_p22_CirculationList_PDU = -1;       /* CirculationList */
-static int hf_p22_CirculationMember_PDU = -1;     /* CirculationMember */
-static int hf_p22_CirculationListIndicator_PDU = -1;  /* CirculationListIndicator */
-static int hf_p22_DistributionCodes_PDU = -1;     /* DistributionCodes */
-static int hf_p22_DistributionCode_PDU = -1;      /* DistributionCode */
-static int hf_p22_ExtendedSubject_PDU = -1;       /* ExtendedSubject */
-static int hf_p22_InformationCategories_PDU = -1;  /* InformationCategories */
-static int hf_p22_InformationCategory_PDU = -1;   /* InformationCategory */
-static int hf_p22_ManualHandlingInstructions_PDU = -1;  /* ManualHandlingInstructions */
-static int hf_p22_ManualHandlingInstruction_PDU = -1;  /* ManualHandlingInstruction */
-static int hf_p22_OriginatorsReference_PDU = -1;  /* OriginatorsReference */
-static int hf_p22_PrecedencePolicyIdentifier_PDU = -1;  /* PrecedencePolicyIdentifier */
-static int hf_p22_Precedence_PDU = -1;            /* Precedence */
-static int hf_p22_GeneralTextParameters_PDU = -1;  /* GeneralTextParameters */
-static int hf_p22_GeneralTextData_PDU = -1;       /* GeneralTextData */
-static int hf_p22_FileTransferParameters_PDU = -1;  /* FileTransferParameters */
-static int hf_p22_FileTransferData_PDU = -1;      /* FileTransferData */
-static int hf_p22_VoiceParameters_PDU = -1;       /* VoiceParameters */
-static int hf_p22_VoiceData_PDU = -1;             /* VoiceData */
-static int hf_p22_ForwardedContentParameters_PDU = -1;  /* ForwardedContentParameters */
-static int hf_p22_IPMEntryType_PDU = -1;          /* IPMEntryType */
-static int hf_p22_IPMSynopsis_PDU = -1;           /* IPMSynopsis */
-static int hf_p22_BodyPartDescriptor_PDU = -1;    /* BodyPartDescriptor */
-static int hf_p22_BodyPartSignatureVerification_PDU = -1;  /* BodyPartSignatureVerification */
-static int hf_p22_IPMLocation_PDU = -1;           /* IPMLocation */
-static int hf_p22_DeliveredReplyStatus_PDU = -1;  /* DeliveredReplyStatus */
-static int hf_p22_CorrelatedDeliveredReplies_PDU = -1;  /* CorrelatedDeliveredReplies */
-static int hf_p22_DeliveredIPNStatus_PDU = -1;    /* DeliveredIPNStatus */
-static int hf_p22_CorrelatedDeliveredIPNs_PDU = -1;  /* CorrelatedDeliveredIPNs */
-static int hf_p22_SubmittedReplyStatus_PDU = -1;  /* SubmittedReplyStatus */
-static int hf_p22_SubmittedIPNStatus_PDU = -1;    /* SubmittedIPNStatus */
-static int hf_p22_RecipientCategory_PDU = -1;     /* RecipientCategory */
-static int hf_p22_RecipientSecurityRequest_PDU = -1;  /* RecipientSecurityRequest */
-static int hf_p22_IpnSecurityResponse_PDU = -1;   /* IpnSecurityResponse */
-static int hf_p22_BodyPartTokens_PDU = -1;        /* BodyPartTokens */
-static int hf_p22_ForwardedContentToken_PDU = -1;  /* ForwardedContentToken */
-static int hf_p22_ipm = -1;                       /* IPM */
-static int hf_p22_ipn = -1;                       /* IPN */
-static int hf_p22_heading = -1;                   /* Heading */
-static int hf_p22_body = -1;                      /* Body */
-static int hf_p22_type = -1;                      /* T_type */
-static int hf_p22_value = -1;                     /* T_value */
-static int hf_p22_this_IPM = -1;                  /* ThisIPMField */
-static int hf_p22_originator = -1;                /* OriginatorField */
-static int hf_p22_authorizing_users = -1;         /* AuthorizingUsersField */
-static int hf_p22_primary_recipients = -1;        /* PrimaryRecipientsField */
-static int hf_p22_copy_recipients = -1;           /* CopyRecipientsField */
-static int hf_p22_blind_copy_recipients = -1;     /* BlindCopyRecipientsField */
-static int hf_p22_replied_to_IPM = -1;            /* RepliedToIPMField */
-static int hf_p22_obsoleted_IPMs = -1;            /* ObsoletedIPMsField */
-static int hf_p22_related_IPMs = -1;              /* RelatedIPMsField */
-static int hf_p22_subject = -1;                   /* SubjectField */
-static int hf_p22_expiry_time = -1;               /* ExpiryTimeField */
-static int hf_p22_reply_time = -1;                /* ReplyTimeField */
-static int hf_p22_reply_recipients = -1;          /* ReplyRecipientsField */
-static int hf_p22_importance = -1;                /* ImportanceField */
-static int hf_p22_sensitivity = -1;               /* SensitivityField */
-static int hf_p22_auto_forwarded = -1;            /* AutoForwardedField */
-static int hf_p22_extensions = -1;                /* ExtensionsField */
-static int hf_p22_user = -1;                      /* ORName */
-static int hf_p22_user_relative_identifier = -1;  /* LocalIPMIdentifier */
-static int hf_p22_recipient = -1;                 /* ORDescriptor */
-static int hf_p22_notification_requests = -1;     /* NotificationRequests */
-static int hf_p22_reply_requested = -1;           /* BOOLEAN */
-static int hf_p22_recipient_extensions = -1;      /* RecipientExtensionsField */
-static int hf_p22_formal_name = -1;               /* ORName */
-static int hf_p22_free_form_name = -1;            /* FreeFormName */
-static int hf_p22_telephone_number = -1;          /* TelephoneNumber */
-static int hf_p22_RecipientExtensionsField_item = -1;  /* IPMSExtension */
-static int hf_p22_AuthorizingUsersField_item = -1;  /* AuthorizingUsersSubfield */
-static int hf_p22_PrimaryRecipientsField_item = -1;  /* PrimaryRecipientsSubfield */
-static int hf_p22_CopyRecipientsField_item = -1;  /* CopyRecipientsSubfield */
-static int hf_p22_BlindCopyRecipientsField_item = -1;  /* BlindCopyRecipientsSubfield */
-static int hf_p22_ObsoletedIPMsField_item = -1;   /* ObsoletedIPMsSubfield */
-static int hf_p22_RelatedIPMsField_item = -1;     /* RelatedIPMsSubfield */
-static int hf_p22_ReplyRecipientsField_item = -1;  /* ReplyRecipientsSubfield */
-static int hf_p22_ExtensionsField_item = -1;      /* IPMSExtension */
-static int hf_p22_Body_item = -1;                 /* BodyPart */
-static int hf_p22_basic = -1;                     /* T_basic */
-static int hf_p22_ia5_text = -1;                  /* IA5TextBodyPart */
-static int hf_p22_g3_facsimile = -1;              /* G3FacsimileBodyPart */
-static int hf_p22_g4_class1 = -1;                 /* G4Class1BodyPart */
-static int hf_p22_teletex = -1;                   /* TeletexBodyPart */
-static int hf_p22_videotex = -1;                  /* VideotexBodyPart */
-static int hf_p22_encrypted_bp = -1;              /* EncryptedBodyPart */
-static int hf_p22_message = -1;                   /* MessageBodyPart */
-static int hf_p22_mixed_mode = -1;                /* MixedModeBodyPart */
-static int hf_p22_bilaterally_defined = -1;       /* BilaterallyDefinedBodyPart */
-static int hf_p22_nationally_defined = -1;        /* NationallyDefinedBodyPart */
-static int hf_p22_extended = -1;                  /* ExtendedBodyPart */
-static int hf_p22_extended_parameters = -1;       /* INSTANCE_OF */
-static int hf_p22_extended_data = -1;             /* INSTANCE_OF */
-static int hf_p22_ia5text_parameters = -1;        /* IA5TextParameters */
-static int hf_p22_ia5text_data = -1;              /* IA5TextData */
-static int hf_p22_repertoire = -1;                /* Repertoire */
-static int hf_p22_g3facsimile_parameters = -1;    /* G3FacsimileParameters */
-static int hf_p22_g3facsimile_data = -1;          /* G3FacsimileData */
-static int hf_p22_number_of_pages = -1;           /* INTEGER */
-static int hf_p22_g3facsimile_non_basic_parameters = -1;  /* G3FacsimileNonBasicParameters */
-static int hf_p22_G3FacsimileData_item = -1;      /* BIT_STRING */
-static int hf_p22_G4Class1BodyPart_item = -1;     /* Interchange_Data_Element */
-static int hf_p22_MixedModeBodyPart_item = -1;    /* Interchange_Data_Element */
-static int hf_p22_teletex_parameters = -1;        /* TeletexParameters */
-static int hf_p22_teletex_data = -1;              /* TeletexData */
-static int hf_p22_telex_compatible = -1;          /* BOOLEAN */
-static int hf_p22_teletex_non_basic_parameters = -1;  /* TeletexNonBasicParameters */
-static int hf_p22_TeletexData_item = -1;          /* TeletexString */
-static int hf_p22_videotex_parameters = -1;       /* VideotexParameters */
-static int hf_p22_videotex_data = -1;             /* VideotexData */
-static int hf_p22_syntax = -1;                    /* VideotexSyntax */
-static int hf_p22_encrypted_parameters = -1;      /* EncryptedParameters */
-static int hf_p22_encrypted_data = -1;            /* EncryptedData */
-static int hf_p22_algorithm_identifier = -1;      /* AlgorithmIdentifier */
-static int hf_p22_originator_certificates = -1;   /* ExtendedCertificates */
-static int hf_p22_message_parameters = -1;        /* MessageParameters */
-static int hf_p22_message_data = -1;              /* MessageData */
-static int hf_p22_delivery_time = -1;             /* MessageDeliveryTime */
-static int hf_p22_delivery_envelope = -1;         /* OtherMessageDeliveryFields */
-static int hf_p22_subject_ipm = -1;               /* SubjectIPMField */
-static int hf_p22_ipn_originator = -1;            /* IPNOriginatorField */
-static int hf_p22_ipm_intended_recipient = -1;    /* IPMIntendedRecipientField */
-static int hf_p22_conversion_eits = -1;           /* ConversionEITsField */
-static int hf_p22_notification_extensions = -1;   /* NotificationExtensionsField */
-static int hf_p22_non_receipt_reason = -1;        /* NonReceiptReasonField */
-static int hf_p22_discard_reason = -1;            /* DiscardReasonField */
-static int hf_p22_auto_forward_comment = -1;      /* AutoForwardCommentField */
-static int hf_p22_returned_ipm = -1;              /* ReturnedIPMField */
-static int hf_p22_nrn_extensions = -1;            /* NRNExtensionsField */
-static int hf_p22_receipt_time = -1;              /* ReceiptTimeField */
-static int hf_p22_acknowledgment_mode = -1;       /* AcknowledgmentModeField */
-static int hf_p22_suppl_receipt_info = -1;        /* SupplReceiptInfoField */
-static int hf_p22_rn_extensions = -1;             /* RNExtensionsField */
-static int hf_p22_NotificationExtensionsField_item = -1;  /* IPMSExtension */
-static int hf_p22_NRNExtensionsField_item = -1;   /* IPMSExtension */
-static int hf_p22_RNExtensionsField_item = -1;    /* IPMSExtension */
-static int hf_p22_OtherNotificationTypeFields_item = -1;  /* IPMSExtension */
-static int hf_p22_advice = -1;                    /* BodyPart */
-static int hf_p22_next_available = -1;            /* Time */
-static int hf_p22_new_address = -1;               /* ORDescriptor */
-static int hf_p22_effective_from = -1;            /* Time */
-static int hf_p22_assembly_instructions = -1;     /* BodyPartReferences */
-static int hf_p22_BodyPartReferences_item = -1;   /* BodyPartReference */
-static int hf_p22_stored_entry = -1;              /* SequenceNumber */
-static int hf_p22_stored_content = -1;            /* SequenceNumber */
-static int hf_p22_submitted_body_part = -1;       /* INTEGER_1_MAX */
-static int hf_p22_stored_body_part = -1;          /* T_stored_body_part */
-static int hf_p22_message_entry = -1;             /* SequenceNumber */
-static int hf_p22_body_part_number = -1;          /* BodyPartNumber */
-static int hf_p22_Languages_item = -1;            /* Language */
-static int hf_p22_BodyPartSignatures_item = -1;   /* BodyPartSignatures_item */
-static int hf_p22_body_part_signature = -1;       /* BodyPartSignature */
-static int hf_p22_originator_certificate_selector = -1;  /* CertificateAssertion */
-static int hf_p22_algorithmIdentifier = -1;       /* AlgorithmIdentifier */
-static int hf_p22_encrypted = -1;                 /* BIT_STRING */
-static int hf_p22_content_security_label = -1;    /* SecurityLabel */
-static int hf_p22_heading_security_label = -1;    /* SecurityLabel */
-static int hf_p22_body_part_security_labels = -1;  /* SEQUENCE_OF_BodyPartSecurityLabel */
-static int hf_p22_body_part_security_labels_item = -1;  /* BodyPartSecurityLabel */
-static int hf_p22_body_part_unlabelled = -1;      /* NULL */
-static int hf_p22_body_part_security_label = -1;  /* SecurityLabel */
-static int hf_p22_CirculationList_item = -1;      /* CirculationMember */
-static int hf_p22_circulation_recipient = -1;     /* RecipientSpecifier */
-static int hf_p22_checked = -1;                   /* Checkmark */
-static int hf_p22_simple = -1;                    /* NULL */
-static int hf_p22_timestamped = -1;               /* CirculationTime */
-static int hf_p22_signed = -1;                    /* CirculationSignature */
-static int hf_p22_circulation_signature_algorithm_identifier = -1;  /* CirculationSignatureAlgorithmIdentifier */
-static int hf_p22_timestamp = -1;                 /* CirculationTime */
-static int hf_p22_circulation_signature_data = -1;  /* CirculationSignatureData */
-static int hf_p22_DistributionCodes_item = -1;    /* DistributionCode */
-static int hf_p22_oid_code = -1;                  /* OBJECT_IDENTIFIER */
-static int hf_p22_alphanumeric_code = -1;         /* AlphaCode */
-static int hf_p22_or_descriptor = -1;             /* ORDescriptor */
-static int hf_p22_InformationCategories_item = -1;  /* InformationCategory */
-static int hf_p22_reference = -1;                 /* OBJECT_IDENTIFIER */
-static int hf_p22_description = -1;               /* DescriptionString */
-static int hf_p22_ManualHandlingInstructions_item = -1;  /* ManualHandlingInstruction */
-static int hf_p22_GeneralTextParameters_item = -1;  /* CharacterSetRegistration */
-static int hf_p22_related_stored_file = -1;       /* RelatedStoredFile */
-static int hf_p22_contents_type = -1;             /* ContentsTypeParameter */
-static int hf_p22_environment = -1;               /* EnvironmentParameter */
-static int hf_p22_compression = -1;               /* CompressionParameter */
-static int hf_p22_file_attributes = -1;           /* FileAttributes */
-static int hf_p22_FileTransferData_item = -1;     /* EXTERNAL */
-static int hf_p22_RelatedStoredFile_item = -1;    /* RelatedStoredFile_item */
-static int hf_p22_file_identifier = -1;           /* FileIdentifier */
-static int hf_p22_relationship = -1;              /* Relationship */
-static int hf_p22_pathname_and_version = -1;      /* PathnameandVersion */
-static int hf_p22_cross_reference = -1;           /* CrossReference */
-static int hf_p22_pathname = -1;                  /* Pathname_Attribute */
-static int hf_p22_file_version = -1;              /* GraphicString */
-static int hf_p22_application_cross_reference = -1;  /* OCTET_STRING */
-static int hf_p22_message_reference = -1;         /* MessageReference */
-static int hf_p22_body_part_reference = -1;       /* INTEGER */
-static int hf_p22_user_relative_identifier_ref = -1;  /* PrintableString */
-static int hf_p22_explicit_relationship = -1;     /* ExplicitRelationship */
-static int hf_p22_descriptive_relationship = -1;  /* GraphicString */
-static int hf_p22_document_type = -1;             /* T_document_type */
-static int hf_p22_document_type_name = -1;        /* Document_Type_Name */
-static int hf_p22_parameter = -1;                 /* T_parameter */
-static int hf_p22_constraint_set_and_abstract_syntax = -1;  /* T_constraint_set_and_abstract_syntax */
-static int hf_p22_constraint_set_name = -1;       /* Constraint_Set_Name */
-static int hf_p22_abstract_syntax_name = -1;      /* Abstract_Syntax_Name */
-static int hf_p22_application_reference = -1;     /* GeneralIdentifier */
-static int hf_p22_machine = -1;                   /* GeneralIdentifier */
-static int hf_p22_operating_system = -1;          /* OBJECT_IDENTIFIER */
-static int hf_p22_user_visible_string = -1;       /* T_user_visible_string */
-static int hf_p22_user_visible_string_item = -1;  /* GraphicString */
-static int hf_p22_registered_identifier = -1;     /* OBJECT_IDENTIFIER */
-static int hf_p22_descriptive_identifier = -1;    /* T_descriptive_identifier */
-static int hf_p22_descriptive_identifier_item = -1;  /* GraphicString */
-static int hf_p22_compression_algorithm_id = -1;  /* T_compression_algorithm_id */
-static int hf_p22_compression_algorithm_param = -1;  /* T_compression_algorithm_param */
-static int hf_p22_permitted_actions = -1;         /* Permitted_Actions_Attribute */
-static int hf_p22_storage_account = -1;           /* Account_Attribute */
-static int hf_p22_date_and_time_of_creation = -1;  /* Date_and_Time_Attribute */
-static int hf_p22_date_and_time_of_last_modification = -1;  /* Date_and_Time_Attribute */
-static int hf_p22_date_and_time_of_last_read_access = -1;  /* Date_and_Time_Attribute */
-static int hf_p22_date_and_time_of_last_attribute_modification = -1;  /* Date_and_Time_Attribute */
-static int hf_p22_identity_of_creator = -1;       /* User_Identity_Attribute */
-static int hf_p22_identity_of_last_modifier = -1;  /* User_Identity_Attribute */
-static int hf_p22_identity_of_last_reader = -1;   /* User_Identity_Attribute */
-static int hf_p22_identity_of_last_attribute_modifier = -1;  /* User_Identity_Attribute */
-static int hf_p22_object_availability = -1;       /* Object_Availability_Attribute */
-static int hf_p22_object_size = -1;               /* Object_Size_Attribute */
-static int hf_p22_future_object_size = -1;        /* Object_Size_Attribute */
-static int hf_p22_access_control = -1;            /* Access_Control_Attribute */
-static int hf_p22_legal_qualifications = -1;      /* Legal_Qualification_Attribute */
-static int hf_p22_private_use = -1;               /* Private_Use_Attribute */
-static int hf_p22_attribute_extensions = -1;      /* Attribute_Extensions */
-static int hf_p22_incomplete_pathname = -1;       /* Pathname */
-static int hf_p22_complete_pathname = -1;         /* Pathname */
-static int hf_p22_no_value_available = -1;        /* NULL */
-static int hf_p22_account_actual_values = -1;     /* Account */
-static int hf_p22_identity_actual_values = -1;    /* User_Identity */
-static int hf_p22_actual_values = -1;             /* SET_OF_Access_Control_Element */
-static int hf_p22_actual_values_item = -1;        /* Access_Control_Element */
-static int hf_p22_action_list = -1;               /* Access_Request */
-static int hf_p22_concurrency_access = -1;        /* Concurrency_Access */
-static int hf_p22_identity = -1;                  /* User_Identity */
-static int hf_p22_passwords = -1;                 /* Access_Passwords */
-static int hf_p22_location = -1;                  /* Application_Entity_Title */
-static int hf_p22_read_password = -1;             /* Password */
-static int hf_p22_insert_password = -1;           /* Password */
-static int hf_p22_replace_password = -1;          /* Password */
-static int hf_p22_extend_password = -1;           /* Password */
-static int hf_p22_erase_password = -1;            /* Password */
-static int hf_p22_read_attribute_password = -1;   /* Password */
-static int hf_p22_change_attribute_password = -1;  /* Password */
-static int hf_p22_delete_password = -1;           /* Password */
-static int hf_p22_pass_passwords = -1;            /* Pass_Passwords */
-static int hf_p22_link_password = -1;             /* Password */
-static int hf_p22_graphic_string = -1;            /* GraphicString */
-static int hf_p22_octet_string = -1;              /* OCTET_STRING */
-static int hf_p22_Pass_Passwords_item = -1;       /* Password */
-static int hf_p22_ap_title = -1;                  /* AP_title */
-static int hf_p22_ae_qualifier = -1;              /* AE_qualifier */
-static int hf_p22_voice_message_duration = -1;    /* INTEGER */
-static int hf_p22_voice_encoding_type = -1;       /* OBJECT_IDENTIFIER */
-static int hf_p22_supplementary_information = -1;  /* IA5String */
-static int hf_p22_mts_identifier = -1;            /* MessageDeliveryIdentifier */
-static int hf_p22_submission_proof = -1;          /* SubmissionProof */
-static int hf_p22_proof_of_submission = -1;       /* ProofOfSubmission */
-static int hf_p22_originating_MTA_certificate = -1;  /* OriginatingMTACertificate */
-static int hf_p22_message_submission_envelope = -1;  /* MessageSubmissionEnvelope */
-static int hf_p22_IPMSynopsis_item = -1;          /* BodyPartSynopsis */
-static int hf_p22_message_synopsis = -1;          /* MessageBodyPartSynopsis */
-static int hf_p22_non_message = -1;               /* NonMessageBodyPartSynopsis */
-static int hf_p22_number = -1;                    /* SequenceNumber */
-static int hf_p22_synopsis = -1;                  /* IPMSynopsis */
-static int hf_p22_bp_type = -1;                   /* OBJECT_IDENTIFIER */
-static int hf_p22_bp_parameters = -1;             /* INSTANCE_OF */
-static int hf_p22_size = -1;                      /* INTEGER */
-static int hf_p22_processed = -1;                 /* BOOLEAN */
-static int hf_p22_data = -1;                      /* OBJECT_IDENTIFIER */
-static int hf_p22_parameters = -1;                /* OBJECT_IDENTIFIER */
-static int hf_p22_this_child_entry = -1;          /* SequenceNumber */
-static int hf_p22_position = -1;                  /* INTEGER */
-static int hf_p22_BodyPartSignatureVerification_item = -1;  /* BodyPartSignatureVerification_item */
-static int hf_p22_body_part_sequence_number = -1;  /* BodyPartNumber */
-static int hf_p22_body_part_signature_status = -1;  /* SignatureStatus */
-static int hf_p22_stored = -1;                    /* SET_OF_SequenceNumber */
-static int hf_p22_stored_item = -1;               /* SequenceNumber */
-static int hf_p22_absent = -1;                    /* NULL */
-static int hf_p22_no_reply_received = -1;         /* NULL */
-static int hf_p22_received_replies = -1;          /* SEQUENCE_OF_SequenceNumber */
-static int hf_p22_received_replies_item = -1;     /* SequenceNumber */
-static int hf_p22_no_ipn_received = -1;           /* NULL */
-static int hf_p22_ipns_received = -1;             /* SEQUENCE_OF_SequenceNumber */
-static int hf_p22_ipns_received_item = -1;        /* SequenceNumber */
-static int hf_p22_content_or_arguments = -1;      /* T_content_or_arguments */
-static int hf_p22_original_content = -1;          /* OriginalContent */
-static int hf_p22_original_security_arguments = -1;  /* T_original_security_arguments */
-static int hf_p22_original_content_integrity_check = -1;  /* OriginalContentIntegrityCheck */
-static int hf_p22_original_message_origin_authentication_check = -1;  /* OriginalMessageOriginAuthenticationCheck */
-static int hf_p22_original_message_token = -1;    /* OriginalMessageToken */
-static int hf_p22_security_diagnostic_code = -1;  /* SecurityDiagnosticCode */
-static int hf_p22_BodyPartTokens_item = -1;       /* BodyPartTokens_item */
-static int hf_p22_body_part_choice = -1;          /* T_body_part_choice */
-static int hf_p22_encryption_token = -1;          /* EncryptionToken */
-static int hf_p22_message_or_content_body_part = -1;  /* BodyPartTokens */
-static int hf_p22_encryption_algorithm_identifier = -1;  /* AlgorithmIdentifier */
-static int hf_p22_encrypted_key = -1;             /* BIT_STRING */
-static int hf_p22_recipient_certificate_selector = -1;  /* CertificateAssertion */
-static int hf_p22_recipient_certificate = -1;     /* Certificates */
-static int hf_p22_ForwardedContentToken_item = -1;  /* ForwardedContentToken_item */
-static int hf_p22_body_part_token_choice = -1;    /* T_body_part_token_choice */
-static int hf_p22_forwarding_token = -1;          /* MessageToken */
-static int hf_p22_forwarded_content_token = -1;   /* ForwardedContentToken */
-static int hf_p22_choice = -1;                    /* T_choice */
-static int hf_p22_non_receipt_fields = -1;        /* NonReceiptFields */
-static int hf_p22_receipt_fields = -1;            /* ReceiptFields */
-static int hf_p22_other_notification_type_fields = -1;  /* OtherNotificationTypeFields */
+static int hf_p22_InformationObject_PDU;          /* InformationObject */
+static int hf_p22_Heading_PDU;                    /* Heading */
+static int hf_p22_ORDescriptor_PDU;               /* ORDescriptor */
+static int hf_p22_ThisIPMField_PDU;               /* ThisIPMField */
+static int hf_p22_OriginatorField_PDU;            /* OriginatorField */
+static int hf_p22_AuthorizingUsersSubfield_PDU;   /* AuthorizingUsersSubfield */
+static int hf_p22_PrimaryRecipientsSubfield_PDU;  /* PrimaryRecipientsSubfield */
+static int hf_p22_CopyRecipientsSubfield_PDU;     /* CopyRecipientsSubfield */
+static int hf_p22_BlindCopyRecipientsSubfield_PDU;  /* BlindCopyRecipientsSubfield */
+static int hf_p22_RepliedToIPMField_PDU;          /* RepliedToIPMField */
+static int hf_p22_ObsoletedIPMsSubfield_PDU;      /* ObsoletedIPMsSubfield */
+static int hf_p22_RelatedIPMsSubfield_PDU;        /* RelatedIPMsSubfield */
+static int hf_p22_SubjectField_PDU;               /* SubjectField */
+static int hf_p22_ExpiryTimeField_PDU;            /* ExpiryTimeField */
+static int hf_p22_ReplyTimeField_PDU;             /* ReplyTimeField */
+static int hf_p22_ReplyRecipientsSubfield_PDU;    /* ReplyRecipientsSubfield */
+static int hf_p22_ImportanceField_PDU;            /* ImportanceField */
+static int hf_p22_SensitivityField_PDU;           /* SensitivityField */
+static int hf_p22_AutoForwardedField_PDU;         /* AutoForwardedField */
+static int hf_p22_Body_PDU;                       /* Body */
+static int hf_p22_IA5TextParameters_PDU;          /* IA5TextParameters */
+static int hf_p22_IA5TextData_PDU;                /* IA5TextData */
+static int hf_p22_G3FacsimileParameters_PDU;      /* G3FacsimileParameters */
+static int hf_p22_G3FacsimileData_PDU;            /* G3FacsimileData */
+static int hf_p22_G4Class1BodyPart_PDU;           /* G4Class1BodyPart */
+static int hf_p22_MixedModeBodyPart_PDU;          /* MixedModeBodyPart */
+static int hf_p22_TeletexParameters_PDU;          /* TeletexParameters */
+static int hf_p22_TeletexData_PDU;                /* TeletexData */
+static int hf_p22_VideotexParameters_PDU;         /* VideotexParameters */
+static int hf_p22_VideotexData_PDU;               /* VideotexData */
+static int hf_p22_EncryptedParameters_PDU;        /* EncryptedParameters */
+static int hf_p22_EncryptedData_PDU;              /* EncryptedData */
+static int hf_p22_MessageParameters_PDU;          /* MessageParameters */
+static int hf_p22_MessageData_PDU;                /* MessageData */
+static int hf_p22_BilaterallyDefinedBodyPart_PDU;  /* BilaterallyDefinedBodyPart */
+static int hf_p22_IPN_PDU;                        /* IPN */
+static int hf_p22_AbsenceAdvice_PDU;              /* AbsenceAdvice */
+static int hf_p22_ChangeOfAddressAdvice_PDU;      /* ChangeOfAddressAdvice */
+static int hf_p22_IPMAssemblyInstructions_PDU;    /* IPMAssemblyInstructions */
+static int hf_p22_IncompleteCopy_PDU;             /* IncompleteCopy */
+static int hf_p22_Languages_PDU;                  /* Languages */
+static int hf_p22_Language_PDU;                   /* Language */
+static int hf_p22_AutoSubmitted_PDU;              /* AutoSubmitted */
+static int hf_p22_BodyPartSignatures_PDU;         /* BodyPartSignatures */
+static int hf_p22_IPMSecurityLabel_PDU;           /* IPMSecurityLabel */
+static int hf_p22_BodyPartSecurityLabel_PDU;      /* BodyPartSecurityLabel */
+static int hf_p22_AuthorizationTime_PDU;          /* AuthorizationTime */
+static int hf_p22_CirculationList_PDU;            /* CirculationList */
+static int hf_p22_CirculationMember_PDU;          /* CirculationMember */
+static int hf_p22_CirculationListIndicator_PDU;   /* CirculationListIndicator */
+static int hf_p22_DistributionCodes_PDU;          /* DistributionCodes */
+static int hf_p22_DistributionCode_PDU;           /* DistributionCode */
+static int hf_p22_ExtendedSubject_PDU;            /* ExtendedSubject */
+static int hf_p22_InformationCategories_PDU;      /* InformationCategories */
+static int hf_p22_InformationCategory_PDU;        /* InformationCategory */
+static int hf_p22_ManualHandlingInstructions_PDU;  /* ManualHandlingInstructions */
+static int hf_p22_ManualHandlingInstruction_PDU;  /* ManualHandlingInstruction */
+static int hf_p22_OriginatorsReference_PDU;       /* OriginatorsReference */
+static int hf_p22_PrecedencePolicyIdentifier_PDU;  /* PrecedencePolicyIdentifier */
+static int hf_p22_Precedence_PDU;                 /* Precedence */
+static int hf_p22_GeneralTextParameters_PDU;      /* GeneralTextParameters */
+static int hf_p22_GeneralTextData_PDU;            /* GeneralTextData */
+static int hf_p22_FileTransferParameters_PDU;     /* FileTransferParameters */
+static int hf_p22_FileTransferData_PDU;           /* FileTransferData */
+static int hf_p22_VoiceParameters_PDU;            /* VoiceParameters */
+static int hf_p22_VoiceData_PDU;                  /* VoiceData */
+static int hf_p22_ForwardedContentParameters_PDU;  /* ForwardedContentParameters */
+static int hf_p22_IPMEntryType_PDU;               /* IPMEntryType */
+static int hf_p22_IPMSynopsis_PDU;                /* IPMSynopsis */
+static int hf_p22_BodyPartDescriptor_PDU;         /* BodyPartDescriptor */
+static int hf_p22_BodyPartSignatureVerification_PDU;  /* BodyPartSignatureVerification */
+static int hf_p22_IPMLocation_PDU;                /* IPMLocation */
+static int hf_p22_DeliveredReplyStatus_PDU;       /* DeliveredReplyStatus */
+static int hf_p22_CorrelatedDeliveredReplies_PDU;  /* CorrelatedDeliveredReplies */
+static int hf_p22_DeliveredIPNStatus_PDU;         /* DeliveredIPNStatus */
+static int hf_p22_CorrelatedDeliveredIPNs_PDU;    /* CorrelatedDeliveredIPNs */
+static int hf_p22_SubmittedReplyStatus_PDU;       /* SubmittedReplyStatus */
+static int hf_p22_SubmittedIPNStatus_PDU;         /* SubmittedIPNStatus */
+static int hf_p22_RecipientCategory_PDU;          /* RecipientCategory */
+static int hf_p22_RecipientSecurityRequest_PDU;   /* RecipientSecurityRequest */
+static int hf_p22_IpnSecurityResponse_PDU;        /* IpnSecurityResponse */
+static int hf_p22_BodyPartTokens_PDU;             /* BodyPartTokens */
+static int hf_p22_ForwardedContentToken_PDU;      /* ForwardedContentToken */
+static int hf_p22_ipm;                            /* IPM */
+static int hf_p22_ipn;                            /* IPN */
+static int hf_p22_heading;                        /* Heading */
+static int hf_p22_body;                           /* Body */
+static int hf_p22_type;                           /* T_type */
+static int hf_p22_value;                          /* T_value */
+static int hf_p22_this_IPM;                       /* ThisIPMField */
+static int hf_p22_originator;                     /* OriginatorField */
+static int hf_p22_authorizing_users;              /* AuthorizingUsersField */
+static int hf_p22_primary_recipients;             /* PrimaryRecipientsField */
+static int hf_p22_copy_recipients;                /* CopyRecipientsField */
+static int hf_p22_blind_copy_recipients;          /* BlindCopyRecipientsField */
+static int hf_p22_replied_to_IPM;                 /* RepliedToIPMField */
+static int hf_p22_obsoleted_IPMs;                 /* ObsoletedIPMsField */
+static int hf_p22_related_IPMs;                   /* RelatedIPMsField */
+static int hf_p22_subject;                        /* SubjectField */
+static int hf_p22_expiry_time;                    /* ExpiryTimeField */
+static int hf_p22_reply_time;                     /* ReplyTimeField */
+static int hf_p22_reply_recipients;               /* ReplyRecipientsField */
+static int hf_p22_importance;                     /* ImportanceField */
+static int hf_p22_sensitivity;                    /* SensitivityField */
+static int hf_p22_auto_forwarded;                 /* AutoForwardedField */
+static int hf_p22_extensions;                     /* ExtensionsField */
+static int hf_p22_user;                           /* ORName */
+static int hf_p22_user_relative_identifier;       /* LocalIPMIdentifier */
+static int hf_p22_recipient;                      /* ORDescriptor */
+static int hf_p22_notification_requests;          /* NotificationRequests */
+static int hf_p22_reply_requested;                /* BOOLEAN */
+static int hf_p22_recipient_extensions;           /* RecipientExtensionsField */
+static int hf_p22_formal_name;                    /* ORName */
+static int hf_p22_free_form_name;                 /* FreeFormName */
+static int hf_p22_telephone_number;               /* TelephoneNumber */
+static int hf_p22_RecipientExtensionsField_item;  /* IPMSExtension */
+static int hf_p22_AuthorizingUsersField_item;     /* AuthorizingUsersSubfield */
+static int hf_p22_PrimaryRecipientsField_item;    /* PrimaryRecipientsSubfield */
+static int hf_p22_CopyRecipientsField_item;       /* CopyRecipientsSubfield */
+static int hf_p22_BlindCopyRecipientsField_item;  /* BlindCopyRecipientsSubfield */
+static int hf_p22_ObsoletedIPMsField_item;        /* ObsoletedIPMsSubfield */
+static int hf_p22_RelatedIPMsField_item;          /* RelatedIPMsSubfield */
+static int hf_p22_ReplyRecipientsField_item;      /* ReplyRecipientsSubfield */
+static int hf_p22_ExtensionsField_item;           /* IPMSExtension */
+static int hf_p22_Body_item;                      /* BodyPart */
+static int hf_p22_basic;                          /* T_basic */
+static int hf_p22_ia5_text;                       /* IA5TextBodyPart */
+static int hf_p22_g3_facsimile;                   /* G3FacsimileBodyPart */
+static int hf_p22_g4_class1;                      /* G4Class1BodyPart */
+static int hf_p22_teletex;                        /* TeletexBodyPart */
+static int hf_p22_videotex;                       /* VideotexBodyPart */
+static int hf_p22_encrypted_bp;                   /* EncryptedBodyPart */
+static int hf_p22_message;                        /* MessageBodyPart */
+static int hf_p22_mixed_mode;                     /* MixedModeBodyPart */
+static int hf_p22_bilaterally_defined;            /* BilaterallyDefinedBodyPart */
+static int hf_p22_nationally_defined;             /* NationallyDefinedBodyPart */
+static int hf_p22_extended;                       /* ExtendedBodyPart */
+static int hf_p22_extended_parameters;            /* INSTANCE_OF */
+static int hf_p22_extended_data;                  /* INSTANCE_OF */
+static int hf_p22_ia5text_parameters;             /* IA5TextParameters */
+static int hf_p22_ia5text_data;                   /* IA5TextData */
+static int hf_p22_repertoire;                     /* Repertoire */
+static int hf_p22_g3facsimile_parameters;         /* G3FacsimileParameters */
+static int hf_p22_g3facsimile_data;               /* G3FacsimileData */
+static int hf_p22_number_of_pages;                /* INTEGER */
+static int hf_p22_g3facsimile_non_basic_parameters;  /* G3FacsimileNonBasicParameters */
+static int hf_p22_G3FacsimileData_item;           /* BIT_STRING */
+static int hf_p22_G4Class1BodyPart_item;          /* Interchange_Data_Element */
+static int hf_p22_MixedModeBodyPart_item;         /* Interchange_Data_Element */
+static int hf_p22_teletex_parameters;             /* TeletexParameters */
+static int hf_p22_teletex_data;                   /* TeletexData */
+static int hf_p22_telex_compatible;               /* BOOLEAN */
+static int hf_p22_teletex_non_basic_parameters;   /* TeletexNonBasicParameters */
+static int hf_p22_TeletexData_item;               /* TeletexString */
+static int hf_p22_videotex_parameters;            /* VideotexParameters */
+static int hf_p22_videotex_data;                  /* VideotexData */
+static int hf_p22_syntax;                         /* VideotexSyntax */
+static int hf_p22_encrypted_parameters;           /* EncryptedParameters */
+static int hf_p22_encrypted_data;                 /* EncryptedData */
+static int hf_p22_algorithm_identifier;           /* AlgorithmIdentifier */
+static int hf_p22_originator_certificates;        /* ExtendedCertificates */
+static int hf_p22_message_parameters;             /* MessageParameters */
+static int hf_p22_message_data;                   /* MessageData */
+static int hf_p22_delivery_time;                  /* MessageDeliveryTime */
+static int hf_p22_delivery_envelope;              /* OtherMessageDeliveryFields */
+static int hf_p22_subject_ipm;                    /* SubjectIPMField */
+static int hf_p22_ipn_originator;                 /* IPNOriginatorField */
+static int hf_p22_ipm_intended_recipient;         /* IPMIntendedRecipientField */
+static int hf_p22_conversion_eits;                /* ConversionEITsField */
+static int hf_p22_notification_extensions;        /* NotificationExtensionsField */
+static int hf_p22_non_receipt_reason;             /* NonReceiptReasonField */
+static int hf_p22_discard_reason;                 /* DiscardReasonField */
+static int hf_p22_auto_forward_comment;           /* AutoForwardCommentField */
+static int hf_p22_returned_ipm;                   /* ReturnedIPMField */
+static int hf_p22_nrn_extensions;                 /* NRNExtensionsField */
+static int hf_p22_receipt_time;                   /* ReceiptTimeField */
+static int hf_p22_acknowledgment_mode;            /* AcknowledgmentModeField */
+static int hf_p22_suppl_receipt_info;             /* SupplReceiptInfoField */
+static int hf_p22_rn_extensions;                  /* RNExtensionsField */
+static int hf_p22_NotificationExtensionsField_item;  /* IPMSExtension */
+static int hf_p22_NRNExtensionsField_item;        /* IPMSExtension */
+static int hf_p22_RNExtensionsField_item;         /* IPMSExtension */
+static int hf_p22_OtherNotificationTypeFields_item;  /* IPMSExtension */
+static int hf_p22_advice;                         /* BodyPart */
+static int hf_p22_next_available;                 /* Time */
+static int hf_p22_new_address;                    /* ORDescriptor */
+static int hf_p22_effective_from;                 /* Time */
+static int hf_p22_assembly_instructions;          /* BodyPartReferences */
+static int hf_p22_BodyPartReferences_item;        /* BodyPartReference */
+static int hf_p22_stored_entry;                   /* SequenceNumber */
+static int hf_p22_stored_content;                 /* SequenceNumber */
+static int hf_p22_submitted_body_part;            /* INTEGER_1_MAX */
+static int hf_p22_stored_body_part;               /* T_stored_body_part */
+static int hf_p22_message_entry;                  /* SequenceNumber */
+static int hf_p22_body_part_number;               /* BodyPartNumber */
+static int hf_p22_Languages_item;                 /* Language */
+static int hf_p22_BodyPartSignatures_item;        /* BodyPartSignatures_item */
+static int hf_p22_body_part_signature;            /* BodyPartSignature */
+static int hf_p22_originator_certificate_selector;  /* CertificateAssertion */
+static int hf_p22_algorithmIdentifier;            /* AlgorithmIdentifier */
+static int hf_p22_encrypted;                      /* BIT_STRING */
+static int hf_p22_content_security_label;         /* SecurityLabel */
+static int hf_p22_heading_security_label;         /* SecurityLabel */
+static int hf_p22_body_part_security_labels;      /* SEQUENCE_OF_BodyPartSecurityLabel */
+static int hf_p22_body_part_security_labels_item;  /* BodyPartSecurityLabel */
+static int hf_p22_body_part_unlabelled;           /* NULL */
+static int hf_p22_body_part_security_label;       /* SecurityLabel */
+static int hf_p22_CirculationList_item;           /* CirculationMember */
+static int hf_p22_circulation_recipient;          /* RecipientSpecifier */
+static int hf_p22_checked;                        /* Checkmark */
+static int hf_p22_simple;                         /* NULL */
+static int hf_p22_timestamped;                    /* CirculationTime */
+static int hf_p22_signed;                         /* CirculationSignature */
+static int hf_p22_circulation_signature_algorithm_identifier;  /* CirculationSignatureAlgorithmIdentifier */
+static int hf_p22_timestamp;                      /* CirculationTime */
+static int hf_p22_circulation_signature_data;     /* CirculationSignatureData */
+static int hf_p22_DistributionCodes_item;         /* DistributionCode */
+static int hf_p22_oid_code;                       /* OBJECT_IDENTIFIER */
+static int hf_p22_alphanumeric_code;              /* AlphaCode */
+static int hf_p22_or_descriptor;                  /* ORDescriptor */
+static int hf_p22_InformationCategories_item;     /* InformationCategory */
+static int hf_p22_reference;                      /* OBJECT_IDENTIFIER */
+static int hf_p22_description;                    /* DescriptionString */
+static int hf_p22_ManualHandlingInstructions_item;  /* ManualHandlingInstruction */
+static int hf_p22_GeneralTextParameters_item;     /* CharacterSetRegistration */
+static int hf_p22_related_stored_file;            /* RelatedStoredFile */
+static int hf_p22_contents_type;                  /* ContentsTypeParameter */
+static int hf_p22_environment;                    /* EnvironmentParameter */
+static int hf_p22_compression;                    /* CompressionParameter */
+static int hf_p22_file_attributes;                /* FileAttributes */
+static int hf_p22_FileTransferData_item;          /* EXTERNAL */
+static int hf_p22_RelatedStoredFile_item;         /* RelatedStoredFile_item */
+static int hf_p22_file_identifier;                /* FileIdentifier */
+static int hf_p22_relationship;                   /* Relationship */
+static int hf_p22_pathname_and_version;           /* PathnameandVersion */
+static int hf_p22_cross_reference;                /* CrossReference */
+static int hf_p22_pathname;                       /* Pathname_Attribute */
+static int hf_p22_file_version;                   /* GraphicString */
+static int hf_p22_application_cross_reference;    /* OCTET_STRING */
+static int hf_p22_message_reference;              /* MessageReference */
+static int hf_p22_body_part_reference;            /* INTEGER */
+static int hf_p22_user_relative_identifier_ref;   /* PrintableString */
+static int hf_p22_explicit_relationship;          /* ExplicitRelationship */
+static int hf_p22_descriptive_relationship;       /* GraphicString */
+static int hf_p22_document_type;                  /* T_document_type */
+static int hf_p22_document_type_name;             /* Document_Type_Name */
+static int hf_p22_parameter;                      /* T_parameter */
+static int hf_p22_constraint_set_and_abstract_syntax;  /* T_constraint_set_and_abstract_syntax */
+static int hf_p22_constraint_set_name;            /* Constraint_Set_Name */
+static int hf_p22_abstract_syntax_name;           /* Abstract_Syntax_Name */
+static int hf_p22_application_reference;          /* GeneralIdentifier */
+static int hf_p22_machine;                        /* GeneralIdentifier */
+static int hf_p22_operating_system;               /* OBJECT_IDENTIFIER */
+static int hf_p22_user_visible_string;            /* T_user_visible_string */
+static int hf_p22_user_visible_string_item;       /* GraphicString */
+static int hf_p22_registered_identifier;          /* OBJECT_IDENTIFIER */
+static int hf_p22_descriptive_identifier;         /* T_descriptive_identifier */
+static int hf_p22_descriptive_identifier_item;    /* GraphicString */
+static int hf_p22_compression_algorithm_id;       /* T_compression_algorithm_id */
+static int hf_p22_compression_algorithm_param;    /* T_compression_algorithm_param */
+static int hf_p22_permitted_actions;              /* Permitted_Actions_Attribute */
+static int hf_p22_storage_account;                /* Account_Attribute */
+static int hf_p22_date_and_time_of_creation;      /* Date_and_Time_Attribute */
+static int hf_p22_date_and_time_of_last_modification;  /* Date_and_Time_Attribute */
+static int hf_p22_date_and_time_of_last_read_access;  /* Date_and_Time_Attribute */
+static int hf_p22_date_and_time_of_last_attribute_modification;  /* Date_and_Time_Attribute */
+static int hf_p22_identity_of_creator;            /* User_Identity_Attribute */
+static int hf_p22_identity_of_last_modifier;      /* User_Identity_Attribute */
+static int hf_p22_identity_of_last_reader;        /* User_Identity_Attribute */
+static int hf_p22_identity_of_last_attribute_modifier;  /* User_Identity_Attribute */
+static int hf_p22_object_availability;            /* Object_Availability_Attribute */
+static int hf_p22_object_size;                    /* Object_Size_Attribute */
+static int hf_p22_future_object_size;             /* Object_Size_Attribute */
+static int hf_p22_access_control;                 /* Access_Control_Attribute */
+static int hf_p22_legal_qualifications;           /* Legal_Qualification_Attribute */
+static int hf_p22_private_use;                    /* Private_Use_Attribute */
+static int hf_p22_attribute_extensions;           /* Attribute_Extensions */
+static int hf_p22_incomplete_pathname;            /* Pathname */
+static int hf_p22_complete_pathname;              /* Pathname */
+static int hf_p22_no_value_available;             /* NULL */
+static int hf_p22_account_actual_values;          /* Account */
+static int hf_p22_identity_actual_values;         /* User_Identity */
+static int hf_p22_actual_values;                  /* SET_OF_Access_Control_Element */
+static int hf_p22_actual_values_item;             /* Access_Control_Element */
+static int hf_p22_action_list;                    /* Access_Request */
+static int hf_p22_concurrency_access;             /* Concurrency_Access */
+static int hf_p22_identity;                       /* User_Identity */
+static int hf_p22_passwords;                      /* Access_Passwords */
+static int hf_p22_location;                       /* Application_Entity_Title */
+static int hf_p22_read_password;                  /* Password */
+static int hf_p22_insert_password;                /* Password */
+static int hf_p22_replace_password;               /* Password */
+static int hf_p22_extend_password;                /* Password */
+static int hf_p22_erase_password;                 /* Password */
+static int hf_p22_read_attribute_password;        /* Password */
+static int hf_p22_change_attribute_password;      /* Password */
+static int hf_p22_delete_password;                /* Password */
+static int hf_p22_pass_passwords;                 /* Pass_Passwords */
+static int hf_p22_link_password;                  /* Password */
+static int hf_p22_graphic_string;                 /* GraphicString */
+static int hf_p22_octet_string;                   /* OCTET_STRING */
+static int hf_p22_Pass_Passwords_item;            /* Password */
+static int hf_p22_ap_title;                       /* AP_title */
+static int hf_p22_ae_qualifier;                   /* AE_qualifier */
+static int hf_p22_voice_message_duration;         /* INTEGER */
+static int hf_p22_voice_encoding_type;            /* OBJECT_IDENTIFIER */
+static int hf_p22_supplementary_information;      /* IA5String */
+static int hf_p22_mts_identifier;                 /* MessageDeliveryIdentifier */
+static int hf_p22_submission_proof;               /* SubmissionProof */
+static int hf_p22_proof_of_submission;            /* ProofOfSubmission */
+static int hf_p22_originating_MTA_certificate;    /* OriginatingMTACertificate */
+static int hf_p22_message_submission_envelope;    /* MessageSubmissionEnvelope */
+static int hf_p22_IPMSynopsis_item;               /* BodyPartSynopsis */
+static int hf_p22_message_synopsis;               /* MessageBodyPartSynopsis */
+static int hf_p22_non_message;                    /* NonMessageBodyPartSynopsis */
+static int hf_p22_number;                         /* SequenceNumber */
+static int hf_p22_synopsis;                       /* IPMSynopsis */
+static int hf_p22_bp_type;                        /* OBJECT_IDENTIFIER */
+static int hf_p22_bp_parameters;                  /* INSTANCE_OF */
+static int hf_p22_size;                           /* INTEGER */
+static int hf_p22_processed;                      /* BOOLEAN */
+static int hf_p22_data;                           /* OBJECT_IDENTIFIER */
+static int hf_p22_parameters;                     /* OBJECT_IDENTIFIER */
+static int hf_p22_this_child_entry;               /* SequenceNumber */
+static int hf_p22_position;                       /* INTEGER */
+static int hf_p22_BodyPartSignatureVerification_item;  /* BodyPartSignatureVerification_item */
+static int hf_p22_body_part_sequence_number;      /* BodyPartNumber */
+static int hf_p22_body_part_signature_status;     /* SignatureStatus */
+static int hf_p22_stored;                         /* SET_OF_SequenceNumber */
+static int hf_p22_stored_item;                    /* SequenceNumber */
+static int hf_p22_absent;                         /* NULL */
+static int hf_p22_no_reply_received;              /* NULL */
+static int hf_p22_received_replies;               /* SEQUENCE_OF_SequenceNumber */
+static int hf_p22_received_replies_item;          /* SequenceNumber */
+static int hf_p22_no_ipn_received;                /* NULL */
+static int hf_p22_ipns_received;                  /* SEQUENCE_OF_SequenceNumber */
+static int hf_p22_ipns_received_item;             /* SequenceNumber */
+static int hf_p22_content_or_arguments;           /* T_content_or_arguments */
+static int hf_p22_original_content;               /* OriginalContent */
+static int hf_p22_original_security_arguments;    /* T_original_security_arguments */
+static int hf_p22_original_content_integrity_check;  /* OriginalContentIntegrityCheck */
+static int hf_p22_original_message_origin_authentication_check;  /* OriginalMessageOriginAuthenticationCheck */
+static int hf_p22_original_message_token;         /* OriginalMessageToken */
+static int hf_p22_security_diagnostic_code;       /* SecurityDiagnosticCode */
+static int hf_p22_BodyPartTokens_item;            /* BodyPartTokens_item */
+static int hf_p22_body_part_choice;               /* T_body_part_choice */
+static int hf_p22_encryption_token;               /* EncryptionToken */
+static int hf_p22_message_or_content_body_part;   /* BodyPartTokens */
+static int hf_p22_encryption_algorithm_identifier;  /* AlgorithmIdentifier */
+static int hf_p22_encrypted_key;                  /* BIT_STRING */
+static int hf_p22_recipient_certificate_selector;  /* CertificateAssertion */
+static int hf_p22_recipient_certificate;          /* Certificates */
+static int hf_p22_ForwardedContentToken_item;     /* ForwardedContentToken_item */
+static int hf_p22_body_part_token_choice;         /* T_body_part_token_choice */
+static int hf_p22_forwarding_token;               /* MessageToken */
+static int hf_p22_forwarded_content_token;        /* ForwardedContentToken */
+static int hf_p22_choice;                         /* T_choice */
+static int hf_p22_non_receipt_fields;             /* NonReceiptFields */
+static int hf_p22_receipt_fields;                 /* ReceiptFields */
+static int hf_p22_other_notification_type_fields;  /* OtherNotificationTypeFields */
 /* named bits */
-static int hf_p22_NotificationRequests_rn = -1;
-static int hf_p22_NotificationRequests_nrn = -1;
-static int hf_p22_NotificationRequests_ipm_return = -1;
-static int hf_p22_NotificationRequests_an_supported = -1;
-static int hf_p22_NotificationRequests_suppress_an = -1;
-static int hf_p22_Access_Request_read = -1;
-static int hf_p22_Access_Request_insert = -1;
-static int hf_p22_Access_Request_replace = -1;
-static int hf_p22_Access_Request_extend = -1;
-static int hf_p22_Access_Request_erase = -1;
-static int hf_p22_Access_Request_read_attribute = -1;
-static int hf_p22_Access_Request_change_attribute = -1;
-static int hf_p22_Access_Request_delete_object = -1;
-static int hf_p22_RecipientSecurityRequest_content_non_repudiation = -1;
-static int hf_p22_RecipientSecurityRequest_content_proof = -1;
-static int hf_p22_RecipientSecurityRequest_ipn_non_repudiation = -1;
-static int hf_p22_RecipientSecurityRequest_ipn_proof = -1;
+static int hf_p22_NotificationRequests_rn;
+static int hf_p22_NotificationRequests_nrn;
+static int hf_p22_NotificationRequests_ipm_return;
+static int hf_p22_NotificationRequests_an_supported;
+static int hf_p22_NotificationRequests_suppress_an;
+static int hf_p22_Access_Request_read;
+static int hf_p22_Access_Request_insert;
+static int hf_p22_Access_Request_replace;
+static int hf_p22_Access_Request_extend;
+static int hf_p22_Access_Request_erase;
+static int hf_p22_Access_Request_read_attribute;
+static int hf_p22_Access_Request_change_attribute;
+static int hf_p22_Access_Request_delete_object;
+static int hf_p22_RecipientSecurityRequest_content_non_repudiation;
+static int hf_p22_RecipientSecurityRequest_content_proof;
+static int hf_p22_RecipientSecurityRequest_ipn_non_repudiation;
+static int hf_p22_RecipientSecurityRequest_ipn_proof;
 
 /* Initialize the subtree pointers */
-static gint ett_p22 = -1;
-static gint ett_p22_InformationObject = -1;
-static gint ett_p22_IPM = -1;
-static gint ett_p22_IPMSExtension = -1;
-static gint ett_p22_Heading = -1;
-static gint ett_p22_IPMIdentifier_U = -1;
-static gint ett_p22_RecipientSpecifier = -1;
-static gint ett_p22_ORDescriptor = -1;
-static gint ett_p22_NotificationRequests = -1;
-static gint ett_p22_RecipientExtensionsField = -1;
-static gint ett_p22_AuthorizingUsersField = -1;
-static gint ett_p22_PrimaryRecipientsField = -1;
-static gint ett_p22_CopyRecipientsField = -1;
-static gint ett_p22_BlindCopyRecipientsField = -1;
-static gint ett_p22_ObsoletedIPMsField = -1;
-static gint ett_p22_RelatedIPMsField = -1;
-static gint ett_p22_ReplyRecipientsField = -1;
-static gint ett_p22_ExtensionsField = -1;
-static gint ett_p22_Body = -1;
-static gint ett_p22_BodyPart = -1;
-static gint ett_p22_T_basic = -1;
-static gint ett_p22_ExtendedBodyPart = -1;
-static gint ett_p22_IA5TextBodyPart = -1;
-static gint ett_p22_IA5TextParameters = -1;
-static gint ett_p22_G3FacsimileBodyPart = -1;
-static gint ett_p22_G3FacsimileParameters = -1;
-static gint ett_p22_G3FacsimileData = -1;
-static gint ett_p22_G4Class1BodyPart = -1;
-static gint ett_p22_MixedModeBodyPart = -1;
-static gint ett_p22_TeletexBodyPart = -1;
-static gint ett_p22_TeletexParameters = -1;
-static gint ett_p22_TeletexData = -1;
-static gint ett_p22_VideotexBodyPart = -1;
-static gint ett_p22_VideotexParameters = -1;
-static gint ett_p22_EncryptedBodyPart = -1;
-static gint ett_p22_EncryptedParameters = -1;
-static gint ett_p22_MessageBodyPart = -1;
-static gint ett_p22_MessageParameters = -1;
-static gint ett_p22_IPN = -1;
-static gint ett_p22_CommonFields = -1;
-static gint ett_p22_NonReceiptFields = -1;
-static gint ett_p22_ReceiptFields = -1;
-static gint ett_p22_NotificationExtensionsField = -1;
-static gint ett_p22_NRNExtensionsField = -1;
-static gint ett_p22_RNExtensionsField = -1;
-static gint ett_p22_OtherNotificationTypeFields = -1;
-static gint ett_p22_AbsenceAdvice = -1;
-static gint ett_p22_ChangeOfAddressAdvice = -1;
-static gint ett_p22_IPMAssemblyInstructions = -1;
-static gint ett_p22_BodyPartReferences = -1;
-static gint ett_p22_BodyPartReference = -1;
-static gint ett_p22_T_stored_body_part = -1;
-static gint ett_p22_Languages = -1;
-static gint ett_p22_BodyPartSignatures = -1;
-static gint ett_p22_BodyPartSignatures_item = -1;
-static gint ett_p22_Signature = -1;
-static gint ett_p22_IPMSecurityLabel = -1;
-static gint ett_p22_SEQUENCE_OF_BodyPartSecurityLabel = -1;
-static gint ett_p22_BodyPartSecurityLabel = -1;
-static gint ett_p22_CirculationList = -1;
-static gint ett_p22_CirculationMember = -1;
-static gint ett_p22_Checkmark = -1;
-static gint ett_p22_CirculationSignatureData = -1;
-static gint ett_p22_CirculationSignature = -1;
-static gint ett_p22_DistributionCodes = -1;
-static gint ett_p22_DistributionCode = -1;
-static gint ett_p22_InformationCategories = -1;
-static gint ett_p22_InformationCategory = -1;
-static gint ett_p22_ManualHandlingInstructions = -1;
-static gint ett_p22_GeneralTextParameters = -1;
-static gint ett_p22_FileTransferParameters = -1;
-static gint ett_p22_FileTransferData = -1;
-static gint ett_p22_RelatedStoredFile = -1;
-static gint ett_p22_RelatedStoredFile_item = -1;
-static gint ett_p22_FileIdentifier = -1;
-static gint ett_p22_PathnameandVersion = -1;
-static gint ett_p22_CrossReference = -1;
-static gint ett_p22_MessageReference = -1;
-static gint ett_p22_Relationship = -1;
-static gint ett_p22_Contents_Type_Attribute = -1;
-static gint ett_p22_T_document_type = -1;
-static gint ett_p22_T_constraint_set_and_abstract_syntax = -1;
-static gint ett_p22_EnvironmentParameter = -1;
-static gint ett_p22_T_user_visible_string = -1;
-static gint ett_p22_GeneralIdentifier = -1;
-static gint ett_p22_T_descriptive_identifier = -1;
-static gint ett_p22_CompressionParameter = -1;
-static gint ett_p22_FileAttributes = -1;
-static gint ett_p22_Pathname_Attribute = -1;
-static gint ett_p22_Account_Attribute = -1;
-static gint ett_p22_User_Identity_Attribute = -1;
-static gint ett_p22_Access_Control_Attribute = -1;
-static gint ett_p22_SET_OF_Access_Control_Element = -1;
-static gint ett_p22_Access_Control_Element = -1;
-static gint ett_p22_Access_Request = -1;
-static gint ett_p22_Access_Passwords = -1;
-static gint ett_p22_Password = -1;
-static gint ett_p22_Pass_Passwords = -1;
-static gint ett_p22_Application_Entity_Title = -1;
-static gint ett_p22_VoiceParameters = -1;
-static gint ett_p22_ForwardedContentParameters = -1;
-static gint ett_p22_SubmissionProof = -1;
-static gint ett_p22_IPMSynopsis = -1;
-static gint ett_p22_BodyPartSynopsis = -1;
-static gint ett_p22_MessageBodyPartSynopsis = -1;
-static gint ett_p22_NonMessageBodyPartSynopsis = -1;
-static gint ett_p22_BodyPartDescriptor = -1;
-static gint ett_p22_BodyPartSignatureVerification = -1;
-static gint ett_p22_BodyPartSignatureVerification_item = -1;
-static gint ett_p22_IPMLocation = -1;
-static gint ett_p22_SET_OF_SequenceNumber = -1;
-static gint ett_p22_CorrelatedDeliveredReplies = -1;
-static gint ett_p22_SEQUENCE_OF_SequenceNumber = -1;
-static gint ett_p22_CorrelatedDeliveredIPNs = -1;
-static gint ett_p22_RecipientSecurityRequest = -1;
-static gint ett_p22_IpnSecurityResponse = -1;
-static gint ett_p22_T_content_or_arguments = -1;
-static gint ett_p22_T_original_security_arguments = -1;
-static gint ett_p22_BodyPartTokens = -1;
-static gint ett_p22_BodyPartTokens_item = -1;
-static gint ett_p22_T_body_part_choice = -1;
-static gint ett_p22_EncryptionToken = -1;
-static gint ett_p22_ForwardedContentToken = -1;
-static gint ett_p22_ForwardedContentToken_item = -1;
-static gint ett_p22_T_body_part_token_choice = -1;
-static gint ett_p22_T_choice = -1;
+static gint ett_p22;
+static gint ett_p22_InformationObject;
+static gint ett_p22_IPM;
+static gint ett_p22_IPMSExtension;
+static gint ett_p22_Heading;
+static gint ett_p22_IPMIdentifier_U;
+static gint ett_p22_RecipientSpecifier;
+static gint ett_p22_ORDescriptor;
+static gint ett_p22_NotificationRequests;
+static gint ett_p22_RecipientExtensionsField;
+static gint ett_p22_AuthorizingUsersField;
+static gint ett_p22_PrimaryRecipientsField;
+static gint ett_p22_CopyRecipientsField;
+static gint ett_p22_BlindCopyRecipientsField;
+static gint ett_p22_ObsoletedIPMsField;
+static gint ett_p22_RelatedIPMsField;
+static gint ett_p22_ReplyRecipientsField;
+static gint ett_p22_ExtensionsField;
+static gint ett_p22_Body;
+static gint ett_p22_BodyPart;
+static gint ett_p22_T_basic;
+static gint ett_p22_ExtendedBodyPart;
+static gint ett_p22_IA5TextBodyPart;
+static gint ett_p22_IA5TextParameters;
+static gint ett_p22_G3FacsimileBodyPart;
+static gint ett_p22_G3FacsimileParameters;
+static gint ett_p22_G3FacsimileData;
+static gint ett_p22_G4Class1BodyPart;
+static gint ett_p22_MixedModeBodyPart;
+static gint ett_p22_TeletexBodyPart;
+static gint ett_p22_TeletexParameters;
+static gint ett_p22_TeletexData;
+static gint ett_p22_VideotexBodyPart;
+static gint ett_p22_VideotexParameters;
+static gint ett_p22_EncryptedBodyPart;
+static gint ett_p22_EncryptedParameters;
+static gint ett_p22_MessageBodyPart;
+static gint ett_p22_MessageParameters;
+static gint ett_p22_IPN;
+static gint ett_p22_CommonFields;
+static gint ett_p22_NonReceiptFields;
+static gint ett_p22_ReceiptFields;
+static gint ett_p22_NotificationExtensionsField;
+static gint ett_p22_NRNExtensionsField;
+static gint ett_p22_RNExtensionsField;
+static gint ett_p22_OtherNotificationTypeFields;
+static gint ett_p22_AbsenceAdvice;
+static gint ett_p22_ChangeOfAddressAdvice;
+static gint ett_p22_IPMAssemblyInstructions;
+static gint ett_p22_BodyPartReferences;
+static gint ett_p22_BodyPartReference;
+static gint ett_p22_T_stored_body_part;
+static gint ett_p22_Languages;
+static gint ett_p22_BodyPartSignatures;
+static gint ett_p22_BodyPartSignatures_item;
+static gint ett_p22_Signature;
+static gint ett_p22_IPMSecurityLabel;
+static gint ett_p22_SEQUENCE_OF_BodyPartSecurityLabel;
+static gint ett_p22_BodyPartSecurityLabel;
+static gint ett_p22_CirculationList;
+static gint ett_p22_CirculationMember;
+static gint ett_p22_Checkmark;
+static gint ett_p22_CirculationSignatureData;
+static gint ett_p22_CirculationSignature;
+static gint ett_p22_DistributionCodes;
+static gint ett_p22_DistributionCode;
+static gint ett_p22_InformationCategories;
+static gint ett_p22_InformationCategory;
+static gint ett_p22_ManualHandlingInstructions;
+static gint ett_p22_GeneralTextParameters;
+static gint ett_p22_FileTransferParameters;
+static gint ett_p22_FileTransferData;
+static gint ett_p22_RelatedStoredFile;
+static gint ett_p22_RelatedStoredFile_item;
+static gint ett_p22_FileIdentifier;
+static gint ett_p22_PathnameandVersion;
+static gint ett_p22_CrossReference;
+static gint ett_p22_MessageReference;
+static gint ett_p22_Relationship;
+static gint ett_p22_Contents_Type_Attribute;
+static gint ett_p22_T_document_type;
+static gint ett_p22_T_constraint_set_and_abstract_syntax;
+static gint ett_p22_EnvironmentParameter;
+static gint ett_p22_T_user_visible_string;
+static gint ett_p22_GeneralIdentifier;
+static gint ett_p22_T_descriptive_identifier;
+static gint ett_p22_CompressionParameter;
+static gint ett_p22_FileAttributes;
+static gint ett_p22_Pathname_Attribute;
+static gint ett_p22_Account_Attribute;
+static gint ett_p22_User_Identity_Attribute;
+static gint ett_p22_Access_Control_Attribute;
+static gint ett_p22_SET_OF_Access_Control_Element;
+static gint ett_p22_Access_Control_Element;
+static gint ett_p22_Access_Request;
+static gint ett_p22_Access_Passwords;
+static gint ett_p22_Password;
+static gint ett_p22_Pass_Passwords;
+static gint ett_p22_Application_Entity_Title;
+static gint ett_p22_VoiceParameters;
+static gint ett_p22_ForwardedContentParameters;
+static gint ett_p22_SubmissionProof;
+static gint ett_p22_IPMSynopsis;
+static gint ett_p22_BodyPartSynopsis;
+static gint ett_p22_MessageBodyPartSynopsis;
+static gint ett_p22_NonMessageBodyPartSynopsis;
+static gint ett_p22_BodyPartDescriptor;
+static gint ett_p22_BodyPartSignatureVerification;
+static gint ett_p22_BodyPartSignatureVerification_item;
+static gint ett_p22_IPMLocation;
+static gint ett_p22_SET_OF_SequenceNumber;
+static gint ett_p22_CorrelatedDeliveredReplies;
+static gint ett_p22_SEQUENCE_OF_SequenceNumber;
+static gint ett_p22_CorrelatedDeliveredIPNs;
+static gint ett_p22_RecipientSecurityRequest;
+static gint ett_p22_IpnSecurityResponse;
+static gint ett_p22_T_content_or_arguments;
+static gint ett_p22_T_original_security_arguments;
+static gint ett_p22_BodyPartTokens;
+static gint ett_p22_BodyPartTokens_item;
+static gint ett_p22_T_body_part_choice;
+static gint ett_p22_EncryptionToken;
+static gint ett_p22_ForwardedContentToken;
+static gint ett_p22_ForwardedContentToken_item;
+static gint ett_p22_T_body_part_token_choice;
+static gint ett_p22_T_choice;
 
 /*--- Cyclic dependencies ---*/
 

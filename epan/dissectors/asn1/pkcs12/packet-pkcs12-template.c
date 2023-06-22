@@ -41,13 +41,13 @@ void proto_register_pkcs12(void);
 void proto_reg_handoff_pkcs12(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_pkcs12 = -1;
+static int proto_pkcs12;
 
-static int hf_pkcs12_X509Certificate_PDU = -1;
-static int hf_pkcs12_AuthenticatedSafe_PDU = -1;  /* AuthenticatedSafe */
-static gint ett_decrypted_pbe = -1;
+static int hf_pkcs12_X509Certificate_PDU;
+static int hf_pkcs12_AuthenticatedSafe_PDU;  /* AuthenticatedSafe */
+static gint ett_decrypted_pbe;
 
-static expert_field ei_pkcs12_octet_string_expected = EI_INIT;
+static expert_field ei_pkcs12_octet_string_expected;
 
 
 static const char *object_identifier_id = NULL;

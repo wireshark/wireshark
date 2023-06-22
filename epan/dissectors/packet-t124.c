@@ -39,347 +39,347 @@ void proto_register_t124(void);
 void proto_reg_handoff_t124(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_t124 = -1;
+static int proto_t124;
 static proto_tree *top_tree = NULL;
 
-static int hf_t124_object = -1;                   /* T_object */
-static int hf_t124_h221NonStandard = -1;          /* H221NonStandardIdentifier */
-static int hf_t124_key = -1;                      /* Key */
-static int hf_t124_data = -1;                     /* OCTET_STRING */
-static int hf_t124_UserData_item = -1;            /* UserData_item */
-static int hf_t124_value = -1;                    /* T_value */
-static int hf_t124_numeric = -1;                  /* SimpleNumericString */
-static int hf_t124_text = -1;                     /* SimpleTextString */
-static int hf_t124_unicodeText = -1;              /* TextString */
-static int hf_t124_passwordString = -1;           /* PasswordSelector */
-static int hf_t124_responseData = -1;             /* UserData */
-static int hf_t124_passwordInTheClear = -1;       /* NULL */
-static int hf_t124_nonStandardAlgorithm = -1;     /* NonStandardParameter */
-static int hf_t124_responseAlgorithm = -1;        /* ChallengeResponseAlgorithm */
-static int hf_t124_challengeData = -1;            /* UserData */
-static int hf_t124_challengeTag = -1;             /* INTEGER */
-static int hf_t124_challengeSet = -1;             /* SET_OF_ChallengeItem */
-static int hf_t124_challengeSet_item = -1;        /* ChallengeItem */
-static int hf_t124_responseItem = -1;             /* ChallengeResponseItem */
-static int hf_t124_passwordInTheClear_01 = -1;    /* PasswordSelector */
-static int hf_t124_challengeRequestResponse = -1;  /* T_challengeRequestResponse */
-static int hf_t124_challengeRequest = -1;         /* ChallengeRequest */
-static int hf_t124_challengeResponse = -1;        /* ChallengeResponse */
-static int hf_t124_nonStandardScheme = -1;        /* NonStandardParameter */
-static int hf_t124_priority = -1;                 /* INTEGER_0_65535 */
-static int hf_t124_scheme = -1;                   /* ConferencePriorityScheme */
-static int hf_t124_conventional = -1;             /* NULL */
-static int hf_t124_counted = -1;                  /* NULL */
-static int hf_t124_anonymous = -1;                /* NULL */
-static int hf_t124_nonStandardCategory = -1;      /* NonStandardParameter */
-static int hf_t124_conventional_only = -1;        /* NULL */
-static int hf_t124_counted_only = -1;             /* NULL */
-static int hf_t124_anonymous_only = -1;           /* NULL */
-static int hf_t124_conventional_control = -1;     /* NULL */
-static int hf_t124_unrestricted_mode = -1;        /* NULL */
-static int hf_t124_non_standard_mode = -1;        /* NonStandardParameter */
-static int hf_t124_NetworkAddress_item = -1;      /* NetworkAddress_item */
-static int hf_t124_aggregatedChannel = -1;        /* T_aggregatedChannel */
-static int hf_t124_transferModes = -1;            /* T_transferModes */
-static int hf_t124_speech = -1;                   /* BOOLEAN */
-static int hf_t124_voice_band = -1;               /* BOOLEAN */
-static int hf_t124_digital_56k = -1;              /* BOOLEAN */
-static int hf_t124_digital_64k = -1;              /* BOOLEAN */
-static int hf_t124_digital_128k = -1;             /* BOOLEAN */
-static int hf_t124_digital_192k = -1;             /* BOOLEAN */
-static int hf_t124_digital_256k = -1;             /* BOOLEAN */
-static int hf_t124_digital_320k = -1;             /* BOOLEAN */
-static int hf_t124_digital_384k = -1;             /* BOOLEAN */
-static int hf_t124_digital_512k = -1;             /* BOOLEAN */
-static int hf_t124_digital_768k = -1;             /* BOOLEAN */
-static int hf_t124_digital_1152k = -1;            /* BOOLEAN */
-static int hf_t124_digital_1472k = -1;            /* BOOLEAN */
-static int hf_t124_digital_1536k = -1;            /* BOOLEAN */
-static int hf_t124_digital_1920k = -1;            /* BOOLEAN */
-static int hf_t124_packet_mode = -1;              /* BOOLEAN */
-static int hf_t124_frame_mode = -1;               /* BOOLEAN */
-static int hf_t124_atm = -1;                      /* BOOLEAN */
-static int hf_t124_internationalNumber = -1;      /* DiallingString */
-static int hf_t124_subAddress = -1;               /* SubAddressString */
-static int hf_t124_extraDialling = -1;            /* ExtraDiallingString */
-static int hf_t124_highLayerCompatibility = -1;   /* T_highLayerCompatibility */
-static int hf_t124_telephony3kHz = -1;            /* BOOLEAN */
-static int hf_t124_telephony7kHz = -1;            /* BOOLEAN */
-static int hf_t124_videotelephony = -1;           /* BOOLEAN */
-static int hf_t124_videoconference = -1;          /* BOOLEAN */
-static int hf_t124_audiographic = -1;             /* BOOLEAN */
-static int hf_t124_audiovisual = -1;              /* BOOLEAN */
-static int hf_t124_multimedia = -1;               /* BOOLEAN */
-static int hf_t124_transportConnection = -1;      /* T_transportConnection */
-static int hf_t124_nsapAddress = -1;              /* OCTET_STRING_SIZE_1_20 */
-static int hf_t124_transportSelector = -1;        /* OCTET_STRING */
-static int hf_t124_nonStandard = -1;              /* NonStandardParameter */
-static int hf_t124_callingNode = -1;              /* NULL */
-static int hf_t124_calledNode = -1;               /* NULL */
-static int hf_t124_unknown = -1;                  /* INTEGER_0_4294967295 */
-static int hf_t124_conferenceName = -1;           /* ConferenceName */
-static int hf_t124_conferenceNameModifier = -1;   /* ConferenceNameModifier */
-static int hf_t124_conferenceDescription = -1;    /* TextString */
-static int hf_t124_lockedConference = -1;         /* BOOLEAN */
-static int hf_t124_passwordInTheClearRequired = -1;  /* BOOLEAN */
-static int hf_t124_networkAddress = -1;           /* NetworkAddress */
-static int hf_t124_defaultConferenceFlag = -1;    /* BOOLEAN */
-static int hf_t124_conferenceMode = -1;           /* ConferenceMode */
-static int hf_t124_convenerPassword = -1;         /* Password */
-static int hf_t124_password = -1;                 /* Password */
-static int hf_t124_listedConference = -1;         /* BOOLEAN */
-static int hf_t124_conductibleConference = -1;    /* BOOLEAN */
-static int hf_t124_terminationMethod = -1;        /* TerminationMethod */
-static int hf_t124_conductorPrivileges = -1;      /* SET_OF_Privilege */
-static int hf_t124_conductorPrivileges_item = -1;  /* Privilege */
-static int hf_t124_conductedPrivileges = -1;      /* SET_OF_Privilege */
-static int hf_t124_conductedPrivileges_item = -1;  /* Privilege */
-static int hf_t124_nonConductedPrivileges = -1;   /* SET_OF_Privilege */
-static int hf_t124_nonConductedPrivileges_item = -1;  /* Privilege */
-static int hf_t124_callerIdentifier = -1;         /* TextString */
-static int hf_t124_userData = -1;                 /* UserData */
-static int hf_t124_conferencePriority = -1;       /* ConferencePriority */
-static int hf_t124_nodeID = -1;                   /* UserID */
-static int hf_t124_tag = -1;                      /* INTEGER */
-static int hf_t124_result = -1;                   /* T_result */
-static int hf_t124_nodeType = -1;                 /* NodeType */
-static int hf_t124_asymmetryIndicator = -1;       /* AsymmetryIndicator */
-static int hf_t124_conferenceList = -1;           /* SET_OF_ConferenceDescriptor */
-static int hf_t124_conferenceList_item = -1;      /* ConferenceDescriptor */
-static int hf_t124_queryResponseResult = -1;      /* QueryResponseResult */
-static int hf_t124_waitForInvitationFlag = -1;    /* BOOLEAN */
-static int hf_t124_noUnlistedConferenceFlag = -1;  /* BOOLEAN */
-static int hf_t124_conferenceName_01 = -1;        /* ConferenceNameSelector */
-static int hf_t124_password_01 = -1;              /* PasswordChallengeRequestResponse */
-static int hf_t124_convenerPassword_01 = -1;      /* PasswordSelector */
-static int hf_t124_nodeCategory = -1;             /* NodeCategory */
-static int hf_t124_topNodeID = -1;                /* UserID */
-static int hf_t124_conferenceNameAlias = -1;      /* ConferenceNameSelector */
-static int hf_t124_joinResponseResult = -1;       /* JoinResponseResult */
-static int hf_t124_inviteResponseResult = -1;     /* InviteResponseResult */
-static int hf_t124_t124Identifier = -1;           /* Key */
-static int hf_t124_connectPDU = -1;               /* T_connectPDU */
-static int hf_t124_conferenceCreateRequest = -1;  /* ConferenceCreateRequest */
-static int hf_t124_conferenceCreateResponse = -1;  /* ConferenceCreateResponse */
-static int hf_t124_conferenceQueryRequest = -1;   /* ConferenceQueryRequest */
-static int hf_t124_conferenceQueryResponse = -1;  /* ConferenceQueryResponse */
-static int hf_t124_conferenceJoinRequest = -1;    /* ConferenceJoinRequest */
-static int hf_t124_conferenceJoinResponse = -1;   /* ConferenceJoinResponse */
-static int hf_t124_conferenceInviteRequest = -1;  /* ConferenceInviteRequest */
-static int hf_t124_conferenceInviteResponse = -1;  /* ConferenceInviteResponse */
-static int hf_t124_heightLimit = -1;              /* INTEGER_0_MAX */
-static int hf_t124_subHeight = -1;                /* INTEGER_0_MAX */
-static int hf_t124_subInterval = -1;              /* INTEGER_0_MAX */
-static int hf_t124_static = -1;                   /* T_static */
-static int hf_t124_channelId = -1;                /* StaticChannelId */
-static int hf_t124_userId = -1;                   /* T_userId */
-static int hf_t124_joined = -1;                   /* BOOLEAN */
-static int hf_t124_userId_01 = -1;                /* UserId */
-static int hf_t124_private = -1;                  /* T_private */
-static int hf_t124_channelId_01 = -1;             /* PrivateChannelId */
-static int hf_t124_manager = -1;                  /* UserId */
-static int hf_t124_admitted = -1;                 /* SET_OF_UserId */
-static int hf_t124_admitted_item = -1;            /* UserId */
-static int hf_t124_assigned = -1;                 /* T_assigned */
-static int hf_t124_channelId_02 = -1;             /* AssignedChannelId */
-static int hf_t124_mergeChannels = -1;            /* SET_OF_ChannelAttributes */
-static int hf_t124_mergeChannels_item = -1;       /* ChannelAttributes */
-static int hf_t124_purgeChannelIds = -1;          /* SET_OF_ChannelId */
-static int hf_t124_purgeChannelIds_item = -1;     /* ChannelId */
-static int hf_t124_detachUserIds = -1;            /* SET_OF_UserId */
-static int hf_t124_detachUserIds_item = -1;       /* UserId */
-static int hf_t124_grabbed = -1;                  /* T_grabbed */
-static int hf_t124_tokenId = -1;                  /* TokenId */
-static int hf_t124_grabber = -1;                  /* UserId */
-static int hf_t124_inhibited = -1;                /* T_inhibited */
-static int hf_t124_inhibitors = -1;               /* SET_OF_UserId */
-static int hf_t124_inhibitors_item = -1;          /* UserId */
-static int hf_t124_giving = -1;                   /* T_giving */
-static int hf_t124_recipient = -1;                /* UserId */
-static int hf_t124_ungivable = -1;                /* T_ungivable */
-static int hf_t124_given = -1;                    /* T_given */
-static int hf_t124_mergeTokens = -1;              /* SET_OF_TokenAttributes */
-static int hf_t124_mergeTokens_item = -1;         /* TokenAttributes */
-static int hf_t124_purgeTokenIds = -1;            /* SET_OF_TokenId */
-static int hf_t124_purgeTokenIds_item = -1;       /* TokenId */
-static int hf_t124_reason = -1;                   /* Reason */
-static int hf_t124_diagnostic = -1;               /* Diagnostic */
-static int hf_t124_initialOctets = -1;            /* OCTET_STRING */
-static int hf_t124_result_01 = -1;                /* Result */
-static int hf_t124_initiator = -1;                /* UserId */
-static int hf_t124_userIds = -1;                  /* SET_OF_UserId */
-static int hf_t124_userIds_item = -1;             /* UserId */
-static int hf_t124_channelId_03 = -1;             /* ChannelId */
-static int hf_t124_requested = -1;                /* ChannelId */
-static int hf_t124_channelIds = -1;               /* SET_OF_ChannelId */
-static int hf_t124_channelIds_item = -1;          /* ChannelId */
-static int hf_t124_dataPriority = -1;             /* DataPriority */
-static int hf_t124_segmentation = -1;             /* Segmentation */
-static int hf_t124_userData_01 = -1;              /* T_userData */
-static int hf_t124_userData_02 = -1;              /* T_userData_01 */
-static int hf_t124_userData_03 = -1;              /* OCTET_STRING */
-static int hf_t124_tokenStatus = -1;              /* TokenStatus */
-static int hf_t124_plumbDomainIndication = -1;    /* PlumbDomainIndication */
-static int hf_t124_erectDomainRequest = -1;       /* ErectDomainRequest */
-static int hf_t124_mergeChannelsRequest = -1;     /* MergeChannelsRequest */
-static int hf_t124_mergeChannelsConfirm = -1;     /* MergeChannelsConfirm */
-static int hf_t124_purgeChannelsIndication = -1;  /* PurgeChannelsIndication */
-static int hf_t124_mergeTokensRequest = -1;       /* MergeTokensRequest */
-static int hf_t124_mergeTokensConfirm = -1;       /* MergeTokensConfirm */
-static int hf_t124_purgeTokensIndication = -1;    /* PurgeTokensIndication */
-static int hf_t124_disconnectProviderUltimatum = -1;  /* DisconnectProviderUltimatum */
-static int hf_t124_rejectMCSPDUUltimatum = -1;    /* RejectMCSPDUUltimatum */
-static int hf_t124_attachUserRequest = -1;        /* AttachUserRequest */
-static int hf_t124_attachUserConfirm = -1;        /* AttachUserConfirm */
-static int hf_t124_detachUserRequest = -1;        /* DetachUserRequest */
-static int hf_t124_detachUserIndication = -1;     /* DetachUserIndication */
-static int hf_t124_channelJoinRequest = -1;       /* ChannelJoinRequest */
-static int hf_t124_channelJoinConfirm = -1;       /* ChannelJoinConfirm */
-static int hf_t124_channelLeaveRequest = -1;      /* ChannelLeaveRequest */
-static int hf_t124_channelConveneRequest = -1;    /* ChannelConveneRequest */
-static int hf_t124_channelConveneConfirm = -1;    /* ChannelConveneConfirm */
-static int hf_t124_channelDisbandRequest = -1;    /* ChannelDisbandRequest */
-static int hf_t124_channelDisbandIndication = -1;  /* ChannelDisbandIndication */
-static int hf_t124_channelAdmitRequest = -1;      /* ChannelAdmitRequest */
-static int hf_t124_channelAdmitIndication = -1;   /* ChannelAdmitIndication */
-static int hf_t124_channelExpelRequest = -1;      /* ChannelExpelRequest */
-static int hf_t124_channelExpelIndication = -1;   /* ChannelExpelIndication */
-static int hf_t124_sendDataRequest = -1;          /* SendDataRequest */
-static int hf_t124_sendDataIndication = -1;       /* SendDataIndication */
-static int hf_t124_uniformSendDataRequest = -1;   /* UniformSendDataRequest */
-static int hf_t124_uniformSendDataIndication = -1;  /* UniformSendDataIndication */
-static int hf_t124_tokenGrabRequest = -1;         /* TokenGrabRequest */
-static int hf_t124_tokenGrabConfirm = -1;         /* TokenGrabConfirm */
-static int hf_t124_tokenInhibitRequest = -1;      /* TokenInhibitRequest */
-static int hf_t124_tokenInhibitConfirm = -1;      /* TokenInhibitConfirm */
-static int hf_t124_tokenGiveRequest = -1;         /* TokenGiveRequest */
-static int hf_t124_tokenGiveIndication = -1;      /* TokenGiveIndication */
-static int hf_t124_tokenGiveResponse = -1;        /* TokenGiveResponse */
-static int hf_t124_tokenGiveConfirm = -1;         /* TokenGiveConfirm */
-static int hf_t124_tokenPleaseRequest = -1;       /* TokenPleaseRequest */
-static int hf_t124_tokenPleaseIndication = -1;    /* TokenPleaseIndication */
-static int hf_t124_tokenReleaseRequest = -1;      /* TokenReleaseRequest */
-static int hf_t124_tokenReleaseConfirm = -1;      /* TokenReleaseConfirm */
-static int hf_t124_tokenTestRequest = -1;         /* TokenTestRequest */
-static int hf_t124_tokenTestConfirm = -1;         /* TokenTestConfirm */
+static int hf_t124_object;                        /* T_object */
+static int hf_t124_h221NonStandard;               /* H221NonStandardIdentifier */
+static int hf_t124_key;                           /* Key */
+static int hf_t124_data;                          /* OCTET_STRING */
+static int hf_t124_UserData_item;                 /* UserData_item */
+static int hf_t124_value;                         /* T_value */
+static int hf_t124_numeric;                       /* SimpleNumericString */
+static int hf_t124_text;                          /* SimpleTextString */
+static int hf_t124_unicodeText;                   /* TextString */
+static int hf_t124_passwordString;                /* PasswordSelector */
+static int hf_t124_responseData;                  /* UserData */
+static int hf_t124_passwordInTheClear;            /* NULL */
+static int hf_t124_nonStandardAlgorithm;          /* NonStandardParameter */
+static int hf_t124_responseAlgorithm;             /* ChallengeResponseAlgorithm */
+static int hf_t124_challengeData;                 /* UserData */
+static int hf_t124_challengeTag;                  /* INTEGER */
+static int hf_t124_challengeSet;                  /* SET_OF_ChallengeItem */
+static int hf_t124_challengeSet_item;             /* ChallengeItem */
+static int hf_t124_responseItem;                  /* ChallengeResponseItem */
+static int hf_t124_passwordInTheClear_01;         /* PasswordSelector */
+static int hf_t124_challengeRequestResponse;      /* T_challengeRequestResponse */
+static int hf_t124_challengeRequest;              /* ChallengeRequest */
+static int hf_t124_challengeResponse;             /* ChallengeResponse */
+static int hf_t124_nonStandardScheme;             /* NonStandardParameter */
+static int hf_t124_priority;                      /* INTEGER_0_65535 */
+static int hf_t124_scheme;                        /* ConferencePriorityScheme */
+static int hf_t124_conventional;                  /* NULL */
+static int hf_t124_counted;                       /* NULL */
+static int hf_t124_anonymous;                     /* NULL */
+static int hf_t124_nonStandardCategory;           /* NonStandardParameter */
+static int hf_t124_conventional_only;             /* NULL */
+static int hf_t124_counted_only;                  /* NULL */
+static int hf_t124_anonymous_only;                /* NULL */
+static int hf_t124_conventional_control;          /* NULL */
+static int hf_t124_unrestricted_mode;             /* NULL */
+static int hf_t124_non_standard_mode;             /* NonStandardParameter */
+static int hf_t124_NetworkAddress_item;           /* NetworkAddress_item */
+static int hf_t124_aggregatedChannel;             /* T_aggregatedChannel */
+static int hf_t124_transferModes;                 /* T_transferModes */
+static int hf_t124_speech;                        /* BOOLEAN */
+static int hf_t124_voice_band;                    /* BOOLEAN */
+static int hf_t124_digital_56k;                   /* BOOLEAN */
+static int hf_t124_digital_64k;                   /* BOOLEAN */
+static int hf_t124_digital_128k;                  /* BOOLEAN */
+static int hf_t124_digital_192k;                  /* BOOLEAN */
+static int hf_t124_digital_256k;                  /* BOOLEAN */
+static int hf_t124_digital_320k;                  /* BOOLEAN */
+static int hf_t124_digital_384k;                  /* BOOLEAN */
+static int hf_t124_digital_512k;                  /* BOOLEAN */
+static int hf_t124_digital_768k;                  /* BOOLEAN */
+static int hf_t124_digital_1152k;                 /* BOOLEAN */
+static int hf_t124_digital_1472k;                 /* BOOLEAN */
+static int hf_t124_digital_1536k;                 /* BOOLEAN */
+static int hf_t124_digital_1920k;                 /* BOOLEAN */
+static int hf_t124_packet_mode;                   /* BOOLEAN */
+static int hf_t124_frame_mode;                    /* BOOLEAN */
+static int hf_t124_atm;                           /* BOOLEAN */
+static int hf_t124_internationalNumber;           /* DiallingString */
+static int hf_t124_subAddress;                    /* SubAddressString */
+static int hf_t124_extraDialling;                 /* ExtraDiallingString */
+static int hf_t124_highLayerCompatibility;        /* T_highLayerCompatibility */
+static int hf_t124_telephony3kHz;                 /* BOOLEAN */
+static int hf_t124_telephony7kHz;                 /* BOOLEAN */
+static int hf_t124_videotelephony;                /* BOOLEAN */
+static int hf_t124_videoconference;               /* BOOLEAN */
+static int hf_t124_audiographic;                  /* BOOLEAN */
+static int hf_t124_audiovisual;                   /* BOOLEAN */
+static int hf_t124_multimedia;                    /* BOOLEAN */
+static int hf_t124_transportConnection;           /* T_transportConnection */
+static int hf_t124_nsapAddress;                   /* OCTET_STRING_SIZE_1_20 */
+static int hf_t124_transportSelector;             /* OCTET_STRING */
+static int hf_t124_nonStandard;                   /* NonStandardParameter */
+static int hf_t124_callingNode;                   /* NULL */
+static int hf_t124_calledNode;                    /* NULL */
+static int hf_t124_unknown;                       /* INTEGER_0_4294967295 */
+static int hf_t124_conferenceName;                /* ConferenceName */
+static int hf_t124_conferenceNameModifier;        /* ConferenceNameModifier */
+static int hf_t124_conferenceDescription;         /* TextString */
+static int hf_t124_lockedConference;              /* BOOLEAN */
+static int hf_t124_passwordInTheClearRequired;    /* BOOLEAN */
+static int hf_t124_networkAddress;                /* NetworkAddress */
+static int hf_t124_defaultConferenceFlag;         /* BOOLEAN */
+static int hf_t124_conferenceMode;                /* ConferenceMode */
+static int hf_t124_convenerPassword;              /* Password */
+static int hf_t124_password;                      /* Password */
+static int hf_t124_listedConference;              /* BOOLEAN */
+static int hf_t124_conductibleConference;         /* BOOLEAN */
+static int hf_t124_terminationMethod;             /* TerminationMethod */
+static int hf_t124_conductorPrivileges;           /* SET_OF_Privilege */
+static int hf_t124_conductorPrivileges_item;      /* Privilege */
+static int hf_t124_conductedPrivileges;           /* SET_OF_Privilege */
+static int hf_t124_conductedPrivileges_item;      /* Privilege */
+static int hf_t124_nonConductedPrivileges;        /* SET_OF_Privilege */
+static int hf_t124_nonConductedPrivileges_item;   /* Privilege */
+static int hf_t124_callerIdentifier;              /* TextString */
+static int hf_t124_userData;                      /* UserData */
+static int hf_t124_conferencePriority;            /* ConferencePriority */
+static int hf_t124_nodeID;                        /* UserID */
+static int hf_t124_tag;                           /* INTEGER */
+static int hf_t124_result;                        /* T_result */
+static int hf_t124_nodeType;                      /* NodeType */
+static int hf_t124_asymmetryIndicator;            /* AsymmetryIndicator */
+static int hf_t124_conferenceList;                /* SET_OF_ConferenceDescriptor */
+static int hf_t124_conferenceList_item;           /* ConferenceDescriptor */
+static int hf_t124_queryResponseResult;           /* QueryResponseResult */
+static int hf_t124_waitForInvitationFlag;         /* BOOLEAN */
+static int hf_t124_noUnlistedConferenceFlag;      /* BOOLEAN */
+static int hf_t124_conferenceName_01;             /* ConferenceNameSelector */
+static int hf_t124_password_01;                   /* PasswordChallengeRequestResponse */
+static int hf_t124_convenerPassword_01;           /* PasswordSelector */
+static int hf_t124_nodeCategory;                  /* NodeCategory */
+static int hf_t124_topNodeID;                     /* UserID */
+static int hf_t124_conferenceNameAlias;           /* ConferenceNameSelector */
+static int hf_t124_joinResponseResult;            /* JoinResponseResult */
+static int hf_t124_inviteResponseResult;          /* InviteResponseResult */
+static int hf_t124_t124Identifier;                /* Key */
+static int hf_t124_connectPDU;                    /* T_connectPDU */
+static int hf_t124_conferenceCreateRequest;       /* ConferenceCreateRequest */
+static int hf_t124_conferenceCreateResponse;      /* ConferenceCreateResponse */
+static int hf_t124_conferenceQueryRequest;        /* ConferenceQueryRequest */
+static int hf_t124_conferenceQueryResponse;       /* ConferenceQueryResponse */
+static int hf_t124_conferenceJoinRequest;         /* ConferenceJoinRequest */
+static int hf_t124_conferenceJoinResponse;        /* ConferenceJoinResponse */
+static int hf_t124_conferenceInviteRequest;       /* ConferenceInviteRequest */
+static int hf_t124_conferenceInviteResponse;      /* ConferenceInviteResponse */
+static int hf_t124_heightLimit;                   /* INTEGER_0_MAX */
+static int hf_t124_subHeight;                     /* INTEGER_0_MAX */
+static int hf_t124_subInterval;                   /* INTEGER_0_MAX */
+static int hf_t124_static;                        /* T_static */
+static int hf_t124_channelId;                     /* StaticChannelId */
+static int hf_t124_userId;                        /* T_userId */
+static int hf_t124_joined;                        /* BOOLEAN */
+static int hf_t124_userId_01;                     /* UserId */
+static int hf_t124_private;                       /* T_private */
+static int hf_t124_channelId_01;                  /* PrivateChannelId */
+static int hf_t124_manager;                       /* UserId */
+static int hf_t124_admitted;                      /* SET_OF_UserId */
+static int hf_t124_admitted_item;                 /* UserId */
+static int hf_t124_assigned;                      /* T_assigned */
+static int hf_t124_channelId_02;                  /* AssignedChannelId */
+static int hf_t124_mergeChannels;                 /* SET_OF_ChannelAttributes */
+static int hf_t124_mergeChannels_item;            /* ChannelAttributes */
+static int hf_t124_purgeChannelIds;               /* SET_OF_ChannelId */
+static int hf_t124_purgeChannelIds_item;          /* ChannelId */
+static int hf_t124_detachUserIds;                 /* SET_OF_UserId */
+static int hf_t124_detachUserIds_item;            /* UserId */
+static int hf_t124_grabbed;                       /* T_grabbed */
+static int hf_t124_tokenId;                       /* TokenId */
+static int hf_t124_grabber;                       /* UserId */
+static int hf_t124_inhibited;                     /* T_inhibited */
+static int hf_t124_inhibitors;                    /* SET_OF_UserId */
+static int hf_t124_inhibitors_item;               /* UserId */
+static int hf_t124_giving;                        /* T_giving */
+static int hf_t124_recipient;                     /* UserId */
+static int hf_t124_ungivable;                     /* T_ungivable */
+static int hf_t124_given;                         /* T_given */
+static int hf_t124_mergeTokens;                   /* SET_OF_TokenAttributes */
+static int hf_t124_mergeTokens_item;              /* TokenAttributes */
+static int hf_t124_purgeTokenIds;                 /* SET_OF_TokenId */
+static int hf_t124_purgeTokenIds_item;            /* TokenId */
+static int hf_t124_reason;                        /* Reason */
+static int hf_t124_diagnostic;                    /* Diagnostic */
+static int hf_t124_initialOctets;                 /* OCTET_STRING */
+static int hf_t124_result_01;                     /* Result */
+static int hf_t124_initiator;                     /* UserId */
+static int hf_t124_userIds;                       /* SET_OF_UserId */
+static int hf_t124_userIds_item;                  /* UserId */
+static int hf_t124_channelId_03;                  /* ChannelId */
+static int hf_t124_requested;                     /* ChannelId */
+static int hf_t124_channelIds;                    /* SET_OF_ChannelId */
+static int hf_t124_channelIds_item;               /* ChannelId */
+static int hf_t124_dataPriority;                  /* DataPriority */
+static int hf_t124_segmentation;                  /* Segmentation */
+static int hf_t124_userData_01;                   /* T_userData */
+static int hf_t124_userData_02;                   /* T_userData_01 */
+static int hf_t124_userData_03;                   /* OCTET_STRING */
+static int hf_t124_tokenStatus;                   /* TokenStatus */
+static int hf_t124_plumbDomainIndication;         /* PlumbDomainIndication */
+static int hf_t124_erectDomainRequest;            /* ErectDomainRequest */
+static int hf_t124_mergeChannelsRequest;          /* MergeChannelsRequest */
+static int hf_t124_mergeChannelsConfirm;          /* MergeChannelsConfirm */
+static int hf_t124_purgeChannelsIndication;       /* PurgeChannelsIndication */
+static int hf_t124_mergeTokensRequest;            /* MergeTokensRequest */
+static int hf_t124_mergeTokensConfirm;            /* MergeTokensConfirm */
+static int hf_t124_purgeTokensIndication;         /* PurgeTokensIndication */
+static int hf_t124_disconnectProviderUltimatum;   /* DisconnectProviderUltimatum */
+static int hf_t124_rejectMCSPDUUltimatum;         /* RejectMCSPDUUltimatum */
+static int hf_t124_attachUserRequest;             /* AttachUserRequest */
+static int hf_t124_attachUserConfirm;             /* AttachUserConfirm */
+static int hf_t124_detachUserRequest;             /* DetachUserRequest */
+static int hf_t124_detachUserIndication;          /* DetachUserIndication */
+static int hf_t124_channelJoinRequest;            /* ChannelJoinRequest */
+static int hf_t124_channelJoinConfirm;            /* ChannelJoinConfirm */
+static int hf_t124_channelLeaveRequest;           /* ChannelLeaveRequest */
+static int hf_t124_channelConveneRequest;         /* ChannelConveneRequest */
+static int hf_t124_channelConveneConfirm;         /* ChannelConveneConfirm */
+static int hf_t124_channelDisbandRequest;         /* ChannelDisbandRequest */
+static int hf_t124_channelDisbandIndication;      /* ChannelDisbandIndication */
+static int hf_t124_channelAdmitRequest;           /* ChannelAdmitRequest */
+static int hf_t124_channelAdmitIndication;        /* ChannelAdmitIndication */
+static int hf_t124_channelExpelRequest;           /* ChannelExpelRequest */
+static int hf_t124_channelExpelIndication;        /* ChannelExpelIndication */
+static int hf_t124_sendDataRequest;               /* SendDataRequest */
+static int hf_t124_sendDataIndication;            /* SendDataIndication */
+static int hf_t124_uniformSendDataRequest;        /* UniformSendDataRequest */
+static int hf_t124_uniformSendDataIndication;     /* UniformSendDataIndication */
+static int hf_t124_tokenGrabRequest;              /* TokenGrabRequest */
+static int hf_t124_tokenGrabConfirm;              /* TokenGrabConfirm */
+static int hf_t124_tokenInhibitRequest;           /* TokenInhibitRequest */
+static int hf_t124_tokenInhibitConfirm;           /* TokenInhibitConfirm */
+static int hf_t124_tokenGiveRequest;              /* TokenGiveRequest */
+static int hf_t124_tokenGiveIndication;           /* TokenGiveIndication */
+static int hf_t124_tokenGiveResponse;             /* TokenGiveResponse */
+static int hf_t124_tokenGiveConfirm;              /* TokenGiveConfirm */
+static int hf_t124_tokenPleaseRequest;            /* TokenPleaseRequest */
+static int hf_t124_tokenPleaseIndication;         /* TokenPleaseIndication */
+static int hf_t124_tokenReleaseRequest;           /* TokenReleaseRequest */
+static int hf_t124_tokenReleaseConfirm;           /* TokenReleaseConfirm */
+static int hf_t124_tokenTestRequest;              /* TokenTestRequest */
+static int hf_t124_tokenTestConfirm;              /* TokenTestConfirm */
 /* named bits */
-static int hf_t124_Segmentation_begin = -1;
-static int hf_t124_Segmentation_end = -1;
+static int hf_t124_Segmentation_begin;
+static int hf_t124_Segmentation_end;
 
 /* Initialize the subtree pointers */
-static int ett_t124 = -1;
-static int ett_t124_connectGCCPDU = -1;
+static int ett_t124;
+static int ett_t124_connectGCCPDU;
 
-static int hf_t124_ConnectData = -1;
-static int hf_t124_connectGCCPDU = -1;
-static int hf_t124_DomainMCSPDU_PDU = -1;
+static int hf_t124_ConnectData;
+static int hf_t124_connectGCCPDU;
+static int hf_t124_DomainMCSPDU_PDU;
 
 static guint32 channelId = -1;
 
 static dissector_table_t t124_ns_dissector_table=NULL;
 static dissector_table_t t124_sd_dissector_table=NULL;
 
-static gint ett_t124_Key = -1;
-static gint ett_t124_NonStandardParameter = -1;
-static gint ett_t124_UserData = -1;
-static gint ett_t124_UserData_item = -1;
-static gint ett_t124_Password = -1;
-static gint ett_t124_PasswordSelector = -1;
-static gint ett_t124_ChallengeResponseItem = -1;
-static gint ett_t124_ChallengeResponseAlgorithm = -1;
-static gint ett_t124_ChallengeItem = -1;
-static gint ett_t124_ChallengeRequest = -1;
-static gint ett_t124_SET_OF_ChallengeItem = -1;
-static gint ett_t124_ChallengeResponse = -1;
-static gint ett_t124_PasswordChallengeRequestResponse = -1;
-static gint ett_t124_T_challengeRequestResponse = -1;
-static gint ett_t124_ConferenceName = -1;
-static gint ett_t124_ConferenceNameSelector = -1;
-static gint ett_t124_ConferencePriorityScheme = -1;
-static gint ett_t124_ConferencePriority = -1;
-static gint ett_t124_NodeCategory = -1;
-static gint ett_t124_ConferenceMode = -1;
-static gint ett_t124_NetworkAddress = -1;
-static gint ett_t124_NetworkAddress_item = -1;
-static gint ett_t124_T_aggregatedChannel = -1;
-static gint ett_t124_T_transferModes = -1;
-static gint ett_t124_T_highLayerCompatibility = -1;
-static gint ett_t124_T_transportConnection = -1;
-static gint ett_t124_AsymmetryIndicator = -1;
-static gint ett_t124_ConferenceDescriptor = -1;
-static gint ett_t124_ConferenceCreateRequest = -1;
-static gint ett_t124_SET_OF_Privilege = -1;
-static gint ett_t124_ConferenceCreateResponse = -1;
-static gint ett_t124_ConferenceQueryRequest = -1;
-static gint ett_t124_ConferenceQueryResponse = -1;
-static gint ett_t124_SET_OF_ConferenceDescriptor = -1;
-static gint ett_t124_ConferenceJoinRequest = -1;
-static gint ett_t124_ConferenceJoinResponse = -1;
-static gint ett_t124_ConferenceInviteRequest = -1;
-static gint ett_t124_ConferenceInviteResponse = -1;
-static gint ett_t124_ConnectData = -1;
-static gint ett_t124_ConnectGCCPDU = -1;
-static gint ett_t124_Segmentation = -1;
-static gint ett_t124_PlumbDomainIndication = -1;
-static gint ett_t124_ErectDomainRequest = -1;
-static gint ett_t124_ChannelAttributes = -1;
-static gint ett_t124_T_static = -1;
-static gint ett_t124_T_userId = -1;
-static gint ett_t124_T_private = -1;
-static gint ett_t124_SET_OF_UserId = -1;
-static gint ett_t124_T_assigned = -1;
-static gint ett_t124_MergeChannelsRequest = -1;
-static gint ett_t124_SET_OF_ChannelAttributes = -1;
-static gint ett_t124_SET_OF_ChannelId = -1;
-static gint ett_t124_MergeChannelsConfirm = -1;
-static gint ett_t124_PurgeChannelsIndication = -1;
-static gint ett_t124_TokenAttributes = -1;
-static gint ett_t124_T_grabbed = -1;
-static gint ett_t124_T_inhibited = -1;
-static gint ett_t124_T_giving = -1;
-static gint ett_t124_T_ungivable = -1;
-static gint ett_t124_T_given = -1;
-static gint ett_t124_MergeTokensRequest = -1;
-static gint ett_t124_SET_OF_TokenAttributes = -1;
-static gint ett_t124_SET_OF_TokenId = -1;
-static gint ett_t124_MergeTokensConfirm = -1;
-static gint ett_t124_PurgeTokensIndication = -1;
-static gint ett_t124_DisconnectProviderUltimatum = -1;
-static gint ett_t124_RejectMCSPDUUltimatum = -1;
-static gint ett_t124_AttachUserRequest = -1;
-static gint ett_t124_AttachUserConfirm = -1;
-static gint ett_t124_DetachUserRequest = -1;
-static gint ett_t124_DetachUserIndication = -1;
-static gint ett_t124_ChannelJoinRequest = -1;
-static gint ett_t124_ChannelJoinConfirm = -1;
-static gint ett_t124_ChannelLeaveRequest = -1;
-static gint ett_t124_ChannelConveneRequest = -1;
-static gint ett_t124_ChannelConveneConfirm = -1;
-static gint ett_t124_ChannelDisbandRequest = -1;
-static gint ett_t124_ChannelDisbandIndication = -1;
-static gint ett_t124_ChannelAdmitRequest = -1;
-static gint ett_t124_ChannelAdmitIndication = -1;
-static gint ett_t124_ChannelExpelRequest = -1;
-static gint ett_t124_ChannelExpelIndication = -1;
-static gint ett_t124_SendDataRequest = -1;
-static gint ett_t124_SendDataIndication = -1;
-static gint ett_t124_UniformSendDataRequest = -1;
-static gint ett_t124_UniformSendDataIndication = -1;
-static gint ett_t124_TokenGrabRequest = -1;
-static gint ett_t124_TokenGrabConfirm = -1;
-static gint ett_t124_TokenInhibitRequest = -1;
-static gint ett_t124_TokenInhibitConfirm = -1;
-static gint ett_t124_TokenGiveRequest = -1;
-static gint ett_t124_TokenGiveIndication = -1;
-static gint ett_t124_TokenGiveResponse = -1;
-static gint ett_t124_TokenGiveConfirm = -1;
-static gint ett_t124_TokenPleaseRequest = -1;
-static gint ett_t124_TokenPleaseIndication = -1;
-static gint ett_t124_TokenReleaseRequest = -1;
-static gint ett_t124_TokenReleaseConfirm = -1;
-static gint ett_t124_TokenTestRequest = -1;
-static gint ett_t124_TokenTestConfirm = -1;
-static gint ett_t124_DomainMCSPDU = -1;
+static gint ett_t124_Key;
+static gint ett_t124_NonStandardParameter;
+static gint ett_t124_UserData;
+static gint ett_t124_UserData_item;
+static gint ett_t124_Password;
+static gint ett_t124_PasswordSelector;
+static gint ett_t124_ChallengeResponseItem;
+static gint ett_t124_ChallengeResponseAlgorithm;
+static gint ett_t124_ChallengeItem;
+static gint ett_t124_ChallengeRequest;
+static gint ett_t124_SET_OF_ChallengeItem;
+static gint ett_t124_ChallengeResponse;
+static gint ett_t124_PasswordChallengeRequestResponse;
+static gint ett_t124_T_challengeRequestResponse;
+static gint ett_t124_ConferenceName;
+static gint ett_t124_ConferenceNameSelector;
+static gint ett_t124_ConferencePriorityScheme;
+static gint ett_t124_ConferencePriority;
+static gint ett_t124_NodeCategory;
+static gint ett_t124_ConferenceMode;
+static gint ett_t124_NetworkAddress;
+static gint ett_t124_NetworkAddress_item;
+static gint ett_t124_T_aggregatedChannel;
+static gint ett_t124_T_transferModes;
+static gint ett_t124_T_highLayerCompatibility;
+static gint ett_t124_T_transportConnection;
+static gint ett_t124_AsymmetryIndicator;
+static gint ett_t124_ConferenceDescriptor;
+static gint ett_t124_ConferenceCreateRequest;
+static gint ett_t124_SET_OF_Privilege;
+static gint ett_t124_ConferenceCreateResponse;
+static gint ett_t124_ConferenceQueryRequest;
+static gint ett_t124_ConferenceQueryResponse;
+static gint ett_t124_SET_OF_ConferenceDescriptor;
+static gint ett_t124_ConferenceJoinRequest;
+static gint ett_t124_ConferenceJoinResponse;
+static gint ett_t124_ConferenceInviteRequest;
+static gint ett_t124_ConferenceInviteResponse;
+static gint ett_t124_ConnectData;
+static gint ett_t124_ConnectGCCPDU;
+static gint ett_t124_Segmentation;
+static gint ett_t124_PlumbDomainIndication;
+static gint ett_t124_ErectDomainRequest;
+static gint ett_t124_ChannelAttributes;
+static gint ett_t124_T_static;
+static gint ett_t124_T_userId;
+static gint ett_t124_T_private;
+static gint ett_t124_SET_OF_UserId;
+static gint ett_t124_T_assigned;
+static gint ett_t124_MergeChannelsRequest;
+static gint ett_t124_SET_OF_ChannelAttributes;
+static gint ett_t124_SET_OF_ChannelId;
+static gint ett_t124_MergeChannelsConfirm;
+static gint ett_t124_PurgeChannelsIndication;
+static gint ett_t124_TokenAttributes;
+static gint ett_t124_T_grabbed;
+static gint ett_t124_T_inhibited;
+static gint ett_t124_T_giving;
+static gint ett_t124_T_ungivable;
+static gint ett_t124_T_given;
+static gint ett_t124_MergeTokensRequest;
+static gint ett_t124_SET_OF_TokenAttributes;
+static gint ett_t124_SET_OF_TokenId;
+static gint ett_t124_MergeTokensConfirm;
+static gint ett_t124_PurgeTokensIndication;
+static gint ett_t124_DisconnectProviderUltimatum;
+static gint ett_t124_RejectMCSPDUUltimatum;
+static gint ett_t124_AttachUserRequest;
+static gint ett_t124_AttachUserConfirm;
+static gint ett_t124_DetachUserRequest;
+static gint ett_t124_DetachUserIndication;
+static gint ett_t124_ChannelJoinRequest;
+static gint ett_t124_ChannelJoinConfirm;
+static gint ett_t124_ChannelLeaveRequest;
+static gint ett_t124_ChannelConveneRequest;
+static gint ett_t124_ChannelConveneConfirm;
+static gint ett_t124_ChannelDisbandRequest;
+static gint ett_t124_ChannelDisbandIndication;
+static gint ett_t124_ChannelAdmitRequest;
+static gint ett_t124_ChannelAdmitIndication;
+static gint ett_t124_ChannelExpelRequest;
+static gint ett_t124_ChannelExpelIndication;
+static gint ett_t124_SendDataRequest;
+static gint ett_t124_SendDataIndication;
+static gint ett_t124_UniformSendDataRequest;
+static gint ett_t124_UniformSendDataIndication;
+static gint ett_t124_TokenGrabRequest;
+static gint ett_t124_TokenGrabConfirm;
+static gint ett_t124_TokenInhibitRequest;
+static gint ett_t124_TokenInhibitConfirm;
+static gint ett_t124_TokenGiveRequest;
+static gint ett_t124_TokenGiveIndication;
+static gint ett_t124_TokenGiveResponse;
+static gint ett_t124_TokenGiveConfirm;
+static gint ett_t124_TokenPleaseRequest;
+static gint ett_t124_TokenPleaseIndication;
+static gint ett_t124_TokenReleaseRequest;
+static gint ett_t124_TokenReleaseConfirm;
+static gint ett_t124_TokenTestRequest;
+static gint ett_t124_TokenTestConfirm;
+static gint ett_t124_DomainMCSPDU;
 
 
 

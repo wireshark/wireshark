@@ -69,7 +69,7 @@ static dissector_handle_t lte_rrc_ue_radio_paging_info_nb_handle;
 static dissector_handle_t lte_rrc_ue_radio_access_cap_info_nb_handle;
 static dissector_handle_t nrppa_handle;
 
-static int proto_json = -1;
+static int proto_json;
 
 #define maxPrivateIEs                  65535
 #define maxProtocolExtensions          65535
@@ -631,2304 +631,2304 @@ typedef enum _RAT_Information_enum {
 } RAT_Information_enum;
 
 /* Initialize the protocol and registered fields */
-static int proto_ngap = -1;
-static int hf_ngap_transportLayerAddressIPv4 = -1;
-static int hf_ngap_transportLayerAddressIPv6 = -1;
-static int hf_ngap_SerialNumber_gs = -1;
-static int hf_ngap_SerialNumber_msg_code = -1;
-static int hf_ngap_SerialNumber_upd_nb = -1;
-static int hf_ngap_WarningType_value = -1;
-static int hf_ngap_WarningType_emergency_user_alert = -1;
-static int hf_ngap_WarningType_popup = -1;
-static int hf_ngap_WarningMessageContents_nb_pages = -1;
-static int hf_ngap_WarningMessageContents_decoded_page = -1;
-static int hf_ngap_NGRANTraceID_TraceID = -1;
-static int hf_ngap_NGRANTraceID_TraceRecordingSessionReference = -1;
-static int hf_ngap_InterfacesToTrace_NG_C = -1;
-static int hf_ngap_InterfacesToTrace_Xn_C = -1;
-static int hf_ngap_InterfacesToTrace_Uu = -1;
-static int hf_ngap_InterfacesToTrace_F1_C = -1;
-static int hf_ngap_InterfacesToTrace_E1 = -1;
-static int hf_ngap_InterfacesToTrace_reserved = -1;
-static int hf_ngap_RATRestrictionInformation_e_UTRA = -1;
-static int hf_ngap_RATRestrictionInformation_nR = -1;
-static int hf_ngap_RATRestrictionInformation_nR_unlicensed = -1;
-static int hf_ngap_RATRestrictionInformation_reserved = -1;
-static int hf_ngap_primaryRATRestriction_e_UTRA = -1;
-static int hf_ngap_primaryRATRestriction_nR = -1;
-static int hf_ngap_primaryRATRestriction_nR_unlicensed = -1;
-static int hf_ngap_primaryRATRestriction_nR_LEO = -1;
-static int hf_ngap_primaryRATRestriction_nR_MEO = -1;
-static int hf_ngap_primaryRATRestriction_nR_GEO = -1;
-static int hf_ngap_primaryRATRestriction_nR_OTHERSAT = -1;
-static int hf_ngap_primaryRATRestriction_reserved = -1;
-static int hf_ngap_secondaryRATRestriction_e_UTRA = -1;
-static int hf_ngap_secondaryRATRestriction_nR = -1;
-static int hf_ngap_secondaryRATRestriction_e_UTRA_unlicensed = -1;
-static int hf_ngap_secondaryRATRestriction_nR_unlicensed = -1;
-static int hf_ngap_secondaryRATRestriction_reserved = -1;
-static int hf_ngap_NrencryptionAlgorithms_nea1 = -1;
-static int hf_ngap_NrencryptionAlgorithms_nea2 = -1;
-static int hf_ngap_NrencryptionAlgorithms_nea3 = -1;
-static int hf_ngap_NrencryptionAlgorithms_reserved = -1;
-static int hf_ngap_NrintegrityProtectionAlgorithms_nia1 = -1;
-static int hf_ngap_NrintegrityProtectionAlgorithms_nia2 = -1;
-static int hf_ngap_NrintegrityProtectionAlgorithms_nia3 = -1;
-static int hf_ngap_NrintegrityProtectionAlgorithms_reserved = -1;
-static int hf_ngap_EUTRAencryptionAlgorithms_eea1 = -1;
-static int hf_ngap_EUTRAencryptionAlgorithms_eea2 = -1;
-static int hf_ngap_EUTRAencryptionAlgorithms_eea3 = -1;
-static int hf_ngap_EUTRAencryptionAlgorithms_reserved = -1;
-static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia1 = -1;
-static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia2 = -1;
-static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia3 = -1;
-static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia7 = -1;
-static int hf_ngap_EUTRAintegrityProtectionAlgorithms_reserved = -1;
-static int hf_ngap_MeasurementsToActivate_M1 = -1;
-static int hf_ngap_MeasurementsToActivate_M2 = -1;
-static int hf_ngap_MeasurementsToActivate_M4 = -1;
-static int hf_ngap_MeasurementsToActivate_M5 = -1;
-static int hf_ngap_MeasurementsToActivate_M6 = -1;
-static int hf_ngap_MeasurementsToActivate_M7 = -1;
-static int hf_ngap_MeasurementsToActivate_M1_from_event = -1;
-static int hf_ngap_MeasurementsToActivate_reserved = -1;
-static int hf_ngap_MDT_Location_Information_GNSS = -1;
-static int hf_ngap_MDT_Location_Information_reserved = -1;
-static int hf_ngap_GlobalCable_ID_str = -1;
-static int hf_ngap_UpdateFeedback_CN_PDB_DL = -1;
-static int hf_ngap_UpdateFeedback_CN_PDB_UL = -1;
-static int hf_ngap_UpdateFeedback_reserved = -1;
-static int hf_ngap_AdditionalDLUPTNLInformationForHOList_PDU = -1;  /* AdditionalDLUPTNLInformationForHOList */
-static int hf_ngap_AllowedNSSAI_PDU = -1;         /* AllowedNSSAI */
-static int hf_ngap_AlternativeQoSParaSetIndex_PDU = -1;  /* AlternativeQoSParaSetIndex */
-static int hf_ngap_AlternativeQoSParaSetList_PDU = -1;  /* AlternativeQoSParaSetList */
-static int hf_ngap_AMFName_PDU = -1;              /* AMFName */
-static int hf_ngap_AMFSetID_PDU = -1;             /* AMFSetID */
-static int hf_ngap_AMF_TNLAssociationSetupList_PDU = -1;  /* AMF_TNLAssociationSetupList */
-static int hf_ngap_AMF_TNLAssociationToAddList_PDU = -1;  /* AMF_TNLAssociationToAddList */
-static int hf_ngap_AMF_TNLAssociationToRemoveList_PDU = -1;  /* AMF_TNLAssociationToRemoveList */
-static int hf_ngap_AMF_TNLAssociationToUpdateList_PDU = -1;  /* AMF_TNLAssociationToUpdateList */
-static int hf_ngap_AMF_UE_NGAP_ID_PDU = -1;       /* AMF_UE_NGAP_ID */
-static int hf_ngap_AssistanceDataForPaging_PDU = -1;  /* AssistanceDataForPaging */
-static int hf_ngap_AssociatedQosFlowList_PDU = -1;  /* AssociatedQosFlowList */
-static int hf_ngap_AuthenticatedIndication_PDU = -1;  /* AuthenticatedIndication */
-static int hf_ngap_BeamMeasurementsReportConfiguration_PDU = -1;  /* BeamMeasurementsReportConfiguration */
-static int hf_ngap_BroadcastCancelledAreaList_PDU = -1;  /* BroadcastCancelledAreaList */
-static int hf_ngap_BroadcastCompletedAreaList_PDU = -1;  /* BroadcastCompletedAreaList */
-static int hf_ngap_BurstArrivalTime_PDU = -1;     /* BurstArrivalTime */
-static int hf_ngap_CancelAllWarningMessages_PDU = -1;  /* CancelAllWarningMessages */
-static int hf_ngap_Cause_PDU = -1;                /* Cause */
-static int hf_ngap_CellIDListForRestart_PDU = -1;  /* CellIDListForRestart */
-static int hf_ngap_CEmodeBSupport_Indicator_PDU = -1;  /* CEmodeBSupport_Indicator */
-static int hf_ngap_CEmodeBrestricted_PDU = -1;    /* CEmodeBrestricted */
-static int hf_ngap_CNAssistedRANTuning_PDU = -1;  /* CNAssistedRANTuning */
-static int hf_ngap_CNTypeRestrictionsForEquivalent_PDU = -1;  /* CNTypeRestrictionsForEquivalent */
-static int hf_ngap_CNTypeRestrictionsForServing_PDU = -1;  /* CNTypeRestrictionsForServing */
-static int hf_ngap_CommonNetworkInstance_PDU = -1;  /* CommonNetworkInstance */
-static int hf_ngap_ConcurrentWarningMessageInd_PDU = -1;  /* ConcurrentWarningMessageInd */
-static int hf_ngap_ConfiguredTACIndication_PDU = -1;  /* ConfiguredTACIndication */
-static int hf_ngap_CoreNetworkAssistanceInformationForInactive_PDU = -1;  /* CoreNetworkAssistanceInformationForInactive */
-static int hf_ngap_CPTransportLayerInformation_PDU = -1;  /* CPTransportLayerInformation */
-static int hf_ngap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
-static int hf_ngap_DataCodingScheme_PDU = -1;     /* DataCodingScheme */
-static int hf_ngap_DataForwardingNotPossible_PDU = -1;  /* DataForwardingNotPossible */
-static int hf_ngap_DAPSRequestInfo_PDU = -1;      /* DAPSRequestInfo */
-static int hf_ngap_DAPSResponseInfoList_PDU = -1;  /* DAPSResponseInfoList */
-static int hf_ngap_DataForwardingResponseERABList_PDU = -1;  /* DataForwardingResponseERABList */
-static int hf_ngap_DL_CP_SecurityInformation_PDU = -1;  /* DL_CP_SecurityInformation */
-static int hf_ngap_DL_NGU_TNLInformationReused_PDU = -1;  /* DL_NGU_TNLInformationReused */
-static int hf_ngap_DirectForwardingPathAvailability_PDU = -1;  /* DirectForwardingPathAvailability */
-static int hf_ngap_EarlyMeasurement_PDU = -1;     /* EarlyMeasurement */
-static int hf_ngap_EarlyStatusTransfer_TransparentContainer_PDU = -1;  /* EarlyStatusTransfer_TransparentContainer */
-static int hf_ngap_EDT_Session_PDU = -1;          /* EDT_Session */
-static int hf_ngap_EmergencyAreaIDListForRestart_PDU = -1;  /* EmergencyAreaIDListForRestart */
-static int hf_ngap_EmergencyFallbackIndicator_PDU = -1;  /* EmergencyFallbackIndicator */
-static int hf_ngap_Enhanced_CoverageRestriction_PDU = -1;  /* Enhanced_CoverageRestriction */
-static int hf_ngap_Extended_ConnectedTime_PDU = -1;  /* Extended_ConnectedTime */
-static int hf_ngap_EN_DCSONConfigurationTransfer_PDU = -1;  /* EN_DCSONConfigurationTransfer */
-static int hf_ngap_EndpointIPAddressAndPort_PDU = -1;  /* EndpointIPAddressAndPort */
-static int hf_ngap_EndIndication_PDU = -1;        /* EndIndication */
-static int hf_ngap_EUTRA_CGI_PDU = -1;            /* EUTRA_CGI */
-static int hf_ngap_EUTRA_PagingeDRXInformation_PDU = -1;  /* EUTRA_PagingeDRXInformation */
-static int hf_ngap_ExcessPacketDelayThresholdConfiguration_PDU = -1;  /* ExcessPacketDelayThresholdConfiguration */
-static int hf_ngap_ExpectedUEActivityBehaviour_PDU = -1;  /* ExpectedUEActivityBehaviour */
-static int hf_ngap_Extended_AMFName_PDU = -1;     /* Extended_AMFName */
-static int hf_ngap_ExtendedPacketDelayBudget_PDU = -1;  /* ExtendedPacketDelayBudget */
-static int hf_ngap_Extended_RANNodeName_PDU = -1;  /* Extended_RANNodeName */
-static int hf_ngap_ExtendedRATRestrictionInformation_PDU = -1;  /* ExtendedRATRestrictionInformation */
-static int hf_ngap_ExtendedSliceSupportList_PDU = -1;  /* ExtendedSliceSupportList */
-static int hf_ngap_ExtendedUEIdentityIndexValue_PDU = -1;  /* ExtendedUEIdentityIndexValue */
-static int hf_ngap_FiveG_ProSeAuthorized_PDU = -1;  /* FiveG_ProSeAuthorized */
-static int hf_ngap_FiveG_ProSePC5QoSParameters_PDU = -1;  /* FiveG_ProSePC5QoSParameters */
-static int hf_ngap_FiveG_S_TMSI_PDU = -1;         /* FiveG_S_TMSI */
-static int hf_ngap_GlobalCable_ID_PDU = -1;       /* GlobalCable_ID */
-static int hf_ngap_GlobalCable_ID_new_PDU = -1;   /* GlobalCable_ID_new */
-static int hf_ngap_GlobalRANNodeID_PDU = -1;      /* GlobalRANNodeID */
-static int hf_ngap_GlobalTNGF_ID_PDU = -1;        /* GlobalTNGF_ID */
-static int hf_ngap_GlobalTWIF_ID_PDU = -1;        /* GlobalTWIF_ID */
-static int hf_ngap_GlobalW_AGF_ID_PDU = -1;       /* GlobalW_AGF_ID */
-static int hf_ngap_GUAMI_PDU = -1;                /* GUAMI */
-static int hf_ngap_GUAMIType_PDU = -1;            /* GUAMIType */
-static int hf_ngap_HandoverCommandTransfer_PDU = -1;  /* HandoverCommandTransfer */
-static int hf_ngap_HandoverFlag_PDU = -1;         /* HandoverFlag */
-static int hf_ngap_HandoverPreparationUnsuccessfulTransfer_PDU = -1;  /* HandoverPreparationUnsuccessfulTransfer */
-static int hf_ngap_HandoverRequestAcknowledgeTransfer_PDU = -1;  /* HandoverRequestAcknowledgeTransfer */
-static int hf_ngap_HandoverRequiredTransfer_PDU = -1;  /* HandoverRequiredTransfer */
-static int hf_ngap_HandoverResourceAllocationUnsuccessfulTransfer_PDU = -1;  /* HandoverResourceAllocationUnsuccessfulTransfer */
-static int hf_ngap_HandoverType_PDU = -1;         /* HandoverType */
-static int hf_ngap_HashedUEIdentityIndexValue_PDU = -1;  /* HashedUEIdentityIndexValue */
-static int hf_ngap_HFCNode_ID_new_PDU = -1;       /* HFCNode_ID_new */
-static int hf_ngap_IAB_Authorized_PDU = -1;       /* IAB_Authorized */
-static int hf_ngap_IAB_Supported_PDU = -1;        /* IAB_Supported */
-static int hf_ngap_IABNodeIndication_PDU = -1;    /* IABNodeIndication */
-static int hf_ngap_IMSVoiceSupportIndicator_PDU = -1;  /* IMSVoiceSupportIndicator */
-static int hf_ngap_IndexToRFSP_PDU = -1;          /* IndexToRFSP */
-static int hf_ngap_InfoOnRecommendedCellsAndRANNodesForPaging_PDU = -1;  /* InfoOnRecommendedCellsAndRANNodesForPaging */
-static int hf_ngap_IntersystemSONConfigurationTransfer_PDU = -1;  /* IntersystemSONConfigurationTransfer */
-static int hf_ngap_IntersystemSONInformationRequest_PDU = -1;  /* IntersystemSONInformationRequest */
-static int hf_ngap_IntersystemSONInformationReply_PDU = -1;  /* IntersystemSONInformationReply */
-static int hf_ngap_IntersystemCellStateIndication_PDU = -1;  /* IntersystemCellStateIndication */
-static int hf_ngap_IntersystemResourceStatusReport_PDU = -1;  /* IntersystemResourceStatusReport */
-static int hf_ngap_ngap_LastVisitedNGRANCellInformation_PDU = -1;  /* LastVisitedNGRANCellInformation */
-static int hf_ngap_LastVisitedPSCellList_PDU = -1;  /* LastVisitedPSCellList */
-static int hf_ngap_ngap_LastVisitedPSCellInformation_PDU = -1;  /* LastVisitedPSCellInformation */
-static int hf_ngap_LocationReportingAdditionalInfo_PDU = -1;  /* LocationReportingAdditionalInfo */
-static int hf_ngap_LocationReportingRequestType_PDU = -1;  /* LocationReportingRequestType */
-static int hf_ngap_LTEM_Indication_PDU = -1;      /* LTEM_Indication */
-static int hf_ngap_LTEV2XServicesAuthorized_PDU = -1;  /* LTEV2XServicesAuthorized */
-static int hf_ngap_LTEUESidelinkAggregateMaximumBitrate_PDU = -1;  /* LTEUESidelinkAggregateMaximumBitrate */
-static int hf_ngap_MaskedIMEISV_PDU = -1;         /* MaskedIMEISV */
-static int hf_ngap_MessageIdentifier_PDU = -1;    /* MessageIdentifier */
-static int hf_ngap_MaximumIntegrityProtectedDataRate_PDU = -1;  /* MaximumIntegrityProtectedDataRate */
-static int hf_ngap_MBS_AreaSessionID_PDU = -1;    /* MBS_AreaSessionID */
-static int hf_ngap_MBS_QoSFlowsToBeSetupList_PDU = -1;  /* MBS_QoSFlowsToBeSetupList */
-static int hf_ngap_MBS_ServiceArea_PDU = -1;      /* MBS_ServiceArea */
-static int hf_ngap_MBS_SessionID_PDU = -1;        /* MBS_SessionID */
-static int hf_ngap_MBSSessionFailedtoSetupList_PDU = -1;  /* MBSSessionFailedtoSetupList */
-static int hf_ngap_MBS_ActiveSessionInformation_SourcetoTargetList_PDU = -1;  /* MBS_ActiveSessionInformation_SourcetoTargetList */
-static int hf_ngap_MBS_ActiveSessionInformation_TargettoSourceList_PDU = -1;  /* MBS_ActiveSessionInformation_TargettoSourceList */
-static int hf_ngap_MBSSessionSetupResponseList_PDU = -1;  /* MBSSessionSetupResponseList */
-static int hf_ngap_MBS_SessionFSAIDList_PDU = -1;  /* MBS_SessionFSAIDList */
-static int hf_ngap_MBS_SupportIndicator_PDU = -1;  /* MBS_SupportIndicator */
-static int hf_ngap_MBS_SessionTNLInfo5GC_PDU = -1;  /* MBS_SessionTNLInfo5GC */
-static int hf_ngap_MBSSessionSetupRequestList_PDU = -1;  /* MBSSessionSetupRequestList */
-static int hf_ngap_MBSSessionSetuporModifyRequestList_PDU = -1;  /* MBSSessionSetuporModifyRequestList */
-static int hf_ngap_MBSSessionToReleaseList_PDU = -1;  /* MBSSessionToReleaseList */
-static int hf_ngap_MicoAllPLMN_PDU = -1;          /* MicoAllPLMN */
-static int hf_ngap_ExtendedMobilityInformation_PDU = -1;  /* ExtendedMobilityInformation */
-static int hf_ngap_ngap_MobilityRestrictionList_PDU = -1;  /* MobilityRestrictionList */
-static int hf_ngap_MDTPLMNList_PDU = -1;          /* MDTPLMNList */
-static int hf_ngap_MDTPLMNModificationList_PDU = -1;  /* MDTPLMNModificationList */
-static int hf_ngap_ngap_MDT_Configuration_PDU = -1;  /* MDT_Configuration */
-static int hf_ngap_MulticastGroupPagingAreaList_PDU = -1;  /* MulticastGroupPagingAreaList */
-static int hf_ngap_IncludeBeamMeasurementsIndication_PDU = -1;  /* IncludeBeamMeasurementsIndication */
-static int hf_ngap_M4ReportAmountMDT_PDU = -1;    /* M4ReportAmountMDT */
-static int hf_ngap_M5ReportAmountMDT_PDU = -1;    /* M5ReportAmountMDT */
-static int hf_ngap_M6ReportAmountMDT_PDU = -1;    /* M6ReportAmountMDT */
-static int hf_ngap_M7ReportAmountMDT_PDU = -1;    /* M7ReportAmountMDT */
-static int hf_ngap_NAS_PDU_PDU = -1;              /* NAS_PDU */
-static int hf_ngap_NASSecurityParametersFromNGRAN_PDU = -1;  /* NASSecurityParametersFromNGRAN */
-static int hf_ngap_NB_IoT_DefaultPagingDRX_PDU = -1;  /* NB_IoT_DefaultPagingDRX */
-static int hf_ngap_NB_IoT_PagingDRX_PDU = -1;     /* NB_IoT_PagingDRX */
-static int hf_ngap_NB_IoT_Paging_eDRXInfo_PDU = -1;  /* NB_IoT_Paging_eDRXInfo */
-static int hf_ngap_NB_IoT_UEPriority_PDU = -1;    /* NB_IoT_UEPriority */
-static int hf_ngap_NetworkInstance_PDU = -1;      /* NetworkInstance */
-static int hf_ngap_NewSecurityContextInd_PDU = -1;  /* NewSecurityContextInd */
-static int hf_ngap_NGAPIESupportInformationRequestList_PDU = -1;  /* NGAPIESupportInformationRequestList */
-static int hf_ngap_NGAPIESupportInformationResponseList_PDU = -1;  /* NGAPIESupportInformationResponseList */
-static int hf_ngap_NotifySourceNGRANNode_PDU = -1;  /* NotifySourceNGRANNode */
-static int hf_ngap_ngap_NGRAN_CGI_PDU = -1;       /* NGRAN_CGI */
-static int hf_ngap_NGRAN_TNLAssociationToRemoveList_PDU = -1;  /* NGRAN_TNLAssociationToRemoveList */
-static int hf_ngap_NGRANTraceID_PDU = -1;         /* NGRANTraceID */
-static int hf_ngap_NID_PDU = -1;                  /* NID */
-static int hf_ngap_NPN_AccessInformation_PDU = -1;  /* NPN_AccessInformation */
-static int hf_ngap_NPN_MobilityInformation_PDU = -1;  /* NPN_MobilityInformation */
-static int hf_ngap_NPN_PagingAssistanceInformation_PDU = -1;  /* NPN_PagingAssistanceInformation */
-static int hf_ngap_NPN_Support_PDU = -1;          /* NPN_Support */
-static int hf_ngap_NR_CGI_PDU = -1;               /* NR_CGI */
-static int hf_ngap_NR_PagingeDRXInformation_PDU = -1;  /* NR_PagingeDRXInformation */
-static int hf_ngap_NRPPa_PDU_PDU = -1;            /* NRPPa_PDU */
-static int hf_ngap_NRNTNTAIInformation_PDU = -1;  /* NRNTNTAIInformation */
-static int hf_ngap_NumberOfBroadcastsRequested_PDU = -1;  /* NumberOfBroadcastsRequested */
-static int hf_ngap_NRV2XServicesAuthorized_PDU = -1;  /* NRV2XServicesAuthorized */
-static int hf_ngap_NRUESidelinkAggregateMaximumBitrate_PDU = -1;  /* NRUESidelinkAggregateMaximumBitrate */
-static int hf_ngap_OnboardingSupport_PDU = -1;    /* OnboardingSupport */
-static int hf_ngap_OverloadResponse_PDU = -1;     /* OverloadResponse */
-static int hf_ngap_OverloadStartNSSAIList_PDU = -1;  /* OverloadStartNSSAIList */
-static int hf_ngap_PagingAssisDataforCEcapabUE_PDU = -1;  /* PagingAssisDataforCEcapabUE */
-static int hf_ngap_PagingCause_PDU = -1;          /* PagingCause */
-static int hf_ngap_PagingCauseIndicationForVoiceService_PDU = -1;  /* PagingCauseIndicationForVoiceService */
-static int hf_ngap_PagingDRX_PDU = -1;            /* PagingDRX */
-static int hf_ngap_PagingOrigin_PDU = -1;         /* PagingOrigin */
-static int hf_ngap_PagingPriority_PDU = -1;       /* PagingPriority */
-static int hf_ngap_PathSwitchRequestAcknowledgeTransfer_PDU = -1;  /* PathSwitchRequestAcknowledgeTransfer */
-static int hf_ngap_PathSwitchRequestSetupFailedTransfer_PDU = -1;  /* PathSwitchRequestSetupFailedTransfer */
-static int hf_ngap_PathSwitchRequestTransfer_PDU = -1;  /* PathSwitchRequestTransfer */
-static int hf_ngap_PathSwitchRequestUnsuccessfulTransfer_PDU = -1;  /* PathSwitchRequestUnsuccessfulTransfer */
-static int hf_ngap_PC5QoSParameters_PDU = -1;     /* PC5QoSParameters */
-static int hf_ngap_PrivacyIndicator_PDU = -1;     /* PrivacyIndicator */
-static int hf_ngap_PDUSessionAggregateMaximumBitRate_PDU = -1;  /* PDUSessionAggregateMaximumBitRate */
-static int hf_ngap_PDUSessionPairID_PDU = -1;     /* PDUSessionPairID */
-static int hf_ngap_PDUSessionResourceAdmittedList_PDU = -1;  /* PDUSessionResourceAdmittedList */
-static int hf_ngap_PDUSessionResourceFailedToModifyListModCfm_PDU = -1;  /* PDUSessionResourceFailedToModifyListModCfm */
-static int hf_ngap_PDUSessionResourceFailedToModifyListModRes_PDU = -1;  /* PDUSessionResourceFailedToModifyListModRes */
-static int hf_ngap_PDUSessionResourceFailedToResumeListRESReq_PDU = -1;  /* PDUSessionResourceFailedToResumeListRESReq */
-static int hf_ngap_PDUSessionResourceFailedToResumeListRESRes_PDU = -1;  /* PDUSessionResourceFailedToResumeListRESRes */
-static int hf_ngap_PDUSessionResourceFailedToSetupListCxtFail_PDU = -1;  /* PDUSessionResourceFailedToSetupListCxtFail */
-static int hf_ngap_PDUSessionResourceFailedToSetupListCxtRes_PDU = -1;  /* PDUSessionResourceFailedToSetupListCxtRes */
-static int hf_ngap_PDUSessionResourceFailedToSetupListHOAck_PDU = -1;  /* PDUSessionResourceFailedToSetupListHOAck */
-static int hf_ngap_PDUSessionResourceFailedToSetupListPSReq_PDU = -1;  /* PDUSessionResourceFailedToSetupListPSReq */
-static int hf_ngap_PDUSessionResourceFailedToSetupListSURes_PDU = -1;  /* PDUSessionResourceFailedToSetupListSURes */
-static int hf_ngap_PDUSessionResourceHandoverList_PDU = -1;  /* PDUSessionResourceHandoverList */
-static int hf_ngap_PDUSessionResourceListCxtRelCpl_PDU = -1;  /* PDUSessionResourceListCxtRelCpl */
-static int hf_ngap_PDUSessionResourceReleaseResponseTransfer_OCTET_STRING_PDU = -1;  /* PDUSessionResourceReleaseResponseTransfer_OCTET_STRING */
-static int hf_ngap_PDUSessionResourceListCxtRelReq_PDU = -1;  /* PDUSessionResourceListCxtRelReq */
-static int hf_ngap_PDUSessionResourceListHORqd_PDU = -1;  /* PDUSessionResourceListHORqd */
-static int hf_ngap_PDUSessionResourceModifyConfirmTransfer_PDU = -1;  /* PDUSessionResourceModifyConfirmTransfer */
-static int hf_ngap_PDUSessionResourceModifyIndicationUnsuccessfulTransfer_PDU = -1;  /* PDUSessionResourceModifyIndicationUnsuccessfulTransfer */
-static int hf_ngap_PDUSessionResourceModifyRequestTransfer_PDU = -1;  /* PDUSessionResourceModifyRequestTransfer */
-static int hf_ngap_PDUSessionResourceModifyResponseTransfer_PDU = -1;  /* PDUSessionResourceModifyResponseTransfer */
-static int hf_ngap_PDUSessionResourceModifyIndicationTransfer_PDU = -1;  /* PDUSessionResourceModifyIndicationTransfer */
-static int hf_ngap_PDUSessionResourceModifyListModCfm_PDU = -1;  /* PDUSessionResourceModifyListModCfm */
-static int hf_ngap_PDUSessionResourceModifyListModInd_PDU = -1;  /* PDUSessionResourceModifyListModInd */
-static int hf_ngap_PDUSessionResourceModifyListModReq_PDU = -1;  /* PDUSessionResourceModifyListModReq */
-static int hf_ngap_PDUSessionResourceModifyListModRes_PDU = -1;  /* PDUSessionResourceModifyListModRes */
-static int hf_ngap_PDUSessionResourceModifyUnsuccessfulTransfer_PDU = -1;  /* PDUSessionResourceModifyUnsuccessfulTransfer */
-static int hf_ngap_PDUSessionResourceNotifyList_PDU = -1;  /* PDUSessionResourceNotifyList */
-static int hf_ngap_PDUSessionResourceNotifyReleasedTransfer_PDU = -1;  /* PDUSessionResourceNotifyReleasedTransfer */
-static int hf_ngap_PDUSessionResourceNotifyTransfer_PDU = -1;  /* PDUSessionResourceNotifyTransfer */
-static int hf_ngap_PDUSessionResourceReleaseCommandTransfer_PDU = -1;  /* PDUSessionResourceReleaseCommandTransfer */
-static int hf_ngap_PDUSessionResourceReleasedListNot_PDU = -1;  /* PDUSessionResourceReleasedListNot */
-static int hf_ngap_PDUSessionResourceReleasedListPSAck_PDU = -1;  /* PDUSessionResourceReleasedListPSAck */
-static int hf_ngap_PDUSessionResourceReleasedListPSFail_PDU = -1;  /* PDUSessionResourceReleasedListPSFail */
-static int hf_ngap_PDUSessionResourceReleasedListRelRes_PDU = -1;  /* PDUSessionResourceReleasedListRelRes */
-static int hf_ngap_PDUSessionResourceReleaseResponseTransfer_PDU = -1;  /* PDUSessionResourceReleaseResponseTransfer */
-static int hf_ngap_PDUSessionResourceResumeListRESReq_PDU = -1;  /* PDUSessionResourceResumeListRESReq */
-static int hf_ngap_PDUSessionResourceResumeListRESRes_PDU = -1;  /* PDUSessionResourceResumeListRESRes */
-static int hf_ngap_PDUSessionResourceSecondaryRATUsageList_PDU = -1;  /* PDUSessionResourceSecondaryRATUsageList */
-static int hf_ngap_PDUSessionResourceSetupListCxtReq_PDU = -1;  /* PDUSessionResourceSetupListCxtReq */
-static int hf_ngap_PDUSessionResourceSetupListCxtRes_PDU = -1;  /* PDUSessionResourceSetupListCxtRes */
-static int hf_ngap_PDUSessionResourceSetupListHOReq_PDU = -1;  /* PDUSessionResourceSetupListHOReq */
-static int hf_ngap_PDUSessionResourceSetupListSUReq_PDU = -1;  /* PDUSessionResourceSetupListSUReq */
-static int hf_ngap_PDUSessionResourceSetupListSURes_PDU = -1;  /* PDUSessionResourceSetupListSURes */
-static int hf_ngap_PDUSessionResourceSetupRequestTransfer_PDU = -1;  /* PDUSessionResourceSetupRequestTransfer */
-static int hf_ngap_PDUSessionResourceSetupResponseTransfer_PDU = -1;  /* PDUSessionResourceSetupResponseTransfer */
-static int hf_ngap_PDUSessionResourceSetupUnsuccessfulTransfer_PDU = -1;  /* PDUSessionResourceSetupUnsuccessfulTransfer */
-static int hf_ngap_PDUSessionResourceSuspendListSUSReq_PDU = -1;  /* PDUSessionResourceSuspendListSUSReq */
-static int hf_ngap_PDUSessionResourceSwitchedList_PDU = -1;  /* PDUSessionResourceSwitchedList */
-static int hf_ngap_PDUSessionResourceToBeSwitchedDLList_PDU = -1;  /* PDUSessionResourceToBeSwitchedDLList */
-static int hf_ngap_PDUSessionResourceToReleaseListHOCmd_PDU = -1;  /* PDUSessionResourceToReleaseListHOCmd */
-static int hf_ngap_PDUSessionResourceToReleaseListRelCmd_PDU = -1;  /* PDUSessionResourceToReleaseListRelCmd */
-static int hf_ngap_PDUSessionType_PDU = -1;       /* PDUSessionType */
-static int hf_ngap_PEIPSassistanceInformation_PDU = -1;  /* PEIPSassistanceInformation */
-static int hf_ngap_PLMNIdentity_PDU = -1;         /* PLMNIdentity */
-static int hf_ngap_PLMNSupportList_PDU = -1;      /* PLMNSupportList */
-static int hf_ngap_PWSFailedCellIDList_PDU = -1;  /* PWSFailedCellIDList */
-static int hf_ngap_QMCConfigInfo_PDU = -1;        /* QMCConfigInfo */
-static int hf_ngap_QMCDeactivation_PDU = -1;      /* QMCDeactivation */
-static int hf_ngap_QosFlowAddOrModifyRequestList_PDU = -1;  /* QosFlowAddOrModifyRequestList */
-static int hf_ngap_QosFlowFeedbackList_PDU = -1;  /* QosFlowFeedbackList */
-static int hf_ngap_QosMonitoringRequest_PDU = -1;  /* QosMonitoringRequest */
-static int hf_ngap_QosMonitoringReportingFrequency_PDU = -1;  /* QosMonitoringReportingFrequency */
-static int hf_ngap_QosFlowListWithCause_PDU = -1;  /* QosFlowListWithCause */
-static int hf_ngap_QosFlowParametersList_PDU = -1;  /* QosFlowParametersList */
-static int hf_ngap_QosFlowPerTNLInformation_PDU = -1;  /* QosFlowPerTNLInformation */
-static int hf_ngap_QosFlowPerTNLInformationList_PDU = -1;  /* QosFlowPerTNLInformationList */
-static int hf_ngap_QosFlowSetupRequestList_PDU = -1;  /* QosFlowSetupRequestList */
-static int hf_ngap_RANNodeName_PDU = -1;          /* RANNodeName */
-static int hf_ngap_RANPagingPriority_PDU = -1;    /* RANPagingPriority */
-static int hf_ngap_RANStatusTransfer_TransparentContainer_PDU = -1;  /* RANStatusTransfer_TransparentContainer */
-static int hf_ngap_RAN_UE_NGAP_ID_PDU = -1;       /* RAN_UE_NGAP_ID */
-static int hf_ngap_RAT_Information_PDU = -1;      /* RAT_Information */
-static int hf_ngap_RedCapIndication_PDU = -1;     /* RedCapIndication */
-static int hf_ngap_RedirectionVoiceFallback_PDU = -1;  /* RedirectionVoiceFallback */
-static int hf_ngap_RedundantPDUSessionInformation_PDU = -1;  /* RedundantPDUSessionInformation */
-static int hf_ngap_RedundantQosFlowIndicator_PDU = -1;  /* RedundantQosFlowIndicator */
-static int hf_ngap_RelativeAMFCapacity_PDU = -1;  /* RelativeAMFCapacity */
-static int hf_ngap_RepetitionPeriod_PDU = -1;     /* RepetitionPeriod */
-static int hf_ngap_ExtendedReportIntervalMDT_PDU = -1;  /* ExtendedReportIntervalMDT */
-static int hf_ngap_ResetType_PDU = -1;            /* ResetType */
-static int hf_ngap_RGLevelWirelineAccessCharacteristics_PDU = -1;  /* RGLevelWirelineAccessCharacteristics */
-static int hf_ngap_RoutingID_PDU = -1;            /* RoutingID */
-static int hf_ngap_RRCEstablishmentCause_PDU = -1;  /* RRCEstablishmentCause */
-static int hf_ngap_RRCInactiveTransitionReportRequest_PDU = -1;  /* RRCInactiveTransitionReportRequest */
-static int hf_ngap_RRCState_PDU = -1;             /* RRCState */
-static int hf_ngap_RIMInformationTransfer_PDU = -1;  /* RIMInformationTransfer */
-static int hf_ngap_SCTP_TLAs_PDU = -1;            /* SCTP_TLAs */
-static int hf_ngap_SecondaryRATUsageInformation_PDU = -1;  /* SecondaryRATUsageInformation */
-static int hf_ngap_SecondaryRATDataUsageReportTransfer_PDU = -1;  /* SecondaryRATDataUsageReportTransfer */
-static int hf_ngap_SecurityContext_PDU = -1;      /* SecurityContext */
-static int hf_ngap_SecurityIndication_PDU = -1;   /* SecurityIndication */
-static int hf_ngap_SecurityKey_PDU = -1;          /* SecurityKey */
-static int hf_ngap_SecurityResult_PDU = -1;       /* SecurityResult */
-static int hf_ngap_SerialNumber_PDU = -1;         /* SerialNumber */
-static int hf_ngap_ServedGUAMIList_PDU = -1;      /* ServedGUAMIList */
-static int hf_ngap_SgNB_UE_X2AP_ID_PDU = -1;      /* SgNB_UE_X2AP_ID */
-static int hf_ngap_SliceSupportList_PDU = -1;     /* SliceSupportList */
-static int hf_ngap_S_NSSAI_PDU = -1;              /* S_NSSAI */
-static int hf_ngap_ngap_SONConfigurationTransfer_PDU = -1;  /* SONConfigurationTransfer */
-static int hf_ngap_SONInformationReport_PDU = -1;  /* SONInformationReport */
-static int hf_ngap_SuccessfulHandoverReportList_PDU = -1;  /* SuccessfulHandoverReportList */
-static int hf_ngap_ngap_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer_PDU = -1;  /* SourceNGRANNode_ToTargetNGRANNode_TransparentContainer */
-static int hf_ngap_SourceNodeID_PDU = -1;         /* SourceNodeID */
-static int hf_ngap_SourceToTarget_TransparentContainer_PDU = -1;  /* SourceToTarget_TransparentContainer */
-static int hf_ngap_SourceToTarget_AMFInformationReroute_PDU = -1;  /* SourceToTarget_AMFInformationReroute */
-static int hf_ngap_SRVCCOperationPossible_PDU = -1;  /* SRVCCOperationPossible */
-static int hf_ngap_SupportedTAList_PDU = -1;      /* SupportedTAList */
-static int hf_ngap_Suspend_Request_Indication_PDU = -1;  /* Suspend_Request_Indication */
-static int hf_ngap_Suspend_Response_Indication_PDU = -1;  /* Suspend_Response_Indication */
-static int hf_ngap_SurvivalTime_PDU = -1;         /* SurvivalTime */
-static int hf_ngap_TAI_PDU = -1;                  /* TAI */
-static int hf_ngap_TAIListForPaging_PDU = -1;     /* TAIListForPaging */
-static int hf_ngap_TAIListForRestart_PDU = -1;    /* TAIListForRestart */
-static int hf_ngap_TAINSAGSupportList_PDU = -1;   /* TAINSAGSupportList */
-static int hf_ngap_TargetHomeENB_ID_PDU = -1;     /* TargetHomeENB_ID */
-static int hf_ngap_TargetID_PDU = -1;             /* TargetID */
-static int hf_ngap_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer_PDU = -1;  /* TargetNGRANNode_ToSourceNGRANNode_TransparentContainer */
-static int hf_ngap_TargetNGRANNode_ToSourceNGRANNode_FailureTransparentContainer_PDU = -1;  /* TargetNGRANNode_ToSourceNGRANNode_FailureTransparentContainer */
-static int hf_ngap_TargetNSSAIInformation_PDU = -1;  /* TargetNSSAIInformation */
-static int hf_ngap_TargetRNC_ID_PDU = -1;         /* TargetRNC_ID */
-static int hf_ngap_TargetToSource_TransparentContainer_PDU = -1;  /* TargetToSource_TransparentContainer */
-static int hf_ngap_TargettoSource_Failure_TransparentContainer_PDU = -1;  /* TargettoSource_Failure_TransparentContainer */
-static int hf_ngap_TimeSyncAssistanceInfo_PDU = -1;  /* TimeSyncAssistanceInfo */
-static int hf_ngap_TimeToWait_PDU = -1;           /* TimeToWait */
-static int hf_ngap_TNLAssociationList_PDU = -1;   /* TNLAssociationList */
-static int hf_ngap_TraceActivation_PDU = -1;      /* TraceActivation */
-static int hf_ngap_TrafficLoadReductionIndication_PDU = -1;  /* TrafficLoadReductionIndication */
-static int hf_ngap_TransportLayerAddress_PDU = -1;  /* TransportLayerAddress */
-static int hf_ngap_TSCTrafficCharacteristics_PDU = -1;  /* TSCTrafficCharacteristics */
-static int hf_ngap_UEAggregateMaximumBitRate_PDU = -1;  /* UEAggregateMaximumBitRate */
-static int hf_ngap_UE_associatedLogicalNG_connectionList_PDU = -1;  /* UE_associatedLogicalNG_connectionList */
-static int hf_ngap_UECapabilityInfoRequest_PDU = -1;  /* UECapabilityInfoRequest */
-static int hf_ngap_UEContextRequest_PDU = -1;     /* UEContextRequest */
-static int hf_ngap_UE_DifferentiationInfo_PDU = -1;  /* UE_DifferentiationInfo */
-static int hf_ngap_UEHistoryInformationFromTheUE_PDU = -1;  /* UEHistoryInformationFromTheUE */
-static int hf_ngap_UE_NGAP_IDs_PDU = -1;          /* UE_NGAP_IDs */
-static int hf_ngap_UEPagingIdentity_PDU = -1;     /* UEPagingIdentity */
-static int hf_ngap_UEPresenceInAreaOfInterestList_PDU = -1;  /* UEPresenceInAreaOfInterestList */
-static int hf_ngap_UERadioCapability_PDU = -1;    /* UERadioCapability */
-static int hf_ngap_UERadioCapabilityForPaging_PDU = -1;  /* UERadioCapabilityForPaging */
-static int hf_ngap_UERadioCapabilityForPagingOfNB_IoT_PDU = -1;  /* UERadioCapabilityForPagingOfNB_IoT */
-static int hf_ngap_UERadioCapabilityID_PDU = -1;  /* UERadioCapabilityID */
-static int hf_ngap_UERetentionInformation_PDU = -1;  /* UERetentionInformation */
-static int hf_ngap_UESecurityCapabilities_PDU = -1;  /* UESecurityCapabilities */
-static int hf_ngap_UESliceMaximumBitRateList_PDU = -1;  /* UESliceMaximumBitRateList */
-static int hf_ngap_UE_UP_CIoT_Support_PDU = -1;   /* UE_UP_CIoT_Support */
-static int hf_ngap_UL_CP_SecurityInformation_PDU = -1;  /* UL_CP_SecurityInformation */
-static int hf_ngap_UL_NGU_UP_TNLModifyList_PDU = -1;  /* UL_NGU_UP_TNLModifyList */
-static int hf_ngap_UnavailableGUAMIList_PDU = -1;  /* UnavailableGUAMIList */
-static int hf_ngap_ULForwarding_PDU = -1;         /* ULForwarding */
-static int hf_ngap_UPTransportLayerInformation_PDU = -1;  /* UPTransportLayerInformation */
-static int hf_ngap_UPTransportLayerInformationList_PDU = -1;  /* UPTransportLayerInformationList */
-static int hf_ngap_UPTransportLayerInformationPairList_PDU = -1;  /* UPTransportLayerInformationPairList */
-static int hf_ngap_URI_address_PDU = -1;          /* URI_address */
-static int hf_ngap_UserLocationInformation_PDU = -1;  /* UserLocationInformation */
-static int hf_ngap_UserLocationInformationTNGF_PDU = -1;  /* UserLocationInformationTNGF */
-static int hf_ngap_UserLocationInformationTWIF_PDU = -1;  /* UserLocationInformationTWIF */
-static int hf_ngap_UserLocationInformationW_AGF_PDU = -1;  /* UserLocationInformationW_AGF */
-static int hf_ngap_WarningAreaCoordinates_PDU = -1;  /* WarningAreaCoordinates */
-static int hf_ngap_WarningAreaList_PDU = -1;      /* WarningAreaList */
-static int hf_ngap_WarningMessageContents_PDU = -1;  /* WarningMessageContents */
-static int hf_ngap_WarningSecurityInfo_PDU = -1;  /* WarningSecurityInfo */
-static int hf_ngap_WarningType_PDU = -1;          /* WarningType */
-static int hf_ngap_WUS_Assistance_Information_PDU = -1;  /* WUS_Assistance_Information */
-static int hf_ngap_PDUSessionResourceSetupRequest_PDU = -1;  /* PDUSessionResourceSetupRequest */
-static int hf_ngap_PDUSessionResourceSetupResponse_PDU = -1;  /* PDUSessionResourceSetupResponse */
-static int hf_ngap_PDUSessionResourceReleaseCommand_PDU = -1;  /* PDUSessionResourceReleaseCommand */
-static int hf_ngap_PDUSessionResourceReleaseResponse_PDU = -1;  /* PDUSessionResourceReleaseResponse */
-static int hf_ngap_PDUSessionResourceModifyRequest_PDU = -1;  /* PDUSessionResourceModifyRequest */
-static int hf_ngap_PDUSessionResourceModifyResponse_PDU = -1;  /* PDUSessionResourceModifyResponse */
-static int hf_ngap_PDUSessionResourceNotify_PDU = -1;  /* PDUSessionResourceNotify */
-static int hf_ngap_PDUSessionResourceModifyIndication_PDU = -1;  /* PDUSessionResourceModifyIndication */
-static int hf_ngap_PDUSessionResourceModifyConfirm_PDU = -1;  /* PDUSessionResourceModifyConfirm */
-static int hf_ngap_InitialContextSetupRequest_PDU = -1;  /* InitialContextSetupRequest */
-static int hf_ngap_InitialContextSetupResponse_PDU = -1;  /* InitialContextSetupResponse */
-static int hf_ngap_InitialContextSetupFailure_PDU = -1;  /* InitialContextSetupFailure */
-static int hf_ngap_UEContextReleaseRequest_PDU = -1;  /* UEContextReleaseRequest */
-static int hf_ngap_UEContextReleaseCommand_PDU = -1;  /* UEContextReleaseCommand */
-static int hf_ngap_UEContextReleaseComplete_PDU = -1;  /* UEContextReleaseComplete */
-static int hf_ngap_UEContextResumeRequest_PDU = -1;  /* UEContextResumeRequest */
-static int hf_ngap_UEContextResumeResponse_PDU = -1;  /* UEContextResumeResponse */
-static int hf_ngap_UEContextResumeFailure_PDU = -1;  /* UEContextResumeFailure */
-static int hf_ngap_UEContextSuspendRequest_PDU = -1;  /* UEContextSuspendRequest */
-static int hf_ngap_UEContextSuspendResponse_PDU = -1;  /* UEContextSuspendResponse */
-static int hf_ngap_UEContextSuspendFailure_PDU = -1;  /* UEContextSuspendFailure */
-static int hf_ngap_UEContextModificationRequest_PDU = -1;  /* UEContextModificationRequest */
-static int hf_ngap_UEContextModificationResponse_PDU = -1;  /* UEContextModificationResponse */
-static int hf_ngap_UEContextModificationFailure_PDU = -1;  /* UEContextModificationFailure */
-static int hf_ngap_RRCInactiveTransitionReport_PDU = -1;  /* RRCInactiveTransitionReport */
-static int hf_ngap_RetrieveUEInformation_PDU = -1;  /* RetrieveUEInformation */
-static int hf_ngap_UEInformationTransfer_PDU = -1;  /* UEInformationTransfer */
-static int hf_ngap_RANCPRelocationIndication_PDU = -1;  /* RANCPRelocationIndication */
-static int hf_ngap_HandoverRequired_PDU = -1;     /* HandoverRequired */
-static int hf_ngap_HandoverCommand_PDU = -1;      /* HandoverCommand */
-static int hf_ngap_HandoverPreparationFailure_PDU = -1;  /* HandoverPreparationFailure */
-static int hf_ngap_HandoverRequest_PDU = -1;      /* HandoverRequest */
-static int hf_ngap_HandoverRequestAcknowledge_PDU = -1;  /* HandoverRequestAcknowledge */
-static int hf_ngap_HandoverFailure_PDU = -1;      /* HandoverFailure */
-static int hf_ngap_HandoverNotify_PDU = -1;       /* HandoverNotify */
-static int hf_ngap_PathSwitchRequest_PDU = -1;    /* PathSwitchRequest */
-static int hf_ngap_PathSwitchRequestAcknowledge_PDU = -1;  /* PathSwitchRequestAcknowledge */
-static int hf_ngap_PathSwitchRequestFailure_PDU = -1;  /* PathSwitchRequestFailure */
-static int hf_ngap_HandoverCancel_PDU = -1;       /* HandoverCancel */
-static int hf_ngap_HandoverCancelAcknowledge_PDU = -1;  /* HandoverCancelAcknowledge */
-static int hf_ngap_HandoverSuccess_PDU = -1;      /* HandoverSuccess */
-static int hf_ngap_UplinkRANEarlyStatusTransfer_PDU = -1;  /* UplinkRANEarlyStatusTransfer */
-static int hf_ngap_DownlinkRANEarlyStatusTransfer_PDU = -1;  /* DownlinkRANEarlyStatusTransfer */
-static int hf_ngap_UplinkRANStatusTransfer_PDU = -1;  /* UplinkRANStatusTransfer */
-static int hf_ngap_DownlinkRANStatusTransfer_PDU = -1;  /* DownlinkRANStatusTransfer */
-static int hf_ngap_Paging_PDU = -1;               /* Paging */
-static int hf_ngap_InitialUEMessage_PDU = -1;     /* InitialUEMessage */
-static int hf_ngap_DownlinkNASTransport_PDU = -1;  /* DownlinkNASTransport */
-static int hf_ngap_UplinkNASTransport_PDU = -1;   /* UplinkNASTransport */
-static int hf_ngap_W_AGFIdentityInformation_PDU = -1;  /* W_AGFIdentityInformation */
-static int hf_ngap_TNGFIdentityInformation_PDU = -1;  /* TNGFIdentityInformation */
-static int hf_ngap_TWIFIdentityInformation_PDU = -1;  /* TWIFIdentityInformation */
-static int hf_ngap_NASNonDeliveryIndication_PDU = -1;  /* NASNonDeliveryIndication */
-static int hf_ngap_RerouteNASRequest_PDU = -1;    /* RerouteNASRequest */
-static int hf_ngap_NGAP_Message_PDU = -1;         /* NGAP_Message */
-static int hf_ngap_NGSetupRequest_PDU = -1;       /* NGSetupRequest */
-static int hf_ngap_NGSetupResponse_PDU = -1;      /* NGSetupResponse */
-static int hf_ngap_NGSetupFailure_PDU = -1;       /* NGSetupFailure */
-static int hf_ngap_RANConfigurationUpdate_PDU = -1;  /* RANConfigurationUpdate */
-static int hf_ngap_RANConfigurationUpdateAcknowledge_PDU = -1;  /* RANConfigurationUpdateAcknowledge */
-static int hf_ngap_RANConfigurationUpdateFailure_PDU = -1;  /* RANConfigurationUpdateFailure */
-static int hf_ngap_AMFConfigurationUpdate_PDU = -1;  /* AMFConfigurationUpdate */
-static int hf_ngap_AMFConfigurationUpdateAcknowledge_PDU = -1;  /* AMFConfigurationUpdateAcknowledge */
-static int hf_ngap_AMFConfigurationUpdateFailure_PDU = -1;  /* AMFConfigurationUpdateFailure */
-static int hf_ngap_AMFStatusIndication_PDU = -1;  /* AMFStatusIndication */
-static int hf_ngap_NGReset_PDU = -1;              /* NGReset */
-static int hf_ngap_NGResetAcknowledge_PDU = -1;   /* NGResetAcknowledge */
-static int hf_ngap_ErrorIndication_PDU = -1;      /* ErrorIndication */
-static int hf_ngap_OverloadStart_PDU = -1;        /* OverloadStart */
-static int hf_ngap_OverloadStop_PDU = -1;         /* OverloadStop */
-static int hf_ngap_UplinkRANConfigurationTransfer_PDU = -1;  /* UplinkRANConfigurationTransfer */
-static int hf_ngap_DownlinkRANConfigurationTransfer_PDU = -1;  /* DownlinkRANConfigurationTransfer */
-static int hf_ngap_WriteReplaceWarningRequest_PDU = -1;  /* WriteReplaceWarningRequest */
-static int hf_ngap_WriteReplaceWarningResponse_PDU = -1;  /* WriteReplaceWarningResponse */
-static int hf_ngap_PWSCancelRequest_PDU = -1;     /* PWSCancelRequest */
-static int hf_ngap_PWSCancelResponse_PDU = -1;    /* PWSCancelResponse */
-static int hf_ngap_PWSRestartIndication_PDU = -1;  /* PWSRestartIndication */
-static int hf_ngap_PWSFailureIndication_PDU = -1;  /* PWSFailureIndication */
-static int hf_ngap_DownlinkUEAssociatedNRPPaTransport_PDU = -1;  /* DownlinkUEAssociatedNRPPaTransport */
-static int hf_ngap_UplinkUEAssociatedNRPPaTransport_PDU = -1;  /* UplinkUEAssociatedNRPPaTransport */
-static int hf_ngap_DownlinkNonUEAssociatedNRPPaTransport_PDU = -1;  /* DownlinkNonUEAssociatedNRPPaTransport */
-static int hf_ngap_UplinkNonUEAssociatedNRPPaTransport_PDU = -1;  /* UplinkNonUEAssociatedNRPPaTransport */
-static int hf_ngap_TraceStart_PDU = -1;           /* TraceStart */
-static int hf_ngap_TraceFailureIndication_PDU = -1;  /* TraceFailureIndication */
-static int hf_ngap_DeactivateTrace_PDU = -1;      /* DeactivateTrace */
-static int hf_ngap_CellTrafficTrace_PDU = -1;     /* CellTrafficTrace */
-static int hf_ngap_LocationReportingControl_PDU = -1;  /* LocationReportingControl */
-static int hf_ngap_LocationReportingFailureIndication_PDU = -1;  /* LocationReportingFailureIndication */
-static int hf_ngap_LocationReport_PDU = -1;       /* LocationReport */
-static int hf_ngap_UETNLABindingReleaseRequest_PDU = -1;  /* UETNLABindingReleaseRequest */
-static int hf_ngap_UERadioCapabilityInfoIndication_PDU = -1;  /* UERadioCapabilityInfoIndication */
-static int hf_ngap_UERadioCapabilityCheckRequest_PDU = -1;  /* UERadioCapabilityCheckRequest */
-static int hf_ngap_UERadioCapabilityCheckResponse_PDU = -1;  /* UERadioCapabilityCheckResponse */
-static int hf_ngap_PrivateMessage_PDU = -1;       /* PrivateMessage */
-static int hf_ngap_SecondaryRATDataUsageReport_PDU = -1;  /* SecondaryRATDataUsageReport */
-static int hf_ngap_UplinkRIMInformationTransfer_PDU = -1;  /* UplinkRIMInformationTransfer */
-static int hf_ngap_DownlinkRIMInformationTransfer_PDU = -1;  /* DownlinkRIMInformationTransfer */
-static int hf_ngap_ConnectionEstablishmentIndication_PDU = -1;  /* ConnectionEstablishmentIndication */
-static int hf_ngap_UERadioCapabilityIDMappingRequest_PDU = -1;  /* UERadioCapabilityIDMappingRequest */
-static int hf_ngap_UERadioCapabilityIDMappingResponse_PDU = -1;  /* UERadioCapabilityIDMappingResponse */
-static int hf_ngap_AMFCPRelocationIndication_PDU = -1;  /* AMFCPRelocationIndication */
-static int hf_ngap_BroadcastSessionSetupRequest_PDU = -1;  /* BroadcastSessionSetupRequest */
-static int hf_ngap_MBSSessionSetupOrModRequestTransfer_OCTET_STRING_PDU = -1;  /* MBSSessionSetupOrModRequestTransfer_OCTET_STRING */
-static int hf_ngap_BroadcastSessionSetupResponse_PDU = -1;  /* BroadcastSessionSetupResponse */
-static int hf_ngap_MBSSessionSetupOrModResponseTransfer_OCTET_STRING_PDU = -1;  /* MBSSessionSetupOrModResponseTransfer_OCTET_STRING */
-static int hf_ngap_BroadcastSessionSetupFailure_PDU = -1;  /* BroadcastSessionSetupFailure */
-static int hf_ngap_MBSSessionSetupOrModFailureTransfer_OCTET_STRING_PDU = -1;  /* MBSSessionSetupOrModFailureTransfer_OCTET_STRING */
-static int hf_ngap_BroadcastSessionModificationRequest_PDU = -1;  /* BroadcastSessionModificationRequest */
-static int hf_ngap_BroadcastSessionModificationResponse_PDU = -1;  /* BroadcastSessionModificationResponse */
-static int hf_ngap_BroadcastSessionModificationFailure_PDU = -1;  /* BroadcastSessionModificationFailure */
-static int hf_ngap_BroadcastSessionReleaseRequest_PDU = -1;  /* BroadcastSessionReleaseRequest */
-static int hf_ngap_BroadcastSessionReleaseRequired_PDU = -1;  /* BroadcastSessionReleaseRequired */
-static int hf_ngap_BroadcastSessionReleaseResponse_PDU = -1;  /* BroadcastSessionReleaseResponse */
-static int hf_ngap_MBSSessionReleaseResponseTransfer_OCTET_STRING_PDU = -1;  /* MBSSessionReleaseResponseTransfer_OCTET_STRING */
-static int hf_ngap_DistributionSetupRequest_PDU = -1;  /* DistributionSetupRequest */
-static int hf_ngap_MBS_DistributionSetupRequestTransfer_OCTET_STRING_PDU = -1;  /* MBS_DistributionSetupRequestTransfer_OCTET_STRING */
-static int hf_ngap_DistributionSetupResponse_PDU = -1;  /* DistributionSetupResponse */
-static int hf_ngap_MBS_DistributionSetupResponseTransfer_OCTET_STRING_PDU = -1;  /* MBS_DistributionSetupResponseTransfer_OCTET_STRING */
-static int hf_ngap_DistributionSetupFailure_PDU = -1;  /* DistributionSetupFailure */
-static int hf_ngap_MBS_DistributionSetupUnsuccessfulTransfer_OCTET_STRING_PDU = -1;  /* MBS_DistributionSetupUnsuccessfulTransfer_OCTET_STRING */
-static int hf_ngap_DistributionReleaseRequest_PDU = -1;  /* DistributionReleaseRequest */
-static int hf_ngap_MBS_DistributionReleaseRequestTransfer_OCTET_STRING_PDU = -1;  /* MBS_DistributionReleaseRequestTransfer_OCTET_STRING */
-static int hf_ngap_DistributionReleaseResponse_PDU = -1;  /* DistributionReleaseResponse */
-static int hf_ngap_MulticastSessionActivationRequest_PDU = -1;  /* MulticastSessionActivationRequest */
-static int hf_ngap_MulticastSessionActivationRequestTransfer_OCTET_STRING_PDU = -1;  /* MulticastSessionActivationRequestTransfer_OCTET_STRING */
-static int hf_ngap_MulticastSessionActivationResponse_PDU = -1;  /* MulticastSessionActivationResponse */
-static int hf_ngap_MulticastSessionActivationFailure_PDU = -1;  /* MulticastSessionActivationFailure */
-static int hf_ngap_MulticastSessionDeactivationRequest_PDU = -1;  /* MulticastSessionDeactivationRequest */
-static int hf_ngap_MulticastSessionDeactivationRequestTransfer_OCTET_STRING_PDU = -1;  /* MulticastSessionDeactivationRequestTransfer_OCTET_STRING */
-static int hf_ngap_MulticastSessionDeactivationResponse_PDU = -1;  /* MulticastSessionDeactivationResponse */
-static int hf_ngap_MulticastSessionUpdateRequest_PDU = -1;  /* MulticastSessionUpdateRequest */
-static int hf_ngap_MulticastSessionUpdateRequestTransfer_OCTET_STRING_PDU = -1;  /* MulticastSessionUpdateRequestTransfer_OCTET_STRING */
-static int hf_ngap_MulticastSessionUpdateResponse_PDU = -1;  /* MulticastSessionUpdateResponse */
-static int hf_ngap_MulticastSessionUpdateFailure_PDU = -1;  /* MulticastSessionUpdateFailure */
-static int hf_ngap_MulticastGroupPaging_PDU = -1;  /* MulticastGroupPaging */
-static int hf_ngap_NGAP_PDU_PDU = -1;             /* NGAP_PDU */
-static int hf_ngap_UEContextResumeRequestTransfer_PDU = -1;  /* UEContextResumeRequestTransfer */
-static int hf_ngap_UEContextResumeResponseTransfer_PDU = -1;  /* UEContextResumeResponseTransfer */
-static int hf_ngap_UEContextSuspendRequestTransfer_PDU = -1;  /* UEContextSuspendRequestTransfer */
-static int hf_ngap_MBSSessionSetupOrModRequestTransfer_PDU = -1;  /* MBSSessionSetupOrModRequestTransfer */
-static int hf_ngap_MBSSessionSetupOrModResponseTransfer_PDU = -1;  /* MBSSessionSetupOrModResponseTransfer */
-static int hf_ngap_MBSSessionSetupOrModFailureTransfer_PDU = -1;  /* MBSSessionSetupOrModFailureTransfer */
-static int hf_ngap_MBSSessionReleaseResponseTransfer_PDU = -1;  /* MBSSessionReleaseResponseTransfer */
-static int hf_ngap_MBS_DistributionSetupRequestTransfer_PDU = -1;  /* MBS_DistributionSetupRequestTransfer */
-static int hf_ngap_MBS_DistributionSetupResponseTransfer_PDU = -1;  /* MBS_DistributionSetupResponseTransfer */
-static int hf_ngap_MBS_DistributionSetupUnsuccessfulTransfer_PDU = -1;  /* MBS_DistributionSetupUnsuccessfulTransfer */
-static int hf_ngap_MBS_DistributionReleaseRequestTransfer_PDU = -1;  /* MBS_DistributionReleaseRequestTransfer */
-static int hf_ngap_MulticastSessionActivationRequestTransfer_PDU = -1;  /* MulticastSessionActivationRequestTransfer */
-static int hf_ngap_MulticastSessionDeactivationRequestTransfer_PDU = -1;  /* MulticastSessionDeactivationRequestTransfer */
-static int hf_ngap_MulticastSessionUpdateRequestTransfer_PDU = -1;  /* MulticastSessionUpdateRequestTransfer */
-static int hf_ngap_local = -1;                    /* INTEGER_0_65535 */
-static int hf_ngap_global = -1;                   /* OBJECT_IDENTIFIER */
-static int hf_ngap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
-static int hf_ngap_id = -1;                       /* ProtocolIE_ID */
-static int hf_ngap_criticality = -1;              /* Criticality */
-static int hf_ngap_ie_field_value = -1;           /* T_ie_field_value */
-static int hf_ngap_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
-static int hf_ngap_ext_id = -1;                   /* ProtocolExtensionID */
-static int hf_ngap_extensionValue = -1;           /* T_extensionValue */
-static int hf_ngap_PrivateIE_Container_item = -1;  /* PrivateIE_Field */
-static int hf_ngap_private_id = -1;               /* PrivateIE_ID */
-static int hf_ngap_private_value = -1;            /* T_private_value */
-static int hf_ngap_AdditionalDLUPTNLInformationForHOList_item = -1;  /* AdditionalDLUPTNLInformationForHOItem */
-static int hf_ngap_additionalDL_NGU_UP_TNLInformation = -1;  /* UPTransportLayerInformation */
-static int hf_ngap_additionalQosFlowSetupResponseList = -1;  /* QosFlowListWithDataForwarding */
-static int hf_ngap_additionalDLForwardingUPTNLInformation = -1;  /* UPTransportLayerInformation */
-static int hf_ngap_iE_Extensions = -1;            /* ProtocolExtensionContainer */
-static int hf_ngap_priorityLevelARP = -1;         /* PriorityLevelARP */
-static int hf_ngap_pre_emptionCapability = -1;    /* Pre_emptionCapability */
-static int hf_ngap_pre_emptionVulnerability = -1;  /* Pre_emptionVulnerability */
-static int hf_ngap_Allowed_CAG_List_per_PLMN_item = -1;  /* CAG_ID */
-static int hf_ngap_AllowedNSSAI_item = -1;        /* AllowedNSSAI_Item */
-static int hf_ngap_s_NSSAI = -1;                  /* S_NSSAI */
-static int hf_ngap_Allowed_PNI_NPN_List_item = -1;  /* Allowed_PNI_NPN_Item */
-static int hf_ngap_pLMNIdentity = -1;             /* PLMNIdentity */
-static int hf_ngap_pNI_NPN_restricted = -1;       /* T_pNI_NPN_restricted */
-static int hf_ngap_allowed_CAG_List_per_PLMN = -1;  /* Allowed_CAG_List_per_PLMN */
-static int hf_ngap_AllowedTACs_item = -1;         /* TAC */
-static int hf_ngap_AlternativeQoSParaSetList_item = -1;  /* AlternativeQoSParaSetItem */
-static int hf_ngap_alternativeQoSParaSetIndex = -1;  /* AlternativeQoSParaSetIndex */
-static int hf_ngap_guaranteedFlowBitRateDL = -1;  /* BitRate */
-static int hf_ngap_guaranteedFlowBitRateUL = -1;  /* BitRate */
-static int hf_ngap_packetDelayBudget = -1;        /* PacketDelayBudget */
-static int hf_ngap_packetErrorRate = -1;          /* PacketErrorRate */
-static int hf_ngap_globalRANNodeID = -1;          /* GlobalRANNodeID */
-static int hf_ngap_tAI = -1;                      /* TAI */
-static int hf_ngap_choice_Extensions = -1;        /* ProtocolIE_SingleContainer */
-static int hf_ngap_AMF_TNLAssociationSetupList_item = -1;  /* AMF_TNLAssociationSetupItem */
-static int hf_ngap_aMF_TNLAssociationAddress = -1;  /* CPTransportLayerInformation */
-static int hf_ngap_AMF_TNLAssociationToAddList_item = -1;  /* AMF_TNLAssociationToAddItem */
-static int hf_ngap_tNLAssociationUsage = -1;      /* TNLAssociationUsage */
-static int hf_ngap_tNLAddressWeightFactor = -1;   /* TNLAddressWeightFactor */
-static int hf_ngap_AMF_TNLAssociationToRemoveList_item = -1;  /* AMF_TNLAssociationToRemoveItem */
-static int hf_ngap_AMF_TNLAssociationToUpdateList_item = -1;  /* AMF_TNLAssociationToUpdateItem */
-static int hf_ngap_areaOfInterestTAIList = -1;    /* AreaOfInterestTAIList */
-static int hf_ngap_areaOfInterestCellList = -1;   /* AreaOfInterestCellList */
-static int hf_ngap_areaOfInterestRANNodeList = -1;  /* AreaOfInterestRANNodeList */
-static int hf_ngap_AreaOfInterestCellList_item = -1;  /* AreaOfInterestCellItem */
-static int hf_ngap_nGRAN_CGI = -1;                /* NGRAN_CGI */
-static int hf_ngap_AreaOfInterestList_item = -1;  /* AreaOfInterestItem */
-static int hf_ngap_areaOfInterest = -1;           /* AreaOfInterest */
-static int hf_ngap_locationReportingReferenceID = -1;  /* LocationReportingReferenceID */
-static int hf_ngap_AreaOfInterestRANNodeList_item = -1;  /* AreaOfInterestRANNodeItem */
-static int hf_ngap_AreaOfInterestTAIList_item = -1;  /* AreaOfInterestTAIItem */
-static int hf_ngap_assistanceDataForRecommendedCells = -1;  /* AssistanceDataForRecommendedCells */
-static int hf_ngap_pagingAttemptInformation = -1;  /* PagingAttemptInformation */
-static int hf_ngap_recommendedCellsForPaging = -1;  /* RecommendedCellsForPaging */
-static int hf_ngap_AssociatedMBSQosFlowSetupRequestList_item = -1;  /* AssociatedMBSQosFlowSetupRequestItem */
-static int hf_ngap_mBS_QosFlowIdentifier = -1;    /* QosFlowIdentifier */
-static int hf_ngap_associatedUnicastQosFlowIdentifier = -1;  /* QosFlowIdentifier */
-static int hf_ngap_AssociatedMBSQosFlowSetuporModifyRequestList_item = -1;  /* AssociatedMBSQosFlowSetuporModifyRequestItem */
-static int hf_ngap_AssociatedQosFlowList_item = -1;  /* AssociatedQosFlowItem */
-static int hf_ngap_qosFlowIdentifier = -1;        /* QosFlowIdentifier */
-static int hf_ngap_qosFlowMappingIndication = -1;  /* T_qosFlowMappingIndication */
-static int hf_ngap_cellBased = -1;                /* CellBasedMDT_NR */
-static int hf_ngap_tABased = -1;                  /* TABasedMDT */
-static int hf_ngap_pLMNWide = -1;                 /* NULL */
-static int hf_ngap_tAIBased = -1;                 /* TAIBasedMDT */
-static int hf_ngap_cellBased_01 = -1;             /* CellBasedMDT_EUTRA */
-static int hf_ngap_AreaScopeOfNeighCellsList_item = -1;  /* AreaScopeOfNeighCellsItem */
-static int hf_ngap_nrFrequencyInfo = -1;          /* NRFrequencyInfo */
-static int hf_ngap_pciListForMDT = -1;            /* PCIListForMDT */
-static int hf_ngap_cellBased_02 = -1;             /* CellBasedQMC */
-static int hf_ngap_tABased_01 = -1;               /* TABasedQMC */
-static int hf_ngap_tAIBased_01 = -1;              /* TAIBasedQMC */
-static int hf_ngap_pLMNAreaBased = -1;            /* PLMNAreaBasedQMC */
-static int hf_ngap_applicationLayerBufferLevelList = -1;  /* T_applicationLayerBufferLevelList */
-static int hf_ngap_playoutDelayForMediaStartup = -1;  /* T_playoutDelayForMediaStartup */
-static int hf_ngap_beamMeasurementsReportQuantity = -1;  /* BeamMeasurementsReportQuantity */
-static int hf_ngap_maxNrofRS_IndexesToReport = -1;  /* MaxNrofRS_IndexesToReport */
-static int hf_ngap_rSRP = -1;                     /* T_rSRP */
-static int hf_ngap_rSRQ = -1;                     /* T_rSRQ */
-static int hf_ngap_sINR = -1;                     /* T_sINR */
-static int hf_ngap_cellIDCancelledEUTRA = -1;     /* CellIDCancelledEUTRA */
-static int hf_ngap_tAICancelledEUTRA = -1;        /* TAICancelledEUTRA */
-static int hf_ngap_emergencyAreaIDCancelledEUTRA = -1;  /* EmergencyAreaIDCancelledEUTRA */
-static int hf_ngap_cellIDCancelledNR = -1;        /* CellIDCancelledNR */
-static int hf_ngap_tAICancelledNR = -1;           /* TAICancelledNR */
-static int hf_ngap_emergencyAreaIDCancelledNR = -1;  /* EmergencyAreaIDCancelledNR */
-static int hf_ngap_cellIDBroadcastEUTRA = -1;     /* CellIDBroadcastEUTRA */
-static int hf_ngap_tAIBroadcastEUTRA = -1;        /* TAIBroadcastEUTRA */
-static int hf_ngap_emergencyAreaIDBroadcastEUTRA = -1;  /* EmergencyAreaIDBroadcastEUTRA */
-static int hf_ngap_cellIDBroadcastNR = -1;        /* CellIDBroadcastNR */
-static int hf_ngap_tAIBroadcastNR = -1;           /* TAIBroadcastNR */
-static int hf_ngap_emergencyAreaIDBroadcastNR = -1;  /* EmergencyAreaIDBroadcastNR */
-static int hf_ngap_BroadcastPLMNList_item = -1;   /* BroadcastPLMNItem */
-static int hf_ngap_tAISliceSupportList = -1;      /* SliceSupportList */
-static int hf_ngap_bluetoothMeasConfig = -1;      /* BluetoothMeasConfig */
-static int hf_ngap_bluetoothMeasConfigNameList = -1;  /* BluetoothMeasConfigNameList */
-static int hf_ngap_bt_rssi = -1;                  /* T_bt_rssi */
-static int hf_ngap_BluetoothMeasConfigNameList_item = -1;  /* BluetoothMeasConfigNameItem */
-static int hf_ngap_bluetoothName = -1;            /* BluetoothName */
-static int hf_ngap_CancelledCellsInEAI_EUTRA_item = -1;  /* CancelledCellsInEAI_EUTRA_Item */
-static int hf_ngap_eUTRA_CGI = -1;                /* EUTRA_CGI */
-static int hf_ngap_numberOfBroadcasts = -1;       /* NumberOfBroadcasts */
-static int hf_ngap_CancelledCellsInEAI_NR_item = -1;  /* CancelledCellsInEAI_NR_Item */
-static int hf_ngap_nR_CGI = -1;                   /* NR_CGI */
-static int hf_ngap_CancelledCellsInTAI_EUTRA_item = -1;  /* CancelledCellsInTAI_EUTRA_Item */
-static int hf_ngap_CancelledCellsInTAI_NR_item = -1;  /* CancelledCellsInTAI_NR_Item */
-static int hf_ngap_CandidateCellList_item = -1;   /* CandidateCellItem */
-static int hf_ngap_candidateCell = -1;            /* CandidateCell */
-static int hf_ngap_candidateCGI = -1;             /* CandidateCellID */
-static int hf_ngap_candidatePCI = -1;             /* CandidatePCI */
-static int hf_ngap_candidateCellID = -1;          /* NR_CGI */
-static int hf_ngap_candidatePCI_01 = -1;          /* INTEGER_0_1007_ */
-static int hf_ngap_candidateNRARFCN = -1;         /* INTEGER_0_maxNRARFCN */
-static int hf_ngap_radioNetwork = -1;             /* CauseRadioNetwork */
-static int hf_ngap_transport = -1;                /* CauseTransport */
-static int hf_ngap_nas = -1;                      /* CauseNas */
-static int hf_ngap_protocol = -1;                 /* CauseProtocol */
-static int hf_ngap_misc = -1;                     /* CauseMisc */
-static int hf_ngap_cellCAGList = -1;              /* CellCAGList */
-static int hf_ngap_CellCAGList_item = -1;         /* CAG_ID */
-static int hf_ngap_CellIDBroadcastEUTRA_item = -1;  /* CellIDBroadcastEUTRA_Item */
-static int hf_ngap_CellIDBroadcastNR_item = -1;   /* CellIDBroadcastNR_Item */
-static int hf_ngap_CellIDCancelledEUTRA_item = -1;  /* CellIDCancelledEUTRA_Item */
-static int hf_ngap_CellIDCancelledNR_item = -1;   /* CellIDCancelledNR_Item */
-static int hf_ngap_eUTRA_CGIListforRestart = -1;  /* EUTRA_CGIList */
-static int hf_ngap_nR_CGIListforRestart = -1;     /* NR_CGIList */
-static int hf_ngap_cellSize = -1;                 /* CellSize */
-static int hf_ngap_expectedUEBehaviour = -1;      /* ExpectedUEBehaviour */
-static int hf_ngap_CNTypeRestrictionsForEquivalent_item = -1;  /* CNTypeRestrictionsForEquivalentItem */
-static int hf_ngap_plmnIdentity = -1;             /* PLMNIdentity */
-static int hf_ngap_cn_Type = -1;                  /* T_cn_Type */
-static int hf_ngap_CompletedCellsInEAI_EUTRA_item = -1;  /* CompletedCellsInEAI_EUTRA_Item */
-static int hf_ngap_CompletedCellsInEAI_NR_item = -1;  /* CompletedCellsInEAI_NR_Item */
-static int hf_ngap_CompletedCellsInTAI_EUTRA_item = -1;  /* CompletedCellsInTAI_EUTRA_Item */
-static int hf_ngap_CompletedCellsInTAI_NR_item = -1;  /* CompletedCellsInTAI_NR_Item */
-static int hf_ngap_uEIdentityIndexValue = -1;     /* UEIdentityIndexValue */
-static int hf_ngap_uESpecificDRX = -1;            /* PagingDRX */
-static int hf_ngap_periodicRegistrationUpdateTimer = -1;  /* PeriodicRegistrationUpdateTimer */
-static int hf_ngap_mICOModeIndication = -1;       /* MICOModeIndication */
-static int hf_ngap_tAIListForInactive = -1;       /* TAIListForInactive */
-static int hf_ngap_pDCP_SN12 = -1;                /* INTEGER_0_4095 */
-static int hf_ngap_hFN_PDCP_SN12 = -1;            /* INTEGER_0_1048575 */
-static int hf_ngap_pDCP_SN18 = -1;                /* INTEGER_0_262143 */
-static int hf_ngap_hFN_PDCP_SN18 = -1;            /* INTEGER_0_16383 */
-static int hf_ngap_endpointIPAddress = -1;        /* TransportLayerAddress */
-static int hf_ngap_procedureCode = -1;            /* ProcedureCode */
-static int hf_ngap_triggeringMessage = -1;        /* TriggeringMessage */
-static int hf_ngap_procedureCriticality = -1;     /* Criticality */
-static int hf_ngap_iEsCriticalityDiagnostics = -1;  /* CriticalityDiagnostics_IE_List */
-static int hf_ngap_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_Item */
-static int hf_ngap_iECriticality = -1;            /* Criticality */
-static int hf_ngap_iE_ID = -1;                    /* ProtocolIE_ID */
-static int hf_ngap_typeOfError = -1;              /* TypeOfError */
-static int hf_ngap_cellIdListforMDT = -1;         /* CellIdListforMDT_NR */
-static int hf_ngap_CellIdListforMDT_NR_item = -1;  /* NR_CGI */
-static int hf_ngap_cellIdListforMDT_01 = -1;      /* CellIdListforMDT_EUTRA */
-static int hf_ngap_cellIdListforQMC = -1;         /* CellIdListforQMC */
-static int hf_ngap_CellIdListforQMC_item = -1;    /* NGRAN_CGI */
-static int hf_ngap_CellIdListforMDT_EUTRA_item = -1;  /* EUTRA_CGI */
-static int hf_ngap_DataForwardingResponseDRBList_item = -1;  /* DataForwardingResponseDRBItem */
-static int hf_ngap_dRB_ID = -1;                   /* DRB_ID */
-static int hf_ngap_dLForwardingUP_TNLInformation = -1;  /* UPTransportLayerInformation */
-static int hf_ngap_uLForwardingUP_TNLInformation = -1;  /* UPTransportLayerInformation */
-static int hf_ngap_dAPSIndicator = -1;            /* T_dAPSIndicator */
-static int hf_ngap_DAPSResponseInfoList_item = -1;  /* DAPSResponseInfoItem */
-static int hf_ngap_dAPSResponseInfo = -1;         /* DAPSResponseInfo */
-static int hf_ngap_iE_Extension = -1;             /* ProtocolExtensionContainer */
-static int hf_ngap_dapsresponseindicator = -1;    /* T_dapsresponseindicator */
-static int hf_ngap_DataForwardingResponseERABList_item = -1;  /* DataForwardingResponseERABListItem */
-static int hf_ngap_e_RAB_ID = -1;                 /* E_RAB_ID */
-static int hf_ngap_dl_NAS_MAC = -1;               /* DL_NAS_MAC */
-static int hf_ngap_DRBsSubjectToStatusTransferList_item = -1;  /* DRBsSubjectToStatusTransferItem */
-static int hf_ngap_dRBStatusUL = -1;              /* DRBStatusUL */
-static int hf_ngap_dRBStatusDL = -1;              /* DRBStatusDL */
-static int hf_ngap_dRBStatusDL12 = -1;            /* DRBStatusDL12 */
-static int hf_ngap_dRBStatusDL18 = -1;            /* DRBStatusDL18 */
-static int hf_ngap_dL_COUNTValue = -1;            /* COUNTValueForPDCP_SN12 */
-static int hf_ngap_dL_COUNTValue_01 = -1;         /* COUNTValueForPDCP_SN18 */
-static int hf_ngap_dRBStatusUL12 = -1;            /* DRBStatusUL12 */
-static int hf_ngap_dRBStatusUL18 = -1;            /* DRBStatusUL18 */
-static int hf_ngap_uL_COUNTValue = -1;            /* COUNTValueForPDCP_SN12 */
-static int hf_ngap_receiveStatusOfUL_PDCP_SDUs = -1;  /* BIT_STRING_SIZE_1_2048 */
-static int hf_ngap_uL_COUNTValue_01 = -1;         /* COUNTValueForPDCP_SN18 */
-static int hf_ngap_receiveStatusOfUL_PDCP_SDUs_01 = -1;  /* BIT_STRING_SIZE_1_131072 */
-static int hf_ngap_DRBsToQosFlowsMappingList_item = -1;  /* DRBsToQosFlowsMappingItem */
-static int hf_ngap_associatedQosFlowList = -1;    /* AssociatedQosFlowList */
-static int hf_ngap_priorityLevelQos = -1;         /* PriorityLevelQos */
-static int hf_ngap_fiveQI = -1;                   /* FiveQI */
-static int hf_ngap_delayCritical = -1;            /* DelayCritical */
-static int hf_ngap_averagingWindow = -1;          /* AveragingWindow */
-static int hf_ngap_maximumDataBurstVolume = -1;   /* MaximumDataBurstVolume */
-static int hf_ngap_procedureStage = -1;           /* ProcedureStageChoice */
-static int hf_ngap_first_dl_count = -1;           /* FirstDLCount */
-static int hf_ngap_dRBsSubjectToEarlyStatusTransfer = -1;  /* DRBsSubjectToEarlyStatusTransfer_List */
-static int hf_ngap_DRBsSubjectToEarlyStatusTransfer_List_item = -1;  /* DRBsSubjectToEarlyStatusTransfer_Item */
-static int hf_ngap_firstDLCOUNT = -1;             /* DRBStatusDL */
-static int hf_ngap_EmergencyAreaIDBroadcastEUTRA_item = -1;  /* EmergencyAreaIDBroadcastEUTRA_Item */
-static int hf_ngap_emergencyAreaID = -1;          /* EmergencyAreaID */
-static int hf_ngap_completedCellsInEAI_EUTRA = -1;  /* CompletedCellsInEAI_EUTRA */
-static int hf_ngap_EmergencyAreaIDBroadcastNR_item = -1;  /* EmergencyAreaIDBroadcastNR_Item */
-static int hf_ngap_completedCellsInEAI_NR = -1;   /* CompletedCellsInEAI_NR */
-static int hf_ngap_EmergencyAreaIDCancelledEUTRA_item = -1;  /* EmergencyAreaIDCancelledEUTRA_Item */
-static int hf_ngap_cancelledCellsInEAI_EUTRA = -1;  /* CancelledCellsInEAI_EUTRA */
-static int hf_ngap_EmergencyAreaIDCancelledNR_item = -1;  /* EmergencyAreaIDCancelledNR_Item */
-static int hf_ngap_cancelledCellsInEAI_NR = -1;   /* CancelledCellsInEAI_NR */
-static int hf_ngap_EmergencyAreaIDList_item = -1;  /* EmergencyAreaID */
-static int hf_ngap_EmergencyAreaIDListForRestart_item = -1;  /* EmergencyAreaID */
-static int hf_ngap_emergencyFallbackRequestIndicator = -1;  /* EmergencyFallbackRequestIndicator */
-static int hf_ngap_emergencyServiceTargetCN = -1;  /* EmergencyServiceTargetCN */
-static int hf_ngap_macroENB_ID = -1;              /* BIT_STRING_SIZE_20 */
-static int hf_ngap_homeENB_ID = -1;               /* BIT_STRING_SIZE_28 */
-static int hf_ngap_short_macroENB_ID = -1;        /* BIT_STRING_SIZE_18 */
-static int hf_ngap_long_macroENB_ID = -1;         /* BIT_STRING_SIZE_21 */
-static int hf_ngap_portNumber = -1;               /* PortNumber */
-static int hf_ngap_EquivalentPLMNs_item = -1;     /* PLMNIdentity */
-static int hf_ngap_ePS_TAC = -1;                  /* EPS_TAC */
-static int hf_ngap_E_RABInformationList_item = -1;  /* E_RABInformationItem */
-static int hf_ngap_dLForwarding = -1;             /* DLForwarding */
-static int hf_ngap_eUTRACellIdentity = -1;        /* EUTRACellIdentity */
-static int hf_ngap_EUTRA_CGIList_item = -1;       /* EUTRA_CGI */
-static int hf_ngap_EUTRA_CGIListForWarning_item = -1;  /* EUTRA_CGI */
-static int hf_ngap_eUTRA_paging_eDRX_Cycle = -1;  /* EUTRA_Paging_eDRX_Cycle */
-static int hf_ngap_eUTRA_paging_Time_Window = -1;  /* EUTRA_Paging_Time_Window */
-static int hf_ngap_ExcessPacketDelayThresholdConfiguration_item = -1;  /* ExcessPacketDelayThresholdItem */
-static int hf_ngap_fiveQi = -1;                   /* FiveQI */
-static int hf_ngap_excessPacketDelayThresholdValue = -1;  /* ExcessPacketDelayThresholdValue */
-static int hf_ngap_expectedActivityPeriod = -1;   /* ExpectedActivityPeriod */
-static int hf_ngap_expectedIdlePeriod = -1;       /* ExpectedIdlePeriod */
-static int hf_ngap_sourceOfUEActivityBehaviourInformation = -1;  /* SourceOfUEActivityBehaviourInformation */
-static int hf_ngap_expectedUEActivityBehaviour = -1;  /* ExpectedUEActivityBehaviour */
-static int hf_ngap_expectedHOInterval = -1;       /* ExpectedHOInterval */
-static int hf_ngap_expectedUEMobility = -1;       /* ExpectedUEMobility */
-static int hf_ngap_expectedUEMovingTrajectory = -1;  /* ExpectedUEMovingTrajectory */
-static int hf_ngap_ExpectedUEMovingTrajectory_item = -1;  /* ExpectedUEMovingTrajectoryItem */
-static int hf_ngap_timeStayedInCell = -1;         /* INTEGER_0_4095 */
-static int hf_ngap_aMFNameVisibleString = -1;     /* AMFNameVisibleString */
-static int hf_ngap_aMFNameUTF8String = -1;        /* AMFNameUTF8String */
-static int hf_ngap_rANNodeNameVisibleString = -1;  /* RANNodeNameVisibleString */
-static int hf_ngap_rANNodeNameUTF8String = -1;    /* RANNodeNameUTF8String */
-static int hf_ngap_primaryRATRestriction = -1;    /* T_primaryRATRestriction */
-static int hf_ngap_secondaryRATRestriction = -1;  /* T_secondaryRATRestriction */
-static int hf_ngap_ExtendedSliceSupportList_item = -1;  /* SliceSupportItem */
-static int hf_ngap_outOfCoverage = -1;            /* T_outOfCoverage */
-static int hf_ngap_eventL1LoggedMDTConfig = -1;   /* EventL1LoggedMDTConfig */
-static int hf_ngap_l1Threshold = -1;              /* MeasurementThresholdL1LoggedMDT */
-static int hf_ngap_hysteresis = -1;               /* Hysteresis */
-static int hf_ngap_timeToTrigger = -1;            /* TimeToTrigger */
-static int hf_ngap_threshold_RSRP = -1;           /* Threshold_RSRP */
-static int hf_ngap_threshold_RSRQ = -1;           /* Threshold_RSRQ */
-static int hf_ngap_uERLFReportContainer = -1;     /* UERLFReportContainer */
-static int hf_ngap_fiveGProSeDirectDiscovery = -1;  /* FiveGProSeDirectDiscovery */
-static int hf_ngap_fiveGProSeDirectCommunication = -1;  /* FiveGProSeDirectCommunication */
-static int hf_ngap_fiveGProSeLayer2UEtoNetworkRelay = -1;  /* FiveGProSeLayer2UEtoNetworkRelay */
-static int hf_ngap_fiveGProSeLayer3UEtoNetworkRelay = -1;  /* FiveGProSeLayer3UEtoNetworkRelay */
-static int hf_ngap_fiveGProSeLayer2RemoteUE = -1;  /* FiveGProSeLayer2RemoteUE */
-static int hf_ngap_fiveGProSepc5QoSFlowList = -1;  /* FiveGProSePC5QoSFlowList */
-static int hf_ngap_fiveGProSepc5LinkAggregateBitRates = -1;  /* BitRate */
-static int hf_ngap_FiveGProSePC5QoSFlowList_item = -1;  /* FiveGProSePC5QoSFlowItem */
-static int hf_ngap_fiveGproSepQI = -1;            /* FiveQI */
-static int hf_ngap_fiveGproSepc5FlowBitRates = -1;  /* FiveGProSePC5FlowBitRates */
-static int hf_ngap_fiveGproSerange = -1;          /* Range */
-static int hf_ngap_fiveGproSeguaranteedFlowBitRate = -1;  /* BitRate */
-static int hf_ngap_fiveGproSemaximumFlowBitRate = -1;  /* BitRate */
-static int hf_ngap_aMFSetID = -1;                 /* AMFSetID */
-static int hf_ngap_aMFPointer = -1;               /* AMFPointer */
-static int hf_ngap_fiveG_TMSI = -1;               /* FiveG_TMSI */
-static int hf_ngap_ForbiddenAreaInformation_item = -1;  /* ForbiddenAreaInformation_Item */
-static int hf_ngap_forbiddenTACs = -1;            /* ForbiddenTACs */
-static int hf_ngap_ForbiddenTACs_item = -1;       /* TAC */
-static int hf_ngap_sourceeNBID = -1;              /* IntersystemSONeNBID */
-static int hf_ngap_targetNGRANnodeID = -1;        /* IntersystemSONNGRANnodeID */
-static int hf_ngap_sourceNGRANnodeID = -1;        /* IntersystemSONNGRANnodeID */
-static int hf_ngap_targeteNBID = -1;              /* IntersystemSONeNBID */
-static int hf_ngap_maximumFlowBitRateDL = -1;     /* BitRate */
-static int hf_ngap_maximumFlowBitRateUL = -1;     /* BitRate */
-static int hf_ngap_notificationControl = -1;      /* NotificationControl */
-static int hf_ngap_maximumPacketLossRateDL = -1;  /* PacketLossRate */
-static int hf_ngap_maximumPacketLossRateUL = -1;  /* PacketLossRate */
-static int hf_ngap_globalCable_ID = -1;           /* GlobalCable_ID */
-static int hf_ngap_pLMNidentity = -1;             /* PLMNIdentity */
-static int hf_ngap_eNB_ID = -1;                   /* ENB_ID */
-static int hf_ngap_globalGNB_ID_gNB_ID = -1;      /* GNB_ID */
-static int hf_ngap_globalN3IWF_ID_n3IWF_ID = -1;  /* N3IWF_ID */
-static int hf_ngap_globalLineIdentity = -1;       /* GlobalLineIdentity */
-static int hf_ngap_lineType = -1;                 /* LineType */
-static int hf_ngap_ngENB_ID = -1;                 /* NgENB_ID */
-static int hf_ngap_globalGNB_ID = -1;             /* GlobalGNB_ID */
-static int hf_ngap_globalNgENB_ID = -1;           /* GlobalNgENB_ID */
-static int hf_ngap_globalN3IWF_ID = -1;           /* GlobalN3IWF_ID */
-static int hf_ngap_globalTNGF_ID_tNGF_ID = -1;    /* TNGF_ID */
-static int hf_ngap_globalTWIF_ID_tWIF_ID = -1;    /* TWIF_ID */
-static int hf_ngap_globalW_AGF_ID_w_AGF_ID = -1;  /* W_AGF_ID */
-static int hf_ngap_gNB_ID = -1;                   /* BIT_STRING_SIZE_22_32 */
-static int hf_ngap_transportLayerAddress = -1;    /* TransportLayerAddress */
-static int hf_ngap_gTP_TEID = -1;                 /* GTP_TEID */
-static int hf_ngap_aMFRegionID = -1;              /* AMFRegionID */
-static int hf_ngap_qosFlowToBeForwardedList = -1;  /* QosFlowToBeForwardedList */
-static int hf_ngap_dataForwardingResponseDRBList = -1;  /* DataForwardingResponseDRBList */
-static int hf_ngap_cause = -1;                    /* Cause */
-static int hf_ngap_dL_NGU_UP_TNLInformation = -1;  /* UPTransportLayerInformation */
-static int hf_ngap_securityResult = -1;           /* SecurityResult */
-static int hf_ngap_qosFlowSetupResponseList = -1;  /* QosFlowListWithDataForwarding */
-static int hf_ngap_qosFlowFailedToSetupList = -1;  /* QosFlowListWithCause */
-static int hf_ngap_directForwardingPathAvailability = -1;  /* DirectForwardingPathAvailability */
-static int hf_ngap_criticalityDiagnostics = -1;   /* CriticalityDiagnostics */
-static int hf_ngap_hFCNode_ID = -1;               /* HFCNode_ID */
-static int hf_ngap_handoverReportType = -1;       /* T_handoverReportType */
-static int hf_ngap_handoverCause = -1;            /* Cause */
-static int hf_ngap_sourcecellCGI = -1;            /* NGRAN_CGI */
-static int hf_ngap_targetcellCGI = -1;            /* NGRAN_CGI */
-static int hf_ngap_reestablishmentcellCGI = -1;   /* NGRAN_CGI */
-static int hf_ngap_sourcecellC_RNTI = -1;         /* BIT_STRING_SIZE_16 */
-static int hf_ngap_targetcellinE_UTRAN = -1;      /* EUTRA_CGI */
-static int hf_ngap_mobilityInformation = -1;      /* MobilityInformation */
-static int hf_ngap_recommendRANNodesForPaging = -1;  /* RecommendedRANNodesForPaging */
-static int hf_ngap_measurementsToActivate = -1;   /* MeasurementsToActivate */
-static int hf_ngap_m1Configuration = -1;          /* M1Configuration */
-static int hf_ngap_m4Configuration = -1;          /* M4Configuration */
-static int hf_ngap_m5Configuration = -1;          /* M5Configuration */
-static int hf_ngap_m6Configuration = -1;          /* M6Configuration */
-static int hf_ngap_m7Configuration = -1;          /* M7Configuration */
-static int hf_ngap_bluetoothMeasurementConfiguration = -1;  /* BluetoothMeasurementConfiguration */
-static int hf_ngap_wLANMeasurementConfiguration = -1;  /* WLANMeasurementConfiguration */
-static int hf_ngap_mDT_Location_Info = -1;        /* MDT_Location_Info */
-static int hf_ngap_sensorMeasurementConfiguration = -1;  /* SensorMeasurementConfiguration */
-static int hf_ngap_transferType = -1;             /* IntersystemSONTransferType */
-static int hf_ngap_intersystemSONInformation = -1;  /* IntersystemSONInformation */
-static int hf_ngap_fromEUTRANtoNGRAN = -1;        /* FromEUTRANtoNGRAN */
-static int hf_ngap_fromNGRANtoEUTRAN = -1;        /* FromNGRANtoEUTRAN */
-static int hf_ngap_globaleNBID = -1;              /* GlobalENB_ID */
-static int hf_ngap_selectedEPSTAI = -1;           /* EPS_TAI */
-static int hf_ngap_selectedTAI = -1;              /* TAI */
-static int hf_ngap_intersystemSONInformationReport = -1;  /* IntersystemSONInformationReport */
-static int hf_ngap_nGRAN_CellActivation = -1;     /* IntersystemCellActivationRequest */
-static int hf_ngap_resourceStatus = -1;           /* IntersystemResourceStatusRequest */
-static int hf_ngap_activationID = -1;             /* INTEGER_0_16384_ */
-static int hf_ngap_cellsToActivateList = -1;      /* CellsToActivateList */
-static int hf_ngap_CellsToActivateList_item = -1;  /* NGRAN_CGI */
-static int hf_ngap_reportingSystem = -1;          /* ReportingSystem */
-static int hf_ngap_reportCharacteristics = -1;    /* ReportCharacteristics */
-static int hf_ngap_reportType = -1;               /* ReportType */
-static int hf_ngap_eUTRAN = -1;                   /* EUTRAN_ReportingSystemIEs */
-static int hf_ngap_nGRAN = -1;                    /* NGRAN_ReportingSystemIEs */
-static int hf_ngap_noReporting = -1;              /* NULL */
-static int hf_ngap_eUTRAN_CellToReportList = -1;  /* EUTRAN_CellToReportList */
-static int hf_ngap_nGRAN_CellToReportList = -1;   /* NGRAN_CellToReportList */
-static int hf_ngap_EUTRAN_CellToReportList_item = -1;  /* EUTRAN_CellToReportItem */
-static int hf_ngap_eCGI = -1;                     /* EUTRA_CGI */
-static int hf_ngap_NGRAN_CellToReportList_item = -1;  /* NGRAN_CellToReportItem */
-static int hf_ngap_eventBasedReporting = -1;      /* EventBasedReportingIEs */
-static int hf_ngap_periodicReporting = -1;        /* PeriodicReportingIEs */
-static int hf_ngap_intersystemResourceThresholdLow = -1;  /* IntersystemResourceThreshold */
-static int hf_ngap_intersystemResourceThresholdHigh = -1;  /* IntersystemResourceThreshold */
-static int hf_ngap_numberOfMeasurementReportingLevels = -1;  /* NumberOfMeasurementReportingLevels */
-static int hf_ngap_reportingPeriodicity = -1;     /* ReportingPeriodicity */
-static int hf_ngap_nGRAN_CellActivation_01 = -1;  /* IntersystemCellActivationReply */
-static int hf_ngap_resourceStatus_01 = -1;        /* IntersystemResourceStatusReply */
-static int hf_ngap_activatedCellList = -1;        /* ActivatedCellList */
-static int hf_ngap_activation_ID = -1;            /* INTEGER_0_16384_ */
-static int hf_ngap_ActivatedCellList_item = -1;   /* NGRAN_CGI */
-static int hf_ngap_reportingsystem = -1;          /* ReportingSystem */
-static int hf_ngap_hOReportInformation = -1;      /* InterSystemHOReport */
-static int hf_ngap_failureIndicationInformation = -1;  /* InterSystemFailureIndication */
-static int hf_ngap_notificationCellList = -1;     /* NotificationCellList */
-static int hf_ngap_NotificationCellList_item = -1;  /* NotificationCell_Item */
-static int hf_ngap_notifyFlag = -1;               /* T_notifyFlag */
-static int hf_ngap_reportingSystem_01 = -1;       /* ResourceStatusReportingSystem */
-static int hf_ngap_eUTRAN_ReportingStatus = -1;   /* EUTRAN_ReportingStatusIEs */
-static int hf_ngap_nGRAN_ReportingStatus = -1;    /* NGRAN_ReportingStatusIEs */
-static int hf_ngap_eUTRAN_CellReportList = -1;    /* EUTRAN_CellReportList */
-static int hf_ngap_EUTRAN_CellReportList_item = -1;  /* EUTRAN_CellReportItem */
-static int hf_ngap_eUTRAN_CompositeAvailableCapacityGroup = -1;  /* EUTRAN_CompositeAvailableCapacityGroup */
-static int hf_ngap_eUTRAN_NumberOfActiveUEs = -1;  /* EUTRAN_NumberOfActiveUEs */
-static int hf_ngap_eUTRAN_NoofRRCConnections = -1;  /* NGRAN_NoofRRCConnections */
-static int hf_ngap_eUTRAN_RadioResourceStatus = -1;  /* EUTRAN_RadioResourceStatus */
-static int hf_ngap_dL_CompositeAvailableCapacity = -1;  /* CompositeAvailableCapacity */
-static int hf_ngap_uL_CompositeAvailableCapacity = -1;  /* CompositeAvailableCapacity */
-static int hf_ngap_cellCapacityClassValue = -1;   /* INTEGER_1_100_ */
-static int hf_ngap_capacityValue = -1;            /* INTEGER_0_100 */
-static int hf_ngap_dL_GBR_PRB_usage = -1;         /* INTEGER_0_100 */
-static int hf_ngap_uL_GBR_PRB_usage = -1;         /* INTEGER_0_100 */
-static int hf_ngap_dL_non_GBR_PRB_usage = -1;     /* INTEGER_0_100 */
-static int hf_ngap_uL_non_GBR_PRB_usage = -1;     /* INTEGER_0_100 */
-static int hf_ngap_dL_Total_PRB_usage = -1;       /* INTEGER_0_100 */
-static int hf_ngap_uL_Total_PRB_usage = -1;       /* INTEGER_0_100 */
-static int hf_ngap_dL_scheduling_PDCCH_CCE_usage = -1;  /* INTEGER_0_100 */
-static int hf_ngap_uL_scheduling_PDCCH_CCE_usage = -1;  /* INTEGER_0_100 */
-static int hf_ngap_nGRAN_CellReportList = -1;     /* NGRAN_CellReportList */
-static int hf_ngap_NGRAN_CellReportList_item = -1;  /* NGRAN_CellReportItem */
-static int hf_ngap_nGRAN_CompositeAvailableCapacityGroup = -1;  /* EUTRAN_CompositeAvailableCapacityGroup */
-static int hf_ngap_nGRAN_NumberOfActiveUEs = -1;  /* NGRAN_NumberOfActiveUEs */
-static int hf_ngap_nGRAN_NoofRRCConnections = -1;  /* NGRAN_NoofRRCConnections */
-static int hf_ngap_nGRAN_RadioResourceStatus = -1;  /* NGRAN_RadioResourceStatus */
-static int hf_ngap_dL_GBR_PRB_usage_for_MIMO = -1;  /* INTEGER_0_100 */
-static int hf_ngap_uL_GBR_PRB_usage_for_MIMO = -1;  /* INTEGER_0_100 */
-static int hf_ngap_dL_non_GBR_PRB_usage_for_MIMO = -1;  /* INTEGER_0_100 */
-static int hf_ngap_uL_non_GBR_PRB_usage_for_MIMO = -1;  /* INTEGER_0_100 */
-static int hf_ngap_dL_Total_PRB_usage_for_MIMO = -1;  /* INTEGER_0_100 */
-static int hf_ngap_uL_Total_PRB_usage_for_MIMO = -1;  /* INTEGER_0_100 */
-static int hf_ngap_handoverReportType_01 = -1;    /* InterSystemHandoverReportType */
-static int hf_ngap_tooearlyIntersystemHO = -1;    /* TooearlyIntersystemHO */
-static int hf_ngap_intersystemUnnecessaryHO = -1;  /* IntersystemUnnecessaryHO */
-static int hf_ngap_sourcecellID = -1;             /* NGRAN_CGI */
-static int hf_ngap_targetcellID = -1;             /* EUTRA_CGI */
-static int hf_ngap_earlyIRATHO = -1;              /* T_earlyIRATHO */
-static int hf_ngap_candidateCellList = -1;        /* CandidateCellList */
-static int hf_ngap_lAC = -1;                      /* LAC */
-static int hf_ngap_nGRANCell = -1;                /* LastVisitedNGRANCellInformation */
-static int hf_ngap_eUTRANCell = -1;               /* LastVisitedEUTRANCellInformation */
-static int hf_ngap_uTRANCell = -1;                /* LastVisitedUTRANCellInformation */
-static int hf_ngap_gERANCell = -1;                /* LastVisitedGERANCellInformation */
-static int hf_ngap_lastVisitedCellInformation = -1;  /* LastVisitedCellInformation */
-static int hf_ngap_globalCellID = -1;             /* NGRAN_CGI */
-static int hf_ngap_cellType = -1;                 /* CellType */
-static int hf_ngap_timeUEStayedInCell = -1;       /* TimeUEStayedInCell */
-static int hf_ngap_timeUEStayedInCellEnhancedGranularity = -1;  /* TimeUEStayedInCellEnhancedGranularity */
-static int hf_ngap_hOCauseValue = -1;             /* Cause */
-static int hf_ngap_LastVisitedPSCellList_item = -1;  /* LastVisitedPSCellInformation */
-static int hf_ngap_pSCellID = -1;                 /* NGRAN_CGI */
-static int hf_ngap_timeStay = -1;                 /* INTEGER_0_40950 */
-static int hf_ngap_eventType = -1;                /* EventType */
-static int hf_ngap_reportArea = -1;               /* ReportArea */
-static int hf_ngap_areaOfInterestList = -1;       /* AreaOfInterestList */
-static int hf_ngap_locationReportingReferenceIDToBeCancelled = -1;  /* LocationReportingReferenceID */
-static int hf_ngap_loggingInterval = -1;          /* LoggingInterval */
-static int hf_ngap_loggingDuration = -1;          /* LoggingDuration */
-static int hf_ngap_loggedMDTTrigger = -1;         /* LoggedMDTTrigger */
-static int hf_ngap_areaScopeOfNeighCellsList = -1;  /* AreaScopeOfNeighCellsList */
-static int hf_ngap_periodical = -1;               /* NULL */
-static int hf_ngap_eventTrigger = -1;             /* EventTrigger */
-static int hf_ngap_vehicleUE = -1;                /* VehicleUE */
-static int hf_ngap_pedestrianUE = -1;             /* PedestrianUE */
-static int hf_ngap_uESidelinkAggregateMaximumBitRate = -1;  /* BitRate */
-static int hf_ngap_MBS_DataForwardingResponseMRBList_item = -1;  /* MBS_DataForwardingResponseMRBItem */
-static int hf_ngap_mRB_ID = -1;                   /* MRB_ID */
-static int hf_ngap_dL_Forwarding_UPTNLInformation = -1;  /* UPTransportLayerInformation */
-static int hf_ngap_mRB_ProgressInformation = -1;  /* MRB_ProgressInformation */
-static int hf_ngap_MBS_MappingandDataForwardingRequestList_item = -1;  /* MBS_MappingandDataForwardingRequestItem */
-static int hf_ngap_mBS_QoSFlowList = -1;          /* MBS_QoSFlowList */
-static int hf_ngap_MBS_QoSFlowList_item = -1;     /* QosFlowIdentifier */
-static int hf_ngap_pDCP_SN_Length12 = -1;         /* INTEGER_0_4095 */
-static int hf_ngap_pDCP_SN_Length18 = -1;         /* INTEGER_0_262143 */
-static int hf_ngap_MBS_QoSFlowsToBeSetupList_item = -1;  /* MBS_QoSFlowsToBeSetupItem */
-static int hf_ngap_mBSqosFlowIdentifier = -1;     /* QosFlowIdentifier */
-static int hf_ngap_mBSqosFlowLevelQosParameters = -1;  /* QosFlowLevelQosParameters */
-static int hf_ngap_locationindependent = -1;      /* MBS_ServiceAreaInformation */
-static int hf_ngap_locationdependent = -1;        /* MBS_ServiceAreaInformationList */
-static int hf_ngap_MBS_ServiceAreaInformationList_item = -1;  /* MBS_ServiceAreaInformationItem */
-static int hf_ngap_mBS_AreaSessionID = -1;        /* MBS_AreaSessionID */
-static int hf_ngap_mBS_ServiceAreaInformation = -1;  /* MBS_ServiceAreaInformation */
-static int hf_ngap_mBS_ServiceAreaCellList = -1;  /* MBS_ServiceAreaCellList */
-static int hf_ngap_mBS_ServiceAreaTAIList = -1;   /* MBS_ServiceAreaTAIList */
-static int hf_ngap_MBS_ServiceAreaCellList_item = -1;  /* NR_CGI */
-static int hf_ngap_MBS_ServiceAreaTAIList_item = -1;  /* TAI */
-static int hf_ngap_tMGI = -1;                     /* TMGI */
-static int hf_ngap_nID = -1;                      /* NID */
-static int hf_ngap_MBSSessionFailedtoSetupList_item = -1;  /* MBSSessionFailedtoSetupItem */
-static int hf_ngap_mBS_SessionID = -1;            /* MBS_SessionID */
-static int hf_ngap_MBS_ActiveSessionInformation_SourcetoTargetList_item = -1;  /* MBS_ActiveSessionInformation_SourcetoTargetItem */
-static int hf_ngap_mBS_ServiceArea = -1;          /* MBS_ServiceArea */
-static int hf_ngap_mBS_QoSFlowsToBeSetupList = -1;  /* MBS_QoSFlowsToBeSetupList */
-static int hf_ngap_mBS_MappingandDataForwardingRequestList = -1;  /* MBS_MappingandDataForwardingRequestList */
-static int hf_ngap_MBS_ActiveSessionInformation_TargettoSourceList_item = -1;  /* MBS_ActiveSessionInformation_TargettoSourceItem */
-static int hf_ngap_mBS_DataForwardingResponseMRBList = -1;  /* MBS_DataForwardingResponseMRBList */
-static int hf_ngap_MBSSessionSetupResponseList_item = -1;  /* MBSSessionSetupResponseItem */
-static int hf_ngap_protocolIEs = -1;              /* ProtocolIE_Container */
-static int hf_ngap_MBS_SessionFSAIDList_item = -1;  /* MBS_SessionFSAID */
-static int hf_ngap_mBS_SessionTNLInfoNGRAN = -1;  /* MBS_SessionTNLInfoNGRAN */
-static int hf_ngap_locationindependent_01 = -1;   /* SharedNGU_MulticastTNLInformation */
-static int hf_ngap_locationdependent_01 = -1;     /* MBS_SessionTNLInfo5GCList */
-static int hf_ngap_MBS_SessionTNLInfo5GCList_item = -1;  /* MBS_SessionTNLInfo5GCItem */
-static int hf_ngap_sharedNGU_MulticastTNLInformation = -1;  /* SharedNGU_MulticastTNLInformation */
-static int hf_ngap_locationindependent_02 = -1;   /* UPTransportLayerInformation */
-static int hf_ngap_locationdependent_02 = -1;     /* MBS_SessionTNLInfoNGRANList */
-static int hf_ngap_MBS_SessionTNLInfoNGRANList_item = -1;  /* MBS_SessionTNLInfoNGRANItem */
-static int hf_ngap_sharedNGU_UnicastTNLInformation = -1;  /* UPTransportLayerInformation */
-static int hf_ngap_mBSSessionStatus = -1;         /* MBSSessionStatus */
-static int hf_ngap_MBSSessionSetupRequestList_item = -1;  /* MBSSessionSetupRequestItem */
-static int hf_ngap_associatedMBSQosFlowSetupRequestList = -1;  /* AssociatedMBSQosFlowSetupRequestList */
-static int hf_ngap_MBSSessionSetuporModifyRequestList_item = -1;  /* MBSSessionSetuporModifyRequestItem */
-static int hf_ngap_associatedMBSQosFlowSetuporModifyRequestList = -1;  /* AssociatedMBSQosFlowSetuporModifyRequestList */
-static int hf_ngap_mBS_QosFlowToReleaseList = -1;  /* QosFlowListWithCause */
-static int hf_ngap_MBSSessionToReleaseList_item = -1;  /* MBSSessionToReleaseItem */
-static int hf_ngap_servingPLMN = -1;              /* PLMNIdentity */
-static int hf_ngap_equivalentPLMNs = -1;          /* EquivalentPLMNs */
-static int hf_ngap_rATRestrictions = -1;          /* RATRestrictions */
-static int hf_ngap_forbiddenAreaInformation = -1;  /* ForbiddenAreaInformation */
-static int hf_ngap_serviceAreaInformation = -1;   /* ServiceAreaInformation */
-static int hf_ngap_s_basedMDT = -1;               /* NGRANTraceID */
-static int hf_ngap_MDTPLMNList_item = -1;         /* PLMNIdentity */
-static int hf_ngap_MDTPLMNModificationList_item = -1;  /* PLMNIdentity */
-static int hf_ngap_mdt_Config_NR = -1;            /* MDT_Configuration_NR */
-static int hf_ngap_mdt_Config_EUTRA = -1;         /* MDT_Configuration_EUTRA */
-static int hf_ngap_mdt_Activation = -1;           /* MDT_Activation */
-static int hf_ngap_areaScopeOfMDT = -1;           /* AreaScopeOfMDT_NR */
-static int hf_ngap_mDTModeNr = -1;                /* MDTModeNr */
-static int hf_ngap_signallingBasedMDTPLMNList = -1;  /* MDTPLMNList */
-static int hf_ngap_areaScopeOfMDT_01 = -1;        /* AreaScopeOfMDT_EUTRA */
-static int hf_ngap_mDTMode = -1;                  /* MDTModeEutra */
-static int hf_ngap_immediateMDTNr = -1;           /* ImmediateMDTNr */
-static int hf_ngap_loggedMDTNr = -1;              /* LoggedMDTNr */
-static int hf_ngap_MulticastGroupPagingAreaList_item = -1;  /* MulticastGroupPagingAreaItem */
-static int hf_ngap_multicastGroupPagingArea = -1;  /* MulticastGroupPagingArea */
-static int hf_ngap_uE_PagingList = -1;            /* UE_PagingList */
-static int hf_ngap_MBS_AreaTAIList_item = -1;     /* TAI */
-static int hf_ngap_mBS_AreaTAIList = -1;          /* MBS_AreaTAIList */
-static int hf_ngap_UE_PagingList_item = -1;       /* UE_PagingItem */
-static int hf_ngap_pagingDRX = -1;                /* PagingDRX */
-static int hf_ngap_m1reportingTrigger = -1;       /* M1ReportingTrigger */
-static int hf_ngap_m1thresholdEventA2 = -1;       /* M1ThresholdEventA2 */
-static int hf_ngap_m1periodicReporting = -1;      /* M1PeriodicReporting */
-static int hf_ngap_m1ThresholdType = -1;          /* M1ThresholdType */
-static int hf_ngap_threshold_SINR = -1;           /* Threshold_SINR */
-static int hf_ngap_reportInterval = -1;           /* ReportIntervalMDT */
-static int hf_ngap_reportAmount = -1;             /* ReportAmountMDT */
-static int hf_ngap_m4period = -1;                 /* M4period */
-static int hf_ngap_m4_links_to_log = -1;          /* Links_to_log */
-static int hf_ngap_m5period = -1;                 /* M5period */
-static int hf_ngap_m5_links_to_log = -1;          /* Links_to_log */
-static int hf_ngap_m6report_Interval = -1;        /* M6report_Interval */
-static int hf_ngap_m6_links_to_log = -1;          /* Links_to_log */
-static int hf_ngap_m7period = -1;                 /* M7period */
-static int hf_ngap_m7_links_to_log = -1;          /* Links_to_log */
-static int hf_ngap_mDT_Location_Information = -1;  /* MDT_Location_Information */
-static int hf_ngap_n3IWF_ID = -1;                 /* BIT_STRING_SIZE_16 */
-static int hf_ngap_nB_IoT_Paging_eDRXCycle = -1;  /* NB_IoT_Paging_eDRXCycle */
-static int hf_ngap_nB_IoT_Paging_TimeWindow = -1;  /* NB_IoT_Paging_TimeWindow */
-static int hf_ngap_NGAPIESupportInformationRequestList_item = -1;  /* NGAPIESupportInformationRequestItem */
-static int hf_ngap_ngap_ProtocolIE_Id = -1;       /* ProtocolIE_ID */
-static int hf_ngap_NGAPIESupportInformationResponseList_item = -1;  /* NGAPIESupportInformationResponseItem */
-static int hf_ngap_ngap_ProtocolIESupportInfo = -1;  /* T_ngap_ProtocolIESupportInfo */
-static int hf_ngap_ngap_ProtocolIEPresenceInfo = -1;  /* T_ngap_ProtocolIEPresenceInfo */
-static int hf_ngap_macroNgENB_ID = -1;            /* BIT_STRING_SIZE_20 */
-static int hf_ngap_shortMacroNgENB_ID = -1;       /* BIT_STRING_SIZE_18 */
-static int hf_ngap_longMacroNgENB_ID = -1;        /* BIT_STRING_SIZE_21 */
-static int hf_ngap_NGRAN_TNLAssociationToRemoveList_item = -1;  /* NGRAN_TNLAssociationToRemoveItem */
-static int hf_ngap_tNLAssociationTransportLayerAddress = -1;  /* CPTransportLayerInformation */
-static int hf_ngap_tNLAssociationTransportLayerAddressAMF = -1;  /* CPTransportLayerInformation */
-static int hf_ngap_NotAllowedTACs_item = -1;      /* TAC */
-static int hf_ngap_pNI_NPN_Access_Information = -1;  /* CellCAGList */
-static int hf_ngap_sNPN_MobilityInformation = -1;  /* SNPN_MobilityInformation */
-static int hf_ngap_pNI_NPN_MobilityInformation = -1;  /* PNI_NPN_MobilityInformation */
-static int hf_ngap_pNI_NPN_PagingAssistance = -1;  /* Allowed_PNI_NPN_List */
-static int hf_ngap_sNPN = -1;                     /* NID */
-static int hf_ngap_nRCellIdentity = -1;           /* NRCellIdentity */
-static int hf_ngap_NR_CGIList_item = -1;          /* NR_CGI */
-static int hf_ngap_NR_CGIListForWarning_item = -1;  /* NR_CGI */
-static int hf_ngap_nR_paging_eDRX_Cycle = -1;     /* NR_Paging_eDRX_Cycle */
-static int hf_ngap_nR_paging_Time_Window = -1;    /* NR_Paging_Time_Window */
-static int hf_ngap_tACListInNRNTN = -1;           /* TACListInNRNTN */
-static int hf_ngap_uELocationDerivedTACInNRNTN = -1;  /* TAC */
-static int hf_ngap_NRFrequencyBand_List_item = -1;  /* NRFrequencyBandItem */
-static int hf_ngap_nr_frequency_band = -1;        /* NRFrequencyBand */
-static int hf_ngap_nrARFCN = -1;                  /* NRARFCN */
-static int hf_ngap_frequencyBand_List = -1;       /* NRFrequencyBand_List */
-static int hf_ngap_overloadAction = -1;           /* OverloadAction */
-static int hf_ngap_OverloadStartNSSAIList_item = -1;  /* OverloadStartNSSAIItem */
-static int hf_ngap_sliceOverloadList = -1;        /* SliceOverloadList */
-static int hf_ngap_sliceOverloadResponse = -1;    /* OverloadResponse */
-static int hf_ngap_sliceTrafficLoadReductionIndication = -1;  /* TrafficLoadReductionIndication */
-static int hf_ngap_pERScalar = -1;                /* INTEGER_0_9_ */
-static int hf_ngap_pERExponent = -1;              /* INTEGER_0_9_ */
-static int hf_ngap_coverageEnhancementLevel = -1;  /* CoverageEnhancementLevel */
-static int hf_ngap_pagingAttemptCount = -1;       /* PagingAttemptCount */
-static int hf_ngap_intendedNumberOfPagingAttempts = -1;  /* IntendedNumberOfPagingAttempts */
-static int hf_ngap_nextPagingAreaScope = -1;      /* NextPagingAreaScope */
-static int hf_ngap_uL_NGU_UP_TNLInformation = -1;  /* UPTransportLayerInformation */
-static int hf_ngap_securityIndication = -1;       /* SecurityIndication */
-static int hf_ngap_dL_NGU_TNLInformationReused = -1;  /* DL_NGU_TNLInformationReused */
-static int hf_ngap_userPlaneSecurityInformation = -1;  /* UserPlaneSecurityInformation */
-static int hf_ngap_qosFlowAcceptedList = -1;      /* QosFlowAcceptedList */
-static int hf_ngap_pc5QoSFlowList = -1;           /* PC5QoSFlowList */
-static int hf_ngap_pc5LinkAggregateBitRates = -1;  /* BitRate */
-static int hf_ngap_PC5QoSFlowList_item = -1;      /* PC5QoSFlowItem */
-static int hf_ngap_pQI = -1;                      /* FiveQI */
-static int hf_ngap_pc5FlowBitRates = -1;          /* PC5FlowBitRates */
-static int hf_ngap_range = -1;                    /* Range */
-static int hf_ngap_guaranteedFlowBitRate = -1;    /* BitRate */
-static int hf_ngap_maximumFlowBitRate = -1;       /* BitRate */
-static int hf_ngap_PCIListForMDT_item = -1;       /* NR_PCI */
-static int hf_ngap_pDUSessionAggregateMaximumBitRateDL = -1;  /* BitRate */
-static int hf_ngap_pDUSessionAggregateMaximumBitRateUL = -1;  /* BitRate */
-static int hf_ngap_PDUSessionResourceAdmittedList_item = -1;  /* PDUSessionResourceAdmittedItem */
-static int hf_ngap_pDUSessionID = -1;             /* PDUSessionID */
-static int hf_ngap_handoverRequestAcknowledgeTransfer = -1;  /* T_handoverRequestAcknowledgeTransfer */
-static int hf_ngap_PDUSessionResourceFailedToModifyListModCfm_item = -1;  /* PDUSessionResourceFailedToModifyItemModCfm */
-static int hf_ngap_pDUSessionResourceModifyIndicationUnsuccessfulTransfer = -1;  /* T_pDUSessionResourceModifyIndicationUnsuccessfulTransfer */
-static int hf_ngap_PDUSessionResourceFailedToModifyListModRes_item = -1;  /* PDUSessionResourceFailedToModifyItemModRes */
-static int hf_ngap_pDUSessionResourceModifyUnsuccessfulTransfer = -1;  /* T_pDUSessionResourceModifyUnsuccessfulTransfer */
-static int hf_ngap_PDUSessionResourceFailedToResumeListRESReq_item = -1;  /* PDUSessionResourceFailedToResumeItemRESReq */
-static int hf_ngap_PDUSessionResourceFailedToResumeListRESRes_item = -1;  /* PDUSessionResourceFailedToResumeItemRESRes */
-static int hf_ngap_PDUSessionResourceFailedToSetupListCxtFail_item = -1;  /* PDUSessionResourceFailedToSetupItemCxtFail */
-static int hf_ngap_pDUSessionResourceSetupUnsuccessfulTransfer = -1;  /* T_pDUSessionResourceSetupUnsuccessfulTransfer */
-static int hf_ngap_PDUSessionResourceFailedToSetupListCxtRes_item = -1;  /* PDUSessionResourceFailedToSetupItemCxtRes */
-static int hf_ngap_pDUSessionResourceSetupUnsuccessfulTransfer_01 = -1;  /* T_pDUSessionResourceSetupUnsuccessfulTransfer_01 */
-static int hf_ngap_PDUSessionResourceFailedToSetupListHOAck_item = -1;  /* PDUSessionResourceFailedToSetupItemHOAck */
-static int hf_ngap_handoverResourceAllocationUnsuccessfulTransfer = -1;  /* T_handoverResourceAllocationUnsuccessfulTransfer */
-static int hf_ngap_PDUSessionResourceFailedToSetupListPSReq_item = -1;  /* PDUSessionResourceFailedToSetupItemPSReq */
-static int hf_ngap_pathSwitchRequestSetupFailedTransfer = -1;  /* T_pathSwitchRequestSetupFailedTransfer */
-static int hf_ngap_PDUSessionResourceFailedToSetupListSURes_item = -1;  /* PDUSessionResourceFailedToSetupItemSURes */
-static int hf_ngap_pDUSessionResourceSetupUnsuccessfulTransfer_02 = -1;  /* T_pDUSessionResourceSetupUnsuccessfulTransfer_02 */
-static int hf_ngap_PDUSessionResourceHandoverList_item = -1;  /* PDUSessionResourceHandoverItem */
-static int hf_ngap_handoverCommandTransfer = -1;  /* T_handoverCommandTransfer */
-static int hf_ngap_PDUSessionResourceInformationList_item = -1;  /* PDUSessionResourceInformationItem */
-static int hf_ngap_qosFlowInformationList = -1;   /* QosFlowInformationList */
-static int hf_ngap_dRBsToQosFlowsMappingList = -1;  /* DRBsToQosFlowsMappingList */
-static int hf_ngap_PDUSessionResourceListCxtRelCpl_item = -1;  /* PDUSessionResourceItemCxtRelCpl */
-static int hf_ngap_PDUSessionResourceListCxtRelReq_item = -1;  /* PDUSessionResourceItemCxtRelReq */
-static int hf_ngap_PDUSessionResourceListHORqd_item = -1;  /* PDUSessionResourceItemHORqd */
-static int hf_ngap_handoverRequiredTransfer = -1;  /* T_handoverRequiredTransfer */
-static int hf_ngap_qosFlowModifyConfirmList = -1;  /* QosFlowModifyConfirmList */
-static int hf_ngap_uLNGU_UP_TNLInformation = -1;  /* UPTransportLayerInformation */
-static int hf_ngap_additionalNG_UUPTNLInformation = -1;  /* UPTransportLayerInformationPairList */
-static int hf_ngap_qosFlowFailedToModifyList = -1;  /* QosFlowListWithCause */
-static int hf_ngap_qosFlowAddOrModifyResponseList = -1;  /* QosFlowAddOrModifyResponseList */
-static int hf_ngap_additionalDLQosFlowPerTNLInformation = -1;  /* QosFlowPerTNLInformationList */
-static int hf_ngap_qosFlowFailedToAddOrModifyList = -1;  /* QosFlowListWithCause */
-static int hf_ngap_dLQosFlowPerTNLInformation = -1;  /* QosFlowPerTNLInformation */
-static int hf_ngap_PDUSessionResourceModifyListModCfm_item = -1;  /* PDUSessionResourceModifyItemModCfm */
-static int hf_ngap_pDUSessionResourceModifyConfirmTransfer = -1;  /* T_pDUSessionResourceModifyConfirmTransfer */
-static int hf_ngap_PDUSessionResourceModifyListModInd_item = -1;  /* PDUSessionResourceModifyItemModInd */
-static int hf_ngap_pDUSessionResourceModifyIndicationTransfer = -1;  /* T_pDUSessionResourceModifyIndicationTransfer */
-static int hf_ngap_PDUSessionResourceModifyListModReq_item = -1;  /* PDUSessionResourceModifyItemModReq */
-static int hf_ngap_nAS_PDU = -1;                  /* NAS_PDU */
-static int hf_ngap_pDUSessionResourceModifyRequestTransfer = -1;  /* T_pDUSessionResourceModifyRequestTransfer */
-static int hf_ngap_PDUSessionResourceModifyListModRes_item = -1;  /* PDUSessionResourceModifyItemModRes */
-static int hf_ngap_pDUSessionResourceModifyResponseTransfer = -1;  /* T_pDUSessionResourceModifyResponseTransfer */
-static int hf_ngap_PDUSessionResourceNotifyList_item = -1;  /* PDUSessionResourceNotifyItem */
-static int hf_ngap_pDUSessionResourceNotifyTransfer = -1;  /* T_pDUSessionResourceNotifyTransfer */
-static int hf_ngap_qosFlowNotifyList = -1;        /* QosFlowNotifyList */
-static int hf_ngap_qosFlowReleasedList = -1;      /* QosFlowListWithCause */
-static int hf_ngap_PDUSessionResourceReleasedListNot_item = -1;  /* PDUSessionResourceReleasedItemNot */
-static int hf_ngap_pDUSessionResourceNotifyReleasedTransfer = -1;  /* T_pDUSessionResourceNotifyReleasedTransfer */
-static int hf_ngap_PDUSessionResourceReleasedListPSAck_item = -1;  /* PDUSessionResourceReleasedItemPSAck */
-static int hf_ngap_pathSwitchRequestUnsuccessfulTransfer = -1;  /* T_pathSwitchRequestUnsuccessfulTransfer */
-static int hf_ngap_PDUSessionResourceReleasedListPSFail_item = -1;  /* PDUSessionResourceReleasedItemPSFail */
-static int hf_ngap_pathSwitchRequestUnsuccessfulTransfer_01 = -1;  /* T_pathSwitchRequestUnsuccessfulTransfer_01 */
-static int hf_ngap_PDUSessionResourceReleasedListRelRes_item = -1;  /* PDUSessionResourceReleasedItemRelRes */
-static int hf_ngap_pDUSessionResourceReleaseResponseTransfer = -1;  /* T_pDUSessionResourceReleaseResponseTransfer */
-static int hf_ngap_PDUSessionResourceResumeListRESReq_item = -1;  /* PDUSessionResourceResumeItemRESReq */
-static int hf_ngap_uEContextResumeRequestTransfer = -1;  /* T_uEContextResumeRequestTransfer */
-static int hf_ngap_PDUSessionResourceResumeListRESRes_item = -1;  /* PDUSessionResourceResumeItemRESRes */
-static int hf_ngap_uEContextResumeResponseTransfer = -1;  /* T_uEContextResumeResponseTransfer */
-static int hf_ngap_PDUSessionResourceSecondaryRATUsageList_item = -1;  /* PDUSessionResourceSecondaryRATUsageItem */
-static int hf_ngap_secondaryRATDataUsageReportTransfer = -1;  /* T_secondaryRATDataUsageReportTransfer */
-static int hf_ngap_PDUSessionResourceSetupListCxtReq_item = -1;  /* PDUSessionResourceSetupItemCxtReq */
-static int hf_ngap_pDUSessionResourceSetupRequestTransfer = -1;  /* T_pDUSessionResourceSetupRequestTransfer */
-static int hf_ngap_PDUSessionResourceSetupListCxtRes_item = -1;  /* PDUSessionResourceSetupItemCxtRes */
-static int hf_ngap_pDUSessionResourceSetupResponseTransfer = -1;  /* T_pDUSessionResourceSetupResponseTransfer */
-static int hf_ngap_PDUSessionResourceSetupListHOReq_item = -1;  /* PDUSessionResourceSetupItemHOReq */
-static int hf_ngap_handoverRequestTransfer = -1;  /* T_handoverRequestTransfer */
-static int hf_ngap_PDUSessionResourceSetupListSUReq_item = -1;  /* PDUSessionResourceSetupItemSUReq */
-static int hf_ngap_pDUSessionNAS_PDU = -1;        /* NAS_PDU */
-static int hf_ngap_pDUSessionResourceSetupRequestTransfer_01 = -1;  /* T_pDUSessionResourceSetupRequestTransfer_01 */
-static int hf_ngap_PDUSessionResourceSetupListSURes_item = -1;  /* PDUSessionResourceSetupItemSURes */
-static int hf_ngap_pDUSessionResourceSetupResponseTransfer_01 = -1;  /* T_pDUSessionResourceSetupResponseTransfer_01 */
-static int hf_ngap_PDUSessionResourceSuspendListSUSReq_item = -1;  /* PDUSessionResourceSuspendItemSUSReq */
-static int hf_ngap_uEContextSuspendRequestTransfer = -1;  /* T_uEContextSuspendRequestTransfer */
-static int hf_ngap_PDUSessionResourceSwitchedList_item = -1;  /* PDUSessionResourceSwitchedItem */
-static int hf_ngap_pathSwitchRequestAcknowledgeTransfer = -1;  /* T_pathSwitchRequestAcknowledgeTransfer */
-static int hf_ngap_PDUSessionResourceToBeSwitchedDLList_item = -1;  /* PDUSessionResourceToBeSwitchedDLItem */
-static int hf_ngap_pathSwitchRequestTransfer = -1;  /* T_pathSwitchRequestTransfer */
-static int hf_ngap_PDUSessionResourceToReleaseListHOCmd_item = -1;  /* PDUSessionResourceToReleaseItemHOCmd */
-static int hf_ngap_handoverPreparationUnsuccessfulTransfer = -1;  /* T_handoverPreparationUnsuccessfulTransfer */
-static int hf_ngap_PDUSessionResourceToReleaseListRelCmd_item = -1;  /* PDUSessionResourceToReleaseItemRelCmd */
-static int hf_ngap_pDUSessionResourceReleaseCommandTransfer = -1;  /* T_pDUSessionResourceReleaseCommandTransfer */
-static int hf_ngap_rATType = -1;                  /* T_rATType */
-static int hf_ngap_pDUSessionTimedReportList = -1;  /* VolumeTimedReportList */
-static int hf_ngap_cNsubgroupID = -1;             /* CNsubgroupID */
-static int hf_ngap_plmnListforQMC = -1;           /* PLMNListforQMC */
-static int hf_ngap_PLMNListforQMC_item = -1;      /* PLMNIdentity */
-static int hf_ngap_PLMNSupportList_item = -1;     /* PLMNSupportItem */
-static int hf_ngap_sliceSupportList = -1;         /* SliceSupportList */
-static int hf_ngap_allowed_PNI_NPI_List = -1;     /* Allowed_PNI_NPN_List */
-static int hf_ngap_eUTRA_CGI_PWSFailedList = -1;  /* EUTRA_CGIList */
-static int hf_ngap_nR_CGI_PWSFailedList = -1;     /* NR_CGIList */
-static int hf_ngap_uEAppLayerMeasInfoList = -1;   /* UEAppLayerMeasInfoList */
-static int hf_ngap_qoEReferenceList = -1;         /* QoEReferenceList */
-static int hf_ngap_QoEReferenceList_item = -1;    /* QoEReference */
-static int hf_ngap_nonDynamic5QI = -1;            /* NonDynamic5QIDescriptor */
-static int hf_ngap_dynamic5QI = -1;               /* Dynamic5QIDescriptor */
-static int hf_ngap_QosFlowAcceptedList_item = -1;  /* QosFlowAcceptedItem */
-static int hf_ngap_QosFlowAddOrModifyRequestList_item = -1;  /* QosFlowAddOrModifyRequestItem */
-static int hf_ngap_qosFlowLevelQosParameters = -1;  /* QosFlowLevelQosParameters */
-static int hf_ngap_QosFlowAddOrModifyResponseList_item = -1;  /* QosFlowAddOrModifyResponseItem */
-static int hf_ngap_QosFlowFeedbackList_item = -1;  /* QosFlowFeedbackItem */
-static int hf_ngap_updateFeedback = -1;           /* UpdateFeedback */
-static int hf_ngap_cNpacketDelayBudgetDL = -1;    /* ExtendedPacketDelayBudget */
-static int hf_ngap_cNpacketDelayBudgetUL = -1;    /* ExtendedPacketDelayBudget */
-static int hf_ngap_QosFlowInformationList_item = -1;  /* QosFlowInformationItem */
-static int hf_ngap_qosCharacteristics = -1;       /* QosCharacteristics */
-static int hf_ngap_allocationAndRetentionPriority = -1;  /* AllocationAndRetentionPriority */
-static int hf_ngap_gBR_QosInformation = -1;       /* GBR_QosInformation */
-static int hf_ngap_reflectiveQosAttribute = -1;   /* ReflectiveQosAttribute */
-static int hf_ngap_additionalQosFlowInformation = -1;  /* AdditionalQosFlowInformation */
-static int hf_ngap_QosFlowListWithCause_item = -1;  /* QosFlowWithCauseItem */
-static int hf_ngap_QosFlowModifyConfirmList_item = -1;  /* QosFlowModifyConfirmItem */
-static int hf_ngap_QosFlowNotifyList_item = -1;   /* QosFlowNotifyItem */
-static int hf_ngap_notificationCause = -1;        /* NotificationCause */
-static int hf_ngap_QosFlowParametersList_item = -1;  /* QosFlowParametersItem */
-static int hf_ngap_alternativeQoSParaSetList = -1;  /* AlternativeQoSParaSetList */
-static int hf_ngap_uPTransportLayerInformation = -1;  /* UPTransportLayerInformation */
-static int hf_ngap_QosFlowPerTNLInformationList_item = -1;  /* QosFlowPerTNLInformationItem */
-static int hf_ngap_qosFlowPerTNLInformation = -1;  /* QosFlowPerTNLInformation */
-static int hf_ngap_QosFlowSetupRequestList_item = -1;  /* QosFlowSetupRequestItem */
-static int hf_ngap_QosFlowListWithDataForwarding_item = -1;  /* QosFlowItemWithDataForwarding */
-static int hf_ngap_dataForwardingAccepted = -1;   /* DataForwardingAccepted */
-static int hf_ngap_QosFlowToBeForwardedList_item = -1;  /* QosFlowToBeForwardedItem */
-static int hf_ngap_QoSFlowsUsageReportList_item = -1;  /* QoSFlowsUsageReport_Item */
-static int hf_ngap_rATType_01 = -1;               /* T_rATType_01 */
-static int hf_ngap_qoSFlowsTimedReportList = -1;  /* VolumeTimedReportList */
-static int hf_ngap_dRBsSubjectToStatusTransferList = -1;  /* DRBsSubjectToStatusTransferList */
-static int hf_ngap_RATRestrictions_item = -1;     /* RATRestrictions_Item */
-static int hf_ngap_rATRestrictionInformation = -1;  /* RATRestrictionInformation */
-static int hf_ngap_recommendedCellList = -1;      /* RecommendedCellList */
-static int hf_ngap_RecommendedCellList_item = -1;  /* RecommendedCellItem */
-static int hf_ngap_recommendedRANNodeList = -1;   /* RecommendedRANNodeList */
-static int hf_ngap_RecommendedRANNodeList_item = -1;  /* RecommendedRANNodeItem */
-static int hf_ngap_aMFPagingTarget = -1;          /* AMFPagingTarget */
-static int hf_ngap_rSN = -1;                      /* RSN */
-static int hf_ngap_nG_Interface = -1;             /* ResetAll */
-static int hf_ngap_partOfNG_Interface = -1;       /* UE_associatedLogicalNG_connectionList */
-static int hf_ngap_targetRANNodeID_RIM = -1;      /* TargetRANNodeID_RIM */
-static int hf_ngap_sourceRANNodeID = -1;          /* SourceRANNodeID */
-static int hf_ngap_rIMInformation = -1;           /* RIMInformation */
-static int hf_ngap_targetgNBSetID = -1;           /* GNBSetID */
-static int hf_ngap_rIM_RSDetection = -1;          /* T_rIM_RSDetection */
-static int hf_ngap_dayofWeek = -1;                /* BIT_STRING_SIZE_7 */
-static int hf_ngap_timeofDayStart = -1;           /* INTEGER_0_86399_ */
-static int hf_ngap_timeofDayEnd = -1;             /* INTEGER_0_86399_ */
-static int hf_ngap_SCTP_TLAs_item = -1;           /* TransportLayerAddress */
-static int hf_ngap_pDUSessionUsageReport = -1;    /* PDUSessionUsageReport */
-static int hf_ngap_qosFlowsUsageReportList = -1;  /* QoSFlowsUsageReportList */
-static int hf_ngap_secondaryRATUsageInformation = -1;  /* SecondaryRATUsageInformation */
-static int hf_ngap_nextHopChainingCount = -1;     /* NextHopChainingCount */
-static int hf_ngap_nextHopNH = -1;                /* SecurityKey */
-static int hf_ngap_integrityProtectionIndication = -1;  /* IntegrityProtectionIndication */
-static int hf_ngap_confidentialityProtectionIndication = -1;  /* ConfidentialityProtectionIndication */
-static int hf_ngap_maximumIntegrityProtectedDataRate_UL = -1;  /* MaximumIntegrityProtectedDataRate */
-static int hf_ngap_integrityProtectionResult = -1;  /* IntegrityProtectionResult */
-static int hf_ngap_confidentialityProtectionResult = -1;  /* ConfidentialityProtectionResult */
-static int hf_ngap_sensorMeasConfig = -1;         /* SensorMeasConfig */
-static int hf_ngap_sensorMeasConfigNameList = -1;  /* SensorMeasConfigNameList */
-static int hf_ngap_SensorMeasConfigNameList_item = -1;  /* SensorMeasConfigNameItem */
-static int hf_ngap_sensorNameConfig = -1;         /* SensorNameConfig */
-static int hf_ngap_uncompensatedBarometricConfig = -1;  /* T_uncompensatedBarometricConfig */
-static int hf_ngap_ueSpeedConfig = -1;            /* T_ueSpeedConfig */
-static int hf_ngap_ueOrientationConfig = -1;      /* T_ueOrientationConfig */
-static int hf_ngap_ServedGUAMIList_item = -1;     /* ServedGUAMIItem */
-static int hf_ngap_gUAMI = -1;                    /* GUAMI */
-static int hf_ngap_backupAMFName = -1;            /* AMFName */
-static int hf_ngap_ServiceAreaInformation_item = -1;  /* ServiceAreaInformation_Item */
-static int hf_ngap_allowedTACs = -1;              /* AllowedTACs */
-static int hf_ngap_notAllowedTACs = -1;           /* NotAllowedTACs */
-static int hf_ngap_iP_MulticastAddress = -1;      /* TransportLayerAddress */
-static int hf_ngap_iP_SourceAddress = -1;         /* TransportLayerAddress */
-static int hf_ngap_SliceOverloadList_item = -1;   /* SliceOverloadItem */
-static int hf_ngap_SliceSupportList_item = -1;    /* SliceSupportItem */
-static int hf_ngap_SliceSupportListQMC_item = -1;  /* SliceSupportQMC_Item */
-static int hf_ngap_serving_NID = -1;              /* NID */
-static int hf_ngap_sST = -1;                      /* SST */
-static int hf_ngap_sD = -1;                       /* SD */
-static int hf_ngap_targetRANNodeID_SON = -1;      /* TargetRANNodeID_SON */
-static int hf_ngap_sONInformation = -1;           /* SONInformation */
-static int hf_ngap_xnTNLConfigurationInfo = -1;   /* XnTNLConfigurationInfo */
-static int hf_ngap_sONInformationRequest = -1;    /* SONInformationRequest */
-static int hf_ngap_sONInformationReply = -1;      /* SONInformationReply */
-static int hf_ngap_failureIndicationInformation_01 = -1;  /* FailureIndication */
-static int hf_ngap_hOReportInformation_01 = -1;   /* HOReport */
-static int hf_ngap_SuccessfulHandoverReportList_item = -1;  /* SuccessfulHandoverReport_Item */
-static int hf_ngap_successfulHOReportContainer = -1;  /* T_successfulHOReportContainer */
-static int hf_ngap_rRCContainer = -1;             /* RRCContainer */
-static int hf_ngap_pDUSessionResourceInformationList = -1;  /* PDUSessionResourceInformationList */
-static int hf_ngap_e_RABInformationList = -1;     /* E_RABInformationList */
-static int hf_ngap_targetCell_ID = -1;            /* NGRAN_CGI */
-static int hf_ngap_indexToRFSP = -1;              /* IndexToRFSP */
-static int hf_ngap_uEHistoryInformation = -1;     /* UEHistoryInformation */
-static int hf_ngap_sourceengNB_ID = -1;           /* GlobalGNB_ID */
-static int hf_ngap_configuredNSSAI = -1;          /* ConfiguredNSSAI */
-static int hf_ngap_rejectedNSSAIinPLMN = -1;      /* RejectedNSSAIinPLMN */
-static int hf_ngap_rejectedNSSAIinTA = -1;        /* RejectedNSSAIinTA */
-static int hf_ngap_SupportedTAList_item = -1;     /* SupportedTAItem */
-static int hf_ngap_tAC = -1;                      /* TAC */
-static int hf_ngap_broadcastPLMNList = -1;        /* BroadcastPLMNList */
-static int hf_ngap_TACListInNRNTN_item = -1;      /* TAC */
-static int hf_ngap_TAIBroadcastEUTRA_item = -1;   /* TAIBroadcastEUTRA_Item */
-static int hf_ngap_completedCellsInTAI_EUTRA = -1;  /* CompletedCellsInTAI_EUTRA */
-static int hf_ngap_TAIBroadcastNR_item = -1;      /* TAIBroadcastNR_Item */
-static int hf_ngap_completedCellsInTAI_NR = -1;   /* CompletedCellsInTAI_NR */
-static int hf_ngap_TAICancelledEUTRA_item = -1;   /* TAICancelledEUTRA_Item */
-static int hf_ngap_cancelledCellsInTAI_EUTRA = -1;  /* CancelledCellsInTAI_EUTRA */
-static int hf_ngap_TAICancelledNR_item = -1;      /* TAICancelledNR_Item */
-static int hf_ngap_cancelledCellsInTAI_NR = -1;   /* CancelledCellsInTAI_NR */
-static int hf_ngap_TAIListForInactive_item = -1;  /* TAIListForInactiveItem */
-static int hf_ngap_TAIListForPaging_item = -1;    /* TAIListForPagingItem */
-static int hf_ngap_TAIListForRestart_item = -1;   /* TAI */
-static int hf_ngap_TAIListForWarning_item = -1;   /* TAI */
-static int hf_ngap_TAINSAGSupportList_item = -1;  /* TAINSAGSupportItem */
-static int hf_ngap_nSAG_ID = -1;                  /* NSAG_ID */
-static int hf_ngap_nSAGSliceSupportList = -1;     /* ExtendedSliceSupportList */
-static int hf_ngap_globalENB_ID = -1;             /* GlobalNgENB_ID */
-static int hf_ngap_selected_EPS_TAI = -1;         /* EPS_TAI */
-static int hf_ngap_targetRANNodeID = -1;          /* TargetRANNodeID */
-static int hf_ngap_targeteNB_ID = -1;             /* TargeteNB_ID */
-static int hf_ngap_cell_CAGInformation = -1;      /* Cell_CAGInformation */
-static int hf_ngap_TargetNSSAI_item = -1;         /* TargetNSSAI_Item */
-static int hf_ngap_targetNSSAI = -1;              /* TargetNSSAI */
-static int hf_ngap_lAI = -1;                      /* LAI */
-static int hf_ngap_rNC_ID = -1;                   /* RNC_ID */
-static int hf_ngap_extendedRNC_ID = -1;           /* ExtendedRNC_ID */
-static int hf_ngap_timeDistributionIndication = -1;  /* T_timeDistributionIndication */
-static int hf_ngap_uUTimeSyncErrorBudget = -1;    /* INTEGER_1_1000000_ */
-static int hf_ngap_tNGF_ID = -1;                  /* BIT_STRING_SIZE_32_ */
-static int hf_ngap_TNLAssociationList_item = -1;  /* TNLAssociationItem */
-static int hf_ngap_tNLAssociationAddress = -1;    /* CPTransportLayerInformation */
-static int hf_ngap_sourcecellID_01 = -1;          /* EUTRA_CGI */
-static int hf_ngap_failurecellID = -1;            /* NGRAN_CGI */
-static int hf_ngap_nGRANTraceID = -1;             /* NGRANTraceID */
-static int hf_ngap_interfacesToTrace = -1;        /* InterfacesToTrace */
-static int hf_ngap_traceDepth = -1;               /* TraceDepth */
-static int hf_ngap_traceCollectionEntityIPAddress = -1;  /* TransportLayerAddress */
-static int hf_ngap_tAIListforMDT = -1;            /* TAIListforMDT */
-static int hf_ngap_TAIListforMDT_item = -1;       /* TAI */
-static int hf_ngap_tAIListforQMC = -1;            /* TAIListforQMC */
-static int hf_ngap_TAIListforQMC_item = -1;       /* TAI */
-static int hf_ngap_tAListforQMC = -1;             /* TAListforQMC */
-static int hf_ngap_TAListforQMC_item = -1;        /* TAC */
-static int hf_ngap_tAListforMDT = -1;             /* TAListforMDT */
-static int hf_ngap_TAListforMDT_item = -1;        /* TAC */
-static int hf_ngap_tWIF_ID = -1;                  /* BIT_STRING_SIZE_32_ */
-static int hf_ngap_periodicity = -1;              /* Periodicity */
-static int hf_ngap_burstArrivalTime = -1;         /* BurstArrivalTime */
-static int hf_ngap_tSCAssistanceInformationDL = -1;  /* TSCAssistanceInformation */
-static int hf_ngap_tSCAssistanceInformationUL = -1;  /* TSCAssistanceInformation */
-static int hf_ngap_uEAggregateMaximumBitRateDL = -1;  /* BitRate */
-static int hf_ngap_uEAggregateMaximumBitRateUL = -1;  /* BitRate */
-static int hf_ngap_UEAppLayerMeasInfoList_item = -1;  /* UEAppLayerMeasInfoItem */
-static int hf_ngap_uEAppLayerMeasConfigInfo = -1;  /* UEAppLayerMeasConfigInfo */
-static int hf_ngap_qoEReference = -1;             /* QoEReference */
-static int hf_ngap_serviceType = -1;              /* ServiceType */
-static int hf_ngap_areaScopeOfQMC = -1;           /* AreaScopeOfQMC */
-static int hf_ngap_measCollEntityIPAddress = -1;  /* TransportLayerAddress */
-static int hf_ngap_qoEMeasurementStatus = -1;     /* T_qoEMeasurementStatus */
-static int hf_ngap_containerForAppLayerMeasConfig = -1;  /* OCTET_STRING_SIZE_1_8000 */
-static int hf_ngap_measConfigAppLayerID = -1;     /* INTEGER_0_15_ */
-static int hf_ngap_sliceSupportListQMC = -1;      /* SliceSupportListQMC */
-static int hf_ngap_mDT_AlignmentInfo = -1;        /* MDT_AlignmentInfo */
-static int hf_ngap_availableRANVisibleQoEMetrics = -1;  /* AvailableRANVisibleQoEMetrics */
-static int hf_ngap_UE_associatedLogicalNG_connectionList_item = -1;  /* UE_associatedLogicalNG_connectionItem */
-static int hf_ngap_aMF_UE_NGAP_ID = -1;           /* AMF_UE_NGAP_ID */
-static int hf_ngap_rAN_UE_NGAP_ID = -1;           /* RAN_UE_NGAP_ID */
-static int hf_ngap_qosFlowFailedToResumeList = -1;  /* QosFlowListWithCause */
-static int hf_ngap_suspendIndicator = -1;         /* SuspendIndicator */
-static int hf_ngap_periodicCommunicationIndicator = -1;  /* T_periodicCommunicationIndicator */
-static int hf_ngap_periodicTime = -1;             /* INTEGER_1_3600_ */
-static int hf_ngap_scheduledCommunicationTime = -1;  /* ScheduledCommunicationTime */
-static int hf_ngap_stationaryIndication = -1;     /* T_stationaryIndication */
-static int hf_ngap_trafficProfile = -1;           /* T_trafficProfile */
-static int hf_ngap_batteryIndication = -1;        /* T_batteryIndication */
-static int hf_ngap_UEHistoryInformation_item = -1;  /* LastVisitedCellItem */
-static int hf_ngap_nR = -1;                       /* NRMobilityHistoryReport */
-static int hf_ngap_indexLength10 = -1;            /* BIT_STRING_SIZE_10 */
-static int hf_ngap_uE_NGAP_ID_pair = -1;          /* UE_NGAP_ID_pair */
-static int hf_ngap_fiveG_S_TMSI = -1;             /* FiveG_S_TMSI */
-static int hf_ngap_UEPresenceInAreaOfInterestList_item = -1;  /* UEPresenceInAreaOfInterestItem */
-static int hf_ngap_uEPresence = -1;               /* UEPresence */
-static int hf_ngap_uERadioCapabilityForPagingOfNR = -1;  /* UERadioCapabilityForPagingOfNR */
-static int hf_ngap_uERadioCapabilityForPagingOfEUTRA = -1;  /* UERadioCapabilityForPagingOfEUTRA */
-static int hf_ngap_nR_01 = -1;                    /* NRUERLFReportContainer */
-static int hf_ngap_lTE = -1;                      /* LTEUERLFReportContainer */
-static int hf_ngap_nRencryptionAlgorithms = -1;   /* NRencryptionAlgorithms */
-static int hf_ngap_nRintegrityProtectionAlgorithms = -1;  /* NRintegrityProtectionAlgorithms */
-static int hf_ngap_eUTRAencryptionAlgorithms = -1;  /* EUTRAencryptionAlgorithms */
-static int hf_ngap_eUTRAintegrityProtectionAlgorithms = -1;  /* EUTRAintegrityProtectionAlgorithms */
-static int hf_ngap_UESliceMaximumBitRateList_item = -1;  /* UESliceMaximumBitRateItem */
-static int hf_ngap_uESliceMaximumBitRateDL = -1;  /* BitRate */
-static int hf_ngap_uESliceMaximumBitRateUL = -1;  /* BitRate */
-static int hf_ngap_ul_NAS_MAC = -1;               /* UL_NAS_MAC */
-static int hf_ngap_ul_NAS_Count = -1;             /* UL_NAS_Count */
-static int hf_ngap_UL_NGU_UP_TNLModifyList_item = -1;  /* UL_NGU_UP_TNLModifyItem */
-static int hf_ngap_UnavailableGUAMIList_item = -1;  /* UnavailableGUAMIItem */
-static int hf_ngap_timerApproachForGUAMIRemoval = -1;  /* TimerApproachForGUAMIRemoval */
-static int hf_ngap_gTPTunnel = -1;                /* GTPTunnel */
-static int hf_ngap_UPTransportLayerInformationList_item = -1;  /* UPTransportLayerInformationItem */
-static int hf_ngap_nGU_UP_TNLInformation = -1;    /* UPTransportLayerInformation */
-static int hf_ngap_UPTransportLayerInformationPairList_item = -1;  /* UPTransportLayerInformationPairItem */
-static int hf_ngap_userLocationInformationEUTRA = -1;  /* UserLocationInformationEUTRA */
-static int hf_ngap_userLocationInformationNR = -1;  /* UserLocationInformationNR */
-static int hf_ngap_userLocationInformationN3IWF = -1;  /* UserLocationInformationN3IWF */
-static int hf_ngap_timeStamp = -1;                /* TimeStamp */
-static int hf_ngap_iPAddress = -1;                /* TransportLayerAddress */
-static int hf_ngap_tNAP_ID = -1;                  /* TNAP_ID */
-static int hf_ngap_tWAP_ID = -1;                  /* TWAP_ID */
-static int hf_ngap_globalLine_ID = -1;            /* GlobalLine_ID */
-static int hf_ngap_VolumeTimedReportList_item = -1;  /* VolumeTimedReport_Item */
-static int hf_ngap_startTimeStamp = -1;           /* T_startTimeStamp */
-static int hf_ngap_endTimeStamp = -1;             /* T_endTimeStamp */
-static int hf_ngap_usageCountUL = -1;             /* INTEGER_0_18446744073709551615 */
-static int hf_ngap_usageCountDL = -1;             /* INTEGER_0_18446744073709551615 */
-static int hf_ngap_w_AGF_ID = -1;                 /* BIT_STRING_SIZE_16_ */
-static int hf_ngap_eUTRA_CGIListForWarning = -1;  /* EUTRA_CGIListForWarning */
-static int hf_ngap_nR_CGIListForWarning = -1;     /* NR_CGIListForWarning */
-static int hf_ngap_tAIListForWarning = -1;        /* TAIListForWarning */
-static int hf_ngap_emergencyAreaIDList = -1;      /* EmergencyAreaIDList */
-static int hf_ngap_wlanMeasConfig = -1;           /* WLANMeasConfig */
-static int hf_ngap_wlanMeasConfigNameList = -1;   /* WLANMeasConfigNameList */
-static int hf_ngap_wlan_rssi = -1;                /* T_wlan_rssi */
-static int hf_ngap_wlan_rtt = -1;                 /* T_wlan_rtt */
-static int hf_ngap_WLANMeasConfigNameList_item = -1;  /* WLANMeasConfigNameItem */
-static int hf_ngap_wLANName = -1;                 /* WLANName */
-static int hf_ngap_pagingProbabilityInformation = -1;  /* PagingProbabilityInformation */
-static int hf_ngap_XnExtTLAs_item = -1;           /* XnExtTLA_Item */
-static int hf_ngap_iPsecTLA = -1;                 /* TransportLayerAddress */
-static int hf_ngap_gTP_TLAs = -1;                 /* XnGTP_TLAs */
-static int hf_ngap_XnGTP_TLAs_item = -1;          /* TransportLayerAddress */
-static int hf_ngap_XnTLAs_item = -1;              /* TransportLayerAddress */
-static int hf_ngap_xnTransportLayerAddresses = -1;  /* XnTLAs */
-static int hf_ngap_xnExtendedTransportLayerAddresses = -1;  /* XnExtTLAs */
-static int hf_ngap_privateIEs = -1;               /* PrivateIE_Container */
-static int hf_ngap_initiatingMessage = -1;        /* InitiatingMessage */
-static int hf_ngap_successfulOutcome = -1;        /* SuccessfulOutcome */
-static int hf_ngap_unsuccessfulOutcome = -1;      /* UnsuccessfulOutcome */
-static int hf_ngap_initiatingMessagevalue = -1;   /* InitiatingMessage_value */
-static int hf_ngap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
-static int hf_ngap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
+static int proto_ngap;
+static int hf_ngap_transportLayerAddressIPv4;
+static int hf_ngap_transportLayerAddressIPv6;
+static int hf_ngap_SerialNumber_gs;
+static int hf_ngap_SerialNumber_msg_code;
+static int hf_ngap_SerialNumber_upd_nb;
+static int hf_ngap_WarningType_value;
+static int hf_ngap_WarningType_emergency_user_alert;
+static int hf_ngap_WarningType_popup;
+static int hf_ngap_WarningMessageContents_nb_pages;
+static int hf_ngap_WarningMessageContents_decoded_page;
+static int hf_ngap_NGRANTraceID_TraceID;
+static int hf_ngap_NGRANTraceID_TraceRecordingSessionReference;
+static int hf_ngap_InterfacesToTrace_NG_C;
+static int hf_ngap_InterfacesToTrace_Xn_C;
+static int hf_ngap_InterfacesToTrace_Uu;
+static int hf_ngap_InterfacesToTrace_F1_C;
+static int hf_ngap_InterfacesToTrace_E1;
+static int hf_ngap_InterfacesToTrace_reserved;
+static int hf_ngap_RATRestrictionInformation_e_UTRA;
+static int hf_ngap_RATRestrictionInformation_nR;
+static int hf_ngap_RATRestrictionInformation_nR_unlicensed;
+static int hf_ngap_RATRestrictionInformation_reserved;
+static int hf_ngap_primaryRATRestriction_e_UTRA;
+static int hf_ngap_primaryRATRestriction_nR;
+static int hf_ngap_primaryRATRestriction_nR_unlicensed;
+static int hf_ngap_primaryRATRestriction_nR_LEO;
+static int hf_ngap_primaryRATRestriction_nR_MEO;
+static int hf_ngap_primaryRATRestriction_nR_GEO;
+static int hf_ngap_primaryRATRestriction_nR_OTHERSAT;
+static int hf_ngap_primaryRATRestriction_reserved;
+static int hf_ngap_secondaryRATRestriction_e_UTRA;
+static int hf_ngap_secondaryRATRestriction_nR;
+static int hf_ngap_secondaryRATRestriction_e_UTRA_unlicensed;
+static int hf_ngap_secondaryRATRestriction_nR_unlicensed;
+static int hf_ngap_secondaryRATRestriction_reserved;
+static int hf_ngap_NrencryptionAlgorithms_nea1;
+static int hf_ngap_NrencryptionAlgorithms_nea2;
+static int hf_ngap_NrencryptionAlgorithms_nea3;
+static int hf_ngap_NrencryptionAlgorithms_reserved;
+static int hf_ngap_NrintegrityProtectionAlgorithms_nia1;
+static int hf_ngap_NrintegrityProtectionAlgorithms_nia2;
+static int hf_ngap_NrintegrityProtectionAlgorithms_nia3;
+static int hf_ngap_NrintegrityProtectionAlgorithms_reserved;
+static int hf_ngap_EUTRAencryptionAlgorithms_eea1;
+static int hf_ngap_EUTRAencryptionAlgorithms_eea2;
+static int hf_ngap_EUTRAencryptionAlgorithms_eea3;
+static int hf_ngap_EUTRAencryptionAlgorithms_reserved;
+static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia1;
+static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia2;
+static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia3;
+static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia7;
+static int hf_ngap_EUTRAintegrityProtectionAlgorithms_reserved;
+static int hf_ngap_MeasurementsToActivate_M1;
+static int hf_ngap_MeasurementsToActivate_M2;
+static int hf_ngap_MeasurementsToActivate_M4;
+static int hf_ngap_MeasurementsToActivate_M5;
+static int hf_ngap_MeasurementsToActivate_M6;
+static int hf_ngap_MeasurementsToActivate_M7;
+static int hf_ngap_MeasurementsToActivate_M1_from_event;
+static int hf_ngap_MeasurementsToActivate_reserved;
+static int hf_ngap_MDT_Location_Information_GNSS;
+static int hf_ngap_MDT_Location_Information_reserved;
+static int hf_ngap_GlobalCable_ID_str;
+static int hf_ngap_UpdateFeedback_CN_PDB_DL;
+static int hf_ngap_UpdateFeedback_CN_PDB_UL;
+static int hf_ngap_UpdateFeedback_reserved;
+static int hf_ngap_AdditionalDLUPTNLInformationForHOList_PDU;  /* AdditionalDLUPTNLInformationForHOList */
+static int hf_ngap_AllowedNSSAI_PDU;              /* AllowedNSSAI */
+static int hf_ngap_AlternativeQoSParaSetIndex_PDU;  /* AlternativeQoSParaSetIndex */
+static int hf_ngap_AlternativeQoSParaSetList_PDU;  /* AlternativeQoSParaSetList */
+static int hf_ngap_AMFName_PDU;                   /* AMFName */
+static int hf_ngap_AMFSetID_PDU;                  /* AMFSetID */
+static int hf_ngap_AMF_TNLAssociationSetupList_PDU;  /* AMF_TNLAssociationSetupList */
+static int hf_ngap_AMF_TNLAssociationToAddList_PDU;  /* AMF_TNLAssociationToAddList */
+static int hf_ngap_AMF_TNLAssociationToRemoveList_PDU;  /* AMF_TNLAssociationToRemoveList */
+static int hf_ngap_AMF_TNLAssociationToUpdateList_PDU;  /* AMF_TNLAssociationToUpdateList */
+static int hf_ngap_AMF_UE_NGAP_ID_PDU;            /* AMF_UE_NGAP_ID */
+static int hf_ngap_AssistanceDataForPaging_PDU;   /* AssistanceDataForPaging */
+static int hf_ngap_AssociatedQosFlowList_PDU;     /* AssociatedQosFlowList */
+static int hf_ngap_AuthenticatedIndication_PDU;   /* AuthenticatedIndication */
+static int hf_ngap_BeamMeasurementsReportConfiguration_PDU;  /* BeamMeasurementsReportConfiguration */
+static int hf_ngap_BroadcastCancelledAreaList_PDU;  /* BroadcastCancelledAreaList */
+static int hf_ngap_BroadcastCompletedAreaList_PDU;  /* BroadcastCompletedAreaList */
+static int hf_ngap_BurstArrivalTime_PDU;          /* BurstArrivalTime */
+static int hf_ngap_CancelAllWarningMessages_PDU;  /* CancelAllWarningMessages */
+static int hf_ngap_Cause_PDU;                     /* Cause */
+static int hf_ngap_CellIDListForRestart_PDU;      /* CellIDListForRestart */
+static int hf_ngap_CEmodeBSupport_Indicator_PDU;  /* CEmodeBSupport_Indicator */
+static int hf_ngap_CEmodeBrestricted_PDU;         /* CEmodeBrestricted */
+static int hf_ngap_CNAssistedRANTuning_PDU;       /* CNAssistedRANTuning */
+static int hf_ngap_CNTypeRestrictionsForEquivalent_PDU;  /* CNTypeRestrictionsForEquivalent */
+static int hf_ngap_CNTypeRestrictionsForServing_PDU;  /* CNTypeRestrictionsForServing */
+static int hf_ngap_CommonNetworkInstance_PDU;     /* CommonNetworkInstance */
+static int hf_ngap_ConcurrentWarningMessageInd_PDU;  /* ConcurrentWarningMessageInd */
+static int hf_ngap_ConfiguredTACIndication_PDU;   /* ConfiguredTACIndication */
+static int hf_ngap_CoreNetworkAssistanceInformationForInactive_PDU;  /* CoreNetworkAssistanceInformationForInactive */
+static int hf_ngap_CPTransportLayerInformation_PDU;  /* CPTransportLayerInformation */
+static int hf_ngap_CriticalityDiagnostics_PDU;    /* CriticalityDiagnostics */
+static int hf_ngap_DataCodingScheme_PDU;          /* DataCodingScheme */
+static int hf_ngap_DataForwardingNotPossible_PDU;  /* DataForwardingNotPossible */
+static int hf_ngap_DAPSRequestInfo_PDU;           /* DAPSRequestInfo */
+static int hf_ngap_DAPSResponseInfoList_PDU;      /* DAPSResponseInfoList */
+static int hf_ngap_DataForwardingResponseERABList_PDU;  /* DataForwardingResponseERABList */
+static int hf_ngap_DL_CP_SecurityInformation_PDU;  /* DL_CP_SecurityInformation */
+static int hf_ngap_DL_NGU_TNLInformationReused_PDU;  /* DL_NGU_TNLInformationReused */
+static int hf_ngap_DirectForwardingPathAvailability_PDU;  /* DirectForwardingPathAvailability */
+static int hf_ngap_EarlyMeasurement_PDU;          /* EarlyMeasurement */
+static int hf_ngap_EarlyStatusTransfer_TransparentContainer_PDU;  /* EarlyStatusTransfer_TransparentContainer */
+static int hf_ngap_EDT_Session_PDU;               /* EDT_Session */
+static int hf_ngap_EmergencyAreaIDListForRestart_PDU;  /* EmergencyAreaIDListForRestart */
+static int hf_ngap_EmergencyFallbackIndicator_PDU;  /* EmergencyFallbackIndicator */
+static int hf_ngap_Enhanced_CoverageRestriction_PDU;  /* Enhanced_CoverageRestriction */
+static int hf_ngap_Extended_ConnectedTime_PDU;    /* Extended_ConnectedTime */
+static int hf_ngap_EN_DCSONConfigurationTransfer_PDU;  /* EN_DCSONConfigurationTransfer */
+static int hf_ngap_EndpointIPAddressAndPort_PDU;  /* EndpointIPAddressAndPort */
+static int hf_ngap_EndIndication_PDU;             /* EndIndication */
+static int hf_ngap_EUTRA_CGI_PDU;                 /* EUTRA_CGI */
+static int hf_ngap_EUTRA_PagingeDRXInformation_PDU;  /* EUTRA_PagingeDRXInformation */
+static int hf_ngap_ExcessPacketDelayThresholdConfiguration_PDU;  /* ExcessPacketDelayThresholdConfiguration */
+static int hf_ngap_ExpectedUEActivityBehaviour_PDU;  /* ExpectedUEActivityBehaviour */
+static int hf_ngap_Extended_AMFName_PDU;          /* Extended_AMFName */
+static int hf_ngap_ExtendedPacketDelayBudget_PDU;  /* ExtendedPacketDelayBudget */
+static int hf_ngap_Extended_RANNodeName_PDU;      /* Extended_RANNodeName */
+static int hf_ngap_ExtendedRATRestrictionInformation_PDU;  /* ExtendedRATRestrictionInformation */
+static int hf_ngap_ExtendedSliceSupportList_PDU;  /* ExtendedSliceSupportList */
+static int hf_ngap_ExtendedUEIdentityIndexValue_PDU;  /* ExtendedUEIdentityIndexValue */
+static int hf_ngap_FiveG_ProSeAuthorized_PDU;     /* FiveG_ProSeAuthorized */
+static int hf_ngap_FiveG_ProSePC5QoSParameters_PDU;  /* FiveG_ProSePC5QoSParameters */
+static int hf_ngap_FiveG_S_TMSI_PDU;              /* FiveG_S_TMSI */
+static int hf_ngap_GlobalCable_ID_PDU;            /* GlobalCable_ID */
+static int hf_ngap_GlobalCable_ID_new_PDU;        /* GlobalCable_ID_new */
+static int hf_ngap_GlobalRANNodeID_PDU;           /* GlobalRANNodeID */
+static int hf_ngap_GlobalTNGF_ID_PDU;             /* GlobalTNGF_ID */
+static int hf_ngap_GlobalTWIF_ID_PDU;             /* GlobalTWIF_ID */
+static int hf_ngap_GlobalW_AGF_ID_PDU;            /* GlobalW_AGF_ID */
+static int hf_ngap_GUAMI_PDU;                     /* GUAMI */
+static int hf_ngap_GUAMIType_PDU;                 /* GUAMIType */
+static int hf_ngap_HandoverCommandTransfer_PDU;   /* HandoverCommandTransfer */
+static int hf_ngap_HandoverFlag_PDU;              /* HandoverFlag */
+static int hf_ngap_HandoverPreparationUnsuccessfulTransfer_PDU;  /* HandoverPreparationUnsuccessfulTransfer */
+static int hf_ngap_HandoverRequestAcknowledgeTransfer_PDU;  /* HandoverRequestAcknowledgeTransfer */
+static int hf_ngap_HandoverRequiredTransfer_PDU;  /* HandoverRequiredTransfer */
+static int hf_ngap_HandoverResourceAllocationUnsuccessfulTransfer_PDU;  /* HandoverResourceAllocationUnsuccessfulTransfer */
+static int hf_ngap_HandoverType_PDU;              /* HandoverType */
+static int hf_ngap_HashedUEIdentityIndexValue_PDU;  /* HashedUEIdentityIndexValue */
+static int hf_ngap_HFCNode_ID_new_PDU;            /* HFCNode_ID_new */
+static int hf_ngap_IAB_Authorized_PDU;            /* IAB_Authorized */
+static int hf_ngap_IAB_Supported_PDU;             /* IAB_Supported */
+static int hf_ngap_IABNodeIndication_PDU;         /* IABNodeIndication */
+static int hf_ngap_IMSVoiceSupportIndicator_PDU;  /* IMSVoiceSupportIndicator */
+static int hf_ngap_IndexToRFSP_PDU;               /* IndexToRFSP */
+static int hf_ngap_InfoOnRecommendedCellsAndRANNodesForPaging_PDU;  /* InfoOnRecommendedCellsAndRANNodesForPaging */
+static int hf_ngap_IntersystemSONConfigurationTransfer_PDU;  /* IntersystemSONConfigurationTransfer */
+static int hf_ngap_IntersystemSONInformationRequest_PDU;  /* IntersystemSONInformationRequest */
+static int hf_ngap_IntersystemSONInformationReply_PDU;  /* IntersystemSONInformationReply */
+static int hf_ngap_IntersystemCellStateIndication_PDU;  /* IntersystemCellStateIndication */
+static int hf_ngap_IntersystemResourceStatusReport_PDU;  /* IntersystemResourceStatusReport */
+static int hf_ngap_ngap_LastVisitedNGRANCellInformation_PDU;  /* LastVisitedNGRANCellInformation */
+static int hf_ngap_LastVisitedPSCellList_PDU;     /* LastVisitedPSCellList */
+static int hf_ngap_ngap_LastVisitedPSCellInformation_PDU;  /* LastVisitedPSCellInformation */
+static int hf_ngap_LocationReportingAdditionalInfo_PDU;  /* LocationReportingAdditionalInfo */
+static int hf_ngap_LocationReportingRequestType_PDU;  /* LocationReportingRequestType */
+static int hf_ngap_LTEM_Indication_PDU;           /* LTEM_Indication */
+static int hf_ngap_LTEV2XServicesAuthorized_PDU;  /* LTEV2XServicesAuthorized */
+static int hf_ngap_LTEUESidelinkAggregateMaximumBitrate_PDU;  /* LTEUESidelinkAggregateMaximumBitrate */
+static int hf_ngap_MaskedIMEISV_PDU;              /* MaskedIMEISV */
+static int hf_ngap_MessageIdentifier_PDU;         /* MessageIdentifier */
+static int hf_ngap_MaximumIntegrityProtectedDataRate_PDU;  /* MaximumIntegrityProtectedDataRate */
+static int hf_ngap_MBS_AreaSessionID_PDU;         /* MBS_AreaSessionID */
+static int hf_ngap_MBS_QoSFlowsToBeSetupList_PDU;  /* MBS_QoSFlowsToBeSetupList */
+static int hf_ngap_MBS_ServiceArea_PDU;           /* MBS_ServiceArea */
+static int hf_ngap_MBS_SessionID_PDU;             /* MBS_SessionID */
+static int hf_ngap_MBSSessionFailedtoSetupList_PDU;  /* MBSSessionFailedtoSetupList */
+static int hf_ngap_MBS_ActiveSessionInformation_SourcetoTargetList_PDU;  /* MBS_ActiveSessionInformation_SourcetoTargetList */
+static int hf_ngap_MBS_ActiveSessionInformation_TargettoSourceList_PDU;  /* MBS_ActiveSessionInformation_TargettoSourceList */
+static int hf_ngap_MBSSessionSetupResponseList_PDU;  /* MBSSessionSetupResponseList */
+static int hf_ngap_MBS_SessionFSAIDList_PDU;      /* MBS_SessionFSAIDList */
+static int hf_ngap_MBS_SupportIndicator_PDU;      /* MBS_SupportIndicator */
+static int hf_ngap_MBS_SessionTNLInfo5GC_PDU;     /* MBS_SessionTNLInfo5GC */
+static int hf_ngap_MBSSessionSetupRequestList_PDU;  /* MBSSessionSetupRequestList */
+static int hf_ngap_MBSSessionSetuporModifyRequestList_PDU;  /* MBSSessionSetuporModifyRequestList */
+static int hf_ngap_MBSSessionToReleaseList_PDU;   /* MBSSessionToReleaseList */
+static int hf_ngap_MicoAllPLMN_PDU;               /* MicoAllPLMN */
+static int hf_ngap_ExtendedMobilityInformation_PDU;  /* ExtendedMobilityInformation */
+static int hf_ngap_ngap_MobilityRestrictionList_PDU;  /* MobilityRestrictionList */
+static int hf_ngap_MDTPLMNList_PDU;               /* MDTPLMNList */
+static int hf_ngap_MDTPLMNModificationList_PDU;   /* MDTPLMNModificationList */
+static int hf_ngap_ngap_MDT_Configuration_PDU;    /* MDT_Configuration */
+static int hf_ngap_MulticastGroupPagingAreaList_PDU;  /* MulticastGroupPagingAreaList */
+static int hf_ngap_IncludeBeamMeasurementsIndication_PDU;  /* IncludeBeamMeasurementsIndication */
+static int hf_ngap_M4ReportAmountMDT_PDU;         /* M4ReportAmountMDT */
+static int hf_ngap_M5ReportAmountMDT_PDU;         /* M5ReportAmountMDT */
+static int hf_ngap_M6ReportAmountMDT_PDU;         /* M6ReportAmountMDT */
+static int hf_ngap_M7ReportAmountMDT_PDU;         /* M7ReportAmountMDT */
+static int hf_ngap_NAS_PDU_PDU;                   /* NAS_PDU */
+static int hf_ngap_NASSecurityParametersFromNGRAN_PDU;  /* NASSecurityParametersFromNGRAN */
+static int hf_ngap_NB_IoT_DefaultPagingDRX_PDU;   /* NB_IoT_DefaultPagingDRX */
+static int hf_ngap_NB_IoT_PagingDRX_PDU;          /* NB_IoT_PagingDRX */
+static int hf_ngap_NB_IoT_Paging_eDRXInfo_PDU;    /* NB_IoT_Paging_eDRXInfo */
+static int hf_ngap_NB_IoT_UEPriority_PDU;         /* NB_IoT_UEPriority */
+static int hf_ngap_NetworkInstance_PDU;           /* NetworkInstance */
+static int hf_ngap_NewSecurityContextInd_PDU;     /* NewSecurityContextInd */
+static int hf_ngap_NGAPIESupportInformationRequestList_PDU;  /* NGAPIESupportInformationRequestList */
+static int hf_ngap_NGAPIESupportInformationResponseList_PDU;  /* NGAPIESupportInformationResponseList */
+static int hf_ngap_NotifySourceNGRANNode_PDU;     /* NotifySourceNGRANNode */
+static int hf_ngap_ngap_NGRAN_CGI_PDU;            /* NGRAN_CGI */
+static int hf_ngap_NGRAN_TNLAssociationToRemoveList_PDU;  /* NGRAN_TNLAssociationToRemoveList */
+static int hf_ngap_NGRANTraceID_PDU;              /* NGRANTraceID */
+static int hf_ngap_NID_PDU;                       /* NID */
+static int hf_ngap_NPN_AccessInformation_PDU;     /* NPN_AccessInformation */
+static int hf_ngap_NPN_MobilityInformation_PDU;   /* NPN_MobilityInformation */
+static int hf_ngap_NPN_PagingAssistanceInformation_PDU;  /* NPN_PagingAssistanceInformation */
+static int hf_ngap_NPN_Support_PDU;               /* NPN_Support */
+static int hf_ngap_NR_CGI_PDU;                    /* NR_CGI */
+static int hf_ngap_NR_PagingeDRXInformation_PDU;  /* NR_PagingeDRXInformation */
+static int hf_ngap_NRPPa_PDU_PDU;                 /* NRPPa_PDU */
+static int hf_ngap_NRNTNTAIInformation_PDU;       /* NRNTNTAIInformation */
+static int hf_ngap_NumberOfBroadcastsRequested_PDU;  /* NumberOfBroadcastsRequested */
+static int hf_ngap_NRV2XServicesAuthorized_PDU;   /* NRV2XServicesAuthorized */
+static int hf_ngap_NRUESidelinkAggregateMaximumBitrate_PDU;  /* NRUESidelinkAggregateMaximumBitrate */
+static int hf_ngap_OnboardingSupport_PDU;         /* OnboardingSupport */
+static int hf_ngap_OverloadResponse_PDU;          /* OverloadResponse */
+static int hf_ngap_OverloadStartNSSAIList_PDU;    /* OverloadStartNSSAIList */
+static int hf_ngap_PagingAssisDataforCEcapabUE_PDU;  /* PagingAssisDataforCEcapabUE */
+static int hf_ngap_PagingCause_PDU;               /* PagingCause */
+static int hf_ngap_PagingCauseIndicationForVoiceService_PDU;  /* PagingCauseIndicationForVoiceService */
+static int hf_ngap_PagingDRX_PDU;                 /* PagingDRX */
+static int hf_ngap_PagingOrigin_PDU;              /* PagingOrigin */
+static int hf_ngap_PagingPriority_PDU;            /* PagingPriority */
+static int hf_ngap_PathSwitchRequestAcknowledgeTransfer_PDU;  /* PathSwitchRequestAcknowledgeTransfer */
+static int hf_ngap_PathSwitchRequestSetupFailedTransfer_PDU;  /* PathSwitchRequestSetupFailedTransfer */
+static int hf_ngap_PathSwitchRequestTransfer_PDU;  /* PathSwitchRequestTransfer */
+static int hf_ngap_PathSwitchRequestUnsuccessfulTransfer_PDU;  /* PathSwitchRequestUnsuccessfulTransfer */
+static int hf_ngap_PC5QoSParameters_PDU;          /* PC5QoSParameters */
+static int hf_ngap_PrivacyIndicator_PDU;          /* PrivacyIndicator */
+static int hf_ngap_PDUSessionAggregateMaximumBitRate_PDU;  /* PDUSessionAggregateMaximumBitRate */
+static int hf_ngap_PDUSessionPairID_PDU;          /* PDUSessionPairID */
+static int hf_ngap_PDUSessionResourceAdmittedList_PDU;  /* PDUSessionResourceAdmittedList */
+static int hf_ngap_PDUSessionResourceFailedToModifyListModCfm_PDU;  /* PDUSessionResourceFailedToModifyListModCfm */
+static int hf_ngap_PDUSessionResourceFailedToModifyListModRes_PDU;  /* PDUSessionResourceFailedToModifyListModRes */
+static int hf_ngap_PDUSessionResourceFailedToResumeListRESReq_PDU;  /* PDUSessionResourceFailedToResumeListRESReq */
+static int hf_ngap_PDUSessionResourceFailedToResumeListRESRes_PDU;  /* PDUSessionResourceFailedToResumeListRESRes */
+static int hf_ngap_PDUSessionResourceFailedToSetupListCxtFail_PDU;  /* PDUSessionResourceFailedToSetupListCxtFail */
+static int hf_ngap_PDUSessionResourceFailedToSetupListCxtRes_PDU;  /* PDUSessionResourceFailedToSetupListCxtRes */
+static int hf_ngap_PDUSessionResourceFailedToSetupListHOAck_PDU;  /* PDUSessionResourceFailedToSetupListHOAck */
+static int hf_ngap_PDUSessionResourceFailedToSetupListPSReq_PDU;  /* PDUSessionResourceFailedToSetupListPSReq */
+static int hf_ngap_PDUSessionResourceFailedToSetupListSURes_PDU;  /* PDUSessionResourceFailedToSetupListSURes */
+static int hf_ngap_PDUSessionResourceHandoverList_PDU;  /* PDUSessionResourceHandoverList */
+static int hf_ngap_PDUSessionResourceListCxtRelCpl_PDU;  /* PDUSessionResourceListCxtRelCpl */
+static int hf_ngap_PDUSessionResourceReleaseResponseTransfer_OCTET_STRING_PDU;  /* PDUSessionResourceReleaseResponseTransfer_OCTET_STRING */
+static int hf_ngap_PDUSessionResourceListCxtRelReq_PDU;  /* PDUSessionResourceListCxtRelReq */
+static int hf_ngap_PDUSessionResourceListHORqd_PDU;  /* PDUSessionResourceListHORqd */
+static int hf_ngap_PDUSessionResourceModifyConfirmTransfer_PDU;  /* PDUSessionResourceModifyConfirmTransfer */
+static int hf_ngap_PDUSessionResourceModifyIndicationUnsuccessfulTransfer_PDU;  /* PDUSessionResourceModifyIndicationUnsuccessfulTransfer */
+static int hf_ngap_PDUSessionResourceModifyRequestTransfer_PDU;  /* PDUSessionResourceModifyRequestTransfer */
+static int hf_ngap_PDUSessionResourceModifyResponseTransfer_PDU;  /* PDUSessionResourceModifyResponseTransfer */
+static int hf_ngap_PDUSessionResourceModifyIndicationTransfer_PDU;  /* PDUSessionResourceModifyIndicationTransfer */
+static int hf_ngap_PDUSessionResourceModifyListModCfm_PDU;  /* PDUSessionResourceModifyListModCfm */
+static int hf_ngap_PDUSessionResourceModifyListModInd_PDU;  /* PDUSessionResourceModifyListModInd */
+static int hf_ngap_PDUSessionResourceModifyListModReq_PDU;  /* PDUSessionResourceModifyListModReq */
+static int hf_ngap_PDUSessionResourceModifyListModRes_PDU;  /* PDUSessionResourceModifyListModRes */
+static int hf_ngap_PDUSessionResourceModifyUnsuccessfulTransfer_PDU;  /* PDUSessionResourceModifyUnsuccessfulTransfer */
+static int hf_ngap_PDUSessionResourceNotifyList_PDU;  /* PDUSessionResourceNotifyList */
+static int hf_ngap_PDUSessionResourceNotifyReleasedTransfer_PDU;  /* PDUSessionResourceNotifyReleasedTransfer */
+static int hf_ngap_PDUSessionResourceNotifyTransfer_PDU;  /* PDUSessionResourceNotifyTransfer */
+static int hf_ngap_PDUSessionResourceReleaseCommandTransfer_PDU;  /* PDUSessionResourceReleaseCommandTransfer */
+static int hf_ngap_PDUSessionResourceReleasedListNot_PDU;  /* PDUSessionResourceReleasedListNot */
+static int hf_ngap_PDUSessionResourceReleasedListPSAck_PDU;  /* PDUSessionResourceReleasedListPSAck */
+static int hf_ngap_PDUSessionResourceReleasedListPSFail_PDU;  /* PDUSessionResourceReleasedListPSFail */
+static int hf_ngap_PDUSessionResourceReleasedListRelRes_PDU;  /* PDUSessionResourceReleasedListRelRes */
+static int hf_ngap_PDUSessionResourceReleaseResponseTransfer_PDU;  /* PDUSessionResourceReleaseResponseTransfer */
+static int hf_ngap_PDUSessionResourceResumeListRESReq_PDU;  /* PDUSessionResourceResumeListRESReq */
+static int hf_ngap_PDUSessionResourceResumeListRESRes_PDU;  /* PDUSessionResourceResumeListRESRes */
+static int hf_ngap_PDUSessionResourceSecondaryRATUsageList_PDU;  /* PDUSessionResourceSecondaryRATUsageList */
+static int hf_ngap_PDUSessionResourceSetupListCxtReq_PDU;  /* PDUSessionResourceSetupListCxtReq */
+static int hf_ngap_PDUSessionResourceSetupListCxtRes_PDU;  /* PDUSessionResourceSetupListCxtRes */
+static int hf_ngap_PDUSessionResourceSetupListHOReq_PDU;  /* PDUSessionResourceSetupListHOReq */
+static int hf_ngap_PDUSessionResourceSetupListSUReq_PDU;  /* PDUSessionResourceSetupListSUReq */
+static int hf_ngap_PDUSessionResourceSetupListSURes_PDU;  /* PDUSessionResourceSetupListSURes */
+static int hf_ngap_PDUSessionResourceSetupRequestTransfer_PDU;  /* PDUSessionResourceSetupRequestTransfer */
+static int hf_ngap_PDUSessionResourceSetupResponseTransfer_PDU;  /* PDUSessionResourceSetupResponseTransfer */
+static int hf_ngap_PDUSessionResourceSetupUnsuccessfulTransfer_PDU;  /* PDUSessionResourceSetupUnsuccessfulTransfer */
+static int hf_ngap_PDUSessionResourceSuspendListSUSReq_PDU;  /* PDUSessionResourceSuspendListSUSReq */
+static int hf_ngap_PDUSessionResourceSwitchedList_PDU;  /* PDUSessionResourceSwitchedList */
+static int hf_ngap_PDUSessionResourceToBeSwitchedDLList_PDU;  /* PDUSessionResourceToBeSwitchedDLList */
+static int hf_ngap_PDUSessionResourceToReleaseListHOCmd_PDU;  /* PDUSessionResourceToReleaseListHOCmd */
+static int hf_ngap_PDUSessionResourceToReleaseListRelCmd_PDU;  /* PDUSessionResourceToReleaseListRelCmd */
+static int hf_ngap_PDUSessionType_PDU;            /* PDUSessionType */
+static int hf_ngap_PEIPSassistanceInformation_PDU;  /* PEIPSassistanceInformation */
+static int hf_ngap_PLMNIdentity_PDU;              /* PLMNIdentity */
+static int hf_ngap_PLMNSupportList_PDU;           /* PLMNSupportList */
+static int hf_ngap_PWSFailedCellIDList_PDU;       /* PWSFailedCellIDList */
+static int hf_ngap_QMCConfigInfo_PDU;             /* QMCConfigInfo */
+static int hf_ngap_QMCDeactivation_PDU;           /* QMCDeactivation */
+static int hf_ngap_QosFlowAddOrModifyRequestList_PDU;  /* QosFlowAddOrModifyRequestList */
+static int hf_ngap_QosFlowFeedbackList_PDU;       /* QosFlowFeedbackList */
+static int hf_ngap_QosMonitoringRequest_PDU;      /* QosMonitoringRequest */
+static int hf_ngap_QosMonitoringReportingFrequency_PDU;  /* QosMonitoringReportingFrequency */
+static int hf_ngap_QosFlowListWithCause_PDU;      /* QosFlowListWithCause */
+static int hf_ngap_QosFlowParametersList_PDU;     /* QosFlowParametersList */
+static int hf_ngap_QosFlowPerTNLInformation_PDU;  /* QosFlowPerTNLInformation */
+static int hf_ngap_QosFlowPerTNLInformationList_PDU;  /* QosFlowPerTNLInformationList */
+static int hf_ngap_QosFlowSetupRequestList_PDU;   /* QosFlowSetupRequestList */
+static int hf_ngap_RANNodeName_PDU;               /* RANNodeName */
+static int hf_ngap_RANPagingPriority_PDU;         /* RANPagingPriority */
+static int hf_ngap_RANStatusTransfer_TransparentContainer_PDU;  /* RANStatusTransfer_TransparentContainer */
+static int hf_ngap_RAN_UE_NGAP_ID_PDU;            /* RAN_UE_NGAP_ID */
+static int hf_ngap_RAT_Information_PDU;           /* RAT_Information */
+static int hf_ngap_RedCapIndication_PDU;          /* RedCapIndication */
+static int hf_ngap_RedirectionVoiceFallback_PDU;  /* RedirectionVoiceFallback */
+static int hf_ngap_RedundantPDUSessionInformation_PDU;  /* RedundantPDUSessionInformation */
+static int hf_ngap_RedundantQosFlowIndicator_PDU;  /* RedundantQosFlowIndicator */
+static int hf_ngap_RelativeAMFCapacity_PDU;       /* RelativeAMFCapacity */
+static int hf_ngap_RepetitionPeriod_PDU;          /* RepetitionPeriod */
+static int hf_ngap_ExtendedReportIntervalMDT_PDU;  /* ExtendedReportIntervalMDT */
+static int hf_ngap_ResetType_PDU;                 /* ResetType */
+static int hf_ngap_RGLevelWirelineAccessCharacteristics_PDU;  /* RGLevelWirelineAccessCharacteristics */
+static int hf_ngap_RoutingID_PDU;                 /* RoutingID */
+static int hf_ngap_RRCEstablishmentCause_PDU;     /* RRCEstablishmentCause */
+static int hf_ngap_RRCInactiveTransitionReportRequest_PDU;  /* RRCInactiveTransitionReportRequest */
+static int hf_ngap_RRCState_PDU;                  /* RRCState */
+static int hf_ngap_RIMInformationTransfer_PDU;    /* RIMInformationTransfer */
+static int hf_ngap_SCTP_TLAs_PDU;                 /* SCTP_TLAs */
+static int hf_ngap_SecondaryRATUsageInformation_PDU;  /* SecondaryRATUsageInformation */
+static int hf_ngap_SecondaryRATDataUsageReportTransfer_PDU;  /* SecondaryRATDataUsageReportTransfer */
+static int hf_ngap_SecurityContext_PDU;           /* SecurityContext */
+static int hf_ngap_SecurityIndication_PDU;        /* SecurityIndication */
+static int hf_ngap_SecurityKey_PDU;               /* SecurityKey */
+static int hf_ngap_SecurityResult_PDU;            /* SecurityResult */
+static int hf_ngap_SerialNumber_PDU;              /* SerialNumber */
+static int hf_ngap_ServedGUAMIList_PDU;           /* ServedGUAMIList */
+static int hf_ngap_SgNB_UE_X2AP_ID_PDU;           /* SgNB_UE_X2AP_ID */
+static int hf_ngap_SliceSupportList_PDU;          /* SliceSupportList */
+static int hf_ngap_S_NSSAI_PDU;                   /* S_NSSAI */
+static int hf_ngap_ngap_SONConfigurationTransfer_PDU;  /* SONConfigurationTransfer */
+static int hf_ngap_SONInformationReport_PDU;      /* SONInformationReport */
+static int hf_ngap_SuccessfulHandoverReportList_PDU;  /* SuccessfulHandoverReportList */
+static int hf_ngap_ngap_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer_PDU;  /* SourceNGRANNode_ToTargetNGRANNode_TransparentContainer */
+static int hf_ngap_SourceNodeID_PDU;              /* SourceNodeID */
+static int hf_ngap_SourceToTarget_TransparentContainer_PDU;  /* SourceToTarget_TransparentContainer */
+static int hf_ngap_SourceToTarget_AMFInformationReroute_PDU;  /* SourceToTarget_AMFInformationReroute */
+static int hf_ngap_SRVCCOperationPossible_PDU;    /* SRVCCOperationPossible */
+static int hf_ngap_SupportedTAList_PDU;           /* SupportedTAList */
+static int hf_ngap_Suspend_Request_Indication_PDU;  /* Suspend_Request_Indication */
+static int hf_ngap_Suspend_Response_Indication_PDU;  /* Suspend_Response_Indication */
+static int hf_ngap_SurvivalTime_PDU;              /* SurvivalTime */
+static int hf_ngap_TAI_PDU;                       /* TAI */
+static int hf_ngap_TAIListForPaging_PDU;          /* TAIListForPaging */
+static int hf_ngap_TAIListForRestart_PDU;         /* TAIListForRestart */
+static int hf_ngap_TAINSAGSupportList_PDU;        /* TAINSAGSupportList */
+static int hf_ngap_TargetHomeENB_ID_PDU;          /* TargetHomeENB_ID */
+static int hf_ngap_TargetID_PDU;                  /* TargetID */
+static int hf_ngap_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer_PDU;  /* TargetNGRANNode_ToSourceNGRANNode_TransparentContainer */
+static int hf_ngap_TargetNGRANNode_ToSourceNGRANNode_FailureTransparentContainer_PDU;  /* TargetNGRANNode_ToSourceNGRANNode_FailureTransparentContainer */
+static int hf_ngap_TargetNSSAIInformation_PDU;    /* TargetNSSAIInformation */
+static int hf_ngap_TargetRNC_ID_PDU;              /* TargetRNC_ID */
+static int hf_ngap_TargetToSource_TransparentContainer_PDU;  /* TargetToSource_TransparentContainer */
+static int hf_ngap_TargettoSource_Failure_TransparentContainer_PDU;  /* TargettoSource_Failure_TransparentContainer */
+static int hf_ngap_TimeSyncAssistanceInfo_PDU;    /* TimeSyncAssistanceInfo */
+static int hf_ngap_TimeToWait_PDU;                /* TimeToWait */
+static int hf_ngap_TNLAssociationList_PDU;        /* TNLAssociationList */
+static int hf_ngap_TraceActivation_PDU;           /* TraceActivation */
+static int hf_ngap_TrafficLoadReductionIndication_PDU;  /* TrafficLoadReductionIndication */
+static int hf_ngap_TransportLayerAddress_PDU;     /* TransportLayerAddress */
+static int hf_ngap_TSCTrafficCharacteristics_PDU;  /* TSCTrafficCharacteristics */
+static int hf_ngap_UEAggregateMaximumBitRate_PDU;  /* UEAggregateMaximumBitRate */
+static int hf_ngap_UE_associatedLogicalNG_connectionList_PDU;  /* UE_associatedLogicalNG_connectionList */
+static int hf_ngap_UECapabilityInfoRequest_PDU;   /* UECapabilityInfoRequest */
+static int hf_ngap_UEContextRequest_PDU;          /* UEContextRequest */
+static int hf_ngap_UE_DifferentiationInfo_PDU;    /* UE_DifferentiationInfo */
+static int hf_ngap_UEHistoryInformationFromTheUE_PDU;  /* UEHistoryInformationFromTheUE */
+static int hf_ngap_UE_NGAP_IDs_PDU;               /* UE_NGAP_IDs */
+static int hf_ngap_UEPagingIdentity_PDU;          /* UEPagingIdentity */
+static int hf_ngap_UEPresenceInAreaOfInterestList_PDU;  /* UEPresenceInAreaOfInterestList */
+static int hf_ngap_UERadioCapability_PDU;         /* UERadioCapability */
+static int hf_ngap_UERadioCapabilityForPaging_PDU;  /* UERadioCapabilityForPaging */
+static int hf_ngap_UERadioCapabilityForPagingOfNB_IoT_PDU;  /* UERadioCapabilityForPagingOfNB_IoT */
+static int hf_ngap_UERadioCapabilityID_PDU;       /* UERadioCapabilityID */
+static int hf_ngap_UERetentionInformation_PDU;    /* UERetentionInformation */
+static int hf_ngap_UESecurityCapabilities_PDU;    /* UESecurityCapabilities */
+static int hf_ngap_UESliceMaximumBitRateList_PDU;  /* UESliceMaximumBitRateList */
+static int hf_ngap_UE_UP_CIoT_Support_PDU;        /* UE_UP_CIoT_Support */
+static int hf_ngap_UL_CP_SecurityInformation_PDU;  /* UL_CP_SecurityInformation */
+static int hf_ngap_UL_NGU_UP_TNLModifyList_PDU;   /* UL_NGU_UP_TNLModifyList */
+static int hf_ngap_UnavailableGUAMIList_PDU;      /* UnavailableGUAMIList */
+static int hf_ngap_ULForwarding_PDU;              /* ULForwarding */
+static int hf_ngap_UPTransportLayerInformation_PDU;  /* UPTransportLayerInformation */
+static int hf_ngap_UPTransportLayerInformationList_PDU;  /* UPTransportLayerInformationList */
+static int hf_ngap_UPTransportLayerInformationPairList_PDU;  /* UPTransportLayerInformationPairList */
+static int hf_ngap_URI_address_PDU;               /* URI_address */
+static int hf_ngap_UserLocationInformation_PDU;   /* UserLocationInformation */
+static int hf_ngap_UserLocationInformationTNGF_PDU;  /* UserLocationInformationTNGF */
+static int hf_ngap_UserLocationInformationTWIF_PDU;  /* UserLocationInformationTWIF */
+static int hf_ngap_UserLocationInformationW_AGF_PDU;  /* UserLocationInformationW_AGF */
+static int hf_ngap_WarningAreaCoordinates_PDU;    /* WarningAreaCoordinates */
+static int hf_ngap_WarningAreaList_PDU;           /* WarningAreaList */
+static int hf_ngap_WarningMessageContents_PDU;    /* WarningMessageContents */
+static int hf_ngap_WarningSecurityInfo_PDU;       /* WarningSecurityInfo */
+static int hf_ngap_WarningType_PDU;               /* WarningType */
+static int hf_ngap_WUS_Assistance_Information_PDU;  /* WUS_Assistance_Information */
+static int hf_ngap_PDUSessionResourceSetupRequest_PDU;  /* PDUSessionResourceSetupRequest */
+static int hf_ngap_PDUSessionResourceSetupResponse_PDU;  /* PDUSessionResourceSetupResponse */
+static int hf_ngap_PDUSessionResourceReleaseCommand_PDU;  /* PDUSessionResourceReleaseCommand */
+static int hf_ngap_PDUSessionResourceReleaseResponse_PDU;  /* PDUSessionResourceReleaseResponse */
+static int hf_ngap_PDUSessionResourceModifyRequest_PDU;  /* PDUSessionResourceModifyRequest */
+static int hf_ngap_PDUSessionResourceModifyResponse_PDU;  /* PDUSessionResourceModifyResponse */
+static int hf_ngap_PDUSessionResourceNotify_PDU;  /* PDUSessionResourceNotify */
+static int hf_ngap_PDUSessionResourceModifyIndication_PDU;  /* PDUSessionResourceModifyIndication */
+static int hf_ngap_PDUSessionResourceModifyConfirm_PDU;  /* PDUSessionResourceModifyConfirm */
+static int hf_ngap_InitialContextSetupRequest_PDU;  /* InitialContextSetupRequest */
+static int hf_ngap_InitialContextSetupResponse_PDU;  /* InitialContextSetupResponse */
+static int hf_ngap_InitialContextSetupFailure_PDU;  /* InitialContextSetupFailure */
+static int hf_ngap_UEContextReleaseRequest_PDU;   /* UEContextReleaseRequest */
+static int hf_ngap_UEContextReleaseCommand_PDU;   /* UEContextReleaseCommand */
+static int hf_ngap_UEContextReleaseComplete_PDU;  /* UEContextReleaseComplete */
+static int hf_ngap_UEContextResumeRequest_PDU;    /* UEContextResumeRequest */
+static int hf_ngap_UEContextResumeResponse_PDU;   /* UEContextResumeResponse */
+static int hf_ngap_UEContextResumeFailure_PDU;    /* UEContextResumeFailure */
+static int hf_ngap_UEContextSuspendRequest_PDU;   /* UEContextSuspendRequest */
+static int hf_ngap_UEContextSuspendResponse_PDU;  /* UEContextSuspendResponse */
+static int hf_ngap_UEContextSuspendFailure_PDU;   /* UEContextSuspendFailure */
+static int hf_ngap_UEContextModificationRequest_PDU;  /* UEContextModificationRequest */
+static int hf_ngap_UEContextModificationResponse_PDU;  /* UEContextModificationResponse */
+static int hf_ngap_UEContextModificationFailure_PDU;  /* UEContextModificationFailure */
+static int hf_ngap_RRCInactiveTransitionReport_PDU;  /* RRCInactiveTransitionReport */
+static int hf_ngap_RetrieveUEInformation_PDU;     /* RetrieveUEInformation */
+static int hf_ngap_UEInformationTransfer_PDU;     /* UEInformationTransfer */
+static int hf_ngap_RANCPRelocationIndication_PDU;  /* RANCPRelocationIndication */
+static int hf_ngap_HandoverRequired_PDU;          /* HandoverRequired */
+static int hf_ngap_HandoverCommand_PDU;           /* HandoverCommand */
+static int hf_ngap_HandoverPreparationFailure_PDU;  /* HandoverPreparationFailure */
+static int hf_ngap_HandoverRequest_PDU;           /* HandoverRequest */
+static int hf_ngap_HandoverRequestAcknowledge_PDU;  /* HandoverRequestAcknowledge */
+static int hf_ngap_HandoverFailure_PDU;           /* HandoverFailure */
+static int hf_ngap_HandoverNotify_PDU;            /* HandoverNotify */
+static int hf_ngap_PathSwitchRequest_PDU;         /* PathSwitchRequest */
+static int hf_ngap_PathSwitchRequestAcknowledge_PDU;  /* PathSwitchRequestAcknowledge */
+static int hf_ngap_PathSwitchRequestFailure_PDU;  /* PathSwitchRequestFailure */
+static int hf_ngap_HandoverCancel_PDU;            /* HandoverCancel */
+static int hf_ngap_HandoverCancelAcknowledge_PDU;  /* HandoverCancelAcknowledge */
+static int hf_ngap_HandoverSuccess_PDU;           /* HandoverSuccess */
+static int hf_ngap_UplinkRANEarlyStatusTransfer_PDU;  /* UplinkRANEarlyStatusTransfer */
+static int hf_ngap_DownlinkRANEarlyStatusTransfer_PDU;  /* DownlinkRANEarlyStatusTransfer */
+static int hf_ngap_UplinkRANStatusTransfer_PDU;   /* UplinkRANStatusTransfer */
+static int hf_ngap_DownlinkRANStatusTransfer_PDU;  /* DownlinkRANStatusTransfer */
+static int hf_ngap_Paging_PDU;                    /* Paging */
+static int hf_ngap_InitialUEMessage_PDU;          /* InitialUEMessage */
+static int hf_ngap_DownlinkNASTransport_PDU;      /* DownlinkNASTransport */
+static int hf_ngap_UplinkNASTransport_PDU;        /* UplinkNASTransport */
+static int hf_ngap_W_AGFIdentityInformation_PDU;  /* W_AGFIdentityInformation */
+static int hf_ngap_TNGFIdentityInformation_PDU;   /* TNGFIdentityInformation */
+static int hf_ngap_TWIFIdentityInformation_PDU;   /* TWIFIdentityInformation */
+static int hf_ngap_NASNonDeliveryIndication_PDU;  /* NASNonDeliveryIndication */
+static int hf_ngap_RerouteNASRequest_PDU;         /* RerouteNASRequest */
+static int hf_ngap_NGAP_Message_PDU;              /* NGAP_Message */
+static int hf_ngap_NGSetupRequest_PDU;            /* NGSetupRequest */
+static int hf_ngap_NGSetupResponse_PDU;           /* NGSetupResponse */
+static int hf_ngap_NGSetupFailure_PDU;            /* NGSetupFailure */
+static int hf_ngap_RANConfigurationUpdate_PDU;    /* RANConfigurationUpdate */
+static int hf_ngap_RANConfigurationUpdateAcknowledge_PDU;  /* RANConfigurationUpdateAcknowledge */
+static int hf_ngap_RANConfigurationUpdateFailure_PDU;  /* RANConfigurationUpdateFailure */
+static int hf_ngap_AMFConfigurationUpdate_PDU;    /* AMFConfigurationUpdate */
+static int hf_ngap_AMFConfigurationUpdateAcknowledge_PDU;  /* AMFConfigurationUpdateAcknowledge */
+static int hf_ngap_AMFConfigurationUpdateFailure_PDU;  /* AMFConfigurationUpdateFailure */
+static int hf_ngap_AMFStatusIndication_PDU;       /* AMFStatusIndication */
+static int hf_ngap_NGReset_PDU;                   /* NGReset */
+static int hf_ngap_NGResetAcknowledge_PDU;        /* NGResetAcknowledge */
+static int hf_ngap_ErrorIndication_PDU;           /* ErrorIndication */
+static int hf_ngap_OverloadStart_PDU;             /* OverloadStart */
+static int hf_ngap_OverloadStop_PDU;              /* OverloadStop */
+static int hf_ngap_UplinkRANConfigurationTransfer_PDU;  /* UplinkRANConfigurationTransfer */
+static int hf_ngap_DownlinkRANConfigurationTransfer_PDU;  /* DownlinkRANConfigurationTransfer */
+static int hf_ngap_WriteReplaceWarningRequest_PDU;  /* WriteReplaceWarningRequest */
+static int hf_ngap_WriteReplaceWarningResponse_PDU;  /* WriteReplaceWarningResponse */
+static int hf_ngap_PWSCancelRequest_PDU;          /* PWSCancelRequest */
+static int hf_ngap_PWSCancelResponse_PDU;         /* PWSCancelResponse */
+static int hf_ngap_PWSRestartIndication_PDU;      /* PWSRestartIndication */
+static int hf_ngap_PWSFailureIndication_PDU;      /* PWSFailureIndication */
+static int hf_ngap_DownlinkUEAssociatedNRPPaTransport_PDU;  /* DownlinkUEAssociatedNRPPaTransport */
+static int hf_ngap_UplinkUEAssociatedNRPPaTransport_PDU;  /* UplinkUEAssociatedNRPPaTransport */
+static int hf_ngap_DownlinkNonUEAssociatedNRPPaTransport_PDU;  /* DownlinkNonUEAssociatedNRPPaTransport */
+static int hf_ngap_UplinkNonUEAssociatedNRPPaTransport_PDU;  /* UplinkNonUEAssociatedNRPPaTransport */
+static int hf_ngap_TraceStart_PDU;                /* TraceStart */
+static int hf_ngap_TraceFailureIndication_PDU;    /* TraceFailureIndication */
+static int hf_ngap_DeactivateTrace_PDU;           /* DeactivateTrace */
+static int hf_ngap_CellTrafficTrace_PDU;          /* CellTrafficTrace */
+static int hf_ngap_LocationReportingControl_PDU;  /* LocationReportingControl */
+static int hf_ngap_LocationReportingFailureIndication_PDU;  /* LocationReportingFailureIndication */
+static int hf_ngap_LocationReport_PDU;            /* LocationReport */
+static int hf_ngap_UETNLABindingReleaseRequest_PDU;  /* UETNLABindingReleaseRequest */
+static int hf_ngap_UERadioCapabilityInfoIndication_PDU;  /* UERadioCapabilityInfoIndication */
+static int hf_ngap_UERadioCapabilityCheckRequest_PDU;  /* UERadioCapabilityCheckRequest */
+static int hf_ngap_UERadioCapabilityCheckResponse_PDU;  /* UERadioCapabilityCheckResponse */
+static int hf_ngap_PrivateMessage_PDU;            /* PrivateMessage */
+static int hf_ngap_SecondaryRATDataUsageReport_PDU;  /* SecondaryRATDataUsageReport */
+static int hf_ngap_UplinkRIMInformationTransfer_PDU;  /* UplinkRIMInformationTransfer */
+static int hf_ngap_DownlinkRIMInformationTransfer_PDU;  /* DownlinkRIMInformationTransfer */
+static int hf_ngap_ConnectionEstablishmentIndication_PDU;  /* ConnectionEstablishmentIndication */
+static int hf_ngap_UERadioCapabilityIDMappingRequest_PDU;  /* UERadioCapabilityIDMappingRequest */
+static int hf_ngap_UERadioCapabilityIDMappingResponse_PDU;  /* UERadioCapabilityIDMappingResponse */
+static int hf_ngap_AMFCPRelocationIndication_PDU;  /* AMFCPRelocationIndication */
+static int hf_ngap_BroadcastSessionSetupRequest_PDU;  /* BroadcastSessionSetupRequest */
+static int hf_ngap_MBSSessionSetupOrModRequestTransfer_OCTET_STRING_PDU;  /* MBSSessionSetupOrModRequestTransfer_OCTET_STRING */
+static int hf_ngap_BroadcastSessionSetupResponse_PDU;  /* BroadcastSessionSetupResponse */
+static int hf_ngap_MBSSessionSetupOrModResponseTransfer_OCTET_STRING_PDU;  /* MBSSessionSetupOrModResponseTransfer_OCTET_STRING */
+static int hf_ngap_BroadcastSessionSetupFailure_PDU;  /* BroadcastSessionSetupFailure */
+static int hf_ngap_MBSSessionSetupOrModFailureTransfer_OCTET_STRING_PDU;  /* MBSSessionSetupOrModFailureTransfer_OCTET_STRING */
+static int hf_ngap_BroadcastSessionModificationRequest_PDU;  /* BroadcastSessionModificationRequest */
+static int hf_ngap_BroadcastSessionModificationResponse_PDU;  /* BroadcastSessionModificationResponse */
+static int hf_ngap_BroadcastSessionModificationFailure_PDU;  /* BroadcastSessionModificationFailure */
+static int hf_ngap_BroadcastSessionReleaseRequest_PDU;  /* BroadcastSessionReleaseRequest */
+static int hf_ngap_BroadcastSessionReleaseRequired_PDU;  /* BroadcastSessionReleaseRequired */
+static int hf_ngap_BroadcastSessionReleaseResponse_PDU;  /* BroadcastSessionReleaseResponse */
+static int hf_ngap_MBSSessionReleaseResponseTransfer_OCTET_STRING_PDU;  /* MBSSessionReleaseResponseTransfer_OCTET_STRING */
+static int hf_ngap_DistributionSetupRequest_PDU;  /* DistributionSetupRequest */
+static int hf_ngap_MBS_DistributionSetupRequestTransfer_OCTET_STRING_PDU;  /* MBS_DistributionSetupRequestTransfer_OCTET_STRING */
+static int hf_ngap_DistributionSetupResponse_PDU;  /* DistributionSetupResponse */
+static int hf_ngap_MBS_DistributionSetupResponseTransfer_OCTET_STRING_PDU;  /* MBS_DistributionSetupResponseTransfer_OCTET_STRING */
+static int hf_ngap_DistributionSetupFailure_PDU;  /* DistributionSetupFailure */
+static int hf_ngap_MBS_DistributionSetupUnsuccessfulTransfer_OCTET_STRING_PDU;  /* MBS_DistributionSetupUnsuccessfulTransfer_OCTET_STRING */
+static int hf_ngap_DistributionReleaseRequest_PDU;  /* DistributionReleaseRequest */
+static int hf_ngap_MBS_DistributionReleaseRequestTransfer_OCTET_STRING_PDU;  /* MBS_DistributionReleaseRequestTransfer_OCTET_STRING */
+static int hf_ngap_DistributionReleaseResponse_PDU;  /* DistributionReleaseResponse */
+static int hf_ngap_MulticastSessionActivationRequest_PDU;  /* MulticastSessionActivationRequest */
+static int hf_ngap_MulticastSessionActivationRequestTransfer_OCTET_STRING_PDU;  /* MulticastSessionActivationRequestTransfer_OCTET_STRING */
+static int hf_ngap_MulticastSessionActivationResponse_PDU;  /* MulticastSessionActivationResponse */
+static int hf_ngap_MulticastSessionActivationFailure_PDU;  /* MulticastSessionActivationFailure */
+static int hf_ngap_MulticastSessionDeactivationRequest_PDU;  /* MulticastSessionDeactivationRequest */
+static int hf_ngap_MulticastSessionDeactivationRequestTransfer_OCTET_STRING_PDU;  /* MulticastSessionDeactivationRequestTransfer_OCTET_STRING */
+static int hf_ngap_MulticastSessionDeactivationResponse_PDU;  /* MulticastSessionDeactivationResponse */
+static int hf_ngap_MulticastSessionUpdateRequest_PDU;  /* MulticastSessionUpdateRequest */
+static int hf_ngap_MulticastSessionUpdateRequestTransfer_OCTET_STRING_PDU;  /* MulticastSessionUpdateRequestTransfer_OCTET_STRING */
+static int hf_ngap_MulticastSessionUpdateResponse_PDU;  /* MulticastSessionUpdateResponse */
+static int hf_ngap_MulticastSessionUpdateFailure_PDU;  /* MulticastSessionUpdateFailure */
+static int hf_ngap_MulticastGroupPaging_PDU;      /* MulticastGroupPaging */
+static int hf_ngap_NGAP_PDU_PDU;                  /* NGAP_PDU */
+static int hf_ngap_UEContextResumeRequestTransfer_PDU;  /* UEContextResumeRequestTransfer */
+static int hf_ngap_UEContextResumeResponseTransfer_PDU;  /* UEContextResumeResponseTransfer */
+static int hf_ngap_UEContextSuspendRequestTransfer_PDU;  /* UEContextSuspendRequestTransfer */
+static int hf_ngap_MBSSessionSetupOrModRequestTransfer_PDU;  /* MBSSessionSetupOrModRequestTransfer */
+static int hf_ngap_MBSSessionSetupOrModResponseTransfer_PDU;  /* MBSSessionSetupOrModResponseTransfer */
+static int hf_ngap_MBSSessionSetupOrModFailureTransfer_PDU;  /* MBSSessionSetupOrModFailureTransfer */
+static int hf_ngap_MBSSessionReleaseResponseTransfer_PDU;  /* MBSSessionReleaseResponseTransfer */
+static int hf_ngap_MBS_DistributionSetupRequestTransfer_PDU;  /* MBS_DistributionSetupRequestTransfer */
+static int hf_ngap_MBS_DistributionSetupResponseTransfer_PDU;  /* MBS_DistributionSetupResponseTransfer */
+static int hf_ngap_MBS_DistributionSetupUnsuccessfulTransfer_PDU;  /* MBS_DistributionSetupUnsuccessfulTransfer */
+static int hf_ngap_MBS_DistributionReleaseRequestTransfer_PDU;  /* MBS_DistributionReleaseRequestTransfer */
+static int hf_ngap_MulticastSessionActivationRequestTransfer_PDU;  /* MulticastSessionActivationRequestTransfer */
+static int hf_ngap_MulticastSessionDeactivationRequestTransfer_PDU;  /* MulticastSessionDeactivationRequestTransfer */
+static int hf_ngap_MulticastSessionUpdateRequestTransfer_PDU;  /* MulticastSessionUpdateRequestTransfer */
+static int hf_ngap_local;                         /* INTEGER_0_65535 */
+static int hf_ngap_global;                        /* OBJECT_IDENTIFIER */
+static int hf_ngap_ProtocolIE_Container_item;     /* ProtocolIE_Field */
+static int hf_ngap_id;                            /* ProtocolIE_ID */
+static int hf_ngap_criticality;                   /* Criticality */
+static int hf_ngap_ie_field_value;                /* T_ie_field_value */
+static int hf_ngap_ProtocolExtensionContainer_item;  /* ProtocolExtensionField */
+static int hf_ngap_ext_id;                        /* ProtocolExtensionID */
+static int hf_ngap_extensionValue;                /* T_extensionValue */
+static int hf_ngap_PrivateIE_Container_item;      /* PrivateIE_Field */
+static int hf_ngap_private_id;                    /* PrivateIE_ID */
+static int hf_ngap_private_value;                 /* T_private_value */
+static int hf_ngap_AdditionalDLUPTNLInformationForHOList_item;  /* AdditionalDLUPTNLInformationForHOItem */
+static int hf_ngap_additionalDL_NGU_UP_TNLInformation;  /* UPTransportLayerInformation */
+static int hf_ngap_additionalQosFlowSetupResponseList;  /* QosFlowListWithDataForwarding */
+static int hf_ngap_additionalDLForwardingUPTNLInformation;  /* UPTransportLayerInformation */
+static int hf_ngap_iE_Extensions;                 /* ProtocolExtensionContainer */
+static int hf_ngap_priorityLevelARP;              /* PriorityLevelARP */
+static int hf_ngap_pre_emptionCapability;         /* Pre_emptionCapability */
+static int hf_ngap_pre_emptionVulnerability;      /* Pre_emptionVulnerability */
+static int hf_ngap_Allowed_CAG_List_per_PLMN_item;  /* CAG_ID */
+static int hf_ngap_AllowedNSSAI_item;             /* AllowedNSSAI_Item */
+static int hf_ngap_s_NSSAI;                       /* S_NSSAI */
+static int hf_ngap_Allowed_PNI_NPN_List_item;     /* Allowed_PNI_NPN_Item */
+static int hf_ngap_pLMNIdentity;                  /* PLMNIdentity */
+static int hf_ngap_pNI_NPN_restricted;            /* T_pNI_NPN_restricted */
+static int hf_ngap_allowed_CAG_List_per_PLMN;     /* Allowed_CAG_List_per_PLMN */
+static int hf_ngap_AllowedTACs_item;              /* TAC */
+static int hf_ngap_AlternativeQoSParaSetList_item;  /* AlternativeQoSParaSetItem */
+static int hf_ngap_alternativeQoSParaSetIndex;    /* AlternativeQoSParaSetIndex */
+static int hf_ngap_guaranteedFlowBitRateDL;       /* BitRate */
+static int hf_ngap_guaranteedFlowBitRateUL;       /* BitRate */
+static int hf_ngap_packetDelayBudget;             /* PacketDelayBudget */
+static int hf_ngap_packetErrorRate;               /* PacketErrorRate */
+static int hf_ngap_globalRANNodeID;               /* GlobalRANNodeID */
+static int hf_ngap_tAI;                           /* TAI */
+static int hf_ngap_choice_Extensions;             /* ProtocolIE_SingleContainer */
+static int hf_ngap_AMF_TNLAssociationSetupList_item;  /* AMF_TNLAssociationSetupItem */
+static int hf_ngap_aMF_TNLAssociationAddress;     /* CPTransportLayerInformation */
+static int hf_ngap_AMF_TNLAssociationToAddList_item;  /* AMF_TNLAssociationToAddItem */
+static int hf_ngap_tNLAssociationUsage;           /* TNLAssociationUsage */
+static int hf_ngap_tNLAddressWeightFactor;        /* TNLAddressWeightFactor */
+static int hf_ngap_AMF_TNLAssociationToRemoveList_item;  /* AMF_TNLAssociationToRemoveItem */
+static int hf_ngap_AMF_TNLAssociationToUpdateList_item;  /* AMF_TNLAssociationToUpdateItem */
+static int hf_ngap_areaOfInterestTAIList;         /* AreaOfInterestTAIList */
+static int hf_ngap_areaOfInterestCellList;        /* AreaOfInterestCellList */
+static int hf_ngap_areaOfInterestRANNodeList;     /* AreaOfInterestRANNodeList */
+static int hf_ngap_AreaOfInterestCellList_item;   /* AreaOfInterestCellItem */
+static int hf_ngap_nGRAN_CGI;                     /* NGRAN_CGI */
+static int hf_ngap_AreaOfInterestList_item;       /* AreaOfInterestItem */
+static int hf_ngap_areaOfInterest;                /* AreaOfInterest */
+static int hf_ngap_locationReportingReferenceID;  /* LocationReportingReferenceID */
+static int hf_ngap_AreaOfInterestRANNodeList_item;  /* AreaOfInterestRANNodeItem */
+static int hf_ngap_AreaOfInterestTAIList_item;    /* AreaOfInterestTAIItem */
+static int hf_ngap_assistanceDataForRecommendedCells;  /* AssistanceDataForRecommendedCells */
+static int hf_ngap_pagingAttemptInformation;      /* PagingAttemptInformation */
+static int hf_ngap_recommendedCellsForPaging;     /* RecommendedCellsForPaging */
+static int hf_ngap_AssociatedMBSQosFlowSetupRequestList_item;  /* AssociatedMBSQosFlowSetupRequestItem */
+static int hf_ngap_mBS_QosFlowIdentifier;         /* QosFlowIdentifier */
+static int hf_ngap_associatedUnicastQosFlowIdentifier;  /* QosFlowIdentifier */
+static int hf_ngap_AssociatedMBSQosFlowSetuporModifyRequestList_item;  /* AssociatedMBSQosFlowSetuporModifyRequestItem */
+static int hf_ngap_AssociatedQosFlowList_item;    /* AssociatedQosFlowItem */
+static int hf_ngap_qosFlowIdentifier;             /* QosFlowIdentifier */
+static int hf_ngap_qosFlowMappingIndication;      /* T_qosFlowMappingIndication */
+static int hf_ngap_cellBased;                     /* CellBasedMDT_NR */
+static int hf_ngap_tABased;                       /* TABasedMDT */
+static int hf_ngap_pLMNWide;                      /* NULL */
+static int hf_ngap_tAIBased;                      /* TAIBasedMDT */
+static int hf_ngap_cellBased_01;                  /* CellBasedMDT_EUTRA */
+static int hf_ngap_AreaScopeOfNeighCellsList_item;  /* AreaScopeOfNeighCellsItem */
+static int hf_ngap_nrFrequencyInfo;               /* NRFrequencyInfo */
+static int hf_ngap_pciListForMDT;                 /* PCIListForMDT */
+static int hf_ngap_cellBased_02;                  /* CellBasedQMC */
+static int hf_ngap_tABased_01;                    /* TABasedQMC */
+static int hf_ngap_tAIBased_01;                   /* TAIBasedQMC */
+static int hf_ngap_pLMNAreaBased;                 /* PLMNAreaBasedQMC */
+static int hf_ngap_applicationLayerBufferLevelList;  /* T_applicationLayerBufferLevelList */
+static int hf_ngap_playoutDelayForMediaStartup;   /* T_playoutDelayForMediaStartup */
+static int hf_ngap_beamMeasurementsReportQuantity;  /* BeamMeasurementsReportQuantity */
+static int hf_ngap_maxNrofRS_IndexesToReport;     /* MaxNrofRS_IndexesToReport */
+static int hf_ngap_rSRP;                          /* T_rSRP */
+static int hf_ngap_rSRQ;                          /* T_rSRQ */
+static int hf_ngap_sINR;                          /* T_sINR */
+static int hf_ngap_cellIDCancelledEUTRA;          /* CellIDCancelledEUTRA */
+static int hf_ngap_tAICancelledEUTRA;             /* TAICancelledEUTRA */
+static int hf_ngap_emergencyAreaIDCancelledEUTRA;  /* EmergencyAreaIDCancelledEUTRA */
+static int hf_ngap_cellIDCancelledNR;             /* CellIDCancelledNR */
+static int hf_ngap_tAICancelledNR;                /* TAICancelledNR */
+static int hf_ngap_emergencyAreaIDCancelledNR;    /* EmergencyAreaIDCancelledNR */
+static int hf_ngap_cellIDBroadcastEUTRA;          /* CellIDBroadcastEUTRA */
+static int hf_ngap_tAIBroadcastEUTRA;             /* TAIBroadcastEUTRA */
+static int hf_ngap_emergencyAreaIDBroadcastEUTRA;  /* EmergencyAreaIDBroadcastEUTRA */
+static int hf_ngap_cellIDBroadcastNR;             /* CellIDBroadcastNR */
+static int hf_ngap_tAIBroadcastNR;                /* TAIBroadcastNR */
+static int hf_ngap_emergencyAreaIDBroadcastNR;    /* EmergencyAreaIDBroadcastNR */
+static int hf_ngap_BroadcastPLMNList_item;        /* BroadcastPLMNItem */
+static int hf_ngap_tAISliceSupportList;           /* SliceSupportList */
+static int hf_ngap_bluetoothMeasConfig;           /* BluetoothMeasConfig */
+static int hf_ngap_bluetoothMeasConfigNameList;   /* BluetoothMeasConfigNameList */
+static int hf_ngap_bt_rssi;                       /* T_bt_rssi */
+static int hf_ngap_BluetoothMeasConfigNameList_item;  /* BluetoothMeasConfigNameItem */
+static int hf_ngap_bluetoothName;                 /* BluetoothName */
+static int hf_ngap_CancelledCellsInEAI_EUTRA_item;  /* CancelledCellsInEAI_EUTRA_Item */
+static int hf_ngap_eUTRA_CGI;                     /* EUTRA_CGI */
+static int hf_ngap_numberOfBroadcasts;            /* NumberOfBroadcasts */
+static int hf_ngap_CancelledCellsInEAI_NR_item;   /* CancelledCellsInEAI_NR_Item */
+static int hf_ngap_nR_CGI;                        /* NR_CGI */
+static int hf_ngap_CancelledCellsInTAI_EUTRA_item;  /* CancelledCellsInTAI_EUTRA_Item */
+static int hf_ngap_CancelledCellsInTAI_NR_item;   /* CancelledCellsInTAI_NR_Item */
+static int hf_ngap_CandidateCellList_item;        /* CandidateCellItem */
+static int hf_ngap_candidateCell;                 /* CandidateCell */
+static int hf_ngap_candidateCGI;                  /* CandidateCellID */
+static int hf_ngap_candidatePCI;                  /* CandidatePCI */
+static int hf_ngap_candidateCellID;               /* NR_CGI */
+static int hf_ngap_candidatePCI_01;               /* INTEGER_0_1007_ */
+static int hf_ngap_candidateNRARFCN;              /* INTEGER_0_maxNRARFCN */
+static int hf_ngap_radioNetwork;                  /* CauseRadioNetwork */
+static int hf_ngap_transport;                     /* CauseTransport */
+static int hf_ngap_nas;                           /* CauseNas */
+static int hf_ngap_protocol;                      /* CauseProtocol */
+static int hf_ngap_misc;                          /* CauseMisc */
+static int hf_ngap_cellCAGList;                   /* CellCAGList */
+static int hf_ngap_CellCAGList_item;              /* CAG_ID */
+static int hf_ngap_CellIDBroadcastEUTRA_item;     /* CellIDBroadcastEUTRA_Item */
+static int hf_ngap_CellIDBroadcastNR_item;        /* CellIDBroadcastNR_Item */
+static int hf_ngap_CellIDCancelledEUTRA_item;     /* CellIDCancelledEUTRA_Item */
+static int hf_ngap_CellIDCancelledNR_item;        /* CellIDCancelledNR_Item */
+static int hf_ngap_eUTRA_CGIListforRestart;       /* EUTRA_CGIList */
+static int hf_ngap_nR_CGIListforRestart;          /* NR_CGIList */
+static int hf_ngap_cellSize;                      /* CellSize */
+static int hf_ngap_expectedUEBehaviour;           /* ExpectedUEBehaviour */
+static int hf_ngap_CNTypeRestrictionsForEquivalent_item;  /* CNTypeRestrictionsForEquivalentItem */
+static int hf_ngap_plmnIdentity;                  /* PLMNIdentity */
+static int hf_ngap_cn_Type;                       /* T_cn_Type */
+static int hf_ngap_CompletedCellsInEAI_EUTRA_item;  /* CompletedCellsInEAI_EUTRA_Item */
+static int hf_ngap_CompletedCellsInEAI_NR_item;   /* CompletedCellsInEAI_NR_Item */
+static int hf_ngap_CompletedCellsInTAI_EUTRA_item;  /* CompletedCellsInTAI_EUTRA_Item */
+static int hf_ngap_CompletedCellsInTAI_NR_item;   /* CompletedCellsInTAI_NR_Item */
+static int hf_ngap_uEIdentityIndexValue;          /* UEIdentityIndexValue */
+static int hf_ngap_uESpecificDRX;                 /* PagingDRX */
+static int hf_ngap_periodicRegistrationUpdateTimer;  /* PeriodicRegistrationUpdateTimer */
+static int hf_ngap_mICOModeIndication;            /* MICOModeIndication */
+static int hf_ngap_tAIListForInactive;            /* TAIListForInactive */
+static int hf_ngap_pDCP_SN12;                     /* INTEGER_0_4095 */
+static int hf_ngap_hFN_PDCP_SN12;                 /* INTEGER_0_1048575 */
+static int hf_ngap_pDCP_SN18;                     /* INTEGER_0_262143 */
+static int hf_ngap_hFN_PDCP_SN18;                 /* INTEGER_0_16383 */
+static int hf_ngap_endpointIPAddress;             /* TransportLayerAddress */
+static int hf_ngap_procedureCode;                 /* ProcedureCode */
+static int hf_ngap_triggeringMessage;             /* TriggeringMessage */
+static int hf_ngap_procedureCriticality;          /* Criticality */
+static int hf_ngap_iEsCriticalityDiagnostics;     /* CriticalityDiagnostics_IE_List */
+static int hf_ngap_CriticalityDiagnostics_IE_List_item;  /* CriticalityDiagnostics_IE_Item */
+static int hf_ngap_iECriticality;                 /* Criticality */
+static int hf_ngap_iE_ID;                         /* ProtocolIE_ID */
+static int hf_ngap_typeOfError;                   /* TypeOfError */
+static int hf_ngap_cellIdListforMDT;              /* CellIdListforMDT_NR */
+static int hf_ngap_CellIdListforMDT_NR_item;      /* NR_CGI */
+static int hf_ngap_cellIdListforMDT_01;           /* CellIdListforMDT_EUTRA */
+static int hf_ngap_cellIdListforQMC;              /* CellIdListforQMC */
+static int hf_ngap_CellIdListforQMC_item;         /* NGRAN_CGI */
+static int hf_ngap_CellIdListforMDT_EUTRA_item;   /* EUTRA_CGI */
+static int hf_ngap_DataForwardingResponseDRBList_item;  /* DataForwardingResponseDRBItem */
+static int hf_ngap_dRB_ID;                        /* DRB_ID */
+static int hf_ngap_dLForwardingUP_TNLInformation;  /* UPTransportLayerInformation */
+static int hf_ngap_uLForwardingUP_TNLInformation;  /* UPTransportLayerInformation */
+static int hf_ngap_dAPSIndicator;                 /* T_dAPSIndicator */
+static int hf_ngap_DAPSResponseInfoList_item;     /* DAPSResponseInfoItem */
+static int hf_ngap_dAPSResponseInfo;              /* DAPSResponseInfo */
+static int hf_ngap_iE_Extension;                  /* ProtocolExtensionContainer */
+static int hf_ngap_dapsresponseindicator;         /* T_dapsresponseindicator */
+static int hf_ngap_DataForwardingResponseERABList_item;  /* DataForwardingResponseERABListItem */
+static int hf_ngap_e_RAB_ID;                      /* E_RAB_ID */
+static int hf_ngap_dl_NAS_MAC;                    /* DL_NAS_MAC */
+static int hf_ngap_DRBsSubjectToStatusTransferList_item;  /* DRBsSubjectToStatusTransferItem */
+static int hf_ngap_dRBStatusUL;                   /* DRBStatusUL */
+static int hf_ngap_dRBStatusDL;                   /* DRBStatusDL */
+static int hf_ngap_dRBStatusDL12;                 /* DRBStatusDL12 */
+static int hf_ngap_dRBStatusDL18;                 /* DRBStatusDL18 */
+static int hf_ngap_dL_COUNTValue;                 /* COUNTValueForPDCP_SN12 */
+static int hf_ngap_dL_COUNTValue_01;              /* COUNTValueForPDCP_SN18 */
+static int hf_ngap_dRBStatusUL12;                 /* DRBStatusUL12 */
+static int hf_ngap_dRBStatusUL18;                 /* DRBStatusUL18 */
+static int hf_ngap_uL_COUNTValue;                 /* COUNTValueForPDCP_SN12 */
+static int hf_ngap_receiveStatusOfUL_PDCP_SDUs;   /* BIT_STRING_SIZE_1_2048 */
+static int hf_ngap_uL_COUNTValue_01;              /* COUNTValueForPDCP_SN18 */
+static int hf_ngap_receiveStatusOfUL_PDCP_SDUs_01;  /* BIT_STRING_SIZE_1_131072 */
+static int hf_ngap_DRBsToQosFlowsMappingList_item;  /* DRBsToQosFlowsMappingItem */
+static int hf_ngap_associatedQosFlowList;         /* AssociatedQosFlowList */
+static int hf_ngap_priorityLevelQos;              /* PriorityLevelQos */
+static int hf_ngap_fiveQI;                        /* FiveQI */
+static int hf_ngap_delayCritical;                 /* DelayCritical */
+static int hf_ngap_averagingWindow;               /* AveragingWindow */
+static int hf_ngap_maximumDataBurstVolume;        /* MaximumDataBurstVolume */
+static int hf_ngap_procedureStage;                /* ProcedureStageChoice */
+static int hf_ngap_first_dl_count;                /* FirstDLCount */
+static int hf_ngap_dRBsSubjectToEarlyStatusTransfer;  /* DRBsSubjectToEarlyStatusTransfer_List */
+static int hf_ngap_DRBsSubjectToEarlyStatusTransfer_List_item;  /* DRBsSubjectToEarlyStatusTransfer_Item */
+static int hf_ngap_firstDLCOUNT;                  /* DRBStatusDL */
+static int hf_ngap_EmergencyAreaIDBroadcastEUTRA_item;  /* EmergencyAreaIDBroadcastEUTRA_Item */
+static int hf_ngap_emergencyAreaID;               /* EmergencyAreaID */
+static int hf_ngap_completedCellsInEAI_EUTRA;     /* CompletedCellsInEAI_EUTRA */
+static int hf_ngap_EmergencyAreaIDBroadcastNR_item;  /* EmergencyAreaIDBroadcastNR_Item */
+static int hf_ngap_completedCellsInEAI_NR;        /* CompletedCellsInEAI_NR */
+static int hf_ngap_EmergencyAreaIDCancelledEUTRA_item;  /* EmergencyAreaIDCancelledEUTRA_Item */
+static int hf_ngap_cancelledCellsInEAI_EUTRA;     /* CancelledCellsInEAI_EUTRA */
+static int hf_ngap_EmergencyAreaIDCancelledNR_item;  /* EmergencyAreaIDCancelledNR_Item */
+static int hf_ngap_cancelledCellsInEAI_NR;        /* CancelledCellsInEAI_NR */
+static int hf_ngap_EmergencyAreaIDList_item;      /* EmergencyAreaID */
+static int hf_ngap_EmergencyAreaIDListForRestart_item;  /* EmergencyAreaID */
+static int hf_ngap_emergencyFallbackRequestIndicator;  /* EmergencyFallbackRequestIndicator */
+static int hf_ngap_emergencyServiceTargetCN;      /* EmergencyServiceTargetCN */
+static int hf_ngap_macroENB_ID;                   /* BIT_STRING_SIZE_20 */
+static int hf_ngap_homeENB_ID;                    /* BIT_STRING_SIZE_28 */
+static int hf_ngap_short_macroENB_ID;             /* BIT_STRING_SIZE_18 */
+static int hf_ngap_long_macroENB_ID;              /* BIT_STRING_SIZE_21 */
+static int hf_ngap_portNumber;                    /* PortNumber */
+static int hf_ngap_EquivalentPLMNs_item;          /* PLMNIdentity */
+static int hf_ngap_ePS_TAC;                       /* EPS_TAC */
+static int hf_ngap_E_RABInformationList_item;     /* E_RABInformationItem */
+static int hf_ngap_dLForwarding;                  /* DLForwarding */
+static int hf_ngap_eUTRACellIdentity;             /* EUTRACellIdentity */
+static int hf_ngap_EUTRA_CGIList_item;            /* EUTRA_CGI */
+static int hf_ngap_EUTRA_CGIListForWarning_item;  /* EUTRA_CGI */
+static int hf_ngap_eUTRA_paging_eDRX_Cycle;       /* EUTRA_Paging_eDRX_Cycle */
+static int hf_ngap_eUTRA_paging_Time_Window;      /* EUTRA_Paging_Time_Window */
+static int hf_ngap_ExcessPacketDelayThresholdConfiguration_item;  /* ExcessPacketDelayThresholdItem */
+static int hf_ngap_fiveQi;                        /* FiveQI */
+static int hf_ngap_excessPacketDelayThresholdValue;  /* ExcessPacketDelayThresholdValue */
+static int hf_ngap_expectedActivityPeriod;        /* ExpectedActivityPeriod */
+static int hf_ngap_expectedIdlePeriod;            /* ExpectedIdlePeriod */
+static int hf_ngap_sourceOfUEActivityBehaviourInformation;  /* SourceOfUEActivityBehaviourInformation */
+static int hf_ngap_expectedUEActivityBehaviour;   /* ExpectedUEActivityBehaviour */
+static int hf_ngap_expectedHOInterval;            /* ExpectedHOInterval */
+static int hf_ngap_expectedUEMobility;            /* ExpectedUEMobility */
+static int hf_ngap_expectedUEMovingTrajectory;    /* ExpectedUEMovingTrajectory */
+static int hf_ngap_ExpectedUEMovingTrajectory_item;  /* ExpectedUEMovingTrajectoryItem */
+static int hf_ngap_timeStayedInCell;              /* INTEGER_0_4095 */
+static int hf_ngap_aMFNameVisibleString;          /* AMFNameVisibleString */
+static int hf_ngap_aMFNameUTF8String;             /* AMFNameUTF8String */
+static int hf_ngap_rANNodeNameVisibleString;      /* RANNodeNameVisibleString */
+static int hf_ngap_rANNodeNameUTF8String;         /* RANNodeNameUTF8String */
+static int hf_ngap_primaryRATRestriction;         /* T_primaryRATRestriction */
+static int hf_ngap_secondaryRATRestriction;       /* T_secondaryRATRestriction */
+static int hf_ngap_ExtendedSliceSupportList_item;  /* SliceSupportItem */
+static int hf_ngap_outOfCoverage;                 /* T_outOfCoverage */
+static int hf_ngap_eventL1LoggedMDTConfig;        /* EventL1LoggedMDTConfig */
+static int hf_ngap_l1Threshold;                   /* MeasurementThresholdL1LoggedMDT */
+static int hf_ngap_hysteresis;                    /* Hysteresis */
+static int hf_ngap_timeToTrigger;                 /* TimeToTrigger */
+static int hf_ngap_threshold_RSRP;                /* Threshold_RSRP */
+static int hf_ngap_threshold_RSRQ;                /* Threshold_RSRQ */
+static int hf_ngap_uERLFReportContainer;          /* UERLFReportContainer */
+static int hf_ngap_fiveGProSeDirectDiscovery;     /* FiveGProSeDirectDiscovery */
+static int hf_ngap_fiveGProSeDirectCommunication;  /* FiveGProSeDirectCommunication */
+static int hf_ngap_fiveGProSeLayer2UEtoNetworkRelay;  /* FiveGProSeLayer2UEtoNetworkRelay */
+static int hf_ngap_fiveGProSeLayer3UEtoNetworkRelay;  /* FiveGProSeLayer3UEtoNetworkRelay */
+static int hf_ngap_fiveGProSeLayer2RemoteUE;      /* FiveGProSeLayer2RemoteUE */
+static int hf_ngap_fiveGProSepc5QoSFlowList;      /* FiveGProSePC5QoSFlowList */
+static int hf_ngap_fiveGProSepc5LinkAggregateBitRates;  /* BitRate */
+static int hf_ngap_FiveGProSePC5QoSFlowList_item;  /* FiveGProSePC5QoSFlowItem */
+static int hf_ngap_fiveGproSepQI;                 /* FiveQI */
+static int hf_ngap_fiveGproSepc5FlowBitRates;     /* FiveGProSePC5FlowBitRates */
+static int hf_ngap_fiveGproSerange;               /* Range */
+static int hf_ngap_fiveGproSeguaranteedFlowBitRate;  /* BitRate */
+static int hf_ngap_fiveGproSemaximumFlowBitRate;  /* BitRate */
+static int hf_ngap_aMFSetID;                      /* AMFSetID */
+static int hf_ngap_aMFPointer;                    /* AMFPointer */
+static int hf_ngap_fiveG_TMSI;                    /* FiveG_TMSI */
+static int hf_ngap_ForbiddenAreaInformation_item;  /* ForbiddenAreaInformation_Item */
+static int hf_ngap_forbiddenTACs;                 /* ForbiddenTACs */
+static int hf_ngap_ForbiddenTACs_item;            /* TAC */
+static int hf_ngap_sourceeNBID;                   /* IntersystemSONeNBID */
+static int hf_ngap_targetNGRANnodeID;             /* IntersystemSONNGRANnodeID */
+static int hf_ngap_sourceNGRANnodeID;             /* IntersystemSONNGRANnodeID */
+static int hf_ngap_targeteNBID;                   /* IntersystemSONeNBID */
+static int hf_ngap_maximumFlowBitRateDL;          /* BitRate */
+static int hf_ngap_maximumFlowBitRateUL;          /* BitRate */
+static int hf_ngap_notificationControl;           /* NotificationControl */
+static int hf_ngap_maximumPacketLossRateDL;       /* PacketLossRate */
+static int hf_ngap_maximumPacketLossRateUL;       /* PacketLossRate */
+static int hf_ngap_globalCable_ID;                /* GlobalCable_ID */
+static int hf_ngap_pLMNidentity;                  /* PLMNIdentity */
+static int hf_ngap_eNB_ID;                        /* ENB_ID */
+static int hf_ngap_globalGNB_ID_gNB_ID;           /* GNB_ID */
+static int hf_ngap_globalN3IWF_ID_n3IWF_ID;       /* N3IWF_ID */
+static int hf_ngap_globalLineIdentity;            /* GlobalLineIdentity */
+static int hf_ngap_lineType;                      /* LineType */
+static int hf_ngap_ngENB_ID;                      /* NgENB_ID */
+static int hf_ngap_globalGNB_ID;                  /* GlobalGNB_ID */
+static int hf_ngap_globalNgENB_ID;                /* GlobalNgENB_ID */
+static int hf_ngap_globalN3IWF_ID;                /* GlobalN3IWF_ID */
+static int hf_ngap_globalTNGF_ID_tNGF_ID;         /* TNGF_ID */
+static int hf_ngap_globalTWIF_ID_tWIF_ID;         /* TWIF_ID */
+static int hf_ngap_globalW_AGF_ID_w_AGF_ID;       /* W_AGF_ID */
+static int hf_ngap_gNB_ID;                        /* BIT_STRING_SIZE_22_32 */
+static int hf_ngap_transportLayerAddress;         /* TransportLayerAddress */
+static int hf_ngap_gTP_TEID;                      /* GTP_TEID */
+static int hf_ngap_aMFRegionID;                   /* AMFRegionID */
+static int hf_ngap_qosFlowToBeForwardedList;      /* QosFlowToBeForwardedList */
+static int hf_ngap_dataForwardingResponseDRBList;  /* DataForwardingResponseDRBList */
+static int hf_ngap_cause;                         /* Cause */
+static int hf_ngap_dL_NGU_UP_TNLInformation;      /* UPTransportLayerInformation */
+static int hf_ngap_securityResult;                /* SecurityResult */
+static int hf_ngap_qosFlowSetupResponseList;      /* QosFlowListWithDataForwarding */
+static int hf_ngap_qosFlowFailedToSetupList;      /* QosFlowListWithCause */
+static int hf_ngap_directForwardingPathAvailability;  /* DirectForwardingPathAvailability */
+static int hf_ngap_criticalityDiagnostics;        /* CriticalityDiagnostics */
+static int hf_ngap_hFCNode_ID;                    /* HFCNode_ID */
+static int hf_ngap_handoverReportType;            /* T_handoverReportType */
+static int hf_ngap_handoverCause;                 /* Cause */
+static int hf_ngap_sourcecellCGI;                 /* NGRAN_CGI */
+static int hf_ngap_targetcellCGI;                 /* NGRAN_CGI */
+static int hf_ngap_reestablishmentcellCGI;        /* NGRAN_CGI */
+static int hf_ngap_sourcecellC_RNTI;              /* BIT_STRING_SIZE_16 */
+static int hf_ngap_targetcellinE_UTRAN;           /* EUTRA_CGI */
+static int hf_ngap_mobilityInformation;           /* MobilityInformation */
+static int hf_ngap_recommendRANNodesForPaging;    /* RecommendedRANNodesForPaging */
+static int hf_ngap_measurementsToActivate;        /* MeasurementsToActivate */
+static int hf_ngap_m1Configuration;               /* M1Configuration */
+static int hf_ngap_m4Configuration;               /* M4Configuration */
+static int hf_ngap_m5Configuration;               /* M5Configuration */
+static int hf_ngap_m6Configuration;               /* M6Configuration */
+static int hf_ngap_m7Configuration;               /* M7Configuration */
+static int hf_ngap_bluetoothMeasurementConfiguration;  /* BluetoothMeasurementConfiguration */
+static int hf_ngap_wLANMeasurementConfiguration;  /* WLANMeasurementConfiguration */
+static int hf_ngap_mDT_Location_Info;             /* MDT_Location_Info */
+static int hf_ngap_sensorMeasurementConfiguration;  /* SensorMeasurementConfiguration */
+static int hf_ngap_transferType;                  /* IntersystemSONTransferType */
+static int hf_ngap_intersystemSONInformation;     /* IntersystemSONInformation */
+static int hf_ngap_fromEUTRANtoNGRAN;             /* FromEUTRANtoNGRAN */
+static int hf_ngap_fromNGRANtoEUTRAN;             /* FromNGRANtoEUTRAN */
+static int hf_ngap_globaleNBID;                   /* GlobalENB_ID */
+static int hf_ngap_selectedEPSTAI;                /* EPS_TAI */
+static int hf_ngap_selectedTAI;                   /* TAI */
+static int hf_ngap_intersystemSONInformationReport;  /* IntersystemSONInformationReport */
+static int hf_ngap_nGRAN_CellActivation;          /* IntersystemCellActivationRequest */
+static int hf_ngap_resourceStatus;                /* IntersystemResourceStatusRequest */
+static int hf_ngap_activationID;                  /* INTEGER_0_16384_ */
+static int hf_ngap_cellsToActivateList;           /* CellsToActivateList */
+static int hf_ngap_CellsToActivateList_item;      /* NGRAN_CGI */
+static int hf_ngap_reportingSystem;               /* ReportingSystem */
+static int hf_ngap_reportCharacteristics;         /* ReportCharacteristics */
+static int hf_ngap_reportType;                    /* ReportType */
+static int hf_ngap_eUTRAN;                        /* EUTRAN_ReportingSystemIEs */
+static int hf_ngap_nGRAN;                         /* NGRAN_ReportingSystemIEs */
+static int hf_ngap_noReporting;                   /* NULL */
+static int hf_ngap_eUTRAN_CellToReportList;       /* EUTRAN_CellToReportList */
+static int hf_ngap_nGRAN_CellToReportList;        /* NGRAN_CellToReportList */
+static int hf_ngap_EUTRAN_CellToReportList_item;  /* EUTRAN_CellToReportItem */
+static int hf_ngap_eCGI;                          /* EUTRA_CGI */
+static int hf_ngap_NGRAN_CellToReportList_item;   /* NGRAN_CellToReportItem */
+static int hf_ngap_eventBasedReporting;           /* EventBasedReportingIEs */
+static int hf_ngap_periodicReporting;             /* PeriodicReportingIEs */
+static int hf_ngap_intersystemResourceThresholdLow;  /* IntersystemResourceThreshold */
+static int hf_ngap_intersystemResourceThresholdHigh;  /* IntersystemResourceThreshold */
+static int hf_ngap_numberOfMeasurementReportingLevels;  /* NumberOfMeasurementReportingLevels */
+static int hf_ngap_reportingPeriodicity;          /* ReportingPeriodicity */
+static int hf_ngap_nGRAN_CellActivation_01;       /* IntersystemCellActivationReply */
+static int hf_ngap_resourceStatus_01;             /* IntersystemResourceStatusReply */
+static int hf_ngap_activatedCellList;             /* ActivatedCellList */
+static int hf_ngap_activation_ID;                 /* INTEGER_0_16384_ */
+static int hf_ngap_ActivatedCellList_item;        /* NGRAN_CGI */
+static int hf_ngap_reportingsystem;               /* ReportingSystem */
+static int hf_ngap_hOReportInformation;           /* InterSystemHOReport */
+static int hf_ngap_failureIndicationInformation;  /* InterSystemFailureIndication */
+static int hf_ngap_notificationCellList;          /* NotificationCellList */
+static int hf_ngap_NotificationCellList_item;     /* NotificationCell_Item */
+static int hf_ngap_notifyFlag;                    /* T_notifyFlag */
+static int hf_ngap_reportingSystem_01;            /* ResourceStatusReportingSystem */
+static int hf_ngap_eUTRAN_ReportingStatus;        /* EUTRAN_ReportingStatusIEs */
+static int hf_ngap_nGRAN_ReportingStatus;         /* NGRAN_ReportingStatusIEs */
+static int hf_ngap_eUTRAN_CellReportList;         /* EUTRAN_CellReportList */
+static int hf_ngap_EUTRAN_CellReportList_item;    /* EUTRAN_CellReportItem */
+static int hf_ngap_eUTRAN_CompositeAvailableCapacityGroup;  /* EUTRAN_CompositeAvailableCapacityGroup */
+static int hf_ngap_eUTRAN_NumberOfActiveUEs;      /* EUTRAN_NumberOfActiveUEs */
+static int hf_ngap_eUTRAN_NoofRRCConnections;     /* NGRAN_NoofRRCConnections */
+static int hf_ngap_eUTRAN_RadioResourceStatus;    /* EUTRAN_RadioResourceStatus */
+static int hf_ngap_dL_CompositeAvailableCapacity;  /* CompositeAvailableCapacity */
+static int hf_ngap_uL_CompositeAvailableCapacity;  /* CompositeAvailableCapacity */
+static int hf_ngap_cellCapacityClassValue;        /* INTEGER_1_100_ */
+static int hf_ngap_capacityValue;                 /* INTEGER_0_100 */
+static int hf_ngap_dL_GBR_PRB_usage;              /* INTEGER_0_100 */
+static int hf_ngap_uL_GBR_PRB_usage;              /* INTEGER_0_100 */
+static int hf_ngap_dL_non_GBR_PRB_usage;          /* INTEGER_0_100 */
+static int hf_ngap_uL_non_GBR_PRB_usage;          /* INTEGER_0_100 */
+static int hf_ngap_dL_Total_PRB_usage;            /* INTEGER_0_100 */
+static int hf_ngap_uL_Total_PRB_usage;            /* INTEGER_0_100 */
+static int hf_ngap_dL_scheduling_PDCCH_CCE_usage;  /* INTEGER_0_100 */
+static int hf_ngap_uL_scheduling_PDCCH_CCE_usage;  /* INTEGER_0_100 */
+static int hf_ngap_nGRAN_CellReportList;          /* NGRAN_CellReportList */
+static int hf_ngap_NGRAN_CellReportList_item;     /* NGRAN_CellReportItem */
+static int hf_ngap_nGRAN_CompositeAvailableCapacityGroup;  /* EUTRAN_CompositeAvailableCapacityGroup */
+static int hf_ngap_nGRAN_NumberOfActiveUEs;       /* NGRAN_NumberOfActiveUEs */
+static int hf_ngap_nGRAN_NoofRRCConnections;      /* NGRAN_NoofRRCConnections */
+static int hf_ngap_nGRAN_RadioResourceStatus;     /* NGRAN_RadioResourceStatus */
+static int hf_ngap_dL_GBR_PRB_usage_for_MIMO;     /* INTEGER_0_100 */
+static int hf_ngap_uL_GBR_PRB_usage_for_MIMO;     /* INTEGER_0_100 */
+static int hf_ngap_dL_non_GBR_PRB_usage_for_MIMO;  /* INTEGER_0_100 */
+static int hf_ngap_uL_non_GBR_PRB_usage_for_MIMO;  /* INTEGER_0_100 */
+static int hf_ngap_dL_Total_PRB_usage_for_MIMO;   /* INTEGER_0_100 */
+static int hf_ngap_uL_Total_PRB_usage_for_MIMO;   /* INTEGER_0_100 */
+static int hf_ngap_handoverReportType_01;         /* InterSystemHandoverReportType */
+static int hf_ngap_tooearlyIntersystemHO;         /* TooearlyIntersystemHO */
+static int hf_ngap_intersystemUnnecessaryHO;      /* IntersystemUnnecessaryHO */
+static int hf_ngap_sourcecellID;                  /* NGRAN_CGI */
+static int hf_ngap_targetcellID;                  /* EUTRA_CGI */
+static int hf_ngap_earlyIRATHO;                   /* T_earlyIRATHO */
+static int hf_ngap_candidateCellList;             /* CandidateCellList */
+static int hf_ngap_lAC;                           /* LAC */
+static int hf_ngap_nGRANCell;                     /* LastVisitedNGRANCellInformation */
+static int hf_ngap_eUTRANCell;                    /* LastVisitedEUTRANCellInformation */
+static int hf_ngap_uTRANCell;                     /* LastVisitedUTRANCellInformation */
+static int hf_ngap_gERANCell;                     /* LastVisitedGERANCellInformation */
+static int hf_ngap_lastVisitedCellInformation;    /* LastVisitedCellInformation */
+static int hf_ngap_globalCellID;                  /* NGRAN_CGI */
+static int hf_ngap_cellType;                      /* CellType */
+static int hf_ngap_timeUEStayedInCell;            /* TimeUEStayedInCell */
+static int hf_ngap_timeUEStayedInCellEnhancedGranularity;  /* TimeUEStayedInCellEnhancedGranularity */
+static int hf_ngap_hOCauseValue;                  /* Cause */
+static int hf_ngap_LastVisitedPSCellList_item;    /* LastVisitedPSCellInformation */
+static int hf_ngap_pSCellID;                      /* NGRAN_CGI */
+static int hf_ngap_timeStay;                      /* INTEGER_0_40950 */
+static int hf_ngap_eventType;                     /* EventType */
+static int hf_ngap_reportArea;                    /* ReportArea */
+static int hf_ngap_areaOfInterestList;            /* AreaOfInterestList */
+static int hf_ngap_locationReportingReferenceIDToBeCancelled;  /* LocationReportingReferenceID */
+static int hf_ngap_loggingInterval;               /* LoggingInterval */
+static int hf_ngap_loggingDuration;               /* LoggingDuration */
+static int hf_ngap_loggedMDTTrigger;              /* LoggedMDTTrigger */
+static int hf_ngap_areaScopeOfNeighCellsList;     /* AreaScopeOfNeighCellsList */
+static int hf_ngap_periodical;                    /* NULL */
+static int hf_ngap_eventTrigger;                  /* EventTrigger */
+static int hf_ngap_vehicleUE;                     /* VehicleUE */
+static int hf_ngap_pedestrianUE;                  /* PedestrianUE */
+static int hf_ngap_uESidelinkAggregateMaximumBitRate;  /* BitRate */
+static int hf_ngap_MBS_DataForwardingResponseMRBList_item;  /* MBS_DataForwardingResponseMRBItem */
+static int hf_ngap_mRB_ID;                        /* MRB_ID */
+static int hf_ngap_dL_Forwarding_UPTNLInformation;  /* UPTransportLayerInformation */
+static int hf_ngap_mRB_ProgressInformation;       /* MRB_ProgressInformation */
+static int hf_ngap_MBS_MappingandDataForwardingRequestList_item;  /* MBS_MappingandDataForwardingRequestItem */
+static int hf_ngap_mBS_QoSFlowList;               /* MBS_QoSFlowList */
+static int hf_ngap_MBS_QoSFlowList_item;          /* QosFlowIdentifier */
+static int hf_ngap_pDCP_SN_Length12;              /* INTEGER_0_4095 */
+static int hf_ngap_pDCP_SN_Length18;              /* INTEGER_0_262143 */
+static int hf_ngap_MBS_QoSFlowsToBeSetupList_item;  /* MBS_QoSFlowsToBeSetupItem */
+static int hf_ngap_mBSqosFlowIdentifier;          /* QosFlowIdentifier */
+static int hf_ngap_mBSqosFlowLevelQosParameters;  /* QosFlowLevelQosParameters */
+static int hf_ngap_locationindependent;           /* MBS_ServiceAreaInformation */
+static int hf_ngap_locationdependent;             /* MBS_ServiceAreaInformationList */
+static int hf_ngap_MBS_ServiceAreaInformationList_item;  /* MBS_ServiceAreaInformationItem */
+static int hf_ngap_mBS_AreaSessionID;             /* MBS_AreaSessionID */
+static int hf_ngap_mBS_ServiceAreaInformation;    /* MBS_ServiceAreaInformation */
+static int hf_ngap_mBS_ServiceAreaCellList;       /* MBS_ServiceAreaCellList */
+static int hf_ngap_mBS_ServiceAreaTAIList;        /* MBS_ServiceAreaTAIList */
+static int hf_ngap_MBS_ServiceAreaCellList_item;  /* NR_CGI */
+static int hf_ngap_MBS_ServiceAreaTAIList_item;   /* TAI */
+static int hf_ngap_tMGI;                          /* TMGI */
+static int hf_ngap_nID;                           /* NID */
+static int hf_ngap_MBSSessionFailedtoSetupList_item;  /* MBSSessionFailedtoSetupItem */
+static int hf_ngap_mBS_SessionID;                 /* MBS_SessionID */
+static int hf_ngap_MBS_ActiveSessionInformation_SourcetoTargetList_item;  /* MBS_ActiveSessionInformation_SourcetoTargetItem */
+static int hf_ngap_mBS_ServiceArea;               /* MBS_ServiceArea */
+static int hf_ngap_mBS_QoSFlowsToBeSetupList;     /* MBS_QoSFlowsToBeSetupList */
+static int hf_ngap_mBS_MappingandDataForwardingRequestList;  /* MBS_MappingandDataForwardingRequestList */
+static int hf_ngap_MBS_ActiveSessionInformation_TargettoSourceList_item;  /* MBS_ActiveSessionInformation_TargettoSourceItem */
+static int hf_ngap_mBS_DataForwardingResponseMRBList;  /* MBS_DataForwardingResponseMRBList */
+static int hf_ngap_MBSSessionSetupResponseList_item;  /* MBSSessionSetupResponseItem */
+static int hf_ngap_protocolIEs;                   /* ProtocolIE_Container */
+static int hf_ngap_MBS_SessionFSAIDList_item;     /* MBS_SessionFSAID */
+static int hf_ngap_mBS_SessionTNLInfoNGRAN;       /* MBS_SessionTNLInfoNGRAN */
+static int hf_ngap_locationindependent_01;        /* SharedNGU_MulticastTNLInformation */
+static int hf_ngap_locationdependent_01;          /* MBS_SessionTNLInfo5GCList */
+static int hf_ngap_MBS_SessionTNLInfo5GCList_item;  /* MBS_SessionTNLInfo5GCItem */
+static int hf_ngap_sharedNGU_MulticastTNLInformation;  /* SharedNGU_MulticastTNLInformation */
+static int hf_ngap_locationindependent_02;        /* UPTransportLayerInformation */
+static int hf_ngap_locationdependent_02;          /* MBS_SessionTNLInfoNGRANList */
+static int hf_ngap_MBS_SessionTNLInfoNGRANList_item;  /* MBS_SessionTNLInfoNGRANItem */
+static int hf_ngap_sharedNGU_UnicastTNLInformation;  /* UPTransportLayerInformation */
+static int hf_ngap_mBSSessionStatus;              /* MBSSessionStatus */
+static int hf_ngap_MBSSessionSetupRequestList_item;  /* MBSSessionSetupRequestItem */
+static int hf_ngap_associatedMBSQosFlowSetupRequestList;  /* AssociatedMBSQosFlowSetupRequestList */
+static int hf_ngap_MBSSessionSetuporModifyRequestList_item;  /* MBSSessionSetuporModifyRequestItem */
+static int hf_ngap_associatedMBSQosFlowSetuporModifyRequestList;  /* AssociatedMBSQosFlowSetuporModifyRequestList */
+static int hf_ngap_mBS_QosFlowToReleaseList;      /* QosFlowListWithCause */
+static int hf_ngap_MBSSessionToReleaseList_item;  /* MBSSessionToReleaseItem */
+static int hf_ngap_servingPLMN;                   /* PLMNIdentity */
+static int hf_ngap_equivalentPLMNs;               /* EquivalentPLMNs */
+static int hf_ngap_rATRestrictions;               /* RATRestrictions */
+static int hf_ngap_forbiddenAreaInformation;      /* ForbiddenAreaInformation */
+static int hf_ngap_serviceAreaInformation;        /* ServiceAreaInformation */
+static int hf_ngap_s_basedMDT;                    /* NGRANTraceID */
+static int hf_ngap_MDTPLMNList_item;              /* PLMNIdentity */
+static int hf_ngap_MDTPLMNModificationList_item;  /* PLMNIdentity */
+static int hf_ngap_mdt_Config_NR;                 /* MDT_Configuration_NR */
+static int hf_ngap_mdt_Config_EUTRA;              /* MDT_Configuration_EUTRA */
+static int hf_ngap_mdt_Activation;                /* MDT_Activation */
+static int hf_ngap_areaScopeOfMDT;                /* AreaScopeOfMDT_NR */
+static int hf_ngap_mDTModeNr;                     /* MDTModeNr */
+static int hf_ngap_signallingBasedMDTPLMNList;    /* MDTPLMNList */
+static int hf_ngap_areaScopeOfMDT_01;             /* AreaScopeOfMDT_EUTRA */
+static int hf_ngap_mDTMode;                       /* MDTModeEutra */
+static int hf_ngap_immediateMDTNr;                /* ImmediateMDTNr */
+static int hf_ngap_loggedMDTNr;                   /* LoggedMDTNr */
+static int hf_ngap_MulticastGroupPagingAreaList_item;  /* MulticastGroupPagingAreaItem */
+static int hf_ngap_multicastGroupPagingArea;      /* MulticastGroupPagingArea */
+static int hf_ngap_uE_PagingList;                 /* UE_PagingList */
+static int hf_ngap_MBS_AreaTAIList_item;          /* TAI */
+static int hf_ngap_mBS_AreaTAIList;               /* MBS_AreaTAIList */
+static int hf_ngap_UE_PagingList_item;            /* UE_PagingItem */
+static int hf_ngap_pagingDRX;                     /* PagingDRX */
+static int hf_ngap_m1reportingTrigger;            /* M1ReportingTrigger */
+static int hf_ngap_m1thresholdEventA2;            /* M1ThresholdEventA2 */
+static int hf_ngap_m1periodicReporting;           /* M1PeriodicReporting */
+static int hf_ngap_m1ThresholdType;               /* M1ThresholdType */
+static int hf_ngap_threshold_SINR;                /* Threshold_SINR */
+static int hf_ngap_reportInterval;                /* ReportIntervalMDT */
+static int hf_ngap_reportAmount;                  /* ReportAmountMDT */
+static int hf_ngap_m4period;                      /* M4period */
+static int hf_ngap_m4_links_to_log;               /* Links_to_log */
+static int hf_ngap_m5period;                      /* M5period */
+static int hf_ngap_m5_links_to_log;               /* Links_to_log */
+static int hf_ngap_m6report_Interval;             /* M6report_Interval */
+static int hf_ngap_m6_links_to_log;               /* Links_to_log */
+static int hf_ngap_m7period;                      /* M7period */
+static int hf_ngap_m7_links_to_log;               /* Links_to_log */
+static int hf_ngap_mDT_Location_Information;      /* MDT_Location_Information */
+static int hf_ngap_n3IWF_ID;                      /* BIT_STRING_SIZE_16 */
+static int hf_ngap_nB_IoT_Paging_eDRXCycle;       /* NB_IoT_Paging_eDRXCycle */
+static int hf_ngap_nB_IoT_Paging_TimeWindow;      /* NB_IoT_Paging_TimeWindow */
+static int hf_ngap_NGAPIESupportInformationRequestList_item;  /* NGAPIESupportInformationRequestItem */
+static int hf_ngap_ngap_ProtocolIE_Id;            /* ProtocolIE_ID */
+static int hf_ngap_NGAPIESupportInformationResponseList_item;  /* NGAPIESupportInformationResponseItem */
+static int hf_ngap_ngap_ProtocolIESupportInfo;    /* T_ngap_ProtocolIESupportInfo */
+static int hf_ngap_ngap_ProtocolIEPresenceInfo;   /* T_ngap_ProtocolIEPresenceInfo */
+static int hf_ngap_macroNgENB_ID;                 /* BIT_STRING_SIZE_20 */
+static int hf_ngap_shortMacroNgENB_ID;            /* BIT_STRING_SIZE_18 */
+static int hf_ngap_longMacroNgENB_ID;             /* BIT_STRING_SIZE_21 */
+static int hf_ngap_NGRAN_TNLAssociationToRemoveList_item;  /* NGRAN_TNLAssociationToRemoveItem */
+static int hf_ngap_tNLAssociationTransportLayerAddress;  /* CPTransportLayerInformation */
+static int hf_ngap_tNLAssociationTransportLayerAddressAMF;  /* CPTransportLayerInformation */
+static int hf_ngap_NotAllowedTACs_item;           /* TAC */
+static int hf_ngap_pNI_NPN_Access_Information;    /* CellCAGList */
+static int hf_ngap_sNPN_MobilityInformation;      /* SNPN_MobilityInformation */
+static int hf_ngap_pNI_NPN_MobilityInformation;   /* PNI_NPN_MobilityInformation */
+static int hf_ngap_pNI_NPN_PagingAssistance;      /* Allowed_PNI_NPN_List */
+static int hf_ngap_sNPN;                          /* NID */
+static int hf_ngap_nRCellIdentity;                /* NRCellIdentity */
+static int hf_ngap_NR_CGIList_item;               /* NR_CGI */
+static int hf_ngap_NR_CGIListForWarning_item;     /* NR_CGI */
+static int hf_ngap_nR_paging_eDRX_Cycle;          /* NR_Paging_eDRX_Cycle */
+static int hf_ngap_nR_paging_Time_Window;         /* NR_Paging_Time_Window */
+static int hf_ngap_tACListInNRNTN;                /* TACListInNRNTN */
+static int hf_ngap_uELocationDerivedTACInNRNTN;   /* TAC */
+static int hf_ngap_NRFrequencyBand_List_item;     /* NRFrequencyBandItem */
+static int hf_ngap_nr_frequency_band;             /* NRFrequencyBand */
+static int hf_ngap_nrARFCN;                       /* NRARFCN */
+static int hf_ngap_frequencyBand_List;            /* NRFrequencyBand_List */
+static int hf_ngap_overloadAction;                /* OverloadAction */
+static int hf_ngap_OverloadStartNSSAIList_item;   /* OverloadStartNSSAIItem */
+static int hf_ngap_sliceOverloadList;             /* SliceOverloadList */
+static int hf_ngap_sliceOverloadResponse;         /* OverloadResponse */
+static int hf_ngap_sliceTrafficLoadReductionIndication;  /* TrafficLoadReductionIndication */
+static int hf_ngap_pERScalar;                     /* INTEGER_0_9_ */
+static int hf_ngap_pERExponent;                   /* INTEGER_0_9_ */
+static int hf_ngap_coverageEnhancementLevel;      /* CoverageEnhancementLevel */
+static int hf_ngap_pagingAttemptCount;            /* PagingAttemptCount */
+static int hf_ngap_intendedNumberOfPagingAttempts;  /* IntendedNumberOfPagingAttempts */
+static int hf_ngap_nextPagingAreaScope;           /* NextPagingAreaScope */
+static int hf_ngap_uL_NGU_UP_TNLInformation;      /* UPTransportLayerInformation */
+static int hf_ngap_securityIndication;            /* SecurityIndication */
+static int hf_ngap_dL_NGU_TNLInformationReused;   /* DL_NGU_TNLInformationReused */
+static int hf_ngap_userPlaneSecurityInformation;  /* UserPlaneSecurityInformation */
+static int hf_ngap_qosFlowAcceptedList;           /* QosFlowAcceptedList */
+static int hf_ngap_pc5QoSFlowList;                /* PC5QoSFlowList */
+static int hf_ngap_pc5LinkAggregateBitRates;      /* BitRate */
+static int hf_ngap_PC5QoSFlowList_item;           /* PC5QoSFlowItem */
+static int hf_ngap_pQI;                           /* FiveQI */
+static int hf_ngap_pc5FlowBitRates;               /* PC5FlowBitRates */
+static int hf_ngap_range;                         /* Range */
+static int hf_ngap_guaranteedFlowBitRate;         /* BitRate */
+static int hf_ngap_maximumFlowBitRate;            /* BitRate */
+static int hf_ngap_PCIListForMDT_item;            /* NR_PCI */
+static int hf_ngap_pDUSessionAggregateMaximumBitRateDL;  /* BitRate */
+static int hf_ngap_pDUSessionAggregateMaximumBitRateUL;  /* BitRate */
+static int hf_ngap_PDUSessionResourceAdmittedList_item;  /* PDUSessionResourceAdmittedItem */
+static int hf_ngap_pDUSessionID;                  /* PDUSessionID */
+static int hf_ngap_handoverRequestAcknowledgeTransfer;  /* T_handoverRequestAcknowledgeTransfer */
+static int hf_ngap_PDUSessionResourceFailedToModifyListModCfm_item;  /* PDUSessionResourceFailedToModifyItemModCfm */
+static int hf_ngap_pDUSessionResourceModifyIndicationUnsuccessfulTransfer;  /* T_pDUSessionResourceModifyIndicationUnsuccessfulTransfer */
+static int hf_ngap_PDUSessionResourceFailedToModifyListModRes_item;  /* PDUSessionResourceFailedToModifyItemModRes */
+static int hf_ngap_pDUSessionResourceModifyUnsuccessfulTransfer;  /* T_pDUSessionResourceModifyUnsuccessfulTransfer */
+static int hf_ngap_PDUSessionResourceFailedToResumeListRESReq_item;  /* PDUSessionResourceFailedToResumeItemRESReq */
+static int hf_ngap_PDUSessionResourceFailedToResumeListRESRes_item;  /* PDUSessionResourceFailedToResumeItemRESRes */
+static int hf_ngap_PDUSessionResourceFailedToSetupListCxtFail_item;  /* PDUSessionResourceFailedToSetupItemCxtFail */
+static int hf_ngap_pDUSessionResourceSetupUnsuccessfulTransfer;  /* T_pDUSessionResourceSetupUnsuccessfulTransfer */
+static int hf_ngap_PDUSessionResourceFailedToSetupListCxtRes_item;  /* PDUSessionResourceFailedToSetupItemCxtRes */
+static int hf_ngap_pDUSessionResourceSetupUnsuccessfulTransfer_01;  /* T_pDUSessionResourceSetupUnsuccessfulTransfer_01 */
+static int hf_ngap_PDUSessionResourceFailedToSetupListHOAck_item;  /* PDUSessionResourceFailedToSetupItemHOAck */
+static int hf_ngap_handoverResourceAllocationUnsuccessfulTransfer;  /* T_handoverResourceAllocationUnsuccessfulTransfer */
+static int hf_ngap_PDUSessionResourceFailedToSetupListPSReq_item;  /* PDUSessionResourceFailedToSetupItemPSReq */
+static int hf_ngap_pathSwitchRequestSetupFailedTransfer;  /* T_pathSwitchRequestSetupFailedTransfer */
+static int hf_ngap_PDUSessionResourceFailedToSetupListSURes_item;  /* PDUSessionResourceFailedToSetupItemSURes */
+static int hf_ngap_pDUSessionResourceSetupUnsuccessfulTransfer_02;  /* T_pDUSessionResourceSetupUnsuccessfulTransfer_02 */
+static int hf_ngap_PDUSessionResourceHandoverList_item;  /* PDUSessionResourceHandoverItem */
+static int hf_ngap_handoverCommandTransfer;       /* T_handoverCommandTransfer */
+static int hf_ngap_PDUSessionResourceInformationList_item;  /* PDUSessionResourceInformationItem */
+static int hf_ngap_qosFlowInformationList;        /* QosFlowInformationList */
+static int hf_ngap_dRBsToQosFlowsMappingList;     /* DRBsToQosFlowsMappingList */
+static int hf_ngap_PDUSessionResourceListCxtRelCpl_item;  /* PDUSessionResourceItemCxtRelCpl */
+static int hf_ngap_PDUSessionResourceListCxtRelReq_item;  /* PDUSessionResourceItemCxtRelReq */
+static int hf_ngap_PDUSessionResourceListHORqd_item;  /* PDUSessionResourceItemHORqd */
+static int hf_ngap_handoverRequiredTransfer;      /* T_handoverRequiredTransfer */
+static int hf_ngap_qosFlowModifyConfirmList;      /* QosFlowModifyConfirmList */
+static int hf_ngap_uLNGU_UP_TNLInformation;       /* UPTransportLayerInformation */
+static int hf_ngap_additionalNG_UUPTNLInformation;  /* UPTransportLayerInformationPairList */
+static int hf_ngap_qosFlowFailedToModifyList;     /* QosFlowListWithCause */
+static int hf_ngap_qosFlowAddOrModifyResponseList;  /* QosFlowAddOrModifyResponseList */
+static int hf_ngap_additionalDLQosFlowPerTNLInformation;  /* QosFlowPerTNLInformationList */
+static int hf_ngap_qosFlowFailedToAddOrModifyList;  /* QosFlowListWithCause */
+static int hf_ngap_dLQosFlowPerTNLInformation;    /* QosFlowPerTNLInformation */
+static int hf_ngap_PDUSessionResourceModifyListModCfm_item;  /* PDUSessionResourceModifyItemModCfm */
+static int hf_ngap_pDUSessionResourceModifyConfirmTransfer;  /* T_pDUSessionResourceModifyConfirmTransfer */
+static int hf_ngap_PDUSessionResourceModifyListModInd_item;  /* PDUSessionResourceModifyItemModInd */
+static int hf_ngap_pDUSessionResourceModifyIndicationTransfer;  /* T_pDUSessionResourceModifyIndicationTransfer */
+static int hf_ngap_PDUSessionResourceModifyListModReq_item;  /* PDUSessionResourceModifyItemModReq */
+static int hf_ngap_nAS_PDU;                       /* NAS_PDU */
+static int hf_ngap_pDUSessionResourceModifyRequestTransfer;  /* T_pDUSessionResourceModifyRequestTransfer */
+static int hf_ngap_PDUSessionResourceModifyListModRes_item;  /* PDUSessionResourceModifyItemModRes */
+static int hf_ngap_pDUSessionResourceModifyResponseTransfer;  /* T_pDUSessionResourceModifyResponseTransfer */
+static int hf_ngap_PDUSessionResourceNotifyList_item;  /* PDUSessionResourceNotifyItem */
+static int hf_ngap_pDUSessionResourceNotifyTransfer;  /* T_pDUSessionResourceNotifyTransfer */
+static int hf_ngap_qosFlowNotifyList;             /* QosFlowNotifyList */
+static int hf_ngap_qosFlowReleasedList;           /* QosFlowListWithCause */
+static int hf_ngap_PDUSessionResourceReleasedListNot_item;  /* PDUSessionResourceReleasedItemNot */
+static int hf_ngap_pDUSessionResourceNotifyReleasedTransfer;  /* T_pDUSessionResourceNotifyReleasedTransfer */
+static int hf_ngap_PDUSessionResourceReleasedListPSAck_item;  /* PDUSessionResourceReleasedItemPSAck */
+static int hf_ngap_pathSwitchRequestUnsuccessfulTransfer;  /* T_pathSwitchRequestUnsuccessfulTransfer */
+static int hf_ngap_PDUSessionResourceReleasedListPSFail_item;  /* PDUSessionResourceReleasedItemPSFail */
+static int hf_ngap_pathSwitchRequestUnsuccessfulTransfer_01;  /* T_pathSwitchRequestUnsuccessfulTransfer_01 */
+static int hf_ngap_PDUSessionResourceReleasedListRelRes_item;  /* PDUSessionResourceReleasedItemRelRes */
+static int hf_ngap_pDUSessionResourceReleaseResponseTransfer;  /* T_pDUSessionResourceReleaseResponseTransfer */
+static int hf_ngap_PDUSessionResourceResumeListRESReq_item;  /* PDUSessionResourceResumeItemRESReq */
+static int hf_ngap_uEContextResumeRequestTransfer;  /* T_uEContextResumeRequestTransfer */
+static int hf_ngap_PDUSessionResourceResumeListRESRes_item;  /* PDUSessionResourceResumeItemRESRes */
+static int hf_ngap_uEContextResumeResponseTransfer;  /* T_uEContextResumeResponseTransfer */
+static int hf_ngap_PDUSessionResourceSecondaryRATUsageList_item;  /* PDUSessionResourceSecondaryRATUsageItem */
+static int hf_ngap_secondaryRATDataUsageReportTransfer;  /* T_secondaryRATDataUsageReportTransfer */
+static int hf_ngap_PDUSessionResourceSetupListCxtReq_item;  /* PDUSessionResourceSetupItemCxtReq */
+static int hf_ngap_pDUSessionResourceSetupRequestTransfer;  /* T_pDUSessionResourceSetupRequestTransfer */
+static int hf_ngap_PDUSessionResourceSetupListCxtRes_item;  /* PDUSessionResourceSetupItemCxtRes */
+static int hf_ngap_pDUSessionResourceSetupResponseTransfer;  /* T_pDUSessionResourceSetupResponseTransfer */
+static int hf_ngap_PDUSessionResourceSetupListHOReq_item;  /* PDUSessionResourceSetupItemHOReq */
+static int hf_ngap_handoverRequestTransfer;       /* T_handoverRequestTransfer */
+static int hf_ngap_PDUSessionResourceSetupListSUReq_item;  /* PDUSessionResourceSetupItemSUReq */
+static int hf_ngap_pDUSessionNAS_PDU;             /* NAS_PDU */
+static int hf_ngap_pDUSessionResourceSetupRequestTransfer_01;  /* T_pDUSessionResourceSetupRequestTransfer_01 */
+static int hf_ngap_PDUSessionResourceSetupListSURes_item;  /* PDUSessionResourceSetupItemSURes */
+static int hf_ngap_pDUSessionResourceSetupResponseTransfer_01;  /* T_pDUSessionResourceSetupResponseTransfer_01 */
+static int hf_ngap_PDUSessionResourceSuspendListSUSReq_item;  /* PDUSessionResourceSuspendItemSUSReq */
+static int hf_ngap_uEContextSuspendRequestTransfer;  /* T_uEContextSuspendRequestTransfer */
+static int hf_ngap_PDUSessionResourceSwitchedList_item;  /* PDUSessionResourceSwitchedItem */
+static int hf_ngap_pathSwitchRequestAcknowledgeTransfer;  /* T_pathSwitchRequestAcknowledgeTransfer */
+static int hf_ngap_PDUSessionResourceToBeSwitchedDLList_item;  /* PDUSessionResourceToBeSwitchedDLItem */
+static int hf_ngap_pathSwitchRequestTransfer;     /* T_pathSwitchRequestTransfer */
+static int hf_ngap_PDUSessionResourceToReleaseListHOCmd_item;  /* PDUSessionResourceToReleaseItemHOCmd */
+static int hf_ngap_handoverPreparationUnsuccessfulTransfer;  /* T_handoverPreparationUnsuccessfulTransfer */
+static int hf_ngap_PDUSessionResourceToReleaseListRelCmd_item;  /* PDUSessionResourceToReleaseItemRelCmd */
+static int hf_ngap_pDUSessionResourceReleaseCommandTransfer;  /* T_pDUSessionResourceReleaseCommandTransfer */
+static int hf_ngap_rATType;                       /* T_rATType */
+static int hf_ngap_pDUSessionTimedReportList;     /* VolumeTimedReportList */
+static int hf_ngap_cNsubgroupID;                  /* CNsubgroupID */
+static int hf_ngap_plmnListforQMC;                /* PLMNListforQMC */
+static int hf_ngap_PLMNListforQMC_item;           /* PLMNIdentity */
+static int hf_ngap_PLMNSupportList_item;          /* PLMNSupportItem */
+static int hf_ngap_sliceSupportList;              /* SliceSupportList */
+static int hf_ngap_allowed_PNI_NPI_List;          /* Allowed_PNI_NPN_List */
+static int hf_ngap_eUTRA_CGI_PWSFailedList;       /* EUTRA_CGIList */
+static int hf_ngap_nR_CGI_PWSFailedList;          /* NR_CGIList */
+static int hf_ngap_uEAppLayerMeasInfoList;        /* UEAppLayerMeasInfoList */
+static int hf_ngap_qoEReferenceList;              /* QoEReferenceList */
+static int hf_ngap_QoEReferenceList_item;         /* QoEReference */
+static int hf_ngap_nonDynamic5QI;                 /* NonDynamic5QIDescriptor */
+static int hf_ngap_dynamic5QI;                    /* Dynamic5QIDescriptor */
+static int hf_ngap_QosFlowAcceptedList_item;      /* QosFlowAcceptedItem */
+static int hf_ngap_QosFlowAddOrModifyRequestList_item;  /* QosFlowAddOrModifyRequestItem */
+static int hf_ngap_qosFlowLevelQosParameters;     /* QosFlowLevelQosParameters */
+static int hf_ngap_QosFlowAddOrModifyResponseList_item;  /* QosFlowAddOrModifyResponseItem */
+static int hf_ngap_QosFlowFeedbackList_item;      /* QosFlowFeedbackItem */
+static int hf_ngap_updateFeedback;                /* UpdateFeedback */
+static int hf_ngap_cNpacketDelayBudgetDL;         /* ExtendedPacketDelayBudget */
+static int hf_ngap_cNpacketDelayBudgetUL;         /* ExtendedPacketDelayBudget */
+static int hf_ngap_QosFlowInformationList_item;   /* QosFlowInformationItem */
+static int hf_ngap_qosCharacteristics;            /* QosCharacteristics */
+static int hf_ngap_allocationAndRetentionPriority;  /* AllocationAndRetentionPriority */
+static int hf_ngap_gBR_QosInformation;            /* GBR_QosInformation */
+static int hf_ngap_reflectiveQosAttribute;        /* ReflectiveQosAttribute */
+static int hf_ngap_additionalQosFlowInformation;  /* AdditionalQosFlowInformation */
+static int hf_ngap_QosFlowListWithCause_item;     /* QosFlowWithCauseItem */
+static int hf_ngap_QosFlowModifyConfirmList_item;  /* QosFlowModifyConfirmItem */
+static int hf_ngap_QosFlowNotifyList_item;        /* QosFlowNotifyItem */
+static int hf_ngap_notificationCause;             /* NotificationCause */
+static int hf_ngap_QosFlowParametersList_item;    /* QosFlowParametersItem */
+static int hf_ngap_alternativeQoSParaSetList;     /* AlternativeQoSParaSetList */
+static int hf_ngap_uPTransportLayerInformation;   /* UPTransportLayerInformation */
+static int hf_ngap_QosFlowPerTNLInformationList_item;  /* QosFlowPerTNLInformationItem */
+static int hf_ngap_qosFlowPerTNLInformation;      /* QosFlowPerTNLInformation */
+static int hf_ngap_QosFlowSetupRequestList_item;  /* QosFlowSetupRequestItem */
+static int hf_ngap_QosFlowListWithDataForwarding_item;  /* QosFlowItemWithDataForwarding */
+static int hf_ngap_dataForwardingAccepted;        /* DataForwardingAccepted */
+static int hf_ngap_QosFlowToBeForwardedList_item;  /* QosFlowToBeForwardedItem */
+static int hf_ngap_QoSFlowsUsageReportList_item;  /* QoSFlowsUsageReport_Item */
+static int hf_ngap_rATType_01;                    /* T_rATType_01 */
+static int hf_ngap_qoSFlowsTimedReportList;       /* VolumeTimedReportList */
+static int hf_ngap_dRBsSubjectToStatusTransferList;  /* DRBsSubjectToStatusTransferList */
+static int hf_ngap_RATRestrictions_item;          /* RATRestrictions_Item */
+static int hf_ngap_rATRestrictionInformation;     /* RATRestrictionInformation */
+static int hf_ngap_recommendedCellList;           /* RecommendedCellList */
+static int hf_ngap_RecommendedCellList_item;      /* RecommendedCellItem */
+static int hf_ngap_recommendedRANNodeList;        /* RecommendedRANNodeList */
+static int hf_ngap_RecommendedRANNodeList_item;   /* RecommendedRANNodeItem */
+static int hf_ngap_aMFPagingTarget;               /* AMFPagingTarget */
+static int hf_ngap_rSN;                           /* RSN */
+static int hf_ngap_nG_Interface;                  /* ResetAll */
+static int hf_ngap_partOfNG_Interface;            /* UE_associatedLogicalNG_connectionList */
+static int hf_ngap_targetRANNodeID_RIM;           /* TargetRANNodeID_RIM */
+static int hf_ngap_sourceRANNodeID;               /* SourceRANNodeID */
+static int hf_ngap_rIMInformation;                /* RIMInformation */
+static int hf_ngap_targetgNBSetID;                /* GNBSetID */
+static int hf_ngap_rIM_RSDetection;               /* T_rIM_RSDetection */
+static int hf_ngap_dayofWeek;                     /* BIT_STRING_SIZE_7 */
+static int hf_ngap_timeofDayStart;                /* INTEGER_0_86399_ */
+static int hf_ngap_timeofDayEnd;                  /* INTEGER_0_86399_ */
+static int hf_ngap_SCTP_TLAs_item;                /* TransportLayerAddress */
+static int hf_ngap_pDUSessionUsageReport;         /* PDUSessionUsageReport */
+static int hf_ngap_qosFlowsUsageReportList;       /* QoSFlowsUsageReportList */
+static int hf_ngap_secondaryRATUsageInformation;  /* SecondaryRATUsageInformation */
+static int hf_ngap_nextHopChainingCount;          /* NextHopChainingCount */
+static int hf_ngap_nextHopNH;                     /* SecurityKey */
+static int hf_ngap_integrityProtectionIndication;  /* IntegrityProtectionIndication */
+static int hf_ngap_confidentialityProtectionIndication;  /* ConfidentialityProtectionIndication */
+static int hf_ngap_maximumIntegrityProtectedDataRate_UL;  /* MaximumIntegrityProtectedDataRate */
+static int hf_ngap_integrityProtectionResult;     /* IntegrityProtectionResult */
+static int hf_ngap_confidentialityProtectionResult;  /* ConfidentialityProtectionResult */
+static int hf_ngap_sensorMeasConfig;              /* SensorMeasConfig */
+static int hf_ngap_sensorMeasConfigNameList;      /* SensorMeasConfigNameList */
+static int hf_ngap_SensorMeasConfigNameList_item;  /* SensorMeasConfigNameItem */
+static int hf_ngap_sensorNameConfig;              /* SensorNameConfig */
+static int hf_ngap_uncompensatedBarometricConfig;  /* T_uncompensatedBarometricConfig */
+static int hf_ngap_ueSpeedConfig;                 /* T_ueSpeedConfig */
+static int hf_ngap_ueOrientationConfig;           /* T_ueOrientationConfig */
+static int hf_ngap_ServedGUAMIList_item;          /* ServedGUAMIItem */
+static int hf_ngap_gUAMI;                         /* GUAMI */
+static int hf_ngap_backupAMFName;                 /* AMFName */
+static int hf_ngap_ServiceAreaInformation_item;   /* ServiceAreaInformation_Item */
+static int hf_ngap_allowedTACs;                   /* AllowedTACs */
+static int hf_ngap_notAllowedTACs;                /* NotAllowedTACs */
+static int hf_ngap_iP_MulticastAddress;           /* TransportLayerAddress */
+static int hf_ngap_iP_SourceAddress;              /* TransportLayerAddress */
+static int hf_ngap_SliceOverloadList_item;        /* SliceOverloadItem */
+static int hf_ngap_SliceSupportList_item;         /* SliceSupportItem */
+static int hf_ngap_SliceSupportListQMC_item;      /* SliceSupportQMC_Item */
+static int hf_ngap_serving_NID;                   /* NID */
+static int hf_ngap_sST;                           /* SST */
+static int hf_ngap_sD;                            /* SD */
+static int hf_ngap_targetRANNodeID_SON;           /* TargetRANNodeID_SON */
+static int hf_ngap_sONInformation;                /* SONInformation */
+static int hf_ngap_xnTNLConfigurationInfo;        /* XnTNLConfigurationInfo */
+static int hf_ngap_sONInformationRequest;         /* SONInformationRequest */
+static int hf_ngap_sONInformationReply;           /* SONInformationReply */
+static int hf_ngap_failureIndicationInformation_01;  /* FailureIndication */
+static int hf_ngap_hOReportInformation_01;        /* HOReport */
+static int hf_ngap_SuccessfulHandoverReportList_item;  /* SuccessfulHandoverReport_Item */
+static int hf_ngap_successfulHOReportContainer;   /* T_successfulHOReportContainer */
+static int hf_ngap_rRCContainer;                  /* RRCContainer */
+static int hf_ngap_pDUSessionResourceInformationList;  /* PDUSessionResourceInformationList */
+static int hf_ngap_e_RABInformationList;          /* E_RABInformationList */
+static int hf_ngap_targetCell_ID;                 /* NGRAN_CGI */
+static int hf_ngap_indexToRFSP;                   /* IndexToRFSP */
+static int hf_ngap_uEHistoryInformation;          /* UEHistoryInformation */
+static int hf_ngap_sourceengNB_ID;                /* GlobalGNB_ID */
+static int hf_ngap_configuredNSSAI;               /* ConfiguredNSSAI */
+static int hf_ngap_rejectedNSSAIinPLMN;           /* RejectedNSSAIinPLMN */
+static int hf_ngap_rejectedNSSAIinTA;             /* RejectedNSSAIinTA */
+static int hf_ngap_SupportedTAList_item;          /* SupportedTAItem */
+static int hf_ngap_tAC;                           /* TAC */
+static int hf_ngap_broadcastPLMNList;             /* BroadcastPLMNList */
+static int hf_ngap_TACListInNRNTN_item;           /* TAC */
+static int hf_ngap_TAIBroadcastEUTRA_item;        /* TAIBroadcastEUTRA_Item */
+static int hf_ngap_completedCellsInTAI_EUTRA;     /* CompletedCellsInTAI_EUTRA */
+static int hf_ngap_TAIBroadcastNR_item;           /* TAIBroadcastNR_Item */
+static int hf_ngap_completedCellsInTAI_NR;        /* CompletedCellsInTAI_NR */
+static int hf_ngap_TAICancelledEUTRA_item;        /* TAICancelledEUTRA_Item */
+static int hf_ngap_cancelledCellsInTAI_EUTRA;     /* CancelledCellsInTAI_EUTRA */
+static int hf_ngap_TAICancelledNR_item;           /* TAICancelledNR_Item */
+static int hf_ngap_cancelledCellsInTAI_NR;        /* CancelledCellsInTAI_NR */
+static int hf_ngap_TAIListForInactive_item;       /* TAIListForInactiveItem */
+static int hf_ngap_TAIListForPaging_item;         /* TAIListForPagingItem */
+static int hf_ngap_TAIListForRestart_item;        /* TAI */
+static int hf_ngap_TAIListForWarning_item;        /* TAI */
+static int hf_ngap_TAINSAGSupportList_item;       /* TAINSAGSupportItem */
+static int hf_ngap_nSAG_ID;                       /* NSAG_ID */
+static int hf_ngap_nSAGSliceSupportList;          /* ExtendedSliceSupportList */
+static int hf_ngap_globalENB_ID;                  /* GlobalNgENB_ID */
+static int hf_ngap_selected_EPS_TAI;              /* EPS_TAI */
+static int hf_ngap_targetRANNodeID;               /* TargetRANNodeID */
+static int hf_ngap_targeteNB_ID;                  /* TargeteNB_ID */
+static int hf_ngap_cell_CAGInformation;           /* Cell_CAGInformation */
+static int hf_ngap_TargetNSSAI_item;              /* TargetNSSAI_Item */
+static int hf_ngap_targetNSSAI;                   /* TargetNSSAI */
+static int hf_ngap_lAI;                           /* LAI */
+static int hf_ngap_rNC_ID;                        /* RNC_ID */
+static int hf_ngap_extendedRNC_ID;                /* ExtendedRNC_ID */
+static int hf_ngap_timeDistributionIndication;    /* T_timeDistributionIndication */
+static int hf_ngap_uUTimeSyncErrorBudget;         /* INTEGER_1_1000000_ */
+static int hf_ngap_tNGF_ID;                       /* BIT_STRING_SIZE_32_ */
+static int hf_ngap_TNLAssociationList_item;       /* TNLAssociationItem */
+static int hf_ngap_tNLAssociationAddress;         /* CPTransportLayerInformation */
+static int hf_ngap_sourcecellID_01;               /* EUTRA_CGI */
+static int hf_ngap_failurecellID;                 /* NGRAN_CGI */
+static int hf_ngap_nGRANTraceID;                  /* NGRANTraceID */
+static int hf_ngap_interfacesToTrace;             /* InterfacesToTrace */
+static int hf_ngap_traceDepth;                    /* TraceDepth */
+static int hf_ngap_traceCollectionEntityIPAddress;  /* TransportLayerAddress */
+static int hf_ngap_tAIListforMDT;                 /* TAIListforMDT */
+static int hf_ngap_TAIListforMDT_item;            /* TAI */
+static int hf_ngap_tAIListforQMC;                 /* TAIListforQMC */
+static int hf_ngap_TAIListforQMC_item;            /* TAI */
+static int hf_ngap_tAListforQMC;                  /* TAListforQMC */
+static int hf_ngap_TAListforQMC_item;             /* TAC */
+static int hf_ngap_tAListforMDT;                  /* TAListforMDT */
+static int hf_ngap_TAListforMDT_item;             /* TAC */
+static int hf_ngap_tWIF_ID;                       /* BIT_STRING_SIZE_32_ */
+static int hf_ngap_periodicity;                   /* Periodicity */
+static int hf_ngap_burstArrivalTime;              /* BurstArrivalTime */
+static int hf_ngap_tSCAssistanceInformationDL;    /* TSCAssistanceInformation */
+static int hf_ngap_tSCAssistanceInformationUL;    /* TSCAssistanceInformation */
+static int hf_ngap_uEAggregateMaximumBitRateDL;   /* BitRate */
+static int hf_ngap_uEAggregateMaximumBitRateUL;   /* BitRate */
+static int hf_ngap_UEAppLayerMeasInfoList_item;   /* UEAppLayerMeasInfoItem */
+static int hf_ngap_uEAppLayerMeasConfigInfo;      /* UEAppLayerMeasConfigInfo */
+static int hf_ngap_qoEReference;                  /* QoEReference */
+static int hf_ngap_serviceType;                   /* ServiceType */
+static int hf_ngap_areaScopeOfQMC;                /* AreaScopeOfQMC */
+static int hf_ngap_measCollEntityIPAddress;       /* TransportLayerAddress */
+static int hf_ngap_qoEMeasurementStatus;          /* T_qoEMeasurementStatus */
+static int hf_ngap_containerForAppLayerMeasConfig;  /* OCTET_STRING_SIZE_1_8000 */
+static int hf_ngap_measConfigAppLayerID;          /* INTEGER_0_15_ */
+static int hf_ngap_sliceSupportListQMC;           /* SliceSupportListQMC */
+static int hf_ngap_mDT_AlignmentInfo;             /* MDT_AlignmentInfo */
+static int hf_ngap_availableRANVisibleQoEMetrics;  /* AvailableRANVisibleQoEMetrics */
+static int hf_ngap_UE_associatedLogicalNG_connectionList_item;  /* UE_associatedLogicalNG_connectionItem */
+static int hf_ngap_aMF_UE_NGAP_ID;                /* AMF_UE_NGAP_ID */
+static int hf_ngap_rAN_UE_NGAP_ID;                /* RAN_UE_NGAP_ID */
+static int hf_ngap_qosFlowFailedToResumeList;     /* QosFlowListWithCause */
+static int hf_ngap_suspendIndicator;              /* SuspendIndicator */
+static int hf_ngap_periodicCommunicationIndicator;  /* T_periodicCommunicationIndicator */
+static int hf_ngap_periodicTime;                  /* INTEGER_1_3600_ */
+static int hf_ngap_scheduledCommunicationTime;    /* ScheduledCommunicationTime */
+static int hf_ngap_stationaryIndication;          /* T_stationaryIndication */
+static int hf_ngap_trafficProfile;                /* T_trafficProfile */
+static int hf_ngap_batteryIndication;             /* T_batteryIndication */
+static int hf_ngap_UEHistoryInformation_item;     /* LastVisitedCellItem */
+static int hf_ngap_nR;                            /* NRMobilityHistoryReport */
+static int hf_ngap_indexLength10;                 /* BIT_STRING_SIZE_10 */
+static int hf_ngap_uE_NGAP_ID_pair;               /* UE_NGAP_ID_pair */
+static int hf_ngap_fiveG_S_TMSI;                  /* FiveG_S_TMSI */
+static int hf_ngap_UEPresenceInAreaOfInterestList_item;  /* UEPresenceInAreaOfInterestItem */
+static int hf_ngap_uEPresence;                    /* UEPresence */
+static int hf_ngap_uERadioCapabilityForPagingOfNR;  /* UERadioCapabilityForPagingOfNR */
+static int hf_ngap_uERadioCapabilityForPagingOfEUTRA;  /* UERadioCapabilityForPagingOfEUTRA */
+static int hf_ngap_nR_01;                         /* NRUERLFReportContainer */
+static int hf_ngap_lTE;                           /* LTEUERLFReportContainer */
+static int hf_ngap_nRencryptionAlgorithms;        /* NRencryptionAlgorithms */
+static int hf_ngap_nRintegrityProtectionAlgorithms;  /* NRintegrityProtectionAlgorithms */
+static int hf_ngap_eUTRAencryptionAlgorithms;     /* EUTRAencryptionAlgorithms */
+static int hf_ngap_eUTRAintegrityProtectionAlgorithms;  /* EUTRAintegrityProtectionAlgorithms */
+static int hf_ngap_UESliceMaximumBitRateList_item;  /* UESliceMaximumBitRateItem */
+static int hf_ngap_uESliceMaximumBitRateDL;       /* BitRate */
+static int hf_ngap_uESliceMaximumBitRateUL;       /* BitRate */
+static int hf_ngap_ul_NAS_MAC;                    /* UL_NAS_MAC */
+static int hf_ngap_ul_NAS_Count;                  /* UL_NAS_Count */
+static int hf_ngap_UL_NGU_UP_TNLModifyList_item;  /* UL_NGU_UP_TNLModifyItem */
+static int hf_ngap_UnavailableGUAMIList_item;     /* UnavailableGUAMIItem */
+static int hf_ngap_timerApproachForGUAMIRemoval;  /* TimerApproachForGUAMIRemoval */
+static int hf_ngap_gTPTunnel;                     /* GTPTunnel */
+static int hf_ngap_UPTransportLayerInformationList_item;  /* UPTransportLayerInformationItem */
+static int hf_ngap_nGU_UP_TNLInformation;         /* UPTransportLayerInformation */
+static int hf_ngap_UPTransportLayerInformationPairList_item;  /* UPTransportLayerInformationPairItem */
+static int hf_ngap_userLocationInformationEUTRA;  /* UserLocationInformationEUTRA */
+static int hf_ngap_userLocationInformationNR;     /* UserLocationInformationNR */
+static int hf_ngap_userLocationInformationN3IWF;  /* UserLocationInformationN3IWF */
+static int hf_ngap_timeStamp;                     /* TimeStamp */
+static int hf_ngap_iPAddress;                     /* TransportLayerAddress */
+static int hf_ngap_tNAP_ID;                       /* TNAP_ID */
+static int hf_ngap_tWAP_ID;                       /* TWAP_ID */
+static int hf_ngap_globalLine_ID;                 /* GlobalLine_ID */
+static int hf_ngap_VolumeTimedReportList_item;    /* VolumeTimedReport_Item */
+static int hf_ngap_startTimeStamp;                /* T_startTimeStamp */
+static int hf_ngap_endTimeStamp;                  /* T_endTimeStamp */
+static int hf_ngap_usageCountUL;                  /* INTEGER_0_18446744073709551615 */
+static int hf_ngap_usageCountDL;                  /* INTEGER_0_18446744073709551615 */
+static int hf_ngap_w_AGF_ID;                      /* BIT_STRING_SIZE_16_ */
+static int hf_ngap_eUTRA_CGIListForWarning;       /* EUTRA_CGIListForWarning */
+static int hf_ngap_nR_CGIListForWarning;          /* NR_CGIListForWarning */
+static int hf_ngap_tAIListForWarning;             /* TAIListForWarning */
+static int hf_ngap_emergencyAreaIDList;           /* EmergencyAreaIDList */
+static int hf_ngap_wlanMeasConfig;                /* WLANMeasConfig */
+static int hf_ngap_wlanMeasConfigNameList;        /* WLANMeasConfigNameList */
+static int hf_ngap_wlan_rssi;                     /* T_wlan_rssi */
+static int hf_ngap_wlan_rtt;                      /* T_wlan_rtt */
+static int hf_ngap_WLANMeasConfigNameList_item;   /* WLANMeasConfigNameItem */
+static int hf_ngap_wLANName;                      /* WLANName */
+static int hf_ngap_pagingProbabilityInformation;  /* PagingProbabilityInformation */
+static int hf_ngap_XnExtTLAs_item;                /* XnExtTLA_Item */
+static int hf_ngap_iPsecTLA;                      /* TransportLayerAddress */
+static int hf_ngap_gTP_TLAs;                      /* XnGTP_TLAs */
+static int hf_ngap_XnGTP_TLAs_item;               /* TransportLayerAddress */
+static int hf_ngap_XnTLAs_item;                   /* TransportLayerAddress */
+static int hf_ngap_xnTransportLayerAddresses;     /* XnTLAs */
+static int hf_ngap_xnExtendedTransportLayerAddresses;  /* XnExtTLAs */
+static int hf_ngap_privateIEs;                    /* PrivateIE_Container */
+static int hf_ngap_initiatingMessage;             /* InitiatingMessage */
+static int hf_ngap_successfulOutcome;             /* SuccessfulOutcome */
+static int hf_ngap_unsuccessfulOutcome;           /* UnsuccessfulOutcome */
+static int hf_ngap_initiatingMessagevalue;        /* InitiatingMessage_value */
+static int hf_ngap_successfulOutcome_value;       /* SuccessfulOutcome_value */
+static int hf_ngap_unsuccessfulOutcome_value;     /* UnsuccessfulOutcome_value */
 
 /* Initialize the subtree pointers */
-static gint ett_ngap = -1;
-static gint ett_ngap_TransportLayerAddress = -1;
-static gint ett_ngap_DataCodingScheme = -1;
-static gint ett_ngap_SerialNumber = -1;
-static gint ett_ngap_WarningType = -1;
-static gint ett_ngap_WarningMessageContents = -1;
-static gint ett_ngap_PLMNIdentity = -1;
-static gint ett_ngap_NGAP_Message = -1;
-static gint ett_ngap_NGRANTraceID = -1;
-static gint ett_ngap_InterfacesToTrace = -1;
-static gint ett_ngap_SourceToTarget_TransparentContainer = -1;
-static gint ett_ngap_TargetToSource_TransparentContainer = -1;
-static gint ett_ngap_RRCContainer = -1;
-static gint ett_ngap_RATRestrictionInformation = -1;
-static gint ett_ngap_primaryRATRestriction = -1;
-static gint ett_ngap_secondaryRATRestriction = -1;
-static gint ett_ngap_NrencryptionAlgorithms = -1;
-static gint ett_ngap_NrintegrityProtectionAlgorithms = -1;
-static gint ett_ngap_EUTRAencryptionAlgorithms = -1;
-static gint ett_ngap_EUTRAintegrityProtectionAlgorithms = -1;
-static gint ett_ngap_UERadioCapabilityForPagingOfNR = -1;
-static gint ett_ngap_UERadioCapabilityForPagingOfEUTRA = -1;
-static gint ett_ngap_UERadioCapability = -1;
-static gint ett_ngap_LastVisitedEUTRANCellInformation = -1;
-static gint ett_ngap_LastVisitedUTRANCellInformation = -1;
-static gint ett_ngap_LastVisitedGERANCellInformation = -1;
-static gint ett_ngap_NASSecurityParametersFromNGRAN = -1;
-static gint ett_ngap_NASC = -1;
-static gint ett_ngap_NAS_PDU = -1;
-static gint ett_ngap_EN_DCSONConfigurationTransfer = -1;
-static gint ett_ngap_BurstArrivalTime = -1;
-static gint ett_ngap_CoverageEnhancementLevel = -1;
-static gint ett_ngap_MDTModeEutra = -1;
-static gint ett_ngap_MeasurementsToActivate = -1;
-static gint ett_ngap_MDT_Location_Information = -1;
-static gint ett_ngap_NRMobilityHistoryReport = -1;
-static gint ett_ngap_LTEUERLFReportContainer = -1;
-static gint ett_ngap_NRUERLFReportContainer = -1;
-static gint ett_ngap_TargettoSource_Failure_TransparentContainer = -1;
-static gint ett_ngap_UERadioCapabilityForPagingOfNB_IoT = -1;
-static gint ett_ngap_GlobalCable_ID = -1;
-static gint ett_ngap_UpdateFeedback = -1;
-static gint ett_ngap_successfulHOReportContainer = -1;
-static gint ett_ngap_PrivateIE_ID = -1;
-static gint ett_ngap_ProtocolIE_Container = -1;
-static gint ett_ngap_ProtocolIE_Field = -1;
-static gint ett_ngap_ProtocolExtensionContainer = -1;
-static gint ett_ngap_ProtocolExtensionField = -1;
-static gint ett_ngap_PrivateIE_Container = -1;
-static gint ett_ngap_PrivateIE_Field = -1;
-static gint ett_ngap_AdditionalDLUPTNLInformationForHOList = -1;
-static gint ett_ngap_AdditionalDLUPTNLInformationForHOItem = -1;
-static gint ett_ngap_AllocationAndRetentionPriority = -1;
-static gint ett_ngap_Allowed_CAG_List_per_PLMN = -1;
-static gint ett_ngap_AllowedNSSAI = -1;
-static gint ett_ngap_AllowedNSSAI_Item = -1;
-static gint ett_ngap_Allowed_PNI_NPN_List = -1;
-static gint ett_ngap_Allowed_PNI_NPN_Item = -1;
-static gint ett_ngap_AllowedTACs = -1;
-static gint ett_ngap_AlternativeQoSParaSetList = -1;
-static gint ett_ngap_AlternativeQoSParaSetItem = -1;
-static gint ett_ngap_AMFPagingTarget = -1;
-static gint ett_ngap_AMF_TNLAssociationSetupList = -1;
-static gint ett_ngap_AMF_TNLAssociationSetupItem = -1;
-static gint ett_ngap_AMF_TNLAssociationToAddList = -1;
-static gint ett_ngap_AMF_TNLAssociationToAddItem = -1;
-static gint ett_ngap_AMF_TNLAssociationToRemoveList = -1;
-static gint ett_ngap_AMF_TNLAssociationToRemoveItem = -1;
-static gint ett_ngap_AMF_TNLAssociationToUpdateList = -1;
-static gint ett_ngap_AMF_TNLAssociationToUpdateItem = -1;
-static gint ett_ngap_AreaOfInterest = -1;
-static gint ett_ngap_AreaOfInterestCellList = -1;
-static gint ett_ngap_AreaOfInterestCellItem = -1;
-static gint ett_ngap_AreaOfInterestList = -1;
-static gint ett_ngap_AreaOfInterestItem = -1;
-static gint ett_ngap_AreaOfInterestRANNodeList = -1;
-static gint ett_ngap_AreaOfInterestRANNodeItem = -1;
-static gint ett_ngap_AreaOfInterestTAIList = -1;
-static gint ett_ngap_AreaOfInterestTAIItem = -1;
-static gint ett_ngap_AssistanceDataForPaging = -1;
-static gint ett_ngap_AssistanceDataForRecommendedCells = -1;
-static gint ett_ngap_AssociatedMBSQosFlowSetupRequestList = -1;
-static gint ett_ngap_AssociatedMBSQosFlowSetupRequestItem = -1;
-static gint ett_ngap_AssociatedMBSQosFlowSetuporModifyRequestList = -1;
-static gint ett_ngap_AssociatedMBSQosFlowSetuporModifyRequestItem = -1;
-static gint ett_ngap_AssociatedQosFlowList = -1;
-static gint ett_ngap_AssociatedQosFlowItem = -1;
-static gint ett_ngap_AreaScopeOfMDT_NR = -1;
-static gint ett_ngap_AreaScopeOfMDT_EUTRA = -1;
-static gint ett_ngap_AreaScopeOfNeighCellsList = -1;
-static gint ett_ngap_AreaScopeOfNeighCellsItem = -1;
-static gint ett_ngap_AreaScopeOfQMC = -1;
-static gint ett_ngap_AvailableRANVisibleQoEMetrics = -1;
-static gint ett_ngap_BeamMeasurementsReportConfiguration = -1;
-static gint ett_ngap_BeamMeasurementsReportQuantity = -1;
-static gint ett_ngap_BroadcastCancelledAreaList = -1;
-static gint ett_ngap_BroadcastCompletedAreaList = -1;
-static gint ett_ngap_BroadcastPLMNList = -1;
-static gint ett_ngap_BroadcastPLMNItem = -1;
-static gint ett_ngap_BluetoothMeasurementConfiguration = -1;
-static gint ett_ngap_BluetoothMeasConfigNameList = -1;
-static gint ett_ngap_BluetoothMeasConfigNameItem = -1;
-static gint ett_ngap_CancelledCellsInEAI_EUTRA = -1;
-static gint ett_ngap_CancelledCellsInEAI_EUTRA_Item = -1;
-static gint ett_ngap_CancelledCellsInEAI_NR = -1;
-static gint ett_ngap_CancelledCellsInEAI_NR_Item = -1;
-static gint ett_ngap_CancelledCellsInTAI_EUTRA = -1;
-static gint ett_ngap_CancelledCellsInTAI_EUTRA_Item = -1;
-static gint ett_ngap_CancelledCellsInTAI_NR = -1;
-static gint ett_ngap_CancelledCellsInTAI_NR_Item = -1;
-static gint ett_ngap_CandidateCellList = -1;
-static gint ett_ngap_CandidateCellItem = -1;
-static gint ett_ngap_CandidateCell = -1;
-static gint ett_ngap_CandidateCellID = -1;
-static gint ett_ngap_CandidatePCI = -1;
-static gint ett_ngap_Cause = -1;
-static gint ett_ngap_Cell_CAGInformation = -1;
-static gint ett_ngap_CellCAGList = -1;
-static gint ett_ngap_CellIDBroadcastEUTRA = -1;
-static gint ett_ngap_CellIDBroadcastEUTRA_Item = -1;
-static gint ett_ngap_CellIDBroadcastNR = -1;
-static gint ett_ngap_CellIDBroadcastNR_Item = -1;
-static gint ett_ngap_CellIDCancelledEUTRA = -1;
-static gint ett_ngap_CellIDCancelledEUTRA_Item = -1;
-static gint ett_ngap_CellIDCancelledNR = -1;
-static gint ett_ngap_CellIDCancelledNR_Item = -1;
-static gint ett_ngap_CellIDListForRestart = -1;
-static gint ett_ngap_CellType = -1;
-static gint ett_ngap_CNAssistedRANTuning = -1;
-static gint ett_ngap_CNTypeRestrictionsForEquivalent = -1;
-static gint ett_ngap_CNTypeRestrictionsForEquivalentItem = -1;
-static gint ett_ngap_CompletedCellsInEAI_EUTRA = -1;
-static gint ett_ngap_CompletedCellsInEAI_EUTRA_Item = -1;
-static gint ett_ngap_CompletedCellsInEAI_NR = -1;
-static gint ett_ngap_CompletedCellsInEAI_NR_Item = -1;
-static gint ett_ngap_CompletedCellsInTAI_EUTRA = -1;
-static gint ett_ngap_CompletedCellsInTAI_EUTRA_Item = -1;
-static gint ett_ngap_CompletedCellsInTAI_NR = -1;
-static gint ett_ngap_CompletedCellsInTAI_NR_Item = -1;
-static gint ett_ngap_CoreNetworkAssistanceInformationForInactive = -1;
-static gint ett_ngap_COUNTValueForPDCP_SN12 = -1;
-static gint ett_ngap_COUNTValueForPDCP_SN18 = -1;
-static gint ett_ngap_CPTransportLayerInformation = -1;
-static gint ett_ngap_CriticalityDiagnostics = -1;
-static gint ett_ngap_CriticalityDiagnostics_IE_List = -1;
-static gint ett_ngap_CriticalityDiagnostics_IE_Item = -1;
-static gint ett_ngap_CellBasedMDT_NR = -1;
-static gint ett_ngap_CellIdListforMDT_NR = -1;
-static gint ett_ngap_CellBasedMDT_EUTRA = -1;
-static gint ett_ngap_CellBasedQMC = -1;
-static gint ett_ngap_CellIdListforQMC = -1;
-static gint ett_ngap_CellIdListforMDT_EUTRA = -1;
-static gint ett_ngap_DataForwardingResponseDRBList = -1;
-static gint ett_ngap_DataForwardingResponseDRBItem = -1;
-static gint ett_ngap_DAPSRequestInfo = -1;
-static gint ett_ngap_DAPSResponseInfoList = -1;
-static gint ett_ngap_DAPSResponseInfoItem = -1;
-static gint ett_ngap_DAPSResponseInfo = -1;
-static gint ett_ngap_DataForwardingResponseERABList = -1;
-static gint ett_ngap_DataForwardingResponseERABListItem = -1;
-static gint ett_ngap_DL_CP_SecurityInformation = -1;
-static gint ett_ngap_DRBsSubjectToStatusTransferList = -1;
-static gint ett_ngap_DRBsSubjectToStatusTransferItem = -1;
-static gint ett_ngap_DRBStatusDL = -1;
-static gint ett_ngap_DRBStatusDL12 = -1;
-static gint ett_ngap_DRBStatusDL18 = -1;
-static gint ett_ngap_DRBStatusUL = -1;
-static gint ett_ngap_DRBStatusUL12 = -1;
-static gint ett_ngap_DRBStatusUL18 = -1;
-static gint ett_ngap_DRBsToQosFlowsMappingList = -1;
-static gint ett_ngap_DRBsToQosFlowsMappingItem = -1;
-static gint ett_ngap_Dynamic5QIDescriptor = -1;
-static gint ett_ngap_EarlyStatusTransfer_TransparentContainer = -1;
-static gint ett_ngap_ProcedureStageChoice = -1;
-static gint ett_ngap_FirstDLCount = -1;
-static gint ett_ngap_DRBsSubjectToEarlyStatusTransfer_List = -1;
-static gint ett_ngap_DRBsSubjectToEarlyStatusTransfer_Item = -1;
-static gint ett_ngap_EmergencyAreaIDBroadcastEUTRA = -1;
-static gint ett_ngap_EmergencyAreaIDBroadcastEUTRA_Item = -1;
-static gint ett_ngap_EmergencyAreaIDBroadcastNR = -1;
-static gint ett_ngap_EmergencyAreaIDBroadcastNR_Item = -1;
-static gint ett_ngap_EmergencyAreaIDCancelledEUTRA = -1;
-static gint ett_ngap_EmergencyAreaIDCancelledEUTRA_Item = -1;
-static gint ett_ngap_EmergencyAreaIDCancelledNR = -1;
-static gint ett_ngap_EmergencyAreaIDCancelledNR_Item = -1;
-static gint ett_ngap_EmergencyAreaIDList = -1;
-static gint ett_ngap_EmergencyAreaIDListForRestart = -1;
-static gint ett_ngap_EmergencyFallbackIndicator = -1;
-static gint ett_ngap_ENB_ID = -1;
-static gint ett_ngap_EndpointIPAddressAndPort = -1;
-static gint ett_ngap_EquivalentPLMNs = -1;
-static gint ett_ngap_EPS_TAI = -1;
-static gint ett_ngap_E_RABInformationList = -1;
-static gint ett_ngap_E_RABInformationItem = -1;
-static gint ett_ngap_EUTRA_CGI = -1;
-static gint ett_ngap_EUTRA_CGIList = -1;
-static gint ett_ngap_EUTRA_CGIListForWarning = -1;
-static gint ett_ngap_EUTRA_PagingeDRXInformation = -1;
-static gint ett_ngap_ExcessPacketDelayThresholdConfiguration = -1;
-static gint ett_ngap_ExcessPacketDelayThresholdItem = -1;
-static gint ett_ngap_ExpectedUEActivityBehaviour = -1;
-static gint ett_ngap_ExpectedUEBehaviour = -1;
-static gint ett_ngap_ExpectedUEMovingTrajectory = -1;
-static gint ett_ngap_ExpectedUEMovingTrajectoryItem = -1;
-static gint ett_ngap_Extended_AMFName = -1;
-static gint ett_ngap_Extended_RANNodeName = -1;
-static gint ett_ngap_ExtendedRATRestrictionInformation = -1;
-static gint ett_ngap_ExtendedSliceSupportList = -1;
-static gint ett_ngap_EventTrigger = -1;
-static gint ett_ngap_EventL1LoggedMDTConfig = -1;
-static gint ett_ngap_MeasurementThresholdL1LoggedMDT = -1;
-static gint ett_ngap_FailureIndication = -1;
-static gint ett_ngap_FiveG_ProSeAuthorized = -1;
-static gint ett_ngap_FiveG_ProSePC5QoSParameters = -1;
-static gint ett_ngap_FiveGProSePC5QoSFlowList = -1;
-static gint ett_ngap_FiveGProSePC5QoSFlowItem = -1;
-static gint ett_ngap_FiveGProSePC5FlowBitRates = -1;
-static gint ett_ngap_FiveG_S_TMSI = -1;
-static gint ett_ngap_ForbiddenAreaInformation = -1;
-static gint ett_ngap_ForbiddenAreaInformation_Item = -1;
-static gint ett_ngap_ForbiddenTACs = -1;
-static gint ett_ngap_FromEUTRANtoNGRAN = -1;
-static gint ett_ngap_FromNGRANtoEUTRAN = -1;
-static gint ett_ngap_GBR_QosInformation = -1;
-static gint ett_ngap_GlobalCable_ID_new = -1;
-static gint ett_ngap_GlobalENB_ID = -1;
-static gint ett_ngap_GlobalGNB_ID = -1;
-static gint ett_ngap_GlobalN3IWF_ID = -1;
-static gint ett_ngap_GlobalLine_ID = -1;
-static gint ett_ngap_GlobalNgENB_ID = -1;
-static gint ett_ngap_GlobalRANNodeID = -1;
-static gint ett_ngap_GlobalTNGF_ID = -1;
-static gint ett_ngap_GlobalTWIF_ID = -1;
-static gint ett_ngap_GlobalW_AGF_ID = -1;
-static gint ett_ngap_GNB_ID = -1;
-static gint ett_ngap_GTPTunnel = -1;
-static gint ett_ngap_GUAMI = -1;
-static gint ett_ngap_HandoverCommandTransfer = -1;
-static gint ett_ngap_HandoverPreparationUnsuccessfulTransfer = -1;
-static gint ett_ngap_HandoverRequestAcknowledgeTransfer = -1;
-static gint ett_ngap_HandoverRequiredTransfer = -1;
-static gint ett_ngap_HandoverResourceAllocationUnsuccessfulTransfer = -1;
-static gint ett_ngap_HFCNode_ID_new = -1;
-static gint ett_ngap_HOReport = -1;
-static gint ett_ngap_InfoOnRecommendedCellsAndRANNodesForPaging = -1;
-static gint ett_ngap_ImmediateMDTNr = -1;
-static gint ett_ngap_InterSystemFailureIndication = -1;
-static gint ett_ngap_IntersystemSONConfigurationTransfer = -1;
-static gint ett_ngap_IntersystemSONTransferType = -1;
-static gint ett_ngap_IntersystemSONeNBID = -1;
-static gint ett_ngap_IntersystemSONNGRANnodeID = -1;
-static gint ett_ngap_IntersystemSONInformation = -1;
-static gint ett_ngap_IntersystemSONInformationRequest = -1;
-static gint ett_ngap_IntersystemCellActivationRequest = -1;
-static gint ett_ngap_CellsToActivateList = -1;
-static gint ett_ngap_IntersystemResourceStatusRequest = -1;
-static gint ett_ngap_ReportingSystem = -1;
-static gint ett_ngap_EUTRAN_ReportingSystemIEs = -1;
-static gint ett_ngap_NGRAN_ReportingSystemIEs = -1;
-static gint ett_ngap_EUTRAN_CellToReportList = -1;
-static gint ett_ngap_EUTRAN_CellToReportItem = -1;
-static gint ett_ngap_NGRAN_CellToReportList = -1;
-static gint ett_ngap_NGRAN_CellToReportItem = -1;
-static gint ett_ngap_ReportType = -1;
-static gint ett_ngap_EventBasedReportingIEs = -1;
-static gint ett_ngap_PeriodicReportingIEs = -1;
-static gint ett_ngap_IntersystemSONInformationReply = -1;
-static gint ett_ngap_IntersystemCellActivationReply = -1;
-static gint ett_ngap_ActivatedCellList = -1;
-static gint ett_ngap_IntersystemResourceStatusReply = -1;
-static gint ett_ngap_IntersystemSONInformationReport = -1;
-static gint ett_ngap_IntersystemCellStateIndication = -1;
-static gint ett_ngap_NotificationCellList = -1;
-static gint ett_ngap_NotificationCell_Item = -1;
-static gint ett_ngap_IntersystemResourceStatusReport = -1;
-static gint ett_ngap_ResourceStatusReportingSystem = -1;
-static gint ett_ngap_EUTRAN_ReportingStatusIEs = -1;
-static gint ett_ngap_EUTRAN_CellReportList = -1;
-static gint ett_ngap_EUTRAN_CellReportItem = -1;
-static gint ett_ngap_EUTRAN_CompositeAvailableCapacityGroup = -1;
-static gint ett_ngap_CompositeAvailableCapacity = -1;
-static gint ett_ngap_EUTRAN_RadioResourceStatus = -1;
-static gint ett_ngap_NGRAN_ReportingStatusIEs = -1;
-static gint ett_ngap_NGRAN_CellReportList = -1;
-static gint ett_ngap_NGRAN_CellReportItem = -1;
-static gint ett_ngap_NGRAN_RadioResourceStatus = -1;
-static gint ett_ngap_InterSystemHOReport = -1;
-static gint ett_ngap_InterSystemHandoverReportType = -1;
-static gint ett_ngap_IntersystemUnnecessaryHO = -1;
-static gint ett_ngap_LAI = -1;
-static gint ett_ngap_LastVisitedCellInformation = -1;
-static gint ett_ngap_LastVisitedCellItem = -1;
-static gint ett_ngap_LastVisitedNGRANCellInformation = -1;
-static gint ett_ngap_LastVisitedPSCellList = -1;
-static gint ett_ngap_LastVisitedPSCellInformation = -1;
-static gint ett_ngap_LocationReportingRequestType = -1;
-static gint ett_ngap_LoggedMDTNr = -1;
-static gint ett_ngap_LoggedMDTTrigger = -1;
-static gint ett_ngap_LTEV2XServicesAuthorized = -1;
-static gint ett_ngap_LTEUESidelinkAggregateMaximumBitrate = -1;
-static gint ett_ngap_MBS_DataForwardingResponseMRBList = -1;
-static gint ett_ngap_MBS_DataForwardingResponseMRBItem = -1;
-static gint ett_ngap_MBS_MappingandDataForwardingRequestList = -1;
-static gint ett_ngap_MBS_MappingandDataForwardingRequestItem = -1;
-static gint ett_ngap_MBS_QoSFlowList = -1;
-static gint ett_ngap_MRB_ProgressInformation = -1;
-static gint ett_ngap_MBS_QoSFlowsToBeSetupList = -1;
-static gint ett_ngap_MBS_QoSFlowsToBeSetupItem = -1;
-static gint ett_ngap_MBS_ServiceArea = -1;
-static gint ett_ngap_MBS_ServiceAreaInformationList = -1;
-static gint ett_ngap_MBS_ServiceAreaInformationItem = -1;
-static gint ett_ngap_MBS_ServiceAreaInformation = -1;
-static gint ett_ngap_MBS_ServiceAreaCellList = -1;
-static gint ett_ngap_MBS_ServiceAreaTAIList = -1;
-static gint ett_ngap_MBS_SessionID = -1;
-static gint ett_ngap_MBSSessionFailedtoSetupList = -1;
-static gint ett_ngap_MBSSessionFailedtoSetupItem = -1;
-static gint ett_ngap_MBS_ActiveSessionInformation_SourcetoTargetList = -1;
-static gint ett_ngap_MBS_ActiveSessionInformation_SourcetoTargetItem = -1;
-static gint ett_ngap_MBS_ActiveSessionInformation_TargettoSourceList = -1;
-static gint ett_ngap_MBS_ActiveSessionInformation_TargettoSourceItem = -1;
-static gint ett_ngap_MBSSessionSetupOrModFailureTransfer = -1;
-static gint ett_ngap_MBSSessionSetupResponseList = -1;
-static gint ett_ngap_MBSSessionSetupResponseItem = -1;
-static gint ett_ngap_MBSSessionSetupOrModRequestTransfer = -1;
-static gint ett_ngap_MBS_SessionFSAIDList = -1;
-static gint ett_ngap_MBSSessionReleaseResponseTransfer = -1;
-static gint ett_ngap_MBSSessionSetupOrModResponseTransfer = -1;
-static gint ett_ngap_MBS_SessionTNLInfo5GC = -1;
-static gint ett_ngap_MBS_SessionTNLInfo5GCList = -1;
-static gint ett_ngap_MBS_SessionTNLInfo5GCItem = -1;
-static gint ett_ngap_MBS_SessionTNLInfoNGRAN = -1;
-static gint ett_ngap_MBS_SessionTNLInfoNGRANList = -1;
-static gint ett_ngap_MBS_SessionTNLInfoNGRANItem = -1;
-static gint ett_ngap_MBS_DistributionReleaseRequestTransfer = -1;
-static gint ett_ngap_MBS_DistributionSetupRequestTransfer = -1;
-static gint ett_ngap_MBS_DistributionSetupResponseTransfer = -1;
-static gint ett_ngap_MBS_DistributionSetupUnsuccessfulTransfer = -1;
-static gint ett_ngap_MBSSessionSetupRequestList = -1;
-static gint ett_ngap_MBSSessionSetupRequestItem = -1;
-static gint ett_ngap_MBSSessionSetuporModifyRequestList = -1;
-static gint ett_ngap_MBSSessionSetuporModifyRequestItem = -1;
-static gint ett_ngap_MBSSessionToReleaseList = -1;
-static gint ett_ngap_MBSSessionToReleaseItem = -1;
-static gint ett_ngap_MobilityRestrictionList = -1;
-static gint ett_ngap_MDT_AlignmentInfo = -1;
-static gint ett_ngap_MDTPLMNList = -1;
-static gint ett_ngap_MDTPLMNModificationList = -1;
-static gint ett_ngap_MDT_Configuration = -1;
-static gint ett_ngap_MDT_Configuration_NR = -1;
-static gint ett_ngap_MDT_Configuration_EUTRA = -1;
-static gint ett_ngap_MDTModeNr = -1;
-static gint ett_ngap_MulticastSessionActivationRequestTransfer = -1;
-static gint ett_ngap_MulticastSessionDeactivationRequestTransfer = -1;
-static gint ett_ngap_MulticastSessionUpdateRequestTransfer = -1;
-static gint ett_ngap_MulticastGroupPagingAreaList = -1;
-static gint ett_ngap_MulticastGroupPagingAreaItem = -1;
-static gint ett_ngap_MBS_AreaTAIList = -1;
-static gint ett_ngap_MulticastGroupPagingArea = -1;
-static gint ett_ngap_UE_PagingList = -1;
-static gint ett_ngap_UE_PagingItem = -1;
-static gint ett_ngap_M1Configuration = -1;
-static gint ett_ngap_M1ThresholdEventA2 = -1;
-static gint ett_ngap_M1ThresholdType = -1;
-static gint ett_ngap_M1PeriodicReporting = -1;
-static gint ett_ngap_M4Configuration = -1;
-static gint ett_ngap_M5Configuration = -1;
-static gint ett_ngap_M6Configuration = -1;
-static gint ett_ngap_M7Configuration = -1;
-static gint ett_ngap_MDT_Location_Info = -1;
-static gint ett_ngap_N3IWF_ID = -1;
-static gint ett_ngap_NB_IoT_Paging_eDRXInfo = -1;
-static gint ett_ngap_NGAPIESupportInformationRequestList = -1;
-static gint ett_ngap_NGAPIESupportInformationRequestItem = -1;
-static gint ett_ngap_NGAPIESupportInformationResponseList = -1;
-static gint ett_ngap_NGAPIESupportInformationResponseItem = -1;
-static gint ett_ngap_NgENB_ID = -1;
-static gint ett_ngap_NGRAN_CGI = -1;
-static gint ett_ngap_NGRAN_TNLAssociationToRemoveList = -1;
-static gint ett_ngap_NGRAN_TNLAssociationToRemoveItem = -1;
-static gint ett_ngap_NonDynamic5QIDescriptor = -1;
-static gint ett_ngap_NotAllowedTACs = -1;
-static gint ett_ngap_NPN_AccessInformation = -1;
-static gint ett_ngap_NPN_MobilityInformation = -1;
-static gint ett_ngap_NPN_PagingAssistanceInformation = -1;
-static gint ett_ngap_NPN_Support = -1;
-static gint ett_ngap_NR_CGI = -1;
-static gint ett_ngap_NR_CGIList = -1;
-static gint ett_ngap_NR_CGIListForWarning = -1;
-static gint ett_ngap_NR_PagingeDRXInformation = -1;
-static gint ett_ngap_NRNTNTAIInformation = -1;
-static gint ett_ngap_NRFrequencyBand_List = -1;
-static gint ett_ngap_NRFrequencyBandItem = -1;
-static gint ett_ngap_NRFrequencyInfo = -1;
-static gint ett_ngap_NRV2XServicesAuthorized = -1;
-static gint ett_ngap_NRUESidelinkAggregateMaximumBitrate = -1;
-static gint ett_ngap_OverloadResponse = -1;
-static gint ett_ngap_OverloadStartNSSAIList = -1;
-static gint ett_ngap_OverloadStartNSSAIItem = -1;
-static gint ett_ngap_PacketErrorRate = -1;
-static gint ett_ngap_PagingAssisDataforCEcapabUE = -1;
-static gint ett_ngap_PagingAttemptInformation = -1;
-static gint ett_ngap_PathSwitchRequestAcknowledgeTransfer = -1;
-static gint ett_ngap_PathSwitchRequestSetupFailedTransfer = -1;
-static gint ett_ngap_PathSwitchRequestTransfer = -1;
-static gint ett_ngap_PathSwitchRequestUnsuccessfulTransfer = -1;
-static gint ett_ngap_PC5QoSParameters = -1;
-static gint ett_ngap_PC5QoSFlowList = -1;
-static gint ett_ngap_PC5QoSFlowItem = -1;
-static gint ett_ngap_PC5FlowBitRates = -1;
-static gint ett_ngap_PCIListForMDT = -1;
-static gint ett_ngap_PDUSessionAggregateMaximumBitRate = -1;
-static gint ett_ngap_PDUSessionResourceAdmittedList = -1;
-static gint ett_ngap_PDUSessionResourceAdmittedItem = -1;
-static gint ett_ngap_PDUSessionResourceFailedToModifyListModCfm = -1;
-static gint ett_ngap_PDUSessionResourceFailedToModifyItemModCfm = -1;
-static gint ett_ngap_PDUSessionResourceFailedToModifyListModRes = -1;
-static gint ett_ngap_PDUSessionResourceFailedToModifyItemModRes = -1;
-static gint ett_ngap_PDUSessionResourceFailedToResumeListRESReq = -1;
-static gint ett_ngap_PDUSessionResourceFailedToResumeItemRESReq = -1;
-static gint ett_ngap_PDUSessionResourceFailedToResumeListRESRes = -1;
-static gint ett_ngap_PDUSessionResourceFailedToResumeItemRESRes = -1;
-static gint ett_ngap_PDUSessionResourceFailedToSetupListCxtFail = -1;
-static gint ett_ngap_PDUSessionResourceFailedToSetupItemCxtFail = -1;
-static gint ett_ngap_PDUSessionResourceFailedToSetupListCxtRes = -1;
-static gint ett_ngap_PDUSessionResourceFailedToSetupItemCxtRes = -1;
-static gint ett_ngap_PDUSessionResourceFailedToSetupListHOAck = -1;
-static gint ett_ngap_PDUSessionResourceFailedToSetupItemHOAck = -1;
-static gint ett_ngap_PDUSessionResourceFailedToSetupListPSReq = -1;
-static gint ett_ngap_PDUSessionResourceFailedToSetupItemPSReq = -1;
-static gint ett_ngap_PDUSessionResourceFailedToSetupListSURes = -1;
-static gint ett_ngap_PDUSessionResourceFailedToSetupItemSURes = -1;
-static gint ett_ngap_PDUSessionResourceHandoverList = -1;
-static gint ett_ngap_PDUSessionResourceHandoverItem = -1;
-static gint ett_ngap_PDUSessionResourceInformationList = -1;
-static gint ett_ngap_PDUSessionResourceInformationItem = -1;
-static gint ett_ngap_PDUSessionResourceListCxtRelCpl = -1;
-static gint ett_ngap_PDUSessionResourceItemCxtRelCpl = -1;
-static gint ett_ngap_PDUSessionResourceListCxtRelReq = -1;
-static gint ett_ngap_PDUSessionResourceItemCxtRelReq = -1;
-static gint ett_ngap_PDUSessionResourceListHORqd = -1;
-static gint ett_ngap_PDUSessionResourceItemHORqd = -1;
-static gint ett_ngap_PDUSessionResourceModifyConfirmTransfer = -1;
-static gint ett_ngap_PDUSessionResourceModifyIndicationUnsuccessfulTransfer = -1;
-static gint ett_ngap_PDUSessionResourceModifyRequestTransfer = -1;
-static gint ett_ngap_PDUSessionResourceModifyResponseTransfer = -1;
-static gint ett_ngap_PDUSessionResourceModifyIndicationTransfer = -1;
-static gint ett_ngap_PDUSessionResourceModifyListModCfm = -1;
-static gint ett_ngap_PDUSessionResourceModifyItemModCfm = -1;
-static gint ett_ngap_PDUSessionResourceModifyListModInd = -1;
-static gint ett_ngap_PDUSessionResourceModifyItemModInd = -1;
-static gint ett_ngap_PDUSessionResourceModifyListModReq = -1;
-static gint ett_ngap_PDUSessionResourceModifyItemModReq = -1;
-static gint ett_ngap_PDUSessionResourceModifyListModRes = -1;
-static gint ett_ngap_PDUSessionResourceModifyItemModRes = -1;
-static gint ett_ngap_PDUSessionResourceModifyUnsuccessfulTransfer = -1;
-static gint ett_ngap_PDUSessionResourceNotifyList = -1;
-static gint ett_ngap_PDUSessionResourceNotifyItem = -1;
-static gint ett_ngap_PDUSessionResourceNotifyReleasedTransfer = -1;
-static gint ett_ngap_PDUSessionResourceNotifyTransfer = -1;
-static gint ett_ngap_PDUSessionResourceReleaseCommandTransfer = -1;
-static gint ett_ngap_PDUSessionResourceReleasedListNot = -1;
-static gint ett_ngap_PDUSessionResourceReleasedItemNot = -1;
-static gint ett_ngap_PDUSessionResourceReleasedListPSAck = -1;
-static gint ett_ngap_PDUSessionResourceReleasedItemPSAck = -1;
-static gint ett_ngap_PDUSessionResourceReleasedListPSFail = -1;
-static gint ett_ngap_PDUSessionResourceReleasedItemPSFail = -1;
-static gint ett_ngap_PDUSessionResourceReleasedListRelRes = -1;
-static gint ett_ngap_PDUSessionResourceReleasedItemRelRes = -1;
-static gint ett_ngap_PDUSessionResourceReleaseResponseTransfer = -1;
-static gint ett_ngap_PDUSessionResourceResumeListRESReq = -1;
-static gint ett_ngap_PDUSessionResourceResumeItemRESReq = -1;
-static gint ett_ngap_PDUSessionResourceResumeListRESRes = -1;
-static gint ett_ngap_PDUSessionResourceResumeItemRESRes = -1;
-static gint ett_ngap_PDUSessionResourceSecondaryRATUsageList = -1;
-static gint ett_ngap_PDUSessionResourceSecondaryRATUsageItem = -1;
-static gint ett_ngap_PDUSessionResourceSetupListCxtReq = -1;
-static gint ett_ngap_PDUSessionResourceSetupItemCxtReq = -1;
-static gint ett_ngap_PDUSessionResourceSetupListCxtRes = -1;
-static gint ett_ngap_PDUSessionResourceSetupItemCxtRes = -1;
-static gint ett_ngap_PDUSessionResourceSetupListHOReq = -1;
-static gint ett_ngap_PDUSessionResourceSetupItemHOReq = -1;
-static gint ett_ngap_PDUSessionResourceSetupListSUReq = -1;
-static gint ett_ngap_PDUSessionResourceSetupItemSUReq = -1;
-static gint ett_ngap_PDUSessionResourceSetupListSURes = -1;
-static gint ett_ngap_PDUSessionResourceSetupItemSURes = -1;
-static gint ett_ngap_PDUSessionResourceSetupRequestTransfer = -1;
-static gint ett_ngap_PDUSessionResourceSetupResponseTransfer = -1;
-static gint ett_ngap_PDUSessionResourceSetupUnsuccessfulTransfer = -1;
-static gint ett_ngap_PDUSessionResourceSuspendListSUSReq = -1;
-static gint ett_ngap_PDUSessionResourceSuspendItemSUSReq = -1;
-static gint ett_ngap_PDUSessionResourceSwitchedList = -1;
-static gint ett_ngap_PDUSessionResourceSwitchedItem = -1;
-static gint ett_ngap_PDUSessionResourceToBeSwitchedDLList = -1;
-static gint ett_ngap_PDUSessionResourceToBeSwitchedDLItem = -1;
-static gint ett_ngap_PDUSessionResourceToReleaseListHOCmd = -1;
-static gint ett_ngap_PDUSessionResourceToReleaseItemHOCmd = -1;
-static gint ett_ngap_PDUSessionResourceToReleaseListRelCmd = -1;
-static gint ett_ngap_PDUSessionResourceToReleaseItemRelCmd = -1;
-static gint ett_ngap_PDUSessionUsageReport = -1;
-static gint ett_ngap_PEIPSassistanceInformation = -1;
-static gint ett_ngap_PLMNAreaBasedQMC = -1;
-static gint ett_ngap_PLMNListforQMC = -1;
-static gint ett_ngap_PLMNSupportList = -1;
-static gint ett_ngap_PLMNSupportItem = -1;
-static gint ett_ngap_PNI_NPN_MobilityInformation = -1;
-static gint ett_ngap_PWSFailedCellIDList = -1;
-static gint ett_ngap_QMCConfigInfo = -1;
-static gint ett_ngap_QMCDeactivation = -1;
-static gint ett_ngap_QoEReferenceList = -1;
-static gint ett_ngap_QosCharacteristics = -1;
-static gint ett_ngap_QosFlowAcceptedList = -1;
-static gint ett_ngap_QosFlowAcceptedItem = -1;
-static gint ett_ngap_QosFlowAddOrModifyRequestList = -1;
-static gint ett_ngap_QosFlowAddOrModifyRequestItem = -1;
-static gint ett_ngap_QosFlowAddOrModifyResponseList = -1;
-static gint ett_ngap_QosFlowAddOrModifyResponseItem = -1;
-static gint ett_ngap_QosFlowFeedbackList = -1;
-static gint ett_ngap_QosFlowFeedbackItem = -1;
-static gint ett_ngap_QosFlowInformationList = -1;
-static gint ett_ngap_QosFlowInformationItem = -1;
-static gint ett_ngap_QosFlowLevelQosParameters = -1;
-static gint ett_ngap_QosFlowListWithCause = -1;
-static gint ett_ngap_QosFlowWithCauseItem = -1;
-static gint ett_ngap_QosFlowModifyConfirmList = -1;
-static gint ett_ngap_QosFlowModifyConfirmItem = -1;
-static gint ett_ngap_QosFlowNotifyList = -1;
-static gint ett_ngap_QosFlowNotifyItem = -1;
-static gint ett_ngap_QosFlowParametersList = -1;
-static gint ett_ngap_QosFlowParametersItem = -1;
-static gint ett_ngap_QosFlowPerTNLInformation = -1;
-static gint ett_ngap_QosFlowPerTNLInformationList = -1;
-static gint ett_ngap_QosFlowPerTNLInformationItem = -1;
-static gint ett_ngap_QosFlowSetupRequestList = -1;
-static gint ett_ngap_QosFlowSetupRequestItem = -1;
-static gint ett_ngap_QosFlowListWithDataForwarding = -1;
-static gint ett_ngap_QosFlowItemWithDataForwarding = -1;
-static gint ett_ngap_QosFlowToBeForwardedList = -1;
-static gint ett_ngap_QosFlowToBeForwardedItem = -1;
-static gint ett_ngap_QoSFlowsUsageReportList = -1;
-static gint ett_ngap_QoSFlowsUsageReport_Item = -1;
-static gint ett_ngap_RANStatusTransfer_TransparentContainer = -1;
-static gint ett_ngap_RATRestrictions = -1;
-static gint ett_ngap_RATRestrictions_Item = -1;
-static gint ett_ngap_RecommendedCellsForPaging = -1;
-static gint ett_ngap_RecommendedCellList = -1;
-static gint ett_ngap_RecommendedCellItem = -1;
-static gint ett_ngap_RecommendedRANNodesForPaging = -1;
-static gint ett_ngap_RecommendedRANNodeList = -1;
-static gint ett_ngap_RecommendedRANNodeItem = -1;
-static gint ett_ngap_RedundantPDUSessionInformation = -1;
-static gint ett_ngap_ResetType = -1;
-static gint ett_ngap_RIMInformationTransfer = -1;
-static gint ett_ngap_RIMInformation = -1;
-static gint ett_ngap_ScheduledCommunicationTime = -1;
-static gint ett_ngap_SCTP_TLAs = -1;
-static gint ett_ngap_SecondaryRATUsageInformation = -1;
-static gint ett_ngap_SecondaryRATDataUsageReportTransfer = -1;
-static gint ett_ngap_SecurityContext = -1;
-static gint ett_ngap_SecurityIndication = -1;
-static gint ett_ngap_SecurityResult = -1;
-static gint ett_ngap_SensorMeasurementConfiguration = -1;
-static gint ett_ngap_SensorMeasConfigNameList = -1;
-static gint ett_ngap_SensorMeasConfigNameItem = -1;
-static gint ett_ngap_SensorNameConfig = -1;
-static gint ett_ngap_ServedGUAMIList = -1;
-static gint ett_ngap_ServedGUAMIItem = -1;
-static gint ett_ngap_ServiceAreaInformation = -1;
-static gint ett_ngap_ServiceAreaInformation_Item = -1;
-static gint ett_ngap_SharedNGU_MulticastTNLInformation = -1;
-static gint ett_ngap_SliceOverloadList = -1;
-static gint ett_ngap_SliceOverloadItem = -1;
-static gint ett_ngap_SliceSupportList = -1;
-static gint ett_ngap_SliceSupportItem = -1;
-static gint ett_ngap_SliceSupportListQMC = -1;
-static gint ett_ngap_SliceSupportQMC_Item = -1;
-static gint ett_ngap_SNPN_MobilityInformation = -1;
-static gint ett_ngap_S_NSSAI = -1;
-static gint ett_ngap_SONConfigurationTransfer = -1;
-static gint ett_ngap_SONInformation = -1;
-static gint ett_ngap_SONInformationReply = -1;
-static gint ett_ngap_SONInformationReport = -1;
-static gint ett_ngap_SuccessfulHandoverReportList = -1;
-static gint ett_ngap_SuccessfulHandoverReport_Item = -1;
-static gint ett_ngap_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer = -1;
-static gint ett_ngap_SourceNodeID = -1;
-static gint ett_ngap_SourceRANNodeID = -1;
-static gint ett_ngap_SourceToTarget_AMFInformationReroute = -1;
-static gint ett_ngap_SupportedTAList = -1;
-static gint ett_ngap_SupportedTAItem = -1;
-static gint ett_ngap_TACListInNRNTN = -1;
-static gint ett_ngap_TAI = -1;
-static gint ett_ngap_TAIBroadcastEUTRA = -1;
-static gint ett_ngap_TAIBroadcastEUTRA_Item = -1;
-static gint ett_ngap_TAIBroadcastNR = -1;
-static gint ett_ngap_TAIBroadcastNR_Item = -1;
-static gint ett_ngap_TAICancelledEUTRA = -1;
-static gint ett_ngap_TAICancelledEUTRA_Item = -1;
-static gint ett_ngap_TAICancelledNR = -1;
-static gint ett_ngap_TAICancelledNR_Item = -1;
-static gint ett_ngap_TAIListForInactive = -1;
-static gint ett_ngap_TAIListForInactiveItem = -1;
-static gint ett_ngap_TAIListForPaging = -1;
-static gint ett_ngap_TAIListForPagingItem = -1;
-static gint ett_ngap_TAIListForRestart = -1;
-static gint ett_ngap_TAIListForWarning = -1;
-static gint ett_ngap_TAINSAGSupportList = -1;
-static gint ett_ngap_TAINSAGSupportItem = -1;
-static gint ett_ngap_TargeteNB_ID = -1;
-static gint ett_ngap_TargetHomeENB_ID = -1;
-static gint ett_ngap_TargetID = -1;
-static gint ett_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer = -1;
-static gint ett_ngap_TargetNGRANNode_ToSourceNGRANNode_FailureTransparentContainer = -1;
-static gint ett_ngap_TargetNSSAI = -1;
-static gint ett_ngap_TargetNSSAI_Item = -1;
-static gint ett_ngap_TargetNSSAIInformation = -1;
-static gint ett_ngap_TargetRANNodeID = -1;
-static gint ett_ngap_TargetRANNodeID_RIM = -1;
-static gint ett_ngap_TargetRANNodeID_SON = -1;
-static gint ett_ngap_TargetRNC_ID = -1;
-static gint ett_ngap_TimeSyncAssistanceInfo = -1;
-static gint ett_ngap_TNGF_ID = -1;
-static gint ett_ngap_TNLAssociationList = -1;
-static gint ett_ngap_TNLAssociationItem = -1;
-static gint ett_ngap_TooearlyIntersystemHO = -1;
-static gint ett_ngap_TraceActivation = -1;
-static gint ett_ngap_TAIBasedMDT = -1;
-static gint ett_ngap_TAIListforMDT = -1;
-static gint ett_ngap_TAIBasedQMC = -1;
-static gint ett_ngap_TAIListforQMC = -1;
-static gint ett_ngap_TABasedQMC = -1;
-static gint ett_ngap_TAListforQMC = -1;
-static gint ett_ngap_TABasedMDT = -1;
-static gint ett_ngap_TAListforMDT = -1;
-static gint ett_ngap_TWIF_ID = -1;
-static gint ett_ngap_TSCAssistanceInformation = -1;
-static gint ett_ngap_TSCTrafficCharacteristics = -1;
-static gint ett_ngap_UEAggregateMaximumBitRate = -1;
-static gint ett_ngap_UEAppLayerMeasInfoList = -1;
-static gint ett_ngap_UEAppLayerMeasInfoItem = -1;
-static gint ett_ngap_UEAppLayerMeasConfigInfo = -1;
-static gint ett_ngap_UE_associatedLogicalNG_connectionList = -1;
-static gint ett_ngap_UE_associatedLogicalNG_connectionItem = -1;
-static gint ett_ngap_UEContextResumeRequestTransfer = -1;
-static gint ett_ngap_UEContextResumeResponseTransfer = -1;
-static gint ett_ngap_UEContextSuspendRequestTransfer = -1;
-static gint ett_ngap_UE_DifferentiationInfo = -1;
-static gint ett_ngap_UEHistoryInformation = -1;
-static gint ett_ngap_UEHistoryInformationFromTheUE = -1;
-static gint ett_ngap_UEIdentityIndexValue = -1;
-static gint ett_ngap_UE_NGAP_IDs = -1;
-static gint ett_ngap_UE_NGAP_ID_pair = -1;
-static gint ett_ngap_UEPagingIdentity = -1;
-static gint ett_ngap_UEPresenceInAreaOfInterestList = -1;
-static gint ett_ngap_UEPresenceInAreaOfInterestItem = -1;
-static gint ett_ngap_UERadioCapabilityForPaging = -1;
-static gint ett_ngap_UERLFReportContainer = -1;
-static gint ett_ngap_UESecurityCapabilities = -1;
-static gint ett_ngap_UESliceMaximumBitRateList = -1;
-static gint ett_ngap_UESliceMaximumBitRateItem = -1;
-static gint ett_ngap_UL_CP_SecurityInformation = -1;
-static gint ett_ngap_UL_NGU_UP_TNLModifyList = -1;
-static gint ett_ngap_UL_NGU_UP_TNLModifyItem = -1;
-static gint ett_ngap_UnavailableGUAMIList = -1;
-static gint ett_ngap_UnavailableGUAMIItem = -1;
-static gint ett_ngap_UPTransportLayerInformation = -1;
-static gint ett_ngap_UPTransportLayerInformationList = -1;
-static gint ett_ngap_UPTransportLayerInformationItem = -1;
-static gint ett_ngap_UPTransportLayerInformationPairList = -1;
-static gint ett_ngap_UPTransportLayerInformationPairItem = -1;
-static gint ett_ngap_UserLocationInformation = -1;
-static gint ett_ngap_UserLocationInformationEUTRA = -1;
-static gint ett_ngap_UserLocationInformationN3IWF = -1;
-static gint ett_ngap_UserLocationInformationTNGF = -1;
-static gint ett_ngap_UserLocationInformationTWIF = -1;
-static gint ett_ngap_UserLocationInformationW_AGF = -1;
-static gint ett_ngap_UserLocationInformationNR = -1;
-static gint ett_ngap_UserPlaneSecurityInformation = -1;
-static gint ett_ngap_VolumeTimedReportList = -1;
-static gint ett_ngap_VolumeTimedReport_Item = -1;
-static gint ett_ngap_W_AGF_ID = -1;
-static gint ett_ngap_WarningAreaList = -1;
-static gint ett_ngap_WLANMeasurementConfiguration = -1;
-static gint ett_ngap_WLANMeasConfigNameList = -1;
-static gint ett_ngap_WLANMeasConfigNameItem = -1;
-static gint ett_ngap_WUS_Assistance_Information = -1;
-static gint ett_ngap_XnExtTLAs = -1;
-static gint ett_ngap_XnExtTLA_Item = -1;
-static gint ett_ngap_XnGTP_TLAs = -1;
-static gint ett_ngap_XnTLAs = -1;
-static gint ett_ngap_XnTNLConfigurationInfo = -1;
-static gint ett_ngap_PDUSessionResourceSetupRequest = -1;
-static gint ett_ngap_PDUSessionResourceSetupResponse = -1;
-static gint ett_ngap_PDUSessionResourceReleaseCommand = -1;
-static gint ett_ngap_PDUSessionResourceReleaseResponse = -1;
-static gint ett_ngap_PDUSessionResourceModifyRequest = -1;
-static gint ett_ngap_PDUSessionResourceModifyResponse = -1;
-static gint ett_ngap_PDUSessionResourceNotify = -1;
-static gint ett_ngap_PDUSessionResourceModifyIndication = -1;
-static gint ett_ngap_PDUSessionResourceModifyConfirm = -1;
-static gint ett_ngap_InitialContextSetupRequest = -1;
-static gint ett_ngap_InitialContextSetupResponse = -1;
-static gint ett_ngap_InitialContextSetupFailure = -1;
-static gint ett_ngap_UEContextReleaseRequest = -1;
-static gint ett_ngap_UEContextReleaseCommand = -1;
-static gint ett_ngap_UEContextReleaseComplete = -1;
-static gint ett_ngap_UEContextResumeRequest = -1;
-static gint ett_ngap_UEContextResumeResponse = -1;
-static gint ett_ngap_UEContextResumeFailure = -1;
-static gint ett_ngap_UEContextSuspendRequest = -1;
-static gint ett_ngap_UEContextSuspendResponse = -1;
-static gint ett_ngap_UEContextSuspendFailure = -1;
-static gint ett_ngap_UEContextModificationRequest = -1;
-static gint ett_ngap_UEContextModificationResponse = -1;
-static gint ett_ngap_UEContextModificationFailure = -1;
-static gint ett_ngap_RRCInactiveTransitionReport = -1;
-static gint ett_ngap_RetrieveUEInformation = -1;
-static gint ett_ngap_UEInformationTransfer = -1;
-static gint ett_ngap_RANCPRelocationIndication = -1;
-static gint ett_ngap_HandoverRequired = -1;
-static gint ett_ngap_HandoverCommand = -1;
-static gint ett_ngap_HandoverPreparationFailure = -1;
-static gint ett_ngap_HandoverRequest = -1;
-static gint ett_ngap_HandoverRequestAcknowledge = -1;
-static gint ett_ngap_HandoverFailure = -1;
-static gint ett_ngap_HandoverNotify = -1;
-static gint ett_ngap_PathSwitchRequest = -1;
-static gint ett_ngap_PathSwitchRequestAcknowledge = -1;
-static gint ett_ngap_PathSwitchRequestFailure = -1;
-static gint ett_ngap_HandoverCancel = -1;
-static gint ett_ngap_HandoverCancelAcknowledge = -1;
-static gint ett_ngap_HandoverSuccess = -1;
-static gint ett_ngap_UplinkRANEarlyStatusTransfer = -1;
-static gint ett_ngap_DownlinkRANEarlyStatusTransfer = -1;
-static gint ett_ngap_UplinkRANStatusTransfer = -1;
-static gint ett_ngap_DownlinkRANStatusTransfer = -1;
-static gint ett_ngap_Paging = -1;
-static gint ett_ngap_InitialUEMessage = -1;
-static gint ett_ngap_DownlinkNASTransport = -1;
-static gint ett_ngap_UplinkNASTransport = -1;
-static gint ett_ngap_NASNonDeliveryIndication = -1;
-static gint ett_ngap_RerouteNASRequest = -1;
-static gint ett_ngap_NGSetupRequest = -1;
-static gint ett_ngap_NGSetupResponse = -1;
-static gint ett_ngap_NGSetupFailure = -1;
-static gint ett_ngap_RANConfigurationUpdate = -1;
-static gint ett_ngap_RANConfigurationUpdateAcknowledge = -1;
-static gint ett_ngap_RANConfigurationUpdateFailure = -1;
-static gint ett_ngap_AMFConfigurationUpdate = -1;
-static gint ett_ngap_AMFConfigurationUpdateAcknowledge = -1;
-static gint ett_ngap_AMFConfigurationUpdateFailure = -1;
-static gint ett_ngap_AMFStatusIndication = -1;
-static gint ett_ngap_NGReset = -1;
-static gint ett_ngap_NGResetAcknowledge = -1;
-static gint ett_ngap_ErrorIndication = -1;
-static gint ett_ngap_OverloadStart = -1;
-static gint ett_ngap_OverloadStop = -1;
-static gint ett_ngap_UplinkRANConfigurationTransfer = -1;
-static gint ett_ngap_DownlinkRANConfigurationTransfer = -1;
-static gint ett_ngap_WriteReplaceWarningRequest = -1;
-static gint ett_ngap_WriteReplaceWarningResponse = -1;
-static gint ett_ngap_PWSCancelRequest = -1;
-static gint ett_ngap_PWSCancelResponse = -1;
-static gint ett_ngap_PWSRestartIndication = -1;
-static gint ett_ngap_PWSFailureIndication = -1;
-static gint ett_ngap_DownlinkUEAssociatedNRPPaTransport = -1;
-static gint ett_ngap_UplinkUEAssociatedNRPPaTransport = -1;
-static gint ett_ngap_DownlinkNonUEAssociatedNRPPaTransport = -1;
-static gint ett_ngap_UplinkNonUEAssociatedNRPPaTransport = -1;
-static gint ett_ngap_TraceStart = -1;
-static gint ett_ngap_TraceFailureIndication = -1;
-static gint ett_ngap_DeactivateTrace = -1;
-static gint ett_ngap_CellTrafficTrace = -1;
-static gint ett_ngap_LocationReportingControl = -1;
-static gint ett_ngap_LocationReportingFailureIndication = -1;
-static gint ett_ngap_LocationReport = -1;
-static gint ett_ngap_UETNLABindingReleaseRequest = -1;
-static gint ett_ngap_UERadioCapabilityInfoIndication = -1;
-static gint ett_ngap_UERadioCapabilityCheckRequest = -1;
-static gint ett_ngap_UERadioCapabilityCheckResponse = -1;
-static gint ett_ngap_PrivateMessage = -1;
-static gint ett_ngap_SecondaryRATDataUsageReport = -1;
-static gint ett_ngap_UplinkRIMInformationTransfer = -1;
-static gint ett_ngap_DownlinkRIMInformationTransfer = -1;
-static gint ett_ngap_ConnectionEstablishmentIndication = -1;
-static gint ett_ngap_UERadioCapabilityIDMappingRequest = -1;
-static gint ett_ngap_UERadioCapabilityIDMappingResponse = -1;
-static gint ett_ngap_AMFCPRelocationIndication = -1;
-static gint ett_ngap_BroadcastSessionSetupRequest = -1;
-static gint ett_ngap_BroadcastSessionSetupResponse = -1;
-static gint ett_ngap_BroadcastSessionSetupFailure = -1;
-static gint ett_ngap_BroadcastSessionModificationRequest = -1;
-static gint ett_ngap_BroadcastSessionModificationResponse = -1;
-static gint ett_ngap_BroadcastSessionModificationFailure = -1;
-static gint ett_ngap_BroadcastSessionReleaseRequest = -1;
-static gint ett_ngap_BroadcastSessionReleaseRequired = -1;
-static gint ett_ngap_BroadcastSessionReleaseResponse = -1;
-static gint ett_ngap_DistributionSetupRequest = -1;
-static gint ett_ngap_DistributionSetupResponse = -1;
-static gint ett_ngap_DistributionSetupFailure = -1;
-static gint ett_ngap_DistributionReleaseRequest = -1;
-static gint ett_ngap_DistributionReleaseResponse = -1;
-static gint ett_ngap_MulticastSessionActivationRequest = -1;
-static gint ett_ngap_MulticastSessionActivationResponse = -1;
-static gint ett_ngap_MulticastSessionActivationFailure = -1;
-static gint ett_ngap_MulticastSessionDeactivationRequest = -1;
-static gint ett_ngap_MulticastSessionDeactivationResponse = -1;
-static gint ett_ngap_MulticastSessionUpdateRequest = -1;
-static gint ett_ngap_MulticastSessionUpdateResponse = -1;
-static gint ett_ngap_MulticastSessionUpdateFailure = -1;
-static gint ett_ngap_MulticastGroupPaging = -1;
-static gint ett_ngap_NGAP_PDU = -1;
-static gint ett_ngap_InitiatingMessage = -1;
-static gint ett_ngap_SuccessfulOutcome = -1;
-static gint ett_ngap_UnsuccessfulOutcome = -1;
+static gint ett_ngap;
+static gint ett_ngap_TransportLayerAddress;
+static gint ett_ngap_DataCodingScheme;
+static gint ett_ngap_SerialNumber;
+static gint ett_ngap_WarningType;
+static gint ett_ngap_WarningMessageContents;
+static gint ett_ngap_PLMNIdentity;
+static gint ett_ngap_NGAP_Message;
+static gint ett_ngap_NGRANTraceID;
+static gint ett_ngap_InterfacesToTrace;
+static gint ett_ngap_SourceToTarget_TransparentContainer;
+static gint ett_ngap_TargetToSource_TransparentContainer;
+static gint ett_ngap_RRCContainer;
+static gint ett_ngap_RATRestrictionInformation;
+static gint ett_ngap_primaryRATRestriction;
+static gint ett_ngap_secondaryRATRestriction;
+static gint ett_ngap_NrencryptionAlgorithms;
+static gint ett_ngap_NrintegrityProtectionAlgorithms;
+static gint ett_ngap_EUTRAencryptionAlgorithms;
+static gint ett_ngap_EUTRAintegrityProtectionAlgorithms;
+static gint ett_ngap_UERadioCapabilityForPagingOfNR;
+static gint ett_ngap_UERadioCapabilityForPagingOfEUTRA;
+static gint ett_ngap_UERadioCapability;
+static gint ett_ngap_LastVisitedEUTRANCellInformation;
+static gint ett_ngap_LastVisitedUTRANCellInformation;
+static gint ett_ngap_LastVisitedGERANCellInformation;
+static gint ett_ngap_NASSecurityParametersFromNGRAN;
+static gint ett_ngap_NASC;
+static gint ett_ngap_NAS_PDU;
+static gint ett_ngap_EN_DCSONConfigurationTransfer;
+static gint ett_ngap_BurstArrivalTime;
+static gint ett_ngap_CoverageEnhancementLevel;
+static gint ett_ngap_MDTModeEutra;
+static gint ett_ngap_MeasurementsToActivate;
+static gint ett_ngap_MDT_Location_Information;
+static gint ett_ngap_NRMobilityHistoryReport;
+static gint ett_ngap_LTEUERLFReportContainer;
+static gint ett_ngap_NRUERLFReportContainer;
+static gint ett_ngap_TargettoSource_Failure_TransparentContainer;
+static gint ett_ngap_UERadioCapabilityForPagingOfNB_IoT;
+static gint ett_ngap_GlobalCable_ID;
+static gint ett_ngap_UpdateFeedback;
+static gint ett_ngap_successfulHOReportContainer;
+static gint ett_ngap_PrivateIE_ID;
+static gint ett_ngap_ProtocolIE_Container;
+static gint ett_ngap_ProtocolIE_Field;
+static gint ett_ngap_ProtocolExtensionContainer;
+static gint ett_ngap_ProtocolExtensionField;
+static gint ett_ngap_PrivateIE_Container;
+static gint ett_ngap_PrivateIE_Field;
+static gint ett_ngap_AdditionalDLUPTNLInformationForHOList;
+static gint ett_ngap_AdditionalDLUPTNLInformationForHOItem;
+static gint ett_ngap_AllocationAndRetentionPriority;
+static gint ett_ngap_Allowed_CAG_List_per_PLMN;
+static gint ett_ngap_AllowedNSSAI;
+static gint ett_ngap_AllowedNSSAI_Item;
+static gint ett_ngap_Allowed_PNI_NPN_List;
+static gint ett_ngap_Allowed_PNI_NPN_Item;
+static gint ett_ngap_AllowedTACs;
+static gint ett_ngap_AlternativeQoSParaSetList;
+static gint ett_ngap_AlternativeQoSParaSetItem;
+static gint ett_ngap_AMFPagingTarget;
+static gint ett_ngap_AMF_TNLAssociationSetupList;
+static gint ett_ngap_AMF_TNLAssociationSetupItem;
+static gint ett_ngap_AMF_TNLAssociationToAddList;
+static gint ett_ngap_AMF_TNLAssociationToAddItem;
+static gint ett_ngap_AMF_TNLAssociationToRemoveList;
+static gint ett_ngap_AMF_TNLAssociationToRemoveItem;
+static gint ett_ngap_AMF_TNLAssociationToUpdateList;
+static gint ett_ngap_AMF_TNLAssociationToUpdateItem;
+static gint ett_ngap_AreaOfInterest;
+static gint ett_ngap_AreaOfInterestCellList;
+static gint ett_ngap_AreaOfInterestCellItem;
+static gint ett_ngap_AreaOfInterestList;
+static gint ett_ngap_AreaOfInterestItem;
+static gint ett_ngap_AreaOfInterestRANNodeList;
+static gint ett_ngap_AreaOfInterestRANNodeItem;
+static gint ett_ngap_AreaOfInterestTAIList;
+static gint ett_ngap_AreaOfInterestTAIItem;
+static gint ett_ngap_AssistanceDataForPaging;
+static gint ett_ngap_AssistanceDataForRecommendedCells;
+static gint ett_ngap_AssociatedMBSQosFlowSetupRequestList;
+static gint ett_ngap_AssociatedMBSQosFlowSetupRequestItem;
+static gint ett_ngap_AssociatedMBSQosFlowSetuporModifyRequestList;
+static gint ett_ngap_AssociatedMBSQosFlowSetuporModifyRequestItem;
+static gint ett_ngap_AssociatedQosFlowList;
+static gint ett_ngap_AssociatedQosFlowItem;
+static gint ett_ngap_AreaScopeOfMDT_NR;
+static gint ett_ngap_AreaScopeOfMDT_EUTRA;
+static gint ett_ngap_AreaScopeOfNeighCellsList;
+static gint ett_ngap_AreaScopeOfNeighCellsItem;
+static gint ett_ngap_AreaScopeOfQMC;
+static gint ett_ngap_AvailableRANVisibleQoEMetrics;
+static gint ett_ngap_BeamMeasurementsReportConfiguration;
+static gint ett_ngap_BeamMeasurementsReportQuantity;
+static gint ett_ngap_BroadcastCancelledAreaList;
+static gint ett_ngap_BroadcastCompletedAreaList;
+static gint ett_ngap_BroadcastPLMNList;
+static gint ett_ngap_BroadcastPLMNItem;
+static gint ett_ngap_BluetoothMeasurementConfiguration;
+static gint ett_ngap_BluetoothMeasConfigNameList;
+static gint ett_ngap_BluetoothMeasConfigNameItem;
+static gint ett_ngap_CancelledCellsInEAI_EUTRA;
+static gint ett_ngap_CancelledCellsInEAI_EUTRA_Item;
+static gint ett_ngap_CancelledCellsInEAI_NR;
+static gint ett_ngap_CancelledCellsInEAI_NR_Item;
+static gint ett_ngap_CancelledCellsInTAI_EUTRA;
+static gint ett_ngap_CancelledCellsInTAI_EUTRA_Item;
+static gint ett_ngap_CancelledCellsInTAI_NR;
+static gint ett_ngap_CancelledCellsInTAI_NR_Item;
+static gint ett_ngap_CandidateCellList;
+static gint ett_ngap_CandidateCellItem;
+static gint ett_ngap_CandidateCell;
+static gint ett_ngap_CandidateCellID;
+static gint ett_ngap_CandidatePCI;
+static gint ett_ngap_Cause;
+static gint ett_ngap_Cell_CAGInformation;
+static gint ett_ngap_CellCAGList;
+static gint ett_ngap_CellIDBroadcastEUTRA;
+static gint ett_ngap_CellIDBroadcastEUTRA_Item;
+static gint ett_ngap_CellIDBroadcastNR;
+static gint ett_ngap_CellIDBroadcastNR_Item;
+static gint ett_ngap_CellIDCancelledEUTRA;
+static gint ett_ngap_CellIDCancelledEUTRA_Item;
+static gint ett_ngap_CellIDCancelledNR;
+static gint ett_ngap_CellIDCancelledNR_Item;
+static gint ett_ngap_CellIDListForRestart;
+static gint ett_ngap_CellType;
+static gint ett_ngap_CNAssistedRANTuning;
+static gint ett_ngap_CNTypeRestrictionsForEquivalent;
+static gint ett_ngap_CNTypeRestrictionsForEquivalentItem;
+static gint ett_ngap_CompletedCellsInEAI_EUTRA;
+static gint ett_ngap_CompletedCellsInEAI_EUTRA_Item;
+static gint ett_ngap_CompletedCellsInEAI_NR;
+static gint ett_ngap_CompletedCellsInEAI_NR_Item;
+static gint ett_ngap_CompletedCellsInTAI_EUTRA;
+static gint ett_ngap_CompletedCellsInTAI_EUTRA_Item;
+static gint ett_ngap_CompletedCellsInTAI_NR;
+static gint ett_ngap_CompletedCellsInTAI_NR_Item;
+static gint ett_ngap_CoreNetworkAssistanceInformationForInactive;
+static gint ett_ngap_COUNTValueForPDCP_SN12;
+static gint ett_ngap_COUNTValueForPDCP_SN18;
+static gint ett_ngap_CPTransportLayerInformation;
+static gint ett_ngap_CriticalityDiagnostics;
+static gint ett_ngap_CriticalityDiagnostics_IE_List;
+static gint ett_ngap_CriticalityDiagnostics_IE_Item;
+static gint ett_ngap_CellBasedMDT_NR;
+static gint ett_ngap_CellIdListforMDT_NR;
+static gint ett_ngap_CellBasedMDT_EUTRA;
+static gint ett_ngap_CellBasedQMC;
+static gint ett_ngap_CellIdListforQMC;
+static gint ett_ngap_CellIdListforMDT_EUTRA;
+static gint ett_ngap_DataForwardingResponseDRBList;
+static gint ett_ngap_DataForwardingResponseDRBItem;
+static gint ett_ngap_DAPSRequestInfo;
+static gint ett_ngap_DAPSResponseInfoList;
+static gint ett_ngap_DAPSResponseInfoItem;
+static gint ett_ngap_DAPSResponseInfo;
+static gint ett_ngap_DataForwardingResponseERABList;
+static gint ett_ngap_DataForwardingResponseERABListItem;
+static gint ett_ngap_DL_CP_SecurityInformation;
+static gint ett_ngap_DRBsSubjectToStatusTransferList;
+static gint ett_ngap_DRBsSubjectToStatusTransferItem;
+static gint ett_ngap_DRBStatusDL;
+static gint ett_ngap_DRBStatusDL12;
+static gint ett_ngap_DRBStatusDL18;
+static gint ett_ngap_DRBStatusUL;
+static gint ett_ngap_DRBStatusUL12;
+static gint ett_ngap_DRBStatusUL18;
+static gint ett_ngap_DRBsToQosFlowsMappingList;
+static gint ett_ngap_DRBsToQosFlowsMappingItem;
+static gint ett_ngap_Dynamic5QIDescriptor;
+static gint ett_ngap_EarlyStatusTransfer_TransparentContainer;
+static gint ett_ngap_ProcedureStageChoice;
+static gint ett_ngap_FirstDLCount;
+static gint ett_ngap_DRBsSubjectToEarlyStatusTransfer_List;
+static gint ett_ngap_DRBsSubjectToEarlyStatusTransfer_Item;
+static gint ett_ngap_EmergencyAreaIDBroadcastEUTRA;
+static gint ett_ngap_EmergencyAreaIDBroadcastEUTRA_Item;
+static gint ett_ngap_EmergencyAreaIDBroadcastNR;
+static gint ett_ngap_EmergencyAreaIDBroadcastNR_Item;
+static gint ett_ngap_EmergencyAreaIDCancelledEUTRA;
+static gint ett_ngap_EmergencyAreaIDCancelledEUTRA_Item;
+static gint ett_ngap_EmergencyAreaIDCancelledNR;
+static gint ett_ngap_EmergencyAreaIDCancelledNR_Item;
+static gint ett_ngap_EmergencyAreaIDList;
+static gint ett_ngap_EmergencyAreaIDListForRestart;
+static gint ett_ngap_EmergencyFallbackIndicator;
+static gint ett_ngap_ENB_ID;
+static gint ett_ngap_EndpointIPAddressAndPort;
+static gint ett_ngap_EquivalentPLMNs;
+static gint ett_ngap_EPS_TAI;
+static gint ett_ngap_E_RABInformationList;
+static gint ett_ngap_E_RABInformationItem;
+static gint ett_ngap_EUTRA_CGI;
+static gint ett_ngap_EUTRA_CGIList;
+static gint ett_ngap_EUTRA_CGIListForWarning;
+static gint ett_ngap_EUTRA_PagingeDRXInformation;
+static gint ett_ngap_ExcessPacketDelayThresholdConfiguration;
+static gint ett_ngap_ExcessPacketDelayThresholdItem;
+static gint ett_ngap_ExpectedUEActivityBehaviour;
+static gint ett_ngap_ExpectedUEBehaviour;
+static gint ett_ngap_ExpectedUEMovingTrajectory;
+static gint ett_ngap_ExpectedUEMovingTrajectoryItem;
+static gint ett_ngap_Extended_AMFName;
+static gint ett_ngap_Extended_RANNodeName;
+static gint ett_ngap_ExtendedRATRestrictionInformation;
+static gint ett_ngap_ExtendedSliceSupportList;
+static gint ett_ngap_EventTrigger;
+static gint ett_ngap_EventL1LoggedMDTConfig;
+static gint ett_ngap_MeasurementThresholdL1LoggedMDT;
+static gint ett_ngap_FailureIndication;
+static gint ett_ngap_FiveG_ProSeAuthorized;
+static gint ett_ngap_FiveG_ProSePC5QoSParameters;
+static gint ett_ngap_FiveGProSePC5QoSFlowList;
+static gint ett_ngap_FiveGProSePC5QoSFlowItem;
+static gint ett_ngap_FiveGProSePC5FlowBitRates;
+static gint ett_ngap_FiveG_S_TMSI;
+static gint ett_ngap_ForbiddenAreaInformation;
+static gint ett_ngap_ForbiddenAreaInformation_Item;
+static gint ett_ngap_ForbiddenTACs;
+static gint ett_ngap_FromEUTRANtoNGRAN;
+static gint ett_ngap_FromNGRANtoEUTRAN;
+static gint ett_ngap_GBR_QosInformation;
+static gint ett_ngap_GlobalCable_ID_new;
+static gint ett_ngap_GlobalENB_ID;
+static gint ett_ngap_GlobalGNB_ID;
+static gint ett_ngap_GlobalN3IWF_ID;
+static gint ett_ngap_GlobalLine_ID;
+static gint ett_ngap_GlobalNgENB_ID;
+static gint ett_ngap_GlobalRANNodeID;
+static gint ett_ngap_GlobalTNGF_ID;
+static gint ett_ngap_GlobalTWIF_ID;
+static gint ett_ngap_GlobalW_AGF_ID;
+static gint ett_ngap_GNB_ID;
+static gint ett_ngap_GTPTunnel;
+static gint ett_ngap_GUAMI;
+static gint ett_ngap_HandoverCommandTransfer;
+static gint ett_ngap_HandoverPreparationUnsuccessfulTransfer;
+static gint ett_ngap_HandoverRequestAcknowledgeTransfer;
+static gint ett_ngap_HandoverRequiredTransfer;
+static gint ett_ngap_HandoverResourceAllocationUnsuccessfulTransfer;
+static gint ett_ngap_HFCNode_ID_new;
+static gint ett_ngap_HOReport;
+static gint ett_ngap_InfoOnRecommendedCellsAndRANNodesForPaging;
+static gint ett_ngap_ImmediateMDTNr;
+static gint ett_ngap_InterSystemFailureIndication;
+static gint ett_ngap_IntersystemSONConfigurationTransfer;
+static gint ett_ngap_IntersystemSONTransferType;
+static gint ett_ngap_IntersystemSONeNBID;
+static gint ett_ngap_IntersystemSONNGRANnodeID;
+static gint ett_ngap_IntersystemSONInformation;
+static gint ett_ngap_IntersystemSONInformationRequest;
+static gint ett_ngap_IntersystemCellActivationRequest;
+static gint ett_ngap_CellsToActivateList;
+static gint ett_ngap_IntersystemResourceStatusRequest;
+static gint ett_ngap_ReportingSystem;
+static gint ett_ngap_EUTRAN_ReportingSystemIEs;
+static gint ett_ngap_NGRAN_ReportingSystemIEs;
+static gint ett_ngap_EUTRAN_CellToReportList;
+static gint ett_ngap_EUTRAN_CellToReportItem;
+static gint ett_ngap_NGRAN_CellToReportList;
+static gint ett_ngap_NGRAN_CellToReportItem;
+static gint ett_ngap_ReportType;
+static gint ett_ngap_EventBasedReportingIEs;
+static gint ett_ngap_PeriodicReportingIEs;
+static gint ett_ngap_IntersystemSONInformationReply;
+static gint ett_ngap_IntersystemCellActivationReply;
+static gint ett_ngap_ActivatedCellList;
+static gint ett_ngap_IntersystemResourceStatusReply;
+static gint ett_ngap_IntersystemSONInformationReport;
+static gint ett_ngap_IntersystemCellStateIndication;
+static gint ett_ngap_NotificationCellList;
+static gint ett_ngap_NotificationCell_Item;
+static gint ett_ngap_IntersystemResourceStatusReport;
+static gint ett_ngap_ResourceStatusReportingSystem;
+static gint ett_ngap_EUTRAN_ReportingStatusIEs;
+static gint ett_ngap_EUTRAN_CellReportList;
+static gint ett_ngap_EUTRAN_CellReportItem;
+static gint ett_ngap_EUTRAN_CompositeAvailableCapacityGroup;
+static gint ett_ngap_CompositeAvailableCapacity;
+static gint ett_ngap_EUTRAN_RadioResourceStatus;
+static gint ett_ngap_NGRAN_ReportingStatusIEs;
+static gint ett_ngap_NGRAN_CellReportList;
+static gint ett_ngap_NGRAN_CellReportItem;
+static gint ett_ngap_NGRAN_RadioResourceStatus;
+static gint ett_ngap_InterSystemHOReport;
+static gint ett_ngap_InterSystemHandoverReportType;
+static gint ett_ngap_IntersystemUnnecessaryHO;
+static gint ett_ngap_LAI;
+static gint ett_ngap_LastVisitedCellInformation;
+static gint ett_ngap_LastVisitedCellItem;
+static gint ett_ngap_LastVisitedNGRANCellInformation;
+static gint ett_ngap_LastVisitedPSCellList;
+static gint ett_ngap_LastVisitedPSCellInformation;
+static gint ett_ngap_LocationReportingRequestType;
+static gint ett_ngap_LoggedMDTNr;
+static gint ett_ngap_LoggedMDTTrigger;
+static gint ett_ngap_LTEV2XServicesAuthorized;
+static gint ett_ngap_LTEUESidelinkAggregateMaximumBitrate;
+static gint ett_ngap_MBS_DataForwardingResponseMRBList;
+static gint ett_ngap_MBS_DataForwardingResponseMRBItem;
+static gint ett_ngap_MBS_MappingandDataForwardingRequestList;
+static gint ett_ngap_MBS_MappingandDataForwardingRequestItem;
+static gint ett_ngap_MBS_QoSFlowList;
+static gint ett_ngap_MRB_ProgressInformation;
+static gint ett_ngap_MBS_QoSFlowsToBeSetupList;
+static gint ett_ngap_MBS_QoSFlowsToBeSetupItem;
+static gint ett_ngap_MBS_ServiceArea;
+static gint ett_ngap_MBS_ServiceAreaInformationList;
+static gint ett_ngap_MBS_ServiceAreaInformationItem;
+static gint ett_ngap_MBS_ServiceAreaInformation;
+static gint ett_ngap_MBS_ServiceAreaCellList;
+static gint ett_ngap_MBS_ServiceAreaTAIList;
+static gint ett_ngap_MBS_SessionID;
+static gint ett_ngap_MBSSessionFailedtoSetupList;
+static gint ett_ngap_MBSSessionFailedtoSetupItem;
+static gint ett_ngap_MBS_ActiveSessionInformation_SourcetoTargetList;
+static gint ett_ngap_MBS_ActiveSessionInformation_SourcetoTargetItem;
+static gint ett_ngap_MBS_ActiveSessionInformation_TargettoSourceList;
+static gint ett_ngap_MBS_ActiveSessionInformation_TargettoSourceItem;
+static gint ett_ngap_MBSSessionSetupOrModFailureTransfer;
+static gint ett_ngap_MBSSessionSetupResponseList;
+static gint ett_ngap_MBSSessionSetupResponseItem;
+static gint ett_ngap_MBSSessionSetupOrModRequestTransfer;
+static gint ett_ngap_MBS_SessionFSAIDList;
+static gint ett_ngap_MBSSessionReleaseResponseTransfer;
+static gint ett_ngap_MBSSessionSetupOrModResponseTransfer;
+static gint ett_ngap_MBS_SessionTNLInfo5GC;
+static gint ett_ngap_MBS_SessionTNLInfo5GCList;
+static gint ett_ngap_MBS_SessionTNLInfo5GCItem;
+static gint ett_ngap_MBS_SessionTNLInfoNGRAN;
+static gint ett_ngap_MBS_SessionTNLInfoNGRANList;
+static gint ett_ngap_MBS_SessionTNLInfoNGRANItem;
+static gint ett_ngap_MBS_DistributionReleaseRequestTransfer;
+static gint ett_ngap_MBS_DistributionSetupRequestTransfer;
+static gint ett_ngap_MBS_DistributionSetupResponseTransfer;
+static gint ett_ngap_MBS_DistributionSetupUnsuccessfulTransfer;
+static gint ett_ngap_MBSSessionSetupRequestList;
+static gint ett_ngap_MBSSessionSetupRequestItem;
+static gint ett_ngap_MBSSessionSetuporModifyRequestList;
+static gint ett_ngap_MBSSessionSetuporModifyRequestItem;
+static gint ett_ngap_MBSSessionToReleaseList;
+static gint ett_ngap_MBSSessionToReleaseItem;
+static gint ett_ngap_MobilityRestrictionList;
+static gint ett_ngap_MDT_AlignmentInfo;
+static gint ett_ngap_MDTPLMNList;
+static gint ett_ngap_MDTPLMNModificationList;
+static gint ett_ngap_MDT_Configuration;
+static gint ett_ngap_MDT_Configuration_NR;
+static gint ett_ngap_MDT_Configuration_EUTRA;
+static gint ett_ngap_MDTModeNr;
+static gint ett_ngap_MulticastSessionActivationRequestTransfer;
+static gint ett_ngap_MulticastSessionDeactivationRequestTransfer;
+static gint ett_ngap_MulticastSessionUpdateRequestTransfer;
+static gint ett_ngap_MulticastGroupPagingAreaList;
+static gint ett_ngap_MulticastGroupPagingAreaItem;
+static gint ett_ngap_MBS_AreaTAIList;
+static gint ett_ngap_MulticastGroupPagingArea;
+static gint ett_ngap_UE_PagingList;
+static gint ett_ngap_UE_PagingItem;
+static gint ett_ngap_M1Configuration;
+static gint ett_ngap_M1ThresholdEventA2;
+static gint ett_ngap_M1ThresholdType;
+static gint ett_ngap_M1PeriodicReporting;
+static gint ett_ngap_M4Configuration;
+static gint ett_ngap_M5Configuration;
+static gint ett_ngap_M6Configuration;
+static gint ett_ngap_M7Configuration;
+static gint ett_ngap_MDT_Location_Info;
+static gint ett_ngap_N3IWF_ID;
+static gint ett_ngap_NB_IoT_Paging_eDRXInfo;
+static gint ett_ngap_NGAPIESupportInformationRequestList;
+static gint ett_ngap_NGAPIESupportInformationRequestItem;
+static gint ett_ngap_NGAPIESupportInformationResponseList;
+static gint ett_ngap_NGAPIESupportInformationResponseItem;
+static gint ett_ngap_NgENB_ID;
+static gint ett_ngap_NGRAN_CGI;
+static gint ett_ngap_NGRAN_TNLAssociationToRemoveList;
+static gint ett_ngap_NGRAN_TNLAssociationToRemoveItem;
+static gint ett_ngap_NonDynamic5QIDescriptor;
+static gint ett_ngap_NotAllowedTACs;
+static gint ett_ngap_NPN_AccessInformation;
+static gint ett_ngap_NPN_MobilityInformation;
+static gint ett_ngap_NPN_PagingAssistanceInformation;
+static gint ett_ngap_NPN_Support;
+static gint ett_ngap_NR_CGI;
+static gint ett_ngap_NR_CGIList;
+static gint ett_ngap_NR_CGIListForWarning;
+static gint ett_ngap_NR_PagingeDRXInformation;
+static gint ett_ngap_NRNTNTAIInformation;
+static gint ett_ngap_NRFrequencyBand_List;
+static gint ett_ngap_NRFrequencyBandItem;
+static gint ett_ngap_NRFrequencyInfo;
+static gint ett_ngap_NRV2XServicesAuthorized;
+static gint ett_ngap_NRUESidelinkAggregateMaximumBitrate;
+static gint ett_ngap_OverloadResponse;
+static gint ett_ngap_OverloadStartNSSAIList;
+static gint ett_ngap_OverloadStartNSSAIItem;
+static gint ett_ngap_PacketErrorRate;
+static gint ett_ngap_PagingAssisDataforCEcapabUE;
+static gint ett_ngap_PagingAttemptInformation;
+static gint ett_ngap_PathSwitchRequestAcknowledgeTransfer;
+static gint ett_ngap_PathSwitchRequestSetupFailedTransfer;
+static gint ett_ngap_PathSwitchRequestTransfer;
+static gint ett_ngap_PathSwitchRequestUnsuccessfulTransfer;
+static gint ett_ngap_PC5QoSParameters;
+static gint ett_ngap_PC5QoSFlowList;
+static gint ett_ngap_PC5QoSFlowItem;
+static gint ett_ngap_PC5FlowBitRates;
+static gint ett_ngap_PCIListForMDT;
+static gint ett_ngap_PDUSessionAggregateMaximumBitRate;
+static gint ett_ngap_PDUSessionResourceAdmittedList;
+static gint ett_ngap_PDUSessionResourceAdmittedItem;
+static gint ett_ngap_PDUSessionResourceFailedToModifyListModCfm;
+static gint ett_ngap_PDUSessionResourceFailedToModifyItemModCfm;
+static gint ett_ngap_PDUSessionResourceFailedToModifyListModRes;
+static gint ett_ngap_PDUSessionResourceFailedToModifyItemModRes;
+static gint ett_ngap_PDUSessionResourceFailedToResumeListRESReq;
+static gint ett_ngap_PDUSessionResourceFailedToResumeItemRESReq;
+static gint ett_ngap_PDUSessionResourceFailedToResumeListRESRes;
+static gint ett_ngap_PDUSessionResourceFailedToResumeItemRESRes;
+static gint ett_ngap_PDUSessionResourceFailedToSetupListCxtFail;
+static gint ett_ngap_PDUSessionResourceFailedToSetupItemCxtFail;
+static gint ett_ngap_PDUSessionResourceFailedToSetupListCxtRes;
+static gint ett_ngap_PDUSessionResourceFailedToSetupItemCxtRes;
+static gint ett_ngap_PDUSessionResourceFailedToSetupListHOAck;
+static gint ett_ngap_PDUSessionResourceFailedToSetupItemHOAck;
+static gint ett_ngap_PDUSessionResourceFailedToSetupListPSReq;
+static gint ett_ngap_PDUSessionResourceFailedToSetupItemPSReq;
+static gint ett_ngap_PDUSessionResourceFailedToSetupListSURes;
+static gint ett_ngap_PDUSessionResourceFailedToSetupItemSURes;
+static gint ett_ngap_PDUSessionResourceHandoverList;
+static gint ett_ngap_PDUSessionResourceHandoverItem;
+static gint ett_ngap_PDUSessionResourceInformationList;
+static gint ett_ngap_PDUSessionResourceInformationItem;
+static gint ett_ngap_PDUSessionResourceListCxtRelCpl;
+static gint ett_ngap_PDUSessionResourceItemCxtRelCpl;
+static gint ett_ngap_PDUSessionResourceListCxtRelReq;
+static gint ett_ngap_PDUSessionResourceItemCxtRelReq;
+static gint ett_ngap_PDUSessionResourceListHORqd;
+static gint ett_ngap_PDUSessionResourceItemHORqd;
+static gint ett_ngap_PDUSessionResourceModifyConfirmTransfer;
+static gint ett_ngap_PDUSessionResourceModifyIndicationUnsuccessfulTransfer;
+static gint ett_ngap_PDUSessionResourceModifyRequestTransfer;
+static gint ett_ngap_PDUSessionResourceModifyResponseTransfer;
+static gint ett_ngap_PDUSessionResourceModifyIndicationTransfer;
+static gint ett_ngap_PDUSessionResourceModifyListModCfm;
+static gint ett_ngap_PDUSessionResourceModifyItemModCfm;
+static gint ett_ngap_PDUSessionResourceModifyListModInd;
+static gint ett_ngap_PDUSessionResourceModifyItemModInd;
+static gint ett_ngap_PDUSessionResourceModifyListModReq;
+static gint ett_ngap_PDUSessionResourceModifyItemModReq;
+static gint ett_ngap_PDUSessionResourceModifyListModRes;
+static gint ett_ngap_PDUSessionResourceModifyItemModRes;
+static gint ett_ngap_PDUSessionResourceModifyUnsuccessfulTransfer;
+static gint ett_ngap_PDUSessionResourceNotifyList;
+static gint ett_ngap_PDUSessionResourceNotifyItem;
+static gint ett_ngap_PDUSessionResourceNotifyReleasedTransfer;
+static gint ett_ngap_PDUSessionResourceNotifyTransfer;
+static gint ett_ngap_PDUSessionResourceReleaseCommandTransfer;
+static gint ett_ngap_PDUSessionResourceReleasedListNot;
+static gint ett_ngap_PDUSessionResourceReleasedItemNot;
+static gint ett_ngap_PDUSessionResourceReleasedListPSAck;
+static gint ett_ngap_PDUSessionResourceReleasedItemPSAck;
+static gint ett_ngap_PDUSessionResourceReleasedListPSFail;
+static gint ett_ngap_PDUSessionResourceReleasedItemPSFail;
+static gint ett_ngap_PDUSessionResourceReleasedListRelRes;
+static gint ett_ngap_PDUSessionResourceReleasedItemRelRes;
+static gint ett_ngap_PDUSessionResourceReleaseResponseTransfer;
+static gint ett_ngap_PDUSessionResourceResumeListRESReq;
+static gint ett_ngap_PDUSessionResourceResumeItemRESReq;
+static gint ett_ngap_PDUSessionResourceResumeListRESRes;
+static gint ett_ngap_PDUSessionResourceResumeItemRESRes;
+static gint ett_ngap_PDUSessionResourceSecondaryRATUsageList;
+static gint ett_ngap_PDUSessionResourceSecondaryRATUsageItem;
+static gint ett_ngap_PDUSessionResourceSetupListCxtReq;
+static gint ett_ngap_PDUSessionResourceSetupItemCxtReq;
+static gint ett_ngap_PDUSessionResourceSetupListCxtRes;
+static gint ett_ngap_PDUSessionResourceSetupItemCxtRes;
+static gint ett_ngap_PDUSessionResourceSetupListHOReq;
+static gint ett_ngap_PDUSessionResourceSetupItemHOReq;
+static gint ett_ngap_PDUSessionResourceSetupListSUReq;
+static gint ett_ngap_PDUSessionResourceSetupItemSUReq;
+static gint ett_ngap_PDUSessionResourceSetupListSURes;
+static gint ett_ngap_PDUSessionResourceSetupItemSURes;
+static gint ett_ngap_PDUSessionResourceSetupRequestTransfer;
+static gint ett_ngap_PDUSessionResourceSetupResponseTransfer;
+static gint ett_ngap_PDUSessionResourceSetupUnsuccessfulTransfer;
+static gint ett_ngap_PDUSessionResourceSuspendListSUSReq;
+static gint ett_ngap_PDUSessionResourceSuspendItemSUSReq;
+static gint ett_ngap_PDUSessionResourceSwitchedList;
+static gint ett_ngap_PDUSessionResourceSwitchedItem;
+static gint ett_ngap_PDUSessionResourceToBeSwitchedDLList;
+static gint ett_ngap_PDUSessionResourceToBeSwitchedDLItem;
+static gint ett_ngap_PDUSessionResourceToReleaseListHOCmd;
+static gint ett_ngap_PDUSessionResourceToReleaseItemHOCmd;
+static gint ett_ngap_PDUSessionResourceToReleaseListRelCmd;
+static gint ett_ngap_PDUSessionResourceToReleaseItemRelCmd;
+static gint ett_ngap_PDUSessionUsageReport;
+static gint ett_ngap_PEIPSassistanceInformation;
+static gint ett_ngap_PLMNAreaBasedQMC;
+static gint ett_ngap_PLMNListforQMC;
+static gint ett_ngap_PLMNSupportList;
+static gint ett_ngap_PLMNSupportItem;
+static gint ett_ngap_PNI_NPN_MobilityInformation;
+static gint ett_ngap_PWSFailedCellIDList;
+static gint ett_ngap_QMCConfigInfo;
+static gint ett_ngap_QMCDeactivation;
+static gint ett_ngap_QoEReferenceList;
+static gint ett_ngap_QosCharacteristics;
+static gint ett_ngap_QosFlowAcceptedList;
+static gint ett_ngap_QosFlowAcceptedItem;
+static gint ett_ngap_QosFlowAddOrModifyRequestList;
+static gint ett_ngap_QosFlowAddOrModifyRequestItem;
+static gint ett_ngap_QosFlowAddOrModifyResponseList;
+static gint ett_ngap_QosFlowAddOrModifyResponseItem;
+static gint ett_ngap_QosFlowFeedbackList;
+static gint ett_ngap_QosFlowFeedbackItem;
+static gint ett_ngap_QosFlowInformationList;
+static gint ett_ngap_QosFlowInformationItem;
+static gint ett_ngap_QosFlowLevelQosParameters;
+static gint ett_ngap_QosFlowListWithCause;
+static gint ett_ngap_QosFlowWithCauseItem;
+static gint ett_ngap_QosFlowModifyConfirmList;
+static gint ett_ngap_QosFlowModifyConfirmItem;
+static gint ett_ngap_QosFlowNotifyList;
+static gint ett_ngap_QosFlowNotifyItem;
+static gint ett_ngap_QosFlowParametersList;
+static gint ett_ngap_QosFlowParametersItem;
+static gint ett_ngap_QosFlowPerTNLInformation;
+static gint ett_ngap_QosFlowPerTNLInformationList;
+static gint ett_ngap_QosFlowPerTNLInformationItem;
+static gint ett_ngap_QosFlowSetupRequestList;
+static gint ett_ngap_QosFlowSetupRequestItem;
+static gint ett_ngap_QosFlowListWithDataForwarding;
+static gint ett_ngap_QosFlowItemWithDataForwarding;
+static gint ett_ngap_QosFlowToBeForwardedList;
+static gint ett_ngap_QosFlowToBeForwardedItem;
+static gint ett_ngap_QoSFlowsUsageReportList;
+static gint ett_ngap_QoSFlowsUsageReport_Item;
+static gint ett_ngap_RANStatusTransfer_TransparentContainer;
+static gint ett_ngap_RATRestrictions;
+static gint ett_ngap_RATRestrictions_Item;
+static gint ett_ngap_RecommendedCellsForPaging;
+static gint ett_ngap_RecommendedCellList;
+static gint ett_ngap_RecommendedCellItem;
+static gint ett_ngap_RecommendedRANNodesForPaging;
+static gint ett_ngap_RecommendedRANNodeList;
+static gint ett_ngap_RecommendedRANNodeItem;
+static gint ett_ngap_RedundantPDUSessionInformation;
+static gint ett_ngap_ResetType;
+static gint ett_ngap_RIMInformationTransfer;
+static gint ett_ngap_RIMInformation;
+static gint ett_ngap_ScheduledCommunicationTime;
+static gint ett_ngap_SCTP_TLAs;
+static gint ett_ngap_SecondaryRATUsageInformation;
+static gint ett_ngap_SecondaryRATDataUsageReportTransfer;
+static gint ett_ngap_SecurityContext;
+static gint ett_ngap_SecurityIndication;
+static gint ett_ngap_SecurityResult;
+static gint ett_ngap_SensorMeasurementConfiguration;
+static gint ett_ngap_SensorMeasConfigNameList;
+static gint ett_ngap_SensorMeasConfigNameItem;
+static gint ett_ngap_SensorNameConfig;
+static gint ett_ngap_ServedGUAMIList;
+static gint ett_ngap_ServedGUAMIItem;
+static gint ett_ngap_ServiceAreaInformation;
+static gint ett_ngap_ServiceAreaInformation_Item;
+static gint ett_ngap_SharedNGU_MulticastTNLInformation;
+static gint ett_ngap_SliceOverloadList;
+static gint ett_ngap_SliceOverloadItem;
+static gint ett_ngap_SliceSupportList;
+static gint ett_ngap_SliceSupportItem;
+static gint ett_ngap_SliceSupportListQMC;
+static gint ett_ngap_SliceSupportQMC_Item;
+static gint ett_ngap_SNPN_MobilityInformation;
+static gint ett_ngap_S_NSSAI;
+static gint ett_ngap_SONConfigurationTransfer;
+static gint ett_ngap_SONInformation;
+static gint ett_ngap_SONInformationReply;
+static gint ett_ngap_SONInformationReport;
+static gint ett_ngap_SuccessfulHandoverReportList;
+static gint ett_ngap_SuccessfulHandoverReport_Item;
+static gint ett_ngap_SourceNGRANNode_ToTargetNGRANNode_TransparentContainer;
+static gint ett_ngap_SourceNodeID;
+static gint ett_ngap_SourceRANNodeID;
+static gint ett_ngap_SourceToTarget_AMFInformationReroute;
+static gint ett_ngap_SupportedTAList;
+static gint ett_ngap_SupportedTAItem;
+static gint ett_ngap_TACListInNRNTN;
+static gint ett_ngap_TAI;
+static gint ett_ngap_TAIBroadcastEUTRA;
+static gint ett_ngap_TAIBroadcastEUTRA_Item;
+static gint ett_ngap_TAIBroadcastNR;
+static gint ett_ngap_TAIBroadcastNR_Item;
+static gint ett_ngap_TAICancelledEUTRA;
+static gint ett_ngap_TAICancelledEUTRA_Item;
+static gint ett_ngap_TAICancelledNR;
+static gint ett_ngap_TAICancelledNR_Item;
+static gint ett_ngap_TAIListForInactive;
+static gint ett_ngap_TAIListForInactiveItem;
+static gint ett_ngap_TAIListForPaging;
+static gint ett_ngap_TAIListForPagingItem;
+static gint ett_ngap_TAIListForRestart;
+static gint ett_ngap_TAIListForWarning;
+static gint ett_ngap_TAINSAGSupportList;
+static gint ett_ngap_TAINSAGSupportItem;
+static gint ett_ngap_TargeteNB_ID;
+static gint ett_ngap_TargetHomeENB_ID;
+static gint ett_ngap_TargetID;
+static gint ett_ngap_TargetNGRANNode_ToSourceNGRANNode_TransparentContainer;
+static gint ett_ngap_TargetNGRANNode_ToSourceNGRANNode_FailureTransparentContainer;
+static gint ett_ngap_TargetNSSAI;
+static gint ett_ngap_TargetNSSAI_Item;
+static gint ett_ngap_TargetNSSAIInformation;
+static gint ett_ngap_TargetRANNodeID;
+static gint ett_ngap_TargetRANNodeID_RIM;
+static gint ett_ngap_TargetRANNodeID_SON;
+static gint ett_ngap_TargetRNC_ID;
+static gint ett_ngap_TimeSyncAssistanceInfo;
+static gint ett_ngap_TNGF_ID;
+static gint ett_ngap_TNLAssociationList;
+static gint ett_ngap_TNLAssociationItem;
+static gint ett_ngap_TooearlyIntersystemHO;
+static gint ett_ngap_TraceActivation;
+static gint ett_ngap_TAIBasedMDT;
+static gint ett_ngap_TAIListforMDT;
+static gint ett_ngap_TAIBasedQMC;
+static gint ett_ngap_TAIListforQMC;
+static gint ett_ngap_TABasedQMC;
+static gint ett_ngap_TAListforQMC;
+static gint ett_ngap_TABasedMDT;
+static gint ett_ngap_TAListforMDT;
+static gint ett_ngap_TWIF_ID;
+static gint ett_ngap_TSCAssistanceInformation;
+static gint ett_ngap_TSCTrafficCharacteristics;
+static gint ett_ngap_UEAggregateMaximumBitRate;
+static gint ett_ngap_UEAppLayerMeasInfoList;
+static gint ett_ngap_UEAppLayerMeasInfoItem;
+static gint ett_ngap_UEAppLayerMeasConfigInfo;
+static gint ett_ngap_UE_associatedLogicalNG_connectionList;
+static gint ett_ngap_UE_associatedLogicalNG_connectionItem;
+static gint ett_ngap_UEContextResumeRequestTransfer;
+static gint ett_ngap_UEContextResumeResponseTransfer;
+static gint ett_ngap_UEContextSuspendRequestTransfer;
+static gint ett_ngap_UE_DifferentiationInfo;
+static gint ett_ngap_UEHistoryInformation;
+static gint ett_ngap_UEHistoryInformationFromTheUE;
+static gint ett_ngap_UEIdentityIndexValue;
+static gint ett_ngap_UE_NGAP_IDs;
+static gint ett_ngap_UE_NGAP_ID_pair;
+static gint ett_ngap_UEPagingIdentity;
+static gint ett_ngap_UEPresenceInAreaOfInterestList;
+static gint ett_ngap_UEPresenceInAreaOfInterestItem;
+static gint ett_ngap_UERadioCapabilityForPaging;
+static gint ett_ngap_UERLFReportContainer;
+static gint ett_ngap_UESecurityCapabilities;
+static gint ett_ngap_UESliceMaximumBitRateList;
+static gint ett_ngap_UESliceMaximumBitRateItem;
+static gint ett_ngap_UL_CP_SecurityInformation;
+static gint ett_ngap_UL_NGU_UP_TNLModifyList;
+static gint ett_ngap_UL_NGU_UP_TNLModifyItem;
+static gint ett_ngap_UnavailableGUAMIList;
+static gint ett_ngap_UnavailableGUAMIItem;
+static gint ett_ngap_UPTransportLayerInformation;
+static gint ett_ngap_UPTransportLayerInformationList;
+static gint ett_ngap_UPTransportLayerInformationItem;
+static gint ett_ngap_UPTransportLayerInformationPairList;
+static gint ett_ngap_UPTransportLayerInformationPairItem;
+static gint ett_ngap_UserLocationInformation;
+static gint ett_ngap_UserLocationInformationEUTRA;
+static gint ett_ngap_UserLocationInformationN3IWF;
+static gint ett_ngap_UserLocationInformationTNGF;
+static gint ett_ngap_UserLocationInformationTWIF;
+static gint ett_ngap_UserLocationInformationW_AGF;
+static gint ett_ngap_UserLocationInformationNR;
+static gint ett_ngap_UserPlaneSecurityInformation;
+static gint ett_ngap_VolumeTimedReportList;
+static gint ett_ngap_VolumeTimedReport_Item;
+static gint ett_ngap_W_AGF_ID;
+static gint ett_ngap_WarningAreaList;
+static gint ett_ngap_WLANMeasurementConfiguration;
+static gint ett_ngap_WLANMeasConfigNameList;
+static gint ett_ngap_WLANMeasConfigNameItem;
+static gint ett_ngap_WUS_Assistance_Information;
+static gint ett_ngap_XnExtTLAs;
+static gint ett_ngap_XnExtTLA_Item;
+static gint ett_ngap_XnGTP_TLAs;
+static gint ett_ngap_XnTLAs;
+static gint ett_ngap_XnTNLConfigurationInfo;
+static gint ett_ngap_PDUSessionResourceSetupRequest;
+static gint ett_ngap_PDUSessionResourceSetupResponse;
+static gint ett_ngap_PDUSessionResourceReleaseCommand;
+static gint ett_ngap_PDUSessionResourceReleaseResponse;
+static gint ett_ngap_PDUSessionResourceModifyRequest;
+static gint ett_ngap_PDUSessionResourceModifyResponse;
+static gint ett_ngap_PDUSessionResourceNotify;
+static gint ett_ngap_PDUSessionResourceModifyIndication;
+static gint ett_ngap_PDUSessionResourceModifyConfirm;
+static gint ett_ngap_InitialContextSetupRequest;
+static gint ett_ngap_InitialContextSetupResponse;
+static gint ett_ngap_InitialContextSetupFailure;
+static gint ett_ngap_UEContextReleaseRequest;
+static gint ett_ngap_UEContextReleaseCommand;
+static gint ett_ngap_UEContextReleaseComplete;
+static gint ett_ngap_UEContextResumeRequest;
+static gint ett_ngap_UEContextResumeResponse;
+static gint ett_ngap_UEContextResumeFailure;
+static gint ett_ngap_UEContextSuspendRequest;
+static gint ett_ngap_UEContextSuspendResponse;
+static gint ett_ngap_UEContextSuspendFailure;
+static gint ett_ngap_UEContextModificationRequest;
+static gint ett_ngap_UEContextModificationResponse;
+static gint ett_ngap_UEContextModificationFailure;
+static gint ett_ngap_RRCInactiveTransitionReport;
+static gint ett_ngap_RetrieveUEInformation;
+static gint ett_ngap_UEInformationTransfer;
+static gint ett_ngap_RANCPRelocationIndication;
+static gint ett_ngap_HandoverRequired;
+static gint ett_ngap_HandoverCommand;
+static gint ett_ngap_HandoverPreparationFailure;
+static gint ett_ngap_HandoverRequest;
+static gint ett_ngap_HandoverRequestAcknowledge;
+static gint ett_ngap_HandoverFailure;
+static gint ett_ngap_HandoverNotify;
+static gint ett_ngap_PathSwitchRequest;
+static gint ett_ngap_PathSwitchRequestAcknowledge;
+static gint ett_ngap_PathSwitchRequestFailure;
+static gint ett_ngap_HandoverCancel;
+static gint ett_ngap_HandoverCancelAcknowledge;
+static gint ett_ngap_HandoverSuccess;
+static gint ett_ngap_UplinkRANEarlyStatusTransfer;
+static gint ett_ngap_DownlinkRANEarlyStatusTransfer;
+static gint ett_ngap_UplinkRANStatusTransfer;
+static gint ett_ngap_DownlinkRANStatusTransfer;
+static gint ett_ngap_Paging;
+static gint ett_ngap_InitialUEMessage;
+static gint ett_ngap_DownlinkNASTransport;
+static gint ett_ngap_UplinkNASTransport;
+static gint ett_ngap_NASNonDeliveryIndication;
+static gint ett_ngap_RerouteNASRequest;
+static gint ett_ngap_NGSetupRequest;
+static gint ett_ngap_NGSetupResponse;
+static gint ett_ngap_NGSetupFailure;
+static gint ett_ngap_RANConfigurationUpdate;
+static gint ett_ngap_RANConfigurationUpdateAcknowledge;
+static gint ett_ngap_RANConfigurationUpdateFailure;
+static gint ett_ngap_AMFConfigurationUpdate;
+static gint ett_ngap_AMFConfigurationUpdateAcknowledge;
+static gint ett_ngap_AMFConfigurationUpdateFailure;
+static gint ett_ngap_AMFStatusIndication;
+static gint ett_ngap_NGReset;
+static gint ett_ngap_NGResetAcknowledge;
+static gint ett_ngap_ErrorIndication;
+static gint ett_ngap_OverloadStart;
+static gint ett_ngap_OverloadStop;
+static gint ett_ngap_UplinkRANConfigurationTransfer;
+static gint ett_ngap_DownlinkRANConfigurationTransfer;
+static gint ett_ngap_WriteReplaceWarningRequest;
+static gint ett_ngap_WriteReplaceWarningResponse;
+static gint ett_ngap_PWSCancelRequest;
+static gint ett_ngap_PWSCancelResponse;
+static gint ett_ngap_PWSRestartIndication;
+static gint ett_ngap_PWSFailureIndication;
+static gint ett_ngap_DownlinkUEAssociatedNRPPaTransport;
+static gint ett_ngap_UplinkUEAssociatedNRPPaTransport;
+static gint ett_ngap_DownlinkNonUEAssociatedNRPPaTransport;
+static gint ett_ngap_UplinkNonUEAssociatedNRPPaTransport;
+static gint ett_ngap_TraceStart;
+static gint ett_ngap_TraceFailureIndication;
+static gint ett_ngap_DeactivateTrace;
+static gint ett_ngap_CellTrafficTrace;
+static gint ett_ngap_LocationReportingControl;
+static gint ett_ngap_LocationReportingFailureIndication;
+static gint ett_ngap_LocationReport;
+static gint ett_ngap_UETNLABindingReleaseRequest;
+static gint ett_ngap_UERadioCapabilityInfoIndication;
+static gint ett_ngap_UERadioCapabilityCheckRequest;
+static gint ett_ngap_UERadioCapabilityCheckResponse;
+static gint ett_ngap_PrivateMessage;
+static gint ett_ngap_SecondaryRATDataUsageReport;
+static gint ett_ngap_UplinkRIMInformationTransfer;
+static gint ett_ngap_DownlinkRIMInformationTransfer;
+static gint ett_ngap_ConnectionEstablishmentIndication;
+static gint ett_ngap_UERadioCapabilityIDMappingRequest;
+static gint ett_ngap_UERadioCapabilityIDMappingResponse;
+static gint ett_ngap_AMFCPRelocationIndication;
+static gint ett_ngap_BroadcastSessionSetupRequest;
+static gint ett_ngap_BroadcastSessionSetupResponse;
+static gint ett_ngap_BroadcastSessionSetupFailure;
+static gint ett_ngap_BroadcastSessionModificationRequest;
+static gint ett_ngap_BroadcastSessionModificationResponse;
+static gint ett_ngap_BroadcastSessionModificationFailure;
+static gint ett_ngap_BroadcastSessionReleaseRequest;
+static gint ett_ngap_BroadcastSessionReleaseRequired;
+static gint ett_ngap_BroadcastSessionReleaseResponse;
+static gint ett_ngap_DistributionSetupRequest;
+static gint ett_ngap_DistributionSetupResponse;
+static gint ett_ngap_DistributionSetupFailure;
+static gint ett_ngap_DistributionReleaseRequest;
+static gint ett_ngap_DistributionReleaseResponse;
+static gint ett_ngap_MulticastSessionActivationRequest;
+static gint ett_ngap_MulticastSessionActivationResponse;
+static gint ett_ngap_MulticastSessionActivationFailure;
+static gint ett_ngap_MulticastSessionDeactivationRequest;
+static gint ett_ngap_MulticastSessionDeactivationResponse;
+static gint ett_ngap_MulticastSessionUpdateRequest;
+static gint ett_ngap_MulticastSessionUpdateResponse;
+static gint ett_ngap_MulticastSessionUpdateFailure;
+static gint ett_ngap_MulticastGroupPaging;
+static gint ett_ngap_NGAP_PDU;
+static gint ett_ngap_InitiatingMessage;
+static gint ett_ngap_SuccessfulOutcome;
+static gint ett_ngap_UnsuccessfulOutcome;
 
-static expert_field ei_ngap_number_pages_le15 = EI_INIT;
+static expert_field ei_ngap_number_pages_le15;
 
 enum{
   INITIATING_MESSAGE,

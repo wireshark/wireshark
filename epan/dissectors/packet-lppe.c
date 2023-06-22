@@ -38,2270 +38,2270 @@ void proto_register_lppe(void);
 void proto_reg_handoff_lppe(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_lppe = -1;
+static int proto_lppe;
 
 static dissector_handle_t xml_handle;
 
-static int hf_lppe_OMA_LPPe_MessageExtension_PDU = -1;  /* OMA_LPPe_MessageExtension */
-static int hf_lppe_lppeCompatibilityLevel = -1;   /* OMA_LPPe_LPPeCompatibilityLevel */
-static int hf_lppe_lppeVersion = -1;              /* OMA_LPPe_LPPeVersion */
-static int hf_lppe_lppeMode = -1;                 /* OMA_LPPe_LPPeMode */
-static int hf_lppe_messageExtensionBody = -1;     /* OMA_LPPe_MessageExtensionBody */
-static int hf_lppe_majorVersion = -1;             /* INTEGER_0_255 */
-static int hf_lppe_minorVersion = -1;             /* INTEGER_0_255 */
-static int hf_lppe_requestCapabilities = -1;      /* OMA_LPPe_RequestCapabilities */
-static int hf_lppe_provideCapabilities = -1;      /* OMA_LPPe_ProvideCapabilities */
-static int hf_lppe_requestAssistanceData = -1;    /* OMA_LPPe_RequestAssistanceData */
-static int hf_lppe_provideAssistanceData = -1;    /* OMA_LPPe_ProvideAssistanceData */
-static int hf_lppe_requestLocationInformation = -1;  /* OMA_LPPe_RequestLocationInformation */
-static int hf_lppe_provideLocationInformation = -1;  /* OMA_LPPe_ProvideLocationInformation */
-static int hf_lppe_error = -1;                    /* OMA_LPPe_Error */
-static int hf_lppe_abort = -1;                    /* OMA_LPPe_Abort */
-static int hf_lppe_commonIEsRequestCapabilities = -1;  /* OMA_LPPe_CommonIEsRequestCapabilities */
-static int hf_lppe_agnss_RequestCapabilities = -1;  /* OMA_LPPe_AGNSS_RequestCapabilities */
-static int hf_lppe_otdoa_RequestCapabilities = -1;  /* OMA_LPPe_OTDOA_RequestCapabilities */
-static int hf_lppe_eotd_RequestCapabilities = -1;  /* OMA_LPPe_EOTD_RequestCapabilities */
-static int hf_lppe_otdoa_utra_RequestCapabilities = -1;  /* OMA_LPPe_OTDOA_UTRA_RequestCapabilities */
-static int hf_lppe_ecid_lte_RequestCapabilities = -1;  /* OMA_LPPe_ECID_LTE_RequestCapabilities */
-static int hf_lppe_ecid_gsm_RequestCapabilities = -1;  /* OMA_LPPe_ECID_GSM_RequestCapabilities */
-static int hf_lppe_ecid_utra_RequestCapabilities = -1;  /* OMA_LPPe_ECID_UTRA_RequestCapabilities */
-static int hf_lppe_wlan_ap_RequestCapabilities = -1;  /* OMA_LPPe_WLAN_AP_RequestCapabilities */
-static int hf_lppe_ecid_wimax_RequestCapabilities = -1;  /* OMA_LPPe_ECID_WiMax_RequestCapabilities */
-static int hf_lppe_sensor_RequestCapabilities = -1;  /* OMA_LPPe_Sensor_RequestCapabilities */
-static int hf_lppe_srn_RequestCapabilities = -1;  /* OMA_LPPe_SRN_RequestCapabilities */
-static int hf_lppe_commonIEsProvideCapabilities = -1;  /* OMA_LPPe_CommonIEsProvideCapabilities */
-static int hf_lppe_agnss_ProvideCapabilities = -1;  /* OMA_LPPe_AGNSS_ProvideCapabilities */
-static int hf_lppe_otdoa_ProvideCapabilities = -1;  /* OMA_LPPe_OTDOA_ProvideCapabilities */
-static int hf_lppe_eotd_ProvideCapabilities = -1;  /* OMA_LPPe_EOTD_ProvideCapabilities */
-static int hf_lppe_otdoa_utra_ProvideCapabilities = -1;  /* OMA_LPPe_OTDOA_UTRA_ProvideCapabilities */
-static int hf_lppe_ecid_lte_ProvideCapabilities = -1;  /* OMA_LPPe_ECID_LTE_ProvideCapabilities */
-static int hf_lppe_ecid_gsm_ProvideCapabilities = -1;  /* OMA_LPPe_ECID_GSM_ProvideCapabilities */
-static int hf_lppe_ecid_utra_ProvideCapabilities = -1;  /* OMA_LPPe_ECID_UTRA_ProvideCapabilities */
-static int hf_lppe_wlan_ap_ProvideCapabilities = -1;  /* OMA_LPPe_WLAN_AP_ProvideCapabilities */
-static int hf_lppe_ecid_wimax_ProvideCapabilities = -1;  /* OMA_LPPe_ECID_WiMax_ProvideCapabilities */
-static int hf_lppe_sensor_ProvideCapabilities = -1;  /* OMA_LPPe_Sensor_ProvideCapabilities */
-static int hf_lppe_srn_ProvideCapabilities = -1;  /* OMA_LPPe_SRN_ProvideCapabilities */
-static int hf_lppe_commonIEsRequestAssistanceData = -1;  /* OMA_LPPe_CommonIEsRequestAssistanceData */
-static int hf_lppe_agnss_RequestAssistanceData = -1;  /* OMA_LPPe_AGNSS_RequestAssistanceData */
-static int hf_lppe_otdoa_RequestAssistanceData = -1;  /* OMA_LPPe_OTDOA_RequestAssistanceData */
-static int hf_lppe_eotd_RequestAssistanceData = -1;  /* OMA_LPPe_EOTD_RequestAssistanceData */
-static int hf_lppe_otdoa_utra_RequestAssistanceData = -1;  /* OMA_LPPe_OTDOA_UTRA_RequestAssistanceData */
-static int hf_lppe_ecid_lte_RequestAssistanceData = -1;  /* OMA_LPPe_ECID_LTE_RequestAssistanceData */
-static int hf_lppe_ecid_gsm_RequestAssistanceData = -1;  /* OMA_LPPe_ECID_GSM_RequestAssistanceData */
-static int hf_lppe_ecid_utra_RequestAssistanceData = -1;  /* OMA_LPPe_ECID_UTRA_RequestAssistanceData */
-static int hf_lppe_wlan_ap_RequestAssistanceData = -1;  /* OMA_LPPe_WLAN_AP_RequestAssistanceData */
-static int hf_lppe_sensor_RequestAssistanceData = -1;  /* OMA_LPPe_Sensor_RequestAssistanceData */
-static int hf_lppe_srn_RequestAssistanceData = -1;  /* OMA_LPPe_SRN_RequestAssistanceData */
-static int hf_lppe_commonIEsProvideAssistanceData = -1;  /* OMA_LPPe_CommonIEsProvideAssistanceData */
-static int hf_lppe_agnss_ProvideAssistanceData = -1;  /* OMA_LPPe_AGNSS_ProvideAssistanceData */
-static int hf_lppe_otdoa_ProvideAssistanceData = -1;  /* OMA_LPPe_OTDOA_ProvideAssistanceData */
-static int hf_lppe_eotd_ProvideAssistanceData = -1;  /* OMA_LPPe_EOTD_ProvideAssistanceData */
-static int hf_lppe_otdoa_utra_ProvideAssistanceData = -1;  /* OMA_LPPe_OTDOA_UTRA_ProvideAssistanceData */
-static int hf_lppe_ecid_lte_ProvideAssistanceData = -1;  /* OMA_LPPe_ECID_LTE_ProvideAssistanceData */
-static int hf_lppe_ecid_gsm_ProvideAssistanceData = -1;  /* OMA_LPPe_ECID_GSM_ProvideAssistanceData */
-static int hf_lppe_ecid_utra_ProvideAssistanceData = -1;  /* OMA_LPPe_ECID_UTRA_ProvideAssistanceData */
-static int hf_lppe_wlan_ap_ProvideAssistanceData = -1;  /* OMA_LPPe_WLAN_AP_ProvideAssistanceData */
-static int hf_lppe_sensor_ProvideAssistanceData = -1;  /* OMA_LPPe_Sensor_ProvideAssistanceData */
-static int hf_lppe_srn_ProvideAssistanceData = -1;  /* OMA_LPPe_SRN_ProvideAssistanceData */
-static int hf_lppe_commonIEsRequestLocationInformation = -1;  /* OMA_LPPe_CommonIEsRequestLocationInformation */
-static int hf_lppe_agnss_RequestLocationInformation = -1;  /* OMA_LPPe_AGNSS_RequestLocationInformation */
-static int hf_lppe_otdoa_RequestLocationInformation = -1;  /* OMA_LPPe_OTDOA_RequestLocationInformation */
-static int hf_lppe_eotd_RequestLocationInformation = -1;  /* OMA_LPPe_EOTD_RequestLocationInformation */
-static int hf_lppe_otdoa_utra_RequestLocationInformation = -1;  /* OMA_LPPe_OTDOA_UTRA_RequestLocationInformation */
-static int hf_lppe_ecid_lte_RequestLocationInformation = -1;  /* OMA_LPPe_ECID_LTE_RequestLocationInformation */
-static int hf_lppe_ecid_gsm_RequestLocationInformation = -1;  /* OMA_LPPe_ECID_GSM_RequestLocationInformation */
-static int hf_lppe_ecid_utra_RequestLocationInformation = -1;  /* OMA_LPPe_ECID_UTRA_RequestLocationInformation */
-static int hf_lppe_wlan_ap_RequestLocationInformation = -1;  /* OMA_LPPe_WLAN_AP_RequestLocationInformation */
-static int hf_lppe_ecid_wimax_RequestLocationInformation = -1;  /* OMA_LPPe_ECID_WiMax_RequestLocationInformation */
-static int hf_lppe_sensor_RequestLocationInformation = -1;  /* OMA_LPPe_Sensor_RequestLocationInformation */
-static int hf_lppe_srn_RequestLocationInformation = -1;  /* OMA_LPPe_SRN_RequestLocationInformation */
-static int hf_lppe_commonIEsProvideLocationInformation = -1;  /* OMA_LPPe_CommonIEsProvideLocationInformation */
-static int hf_lppe_agnss_ProvideLocationInformation = -1;  /* OMA_LPPe_AGNSS_ProvideLocationInformation */
-static int hf_lppe_otdoa_ProvideLocationInformation = -1;  /* OMA_LPPe_OTDOA_ProvideLocationInformation */
-static int hf_lppe_eotd_ProvideLocationInformation = -1;  /* OMA_LPPe_EOTD_ProvideLocationInformation */
-static int hf_lppe_otdoa_utra_ProvideLocationInformation = -1;  /* OMA_LPPe_OTDOA_UTRA_ProvideLocationInformation */
-static int hf_lppe_ecid_lte_ProvideLocationInformation = -1;  /* OMA_LPPe_ECID_LTE_ProvideLocationInformation */
-static int hf_lppe_ecid_gsm_ProvideLocationInformation = -1;  /* OMA_LPPe_ECID_GSM_ProvideLocationInformation */
-static int hf_lppe_ecid_utra_ProvideLocationInformation = -1;  /* OMA_LPPe_ECID_UTRA_ProvideLocationInformation */
-static int hf_lppe_wlan_ap_ProvideLocationInformastion = -1;  /* OMA_LPPe_WLAN_AP_ProvideLocationInformation */
-static int hf_lppe_ecid_wimax_ProvideLocationInformastion = -1;  /* OMA_LPPe_ECID_WiMax_ProvideLocationInformation */
-static int hf_lppe_sensor_ProvideLocationInformation = -1;  /* OMA_LPPe_Sensor_ProvideLocationInformation */
-static int hf_lppe_srn_ProvideLocationInformation = -1;  /* OMA_LPPe_SRN_ProvideLocationInformation */
-static int hf_lppe_commonIEsAbort = -1;           /* OMA_LPPe_CommonIEsAbort */
-static int hf_lppe_agnssAbort = -1;               /* OMA_LPPe_AGNSS_Abort */
-static int hf_lppe_commonIEsError = -1;           /* OMA_LPPe_CommonIEsError */
-static int hf_lppe_dataSerialNumber = -1;         /* INTEGER_0_4294967295 */
-static int hf_lppe_containerID = -1;              /* INTEGER_0_65535 */
-static int hf_lppe_OMA_LPPe_AssistanceContainerProvideList_item = -1;  /* OMA_LPPe_AssistanceContainerProvide */
-static int hf_lppe_dataIdentifier = -1;           /* OMA_LPPe_VendorOrOperatorAssistanceDataIdentifier */
-static int hf_lppe_checkOrUpdateOrError = -1;     /* T_checkOrUpdateOrError */
-static int hf_lppe_dataResult = -1;               /* T_dataResult */
-static int hf_lppe_simulationResult = -1;         /* INTEGER_0_5000 */
-static int hf_lppe_data = -1;                     /* OMA_LPPe_AssistanceContainerData */
-static int hf_lppe_errorCode = -1;                /* OMA_LPPe_AssistanceContainerProvideError */
-static int hf_lppe_dataSerialNumber_01 = -1;      /* OMA_LPPe_AssistanceContainer_DataSerialNumber */
-static int hf_lppe_data_01 = -1;                  /* OCTET_STRING */
-static int hf_lppe_validityPeriod = -1;           /* OMA_LPPe_ValidityPeriod */
-static int hf_lppe_validityArea = -1;             /* OMA_LPPe_ValidityArea */
-static int hf_lppe_serverError = -1;              /* T_serverError */
-static int hf_lppe_OMA_LPPe_AssistanceContainerRequestList_item = -1;  /* OMA_LPPe_AssistanceContainerRequest */
-static int hf_lppe_simulatedReq = -1;             /* BOOLEAN */
-static int hf_lppe_checkOrUpdateReq = -1;         /* OMA_LPPe_AssistanceContainerCheckOrUpdateReq */
-static int hf_lppe_validityTimeRequest = -1;      /* OMA_LPPe_ValidityPeriod */
-static int hf_lppe_proprietaryRequestParameters = -1;  /* OCTET_STRING */
-static int hf_lppe_checkLatest = -1;              /* T_checkLatest */
-static int hf_lppe_locationAreaCode = -1;         /* BIT_STRING_SIZE_16 */
-static int hf_lppe_cellIdentity = -1;             /* BIT_STRING_SIZE_16 */
-static int hf_lppe_bsic = -1;                     /* INTEGER_0_63 */
-static int hf_lppe_bcch = -1;                     /* INTEGER_0_1023 */
-static int hf_lppe_countryCode = -1;              /* OCTET_STRING_SIZE_2 */
-static int hf_lppe_civicAddressElementList = -1;  /* OMA_LPPe_CivicAddressElementList */
-static int hf_lppe_OMA_LPPe_CivicAddressElementList_item = -1;  /* OMA_LPPe_CivicAddressElement */
-static int hf_lppe_caType = -1;                   /* INTEGER_0_511 */
-static int hf_lppe_caValue = -1;                  /* OCTET_STRING_SIZE_1_256 */
-static int hf_lppe_civicLocation = -1;            /* T_civicLocation */
-static int hf_lppe_duration = -1;                 /* INTEGER_1_63 */
-static int hf_lppe_durationLSB = -1;              /* INTEGER_1_89 */
-static int hf_lppe_latitude = -1;                 /* INTEGER_M2147483648_2147483647 */
-static int hf_lppe_longitude = -1;                /* INTEGER_M2147483648_2147483647 */
-static int hf_lppe_cep = -1;                      /* INTEGER_0_255 */
-static int hf_lppe_uncertainty_semimajor = -1;    /* INTEGER_0_255 */
-static int hf_lppe_uncertainty_semiminor = -1;    /* INTEGER_0_255 */
-static int hf_lppe_offset_angle = -1;             /* INTEGER_0_179 */
-static int hf_lppe_confidenceHorizontal = -1;     /* INTEGER_0_99 */
-static int hf_lppe_altitude = -1;                 /* INTEGER_M64000_1280000 */
-static int hf_lppe_uncertainty_altitude = -1;     /* INTEGER_0_255 */
-static int hf_lppe_confidenceVertical = -1;       /* INTEGER_0_99 */
-static int hf_lppe_extUncertRange = -1;           /* BOOLEAN */
-static int hf_lppe_enu_origin = -1;               /* OMA_LPPe_HighAccuracy3Dposition */
-static int hf_lppe_east_component = -1;           /* INTEGER_0_511 */
-static int hf_lppe_negative_sign_east = -1;       /* NULL */
-static int hf_lppe_north_component = -1;          /* INTEGER_0_511 */
-static int hf_lppe_negative_sign_north = -1;      /* NULL */
-static int hf_lppe_up_component = -1;             /* INTEGER_0_511 */
-static int hf_lppe_negative_sign_up = -1;         /* NULL */
-static int hf_lppe_uncertainty_up_component = -1;  /* INTEGER_0_255 */
-static int hf_lppe_confidenceUp = -1;             /* INTEGER_0_99 */
-static int hf_lppe_vendorOrOperatorID = -1;       /* OMA_LPPe_VendorOrOperatorID */
-static int hf_lppe_locationInformationContainerDataList = -1;  /* OMA_LPPe_LocationInformationContainerDataList */
-static int hf_lppe_OMA_LPPe_LocationInformationContainerDataList_item = -1;  /* OMA_LPPe_LocationInformationContainerData */
-static int hf_lppe_containerID_01 = -1;           /* OMA_LPPe_LocationInformationContainerID */
-static int hf_lppe_containerData = -1;            /* OCTET_STRING */
-static int hf_lppe_locationInformationContainerRequestList = -1;  /* OMA_LPPe_LocationInformationContainerRequestList */
-static int hf_lppe_OMA_LPPe_LocationInformationContainerRequestList_item = -1;  /* OMA_LPPe_LocationInformationContainerRequestItem */
-static int hf_lppe_additionalInformation = -1;    /* OCTET_STRING */
-static int hf_lppe_dataID = -1;                   /* OMA_LPPe_AssistanceContainerID */
-static int hf_lppe_mapReference = -1;             /* OCTET_STRING_SIZE_1_64 */
-static int hf_lppe_mapSize = -1;                  /* INTEGER_1_5000 */
-static int hf_lppe_eulerAngles = -1;              /* T_eulerAngles */
-static int hf_lppe_alpha = -1;                    /* INTEGER_0_359 */
-static int hf_lppe_beta = -1;                     /* INTEGER_0_180 */
-static int hf_lppe_gamma = -1;                    /* INTEGER_0_359 */
-static int hf_lppe_referencePointUniqueID = -1;   /* OMA_LPPe_ReferencePointUniqueID */
-static int hf_lppe_referencePointGeographicLocation = -1;  /* T_referencePointGeographicLocation */
-static int hf_lppe_location3D = -1;               /* EllipsoidPointWithAltitude */
-static int hf_lppe_location3DwithUncertainty = -1;  /* EllipsoidPointWithAltitudeAndUncertaintyEllipsoid */
-static int hf_lppe_locationwithhighaccuracy = -1;  /* OMA_LPPe_HighAccuracy3Dposition */
-static int hf_lppe_referencePointCivicLocation = -1;  /* OMA_LPPe_CivicLocation */
-static int hf_lppe_referencePointFloorLevel = -1;  /* INTEGER_M20_235 */
-static int hf_lppe_relatedReferencePoints = -1;   /* SEQUENCE_SIZE_1_8_OF_OMA_LPPe_ReferencePointRelationship */
-static int hf_lppe_relatedReferencePoints_item = -1;  /* OMA_LPPe_ReferencePointRelationship */
-static int hf_lppe_mapDataInformation = -1;       /* OMA_LPPe_MapDataInformation */
-static int hf_lppe_OMA_LPPe_MapDataInformation_item = -1;  /* OMA_LPPe_MapDataReferenceElement */
-static int hf_lppe_mapDataUrl_choice = -1;        /* T_mapDataUrl_choice */
-static int hf_lppe_mapDataUrl = -1;               /* OMA_LPPe_Uri */
-static int hf_lppe_mapDataRef = -1;               /* OMA_LPPe_MapDataReference */
-static int hf_lppe_mapProvider = -1;              /* T_mapProvider */
-static int hf_lppe_sameAsRefPointProvider = -1;   /* NULL */
-static int hf_lppe_notSameAsRefPointProvider = -1;  /* OMA_LPPe_VendorOrOperatorID */
-static int hf_lppe_mapAssociation = -1;           /* T_mapAssociation */
-static int hf_lppe_referencePointUniqueID_01 = -1;  /* NULL */
-static int hf_lppe_otherID = -1;                  /* VisibleString_SIZE_1_64 */
-static int hf_lppe_mapOffset = -1;                /* OMA_LPPe_RelativeLocation */
-static int hf_lppe_origin = -1;                   /* NULL */
-static int hf_lppe_mapHorizontalOrientation = -1;  /* INTEGER_0_359 */
-static int hf_lppe_relativeLocation = -1;         /* OMA_LPPe_RelativeLocation */
-static int hf_lppe_providerID = -1;               /* OMA_LPPe_VendorOrOperatorID */
-static int hf_lppe_providerAssignedID = -1;       /* OCTET_STRING */
-static int hf_lppe_version = -1;                  /* INTEGER_1_64 */
-static int hf_lppe_units = -1;                    /* T_units */
-static int hf_lppe_arc_second_units = -1;         /* T_arc_second_units */
-static int hf_lppe_relativeNorth = -1;            /* INTEGER_M524288_524287 */
-static int hf_lppe_relativeEast = -1;             /* INTEGER_M524288_524287 */
-static int hf_lppe_relativeAltitude = -1;         /* OMA_LPPe_RelativeAltitude */
-static int hf_lppe_horizontalUncertainty = -1;    /* OMA_LPPe_HorizontalUncertaintyAndConfidence */
-static int hf_lppe_uncShape = -1;                 /* T_uncShape */
-static int hf_lppe_circle = -1;                   /* INTEGER_0_127 */
-static int hf_lppe_ellipse = -1;                  /* T_ellipse */
-static int hf_lppe_semimajor = -1;                /* INTEGER_0_127 */
-static int hf_lppe_semiminor = -1;                /* INTEGER_0_127 */
-static int hf_lppe_offsetAngle = -1;              /* INTEGER_0_179 */
-static int hf_lppe_confidence = -1;               /* INTEGER_0_99 */
-static int hf_lppe_geodeticRelativeAltitude = -1;  /* OMA_LPPe_GeodeticRelativeAltitude */
-static int hf_lppe_civicRelativeAltitude = -1;    /* OMA_LPPe_CivicRelativeAltitude */
-static int hf_lppe_geodetic_height_depth = -1;    /* INTEGER_M32768_32767 */
-static int hf_lppe_geodetic_uncertainty_and_confidence = -1;  /* OMA_LPPe_GeodeticUncertaintyAndConfidence */
-static int hf_lppe_uncertainty = -1;              /* INTEGER_0_127 */
-static int hf_lppe_civic_floors = -1;             /* INTEGER_M255_256 */
-static int hf_lppe_civic_uncertainty_and_confidence = -1;  /* OMA_LPPe_CivicUncertaintyAndConfidence */
-static int hf_lppe_provider_ID = -1;              /* OMA_LPPe_VendorOrOperatorID */
-static int hf_lppe_server_ID = -1;                /* OCTET_STRING_SIZE_4 */
-static int hf_lppe_session_ID = -1;               /* OCTET_STRING_SIZE_4 */
-static int hf_lppe_regionSizeInv = -1;            /* INTEGER_1_255 */
-static int hf_lppe_areaWidth = -1;                /* INTEGER_2_9180 */
-static int hf_lppe_codedLatOfNWCorner = -1;       /* INTEGER_0_4589 */
-static int hf_lppe_codedLonOfNWCorner = -1;       /* INTEGER_0_9179 */
-static int hf_lppe_rleList = -1;                  /* OMA_LPPe_RleList */
-static int hf_lppe_OMA_LPPe_RleList_item = -1;    /* INTEGER_0_255 */
-static int hf_lppe_beginTime = -1;                /* GNSS_SystemTime */
-static int hf_lppe_beginTimeAlt = -1;             /* INTEGER_0_2881 */
-static int hf_lppe_duration_01 = -1;              /* INTEGER_1_2881 */
-static int hf_lppe_assistanceDataID = -1;         /* OMA_LPPe_AssistanceContainerID */
-static int hf_lppe_standard_VendorOrOperatorID = -1;  /* INTEGER_1_1024 */
-static int hf_lppe_nonStandard_VendorOrOperatorID = -1;  /* OMA_LPPe_NonStandard_VendorOrOperatorID */
-static int hf_lppe_encodedID = -1;                /* INTEGER_0_65535 */
-static int hf_lppe_visibleIdentification = -1;    /* OMA_LPPe_CharArray */
-static int hf_lppe_apMacAddress = -1;             /* BIT_STRING_SIZE_48 */
-static int hf_lppe_truncation = -1;               /* INTEGER_M127_128 */
-static int hf_lppe_areaType = -1;                 /* T_areaType */
-static int hf_lppe_componentList = -1;            /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_WLANFemtoCoverageAreaElement */
-static int hf_lppe_componentList_item = -1;       /* OMA_LPPe_WLANFemtoCoverageAreaElement */
-static int hf_lppe_refPointAndArea = -1;          /* T_refPointAndArea */
-static int hf_lppe_referenceLocation = -1;        /* T_referenceLocation */
-static int hf_lppe_referencePoint = -1;           /* OMA_LPPe_ReferencePointUniqueID */
-static int hf_lppe_locationAndArea = -1;          /* OMA_LPPe_RelativeLocation */
-static int hf_lppe_type = -1;                     /* T_type */
-static int hf_lppe_weight = -1;                   /* INTEGER_0_100 */
-static int hf_lppe_iP_Address_RequestCapabilities = -1;  /* OMA_LPPe_IP_Address_RequestCapabilities */
-static int hf_lppe_assistanceContainerSupportReq = -1;  /* OMA_LPPe_AssistanceContainerSupportReq */
-static int hf_lppe_locationInformationContainerSupportReq = -1;  /* OMA_LPPe_LocationInformationContainerSupportReq */
-static int hf_lppe_relativeLocationChange_RequestCapabilities = -1;  /* OMA_LPPe_RelativeLocationChange_RequestCapabilities */
-static int hf_lppe_highAccuracyFormatCapabilitiesReq = -1;  /* OMA_LPPe_HighAccuracyFormatCapabilitiesReq */
-static int hf_lppe_segmentedAssistanceData_ReqCapabilities = -1;  /* OMA_LPPe_SegmentedAssistanceData_ReqCapabilities */
-static int hf_lppe_referencePointCapabilitiesReq = -1;  /* OMA_LPPe_ReferencePointCapabilitiesReq */
-static int hf_lppe_scheduledLocation_RequestCapabilities = -1;  /* OMA_LPPe_ScheduledLocation_RequestCapabilities */
-static int hf_lppe_accessCapabilitiesReq = -1;    /* OMA_LPPe_AccessCapabilitiesReq */
-static int hf_lppe_segmentedLocationInformation_ReqCapabilities = -1;  /* OMA_LPPe_SegmentedLocationInformation_ReqCapabilities */
-static int hf_lppe_vendorOrOperatorIDList = -1;   /* OMA_LPPe_VendorOrOperatorIDList */
-static int hf_lppe_OMA_LPPe_VendorOrOperatorIDList_item = -1;  /* OMA_LPPe_VendorOrOperatorID */
-static int hf_lppe_referencePointProviderSupportListReq = -1;  /* SEQUENCE_SIZE_1_128_OF_OMA_LPPe_VendorOrOperatorID */
-static int hf_lppe_referencePointProviderSupportListReq_item = -1;  /* OMA_LPPe_VendorOrOperatorID */
-static int hf_lppe_iP_Address_Capabilities = -1;  /* OMA_LPPe_IP_Address_Capabilities */
-static int hf_lppe_assistanceContainerSupport = -1;  /* OMA_LPPe_AssistanceContainerSupport */
-static int hf_lppe_locationInformationContainerSupport = -1;  /* OMA_LPPe_LocationInformationContainerSupport */
-static int hf_lppe_relativeLocationChange_Capabilities = -1;  /* OMA_LPPe_RelativeLocationChange_Capabilities */
-static int hf_lppe_highAccuracyFormatCapabilities = -1;  /* OMA_LPPe_HighAccuracyFormatCapabilities */
-static int hf_lppe_segmentedAssistanceData_ProvideCapabs = -1;  /* OMA_LPPe_SegmentedAssistanceData_ProvideCapabs */
-static int hf_lppe_referencePointCapabilities = -1;  /* OMA_LPPe_ReferencePointCapabilities */
-static int hf_lppe_scheduledLocation_Capabilities = -1;  /* OMA_LPPe_ScheduledLocation_Capabilities */
-static int hf_lppe_accessCapabilities = -1;       /* OMA_LPPe_AccessCapabilities */
-static int hf_lppe_segmentedLocationInformation_ProvideCapabs = -1;  /* OMA_LPPe_SegmentedLocationInformation_ProvideCapabs */
-static int hf_lppe_iP_Address_support = -1;       /* T_iP_Address_support */
-static int hf_lppe_OMA_LPPe_AssistanceContainerSupport_item = -1;  /* OMA_LPPe_VendorOrOperatorAssistanceContainerList */
-static int hf_lppe_assistanceContainerList = -1;  /* OMA_LPPe_AssistanceContainerList */
-static int hf_lppe_OMA_LPPe_AssistanceContainerList_item = -1;  /* OMA_LPPe_AssistanceContainerID */
-static int hf_lppe_OMA_LPPe_LocationInformationContainerSupport_item = -1;  /* OMA_LPPe_VendorOrOperatorLocationInformationContainerList */
-static int hf_lppe_locationInformationContainerList = -1;  /* OMA_LPPe_LocationInformationContainerList */
-static int hf_lppe_OMA_LPPe_LocationInformationContainerList_item = -1;  /* OMA_LPPe_LocationInformationContainerID */
-static int hf_lppe_numberOfChanges = -1;          /* INTEGER_1_5 */
-static int hf_lppe_maxSegments = -1;              /* INTEGER_2_4096 */
-static int hf_lppe_maxSize = -1;                  /* INTEGER_1_5000 */
-static int hf_lppe_minSize = -1;                  /* INTEGER_1_5000 */
-static int hf_lppe_resume = -1;                   /* NULL */
-static int hf_lppe_relativeLocationReportingSupport = -1;  /* T_relativeLocationReportingSupport */
-static int hf_lppe_referencePointProviderSupportList = -1;  /* SEQUENCE_SIZE_1_128_OF_OMA_LPPe_ReferencePointProviderSupportElement */
-static int hf_lppe_referencePointProviderSupportList_item = -1;  /* OMA_LPPe_ReferencePointProviderSupportElement */
-static int hf_lppe_referencePointProvider = -1;   /* OMA_LPPe_VendorOrOperatorID */
-static int hf_lppe_mapDataSupport = -1;           /* T_mapDataSupport */
-static int hf_lppe_mapDataFormat = -1;            /* OCTET_STRING */
-static int hf_lppe_minimumWindow = -1;            /* INTEGER_1_1024 */
-static int hf_lppe_gnssTimeReference = -1;        /* GNSS_ID_Bitmap */
-static int hf_lppe_networkTimeReference = -1;     /* T_networkTimeReference */
-static int hf_lppe_accessTypeUnknown = -1;        /* NULL */
-static int hf_lppe_fixedAccessTypes = -1;         /* OMA_LPPe_FixedAccessTypes */
-static int hf_lppe_wirelessAccessTypes = -1;      /* OMA_LPPe_WirelessAccessTypes */
-static int hf_lppe_approximate_location = -1;     /* EllipsoidPointWithAltitudeAndUncertaintyEllipsoid */
-static int hf_lppe_assistanceContainerRequestList = -1;  /* OMA_LPPe_AssistanceContainerRequestList */
-static int hf_lppe_requestPeriodicADwithUpdate = -1;  /* OMA_LPPe_RequestPeriodicADwithUpdate */
-static int hf_lppe_segmentedADpreference = -1;    /* T_segmentedADpreference */
-static int hf_lppe_segmentedADResume = -1;        /* OMA_LPPe_SegmentedADResume */
-static int hf_lppe_referencePointAssistanceReq = -1;  /* OMA_LPPe_ReferencePointAssistanceReq */
-static int hf_lppe_periodicAD_session_ID = -1;    /* OCTET_STRING_SIZE_4 */
-static int hf_lppe_typeOfADRequest = -1;          /* TypeOfADRequest */
-static int hf_lppe_segmentedAD_session_ID = -1;   /* OMA_LPPe_Session_ID */
-static int hf_lppe_next_segment_number = -1;      /* INTEGER_1_4096 */
-static int hf_lppe_referencePointReq = -1;        /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_ReferencePointAssistanceReqElement */
-static int hf_lppe_referencePointReq_item = -1;   /* OMA_LPPe_ReferencePointAssistanceReqElement */
-static int hf_lppe_mapDataReq = -1;               /* OCTET_STRING */
-static int hf_lppe_assistanceContainerList_01 = -1;  /* OMA_LPPe_AssistanceContainerProvideList */
-static int hf_lppe_providePeriodicADwithUpdate = -1;  /* OMA_LPPe_ProvidePeriodicADwithUpdate */
-static int hf_lppe_segmentedADTransfer = -1;      /* OMA_LPPe_SegmentedADTransfer */
-static int hf_lppe_default_reference_point = -1;  /* OMA_LPPe_ReferencePoint */
-static int hf_lppe_typeOfADProvide = -1;          /* OMA_LPPe_TypeOfADProvide */
-static int hf_lppe_segment_number = -1;           /* INTEGER_1_4096 */
-static int hf_lppe_iP_Address_Request = -1;       /* OMA_LPPe_IP_Address_Request */
-static int hf_lppe_locationInformationContainerRequest = -1;  /* OMA_LPPe_LocationInformationContainerRequest */
-static int hf_lppe_requestPeriodicLocInfoWithUpdate = -1;  /* OMA_LPPe_RequestPeriodicLocInfoWithUpdate */
-static int hf_lppe_relativeLocationChange_Request = -1;  /* OMA_LPPe_RelativeLocationChange_Request */
-static int hf_lppe_localPositionRequest = -1;     /* OMA_LPPe_LocalPositionRequest */
-static int hf_lppe_scheduledLocation_Request = -1;  /* OMA_LPPe_ScheduledLocation_Request */
-static int hf_lppe_accessTypeRequest = -1;        /* OMA_LPPe_AccessTypeRequest */
-static int hf_lppe_segmentedLIpreference = -1;    /* T_segmentedLIpreference */
-static int hf_lppe_segmentedLIResume = -1;        /* OMA_LPPe_SegmentedLIResume */
-static int hf_lppe_civicLocation_Request = -1;    /* OMA_LPPe_CivicLocation_Request */
-static int hf_lppe_typeOfLocInfoRequest = -1;     /* OMA_LPPe_TypeOfLocInfoRequest */
-static int hf_lppe_typeOfRequest = -1;            /* T_typeOfRequest */
-static int hf_lppe_referencePointReq_01 = -1;     /* SEQUENCE_SIZE_1_8_OF_OMA_LPPe_ReferencePointUniqueID */
-static int hf_lppe_referencePointReq_item_01 = -1;  /* OMA_LPPe_ReferencePointUniqueID */
-static int hf_lppe_gnssTime = -1;                 /* GNSS_SystemTime */
-static int hf_lppe_networkTime = -1;              /* NetworkTime */
-static int hf_lppe_relativeTime = -1;             /* INTEGER_1_1024 */
-static int hf_lppe_windowSize = -1;               /* INTEGER_1_1024 */
-static int hf_lppe_segmentedLI_session_ID = -1;   /* INTEGER_1_256 */
-static int hf_lppe_format = -1;                   /* T_format */
-static int hf_lppe_highAccuracy3Dposition = -1;   /* OMA_LPPe_HighAccuracy3Dposition */
-static int hf_lppe_localPosition = -1;            /* OMA_LPPe_LocalPosition */
-static int hf_lppe_highAccuracy3Dvelocity = -1;   /* OMA_LPPe_HighAccuracy3Dvelocity */
-static int hf_lppe_iP_Address_List = -1;          /* OMA_LPPe_IP_Address_List */
-static int hf_lppe_locationInformationContainer = -1;  /* OMA_LPPe_LocationInformationContainer */
-static int hf_lppe_providePeriodicLocInfoWithUpdate = -1;  /* OMA_LPPe_ProvidePeriodicLocInfowithUpdate */
-static int hf_lppe_relativeLocationChangeList = -1;  /* OMA_LPPe_RelativeLocationChangeList */
-static int hf_lppe_scheduledLocation = -1;        /* OMA_LPPe_ScheduledLocation */
-static int hf_lppe_accessTypes = -1;              /* OMA_LPPe_AccessTypes */
-static int hf_lppe_segmentedLITransfer = -1;      /* OMA_LPPe_SegmentedLITransfer */
-static int hf_lppe_locationInformationTimeStamp = -1;  /* OMA_LPPe_TimeStamp */
-static int hf_lppe_locationSource = -1;           /* OMA_LPPe_LocationSource */
-static int hf_lppe_civicLocation_pidf_lo = -1;    /* OMA_LPPe_CivicLocation_pidf_lo */
-static int hf_lppe_subjectLocation = -1;          /* OMA_LPPe_RelativeLocation */
-static int hf_lppe_OMA_LPPe_IP_Address_List_item = -1;  /* OMA_LPPe_IP_Address */
-static int hf_lppe_local_IP_Address = -1;         /* T_local_IP_Address */
-static int hf_lppe_iPv4 = -1;                     /* BIT_STRING_SIZE_32 */
-static int hf_lppe_iPv6 = -1;                     /* BIT_STRING_SIZE_128 */
-static int hf_lppe_bearer = -1;                   /* OMA_LPPe_Bearer */
-static int hf_lppe_nat = -1;                      /* BOOLEAN */
-static int hf_lppe_typeOfLocInfoProvide = -1;     /* OMA_LPPe_TypeOfLocInfoProvide */
-static int hf_lppe_OMA_LPPe_RelativeLocationChangeList_item = -1;  /* OMA_LPPe_RelativeLocationChange */
-static int hf_lppe_relativeTime_01 = -1;          /* INTEGER_0_65535 */
-static int hf_lppe_transactionID = -1;            /* INTEGER_0_255 */
-static int hf_lppe_disposition = -1;              /* T_disposition */
-static int hf_lppe_actualWindow = -1;             /* T_actualWindow */
-static int hf_lppe_start = -1;                    /* INTEGER_M512_511 */
-static int hf_lppe_duration_02 = -1;              /* INTEGER_0_2047 */
-static int hf_lppe_relativeTime_02 = -1;          /* INTEGER_0_1024 */
-static int hf_lppe_agnss = -1;                    /* NULL */
-static int hf_lppe_otdoa = -1;                    /* NULL */
-static int hf_lppe_eotd = -1;                     /* NULL */
-static int hf_lppe_otdoaUTRA = -1;                /* NULL */
-static int hf_lppe_ecidLTE = -1;                  /* NULL */
-static int hf_lppe_ecidGSM = -1;                  /* NULL */
-static int hf_lppe_ecidUTRA = -1;                 /* NULL */
-static int hf_lppe_wlanAP = -1;                   /* NULL */
-static int hf_lppe_srn = -1;                      /* NULL */
-static int hf_lppe_sensors = -1;                  /* NULL */
-static int hf_lppe_nr_dl_tdoa = -1;               /* NULL */
-static int hf_lppe_nr_dl_aod = -1;                /* NULL */
-static int hf_lppe_ecidNR = -1;                   /* NULL */
-static int hf_lppe_bt = -1;                       /* NULL */
-static int hf_lppe_mbs = -1;                      /* NULL */
-static int hf_lppe_baro_sensor = -1;              /* NULL */
-static int hf_lppe_motion_sensor = -1;            /* NULL */
-static int hf_lppe_abortCause = -1;               /* T_abortCause */
-static int hf_lppe_periodicSessionIDtoAbort = -1;  /* OCTET_STRING_SIZE_4 */
-static int hf_lppe_commonAssistData = -1;         /* OMA_LPPe_AGNSS_CommonAssistData */
-static int hf_lppe_genericAssistData = -1;        /* OMA_LPPe_AGNSS_GenericAssistData */
-static int hf_lppe_error_01 = -1;                 /* OMA_LPPe_AGNSS_Error */
-static int hf_lppe_ionosphericModel = -1;         /* OMA_LPPe_AGNSS_IonosphericModel */
-static int hf_lppe_troposphereModel = -1;         /* OMA_LPPe_AGNSS_TroposphereModel */
-static int hf_lppe_altitudeAssistance = -1;       /* OMA_LPPe_AGNSS_AltitudeAssistanceList */
-static int hf_lppe_solarRadiation = -1;           /* OMA_LPPe_AGNSS_SolarRadiation */
-static int hf_lppe_ccpAssistCommonProvide = -1;   /* OMA_LPPe_AGNSS_CCPassistCommonProvide */
-static int hf_lppe_OMA_LPPe_AGNSS_GenericAssistData_item = -1;  /* OMA_LPPe_AGNSS_GenericAssistDataElement */
-static int hf_lppe_gnss_ID = -1;                  /* GNSS_ID */
-static int hf_lppe_wideAreaIonoSurfacePerSVlist = -1;  /* OMA_LPPe_AGNSS_WideAreaIonoSurfacePerSVlist */
-static int hf_lppe_mechanicsForAllSVs = -1;       /* OMA_LPPe_AGNSS_MechanicsForAllSVs */
-static int hf_lppe_dcbsForAllSVs = -1;            /* OMA_LPPe_AGNSS_DCBsForAllSVs */
-static int hf_lppe_navModelDegradationModel = -1;  /* OMA_LPPe_AGNSS_NavModelDegradationModelList */
-static int hf_lppe_ccpAssistProvide = -1;         /* OMA_LPPe_AGNSS_CCPassistGenericProvide */
-static int hf_lppe_navModelList = -1;             /* OMA_LPPe_AGNSS_NavModelList */
-static int hf_lppe_staticModels = -1;             /* T_staticModels */
-static int hf_lppe_localKlobucharModelList = -1;  /* OMA_LPPe_AGNSS_LocalKlobucharModelList */
-static int hf_lppe_ionoStormIndication = -1;      /* OMA_LPPe_AGNSS_IonoStormIndication */
-static int hf_lppe_waIono = -1;                   /* T_waIono */
-static int hf_lppe_controlParameters = -1;        /* OMA_LPPe_AGNSS_WideAreaIonoSurfaceControlParametersProvide */
-static int hf_lppe_commonProvide = -1;            /* OMA_LPPe_AGNSS_WideAreaIonoSurfaceCommon */
-static int hf_lppe_OMA_LPPe_AGNSS_LocalKlobucharModelList_item = -1;  /* OMA_LPPe_AGNSS_LocalKlobucharModelElement */
-static int hf_lppe_klobucharModel = -1;           /* SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_LocalKlobucharModel */
-static int hf_lppe_klobucharModel_item = -1;      /* OMA_LPPe_AGNSS_LocalKlobucharModel */
-static int hf_lppe_alfa0 = -1;                    /* INTEGER_M128_127 */
-static int hf_lppe_alfa1 = -1;                    /* INTEGER_M128_127 */
-static int hf_lppe_alfa2 = -1;                    /* INTEGER_M128_127 */
-static int hf_lppe_alfa3 = -1;                    /* INTEGER_M128_127 */
-static int hf_lppe_beta0 = -1;                    /* INTEGER_M128_127 */
-static int hf_lppe_beta1 = -1;                    /* INTEGER_M128_127 */
-static int hf_lppe_beta2 = -1;                    /* INTEGER_M128_127 */
-static int hf_lppe_beta3 = -1;                    /* INTEGER_M128_127 */
-static int hf_lppe_area = -1;                     /* OMA_LPPe_ValidityArea */
-static int hf_lppe_stormList = -1;                /* OMA_LPPe_AGNSS_StormList */
-static int hf_lppe_OMA_LPPe_AGNSS_StormList_item = -1;  /* OMA_LPPe_AGNSS_StormElement */
-static int hf_lppe_rleListIono = -1;              /* OMA_LPPe_AGNSS_RleListIono */
-static int hf_lppe_OMA_LPPe_AGNSS_RleListIono_item = -1;  /* OMA_LPPe_AGNSS_RleIonoElement */
-static int hf_lppe_regionCount = -1;              /* INTEGER_0_255 */
-static int hf_lppe_ionoIndex = -1;                /* T_ionoIndex */
-static int hf_lppe_noaaScales = -1;               /* OMA_LPPe_AGNSS_NoaaScales */
-static int hf_lppe_duration_03 = -1;              /* OMA_LPPe_Duration */
-static int hf_lppe_rate = -1;                     /* INTEGER_1_64 */
-static int hf_lppe_referencePosition = -1;        /* Ellipsoid_Point */
-static int hf_lppe_OMA_LPPe_AGNSS_WideAreaIonoSurfacePerSVlist_item = -1;  /* OMA_LPPe_AGNSS_WideAreaIonoSurfacePerSVelement */
-static int hf_lppe_svID = -1;                     /* SV_ID */
-static int hf_lppe_a0 = -1;                       /* INTEGER_0_8191 */
-static int hf_lppe_e1 = -1;                       /* INTEGER_M4096_4095 */
-static int hf_lppe_n1 = -1;                       /* INTEGER_M4096_4095 */
-static int hf_lppe_e2 = -1;                       /* INTEGER_M4096_4095 */
-static int hf_lppe_n2 = -1;                       /* INTEGER_M4096_4095 */
-static int hf_lppe_en = -1;                       /* INTEGER_M4096_4095 */
-static int hf_lppe_troposphereDelayList = -1;     /* OMA_LPPe_AGNSS_LocalTroposphereDelayList */
-static int hf_lppe_surfaceParametersList = -1;    /* OMA_LPPe_AGNSS_LocalSurfaceParametersList */
-static int hf_lppe_OMA_LPPe_AGNSS_LocalTroposphereDelayList_item = -1;  /* OMA_LPPe_AGNSS_LocalTroposphereDelayAreaElement */
-static int hf_lppe_refAltitude = -1;              /* INTEGER_M1000_8192 */
-static int hf_lppe_gradientReferencePosition = -1;  /* Ellipsoid_Point */
-static int hf_lppe_delayList = -1;                /* SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_LocalTroposphereDelayTimeElement */
-static int hf_lppe_delayList_item = -1;           /* OMA_LPPe_AGNSS_LocalTroposphereDelayTimeElement */
-static int hf_lppe_zh0 = -1;                      /* INTEGER_0_4095 */
-static int hf_lppe_eh = -1;                       /* INTEGER_0_4095 */
-static int hf_lppe_zw0 = -1;                      /* INTEGER_0_4095 */
-static int hf_lppe_ew = -1;                       /* INTEGER_0_4095 */
-static int hf_lppe_gN = -1;                       /* INTEGER_M8192_8191 */
-static int hf_lppe_gE = -1;                       /* INTEGER_M8192_8191 */
-static int hf_lppe_mappingFunctionParameters = -1;  /* OMA_LPPe_AGNSS_MappingFunctionParameters */
-static int hf_lppe_OMA_LPPe_AGNSS_LocalSurfaceParametersList_item = -1;  /* OMA_LPPe_AGNSS_LocalSurfaceParametersAreaElement */
-static int hf_lppe_parameterList = -1;            /* SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_LocalSurfaceParametersTimeElement */
-static int hf_lppe_parameterList_item = -1;       /* OMA_LPPe_AGNSS_LocalSurfaceParametersTimeElement */
-static int hf_lppe_pressure = -1;                 /* INTEGER_M1024_1023 */
-static int hf_lppe_pressureRate = -1;             /* INTEGER_M128_127 */
-static int hf_lppe_gN_pressure = -1;              /* INTEGER_M128_127 */
-static int hf_lppe_gE_pressure = -1;              /* INTEGER_M128_127 */
-static int hf_lppe_temperature = -1;              /* INTEGER_M64_63 */
-static int hf_lppe_temperatureRate = -1;          /* INTEGER_M16_16 */
-static int hf_lppe_gN_temperature = -1;           /* INTEGER_M8_7 */
-static int hf_lppe_gE_temperature = -1;           /* INTEGER_M8_7 */
-static int hf_lppe_ah = -1;                       /* INTEGER_0_16383 */
-static int hf_lppe_bh = -1;                       /* INTEGER_0_16383 */
-static int hf_lppe_ch = -1;                       /* INTEGER_0_16383 */
-static int hf_lppe_aw = -1;                       /* INTEGER_0_16383 */
-static int hf_lppe_bw = -1;                       /* INTEGER_0_16383 */
-static int hf_lppe_cw = -1;                       /* INTEGER_0_16383 */
-static int hf_lppe_OMA_LPPe_AGNSS_AltitudeAssistanceList_item = -1;  /* OMA_LPPe_AGNSS_AltitudeAssistanceAreaElement */
-static int hf_lppe_gradientReferencePosition_01 = -1;  /* EllipsoidPointWithAltitudeAndUncertaintyEllipsoid */
-static int hf_lppe_pressureAssistanceList = -1;   /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_AGNSS_PressureAssistanceElement */
-static int hf_lppe_pressureAssistanceList_item = -1;  /* OMA_LPPe_AGNSS_PressureAssistanceElement */
-static int hf_lppe_gN_01 = -1;                    /* INTEGER_M128_127 */
-static int hf_lppe_gE_01 = -1;                    /* INTEGER_M128_127 */
-static int hf_lppe_solarRadiation_01 = -1;        /* INTEGER_1000_2000 */
-static int hf_lppe_OMA_LPPe_AGNSS_MechanicsForAllSVs_item = -1;  /* OMA_LPPe_AGNSS_MechanicsElement */
-static int hf_lppe_svid = -1;                     /* SV_ID */
-static int hf_lppe_mass = -1;                     /* INTEGER_1_4095 */
-static int hf_lppe_effectiveReflectivityArea = -1;  /* INTEGER_1_511 */
-static int hf_lppe_pco = -1;                      /* OMA_LPPe_AGNSS_PCOelement */
-static int hf_lppe_svInfo = -1;                   /* T_svInfo */
-static int hf_lppe_svType = -1;                   /* OMA_LPPe_AGNSS_SVtype */
-static int hf_lppe_svNumber = -1;                 /* INTEGER_0_1000 */
-static int hf_lppe_xOffsetSBF = -1;               /* INTEGER_M30000_30000 */
-static int hf_lppe_yOffsetSBF = -1;               /* INTEGER_M30000_30000 */
-static int hf_lppe_zOffsetSBF = -1;               /* INTEGER_M30000_30000 */
-static int hf_lppe_OMA_LPPe_AGNSS_DCBsForAllSVs_item = -1;  /* OMA_LPPe_AGNSS_DCBlistElement */
-static int hf_lppe_reference = -1;                /* T_reference */
-static int hf_lppe_signal = -1;                   /* GNSS_SignalID */
-static int hf_lppe_pd = -1;                       /* T_pd */
-static int hf_lppe_dcbList = -1;                  /* OMA_LPPe_AGNSS_DCBlist */
-static int hf_lppe_OMA_LPPe_AGNSS_DCBlist_item = -1;  /* OMA_LPPe_AGNSS_DCBelement */
-static int hf_lppe_pd_01 = -1;                    /* T_pd_01 */
-static int hf_lppe_dcb = -1;                      /* INTEGER_M4096_4095 */
-static int hf_lppe_OMA_LPPe_AGNSS_NavModelDegradationModelList_item = -1;  /* OMA_LPPe_AGNSS_NavModelDegradationModelElement */
-static int hf_lppe_clockDegradationModel = -1;    /* OMA_LPPe_AGNSS_ClockModelDegradationModel */
-static int hf_lppe_orbitDegradationModel = -1;    /* OMA_LPPe_AGNSS_OrbitModelDegradationModel */
-static int hf_lppe_clockRMS0 = -1;                /* INTEGER_0_31 */
-static int hf_lppe_clockRMS1 = -1;                /* INTEGER_0_7 */
-static int hf_lppe_orbitRMS0 = -1;                /* INTEGER_0_31 */
-static int hf_lppe_orbitRMS1 = -1;                /* INTEGER_0_7 */
-static int hf_lppe_ccpProvideCommonParameters = -1;  /* OMA_LPPe_AGNSS_CCPprovideCommonParameters */
-static int hf_lppe_ccpProvideControlParameters = -1;  /* OMA_LPPe_AGNSS_CCPprovideControlParameters */
-static int hf_lppe_ccpReferenceTime = -1;         /* GNSS_SystemTime */
-static int hf_lppe_ccpSupportArea = -1;           /* OMA_LPPe_AGNSS_CCPsupportArea */
-static int hf_lppe_ccpNeighborList = -1;          /* OMA_LPPe_AGNSS_CCPreferenceStationList */
-static int hf_lppe_ccpReferenceStationList = -1;  /* OMA_LPPe_AGNSS_CCPreferenceStationList */
-static int hf_lppe_areaDescription = -1;          /* OMA_LPPe_ValidityArea */
-static int hf_lppe_signalSupport = -1;            /* SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_CCPsignalSupport */
-static int hf_lppe_signalSupport_item = -1;       /* OMA_LPPe_AGNSS_CCPsignalSupport */
-static int hf_lppe_gnss = -1;                     /* GNSS_ID */
-static int hf_lppe_signals = -1;                  /* GNSS_SignalIDs */
-static int hf_lppe_OMA_LPPe_AGNSS_CCPreferenceStationList_item = -1;  /* OMA_LPPe_AGNSS_CCPreferenceStationElement */
-static int hf_lppe_referenceStationID = -1;       /* OMA_LPPe_AGNSS_CCPreferenceStationID */
-static int hf_lppe_referenceStationLocation = -1;  /* OMA_LPPe_HighAccuracy3Dposition */
-static int hf_lppe_antennaDescription = -1;       /* OMA_LPPe_AGNSS_AntennaDescription */
-static int hf_lppe_OMA_LPPe_AGNSS_CCPassistGenericProvide_item = -1;  /* OMA_LPPe_AGNSS_CCPassistGenericProvideElement */
-static int hf_lppe_ccpPerSignalList = -1;         /* SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_CCPperSignalElement */
-static int hf_lppe_ccpPerSignalList_item = -1;    /* OMA_LPPe_AGNSS_CCPperSignalElement */
-static int hf_lppe_signal_ID = -1;                /* GNSS_SignalID */
-static int hf_lppe_ccpPerSVlist = -1;             /* SEQUENCE_SIZE_1_64_OF_OMA_LPPe_AGNSS_CCPperSVelement */
-static int hf_lppe_ccpPerSVlist_item = -1;        /* OMA_LPPe_AGNSS_CCPperSVelement */
-static int hf_lppe_integerCodePhase = -1;         /* INTEGER_0_255 */
-static int hf_lppe_codePhase = -1;                /* INTEGER_0_14989622 */
-static int hf_lppe_codePhaseError = -1;           /* OMA_LPPe_AGNSS_CodePhaseError */
-static int hf_lppe_phaseRangeDelta = -1;          /* INTEGER_M524288_524287 */
-static int hf_lppe_phaseRangeRMSerror = -1;       /* INTEGER_0_127 */
-static int hf_lppe_lockIndicator = -1;            /* BOOLEAN */
-static int hf_lppe_codePhaseRMSError = -1;        /* INTEGER_0_63 */
-static int hf_lppe_cnr = -1;                      /* INTEGER_0_255 */
-static int hf_lppe_coordinateBased = -1;          /* OMA_LPPe_AGNSS_NavModel_CoordinateBased */
-static int hf_lppe_fixedInterval = -1;            /* T_fixedInterval */
-static int hf_lppe_interval = -1;                 /* INTEGER_1_30 */
-static int hf_lppe_bases = -1;                    /* T_bases */
-static int hf_lppe_baseForPosVel = -1;            /* INTEGER_M100000000_100000000 */
-static int hf_lppe_baseForCcRate = -1;            /* OMA_LPPe_AGNSS_NavModel_BigNumber */
-static int hf_lppe_referencedTo = -1;             /* T_referencedTo */
-static int hf_lppe_pointList = -1;                /* SEQUENCE_SIZE_1_97_OF_OMA_LPPe_AGNSS_NavModel_CoordinateBasedElement */
-static int hf_lppe_pointList_item = -1;           /* OMA_LPPe_AGNSS_NavModel_CoordinateBasedElement */
-static int hf_lppe_time_of_record = -1;           /* GNSS_SystemTime */
-static int hf_lppe_svIdList = -1;                 /* SEQUENCE_SIZE_1_64_OF_OMA_LPPe_AGNSS_NavModel_PVTelement */
-static int hf_lppe_svIdList_item = -1;            /* OMA_LPPe_AGNSS_NavModel_PVTelement */
-static int hf_lppe_svClockOffset = -1;            /* OMA_LPPe_AGNSS_NavModel_BigNumber */
-static int hf_lppe_ecefPositionX = -1;            /* OMA_LPPe_AGNSS_NavModel_BigNumber */
-static int hf_lppe_ecefPositionY = -1;            /* OMA_LPPe_AGNSS_NavModel_BigNumber */
-static int hf_lppe_ecefPositionZ = -1;            /* OMA_LPPe_AGNSS_NavModel_BigNumber */
-static int hf_lppe_clockPosSTD = -1;              /* OMA_LPPe_AGNSS_NavModel_STDmatrix */
-static int hf_lppe_rateRecord = -1;               /* T_rateRecord */
-static int hf_lppe_svClockRate = -1;              /* OMA_LPPe_AGNSS_NavModel_BigNumber */
-static int hf_lppe_ecefVelocityX = -1;            /* OMA_LPPe_AGNSS_NavModel_BigNumber */
-static int hf_lppe_ecefVelocityY = -1;            /* OMA_LPPe_AGNSS_NavModel_BigNumber */
-static int hf_lppe_ecefVelocityZ = -1;            /* OMA_LPPe_AGNSS_NavModel_BigNumber */
-static int hf_lppe_clockRateVelSTD = -1;          /* OMA_LPPe_AGNSS_NavModel_STDmatrix */
-static int hf_lppe_msb = -1;                      /* INTEGER_M1000000000_1000000000 */
-static int hf_lppe_lsb = -1;                      /* INTEGER_1_100 */
-static int hf_lppe_e11 = -1;                      /* INTEGER_0_1000 */
-static int hf_lppe_e22 = -1;                      /* INTEGER_0_1000 */
-static int hf_lppe_e33 = -1;                      /* INTEGER_0_1000 */
-static int hf_lppe_e44 = -1;                      /* INTEGER_0_1000000 */
-static int hf_lppe_e12 = -1;                      /* INTEGER_0_10000000 */
-static int hf_lppe_e13 = -1;                      /* INTEGER_0_10000000 */
-static int hf_lppe_e14 = -1;                      /* INTEGER_0_10000000 */
-static int hf_lppe_e23 = -1;                      /* INTEGER_0_10000000 */
-static int hf_lppe_e24 = -1;                      /* INTEGER_0_10000000 */
-static int hf_lppe_e34 = -1;                      /* INTEGER_0_10000000 */
-static int hf_lppe_commonAssistDataReq = -1;      /* OMA_LPPe_AGNSS_CommonAssistanceDataReq */
-static int hf_lppe_genericAssistDataReq = -1;     /* OMA_LPPe_AGNSS_GenericAssistanceDataReq */
-static int hf_lppe_ionosphericModelReq = -1;      /* OMA_LPPe_AGNSS_IonosphericModelReq */
-static int hf_lppe_troposphereModelReq = -1;      /* OMA_LPPe_AGNSS_TroposphereModelReq */
-static int hf_lppe_altitudeAssistanceReq = -1;    /* OMA_LPPe_AGNSS_AltitudeAssistanceReq */
-static int hf_lppe_solarRadiationRequest = -1;    /* OMA_LPPe_AGNSS_SolarRadiationReq */
-static int hf_lppe_ccpRequestControlParameters = -1;  /* OMA_LPPe_AGNSS_CCPrequestControlParameters */
-static int hf_lppe_OMA_LPPe_AGNSS_GenericAssistanceDataReq_item = -1;  /* OMA_LPPe_AGNSS_GenericAssistDataReqElement */
-static int hf_lppe_waIonoSurfaceReq = -1;         /* OMA_LPPe_AGNSS_WaIonoSurfaceRequest */
-static int hf_lppe_mechanicsReq = -1;             /* OMA_LPPe_AGNSS_MechanicsReq */
-static int hf_lppe_dcbReq = -1;                   /* OMA_LPPe_AGNSS_DCBreq */
-static int hf_lppe_navModelDegradationModelReq = -1;  /* OMA_LPPe_AGNSS_NavModelDegradationModelReq */
-static int hf_lppe_ccpAssistGenericReq = -1;      /* OMA_LPPe_AGNSS_CCPassistGenericReq */
-static int hf_lppe_navigationModelReq = -1;       /* OMA_LPPe_AGNSS_NavigationModelReq */
-static int hf_lppe_staticModels_01 = -1;          /* T_staticModels_01 */
-static int hf_lppe_ionoreq = -1;                  /* T_ionoreq */
-static int hf_lppe_requestBeginTime = -1;         /* GNSS_SystemTime */
-static int hf_lppe_periodicModels = -1;           /* T_periodicModels */
-static int hf_lppe_waIonoSurface = -1;            /* OMA_LPPe_AGNSS_WideAreaIonoSurfaceControlParametersRequest */
-static int hf_lppe_troposphereModelReq_01 = -1;   /* T_troposphereModelReq */
-static int hf_lppe_supportForMultipleGridPoints = -1;  /* BOOLEAN */
-static int hf_lppe_reference_01 = -1;             /* T_reference_01 */
-static int hf_lppe_pd_02 = -1;                    /* T_pd_02 */
-static int hf_lppe_massRequest = -1;              /* BOOLEAN */
-static int hf_lppe_effectiveReflectivityAreaRequest = -1;  /* BOOLEAN */
-static int hf_lppe_pcoRequest = -1;               /* BOOLEAN */
-static int hf_lppe_svInfoRequest = -1;            /* BOOLEAN */
-static int hf_lppe_ccpSupportAreaRequest = -1;    /* NULL */
-static int hf_lppe_ccpNeighborListRequest = -1;   /* NULL */
-static int hf_lppe_ccpCommonRequest = -1;         /* T_ccpCommonRequest */
-static int hf_lppe_refStation = -1;               /* T_refStation */
-static int hf_lppe_posBasedReferenceStationRequest = -1;  /* T_posBasedReferenceStationRequest */
-static int hf_lppe_requestedReferenceStationLocation = -1;  /* OMA_LPPe_HighAccuracy3Dposition */
-static int hf_lppe_qor = -1;                      /* OMA_LPPe_AGNSS_QoR */
-static int hf_lppe_idBasedReferenceStationRequest = -1;  /* OMA_LPPe_AGNSS_ReferenceStationIDlist */
-static int hf_lppe_referenceStationKillList = -1;  /* OMA_LPPe_AGNSS_ReferenceStationIDlist */
-static int hf_lppe_OMA_LPPe_AGNSS_ReferenceStationIDlist_item = -1;  /* OMA_LPPe_AGNSS_CCPreferenceStationID */
-static int hf_lppe_ccpAssist_SignalsReq = -1;     /* GNSS_SignalIDs */
-static int hf_lppe_navModelID_PrefList = -1;      /* T_navModelID_PrefList */
-static int hf_lppe_navModelID_PrefList_item = -1;  /* INTEGER_1_8 */
-static int hf_lppe_highAccuracyReferenceTime = -1;  /* GNSS_SystemTime */
-static int hf_lppe_highAccuracyMeasurements = -1;  /* OMA_LPPe_AGNSS_HAgnssProvide */
-static int hf_lppe_ionosphereMeasurements = -1;   /* OMA_LPPe_AGNSS_IonosphereMeasurements */
-static int hf_lppe_localSurfaceMeasurements = -1;  /* OMA_LPPe_AGNSS_LocalSurfaceMeasurements */
-static int hf_lppe_controlParameters_01 = -1;     /* T_controlParameters */
-static int hf_lppe_measurements = -1;             /* T_measurements */
-static int hf_lppe_position = -1;                 /* EllipsoidPointWithAltitudeAndUncertaintyEllipsoid */
-static int hf_lppe_referenceTime = -1;            /* GNSS_SystemTime */
-static int hf_lppe_localPressure = -1;            /* T_localPressure */
-static int hf_lppe_pressureUncertainty = -1;      /* INTEGER_0_127 */
-static int hf_lppe_antennaOrientation = -1;       /* OMA_LPPe_Orientation */
-static int hf_lppe_signalMeasurements = -1;       /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_AGNSS_HAgnssMeasurementElement */
-static int hf_lppe_signalMeasurements_item = -1;  /* OMA_LPPe_AGNSS_HAgnssMeasurementElement */
-static int hf_lppe_haGNSSperSignalList = -1;      /* SEQUENCE_SIZE_1_8_OF_OMA_LPPe_HAgnssPerSignalElement */
-static int hf_lppe_haGNSSperSignalList_item = -1;  /* OMA_LPPe_HAgnssPerSignalElement */
-static int hf_lppe_haGNSSperSVlist = -1;          /* SEQUENCE_SIZE_1_64_OF_OMA_LPPe_HAgnssPerSVelement */
-static int hf_lppe_haGNSSperSVlist_item = -1;     /* OMA_LPPe_HAgnssPerSVelement */
-static int hf_lppe_multipathDetection = -1;       /* T_multipathDetection */
-static int hf_lppe_adr = -1;                      /* INTEGER_0_536870911 */
-static int hf_lppe_adrRMSerror = -1;              /* INTEGER_0_127 */
-static int hf_lppe_tecPerSV = -1;                 /* OMA_LPPe_AGNSS_TECPerSV */
-static int hf_lppe_tecAtZenith = -1;              /* OMA_LPPe_AGNSS_TECAtZenith */
-static int hf_lppe_OMA_LPPe_AGNSS_TECPerSV_item = -1;  /* OMA_LPPe_AGNSS_TECPerSVElement */
-static int hf_lppe_azimuth = -1;                  /* INTEGER_0_359 */
-static int hf_lppe_elevation = -1;                /* INTEGER_0_90 */
-static int hf_lppe_tecValue = -1;                 /* INTEGER_0_511 */
-static int hf_lppe_tecUncertainty = -1;           /* INTEGER_0_63 */
-static int hf_lppe_tecValueAtZenith = -1;         /* INTEGER_0_511 */
-static int hf_lppe_tecUncertaintyAtZenith = -1;   /* INTEGER_0_63 */
-static int hf_lppe_temperatureMeasurement = -1;   /* T_temperatureMeasurement */
-static int hf_lppe_temperatureUncertainty = -1;   /* INTEGER_0_7 */
-static int hf_lppe_positioningInstructions = -1;  /* OMA_LPPe_AGNSS_PositioningInstructions */
-static int hf_lppe_ionosphereMeasurementsReq = -1;  /* T_ionosphereMeasurementsReq */
-static int hf_lppe_localSurfaceMeasurementReq = -1;  /* OMA_LPPe_AGNSS_LocalSurfaceMeasurementReq */
-static int hf_lppe_highAccuracyMethodRequested = -1;  /* BOOLEAN */
-static int hf_lppe_haGNSSreq = -1;                /* OMA_LPPe_AGNSS_HAgnssRequestControlParameters */
-static int hf_lppe_rate_01 = -1;                  /* INTEGER_1_63 */
-static int hf_lppe_antennaInformationReq = -1;    /* T_antennaInformationReq */
-static int hf_lppe_pressureInformationReq = -1;   /* BOOLEAN */
-static int hf_lppe_signalReqList = -1;            /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_AGNSS_HAgnssSignalReqElement */
-static int hf_lppe_signalReqList_item = -1;       /* OMA_LPPe_AGNSS_HAgnssSignalReqElement */
-static int hf_lppe_gnssID = -1;                   /* GNSS_ID */
-static int hf_lppe_assistanceDataSupportList = -1;  /* OMA_LPPe_AGNSS_AssistanceDataSupportList */
-static int hf_lppe_environmentObservationSupportList = -1;  /* OMA_LPPe_AGNSS_EnvironmentObservationSupportList */
-static int hf_lppe_haGNSSsupport = -1;            /* OMA_LPPe_AGNSS_HAgnssSupport */
-static int hf_lppe_commonAssistanceDataSupport = -1;  /* OMA_LPPe_AGNSS_CommonAssistanceDataSupport */
-static int hf_lppe_genericAssistanceDataSupport = -1;  /* OMA_LPPe_AGNSS_GenericAssistanceDataSupport */
-static int hf_lppe_ionosphereMeasurementSupport = -1;  /* T_ionosphereMeasurementSupport */
-static int hf_lppe_pressureMeasurementSupported = -1;  /* BOOLEAN */
-static int hf_lppe_temperatureMeasurementSupported = -1;  /* BOOLEAN */
-static int hf_lppe_ionosphericModelSupport = -1;  /* OMA_LPPe_AGNSS_IonosphericModelSupport */
-static int hf_lppe_troposphereModelSupport = -1;  /* OMA_LPPe_AGNSS_TroposphereModelSupport */
-static int hf_lppe_altitudeAssistanceSupport = -1;  /* OMA_LPPe_AGNSS_AltitudeAssistanceSupport */
-static int hf_lppe_solarRadiationSupport = -1;    /* OMA_LPPe_AGNSS_SolarRadiationSupport */
-static int hf_lppe_ccpSupport = -1;               /* OMA_LPPe_AGNSS_CCPsupport */
-static int hf_lppe_ionoModel = -1;                /* T_ionoModel */
-static int hf_lppe_tropoModel = -1;               /* T_tropoModel */
-static int hf_lppe_supportAreaAssistanceSupported = -1;  /* BOOLEAN */
-static int hf_lppe_multiReferenceStationSupported = -1;  /* BOOLEAN */
-static int hf_lppe_OMA_LPPe_AGNSS_GenericAssistanceDataSupport_item = -1;  /* OMA_LPPe_AGNSS_GenericAssistDataSupportElement */
-static int hf_lppe_mechnanicsSupport = -1;        /* OMA_LPPe_AGNSS_MechanicsSupport */
-static int hf_lppe_dcbSupport = -1;               /* OMA_LPPe_AGNSS_DCBsupport */
-static int hf_lppe_navModelAccuracyModelDegradationSupport = -1;  /* OMA_LPPe_AGNSS_NavModelAccuracyModelDegradationSupport */
-static int hf_lppe_ccpAssistanceSuppport = -1;    /* GNSS_SignalIDs */
-static int hf_lppe_navModelSupport = -1;          /* OMA_LPPe_AGNSS_NavModelSupport */
-static int hf_lppe_navModelSupport_01 = -1;       /* T_navModelSupport */
-static int hf_lppe_navModelSupport_item = -1;     /* INTEGER_1_8 */
-static int hf_lppe_modeSupport = -1;              /* T_modeSupport */
-static int hf_lppe_haGNSSpressureInformationSupport = -1;  /* BOOLEAN */
-static int hf_lppe_haGNSSantennaInformationSupport = -1;  /* T_haGNSSantennaInformationSupport */
-static int hf_lppe_haGNSSperGNSSsupport = -1;     /* SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_HAgnssPerGNSSsupport */
-static int hf_lppe_haGNSSperGNSSsupport_item = -1;  /* OMA_LPPe_AGNSS_HAgnssPerGNSSsupport */
-static int hf_lppe_haGNSSsignalSupport = -1;      /* GNSS_SignalIDs */
-static int hf_lppe_assistanceDataSupportListReq = -1;  /* NULL */
-static int hf_lppe_environmentObservationSupportListReq = -1;  /* NULL */
-static int hf_lppe_haGNSSsupportReq = -1;         /* NULL */
-static int hf_lppe_agnss_locationServerErrorCauses = -1;  /* OMA_LPPe_AGNSS_LocationServerErrorCauses */
-static int hf_lppe_agnss_targetDeviceErrorCauses = -1;  /* OMA_LPPe_AGNSS_TargetDeviceErrorCauses */
-static int hf_lppe_waIonoErrorCauses = -1;        /* T_waIonoErrorCauses */
-static int hf_lppe_ccpErrorCauses = -1;           /* T_ccpErrorCauses */
-static int hf_lppe_highAccuracyErrorCauses = -1;  /* T_highAccuracyErrorCauses */
-static int hf_lppe_ionosphereMeasurementErrorCauses = -1;  /* T_ionosphereMeasurementErrorCauses */
-static int hf_lppe_environmentObservationErrorCauses = -1;  /* T_environmentObservationErrorCauses */
-static int hf_lppe_haGNSSerrorCauses = -1;        /* T_haGNSSerrorCauses */
-static int hf_lppe_stationID = -1;                /* INTEGER_0_65535 */
-static int hf_lppe_antennaDescription_01 = -1;    /* T_antennaDescription */
-static int hf_lppe_igsAntennaName = -1;           /* OMA_LPPe_CharArray */
-static int hf_lppe_proprietaryName = -1;          /* OMA_LPPe_CharArray */
-static int hf_lppe_antennaSetupID = -1;           /* INTEGER_0_255 */
-static int hf_lppe_antennaSerialNumber = -1;      /* OMA_LPPe_CharArray */
-static int hf_lppe_targetDeviceAbortCauses = -1;  /* T_targetDeviceAbortCauses */
-static int hf_lppe_ccpAbort = -1;                 /* T_ccpAbort */
-static int hf_lppe_waIonoAbort = -1;              /* T_waIonoAbort */
-static int hf_lppe_otdoa_ReferenceCellInfo = -1;  /* OMA_LPPe_OTDOA_ReferenceCellInfo */
-static int hf_lppe_otdoa_NeighbourCellInfo = -1;  /* OMA_LPPe_OTDOA_NeighbourCellInfoList */
-static int hf_lppe_otdoa_Error = -1;              /* OMA_LPPe_OTDOA_Error */
-static int hf_lppe_referenceCellInfo = -1;        /* OTDOA_ReferenceCellInfo */
-static int hf_lppe_positionCalculationInfoRef = -1;  /* OMA_LPPe_OTDOA_PositionCalculationInfoRef */
-static int hf_lppe_systemFrameNumber = -1;        /* BIT_STRING_SIZE_10 */
-static int hf_lppe_rtdReferenceStd = -1;          /* OMA_LPPe_OTDOA_RTDquality */
-static int hf_lppe_cellLocation = -1;             /* T_cellLocation */
-static int hf_lppe_reference_point = -1;          /* OMA_LPPe_ReferencePoint */
-static int hf_lppe_relative_location = -1;        /* OMA_LPPe_RelativeLocation */
-static int hf_lppe_femtoCellInfo = -1;            /* T_femtoCellInfo */
-static int hf_lppe_location_reliability = -1;     /* INTEGER_1_100 */
-static int hf_lppe_OMA_LPPe_OTDOA_NeighbourCellInfoList_item = -1;  /* OMA_LPPe_OTDOA_NeighbourFreqCellInfoList */
-static int hf_lppe_neighbourCellInfoList_eNB = -1;  /* SEQUENCE_SIZE_1_maxLTEeNBs_OF_OMA_LPPe_OTDOA_NeighbourCellInfoElement_eNB */
-static int hf_lppe_neighbourCellInfoList_eNB_item = -1;  /* OMA_LPPe_OTDOA_NeighbourCellInfoElement_eNB */
-static int hf_lppe_neighbourCellInfoList_HeNB = -1;  /* SEQUENCE_SIZE_1_maxLTEHeNBs_OF_OMA_LPPe_OTDOA_NeighbourCellInfoElement_HeNB */
-static int hf_lppe_neighbourCellInfoList_HeNB_item = -1;  /* OMA_LPPe_OTDOA_NeighbourCellInfoElement_HeNB */
-static int hf_lppe_relative_Location = -1;        /* OMA_LPPe_RelativeLocation */
-static int hf_lppe_otdoa_eNB_CellDataList = -1;   /* SEQUENCE_SIZE_1_maxLTEMacroCells_OF_OMA_LPPe_OTDOA_CellData */
-static int hf_lppe_otdoa_eNB_CellDataList_item = -1;  /* OMA_LPPe_OTDOA_CellData */
-static int hf_lppe_otdoa_HeNB_CellDataList = -1;  /* OMA_LPPe_OTDOA_CellData */
-static int hf_lppe_otdoa_NeighbourCellInfoElement = -1;  /* OTDOA_NeighbourCellInfoElement */
-static int hf_lppe_rtdInfo = -1;                  /* T_rtdInfo */
-static int hf_lppe_subframeOffset = -1;           /* INTEGER_0_10229 */
-static int hf_lppe_fineRTD = -1;                  /* INTEGER_0_99999 */
-static int hf_lppe_fineRTDstd = -1;               /* OMA_LPPe_OTDOA_RTDquality */
-static int hf_lppe_fineRTDdriftRate = -1;         /* INTEGER_M100_100 */
-static int hf_lppe_resolution = -1;               /* T_resolution */
-static int hf_lppe_quality = -1;                  /* INTEGER_0_127 */
-static int hf_lppe_lteCell = -1;                  /* T_lteCell */
-static int hf_lppe_physCellId = -1;               /* INTEGER_0_503 */
-static int hf_lppe_eARFCN = -1;                   /* ARFCN_ValueEUTRA */
-static int hf_lppe_ecgi = -1;                     /* CellGlobalIdEUTRA_AndUTRA */
-static int hf_lppe_eARFCN_ext = -1;               /* ARFCN_ValueEUTRA_v9a0 */
-static int hf_lppe_requestedCells = -1;           /* T_requestedCells */
-static int hf_lppe_otdoaLocationInformation = -1;  /* OMA_LPPe_OTDOA_LocationInformation */
-static int hf_lppe_otdoaError = -1;               /* OMA_LPPe_OTDOA_Error */
-static int hf_lppe_cellGlobalId = -1;             /* CellGlobalIdEUTRA_AndUTRA */
-static int hf_lppe_assistanceAvailability = -1;   /* BOOLEAN */
-static int hf_lppe_eNodeB_AD_sup = -1;            /* T_eNodeB_AD_sup */
-static int hf_lppe_home_eNodeB_AD_sup = -1;       /* T_home_eNodeB_AD_sup */
-static int hf_lppe_locationServerErrorCauses = -1;  /* OMA_LPPe_OTDOA_LocationServerErrorCauses */
-static int hf_lppe_targetDeviceErrorCauses = -1;  /* OMA_LPPe_OTDOA_TargetDeviceErrorCauses */
-static int hf_lppe_cause = -1;                    /* T_cause */
-static int hf_lppe_cause_01 = -1;                 /* T_cause_01 */
-static int hf_lppe_referenceBTS = -1;             /* OMA_LPPe_EOTD_ReferenceBTSForAssistance */
-static int hf_lppe_msrAssistDataList = -1;        /* OMA_LPPe_EOTD_MsrAssistDataList */
-static int hf_lppe_systemInfoAssistDataList = -1;  /* OMA_LPPe_EOTD_SystemInfoAssistDataList */
-static int hf_lppe_eotdError = -1;                /* OMA_LPPe_EOTD_Error */
-static int hf_lppe_bsicAndCarrier = -1;           /* OMA_LPPe_CellNonUniqueIDGERAN */
-static int hf_lppe_timeSlotScheme = -1;           /* OMA_LPPe_EOTD_TimeSlotScheme */
-static int hf_lppe_btsPosition = -1;              /* T_btsPosition */
-static int hf_lppe_ellipsoidPoint = -1;           /* Ellipsoid_Point */
-static int hf_lppe_ellipsoidPointWithAltitudeAndUncertaintyEllipsoid = -1;  /* EllipsoidPointWithAltitudeAndUncertaintyEllipsoid */
-static int hf_lppe_OMA_LPPe_EOTD_MsrAssistDataList_item = -1;  /* OMA_LPPe_EOTD_MsrAssistBTS */
-static int hf_lppe_multiFrameOffset = -1;         /* OMA_LPPe_EOTD_MultiFrameOffset */
-static int hf_lppe_roughRTD = -1;                 /* OMA_LPPe_EOTD_RoughRTD */
-static int hf_lppe_expectedOTD = -1;              /* OMA_LPPe_EOTD_ExpectedOTD */
-static int hf_lppe_calcAssistanceBTS = -1;        /* OMA_LPPe_EOTD_CalcAssistanceBTS */
-static int hf_lppe_OMA_LPPe_EOTD_SystemInfoAssistDataList_item = -1;  /* OMA_LPPe_EOTD_SystemInfoAssistBTS */
-static int hf_lppe_notPresent = -1;               /* NULL */
-static int hf_lppe_present = -1;                  /* OMA_LPPe_EOTD_AssistBTSData */
-static int hf_lppe_fineRTD_01 = -1;               /* OMA_LPPe_EOTD_FineRTD */
-static int hf_lppe_relativePos = -1;              /* OMA_LPPe_EOTD_relativePos */
-static int hf_lppe_relativeNorth_01 = -1;         /* OMA_LPPe_EOTD_RelDistance */
-static int hf_lppe_relativeEast_01 = -1;          /* OMA_LPPe_EOTD_RelDistance */
-static int hf_lppe_relativeAlt = -1;              /* OMA_LPPe_EOTD_RelativeAlt */
-static int hf_lppe_eotdAssistanceReq = -1;        /* T_eotdAssistanceReq */
-static int hf_lppe_eotdMsrElement = -1;           /* OMA_LPPe_EOTD_MsrElement */
-static int hf_lppe_refFrameNumber = -1;           /* INTEGER_0_42431 */
-static int hf_lppe_referenceTimeSlot = -1;        /* OMA_LPPe_EOTD_ModuloTimeSlot */
-static int hf_lppe_toaMeasurementsOfRef = -1;     /* OMA_LPPe_EOTD_TOA_MeasurementsOfRef */
-static int hf_lppe_stdResolution = -1;            /* BIT_STRING_SIZE_2 */
-static int hf_lppe_taCorrection = -1;             /* INTEGER_0_960 */
-static int hf_lppe_otd_FirstSetMsrs = -1;         /* SEQUENCE_SIZE_1_15_OF_OMA_LPPe_EOTD_MeasurementWithID */
-static int hf_lppe_otd_FirstSetMsrs_item = -1;    /* OMA_LPPe_EOTD_MeasurementWithID */
-static int hf_lppe_refQuality = -1;               /* BIT_STRING_SIZE_5 */
-static int hf_lppe_numOfMeasurements = -1;        /* BIT_STRING_SIZE_3 */
-static int hf_lppe_neighborIdentity = -1;         /* OMA_LPPe_EOTD_NeighborIdentity */
-static int hf_lppe_nborTimeSlot = -1;             /* OMA_LPPe_EOTD_ModuloTimeSlot */
-static int hf_lppe_eotdQuality = -1;              /* OMA_LPPe_EOTD_EOTDQuality */
-static int hf_lppe_otdValue = -1;                 /* OMA_LPPe_EOTD_OTDValue */
-static int hf_lppe_ci = -1;                       /* OMA_LPPe_EOTD_CellID */
-static int hf_lppe_multiFrameCarrier = -1;        /* OMA_LPPe_EOTD_MultiFrameCarrier */
-static int hf_lppe_requestIndex = -1;             /* OMA_LPPe_EOTD_RequestIndex */
-static int hf_lppe_systemInfoIndex = -1;          /* OMA_LPPe_EOTD_SystemInfoIndex */
-static int hf_lppe_ciAndLac = -1;                 /* OMA_LPPe_CellLocalIdGERAN */
-static int hf_lppe_nbrOfMeasurements = -1;        /* BIT_STRING_SIZE_3 */
-static int hf_lppe_stdOfEOTD = -1;                /* BIT_STRING_SIZE_5 */
-static int hf_lppe_bcchCarrier = -1;              /* OMA_LPPe_EOTD_BCCHCarrier */
-static int hf_lppe_eotdSupport = -1;              /* T_eotdSupport */
-static int hf_lppe_locationServerErrorCauses_01 = -1;  /* OMA_LPPe_EOTD_LocationServerErrorCauses */
-static int hf_lppe_targetDeviceErrorCauses_01 = -1;  /* OMA_LPPe_EOTD_TargetDeviceErrorCauses */
-static int hf_lppe_cause_02 = -1;                 /* T_cause_02 */
-static int hf_lppe_cause_03 = -1;                 /* T_cause_03 */
-static int hf_lppe_expectedOTD_01 = -1;           /* INTEGER_0_1250 */
-static int hf_lppe_expOTDUncertainty = -1;        /* INTEGER_0_7 */
-static int hf_lppe_referenceCellInfo_01 = -1;     /* OMA_LPPe_OTDOA_UTRA_ReferenceCellInfo */
-static int hf_lppe_neigborCellList = -1;          /* OMA_LPPe_OTDOA_UTRA_NeighborCellList */
-static int hf_lppe_otdoaUtraError = -1;           /* OMA_LPPe_OTDOA_UTRA_Error */
-static int hf_lppe_sfn = -1;                      /* INTEGER_0_4095 */
-static int hf_lppe_modeSpecificInfo = -1;         /* T_modeSpecificInfo */
-static int hf_lppe_fdd = -1;                      /* T_fdd */
-static int hf_lppe_primaryCPICH_info = -1;        /* OMA_LPPe_OTDOA_UTRA_PrimaryCPICH_Info */
-static int hf_lppe_tdd = -1;                      /* T_tdd */
-static int hf_lppe_cellAndChannelIdentity = -1;   /* OMA_LPPe_OTDOA_UTRA_CellAndChannelIdentity */
-static int hf_lppe_frequencyInfo = -1;            /* OMA_LPPe_UTRA_FrequencyInfo */
-static int hf_lppe_refPosAssist = -1;             /* OMA_LPPe_OTDOA_UTRA_RefPosAssist */
-static int hf_lppe_ipdl_parameters = -1;          /* OMA_LPPe_OTDOA_UTRA_IPDL_Parameters */
-static int hf_lppe_cellPosition = -1;             /* T_cellPosition */
-static int hf_lppe_ellipsoidPointWithAltitude = -1;  /* EllipsoidPointWithAltitude */
-static int hf_lppe_roundTripTime = -1;            /* INTEGER_0_32766 */
-static int hf_lppe_roundTripTimeExtension = -1;   /* INTEGER_0_70274 */
-static int hf_lppe_OMA_LPPe_OTDOA_UTRA_NeighborCellList_item = -1;  /* OMA_LPPe_OTDOA_UTRA_NeighborCellInfo */
-static int hf_lppe_modeSpecificInfo_01 = -1;      /* T_modeSpecificInfo_01 */
-static int hf_lppe_fdd_01 = -1;                   /* T_fdd_01 */
-static int hf_lppe_tdd_01 = -1;                   /* T_tdd_01 */
-static int hf_lppe_sfn_SFN_relTimeDifference = -1;  /* OMA_LPPe_OTDOA_UTRA_SFN_SFN_RelTimeDifference1 */
-static int hf_lppe_sfn_offsetValidity = -1;       /* OMA_LPPe_OTDOA_UTRA_SFN_OffsetValidity */
-static int hf_lppe_sfn_SFN_drift = -1;            /* OMA_LPPe_OTDOA_UTRA_SFN_SFN_Drift */
-static int hf_lppe_searchWindowSize = -1;         /* OMA_LPPe_OTDOA_UTRA_SearchWindowSize */
-static int hf_lppe_positioningAssistance = -1;    /* OMA_LPPe_OTDOA_UTRA_PositioningAssistance */
-static int hf_lppe_sfn_offset = -1;               /* INTEGER_0_4095 */
-static int hf_lppe_sfn_sfn_relTimeDifference = -1;  /* INTEGER_0_38399 */
-static int hf_lppe_relativeNorth_02 = -1;         /* INTEGER_M20000_20000 */
-static int hf_lppe_relativeEast_02 = -1;          /* INTEGER_M20000_20000 */
-static int hf_lppe_relativeAltitude_01 = -1;      /* INTEGER_M4000_4000 */
-static int hf_lppe_fineSFN_SFN = -1;              /* OMA_LPPe_OTDOA_UTRA_fineSFN_SFN */
-static int hf_lppe_modeSpecificInfo_02 = -1;      /* T_modeSpecificInfo_02 */
-static int hf_lppe_fdd_02 = -1;                   /* T_fdd_02 */
-static int hf_lppe_ip_spacing = -1;               /* OMA_LPPe_OTDOA_UTRA_IP_Spacing */
-static int hf_lppe_ip_length = -1;                /* OMA_LPPe_OTDOA_UTRA_IP_Length */
-static int hf_lppe_ip_Offset = -1;                /* INTEGER_0_9 */
-static int hf_lppe_seed = -1;                     /* INTEGER_0_63 */
-static int hf_lppe_burstModeParameters = -1;      /* OMA_LPPe_OTDOA_UTRA_BurstModeParameters */
-static int hf_lppe_tdd_02 = -1;                   /* T_tdd_02 */
-static int hf_lppe_ip_spacing_tdd = -1;           /* OMA_LPPe_OTDOA_UTRA_IP_Spacing_TDD */
-static int hf_lppe_ip_slot = -1;                  /* INTEGER_0_14 */
-static int hf_lppe_ip_start = -1;                 /* INTEGER_0_4095 */
-static int hf_lppe_ip_PCCPCH = -1;                /* OMA_LPPe_OTDOA_UTRA_IP_PCCPCH */
-static int hf_lppe_burstStart = -1;               /* INTEGER_0_15 */
-static int hf_lppe_burstLength = -1;              /* INTEGER_10_25 */
-static int hf_lppe_burstFreq = -1;                /* INTEGER_1_16 */
-static int hf_lppe_otdoaUtraAssistanceReq = -1;   /* T_otdoaUtraAssistanceReq */
-static int hf_lppe_otdoaUtraMeasurement = -1;     /* OMA_LPPe_OTDOA_UTRA_Measurement */
-static int hf_lppe_timeStampData = -1;            /* OMA_LPPe_OTDOA_UTRA_TimeStampData */
-static int hf_lppe_modeSpecificInfoMeas = -1;     /* T_modeSpecificInfoMeas */
-static int hf_lppe_fdd_03 = -1;                   /* T_fdd_03 */
-static int hf_lppe_referenceCellIdentity = -1;    /* OMA_LPPe_OTDOA_UTRA_PrimaryCPICH_Info */
-static int hf_lppe_ue_RX_TX_TimeDifferenceType2Info = -1;  /* OMA_LPPe_OTDOA_UTRA_UE_RX_TX_TimeDifferenceType2Info */
-static int hf_lppe_tdd_03 = -1;                   /* T_tdd_03 */
-static int hf_lppe_neighborList = -1;             /* OMA_LPPe_OTDOA_UTRA_NeighborList */
-static int hf_lppe_ue_RX_TX_timeDifferenceType2 = -1;  /* OMA_LPPe_OTDOA_UTRA_TimeDifferenceType2 */
-static int hf_lppe_neighborQuality = -1;          /* OMA_LPPe_OTDOA_UTRA_NeighborQuality */
-static int hf_lppe_OMA_LPPe_OTDOA_UTRA_NeighborList_item = -1;  /* OMA_LPPe_OTDOA_UTRA_Neighbor */
-static int hf_lppe_modeSpecificInfo_03 = -1;      /* T_modeSpecificInfo_03 */
-static int hf_lppe_fdd_04 = -1;                   /* T_fdd_04 */
-static int hf_lppe_neighborIdentity_01 = -1;      /* OMA_LPPe_OTDOA_UTRA_PrimaryCPICH_Info */
-static int hf_lppe_ue_RX_TX_timeDifferenceType2Info = -1;  /* OMA_LPPe_OTDOA_UTRA_UE_RX_TX_TimeDifferenceType2Info */
-static int hf_lppe_tdd_04 = -1;                   /* T_tdd_04 */
-static int hf_lppe_uarfcn = -1;                   /* ARFCN_ValueUTRA */
-static int hf_lppe_sfn_sfn_ObsTimeDifference2 = -1;  /* OMA_LPPe_OTDOA_UTRA_SFN_SFN_ObsTimeDifference2 */
-static int hf_lppe_quality_01 = -1;               /* OMA_LPPe_OTDOA_UTRA_Quality */
-static int hf_lppe_numberOfOTDOA_Measurements = -1;  /* BIT_STRING_SIZE_3 */
-static int hf_lppe_stdOfOTDOA_Measurements = -1;  /* BIT_STRING_SIZE_5 */
-static int hf_lppe_utraCellGlobalID = -1;         /* CellGlobalIdEUTRA_AndUTRA */
-static int hf_lppe_nonUniqueCellID = -1;          /* T_nonUniqueCellID */
-static int hf_lppe_primaryScramblingCode = -1;    /* OMA_LPPe_OTDOA_UTRA_PrimaryScramblingCode */
-static int hf_lppe_cellParametersId = -1;         /* OMA_LPPe_OTDOA_UTRA_CellParametersID */
-static int hf_lppe_ueBasedSupported = -1;         /* BOOLEAN */
-static int hf_lppe_ueAssistedSupported = -1;      /* BOOLEAN */
-static int hf_lppe_ipdlSupported = -1;            /* BOOLEAN */
-static int hf_lppe_locationServerErrorCauses_02 = -1;  /* OMA_LPPe_OTDOA_UTRA_LocationServerErrorCauses */
-static int hf_lppe_targetDeviceErrorCauses_02 = -1;  /* OMA_LPPe_OTDOA_UTRA_TargetDeviceErrorCauses */
-static int hf_lppe_cause_04 = -1;                 /* T_cause_04 */
-static int hf_lppe_cause_05 = -1;                 /* T_cause_05 */
-static int hf_lppe_burstType = -1;                /* OMA_LPPe_OTDOA_UTRA_BurstType */
-static int hf_lppe_midambleShift = -1;            /* OMA_LPPe_OTDOA_UTRA_MidambleShiftLong */
-static int hf_lppe_timeslot = -1;                 /* OMA_LPPe_OTDOA_UTRA_TimeSlotNumber */
-static int hf_lppe_cellParametersID = -1;         /* OMA_LPPe_OTDOA_UTRA_CellParametersID */
-static int hf_lppe_ecid_LTE_NetworkData = -1;     /* SEQUENCE_SIZE_1_maxLTENetworks_OF_OMA_LPPe_ECID_LTE_NetworkData */
-static int hf_lppe_ecid_LTE_NetworkData_item = -1;  /* OMA_LPPe_ECID_LTE_NetworkData */
-static int hf_lppe_ecid_LTE_Error = -1;           /* OMA_LPPe_ECID_LTE_Error */
-static int hf_lppe_plmn_Identity = -1;            /* T_plmn_Identity */
-static int hf_lppe_mcc = -1;                      /* T_mcc */
-static int hf_lppe_mcc_item = -1;                 /* INTEGER_0_9 */
-static int hf_lppe_mnc = -1;                      /* T_mnc */
-static int hf_lppe_mnc_item = -1;                 /* INTEGER_0_9 */
-static int hf_lppe_multiple_PLMNs = -1;           /* BOOLEAN */
-static int hf_lppe_reference_location = -1;       /* OMA_LPPe_ReferencePoint */
-static int hf_lppe_ecid_lte_eNodeB_list = -1;     /* SEQUENCE_SIZE_1_maxLTEeNBs_OF_OMA_LPPe_ECID_LTE_eNodeBData */
-static int hf_lppe_ecid_lte_eNodeB_list_item = -1;  /* OMA_LPPe_ECID_LTE_eNodeBData */
-static int hf_lppe_ecid_lte_HeNB_list = -1;       /* SEQUENCE_SIZE_1_maxLTEHeNBs_OF_OMA_LPPe_ECID_LTE_HeNBData */
-static int hf_lppe_ecid_lte_HeNB_list_item = -1;  /* OMA_LPPe_ECID_LTE_HeNBData */
-static int hf_lppe_ecid_lte_eNodeB_CellData = -1;  /* SEQUENCE_SIZE_1_maxLTEMacroCells_OF_OMA_LPPe_ECID_LTE_CellData */
-static int hf_lppe_ecid_lte_eNodeB_CellData_item = -1;  /* OMA_LPPe_ECID_LTE_CellData */
-static int hf_lppe_coverageArea = -1;             /* OMA_LPPe_WLANFemtoCoverageArea */
-static int hf_lppe_ecid_lte_HeNB_CellData = -1;   /* OMA_LPPe_ECID_LTE_CellData */
-static int hf_lppe_cellIdentity_01 = -1;          /* BIT_STRING_SIZE_28 */
-static int hf_lppe_dl_CarrierFreq = -1;           /* ARFCN_ValueEUTRA */
-static int hf_lppe_rs_transmit_power = -1;        /* INTEGER_M127_128 */
-static int hf_lppe_antennaPortConfig = -1;        /* T_antennaPortConfig */
-static int hf_lppe_antenna_gain = -1;             /* INTEGER_M127_128 */
-static int hf_lppe_beam_width = -1;               /* INTEGER_1_360 */
-static int hf_lppe_transmit_direction = -1;       /* INTEGER_0_360 */
-static int hf_lppe_frequency_accuracy = -1;       /* INTEGER_0_100 */
-static int hf_lppe_dl_CarrierFreq_ext = -1;       /* ARFCN_ValueEUTRA_v9a0 */
-static int hf_lppe_eNBrequestedAD = -1;           /* T_eNBrequestedAD */
-static int hf_lppe_heNBrequestedAD = -1;          /* T_heNBrequestedAD */
-static int hf_lppe_ecid_LTE_CombinedLocationInformation = -1;  /* SEQUENCE_SIZE_1_maxLTEECIDSize_OF_OMA_LPPe_ECID_LTE_LocationInformationList */
-static int hf_lppe_ecid_LTE_CombinedLocationInformation_item = -1;  /* OMA_LPPe_ECID_LTE_LocationInformationList */
-static int hf_lppe_ecid_LTE_LocationInformation = -1;  /* OMA_LPPe_ECID_LTE_LocationInformation */
-static int hf_lppe_relativeTimeStamp = -1;        /* INTEGER_0_65535 */
-static int hf_lppe_servingFlag = -1;              /* BOOLEAN */
-static int hf_lppe_lpp_ECID_SignalMeasurementInformation = -1;  /* ECID_SignalMeasurementInformation */
-static int hf_lppe_requestedMeasurements = -1;    /* T_requestedMeasurements */
-static int hf_lppe_ecid_lte_MeasSupported = -1;   /* T_ecid_lte_MeasSupported */
-static int hf_lppe_ecid_lte_eNodeB_ADSupported = -1;  /* T_ecid_lte_eNodeB_ADSupported */
-static int hf_lppe_ecid_utra_HeNB_ADSupported = -1;  /* T_ecid_utra_HeNB_ADSupported */
-static int hf_lppe_locationServerErrorCauses_03 = -1;  /* OMA_LPPe_ECID_LTE_LocationServerErrorCauses */
-static int hf_lppe_targetDeviceErrorCauses_03 = -1;  /* OMA_LPPe_ECID_LTE_TargetDeviceErrorCauses */
-static int hf_lppe_cause_06 = -1;                 /* T_cause_06 */
-static int hf_lppe_eNodeBMandatoryDataUnavailable = -1;  /* NULL */
-static int hf_lppe_eNodeBLocationsUnavailable = -1;  /* NULL */
-static int hf_lppe_eNodeBcellTransmitPowerUnavailable = -1;  /* NULL */
-static int hf_lppe_eNodeBcellAntennaPortConfigUnavailable = -1;  /* NULL */
-static int hf_lppe_eNodeBcallAntennaGainUnavailable = -1;  /* NULL */
-static int hf_lppe_eNodeBcellBeamWidthUnavailable = -1;  /* NULL */
-static int hf_lppe_eNodeBcellTransmitDirectionUnavailable = -1;  /* NULL */
-static int hf_lppe_eNodeBcellFrequencyAccuracyUnavailable = -1;  /* NULL */
-static int hf_lppe_eNodeBnonservingADUnavailable = -1;  /* NULL */
-static int hf_lppe_heNBMandatoryDataUnavailable = -1;  /* NULL */
-static int hf_lppe_heNBLocationUnavailable = -1;  /* NULL */
-static int hf_lppe_heNBLocationReliabilityUnavailable = -1;  /* NULL */
-static int hf_lppe_heNBcellTransmitPowerUnavailable = -1;  /* NULL */
-static int hf_lppe_heNBcellAntennaPortConfigUnavailable = -1;  /* NULL */
-static int hf_lppe_heNBcellFrequencyAccuracyUnavailable = -1;  /* NULL */
-static int hf_lppe_heNBCoverageAreaUnavailable = -1;  /* NULL */
-static int hf_lppe_heNBnonservingADUnavailable = -1;  /* NULL */
-static int hf_lppe_cause_07 = -1;                 /* T_cause_07 */
-static int hf_lppe_rsrpMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_rsrqMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_ueRxTxMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_non_servingMeasurementsNotAvailable = -1;  /* NULL */
-static int hf_lppe_historicMeasurementsNotAvailable = -1;  /* NULL */
-static int hf_lppe_ecid_gsm_NetworkData = -1;     /* SEQUENCE_SIZE_1_maxGSMNetworks_OF_OMA_LPPe_ECID_GSM_NetworkData */
-static int hf_lppe_ecid_gsm_NetworkData_item = -1;  /* OMA_LPPe_ECID_GSM_NetworkData */
-static int hf_lppe_ecid_gsm_Error = -1;           /* OMA_LPPe_ECID_GSM_Error */
-static int hf_lppe_plmn_Identity_01 = -1;         /* T_plmn_Identity_01 */
-static int hf_lppe_mcc_01 = -1;                   /* T_mcc_01 */
-static int hf_lppe_mnc_01 = -1;                   /* T_mnc_01 */
-static int hf_lppe_base_station_list = -1;        /* SEQUENCE_SIZE_1_maxGSMBaseStations_OF_OMA_LPPe_ECID_GSM_BaseStationData */
-static int hf_lppe_base_station_list_item = -1;   /* OMA_LPPe_ECID_GSM_BaseStationData */
-static int hf_lppe_ecid_gsm_CellData = -1;        /* SEQUENCE_SIZE_1_maxGSMCells_OF_OMA_LPPe_ECID_GSM_CellData */
-static int hf_lppe_ecid_gsm_CellData_item = -1;   /* OMA_LPPe_ECID_GSM_CellData */
-static int hf_lppe_cellNonUniqueIDGERAN = -1;     /* OMA_LPPe_CellNonUniqueIDGERAN */
-static int hf_lppe_cellLocalIDGERAN = -1;         /* OMA_LPPe_CellLocalIdGERAN */
-static int hf_lppe_transmit_power = -1;           /* INTEGER_M127_128 */
-static int hf_lppe_requestedAD = -1;              /* T_requestedAD */
-static int hf_lppe_ecid_GSM_CombinedLocationInformation = -1;  /* SEQUENCE_SIZE_1_maxGSMECIDSize_OF_OMA_LPPe_ECID_GSM_LocationInformationList */
-static int hf_lppe_ecid_GSM_CombinedLocationInformation_item = -1;  /* OMA_LPPe_ECID_GSM_LocationInformationList */
-static int hf_lppe_ecid_GSM_Error = -1;           /* OMA_LPPe_ECID_GSM_Error */
-static int hf_lppe_ecid_GSM_LocationInformation = -1;  /* OMA_LPPe_ECID_GSM_LocationInformation */
-static int hf_lppe_cellGlobalIdGERAN = -1;        /* CellGlobalIdGERAN */
-static int hf_lppe_rxLevel = -1;                  /* INTEGER_0_63 */
-static int hf_lppe_tA = -1;                       /* INTEGER_0_255 */
-static int hf_lppe_nMR_GERAN = -1;                /* OMA_LPPe_NMR_GERAN */
-static int hf_lppe_OMA_LPPe_NMR_GERAN_item = -1;  /* OMA_LPPe_NMR_GERAN_item */
-static int hf_lppe_requestedMeasurements_01 = -1;  /* T_requestedMeasurements_01 */
-static int hf_lppe_ecid_gsm_MeasSupported = -1;   /* T_ecid_gsm_MeasSupported */
-static int hf_lppe_ecid_gsm_ADSupported = -1;     /* T_ecid_gsm_ADSupported */
-static int hf_lppe_locationServerErrorCauses_04 = -1;  /* OMA_LPPe_ECID_GSM_LocationServerErrorCauses */
-static int hf_lppe_targetDeviceErrorCauses_04 = -1;  /* OMA_LPPe_ECID_GSM_TargetDeviceErrorCauses */
-static int hf_lppe_cause_08 = -1;                 /* T_cause_08 */
-static int hf_lppe_mandatoryDataUnavailable = -1;  /* NULL */
-static int hf_lppe_bsLocationsUnavailable = -1;   /* NULL */
-static int hf_lppe_cellTransmitPowerUnavailable = -1;  /* NULL */
-static int hf_lppe_callAntennaGainUnavailable = -1;  /* NULL */
-static int hf_lppe_cellBeamWidthUnavailable = -1;  /* NULL */
-static int hf_lppe_cellTransmitDirectionUnavailable = -1;  /* NULL */
-static int hf_lppe_cellFrequencyAccuracyUnavailable = -1;  /* NULL */
-static int hf_lppe_nonservingADUnavailable = -1;  /* NULL */
-static int hf_lppe_cause_09 = -1;                 /* T_cause_09 */
-static int hf_lppe_rxLevelMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_taMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_nMRMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_ecid_UTRA_NetworkData = -1;    /* SEQUENCE_SIZE_1_maxUTRANetworks_OF_OMA_LPPe_ECID_UTRA_NetworkData */
-static int hf_lppe_ecid_UTRA_NetworkData_item = -1;  /* OMA_LPPe_ECID_UTRA_NetworkData */
-static int hf_lppe_ecid_UTRA_Error = -1;          /* OMA_LPPe_ECID_UTRA_Error */
-static int hf_lppe_plmn_Identity_02 = -1;         /* T_plmn_Identity_02 */
-static int hf_lppe_mcc_02 = -1;                   /* T_mcc_02 */
-static int hf_lppe_mnc_02 = -1;                   /* T_mnc_02 */
-static int hf_lppe_ecid_utra_nodeB_list = -1;     /* SEQUENCE_SIZE_1_maxUTRAnodeBs_OF_OMA_LPPe_ECID_UTRA_NodeBData */
-static int hf_lppe_ecid_utra_nodeB_list_item = -1;  /* OMA_LPPe_ECID_UTRA_NodeBData */
-static int hf_lppe_ecid_utra_HNB_list = -1;       /* SEQUENCE_SIZE_1_maxUTRAHNBs_OF_OMA_LPPe_ECID_UTRA_HNBData */
-static int hf_lppe_ecid_utra_HNB_list_item = -1;  /* OMA_LPPe_ECID_UTRA_HNBData */
-static int hf_lppe_ecid_utra_nodeB_CellData = -1;  /* SEQUENCE_SIZE_1_maxUTRAMacroCells_OF_OMA_LPPe_ECID_UTRA_CellData */
-static int hf_lppe_ecid_utra_nodeB_CellData_item = -1;  /* OMA_LPPe_ECID_UTRA_CellData */
-static int hf_lppe_ecid_utra_HNB_CellData = -1;   /* OMA_LPPe_ECID_UTRA_CellData */
-static int hf_lppe_cellIdentity_02 = -1;          /* BIT_STRING_SIZE_32 */
-static int hf_lppe_modeSpecificInfo_04 = -1;      /* T_modeSpecificInfo_04 */
-static int hf_lppe_fdd_05 = -1;                   /* T_fdd_05 */
-static int hf_lppe_primaryCPICH_Scrambling_Code = -1;  /* OMA_LPPe_OTDOA_UTRA_PrimaryScramblingCode */
-static int hf_lppe_primaryCPICH_Tx_Power = -1;    /* INTEGER_M127_128 */
-static int hf_lppe_uarfcn_dl = -1;                /* ARFCN_ValueUTRA */
-static int hf_lppe_tdd_05 = -1;                   /* T_tdd_05 */
-static int hf_lppe_primaryCCPCH_Tx_Power = -1;    /* INTEGER_M127_128 */
-static int hf_lppe_uarfcn_nt = -1;                /* ARFCN_ValueUTRA */
-static int hf_lppe_nBrequestedAD = -1;            /* T_nBrequestedAD */
-static int hf_lppe_hNBrequestedAD = -1;           /* T_hNBrequestedAD */
-static int hf_lppe_ecid_UTRA_CombinedLocationInformation = -1;  /* SEQUENCE_SIZE_1_maxECIDUTRASize_OF_OMA_LPPe_ECID_UTRA_LocationInformationList */
-static int hf_lppe_ecid_UTRA_CombinedLocationInformation_item = -1;  /* OMA_LPPe_ECID_UTRA_LocationInformationList */
-static int hf_lppe_ecid_Error = -1;               /* OMA_LPPe_ECID_UTRA_Error */
-static int hf_lppe_ecid_utra_LocationInformation = -1;  /* OMA_LPPe_ECID_UTRA_LocationInformation */
-static int hf_lppe_cellGlobalIdUTRA = -1;         /* CellGlobalIdEUTRA_AndUTRA */
-static int hf_lppe_measuredResultsList = -1;      /* OMA_LPPe_ECID_UTRA_MeasuredResultsList */
-static int hf_lppe_utratimingAdvance = -1;        /* OMA_LPPe_ECID_UTRA_UTRATimingAdvance */
-static int hf_lppe_tA_01 = -1;                    /* INTEGER_0_8191 */
-static int hf_lppe_tAResolution = -1;             /* OMA_LPPe_ECID_UTRA_TAResolution */
-static int hf_lppe_chipRate = -1;                 /* OMA_LPPe_ECID_UTRA_ChipRate */
-static int hf_lppe_modeSpecificInfo_05 = -1;      /* OMA_LPPe_UTRA_ModeSpecificInfo */
-static int hf_lppe_fdd_06 = -1;                   /* OMA_LPPe_UTRA_FrequencyInfoFDD */
-static int hf_lppe_tdd_06 = -1;                   /* OMA_LPPe_UTRA_FrequencyInfoTDD */
-static int hf_lppe_uarfcn_UL = -1;                /* ARFCN_ValueUTRA */
-static int hf_lppe_uarfcn_DL = -1;                /* ARFCN_ValueUTRA */
-static int hf_lppe_uarfcn_Nt = -1;                /* ARFCN_ValueUTRA */
-static int hf_lppe_OMA_LPPe_ECID_UTRA_MeasuredResultsList_item = -1;  /* OMA_LPPe_ECID_UTRA_MeasuredResults */
-static int hf_lppe_utra_CarrierRSSI = -1;         /* OMA_LPPe_ECID_UTRA_CarrierRSSI */
-static int hf_lppe_cellMeasuredResultsList = -1;  /* OMA_LPPe_ECID_UTRA_CellMeasuredResultsList */
-static int hf_lppe_OMA_LPPe_ECID_UTRA_CellMeasuredResultsList_item = -1;  /* OMA_LPPe_ECID_UTRA_CellMeasuredResults */
-static int hf_lppe_modeSpecificInfo_06 = -1;      /* T_modeSpecificInfo_05 */
-static int hf_lppe_fdd_07 = -1;                   /* T_fdd_06 */
-static int hf_lppe_primaryCPICH_Info = -1;        /* OMA_LPPe_OTDOA_UTRA_PrimaryScramblingCode */
-static int hf_lppe_cpich_Ec_N0 = -1;              /* OMA_LPPe_ECID_UTRA_CPICH_Ec_N0 */
-static int hf_lppe_cpich_RSCP = -1;               /* OMA_LPPe_ECID_UTRA_CPICH_RSCP */
-static int hf_lppe_pathloss = -1;                 /* OMA_LPPe_ECID_UTRA_Pathloss */
-static int hf_lppe_tdd_07 = -1;                   /* T_tdd_06 */
-static int hf_lppe_primaryCCPCH_RSCP = -1;        /* OMA_LPPe_ECID_UTRA_PrimaryCCPCH_RSCP */
-static int hf_lppe_requestedMeasurements_02 = -1;  /* T_requestedMeasurements_02 */
-static int hf_lppe_ecid_utra_MeasSupported = -1;  /* T_ecid_utra_MeasSupported */
-static int hf_lppe_ecid_utra_nodeB_ADSupported = -1;  /* T_ecid_utra_nodeB_ADSupported */
-static int hf_lppe_ecid_utra_HNB_ADSupported = -1;  /* T_ecid_utra_HNB_ADSupported */
-static int hf_lppe_locationServerErrorCauses_05 = -1;  /* OMA_LPPe_ECID_UTRA_LocationServerErrorCauses */
-static int hf_lppe_targetDeviceErrorCauses_05 = -1;  /* OMA_LPPe_ECID_UTRA_TargetDeviceErrorCauses */
-static int hf_lppe_cause_10 = -1;                 /* T_cause_10 */
-static int hf_lppe_nodeBMandatoryDataUnavailable = -1;  /* NULL */
-static int hf_lppe_nodeBLocationUnavailable = -1;  /* NULL */
-static int hf_lppe_nodeBcellTransmitPowerUnavailable = -1;  /* NULL */
-static int hf_lppe_nodeBcallAntennaGainUnavailable = -1;  /* NULL */
-static int hf_lppe_nodeBcellBeamWidthUnavailable = -1;  /* NULL */
-static int hf_lppe_nodeBcellTransmitDirectionUnavailable = -1;  /* NULL */
-static int hf_lppe_nodeBcellFrequencyAccuracyUnavailable = -1;  /* NULL */
-static int hf_lppe_nodeBnonservingADUnavailable = -1;  /* NULL */
-static int hf_lppe_hNBMandatoryDataUnavailable = -1;  /* NULL */
-static int hf_lppe_hNBLocationUnavailable = -1;   /* NULL */
-static int hf_lppe_hNBLocationReliabilityUnavailable = -1;  /* NULL */
-static int hf_lppe_hNBcellTransmitPowerUnavailable = -1;  /* NULL */
-static int hf_lppe_hNBcellFrequencyAccuracyUnavailable = -1;  /* NULL */
-static int hf_lppe_hNBCoverageAreaUnavailable = -1;  /* NULL */
-static int hf_lppe_hNBnonservingADUnavailable = -1;  /* NULL */
-static int hf_lppe_cause_11 = -1;                 /* T_cause_11 */
-static int hf_lppe_mRLMeasurementsNotPossible = -1;  /* NULL */
-static int hf_lppe_tdd_timingAdvanceMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_mRL_utra_CarrierRSSIMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_mRL_FDD_cpich_Ec_N0MeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_mRL_FDD_cpich_RSCPMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_mRL_FDD_pathlossMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_mRL_TDD_primaryCCPCH_RSCPMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_mRL_TDD_pathlossMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_wlan_DataSet = -1;             /* SEQUENCE_SIZE_1_maxWLANDataSets_OF_OMA_LPPe_WLAN_DataSet */
-static int hf_lppe_wlan_DataSet_item = -1;        /* OMA_LPPe_WLAN_DataSet */
-static int hf_lppe_wlan_AP_Error = -1;            /* OMA_LPPe_WLAN_AP_Error */
-static int hf_lppe_plmn_Identity_03 = -1;         /* T_plmn_Identity_03 */
-static int hf_lppe_mcc_03 = -1;                   /* T_mcc_03 */
-static int hf_lppe_mnc_03 = -1;                   /* T_mnc_03 */
-static int hf_lppe_supported_channels_11a = -1;   /* Supported_Channels_11a */
-static int hf_lppe_supported_channels_11bg = -1;  /* Supported_Channels_11bg */
-static int hf_lppe_wlan_ap_list = -1;             /* SEQUENCE_SIZE_1_maxWLANAPs_OF_OMA_LPPe_WLAN_AP_Data */
-static int hf_lppe_wlan_ap_list_item = -1;        /* OMA_LPPe_WLAN_AP_Data */
-static int hf_lppe_ch34 = -1;                     /* BOOLEAN */
-static int hf_lppe_ch36 = -1;                     /* BOOLEAN */
-static int hf_lppe_ch38 = -1;                     /* BOOLEAN */
-static int hf_lppe_ch40 = -1;                     /* BOOLEAN */
-static int hf_lppe_ch42 = -1;                     /* BOOLEAN */
-static int hf_lppe_ch44 = -1;                     /* BOOLEAN */
-static int hf_lppe_ch46 = -1;                     /* BOOLEAN */
-static int hf_lppe_ch48 = -1;                     /* BOOLEAN */
-static int hf_lppe_ch52 = -1;                     /* BOOLEAN */
-static int hf_lppe_ch56 = -1;                     /* BOOLEAN */
-static int hf_lppe_ch60 = -1;                     /* BOOLEAN */
-static int hf_lppe_ch64 = -1;                     /* BOOLEAN */
-static int hf_lppe_ch149 = -1;                    /* BOOLEAN */
-static int hf_lppe_ch153 = -1;                    /* BOOLEAN */
-static int hf_lppe_ch157 = -1;                    /* BOOLEAN */
-static int hf_lppe_ch161 = -1;                    /* BOOLEAN */
-static int hf_lppe_ch1 = -1;                      /* BOOLEAN */
-static int hf_lppe_ch2 = -1;                      /* BOOLEAN */
-static int hf_lppe_ch3 = -1;                      /* BOOLEAN */
-static int hf_lppe_ch4 = -1;                      /* BOOLEAN */
-static int hf_lppe_ch5 = -1;                      /* BOOLEAN */
-static int hf_lppe_ch6 = -1;                      /* BOOLEAN */
-static int hf_lppe_ch7 = -1;                      /* BOOLEAN */
-static int hf_lppe_ch8 = -1;                      /* BOOLEAN */
-static int hf_lppe_ch9 = -1;                      /* BOOLEAN */
-static int hf_lppe_ch10 = -1;                     /* BOOLEAN */
-static int hf_lppe_ch11 = -1;                     /* BOOLEAN */
-static int hf_lppe_ch12 = -1;                     /* BOOLEAN */
-static int hf_lppe_ch13 = -1;                     /* BOOLEAN */
-static int hf_lppe_ch14 = -1;                     /* BOOLEAN */
-static int hf_lppe_wlan_ap_id = -1;               /* OMA_LPPe_WLAN_AP_ID */
-static int hf_lppe_wlan_ap_Type_Data = -1;        /* SEQUENCE_SIZE_1_maxWLANTypes_OF_OMA_LPPe_WLAN_AP_Type_Data */
-static int hf_lppe_wlan_ap_Type_Data_item = -1;   /* OMA_LPPe_WLAN_AP_Type_Data */
-static int hf_lppe_wlan_AP_Type = -1;             /* OMA_LPPe_WLAN_AP_Type */
-static int hf_lppe_requestedAD_01 = -1;           /* T_requestedAD_01 */
-static int hf_lppe_requestedAPTypes = -1;         /* OMA_LPPe_WLAN_AP_Type_List */
-static int hf_lppe_wlan_AP_CombinedLocationInformation = -1;  /* SEQUENCE_SIZE_1_maxWLANAPSize_OF_OMA_LPPe_WLAN_AP_LocationInformationList */
-static int hf_lppe_wlan_AP_CombinedLocationInformation_item = -1;  /* OMA_LPPe_WLAN_AP_LocationInformationList */
-static int hf_lppe_wlan_AP_LocationInformation = -1;  /* OMA_LPPe_WLAN_AP_LocationInformation */
-static int hf_lppe_apMACAddress = -1;             /* OMA_LPPe_WLAN_AP_ID */
-static int hf_lppe_apSSID = -1;                   /* OCTET_STRING_SIZE_1_32 */
-static int hf_lppe_apSignaltoNoise = -1;          /* INTEGER_M127_128 */
-static int hf_lppe_apDeviceType = -1;             /* OMA_LPPe_WLAN_AP_Type */
-static int hf_lppe_apPHYtype = -1;                /* OMA_LPPe_WLAN_AP_PHY_Type */
-static int hf_lppe_apSignalStrength = -1;         /* INTEGER_M127_128 */
-static int hf_lppe_apChannelFrequency = -1;       /* INTEGER_0_256 */
-static int hf_lppe_apRoundTripDelay = -1;         /* OMA_LPPe_WLAN_RTD */
-static int hf_lppe_ueTransmitPower = -1;          /* INTEGER_M127_128 */
-static int hf_lppe_ueAntennaGain = -1;            /* INTEGER_M127_128 */
-static int hf_lppe_apReportedLocation = -1;       /* OMA_LPPe_WLAN_ReportedLocation */
-static int hf_lppe_apTransmitPower = -1;          /* INTEGER_M127_128 */
-static int hf_lppe_apAntennaGain = -1;            /* INTEGER_M127_128 */
-static int hf_lppe_ueSignaltoNoise = -1;          /* INTEGER_M127_128 */
-static int hf_lppe_ueSignalStrength = -1;         /* INTEGER_M127_128 */
-static int hf_lppe_apSignalStrengthDelta = -1;    /* INTEGER_0_1 */
-static int hf_lppe_ueSignalStrengthDelta = -1;    /* INTEGER_0_1 */
-static int hf_lppe_apSignaltoNoiseDelta = -1;     /* INTEGER_0_1 */
-static int hf_lppe_ueSignaltoNoiseDelta = -1;     /* INTEGER_0_1 */
-static int hf_lppe_operatingClass = -1;           /* INTEGER_0_255 */
-static int hf_lppe_ueMacAddress = -1;             /* BIT_STRING_SIZE_48 */
-static int hf_lppe_rTDValue = -1;                 /* INTEGER_0_16777215 */
-static int hf_lppe_rTDUnits = -1;                 /* OMA_LPPe_WLAN_RTDUnits */
-static int hf_lppe_rTDAccuracy = -1;              /* INTEGER_0_255 */
-static int hf_lppe_locationDataLCI = -1;          /* OMA_LPPe_WLAN_LocationDataLCI */
-static int hf_lppe_latitudeResolution = -1;       /* BIT_STRING_SIZE_6 */
-static int hf_lppe_oma_LPPe_WLAN_LocationDataLCI_latitude = -1;  /* BIT_STRING_SIZE_34 */
-static int hf_lppe_longitudeResolution = -1;      /* BIT_STRING_SIZE_6 */
-static int hf_lppe_oma_LPPe_WLAN_LocationDataLCI_longitude = -1;  /* BIT_STRING_SIZE_34 */
-static int hf_lppe_altitudeType = -1;             /* BIT_STRING_SIZE_4 */
-static int hf_lppe_altitudeResolution = -1;       /* BIT_STRING_SIZE_6 */
-static int hf_lppe_oma_LPPe_WLAN_LocationDataLCI_altitude = -1;  /* BIT_STRING_SIZE_30 */
-static int hf_lppe_datum = -1;                    /* BIT_STRING_SIZE_8 */
-static int hf_lppe_requestedMeasurements_03 = -1;  /* T_requestedMeasurements_03 */
-static int hf_lppe_additionalRequestedMeasurements = -1;  /* T_additionalRequestedMeasurements */
-static int hf_lppe_wlan_ecid_MeasSupported = -1;  /* T_wlan_ecid_MeasSupported */
-static int hf_lppe_wlan_types_Supported = -1;     /* OMA_LPPe_WLAN_AP_Type_List */
-static int hf_lppe_ap_Capability = -1;            /* OMA_LPPe_WLAN_AP_Capability */
-static int hf_lppe_wlan_ap_ADSupported = -1;      /* T_wlan_ap_ADSupported */
-static int hf_lppe_additional_wlan_ecid_MeasSupported = -1;  /* T_additional_wlan_ecid_MeasSupported */
-static int hf_lppe_apTypes = -1;                  /* OMA_LPPe_WLAN_AP_Type_List */
-static int hf_lppe_locationServerErrorCauses_06 = -1;  /* OMA_LPPe_WLAN_AP_LocationServerErrorCauses */
-static int hf_lppe_targetDeviceErrorCauses_06 = -1;  /* OMA_LPPe_WLAN_AP_TargetDeviceErrorCauses */
-static int hf_lppe_cause_12 = -1;                 /* T_cause_12 */
-static int hf_lppe_apMandatoryDataUnavailable = -1;  /* NULL */
-static int hf_lppe_apLocationsUnavailable = -1;   /* NULL */
-static int hf_lppe_apLocationReliabilityUnavailable = -1;  /* NULL */
-static int hf_lppe_apTransmitPowerUnavailable = -1;  /* NULL */
-static int hf_lppe_apAntennaGainUnavailable = -1;  /* NULL */
-static int hf_lppe_apCoverageAreaUnavailable = -1;  /* NULL */
-static int hf_lppe_apTPNotAvailable = -1;         /* NULL */
-static int hf_lppe_apAGNotAvailable = -1;         /* NULL */
-static int hf_lppe_ueSNNotAvailable = -1;         /* NULL */
-static int hf_lppe_ueRSSINotAvailable = -1;       /* NULL */
-static int hf_lppe_ocNotAvailable = -1;           /* NULL */
-static int hf_lppe_cause_13 = -1;                 /* T_cause_13 */
-static int hf_lppe_apSSIDnotAvailable = -1;       /* NULL */
-static int hf_lppe_apSNMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_apDevTypeNotAvailable = -1;    /* NULL */
-static int hf_lppe_apPhyTypeNotAvailable = -1;    /* NULL */
-static int hf_lppe_apRSSIMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_apChanFreqNotAvailable = -1;   /* NULL */
-static int hf_lppe_apRTDMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_ueTPNotAvailable = -1;         /* NULL */
-static int hf_lppe_ueAGNotAvailable = -1;         /* NULL */
-static int hf_lppe_apRecLocNotAvailable = -1;     /* NULL */
-static int hf_lppe_ueMACAddressNotAvailable = -1;  /* NULL */
-static int hf_lppe_ecid_wimax_CombinedLocationInformation = -1;  /* SEQUENCE_SIZE_1_maxWiMaxECIDSize_OF_OMA_LPPe_ECID_WiMax_LocationInformationList */
-static int hf_lppe_ecid_wimax_CombinedLocationInformation_item = -1;  /* OMA_LPPe_ECID_WiMax_LocationInformationList */
-static int hf_lppe_ecid_wimax_Error = -1;         /* OMA_LPPe_ECID_WiMax_Error */
-static int hf_lppe_ecid_wimax_LocationInformation = -1;  /* OMA_LPPe_ECID_WiMax_LocationInformation */
-static int hf_lppe_wimaxBsID = -1;                /* OMA_LPPe_ECID_WiMax_WimaxBsID */
-static int hf_lppe_wimaxRTD = -1;                 /* OMA_LPPe_ECID_WiMax_WimaxRTD */
-static int hf_lppe_wimaxNMRList = -1;             /* OMA_LPPe_ECID_WiMax_WimaxNMRList */
-static int hf_lppe_bsID_MSB = -1;                 /* BIT_STRING_SIZE_24 */
-static int hf_lppe_bsID_LSB = -1;                 /* BIT_STRING_SIZE_24 */
-static int hf_lppe_rTD = -1;                      /* INTEGER_0_65535 */
-static int hf_lppe_rTDstd = -1;                   /* INTEGER_0_1023 */
-static int hf_lppe_OMA_LPPe_ECID_WiMax_WimaxNMRList_item = -1;  /* OMA_LPPe_ECID_WiMax_WimaxNMR */
-static int hf_lppe_relDelay = -1;                 /* INTEGER_M32768_32767 */
-static int hf_lppe_relDelaystd = -1;              /* INTEGER_0_1023 */
-static int hf_lppe_rSSI = -1;                     /* INTEGER_0_255 */
-static int hf_lppe_rSSIstd = -1;                  /* INTEGER_0_63 */
-static int hf_lppe_bSTxPower = -1;                /* INTEGER_0_255 */
-static int hf_lppe_cINR = -1;                     /* INTEGER_0_255 */
-static int hf_lppe_cINRstd = -1;                  /* INTEGER_0_63 */
-static int hf_lppe_bSLocation = -1;               /* OMA_LPPe_WLAN_ReportedLocation */
-static int hf_lppe_requestedMeasurements_04 = -1;  /* T_requestedMeasurements_04 */
-static int hf_lppe_ecid_wimax_MeasSupported = -1;  /* T_ecid_wimax_MeasSupported */
-static int hf_lppe_locationServerErrorCauses_07 = -1;  /* OMA_LPPe_ECID_WiMax_LocationServerErrorCauses */
-static int hf_lppe_targetDeviceErrorCauses_07 = -1;  /* OMA_LPPe_ECID_WiMax_TargetDeviceErrorCauses */
-static int hf_lppe_cause_14 = -1;                 /* T_cause_14 */
-static int hf_lppe_cause_15 = -1;                 /* T_cause_15 */
-static int hf_lppe_rTDMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_rTDstdMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_nMRrelDelayMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_nMRrelDelaystdMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_nMRrSSIMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_nMRrSSIstdMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_nMRbSTxPowerMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_nMRcINRMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_nMRcINRstdMeasurementNotPossible = -1;  /* NULL */
-static int hf_lppe_nMRbSLocationNotAvailable = -1;  /* NULL */
-static int hf_lppe_atmosphericPressureAD = -1;    /* OMA_LPPe_AtmosphericPressureAD */
-static int hf_lppe_referencePressure = -1;        /* INTEGER_M20000_10000 */
-static int hf_lppe_period = -1;                   /* T_period */
-static int hf_lppe_pressureValidityPeriod = -1;   /* OMA_LPPe_ValidityPeriod */
-static int hf_lppe_referencePressureRate = -1;    /* INTEGER_M128_127 */
-static int hf_lppe_area_01 = -1;                  /* T_area */
-static int hf_lppe_pressureValidityArea = -1;     /* OMA_LPPe_PressureValidityArea */
-static int hf_lppe_centerPoint = -1;              /* Ellipsoid_Point */
-static int hf_lppe_validityAreaWidth = -1;        /* INTEGER_1_128 */
-static int hf_lppe_validityAreaHeight = -1;       /* INTEGER_1_128 */
-static int hf_lppe_pressureSensorAD = -1;         /* OMA_LPPe_PressureSensorAD */
-static int hf_lppe_motionStateList = -1;          /* OMA_LPPe_Sensor_MotionStateList */
-static int hf_lppe_sensorError = -1;              /* OMA_LPPe_Sensor_Error */
-static int hf_lppe_atmosphericPressure = -1;      /* OMA_LPPe_AtmosphericPressure */
-static int hf_lppe_OMA_LPPe_Sensor_MotionStateList_item = -1;  /* OMA_LPPe_Sensor_MotionStateElement */
-static int hf_lppe_primaryMotionState = -1;       /* T_primaryMotionState */
-static int hf_lppe_secondaryMotionState = -1;     /* T_secondaryMotionState */
-static int hf_lppe_pressureMeasurement = -1;      /* OMA_LPPe_PressureMeasurement */
-static int hf_lppe_pressureStats = -1;            /* PressureStats */
-static int hf_lppe_calibrationPoints = -1;        /* CalibrationPoints */
-static int hf_lppe_sensorMeanPressure = -1;       /* INTEGER_30000_115000 */
-static int hf_lppe_sensorStddevPressure = -1;     /* INTEGER_0_2000 */
-static int hf_lppe_duration_04 = -1;              /* INTEGER_5_40 */
-static int hf_lppe_CalibrationPoints_item = -1;   /* CalibrationPoints_item */
-static int hf_lppe_pressure_01 = -1;              /* OMA_LPPe_PressureMeasurement */
-static int hf_lppe_time = -1;                     /* UTCTime */
-static int hf_lppe_location = -1;                 /* EllipsoidPointWithAltitudeAndUncertaintyEllipsoid */
-static int hf_lppe_motionState = -1;              /* OMA_LPPe_Sensor_MotionStateList */
-static int hf_lppe_velocity = -1;                 /* Velocity */
-static int hf_lppe_sensorMeasurement = -1;        /* INTEGER_30000_115000 */
-static int hf_lppe_adjustment = -1;               /* INTEGER_M5000_5000 */
-static int hf_lppe_uncertainty_01 = -1;           /* T_uncertainty */
-static int hf_lppe_range = -1;                    /* INTEGER_0_1000 */
-static int hf_lppe_confidence_01 = -1;            /* INTEGER_1_100 */
-static int hf_lppe_temperature_01 = -1;           /* INTEGER_M100_150 */
-static int hf_lppe_motionStateReq = -1;           /* OMA_LPPe_Sensor_MotionStateRequest */
-static int hf_lppe_atmosphericPressureReq = -1;   /* OMA_LPPe_AtmosphericPressureRequest */
-static int hf_lppe_secondaryMotionStateRequest = -1;  /* NULL */
-static int hf_lppe_motionStateSupport = -1;       /* NULL */
-static int hf_lppe_secondarySupport = -1;         /* NULL */
-static int hf_lppe_atmosphericPressureADSupport = -1;  /* NULL */
-static int hf_lppe_atmosphericPressureSupport = -1;  /* NULL */
-static int hf_lppe_targetError = -1;              /* OMA_LPPe_Sensor_TargetError */
-static int hf_lppe_motionStateError = -1;         /* T_motionStateError */
-static int hf_lppe_secondaryMotionStateError = -1;  /* T_secondaryMotionStateError */
-static int hf_lppe_atmosphericPressureError = -1;  /* T_atmosphericPressureError */
-static int hf_lppe_srnGroup = -1;                 /* T_srnGroup */
-static int hf_lppe_srnGroupList = -1;             /* OMA_LPPe_SRN_SRNgroupList */
-static int hf_lppe_srnGroupUpdateResponse = -1;   /* OMA_LPPe_SRN_SRNgroupUpdateResponse */
-static int hf_lppe_antennaPattern = -1;           /* OMA_LPPe_SRN_AntennaPattern */
-static int hf_lppe_srnError = -1;                 /* OMA_LPPe_SRN_Error */
-static int hf_lppe_incompleteFlag = -1;           /* BOOLEAN */
-static int hf_lppe_defaultReferencePoint = -1;    /* OMA_LPPe_ReferencePoint */
-static int hf_lppe_groupList = -1;                /* SEQUENCE_SIZE_1_64_OF_OMA_LPPe_SRN_SRNgroup */
-static int hf_lppe_groupList_item = -1;           /* OMA_LPPe_SRN_SRNgroup */
-static int hf_lppe_srnGroupID = -1;               /* OMA_LPPe_SRN_SRNgroupUniqueID */
-static int hf_lppe_defaultSRNtype = -1;           /* OMA_LPPe_SRN_SRNtype */
-static int hf_lppe_referencePoint_01 = -1;        /* OMA_LPPe_ReferencePoint */
-static int hf_lppe_globalOrientation = -1;        /* NULL */
-static int hf_lppe_srnsInGroupList = -1;          /* SEQUENCE_SIZE_1_1024_OF_OMA_LPPe_SRN_SRNinfo */
-static int hf_lppe_srnsInGroupList_item = -1;     /* OMA_LPPe_SRN_SRNinfo */
-static int hf_lppe_srnID = -1;                    /* OMA_LPPe_SRN_SRNid */
-static int hf_lppe_srnType = -1;                  /* OMA_LPPe_SRN_SRNtype */
-static int hf_lppe_relativePosition = -1;         /* OMA_LPPe_RelativeLocation */
-static int hf_lppe_orientation = -1;              /* OMA_LPPe_Orientation */
-static int hf_lppe_OMA_LPPe_SRN_SRNgroupUpdateResponse_item = -1;  /* OMA_LPPe_SRN_SRNgroupUpdateResponseElement */
-static int hf_lppe_targetDataValidity = -1;       /* T_targetDataValidity */
-static int hf_lppe_updatedSRNgroup = -1;          /* OMA_LPPe_SRN_SRNgroup */
-static int hf_lppe_OMA_LPPe_SRN_AntennaPattern_item = -1;  /* OMA_LPPe_SRN_AntennaPatternElement */
-static int hf_lppe_identification = -1;           /* T_identification */
-static int hf_lppe_vendorOrOperator = -1;         /* OMA_LPPe_VendorOrOperatorID */
-static int hf_lppe_antennaPatternID = -1;         /* INTEGER_0_65535 */
-static int hf_lppe_antennaData = -1;              /* T_antennaData */
-static int hf_lppe_antennaPattern_01 = -1;        /* OMA_LPPe_SRN_AntennaPatternForChannels */
-static int hf_lppe_antennaContainer = -1;         /* OCTET_STRING */
-static int hf_lppe_evenGrid = -1;                 /* T_evenGrid */
-static int hf_lppe_inAzimuth = -1;                /* INTEGER_1_200 */
-static int hf_lppe_inElevation = -1;              /* INTEGER_1_150 */
-static int hf_lppe_patternList = -1;              /* SEQUENCE_SIZE_1_maxChannels_OF_OMA_LPPe_SRN_ChannelResponse */
-static int hf_lppe_patternList_item = -1;         /* OMA_LPPe_SRN_ChannelResponse */
-static int hf_lppe_channelNumber = -1;            /* INTEGER_1_maxChannels */
-static int hf_lppe_responseInElevation = -1;      /* SEQUENCE_SIZE_7_901_OF_OMA_LPPe_SRN_ResponseInElevation */
-static int hf_lppe_responseInElevation_item = -1;  /* OMA_LPPe_SRN_ResponseInElevation */
-static int hf_lppe_elevation_01 = -1;             /* INTEGER_0_900 */
-static int hf_lppe_responseInAzimuth = -1;        /* SEQUENCE_SIZE_18_3601_OF_OMA_LPPe_SRN_ResponseInAzimuth */
-static int hf_lppe_responseInAzimuth_item = -1;   /* OMA_LPPe_SRN_ResponseInAzimuth */
-static int hf_lppe_azimuth_01 = -1;               /* INTEGER_0_3599 */
-static int hf_lppe_response = -1;                 /* OMA_LPPe_ComplexNumber */
-static int hf_lppe_amplitude = -1;                /* INTEGER_0_1000 */
-static int hf_lppe_phase = -1;                    /* INTEGER_M1800_1799 */
-static int hf_lppe_srnGroup_01 = -1;              /* T_srnGroup_01 */
-static int hf_lppe_srnGroupRequest = -1;          /* OMA_LPPe_SRN_SRNgroupRequest */
-static int hf_lppe_srnGroupUpdateRequest = -1;    /* OMA_LPPe_SRN_SRNgroupUpdateRequest */
-static int hf_lppe_antennaPatternRequest = -1;    /* OMA_LPPe_SRN_AntennaPatternRequest */
-static int hf_lppe_doNotProvideList = -1;         /* OMA_LPPe_SRN_SRNProvideList */
-static int hf_lppe_doProvideList = -1;            /* OMA_LPPe_SRN_SRNProvideList */
-static int hf_lppe_groupList_01 = -1;             /* SEQUENCE_SIZE_1_256_OF_OMA_LPPe_SRN_SRNgroupUniqueID */
-static int hf_lppe_groupList_item_01 = -1;        /* OMA_LPPe_SRN_SRNgroupUniqueID */
-static int hf_lppe_categoryList = -1;             /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_SRN_Category */
-static int hf_lppe_categoryList_item = -1;        /* OMA_LPPe_SRN_Category */
-static int hf_lppe_OMA_LPPe_SRN_SRNgroupUpdateRequest_item = -1;  /* OMA_LPPe_SRN_SRNgroupUpdateRequestElement */
-static int hf_lppe_provideIndicationOnly = -1;    /* NULL */
-static int hf_lppe_inTheGroup = -1;               /* SEQUENCE_SIZE_1_1024_OF_OMA_LPPe_SRN_SRNid */
-static int hf_lppe_inTheGroup_item = -1;          /* OMA_LPPe_SRN_SRNid */
-static int hf_lppe_OMA_LPPe_SRN_AntennaPatternRequest_item = -1;  /* OMA_LPPe_SRN_AntennaPatternRequestElement */
-static int hf_lppe_antennaPatternID_01 = -1;      /* T_antennaPatternID */
-static int hf_lppe_srnMeasurementList = -1;       /* SEQUENCE_SIZE_1_64_OF_OMA_LPPe_SRN_MeasurementElement */
-static int hf_lppe_srnMeasurementList_item = -1;  /* OMA_LPPe_SRN_MeasurementElement */
-static int hf_lppe_srnCategory = -1;              /* OMA_LPPe_SRN_Category */
-static int hf_lppe_measurementList = -1;          /* SEQUENCE_SIZE_1_64_OF_OMA_LPPe_SRN_srnMeasurementElement */
-static int hf_lppe_measurementList_item = -1;     /* OMA_LPPe_SRN_srnMeasurementElement */
-static int hf_lppe_relativeTimeStamp_01 = -1;     /* INTEGER_0_1000 */
-static int hf_lppe_rssi = -1;                     /* INTEGER_M128_127 */
-static int hf_lppe_rtd = -1;                      /* OMA_LPPe_WLAN_RTD */
-static int hf_lppe_requestInfo = -1;              /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_SRN_ReqLocInfo_Category */
-static int hf_lppe_requestInfo_item = -1;         /* OMA_LPPe_SRN_ReqLocInfo_Category */
-static int hf_lppe_category = -1;                 /* OMA_LPPe_SRN_Category */
-static int hf_lppe_multipleMeasurements = -1;     /* T_multipleMeasurements */
-static int hf_lppe_allowedMeasurements = -1;      /* OMA_LPPe_SRN_MeasurementMask */
-static int hf_lppe_historicMeasurementsRequested = -1;  /* NULL */
-static int hf_lppe_capabilitiesPerSRNCategory = -1;  /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_SRN_ProvideCapabilitiesElement */
-static int hf_lppe_capabilitiesPerSRNCategory_item = -1;  /* OMA_LPPe_SRN_ProvideCapabilitiesElement */
-static int hf_lppe_supportedMeasurements = -1;    /* OMA_LPPe_SRN_MeasurementMask */
-static int hf_lppe_supportedAssistanceData = -1;  /* T_supportedAssistanceData */
-static int hf_lppe_historicMeasurementsSupported = -1;  /* NULL */
-static int hf_lppe_capabilitiesRequestedFor = -1;  /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_SRN_Category */
-static int hf_lppe_capabilitiesRequestedFor_item = -1;  /* OMA_LPPe_SRN_Category */
-static int hf_lppe_srnLocationServerErrorCauses = -1;  /* OMA_LPPe_SRN_LocationServerErrorCauses */
-static int hf_lppe_srnTargetDeviceErrorCauses = -1;  /* OMA_LPPe_SRN_TargetDeviceErrorCauses */
-static int hf_lppe_groupErrors = -1;              /* T_groupErrors */
-static int hf_lppe_groupUpdateErrors = -1;        /* T_groupUpdateErrors */
-static int hf_lppe_srnAntennaErrors = -1;         /* T_srnAntennaErrors */
-static int hf_lppe_srnErrorsPerCategory = -1;     /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_SRN_TargetDeviceError */
-static int hf_lppe_srnErrorsPerCategory_item = -1;  /* OMA_LPPe_SRN_TargetDeviceError */
-static int hf_lppe_srnErrors = -1;                /* T_srnErrors */
-static int hf_lppe_rssiNotAvailable = -1;         /* NULL */
-static int hf_lppe_rtdNotAvailable = -1;          /* NULL */
-static int hf_lppe_multipleSetsNotAvailable = -1;  /* NULL */
-static int hf_lppe_srnDataVersion = -1;           /* INTEGER_0_4294967295 */
-static int hf_lppe_srnERP = -1;                   /* INTEGER_M300_500 */
-static int hf_lppe_srnAntennaInfo = -1;           /* T_srnAntennaInfo */
-static int hf_lppe_switchingPatternID = -1;       /* INTEGER_0_65535 */
-static int hf_lppe_srnTechnologyType = -1;        /* OMA_LPPe_SRN_Technologies */
-static int hf_lppe_srnVendorInformation = -1;     /* T_srnVendorInformation */
-static int hf_lppe_vendor = -1;                   /* OMA_LPPe_VendorOrOperatorID */
-static int hf_lppe_vendorInfo = -1;               /* OCTET_STRING */
-static int hf_lppe_srn_id = -1;                   /* T_srn_id */
-static int hf_lppe_mac = -1;                      /* BIT_STRING_SIZE_48 */
-static int hf_lppe_nfc = -1;                      /* T_nfc */
-static int hf_lppe_manufacturer = -1;             /* BIT_STRING_SIZE_8 */
-static int hf_lppe_uniqueNumber = -1;             /* BIT_STRING_SIZE_48 */
-static int hf_lppe_mobileCode = -1;               /* T_mobileCode */
-static int hf_lppe_registryID = -1;               /* BIT_STRING_SIZE_12 */
-static int hf_lppe_remainingPart = -1;            /* OCTET_STRING_SIZE_1_16 */
-static int hf_lppe_resolutionIdentifier = -1;     /* OCTET_STRING_SIZE_1_18 */
-static int hf_lppe_other = -1;                    /* OCTET_STRING */
-static int hf_lppe_srnTechnologies = -1;          /* T_srnTechnologies */
-static int hf_lppe_srnMeasurements = -1;          /* T_srnMeasurements */
+static int hf_lppe_OMA_LPPe_MessageExtension_PDU;  /* OMA_LPPe_MessageExtension */
+static int hf_lppe_lppeCompatibilityLevel;        /* OMA_LPPe_LPPeCompatibilityLevel */
+static int hf_lppe_lppeVersion;                   /* OMA_LPPe_LPPeVersion */
+static int hf_lppe_lppeMode;                      /* OMA_LPPe_LPPeMode */
+static int hf_lppe_messageExtensionBody;          /* OMA_LPPe_MessageExtensionBody */
+static int hf_lppe_majorVersion;                  /* INTEGER_0_255 */
+static int hf_lppe_minorVersion;                  /* INTEGER_0_255 */
+static int hf_lppe_requestCapabilities;           /* OMA_LPPe_RequestCapabilities */
+static int hf_lppe_provideCapabilities;           /* OMA_LPPe_ProvideCapabilities */
+static int hf_lppe_requestAssistanceData;         /* OMA_LPPe_RequestAssistanceData */
+static int hf_lppe_provideAssistanceData;         /* OMA_LPPe_ProvideAssistanceData */
+static int hf_lppe_requestLocationInformation;    /* OMA_LPPe_RequestLocationInformation */
+static int hf_lppe_provideLocationInformation;    /* OMA_LPPe_ProvideLocationInformation */
+static int hf_lppe_error;                         /* OMA_LPPe_Error */
+static int hf_lppe_abort;                         /* OMA_LPPe_Abort */
+static int hf_lppe_commonIEsRequestCapabilities;  /* OMA_LPPe_CommonIEsRequestCapabilities */
+static int hf_lppe_agnss_RequestCapabilities;     /* OMA_LPPe_AGNSS_RequestCapabilities */
+static int hf_lppe_otdoa_RequestCapabilities;     /* OMA_LPPe_OTDOA_RequestCapabilities */
+static int hf_lppe_eotd_RequestCapabilities;      /* OMA_LPPe_EOTD_RequestCapabilities */
+static int hf_lppe_otdoa_utra_RequestCapabilities;  /* OMA_LPPe_OTDOA_UTRA_RequestCapabilities */
+static int hf_lppe_ecid_lte_RequestCapabilities;  /* OMA_LPPe_ECID_LTE_RequestCapabilities */
+static int hf_lppe_ecid_gsm_RequestCapabilities;  /* OMA_LPPe_ECID_GSM_RequestCapabilities */
+static int hf_lppe_ecid_utra_RequestCapabilities;  /* OMA_LPPe_ECID_UTRA_RequestCapabilities */
+static int hf_lppe_wlan_ap_RequestCapabilities;   /* OMA_LPPe_WLAN_AP_RequestCapabilities */
+static int hf_lppe_ecid_wimax_RequestCapabilities;  /* OMA_LPPe_ECID_WiMax_RequestCapabilities */
+static int hf_lppe_sensor_RequestCapabilities;    /* OMA_LPPe_Sensor_RequestCapabilities */
+static int hf_lppe_srn_RequestCapabilities;       /* OMA_LPPe_SRN_RequestCapabilities */
+static int hf_lppe_commonIEsProvideCapabilities;  /* OMA_LPPe_CommonIEsProvideCapabilities */
+static int hf_lppe_agnss_ProvideCapabilities;     /* OMA_LPPe_AGNSS_ProvideCapabilities */
+static int hf_lppe_otdoa_ProvideCapabilities;     /* OMA_LPPe_OTDOA_ProvideCapabilities */
+static int hf_lppe_eotd_ProvideCapabilities;      /* OMA_LPPe_EOTD_ProvideCapabilities */
+static int hf_lppe_otdoa_utra_ProvideCapabilities;  /* OMA_LPPe_OTDOA_UTRA_ProvideCapabilities */
+static int hf_lppe_ecid_lte_ProvideCapabilities;  /* OMA_LPPe_ECID_LTE_ProvideCapabilities */
+static int hf_lppe_ecid_gsm_ProvideCapabilities;  /* OMA_LPPe_ECID_GSM_ProvideCapabilities */
+static int hf_lppe_ecid_utra_ProvideCapabilities;  /* OMA_LPPe_ECID_UTRA_ProvideCapabilities */
+static int hf_lppe_wlan_ap_ProvideCapabilities;   /* OMA_LPPe_WLAN_AP_ProvideCapabilities */
+static int hf_lppe_ecid_wimax_ProvideCapabilities;  /* OMA_LPPe_ECID_WiMax_ProvideCapabilities */
+static int hf_lppe_sensor_ProvideCapabilities;    /* OMA_LPPe_Sensor_ProvideCapabilities */
+static int hf_lppe_srn_ProvideCapabilities;       /* OMA_LPPe_SRN_ProvideCapabilities */
+static int hf_lppe_commonIEsRequestAssistanceData;  /* OMA_LPPe_CommonIEsRequestAssistanceData */
+static int hf_lppe_agnss_RequestAssistanceData;   /* OMA_LPPe_AGNSS_RequestAssistanceData */
+static int hf_lppe_otdoa_RequestAssistanceData;   /* OMA_LPPe_OTDOA_RequestAssistanceData */
+static int hf_lppe_eotd_RequestAssistanceData;    /* OMA_LPPe_EOTD_RequestAssistanceData */
+static int hf_lppe_otdoa_utra_RequestAssistanceData;  /* OMA_LPPe_OTDOA_UTRA_RequestAssistanceData */
+static int hf_lppe_ecid_lte_RequestAssistanceData;  /* OMA_LPPe_ECID_LTE_RequestAssistanceData */
+static int hf_lppe_ecid_gsm_RequestAssistanceData;  /* OMA_LPPe_ECID_GSM_RequestAssistanceData */
+static int hf_lppe_ecid_utra_RequestAssistanceData;  /* OMA_LPPe_ECID_UTRA_RequestAssistanceData */
+static int hf_lppe_wlan_ap_RequestAssistanceData;  /* OMA_LPPe_WLAN_AP_RequestAssistanceData */
+static int hf_lppe_sensor_RequestAssistanceData;  /* OMA_LPPe_Sensor_RequestAssistanceData */
+static int hf_lppe_srn_RequestAssistanceData;     /* OMA_LPPe_SRN_RequestAssistanceData */
+static int hf_lppe_commonIEsProvideAssistanceData;  /* OMA_LPPe_CommonIEsProvideAssistanceData */
+static int hf_lppe_agnss_ProvideAssistanceData;   /* OMA_LPPe_AGNSS_ProvideAssistanceData */
+static int hf_lppe_otdoa_ProvideAssistanceData;   /* OMA_LPPe_OTDOA_ProvideAssistanceData */
+static int hf_lppe_eotd_ProvideAssistanceData;    /* OMA_LPPe_EOTD_ProvideAssistanceData */
+static int hf_lppe_otdoa_utra_ProvideAssistanceData;  /* OMA_LPPe_OTDOA_UTRA_ProvideAssistanceData */
+static int hf_lppe_ecid_lte_ProvideAssistanceData;  /* OMA_LPPe_ECID_LTE_ProvideAssistanceData */
+static int hf_lppe_ecid_gsm_ProvideAssistanceData;  /* OMA_LPPe_ECID_GSM_ProvideAssistanceData */
+static int hf_lppe_ecid_utra_ProvideAssistanceData;  /* OMA_LPPe_ECID_UTRA_ProvideAssistanceData */
+static int hf_lppe_wlan_ap_ProvideAssistanceData;  /* OMA_LPPe_WLAN_AP_ProvideAssistanceData */
+static int hf_lppe_sensor_ProvideAssistanceData;  /* OMA_LPPe_Sensor_ProvideAssistanceData */
+static int hf_lppe_srn_ProvideAssistanceData;     /* OMA_LPPe_SRN_ProvideAssistanceData */
+static int hf_lppe_commonIEsRequestLocationInformation;  /* OMA_LPPe_CommonIEsRequestLocationInformation */
+static int hf_lppe_agnss_RequestLocationInformation;  /* OMA_LPPe_AGNSS_RequestLocationInformation */
+static int hf_lppe_otdoa_RequestLocationInformation;  /* OMA_LPPe_OTDOA_RequestLocationInformation */
+static int hf_lppe_eotd_RequestLocationInformation;  /* OMA_LPPe_EOTD_RequestLocationInformation */
+static int hf_lppe_otdoa_utra_RequestLocationInformation;  /* OMA_LPPe_OTDOA_UTRA_RequestLocationInformation */
+static int hf_lppe_ecid_lte_RequestLocationInformation;  /* OMA_LPPe_ECID_LTE_RequestLocationInformation */
+static int hf_lppe_ecid_gsm_RequestLocationInformation;  /* OMA_LPPe_ECID_GSM_RequestLocationInformation */
+static int hf_lppe_ecid_utra_RequestLocationInformation;  /* OMA_LPPe_ECID_UTRA_RequestLocationInformation */
+static int hf_lppe_wlan_ap_RequestLocationInformation;  /* OMA_LPPe_WLAN_AP_RequestLocationInformation */
+static int hf_lppe_ecid_wimax_RequestLocationInformation;  /* OMA_LPPe_ECID_WiMax_RequestLocationInformation */
+static int hf_lppe_sensor_RequestLocationInformation;  /* OMA_LPPe_Sensor_RequestLocationInformation */
+static int hf_lppe_srn_RequestLocationInformation;  /* OMA_LPPe_SRN_RequestLocationInformation */
+static int hf_lppe_commonIEsProvideLocationInformation;  /* OMA_LPPe_CommonIEsProvideLocationInformation */
+static int hf_lppe_agnss_ProvideLocationInformation;  /* OMA_LPPe_AGNSS_ProvideLocationInformation */
+static int hf_lppe_otdoa_ProvideLocationInformation;  /* OMA_LPPe_OTDOA_ProvideLocationInformation */
+static int hf_lppe_eotd_ProvideLocationInformation;  /* OMA_LPPe_EOTD_ProvideLocationInformation */
+static int hf_lppe_otdoa_utra_ProvideLocationInformation;  /* OMA_LPPe_OTDOA_UTRA_ProvideLocationInformation */
+static int hf_lppe_ecid_lte_ProvideLocationInformation;  /* OMA_LPPe_ECID_LTE_ProvideLocationInformation */
+static int hf_lppe_ecid_gsm_ProvideLocationInformation;  /* OMA_LPPe_ECID_GSM_ProvideLocationInformation */
+static int hf_lppe_ecid_utra_ProvideLocationInformation;  /* OMA_LPPe_ECID_UTRA_ProvideLocationInformation */
+static int hf_lppe_wlan_ap_ProvideLocationInformastion;  /* OMA_LPPe_WLAN_AP_ProvideLocationInformation */
+static int hf_lppe_ecid_wimax_ProvideLocationInformastion;  /* OMA_LPPe_ECID_WiMax_ProvideLocationInformation */
+static int hf_lppe_sensor_ProvideLocationInformation;  /* OMA_LPPe_Sensor_ProvideLocationInformation */
+static int hf_lppe_srn_ProvideLocationInformation;  /* OMA_LPPe_SRN_ProvideLocationInformation */
+static int hf_lppe_commonIEsAbort;                /* OMA_LPPe_CommonIEsAbort */
+static int hf_lppe_agnssAbort;                    /* OMA_LPPe_AGNSS_Abort */
+static int hf_lppe_commonIEsError;                /* OMA_LPPe_CommonIEsError */
+static int hf_lppe_dataSerialNumber;              /* INTEGER_0_4294967295 */
+static int hf_lppe_containerID;                   /* INTEGER_0_65535 */
+static int hf_lppe_OMA_LPPe_AssistanceContainerProvideList_item;  /* OMA_LPPe_AssistanceContainerProvide */
+static int hf_lppe_dataIdentifier;                /* OMA_LPPe_VendorOrOperatorAssistanceDataIdentifier */
+static int hf_lppe_checkOrUpdateOrError;          /* T_checkOrUpdateOrError */
+static int hf_lppe_dataResult;                    /* T_dataResult */
+static int hf_lppe_simulationResult;              /* INTEGER_0_5000 */
+static int hf_lppe_data;                          /* OMA_LPPe_AssistanceContainerData */
+static int hf_lppe_errorCode;                     /* OMA_LPPe_AssistanceContainerProvideError */
+static int hf_lppe_dataSerialNumber_01;           /* OMA_LPPe_AssistanceContainer_DataSerialNumber */
+static int hf_lppe_data_01;                       /* OCTET_STRING */
+static int hf_lppe_validityPeriod;                /* OMA_LPPe_ValidityPeriod */
+static int hf_lppe_validityArea;                  /* OMA_LPPe_ValidityArea */
+static int hf_lppe_serverError;                   /* T_serverError */
+static int hf_lppe_OMA_LPPe_AssistanceContainerRequestList_item;  /* OMA_LPPe_AssistanceContainerRequest */
+static int hf_lppe_simulatedReq;                  /* BOOLEAN */
+static int hf_lppe_checkOrUpdateReq;              /* OMA_LPPe_AssistanceContainerCheckOrUpdateReq */
+static int hf_lppe_validityTimeRequest;           /* OMA_LPPe_ValidityPeriod */
+static int hf_lppe_proprietaryRequestParameters;  /* OCTET_STRING */
+static int hf_lppe_checkLatest;                   /* T_checkLatest */
+static int hf_lppe_locationAreaCode;              /* BIT_STRING_SIZE_16 */
+static int hf_lppe_cellIdentity;                  /* BIT_STRING_SIZE_16 */
+static int hf_lppe_bsic;                          /* INTEGER_0_63 */
+static int hf_lppe_bcch;                          /* INTEGER_0_1023 */
+static int hf_lppe_countryCode;                   /* OCTET_STRING_SIZE_2 */
+static int hf_lppe_civicAddressElementList;       /* OMA_LPPe_CivicAddressElementList */
+static int hf_lppe_OMA_LPPe_CivicAddressElementList_item;  /* OMA_LPPe_CivicAddressElement */
+static int hf_lppe_caType;                        /* INTEGER_0_511 */
+static int hf_lppe_caValue;                       /* OCTET_STRING_SIZE_1_256 */
+static int hf_lppe_civicLocation;                 /* T_civicLocation */
+static int hf_lppe_duration;                      /* INTEGER_1_63 */
+static int hf_lppe_durationLSB;                   /* INTEGER_1_89 */
+static int hf_lppe_latitude;                      /* INTEGER_M2147483648_2147483647 */
+static int hf_lppe_longitude;                     /* INTEGER_M2147483648_2147483647 */
+static int hf_lppe_cep;                           /* INTEGER_0_255 */
+static int hf_lppe_uncertainty_semimajor;         /* INTEGER_0_255 */
+static int hf_lppe_uncertainty_semiminor;         /* INTEGER_0_255 */
+static int hf_lppe_offset_angle;                  /* INTEGER_0_179 */
+static int hf_lppe_confidenceHorizontal;          /* INTEGER_0_99 */
+static int hf_lppe_altitude;                      /* INTEGER_M64000_1280000 */
+static int hf_lppe_uncertainty_altitude;          /* INTEGER_0_255 */
+static int hf_lppe_confidenceVertical;            /* INTEGER_0_99 */
+static int hf_lppe_extUncertRange;                /* BOOLEAN */
+static int hf_lppe_enu_origin;                    /* OMA_LPPe_HighAccuracy3Dposition */
+static int hf_lppe_east_component;                /* INTEGER_0_511 */
+static int hf_lppe_negative_sign_east;            /* NULL */
+static int hf_lppe_north_component;               /* INTEGER_0_511 */
+static int hf_lppe_negative_sign_north;           /* NULL */
+static int hf_lppe_up_component;                  /* INTEGER_0_511 */
+static int hf_lppe_negative_sign_up;              /* NULL */
+static int hf_lppe_uncertainty_up_component;      /* INTEGER_0_255 */
+static int hf_lppe_confidenceUp;                  /* INTEGER_0_99 */
+static int hf_lppe_vendorOrOperatorID;            /* OMA_LPPe_VendorOrOperatorID */
+static int hf_lppe_locationInformationContainerDataList;  /* OMA_LPPe_LocationInformationContainerDataList */
+static int hf_lppe_OMA_LPPe_LocationInformationContainerDataList_item;  /* OMA_LPPe_LocationInformationContainerData */
+static int hf_lppe_containerID_01;                /* OMA_LPPe_LocationInformationContainerID */
+static int hf_lppe_containerData;                 /* OCTET_STRING */
+static int hf_lppe_locationInformationContainerRequestList;  /* OMA_LPPe_LocationInformationContainerRequestList */
+static int hf_lppe_OMA_LPPe_LocationInformationContainerRequestList_item;  /* OMA_LPPe_LocationInformationContainerRequestItem */
+static int hf_lppe_additionalInformation;         /* OCTET_STRING */
+static int hf_lppe_dataID;                        /* OMA_LPPe_AssistanceContainerID */
+static int hf_lppe_mapReference;                  /* OCTET_STRING_SIZE_1_64 */
+static int hf_lppe_mapSize;                       /* INTEGER_1_5000 */
+static int hf_lppe_eulerAngles;                   /* T_eulerAngles */
+static int hf_lppe_alpha;                         /* INTEGER_0_359 */
+static int hf_lppe_beta;                          /* INTEGER_0_180 */
+static int hf_lppe_gamma;                         /* INTEGER_0_359 */
+static int hf_lppe_referencePointUniqueID;        /* OMA_LPPe_ReferencePointUniqueID */
+static int hf_lppe_referencePointGeographicLocation;  /* T_referencePointGeographicLocation */
+static int hf_lppe_location3D;                    /* EllipsoidPointWithAltitude */
+static int hf_lppe_location3DwithUncertainty;     /* EllipsoidPointWithAltitudeAndUncertaintyEllipsoid */
+static int hf_lppe_locationwithhighaccuracy;      /* OMA_LPPe_HighAccuracy3Dposition */
+static int hf_lppe_referencePointCivicLocation;   /* OMA_LPPe_CivicLocation */
+static int hf_lppe_referencePointFloorLevel;      /* INTEGER_M20_235 */
+static int hf_lppe_relatedReferencePoints;        /* SEQUENCE_SIZE_1_8_OF_OMA_LPPe_ReferencePointRelationship */
+static int hf_lppe_relatedReferencePoints_item;   /* OMA_LPPe_ReferencePointRelationship */
+static int hf_lppe_mapDataInformation;            /* OMA_LPPe_MapDataInformation */
+static int hf_lppe_OMA_LPPe_MapDataInformation_item;  /* OMA_LPPe_MapDataReferenceElement */
+static int hf_lppe_mapDataUrl_choice;             /* T_mapDataUrl_choice */
+static int hf_lppe_mapDataUrl;                    /* OMA_LPPe_Uri */
+static int hf_lppe_mapDataRef;                    /* OMA_LPPe_MapDataReference */
+static int hf_lppe_mapProvider;                   /* T_mapProvider */
+static int hf_lppe_sameAsRefPointProvider;        /* NULL */
+static int hf_lppe_notSameAsRefPointProvider;     /* OMA_LPPe_VendorOrOperatorID */
+static int hf_lppe_mapAssociation;                /* T_mapAssociation */
+static int hf_lppe_referencePointUniqueID_01;     /* NULL */
+static int hf_lppe_otherID;                       /* VisibleString_SIZE_1_64 */
+static int hf_lppe_mapOffset;                     /* OMA_LPPe_RelativeLocation */
+static int hf_lppe_origin;                        /* NULL */
+static int hf_lppe_mapHorizontalOrientation;      /* INTEGER_0_359 */
+static int hf_lppe_relativeLocation;              /* OMA_LPPe_RelativeLocation */
+static int hf_lppe_providerID;                    /* OMA_LPPe_VendorOrOperatorID */
+static int hf_lppe_providerAssignedID;            /* OCTET_STRING */
+static int hf_lppe_version;                       /* INTEGER_1_64 */
+static int hf_lppe_units;                         /* T_units */
+static int hf_lppe_arc_second_units;              /* T_arc_second_units */
+static int hf_lppe_relativeNorth;                 /* INTEGER_M524288_524287 */
+static int hf_lppe_relativeEast;                  /* INTEGER_M524288_524287 */
+static int hf_lppe_relativeAltitude;              /* OMA_LPPe_RelativeAltitude */
+static int hf_lppe_horizontalUncertainty;         /* OMA_LPPe_HorizontalUncertaintyAndConfidence */
+static int hf_lppe_uncShape;                      /* T_uncShape */
+static int hf_lppe_circle;                        /* INTEGER_0_127 */
+static int hf_lppe_ellipse;                       /* T_ellipse */
+static int hf_lppe_semimajor;                     /* INTEGER_0_127 */
+static int hf_lppe_semiminor;                     /* INTEGER_0_127 */
+static int hf_lppe_offsetAngle;                   /* INTEGER_0_179 */
+static int hf_lppe_confidence;                    /* INTEGER_0_99 */
+static int hf_lppe_geodeticRelativeAltitude;      /* OMA_LPPe_GeodeticRelativeAltitude */
+static int hf_lppe_civicRelativeAltitude;         /* OMA_LPPe_CivicRelativeAltitude */
+static int hf_lppe_geodetic_height_depth;         /* INTEGER_M32768_32767 */
+static int hf_lppe_geodetic_uncertainty_and_confidence;  /* OMA_LPPe_GeodeticUncertaintyAndConfidence */
+static int hf_lppe_uncertainty;                   /* INTEGER_0_127 */
+static int hf_lppe_civic_floors;                  /* INTEGER_M255_256 */
+static int hf_lppe_civic_uncertainty_and_confidence;  /* OMA_LPPe_CivicUncertaintyAndConfidence */
+static int hf_lppe_provider_ID;                   /* OMA_LPPe_VendorOrOperatorID */
+static int hf_lppe_server_ID;                     /* OCTET_STRING_SIZE_4 */
+static int hf_lppe_session_ID;                    /* OCTET_STRING_SIZE_4 */
+static int hf_lppe_regionSizeInv;                 /* INTEGER_1_255 */
+static int hf_lppe_areaWidth;                     /* INTEGER_2_9180 */
+static int hf_lppe_codedLatOfNWCorner;            /* INTEGER_0_4589 */
+static int hf_lppe_codedLonOfNWCorner;            /* INTEGER_0_9179 */
+static int hf_lppe_rleList;                       /* OMA_LPPe_RleList */
+static int hf_lppe_OMA_LPPe_RleList_item;         /* INTEGER_0_255 */
+static int hf_lppe_beginTime;                     /* GNSS_SystemTime */
+static int hf_lppe_beginTimeAlt;                  /* INTEGER_0_2881 */
+static int hf_lppe_duration_01;                   /* INTEGER_1_2881 */
+static int hf_lppe_assistanceDataID;              /* OMA_LPPe_AssistanceContainerID */
+static int hf_lppe_standard_VendorOrOperatorID;   /* INTEGER_1_1024 */
+static int hf_lppe_nonStandard_VendorOrOperatorID;  /* OMA_LPPe_NonStandard_VendorOrOperatorID */
+static int hf_lppe_encodedID;                     /* INTEGER_0_65535 */
+static int hf_lppe_visibleIdentification;         /* OMA_LPPe_CharArray */
+static int hf_lppe_apMacAddress;                  /* BIT_STRING_SIZE_48 */
+static int hf_lppe_truncation;                    /* INTEGER_M127_128 */
+static int hf_lppe_areaType;                      /* T_areaType */
+static int hf_lppe_componentList;                 /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_WLANFemtoCoverageAreaElement */
+static int hf_lppe_componentList_item;            /* OMA_LPPe_WLANFemtoCoverageAreaElement */
+static int hf_lppe_refPointAndArea;               /* T_refPointAndArea */
+static int hf_lppe_referenceLocation;             /* T_referenceLocation */
+static int hf_lppe_referencePoint;                /* OMA_LPPe_ReferencePointUniqueID */
+static int hf_lppe_locationAndArea;               /* OMA_LPPe_RelativeLocation */
+static int hf_lppe_type;                          /* T_type */
+static int hf_lppe_weight;                        /* INTEGER_0_100 */
+static int hf_lppe_iP_Address_RequestCapabilities;  /* OMA_LPPe_IP_Address_RequestCapabilities */
+static int hf_lppe_assistanceContainerSupportReq;  /* OMA_LPPe_AssistanceContainerSupportReq */
+static int hf_lppe_locationInformationContainerSupportReq;  /* OMA_LPPe_LocationInformationContainerSupportReq */
+static int hf_lppe_relativeLocationChange_RequestCapabilities;  /* OMA_LPPe_RelativeLocationChange_RequestCapabilities */
+static int hf_lppe_highAccuracyFormatCapabilitiesReq;  /* OMA_LPPe_HighAccuracyFormatCapabilitiesReq */
+static int hf_lppe_segmentedAssistanceData_ReqCapabilities;  /* OMA_LPPe_SegmentedAssistanceData_ReqCapabilities */
+static int hf_lppe_referencePointCapabilitiesReq;  /* OMA_LPPe_ReferencePointCapabilitiesReq */
+static int hf_lppe_scheduledLocation_RequestCapabilities;  /* OMA_LPPe_ScheduledLocation_RequestCapabilities */
+static int hf_lppe_accessCapabilitiesReq;         /* OMA_LPPe_AccessCapabilitiesReq */
+static int hf_lppe_segmentedLocationInformation_ReqCapabilities;  /* OMA_LPPe_SegmentedLocationInformation_ReqCapabilities */
+static int hf_lppe_vendorOrOperatorIDList;        /* OMA_LPPe_VendorOrOperatorIDList */
+static int hf_lppe_OMA_LPPe_VendorOrOperatorIDList_item;  /* OMA_LPPe_VendorOrOperatorID */
+static int hf_lppe_referencePointProviderSupportListReq;  /* SEQUENCE_SIZE_1_128_OF_OMA_LPPe_VendorOrOperatorID */
+static int hf_lppe_referencePointProviderSupportListReq_item;  /* OMA_LPPe_VendorOrOperatorID */
+static int hf_lppe_iP_Address_Capabilities;       /* OMA_LPPe_IP_Address_Capabilities */
+static int hf_lppe_assistanceContainerSupport;    /* OMA_LPPe_AssistanceContainerSupport */
+static int hf_lppe_locationInformationContainerSupport;  /* OMA_LPPe_LocationInformationContainerSupport */
+static int hf_lppe_relativeLocationChange_Capabilities;  /* OMA_LPPe_RelativeLocationChange_Capabilities */
+static int hf_lppe_highAccuracyFormatCapabilities;  /* OMA_LPPe_HighAccuracyFormatCapabilities */
+static int hf_lppe_segmentedAssistanceData_ProvideCapabs;  /* OMA_LPPe_SegmentedAssistanceData_ProvideCapabs */
+static int hf_lppe_referencePointCapabilities;    /* OMA_LPPe_ReferencePointCapabilities */
+static int hf_lppe_scheduledLocation_Capabilities;  /* OMA_LPPe_ScheduledLocation_Capabilities */
+static int hf_lppe_accessCapabilities;            /* OMA_LPPe_AccessCapabilities */
+static int hf_lppe_segmentedLocationInformation_ProvideCapabs;  /* OMA_LPPe_SegmentedLocationInformation_ProvideCapabs */
+static int hf_lppe_iP_Address_support;            /* T_iP_Address_support */
+static int hf_lppe_OMA_LPPe_AssistanceContainerSupport_item;  /* OMA_LPPe_VendorOrOperatorAssistanceContainerList */
+static int hf_lppe_assistanceContainerList;       /* OMA_LPPe_AssistanceContainerList */
+static int hf_lppe_OMA_LPPe_AssistanceContainerList_item;  /* OMA_LPPe_AssistanceContainerID */
+static int hf_lppe_OMA_LPPe_LocationInformationContainerSupport_item;  /* OMA_LPPe_VendorOrOperatorLocationInformationContainerList */
+static int hf_lppe_locationInformationContainerList;  /* OMA_LPPe_LocationInformationContainerList */
+static int hf_lppe_OMA_LPPe_LocationInformationContainerList_item;  /* OMA_LPPe_LocationInformationContainerID */
+static int hf_lppe_numberOfChanges;               /* INTEGER_1_5 */
+static int hf_lppe_maxSegments;                   /* INTEGER_2_4096 */
+static int hf_lppe_maxSize;                       /* INTEGER_1_5000 */
+static int hf_lppe_minSize;                       /* INTEGER_1_5000 */
+static int hf_lppe_resume;                        /* NULL */
+static int hf_lppe_relativeLocationReportingSupport;  /* T_relativeLocationReportingSupport */
+static int hf_lppe_referencePointProviderSupportList;  /* SEQUENCE_SIZE_1_128_OF_OMA_LPPe_ReferencePointProviderSupportElement */
+static int hf_lppe_referencePointProviderSupportList_item;  /* OMA_LPPe_ReferencePointProviderSupportElement */
+static int hf_lppe_referencePointProvider;        /* OMA_LPPe_VendorOrOperatorID */
+static int hf_lppe_mapDataSupport;                /* T_mapDataSupport */
+static int hf_lppe_mapDataFormat;                 /* OCTET_STRING */
+static int hf_lppe_minimumWindow;                 /* INTEGER_1_1024 */
+static int hf_lppe_gnssTimeReference;             /* GNSS_ID_Bitmap */
+static int hf_lppe_networkTimeReference;          /* T_networkTimeReference */
+static int hf_lppe_accessTypeUnknown;             /* NULL */
+static int hf_lppe_fixedAccessTypes;              /* OMA_LPPe_FixedAccessTypes */
+static int hf_lppe_wirelessAccessTypes;           /* OMA_LPPe_WirelessAccessTypes */
+static int hf_lppe_approximate_location;          /* EllipsoidPointWithAltitudeAndUncertaintyEllipsoid */
+static int hf_lppe_assistanceContainerRequestList;  /* OMA_LPPe_AssistanceContainerRequestList */
+static int hf_lppe_requestPeriodicADwithUpdate;   /* OMA_LPPe_RequestPeriodicADwithUpdate */
+static int hf_lppe_segmentedADpreference;         /* T_segmentedADpreference */
+static int hf_lppe_segmentedADResume;             /* OMA_LPPe_SegmentedADResume */
+static int hf_lppe_referencePointAssistanceReq;   /* OMA_LPPe_ReferencePointAssistanceReq */
+static int hf_lppe_periodicAD_session_ID;         /* OCTET_STRING_SIZE_4 */
+static int hf_lppe_typeOfADRequest;               /* TypeOfADRequest */
+static int hf_lppe_segmentedAD_session_ID;        /* OMA_LPPe_Session_ID */
+static int hf_lppe_next_segment_number;           /* INTEGER_1_4096 */
+static int hf_lppe_referencePointReq;             /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_ReferencePointAssistanceReqElement */
+static int hf_lppe_referencePointReq_item;        /* OMA_LPPe_ReferencePointAssistanceReqElement */
+static int hf_lppe_mapDataReq;                    /* OCTET_STRING */
+static int hf_lppe_assistanceContainerList_01;    /* OMA_LPPe_AssistanceContainerProvideList */
+static int hf_lppe_providePeriodicADwithUpdate;   /* OMA_LPPe_ProvidePeriodicADwithUpdate */
+static int hf_lppe_segmentedADTransfer;           /* OMA_LPPe_SegmentedADTransfer */
+static int hf_lppe_default_reference_point;       /* OMA_LPPe_ReferencePoint */
+static int hf_lppe_typeOfADProvide;               /* OMA_LPPe_TypeOfADProvide */
+static int hf_lppe_segment_number;                /* INTEGER_1_4096 */
+static int hf_lppe_iP_Address_Request;            /* OMA_LPPe_IP_Address_Request */
+static int hf_lppe_locationInformationContainerRequest;  /* OMA_LPPe_LocationInformationContainerRequest */
+static int hf_lppe_requestPeriodicLocInfoWithUpdate;  /* OMA_LPPe_RequestPeriodicLocInfoWithUpdate */
+static int hf_lppe_relativeLocationChange_Request;  /* OMA_LPPe_RelativeLocationChange_Request */
+static int hf_lppe_localPositionRequest;          /* OMA_LPPe_LocalPositionRequest */
+static int hf_lppe_scheduledLocation_Request;     /* OMA_LPPe_ScheduledLocation_Request */
+static int hf_lppe_accessTypeRequest;             /* OMA_LPPe_AccessTypeRequest */
+static int hf_lppe_segmentedLIpreference;         /* T_segmentedLIpreference */
+static int hf_lppe_segmentedLIResume;             /* OMA_LPPe_SegmentedLIResume */
+static int hf_lppe_civicLocation_Request;         /* OMA_LPPe_CivicLocation_Request */
+static int hf_lppe_typeOfLocInfoRequest;          /* OMA_LPPe_TypeOfLocInfoRequest */
+static int hf_lppe_typeOfRequest;                 /* T_typeOfRequest */
+static int hf_lppe_referencePointReq_01;          /* SEQUENCE_SIZE_1_8_OF_OMA_LPPe_ReferencePointUniqueID */
+static int hf_lppe_referencePointReq_item_01;     /* OMA_LPPe_ReferencePointUniqueID */
+static int hf_lppe_gnssTime;                      /* GNSS_SystemTime */
+static int hf_lppe_networkTime;                   /* NetworkTime */
+static int hf_lppe_relativeTime;                  /* INTEGER_1_1024 */
+static int hf_lppe_windowSize;                    /* INTEGER_1_1024 */
+static int hf_lppe_segmentedLI_session_ID;        /* INTEGER_1_256 */
+static int hf_lppe_format;                        /* T_format */
+static int hf_lppe_highAccuracy3Dposition;        /* OMA_LPPe_HighAccuracy3Dposition */
+static int hf_lppe_localPosition;                 /* OMA_LPPe_LocalPosition */
+static int hf_lppe_highAccuracy3Dvelocity;        /* OMA_LPPe_HighAccuracy3Dvelocity */
+static int hf_lppe_iP_Address_List;               /* OMA_LPPe_IP_Address_List */
+static int hf_lppe_locationInformationContainer;  /* OMA_LPPe_LocationInformationContainer */
+static int hf_lppe_providePeriodicLocInfoWithUpdate;  /* OMA_LPPe_ProvidePeriodicLocInfowithUpdate */
+static int hf_lppe_relativeLocationChangeList;    /* OMA_LPPe_RelativeLocationChangeList */
+static int hf_lppe_scheduledLocation;             /* OMA_LPPe_ScheduledLocation */
+static int hf_lppe_accessTypes;                   /* OMA_LPPe_AccessTypes */
+static int hf_lppe_segmentedLITransfer;           /* OMA_LPPe_SegmentedLITransfer */
+static int hf_lppe_locationInformationTimeStamp;  /* OMA_LPPe_TimeStamp */
+static int hf_lppe_locationSource;                /* OMA_LPPe_LocationSource */
+static int hf_lppe_civicLocation_pidf_lo;         /* OMA_LPPe_CivicLocation_pidf_lo */
+static int hf_lppe_subjectLocation;               /* OMA_LPPe_RelativeLocation */
+static int hf_lppe_OMA_LPPe_IP_Address_List_item;  /* OMA_LPPe_IP_Address */
+static int hf_lppe_local_IP_Address;              /* T_local_IP_Address */
+static int hf_lppe_iPv4;                          /* BIT_STRING_SIZE_32 */
+static int hf_lppe_iPv6;                          /* BIT_STRING_SIZE_128 */
+static int hf_lppe_bearer;                        /* OMA_LPPe_Bearer */
+static int hf_lppe_nat;                           /* BOOLEAN */
+static int hf_lppe_typeOfLocInfoProvide;          /* OMA_LPPe_TypeOfLocInfoProvide */
+static int hf_lppe_OMA_LPPe_RelativeLocationChangeList_item;  /* OMA_LPPe_RelativeLocationChange */
+static int hf_lppe_relativeTime_01;               /* INTEGER_0_65535 */
+static int hf_lppe_transactionID;                 /* INTEGER_0_255 */
+static int hf_lppe_disposition;                   /* T_disposition */
+static int hf_lppe_actualWindow;                  /* T_actualWindow */
+static int hf_lppe_start;                         /* INTEGER_M512_511 */
+static int hf_lppe_duration_02;                   /* INTEGER_0_2047 */
+static int hf_lppe_relativeTime_02;               /* INTEGER_0_1024 */
+static int hf_lppe_agnss;                         /* NULL */
+static int hf_lppe_otdoa;                         /* NULL */
+static int hf_lppe_eotd;                          /* NULL */
+static int hf_lppe_otdoaUTRA;                     /* NULL */
+static int hf_lppe_ecidLTE;                       /* NULL */
+static int hf_lppe_ecidGSM;                       /* NULL */
+static int hf_lppe_ecidUTRA;                      /* NULL */
+static int hf_lppe_wlanAP;                        /* NULL */
+static int hf_lppe_srn;                           /* NULL */
+static int hf_lppe_sensors;                       /* NULL */
+static int hf_lppe_nr_dl_tdoa;                    /* NULL */
+static int hf_lppe_nr_dl_aod;                     /* NULL */
+static int hf_lppe_ecidNR;                        /* NULL */
+static int hf_lppe_bt;                            /* NULL */
+static int hf_lppe_mbs;                           /* NULL */
+static int hf_lppe_baro_sensor;                   /* NULL */
+static int hf_lppe_motion_sensor;                 /* NULL */
+static int hf_lppe_abortCause;                    /* T_abortCause */
+static int hf_lppe_periodicSessionIDtoAbort;      /* OCTET_STRING_SIZE_4 */
+static int hf_lppe_commonAssistData;              /* OMA_LPPe_AGNSS_CommonAssistData */
+static int hf_lppe_genericAssistData;             /* OMA_LPPe_AGNSS_GenericAssistData */
+static int hf_lppe_error_01;                      /* OMA_LPPe_AGNSS_Error */
+static int hf_lppe_ionosphericModel;              /* OMA_LPPe_AGNSS_IonosphericModel */
+static int hf_lppe_troposphereModel;              /* OMA_LPPe_AGNSS_TroposphereModel */
+static int hf_lppe_altitudeAssistance;            /* OMA_LPPe_AGNSS_AltitudeAssistanceList */
+static int hf_lppe_solarRadiation;                /* OMA_LPPe_AGNSS_SolarRadiation */
+static int hf_lppe_ccpAssistCommonProvide;        /* OMA_LPPe_AGNSS_CCPassistCommonProvide */
+static int hf_lppe_OMA_LPPe_AGNSS_GenericAssistData_item;  /* OMA_LPPe_AGNSS_GenericAssistDataElement */
+static int hf_lppe_gnss_ID;                       /* GNSS_ID */
+static int hf_lppe_wideAreaIonoSurfacePerSVlist;  /* OMA_LPPe_AGNSS_WideAreaIonoSurfacePerSVlist */
+static int hf_lppe_mechanicsForAllSVs;            /* OMA_LPPe_AGNSS_MechanicsForAllSVs */
+static int hf_lppe_dcbsForAllSVs;                 /* OMA_LPPe_AGNSS_DCBsForAllSVs */
+static int hf_lppe_navModelDegradationModel;      /* OMA_LPPe_AGNSS_NavModelDegradationModelList */
+static int hf_lppe_ccpAssistProvide;              /* OMA_LPPe_AGNSS_CCPassistGenericProvide */
+static int hf_lppe_navModelList;                  /* OMA_LPPe_AGNSS_NavModelList */
+static int hf_lppe_staticModels;                  /* T_staticModels */
+static int hf_lppe_localKlobucharModelList;       /* OMA_LPPe_AGNSS_LocalKlobucharModelList */
+static int hf_lppe_ionoStormIndication;           /* OMA_LPPe_AGNSS_IonoStormIndication */
+static int hf_lppe_waIono;                        /* T_waIono */
+static int hf_lppe_controlParameters;             /* OMA_LPPe_AGNSS_WideAreaIonoSurfaceControlParametersProvide */
+static int hf_lppe_commonProvide;                 /* OMA_LPPe_AGNSS_WideAreaIonoSurfaceCommon */
+static int hf_lppe_OMA_LPPe_AGNSS_LocalKlobucharModelList_item;  /* OMA_LPPe_AGNSS_LocalKlobucharModelElement */
+static int hf_lppe_klobucharModel;                /* SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_LocalKlobucharModel */
+static int hf_lppe_klobucharModel_item;           /* OMA_LPPe_AGNSS_LocalKlobucharModel */
+static int hf_lppe_alfa0;                         /* INTEGER_M128_127 */
+static int hf_lppe_alfa1;                         /* INTEGER_M128_127 */
+static int hf_lppe_alfa2;                         /* INTEGER_M128_127 */
+static int hf_lppe_alfa3;                         /* INTEGER_M128_127 */
+static int hf_lppe_beta0;                         /* INTEGER_M128_127 */
+static int hf_lppe_beta1;                         /* INTEGER_M128_127 */
+static int hf_lppe_beta2;                         /* INTEGER_M128_127 */
+static int hf_lppe_beta3;                         /* INTEGER_M128_127 */
+static int hf_lppe_area;                          /* OMA_LPPe_ValidityArea */
+static int hf_lppe_stormList;                     /* OMA_LPPe_AGNSS_StormList */
+static int hf_lppe_OMA_LPPe_AGNSS_StormList_item;  /* OMA_LPPe_AGNSS_StormElement */
+static int hf_lppe_rleListIono;                   /* OMA_LPPe_AGNSS_RleListIono */
+static int hf_lppe_OMA_LPPe_AGNSS_RleListIono_item;  /* OMA_LPPe_AGNSS_RleIonoElement */
+static int hf_lppe_regionCount;                   /* INTEGER_0_255 */
+static int hf_lppe_ionoIndex;                     /* T_ionoIndex */
+static int hf_lppe_noaaScales;                    /* OMA_LPPe_AGNSS_NoaaScales */
+static int hf_lppe_duration_03;                   /* OMA_LPPe_Duration */
+static int hf_lppe_rate;                          /* INTEGER_1_64 */
+static int hf_lppe_referencePosition;             /* Ellipsoid_Point */
+static int hf_lppe_OMA_LPPe_AGNSS_WideAreaIonoSurfacePerSVlist_item;  /* OMA_LPPe_AGNSS_WideAreaIonoSurfacePerSVelement */
+static int hf_lppe_svID;                          /* SV_ID */
+static int hf_lppe_a0;                            /* INTEGER_0_8191 */
+static int hf_lppe_e1;                            /* INTEGER_M4096_4095 */
+static int hf_lppe_n1;                            /* INTEGER_M4096_4095 */
+static int hf_lppe_e2;                            /* INTEGER_M4096_4095 */
+static int hf_lppe_n2;                            /* INTEGER_M4096_4095 */
+static int hf_lppe_en;                            /* INTEGER_M4096_4095 */
+static int hf_lppe_troposphereDelayList;          /* OMA_LPPe_AGNSS_LocalTroposphereDelayList */
+static int hf_lppe_surfaceParametersList;         /* OMA_LPPe_AGNSS_LocalSurfaceParametersList */
+static int hf_lppe_OMA_LPPe_AGNSS_LocalTroposphereDelayList_item;  /* OMA_LPPe_AGNSS_LocalTroposphereDelayAreaElement */
+static int hf_lppe_refAltitude;                   /* INTEGER_M1000_8192 */
+static int hf_lppe_gradientReferencePosition;     /* Ellipsoid_Point */
+static int hf_lppe_delayList;                     /* SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_LocalTroposphereDelayTimeElement */
+static int hf_lppe_delayList_item;                /* OMA_LPPe_AGNSS_LocalTroposphereDelayTimeElement */
+static int hf_lppe_zh0;                           /* INTEGER_0_4095 */
+static int hf_lppe_eh;                            /* INTEGER_0_4095 */
+static int hf_lppe_zw0;                           /* INTEGER_0_4095 */
+static int hf_lppe_ew;                            /* INTEGER_0_4095 */
+static int hf_lppe_gN;                            /* INTEGER_M8192_8191 */
+static int hf_lppe_gE;                            /* INTEGER_M8192_8191 */
+static int hf_lppe_mappingFunctionParameters;     /* OMA_LPPe_AGNSS_MappingFunctionParameters */
+static int hf_lppe_OMA_LPPe_AGNSS_LocalSurfaceParametersList_item;  /* OMA_LPPe_AGNSS_LocalSurfaceParametersAreaElement */
+static int hf_lppe_parameterList;                 /* SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_LocalSurfaceParametersTimeElement */
+static int hf_lppe_parameterList_item;            /* OMA_LPPe_AGNSS_LocalSurfaceParametersTimeElement */
+static int hf_lppe_pressure;                      /* INTEGER_M1024_1023 */
+static int hf_lppe_pressureRate;                  /* INTEGER_M128_127 */
+static int hf_lppe_gN_pressure;                   /* INTEGER_M128_127 */
+static int hf_lppe_gE_pressure;                   /* INTEGER_M128_127 */
+static int hf_lppe_temperature;                   /* INTEGER_M64_63 */
+static int hf_lppe_temperatureRate;               /* INTEGER_M16_16 */
+static int hf_lppe_gN_temperature;                /* INTEGER_M8_7 */
+static int hf_lppe_gE_temperature;                /* INTEGER_M8_7 */
+static int hf_lppe_ah;                            /* INTEGER_0_16383 */
+static int hf_lppe_bh;                            /* INTEGER_0_16383 */
+static int hf_lppe_ch;                            /* INTEGER_0_16383 */
+static int hf_lppe_aw;                            /* INTEGER_0_16383 */
+static int hf_lppe_bw;                            /* INTEGER_0_16383 */
+static int hf_lppe_cw;                            /* INTEGER_0_16383 */
+static int hf_lppe_OMA_LPPe_AGNSS_AltitudeAssistanceList_item;  /* OMA_LPPe_AGNSS_AltitudeAssistanceAreaElement */
+static int hf_lppe_gradientReferencePosition_01;  /* EllipsoidPointWithAltitudeAndUncertaintyEllipsoid */
+static int hf_lppe_pressureAssistanceList;        /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_AGNSS_PressureAssistanceElement */
+static int hf_lppe_pressureAssistanceList_item;   /* OMA_LPPe_AGNSS_PressureAssistanceElement */
+static int hf_lppe_gN_01;                         /* INTEGER_M128_127 */
+static int hf_lppe_gE_01;                         /* INTEGER_M128_127 */
+static int hf_lppe_solarRadiation_01;             /* INTEGER_1000_2000 */
+static int hf_lppe_OMA_LPPe_AGNSS_MechanicsForAllSVs_item;  /* OMA_LPPe_AGNSS_MechanicsElement */
+static int hf_lppe_svid;                          /* SV_ID */
+static int hf_lppe_mass;                          /* INTEGER_1_4095 */
+static int hf_lppe_effectiveReflectivityArea;     /* INTEGER_1_511 */
+static int hf_lppe_pco;                           /* OMA_LPPe_AGNSS_PCOelement */
+static int hf_lppe_svInfo;                        /* T_svInfo */
+static int hf_lppe_svType;                        /* OMA_LPPe_AGNSS_SVtype */
+static int hf_lppe_svNumber;                      /* INTEGER_0_1000 */
+static int hf_lppe_xOffsetSBF;                    /* INTEGER_M30000_30000 */
+static int hf_lppe_yOffsetSBF;                    /* INTEGER_M30000_30000 */
+static int hf_lppe_zOffsetSBF;                    /* INTEGER_M30000_30000 */
+static int hf_lppe_OMA_LPPe_AGNSS_DCBsForAllSVs_item;  /* OMA_LPPe_AGNSS_DCBlistElement */
+static int hf_lppe_reference;                     /* T_reference */
+static int hf_lppe_signal;                        /* GNSS_SignalID */
+static int hf_lppe_pd;                            /* T_pd */
+static int hf_lppe_dcbList;                       /* OMA_LPPe_AGNSS_DCBlist */
+static int hf_lppe_OMA_LPPe_AGNSS_DCBlist_item;   /* OMA_LPPe_AGNSS_DCBelement */
+static int hf_lppe_pd_01;                         /* T_pd_01 */
+static int hf_lppe_dcb;                           /* INTEGER_M4096_4095 */
+static int hf_lppe_OMA_LPPe_AGNSS_NavModelDegradationModelList_item;  /* OMA_LPPe_AGNSS_NavModelDegradationModelElement */
+static int hf_lppe_clockDegradationModel;         /* OMA_LPPe_AGNSS_ClockModelDegradationModel */
+static int hf_lppe_orbitDegradationModel;         /* OMA_LPPe_AGNSS_OrbitModelDegradationModel */
+static int hf_lppe_clockRMS0;                     /* INTEGER_0_31 */
+static int hf_lppe_clockRMS1;                     /* INTEGER_0_7 */
+static int hf_lppe_orbitRMS0;                     /* INTEGER_0_31 */
+static int hf_lppe_orbitRMS1;                     /* INTEGER_0_7 */
+static int hf_lppe_ccpProvideCommonParameters;    /* OMA_LPPe_AGNSS_CCPprovideCommonParameters */
+static int hf_lppe_ccpProvideControlParameters;   /* OMA_LPPe_AGNSS_CCPprovideControlParameters */
+static int hf_lppe_ccpReferenceTime;              /* GNSS_SystemTime */
+static int hf_lppe_ccpSupportArea;                /* OMA_LPPe_AGNSS_CCPsupportArea */
+static int hf_lppe_ccpNeighborList;               /* OMA_LPPe_AGNSS_CCPreferenceStationList */
+static int hf_lppe_ccpReferenceStationList;       /* OMA_LPPe_AGNSS_CCPreferenceStationList */
+static int hf_lppe_areaDescription;               /* OMA_LPPe_ValidityArea */
+static int hf_lppe_signalSupport;                 /* SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_CCPsignalSupport */
+static int hf_lppe_signalSupport_item;            /* OMA_LPPe_AGNSS_CCPsignalSupport */
+static int hf_lppe_gnss;                          /* GNSS_ID */
+static int hf_lppe_signals;                       /* GNSS_SignalIDs */
+static int hf_lppe_OMA_LPPe_AGNSS_CCPreferenceStationList_item;  /* OMA_LPPe_AGNSS_CCPreferenceStationElement */
+static int hf_lppe_referenceStationID;            /* OMA_LPPe_AGNSS_CCPreferenceStationID */
+static int hf_lppe_referenceStationLocation;      /* OMA_LPPe_HighAccuracy3Dposition */
+static int hf_lppe_antennaDescription;            /* OMA_LPPe_AGNSS_AntennaDescription */
+static int hf_lppe_OMA_LPPe_AGNSS_CCPassistGenericProvide_item;  /* OMA_LPPe_AGNSS_CCPassistGenericProvideElement */
+static int hf_lppe_ccpPerSignalList;              /* SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_CCPperSignalElement */
+static int hf_lppe_ccpPerSignalList_item;         /* OMA_LPPe_AGNSS_CCPperSignalElement */
+static int hf_lppe_signal_ID;                     /* GNSS_SignalID */
+static int hf_lppe_ccpPerSVlist;                  /* SEQUENCE_SIZE_1_64_OF_OMA_LPPe_AGNSS_CCPperSVelement */
+static int hf_lppe_ccpPerSVlist_item;             /* OMA_LPPe_AGNSS_CCPperSVelement */
+static int hf_lppe_integerCodePhase;              /* INTEGER_0_255 */
+static int hf_lppe_codePhase;                     /* INTEGER_0_14989622 */
+static int hf_lppe_codePhaseError;                /* OMA_LPPe_AGNSS_CodePhaseError */
+static int hf_lppe_phaseRangeDelta;               /* INTEGER_M524288_524287 */
+static int hf_lppe_phaseRangeRMSerror;            /* INTEGER_0_127 */
+static int hf_lppe_lockIndicator;                 /* BOOLEAN */
+static int hf_lppe_codePhaseRMSError;             /* INTEGER_0_63 */
+static int hf_lppe_cnr;                           /* INTEGER_0_255 */
+static int hf_lppe_coordinateBased;               /* OMA_LPPe_AGNSS_NavModel_CoordinateBased */
+static int hf_lppe_fixedInterval;                 /* T_fixedInterval */
+static int hf_lppe_interval;                      /* INTEGER_1_30 */
+static int hf_lppe_bases;                         /* T_bases */
+static int hf_lppe_baseForPosVel;                 /* INTEGER_M100000000_100000000 */
+static int hf_lppe_baseForCcRate;                 /* OMA_LPPe_AGNSS_NavModel_BigNumber */
+static int hf_lppe_referencedTo;                  /* T_referencedTo */
+static int hf_lppe_pointList;                     /* SEQUENCE_SIZE_1_97_OF_OMA_LPPe_AGNSS_NavModel_CoordinateBasedElement */
+static int hf_lppe_pointList_item;                /* OMA_LPPe_AGNSS_NavModel_CoordinateBasedElement */
+static int hf_lppe_time_of_record;                /* GNSS_SystemTime */
+static int hf_lppe_svIdList;                      /* SEQUENCE_SIZE_1_64_OF_OMA_LPPe_AGNSS_NavModel_PVTelement */
+static int hf_lppe_svIdList_item;                 /* OMA_LPPe_AGNSS_NavModel_PVTelement */
+static int hf_lppe_svClockOffset;                 /* OMA_LPPe_AGNSS_NavModel_BigNumber */
+static int hf_lppe_ecefPositionX;                 /* OMA_LPPe_AGNSS_NavModel_BigNumber */
+static int hf_lppe_ecefPositionY;                 /* OMA_LPPe_AGNSS_NavModel_BigNumber */
+static int hf_lppe_ecefPositionZ;                 /* OMA_LPPe_AGNSS_NavModel_BigNumber */
+static int hf_lppe_clockPosSTD;                   /* OMA_LPPe_AGNSS_NavModel_STDmatrix */
+static int hf_lppe_rateRecord;                    /* T_rateRecord */
+static int hf_lppe_svClockRate;                   /* OMA_LPPe_AGNSS_NavModel_BigNumber */
+static int hf_lppe_ecefVelocityX;                 /* OMA_LPPe_AGNSS_NavModel_BigNumber */
+static int hf_lppe_ecefVelocityY;                 /* OMA_LPPe_AGNSS_NavModel_BigNumber */
+static int hf_lppe_ecefVelocityZ;                 /* OMA_LPPe_AGNSS_NavModel_BigNumber */
+static int hf_lppe_clockRateVelSTD;               /* OMA_LPPe_AGNSS_NavModel_STDmatrix */
+static int hf_lppe_msb;                           /* INTEGER_M1000000000_1000000000 */
+static int hf_lppe_lsb;                           /* INTEGER_1_100 */
+static int hf_lppe_e11;                           /* INTEGER_0_1000 */
+static int hf_lppe_e22;                           /* INTEGER_0_1000 */
+static int hf_lppe_e33;                           /* INTEGER_0_1000 */
+static int hf_lppe_e44;                           /* INTEGER_0_1000000 */
+static int hf_lppe_e12;                           /* INTEGER_0_10000000 */
+static int hf_lppe_e13;                           /* INTEGER_0_10000000 */
+static int hf_lppe_e14;                           /* INTEGER_0_10000000 */
+static int hf_lppe_e23;                           /* INTEGER_0_10000000 */
+static int hf_lppe_e24;                           /* INTEGER_0_10000000 */
+static int hf_lppe_e34;                           /* INTEGER_0_10000000 */
+static int hf_lppe_commonAssistDataReq;           /* OMA_LPPe_AGNSS_CommonAssistanceDataReq */
+static int hf_lppe_genericAssistDataReq;          /* OMA_LPPe_AGNSS_GenericAssistanceDataReq */
+static int hf_lppe_ionosphericModelReq;           /* OMA_LPPe_AGNSS_IonosphericModelReq */
+static int hf_lppe_troposphereModelReq;           /* OMA_LPPe_AGNSS_TroposphereModelReq */
+static int hf_lppe_altitudeAssistanceReq;         /* OMA_LPPe_AGNSS_AltitudeAssistanceReq */
+static int hf_lppe_solarRadiationRequest;         /* OMA_LPPe_AGNSS_SolarRadiationReq */
+static int hf_lppe_ccpRequestControlParameters;   /* OMA_LPPe_AGNSS_CCPrequestControlParameters */
+static int hf_lppe_OMA_LPPe_AGNSS_GenericAssistanceDataReq_item;  /* OMA_LPPe_AGNSS_GenericAssistDataReqElement */
+static int hf_lppe_waIonoSurfaceReq;              /* OMA_LPPe_AGNSS_WaIonoSurfaceRequest */
+static int hf_lppe_mechanicsReq;                  /* OMA_LPPe_AGNSS_MechanicsReq */
+static int hf_lppe_dcbReq;                        /* OMA_LPPe_AGNSS_DCBreq */
+static int hf_lppe_navModelDegradationModelReq;   /* OMA_LPPe_AGNSS_NavModelDegradationModelReq */
+static int hf_lppe_ccpAssistGenericReq;           /* OMA_LPPe_AGNSS_CCPassistGenericReq */
+static int hf_lppe_navigationModelReq;            /* OMA_LPPe_AGNSS_NavigationModelReq */
+static int hf_lppe_staticModels_01;               /* T_staticModels_01 */
+static int hf_lppe_ionoreq;                       /* T_ionoreq */
+static int hf_lppe_requestBeginTime;              /* GNSS_SystemTime */
+static int hf_lppe_periodicModels;                /* T_periodicModels */
+static int hf_lppe_waIonoSurface;                 /* OMA_LPPe_AGNSS_WideAreaIonoSurfaceControlParametersRequest */
+static int hf_lppe_troposphereModelReq_01;        /* T_troposphereModelReq */
+static int hf_lppe_supportForMultipleGridPoints;  /* BOOLEAN */
+static int hf_lppe_reference_01;                  /* T_reference_01 */
+static int hf_lppe_pd_02;                         /* T_pd_02 */
+static int hf_lppe_massRequest;                   /* BOOLEAN */
+static int hf_lppe_effectiveReflectivityAreaRequest;  /* BOOLEAN */
+static int hf_lppe_pcoRequest;                    /* BOOLEAN */
+static int hf_lppe_svInfoRequest;                 /* BOOLEAN */
+static int hf_lppe_ccpSupportAreaRequest;         /* NULL */
+static int hf_lppe_ccpNeighborListRequest;        /* NULL */
+static int hf_lppe_ccpCommonRequest;              /* T_ccpCommonRequest */
+static int hf_lppe_refStation;                    /* T_refStation */
+static int hf_lppe_posBasedReferenceStationRequest;  /* T_posBasedReferenceStationRequest */
+static int hf_lppe_requestedReferenceStationLocation;  /* OMA_LPPe_HighAccuracy3Dposition */
+static int hf_lppe_qor;                           /* OMA_LPPe_AGNSS_QoR */
+static int hf_lppe_idBasedReferenceStationRequest;  /* OMA_LPPe_AGNSS_ReferenceStationIDlist */
+static int hf_lppe_referenceStationKillList;      /* OMA_LPPe_AGNSS_ReferenceStationIDlist */
+static int hf_lppe_OMA_LPPe_AGNSS_ReferenceStationIDlist_item;  /* OMA_LPPe_AGNSS_CCPreferenceStationID */
+static int hf_lppe_ccpAssist_SignalsReq;          /* GNSS_SignalIDs */
+static int hf_lppe_navModelID_PrefList;           /* T_navModelID_PrefList */
+static int hf_lppe_navModelID_PrefList_item;      /* INTEGER_1_8 */
+static int hf_lppe_highAccuracyReferenceTime;     /* GNSS_SystemTime */
+static int hf_lppe_highAccuracyMeasurements;      /* OMA_LPPe_AGNSS_HAgnssProvide */
+static int hf_lppe_ionosphereMeasurements;        /* OMA_LPPe_AGNSS_IonosphereMeasurements */
+static int hf_lppe_localSurfaceMeasurements;      /* OMA_LPPe_AGNSS_LocalSurfaceMeasurements */
+static int hf_lppe_controlParameters_01;          /* T_controlParameters */
+static int hf_lppe_measurements;                  /* T_measurements */
+static int hf_lppe_position;                      /* EllipsoidPointWithAltitudeAndUncertaintyEllipsoid */
+static int hf_lppe_referenceTime;                 /* GNSS_SystemTime */
+static int hf_lppe_localPressure;                 /* T_localPressure */
+static int hf_lppe_pressureUncertainty;           /* INTEGER_0_127 */
+static int hf_lppe_antennaOrientation;            /* OMA_LPPe_Orientation */
+static int hf_lppe_signalMeasurements;            /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_AGNSS_HAgnssMeasurementElement */
+static int hf_lppe_signalMeasurements_item;       /* OMA_LPPe_AGNSS_HAgnssMeasurementElement */
+static int hf_lppe_haGNSSperSignalList;           /* SEQUENCE_SIZE_1_8_OF_OMA_LPPe_HAgnssPerSignalElement */
+static int hf_lppe_haGNSSperSignalList_item;      /* OMA_LPPe_HAgnssPerSignalElement */
+static int hf_lppe_haGNSSperSVlist;               /* SEQUENCE_SIZE_1_64_OF_OMA_LPPe_HAgnssPerSVelement */
+static int hf_lppe_haGNSSperSVlist_item;          /* OMA_LPPe_HAgnssPerSVelement */
+static int hf_lppe_multipathDetection;            /* T_multipathDetection */
+static int hf_lppe_adr;                           /* INTEGER_0_536870911 */
+static int hf_lppe_adrRMSerror;                   /* INTEGER_0_127 */
+static int hf_lppe_tecPerSV;                      /* OMA_LPPe_AGNSS_TECPerSV */
+static int hf_lppe_tecAtZenith;                   /* OMA_LPPe_AGNSS_TECAtZenith */
+static int hf_lppe_OMA_LPPe_AGNSS_TECPerSV_item;  /* OMA_LPPe_AGNSS_TECPerSVElement */
+static int hf_lppe_azimuth;                       /* INTEGER_0_359 */
+static int hf_lppe_elevation;                     /* INTEGER_0_90 */
+static int hf_lppe_tecValue;                      /* INTEGER_0_511 */
+static int hf_lppe_tecUncertainty;                /* INTEGER_0_63 */
+static int hf_lppe_tecValueAtZenith;              /* INTEGER_0_511 */
+static int hf_lppe_tecUncertaintyAtZenith;        /* INTEGER_0_63 */
+static int hf_lppe_temperatureMeasurement;        /* T_temperatureMeasurement */
+static int hf_lppe_temperatureUncertainty;        /* INTEGER_0_7 */
+static int hf_lppe_positioningInstructions;       /* OMA_LPPe_AGNSS_PositioningInstructions */
+static int hf_lppe_ionosphereMeasurementsReq;     /* T_ionosphereMeasurementsReq */
+static int hf_lppe_localSurfaceMeasurementReq;    /* OMA_LPPe_AGNSS_LocalSurfaceMeasurementReq */
+static int hf_lppe_highAccuracyMethodRequested;   /* BOOLEAN */
+static int hf_lppe_haGNSSreq;                     /* OMA_LPPe_AGNSS_HAgnssRequestControlParameters */
+static int hf_lppe_rate_01;                       /* INTEGER_1_63 */
+static int hf_lppe_antennaInformationReq;         /* T_antennaInformationReq */
+static int hf_lppe_pressureInformationReq;        /* BOOLEAN */
+static int hf_lppe_signalReqList;                 /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_AGNSS_HAgnssSignalReqElement */
+static int hf_lppe_signalReqList_item;            /* OMA_LPPe_AGNSS_HAgnssSignalReqElement */
+static int hf_lppe_gnssID;                        /* GNSS_ID */
+static int hf_lppe_assistanceDataSupportList;     /* OMA_LPPe_AGNSS_AssistanceDataSupportList */
+static int hf_lppe_environmentObservationSupportList;  /* OMA_LPPe_AGNSS_EnvironmentObservationSupportList */
+static int hf_lppe_haGNSSsupport;                 /* OMA_LPPe_AGNSS_HAgnssSupport */
+static int hf_lppe_commonAssistanceDataSupport;   /* OMA_LPPe_AGNSS_CommonAssistanceDataSupport */
+static int hf_lppe_genericAssistanceDataSupport;  /* OMA_LPPe_AGNSS_GenericAssistanceDataSupport */
+static int hf_lppe_ionosphereMeasurementSupport;  /* T_ionosphereMeasurementSupport */
+static int hf_lppe_pressureMeasurementSupported;  /* BOOLEAN */
+static int hf_lppe_temperatureMeasurementSupported;  /* BOOLEAN */
+static int hf_lppe_ionosphericModelSupport;       /* OMA_LPPe_AGNSS_IonosphericModelSupport */
+static int hf_lppe_troposphereModelSupport;       /* OMA_LPPe_AGNSS_TroposphereModelSupport */
+static int hf_lppe_altitudeAssistanceSupport;     /* OMA_LPPe_AGNSS_AltitudeAssistanceSupport */
+static int hf_lppe_solarRadiationSupport;         /* OMA_LPPe_AGNSS_SolarRadiationSupport */
+static int hf_lppe_ccpSupport;                    /* OMA_LPPe_AGNSS_CCPsupport */
+static int hf_lppe_ionoModel;                     /* T_ionoModel */
+static int hf_lppe_tropoModel;                    /* T_tropoModel */
+static int hf_lppe_supportAreaAssistanceSupported;  /* BOOLEAN */
+static int hf_lppe_multiReferenceStationSupported;  /* BOOLEAN */
+static int hf_lppe_OMA_LPPe_AGNSS_GenericAssistanceDataSupport_item;  /* OMA_LPPe_AGNSS_GenericAssistDataSupportElement */
+static int hf_lppe_mechnanicsSupport;             /* OMA_LPPe_AGNSS_MechanicsSupport */
+static int hf_lppe_dcbSupport;                    /* OMA_LPPe_AGNSS_DCBsupport */
+static int hf_lppe_navModelAccuracyModelDegradationSupport;  /* OMA_LPPe_AGNSS_NavModelAccuracyModelDegradationSupport */
+static int hf_lppe_ccpAssistanceSuppport;         /* GNSS_SignalIDs */
+static int hf_lppe_navModelSupport;               /* OMA_LPPe_AGNSS_NavModelSupport */
+static int hf_lppe_navModelSupport_01;            /* T_navModelSupport */
+static int hf_lppe_navModelSupport_item;          /* INTEGER_1_8 */
+static int hf_lppe_modeSupport;                   /* T_modeSupport */
+static int hf_lppe_haGNSSpressureInformationSupport;  /* BOOLEAN */
+static int hf_lppe_haGNSSantennaInformationSupport;  /* T_haGNSSantennaInformationSupport */
+static int hf_lppe_haGNSSperGNSSsupport;          /* SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_HAgnssPerGNSSsupport */
+static int hf_lppe_haGNSSperGNSSsupport_item;     /* OMA_LPPe_AGNSS_HAgnssPerGNSSsupport */
+static int hf_lppe_haGNSSsignalSupport;           /* GNSS_SignalIDs */
+static int hf_lppe_assistanceDataSupportListReq;  /* NULL */
+static int hf_lppe_environmentObservationSupportListReq;  /* NULL */
+static int hf_lppe_haGNSSsupportReq;              /* NULL */
+static int hf_lppe_agnss_locationServerErrorCauses;  /* OMA_LPPe_AGNSS_LocationServerErrorCauses */
+static int hf_lppe_agnss_targetDeviceErrorCauses;  /* OMA_LPPe_AGNSS_TargetDeviceErrorCauses */
+static int hf_lppe_waIonoErrorCauses;             /* T_waIonoErrorCauses */
+static int hf_lppe_ccpErrorCauses;                /* T_ccpErrorCauses */
+static int hf_lppe_highAccuracyErrorCauses;       /* T_highAccuracyErrorCauses */
+static int hf_lppe_ionosphereMeasurementErrorCauses;  /* T_ionosphereMeasurementErrorCauses */
+static int hf_lppe_environmentObservationErrorCauses;  /* T_environmentObservationErrorCauses */
+static int hf_lppe_haGNSSerrorCauses;             /* T_haGNSSerrorCauses */
+static int hf_lppe_stationID;                     /* INTEGER_0_65535 */
+static int hf_lppe_antennaDescription_01;         /* T_antennaDescription */
+static int hf_lppe_igsAntennaName;                /* OMA_LPPe_CharArray */
+static int hf_lppe_proprietaryName;               /* OMA_LPPe_CharArray */
+static int hf_lppe_antennaSetupID;                /* INTEGER_0_255 */
+static int hf_lppe_antennaSerialNumber;           /* OMA_LPPe_CharArray */
+static int hf_lppe_targetDeviceAbortCauses;       /* T_targetDeviceAbortCauses */
+static int hf_lppe_ccpAbort;                      /* T_ccpAbort */
+static int hf_lppe_waIonoAbort;                   /* T_waIonoAbort */
+static int hf_lppe_otdoa_ReferenceCellInfo;       /* OMA_LPPe_OTDOA_ReferenceCellInfo */
+static int hf_lppe_otdoa_NeighbourCellInfo;       /* OMA_LPPe_OTDOA_NeighbourCellInfoList */
+static int hf_lppe_otdoa_Error;                   /* OMA_LPPe_OTDOA_Error */
+static int hf_lppe_referenceCellInfo;             /* OTDOA_ReferenceCellInfo */
+static int hf_lppe_positionCalculationInfoRef;    /* OMA_LPPe_OTDOA_PositionCalculationInfoRef */
+static int hf_lppe_systemFrameNumber;             /* BIT_STRING_SIZE_10 */
+static int hf_lppe_rtdReferenceStd;               /* OMA_LPPe_OTDOA_RTDquality */
+static int hf_lppe_cellLocation;                  /* T_cellLocation */
+static int hf_lppe_reference_point;               /* OMA_LPPe_ReferencePoint */
+static int hf_lppe_relative_location;             /* OMA_LPPe_RelativeLocation */
+static int hf_lppe_femtoCellInfo;                 /* T_femtoCellInfo */
+static int hf_lppe_location_reliability;          /* INTEGER_1_100 */
+static int hf_lppe_OMA_LPPe_OTDOA_NeighbourCellInfoList_item;  /* OMA_LPPe_OTDOA_NeighbourFreqCellInfoList */
+static int hf_lppe_neighbourCellInfoList_eNB;     /* SEQUENCE_SIZE_1_maxLTEeNBs_OF_OMA_LPPe_OTDOA_NeighbourCellInfoElement_eNB */
+static int hf_lppe_neighbourCellInfoList_eNB_item;  /* OMA_LPPe_OTDOA_NeighbourCellInfoElement_eNB */
+static int hf_lppe_neighbourCellInfoList_HeNB;    /* SEQUENCE_SIZE_1_maxLTEHeNBs_OF_OMA_LPPe_OTDOA_NeighbourCellInfoElement_HeNB */
+static int hf_lppe_neighbourCellInfoList_HeNB_item;  /* OMA_LPPe_OTDOA_NeighbourCellInfoElement_HeNB */
+static int hf_lppe_relative_Location;             /* OMA_LPPe_RelativeLocation */
+static int hf_lppe_otdoa_eNB_CellDataList;        /* SEQUENCE_SIZE_1_maxLTEMacroCells_OF_OMA_LPPe_OTDOA_CellData */
+static int hf_lppe_otdoa_eNB_CellDataList_item;   /* OMA_LPPe_OTDOA_CellData */
+static int hf_lppe_otdoa_HeNB_CellDataList;       /* OMA_LPPe_OTDOA_CellData */
+static int hf_lppe_otdoa_NeighbourCellInfoElement;  /* OTDOA_NeighbourCellInfoElement */
+static int hf_lppe_rtdInfo;                       /* T_rtdInfo */
+static int hf_lppe_subframeOffset;                /* INTEGER_0_10229 */
+static int hf_lppe_fineRTD;                       /* INTEGER_0_99999 */
+static int hf_lppe_fineRTDstd;                    /* OMA_LPPe_OTDOA_RTDquality */
+static int hf_lppe_fineRTDdriftRate;              /* INTEGER_M100_100 */
+static int hf_lppe_resolution;                    /* T_resolution */
+static int hf_lppe_quality;                       /* INTEGER_0_127 */
+static int hf_lppe_lteCell;                       /* T_lteCell */
+static int hf_lppe_physCellId;                    /* INTEGER_0_503 */
+static int hf_lppe_eARFCN;                        /* ARFCN_ValueEUTRA */
+static int hf_lppe_ecgi;                          /* CellGlobalIdEUTRA_AndUTRA */
+static int hf_lppe_eARFCN_ext;                    /* ARFCN_ValueEUTRA_v9a0 */
+static int hf_lppe_requestedCells;                /* T_requestedCells */
+static int hf_lppe_otdoaLocationInformation;      /* OMA_LPPe_OTDOA_LocationInformation */
+static int hf_lppe_otdoaError;                    /* OMA_LPPe_OTDOA_Error */
+static int hf_lppe_cellGlobalId;                  /* CellGlobalIdEUTRA_AndUTRA */
+static int hf_lppe_assistanceAvailability;        /* BOOLEAN */
+static int hf_lppe_eNodeB_AD_sup;                 /* T_eNodeB_AD_sup */
+static int hf_lppe_home_eNodeB_AD_sup;            /* T_home_eNodeB_AD_sup */
+static int hf_lppe_locationServerErrorCauses;     /* OMA_LPPe_OTDOA_LocationServerErrorCauses */
+static int hf_lppe_targetDeviceErrorCauses;       /* OMA_LPPe_OTDOA_TargetDeviceErrorCauses */
+static int hf_lppe_cause;                         /* T_cause */
+static int hf_lppe_cause_01;                      /* T_cause_01 */
+static int hf_lppe_referenceBTS;                  /* OMA_LPPe_EOTD_ReferenceBTSForAssistance */
+static int hf_lppe_msrAssistDataList;             /* OMA_LPPe_EOTD_MsrAssistDataList */
+static int hf_lppe_systemInfoAssistDataList;      /* OMA_LPPe_EOTD_SystemInfoAssistDataList */
+static int hf_lppe_eotdError;                     /* OMA_LPPe_EOTD_Error */
+static int hf_lppe_bsicAndCarrier;                /* OMA_LPPe_CellNonUniqueIDGERAN */
+static int hf_lppe_timeSlotScheme;                /* OMA_LPPe_EOTD_TimeSlotScheme */
+static int hf_lppe_btsPosition;                   /* T_btsPosition */
+static int hf_lppe_ellipsoidPoint;                /* Ellipsoid_Point */
+static int hf_lppe_ellipsoidPointWithAltitudeAndUncertaintyEllipsoid;  /* EllipsoidPointWithAltitudeAndUncertaintyEllipsoid */
+static int hf_lppe_OMA_LPPe_EOTD_MsrAssistDataList_item;  /* OMA_LPPe_EOTD_MsrAssistBTS */
+static int hf_lppe_multiFrameOffset;              /* OMA_LPPe_EOTD_MultiFrameOffset */
+static int hf_lppe_roughRTD;                      /* OMA_LPPe_EOTD_RoughRTD */
+static int hf_lppe_expectedOTD;                   /* OMA_LPPe_EOTD_ExpectedOTD */
+static int hf_lppe_calcAssistanceBTS;             /* OMA_LPPe_EOTD_CalcAssistanceBTS */
+static int hf_lppe_OMA_LPPe_EOTD_SystemInfoAssistDataList_item;  /* OMA_LPPe_EOTD_SystemInfoAssistBTS */
+static int hf_lppe_notPresent;                    /* NULL */
+static int hf_lppe_present;                       /* OMA_LPPe_EOTD_AssistBTSData */
+static int hf_lppe_fineRTD_01;                    /* OMA_LPPe_EOTD_FineRTD */
+static int hf_lppe_relativePos;                   /* OMA_LPPe_EOTD_relativePos */
+static int hf_lppe_relativeNorth_01;              /* OMA_LPPe_EOTD_RelDistance */
+static int hf_lppe_relativeEast_01;               /* OMA_LPPe_EOTD_RelDistance */
+static int hf_lppe_relativeAlt;                   /* OMA_LPPe_EOTD_RelativeAlt */
+static int hf_lppe_eotdAssistanceReq;             /* T_eotdAssistanceReq */
+static int hf_lppe_eotdMsrElement;                /* OMA_LPPe_EOTD_MsrElement */
+static int hf_lppe_refFrameNumber;                /* INTEGER_0_42431 */
+static int hf_lppe_referenceTimeSlot;             /* OMA_LPPe_EOTD_ModuloTimeSlot */
+static int hf_lppe_toaMeasurementsOfRef;          /* OMA_LPPe_EOTD_TOA_MeasurementsOfRef */
+static int hf_lppe_stdResolution;                 /* BIT_STRING_SIZE_2 */
+static int hf_lppe_taCorrection;                  /* INTEGER_0_960 */
+static int hf_lppe_otd_FirstSetMsrs;              /* SEQUENCE_SIZE_1_15_OF_OMA_LPPe_EOTD_MeasurementWithID */
+static int hf_lppe_otd_FirstSetMsrs_item;         /* OMA_LPPe_EOTD_MeasurementWithID */
+static int hf_lppe_refQuality;                    /* BIT_STRING_SIZE_5 */
+static int hf_lppe_numOfMeasurements;             /* BIT_STRING_SIZE_3 */
+static int hf_lppe_neighborIdentity;              /* OMA_LPPe_EOTD_NeighborIdentity */
+static int hf_lppe_nborTimeSlot;                  /* OMA_LPPe_EOTD_ModuloTimeSlot */
+static int hf_lppe_eotdQuality;                   /* OMA_LPPe_EOTD_EOTDQuality */
+static int hf_lppe_otdValue;                      /* OMA_LPPe_EOTD_OTDValue */
+static int hf_lppe_ci;                            /* OMA_LPPe_EOTD_CellID */
+static int hf_lppe_multiFrameCarrier;             /* OMA_LPPe_EOTD_MultiFrameCarrier */
+static int hf_lppe_requestIndex;                  /* OMA_LPPe_EOTD_RequestIndex */
+static int hf_lppe_systemInfoIndex;               /* OMA_LPPe_EOTD_SystemInfoIndex */
+static int hf_lppe_ciAndLac;                      /* OMA_LPPe_CellLocalIdGERAN */
+static int hf_lppe_nbrOfMeasurements;             /* BIT_STRING_SIZE_3 */
+static int hf_lppe_stdOfEOTD;                     /* BIT_STRING_SIZE_5 */
+static int hf_lppe_bcchCarrier;                   /* OMA_LPPe_EOTD_BCCHCarrier */
+static int hf_lppe_eotdSupport;                   /* T_eotdSupport */
+static int hf_lppe_locationServerErrorCauses_01;  /* OMA_LPPe_EOTD_LocationServerErrorCauses */
+static int hf_lppe_targetDeviceErrorCauses_01;    /* OMA_LPPe_EOTD_TargetDeviceErrorCauses */
+static int hf_lppe_cause_02;                      /* T_cause_02 */
+static int hf_lppe_cause_03;                      /* T_cause_03 */
+static int hf_lppe_expectedOTD_01;                /* INTEGER_0_1250 */
+static int hf_lppe_expOTDUncertainty;             /* INTEGER_0_7 */
+static int hf_lppe_referenceCellInfo_01;          /* OMA_LPPe_OTDOA_UTRA_ReferenceCellInfo */
+static int hf_lppe_neigborCellList;               /* OMA_LPPe_OTDOA_UTRA_NeighborCellList */
+static int hf_lppe_otdoaUtraError;                /* OMA_LPPe_OTDOA_UTRA_Error */
+static int hf_lppe_sfn;                           /* INTEGER_0_4095 */
+static int hf_lppe_modeSpecificInfo;              /* T_modeSpecificInfo */
+static int hf_lppe_fdd;                           /* T_fdd */
+static int hf_lppe_primaryCPICH_info;             /* OMA_LPPe_OTDOA_UTRA_PrimaryCPICH_Info */
+static int hf_lppe_tdd;                           /* T_tdd */
+static int hf_lppe_cellAndChannelIdentity;        /* OMA_LPPe_OTDOA_UTRA_CellAndChannelIdentity */
+static int hf_lppe_frequencyInfo;                 /* OMA_LPPe_UTRA_FrequencyInfo */
+static int hf_lppe_refPosAssist;                  /* OMA_LPPe_OTDOA_UTRA_RefPosAssist */
+static int hf_lppe_ipdl_parameters;               /* OMA_LPPe_OTDOA_UTRA_IPDL_Parameters */
+static int hf_lppe_cellPosition;                  /* T_cellPosition */
+static int hf_lppe_ellipsoidPointWithAltitude;    /* EllipsoidPointWithAltitude */
+static int hf_lppe_roundTripTime;                 /* INTEGER_0_32766 */
+static int hf_lppe_roundTripTimeExtension;        /* INTEGER_0_70274 */
+static int hf_lppe_OMA_LPPe_OTDOA_UTRA_NeighborCellList_item;  /* OMA_LPPe_OTDOA_UTRA_NeighborCellInfo */
+static int hf_lppe_modeSpecificInfo_01;           /* T_modeSpecificInfo_01 */
+static int hf_lppe_fdd_01;                        /* T_fdd_01 */
+static int hf_lppe_tdd_01;                        /* T_tdd_01 */
+static int hf_lppe_sfn_SFN_relTimeDifference;     /* OMA_LPPe_OTDOA_UTRA_SFN_SFN_RelTimeDifference1 */
+static int hf_lppe_sfn_offsetValidity;            /* OMA_LPPe_OTDOA_UTRA_SFN_OffsetValidity */
+static int hf_lppe_sfn_SFN_drift;                 /* OMA_LPPe_OTDOA_UTRA_SFN_SFN_Drift */
+static int hf_lppe_searchWindowSize;              /* OMA_LPPe_OTDOA_UTRA_SearchWindowSize */
+static int hf_lppe_positioningAssistance;         /* OMA_LPPe_OTDOA_UTRA_PositioningAssistance */
+static int hf_lppe_sfn_offset;                    /* INTEGER_0_4095 */
+static int hf_lppe_sfn_sfn_relTimeDifference;     /* INTEGER_0_38399 */
+static int hf_lppe_relativeNorth_02;              /* INTEGER_M20000_20000 */
+static int hf_lppe_relativeEast_02;               /* INTEGER_M20000_20000 */
+static int hf_lppe_relativeAltitude_01;           /* INTEGER_M4000_4000 */
+static int hf_lppe_fineSFN_SFN;                   /* OMA_LPPe_OTDOA_UTRA_fineSFN_SFN */
+static int hf_lppe_modeSpecificInfo_02;           /* T_modeSpecificInfo_02 */
+static int hf_lppe_fdd_02;                        /* T_fdd_02 */
+static int hf_lppe_ip_spacing;                    /* OMA_LPPe_OTDOA_UTRA_IP_Spacing */
+static int hf_lppe_ip_length;                     /* OMA_LPPe_OTDOA_UTRA_IP_Length */
+static int hf_lppe_ip_Offset;                     /* INTEGER_0_9 */
+static int hf_lppe_seed;                          /* INTEGER_0_63 */
+static int hf_lppe_burstModeParameters;           /* OMA_LPPe_OTDOA_UTRA_BurstModeParameters */
+static int hf_lppe_tdd_02;                        /* T_tdd_02 */
+static int hf_lppe_ip_spacing_tdd;                /* OMA_LPPe_OTDOA_UTRA_IP_Spacing_TDD */
+static int hf_lppe_ip_slot;                       /* INTEGER_0_14 */
+static int hf_lppe_ip_start;                      /* INTEGER_0_4095 */
+static int hf_lppe_ip_PCCPCH;                     /* OMA_LPPe_OTDOA_UTRA_IP_PCCPCH */
+static int hf_lppe_burstStart;                    /* INTEGER_0_15 */
+static int hf_lppe_burstLength;                   /* INTEGER_10_25 */
+static int hf_lppe_burstFreq;                     /* INTEGER_1_16 */
+static int hf_lppe_otdoaUtraAssistanceReq;        /* T_otdoaUtraAssistanceReq */
+static int hf_lppe_otdoaUtraMeasurement;          /* OMA_LPPe_OTDOA_UTRA_Measurement */
+static int hf_lppe_timeStampData;                 /* OMA_LPPe_OTDOA_UTRA_TimeStampData */
+static int hf_lppe_modeSpecificInfoMeas;          /* T_modeSpecificInfoMeas */
+static int hf_lppe_fdd_03;                        /* T_fdd_03 */
+static int hf_lppe_referenceCellIdentity;         /* OMA_LPPe_OTDOA_UTRA_PrimaryCPICH_Info */
+static int hf_lppe_ue_RX_TX_TimeDifferenceType2Info;  /* OMA_LPPe_OTDOA_UTRA_UE_RX_TX_TimeDifferenceType2Info */
+static int hf_lppe_tdd_03;                        /* T_tdd_03 */
+static int hf_lppe_neighborList;                  /* OMA_LPPe_OTDOA_UTRA_NeighborList */
+static int hf_lppe_ue_RX_TX_timeDifferenceType2;  /* OMA_LPPe_OTDOA_UTRA_TimeDifferenceType2 */
+static int hf_lppe_neighborQuality;               /* OMA_LPPe_OTDOA_UTRA_NeighborQuality */
+static int hf_lppe_OMA_LPPe_OTDOA_UTRA_NeighborList_item;  /* OMA_LPPe_OTDOA_UTRA_Neighbor */
+static int hf_lppe_modeSpecificInfo_03;           /* T_modeSpecificInfo_03 */
+static int hf_lppe_fdd_04;                        /* T_fdd_04 */
+static int hf_lppe_neighborIdentity_01;           /* OMA_LPPe_OTDOA_UTRA_PrimaryCPICH_Info */
+static int hf_lppe_ue_RX_TX_timeDifferenceType2Info;  /* OMA_LPPe_OTDOA_UTRA_UE_RX_TX_TimeDifferenceType2Info */
+static int hf_lppe_tdd_04;                        /* T_tdd_04 */
+static int hf_lppe_uarfcn;                        /* ARFCN_ValueUTRA */
+static int hf_lppe_sfn_sfn_ObsTimeDifference2;    /* OMA_LPPe_OTDOA_UTRA_SFN_SFN_ObsTimeDifference2 */
+static int hf_lppe_quality_01;                    /* OMA_LPPe_OTDOA_UTRA_Quality */
+static int hf_lppe_numberOfOTDOA_Measurements;    /* BIT_STRING_SIZE_3 */
+static int hf_lppe_stdOfOTDOA_Measurements;       /* BIT_STRING_SIZE_5 */
+static int hf_lppe_utraCellGlobalID;              /* CellGlobalIdEUTRA_AndUTRA */
+static int hf_lppe_nonUniqueCellID;               /* T_nonUniqueCellID */
+static int hf_lppe_primaryScramblingCode;         /* OMA_LPPe_OTDOA_UTRA_PrimaryScramblingCode */
+static int hf_lppe_cellParametersId;              /* OMA_LPPe_OTDOA_UTRA_CellParametersID */
+static int hf_lppe_ueBasedSupported;              /* BOOLEAN */
+static int hf_lppe_ueAssistedSupported;           /* BOOLEAN */
+static int hf_lppe_ipdlSupported;                 /* BOOLEAN */
+static int hf_lppe_locationServerErrorCauses_02;  /* OMA_LPPe_OTDOA_UTRA_LocationServerErrorCauses */
+static int hf_lppe_targetDeviceErrorCauses_02;    /* OMA_LPPe_OTDOA_UTRA_TargetDeviceErrorCauses */
+static int hf_lppe_cause_04;                      /* T_cause_04 */
+static int hf_lppe_cause_05;                      /* T_cause_05 */
+static int hf_lppe_burstType;                     /* OMA_LPPe_OTDOA_UTRA_BurstType */
+static int hf_lppe_midambleShift;                 /* OMA_LPPe_OTDOA_UTRA_MidambleShiftLong */
+static int hf_lppe_timeslot;                      /* OMA_LPPe_OTDOA_UTRA_TimeSlotNumber */
+static int hf_lppe_cellParametersID;              /* OMA_LPPe_OTDOA_UTRA_CellParametersID */
+static int hf_lppe_ecid_LTE_NetworkData;          /* SEQUENCE_SIZE_1_maxLTENetworks_OF_OMA_LPPe_ECID_LTE_NetworkData */
+static int hf_lppe_ecid_LTE_NetworkData_item;     /* OMA_LPPe_ECID_LTE_NetworkData */
+static int hf_lppe_ecid_LTE_Error;                /* OMA_LPPe_ECID_LTE_Error */
+static int hf_lppe_plmn_Identity;                 /* T_plmn_Identity */
+static int hf_lppe_mcc;                           /* T_mcc */
+static int hf_lppe_mcc_item;                      /* INTEGER_0_9 */
+static int hf_lppe_mnc;                           /* T_mnc */
+static int hf_lppe_mnc_item;                      /* INTEGER_0_9 */
+static int hf_lppe_multiple_PLMNs;                /* BOOLEAN */
+static int hf_lppe_reference_location;            /* OMA_LPPe_ReferencePoint */
+static int hf_lppe_ecid_lte_eNodeB_list;          /* SEQUENCE_SIZE_1_maxLTEeNBs_OF_OMA_LPPe_ECID_LTE_eNodeBData */
+static int hf_lppe_ecid_lte_eNodeB_list_item;     /* OMA_LPPe_ECID_LTE_eNodeBData */
+static int hf_lppe_ecid_lte_HeNB_list;            /* SEQUENCE_SIZE_1_maxLTEHeNBs_OF_OMA_LPPe_ECID_LTE_HeNBData */
+static int hf_lppe_ecid_lte_HeNB_list_item;       /* OMA_LPPe_ECID_LTE_HeNBData */
+static int hf_lppe_ecid_lte_eNodeB_CellData;      /* SEQUENCE_SIZE_1_maxLTEMacroCells_OF_OMA_LPPe_ECID_LTE_CellData */
+static int hf_lppe_ecid_lte_eNodeB_CellData_item;  /* OMA_LPPe_ECID_LTE_CellData */
+static int hf_lppe_coverageArea;                  /* OMA_LPPe_WLANFemtoCoverageArea */
+static int hf_lppe_ecid_lte_HeNB_CellData;        /* OMA_LPPe_ECID_LTE_CellData */
+static int hf_lppe_cellIdentity_01;               /* BIT_STRING_SIZE_28 */
+static int hf_lppe_dl_CarrierFreq;                /* ARFCN_ValueEUTRA */
+static int hf_lppe_rs_transmit_power;             /* INTEGER_M127_128 */
+static int hf_lppe_antennaPortConfig;             /* T_antennaPortConfig */
+static int hf_lppe_antenna_gain;                  /* INTEGER_M127_128 */
+static int hf_lppe_beam_width;                    /* INTEGER_1_360 */
+static int hf_lppe_transmit_direction;            /* INTEGER_0_360 */
+static int hf_lppe_frequency_accuracy;            /* INTEGER_0_100 */
+static int hf_lppe_dl_CarrierFreq_ext;            /* ARFCN_ValueEUTRA_v9a0 */
+static int hf_lppe_eNBrequestedAD;                /* T_eNBrequestedAD */
+static int hf_lppe_heNBrequestedAD;               /* T_heNBrequestedAD */
+static int hf_lppe_ecid_LTE_CombinedLocationInformation;  /* SEQUENCE_SIZE_1_maxLTEECIDSize_OF_OMA_LPPe_ECID_LTE_LocationInformationList */
+static int hf_lppe_ecid_LTE_CombinedLocationInformation_item;  /* OMA_LPPe_ECID_LTE_LocationInformationList */
+static int hf_lppe_ecid_LTE_LocationInformation;  /* OMA_LPPe_ECID_LTE_LocationInformation */
+static int hf_lppe_relativeTimeStamp;             /* INTEGER_0_65535 */
+static int hf_lppe_servingFlag;                   /* BOOLEAN */
+static int hf_lppe_lpp_ECID_SignalMeasurementInformation;  /* ECID_SignalMeasurementInformation */
+static int hf_lppe_requestedMeasurements;         /* T_requestedMeasurements */
+static int hf_lppe_ecid_lte_MeasSupported;        /* T_ecid_lte_MeasSupported */
+static int hf_lppe_ecid_lte_eNodeB_ADSupported;   /* T_ecid_lte_eNodeB_ADSupported */
+static int hf_lppe_ecid_utra_HeNB_ADSupported;    /* T_ecid_utra_HeNB_ADSupported */
+static int hf_lppe_locationServerErrorCauses_03;  /* OMA_LPPe_ECID_LTE_LocationServerErrorCauses */
+static int hf_lppe_targetDeviceErrorCauses_03;    /* OMA_LPPe_ECID_LTE_TargetDeviceErrorCauses */
+static int hf_lppe_cause_06;                      /* T_cause_06 */
+static int hf_lppe_eNodeBMandatoryDataUnavailable;  /* NULL */
+static int hf_lppe_eNodeBLocationsUnavailable;    /* NULL */
+static int hf_lppe_eNodeBcellTransmitPowerUnavailable;  /* NULL */
+static int hf_lppe_eNodeBcellAntennaPortConfigUnavailable;  /* NULL */
+static int hf_lppe_eNodeBcallAntennaGainUnavailable;  /* NULL */
+static int hf_lppe_eNodeBcellBeamWidthUnavailable;  /* NULL */
+static int hf_lppe_eNodeBcellTransmitDirectionUnavailable;  /* NULL */
+static int hf_lppe_eNodeBcellFrequencyAccuracyUnavailable;  /* NULL */
+static int hf_lppe_eNodeBnonservingADUnavailable;  /* NULL */
+static int hf_lppe_heNBMandatoryDataUnavailable;  /* NULL */
+static int hf_lppe_heNBLocationUnavailable;       /* NULL */
+static int hf_lppe_heNBLocationReliabilityUnavailable;  /* NULL */
+static int hf_lppe_heNBcellTransmitPowerUnavailable;  /* NULL */
+static int hf_lppe_heNBcellAntennaPortConfigUnavailable;  /* NULL */
+static int hf_lppe_heNBcellFrequencyAccuracyUnavailable;  /* NULL */
+static int hf_lppe_heNBCoverageAreaUnavailable;   /* NULL */
+static int hf_lppe_heNBnonservingADUnavailable;   /* NULL */
+static int hf_lppe_cause_07;                      /* T_cause_07 */
+static int hf_lppe_rsrpMeasurementNotPossible;    /* NULL */
+static int hf_lppe_rsrqMeasurementNotPossible;    /* NULL */
+static int hf_lppe_ueRxTxMeasurementNotPossible;  /* NULL */
+static int hf_lppe_non_servingMeasurementsNotAvailable;  /* NULL */
+static int hf_lppe_historicMeasurementsNotAvailable;  /* NULL */
+static int hf_lppe_ecid_gsm_NetworkData;          /* SEQUENCE_SIZE_1_maxGSMNetworks_OF_OMA_LPPe_ECID_GSM_NetworkData */
+static int hf_lppe_ecid_gsm_NetworkData_item;     /* OMA_LPPe_ECID_GSM_NetworkData */
+static int hf_lppe_ecid_gsm_Error;                /* OMA_LPPe_ECID_GSM_Error */
+static int hf_lppe_plmn_Identity_01;              /* T_plmn_Identity_01 */
+static int hf_lppe_mcc_01;                        /* T_mcc_01 */
+static int hf_lppe_mnc_01;                        /* T_mnc_01 */
+static int hf_lppe_base_station_list;             /* SEQUENCE_SIZE_1_maxGSMBaseStations_OF_OMA_LPPe_ECID_GSM_BaseStationData */
+static int hf_lppe_base_station_list_item;        /* OMA_LPPe_ECID_GSM_BaseStationData */
+static int hf_lppe_ecid_gsm_CellData;             /* SEQUENCE_SIZE_1_maxGSMCells_OF_OMA_LPPe_ECID_GSM_CellData */
+static int hf_lppe_ecid_gsm_CellData_item;        /* OMA_LPPe_ECID_GSM_CellData */
+static int hf_lppe_cellNonUniqueIDGERAN;          /* OMA_LPPe_CellNonUniqueIDGERAN */
+static int hf_lppe_cellLocalIDGERAN;              /* OMA_LPPe_CellLocalIdGERAN */
+static int hf_lppe_transmit_power;                /* INTEGER_M127_128 */
+static int hf_lppe_requestedAD;                   /* T_requestedAD */
+static int hf_lppe_ecid_GSM_CombinedLocationInformation;  /* SEQUENCE_SIZE_1_maxGSMECIDSize_OF_OMA_LPPe_ECID_GSM_LocationInformationList */
+static int hf_lppe_ecid_GSM_CombinedLocationInformation_item;  /* OMA_LPPe_ECID_GSM_LocationInformationList */
+static int hf_lppe_ecid_GSM_Error;                /* OMA_LPPe_ECID_GSM_Error */
+static int hf_lppe_ecid_GSM_LocationInformation;  /* OMA_LPPe_ECID_GSM_LocationInformation */
+static int hf_lppe_cellGlobalIdGERAN;             /* CellGlobalIdGERAN */
+static int hf_lppe_rxLevel;                       /* INTEGER_0_63 */
+static int hf_lppe_tA;                            /* INTEGER_0_255 */
+static int hf_lppe_nMR_GERAN;                     /* OMA_LPPe_NMR_GERAN */
+static int hf_lppe_OMA_LPPe_NMR_GERAN_item;       /* OMA_LPPe_NMR_GERAN_item */
+static int hf_lppe_requestedMeasurements_01;      /* T_requestedMeasurements_01 */
+static int hf_lppe_ecid_gsm_MeasSupported;        /* T_ecid_gsm_MeasSupported */
+static int hf_lppe_ecid_gsm_ADSupported;          /* T_ecid_gsm_ADSupported */
+static int hf_lppe_locationServerErrorCauses_04;  /* OMA_LPPe_ECID_GSM_LocationServerErrorCauses */
+static int hf_lppe_targetDeviceErrorCauses_04;    /* OMA_LPPe_ECID_GSM_TargetDeviceErrorCauses */
+static int hf_lppe_cause_08;                      /* T_cause_08 */
+static int hf_lppe_mandatoryDataUnavailable;      /* NULL */
+static int hf_lppe_bsLocationsUnavailable;        /* NULL */
+static int hf_lppe_cellTransmitPowerUnavailable;  /* NULL */
+static int hf_lppe_callAntennaGainUnavailable;    /* NULL */
+static int hf_lppe_cellBeamWidthUnavailable;      /* NULL */
+static int hf_lppe_cellTransmitDirectionUnavailable;  /* NULL */
+static int hf_lppe_cellFrequencyAccuracyUnavailable;  /* NULL */
+static int hf_lppe_nonservingADUnavailable;       /* NULL */
+static int hf_lppe_cause_09;                      /* T_cause_09 */
+static int hf_lppe_rxLevelMeasurementNotPossible;  /* NULL */
+static int hf_lppe_taMeasurementNotPossible;      /* NULL */
+static int hf_lppe_nMRMeasurementNotPossible;     /* NULL */
+static int hf_lppe_ecid_UTRA_NetworkData;         /* SEQUENCE_SIZE_1_maxUTRANetworks_OF_OMA_LPPe_ECID_UTRA_NetworkData */
+static int hf_lppe_ecid_UTRA_NetworkData_item;    /* OMA_LPPe_ECID_UTRA_NetworkData */
+static int hf_lppe_ecid_UTRA_Error;               /* OMA_LPPe_ECID_UTRA_Error */
+static int hf_lppe_plmn_Identity_02;              /* T_plmn_Identity_02 */
+static int hf_lppe_mcc_02;                        /* T_mcc_02 */
+static int hf_lppe_mnc_02;                        /* T_mnc_02 */
+static int hf_lppe_ecid_utra_nodeB_list;          /* SEQUENCE_SIZE_1_maxUTRAnodeBs_OF_OMA_LPPe_ECID_UTRA_NodeBData */
+static int hf_lppe_ecid_utra_nodeB_list_item;     /* OMA_LPPe_ECID_UTRA_NodeBData */
+static int hf_lppe_ecid_utra_HNB_list;            /* SEQUENCE_SIZE_1_maxUTRAHNBs_OF_OMA_LPPe_ECID_UTRA_HNBData */
+static int hf_lppe_ecid_utra_HNB_list_item;       /* OMA_LPPe_ECID_UTRA_HNBData */
+static int hf_lppe_ecid_utra_nodeB_CellData;      /* SEQUENCE_SIZE_1_maxUTRAMacroCells_OF_OMA_LPPe_ECID_UTRA_CellData */
+static int hf_lppe_ecid_utra_nodeB_CellData_item;  /* OMA_LPPe_ECID_UTRA_CellData */
+static int hf_lppe_ecid_utra_HNB_CellData;        /* OMA_LPPe_ECID_UTRA_CellData */
+static int hf_lppe_cellIdentity_02;               /* BIT_STRING_SIZE_32 */
+static int hf_lppe_modeSpecificInfo_04;           /* T_modeSpecificInfo_04 */
+static int hf_lppe_fdd_05;                        /* T_fdd_05 */
+static int hf_lppe_primaryCPICH_Scrambling_Code;  /* OMA_LPPe_OTDOA_UTRA_PrimaryScramblingCode */
+static int hf_lppe_primaryCPICH_Tx_Power;         /* INTEGER_M127_128 */
+static int hf_lppe_uarfcn_dl;                     /* ARFCN_ValueUTRA */
+static int hf_lppe_tdd_05;                        /* T_tdd_05 */
+static int hf_lppe_primaryCCPCH_Tx_Power;         /* INTEGER_M127_128 */
+static int hf_lppe_uarfcn_nt;                     /* ARFCN_ValueUTRA */
+static int hf_lppe_nBrequestedAD;                 /* T_nBrequestedAD */
+static int hf_lppe_hNBrequestedAD;                /* T_hNBrequestedAD */
+static int hf_lppe_ecid_UTRA_CombinedLocationInformation;  /* SEQUENCE_SIZE_1_maxECIDUTRASize_OF_OMA_LPPe_ECID_UTRA_LocationInformationList */
+static int hf_lppe_ecid_UTRA_CombinedLocationInformation_item;  /* OMA_LPPe_ECID_UTRA_LocationInformationList */
+static int hf_lppe_ecid_Error;                    /* OMA_LPPe_ECID_UTRA_Error */
+static int hf_lppe_ecid_utra_LocationInformation;  /* OMA_LPPe_ECID_UTRA_LocationInformation */
+static int hf_lppe_cellGlobalIdUTRA;              /* CellGlobalIdEUTRA_AndUTRA */
+static int hf_lppe_measuredResultsList;           /* OMA_LPPe_ECID_UTRA_MeasuredResultsList */
+static int hf_lppe_utratimingAdvance;             /* OMA_LPPe_ECID_UTRA_UTRATimingAdvance */
+static int hf_lppe_tA_01;                         /* INTEGER_0_8191 */
+static int hf_lppe_tAResolution;                  /* OMA_LPPe_ECID_UTRA_TAResolution */
+static int hf_lppe_chipRate;                      /* OMA_LPPe_ECID_UTRA_ChipRate */
+static int hf_lppe_modeSpecificInfo_05;           /* OMA_LPPe_UTRA_ModeSpecificInfo */
+static int hf_lppe_fdd_06;                        /* OMA_LPPe_UTRA_FrequencyInfoFDD */
+static int hf_lppe_tdd_06;                        /* OMA_LPPe_UTRA_FrequencyInfoTDD */
+static int hf_lppe_uarfcn_UL;                     /* ARFCN_ValueUTRA */
+static int hf_lppe_uarfcn_DL;                     /* ARFCN_ValueUTRA */
+static int hf_lppe_uarfcn_Nt;                     /* ARFCN_ValueUTRA */
+static int hf_lppe_OMA_LPPe_ECID_UTRA_MeasuredResultsList_item;  /* OMA_LPPe_ECID_UTRA_MeasuredResults */
+static int hf_lppe_utra_CarrierRSSI;              /* OMA_LPPe_ECID_UTRA_CarrierRSSI */
+static int hf_lppe_cellMeasuredResultsList;       /* OMA_LPPe_ECID_UTRA_CellMeasuredResultsList */
+static int hf_lppe_OMA_LPPe_ECID_UTRA_CellMeasuredResultsList_item;  /* OMA_LPPe_ECID_UTRA_CellMeasuredResults */
+static int hf_lppe_modeSpecificInfo_06;           /* T_modeSpecificInfo_05 */
+static int hf_lppe_fdd_07;                        /* T_fdd_06 */
+static int hf_lppe_primaryCPICH_Info;             /* OMA_LPPe_OTDOA_UTRA_PrimaryScramblingCode */
+static int hf_lppe_cpich_Ec_N0;                   /* OMA_LPPe_ECID_UTRA_CPICH_Ec_N0 */
+static int hf_lppe_cpich_RSCP;                    /* OMA_LPPe_ECID_UTRA_CPICH_RSCP */
+static int hf_lppe_pathloss;                      /* OMA_LPPe_ECID_UTRA_Pathloss */
+static int hf_lppe_tdd_07;                        /* T_tdd_06 */
+static int hf_lppe_primaryCCPCH_RSCP;             /* OMA_LPPe_ECID_UTRA_PrimaryCCPCH_RSCP */
+static int hf_lppe_requestedMeasurements_02;      /* T_requestedMeasurements_02 */
+static int hf_lppe_ecid_utra_MeasSupported;       /* T_ecid_utra_MeasSupported */
+static int hf_lppe_ecid_utra_nodeB_ADSupported;   /* T_ecid_utra_nodeB_ADSupported */
+static int hf_lppe_ecid_utra_HNB_ADSupported;     /* T_ecid_utra_HNB_ADSupported */
+static int hf_lppe_locationServerErrorCauses_05;  /* OMA_LPPe_ECID_UTRA_LocationServerErrorCauses */
+static int hf_lppe_targetDeviceErrorCauses_05;    /* OMA_LPPe_ECID_UTRA_TargetDeviceErrorCauses */
+static int hf_lppe_cause_10;                      /* T_cause_10 */
+static int hf_lppe_nodeBMandatoryDataUnavailable;  /* NULL */
+static int hf_lppe_nodeBLocationUnavailable;      /* NULL */
+static int hf_lppe_nodeBcellTransmitPowerUnavailable;  /* NULL */
+static int hf_lppe_nodeBcallAntennaGainUnavailable;  /* NULL */
+static int hf_lppe_nodeBcellBeamWidthUnavailable;  /* NULL */
+static int hf_lppe_nodeBcellTransmitDirectionUnavailable;  /* NULL */
+static int hf_lppe_nodeBcellFrequencyAccuracyUnavailable;  /* NULL */
+static int hf_lppe_nodeBnonservingADUnavailable;  /* NULL */
+static int hf_lppe_hNBMandatoryDataUnavailable;   /* NULL */
+static int hf_lppe_hNBLocationUnavailable;        /* NULL */
+static int hf_lppe_hNBLocationReliabilityUnavailable;  /* NULL */
+static int hf_lppe_hNBcellTransmitPowerUnavailable;  /* NULL */
+static int hf_lppe_hNBcellFrequencyAccuracyUnavailable;  /* NULL */
+static int hf_lppe_hNBCoverageAreaUnavailable;    /* NULL */
+static int hf_lppe_hNBnonservingADUnavailable;    /* NULL */
+static int hf_lppe_cause_11;                      /* T_cause_11 */
+static int hf_lppe_mRLMeasurementsNotPossible;    /* NULL */
+static int hf_lppe_tdd_timingAdvanceMeasurementNotPossible;  /* NULL */
+static int hf_lppe_mRL_utra_CarrierRSSIMeasurementNotPossible;  /* NULL */
+static int hf_lppe_mRL_FDD_cpich_Ec_N0MeasurementNotPossible;  /* NULL */
+static int hf_lppe_mRL_FDD_cpich_RSCPMeasurementNotPossible;  /* NULL */
+static int hf_lppe_mRL_FDD_pathlossMeasurementNotPossible;  /* NULL */
+static int hf_lppe_mRL_TDD_primaryCCPCH_RSCPMeasurementNotPossible;  /* NULL */
+static int hf_lppe_mRL_TDD_pathlossMeasurementNotPossible;  /* NULL */
+static int hf_lppe_wlan_DataSet;                  /* SEQUENCE_SIZE_1_maxWLANDataSets_OF_OMA_LPPe_WLAN_DataSet */
+static int hf_lppe_wlan_DataSet_item;             /* OMA_LPPe_WLAN_DataSet */
+static int hf_lppe_wlan_AP_Error;                 /* OMA_LPPe_WLAN_AP_Error */
+static int hf_lppe_plmn_Identity_03;              /* T_plmn_Identity_03 */
+static int hf_lppe_mcc_03;                        /* T_mcc_03 */
+static int hf_lppe_mnc_03;                        /* T_mnc_03 */
+static int hf_lppe_supported_channels_11a;        /* Supported_Channels_11a */
+static int hf_lppe_supported_channels_11bg;       /* Supported_Channels_11bg */
+static int hf_lppe_wlan_ap_list;                  /* SEQUENCE_SIZE_1_maxWLANAPs_OF_OMA_LPPe_WLAN_AP_Data */
+static int hf_lppe_wlan_ap_list_item;             /* OMA_LPPe_WLAN_AP_Data */
+static int hf_lppe_ch34;                          /* BOOLEAN */
+static int hf_lppe_ch36;                          /* BOOLEAN */
+static int hf_lppe_ch38;                          /* BOOLEAN */
+static int hf_lppe_ch40;                          /* BOOLEAN */
+static int hf_lppe_ch42;                          /* BOOLEAN */
+static int hf_lppe_ch44;                          /* BOOLEAN */
+static int hf_lppe_ch46;                          /* BOOLEAN */
+static int hf_lppe_ch48;                          /* BOOLEAN */
+static int hf_lppe_ch52;                          /* BOOLEAN */
+static int hf_lppe_ch56;                          /* BOOLEAN */
+static int hf_lppe_ch60;                          /* BOOLEAN */
+static int hf_lppe_ch64;                          /* BOOLEAN */
+static int hf_lppe_ch149;                         /* BOOLEAN */
+static int hf_lppe_ch153;                         /* BOOLEAN */
+static int hf_lppe_ch157;                         /* BOOLEAN */
+static int hf_lppe_ch161;                         /* BOOLEAN */
+static int hf_lppe_ch1;                           /* BOOLEAN */
+static int hf_lppe_ch2;                           /* BOOLEAN */
+static int hf_lppe_ch3;                           /* BOOLEAN */
+static int hf_lppe_ch4;                           /* BOOLEAN */
+static int hf_lppe_ch5;                           /* BOOLEAN */
+static int hf_lppe_ch6;                           /* BOOLEAN */
+static int hf_lppe_ch7;                           /* BOOLEAN */
+static int hf_lppe_ch8;                           /* BOOLEAN */
+static int hf_lppe_ch9;                           /* BOOLEAN */
+static int hf_lppe_ch10;                          /* BOOLEAN */
+static int hf_lppe_ch11;                          /* BOOLEAN */
+static int hf_lppe_ch12;                          /* BOOLEAN */
+static int hf_lppe_ch13;                          /* BOOLEAN */
+static int hf_lppe_ch14;                          /* BOOLEAN */
+static int hf_lppe_wlan_ap_id;                    /* OMA_LPPe_WLAN_AP_ID */
+static int hf_lppe_wlan_ap_Type_Data;             /* SEQUENCE_SIZE_1_maxWLANTypes_OF_OMA_LPPe_WLAN_AP_Type_Data */
+static int hf_lppe_wlan_ap_Type_Data_item;        /* OMA_LPPe_WLAN_AP_Type_Data */
+static int hf_lppe_wlan_AP_Type;                  /* OMA_LPPe_WLAN_AP_Type */
+static int hf_lppe_requestedAD_01;                /* T_requestedAD_01 */
+static int hf_lppe_requestedAPTypes;              /* OMA_LPPe_WLAN_AP_Type_List */
+static int hf_lppe_wlan_AP_CombinedLocationInformation;  /* SEQUENCE_SIZE_1_maxWLANAPSize_OF_OMA_LPPe_WLAN_AP_LocationInformationList */
+static int hf_lppe_wlan_AP_CombinedLocationInformation_item;  /* OMA_LPPe_WLAN_AP_LocationInformationList */
+static int hf_lppe_wlan_AP_LocationInformation;   /* OMA_LPPe_WLAN_AP_LocationInformation */
+static int hf_lppe_apMACAddress;                  /* OMA_LPPe_WLAN_AP_ID */
+static int hf_lppe_apSSID;                        /* OCTET_STRING_SIZE_1_32 */
+static int hf_lppe_apSignaltoNoise;               /* INTEGER_M127_128 */
+static int hf_lppe_apDeviceType;                  /* OMA_LPPe_WLAN_AP_Type */
+static int hf_lppe_apPHYtype;                     /* OMA_LPPe_WLAN_AP_PHY_Type */
+static int hf_lppe_apSignalStrength;              /* INTEGER_M127_128 */
+static int hf_lppe_apChannelFrequency;            /* INTEGER_0_256 */
+static int hf_lppe_apRoundTripDelay;              /* OMA_LPPe_WLAN_RTD */
+static int hf_lppe_ueTransmitPower;               /* INTEGER_M127_128 */
+static int hf_lppe_ueAntennaGain;                 /* INTEGER_M127_128 */
+static int hf_lppe_apReportedLocation;            /* OMA_LPPe_WLAN_ReportedLocation */
+static int hf_lppe_apTransmitPower;               /* INTEGER_M127_128 */
+static int hf_lppe_apAntennaGain;                 /* INTEGER_M127_128 */
+static int hf_lppe_ueSignaltoNoise;               /* INTEGER_M127_128 */
+static int hf_lppe_ueSignalStrength;              /* INTEGER_M127_128 */
+static int hf_lppe_apSignalStrengthDelta;         /* INTEGER_0_1 */
+static int hf_lppe_ueSignalStrengthDelta;         /* INTEGER_0_1 */
+static int hf_lppe_apSignaltoNoiseDelta;          /* INTEGER_0_1 */
+static int hf_lppe_ueSignaltoNoiseDelta;          /* INTEGER_0_1 */
+static int hf_lppe_operatingClass;                /* INTEGER_0_255 */
+static int hf_lppe_ueMacAddress;                  /* BIT_STRING_SIZE_48 */
+static int hf_lppe_rTDValue;                      /* INTEGER_0_16777215 */
+static int hf_lppe_rTDUnits;                      /* OMA_LPPe_WLAN_RTDUnits */
+static int hf_lppe_rTDAccuracy;                   /* INTEGER_0_255 */
+static int hf_lppe_locationDataLCI;               /* OMA_LPPe_WLAN_LocationDataLCI */
+static int hf_lppe_latitudeResolution;            /* BIT_STRING_SIZE_6 */
+static int hf_lppe_oma_LPPe_WLAN_LocationDataLCI_latitude;  /* BIT_STRING_SIZE_34 */
+static int hf_lppe_longitudeResolution;           /* BIT_STRING_SIZE_6 */
+static int hf_lppe_oma_LPPe_WLAN_LocationDataLCI_longitude;  /* BIT_STRING_SIZE_34 */
+static int hf_lppe_altitudeType;                  /* BIT_STRING_SIZE_4 */
+static int hf_lppe_altitudeResolution;            /* BIT_STRING_SIZE_6 */
+static int hf_lppe_oma_LPPe_WLAN_LocationDataLCI_altitude;  /* BIT_STRING_SIZE_30 */
+static int hf_lppe_datum;                         /* BIT_STRING_SIZE_8 */
+static int hf_lppe_requestedMeasurements_03;      /* T_requestedMeasurements_03 */
+static int hf_lppe_additionalRequestedMeasurements;  /* T_additionalRequestedMeasurements */
+static int hf_lppe_wlan_ecid_MeasSupported;       /* T_wlan_ecid_MeasSupported */
+static int hf_lppe_wlan_types_Supported;          /* OMA_LPPe_WLAN_AP_Type_List */
+static int hf_lppe_ap_Capability;                 /* OMA_LPPe_WLAN_AP_Capability */
+static int hf_lppe_wlan_ap_ADSupported;           /* T_wlan_ap_ADSupported */
+static int hf_lppe_additional_wlan_ecid_MeasSupported;  /* T_additional_wlan_ecid_MeasSupported */
+static int hf_lppe_apTypes;                       /* OMA_LPPe_WLAN_AP_Type_List */
+static int hf_lppe_locationServerErrorCauses_06;  /* OMA_LPPe_WLAN_AP_LocationServerErrorCauses */
+static int hf_lppe_targetDeviceErrorCauses_06;    /* OMA_LPPe_WLAN_AP_TargetDeviceErrorCauses */
+static int hf_lppe_cause_12;                      /* T_cause_12 */
+static int hf_lppe_apMandatoryDataUnavailable;    /* NULL */
+static int hf_lppe_apLocationsUnavailable;        /* NULL */
+static int hf_lppe_apLocationReliabilityUnavailable;  /* NULL */
+static int hf_lppe_apTransmitPowerUnavailable;    /* NULL */
+static int hf_lppe_apAntennaGainUnavailable;      /* NULL */
+static int hf_lppe_apCoverageAreaUnavailable;     /* NULL */
+static int hf_lppe_apTPNotAvailable;              /* NULL */
+static int hf_lppe_apAGNotAvailable;              /* NULL */
+static int hf_lppe_ueSNNotAvailable;              /* NULL */
+static int hf_lppe_ueRSSINotAvailable;            /* NULL */
+static int hf_lppe_ocNotAvailable;                /* NULL */
+static int hf_lppe_cause_13;                      /* T_cause_13 */
+static int hf_lppe_apSSIDnotAvailable;            /* NULL */
+static int hf_lppe_apSNMeasurementNotPossible;    /* NULL */
+static int hf_lppe_apDevTypeNotAvailable;         /* NULL */
+static int hf_lppe_apPhyTypeNotAvailable;         /* NULL */
+static int hf_lppe_apRSSIMeasurementNotPossible;  /* NULL */
+static int hf_lppe_apChanFreqNotAvailable;        /* NULL */
+static int hf_lppe_apRTDMeasurementNotPossible;   /* NULL */
+static int hf_lppe_ueTPNotAvailable;              /* NULL */
+static int hf_lppe_ueAGNotAvailable;              /* NULL */
+static int hf_lppe_apRecLocNotAvailable;          /* NULL */
+static int hf_lppe_ueMACAddressNotAvailable;      /* NULL */
+static int hf_lppe_ecid_wimax_CombinedLocationInformation;  /* SEQUENCE_SIZE_1_maxWiMaxECIDSize_OF_OMA_LPPe_ECID_WiMax_LocationInformationList */
+static int hf_lppe_ecid_wimax_CombinedLocationInformation_item;  /* OMA_LPPe_ECID_WiMax_LocationInformationList */
+static int hf_lppe_ecid_wimax_Error;              /* OMA_LPPe_ECID_WiMax_Error */
+static int hf_lppe_ecid_wimax_LocationInformation;  /* OMA_LPPe_ECID_WiMax_LocationInformation */
+static int hf_lppe_wimaxBsID;                     /* OMA_LPPe_ECID_WiMax_WimaxBsID */
+static int hf_lppe_wimaxRTD;                      /* OMA_LPPe_ECID_WiMax_WimaxRTD */
+static int hf_lppe_wimaxNMRList;                  /* OMA_LPPe_ECID_WiMax_WimaxNMRList */
+static int hf_lppe_bsID_MSB;                      /* BIT_STRING_SIZE_24 */
+static int hf_lppe_bsID_LSB;                      /* BIT_STRING_SIZE_24 */
+static int hf_lppe_rTD;                           /* INTEGER_0_65535 */
+static int hf_lppe_rTDstd;                        /* INTEGER_0_1023 */
+static int hf_lppe_OMA_LPPe_ECID_WiMax_WimaxNMRList_item;  /* OMA_LPPe_ECID_WiMax_WimaxNMR */
+static int hf_lppe_relDelay;                      /* INTEGER_M32768_32767 */
+static int hf_lppe_relDelaystd;                   /* INTEGER_0_1023 */
+static int hf_lppe_rSSI;                          /* INTEGER_0_255 */
+static int hf_lppe_rSSIstd;                       /* INTEGER_0_63 */
+static int hf_lppe_bSTxPower;                     /* INTEGER_0_255 */
+static int hf_lppe_cINR;                          /* INTEGER_0_255 */
+static int hf_lppe_cINRstd;                       /* INTEGER_0_63 */
+static int hf_lppe_bSLocation;                    /* OMA_LPPe_WLAN_ReportedLocation */
+static int hf_lppe_requestedMeasurements_04;      /* T_requestedMeasurements_04 */
+static int hf_lppe_ecid_wimax_MeasSupported;      /* T_ecid_wimax_MeasSupported */
+static int hf_lppe_locationServerErrorCauses_07;  /* OMA_LPPe_ECID_WiMax_LocationServerErrorCauses */
+static int hf_lppe_targetDeviceErrorCauses_07;    /* OMA_LPPe_ECID_WiMax_TargetDeviceErrorCauses */
+static int hf_lppe_cause_14;                      /* T_cause_14 */
+static int hf_lppe_cause_15;                      /* T_cause_15 */
+static int hf_lppe_rTDMeasurementNotPossible;     /* NULL */
+static int hf_lppe_rTDstdMeasurementNotPossible;  /* NULL */
+static int hf_lppe_nMRrelDelayMeasurementNotPossible;  /* NULL */
+static int hf_lppe_nMRrelDelaystdMeasurementNotPossible;  /* NULL */
+static int hf_lppe_nMRrSSIMeasurementNotPossible;  /* NULL */
+static int hf_lppe_nMRrSSIstdMeasurementNotPossible;  /* NULL */
+static int hf_lppe_nMRbSTxPowerMeasurementNotPossible;  /* NULL */
+static int hf_lppe_nMRcINRMeasurementNotPossible;  /* NULL */
+static int hf_lppe_nMRcINRstdMeasurementNotPossible;  /* NULL */
+static int hf_lppe_nMRbSLocationNotAvailable;     /* NULL */
+static int hf_lppe_atmosphericPressureAD;         /* OMA_LPPe_AtmosphericPressureAD */
+static int hf_lppe_referencePressure;             /* INTEGER_M20000_10000 */
+static int hf_lppe_period;                        /* T_period */
+static int hf_lppe_pressureValidityPeriod;        /* OMA_LPPe_ValidityPeriod */
+static int hf_lppe_referencePressureRate;         /* INTEGER_M128_127 */
+static int hf_lppe_area_01;                       /* T_area */
+static int hf_lppe_pressureValidityArea;          /* OMA_LPPe_PressureValidityArea */
+static int hf_lppe_centerPoint;                   /* Ellipsoid_Point */
+static int hf_lppe_validityAreaWidth;             /* INTEGER_1_128 */
+static int hf_lppe_validityAreaHeight;            /* INTEGER_1_128 */
+static int hf_lppe_pressureSensorAD;              /* OMA_LPPe_PressureSensorAD */
+static int hf_lppe_motionStateList;               /* OMA_LPPe_Sensor_MotionStateList */
+static int hf_lppe_sensorError;                   /* OMA_LPPe_Sensor_Error */
+static int hf_lppe_atmosphericPressure;           /* OMA_LPPe_AtmosphericPressure */
+static int hf_lppe_OMA_LPPe_Sensor_MotionStateList_item;  /* OMA_LPPe_Sensor_MotionStateElement */
+static int hf_lppe_primaryMotionState;            /* T_primaryMotionState */
+static int hf_lppe_secondaryMotionState;          /* T_secondaryMotionState */
+static int hf_lppe_pressureMeasurement;           /* OMA_LPPe_PressureMeasurement */
+static int hf_lppe_pressureStats;                 /* PressureStats */
+static int hf_lppe_calibrationPoints;             /* CalibrationPoints */
+static int hf_lppe_sensorMeanPressure;            /* INTEGER_30000_115000 */
+static int hf_lppe_sensorStddevPressure;          /* INTEGER_0_2000 */
+static int hf_lppe_duration_04;                   /* INTEGER_5_40 */
+static int hf_lppe_CalibrationPoints_item;        /* CalibrationPoints_item */
+static int hf_lppe_pressure_01;                   /* OMA_LPPe_PressureMeasurement */
+static int hf_lppe_time;                          /* UTCTime */
+static int hf_lppe_location;                      /* EllipsoidPointWithAltitudeAndUncertaintyEllipsoid */
+static int hf_lppe_motionState;                   /* OMA_LPPe_Sensor_MotionStateList */
+static int hf_lppe_velocity;                      /* Velocity */
+static int hf_lppe_sensorMeasurement;             /* INTEGER_30000_115000 */
+static int hf_lppe_adjustment;                    /* INTEGER_M5000_5000 */
+static int hf_lppe_uncertainty_01;                /* T_uncertainty */
+static int hf_lppe_range;                         /* INTEGER_0_1000 */
+static int hf_lppe_confidence_01;                 /* INTEGER_1_100 */
+static int hf_lppe_temperature_01;                /* INTEGER_M100_150 */
+static int hf_lppe_motionStateReq;                /* OMA_LPPe_Sensor_MotionStateRequest */
+static int hf_lppe_atmosphericPressureReq;        /* OMA_LPPe_AtmosphericPressureRequest */
+static int hf_lppe_secondaryMotionStateRequest;   /* NULL */
+static int hf_lppe_motionStateSupport;            /* NULL */
+static int hf_lppe_secondarySupport;              /* NULL */
+static int hf_lppe_atmosphericPressureADSupport;  /* NULL */
+static int hf_lppe_atmosphericPressureSupport;    /* NULL */
+static int hf_lppe_targetError;                   /* OMA_LPPe_Sensor_TargetError */
+static int hf_lppe_motionStateError;              /* T_motionStateError */
+static int hf_lppe_secondaryMotionStateError;     /* T_secondaryMotionStateError */
+static int hf_lppe_atmosphericPressureError;      /* T_atmosphericPressureError */
+static int hf_lppe_srnGroup;                      /* T_srnGroup */
+static int hf_lppe_srnGroupList;                  /* OMA_LPPe_SRN_SRNgroupList */
+static int hf_lppe_srnGroupUpdateResponse;        /* OMA_LPPe_SRN_SRNgroupUpdateResponse */
+static int hf_lppe_antennaPattern;                /* OMA_LPPe_SRN_AntennaPattern */
+static int hf_lppe_srnError;                      /* OMA_LPPe_SRN_Error */
+static int hf_lppe_incompleteFlag;                /* BOOLEAN */
+static int hf_lppe_defaultReferencePoint;         /* OMA_LPPe_ReferencePoint */
+static int hf_lppe_groupList;                     /* SEQUENCE_SIZE_1_64_OF_OMA_LPPe_SRN_SRNgroup */
+static int hf_lppe_groupList_item;                /* OMA_LPPe_SRN_SRNgroup */
+static int hf_lppe_srnGroupID;                    /* OMA_LPPe_SRN_SRNgroupUniqueID */
+static int hf_lppe_defaultSRNtype;                /* OMA_LPPe_SRN_SRNtype */
+static int hf_lppe_referencePoint_01;             /* OMA_LPPe_ReferencePoint */
+static int hf_lppe_globalOrientation;             /* NULL */
+static int hf_lppe_srnsInGroupList;               /* SEQUENCE_SIZE_1_1024_OF_OMA_LPPe_SRN_SRNinfo */
+static int hf_lppe_srnsInGroupList_item;          /* OMA_LPPe_SRN_SRNinfo */
+static int hf_lppe_srnID;                         /* OMA_LPPe_SRN_SRNid */
+static int hf_lppe_srnType;                       /* OMA_LPPe_SRN_SRNtype */
+static int hf_lppe_relativePosition;              /* OMA_LPPe_RelativeLocation */
+static int hf_lppe_orientation;                   /* OMA_LPPe_Orientation */
+static int hf_lppe_OMA_LPPe_SRN_SRNgroupUpdateResponse_item;  /* OMA_LPPe_SRN_SRNgroupUpdateResponseElement */
+static int hf_lppe_targetDataValidity;            /* T_targetDataValidity */
+static int hf_lppe_updatedSRNgroup;               /* OMA_LPPe_SRN_SRNgroup */
+static int hf_lppe_OMA_LPPe_SRN_AntennaPattern_item;  /* OMA_LPPe_SRN_AntennaPatternElement */
+static int hf_lppe_identification;                /* T_identification */
+static int hf_lppe_vendorOrOperator;              /* OMA_LPPe_VendorOrOperatorID */
+static int hf_lppe_antennaPatternID;              /* INTEGER_0_65535 */
+static int hf_lppe_antennaData;                   /* T_antennaData */
+static int hf_lppe_antennaPattern_01;             /* OMA_LPPe_SRN_AntennaPatternForChannels */
+static int hf_lppe_antennaContainer;              /* OCTET_STRING */
+static int hf_lppe_evenGrid;                      /* T_evenGrid */
+static int hf_lppe_inAzimuth;                     /* INTEGER_1_200 */
+static int hf_lppe_inElevation;                   /* INTEGER_1_150 */
+static int hf_lppe_patternList;                   /* SEQUENCE_SIZE_1_maxChannels_OF_OMA_LPPe_SRN_ChannelResponse */
+static int hf_lppe_patternList_item;              /* OMA_LPPe_SRN_ChannelResponse */
+static int hf_lppe_channelNumber;                 /* INTEGER_1_maxChannels */
+static int hf_lppe_responseInElevation;           /* SEQUENCE_SIZE_7_901_OF_OMA_LPPe_SRN_ResponseInElevation */
+static int hf_lppe_responseInElevation_item;      /* OMA_LPPe_SRN_ResponseInElevation */
+static int hf_lppe_elevation_01;                  /* INTEGER_0_900 */
+static int hf_lppe_responseInAzimuth;             /* SEQUENCE_SIZE_18_3601_OF_OMA_LPPe_SRN_ResponseInAzimuth */
+static int hf_lppe_responseInAzimuth_item;        /* OMA_LPPe_SRN_ResponseInAzimuth */
+static int hf_lppe_azimuth_01;                    /* INTEGER_0_3599 */
+static int hf_lppe_response;                      /* OMA_LPPe_ComplexNumber */
+static int hf_lppe_amplitude;                     /* INTEGER_0_1000 */
+static int hf_lppe_phase;                         /* INTEGER_M1800_1799 */
+static int hf_lppe_srnGroup_01;                   /* T_srnGroup_01 */
+static int hf_lppe_srnGroupRequest;               /* OMA_LPPe_SRN_SRNgroupRequest */
+static int hf_lppe_srnGroupUpdateRequest;         /* OMA_LPPe_SRN_SRNgroupUpdateRequest */
+static int hf_lppe_antennaPatternRequest;         /* OMA_LPPe_SRN_AntennaPatternRequest */
+static int hf_lppe_doNotProvideList;              /* OMA_LPPe_SRN_SRNProvideList */
+static int hf_lppe_doProvideList;                 /* OMA_LPPe_SRN_SRNProvideList */
+static int hf_lppe_groupList_01;                  /* SEQUENCE_SIZE_1_256_OF_OMA_LPPe_SRN_SRNgroupUniqueID */
+static int hf_lppe_groupList_item_01;             /* OMA_LPPe_SRN_SRNgroupUniqueID */
+static int hf_lppe_categoryList;                  /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_SRN_Category */
+static int hf_lppe_categoryList_item;             /* OMA_LPPe_SRN_Category */
+static int hf_lppe_OMA_LPPe_SRN_SRNgroupUpdateRequest_item;  /* OMA_LPPe_SRN_SRNgroupUpdateRequestElement */
+static int hf_lppe_provideIndicationOnly;         /* NULL */
+static int hf_lppe_inTheGroup;                    /* SEQUENCE_SIZE_1_1024_OF_OMA_LPPe_SRN_SRNid */
+static int hf_lppe_inTheGroup_item;               /* OMA_LPPe_SRN_SRNid */
+static int hf_lppe_OMA_LPPe_SRN_AntennaPatternRequest_item;  /* OMA_LPPe_SRN_AntennaPatternRequestElement */
+static int hf_lppe_antennaPatternID_01;           /* T_antennaPatternID */
+static int hf_lppe_srnMeasurementList;            /* SEQUENCE_SIZE_1_64_OF_OMA_LPPe_SRN_MeasurementElement */
+static int hf_lppe_srnMeasurementList_item;       /* OMA_LPPe_SRN_MeasurementElement */
+static int hf_lppe_srnCategory;                   /* OMA_LPPe_SRN_Category */
+static int hf_lppe_measurementList;               /* SEQUENCE_SIZE_1_64_OF_OMA_LPPe_SRN_srnMeasurementElement */
+static int hf_lppe_measurementList_item;          /* OMA_LPPe_SRN_srnMeasurementElement */
+static int hf_lppe_relativeTimeStamp_01;          /* INTEGER_0_1000 */
+static int hf_lppe_rssi;                          /* INTEGER_M128_127 */
+static int hf_lppe_rtd;                           /* OMA_LPPe_WLAN_RTD */
+static int hf_lppe_requestInfo;                   /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_SRN_ReqLocInfo_Category */
+static int hf_lppe_requestInfo_item;              /* OMA_LPPe_SRN_ReqLocInfo_Category */
+static int hf_lppe_category;                      /* OMA_LPPe_SRN_Category */
+static int hf_lppe_multipleMeasurements;          /* T_multipleMeasurements */
+static int hf_lppe_allowedMeasurements;           /* OMA_LPPe_SRN_MeasurementMask */
+static int hf_lppe_historicMeasurementsRequested;  /* NULL */
+static int hf_lppe_capabilitiesPerSRNCategory;    /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_SRN_ProvideCapabilitiesElement */
+static int hf_lppe_capabilitiesPerSRNCategory_item;  /* OMA_LPPe_SRN_ProvideCapabilitiesElement */
+static int hf_lppe_supportedMeasurements;         /* OMA_LPPe_SRN_MeasurementMask */
+static int hf_lppe_supportedAssistanceData;       /* T_supportedAssistanceData */
+static int hf_lppe_historicMeasurementsSupported;  /* NULL */
+static int hf_lppe_capabilitiesRequestedFor;      /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_SRN_Category */
+static int hf_lppe_capabilitiesRequestedFor_item;  /* OMA_LPPe_SRN_Category */
+static int hf_lppe_srnLocationServerErrorCauses;  /* OMA_LPPe_SRN_LocationServerErrorCauses */
+static int hf_lppe_srnTargetDeviceErrorCauses;    /* OMA_LPPe_SRN_TargetDeviceErrorCauses */
+static int hf_lppe_groupErrors;                   /* T_groupErrors */
+static int hf_lppe_groupUpdateErrors;             /* T_groupUpdateErrors */
+static int hf_lppe_srnAntennaErrors;              /* T_srnAntennaErrors */
+static int hf_lppe_srnErrorsPerCategory;          /* SEQUENCE_SIZE_1_16_OF_OMA_LPPe_SRN_TargetDeviceError */
+static int hf_lppe_srnErrorsPerCategory_item;     /* OMA_LPPe_SRN_TargetDeviceError */
+static int hf_lppe_srnErrors;                     /* T_srnErrors */
+static int hf_lppe_rssiNotAvailable;              /* NULL */
+static int hf_lppe_rtdNotAvailable;               /* NULL */
+static int hf_lppe_multipleSetsNotAvailable;      /* NULL */
+static int hf_lppe_srnDataVersion;                /* INTEGER_0_4294967295 */
+static int hf_lppe_srnERP;                        /* INTEGER_M300_500 */
+static int hf_lppe_srnAntennaInfo;                /* T_srnAntennaInfo */
+static int hf_lppe_switchingPatternID;            /* INTEGER_0_65535 */
+static int hf_lppe_srnTechnologyType;             /* OMA_LPPe_SRN_Technologies */
+static int hf_lppe_srnVendorInformation;          /* T_srnVendorInformation */
+static int hf_lppe_vendor;                        /* OMA_LPPe_VendorOrOperatorID */
+static int hf_lppe_vendorInfo;                    /* OCTET_STRING */
+static int hf_lppe_srn_id;                        /* T_srn_id */
+static int hf_lppe_mac;                           /* BIT_STRING_SIZE_48 */
+static int hf_lppe_nfc;                           /* T_nfc */
+static int hf_lppe_manufacturer;                  /* BIT_STRING_SIZE_8 */
+static int hf_lppe_uniqueNumber;                  /* BIT_STRING_SIZE_48 */
+static int hf_lppe_mobileCode;                    /* T_mobileCode */
+static int hf_lppe_registryID;                    /* BIT_STRING_SIZE_12 */
+static int hf_lppe_remainingPart;                 /* OCTET_STRING_SIZE_1_16 */
+static int hf_lppe_resolutionIdentifier;          /* OCTET_STRING_SIZE_1_18 */
+static int hf_lppe_other;                         /* OCTET_STRING */
+static int hf_lppe_srnTechnologies;               /* T_srnTechnologies */
+static int hf_lppe_srnMeasurements;               /* T_srnMeasurements */
 /* named bits */
-static int hf_lppe_OMA_LPPe_FixedAccessTypes_cable = -1;
-static int hf_lppe_OMA_LPPe_FixedAccessTypes_dsl = -1;
-static int hf_lppe_OMA_LPPe_FixedAccessTypes_lan = -1;
-static int hf_lppe_OMA_LPPe_FixedAccessTypes_pstn = -1;
-static int hf_lppe_OMA_LPPe_FixedAccessTypes_other = -1;
-static int hf_lppe_OMA_LPPe_WirelessAccessTypes_gsm = -1;
-static int hf_lppe_OMA_LPPe_WirelessAccessTypes_utra = -1;
-static int hf_lppe_OMA_LPPe_WirelessAccessTypes_lte = -1;
-static int hf_lppe_OMA_LPPe_WirelessAccessTypes_wimax = -1;
-static int hf_lppe_OMA_LPPe_WirelessAccessTypes_wifi = -1;
-static int hf_lppe_OMA_LPPe_WirelessAccessTypes_other = -1;
-static int hf_lppe_OMA_LPPe_WirelessAccessTypes_nr = -1;
-static int hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11a = -1;
-static int hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11b = -1;
-static int hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11g = -1;
-static int hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11n = -1;
-static int hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11ac = -1;
-static int hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11ad = -1;
-static int hf_lppe_T_iP_Address_support_iPv4 = -1;
-static int hf_lppe_T_iP_Address_support_iPv6 = -1;
-static int hf_lppe_T_iP_Address_support_nat = -1;
-static int hf_lppe_OMA_LPPe_HighAccuracyFormatCapabilities_hAposition = -1;
-static int hf_lppe_OMA_LPPe_HighAccuracyFormatCapabilities_hAvelocity = -1;
-static int hf_lppe_OMA_LPPe_HighAccuracyFormatCapabilities_pidf_lo = -1;
-static int hf_lppe_T_relativeLocationReportingSupport_geo = -1;
-static int hf_lppe_T_relativeLocationReportingSupport_civic = -1;
-static int hf_lppe_T_relativeLocationReportingSupport_otherProviders = -1;
-static int hf_lppe_T_ionoreq_klobucharModel = -1;
-static int hf_lppe_T_ionoreq_ionoStormWarning = -1;
-static int hf_lppe_T_troposphereModelReq_delay = -1;
-static int hf_lppe_T_troposphereModelReq_surface = -1;
-static int hf_lppe_T_ionosphereMeasurementsReq_tecPerSV = -1;
-static int hf_lppe_T_ionosphereMeasurementsReq_zenithTEC = -1;
-static int hf_lppe_T_ionosphereMeasurementSupport_tecPerSVsupport = -1;
-static int hf_lppe_T_ionosphereMeasurementSupport_zenithTecSupport = -1;
-static int hf_lppe_T_ionoModel_localKlobuchar = -1;
-static int hf_lppe_T_ionoModel_ionoStormWarning = -1;
-static int hf_lppe_T_ionoModel_wideAreaIonoSurface = -1;
-static int hf_lppe_T_tropoModel_localTroposphereDelay = -1;
-static int hf_lppe_T_tropoModel_surfaceParameters = -1;
-static int hf_lppe_T_modeSupport_ueBased = -1;
-static int hf_lppe_T_modeSupport_ueAssisted = -1;
-static int hf_lppe_T_haGNSSantennaInformationSupport_antennaDescriptionSupported = -1;
-static int hf_lppe_T_haGNSSantennaInformationSupport_antennaOrientationSupported = -1;
-static int hf_lppe_T_requestedCells_eNBs = -1;
-static int hf_lppe_T_requestedCells_heNBs = -1;
-static int hf_lppe_T_eotdAssistanceReq_ueAssisted = -1;
-static int hf_lppe_T_eotdAssistanceReq_ueBased = -1;
-static int hf_lppe_T_eotdSupport_ueBased = -1;
-static int hf_lppe_T_eotdSupport_ueAssisted = -1;
-static int hf_lppe_T_otdoaUtraAssistanceReq_ueAssisted = -1;
-static int hf_lppe_T_otdoaUtraAssistanceReq_ueBased = -1;
-static int hf_lppe_T_eNBrequestedAD_bslist = -1;
-static int hf_lppe_T_eNBrequestedAD_bslocation = -1;
-static int hf_lppe_T_eNBrequestedAD_transmit_power = -1;
-static int hf_lppe_T_eNBrequestedAD_antennaPortConfig = -1;
-static int hf_lppe_T_eNBrequestedAD_antenna_gain = -1;
-static int hf_lppe_T_eNBrequestedAD_beam_width = -1;
-static int hf_lppe_T_eNBrequestedAD_transmit_direction = -1;
-static int hf_lppe_T_eNBrequestedAD_frequency_accuracy = -1;
-static int hf_lppe_T_eNBrequestedAD_non_serving = -1;
-static int hf_lppe_T_heNBrequestedAD_bslist = -1;
-static int hf_lppe_T_heNBrequestedAD_bslocation = -1;
-static int hf_lppe_T_heNBrequestedAD_locationreliability = -1;
-static int hf_lppe_T_heNBrequestedAD_transmit_power = -1;
-static int hf_lppe_T_heNBrequestedAD_antennaPortConfig = -1;
-static int hf_lppe_T_heNBrequestedAD_frequency_accuracy = -1;
-static int hf_lppe_T_heNBrequestedAD_coveragearea = -1;
-static int hf_lppe_T_heNBrequestedAD_non_serving = -1;
-static int hf_lppe_T_requestedMeasurements_rsrp = -1;
-static int hf_lppe_T_requestedMeasurements_rsrq = -1;
-static int hf_lppe_T_requestedMeasurements_ueRxTx = -1;
-static int hf_lppe_T_requestedMeasurements_non_serving = -1;
-static int hf_lppe_T_requestedMeasurements_historic = -1;
-static int hf_lppe_T_ecid_lte_MeasSupported_rsrp = -1;
-static int hf_lppe_T_ecid_lte_MeasSupported_rsrq = -1;
-static int hf_lppe_T_ecid_lte_MeasSupported_ueRxTx = -1;
-static int hf_lppe_T_ecid_lte_MeasSupported_non_serving = -1;
-static int hf_lppe_T_ecid_lte_MeasSupported_historic = -1;
-static int hf_lppe_T_ecid_lte_eNodeB_ADSupported_bslist = -1;
-static int hf_lppe_T_ecid_lte_eNodeB_ADSupported_bslocation = -1;
-static int hf_lppe_T_ecid_lte_eNodeB_ADSupported_transmit_power = -1;
-static int hf_lppe_T_ecid_lte_eNodeB_ADSupported_antennaPortConfig = -1;
-static int hf_lppe_T_ecid_lte_eNodeB_ADSupported_antenna_gain = -1;
-static int hf_lppe_T_ecid_lte_eNodeB_ADSupported_beam_width = -1;
-static int hf_lppe_T_ecid_lte_eNodeB_ADSupported_transmit_direction = -1;
-static int hf_lppe_T_ecid_lte_eNodeB_ADSupported_frequency_accuracy = -1;
-static int hf_lppe_T_ecid_lte_eNodeB_ADSupported_non_serving = -1;
-static int hf_lppe_T_ecid_utra_HeNB_ADSupported_bslist = -1;
-static int hf_lppe_T_ecid_utra_HeNB_ADSupported_bslocation = -1;
-static int hf_lppe_T_ecid_utra_HeNB_ADSupported_locationreliability = -1;
-static int hf_lppe_T_ecid_utra_HeNB_ADSupported_transmit_power = -1;
-static int hf_lppe_T_ecid_utra_HeNB_ADSupported_antennaPortConfig = -1;
-static int hf_lppe_T_ecid_utra_HeNB_ADSupported_frequency_accuracy = -1;
-static int hf_lppe_T_ecid_utra_HeNB_ADSupported_coveragearea = -1;
-static int hf_lppe_T_ecid_utra_HeNB_ADSupported_non_serving = -1;
-static int hf_lppe_T_requestedAD_bslist = -1;
-static int hf_lppe_T_requestedAD_bslocation = -1;
-static int hf_lppe_T_requestedAD_transmit_power = -1;
-static int hf_lppe_T_requestedAD_antenna_gain = -1;
-static int hf_lppe_T_requestedAD_beam_width = -1;
-static int hf_lppe_T_requestedAD_transmit_direction = -1;
-static int hf_lppe_T_requestedAD_frequency_accuracy = -1;
-static int hf_lppe_T_requestedAD_non_serving = -1;
-static int hf_lppe_T_requestedMeasurements_01_rxLevel = -1;
-static int hf_lppe_T_requestedMeasurements_01_tA = -1;
-static int hf_lppe_T_requestedMeasurements_01_nMR_GERAN = -1;
-static int hf_lppe_T_requestedMeasurements_01_non_serving = -1;
-static int hf_lppe_T_requestedMeasurements_01_historic = -1;
-static int hf_lppe_T_ecid_gsm_MeasSupported_rxLevel = -1;
-static int hf_lppe_T_ecid_gsm_MeasSupported_tA = -1;
-static int hf_lppe_T_ecid_gsm_MeasSupported_nMR_GERAN = -1;
-static int hf_lppe_T_ecid_gsm_MeasSupported_non_serving = -1;
-static int hf_lppe_T_ecid_gsm_MeasSupported_historic = -1;
-static int hf_lppe_T_ecid_gsm_ADSupported_bslist = -1;
-static int hf_lppe_T_ecid_gsm_ADSupported_bslocation = -1;
-static int hf_lppe_T_ecid_gsm_ADSupported_transmit_power = -1;
-static int hf_lppe_T_ecid_gsm_ADSupported_antenna_gain = -1;
-static int hf_lppe_T_ecid_gsm_ADSupported_beam_width = -1;
-static int hf_lppe_T_ecid_gsm_ADSupported_transmit_direction = -1;
-static int hf_lppe_T_ecid_gsm_ADSupported_frequency_accuracy = -1;
-static int hf_lppe_T_ecid_gsm_ADSupported_non_serving = -1;
-static int hf_lppe_T_nBrequestedAD_bslist = -1;
-static int hf_lppe_T_nBrequestedAD_bslocation = -1;
-static int hf_lppe_T_nBrequestedAD_transmit_power = -1;
-static int hf_lppe_T_nBrequestedAD_antenna_gain = -1;
-static int hf_lppe_T_nBrequestedAD_beam_width = -1;
-static int hf_lppe_T_nBrequestedAD_transmit_direction = -1;
-static int hf_lppe_T_nBrequestedAD_frequency_accuracy = -1;
-static int hf_lppe_T_nBrequestedAD_non_serving = -1;
-static int hf_lppe_T_hNBrequestedAD_bslist = -1;
-static int hf_lppe_T_hNBrequestedAD_bslocation = -1;
-static int hf_lppe_T_hNBrequestedAD_locationreliability = -1;
-static int hf_lppe_T_hNBrequestedAD_transmit_power = -1;
-static int hf_lppe_T_hNBrequestedAD_frequency_accuracy = -1;
-static int hf_lppe_T_hNBrequestedAD_coveragearea = -1;
-static int hf_lppe_T_hNBrequestedAD_non_serving = -1;
-static int hf_lppe_T_requestedMeasurements_02_measuredResultsList = -1;
-static int hf_lppe_T_requestedMeasurements_02_tdd_timingAdvance = -1;
-static int hf_lppe_T_requestedMeasurements_02_mRL_utra_CarrierRSSI = -1;
-static int hf_lppe_T_requestedMeasurements_02_mRL_FDD_cpich_Ec_N0 = -1;
-static int hf_lppe_T_requestedMeasurements_02_mRL_FDD_cpich_RSCP = -1;
-static int hf_lppe_T_requestedMeasurements_02_mRL_FDD_pathloss = -1;
-static int hf_lppe_T_requestedMeasurements_02_mRL_TDD_primaryCCPCH_RSCP = -1;
-static int hf_lppe_T_requestedMeasurements_02_mRL_TDD_pathloss = -1;
-static int hf_lppe_T_requestedMeasurements_02_non_serving = -1;
-static int hf_lppe_T_requestedMeasurements_02_historic = -1;
-static int hf_lppe_T_ecid_utra_MeasSupported_measuredResultsList = -1;
-static int hf_lppe_T_ecid_utra_MeasSupported_tdd_timingAdvance = -1;
-static int hf_lppe_T_ecid_utra_MeasSupported_mRL_utra_CarrierRSSI = -1;
-static int hf_lppe_T_ecid_utra_MeasSupported_mRL_FDD_cpich_Ec_N0 = -1;
-static int hf_lppe_T_ecid_utra_MeasSupported_mRL_FDD_cpich_RSCP = -1;
-static int hf_lppe_T_ecid_utra_MeasSupported_mRL_FDD_pathloss = -1;
-static int hf_lppe_T_ecid_utra_MeasSupported_mRL_TDD_primaryCCPCH_RSCP = -1;
-static int hf_lppe_T_ecid_utra_MeasSupported_mRL_TDD_pathloss = -1;
-static int hf_lppe_T_ecid_utra_MeasSupported_non_serving = -1;
-static int hf_lppe_T_ecid_utra_MeasSupported_historic = -1;
-static int hf_lppe_T_ecid_utra_nodeB_ADSupported_bslist = -1;
-static int hf_lppe_T_ecid_utra_nodeB_ADSupported_bslocation = -1;
-static int hf_lppe_T_ecid_utra_nodeB_ADSupported_transmit_power = -1;
-static int hf_lppe_T_ecid_utra_nodeB_ADSupported_antenna_gain = -1;
-static int hf_lppe_T_ecid_utra_nodeB_ADSupported_beam_width = -1;
-static int hf_lppe_T_ecid_utra_nodeB_ADSupported_transmit_direction = -1;
-static int hf_lppe_T_ecid_utra_nodeB_ADSupported_frequency_accuracy = -1;
-static int hf_lppe_T_ecid_utra_nodeB_ADSupported_non_serving = -1;
-static int hf_lppe_T_ecid_utra_HNB_ADSupported_bslist = -1;
-static int hf_lppe_T_ecid_utra_HNB_ADSupported_bslocation = -1;
-static int hf_lppe_T_ecid_utra_HNB_ADSupported_locationreliability = -1;
-static int hf_lppe_T_ecid_utra_HNB_ADSupported_transmit_power = -1;
-static int hf_lppe_T_ecid_utra_HNB_ADSupported_frequency_accuracy = -1;
-static int hf_lppe_T_ecid_utra_HNB_ADSupported_coveragearea = -1;
-static int hf_lppe_T_ecid_utra_HNB_ADSupported_non_serving = -1;
-static int hf_lppe_T_requestedAD_01_aplist = -1;
-static int hf_lppe_T_requestedAD_01_aplocation = -1;
-static int hf_lppe_T_requestedAD_01_locationreliability = -1;
-static int hf_lppe_T_requestedAD_01_transmit_power = -1;
-static int hf_lppe_T_requestedAD_01_antenna_gain = -1;
-static int hf_lppe_T_requestedAD_01_coveragearea = -1;
-static int hf_lppe_T_requestedAD_01_non_serving = -1;
-static int hf_lppe_T_requestedMeasurements_03_apSSID = -1;
-static int hf_lppe_T_requestedMeasurements_03_apSN = -1;
-static int hf_lppe_T_requestedMeasurements_03_apDevType = -1;
-static int hf_lppe_T_requestedMeasurements_03_apPhyType = -1;
-static int hf_lppe_T_requestedMeasurements_03_apRSSI = -1;
-static int hf_lppe_T_requestedMeasurements_03_apChanFreq = -1;
-static int hf_lppe_T_requestedMeasurements_03_apRTD = -1;
-static int hf_lppe_T_requestedMeasurements_03_ueTP = -1;
-static int hf_lppe_T_requestedMeasurements_03_ueAG = -1;
-static int hf_lppe_T_requestedMeasurements_03_apRepLoc = -1;
-static int hf_lppe_T_requestedMeasurements_03_non_serving = -1;
-static int hf_lppe_T_requestedMeasurements_03_historic = -1;
-static int hf_lppe_T_requestedMeasurements_03_apTP = -1;
-static int hf_lppe_T_requestedMeasurements_03_apAG = -1;
-static int hf_lppe_T_requestedMeasurements_03_ueSN = -1;
-static int hf_lppe_T_requestedMeasurements_03_ueRSSI = -1;
-static int hf_lppe_T_additionalRequestedMeasurements_oc = -1;
-static int hf_lppe_T_additionalRequestedMeasurements_ueMacAddr = -1;
-static int hf_lppe_T_wlan_ecid_MeasSupported_apSSID = -1;
-static int hf_lppe_T_wlan_ecid_MeasSupported_apSN = -1;
-static int hf_lppe_T_wlan_ecid_MeasSupported_apDevType = -1;
-static int hf_lppe_T_wlan_ecid_MeasSupported_apPhyType = -1;
-static int hf_lppe_T_wlan_ecid_MeasSupported_apRSSI = -1;
-static int hf_lppe_T_wlan_ecid_MeasSupported_apChanFreq = -1;
-static int hf_lppe_T_wlan_ecid_MeasSupported_apRTD = -1;
-static int hf_lppe_T_wlan_ecid_MeasSupported_ueTP = -1;
-static int hf_lppe_T_wlan_ecid_MeasSupported_ueAG = -1;
-static int hf_lppe_T_wlan_ecid_MeasSupported_apRepLoc = -1;
-static int hf_lppe_T_wlan_ecid_MeasSupported_non_serving = -1;
-static int hf_lppe_T_wlan_ecid_MeasSupported_historic = -1;
-static int hf_lppe_T_wlan_ecid_MeasSupported_apTP = -1;
-static int hf_lppe_T_wlan_ecid_MeasSupported_apAG = -1;
-static int hf_lppe_T_wlan_ecid_MeasSupported_ueSN = -1;
-static int hf_lppe_T_wlan_ecid_MeasSupported_ueRSSI = -1;
-static int hf_lppe_T_wlan_ap_ADSupported_aplist = -1;
-static int hf_lppe_T_wlan_ap_ADSupported_aplocation = -1;
-static int hf_lppe_T_wlan_ap_ADSupported_locationreliability = -1;
-static int hf_lppe_T_wlan_ap_ADSupported_transmit_power = -1;
-static int hf_lppe_T_wlan_ap_ADSupported_antenna_gain = -1;
-static int hf_lppe_T_wlan_ap_ADSupported_coveragearea = -1;
-static int hf_lppe_T_wlan_ap_ADSupported_non_serving = -1;
-static int hf_lppe_T_additional_wlan_ecid_MeasSupported_oc = -1;
-static int hf_lppe_T_additional_wlan_ecid_MeasSupported_ueMacAddr = -1;
-static int hf_lppe_T_requestedMeasurements_04_rTD = -1;
-static int hf_lppe_T_requestedMeasurements_04_rTDstd = -1;
-static int hf_lppe_T_requestedMeasurements_04_nMR = -1;
-static int hf_lppe_T_requestedMeasurements_04_nMRrelDelay = -1;
-static int hf_lppe_T_requestedMeasurements_04_nMRrelDelaystd = -1;
-static int hf_lppe_T_requestedMeasurements_04_nMRrSSI = -1;
-static int hf_lppe_T_requestedMeasurements_04_nMRrSSIstd = -1;
-static int hf_lppe_T_requestedMeasurements_04_nMRbSTxPower = -1;
-static int hf_lppe_T_requestedMeasurements_04_nMRcINR = -1;
-static int hf_lppe_T_requestedMeasurements_04_nMRcINRstd = -1;
-static int hf_lppe_T_requestedMeasurements_04_nMRbSLocation = -1;
-static int hf_lppe_T_requestedMeasurements_04_non_serving = -1;
-static int hf_lppe_T_requestedMeasurements_04_historic = -1;
-static int hf_lppe_T_ecid_wimax_MeasSupported_rTD = -1;
-static int hf_lppe_T_ecid_wimax_MeasSupported_rTDstd = -1;
-static int hf_lppe_T_ecid_wimax_MeasSupported_nMR = -1;
-static int hf_lppe_T_ecid_wimax_MeasSupported_nMRrelDelay = -1;
-static int hf_lppe_T_ecid_wimax_MeasSupported_nMRrelDelaystd = -1;
-static int hf_lppe_T_ecid_wimax_MeasSupported_nMRrSSI = -1;
-static int hf_lppe_T_ecid_wimax_MeasSupported_nMRrSSIstd = -1;
-static int hf_lppe_T_ecid_wimax_MeasSupported_nMRbSTxPower = -1;
-static int hf_lppe_T_ecid_wimax_MeasSupported_nMRcINR = -1;
-static int hf_lppe_T_ecid_wimax_MeasSupported_nMRcINRstd = -1;
-static int hf_lppe_T_ecid_wimax_MeasSupported_nMRbSLocation = -1;
-static int hf_lppe_T_ecid_wimax_MeasSupported_non_serving = -1;
-static int hf_lppe_T_ecid_wimax_MeasSupported_historic = -1;
-static int hf_lppe_T_secondaryMotionState_stationary = -1;
-static int hf_lppe_T_secondaryMotionState_pedestrian = -1;
-static int hf_lppe_T_secondaryMotionState_running = -1;
-static int hf_lppe_T_secondaryMotionState_cycling = -1;
-static int hf_lppe_T_secondaryMotionState_car = -1;
-static int hf_lppe_T_secondaryMotionState_train = -1;
-static int hf_lppe_T_secondaryMotionState_aeroplane = -1;
-static int hf_lppe_T_secondaryMotionState_boat = -1;
-static int hf_lppe_T_secondaryMotionState_fidgeting = -1;
-static int hf_lppe_T_supportedAssistanceData_srnGroup = -1;
-static int hf_lppe_T_supportedAssistanceData_antennaPattern = -1;
-static int hf_lppe_T_srnMeasurements_rssi = -1;
-static int hf_lppe_T_srnMeasurements_rtd = -1;
+static int hf_lppe_OMA_LPPe_FixedAccessTypes_cable;
+static int hf_lppe_OMA_LPPe_FixedAccessTypes_dsl;
+static int hf_lppe_OMA_LPPe_FixedAccessTypes_lan;
+static int hf_lppe_OMA_LPPe_FixedAccessTypes_pstn;
+static int hf_lppe_OMA_LPPe_FixedAccessTypes_other;
+static int hf_lppe_OMA_LPPe_WirelessAccessTypes_gsm;
+static int hf_lppe_OMA_LPPe_WirelessAccessTypes_utra;
+static int hf_lppe_OMA_LPPe_WirelessAccessTypes_lte;
+static int hf_lppe_OMA_LPPe_WirelessAccessTypes_wimax;
+static int hf_lppe_OMA_LPPe_WirelessAccessTypes_wifi;
+static int hf_lppe_OMA_LPPe_WirelessAccessTypes_other;
+static int hf_lppe_OMA_LPPe_WirelessAccessTypes_nr;
+static int hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11a;
+static int hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11b;
+static int hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11g;
+static int hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11n;
+static int hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11ac;
+static int hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11ad;
+static int hf_lppe_T_iP_Address_support_iPv4;
+static int hf_lppe_T_iP_Address_support_iPv6;
+static int hf_lppe_T_iP_Address_support_nat;
+static int hf_lppe_OMA_LPPe_HighAccuracyFormatCapabilities_hAposition;
+static int hf_lppe_OMA_LPPe_HighAccuracyFormatCapabilities_hAvelocity;
+static int hf_lppe_OMA_LPPe_HighAccuracyFormatCapabilities_pidf_lo;
+static int hf_lppe_T_relativeLocationReportingSupport_geo;
+static int hf_lppe_T_relativeLocationReportingSupport_civic;
+static int hf_lppe_T_relativeLocationReportingSupport_otherProviders;
+static int hf_lppe_T_ionoreq_klobucharModel;
+static int hf_lppe_T_ionoreq_ionoStormWarning;
+static int hf_lppe_T_troposphereModelReq_delay;
+static int hf_lppe_T_troposphereModelReq_surface;
+static int hf_lppe_T_ionosphereMeasurementsReq_tecPerSV;
+static int hf_lppe_T_ionosphereMeasurementsReq_zenithTEC;
+static int hf_lppe_T_ionosphereMeasurementSupport_tecPerSVsupport;
+static int hf_lppe_T_ionosphereMeasurementSupport_zenithTecSupport;
+static int hf_lppe_T_ionoModel_localKlobuchar;
+static int hf_lppe_T_ionoModel_ionoStormWarning;
+static int hf_lppe_T_ionoModel_wideAreaIonoSurface;
+static int hf_lppe_T_tropoModel_localTroposphereDelay;
+static int hf_lppe_T_tropoModel_surfaceParameters;
+static int hf_lppe_T_modeSupport_ueBased;
+static int hf_lppe_T_modeSupport_ueAssisted;
+static int hf_lppe_T_haGNSSantennaInformationSupport_antennaDescriptionSupported;
+static int hf_lppe_T_haGNSSantennaInformationSupport_antennaOrientationSupported;
+static int hf_lppe_T_requestedCells_eNBs;
+static int hf_lppe_T_requestedCells_heNBs;
+static int hf_lppe_T_eotdAssistanceReq_ueAssisted;
+static int hf_lppe_T_eotdAssistanceReq_ueBased;
+static int hf_lppe_T_eotdSupport_ueBased;
+static int hf_lppe_T_eotdSupport_ueAssisted;
+static int hf_lppe_T_otdoaUtraAssistanceReq_ueAssisted;
+static int hf_lppe_T_otdoaUtraAssistanceReq_ueBased;
+static int hf_lppe_T_eNBrequestedAD_bslist;
+static int hf_lppe_T_eNBrequestedAD_bslocation;
+static int hf_lppe_T_eNBrequestedAD_transmit_power;
+static int hf_lppe_T_eNBrequestedAD_antennaPortConfig;
+static int hf_lppe_T_eNBrequestedAD_antenna_gain;
+static int hf_lppe_T_eNBrequestedAD_beam_width;
+static int hf_lppe_T_eNBrequestedAD_transmit_direction;
+static int hf_lppe_T_eNBrequestedAD_frequency_accuracy;
+static int hf_lppe_T_eNBrequestedAD_non_serving;
+static int hf_lppe_T_heNBrequestedAD_bslist;
+static int hf_lppe_T_heNBrequestedAD_bslocation;
+static int hf_lppe_T_heNBrequestedAD_locationreliability;
+static int hf_lppe_T_heNBrequestedAD_transmit_power;
+static int hf_lppe_T_heNBrequestedAD_antennaPortConfig;
+static int hf_lppe_T_heNBrequestedAD_frequency_accuracy;
+static int hf_lppe_T_heNBrequestedAD_coveragearea;
+static int hf_lppe_T_heNBrequestedAD_non_serving;
+static int hf_lppe_T_requestedMeasurements_rsrp;
+static int hf_lppe_T_requestedMeasurements_rsrq;
+static int hf_lppe_T_requestedMeasurements_ueRxTx;
+static int hf_lppe_T_requestedMeasurements_non_serving;
+static int hf_lppe_T_requestedMeasurements_historic;
+static int hf_lppe_T_ecid_lte_MeasSupported_rsrp;
+static int hf_lppe_T_ecid_lte_MeasSupported_rsrq;
+static int hf_lppe_T_ecid_lte_MeasSupported_ueRxTx;
+static int hf_lppe_T_ecid_lte_MeasSupported_non_serving;
+static int hf_lppe_T_ecid_lte_MeasSupported_historic;
+static int hf_lppe_T_ecid_lte_eNodeB_ADSupported_bslist;
+static int hf_lppe_T_ecid_lte_eNodeB_ADSupported_bslocation;
+static int hf_lppe_T_ecid_lte_eNodeB_ADSupported_transmit_power;
+static int hf_lppe_T_ecid_lte_eNodeB_ADSupported_antennaPortConfig;
+static int hf_lppe_T_ecid_lte_eNodeB_ADSupported_antenna_gain;
+static int hf_lppe_T_ecid_lte_eNodeB_ADSupported_beam_width;
+static int hf_lppe_T_ecid_lte_eNodeB_ADSupported_transmit_direction;
+static int hf_lppe_T_ecid_lte_eNodeB_ADSupported_frequency_accuracy;
+static int hf_lppe_T_ecid_lte_eNodeB_ADSupported_non_serving;
+static int hf_lppe_T_ecid_utra_HeNB_ADSupported_bslist;
+static int hf_lppe_T_ecid_utra_HeNB_ADSupported_bslocation;
+static int hf_lppe_T_ecid_utra_HeNB_ADSupported_locationreliability;
+static int hf_lppe_T_ecid_utra_HeNB_ADSupported_transmit_power;
+static int hf_lppe_T_ecid_utra_HeNB_ADSupported_antennaPortConfig;
+static int hf_lppe_T_ecid_utra_HeNB_ADSupported_frequency_accuracy;
+static int hf_lppe_T_ecid_utra_HeNB_ADSupported_coveragearea;
+static int hf_lppe_T_ecid_utra_HeNB_ADSupported_non_serving;
+static int hf_lppe_T_requestedAD_bslist;
+static int hf_lppe_T_requestedAD_bslocation;
+static int hf_lppe_T_requestedAD_transmit_power;
+static int hf_lppe_T_requestedAD_antenna_gain;
+static int hf_lppe_T_requestedAD_beam_width;
+static int hf_lppe_T_requestedAD_transmit_direction;
+static int hf_lppe_T_requestedAD_frequency_accuracy;
+static int hf_lppe_T_requestedAD_non_serving;
+static int hf_lppe_T_requestedMeasurements_01_rxLevel;
+static int hf_lppe_T_requestedMeasurements_01_tA;
+static int hf_lppe_T_requestedMeasurements_01_nMR_GERAN;
+static int hf_lppe_T_requestedMeasurements_01_non_serving;
+static int hf_lppe_T_requestedMeasurements_01_historic;
+static int hf_lppe_T_ecid_gsm_MeasSupported_rxLevel;
+static int hf_lppe_T_ecid_gsm_MeasSupported_tA;
+static int hf_lppe_T_ecid_gsm_MeasSupported_nMR_GERAN;
+static int hf_lppe_T_ecid_gsm_MeasSupported_non_serving;
+static int hf_lppe_T_ecid_gsm_MeasSupported_historic;
+static int hf_lppe_T_ecid_gsm_ADSupported_bslist;
+static int hf_lppe_T_ecid_gsm_ADSupported_bslocation;
+static int hf_lppe_T_ecid_gsm_ADSupported_transmit_power;
+static int hf_lppe_T_ecid_gsm_ADSupported_antenna_gain;
+static int hf_lppe_T_ecid_gsm_ADSupported_beam_width;
+static int hf_lppe_T_ecid_gsm_ADSupported_transmit_direction;
+static int hf_lppe_T_ecid_gsm_ADSupported_frequency_accuracy;
+static int hf_lppe_T_ecid_gsm_ADSupported_non_serving;
+static int hf_lppe_T_nBrequestedAD_bslist;
+static int hf_lppe_T_nBrequestedAD_bslocation;
+static int hf_lppe_T_nBrequestedAD_transmit_power;
+static int hf_lppe_T_nBrequestedAD_antenna_gain;
+static int hf_lppe_T_nBrequestedAD_beam_width;
+static int hf_lppe_T_nBrequestedAD_transmit_direction;
+static int hf_lppe_T_nBrequestedAD_frequency_accuracy;
+static int hf_lppe_T_nBrequestedAD_non_serving;
+static int hf_lppe_T_hNBrequestedAD_bslist;
+static int hf_lppe_T_hNBrequestedAD_bslocation;
+static int hf_lppe_T_hNBrequestedAD_locationreliability;
+static int hf_lppe_T_hNBrequestedAD_transmit_power;
+static int hf_lppe_T_hNBrequestedAD_frequency_accuracy;
+static int hf_lppe_T_hNBrequestedAD_coveragearea;
+static int hf_lppe_T_hNBrequestedAD_non_serving;
+static int hf_lppe_T_requestedMeasurements_02_measuredResultsList;
+static int hf_lppe_T_requestedMeasurements_02_tdd_timingAdvance;
+static int hf_lppe_T_requestedMeasurements_02_mRL_utra_CarrierRSSI;
+static int hf_lppe_T_requestedMeasurements_02_mRL_FDD_cpich_Ec_N0;
+static int hf_lppe_T_requestedMeasurements_02_mRL_FDD_cpich_RSCP;
+static int hf_lppe_T_requestedMeasurements_02_mRL_FDD_pathloss;
+static int hf_lppe_T_requestedMeasurements_02_mRL_TDD_primaryCCPCH_RSCP;
+static int hf_lppe_T_requestedMeasurements_02_mRL_TDD_pathloss;
+static int hf_lppe_T_requestedMeasurements_02_non_serving;
+static int hf_lppe_T_requestedMeasurements_02_historic;
+static int hf_lppe_T_ecid_utra_MeasSupported_measuredResultsList;
+static int hf_lppe_T_ecid_utra_MeasSupported_tdd_timingAdvance;
+static int hf_lppe_T_ecid_utra_MeasSupported_mRL_utra_CarrierRSSI;
+static int hf_lppe_T_ecid_utra_MeasSupported_mRL_FDD_cpich_Ec_N0;
+static int hf_lppe_T_ecid_utra_MeasSupported_mRL_FDD_cpich_RSCP;
+static int hf_lppe_T_ecid_utra_MeasSupported_mRL_FDD_pathloss;
+static int hf_lppe_T_ecid_utra_MeasSupported_mRL_TDD_primaryCCPCH_RSCP;
+static int hf_lppe_T_ecid_utra_MeasSupported_mRL_TDD_pathloss;
+static int hf_lppe_T_ecid_utra_MeasSupported_non_serving;
+static int hf_lppe_T_ecid_utra_MeasSupported_historic;
+static int hf_lppe_T_ecid_utra_nodeB_ADSupported_bslist;
+static int hf_lppe_T_ecid_utra_nodeB_ADSupported_bslocation;
+static int hf_lppe_T_ecid_utra_nodeB_ADSupported_transmit_power;
+static int hf_lppe_T_ecid_utra_nodeB_ADSupported_antenna_gain;
+static int hf_lppe_T_ecid_utra_nodeB_ADSupported_beam_width;
+static int hf_lppe_T_ecid_utra_nodeB_ADSupported_transmit_direction;
+static int hf_lppe_T_ecid_utra_nodeB_ADSupported_frequency_accuracy;
+static int hf_lppe_T_ecid_utra_nodeB_ADSupported_non_serving;
+static int hf_lppe_T_ecid_utra_HNB_ADSupported_bslist;
+static int hf_lppe_T_ecid_utra_HNB_ADSupported_bslocation;
+static int hf_lppe_T_ecid_utra_HNB_ADSupported_locationreliability;
+static int hf_lppe_T_ecid_utra_HNB_ADSupported_transmit_power;
+static int hf_lppe_T_ecid_utra_HNB_ADSupported_frequency_accuracy;
+static int hf_lppe_T_ecid_utra_HNB_ADSupported_coveragearea;
+static int hf_lppe_T_ecid_utra_HNB_ADSupported_non_serving;
+static int hf_lppe_T_requestedAD_01_aplist;
+static int hf_lppe_T_requestedAD_01_aplocation;
+static int hf_lppe_T_requestedAD_01_locationreliability;
+static int hf_lppe_T_requestedAD_01_transmit_power;
+static int hf_lppe_T_requestedAD_01_antenna_gain;
+static int hf_lppe_T_requestedAD_01_coveragearea;
+static int hf_lppe_T_requestedAD_01_non_serving;
+static int hf_lppe_T_requestedMeasurements_03_apSSID;
+static int hf_lppe_T_requestedMeasurements_03_apSN;
+static int hf_lppe_T_requestedMeasurements_03_apDevType;
+static int hf_lppe_T_requestedMeasurements_03_apPhyType;
+static int hf_lppe_T_requestedMeasurements_03_apRSSI;
+static int hf_lppe_T_requestedMeasurements_03_apChanFreq;
+static int hf_lppe_T_requestedMeasurements_03_apRTD;
+static int hf_lppe_T_requestedMeasurements_03_ueTP;
+static int hf_lppe_T_requestedMeasurements_03_ueAG;
+static int hf_lppe_T_requestedMeasurements_03_apRepLoc;
+static int hf_lppe_T_requestedMeasurements_03_non_serving;
+static int hf_lppe_T_requestedMeasurements_03_historic;
+static int hf_lppe_T_requestedMeasurements_03_apTP;
+static int hf_lppe_T_requestedMeasurements_03_apAG;
+static int hf_lppe_T_requestedMeasurements_03_ueSN;
+static int hf_lppe_T_requestedMeasurements_03_ueRSSI;
+static int hf_lppe_T_additionalRequestedMeasurements_oc;
+static int hf_lppe_T_additionalRequestedMeasurements_ueMacAddr;
+static int hf_lppe_T_wlan_ecid_MeasSupported_apSSID;
+static int hf_lppe_T_wlan_ecid_MeasSupported_apSN;
+static int hf_lppe_T_wlan_ecid_MeasSupported_apDevType;
+static int hf_lppe_T_wlan_ecid_MeasSupported_apPhyType;
+static int hf_lppe_T_wlan_ecid_MeasSupported_apRSSI;
+static int hf_lppe_T_wlan_ecid_MeasSupported_apChanFreq;
+static int hf_lppe_T_wlan_ecid_MeasSupported_apRTD;
+static int hf_lppe_T_wlan_ecid_MeasSupported_ueTP;
+static int hf_lppe_T_wlan_ecid_MeasSupported_ueAG;
+static int hf_lppe_T_wlan_ecid_MeasSupported_apRepLoc;
+static int hf_lppe_T_wlan_ecid_MeasSupported_non_serving;
+static int hf_lppe_T_wlan_ecid_MeasSupported_historic;
+static int hf_lppe_T_wlan_ecid_MeasSupported_apTP;
+static int hf_lppe_T_wlan_ecid_MeasSupported_apAG;
+static int hf_lppe_T_wlan_ecid_MeasSupported_ueSN;
+static int hf_lppe_T_wlan_ecid_MeasSupported_ueRSSI;
+static int hf_lppe_T_wlan_ap_ADSupported_aplist;
+static int hf_lppe_T_wlan_ap_ADSupported_aplocation;
+static int hf_lppe_T_wlan_ap_ADSupported_locationreliability;
+static int hf_lppe_T_wlan_ap_ADSupported_transmit_power;
+static int hf_lppe_T_wlan_ap_ADSupported_antenna_gain;
+static int hf_lppe_T_wlan_ap_ADSupported_coveragearea;
+static int hf_lppe_T_wlan_ap_ADSupported_non_serving;
+static int hf_lppe_T_additional_wlan_ecid_MeasSupported_oc;
+static int hf_lppe_T_additional_wlan_ecid_MeasSupported_ueMacAddr;
+static int hf_lppe_T_requestedMeasurements_04_rTD;
+static int hf_lppe_T_requestedMeasurements_04_rTDstd;
+static int hf_lppe_T_requestedMeasurements_04_nMR;
+static int hf_lppe_T_requestedMeasurements_04_nMRrelDelay;
+static int hf_lppe_T_requestedMeasurements_04_nMRrelDelaystd;
+static int hf_lppe_T_requestedMeasurements_04_nMRrSSI;
+static int hf_lppe_T_requestedMeasurements_04_nMRrSSIstd;
+static int hf_lppe_T_requestedMeasurements_04_nMRbSTxPower;
+static int hf_lppe_T_requestedMeasurements_04_nMRcINR;
+static int hf_lppe_T_requestedMeasurements_04_nMRcINRstd;
+static int hf_lppe_T_requestedMeasurements_04_nMRbSLocation;
+static int hf_lppe_T_requestedMeasurements_04_non_serving;
+static int hf_lppe_T_requestedMeasurements_04_historic;
+static int hf_lppe_T_ecid_wimax_MeasSupported_rTD;
+static int hf_lppe_T_ecid_wimax_MeasSupported_rTDstd;
+static int hf_lppe_T_ecid_wimax_MeasSupported_nMR;
+static int hf_lppe_T_ecid_wimax_MeasSupported_nMRrelDelay;
+static int hf_lppe_T_ecid_wimax_MeasSupported_nMRrelDelaystd;
+static int hf_lppe_T_ecid_wimax_MeasSupported_nMRrSSI;
+static int hf_lppe_T_ecid_wimax_MeasSupported_nMRrSSIstd;
+static int hf_lppe_T_ecid_wimax_MeasSupported_nMRbSTxPower;
+static int hf_lppe_T_ecid_wimax_MeasSupported_nMRcINR;
+static int hf_lppe_T_ecid_wimax_MeasSupported_nMRcINRstd;
+static int hf_lppe_T_ecid_wimax_MeasSupported_nMRbSLocation;
+static int hf_lppe_T_ecid_wimax_MeasSupported_non_serving;
+static int hf_lppe_T_ecid_wimax_MeasSupported_historic;
+static int hf_lppe_T_secondaryMotionState_stationary;
+static int hf_lppe_T_secondaryMotionState_pedestrian;
+static int hf_lppe_T_secondaryMotionState_running;
+static int hf_lppe_T_secondaryMotionState_cycling;
+static int hf_lppe_T_secondaryMotionState_car;
+static int hf_lppe_T_secondaryMotionState_train;
+static int hf_lppe_T_secondaryMotionState_aeroplane;
+static int hf_lppe_T_secondaryMotionState_boat;
+static int hf_lppe_T_secondaryMotionState_fidgeting;
+static int hf_lppe_T_supportedAssistanceData_srnGroup;
+static int hf_lppe_T_supportedAssistanceData_antennaPattern;
+static int hf_lppe_T_srnMeasurements_rssi;
+static int hf_lppe_T_srnMeasurements_rtd;
 
 /* Initialize the subtree pointers */
-static gint ett_lppe = -1;
-static gint ett_lppe_civicLocation = -1;
-static gint ett_lppe_OMA_LPPe_MessageExtension = -1;
-static gint ett_lppe_OMA_LPPe_LPPeVersion = -1;
-static gint ett_lppe_OMA_LPPe_MessageExtensionBody = -1;
-static gint ett_lppe_OMA_LPPe_RequestCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_ProvideCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_RequestAssistanceData = -1;
-static gint ett_lppe_OMA_LPPe_ProvideAssistanceData = -1;
-static gint ett_lppe_OMA_LPPe_RequestLocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_ProvideLocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_Abort = -1;
-static gint ett_lppe_OMA_LPPe_Error = -1;
-static gint ett_lppe_OMA_LPPe_AssistanceContainer_DataSerialNumber = -1;
-static gint ett_lppe_OMA_LPPe_AssistanceContainerID = -1;
-static gint ett_lppe_OMA_LPPe_AssistanceContainerProvideList = -1;
-static gint ett_lppe_OMA_LPPe_AssistanceContainerProvide = -1;
-static gint ett_lppe_T_dataResult = -1;
-static gint ett_lppe_OMA_LPPe_AssistanceContainerData = -1;
-static gint ett_lppe_OMA_LPPe_AssistanceContainerProvideError = -1;
-static gint ett_lppe_OMA_LPPe_AssistanceContainerRequestList = -1;
-static gint ett_lppe_OMA_LPPe_AssistanceContainerRequest = -1;
-static gint ett_lppe_OMA_LPPe_AssistanceContainerCheckOrUpdateReq = -1;
-static gint ett_lppe_OMA_LPPe_CellLocalIdGERAN = -1;
-static gint ett_lppe_OMA_LPPe_CellNonUniqueIDGERAN = -1;
-static gint ett_lppe_OMA_LPPe_CivicLocation = -1;
-static gint ett_lppe_OMA_LPPe_CivicAddressElementList = -1;
-static gint ett_lppe_OMA_LPPe_CivicAddressElement = -1;
-static gint ett_lppe_OMA_LPPe_CivicLocation_pidf_lo = -1;
-static gint ett_lppe_OMA_LPPe_Duration = -1;
-static gint ett_lppe_OMA_LPPe_FixedAccessTypes = -1;
-static gint ett_lppe_OMA_LPPe_HighAccuracy3Dposition = -1;
-static gint ett_lppe_OMA_LPPe_HighAccuracy3Dvelocity = -1;
-static gint ett_lppe_OMA_LPPe_LocationInformationContainerID = -1;
-static gint ett_lppe_OMA_LPPe_LocationInformationContainer = -1;
-static gint ett_lppe_OMA_LPPe_LocationInformationContainerDataList = -1;
-static gint ett_lppe_OMA_LPPe_LocationInformationContainerData = -1;
-static gint ett_lppe_OMA_LPPe_LocationInformationContainerRequest = -1;
-static gint ett_lppe_OMA_LPPe_LocationInformationContainerRequestList = -1;
-static gint ett_lppe_OMA_LPPe_LocationInformationContainerRequestItem = -1;
-static gint ett_lppe_OMA_LPPe_MapDataReference = -1;
-static gint ett_lppe_OMA_LPPe_Orientation = -1;
-static gint ett_lppe_T_eulerAngles = -1;
-static gint ett_lppe_OMA_LPPe_ReferencePoint = -1;
-static gint ett_lppe_T_referencePointGeographicLocation = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_ReferencePointRelationship = -1;
-static gint ett_lppe_OMA_LPPe_MapDataInformation = -1;
-static gint ett_lppe_OMA_LPPe_MapDataReferenceElement = -1;
-static gint ett_lppe_T_mapDataUrl_choice = -1;
-static gint ett_lppe_T_mapProvider = -1;
-static gint ett_lppe_T_mapAssociation = -1;
-static gint ett_lppe_OMA_LPPe_ReferencePointRelationship = -1;
-static gint ett_lppe_OMA_LPPe_ReferencePointUniqueID = -1;
-static gint ett_lppe_OMA_LPPe_RelativeLocation = -1;
-static gint ett_lppe_OMA_LPPe_HorizontalUncertaintyAndConfidence = -1;
-static gint ett_lppe_T_uncShape = -1;
-static gint ett_lppe_T_ellipse = -1;
-static gint ett_lppe_OMA_LPPe_RelativeAltitude = -1;
-static gint ett_lppe_OMA_LPPe_GeodeticRelativeAltitude = -1;
-static gint ett_lppe_OMA_LPPe_GeodeticUncertaintyAndConfidence = -1;
-static gint ett_lppe_OMA_LPPe_CivicRelativeAltitude = -1;
-static gint ett_lppe_OMA_LPPe_CivicUncertaintyAndConfidence = -1;
-static gint ett_lppe_OMA_LPPe_Session_ID = -1;
-static gint ett_lppe_OMA_LPPe_ValidityArea = -1;
-static gint ett_lppe_OMA_LPPe_RleList = -1;
-static gint ett_lppe_OMA_LPPe_ValidityPeriod = -1;
-static gint ett_lppe_OMA_LPPe_VendorOrOperatorAssistanceDataIdentifier = -1;
-static gint ett_lppe_OMA_LPPe_VendorOrOperatorID = -1;
-static gint ett_lppe_OMA_LPPe_NonStandard_VendorOrOperatorID = -1;
-static gint ett_lppe_OMA_LPPe_WirelessAccessTypes = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_AP_ID = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_AP_Type_List = -1;
-static gint ett_lppe_OMA_LPPe_WLANFemtoCoverageArea = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_WLANFemtoCoverageAreaElement = -1;
-static gint ett_lppe_OMA_LPPe_WLANFemtoCoverageAreaElement = -1;
-static gint ett_lppe_T_refPointAndArea = -1;
-static gint ett_lppe_OMA_LPPe_CommonIEsRequestCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_IP_Address_RequestCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_AssistanceContainerSupportReq = -1;
-static gint ett_lppe_OMA_LPPe_LocationInformationContainerSupportReq = -1;
-static gint ett_lppe_OMA_LPPe_VendorOrOperatorIDList = -1;
-static gint ett_lppe_OMA_LPPe_RelativeLocationChange_RequestCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_HighAccuracyFormatCapabilitiesReq = -1;
-static gint ett_lppe_OMA_LPPe_SegmentedAssistanceData_ReqCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_ReferencePointCapabilitiesReq = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_128_OF_OMA_LPPe_VendorOrOperatorID = -1;
-static gint ett_lppe_OMA_LPPe_ScheduledLocation_RequestCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_AccessCapabilitiesReq = -1;
-static gint ett_lppe_OMA_LPPe_SegmentedLocationInformation_ReqCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_CommonIEsProvideCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_IP_Address_Capabilities = -1;
-static gint ett_lppe_T_iP_Address_support = -1;
-static gint ett_lppe_OMA_LPPe_AssistanceContainerSupport = -1;
-static gint ett_lppe_OMA_LPPe_VendorOrOperatorAssistanceContainerList = -1;
-static gint ett_lppe_OMA_LPPe_AssistanceContainerList = -1;
-static gint ett_lppe_OMA_LPPe_LocationInformationContainerSupport = -1;
-static gint ett_lppe_OMA_LPPe_VendorOrOperatorLocationInformationContainerList = -1;
-static gint ett_lppe_OMA_LPPe_LocationInformationContainerList = -1;
-static gint ett_lppe_OMA_LPPe_RelativeLocationChange_Capabilities = -1;
-static gint ett_lppe_OMA_LPPe_HighAccuracyFormatCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_SegmentedAssistanceData_ProvideCapabs = -1;
-static gint ett_lppe_OMA_LPPe_ReferencePointCapabilities = -1;
-static gint ett_lppe_T_relativeLocationReportingSupport = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_128_OF_OMA_LPPe_ReferencePointProviderSupportElement = -1;
-static gint ett_lppe_OMA_LPPe_ReferencePointProviderSupportElement = -1;
-static gint ett_lppe_T_mapDataSupport = -1;
-static gint ett_lppe_OMA_LPPe_ScheduledLocation_Capabilities = -1;
-static gint ett_lppe_OMA_LPPe_AccessCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_SegmentedLocationInformation_ProvideCapabs = -1;
-static gint ett_lppe_OMA_LPPe_CommonIEsRequestAssistanceData = -1;
-static gint ett_lppe_OMA_LPPe_RequestPeriodicADwithUpdate = -1;
-static gint ett_lppe_OMA_LPPe_SegmentedADResume = -1;
-static gint ett_lppe_OMA_LPPe_ReferencePointAssistanceReq = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_ReferencePointAssistanceReqElement = -1;
-static gint ett_lppe_OMA_LPPe_ReferencePointAssistanceReqElement = -1;
-static gint ett_lppe_OMA_LPPe_CommonIEsProvideAssistanceData = -1;
-static gint ett_lppe_OMA_LPPe_ProvidePeriodicADwithUpdate = -1;
-static gint ett_lppe_OMA_LPPe_SegmentedADTransfer = -1;
-static gint ett_lppe_OMA_LPPe_CommonIEsRequestLocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_IP_Address_Request = -1;
-static gint ett_lppe_OMA_LPPe_RequestPeriodicLocInfoWithUpdate = -1;
-static gint ett_lppe_OMA_LPPe_RelativeLocationChange_Request = -1;
-static gint ett_lppe_OMA_LPPe_LocalPositionRequest = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_ReferencePointUniqueID = -1;
-static gint ett_lppe_OMA_LPPe_ScheduledLocation_Request = -1;
-static gint ett_lppe_OMA_LPPe_AccessTypeRequest = -1;
-static gint ett_lppe_OMA_LPPe_SegmentedLIResume = -1;
-static gint ett_lppe_OMA_LPPe_CivicLocation_Request = -1;
-static gint ett_lppe_OMA_LPPe_CommonIEsProvideLocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_LocalPosition = -1;
-static gint ett_lppe_OMA_LPPe_IP_Address_List = -1;
-static gint ett_lppe_OMA_LPPe_IP_Address = -1;
-static gint ett_lppe_T_local_IP_Address = -1;
-static gint ett_lppe_OMA_LPPe_ProvidePeriodicLocInfowithUpdate = -1;
-static gint ett_lppe_OMA_LPPe_RelativeLocationChangeList = -1;
-static gint ett_lppe_OMA_LPPe_RelativeLocationChange = -1;
-static gint ett_lppe_OMA_LPPe_ScheduledLocation = -1;
-static gint ett_lppe_T_actualWindow = -1;
-static gint ett_lppe_OMA_LPPe_AccessTypes = -1;
-static gint ett_lppe_OMA_LPPe_SegmentedLITransfer = -1;
-static gint ett_lppe_OMA_LPPe_TimeStamp = -1;
-static gint ett_lppe_OMA_LPPe_LocationSource = -1;
-static gint ett_lppe_OMA_LPPe_CommonIEsAbort = -1;
-static gint ett_lppe_OMA_LPPe_CommonIEsError = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_ProvideAssistanceData = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CommonAssistData = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_GenericAssistData = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_GenericAssistDataElement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_IonosphericModel = -1;
-static gint ett_lppe_T_staticModels = -1;
-static gint ett_lppe_T_waIono = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_LocalKlobucharModelList = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_LocalKlobucharModelElement = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_LocalKlobucharModel = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_LocalKlobucharModel = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_IonoStormIndication = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_StormList = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_StormElement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_RleListIono = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_RleIonoElement = -1;
-static gint ett_lppe_T_ionoIndex = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_WideAreaIonoSurfaceControlParametersProvide = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_WideAreaIonoSurfaceCommon = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_WideAreaIonoSurfacePerSVlist = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_WideAreaIonoSurfacePerSVelement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_TroposphereModel = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_LocalTroposphereDelayList = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_LocalTroposphereDelayAreaElement = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_LocalTroposphereDelayTimeElement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_LocalTroposphereDelayTimeElement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_LocalSurfaceParametersList = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_LocalSurfaceParametersAreaElement = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_LocalSurfaceParametersTimeElement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_LocalSurfaceParametersTimeElement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_MappingFunctionParameters = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_AltitudeAssistanceList = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_AltitudeAssistanceAreaElement = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_AGNSS_PressureAssistanceElement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_PressureAssistanceElement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_SolarRadiation = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_MechanicsForAllSVs = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_MechanicsElement = -1;
-static gint ett_lppe_T_svInfo = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_PCOelement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_DCBsForAllSVs = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_DCBlistElement = -1;
-static gint ett_lppe_T_reference = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_DCBlist = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_DCBelement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_NavModelDegradationModelList = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_NavModelDegradationModelElement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_ClockModelDegradationModel = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_OrbitModelDegradationModel = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CCPassistCommonProvide = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CCPprovideCommonParameters = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CCPprovideControlParameters = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CCPsupportArea = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_CCPsignalSupport = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CCPsignalSupport = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CCPreferenceStationList = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CCPreferenceStationElement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CCPassistGenericProvide = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CCPassistGenericProvideElement = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_CCPperSignalElement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CCPperSignalElement = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_64_OF_OMA_LPPe_AGNSS_CCPperSVelement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CCPperSVelement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CodePhaseError = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_NavModelList = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_NavModel_CoordinateBased = -1;
-static gint ett_lppe_T_fixedInterval = -1;
-static gint ett_lppe_T_bases = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_97_OF_OMA_LPPe_AGNSS_NavModel_CoordinateBasedElement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_NavModel_CoordinateBasedElement = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_64_OF_OMA_LPPe_AGNSS_NavModel_PVTelement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_NavModel_PVTelement = -1;
-static gint ett_lppe_T_rateRecord = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_NavModel_BigNumber = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_NavModel_STDmatrix = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_RequestAssistanceData = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CommonAssistanceDataReq = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_GenericAssistanceDataReq = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_GenericAssistDataReqElement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_IonosphericModelReq = -1;
-static gint ett_lppe_T_staticModels_01 = -1;
-static gint ett_lppe_T_ionoreq = -1;
-static gint ett_lppe_T_periodicModels = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_WideAreaIonoSurfaceControlParametersRequest = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_TroposphereModelReq = -1;
-static gint ett_lppe_T_troposphereModelReq = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_AltitudeAssistanceReq = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_SolarRadiationReq = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_WaIonoSurfaceRequest = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_NavModelDegradationModelReq = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_DCBreq = -1;
-static gint ett_lppe_T_reference_01 = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_MechanicsReq = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CCPrequestControlParameters = -1;
-static gint ett_lppe_T_ccpCommonRequest = -1;
-static gint ett_lppe_T_refStation = -1;
-static gint ett_lppe_T_posBasedReferenceStationRequest = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_ReferenceStationIDlist = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CCPassistGenericReq = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_NavigationModelReq = -1;
-static gint ett_lppe_T_navModelID_PrefList = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_ProvideLocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_HAgnssProvide = -1;
-static gint ett_lppe_T_controlParameters = -1;
-static gint ett_lppe_T_measurements = -1;
-static gint ett_lppe_T_localPressure = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_AGNSS_HAgnssMeasurementElement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_HAgnssMeasurementElement = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_HAgnssPerSignalElement = -1;
-static gint ett_lppe_OMA_LPPe_HAgnssPerSignalElement = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_64_OF_OMA_LPPe_HAgnssPerSVelement = -1;
-static gint ett_lppe_OMA_LPPe_HAgnssPerSVelement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_IonosphereMeasurements = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_TECPerSV = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_TECPerSVElement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_TECAtZenith = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_LocalSurfaceMeasurements = -1;
-static gint ett_lppe_T_temperatureMeasurement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_RequestLocationInformation = -1;
-static gint ett_lppe_T_ionosphereMeasurementsReq = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_PositioningInstructions = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_LocalSurfaceMeasurementReq = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_HAgnssRequestControlParameters = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_AGNSS_HAgnssSignalReqElement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_HAgnssSignalReqElement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_ProvideCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_AssistanceDataSupportList = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_EnvironmentObservationSupportList = -1;
-static gint ett_lppe_T_ionosphereMeasurementSupport = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CommonAssistanceDataSupport = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_IonosphericModelSupport = -1;
-static gint ett_lppe_T_ionoModel = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_TroposphereModelSupport = -1;
-static gint ett_lppe_T_tropoModel = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_AltitudeAssistanceSupport = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_SolarRadiationSupport = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CCPsupport = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_GenericAssistanceDataSupport = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_GenericAssistDataSupportElement = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_MechanicsSupport = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_DCBsupport = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_NavModelAccuracyModelDegradationSupport = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_NavModelSupport = -1;
-static gint ett_lppe_T_navModelSupport = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_HAgnssSupport = -1;
-static gint ett_lppe_T_modeSupport = -1;
-static gint ett_lppe_T_haGNSSantennaInformationSupport = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_HAgnssPerGNSSsupport = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_HAgnssPerGNSSsupport = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_RequestCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_Error = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_LocationServerErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_TargetDeviceErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_CCPreferenceStationID = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_AntennaDescription = -1;
-static gint ett_lppe_T_antennaDescription = -1;
-static gint ett_lppe_OMA_LPPe_AGNSS_Abort = -1;
-static gint ett_lppe_T_targetDeviceAbortCauses = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_ProvideAssistanceData = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_ReferenceCellInfo = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_PositionCalculationInfoRef = -1;
-static gint ett_lppe_T_cellLocation = -1;
-static gint ett_lppe_T_femtoCellInfo = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_NeighbourCellInfoList = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_NeighbourFreqCellInfoList = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxLTEeNBs_OF_OMA_LPPe_OTDOA_NeighbourCellInfoElement_eNB = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxLTEHeNBs_OF_OMA_LPPe_OTDOA_NeighbourCellInfoElement_HeNB = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_NeighbourCellInfoElement_eNB = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxLTEMacroCells_OF_OMA_LPPe_OTDOA_CellData = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_NeighbourCellInfoElement_HeNB = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_CellData = -1;
-static gint ett_lppe_T_rtdInfo = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_RTDquality = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_RequestAssistanceData = -1;
-static gint ett_lppe_T_lteCell = -1;
-static gint ett_lppe_T_requestedCells = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_ProvideLocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_LocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_RequestLocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_ProvideCapabilities = -1;
-static gint ett_lppe_T_eNodeB_AD_sup = -1;
-static gint ett_lppe_T_home_eNodeB_AD_sup = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_RequestCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_Error = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_LocationServerErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_TargetDeviceErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_ProvideAssistanceData = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_ReferenceBTSForAssistance = -1;
-static gint ett_lppe_T_btsPosition = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_MsrAssistDataList = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_MsrAssistBTS = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_SystemInfoAssistDataList = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_SystemInfoAssistBTS = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_AssistBTSData = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_CalcAssistanceBTS = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_relativePos = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_RequestAssistanceData = -1;
-static gint ett_lppe_T_eotdAssistanceReq = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_ProvideLocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_MsrElement = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_15_OF_OMA_LPPe_EOTD_MeasurementWithID = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_TOA_MeasurementsOfRef = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_MeasurementWithID = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_NeighborIdentity = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_EOTDQuality = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_MultiFrameCarrier = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_RequestLocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_ProvideCapabilities = -1;
-static gint ett_lppe_T_eotdSupport = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_RequestCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_Error = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_LocationServerErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_TargetDeviceErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_EOTD_ExpectedOTD = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_ProvideAssistanceData = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_ReferenceCellInfo = -1;
-static gint ett_lppe_T_modeSpecificInfo = -1;
-static gint ett_lppe_T_fdd = -1;
-static gint ett_lppe_T_tdd = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_RefPosAssist = -1;
-static gint ett_lppe_T_cellPosition = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_NeighborCellList = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_NeighborCellInfo = -1;
-static gint ett_lppe_T_modeSpecificInfo_01 = -1;
-static gint ett_lppe_T_fdd_01 = -1;
-static gint ett_lppe_T_tdd_01 = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_SFN_SFN_RelTimeDifference1 = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_PositioningAssistance = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_IPDL_Parameters = -1;
-static gint ett_lppe_T_modeSpecificInfo_02 = -1;
-static gint ett_lppe_T_fdd_02 = -1;
-static gint ett_lppe_T_tdd_02 = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_BurstModeParameters = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_RequestAssistanceData = -1;
-static gint ett_lppe_T_otdoaUtraAssistanceReq = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_ProvideLocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_Measurement = -1;
-static gint ett_lppe_T_modeSpecificInfoMeas = -1;
-static gint ett_lppe_T_fdd_03 = -1;
-static gint ett_lppe_T_tdd_03 = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_UE_RX_TX_TimeDifferenceType2Info = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_NeighborList = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_Neighbor = -1;
-static gint ett_lppe_T_modeSpecificInfo_03 = -1;
-static gint ett_lppe_T_fdd_04 = -1;
-static gint ett_lppe_T_tdd_04 = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_NeighborQuality = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_Quality = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_TimeStampData = -1;
-static gint ett_lppe_T_nonUniqueCellID = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_RequestLocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_ProvideCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_RequestCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_Error = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_LocationServerErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_TargetDeviceErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_PrimaryCPICH_Info = -1;
-static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_CellAndChannelIdentity = -1;
-static gint ett_lppe_OMA_LPPe_ECID_LTE_ProvideAssistanceData = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxLTENetworks_OF_OMA_LPPe_ECID_LTE_NetworkData = -1;
-static gint ett_lppe_OMA_LPPe_ECID_LTE_NetworkData = -1;
-static gint ett_lppe_T_plmn_Identity = -1;
-static gint ett_lppe_T_mcc = -1;
-static gint ett_lppe_T_mnc = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxLTEeNBs_OF_OMA_LPPe_ECID_LTE_eNodeBData = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxLTEHeNBs_OF_OMA_LPPe_ECID_LTE_HeNBData = -1;
-static gint ett_lppe_OMA_LPPe_ECID_LTE_eNodeBData = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxLTEMacroCells_OF_OMA_LPPe_ECID_LTE_CellData = -1;
-static gint ett_lppe_OMA_LPPe_ECID_LTE_HeNBData = -1;
-static gint ett_lppe_OMA_LPPe_ECID_LTE_CellData = -1;
-static gint ett_lppe_OMA_LPPe_ECID_LTE_RequestAssistanceData = -1;
-static gint ett_lppe_T_eNBrequestedAD = -1;
-static gint ett_lppe_T_heNBrequestedAD = -1;
-static gint ett_lppe_OMA_LPPe_ECID_LTE_ProvideLocationInformation = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxLTEECIDSize_OF_OMA_LPPe_ECID_LTE_LocationInformationList = -1;
-static gint ett_lppe_OMA_LPPe_ECID_LTE_LocationInformationList = -1;
-static gint ett_lppe_OMA_LPPe_ECID_LTE_LocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_ECID_LTE_RequestLocationInformation = -1;
-static gint ett_lppe_T_requestedMeasurements = -1;
-static gint ett_lppe_OMA_LPPe_ECID_LTE_ProvideCapabilities = -1;
-static gint ett_lppe_T_ecid_lte_MeasSupported = -1;
-static gint ett_lppe_T_ecid_lte_eNodeB_ADSupported = -1;
-static gint ett_lppe_T_ecid_utra_HeNB_ADSupported = -1;
-static gint ett_lppe_OMA_LPPe_ECID_LTE_RequestCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_ECID_LTE_Error = -1;
-static gint ett_lppe_OMA_LPPe_ECID_LTE_LocationServerErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_ECID_LTE_TargetDeviceErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_ECID_GSM_ProvideAssistanceData = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxGSMNetworks_OF_OMA_LPPe_ECID_GSM_NetworkData = -1;
-static gint ett_lppe_OMA_LPPe_ECID_GSM_NetworkData = -1;
-static gint ett_lppe_T_plmn_Identity_01 = -1;
-static gint ett_lppe_T_mcc_01 = -1;
-static gint ett_lppe_T_mnc_01 = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxGSMBaseStations_OF_OMA_LPPe_ECID_GSM_BaseStationData = -1;
-static gint ett_lppe_OMA_LPPe_ECID_GSM_BaseStationData = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxGSMCells_OF_OMA_LPPe_ECID_GSM_CellData = -1;
-static gint ett_lppe_OMA_LPPe_ECID_GSM_CellData = -1;
-static gint ett_lppe_OMA_LPPe_ECID_GSM_RequestAssistanceData = -1;
-static gint ett_lppe_T_requestedAD = -1;
-static gint ett_lppe_OMA_LPPe_ECID_GSM_ProvideLocationInformation = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxGSMECIDSize_OF_OMA_LPPe_ECID_GSM_LocationInformationList = -1;
-static gint ett_lppe_OMA_LPPe_ECID_GSM_LocationInformationList = -1;
-static gint ett_lppe_OMA_LPPe_ECID_GSM_LocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_NMR_GERAN = -1;
-static gint ett_lppe_OMA_LPPe_NMR_GERAN_item = -1;
-static gint ett_lppe_OMA_LPPe_ECID_GSM_RequestLocationInformation = -1;
-static gint ett_lppe_T_requestedMeasurements_01 = -1;
-static gint ett_lppe_OMA_LPPe_ECID_GSM_ProvideCapabilities = -1;
-static gint ett_lppe_T_ecid_gsm_MeasSupported = -1;
-static gint ett_lppe_T_ecid_gsm_ADSupported = -1;
-static gint ett_lppe_OMA_LPPe_ECID_GSM_RequestCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_ECID_GSM_Error = -1;
-static gint ett_lppe_OMA_LPPe_ECID_GSM_LocationServerErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_ECID_GSM_TargetDeviceErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_ProvideAssistanceData = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxUTRANetworks_OF_OMA_LPPe_ECID_UTRA_NetworkData = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_NetworkData = -1;
-static gint ett_lppe_T_plmn_Identity_02 = -1;
-static gint ett_lppe_T_mcc_02 = -1;
-static gint ett_lppe_T_mnc_02 = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxUTRAnodeBs_OF_OMA_LPPe_ECID_UTRA_NodeBData = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxUTRAHNBs_OF_OMA_LPPe_ECID_UTRA_HNBData = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_NodeBData = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxUTRAMacroCells_OF_OMA_LPPe_ECID_UTRA_CellData = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_HNBData = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_CellData = -1;
-static gint ett_lppe_T_modeSpecificInfo_04 = -1;
-static gint ett_lppe_T_fdd_05 = -1;
-static gint ett_lppe_T_tdd_05 = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_RequestAssistanceData = -1;
-static gint ett_lppe_T_nBrequestedAD = -1;
-static gint ett_lppe_T_hNBrequestedAD = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_ProvideLocationInformation = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxECIDUTRASize_OF_OMA_LPPe_ECID_UTRA_LocationInformationList = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_LocationInformationList = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_LocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_UTRATimingAdvance = -1;
-static gint ett_lppe_OMA_LPPe_UTRA_FrequencyInfo = -1;
-static gint ett_lppe_OMA_LPPe_UTRA_ModeSpecificInfo = -1;
-static gint ett_lppe_OMA_LPPe_UTRA_FrequencyInfoFDD = -1;
-static gint ett_lppe_OMA_LPPe_UTRA_FrequencyInfoTDD = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_MeasuredResultsList = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_MeasuredResults = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_CellMeasuredResultsList = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_CellMeasuredResults = -1;
-static gint ett_lppe_T_modeSpecificInfo_05 = -1;
-static gint ett_lppe_T_fdd_06 = -1;
-static gint ett_lppe_T_tdd_06 = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_RequestLocationInformation = -1;
-static gint ett_lppe_T_requestedMeasurements_02 = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_ProvideCapabilities = -1;
-static gint ett_lppe_T_ecid_utra_MeasSupported = -1;
-static gint ett_lppe_T_ecid_utra_nodeB_ADSupported = -1;
-static gint ett_lppe_T_ecid_utra_HNB_ADSupported = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_RequestCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_Error = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_LocationServerErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_ECID_UTRA_TargetDeviceErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_AP_ProvideAssistanceData = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxWLANDataSets_OF_OMA_LPPe_WLAN_DataSet = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_DataSet = -1;
-static gint ett_lppe_T_plmn_Identity_03 = -1;
-static gint ett_lppe_T_mcc_03 = -1;
-static gint ett_lppe_T_mnc_03 = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxWLANAPs_OF_OMA_LPPe_WLAN_AP_Data = -1;
-static gint ett_lppe_Supported_Channels_11a = -1;
-static gint ett_lppe_Supported_Channels_11bg = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_AP_Data = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxWLANTypes_OF_OMA_LPPe_WLAN_AP_Type_Data = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_AP_Type_Data = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_AP_RequestAssistanceData = -1;
-static gint ett_lppe_T_requestedAD_01 = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_AP_ProvideLocationInformation = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxWLANAPSize_OF_OMA_LPPe_WLAN_AP_LocationInformationList = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_AP_LocationInformationList = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_AP_LocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_RTD = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_ReportedLocation = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_LocationDataLCI = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_AP_RequestLocationInformation = -1;
-static gint ett_lppe_T_requestedMeasurements_03 = -1;
-static gint ett_lppe_T_additionalRequestedMeasurements = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_AP_ProvideCapabilities = -1;
-static gint ett_lppe_T_wlan_ecid_MeasSupported = -1;
-static gint ett_lppe_T_wlan_ap_ADSupported = -1;
-static gint ett_lppe_T_additional_wlan_ecid_MeasSupported = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_AP_Capability = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_AP_RequestCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_AP_Error = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_AP_LocationServerErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_WLAN_AP_TargetDeviceErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_ECID_WiMax_ProvideLocationInformation = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxWiMaxECIDSize_OF_OMA_LPPe_ECID_WiMax_LocationInformationList = -1;
-static gint ett_lppe_OMA_LPPe_ECID_WiMax_LocationInformationList = -1;
-static gint ett_lppe_OMA_LPPe_ECID_WiMax_LocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_ECID_WiMax_WimaxBsID = -1;
-static gint ett_lppe_OMA_LPPe_ECID_WiMax_WimaxRTD = -1;
-static gint ett_lppe_OMA_LPPe_ECID_WiMax_WimaxNMRList = -1;
-static gint ett_lppe_OMA_LPPe_ECID_WiMax_WimaxNMR = -1;
-static gint ett_lppe_OMA_LPPe_ECID_WiMax_RequestLocationInformation = -1;
-static gint ett_lppe_T_requestedMeasurements_04 = -1;
-static gint ett_lppe_OMA_LPPe_ECID_WiMax_ProvideCapabilities = -1;
-static gint ett_lppe_T_ecid_wimax_MeasSupported = -1;
-static gint ett_lppe_OMA_LPPe_ECID_WiMax_RequestCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_ECID_WiMax_Error = -1;
-static gint ett_lppe_OMA_LPPe_ECID_WiMax_LocationServerErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_ECID_WiMax_TargetDeviceErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_Sensor_ProvideAssistanceData = -1;
-static gint ett_lppe_OMA_LPPe_AtmosphericPressureAD = -1;
-static gint ett_lppe_T_period = -1;
-static gint ett_lppe_T_area = -1;
-static gint ett_lppe_OMA_LPPe_PressureValidityArea = -1;
-static gint ett_lppe_OMA_LPPe_Sensor_RequestAssistanceData = -1;
-static gint ett_lppe_OMA_LPPe_PressureSensorAD = -1;
-static gint ett_lppe_OMA_LPPe_Sensor_ProvideLocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_Sensor_MotionStateList = -1;
-static gint ett_lppe_OMA_LPPe_Sensor_MotionStateElement = -1;
-static gint ett_lppe_T_secondaryMotionState = -1;
-static gint ett_lppe_OMA_LPPe_AtmosphericPressure = -1;
-static gint ett_lppe_PressureStats = -1;
-static gint ett_lppe_CalibrationPoints = -1;
-static gint ett_lppe_CalibrationPoints_item = -1;
-static gint ett_lppe_OMA_LPPe_PressureMeasurement = -1;
-static gint ett_lppe_T_uncertainty = -1;
-static gint ett_lppe_OMA_LPPe_Sensor_RequestLocationInformation = -1;
-static gint ett_lppe_OMA_LPPe_Sensor_MotionStateRequest = -1;
-static gint ett_lppe_OMA_LPPe_AtmosphericPressureRequest = -1;
-static gint ett_lppe_OMA_LPPe_Sensor_ProvideCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_Sensor_RequestCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_Sensor_Error = -1;
-static gint ett_lppe_OMA_LPPe_Sensor_TargetError = -1;
-static gint ett_lppe_OMA_LPPe_SRN_ProvideAssistanceData = -1;
-static gint ett_lppe_T_srnGroup = -1;
-static gint ett_lppe_OMA_LPPe_SRN_SRNgroupList = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_64_OF_OMA_LPPe_SRN_SRNgroup = -1;
-static gint ett_lppe_OMA_LPPe_SRN_SRNgroup = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_1024_OF_OMA_LPPe_SRN_SRNinfo = -1;
-static gint ett_lppe_OMA_LPPe_SRN_SRNinfo = -1;
-static gint ett_lppe_OMA_LPPe_SRN_SRNgroupUpdateResponse = -1;
-static gint ett_lppe_OMA_LPPe_SRN_SRNgroupUpdateResponseElement = -1;
-static gint ett_lppe_OMA_LPPe_SRN_AntennaPattern = -1;
-static gint ett_lppe_OMA_LPPe_SRN_AntennaPatternElement = -1;
-static gint ett_lppe_T_identification = -1;
-static gint ett_lppe_T_antennaData = -1;
-static gint ett_lppe_OMA_LPPe_SRN_AntennaPatternForChannels = -1;
-static gint ett_lppe_T_evenGrid = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_maxChannels_OF_OMA_LPPe_SRN_ChannelResponse = -1;
-static gint ett_lppe_OMA_LPPe_SRN_ChannelResponse = -1;
-static gint ett_lppe_SEQUENCE_SIZE_7_901_OF_OMA_LPPe_SRN_ResponseInElevation = -1;
-static gint ett_lppe_OMA_LPPe_SRN_ResponseInElevation = -1;
-static gint ett_lppe_SEQUENCE_SIZE_18_3601_OF_OMA_LPPe_SRN_ResponseInAzimuth = -1;
-static gint ett_lppe_OMA_LPPe_SRN_ResponseInAzimuth = -1;
-static gint ett_lppe_OMA_LPPe_ComplexNumber = -1;
-static gint ett_lppe_OMA_LPPe_SRN_RequestAssistanceData = -1;
-static gint ett_lppe_T_srnGroup_01 = -1;
-static gint ett_lppe_OMA_LPPe_SRN_SRNgroupRequest = -1;
-static gint ett_lppe_OMA_LPPe_SRN_SRNProvideList = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_256_OF_OMA_LPPe_SRN_SRNgroupUniqueID = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_SRN_Category = -1;
-static gint ett_lppe_OMA_LPPe_SRN_SRNgroupUpdateRequest = -1;
-static gint ett_lppe_OMA_LPPe_SRN_SRNgroupUpdateRequestElement = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_1024_OF_OMA_LPPe_SRN_SRNid = -1;
-static gint ett_lppe_OMA_LPPe_SRN_AntennaPatternRequest = -1;
-static gint ett_lppe_OMA_LPPe_SRN_AntennaPatternRequestElement = -1;
-static gint ett_lppe_T_antennaPatternID = -1;
-static gint ett_lppe_OMA_LPPe_SRN_ProvideLocationInformation = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_64_OF_OMA_LPPe_SRN_MeasurementElement = -1;
-static gint ett_lppe_OMA_LPPe_SRN_MeasurementElement = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_64_OF_OMA_LPPe_SRN_srnMeasurementElement = -1;
-static gint ett_lppe_OMA_LPPe_SRN_srnMeasurementElement = -1;
-static gint ett_lppe_OMA_LPPe_SRN_RequestLocationInformation = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_SRN_ReqLocInfo_Category = -1;
-static gint ett_lppe_OMA_LPPe_SRN_ReqLocInfo_Category = -1;
-static gint ett_lppe_OMA_LPPe_SRN_ProvideCapabilities = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_SRN_ProvideCapabilitiesElement = -1;
-static gint ett_lppe_OMA_LPPe_SRN_ProvideCapabilitiesElement = -1;
-static gint ett_lppe_T_supportedAssistanceData = -1;
-static gint ett_lppe_OMA_LPPe_SRN_RequestCapabilities = -1;
-static gint ett_lppe_OMA_LPPe_SRN_Error = -1;
-static gint ett_lppe_OMA_LPPe_SRN_LocationServerErrorCauses = -1;
-static gint ett_lppe_OMA_LPPe_SRN_TargetDeviceErrorCauses = -1;
-static gint ett_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_SRN_TargetDeviceError = -1;
-static gint ett_lppe_OMA_LPPe_SRN_TargetDeviceError = -1;
-static gint ett_lppe_OMA_LPPe_SRN_SRNgroupUniqueID = -1;
-static gint ett_lppe_OMA_LPPe_SRN_SRNtype = -1;
-static gint ett_lppe_T_srnAntennaInfo = -1;
-static gint ett_lppe_OMA_LPPe_SRN_Category = -1;
-static gint ett_lppe_T_srnVendorInformation = -1;
-static gint ett_lppe_OMA_LPPe_SRN_SRNid = -1;
-static gint ett_lppe_T_srn_id = -1;
-static gint ett_lppe_T_nfc = -1;
-static gint ett_lppe_T_mobileCode = -1;
-static gint ett_lppe_OMA_LPPe_SRN_Technologies = -1;
-static gint ett_lppe_OMA_LPPe_SRN_MeasurementMask = -1;
-static gint ett_lppe_T_srnMeasurements = -1;
+static gint ett_lppe;
+static gint ett_lppe_civicLocation;
+static gint ett_lppe_OMA_LPPe_MessageExtension;
+static gint ett_lppe_OMA_LPPe_LPPeVersion;
+static gint ett_lppe_OMA_LPPe_MessageExtensionBody;
+static gint ett_lppe_OMA_LPPe_RequestCapabilities;
+static gint ett_lppe_OMA_LPPe_ProvideCapabilities;
+static gint ett_lppe_OMA_LPPe_RequestAssistanceData;
+static gint ett_lppe_OMA_LPPe_ProvideAssistanceData;
+static gint ett_lppe_OMA_LPPe_RequestLocationInformation;
+static gint ett_lppe_OMA_LPPe_ProvideLocationInformation;
+static gint ett_lppe_OMA_LPPe_Abort;
+static gint ett_lppe_OMA_LPPe_Error;
+static gint ett_lppe_OMA_LPPe_AssistanceContainer_DataSerialNumber;
+static gint ett_lppe_OMA_LPPe_AssistanceContainerID;
+static gint ett_lppe_OMA_LPPe_AssistanceContainerProvideList;
+static gint ett_lppe_OMA_LPPe_AssistanceContainerProvide;
+static gint ett_lppe_T_dataResult;
+static gint ett_lppe_OMA_LPPe_AssistanceContainerData;
+static gint ett_lppe_OMA_LPPe_AssistanceContainerProvideError;
+static gint ett_lppe_OMA_LPPe_AssistanceContainerRequestList;
+static gint ett_lppe_OMA_LPPe_AssistanceContainerRequest;
+static gint ett_lppe_OMA_LPPe_AssistanceContainerCheckOrUpdateReq;
+static gint ett_lppe_OMA_LPPe_CellLocalIdGERAN;
+static gint ett_lppe_OMA_LPPe_CellNonUniqueIDGERAN;
+static gint ett_lppe_OMA_LPPe_CivicLocation;
+static gint ett_lppe_OMA_LPPe_CivicAddressElementList;
+static gint ett_lppe_OMA_LPPe_CivicAddressElement;
+static gint ett_lppe_OMA_LPPe_CivicLocation_pidf_lo;
+static gint ett_lppe_OMA_LPPe_Duration;
+static gint ett_lppe_OMA_LPPe_FixedAccessTypes;
+static gint ett_lppe_OMA_LPPe_HighAccuracy3Dposition;
+static gint ett_lppe_OMA_LPPe_HighAccuracy3Dvelocity;
+static gint ett_lppe_OMA_LPPe_LocationInformationContainerID;
+static gint ett_lppe_OMA_LPPe_LocationInformationContainer;
+static gint ett_lppe_OMA_LPPe_LocationInformationContainerDataList;
+static gint ett_lppe_OMA_LPPe_LocationInformationContainerData;
+static gint ett_lppe_OMA_LPPe_LocationInformationContainerRequest;
+static gint ett_lppe_OMA_LPPe_LocationInformationContainerRequestList;
+static gint ett_lppe_OMA_LPPe_LocationInformationContainerRequestItem;
+static gint ett_lppe_OMA_LPPe_MapDataReference;
+static gint ett_lppe_OMA_LPPe_Orientation;
+static gint ett_lppe_T_eulerAngles;
+static gint ett_lppe_OMA_LPPe_ReferencePoint;
+static gint ett_lppe_T_referencePointGeographicLocation;
+static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_ReferencePointRelationship;
+static gint ett_lppe_OMA_LPPe_MapDataInformation;
+static gint ett_lppe_OMA_LPPe_MapDataReferenceElement;
+static gint ett_lppe_T_mapDataUrl_choice;
+static gint ett_lppe_T_mapProvider;
+static gint ett_lppe_T_mapAssociation;
+static gint ett_lppe_OMA_LPPe_ReferencePointRelationship;
+static gint ett_lppe_OMA_LPPe_ReferencePointUniqueID;
+static gint ett_lppe_OMA_LPPe_RelativeLocation;
+static gint ett_lppe_OMA_LPPe_HorizontalUncertaintyAndConfidence;
+static gint ett_lppe_T_uncShape;
+static gint ett_lppe_T_ellipse;
+static gint ett_lppe_OMA_LPPe_RelativeAltitude;
+static gint ett_lppe_OMA_LPPe_GeodeticRelativeAltitude;
+static gint ett_lppe_OMA_LPPe_GeodeticUncertaintyAndConfidence;
+static gint ett_lppe_OMA_LPPe_CivicRelativeAltitude;
+static gint ett_lppe_OMA_LPPe_CivicUncertaintyAndConfidence;
+static gint ett_lppe_OMA_LPPe_Session_ID;
+static gint ett_lppe_OMA_LPPe_ValidityArea;
+static gint ett_lppe_OMA_LPPe_RleList;
+static gint ett_lppe_OMA_LPPe_ValidityPeriod;
+static gint ett_lppe_OMA_LPPe_VendorOrOperatorAssistanceDataIdentifier;
+static gint ett_lppe_OMA_LPPe_VendorOrOperatorID;
+static gint ett_lppe_OMA_LPPe_NonStandard_VendorOrOperatorID;
+static gint ett_lppe_OMA_LPPe_WirelessAccessTypes;
+static gint ett_lppe_OMA_LPPe_WLAN_AP_ID;
+static gint ett_lppe_OMA_LPPe_WLAN_AP_Type_List;
+static gint ett_lppe_OMA_LPPe_WLANFemtoCoverageArea;
+static gint ett_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_WLANFemtoCoverageAreaElement;
+static gint ett_lppe_OMA_LPPe_WLANFemtoCoverageAreaElement;
+static gint ett_lppe_T_refPointAndArea;
+static gint ett_lppe_OMA_LPPe_CommonIEsRequestCapabilities;
+static gint ett_lppe_OMA_LPPe_IP_Address_RequestCapabilities;
+static gint ett_lppe_OMA_LPPe_AssistanceContainerSupportReq;
+static gint ett_lppe_OMA_LPPe_LocationInformationContainerSupportReq;
+static gint ett_lppe_OMA_LPPe_VendorOrOperatorIDList;
+static gint ett_lppe_OMA_LPPe_RelativeLocationChange_RequestCapabilities;
+static gint ett_lppe_OMA_LPPe_HighAccuracyFormatCapabilitiesReq;
+static gint ett_lppe_OMA_LPPe_SegmentedAssistanceData_ReqCapabilities;
+static gint ett_lppe_OMA_LPPe_ReferencePointCapabilitiesReq;
+static gint ett_lppe_SEQUENCE_SIZE_1_128_OF_OMA_LPPe_VendorOrOperatorID;
+static gint ett_lppe_OMA_LPPe_ScheduledLocation_RequestCapabilities;
+static gint ett_lppe_OMA_LPPe_AccessCapabilitiesReq;
+static gint ett_lppe_OMA_LPPe_SegmentedLocationInformation_ReqCapabilities;
+static gint ett_lppe_OMA_LPPe_CommonIEsProvideCapabilities;
+static gint ett_lppe_OMA_LPPe_IP_Address_Capabilities;
+static gint ett_lppe_T_iP_Address_support;
+static gint ett_lppe_OMA_LPPe_AssistanceContainerSupport;
+static gint ett_lppe_OMA_LPPe_VendorOrOperatorAssistanceContainerList;
+static gint ett_lppe_OMA_LPPe_AssistanceContainerList;
+static gint ett_lppe_OMA_LPPe_LocationInformationContainerSupport;
+static gint ett_lppe_OMA_LPPe_VendorOrOperatorLocationInformationContainerList;
+static gint ett_lppe_OMA_LPPe_LocationInformationContainerList;
+static gint ett_lppe_OMA_LPPe_RelativeLocationChange_Capabilities;
+static gint ett_lppe_OMA_LPPe_HighAccuracyFormatCapabilities;
+static gint ett_lppe_OMA_LPPe_SegmentedAssistanceData_ProvideCapabs;
+static gint ett_lppe_OMA_LPPe_ReferencePointCapabilities;
+static gint ett_lppe_T_relativeLocationReportingSupport;
+static gint ett_lppe_SEQUENCE_SIZE_1_128_OF_OMA_LPPe_ReferencePointProviderSupportElement;
+static gint ett_lppe_OMA_LPPe_ReferencePointProviderSupportElement;
+static gint ett_lppe_T_mapDataSupport;
+static gint ett_lppe_OMA_LPPe_ScheduledLocation_Capabilities;
+static gint ett_lppe_OMA_LPPe_AccessCapabilities;
+static gint ett_lppe_OMA_LPPe_SegmentedLocationInformation_ProvideCapabs;
+static gint ett_lppe_OMA_LPPe_CommonIEsRequestAssistanceData;
+static gint ett_lppe_OMA_LPPe_RequestPeriodicADwithUpdate;
+static gint ett_lppe_OMA_LPPe_SegmentedADResume;
+static gint ett_lppe_OMA_LPPe_ReferencePointAssistanceReq;
+static gint ett_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_ReferencePointAssistanceReqElement;
+static gint ett_lppe_OMA_LPPe_ReferencePointAssistanceReqElement;
+static gint ett_lppe_OMA_LPPe_CommonIEsProvideAssistanceData;
+static gint ett_lppe_OMA_LPPe_ProvidePeriodicADwithUpdate;
+static gint ett_lppe_OMA_LPPe_SegmentedADTransfer;
+static gint ett_lppe_OMA_LPPe_CommonIEsRequestLocationInformation;
+static gint ett_lppe_OMA_LPPe_IP_Address_Request;
+static gint ett_lppe_OMA_LPPe_RequestPeriodicLocInfoWithUpdate;
+static gint ett_lppe_OMA_LPPe_RelativeLocationChange_Request;
+static gint ett_lppe_OMA_LPPe_LocalPositionRequest;
+static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_ReferencePointUniqueID;
+static gint ett_lppe_OMA_LPPe_ScheduledLocation_Request;
+static gint ett_lppe_OMA_LPPe_AccessTypeRequest;
+static gint ett_lppe_OMA_LPPe_SegmentedLIResume;
+static gint ett_lppe_OMA_LPPe_CivicLocation_Request;
+static gint ett_lppe_OMA_LPPe_CommonIEsProvideLocationInformation;
+static gint ett_lppe_OMA_LPPe_LocalPosition;
+static gint ett_lppe_OMA_LPPe_IP_Address_List;
+static gint ett_lppe_OMA_LPPe_IP_Address;
+static gint ett_lppe_T_local_IP_Address;
+static gint ett_lppe_OMA_LPPe_ProvidePeriodicLocInfowithUpdate;
+static gint ett_lppe_OMA_LPPe_RelativeLocationChangeList;
+static gint ett_lppe_OMA_LPPe_RelativeLocationChange;
+static gint ett_lppe_OMA_LPPe_ScheduledLocation;
+static gint ett_lppe_T_actualWindow;
+static gint ett_lppe_OMA_LPPe_AccessTypes;
+static gint ett_lppe_OMA_LPPe_SegmentedLITransfer;
+static gint ett_lppe_OMA_LPPe_TimeStamp;
+static gint ett_lppe_OMA_LPPe_LocationSource;
+static gint ett_lppe_OMA_LPPe_CommonIEsAbort;
+static gint ett_lppe_OMA_LPPe_CommonIEsError;
+static gint ett_lppe_OMA_LPPe_AGNSS_ProvideAssistanceData;
+static gint ett_lppe_OMA_LPPe_AGNSS_CommonAssistData;
+static gint ett_lppe_OMA_LPPe_AGNSS_GenericAssistData;
+static gint ett_lppe_OMA_LPPe_AGNSS_GenericAssistDataElement;
+static gint ett_lppe_OMA_LPPe_AGNSS_IonosphericModel;
+static gint ett_lppe_T_staticModels;
+static gint ett_lppe_T_waIono;
+static gint ett_lppe_OMA_LPPe_AGNSS_LocalKlobucharModelList;
+static gint ett_lppe_OMA_LPPe_AGNSS_LocalKlobucharModelElement;
+static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_LocalKlobucharModel;
+static gint ett_lppe_OMA_LPPe_AGNSS_LocalKlobucharModel;
+static gint ett_lppe_OMA_LPPe_AGNSS_IonoStormIndication;
+static gint ett_lppe_OMA_LPPe_AGNSS_StormList;
+static gint ett_lppe_OMA_LPPe_AGNSS_StormElement;
+static gint ett_lppe_OMA_LPPe_AGNSS_RleListIono;
+static gint ett_lppe_OMA_LPPe_AGNSS_RleIonoElement;
+static gint ett_lppe_T_ionoIndex;
+static gint ett_lppe_OMA_LPPe_AGNSS_WideAreaIonoSurfaceControlParametersProvide;
+static gint ett_lppe_OMA_LPPe_AGNSS_WideAreaIonoSurfaceCommon;
+static gint ett_lppe_OMA_LPPe_AGNSS_WideAreaIonoSurfacePerSVlist;
+static gint ett_lppe_OMA_LPPe_AGNSS_WideAreaIonoSurfacePerSVelement;
+static gint ett_lppe_OMA_LPPe_AGNSS_TroposphereModel;
+static gint ett_lppe_OMA_LPPe_AGNSS_LocalTroposphereDelayList;
+static gint ett_lppe_OMA_LPPe_AGNSS_LocalTroposphereDelayAreaElement;
+static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_LocalTroposphereDelayTimeElement;
+static gint ett_lppe_OMA_LPPe_AGNSS_LocalTroposphereDelayTimeElement;
+static gint ett_lppe_OMA_LPPe_AGNSS_LocalSurfaceParametersList;
+static gint ett_lppe_OMA_LPPe_AGNSS_LocalSurfaceParametersAreaElement;
+static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_LocalSurfaceParametersTimeElement;
+static gint ett_lppe_OMA_LPPe_AGNSS_LocalSurfaceParametersTimeElement;
+static gint ett_lppe_OMA_LPPe_AGNSS_MappingFunctionParameters;
+static gint ett_lppe_OMA_LPPe_AGNSS_AltitudeAssistanceList;
+static gint ett_lppe_OMA_LPPe_AGNSS_AltitudeAssistanceAreaElement;
+static gint ett_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_AGNSS_PressureAssistanceElement;
+static gint ett_lppe_OMA_LPPe_AGNSS_PressureAssistanceElement;
+static gint ett_lppe_OMA_LPPe_AGNSS_SolarRadiation;
+static gint ett_lppe_OMA_LPPe_AGNSS_MechanicsForAllSVs;
+static gint ett_lppe_OMA_LPPe_AGNSS_MechanicsElement;
+static gint ett_lppe_T_svInfo;
+static gint ett_lppe_OMA_LPPe_AGNSS_PCOelement;
+static gint ett_lppe_OMA_LPPe_AGNSS_DCBsForAllSVs;
+static gint ett_lppe_OMA_LPPe_AGNSS_DCBlistElement;
+static gint ett_lppe_T_reference;
+static gint ett_lppe_OMA_LPPe_AGNSS_DCBlist;
+static gint ett_lppe_OMA_LPPe_AGNSS_DCBelement;
+static gint ett_lppe_OMA_LPPe_AGNSS_NavModelDegradationModelList;
+static gint ett_lppe_OMA_LPPe_AGNSS_NavModelDegradationModelElement;
+static gint ett_lppe_OMA_LPPe_AGNSS_ClockModelDegradationModel;
+static gint ett_lppe_OMA_LPPe_AGNSS_OrbitModelDegradationModel;
+static gint ett_lppe_OMA_LPPe_AGNSS_CCPassistCommonProvide;
+static gint ett_lppe_OMA_LPPe_AGNSS_CCPprovideCommonParameters;
+static gint ett_lppe_OMA_LPPe_AGNSS_CCPprovideControlParameters;
+static gint ett_lppe_OMA_LPPe_AGNSS_CCPsupportArea;
+static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_CCPsignalSupport;
+static gint ett_lppe_OMA_LPPe_AGNSS_CCPsignalSupport;
+static gint ett_lppe_OMA_LPPe_AGNSS_CCPreferenceStationList;
+static gint ett_lppe_OMA_LPPe_AGNSS_CCPreferenceStationElement;
+static gint ett_lppe_OMA_LPPe_AGNSS_CCPassistGenericProvide;
+static gint ett_lppe_OMA_LPPe_AGNSS_CCPassistGenericProvideElement;
+static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_CCPperSignalElement;
+static gint ett_lppe_OMA_LPPe_AGNSS_CCPperSignalElement;
+static gint ett_lppe_SEQUENCE_SIZE_1_64_OF_OMA_LPPe_AGNSS_CCPperSVelement;
+static gint ett_lppe_OMA_LPPe_AGNSS_CCPperSVelement;
+static gint ett_lppe_OMA_LPPe_AGNSS_CodePhaseError;
+static gint ett_lppe_OMA_LPPe_AGNSS_NavModelList;
+static gint ett_lppe_OMA_LPPe_AGNSS_NavModel_CoordinateBased;
+static gint ett_lppe_T_fixedInterval;
+static gint ett_lppe_T_bases;
+static gint ett_lppe_SEQUENCE_SIZE_1_97_OF_OMA_LPPe_AGNSS_NavModel_CoordinateBasedElement;
+static gint ett_lppe_OMA_LPPe_AGNSS_NavModel_CoordinateBasedElement;
+static gint ett_lppe_SEQUENCE_SIZE_1_64_OF_OMA_LPPe_AGNSS_NavModel_PVTelement;
+static gint ett_lppe_OMA_LPPe_AGNSS_NavModel_PVTelement;
+static gint ett_lppe_T_rateRecord;
+static gint ett_lppe_OMA_LPPe_AGNSS_NavModel_BigNumber;
+static gint ett_lppe_OMA_LPPe_AGNSS_NavModel_STDmatrix;
+static gint ett_lppe_OMA_LPPe_AGNSS_RequestAssistanceData;
+static gint ett_lppe_OMA_LPPe_AGNSS_CommonAssistanceDataReq;
+static gint ett_lppe_OMA_LPPe_AGNSS_GenericAssistanceDataReq;
+static gint ett_lppe_OMA_LPPe_AGNSS_GenericAssistDataReqElement;
+static gint ett_lppe_OMA_LPPe_AGNSS_IonosphericModelReq;
+static gint ett_lppe_T_staticModels_01;
+static gint ett_lppe_T_ionoreq;
+static gint ett_lppe_T_periodicModels;
+static gint ett_lppe_OMA_LPPe_AGNSS_WideAreaIonoSurfaceControlParametersRequest;
+static gint ett_lppe_OMA_LPPe_AGNSS_TroposphereModelReq;
+static gint ett_lppe_T_troposphereModelReq;
+static gint ett_lppe_OMA_LPPe_AGNSS_AltitudeAssistanceReq;
+static gint ett_lppe_OMA_LPPe_AGNSS_SolarRadiationReq;
+static gint ett_lppe_OMA_LPPe_AGNSS_WaIonoSurfaceRequest;
+static gint ett_lppe_OMA_LPPe_AGNSS_NavModelDegradationModelReq;
+static gint ett_lppe_OMA_LPPe_AGNSS_DCBreq;
+static gint ett_lppe_T_reference_01;
+static gint ett_lppe_OMA_LPPe_AGNSS_MechanicsReq;
+static gint ett_lppe_OMA_LPPe_AGNSS_CCPrequestControlParameters;
+static gint ett_lppe_T_ccpCommonRequest;
+static gint ett_lppe_T_refStation;
+static gint ett_lppe_T_posBasedReferenceStationRequest;
+static gint ett_lppe_OMA_LPPe_AGNSS_ReferenceStationIDlist;
+static gint ett_lppe_OMA_LPPe_AGNSS_CCPassistGenericReq;
+static gint ett_lppe_OMA_LPPe_AGNSS_NavigationModelReq;
+static gint ett_lppe_T_navModelID_PrefList;
+static gint ett_lppe_OMA_LPPe_AGNSS_ProvideLocationInformation;
+static gint ett_lppe_OMA_LPPe_AGNSS_HAgnssProvide;
+static gint ett_lppe_T_controlParameters;
+static gint ett_lppe_T_measurements;
+static gint ett_lppe_T_localPressure;
+static gint ett_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_AGNSS_HAgnssMeasurementElement;
+static gint ett_lppe_OMA_LPPe_AGNSS_HAgnssMeasurementElement;
+static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_HAgnssPerSignalElement;
+static gint ett_lppe_OMA_LPPe_HAgnssPerSignalElement;
+static gint ett_lppe_SEQUENCE_SIZE_1_64_OF_OMA_LPPe_HAgnssPerSVelement;
+static gint ett_lppe_OMA_LPPe_HAgnssPerSVelement;
+static gint ett_lppe_OMA_LPPe_AGNSS_IonosphereMeasurements;
+static gint ett_lppe_OMA_LPPe_AGNSS_TECPerSV;
+static gint ett_lppe_OMA_LPPe_AGNSS_TECPerSVElement;
+static gint ett_lppe_OMA_LPPe_AGNSS_TECAtZenith;
+static gint ett_lppe_OMA_LPPe_AGNSS_LocalSurfaceMeasurements;
+static gint ett_lppe_T_temperatureMeasurement;
+static gint ett_lppe_OMA_LPPe_AGNSS_RequestLocationInformation;
+static gint ett_lppe_T_ionosphereMeasurementsReq;
+static gint ett_lppe_OMA_LPPe_AGNSS_PositioningInstructions;
+static gint ett_lppe_OMA_LPPe_AGNSS_LocalSurfaceMeasurementReq;
+static gint ett_lppe_OMA_LPPe_AGNSS_HAgnssRequestControlParameters;
+static gint ett_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_AGNSS_HAgnssSignalReqElement;
+static gint ett_lppe_OMA_LPPe_AGNSS_HAgnssSignalReqElement;
+static gint ett_lppe_OMA_LPPe_AGNSS_ProvideCapabilities;
+static gint ett_lppe_OMA_LPPe_AGNSS_AssistanceDataSupportList;
+static gint ett_lppe_OMA_LPPe_AGNSS_EnvironmentObservationSupportList;
+static gint ett_lppe_T_ionosphereMeasurementSupport;
+static gint ett_lppe_OMA_LPPe_AGNSS_CommonAssistanceDataSupport;
+static gint ett_lppe_OMA_LPPe_AGNSS_IonosphericModelSupport;
+static gint ett_lppe_T_ionoModel;
+static gint ett_lppe_OMA_LPPe_AGNSS_TroposphereModelSupport;
+static gint ett_lppe_T_tropoModel;
+static gint ett_lppe_OMA_LPPe_AGNSS_AltitudeAssistanceSupport;
+static gint ett_lppe_OMA_LPPe_AGNSS_SolarRadiationSupport;
+static gint ett_lppe_OMA_LPPe_AGNSS_CCPsupport;
+static gint ett_lppe_OMA_LPPe_AGNSS_GenericAssistanceDataSupport;
+static gint ett_lppe_OMA_LPPe_AGNSS_GenericAssistDataSupportElement;
+static gint ett_lppe_OMA_LPPe_AGNSS_MechanicsSupport;
+static gint ett_lppe_OMA_LPPe_AGNSS_DCBsupport;
+static gint ett_lppe_OMA_LPPe_AGNSS_NavModelAccuracyModelDegradationSupport;
+static gint ett_lppe_OMA_LPPe_AGNSS_NavModelSupport;
+static gint ett_lppe_T_navModelSupport;
+static gint ett_lppe_OMA_LPPe_AGNSS_HAgnssSupport;
+static gint ett_lppe_T_modeSupport;
+static gint ett_lppe_T_haGNSSantennaInformationSupport;
+static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_AGNSS_HAgnssPerGNSSsupport;
+static gint ett_lppe_OMA_LPPe_AGNSS_HAgnssPerGNSSsupport;
+static gint ett_lppe_OMA_LPPe_AGNSS_RequestCapabilities;
+static gint ett_lppe_OMA_LPPe_AGNSS_Error;
+static gint ett_lppe_OMA_LPPe_AGNSS_LocationServerErrorCauses;
+static gint ett_lppe_OMA_LPPe_AGNSS_TargetDeviceErrorCauses;
+static gint ett_lppe_OMA_LPPe_AGNSS_CCPreferenceStationID;
+static gint ett_lppe_OMA_LPPe_AGNSS_AntennaDescription;
+static gint ett_lppe_T_antennaDescription;
+static gint ett_lppe_OMA_LPPe_AGNSS_Abort;
+static gint ett_lppe_T_targetDeviceAbortCauses;
+static gint ett_lppe_OMA_LPPe_OTDOA_ProvideAssistanceData;
+static gint ett_lppe_OMA_LPPe_OTDOA_ReferenceCellInfo;
+static gint ett_lppe_OMA_LPPe_OTDOA_PositionCalculationInfoRef;
+static gint ett_lppe_T_cellLocation;
+static gint ett_lppe_T_femtoCellInfo;
+static gint ett_lppe_OMA_LPPe_OTDOA_NeighbourCellInfoList;
+static gint ett_lppe_OMA_LPPe_OTDOA_NeighbourFreqCellInfoList;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxLTEeNBs_OF_OMA_LPPe_OTDOA_NeighbourCellInfoElement_eNB;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxLTEHeNBs_OF_OMA_LPPe_OTDOA_NeighbourCellInfoElement_HeNB;
+static gint ett_lppe_OMA_LPPe_OTDOA_NeighbourCellInfoElement_eNB;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxLTEMacroCells_OF_OMA_LPPe_OTDOA_CellData;
+static gint ett_lppe_OMA_LPPe_OTDOA_NeighbourCellInfoElement_HeNB;
+static gint ett_lppe_OMA_LPPe_OTDOA_CellData;
+static gint ett_lppe_T_rtdInfo;
+static gint ett_lppe_OMA_LPPe_OTDOA_RTDquality;
+static gint ett_lppe_OMA_LPPe_OTDOA_RequestAssistanceData;
+static gint ett_lppe_T_lteCell;
+static gint ett_lppe_T_requestedCells;
+static gint ett_lppe_OMA_LPPe_OTDOA_ProvideLocationInformation;
+static gint ett_lppe_OMA_LPPe_OTDOA_LocationInformation;
+static gint ett_lppe_OMA_LPPe_OTDOA_RequestLocationInformation;
+static gint ett_lppe_OMA_LPPe_OTDOA_ProvideCapabilities;
+static gint ett_lppe_T_eNodeB_AD_sup;
+static gint ett_lppe_T_home_eNodeB_AD_sup;
+static gint ett_lppe_OMA_LPPe_OTDOA_RequestCapabilities;
+static gint ett_lppe_OMA_LPPe_OTDOA_Error;
+static gint ett_lppe_OMA_LPPe_OTDOA_LocationServerErrorCauses;
+static gint ett_lppe_OMA_LPPe_OTDOA_TargetDeviceErrorCauses;
+static gint ett_lppe_OMA_LPPe_EOTD_ProvideAssistanceData;
+static gint ett_lppe_OMA_LPPe_EOTD_ReferenceBTSForAssistance;
+static gint ett_lppe_T_btsPosition;
+static gint ett_lppe_OMA_LPPe_EOTD_MsrAssistDataList;
+static gint ett_lppe_OMA_LPPe_EOTD_MsrAssistBTS;
+static gint ett_lppe_OMA_LPPe_EOTD_SystemInfoAssistDataList;
+static gint ett_lppe_OMA_LPPe_EOTD_SystemInfoAssistBTS;
+static gint ett_lppe_OMA_LPPe_EOTD_AssistBTSData;
+static gint ett_lppe_OMA_LPPe_EOTD_CalcAssistanceBTS;
+static gint ett_lppe_OMA_LPPe_EOTD_relativePos;
+static gint ett_lppe_OMA_LPPe_EOTD_RequestAssistanceData;
+static gint ett_lppe_T_eotdAssistanceReq;
+static gint ett_lppe_OMA_LPPe_EOTD_ProvideLocationInformation;
+static gint ett_lppe_OMA_LPPe_EOTD_MsrElement;
+static gint ett_lppe_SEQUENCE_SIZE_1_15_OF_OMA_LPPe_EOTD_MeasurementWithID;
+static gint ett_lppe_OMA_LPPe_EOTD_TOA_MeasurementsOfRef;
+static gint ett_lppe_OMA_LPPe_EOTD_MeasurementWithID;
+static gint ett_lppe_OMA_LPPe_EOTD_NeighborIdentity;
+static gint ett_lppe_OMA_LPPe_EOTD_EOTDQuality;
+static gint ett_lppe_OMA_LPPe_EOTD_MultiFrameCarrier;
+static gint ett_lppe_OMA_LPPe_EOTD_RequestLocationInformation;
+static gint ett_lppe_OMA_LPPe_EOTD_ProvideCapabilities;
+static gint ett_lppe_T_eotdSupport;
+static gint ett_lppe_OMA_LPPe_EOTD_RequestCapabilities;
+static gint ett_lppe_OMA_LPPe_EOTD_Error;
+static gint ett_lppe_OMA_LPPe_EOTD_LocationServerErrorCauses;
+static gint ett_lppe_OMA_LPPe_EOTD_TargetDeviceErrorCauses;
+static gint ett_lppe_OMA_LPPe_EOTD_ExpectedOTD;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_ProvideAssistanceData;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_ReferenceCellInfo;
+static gint ett_lppe_T_modeSpecificInfo;
+static gint ett_lppe_T_fdd;
+static gint ett_lppe_T_tdd;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_RefPosAssist;
+static gint ett_lppe_T_cellPosition;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_NeighborCellList;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_NeighborCellInfo;
+static gint ett_lppe_T_modeSpecificInfo_01;
+static gint ett_lppe_T_fdd_01;
+static gint ett_lppe_T_tdd_01;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_SFN_SFN_RelTimeDifference1;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_PositioningAssistance;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_IPDL_Parameters;
+static gint ett_lppe_T_modeSpecificInfo_02;
+static gint ett_lppe_T_fdd_02;
+static gint ett_lppe_T_tdd_02;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_BurstModeParameters;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_RequestAssistanceData;
+static gint ett_lppe_T_otdoaUtraAssistanceReq;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_ProvideLocationInformation;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_Measurement;
+static gint ett_lppe_T_modeSpecificInfoMeas;
+static gint ett_lppe_T_fdd_03;
+static gint ett_lppe_T_tdd_03;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_UE_RX_TX_TimeDifferenceType2Info;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_NeighborList;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_Neighbor;
+static gint ett_lppe_T_modeSpecificInfo_03;
+static gint ett_lppe_T_fdd_04;
+static gint ett_lppe_T_tdd_04;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_NeighborQuality;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_Quality;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_TimeStampData;
+static gint ett_lppe_T_nonUniqueCellID;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_RequestLocationInformation;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_ProvideCapabilities;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_RequestCapabilities;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_Error;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_LocationServerErrorCauses;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_TargetDeviceErrorCauses;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_PrimaryCPICH_Info;
+static gint ett_lppe_OMA_LPPe_OTDOA_UTRA_CellAndChannelIdentity;
+static gint ett_lppe_OMA_LPPe_ECID_LTE_ProvideAssistanceData;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxLTENetworks_OF_OMA_LPPe_ECID_LTE_NetworkData;
+static gint ett_lppe_OMA_LPPe_ECID_LTE_NetworkData;
+static gint ett_lppe_T_plmn_Identity;
+static gint ett_lppe_T_mcc;
+static gint ett_lppe_T_mnc;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxLTEeNBs_OF_OMA_LPPe_ECID_LTE_eNodeBData;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxLTEHeNBs_OF_OMA_LPPe_ECID_LTE_HeNBData;
+static gint ett_lppe_OMA_LPPe_ECID_LTE_eNodeBData;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxLTEMacroCells_OF_OMA_LPPe_ECID_LTE_CellData;
+static gint ett_lppe_OMA_LPPe_ECID_LTE_HeNBData;
+static gint ett_lppe_OMA_LPPe_ECID_LTE_CellData;
+static gint ett_lppe_OMA_LPPe_ECID_LTE_RequestAssistanceData;
+static gint ett_lppe_T_eNBrequestedAD;
+static gint ett_lppe_T_heNBrequestedAD;
+static gint ett_lppe_OMA_LPPe_ECID_LTE_ProvideLocationInformation;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxLTEECIDSize_OF_OMA_LPPe_ECID_LTE_LocationInformationList;
+static gint ett_lppe_OMA_LPPe_ECID_LTE_LocationInformationList;
+static gint ett_lppe_OMA_LPPe_ECID_LTE_LocationInformation;
+static gint ett_lppe_OMA_LPPe_ECID_LTE_RequestLocationInformation;
+static gint ett_lppe_T_requestedMeasurements;
+static gint ett_lppe_OMA_LPPe_ECID_LTE_ProvideCapabilities;
+static gint ett_lppe_T_ecid_lte_MeasSupported;
+static gint ett_lppe_T_ecid_lte_eNodeB_ADSupported;
+static gint ett_lppe_T_ecid_utra_HeNB_ADSupported;
+static gint ett_lppe_OMA_LPPe_ECID_LTE_RequestCapabilities;
+static gint ett_lppe_OMA_LPPe_ECID_LTE_Error;
+static gint ett_lppe_OMA_LPPe_ECID_LTE_LocationServerErrorCauses;
+static gint ett_lppe_OMA_LPPe_ECID_LTE_TargetDeviceErrorCauses;
+static gint ett_lppe_OMA_LPPe_ECID_GSM_ProvideAssistanceData;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxGSMNetworks_OF_OMA_LPPe_ECID_GSM_NetworkData;
+static gint ett_lppe_OMA_LPPe_ECID_GSM_NetworkData;
+static gint ett_lppe_T_plmn_Identity_01;
+static gint ett_lppe_T_mcc_01;
+static gint ett_lppe_T_mnc_01;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxGSMBaseStations_OF_OMA_LPPe_ECID_GSM_BaseStationData;
+static gint ett_lppe_OMA_LPPe_ECID_GSM_BaseStationData;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxGSMCells_OF_OMA_LPPe_ECID_GSM_CellData;
+static gint ett_lppe_OMA_LPPe_ECID_GSM_CellData;
+static gint ett_lppe_OMA_LPPe_ECID_GSM_RequestAssistanceData;
+static gint ett_lppe_T_requestedAD;
+static gint ett_lppe_OMA_LPPe_ECID_GSM_ProvideLocationInformation;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxGSMECIDSize_OF_OMA_LPPe_ECID_GSM_LocationInformationList;
+static gint ett_lppe_OMA_LPPe_ECID_GSM_LocationInformationList;
+static gint ett_lppe_OMA_LPPe_ECID_GSM_LocationInformation;
+static gint ett_lppe_OMA_LPPe_NMR_GERAN;
+static gint ett_lppe_OMA_LPPe_NMR_GERAN_item;
+static gint ett_lppe_OMA_LPPe_ECID_GSM_RequestLocationInformation;
+static gint ett_lppe_T_requestedMeasurements_01;
+static gint ett_lppe_OMA_LPPe_ECID_GSM_ProvideCapabilities;
+static gint ett_lppe_T_ecid_gsm_MeasSupported;
+static gint ett_lppe_T_ecid_gsm_ADSupported;
+static gint ett_lppe_OMA_LPPe_ECID_GSM_RequestCapabilities;
+static gint ett_lppe_OMA_LPPe_ECID_GSM_Error;
+static gint ett_lppe_OMA_LPPe_ECID_GSM_LocationServerErrorCauses;
+static gint ett_lppe_OMA_LPPe_ECID_GSM_TargetDeviceErrorCauses;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_ProvideAssistanceData;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxUTRANetworks_OF_OMA_LPPe_ECID_UTRA_NetworkData;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_NetworkData;
+static gint ett_lppe_T_plmn_Identity_02;
+static gint ett_lppe_T_mcc_02;
+static gint ett_lppe_T_mnc_02;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxUTRAnodeBs_OF_OMA_LPPe_ECID_UTRA_NodeBData;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxUTRAHNBs_OF_OMA_LPPe_ECID_UTRA_HNBData;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_NodeBData;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxUTRAMacroCells_OF_OMA_LPPe_ECID_UTRA_CellData;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_HNBData;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_CellData;
+static gint ett_lppe_T_modeSpecificInfo_04;
+static gint ett_lppe_T_fdd_05;
+static gint ett_lppe_T_tdd_05;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_RequestAssistanceData;
+static gint ett_lppe_T_nBrequestedAD;
+static gint ett_lppe_T_hNBrequestedAD;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_ProvideLocationInformation;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxECIDUTRASize_OF_OMA_LPPe_ECID_UTRA_LocationInformationList;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_LocationInformationList;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_LocationInformation;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_UTRATimingAdvance;
+static gint ett_lppe_OMA_LPPe_UTRA_FrequencyInfo;
+static gint ett_lppe_OMA_LPPe_UTRA_ModeSpecificInfo;
+static gint ett_lppe_OMA_LPPe_UTRA_FrequencyInfoFDD;
+static gint ett_lppe_OMA_LPPe_UTRA_FrequencyInfoTDD;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_MeasuredResultsList;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_MeasuredResults;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_CellMeasuredResultsList;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_CellMeasuredResults;
+static gint ett_lppe_T_modeSpecificInfo_05;
+static gint ett_lppe_T_fdd_06;
+static gint ett_lppe_T_tdd_06;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_RequestLocationInformation;
+static gint ett_lppe_T_requestedMeasurements_02;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_ProvideCapabilities;
+static gint ett_lppe_T_ecid_utra_MeasSupported;
+static gint ett_lppe_T_ecid_utra_nodeB_ADSupported;
+static gint ett_lppe_T_ecid_utra_HNB_ADSupported;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_RequestCapabilities;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_Error;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_LocationServerErrorCauses;
+static gint ett_lppe_OMA_LPPe_ECID_UTRA_TargetDeviceErrorCauses;
+static gint ett_lppe_OMA_LPPe_WLAN_AP_ProvideAssistanceData;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxWLANDataSets_OF_OMA_LPPe_WLAN_DataSet;
+static gint ett_lppe_OMA_LPPe_WLAN_DataSet;
+static gint ett_lppe_T_plmn_Identity_03;
+static gint ett_lppe_T_mcc_03;
+static gint ett_lppe_T_mnc_03;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxWLANAPs_OF_OMA_LPPe_WLAN_AP_Data;
+static gint ett_lppe_Supported_Channels_11a;
+static gint ett_lppe_Supported_Channels_11bg;
+static gint ett_lppe_OMA_LPPe_WLAN_AP_Data;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxWLANTypes_OF_OMA_LPPe_WLAN_AP_Type_Data;
+static gint ett_lppe_OMA_LPPe_WLAN_AP_Type_Data;
+static gint ett_lppe_OMA_LPPe_WLAN_AP_RequestAssistanceData;
+static gint ett_lppe_T_requestedAD_01;
+static gint ett_lppe_OMA_LPPe_WLAN_AP_ProvideLocationInformation;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxWLANAPSize_OF_OMA_LPPe_WLAN_AP_LocationInformationList;
+static gint ett_lppe_OMA_LPPe_WLAN_AP_LocationInformationList;
+static gint ett_lppe_OMA_LPPe_WLAN_AP_LocationInformation;
+static gint ett_lppe_OMA_LPPe_WLAN_RTD;
+static gint ett_lppe_OMA_LPPe_WLAN_ReportedLocation;
+static gint ett_lppe_OMA_LPPe_WLAN_LocationDataLCI;
+static gint ett_lppe_OMA_LPPe_WLAN_AP_RequestLocationInformation;
+static gint ett_lppe_T_requestedMeasurements_03;
+static gint ett_lppe_T_additionalRequestedMeasurements;
+static gint ett_lppe_OMA_LPPe_WLAN_AP_ProvideCapabilities;
+static gint ett_lppe_T_wlan_ecid_MeasSupported;
+static gint ett_lppe_T_wlan_ap_ADSupported;
+static gint ett_lppe_T_additional_wlan_ecid_MeasSupported;
+static gint ett_lppe_OMA_LPPe_WLAN_AP_Capability;
+static gint ett_lppe_OMA_LPPe_WLAN_AP_RequestCapabilities;
+static gint ett_lppe_OMA_LPPe_WLAN_AP_Error;
+static gint ett_lppe_OMA_LPPe_WLAN_AP_LocationServerErrorCauses;
+static gint ett_lppe_OMA_LPPe_WLAN_AP_TargetDeviceErrorCauses;
+static gint ett_lppe_OMA_LPPe_ECID_WiMax_ProvideLocationInformation;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxWiMaxECIDSize_OF_OMA_LPPe_ECID_WiMax_LocationInformationList;
+static gint ett_lppe_OMA_LPPe_ECID_WiMax_LocationInformationList;
+static gint ett_lppe_OMA_LPPe_ECID_WiMax_LocationInformation;
+static gint ett_lppe_OMA_LPPe_ECID_WiMax_WimaxBsID;
+static gint ett_lppe_OMA_LPPe_ECID_WiMax_WimaxRTD;
+static gint ett_lppe_OMA_LPPe_ECID_WiMax_WimaxNMRList;
+static gint ett_lppe_OMA_LPPe_ECID_WiMax_WimaxNMR;
+static gint ett_lppe_OMA_LPPe_ECID_WiMax_RequestLocationInformation;
+static gint ett_lppe_T_requestedMeasurements_04;
+static gint ett_lppe_OMA_LPPe_ECID_WiMax_ProvideCapabilities;
+static gint ett_lppe_T_ecid_wimax_MeasSupported;
+static gint ett_lppe_OMA_LPPe_ECID_WiMax_RequestCapabilities;
+static gint ett_lppe_OMA_LPPe_ECID_WiMax_Error;
+static gint ett_lppe_OMA_LPPe_ECID_WiMax_LocationServerErrorCauses;
+static gint ett_lppe_OMA_LPPe_ECID_WiMax_TargetDeviceErrorCauses;
+static gint ett_lppe_OMA_LPPe_Sensor_ProvideAssistanceData;
+static gint ett_lppe_OMA_LPPe_AtmosphericPressureAD;
+static gint ett_lppe_T_period;
+static gint ett_lppe_T_area;
+static gint ett_lppe_OMA_LPPe_PressureValidityArea;
+static gint ett_lppe_OMA_LPPe_Sensor_RequestAssistanceData;
+static gint ett_lppe_OMA_LPPe_PressureSensorAD;
+static gint ett_lppe_OMA_LPPe_Sensor_ProvideLocationInformation;
+static gint ett_lppe_OMA_LPPe_Sensor_MotionStateList;
+static gint ett_lppe_OMA_LPPe_Sensor_MotionStateElement;
+static gint ett_lppe_T_secondaryMotionState;
+static gint ett_lppe_OMA_LPPe_AtmosphericPressure;
+static gint ett_lppe_PressureStats;
+static gint ett_lppe_CalibrationPoints;
+static gint ett_lppe_CalibrationPoints_item;
+static gint ett_lppe_OMA_LPPe_PressureMeasurement;
+static gint ett_lppe_T_uncertainty;
+static gint ett_lppe_OMA_LPPe_Sensor_RequestLocationInformation;
+static gint ett_lppe_OMA_LPPe_Sensor_MotionStateRequest;
+static gint ett_lppe_OMA_LPPe_AtmosphericPressureRequest;
+static gint ett_lppe_OMA_LPPe_Sensor_ProvideCapabilities;
+static gint ett_lppe_OMA_LPPe_Sensor_RequestCapabilities;
+static gint ett_lppe_OMA_LPPe_Sensor_Error;
+static gint ett_lppe_OMA_LPPe_Sensor_TargetError;
+static gint ett_lppe_OMA_LPPe_SRN_ProvideAssistanceData;
+static gint ett_lppe_T_srnGroup;
+static gint ett_lppe_OMA_LPPe_SRN_SRNgroupList;
+static gint ett_lppe_SEQUENCE_SIZE_1_64_OF_OMA_LPPe_SRN_SRNgroup;
+static gint ett_lppe_OMA_LPPe_SRN_SRNgroup;
+static gint ett_lppe_SEQUENCE_SIZE_1_1024_OF_OMA_LPPe_SRN_SRNinfo;
+static gint ett_lppe_OMA_LPPe_SRN_SRNinfo;
+static gint ett_lppe_OMA_LPPe_SRN_SRNgroupUpdateResponse;
+static gint ett_lppe_OMA_LPPe_SRN_SRNgroupUpdateResponseElement;
+static gint ett_lppe_OMA_LPPe_SRN_AntennaPattern;
+static gint ett_lppe_OMA_LPPe_SRN_AntennaPatternElement;
+static gint ett_lppe_T_identification;
+static gint ett_lppe_T_antennaData;
+static gint ett_lppe_OMA_LPPe_SRN_AntennaPatternForChannels;
+static gint ett_lppe_T_evenGrid;
+static gint ett_lppe_SEQUENCE_SIZE_1_maxChannels_OF_OMA_LPPe_SRN_ChannelResponse;
+static gint ett_lppe_OMA_LPPe_SRN_ChannelResponse;
+static gint ett_lppe_SEQUENCE_SIZE_7_901_OF_OMA_LPPe_SRN_ResponseInElevation;
+static gint ett_lppe_OMA_LPPe_SRN_ResponseInElevation;
+static gint ett_lppe_SEQUENCE_SIZE_18_3601_OF_OMA_LPPe_SRN_ResponseInAzimuth;
+static gint ett_lppe_OMA_LPPe_SRN_ResponseInAzimuth;
+static gint ett_lppe_OMA_LPPe_ComplexNumber;
+static gint ett_lppe_OMA_LPPe_SRN_RequestAssistanceData;
+static gint ett_lppe_T_srnGroup_01;
+static gint ett_lppe_OMA_LPPe_SRN_SRNgroupRequest;
+static gint ett_lppe_OMA_LPPe_SRN_SRNProvideList;
+static gint ett_lppe_SEQUENCE_SIZE_1_256_OF_OMA_LPPe_SRN_SRNgroupUniqueID;
+static gint ett_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_SRN_Category;
+static gint ett_lppe_OMA_LPPe_SRN_SRNgroupUpdateRequest;
+static gint ett_lppe_OMA_LPPe_SRN_SRNgroupUpdateRequestElement;
+static gint ett_lppe_SEQUENCE_SIZE_1_1024_OF_OMA_LPPe_SRN_SRNid;
+static gint ett_lppe_OMA_LPPe_SRN_AntennaPatternRequest;
+static gint ett_lppe_OMA_LPPe_SRN_AntennaPatternRequestElement;
+static gint ett_lppe_T_antennaPatternID;
+static gint ett_lppe_OMA_LPPe_SRN_ProvideLocationInformation;
+static gint ett_lppe_SEQUENCE_SIZE_1_64_OF_OMA_LPPe_SRN_MeasurementElement;
+static gint ett_lppe_OMA_LPPe_SRN_MeasurementElement;
+static gint ett_lppe_SEQUENCE_SIZE_1_64_OF_OMA_LPPe_SRN_srnMeasurementElement;
+static gint ett_lppe_OMA_LPPe_SRN_srnMeasurementElement;
+static gint ett_lppe_OMA_LPPe_SRN_RequestLocationInformation;
+static gint ett_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_SRN_ReqLocInfo_Category;
+static gint ett_lppe_OMA_LPPe_SRN_ReqLocInfo_Category;
+static gint ett_lppe_OMA_LPPe_SRN_ProvideCapabilities;
+static gint ett_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_SRN_ProvideCapabilitiesElement;
+static gint ett_lppe_OMA_LPPe_SRN_ProvideCapabilitiesElement;
+static gint ett_lppe_T_supportedAssistanceData;
+static gint ett_lppe_OMA_LPPe_SRN_RequestCapabilities;
+static gint ett_lppe_OMA_LPPe_SRN_Error;
+static gint ett_lppe_OMA_LPPe_SRN_LocationServerErrorCauses;
+static gint ett_lppe_OMA_LPPe_SRN_TargetDeviceErrorCauses;
+static gint ett_lppe_SEQUENCE_SIZE_1_16_OF_OMA_LPPe_SRN_TargetDeviceError;
+static gint ett_lppe_OMA_LPPe_SRN_TargetDeviceError;
+static gint ett_lppe_OMA_LPPe_SRN_SRNgroupUniqueID;
+static gint ett_lppe_OMA_LPPe_SRN_SRNtype;
+static gint ett_lppe_T_srnAntennaInfo;
+static gint ett_lppe_OMA_LPPe_SRN_Category;
+static gint ett_lppe_T_srnVendorInformation;
+static gint ett_lppe_OMA_LPPe_SRN_SRNid;
+static gint ett_lppe_T_srn_id;
+static gint ett_lppe_T_nfc;
+static gint ett_lppe_T_mobileCode;
+static gint ett_lppe_OMA_LPPe_SRN_Technologies;
+static gint ett_lppe_OMA_LPPe_SRN_MeasurementMask;
+static gint ett_lppe_T_srnMeasurements;
 
 /* Include constants */
 #define maxAssistanceContainerList     16

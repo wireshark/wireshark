@@ -95,212 +95,212 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /* Initialize the protocol and registered fields */
-static int proto_hnbap = -1;
+static int proto_hnbap;
 
-static int hf_hnbap_BackoffTimer_PDU = -1;        /* BackoffTimer */
-static int hf_hnbap_Cause_PDU = -1;               /* Cause */
-static int hf_hnbap_CellIdentity_PDU = -1;        /* CellIdentity */
-static int hf_hnbap_Context_ID_PDU = -1;          /* Context_ID */
-static int hf_hnbap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
-static int hf_hnbap_CSG_ID_PDU = -1;              /* CSG_ID */
-static int hf_hnbap_CSGMembershipStatus_PDU = -1;  /* CSGMembershipStatus */
-static int hf_hnbap_HNB_Cell_Access_Mode_PDU = -1;  /* HNB_Cell_Access_Mode */
-static int hf_hnbap_HNB_Location_Information_PDU = -1;  /* HNB_Location_Information */
-static int hf_hnbap_HNB_Identity_PDU = -1;        /* HNB_Identity */
-static int hf_hnbap_IP_Address_PDU = -1;          /* IP_Address */
-static int hf_hnbap_LAC_PDU = -1;                 /* LAC */
-static int hf_hnbap_MuxPortNumber_PDU = -1;       /* MuxPortNumber */
-static int hf_hnbap_NeighbourInfoList_PDU = -1;   /* NeighbourInfoList */
-static int hf_hnbap_NeighbourInfoRequestList_PDU = -1;  /* NeighbourInfoRequestList */
-static int hf_hnbap_PLMNidentity_PDU = -1;        /* PLMNidentity */
-static int hf_hnbap_PSC_PDU = -1;                 /* PSC */
-static int hf_hnbap_RABList_PDU = -1;             /* RABList */
-static int hf_hnbap_RAC_PDU = -1;                 /* RAC */
-static int hf_hnbap_Registration_Cause_PDU = -1;  /* Registration_Cause */
-static int hf_hnbap_RNC_ID_PDU = -1;              /* RNC_ID */
-static int hf_hnbap_SAC_PDU = -1;                 /* SAC */
-static int hf_hnbap_UE_Capabilities_PDU = -1;     /* UE_Capabilities */
-static int hf_hnbap_UE_Identity_PDU = -1;         /* UE_Identity */
-static int hf_hnbap_Update_cause_PDU = -1;        /* Update_cause */
-static int hf_hnbap_HNBRegisterRequest_PDU = -1;  /* HNBRegisterRequest */
-static int hf_hnbap_HNBRegisterAccept_PDU = -1;   /* HNBRegisterAccept */
-static int hf_hnbap_HNBRegisterReject_PDU = -1;   /* HNBRegisterReject */
-static int hf_hnbap_HNBDe_Register_PDU = -1;      /* HNBDe_Register */
-static int hf_hnbap_UERegisterRequest_PDU = -1;   /* UERegisterRequest */
-static int hf_hnbap_UERegisterAccept_PDU = -1;    /* UERegisterAccept */
-static int hf_hnbap_UERegisterReject_PDU = -1;    /* UERegisterReject */
-static int hf_hnbap_UEDe_Register_PDU = -1;       /* UEDe_Register */
-static int hf_hnbap_CSGMembershipUpdate_PDU = -1;  /* CSGMembershipUpdate */
-static int hf_hnbap_TNLUpdateRequest_PDU = -1;    /* TNLUpdateRequest */
-static int hf_hnbap_TNLUpdateResponse_PDU = -1;   /* TNLUpdateResponse */
-static int hf_hnbap_TNLUpdateFailure_PDU = -1;    /* TNLUpdateFailure */
-static int hf_hnbap_HNBConfigTransferRequest_PDU = -1;  /* HNBConfigTransferRequest */
-static int hf_hnbap_HNBConfigTransferResponse_PDU = -1;  /* HNBConfigTransferResponse */
-static int hf_hnbap_RelocationComplete_PDU = -1;  /* RelocationComplete */
-static int hf_hnbap_ErrorIndication_PDU = -1;     /* ErrorIndication */
-static int hf_hnbap_PrivateMessage_PDU = -1;      /* PrivateMessage */
-static int hf_hnbap_HNBAP_PDU_PDU = -1;           /* HNBAP_PDU */
-static int hf_hnbap_local = -1;                   /* INTEGER_0_65535 */
-static int hf_hnbap_global = -1;                  /* OBJECT_IDENTIFIER */
-static int hf_hnbap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
-static int hf_hnbap_protocol_ie_field_id = -1;    /* ProtocolIE_ID */
-static int hf_hnbap_criticality = -1;             /* Criticality */
-static int hf_hnbap_ie_field_value = -1;          /* ProtocolIE_Field_value */
-static int hf_hnbap_ProtocolExtensionContainer_item = -1;  /* ProtocolExtensionField */
-static int hf_hnbap_id = -1;                      /* ProtocolIE_ID */
-static int hf_hnbap_extensionValue = -1;          /* T_extensionValue */
-static int hf_hnbap_PrivateIE_Container_item = -1;  /* PrivateIE_Field */
-static int hf_hnbap_private_ie_field_id = -1;     /* PrivateIE_ID */
-static int hf_hnbap_private_value = -1;           /* PrivateIE_Field_value */
-static int hf_hnbap_directionOfAltitude = -1;     /* T_directionOfAltitude */
-static int hf_hnbap_altitude = -1;                /* INTEGER_0_32767 */
-static int hf_hnbap_radioNetwork = -1;            /* CauseRadioNetwork */
-static int hf_hnbap_transport = -1;               /* CauseTransport */
-static int hf_hnbap_protocol = -1;                /* CauseProtocol */
-static int hf_hnbap_misc = -1;                    /* CauseMisc */
-static int hf_hnbap_procedureCode = -1;           /* ProcedureCode */
-static int hf_hnbap_triggeringMessage = -1;       /* TriggeringMessage */
-static int hf_hnbap_procedureCriticality = -1;    /* Criticality */
-static int hf_hnbap_iEsCriticalityDiagnostics = -1;  /* CriticalityDiagnostics_IE_List */
-static int hf_hnbap_iE_Extensions = -1;           /* ProtocolExtensionContainer */
-static int hf_hnbap_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_List_item */
-static int hf_hnbap_iECriticality = -1;           /* Criticality */
-static int hf_hnbap_iE_ID = -1;                   /* ProtocolIE_ID */
-static int hf_hnbap_typeOfError = -1;             /* TypeOfError */
-static int hf_hnbap_pLMNidentity = -1;            /* PLMNidentity */
-static int hf_hnbap_lAC = -1;                     /* LAC */
-static int hf_hnbap_cI = -1;                      /* CI */
-static int hf_hnbap_geographical_location_geographical_coordinates = -1;  /* GeographicalCoordinates */
-static int hf_hnbap_altitudeAndDirection = -1;    /* AltitudeAndDirection */
-static int hf_hnbap_latitudeSign = -1;            /* T_latitudeSign */
-static int hf_hnbap_latitude = -1;                /* INTEGER_0_8388607 */
-static int hf_hnbap_longitude = -1;               /* INTEGER_M8388608_8388607 */
-static int hf_hnbap_cellIdentity = -1;            /* CellIdentity */
-static int hf_hnbap_hNB_Identity_as_Cell_Identifier = -1;  /* HNB_Cell_Identifier */
-static int hf_hnbap_hnb_RNL_Identity = -1;        /* HNB_RNL_Identity */
-static int hf_hnbap_configurationInformation = -1;  /* ConfigurationInformation */
-static int hf_hnbap_provided = -1;                /* HNBConfigurationInformationProvided */
-static int hf_hnbap_missing = -1;                 /* HNBConfigurationInformationMissing */
-static int hf_hnbap_psc = -1;                     /* PSC */
-static int hf_hnbap_cSG_ID = -1;                  /* CSG_ID */
-static int hf_hnbap_hNB_Cell_Access_Mode = -1;    /* HNB_Cell_Access_Mode */
-static int hf_hnbap_iurh_Signalling_TNL_AddressList = -1;  /* Iurh_Signalling_TNL_AddressList */
-static int hf_hnbap_cause = -1;                   /* Cause */
-static int hf_hnbap_macroCoverageInfo = -1;       /* MacroCoverageInformation */
-static int hf_hnbap_hnb_location_information_geographical_coordinates = -1;  /* GeographicalLocation */
-static int hf_hnbap_hNB_Identity_Info = -1;       /* HNB_Identity_Info */
-static int hf_hnbap_iMSIDS41 = -1;                /* IMSIDS41 */
-static int hf_hnbap_eSN = -1;                     /* ESN */
-static int hf_hnbap_ipaddress = -1;               /* T_ipaddress */
-static int hf_hnbap_ipv4info = -1;                /* Ipv4Address */
-static int hf_hnbap_ipv6info = -1;                /* Ipv6Address */
-static int hf_hnbap_Iurh_Signalling_TNL_AddressList_item = -1;  /* IP_Address */
-static int hf_hnbap_pLMNID = -1;                  /* PLMNidentity */
-static int hf_hnbap_macroCellID = -1;             /* MacroCellID */
-static int hf_hnbap_uTRANCellID = -1;             /* UTRANCellID */
-static int hf_hnbap_gERANCellID = -1;             /* CGI */
-static int hf_hnbap_NeighbourInfoList_item = -1;  /* HNBConfigInfo */
-static int hf_hnbap_NeighbourInfoRequestList_item = -1;  /* NeighbourInfoRequestItem */
-static int hf_hnbap_pTMSI = -1;                   /* PTMSI */
-static int hf_hnbap_rAI = -1;                     /* RAI */
-static int hf_hnbap_RABList_item = -1;            /* RABListItem */
-static int hf_hnbap_rAB_ID = -1;                  /* RAB_ID */
-static int hf_hnbap_old_transport_Info = -1;      /* TransportInfo */
-static int hf_hnbap_new_transport_Info = -1;      /* TransportInfo */
-static int hf_hnbap_cn_domain_indicator = -1;     /* CN_DomainIndicator */
-static int hf_hnbap_lAI = -1;                     /* LAI */
-static int hf_hnbap_rAC = -1;                     /* RAC */
-static int hf_hnbap_tMSI = -1;                    /* BIT_STRING_SIZE_32 */
-static int hf_hnbap_transportLayerAddress = -1;   /* TransportLayerAddress */
-static int hf_hnbap_transportAssociation = -1;    /* T_transportAssociation */
-static int hf_hnbap_gtp_TEI = -1;                 /* GTP_TEI */
-static int hf_hnbap_bindingID = -1;               /* BindingID */
-static int hf_hnbap_access_stratum_release_indicator = -1;  /* Access_stratum_release_indicator */
-static int hf_hnbap_csg_capability = -1;          /* CSG_Capability */
-static int hf_hnbap_uTRANcellID = -1;             /* CellIdentity */
-static int hf_hnbap_iMSI = -1;                    /* IMSI */
-static int hf_hnbap_tMSILAI = -1;                 /* TMSILAI */
-static int hf_hnbap_pTMSIRAI = -1;                /* PTMSIRAI */
-static int hf_hnbap_iMEI = -1;                    /* IMEI */
-static int hf_hnbap_iMSIESN = -1;                 /* IMSIESN */
-static int hf_hnbap_tMSIDS41 = -1;                /* TMSIDS41 */
-static int hf_hnbap_protocolIEs = -1;             /* ProtocolIE_Container */
-static int hf_hnbap_protocolExtensions = -1;      /* ProtocolExtensionContainer */
-static int hf_hnbap_privateIEs = -1;              /* PrivateIE_Container */
-static int hf_hnbap_initiatingMessage = -1;       /* InitiatingMessage */
-static int hf_hnbap_successfulOutcome = -1;       /* SuccessfulOutcome */
-static int hf_hnbap_unsuccessfulOutcome = -1;     /* UnsuccessfulOutcome */
-static int hf_hnbap_initiatingMessagevalue = -1;  /* InitiatingMessage_value */
-static int hf_hnbap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
-static int hf_hnbap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
+static int hf_hnbap_BackoffTimer_PDU;             /* BackoffTimer */
+static int hf_hnbap_Cause_PDU;                    /* Cause */
+static int hf_hnbap_CellIdentity_PDU;             /* CellIdentity */
+static int hf_hnbap_Context_ID_PDU;               /* Context_ID */
+static int hf_hnbap_CriticalityDiagnostics_PDU;   /* CriticalityDiagnostics */
+static int hf_hnbap_CSG_ID_PDU;                   /* CSG_ID */
+static int hf_hnbap_CSGMembershipStatus_PDU;      /* CSGMembershipStatus */
+static int hf_hnbap_HNB_Cell_Access_Mode_PDU;     /* HNB_Cell_Access_Mode */
+static int hf_hnbap_HNB_Location_Information_PDU;  /* HNB_Location_Information */
+static int hf_hnbap_HNB_Identity_PDU;             /* HNB_Identity */
+static int hf_hnbap_IP_Address_PDU;               /* IP_Address */
+static int hf_hnbap_LAC_PDU;                      /* LAC */
+static int hf_hnbap_MuxPortNumber_PDU;            /* MuxPortNumber */
+static int hf_hnbap_NeighbourInfoList_PDU;        /* NeighbourInfoList */
+static int hf_hnbap_NeighbourInfoRequestList_PDU;  /* NeighbourInfoRequestList */
+static int hf_hnbap_PLMNidentity_PDU;             /* PLMNidentity */
+static int hf_hnbap_PSC_PDU;                      /* PSC */
+static int hf_hnbap_RABList_PDU;                  /* RABList */
+static int hf_hnbap_RAC_PDU;                      /* RAC */
+static int hf_hnbap_Registration_Cause_PDU;       /* Registration_Cause */
+static int hf_hnbap_RNC_ID_PDU;                   /* RNC_ID */
+static int hf_hnbap_SAC_PDU;                      /* SAC */
+static int hf_hnbap_UE_Capabilities_PDU;          /* UE_Capabilities */
+static int hf_hnbap_UE_Identity_PDU;              /* UE_Identity */
+static int hf_hnbap_Update_cause_PDU;             /* Update_cause */
+static int hf_hnbap_HNBRegisterRequest_PDU;       /* HNBRegisterRequest */
+static int hf_hnbap_HNBRegisterAccept_PDU;        /* HNBRegisterAccept */
+static int hf_hnbap_HNBRegisterReject_PDU;        /* HNBRegisterReject */
+static int hf_hnbap_HNBDe_Register_PDU;           /* HNBDe_Register */
+static int hf_hnbap_UERegisterRequest_PDU;        /* UERegisterRequest */
+static int hf_hnbap_UERegisterAccept_PDU;         /* UERegisterAccept */
+static int hf_hnbap_UERegisterReject_PDU;         /* UERegisterReject */
+static int hf_hnbap_UEDe_Register_PDU;            /* UEDe_Register */
+static int hf_hnbap_CSGMembershipUpdate_PDU;      /* CSGMembershipUpdate */
+static int hf_hnbap_TNLUpdateRequest_PDU;         /* TNLUpdateRequest */
+static int hf_hnbap_TNLUpdateResponse_PDU;        /* TNLUpdateResponse */
+static int hf_hnbap_TNLUpdateFailure_PDU;         /* TNLUpdateFailure */
+static int hf_hnbap_HNBConfigTransferRequest_PDU;  /* HNBConfigTransferRequest */
+static int hf_hnbap_HNBConfigTransferResponse_PDU;  /* HNBConfigTransferResponse */
+static int hf_hnbap_RelocationComplete_PDU;       /* RelocationComplete */
+static int hf_hnbap_ErrorIndication_PDU;          /* ErrorIndication */
+static int hf_hnbap_PrivateMessage_PDU;           /* PrivateMessage */
+static int hf_hnbap_HNBAP_PDU_PDU;                /* HNBAP_PDU */
+static int hf_hnbap_local;                        /* INTEGER_0_65535 */
+static int hf_hnbap_global;                       /* OBJECT_IDENTIFIER */
+static int hf_hnbap_ProtocolIE_Container_item;    /* ProtocolIE_Field */
+static int hf_hnbap_protocol_ie_field_id;         /* ProtocolIE_ID */
+static int hf_hnbap_criticality;                  /* Criticality */
+static int hf_hnbap_ie_field_value;               /* ProtocolIE_Field_value */
+static int hf_hnbap_ProtocolExtensionContainer_item;  /* ProtocolExtensionField */
+static int hf_hnbap_id;                           /* ProtocolIE_ID */
+static int hf_hnbap_extensionValue;               /* T_extensionValue */
+static int hf_hnbap_PrivateIE_Container_item;     /* PrivateIE_Field */
+static int hf_hnbap_private_ie_field_id;          /* PrivateIE_ID */
+static int hf_hnbap_private_value;                /* PrivateIE_Field_value */
+static int hf_hnbap_directionOfAltitude;          /* T_directionOfAltitude */
+static int hf_hnbap_altitude;                     /* INTEGER_0_32767 */
+static int hf_hnbap_radioNetwork;                 /* CauseRadioNetwork */
+static int hf_hnbap_transport;                    /* CauseTransport */
+static int hf_hnbap_protocol;                     /* CauseProtocol */
+static int hf_hnbap_misc;                         /* CauseMisc */
+static int hf_hnbap_procedureCode;                /* ProcedureCode */
+static int hf_hnbap_triggeringMessage;            /* TriggeringMessage */
+static int hf_hnbap_procedureCriticality;         /* Criticality */
+static int hf_hnbap_iEsCriticalityDiagnostics;    /* CriticalityDiagnostics_IE_List */
+static int hf_hnbap_iE_Extensions;                /* ProtocolExtensionContainer */
+static int hf_hnbap_CriticalityDiagnostics_IE_List_item;  /* CriticalityDiagnostics_IE_List_item */
+static int hf_hnbap_iECriticality;                /* Criticality */
+static int hf_hnbap_iE_ID;                        /* ProtocolIE_ID */
+static int hf_hnbap_typeOfError;                  /* TypeOfError */
+static int hf_hnbap_pLMNidentity;                 /* PLMNidentity */
+static int hf_hnbap_lAC;                          /* LAC */
+static int hf_hnbap_cI;                           /* CI */
+static int hf_hnbap_geographical_location_geographical_coordinates;  /* GeographicalCoordinates */
+static int hf_hnbap_altitudeAndDirection;         /* AltitudeAndDirection */
+static int hf_hnbap_latitudeSign;                 /* T_latitudeSign */
+static int hf_hnbap_latitude;                     /* INTEGER_0_8388607 */
+static int hf_hnbap_longitude;                    /* INTEGER_M8388608_8388607 */
+static int hf_hnbap_cellIdentity;                 /* CellIdentity */
+static int hf_hnbap_hNB_Identity_as_Cell_Identifier;  /* HNB_Cell_Identifier */
+static int hf_hnbap_hnb_RNL_Identity;             /* HNB_RNL_Identity */
+static int hf_hnbap_configurationInformation;     /* ConfigurationInformation */
+static int hf_hnbap_provided;                     /* HNBConfigurationInformationProvided */
+static int hf_hnbap_missing;                      /* HNBConfigurationInformationMissing */
+static int hf_hnbap_psc;                          /* PSC */
+static int hf_hnbap_cSG_ID;                       /* CSG_ID */
+static int hf_hnbap_hNB_Cell_Access_Mode;         /* HNB_Cell_Access_Mode */
+static int hf_hnbap_iurh_Signalling_TNL_AddressList;  /* Iurh_Signalling_TNL_AddressList */
+static int hf_hnbap_cause;                        /* Cause */
+static int hf_hnbap_macroCoverageInfo;            /* MacroCoverageInformation */
+static int hf_hnbap_hnb_location_information_geographical_coordinates;  /* GeographicalLocation */
+static int hf_hnbap_hNB_Identity_Info;            /* HNB_Identity_Info */
+static int hf_hnbap_iMSIDS41;                     /* IMSIDS41 */
+static int hf_hnbap_eSN;                          /* ESN */
+static int hf_hnbap_ipaddress;                    /* T_ipaddress */
+static int hf_hnbap_ipv4info;                     /* Ipv4Address */
+static int hf_hnbap_ipv6info;                     /* Ipv6Address */
+static int hf_hnbap_Iurh_Signalling_TNL_AddressList_item;  /* IP_Address */
+static int hf_hnbap_pLMNID;                       /* PLMNidentity */
+static int hf_hnbap_macroCellID;                  /* MacroCellID */
+static int hf_hnbap_uTRANCellID;                  /* UTRANCellID */
+static int hf_hnbap_gERANCellID;                  /* CGI */
+static int hf_hnbap_NeighbourInfoList_item;       /* HNBConfigInfo */
+static int hf_hnbap_NeighbourInfoRequestList_item;  /* NeighbourInfoRequestItem */
+static int hf_hnbap_pTMSI;                        /* PTMSI */
+static int hf_hnbap_rAI;                          /* RAI */
+static int hf_hnbap_RABList_item;                 /* RABListItem */
+static int hf_hnbap_rAB_ID;                       /* RAB_ID */
+static int hf_hnbap_old_transport_Info;           /* TransportInfo */
+static int hf_hnbap_new_transport_Info;           /* TransportInfo */
+static int hf_hnbap_cn_domain_indicator;          /* CN_DomainIndicator */
+static int hf_hnbap_lAI;                          /* LAI */
+static int hf_hnbap_rAC;                          /* RAC */
+static int hf_hnbap_tMSI;                         /* BIT_STRING_SIZE_32 */
+static int hf_hnbap_transportLayerAddress;        /* TransportLayerAddress */
+static int hf_hnbap_transportAssociation;         /* T_transportAssociation */
+static int hf_hnbap_gtp_TEI;                      /* GTP_TEI */
+static int hf_hnbap_bindingID;                    /* BindingID */
+static int hf_hnbap_access_stratum_release_indicator;  /* Access_stratum_release_indicator */
+static int hf_hnbap_csg_capability;               /* CSG_Capability */
+static int hf_hnbap_uTRANcellID;                  /* CellIdentity */
+static int hf_hnbap_iMSI;                         /* IMSI */
+static int hf_hnbap_tMSILAI;                      /* TMSILAI */
+static int hf_hnbap_pTMSIRAI;                     /* PTMSIRAI */
+static int hf_hnbap_iMEI;                         /* IMEI */
+static int hf_hnbap_iMSIESN;                      /* IMSIESN */
+static int hf_hnbap_tMSIDS41;                     /* TMSIDS41 */
+static int hf_hnbap_protocolIEs;                  /* ProtocolIE_Container */
+static int hf_hnbap_protocolExtensions;           /* ProtocolExtensionContainer */
+static int hf_hnbap_privateIEs;                   /* PrivateIE_Container */
+static int hf_hnbap_initiatingMessage;            /* InitiatingMessage */
+static int hf_hnbap_successfulOutcome;            /* SuccessfulOutcome */
+static int hf_hnbap_unsuccessfulOutcome;          /* UnsuccessfulOutcome */
+static int hf_hnbap_initiatingMessagevalue;       /* InitiatingMessage_value */
+static int hf_hnbap_successfulOutcome_value;      /* SuccessfulOutcome_value */
+static int hf_hnbap_unsuccessfulOutcome_value;    /* UnsuccessfulOutcome_value */
 
 /* Initialize the subtree pointers */
-static int ett_hnbap = -1;
-static int ett_hnbap_imsi = -1;
-static gint ett_hnbap_PrivateIE_ID = -1;
-static gint ett_hnbap_ProtocolIE_Container = -1;
-static gint ett_hnbap_ProtocolIE_Field = -1;
-static gint ett_hnbap_ProtocolExtensionContainer = -1;
-static gint ett_hnbap_ProtocolExtensionField = -1;
-static gint ett_hnbap_PrivateIE_Container = -1;
-static gint ett_hnbap_PrivateIE_Field = -1;
-static gint ett_hnbap_AltitudeAndDirection = -1;
-static gint ett_hnbap_Cause = -1;
-static gint ett_hnbap_CriticalityDiagnostics = -1;
-static gint ett_hnbap_CriticalityDiagnostics_IE_List = -1;
-static gint ett_hnbap_CriticalityDiagnostics_IE_List_item = -1;
-static gint ett_hnbap_CGI = -1;
-static gint ett_hnbap_GeographicalLocation = -1;
-static gint ett_hnbap_GeographicalCoordinates = -1;
-static gint ett_hnbap_HNB_Cell_Identifier = -1;
-static gint ett_hnbap_HNB_RNL_Identity = -1;
-static gint ett_hnbap_HNBConfigInfo = -1;
-static gint ett_hnbap_ConfigurationInformation = -1;
-static gint ett_hnbap_HNBConfigurationInformationProvided = -1;
-static gint ett_hnbap_HNBConfigurationInformationMissing = -1;
-static gint ett_hnbap_HNB_Location_Information = -1;
-static gint ett_hnbap_HNB_Identity = -1;
-static gint ett_hnbap_IMSIESN = -1;
-static gint ett_hnbap_IP_Address = -1;
-static gint ett_hnbap_T_ipaddress = -1;
-static gint ett_hnbap_Iurh_Signalling_TNL_AddressList = -1;
-static gint ett_hnbap_LAI = -1;
-static gint ett_hnbap_MacroCoverageInformation = -1;
-static gint ett_hnbap_MacroCellID = -1;
-static gint ett_hnbap_NeighbourInfoList = -1;
-static gint ett_hnbap_NeighbourInfoRequestList = -1;
-static gint ett_hnbap_NeighbourInfoRequestItem = -1;
-static gint ett_hnbap_PTMSIRAI = -1;
-static gint ett_hnbap_RABList = -1;
-static gint ett_hnbap_RABListItem = -1;
-static gint ett_hnbap_RAI = -1;
-static gint ett_hnbap_TMSILAI = -1;
-static gint ett_hnbap_TransportInfo = -1;
-static gint ett_hnbap_T_transportAssociation = -1;
-static gint ett_hnbap_UE_Capabilities = -1;
-static gint ett_hnbap_UTRANCellID = -1;
-static gint ett_hnbap_UE_Identity = -1;
-static gint ett_hnbap_HNBRegisterRequest = -1;
-static gint ett_hnbap_HNBRegisterAccept = -1;
-static gint ett_hnbap_HNBRegisterReject = -1;
-static gint ett_hnbap_HNBDe_Register = -1;
-static gint ett_hnbap_UERegisterRequest = -1;
-static gint ett_hnbap_UERegisterAccept = -1;
-static gint ett_hnbap_UERegisterReject = -1;
-static gint ett_hnbap_UEDe_Register = -1;
-static gint ett_hnbap_CSGMembershipUpdate = -1;
-static gint ett_hnbap_TNLUpdateRequest = -1;
-static gint ett_hnbap_TNLUpdateResponse = -1;
-static gint ett_hnbap_TNLUpdateFailure = -1;
-static gint ett_hnbap_HNBConfigTransferRequest = -1;
-static gint ett_hnbap_HNBConfigTransferResponse = -1;
-static gint ett_hnbap_RelocationComplete = -1;
-static gint ett_hnbap_ErrorIndication = -1;
-static gint ett_hnbap_PrivateMessage = -1;
-static gint ett_hnbap_HNBAP_PDU = -1;
-static gint ett_hnbap_InitiatingMessage = -1;
-static gint ett_hnbap_SuccessfulOutcome = -1;
-static gint ett_hnbap_UnsuccessfulOutcome = -1;
+static int ett_hnbap;
+static int ett_hnbap_imsi;
+static gint ett_hnbap_PrivateIE_ID;
+static gint ett_hnbap_ProtocolIE_Container;
+static gint ett_hnbap_ProtocolIE_Field;
+static gint ett_hnbap_ProtocolExtensionContainer;
+static gint ett_hnbap_ProtocolExtensionField;
+static gint ett_hnbap_PrivateIE_Container;
+static gint ett_hnbap_PrivateIE_Field;
+static gint ett_hnbap_AltitudeAndDirection;
+static gint ett_hnbap_Cause;
+static gint ett_hnbap_CriticalityDiagnostics;
+static gint ett_hnbap_CriticalityDiagnostics_IE_List;
+static gint ett_hnbap_CriticalityDiagnostics_IE_List_item;
+static gint ett_hnbap_CGI;
+static gint ett_hnbap_GeographicalLocation;
+static gint ett_hnbap_GeographicalCoordinates;
+static gint ett_hnbap_HNB_Cell_Identifier;
+static gint ett_hnbap_HNB_RNL_Identity;
+static gint ett_hnbap_HNBConfigInfo;
+static gint ett_hnbap_ConfigurationInformation;
+static gint ett_hnbap_HNBConfigurationInformationProvided;
+static gint ett_hnbap_HNBConfigurationInformationMissing;
+static gint ett_hnbap_HNB_Location_Information;
+static gint ett_hnbap_HNB_Identity;
+static gint ett_hnbap_IMSIESN;
+static gint ett_hnbap_IP_Address;
+static gint ett_hnbap_T_ipaddress;
+static gint ett_hnbap_Iurh_Signalling_TNL_AddressList;
+static gint ett_hnbap_LAI;
+static gint ett_hnbap_MacroCoverageInformation;
+static gint ett_hnbap_MacroCellID;
+static gint ett_hnbap_NeighbourInfoList;
+static gint ett_hnbap_NeighbourInfoRequestList;
+static gint ett_hnbap_NeighbourInfoRequestItem;
+static gint ett_hnbap_PTMSIRAI;
+static gint ett_hnbap_RABList;
+static gint ett_hnbap_RABListItem;
+static gint ett_hnbap_RAI;
+static gint ett_hnbap_TMSILAI;
+static gint ett_hnbap_TransportInfo;
+static gint ett_hnbap_T_transportAssociation;
+static gint ett_hnbap_UE_Capabilities;
+static gint ett_hnbap_UTRANCellID;
+static gint ett_hnbap_UE_Identity;
+static gint ett_hnbap_HNBRegisterRequest;
+static gint ett_hnbap_HNBRegisterAccept;
+static gint ett_hnbap_HNBRegisterReject;
+static gint ett_hnbap_HNBDe_Register;
+static gint ett_hnbap_UERegisterRequest;
+static gint ett_hnbap_UERegisterAccept;
+static gint ett_hnbap_UERegisterReject;
+static gint ett_hnbap_UEDe_Register;
+static gint ett_hnbap_CSGMembershipUpdate;
+static gint ett_hnbap_TNLUpdateRequest;
+static gint ett_hnbap_TNLUpdateResponse;
+static gint ett_hnbap_TNLUpdateFailure;
+static gint ett_hnbap_HNBConfigTransferRequest;
+static gint ett_hnbap_HNBConfigTransferResponse;
+static gint ett_hnbap_RelocationComplete;
+static gint ett_hnbap_ErrorIndication;
+static gint ett_hnbap_PrivateMessage;
+static gint ett_hnbap_HNBAP_PDU;
+static gint ett_hnbap_InitiatingMessage;
+static gint ett_hnbap_SuccessfulOutcome;
+static gint ett_hnbap_UnsuccessfulOutcome;
 
 struct hnbap_private_data {
   e212_number_type_t number_type;

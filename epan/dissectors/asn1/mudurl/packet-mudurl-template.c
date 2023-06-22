@@ -27,7 +27,7 @@ void proto_reg_handoff_mudurl(void);
 
 
 /* Initialize the protocol and registered fields */
-static int proto_mudurl = -1;
+static int proto_mudurl;
 #include "packet-mudurl-hf.c"
 
 /* Initialize the subtree pointers */

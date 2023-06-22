@@ -26,13 +26,13 @@ void proto_register_q932_ros(void);
 void proto_reg_handoff_q932_ros(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_q932_ros = -1;
+static int proto_q932_ros;
 #include "packet-q932-ros-hf.c"
 
 /* Initialize the subtree pointers */
 #include "packet-q932-ros-ett.c"
 
-static expert_field ei_ros_undecoded = EI_INIT;
+static expert_field ei_ros_undecoded;
 
 /* Preferences */
 

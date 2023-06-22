@@ -71,2527 +71,2527 @@ void proto_register_gsm_map(void);
 void proto_reg_handoff_gsm_map(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_gsm_map = -1;
-static int proto_gsm_map_dialogue = -1;
-static int proto_gsm_map_ms = -1;
+static int proto_gsm_map;
+static int proto_gsm_map_dialogue;
+static int proto_gsm_map_ms;
 
-static int hf_gsm_map_old_Component_PDU = -1;
-static int hf_gsm_map_getPassword = -1;
-static int hf_gsm_map_currentPassword = -1;
-static int hf_gsm_map_extension = -1;
-static int hf_gsm_map_nature_of_number = -1;
-static int hf_gsm_map_number_plan = -1;
-static int hf_gsm_map_address_digits = -1;
-static int hf_gsm_map_TBCD_digits = -1;
-static int hf_gsm_map_Ss_Status_unused = -1;
-static int hf_gsm_map_Ss_Status_q_bit = -1;
-static int hf_gsm_map_Ss_Status_p_bit = -1;
-static int hf_gsm_map_Ss_Status_r_bit = -1;
-static int hf_gsm_map_Ss_Status_a_bit = -1;
-static int hf_gsm_map_notification_to_forwarding_party = -1;
-static int hf_gsm_map_redirecting_presentation = -1;
-static int hf_gsm_map_notification_to_calling_party = -1;
-static int hf_gsm_map_forwarding_reason = -1;
-static int hf_gsm_map_pdp_type_org = -1;
-static int hf_gsm_map_etsi_pdp_type_number = -1;
-static int hf_gsm_map_ietf_pdp_type_number = -1;
-static int hf_gsm_map_ext_qos_subscribed_pri = -1;
+static int hf_gsm_map_old_Component_PDU;
+static int hf_gsm_map_getPassword;
+static int hf_gsm_map_currentPassword;
+static int hf_gsm_map_extension;
+static int hf_gsm_map_nature_of_number;
+static int hf_gsm_map_number_plan;
+static int hf_gsm_map_address_digits;
+static int hf_gsm_map_TBCD_digits;
+static int hf_gsm_map_Ss_Status_unused;
+static int hf_gsm_map_Ss_Status_q_bit;
+static int hf_gsm_map_Ss_Status_p_bit;
+static int hf_gsm_map_Ss_Status_r_bit;
+static int hf_gsm_map_Ss_Status_a_bit;
+static int hf_gsm_map_notification_to_forwarding_party;
+static int hf_gsm_map_redirecting_presentation;
+static int hf_gsm_map_notification_to_calling_party;
+static int hf_gsm_map_forwarding_reason;
+static int hf_gsm_map_pdp_type_org;
+static int hf_gsm_map_etsi_pdp_type_number;
+static int hf_gsm_map_ietf_pdp_type_number;
+static int hf_gsm_map_ext_qos_subscribed_pri;
 
-static int hf_gsm_map_qos_traffic_cls = -1;
-static int hf_gsm_map_qos_del_order = -1;
-static int hf_gsm_map_qos_del_of_err_sdu = -1;
-static int hf_gsm_map_qos_ber = -1;
-static int hf_gsm_map_qos_sdu_err_rat = -1;
-static int hf_gsm_map_qos_traff_hdl_pri = -1;
-static int hf_gsm_map_qos_max_sdu = -1;
-static int hf_gsm_map_max_brate_ulink = -1;
-static int hf_gsm_map_max_brate_dlink = -1;
-static int hf_gsm_map_qos_transfer_delay = -1;
-static int hf_gsm_map_guaranteed_max_brate_ulink = -1;
-static int hf_gsm_map_guaranteed_max_brate_dlink = -1;
-static int hf_gsm_map_GSNAddress_IPv4 = -1;
-static int hf_gsm_map_GSNAddress_IPv6 = -1;
-static int hf_gsm_map_ranap_service_Handover = -1;
-static int hf_gsm_map_IntegrityProtectionInformation = -1;
-static int hf_gsm_map_EncryptionInformation = -1;
-static int hf_gsm_map_ss_SS_UserData = -1;
-static int hf_gsm_map_cbs_coding_grp = -1;
-static int hf_gsm_map_cbs_coding_grp0_lang = -1;
-static int hf_gsm_map_cbs_coding_grp1_lang = -1;
-static int hf_gsm_map_cbs_coding_grp2_lang = -1;
-static int hf_gsm_map_cbs_coding_grp3_lang = -1;
-static int hf_gsm_map_cbs_coding_grp4_7_comp = -1;
-static int hf_gsm_map_cbs_coding_grp4_7_class_ind = -1;
-static int hf_gsm_map_cbs_coding_grp4_7_char_set = -1;
-static int hf_gsm_map_cbs_coding_grp4_7_class = -1;
-static int hf_gsm_map_cbs_coding_grp15_mess_code = -1;
-static int hf_gsm_map_cbs_coding_grp15_class = -1;
-static int hf_gsm_map_ie_tag = -1;
-static int hf_gsm_map_len = -1;
-static int hf_gsm_map_disc_par = -1;
-static int hf_gsm_map_dlci = -1;
-static int hf_gsm_apn_str = -1;
-static int hf_gsm_map_ericsson_locationInformation_rat = -1;
-static int hf_gsm_map_ericsson_locationInformation_lac = -1;
-static int hf_gsm_map_ericsson_locationInformation_ci = -1;
-static int hf_gsm_map_ericsson_locationInformation_sac = -1;
-static int hf_gsm_map_ussd_string = -1;
-static int hf_gsm_map_spare_bits = -1;
-static int hf_gsm_map_qos_signalling_ind = -1;
+static int hf_gsm_map_qos_traffic_cls;
+static int hf_gsm_map_qos_del_order;
+static int hf_gsm_map_qos_del_of_err_sdu;
+static int hf_gsm_map_qos_ber;
+static int hf_gsm_map_qos_sdu_err_rat;
+static int hf_gsm_map_qos_traff_hdl_pri;
+static int hf_gsm_map_qos_max_sdu;
+static int hf_gsm_map_max_brate_ulink;
+static int hf_gsm_map_max_brate_dlink;
+static int hf_gsm_map_qos_transfer_delay;
+static int hf_gsm_map_guaranteed_max_brate_ulink;
+static int hf_gsm_map_guaranteed_max_brate_dlink;
+static int hf_gsm_map_GSNAddress_IPv4;
+static int hf_gsm_map_GSNAddress_IPv6;
+static int hf_gsm_map_ranap_service_Handover;
+static int hf_gsm_map_IntegrityProtectionInformation;
+static int hf_gsm_map_EncryptionInformation;
+static int hf_gsm_map_ss_SS_UserData;
+static int hf_gsm_map_cbs_coding_grp;
+static int hf_gsm_map_cbs_coding_grp0_lang;
+static int hf_gsm_map_cbs_coding_grp1_lang;
+static int hf_gsm_map_cbs_coding_grp2_lang;
+static int hf_gsm_map_cbs_coding_grp3_lang;
+static int hf_gsm_map_cbs_coding_grp4_7_comp;
+static int hf_gsm_map_cbs_coding_grp4_7_class_ind;
+static int hf_gsm_map_cbs_coding_grp4_7_char_set;
+static int hf_gsm_map_cbs_coding_grp4_7_class;
+static int hf_gsm_map_cbs_coding_grp15_mess_code;
+static int hf_gsm_map_cbs_coding_grp15_class;
+static int hf_gsm_map_ie_tag;
+static int hf_gsm_map_len;
+static int hf_gsm_map_disc_par;
+static int hf_gsm_map_dlci;
+static int hf_gsm_apn_str;
+static int hf_gsm_map_ericsson_locationInformation_rat;
+static int hf_gsm_map_ericsson_locationInformation_lac;
+static int hf_gsm_map_ericsson_locationInformation_ci;
+static int hf_gsm_map_ericsson_locationInformation_sac;
+static int hf_gsm_map_ussd_string;
+static int hf_gsm_map_spare_bits;
+static int hf_gsm_map_qos_signalling_ind;
 static int hf_gsm_map_qos_source_stat_desc = - 1;
-static int hf_gsm_map_qos_max_bitrate_upl_ext = -1;
-static int hf_gsm_map_qos_max_bitrate_downl_ext = -1;
-static int hf_gsm_map_qos_guar_bitrate_upl_ext = -1;
-static int hf_gsm_map_qos_guar_bitrate_downl_ext = -1;
+static int hf_gsm_map_qos_max_bitrate_upl_ext;
+static int hf_gsm_map_qos_max_bitrate_downl_ext;
+static int hf_gsm_map_qos_guar_bitrate_upl_ext;
+static int hf_gsm_map_qos_guar_bitrate_downl_ext;
 /*
-static int hf_gsm_map_qos_max_bitrate_upl_ext2 = -1;
-static int hf_gsm_map_qos_max_bitrate_downl_ext2 = -1;
-static int hf_gsm_map_qos_guar_bitrate_upl_ext2 = -1;
-static int hf_gsm_map_qos_guar_bitrate_downl_ext2 = -1;
+static int hf_gsm_map_qos_max_bitrate_upl_ext2;
+static int hf_gsm_map_qos_max_bitrate_downl_ext2;
+static int hf_gsm_map_qos_guar_bitrate_upl_ext2;
+static int hf_gsm_map_qos_guar_bitrate_downl_ext2;
 */
-static int hf_gsm_map_earp_pci = -1;
-static int hf_gsm_map_earp_pl = -1;
-static int hf_gsm_map_earp_pvi = -1;
+static int hf_gsm_map_earp_pci;
+static int hf_gsm_map_earp_pl;
+static int hf_gsm_map_earp_pvi;
 
 
 /* --- Module MAP-ExtensionDataTypes --- --- ---                              */
 
-static int hf_gsm_map_privateExtensionList = -1;  /* PrivateExtensionList */
-static int hf_gsm_map_pcs_Extensions = -1;        /* PCS_Extensions */
-static int hf_gsm_map_slr_Arg_PCS_Extensions = -1;  /* SLR_Arg_PCS_Extensions */
-static int hf_gsm_map_PrivateExtensionList_item = -1;  /* PrivateExtension */
-static int hf_gsm_map_extId = -1;                 /* T_extId */
-static int hf_gsm_map_extType = -1;               /* T_extType */
-static int hf_gsm_map_na_ESRK_Request = -1;       /* NULL */
+static int hf_gsm_map_privateExtensionList;       /* PrivateExtensionList */
+static int hf_gsm_map_pcs_Extensions;             /* PCS_Extensions */
+static int hf_gsm_map_slr_Arg_PCS_Extensions;     /* SLR_Arg_PCS_Extensions */
+static int hf_gsm_map_PrivateExtensionList_item;  /* PrivateExtension */
+static int hf_gsm_map_extId;                      /* T_extId */
+static int hf_gsm_map_extType;                    /* T_extType */
+static int hf_gsm_map_na_ESRK_Request;            /* NULL */
 
 /* --- Module MAP-CommonDataTypes --- --- ---                                 */
 
-static int hf_gsm_map_gsm_map_ISDN_AddressString_PDU = -1;  /* ISDN_AddressString */
-static int hf_gsm_map_protocolId = -1;            /* ProtocolId */
-static int hf_gsm_map_signalInfo = -1;            /* SignalInfo */
-static int hf_gsm_map_extensionContainer = -1;    /* ExtensionContainer */
-static int hf_gsm_map_ext_ProtocolId = -1;        /* Ext_ProtocolId */
-static int hf_gsm_map_accessNetworkProtocolId = -1;  /* AccessNetworkProtocolId */
-static int hf_gsm_map_signalInfo_01 = -1;         /* LongSignalInfo */
-static int hf_gsm_map_imsi = -1;                  /* IMSI */
-static int hf_gsm_map_imsi_WithLMSI = -1;         /* IMSI_WithLMSI */
-static int hf_gsm_map_lmsi = -1;                  /* LMSI */
-static int hf_gsm_map_tmsi = -1;                  /* TMSI */
-static int hf_gsm_map_HLR_List_item = -1;         /* HLR_Id */
-static int hf_gsm_map_naea_PreferredCIC = -1;     /* NAEA_CIC */
-static int hf_gsm_map_msisdn = -1;                /* ISDN_AddressString */
-static int hf_gsm_map_externalAddress = -1;       /* ISDN_AddressString */
-static int hf_gsm_map_diameter_Name = -1;         /* DiameterIdentity */
-static int hf_gsm_map_diameter_Realm = -1;        /* DiameterIdentity */
-static int hf_gsm_map_cellGlobalIdOrServiceAreaIdFixedLength = -1;  /* CellGlobalIdOrServiceAreaIdFixedLength */
-static int hf_gsm_map_laiFixedLength = -1;        /* LAIFixedLength */
-static int hf_gsm_map_bearerService = -1;         /* BearerServiceCode */
-static int hf_gsm_map_teleservice = -1;           /* TeleserviceCode */
-static int hf_gsm_map_ext_BearerService = -1;     /* Ext_BearerServiceCode */
-static int hf_gsm_map_ext_Teleservice = -1;       /* Ext_TeleserviceCode */
-static int hf_gsm_map_maximumentitledPriority = -1;  /* EMLPP_Priority */
-static int hf_gsm_map_defaultPriority = -1;       /* EMLPP_Priority */
-static int hf_gsm_map_ss_Code = -1;               /* SS_Code */
-static int hf_gsm_map_ss_Status = -1;             /* Ext_SS_Status */
-static int hf_gsm_map_nbrSB = -1;                 /* MaxMC_Bearers */
-static int hf_gsm_map_nbrUser = -1;               /* MC_Bearers */
+static int hf_gsm_map_gsm_map_ISDN_AddressString_PDU;  /* ISDN_AddressString */
+static int hf_gsm_map_protocolId;                 /* ProtocolId */
+static int hf_gsm_map_signalInfo;                 /* SignalInfo */
+static int hf_gsm_map_extensionContainer;         /* ExtensionContainer */
+static int hf_gsm_map_ext_ProtocolId;             /* Ext_ProtocolId */
+static int hf_gsm_map_accessNetworkProtocolId;    /* AccessNetworkProtocolId */
+static int hf_gsm_map_signalInfo_01;              /* LongSignalInfo */
+static int hf_gsm_map_imsi;                       /* IMSI */
+static int hf_gsm_map_imsi_WithLMSI;              /* IMSI_WithLMSI */
+static int hf_gsm_map_lmsi;                       /* LMSI */
+static int hf_gsm_map_tmsi;                       /* TMSI */
+static int hf_gsm_map_HLR_List_item;              /* HLR_Id */
+static int hf_gsm_map_naea_PreferredCIC;          /* NAEA_CIC */
+static int hf_gsm_map_msisdn;                     /* ISDN_AddressString */
+static int hf_gsm_map_externalAddress;            /* ISDN_AddressString */
+static int hf_gsm_map_diameter_Name;              /* DiameterIdentity */
+static int hf_gsm_map_diameter_Realm;             /* DiameterIdentity */
+static int hf_gsm_map_cellGlobalIdOrServiceAreaIdFixedLength;  /* CellGlobalIdOrServiceAreaIdFixedLength */
+static int hf_gsm_map_laiFixedLength;             /* LAIFixedLength */
+static int hf_gsm_map_bearerService;              /* BearerServiceCode */
+static int hf_gsm_map_teleservice;                /* TeleserviceCode */
+static int hf_gsm_map_ext_BearerService;          /* Ext_BearerServiceCode */
+static int hf_gsm_map_ext_Teleservice;            /* Ext_TeleserviceCode */
+static int hf_gsm_map_maximumentitledPriority;    /* EMLPP_Priority */
+static int hf_gsm_map_defaultPriority;            /* EMLPP_Priority */
+static int hf_gsm_map_ss_Code;                    /* SS_Code */
+static int hf_gsm_map_ss_Status;                  /* Ext_SS_Status */
+static int hf_gsm_map_nbrSB;                      /* MaxMC_Bearers */
+static int hf_gsm_map_nbrUser;                    /* MC_Bearers */
 
 /* --- Module MAP-SS-DataTypes --- --- ---                                    */
 
-static int hf_gsm_map_ss_ss_Code = -1;            /* SS_Code */
-static int hf_gsm_map_ss_basicService = -1;       /* BasicServiceCode */
-static int hf_gsm_map_ss_forwardedToNumber = -1;  /* AddressString */
-static int hf_gsm_map_ss_forwardedToSubaddress = -1;  /* ISDN_SubaddressString */
-static int hf_gsm_map_ss_noReplyConditionTime = -1;  /* NoReplyConditionTime */
-static int hf_gsm_map_ss_defaultPriority = -1;    /* EMLPP_Priority */
-static int hf_gsm_map_ss_nbrUser = -1;            /* MC_Bearers */
-static int hf_gsm_map_ss_longFTN_Supported = -1;  /* NULL */
-static int hf_gsm_map_ss_forwardingInfo = -1;     /* ForwardingInfo */
-static int hf_gsm_map_ss_callBarringInfo = -1;    /* CallBarringInfo */
-static int hf_gsm_map_ss_ss_Data = -1;            /* SS_Data */
-static int hf_gsm_map_ss_forwardingFeatureList = -1;  /* ForwardingFeatureList */
-static int hf_gsm_map_ss_ForwardingFeatureList_item = -1;  /* ForwardingFeature */
-static int hf_gsm_map_ss_ss_Status = -1;          /* SS_Status */
-static int hf_gsm_map_ss_forwardedToNumber_01 = -1;  /* ISDN_AddressString */
-static int hf_gsm_map_ss_forwardingOptions = -1;  /* ForwardingOptions */
-static int hf_gsm_map_ss_longForwardedToNumber = -1;  /* FTN_AddressString */
-static int hf_gsm_map_ss_callBarringFeatureList = -1;  /* CallBarringFeatureList */
-static int hf_gsm_map_ss_CallBarringFeatureList_item = -1;  /* CallBarringFeature */
-static int hf_gsm_map_ss_ss_SubscriptionOption = -1;  /* SS_SubscriptionOption */
-static int hf_gsm_map_ss_basicServiceGroupList = -1;  /* BasicServiceGroupList */
-static int hf_gsm_map_ss_cliRestrictionOption = -1;  /* CliRestrictionOption */
-static int hf_gsm_map_ss_overrideCategory = -1;   /* OverrideCategory */
-static int hf_gsm_map_ss_maximumEntitledPriority = -1;  /* EMLPP_Priority */
-static int hf_gsm_map_ss_ccbs_FeatureList = -1;   /* CCBS_FeatureList */
-static int hf_gsm_map_ss_nbrSB = -1;              /* MaxMC_Bearers */
-static int hf_gsm_map_ss_nbrSN = -1;              /* MC_Bearers */
-static int hf_gsm_map_ss_CCBS_FeatureList_item = -1;  /* CCBS_Feature */
-static int hf_gsm_map_ss_ccbs_Index = -1;         /* CCBS_Index */
-static int hf_gsm_map_ss_b_subscriberNumber = -1;  /* ISDN_AddressString */
-static int hf_gsm_map_ss_b_subscriberSubaddress = -1;  /* ISDN_SubaddressString */
-static int hf_gsm_map_ss_basicServiceGroup = -1;  /* BasicServiceCode */
-static int hf_gsm_map_ss_genericServiceInfo = -1;  /* GenericServiceInfo */
-static int hf_gsm_map_ss_ussd_DataCodingScheme = -1;  /* USSD_DataCodingScheme */
-static int hf_gsm_map_ss_ussd_String = -1;        /* USSD_String */
-static int hf_gsm_map_ss_alertingPattern = -1;    /* AlertingPattern */
-static int hf_gsm_map_ss_msisdn = -1;             /* ISDN_AddressString */
-static int hf_gsm_map_ss_SS_List_item = -1;       /* SS_Code */
-static int hf_gsm_map_ss_BasicServiceGroupList_item = -1;  /* BasicServiceCode */
-static int hf_gsm_map_ss_imsi = -1;               /* IMSI */
-static int hf_gsm_map_ss_ss_Event = -1;           /* SS_Code */
-static int hf_gsm_map_ss_ss_EventSpecification = -1;  /* SS_EventSpecification */
-static int hf_gsm_map_ss_extensionContainer = -1;  /* ExtensionContainer */
-static int hf_gsm_map_ss_ccbs_RequestState = -1;  /* CCBS_RequestState */
-static int hf_gsm_map_ss_SS_EventSpecification_item = -1;  /* AddressString */
-static int hf_gsm_map_ss_ccbs_Data = -1;          /* CCBS_Data */
-static int hf_gsm_map_ss_ccbs_Feature = -1;       /* CCBS_Feature */
-static int hf_gsm_map_ss_translatedB_Number = -1;  /* ISDN_AddressString */
-static int hf_gsm_map_ss_serviceIndicator = -1;   /* ServiceIndicator */
-static int hf_gsm_map_ss_callInfo = -1;           /* ExternalSignalInfo */
-static int hf_gsm_map_ss_networkSignalInfo = -1;  /* ExternalSignalInfo */
+static int hf_gsm_map_ss_ss_Code;                 /* SS_Code */
+static int hf_gsm_map_ss_basicService;            /* BasicServiceCode */
+static int hf_gsm_map_ss_forwardedToNumber;       /* AddressString */
+static int hf_gsm_map_ss_forwardedToSubaddress;   /* ISDN_SubaddressString */
+static int hf_gsm_map_ss_noReplyConditionTime;    /* NoReplyConditionTime */
+static int hf_gsm_map_ss_defaultPriority;         /* EMLPP_Priority */
+static int hf_gsm_map_ss_nbrUser;                 /* MC_Bearers */
+static int hf_gsm_map_ss_longFTN_Supported;       /* NULL */
+static int hf_gsm_map_ss_forwardingInfo;          /* ForwardingInfo */
+static int hf_gsm_map_ss_callBarringInfo;         /* CallBarringInfo */
+static int hf_gsm_map_ss_ss_Data;                 /* SS_Data */
+static int hf_gsm_map_ss_forwardingFeatureList;   /* ForwardingFeatureList */
+static int hf_gsm_map_ss_ForwardingFeatureList_item;  /* ForwardingFeature */
+static int hf_gsm_map_ss_ss_Status;               /* SS_Status */
+static int hf_gsm_map_ss_forwardedToNumber_01;    /* ISDN_AddressString */
+static int hf_gsm_map_ss_forwardingOptions;       /* ForwardingOptions */
+static int hf_gsm_map_ss_longForwardedToNumber;   /* FTN_AddressString */
+static int hf_gsm_map_ss_callBarringFeatureList;  /* CallBarringFeatureList */
+static int hf_gsm_map_ss_CallBarringFeatureList_item;  /* CallBarringFeature */
+static int hf_gsm_map_ss_ss_SubscriptionOption;   /* SS_SubscriptionOption */
+static int hf_gsm_map_ss_basicServiceGroupList;   /* BasicServiceGroupList */
+static int hf_gsm_map_ss_cliRestrictionOption;    /* CliRestrictionOption */
+static int hf_gsm_map_ss_overrideCategory;        /* OverrideCategory */
+static int hf_gsm_map_ss_maximumEntitledPriority;  /* EMLPP_Priority */
+static int hf_gsm_map_ss_ccbs_FeatureList;        /* CCBS_FeatureList */
+static int hf_gsm_map_ss_nbrSB;                   /* MaxMC_Bearers */
+static int hf_gsm_map_ss_nbrSN;                   /* MC_Bearers */
+static int hf_gsm_map_ss_CCBS_FeatureList_item;   /* CCBS_Feature */
+static int hf_gsm_map_ss_ccbs_Index;              /* CCBS_Index */
+static int hf_gsm_map_ss_b_subscriberNumber;      /* ISDN_AddressString */
+static int hf_gsm_map_ss_b_subscriberSubaddress;  /* ISDN_SubaddressString */
+static int hf_gsm_map_ss_basicServiceGroup;       /* BasicServiceCode */
+static int hf_gsm_map_ss_genericServiceInfo;      /* GenericServiceInfo */
+static int hf_gsm_map_ss_ussd_DataCodingScheme;   /* USSD_DataCodingScheme */
+static int hf_gsm_map_ss_ussd_String;             /* USSD_String */
+static int hf_gsm_map_ss_alertingPattern;         /* AlertingPattern */
+static int hf_gsm_map_ss_msisdn;                  /* ISDN_AddressString */
+static int hf_gsm_map_ss_SS_List_item;            /* SS_Code */
+static int hf_gsm_map_ss_BasicServiceGroupList_item;  /* BasicServiceCode */
+static int hf_gsm_map_ss_imsi;                    /* IMSI */
+static int hf_gsm_map_ss_ss_Event;                /* SS_Code */
+static int hf_gsm_map_ss_ss_EventSpecification;   /* SS_EventSpecification */
+static int hf_gsm_map_ss_extensionContainer;      /* ExtensionContainer */
+static int hf_gsm_map_ss_ccbs_RequestState;       /* CCBS_RequestState */
+static int hf_gsm_map_ss_SS_EventSpecification_item;  /* AddressString */
+static int hf_gsm_map_ss_ccbs_Data;               /* CCBS_Data */
+static int hf_gsm_map_ss_ccbs_Feature;            /* CCBS_Feature */
+static int hf_gsm_map_ss_translatedB_Number;      /* ISDN_AddressString */
+static int hf_gsm_map_ss_serviceIndicator;        /* ServiceIndicator */
+static int hf_gsm_map_ss_callInfo;                /* ExternalSignalInfo */
+static int hf_gsm_map_ss_networkSignalInfo;       /* ExternalSignalInfo */
 /* named bits */
-static int hf_gsm_map_ss_ServiceIndicator_clir_invoked = -1;
-static int hf_gsm_map_ss_ServiceIndicator_camel_invoked = -1;
+static int hf_gsm_map_ss_ServiceIndicator_clir_invoked;
+static int hf_gsm_map_ss_ServiceIndicator_camel_invoked;
 
 /* --- Module MAP-ER-DataTypes --- --- ---                                    */
 
-static int hf_gsm_map_er_roamingNotAllowedCause = -1;  /* RoamingNotAllowedCause */
-static int hf_gsm_map_er_extensionContainer = -1;  /* ExtensionContainer */
-static int hf_gsm_map_er_additionalRoamingNotAllowedCause = -1;  /* AdditionalRoamingNotAllowedCause */
-static int hf_gsm_map_er_callBarringCause = -1;   /* CallBarringCause */
-static int hf_gsm_map_er_extensibleCallBarredParam = -1;  /* ExtensibleCallBarredParam */
-static int hf_gsm_map_er_unauthorisedMessageOriginator = -1;  /* NULL */
-static int hf_gsm_map_er_anonymousCallRejection = -1;  /* NULL */
-static int hf_gsm_map_er_cug_RejectCause = -1;    /* CUG_RejectCause */
-static int hf_gsm_map_er_ss_Code = -1;            /* SS_Code */
-static int hf_gsm_map_er_basicService = -1;       /* BasicServiceCode */
-static int hf_gsm_map_er_ss_Status = -1;          /* SS_Status */
-static int hf_gsm_map_er_sm_EnumeratedDeliveryFailureCause = -1;  /* SM_EnumeratedDeliveryFailureCause */
-static int hf_gsm_map_er_diagnosticInfo = -1;     /* SignalInfo */
-static int hf_gsm_map_er_absentSubscriberDiagnosticSM = -1;  /* AbsentSubscriberDiagnosticSM */
-static int hf_gsm_map_er_additionalAbsentSubscriberDiagnosticSM = -1;  /* AbsentSubscriberDiagnosticSM */
-static int hf_gsm_map_er_imsi = -1;               /* IMSI */
-static int hf_gsm_map_er_requestedRetransmissionTime = -1;  /* Time */
-static int hf_gsm_map_er_userIdentifierAlert = -1;  /* IMSI */
-static int hf_gsm_map_er_networkResource = -1;    /* NetworkResource */
-static int hf_gsm_map_er_extensibleSystemFailureParam = -1;  /* ExtensibleSystemFailureParam */
-static int hf_gsm_map_er_additionalNetworkResource = -1;  /* AdditionalNetworkResource */
-static int hf_gsm_map_er_failureCauseParam = -1;  /* FailureCauseParam */
-static int hf_gsm_map_er_unexpectedSubscriber = -1;  /* NULL */
-static int hf_gsm_map_er_shapeOfLocationEstimateNotSupported = -1;  /* NULL */
-static int hf_gsm_map_er_neededLcsCapabilityNotSupportedInServingNode = -1;  /* NULL */
-static int hf_gsm_map_er_unknownSubscriberDiagnostic = -1;  /* UnknownSubscriberDiagnostic */
-static int hf_gsm_map_er_absentSubscriberReason = -1;  /* AbsentSubscriberReason */
-static int hf_gsm_map_er_ccbs_Possible = -1;      /* NULL */
-static int hf_gsm_map_er_ccbs_Busy = -1;          /* NULL */
-static int hf_gsm_map_er_gprsConnectionSuspended = -1;  /* NULL */
-static int hf_gsm_map_er_unauthorizedLCSClient_Diagnostic = -1;  /* UnauthorizedLCSClient_Diagnostic */
-static int hf_gsm_map_er_positionMethodFailure_Diagnostic = -1;  /* PositionMethodFailure_Diagnostic */
+static int hf_gsm_map_er_roamingNotAllowedCause;  /* RoamingNotAllowedCause */
+static int hf_gsm_map_er_extensionContainer;      /* ExtensionContainer */
+static int hf_gsm_map_er_additionalRoamingNotAllowedCause;  /* AdditionalRoamingNotAllowedCause */
+static int hf_gsm_map_er_callBarringCause;        /* CallBarringCause */
+static int hf_gsm_map_er_extensibleCallBarredParam;  /* ExtensibleCallBarredParam */
+static int hf_gsm_map_er_unauthorisedMessageOriginator;  /* NULL */
+static int hf_gsm_map_er_anonymousCallRejection;  /* NULL */
+static int hf_gsm_map_er_cug_RejectCause;         /* CUG_RejectCause */
+static int hf_gsm_map_er_ss_Code;                 /* SS_Code */
+static int hf_gsm_map_er_basicService;            /* BasicServiceCode */
+static int hf_gsm_map_er_ss_Status;               /* SS_Status */
+static int hf_gsm_map_er_sm_EnumeratedDeliveryFailureCause;  /* SM_EnumeratedDeliveryFailureCause */
+static int hf_gsm_map_er_diagnosticInfo;          /* SignalInfo */
+static int hf_gsm_map_er_absentSubscriberDiagnosticSM;  /* AbsentSubscriberDiagnosticSM */
+static int hf_gsm_map_er_additionalAbsentSubscriberDiagnosticSM;  /* AbsentSubscriberDiagnosticSM */
+static int hf_gsm_map_er_imsi;                    /* IMSI */
+static int hf_gsm_map_er_requestedRetransmissionTime;  /* Time */
+static int hf_gsm_map_er_userIdentifierAlert;     /* IMSI */
+static int hf_gsm_map_er_networkResource;         /* NetworkResource */
+static int hf_gsm_map_er_extensibleSystemFailureParam;  /* ExtensibleSystemFailureParam */
+static int hf_gsm_map_er_additionalNetworkResource;  /* AdditionalNetworkResource */
+static int hf_gsm_map_er_failureCauseParam;       /* FailureCauseParam */
+static int hf_gsm_map_er_unexpectedSubscriber;    /* NULL */
+static int hf_gsm_map_er_shapeOfLocationEstimateNotSupported;  /* NULL */
+static int hf_gsm_map_er_neededLcsCapabilityNotSupportedInServingNode;  /* NULL */
+static int hf_gsm_map_er_unknownSubscriberDiagnostic;  /* UnknownSubscriberDiagnostic */
+static int hf_gsm_map_er_absentSubscriberReason;  /* AbsentSubscriberReason */
+static int hf_gsm_map_er_ccbs_Possible;           /* NULL */
+static int hf_gsm_map_er_ccbs_Busy;               /* NULL */
+static int hf_gsm_map_er_gprsConnectionSuspended;  /* NULL */
+static int hf_gsm_map_er_unauthorizedLCSClient_Diagnostic;  /* UnauthorizedLCSClient_Diagnostic */
+static int hf_gsm_map_er_positionMethodFailure_Diagnostic;  /* PositionMethodFailure_Diagnostic */
 
 /* --- Module MAP-SM-DataTypes --- --- ---                                    */
 
-static int hf_gsm_map_sm_msisdn = -1;             /* ISDN_AddressString */
-static int hf_gsm_map_sm_sm_RP_PRI = -1;          /* BOOLEAN */
-static int hf_gsm_map_sm_serviceCentreAddress = -1;  /* AddressString */
-static int hf_gsm_map_sm_extensionContainer = -1;  /* ExtensionContainer */
-static int hf_gsm_map_sm_gprsSupportIndicator = -1;  /* NULL */
-static int hf_gsm_map_sm_sm_RP_MTI = -1;          /* SM_RP_MTI */
-static int hf_gsm_map_sm_sm_RP_SMEA = -1;         /* SM_RP_SMEA */
-static int hf_gsm_map_sm_sm_deliveryNotIntended = -1;  /* SM_DeliveryNotIntended */
-static int hf_gsm_map_sm_ip_sm_gwGuidanceIndicator = -1;  /* NULL */
-static int hf_gsm_map_sm_imsi = -1;               /* IMSI */
-static int hf_gsm_map_sm_t4_Trigger_Indicator = -1;  /* NULL */
-static int hf_gsm_map_sm_singleAttemptDelivery = -1;  /* NULL */
-static int hf_gsm_map_sm_correlationID = -1;      /* CorrelationID */
-static int hf_gsm_map_sm_smsf_supportIndicator = -1;  /* NULL */
-static int hf_gsm_map_sm_locationInfoWithLMSI = -1;  /* LocationInfoWithLMSI */
-static int hf_gsm_map_sm_ip_sm_gwGuidance = -1;   /* IP_SM_GW_Guidance */
-static int hf_gsm_map_sm_minimumDeliveryTimeValue = -1;  /* SM_DeliveryTimerValue */
-static int hf_gsm_map_sm_recommendedDeliveryTimeValue = -1;  /* SM_DeliveryTimerValue */
-static int hf_gsm_map_sm_networkNode_Number = -1;  /* ISDN_AddressString */
-static int hf_gsm_map_sm_lmsi = -1;               /* LMSI */
-static int hf_gsm_map_sm_gprsNodeIndicator = -1;  /* NULL */
-static int hf_gsm_map_sm_additional_Number = -1;  /* Additional_Number */
-static int hf_gsm_map_sm_networkNodeDiameterAddress = -1;  /* NetworkNodeDiameterAddress */
-static int hf_gsm_map_sm_additionalNetworkNodeDiameterAddress = -1;  /* NetworkNodeDiameterAddress */
-static int hf_gsm_map_sm_thirdNumber = -1;        /* Additional_Number */
-static int hf_gsm_map_sm_thirdNetworkNodeDiameterAddress = -1;  /* NetworkNodeDiameterAddress */
-static int hf_gsm_map_sm_imsNodeIndicator = -1;   /* NULL */
-static int hf_gsm_map_sm_smsf_3gpp_Number = -1;   /* ISDN_AddressString */
-static int hf_gsm_map_sm_smsf_3gpp_DiameterAddress = -1;  /* NetworkNodeDiameterAddress */
-static int hf_gsm_map_sm_smsf_non_3gpp_Number = -1;  /* ISDN_AddressString */
-static int hf_gsm_map_sm_smsf_non_3gpp_DiameterAddress = -1;  /* NetworkNodeDiameterAddress */
-static int hf_gsm_map_sm_smsf_3gpp_address_indicator = -1;  /* NULL */
-static int hf_gsm_map_sm_smsf_non_3gpp_address_indicator = -1;  /* NULL */
-static int hf_gsm_map_sm_msc_Number = -1;         /* ISDN_AddressString */
-static int hf_gsm_map_sm_sgsn_Number = -1;        /* ISDN_AddressString */
-static int hf_gsm_map_sm_sm_RP_DA = -1;           /* SM_RP_DA */
-static int hf_gsm_map_sm_sm_RP_OA = -1;           /* SM_RP_OA */
-static int hf_gsm_map_sm_sm_RP_UI = -1;           /* SignalInfo */
-static int hf_gsm_map_sm_sm_DeliveryOutcome = -1;  /* SM_DeliveryOutcome */
-static int hf_gsm_map_sm_moreMessagesToSend = -1;  /* NULL */
-static int hf_gsm_map_sm_smDeliveryTimer = -1;    /* SM_DeliveryTimerValue */
-static int hf_gsm_map_sm_smDeliveryStartTime = -1;  /* Time */
-static int hf_gsm_map_sm_smsOverIP_OnlyIndicator = -1;  /* NULL */
-static int hf_gsm_map_sm_maximumRetransmissionTime = -1;  /* Time */
-static int hf_gsm_map_sm_smsGmscAddress = -1;     /* ISDN_AddressString */
-static int hf_gsm_map_sm_smsGmscDiameterAddress = -1;  /* NetworkNodeDiameterAddress */
-static int hf_gsm_map_sm_hlr_id = -1;             /* HLR_Id */
-static int hf_gsm_map_sm_sip_uri_A = -1;          /* SIP_URI */
-static int hf_gsm_map_sm_sip_uri_B = -1;          /* SIP_URI */
-static int hf_gsm_map_sm_imsi_01 = -1;            /* T_imsi */
-static int hf_gsm_map_sm_lmsi_01 = -1;            /* T_lmsi */
-static int hf_gsm_map_sm_serviceCentreAddressDA = -1;  /* T_serviceCentreAddressDA */
-static int hf_gsm_map_sm_noSM_RP_DA = -1;         /* T_noSM_RP_DA */
-static int hf_gsm_map_sm_msisdn_01 = -1;          /* T_msisdn */
-static int hf_gsm_map_sm_serviceCentreAddressOA = -1;  /* T_serviceCentreAddressOA */
-static int hf_gsm_map_sm_noSM_RP_OA = -1;         /* T_noSM_RP_OA */
-static int hf_gsm_map_sm_absentSubscriberDiagnosticSM = -1;  /* AbsentSubscriberDiagnosticSM */
-static int hf_gsm_map_sm_deliveryOutcomeIndicator = -1;  /* NULL */
-static int hf_gsm_map_sm_additionalSM_DeliveryOutcome = -1;  /* SM_DeliveryOutcome */
-static int hf_gsm_map_sm_additionalAbsentSubscriberDiagnosticSM = -1;  /* AbsentSubscriberDiagnosticSM */
-static int hf_gsm_map_sm_ip_sm_gw_Indicator = -1;  /* NULL */
-static int hf_gsm_map_sm_ip_sm_gw_sm_deliveryOutcome = -1;  /* SM_DeliveryOutcome */
-static int hf_gsm_map_sm_ip_sm_gw_absentSubscriberDiagnosticSM = -1;  /* AbsentSubscriberDiagnosticSM */
-static int hf_gsm_map_sm_smsf_3gpp_deliveryOutcomeIndicator = -1;  /* NULL */
-static int hf_gsm_map_sm_smsf_3gpp_deliveryOutcome = -1;  /* SM_DeliveryOutcome */
-static int hf_gsm_map_sm_smsf_3gpp_absentSubscriberDiagSM = -1;  /* AbsentSubscriberDiagnosticSM */
-static int hf_gsm_map_sm_smsf_non_3gpp_deliveryOutcomeIndicator = -1;  /* NULL */
-static int hf_gsm_map_sm_smsf_non_3gpp_deliveryOutcome = -1;  /* SM_DeliveryOutcome */
-static int hf_gsm_map_sm_smsf_non_3gpp_absentSubscriberDiagSM = -1;  /* AbsentSubscriberDiagnosticSM */
-static int hf_gsm_map_sm_storedMSISDN = -1;       /* ISDN_AddressString */
-static int hf_gsm_map_sm_maximumUeAvailabilityTime = -1;  /* Time */
-static int hf_gsm_map_sm_smsGmscAlertEvent = -1;  /* SmsGmsc_Alert_Event */
-static int hf_gsm_map_sm_newSGSNNumber = -1;      /* ISDN_AddressString */
-static int hf_gsm_map_sm_newSGSNDiameterAddress = -1;  /* NetworkNodeDiameterAddress */
-static int hf_gsm_map_sm_newMMENumber = -1;       /* ISDN_AddressString */
-static int hf_gsm_map_sm_newMMEDiameterAddress = -1;  /* NetworkNodeDiameterAddress */
-static int hf_gsm_map_sm_newMSCNumber = -1;       /* ISDN_AddressString */
-static int hf_gsm_map_sm_mw_Status = -1;          /* MW_Status */
-static int hf_gsm_map_sm_smsf3gppAbsentSubscriberDiagnosticSM = -1;  /* AbsentSubscriberDiagnosticSM */
-static int hf_gsm_map_sm_smsfNon3gppAbsentSubscriberDiagnosticSM = -1;  /* AbsentSubscriberDiagnosticSM */
-static int hf_gsm_map_sm_alertReason = -1;        /* AlertReason */
-static int hf_gsm_map_sm_alertReasonIndicator = -1;  /* NULL */
-static int hf_gsm_map_sm_additionalAlertReasonIndicator = -1;  /* NULL */
-static int hf_gsm_map_sm_asciCallReference = -1;  /* ASCI_CallReference */
-static int hf_gsm_map_sm_dispatcherList = -1;     /* DispatcherList */
-static int hf_gsm_map_sm_ongoingCall = -1;        /* NULL */
-static int hf_gsm_map_sm_additionalDispatcherList = -1;  /* AdditionalDispatcherList */
-static int hf_gsm_map_sm_DispatcherList_item = -1;  /* ISDN_AddressString */
-static int hf_gsm_map_sm_AdditionalDispatcherList_item = -1;  /* ISDN_AddressString */
+static int hf_gsm_map_sm_msisdn;                  /* ISDN_AddressString */
+static int hf_gsm_map_sm_sm_RP_PRI;               /* BOOLEAN */
+static int hf_gsm_map_sm_serviceCentreAddress;    /* AddressString */
+static int hf_gsm_map_sm_extensionContainer;      /* ExtensionContainer */
+static int hf_gsm_map_sm_gprsSupportIndicator;    /* NULL */
+static int hf_gsm_map_sm_sm_RP_MTI;               /* SM_RP_MTI */
+static int hf_gsm_map_sm_sm_RP_SMEA;              /* SM_RP_SMEA */
+static int hf_gsm_map_sm_sm_deliveryNotIntended;  /* SM_DeliveryNotIntended */
+static int hf_gsm_map_sm_ip_sm_gwGuidanceIndicator;  /* NULL */
+static int hf_gsm_map_sm_imsi;                    /* IMSI */
+static int hf_gsm_map_sm_t4_Trigger_Indicator;    /* NULL */
+static int hf_gsm_map_sm_singleAttemptDelivery;   /* NULL */
+static int hf_gsm_map_sm_correlationID;           /* CorrelationID */
+static int hf_gsm_map_sm_smsf_supportIndicator;   /* NULL */
+static int hf_gsm_map_sm_locationInfoWithLMSI;    /* LocationInfoWithLMSI */
+static int hf_gsm_map_sm_ip_sm_gwGuidance;        /* IP_SM_GW_Guidance */
+static int hf_gsm_map_sm_minimumDeliveryTimeValue;  /* SM_DeliveryTimerValue */
+static int hf_gsm_map_sm_recommendedDeliveryTimeValue;  /* SM_DeliveryTimerValue */
+static int hf_gsm_map_sm_networkNode_Number;      /* ISDN_AddressString */
+static int hf_gsm_map_sm_lmsi;                    /* LMSI */
+static int hf_gsm_map_sm_gprsNodeIndicator;       /* NULL */
+static int hf_gsm_map_sm_additional_Number;       /* Additional_Number */
+static int hf_gsm_map_sm_networkNodeDiameterAddress;  /* NetworkNodeDiameterAddress */
+static int hf_gsm_map_sm_additionalNetworkNodeDiameterAddress;  /* NetworkNodeDiameterAddress */
+static int hf_gsm_map_sm_thirdNumber;             /* Additional_Number */
+static int hf_gsm_map_sm_thirdNetworkNodeDiameterAddress;  /* NetworkNodeDiameterAddress */
+static int hf_gsm_map_sm_imsNodeIndicator;        /* NULL */
+static int hf_gsm_map_sm_smsf_3gpp_Number;        /* ISDN_AddressString */
+static int hf_gsm_map_sm_smsf_3gpp_DiameterAddress;  /* NetworkNodeDiameterAddress */
+static int hf_gsm_map_sm_smsf_non_3gpp_Number;    /* ISDN_AddressString */
+static int hf_gsm_map_sm_smsf_non_3gpp_DiameterAddress;  /* NetworkNodeDiameterAddress */
+static int hf_gsm_map_sm_smsf_3gpp_address_indicator;  /* NULL */
+static int hf_gsm_map_sm_smsf_non_3gpp_address_indicator;  /* NULL */
+static int hf_gsm_map_sm_msc_Number;              /* ISDN_AddressString */
+static int hf_gsm_map_sm_sgsn_Number;             /* ISDN_AddressString */
+static int hf_gsm_map_sm_sm_RP_DA;                /* SM_RP_DA */
+static int hf_gsm_map_sm_sm_RP_OA;                /* SM_RP_OA */
+static int hf_gsm_map_sm_sm_RP_UI;                /* SignalInfo */
+static int hf_gsm_map_sm_sm_DeliveryOutcome;      /* SM_DeliveryOutcome */
+static int hf_gsm_map_sm_moreMessagesToSend;      /* NULL */
+static int hf_gsm_map_sm_smDeliveryTimer;         /* SM_DeliveryTimerValue */
+static int hf_gsm_map_sm_smDeliveryStartTime;     /* Time */
+static int hf_gsm_map_sm_smsOverIP_OnlyIndicator;  /* NULL */
+static int hf_gsm_map_sm_maximumRetransmissionTime;  /* Time */
+static int hf_gsm_map_sm_smsGmscAddress;          /* ISDN_AddressString */
+static int hf_gsm_map_sm_smsGmscDiameterAddress;  /* NetworkNodeDiameterAddress */
+static int hf_gsm_map_sm_hlr_id;                  /* HLR_Id */
+static int hf_gsm_map_sm_sip_uri_A;               /* SIP_URI */
+static int hf_gsm_map_sm_sip_uri_B;               /* SIP_URI */
+static int hf_gsm_map_sm_imsi_01;                 /* T_imsi */
+static int hf_gsm_map_sm_lmsi_01;                 /* T_lmsi */
+static int hf_gsm_map_sm_serviceCentreAddressDA;  /* T_serviceCentreAddressDA */
+static int hf_gsm_map_sm_noSM_RP_DA;              /* T_noSM_RP_DA */
+static int hf_gsm_map_sm_msisdn_01;               /* T_msisdn */
+static int hf_gsm_map_sm_serviceCentreAddressOA;  /* T_serviceCentreAddressOA */
+static int hf_gsm_map_sm_noSM_RP_OA;              /* T_noSM_RP_OA */
+static int hf_gsm_map_sm_absentSubscriberDiagnosticSM;  /* AbsentSubscriberDiagnosticSM */
+static int hf_gsm_map_sm_deliveryOutcomeIndicator;  /* NULL */
+static int hf_gsm_map_sm_additionalSM_DeliveryOutcome;  /* SM_DeliveryOutcome */
+static int hf_gsm_map_sm_additionalAbsentSubscriberDiagnosticSM;  /* AbsentSubscriberDiagnosticSM */
+static int hf_gsm_map_sm_ip_sm_gw_Indicator;      /* NULL */
+static int hf_gsm_map_sm_ip_sm_gw_sm_deliveryOutcome;  /* SM_DeliveryOutcome */
+static int hf_gsm_map_sm_ip_sm_gw_absentSubscriberDiagnosticSM;  /* AbsentSubscriberDiagnosticSM */
+static int hf_gsm_map_sm_smsf_3gpp_deliveryOutcomeIndicator;  /* NULL */
+static int hf_gsm_map_sm_smsf_3gpp_deliveryOutcome;  /* SM_DeliveryOutcome */
+static int hf_gsm_map_sm_smsf_3gpp_absentSubscriberDiagSM;  /* AbsentSubscriberDiagnosticSM */
+static int hf_gsm_map_sm_smsf_non_3gpp_deliveryOutcomeIndicator;  /* NULL */
+static int hf_gsm_map_sm_smsf_non_3gpp_deliveryOutcome;  /* SM_DeliveryOutcome */
+static int hf_gsm_map_sm_smsf_non_3gpp_absentSubscriberDiagSM;  /* AbsentSubscriberDiagnosticSM */
+static int hf_gsm_map_sm_storedMSISDN;            /* ISDN_AddressString */
+static int hf_gsm_map_sm_maximumUeAvailabilityTime;  /* Time */
+static int hf_gsm_map_sm_smsGmscAlertEvent;       /* SmsGmsc_Alert_Event */
+static int hf_gsm_map_sm_newSGSNNumber;           /* ISDN_AddressString */
+static int hf_gsm_map_sm_newSGSNDiameterAddress;  /* NetworkNodeDiameterAddress */
+static int hf_gsm_map_sm_newMMENumber;            /* ISDN_AddressString */
+static int hf_gsm_map_sm_newMMEDiameterAddress;   /* NetworkNodeDiameterAddress */
+static int hf_gsm_map_sm_newMSCNumber;            /* ISDN_AddressString */
+static int hf_gsm_map_sm_mw_Status;               /* MW_Status */
+static int hf_gsm_map_sm_smsf3gppAbsentSubscriberDiagnosticSM;  /* AbsentSubscriberDiagnosticSM */
+static int hf_gsm_map_sm_smsfNon3gppAbsentSubscriberDiagnosticSM;  /* AbsentSubscriberDiagnosticSM */
+static int hf_gsm_map_sm_alertReason;             /* AlertReason */
+static int hf_gsm_map_sm_alertReasonIndicator;    /* NULL */
+static int hf_gsm_map_sm_additionalAlertReasonIndicator;  /* NULL */
+static int hf_gsm_map_sm_asciCallReference;       /* ASCI_CallReference */
+static int hf_gsm_map_sm_dispatcherList;          /* DispatcherList */
+static int hf_gsm_map_sm_ongoingCall;             /* NULL */
+static int hf_gsm_map_sm_additionalDispatcherList;  /* AdditionalDispatcherList */
+static int hf_gsm_map_sm_DispatcherList_item;     /* ISDN_AddressString */
+static int hf_gsm_map_sm_AdditionalDispatcherList_item;  /* ISDN_AddressString */
 /* named bits */
-static int hf_gsm_map_sm_MW_Status_sc_AddressNotIncluded = -1;
-static int hf_gsm_map_sm_MW_Status_mnrf_Set = -1;
-static int hf_gsm_map_sm_MW_Status_mcef_Set = -1;
-static int hf_gsm_map_sm_MW_Status_mnrg_Set = -1;
-static int hf_gsm_map_sm_MW_Status_mnr5g_Set = -1;
-static int hf_gsm_map_sm_MW_Status_mnr5gn3g_Set = -1;
+static int hf_gsm_map_sm_MW_Status_sc_AddressNotIncluded;
+static int hf_gsm_map_sm_MW_Status_mnrf_Set;
+static int hf_gsm_map_sm_MW_Status_mcef_Set;
+static int hf_gsm_map_sm_MW_Status_mnrg_Set;
+static int hf_gsm_map_sm_MW_Status_mnr5g_Set;
+static int hf_gsm_map_sm_MW_Status_mnr5gn3g_Set;
 
 /* --- Module MAP-OM-DataTypes --- --- ---                                    */
 
-static int hf_gsm_map_om_imsi = -1;               /* IMSI */
-static int hf_gsm_map_om_traceReference = -1;     /* TraceReference */
-static int hf_gsm_map_om_traceType = -1;          /* TraceType */
-static int hf_gsm_map_om_omc_Id = -1;             /* AddressString */
-static int hf_gsm_map_om_extensionContainer = -1;  /* ExtensionContainer */
-static int hf_gsm_map_om_traceReference2 = -1;    /* TraceReference2 */
-static int hf_gsm_map_om_traceDepthList = -1;     /* TraceDepthList */
-static int hf_gsm_map_om_traceNE_TypeList = -1;   /* TraceNE_TypeList */
-static int hf_gsm_map_om_traceInterfaceList = -1;  /* TraceInterfaceList */
-static int hf_gsm_map_om_traceEventList = -1;     /* TraceEventList */
-static int hf_gsm_map_om_traceCollectionEntity = -1;  /* GSN_Address */
-static int hf_gsm_map_om_mdt_Configuration = -1;  /* MDT_Configuration */
-static int hf_gsm_map_om_jobType = -1;            /* JobType */
-static int hf_gsm_map_om_areaScope = -1;          /* AreaScope */
-static int hf_gsm_map_om_listOfMeasurements = -1;  /* ListOfMeasurements */
-static int hf_gsm_map_om_reportingTrigger = -1;   /* ReportingTrigger */
-static int hf_gsm_map_om_reportInterval = -1;     /* ReportInterval */
-static int hf_gsm_map_om_reportAmount = -1;       /* ReportAmount */
-static int hf_gsm_map_om_eventThresholdRSRP = -1;  /* EventThresholdRSRP */
-static int hf_gsm_map_om_eventThresholdRSRQ = -1;  /* EventThresholdRSRQ */
-static int hf_gsm_map_om_loggingInterval = -1;    /* LoggingInterval */
-static int hf_gsm_map_om_loggingDuration = -1;    /* LoggingDuration */
-static int hf_gsm_map_om_measurementPeriodUMTS = -1;  /* PeriodUMTS */
-static int hf_gsm_map_om_measurementPeriodLTE = -1;  /* PeriodLTE */
-static int hf_gsm_map_om_collectionPeriodRRM_UMTS = -1;  /* PeriodUMTS */
-static int hf_gsm_map_om_collectionPeriodRRM_LTE = -1;  /* PeriodLTE */
-static int hf_gsm_map_om_positioningMethod = -1;  /* PositioningMethod */
-static int hf_gsm_map_om_measurementQuantity = -1;  /* MeasurementQuantity */
-static int hf_gsm_map_om_eventThreshold1F = -1;   /* EventThreshold1F */
-static int hf_gsm_map_om_eventThreshold1I = -1;   /* EventThreshold1I */
-static int hf_gsm_map_om_mdt_Allowed_PLMN_List = -1;  /* MDT_Allowed_PLMNId_List */
-static int hf_gsm_map_om_MDT_Allowed_PLMNId_List_item = -1;  /* PLMN_Id */
-static int hf_gsm_map_om_cgi_List = -1;           /* CGI_List */
-static int hf_gsm_map_om_e_utran_cgi_List = -1;   /* E_UTRAN_CGI_List */
-static int hf_gsm_map_om_routingAreaId_List = -1;  /* RoutingAreaId_List */
-static int hf_gsm_map_om_locationAreaId_List = -1;  /* LocationAreaId_List */
-static int hf_gsm_map_om_trackingAreaId_List = -1;  /* TrackingAreaId_List */
-static int hf_gsm_map_om_CGI_List_item = -1;      /* GlobalCellId */
-static int hf_gsm_map_om_E_UTRAN_CGI_List_item = -1;  /* E_UTRAN_CGI */
-static int hf_gsm_map_om_RoutingAreaId_List_item = -1;  /* RAIdentity */
-static int hf_gsm_map_om_LocationAreaId_List_item = -1;  /* LAIFixedLength */
-static int hf_gsm_map_om_TrackingAreaId_List_item = -1;  /* TA_Id */
-static int hf_gsm_map_om_msc_s_TraceDepth = -1;   /* TraceDepth */
-static int hf_gsm_map_om_mgw_TraceDepth = -1;     /* TraceDepth */
-static int hf_gsm_map_om_sgsn_TraceDepth = -1;    /* TraceDepth */
-static int hf_gsm_map_om_ggsn_TraceDepth = -1;    /* TraceDepth */
-static int hf_gsm_map_om_rnc_TraceDepth = -1;     /* TraceDepth */
-static int hf_gsm_map_om_bmsc_TraceDepth = -1;    /* TraceDepth */
-static int hf_gsm_map_om_mme_TraceDepth = -1;     /* TraceDepth */
-static int hf_gsm_map_om_sgw_TraceDepth = -1;     /* TraceDepth */
-static int hf_gsm_map_om_pgw_TraceDepth = -1;     /* TraceDepth */
-static int hf_gsm_map_om_eNB_TraceDepth = -1;     /* TraceDepth */
-static int hf_gsm_map_om_msc_s_TraceDepthExtension = -1;  /* TraceDepthExtension */
-static int hf_gsm_map_om_mgw_TraceDepthExtension = -1;  /* TraceDepthExtension */
-static int hf_gsm_map_om_sgsn_TraceDepthExtension = -1;  /* TraceDepthExtension */
-static int hf_gsm_map_om_ggsn_TraceDepthExtension = -1;  /* TraceDepthExtension */
-static int hf_gsm_map_om_rnc_TraceDepthExtension = -1;  /* TraceDepthExtension */
-static int hf_gsm_map_om_bmsc_TraceDepthExtension = -1;  /* TraceDepthExtension */
-static int hf_gsm_map_om_mme_TraceDepthExtension = -1;  /* TraceDepthExtension */
-static int hf_gsm_map_om_sgw_TraceDepthExtension = -1;  /* TraceDepthExtension */
-static int hf_gsm_map_om_pgw_TraceDepthExtension = -1;  /* TraceDepthExtension */
-static int hf_gsm_map_om_eNB_TraceDepthExtension = -1;  /* TraceDepthExtension */
-static int hf_gsm_map_om_msc_s_List = -1;         /* MSC_S_InterfaceList */
-static int hf_gsm_map_om_mgw_List = -1;           /* MGW_InterfaceList */
-static int hf_gsm_map_om_sgsn_List = -1;          /* SGSN_InterfaceList */
-static int hf_gsm_map_om_ggsn_List = -1;          /* GGSN_InterfaceList */
-static int hf_gsm_map_om_rnc_List = -1;           /* RNC_InterfaceList */
-static int hf_gsm_map_om_bmsc_List = -1;          /* BMSC_InterfaceList */
-static int hf_gsm_map_om_mme_List = -1;           /* MME_InterfaceList */
-static int hf_gsm_map_om_sgw_List = -1;           /* SGW_InterfaceList */
-static int hf_gsm_map_om_pgw_List = -1;           /* PGW_InterfaceList */
-static int hf_gsm_map_om_eNB_List = -1;           /* ENB_InterfaceList */
-static int hf_gsm_map_om_msc_s_List_01 = -1;      /* MSC_S_EventList */
-static int hf_gsm_map_om_mgw_List_01 = -1;        /* MGW_EventList */
-static int hf_gsm_map_om_sgsn_List_01 = -1;       /* SGSN_EventList */
-static int hf_gsm_map_om_ggsn_List_01 = -1;       /* GGSN_EventList */
-static int hf_gsm_map_om_bmsc_List_01 = -1;       /* BMSC_EventList */
-static int hf_gsm_map_om_mme_List_01 = -1;        /* MME_EventList */
-static int hf_gsm_map_om_sgw_List_01 = -1;        /* SGW_EventList */
-static int hf_gsm_map_om_pgw_List_01 = -1;        /* PGW_EventList */
-static int hf_gsm_map_om_traceRecordingSessionReference = -1;  /* TraceRecordingSessionReference */
-static int hf_gsm_map_om_rnc_InterfaceList = -1;  /* RNC_InterfaceList */
-static int hf_gsm_map_om_msc_s_InterfaceList = -1;  /* MSC_S_InterfaceList */
-static int hf_gsm_map_om_msc_s_EventList = -1;    /* MSC_S_EventList */
-static int hf_gsm_map_om_mgw_InterfaceList = -1;  /* MGW_InterfaceList */
-static int hf_gsm_map_om_mgw_EventList = -1;      /* MGW_EventList */
-static int hf_gsm_map_om_traceSupportIndicator = -1;  /* NULL */
+static int hf_gsm_map_om_imsi;                    /* IMSI */
+static int hf_gsm_map_om_traceReference;          /* TraceReference */
+static int hf_gsm_map_om_traceType;               /* TraceType */
+static int hf_gsm_map_om_omc_Id;                  /* AddressString */
+static int hf_gsm_map_om_extensionContainer;      /* ExtensionContainer */
+static int hf_gsm_map_om_traceReference2;         /* TraceReference2 */
+static int hf_gsm_map_om_traceDepthList;          /* TraceDepthList */
+static int hf_gsm_map_om_traceNE_TypeList;        /* TraceNE_TypeList */
+static int hf_gsm_map_om_traceInterfaceList;      /* TraceInterfaceList */
+static int hf_gsm_map_om_traceEventList;          /* TraceEventList */
+static int hf_gsm_map_om_traceCollectionEntity;   /* GSN_Address */
+static int hf_gsm_map_om_mdt_Configuration;       /* MDT_Configuration */
+static int hf_gsm_map_om_jobType;                 /* JobType */
+static int hf_gsm_map_om_areaScope;               /* AreaScope */
+static int hf_gsm_map_om_listOfMeasurements;      /* ListOfMeasurements */
+static int hf_gsm_map_om_reportingTrigger;        /* ReportingTrigger */
+static int hf_gsm_map_om_reportInterval;          /* ReportInterval */
+static int hf_gsm_map_om_reportAmount;            /* ReportAmount */
+static int hf_gsm_map_om_eventThresholdRSRP;      /* EventThresholdRSRP */
+static int hf_gsm_map_om_eventThresholdRSRQ;      /* EventThresholdRSRQ */
+static int hf_gsm_map_om_loggingInterval;         /* LoggingInterval */
+static int hf_gsm_map_om_loggingDuration;         /* LoggingDuration */
+static int hf_gsm_map_om_measurementPeriodUMTS;   /* PeriodUMTS */
+static int hf_gsm_map_om_measurementPeriodLTE;    /* PeriodLTE */
+static int hf_gsm_map_om_collectionPeriodRRM_UMTS;  /* PeriodUMTS */
+static int hf_gsm_map_om_collectionPeriodRRM_LTE;  /* PeriodLTE */
+static int hf_gsm_map_om_positioningMethod;       /* PositioningMethod */
+static int hf_gsm_map_om_measurementQuantity;     /* MeasurementQuantity */
+static int hf_gsm_map_om_eventThreshold1F;        /* EventThreshold1F */
+static int hf_gsm_map_om_eventThreshold1I;        /* EventThreshold1I */
+static int hf_gsm_map_om_mdt_Allowed_PLMN_List;   /* MDT_Allowed_PLMNId_List */
+static int hf_gsm_map_om_MDT_Allowed_PLMNId_List_item;  /* PLMN_Id */
+static int hf_gsm_map_om_cgi_List;                /* CGI_List */
+static int hf_gsm_map_om_e_utran_cgi_List;        /* E_UTRAN_CGI_List */
+static int hf_gsm_map_om_routingAreaId_List;      /* RoutingAreaId_List */
+static int hf_gsm_map_om_locationAreaId_List;     /* LocationAreaId_List */
+static int hf_gsm_map_om_trackingAreaId_List;     /* TrackingAreaId_List */
+static int hf_gsm_map_om_CGI_List_item;           /* GlobalCellId */
+static int hf_gsm_map_om_E_UTRAN_CGI_List_item;   /* E_UTRAN_CGI */
+static int hf_gsm_map_om_RoutingAreaId_List_item;  /* RAIdentity */
+static int hf_gsm_map_om_LocationAreaId_List_item;  /* LAIFixedLength */
+static int hf_gsm_map_om_TrackingAreaId_List_item;  /* TA_Id */
+static int hf_gsm_map_om_msc_s_TraceDepth;        /* TraceDepth */
+static int hf_gsm_map_om_mgw_TraceDepth;          /* TraceDepth */
+static int hf_gsm_map_om_sgsn_TraceDepth;         /* TraceDepth */
+static int hf_gsm_map_om_ggsn_TraceDepth;         /* TraceDepth */
+static int hf_gsm_map_om_rnc_TraceDepth;          /* TraceDepth */
+static int hf_gsm_map_om_bmsc_TraceDepth;         /* TraceDepth */
+static int hf_gsm_map_om_mme_TraceDepth;          /* TraceDepth */
+static int hf_gsm_map_om_sgw_TraceDepth;          /* TraceDepth */
+static int hf_gsm_map_om_pgw_TraceDepth;          /* TraceDepth */
+static int hf_gsm_map_om_eNB_TraceDepth;          /* TraceDepth */
+static int hf_gsm_map_om_msc_s_TraceDepthExtension;  /* TraceDepthExtension */
+static int hf_gsm_map_om_mgw_TraceDepthExtension;  /* TraceDepthExtension */
+static int hf_gsm_map_om_sgsn_TraceDepthExtension;  /* TraceDepthExtension */
+static int hf_gsm_map_om_ggsn_TraceDepthExtension;  /* TraceDepthExtension */
+static int hf_gsm_map_om_rnc_TraceDepthExtension;  /* TraceDepthExtension */
+static int hf_gsm_map_om_bmsc_TraceDepthExtension;  /* TraceDepthExtension */
+static int hf_gsm_map_om_mme_TraceDepthExtension;  /* TraceDepthExtension */
+static int hf_gsm_map_om_sgw_TraceDepthExtension;  /* TraceDepthExtension */
+static int hf_gsm_map_om_pgw_TraceDepthExtension;  /* TraceDepthExtension */
+static int hf_gsm_map_om_eNB_TraceDepthExtension;  /* TraceDepthExtension */
+static int hf_gsm_map_om_msc_s_List;              /* MSC_S_InterfaceList */
+static int hf_gsm_map_om_mgw_List;                /* MGW_InterfaceList */
+static int hf_gsm_map_om_sgsn_List;               /* SGSN_InterfaceList */
+static int hf_gsm_map_om_ggsn_List;               /* GGSN_InterfaceList */
+static int hf_gsm_map_om_rnc_List;                /* RNC_InterfaceList */
+static int hf_gsm_map_om_bmsc_List;               /* BMSC_InterfaceList */
+static int hf_gsm_map_om_mme_List;                /* MME_InterfaceList */
+static int hf_gsm_map_om_sgw_List;                /* SGW_InterfaceList */
+static int hf_gsm_map_om_pgw_List;                /* PGW_InterfaceList */
+static int hf_gsm_map_om_eNB_List;                /* ENB_InterfaceList */
+static int hf_gsm_map_om_msc_s_List_01;           /* MSC_S_EventList */
+static int hf_gsm_map_om_mgw_List_01;             /* MGW_EventList */
+static int hf_gsm_map_om_sgsn_List_01;            /* SGSN_EventList */
+static int hf_gsm_map_om_ggsn_List_01;            /* GGSN_EventList */
+static int hf_gsm_map_om_bmsc_List_01;            /* BMSC_EventList */
+static int hf_gsm_map_om_mme_List_01;             /* MME_EventList */
+static int hf_gsm_map_om_sgw_List_01;             /* SGW_EventList */
+static int hf_gsm_map_om_pgw_List_01;             /* PGW_EventList */
+static int hf_gsm_map_om_traceRecordingSessionReference;  /* TraceRecordingSessionReference */
+static int hf_gsm_map_om_rnc_InterfaceList;       /* RNC_InterfaceList */
+static int hf_gsm_map_om_msc_s_InterfaceList;     /* MSC_S_InterfaceList */
+static int hf_gsm_map_om_msc_s_EventList;         /* MSC_S_EventList */
+static int hf_gsm_map_om_mgw_InterfaceList;       /* MGW_InterfaceList */
+static int hf_gsm_map_om_mgw_EventList;           /* MGW_EventList */
+static int hf_gsm_map_om_traceSupportIndicator;   /* NULL */
 /* named bits */
-static int hf_gsm_map_om_TraceNE_TypeList_msc_s = -1;
-static int hf_gsm_map_om_TraceNE_TypeList_mgw = -1;
-static int hf_gsm_map_om_TraceNE_TypeList_sgsn = -1;
-static int hf_gsm_map_om_TraceNE_TypeList_ggsn = -1;
-static int hf_gsm_map_om_TraceNE_TypeList_rnc = -1;
-static int hf_gsm_map_om_TraceNE_TypeList_bm_sc = -1;
-static int hf_gsm_map_om_TraceNE_TypeList_mme = -1;
-static int hf_gsm_map_om_TraceNE_TypeList_sgw = -1;
-static int hf_gsm_map_om_TraceNE_TypeList_pgw = -1;
-static int hf_gsm_map_om_TraceNE_TypeList_eNB = -1;
-static int hf_gsm_map_om_MSC_S_InterfaceList_a = -1;
-static int hf_gsm_map_om_MSC_S_InterfaceList_iu = -1;
-static int hf_gsm_map_om_MSC_S_InterfaceList_mc = -1;
-static int hf_gsm_map_om_MSC_S_InterfaceList_map_g = -1;
-static int hf_gsm_map_om_MSC_S_InterfaceList_map_b = -1;
-static int hf_gsm_map_om_MSC_S_InterfaceList_map_e = -1;
-static int hf_gsm_map_om_MSC_S_InterfaceList_map_f = -1;
-static int hf_gsm_map_om_MSC_S_InterfaceList_cap = -1;
-static int hf_gsm_map_om_MSC_S_InterfaceList_map_d = -1;
-static int hf_gsm_map_om_MSC_S_InterfaceList_map_c = -1;
-static int hf_gsm_map_om_MGW_InterfaceList_mc = -1;
-static int hf_gsm_map_om_MGW_InterfaceList_nb_up = -1;
-static int hf_gsm_map_om_MGW_InterfaceList_iu_up = -1;
-static int hf_gsm_map_om_SGSN_InterfaceList_gb = -1;
-static int hf_gsm_map_om_SGSN_InterfaceList_iu = -1;
-static int hf_gsm_map_om_SGSN_InterfaceList_gn = -1;
-static int hf_gsm_map_om_SGSN_InterfaceList_map_gr = -1;
-static int hf_gsm_map_om_SGSN_InterfaceList_map_gd = -1;
-static int hf_gsm_map_om_SGSN_InterfaceList_map_gf = -1;
-static int hf_gsm_map_om_SGSN_InterfaceList_gs = -1;
-static int hf_gsm_map_om_SGSN_InterfaceList_ge = -1;
-static int hf_gsm_map_om_SGSN_InterfaceList_s3 = -1;
-static int hf_gsm_map_om_SGSN_InterfaceList_s4 = -1;
-static int hf_gsm_map_om_SGSN_InterfaceList_s6d = -1;
-static int hf_gsm_map_om_GGSN_InterfaceList_gn = -1;
-static int hf_gsm_map_om_GGSN_InterfaceList_gi = -1;
-static int hf_gsm_map_om_GGSN_InterfaceList_gmb = -1;
-static int hf_gsm_map_om_RNC_InterfaceList_iu = -1;
-static int hf_gsm_map_om_RNC_InterfaceList_iur = -1;
-static int hf_gsm_map_om_RNC_InterfaceList_iub = -1;
-static int hf_gsm_map_om_RNC_InterfaceList_uu = -1;
-static int hf_gsm_map_om_BMSC_InterfaceList_gmb = -1;
-static int hf_gsm_map_om_MME_InterfaceList_s1_mme = -1;
-static int hf_gsm_map_om_MME_InterfaceList_s3 = -1;
-static int hf_gsm_map_om_MME_InterfaceList_s6a = -1;
-static int hf_gsm_map_om_MME_InterfaceList_s10 = -1;
-static int hf_gsm_map_om_MME_InterfaceList_s11 = -1;
-static int hf_gsm_map_om_SGW_InterfaceList_s4 = -1;
-static int hf_gsm_map_om_SGW_InterfaceList_s5 = -1;
-static int hf_gsm_map_om_SGW_InterfaceList_s8b = -1;
-static int hf_gsm_map_om_SGW_InterfaceList_s11 = -1;
-static int hf_gsm_map_om_SGW_InterfaceList_gxc = -1;
-static int hf_gsm_map_om_PGW_InterfaceList_s2a = -1;
-static int hf_gsm_map_om_PGW_InterfaceList_s2b = -1;
-static int hf_gsm_map_om_PGW_InterfaceList_s2c = -1;
-static int hf_gsm_map_om_PGW_InterfaceList_s5 = -1;
-static int hf_gsm_map_om_PGW_InterfaceList_s6b = -1;
-static int hf_gsm_map_om_PGW_InterfaceList_gx = -1;
-static int hf_gsm_map_om_PGW_InterfaceList_s8b = -1;
-static int hf_gsm_map_om_PGW_InterfaceList_sgi = -1;
-static int hf_gsm_map_om_ENB_InterfaceList_s1_mme = -1;
-static int hf_gsm_map_om_ENB_InterfaceList_x2 = -1;
-static int hf_gsm_map_om_ENB_InterfaceList_uu = -1;
-static int hf_gsm_map_om_MSC_S_EventList_mo_mtCall = -1;
-static int hf_gsm_map_om_MSC_S_EventList_mo_mt_sms = -1;
-static int hf_gsm_map_om_MSC_S_EventList_lu_imsiAttach_imsiDetach = -1;
-static int hf_gsm_map_om_MSC_S_EventList_handovers = -1;
-static int hf_gsm_map_om_MSC_S_EventList_ss = -1;
-static int hf_gsm_map_om_MGW_EventList_context = -1;
-static int hf_gsm_map_om_SGSN_EventList_pdpContext = -1;
-static int hf_gsm_map_om_SGSN_EventList_mo_mt_sms = -1;
-static int hf_gsm_map_om_SGSN_EventList_rau_gprsAttach_gprsDetach = -1;
-static int hf_gsm_map_om_SGSN_EventList_mbmsContext = -1;
-static int hf_gsm_map_om_GGSN_EventList_pdpContext = -1;
-static int hf_gsm_map_om_GGSN_EventList_mbmsContext = -1;
-static int hf_gsm_map_om_BMSC_EventList_mbmsMulticastServiceActivation = -1;
-static int hf_gsm_map_om_MME_EventList_ue_initiatedPDNconectivityRequest = -1;
-static int hf_gsm_map_om_MME_EventList_serviceRequestts = -1;
-static int hf_gsm_map_om_MME_EventList_initialAttachTrackingAreaUpdateDetach = -1;
-static int hf_gsm_map_om_MME_EventList_ue_initiatedPDNdisconnection = -1;
-static int hf_gsm_map_om_MME_EventList_bearerActivationModificationDeletion = -1;
-static int hf_gsm_map_om_MME_EventList_handover = -1;
-static int hf_gsm_map_om_SGW_EventList_pdn_connectionCreation = -1;
-static int hf_gsm_map_om_SGW_EventList_pdn_connectionTermination = -1;
-static int hf_gsm_map_om_SGW_EventList_bearerActivationModificationDeletion = -1;
-static int hf_gsm_map_om_PGW_EventList_pdn_connectionCreation = -1;
-static int hf_gsm_map_om_PGW_EventList_pdn_connectionTermination = -1;
-static int hf_gsm_map_om_PGW_EventList_bearerActivationModificationDeletion = -1;
+static int hf_gsm_map_om_TraceNE_TypeList_msc_s;
+static int hf_gsm_map_om_TraceNE_TypeList_mgw;
+static int hf_gsm_map_om_TraceNE_TypeList_sgsn;
+static int hf_gsm_map_om_TraceNE_TypeList_ggsn;
+static int hf_gsm_map_om_TraceNE_TypeList_rnc;
+static int hf_gsm_map_om_TraceNE_TypeList_bm_sc;
+static int hf_gsm_map_om_TraceNE_TypeList_mme;
+static int hf_gsm_map_om_TraceNE_TypeList_sgw;
+static int hf_gsm_map_om_TraceNE_TypeList_pgw;
+static int hf_gsm_map_om_TraceNE_TypeList_eNB;
+static int hf_gsm_map_om_MSC_S_InterfaceList_a;
+static int hf_gsm_map_om_MSC_S_InterfaceList_iu;
+static int hf_gsm_map_om_MSC_S_InterfaceList_mc;
+static int hf_gsm_map_om_MSC_S_InterfaceList_map_g;
+static int hf_gsm_map_om_MSC_S_InterfaceList_map_b;
+static int hf_gsm_map_om_MSC_S_InterfaceList_map_e;
+static int hf_gsm_map_om_MSC_S_InterfaceList_map_f;
+static int hf_gsm_map_om_MSC_S_InterfaceList_cap;
+static int hf_gsm_map_om_MSC_S_InterfaceList_map_d;
+static int hf_gsm_map_om_MSC_S_InterfaceList_map_c;
+static int hf_gsm_map_om_MGW_InterfaceList_mc;
+static int hf_gsm_map_om_MGW_InterfaceList_nb_up;
+static int hf_gsm_map_om_MGW_InterfaceList_iu_up;
+static int hf_gsm_map_om_SGSN_InterfaceList_gb;
+static int hf_gsm_map_om_SGSN_InterfaceList_iu;
+static int hf_gsm_map_om_SGSN_InterfaceList_gn;
+static int hf_gsm_map_om_SGSN_InterfaceList_map_gr;
+static int hf_gsm_map_om_SGSN_InterfaceList_map_gd;
+static int hf_gsm_map_om_SGSN_InterfaceList_map_gf;
+static int hf_gsm_map_om_SGSN_InterfaceList_gs;
+static int hf_gsm_map_om_SGSN_InterfaceList_ge;
+static int hf_gsm_map_om_SGSN_InterfaceList_s3;
+static int hf_gsm_map_om_SGSN_InterfaceList_s4;
+static int hf_gsm_map_om_SGSN_InterfaceList_s6d;
+static int hf_gsm_map_om_GGSN_InterfaceList_gn;
+static int hf_gsm_map_om_GGSN_InterfaceList_gi;
+static int hf_gsm_map_om_GGSN_InterfaceList_gmb;
+static int hf_gsm_map_om_RNC_InterfaceList_iu;
+static int hf_gsm_map_om_RNC_InterfaceList_iur;
+static int hf_gsm_map_om_RNC_InterfaceList_iub;
+static int hf_gsm_map_om_RNC_InterfaceList_uu;
+static int hf_gsm_map_om_BMSC_InterfaceList_gmb;
+static int hf_gsm_map_om_MME_InterfaceList_s1_mme;
+static int hf_gsm_map_om_MME_InterfaceList_s3;
+static int hf_gsm_map_om_MME_InterfaceList_s6a;
+static int hf_gsm_map_om_MME_InterfaceList_s10;
+static int hf_gsm_map_om_MME_InterfaceList_s11;
+static int hf_gsm_map_om_SGW_InterfaceList_s4;
+static int hf_gsm_map_om_SGW_InterfaceList_s5;
+static int hf_gsm_map_om_SGW_InterfaceList_s8b;
+static int hf_gsm_map_om_SGW_InterfaceList_s11;
+static int hf_gsm_map_om_SGW_InterfaceList_gxc;
+static int hf_gsm_map_om_PGW_InterfaceList_s2a;
+static int hf_gsm_map_om_PGW_InterfaceList_s2b;
+static int hf_gsm_map_om_PGW_InterfaceList_s2c;
+static int hf_gsm_map_om_PGW_InterfaceList_s5;
+static int hf_gsm_map_om_PGW_InterfaceList_s6b;
+static int hf_gsm_map_om_PGW_InterfaceList_gx;
+static int hf_gsm_map_om_PGW_InterfaceList_s8b;
+static int hf_gsm_map_om_PGW_InterfaceList_sgi;
+static int hf_gsm_map_om_ENB_InterfaceList_s1_mme;
+static int hf_gsm_map_om_ENB_InterfaceList_x2;
+static int hf_gsm_map_om_ENB_InterfaceList_uu;
+static int hf_gsm_map_om_MSC_S_EventList_mo_mtCall;
+static int hf_gsm_map_om_MSC_S_EventList_mo_mt_sms;
+static int hf_gsm_map_om_MSC_S_EventList_lu_imsiAttach_imsiDetach;
+static int hf_gsm_map_om_MSC_S_EventList_handovers;
+static int hf_gsm_map_om_MSC_S_EventList_ss;
+static int hf_gsm_map_om_MGW_EventList_context;
+static int hf_gsm_map_om_SGSN_EventList_pdpContext;
+static int hf_gsm_map_om_SGSN_EventList_mo_mt_sms;
+static int hf_gsm_map_om_SGSN_EventList_rau_gprsAttach_gprsDetach;
+static int hf_gsm_map_om_SGSN_EventList_mbmsContext;
+static int hf_gsm_map_om_GGSN_EventList_pdpContext;
+static int hf_gsm_map_om_GGSN_EventList_mbmsContext;
+static int hf_gsm_map_om_BMSC_EventList_mbmsMulticastServiceActivation;
+static int hf_gsm_map_om_MME_EventList_ue_initiatedPDNconectivityRequest;
+static int hf_gsm_map_om_MME_EventList_serviceRequestts;
+static int hf_gsm_map_om_MME_EventList_initialAttachTrackingAreaUpdateDetach;
+static int hf_gsm_map_om_MME_EventList_ue_initiatedPDNdisconnection;
+static int hf_gsm_map_om_MME_EventList_bearerActivationModificationDeletion;
+static int hf_gsm_map_om_MME_EventList_handover;
+static int hf_gsm_map_om_SGW_EventList_pdn_connectionCreation;
+static int hf_gsm_map_om_SGW_EventList_pdn_connectionTermination;
+static int hf_gsm_map_om_SGW_EventList_bearerActivationModificationDeletion;
+static int hf_gsm_map_om_PGW_EventList_pdn_connectionCreation;
+static int hf_gsm_map_om_PGW_EventList_pdn_connectionTermination;
+static int hf_gsm_map_om_PGW_EventList_bearerActivationModificationDeletion;
 
 /* --- Module MAP-MS-DataTypes --- --- ---                                    */
 
-static int hf_gsm_map_ms_gsm_map_ms_SendAuthenticationInfoArg_PDU = -1;  /* SendAuthenticationInfoArg */
-static int hf_gsm_map_ms_gsm_map_ms_SendAuthenticationInfoRes_PDU = -1;  /* SendAuthenticationInfoRes */
-static int hf_gsm_map_ms_imsi = -1;               /* IMSI */
-static int hf_gsm_map_ms_msc_Number = -1;         /* ISDN_AddressString */
-static int hf_gsm_map_ms_vlr_Number = -1;         /* ISDN_AddressString */
-static int hf_gsm_map_ms_lmsi = -1;               /* LMSI */
-static int hf_gsm_map_ms_extensionContainer = -1;  /* ExtensionContainer */
-static int hf_gsm_map_ms_vlr_Capability = -1;     /* VLR_Capability */
-static int hf_gsm_map_ms_informPreviousNetworkEntity = -1;  /* NULL */
-static int hf_gsm_map_ms_cs_LCS_NotSupportedByUE = -1;  /* NULL */
-static int hf_gsm_map_ms_v_gmlc_Address = -1;     /* GSN_Address */
-static int hf_gsm_map_ms_add_info = -1;           /* ADD_Info */
-static int hf_gsm_map_ms_pagingArea = -1;         /* PagingArea */
-static int hf_gsm_map_ms_skipSubscriberDataUpdate = -1;  /* NULL */
-static int hf_gsm_map_ms_restorationIndicator = -1;  /* NULL */
-static int hf_gsm_map_ms_eplmn_List = -1;         /* EPLMN_List */
-static int hf_gsm_map_ms_mme_DiameterAddress = -1;  /* NetworkNodeDiameterAddress */
-static int hf_gsm_map_ms_supportedCamelPhases = -1;  /* SupportedCamelPhases */
-static int hf_gsm_map_ms_solsaSupportIndicator = -1;  /* NULL */
-static int hf_gsm_map_ms_istSupportIndicator = -1;  /* IST_SupportIndicator */
-static int hf_gsm_map_ms_superChargerSupportedInServingNetworkEntity = -1;  /* SuperChargerInfo */
-static int hf_gsm_map_ms_longFTN_Supported = -1;  /* NULL */
-static int hf_gsm_map_ms_supportedLCS_CapabilitySets = -1;  /* SupportedLCS_CapabilitySets */
-static int hf_gsm_map_ms_offeredCamel4CSIs = -1;  /* OfferedCamel4CSIs */
-static int hf_gsm_map_ms_supportedRAT_TypesIndicator = -1;  /* SupportedRAT_Types */
-static int hf_gsm_map_ms_longGroupID_Supported = -1;  /* NULL */
-static int hf_gsm_map_ms_mtRoamingForwardingSupported = -1;  /* NULL */
-static int hf_gsm_map_ms_msisdn_lessOperation_Supported = -1;  /* NULL */
-static int hf_gsm_map_ms_reset_ids_Supported = -1;  /* NULL */
-static int hf_gsm_map_ms_sendSubscriberData = -1;  /* NULL */
-static int hf_gsm_map_ms_subscriberDataStored = -1;  /* AgeIndicator */
-static int hf_gsm_map_ms_hlr_Number = -1;         /* ISDN_AddressString */
-static int hf_gsm_map_ms_add_Capability = -1;     /* NULL */
-static int hf_gsm_map_ms_pagingArea_Capability = -1;  /* NULL */
-static int hf_gsm_map_ms_imeisv = -1;             /* IMEI */
-static int hf_gsm_map_ms_PagingArea_item = -1;    /* LocationArea */
-static int hf_gsm_map_ms_laiFixedLength = -1;     /* LAIFixedLength */
-static int hf_gsm_map_ms_lac = -1;                /* LAC */
-static int hf_gsm_map_ms_identity = -1;           /* Identity */
-static int hf_gsm_map_ms_cancellationType = -1;   /* CancellationType */
-static int hf_gsm_map_ms_typeOfUpdate = -1;       /* TypeOfUpdate */
-static int hf_gsm_map_ms_mtrf_SupportedAndAuthorized = -1;  /* NULL */
-static int hf_gsm_map_ms_mtrf_SupportedAndNotAuthorized = -1;  /* NULL */
-static int hf_gsm_map_ms_newMSC_Number = -1;      /* ISDN_AddressString */
-static int hf_gsm_map_ms_newVLR_Number = -1;      /* ISDN_AddressString */
-static int hf_gsm_map_ms_new_lmsi = -1;           /* LMSI */
-static int hf_gsm_map_ms_reattach_Required = -1;  /* NULL */
-static int hf_gsm_map_ms_sgsn_Number = -1;        /* ISDN_AddressString */
-static int hf_gsm_map_ms_locationInformation = -1;  /* LocationInformation */
-static int hf_gsm_map_ms_locationInformationGPRS = -1;  /* LocationInformationGPRS */
-static int hf_gsm_map_ms_locationInformationEPS = -1;  /* LocationInformationEPS */
-static int hf_gsm_map_ms_freezeTMSI = -1;         /* NULL */
-static int hf_gsm_map_ms_freezeP_TMSI = -1;       /* NULL */
-static int hf_gsm_map_ms_freezeM_TMSI = -1;       /* NULL */
-static int hf_gsm_map_ms_tmsi = -1;               /* TMSI */
-static int hf_gsm_map_ms_numberOfRequestedVectors = -1;  /* NumberOfRequestedVectors */
-static int hf_gsm_map_ms_segmentationProhibited = -1;  /* NULL */
-static int hf_gsm_map_ms_previous_LAI = -1;       /* LAIFixedLength */
-static int hf_gsm_map_ms_hopCounter = -1;         /* HopCounter */
-static int hf_gsm_map_ms_authenticationSetList = -1;  /* AuthenticationSetList */
-static int hf_gsm_map_ms_currentSecurityContext = -1;  /* CurrentSecurityContext */
-static int hf_gsm_map_ms_lastUsedLtePLMN_Id = -1;  /* PLMN_Id */
-static int hf_gsm_map_ms_mtCallPendingFlag = -1;  /* NULL */
-static int hf_gsm_map_ms_tripletList = -1;        /* TripletList */
-static int hf_gsm_map_ms_quintupletList = -1;     /* QuintupletList */
-static int hf_gsm_map_ms_TripletList_item = -1;   /* AuthenticationTriplet */
-static int hf_gsm_map_ms_QuintupletList_item = -1;  /* AuthenticationQuintuplet */
-static int hf_gsm_map_ms_rand = -1;               /* RAND */
-static int hf_gsm_map_ms_sres = -1;               /* SRES */
-static int hf_gsm_map_ms_kc = -1;                 /* Kc */
-static int hf_gsm_map_ms_xres = -1;               /* XRES */
-static int hf_gsm_map_ms_ck = -1;                 /* CK */
-static int hf_gsm_map_ms_ik = -1;                 /* IK */
-static int hf_gsm_map_ms_autn = -1;               /* AUTN */
-static int hf_gsm_map_ms_gsm_SecurityContextData = -1;  /* GSM_SecurityContextData */
-static int hf_gsm_map_ms_umts_SecurityContextData = -1;  /* UMTS_SecurityContextData */
-static int hf_gsm_map_ms_cksn = -1;               /* Cksn */
-static int hf_gsm_map_ms_ksi = -1;                /* KSI */
-static int hf_gsm_map_ms_failureCause = -1;       /* FailureCause */
-static int hf_gsm_map_ms_re_attempt = -1;         /* BOOLEAN */
-static int hf_gsm_map_ms_accessType = -1;         /* AccessType */
-static int hf_gsm_map_ms_sgsn_Address = -1;       /* GSN_Address */
-static int hf_gsm_map_ms_sgsn_Capability = -1;    /* SGSN_Capability */
-static int hf_gsm_map_ms_ps_LCS_NotSupportedByUE = -1;  /* NULL */
-static int hf_gsm_map_ms_eps_info = -1;           /* EPS_Info */
-static int hf_gsm_map_ms_servingNodeTypeIndicator = -1;  /* NULL */
-static int hf_gsm_map_ms_usedRAT_Type = -1;       /* Used_RAT_Type */
-static int hf_gsm_map_ms_gprsSubscriptionDataNotNeeded = -1;  /* NULL */
-static int hf_gsm_map_ms_nodeTypeIndicator = -1;  /* NULL */
-static int hf_gsm_map_ms_areaRestricted = -1;     /* NULL */
-static int hf_gsm_map_ms_ue_reachableIndicator = -1;  /* NULL */
-static int hf_gsm_map_ms_epsSubscriptionDataNotNeeded = -1;  /* NULL */
-static int hf_gsm_map_ms_ue_srvcc_Capability = -1;  /* UE_SRVCC_Capability */
-static int hf_gsm_map_ms_mmeNumberforMTSMS = -1;  /* ISDN_AddressString */
-static int hf_gsm_map_ms_smsRegisterRequest = -1;  /* SMSRegisterRequest */
-static int hf_gsm_map_ms_sms_Only = -1;           /* NULL */
-static int hf_gsm_map_ms_removalofMMERegistrationforSMS = -1;  /* NULL */
-static int hf_gsm_map_ms_sgsn_Name = -1;          /* DiameterIdentity */
-static int hf_gsm_map_ms_sgsn_Realm = -1;         /* DiameterIdentity */
-static int hf_gsm_map_ms_lgd_supportIndicator = -1;  /* NULL */
-static int hf_gsm_map_ms_adjacentPLMN_List = -1;  /* AdjacentPLMN_List */
-static int hf_gsm_map_ms_pdn_gw_update = -1;      /* PDN_GW_Update */
-static int hf_gsm_map_ms_isr_Information = -1;    /* ISR_Information */
-static int hf_gsm_map_ms_apn = -1;                /* APN */
-static int hf_gsm_map_ms_pdn_gw_Identity = -1;    /* PDN_GW_Identity */
-static int hf_gsm_map_ms_contextId = -1;          /* ContextId */
-static int hf_gsm_map_ms_gprsEnhancementsSupportIndicator = -1;  /* NULL */
-static int hf_gsm_map_ms_smsCallBarringSupportIndicator = -1;  /* NULL */
-static int hf_gsm_map_ms_supportedFeatures = -1;  /* SupportedFeatures */
-static int hf_gsm_map_ms_t_adsDataRetrieval = -1;  /* NULL */
-static int hf_gsm_map_ms_homogeneousSupportOfIMSVoiceOverPSSessions = -1;  /* BOOLEAN */
-static int hf_gsm_map_ms_cancellationTypeInitialAttach = -1;  /* NULL */
-static int hf_gsm_map_ms_updateofHomogeneousSupportOfIMSVoiceOverPSSessions = -1;  /* NULL */
-static int hf_gsm_map_ms_ext_SupportedFeatures = -1;  /* Ext_SupportedFeatures */
-static int hf_gsm_map_ms_sgsn_mmeSeparationSupported = -1;  /* NULL */
-static int hf_gsm_map_ms_mmeRegisteredforSMS = -1;  /* NULL */
-static int hf_gsm_map_ms_EPLMN_List_item = -1;    /* PLMN_Id */
-static int hf_gsm_map_ms_AdjacentPLMN_List_item = -1;  /* PLMN_Id */
-static int hf_gsm_map_ms_an_APDU = -1;            /* AccessNetworkSignalInfo */
-static int hf_gsm_map_ms_integrityProtectionInfo = -1;  /* IntegrityProtectionInformation */
-static int hf_gsm_map_ms_encryptionInfo = -1;     /* EncryptionInformation */
-static int hf_gsm_map_ms_keyStatus = -1;          /* KeyStatus */
-static int hf_gsm_map_ms_allowedGSM_Algorithms = -1;  /* AllowedGSM_Algorithms */
-static int hf_gsm_map_ms_allowedUMTS_Algorithms = -1;  /* AllowedUMTS_Algorithms */
-static int hf_gsm_map_ms_radioResourceInformation = -1;  /* RadioResourceInformation */
-static int hf_gsm_map_ms_radioResourceList = -1;  /* RadioResourceList */
-static int hf_gsm_map_ms_bssmap_ServiceHandover = -1;  /* BSSMAP_ServiceHandover */
-static int hf_gsm_map_ms_ranap_ServiceHandover = -1;  /* RANAP_ServiceHandover */
-static int hf_gsm_map_ms_bssmap_ServiceHandoverList = -1;  /* BSSMAP_ServiceHandoverList */
-static int hf_gsm_map_ms_currentlyUsedCodec = -1;  /* Codec */
-static int hf_gsm_map_ms_iuSupportedCodecsList = -1;  /* SupportedCodecsList */
-static int hf_gsm_map_ms_rab_ConfigurationIndicator = -1;  /* NULL */
-static int hf_gsm_map_ms_iuSelectedCodec = -1;    /* Codec */
-static int hf_gsm_map_ms_alternativeChannelType = -1;  /* RadioResourceInformation */
-static int hf_gsm_map_ms_tracePropagationList = -1;  /* TracePropagationList */
-static int hf_gsm_map_ms_aoipSupportedCodecsListAnchor = -1;  /* AoIPCodecsList */
-static int hf_gsm_map_ms_aoipSelectedCodecTarget = -1;  /* AoIPCodec */
-static int hf_gsm_map_ms_uesbi_Iu = -1;           /* UESBI_Iu */
-static int hf_gsm_map_ms_integrityProtectionAlgorithms = -1;  /* PermittedIntegrityProtectionAlgorithms */
-static int hf_gsm_map_ms_encryptionAlgorithms = -1;  /* PermittedEncryptionAlgorithms */
-static int hf_gsm_map_ms_targetCellId = -1;       /* GlobalCellId */
-static int hf_gsm_map_ms_ho_NumberNotRequired = -1;  /* NULL */
-static int hf_gsm_map_ms_targetRNCId = -1;        /* RNCId */
-static int hf_gsm_map_ms_multipleBearerRequested = -1;  /* NULL */
-static int hf_gsm_map_ms_rab_Id = -1;             /* RAB_Id */
-static int hf_gsm_map_ms_asciCallReference = -1;  /* ASCI_CallReference */
-static int hf_gsm_map_ms_geran_classmark = -1;    /* GERAN_Classmark */
-static int hf_gsm_map_ms_iuCurrentlyUsedCodec = -1;  /* Codec */
-static int hf_gsm_map_ms_regionalSubscriptionData = -1;  /* ZoneCodeList */
-static int hf_gsm_map_ms_lclsGlobalCallReference = -1;  /* LCLS_GlobalCallReference */
-static int hf_gsm_map_ms_lcls_Negotiation = -1;   /* LCLS_Negotiation */
-static int hf_gsm_map_ms_lcls_Configuration_Preference = -1;  /* LCLS_ConfigurationPreference */
-static int hf_gsm_map_ms_csg_SubscriptionDataList = -1;  /* CSG_SubscriptionDataList */
-static int hf_gsm_map_ms_BSSMAP_ServiceHandoverList_item = -1;  /* BSSMAP_ServiceHandoverInfo */
-static int hf_gsm_map_ms_RadioResourceList_item = -1;  /* RadioResource */
-static int hf_gsm_map_ms_handoverNumber = -1;     /* ISDN_AddressString */
-static int hf_gsm_map_ms_relocationNumberList = -1;  /* RelocationNumberList */
-static int hf_gsm_map_ms_multicallBearerInfo = -1;  /* MulticallBearerInfo */
-static int hf_gsm_map_ms_multipleBearerNotSupported = -1;  /* NULL */
-static int hf_gsm_map_ms_selectedUMTS_Algorithms = -1;  /* SelectedUMTS_Algorithms */
-static int hf_gsm_map_ms_chosenRadioResourceInformation = -1;  /* ChosenRadioResourceInformation */
-static int hf_gsm_map_ms_iuAvailableCodecsList = -1;  /* CodecList */
-static int hf_gsm_map_ms_aoipAvailableCodecsListMap = -1;  /* AoIPCodecsList */
-static int hf_gsm_map_ms_integrityProtectionAlgorithm = -1;  /* ChosenIntegrityProtectionAlgorithm */
-static int hf_gsm_map_ms_encryptionAlgorithm = -1;  /* ChosenEncryptionAlgorithm */
-static int hf_gsm_map_ms_chosenChannelInfo = -1;  /* ChosenChannelInfo */
-static int hf_gsm_map_ms_chosenSpeechVersion = -1;  /* ChosenSpeechVersion */
-static int hf_gsm_map_ms_targetMSC_Number = -1;   /* ISDN_AddressString */
-static int hf_gsm_map_ms_selectedRab_Id = -1;     /* RAB_Id */
-static int hf_gsm_map_ms_selectedGSM_Algorithm = -1;  /* SelectedGSM_Algorithm */
-static int hf_gsm_map_ms_iUSelectedCodec = -1;    /* Codec */
-static int hf_gsm_map_ms_codec1 = -1;             /* AoIPCodec */
-static int hf_gsm_map_ms_codec2 = -1;             /* AoIPCodec */
-static int hf_gsm_map_ms_codec3 = -1;             /* AoIPCodec */
-static int hf_gsm_map_ms_codec4 = -1;             /* AoIPCodec */
-static int hf_gsm_map_ms_codec5 = -1;             /* AoIPCodec */
-static int hf_gsm_map_ms_codec6 = -1;             /* AoIPCodec */
-static int hf_gsm_map_ms_codec7 = -1;             /* AoIPCodec */
-static int hf_gsm_map_ms_codec8 = -1;             /* AoIPCodec */
-static int hf_gsm_map_ms_utranCodecList = -1;     /* CodecList */
-static int hf_gsm_map_ms_geranCodecList = -1;     /* CodecList */
-static int hf_gsm_map_ms_codec1_01 = -1;          /* Codec */
-static int hf_gsm_map_ms_codec2_01 = -1;          /* Codec */
-static int hf_gsm_map_ms_codec3_01 = -1;          /* Codec */
-static int hf_gsm_map_ms_codec4_01 = -1;          /* Codec */
-static int hf_gsm_map_ms_codec5_01 = -1;          /* Codec */
-static int hf_gsm_map_ms_codec6_01 = -1;          /* Codec */
-static int hf_gsm_map_ms_codec7_01 = -1;          /* Codec */
-static int hf_gsm_map_ms_codec8_01 = -1;          /* Codec */
-static int hf_gsm_map_ms_RelocationNumberList_item = -1;  /* RelocationNumber */
-static int hf_gsm_map_ms_immediateResponsePreferred = -1;  /* NULL */
-static int hf_gsm_map_ms_re_synchronisationInfo = -1;  /* Re_synchronisationInfo */
-static int hf_gsm_map_ms_requestingNodeType = -1;  /* RequestingNodeType */
-static int hf_gsm_map_ms_requestingPLMN_Id = -1;  /* PLMN_Id */
-static int hf_gsm_map_ms_numberOfRequestedAdditional_Vectors = -1;  /* NumberOfRequestedVectors */
-static int hf_gsm_map_ms_additionalVectorsAreForEPS = -1;  /* NULL */
-static int hf_gsm_map_ms_ueUsageTypeRequestIndication = -1;  /* NULL */
-static int hf_gsm_map_ms_auts = -1;               /* AUTS */
-static int hf_gsm_map_ms_eps_AuthenticationSetList = -1;  /* EPS_AuthenticationSetList */
-static int hf_gsm_map_ms_ueUsageType = -1;        /* UE_UsageType */
-static int hf_gsm_map_ms_EPS_AuthenticationSetList_item = -1;  /* EPC_AV */
-static int hf_gsm_map_ms_kasme = -1;              /* KASME */
-static int hf_gsm_map_ms_imei = -1;               /* IMEI */
-static int hf_gsm_map_ms_requestedEquipmentInfo = -1;  /* RequestedEquipmentInfo */
-static int hf_gsm_map_ms_equipmentStatus = -1;    /* EquipmentStatus */
-static int hf_gsm_map_ms_bmuef = -1;              /* UESBI_Iu */
-static int hf_gsm_map_ms_uesbi_IuA = -1;          /* UESBI_IuA */
-static int hf_gsm_map_ms_uesbi_IuB = -1;          /* UESBI_IuB */
-static int hf_gsm_map_ms_EDRX_Cycle_Length_List_item = -1;  /* EDRX_Cycle_Length */
-static int hf_gsm_map_ms_rat_Type = -1;           /* Used_RAT_Type */
-static int hf_gsm_map_ms_eDRX_Cycle_Length_Value = -1;  /* EDRX_Cycle_Length_Value */
-static int hf_gsm_map_ms_Reset_Id_List_item = -1;  /* Reset_Id */
-static int hf_gsm_map_ms_IMSI_GroupIdList_item = -1;  /* IMSI_GroupId */
-static int hf_gsm_map_ms_group_Service_Id = -1;   /* Group_Service_ID */
-static int hf_gsm_map_ms_plmnId = -1;             /* PLMN_Id */
-static int hf_gsm_map_ms_local_Group_ID = -1;     /* Local_GroupID */
-static int hf_gsm_map_ms_CSG_SubscriptionDataList_item = -1;  /* CSG_SubscriptionData */
-static int hf_gsm_map_ms_csg_Id = -1;             /* CSG_Id */
-static int hf_gsm_map_ms_expirationDate = -1;     /* Time */
-static int hf_gsm_map_ms_lipa_AllowedAPNList = -1;  /* LIPA_AllowedAPNList */
-static int hf_gsm_map_ms_plmn_Id = -1;            /* PLMN_Id */
-static int hf_gsm_map_ms_VPLMN_CSG_SubscriptionDataList_item = -1;  /* CSG_SubscriptionData */
-static int hf_gsm_map_ms_LIPA_AllowedAPNList_item = -1;  /* APN */
-static int hf_gsm_map_ms_apn_oi_Replacement = -1;  /* APN_OI_Replacement */
-static int hf_gsm_map_ms_rfsp_id = -1;            /* RFSP_ID */
-static int hf_gsm_map_ms_ambr = -1;               /* AMBR */
-static int hf_gsm_map_ms_apn_ConfigurationProfile = -1;  /* APN_ConfigurationProfile */
-static int hf_gsm_map_ms_stn_sr = -1;             /* ISDN_AddressString */
-static int hf_gsm_map_ms_mps_CSPriority = -1;     /* NULL */
-static int hf_gsm_map_ms_mps_EPSPriority = -1;    /* NULL */
-static int hf_gsm_map_ms_subscribed_vsrvcc = -1;  /* NULL */
-static int hf_gsm_map_ms_defaultContext = -1;     /* ContextId */
-static int hf_gsm_map_ms_completeDataListIncluded = -1;  /* NULL */
-static int hf_gsm_map_ms_epsDataList = -1;        /* EPS_DataList */
-static int hf_gsm_map_ms_additionalDefaultContext = -1;  /* ContextId */
-static int hf_gsm_map_ms_EPS_DataList_item = -1;  /* APN_Configuration */
-static int hf_gsm_map_ms_pdn_Type = -1;           /* PDN_Type */
-static int hf_gsm_map_ms_servedPartyIP_IPv4_Address = -1;  /* PDP_Address */
-static int hf_gsm_map_ms_eps_qos_Subscribed = -1;  /* EPS_QoS_Subscribed */
-static int hf_gsm_map_ms_pdn_gw_AllocationType = -1;  /* PDN_GW_AllocationType */
-static int hf_gsm_map_ms_vplmnAddressAllowed = -1;  /* NULL */
-static int hf_gsm_map_ms_chargingCharacteristics = -1;  /* ChargingCharacteristics */
-static int hf_gsm_map_ms_specificAPNInfoList = -1;  /* SpecificAPNInfoList */
-static int hf_gsm_map_ms_servedPartyIP_IPv6_Address = -1;  /* PDP_Address */
-static int hf_gsm_map_ms_sipto_Permission = -1;   /* SIPTO_Permission */
-static int hf_gsm_map_ms_lipa_Permission = -1;    /* LIPA_Permission */
-static int hf_gsm_map_ms_restoration_Priority = -1;  /* Restoration_Priority */
-static int hf_gsm_map_ms_sipto_local_network_Permission = -1;  /* SIPTO_Local_Network_Permission */
-static int hf_gsm_map_ms_wlan_offloadability = -1;  /* WLAN_Offloadability */
-static int hf_gsm_map_ms_non_IP_PDN_Type_Indicator = -1;  /* NULL */
-static int hf_gsm_map_ms_nIDD_Mechanism = -1;     /* NIDD_Mechanism */
-static int hf_gsm_map_ms_sCEF_ID = -1;            /* FQDN */
-static int hf_gsm_map_ms_pdn_ConnectionContinuity = -1;  /* PDN_ConnectionContinuity */
-static int hf_gsm_map_ms_qos_Class_Identifier = -1;  /* QoS_Class_Identifier */
-static int hf_gsm_map_ms_allocation_Retention_Priority = -1;  /* Allocation_Retention_Priority */
-static int hf_gsm_map_ms_max_RequestedBandwidth_UL = -1;  /* Bandwidth */
-static int hf_gsm_map_ms_max_RequestedBandwidth_DL = -1;  /* Bandwidth */
-static int hf_gsm_map_ms_extended_Max_RequestedBandwidth_UL = -1;  /* BandwidthExt */
-static int hf_gsm_map_ms_extended_Max_RequestedBandwidth_DL = -1;  /* BandwidthExt */
-static int hf_gsm_map_ms_SpecificAPNInfoList_item = -1;  /* SpecificAPNInfo */
-static int hf_gsm_map_ms_priority_level = -1;     /* INTEGER */
-static int hf_gsm_map_ms_pre_emption_capability = -1;  /* BOOLEAN */
-static int hf_gsm_map_ms_pre_emption_vulnerability = -1;  /* BOOLEAN */
-static int hf_gsm_map_ms_pdn_gw_ipv4_Address = -1;  /* PDP_Address */
-static int hf_gsm_map_ms_pdn_gw_ipv6_Address = -1;  /* PDP_Address */
-static int hf_gsm_map_ms_pdn_gw_name = -1;        /* FQDN */
-static int hf_gsm_map_ms_wlan_offloadability_EUTRAN = -1;  /* WLAN_Offloadability_Indication */
-static int hf_gsm_map_ms_wlan_offloadability_UTRAN = -1;  /* WLAN_Offloadability_Indication */
-static int hf_gsm_map_ms_AdjacentAccessRestrictionDataList_item = -1;  /* AdjacentAccessRestrictionData */
-static int hf_gsm_map_ms_accessRestrictionData = -1;  /* AccessRestrictionData */
-static int hf_gsm_map_ms_ext_AccessRestrictionData = -1;  /* Ext_AccessRestrictionData */
-static int hf_gsm_map_ms_gmlc_List = -1;          /* GMLC_List */
-static int hf_gsm_map_ms_lcs_PrivacyExceptionList = -1;  /* LCS_PrivacyExceptionList */
-static int hf_gsm_map_ms_molr_List = -1;          /* MOLR_List */
-static int hf_gsm_map_ms_add_lcs_PrivacyExceptionList = -1;  /* LCS_PrivacyExceptionList */
-static int hf_gsm_map_ms_GMLC_List_item = -1;     /* ISDN_AddressString */
-static int hf_gsm_map_ms_GPRSDataList_item = -1;  /* PDP_Context */
-static int hf_gsm_map_ms_pdp_ContextId = -1;      /* ContextId */
-static int hf_gsm_map_ms_pdp_Type = -1;           /* PDP_Type */
-static int hf_gsm_map_ms_pdp_Address = -1;        /* PDP_Address */
-static int hf_gsm_map_ms_qos_Subscribed = -1;     /* QoS_Subscribed */
-static int hf_gsm_map_ms_ext_QoS_Subscribed = -1;  /* Ext_QoS_Subscribed */
-static int hf_gsm_map_ms_pdp_ChargingCharacteristics = -1;  /* ChargingCharacteristics */
-static int hf_gsm_map_ms_ext2_QoS_Subscribed = -1;  /* Ext2_QoS_Subscribed */
-static int hf_gsm_map_ms_ext3_QoS_Subscribed = -1;  /* Ext3_QoS_Subscribed */
-static int hf_gsm_map_ms_ext4_QoS_Subscribed = -1;  /* Ext4_QoS_Subscribed */
-static int hf_gsm_map_ms_ext_pdp_Type = -1;       /* Ext_PDP_Type */
-static int hf_gsm_map_ms_ext_pdp_Address = -1;    /* PDP_Address */
-static int hf_gsm_map_ms_gprsDataList = -1;       /* GPRSDataList */
-static int hf_gsm_map_ms_gprs_CSI = -1;           /* GPRS_CSI */
-static int hf_gsm_map_ms_mo_sms_CSI = -1;         /* SMS_CSI */
-static int hf_gsm_map_ms_mt_sms_CSI = -1;         /* SMS_CSI */
-static int hf_gsm_map_ms_mt_smsCAMELTDP_CriteriaList = -1;  /* MT_smsCAMELTDP_CriteriaList */
-static int hf_gsm_map_ms_mg_csi = -1;             /* MG_CSI */
-static int hf_gsm_map_ms_gprs_CamelTDPDataList = -1;  /* GPRS_CamelTDPDataList */
-static int hf_gsm_map_ms_camelCapabilityHandling = -1;  /* CamelCapabilityHandling */
-static int hf_gsm_map_ms_notificationToCSE = -1;  /* NULL */
-static int hf_gsm_map_ms_csi_Active = -1;         /* NULL */
-static int hf_gsm_map_ms_GPRS_CamelTDPDataList_item = -1;  /* GPRS_CamelTDPData */
-static int hf_gsm_map_ms_gprs_TriggerDetectionPoint = -1;  /* GPRS_TriggerDetectionPoint */
-static int hf_gsm_map_ms_serviceKey = -1;         /* ServiceKey */
-static int hf_gsm_map_ms_gsmSCF_Address = -1;     /* ISDN_AddressString */
-static int hf_gsm_map_ms_defaultSessionHandling = -1;  /* DefaultGPRS_Handling */
-static int hf_gsm_map_ms_LSADataList_item = -1;   /* LSAData */
-static int hf_gsm_map_ms_lsaIdentity = -1;        /* LSAIdentity */
-static int hf_gsm_map_ms_lsaAttributes = -1;      /* LSAAttributes */
-static int hf_gsm_map_ms_lsaActiveModeIndicator = -1;  /* NULL */
-static int hf_gsm_map_ms_lsaOnlyAccessIndicator = -1;  /* LSAOnlyAccessIndicator */
-static int hf_gsm_map_ms_lsaDataList = -1;        /* LSADataList */
-static int hf_gsm_map_ms_msisdn = -1;             /* ISDN_AddressString */
-static int hf_gsm_map_ms_category = -1;           /* Category */
-static int hf_gsm_map_ms_subscriberStatus = -1;   /* SubscriberStatus */
-static int hf_gsm_map_ms_bearerServiceList = -1;  /* BearerServiceList */
-static int hf_gsm_map_ms_teleserviceList = -1;    /* TeleserviceList */
-static int hf_gsm_map_ms_provisionedSS = -1;      /* Ext_SS_InfoList */
-static int hf_gsm_map_ms_odb_Data = -1;           /* ODB_Data */
-static int hf_gsm_map_ms_roamingRestrictionDueToUnsupportedFeature = -1;  /* NULL */
-static int hf_gsm_map_ms_vbsSubscriptionData = -1;  /* VBSDataList */
-static int hf_gsm_map_ms_vgcsSubscriptionData = -1;  /* VGCSDataList */
-static int hf_gsm_map_ms_vlrCamelSubscriptionInfo = -1;  /* VlrCamelSubscriptionInfo */
-static int hf_gsm_map_ms_BearerServiceList_item = -1;  /* Ext_BearerServiceCode */
-static int hf_gsm_map_ms_TeleserviceList_item = -1;  /* Ext_TeleserviceCode */
-static int hf_gsm_map_ms_odb_GeneralData = -1;    /* ODB_GeneralData */
-static int hf_gsm_map_ms_odb_HPLMN_Data = -1;     /* ODB_HPLMN_Data */
-static int hf_gsm_map_ms_Ext_SS_InfoList_item = -1;  /* Ext_SS_Info */
-static int hf_gsm_map_ms_forwardingInfo = -1;     /* Ext_ForwInfo */
-static int hf_gsm_map_ms_callBarringInfo = -1;    /* Ext_CallBarInfo */
-static int hf_gsm_map_ms_cug_Info = -1;           /* CUG_Info */
-static int hf_gsm_map_ms_ss_Data = -1;            /* Ext_SS_Data */
-static int hf_gsm_map_ms_emlpp_Info = -1;         /* EMLPP_Info */
-static int hf_gsm_map_ms_ss_Code = -1;            /* SS_Code */
-static int hf_gsm_map_ms_forwardingFeatureList = -1;  /* Ext_ForwFeatureList */
-static int hf_gsm_map_ms_Ext_ForwFeatureList_item = -1;  /* Ext_ForwFeature */
-static int hf_gsm_map_ms_basicService = -1;       /* Ext_BasicServiceCode */
-static int hf_gsm_map_ms_ss_Status = -1;          /* Ext_SS_Status */
-static int hf_gsm_map_ms_forwardedToNumber = -1;  /* ISDN_AddressString */
-static int hf_gsm_map_ms_forwardedToSubaddress = -1;  /* ISDN_SubaddressString */
-static int hf_gsm_map_ms_forwardingOptions = -1;  /* T_forwardingOptions */
-static int hf_gsm_map_ms_noReplyConditionTime = -1;  /* Ext_NoRepCondTime */
-static int hf_gsm_map_ms_longForwardedToNumber = -1;  /* FTN_AddressString */
-static int hf_gsm_map_ms_callBarringFeatureList = -1;  /* Ext_CallBarFeatureList */
-static int hf_gsm_map_ms_Ext_CallBarFeatureList_item = -1;  /* Ext_CallBarringFeature */
-static int hf_gsm_map_ms_cug_SubscriptionList = -1;  /* CUG_SubscriptionList */
-static int hf_gsm_map_ms_cug_FeatureList = -1;    /* CUG_FeatureList */
-static int hf_gsm_map_ms_CUG_SubscriptionList_item = -1;  /* CUG_Subscription */
-static int hf_gsm_map_ms_cug_Index = -1;          /* CUG_Index */
-static int hf_gsm_map_ms_cug_Interlock = -1;      /* CUG_Interlock */
-static int hf_gsm_map_ms_intraCUG_Options = -1;   /* IntraCUG_Options */
-static int hf_gsm_map_ms_basicServiceGroupList = -1;  /* Ext_BasicServiceGroupList */
-static int hf_gsm_map_ms_CUG_FeatureList_item = -1;  /* CUG_Feature */
-static int hf_gsm_map_ms_Ext_BasicServiceGroupList_item = -1;  /* Ext_BasicServiceCode */
-static int hf_gsm_map_ms_preferentialCUG_Indicator = -1;  /* CUG_Index */
-static int hf_gsm_map_ms_interCUG_Restrictions = -1;  /* InterCUG_Restrictions */
-static int hf_gsm_map_ms_ss_SubscriptionOption = -1;  /* SS_SubscriptionOption */
-static int hf_gsm_map_ms_LCS_PrivacyExceptionList_item = -1;  /* LCS_PrivacyClass */
-static int hf_gsm_map_ms_notificationToMSUser = -1;  /* NotificationToMSUser */
-static int hf_gsm_map_ms_externalClientList = -1;  /* ExternalClientList */
-static int hf_gsm_map_ms_plmnClientList = -1;     /* PLMNClientList */
-static int hf_gsm_map_ms_ext_externalClientList = -1;  /* Ext_ExternalClientList */
-static int hf_gsm_map_ms_serviceTypeList = -1;    /* ServiceTypeList */
-static int hf_gsm_map_ms_ExternalClientList_item = -1;  /* ExternalClient */
-static int hf_gsm_map_ms_PLMNClientList_item = -1;  /* LCSClientInternalID */
-static int hf_gsm_map_ms_Ext_ExternalClientList_item = -1;  /* ExternalClient */
-static int hf_gsm_map_ms_clientIdentity = -1;     /* LCSClientExternalID */
-static int hf_gsm_map_ms_gmlc_Restriction = -1;   /* GMLC_Restriction */
-static int hf_gsm_map_ms_ServiceTypeList_item = -1;  /* ServiceType */
-static int hf_gsm_map_ms_serviceTypeIdentity = -1;  /* LCSServiceTypeID */
-static int hf_gsm_map_ms_MOLR_List_item = -1;     /* MOLR_Class */
-static int hf_gsm_map_ms_ZoneCodeList_item = -1;  /* ZoneCode */
-static int hf_gsm_map_ms_ss_List = -1;            /* SS_List */
-static int hf_gsm_map_ms_regionalSubscriptionResponse = -1;  /* RegionalSubscriptionResponse */
-static int hf_gsm_map_ms_basicServiceList = -1;   /* BasicServiceList */
-static int hf_gsm_map_ms_regionalSubscriptionIdentifier = -1;  /* ZoneCode */
-static int hf_gsm_map_ms_vbsGroupIndication = -1;  /* NULL */
-static int hf_gsm_map_ms_vgcsGroupIndication = -1;  /* NULL */
-static int hf_gsm_map_ms_camelSubscriptionInfoWithdraw = -1;  /* NULL */
-static int hf_gsm_map_ms_gprsSubscriptionDataWithdraw = -1;  /* GPRSSubscriptionDataWithdraw */
-static int hf_gsm_map_ms_roamingRestrictedInSgsnDueToUnsuppportedFeature = -1;  /* NULL */
-static int hf_gsm_map_ms_lsaInformationWithdraw = -1;  /* LSAInformationWithdraw */
-static int hf_gsm_map_ms_gmlc_ListWithdraw = -1;  /* NULL */
-static int hf_gsm_map_ms_istInformationWithdraw = -1;  /* NULL */
-static int hf_gsm_map_ms_specificCSI_Withdraw = -1;  /* SpecificCSI_Withdraw */
-static int hf_gsm_map_ms_chargingCharacteristicsWithdraw = -1;  /* NULL */
-static int hf_gsm_map_ms_stn_srWithdraw = -1;     /* NULL */
-static int hf_gsm_map_ms_epsSubscriptionDataWithdraw = -1;  /* EPS_SubscriptionDataWithdraw */
-static int hf_gsm_map_ms_apn_oi_replacementWithdraw = -1;  /* NULL */
-static int hf_gsm_map_ms_csg_SubscriptionDeleted = -1;  /* NULL */
-static int hf_gsm_map_ms_subscribedPeriodicTAU_RAU_TimerWithdraw = -1;  /* NULL */
-static int hf_gsm_map_ms_subscribedPeriodicLAU_TimerWithdraw = -1;  /* NULL */
-static int hf_gsm_map_ms_subscribed_vsrvccWithdraw = -1;  /* NULL */
-static int hf_gsm_map_ms_vplmn_Csg_SubscriptionDeleted = -1;  /* NULL */
-static int hf_gsm_map_ms_additionalMSISDN_Withdraw = -1;  /* NULL */
-static int hf_gsm_map_ms_cs_to_ps_SRVCC_Withdraw = -1;  /* NULL */
-static int hf_gsm_map_ms_imsiGroupIdList_Withdraw = -1;  /* NULL */
-static int hf_gsm_map_ms_userPlaneIntegrityProtectionWithdraw = -1;  /* NULL */
-static int hf_gsm_map_ms_dl_Buffering_Suggested_Packet_Count_Withdraw = -1;  /* NULL */
-static int hf_gsm_map_ms_ue_UsageTypeWithdraw = -1;  /* NULL */
-static int hf_gsm_map_ms_reset_idsWithdraw = -1;  /* NULL */
-static int hf_gsm_map_ms_iab_OperationWithdraw = -1;  /* NULL */
-static int hf_gsm_map_ms_allGPRSData = -1;        /* NULL */
-static int hf_gsm_map_ms_contextIdList = -1;      /* ContextIdList */
-static int hf_gsm_map_ms_allEPS_Data = -1;        /* NULL */
-static int hf_gsm_map_ms_ContextIdList_item = -1;  /* ContextId */
-static int hf_gsm_map_ms_allLSAData = -1;         /* NULL */
-static int hf_gsm_map_ms_lsaIdentityList = -1;    /* LSAIdentityList */
-static int hf_gsm_map_ms_LSAIdentityList_item = -1;  /* LSAIdentity */
-static int hf_gsm_map_ms_BasicServiceList_item = -1;  /* Ext_BasicServiceCode */
-static int hf_gsm_map_ms_o_CSI = -1;              /* O_CSI */
-static int hf_gsm_map_ms_ss_CSI = -1;             /* SS_CSI */
-static int hf_gsm_map_ms_o_BcsmCamelTDP_CriteriaList = -1;  /* O_BcsmCamelTDPCriteriaList */
-static int hf_gsm_map_ms_tif_CSI = -1;            /* NULL */
-static int hf_gsm_map_ms_m_CSI = -1;              /* M_CSI */
-static int hf_gsm_map_ms_vt_CSI = -1;             /* T_CSI */
-static int hf_gsm_map_ms_t_BCSM_CAMEL_TDP_CriteriaList = -1;  /* T_BCSM_CAMEL_TDP_CriteriaList */
-static int hf_gsm_map_ms_d_CSI = -1;              /* D_CSI */
-static int hf_gsm_map_ms_MT_smsCAMELTDP_CriteriaList_item = -1;  /* MT_smsCAMELTDP_Criteria */
-static int hf_gsm_map_ms_sms_TriggerDetectionPoint = -1;  /* SMS_TriggerDetectionPoint */
-static int hf_gsm_map_ms_tpdu_TypeCriterion = -1;  /* TPDU_TypeCriterion */
-static int hf_gsm_map_ms_TPDU_TypeCriterion_item = -1;  /* MT_SMS_TPDU_Type */
-static int hf_gsm_map_ms_dp_AnalysedInfoCriteriaList = -1;  /* DP_AnalysedInfoCriteriaList */
-static int hf_gsm_map_ms_DP_AnalysedInfoCriteriaList_item = -1;  /* DP_AnalysedInfoCriterium */
-static int hf_gsm_map_ms_dialledNumber = -1;      /* ISDN_AddressString */
-static int hf_gsm_map_ms_defaultCallHandling = -1;  /* DefaultCallHandling */
-static int hf_gsm_map_ms_ss_CamelData = -1;       /* SS_CamelData */
-static int hf_gsm_map_ms_ss_EventList = -1;       /* SS_EventList */
-static int hf_gsm_map_ms_SS_EventList_item = -1;  /* SS_Code */
-static int hf_gsm_map_ms_o_BcsmCamelTDPDataList = -1;  /* O_BcsmCamelTDPDataList */
-static int hf_gsm_map_ms_csiActive = -1;          /* NULL */
-static int hf_gsm_map_ms_O_BcsmCamelTDPDataList_item = -1;  /* O_BcsmCamelTDPData */
-static int hf_gsm_map_ms_o_BcsmTriggerDetectionPoint = -1;  /* O_BcsmTriggerDetectionPoint */
-static int hf_gsm_map_ms_O_BcsmCamelTDPCriteriaList_item = -1;  /* O_BcsmCamelTDP_Criteria */
-static int hf_gsm_map_ms_T_BCSM_CAMEL_TDP_CriteriaList_item = -1;  /* T_BCSM_CAMEL_TDP_Criteria */
-static int hf_gsm_map_ms_destinationNumberCriteria = -1;  /* DestinationNumberCriteria */
-static int hf_gsm_map_ms_basicServiceCriteria = -1;  /* BasicServiceCriteria */
-static int hf_gsm_map_ms_callTypeCriteria = -1;   /* CallTypeCriteria */
-static int hf_gsm_map_ms_o_CauseValueCriteria = -1;  /* O_CauseValueCriteria */
-static int hf_gsm_map_ms_t_BCSM_TriggerDetectionPoint = -1;  /* T_BcsmTriggerDetectionPoint */
-static int hf_gsm_map_ms_t_CauseValueCriteria = -1;  /* T_CauseValueCriteria */
-static int hf_gsm_map_ms_matchType = -1;          /* MatchType */
-static int hf_gsm_map_ms_destinationNumberList = -1;  /* DestinationNumberList */
-static int hf_gsm_map_ms_destinationNumberLengthList = -1;  /* DestinationNumberLengthList */
-static int hf_gsm_map_ms_DestinationNumberList_item = -1;  /* ISDN_AddressString */
-static int hf_gsm_map_ms_DestinationNumberLengthList_item = -1;  /* INTEGER_1_maxNumOfISDN_AddressDigits */
-static int hf_gsm_map_ms_BasicServiceCriteria_item = -1;  /* Ext_BasicServiceCode */
-static int hf_gsm_map_ms_O_CauseValueCriteria_item = -1;  /* CauseValue */
-static int hf_gsm_map_ms_T_CauseValueCriteria_item = -1;  /* CauseValue */
-static int hf_gsm_map_ms_sms_CAMEL_TDP_DataList = -1;  /* SMS_CAMEL_TDP_DataList */
-static int hf_gsm_map_ms_SMS_CAMEL_TDP_DataList_item = -1;  /* SMS_CAMEL_TDP_Data */
-static int hf_gsm_map_ms_defaultSMS_Handling = -1;  /* DefaultSMS_Handling */
-static int hf_gsm_map_ms_mobilityTriggers = -1;   /* MobilityTriggers */
-static int hf_gsm_map_ms_MobilityTriggers_item = -1;  /* MM_Code */
-static int hf_gsm_map_ms_t_BcsmCamelTDPDataList = -1;  /* T_BcsmCamelTDPDataList */
-static int hf_gsm_map_ms_T_BcsmCamelTDPDataList_item = -1;  /* T_BcsmCamelTDPData */
-static int hf_gsm_map_ms_t_BcsmTriggerDetectionPoint = -1;  /* T_BcsmTriggerDetectionPoint */
-static int hf_gsm_map_ms_ggsn_Address = -1;       /* GSN_Address */
-static int hf_gsm_map_ms_ggsn_Number = -1;        /* ISDN_AddressString */
-static int hf_gsm_map_ms_mobileNotReachableReason = -1;  /* AbsentSubscriberDiagnosticSM */
-static int hf_gsm_map_ms_sendingNodenumber = -1;  /* SendingNode_Number */
-static int hf_gsm_map_ms_hlr_List = -1;           /* HLR_List */
-static int hf_gsm_map_ms_reset_Id_List = -1;      /* Reset_Id_List */
-static int hf_gsm_map_ms_subscriptionData = -1;   /* InsertSubscriberDataArg */
-static int hf_gsm_map_ms_subscriptionDataDeletion = -1;  /* DeleteSubscriberDataArg */
-static int hf_gsm_map_ms_css_Number = -1;         /* ISDN_AddressString */
-static int hf_gsm_map_ms_msNotReachable = -1;     /* NULL */
-static int hf_gsm_map_ms_VBSDataList_item = -1;   /* VoiceBroadcastData */
-static int hf_gsm_map_ms_VGCSDataList_item = -1;  /* VoiceGroupCallData */
-static int hf_gsm_map_ms_groupId = -1;            /* GroupId */
-static int hf_gsm_map_ms_additionalSubscriptions = -1;  /* AdditionalSubscriptions */
-static int hf_gsm_map_ms_additionalInfo = -1;     /* AdditionalInfo */
-static int hf_gsm_map_ms_longGroupId = -1;        /* Long_GroupId */
-static int hf_gsm_map_ms_groupid = -1;            /* GroupId */
-static int hf_gsm_map_ms_broadcastInitEntitlement = -1;  /* NULL */
-static int hf_gsm_map_ms_requestedInfo = -1;      /* RequestedInfo */
-static int hf_gsm_map_ms_callPriority = -1;       /* EMLPP_Priority */
-static int hf_gsm_map_ms_subscriberInfo = -1;     /* SubscriberInfo */
-static int hf_gsm_map_ms_subscriberState = -1;    /* SubscriberState */
-static int hf_gsm_map_ms_ps_SubscriberState = -1;  /* PS_SubscriberState */
-static int hf_gsm_map_ms_ms_Classmark2 = -1;      /* MS_Classmark2 */
-static int hf_gsm_map_ms_gprs_MS_Class = -1;      /* GPRSMSClass */
-static int hf_gsm_map_ms_mnpInfoRes = -1;         /* MNPInfoRes */
-static int hf_gsm_map_ms_imsVoiceOverPS_SessionsIndication = -1;  /* IMS_VoiceOverPS_SessionsInd */
-static int hf_gsm_map_ms_lastUE_ActivityTime = -1;  /* Time */
-static int hf_gsm_map_ms_lastRAT_Type = -1;       /* Used_RAT_Type */
-static int hf_gsm_map_ms_eps_SubscriberState = -1;  /* PS_SubscriberState */
-static int hf_gsm_map_ms_timeZone = -1;           /* TimeZone */
-static int hf_gsm_map_ms_daylightSavingTime = -1;  /* DaylightSavingTime */
-static int hf_gsm_map_ms_locationInformation5GS = -1;  /* LocationInformation5GS */
-static int hf_gsm_map_ms_routeingNumber = -1;     /* RouteingNumber */
-static int hf_gsm_map_ms_numberPortabilityStatus = -1;  /* NumberPortabilityStatus */
-static int hf_gsm_map_ms_mSNetworkCapability = -1;  /* MSNetworkCapability */
-static int hf_gsm_map_ms_mSRadioAccessCapability = -1;  /* MSRadioAccessCapability */
-static int hf_gsm_map_ms_locationInformation_01 = -1;  /* NULL */
-static int hf_gsm_map_ms_subscriberState_01 = -1;  /* NULL */
-static int hf_gsm_map_ms_currentLocation = -1;    /* NULL */
-static int hf_gsm_map_ms_requestedDomain = -1;    /* DomainType */
-static int hf_gsm_map_ms_imei_01 = -1;            /* NULL */
-static int hf_gsm_map_ms_ms_classmark = -1;       /* NULL */
-static int hf_gsm_map_ms_mnpRequestedInfo = -1;   /* NULL */
-static int hf_gsm_map_ms_locationInformationEPS_Supported = -1;  /* NULL */
-static int hf_gsm_map_ms_t_adsData = -1;          /* NULL */
-static int hf_gsm_map_ms_requestedNodes = -1;     /* RequestedNodes */
-static int hf_gsm_map_ms_servingNodeIndication = -1;  /* NULL */
-static int hf_gsm_map_ms_localTimeZoneRequest = -1;  /* NULL */
-static int hf_gsm_map_ms_ageOfLocationInformation = -1;  /* AgeOfLocationInformation */
-static int hf_gsm_map_ms_geographicalInformation = -1;  /* GeographicalInformation */
-static int hf_gsm_map_ms_vlr_number = -1;         /* ISDN_AddressString */
-static int hf_gsm_map_ms_locationNumber = -1;     /* LocationNumber */
-static int hf_gsm_map_ms_cellGlobalIdOrServiceAreaIdOrLAI = -1;  /* CellGlobalIdOrServiceAreaIdOrLAI */
-static int hf_gsm_map_ms_selectedLSA_Id = -1;     /* LSAIdentity */
-static int hf_gsm_map_ms_geodeticInformation = -1;  /* GeodeticInformation */
-static int hf_gsm_map_ms_currentLocationRetrieved = -1;  /* NULL */
-static int hf_gsm_map_ms_sai_Present = -1;        /* NULL */
-static int hf_gsm_map_ms_userCSGInformation = -1;  /* UserCSGInformation */
-static int hf_gsm_map_ms_e_utranCellGlobalIdentity = -1;  /* E_UTRAN_CGI */
-static int hf_gsm_map_ms_trackingAreaIdentity = -1;  /* TA_Id */
-static int hf_gsm_map_ms_mme_Name = -1;           /* DiameterIdentity */
-static int hf_gsm_map_ms_routeingAreaIdentity = -1;  /* RAIdentity */
-static int hf_gsm_map_ms_selectedLSAIdentity = -1;  /* LSAIdentity */
-static int hf_gsm_map_ms_nrCellGlobalIdentity = -1;  /* NR_CGI */
-static int hf_gsm_map_ms_amf_address = -1;        /* FQDN */
-static int hf_gsm_map_ms_vplmnId = -1;            /* PLMN_Id */
-static int hf_gsm_map_ms_localtimeZone = -1;      /* TimeZone */
-static int hf_gsm_map_ms_nrTrackingAreaIdentity = -1;  /* NR_TA_Id */
-static int hf_gsm_map_ms_accessMode = -1;         /* OCTET_STRING_SIZE_1 */
-static int hf_gsm_map_ms_cmi = -1;                /* OCTET_STRING_SIZE_1 */
-static int hf_gsm_map_ms_assumedIdle = -1;        /* NULL */
-static int hf_gsm_map_ms_camelBusy = -1;          /* NULL */
-static int hf_gsm_map_ms_netDetNotReachable = -1;  /* NotReachableReason */
-static int hf_gsm_map_ms_notProvidedFromVLR = -1;  /* NULL */
-static int hf_gsm_map_ms_notProvidedFromSGSNorMME = -1;  /* NULL */
-static int hf_gsm_map_ms_ps_Detached = -1;        /* NULL */
-static int hf_gsm_map_ms_ps_AttachedNotReachableForPaging = -1;  /* NULL */
-static int hf_gsm_map_ms_ps_AttachedReachableForPaging = -1;  /* NULL */
-static int hf_gsm_map_ms_ps_PDP_ActiveNotReachableForPaging = -1;  /* PDP_ContextInfoList */
-static int hf_gsm_map_ms_ps_PDP_ActiveReachableForPaging = -1;  /* PDP_ContextInfoList */
-static int hf_gsm_map_ms_PDP_ContextInfoList_item = -1;  /* PDP_ContextInfo */
-static int hf_gsm_map_ms_pdp_ContextIdentifier = -1;  /* ContextId */
-static int hf_gsm_map_ms_pdp_ContextActive = -1;  /* NULL */
-static int hf_gsm_map_ms_apn_Subscribed = -1;     /* APN */
-static int hf_gsm_map_ms_apn_InUse = -1;          /* APN */
-static int hf_gsm_map_ms_nsapi = -1;              /* NSAPI */
-static int hf_gsm_map_ms_transactionId = -1;      /* TransactionId */
-static int hf_gsm_map_ms_teid_ForGnAndGp = -1;    /* TEID */
-static int hf_gsm_map_ms_teid_ForIu = -1;         /* TEID */
-static int hf_gsm_map_ms_qos_Subscribed_01 = -1;  /* Ext_QoS_Subscribed */
-static int hf_gsm_map_ms_qos_Requested = -1;      /* Ext_QoS_Subscribed */
-static int hf_gsm_map_ms_qos_Negotiated = -1;     /* Ext_QoS_Subscribed */
-static int hf_gsm_map_ms_chargingId = -1;         /* GPRSChargingID */
-static int hf_gsm_map_ms_rnc_Address = -1;        /* GSN_Address */
-static int hf_gsm_map_ms_qos2_Subscribed = -1;    /* Ext2_QoS_Subscribed */
-static int hf_gsm_map_ms_qos2_Requested = -1;     /* Ext2_QoS_Subscribed */
-static int hf_gsm_map_ms_qos2_Negotiated = -1;    /* Ext2_QoS_Subscribed */
-static int hf_gsm_map_ms_qos3_Subscribed = -1;    /* Ext3_QoS_Subscribed */
-static int hf_gsm_map_ms_qos3_Requested = -1;     /* Ext3_QoS_Subscribed */
-static int hf_gsm_map_ms_qos3_Negotiated = -1;    /* Ext3_QoS_Subscribed */
-static int hf_gsm_map_ms_qos4_Subscribed = -1;    /* Ext4_QoS_Subscribed */
-static int hf_gsm_map_ms_qos4_Requested = -1;     /* Ext4_QoS_Subscribed */
-static int hf_gsm_map_ms_qos4_Negotiated = -1;    /* Ext4_QoS_Subscribed */
-static int hf_gsm_map_ms_subscriberIdentity = -1;  /* SubscriberIdentity */
-static int hf_gsm_map_ms_requestedSubscriptionInfo = -1;  /* RequestedSubscriptionInfo */
-static int hf_gsm_map_ms_callForwardingData = -1;  /* CallForwardingData */
-static int hf_gsm_map_ms_callBarringData = -1;    /* CallBarringData */
-static int hf_gsm_map_ms_odb_Info = -1;           /* ODB_Info */
-static int hf_gsm_map_ms_camel_SubscriptionInfo = -1;  /* CAMEL_SubscriptionInfo */
-static int hf_gsm_map_ms_supportedVLR_CAMEL_Phases = -1;  /* SupportedCamelPhases */
-static int hf_gsm_map_ms_supportedSGSN_CAMEL_Phases = -1;  /* SupportedCamelPhases */
-static int hf_gsm_map_ms_offeredCamel4CSIsInVLR = -1;  /* OfferedCamel4CSIs */
-static int hf_gsm_map_ms_offeredCamel4CSIsInSGSN = -1;  /* OfferedCamel4CSIs */
-static int hf_gsm_map_ms_msisdn_BS_List = -1;     /* MSISDN_BS_List */
-static int hf_gsm_map_ms_cw_Data = -1;            /* CallWaitingData */
-static int hf_gsm_map_ms_ch_Data = -1;            /* CallHoldData */
-static int hf_gsm_map_ms_clip_Data = -1;          /* ClipData */
-static int hf_gsm_map_ms_clir_Data = -1;          /* ClirData */
-static int hf_gsm_map_ms_ect_data = -1;           /* EctData */
-static int hf_gsm_map_ms_cwFeatureList = -1;      /* Ext_CwFeatureList */
-static int hf_gsm_map_ms_Ext_CwFeatureList_item = -1;  /* Ext_CwFeature */
-static int hf_gsm_map_ms_overrideCategory = -1;   /* OverrideCategory */
-static int hf_gsm_map_ms_cliRestrictionOption = -1;  /* CliRestrictionOption */
-static int hf_gsm_map_ms_requestedSS_Info = -1;   /* SS_ForBS_Code */
-static int hf_gsm_map_ms_odb = -1;                /* NULL */
-static int hf_gsm_map_ms_requestedCAMEL_SubscriptionInfo = -1;  /* RequestedCAMEL_SubscriptionInfo */
-static int hf_gsm_map_ms_supportedVLR_CAMEL_Phases_01 = -1;  /* NULL */
-static int hf_gsm_map_ms_supportedSGSN_CAMEL_Phases_01 = -1;  /* NULL */
-static int hf_gsm_map_ms_additionalRequestedCAMEL_SubscriptionInfo = -1;  /* AdditionalRequestedCAMEL_SubscriptionInfo */
-static int hf_gsm_map_ms_msisdn_BS_List_01 = -1;  /* NULL */
-static int hf_gsm_map_ms_csg_SubscriptionDataRequested = -1;  /* NULL */
-static int hf_gsm_map_ms_cw_Info = -1;            /* NULL */
-static int hf_gsm_map_ms_clip_Info = -1;          /* NULL */
-static int hf_gsm_map_ms_clir_Info = -1;          /* NULL */
-static int hf_gsm_map_ms_hold_Info = -1;          /* NULL */
-static int hf_gsm_map_ms_ect_Info = -1;           /* NULL */
-static int hf_gsm_map_ms_MSISDN_BS_List_item = -1;  /* MSISDN_BS */
-static int hf_gsm_map_ms_password = -1;           /* Password */
-static int hf_gsm_map_ms_wrongPasswordAttemptsCounter = -1;  /* WrongPasswordAttemptsCounter */
-static int hf_gsm_map_ms_t_CSI = -1;              /* T_CSI */
-static int hf_gsm_map_ms_vt_BCSM_CAMEL_TDP_CriteriaList = -1;  /* T_BCSM_CAMEL_TDP_CriteriaList */
-static int hf_gsm_map_ms_tif_CSI_NotificationToCSE = -1;  /* NULL */
-static int hf_gsm_map_ms_specificCSIDeletedList = -1;  /* SpecificCSI_Withdraw */
-static int hf_gsm_map_ms_o_IM_CSI = -1;           /* O_CSI */
-static int hf_gsm_map_ms_o_IM_BcsmCamelTDP_CriteriaList = -1;  /* O_BcsmCamelTDPCriteriaList */
-static int hf_gsm_map_ms_d_IM_CSI = -1;           /* D_CSI */
-static int hf_gsm_map_ms_vt_IM_CSI = -1;          /* T_CSI */
-static int hf_gsm_map_ms_vt_IM_BCSM_CAMEL_TDP_CriteriaList = -1;  /* T_BCSM_CAMEL_TDP_CriteriaList */
-static int hf_gsm_map_ms_modificationRequestFor_CF_Info = -1;  /* ModificationRequestFor_CF_Info */
-static int hf_gsm_map_ms_modificationRequestFor_CB_Info = -1;  /* ModificationRequestFor_CB_Info */
-static int hf_gsm_map_ms_modificationRequestFor_CSI = -1;  /* ModificationRequestFor_CSI */
-static int hf_gsm_map_ms_modificationRequestFor_ODB_data = -1;  /* ModificationRequestFor_ODB_data */
-static int hf_gsm_map_ms_modificationRequestFor_IP_SM_GW_Data = -1;  /* ModificationRequestFor_IP_SM_GW_Data */
-static int hf_gsm_map_ms_activationRequestForUE_reachability = -1;  /* RequestedServingNode */
-static int hf_gsm_map_ms_modificationRequestFor_CSG = -1;  /* ModificationRequestFor_CSG */
-static int hf_gsm_map_ms_modificationRequestFor_CW_Data = -1;  /* ModificationRequestFor_CW_Info */
-static int hf_gsm_map_ms_modificationRequestFor_CLIP_Data = -1;  /* ModificationRequestFor_CLIP_Info */
-static int hf_gsm_map_ms_modificationRequestFor_CLIR_Data = -1;  /* ModificationRequestFor_CLIR_Info */
-static int hf_gsm_map_ms_modificationRequestFor_HOLD_Data = -1;  /* ModificationRequestFor_CH_Info */
-static int hf_gsm_map_ms_modificationRequestFor_ECT_Data = -1;  /* ModificationRequestFor_ECT_Info */
-static int hf_gsm_map_ms_modifyNotificationToCSE = -1;  /* ModificationInstruction */
-static int hf_gsm_map_ms_ss_InfoFor_CSE = -1;     /* Ext_SS_InfoFor_CSE */
-static int hf_gsm_map_ms_serviceCentreAddress = -1;  /* AddressString */
-static int hf_gsm_map_ms_forwardedToNumber_01 = -1;  /* AddressString */
-static int hf_gsm_map_ms_odb_data = -1;           /* ODB_Data */
-static int hf_gsm_map_ms_requestedCamel_SubscriptionInfo = -1;  /* RequestedCAMEL_SubscriptionInfo */
-static int hf_gsm_map_ms_modifyCSI_State = -1;    /* ModificationInstruction */
-static int hf_gsm_map_ms_modifyRegistrationStatus = -1;  /* ModificationInstruction */
-static int hf_gsm_map_ms_ip_sm_gw_DiameterAddress = -1;  /* NetworkNodeDiameterAddress */
-static int hf_gsm_map_ms_forwardingInfoFor_CSE = -1;  /* Ext_ForwardingInfoFor_CSE */
-static int hf_gsm_map_ms_callBarringInfoFor_CSE = -1;  /* Ext_CallBarringInfoFor_CSE */
-static int hf_gsm_map_ms_allInformationSent = -1;  /* NULL */
-static int hf_gsm_map_ms_ue_reachable = -1;       /* ServingNode */
-static int hf_gsm_map_ms_eventMet = -1;           /* MM_Code */
-static int hf_gsm_map_ms_supportedCAMELPhases = -1;  /* SupportedCamelPhases */
-static int hf_gsm_map_ms_offeredCamel4Functionalities = -1;  /* OfferedCamel4Functionalities */
-static int hf_gsm_map_ms_temporaryEmptySubscriptiondataIndicator = -1;  /* NULL */
-static int hf_gsm_map_ms_naea_PreferredCI = -1;   /* NAEA_PreferredCI */
-static int hf_gsm_map_ms_gprsSubscriptionData = -1;  /* GPRSSubscriptionData */
-static int hf_gsm_map_ms_roamingRestrictedInSgsnDueToUnsupportedFeature = -1;  /* NULL */
-static int hf_gsm_map_ms_networkAccessMode = -1;  /* NetworkAccessMode */
-static int hf_gsm_map_ms_lsaInformation = -1;     /* LSAInformation */
-static int hf_gsm_map_ms_lmu_Indicator = -1;      /* NULL */
-static int hf_gsm_map_ms_lcsInformation = -1;     /* LCSInformation */
-static int hf_gsm_map_ms_istAlertTimer = -1;      /* IST_AlertTimerValue */
-static int hf_gsm_map_ms_superChargerSupportedInHLR = -1;  /* AgeIndicator */
-static int hf_gsm_map_ms_mc_SS_Info = -1;         /* MC_SS_Info */
-static int hf_gsm_map_ms_cs_AllocationRetentionPriority = -1;  /* CS_AllocationRetentionPriority */
-static int hf_gsm_map_ms_sgsn_CAMEL_SubscriptionInfo = -1;  /* SGSN_CAMEL_SubscriptionInfo */
-static int hf_gsm_map_ms_ics_Indicator = -1;      /* BOOLEAN */
-static int hf_gsm_map_ms_eps_SubscriptionData = -1;  /* EPS_SubscriptionData */
-static int hf_gsm_map_ms_ue_ReachabilityRequestIndicator = -1;  /* NULL */
-static int hf_gsm_map_ms_subscribedPeriodicRAUTAUtimer = -1;  /* SubscribedPeriodicRAUTAUtimer */
-static int hf_gsm_map_ms_vplmnLIPAAllowed = -1;   /* NULL */
-static int hf_gsm_map_ms_mdtUserConsent = -1;     /* BOOLEAN */
-static int hf_gsm_map_ms_subscribedPeriodicLAUtimer = -1;  /* SubscribedPeriodicLAUtimer */
-static int hf_gsm_map_ms_vplmn_Csg_SubscriptionDataList = -1;  /* VPLMN_CSG_SubscriptionDataList */
-static int hf_gsm_map_ms_additionalMSISDN = -1;   /* ISDN_AddressString */
-static int hf_gsm_map_ms_psAndSMS_OnlyServiceProvision = -1;  /* NULL */
-static int hf_gsm_map_ms_smsInSGSNAllowed = -1;   /* NULL */
-static int hf_gsm_map_ms_cs_to_ps_SRVCC_Allowed_Indicator = -1;  /* NULL */
-static int hf_gsm_map_ms_pcscf_Restoration_Request = -1;  /* NULL */
-static int hf_gsm_map_ms_adjacentAccessRestrictionDataList = -1;  /* AdjacentAccessRestrictionDataList */
-static int hf_gsm_map_ms_imsi_Group_Id_List = -1;  /* IMSI_GroupIdList */
-static int hf_gsm_map_ms_userPlaneIntegrityProtectionIndicator = -1;  /* NULL */
-static int hf_gsm_map_ms_dl_Buffering_Suggested_Packet_Count = -1;  /* DL_Buffering_Suggested_Packet_Count */
-static int hf_gsm_map_ms_eDRX_Cycle_Length_List = -1;  /* EDRX_Cycle_Length_List */
-static int hf_gsm_map_ms_iab_Operation_Allowed_Indicator = -1;  /* NULL */
+static int hf_gsm_map_ms_gsm_map_ms_SendAuthenticationInfoArg_PDU;  /* SendAuthenticationInfoArg */
+static int hf_gsm_map_ms_gsm_map_ms_SendAuthenticationInfoRes_PDU;  /* SendAuthenticationInfoRes */
+static int hf_gsm_map_ms_imsi;                    /* IMSI */
+static int hf_gsm_map_ms_msc_Number;              /* ISDN_AddressString */
+static int hf_gsm_map_ms_vlr_Number;              /* ISDN_AddressString */
+static int hf_gsm_map_ms_lmsi;                    /* LMSI */
+static int hf_gsm_map_ms_extensionContainer;      /* ExtensionContainer */
+static int hf_gsm_map_ms_vlr_Capability;          /* VLR_Capability */
+static int hf_gsm_map_ms_informPreviousNetworkEntity;  /* NULL */
+static int hf_gsm_map_ms_cs_LCS_NotSupportedByUE;  /* NULL */
+static int hf_gsm_map_ms_v_gmlc_Address;          /* GSN_Address */
+static int hf_gsm_map_ms_add_info;                /* ADD_Info */
+static int hf_gsm_map_ms_pagingArea;              /* PagingArea */
+static int hf_gsm_map_ms_skipSubscriberDataUpdate;  /* NULL */
+static int hf_gsm_map_ms_restorationIndicator;    /* NULL */
+static int hf_gsm_map_ms_eplmn_List;              /* EPLMN_List */
+static int hf_gsm_map_ms_mme_DiameterAddress;     /* NetworkNodeDiameterAddress */
+static int hf_gsm_map_ms_supportedCamelPhases;    /* SupportedCamelPhases */
+static int hf_gsm_map_ms_solsaSupportIndicator;   /* NULL */
+static int hf_gsm_map_ms_istSupportIndicator;     /* IST_SupportIndicator */
+static int hf_gsm_map_ms_superChargerSupportedInServingNetworkEntity;  /* SuperChargerInfo */
+static int hf_gsm_map_ms_longFTN_Supported;       /* NULL */
+static int hf_gsm_map_ms_supportedLCS_CapabilitySets;  /* SupportedLCS_CapabilitySets */
+static int hf_gsm_map_ms_offeredCamel4CSIs;       /* OfferedCamel4CSIs */
+static int hf_gsm_map_ms_supportedRAT_TypesIndicator;  /* SupportedRAT_Types */
+static int hf_gsm_map_ms_longGroupID_Supported;   /* NULL */
+static int hf_gsm_map_ms_mtRoamingForwardingSupported;  /* NULL */
+static int hf_gsm_map_ms_msisdn_lessOperation_Supported;  /* NULL */
+static int hf_gsm_map_ms_reset_ids_Supported;     /* NULL */
+static int hf_gsm_map_ms_sendSubscriberData;      /* NULL */
+static int hf_gsm_map_ms_subscriberDataStored;    /* AgeIndicator */
+static int hf_gsm_map_ms_hlr_Number;              /* ISDN_AddressString */
+static int hf_gsm_map_ms_add_Capability;          /* NULL */
+static int hf_gsm_map_ms_pagingArea_Capability;   /* NULL */
+static int hf_gsm_map_ms_imeisv;                  /* IMEI */
+static int hf_gsm_map_ms_PagingArea_item;         /* LocationArea */
+static int hf_gsm_map_ms_laiFixedLength;          /* LAIFixedLength */
+static int hf_gsm_map_ms_lac;                     /* LAC */
+static int hf_gsm_map_ms_identity;                /* Identity */
+static int hf_gsm_map_ms_cancellationType;        /* CancellationType */
+static int hf_gsm_map_ms_typeOfUpdate;            /* TypeOfUpdate */
+static int hf_gsm_map_ms_mtrf_SupportedAndAuthorized;  /* NULL */
+static int hf_gsm_map_ms_mtrf_SupportedAndNotAuthorized;  /* NULL */
+static int hf_gsm_map_ms_newMSC_Number;           /* ISDN_AddressString */
+static int hf_gsm_map_ms_newVLR_Number;           /* ISDN_AddressString */
+static int hf_gsm_map_ms_new_lmsi;                /* LMSI */
+static int hf_gsm_map_ms_reattach_Required;       /* NULL */
+static int hf_gsm_map_ms_sgsn_Number;             /* ISDN_AddressString */
+static int hf_gsm_map_ms_locationInformation;     /* LocationInformation */
+static int hf_gsm_map_ms_locationInformationGPRS;  /* LocationInformationGPRS */
+static int hf_gsm_map_ms_locationInformationEPS;  /* LocationInformationEPS */
+static int hf_gsm_map_ms_freezeTMSI;              /* NULL */
+static int hf_gsm_map_ms_freezeP_TMSI;            /* NULL */
+static int hf_gsm_map_ms_freezeM_TMSI;            /* NULL */
+static int hf_gsm_map_ms_tmsi;                    /* TMSI */
+static int hf_gsm_map_ms_numberOfRequestedVectors;  /* NumberOfRequestedVectors */
+static int hf_gsm_map_ms_segmentationProhibited;  /* NULL */
+static int hf_gsm_map_ms_previous_LAI;            /* LAIFixedLength */
+static int hf_gsm_map_ms_hopCounter;              /* HopCounter */
+static int hf_gsm_map_ms_authenticationSetList;   /* AuthenticationSetList */
+static int hf_gsm_map_ms_currentSecurityContext;  /* CurrentSecurityContext */
+static int hf_gsm_map_ms_lastUsedLtePLMN_Id;      /* PLMN_Id */
+static int hf_gsm_map_ms_mtCallPendingFlag;       /* NULL */
+static int hf_gsm_map_ms_tripletList;             /* TripletList */
+static int hf_gsm_map_ms_quintupletList;          /* QuintupletList */
+static int hf_gsm_map_ms_TripletList_item;        /* AuthenticationTriplet */
+static int hf_gsm_map_ms_QuintupletList_item;     /* AuthenticationQuintuplet */
+static int hf_gsm_map_ms_rand;                    /* RAND */
+static int hf_gsm_map_ms_sres;                    /* SRES */
+static int hf_gsm_map_ms_kc;                      /* Kc */
+static int hf_gsm_map_ms_xres;                    /* XRES */
+static int hf_gsm_map_ms_ck;                      /* CK */
+static int hf_gsm_map_ms_ik;                      /* IK */
+static int hf_gsm_map_ms_autn;                    /* AUTN */
+static int hf_gsm_map_ms_gsm_SecurityContextData;  /* GSM_SecurityContextData */
+static int hf_gsm_map_ms_umts_SecurityContextData;  /* UMTS_SecurityContextData */
+static int hf_gsm_map_ms_cksn;                    /* Cksn */
+static int hf_gsm_map_ms_ksi;                     /* KSI */
+static int hf_gsm_map_ms_failureCause;            /* FailureCause */
+static int hf_gsm_map_ms_re_attempt;              /* BOOLEAN */
+static int hf_gsm_map_ms_accessType;              /* AccessType */
+static int hf_gsm_map_ms_sgsn_Address;            /* GSN_Address */
+static int hf_gsm_map_ms_sgsn_Capability;         /* SGSN_Capability */
+static int hf_gsm_map_ms_ps_LCS_NotSupportedByUE;  /* NULL */
+static int hf_gsm_map_ms_eps_info;                /* EPS_Info */
+static int hf_gsm_map_ms_servingNodeTypeIndicator;  /* NULL */
+static int hf_gsm_map_ms_usedRAT_Type;            /* Used_RAT_Type */
+static int hf_gsm_map_ms_gprsSubscriptionDataNotNeeded;  /* NULL */
+static int hf_gsm_map_ms_nodeTypeIndicator;       /* NULL */
+static int hf_gsm_map_ms_areaRestricted;          /* NULL */
+static int hf_gsm_map_ms_ue_reachableIndicator;   /* NULL */
+static int hf_gsm_map_ms_epsSubscriptionDataNotNeeded;  /* NULL */
+static int hf_gsm_map_ms_ue_srvcc_Capability;     /* UE_SRVCC_Capability */
+static int hf_gsm_map_ms_mmeNumberforMTSMS;       /* ISDN_AddressString */
+static int hf_gsm_map_ms_smsRegisterRequest;      /* SMSRegisterRequest */
+static int hf_gsm_map_ms_sms_Only;                /* NULL */
+static int hf_gsm_map_ms_removalofMMERegistrationforSMS;  /* NULL */
+static int hf_gsm_map_ms_sgsn_Name;               /* DiameterIdentity */
+static int hf_gsm_map_ms_sgsn_Realm;              /* DiameterIdentity */
+static int hf_gsm_map_ms_lgd_supportIndicator;    /* NULL */
+static int hf_gsm_map_ms_adjacentPLMN_List;       /* AdjacentPLMN_List */
+static int hf_gsm_map_ms_pdn_gw_update;           /* PDN_GW_Update */
+static int hf_gsm_map_ms_isr_Information;         /* ISR_Information */
+static int hf_gsm_map_ms_apn;                     /* APN */
+static int hf_gsm_map_ms_pdn_gw_Identity;         /* PDN_GW_Identity */
+static int hf_gsm_map_ms_contextId;               /* ContextId */
+static int hf_gsm_map_ms_gprsEnhancementsSupportIndicator;  /* NULL */
+static int hf_gsm_map_ms_smsCallBarringSupportIndicator;  /* NULL */
+static int hf_gsm_map_ms_supportedFeatures;       /* SupportedFeatures */
+static int hf_gsm_map_ms_t_adsDataRetrieval;      /* NULL */
+static int hf_gsm_map_ms_homogeneousSupportOfIMSVoiceOverPSSessions;  /* BOOLEAN */
+static int hf_gsm_map_ms_cancellationTypeInitialAttach;  /* NULL */
+static int hf_gsm_map_ms_updateofHomogeneousSupportOfIMSVoiceOverPSSessions;  /* NULL */
+static int hf_gsm_map_ms_ext_SupportedFeatures;   /* Ext_SupportedFeatures */
+static int hf_gsm_map_ms_sgsn_mmeSeparationSupported;  /* NULL */
+static int hf_gsm_map_ms_mmeRegisteredforSMS;     /* NULL */
+static int hf_gsm_map_ms_EPLMN_List_item;         /* PLMN_Id */
+static int hf_gsm_map_ms_AdjacentPLMN_List_item;  /* PLMN_Id */
+static int hf_gsm_map_ms_an_APDU;                 /* AccessNetworkSignalInfo */
+static int hf_gsm_map_ms_integrityProtectionInfo;  /* IntegrityProtectionInformation */
+static int hf_gsm_map_ms_encryptionInfo;          /* EncryptionInformation */
+static int hf_gsm_map_ms_keyStatus;               /* KeyStatus */
+static int hf_gsm_map_ms_allowedGSM_Algorithms;   /* AllowedGSM_Algorithms */
+static int hf_gsm_map_ms_allowedUMTS_Algorithms;  /* AllowedUMTS_Algorithms */
+static int hf_gsm_map_ms_radioResourceInformation;  /* RadioResourceInformation */
+static int hf_gsm_map_ms_radioResourceList;       /* RadioResourceList */
+static int hf_gsm_map_ms_bssmap_ServiceHandover;  /* BSSMAP_ServiceHandover */
+static int hf_gsm_map_ms_ranap_ServiceHandover;   /* RANAP_ServiceHandover */
+static int hf_gsm_map_ms_bssmap_ServiceHandoverList;  /* BSSMAP_ServiceHandoverList */
+static int hf_gsm_map_ms_currentlyUsedCodec;      /* Codec */
+static int hf_gsm_map_ms_iuSupportedCodecsList;   /* SupportedCodecsList */
+static int hf_gsm_map_ms_rab_ConfigurationIndicator;  /* NULL */
+static int hf_gsm_map_ms_iuSelectedCodec;         /* Codec */
+static int hf_gsm_map_ms_alternativeChannelType;  /* RadioResourceInformation */
+static int hf_gsm_map_ms_tracePropagationList;    /* TracePropagationList */
+static int hf_gsm_map_ms_aoipSupportedCodecsListAnchor;  /* AoIPCodecsList */
+static int hf_gsm_map_ms_aoipSelectedCodecTarget;  /* AoIPCodec */
+static int hf_gsm_map_ms_uesbi_Iu;                /* UESBI_Iu */
+static int hf_gsm_map_ms_integrityProtectionAlgorithms;  /* PermittedIntegrityProtectionAlgorithms */
+static int hf_gsm_map_ms_encryptionAlgorithms;    /* PermittedEncryptionAlgorithms */
+static int hf_gsm_map_ms_targetCellId;            /* GlobalCellId */
+static int hf_gsm_map_ms_ho_NumberNotRequired;    /* NULL */
+static int hf_gsm_map_ms_targetRNCId;             /* RNCId */
+static int hf_gsm_map_ms_multipleBearerRequested;  /* NULL */
+static int hf_gsm_map_ms_rab_Id;                  /* RAB_Id */
+static int hf_gsm_map_ms_asciCallReference;       /* ASCI_CallReference */
+static int hf_gsm_map_ms_geran_classmark;         /* GERAN_Classmark */
+static int hf_gsm_map_ms_iuCurrentlyUsedCodec;    /* Codec */
+static int hf_gsm_map_ms_regionalSubscriptionData;  /* ZoneCodeList */
+static int hf_gsm_map_ms_lclsGlobalCallReference;  /* LCLS_GlobalCallReference */
+static int hf_gsm_map_ms_lcls_Negotiation;        /* LCLS_Negotiation */
+static int hf_gsm_map_ms_lcls_Configuration_Preference;  /* LCLS_ConfigurationPreference */
+static int hf_gsm_map_ms_csg_SubscriptionDataList;  /* CSG_SubscriptionDataList */
+static int hf_gsm_map_ms_BSSMAP_ServiceHandoverList_item;  /* BSSMAP_ServiceHandoverInfo */
+static int hf_gsm_map_ms_RadioResourceList_item;  /* RadioResource */
+static int hf_gsm_map_ms_handoverNumber;          /* ISDN_AddressString */
+static int hf_gsm_map_ms_relocationNumberList;    /* RelocationNumberList */
+static int hf_gsm_map_ms_multicallBearerInfo;     /* MulticallBearerInfo */
+static int hf_gsm_map_ms_multipleBearerNotSupported;  /* NULL */
+static int hf_gsm_map_ms_selectedUMTS_Algorithms;  /* SelectedUMTS_Algorithms */
+static int hf_gsm_map_ms_chosenRadioResourceInformation;  /* ChosenRadioResourceInformation */
+static int hf_gsm_map_ms_iuAvailableCodecsList;   /* CodecList */
+static int hf_gsm_map_ms_aoipAvailableCodecsListMap;  /* AoIPCodecsList */
+static int hf_gsm_map_ms_integrityProtectionAlgorithm;  /* ChosenIntegrityProtectionAlgorithm */
+static int hf_gsm_map_ms_encryptionAlgorithm;     /* ChosenEncryptionAlgorithm */
+static int hf_gsm_map_ms_chosenChannelInfo;       /* ChosenChannelInfo */
+static int hf_gsm_map_ms_chosenSpeechVersion;     /* ChosenSpeechVersion */
+static int hf_gsm_map_ms_targetMSC_Number;        /* ISDN_AddressString */
+static int hf_gsm_map_ms_selectedRab_Id;          /* RAB_Id */
+static int hf_gsm_map_ms_selectedGSM_Algorithm;   /* SelectedGSM_Algorithm */
+static int hf_gsm_map_ms_iUSelectedCodec;         /* Codec */
+static int hf_gsm_map_ms_codec1;                  /* AoIPCodec */
+static int hf_gsm_map_ms_codec2;                  /* AoIPCodec */
+static int hf_gsm_map_ms_codec3;                  /* AoIPCodec */
+static int hf_gsm_map_ms_codec4;                  /* AoIPCodec */
+static int hf_gsm_map_ms_codec5;                  /* AoIPCodec */
+static int hf_gsm_map_ms_codec6;                  /* AoIPCodec */
+static int hf_gsm_map_ms_codec7;                  /* AoIPCodec */
+static int hf_gsm_map_ms_codec8;                  /* AoIPCodec */
+static int hf_gsm_map_ms_utranCodecList;          /* CodecList */
+static int hf_gsm_map_ms_geranCodecList;          /* CodecList */
+static int hf_gsm_map_ms_codec1_01;               /* Codec */
+static int hf_gsm_map_ms_codec2_01;               /* Codec */
+static int hf_gsm_map_ms_codec3_01;               /* Codec */
+static int hf_gsm_map_ms_codec4_01;               /* Codec */
+static int hf_gsm_map_ms_codec5_01;               /* Codec */
+static int hf_gsm_map_ms_codec6_01;               /* Codec */
+static int hf_gsm_map_ms_codec7_01;               /* Codec */
+static int hf_gsm_map_ms_codec8_01;               /* Codec */
+static int hf_gsm_map_ms_RelocationNumberList_item;  /* RelocationNumber */
+static int hf_gsm_map_ms_immediateResponsePreferred;  /* NULL */
+static int hf_gsm_map_ms_re_synchronisationInfo;  /* Re_synchronisationInfo */
+static int hf_gsm_map_ms_requestingNodeType;      /* RequestingNodeType */
+static int hf_gsm_map_ms_requestingPLMN_Id;       /* PLMN_Id */
+static int hf_gsm_map_ms_numberOfRequestedAdditional_Vectors;  /* NumberOfRequestedVectors */
+static int hf_gsm_map_ms_additionalVectorsAreForEPS;  /* NULL */
+static int hf_gsm_map_ms_ueUsageTypeRequestIndication;  /* NULL */
+static int hf_gsm_map_ms_auts;                    /* AUTS */
+static int hf_gsm_map_ms_eps_AuthenticationSetList;  /* EPS_AuthenticationSetList */
+static int hf_gsm_map_ms_ueUsageType;             /* UE_UsageType */
+static int hf_gsm_map_ms_EPS_AuthenticationSetList_item;  /* EPC_AV */
+static int hf_gsm_map_ms_kasme;                   /* KASME */
+static int hf_gsm_map_ms_imei;                    /* IMEI */
+static int hf_gsm_map_ms_requestedEquipmentInfo;  /* RequestedEquipmentInfo */
+static int hf_gsm_map_ms_equipmentStatus;         /* EquipmentStatus */
+static int hf_gsm_map_ms_bmuef;                   /* UESBI_Iu */
+static int hf_gsm_map_ms_uesbi_IuA;               /* UESBI_IuA */
+static int hf_gsm_map_ms_uesbi_IuB;               /* UESBI_IuB */
+static int hf_gsm_map_ms_EDRX_Cycle_Length_List_item;  /* EDRX_Cycle_Length */
+static int hf_gsm_map_ms_rat_Type;                /* Used_RAT_Type */
+static int hf_gsm_map_ms_eDRX_Cycle_Length_Value;  /* EDRX_Cycle_Length_Value */
+static int hf_gsm_map_ms_Reset_Id_List_item;      /* Reset_Id */
+static int hf_gsm_map_ms_IMSI_GroupIdList_item;   /* IMSI_GroupId */
+static int hf_gsm_map_ms_group_Service_Id;        /* Group_Service_ID */
+static int hf_gsm_map_ms_plmnId;                  /* PLMN_Id */
+static int hf_gsm_map_ms_local_Group_ID;          /* Local_GroupID */
+static int hf_gsm_map_ms_CSG_SubscriptionDataList_item;  /* CSG_SubscriptionData */
+static int hf_gsm_map_ms_csg_Id;                  /* CSG_Id */
+static int hf_gsm_map_ms_expirationDate;          /* Time */
+static int hf_gsm_map_ms_lipa_AllowedAPNList;     /* LIPA_AllowedAPNList */
+static int hf_gsm_map_ms_plmn_Id;                 /* PLMN_Id */
+static int hf_gsm_map_ms_VPLMN_CSG_SubscriptionDataList_item;  /* CSG_SubscriptionData */
+static int hf_gsm_map_ms_LIPA_AllowedAPNList_item;  /* APN */
+static int hf_gsm_map_ms_apn_oi_Replacement;      /* APN_OI_Replacement */
+static int hf_gsm_map_ms_rfsp_id;                 /* RFSP_ID */
+static int hf_gsm_map_ms_ambr;                    /* AMBR */
+static int hf_gsm_map_ms_apn_ConfigurationProfile;  /* APN_ConfigurationProfile */
+static int hf_gsm_map_ms_stn_sr;                  /* ISDN_AddressString */
+static int hf_gsm_map_ms_mps_CSPriority;          /* NULL */
+static int hf_gsm_map_ms_mps_EPSPriority;         /* NULL */
+static int hf_gsm_map_ms_subscribed_vsrvcc;       /* NULL */
+static int hf_gsm_map_ms_defaultContext;          /* ContextId */
+static int hf_gsm_map_ms_completeDataListIncluded;  /* NULL */
+static int hf_gsm_map_ms_epsDataList;             /* EPS_DataList */
+static int hf_gsm_map_ms_additionalDefaultContext;  /* ContextId */
+static int hf_gsm_map_ms_EPS_DataList_item;       /* APN_Configuration */
+static int hf_gsm_map_ms_pdn_Type;                /* PDN_Type */
+static int hf_gsm_map_ms_servedPartyIP_IPv4_Address;  /* PDP_Address */
+static int hf_gsm_map_ms_eps_qos_Subscribed;      /* EPS_QoS_Subscribed */
+static int hf_gsm_map_ms_pdn_gw_AllocationType;   /* PDN_GW_AllocationType */
+static int hf_gsm_map_ms_vplmnAddressAllowed;     /* NULL */
+static int hf_gsm_map_ms_chargingCharacteristics;  /* ChargingCharacteristics */
+static int hf_gsm_map_ms_specificAPNInfoList;     /* SpecificAPNInfoList */
+static int hf_gsm_map_ms_servedPartyIP_IPv6_Address;  /* PDP_Address */
+static int hf_gsm_map_ms_sipto_Permission;        /* SIPTO_Permission */
+static int hf_gsm_map_ms_lipa_Permission;         /* LIPA_Permission */
+static int hf_gsm_map_ms_restoration_Priority;    /* Restoration_Priority */
+static int hf_gsm_map_ms_sipto_local_network_Permission;  /* SIPTO_Local_Network_Permission */
+static int hf_gsm_map_ms_wlan_offloadability;     /* WLAN_Offloadability */
+static int hf_gsm_map_ms_non_IP_PDN_Type_Indicator;  /* NULL */
+static int hf_gsm_map_ms_nIDD_Mechanism;          /* NIDD_Mechanism */
+static int hf_gsm_map_ms_sCEF_ID;                 /* FQDN */
+static int hf_gsm_map_ms_pdn_ConnectionContinuity;  /* PDN_ConnectionContinuity */
+static int hf_gsm_map_ms_qos_Class_Identifier;    /* QoS_Class_Identifier */
+static int hf_gsm_map_ms_allocation_Retention_Priority;  /* Allocation_Retention_Priority */
+static int hf_gsm_map_ms_max_RequestedBandwidth_UL;  /* Bandwidth */
+static int hf_gsm_map_ms_max_RequestedBandwidth_DL;  /* Bandwidth */
+static int hf_gsm_map_ms_extended_Max_RequestedBandwidth_UL;  /* BandwidthExt */
+static int hf_gsm_map_ms_extended_Max_RequestedBandwidth_DL;  /* BandwidthExt */
+static int hf_gsm_map_ms_SpecificAPNInfoList_item;  /* SpecificAPNInfo */
+static int hf_gsm_map_ms_priority_level;          /* INTEGER */
+static int hf_gsm_map_ms_pre_emption_capability;  /* BOOLEAN */
+static int hf_gsm_map_ms_pre_emption_vulnerability;  /* BOOLEAN */
+static int hf_gsm_map_ms_pdn_gw_ipv4_Address;     /* PDP_Address */
+static int hf_gsm_map_ms_pdn_gw_ipv6_Address;     /* PDP_Address */
+static int hf_gsm_map_ms_pdn_gw_name;             /* FQDN */
+static int hf_gsm_map_ms_wlan_offloadability_EUTRAN;  /* WLAN_Offloadability_Indication */
+static int hf_gsm_map_ms_wlan_offloadability_UTRAN;  /* WLAN_Offloadability_Indication */
+static int hf_gsm_map_ms_AdjacentAccessRestrictionDataList_item;  /* AdjacentAccessRestrictionData */
+static int hf_gsm_map_ms_accessRestrictionData;   /* AccessRestrictionData */
+static int hf_gsm_map_ms_ext_AccessRestrictionData;  /* Ext_AccessRestrictionData */
+static int hf_gsm_map_ms_gmlc_List;               /* GMLC_List */
+static int hf_gsm_map_ms_lcs_PrivacyExceptionList;  /* LCS_PrivacyExceptionList */
+static int hf_gsm_map_ms_molr_List;               /* MOLR_List */
+static int hf_gsm_map_ms_add_lcs_PrivacyExceptionList;  /* LCS_PrivacyExceptionList */
+static int hf_gsm_map_ms_GMLC_List_item;          /* ISDN_AddressString */
+static int hf_gsm_map_ms_GPRSDataList_item;       /* PDP_Context */
+static int hf_gsm_map_ms_pdp_ContextId;           /* ContextId */
+static int hf_gsm_map_ms_pdp_Type;                /* PDP_Type */
+static int hf_gsm_map_ms_pdp_Address;             /* PDP_Address */
+static int hf_gsm_map_ms_qos_Subscribed;          /* QoS_Subscribed */
+static int hf_gsm_map_ms_ext_QoS_Subscribed;      /* Ext_QoS_Subscribed */
+static int hf_gsm_map_ms_pdp_ChargingCharacteristics;  /* ChargingCharacteristics */
+static int hf_gsm_map_ms_ext2_QoS_Subscribed;     /* Ext2_QoS_Subscribed */
+static int hf_gsm_map_ms_ext3_QoS_Subscribed;     /* Ext3_QoS_Subscribed */
+static int hf_gsm_map_ms_ext4_QoS_Subscribed;     /* Ext4_QoS_Subscribed */
+static int hf_gsm_map_ms_ext_pdp_Type;            /* Ext_PDP_Type */
+static int hf_gsm_map_ms_ext_pdp_Address;         /* PDP_Address */
+static int hf_gsm_map_ms_gprsDataList;            /* GPRSDataList */
+static int hf_gsm_map_ms_gprs_CSI;                /* GPRS_CSI */
+static int hf_gsm_map_ms_mo_sms_CSI;              /* SMS_CSI */
+static int hf_gsm_map_ms_mt_sms_CSI;              /* SMS_CSI */
+static int hf_gsm_map_ms_mt_smsCAMELTDP_CriteriaList;  /* MT_smsCAMELTDP_CriteriaList */
+static int hf_gsm_map_ms_mg_csi;                  /* MG_CSI */
+static int hf_gsm_map_ms_gprs_CamelTDPDataList;   /* GPRS_CamelTDPDataList */
+static int hf_gsm_map_ms_camelCapabilityHandling;  /* CamelCapabilityHandling */
+static int hf_gsm_map_ms_notificationToCSE;       /* NULL */
+static int hf_gsm_map_ms_csi_Active;              /* NULL */
+static int hf_gsm_map_ms_GPRS_CamelTDPDataList_item;  /* GPRS_CamelTDPData */
+static int hf_gsm_map_ms_gprs_TriggerDetectionPoint;  /* GPRS_TriggerDetectionPoint */
+static int hf_gsm_map_ms_serviceKey;              /* ServiceKey */
+static int hf_gsm_map_ms_gsmSCF_Address;          /* ISDN_AddressString */
+static int hf_gsm_map_ms_defaultSessionHandling;  /* DefaultGPRS_Handling */
+static int hf_gsm_map_ms_LSADataList_item;        /* LSAData */
+static int hf_gsm_map_ms_lsaIdentity;             /* LSAIdentity */
+static int hf_gsm_map_ms_lsaAttributes;           /* LSAAttributes */
+static int hf_gsm_map_ms_lsaActiveModeIndicator;  /* NULL */
+static int hf_gsm_map_ms_lsaOnlyAccessIndicator;  /* LSAOnlyAccessIndicator */
+static int hf_gsm_map_ms_lsaDataList;             /* LSADataList */
+static int hf_gsm_map_ms_msisdn;                  /* ISDN_AddressString */
+static int hf_gsm_map_ms_category;                /* Category */
+static int hf_gsm_map_ms_subscriberStatus;        /* SubscriberStatus */
+static int hf_gsm_map_ms_bearerServiceList;       /* BearerServiceList */
+static int hf_gsm_map_ms_teleserviceList;         /* TeleserviceList */
+static int hf_gsm_map_ms_provisionedSS;           /* Ext_SS_InfoList */
+static int hf_gsm_map_ms_odb_Data;                /* ODB_Data */
+static int hf_gsm_map_ms_roamingRestrictionDueToUnsupportedFeature;  /* NULL */
+static int hf_gsm_map_ms_vbsSubscriptionData;     /* VBSDataList */
+static int hf_gsm_map_ms_vgcsSubscriptionData;    /* VGCSDataList */
+static int hf_gsm_map_ms_vlrCamelSubscriptionInfo;  /* VlrCamelSubscriptionInfo */
+static int hf_gsm_map_ms_BearerServiceList_item;  /* Ext_BearerServiceCode */
+static int hf_gsm_map_ms_TeleserviceList_item;    /* Ext_TeleserviceCode */
+static int hf_gsm_map_ms_odb_GeneralData;         /* ODB_GeneralData */
+static int hf_gsm_map_ms_odb_HPLMN_Data;          /* ODB_HPLMN_Data */
+static int hf_gsm_map_ms_Ext_SS_InfoList_item;    /* Ext_SS_Info */
+static int hf_gsm_map_ms_forwardingInfo;          /* Ext_ForwInfo */
+static int hf_gsm_map_ms_callBarringInfo;         /* Ext_CallBarInfo */
+static int hf_gsm_map_ms_cug_Info;                /* CUG_Info */
+static int hf_gsm_map_ms_ss_Data;                 /* Ext_SS_Data */
+static int hf_gsm_map_ms_emlpp_Info;              /* EMLPP_Info */
+static int hf_gsm_map_ms_ss_Code;                 /* SS_Code */
+static int hf_gsm_map_ms_forwardingFeatureList;   /* Ext_ForwFeatureList */
+static int hf_gsm_map_ms_Ext_ForwFeatureList_item;  /* Ext_ForwFeature */
+static int hf_gsm_map_ms_basicService;            /* Ext_BasicServiceCode */
+static int hf_gsm_map_ms_ss_Status;               /* Ext_SS_Status */
+static int hf_gsm_map_ms_forwardedToNumber;       /* ISDN_AddressString */
+static int hf_gsm_map_ms_forwardedToSubaddress;   /* ISDN_SubaddressString */
+static int hf_gsm_map_ms_forwardingOptions;       /* T_forwardingOptions */
+static int hf_gsm_map_ms_noReplyConditionTime;    /* Ext_NoRepCondTime */
+static int hf_gsm_map_ms_longForwardedToNumber;   /* FTN_AddressString */
+static int hf_gsm_map_ms_callBarringFeatureList;  /* Ext_CallBarFeatureList */
+static int hf_gsm_map_ms_Ext_CallBarFeatureList_item;  /* Ext_CallBarringFeature */
+static int hf_gsm_map_ms_cug_SubscriptionList;    /* CUG_SubscriptionList */
+static int hf_gsm_map_ms_cug_FeatureList;         /* CUG_FeatureList */
+static int hf_gsm_map_ms_CUG_SubscriptionList_item;  /* CUG_Subscription */
+static int hf_gsm_map_ms_cug_Index;               /* CUG_Index */
+static int hf_gsm_map_ms_cug_Interlock;           /* CUG_Interlock */
+static int hf_gsm_map_ms_intraCUG_Options;        /* IntraCUG_Options */
+static int hf_gsm_map_ms_basicServiceGroupList;   /* Ext_BasicServiceGroupList */
+static int hf_gsm_map_ms_CUG_FeatureList_item;    /* CUG_Feature */
+static int hf_gsm_map_ms_Ext_BasicServiceGroupList_item;  /* Ext_BasicServiceCode */
+static int hf_gsm_map_ms_preferentialCUG_Indicator;  /* CUG_Index */
+static int hf_gsm_map_ms_interCUG_Restrictions;   /* InterCUG_Restrictions */
+static int hf_gsm_map_ms_ss_SubscriptionOption;   /* SS_SubscriptionOption */
+static int hf_gsm_map_ms_LCS_PrivacyExceptionList_item;  /* LCS_PrivacyClass */
+static int hf_gsm_map_ms_notificationToMSUser;    /* NotificationToMSUser */
+static int hf_gsm_map_ms_externalClientList;      /* ExternalClientList */
+static int hf_gsm_map_ms_plmnClientList;          /* PLMNClientList */
+static int hf_gsm_map_ms_ext_externalClientList;  /* Ext_ExternalClientList */
+static int hf_gsm_map_ms_serviceTypeList;         /* ServiceTypeList */
+static int hf_gsm_map_ms_ExternalClientList_item;  /* ExternalClient */
+static int hf_gsm_map_ms_PLMNClientList_item;     /* LCSClientInternalID */
+static int hf_gsm_map_ms_Ext_ExternalClientList_item;  /* ExternalClient */
+static int hf_gsm_map_ms_clientIdentity;          /* LCSClientExternalID */
+static int hf_gsm_map_ms_gmlc_Restriction;        /* GMLC_Restriction */
+static int hf_gsm_map_ms_ServiceTypeList_item;    /* ServiceType */
+static int hf_gsm_map_ms_serviceTypeIdentity;     /* LCSServiceTypeID */
+static int hf_gsm_map_ms_MOLR_List_item;          /* MOLR_Class */
+static int hf_gsm_map_ms_ZoneCodeList_item;       /* ZoneCode */
+static int hf_gsm_map_ms_ss_List;                 /* SS_List */
+static int hf_gsm_map_ms_regionalSubscriptionResponse;  /* RegionalSubscriptionResponse */
+static int hf_gsm_map_ms_basicServiceList;        /* BasicServiceList */
+static int hf_gsm_map_ms_regionalSubscriptionIdentifier;  /* ZoneCode */
+static int hf_gsm_map_ms_vbsGroupIndication;      /* NULL */
+static int hf_gsm_map_ms_vgcsGroupIndication;     /* NULL */
+static int hf_gsm_map_ms_camelSubscriptionInfoWithdraw;  /* NULL */
+static int hf_gsm_map_ms_gprsSubscriptionDataWithdraw;  /* GPRSSubscriptionDataWithdraw */
+static int hf_gsm_map_ms_roamingRestrictedInSgsnDueToUnsuppportedFeature;  /* NULL */
+static int hf_gsm_map_ms_lsaInformationWithdraw;  /* LSAInformationWithdraw */
+static int hf_gsm_map_ms_gmlc_ListWithdraw;       /* NULL */
+static int hf_gsm_map_ms_istInformationWithdraw;  /* NULL */
+static int hf_gsm_map_ms_specificCSI_Withdraw;    /* SpecificCSI_Withdraw */
+static int hf_gsm_map_ms_chargingCharacteristicsWithdraw;  /* NULL */
+static int hf_gsm_map_ms_stn_srWithdraw;          /* NULL */
+static int hf_gsm_map_ms_epsSubscriptionDataWithdraw;  /* EPS_SubscriptionDataWithdraw */
+static int hf_gsm_map_ms_apn_oi_replacementWithdraw;  /* NULL */
+static int hf_gsm_map_ms_csg_SubscriptionDeleted;  /* NULL */
+static int hf_gsm_map_ms_subscribedPeriodicTAU_RAU_TimerWithdraw;  /* NULL */
+static int hf_gsm_map_ms_subscribedPeriodicLAU_TimerWithdraw;  /* NULL */
+static int hf_gsm_map_ms_subscribed_vsrvccWithdraw;  /* NULL */
+static int hf_gsm_map_ms_vplmn_Csg_SubscriptionDeleted;  /* NULL */
+static int hf_gsm_map_ms_additionalMSISDN_Withdraw;  /* NULL */
+static int hf_gsm_map_ms_cs_to_ps_SRVCC_Withdraw;  /* NULL */
+static int hf_gsm_map_ms_imsiGroupIdList_Withdraw;  /* NULL */
+static int hf_gsm_map_ms_userPlaneIntegrityProtectionWithdraw;  /* NULL */
+static int hf_gsm_map_ms_dl_Buffering_Suggested_Packet_Count_Withdraw;  /* NULL */
+static int hf_gsm_map_ms_ue_UsageTypeWithdraw;    /* NULL */
+static int hf_gsm_map_ms_reset_idsWithdraw;       /* NULL */
+static int hf_gsm_map_ms_iab_OperationWithdraw;   /* NULL */
+static int hf_gsm_map_ms_allGPRSData;             /* NULL */
+static int hf_gsm_map_ms_contextIdList;           /* ContextIdList */
+static int hf_gsm_map_ms_allEPS_Data;             /* NULL */
+static int hf_gsm_map_ms_ContextIdList_item;      /* ContextId */
+static int hf_gsm_map_ms_allLSAData;              /* NULL */
+static int hf_gsm_map_ms_lsaIdentityList;         /* LSAIdentityList */
+static int hf_gsm_map_ms_LSAIdentityList_item;    /* LSAIdentity */
+static int hf_gsm_map_ms_BasicServiceList_item;   /* Ext_BasicServiceCode */
+static int hf_gsm_map_ms_o_CSI;                   /* O_CSI */
+static int hf_gsm_map_ms_ss_CSI;                  /* SS_CSI */
+static int hf_gsm_map_ms_o_BcsmCamelTDP_CriteriaList;  /* O_BcsmCamelTDPCriteriaList */
+static int hf_gsm_map_ms_tif_CSI;                 /* NULL */
+static int hf_gsm_map_ms_m_CSI;                   /* M_CSI */
+static int hf_gsm_map_ms_vt_CSI;                  /* T_CSI */
+static int hf_gsm_map_ms_t_BCSM_CAMEL_TDP_CriteriaList;  /* T_BCSM_CAMEL_TDP_CriteriaList */
+static int hf_gsm_map_ms_d_CSI;                   /* D_CSI */
+static int hf_gsm_map_ms_MT_smsCAMELTDP_CriteriaList_item;  /* MT_smsCAMELTDP_Criteria */
+static int hf_gsm_map_ms_sms_TriggerDetectionPoint;  /* SMS_TriggerDetectionPoint */
+static int hf_gsm_map_ms_tpdu_TypeCriterion;      /* TPDU_TypeCriterion */
+static int hf_gsm_map_ms_TPDU_TypeCriterion_item;  /* MT_SMS_TPDU_Type */
+static int hf_gsm_map_ms_dp_AnalysedInfoCriteriaList;  /* DP_AnalysedInfoCriteriaList */
+static int hf_gsm_map_ms_DP_AnalysedInfoCriteriaList_item;  /* DP_AnalysedInfoCriterium */
+static int hf_gsm_map_ms_dialledNumber;           /* ISDN_AddressString */
+static int hf_gsm_map_ms_defaultCallHandling;     /* DefaultCallHandling */
+static int hf_gsm_map_ms_ss_CamelData;            /* SS_CamelData */
+static int hf_gsm_map_ms_ss_EventList;            /* SS_EventList */
+static int hf_gsm_map_ms_SS_EventList_item;       /* SS_Code */
+static int hf_gsm_map_ms_o_BcsmCamelTDPDataList;  /* O_BcsmCamelTDPDataList */
+static int hf_gsm_map_ms_csiActive;               /* NULL */
+static int hf_gsm_map_ms_O_BcsmCamelTDPDataList_item;  /* O_BcsmCamelTDPData */
+static int hf_gsm_map_ms_o_BcsmTriggerDetectionPoint;  /* O_BcsmTriggerDetectionPoint */
+static int hf_gsm_map_ms_O_BcsmCamelTDPCriteriaList_item;  /* O_BcsmCamelTDP_Criteria */
+static int hf_gsm_map_ms_T_BCSM_CAMEL_TDP_CriteriaList_item;  /* T_BCSM_CAMEL_TDP_Criteria */
+static int hf_gsm_map_ms_destinationNumberCriteria;  /* DestinationNumberCriteria */
+static int hf_gsm_map_ms_basicServiceCriteria;    /* BasicServiceCriteria */
+static int hf_gsm_map_ms_callTypeCriteria;        /* CallTypeCriteria */
+static int hf_gsm_map_ms_o_CauseValueCriteria;    /* O_CauseValueCriteria */
+static int hf_gsm_map_ms_t_BCSM_TriggerDetectionPoint;  /* T_BcsmTriggerDetectionPoint */
+static int hf_gsm_map_ms_t_CauseValueCriteria;    /* T_CauseValueCriteria */
+static int hf_gsm_map_ms_matchType;               /* MatchType */
+static int hf_gsm_map_ms_destinationNumberList;   /* DestinationNumberList */
+static int hf_gsm_map_ms_destinationNumberLengthList;  /* DestinationNumberLengthList */
+static int hf_gsm_map_ms_DestinationNumberList_item;  /* ISDN_AddressString */
+static int hf_gsm_map_ms_DestinationNumberLengthList_item;  /* INTEGER_1_maxNumOfISDN_AddressDigits */
+static int hf_gsm_map_ms_BasicServiceCriteria_item;  /* Ext_BasicServiceCode */
+static int hf_gsm_map_ms_O_CauseValueCriteria_item;  /* CauseValue */
+static int hf_gsm_map_ms_T_CauseValueCriteria_item;  /* CauseValue */
+static int hf_gsm_map_ms_sms_CAMEL_TDP_DataList;  /* SMS_CAMEL_TDP_DataList */
+static int hf_gsm_map_ms_SMS_CAMEL_TDP_DataList_item;  /* SMS_CAMEL_TDP_Data */
+static int hf_gsm_map_ms_defaultSMS_Handling;     /* DefaultSMS_Handling */
+static int hf_gsm_map_ms_mobilityTriggers;        /* MobilityTriggers */
+static int hf_gsm_map_ms_MobilityTriggers_item;   /* MM_Code */
+static int hf_gsm_map_ms_t_BcsmCamelTDPDataList;  /* T_BcsmCamelTDPDataList */
+static int hf_gsm_map_ms_T_BcsmCamelTDPDataList_item;  /* T_BcsmCamelTDPData */
+static int hf_gsm_map_ms_t_BcsmTriggerDetectionPoint;  /* T_BcsmTriggerDetectionPoint */
+static int hf_gsm_map_ms_ggsn_Address;            /* GSN_Address */
+static int hf_gsm_map_ms_ggsn_Number;             /* ISDN_AddressString */
+static int hf_gsm_map_ms_mobileNotReachableReason;  /* AbsentSubscriberDiagnosticSM */
+static int hf_gsm_map_ms_sendingNodenumber;       /* SendingNode_Number */
+static int hf_gsm_map_ms_hlr_List;                /* HLR_List */
+static int hf_gsm_map_ms_reset_Id_List;           /* Reset_Id_List */
+static int hf_gsm_map_ms_subscriptionData;        /* InsertSubscriberDataArg */
+static int hf_gsm_map_ms_subscriptionDataDeletion;  /* DeleteSubscriberDataArg */
+static int hf_gsm_map_ms_css_Number;              /* ISDN_AddressString */
+static int hf_gsm_map_ms_msNotReachable;          /* NULL */
+static int hf_gsm_map_ms_VBSDataList_item;        /* VoiceBroadcastData */
+static int hf_gsm_map_ms_VGCSDataList_item;       /* VoiceGroupCallData */
+static int hf_gsm_map_ms_groupId;                 /* GroupId */
+static int hf_gsm_map_ms_additionalSubscriptions;  /* AdditionalSubscriptions */
+static int hf_gsm_map_ms_additionalInfo;          /* AdditionalInfo */
+static int hf_gsm_map_ms_longGroupId;             /* Long_GroupId */
+static int hf_gsm_map_ms_groupid;                 /* GroupId */
+static int hf_gsm_map_ms_broadcastInitEntitlement;  /* NULL */
+static int hf_gsm_map_ms_requestedInfo;           /* RequestedInfo */
+static int hf_gsm_map_ms_callPriority;            /* EMLPP_Priority */
+static int hf_gsm_map_ms_subscriberInfo;          /* SubscriberInfo */
+static int hf_gsm_map_ms_subscriberState;         /* SubscriberState */
+static int hf_gsm_map_ms_ps_SubscriberState;      /* PS_SubscriberState */
+static int hf_gsm_map_ms_ms_Classmark2;           /* MS_Classmark2 */
+static int hf_gsm_map_ms_gprs_MS_Class;           /* GPRSMSClass */
+static int hf_gsm_map_ms_mnpInfoRes;              /* MNPInfoRes */
+static int hf_gsm_map_ms_imsVoiceOverPS_SessionsIndication;  /* IMS_VoiceOverPS_SessionsInd */
+static int hf_gsm_map_ms_lastUE_ActivityTime;     /* Time */
+static int hf_gsm_map_ms_lastRAT_Type;            /* Used_RAT_Type */
+static int hf_gsm_map_ms_eps_SubscriberState;     /* PS_SubscriberState */
+static int hf_gsm_map_ms_timeZone;                /* TimeZone */
+static int hf_gsm_map_ms_daylightSavingTime;      /* DaylightSavingTime */
+static int hf_gsm_map_ms_locationInformation5GS;  /* LocationInformation5GS */
+static int hf_gsm_map_ms_routeingNumber;          /* RouteingNumber */
+static int hf_gsm_map_ms_numberPortabilityStatus;  /* NumberPortabilityStatus */
+static int hf_gsm_map_ms_mSNetworkCapability;     /* MSNetworkCapability */
+static int hf_gsm_map_ms_mSRadioAccessCapability;  /* MSRadioAccessCapability */
+static int hf_gsm_map_ms_locationInformation_01;  /* NULL */
+static int hf_gsm_map_ms_subscriberState_01;      /* NULL */
+static int hf_gsm_map_ms_currentLocation;         /* NULL */
+static int hf_gsm_map_ms_requestedDomain;         /* DomainType */
+static int hf_gsm_map_ms_imei_01;                 /* NULL */
+static int hf_gsm_map_ms_ms_classmark;            /* NULL */
+static int hf_gsm_map_ms_mnpRequestedInfo;        /* NULL */
+static int hf_gsm_map_ms_locationInformationEPS_Supported;  /* NULL */
+static int hf_gsm_map_ms_t_adsData;               /* NULL */
+static int hf_gsm_map_ms_requestedNodes;          /* RequestedNodes */
+static int hf_gsm_map_ms_servingNodeIndication;   /* NULL */
+static int hf_gsm_map_ms_localTimeZoneRequest;    /* NULL */
+static int hf_gsm_map_ms_ageOfLocationInformation;  /* AgeOfLocationInformation */
+static int hf_gsm_map_ms_geographicalInformation;  /* GeographicalInformation */
+static int hf_gsm_map_ms_vlr_number;              /* ISDN_AddressString */
+static int hf_gsm_map_ms_locationNumber;          /* LocationNumber */
+static int hf_gsm_map_ms_cellGlobalIdOrServiceAreaIdOrLAI;  /* CellGlobalIdOrServiceAreaIdOrLAI */
+static int hf_gsm_map_ms_selectedLSA_Id;          /* LSAIdentity */
+static int hf_gsm_map_ms_geodeticInformation;     /* GeodeticInformation */
+static int hf_gsm_map_ms_currentLocationRetrieved;  /* NULL */
+static int hf_gsm_map_ms_sai_Present;             /* NULL */
+static int hf_gsm_map_ms_userCSGInformation;      /* UserCSGInformation */
+static int hf_gsm_map_ms_e_utranCellGlobalIdentity;  /* E_UTRAN_CGI */
+static int hf_gsm_map_ms_trackingAreaIdentity;    /* TA_Id */
+static int hf_gsm_map_ms_mme_Name;                /* DiameterIdentity */
+static int hf_gsm_map_ms_routeingAreaIdentity;    /* RAIdentity */
+static int hf_gsm_map_ms_selectedLSAIdentity;     /* LSAIdentity */
+static int hf_gsm_map_ms_nrCellGlobalIdentity;    /* NR_CGI */
+static int hf_gsm_map_ms_amf_address;             /* FQDN */
+static int hf_gsm_map_ms_vplmnId;                 /* PLMN_Id */
+static int hf_gsm_map_ms_localtimeZone;           /* TimeZone */
+static int hf_gsm_map_ms_nrTrackingAreaIdentity;  /* NR_TA_Id */
+static int hf_gsm_map_ms_accessMode;              /* OCTET_STRING_SIZE_1 */
+static int hf_gsm_map_ms_cmi;                     /* OCTET_STRING_SIZE_1 */
+static int hf_gsm_map_ms_assumedIdle;             /* NULL */
+static int hf_gsm_map_ms_camelBusy;               /* NULL */
+static int hf_gsm_map_ms_netDetNotReachable;      /* NotReachableReason */
+static int hf_gsm_map_ms_notProvidedFromVLR;      /* NULL */
+static int hf_gsm_map_ms_notProvidedFromSGSNorMME;  /* NULL */
+static int hf_gsm_map_ms_ps_Detached;             /* NULL */
+static int hf_gsm_map_ms_ps_AttachedNotReachableForPaging;  /* NULL */
+static int hf_gsm_map_ms_ps_AttachedReachableForPaging;  /* NULL */
+static int hf_gsm_map_ms_ps_PDP_ActiveNotReachableForPaging;  /* PDP_ContextInfoList */
+static int hf_gsm_map_ms_ps_PDP_ActiveReachableForPaging;  /* PDP_ContextInfoList */
+static int hf_gsm_map_ms_PDP_ContextInfoList_item;  /* PDP_ContextInfo */
+static int hf_gsm_map_ms_pdp_ContextIdentifier;   /* ContextId */
+static int hf_gsm_map_ms_pdp_ContextActive;       /* NULL */
+static int hf_gsm_map_ms_apn_Subscribed;          /* APN */
+static int hf_gsm_map_ms_apn_InUse;               /* APN */
+static int hf_gsm_map_ms_nsapi;                   /* NSAPI */
+static int hf_gsm_map_ms_transactionId;           /* TransactionId */
+static int hf_gsm_map_ms_teid_ForGnAndGp;         /* TEID */
+static int hf_gsm_map_ms_teid_ForIu;              /* TEID */
+static int hf_gsm_map_ms_qos_Subscribed_01;       /* Ext_QoS_Subscribed */
+static int hf_gsm_map_ms_qos_Requested;           /* Ext_QoS_Subscribed */
+static int hf_gsm_map_ms_qos_Negotiated;          /* Ext_QoS_Subscribed */
+static int hf_gsm_map_ms_chargingId;              /* GPRSChargingID */
+static int hf_gsm_map_ms_rnc_Address;             /* GSN_Address */
+static int hf_gsm_map_ms_qos2_Subscribed;         /* Ext2_QoS_Subscribed */
+static int hf_gsm_map_ms_qos2_Requested;          /* Ext2_QoS_Subscribed */
+static int hf_gsm_map_ms_qos2_Negotiated;         /* Ext2_QoS_Subscribed */
+static int hf_gsm_map_ms_qos3_Subscribed;         /* Ext3_QoS_Subscribed */
+static int hf_gsm_map_ms_qos3_Requested;          /* Ext3_QoS_Subscribed */
+static int hf_gsm_map_ms_qos3_Negotiated;         /* Ext3_QoS_Subscribed */
+static int hf_gsm_map_ms_qos4_Subscribed;         /* Ext4_QoS_Subscribed */
+static int hf_gsm_map_ms_qos4_Requested;          /* Ext4_QoS_Subscribed */
+static int hf_gsm_map_ms_qos4_Negotiated;         /* Ext4_QoS_Subscribed */
+static int hf_gsm_map_ms_subscriberIdentity;      /* SubscriberIdentity */
+static int hf_gsm_map_ms_requestedSubscriptionInfo;  /* RequestedSubscriptionInfo */
+static int hf_gsm_map_ms_callForwardingData;      /* CallForwardingData */
+static int hf_gsm_map_ms_callBarringData;         /* CallBarringData */
+static int hf_gsm_map_ms_odb_Info;                /* ODB_Info */
+static int hf_gsm_map_ms_camel_SubscriptionInfo;  /* CAMEL_SubscriptionInfo */
+static int hf_gsm_map_ms_supportedVLR_CAMEL_Phases;  /* SupportedCamelPhases */
+static int hf_gsm_map_ms_supportedSGSN_CAMEL_Phases;  /* SupportedCamelPhases */
+static int hf_gsm_map_ms_offeredCamel4CSIsInVLR;  /* OfferedCamel4CSIs */
+static int hf_gsm_map_ms_offeredCamel4CSIsInSGSN;  /* OfferedCamel4CSIs */
+static int hf_gsm_map_ms_msisdn_BS_List;          /* MSISDN_BS_List */
+static int hf_gsm_map_ms_cw_Data;                 /* CallWaitingData */
+static int hf_gsm_map_ms_ch_Data;                 /* CallHoldData */
+static int hf_gsm_map_ms_clip_Data;               /* ClipData */
+static int hf_gsm_map_ms_clir_Data;               /* ClirData */
+static int hf_gsm_map_ms_ect_data;                /* EctData */
+static int hf_gsm_map_ms_cwFeatureList;           /* Ext_CwFeatureList */
+static int hf_gsm_map_ms_Ext_CwFeatureList_item;  /* Ext_CwFeature */
+static int hf_gsm_map_ms_overrideCategory;        /* OverrideCategory */
+static int hf_gsm_map_ms_cliRestrictionOption;    /* CliRestrictionOption */
+static int hf_gsm_map_ms_requestedSS_Info;        /* SS_ForBS_Code */
+static int hf_gsm_map_ms_odb;                     /* NULL */
+static int hf_gsm_map_ms_requestedCAMEL_SubscriptionInfo;  /* RequestedCAMEL_SubscriptionInfo */
+static int hf_gsm_map_ms_supportedVLR_CAMEL_Phases_01;  /* NULL */
+static int hf_gsm_map_ms_supportedSGSN_CAMEL_Phases_01;  /* NULL */
+static int hf_gsm_map_ms_additionalRequestedCAMEL_SubscriptionInfo;  /* AdditionalRequestedCAMEL_SubscriptionInfo */
+static int hf_gsm_map_ms_msisdn_BS_List_01;       /* NULL */
+static int hf_gsm_map_ms_csg_SubscriptionDataRequested;  /* NULL */
+static int hf_gsm_map_ms_cw_Info;                 /* NULL */
+static int hf_gsm_map_ms_clip_Info;               /* NULL */
+static int hf_gsm_map_ms_clir_Info;               /* NULL */
+static int hf_gsm_map_ms_hold_Info;               /* NULL */
+static int hf_gsm_map_ms_ect_Info;                /* NULL */
+static int hf_gsm_map_ms_MSISDN_BS_List_item;     /* MSISDN_BS */
+static int hf_gsm_map_ms_password;                /* Password */
+static int hf_gsm_map_ms_wrongPasswordAttemptsCounter;  /* WrongPasswordAttemptsCounter */
+static int hf_gsm_map_ms_t_CSI;                   /* T_CSI */
+static int hf_gsm_map_ms_vt_BCSM_CAMEL_TDP_CriteriaList;  /* T_BCSM_CAMEL_TDP_CriteriaList */
+static int hf_gsm_map_ms_tif_CSI_NotificationToCSE;  /* NULL */
+static int hf_gsm_map_ms_specificCSIDeletedList;  /* SpecificCSI_Withdraw */
+static int hf_gsm_map_ms_o_IM_CSI;                /* O_CSI */
+static int hf_gsm_map_ms_o_IM_BcsmCamelTDP_CriteriaList;  /* O_BcsmCamelTDPCriteriaList */
+static int hf_gsm_map_ms_d_IM_CSI;                /* D_CSI */
+static int hf_gsm_map_ms_vt_IM_CSI;               /* T_CSI */
+static int hf_gsm_map_ms_vt_IM_BCSM_CAMEL_TDP_CriteriaList;  /* T_BCSM_CAMEL_TDP_CriteriaList */
+static int hf_gsm_map_ms_modificationRequestFor_CF_Info;  /* ModificationRequestFor_CF_Info */
+static int hf_gsm_map_ms_modificationRequestFor_CB_Info;  /* ModificationRequestFor_CB_Info */
+static int hf_gsm_map_ms_modificationRequestFor_CSI;  /* ModificationRequestFor_CSI */
+static int hf_gsm_map_ms_modificationRequestFor_ODB_data;  /* ModificationRequestFor_ODB_data */
+static int hf_gsm_map_ms_modificationRequestFor_IP_SM_GW_Data;  /* ModificationRequestFor_IP_SM_GW_Data */
+static int hf_gsm_map_ms_activationRequestForUE_reachability;  /* RequestedServingNode */
+static int hf_gsm_map_ms_modificationRequestFor_CSG;  /* ModificationRequestFor_CSG */
+static int hf_gsm_map_ms_modificationRequestFor_CW_Data;  /* ModificationRequestFor_CW_Info */
+static int hf_gsm_map_ms_modificationRequestFor_CLIP_Data;  /* ModificationRequestFor_CLIP_Info */
+static int hf_gsm_map_ms_modificationRequestFor_CLIR_Data;  /* ModificationRequestFor_CLIR_Info */
+static int hf_gsm_map_ms_modificationRequestFor_HOLD_Data;  /* ModificationRequestFor_CH_Info */
+static int hf_gsm_map_ms_modificationRequestFor_ECT_Data;  /* ModificationRequestFor_ECT_Info */
+static int hf_gsm_map_ms_modifyNotificationToCSE;  /* ModificationInstruction */
+static int hf_gsm_map_ms_ss_InfoFor_CSE;          /* Ext_SS_InfoFor_CSE */
+static int hf_gsm_map_ms_serviceCentreAddress;    /* AddressString */
+static int hf_gsm_map_ms_forwardedToNumber_01;    /* AddressString */
+static int hf_gsm_map_ms_odb_data;                /* ODB_Data */
+static int hf_gsm_map_ms_requestedCamel_SubscriptionInfo;  /* RequestedCAMEL_SubscriptionInfo */
+static int hf_gsm_map_ms_modifyCSI_State;         /* ModificationInstruction */
+static int hf_gsm_map_ms_modifyRegistrationStatus;  /* ModificationInstruction */
+static int hf_gsm_map_ms_ip_sm_gw_DiameterAddress;  /* NetworkNodeDiameterAddress */
+static int hf_gsm_map_ms_forwardingInfoFor_CSE;   /* Ext_ForwardingInfoFor_CSE */
+static int hf_gsm_map_ms_callBarringInfoFor_CSE;  /* Ext_CallBarringInfoFor_CSE */
+static int hf_gsm_map_ms_allInformationSent;      /* NULL */
+static int hf_gsm_map_ms_ue_reachable;            /* ServingNode */
+static int hf_gsm_map_ms_eventMet;                /* MM_Code */
+static int hf_gsm_map_ms_supportedCAMELPhases;    /* SupportedCamelPhases */
+static int hf_gsm_map_ms_offeredCamel4Functionalities;  /* OfferedCamel4Functionalities */
+static int hf_gsm_map_ms_temporaryEmptySubscriptiondataIndicator;  /* NULL */
+static int hf_gsm_map_ms_naea_PreferredCI;        /* NAEA_PreferredCI */
+static int hf_gsm_map_ms_gprsSubscriptionData;    /* GPRSSubscriptionData */
+static int hf_gsm_map_ms_roamingRestrictedInSgsnDueToUnsupportedFeature;  /* NULL */
+static int hf_gsm_map_ms_networkAccessMode;       /* NetworkAccessMode */
+static int hf_gsm_map_ms_lsaInformation;          /* LSAInformation */
+static int hf_gsm_map_ms_lmu_Indicator;           /* NULL */
+static int hf_gsm_map_ms_lcsInformation;          /* LCSInformation */
+static int hf_gsm_map_ms_istAlertTimer;           /* IST_AlertTimerValue */
+static int hf_gsm_map_ms_superChargerSupportedInHLR;  /* AgeIndicator */
+static int hf_gsm_map_ms_mc_SS_Info;              /* MC_SS_Info */
+static int hf_gsm_map_ms_cs_AllocationRetentionPriority;  /* CS_AllocationRetentionPriority */
+static int hf_gsm_map_ms_sgsn_CAMEL_SubscriptionInfo;  /* SGSN_CAMEL_SubscriptionInfo */
+static int hf_gsm_map_ms_ics_Indicator;           /* BOOLEAN */
+static int hf_gsm_map_ms_eps_SubscriptionData;    /* EPS_SubscriptionData */
+static int hf_gsm_map_ms_ue_ReachabilityRequestIndicator;  /* NULL */
+static int hf_gsm_map_ms_subscribedPeriodicRAUTAUtimer;  /* SubscribedPeriodicRAUTAUtimer */
+static int hf_gsm_map_ms_vplmnLIPAAllowed;        /* NULL */
+static int hf_gsm_map_ms_mdtUserConsent;          /* BOOLEAN */
+static int hf_gsm_map_ms_subscribedPeriodicLAUtimer;  /* SubscribedPeriodicLAUtimer */
+static int hf_gsm_map_ms_vplmn_Csg_SubscriptionDataList;  /* VPLMN_CSG_SubscriptionDataList */
+static int hf_gsm_map_ms_additionalMSISDN;        /* ISDN_AddressString */
+static int hf_gsm_map_ms_psAndSMS_OnlyServiceProvision;  /* NULL */
+static int hf_gsm_map_ms_smsInSGSNAllowed;        /* NULL */
+static int hf_gsm_map_ms_cs_to_ps_SRVCC_Allowed_Indicator;  /* NULL */
+static int hf_gsm_map_ms_pcscf_Restoration_Request;  /* NULL */
+static int hf_gsm_map_ms_adjacentAccessRestrictionDataList;  /* AdjacentAccessRestrictionDataList */
+static int hf_gsm_map_ms_imsi_Group_Id_List;      /* IMSI_GroupIdList */
+static int hf_gsm_map_ms_userPlaneIntegrityProtectionIndicator;  /* NULL */
+static int hf_gsm_map_ms_dl_Buffering_Suggested_Packet_Count;  /* DL_Buffering_Suggested_Packet_Count */
+static int hf_gsm_map_ms_eDRX_Cycle_Length_List;  /* EDRX_Cycle_Length_List */
+static int hf_gsm_map_ms_iab_Operation_Allowed_Indicator;  /* NULL */
 /* named bits */
-static int hf_gsm_map_ms_SupportedRAT_Types_utran = -1;
-static int hf_gsm_map_ms_SupportedRAT_Types_geran = -1;
-static int hf_gsm_map_ms_SupportedRAT_Types_gan = -1;
-static int hf_gsm_map_ms_SupportedRAT_Types_i_hspa_evolution = -1;
-static int hf_gsm_map_ms_SupportedRAT_Types_e_utran = -1;
-static int hf_gsm_map_ms_SupportedRAT_Types_nb_iot = -1;
-static int hf_gsm_map_ms_SupportedLCS_CapabilitySets_lcsCapabilitySet1 = -1;
-static int hf_gsm_map_ms_SupportedLCS_CapabilitySets_lcsCapabilitySet2 = -1;
-static int hf_gsm_map_ms_SupportedLCS_CapabilitySets_lcsCapabilitySet3 = -1;
-static int hf_gsm_map_ms_SupportedLCS_CapabilitySets_lcsCapabilitySet4 = -1;
-static int hf_gsm_map_ms_SupportedLCS_CapabilitySets_lcsCapabilitySet5 = -1;
-static int hf_gsm_map_ms_ISR_Information_updateLocation = -1;
-static int hf_gsm_map_ms_ISR_Information_cancelSGSN = -1;
-static int hf_gsm_map_ms_ISR_Information_initialAttachIndicator = -1;
-static int hf_gsm_map_ms_SupportedFeatures_odb_all_apn = -1;
-static int hf_gsm_map_ms_SupportedFeatures_odb_HPLMN_APN = -1;
-static int hf_gsm_map_ms_SupportedFeatures_odb_VPLMN_APN = -1;
-static int hf_gsm_map_ms_SupportedFeatures_odb_all_og = -1;
-static int hf_gsm_map_ms_SupportedFeatures_odb_all_international_og = -1;
-static int hf_gsm_map_ms_SupportedFeatures_odb_all_int_og_not_to_HPLMN_country = -1;
-static int hf_gsm_map_ms_SupportedFeatures_odb_all_interzonal_og = -1;
-static int hf_gsm_map_ms_SupportedFeatures_odb_all_interzonal_og_not_to_HPLMN_country = -1;
-static int hf_gsm_map_ms_SupportedFeatures_odb_all_interzonal_og_and_internat_og_not_to_HPLMN_country = -1;
-static int hf_gsm_map_ms_SupportedFeatures_regSub = -1;
-static int hf_gsm_map_ms_SupportedFeatures_trace = -1;
-static int hf_gsm_map_ms_SupportedFeatures_lcs_all_PrivExcep = -1;
-static int hf_gsm_map_ms_SupportedFeatures_lcs_universal = -1;
-static int hf_gsm_map_ms_SupportedFeatures_lcs_CallSessionRelated = -1;
-static int hf_gsm_map_ms_SupportedFeatures_lcs_CallSessionUnrelated = -1;
-static int hf_gsm_map_ms_SupportedFeatures_lcs_PLMN_operator = -1;
-static int hf_gsm_map_ms_SupportedFeatures_lcs_ServiceType = -1;
-static int hf_gsm_map_ms_SupportedFeatures_lcs_all_MOLR_SS = -1;
-static int hf_gsm_map_ms_SupportedFeatures_lcs_basicSelfLocation = -1;
-static int hf_gsm_map_ms_SupportedFeatures_lcs_autonomousSelfLocation = -1;
-static int hf_gsm_map_ms_SupportedFeatures_lcs_transferToThirdParty = -1;
-static int hf_gsm_map_ms_SupportedFeatures_sm_mo_pp = -1;
-static int hf_gsm_map_ms_SupportedFeatures_barring_OutgoingCalls = -1;
-static int hf_gsm_map_ms_SupportedFeatures_baoc = -1;
-static int hf_gsm_map_ms_SupportedFeatures_boic = -1;
-static int hf_gsm_map_ms_SupportedFeatures_boicExHC = -1;
-static int hf_gsm_map_ms_SupportedFeatures_localTimeZoneRetrieval = -1;
-static int hf_gsm_map_ms_SupportedFeatures_additionalMsisdn = -1;
-static int hf_gsm_map_ms_SupportedFeatures_smsInMME = -1;
-static int hf_gsm_map_ms_SupportedFeatures_smsInSGSN = -1;
-static int hf_gsm_map_ms_SupportedFeatures_ue_Reachability_Notification = -1;
-static int hf_gsm_map_ms_SupportedFeatures_state_Location_Information_Retrieval = -1;
-static int hf_gsm_map_ms_SupportedFeatures_partialPurge = -1;
-static int hf_gsm_map_ms_SupportedFeatures_gddInSGSN = -1;
-static int hf_gsm_map_ms_SupportedFeatures_sgsnCAMELCapability = -1;
-static int hf_gsm_map_ms_SupportedFeatures_pcscf_Restoration = -1;
-static int hf_gsm_map_ms_SupportedFeatures_dedicatedCoreNetworks = -1;
-static int hf_gsm_map_ms_SupportedFeatures_non_IP_PDN_Type_APNs = -1;
-static int hf_gsm_map_ms_SupportedFeatures_non_IP_PDP_Type_APNs = -1;
-static int hf_gsm_map_ms_SupportedFeatures_nrAsSecondaryRAT = -1;
-static int hf_gsm_map_ms_Ext_SupportedFeatures_unlicensedSpectrumAsSecondaryRAT = -1;
-static int hf_gsm_map_ms_LCLS_Negotiation_permission_indicator_not_allowed_bit = -1;
-static int hf_gsm_map_ms_LCLS_Negotiation_permission_indicator_spare_bit = -1;
-static int hf_gsm_map_ms_LCLS_ConfigurationPreference_forward_data_sending_indicator = -1;
-static int hf_gsm_map_ms_LCLS_ConfigurationPreference_backward_data_sending_indicator = -1;
-static int hf_gsm_map_ms_LCLS_ConfigurationPreference_forward_data_reception_indicator = -1;
-static int hf_gsm_map_ms_LCLS_ConfigurationPreference_backward_data_reception_indicator = -1;
-static int hf_gsm_map_ms_RequestedEquipmentInfo_equipmentStatus = -1;
-static int hf_gsm_map_ms_RequestedEquipmentInfo_bmuef = -1;
-static int hf_gsm_map_ms_AccessRestrictionData_utranNotAllowed = -1;
-static int hf_gsm_map_ms_AccessRestrictionData_geranNotAllowed = -1;
-static int hf_gsm_map_ms_AccessRestrictionData_ganNotAllowed = -1;
-static int hf_gsm_map_ms_AccessRestrictionData_i_hspa_evolutionNotAllowed = -1;
-static int hf_gsm_map_ms_AccessRestrictionData_wb_e_utranNotAllowed = -1;
-static int hf_gsm_map_ms_AccessRestrictionData_ho_toNon3GPP_AccessNotAllowed = -1;
-static int hf_gsm_map_ms_AccessRestrictionData_nb_iotNotAllowed = -1;
-static int hf_gsm_map_ms_AccessRestrictionData_enhancedCoverageNotAllowed = -1;
-static int hf_gsm_map_ms_Ext_AccessRestrictionData_nrAsSecondaryRATNotAllowed = -1;
-static int hf_gsm_map_ms_Ext_AccessRestrictionData_unlicensedSpectrumAsSecondaryRATNotAllowed = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_allOG_CallsBarred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_internationalOGCallsBarred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_internationalOGCallsNotToHPLMN_CountryBarred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_premiumRateInformationOGCallsBarred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_premiumRateEntertainementOGCallsBarred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_ss_AccessBarred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_interzonalOGCallsBarred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_interzonalOGCallsNotToHPLMN_CountryBarred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_interzonalOGCallsAndInternationalOGCallsNotToHPLMN_CountryBarred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_allECT_Barred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_chargeableECT_Barred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_internationalECT_Barred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_interzonalECT_Barred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_doublyChargeableECT_Barred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_multipleECT_Barred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_allPacketOrientedServicesBarred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_roamerAccessToHPLMN_AP_Barred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_roamerAccessToVPLMN_AP_Barred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_roamingOutsidePLMNOG_CallsBarred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_allIC_CallsBarred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_roamingOutsidePLMNIC_CallsBarred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_roamingOutsidePLMNICountryIC_CallsBarred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_roamingOutsidePLMN_Barred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_roamingOutsidePLMN_CountryBarred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_registrationAllCF_Barred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_registrationCFNotToHPLMN_Barred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_registrationInterzonalCF_Barred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_registrationInterzonalCFNotToHPLMN_Barred = -1;
-static int hf_gsm_map_ms_ODB_GeneralData_registrationInternationalCF_Barred = -1;
-static int hf_gsm_map_ms_ODB_HPLMN_Data_plmn_SpecificBarringType1 = -1;
-static int hf_gsm_map_ms_ODB_HPLMN_Data_plmn_SpecificBarringType2 = -1;
-static int hf_gsm_map_ms_ODB_HPLMN_Data_plmn_SpecificBarringType3 = -1;
-static int hf_gsm_map_ms_ODB_HPLMN_Data_plmn_SpecificBarringType4 = -1;
-static int hf_gsm_map_ms_SpecificCSI_Withdraw_o_csi = -1;
-static int hf_gsm_map_ms_SpecificCSI_Withdraw_ss_csi = -1;
-static int hf_gsm_map_ms_SpecificCSI_Withdraw_tif_csi = -1;
-static int hf_gsm_map_ms_SpecificCSI_Withdraw_d_csi = -1;
-static int hf_gsm_map_ms_SpecificCSI_Withdraw_vt_csi = -1;
-static int hf_gsm_map_ms_SpecificCSI_Withdraw_mo_sms_csi = -1;
-static int hf_gsm_map_ms_SpecificCSI_Withdraw_m_csi = -1;
-static int hf_gsm_map_ms_SpecificCSI_Withdraw_gprs_csi = -1;
-static int hf_gsm_map_ms_SpecificCSI_Withdraw_t_csi = -1;
-static int hf_gsm_map_ms_SpecificCSI_Withdraw_mt_sms_csi = -1;
-static int hf_gsm_map_ms_SpecificCSI_Withdraw_mg_csi = -1;
-static int hf_gsm_map_ms_SpecificCSI_Withdraw_o_IM_CSI = -1;
-static int hf_gsm_map_ms_SpecificCSI_Withdraw_d_IM_CSI = -1;
-static int hf_gsm_map_ms_SpecificCSI_Withdraw_vt_IM_CSI = -1;
-static int hf_gsm_map_ms_SupportedCamelPhases_phase1 = -1;
-static int hf_gsm_map_ms_SupportedCamelPhases_phase2 = -1;
-static int hf_gsm_map_ms_SupportedCamelPhases_phase3 = -1;
-static int hf_gsm_map_ms_SupportedCamelPhases_phase4 = -1;
-static int hf_gsm_map_ms_OfferedCamel4CSIs_o_csi = -1;
-static int hf_gsm_map_ms_OfferedCamel4CSIs_d_csi = -1;
-static int hf_gsm_map_ms_OfferedCamel4CSIs_vt_csi = -1;
-static int hf_gsm_map_ms_OfferedCamel4CSIs_t_csi = -1;
-static int hf_gsm_map_ms_OfferedCamel4CSIs_mt_sms_csi = -1;
-static int hf_gsm_map_ms_OfferedCamel4CSIs_mg_csi = -1;
-static int hf_gsm_map_ms_OfferedCamel4CSIs_psi_enhancements = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_initiateCallAttempt = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_splitLeg = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_moveLeg = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_disconnectLeg = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_entityReleased = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_dfc_WithArgument = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_playTone = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_dtmf_MidCall = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_chargingIndicator = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_alertingDP = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_locationAtAlerting = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_changeOfPositionDP = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_or_Interactions = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_warningToneEnhancements = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_cf_Enhancements = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_subscribedEnhancedDialledServices = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_servingNetworkEnhancedDialledServices = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_criteriaForChangeOfPositionDP = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_serviceChangeDP = -1;
-static int hf_gsm_map_ms_OfferedCamel4Functionalities_collectInformation = -1;
-static int hf_gsm_map_ms_AdditionalSubscriptions_privilegedUplinkRequest = -1;
-static int hf_gsm_map_ms_AdditionalSubscriptions_emergencyUplinkRequest = -1;
-static int hf_gsm_map_ms_AdditionalSubscriptions_emergencyReset = -1;
-static int hf_gsm_map_ms_RequestedNodes_mme = -1;
-static int hf_gsm_map_ms_RequestedNodes_sgsn = -1;
-static int hf_gsm_map_ms_RequestedServingNode_mmeAndSgsn = -1;
-static int hf_gsm_map_ms_ServingNode_mme = -1;
-static int hf_gsm_map_ms_ServingNode_sgsn = -1;
+static int hf_gsm_map_ms_SupportedRAT_Types_utran;
+static int hf_gsm_map_ms_SupportedRAT_Types_geran;
+static int hf_gsm_map_ms_SupportedRAT_Types_gan;
+static int hf_gsm_map_ms_SupportedRAT_Types_i_hspa_evolution;
+static int hf_gsm_map_ms_SupportedRAT_Types_e_utran;
+static int hf_gsm_map_ms_SupportedRAT_Types_nb_iot;
+static int hf_gsm_map_ms_SupportedLCS_CapabilitySets_lcsCapabilitySet1;
+static int hf_gsm_map_ms_SupportedLCS_CapabilitySets_lcsCapabilitySet2;
+static int hf_gsm_map_ms_SupportedLCS_CapabilitySets_lcsCapabilitySet3;
+static int hf_gsm_map_ms_SupportedLCS_CapabilitySets_lcsCapabilitySet4;
+static int hf_gsm_map_ms_SupportedLCS_CapabilitySets_lcsCapabilitySet5;
+static int hf_gsm_map_ms_ISR_Information_updateLocation;
+static int hf_gsm_map_ms_ISR_Information_cancelSGSN;
+static int hf_gsm_map_ms_ISR_Information_initialAttachIndicator;
+static int hf_gsm_map_ms_SupportedFeatures_odb_all_apn;
+static int hf_gsm_map_ms_SupportedFeatures_odb_HPLMN_APN;
+static int hf_gsm_map_ms_SupportedFeatures_odb_VPLMN_APN;
+static int hf_gsm_map_ms_SupportedFeatures_odb_all_og;
+static int hf_gsm_map_ms_SupportedFeatures_odb_all_international_og;
+static int hf_gsm_map_ms_SupportedFeatures_odb_all_int_og_not_to_HPLMN_country;
+static int hf_gsm_map_ms_SupportedFeatures_odb_all_interzonal_og;
+static int hf_gsm_map_ms_SupportedFeatures_odb_all_interzonal_og_not_to_HPLMN_country;
+static int hf_gsm_map_ms_SupportedFeatures_odb_all_interzonal_og_and_internat_og_not_to_HPLMN_country;
+static int hf_gsm_map_ms_SupportedFeatures_regSub;
+static int hf_gsm_map_ms_SupportedFeatures_trace;
+static int hf_gsm_map_ms_SupportedFeatures_lcs_all_PrivExcep;
+static int hf_gsm_map_ms_SupportedFeatures_lcs_universal;
+static int hf_gsm_map_ms_SupportedFeatures_lcs_CallSessionRelated;
+static int hf_gsm_map_ms_SupportedFeatures_lcs_CallSessionUnrelated;
+static int hf_gsm_map_ms_SupportedFeatures_lcs_PLMN_operator;
+static int hf_gsm_map_ms_SupportedFeatures_lcs_ServiceType;
+static int hf_gsm_map_ms_SupportedFeatures_lcs_all_MOLR_SS;
+static int hf_gsm_map_ms_SupportedFeatures_lcs_basicSelfLocation;
+static int hf_gsm_map_ms_SupportedFeatures_lcs_autonomousSelfLocation;
+static int hf_gsm_map_ms_SupportedFeatures_lcs_transferToThirdParty;
+static int hf_gsm_map_ms_SupportedFeatures_sm_mo_pp;
+static int hf_gsm_map_ms_SupportedFeatures_barring_OutgoingCalls;
+static int hf_gsm_map_ms_SupportedFeatures_baoc;
+static int hf_gsm_map_ms_SupportedFeatures_boic;
+static int hf_gsm_map_ms_SupportedFeatures_boicExHC;
+static int hf_gsm_map_ms_SupportedFeatures_localTimeZoneRetrieval;
+static int hf_gsm_map_ms_SupportedFeatures_additionalMsisdn;
+static int hf_gsm_map_ms_SupportedFeatures_smsInMME;
+static int hf_gsm_map_ms_SupportedFeatures_smsInSGSN;
+static int hf_gsm_map_ms_SupportedFeatures_ue_Reachability_Notification;
+static int hf_gsm_map_ms_SupportedFeatures_state_Location_Information_Retrieval;
+static int hf_gsm_map_ms_SupportedFeatures_partialPurge;
+static int hf_gsm_map_ms_SupportedFeatures_gddInSGSN;
+static int hf_gsm_map_ms_SupportedFeatures_sgsnCAMELCapability;
+static int hf_gsm_map_ms_SupportedFeatures_pcscf_Restoration;
+static int hf_gsm_map_ms_SupportedFeatures_dedicatedCoreNetworks;
+static int hf_gsm_map_ms_SupportedFeatures_non_IP_PDN_Type_APNs;
+static int hf_gsm_map_ms_SupportedFeatures_non_IP_PDP_Type_APNs;
+static int hf_gsm_map_ms_SupportedFeatures_nrAsSecondaryRAT;
+static int hf_gsm_map_ms_Ext_SupportedFeatures_unlicensedSpectrumAsSecondaryRAT;
+static int hf_gsm_map_ms_LCLS_Negotiation_permission_indicator_not_allowed_bit;
+static int hf_gsm_map_ms_LCLS_Negotiation_permission_indicator_spare_bit;
+static int hf_gsm_map_ms_LCLS_ConfigurationPreference_forward_data_sending_indicator;
+static int hf_gsm_map_ms_LCLS_ConfigurationPreference_backward_data_sending_indicator;
+static int hf_gsm_map_ms_LCLS_ConfigurationPreference_forward_data_reception_indicator;
+static int hf_gsm_map_ms_LCLS_ConfigurationPreference_backward_data_reception_indicator;
+static int hf_gsm_map_ms_RequestedEquipmentInfo_equipmentStatus;
+static int hf_gsm_map_ms_RequestedEquipmentInfo_bmuef;
+static int hf_gsm_map_ms_AccessRestrictionData_utranNotAllowed;
+static int hf_gsm_map_ms_AccessRestrictionData_geranNotAllowed;
+static int hf_gsm_map_ms_AccessRestrictionData_ganNotAllowed;
+static int hf_gsm_map_ms_AccessRestrictionData_i_hspa_evolutionNotAllowed;
+static int hf_gsm_map_ms_AccessRestrictionData_wb_e_utranNotAllowed;
+static int hf_gsm_map_ms_AccessRestrictionData_ho_toNon3GPP_AccessNotAllowed;
+static int hf_gsm_map_ms_AccessRestrictionData_nb_iotNotAllowed;
+static int hf_gsm_map_ms_AccessRestrictionData_enhancedCoverageNotAllowed;
+static int hf_gsm_map_ms_Ext_AccessRestrictionData_nrAsSecondaryRATNotAllowed;
+static int hf_gsm_map_ms_Ext_AccessRestrictionData_unlicensedSpectrumAsSecondaryRATNotAllowed;
+static int hf_gsm_map_ms_ODB_GeneralData_allOG_CallsBarred;
+static int hf_gsm_map_ms_ODB_GeneralData_internationalOGCallsBarred;
+static int hf_gsm_map_ms_ODB_GeneralData_internationalOGCallsNotToHPLMN_CountryBarred;
+static int hf_gsm_map_ms_ODB_GeneralData_premiumRateInformationOGCallsBarred;
+static int hf_gsm_map_ms_ODB_GeneralData_premiumRateEntertainementOGCallsBarred;
+static int hf_gsm_map_ms_ODB_GeneralData_ss_AccessBarred;
+static int hf_gsm_map_ms_ODB_GeneralData_interzonalOGCallsBarred;
+static int hf_gsm_map_ms_ODB_GeneralData_interzonalOGCallsNotToHPLMN_CountryBarred;
+static int hf_gsm_map_ms_ODB_GeneralData_interzonalOGCallsAndInternationalOGCallsNotToHPLMN_CountryBarred;
+static int hf_gsm_map_ms_ODB_GeneralData_allECT_Barred;
+static int hf_gsm_map_ms_ODB_GeneralData_chargeableECT_Barred;
+static int hf_gsm_map_ms_ODB_GeneralData_internationalECT_Barred;
+static int hf_gsm_map_ms_ODB_GeneralData_interzonalECT_Barred;
+static int hf_gsm_map_ms_ODB_GeneralData_doublyChargeableECT_Barred;
+static int hf_gsm_map_ms_ODB_GeneralData_multipleECT_Barred;
+static int hf_gsm_map_ms_ODB_GeneralData_allPacketOrientedServicesBarred;
+static int hf_gsm_map_ms_ODB_GeneralData_roamerAccessToHPLMN_AP_Barred;
+static int hf_gsm_map_ms_ODB_GeneralData_roamerAccessToVPLMN_AP_Barred;
+static int hf_gsm_map_ms_ODB_GeneralData_roamingOutsidePLMNOG_CallsBarred;
+static int hf_gsm_map_ms_ODB_GeneralData_allIC_CallsBarred;
+static int hf_gsm_map_ms_ODB_GeneralData_roamingOutsidePLMNIC_CallsBarred;
+static int hf_gsm_map_ms_ODB_GeneralData_roamingOutsidePLMNICountryIC_CallsBarred;
+static int hf_gsm_map_ms_ODB_GeneralData_roamingOutsidePLMN_Barred;
+static int hf_gsm_map_ms_ODB_GeneralData_roamingOutsidePLMN_CountryBarred;
+static int hf_gsm_map_ms_ODB_GeneralData_registrationAllCF_Barred;
+static int hf_gsm_map_ms_ODB_GeneralData_registrationCFNotToHPLMN_Barred;
+static int hf_gsm_map_ms_ODB_GeneralData_registrationInterzonalCF_Barred;
+static int hf_gsm_map_ms_ODB_GeneralData_registrationInterzonalCFNotToHPLMN_Barred;
+static int hf_gsm_map_ms_ODB_GeneralData_registrationInternationalCF_Barred;
+static int hf_gsm_map_ms_ODB_HPLMN_Data_plmn_SpecificBarringType1;
+static int hf_gsm_map_ms_ODB_HPLMN_Data_plmn_SpecificBarringType2;
+static int hf_gsm_map_ms_ODB_HPLMN_Data_plmn_SpecificBarringType3;
+static int hf_gsm_map_ms_ODB_HPLMN_Data_plmn_SpecificBarringType4;
+static int hf_gsm_map_ms_SpecificCSI_Withdraw_o_csi;
+static int hf_gsm_map_ms_SpecificCSI_Withdraw_ss_csi;
+static int hf_gsm_map_ms_SpecificCSI_Withdraw_tif_csi;
+static int hf_gsm_map_ms_SpecificCSI_Withdraw_d_csi;
+static int hf_gsm_map_ms_SpecificCSI_Withdraw_vt_csi;
+static int hf_gsm_map_ms_SpecificCSI_Withdraw_mo_sms_csi;
+static int hf_gsm_map_ms_SpecificCSI_Withdraw_m_csi;
+static int hf_gsm_map_ms_SpecificCSI_Withdraw_gprs_csi;
+static int hf_gsm_map_ms_SpecificCSI_Withdraw_t_csi;
+static int hf_gsm_map_ms_SpecificCSI_Withdraw_mt_sms_csi;
+static int hf_gsm_map_ms_SpecificCSI_Withdraw_mg_csi;
+static int hf_gsm_map_ms_SpecificCSI_Withdraw_o_IM_CSI;
+static int hf_gsm_map_ms_SpecificCSI_Withdraw_d_IM_CSI;
+static int hf_gsm_map_ms_SpecificCSI_Withdraw_vt_IM_CSI;
+static int hf_gsm_map_ms_SupportedCamelPhases_phase1;
+static int hf_gsm_map_ms_SupportedCamelPhases_phase2;
+static int hf_gsm_map_ms_SupportedCamelPhases_phase3;
+static int hf_gsm_map_ms_SupportedCamelPhases_phase4;
+static int hf_gsm_map_ms_OfferedCamel4CSIs_o_csi;
+static int hf_gsm_map_ms_OfferedCamel4CSIs_d_csi;
+static int hf_gsm_map_ms_OfferedCamel4CSIs_vt_csi;
+static int hf_gsm_map_ms_OfferedCamel4CSIs_t_csi;
+static int hf_gsm_map_ms_OfferedCamel4CSIs_mt_sms_csi;
+static int hf_gsm_map_ms_OfferedCamel4CSIs_mg_csi;
+static int hf_gsm_map_ms_OfferedCamel4CSIs_psi_enhancements;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_initiateCallAttempt;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_splitLeg;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_moveLeg;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_disconnectLeg;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_entityReleased;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_dfc_WithArgument;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_playTone;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_dtmf_MidCall;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_chargingIndicator;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_alertingDP;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_locationAtAlerting;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_changeOfPositionDP;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_or_Interactions;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_warningToneEnhancements;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_cf_Enhancements;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_subscribedEnhancedDialledServices;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_servingNetworkEnhancedDialledServices;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_criteriaForChangeOfPositionDP;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_serviceChangeDP;
+static int hf_gsm_map_ms_OfferedCamel4Functionalities_collectInformation;
+static int hf_gsm_map_ms_AdditionalSubscriptions_privilegedUplinkRequest;
+static int hf_gsm_map_ms_AdditionalSubscriptions_emergencyUplinkRequest;
+static int hf_gsm_map_ms_AdditionalSubscriptions_emergencyReset;
+static int hf_gsm_map_ms_RequestedNodes_mme;
+static int hf_gsm_map_ms_RequestedNodes_sgsn;
+static int hf_gsm_map_ms_RequestedServingNode_mmeAndSgsn;
+static int hf_gsm_map_ms_ServingNode_mme;
+static int hf_gsm_map_ms_ServingNode_sgsn;
 
 /* --- Module MAP-CH-DataTypes --- --- ---                                    */
 
-static int hf_gsm_map_ch_cug_Interlock = -1;      /* CUG_Interlock */
-static int hf_gsm_map_ch_cug_OutgoingAccess = -1;  /* NULL */
-static int hf_gsm_map_ch_extensionContainer = -1;  /* ExtensionContainer */
-static int hf_gsm_map_ch_msisdn = -1;             /* ISDN_AddressString */
-static int hf_gsm_map_ch_cug_CheckInfo = -1;      /* CUG_CheckInfo */
-static int hf_gsm_map_ch_numberOfForwarding = -1;  /* NumberOfForwarding */
-static int hf_gsm_map_ch_interrogationType = -1;  /* InterrogationType */
-static int hf_gsm_map_ch_or_Interrogation = -1;   /* NULL */
-static int hf_gsm_map_ch_or_Capability = -1;      /* OR_Phase */
-static int hf_gsm_map_ch_gmsc_OrGsmSCF_Address = -1;  /* ISDN_AddressString */
-static int hf_gsm_map_ch_callReferenceNumber = -1;  /* CallReferenceNumber */
-static int hf_gsm_map_ch_forwardingReason = -1;   /* ForwardingReason */
-static int hf_gsm_map_ch_basicServiceGroup = -1;  /* Ext_BasicServiceCode */
-static int hf_gsm_map_ch_networkSignalInfo = -1;  /* ExternalSignalInfo */
-static int hf_gsm_map_ch_camelInfo = -1;          /* CamelInfo */
-static int hf_gsm_map_ch_suppressionOfAnnouncement = -1;  /* SuppressionOfAnnouncement */
-static int hf_gsm_map_ch_alertingPattern = -1;    /* AlertingPattern */
-static int hf_gsm_map_ch_ccbs_Call = -1;          /* NULL */
-static int hf_gsm_map_ch_supportedCCBS_Phase = -1;  /* SupportedCCBS_Phase */
-static int hf_gsm_map_ch_additionalSignalInfo = -1;  /* Ext_ExternalSignalInfo */
-static int hf_gsm_map_ch_istSupportIndicator = -1;  /* IST_SupportIndicator */
-static int hf_gsm_map_ch_pre_pagingSupported = -1;  /* NULL */
-static int hf_gsm_map_ch_callDiversionTreatmentIndicator = -1;  /* CallDiversionTreatmentIndicator */
-static int hf_gsm_map_ch_longFTN_Supported = -1;  /* NULL */
-static int hf_gsm_map_ch_suppress_VT_CSI = -1;    /* NULL */
-static int hf_gsm_map_ch_suppressIncomingCallBarring = -1;  /* NULL */
-static int hf_gsm_map_ch_gsmSCF_InitiatedCall = -1;  /* NULL */
-static int hf_gsm_map_ch_basicServiceGroup2 = -1;  /* Ext_BasicServiceCode */
-static int hf_gsm_map_ch_networkSignalInfo2 = -1;  /* ExternalSignalInfo */
-static int hf_gsm_map_ch_suppressMTSS = -1;       /* SuppressMTSS */
-static int hf_gsm_map_ch_mtRoamingRetrySupported = -1;  /* NULL */
-static int hf_gsm_map_ch_callPriority = -1;       /* EMLPP_Priority */
-static int hf_gsm_map_ch_imsi = -1;               /* IMSI */
-static int hf_gsm_map_ch_extendedRoutingInfo = -1;  /* ExtendedRoutingInfo */
-static int hf_gsm_map_ch_cugSubscriptionFlag = -1;  /* NULL */
-static int hf_gsm_map_ch_subscriberInfo = -1;     /* SubscriberInfo */
-static int hf_gsm_map_ch_ss_List = -1;            /* SS_List */
-static int hf_gsm_map_ch_basicService = -1;       /* Ext_BasicServiceCode */
-static int hf_gsm_map_ch_forwardingInterrogationRequired = -1;  /* NULL */
-static int hf_gsm_map_ch_vmsc_Address = -1;       /* ISDN_AddressString */
-static int hf_gsm_map_ch_naea_PreferredCI = -1;   /* NAEA_PreferredCI */
-static int hf_gsm_map_ch_ccbs_Indicators = -1;    /* CCBS_Indicators */
-static int hf_gsm_map_ch_numberPortabilityStatus = -1;  /* NumberPortabilityStatus */
-static int hf_gsm_map_ch_istAlertTimer = -1;      /* IST_AlertTimerValue */
-static int hf_gsm_map_ch_supportedCamelPhasesInVMSC = -1;  /* SupportedCamelPhases */
-static int hf_gsm_map_ch_offeredCamel4CSIsInVMSC = -1;  /* OfferedCamel4CSIs */
-static int hf_gsm_map_ch_routingInfo2 = -1;       /* RoutingInfo */
-static int hf_gsm_map_ch_ss_List2 = -1;           /* SS_List */
-static int hf_gsm_map_ch_basicService2 = -1;      /* Ext_BasicServiceCode */
-static int hf_gsm_map_ch_allowedServices = -1;    /* AllowedServices */
-static int hf_gsm_map_ch_unavailabilityCause = -1;  /* UnavailabilityCause */
-static int hf_gsm_map_ch_releaseResourcesSupported = -1;  /* NULL */
-static int hf_gsm_map_ch_gsm_BearerCapability = -1;  /* ExternalSignalInfo */
-static int hf_gsm_map_ch_ccbs_Possible = -1;      /* NULL */
-static int hf_gsm_map_ch_keepCCBS_CallIndicator = -1;  /* NULL */
-static int hf_gsm_map_ch_roamingNumber = -1;      /* ISDN_AddressString */
-static int hf_gsm_map_ch_forwardingData = -1;     /* ForwardingData */
-static int hf_gsm_map_ch_forwardedToNumber = -1;  /* ISDN_AddressString */
-static int hf_gsm_map_ch_forwardedToSubaddress = -1;  /* ISDN_SubaddressString */
-static int hf_gsm_map_ch_forwardingOptions = -1;  /* ForwardingOptions */
-static int hf_gsm_map_ch_longForwardedToNumber = -1;  /* FTN_AddressString */
-static int hf_gsm_map_ch_msc_Number = -1;         /* ISDN_AddressString */
-static int hf_gsm_map_ch_lmsi = -1;               /* LMSI */
-static int hf_gsm_map_ch_gmsc_Address = -1;       /* ISDN_AddressString */
-static int hf_gsm_map_ch_supportedCamelPhasesInInterrogatingNode = -1;  /* SupportedCamelPhases */
-static int hf_gsm_map_ch_orNotSupportedInGMSC = -1;  /* NULL */
-static int hf_gsm_map_ch_offeredCamel4CSIsInInterrogatingNode = -1;  /* OfferedCamel4CSIs */
-static int hf_gsm_map_ch_pagingArea = -1;         /* PagingArea */
-static int hf_gsm_map_ch_mtrf_Indicator = -1;     /* NULL */
-static int hf_gsm_map_ch_oldMSC_Number = -1;      /* ISDN_AddressString */
-static int hf_gsm_map_ch_lastUsedLtePLMN_Id = -1;  /* PLMN_Id */
-static int hf_gsm_map_ch_o_CSI = -1;              /* O_CSI */
-static int hf_gsm_map_ch_uu_Data = -1;            /* UU_Data */
-static int hf_gsm_map_ch_allInformationSent = -1;  /* NULL */
-static int hf_gsm_map_ch_d_csi = -1;              /* D_CSI */
-static int hf_gsm_map_ch_o_BcsmCamelTDPCriteriaList = -1;  /* O_BcsmCamelTDPCriteriaList */
-static int hf_gsm_map_ch_mtRoamingRetry = -1;     /* NULL */
-static int hf_gsm_map_ch_uuIndicator = -1;        /* UUIndicator */
-static int hf_gsm_map_ch_uui = -1;                /* UUI */
-static int hf_gsm_map_ch_uusCFInteraction = -1;   /* NULL */
-static int hf_gsm_map_ch_supportedCamelPhases = -1;  /* SupportedCamelPhases */
-static int hf_gsm_map_ch_suppress_T_CSI = -1;     /* NULL */
-static int hf_gsm_map_ch_offeredCamel4CSIs = -1;  /* OfferedCamel4CSIs */
-static int hf_gsm_map_ch_routingInfo = -1;        /* RoutingInfo */
-static int hf_gsm_map_ch_camelRoutingInfo = -1;   /* CamelRoutingInfo */
-static int hf_gsm_map_ch_gmscCamelSubscriptionInfo = -1;  /* GmscCamelSubscriptionInfo */
-static int hf_gsm_map_ch_t_CSI = -1;              /* T_CSI */
-static int hf_gsm_map_ch_o_BcsmCamelTDP_CriteriaList = -1;  /* O_BcsmCamelTDPCriteriaList */
-static int hf_gsm_map_ch_t_BCSM_CAMEL_TDP_CriteriaList = -1;  /* T_BCSM_CAMEL_TDP_CriteriaList */
-static int hf_gsm_map_ch_ccbs_Monitoring = -1;    /* ReportingState */
-static int hf_gsm_map_ch_ccbs_SubscriberStatus = -1;  /* CCBS_SubscriberStatus */
-static int hf_gsm_map_ch_eventReportData = -1;    /* EventReportData */
-static int hf_gsm_map_ch_callReportdata = -1;     /* CallReportData */
-static int hf_gsm_map_ch_monitoringMode = -1;     /* MonitoringMode */
-static int hf_gsm_map_ch_callOutcome = -1;        /* CallOutcome */
-static int hf_gsm_map_ch_callInfo = -1;           /* ExternalSignalInfo */
-static int hf_gsm_map_ch_ccbs_Feature = -1;       /* CCBS_Feature */
-static int hf_gsm_map_ch_translatedB_Number = -1;  /* ISDN_AddressString */
-static int hf_gsm_map_ch_replaceB_Number = -1;    /* NULL */
-static int hf_gsm_map_ch_ruf_Outcome = -1;        /* RUF_Outcome */
-static int hf_gsm_map_ch_istInformationWithdraw = -1;  /* NULL */
-static int hf_gsm_map_ch_callTerminationIndicator = -1;  /* CallTerminationIndicator */
-static int hf_gsm_map_ch_msrn = -1;               /* ISDN_AddressString */
+static int hf_gsm_map_ch_cug_Interlock;           /* CUG_Interlock */
+static int hf_gsm_map_ch_cug_OutgoingAccess;      /* NULL */
+static int hf_gsm_map_ch_extensionContainer;      /* ExtensionContainer */
+static int hf_gsm_map_ch_msisdn;                  /* ISDN_AddressString */
+static int hf_gsm_map_ch_cug_CheckInfo;           /* CUG_CheckInfo */
+static int hf_gsm_map_ch_numberOfForwarding;      /* NumberOfForwarding */
+static int hf_gsm_map_ch_interrogationType;       /* InterrogationType */
+static int hf_gsm_map_ch_or_Interrogation;        /* NULL */
+static int hf_gsm_map_ch_or_Capability;           /* OR_Phase */
+static int hf_gsm_map_ch_gmsc_OrGsmSCF_Address;   /* ISDN_AddressString */
+static int hf_gsm_map_ch_callReferenceNumber;     /* CallReferenceNumber */
+static int hf_gsm_map_ch_forwardingReason;        /* ForwardingReason */
+static int hf_gsm_map_ch_basicServiceGroup;       /* Ext_BasicServiceCode */
+static int hf_gsm_map_ch_networkSignalInfo;       /* ExternalSignalInfo */
+static int hf_gsm_map_ch_camelInfo;               /* CamelInfo */
+static int hf_gsm_map_ch_suppressionOfAnnouncement;  /* SuppressionOfAnnouncement */
+static int hf_gsm_map_ch_alertingPattern;         /* AlertingPattern */
+static int hf_gsm_map_ch_ccbs_Call;               /* NULL */
+static int hf_gsm_map_ch_supportedCCBS_Phase;     /* SupportedCCBS_Phase */
+static int hf_gsm_map_ch_additionalSignalInfo;    /* Ext_ExternalSignalInfo */
+static int hf_gsm_map_ch_istSupportIndicator;     /* IST_SupportIndicator */
+static int hf_gsm_map_ch_pre_pagingSupported;     /* NULL */
+static int hf_gsm_map_ch_callDiversionTreatmentIndicator;  /* CallDiversionTreatmentIndicator */
+static int hf_gsm_map_ch_longFTN_Supported;       /* NULL */
+static int hf_gsm_map_ch_suppress_VT_CSI;         /* NULL */
+static int hf_gsm_map_ch_suppressIncomingCallBarring;  /* NULL */
+static int hf_gsm_map_ch_gsmSCF_InitiatedCall;    /* NULL */
+static int hf_gsm_map_ch_basicServiceGroup2;      /* Ext_BasicServiceCode */
+static int hf_gsm_map_ch_networkSignalInfo2;      /* ExternalSignalInfo */
+static int hf_gsm_map_ch_suppressMTSS;            /* SuppressMTSS */
+static int hf_gsm_map_ch_mtRoamingRetrySupported;  /* NULL */
+static int hf_gsm_map_ch_callPriority;            /* EMLPP_Priority */
+static int hf_gsm_map_ch_imsi;                    /* IMSI */
+static int hf_gsm_map_ch_extendedRoutingInfo;     /* ExtendedRoutingInfo */
+static int hf_gsm_map_ch_cugSubscriptionFlag;     /* NULL */
+static int hf_gsm_map_ch_subscriberInfo;          /* SubscriberInfo */
+static int hf_gsm_map_ch_ss_List;                 /* SS_List */
+static int hf_gsm_map_ch_basicService;            /* Ext_BasicServiceCode */
+static int hf_gsm_map_ch_forwardingInterrogationRequired;  /* NULL */
+static int hf_gsm_map_ch_vmsc_Address;            /* ISDN_AddressString */
+static int hf_gsm_map_ch_naea_PreferredCI;        /* NAEA_PreferredCI */
+static int hf_gsm_map_ch_ccbs_Indicators;         /* CCBS_Indicators */
+static int hf_gsm_map_ch_numberPortabilityStatus;  /* NumberPortabilityStatus */
+static int hf_gsm_map_ch_istAlertTimer;           /* IST_AlertTimerValue */
+static int hf_gsm_map_ch_supportedCamelPhasesInVMSC;  /* SupportedCamelPhases */
+static int hf_gsm_map_ch_offeredCamel4CSIsInVMSC;  /* OfferedCamel4CSIs */
+static int hf_gsm_map_ch_routingInfo2;            /* RoutingInfo */
+static int hf_gsm_map_ch_ss_List2;                /* SS_List */
+static int hf_gsm_map_ch_basicService2;           /* Ext_BasicServiceCode */
+static int hf_gsm_map_ch_allowedServices;         /* AllowedServices */
+static int hf_gsm_map_ch_unavailabilityCause;     /* UnavailabilityCause */
+static int hf_gsm_map_ch_releaseResourcesSupported;  /* NULL */
+static int hf_gsm_map_ch_gsm_BearerCapability;    /* ExternalSignalInfo */
+static int hf_gsm_map_ch_ccbs_Possible;           /* NULL */
+static int hf_gsm_map_ch_keepCCBS_CallIndicator;  /* NULL */
+static int hf_gsm_map_ch_roamingNumber;           /* ISDN_AddressString */
+static int hf_gsm_map_ch_forwardingData;          /* ForwardingData */
+static int hf_gsm_map_ch_forwardedToNumber;       /* ISDN_AddressString */
+static int hf_gsm_map_ch_forwardedToSubaddress;   /* ISDN_SubaddressString */
+static int hf_gsm_map_ch_forwardingOptions;       /* ForwardingOptions */
+static int hf_gsm_map_ch_longForwardedToNumber;   /* FTN_AddressString */
+static int hf_gsm_map_ch_msc_Number;              /* ISDN_AddressString */
+static int hf_gsm_map_ch_lmsi;                    /* LMSI */
+static int hf_gsm_map_ch_gmsc_Address;            /* ISDN_AddressString */
+static int hf_gsm_map_ch_supportedCamelPhasesInInterrogatingNode;  /* SupportedCamelPhases */
+static int hf_gsm_map_ch_orNotSupportedInGMSC;    /* NULL */
+static int hf_gsm_map_ch_offeredCamel4CSIsInInterrogatingNode;  /* OfferedCamel4CSIs */
+static int hf_gsm_map_ch_pagingArea;              /* PagingArea */
+static int hf_gsm_map_ch_mtrf_Indicator;          /* NULL */
+static int hf_gsm_map_ch_oldMSC_Number;           /* ISDN_AddressString */
+static int hf_gsm_map_ch_lastUsedLtePLMN_Id;      /* PLMN_Id */
+static int hf_gsm_map_ch_o_CSI;                   /* O_CSI */
+static int hf_gsm_map_ch_uu_Data;                 /* UU_Data */
+static int hf_gsm_map_ch_allInformationSent;      /* NULL */
+static int hf_gsm_map_ch_d_csi;                   /* D_CSI */
+static int hf_gsm_map_ch_o_BcsmCamelTDPCriteriaList;  /* O_BcsmCamelTDPCriteriaList */
+static int hf_gsm_map_ch_mtRoamingRetry;          /* NULL */
+static int hf_gsm_map_ch_uuIndicator;             /* UUIndicator */
+static int hf_gsm_map_ch_uui;                     /* UUI */
+static int hf_gsm_map_ch_uusCFInteraction;        /* NULL */
+static int hf_gsm_map_ch_supportedCamelPhases;    /* SupportedCamelPhases */
+static int hf_gsm_map_ch_suppress_T_CSI;          /* NULL */
+static int hf_gsm_map_ch_offeredCamel4CSIs;       /* OfferedCamel4CSIs */
+static int hf_gsm_map_ch_routingInfo;             /* RoutingInfo */
+static int hf_gsm_map_ch_camelRoutingInfo;        /* CamelRoutingInfo */
+static int hf_gsm_map_ch_gmscCamelSubscriptionInfo;  /* GmscCamelSubscriptionInfo */
+static int hf_gsm_map_ch_t_CSI;                   /* T_CSI */
+static int hf_gsm_map_ch_o_BcsmCamelTDP_CriteriaList;  /* O_BcsmCamelTDPCriteriaList */
+static int hf_gsm_map_ch_t_BCSM_CAMEL_TDP_CriteriaList;  /* T_BCSM_CAMEL_TDP_CriteriaList */
+static int hf_gsm_map_ch_ccbs_Monitoring;         /* ReportingState */
+static int hf_gsm_map_ch_ccbs_SubscriberStatus;   /* CCBS_SubscriberStatus */
+static int hf_gsm_map_ch_eventReportData;         /* EventReportData */
+static int hf_gsm_map_ch_callReportdata;          /* CallReportData */
+static int hf_gsm_map_ch_monitoringMode;          /* MonitoringMode */
+static int hf_gsm_map_ch_callOutcome;             /* CallOutcome */
+static int hf_gsm_map_ch_callInfo;                /* ExternalSignalInfo */
+static int hf_gsm_map_ch_ccbs_Feature;            /* CCBS_Feature */
+static int hf_gsm_map_ch_translatedB_Number;      /* ISDN_AddressString */
+static int hf_gsm_map_ch_replaceB_Number;         /* NULL */
+static int hf_gsm_map_ch_ruf_Outcome;             /* RUF_Outcome */
+static int hf_gsm_map_ch_istInformationWithdraw;  /* NULL */
+static int hf_gsm_map_ch_callTerminationIndicator;  /* CallTerminationIndicator */
+static int hf_gsm_map_ch_msrn;                    /* ISDN_AddressString */
 /* named bits */
-static int hf_gsm_map_ch_SuppressMTSS_suppressCUG = -1;
-static int hf_gsm_map_ch_SuppressMTSS_suppressCCBS = -1;
-static int hf_gsm_map_ch_AllowedServices_firstServiceAllowed = -1;
-static int hf_gsm_map_ch_AllowedServices_secondServiceAllowed = -1;
+static int hf_gsm_map_ch_SuppressMTSS_suppressCUG;
+static int hf_gsm_map_ch_SuppressMTSS_suppressCCBS;
+static int hf_gsm_map_ch_AllowedServices_firstServiceAllowed;
+static int hf_gsm_map_ch_AllowedServices_secondServiceAllowed;
 
 /* --- Module MAP-LCS-DataTypes --- --- ---                                   */
 
-static int hf_gsm_map_lcs_gsm_map_lcs_LCS_ClientID_PDU = -1;  /* LCS_ClientID */
-static int hf_gsm_map_lcs_mlcNumber = -1;         /* ISDN_AddressString */
-static int hf_gsm_map_lcs_targetMS = -1;          /* SubscriberIdentity */
-static int hf_gsm_map_lcs_extensionContainer = -1;  /* ExtensionContainer */
-static int hf_gsm_map_lcs_lcsLocationInfo = -1;   /* LCSLocationInfo */
-static int hf_gsm_map_lcs_v_gmlc_Address = -1;    /* GSN_Address */
-static int hf_gsm_map_lcs_h_gmlc_Address = -1;    /* GSN_Address */
-static int hf_gsm_map_lcs_ppr_Address = -1;       /* GSN_Address */
-static int hf_gsm_map_lcs_additional_v_gmlc_Address = -1;  /* GSN_Address */
-static int hf_gsm_map_lcs_networkNode_Number = -1;  /* ISDN_AddressString */
-static int hf_gsm_map_lcs_lmsi = -1;              /* LMSI */
-static int hf_gsm_map_lcs_gprsNodeIndicator = -1;  /* NULL */
-static int hf_gsm_map_lcs_additional_Number = -1;  /* Additional_Number */
-static int hf_gsm_map_lcs_supportedLCS_CapabilitySets = -1;  /* SupportedLCS_CapabilitySets */
-static int hf_gsm_map_lcs_additional_LCS_CapabilitySets = -1;  /* SupportedLCS_CapabilitySets */
-static int hf_gsm_map_lcs_mme_Name = -1;          /* DiameterIdentity */
-static int hf_gsm_map_lcs_aaa_Server_Name = -1;   /* DiameterIdentity */
-static int hf_gsm_map_lcs_sgsn_Name = -1;         /* DiameterIdentity */
-static int hf_gsm_map_lcs_sgsn_Realm = -1;        /* DiameterIdentity */
-static int hf_gsm_map_lcs_locationType = -1;      /* LocationType */
-static int hf_gsm_map_lcs_mlc_Number = -1;        /* ISDN_AddressString */
-static int hf_gsm_map_lcs_lcs_ClientID = -1;      /* LCS_ClientID */
-static int hf_gsm_map_lcs_privacyOverride = -1;   /* NULL */
-static int hf_gsm_map_lcs_imsi = -1;              /* IMSI */
-static int hf_gsm_map_lcs_msisdn = -1;            /* ISDN_AddressString */
-static int hf_gsm_map_lcs_imei = -1;              /* IMEI */
-static int hf_gsm_map_lcs_lcs_Priority = -1;      /* LCS_Priority */
-static int hf_gsm_map_lcs_lcs_QoS = -1;           /* LCS_QoS */
-static int hf_gsm_map_lcs_supportedGADShapes = -1;  /* SupportedGADShapes */
-static int hf_gsm_map_lcs_lcs_ReferenceNumber = -1;  /* LCS_ReferenceNumber */
-static int hf_gsm_map_lcs_lcsServiceTypeID = -1;  /* LCSServiceTypeID */
-static int hf_gsm_map_lcs_lcsCodeword = -1;       /* LCSCodeword */
-static int hf_gsm_map_lcs_lcs_PrivacyCheck = -1;  /* LCS_PrivacyCheck */
-static int hf_gsm_map_lcs_areaEventInfo = -1;     /* AreaEventInfo */
-static int hf_gsm_map_lcs_mo_lrShortCircuitIndicator = -1;  /* NULL */
-static int hf_gsm_map_lcs_periodicLDRInfo = -1;   /* PeriodicLDRInfo */
-static int hf_gsm_map_lcs_reportingPLMNList = -1;  /* ReportingPLMNList */
-static int hf_gsm_map_lcs_locationEstimateType = -1;  /* LocationEstimateType */
-static int hf_gsm_map_lcs_deferredLocationEventType = -1;  /* DeferredLocationEventType */
-static int hf_gsm_map_lcs_lcsClientType = -1;     /* LCSClientType */
-static int hf_gsm_map_lcs_lcsClientExternalID = -1;  /* LCSClientExternalID */
-static int hf_gsm_map_lcs_lcsClientDialedByMS = -1;  /* AddressString */
-static int hf_gsm_map_lcs_lcsClientInternalID = -1;  /* LCSClientInternalID */
-static int hf_gsm_map_lcs_lcsClientName = -1;     /* LCSClientName */
-static int hf_gsm_map_lcs_lcsAPN = -1;            /* APN */
-static int hf_gsm_map_lcs_lcsRequestorID = -1;    /* LCSRequestorID */
-static int hf_gsm_map_lcs_dataCodingScheme = -1;  /* USSD_DataCodingScheme */
-static int hf_gsm_map_lcs_nameString = -1;        /* NameString */
-static int hf_gsm_map_lcs_lcs_FormatIndicator = -1;  /* LCS_FormatIndicator */
-static int hf_gsm_map_lcs_requestorIDString = -1;  /* RequestorIDString */
-static int hf_gsm_map_lcs_horizontal_accuracy = -1;  /* Horizontal_Accuracy */
-static int hf_gsm_map_lcs_verticalCoordinateRequest = -1;  /* NULL */
-static int hf_gsm_map_lcs_vertical_accuracy = -1;  /* Vertical_Accuracy */
-static int hf_gsm_map_lcs_responseTime = -1;      /* ResponseTime */
-static int hf_gsm_map_lcs_velocityRequest = -1;   /* NULL */
-static int hf_gsm_map_lcs_responseTimeCategory = -1;  /* ResponseTimeCategory */
-static int hf_gsm_map_lcs_lcsCodewordString = -1;  /* LCSCodewordString */
-static int hf_gsm_map_lcs_callSessionUnrelated = -1;  /* PrivacyCheckRelatedAction */
-static int hf_gsm_map_lcs_callSessionRelated = -1;  /* PrivacyCheckRelatedAction */
-static int hf_gsm_map_lcs_areaDefinition = -1;    /* AreaDefinition */
-static int hf_gsm_map_lcs_occurrenceInfo = -1;    /* OccurrenceInfo */
-static int hf_gsm_map_lcs_intervalTime = -1;      /* IntervalTime */
-static int hf_gsm_map_lcs_areaList = -1;          /* AreaList */
-static int hf_gsm_map_lcs_AreaList_item = -1;     /* Area */
-static int hf_gsm_map_lcs_areaType = -1;          /* AreaType */
-static int hf_gsm_map_lcs_areaIdentification = -1;  /* AreaIdentification */
-static int hf_gsm_map_lcs_reportingAmount = -1;   /* ReportingAmount */
-static int hf_gsm_map_lcs_reportingInterval = -1;  /* ReportingInterval */
-static int hf_gsm_map_lcs_plmn_ListPrioritized = -1;  /* NULL */
-static int hf_gsm_map_lcs_plmn_List = -1;         /* PLMNList */
-static int hf_gsm_map_lcs_PLMNList_item = -1;     /* ReportingPLMN */
-static int hf_gsm_map_lcs_plmn_Id = -1;           /* PLMN_Id */
-static int hf_gsm_map_lcs_ran_Technology = -1;    /* RAN_Technology */
-static int hf_gsm_map_lcs_ran_PeriodicLocationSupport = -1;  /* NULL */
-static int hf_gsm_map_lcs_locationEstimate = -1;  /* Ext_GeographicalInformation */
-static int hf_gsm_map_lcs_ageOfLocationEstimate = -1;  /* AgeOfLocationInformation */
-static int hf_gsm_map_lcs_add_LocationEstimate = -1;  /* Add_GeographicalInformation */
-static int hf_gsm_map_lcs_deferredmt_lrResponseIndicator = -1;  /* NULL */
-static int hf_gsm_map_lcs_geranPositioningData = -1;  /* PositioningDataInformation */
-static int hf_gsm_map_lcs_utranPositioningData = -1;  /* UtranPositioningDataInfo */
-static int hf_gsm_map_lcs_cellIdOrSai = -1;       /* CellGlobalIdOrServiceAreaIdOrLAI */
-static int hf_gsm_map_lcs_sai_Present = -1;       /* NULL */
-static int hf_gsm_map_lcs_accuracyFulfilmentIndicator = -1;  /* AccuracyFulfilmentIndicator */
-static int hf_gsm_map_lcs_velocityEstimate = -1;  /* VelocityEstimate */
-static int hf_gsm_map_lcs_geranGANSSpositioningData = -1;  /* GeranGANSSpositioningData */
-static int hf_gsm_map_lcs_utranGANSSpositioningData = -1;  /* UtranGANSSpositioningData */
-static int hf_gsm_map_lcs_targetServingNodeForHandover = -1;  /* ServingNodeAddress */
-static int hf_gsm_map_lcs_utranAdditionalPositioningData = -1;  /* UtranAdditionalPositioningData */
-static int hf_gsm_map_lcs_utranBaroPressureMeas = -1;  /* UtranBaroPressureMeas */
-static int hf_gsm_map_lcs_utranCivicAddress = -1;  /* UtranCivicAddress */
-static int hf_gsm_map_lcs_lcs_Event = -1;         /* LCS_Event */
-static int hf_gsm_map_lcs_na_ESRD = -1;           /* ISDN_AddressString */
-static int hf_gsm_map_lcs_na_ESRK = -1;           /* ISDN_AddressString */
-static int hf_gsm_map_lcs_slr_ArgExtensionContainer = -1;  /* SLR_ArgExtensionContainer */
-static int hf_gsm_map_lcs_deferredmt_lrData = -1;  /* Deferredmt_lrData */
-static int hf_gsm_map_lcs_pseudonymIndicator = -1;  /* NULL */
-static int hf_gsm_map_lcs_sequenceNumber = -1;    /* SequenceNumber */
-static int hf_gsm_map_lcs_terminationCause = -1;  /* TerminationCause */
-static int hf_gsm_map_lcs_msc_Number = -1;        /* ISDN_AddressString */
-static int hf_gsm_map_lcs_sgsn_Number = -1;       /* ISDN_AddressString */
-static int hf_gsm_map_lcs_mme_Number = -1;        /* DiameterIdentity */
+static int hf_gsm_map_lcs_gsm_map_lcs_LCS_ClientID_PDU;  /* LCS_ClientID */
+static int hf_gsm_map_lcs_mlcNumber;              /* ISDN_AddressString */
+static int hf_gsm_map_lcs_targetMS;               /* SubscriberIdentity */
+static int hf_gsm_map_lcs_extensionContainer;     /* ExtensionContainer */
+static int hf_gsm_map_lcs_lcsLocationInfo;        /* LCSLocationInfo */
+static int hf_gsm_map_lcs_v_gmlc_Address;         /* GSN_Address */
+static int hf_gsm_map_lcs_h_gmlc_Address;         /* GSN_Address */
+static int hf_gsm_map_lcs_ppr_Address;            /* GSN_Address */
+static int hf_gsm_map_lcs_additional_v_gmlc_Address;  /* GSN_Address */
+static int hf_gsm_map_lcs_networkNode_Number;     /* ISDN_AddressString */
+static int hf_gsm_map_lcs_lmsi;                   /* LMSI */
+static int hf_gsm_map_lcs_gprsNodeIndicator;      /* NULL */
+static int hf_gsm_map_lcs_additional_Number;      /* Additional_Number */
+static int hf_gsm_map_lcs_supportedLCS_CapabilitySets;  /* SupportedLCS_CapabilitySets */
+static int hf_gsm_map_lcs_additional_LCS_CapabilitySets;  /* SupportedLCS_CapabilitySets */
+static int hf_gsm_map_lcs_mme_Name;               /* DiameterIdentity */
+static int hf_gsm_map_lcs_aaa_Server_Name;        /* DiameterIdentity */
+static int hf_gsm_map_lcs_sgsn_Name;              /* DiameterIdentity */
+static int hf_gsm_map_lcs_sgsn_Realm;             /* DiameterIdentity */
+static int hf_gsm_map_lcs_locationType;           /* LocationType */
+static int hf_gsm_map_lcs_mlc_Number;             /* ISDN_AddressString */
+static int hf_gsm_map_lcs_lcs_ClientID;           /* LCS_ClientID */
+static int hf_gsm_map_lcs_privacyOverride;        /* NULL */
+static int hf_gsm_map_lcs_imsi;                   /* IMSI */
+static int hf_gsm_map_lcs_msisdn;                 /* ISDN_AddressString */
+static int hf_gsm_map_lcs_imei;                   /* IMEI */
+static int hf_gsm_map_lcs_lcs_Priority;           /* LCS_Priority */
+static int hf_gsm_map_lcs_lcs_QoS;                /* LCS_QoS */
+static int hf_gsm_map_lcs_supportedGADShapes;     /* SupportedGADShapes */
+static int hf_gsm_map_lcs_lcs_ReferenceNumber;    /* LCS_ReferenceNumber */
+static int hf_gsm_map_lcs_lcsServiceTypeID;       /* LCSServiceTypeID */
+static int hf_gsm_map_lcs_lcsCodeword;            /* LCSCodeword */
+static int hf_gsm_map_lcs_lcs_PrivacyCheck;       /* LCS_PrivacyCheck */
+static int hf_gsm_map_lcs_areaEventInfo;          /* AreaEventInfo */
+static int hf_gsm_map_lcs_mo_lrShortCircuitIndicator;  /* NULL */
+static int hf_gsm_map_lcs_periodicLDRInfo;        /* PeriodicLDRInfo */
+static int hf_gsm_map_lcs_reportingPLMNList;      /* ReportingPLMNList */
+static int hf_gsm_map_lcs_locationEstimateType;   /* LocationEstimateType */
+static int hf_gsm_map_lcs_deferredLocationEventType;  /* DeferredLocationEventType */
+static int hf_gsm_map_lcs_lcsClientType;          /* LCSClientType */
+static int hf_gsm_map_lcs_lcsClientExternalID;    /* LCSClientExternalID */
+static int hf_gsm_map_lcs_lcsClientDialedByMS;    /* AddressString */
+static int hf_gsm_map_lcs_lcsClientInternalID;    /* LCSClientInternalID */
+static int hf_gsm_map_lcs_lcsClientName;          /* LCSClientName */
+static int hf_gsm_map_lcs_lcsAPN;                 /* APN */
+static int hf_gsm_map_lcs_lcsRequestorID;         /* LCSRequestorID */
+static int hf_gsm_map_lcs_dataCodingScheme;       /* USSD_DataCodingScheme */
+static int hf_gsm_map_lcs_nameString;             /* NameString */
+static int hf_gsm_map_lcs_lcs_FormatIndicator;    /* LCS_FormatIndicator */
+static int hf_gsm_map_lcs_requestorIDString;      /* RequestorIDString */
+static int hf_gsm_map_lcs_horizontal_accuracy;    /* Horizontal_Accuracy */
+static int hf_gsm_map_lcs_verticalCoordinateRequest;  /* NULL */
+static int hf_gsm_map_lcs_vertical_accuracy;      /* Vertical_Accuracy */
+static int hf_gsm_map_lcs_responseTime;           /* ResponseTime */
+static int hf_gsm_map_lcs_velocityRequest;        /* NULL */
+static int hf_gsm_map_lcs_responseTimeCategory;   /* ResponseTimeCategory */
+static int hf_gsm_map_lcs_lcsCodewordString;      /* LCSCodewordString */
+static int hf_gsm_map_lcs_callSessionUnrelated;   /* PrivacyCheckRelatedAction */
+static int hf_gsm_map_lcs_callSessionRelated;     /* PrivacyCheckRelatedAction */
+static int hf_gsm_map_lcs_areaDefinition;         /* AreaDefinition */
+static int hf_gsm_map_lcs_occurrenceInfo;         /* OccurrenceInfo */
+static int hf_gsm_map_lcs_intervalTime;           /* IntervalTime */
+static int hf_gsm_map_lcs_areaList;               /* AreaList */
+static int hf_gsm_map_lcs_AreaList_item;          /* Area */
+static int hf_gsm_map_lcs_areaType;               /* AreaType */
+static int hf_gsm_map_lcs_areaIdentification;     /* AreaIdentification */
+static int hf_gsm_map_lcs_reportingAmount;        /* ReportingAmount */
+static int hf_gsm_map_lcs_reportingInterval;      /* ReportingInterval */
+static int hf_gsm_map_lcs_plmn_ListPrioritized;   /* NULL */
+static int hf_gsm_map_lcs_plmn_List;              /* PLMNList */
+static int hf_gsm_map_lcs_PLMNList_item;          /* ReportingPLMN */
+static int hf_gsm_map_lcs_plmn_Id;                /* PLMN_Id */
+static int hf_gsm_map_lcs_ran_Technology;         /* RAN_Technology */
+static int hf_gsm_map_lcs_ran_PeriodicLocationSupport;  /* NULL */
+static int hf_gsm_map_lcs_locationEstimate;       /* Ext_GeographicalInformation */
+static int hf_gsm_map_lcs_ageOfLocationEstimate;  /* AgeOfLocationInformation */
+static int hf_gsm_map_lcs_add_LocationEstimate;   /* Add_GeographicalInformation */
+static int hf_gsm_map_lcs_deferredmt_lrResponseIndicator;  /* NULL */
+static int hf_gsm_map_lcs_geranPositioningData;   /* PositioningDataInformation */
+static int hf_gsm_map_lcs_utranPositioningData;   /* UtranPositioningDataInfo */
+static int hf_gsm_map_lcs_cellIdOrSai;            /* CellGlobalIdOrServiceAreaIdOrLAI */
+static int hf_gsm_map_lcs_sai_Present;            /* NULL */
+static int hf_gsm_map_lcs_accuracyFulfilmentIndicator;  /* AccuracyFulfilmentIndicator */
+static int hf_gsm_map_lcs_velocityEstimate;       /* VelocityEstimate */
+static int hf_gsm_map_lcs_geranGANSSpositioningData;  /* GeranGANSSpositioningData */
+static int hf_gsm_map_lcs_utranGANSSpositioningData;  /* UtranGANSSpositioningData */
+static int hf_gsm_map_lcs_targetServingNodeForHandover;  /* ServingNodeAddress */
+static int hf_gsm_map_lcs_utranAdditionalPositioningData;  /* UtranAdditionalPositioningData */
+static int hf_gsm_map_lcs_utranBaroPressureMeas;  /* UtranBaroPressureMeas */
+static int hf_gsm_map_lcs_utranCivicAddress;      /* UtranCivicAddress */
+static int hf_gsm_map_lcs_lcs_Event;              /* LCS_Event */
+static int hf_gsm_map_lcs_na_ESRD;                /* ISDN_AddressString */
+static int hf_gsm_map_lcs_na_ESRK;                /* ISDN_AddressString */
+static int hf_gsm_map_lcs_slr_ArgExtensionContainer;  /* SLR_ArgExtensionContainer */
+static int hf_gsm_map_lcs_deferredmt_lrData;      /* Deferredmt_lrData */
+static int hf_gsm_map_lcs_pseudonymIndicator;     /* NULL */
+static int hf_gsm_map_lcs_sequenceNumber;         /* SequenceNumber */
+static int hf_gsm_map_lcs_terminationCause;       /* TerminationCause */
+static int hf_gsm_map_lcs_msc_Number;             /* ISDN_AddressString */
+static int hf_gsm_map_lcs_sgsn_Number;            /* ISDN_AddressString */
+static int hf_gsm_map_lcs_mme_Number;             /* DiameterIdentity */
 /* named bits */
-static int hf_gsm_map_lcs_DeferredLocationEventType_msAvailable = -1;
-static int hf_gsm_map_lcs_DeferredLocationEventType_enteringIntoArea = -1;
-static int hf_gsm_map_lcs_DeferredLocationEventType_leavingFromArea = -1;
-static int hf_gsm_map_lcs_DeferredLocationEventType_beingInsideArea = -1;
-static int hf_gsm_map_lcs_DeferredLocationEventType_periodicLDR = -1;
-static int hf_gsm_map_lcs_SupportedGADShapes_ellipsoidPoint = -1;
-static int hf_gsm_map_lcs_SupportedGADShapes_ellipsoidPointWithUncertaintyCircle = -1;
-static int hf_gsm_map_lcs_SupportedGADShapes_ellipsoidPointWithUncertaintyEllipse = -1;
-static int hf_gsm_map_lcs_SupportedGADShapes_polygon = -1;
-static int hf_gsm_map_lcs_SupportedGADShapes_ellipsoidPointWithAltitude = -1;
-static int hf_gsm_map_lcs_SupportedGADShapes_ellipsoidPointWithAltitudeAndUncertaintyElipsoid = -1;
-static int hf_gsm_map_lcs_SupportedGADShapes_ellipsoidArc = -1;
+static int hf_gsm_map_lcs_DeferredLocationEventType_msAvailable;
+static int hf_gsm_map_lcs_DeferredLocationEventType_enteringIntoArea;
+static int hf_gsm_map_lcs_DeferredLocationEventType_leavingFromArea;
+static int hf_gsm_map_lcs_DeferredLocationEventType_beingInsideArea;
+static int hf_gsm_map_lcs_DeferredLocationEventType_periodicLDR;
+static int hf_gsm_map_lcs_SupportedGADShapes_ellipsoidPoint;
+static int hf_gsm_map_lcs_SupportedGADShapes_ellipsoidPointWithUncertaintyCircle;
+static int hf_gsm_map_lcs_SupportedGADShapes_ellipsoidPointWithUncertaintyEllipse;
+static int hf_gsm_map_lcs_SupportedGADShapes_polygon;
+static int hf_gsm_map_lcs_SupportedGADShapes_ellipsoidPointWithAltitude;
+static int hf_gsm_map_lcs_SupportedGADShapes_ellipsoidPointWithAltitudeAndUncertaintyElipsoid;
+static int hf_gsm_map_lcs_SupportedGADShapes_ellipsoidArc;
 
 /* --- Module MAP-GR-DataTypes --- --- ---                                    */
 
-static int hf_gsm_map_gr_teleservice = -1;        /* Ext_TeleserviceCode */
-static int hf_gsm_map_gr_asciCallReference = -1;  /* ASCI_CallReference */
-static int hf_gsm_map_gr_codec_Info = -1;         /* CODEC_Info */
-static int hf_gsm_map_gr_cipheringAlgorithm = -1;  /* CipheringAlgorithm */
-static int hf_gsm_map_gr_groupKeyNumber_Vk_Id = -1;  /* GroupKeyNumber */
-static int hf_gsm_map_gr_groupKey = -1;           /* Kc */
-static int hf_gsm_map_gr_priority = -1;           /* EMLPP_Priority */
-static int hf_gsm_map_gr_uplinkFree = -1;         /* NULL */
-static int hf_gsm_map_gr_extensionContainer = -1;  /* ExtensionContainer */
-static int hf_gsm_map_gr_vstk = -1;               /* VSTK */
-static int hf_gsm_map_gr_vstk_rand = -1;          /* VSTK_RAND */
-static int hf_gsm_map_gr_talkerChannelParameter = -1;  /* NULL */
-static int hf_gsm_map_gr_uplinkReplyIndicator = -1;  /* NULL */
-static int hf_gsm_map_gr_groupCallNumber = -1;    /* ISDN_AddressString */
-static int hf_gsm_map_gr_imsi = -1;               /* IMSI */
-static int hf_gsm_map_gr_talkerPriority = -1;     /* TalkerPriority */
-static int hf_gsm_map_gr_additionalInfo = -1;     /* AdditionalInfo */
-static int hf_gsm_map_gr_uplinkRequestAck = -1;   /* NULL */
-static int hf_gsm_map_gr_uplinkReleaseIndication = -1;  /* NULL */
-static int hf_gsm_map_gr_uplinkRejectCommand = -1;  /* NULL */
-static int hf_gsm_map_gr_uplinkSeizedCommand = -1;  /* NULL */
-static int hf_gsm_map_gr_uplinkReleaseCommand = -1;  /* NULL */
-static int hf_gsm_map_gr_stateAttributes = -1;    /* StateAttributes */
-static int hf_gsm_map_gr_emergencyModeResetCommandFlag = -1;  /* NULL */
-static int hf_gsm_map_gr_sm_RP_UI = -1;           /* SignalInfo */
-static int hf_gsm_map_gr_an_APDU = -1;            /* AccessNetworkSignalInfo */
-static int hf_gsm_map_gr_uplinkRequest = -1;      /* NULL */
-static int hf_gsm_map_gr_releaseGroupCall = -1;   /* NULL */
-static int hf_gsm_map_gr_downlinkAttached = -1;   /* NULL */
-static int hf_gsm_map_gr_uplinkAttached = -1;     /* NULL */
-static int hf_gsm_map_gr_dualCommunication = -1;  /* NULL */
-static int hf_gsm_map_gr_callOriginator = -1;     /* NULL */
-static int hf_gsm_map_gr_requestedInfo = -1;      /* RequestedInfo */
-static int hf_gsm_map_gr_groupId = -1;            /* Long_GroupId */
-static int hf_gsm_map_gr_cellId = -1;             /* GlobalCellId */
-static int hf_gsm_map_gr_tmsi = -1;               /* TMSI */
-static int hf_gsm_map_gr_cksn = -1;               /* Cksn */
-static int hf_gsm_map_gr_anchorMSC_Address = -1;  /* ISDN_AddressString */
-static int hf_gsm_map_gr_additionalSubscriptions = -1;  /* AdditionalSubscriptions */
-static int hf_gsm_map_gr_kc = -1;                 /* Kc */
+static int hf_gsm_map_gr_teleservice;             /* Ext_TeleserviceCode */
+static int hf_gsm_map_gr_asciCallReference;       /* ASCI_CallReference */
+static int hf_gsm_map_gr_codec_Info;              /* CODEC_Info */
+static int hf_gsm_map_gr_cipheringAlgorithm;      /* CipheringAlgorithm */
+static int hf_gsm_map_gr_groupKeyNumber_Vk_Id;    /* GroupKeyNumber */
+static int hf_gsm_map_gr_groupKey;                /* Kc */
+static int hf_gsm_map_gr_priority;                /* EMLPP_Priority */
+static int hf_gsm_map_gr_uplinkFree;              /* NULL */
+static int hf_gsm_map_gr_extensionContainer;      /* ExtensionContainer */
+static int hf_gsm_map_gr_vstk;                    /* VSTK */
+static int hf_gsm_map_gr_vstk_rand;               /* VSTK_RAND */
+static int hf_gsm_map_gr_talkerChannelParameter;  /* NULL */
+static int hf_gsm_map_gr_uplinkReplyIndicator;    /* NULL */
+static int hf_gsm_map_gr_groupCallNumber;         /* ISDN_AddressString */
+static int hf_gsm_map_gr_imsi;                    /* IMSI */
+static int hf_gsm_map_gr_talkerPriority;          /* TalkerPriority */
+static int hf_gsm_map_gr_additionalInfo;          /* AdditionalInfo */
+static int hf_gsm_map_gr_uplinkRequestAck;        /* NULL */
+static int hf_gsm_map_gr_uplinkReleaseIndication;  /* NULL */
+static int hf_gsm_map_gr_uplinkRejectCommand;     /* NULL */
+static int hf_gsm_map_gr_uplinkSeizedCommand;     /* NULL */
+static int hf_gsm_map_gr_uplinkReleaseCommand;    /* NULL */
+static int hf_gsm_map_gr_stateAttributes;         /* StateAttributes */
+static int hf_gsm_map_gr_emergencyModeResetCommandFlag;  /* NULL */
+static int hf_gsm_map_gr_sm_RP_UI;                /* SignalInfo */
+static int hf_gsm_map_gr_an_APDU;                 /* AccessNetworkSignalInfo */
+static int hf_gsm_map_gr_uplinkRequest;           /* NULL */
+static int hf_gsm_map_gr_releaseGroupCall;        /* NULL */
+static int hf_gsm_map_gr_downlinkAttached;        /* NULL */
+static int hf_gsm_map_gr_uplinkAttached;          /* NULL */
+static int hf_gsm_map_gr_dualCommunication;       /* NULL */
+static int hf_gsm_map_gr_callOriginator;          /* NULL */
+static int hf_gsm_map_gr_requestedInfo;           /* RequestedInfo */
+static int hf_gsm_map_gr_groupId;                 /* Long_GroupId */
+static int hf_gsm_map_gr_cellId;                  /* GlobalCellId */
+static int hf_gsm_map_gr_tmsi;                    /* TMSI */
+static int hf_gsm_map_gr_cksn;                    /* Cksn */
+static int hf_gsm_map_gr_anchorMSC_Address;       /* ISDN_AddressString */
+static int hf_gsm_map_gr_additionalSubscriptions;  /* AdditionalSubscriptions */
+static int hf_gsm_map_gr_kc;                      /* Kc */
 
 /* --- Module MAP-DialogueInformation --- --- ---                             */
 
-static int hf_gsm_map_dialogue_gsm_map_dialogue_MAP_DialoguePDU_PDU = -1;  /* MAP_DialoguePDU */
-static int hf_gsm_map_dialogue_map_open = -1;     /* MAP_OpenInfo */
-static int hf_gsm_map_dialogue_map_accept = -1;   /* MAP_AcceptInfo */
-static int hf_gsm_map_dialogue_map_close = -1;    /* MAP_CloseInfo */
-static int hf_gsm_map_dialogue_map_refuse = -1;   /* MAP_RefuseInfo */
-static int hf_gsm_map_dialogue_map_userAbort = -1;  /* MAP_UserAbortInfo */
-static int hf_gsm_map_dialogue_map_providerAbort = -1;  /* MAP_ProviderAbortInfo */
-static int hf_gsm_map_dialogue_destinationReference = -1;  /* AddressString */
-static int hf_gsm_map_dialogue_originationReference = -1;  /* AddressString */
-static int hf_gsm_map_dialogue_extensionContainer = -1;  /* ExtensionContainer */
-static int hf_gsm_map_dialogue_reason = -1;       /* Reason */
-static int hf_gsm_map_dialogue_alternativeApplicationContext = -1;  /* OBJECT_IDENTIFIER */
-static int hf_gsm_map_dialogue_map_UserAbortChoice = -1;  /* MAP_UserAbortChoice */
-static int hf_gsm_map_dialogue_userSpecificReason = -1;  /* NULL */
-static int hf_gsm_map_dialogue_userResourceLimitation = -1;  /* NULL */
-static int hf_gsm_map_dialogue_resourceUnavailable = -1;  /* ResourceUnavailableReason */
-static int hf_gsm_map_dialogue_applicationProcedureCancellation = -1;  /* ProcedureCancellationReason */
-static int hf_gsm_map_dialogue_map_ProviderAbortReason = -1;  /* MAP_ProviderAbortReason */
+static int hf_gsm_map_dialogue_gsm_map_dialogue_MAP_DialoguePDU_PDU;  /* MAP_DialoguePDU */
+static int hf_gsm_map_dialogue_map_open;          /* MAP_OpenInfo */
+static int hf_gsm_map_dialogue_map_accept;        /* MAP_AcceptInfo */
+static int hf_gsm_map_dialogue_map_close;         /* MAP_CloseInfo */
+static int hf_gsm_map_dialogue_map_refuse;        /* MAP_RefuseInfo */
+static int hf_gsm_map_dialogue_map_userAbort;     /* MAP_UserAbortInfo */
+static int hf_gsm_map_dialogue_map_providerAbort;  /* MAP_ProviderAbortInfo */
+static int hf_gsm_map_dialogue_destinationReference;  /* AddressString */
+static int hf_gsm_map_dialogue_originationReference;  /* AddressString */
+static int hf_gsm_map_dialogue_extensionContainer;  /* ExtensionContainer */
+static int hf_gsm_map_dialogue_reason;            /* Reason */
+static int hf_gsm_map_dialogue_alternativeApplicationContext;  /* OBJECT_IDENTIFIER */
+static int hf_gsm_map_dialogue_map_UserAbortChoice;  /* MAP_UserAbortChoice */
+static int hf_gsm_map_dialogue_userSpecificReason;  /* NULL */
+static int hf_gsm_map_dialogue_userResourceLimitation;  /* NULL */
+static int hf_gsm_map_dialogue_resourceUnavailable;  /* ResourceUnavailableReason */
+static int hf_gsm_map_dialogue_applicationProcedureCancellation;  /* ProcedureCancellationReason */
+static int hf_gsm_map_dialogue_map_ProviderAbortReason;  /* MAP_ProviderAbortReason */
 
 /* --- Module DummyMAP --- --- ---                                            */
 
-static int hf_gsm_old_invoke = -1;                /* Invoke */
-static int hf_gsm_old_returnResultLast = -1;      /* ReturnResult */
-static int hf_gsm_old_returnError = -1;           /* ReturnError */
-static int hf_gsm_old_reject = -1;                /* Reject */
-static int hf_gsm_old_returnResultNotLast = -1;   /* ReturnResult */
-static int hf_gsm_old_invokeID = -1;              /* InvokeIdType */
-static int hf_gsm_old_linkedID = -1;              /* InvokeIdType */
-static int hf_gsm_old_opCode = -1;                /* MAP_OPERATION */
-static int hf_gsm_old_invokeparameter = -1;       /* InvokeParameter */
-static int hf_gsm_old_resultretres = -1;          /* T_resultretres */
-static int hf_gsm_old_returnparameter = -1;       /* ReturnResultParameter */
-static int hf_gsm_old_errorCode = -1;             /* MAP_ERROR */
-static int hf_gsm_old_parameter = -1;             /* ReturnErrorParameter */
-static int hf_gsm_old_invokeIDRej = -1;           /* T_invokeIDRej */
-static int hf_gsm_old_derivable = -1;             /* InvokeIdType */
-static int hf_gsm_old_not_derivable = -1;         /* NULL */
-static int hf_gsm_old_problem = -1;               /* T_problem */
-static int hf_gsm_old_generalProblem = -1;        /* GeneralProblem */
-static int hf_gsm_old_invokeProblem = -1;         /* InvokeProblem */
-static int hf_gsm_old_returnResultProblem = -1;   /* ReturnResultProblem */
-static int hf_gsm_old_returnErrorProblem = -1;    /* ReturnErrorProblem */
-static int hf_gsm_old_localValue = -1;            /* OperationLocalvalue */
-static int hf_gsm_old_globalValue = -1;           /* OBJECT_IDENTIFIER */
-static int hf_gsm_old_localValue_01 = -1;         /* LocalErrorcode */
-static int hf_gsm_old_protocolId = -1;            /* ProtocolId */
-static int hf_gsm_old_signalInfo = -1;            /* SignalInfo */
-static int hf_gsm_old_extensionContainer = -1;    /* ExtensionContainer */
-static int hf_gsm_old_gsm_BearerCapability = -1;  /* ExternalSignalInfo */
-static int hf_gsm_old_isdn_BearerCapability = -1;  /* ExternalSignalInfo */
-static int hf_gsm_old_call_Direction = -1;        /* CallDirection */
-static int hf_gsm_old_b_Subscriber_Address = -1;  /* ISDN_AddressString */
-static int hf_gsm_old_chosenChannel = -1;         /* ExternalSignalInfo */
-static int hf_gsm_old_lowerLayerCompatibility = -1;  /* ExternalSignalInfo */
-static int hf_gsm_old_highLayerCompatibility = -1;  /* ExternalSignalInfo */
-static int hf_gsm_old_sIWFSNumber = -1;           /* ISDN_AddressString */
-static int hf_gsm_old_imsi = -1;                  /* IMSI */
-static int hf_gsm_old_vlr_Number = -1;            /* ISDN_AddressString */
-static int hf_gsm_old_targetCellId = -1;          /* GlobalCellId */
-static int hf_gsm_old_ho_NumberNotRequired = -1;  /* NULL */
-static int hf_gsm_old_bss_APDU = -1;              /* Bss_APDU */
-static int hf_gsm_old_handoverNumber = -1;        /* ISDN_AddressString */
-static int hf_gsm_old_SendAuthenticationInfoResOld_item = -1;  /* SendAuthenticationInfoResOld_item */
-static int hf_gsm_old_rand = -1;                  /* RAND */
-static int hf_gsm_old_sres = -1;                  /* SRES */
-static int hf_gsm_old_kc = -1;                    /* Kc */
-static int hf_gsm_old_tripletList = -1;           /* TripletListold */
-static int hf_gsm_old_TripletListold_item = -1;   /* AuthenticationTriplet_v2 */
-static int hf_gsm_old_channelType = -1;           /* ExternalSignalInfo */
-static int hf_gsm_old_securityHeader = -1;        /* SecurityHeader */
-static int hf_gsm_old_protectedPayload = -1;      /* ProtectedPayload */
-static int hf_gsm_old_securityParametersIndex = -1;  /* SecurityParametersIndex */
-static int hf_gsm_old_originalComponentIdentifier = -1;  /* OriginalComponentIdentifier */
-static int hf_gsm_old_initialisationVector = -1;  /* InitialisationVector */
-static int hf_gsm_old_operationCode = -1;         /* OperationCode */
-static int hf_gsm_old_errorCode_01 = -1;          /* ErrorCode */
-static int hf_gsm_old_userInfo = -1;              /* NULL */
-static int hf_gsm_old_localValue_02 = -1;         /* INTEGER */
-static int hf_gsm_old_msisdn = -1;                /* ISDN_AddressString */
-static int hf_gsm_old_category = -1;              /* Category */
-static int hf_gsm_old_basicService = -1;          /* BasicServiceCode */
-static int hf_gsm_old_operatorSS_Code = -1;       /* T_operatorSS_Code */
-static int hf_gsm_old_operatorSS_Code_item = -1;  /* OCTET_STRING_SIZE_1 */
-static int hf_gsm_old_sm_RP_DA = -1;              /* SM_RP_DAold */
-static int hf_gsm_old_sm_RP_OA = -1;              /* SM_RP_OAold */
-static int hf_gsm_old_sm_RP_UI = -1;              /* SignalInfo */
-static int hf_gsm_old_moreMessagesToSend = -1;    /* NULL */
-static int hf_gsm_old_imsi_01 = -1;               /* T_imsi */
-static int hf_gsm_old_lmsi = -1;                  /* T_lmsi */
-static int hf_gsm_old_serviceCentreAddressDA = -1;  /* T_serviceCentreAddressDA */
-static int hf_gsm_old_noSM_RP_DA = -1;            /* T_noSM_RP_DA */
-static int hf_gsm_old_msisdn_01 = -1;             /* T_msisdn */
-static int hf_gsm_old_serviceCentreAddressOA = -1;  /* T_serviceCentreAddressOA */
-static int hf_gsm_old_noSM_RP_OA = -1;            /* T_noSM_RP_OA */
-static int hf_gsm_old_cug_CheckInfo = -1;         /* CUG_CheckInfo */
-static int hf_gsm_old_numberOfForwarding = -1;    /* NumberOfForwarding */
-static int hf_gsm_old_networkSignalInfo = -1;     /* ExternalSignalInfo */
-static int hf_gsm_old_routingInfo = -1;           /* RoutingInfo */
-static int hf_gsm_old_originatingEntityNumber = -1;  /* ISDN_AddressString */
-static int hf_gsm_old_msisdn_02 = -1;             /* AddressString */
-static int hf_gsm_old_sm_RP_PRI = -1;             /* BOOLEAN */
-static int hf_gsm_old_serviceCentreAddress = -1;  /* AddressString */
-static int hf_gsm_old_cug_Interlock = -1;         /* CUG_Interlock */
-static int hf_gsm_old_teleserviceCode = -1;       /* TeleserviceCode */
-static int hf_gsm_old_locationInfoWithLMSI = -1;  /* LocationInfoWithLMSIv2 */
-static int hf_gsm_old_mwd_Set = -1;               /* BOOLEAN */
-static int hf_gsm_old_locationInfo = -1;          /* LocationInfo */
-static int hf_gsm_old_lmsi_01 = -1;               /* LMSI */
-static int hf_gsm_old_roamingNumber = -1;         /* ISDN_AddressString */
-static int hf_gsm_old_msc_Number = -1;            /* ISDN_AddressString */
-static int hf_gsm_old_subscriberId = -1;          /* SubscriberId */
-static int hf_gsm_old_requestParameterList = -1;  /* RequestParameterList */
-static int hf_gsm_old_RequestParameterList_item = -1;  /* RequestParameter */
-static int hf_gsm_old_authenticationSet = -1;     /* AuthenticationSetListOld */
-static int hf_gsm_old_subscriberData = -1;        /* SubscriberData */
-static int hf_gsm_old_ki = -1;                    /* Ki */
-static int hf_gsm_old_tripletList_01 = -1;        /* TripletList */
-static int hf_gsm_old_quintupletList = -1;        /* QuintupletList */
-static int hf_gsm_old_SentParameterList_item = -1;  /* SentParameter */
-static int hf_gsm_old_networkResource = -1;       /* NetworkResource */
-static int hf_gsm_old_hlr_Number = -1;            /* ISDN_AddressString */
-static int hf_gsm_old_hlr_List = -1;              /* HLR_List */
+static int hf_gsm_old_invoke;                     /* Invoke */
+static int hf_gsm_old_returnResultLast;           /* ReturnResult */
+static int hf_gsm_old_returnError;                /* ReturnError */
+static int hf_gsm_old_reject;                     /* Reject */
+static int hf_gsm_old_returnResultNotLast;        /* ReturnResult */
+static int hf_gsm_old_invokeID;                   /* InvokeIdType */
+static int hf_gsm_old_linkedID;                   /* InvokeIdType */
+static int hf_gsm_old_opCode;                     /* MAP_OPERATION */
+static int hf_gsm_old_invokeparameter;            /* InvokeParameter */
+static int hf_gsm_old_resultretres;               /* T_resultretres */
+static int hf_gsm_old_returnparameter;            /* ReturnResultParameter */
+static int hf_gsm_old_errorCode;                  /* MAP_ERROR */
+static int hf_gsm_old_parameter;                  /* ReturnErrorParameter */
+static int hf_gsm_old_invokeIDRej;                /* T_invokeIDRej */
+static int hf_gsm_old_derivable;                  /* InvokeIdType */
+static int hf_gsm_old_not_derivable;              /* NULL */
+static int hf_gsm_old_problem;                    /* T_problem */
+static int hf_gsm_old_generalProblem;             /* GeneralProblem */
+static int hf_gsm_old_invokeProblem;              /* InvokeProblem */
+static int hf_gsm_old_returnResultProblem;        /* ReturnResultProblem */
+static int hf_gsm_old_returnErrorProblem;         /* ReturnErrorProblem */
+static int hf_gsm_old_localValue;                 /* OperationLocalvalue */
+static int hf_gsm_old_globalValue;                /* OBJECT_IDENTIFIER */
+static int hf_gsm_old_localValue_01;              /* LocalErrorcode */
+static int hf_gsm_old_protocolId;                 /* ProtocolId */
+static int hf_gsm_old_signalInfo;                 /* SignalInfo */
+static int hf_gsm_old_extensionContainer;         /* ExtensionContainer */
+static int hf_gsm_old_gsm_BearerCapability;       /* ExternalSignalInfo */
+static int hf_gsm_old_isdn_BearerCapability;      /* ExternalSignalInfo */
+static int hf_gsm_old_call_Direction;             /* CallDirection */
+static int hf_gsm_old_b_Subscriber_Address;       /* ISDN_AddressString */
+static int hf_gsm_old_chosenChannel;              /* ExternalSignalInfo */
+static int hf_gsm_old_lowerLayerCompatibility;    /* ExternalSignalInfo */
+static int hf_gsm_old_highLayerCompatibility;     /* ExternalSignalInfo */
+static int hf_gsm_old_sIWFSNumber;                /* ISDN_AddressString */
+static int hf_gsm_old_imsi;                       /* IMSI */
+static int hf_gsm_old_vlr_Number;                 /* ISDN_AddressString */
+static int hf_gsm_old_targetCellId;               /* GlobalCellId */
+static int hf_gsm_old_ho_NumberNotRequired;       /* NULL */
+static int hf_gsm_old_bss_APDU;                   /* Bss_APDU */
+static int hf_gsm_old_handoverNumber;             /* ISDN_AddressString */
+static int hf_gsm_old_SendAuthenticationInfoResOld_item;  /* SendAuthenticationInfoResOld_item */
+static int hf_gsm_old_rand;                       /* RAND */
+static int hf_gsm_old_sres;                       /* SRES */
+static int hf_gsm_old_kc;                         /* Kc */
+static int hf_gsm_old_tripletList;                /* TripletListold */
+static int hf_gsm_old_TripletListold_item;        /* AuthenticationTriplet_v2 */
+static int hf_gsm_old_channelType;                /* ExternalSignalInfo */
+static int hf_gsm_old_securityHeader;             /* SecurityHeader */
+static int hf_gsm_old_protectedPayload;           /* ProtectedPayload */
+static int hf_gsm_old_securityParametersIndex;    /* SecurityParametersIndex */
+static int hf_gsm_old_originalComponentIdentifier;  /* OriginalComponentIdentifier */
+static int hf_gsm_old_initialisationVector;       /* InitialisationVector */
+static int hf_gsm_old_operationCode;              /* OperationCode */
+static int hf_gsm_old_errorCode_01;               /* ErrorCode */
+static int hf_gsm_old_userInfo;                   /* NULL */
+static int hf_gsm_old_localValue_02;              /* INTEGER */
+static int hf_gsm_old_msisdn;                     /* ISDN_AddressString */
+static int hf_gsm_old_category;                   /* Category */
+static int hf_gsm_old_basicService;               /* BasicServiceCode */
+static int hf_gsm_old_operatorSS_Code;            /* T_operatorSS_Code */
+static int hf_gsm_old_operatorSS_Code_item;       /* OCTET_STRING_SIZE_1 */
+static int hf_gsm_old_sm_RP_DA;                   /* SM_RP_DAold */
+static int hf_gsm_old_sm_RP_OA;                   /* SM_RP_OAold */
+static int hf_gsm_old_sm_RP_UI;                   /* SignalInfo */
+static int hf_gsm_old_moreMessagesToSend;         /* NULL */
+static int hf_gsm_old_imsi_01;                    /* T_imsi */
+static int hf_gsm_old_lmsi;                       /* T_lmsi */
+static int hf_gsm_old_serviceCentreAddressDA;     /* T_serviceCentreAddressDA */
+static int hf_gsm_old_noSM_RP_DA;                 /* T_noSM_RP_DA */
+static int hf_gsm_old_msisdn_01;                  /* T_msisdn */
+static int hf_gsm_old_serviceCentreAddressOA;     /* T_serviceCentreAddressOA */
+static int hf_gsm_old_noSM_RP_OA;                 /* T_noSM_RP_OA */
+static int hf_gsm_old_cug_CheckInfo;              /* CUG_CheckInfo */
+static int hf_gsm_old_numberOfForwarding;         /* NumberOfForwarding */
+static int hf_gsm_old_networkSignalInfo;          /* ExternalSignalInfo */
+static int hf_gsm_old_routingInfo;                /* RoutingInfo */
+static int hf_gsm_old_originatingEntityNumber;    /* ISDN_AddressString */
+static int hf_gsm_old_msisdn_02;                  /* AddressString */
+static int hf_gsm_old_sm_RP_PRI;                  /* BOOLEAN */
+static int hf_gsm_old_serviceCentreAddress;       /* AddressString */
+static int hf_gsm_old_cug_Interlock;              /* CUG_Interlock */
+static int hf_gsm_old_teleserviceCode;            /* TeleserviceCode */
+static int hf_gsm_old_locationInfoWithLMSI;       /* LocationInfoWithLMSIv2 */
+static int hf_gsm_old_mwd_Set;                    /* BOOLEAN */
+static int hf_gsm_old_locationInfo;               /* LocationInfo */
+static int hf_gsm_old_lmsi_01;                    /* LMSI */
+static int hf_gsm_old_roamingNumber;              /* ISDN_AddressString */
+static int hf_gsm_old_msc_Number;                 /* ISDN_AddressString */
+static int hf_gsm_old_subscriberId;               /* SubscriberId */
+static int hf_gsm_old_requestParameterList;       /* RequestParameterList */
+static int hf_gsm_old_RequestParameterList_item;  /* RequestParameter */
+static int hf_gsm_old_authenticationSet;          /* AuthenticationSetListOld */
+static int hf_gsm_old_subscriberData;             /* SubscriberData */
+static int hf_gsm_old_ki;                         /* Ki */
+static int hf_gsm_old_tripletList_01;             /* TripletList */
+static int hf_gsm_old_quintupletList;             /* QuintupletList */
+static int hf_gsm_old_SentParameterList_item;     /* SentParameter */
+static int hf_gsm_old_networkResource;            /* NetworkResource */
+static int hf_gsm_old_hlr_Number;                 /* ISDN_AddressString */
+static int hf_gsm_old_hlr_List;                   /* HLR_List */
 
 /* --- Module SS-DataTypes --- --- ---                                        */
 
-static int hf_gsm_ss_ss_Code = -1;                /* SS_Code */
-static int hf_gsm_ss_ss_Status = -1;              /* SS_Status */
-static int hf_gsm_ss_ss_Notification = -1;        /* SS_Notification */
-static int hf_gsm_ss_callIsWaiting_Indicator = -1;  /* NULL */
-static int hf_gsm_ss_callOnHold_Indicator = -1;   /* CallOnHold_Indicator */
-static int hf_gsm_ss_mpty_Indicator = -1;         /* NULL */
-static int hf_gsm_ss_cug_Index = -1;              /* CUG_Index */
-static int hf_gsm_ss_clirSuppressionRejected = -1;  /* NULL */
-static int hf_gsm_ss_ect_Indicator = -1;          /* ECT_Indicator */
-static int hf_gsm_ss_nameIndicator = -1;          /* NameIndicator */
-static int hf_gsm_ss_ccbs_Feature = -1;           /* CCBS_Feature */
-static int hf_gsm_ss_alertingPattern = -1;        /* AlertingPattern */
-static int hf_gsm_ss_multicall_Indicator = -1;    /* Multicall_Indicator */
-static int hf_gsm_ss_chargingInformation = -1;    /* ChargingInformation */
-static int hf_gsm_ss_e1 = -1;                     /* E1 */
-static int hf_gsm_ss_e2 = -1;                     /* E2 */
-static int hf_gsm_ss_e3 = -1;                     /* E3 */
-static int hf_gsm_ss_e4 = -1;                     /* E4 */
-static int hf_gsm_ss_e5 = -1;                     /* E5 */
-static int hf_gsm_ss_e6 = -1;                     /* E6 */
-static int hf_gsm_ss_e7 = -1;                     /* E7 */
-static int hf_gsm_ss_suppressPrefCUG = -1;        /* NULL */
-static int hf_gsm_ss_suppressOA = -1;             /* NULL */
-static int hf_gsm_ss_ect_CallState = -1;          /* ECT_CallState */
-static int hf_gsm_ss_rdn = -1;                    /* RDN */
-static int hf_gsm_ss_callingName = -1;            /* Name */
-static int hf_gsm_ss_namePresentationAllowed = -1;  /* NameSet */
-static int hf_gsm_ss_presentationRestricted = -1;  /* NULL */
-static int hf_gsm_ss_nameUnavailable = -1;        /* NULL */
-static int hf_gsm_ss_namePresentationRestricted = -1;  /* NameSet */
-static int hf_gsm_ss_dataCodingScheme = -1;       /* USSD_DataCodingScheme */
-static int hf_gsm_ss_lengthInCharacters = -1;     /* INTEGER */
-static int hf_gsm_ss_nameString = -1;             /* USSD_String */
-static int hf_gsm_ss_presentationAllowedAddress = -1;  /* RemotePartyNumber */
-static int hf_gsm_ss_numberNotAvailableDueToInterworking = -1;  /* NULL */
-static int hf_gsm_ss_presentationRestrictedAddress = -1;  /* RemotePartyNumber */
-static int hf_gsm_ss_partyNumber = -1;            /* ISDN_AddressString */
-static int hf_gsm_ss_partyNumberSubaddress = -1;  /* ISDN_SubaddressString */
-static int hf_gsm_ss_deflectedToNumber = -1;      /* AddressString */
-static int hf_gsm_ss_deflectedToSubaddress = -1;  /* ISDN_SubaddressString */
-static int hf_gsm_ss_uUS_Service = -1;            /* UUS_Service */
-static int hf_gsm_ss_uUS_Required = -1;           /* BOOLEAN */
-static int hf_gsm_ss_notificationType = -1;       /* NotificationToMSUser */
-static int hf_gsm_ss_locationType = -1;           /* LocationType */
-static int hf_gsm_ss_lcsClientExternalID = -1;    /* LCSClientExternalID */
-static int hf_gsm_ss_lcsClientName = -1;          /* LCSClientName */
-static int hf_gsm_ss_lcsRequestorID = -1;         /* LCSRequestorID */
-static int hf_gsm_ss_lcsCodeword = -1;            /* LCSCodeword */
-static int hf_gsm_ss_lcsServiceTypeID = -1;       /* LCSServiceTypeID */
-static int hf_gsm_ss_deferredLocationExt = -1;    /* DeferredLocationExt */
-static int hf_gsm_ss_verificationResponse = -1;   /* VerificationResponse */
-static int hf_gsm_ss_molr_Type = -1;              /* MOLR_Type */
-static int hf_gsm_ss_locationMethod = -1;         /* LocationMethod */
-static int hf_gsm_ss_lcs_QoS = -1;                /* LCS_QoS */
-static int hf_gsm_ss_mlc_Number = -1;             /* ISDN_AddressString */
-static int hf_gsm_ss_gpsAssistanceData = -1;      /* GPSAssistanceData */
-static int hf_gsm_ss_supportedGADShapes = -1;     /* SupportedGADShapes */
-static int hf_gsm_ss_ageOfLocationInfo = -1;      /* AgeOfLocationInformation */
-static int hf_gsm_ss_pseudonymIndicator = -1;     /* NULL */
-static int hf_gsm_ss_h_gmlc_address = -1;         /* GSN_Address */
-static int hf_gsm_ss_locationEstimate = -1;       /* Ext_GeographicalInformation */
-static int hf_gsm_ss_velocityEstimate = -1;       /* VelocityEstimate */
-static int hf_gsm_ss_referenceNumber = -1;        /* LCS_ReferenceNumber */
-static int hf_gsm_ss_periodicLDRInfo = -1;        /* PeriodicLDRInfo */
-static int hf_gsm_ss_locationUpdateRequest = -1;  /* NULL */
-static int hf_gsm_ss_sequenceNumber = -1;         /* SequenceNumber */
-static int hf_gsm_ss_terminationCause = -1;       /* TerminationCause */
-static int hf_gsm_ss_mo_lrShortCircuit = -1;      /* NULL */
-static int hf_gsm_ss_ganssAssistanceData = -1;    /* GANSSAssistanceData */
-static int hf_gsm_ss_multiplePositioningProtocolPDUs = -1;  /* MultiplePositioningProtocolPDUs */
-static int hf_gsm_ss_locationInfo = -1;           /* Location_Info */
-static int hf_gsm_ss_MultiplePositioningProtocolPDUs_item = -1;  /* PositioningProtocolPDU */
-static int hf_gsm_ss_decipheringKeys = -1;        /* DecipheringKeys */
-static int hf_gsm_ss_add_LocationEstimate = -1;   /* Add_GeographicalInformation */
-static int hf_gsm_ss_reportingPLMNList = -1;      /* ReportingPLMNList */
-static int hf_gsm_ss_deferredLocationEventType = -1;  /* DeferredLocationEventType */
-static int hf_gsm_ss_areaEventInfo = -1;          /* AreaEventInfo */
-static int hf_gsm_ss_qoS = -1;                    /* LCS_QoS */
-static int hf_gsm_ss_periodicLocation = -1;       /* PeriodicLocation */
-static int hf_gsm_ss_areaEventReporting = -1;     /* AreaEventReporting */
-static int hf_gsm_ss_motionEventReporting = -1;   /* MotionEventReporting */
-static int hf_gsm_ss_areaList = -1;               /* AreaList */
-static int hf_gsm_ss_occurrenceInfo = -1;         /* OccurrenceInfo */
-static int hf_gsm_ss_intervalTime = -1;           /* IntervalTime */
-static int hf_gsm_ss_maximumInterval = -1;        /* MaximumInterval */
-static int hf_gsm_ss_samplingInterval = -1;       /* SamplingInterval */
-static int hf_gsm_ss_duration = -1;               /* Duration */
-static int hf_gsm_ss_AreaList_item = -1;          /* Area */
-static int hf_gsm_ss_areaType = -1;               /* AreaType */
-static int hf_gsm_ss_areaIdentification = -1;     /* AreaIdentification */
-static int hf_gsm_ss_linearDistance = -1;         /* LinearDistance */
+static int hf_gsm_ss_ss_Code;                     /* SS_Code */
+static int hf_gsm_ss_ss_Status;                   /* SS_Status */
+static int hf_gsm_ss_ss_Notification;             /* SS_Notification */
+static int hf_gsm_ss_callIsWaiting_Indicator;     /* NULL */
+static int hf_gsm_ss_callOnHold_Indicator;        /* CallOnHold_Indicator */
+static int hf_gsm_ss_mpty_Indicator;              /* NULL */
+static int hf_gsm_ss_cug_Index;                   /* CUG_Index */
+static int hf_gsm_ss_clirSuppressionRejected;     /* NULL */
+static int hf_gsm_ss_ect_Indicator;               /* ECT_Indicator */
+static int hf_gsm_ss_nameIndicator;               /* NameIndicator */
+static int hf_gsm_ss_ccbs_Feature;                /* CCBS_Feature */
+static int hf_gsm_ss_alertingPattern;             /* AlertingPattern */
+static int hf_gsm_ss_multicall_Indicator;         /* Multicall_Indicator */
+static int hf_gsm_ss_chargingInformation;         /* ChargingInformation */
+static int hf_gsm_ss_e1;                          /* E1 */
+static int hf_gsm_ss_e2;                          /* E2 */
+static int hf_gsm_ss_e3;                          /* E3 */
+static int hf_gsm_ss_e4;                          /* E4 */
+static int hf_gsm_ss_e5;                          /* E5 */
+static int hf_gsm_ss_e6;                          /* E6 */
+static int hf_gsm_ss_e7;                          /* E7 */
+static int hf_gsm_ss_suppressPrefCUG;             /* NULL */
+static int hf_gsm_ss_suppressOA;                  /* NULL */
+static int hf_gsm_ss_ect_CallState;               /* ECT_CallState */
+static int hf_gsm_ss_rdn;                         /* RDN */
+static int hf_gsm_ss_callingName;                 /* Name */
+static int hf_gsm_ss_namePresentationAllowed;     /* NameSet */
+static int hf_gsm_ss_presentationRestricted;      /* NULL */
+static int hf_gsm_ss_nameUnavailable;             /* NULL */
+static int hf_gsm_ss_namePresentationRestricted;  /* NameSet */
+static int hf_gsm_ss_dataCodingScheme;            /* USSD_DataCodingScheme */
+static int hf_gsm_ss_lengthInCharacters;          /* INTEGER */
+static int hf_gsm_ss_nameString;                  /* USSD_String */
+static int hf_gsm_ss_presentationAllowedAddress;  /* RemotePartyNumber */
+static int hf_gsm_ss_numberNotAvailableDueToInterworking;  /* NULL */
+static int hf_gsm_ss_presentationRestrictedAddress;  /* RemotePartyNumber */
+static int hf_gsm_ss_partyNumber;                 /* ISDN_AddressString */
+static int hf_gsm_ss_partyNumberSubaddress;       /* ISDN_SubaddressString */
+static int hf_gsm_ss_deflectedToNumber;           /* AddressString */
+static int hf_gsm_ss_deflectedToSubaddress;       /* ISDN_SubaddressString */
+static int hf_gsm_ss_uUS_Service;                 /* UUS_Service */
+static int hf_gsm_ss_uUS_Required;                /* BOOLEAN */
+static int hf_gsm_ss_notificationType;            /* NotificationToMSUser */
+static int hf_gsm_ss_locationType;                /* LocationType */
+static int hf_gsm_ss_lcsClientExternalID;         /* LCSClientExternalID */
+static int hf_gsm_ss_lcsClientName;               /* LCSClientName */
+static int hf_gsm_ss_lcsRequestorID;              /* LCSRequestorID */
+static int hf_gsm_ss_lcsCodeword;                 /* LCSCodeword */
+static int hf_gsm_ss_lcsServiceTypeID;            /* LCSServiceTypeID */
+static int hf_gsm_ss_deferredLocationExt;         /* DeferredLocationExt */
+static int hf_gsm_ss_verificationResponse;        /* VerificationResponse */
+static int hf_gsm_ss_molr_Type;                   /* MOLR_Type */
+static int hf_gsm_ss_locationMethod;              /* LocationMethod */
+static int hf_gsm_ss_lcs_QoS;                     /* LCS_QoS */
+static int hf_gsm_ss_mlc_Number;                  /* ISDN_AddressString */
+static int hf_gsm_ss_gpsAssistanceData;           /* GPSAssistanceData */
+static int hf_gsm_ss_supportedGADShapes;          /* SupportedGADShapes */
+static int hf_gsm_ss_ageOfLocationInfo;           /* AgeOfLocationInformation */
+static int hf_gsm_ss_pseudonymIndicator;          /* NULL */
+static int hf_gsm_ss_h_gmlc_address;              /* GSN_Address */
+static int hf_gsm_ss_locationEstimate;            /* Ext_GeographicalInformation */
+static int hf_gsm_ss_velocityEstimate;            /* VelocityEstimate */
+static int hf_gsm_ss_referenceNumber;             /* LCS_ReferenceNumber */
+static int hf_gsm_ss_periodicLDRInfo;             /* PeriodicLDRInfo */
+static int hf_gsm_ss_locationUpdateRequest;       /* NULL */
+static int hf_gsm_ss_sequenceNumber;              /* SequenceNumber */
+static int hf_gsm_ss_terminationCause;            /* TerminationCause */
+static int hf_gsm_ss_mo_lrShortCircuit;           /* NULL */
+static int hf_gsm_ss_ganssAssistanceData;         /* GANSSAssistanceData */
+static int hf_gsm_ss_multiplePositioningProtocolPDUs;  /* MultiplePositioningProtocolPDUs */
+static int hf_gsm_ss_locationInfo;                /* Location_Info */
+static int hf_gsm_ss_MultiplePositioningProtocolPDUs_item;  /* PositioningProtocolPDU */
+static int hf_gsm_ss_decipheringKeys;             /* DecipheringKeys */
+static int hf_gsm_ss_add_LocationEstimate;        /* Add_GeographicalInformation */
+static int hf_gsm_ss_reportingPLMNList;           /* ReportingPLMNList */
+static int hf_gsm_ss_deferredLocationEventType;   /* DeferredLocationEventType */
+static int hf_gsm_ss_areaEventInfo;               /* AreaEventInfo */
+static int hf_gsm_ss_qoS;                         /* LCS_QoS */
+static int hf_gsm_ss_periodicLocation;            /* PeriodicLocation */
+static int hf_gsm_ss_areaEventReporting;          /* AreaEventReporting */
+static int hf_gsm_ss_motionEventReporting;        /* MotionEventReporting */
+static int hf_gsm_ss_areaList;                    /* AreaList */
+static int hf_gsm_ss_occurrenceInfo;              /* OccurrenceInfo */
+static int hf_gsm_ss_intervalTime;                /* IntervalTime */
+static int hf_gsm_ss_maximumInterval;             /* MaximumInterval */
+static int hf_gsm_ss_samplingInterval;            /* SamplingInterval */
+static int hf_gsm_ss_duration;                    /* Duration */
+static int hf_gsm_ss_AreaList_item;               /* Area */
+static int hf_gsm_ss_areaType;                    /* AreaType */
+static int hf_gsm_ss_areaIdentification;          /* AreaIdentification */
+static int hf_gsm_ss_linearDistance;              /* LinearDistance */
 /* named bits */
-static int hf_gsm_ss_DeferredLocationExt_motionEvent = -1;
-static int hf_gsm_ss_Location_Info_locationEstimate = -1;
+static int hf_gsm_ss_DeferredLocationExt_motionEvent;
+static int hf_gsm_ss_Location_Info_locationEstimate;
 
 /* --- Module EricssonMAP --- --- ---                                         */
 
-static int hf_gsm_map_ericsson_imei = -1;         /* IMEI */
-static int hf_gsm_map_ericsson_requestedEquipmentInfo = -1;  /* RequestedEquipmentInfo */
-static int hf_gsm_map_ericsson_imsi = -1;         /* IMSI */
-static int hf_gsm_map_ericsson_locationInformation = -1;  /* T_locationInformation */
-static int hf_gsm_map_ericsson_extensionContainer = -1;  /* ExtensionContainer */
-static int hf_gsm_map_ericsson_isdArgType = -1;   /* IsdArgType */
-static int hf_gsm_map_ericsson_isdResType = -1;   /* IsdResType */
-static int hf_gsm_map_ericsson_dsdArgType = -1;   /* DsdArgType */
-static int hf_gsm_map_ericsson_sriArgType = -1;   /* SRIArgType */
-static int hf_gsm_map_ericsson_sriResType = -1;   /* SRIResType */
-static int hf_gsm_map_ericsson_prnArgType = -1;   /* PrnArgType */
-static int hf_gsm_map_ericsson_ulArgType = -1;    /* UlArgType */
-static int hf_gsm_map_ericsson_rdArgType = -1;    /* RdArgType */
-static int hf_gsm_map_ericsson_saiArgType = -1;   /* SaiArgType */
-static int hf_gsm_map_ericsson_saiResType = -1;   /* SaiResType */
-static int hf_gsm_map_ericsson_atiArgType = -1;   /* AtiArgType */
-static int hf_gsm_map_ericsson_atiResType = -1;   /* AtiResType */
-static int hf_gsm_map_ericsson_extAtiArgType = -1;  /* ExtAtiArgType */
-static int hf_gsm_map_ericsson_IsdArgType_item = -1;  /* IsdArgData */
-static int hf_gsm_map_ericsson_privateFeatureCode = -1;  /* PrivateFeatureCode */
-static int hf_gsm_map_ericsson_privateFeatureData = -1;  /* PrivateFeatureData */
-static int hf_gsm_map_ericsson_subscriptionTypeInfo = -1;  /* SubscriptionTypeInfo */
-static int hf_gsm_map_ericsson_oickInfo = -1;     /* OickInfo */
-static int hf_gsm_map_ericsson_ss_Status = -1;    /* Ext_SS_Status */
-static int hf_gsm_map_ericsson_inCategoryKey = -1;  /* INCategoryKey */
-static int hf_gsm_map_ericsson_subscriptionType = -1;  /* SubscriptionType */
-static int hf_gsm_map_ericsson_IsdResType_item = -1;  /* IsdResData */
-static int hf_gsm_map_ericsson_supportedPrivateFeature = -1;  /* PrivateFeatureCode */
-static int hf_gsm_map_ericsson_DsdArgType_item = -1;  /* DsdArgData */
-static int hf_gsm_map_ericsson_privateFeatureWithdraw = -1;  /* PrivateFeatureCode */
-static int hf_gsm_map_ericsson_SRIArgType_item = -1;  /* SriArgData */
-static int hf_gsm_map_ericsson_extraNetworkInfo = -1;  /* ExtraSignalInfo */
-static int hf_gsm_map_ericsson_SRIResType_item = -1;  /* SriResData */
-static int hf_gsm_map_ericsson_PrnArgType_item = -1;  /* PrnArgData */
-static int hf_gsm_map_ericsson_UlArgType_item = -1;  /* UlArgData */
-static int hf_gsm_map_ericsson_privateFeatureUlArgData = -1;  /* PrivateFeatureUlArgData */
-static int hf_gsm_map_ericsson_adc = -1;          /* IMEI */
-static int hf_gsm_map_ericsson_protocolId = -1;   /* ExtraProtocolId */
-static int hf_gsm_map_ericsson_signalInfo = -1;   /* SignalInfo */
-static int hf_gsm_map_ericsson_msisdn = -1;       /* NULL */
-static int hf_gsm_map_ericsson_noAuthenVectorsRequested = -1;  /* NULL */
-static int hf_gsm_map_ericsson_msIsdn = -1;       /* ISDN_AddressString */
-static int hf_gsm_map_ericsson_requestedInfoType = -1;  /* RequestedInfoType */
-static int hf_gsm_map_ericsson_toBeDecided = -1;  /* NULL */
-static int hf_gsm_map_ericsson_toBeDecidedOne = -1;  /* NULL */
-static int hf_gsm_map_ericsson_sgsnNumber = -1;   /* NULL */
-static int hf_gsm_map_ericsson_ExtAtiArgType_item = -1;  /* AtiArgData */
+static int hf_gsm_map_ericsson_imei;              /* IMEI */
+static int hf_gsm_map_ericsson_requestedEquipmentInfo;  /* RequestedEquipmentInfo */
+static int hf_gsm_map_ericsson_imsi;              /* IMSI */
+static int hf_gsm_map_ericsson_locationInformation;  /* T_locationInformation */
+static int hf_gsm_map_ericsson_extensionContainer;  /* ExtensionContainer */
+static int hf_gsm_map_ericsson_isdArgType;        /* IsdArgType */
+static int hf_gsm_map_ericsson_isdResType;        /* IsdResType */
+static int hf_gsm_map_ericsson_dsdArgType;        /* DsdArgType */
+static int hf_gsm_map_ericsson_sriArgType;        /* SRIArgType */
+static int hf_gsm_map_ericsson_sriResType;        /* SRIResType */
+static int hf_gsm_map_ericsson_prnArgType;        /* PrnArgType */
+static int hf_gsm_map_ericsson_ulArgType;         /* UlArgType */
+static int hf_gsm_map_ericsson_rdArgType;         /* RdArgType */
+static int hf_gsm_map_ericsson_saiArgType;        /* SaiArgType */
+static int hf_gsm_map_ericsson_saiResType;        /* SaiResType */
+static int hf_gsm_map_ericsson_atiArgType;        /* AtiArgType */
+static int hf_gsm_map_ericsson_atiResType;        /* AtiResType */
+static int hf_gsm_map_ericsson_extAtiArgType;     /* ExtAtiArgType */
+static int hf_gsm_map_ericsson_IsdArgType_item;   /* IsdArgData */
+static int hf_gsm_map_ericsson_privateFeatureCode;  /* PrivateFeatureCode */
+static int hf_gsm_map_ericsson_privateFeatureData;  /* PrivateFeatureData */
+static int hf_gsm_map_ericsson_subscriptionTypeInfo;  /* SubscriptionTypeInfo */
+static int hf_gsm_map_ericsson_oickInfo;          /* OickInfo */
+static int hf_gsm_map_ericsson_ss_Status;         /* Ext_SS_Status */
+static int hf_gsm_map_ericsson_inCategoryKey;     /* INCategoryKey */
+static int hf_gsm_map_ericsson_subscriptionType;  /* SubscriptionType */
+static int hf_gsm_map_ericsson_IsdResType_item;   /* IsdResData */
+static int hf_gsm_map_ericsson_supportedPrivateFeature;  /* PrivateFeatureCode */
+static int hf_gsm_map_ericsson_DsdArgType_item;   /* DsdArgData */
+static int hf_gsm_map_ericsson_privateFeatureWithdraw;  /* PrivateFeatureCode */
+static int hf_gsm_map_ericsson_SRIArgType_item;   /* SriArgData */
+static int hf_gsm_map_ericsson_extraNetworkInfo;  /* ExtraSignalInfo */
+static int hf_gsm_map_ericsson_SRIResType_item;   /* SriResData */
+static int hf_gsm_map_ericsson_PrnArgType_item;   /* PrnArgData */
+static int hf_gsm_map_ericsson_UlArgType_item;    /* UlArgData */
+static int hf_gsm_map_ericsson_privateFeatureUlArgData;  /* PrivateFeatureUlArgData */
+static int hf_gsm_map_ericsson_adc;               /* IMEI */
+static int hf_gsm_map_ericsson_protocolId;        /* ExtraProtocolId */
+static int hf_gsm_map_ericsson_signalInfo;        /* SignalInfo */
+static int hf_gsm_map_ericsson_msisdn;            /* NULL */
+static int hf_gsm_map_ericsson_noAuthenVectorsRequested;  /* NULL */
+static int hf_gsm_map_ericsson_msIsdn;            /* ISDN_AddressString */
+static int hf_gsm_map_ericsson_requestedInfoType;  /* RequestedInfoType */
+static int hf_gsm_map_ericsson_toBeDecided;       /* NULL */
+static int hf_gsm_map_ericsson_toBeDecidedOne;    /* NULL */
+static int hf_gsm_map_ericsson_sgsnNumber;        /* NULL */
+static int hf_gsm_map_ericsson_ExtAtiArgType_item;  /* AtiArgData */
 
 /* --- Module NokiaMAP-Extensions --- --- ---                                 */
 
-static int hf_NokiaMAP_Extensions_alsLineIndicator = -1;  /* NULL */
-static int hf_NokiaMAP_Extensions_routingCategory = -1;  /* RoutingCategory */
-static int hf_NokiaMAP_Extensions_serviceList = -1;  /* MAPserviceList */
-static int hf_NokiaMAP_Extensions_serv_info_list = -1;  /* ServiceListWithInfo */
-static int hf_NokiaMAP_Extensions_extRoutingCategory = -1;  /* ExtRoutingCategory */
-static int hf_NokiaMAP_Extensions_ownMSISDN = -1;  /* ISDN_AddressString */
-static int hf_NokiaMAP_Extensions_mwd_Set = -1;   /* NULL */
-static int hf_NokiaMAP_Extensions_ChargingAreaList_item = -1;  /* ChargingArea */
-static int hf_NokiaMAP_Extensions_chargingAreaList = -1;  /* ChargingAreaList */
-static int hf_NokiaMAP_Extensions_inTriggerKey = -1;  /* InTriggerKey */
-static int hf_NokiaMAP_Extensions_pnpIndex = -1;  /* PnpIndex */
-static int hf_NokiaMAP_Extensions_callRedirectionIndex = -1;  /* CallRedirectionIndex */
-static int hf_NokiaMAP_Extensions_regionalChargingData = -1;  /* RegionalChargingData */
-static int hf_NokiaMAP_Extensions_callForwardingOverride = -1;  /* NULL */
-static int hf_NokiaMAP_Extensions_in_Capability = -1;  /* NULL */
-static int hf_NokiaMAP_Extensions_callingCategory = -1;  /* CallingCategory */
-static int hf_NokiaMAP_Extensions_internalServiceIndicator = -1;  /* InternalServiceIndicator */
-static int hf_NokiaMAP_Extensions_srbtSupportIndicator = -1;  /* NULL */
-static int hf_NokiaMAP_Extensions_gmscSupportIndicator = -1;  /* NULL */
-static int hf_NokiaMAP_Extensions_protocolId = -1;  /* ExtraProtocolId */
-static int hf_NokiaMAP_Extensions_signalInfo = -1;  /* SignalInfo */
-static int hf_NokiaMAP_Extensions_cug_Interlock = -1;  /* CUG_Interlock */
-static int hf_NokiaMAP_Extensions_cug_OutgoingAccess = -1;  /* BOOLEAN */
-static int hf_NokiaMAP_Extensions_cug_CallInfo = -1;  /* CUG_CallInfo */
-static int hf_NokiaMAP_Extensions_vlrNumber = -1;  /* ISDN_AddressString */
-static int hf_NokiaMAP_Extensions_activeSs = -1;  /* ActiveSS_List */
-static int hf_NokiaMAP_Extensions_traceReference = -1;  /* TraceReference */
-static int hf_NokiaMAP_Extensions_traceType = -1;  /* TraceType */
-static int hf_NokiaMAP_Extensions_omc_Id = -1;    /* AddressString */
-static int hf_NokiaMAP_Extensions_hotBilling = -1;  /* BOOLEAN */
-static int hf_NokiaMAP_Extensions_cfoIsDone = -1;  /* BOOLEAN */
-static int hf_NokiaMAP_Extensions_cfInCug = -1;   /* BOOLEAN */
-static int hf_NokiaMAP_Extensions_basicService = -1;  /* BasicServiceCode */
-static int hf_NokiaMAP_Extensions_category = -1;  /* Category */
-static int hf_NokiaMAP_Extensions_nokia_CUG = -1;  /* Nokia_CUG_Data */
-static int hf_NokiaMAP_Extensions_noBarrings = -1;  /* NULL */
-static int hf_NokiaMAP_Extensions_odb_Data = -1;  /* ODB_Data */
-static int hf_NokiaMAP_Extensions_fraudData = -1;  /* FraudData */
-static int hf_NokiaMAP_Extensions_leaId = -1;     /* LeaId */
-static int hf_NokiaMAP_Extensions_olcmInfoTable = -1;  /* OlcmInfoTable */
-static int hf_NokiaMAP_Extensions_commonMSISDN = -1;  /* ISDN_AddressString */
-static int hf_NokiaMAP_Extensions_rgData = -1;    /* RgData */
-static int hf_NokiaMAP_Extensions_olcmTraceReference = -1;  /* OlcmTraceReference */
-static int hf_NokiaMAP_Extensions_noAnswerTimer = -1;  /* NoAnswerTimer */
-static int hf_NokiaMAP_Extensions_memberList = -1;  /* MemberList */
-static int hf_NokiaMAP_Extensions_alertingMethod = -1;  /* AlertingMethod */
-static int hf_NokiaMAP_Extensions_userType = -1;  /* UserType */
-static int hf_NokiaMAP_Extensions_divertedToNbr = -1;  /* ISDN_AddressString */
-static int hf_NokiaMAP_Extensions_memberOfSuppression = -1;  /* NULL */
-static int hf_NokiaMAP_Extensions_ringbacktone = -1;  /* NULL */
-static int hf_NokiaMAP_Extensions_MemberList_item = -1;  /* ISDN_AddressString */
-static int hf_NokiaMAP_Extensions_termination = -1;  /* OCTET_STRING_SIZE_1 */
-static int hf_NokiaMAP_Extensions_OlcmInfoTable_item = -1;  /* OlcmInfo */
-static int hf_NokiaMAP_Extensions_olcmActive = -1;  /* NULL */
-static int hf_NokiaMAP_Extensions_moc = -1;       /* FraudData */
-static int hf_NokiaMAP_Extensions_cf = -1;        /* FraudData */
-static int hf_NokiaMAP_Extensions_ct = -1;        /* FraudData */
-static int hf_NokiaMAP_Extensions_time = -1;      /* TimeLimit */
-static int hf_NokiaMAP_Extensions_timeAction = -1;  /* ActionType */
-static int hf_NokiaMAP_Extensions_maxCount = -1;  /* FraudMaxCount */
-static int hf_NokiaMAP_Extensions_maxCountAction = -1;  /* ActionType */
-static int hf_NokiaMAP_Extensions_serviceCode = -1;  /* MAPserviceCode */
-static int hf_NokiaMAP_Extensions_versionInfo = -1;  /* VersionInfo */
-static int hf_NokiaMAP_Extensions_in_key = -1;    /* INKey */
-static int hf_NokiaMAP_Extensions_fraudInfo = -1;  /* FraudInfo */
-static int hf_NokiaMAP_Extensions_ServiceListWithInfo_item = -1;  /* ServiceWithInfo */
-static int hf_NokiaMAP_Extensions_mobile_IN_key = -1;  /* MKey */
-static int hf_NokiaMAP_Extensions_sms_IN_key = -1;  /* SMSKey */
-static int hf_NokiaMAP_Extensions_mKeyVer = -1;   /* MKeyVer */
-static int hf_NokiaMAP_Extensions_mmScfAddress = -1;  /* ISDN_AddressString */
-static int hf_NokiaMAP_Extensions_mmTdpName = -1;  /* MmTdpName */
-static int hf_NokiaMAP_Extensions_serviceKey = -1;  /* ServiceKey */
-static int hf_NokiaMAP_Extensions_locupType = -1;  /* LocupType */
-static int hf_NokiaMAP_Extensions_mmSCPAddress = -1;  /* ISDN_AddressString */
-static int hf_NokiaMAP_Extensions_smsTdpName = -1;  /* SmsTdpName */
-static int hf_NokiaMAP_Extensions_mmsFlag = -1;   /* NULL */
-static int hf_NokiaMAP_Extensions_map_Opt = -1;   /* MapOptFields */
-static int hf_NokiaMAP_Extensions_codec_List = -1;  /* CodecListExt */
-static int hf_NokiaMAP_Extensions_selected_Codec = -1;  /* SelectedCodec */
-static int hf_NokiaMAP_Extensions_uma_access = -1;  /* NULL */
-static int hf_NokiaMAP_Extensions_uma_ip_address = -1;  /* OCTET_STRING_SIZE_5_17 */
-static int hf_NokiaMAP_Extensions_uma_ip_port_nb = -1;  /* IPPortNb */
-static int hf_NokiaMAP_Extensions_CodecListExt_item = -1;  /* CodecExt */
-static int hf_NokiaMAP_Extensions_codec = -1;     /* CodecExt */
-static int hf_NokiaMAP_Extensions_modes = -1;     /* Modes */
-static int hf_NokiaMAP_Extensions_imsi = -1;      /* IMSI */
-static int hf_NokiaMAP_Extensions_cfuSMSCounter = -1;  /* CfuSMSCounter */
-static int hf_NokiaMAP_Extensions_cfusmcfo = -1;  /* NULL */
-static int hf_NokiaMAP_Extensions_memberInterrogate = -1;  /* NULL */
-static int hf_NokiaMAP_Extensions_locationAreaCode = -1;  /* LocationAreaCode */
-static int hf_NokiaMAP_Extensions_cellId = -1;    /* CellGlobalIdOrServiceAreaIdFixedLength */
-static int hf_NokiaMAP_Extensions_lai = -1;       /* LAIFixedLength */
-static int hf_NokiaMAP_Extensions_sendImmResp = -1;  /* NULL */
-static int hf_NokiaMAP_Extensions_rejectCause = -1;  /* OCTET_STRING_SIZE_1 */
-static int hf_NokiaMAP_Extensions_senderMSISDN = -1;  /* ISDN_AddressString */
-static int hf_NokiaMAP_Extensions_access = -1;    /* Access */
-static int hf_NokiaMAP_Extensions_version = -1;   /* Version */
-static int hf_NokiaMAP_Extensions_AccessSubscriptionListExt_item = -1;  /* Access */
+static int hf_NokiaMAP_Extensions_alsLineIndicator;  /* NULL */
+static int hf_NokiaMAP_Extensions_routingCategory;  /* RoutingCategory */
+static int hf_NokiaMAP_Extensions_serviceList;    /* MAPserviceList */
+static int hf_NokiaMAP_Extensions_serv_info_list;  /* ServiceListWithInfo */
+static int hf_NokiaMAP_Extensions_extRoutingCategory;  /* ExtRoutingCategory */
+static int hf_NokiaMAP_Extensions_ownMSISDN;      /* ISDN_AddressString */
+static int hf_NokiaMAP_Extensions_mwd_Set;        /* NULL */
+static int hf_NokiaMAP_Extensions_ChargingAreaList_item;  /* ChargingArea */
+static int hf_NokiaMAP_Extensions_chargingAreaList;  /* ChargingAreaList */
+static int hf_NokiaMAP_Extensions_inTriggerKey;   /* InTriggerKey */
+static int hf_NokiaMAP_Extensions_pnpIndex;       /* PnpIndex */
+static int hf_NokiaMAP_Extensions_callRedirectionIndex;  /* CallRedirectionIndex */
+static int hf_NokiaMAP_Extensions_regionalChargingData;  /* RegionalChargingData */
+static int hf_NokiaMAP_Extensions_callForwardingOverride;  /* NULL */
+static int hf_NokiaMAP_Extensions_in_Capability;  /* NULL */
+static int hf_NokiaMAP_Extensions_callingCategory;  /* CallingCategory */
+static int hf_NokiaMAP_Extensions_internalServiceIndicator;  /* InternalServiceIndicator */
+static int hf_NokiaMAP_Extensions_srbtSupportIndicator;  /* NULL */
+static int hf_NokiaMAP_Extensions_gmscSupportIndicator;  /* NULL */
+static int hf_NokiaMAP_Extensions_protocolId;     /* ExtraProtocolId */
+static int hf_NokiaMAP_Extensions_signalInfo;     /* SignalInfo */
+static int hf_NokiaMAP_Extensions_cug_Interlock;  /* CUG_Interlock */
+static int hf_NokiaMAP_Extensions_cug_OutgoingAccess;  /* BOOLEAN */
+static int hf_NokiaMAP_Extensions_cug_CallInfo;   /* CUG_CallInfo */
+static int hf_NokiaMAP_Extensions_vlrNumber;      /* ISDN_AddressString */
+static int hf_NokiaMAP_Extensions_activeSs;       /* ActiveSS_List */
+static int hf_NokiaMAP_Extensions_traceReference;  /* TraceReference */
+static int hf_NokiaMAP_Extensions_traceType;      /* TraceType */
+static int hf_NokiaMAP_Extensions_omc_Id;         /* AddressString */
+static int hf_NokiaMAP_Extensions_hotBilling;     /* BOOLEAN */
+static int hf_NokiaMAP_Extensions_cfoIsDone;      /* BOOLEAN */
+static int hf_NokiaMAP_Extensions_cfInCug;        /* BOOLEAN */
+static int hf_NokiaMAP_Extensions_basicService;   /* BasicServiceCode */
+static int hf_NokiaMAP_Extensions_category;       /* Category */
+static int hf_NokiaMAP_Extensions_nokia_CUG;      /* Nokia_CUG_Data */
+static int hf_NokiaMAP_Extensions_noBarrings;     /* NULL */
+static int hf_NokiaMAP_Extensions_odb_Data;       /* ODB_Data */
+static int hf_NokiaMAP_Extensions_fraudData;      /* FraudData */
+static int hf_NokiaMAP_Extensions_leaId;          /* LeaId */
+static int hf_NokiaMAP_Extensions_olcmInfoTable;  /* OlcmInfoTable */
+static int hf_NokiaMAP_Extensions_commonMSISDN;   /* ISDN_AddressString */
+static int hf_NokiaMAP_Extensions_rgData;         /* RgData */
+static int hf_NokiaMAP_Extensions_olcmTraceReference;  /* OlcmTraceReference */
+static int hf_NokiaMAP_Extensions_noAnswerTimer;  /* NoAnswerTimer */
+static int hf_NokiaMAP_Extensions_memberList;     /* MemberList */
+static int hf_NokiaMAP_Extensions_alertingMethod;  /* AlertingMethod */
+static int hf_NokiaMAP_Extensions_userType;       /* UserType */
+static int hf_NokiaMAP_Extensions_divertedToNbr;  /* ISDN_AddressString */
+static int hf_NokiaMAP_Extensions_memberOfSuppression;  /* NULL */
+static int hf_NokiaMAP_Extensions_ringbacktone;   /* NULL */
+static int hf_NokiaMAP_Extensions_MemberList_item;  /* ISDN_AddressString */
+static int hf_NokiaMAP_Extensions_termination;    /* OCTET_STRING_SIZE_1 */
+static int hf_NokiaMAP_Extensions_OlcmInfoTable_item;  /* OlcmInfo */
+static int hf_NokiaMAP_Extensions_olcmActive;     /* NULL */
+static int hf_NokiaMAP_Extensions_moc;            /* FraudData */
+static int hf_NokiaMAP_Extensions_cf;             /* FraudData */
+static int hf_NokiaMAP_Extensions_ct;             /* FraudData */
+static int hf_NokiaMAP_Extensions_time;           /* TimeLimit */
+static int hf_NokiaMAP_Extensions_timeAction;     /* ActionType */
+static int hf_NokiaMAP_Extensions_maxCount;       /* FraudMaxCount */
+static int hf_NokiaMAP_Extensions_maxCountAction;  /* ActionType */
+static int hf_NokiaMAP_Extensions_serviceCode;    /* MAPserviceCode */
+static int hf_NokiaMAP_Extensions_versionInfo;    /* VersionInfo */
+static int hf_NokiaMAP_Extensions_in_key;         /* INKey */
+static int hf_NokiaMAP_Extensions_fraudInfo;      /* FraudInfo */
+static int hf_NokiaMAP_Extensions_ServiceListWithInfo_item;  /* ServiceWithInfo */
+static int hf_NokiaMAP_Extensions_mobile_IN_key;  /* MKey */
+static int hf_NokiaMAP_Extensions_sms_IN_key;     /* SMSKey */
+static int hf_NokiaMAP_Extensions_mKeyVer;        /* MKeyVer */
+static int hf_NokiaMAP_Extensions_mmScfAddress;   /* ISDN_AddressString */
+static int hf_NokiaMAP_Extensions_mmTdpName;      /* MmTdpName */
+static int hf_NokiaMAP_Extensions_serviceKey;     /* ServiceKey */
+static int hf_NokiaMAP_Extensions_locupType;      /* LocupType */
+static int hf_NokiaMAP_Extensions_mmSCPAddress;   /* ISDN_AddressString */
+static int hf_NokiaMAP_Extensions_smsTdpName;     /* SmsTdpName */
+static int hf_NokiaMAP_Extensions_mmsFlag;        /* NULL */
+static int hf_NokiaMAP_Extensions_map_Opt;        /* MapOptFields */
+static int hf_NokiaMAP_Extensions_codec_List;     /* CodecListExt */
+static int hf_NokiaMAP_Extensions_selected_Codec;  /* SelectedCodec */
+static int hf_NokiaMAP_Extensions_uma_access;     /* NULL */
+static int hf_NokiaMAP_Extensions_uma_ip_address;  /* OCTET_STRING_SIZE_5_17 */
+static int hf_NokiaMAP_Extensions_uma_ip_port_nb;  /* IPPortNb */
+static int hf_NokiaMAP_Extensions_CodecListExt_item;  /* CodecExt */
+static int hf_NokiaMAP_Extensions_codec;          /* CodecExt */
+static int hf_NokiaMAP_Extensions_modes;          /* Modes */
+static int hf_NokiaMAP_Extensions_imsi;           /* IMSI */
+static int hf_NokiaMAP_Extensions_cfuSMSCounter;  /* CfuSMSCounter */
+static int hf_NokiaMAP_Extensions_cfusmcfo;       /* NULL */
+static int hf_NokiaMAP_Extensions_memberInterrogate;  /* NULL */
+static int hf_NokiaMAP_Extensions_locationAreaCode;  /* LocationAreaCode */
+static int hf_NokiaMAP_Extensions_cellId;         /* CellGlobalIdOrServiceAreaIdFixedLength */
+static int hf_NokiaMAP_Extensions_lai;            /* LAIFixedLength */
+static int hf_NokiaMAP_Extensions_sendImmResp;    /* NULL */
+static int hf_NokiaMAP_Extensions_rejectCause;    /* OCTET_STRING_SIZE_1 */
+static int hf_NokiaMAP_Extensions_senderMSISDN;   /* ISDN_AddressString */
+static int hf_NokiaMAP_Extensions_access;         /* Access */
+static int hf_NokiaMAP_Extensions_version;        /* Version */
+static int hf_NokiaMAP_Extensions_AccessSubscriptionListExt_item;  /* Access */
 /* named bits */
-static int hf_NokiaMAP_Extensions_AllowedServiceData_amr_wb_allowed = -1;
+static int hf_NokiaMAP_Extensions_AllowedServiceData_amr_wb_allowed;
 
 /* Initialize the subtree pointers */
-static gint ett_gsm_map = -1;
-static gint ett_gsm_map_InvokeId = -1;
-static gint ett_gsm_map_InvokePDU = -1;
-static gint ett_gsm_map_ReturnResultPDU = -1;
-static gint ett_gsm_map_ReturnErrorPDU = -1;
-static gint ett_gsm_map_ReturnResult_result = -1;
-static gint ett_gsm_map_ReturnError_result = -1;
-static gint ett_gsm_map_GSMMAPPDU = -1;
-static gint ett_gsm_map_ext_qos_subscribed = -1;
-static gint ett_gsm_map_pdptypenumber = -1;
-static gint ett_gsm_map_RAIdentity = -1;
-static gint ett_gsm_map_LAIFixedLength = -1;
-static gint ett_gsm_map_isdn_address_string = -1;
-static gint ett_gsm_map_geo_desc = -1;
-static gint ett_gsm_map_LongSignalInfo = -1;
-static gint ett_gsm_map_RadioResourceInformation =-1;
-static gint ett_gsm_map_MSNetworkCapability =-1;
-static gint ett_gsm_map_MSRadioAccessCapability = -1;
-static gint ett_gsm_map_externalsignalinfo = -1;
-static gint ett_gsm_map_cbs_data_coding = -1;
-static gint ett_gsm_map_GlobalCellId = -1;
-static gint ett_gsm_map_GeographicalInformation = -1;
-static gint ett_gsm_map_apn_str = -1;
-static gint ett_gsm_map_LocationNumber = -1;
-static gint ett_gsm_map_ericsson_locationInformation = -1;
-static gint ett_gsm_map_extension_data = -1;
-static gint ett_gsm_map_tbcd_digits = -1;
-static gint ett_gsm_map_ussd_string = -1;
-static gint ett_gsm_map_ext2_qos_subscribed = -1;
-static gint ett_gsm_map_ext3_qos_subscribed = -1;
-static gint ett_gsm_map_e_utranCellGlobalIdentity = -1;
-static gint ett_gsm_map_TA_id = -1;
-static gint ett_gsm_map_GeodeticInformation = -1;
+static gint ett_gsm_map;
+static gint ett_gsm_map_InvokeId;
+static gint ett_gsm_map_InvokePDU;
+static gint ett_gsm_map_ReturnResultPDU;
+static gint ett_gsm_map_ReturnErrorPDU;
+static gint ett_gsm_map_ReturnResult_result;
+static gint ett_gsm_map_ReturnError_result;
+static gint ett_gsm_map_GSMMAPPDU;
+static gint ett_gsm_map_ext_qos_subscribed;
+static gint ett_gsm_map_pdptypenumber;
+static gint ett_gsm_map_RAIdentity;
+static gint ett_gsm_map_LAIFixedLength;
+static gint ett_gsm_map_isdn_address_string;
+static gint ett_gsm_map_geo_desc;
+static gint ett_gsm_map_LongSignalInfo;
+static gint ett_gsm_map_RadioResourceInformation;
+static gint ett_gsm_map_MSNetworkCapability;
+static gint ett_gsm_map_MSRadioAccessCapability;
+static gint ett_gsm_map_externalsignalinfo;
+static gint ett_gsm_map_cbs_data_coding;
+static gint ett_gsm_map_GlobalCellId;
+static gint ett_gsm_map_GeographicalInformation;
+static gint ett_gsm_map_apn_str;
+static gint ett_gsm_map_LocationNumber;
+static gint ett_gsm_map_ericsson_locationInformation;
+static gint ett_gsm_map_extension_data;
+static gint ett_gsm_map_tbcd_digits;
+static gint ett_gsm_map_ussd_string;
+static gint ett_gsm_map_ext2_qos_subscribed;
+static gint ett_gsm_map_ext3_qos_subscribed;
+static gint ett_gsm_map_e_utranCellGlobalIdentity;
+static gint ett_gsm_map_TA_id;
+static gint ett_gsm_map_GeodeticInformation;
 
 
 /* --- Module MAP-ExtensionDataTypes --- --- ---                              */
 
-static gint ett_gsm_map_ExtensionContainer = -1;
-static gint ett_gsm_map_SLR_ArgExtensionContainer = -1;
-static gint ett_gsm_map_PrivateExtensionList = -1;
-static gint ett_gsm_map_PrivateExtension = -1;
-static gint ett_gsm_map_PCS_Extensions = -1;
-static gint ett_gsm_map_SLR_Arg_PCS_Extensions = -1;
+static gint ett_gsm_map_ExtensionContainer;
+static gint ett_gsm_map_SLR_ArgExtensionContainer;
+static gint ett_gsm_map_PrivateExtensionList;
+static gint ett_gsm_map_PrivateExtension;
+static gint ett_gsm_map_PCS_Extensions;
+static gint ett_gsm_map_SLR_Arg_PCS_Extensions;
 
 /* --- Module MAP-CommonDataTypes --- --- ---                                 */
 
-static gint ett_gsm_map_ExternalSignalInfo = -1;
-static gint ett_gsm_map_Ext_ExternalSignalInfo = -1;
-static gint ett_gsm_map_AccessNetworkSignalInfo = -1;
-static gint ett_gsm_map_Identity = -1;
-static gint ett_gsm_map_IMSI_WithLMSI = -1;
-static gint ett_gsm_map_SubscriberId = -1;
-static gint ett_gsm_map_HLR_List = -1;
-static gint ett_gsm_map_NAEA_PreferredCI = -1;
-static gint ett_gsm_map_SubscriberIdentity = -1;
-static gint ett_gsm_map_LCSClientExternalID = -1;
-static gint ett_gsm_map_NetworkNodeDiameterAddress = -1;
-static gint ett_gsm_map_CellGlobalIdOrServiceAreaIdOrLAI = -1;
-static gint ett_gsm_map_BasicServiceCode = -1;
-static gint ett_gsm_map_Ext_BasicServiceCode = -1;
-static gint ett_gsm_map_EMLPP_Info = -1;
-static gint ett_gsm_map_MC_SS_Info = -1;
+static gint ett_gsm_map_ExternalSignalInfo;
+static gint ett_gsm_map_Ext_ExternalSignalInfo;
+static gint ett_gsm_map_AccessNetworkSignalInfo;
+static gint ett_gsm_map_Identity;
+static gint ett_gsm_map_IMSI_WithLMSI;
+static gint ett_gsm_map_SubscriberId;
+static gint ett_gsm_map_HLR_List;
+static gint ett_gsm_map_NAEA_PreferredCI;
+static gint ett_gsm_map_SubscriberIdentity;
+static gint ett_gsm_map_LCSClientExternalID;
+static gint ett_gsm_map_NetworkNodeDiameterAddress;
+static gint ett_gsm_map_CellGlobalIdOrServiceAreaIdOrLAI;
+static gint ett_gsm_map_BasicServiceCode;
+static gint ett_gsm_map_Ext_BasicServiceCode;
+static gint ett_gsm_map_EMLPP_Info;
+static gint ett_gsm_map_MC_SS_Info;
 
 /* --- Module MAP-SS-DataTypes --- --- ---                                    */
 
-static gint ett_gsm_map_ss_RegisterSS_Arg = -1;
-static gint ett_gsm_map_ss_SS_Info = -1;
-static gint ett_gsm_map_ss_ForwardingInfo = -1;
-static gint ett_gsm_map_ss_ForwardingFeatureList = -1;
-static gint ett_gsm_map_ss_ForwardingFeature = -1;
-static gint ett_gsm_map_ss_CallBarringInfo = -1;
-static gint ett_gsm_map_ss_CallBarringFeatureList = -1;
-static gint ett_gsm_map_ss_CallBarringFeature = -1;
-static gint ett_gsm_map_ss_SS_Data = -1;
-static gint ett_gsm_map_ss_SS_SubscriptionOption = -1;
-static gint ett_gsm_map_ss_SS_ForBS_Code = -1;
-static gint ett_gsm_map_ss_GenericServiceInfo = -1;
-static gint ett_gsm_map_ss_CCBS_FeatureList = -1;
-static gint ett_gsm_map_ss_CCBS_Feature = -1;
-static gint ett_gsm_map_ss_InterrogateSS_Res = -1;
-static gint ett_gsm_map_ss_USSD_Arg = -1;
-static gint ett_gsm_map_ss_USSD_Res = -1;
-static gint ett_gsm_map_ss_SS_List = -1;
-static gint ett_gsm_map_ss_BasicServiceGroupList = -1;
-static gint ett_gsm_map_ss_SS_InvocationNotificationArg = -1;
-static gint ett_gsm_map_ss_SS_InvocationNotificationRes = -1;
-static gint ett_gsm_map_ss_SS_EventSpecification = -1;
-static gint ett_gsm_map_ss_RegisterCC_EntryArg = -1;
-static gint ett_gsm_map_ss_CCBS_Data = -1;
-static gint ett_gsm_map_ss_ServiceIndicator = -1;
-static gint ett_gsm_map_ss_RegisterCC_EntryRes = -1;
-static gint ett_gsm_map_ss_EraseCC_EntryArg = -1;
-static gint ett_gsm_map_ss_EraseCC_EntryRes = -1;
+static gint ett_gsm_map_ss_RegisterSS_Arg;
+static gint ett_gsm_map_ss_SS_Info;
+static gint ett_gsm_map_ss_ForwardingInfo;
+static gint ett_gsm_map_ss_ForwardingFeatureList;
+static gint ett_gsm_map_ss_ForwardingFeature;
+static gint ett_gsm_map_ss_CallBarringInfo;
+static gint ett_gsm_map_ss_CallBarringFeatureList;
+static gint ett_gsm_map_ss_CallBarringFeature;
+static gint ett_gsm_map_ss_SS_Data;
+static gint ett_gsm_map_ss_SS_SubscriptionOption;
+static gint ett_gsm_map_ss_SS_ForBS_Code;
+static gint ett_gsm_map_ss_GenericServiceInfo;
+static gint ett_gsm_map_ss_CCBS_FeatureList;
+static gint ett_gsm_map_ss_CCBS_Feature;
+static gint ett_gsm_map_ss_InterrogateSS_Res;
+static gint ett_gsm_map_ss_USSD_Arg;
+static gint ett_gsm_map_ss_USSD_Res;
+static gint ett_gsm_map_ss_SS_List;
+static gint ett_gsm_map_ss_BasicServiceGroupList;
+static gint ett_gsm_map_ss_SS_InvocationNotificationArg;
+static gint ett_gsm_map_ss_SS_InvocationNotificationRes;
+static gint ett_gsm_map_ss_SS_EventSpecification;
+static gint ett_gsm_map_ss_RegisterCC_EntryArg;
+static gint ett_gsm_map_ss_CCBS_Data;
+static gint ett_gsm_map_ss_ServiceIndicator;
+static gint ett_gsm_map_ss_RegisterCC_EntryRes;
+static gint ett_gsm_map_ss_EraseCC_EntryArg;
+static gint ett_gsm_map_ss_EraseCC_EntryRes;
 
 /* --- Module MAP-ER-DataTypes --- --- ---                                    */
 
-static gint ett_gsm_map_er_RoamingNotAllowedParam = -1;
-static gint ett_gsm_map_er_CallBarredParam = -1;
-static gint ett_gsm_map_er_ExtensibleCallBarredParam = -1;
-static gint ett_gsm_map_er_CUG_RejectParam = -1;
-static gint ett_gsm_map_er_SS_IncompatibilityCause = -1;
-static gint ett_gsm_map_er_SM_DeliveryFailureCause = -1;
-static gint ett_gsm_map_er_AbsentSubscriberSM_Param = -1;
-static gint ett_gsm_map_er_SystemFailureParam = -1;
-static gint ett_gsm_map_er_ExtensibleSystemFailureParam = -1;
-static gint ett_gsm_map_er_DataMissingParam = -1;
-static gint ett_gsm_map_er_UnexpectedDataParam = -1;
-static gint ett_gsm_map_er_FacilityNotSupParam = -1;
-static gint ett_gsm_map_er_OR_NotAllowedParam = -1;
-static gint ett_gsm_map_er_UnknownSubscriberParam = -1;
-static gint ett_gsm_map_er_NumberChangedParam = -1;
-static gint ett_gsm_map_er_UnidentifiedSubParam = -1;
-static gint ett_gsm_map_er_IllegalSubscriberParam = -1;
-static gint ett_gsm_map_er_IllegalEquipmentParam = -1;
-static gint ett_gsm_map_er_BearerServNotProvParam = -1;
-static gint ett_gsm_map_er_TeleservNotProvParam = -1;
-static gint ett_gsm_map_er_TracingBufferFullParam = -1;
-static gint ett_gsm_map_er_NoRoamingNbParam = -1;
-static gint ett_gsm_map_er_AbsentSubscriberParam = -1;
-static gint ett_gsm_map_er_BusySubscriberParam = -1;
-static gint ett_gsm_map_er_NoSubscriberReplyParam = -1;
-static gint ett_gsm_map_er_ForwardingViolationParam = -1;
-static gint ett_gsm_map_er_ForwardingFailedParam = -1;
-static gint ett_gsm_map_er_ATI_NotAllowedParam = -1;
-static gint ett_gsm_map_er_ATSI_NotAllowedParam = -1;
-static gint ett_gsm_map_er_ATM_NotAllowedParam = -1;
-static gint ett_gsm_map_er_IllegalSS_OperationParam = -1;
-static gint ett_gsm_map_er_SS_NotAvailableParam = -1;
-static gint ett_gsm_map_er_SS_SubscriptionViolationParam = -1;
-static gint ett_gsm_map_er_InformationNotAvailableParam = -1;
-static gint ett_gsm_map_er_SubBusyForMT_SMS_Param = -1;
-static gint ett_gsm_map_er_MessageWaitListFullParam = -1;
-static gint ett_gsm_map_er_ResourceLimitationParam = -1;
-static gint ett_gsm_map_er_NoGroupCallNbParam = -1;
-static gint ett_gsm_map_er_IncompatibleTerminalParam = -1;
-static gint ett_gsm_map_er_ShortTermDenialParam = -1;
-static gint ett_gsm_map_er_LongTermDenialParam = -1;
-static gint ett_gsm_map_er_UnauthorizedRequestingNetwork_Param = -1;
-static gint ett_gsm_map_er_UnauthorizedLCSClient_Param = -1;
-static gint ett_gsm_map_er_PositionMethodFailure_Param = -1;
-static gint ett_gsm_map_er_UnknownOrUnreachableLCSClient_Param = -1;
-static gint ett_gsm_map_er_MM_EventNotSupported_Param = -1;
-static gint ett_gsm_map_er_TargetCellOutsideGCA_Param = -1;
-static gint ett_gsm_map_er_OngoingGroupCallParam = -1;
+static gint ett_gsm_map_er_RoamingNotAllowedParam;
+static gint ett_gsm_map_er_CallBarredParam;
+static gint ett_gsm_map_er_ExtensibleCallBarredParam;
+static gint ett_gsm_map_er_CUG_RejectParam;
+static gint ett_gsm_map_er_SS_IncompatibilityCause;
+static gint ett_gsm_map_er_SM_DeliveryFailureCause;
+static gint ett_gsm_map_er_AbsentSubscriberSM_Param;
+static gint ett_gsm_map_er_SystemFailureParam;
+static gint ett_gsm_map_er_ExtensibleSystemFailureParam;
+static gint ett_gsm_map_er_DataMissingParam;
+static gint ett_gsm_map_er_UnexpectedDataParam;
+static gint ett_gsm_map_er_FacilityNotSupParam;
+static gint ett_gsm_map_er_OR_NotAllowedParam;
+static gint ett_gsm_map_er_UnknownSubscriberParam;
+static gint ett_gsm_map_er_NumberChangedParam;
+static gint ett_gsm_map_er_UnidentifiedSubParam;
+static gint ett_gsm_map_er_IllegalSubscriberParam;
+static gint ett_gsm_map_er_IllegalEquipmentParam;
+static gint ett_gsm_map_er_BearerServNotProvParam;
+static gint ett_gsm_map_er_TeleservNotProvParam;
+static gint ett_gsm_map_er_TracingBufferFullParam;
+static gint ett_gsm_map_er_NoRoamingNbParam;
+static gint ett_gsm_map_er_AbsentSubscriberParam;
+static gint ett_gsm_map_er_BusySubscriberParam;
+static gint ett_gsm_map_er_NoSubscriberReplyParam;
+static gint ett_gsm_map_er_ForwardingViolationParam;
+static gint ett_gsm_map_er_ForwardingFailedParam;
+static gint ett_gsm_map_er_ATI_NotAllowedParam;
+static gint ett_gsm_map_er_ATSI_NotAllowedParam;
+static gint ett_gsm_map_er_ATM_NotAllowedParam;
+static gint ett_gsm_map_er_IllegalSS_OperationParam;
+static gint ett_gsm_map_er_SS_NotAvailableParam;
+static gint ett_gsm_map_er_SS_SubscriptionViolationParam;
+static gint ett_gsm_map_er_InformationNotAvailableParam;
+static gint ett_gsm_map_er_SubBusyForMT_SMS_Param;
+static gint ett_gsm_map_er_MessageWaitListFullParam;
+static gint ett_gsm_map_er_ResourceLimitationParam;
+static gint ett_gsm_map_er_NoGroupCallNbParam;
+static gint ett_gsm_map_er_IncompatibleTerminalParam;
+static gint ett_gsm_map_er_ShortTermDenialParam;
+static gint ett_gsm_map_er_LongTermDenialParam;
+static gint ett_gsm_map_er_UnauthorizedRequestingNetwork_Param;
+static gint ett_gsm_map_er_UnauthorizedLCSClient_Param;
+static gint ett_gsm_map_er_PositionMethodFailure_Param;
+static gint ett_gsm_map_er_UnknownOrUnreachableLCSClient_Param;
+static gint ett_gsm_map_er_MM_EventNotSupported_Param;
+static gint ett_gsm_map_er_TargetCellOutsideGCA_Param;
+static gint ett_gsm_map_er_OngoingGroupCallParam;
 
 /* --- Module MAP-SM-DataTypes --- --- ---                                    */
 
-static gint ett_gsm_map_sm_RoutingInfoForSM_Arg = -1;
-static gint ett_gsm_map_sm_RoutingInfoForSM_Res = -1;
-static gint ett_gsm_map_sm_IP_SM_GW_Guidance = -1;
-static gint ett_gsm_map_sm_LocationInfoWithLMSI = -1;
-static gint ett_gsm_map_sm_Additional_Number = -1;
-static gint ett_gsm_map_sm_MO_ForwardSM_Arg = -1;
-static gint ett_gsm_map_sm_MO_ForwardSM_Res = -1;
-static gint ett_gsm_map_sm_MT_ForwardSM_Arg = -1;
-static gint ett_gsm_map_sm_CorrelationID = -1;
-static gint ett_gsm_map_sm_MT_ForwardSM_Res = -1;
-static gint ett_gsm_map_sm_SM_RP_DA = -1;
-static gint ett_gsm_map_sm_SM_RP_OA = -1;
-static gint ett_gsm_map_sm_ReportSM_DeliveryStatusArg = -1;
-static gint ett_gsm_map_sm_ReportSM_DeliveryStatusRes = -1;
-static gint ett_gsm_map_sm_AlertServiceCentreArg = -1;
-static gint ett_gsm_map_sm_InformServiceCentreArg = -1;
-static gint ett_gsm_map_sm_MW_Status = -1;
-static gint ett_gsm_map_sm_ReadyForSM_Arg = -1;
-static gint ett_gsm_map_sm_ReadyForSM_Res = -1;
-static gint ett_gsm_map_sm_MT_ForwardSM_VGCS_Arg = -1;
-static gint ett_gsm_map_sm_MT_ForwardSM_VGCS_Res = -1;
-static gint ett_gsm_map_sm_DispatcherList = -1;
-static gint ett_gsm_map_sm_AdditionalDispatcherList = -1;
+static gint ett_gsm_map_sm_RoutingInfoForSM_Arg;
+static gint ett_gsm_map_sm_RoutingInfoForSM_Res;
+static gint ett_gsm_map_sm_IP_SM_GW_Guidance;
+static gint ett_gsm_map_sm_LocationInfoWithLMSI;
+static gint ett_gsm_map_sm_Additional_Number;
+static gint ett_gsm_map_sm_MO_ForwardSM_Arg;
+static gint ett_gsm_map_sm_MO_ForwardSM_Res;
+static gint ett_gsm_map_sm_MT_ForwardSM_Arg;
+static gint ett_gsm_map_sm_CorrelationID;
+static gint ett_gsm_map_sm_MT_ForwardSM_Res;
+static gint ett_gsm_map_sm_SM_RP_DA;
+static gint ett_gsm_map_sm_SM_RP_OA;
+static gint ett_gsm_map_sm_ReportSM_DeliveryStatusArg;
+static gint ett_gsm_map_sm_ReportSM_DeliveryStatusRes;
+static gint ett_gsm_map_sm_AlertServiceCentreArg;
+static gint ett_gsm_map_sm_InformServiceCentreArg;
+static gint ett_gsm_map_sm_MW_Status;
+static gint ett_gsm_map_sm_ReadyForSM_Arg;
+static gint ett_gsm_map_sm_ReadyForSM_Res;
+static gint ett_gsm_map_sm_MT_ForwardSM_VGCS_Arg;
+static gint ett_gsm_map_sm_MT_ForwardSM_VGCS_Res;
+static gint ett_gsm_map_sm_DispatcherList;
+static gint ett_gsm_map_sm_AdditionalDispatcherList;
 
 /* --- Module MAP-OM-DataTypes --- --- ---                                    */
 
-static gint ett_gsm_map_om_ActivateTraceModeArg = -1;
-static gint ett_gsm_map_om_MDT_Configuration = -1;
-static gint ett_gsm_map_om_MDT_Allowed_PLMNId_List = -1;
-static gint ett_gsm_map_om_AreaScope = -1;
-static gint ett_gsm_map_om_CGI_List = -1;
-static gint ett_gsm_map_om_E_UTRAN_CGI_List = -1;
-static gint ett_gsm_map_om_RoutingAreaId_List = -1;
-static gint ett_gsm_map_om_LocationAreaId_List = -1;
-static gint ett_gsm_map_om_TrackingAreaId_List = -1;
-static gint ett_gsm_map_om_TraceDepthList = -1;
-static gint ett_gsm_map_om_TraceNE_TypeList = -1;
-static gint ett_gsm_map_om_TraceInterfaceList = -1;
-static gint ett_gsm_map_om_MSC_S_InterfaceList = -1;
-static gint ett_gsm_map_om_MGW_InterfaceList = -1;
-static gint ett_gsm_map_om_SGSN_InterfaceList = -1;
-static gint ett_gsm_map_om_GGSN_InterfaceList = -1;
-static gint ett_gsm_map_om_RNC_InterfaceList = -1;
-static gint ett_gsm_map_om_BMSC_InterfaceList = -1;
-static gint ett_gsm_map_om_MME_InterfaceList = -1;
-static gint ett_gsm_map_om_SGW_InterfaceList = -1;
-static gint ett_gsm_map_om_PGW_InterfaceList = -1;
-static gint ett_gsm_map_om_ENB_InterfaceList = -1;
-static gint ett_gsm_map_om_TraceEventList = -1;
-static gint ett_gsm_map_om_MSC_S_EventList = -1;
-static gint ett_gsm_map_om_MGW_EventList = -1;
-static gint ett_gsm_map_om_SGSN_EventList = -1;
-static gint ett_gsm_map_om_GGSN_EventList = -1;
-static gint ett_gsm_map_om_BMSC_EventList = -1;
-static gint ett_gsm_map_om_MME_EventList = -1;
-static gint ett_gsm_map_om_SGW_EventList = -1;
-static gint ett_gsm_map_om_PGW_EventList = -1;
-static gint ett_gsm_map_om_TracePropagationList = -1;
-static gint ett_gsm_map_om_ActivateTraceModeRes = -1;
-static gint ett_gsm_map_om_DeactivateTraceModeArg = -1;
-static gint ett_gsm_map_om_DeactivateTraceModeRes = -1;
+static gint ett_gsm_map_om_ActivateTraceModeArg;
+static gint ett_gsm_map_om_MDT_Configuration;
+static gint ett_gsm_map_om_MDT_Allowed_PLMNId_List;
+static gint ett_gsm_map_om_AreaScope;
+static gint ett_gsm_map_om_CGI_List;
+static gint ett_gsm_map_om_E_UTRAN_CGI_List;
+static gint ett_gsm_map_om_RoutingAreaId_List;
+static gint ett_gsm_map_om_LocationAreaId_List;
+static gint ett_gsm_map_om_TrackingAreaId_List;
+static gint ett_gsm_map_om_TraceDepthList;
+static gint ett_gsm_map_om_TraceNE_TypeList;
+static gint ett_gsm_map_om_TraceInterfaceList;
+static gint ett_gsm_map_om_MSC_S_InterfaceList;
+static gint ett_gsm_map_om_MGW_InterfaceList;
+static gint ett_gsm_map_om_SGSN_InterfaceList;
+static gint ett_gsm_map_om_GGSN_InterfaceList;
+static gint ett_gsm_map_om_RNC_InterfaceList;
+static gint ett_gsm_map_om_BMSC_InterfaceList;
+static gint ett_gsm_map_om_MME_InterfaceList;
+static gint ett_gsm_map_om_SGW_InterfaceList;
+static gint ett_gsm_map_om_PGW_InterfaceList;
+static gint ett_gsm_map_om_ENB_InterfaceList;
+static gint ett_gsm_map_om_TraceEventList;
+static gint ett_gsm_map_om_MSC_S_EventList;
+static gint ett_gsm_map_om_MGW_EventList;
+static gint ett_gsm_map_om_SGSN_EventList;
+static gint ett_gsm_map_om_GGSN_EventList;
+static gint ett_gsm_map_om_BMSC_EventList;
+static gint ett_gsm_map_om_MME_EventList;
+static gint ett_gsm_map_om_SGW_EventList;
+static gint ett_gsm_map_om_PGW_EventList;
+static gint ett_gsm_map_om_TracePropagationList;
+static gint ett_gsm_map_om_ActivateTraceModeRes;
+static gint ett_gsm_map_om_DeactivateTraceModeArg;
+static gint ett_gsm_map_om_DeactivateTraceModeRes;
 
 /* --- Module MAP-MS-DataTypes --- --- ---                                    */
 
-static gint ett_gsm_map_ms_UpdateLocationArg = -1;
-static gint ett_gsm_map_ms_VLR_Capability = -1;
-static gint ett_gsm_map_ms_SupportedRAT_Types = -1;
-static gint ett_gsm_map_ms_SuperChargerInfo = -1;
-static gint ett_gsm_map_ms_SupportedLCS_CapabilitySets = -1;
-static gint ett_gsm_map_ms_UpdateLocationRes = -1;
-static gint ett_gsm_map_ms_ADD_Info = -1;
-static gint ett_gsm_map_ms_PagingArea = -1;
-static gint ett_gsm_map_ms_LocationArea = -1;
-static gint ett_gsm_map_ms_CancelLocationArg_U = -1;
-static gint ett_gsm_map_ms_CancelLocationRes = -1;
-static gint ett_gsm_map_ms_PurgeMS_Arg_U = -1;
-static gint ett_gsm_map_ms_PurgeMS_Res = -1;
-static gint ett_gsm_map_ms_SendIdentificationArg = -1;
-static gint ett_gsm_map_ms_SendIdentificationRes_U = -1;
-static gint ett_gsm_map_ms_AuthenticationSetList = -1;
-static gint ett_gsm_map_ms_TripletList = -1;
-static gint ett_gsm_map_ms_QuintupletList = -1;
-static gint ett_gsm_map_ms_AuthenticationTriplet = -1;
-static gint ett_gsm_map_ms_AuthenticationQuintuplet = -1;
-static gint ett_gsm_map_ms_CurrentSecurityContext = -1;
-static gint ett_gsm_map_ms_GSM_SecurityContextData = -1;
-static gint ett_gsm_map_ms_UMTS_SecurityContextData = -1;
-static gint ett_gsm_map_ms_AuthenticationFailureReportArg = -1;
-static gint ett_gsm_map_ms_AuthenticationFailureReportRes = -1;
-static gint ett_gsm_map_ms_UpdateGprsLocationArg = -1;
-static gint ett_gsm_map_ms_EPS_Info = -1;
-static gint ett_gsm_map_ms_PDN_GW_Update = -1;
-static gint ett_gsm_map_ms_ISR_Information = -1;
-static gint ett_gsm_map_ms_SGSN_Capability = -1;
-static gint ett_gsm_map_ms_SupportedFeatures = -1;
-static gint ett_gsm_map_ms_Ext_SupportedFeatures = -1;
-static gint ett_gsm_map_ms_UpdateGprsLocationRes = -1;
-static gint ett_gsm_map_ms_EPLMN_List = -1;
-static gint ett_gsm_map_ms_AdjacentPLMN_List = -1;
-static gint ett_gsm_map_ms_ForwardAccessSignalling_Arg_U = -1;
-static gint ett_gsm_map_ms_AllowedUMTS_Algorithms = -1;
-static gint ett_gsm_map_ms_PrepareHO_Arg_U = -1;
-static gint ett_gsm_map_ms_LCLS_Negotiation = -1;
-static gint ett_gsm_map_ms_LCLS_ConfigurationPreference = -1;
-static gint ett_gsm_map_ms_BSSMAP_ServiceHandoverList = -1;
-static gint ett_gsm_map_ms_BSSMAP_ServiceHandoverInfo = -1;
-static gint ett_gsm_map_ms_RadioResourceList = -1;
-static gint ett_gsm_map_ms_RadioResource = -1;
-static gint ett_gsm_map_ms_PrepareHO_Res_U = -1;
-static gint ett_gsm_map_ms_SelectedUMTS_Algorithms = -1;
-static gint ett_gsm_map_ms_ChosenRadioResourceInformation = -1;
-static gint ett_gsm_map_ms_PrepareSubsequentHO_Arg_U = -1;
-static gint ett_gsm_map_ms_PrepareSubsequentHO_Res_U = -1;
-static gint ett_gsm_map_ms_ProcessAccessSignalling_Arg_U = -1;
-static gint ett_gsm_map_ms_AoIPCodecsList = -1;
-static gint ett_gsm_map_ms_SupportedCodecsList = -1;
-static gint ett_gsm_map_ms_CodecList = -1;
-static gint ett_gsm_map_ms_SendEndSignal_Arg_U = -1;
-static gint ett_gsm_map_ms_SendEndSignal_Res = -1;
-static gint ett_gsm_map_ms_RelocationNumberList = -1;
-static gint ett_gsm_map_ms_RelocationNumber = -1;
-static gint ett_gsm_map_ms_SendAuthenticationInfoArg = -1;
-static gint ett_gsm_map_ms_Re_synchronisationInfo = -1;
-static gint ett_gsm_map_ms_SendAuthenticationInfoRes_U = -1;
-static gint ett_gsm_map_ms_EPS_AuthenticationSetList = -1;
-static gint ett_gsm_map_ms_EPC_AV = -1;
-static gint ett_gsm_map_ms_CheckIMEI_Arg = -1;
-static gint ett_gsm_map_ms_CheckIMEI_Res = -1;
-static gint ett_gsm_map_ms_RequestedEquipmentInfo = -1;
-static gint ett_gsm_map_ms_UESBI_Iu = -1;
-static gint ett_gsm_map_ms_InsertSubscriberDataArg = -1;
-static gint ett_gsm_map_ms_EDRX_Cycle_Length_List = -1;
-static gint ett_gsm_map_ms_EDRX_Cycle_Length = -1;
-static gint ett_gsm_map_ms_Reset_Id_List = -1;
-static gint ett_gsm_map_ms_IMSI_GroupIdList = -1;
-static gint ett_gsm_map_ms_IMSI_GroupId = -1;
-static gint ett_gsm_map_ms_CSG_SubscriptionDataList = -1;
-static gint ett_gsm_map_ms_CSG_SubscriptionData = -1;
-static gint ett_gsm_map_ms_VPLMN_CSG_SubscriptionDataList = -1;
-static gint ett_gsm_map_ms_LIPA_AllowedAPNList = -1;
-static gint ett_gsm_map_ms_EPS_SubscriptionData = -1;
-static gint ett_gsm_map_ms_APN_ConfigurationProfile = -1;
-static gint ett_gsm_map_ms_EPS_DataList = -1;
-static gint ett_gsm_map_ms_APN_Configuration = -1;
-static gint ett_gsm_map_ms_EPS_QoS_Subscribed = -1;
-static gint ett_gsm_map_ms_AMBR = -1;
-static gint ett_gsm_map_ms_SpecificAPNInfoList = -1;
-static gint ett_gsm_map_ms_SpecificAPNInfo = -1;
-static gint ett_gsm_map_ms_Allocation_Retention_Priority = -1;
-static gint ett_gsm_map_ms_PDN_GW_Identity = -1;
-static gint ett_gsm_map_ms_WLAN_Offloadability = -1;
-static gint ett_gsm_map_ms_AccessRestrictionData = -1;
-static gint ett_gsm_map_ms_Ext_AccessRestrictionData = -1;
-static gint ett_gsm_map_ms_AdjacentAccessRestrictionDataList = -1;
-static gint ett_gsm_map_ms_AdjacentAccessRestrictionData = -1;
-static gint ett_gsm_map_ms_LCSInformation = -1;
-static gint ett_gsm_map_ms_GMLC_List = -1;
-static gint ett_gsm_map_ms_GPRSDataList = -1;
-static gint ett_gsm_map_ms_PDP_Context = -1;
-static gint ett_gsm_map_ms_GPRSSubscriptionData = -1;
-static gint ett_gsm_map_ms_SGSN_CAMEL_SubscriptionInfo = -1;
-static gint ett_gsm_map_ms_GPRS_CSI = -1;
-static gint ett_gsm_map_ms_GPRS_CamelTDPDataList = -1;
-static gint ett_gsm_map_ms_GPRS_CamelTDPData = -1;
-static gint ett_gsm_map_ms_LSADataList = -1;
-static gint ett_gsm_map_ms_LSAData = -1;
-static gint ett_gsm_map_ms_LSAInformation = -1;
-static gint ett_gsm_map_ms_SubscriberData = -1;
-static gint ett_gsm_map_ms_BearerServiceList = -1;
-static gint ett_gsm_map_ms_TeleserviceList = -1;
-static gint ett_gsm_map_ms_ODB_Data = -1;
-static gint ett_gsm_map_ms_ODB_GeneralData = -1;
-static gint ett_gsm_map_ms_ODB_HPLMN_Data = -1;
-static gint ett_gsm_map_ms_Ext_SS_InfoList = -1;
-static gint ett_gsm_map_ms_Ext_SS_Info = -1;
-static gint ett_gsm_map_ms_Ext_ForwInfo = -1;
-static gint ett_gsm_map_ms_Ext_ForwFeatureList = -1;
-static gint ett_gsm_map_ms_Ext_ForwFeature = -1;
-static gint ett_gsm_map_ms_Ext_CallBarInfo = -1;
-static gint ett_gsm_map_ms_Ext_CallBarFeatureList = -1;
-static gint ett_gsm_map_ms_Ext_CallBarringFeature = -1;
-static gint ett_gsm_map_ms_CUG_Info = -1;
-static gint ett_gsm_map_ms_CUG_SubscriptionList = -1;
-static gint ett_gsm_map_ms_CUG_Subscription = -1;
-static gint ett_gsm_map_ms_CUG_FeatureList = -1;
-static gint ett_gsm_map_ms_Ext_BasicServiceGroupList = -1;
-static gint ett_gsm_map_ms_CUG_Feature = -1;
-static gint ett_gsm_map_ms_Ext_SS_Data = -1;
-static gint ett_gsm_map_ms_LCS_PrivacyExceptionList = -1;
-static gint ett_gsm_map_ms_LCS_PrivacyClass = -1;
-static gint ett_gsm_map_ms_ExternalClientList = -1;
-static gint ett_gsm_map_ms_PLMNClientList = -1;
-static gint ett_gsm_map_ms_Ext_ExternalClientList = -1;
-static gint ett_gsm_map_ms_ExternalClient = -1;
-static gint ett_gsm_map_ms_ServiceTypeList = -1;
-static gint ett_gsm_map_ms_ServiceType = -1;
-static gint ett_gsm_map_ms_MOLR_List = -1;
-static gint ett_gsm_map_ms_MOLR_Class = -1;
-static gint ett_gsm_map_ms_ZoneCodeList = -1;
-static gint ett_gsm_map_ms_InsertSubscriberDataRes = -1;
-static gint ett_gsm_map_ms_DeleteSubscriberDataArg = -1;
-static gint ett_gsm_map_ms_SpecificCSI_Withdraw = -1;
-static gint ett_gsm_map_ms_GPRSSubscriptionDataWithdraw = -1;
-static gint ett_gsm_map_ms_EPS_SubscriptionDataWithdraw = -1;
-static gint ett_gsm_map_ms_ContextIdList = -1;
-static gint ett_gsm_map_ms_LSAInformationWithdraw = -1;
-static gint ett_gsm_map_ms_LSAIdentityList = -1;
-static gint ett_gsm_map_ms_BasicServiceList = -1;
-static gint ett_gsm_map_ms_DeleteSubscriberDataRes = -1;
-static gint ett_gsm_map_ms_VlrCamelSubscriptionInfo = -1;
-static gint ett_gsm_map_ms_MT_smsCAMELTDP_CriteriaList = -1;
-static gint ett_gsm_map_ms_MT_smsCAMELTDP_Criteria = -1;
-static gint ett_gsm_map_ms_TPDU_TypeCriterion = -1;
-static gint ett_gsm_map_ms_D_CSI = -1;
-static gint ett_gsm_map_ms_DP_AnalysedInfoCriteriaList = -1;
-static gint ett_gsm_map_ms_DP_AnalysedInfoCriterium = -1;
-static gint ett_gsm_map_ms_SS_CSI = -1;
-static gint ett_gsm_map_ms_SS_CamelData = -1;
-static gint ett_gsm_map_ms_SS_EventList = -1;
-static gint ett_gsm_map_ms_O_CSI = -1;
-static gint ett_gsm_map_ms_O_BcsmCamelTDPDataList = -1;
-static gint ett_gsm_map_ms_O_BcsmCamelTDPData = -1;
-static gint ett_gsm_map_ms_O_BcsmCamelTDPCriteriaList = -1;
-static gint ett_gsm_map_ms_T_BCSM_CAMEL_TDP_CriteriaList = -1;
-static gint ett_gsm_map_ms_O_BcsmCamelTDP_Criteria = -1;
-static gint ett_gsm_map_ms_T_BCSM_CAMEL_TDP_Criteria = -1;
-static gint ett_gsm_map_ms_DestinationNumberCriteria = -1;
-static gint ett_gsm_map_ms_DestinationNumberList = -1;
-static gint ett_gsm_map_ms_DestinationNumberLengthList = -1;
-static gint ett_gsm_map_ms_BasicServiceCriteria = -1;
-static gint ett_gsm_map_ms_O_CauseValueCriteria = -1;
-static gint ett_gsm_map_ms_T_CauseValueCriteria = -1;
-static gint ett_gsm_map_ms_SupportedCamelPhases = -1;
-static gint ett_gsm_map_ms_OfferedCamel4CSIs = -1;
-static gint ett_gsm_map_ms_OfferedCamel4Functionalities = -1;
-static gint ett_gsm_map_ms_SMS_CSI = -1;
-static gint ett_gsm_map_ms_SMS_CAMEL_TDP_DataList = -1;
-static gint ett_gsm_map_ms_SMS_CAMEL_TDP_Data = -1;
-static gint ett_gsm_map_ms_M_CSI = -1;
-static gint ett_gsm_map_ms_MG_CSI = -1;
-static gint ett_gsm_map_ms_MobilityTriggers = -1;
-static gint ett_gsm_map_ms_T_CSI = -1;
-static gint ett_gsm_map_ms_T_BcsmCamelTDPDataList = -1;
-static gint ett_gsm_map_ms_T_BcsmCamelTDPData = -1;
-static gint ett_gsm_map_ms_SendRoutingInfoForGprsArg = -1;
-static gint ett_gsm_map_ms_SendRoutingInfoForGprsRes = -1;
-static gint ett_gsm_map_ms_FailureReportArg = -1;
-static gint ett_gsm_map_ms_FailureReportRes = -1;
-static gint ett_gsm_map_ms_NoteMsPresentForGprsArg = -1;
-static gint ett_gsm_map_ms_NoteMsPresentForGprsRes = -1;
-static gint ett_gsm_map_ms_ResetArg = -1;
-static gint ett_gsm_map_ms_SendingNode_Number = -1;
-static gint ett_gsm_map_ms_RestoreDataArg = -1;
-static gint ett_gsm_map_ms_RestoreDataRes = -1;
-static gint ett_gsm_map_ms_VBSDataList = -1;
-static gint ett_gsm_map_ms_VGCSDataList = -1;
-static gint ett_gsm_map_ms_VoiceGroupCallData = -1;
-static gint ett_gsm_map_ms_AdditionalSubscriptions = -1;
-static gint ett_gsm_map_ms_VoiceBroadcastData = -1;
-static gint ett_gsm_map_ms_ProvideSubscriberInfoArg = -1;
-static gint ett_gsm_map_ms_ProvideSubscriberInfoRes = -1;
-static gint ett_gsm_map_ms_SubscriberInfo = -1;
-static gint ett_gsm_map_ms_MNPInfoRes = -1;
-static gint ett_gsm_map_ms_GPRSMSClass = -1;
-static gint ett_gsm_map_ms_RequestedInfo = -1;
-static gint ett_gsm_map_ms_RequestedNodes = -1;
-static gint ett_gsm_map_ms_LocationInformation = -1;
-static gint ett_gsm_map_ms_LocationInformationEPS = -1;
-static gint ett_gsm_map_ms_LocationInformationGPRS = -1;
-static gint ett_gsm_map_ms_LocationInformation5GS = -1;
-static gint ett_gsm_map_ms_UserCSGInformation = -1;
-static gint ett_gsm_map_ms_SubscriberState = -1;
-static gint ett_gsm_map_ms_PS_SubscriberState = -1;
-static gint ett_gsm_map_ms_PDP_ContextInfoList = -1;
-static gint ett_gsm_map_ms_PDP_ContextInfo = -1;
-static gint ett_gsm_map_ms_AnyTimeInterrogationArg = -1;
-static gint ett_gsm_map_ms_AnyTimeInterrogationRes = -1;
-static gint ett_gsm_map_ms_AnyTimeSubscriptionInterrogationArg = -1;
-static gint ett_gsm_map_ms_AnyTimeSubscriptionInterrogationRes = -1;
-static gint ett_gsm_map_ms_CallWaitingData = -1;
-static gint ett_gsm_map_ms_Ext_CwFeatureList = -1;
-static gint ett_gsm_map_ms_Ext_CwFeature = -1;
-static gint ett_gsm_map_ms_ClipData = -1;
-static gint ett_gsm_map_ms_ClirData = -1;
-static gint ett_gsm_map_ms_CallHoldData = -1;
-static gint ett_gsm_map_ms_EctData = -1;
-static gint ett_gsm_map_ms_RequestedSubscriptionInfo = -1;
-static gint ett_gsm_map_ms_MSISDN_BS_List = -1;
-static gint ett_gsm_map_ms_MSISDN_BS = -1;
-static gint ett_gsm_map_ms_CallForwardingData = -1;
-static gint ett_gsm_map_ms_CallBarringData = -1;
-static gint ett_gsm_map_ms_ODB_Info = -1;
-static gint ett_gsm_map_ms_CAMEL_SubscriptionInfo = -1;
-static gint ett_gsm_map_ms_AnyTimeModificationArg = -1;
-static gint ett_gsm_map_ms_ModificationRequestFor_CW_Info = -1;
-static gint ett_gsm_map_ms_ModificationRequestFor_CH_Info = -1;
-static gint ett_gsm_map_ms_ModificationRequestFor_ECT_Info = -1;
-static gint ett_gsm_map_ms_ModificationRequestFor_CLIR_Info = -1;
-static gint ett_gsm_map_ms_ModificationRequestFor_CLIP_Info = -1;
-static gint ett_gsm_map_ms_ModificationRequestFor_CSG = -1;
-static gint ett_gsm_map_ms_RequestedServingNode = -1;
-static gint ett_gsm_map_ms_ServingNode = -1;
-static gint ett_gsm_map_ms_AnyTimeModificationRes = -1;
-static gint ett_gsm_map_ms_ModificationRequestFor_CF_Info = -1;
-static gint ett_gsm_map_ms_ModificationRequestFor_CB_Info = -1;
-static gint ett_gsm_map_ms_ModificationRequestFor_ODB_data = -1;
-static gint ett_gsm_map_ms_ModificationRequestFor_CSI = -1;
-static gint ett_gsm_map_ms_ModificationRequestFor_IP_SM_GW_Data = -1;
-static gint ett_gsm_map_ms_NoteSubscriberDataModifiedArg = -1;
-static gint ett_gsm_map_ms_NoteSubscriberDataModifiedRes = -1;
-static gint ett_gsm_map_ms_NoteMM_EventArg = -1;
-static gint ett_gsm_map_ms_NoteMM_EventRes = -1;
-static gint ett_gsm_map_ms_Ext_SS_InfoFor_CSE = -1;
-static gint ett_gsm_map_ms_Ext_ForwardingInfoFor_CSE = -1;
-static gint ett_gsm_map_ms_Ext_CallBarringInfoFor_CSE = -1;
-static gint ett_gsm_map_ms_UpdateVcsgLocationArg = -1;
-static gint ett_gsm_map_ms_UpdateVcsgLocationRes = -1;
-static gint ett_gsm_map_ms_CancelVcsgLocationArg = -1;
-static gint ett_gsm_map_ms_CancelVcsgLocationRes = -1;
+static gint ett_gsm_map_ms_UpdateLocationArg;
+static gint ett_gsm_map_ms_VLR_Capability;
+static gint ett_gsm_map_ms_SupportedRAT_Types;
+static gint ett_gsm_map_ms_SuperChargerInfo;
+static gint ett_gsm_map_ms_SupportedLCS_CapabilitySets;
+static gint ett_gsm_map_ms_UpdateLocationRes;
+static gint ett_gsm_map_ms_ADD_Info;
+static gint ett_gsm_map_ms_PagingArea;
+static gint ett_gsm_map_ms_LocationArea;
+static gint ett_gsm_map_ms_CancelLocationArg_U;
+static gint ett_gsm_map_ms_CancelLocationRes;
+static gint ett_gsm_map_ms_PurgeMS_Arg_U;
+static gint ett_gsm_map_ms_PurgeMS_Res;
+static gint ett_gsm_map_ms_SendIdentificationArg;
+static gint ett_gsm_map_ms_SendIdentificationRes_U;
+static gint ett_gsm_map_ms_AuthenticationSetList;
+static gint ett_gsm_map_ms_TripletList;
+static gint ett_gsm_map_ms_QuintupletList;
+static gint ett_gsm_map_ms_AuthenticationTriplet;
+static gint ett_gsm_map_ms_AuthenticationQuintuplet;
+static gint ett_gsm_map_ms_CurrentSecurityContext;
+static gint ett_gsm_map_ms_GSM_SecurityContextData;
+static gint ett_gsm_map_ms_UMTS_SecurityContextData;
+static gint ett_gsm_map_ms_AuthenticationFailureReportArg;
+static gint ett_gsm_map_ms_AuthenticationFailureReportRes;
+static gint ett_gsm_map_ms_UpdateGprsLocationArg;
+static gint ett_gsm_map_ms_EPS_Info;
+static gint ett_gsm_map_ms_PDN_GW_Update;
+static gint ett_gsm_map_ms_ISR_Information;
+static gint ett_gsm_map_ms_SGSN_Capability;
+static gint ett_gsm_map_ms_SupportedFeatures;
+static gint ett_gsm_map_ms_Ext_SupportedFeatures;
+static gint ett_gsm_map_ms_UpdateGprsLocationRes;
+static gint ett_gsm_map_ms_EPLMN_List;
+static gint ett_gsm_map_ms_AdjacentPLMN_List;
+static gint ett_gsm_map_ms_ForwardAccessSignalling_Arg_U;
+static gint ett_gsm_map_ms_AllowedUMTS_Algorithms;
+static gint ett_gsm_map_ms_PrepareHO_Arg_U;
+static gint ett_gsm_map_ms_LCLS_Negotiation;
+static gint ett_gsm_map_ms_LCLS_ConfigurationPreference;
+static gint ett_gsm_map_ms_BSSMAP_ServiceHandoverList;
+static gint ett_gsm_map_ms_BSSMAP_ServiceHandoverInfo;
+static gint ett_gsm_map_ms_RadioResourceList;
+static gint ett_gsm_map_ms_RadioResource;
+static gint ett_gsm_map_ms_PrepareHO_Res_U;
+static gint ett_gsm_map_ms_SelectedUMTS_Algorithms;
+static gint ett_gsm_map_ms_ChosenRadioResourceInformation;
+static gint ett_gsm_map_ms_PrepareSubsequentHO_Arg_U;
+static gint ett_gsm_map_ms_PrepareSubsequentHO_Res_U;
+static gint ett_gsm_map_ms_ProcessAccessSignalling_Arg_U;
+static gint ett_gsm_map_ms_AoIPCodecsList;
+static gint ett_gsm_map_ms_SupportedCodecsList;
+static gint ett_gsm_map_ms_CodecList;
+static gint ett_gsm_map_ms_SendEndSignal_Arg_U;
+static gint ett_gsm_map_ms_SendEndSignal_Res;
+static gint ett_gsm_map_ms_RelocationNumberList;
+static gint ett_gsm_map_ms_RelocationNumber;
+static gint ett_gsm_map_ms_SendAuthenticationInfoArg;
+static gint ett_gsm_map_ms_Re_synchronisationInfo;
+static gint ett_gsm_map_ms_SendAuthenticationInfoRes_U;
+static gint ett_gsm_map_ms_EPS_AuthenticationSetList;
+static gint ett_gsm_map_ms_EPC_AV;
+static gint ett_gsm_map_ms_CheckIMEI_Arg;
+static gint ett_gsm_map_ms_CheckIMEI_Res;
+static gint ett_gsm_map_ms_RequestedEquipmentInfo;
+static gint ett_gsm_map_ms_UESBI_Iu;
+static gint ett_gsm_map_ms_InsertSubscriberDataArg;
+static gint ett_gsm_map_ms_EDRX_Cycle_Length_List;
+static gint ett_gsm_map_ms_EDRX_Cycle_Length;
+static gint ett_gsm_map_ms_Reset_Id_List;
+static gint ett_gsm_map_ms_IMSI_GroupIdList;
+static gint ett_gsm_map_ms_IMSI_GroupId;
+static gint ett_gsm_map_ms_CSG_SubscriptionDataList;
+static gint ett_gsm_map_ms_CSG_SubscriptionData;
+static gint ett_gsm_map_ms_VPLMN_CSG_SubscriptionDataList;
+static gint ett_gsm_map_ms_LIPA_AllowedAPNList;
+static gint ett_gsm_map_ms_EPS_SubscriptionData;
+static gint ett_gsm_map_ms_APN_ConfigurationProfile;
+static gint ett_gsm_map_ms_EPS_DataList;
+static gint ett_gsm_map_ms_APN_Configuration;
+static gint ett_gsm_map_ms_EPS_QoS_Subscribed;
+static gint ett_gsm_map_ms_AMBR;
+static gint ett_gsm_map_ms_SpecificAPNInfoList;
+static gint ett_gsm_map_ms_SpecificAPNInfo;
+static gint ett_gsm_map_ms_Allocation_Retention_Priority;
+static gint ett_gsm_map_ms_PDN_GW_Identity;
+static gint ett_gsm_map_ms_WLAN_Offloadability;
+static gint ett_gsm_map_ms_AccessRestrictionData;
+static gint ett_gsm_map_ms_Ext_AccessRestrictionData;
+static gint ett_gsm_map_ms_AdjacentAccessRestrictionDataList;
+static gint ett_gsm_map_ms_AdjacentAccessRestrictionData;
+static gint ett_gsm_map_ms_LCSInformation;
+static gint ett_gsm_map_ms_GMLC_List;
+static gint ett_gsm_map_ms_GPRSDataList;
+static gint ett_gsm_map_ms_PDP_Context;
+static gint ett_gsm_map_ms_GPRSSubscriptionData;
+static gint ett_gsm_map_ms_SGSN_CAMEL_SubscriptionInfo;
+static gint ett_gsm_map_ms_GPRS_CSI;
+static gint ett_gsm_map_ms_GPRS_CamelTDPDataList;
+static gint ett_gsm_map_ms_GPRS_CamelTDPData;
+static gint ett_gsm_map_ms_LSADataList;
+static gint ett_gsm_map_ms_LSAData;
+static gint ett_gsm_map_ms_LSAInformation;
+static gint ett_gsm_map_ms_SubscriberData;
+static gint ett_gsm_map_ms_BearerServiceList;
+static gint ett_gsm_map_ms_TeleserviceList;
+static gint ett_gsm_map_ms_ODB_Data;
+static gint ett_gsm_map_ms_ODB_GeneralData;
+static gint ett_gsm_map_ms_ODB_HPLMN_Data;
+static gint ett_gsm_map_ms_Ext_SS_InfoList;
+static gint ett_gsm_map_ms_Ext_SS_Info;
+static gint ett_gsm_map_ms_Ext_ForwInfo;
+static gint ett_gsm_map_ms_Ext_ForwFeatureList;
+static gint ett_gsm_map_ms_Ext_ForwFeature;
+static gint ett_gsm_map_ms_Ext_CallBarInfo;
+static gint ett_gsm_map_ms_Ext_CallBarFeatureList;
+static gint ett_gsm_map_ms_Ext_CallBarringFeature;
+static gint ett_gsm_map_ms_CUG_Info;
+static gint ett_gsm_map_ms_CUG_SubscriptionList;
+static gint ett_gsm_map_ms_CUG_Subscription;
+static gint ett_gsm_map_ms_CUG_FeatureList;
+static gint ett_gsm_map_ms_Ext_BasicServiceGroupList;
+static gint ett_gsm_map_ms_CUG_Feature;
+static gint ett_gsm_map_ms_Ext_SS_Data;
+static gint ett_gsm_map_ms_LCS_PrivacyExceptionList;
+static gint ett_gsm_map_ms_LCS_PrivacyClass;
+static gint ett_gsm_map_ms_ExternalClientList;
+static gint ett_gsm_map_ms_PLMNClientList;
+static gint ett_gsm_map_ms_Ext_ExternalClientList;
+static gint ett_gsm_map_ms_ExternalClient;
+static gint ett_gsm_map_ms_ServiceTypeList;
+static gint ett_gsm_map_ms_ServiceType;
+static gint ett_gsm_map_ms_MOLR_List;
+static gint ett_gsm_map_ms_MOLR_Class;
+static gint ett_gsm_map_ms_ZoneCodeList;
+static gint ett_gsm_map_ms_InsertSubscriberDataRes;
+static gint ett_gsm_map_ms_DeleteSubscriberDataArg;
+static gint ett_gsm_map_ms_SpecificCSI_Withdraw;
+static gint ett_gsm_map_ms_GPRSSubscriptionDataWithdraw;
+static gint ett_gsm_map_ms_EPS_SubscriptionDataWithdraw;
+static gint ett_gsm_map_ms_ContextIdList;
+static gint ett_gsm_map_ms_LSAInformationWithdraw;
+static gint ett_gsm_map_ms_LSAIdentityList;
+static gint ett_gsm_map_ms_BasicServiceList;
+static gint ett_gsm_map_ms_DeleteSubscriberDataRes;
+static gint ett_gsm_map_ms_VlrCamelSubscriptionInfo;
+static gint ett_gsm_map_ms_MT_smsCAMELTDP_CriteriaList;
+static gint ett_gsm_map_ms_MT_smsCAMELTDP_Criteria;
+static gint ett_gsm_map_ms_TPDU_TypeCriterion;
+static gint ett_gsm_map_ms_D_CSI;
+static gint ett_gsm_map_ms_DP_AnalysedInfoCriteriaList;
+static gint ett_gsm_map_ms_DP_AnalysedInfoCriterium;
+static gint ett_gsm_map_ms_SS_CSI;
+static gint ett_gsm_map_ms_SS_CamelData;
+static gint ett_gsm_map_ms_SS_EventList;
+static gint ett_gsm_map_ms_O_CSI;
+static gint ett_gsm_map_ms_O_BcsmCamelTDPDataList;
+static gint ett_gsm_map_ms_O_BcsmCamelTDPData;
+static gint ett_gsm_map_ms_O_BcsmCamelTDPCriteriaList;
+static gint ett_gsm_map_ms_T_BCSM_CAMEL_TDP_CriteriaList;
+static gint ett_gsm_map_ms_O_BcsmCamelTDP_Criteria;
+static gint ett_gsm_map_ms_T_BCSM_CAMEL_TDP_Criteria;
+static gint ett_gsm_map_ms_DestinationNumberCriteria;
+static gint ett_gsm_map_ms_DestinationNumberList;
+static gint ett_gsm_map_ms_DestinationNumberLengthList;
+static gint ett_gsm_map_ms_BasicServiceCriteria;
+static gint ett_gsm_map_ms_O_CauseValueCriteria;
+static gint ett_gsm_map_ms_T_CauseValueCriteria;
+static gint ett_gsm_map_ms_SupportedCamelPhases;
+static gint ett_gsm_map_ms_OfferedCamel4CSIs;
+static gint ett_gsm_map_ms_OfferedCamel4Functionalities;
+static gint ett_gsm_map_ms_SMS_CSI;
+static gint ett_gsm_map_ms_SMS_CAMEL_TDP_DataList;
+static gint ett_gsm_map_ms_SMS_CAMEL_TDP_Data;
+static gint ett_gsm_map_ms_M_CSI;
+static gint ett_gsm_map_ms_MG_CSI;
+static gint ett_gsm_map_ms_MobilityTriggers;
+static gint ett_gsm_map_ms_T_CSI;
+static gint ett_gsm_map_ms_T_BcsmCamelTDPDataList;
+static gint ett_gsm_map_ms_T_BcsmCamelTDPData;
+static gint ett_gsm_map_ms_SendRoutingInfoForGprsArg;
+static gint ett_gsm_map_ms_SendRoutingInfoForGprsRes;
+static gint ett_gsm_map_ms_FailureReportArg;
+static gint ett_gsm_map_ms_FailureReportRes;
+static gint ett_gsm_map_ms_NoteMsPresentForGprsArg;
+static gint ett_gsm_map_ms_NoteMsPresentForGprsRes;
+static gint ett_gsm_map_ms_ResetArg;
+static gint ett_gsm_map_ms_SendingNode_Number;
+static gint ett_gsm_map_ms_RestoreDataArg;
+static gint ett_gsm_map_ms_RestoreDataRes;
+static gint ett_gsm_map_ms_VBSDataList;
+static gint ett_gsm_map_ms_VGCSDataList;
+static gint ett_gsm_map_ms_VoiceGroupCallData;
+static gint ett_gsm_map_ms_AdditionalSubscriptions;
+static gint ett_gsm_map_ms_VoiceBroadcastData;
+static gint ett_gsm_map_ms_ProvideSubscriberInfoArg;
+static gint ett_gsm_map_ms_ProvideSubscriberInfoRes;
+static gint ett_gsm_map_ms_SubscriberInfo;
+static gint ett_gsm_map_ms_MNPInfoRes;
+static gint ett_gsm_map_ms_GPRSMSClass;
+static gint ett_gsm_map_ms_RequestedInfo;
+static gint ett_gsm_map_ms_RequestedNodes;
+static gint ett_gsm_map_ms_LocationInformation;
+static gint ett_gsm_map_ms_LocationInformationEPS;
+static gint ett_gsm_map_ms_LocationInformationGPRS;
+static gint ett_gsm_map_ms_LocationInformation5GS;
+static gint ett_gsm_map_ms_UserCSGInformation;
+static gint ett_gsm_map_ms_SubscriberState;
+static gint ett_gsm_map_ms_PS_SubscriberState;
+static gint ett_gsm_map_ms_PDP_ContextInfoList;
+static gint ett_gsm_map_ms_PDP_ContextInfo;
+static gint ett_gsm_map_ms_AnyTimeInterrogationArg;
+static gint ett_gsm_map_ms_AnyTimeInterrogationRes;
+static gint ett_gsm_map_ms_AnyTimeSubscriptionInterrogationArg;
+static gint ett_gsm_map_ms_AnyTimeSubscriptionInterrogationRes;
+static gint ett_gsm_map_ms_CallWaitingData;
+static gint ett_gsm_map_ms_Ext_CwFeatureList;
+static gint ett_gsm_map_ms_Ext_CwFeature;
+static gint ett_gsm_map_ms_ClipData;
+static gint ett_gsm_map_ms_ClirData;
+static gint ett_gsm_map_ms_CallHoldData;
+static gint ett_gsm_map_ms_EctData;
+static gint ett_gsm_map_ms_RequestedSubscriptionInfo;
+static gint ett_gsm_map_ms_MSISDN_BS_List;
+static gint ett_gsm_map_ms_MSISDN_BS;
+static gint ett_gsm_map_ms_CallForwardingData;
+static gint ett_gsm_map_ms_CallBarringData;
+static gint ett_gsm_map_ms_ODB_Info;
+static gint ett_gsm_map_ms_CAMEL_SubscriptionInfo;
+static gint ett_gsm_map_ms_AnyTimeModificationArg;
+static gint ett_gsm_map_ms_ModificationRequestFor_CW_Info;
+static gint ett_gsm_map_ms_ModificationRequestFor_CH_Info;
+static gint ett_gsm_map_ms_ModificationRequestFor_ECT_Info;
+static gint ett_gsm_map_ms_ModificationRequestFor_CLIR_Info;
+static gint ett_gsm_map_ms_ModificationRequestFor_CLIP_Info;
+static gint ett_gsm_map_ms_ModificationRequestFor_CSG;
+static gint ett_gsm_map_ms_RequestedServingNode;
+static gint ett_gsm_map_ms_ServingNode;
+static gint ett_gsm_map_ms_AnyTimeModificationRes;
+static gint ett_gsm_map_ms_ModificationRequestFor_CF_Info;
+static gint ett_gsm_map_ms_ModificationRequestFor_CB_Info;
+static gint ett_gsm_map_ms_ModificationRequestFor_ODB_data;
+static gint ett_gsm_map_ms_ModificationRequestFor_CSI;
+static gint ett_gsm_map_ms_ModificationRequestFor_IP_SM_GW_Data;
+static gint ett_gsm_map_ms_NoteSubscriberDataModifiedArg;
+static gint ett_gsm_map_ms_NoteSubscriberDataModifiedRes;
+static gint ett_gsm_map_ms_NoteMM_EventArg;
+static gint ett_gsm_map_ms_NoteMM_EventRes;
+static gint ett_gsm_map_ms_Ext_SS_InfoFor_CSE;
+static gint ett_gsm_map_ms_Ext_ForwardingInfoFor_CSE;
+static gint ett_gsm_map_ms_Ext_CallBarringInfoFor_CSE;
+static gint ett_gsm_map_ms_UpdateVcsgLocationArg;
+static gint ett_gsm_map_ms_UpdateVcsgLocationRes;
+static gint ett_gsm_map_ms_CancelVcsgLocationArg;
+static gint ett_gsm_map_ms_CancelVcsgLocationRes;
 
 /* --- Module MAP-CH-DataTypes --- --- ---                                    */
 
-static gint ett_gsm_map_ch_CUG_CheckInfo = -1;
-static gint ett_gsm_map_ch_SendRoutingInfoArg = -1;
-static gint ett_gsm_map_ch_SuppressMTSS = -1;
-static gint ett_gsm_map_ch_SendRoutingInfoRes_U = -1;
-static gint ett_gsm_map_ch_AllowedServices = -1;
-static gint ett_gsm_map_ch_CCBS_Indicators = -1;
-static gint ett_gsm_map_ch_RoutingInfo = -1;
-static gint ett_gsm_map_ch_ForwardingData = -1;
-static gint ett_gsm_map_ch_ProvideRoamingNumberArg = -1;
-static gint ett_gsm_map_ch_ProvideRoamingNumberRes = -1;
-static gint ett_gsm_map_ch_ResumeCallHandlingArg = -1;
-static gint ett_gsm_map_ch_UU_Data = -1;
-static gint ett_gsm_map_ch_ResumeCallHandlingRes = -1;
-static gint ett_gsm_map_ch_CamelInfo = -1;
-static gint ett_gsm_map_ch_ExtendedRoutingInfo = -1;
-static gint ett_gsm_map_ch_CamelRoutingInfo = -1;
-static gint ett_gsm_map_ch_GmscCamelSubscriptionInfo = -1;
-static gint ett_gsm_map_ch_SetReportingStateArg = -1;
-static gint ett_gsm_map_ch_SetReportingStateRes = -1;
-static gint ett_gsm_map_ch_StatusReportArg = -1;
-static gint ett_gsm_map_ch_EventReportData = -1;
-static gint ett_gsm_map_ch_CallReportData = -1;
-static gint ett_gsm_map_ch_StatusReportRes = -1;
-static gint ett_gsm_map_ch_RemoteUserFreeArg = -1;
-static gint ett_gsm_map_ch_RemoteUserFreeRes = -1;
-static gint ett_gsm_map_ch_IST_AlertArg = -1;
-static gint ett_gsm_map_ch_IST_AlertRes = -1;
-static gint ett_gsm_map_ch_IST_CommandArg = -1;
-static gint ett_gsm_map_ch_IST_CommandRes = -1;
-static gint ett_gsm_map_ch_ReleaseResourcesArg = -1;
-static gint ett_gsm_map_ch_ReleaseResourcesRes = -1;
+static gint ett_gsm_map_ch_CUG_CheckInfo;
+static gint ett_gsm_map_ch_SendRoutingInfoArg;
+static gint ett_gsm_map_ch_SuppressMTSS;
+static gint ett_gsm_map_ch_SendRoutingInfoRes_U;
+static gint ett_gsm_map_ch_AllowedServices;
+static gint ett_gsm_map_ch_CCBS_Indicators;
+static gint ett_gsm_map_ch_RoutingInfo;
+static gint ett_gsm_map_ch_ForwardingData;
+static gint ett_gsm_map_ch_ProvideRoamingNumberArg;
+static gint ett_gsm_map_ch_ProvideRoamingNumberRes;
+static gint ett_gsm_map_ch_ResumeCallHandlingArg;
+static gint ett_gsm_map_ch_UU_Data;
+static gint ett_gsm_map_ch_ResumeCallHandlingRes;
+static gint ett_gsm_map_ch_CamelInfo;
+static gint ett_gsm_map_ch_ExtendedRoutingInfo;
+static gint ett_gsm_map_ch_CamelRoutingInfo;
+static gint ett_gsm_map_ch_GmscCamelSubscriptionInfo;
+static gint ett_gsm_map_ch_SetReportingStateArg;
+static gint ett_gsm_map_ch_SetReportingStateRes;
+static gint ett_gsm_map_ch_StatusReportArg;
+static gint ett_gsm_map_ch_EventReportData;
+static gint ett_gsm_map_ch_CallReportData;
+static gint ett_gsm_map_ch_StatusReportRes;
+static gint ett_gsm_map_ch_RemoteUserFreeArg;
+static gint ett_gsm_map_ch_RemoteUserFreeRes;
+static gint ett_gsm_map_ch_IST_AlertArg;
+static gint ett_gsm_map_ch_IST_AlertRes;
+static gint ett_gsm_map_ch_IST_CommandArg;
+static gint ett_gsm_map_ch_IST_CommandRes;
+static gint ett_gsm_map_ch_ReleaseResourcesArg;
+static gint ett_gsm_map_ch_ReleaseResourcesRes;
 
 /* --- Module MAP-LCS-DataTypes --- --- ---                                   */
 
-static gint ett_gsm_map_lcs_RoutingInfoForLCS_Arg = -1;
-static gint ett_gsm_map_lcs_RoutingInfoForLCS_Res = -1;
-static gint ett_gsm_map_lcs_LCSLocationInfo = -1;
-static gint ett_gsm_map_lcs_ProvideSubscriberLocation_Arg = -1;
-static gint ett_gsm_map_lcs_LocationType = -1;
-static gint ett_gsm_map_lcs_DeferredLocationEventType = -1;
-static gint ett_gsm_map_lcs_LCS_ClientID = -1;
-static gint ett_gsm_map_lcs_LCSClientName = -1;
-static gint ett_gsm_map_lcs_LCSRequestorID = -1;
-static gint ett_gsm_map_lcs_LCS_QoS = -1;
-static gint ett_gsm_map_lcs_ResponseTime = -1;
-static gint ett_gsm_map_lcs_SupportedGADShapes = -1;
-static gint ett_gsm_map_lcs_LCSCodeword = -1;
-static gint ett_gsm_map_lcs_LCS_PrivacyCheck = -1;
-static gint ett_gsm_map_lcs_AreaEventInfo = -1;
-static gint ett_gsm_map_lcs_AreaDefinition = -1;
-static gint ett_gsm_map_lcs_AreaList = -1;
-static gint ett_gsm_map_lcs_Area = -1;
-static gint ett_gsm_map_lcs_PeriodicLDRInfo = -1;
-static gint ett_gsm_map_lcs_ReportingPLMNList = -1;
-static gint ett_gsm_map_lcs_PLMNList = -1;
-static gint ett_gsm_map_lcs_ReportingPLMN = -1;
-static gint ett_gsm_map_lcs_ProvideSubscriberLocation_Res = -1;
-static gint ett_gsm_map_lcs_SubscriberLocationReport_Arg = -1;
-static gint ett_gsm_map_lcs_Deferredmt_lrData = -1;
-static gint ett_gsm_map_lcs_ServingNodeAddress = -1;
-static gint ett_gsm_map_lcs_SubscriberLocationReport_Res = -1;
+static gint ett_gsm_map_lcs_RoutingInfoForLCS_Arg;
+static gint ett_gsm_map_lcs_RoutingInfoForLCS_Res;
+static gint ett_gsm_map_lcs_LCSLocationInfo;
+static gint ett_gsm_map_lcs_ProvideSubscriberLocation_Arg;
+static gint ett_gsm_map_lcs_LocationType;
+static gint ett_gsm_map_lcs_DeferredLocationEventType;
+static gint ett_gsm_map_lcs_LCS_ClientID;
+static gint ett_gsm_map_lcs_LCSClientName;
+static gint ett_gsm_map_lcs_LCSRequestorID;
+static gint ett_gsm_map_lcs_LCS_QoS;
+static gint ett_gsm_map_lcs_ResponseTime;
+static gint ett_gsm_map_lcs_SupportedGADShapes;
+static gint ett_gsm_map_lcs_LCSCodeword;
+static gint ett_gsm_map_lcs_LCS_PrivacyCheck;
+static gint ett_gsm_map_lcs_AreaEventInfo;
+static gint ett_gsm_map_lcs_AreaDefinition;
+static gint ett_gsm_map_lcs_AreaList;
+static gint ett_gsm_map_lcs_Area;
+static gint ett_gsm_map_lcs_PeriodicLDRInfo;
+static gint ett_gsm_map_lcs_ReportingPLMNList;
+static gint ett_gsm_map_lcs_PLMNList;
+static gint ett_gsm_map_lcs_ReportingPLMN;
+static gint ett_gsm_map_lcs_ProvideSubscriberLocation_Res;
+static gint ett_gsm_map_lcs_SubscriberLocationReport_Arg;
+static gint ett_gsm_map_lcs_Deferredmt_lrData;
+static gint ett_gsm_map_lcs_ServingNodeAddress;
+static gint ett_gsm_map_lcs_SubscriberLocationReport_Res;
 
 /* --- Module MAP-GR-DataTypes --- --- ---                                    */
 
-static gint ett_gsm_map_gr_PrepareGroupCallArg = -1;
-static gint ett_gsm_map_gr_PrepareGroupCallRes = -1;
-static gint ett_gsm_map_gr_SendGroupCallEndSignalArg = -1;
-static gint ett_gsm_map_gr_SendGroupCallEndSignalRes = -1;
-static gint ett_gsm_map_gr_ForwardGroupCallSignallingArg = -1;
-static gint ett_gsm_map_gr_ProcessGroupCallSignallingArg = -1;
-static gint ett_gsm_map_gr_StateAttributes = -1;
-static gint ett_gsm_map_gr_SendGroupCallInfoArg = -1;
-static gint ett_gsm_map_gr_SendGroupCallInfoRes = -1;
+static gint ett_gsm_map_gr_PrepareGroupCallArg;
+static gint ett_gsm_map_gr_PrepareGroupCallRes;
+static gint ett_gsm_map_gr_SendGroupCallEndSignalArg;
+static gint ett_gsm_map_gr_SendGroupCallEndSignalRes;
+static gint ett_gsm_map_gr_ForwardGroupCallSignallingArg;
+static gint ett_gsm_map_gr_ProcessGroupCallSignallingArg;
+static gint ett_gsm_map_gr_StateAttributes;
+static gint ett_gsm_map_gr_SendGroupCallInfoArg;
+static gint ett_gsm_map_gr_SendGroupCallInfoRes;
 
 /* --- Module MAP-DialogueInformation --- --- ---                             */
 
-static gint ett_gsm_map_dialogue_MAP_DialoguePDU = -1;
-static gint ett_gsm_map_dialogue_MAP_OpenInfo = -1;
-static gint ett_gsm_map_dialogue_MAP_AcceptInfo = -1;
-static gint ett_gsm_map_dialogue_MAP_CloseInfo = -1;
-static gint ett_gsm_map_dialogue_MAP_RefuseInfo = -1;
-static gint ett_gsm_map_dialogue_MAP_UserAbortInfo = -1;
-static gint ett_gsm_map_dialogue_MAP_UserAbortChoice = -1;
-static gint ett_gsm_map_dialogue_MAP_ProviderAbortInfo = -1;
+static gint ett_gsm_map_dialogue_MAP_DialoguePDU;
+static gint ett_gsm_map_dialogue_MAP_OpenInfo;
+static gint ett_gsm_map_dialogue_MAP_AcceptInfo;
+static gint ett_gsm_map_dialogue_MAP_CloseInfo;
+static gint ett_gsm_map_dialogue_MAP_RefuseInfo;
+static gint ett_gsm_map_dialogue_MAP_UserAbortInfo;
+static gint ett_gsm_map_dialogue_MAP_UserAbortChoice;
+static gint ett_gsm_map_dialogue_MAP_ProviderAbortInfo;
 
 /* --- Module MAP-LocationServiceOperations --- --- ---                       */
 
@@ -2622,176 +2622,176 @@ static gint ett_gsm_map_dialogue_MAP_ProviderAbortInfo = -1;
 
 /* --- Module DummyMAP --- --- ---                                            */
 
-static gint ett_gsm_old_Component = -1;
-static gint ett_gsm_old_Invoke = -1;
-static gint ett_gsm_old_ReturnResult = -1;
-static gint ett_gsm_old_T_resultretres = -1;
-static gint ett_gsm_old_ReturnError = -1;
-static gint ett_gsm_old_Reject = -1;
-static gint ett_gsm_old_T_invokeIDRej = -1;
-static gint ett_gsm_old_T_problem = -1;
-static gint ett_gsm_old_MAP_OPERATION = -1;
-static gint ett_gsm_old_MAP_ERROR = -1;
-static gint ett_gsm_old_Bss_APDU = -1;
-static gint ett_gsm_old_ProvideSIWFSNumberArg = -1;
-static gint ett_gsm_old_ProvideSIWFSNumberRes = -1;
-static gint ett_gsm_old_PurgeMSArgV2 = -1;
-static gint ett_gsm_old_PrepareHO_ArgOld = -1;
-static gint ett_gsm_old_PrepareHO_ResOld = -1;
-static gint ett_gsm_old_SendAuthenticationInfoResOld = -1;
-static gint ett_gsm_old_SendAuthenticationInfoResOld_item = -1;
-static gint ett_gsm_old_SendIdentificationResV2 = -1;
-static gint ett_gsm_old_TripletListold = -1;
-static gint ett_gsm_old_AuthenticationTriplet_v2 = -1;
-static gint ett_gsm_old_SIWFSSignallingModifyArg = -1;
-static gint ett_gsm_old_SIWFSSignallingModifyRes = -1;
-static gint ett_gsm_old_SecureTransportArg = -1;
-static gint ett_gsm_old_SecureTransportErrorParam = -1;
-static gint ett_gsm_old_SecureTransportRes = -1;
-static gint ett_gsm_old_SecurityHeader = -1;
-static gint ett_gsm_old_OriginalComponentIdentifier = -1;
-static gint ett_gsm_old_OperationCode = -1;
-static gint ett_gsm_old_ErrorCode = -1;
-static gint ett_gsm_old_PlmnContainer_U = -1;
-static gint ett_gsm_old_T_operatorSS_Code = -1;
-static gint ett_gsm_old_ForwardSM_Arg = -1;
-static gint ett_gsm_old_SM_RP_DAold = -1;
-static gint ett_gsm_old_SM_RP_OAold = -1;
-static gint ett_gsm_old_SendRoutingInfoArgV2 = -1;
-static gint ett_gsm_old_SendRoutingInfoResV2 = -1;
-static gint ett_gsm_old_BeginSubscriberActivityArg = -1;
-static gint ett_gsm_old_RoutingInfoForSM_ArgV1 = -1;
-static gint ett_gsm_old_RoutingInfoForSM_ResV2 = -1;
-static gint ett_gsm_old_LocationInfoWithLMSIv2 = -1;
-static gint ett_gsm_old_LocationInfo = -1;
-static gint ett_gsm_old_SendParametersArg = -1;
-static gint ett_gsm_old_RequestParameterList = -1;
-static gint ett_gsm_old_SentParameter = -1;
-static gint ett_gsm_old_AuthenticationSetListOld = -1;
-static gint ett_gsm_old_SentParameterList = -1;
-static gint ett_gsm_old_ResetArgV1 = -1;
+static gint ett_gsm_old_Component;
+static gint ett_gsm_old_Invoke;
+static gint ett_gsm_old_ReturnResult;
+static gint ett_gsm_old_T_resultretres;
+static gint ett_gsm_old_ReturnError;
+static gint ett_gsm_old_Reject;
+static gint ett_gsm_old_T_invokeIDRej;
+static gint ett_gsm_old_T_problem;
+static gint ett_gsm_old_MAP_OPERATION;
+static gint ett_gsm_old_MAP_ERROR;
+static gint ett_gsm_old_Bss_APDU;
+static gint ett_gsm_old_ProvideSIWFSNumberArg;
+static gint ett_gsm_old_ProvideSIWFSNumberRes;
+static gint ett_gsm_old_PurgeMSArgV2;
+static gint ett_gsm_old_PrepareHO_ArgOld;
+static gint ett_gsm_old_PrepareHO_ResOld;
+static gint ett_gsm_old_SendAuthenticationInfoResOld;
+static gint ett_gsm_old_SendAuthenticationInfoResOld_item;
+static gint ett_gsm_old_SendIdentificationResV2;
+static gint ett_gsm_old_TripletListold;
+static gint ett_gsm_old_AuthenticationTriplet_v2;
+static gint ett_gsm_old_SIWFSSignallingModifyArg;
+static gint ett_gsm_old_SIWFSSignallingModifyRes;
+static gint ett_gsm_old_SecureTransportArg;
+static gint ett_gsm_old_SecureTransportErrorParam;
+static gint ett_gsm_old_SecureTransportRes;
+static gint ett_gsm_old_SecurityHeader;
+static gint ett_gsm_old_OriginalComponentIdentifier;
+static gint ett_gsm_old_OperationCode;
+static gint ett_gsm_old_ErrorCode;
+static gint ett_gsm_old_PlmnContainer_U;
+static gint ett_gsm_old_T_operatorSS_Code;
+static gint ett_gsm_old_ForwardSM_Arg;
+static gint ett_gsm_old_SM_RP_DAold;
+static gint ett_gsm_old_SM_RP_OAold;
+static gint ett_gsm_old_SendRoutingInfoArgV2;
+static gint ett_gsm_old_SendRoutingInfoResV2;
+static gint ett_gsm_old_BeginSubscriberActivityArg;
+static gint ett_gsm_old_RoutingInfoForSM_ArgV1;
+static gint ett_gsm_old_RoutingInfoForSM_ResV2;
+static gint ett_gsm_old_LocationInfoWithLMSIv2;
+static gint ett_gsm_old_LocationInfo;
+static gint ett_gsm_old_SendParametersArg;
+static gint ett_gsm_old_RequestParameterList;
+static gint ett_gsm_old_SentParameter;
+static gint ett_gsm_old_AuthenticationSetListOld;
+static gint ett_gsm_old_SentParameterList;
+static gint ett_gsm_old_ResetArgV1;
 
 /* --- Module SS-DataTypes --- --- ---                                        */
 
-static gint ett_gsm_ss_NotifySS_Arg = -1;
-static gint ett_gsm_ss_ForwardChargeAdviceArg = -1;
-static gint ett_gsm_ss_ChargingInformation = -1;
-static gint ett_gsm_ss_ForwardCUG_InfoArg = -1;
-static gint ett_gsm_ss_ECT_Indicator = -1;
-static gint ett_gsm_ss_NameIndicator = -1;
-static gint ett_gsm_ss_Name = -1;
-static gint ett_gsm_ss_NameSet = -1;
-static gint ett_gsm_ss_RDN = -1;
-static gint ett_gsm_ss_RemotePartyNumber = -1;
-static gint ett_gsm_ss_AccessRegisterCCEntryArg = -1;
-static gint ett_gsm_ss_CallDeflectionArg = -1;
-static gint ett_gsm_ss_UserUserServiceArg = -1;
-static gint ett_gsm_ss_LocationNotificationArg = -1;
-static gint ett_gsm_ss_DeferredLocationExt = -1;
-static gint ett_gsm_ss_LocationNotificationRes = -1;
-static gint ett_gsm_ss_LCS_MOLRArg = -1;
-static gint ett_gsm_ss_MultiplePositioningProtocolPDUs = -1;
-static gint ett_gsm_ss_LCS_MOLRRes = -1;
-static gint ett_gsm_ss_LCS_AreaEventRequestArg = -1;
-static gint ett_gsm_ss_LCS_AreaEventReportArg = -1;
-static gint ett_gsm_ss_LCS_AreaEventCancellationArg = -1;
-static gint ett_gsm_ss_LCS_PeriodicLocationRequestArg = -1;
-static gint ett_gsm_ss_LCS_PeriodicLocationRequestRes = -1;
-static gint ett_gsm_ss_LCS_LocationUpdateArg = -1;
-static gint ett_gsm_ss_LCS_LocationUpdateRes = -1;
-static gint ett_gsm_ss_LCS_PeriodicLocationCancellationArg = -1;
-static gint ett_gsm_ss_LCS_PeriodicTriggeredInvokeArg = -1;
-static gint ett_gsm_ss_PeriodicLocation = -1;
-static gint ett_gsm_ss_AreaEventReporting = -1;
-static gint ett_gsm_ss_AreaList = -1;
-static gint ett_gsm_ss_Area = -1;
-static gint ett_gsm_ss_Location_Info = -1;
-static gint ett_gsm_ss_MotionEventReporting = -1;
-static gint ett_gsm_ss_LCS_PeriodicTriggeredInvokeRes = -1;
+static gint ett_gsm_ss_NotifySS_Arg;
+static gint ett_gsm_ss_ForwardChargeAdviceArg;
+static gint ett_gsm_ss_ChargingInformation;
+static gint ett_gsm_ss_ForwardCUG_InfoArg;
+static gint ett_gsm_ss_ECT_Indicator;
+static gint ett_gsm_ss_NameIndicator;
+static gint ett_gsm_ss_Name;
+static gint ett_gsm_ss_NameSet;
+static gint ett_gsm_ss_RDN;
+static gint ett_gsm_ss_RemotePartyNumber;
+static gint ett_gsm_ss_AccessRegisterCCEntryArg;
+static gint ett_gsm_ss_CallDeflectionArg;
+static gint ett_gsm_ss_UserUserServiceArg;
+static gint ett_gsm_ss_LocationNotificationArg;
+static gint ett_gsm_ss_DeferredLocationExt;
+static gint ett_gsm_ss_LocationNotificationRes;
+static gint ett_gsm_ss_LCS_MOLRArg;
+static gint ett_gsm_ss_MultiplePositioningProtocolPDUs;
+static gint ett_gsm_ss_LCS_MOLRRes;
+static gint ett_gsm_ss_LCS_AreaEventRequestArg;
+static gint ett_gsm_ss_LCS_AreaEventReportArg;
+static gint ett_gsm_ss_LCS_AreaEventCancellationArg;
+static gint ett_gsm_ss_LCS_PeriodicLocationRequestArg;
+static gint ett_gsm_ss_LCS_PeriodicLocationRequestRes;
+static gint ett_gsm_ss_LCS_LocationUpdateArg;
+static gint ett_gsm_ss_LCS_LocationUpdateRes;
+static gint ett_gsm_ss_LCS_PeriodicLocationCancellationArg;
+static gint ett_gsm_ss_LCS_PeriodicTriggeredInvokeArg;
+static gint ett_gsm_ss_PeriodicLocation;
+static gint ett_gsm_ss_AreaEventReporting;
+static gint ett_gsm_ss_AreaList;
+static gint ett_gsm_ss_Area;
+static gint ett_gsm_ss_Location_Info;
+static gint ett_gsm_ss_MotionEventReporting;
+static gint ett_gsm_ss_LCS_PeriodicTriggeredInvokeRes;
 
 /* --- Module SS-Operations --- --- ---                                       */
 
 
 /* --- Module EricssonMAP --- --- ---                                         */
 
-static gint ett_gsm_map_ericsson_EnhancedCheckIMEI_Arg = -1;
-static gint ett_gsm_map_ericsson_ExtensionType = -1;
-static gint ett_gsm_map_ericsson_IsdArgType = -1;
-static gint ett_gsm_map_ericsson_IsdArgData = -1;
-static gint ett_gsm_map_ericsson_PrivateFeatureData = -1;
-static gint ett_gsm_map_ericsson_OickInfo = -1;
-static gint ett_gsm_map_ericsson_SubscriptionTypeInfo = -1;
-static gint ett_gsm_map_ericsson_IsdResType = -1;
-static gint ett_gsm_map_ericsson_IsdResData = -1;
-static gint ett_gsm_map_ericsson_DsdArgType = -1;
-static gint ett_gsm_map_ericsson_DsdArgData = -1;
-static gint ett_gsm_map_ericsson_SRIArgType = -1;
-static gint ett_gsm_map_ericsson_SriArgData = -1;
-static gint ett_gsm_map_ericsson_SRIResType = -1;
-static gint ett_gsm_map_ericsson_SriResData = -1;
-static gint ett_gsm_map_ericsson_PrnArgType = -1;
-static gint ett_gsm_map_ericsson_PrnArgData = -1;
-static gint ett_gsm_map_ericsson_UlArgType = -1;
-static gint ett_gsm_map_ericsson_UlArgData = -1;
-static gint ett_gsm_map_ericsson_PrivateFeatureUlArgData = -1;
-static gint ett_gsm_map_ericsson_ExtraSignalInfo_U = -1;
-static gint ett_gsm_map_ericsson_SaiArgType = -1;
-static gint ett_gsm_map_ericsson_SaiResType = -1;
-static gint ett_gsm_map_ericsson_AtiArgType = -1;
-static gint ett_gsm_map_ericsson_AtiResType = -1;
-static gint ett_gsm_map_ericsson_RdArgType = -1;
-static gint ett_gsm_map_ericsson_RequestedInfoType = -1;
-static gint ett_gsm_map_ericsson_ExtAtiArgType = -1;
-static gint ett_gsm_map_ericsson_AtiArgData = -1;
+static gint ett_gsm_map_ericsson_EnhancedCheckIMEI_Arg;
+static gint ett_gsm_map_ericsson_ExtensionType;
+static gint ett_gsm_map_ericsson_IsdArgType;
+static gint ett_gsm_map_ericsson_IsdArgData;
+static gint ett_gsm_map_ericsson_PrivateFeatureData;
+static gint ett_gsm_map_ericsson_OickInfo;
+static gint ett_gsm_map_ericsson_SubscriptionTypeInfo;
+static gint ett_gsm_map_ericsson_IsdResType;
+static gint ett_gsm_map_ericsson_IsdResData;
+static gint ett_gsm_map_ericsson_DsdArgType;
+static gint ett_gsm_map_ericsson_DsdArgData;
+static gint ett_gsm_map_ericsson_SRIArgType;
+static gint ett_gsm_map_ericsson_SriArgData;
+static gint ett_gsm_map_ericsson_SRIResType;
+static gint ett_gsm_map_ericsson_SriResData;
+static gint ett_gsm_map_ericsson_PrnArgType;
+static gint ett_gsm_map_ericsson_PrnArgData;
+static gint ett_gsm_map_ericsson_UlArgType;
+static gint ett_gsm_map_ericsson_UlArgData;
+static gint ett_gsm_map_ericsson_PrivateFeatureUlArgData;
+static gint ett_gsm_map_ericsson_ExtraSignalInfo_U;
+static gint ett_gsm_map_ericsson_SaiArgType;
+static gint ett_gsm_map_ericsson_SaiResType;
+static gint ett_gsm_map_ericsson_AtiArgType;
+static gint ett_gsm_map_ericsson_AtiResType;
+static gint ett_gsm_map_ericsson_RdArgType;
+static gint ett_gsm_map_ericsson_RequestedInfoType;
+static gint ett_gsm_map_ericsson_ExtAtiArgType;
+static gint ett_gsm_map_ericsson_AtiArgData;
 
 /* --- Module NokiaMAP-Extensions --- --- ---                                 */
 
-static gint ett_NokiaMAP_Extensions_IsdArgExt_U = -1;
-static gint ett_NokiaMAP_Extensions_DsdArgExt_U = -1;
-static gint ett_NokiaMAP_Extensions_UlResExt_U = -1;
-static gint ett_NokiaMAP_Extensions_ChargingAreaList = -1;
-static gint ett_NokiaMAP_Extensions_RegionalChargingData = -1;
-static gint ett_NokiaMAP_Extensions_SS_DataExtension_U = -1;
-static gint ett_NokiaMAP_Extensions_SriExtension_U = -1;
-static gint ett_NokiaMAP_Extensions_ExtraSignalInfo_U = -1;
-static gint ett_NokiaMAP_Extensions_Nokia_CUG_Data = -1;
-static gint ett_NokiaMAP_Extensions_SriResExtension_U = -1;
-static gint ett_NokiaMAP_Extensions_RgData = -1;
-static gint ett_NokiaMAP_Extensions_MemberList = -1;
-static gint ett_NokiaMAP_Extensions_CanLocArgExt_U = -1;
-static gint ett_NokiaMAP_Extensions_ATMargExt_U = -1;
-static gint ett_NokiaMAP_Extensions_OlcmInfoTable = -1;
-static gint ett_NokiaMAP_Extensions_OlcmInfo = -1;
-static gint ett_NokiaMAP_Extensions_ATMresExt_U = -1;
-static gint ett_NokiaMAP_Extensions_DTMargExt_U = -1;
-static gint ett_NokiaMAP_Extensions_FraudInfo = -1;
-static gint ett_NokiaMAP_Extensions_FraudData = -1;
-static gint ett_NokiaMAP_Extensions_ServiceWithInfo = -1;
-static gint ett_NokiaMAP_Extensions_ServiceListWithInfo = -1;
-static gint ett_NokiaMAP_Extensions_INKey = -1;
-static gint ett_NokiaMAP_Extensions_MKey = -1;
-static gint ett_NokiaMAP_Extensions_SMSKey = -1;
-static gint ett_NokiaMAP_Extensions_HO_Ext_U = -1;
-static gint ett_NokiaMAP_Extensions_CodecListExt = -1;
-static gint ett_NokiaMAP_Extensions_SelectedCodec = -1;
-static gint ett_NokiaMAP_Extensions_AbsentSubscriberExt_U = -1;
-static gint ett_NokiaMAP_Extensions_ErrOlcmInfoTableExt_U = -1;
-static gint ett_NokiaMAP_Extensions_RoutingCategoryExt_U = -1;
-static gint ett_NokiaMAP_Extensions_SriForSMArgExt_U = -1;
-static gint ett_NokiaMAP_Extensions_ReportSMDelStatArgExt_U = -1;
-static gint ett_NokiaMAP_Extensions_MO_ForwardSM_ArgExt_U = -1;
-static gint ett_NokiaMAP_Extensions_UdlArgExt_U = -1;
-static gint ett_NokiaMAP_Extensions_RoamNotAllowedExt_U = -1;
-static gint ett_NokiaMAP_Extensions_AnyTimeModArgExt_U = -1;
-static gint ett_NokiaMAP_Extensions_AccessTypeExt = -1;
-static gint ett_NokiaMAP_Extensions_AccessSubscriptionListExt = -1;
-static gint ett_NokiaMAP_Extensions_AllowedServiceData = -1;
+static gint ett_NokiaMAP_Extensions_IsdArgExt_U;
+static gint ett_NokiaMAP_Extensions_DsdArgExt_U;
+static gint ett_NokiaMAP_Extensions_UlResExt_U;
+static gint ett_NokiaMAP_Extensions_ChargingAreaList;
+static gint ett_NokiaMAP_Extensions_RegionalChargingData;
+static gint ett_NokiaMAP_Extensions_SS_DataExtension_U;
+static gint ett_NokiaMAP_Extensions_SriExtension_U;
+static gint ett_NokiaMAP_Extensions_ExtraSignalInfo_U;
+static gint ett_NokiaMAP_Extensions_Nokia_CUG_Data;
+static gint ett_NokiaMAP_Extensions_SriResExtension_U;
+static gint ett_NokiaMAP_Extensions_RgData;
+static gint ett_NokiaMAP_Extensions_MemberList;
+static gint ett_NokiaMAP_Extensions_CanLocArgExt_U;
+static gint ett_NokiaMAP_Extensions_ATMargExt_U;
+static gint ett_NokiaMAP_Extensions_OlcmInfoTable;
+static gint ett_NokiaMAP_Extensions_OlcmInfo;
+static gint ett_NokiaMAP_Extensions_ATMresExt_U;
+static gint ett_NokiaMAP_Extensions_DTMargExt_U;
+static gint ett_NokiaMAP_Extensions_FraudInfo;
+static gint ett_NokiaMAP_Extensions_FraudData;
+static gint ett_NokiaMAP_Extensions_ServiceWithInfo;
+static gint ett_NokiaMAP_Extensions_ServiceListWithInfo;
+static gint ett_NokiaMAP_Extensions_INKey;
+static gint ett_NokiaMAP_Extensions_MKey;
+static gint ett_NokiaMAP_Extensions_SMSKey;
+static gint ett_NokiaMAP_Extensions_HO_Ext_U;
+static gint ett_NokiaMAP_Extensions_CodecListExt;
+static gint ett_NokiaMAP_Extensions_SelectedCodec;
+static gint ett_NokiaMAP_Extensions_AbsentSubscriberExt_U;
+static gint ett_NokiaMAP_Extensions_ErrOlcmInfoTableExt_U;
+static gint ett_NokiaMAP_Extensions_RoutingCategoryExt_U;
+static gint ett_NokiaMAP_Extensions_SriForSMArgExt_U;
+static gint ett_NokiaMAP_Extensions_ReportSMDelStatArgExt_U;
+static gint ett_NokiaMAP_Extensions_MO_ForwardSM_ArgExt_U;
+static gint ett_NokiaMAP_Extensions_UdlArgExt_U;
+static gint ett_NokiaMAP_Extensions_RoamNotAllowedExt_U;
+static gint ett_NokiaMAP_Extensions_AnyTimeModArgExt_U;
+static gint ett_NokiaMAP_Extensions_AccessTypeExt;
+static gint ett_NokiaMAP_Extensions_AccessSubscriptionListExt;
+static gint ett_NokiaMAP_Extensions_AllowedServiceData;
 
-static expert_field ei_gsm_map_unknown_sequence3 = EI_INIT;
-static expert_field ei_gsm_map_unknown_sequence = EI_INIT;
-static expert_field ei_gsm_map_unknown_parameter = EI_INIT;
-static expert_field ei_gsm_map_unknown_invokeData = EI_INIT;
-static expert_field ei_gsm_map_undecoded = EI_INIT;
+static expert_field ei_gsm_map_unknown_sequence3;
+static expert_field ei_gsm_map_unknown_sequence;
+static expert_field ei_gsm_map_unknown_parameter;
+static expert_field ei_gsm_map_unknown_invokeData;
+static expert_field ei_gsm_map_undecoded;
 
 static dissector_handle_t       gsm_sms_handle; /* SMS TPDU */
 static dissector_handle_t       ranap_handle;

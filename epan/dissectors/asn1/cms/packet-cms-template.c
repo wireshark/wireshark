@@ -35,12 +35,12 @@ void proto_register_cms(void);
 void proto_reg_handoff_cms(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_cms = -1;
-static int hf_cms_ci_contentType = -1;
+static int proto_cms;
+static int hf_cms_ci_contentType;
 #include "packet-cms-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_cms = -1;
+static gint ett_cms;
 #include "packet-cms-ett.c"
 
 static dissector_handle_t cms_handle = NULL;

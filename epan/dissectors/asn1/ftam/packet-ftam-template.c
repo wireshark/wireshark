@@ -33,20 +33,20 @@ void proto_register_ftam(void);
 void proto_reg_handoff_ftam(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_ftam = -1;
+static int proto_ftam;
 
 /* Declare the function to avoid a compiler warning */
 static int dissect_ftam_OR_Set(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 
-static int hf_ftam_unstructured_text = -1;              /* ISO FTAM unstructured text */
-static int hf_ftam_unstructured_binary = -1;            /* ISO FTAM unstructured binary */
+static int hf_ftam_unstructured_text;              /* ISO FTAM unstructured text */
+static int hf_ftam_unstructured_binary;            /* ISO FTAM unstructured binary */
 #include "packet-ftam-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_ftam = -1;
+static gint ett_ftam;
 #include "packet-ftam-ett.c"
 
-static expert_field ei_ftam_zero_pdu = EI_INIT;
+static expert_field ei_ftam_zero_pdu;
 
 #include "packet-ftam-fn.c"
 

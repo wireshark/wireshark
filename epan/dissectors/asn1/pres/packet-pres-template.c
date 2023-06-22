@@ -39,10 +39,10 @@ void proto_register_pres(void);
 void proto_reg_handoff_pres(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_pres = -1;
+static int proto_pres;
 
 /* Initialize the connectionles protocol */
-static int proto_clpres = -1;
+static int proto_clpres;
 
 /*      pointers for acse dissector  */
 proto_tree *global_tree  = NULL;
@@ -67,22 +67,22 @@ typedef struct _pres_user_t {
 static pres_user_t *pres_users;
 static guint num_pres_users;
 
-static int hf_pres_CP_type = -1;
-static int hf_pres_CPA_PPDU = -1;
-static int hf_pres_Abort_type = -1;
-static int hf_pres_CPR_PPDU = -1;
-static int hf_pres_Typed_data_type = -1;
+static int hf_pres_CP_type;
+static int hf_pres_CPA_PPDU;
+static int hf_pres_Abort_type;
+static int hf_pres_CPR_PPDU;
+static int hf_pres_Typed_data_type;
 
 #include "packet-pres-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_pres           = -1;
+static gint ett_pres;
 
 #include "packet-pres-ett.c"
 
-static expert_field ei_pres_dissector_not_available = EI_INIT;
-static expert_field ei_pres_wrong_spdu_type = EI_INIT;
-static expert_field ei_pres_invalid_offset = EI_INIT;
+static expert_field ei_pres_dissector_not_available;
+static expert_field ei_pres_wrong_spdu_type;
+static expert_field ei_pres_invalid_offset;
 
 UAT_DEC_CB_DEF(pres_users, ctx_id, pres_user_t)
 UAT_CSTRING_CB_DEF(pres_users, oid, pres_user_t)

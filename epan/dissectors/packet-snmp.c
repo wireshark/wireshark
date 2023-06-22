@@ -75,8 +75,8 @@
 
 /* Initialize the protocol and registered fields */
 static int snmp_tap = -1;
-static int proto_snmp = -1;
-static int proto_smux = -1;
+static int proto_snmp;
+static int proto_smux;
 
 static gboolean display_oid = TRUE;
 static gboolean snmp_var_in_tree = TRUE;
@@ -193,185 +193,185 @@ static dissector_handle_t smux_handle;
 
 static next_tvb_list_t *var_list;
 
-static int hf_snmp_response_in = -1;
-static int hf_snmp_response_to = -1;
-static int hf_snmp_time = -1;
+static int hf_snmp_response_in;
+static int hf_snmp_response_to;
+static int hf_snmp_time;
 
-static int hf_snmp_v3_flags_auth = -1;
-static int hf_snmp_v3_flags_crypt = -1;
-static int hf_snmp_v3_flags_report = -1;
+static int hf_snmp_v3_flags_auth;
+static int hf_snmp_v3_flags_crypt;
+static int hf_snmp_v3_flags_report;
 
-static int hf_snmp_engineid_conform = -1;
-static int hf_snmp_engineid_enterprise = -1;
-static int hf_snmp_engineid_format = -1;
-static int hf_snmp_engineid_ipv4 = -1;
-static int hf_snmp_engineid_ipv6 = -1;
-static int hf_snmp_engineid_cisco_type = -1;
-static int hf_snmp_engineid_mac = -1;
-static int hf_snmp_engineid_text = -1;
-static int hf_snmp_engineid_time = -1;
-static int hf_snmp_engineid_data = -1;
-static int hf_snmp_decryptedPDU = -1;
-static int hf_snmp_msgAuthentication = -1;
+static int hf_snmp_engineid_conform;
+static int hf_snmp_engineid_enterprise;
+static int hf_snmp_engineid_format;
+static int hf_snmp_engineid_ipv4;
+static int hf_snmp_engineid_ipv6;
+static int hf_snmp_engineid_cisco_type;
+static int hf_snmp_engineid_mac;
+static int hf_snmp_engineid_text;
+static int hf_snmp_engineid_time;
+static int hf_snmp_engineid_data;
+static int hf_snmp_decryptedPDU;
+static int hf_snmp_msgAuthentication;
 
-static int hf_snmp_noSuchObject = -1;
-static int hf_snmp_noSuchInstance = -1;
-static int hf_snmp_endOfMibView = -1;
-static int hf_snmp_unSpecified = -1;
+static int hf_snmp_noSuchObject;
+static int hf_snmp_noSuchInstance;
+static int hf_snmp_endOfMibView;
+static int hf_snmp_unSpecified;
 
-static int hf_snmp_integer32_value = -1;
-static int hf_snmp_octetstring_value = -1;
-static int hf_snmp_oid_value = -1;
-static int hf_snmp_null_value = -1;
-static int hf_snmp_ipv4_value = -1;
-static int hf_snmp_ipv6_value = -1;
-static int hf_snmp_anyaddress_value = -1;
-static int hf_snmp_unsigned32_value = -1;
-static int hf_snmp_unknown_value = -1;
-static int hf_snmp_opaque_value = -1;
-static int hf_snmp_nsap_value = -1;
-static int hf_snmp_counter_value = -1;
-static int hf_snmp_timeticks_value = -1;
-static int hf_snmp_big_counter_value = -1;
-static int hf_snmp_gauge32_value = -1;
+static int hf_snmp_integer32_value;
+static int hf_snmp_octetstring_value;
+static int hf_snmp_oid_value;
+static int hf_snmp_null_value;
+static int hf_snmp_ipv4_value;
+static int hf_snmp_ipv6_value;
+static int hf_snmp_anyaddress_value;
+static int hf_snmp_unsigned32_value;
+static int hf_snmp_unknown_value;
+static int hf_snmp_opaque_value;
+static int hf_snmp_nsap_value;
+static int hf_snmp_counter_value;
+static int hf_snmp_timeticks_value;
+static int hf_snmp_big_counter_value;
+static int hf_snmp_gauge32_value;
 
-static int hf_snmp_objectname = -1;
-static int hf_snmp_scalar_instance_index = -1;
+static int hf_snmp_objectname;
+static int hf_snmp_scalar_instance_index;
 
-static int hf_snmp_var_bind_str = -1;
-static int hf_snmp_agentid_trailer = -1;
+static int hf_snmp_var_bind_str;
+static int hf_snmp_agentid_trailer;
 
-static int hf_snmp_SMUX_PDUs_PDU = -1;            /* SMUX_PDUs */
-static int hf_snmp_version = -1;                  /* Version */
-static int hf_snmp_community = -1;                /* Community */
-static int hf_snmp_data = -1;                     /* PDUs */
-static int hf_snmp_parameters = -1;               /* OCTET_STRING */
-static int hf_snmp_datav2u = -1;                  /* T_datav2u */
-static int hf_snmp_v2u_plaintext = -1;            /* PDUs */
-static int hf_snmp_encrypted = -1;                /* OCTET_STRING */
-static int hf_snmp_msgAuthoritativeEngineID = -1;  /* T_msgAuthoritativeEngineID */
-static int hf_snmp_msgAuthoritativeEngineBoots = -1;  /* T_msgAuthoritativeEngineBoots */
-static int hf_snmp_msgAuthoritativeEngineTime = -1;  /* T_msgAuthoritativeEngineTime */
-static int hf_snmp_msgUserName = -1;              /* T_msgUserName */
-static int hf_snmp_msgAuthenticationParameters = -1;  /* T_msgAuthenticationParameters */
-static int hf_snmp_msgPrivacyParameters = -1;     /* T_msgPrivacyParameters */
-static int hf_snmp_msgVersion = -1;               /* Version */
-static int hf_snmp_msgGlobalData = -1;            /* HeaderData */
-static int hf_snmp_msgSecurityParameters = -1;    /* T_msgSecurityParameters */
-static int hf_snmp_msgData = -1;                  /* ScopedPduData */
-static int hf_snmp_msgID = -1;                    /* INTEGER_0_2147483647 */
-static int hf_snmp_msgMaxSize = -1;               /* INTEGER_484_2147483647 */
-static int hf_snmp_msgFlags = -1;                 /* T_msgFlags */
-static int hf_snmp_msgSecurityModel = -1;         /* T_msgSecurityModel */
-static int hf_snmp_plaintext = -1;                /* ScopedPDU */
-static int hf_snmp_encryptedPDU = -1;             /* T_encryptedPDU */
-static int hf_snmp_contextEngineID = -1;          /* SnmpEngineID */
-static int hf_snmp_contextName = -1;              /* OCTET_STRING */
-static int hf_snmp_get_request = -1;              /* GetRequest_PDU */
-static int hf_snmp_get_next_request = -1;         /* GetNextRequest_PDU */
-static int hf_snmp_get_response = -1;             /* GetResponse_PDU */
-static int hf_snmp_set_request = -1;              /* SetRequest_PDU */
-static int hf_snmp_trap = -1;                     /* Trap_PDU */
-static int hf_snmp_getBulkRequest = -1;           /* GetBulkRequest_PDU */
-static int hf_snmp_informRequest = -1;            /* InformRequest_PDU */
-static int hf_snmp_snmpV2_trap = -1;              /* SNMPv2_Trap_PDU */
-static int hf_snmp_report = -1;                   /* Report_PDU */
-static int hf_snmp_request_id = -1;               /* T_request_id */
-static int hf_snmp_error_status = -1;             /* T_error_status */
-static int hf_snmp_error_index = -1;              /* INTEGER */
-static int hf_snmp_variable_bindings = -1;        /* VarBindList */
-static int hf_snmp_bulkPDU_request_id = -1;       /* Integer32 */
-static int hf_snmp_non_repeaters = -1;            /* INTEGER_0_2147483647 */
-static int hf_snmp_max_repetitions = -1;          /* INTEGER_0_2147483647 */
-static int hf_snmp_enterprise = -1;               /* EnterpriseOID */
-static int hf_snmp_agent_addr = -1;               /* NetworkAddress */
-static int hf_snmp_generic_trap = -1;             /* GenericTrap */
-static int hf_snmp_specific_trap = -1;            /* SpecificTrap */
-static int hf_snmp_time_stamp = -1;               /* TimeTicks */
-static int hf_snmp_name = -1;                     /* ObjectName */
-static int hf_snmp_valueType = -1;                /* ValueType */
-static int hf_snmp_VarBindList_item = -1;         /* VarBind */
-static int hf_snmp_open = -1;                     /* OpenPDU */
-static int hf_snmp_close = -1;                    /* ClosePDU */
-static int hf_snmp_registerRequest = -1;          /* RReqPDU */
-static int hf_snmp_registerResponse = -1;         /* RegisterResponse */
-static int hf_snmp_commitOrRollback = -1;         /* SOutPDU */
-static int hf_snmp_rRspPDU = -1;                  /* RRspPDU */
-static int hf_snmp_pDUs = -1;                     /* PDUs */
-static int hf_snmp_smux_simple = -1;              /* SimpleOpen */
-static int hf_snmp_smux_version = -1;             /* T_smux_version */
-static int hf_snmp_identity = -1;                 /* OBJECT_IDENTIFIER */
-static int hf_snmp_description = -1;              /* DisplayString */
-static int hf_snmp_password = -1;                 /* OCTET_STRING */
-static int hf_snmp_subtree = -1;                  /* ObjectName */
-static int hf_snmp_priority = -1;                 /* INTEGER_M1_2147483647 */
-static int hf_snmp_operation = -1;                /* T_operation */
+static int hf_snmp_SMUX_PDUs_PDU;                 /* SMUX_PDUs */
+static int hf_snmp_version;                       /* Version */
+static int hf_snmp_community;                     /* Community */
+static int hf_snmp_data;                          /* PDUs */
+static int hf_snmp_parameters;                    /* OCTET_STRING */
+static int hf_snmp_datav2u;                       /* T_datav2u */
+static int hf_snmp_v2u_plaintext;                 /* PDUs */
+static int hf_snmp_encrypted;                     /* OCTET_STRING */
+static int hf_snmp_msgAuthoritativeEngineID;      /* T_msgAuthoritativeEngineID */
+static int hf_snmp_msgAuthoritativeEngineBoots;   /* T_msgAuthoritativeEngineBoots */
+static int hf_snmp_msgAuthoritativeEngineTime;    /* T_msgAuthoritativeEngineTime */
+static int hf_snmp_msgUserName;                   /* T_msgUserName */
+static int hf_snmp_msgAuthenticationParameters;   /* T_msgAuthenticationParameters */
+static int hf_snmp_msgPrivacyParameters;          /* T_msgPrivacyParameters */
+static int hf_snmp_msgVersion;                    /* Version */
+static int hf_snmp_msgGlobalData;                 /* HeaderData */
+static int hf_snmp_msgSecurityParameters;         /* T_msgSecurityParameters */
+static int hf_snmp_msgData;                       /* ScopedPduData */
+static int hf_snmp_msgID;                         /* INTEGER_0_2147483647 */
+static int hf_snmp_msgMaxSize;                    /* INTEGER_484_2147483647 */
+static int hf_snmp_msgFlags;                      /* T_msgFlags */
+static int hf_snmp_msgSecurityModel;              /* T_msgSecurityModel */
+static int hf_snmp_plaintext;                     /* ScopedPDU */
+static int hf_snmp_encryptedPDU;                  /* T_encryptedPDU */
+static int hf_snmp_contextEngineID;               /* SnmpEngineID */
+static int hf_snmp_contextName;                   /* OCTET_STRING */
+static int hf_snmp_get_request;                   /* GetRequest_PDU */
+static int hf_snmp_get_next_request;              /* GetNextRequest_PDU */
+static int hf_snmp_get_response;                  /* GetResponse_PDU */
+static int hf_snmp_set_request;                   /* SetRequest_PDU */
+static int hf_snmp_trap;                          /* Trap_PDU */
+static int hf_snmp_getBulkRequest;                /* GetBulkRequest_PDU */
+static int hf_snmp_informRequest;                 /* InformRequest_PDU */
+static int hf_snmp_snmpV2_trap;                   /* SNMPv2_Trap_PDU */
+static int hf_snmp_report;                        /* Report_PDU */
+static int hf_snmp_request_id;                    /* T_request_id */
+static int hf_snmp_error_status;                  /* T_error_status */
+static int hf_snmp_error_index;                   /* INTEGER */
+static int hf_snmp_variable_bindings;             /* VarBindList */
+static int hf_snmp_bulkPDU_request_id;            /* Integer32 */
+static int hf_snmp_non_repeaters;                 /* INTEGER_0_2147483647 */
+static int hf_snmp_max_repetitions;               /* INTEGER_0_2147483647 */
+static int hf_snmp_enterprise;                    /* EnterpriseOID */
+static int hf_snmp_agent_addr;                    /* NetworkAddress */
+static int hf_snmp_generic_trap;                  /* GenericTrap */
+static int hf_snmp_specific_trap;                 /* SpecificTrap */
+static int hf_snmp_time_stamp;                    /* TimeTicks */
+static int hf_snmp_name;                          /* ObjectName */
+static int hf_snmp_valueType;                     /* ValueType */
+static int hf_snmp_VarBindList_item;              /* VarBind */
+static int hf_snmp_open;                          /* OpenPDU */
+static int hf_snmp_close;                         /* ClosePDU */
+static int hf_snmp_registerRequest;               /* RReqPDU */
+static int hf_snmp_registerResponse;              /* RegisterResponse */
+static int hf_snmp_commitOrRollback;              /* SOutPDU */
+static int hf_snmp_rRspPDU;                       /* RRspPDU */
+static int hf_snmp_pDUs;                          /* PDUs */
+static int hf_snmp_smux_simple;                   /* SimpleOpen */
+static int hf_snmp_smux_version;                  /* T_smux_version */
+static int hf_snmp_identity;                      /* OBJECT_IDENTIFIER */
+static int hf_snmp_description;                   /* DisplayString */
+static int hf_snmp_password;                      /* OCTET_STRING */
+static int hf_snmp_subtree;                       /* ObjectName */
+static int hf_snmp_priority;                      /* INTEGER_M1_2147483647 */
+static int hf_snmp_operation;                     /* T_operation */
 
 /* Initialize the subtree pointers */
-static gint ett_smux = -1;
-static gint ett_snmp = -1;
-static gint ett_engineid = -1;
-static gint ett_msgFlags = -1;
-static gint ett_encryptedPDU = -1;
-static gint ett_decrypted = -1;
-static gint ett_authParameters = -1;
-static gint ett_internet = -1;
-static gint ett_varbind = -1;
-static gint ett_name = -1;
-static gint ett_value = -1;
-static gint ett_decoding_error = -1;
+static gint ett_smux;
+static gint ett_snmp;
+static gint ett_engineid;
+static gint ett_msgFlags;
+static gint ett_encryptedPDU;
+static gint ett_decrypted;
+static gint ett_authParameters;
+static gint ett_internet;
+static gint ett_varbind;
+static gint ett_name;
+static gint ett_value;
+static gint ett_decoding_error;
 
-static gint ett_snmp_Message = -1;
-static gint ett_snmp_Messagev2u = -1;
-static gint ett_snmp_T_datav2u = -1;
-static gint ett_snmp_UsmSecurityParameters = -1;
-static gint ett_snmp_SNMPv3Message = -1;
-static gint ett_snmp_HeaderData = -1;
-static gint ett_snmp_ScopedPduData = -1;
-static gint ett_snmp_ScopedPDU = -1;
-static gint ett_snmp_PDUs = -1;
-static gint ett_snmp_PDU = -1;
-static gint ett_snmp_BulkPDU = -1;
-static gint ett_snmp_Trap_PDU_U = -1;
-static gint ett_snmp_VarBind = -1;
-static gint ett_snmp_VarBindList = -1;
-static gint ett_snmp_SMUX_PDUs = -1;
-static gint ett_snmp_RegisterResponse = -1;
-static gint ett_snmp_OpenPDU = -1;
-static gint ett_snmp_SimpleOpen_U = -1;
-static gint ett_snmp_RReqPDU_U = -1;
+static gint ett_snmp_Message;
+static gint ett_snmp_Messagev2u;
+static gint ett_snmp_T_datav2u;
+static gint ett_snmp_UsmSecurityParameters;
+static gint ett_snmp_SNMPv3Message;
+static gint ett_snmp_HeaderData;
+static gint ett_snmp_ScopedPduData;
+static gint ett_snmp_ScopedPDU;
+static gint ett_snmp_PDUs;
+static gint ett_snmp_PDU;
+static gint ett_snmp_BulkPDU;
+static gint ett_snmp_Trap_PDU_U;
+static gint ett_snmp_VarBind;
+static gint ett_snmp_VarBindList;
+static gint ett_snmp_SMUX_PDUs;
+static gint ett_snmp_RegisterResponse;
+static gint ett_snmp_OpenPDU;
+static gint ett_snmp_SimpleOpen_U;
+static gint ett_snmp_RReqPDU_U;
 
-static expert_field ei_snmp_failed_decrypted_data_pdu = EI_INIT;
-static expert_field ei_snmp_decrypted_data_bad_formatted = EI_INIT;
-static expert_field ei_snmp_verify_authentication_error = EI_INIT;
-static expert_field ei_snmp_authentication_ok = EI_INIT;
-static expert_field ei_snmp_authentication_error = EI_INIT;
-static expert_field ei_snmp_varbind_not_uni_class_seq = EI_INIT;
-static expert_field ei_snmp_varbind_has_indicator = EI_INIT;
-static expert_field ei_snmp_objectname_not_oid = EI_INIT;
-static expert_field ei_snmp_objectname_has_indicator = EI_INIT;
-static expert_field ei_snmp_value_not_primitive_encoding = EI_INIT;
-static expert_field ei_snmp_invalid_oid = EI_INIT;
-static expert_field ei_snmp_varbind_wrong_tag = EI_INIT;
-static expert_field ei_snmp_varbind_response = EI_INIT;
-static expert_field ei_snmp_no_instance_subid = EI_INIT;
-static expert_field ei_snmp_wrong_num_of_subids = EI_INIT;
-static expert_field ei_snmp_index_suboid_too_short = EI_INIT;
-static expert_field ei_snmp_unimplemented_instance_index = EI_INIT;
-static expert_field ei_snmp_index_suboid_len0 = EI_INIT;
-static expert_field ei_snmp_index_suboid_too_long = EI_INIT;
-static expert_field ei_snmp_index_string_too_long = EI_INIT;
-static expert_field ei_snmp_column_parent_not_row = EI_INIT;
-static expert_field ei_snmp_uint_too_large = EI_INIT;
-static expert_field ei_snmp_int_too_large = EI_INIT;
-static expert_field ei_snmp_integral_value0 = EI_INIT;
-static expert_field ei_snmp_missing_mib = EI_INIT;
-static expert_field ei_snmp_varbind_wrong_length_value = EI_INIT;
-static expert_field ei_snmp_varbind_wrong_class_tag = EI_INIT;
-static expert_field ei_snmp_rfc1910_non_conformant = EI_INIT;
-static expert_field ei_snmp_rfc3411_non_conformant = EI_INIT;
-static expert_field ei_snmp_version_unknown = EI_INIT;
-static expert_field ei_snmp_trap_pdu_obsolete = EI_INIT;
+static expert_field ei_snmp_failed_decrypted_data_pdu;
+static expert_field ei_snmp_decrypted_data_bad_formatted;
+static expert_field ei_snmp_verify_authentication_error;
+static expert_field ei_snmp_authentication_ok;
+static expert_field ei_snmp_authentication_error;
+static expert_field ei_snmp_varbind_not_uni_class_seq;
+static expert_field ei_snmp_varbind_has_indicator;
+static expert_field ei_snmp_objectname_not_oid;
+static expert_field ei_snmp_objectname_has_indicator;
+static expert_field ei_snmp_value_not_primitive_encoding;
+static expert_field ei_snmp_invalid_oid;
+static expert_field ei_snmp_varbind_wrong_tag;
+static expert_field ei_snmp_varbind_response;
+static expert_field ei_snmp_no_instance_subid;
+static expert_field ei_snmp_wrong_num_of_subids;
+static expert_field ei_snmp_index_suboid_too_short;
+static expert_field ei_snmp_unimplemented_instance_index;
+static expert_field ei_snmp_index_suboid_len0;
+static expert_field ei_snmp_index_suboid_too_long;
+static expert_field ei_snmp_index_string_too_long;
+static expert_field ei_snmp_column_parent_not_row;
+static expert_field ei_snmp_uint_too_large;
+static expert_field ei_snmp_int_too_large;
+static expert_field ei_snmp_integral_value0;
+static expert_field ei_snmp_missing_mib;
+static expert_field ei_snmp_varbind_wrong_length_value;
+static expert_field ei_snmp_varbind_wrong_class_tag;
+static expert_field ei_snmp_rfc1910_non_conformant;
+static expert_field ei_snmp_rfc3411_non_conformant;
+static expert_field ei_snmp_version_unknown;
+static expert_field ei_snmp_trap_pdu_obsolete;
 
 static const true_false_string auth_flags = {
 	"OK",

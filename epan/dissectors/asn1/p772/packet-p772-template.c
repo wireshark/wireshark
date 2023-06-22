@@ -31,14 +31,14 @@ void proto_reg_handoff_p772(void);
 
 
 /* Initialize the protocol and registered fields */
-static int proto_p772 = -1;
+static int proto_p772;
 
 #include "packet-p772-val.h"
 
 #include "packet-p772-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_p772 = -1;
+static gint ett_p772;
 #include "packet-p772-ett.c"
 
 #include "packet-p772-fn.c"

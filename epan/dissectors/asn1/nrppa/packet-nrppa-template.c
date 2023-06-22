@@ -28,12 +28,12 @@ void proto_register_nrppa(void);
 void proto_reg_handoff_nrppa(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_nrppa = -1;
+static int proto_nrppa;
 
 #include "packet-nrppa-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_nrppa = -1;
+static gint ett_nrppa;
 #include "packet-nrppa-ett.c"
 
 /* Global variables */

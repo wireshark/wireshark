@@ -63,12 +63,12 @@ static dissector_handle_t h263_handle = NULL;
 static dissector_handle_t amr_handle = NULL;
 
 static void init_h245_packet_info(h245_packet_info *pi);
-static int hf_h245_pdu_type = -1;
-static int hf_h245Manufacturer = -1;
-static int hf_h245_subMessageIdentifier_standard = -1;
+static int hf_h245_pdu_type;
+static int hf_h245Manufacturer;
+static int hf_h245_subMessageIdentifier_standard;
 static int h245_tap = -1;
 static int h245dg_tap = -1;
-static int hf_h245_debug_dissector_try_string = -1;
+static int hf_h245_debug_dissector_try_string;
 
 h245_packet_info *h245_pi=NULL;
 
@@ -492,1904 +492,1904 @@ static void print_info_column(column_info *cinfo, const gint32 *value,
 }
 
 /* Initialize the protocol and registered fields */
-static int proto_h245 = -1;
-static int hf_h245_OpenLogicalChannel_PDU = -1;   /* OpenLogicalChannel */
-static int hf_h245_request = -1;                  /* RequestMessage */
-static int hf_h245_response = -1;                 /* ResponseMessage */
-static int hf_h245_command = -1;                  /* CommandMessage */
-static int hf_h245_indication = -1;               /* IndicationMessage */
-static int hf_h245_nonStandardMsg = -1;           /* NonStandardMessage */
-static int hf_h245_masterSlaveDetermination = -1;  /* MasterSlaveDetermination */
-static int hf_h245_terminalCapabilitySet = -1;    /* TerminalCapabilitySet */
-static int hf_h245_openLogicalChannel = -1;       /* OpenLogicalChannel */
-static int hf_h245_closeLogicalChannel = -1;      /* CloseLogicalChannel */
-static int hf_h245_requestChannelClose = -1;      /* RequestChannelClose */
-static int hf_h245_multiplexEntrySend = -1;       /* MultiplexEntrySend */
-static int hf_h245_requestMultiplexEntry = -1;    /* RequestMultiplexEntry */
-static int hf_h245_requestMode = -1;              /* RequestMode */
-static int hf_h245_roundTripDelayRequest = -1;    /* RoundTripDelayRequest */
-static int hf_h245_maintenanceLoopRequest = -1;   /* MaintenanceLoopRequest */
-static int hf_h245_communicationModeRequest = -1;  /* CommunicationModeRequest */
-static int hf_h245_conferenceRequest = -1;        /* ConferenceRequest */
-static int hf_h245_multilinkRequest = -1;         /* MultilinkRequest */
-static int hf_h245_logicalChannelRateRequest = -1;  /* LogicalChannelRateRequest */
-static int hf_h245_genericRequest = -1;           /* GenericMessage */
-static int hf_h245_masterSlaveDeterminationAck = -1;  /* MasterSlaveDeterminationAck */
-static int hf_h245_masterSlaveDeterminationReject = -1;  /* MasterSlaveDeterminationReject */
-static int hf_h245_terminalCapabilitySetAck = -1;  /* TerminalCapabilitySetAck */
-static int hf_h245_terminalCapabilitySetReject = -1;  /* TerminalCapabilitySetReject */
-static int hf_h245_openLogicalChannelAck = -1;    /* OpenLogicalChannelAck */
-static int hf_h245_openLogicalChannelReject = -1;  /* OpenLogicalChannelReject */
-static int hf_h245_closeLogicalChannelAck = -1;   /* CloseLogicalChannelAck */
-static int hf_h245_requestChannelCloseAck = -1;   /* RequestChannelCloseAck */
-static int hf_h245_requestChannelCloseReject = -1;  /* RequestChannelCloseReject */
-static int hf_h245_multiplexEntrySendAck = -1;    /* MultiplexEntrySendAck */
-static int hf_h245_multiplexEntrySendReject = -1;  /* MultiplexEntrySendReject */
-static int hf_h245_requestMultiplexEntryAck = -1;  /* RequestMultiplexEntryAck */
-static int hf_h245_requestMultiplexEntryReject = -1;  /* RequestMultiplexEntryReject */
-static int hf_h245_requestModeAck = -1;           /* RequestModeAck */
-static int hf_h245_requestModeReject = -1;        /* RequestModeReject */
-static int hf_h245_roundTripDelayResponse = -1;   /* RoundTripDelayResponse */
-static int hf_h245_maintenanceLoopAck = -1;       /* MaintenanceLoopAck */
-static int hf_h245_maintenanceLoopReject = -1;    /* MaintenanceLoopReject */
-static int hf_h245_communicationModeResponse = -1;  /* CommunicationModeResponse */
-static int hf_h245_conferenceResponse = -1;       /* ConferenceResponse */
-static int hf_h245_multilinkResponse = -1;        /* MultilinkResponse */
-static int hf_h245_logicalChannelRateAcknowledge = -1;  /* LogicalChannelRateAcknowledge */
-static int hf_h245_logicalChannelRateReject = -1;  /* LogicalChannelRateReject */
-static int hf_h245_genericResponse = -1;          /* GenericMessage */
-static int hf_h245_maintenanceLoopOffCommand = -1;  /* MaintenanceLoopOffCommand */
-static int hf_h245_sendTerminalCapabilitySet = -1;  /* SendTerminalCapabilitySet */
-static int hf_h245_encryptionCommand = -1;        /* EncryptionCommand */
-static int hf_h245_flowControlCommand = -1;       /* FlowControlCommand */
-static int hf_h245_endSessionCommand = -1;        /* EndSessionCommand */
-static int hf_h245_miscellaneousCommand = -1;     /* MiscellaneousCommand */
-static int hf_h245_communicationModeCommand = -1;  /* CommunicationModeCommand */
-static int hf_h245_conferenceCommand = -1;        /* ConferenceCommand */
-static int hf_h245_h223MultiplexReconfiguration = -1;  /* H223MultiplexReconfiguration */
-static int hf_h245_newATMVCCommand = -1;          /* NewATMVCCommand */
-static int hf_h245_mobileMultilinkReconfigurationCommand = -1;  /* MobileMultilinkReconfigurationCommand */
-static int hf_h245_genericCommand = -1;           /* GenericMessage */
-static int hf_h245_functionNotUnderstood = -1;    /* FunctionNotUnderstood */
-static int hf_h245_masterSlaveDeterminationRelease = -1;  /* MasterSlaveDeterminationRelease */
-static int hf_h245_terminalCapabilitySetRelease = -1;  /* TerminalCapabilitySetRelease */
-static int hf_h245_openLogicalChannelConfirm = -1;  /* OpenLogicalChannelConfirm */
-static int hf_h245_requestChannelCloseRelease = -1;  /* RequestChannelCloseRelease */
-static int hf_h245_multiplexEntrySendRelease = -1;  /* MultiplexEntrySendRelease */
-static int hf_h245_requestMultiplexEntryRelease = -1;  /* RequestMultiplexEntryRelease */
-static int hf_h245_requestModeRelease = -1;       /* RequestModeRelease */
-static int hf_h245_miscellaneousIndication = -1;  /* MiscellaneousIndication */
-static int hf_h245_jitterIndication = -1;         /* JitterIndication */
-static int hf_h245_h223SkewIndication = -1;       /* H223SkewIndication */
-static int hf_h245_newATMVCIndication = -1;       /* NewATMVCIndication */
-static int hf_h245_userInput = -1;                /* UserInputIndication */
-static int hf_h245_h2250MaximumSkewIndication = -1;  /* H2250MaximumSkewIndication */
-static int hf_h245_mcLocationIndication = -1;     /* MCLocationIndication */
-static int hf_h245_conferenceIndication = -1;     /* ConferenceIndication */
-static int hf_h245_vendorIdentification = -1;     /* VendorIdentification */
-static int hf_h245_functionNotSupported = -1;     /* FunctionNotSupported */
-static int hf_h245_multilinkIndication = -1;      /* MultilinkIndication */
-static int hf_h245_logicalChannelRateRelease = -1;  /* LogicalChannelRateRelease */
-static int hf_h245_flowControlIndication = -1;    /* FlowControlIndication */
-static int hf_h245_mobileMultilinkReconfigurationIndication = -1;  /* MobileMultilinkReconfigurationIndication */
-static int hf_h245_genericIndication = -1;        /* GenericMessage */
-static int hf_h245_messageIdentifier = -1;        /* CapabilityIdentifier */
-static int hf_h245_subMessageIdentifier = -1;     /* T_subMessageIdentifier */
-static int hf_h245_messageContent = -1;           /* T_messageContent */
-static int hf_h245_messageContent_item = -1;      /* T_messageContent_item */
-static int hf_h245_nonStandardData = -1;          /* NonStandardParameter */
-static int hf_h245_nonStandardIdentifier = -1;    /* NonStandardIdentifier */
-static int hf_h245_nsd_data = -1;                 /* T_nsd_data */
-static int hf_h245_object = -1;                   /* T_object */
-static int hf_h245_h221NonStandardID = -1;        /* H221NonStandardID */
-static int hf_h245_t35CountryCode = -1;           /* T_t35CountryCode */
-static int hf_h245_t35Extension = -1;             /* T_t35Extension */
-static int hf_h245_manufacturerCode = -1;         /* T_manufacturerCode */
-static int hf_h245_terminalType = -1;             /* INTEGER_0_255 */
-static int hf_h245_statusDeterminationNumber = -1;  /* INTEGER_0_16777215 */
-static int hf_h245_decision = -1;                 /* T_decision */
-static int hf_h245_master = -1;                   /* NULL */
-static int hf_h245_slave = -1;                    /* NULL */
-static int hf_h245_msd_rej_cause = -1;            /* MasterSlaveDeterminationRejectCause */
-static int hf_h245_identicalNumbers = -1;         /* NULL */
-static int hf_h245_sequenceNumber = -1;           /* SequenceNumber */
-static int hf_h245_protocolIdentifier = -1;       /* OBJECT_IDENTIFIER */
-static int hf_h245_multiplexCapability = -1;      /* MultiplexCapability */
-static int hf_h245_capabilityTable = -1;          /* SET_SIZE_1_256_OF_CapabilityTableEntry */
-static int hf_h245_capabilityTable_item = -1;     /* CapabilityTableEntry */
-static int hf_h245_capabilityDescriptors = -1;    /* SET_SIZE_1_256_OF_CapabilityDescriptor */
-static int hf_h245_capabilityDescriptors_item = -1;  /* CapabilityDescriptor */
-static int hf_h245_genericInformation = -1;       /* SEQUENCE_OF_GenericInformation */
-static int hf_h245_genericInformation_item = -1;  /* GenericInformation */
-static int hf_h245_capabilityTableEntryNumber = -1;  /* CapabilityTableEntryNumber */
-static int hf_h245_capability = -1;               /* Capability */
-static int hf_h245_capabilityDescriptorNumber = -1;  /* CapabilityDescriptorNumber */
-static int hf_h245_simultaneousCapabilities = -1;  /* SET_SIZE_1_256_OF_AlternativeCapabilitySet */
-static int hf_h245_simultaneousCapabilities_item = -1;  /* AlternativeCapabilitySet */
-static int hf_h245_AlternativeCapabilitySet_item = -1;  /* CapabilityTableEntryNumber */
-static int hf_h245_tcs_rej_cause = -1;            /* TerminalCapabilitySetRejectCause */
-static int hf_h245_unspecified = -1;              /* NULL */
-static int hf_h245_undefinedTableEntryUsed = -1;  /* NULL */
-static int hf_h245_descriptorCapacityExceeded = -1;  /* NULL */
-static int hf_h245_tableEntryCapacityExceeded = -1;  /* T_tableEntryCapacityExceeded */
-static int hf_h245_highestEntryNumberProcessed = -1;  /* CapabilityTableEntryNumber */
-static int hf_h245_noneProcessed = -1;            /* NULL */
-static int hf_h245_nonStandard = -1;              /* NonStandardParameter */
-static int hf_h245_receiveVideoCapability = -1;   /* VideoCapability */
-static int hf_h245_transmitVideoCapability = -1;  /* VideoCapability */
-static int hf_h245_receiveAndTransmitVideoCapability = -1;  /* VideoCapability */
-static int hf_h245_receiveAudioCapability = -1;   /* AudioCapability */
-static int hf_h245_transmitAudioCapability = -1;  /* AudioCapability */
-static int hf_h245_receiveAndTransmitAudioCapability = -1;  /* AudioCapability */
-static int hf_h245_receiveDataApplicationCapability = -1;  /* DataApplicationCapability */
-static int hf_h245_transmitDataApplicationCapability = -1;  /* DataApplicationCapability */
-static int hf_h245_receiveAndTransmitDataApplicationCapability = -1;  /* DataApplicationCapability */
-static int hf_h245_h233EncryptionTransmitCapability = -1;  /* BOOLEAN */
-static int hf_h245_h233EncryptionReceiveCapability = -1;  /* T_h233EncryptionReceiveCapability */
-static int hf_h245_h233IVResponseTime = -1;       /* INTEGER_0_255 */
-static int hf_h245_conferenceCapability = -1;     /* ConferenceCapability */
-static int hf_h245_h235SecurityCapability = -1;   /* H235SecurityCapability */
-static int hf_h245_maxPendingReplacementFor = -1;  /* INTEGER_0_255 */
-static int hf_h245_receiveUserInputCapability = -1;  /* UserInputCapability */
-static int hf_h245_transmitUserInputCapability = -1;  /* UserInputCapability */
-static int hf_h245_receiveAndTransmitUserInputCapability = -1;  /* UserInputCapability */
-static int hf_h245_genericControlCapability = -1;  /* GenericCapability */
-static int hf_h245_receiveMultiplexedStreamCapability = -1;  /* MultiplexedStreamCapability */
-static int hf_h245_transmitMultiplexedStreamCapability = -1;  /* MultiplexedStreamCapability */
-static int hf_h245_receiveAndTransmitMultiplexedStreamCapability = -1;  /* MultiplexedStreamCapability */
-static int hf_h245_receiveRTPAudioTelephonyEventCapability = -1;  /* AudioTelephonyEventCapability */
-static int hf_h245_receiveRTPAudioToneCapability = -1;  /* AudioToneCapability */
-static int hf_h245_depFecCapability = -1;         /* DepFECCapability */
-static int hf_h245_multiplePayloadStreamCapability = -1;  /* MultiplePayloadStreamCapability */
-static int hf_h245_fecCapability = -1;            /* FECCapability */
-static int hf_h245_redundancyEncodingCap = -1;    /* RedundancyEncodingCapability */
-static int hf_h245_oneOfCapabilities = -1;        /* AlternativeCapabilitySet */
-static int hf_h245_encryptionAuthenticationAndIntegrity = -1;  /* EncryptionAuthenticationAndIntegrity */
-static int hf_h245_mediaCapability = -1;          /* CapabilityTableEntryNumber */
-static int hf_h245_h222Capability = -1;           /* H222Capability */
-static int hf_h245_h223Capability = -1;           /* H223Capability */
-static int hf_h245_v76Capability = -1;            /* V76Capability */
-static int hf_h245_h2250Capability = -1;          /* H2250Capability */
-static int hf_h245_genericMultiplexCapability = -1;  /* GenericCapability */
-static int hf_h245_numberOfVCs = -1;              /* INTEGER_1_256 */
-static int hf_h245_vcCapability = -1;             /* SET_OF_VCCapability */
-static int hf_h245_vcCapability_item = -1;        /* VCCapability */
-static int hf_h245_aal1 = -1;                     /* T_aal1 */
-static int hf_h245_nullClockRecovery = -1;        /* BOOLEAN */
-static int hf_h245_srtsClockRecovery_bool = -1;   /* BOOLEAN */
-static int hf_h245_adaptiveClockRecovery = -1;    /* BOOLEAN */
-static int hf_h245_nullErrorCorrection = -1;      /* BOOLEAN */
-static int hf_h245_longInterleaver = -1;          /* BOOLEAN */
-static int hf_h245_shortInterleaver = -1;         /* BOOLEAN */
-static int hf_h245_errorCorrectionOnly = -1;      /* BOOLEAN */
-static int hf_h245_structuredDataTransfer = -1;   /* BOOLEAN */
-static int hf_h245_partiallyFilledCells = -1;     /* BOOLEAN */
-static int hf_h245_aal5 = -1;                     /* T_aal5 */
-static int hf_h245_forwardMaximumSDUSize = -1;    /* INTEGER_0_65535 */
-static int hf_h245_backwardMaximumSDUSize = -1;   /* INTEGER_0_65535 */
-static int hf_h245_transportStream_bool = -1;     /* BOOLEAN */
-static int hf_h245_programStream = -1;            /* BOOLEAN */
-static int hf_h245_availableBitRates = -1;        /* T_availableBitRates */
-static int hf_h245_avb_type = -1;                 /* Avb_type */
-static int hf_h245_singleBitRate = -1;            /* INTEGER_1_65535 */
-static int hf_h245_rangeOfBitRates = -1;          /* T_rangeOfBitRates */
-static int hf_h245_lowerBitRate = -1;             /* INTEGER_1_65535 */
-static int hf_h245_higherBitRate = -1;            /* INTEGER_1_65535 */
-static int hf_h245_aal1ViaGateway = -1;           /* T_aal1ViaGateway */
-static int hf_h245_gatewayAddress = -1;           /* SET_SIZE_1_256_OF_Q2931Address */
-static int hf_h245_gatewayAddress_item = -1;      /* Q2931Address */
-static int hf_h245_srtsClockRecoveryflag = -1;    /* BOOLEAN */
-static int hf_h245_transportWithI_frames = -1;    /* BOOLEAN */
-static int hf_h245_videoWithAL1 = -1;             /* BOOLEAN */
-static int hf_h245_videoWithAL2 = -1;             /* BOOLEAN */
-static int hf_h245_videoWithAL3 = -1;             /* BOOLEAN */
-static int hf_h245_audioWithAL1 = -1;             /* BOOLEAN */
-static int hf_h245_audioWithAL2 = -1;             /* BOOLEAN */
-static int hf_h245_audioWithAL3 = -1;             /* BOOLEAN */
-static int hf_h245_dataWithAL1 = -1;              /* BOOLEAN */
-static int hf_h245_dataWithAL2 = -1;              /* BOOLEAN */
-static int hf_h245_dataWithAL3 = -1;              /* BOOLEAN */
-static int hf_h245_maximumAl2SDUSize = -1;        /* INTEGER_0_65535 */
-static int hf_h245_maximumAl3SDUSize = -1;        /* INTEGER_0_65535 */
-static int hf_h245_maximumDelayJitter = -1;       /* INTEGER_0_1023 */
-static int hf_h245_h223MultiplexTableCapability = -1;  /* T_h223MultiplexTableCapability */
-static int hf_h245_basic = -1;                    /* NULL */
-static int hf_h245_enhanced = -1;                 /* T_enhanced */
-static int hf_h245_maximumNestingDepth = -1;      /* INTEGER_1_15 */
-static int hf_h245_maximumElementListSize = -1;   /* INTEGER_2_255 */
-static int hf_h245_maximumSubElementListSize = -1;  /* INTEGER_2_255 */
-static int hf_h245_maxMUXPDUSizeCapability = -1;  /* BOOLEAN */
-static int hf_h245_nsrpSupport = -1;              /* BOOLEAN */
-static int hf_h245_mobileOperationTransmitCapability = -1;  /* T_mobileOperationTransmitCapability */
-static int hf_h245_modeChangeCapability = -1;     /* BOOLEAN */
-static int hf_h245_h223AnnexA = -1;               /* BOOLEAN */
-static int hf_h245_h223AnnexADoubleFlagFlag = -1;  /* BOOLEAN */
-static int hf_h245_h223AnnexB = -1;               /* BOOLEAN */
-static int hf_h245_h223AnnexBwithHeader = -1;     /* BOOLEAN */
-static int hf_h245_h223AnnexCCapability = -1;     /* H223AnnexCCapability */
-static int hf_h245_bitRate_1_19200 = -1;          /* INTEGER_1_19200 */
-static int hf_h245_mobileMultilinkFrameCapability = -1;  /* T_mobileMultilinkFrameCapability */
-static int hf_h245_maximumSampleSize = -1;        /* INTEGER_1_255 */
-static int hf_h245_maximumPayloadLength = -1;     /* INTEGER_1_65025 */
-static int hf_h245_videoWithAL1M = -1;            /* BOOLEAN */
-static int hf_h245_videoWithAL2M = -1;            /* BOOLEAN */
-static int hf_h245_videoWithAL3M = -1;            /* BOOLEAN */
-static int hf_h245_audioWithAL1M = -1;            /* BOOLEAN */
-static int hf_h245_audioWithAL2M = -1;            /* BOOLEAN */
-static int hf_h245_audioWithAL3M = -1;            /* BOOLEAN */
-static int hf_h245_dataWithAL1M = -1;             /* BOOLEAN */
-static int hf_h245_dataWithAL2M = -1;             /* BOOLEAN */
-static int hf_h245_dataWithAL3M = -1;             /* BOOLEAN */
-static int hf_h245_alpduInterleaving = -1;        /* BOOLEAN */
-static int hf_h245_maximumAL1MPDUSize = -1;       /* INTEGER_0_65535 */
-static int hf_h245_maximumAL2MSDUSize = -1;       /* INTEGER_0_65535 */
-static int hf_h245_maximumAL3MSDUSize = -1;       /* INTEGER_0_65535 */
-static int hf_h245_rsCodeCapability = -1;         /* BOOLEAN */
-static int hf_h245_suspendResumeCapabilitywAddress = -1;  /* BOOLEAN */
-static int hf_h245_suspendResumeCapabilitywoAddress = -1;  /* BOOLEAN */
-static int hf_h245_rejCapability = -1;            /* BOOLEAN */
-static int hf_h245_sREJCapability = -1;           /* BOOLEAN */
-static int hf_h245_mREJCapability = -1;           /* BOOLEAN */
-static int hf_h245_crc8bitCapability = -1;        /* BOOLEAN */
-static int hf_h245_crc16bitCapability = -1;       /* BOOLEAN */
-static int hf_h245_crc32bitCapability = -1;       /* BOOLEAN */
-static int hf_h245_uihCapability = -1;            /* BOOLEAN */
-static int hf_h245_numOfDLCS = -1;                /* INTEGER_2_8191 */
-static int hf_h245_twoOctetAddressFieldCapability = -1;  /* BOOLEAN */
-static int hf_h245_loopBackTestCapability = -1;   /* BOOLEAN */
-static int hf_h245_n401Capability = -1;           /* INTEGER_1_4095 */
-static int hf_h245_maxWindowSizeCapability = -1;  /* INTEGER_1_127 */
-static int hf_h245_v75Capability = -1;            /* V75Capability */
-static int hf_h245_audioHeader = -1;              /* BOOLEAN */
-static int hf_h245_maximumAudioDelayJitter = -1;  /* INTEGER_0_1023 */
-static int hf_h245_receiveMultipointCapability = -1;  /* MultipointCapability */
-static int hf_h245_transmitMultipointCapability = -1;  /* MultipointCapability */
-static int hf_h245_receiveAndTransmitMultipointCapability = -1;  /* MultipointCapability */
-static int hf_h245_mcCapability = -1;             /* T_mcCapability */
-static int hf_h245_centralizedConferenceMC = -1;  /* BOOLEAN */
-static int hf_h245_decentralizedConferenceMC = -1;  /* BOOLEAN */
-static int hf_h245_rtcpVideoControlCapability = -1;  /* BOOLEAN */
-static int hf_h245_mediaPacketizationCapability = -1;  /* MediaPacketizationCapability */
-static int hf_h245_transportCapability = -1;      /* TransportCapability */
-static int hf_h245_redundancyEncodingCapability = -1;  /* SEQUENCE_SIZE_1_256_OF_RedundancyEncodingCapability */
-static int hf_h245_redundancyEncodingCapability_item = -1;  /* RedundancyEncodingCapability */
-static int hf_h245_logicalChannelSwitchingCapability = -1;  /* BOOLEAN */
-static int hf_h245_t120DynamicPortCapability = -1;  /* BOOLEAN */
-static int hf_h245_h261aVideoPacketization = -1;  /* BOOLEAN */
-static int hf_h245_rtpPayloadTypes = -1;          /* SEQUENCE_SIZE_1_256_OF_RTPPayloadType */
-static int hf_h245_rtpPayloadTypes_item = -1;     /* RTPPayloadType */
-static int hf_h245_qosMode = -1;                  /* QOSMode */
-static int hf_h245_tokenRate = -1;                /* INTEGER_1_4294967295 */
-static int hf_h245_bucketSize = -1;               /* INTEGER_1_4294967295 */
-static int hf_h245_peakRate = -1;                 /* INTEGER_1_4294967295 */
-static int hf_h245_minPoliced = -1;               /* INTEGER_1_4294967295 */
-static int hf_h245_maxPktSize = -1;               /* INTEGER_1_4294967295 */
-static int hf_h245_guaranteedQOS = -1;            /* NULL */
-static int hf_h245_controlledLoad = -1;           /* NULL */
-static int hf_h245_maxNTUSize = -1;               /* INTEGER_0_65535 */
-static int hf_h245_atmUBR = -1;                   /* BOOLEAN */
-static int hf_h245_atmrtVBR = -1;                 /* BOOLEAN */
-static int hf_h245_atmnrtVBR = -1;                /* BOOLEAN */
-static int hf_h245_atmABR = -1;                   /* BOOLEAN */
-static int hf_h245_atmCBR = -1;                   /* BOOLEAN */
-static int hf_h245_nonStandardParameter = -1;     /* NonStandardParameter */
-static int hf_h245_value = -1;                    /* INTEGER_0_255 */
-static int hf_h245_servicePrioritySignalled = -1;  /* BOOLEAN */
-static int hf_h245_servicePriorityValue = -1;     /* ServicePriorityValue */
-static int hf_h245_serviceClass = -1;             /* INTEGER_0_4095 */
-static int hf_h245_serviceSubclass = -1;          /* INTEGER_0_255 */
-static int hf_h245_desired = -1;                  /* NULL */
-static int hf_h245_required = -1;                 /* NULL */
-static int hf_h245_class0 = -1;                   /* NULL */
-static int hf_h245_class1 = -1;                   /* NULL */
-static int hf_h245_class2 = -1;                   /* NULL */
-static int hf_h245_class3 = -1;                   /* NULL */
-static int hf_h245_class4 = -1;                   /* NULL */
-static int hf_h245_class5 = -1;                   /* NULL */
-static int hf_h245_qosType = -1;                  /* QOSType */
-static int hf_h245_qosClass = -1;                 /* QOSClass */
-static int hf_h245_averageRate = -1;              /* INTEGER_1_4294967295 */
-static int hf_h245_burst = -1;                    /* INTEGER_1_4294967295 */
-static int hf_h245_rsvpParameters = -1;           /* RSVPParameters */
-static int hf_h245_atmParameters = -1;            /* ATMParameters */
-static int hf_h245_localQoS = -1;                 /* BOOLEAN */
-static int hf_h245_genericTransportParameters = -1;  /* GenericTransportParameters */
-static int hf_h245_servicePriority = -1;          /* ServicePriority */
-static int hf_h245_authorizationParameter = -1;   /* AuthorizationParameters */
-static int hf_h245_qosDescriptor = -1;            /* QOSDescriptor */
-static int hf_h245_dscpValue = -1;                /* INTEGER_0_63 */
-static int hf_h245_ip_UDP = -1;                   /* NULL */
-static int hf_h245_ip_TCP = -1;                   /* NULL */
-static int hf_h245_atm_AAL5_UNIDIR = -1;          /* NULL */
-static int hf_h245_atm_AAL5_BIDIR = -1;           /* NULL */
-static int hf_h245_atm_AAL5_compressed = -1;      /* T_atm_AAL5_compressed */
-static int hf_h245_variable_delta = -1;           /* BOOLEAN */
-static int hf_h245_mediaTransport = -1;           /* MediaTransportType */
-static int hf_h245_qOSCapabilities = -1;          /* SEQUENCE_SIZE_1_256_OF_QOSCapability */
-static int hf_h245_qOSCapabilities_item = -1;     /* QOSCapability */
-static int hf_h245_mediaChannelCapabilities = -1;  /* SEQUENCE_SIZE_1_256_OF_MediaChannelCapability */
-static int hf_h245_mediaChannelCapabilities_item = -1;  /* MediaChannelCapability */
-static int hf_h245_redundancyEncodingMethod = -1;  /* RedundancyEncodingMethod */
-static int hf_h245_primaryEncoding = -1;          /* CapabilityTableEntryNumber */
-static int hf_h245_secondaryEncodingCapability = -1;  /* SEQUENCE_SIZE_1_256_OF_CapabilityTableEntryNumber */
-static int hf_h245_secondaryEncodingCapability_item = -1;  /* CapabilityTableEntryNumber */
-static int hf_h245_rtpAudioRedundancyEncoding = -1;  /* NULL */
-static int hf_h245_rtpH263VideoRedundancyEncoding = -1;  /* RTPH263VideoRedundancyEncoding */
-static int hf_h245_numberOfThreads = -1;          /* INTEGER_1_16 */
-static int hf_h245_framesBetweenSyncPoints = -1;  /* INTEGER_1_256 */
-static int hf_h245_frameToThreadMapping = -1;     /* T_frameToThreadMapping */
-static int hf_h245_roundrobin = -1;               /* NULL */
-static int hf_h245_custom = -1;                   /* SEQUENCE_SIZE_1_256_OF_RTPH263VideoRedundancyFrameMapping */
-static int hf_h245_custom_item = -1;              /* RTPH263VideoRedundancyFrameMapping */
-static int hf_h245_containedThreads = -1;         /* T_containedThreads */
-static int hf_h245_containedThreads_item = -1;    /* INTEGER_0_15 */
-static int hf_h245_threadNumber = -1;             /* INTEGER_0_15 */
-static int hf_h245_frameSequence = -1;            /* T_frameSequence */
-static int hf_h245_frameSequence_item = -1;       /* INTEGER_0_255 */
-static int hf_h245_multicastCapability = -1;      /* BOOLEAN */
-static int hf_h245_multiUniCastConference = -1;   /* BOOLEAN */
-static int hf_h245_mediaDistributionCapability = -1;  /* SEQUENCE_OF_MediaDistributionCapability */
-static int hf_h245_mediaDistributionCapability_item = -1;  /* MediaDistributionCapability */
-static int hf_h245_centralizedControl = -1;       /* BOOLEAN */
-static int hf_h245_distributedControl = -1;       /* BOOLEAN */
-static int hf_h245_centralizedAudio = -1;         /* BOOLEAN */
-static int hf_h245_distributedAudio = -1;         /* BOOLEAN */
-static int hf_h245_centralizedVideo = -1;         /* BOOLEAN */
-static int hf_h245_distributedVideo = -1;         /* BOOLEAN */
-static int hf_h245_centralizedData = -1;          /* SEQUENCE_OF_DataApplicationCapability */
-static int hf_h245_centralizedData_item = -1;     /* DataApplicationCapability */
-static int hf_h245_distributedData = -1;          /* SEQUENCE_OF_DataApplicationCapability */
-static int hf_h245_distributedData_item = -1;     /* DataApplicationCapability */
-static int hf_h245_h261VideoCapability = -1;      /* H261VideoCapability */
-static int hf_h245_h262VideoCapability = -1;      /* H262VideoCapability */
-static int hf_h245_h263VideoCapability = -1;      /* H263VideoCapability */
-static int hf_h245_is11172VideoCapability = -1;   /* IS11172VideoCapability */
-static int hf_h245_genericVideoCapability = -1;   /* GenericCapability */
-static int hf_h245_extendedVideoCapability = -1;  /* ExtendedVideoCapability */
-static int hf_h245_videoCapability = -1;          /* SEQUENCE_OF_VideoCapability */
-static int hf_h245_videoCapability_item = -1;     /* VideoCapability */
-static int hf_h245_videoCapabilityExtension = -1;  /* SEQUENCE_OF_GenericCapability */
-static int hf_h245_videoCapabilityExtension_item = -1;  /* GenericCapability */
-static int hf_h245_qcifMPI_1_4 = -1;              /* INTEGER_1_4 */
-static int hf_h245_cifMPI_1_4 = -1;               /* INTEGER_1_4 */
-static int hf_h245_temporalSpatialTradeOffCapability = -1;  /* BOOLEAN */
-static int hf_h245_maxBitRate_1_19200 = -1;       /* INTEGER_1_19200 */
-static int hf_h245_stillImageTransmission = -1;   /* BOOLEAN */
-static int hf_h245_videoBadMBsCap = -1;           /* BOOLEAN */
-static int hf_h245_profileAndLevel_SPatML = -1;   /* BOOLEAN */
-static int hf_h245_profileAndLevel_MPatLL = -1;   /* BOOLEAN */
-static int hf_h245_profileAndLevel_MPatML = -1;   /* BOOLEAN */
-static int hf_h245_profileAndLevel_MPatH_14 = -1;  /* BOOLEAN */
-static int hf_h245_profileAndLevel_MPatHL = -1;   /* BOOLEAN */
-static int hf_h245_profileAndLevel_SNRatLL = -1;  /* BOOLEAN */
-static int hf_h245_profileAndLevel_SNRatML = -1;  /* BOOLEAN */
-static int hf_h245_profileAndLevel_SpatialatH_14 = -1;  /* BOOLEAN */
-static int hf_h245_profileAndLevel_HPatML = -1;   /* BOOLEAN */
-static int hf_h245_profileAndLevel_HPatH_14 = -1;  /* BOOLEAN */
-static int hf_h245_profileAndLevel_HPatHL = -1;   /* BOOLEAN */
-static int hf_h245_videoBitRate = -1;             /* INTEGER_0_1073741823 */
-static int hf_h245_vbvBufferSize = -1;            /* INTEGER_0_262143 */
-static int hf_h245_samplesPerLine = -1;           /* INTEGER_0_16383 */
-static int hf_h245_linesPerFrame = -1;            /* INTEGER_0_16383 */
-static int hf_h245_framesPerSecond = -1;          /* INTEGER_0_15 */
-static int hf_h245_luminanceSampleRate = -1;      /* INTEGER_0_4294967295 */
-static int hf_h245_sqcifMPI_1_32 = -1;            /* INTEGER_1_32 */
-static int hf_h245_qcifMPI = -1;                  /* INTEGER_1_32 */
-static int hf_h245_cifMPI = -1;                   /* INTEGER_1_32 */
-static int hf_h245_cif4MPI_1_32 = -1;             /* INTEGER_1_32 */
-static int hf_h245_cif16MPI_1_32 = -1;            /* INTEGER_1_32 */
-static int hf_h245_maxBitRate = -1;               /* INTEGER_1_192400 */
-static int hf_h245_unrestrictedVector = -1;       /* BOOLEAN */
-static int hf_h245_arithmeticCoding = -1;         /* BOOLEAN */
-static int hf_h245_advancedPrediction = -1;       /* BOOLEAN */
-static int hf_h245_pbFrames = -1;                 /* BOOLEAN */
-static int hf_h245_hrd_B = -1;                    /* INTEGER_0_524287 */
-static int hf_h245_bppMaxKb = -1;                 /* INTEGER_0_65535 */
-static int hf_h245_slowSqcifMPI = -1;             /* INTEGER_1_3600 */
-static int hf_h245_slowQcifMPI = -1;              /* INTEGER_1_3600 */
-static int hf_h245_slowCifMPI = -1;               /* INTEGER_1_3600 */
-static int hf_h245_slowCif4MPI = -1;              /* INTEGER_1_3600 */
-static int hf_h245_slowCif16MPI = -1;             /* INTEGER_1_3600 */
-static int hf_h245_errorCompensation = -1;        /* BOOLEAN */
-static int hf_h245_enhancementLayerInfo = -1;     /* EnhancementLayerInfo */
-static int hf_h245_h263Options = -1;              /* H263Options */
-static int hf_h245_baseBitRateConstrained = -1;   /* BOOLEAN */
-static int hf_h245_snrEnhancement = -1;           /* SET_SIZE_1_14_OF_EnhancementOptions */
-static int hf_h245_snrEnhancement_item = -1;      /* EnhancementOptions */
-static int hf_h245_spatialEnhancement = -1;       /* SET_SIZE_1_14_OF_EnhancementOptions */
-static int hf_h245_spatialEnhancement_item = -1;  /* EnhancementOptions */
-static int hf_h245_bPictureEnhancement = -1;      /* SET_SIZE_1_14_OF_BEnhancementParameters */
-static int hf_h245_bPictureEnhancement_item = -1;  /* BEnhancementParameters */
-static int hf_h245_enhancementOptions = -1;       /* EnhancementOptions */
-static int hf_h245_numberOfBPictures = -1;        /* INTEGER_1_64 */
-static int hf_h245_advancedIntraCodingMode = -1;  /* BOOLEAN */
-static int hf_h245_deblockingFilterMode = -1;     /* BOOLEAN */
-static int hf_h245_improvedPBFramesMode = -1;     /* BOOLEAN */
-static int hf_h245_unlimitedMotionVectors = -1;   /* BOOLEAN */
-static int hf_h245_fullPictureFreeze = -1;        /* BOOLEAN */
-static int hf_h245_partialPictureFreezeAndRelease = -1;  /* BOOLEAN */
-static int hf_h245_resizingPartPicFreezeAndRelease = -1;  /* BOOLEAN */
-static int hf_h245_fullPictureSnapshot = -1;      /* BOOLEAN */
-static int hf_h245_partialPictureSnapshot = -1;   /* BOOLEAN */
-static int hf_h245_videoSegmentTagging = -1;      /* BOOLEAN */
-static int hf_h245_progressiveRefinement = -1;    /* BOOLEAN */
-static int hf_h245_dynamicPictureResizingByFour = -1;  /* BOOLEAN */
-static int hf_h245_dynamicPictureResizingSixteenthPel = -1;  /* BOOLEAN */
-static int hf_h245_dynamicWarpingHalfPel = -1;    /* BOOLEAN */
-static int hf_h245_dynamicWarpingSixteenthPel = -1;  /* BOOLEAN */
-static int hf_h245_independentSegmentDecoding = -1;  /* BOOLEAN */
-static int hf_h245_slicesInOrder_NonRect = -1;    /* BOOLEAN */
-static int hf_h245_slicesInOrder_Rect = -1;       /* BOOLEAN */
-static int hf_h245_slicesNoOrder_NonRect = -1;    /* BOOLEAN */
-static int hf_h245_slicesNoOrder_Rect = -1;       /* BOOLEAN */
-static int hf_h245_alternateInterVLCMode = -1;    /* BOOLEAN */
-static int hf_h245_modifiedQuantizationMode = -1;  /* BOOLEAN */
-static int hf_h245_reducedResolutionUpdate = -1;  /* BOOLEAN */
-static int hf_h245_transparencyParameters = -1;   /* TransparencyParameters */
-static int hf_h245_separateVideoBackChannel = -1;  /* BOOLEAN */
-static int hf_h245_refPictureSelection = -1;      /* RefPictureSelection */
-static int hf_h245_customPictureClockFrequency = -1;  /* SET_SIZE_1_16_OF_CustomPictureClockFrequency */
-static int hf_h245_customPictureClockFrequency_item = -1;  /* CustomPictureClockFrequency */
-static int hf_h245_customPictureFormat = -1;      /* SET_SIZE_1_16_OF_CustomPictureFormat */
-static int hf_h245_customPictureFormat_item = -1;  /* CustomPictureFormat */
-static int hf_h245_modeCombos = -1;               /* SET_SIZE_1_16_OF_H263VideoModeCombos */
-static int hf_h245_modeCombos_item = -1;          /* H263VideoModeCombos */
-static int hf_h245_h263Version3Options = -1;      /* H263Version3Options */
-static int hf_h245_presentationOrder = -1;        /* INTEGER_1_256 */
-static int hf_h245_offset_x = -1;                 /* INTEGER_M262144_262143 */
-static int hf_h245_offset_y = -1;                 /* INTEGER_M262144_262143 */
-static int hf_h245_scale_x = -1;                  /* INTEGER_1_255 */
-static int hf_h245_scale_y = -1;                  /* INTEGER_1_255 */
-static int hf_h245_additionalPictureMemory = -1;  /* T_additionalPictureMemory */
-static int hf_h245_sqcifAdditionalPictureMemory = -1;  /* INTEGER_1_256 */
-static int hf_h245_qcifAdditionalPictureMemory = -1;  /* INTEGER_1_256 */
-static int hf_h245_cifAdditionalPictureMemory = -1;  /* INTEGER_1_256 */
-static int hf_h245_cif4AdditionalPictureMemory = -1;  /* INTEGER_1_256 */
-static int hf_h245_cif16AdditionalPictureMemory = -1;  /* INTEGER_1_256 */
-static int hf_h245_bigCpfAdditionalPictureMemory = -1;  /* INTEGER_1_256 */
-static int hf_h245_videoMux = -1;                 /* BOOLEAN */
-static int hf_h245_videoBackChannelSend = -1;     /* T_videoBackChannelSend */
-static int hf_h245_none = -1;                     /* NULL */
-static int hf_h245_ackMessageOnly = -1;           /* NULL */
-static int hf_h245_nackMessageOnly = -1;          /* NULL */
-static int hf_h245_ackOrNackMessageOnly = -1;     /* NULL */
-static int hf_h245_ackAndNackMessage = -1;        /* NULL */
-static int hf_h245_enhancedReferencePicSelect = -1;  /* T_enhancedReferencePicSelect */
-static int hf_h245_subPictureRemovalParameters = -1;  /* T_subPictureRemovalParameters */
-static int hf_h245_mpuHorizMBs = -1;              /* INTEGER_1_128 */
-static int hf_h245_mpuVertMBs = -1;               /* INTEGER_1_72 */
-static int hf_h245_mpuTotalNumber = -1;           /* INTEGER_1_65536 */
-static int hf_h245_clockConversionCode = -1;      /* INTEGER_1000_1001 */
-static int hf_h245_clockDivisor = -1;             /* INTEGER_1_127 */
-static int hf_h245_sqcifMPI = -1;                 /* INTEGER_1_2048 */
-static int hf_h245_qcifMPI_1_2048 = -1;           /* INTEGER_1_2048 */
-static int hf_h245_cifMPI2_1_2048 = -1;           /* INTEGER_1_2048 */
-static int hf_h245_cif4MPI = -1;                  /* INTEGER_1_2048 */
-static int hf_h245_cif16MPI = -1;                 /* INTEGER_1_2048 */
-static int hf_h245_maxCustomPictureWidth = -1;    /* INTEGER_1_2048 */
-static int hf_h245_maxCustomPictureHeight = -1;   /* INTEGER_1_2048 */
-static int hf_h245_minCustomPictureWidth = -1;    /* INTEGER_1_2048 */
-static int hf_h245_minCustomPictureHeight = -1;   /* INTEGER_1_2048 */
-static int hf_h245_mPI = -1;                      /* T_mPI */
-static int hf_h245_standardMPI = -1;              /* INTEGER_1_31 */
-static int hf_h245_customPCF = -1;                /* T_customPCF */
-static int hf_h245_customPCF_item = -1;           /* T_customPCF_item */
-static int hf_h245_customMPI = -1;                /* INTEGER_1_2048 */
-static int hf_h245_pixelAspectInformation = -1;   /* T_pixelAspectInformation */
-static int hf_h245_anyPixelAspectRatio = -1;      /* BOOLEAN */
-static int hf_h245_pixelAspectCode = -1;          /* T_pixelAspectCode */
-static int hf_h245_pixelAspectCode_item = -1;     /* INTEGER_1_14 */
-static int hf_h245_extendedPAR = -1;              /* T_extendedPAR */
-static int hf_h245_extendedPAR_item = -1;         /* T_extendedPAR_item */
-static int hf_h245_width = -1;                    /* INTEGER_1_255 */
-static int hf_h245_height = -1;                   /* INTEGER_1_255 */
-static int hf_h245_h263VideoUncoupledModes = -1;  /* H263ModeComboFlags */
-static int hf_h245_h263VideoCoupledModes = -1;    /* SET_SIZE_1_16_OF_H263ModeComboFlags */
-static int hf_h245_h263VideoCoupledModes_item = -1;  /* H263ModeComboFlags */
-static int hf_h245_referencePicSelect = -1;       /* BOOLEAN */
-static int hf_h245_enhancedReferencePicSelectBool = -1;  /* BOOLEAN */
-static int hf_h245_dataPartitionedSlices = -1;    /* BOOLEAN */
-static int hf_h245_fixedPointIDCT0 = -1;          /* BOOLEAN */
-static int hf_h245_interlacedFields = -1;         /* BOOLEAN */
-static int hf_h245_currentPictureHeaderRepetition = -1;  /* BOOLEAN */
-static int hf_h245_previousPictureHeaderRepetition = -1;  /* BOOLEAN */
-static int hf_h245_nextPictureHeaderRepetition = -1;  /* BOOLEAN */
-static int hf_h245_pictureNumberBoolean = -1;     /* BOOLEAN */
-static int hf_h245_spareReferencePictures = -1;   /* BOOLEAN */
-static int hf_h245_constrainedBitstream = -1;     /* BOOLEAN */
-static int hf_h245_pictureRate = -1;              /* INTEGER_0_15 */
-static int hf_h245_g711Alaw64k = -1;              /* INTEGER_1_256 */
-static int hf_h245_g711Alaw56k = -1;              /* INTEGER_1_256 */
-static int hf_h245_g711Ulaw64k = -1;              /* INTEGER_1_256 */
-static int hf_h245_g711Ulaw56k = -1;              /* INTEGER_1_256 */
-static int hf_h245_g722_64k = -1;                 /* INTEGER_1_256 */
-static int hf_h245_g722_56k = -1;                 /* INTEGER_1_256 */
-static int hf_h245_g722_48k = -1;                 /* INTEGER_1_256 */
-static int hf_h245_g7231 = -1;                    /* T_g7231 */
-static int hf_h245_maxAl_sduAudioFrames = -1;     /* INTEGER_1_256 */
-static int hf_h245_silenceSuppression = -1;       /* BOOLEAN */
-static int hf_h245_g728 = -1;                     /* INTEGER_1_256 */
-static int hf_h245_g729 = -1;                     /* INTEGER_1_256 */
-static int hf_h245_g729AnnexA = -1;               /* INTEGER_1_256 */
-static int hf_h245_is11172AudioCapability = -1;   /* IS11172AudioCapability */
-static int hf_h245_is13818AudioCapability = -1;   /* IS13818AudioCapability */
-static int hf_h245_g729wAnnexB = -1;              /* INTEGER_1_256 */
-static int hf_h245_g729AnnexAwAnnexB = -1;        /* INTEGER_1_256 */
-static int hf_h245_g7231AnnexCCapability = -1;    /* G7231AnnexCCapability */
-static int hf_h245_gsmFullRate = -1;              /* GSMAudioCapability */
-static int hf_h245_gsmHalfRate = -1;              /* GSMAudioCapability */
-static int hf_h245_gsmEnhancedFullRate = -1;      /* GSMAudioCapability */
-static int hf_h245_genericAudioCapability = -1;   /* GenericCapability */
-static int hf_h245_g729Extensions = -1;           /* G729Extensions */
-static int hf_h245_vbd = -1;                      /* VBDCapability */
-static int hf_h245_audioTelephonyEvent = -1;      /* NoPTAudioTelephonyEventCapability */
-static int hf_h245_audioTone = -1;                /* NoPTAudioToneCapability */
-static int hf_h245_audioUnit = -1;                /* INTEGER_1_256 */
-static int hf_h245_annexA = -1;                   /* BOOLEAN */
-static int hf_h245_annexB = -1;                   /* BOOLEAN */
-static int hf_h245_annexD = -1;                   /* BOOLEAN */
-static int hf_h245_annexE = -1;                   /* BOOLEAN */
-static int hf_h245_annexF = -1;                   /* BOOLEAN */
-static int hf_h245_annexG = -1;                   /* BOOLEAN */
-static int hf_h245_annexH = -1;                   /* BOOLEAN */
-static int hf_h245_highRateMode0 = -1;            /* INTEGER_27_78 */
-static int hf_h245_highRateMode1 = -1;            /* INTEGER_27_78 */
-static int hf_h245_lowRateMode0 = -1;             /* INTEGER_23_66 */
-static int hf_h245_lowRateMode1 = -1;             /* INTEGER_23_66 */
-static int hf_h245_sidMode0 = -1;                 /* INTEGER_6_17 */
-static int hf_h245_sidMode1 = -1;                 /* INTEGER_6_17 */
-static int hf_h245_g723AnnexCAudioMode = -1;      /* G723AnnexCAudioMode */
-static int hf_h245_audioLayer1 = -1;              /* BOOLEAN */
-static int hf_h245_audioLayer2 = -1;              /* BOOLEAN */
-static int hf_h245_audioLayer3 = -1;              /* BOOLEAN */
-static int hf_h245_audioSampling32k = -1;         /* BOOLEAN */
-static int hf_h245_audioSampling44k1 = -1;        /* BOOLEAN */
-static int hf_h245_audioSampling48k = -1;         /* BOOLEAN */
-static int hf_h245_singleChannel = -1;            /* BOOLEAN */
-static int hf_h245_twoChannels = -1;              /* BOOLEAN */
-static int hf_h245_bitRate_1_448 = -1;            /* INTEGER_1_448 */
-static int hf_h245_audioSampling16k = -1;         /* BOOLEAN */
-static int hf_h245_audioSampling22k05 = -1;       /* BOOLEAN */
-static int hf_h245_audioSampling24k = -1;         /* BOOLEAN */
-static int hf_h245_threeChannels2_1 = -1;         /* BOOLEAN */
-static int hf_h245_threeChannels3_0 = -1;         /* BOOLEAN */
-static int hf_h245_fourChannels2_0_2_0 = -1;      /* BOOLEAN */
-static int hf_h245_fourChannels2_2 = -1;          /* BOOLEAN */
-static int hf_h245_fourChannels3_1 = -1;          /* BOOLEAN */
-static int hf_h245_fiveChannels3_0_2_0 = -1;      /* BOOLEAN */
-static int hf_h245_fiveChannels3_2 = -1;          /* BOOLEAN */
-static int hf_h245_lowFrequencyEnhancement = -1;  /* BOOLEAN */
-static int hf_h245_multilingual = -1;             /* BOOLEAN */
-static int hf_h245_bitRate2_1_1130 = -1;          /* INTEGER_1_1130 */
-static int hf_h245_audioUnitSize = -1;            /* INTEGER_1_256 */
-static int hf_h245_comfortNoise = -1;             /* BOOLEAN */
-static int hf_h245_scrambled = -1;                /* BOOLEAN */
-static int hf_h245_vbd_cap_type = -1;             /* AudioCapability */
-static int hf_h245_t120 = -1;                     /* DataProtocolCapability */
-static int hf_h245_dsm_cc = -1;                   /* DataProtocolCapability */
-static int hf_h245_userData = -1;                 /* DataProtocolCapability */
-static int hf_h245_t84 = -1;                      /* T_t84 */
-static int hf_h245_t84Protocol = -1;              /* DataProtocolCapability */
-static int hf_h245_t84Profile = -1;               /* T84Profile */
-static int hf_h245_t434 = -1;                     /* DataProtocolCapability */
-static int hf_h245_h224 = -1;                     /* DataProtocolCapability */
-static int hf_h245_nlpidProtocol = -1;            /* DataProtocolCapability */
-static int hf_h245_nlpidData = -1;                /* OCTET_STRING */
-static int hf_h245_nlpid = -1;                    /* Nlpid */
-static int hf_h245_dsvdControl = -1;              /* NULL */
-static int hf_h245_h222DataPartitioning = -1;     /* DataProtocolCapability */
-static int hf_h245_t30fax = -1;                   /* DataProtocolCapability */
-static int hf_h245_t140 = -1;                     /* DataProtocolCapability */
-static int hf_h245_t38fax = -1;                   /* T_t38fax */
-static int hf_h245_t38FaxProtocol = -1;           /* DataProtocolCapability */
-static int hf_h245_t38FaxProfile = -1;            /* T38FaxProfile */
-static int hf_h245_genericDataCapability = -1;    /* GenericCapability */
-static int hf_h245_application = -1;              /* Application */
-static int hf_h245_maxBitRate2_0_4294967295 = -1;  /* INTEGER_0_4294967295 */
-static int hf_h245_v14buffered = -1;              /* NULL */
-static int hf_h245_v42lapm = -1;                  /* NULL */
-static int hf_h245_hdlcFrameTunnelling = -1;      /* NULL */
-static int hf_h245_h310SeparateVCStack = -1;      /* NULL */
-static int hf_h245_h310SingleVCStack = -1;        /* NULL */
-static int hf_h245_transparent = -1;              /* NULL */
-static int hf_h245_segmentationAndReassembly = -1;  /* NULL */
-static int hf_h245_hdlcFrameTunnelingwSAR = -1;   /* NULL */
-static int hf_h245_v120 = -1;                     /* NULL */
-static int hf_h245_separateLANStack = -1;         /* NULL */
-static int hf_h245_v76wCompression = -1;          /* T_v76wCompression */
-static int hf_h245_transmitCompression = -1;      /* CompressionType */
-static int hf_h245_receiveCompression = -1;       /* CompressionType */
-static int hf_h245_transmitAndReceiveCompression = -1;  /* CompressionType */
-static int hf_h245_tcp = -1;                      /* NULL */
-static int hf_h245_udp = -1;                      /* NULL */
-static int hf_h245_v42bis = -1;                   /* V42bis */
-static int hf_h245_numberOfCodewords = -1;        /* INTEGER_1_65536 */
-static int hf_h245_maximumStringLength = -1;      /* INTEGER_1_256 */
-static int hf_h245_t84Unrestricted = -1;          /* NULL */
-static int hf_h245_t84Restricted = -1;            /* T_t84Restricted */
-static int hf_h245_qcif_bool = -1;                /* BOOLEAN */
-static int hf_h245_cif_bool = -1;                 /* BOOLEAN */
-static int hf_h245_ccir601Seq = -1;               /* BOOLEAN */
-static int hf_h245_ccir601Prog = -1;              /* BOOLEAN */
-static int hf_h245_hdtvSeq = -1;                  /* BOOLEAN */
-static int hf_h245_hdtvProg = -1;                 /* BOOLEAN */
-static int hf_h245_g3FacsMH200x100 = -1;          /* BOOLEAN */
-static int hf_h245_g3FacsMH200x200 = -1;          /* BOOLEAN */
-static int hf_h245_g4FacsMMR200x100 = -1;         /* BOOLEAN */
-static int hf_h245_g4FacsMMR200x200 = -1;         /* BOOLEAN */
-static int hf_h245_jbig200x200Seq = -1;           /* BOOLEAN */
-static int hf_h245_jbig200x200Prog = -1;          /* BOOLEAN */
-static int hf_h245_jbig300x300Seq = -1;           /* BOOLEAN */
-static int hf_h245_jbig300x300Prog = -1;          /* BOOLEAN */
-static int hf_h245_digPhotoLow = -1;              /* BOOLEAN */
-static int hf_h245_digPhotoMedSeq = -1;           /* BOOLEAN */
-static int hf_h245_digPhotoMedProg = -1;          /* BOOLEAN */
-static int hf_h245_digPhotoHighSeq = -1;          /* BOOLEAN */
-static int hf_h245_digPhotoHighProg = -1;         /* BOOLEAN */
-static int hf_h245_fillBitRemoval = -1;           /* BOOLEAN */
-static int hf_h245_transcodingJBIG = -1;          /* BOOLEAN */
-static int hf_h245_transcodingMMR = -1;           /* BOOLEAN */
-static int hf_h245_version = -1;                  /* INTEGER_0_255 */
-static int hf_h245_t38FaxRateManagement = -1;     /* T38FaxRateManagement */
-static int hf_h245_t38FaxUdpOptions = -1;         /* T38FaxUdpOptions */
-static int hf_h245_t38FaxTcpOptions = -1;         /* T38FaxTcpOptions */
-static int hf_h245_localTCF = -1;                 /* NULL */
-static int hf_h245_transferredTCF = -1;           /* NULL */
-static int hf_h245_t38FaxMaxBuffer = -1;          /* INTEGER */
-static int hf_h245_t38FaxMaxDatagram = -1;        /* INTEGER */
-static int hf_h245_t38FaxUdpEC = -1;              /* T_t38FaxUdpEC */
-static int hf_h245_t38UDPFEC = -1;                /* NULL */
-static int hf_h245_t38UDPRedundancy = -1;         /* NULL */
-static int hf_h245_t38TCPBidirectionalMode = -1;  /* BOOLEAN */
-static int hf_h245_encryptionCapability = -1;     /* EncryptionCapability */
-static int hf_h245_authenticationCapability = -1;  /* AuthenticationCapability */
-static int hf_h245_integrityCapability = -1;      /* IntegrityCapability */
-static int hf_h245_genericH235SecurityCapability = -1;  /* GenericCapability */
-static int hf_h245_EncryptionCapability_item = -1;  /* MediaEncryptionAlgorithm */
-static int hf_h245_algorithm = -1;                /* OBJECT_IDENTIFIER */
-static int hf_h245_antiSpamAlgorithm = -1;        /* OBJECT_IDENTIFIER */
-static int hf_h245_ui_nonStandard = -1;           /* SEQUENCE_SIZE_1_16_OF_NonStandardParameter */
-static int hf_h245_ui_nonStandard_item = -1;      /* NonStandardParameter */
-static int hf_h245_basicString = -1;              /* NULL */
-static int hf_h245_iA5String = -1;                /* NULL */
-static int hf_h245_generalString = -1;            /* NULL */
-static int hf_h245_dtmf = -1;                     /* NULL */
-static int hf_h245_hookflash = -1;                /* NULL */
-static int hf_h245_extendedAlphanumericFlag = -1;  /* NULL */
-static int hf_h245_encryptedBasicString = -1;     /* NULL */
-static int hf_h245_encryptedIA5String = -1;       /* NULL */
-static int hf_h245_encryptedGeneralString = -1;   /* NULL */
-static int hf_h245_secureDTMF = -1;               /* NULL */
-static int hf_h245_genericUserInputCapability = -1;  /* GenericCapability */
-static int hf_h245_nonStandardParams = -1;        /* SEQUENCE_OF_NonStandardParameter */
-static int hf_h245_nonStandardParams_item = -1;   /* NonStandardParameter */
-static int hf_h245_chairControlCapability = -1;   /* BOOLEAN */
-static int hf_h245_videoIndicateMixingCapability = -1;  /* BOOLEAN */
-static int hf_h245_multipointVisualizationCapability = -1;  /* BOOLEAN */
-static int hf_h245_capabilityIdentifier = -1;     /* CapabilityIdentifier */
-static int hf_h245_collapsing = -1;               /* T_collapsing */
-static int hf_h245_collapsing_item = -1;          /* T_collapsing_item */
-static int hf_h245_nonCollapsing = -1;            /* T_nonCollapsing */
-static int hf_h245_nonCollapsing_item = -1;       /* T_nonCollapsing_item */
-static int hf_h245_nonCollapsingRaw = -1;         /* T_nonCollapsingRaw */
-static int hf_h245_transport = -1;                /* DataProtocolCapability */
-static int hf_h245_standardOid = -1;              /* T_standardOid */
-static int hf_h245_h221NonStandard = -1;          /* NonStandardParameter */
-static int hf_h245_uuid = -1;                     /* OCTET_STRING_SIZE_16 */
-static int hf_h245_domainBased = -1;              /* IA5String_SIZE_1_64 */
-static int hf_h245_parameterIdentifier = -1;      /* ParameterIdentifier */
-static int hf_h245_parameterValue = -1;           /* ParameterValue */
-static int hf_h245_supersedes = -1;               /* SEQUENCE_OF_ParameterIdentifier */
-static int hf_h245_supersedes_item = -1;          /* ParameterIdentifier */
-static int hf_h245_standard = -1;                 /* T_standard */
-static int hf_h245_logical = -1;                  /* NULL */
-static int hf_h245_booleanArray = -1;             /* T_booleanArray */
-static int hf_h245_unsignedMin = -1;              /* T_unsignedMin */
-static int hf_h245_unsignedMax = -1;              /* T_unsignedMax */
-static int hf_h245_unsigned32Min = -1;            /* T_unsigned32Min */
-static int hf_h245_unsigned32Max = -1;            /* T_unsigned32Max */
-static int hf_h245_octetString = -1;              /* T_octetString */
-static int hf_h245_genericParameters = -1;        /* SEQUENCE_OF_GenericParameter */
-static int hf_h245_genericParameters_item = -1;   /* GenericParameter */
-static int hf_h245_multiplexFormat = -1;          /* MultiplexFormat */
-static int hf_h245_controlOnMuxStream = -1;       /* BOOLEAN */
-static int hf_h245_capabilityOnMuxStream = -1;    /* SET_SIZE_1_256_OF_AlternativeCapabilitySet */
-static int hf_h245_capabilityOnMuxStream_item = -1;  /* AlternativeCapabilitySet */
-static int hf_h245_dynamicRTPPayloadType = -1;    /* INTEGER_96_127 */
-static int hf_h245_audioTelephoneEvent = -1;      /* GeneralString */
-static int hf_h245_capabilities = -1;             /* SET_SIZE_1_256_OF_AlternativeCapabilitySet */
-static int hf_h245_capabilities_item = -1;        /* AlternativeCapabilitySet */
-static int hf_h245_fecc_rfc2733 = -1;             /* FECC_rfc2733 */
-static int hf_h245_redundancyEncodingBool = -1;   /* BOOLEAN */
-static int hf_h245_separateStreamBool = -1;       /* T_separateStreamBool */
-static int hf_h245_separatePort = -1;             /* BOOLEAN */
-static int hf_h245_samePortBool = -1;             /* BOOLEAN */
-static int hf_h245_protectedCapability = -1;      /* CapabilityTableEntryNumber */
-static int hf_h245_fecScheme = -1;                /* OBJECT_IDENTIFIER */
-static int hf_h245_rfc2733rfc2198 = -1;           /* MaxRedundancy */
-static int hf_h245_rfc2733sameport = -1;          /* MaxRedundancy */
-static int hf_h245_rfc2733diffport = -1;          /* MaxRedundancy */
-static int hf_h245_rfc2733Format = -1;            /* Rfc2733Format */
-static int hf_h245_olc_fw_lcn = -1;               /* OLC_fw_lcn */
-static int hf_h245_forwardLogicalChannelParameters = -1;  /* T_forwardLogicalChannelParameters */
-static int hf_h245_portNumber = -1;               /* INTEGER_0_65535 */
-static int hf_h245_dataType = -1;                 /* DataType */
-static int hf_h245_olc_forw_multiplexParameters = -1;  /* OLC_forw_multiplexParameters */
-static int hf_h245_h222LogicalChannelParameters = -1;  /* H222LogicalChannelParameters */
-static int hf_h245_olc_fw_h223_params = -1;       /* OLC_fw_h223_params */
-static int hf_h245_v76LogicalChannelParameters = -1;  /* V76LogicalChannelParameters */
-static int hf_h245_h2250LogicalChannelParameters = -1;  /* H2250LogicalChannelParameters */
-static int hf_h245_forwardLogicalChannelDependency = -1;  /* LogicalChannelNumber */
-static int hf_h245_replacementFor = -1;           /* LogicalChannelNumber */
-static int hf_h245_reverseLogicalChannelParameters = -1;  /* OLC_reverseLogicalChannelParameters */
-static int hf_h245_olc_rev_multiplexParameter = -1;  /* OLC_rev_multiplexParameters */
-static int hf_h245_olc_rev_h223_params = -1;      /* OLC_rev_h223_params */
-static int hf_h245_reverseLogicalChannelDependency = -1;  /* LogicalChannelNumber */
-static int hf_h245_separateStack = -1;            /* NetworkAccessParameters */
-static int hf_h245_encryptionSync = -1;           /* EncryptionSync */
-static int hf_h245_distribution = -1;             /* T_distribution */
-static int hf_h245_unicast = -1;                  /* NULL */
-static int hf_h245_multicast = -1;                /* NULL */
-static int hf_h245_networkAddress = -1;           /* T_networkAddress */
-static int hf_h245_q2931Address = -1;             /* Q2931Address */
-static int hf_h245_e164Address = -1;              /* T_e164Address */
-static int hf_h245_localAreaAddress = -1;         /* TransportAddress */
-static int hf_h245_associateConference = -1;      /* BOOLEAN */
-static int hf_h245_externalReference = -1;        /* OCTET_STRING_SIZE_1_255 */
-static int hf_h245_t120SetupProcedure = -1;       /* T_t120SetupProcedure */
-static int hf_h245_originateCall = -1;            /* NULL */
-static int hf_h245_waitForCall = -1;              /* NULL */
-static int hf_h245_issueQuery = -1;               /* NULL */
-static int hf_h245_address = -1;                  /* T_address */
-static int hf_h245_internationalNumber = -1;      /* NumericString_SIZE_1_16 */
-static int hf_h245_nsapAddress = -1;              /* OCTET_STRING_SIZE_1_20 */
-static int hf_h245_subaddress = -1;               /* OCTET_STRING_SIZE_1_20 */
-static int hf_h245_audioHeaderPresent = -1;       /* BOOLEAN */
-static int hf_h245_nullData = -1;                 /* NULL */
-static int hf_h245_videoData = -1;                /* VideoCapability */
-static int hf_h245_audioData = -1;                /* AudioCapability */
-static int hf_h245_data = -1;                     /* DataApplicationCapability */
-static int hf_h245_encryptionData = -1;           /* EncryptionMode */
-static int hf_h245_h235Control = -1;              /* NonStandardParameter */
-static int hf_h245_h235Media = -1;                /* H235Media */
-static int hf_h245_multiplexedStream = -1;        /* MultiplexedStreamParameter */
-static int hf_h245_redundancyEncoding = -1;       /* RedundancyEncoding */
-static int hf_h245_multiplePayloadStream = -1;    /* MultiplePayloadStream */
-static int hf_h245_depFec = -1;                   /* DepFECData */
-static int hf_h245_fec = -1;                      /* FECData */
-static int hf_h245_mediaType = -1;                /* T_mediaType */
-static int hf_h245_resourceID = -1;               /* INTEGER_0_65535 */
-static int hf_h245_subChannelID = -1;             /* INTEGER_0_8191 */
-static int hf_h245_pcr_pid = -1;                  /* INTEGER_0_8191 */
-static int hf_h245_programDescriptors = -1;       /* OCTET_STRING */
-static int hf_h245_streamDescriptors = -1;        /* OCTET_STRING */
-static int hf_h245_adaptationLayerType = -1;      /* T_adaptationLayerType */
-static int hf_h245_h223_al_type_al1Framed = -1;   /* T_h223_al_type_al1Framed */
-static int hf_h245_h223_al_type_al1NotFramed = -1;  /* T_h223_al_type_al1NotFramed */
-static int hf_h245_h223_al_type_al2WithoutSequenceNumbers = -1;  /* T_h223_al_type_al2WithoutSequenceNumbers */
-static int hf_h245_h223_al_type_al2WithSequenceNumbers = -1;  /* T_h223_al_type_al2WithSequenceNumbers */
-static int hf_h245_controlFieldOctets = -1;       /* T_controlFieldOctets */
-static int hf_h245_al3_sendBufferSize = -1;       /* T_al3_sendBufferSize */
-static int hf_h245_h223_al_type_al3 = -1;         /* T_h223_al_type_al3 */
-static int hf_h245_h223_al_type_al1M = -1;        /* T_h223_al_type_al1M */
-static int hf_h245_h223_al_type_al2M = -1;        /* T_h223_al_type_al2M */
-static int hf_h245_h223_al_type_al3M = -1;        /* T_h223_al_type_al3M */
-static int hf_h245_h223_lc_segmentableFlag = -1;  /* T_h223_lc_segmentableFlag */
-static int hf_h245_transferMode = -1;             /* T_transferMode */
-static int hf_h245_framed = -1;                   /* NULL */
-static int hf_h245_unframed = -1;                 /* NULL */
-static int hf_h245_aL1HeaderFEC = -1;             /* AL1HeaderFEC */
-static int hf_h245_sebch16_7 = -1;                /* NULL */
-static int hf_h245_golay24_12 = -1;               /* NULL */
-static int hf_h245_crcLength2 = -1;               /* AL1CrcLength */
-static int hf_h245_crc4bit = -1;                  /* NULL */
-static int hf_h245_crc12bit = -1;                 /* NULL */
-static int hf_h245_crc20bit = -1;                 /* NULL */
-static int hf_h245_crc28bit = -1;                 /* NULL */
-static int hf_h245_crc8bit = -1;                  /* NULL */
-static int hf_h245_crc16bit = -1;                 /* NULL */
-static int hf_h245_crc32bit = -1;                 /* NULL */
-static int hf_h245_crcNotUsed = -1;               /* NULL */
-static int hf_h245_rcpcCodeRate = -1;             /* INTEGER_8_32 */
-static int hf_h245_noArq = -1;                    /* NULL */
-static int hf_h245_typeIArq = -1;                 /* H223AnnexCArqParameters */
-static int hf_h245_typeIIArq = -1;                /* H223AnnexCArqParameters */
-static int hf_h245_arqType = -1;                  /* ArqType */
-static int hf_h245_alsduSplitting = -1;           /* BOOLEAN */
-static int hf_h245_rsCodeCorrection = -1;         /* INTEGER_0_127 */
-static int hf_h245_aL2HeaderFEC = -1;             /* AL2HeaderFEC */
-static int hf_h245_sebch16_5 = -1;                /* NULL */
-static int hf_h245_headerFormat = -1;             /* T_headerFormat */
-static int hf_h245_crlength2 = -1;                /* AL3CrcLength */
-static int hf_h245_numberOfRetransmissions = -1;  /* T_numberOfRetransmissions */
-static int hf_h245_finite = -1;                   /* INTEGER_0_16 */
-static int hf_h245_infinite = -1;                 /* NULL */
-static int hf_h245_sendBufferSize = -1;           /* INTEGER_0_16777215 */
-static int hf_h245_hdlcParameters = -1;           /* V76HDLCParameters */
-static int hf_h245_suspendResume = -1;            /* T_suspendResume */
-static int hf_h245_noSuspendResume = -1;          /* NULL */
-static int hf_h245_suspendResumewAddress = -1;    /* NULL */
-static int hf_h245_suspendResumewoAddress = -1;   /* NULL */
-static int hf_h245_uIH = -1;                      /* BOOLEAN */
-static int hf_h245_v76_mode = -1;                 /* V76LCP_mode */
-static int hf_h245_eRM = -1;                      /* T_eRM */
-static int hf_h245_windowSize = -1;               /* INTEGER_1_127 */
-static int hf_h245_recovery = -1;                 /* T_recovery */
-static int hf_h245_rej = -1;                      /* NULL */
-static int hf_h245_sREJ = -1;                     /* NULL */
-static int hf_h245_mSREJ = -1;                    /* NULL */
-static int hf_h245_uNERM = -1;                    /* NULL */
-static int hf_h245_v75Parameters = -1;            /* V75Parameters */
-static int hf_h245_crcLength = -1;                /* CRCLength */
-static int hf_h245_n401 = -1;                     /* INTEGER_1_4095 */
-static int hf_h245_loopbackTestProcedure = -1;    /* BOOLEAN */
-static int hf_h245_sessionID_0_255 = -1;          /* INTEGER_0_255 */
-static int hf_h245_associatedSessionID = -1;      /* INTEGER_1_255 */
-static int hf_h245_mediaChannel = -1;             /* T_mediaChannel */
-static int hf_h245_mediaGuaranteedDelivery = -1;  /* BOOLEAN */
-static int hf_h245_mediaControlChannel = -1;      /* T_mediaControlChannel */
-static int hf_h245_mediaControlGuaranteedDelivery = -1;  /* BOOLEAN */
-static int hf_h245_destination = -1;              /* TerminalLabel */
-static int hf_h245_mediaPacketization = -1;       /* T_mediaPacketization */
-static int hf_h245_h261aVideoPacketizationFlag = -1;  /* NULL */
-static int hf_h245_rtpPayloadType = -1;           /* RTPPayloadType */
-static int hf_h245_source = -1;                   /* TerminalLabel */
-static int hf_h245_payloadDescriptor = -1;        /* T_payloadDescriptor */
-static int hf_h245_rfc_number = -1;               /* T_rfc_number */
-static int hf_h245_oid = -1;                      /* OBJECT_IDENTIFIER */
-static int hf_h245_rtpPayloadType_01 = -1;        /* T_rtpPayloadType */
-static int hf_h245_secondaryEncoding = -1;        /* DataType */
-static int hf_h245_rtpRedundancyEncoding = -1;    /* T_rtpRedundancyEncoding */
-static int hf_h245_primary = -1;                  /* RedundancyEncodingElement */
-static int hf_h245_secondary = -1;                /* SEQUENCE_OF_RedundancyEncodingElement */
-static int hf_h245_secondary_item = -1;           /* RedundancyEncodingElement */
-static int hf_h245_payloadType = -1;              /* INTEGER_0_127 */
-static int hf_h245_elements = -1;                 /* SEQUENCE_OF_MultiplePayloadStreamElement */
-static int hf_h245_elements_item = -1;            /* MultiplePayloadStreamElement */
-static int hf_h245_dep_rfc2733 = -1;              /* RFC2733Data */
-static int hf_h245_fec_data_mode = -1;            /* FECdata_mode */
-static int hf_h245_redundancyEncodingFlag = -1;   /* NULL */
-static int hf_h245_differentPort = -1;            /* T_differentPort */
-static int hf_h245_protectedSessionID = -1;       /* INTEGER_1_255 */
-static int hf_h245_protectedPayloadType = -1;     /* INTEGER_0_127 */
-static int hf_h245_samePort = -1;                 /* T_samePort */
-static int hf_h245_separateStream = -1;           /* DepSeparateStream */
-static int hf_h245_rfc2733 = -1;                  /* T_rfc2733 */
-static int hf_h245_pktMode = -1;                  /* T_pktMode */
-static int hf_h245_rfc2198coding = -1;            /* NULL */
-static int hf_h245_mode_rfc2733sameport = -1;     /* T_mode_rfc2733sameport */
-static int hf_h245_mode_rfc2733diffport = -1;     /* T_mode_rfc2733diffport */
-static int hf_h245_protectedChannel = -1;         /* LogicalChannelNumber */
-static int hf_h245_unicastAddress = -1;           /* UnicastAddress */
-static int hf_h245_multicastAddress = -1;         /* MulticastAddress */
-static int hf_h245_iPAddress = -1;                /* T_iPAddress */
-static int hf_h245_ip4_network = -1;              /* Ipv4_network */
-static int hf_h245_tsapIdentifier = -1;           /* TsapIdentifier */
-static int hf_h245_iPXAddress = -1;               /* T_iPXAddress */
-static int hf_h245_node = -1;                     /* OCTET_STRING_SIZE_6 */
-static int hf_h245_netnum = -1;                   /* OCTET_STRING_SIZE_4 */
-static int hf_h245_ipx_tsapIdentifier = -1;       /* OCTET_STRING_SIZE_2 */
-static int hf_h245_iP6Address = -1;               /* T_iP6Address */
-static int hf_h245_ip6_network = -1;              /* T_ip6_network */
-static int hf_h245_ipv6_tsapIdentifier = -1;      /* T_ipv6_tsapIdentifier */
-static int hf_h245_netBios = -1;                  /* OCTET_STRING_SIZE_16 */
-static int hf_h245_iPSourceRouteAddress = -1;     /* T_iPSourceRouteAddress */
-static int hf_h245_routing = -1;                  /* T_routing */
-static int hf_h245_strict = -1;                   /* NULL */
-static int hf_h245_loose = -1;                    /* NULL */
-static int hf_h245_network = -1;                  /* OCTET_STRING_SIZE_4 */
-static int hf_h245_iPSrcRoute_tsapIdentifier = -1;  /* INTEGER_0_65535 */
-static int hf_h245_route = -1;                    /* T_route */
-static int hf_h245_route_item = -1;               /* OCTET_STRING_SIZE_4 */
-static int hf_h245_nsap = -1;                     /* OCTET_STRING_SIZE_1_20 */
-static int hf_h245_nonStandardAddress = -1;       /* NonStandardParameter */
-static int hf_h245_mIPAddress = -1;               /* MIPAddress */
-static int hf_h245_mip4_network = -1;             /* OCTET_STRING_SIZE_4 */
-static int hf_h245_multicast_tsapIdentifier = -1;  /* INTEGER_0_65535 */
-static int hf_h245_mIP6Address = -1;              /* MIP6Address */
-static int hf_h245_mip6_network = -1;             /* OCTET_STRING_SIZE_16 */
-static int hf_h245_multicast_IPv6_tsapIdentifier = -1;  /* INTEGER_0_65535 */
-static int hf_h245_synchFlag = -1;                /* INTEGER_0_255 */
-static int hf_h245_h235Key = -1;                  /* OCTET_STRING_SIZE_1_65535 */
-static int hf_h245_escrowentry = -1;              /* SEQUENCE_SIZE_1_256_OF_EscrowData */
-static int hf_h245_escrowentry_item = -1;         /* EscrowData */
-static int hf_h245_genericParameter = -1;         /* GenericParameter */
-static int hf_h245_escrowID = -1;                 /* OBJECT_IDENTIFIER */
-static int hf_h245_escrowValue = -1;              /* BIT_STRING_SIZE_1_65535 */
-static int hf_h245_olc_ack_fw_lcn = -1;           /* OLC_ack_fw_lcn */
-static int hf_h245_olc_ack_reverseLogicalChannelParameters = -1;  /* OLC_ack_reverseLogicalChannelParameters */
-static int hf_h245_reverseLogicalChannelNumber = -1;  /* T_reverseLogicalChannelNumber */
-static int hf_h245_olc_ack_multiplexParameters = -1;  /* T_olc_ack_multiplexParameters */
-static int hf_h245_forwardMultiplexAckParameters = -1;  /* T_forwardMultiplexAckParameters */
-static int hf_h245_h2250LogicalChannelAckParameters = -1;  /* H2250LogicalChannelAckParameters */
-static int hf_h245_forwardLogicalChannelNumber = -1;  /* LogicalChannelNumber */
-static int hf_h245_olc_rej_cause = -1;            /* OpenLogicalChannelRejectCause */
-static int hf_h245_unsuitableReverseParameters = -1;  /* NULL */
-static int hf_h245_dataTypeNotSupported = -1;     /* NULL */
-static int hf_h245_dataTypeNotAvailable = -1;     /* NULL */
-static int hf_h245_unknownDataType = -1;          /* NULL */
-static int hf_h245_dataTypeALCombinationNotSupported = -1;  /* NULL */
-static int hf_h245_multicastChannelNotAllowed = -1;  /* NULL */
-static int hf_h245_insufficientBandwidth = -1;    /* NULL */
-static int hf_h245_separateStackEstablishmentFailed = -1;  /* NULL */
-static int hf_h245_invalidSessionID = -1;         /* NULL */
-static int hf_h245_masterSlaveConflict = -1;      /* NULL */
-static int hf_h245_waitForCommunicationMode = -1;  /* NULL */
-static int hf_h245_invalidDependentChannel = -1;  /* NULL */
-static int hf_h245_replacementForRejected = -1;   /* NULL */
-static int hf_h245_securityDenied = -1;           /* NULL */
-static int hf_h245_qoSControlNotSupported = -1;   /* NULL */
-static int hf_h245_sessionID = -1;                /* INTEGER_1_255 */
-static int hf_h245_ack_mediaChannel = -1;         /* Ack_mediaChannel */
-static int hf_h245_ack_mediaControlChannel = -1;  /* Ack_mediaControlChannel */
-static int hf_h245_flowControlToZero = -1;        /* BOOLEAN */
-static int hf_h245_cLC_source = -1;               /* T_cLC_source */
-static int hf_h245_user = -1;                     /* NULL */
-static int hf_h245_lcse = -1;                     /* NULL */
-static int hf_h245_clc_reason = -1;               /* Clc_reason */
-static int hf_h245_unknown = -1;                  /* NULL */
-static int hf_h245_reopen = -1;                   /* NULL */
-static int hf_h245_reservationFailure = -1;       /* NULL */
-static int hf_h245_networkErrorCode = -1;         /* INTEGER_0_255 */
-static int hf_h245_qosCapability = -1;            /* QOSCapability */
-static int hf_h245_reason = -1;                   /* T_reason */
-static int hf_h245_normal = -1;                   /* NULL */
-static int hf_h245_req_chan_clos_rej_cause = -1;  /* RequestChannelCloseRejectCause */
-static int hf_h245_multiplexEntryDescriptors = -1;  /* SET_SIZE_1_15_OF_MultiplexEntryDescriptor */
-static int hf_h245_multiplexEntryDescriptors_item = -1;  /* MultiplexEntryDescriptor */
-static int hf_h245_multiplexTableEntryNumber = -1;  /* MultiplexTableEntryNumber */
-static int hf_h245_elementList = -1;              /* T_elementList */
-static int hf_h245_elementList_item = -1;         /* MultiplexElement */
-static int hf_h245_me_type = -1;                  /* Me_type */
-static int hf_h245_logicalChannelNum = -1;        /* T_logicalChannelNum */
-static int hf_h245_subElementList = -1;           /* T_subElementList */
-static int hf_h245_subElementList_item = -1;      /* MultiplexElement */
-static int hf_h245_me_repeatCount = -1;           /* ME_repeatCount */
-static int hf_h245_me_repeatCount_finite = -1;    /* ME_finiteRepeatCount */
-static int hf_h245_untilClosingFlag = -1;         /* T_untilClosingFlag */
-static int hf_h245_multiplexTableEntryNumbers = -1;  /* SET_SIZE_1_15_OF_MultiplexTableEntryNumber */
-static int hf_h245_multiplexTableEntryNumbers_item = -1;  /* MultiplexTableEntryNumber */
-static int hf_h245_sendRejectionDescriptions = -1;  /* SET_SIZE_1_15_OF_MultiplexEntryRejectionDescriptions */
-static int hf_h245_sendRejectionDescriptions_item = -1;  /* MultiplexEntryRejectionDescriptions */
-static int hf_h245_mux_rej_cause = -1;            /* MultiplexEntryRejectionDescriptionsCause */
-static int hf_h245_unspecifiedCause = -1;         /* NULL */
-static int hf_h245_descriptorTooComplex = -1;     /* NULL */
-static int hf_h245_entryNumbers = -1;             /* SET_SIZE_1_15_OF_MultiplexTableEntryNumber */
-static int hf_h245_entryNumbers_item = -1;        /* MultiplexTableEntryNumber */
-static int hf_h245_rejectionDescriptions = -1;    /* SET_SIZE_1_15_OF_RequestMultiplexEntryRejectionDescriptions */
-static int hf_h245_rejectionDescriptions_item = -1;  /* RequestMultiplexEntryRejectionDescriptions */
-static int hf_h245_req_mux_rej_cause = -1;        /* RequestMultiplexEntryRejectionDescriptionsCause */
-static int hf_h245_requestedModes = -1;           /* SEQUENCE_SIZE_1_256_OF_ModeDescription */
-static int hf_h245_requestedModes_item = -1;      /* ModeDescription */
-static int hf_h245_req_mode_ack_response = -1;    /* Req_mode_ack_response */
-static int hf_h245_willTransmitMostPreferredMode = -1;  /* NULL */
-static int hf_h245_willTransmitLessPreferredMode = -1;  /* NULL */
-static int hf_h245_req_rej_cause = -1;            /* RequestModeRejectCause */
-static int hf_h245_modeUnavailable = -1;          /* NULL */
-static int hf_h245_multipointConstraint = -1;     /* NULL */
-static int hf_h245_requestDenied = -1;            /* NULL */
-static int hf_h245_ModeDescription_item = -1;     /* ModeElement */
-static int hf_h245_videoMode = -1;                /* VideoMode */
-static int hf_h245_audioMode = -1;                /* AudioMode */
-static int hf_h245_dataMode = -1;                 /* DataMode */
-static int hf_h245_encryptionMode = -1;           /* EncryptionMode */
-static int hf_h245_h235Mode = -1;                 /* H235Mode */
-static int hf_h245_multiplexedStreamMode = -1;    /* MultiplexedStreamParameter */
-static int hf_h245_redundancyEncodingDTMode = -1;  /* RedundancyEncodingDTMode */
-static int hf_h245_multiplePayloadStreamMode = -1;  /* MultiplePayloadStreamMode */
-static int hf_h245_depFecMode = -1;               /* DepFECMode */
-static int hf_h245_fecMode = -1;                  /* FECMode */
-static int hf_h245_type = -1;                     /* ModeElementType */
-static int hf_h245_h223ModeParameters = -1;       /* H223ModeParameters */
-static int hf_h245_v76ModeParameters = -1;        /* V76ModeParameters */
-static int hf_h245_h2250ModeParameters = -1;      /* H2250ModeParameters */
-static int hf_h245_genericModeParameters = -1;    /* GenericCapability */
-static int hf_h245_multiplexedStreamModeParameters = -1;  /* MultiplexedStreamModeParameters */
-static int hf_h245_logicalChannelNumber = -1;     /* LogicalChannelNumber */
-static int hf_h245_mediaMode = -1;                /* T_mediaMode */
-static int hf_h245_prmary_dtmode = -1;            /* RedundancyEncodingDTModeElement */
-static int hf_h245_secondaryDTM = -1;             /* SEQUENCE_OF_RedundancyEncodingDTModeElement */
-static int hf_h245_secondaryDTM_item = -1;        /* RedundancyEncodingDTModeElement */
-static int hf_h245_re_type = -1;                  /* Re_type */
-static int hf_h245_mpsmElements = -1;             /* SEQUENCE_OF_MultiplePayloadStreamElementMode */
-static int hf_h245_mpsmElements_item = -1;        /* MultiplePayloadStreamElementMode */
-static int hf_h245_rfc2733Mode = -1;              /* T_rfc2733Mode */
-static int hf_h245_fec_mode = -1;                 /* FEC_mode */
-static int hf_h245_protectedElement = -1;         /* ModeElementType */
-static int hf_h245_adaptationLayer = -1;          /* AdaptationLayerType */
-static int hf_h245_al1Framed = -1;                /* NULL */
-static int hf_h245_al1NotFramed = -1;             /* NULL */
-static int hf_h245_al2WithoutSequenceNumbers = -1;  /* NULL */
-static int hf_h245_al2WithSequenceNumbers = -1;   /* NULL */
-static int hf_h245_al3 = -1;                      /* Al3 */
-static int hf_h245_al1M = -1;                     /* H223AL1MParameters */
-static int hf_h245_al2M = -1;                     /* H223AL2MParameters */
-static int hf_h245_al3M = -1;                     /* H223AL3MParameters */
-static int hf_h245_segmentableFlag = -1;          /* BOOLEAN */
-static int hf_h245_redundancyEncodingMode = -1;   /* RedundancyEncodingMode */
-static int hf_h245_secondaryEncodingMode = -1;    /* T_secondaryEncodingMode */
-static int hf_h245_h261VideoMode = -1;            /* H261VideoMode */
-static int hf_h245_h262VideoMode = -1;            /* H262VideoMode */
-static int hf_h245_h263VideoMode = -1;            /* H263VideoMode */
-static int hf_h245_is11172VideoMode = -1;         /* IS11172VideoMode */
-static int hf_h245_genericVideoMode = -1;         /* GenericCapability */
-static int hf_h245_h261_resolution = -1;          /* H261Resolution */
-static int hf_h245_qcif = -1;                     /* NULL */
-static int hf_h245_cif = -1;                      /* NULL */
-static int hf_h245_profileAndLevel = -1;          /* T_profileAndLevel */
-static int hf_h245_profileAndLevel_SPatMLMode = -1;  /* NULL */
-static int hf_h245_profileAndLevel_MPatLLMode = -1;  /* NULL */
-static int hf_h245_profileAndLevel_MPatMLMode = -1;  /* NULL */
-static int hf_h245_profileAndLevel_MPatH_14Mode = -1;  /* NULL */
-static int hf_h245_profileAndLevel_MPatHLMode = -1;  /* NULL */
-static int hf_h245_profileAndLevel_SNRatLLMode = -1;  /* NULL */
-static int hf_h245_profileAndLevel_SNRatMLMode = -1;  /* NULL */
-static int hf_h245_profileAndLevel_SpatialatH_14Mode = -1;  /* NULL */
-static int hf_h245_profileAndLevel_HPatMLMode = -1;  /* NULL */
-static int hf_h245_profileAndLevel_HPatH_14Mode = -1;  /* NULL */
-static int hf_h245_profileAndLevel_HPatHLMode = -1;  /* NULL */
-static int hf_h245_h263_resolution = -1;          /* H263Resolution */
-static int hf_h245_sqcif = -1;                    /* NULL */
-static int hf_h245_cif4 = -1;                     /* NULL */
-static int hf_h245_cif16 = -1;                    /* NULL */
-static int hf_h245_custom_res = -1;               /* NULL */
-static int hf_h245_g711Alaw64k_mode = -1;         /* NULL */
-static int hf_h245_g711Alaw56k_mode = -1;         /* NULL */
-static int hf_h245_g711Ulaw64k_mode = -1;         /* NULL */
-static int hf_h245_g711Ulaw56k_mode = -1;         /* NULL */
-static int hf_h245_g722_64k_mode = -1;            /* NULL */
-static int hf_h245_g722_56k_mode = -1;            /* NULL */
-static int hf_h245_g722_48k_mode = -1;            /* NULL */
-static int hf_h245_g728_mode = -1;                /* NULL */
-static int hf_h245_g729_mode = -1;                /* NULL */
-static int hf_h245_g729AnnexA_mode = -1;          /* NULL */
-static int hf_h245_g7231_mode = -1;               /* Mode_g7231 */
-static int hf_h245_noSilenceSuppressionLowRate = -1;  /* NULL */
-static int hf_h245_noSilenceSuppressionHighRate = -1;  /* NULL */
-static int hf_h245_silenceSuppressionLowRate = -1;  /* NULL */
-static int hf_h245_silenceSuppressionHighRate = -1;  /* NULL */
-static int hf_h245_is11172AudioMode = -1;         /* IS11172AudioMode */
-static int hf_h245_is13818AudioMode = -1;         /* IS13818AudioMode */
-static int hf_h245_g7231AnnexCMode = -1;          /* G7231AnnexCMode */
-static int hf_h245_genericAudioMode = -1;         /* GenericCapability */
-static int hf_h245_vbd_mode = -1;                 /* VBDMode */
-static int hf_h245_audioLayer = -1;               /* T_audioLayer */
-static int hf_h245_audioLayer1Mode = -1;          /* NULL */
-static int hf_h245_audioLayer2Mode = -1;          /* NULL */
-static int hf_h245_audioLayer3Mode = -1;          /* NULL */
-static int hf_h245_audioSampling = -1;            /* T_audioSampling */
-static int hf_h245_audioSampling32kMode = -1;     /* NULL */
-static int hf_h245_audioSampling44k1Mode = -1;    /* NULL */
-static int hf_h245_audioSampling48kMode = -1;     /* NULL */
-static int hf_h245_is11172multichannelType = -1;  /* IS11172_multichannelType */
-static int hf_h245_singleChannelMode = -1;        /* NULL */
-static int hf_h245_twoChannelStereo = -1;         /* NULL */
-static int hf_h245_twoChannelDual = -1;           /* NULL */
-static int hf_h245_audioLayerMode = -1;           /* IS13818AudioLayer */
-static int hf_h245_audioSamplingMode = -1;        /* IS13818AudioSampling */
-static int hf_h245_audioSampling16kMode = -1;     /* NULL */
-static int hf_h245_audioSampling22k05Mode = -1;   /* NULL */
-static int hf_h245_audioSampling24kMode = -1;     /* NULL */
-static int hf_h245_is13818MultichannelType = -1;  /* IS13818MultichannelType */
-static int hf_h245_threeChannels2_1Mode = -1;     /* NULL */
-static int hf_h245_threeChannels3_0Mode = -1;     /* NULL */
-static int hf_h245_fourChannels2_0_2_0Mode = -1;  /* NULL */
-static int hf_h245_fourChannels2_2Mode = -1;      /* NULL */
-static int hf_h245_fourChannels3_1Mode = -1;      /* NULL */
-static int hf_h245_fiveChannels3_0_2_0Mode = -1;  /* NULL */
-static int hf_h245_fiveChannels3_2Mode = -1;      /* NULL */
-static int hf_h245_vbd_type = -1;                 /* AudioMode */
-static int hf_h245_datamodeapplication = -1;      /* DataModeApplication */
-static int hf_h245_t84DataProtocolCapability = -1;  /* DataProtocolCapability */
-static int hf_h245_t38faxDataProtocolCapability = -1;  /* T38faxApp */
-static int hf_h245_genericDataMode = -1;          /* GenericCapability */
-static int hf_h245_bitRate_0_4294967295 = -1;     /* INTEGER_0_4294967295 */
-static int hf_h245_h233Encryption = -1;           /* NULL */
-static int hf_h245_mlr_type = -1;                 /* Mlr_type */
-static int hf_h245_systemLoop = -1;               /* NULL */
-static int hf_h245_mediaLoop = -1;                /* LogicalChannelNumber */
-static int hf_h245_logicalChannelLoop = -1;       /* LogicalChannelNumber */
-static int hf_h245_mla_type = -1;                 /* Mla_type */
-static int hf_h245_mlrej_type = -1;               /* Mlrej_type */
-static int hf_h245_maintloop_rej_cause = -1;      /* MaintenanceLoopRejectCause */
-static int hf_h245_canNotPerformLoop = -1;        /* NULL */
-static int hf_h245_communicationModeTable = -1;   /* SET_SIZE_1_256_OF_CommunicationModeTableEntry */
-static int hf_h245_communicationModeTable_item = -1;  /* CommunicationModeTableEntry */
-static int hf_h245_terminalLabel = -1;            /* TerminalLabel */
-static int hf_h245_sessionDescription = -1;       /* BMPString_SIZE_1_128 */
-static int hf_h245_entryDataType = -1;            /* T_entryDataType */
-static int hf_h245_cm_mediaChannel = -1;          /* Cm_mediaChannel */
-static int hf_h245_cm_mediaControlChannel = -1;   /* TransportAddress */
-static int hf_h245_sessionDependency = -1;        /* INTEGER_1_255 */
-static int hf_h245_terminalListRequest = -1;      /* NULL */
-static int hf_h245_makeMeChair = -1;              /* NULL */
-static int hf_h245_cancelMakeMeChair = -1;        /* NULL */
-static int hf_h245_dropTerminal = -1;             /* TerminalLabel */
-static int hf_h245_requestTerminalID = -1;        /* TerminalLabel */
-static int hf_h245_enterH243Password = -1;        /* NULL */
-static int hf_h245_enterH243TerminalID = -1;      /* NULL */
-static int hf_h245_enterH243ConferenceID = -1;    /* NULL */
-static int hf_h245_enterExtensionAddress = -1;    /* NULL */
-static int hf_h245_requestChairTokenOwner = -1;   /* NULL */
-static int hf_h245_requestTerminalCertificate = -1;  /* T_requestTerminalCertificate */
-static int hf_h245_certSelectionCriteria = -1;    /* CertSelectionCriteria */
-static int hf_h245_sRandom = -1;                  /* INTEGER_1_4294967295 */
-static int hf_h245_broadcastMyLogicalChannel = -1;  /* LogicalChannelNumber */
-static int hf_h245_makeTerminalBroadcaster = -1;  /* TerminalLabel */
-static int hf_h245_sendThisSource = -1;           /* TerminalLabel */
-static int hf_h245_requestAllTerminalIDs = -1;    /* NULL */
-static int hf_h245_remoteMCRequest = -1;          /* RemoteMCRequest */
-static int hf_h245_CertSelectionCriteria_item = -1;  /* Criteria */
-static int hf_h245_field = -1;                    /* OBJECT_IDENTIFIER */
-static int hf_h245_criteriaValue = -1;            /* OCTET_STRING_SIZE_1_65535 */
-static int hf_h245_mcuNumber = -1;                /* McuNumber */
-static int hf_h245_terminalNumber = -1;           /* TerminalNumber */
-static int hf_h245_mCTerminalIDResponse = -1;     /* T_mCTerminalIDResponse */
-static int hf_h245_terminalID = -1;               /* TerminalID */
-static int hf_h245_terminalIDResponse = -1;       /* T_terminalIDResponse */
-static int hf_h245_conferenceIDResponse = -1;     /* T_conferenceIDResponse */
-static int hf_h245_conferenceID = -1;             /* ConferenceID */
-static int hf_h245_passwordResponse = -1;         /* T_passwordResponse */
-static int hf_h245_password = -1;                 /* Password */
-static int hf_h245_terminalListResponse = -1;     /* SET_SIZE_1_256_OF_TerminalLabel */
-static int hf_h245_terminalListResponse_item = -1;  /* TerminalLabel */
-static int hf_h245_videoCommandReject = -1;       /* NULL */
-static int hf_h245_terminalDropReject = -1;       /* NULL */
-static int hf_h245_makeMeChairResponse = -1;      /* T_makeMeChairResponse */
-static int hf_h245_grantedChairToken = -1;        /* NULL */
-static int hf_h245_deniedChairToken = -1;         /* NULL */
-static int hf_h245_extensionAddressResponse = -1;  /* T_extensionAddressResponse */
-static int hf_h245_extensionAddress = -1;         /* TerminalID */
-static int hf_h245_chairTokenOwnerResponse = -1;  /* T_chairTokenOwnerResponse */
-static int hf_h245_terminalCertificateResponse = -1;  /* T_terminalCertificateResponse */
-static int hf_h245_certificateResponse = -1;      /* OCTET_STRING_SIZE_1_65535 */
-static int hf_h245_broadcastMyLogicalChannelResponse = -1;  /* T_broadcastMyLogicalChannelResponse */
-static int hf_h245_grantedBroadcastMyLogicalChannel = -1;  /* NULL */
-static int hf_h245_deniedBroadcastMyLogicalChannel = -1;  /* NULL */
-static int hf_h245_makeTerminalBroadcasterResponse = -1;  /* T_makeTerminalBroadcasterResponse */
-static int hf_h245_grantedMakeTerminalBroadcaster = -1;  /* NULL */
-static int hf_h245_deniedMakeTerminalBroadcaster = -1;  /* NULL */
-static int hf_h245_sendThisSourceResponse = -1;   /* T_sendThisSourceResponse */
-static int hf_h245_grantedSendThisSource = -1;    /* NULL */
-static int hf_h245_deniedSendThisSource = -1;     /* NULL */
-static int hf_h245_requestAllTerminalIDsResponse = -1;  /* RequestAllTerminalIDsResponse */
-static int hf_h245_remoteMCResponse = -1;         /* RemoteMCResponse */
-static int hf_h245_terminalInformation = -1;      /* SEQUENCE_OF_TerminalInformation */
-static int hf_h245_terminalInformation_item = -1;  /* TerminalInformation */
-static int hf_h245_masterActivate = -1;           /* NULL */
-static int hf_h245_slaveActivate = -1;            /* NULL */
-static int hf_h245_deActivate = -1;               /* NULL */
-static int hf_h245_accept = -1;                   /* NULL */
-static int hf_h245_reject = -1;                   /* T_reject */
-static int hf_h245_functionNotSupportedFlag = -1;  /* NULL */
-static int hf_h245_callInformationReq = -1;       /* CallInformationReq */
-static int hf_h245_maxNumberOfAdditionalConnections = -1;  /* INTEGER_1_65535 */
-static int hf_h245_addConnectionReq = -1;         /* AddConnectionReq */
-static int hf_h245_dialingInformation = -1;       /* DialingInformation */
-static int hf_h245_removeConnectionReq = -1;      /* RemoveConnectionReq */
-static int hf_h245_connectionIdentifier = -1;     /* ConnectionIdentifier */
-static int hf_h245_maximumHeaderIntervalReq = -1;  /* MaximumHeaderIntervalReq */
-static int hf_h245_requestType = -1;              /* T_requestType */
-static int hf_h245_currentIntervalInformation = -1;  /* NULL */
-static int hf_h245_requestedInterval = -1;        /* INTEGER_0_65535 */
-static int hf_h245_callInformationResp = -1;      /* CallInformationResp */
-static int hf_h245_callAssociationNumber = -1;    /* INTEGER_0_4294967295 */
-static int hf_h245_addConnectionResp = -1;        /* AddConnectionResp */
-static int hf_h245_responseCode = -1;             /* T_responseCode */
-static int hf_h245_accepted = -1;                 /* NULL */
-static int hf_h245_rejected = -1;                 /* T_rejected */
-static int hf_h245_connectionsNotAvailable = -1;  /* NULL */
-static int hf_h245_userRejected = -1;             /* NULL */
-static int hf_h245_removeConnectionResp = -1;     /* RemoveConnectionResp */
-static int hf_h245_maximumHeaderIntervalResp = -1;  /* MaximumHeaderIntervalResp */
-static int hf_h245_currentInterval = -1;          /* INTEGER_0_65535 */
-static int hf_h245_crcDesired = -1;               /* T_crcDesired */
-static int hf_h245_excessiveError = -1;           /* T_excessiveError */
-static int hf_h245_differential = -1;             /* SET_SIZE_1_65535_OF_DialingInformationNumber */
-static int hf_h245_differential_item = -1;        /* DialingInformationNumber */
-static int hf_h245_infoNotAvailable = -1;         /* INTEGER_1_65535 */
-static int hf_h245_din_networkAddress = -1;       /* NumericString_SIZE_0_40 */
-static int hf_h245_subAddress = -1;               /* IA5String_SIZE_1_40 */
-static int hf_h245_networkType = -1;              /* SET_SIZE_1_255_OF_DialingInformationNetworkType */
-static int hf_h245_networkType_item = -1;         /* DialingInformationNetworkType */
-static int hf_h245_n_isdn = -1;                   /* NULL */
-static int hf_h245_gstn = -1;                     /* NULL */
-static int hf_h245_mobile = -1;                   /* NULL */
-static int hf_h245_channelTag = -1;               /* INTEGER_0_4294967295 */
-static int hf_h245_sequenceNum = -1;              /* INTEGER_0_4294967295 */
-static int hf_h245_maximumBitRate = -1;           /* MaximumBitRate */
-static int hf_h245_rejectReason = -1;             /* LogicalChannelRateRejectReason */
-static int hf_h245_currentMaximumBitRate = -1;    /* MaximumBitRate */
-static int hf_h245_undefinedReason = -1;          /* NULL */
-static int hf_h245_insufficientResources = -1;    /* NULL */
-static int hf_h245_specificRequest = -1;          /* T_specificRequest */
-static int hf_h245_multiplexCapabilityBool = -1;  /* BOOLEAN */
-static int hf_h245_capabilityTableEntryNumbers = -1;  /* SET_SIZE_1_65535_OF_CapabilityTableEntryNumber */
-static int hf_h245_capabilityTableEntryNumbers_item = -1;  /* CapabilityTableEntryNumber */
-static int hf_h245_capabilityDescriptorNumbers = -1;  /* SET_SIZE_1_256_OF_CapabilityDescriptorNumber */
-static int hf_h245_capabilityDescriptorNumbers_item = -1;  /* CapabilityDescriptorNumber */
-static int hf_h245_genericRequestFlag = -1;       /* NULL */
-static int hf_h245_encryptionSE = -1;             /* OCTET_STRING */
-static int hf_h245_encryptionIVRequest = -1;      /* NULL */
-static int hf_h245_encryptionAlgorithmID = -1;    /* T_encryptionAlgorithmID */
-static int hf_h245_h233AlgorithmIdentifier = -1;  /* SequenceNumber */
-static int hf_h245_associatedAlgorithm = -1;      /* NonStandardParameter */
-static int hf_h245_wholeMultiplex = -1;           /* NULL */
-static int hf_h245_scope = -1;                    /* Scope */
-static int hf_h245_res_maximumBitRate = -1;       /* INTEGER_0_16777215 */
-static int hf_h245_noRestriction = -1;            /* NULL */
-static int hf_h245_restriction = -1;              /* Restriction */
-static int hf_h245_disconnect = -1;               /* NULL */
-static int hf_h245_gstnOptions = -1;              /* T_gstnOptions */
-static int hf_h245_telephonyMode = -1;            /* NULL */
-static int hf_h245_v8bis = -1;                    /* NULL */
-static int hf_h245_v34DSVD = -1;                  /* NULL */
-static int hf_h245_v34DuplexFAX = -1;             /* NULL */
-static int hf_h245_v34H324 = -1;                  /* NULL */
-static int hf_h245_isdnOptions = -1;              /* T_isdnOptions */
-static int hf_h245_v140 = -1;                     /* NULL */
-static int hf_h245_terminalOnHold = -1;           /* NULL */
-static int hf_h245_cancelBroadcastMyLogicalChannel = -1;  /* LogicalChannelNumber */
-static int hf_h245_cancelMakeTerminalBroadcaster = -1;  /* NULL */
-static int hf_h245_cancelSendThisSource = -1;     /* NULL */
-static int hf_h245_dropConference = -1;           /* NULL */
-static int hf_h245_substituteConferenceIDCommand = -1;  /* SubstituteConferenceIDCommand */
-static int hf_h245_conferenceIdentifier = -1;     /* OCTET_STRING_SIZE_16 */
-static int hf_h245_masterToSlave = -1;            /* NULL */
-static int hf_h245_slaveToMaster = -1;            /* NULL */
-static int hf_h245_mc_type = -1;                  /* Mc_type */
-static int hf_h245_equaliseDelay = -1;            /* NULL */
-static int hf_h245_zeroDelay = -1;                /* NULL */
-static int hf_h245_multipointModeCommand = -1;    /* NULL */
-static int hf_h245_cancelMultipointModeCommand = -1;  /* NULL */
-static int hf_h245_videoFreezePicture = -1;       /* NULL */
-static int hf_h245_videoFastUpdatePicture = -1;   /* NULL */
-static int hf_h245_videoFastUpdateGOB = -1;       /* T_videoFastUpdateGOB */
-static int hf_h245_firstGOB = -1;                 /* INTEGER_0_17 */
-static int hf_h245_numberOfGOBs = -1;             /* INTEGER_1_18 */
-static int hf_h245_videoTemporalSpatialTradeOff = -1;  /* INTEGER_0_31 */
-static int hf_h245_videoSendSyncEveryGOB = -1;    /* NULL */
-static int hf_h245_videoSendSyncEveryGOBCancel = -1;  /* NULL */
-static int hf_h245_videoFastUpdateMB = -1;        /* T_videoFastUpdateMB */
-static int hf_h245_firstGOB_0_255 = -1;           /* INTEGER_0_255 */
-static int hf_h245_firstMB_1_8192 = -1;           /* INTEGER_1_8192 */
-static int hf_h245_numberOfMBs = -1;              /* INTEGER_1_8192 */
-static int hf_h245_maxH223MUXPDUsize = -1;        /* INTEGER_1_65535 */
-static int hf_h245_encryptionUpdate = -1;         /* EncryptionSync */
-static int hf_h245_encryptionUpdateRequest = -1;  /* EncryptionUpdateRequest */
-static int hf_h245_switchReceiveMediaOff = -1;    /* NULL */
-static int hf_h245_switchReceiveMediaOn = -1;     /* NULL */
-static int hf_h245_progressiveRefinementStart = -1;  /* T_progressiveRefinementStart */
-static int hf_h245_repeatCount = -1;              /* T_repeatCount */
-static int hf_h245_doOneProgression = -1;         /* NULL */
-static int hf_h245_doContinuousProgressions = -1;  /* NULL */
-static int hf_h245_doOneIndependentProgression = -1;  /* NULL */
-static int hf_h245_doContinuousIndependentProgressions = -1;  /* NULL */
-static int hf_h245_progressiveRefinementAbortOne = -1;  /* NULL */
-static int hf_h245_progressiveRefinementAbortContinuous = -1;  /* NULL */
-static int hf_h245_videoBadMBs = -1;              /* T_videoBadMBs */
-static int hf_h245_firstMB = -1;                  /* INTEGER_1_9216 */
-static int hf_h245_numberOfMBs1_1_9216 = -1;      /* INTEGER_1_9216 */
-static int hf_h245_temporalReference = -1;        /* INTEGER_0_1023 */
-static int hf_h245_lostPicture = -1;              /* SEQUENCE_OF_PictureReference */
-static int hf_h245_lostPicture_item = -1;         /* PictureReference */
-static int hf_h245_lostPartialPicture = -1;       /* T_lostPartialPicture */
-static int hf_h245_pictureReference = -1;         /* PictureReference */
-static int hf_h245_recoveryReferencePicture = -1;  /* SEQUENCE_OF_PictureReference */
-static int hf_h245_recoveryReferencePicture_item = -1;  /* PictureReference */
-static int hf_h245_encryptionUpdateCommand = -1;  /* T_encryptionUpdateCommand */
-static int hf_h245_encryptionUpdateAck = -1;      /* T_encryptionUpdateAck */
-static int hf_h245_direction = -1;                /* EncryptionUpdateDirection */
-static int hf_h245_secureChannel = -1;            /* BOOLEAN */
-static int hf_h245_sharedSecret = -1;             /* BOOLEAN */
-static int hf_h245_certProtectedKey = -1;         /* BOOLEAN */
-static int hf_h245_keyProtectionMethod = -1;      /* KeyProtectionMethod */
-static int hf_h245_pictureNumber = -1;            /* INTEGER_0_1023 */
-static int hf_h245_longTermPictureIndex = -1;     /* INTEGER_0_255 */
-static int hf_h245_h223ModeChange = -1;           /* T_h223ModeChange */
-static int hf_h245_toLevel0 = -1;                 /* NULL */
-static int hf_h245_toLevel1 = -1;                 /* NULL */
-static int hf_h245_toLevel2 = -1;                 /* NULL */
-static int hf_h245_toLevel2withOptionalHeader = -1;  /* NULL */
-static int hf_h245_h223AnnexADoubleFlag = -1;     /* T_h223AnnexADoubleFlag */
-static int hf_h245_start = -1;                    /* NULL */
-static int hf_h245_stop = -1;                     /* NULL */
-static int hf_h245_bitRate = -1;                  /* INTEGER_1_65535 */
-static int hf_h245_bitRateLockedToPCRClock = -1;  /* BOOLEAN */
-static int hf_h245_bitRateLockedToNetworkClock = -1;  /* BOOLEAN */
-static int hf_h245_cmd_aal = -1;                  /* Cmd_aal */
-static int hf_h245_cmd_aal1 = -1;                 /* Cmd_aal1 */
-static int hf_h245_cmd_clockRecovery = -1;        /* Cmd_clockRecovery */
-static int hf_h245_nullClockRecoveryflag = -1;    /* NULL */
-static int hf_h245_srtsClockRecovery = -1;        /* NULL */
-static int hf_h245_adaptiveClockRecoveryFlag = -1;  /* NULL */
-static int hf_h245_cmd_errorCorrection = -1;      /* Cmd_errorCorrection */
-static int hf_h245_nullErrorCorrectionFlag = -1;  /* NULL */
-static int hf_h245_longInterleaverFlag = -1;      /* NULL */
-static int hf_h245_shortInterleaverFlag = -1;     /* NULL */
-static int hf_h245_errorCorrectionOnlyFlag = -1;  /* NULL */
-static int hf_h245_cmd_aal5 = -1;                 /* Cmd_aal5 */
-static int hf_h245_cmd_multiplex = -1;            /* Cmd_multiplex */
-static int hf_h245_noMultiplex = -1;              /* NULL */
-static int hf_h245_transportStream = -1;          /* NULL */
-static int hf_h245_programStreamFlag = -1;        /* NULL */
-static int hf_h245_cmd_reverseParameters = -1;    /* Cmd_reverseParameters */
-static int hf_h245_cmdr_multiplex = -1;           /* CmdR_multiplex */
-static int hf_h245_sampleSize = -1;               /* INTEGER_1_255 */
-static int hf_h245_samplesPerFrame = -1;          /* INTEGER_1_255 */
-static int hf_h245_status = -1;                   /* T_status */
-static int hf_h245_synchronized = -1;             /* NULL */
-static int hf_h245_reconfiguration = -1;          /* NULL */
-static int hf_h245_fns_cause = -1;                /* FunctionNotSupportedCause */
-static int hf_h245_syntaxError = -1;              /* NULL */
-static int hf_h245_semanticError = -1;            /* NULL */
-static int hf_h245_unknownFunction = -1;          /* NULL */
-static int hf_h245_returnedFunction = -1;         /* T_returnedFunction */
-static int hf_h245_sbeNumber = -1;                /* INTEGER_0_9 */
-static int hf_h245_terminalNumberAssign = -1;     /* TerminalLabel */
-static int hf_h245_terminalJoinedConference = -1;  /* TerminalLabel */
-static int hf_h245_terminalLeftConference = -1;   /* TerminalLabel */
-static int hf_h245_seenByAtLeastOneOther = -1;    /* NULL */
-static int hf_h245_cancelSeenByAtLeastOneOther = -1;  /* NULL */
-static int hf_h245_seenByAll = -1;                /* NULL */
-static int hf_h245_cancelSeenByAll = -1;          /* NULL */
-static int hf_h245_terminalYouAreSeeing = -1;     /* TerminalLabel */
-static int hf_h245_requestForFloor = -1;          /* NULL */
-static int hf_h245_withdrawChairToken = -1;       /* NULL */
-static int hf_h245_floorRequested = -1;           /* TerminalLabel */
-static int hf_h245_terminalYouAreSeeingInSubPictureNumber = -1;  /* TerminalYouAreSeeingInSubPictureNumber */
-static int hf_h245_videoIndicateCompose = -1;     /* VideoIndicateCompose */
-static int hf_h245_masterMCU = -1;                /* NULL */
-static int hf_h245_cancelMasterMCU = -1;          /* NULL */
-static int hf_h245_subPictureNumber = -1;         /* INTEGER_0_255 */
-static int hf_h245_compositionNumber = -1;        /* INTEGER_0_255 */
-static int hf_h245_mi_type = -1;                  /* Mi_type */
-static int hf_h245_logicalChannelActive = -1;     /* NULL */
-static int hf_h245_logicalChannelInactive = -1;   /* NULL */
-static int hf_h245_multipointConference = -1;     /* NULL */
-static int hf_h245_cancelMultipointConference = -1;  /* NULL */
-static int hf_h245_multipointZeroComm = -1;       /* NULL */
-static int hf_h245_cancelMultipointZeroComm = -1;  /* NULL */
-static int hf_h245_multipointSecondaryStatus = -1;  /* NULL */
-static int hf_h245_cancelMultipointSecondaryStatus = -1;  /* NULL */
-static int hf_h245_videoIndicateReadyToActivate = -1;  /* NULL */
-static int hf_h245_videoNotDecodedMBs = -1;       /* T_videoNotDecodedMBs */
-static int hf_h245_temporalReference_0_255 = -1;  /* INTEGER_0_255 */
-static int hf_h245_estimatedReceivedJitterMantissa = -1;  /* INTEGER_0_3 */
-static int hf_h245_estimatedReceivedJitterExponent = -1;  /* INTEGER_0_7 */
-static int hf_h245_skippedFrameCount = -1;        /* INTEGER_0_15 */
-static int hf_h245_additionalDecoderBuffer = -1;  /* INTEGER_0_262143 */
-static int hf_h245_logicalChannelNumber1 = -1;    /* LogicalChannelNumber */
-static int hf_h245_logicalChannelNumber2 = -1;    /* LogicalChannelNumber */
-static int hf_h245_skew = -1;                     /* INTEGER_0_4095 */
-static int hf_h245_maximumSkew = -1;              /* INTEGER_0_4095 */
-static int hf_h245_signalAddress = -1;            /* TransportAddress */
-static int hf_h245_vendor = -1;                   /* NonStandardIdentifier */
-static int hf_h245_productNumber = -1;            /* OCTET_STRING_SIZE_1_256 */
-static int hf_h245_versionNumber = -1;            /* OCTET_STRING_SIZE_1_256 */
-static int hf_h245_ind_aal = -1;                  /* Ind_aal */
-static int hf_h245_ind_aal1 = -1;                 /* Ind_aal1 */
-static int hf_h245_ind_clockRecovery = -1;        /* Ind_clockRecovery */
-static int hf_h245_ind_errorCorrection = -1;      /* Ind_errorCorrection */
-static int hf_h245_ind_aal5 = -1;                 /* Ind_aal5 */
-static int hf_h245_ind_multiplex = -1;            /* Ind_multiplex */
-static int hf_h245_ind_reverseParameters = -1;    /* Ind_reverseParameters */
-static int hf_h245_indr_multiplex = -1;           /* IndR_multiplex */
-static int hf_h245_iv8 = -1;                      /* IV8 */
-static int hf_h245_iv16 = -1;                     /* IV16 */
-static int hf_h245_iv = -1;                       /* OCTET_STRING */
-static int hf_h245_alphanumeric = -1;             /* GeneralString */
-static int hf_h245_userInputSupportIndication = -1;  /* T_userInputSupportIndication */
-static int hf_h245_signal = -1;                   /* T_signal */
-static int hf_h245_signalType = -1;               /* T_signalType */
-static int hf_h245_duration = -1;                 /* INTEGER_1_65535 */
-static int hf_h245_rtp = -1;                      /* T_rtp */
-static int hf_h245_timestamp = -1;                /* INTEGER_0_4294967295 */
-static int hf_h245_expirationTime = -1;           /* INTEGER_0_4294967295 */
-static int hf_h245_rtpPayloadIndication = -1;     /* NULL */
-static int hf_h245_paramS = -1;                   /* Params */
-static int hf_h245_encryptedSignalType = -1;      /* OCTET_STRING_SIZE_1 */
-static int hf_h245_algorithmOID = -1;             /* OBJECT_IDENTIFIER */
-static int hf_h245_signalUpdate = -1;             /* T_signalUpdate */
-static int hf_h245_si_rtp = -1;                   /* Si_rtp */
-static int hf_h245_extendedAlphanumeric = -1;     /* T_extendedAlphanumeric */
-static int hf_h245_encrypted = -1;                /* OCTET_STRING */
-static int hf_h245_encryptedAlphanumeric = -1;    /* EncryptedAlphanumeric */
+static int proto_h245;
+static int hf_h245_OpenLogicalChannel_PDU;        /* OpenLogicalChannel */
+static int hf_h245_request;                       /* RequestMessage */
+static int hf_h245_response;                      /* ResponseMessage */
+static int hf_h245_command;                       /* CommandMessage */
+static int hf_h245_indication;                    /* IndicationMessage */
+static int hf_h245_nonStandardMsg;                /* NonStandardMessage */
+static int hf_h245_masterSlaveDetermination;      /* MasterSlaveDetermination */
+static int hf_h245_terminalCapabilitySet;         /* TerminalCapabilitySet */
+static int hf_h245_openLogicalChannel;            /* OpenLogicalChannel */
+static int hf_h245_closeLogicalChannel;           /* CloseLogicalChannel */
+static int hf_h245_requestChannelClose;           /* RequestChannelClose */
+static int hf_h245_multiplexEntrySend;            /* MultiplexEntrySend */
+static int hf_h245_requestMultiplexEntry;         /* RequestMultiplexEntry */
+static int hf_h245_requestMode;                   /* RequestMode */
+static int hf_h245_roundTripDelayRequest;         /* RoundTripDelayRequest */
+static int hf_h245_maintenanceLoopRequest;        /* MaintenanceLoopRequest */
+static int hf_h245_communicationModeRequest;      /* CommunicationModeRequest */
+static int hf_h245_conferenceRequest;             /* ConferenceRequest */
+static int hf_h245_multilinkRequest;              /* MultilinkRequest */
+static int hf_h245_logicalChannelRateRequest;     /* LogicalChannelRateRequest */
+static int hf_h245_genericRequest;                /* GenericMessage */
+static int hf_h245_masterSlaveDeterminationAck;   /* MasterSlaveDeterminationAck */
+static int hf_h245_masterSlaveDeterminationReject;  /* MasterSlaveDeterminationReject */
+static int hf_h245_terminalCapabilitySetAck;      /* TerminalCapabilitySetAck */
+static int hf_h245_terminalCapabilitySetReject;   /* TerminalCapabilitySetReject */
+static int hf_h245_openLogicalChannelAck;         /* OpenLogicalChannelAck */
+static int hf_h245_openLogicalChannelReject;      /* OpenLogicalChannelReject */
+static int hf_h245_closeLogicalChannelAck;        /* CloseLogicalChannelAck */
+static int hf_h245_requestChannelCloseAck;        /* RequestChannelCloseAck */
+static int hf_h245_requestChannelCloseReject;     /* RequestChannelCloseReject */
+static int hf_h245_multiplexEntrySendAck;         /* MultiplexEntrySendAck */
+static int hf_h245_multiplexEntrySendReject;      /* MultiplexEntrySendReject */
+static int hf_h245_requestMultiplexEntryAck;      /* RequestMultiplexEntryAck */
+static int hf_h245_requestMultiplexEntryReject;   /* RequestMultiplexEntryReject */
+static int hf_h245_requestModeAck;                /* RequestModeAck */
+static int hf_h245_requestModeReject;             /* RequestModeReject */
+static int hf_h245_roundTripDelayResponse;        /* RoundTripDelayResponse */
+static int hf_h245_maintenanceLoopAck;            /* MaintenanceLoopAck */
+static int hf_h245_maintenanceLoopReject;         /* MaintenanceLoopReject */
+static int hf_h245_communicationModeResponse;     /* CommunicationModeResponse */
+static int hf_h245_conferenceResponse;            /* ConferenceResponse */
+static int hf_h245_multilinkResponse;             /* MultilinkResponse */
+static int hf_h245_logicalChannelRateAcknowledge;  /* LogicalChannelRateAcknowledge */
+static int hf_h245_logicalChannelRateReject;      /* LogicalChannelRateReject */
+static int hf_h245_genericResponse;               /* GenericMessage */
+static int hf_h245_maintenanceLoopOffCommand;     /* MaintenanceLoopOffCommand */
+static int hf_h245_sendTerminalCapabilitySet;     /* SendTerminalCapabilitySet */
+static int hf_h245_encryptionCommand;             /* EncryptionCommand */
+static int hf_h245_flowControlCommand;            /* FlowControlCommand */
+static int hf_h245_endSessionCommand;             /* EndSessionCommand */
+static int hf_h245_miscellaneousCommand;          /* MiscellaneousCommand */
+static int hf_h245_communicationModeCommand;      /* CommunicationModeCommand */
+static int hf_h245_conferenceCommand;             /* ConferenceCommand */
+static int hf_h245_h223MultiplexReconfiguration;  /* H223MultiplexReconfiguration */
+static int hf_h245_newATMVCCommand;               /* NewATMVCCommand */
+static int hf_h245_mobileMultilinkReconfigurationCommand;  /* MobileMultilinkReconfigurationCommand */
+static int hf_h245_genericCommand;                /* GenericMessage */
+static int hf_h245_functionNotUnderstood;         /* FunctionNotUnderstood */
+static int hf_h245_masterSlaveDeterminationRelease;  /* MasterSlaveDeterminationRelease */
+static int hf_h245_terminalCapabilitySetRelease;  /* TerminalCapabilitySetRelease */
+static int hf_h245_openLogicalChannelConfirm;     /* OpenLogicalChannelConfirm */
+static int hf_h245_requestChannelCloseRelease;    /* RequestChannelCloseRelease */
+static int hf_h245_multiplexEntrySendRelease;     /* MultiplexEntrySendRelease */
+static int hf_h245_requestMultiplexEntryRelease;  /* RequestMultiplexEntryRelease */
+static int hf_h245_requestModeRelease;            /* RequestModeRelease */
+static int hf_h245_miscellaneousIndication;       /* MiscellaneousIndication */
+static int hf_h245_jitterIndication;              /* JitterIndication */
+static int hf_h245_h223SkewIndication;            /* H223SkewIndication */
+static int hf_h245_newATMVCIndication;            /* NewATMVCIndication */
+static int hf_h245_userInput;                     /* UserInputIndication */
+static int hf_h245_h2250MaximumSkewIndication;    /* H2250MaximumSkewIndication */
+static int hf_h245_mcLocationIndication;          /* MCLocationIndication */
+static int hf_h245_conferenceIndication;          /* ConferenceIndication */
+static int hf_h245_vendorIdentification;          /* VendorIdentification */
+static int hf_h245_functionNotSupported;          /* FunctionNotSupported */
+static int hf_h245_multilinkIndication;           /* MultilinkIndication */
+static int hf_h245_logicalChannelRateRelease;     /* LogicalChannelRateRelease */
+static int hf_h245_flowControlIndication;         /* FlowControlIndication */
+static int hf_h245_mobileMultilinkReconfigurationIndication;  /* MobileMultilinkReconfigurationIndication */
+static int hf_h245_genericIndication;             /* GenericMessage */
+static int hf_h245_messageIdentifier;             /* CapabilityIdentifier */
+static int hf_h245_subMessageIdentifier;          /* T_subMessageIdentifier */
+static int hf_h245_messageContent;                /* T_messageContent */
+static int hf_h245_messageContent_item;           /* T_messageContent_item */
+static int hf_h245_nonStandardData;               /* NonStandardParameter */
+static int hf_h245_nonStandardIdentifier;         /* NonStandardIdentifier */
+static int hf_h245_nsd_data;                      /* T_nsd_data */
+static int hf_h245_object;                        /* T_object */
+static int hf_h245_h221NonStandardID;             /* H221NonStandardID */
+static int hf_h245_t35CountryCode;                /* T_t35CountryCode */
+static int hf_h245_t35Extension;                  /* T_t35Extension */
+static int hf_h245_manufacturerCode;              /* T_manufacturerCode */
+static int hf_h245_terminalType;                  /* INTEGER_0_255 */
+static int hf_h245_statusDeterminationNumber;     /* INTEGER_0_16777215 */
+static int hf_h245_decision;                      /* T_decision */
+static int hf_h245_master;                        /* NULL */
+static int hf_h245_slave;                         /* NULL */
+static int hf_h245_msd_rej_cause;                 /* MasterSlaveDeterminationRejectCause */
+static int hf_h245_identicalNumbers;              /* NULL */
+static int hf_h245_sequenceNumber;                /* SequenceNumber */
+static int hf_h245_protocolIdentifier;            /* OBJECT_IDENTIFIER */
+static int hf_h245_multiplexCapability;           /* MultiplexCapability */
+static int hf_h245_capabilityTable;               /* SET_SIZE_1_256_OF_CapabilityTableEntry */
+static int hf_h245_capabilityTable_item;          /* CapabilityTableEntry */
+static int hf_h245_capabilityDescriptors;         /* SET_SIZE_1_256_OF_CapabilityDescriptor */
+static int hf_h245_capabilityDescriptors_item;    /* CapabilityDescriptor */
+static int hf_h245_genericInformation;            /* SEQUENCE_OF_GenericInformation */
+static int hf_h245_genericInformation_item;       /* GenericInformation */
+static int hf_h245_capabilityTableEntryNumber;    /* CapabilityTableEntryNumber */
+static int hf_h245_capability;                    /* Capability */
+static int hf_h245_capabilityDescriptorNumber;    /* CapabilityDescriptorNumber */
+static int hf_h245_simultaneousCapabilities;      /* SET_SIZE_1_256_OF_AlternativeCapabilitySet */
+static int hf_h245_simultaneousCapabilities_item;  /* AlternativeCapabilitySet */
+static int hf_h245_AlternativeCapabilitySet_item;  /* CapabilityTableEntryNumber */
+static int hf_h245_tcs_rej_cause;                 /* TerminalCapabilitySetRejectCause */
+static int hf_h245_unspecified;                   /* NULL */
+static int hf_h245_undefinedTableEntryUsed;       /* NULL */
+static int hf_h245_descriptorCapacityExceeded;    /* NULL */
+static int hf_h245_tableEntryCapacityExceeded;    /* T_tableEntryCapacityExceeded */
+static int hf_h245_highestEntryNumberProcessed;   /* CapabilityTableEntryNumber */
+static int hf_h245_noneProcessed;                 /* NULL */
+static int hf_h245_nonStandard;                   /* NonStandardParameter */
+static int hf_h245_receiveVideoCapability;        /* VideoCapability */
+static int hf_h245_transmitVideoCapability;       /* VideoCapability */
+static int hf_h245_receiveAndTransmitVideoCapability;  /* VideoCapability */
+static int hf_h245_receiveAudioCapability;        /* AudioCapability */
+static int hf_h245_transmitAudioCapability;       /* AudioCapability */
+static int hf_h245_receiveAndTransmitAudioCapability;  /* AudioCapability */
+static int hf_h245_receiveDataApplicationCapability;  /* DataApplicationCapability */
+static int hf_h245_transmitDataApplicationCapability;  /* DataApplicationCapability */
+static int hf_h245_receiveAndTransmitDataApplicationCapability;  /* DataApplicationCapability */
+static int hf_h245_h233EncryptionTransmitCapability;  /* BOOLEAN */
+static int hf_h245_h233EncryptionReceiveCapability;  /* T_h233EncryptionReceiveCapability */
+static int hf_h245_h233IVResponseTime;            /* INTEGER_0_255 */
+static int hf_h245_conferenceCapability;          /* ConferenceCapability */
+static int hf_h245_h235SecurityCapability;        /* H235SecurityCapability */
+static int hf_h245_maxPendingReplacementFor;      /* INTEGER_0_255 */
+static int hf_h245_receiveUserInputCapability;    /* UserInputCapability */
+static int hf_h245_transmitUserInputCapability;   /* UserInputCapability */
+static int hf_h245_receiveAndTransmitUserInputCapability;  /* UserInputCapability */
+static int hf_h245_genericControlCapability;      /* GenericCapability */
+static int hf_h245_receiveMultiplexedStreamCapability;  /* MultiplexedStreamCapability */
+static int hf_h245_transmitMultiplexedStreamCapability;  /* MultiplexedStreamCapability */
+static int hf_h245_receiveAndTransmitMultiplexedStreamCapability;  /* MultiplexedStreamCapability */
+static int hf_h245_receiveRTPAudioTelephonyEventCapability;  /* AudioTelephonyEventCapability */
+static int hf_h245_receiveRTPAudioToneCapability;  /* AudioToneCapability */
+static int hf_h245_depFecCapability;              /* DepFECCapability */
+static int hf_h245_multiplePayloadStreamCapability;  /* MultiplePayloadStreamCapability */
+static int hf_h245_fecCapability;                 /* FECCapability */
+static int hf_h245_redundancyEncodingCap;         /* RedundancyEncodingCapability */
+static int hf_h245_oneOfCapabilities;             /* AlternativeCapabilitySet */
+static int hf_h245_encryptionAuthenticationAndIntegrity;  /* EncryptionAuthenticationAndIntegrity */
+static int hf_h245_mediaCapability;               /* CapabilityTableEntryNumber */
+static int hf_h245_h222Capability;                /* H222Capability */
+static int hf_h245_h223Capability;                /* H223Capability */
+static int hf_h245_v76Capability;                 /* V76Capability */
+static int hf_h245_h2250Capability;               /* H2250Capability */
+static int hf_h245_genericMultiplexCapability;    /* GenericCapability */
+static int hf_h245_numberOfVCs;                   /* INTEGER_1_256 */
+static int hf_h245_vcCapability;                  /* SET_OF_VCCapability */
+static int hf_h245_vcCapability_item;             /* VCCapability */
+static int hf_h245_aal1;                          /* T_aal1 */
+static int hf_h245_nullClockRecovery;             /* BOOLEAN */
+static int hf_h245_srtsClockRecovery_bool;        /* BOOLEAN */
+static int hf_h245_adaptiveClockRecovery;         /* BOOLEAN */
+static int hf_h245_nullErrorCorrection;           /* BOOLEAN */
+static int hf_h245_longInterleaver;               /* BOOLEAN */
+static int hf_h245_shortInterleaver;              /* BOOLEAN */
+static int hf_h245_errorCorrectionOnly;           /* BOOLEAN */
+static int hf_h245_structuredDataTransfer;        /* BOOLEAN */
+static int hf_h245_partiallyFilledCells;          /* BOOLEAN */
+static int hf_h245_aal5;                          /* T_aal5 */
+static int hf_h245_forwardMaximumSDUSize;         /* INTEGER_0_65535 */
+static int hf_h245_backwardMaximumSDUSize;        /* INTEGER_0_65535 */
+static int hf_h245_transportStream_bool;          /* BOOLEAN */
+static int hf_h245_programStream;                 /* BOOLEAN */
+static int hf_h245_availableBitRates;             /* T_availableBitRates */
+static int hf_h245_avb_type;                      /* Avb_type */
+static int hf_h245_singleBitRate;                 /* INTEGER_1_65535 */
+static int hf_h245_rangeOfBitRates;               /* T_rangeOfBitRates */
+static int hf_h245_lowerBitRate;                  /* INTEGER_1_65535 */
+static int hf_h245_higherBitRate;                 /* INTEGER_1_65535 */
+static int hf_h245_aal1ViaGateway;                /* T_aal1ViaGateway */
+static int hf_h245_gatewayAddress;                /* SET_SIZE_1_256_OF_Q2931Address */
+static int hf_h245_gatewayAddress_item;           /* Q2931Address */
+static int hf_h245_srtsClockRecoveryflag;         /* BOOLEAN */
+static int hf_h245_transportWithI_frames;         /* BOOLEAN */
+static int hf_h245_videoWithAL1;                  /* BOOLEAN */
+static int hf_h245_videoWithAL2;                  /* BOOLEAN */
+static int hf_h245_videoWithAL3;                  /* BOOLEAN */
+static int hf_h245_audioWithAL1;                  /* BOOLEAN */
+static int hf_h245_audioWithAL2;                  /* BOOLEAN */
+static int hf_h245_audioWithAL3;                  /* BOOLEAN */
+static int hf_h245_dataWithAL1;                   /* BOOLEAN */
+static int hf_h245_dataWithAL2;                   /* BOOLEAN */
+static int hf_h245_dataWithAL3;                   /* BOOLEAN */
+static int hf_h245_maximumAl2SDUSize;             /* INTEGER_0_65535 */
+static int hf_h245_maximumAl3SDUSize;             /* INTEGER_0_65535 */
+static int hf_h245_maximumDelayJitter;            /* INTEGER_0_1023 */
+static int hf_h245_h223MultiplexTableCapability;  /* T_h223MultiplexTableCapability */
+static int hf_h245_basic;                         /* NULL */
+static int hf_h245_enhanced;                      /* T_enhanced */
+static int hf_h245_maximumNestingDepth;           /* INTEGER_1_15 */
+static int hf_h245_maximumElementListSize;        /* INTEGER_2_255 */
+static int hf_h245_maximumSubElementListSize;     /* INTEGER_2_255 */
+static int hf_h245_maxMUXPDUSizeCapability;       /* BOOLEAN */
+static int hf_h245_nsrpSupport;                   /* BOOLEAN */
+static int hf_h245_mobileOperationTransmitCapability;  /* T_mobileOperationTransmitCapability */
+static int hf_h245_modeChangeCapability;          /* BOOLEAN */
+static int hf_h245_h223AnnexA;                    /* BOOLEAN */
+static int hf_h245_h223AnnexADoubleFlagFlag;      /* BOOLEAN */
+static int hf_h245_h223AnnexB;                    /* BOOLEAN */
+static int hf_h245_h223AnnexBwithHeader;          /* BOOLEAN */
+static int hf_h245_h223AnnexCCapability;          /* H223AnnexCCapability */
+static int hf_h245_bitRate_1_19200;               /* INTEGER_1_19200 */
+static int hf_h245_mobileMultilinkFrameCapability;  /* T_mobileMultilinkFrameCapability */
+static int hf_h245_maximumSampleSize;             /* INTEGER_1_255 */
+static int hf_h245_maximumPayloadLength;          /* INTEGER_1_65025 */
+static int hf_h245_videoWithAL1M;                 /* BOOLEAN */
+static int hf_h245_videoWithAL2M;                 /* BOOLEAN */
+static int hf_h245_videoWithAL3M;                 /* BOOLEAN */
+static int hf_h245_audioWithAL1M;                 /* BOOLEAN */
+static int hf_h245_audioWithAL2M;                 /* BOOLEAN */
+static int hf_h245_audioWithAL3M;                 /* BOOLEAN */
+static int hf_h245_dataWithAL1M;                  /* BOOLEAN */
+static int hf_h245_dataWithAL2M;                  /* BOOLEAN */
+static int hf_h245_dataWithAL3M;                  /* BOOLEAN */
+static int hf_h245_alpduInterleaving;             /* BOOLEAN */
+static int hf_h245_maximumAL1MPDUSize;            /* INTEGER_0_65535 */
+static int hf_h245_maximumAL2MSDUSize;            /* INTEGER_0_65535 */
+static int hf_h245_maximumAL3MSDUSize;            /* INTEGER_0_65535 */
+static int hf_h245_rsCodeCapability;              /* BOOLEAN */
+static int hf_h245_suspendResumeCapabilitywAddress;  /* BOOLEAN */
+static int hf_h245_suspendResumeCapabilitywoAddress;  /* BOOLEAN */
+static int hf_h245_rejCapability;                 /* BOOLEAN */
+static int hf_h245_sREJCapability;                /* BOOLEAN */
+static int hf_h245_mREJCapability;                /* BOOLEAN */
+static int hf_h245_crc8bitCapability;             /* BOOLEAN */
+static int hf_h245_crc16bitCapability;            /* BOOLEAN */
+static int hf_h245_crc32bitCapability;            /* BOOLEAN */
+static int hf_h245_uihCapability;                 /* BOOLEAN */
+static int hf_h245_numOfDLCS;                     /* INTEGER_2_8191 */
+static int hf_h245_twoOctetAddressFieldCapability;  /* BOOLEAN */
+static int hf_h245_loopBackTestCapability;        /* BOOLEAN */
+static int hf_h245_n401Capability;                /* INTEGER_1_4095 */
+static int hf_h245_maxWindowSizeCapability;       /* INTEGER_1_127 */
+static int hf_h245_v75Capability;                 /* V75Capability */
+static int hf_h245_audioHeader;                   /* BOOLEAN */
+static int hf_h245_maximumAudioDelayJitter;       /* INTEGER_0_1023 */
+static int hf_h245_receiveMultipointCapability;   /* MultipointCapability */
+static int hf_h245_transmitMultipointCapability;  /* MultipointCapability */
+static int hf_h245_receiveAndTransmitMultipointCapability;  /* MultipointCapability */
+static int hf_h245_mcCapability;                  /* T_mcCapability */
+static int hf_h245_centralizedConferenceMC;       /* BOOLEAN */
+static int hf_h245_decentralizedConferenceMC;     /* BOOLEAN */
+static int hf_h245_rtcpVideoControlCapability;    /* BOOLEAN */
+static int hf_h245_mediaPacketizationCapability;  /* MediaPacketizationCapability */
+static int hf_h245_transportCapability;           /* TransportCapability */
+static int hf_h245_redundancyEncodingCapability;  /* SEQUENCE_SIZE_1_256_OF_RedundancyEncodingCapability */
+static int hf_h245_redundancyEncodingCapability_item;  /* RedundancyEncodingCapability */
+static int hf_h245_logicalChannelSwitchingCapability;  /* BOOLEAN */
+static int hf_h245_t120DynamicPortCapability;     /* BOOLEAN */
+static int hf_h245_h261aVideoPacketization;       /* BOOLEAN */
+static int hf_h245_rtpPayloadTypes;               /* SEQUENCE_SIZE_1_256_OF_RTPPayloadType */
+static int hf_h245_rtpPayloadTypes_item;          /* RTPPayloadType */
+static int hf_h245_qosMode;                       /* QOSMode */
+static int hf_h245_tokenRate;                     /* INTEGER_1_4294967295 */
+static int hf_h245_bucketSize;                    /* INTEGER_1_4294967295 */
+static int hf_h245_peakRate;                      /* INTEGER_1_4294967295 */
+static int hf_h245_minPoliced;                    /* INTEGER_1_4294967295 */
+static int hf_h245_maxPktSize;                    /* INTEGER_1_4294967295 */
+static int hf_h245_guaranteedQOS;                 /* NULL */
+static int hf_h245_controlledLoad;                /* NULL */
+static int hf_h245_maxNTUSize;                    /* INTEGER_0_65535 */
+static int hf_h245_atmUBR;                        /* BOOLEAN */
+static int hf_h245_atmrtVBR;                      /* BOOLEAN */
+static int hf_h245_atmnrtVBR;                     /* BOOLEAN */
+static int hf_h245_atmABR;                        /* BOOLEAN */
+static int hf_h245_atmCBR;                        /* BOOLEAN */
+static int hf_h245_nonStandardParameter;          /* NonStandardParameter */
+static int hf_h245_value;                         /* INTEGER_0_255 */
+static int hf_h245_servicePrioritySignalled;      /* BOOLEAN */
+static int hf_h245_servicePriorityValue;          /* ServicePriorityValue */
+static int hf_h245_serviceClass;                  /* INTEGER_0_4095 */
+static int hf_h245_serviceSubclass;               /* INTEGER_0_255 */
+static int hf_h245_desired;                       /* NULL */
+static int hf_h245_required;                      /* NULL */
+static int hf_h245_class0;                        /* NULL */
+static int hf_h245_class1;                        /* NULL */
+static int hf_h245_class2;                        /* NULL */
+static int hf_h245_class3;                        /* NULL */
+static int hf_h245_class4;                        /* NULL */
+static int hf_h245_class5;                        /* NULL */
+static int hf_h245_qosType;                       /* QOSType */
+static int hf_h245_qosClass;                      /* QOSClass */
+static int hf_h245_averageRate;                   /* INTEGER_1_4294967295 */
+static int hf_h245_burst;                         /* INTEGER_1_4294967295 */
+static int hf_h245_rsvpParameters;                /* RSVPParameters */
+static int hf_h245_atmParameters;                 /* ATMParameters */
+static int hf_h245_localQoS;                      /* BOOLEAN */
+static int hf_h245_genericTransportParameters;    /* GenericTransportParameters */
+static int hf_h245_servicePriority;               /* ServicePriority */
+static int hf_h245_authorizationParameter;        /* AuthorizationParameters */
+static int hf_h245_qosDescriptor;                 /* QOSDescriptor */
+static int hf_h245_dscpValue;                     /* INTEGER_0_63 */
+static int hf_h245_ip_UDP;                        /* NULL */
+static int hf_h245_ip_TCP;                        /* NULL */
+static int hf_h245_atm_AAL5_UNIDIR;               /* NULL */
+static int hf_h245_atm_AAL5_BIDIR;                /* NULL */
+static int hf_h245_atm_AAL5_compressed;           /* T_atm_AAL5_compressed */
+static int hf_h245_variable_delta;                /* BOOLEAN */
+static int hf_h245_mediaTransport;                /* MediaTransportType */
+static int hf_h245_qOSCapabilities;               /* SEQUENCE_SIZE_1_256_OF_QOSCapability */
+static int hf_h245_qOSCapabilities_item;          /* QOSCapability */
+static int hf_h245_mediaChannelCapabilities;      /* SEQUENCE_SIZE_1_256_OF_MediaChannelCapability */
+static int hf_h245_mediaChannelCapabilities_item;  /* MediaChannelCapability */
+static int hf_h245_redundancyEncodingMethod;      /* RedundancyEncodingMethod */
+static int hf_h245_primaryEncoding;               /* CapabilityTableEntryNumber */
+static int hf_h245_secondaryEncodingCapability;   /* SEQUENCE_SIZE_1_256_OF_CapabilityTableEntryNumber */
+static int hf_h245_secondaryEncodingCapability_item;  /* CapabilityTableEntryNumber */
+static int hf_h245_rtpAudioRedundancyEncoding;    /* NULL */
+static int hf_h245_rtpH263VideoRedundancyEncoding;  /* RTPH263VideoRedundancyEncoding */
+static int hf_h245_numberOfThreads;               /* INTEGER_1_16 */
+static int hf_h245_framesBetweenSyncPoints;       /* INTEGER_1_256 */
+static int hf_h245_frameToThreadMapping;          /* T_frameToThreadMapping */
+static int hf_h245_roundrobin;                    /* NULL */
+static int hf_h245_custom;                        /* SEQUENCE_SIZE_1_256_OF_RTPH263VideoRedundancyFrameMapping */
+static int hf_h245_custom_item;                   /* RTPH263VideoRedundancyFrameMapping */
+static int hf_h245_containedThreads;              /* T_containedThreads */
+static int hf_h245_containedThreads_item;         /* INTEGER_0_15 */
+static int hf_h245_threadNumber;                  /* INTEGER_0_15 */
+static int hf_h245_frameSequence;                 /* T_frameSequence */
+static int hf_h245_frameSequence_item;            /* INTEGER_0_255 */
+static int hf_h245_multicastCapability;           /* BOOLEAN */
+static int hf_h245_multiUniCastConference;        /* BOOLEAN */
+static int hf_h245_mediaDistributionCapability;   /* SEQUENCE_OF_MediaDistributionCapability */
+static int hf_h245_mediaDistributionCapability_item;  /* MediaDistributionCapability */
+static int hf_h245_centralizedControl;            /* BOOLEAN */
+static int hf_h245_distributedControl;            /* BOOLEAN */
+static int hf_h245_centralizedAudio;              /* BOOLEAN */
+static int hf_h245_distributedAudio;              /* BOOLEAN */
+static int hf_h245_centralizedVideo;              /* BOOLEAN */
+static int hf_h245_distributedVideo;              /* BOOLEAN */
+static int hf_h245_centralizedData;               /* SEQUENCE_OF_DataApplicationCapability */
+static int hf_h245_centralizedData_item;          /* DataApplicationCapability */
+static int hf_h245_distributedData;               /* SEQUENCE_OF_DataApplicationCapability */
+static int hf_h245_distributedData_item;          /* DataApplicationCapability */
+static int hf_h245_h261VideoCapability;           /* H261VideoCapability */
+static int hf_h245_h262VideoCapability;           /* H262VideoCapability */
+static int hf_h245_h263VideoCapability;           /* H263VideoCapability */
+static int hf_h245_is11172VideoCapability;        /* IS11172VideoCapability */
+static int hf_h245_genericVideoCapability;        /* GenericCapability */
+static int hf_h245_extendedVideoCapability;       /* ExtendedVideoCapability */
+static int hf_h245_videoCapability;               /* SEQUENCE_OF_VideoCapability */
+static int hf_h245_videoCapability_item;          /* VideoCapability */
+static int hf_h245_videoCapabilityExtension;      /* SEQUENCE_OF_GenericCapability */
+static int hf_h245_videoCapabilityExtension_item;  /* GenericCapability */
+static int hf_h245_qcifMPI_1_4;                   /* INTEGER_1_4 */
+static int hf_h245_cifMPI_1_4;                    /* INTEGER_1_4 */
+static int hf_h245_temporalSpatialTradeOffCapability;  /* BOOLEAN */
+static int hf_h245_maxBitRate_1_19200;            /* INTEGER_1_19200 */
+static int hf_h245_stillImageTransmission;        /* BOOLEAN */
+static int hf_h245_videoBadMBsCap;                /* BOOLEAN */
+static int hf_h245_profileAndLevel_SPatML;        /* BOOLEAN */
+static int hf_h245_profileAndLevel_MPatLL;        /* BOOLEAN */
+static int hf_h245_profileAndLevel_MPatML;        /* BOOLEAN */
+static int hf_h245_profileAndLevel_MPatH_14;      /* BOOLEAN */
+static int hf_h245_profileAndLevel_MPatHL;        /* BOOLEAN */
+static int hf_h245_profileAndLevel_SNRatLL;       /* BOOLEAN */
+static int hf_h245_profileAndLevel_SNRatML;       /* BOOLEAN */
+static int hf_h245_profileAndLevel_SpatialatH_14;  /* BOOLEAN */
+static int hf_h245_profileAndLevel_HPatML;        /* BOOLEAN */
+static int hf_h245_profileAndLevel_HPatH_14;      /* BOOLEAN */
+static int hf_h245_profileAndLevel_HPatHL;        /* BOOLEAN */
+static int hf_h245_videoBitRate;                  /* INTEGER_0_1073741823 */
+static int hf_h245_vbvBufferSize;                 /* INTEGER_0_262143 */
+static int hf_h245_samplesPerLine;                /* INTEGER_0_16383 */
+static int hf_h245_linesPerFrame;                 /* INTEGER_0_16383 */
+static int hf_h245_framesPerSecond;               /* INTEGER_0_15 */
+static int hf_h245_luminanceSampleRate;           /* INTEGER_0_4294967295 */
+static int hf_h245_sqcifMPI_1_32;                 /* INTEGER_1_32 */
+static int hf_h245_qcifMPI;                       /* INTEGER_1_32 */
+static int hf_h245_cifMPI;                        /* INTEGER_1_32 */
+static int hf_h245_cif4MPI_1_32;                  /* INTEGER_1_32 */
+static int hf_h245_cif16MPI_1_32;                 /* INTEGER_1_32 */
+static int hf_h245_maxBitRate;                    /* INTEGER_1_192400 */
+static int hf_h245_unrestrictedVector;            /* BOOLEAN */
+static int hf_h245_arithmeticCoding;              /* BOOLEAN */
+static int hf_h245_advancedPrediction;            /* BOOLEAN */
+static int hf_h245_pbFrames;                      /* BOOLEAN */
+static int hf_h245_hrd_B;                         /* INTEGER_0_524287 */
+static int hf_h245_bppMaxKb;                      /* INTEGER_0_65535 */
+static int hf_h245_slowSqcifMPI;                  /* INTEGER_1_3600 */
+static int hf_h245_slowQcifMPI;                   /* INTEGER_1_3600 */
+static int hf_h245_slowCifMPI;                    /* INTEGER_1_3600 */
+static int hf_h245_slowCif4MPI;                   /* INTEGER_1_3600 */
+static int hf_h245_slowCif16MPI;                  /* INTEGER_1_3600 */
+static int hf_h245_errorCompensation;             /* BOOLEAN */
+static int hf_h245_enhancementLayerInfo;          /* EnhancementLayerInfo */
+static int hf_h245_h263Options;                   /* H263Options */
+static int hf_h245_baseBitRateConstrained;        /* BOOLEAN */
+static int hf_h245_snrEnhancement;                /* SET_SIZE_1_14_OF_EnhancementOptions */
+static int hf_h245_snrEnhancement_item;           /* EnhancementOptions */
+static int hf_h245_spatialEnhancement;            /* SET_SIZE_1_14_OF_EnhancementOptions */
+static int hf_h245_spatialEnhancement_item;       /* EnhancementOptions */
+static int hf_h245_bPictureEnhancement;           /* SET_SIZE_1_14_OF_BEnhancementParameters */
+static int hf_h245_bPictureEnhancement_item;      /* BEnhancementParameters */
+static int hf_h245_enhancementOptions;            /* EnhancementOptions */
+static int hf_h245_numberOfBPictures;             /* INTEGER_1_64 */
+static int hf_h245_advancedIntraCodingMode;       /* BOOLEAN */
+static int hf_h245_deblockingFilterMode;          /* BOOLEAN */
+static int hf_h245_improvedPBFramesMode;          /* BOOLEAN */
+static int hf_h245_unlimitedMotionVectors;        /* BOOLEAN */
+static int hf_h245_fullPictureFreeze;             /* BOOLEAN */
+static int hf_h245_partialPictureFreezeAndRelease;  /* BOOLEAN */
+static int hf_h245_resizingPartPicFreezeAndRelease;  /* BOOLEAN */
+static int hf_h245_fullPictureSnapshot;           /* BOOLEAN */
+static int hf_h245_partialPictureSnapshot;        /* BOOLEAN */
+static int hf_h245_videoSegmentTagging;           /* BOOLEAN */
+static int hf_h245_progressiveRefinement;         /* BOOLEAN */
+static int hf_h245_dynamicPictureResizingByFour;  /* BOOLEAN */
+static int hf_h245_dynamicPictureResizingSixteenthPel;  /* BOOLEAN */
+static int hf_h245_dynamicWarpingHalfPel;         /* BOOLEAN */
+static int hf_h245_dynamicWarpingSixteenthPel;    /* BOOLEAN */
+static int hf_h245_independentSegmentDecoding;    /* BOOLEAN */
+static int hf_h245_slicesInOrder_NonRect;         /* BOOLEAN */
+static int hf_h245_slicesInOrder_Rect;            /* BOOLEAN */
+static int hf_h245_slicesNoOrder_NonRect;         /* BOOLEAN */
+static int hf_h245_slicesNoOrder_Rect;            /* BOOLEAN */
+static int hf_h245_alternateInterVLCMode;         /* BOOLEAN */
+static int hf_h245_modifiedQuantizationMode;      /* BOOLEAN */
+static int hf_h245_reducedResolutionUpdate;       /* BOOLEAN */
+static int hf_h245_transparencyParameters;        /* TransparencyParameters */
+static int hf_h245_separateVideoBackChannel;      /* BOOLEAN */
+static int hf_h245_refPictureSelection;           /* RefPictureSelection */
+static int hf_h245_customPictureClockFrequency;   /* SET_SIZE_1_16_OF_CustomPictureClockFrequency */
+static int hf_h245_customPictureClockFrequency_item;  /* CustomPictureClockFrequency */
+static int hf_h245_customPictureFormat;           /* SET_SIZE_1_16_OF_CustomPictureFormat */
+static int hf_h245_customPictureFormat_item;      /* CustomPictureFormat */
+static int hf_h245_modeCombos;                    /* SET_SIZE_1_16_OF_H263VideoModeCombos */
+static int hf_h245_modeCombos_item;               /* H263VideoModeCombos */
+static int hf_h245_h263Version3Options;           /* H263Version3Options */
+static int hf_h245_presentationOrder;             /* INTEGER_1_256 */
+static int hf_h245_offset_x;                      /* INTEGER_M262144_262143 */
+static int hf_h245_offset_y;                      /* INTEGER_M262144_262143 */
+static int hf_h245_scale_x;                       /* INTEGER_1_255 */
+static int hf_h245_scale_y;                       /* INTEGER_1_255 */
+static int hf_h245_additionalPictureMemory;       /* T_additionalPictureMemory */
+static int hf_h245_sqcifAdditionalPictureMemory;  /* INTEGER_1_256 */
+static int hf_h245_qcifAdditionalPictureMemory;   /* INTEGER_1_256 */
+static int hf_h245_cifAdditionalPictureMemory;    /* INTEGER_1_256 */
+static int hf_h245_cif4AdditionalPictureMemory;   /* INTEGER_1_256 */
+static int hf_h245_cif16AdditionalPictureMemory;  /* INTEGER_1_256 */
+static int hf_h245_bigCpfAdditionalPictureMemory;  /* INTEGER_1_256 */
+static int hf_h245_videoMux;                      /* BOOLEAN */
+static int hf_h245_videoBackChannelSend;          /* T_videoBackChannelSend */
+static int hf_h245_none;                          /* NULL */
+static int hf_h245_ackMessageOnly;                /* NULL */
+static int hf_h245_nackMessageOnly;               /* NULL */
+static int hf_h245_ackOrNackMessageOnly;          /* NULL */
+static int hf_h245_ackAndNackMessage;             /* NULL */
+static int hf_h245_enhancedReferencePicSelect;    /* T_enhancedReferencePicSelect */
+static int hf_h245_subPictureRemovalParameters;   /* T_subPictureRemovalParameters */
+static int hf_h245_mpuHorizMBs;                   /* INTEGER_1_128 */
+static int hf_h245_mpuVertMBs;                    /* INTEGER_1_72 */
+static int hf_h245_mpuTotalNumber;                /* INTEGER_1_65536 */
+static int hf_h245_clockConversionCode;           /* INTEGER_1000_1001 */
+static int hf_h245_clockDivisor;                  /* INTEGER_1_127 */
+static int hf_h245_sqcifMPI;                      /* INTEGER_1_2048 */
+static int hf_h245_qcifMPI_1_2048;                /* INTEGER_1_2048 */
+static int hf_h245_cifMPI2_1_2048;                /* INTEGER_1_2048 */
+static int hf_h245_cif4MPI;                       /* INTEGER_1_2048 */
+static int hf_h245_cif16MPI;                      /* INTEGER_1_2048 */
+static int hf_h245_maxCustomPictureWidth;         /* INTEGER_1_2048 */
+static int hf_h245_maxCustomPictureHeight;        /* INTEGER_1_2048 */
+static int hf_h245_minCustomPictureWidth;         /* INTEGER_1_2048 */
+static int hf_h245_minCustomPictureHeight;        /* INTEGER_1_2048 */
+static int hf_h245_mPI;                           /* T_mPI */
+static int hf_h245_standardMPI;                   /* INTEGER_1_31 */
+static int hf_h245_customPCF;                     /* T_customPCF */
+static int hf_h245_customPCF_item;                /* T_customPCF_item */
+static int hf_h245_customMPI;                     /* INTEGER_1_2048 */
+static int hf_h245_pixelAspectInformation;        /* T_pixelAspectInformation */
+static int hf_h245_anyPixelAspectRatio;           /* BOOLEAN */
+static int hf_h245_pixelAspectCode;               /* T_pixelAspectCode */
+static int hf_h245_pixelAspectCode_item;          /* INTEGER_1_14 */
+static int hf_h245_extendedPAR;                   /* T_extendedPAR */
+static int hf_h245_extendedPAR_item;              /* T_extendedPAR_item */
+static int hf_h245_width;                         /* INTEGER_1_255 */
+static int hf_h245_height;                        /* INTEGER_1_255 */
+static int hf_h245_h263VideoUncoupledModes;       /* H263ModeComboFlags */
+static int hf_h245_h263VideoCoupledModes;         /* SET_SIZE_1_16_OF_H263ModeComboFlags */
+static int hf_h245_h263VideoCoupledModes_item;    /* H263ModeComboFlags */
+static int hf_h245_referencePicSelect;            /* BOOLEAN */
+static int hf_h245_enhancedReferencePicSelectBool;  /* BOOLEAN */
+static int hf_h245_dataPartitionedSlices;         /* BOOLEAN */
+static int hf_h245_fixedPointIDCT0;               /* BOOLEAN */
+static int hf_h245_interlacedFields;              /* BOOLEAN */
+static int hf_h245_currentPictureHeaderRepetition;  /* BOOLEAN */
+static int hf_h245_previousPictureHeaderRepetition;  /* BOOLEAN */
+static int hf_h245_nextPictureHeaderRepetition;   /* BOOLEAN */
+static int hf_h245_pictureNumberBoolean;          /* BOOLEAN */
+static int hf_h245_spareReferencePictures;        /* BOOLEAN */
+static int hf_h245_constrainedBitstream;          /* BOOLEAN */
+static int hf_h245_pictureRate;                   /* INTEGER_0_15 */
+static int hf_h245_g711Alaw64k;                   /* INTEGER_1_256 */
+static int hf_h245_g711Alaw56k;                   /* INTEGER_1_256 */
+static int hf_h245_g711Ulaw64k;                   /* INTEGER_1_256 */
+static int hf_h245_g711Ulaw56k;                   /* INTEGER_1_256 */
+static int hf_h245_g722_64k;                      /* INTEGER_1_256 */
+static int hf_h245_g722_56k;                      /* INTEGER_1_256 */
+static int hf_h245_g722_48k;                      /* INTEGER_1_256 */
+static int hf_h245_g7231;                         /* T_g7231 */
+static int hf_h245_maxAl_sduAudioFrames;          /* INTEGER_1_256 */
+static int hf_h245_silenceSuppression;            /* BOOLEAN */
+static int hf_h245_g728;                          /* INTEGER_1_256 */
+static int hf_h245_g729;                          /* INTEGER_1_256 */
+static int hf_h245_g729AnnexA;                    /* INTEGER_1_256 */
+static int hf_h245_is11172AudioCapability;        /* IS11172AudioCapability */
+static int hf_h245_is13818AudioCapability;        /* IS13818AudioCapability */
+static int hf_h245_g729wAnnexB;                   /* INTEGER_1_256 */
+static int hf_h245_g729AnnexAwAnnexB;             /* INTEGER_1_256 */
+static int hf_h245_g7231AnnexCCapability;         /* G7231AnnexCCapability */
+static int hf_h245_gsmFullRate;                   /* GSMAudioCapability */
+static int hf_h245_gsmHalfRate;                   /* GSMAudioCapability */
+static int hf_h245_gsmEnhancedFullRate;           /* GSMAudioCapability */
+static int hf_h245_genericAudioCapability;        /* GenericCapability */
+static int hf_h245_g729Extensions;                /* G729Extensions */
+static int hf_h245_vbd;                           /* VBDCapability */
+static int hf_h245_audioTelephonyEvent;           /* NoPTAudioTelephonyEventCapability */
+static int hf_h245_audioTone;                     /* NoPTAudioToneCapability */
+static int hf_h245_audioUnit;                     /* INTEGER_1_256 */
+static int hf_h245_annexA;                        /* BOOLEAN */
+static int hf_h245_annexB;                        /* BOOLEAN */
+static int hf_h245_annexD;                        /* BOOLEAN */
+static int hf_h245_annexE;                        /* BOOLEAN */
+static int hf_h245_annexF;                        /* BOOLEAN */
+static int hf_h245_annexG;                        /* BOOLEAN */
+static int hf_h245_annexH;                        /* BOOLEAN */
+static int hf_h245_highRateMode0;                 /* INTEGER_27_78 */
+static int hf_h245_highRateMode1;                 /* INTEGER_27_78 */
+static int hf_h245_lowRateMode0;                  /* INTEGER_23_66 */
+static int hf_h245_lowRateMode1;                  /* INTEGER_23_66 */
+static int hf_h245_sidMode0;                      /* INTEGER_6_17 */
+static int hf_h245_sidMode1;                      /* INTEGER_6_17 */
+static int hf_h245_g723AnnexCAudioMode;           /* G723AnnexCAudioMode */
+static int hf_h245_audioLayer1;                   /* BOOLEAN */
+static int hf_h245_audioLayer2;                   /* BOOLEAN */
+static int hf_h245_audioLayer3;                   /* BOOLEAN */
+static int hf_h245_audioSampling32k;              /* BOOLEAN */
+static int hf_h245_audioSampling44k1;             /* BOOLEAN */
+static int hf_h245_audioSampling48k;              /* BOOLEAN */
+static int hf_h245_singleChannel;                 /* BOOLEAN */
+static int hf_h245_twoChannels;                   /* BOOLEAN */
+static int hf_h245_bitRate_1_448;                 /* INTEGER_1_448 */
+static int hf_h245_audioSampling16k;              /* BOOLEAN */
+static int hf_h245_audioSampling22k05;            /* BOOLEAN */
+static int hf_h245_audioSampling24k;              /* BOOLEAN */
+static int hf_h245_threeChannels2_1;              /* BOOLEAN */
+static int hf_h245_threeChannels3_0;              /* BOOLEAN */
+static int hf_h245_fourChannels2_0_2_0;           /* BOOLEAN */
+static int hf_h245_fourChannels2_2;               /* BOOLEAN */
+static int hf_h245_fourChannels3_1;               /* BOOLEAN */
+static int hf_h245_fiveChannels3_0_2_0;           /* BOOLEAN */
+static int hf_h245_fiveChannels3_2;               /* BOOLEAN */
+static int hf_h245_lowFrequencyEnhancement;       /* BOOLEAN */
+static int hf_h245_multilingual;                  /* BOOLEAN */
+static int hf_h245_bitRate2_1_1130;               /* INTEGER_1_1130 */
+static int hf_h245_audioUnitSize;                 /* INTEGER_1_256 */
+static int hf_h245_comfortNoise;                  /* BOOLEAN */
+static int hf_h245_scrambled;                     /* BOOLEAN */
+static int hf_h245_vbd_cap_type;                  /* AudioCapability */
+static int hf_h245_t120;                          /* DataProtocolCapability */
+static int hf_h245_dsm_cc;                        /* DataProtocolCapability */
+static int hf_h245_userData;                      /* DataProtocolCapability */
+static int hf_h245_t84;                           /* T_t84 */
+static int hf_h245_t84Protocol;                   /* DataProtocolCapability */
+static int hf_h245_t84Profile;                    /* T84Profile */
+static int hf_h245_t434;                          /* DataProtocolCapability */
+static int hf_h245_h224;                          /* DataProtocolCapability */
+static int hf_h245_nlpidProtocol;                 /* DataProtocolCapability */
+static int hf_h245_nlpidData;                     /* OCTET_STRING */
+static int hf_h245_nlpid;                         /* Nlpid */
+static int hf_h245_dsvdControl;                   /* NULL */
+static int hf_h245_h222DataPartitioning;          /* DataProtocolCapability */
+static int hf_h245_t30fax;                        /* DataProtocolCapability */
+static int hf_h245_t140;                          /* DataProtocolCapability */
+static int hf_h245_t38fax;                        /* T_t38fax */
+static int hf_h245_t38FaxProtocol;                /* DataProtocolCapability */
+static int hf_h245_t38FaxProfile;                 /* T38FaxProfile */
+static int hf_h245_genericDataCapability;         /* GenericCapability */
+static int hf_h245_application;                   /* Application */
+static int hf_h245_maxBitRate2_0_4294967295;      /* INTEGER_0_4294967295 */
+static int hf_h245_v14buffered;                   /* NULL */
+static int hf_h245_v42lapm;                       /* NULL */
+static int hf_h245_hdlcFrameTunnelling;           /* NULL */
+static int hf_h245_h310SeparateVCStack;           /* NULL */
+static int hf_h245_h310SingleVCStack;             /* NULL */
+static int hf_h245_transparent;                   /* NULL */
+static int hf_h245_segmentationAndReassembly;     /* NULL */
+static int hf_h245_hdlcFrameTunnelingwSAR;        /* NULL */
+static int hf_h245_v120;                          /* NULL */
+static int hf_h245_separateLANStack;              /* NULL */
+static int hf_h245_v76wCompression;               /* T_v76wCompression */
+static int hf_h245_transmitCompression;           /* CompressionType */
+static int hf_h245_receiveCompression;            /* CompressionType */
+static int hf_h245_transmitAndReceiveCompression;  /* CompressionType */
+static int hf_h245_tcp;                           /* NULL */
+static int hf_h245_udp;                           /* NULL */
+static int hf_h245_v42bis;                        /* V42bis */
+static int hf_h245_numberOfCodewords;             /* INTEGER_1_65536 */
+static int hf_h245_maximumStringLength;           /* INTEGER_1_256 */
+static int hf_h245_t84Unrestricted;               /* NULL */
+static int hf_h245_t84Restricted;                 /* T_t84Restricted */
+static int hf_h245_qcif_bool;                     /* BOOLEAN */
+static int hf_h245_cif_bool;                      /* BOOLEAN */
+static int hf_h245_ccir601Seq;                    /* BOOLEAN */
+static int hf_h245_ccir601Prog;                   /* BOOLEAN */
+static int hf_h245_hdtvSeq;                       /* BOOLEAN */
+static int hf_h245_hdtvProg;                      /* BOOLEAN */
+static int hf_h245_g3FacsMH200x100;               /* BOOLEAN */
+static int hf_h245_g3FacsMH200x200;               /* BOOLEAN */
+static int hf_h245_g4FacsMMR200x100;              /* BOOLEAN */
+static int hf_h245_g4FacsMMR200x200;              /* BOOLEAN */
+static int hf_h245_jbig200x200Seq;                /* BOOLEAN */
+static int hf_h245_jbig200x200Prog;               /* BOOLEAN */
+static int hf_h245_jbig300x300Seq;                /* BOOLEAN */
+static int hf_h245_jbig300x300Prog;               /* BOOLEAN */
+static int hf_h245_digPhotoLow;                   /* BOOLEAN */
+static int hf_h245_digPhotoMedSeq;                /* BOOLEAN */
+static int hf_h245_digPhotoMedProg;               /* BOOLEAN */
+static int hf_h245_digPhotoHighSeq;               /* BOOLEAN */
+static int hf_h245_digPhotoHighProg;              /* BOOLEAN */
+static int hf_h245_fillBitRemoval;                /* BOOLEAN */
+static int hf_h245_transcodingJBIG;               /* BOOLEAN */
+static int hf_h245_transcodingMMR;                /* BOOLEAN */
+static int hf_h245_version;                       /* INTEGER_0_255 */
+static int hf_h245_t38FaxRateManagement;          /* T38FaxRateManagement */
+static int hf_h245_t38FaxUdpOptions;              /* T38FaxUdpOptions */
+static int hf_h245_t38FaxTcpOptions;              /* T38FaxTcpOptions */
+static int hf_h245_localTCF;                      /* NULL */
+static int hf_h245_transferredTCF;                /* NULL */
+static int hf_h245_t38FaxMaxBuffer;               /* INTEGER */
+static int hf_h245_t38FaxMaxDatagram;             /* INTEGER */
+static int hf_h245_t38FaxUdpEC;                   /* T_t38FaxUdpEC */
+static int hf_h245_t38UDPFEC;                     /* NULL */
+static int hf_h245_t38UDPRedundancy;              /* NULL */
+static int hf_h245_t38TCPBidirectionalMode;       /* BOOLEAN */
+static int hf_h245_encryptionCapability;          /* EncryptionCapability */
+static int hf_h245_authenticationCapability;      /* AuthenticationCapability */
+static int hf_h245_integrityCapability;           /* IntegrityCapability */
+static int hf_h245_genericH235SecurityCapability;  /* GenericCapability */
+static int hf_h245_EncryptionCapability_item;     /* MediaEncryptionAlgorithm */
+static int hf_h245_algorithm;                     /* OBJECT_IDENTIFIER */
+static int hf_h245_antiSpamAlgorithm;             /* OBJECT_IDENTIFIER */
+static int hf_h245_ui_nonStandard;                /* SEQUENCE_SIZE_1_16_OF_NonStandardParameter */
+static int hf_h245_ui_nonStandard_item;           /* NonStandardParameter */
+static int hf_h245_basicString;                   /* NULL */
+static int hf_h245_iA5String;                     /* NULL */
+static int hf_h245_generalString;                 /* NULL */
+static int hf_h245_dtmf;                          /* NULL */
+static int hf_h245_hookflash;                     /* NULL */
+static int hf_h245_extendedAlphanumericFlag;      /* NULL */
+static int hf_h245_encryptedBasicString;          /* NULL */
+static int hf_h245_encryptedIA5String;            /* NULL */
+static int hf_h245_encryptedGeneralString;        /* NULL */
+static int hf_h245_secureDTMF;                    /* NULL */
+static int hf_h245_genericUserInputCapability;    /* GenericCapability */
+static int hf_h245_nonStandardParams;             /* SEQUENCE_OF_NonStandardParameter */
+static int hf_h245_nonStandardParams_item;        /* NonStandardParameter */
+static int hf_h245_chairControlCapability;        /* BOOLEAN */
+static int hf_h245_videoIndicateMixingCapability;  /* BOOLEAN */
+static int hf_h245_multipointVisualizationCapability;  /* BOOLEAN */
+static int hf_h245_capabilityIdentifier;          /* CapabilityIdentifier */
+static int hf_h245_collapsing;                    /* T_collapsing */
+static int hf_h245_collapsing_item;               /* T_collapsing_item */
+static int hf_h245_nonCollapsing;                 /* T_nonCollapsing */
+static int hf_h245_nonCollapsing_item;            /* T_nonCollapsing_item */
+static int hf_h245_nonCollapsingRaw;              /* T_nonCollapsingRaw */
+static int hf_h245_transport;                     /* DataProtocolCapability */
+static int hf_h245_standardOid;                   /* T_standardOid */
+static int hf_h245_h221NonStandard;               /* NonStandardParameter */
+static int hf_h245_uuid;                          /* OCTET_STRING_SIZE_16 */
+static int hf_h245_domainBased;                   /* IA5String_SIZE_1_64 */
+static int hf_h245_parameterIdentifier;           /* ParameterIdentifier */
+static int hf_h245_parameterValue;                /* ParameterValue */
+static int hf_h245_supersedes;                    /* SEQUENCE_OF_ParameterIdentifier */
+static int hf_h245_supersedes_item;               /* ParameterIdentifier */
+static int hf_h245_standard;                      /* T_standard */
+static int hf_h245_logical;                       /* NULL */
+static int hf_h245_booleanArray;                  /* T_booleanArray */
+static int hf_h245_unsignedMin;                   /* T_unsignedMin */
+static int hf_h245_unsignedMax;                   /* T_unsignedMax */
+static int hf_h245_unsigned32Min;                 /* T_unsigned32Min */
+static int hf_h245_unsigned32Max;                 /* T_unsigned32Max */
+static int hf_h245_octetString;                   /* T_octetString */
+static int hf_h245_genericParameters;             /* SEQUENCE_OF_GenericParameter */
+static int hf_h245_genericParameters_item;        /* GenericParameter */
+static int hf_h245_multiplexFormat;               /* MultiplexFormat */
+static int hf_h245_controlOnMuxStream;            /* BOOLEAN */
+static int hf_h245_capabilityOnMuxStream;         /* SET_SIZE_1_256_OF_AlternativeCapabilitySet */
+static int hf_h245_capabilityOnMuxStream_item;    /* AlternativeCapabilitySet */
+static int hf_h245_dynamicRTPPayloadType;         /* INTEGER_96_127 */
+static int hf_h245_audioTelephoneEvent;           /* GeneralString */
+static int hf_h245_capabilities;                  /* SET_SIZE_1_256_OF_AlternativeCapabilitySet */
+static int hf_h245_capabilities_item;             /* AlternativeCapabilitySet */
+static int hf_h245_fecc_rfc2733;                  /* FECC_rfc2733 */
+static int hf_h245_redundancyEncodingBool;        /* BOOLEAN */
+static int hf_h245_separateStreamBool;            /* T_separateStreamBool */
+static int hf_h245_separatePort;                  /* BOOLEAN */
+static int hf_h245_samePortBool;                  /* BOOLEAN */
+static int hf_h245_protectedCapability;           /* CapabilityTableEntryNumber */
+static int hf_h245_fecScheme;                     /* OBJECT_IDENTIFIER */
+static int hf_h245_rfc2733rfc2198;                /* MaxRedundancy */
+static int hf_h245_rfc2733sameport;               /* MaxRedundancy */
+static int hf_h245_rfc2733diffport;               /* MaxRedundancy */
+static int hf_h245_rfc2733Format;                 /* Rfc2733Format */
+static int hf_h245_olc_fw_lcn;                    /* OLC_fw_lcn */
+static int hf_h245_forwardLogicalChannelParameters;  /* T_forwardLogicalChannelParameters */
+static int hf_h245_portNumber;                    /* INTEGER_0_65535 */
+static int hf_h245_dataType;                      /* DataType */
+static int hf_h245_olc_forw_multiplexParameters;  /* OLC_forw_multiplexParameters */
+static int hf_h245_h222LogicalChannelParameters;  /* H222LogicalChannelParameters */
+static int hf_h245_olc_fw_h223_params;            /* OLC_fw_h223_params */
+static int hf_h245_v76LogicalChannelParameters;   /* V76LogicalChannelParameters */
+static int hf_h245_h2250LogicalChannelParameters;  /* H2250LogicalChannelParameters */
+static int hf_h245_forwardLogicalChannelDependency;  /* LogicalChannelNumber */
+static int hf_h245_replacementFor;                /* LogicalChannelNumber */
+static int hf_h245_reverseLogicalChannelParameters;  /* OLC_reverseLogicalChannelParameters */
+static int hf_h245_olc_rev_multiplexParameter;    /* OLC_rev_multiplexParameters */
+static int hf_h245_olc_rev_h223_params;           /* OLC_rev_h223_params */
+static int hf_h245_reverseLogicalChannelDependency;  /* LogicalChannelNumber */
+static int hf_h245_separateStack;                 /* NetworkAccessParameters */
+static int hf_h245_encryptionSync;                /* EncryptionSync */
+static int hf_h245_distribution;                  /* T_distribution */
+static int hf_h245_unicast;                       /* NULL */
+static int hf_h245_multicast;                     /* NULL */
+static int hf_h245_networkAddress;                /* T_networkAddress */
+static int hf_h245_q2931Address;                  /* Q2931Address */
+static int hf_h245_e164Address;                   /* T_e164Address */
+static int hf_h245_localAreaAddress;              /* TransportAddress */
+static int hf_h245_associateConference;           /* BOOLEAN */
+static int hf_h245_externalReference;             /* OCTET_STRING_SIZE_1_255 */
+static int hf_h245_t120SetupProcedure;            /* T_t120SetupProcedure */
+static int hf_h245_originateCall;                 /* NULL */
+static int hf_h245_waitForCall;                   /* NULL */
+static int hf_h245_issueQuery;                    /* NULL */
+static int hf_h245_address;                       /* T_address */
+static int hf_h245_internationalNumber;           /* NumericString_SIZE_1_16 */
+static int hf_h245_nsapAddress;                   /* OCTET_STRING_SIZE_1_20 */
+static int hf_h245_subaddress;                    /* OCTET_STRING_SIZE_1_20 */
+static int hf_h245_audioHeaderPresent;            /* BOOLEAN */
+static int hf_h245_nullData;                      /* NULL */
+static int hf_h245_videoData;                     /* VideoCapability */
+static int hf_h245_audioData;                     /* AudioCapability */
+static int hf_h245_data;                          /* DataApplicationCapability */
+static int hf_h245_encryptionData;                /* EncryptionMode */
+static int hf_h245_h235Control;                   /* NonStandardParameter */
+static int hf_h245_h235Media;                     /* H235Media */
+static int hf_h245_multiplexedStream;             /* MultiplexedStreamParameter */
+static int hf_h245_redundancyEncoding;            /* RedundancyEncoding */
+static int hf_h245_multiplePayloadStream;         /* MultiplePayloadStream */
+static int hf_h245_depFec;                        /* DepFECData */
+static int hf_h245_fec;                           /* FECData */
+static int hf_h245_mediaType;                     /* T_mediaType */
+static int hf_h245_resourceID;                    /* INTEGER_0_65535 */
+static int hf_h245_subChannelID;                  /* INTEGER_0_8191 */
+static int hf_h245_pcr_pid;                       /* INTEGER_0_8191 */
+static int hf_h245_programDescriptors;            /* OCTET_STRING */
+static int hf_h245_streamDescriptors;             /* OCTET_STRING */
+static int hf_h245_adaptationLayerType;           /* T_adaptationLayerType */
+static int hf_h245_h223_al_type_al1Framed;        /* T_h223_al_type_al1Framed */
+static int hf_h245_h223_al_type_al1NotFramed;     /* T_h223_al_type_al1NotFramed */
+static int hf_h245_h223_al_type_al2WithoutSequenceNumbers;  /* T_h223_al_type_al2WithoutSequenceNumbers */
+static int hf_h245_h223_al_type_al2WithSequenceNumbers;  /* T_h223_al_type_al2WithSequenceNumbers */
+static int hf_h245_controlFieldOctets;            /* T_controlFieldOctets */
+static int hf_h245_al3_sendBufferSize;            /* T_al3_sendBufferSize */
+static int hf_h245_h223_al_type_al3;              /* T_h223_al_type_al3 */
+static int hf_h245_h223_al_type_al1M;             /* T_h223_al_type_al1M */
+static int hf_h245_h223_al_type_al2M;             /* T_h223_al_type_al2M */
+static int hf_h245_h223_al_type_al3M;             /* T_h223_al_type_al3M */
+static int hf_h245_h223_lc_segmentableFlag;       /* T_h223_lc_segmentableFlag */
+static int hf_h245_transferMode;                  /* T_transferMode */
+static int hf_h245_framed;                        /* NULL */
+static int hf_h245_unframed;                      /* NULL */
+static int hf_h245_aL1HeaderFEC;                  /* AL1HeaderFEC */
+static int hf_h245_sebch16_7;                     /* NULL */
+static int hf_h245_golay24_12;                    /* NULL */
+static int hf_h245_crcLength2;                    /* AL1CrcLength */
+static int hf_h245_crc4bit;                       /* NULL */
+static int hf_h245_crc12bit;                      /* NULL */
+static int hf_h245_crc20bit;                      /* NULL */
+static int hf_h245_crc28bit;                      /* NULL */
+static int hf_h245_crc8bit;                       /* NULL */
+static int hf_h245_crc16bit;                      /* NULL */
+static int hf_h245_crc32bit;                      /* NULL */
+static int hf_h245_crcNotUsed;                    /* NULL */
+static int hf_h245_rcpcCodeRate;                  /* INTEGER_8_32 */
+static int hf_h245_noArq;                         /* NULL */
+static int hf_h245_typeIArq;                      /* H223AnnexCArqParameters */
+static int hf_h245_typeIIArq;                     /* H223AnnexCArqParameters */
+static int hf_h245_arqType;                       /* ArqType */
+static int hf_h245_alsduSplitting;                /* BOOLEAN */
+static int hf_h245_rsCodeCorrection;              /* INTEGER_0_127 */
+static int hf_h245_aL2HeaderFEC;                  /* AL2HeaderFEC */
+static int hf_h245_sebch16_5;                     /* NULL */
+static int hf_h245_headerFormat;                  /* T_headerFormat */
+static int hf_h245_crlength2;                     /* AL3CrcLength */
+static int hf_h245_numberOfRetransmissions;       /* T_numberOfRetransmissions */
+static int hf_h245_finite;                        /* INTEGER_0_16 */
+static int hf_h245_infinite;                      /* NULL */
+static int hf_h245_sendBufferSize;                /* INTEGER_0_16777215 */
+static int hf_h245_hdlcParameters;                /* V76HDLCParameters */
+static int hf_h245_suspendResume;                 /* T_suspendResume */
+static int hf_h245_noSuspendResume;               /* NULL */
+static int hf_h245_suspendResumewAddress;         /* NULL */
+static int hf_h245_suspendResumewoAddress;        /* NULL */
+static int hf_h245_uIH;                           /* BOOLEAN */
+static int hf_h245_v76_mode;                      /* V76LCP_mode */
+static int hf_h245_eRM;                           /* T_eRM */
+static int hf_h245_windowSize;                    /* INTEGER_1_127 */
+static int hf_h245_recovery;                      /* T_recovery */
+static int hf_h245_rej;                           /* NULL */
+static int hf_h245_sREJ;                          /* NULL */
+static int hf_h245_mSREJ;                         /* NULL */
+static int hf_h245_uNERM;                         /* NULL */
+static int hf_h245_v75Parameters;                 /* V75Parameters */
+static int hf_h245_crcLength;                     /* CRCLength */
+static int hf_h245_n401;                          /* INTEGER_1_4095 */
+static int hf_h245_loopbackTestProcedure;         /* BOOLEAN */
+static int hf_h245_sessionID_0_255;               /* INTEGER_0_255 */
+static int hf_h245_associatedSessionID;           /* INTEGER_1_255 */
+static int hf_h245_mediaChannel;                  /* T_mediaChannel */
+static int hf_h245_mediaGuaranteedDelivery;       /* BOOLEAN */
+static int hf_h245_mediaControlChannel;           /* T_mediaControlChannel */
+static int hf_h245_mediaControlGuaranteedDelivery;  /* BOOLEAN */
+static int hf_h245_destination;                   /* TerminalLabel */
+static int hf_h245_mediaPacketization;            /* T_mediaPacketization */
+static int hf_h245_h261aVideoPacketizationFlag;   /* NULL */
+static int hf_h245_rtpPayloadType;                /* RTPPayloadType */
+static int hf_h245_source;                        /* TerminalLabel */
+static int hf_h245_payloadDescriptor;             /* T_payloadDescriptor */
+static int hf_h245_rfc_number;                    /* T_rfc_number */
+static int hf_h245_oid;                           /* OBJECT_IDENTIFIER */
+static int hf_h245_rtpPayloadType_01;             /* T_rtpPayloadType */
+static int hf_h245_secondaryEncoding;             /* DataType */
+static int hf_h245_rtpRedundancyEncoding;         /* T_rtpRedundancyEncoding */
+static int hf_h245_primary;                       /* RedundancyEncodingElement */
+static int hf_h245_secondary;                     /* SEQUENCE_OF_RedundancyEncodingElement */
+static int hf_h245_secondary_item;                /* RedundancyEncodingElement */
+static int hf_h245_payloadType;                   /* INTEGER_0_127 */
+static int hf_h245_elements;                      /* SEQUENCE_OF_MultiplePayloadStreamElement */
+static int hf_h245_elements_item;                 /* MultiplePayloadStreamElement */
+static int hf_h245_dep_rfc2733;                   /* RFC2733Data */
+static int hf_h245_fec_data_mode;                 /* FECdata_mode */
+static int hf_h245_redundancyEncodingFlag;        /* NULL */
+static int hf_h245_differentPort;                 /* T_differentPort */
+static int hf_h245_protectedSessionID;            /* INTEGER_1_255 */
+static int hf_h245_protectedPayloadType;          /* INTEGER_0_127 */
+static int hf_h245_samePort;                      /* T_samePort */
+static int hf_h245_separateStream;                /* DepSeparateStream */
+static int hf_h245_rfc2733;                       /* T_rfc2733 */
+static int hf_h245_pktMode;                       /* T_pktMode */
+static int hf_h245_rfc2198coding;                 /* NULL */
+static int hf_h245_mode_rfc2733sameport;          /* T_mode_rfc2733sameport */
+static int hf_h245_mode_rfc2733diffport;          /* T_mode_rfc2733diffport */
+static int hf_h245_protectedChannel;              /* LogicalChannelNumber */
+static int hf_h245_unicastAddress;                /* UnicastAddress */
+static int hf_h245_multicastAddress;              /* MulticastAddress */
+static int hf_h245_iPAddress;                     /* T_iPAddress */
+static int hf_h245_ip4_network;                   /* Ipv4_network */
+static int hf_h245_tsapIdentifier;                /* TsapIdentifier */
+static int hf_h245_iPXAddress;                    /* T_iPXAddress */
+static int hf_h245_node;                          /* OCTET_STRING_SIZE_6 */
+static int hf_h245_netnum;                        /* OCTET_STRING_SIZE_4 */
+static int hf_h245_ipx_tsapIdentifier;            /* OCTET_STRING_SIZE_2 */
+static int hf_h245_iP6Address;                    /* T_iP6Address */
+static int hf_h245_ip6_network;                   /* T_ip6_network */
+static int hf_h245_ipv6_tsapIdentifier;           /* T_ipv6_tsapIdentifier */
+static int hf_h245_netBios;                       /* OCTET_STRING_SIZE_16 */
+static int hf_h245_iPSourceRouteAddress;          /* T_iPSourceRouteAddress */
+static int hf_h245_routing;                       /* T_routing */
+static int hf_h245_strict;                        /* NULL */
+static int hf_h245_loose;                         /* NULL */
+static int hf_h245_network;                       /* OCTET_STRING_SIZE_4 */
+static int hf_h245_iPSrcRoute_tsapIdentifier;     /* INTEGER_0_65535 */
+static int hf_h245_route;                         /* T_route */
+static int hf_h245_route_item;                    /* OCTET_STRING_SIZE_4 */
+static int hf_h245_nsap;                          /* OCTET_STRING_SIZE_1_20 */
+static int hf_h245_nonStandardAddress;            /* NonStandardParameter */
+static int hf_h245_mIPAddress;                    /* MIPAddress */
+static int hf_h245_mip4_network;                  /* OCTET_STRING_SIZE_4 */
+static int hf_h245_multicast_tsapIdentifier;      /* INTEGER_0_65535 */
+static int hf_h245_mIP6Address;                   /* MIP6Address */
+static int hf_h245_mip6_network;                  /* OCTET_STRING_SIZE_16 */
+static int hf_h245_multicast_IPv6_tsapIdentifier;  /* INTEGER_0_65535 */
+static int hf_h245_synchFlag;                     /* INTEGER_0_255 */
+static int hf_h245_h235Key;                       /* OCTET_STRING_SIZE_1_65535 */
+static int hf_h245_escrowentry;                   /* SEQUENCE_SIZE_1_256_OF_EscrowData */
+static int hf_h245_escrowentry_item;              /* EscrowData */
+static int hf_h245_genericParameter;              /* GenericParameter */
+static int hf_h245_escrowID;                      /* OBJECT_IDENTIFIER */
+static int hf_h245_escrowValue;                   /* BIT_STRING_SIZE_1_65535 */
+static int hf_h245_olc_ack_fw_lcn;                /* OLC_ack_fw_lcn */
+static int hf_h245_olc_ack_reverseLogicalChannelParameters;  /* OLC_ack_reverseLogicalChannelParameters */
+static int hf_h245_reverseLogicalChannelNumber;   /* T_reverseLogicalChannelNumber */
+static int hf_h245_olc_ack_multiplexParameters;   /* T_olc_ack_multiplexParameters */
+static int hf_h245_forwardMultiplexAckParameters;  /* T_forwardMultiplexAckParameters */
+static int hf_h245_h2250LogicalChannelAckParameters;  /* H2250LogicalChannelAckParameters */
+static int hf_h245_forwardLogicalChannelNumber;   /* LogicalChannelNumber */
+static int hf_h245_olc_rej_cause;                 /* OpenLogicalChannelRejectCause */
+static int hf_h245_unsuitableReverseParameters;   /* NULL */
+static int hf_h245_dataTypeNotSupported;          /* NULL */
+static int hf_h245_dataTypeNotAvailable;          /* NULL */
+static int hf_h245_unknownDataType;               /* NULL */
+static int hf_h245_dataTypeALCombinationNotSupported;  /* NULL */
+static int hf_h245_multicastChannelNotAllowed;    /* NULL */
+static int hf_h245_insufficientBandwidth;         /* NULL */
+static int hf_h245_separateStackEstablishmentFailed;  /* NULL */
+static int hf_h245_invalidSessionID;              /* NULL */
+static int hf_h245_masterSlaveConflict;           /* NULL */
+static int hf_h245_waitForCommunicationMode;      /* NULL */
+static int hf_h245_invalidDependentChannel;       /* NULL */
+static int hf_h245_replacementForRejected;        /* NULL */
+static int hf_h245_securityDenied;                /* NULL */
+static int hf_h245_qoSControlNotSupported;        /* NULL */
+static int hf_h245_sessionID;                     /* INTEGER_1_255 */
+static int hf_h245_ack_mediaChannel;              /* Ack_mediaChannel */
+static int hf_h245_ack_mediaControlChannel;       /* Ack_mediaControlChannel */
+static int hf_h245_flowControlToZero;             /* BOOLEAN */
+static int hf_h245_cLC_source;                    /* T_cLC_source */
+static int hf_h245_user;                          /* NULL */
+static int hf_h245_lcse;                          /* NULL */
+static int hf_h245_clc_reason;                    /* Clc_reason */
+static int hf_h245_unknown;                       /* NULL */
+static int hf_h245_reopen;                        /* NULL */
+static int hf_h245_reservationFailure;            /* NULL */
+static int hf_h245_networkErrorCode;              /* INTEGER_0_255 */
+static int hf_h245_qosCapability;                 /* QOSCapability */
+static int hf_h245_reason;                        /* T_reason */
+static int hf_h245_normal;                        /* NULL */
+static int hf_h245_req_chan_clos_rej_cause;       /* RequestChannelCloseRejectCause */
+static int hf_h245_multiplexEntryDescriptors;     /* SET_SIZE_1_15_OF_MultiplexEntryDescriptor */
+static int hf_h245_multiplexEntryDescriptors_item;  /* MultiplexEntryDescriptor */
+static int hf_h245_multiplexTableEntryNumber;     /* MultiplexTableEntryNumber */
+static int hf_h245_elementList;                   /* T_elementList */
+static int hf_h245_elementList_item;              /* MultiplexElement */
+static int hf_h245_me_type;                       /* Me_type */
+static int hf_h245_logicalChannelNum;             /* T_logicalChannelNum */
+static int hf_h245_subElementList;                /* T_subElementList */
+static int hf_h245_subElementList_item;           /* MultiplexElement */
+static int hf_h245_me_repeatCount;                /* ME_repeatCount */
+static int hf_h245_me_repeatCount_finite;         /* ME_finiteRepeatCount */
+static int hf_h245_untilClosingFlag;              /* T_untilClosingFlag */
+static int hf_h245_multiplexTableEntryNumbers;    /* SET_SIZE_1_15_OF_MultiplexTableEntryNumber */
+static int hf_h245_multiplexTableEntryNumbers_item;  /* MultiplexTableEntryNumber */
+static int hf_h245_sendRejectionDescriptions;     /* SET_SIZE_1_15_OF_MultiplexEntryRejectionDescriptions */
+static int hf_h245_sendRejectionDescriptions_item;  /* MultiplexEntryRejectionDescriptions */
+static int hf_h245_mux_rej_cause;                 /* MultiplexEntryRejectionDescriptionsCause */
+static int hf_h245_unspecifiedCause;              /* NULL */
+static int hf_h245_descriptorTooComplex;          /* NULL */
+static int hf_h245_entryNumbers;                  /* SET_SIZE_1_15_OF_MultiplexTableEntryNumber */
+static int hf_h245_entryNumbers_item;             /* MultiplexTableEntryNumber */
+static int hf_h245_rejectionDescriptions;         /* SET_SIZE_1_15_OF_RequestMultiplexEntryRejectionDescriptions */
+static int hf_h245_rejectionDescriptions_item;    /* RequestMultiplexEntryRejectionDescriptions */
+static int hf_h245_req_mux_rej_cause;             /* RequestMultiplexEntryRejectionDescriptionsCause */
+static int hf_h245_requestedModes;                /* SEQUENCE_SIZE_1_256_OF_ModeDescription */
+static int hf_h245_requestedModes_item;           /* ModeDescription */
+static int hf_h245_req_mode_ack_response;         /* Req_mode_ack_response */
+static int hf_h245_willTransmitMostPreferredMode;  /* NULL */
+static int hf_h245_willTransmitLessPreferredMode;  /* NULL */
+static int hf_h245_req_rej_cause;                 /* RequestModeRejectCause */
+static int hf_h245_modeUnavailable;               /* NULL */
+static int hf_h245_multipointConstraint;          /* NULL */
+static int hf_h245_requestDenied;                 /* NULL */
+static int hf_h245_ModeDescription_item;          /* ModeElement */
+static int hf_h245_videoMode;                     /* VideoMode */
+static int hf_h245_audioMode;                     /* AudioMode */
+static int hf_h245_dataMode;                      /* DataMode */
+static int hf_h245_encryptionMode;                /* EncryptionMode */
+static int hf_h245_h235Mode;                      /* H235Mode */
+static int hf_h245_multiplexedStreamMode;         /* MultiplexedStreamParameter */
+static int hf_h245_redundancyEncodingDTMode;      /* RedundancyEncodingDTMode */
+static int hf_h245_multiplePayloadStreamMode;     /* MultiplePayloadStreamMode */
+static int hf_h245_depFecMode;                    /* DepFECMode */
+static int hf_h245_fecMode;                       /* FECMode */
+static int hf_h245_type;                          /* ModeElementType */
+static int hf_h245_h223ModeParameters;            /* H223ModeParameters */
+static int hf_h245_v76ModeParameters;             /* V76ModeParameters */
+static int hf_h245_h2250ModeParameters;           /* H2250ModeParameters */
+static int hf_h245_genericModeParameters;         /* GenericCapability */
+static int hf_h245_multiplexedStreamModeParameters;  /* MultiplexedStreamModeParameters */
+static int hf_h245_logicalChannelNumber;          /* LogicalChannelNumber */
+static int hf_h245_mediaMode;                     /* T_mediaMode */
+static int hf_h245_prmary_dtmode;                 /* RedundancyEncodingDTModeElement */
+static int hf_h245_secondaryDTM;                  /* SEQUENCE_OF_RedundancyEncodingDTModeElement */
+static int hf_h245_secondaryDTM_item;             /* RedundancyEncodingDTModeElement */
+static int hf_h245_re_type;                       /* Re_type */
+static int hf_h245_mpsmElements;                  /* SEQUENCE_OF_MultiplePayloadStreamElementMode */
+static int hf_h245_mpsmElements_item;             /* MultiplePayloadStreamElementMode */
+static int hf_h245_rfc2733Mode;                   /* T_rfc2733Mode */
+static int hf_h245_fec_mode;                      /* FEC_mode */
+static int hf_h245_protectedElement;              /* ModeElementType */
+static int hf_h245_adaptationLayer;               /* AdaptationLayerType */
+static int hf_h245_al1Framed;                     /* NULL */
+static int hf_h245_al1NotFramed;                  /* NULL */
+static int hf_h245_al2WithoutSequenceNumbers;     /* NULL */
+static int hf_h245_al2WithSequenceNumbers;        /* NULL */
+static int hf_h245_al3;                           /* Al3 */
+static int hf_h245_al1M;                          /* H223AL1MParameters */
+static int hf_h245_al2M;                          /* H223AL2MParameters */
+static int hf_h245_al3M;                          /* H223AL3MParameters */
+static int hf_h245_segmentableFlag;               /* BOOLEAN */
+static int hf_h245_redundancyEncodingMode;        /* RedundancyEncodingMode */
+static int hf_h245_secondaryEncodingMode;         /* T_secondaryEncodingMode */
+static int hf_h245_h261VideoMode;                 /* H261VideoMode */
+static int hf_h245_h262VideoMode;                 /* H262VideoMode */
+static int hf_h245_h263VideoMode;                 /* H263VideoMode */
+static int hf_h245_is11172VideoMode;              /* IS11172VideoMode */
+static int hf_h245_genericVideoMode;              /* GenericCapability */
+static int hf_h245_h261_resolution;               /* H261Resolution */
+static int hf_h245_qcif;                          /* NULL */
+static int hf_h245_cif;                           /* NULL */
+static int hf_h245_profileAndLevel;               /* T_profileAndLevel */
+static int hf_h245_profileAndLevel_SPatMLMode;    /* NULL */
+static int hf_h245_profileAndLevel_MPatLLMode;    /* NULL */
+static int hf_h245_profileAndLevel_MPatMLMode;    /* NULL */
+static int hf_h245_profileAndLevel_MPatH_14Mode;  /* NULL */
+static int hf_h245_profileAndLevel_MPatHLMode;    /* NULL */
+static int hf_h245_profileAndLevel_SNRatLLMode;   /* NULL */
+static int hf_h245_profileAndLevel_SNRatMLMode;   /* NULL */
+static int hf_h245_profileAndLevel_SpatialatH_14Mode;  /* NULL */
+static int hf_h245_profileAndLevel_HPatMLMode;    /* NULL */
+static int hf_h245_profileAndLevel_HPatH_14Mode;  /* NULL */
+static int hf_h245_profileAndLevel_HPatHLMode;    /* NULL */
+static int hf_h245_h263_resolution;               /* H263Resolution */
+static int hf_h245_sqcif;                         /* NULL */
+static int hf_h245_cif4;                          /* NULL */
+static int hf_h245_cif16;                         /* NULL */
+static int hf_h245_custom_res;                    /* NULL */
+static int hf_h245_g711Alaw64k_mode;              /* NULL */
+static int hf_h245_g711Alaw56k_mode;              /* NULL */
+static int hf_h245_g711Ulaw64k_mode;              /* NULL */
+static int hf_h245_g711Ulaw56k_mode;              /* NULL */
+static int hf_h245_g722_64k_mode;                 /* NULL */
+static int hf_h245_g722_56k_mode;                 /* NULL */
+static int hf_h245_g722_48k_mode;                 /* NULL */
+static int hf_h245_g728_mode;                     /* NULL */
+static int hf_h245_g729_mode;                     /* NULL */
+static int hf_h245_g729AnnexA_mode;               /* NULL */
+static int hf_h245_g7231_mode;                    /* Mode_g7231 */
+static int hf_h245_noSilenceSuppressionLowRate;   /* NULL */
+static int hf_h245_noSilenceSuppressionHighRate;  /* NULL */
+static int hf_h245_silenceSuppressionLowRate;     /* NULL */
+static int hf_h245_silenceSuppressionHighRate;    /* NULL */
+static int hf_h245_is11172AudioMode;              /* IS11172AudioMode */
+static int hf_h245_is13818AudioMode;              /* IS13818AudioMode */
+static int hf_h245_g7231AnnexCMode;               /* G7231AnnexCMode */
+static int hf_h245_genericAudioMode;              /* GenericCapability */
+static int hf_h245_vbd_mode;                      /* VBDMode */
+static int hf_h245_audioLayer;                    /* T_audioLayer */
+static int hf_h245_audioLayer1Mode;               /* NULL */
+static int hf_h245_audioLayer2Mode;               /* NULL */
+static int hf_h245_audioLayer3Mode;               /* NULL */
+static int hf_h245_audioSampling;                 /* T_audioSampling */
+static int hf_h245_audioSampling32kMode;          /* NULL */
+static int hf_h245_audioSampling44k1Mode;         /* NULL */
+static int hf_h245_audioSampling48kMode;          /* NULL */
+static int hf_h245_is11172multichannelType;       /* IS11172_multichannelType */
+static int hf_h245_singleChannelMode;             /* NULL */
+static int hf_h245_twoChannelStereo;              /* NULL */
+static int hf_h245_twoChannelDual;                /* NULL */
+static int hf_h245_audioLayerMode;                /* IS13818AudioLayer */
+static int hf_h245_audioSamplingMode;             /* IS13818AudioSampling */
+static int hf_h245_audioSampling16kMode;          /* NULL */
+static int hf_h245_audioSampling22k05Mode;        /* NULL */
+static int hf_h245_audioSampling24kMode;          /* NULL */
+static int hf_h245_is13818MultichannelType;       /* IS13818MultichannelType */
+static int hf_h245_threeChannels2_1Mode;          /* NULL */
+static int hf_h245_threeChannels3_0Mode;          /* NULL */
+static int hf_h245_fourChannels2_0_2_0Mode;       /* NULL */
+static int hf_h245_fourChannels2_2Mode;           /* NULL */
+static int hf_h245_fourChannels3_1Mode;           /* NULL */
+static int hf_h245_fiveChannels3_0_2_0Mode;       /* NULL */
+static int hf_h245_fiveChannels3_2Mode;           /* NULL */
+static int hf_h245_vbd_type;                      /* AudioMode */
+static int hf_h245_datamodeapplication;           /* DataModeApplication */
+static int hf_h245_t84DataProtocolCapability;     /* DataProtocolCapability */
+static int hf_h245_t38faxDataProtocolCapability;  /* T38faxApp */
+static int hf_h245_genericDataMode;               /* GenericCapability */
+static int hf_h245_bitRate_0_4294967295;          /* INTEGER_0_4294967295 */
+static int hf_h245_h233Encryption;                /* NULL */
+static int hf_h245_mlr_type;                      /* Mlr_type */
+static int hf_h245_systemLoop;                    /* NULL */
+static int hf_h245_mediaLoop;                     /* LogicalChannelNumber */
+static int hf_h245_logicalChannelLoop;            /* LogicalChannelNumber */
+static int hf_h245_mla_type;                      /* Mla_type */
+static int hf_h245_mlrej_type;                    /* Mlrej_type */
+static int hf_h245_maintloop_rej_cause;           /* MaintenanceLoopRejectCause */
+static int hf_h245_canNotPerformLoop;             /* NULL */
+static int hf_h245_communicationModeTable;        /* SET_SIZE_1_256_OF_CommunicationModeTableEntry */
+static int hf_h245_communicationModeTable_item;   /* CommunicationModeTableEntry */
+static int hf_h245_terminalLabel;                 /* TerminalLabel */
+static int hf_h245_sessionDescription;            /* BMPString_SIZE_1_128 */
+static int hf_h245_entryDataType;                 /* T_entryDataType */
+static int hf_h245_cm_mediaChannel;               /* Cm_mediaChannel */
+static int hf_h245_cm_mediaControlChannel;        /* TransportAddress */
+static int hf_h245_sessionDependency;             /* INTEGER_1_255 */
+static int hf_h245_terminalListRequest;           /* NULL */
+static int hf_h245_makeMeChair;                   /* NULL */
+static int hf_h245_cancelMakeMeChair;             /* NULL */
+static int hf_h245_dropTerminal;                  /* TerminalLabel */
+static int hf_h245_requestTerminalID;             /* TerminalLabel */
+static int hf_h245_enterH243Password;             /* NULL */
+static int hf_h245_enterH243TerminalID;           /* NULL */
+static int hf_h245_enterH243ConferenceID;         /* NULL */
+static int hf_h245_enterExtensionAddress;         /* NULL */
+static int hf_h245_requestChairTokenOwner;        /* NULL */
+static int hf_h245_requestTerminalCertificate;    /* T_requestTerminalCertificate */
+static int hf_h245_certSelectionCriteria;         /* CertSelectionCriteria */
+static int hf_h245_sRandom;                       /* INTEGER_1_4294967295 */
+static int hf_h245_broadcastMyLogicalChannel;     /* LogicalChannelNumber */
+static int hf_h245_makeTerminalBroadcaster;       /* TerminalLabel */
+static int hf_h245_sendThisSource;                /* TerminalLabel */
+static int hf_h245_requestAllTerminalIDs;         /* NULL */
+static int hf_h245_remoteMCRequest;               /* RemoteMCRequest */
+static int hf_h245_CertSelectionCriteria_item;    /* Criteria */
+static int hf_h245_field;                         /* OBJECT_IDENTIFIER */
+static int hf_h245_criteriaValue;                 /* OCTET_STRING_SIZE_1_65535 */
+static int hf_h245_mcuNumber;                     /* McuNumber */
+static int hf_h245_terminalNumber;                /* TerminalNumber */
+static int hf_h245_mCTerminalIDResponse;          /* T_mCTerminalIDResponse */
+static int hf_h245_terminalID;                    /* TerminalID */
+static int hf_h245_terminalIDResponse;            /* T_terminalIDResponse */
+static int hf_h245_conferenceIDResponse;          /* T_conferenceIDResponse */
+static int hf_h245_conferenceID;                  /* ConferenceID */
+static int hf_h245_passwordResponse;              /* T_passwordResponse */
+static int hf_h245_password;                      /* Password */
+static int hf_h245_terminalListResponse;          /* SET_SIZE_1_256_OF_TerminalLabel */
+static int hf_h245_terminalListResponse_item;     /* TerminalLabel */
+static int hf_h245_videoCommandReject;            /* NULL */
+static int hf_h245_terminalDropReject;            /* NULL */
+static int hf_h245_makeMeChairResponse;           /* T_makeMeChairResponse */
+static int hf_h245_grantedChairToken;             /* NULL */
+static int hf_h245_deniedChairToken;              /* NULL */
+static int hf_h245_extensionAddressResponse;      /* T_extensionAddressResponse */
+static int hf_h245_extensionAddress;              /* TerminalID */
+static int hf_h245_chairTokenOwnerResponse;       /* T_chairTokenOwnerResponse */
+static int hf_h245_terminalCertificateResponse;   /* T_terminalCertificateResponse */
+static int hf_h245_certificateResponse;           /* OCTET_STRING_SIZE_1_65535 */
+static int hf_h245_broadcastMyLogicalChannelResponse;  /* T_broadcastMyLogicalChannelResponse */
+static int hf_h245_grantedBroadcastMyLogicalChannel;  /* NULL */
+static int hf_h245_deniedBroadcastMyLogicalChannel;  /* NULL */
+static int hf_h245_makeTerminalBroadcasterResponse;  /* T_makeTerminalBroadcasterResponse */
+static int hf_h245_grantedMakeTerminalBroadcaster;  /* NULL */
+static int hf_h245_deniedMakeTerminalBroadcaster;  /* NULL */
+static int hf_h245_sendThisSourceResponse;        /* T_sendThisSourceResponse */
+static int hf_h245_grantedSendThisSource;         /* NULL */
+static int hf_h245_deniedSendThisSource;          /* NULL */
+static int hf_h245_requestAllTerminalIDsResponse;  /* RequestAllTerminalIDsResponse */
+static int hf_h245_remoteMCResponse;              /* RemoteMCResponse */
+static int hf_h245_terminalInformation;           /* SEQUENCE_OF_TerminalInformation */
+static int hf_h245_terminalInformation_item;      /* TerminalInformation */
+static int hf_h245_masterActivate;                /* NULL */
+static int hf_h245_slaveActivate;                 /* NULL */
+static int hf_h245_deActivate;                    /* NULL */
+static int hf_h245_accept;                        /* NULL */
+static int hf_h245_reject;                        /* T_reject */
+static int hf_h245_functionNotSupportedFlag;      /* NULL */
+static int hf_h245_callInformationReq;            /* CallInformationReq */
+static int hf_h245_maxNumberOfAdditionalConnections;  /* INTEGER_1_65535 */
+static int hf_h245_addConnectionReq;              /* AddConnectionReq */
+static int hf_h245_dialingInformation;            /* DialingInformation */
+static int hf_h245_removeConnectionReq;           /* RemoveConnectionReq */
+static int hf_h245_connectionIdentifier;          /* ConnectionIdentifier */
+static int hf_h245_maximumHeaderIntervalReq;      /* MaximumHeaderIntervalReq */
+static int hf_h245_requestType;                   /* T_requestType */
+static int hf_h245_currentIntervalInformation;    /* NULL */
+static int hf_h245_requestedInterval;             /* INTEGER_0_65535 */
+static int hf_h245_callInformationResp;           /* CallInformationResp */
+static int hf_h245_callAssociationNumber;         /* INTEGER_0_4294967295 */
+static int hf_h245_addConnectionResp;             /* AddConnectionResp */
+static int hf_h245_responseCode;                  /* T_responseCode */
+static int hf_h245_accepted;                      /* NULL */
+static int hf_h245_rejected;                      /* T_rejected */
+static int hf_h245_connectionsNotAvailable;       /* NULL */
+static int hf_h245_userRejected;                  /* NULL */
+static int hf_h245_removeConnectionResp;          /* RemoveConnectionResp */
+static int hf_h245_maximumHeaderIntervalResp;     /* MaximumHeaderIntervalResp */
+static int hf_h245_currentInterval;               /* INTEGER_0_65535 */
+static int hf_h245_crcDesired;                    /* T_crcDesired */
+static int hf_h245_excessiveError;                /* T_excessiveError */
+static int hf_h245_differential;                  /* SET_SIZE_1_65535_OF_DialingInformationNumber */
+static int hf_h245_differential_item;             /* DialingInformationNumber */
+static int hf_h245_infoNotAvailable;              /* INTEGER_1_65535 */
+static int hf_h245_din_networkAddress;            /* NumericString_SIZE_0_40 */
+static int hf_h245_subAddress;                    /* IA5String_SIZE_1_40 */
+static int hf_h245_networkType;                   /* SET_SIZE_1_255_OF_DialingInformationNetworkType */
+static int hf_h245_networkType_item;              /* DialingInformationNetworkType */
+static int hf_h245_n_isdn;                        /* NULL */
+static int hf_h245_gstn;                          /* NULL */
+static int hf_h245_mobile;                        /* NULL */
+static int hf_h245_channelTag;                    /* INTEGER_0_4294967295 */
+static int hf_h245_sequenceNum;                   /* INTEGER_0_4294967295 */
+static int hf_h245_maximumBitRate;                /* MaximumBitRate */
+static int hf_h245_rejectReason;                  /* LogicalChannelRateRejectReason */
+static int hf_h245_currentMaximumBitRate;         /* MaximumBitRate */
+static int hf_h245_undefinedReason;               /* NULL */
+static int hf_h245_insufficientResources;         /* NULL */
+static int hf_h245_specificRequest;               /* T_specificRequest */
+static int hf_h245_multiplexCapabilityBool;       /* BOOLEAN */
+static int hf_h245_capabilityTableEntryNumbers;   /* SET_SIZE_1_65535_OF_CapabilityTableEntryNumber */
+static int hf_h245_capabilityTableEntryNumbers_item;  /* CapabilityTableEntryNumber */
+static int hf_h245_capabilityDescriptorNumbers;   /* SET_SIZE_1_256_OF_CapabilityDescriptorNumber */
+static int hf_h245_capabilityDescriptorNumbers_item;  /* CapabilityDescriptorNumber */
+static int hf_h245_genericRequestFlag;            /* NULL */
+static int hf_h245_encryptionSE;                  /* OCTET_STRING */
+static int hf_h245_encryptionIVRequest;           /* NULL */
+static int hf_h245_encryptionAlgorithmID;         /* T_encryptionAlgorithmID */
+static int hf_h245_h233AlgorithmIdentifier;       /* SequenceNumber */
+static int hf_h245_associatedAlgorithm;           /* NonStandardParameter */
+static int hf_h245_wholeMultiplex;                /* NULL */
+static int hf_h245_scope;                         /* Scope */
+static int hf_h245_res_maximumBitRate;            /* INTEGER_0_16777215 */
+static int hf_h245_noRestriction;                 /* NULL */
+static int hf_h245_restriction;                   /* Restriction */
+static int hf_h245_disconnect;                    /* NULL */
+static int hf_h245_gstnOptions;                   /* T_gstnOptions */
+static int hf_h245_telephonyMode;                 /* NULL */
+static int hf_h245_v8bis;                         /* NULL */
+static int hf_h245_v34DSVD;                       /* NULL */
+static int hf_h245_v34DuplexFAX;                  /* NULL */
+static int hf_h245_v34H324;                       /* NULL */
+static int hf_h245_isdnOptions;                   /* T_isdnOptions */
+static int hf_h245_v140;                          /* NULL */
+static int hf_h245_terminalOnHold;                /* NULL */
+static int hf_h245_cancelBroadcastMyLogicalChannel;  /* LogicalChannelNumber */
+static int hf_h245_cancelMakeTerminalBroadcaster;  /* NULL */
+static int hf_h245_cancelSendThisSource;          /* NULL */
+static int hf_h245_dropConference;                /* NULL */
+static int hf_h245_substituteConferenceIDCommand;  /* SubstituteConferenceIDCommand */
+static int hf_h245_conferenceIdentifier;          /* OCTET_STRING_SIZE_16 */
+static int hf_h245_masterToSlave;                 /* NULL */
+static int hf_h245_slaveToMaster;                 /* NULL */
+static int hf_h245_mc_type;                       /* Mc_type */
+static int hf_h245_equaliseDelay;                 /* NULL */
+static int hf_h245_zeroDelay;                     /* NULL */
+static int hf_h245_multipointModeCommand;         /* NULL */
+static int hf_h245_cancelMultipointModeCommand;   /* NULL */
+static int hf_h245_videoFreezePicture;            /* NULL */
+static int hf_h245_videoFastUpdatePicture;        /* NULL */
+static int hf_h245_videoFastUpdateGOB;            /* T_videoFastUpdateGOB */
+static int hf_h245_firstGOB;                      /* INTEGER_0_17 */
+static int hf_h245_numberOfGOBs;                  /* INTEGER_1_18 */
+static int hf_h245_videoTemporalSpatialTradeOff;  /* INTEGER_0_31 */
+static int hf_h245_videoSendSyncEveryGOB;         /* NULL */
+static int hf_h245_videoSendSyncEveryGOBCancel;   /* NULL */
+static int hf_h245_videoFastUpdateMB;             /* T_videoFastUpdateMB */
+static int hf_h245_firstGOB_0_255;                /* INTEGER_0_255 */
+static int hf_h245_firstMB_1_8192;                /* INTEGER_1_8192 */
+static int hf_h245_numberOfMBs;                   /* INTEGER_1_8192 */
+static int hf_h245_maxH223MUXPDUsize;             /* INTEGER_1_65535 */
+static int hf_h245_encryptionUpdate;              /* EncryptionSync */
+static int hf_h245_encryptionUpdateRequest;       /* EncryptionUpdateRequest */
+static int hf_h245_switchReceiveMediaOff;         /* NULL */
+static int hf_h245_switchReceiveMediaOn;          /* NULL */
+static int hf_h245_progressiveRefinementStart;    /* T_progressiveRefinementStart */
+static int hf_h245_repeatCount;                   /* T_repeatCount */
+static int hf_h245_doOneProgression;              /* NULL */
+static int hf_h245_doContinuousProgressions;      /* NULL */
+static int hf_h245_doOneIndependentProgression;   /* NULL */
+static int hf_h245_doContinuousIndependentProgressions;  /* NULL */
+static int hf_h245_progressiveRefinementAbortOne;  /* NULL */
+static int hf_h245_progressiveRefinementAbortContinuous;  /* NULL */
+static int hf_h245_videoBadMBs;                   /* T_videoBadMBs */
+static int hf_h245_firstMB;                       /* INTEGER_1_9216 */
+static int hf_h245_numberOfMBs1_1_9216;           /* INTEGER_1_9216 */
+static int hf_h245_temporalReference;             /* INTEGER_0_1023 */
+static int hf_h245_lostPicture;                   /* SEQUENCE_OF_PictureReference */
+static int hf_h245_lostPicture_item;              /* PictureReference */
+static int hf_h245_lostPartialPicture;            /* T_lostPartialPicture */
+static int hf_h245_pictureReference;              /* PictureReference */
+static int hf_h245_recoveryReferencePicture;      /* SEQUENCE_OF_PictureReference */
+static int hf_h245_recoveryReferencePicture_item;  /* PictureReference */
+static int hf_h245_encryptionUpdateCommand;       /* T_encryptionUpdateCommand */
+static int hf_h245_encryptionUpdateAck;           /* T_encryptionUpdateAck */
+static int hf_h245_direction;                     /* EncryptionUpdateDirection */
+static int hf_h245_secureChannel;                 /* BOOLEAN */
+static int hf_h245_sharedSecret;                  /* BOOLEAN */
+static int hf_h245_certProtectedKey;              /* BOOLEAN */
+static int hf_h245_keyProtectionMethod;           /* KeyProtectionMethod */
+static int hf_h245_pictureNumber;                 /* INTEGER_0_1023 */
+static int hf_h245_longTermPictureIndex;          /* INTEGER_0_255 */
+static int hf_h245_h223ModeChange;                /* T_h223ModeChange */
+static int hf_h245_toLevel0;                      /* NULL */
+static int hf_h245_toLevel1;                      /* NULL */
+static int hf_h245_toLevel2;                      /* NULL */
+static int hf_h245_toLevel2withOptionalHeader;    /* NULL */
+static int hf_h245_h223AnnexADoubleFlag;          /* T_h223AnnexADoubleFlag */
+static int hf_h245_start;                         /* NULL */
+static int hf_h245_stop;                          /* NULL */
+static int hf_h245_bitRate;                       /* INTEGER_1_65535 */
+static int hf_h245_bitRateLockedToPCRClock;       /* BOOLEAN */
+static int hf_h245_bitRateLockedToNetworkClock;   /* BOOLEAN */
+static int hf_h245_cmd_aal;                       /* Cmd_aal */
+static int hf_h245_cmd_aal1;                      /* Cmd_aal1 */
+static int hf_h245_cmd_clockRecovery;             /* Cmd_clockRecovery */
+static int hf_h245_nullClockRecoveryflag;         /* NULL */
+static int hf_h245_srtsClockRecovery;             /* NULL */
+static int hf_h245_adaptiveClockRecoveryFlag;     /* NULL */
+static int hf_h245_cmd_errorCorrection;           /* Cmd_errorCorrection */
+static int hf_h245_nullErrorCorrectionFlag;       /* NULL */
+static int hf_h245_longInterleaverFlag;           /* NULL */
+static int hf_h245_shortInterleaverFlag;          /* NULL */
+static int hf_h245_errorCorrectionOnlyFlag;       /* NULL */
+static int hf_h245_cmd_aal5;                      /* Cmd_aal5 */
+static int hf_h245_cmd_multiplex;                 /* Cmd_multiplex */
+static int hf_h245_noMultiplex;                   /* NULL */
+static int hf_h245_transportStream;               /* NULL */
+static int hf_h245_programStreamFlag;             /* NULL */
+static int hf_h245_cmd_reverseParameters;         /* Cmd_reverseParameters */
+static int hf_h245_cmdr_multiplex;                /* CmdR_multiplex */
+static int hf_h245_sampleSize;                    /* INTEGER_1_255 */
+static int hf_h245_samplesPerFrame;               /* INTEGER_1_255 */
+static int hf_h245_status;                        /* T_status */
+static int hf_h245_synchronized;                  /* NULL */
+static int hf_h245_reconfiguration;               /* NULL */
+static int hf_h245_fns_cause;                     /* FunctionNotSupportedCause */
+static int hf_h245_syntaxError;                   /* NULL */
+static int hf_h245_semanticError;                 /* NULL */
+static int hf_h245_unknownFunction;               /* NULL */
+static int hf_h245_returnedFunction;              /* T_returnedFunction */
+static int hf_h245_sbeNumber;                     /* INTEGER_0_9 */
+static int hf_h245_terminalNumberAssign;          /* TerminalLabel */
+static int hf_h245_terminalJoinedConference;      /* TerminalLabel */
+static int hf_h245_terminalLeftConference;        /* TerminalLabel */
+static int hf_h245_seenByAtLeastOneOther;         /* NULL */
+static int hf_h245_cancelSeenByAtLeastOneOther;   /* NULL */
+static int hf_h245_seenByAll;                     /* NULL */
+static int hf_h245_cancelSeenByAll;               /* NULL */
+static int hf_h245_terminalYouAreSeeing;          /* TerminalLabel */
+static int hf_h245_requestForFloor;               /* NULL */
+static int hf_h245_withdrawChairToken;            /* NULL */
+static int hf_h245_floorRequested;                /* TerminalLabel */
+static int hf_h245_terminalYouAreSeeingInSubPictureNumber;  /* TerminalYouAreSeeingInSubPictureNumber */
+static int hf_h245_videoIndicateCompose;          /* VideoIndicateCompose */
+static int hf_h245_masterMCU;                     /* NULL */
+static int hf_h245_cancelMasterMCU;               /* NULL */
+static int hf_h245_subPictureNumber;              /* INTEGER_0_255 */
+static int hf_h245_compositionNumber;             /* INTEGER_0_255 */
+static int hf_h245_mi_type;                       /* Mi_type */
+static int hf_h245_logicalChannelActive;          /* NULL */
+static int hf_h245_logicalChannelInactive;        /* NULL */
+static int hf_h245_multipointConference;          /* NULL */
+static int hf_h245_cancelMultipointConference;    /* NULL */
+static int hf_h245_multipointZeroComm;            /* NULL */
+static int hf_h245_cancelMultipointZeroComm;      /* NULL */
+static int hf_h245_multipointSecondaryStatus;     /* NULL */
+static int hf_h245_cancelMultipointSecondaryStatus;  /* NULL */
+static int hf_h245_videoIndicateReadyToActivate;  /* NULL */
+static int hf_h245_videoNotDecodedMBs;            /* T_videoNotDecodedMBs */
+static int hf_h245_temporalReference_0_255;       /* INTEGER_0_255 */
+static int hf_h245_estimatedReceivedJitterMantissa;  /* INTEGER_0_3 */
+static int hf_h245_estimatedReceivedJitterExponent;  /* INTEGER_0_7 */
+static int hf_h245_skippedFrameCount;             /* INTEGER_0_15 */
+static int hf_h245_additionalDecoderBuffer;       /* INTEGER_0_262143 */
+static int hf_h245_logicalChannelNumber1;         /* LogicalChannelNumber */
+static int hf_h245_logicalChannelNumber2;         /* LogicalChannelNumber */
+static int hf_h245_skew;                          /* INTEGER_0_4095 */
+static int hf_h245_maximumSkew;                   /* INTEGER_0_4095 */
+static int hf_h245_signalAddress;                 /* TransportAddress */
+static int hf_h245_vendor;                        /* NonStandardIdentifier */
+static int hf_h245_productNumber;                 /* OCTET_STRING_SIZE_1_256 */
+static int hf_h245_versionNumber;                 /* OCTET_STRING_SIZE_1_256 */
+static int hf_h245_ind_aal;                       /* Ind_aal */
+static int hf_h245_ind_aal1;                      /* Ind_aal1 */
+static int hf_h245_ind_clockRecovery;             /* Ind_clockRecovery */
+static int hf_h245_ind_errorCorrection;           /* Ind_errorCorrection */
+static int hf_h245_ind_aal5;                      /* Ind_aal5 */
+static int hf_h245_ind_multiplex;                 /* Ind_multiplex */
+static int hf_h245_ind_reverseParameters;         /* Ind_reverseParameters */
+static int hf_h245_indr_multiplex;                /* IndR_multiplex */
+static int hf_h245_iv8;                           /* IV8 */
+static int hf_h245_iv16;                          /* IV16 */
+static int hf_h245_iv;                            /* OCTET_STRING */
+static int hf_h245_alphanumeric;                  /* GeneralString */
+static int hf_h245_userInputSupportIndication;    /* T_userInputSupportIndication */
+static int hf_h245_signal;                        /* T_signal */
+static int hf_h245_signalType;                    /* T_signalType */
+static int hf_h245_duration;                      /* INTEGER_1_65535 */
+static int hf_h245_rtp;                           /* T_rtp */
+static int hf_h245_timestamp;                     /* INTEGER_0_4294967295 */
+static int hf_h245_expirationTime;                /* INTEGER_0_4294967295 */
+static int hf_h245_rtpPayloadIndication;          /* NULL */
+static int hf_h245_paramS;                        /* Params */
+static int hf_h245_encryptedSignalType;           /* OCTET_STRING_SIZE_1 */
+static int hf_h245_algorithmOID;                  /* OBJECT_IDENTIFIER */
+static int hf_h245_signalUpdate;                  /* T_signalUpdate */
+static int hf_h245_si_rtp;                        /* Si_rtp */
+static int hf_h245_extendedAlphanumeric;          /* T_extendedAlphanumeric */
+static int hf_h245_encrypted;                     /* OCTET_STRING */
+static int hf_h245_encryptedAlphanumeric;         /* EncryptedAlphanumeric */
 
 /* Initialize the subtree pointers */
-static int ett_h245 = -1;
-static int ett_h245_returnedFunction = -1;
-static gint ett_h245_MultimediaSystemControlMessage = -1;
-static gint ett_h245_RequestMessage = -1;
-static gint ett_h245_ResponseMessage = -1;
-static gint ett_h245_CommandMessage = -1;
-static gint ett_h245_IndicationMessage = -1;
-static gint ett_h245_GenericMessage = -1;
-static gint ett_h245_T_messageContent = -1;
-static gint ett_h245_NonStandardMessage = -1;
-static gint ett_h245_NonStandardParameter = -1;
-static gint ett_h245_NonStandardIdentifier = -1;
-static gint ett_h245_H221NonStandardID = -1;
-static gint ett_h245_MasterSlaveDetermination = -1;
-static gint ett_h245_MasterSlaveDeterminationAck = -1;
-static gint ett_h245_T_decision = -1;
-static gint ett_h245_MasterSlaveDeterminationReject = -1;
-static gint ett_h245_MasterSlaveDeterminationRejectCause = -1;
-static gint ett_h245_MasterSlaveDeterminationRelease = -1;
-static gint ett_h245_TerminalCapabilitySet = -1;
-static gint ett_h245_SET_SIZE_1_256_OF_CapabilityTableEntry = -1;
-static gint ett_h245_SET_SIZE_1_256_OF_CapabilityDescriptor = -1;
-static gint ett_h245_SEQUENCE_OF_GenericInformation = -1;
-static gint ett_h245_CapabilityTableEntry = -1;
-static gint ett_h245_CapabilityDescriptor = -1;
-static gint ett_h245_SET_SIZE_1_256_OF_AlternativeCapabilitySet = -1;
-static gint ett_h245_AlternativeCapabilitySet = -1;
-static gint ett_h245_TerminalCapabilitySetAck = -1;
-static gint ett_h245_TerminalCapabilitySetReject = -1;
-static gint ett_h245_TerminalCapabilitySetRejectCause = -1;
-static gint ett_h245_T_tableEntryCapacityExceeded = -1;
-static gint ett_h245_TerminalCapabilitySetRelease = -1;
-static gint ett_h245_Capability = -1;
-static gint ett_h245_T_h233EncryptionReceiveCapability = -1;
-static gint ett_h245_H235SecurityCapability = -1;
-static gint ett_h245_MultiplexCapability = -1;
-static gint ett_h245_H222Capability = -1;
-static gint ett_h245_SET_OF_VCCapability = -1;
-static gint ett_h245_VCCapability = -1;
-static gint ett_h245_T_aal1 = -1;
-static gint ett_h245_T_aal5 = -1;
-static gint ett_h245_T_availableBitRates = -1;
-static gint ett_h245_Avb_type = -1;
-static gint ett_h245_T_rangeOfBitRates = -1;
-static gint ett_h245_T_aal1ViaGateway = -1;
-static gint ett_h245_SET_SIZE_1_256_OF_Q2931Address = -1;
-static gint ett_h245_H223Capability = -1;
-static gint ett_h245_T_h223MultiplexTableCapability = -1;
-static gint ett_h245_T_enhanced = -1;
-static gint ett_h245_T_mobileOperationTransmitCapability = -1;
-static gint ett_h245_T_mobileMultilinkFrameCapability = -1;
-static gint ett_h245_H223AnnexCCapability = -1;
-static gint ett_h245_V76Capability = -1;
-static gint ett_h245_V75Capability = -1;
-static gint ett_h245_H2250Capability = -1;
-static gint ett_h245_T_mcCapability = -1;
-static gint ett_h245_SEQUENCE_SIZE_1_256_OF_RedundancyEncodingCapability = -1;
-static gint ett_h245_MediaPacketizationCapability = -1;
-static gint ett_h245_SEQUENCE_SIZE_1_256_OF_RTPPayloadType = -1;
-static gint ett_h245_RSVPParameters = -1;
-static gint ett_h245_QOSMode = -1;
-static gint ett_h245_ATMParameters = -1;
-static gint ett_h245_ServicePriorityValue = -1;
-static gint ett_h245_ServicePriority = -1;
-static gint ett_h245_AuthorizationParameters = -1;
-static gint ett_h245_QOSType = -1;
-static gint ett_h245_QOSClass = -1;
-static gint ett_h245_QOSDescriptor = -1;
-static gint ett_h245_GenericTransportParameters = -1;
-static gint ett_h245_QOSCapability = -1;
-static gint ett_h245_MediaTransportType = -1;
-static gint ett_h245_T_atm_AAL5_compressed = -1;
-static gint ett_h245_MediaChannelCapability = -1;
-static gint ett_h245_TransportCapability = -1;
-static gint ett_h245_SEQUENCE_SIZE_1_256_OF_QOSCapability = -1;
-static gint ett_h245_SEQUENCE_SIZE_1_256_OF_MediaChannelCapability = -1;
-static gint ett_h245_RedundancyEncodingCapability = -1;
-static gint ett_h245_SEQUENCE_SIZE_1_256_OF_CapabilityTableEntryNumber = -1;
-static gint ett_h245_RedundancyEncodingMethod = -1;
-static gint ett_h245_RTPH263VideoRedundancyEncoding = -1;
-static gint ett_h245_T_frameToThreadMapping = -1;
-static gint ett_h245_SEQUENCE_SIZE_1_256_OF_RTPH263VideoRedundancyFrameMapping = -1;
-static gint ett_h245_T_containedThreads = -1;
-static gint ett_h245_RTPH263VideoRedundancyFrameMapping = -1;
-static gint ett_h245_T_frameSequence = -1;
-static gint ett_h245_MultipointCapability = -1;
-static gint ett_h245_SEQUENCE_OF_MediaDistributionCapability = -1;
-static gint ett_h245_MediaDistributionCapability = -1;
-static gint ett_h245_SEQUENCE_OF_DataApplicationCapability = -1;
-static gint ett_h245_VideoCapability = -1;
-static gint ett_h245_ExtendedVideoCapability = -1;
-static gint ett_h245_SEQUENCE_OF_VideoCapability = -1;
-static gint ett_h245_SEQUENCE_OF_GenericCapability = -1;
-static gint ett_h245_H261VideoCapability = -1;
-static gint ett_h245_H262VideoCapability = -1;
-static gint ett_h245_H263VideoCapability = -1;
-static gint ett_h245_EnhancementLayerInfo = -1;
-static gint ett_h245_SET_SIZE_1_14_OF_EnhancementOptions = -1;
-static gint ett_h245_SET_SIZE_1_14_OF_BEnhancementParameters = -1;
-static gint ett_h245_BEnhancementParameters = -1;
-static gint ett_h245_EnhancementOptions = -1;
-static gint ett_h245_H263Options = -1;
-static gint ett_h245_SET_SIZE_1_16_OF_CustomPictureClockFrequency = -1;
-static gint ett_h245_SET_SIZE_1_16_OF_CustomPictureFormat = -1;
-static gint ett_h245_SET_SIZE_1_16_OF_H263VideoModeCombos = -1;
-static gint ett_h245_TransparencyParameters = -1;
-static gint ett_h245_RefPictureSelection = -1;
-static gint ett_h245_T_additionalPictureMemory = -1;
-static gint ett_h245_T_videoBackChannelSend = -1;
-static gint ett_h245_T_enhancedReferencePicSelect = -1;
-static gint ett_h245_T_subPictureRemovalParameters = -1;
-static gint ett_h245_CustomPictureClockFrequency = -1;
-static gint ett_h245_CustomPictureFormat = -1;
-static gint ett_h245_T_mPI = -1;
-static gint ett_h245_T_customPCF = -1;
-static gint ett_h245_T_customPCF_item = -1;
-static gint ett_h245_T_pixelAspectInformation = -1;
-static gint ett_h245_T_pixelAspectCode = -1;
-static gint ett_h245_T_extendedPAR = -1;
-static gint ett_h245_T_extendedPAR_item = -1;
-static gint ett_h245_H263VideoModeCombos = -1;
-static gint ett_h245_SET_SIZE_1_16_OF_H263ModeComboFlags = -1;
-static gint ett_h245_H263ModeComboFlags = -1;
-static gint ett_h245_H263Version3Options = -1;
-static gint ett_h245_IS11172VideoCapability = -1;
-static gint ett_h245_AudioCapability = -1;
-static gint ett_h245_T_g7231 = -1;
-static gint ett_h245_G729Extensions = -1;
-static gint ett_h245_G7231AnnexCCapability = -1;
-static gint ett_h245_G723AnnexCAudioMode = -1;
-static gint ett_h245_IS11172AudioCapability = -1;
-static gint ett_h245_IS13818AudioCapability = -1;
-static gint ett_h245_GSMAudioCapability = -1;
-static gint ett_h245_VBDCapability = -1;
-static gint ett_h245_DataApplicationCapability = -1;
-static gint ett_h245_Application = -1;
-static gint ett_h245_T_t84 = -1;
-static gint ett_h245_Nlpid = -1;
-static gint ett_h245_T_t38fax = -1;
-static gint ett_h245_DataProtocolCapability = -1;
-static gint ett_h245_T_v76wCompression = -1;
-static gint ett_h245_CompressionType = -1;
-static gint ett_h245_V42bis = -1;
-static gint ett_h245_T84Profile = -1;
-static gint ett_h245_T_t84Restricted = -1;
-static gint ett_h245_T38FaxProfile = -1;
-static gint ett_h245_T38FaxRateManagement = -1;
-static gint ett_h245_T38FaxUdpOptions = -1;
-static gint ett_h245_T_t38FaxUdpEC = -1;
-static gint ett_h245_T38FaxTcpOptions = -1;
-static gint ett_h245_EncryptionAuthenticationAndIntegrity = -1;
-static gint ett_h245_EncryptionCapability = -1;
-static gint ett_h245_MediaEncryptionAlgorithm = -1;
-static gint ett_h245_AuthenticationCapability = -1;
-static gint ett_h245_IntegrityCapability = -1;
-static gint ett_h245_UserInputCapability = -1;
-static gint ett_h245_SEQUENCE_SIZE_1_16_OF_NonStandardParameter = -1;
-static gint ett_h245_ConferenceCapability = -1;
-static gint ett_h245_SEQUENCE_OF_NonStandardParameter = -1;
-static gint ett_h245_GenericCapability = -1;
-static gint ett_h245_T_collapsing = -1;
-static gint ett_h245_T_nonCollapsing = -1;
-static gint ett_h245_CapabilityIdentifier = -1;
-static gint ett_h245_GenericParameter = -1;
-static gint ett_h245_SEQUENCE_OF_ParameterIdentifier = -1;
-static gint ett_h245_ParameterIdentifier = -1;
-static gint ett_h245_ParameterValue = -1;
-static gint ett_h245_SEQUENCE_OF_GenericParameter = -1;
-static gint ett_h245_MultiplexedStreamCapability = -1;
-static gint ett_h245_MultiplexFormat = -1;
-static gint ett_h245_AudioTelephonyEventCapability = -1;
-static gint ett_h245_AudioToneCapability = -1;
-static gint ett_h245_NoPTAudioTelephonyEventCapability = -1;
-static gint ett_h245_NoPTAudioToneCapability = -1;
-static gint ett_h245_MultiplePayloadStreamCapability = -1;
-static gint ett_h245_DepFECCapability = -1;
-static gint ett_h245_FECC_rfc2733 = -1;
-static gint ett_h245_T_separateStreamBool = -1;
-static gint ett_h245_FECCapability = -1;
-static gint ett_h245_Rfc2733Format = -1;
-static gint ett_h245_OpenLogicalChannel = -1;
-static gint ett_h245_T_forwardLogicalChannelParameters = -1;
-static gint ett_h245_OLC_forw_multiplexParameters = -1;
-static gint ett_h245_OLC_reverseLogicalChannelParameters = -1;
-static gint ett_h245_OLC_rev_multiplexParameters = -1;
-static gint ett_h245_NetworkAccessParameters = -1;
-static gint ett_h245_T_distribution = -1;
-static gint ett_h245_T_networkAddress = -1;
-static gint ett_h245_T_t120SetupProcedure = -1;
-static gint ett_h245_Q2931Address = -1;
-static gint ett_h245_T_address = -1;
-static gint ett_h245_V75Parameters = -1;
-static gint ett_h245_DataType = -1;
-static gint ett_h245_H235Media = -1;
-static gint ett_h245_T_mediaType = -1;
-static gint ett_h245_MultiplexedStreamParameter = -1;
-static gint ett_h245_H222LogicalChannelParameters = -1;
-static gint ett_h245_H223LogicalChannelParameters = -1;
-static gint ett_h245_T_adaptationLayerType = -1;
-static gint ett_h245_Al3 = -1;
-static gint ett_h245_H223AL1MParameters = -1;
-static gint ett_h245_T_transferMode = -1;
-static gint ett_h245_AL1HeaderFEC = -1;
-static gint ett_h245_AL1CrcLength = -1;
-static gint ett_h245_ArqType = -1;
-static gint ett_h245_H223AL2MParameters = -1;
-static gint ett_h245_AL2HeaderFEC = -1;
-static gint ett_h245_H223AL3MParameters = -1;
-static gint ett_h245_T_headerFormat = -1;
-static gint ett_h245_AL3CrcLength = -1;
-static gint ett_h245_H223AnnexCArqParameters = -1;
-static gint ett_h245_T_numberOfRetransmissions = -1;
-static gint ett_h245_V76LogicalChannelParameters = -1;
-static gint ett_h245_T_suspendResume = -1;
-static gint ett_h245_V76LCP_mode = -1;
-static gint ett_h245_T_eRM = -1;
-static gint ett_h245_T_recovery = -1;
-static gint ett_h245_V76HDLCParameters = -1;
-static gint ett_h245_CRCLength = -1;
-static gint ett_h245_H2250LogicalChannelParameters = -1;
-static gint ett_h245_T_mediaPacketization = -1;
-static gint ett_h245_RTPPayloadType = -1;
-static gint ett_h245_T_payloadDescriptor = -1;
-static gint ett_h245_RedundancyEncoding = -1;
-static gint ett_h245_T_rtpRedundancyEncoding = -1;
-static gint ett_h245_SEQUENCE_OF_RedundancyEncodingElement = -1;
-static gint ett_h245_RedundancyEncodingElement = -1;
-static gint ett_h245_MultiplePayloadStream = -1;
-static gint ett_h245_SEQUENCE_OF_MultiplePayloadStreamElement = -1;
-static gint ett_h245_MultiplePayloadStreamElement = -1;
-static gint ett_h245_DepFECData = -1;
-static gint ett_h245_RFC2733Data = -1;
-static gint ett_h245_FECdata_mode = -1;
-static gint ett_h245_DepSeparateStream = -1;
-static gint ett_h245_T_differentPort = -1;
-static gint ett_h245_T_samePort = -1;
-static gint ett_h245_FECData = -1;
-static gint ett_h245_T_rfc2733 = -1;
-static gint ett_h245_T_pktMode = -1;
-static gint ett_h245_T_mode_rfc2733sameport = -1;
-static gint ett_h245_T_mode_rfc2733diffport = -1;
-static gint ett_h245_TransportAddress = -1;
-static gint ett_h245_UnicastAddress = -1;
-static gint ett_h245_T_iPAddress = -1;
-static gint ett_h245_T_iPXAddress = -1;
-static gint ett_h245_T_iP6Address = -1;
-static gint ett_h245_T_iPSourceRouteAddress = -1;
-static gint ett_h245_T_routing = -1;
-static gint ett_h245_T_route = -1;
-static gint ett_h245_MulticastAddress = -1;
-static gint ett_h245_MIPAddress = -1;
-static gint ett_h245_MIP6Address = -1;
-static gint ett_h245_EncryptionSync = -1;
-static gint ett_h245_SEQUENCE_SIZE_1_256_OF_EscrowData = -1;
-static gint ett_h245_EscrowData = -1;
-static gint ett_h245_OpenLogicalChannelAck = -1;
-static gint ett_h245_OLC_ack_reverseLogicalChannelParameters = -1;
-static gint ett_h245_T_olc_ack_multiplexParameters = -1;
-static gint ett_h245_T_forwardMultiplexAckParameters = -1;
-static gint ett_h245_OpenLogicalChannelReject = -1;
-static gint ett_h245_OpenLogicalChannelRejectCause = -1;
-static gint ett_h245_OpenLogicalChannelConfirm = -1;
-static gint ett_h245_H2250LogicalChannelAckParameters = -1;
-static gint ett_h245_CloseLogicalChannel = -1;
-static gint ett_h245_T_cLC_source = -1;
-static gint ett_h245_Clc_reason = -1;
-static gint ett_h245_CloseLogicalChannelAck = -1;
-static gint ett_h245_RequestChannelClose = -1;
-static gint ett_h245_T_reason = -1;
-static gint ett_h245_RequestChannelCloseAck = -1;
-static gint ett_h245_RequestChannelCloseReject = -1;
-static gint ett_h245_RequestChannelCloseRejectCause = -1;
-static gint ett_h245_RequestChannelCloseRelease = -1;
-static gint ett_h245_MultiplexEntrySend = -1;
-static gint ett_h245_SET_SIZE_1_15_OF_MultiplexEntryDescriptor = -1;
-static gint ett_h245_MultiplexEntryDescriptor = -1;
-static gint ett_h245_T_elementList = -1;
-static gint ett_h245_MultiplexElement = -1;
-static gint ett_h245_Me_type = -1;
-static gint ett_h245_T_subElementList = -1;
-static gint ett_h245_ME_repeatCount = -1;
-static gint ett_h245_MultiplexEntrySendAck = -1;
-static gint ett_h245_SET_SIZE_1_15_OF_MultiplexTableEntryNumber = -1;
-static gint ett_h245_MultiplexEntrySendReject = -1;
-static gint ett_h245_SET_SIZE_1_15_OF_MultiplexEntryRejectionDescriptions = -1;
-static gint ett_h245_MultiplexEntryRejectionDescriptions = -1;
-static gint ett_h245_MultiplexEntryRejectionDescriptionsCause = -1;
-static gint ett_h245_MultiplexEntrySendRelease = -1;
-static gint ett_h245_RequestMultiplexEntry = -1;
-static gint ett_h245_RequestMultiplexEntryAck = -1;
-static gint ett_h245_RequestMultiplexEntryReject = -1;
-static gint ett_h245_SET_SIZE_1_15_OF_RequestMultiplexEntryRejectionDescriptions = -1;
-static gint ett_h245_RequestMultiplexEntryRejectionDescriptions = -1;
-static gint ett_h245_RequestMultiplexEntryRejectionDescriptionsCause = -1;
-static gint ett_h245_RequestMultiplexEntryRelease = -1;
-static gint ett_h245_RequestMode = -1;
-static gint ett_h245_SEQUENCE_SIZE_1_256_OF_ModeDescription = -1;
-static gint ett_h245_RequestModeAck = -1;
-static gint ett_h245_Req_mode_ack_response = -1;
-static gint ett_h245_RequestModeReject = -1;
-static gint ett_h245_RequestModeRejectCause = -1;
-static gint ett_h245_RequestModeRelease = -1;
-static gint ett_h245_ModeDescription = -1;
-static gint ett_h245_ModeElementType = -1;
-static gint ett_h245_ModeElement = -1;
-static gint ett_h245_H235Mode = -1;
-static gint ett_h245_T_mediaMode = -1;
-static gint ett_h245_MultiplexedStreamModeParameters = -1;
-static gint ett_h245_RedundancyEncodingDTMode = -1;
-static gint ett_h245_SEQUENCE_OF_RedundancyEncodingDTModeElement = -1;
-static gint ett_h245_RedundancyEncodingDTModeElement = -1;
-static gint ett_h245_Re_type = -1;
-static gint ett_h245_MultiplePayloadStreamMode = -1;
-static gint ett_h245_SEQUENCE_OF_MultiplePayloadStreamElementMode = -1;
-static gint ett_h245_MultiplePayloadStreamElementMode = -1;
-static gint ett_h245_DepFECMode = -1;
-static gint ett_h245_T_rfc2733Mode = -1;
-static gint ett_h245_FEC_mode = -1;
-static gint ett_h245_FECMode = -1;
-static gint ett_h245_H223ModeParameters = -1;
-static gint ett_h245_AdaptationLayerType = -1;
-static gint ett_h245_V76ModeParameters = -1;
-static gint ett_h245_H2250ModeParameters = -1;
-static gint ett_h245_RedundancyEncodingMode = -1;
-static gint ett_h245_T_secondaryEncodingMode = -1;
-static gint ett_h245_VideoMode = -1;
-static gint ett_h245_H261VideoMode = -1;
-static gint ett_h245_H261Resolution = -1;
-static gint ett_h245_H262VideoMode = -1;
-static gint ett_h245_T_profileAndLevel = -1;
-static gint ett_h245_H263VideoMode = -1;
-static gint ett_h245_H263Resolution = -1;
-static gint ett_h245_IS11172VideoMode = -1;
-static gint ett_h245_AudioMode = -1;
-static gint ett_h245_Mode_g7231 = -1;
-static gint ett_h245_IS11172AudioMode = -1;
-static gint ett_h245_T_audioLayer = -1;
-static gint ett_h245_T_audioSampling = -1;
-static gint ett_h245_IS11172_multichannelType = -1;
-static gint ett_h245_IS13818AudioMode = -1;
-static gint ett_h245_IS13818AudioLayer = -1;
-static gint ett_h245_IS13818AudioSampling = -1;
-static gint ett_h245_IS13818MultichannelType = -1;
-static gint ett_h245_G7231AnnexCMode = -1;
-static gint ett_h245_VBDMode = -1;
-static gint ett_h245_DataMode = -1;
-static gint ett_h245_DataModeApplication = -1;
-static gint ett_h245_T38faxApp = -1;
-static gint ett_h245_EncryptionMode = -1;
-static gint ett_h245_RoundTripDelayRequest = -1;
-static gint ett_h245_RoundTripDelayResponse = -1;
-static gint ett_h245_MaintenanceLoopRequest = -1;
-static gint ett_h245_Mlr_type = -1;
-static gint ett_h245_MaintenanceLoopAck = -1;
-static gint ett_h245_Mla_type = -1;
-static gint ett_h245_MaintenanceLoopReject = -1;
-static gint ett_h245_Mlrej_type = -1;
-static gint ett_h245_MaintenanceLoopRejectCause = -1;
-static gint ett_h245_MaintenanceLoopOffCommand = -1;
-static gint ett_h245_CommunicationModeCommand = -1;
-static gint ett_h245_SET_SIZE_1_256_OF_CommunicationModeTableEntry = -1;
-static gint ett_h245_CommunicationModeRequest = -1;
-static gint ett_h245_CommunicationModeResponse = -1;
-static gint ett_h245_CommunicationModeTableEntry = -1;
-static gint ett_h245_T_entryDataType = -1;
-static gint ett_h245_ConferenceRequest = -1;
-static gint ett_h245_T_requestTerminalCertificate = -1;
-static gint ett_h245_CertSelectionCriteria = -1;
-static gint ett_h245_Criteria = -1;
-static gint ett_h245_TerminalLabel = -1;
-static gint ett_h245_ConferenceResponse = -1;
-static gint ett_h245_T_mCTerminalIDResponse = -1;
-static gint ett_h245_T_terminalIDResponse = -1;
-static gint ett_h245_T_conferenceIDResponse = -1;
-static gint ett_h245_T_passwordResponse = -1;
-static gint ett_h245_SET_SIZE_1_256_OF_TerminalLabel = -1;
-static gint ett_h245_T_makeMeChairResponse = -1;
-static gint ett_h245_T_extensionAddressResponse = -1;
-static gint ett_h245_T_chairTokenOwnerResponse = -1;
-static gint ett_h245_T_terminalCertificateResponse = -1;
-static gint ett_h245_T_broadcastMyLogicalChannelResponse = -1;
-static gint ett_h245_T_makeTerminalBroadcasterResponse = -1;
-static gint ett_h245_T_sendThisSourceResponse = -1;
-static gint ett_h245_RequestAllTerminalIDsResponse = -1;
-static gint ett_h245_SEQUENCE_OF_TerminalInformation = -1;
-static gint ett_h245_TerminalInformation = -1;
-static gint ett_h245_RemoteMCRequest = -1;
-static gint ett_h245_RemoteMCResponse = -1;
-static gint ett_h245_T_reject = -1;
-static gint ett_h245_MultilinkRequest = -1;
-static gint ett_h245_CallInformationReq = -1;
-static gint ett_h245_AddConnectionReq = -1;
-static gint ett_h245_RemoveConnectionReq = -1;
-static gint ett_h245_MaximumHeaderIntervalReq = -1;
-static gint ett_h245_T_requestType = -1;
-static gint ett_h245_MultilinkResponse = -1;
-static gint ett_h245_CallInformationResp = -1;
-static gint ett_h245_AddConnectionResp = -1;
-static gint ett_h245_T_responseCode = -1;
-static gint ett_h245_T_rejected = -1;
-static gint ett_h245_RemoveConnectionResp = -1;
-static gint ett_h245_MaximumHeaderIntervalResp = -1;
-static gint ett_h245_MultilinkIndication = -1;
-static gint ett_h245_T_crcDesired = -1;
-static gint ett_h245_T_excessiveError = -1;
-static gint ett_h245_DialingInformation = -1;
-static gint ett_h245_SET_SIZE_1_65535_OF_DialingInformationNumber = -1;
-static gint ett_h245_DialingInformationNumber = -1;
-static gint ett_h245_SET_SIZE_1_255_OF_DialingInformationNetworkType = -1;
-static gint ett_h245_DialingInformationNetworkType = -1;
-static gint ett_h245_ConnectionIdentifier = -1;
-static gint ett_h245_LogicalChannelRateRequest = -1;
-static gint ett_h245_LogicalChannelRateAcknowledge = -1;
-static gint ett_h245_LogicalChannelRateReject = -1;
-static gint ett_h245_LogicalChannelRateRejectReason = -1;
-static gint ett_h245_LogicalChannelRateRelease = -1;
-static gint ett_h245_SendTerminalCapabilitySet = -1;
-static gint ett_h245_T_specificRequest = -1;
-static gint ett_h245_SET_SIZE_1_65535_OF_CapabilityTableEntryNumber = -1;
-static gint ett_h245_SET_SIZE_1_256_OF_CapabilityDescriptorNumber = -1;
-static gint ett_h245_EncryptionCommand = -1;
-static gint ett_h245_T_encryptionAlgorithmID = -1;
-static gint ett_h245_FlowControlCommand = -1;
-static gint ett_h245_Scope = -1;
-static gint ett_h245_Restriction = -1;
-static gint ett_h245_EndSessionCommand = -1;
-static gint ett_h245_T_gstnOptions = -1;
-static gint ett_h245_T_isdnOptions = -1;
-static gint ett_h245_ConferenceCommand = -1;
-static gint ett_h245_SubstituteConferenceIDCommand = -1;
-static gint ett_h245_EncryptionUpdateDirection = -1;
-static gint ett_h245_MiscellaneousCommand = -1;
-static gint ett_h245_Mc_type = -1;
-static gint ett_h245_T_videoFastUpdateGOB = -1;
-static gint ett_h245_T_videoFastUpdateMB = -1;
-static gint ett_h245_T_progressiveRefinementStart = -1;
-static gint ett_h245_T_repeatCount = -1;
-static gint ett_h245_T_videoBadMBs = -1;
-static gint ett_h245_SEQUENCE_OF_PictureReference = -1;
-static gint ett_h245_T_lostPartialPicture = -1;
-static gint ett_h245_T_encryptionUpdateCommand = -1;
-static gint ett_h245_T_encryptionUpdateAck = -1;
-static gint ett_h245_KeyProtectionMethod = -1;
-static gint ett_h245_EncryptionUpdateRequest = -1;
-static gint ett_h245_PictureReference = -1;
-static gint ett_h245_H223MultiplexReconfiguration = -1;
-static gint ett_h245_T_h223ModeChange = -1;
-static gint ett_h245_T_h223AnnexADoubleFlag = -1;
-static gint ett_h245_NewATMVCCommand = -1;
-static gint ett_h245_Cmd_aal = -1;
-static gint ett_h245_Cmd_aal1 = -1;
-static gint ett_h245_Cmd_clockRecovery = -1;
-static gint ett_h245_Cmd_errorCorrection = -1;
-static gint ett_h245_Cmd_aal5 = -1;
-static gint ett_h245_Cmd_multiplex = -1;
-static gint ett_h245_Cmd_reverseParameters = -1;
-static gint ett_h245_CmdR_multiplex = -1;
-static gint ett_h245_MobileMultilinkReconfigurationCommand = -1;
-static gint ett_h245_T_status = -1;
-static gint ett_h245_FunctionNotUnderstood = -1;
-static gint ett_h245_FunctionNotSupported = -1;
-static gint ett_h245_FunctionNotSupportedCause = -1;
-static gint ett_h245_ConferenceIndication = -1;
-static gint ett_h245_TerminalYouAreSeeingInSubPictureNumber = -1;
-static gint ett_h245_VideoIndicateCompose = -1;
-static gint ett_h245_MiscellaneousIndication = -1;
-static gint ett_h245_Mi_type = -1;
-static gint ett_h245_T_videoNotDecodedMBs = -1;
-static gint ett_h245_JitterIndication = -1;
-static gint ett_h245_H223SkewIndication = -1;
-static gint ett_h245_H2250MaximumSkewIndication = -1;
-static gint ett_h245_MCLocationIndication = -1;
-static gint ett_h245_VendorIdentification = -1;
-static gint ett_h245_NewATMVCIndication = -1;
-static gint ett_h245_Ind_aal = -1;
-static gint ett_h245_Ind_aal1 = -1;
-static gint ett_h245_Ind_clockRecovery = -1;
-static gint ett_h245_Ind_errorCorrection = -1;
-static gint ett_h245_Ind_aal5 = -1;
-static gint ett_h245_Ind_multiplex = -1;
-static gint ett_h245_Ind_reverseParameters = -1;
-static gint ett_h245_IndR_multiplex = -1;
-static gint ett_h245_Params = -1;
-static gint ett_h245_UserInputIndication = -1;
-static gint ett_h245_T_userInputSupportIndication = -1;
-static gint ett_h245_T_signal = -1;
-static gint ett_h245_T_rtp = -1;
-static gint ett_h245_T_signalUpdate = -1;
-static gint ett_h245_Si_rtp = -1;
-static gint ett_h245_T_extendedAlphanumeric = -1;
-static gint ett_h245_EncryptedAlphanumeric = -1;
-static gint ett_h245_FlowControlIndication = -1;
-static gint ett_h245_MobileMultilinkReconfigurationIndication = -1;
+static int ett_h245;
+static int ett_h245_returnedFunction;
+static gint ett_h245_MultimediaSystemControlMessage;
+static gint ett_h245_RequestMessage;
+static gint ett_h245_ResponseMessage;
+static gint ett_h245_CommandMessage;
+static gint ett_h245_IndicationMessage;
+static gint ett_h245_GenericMessage;
+static gint ett_h245_T_messageContent;
+static gint ett_h245_NonStandardMessage;
+static gint ett_h245_NonStandardParameter;
+static gint ett_h245_NonStandardIdentifier;
+static gint ett_h245_H221NonStandardID;
+static gint ett_h245_MasterSlaveDetermination;
+static gint ett_h245_MasterSlaveDeterminationAck;
+static gint ett_h245_T_decision;
+static gint ett_h245_MasterSlaveDeterminationReject;
+static gint ett_h245_MasterSlaveDeterminationRejectCause;
+static gint ett_h245_MasterSlaveDeterminationRelease;
+static gint ett_h245_TerminalCapabilitySet;
+static gint ett_h245_SET_SIZE_1_256_OF_CapabilityTableEntry;
+static gint ett_h245_SET_SIZE_1_256_OF_CapabilityDescriptor;
+static gint ett_h245_SEQUENCE_OF_GenericInformation;
+static gint ett_h245_CapabilityTableEntry;
+static gint ett_h245_CapabilityDescriptor;
+static gint ett_h245_SET_SIZE_1_256_OF_AlternativeCapabilitySet;
+static gint ett_h245_AlternativeCapabilitySet;
+static gint ett_h245_TerminalCapabilitySetAck;
+static gint ett_h245_TerminalCapabilitySetReject;
+static gint ett_h245_TerminalCapabilitySetRejectCause;
+static gint ett_h245_T_tableEntryCapacityExceeded;
+static gint ett_h245_TerminalCapabilitySetRelease;
+static gint ett_h245_Capability;
+static gint ett_h245_T_h233EncryptionReceiveCapability;
+static gint ett_h245_H235SecurityCapability;
+static gint ett_h245_MultiplexCapability;
+static gint ett_h245_H222Capability;
+static gint ett_h245_SET_OF_VCCapability;
+static gint ett_h245_VCCapability;
+static gint ett_h245_T_aal1;
+static gint ett_h245_T_aal5;
+static gint ett_h245_T_availableBitRates;
+static gint ett_h245_Avb_type;
+static gint ett_h245_T_rangeOfBitRates;
+static gint ett_h245_T_aal1ViaGateway;
+static gint ett_h245_SET_SIZE_1_256_OF_Q2931Address;
+static gint ett_h245_H223Capability;
+static gint ett_h245_T_h223MultiplexTableCapability;
+static gint ett_h245_T_enhanced;
+static gint ett_h245_T_mobileOperationTransmitCapability;
+static gint ett_h245_T_mobileMultilinkFrameCapability;
+static gint ett_h245_H223AnnexCCapability;
+static gint ett_h245_V76Capability;
+static gint ett_h245_V75Capability;
+static gint ett_h245_H2250Capability;
+static gint ett_h245_T_mcCapability;
+static gint ett_h245_SEQUENCE_SIZE_1_256_OF_RedundancyEncodingCapability;
+static gint ett_h245_MediaPacketizationCapability;
+static gint ett_h245_SEQUENCE_SIZE_1_256_OF_RTPPayloadType;
+static gint ett_h245_RSVPParameters;
+static gint ett_h245_QOSMode;
+static gint ett_h245_ATMParameters;
+static gint ett_h245_ServicePriorityValue;
+static gint ett_h245_ServicePriority;
+static gint ett_h245_AuthorizationParameters;
+static gint ett_h245_QOSType;
+static gint ett_h245_QOSClass;
+static gint ett_h245_QOSDescriptor;
+static gint ett_h245_GenericTransportParameters;
+static gint ett_h245_QOSCapability;
+static gint ett_h245_MediaTransportType;
+static gint ett_h245_T_atm_AAL5_compressed;
+static gint ett_h245_MediaChannelCapability;
+static gint ett_h245_TransportCapability;
+static gint ett_h245_SEQUENCE_SIZE_1_256_OF_QOSCapability;
+static gint ett_h245_SEQUENCE_SIZE_1_256_OF_MediaChannelCapability;
+static gint ett_h245_RedundancyEncodingCapability;
+static gint ett_h245_SEQUENCE_SIZE_1_256_OF_CapabilityTableEntryNumber;
+static gint ett_h245_RedundancyEncodingMethod;
+static gint ett_h245_RTPH263VideoRedundancyEncoding;
+static gint ett_h245_T_frameToThreadMapping;
+static gint ett_h245_SEQUENCE_SIZE_1_256_OF_RTPH263VideoRedundancyFrameMapping;
+static gint ett_h245_T_containedThreads;
+static gint ett_h245_RTPH263VideoRedundancyFrameMapping;
+static gint ett_h245_T_frameSequence;
+static gint ett_h245_MultipointCapability;
+static gint ett_h245_SEQUENCE_OF_MediaDistributionCapability;
+static gint ett_h245_MediaDistributionCapability;
+static gint ett_h245_SEQUENCE_OF_DataApplicationCapability;
+static gint ett_h245_VideoCapability;
+static gint ett_h245_ExtendedVideoCapability;
+static gint ett_h245_SEQUENCE_OF_VideoCapability;
+static gint ett_h245_SEQUENCE_OF_GenericCapability;
+static gint ett_h245_H261VideoCapability;
+static gint ett_h245_H262VideoCapability;
+static gint ett_h245_H263VideoCapability;
+static gint ett_h245_EnhancementLayerInfo;
+static gint ett_h245_SET_SIZE_1_14_OF_EnhancementOptions;
+static gint ett_h245_SET_SIZE_1_14_OF_BEnhancementParameters;
+static gint ett_h245_BEnhancementParameters;
+static gint ett_h245_EnhancementOptions;
+static gint ett_h245_H263Options;
+static gint ett_h245_SET_SIZE_1_16_OF_CustomPictureClockFrequency;
+static gint ett_h245_SET_SIZE_1_16_OF_CustomPictureFormat;
+static gint ett_h245_SET_SIZE_1_16_OF_H263VideoModeCombos;
+static gint ett_h245_TransparencyParameters;
+static gint ett_h245_RefPictureSelection;
+static gint ett_h245_T_additionalPictureMemory;
+static gint ett_h245_T_videoBackChannelSend;
+static gint ett_h245_T_enhancedReferencePicSelect;
+static gint ett_h245_T_subPictureRemovalParameters;
+static gint ett_h245_CustomPictureClockFrequency;
+static gint ett_h245_CustomPictureFormat;
+static gint ett_h245_T_mPI;
+static gint ett_h245_T_customPCF;
+static gint ett_h245_T_customPCF_item;
+static gint ett_h245_T_pixelAspectInformation;
+static gint ett_h245_T_pixelAspectCode;
+static gint ett_h245_T_extendedPAR;
+static gint ett_h245_T_extendedPAR_item;
+static gint ett_h245_H263VideoModeCombos;
+static gint ett_h245_SET_SIZE_1_16_OF_H263ModeComboFlags;
+static gint ett_h245_H263ModeComboFlags;
+static gint ett_h245_H263Version3Options;
+static gint ett_h245_IS11172VideoCapability;
+static gint ett_h245_AudioCapability;
+static gint ett_h245_T_g7231;
+static gint ett_h245_G729Extensions;
+static gint ett_h245_G7231AnnexCCapability;
+static gint ett_h245_G723AnnexCAudioMode;
+static gint ett_h245_IS11172AudioCapability;
+static gint ett_h245_IS13818AudioCapability;
+static gint ett_h245_GSMAudioCapability;
+static gint ett_h245_VBDCapability;
+static gint ett_h245_DataApplicationCapability;
+static gint ett_h245_Application;
+static gint ett_h245_T_t84;
+static gint ett_h245_Nlpid;
+static gint ett_h245_T_t38fax;
+static gint ett_h245_DataProtocolCapability;
+static gint ett_h245_T_v76wCompression;
+static gint ett_h245_CompressionType;
+static gint ett_h245_V42bis;
+static gint ett_h245_T84Profile;
+static gint ett_h245_T_t84Restricted;
+static gint ett_h245_T38FaxProfile;
+static gint ett_h245_T38FaxRateManagement;
+static gint ett_h245_T38FaxUdpOptions;
+static gint ett_h245_T_t38FaxUdpEC;
+static gint ett_h245_T38FaxTcpOptions;
+static gint ett_h245_EncryptionAuthenticationAndIntegrity;
+static gint ett_h245_EncryptionCapability;
+static gint ett_h245_MediaEncryptionAlgorithm;
+static gint ett_h245_AuthenticationCapability;
+static gint ett_h245_IntegrityCapability;
+static gint ett_h245_UserInputCapability;
+static gint ett_h245_SEQUENCE_SIZE_1_16_OF_NonStandardParameter;
+static gint ett_h245_ConferenceCapability;
+static gint ett_h245_SEQUENCE_OF_NonStandardParameter;
+static gint ett_h245_GenericCapability;
+static gint ett_h245_T_collapsing;
+static gint ett_h245_T_nonCollapsing;
+static gint ett_h245_CapabilityIdentifier;
+static gint ett_h245_GenericParameter;
+static gint ett_h245_SEQUENCE_OF_ParameterIdentifier;
+static gint ett_h245_ParameterIdentifier;
+static gint ett_h245_ParameterValue;
+static gint ett_h245_SEQUENCE_OF_GenericParameter;
+static gint ett_h245_MultiplexedStreamCapability;
+static gint ett_h245_MultiplexFormat;
+static gint ett_h245_AudioTelephonyEventCapability;
+static gint ett_h245_AudioToneCapability;
+static gint ett_h245_NoPTAudioTelephonyEventCapability;
+static gint ett_h245_NoPTAudioToneCapability;
+static gint ett_h245_MultiplePayloadStreamCapability;
+static gint ett_h245_DepFECCapability;
+static gint ett_h245_FECC_rfc2733;
+static gint ett_h245_T_separateStreamBool;
+static gint ett_h245_FECCapability;
+static gint ett_h245_Rfc2733Format;
+static gint ett_h245_OpenLogicalChannel;
+static gint ett_h245_T_forwardLogicalChannelParameters;
+static gint ett_h245_OLC_forw_multiplexParameters;
+static gint ett_h245_OLC_reverseLogicalChannelParameters;
+static gint ett_h245_OLC_rev_multiplexParameters;
+static gint ett_h245_NetworkAccessParameters;
+static gint ett_h245_T_distribution;
+static gint ett_h245_T_networkAddress;
+static gint ett_h245_T_t120SetupProcedure;
+static gint ett_h245_Q2931Address;
+static gint ett_h245_T_address;
+static gint ett_h245_V75Parameters;
+static gint ett_h245_DataType;
+static gint ett_h245_H235Media;
+static gint ett_h245_T_mediaType;
+static gint ett_h245_MultiplexedStreamParameter;
+static gint ett_h245_H222LogicalChannelParameters;
+static gint ett_h245_H223LogicalChannelParameters;
+static gint ett_h245_T_adaptationLayerType;
+static gint ett_h245_Al3;
+static gint ett_h245_H223AL1MParameters;
+static gint ett_h245_T_transferMode;
+static gint ett_h245_AL1HeaderFEC;
+static gint ett_h245_AL1CrcLength;
+static gint ett_h245_ArqType;
+static gint ett_h245_H223AL2MParameters;
+static gint ett_h245_AL2HeaderFEC;
+static gint ett_h245_H223AL3MParameters;
+static gint ett_h245_T_headerFormat;
+static gint ett_h245_AL3CrcLength;
+static gint ett_h245_H223AnnexCArqParameters;
+static gint ett_h245_T_numberOfRetransmissions;
+static gint ett_h245_V76LogicalChannelParameters;
+static gint ett_h245_T_suspendResume;
+static gint ett_h245_V76LCP_mode;
+static gint ett_h245_T_eRM;
+static gint ett_h245_T_recovery;
+static gint ett_h245_V76HDLCParameters;
+static gint ett_h245_CRCLength;
+static gint ett_h245_H2250LogicalChannelParameters;
+static gint ett_h245_T_mediaPacketization;
+static gint ett_h245_RTPPayloadType;
+static gint ett_h245_T_payloadDescriptor;
+static gint ett_h245_RedundancyEncoding;
+static gint ett_h245_T_rtpRedundancyEncoding;
+static gint ett_h245_SEQUENCE_OF_RedundancyEncodingElement;
+static gint ett_h245_RedundancyEncodingElement;
+static gint ett_h245_MultiplePayloadStream;
+static gint ett_h245_SEQUENCE_OF_MultiplePayloadStreamElement;
+static gint ett_h245_MultiplePayloadStreamElement;
+static gint ett_h245_DepFECData;
+static gint ett_h245_RFC2733Data;
+static gint ett_h245_FECdata_mode;
+static gint ett_h245_DepSeparateStream;
+static gint ett_h245_T_differentPort;
+static gint ett_h245_T_samePort;
+static gint ett_h245_FECData;
+static gint ett_h245_T_rfc2733;
+static gint ett_h245_T_pktMode;
+static gint ett_h245_T_mode_rfc2733sameport;
+static gint ett_h245_T_mode_rfc2733diffport;
+static gint ett_h245_TransportAddress;
+static gint ett_h245_UnicastAddress;
+static gint ett_h245_T_iPAddress;
+static gint ett_h245_T_iPXAddress;
+static gint ett_h245_T_iP6Address;
+static gint ett_h245_T_iPSourceRouteAddress;
+static gint ett_h245_T_routing;
+static gint ett_h245_T_route;
+static gint ett_h245_MulticastAddress;
+static gint ett_h245_MIPAddress;
+static gint ett_h245_MIP6Address;
+static gint ett_h245_EncryptionSync;
+static gint ett_h245_SEQUENCE_SIZE_1_256_OF_EscrowData;
+static gint ett_h245_EscrowData;
+static gint ett_h245_OpenLogicalChannelAck;
+static gint ett_h245_OLC_ack_reverseLogicalChannelParameters;
+static gint ett_h245_T_olc_ack_multiplexParameters;
+static gint ett_h245_T_forwardMultiplexAckParameters;
+static gint ett_h245_OpenLogicalChannelReject;
+static gint ett_h245_OpenLogicalChannelRejectCause;
+static gint ett_h245_OpenLogicalChannelConfirm;
+static gint ett_h245_H2250LogicalChannelAckParameters;
+static gint ett_h245_CloseLogicalChannel;
+static gint ett_h245_T_cLC_source;
+static gint ett_h245_Clc_reason;
+static gint ett_h245_CloseLogicalChannelAck;
+static gint ett_h245_RequestChannelClose;
+static gint ett_h245_T_reason;
+static gint ett_h245_RequestChannelCloseAck;
+static gint ett_h245_RequestChannelCloseReject;
+static gint ett_h245_RequestChannelCloseRejectCause;
+static gint ett_h245_RequestChannelCloseRelease;
+static gint ett_h245_MultiplexEntrySend;
+static gint ett_h245_SET_SIZE_1_15_OF_MultiplexEntryDescriptor;
+static gint ett_h245_MultiplexEntryDescriptor;
+static gint ett_h245_T_elementList;
+static gint ett_h245_MultiplexElement;
+static gint ett_h245_Me_type;
+static gint ett_h245_T_subElementList;
+static gint ett_h245_ME_repeatCount;
+static gint ett_h245_MultiplexEntrySendAck;
+static gint ett_h245_SET_SIZE_1_15_OF_MultiplexTableEntryNumber;
+static gint ett_h245_MultiplexEntrySendReject;
+static gint ett_h245_SET_SIZE_1_15_OF_MultiplexEntryRejectionDescriptions;
+static gint ett_h245_MultiplexEntryRejectionDescriptions;
+static gint ett_h245_MultiplexEntryRejectionDescriptionsCause;
+static gint ett_h245_MultiplexEntrySendRelease;
+static gint ett_h245_RequestMultiplexEntry;
+static gint ett_h245_RequestMultiplexEntryAck;
+static gint ett_h245_RequestMultiplexEntryReject;
+static gint ett_h245_SET_SIZE_1_15_OF_RequestMultiplexEntryRejectionDescriptions;
+static gint ett_h245_RequestMultiplexEntryRejectionDescriptions;
+static gint ett_h245_RequestMultiplexEntryRejectionDescriptionsCause;
+static gint ett_h245_RequestMultiplexEntryRelease;
+static gint ett_h245_RequestMode;
+static gint ett_h245_SEQUENCE_SIZE_1_256_OF_ModeDescription;
+static gint ett_h245_RequestModeAck;
+static gint ett_h245_Req_mode_ack_response;
+static gint ett_h245_RequestModeReject;
+static gint ett_h245_RequestModeRejectCause;
+static gint ett_h245_RequestModeRelease;
+static gint ett_h245_ModeDescription;
+static gint ett_h245_ModeElementType;
+static gint ett_h245_ModeElement;
+static gint ett_h245_H235Mode;
+static gint ett_h245_T_mediaMode;
+static gint ett_h245_MultiplexedStreamModeParameters;
+static gint ett_h245_RedundancyEncodingDTMode;
+static gint ett_h245_SEQUENCE_OF_RedundancyEncodingDTModeElement;
+static gint ett_h245_RedundancyEncodingDTModeElement;
+static gint ett_h245_Re_type;
+static gint ett_h245_MultiplePayloadStreamMode;
+static gint ett_h245_SEQUENCE_OF_MultiplePayloadStreamElementMode;
+static gint ett_h245_MultiplePayloadStreamElementMode;
+static gint ett_h245_DepFECMode;
+static gint ett_h245_T_rfc2733Mode;
+static gint ett_h245_FEC_mode;
+static gint ett_h245_FECMode;
+static gint ett_h245_H223ModeParameters;
+static gint ett_h245_AdaptationLayerType;
+static gint ett_h245_V76ModeParameters;
+static gint ett_h245_H2250ModeParameters;
+static gint ett_h245_RedundancyEncodingMode;
+static gint ett_h245_T_secondaryEncodingMode;
+static gint ett_h245_VideoMode;
+static gint ett_h245_H261VideoMode;
+static gint ett_h245_H261Resolution;
+static gint ett_h245_H262VideoMode;
+static gint ett_h245_T_profileAndLevel;
+static gint ett_h245_H263VideoMode;
+static gint ett_h245_H263Resolution;
+static gint ett_h245_IS11172VideoMode;
+static gint ett_h245_AudioMode;
+static gint ett_h245_Mode_g7231;
+static gint ett_h245_IS11172AudioMode;
+static gint ett_h245_T_audioLayer;
+static gint ett_h245_T_audioSampling;
+static gint ett_h245_IS11172_multichannelType;
+static gint ett_h245_IS13818AudioMode;
+static gint ett_h245_IS13818AudioLayer;
+static gint ett_h245_IS13818AudioSampling;
+static gint ett_h245_IS13818MultichannelType;
+static gint ett_h245_G7231AnnexCMode;
+static gint ett_h245_VBDMode;
+static gint ett_h245_DataMode;
+static gint ett_h245_DataModeApplication;
+static gint ett_h245_T38faxApp;
+static gint ett_h245_EncryptionMode;
+static gint ett_h245_RoundTripDelayRequest;
+static gint ett_h245_RoundTripDelayResponse;
+static gint ett_h245_MaintenanceLoopRequest;
+static gint ett_h245_Mlr_type;
+static gint ett_h245_MaintenanceLoopAck;
+static gint ett_h245_Mla_type;
+static gint ett_h245_MaintenanceLoopReject;
+static gint ett_h245_Mlrej_type;
+static gint ett_h245_MaintenanceLoopRejectCause;
+static gint ett_h245_MaintenanceLoopOffCommand;
+static gint ett_h245_CommunicationModeCommand;
+static gint ett_h245_SET_SIZE_1_256_OF_CommunicationModeTableEntry;
+static gint ett_h245_CommunicationModeRequest;
+static gint ett_h245_CommunicationModeResponse;
+static gint ett_h245_CommunicationModeTableEntry;
+static gint ett_h245_T_entryDataType;
+static gint ett_h245_ConferenceRequest;
+static gint ett_h245_T_requestTerminalCertificate;
+static gint ett_h245_CertSelectionCriteria;
+static gint ett_h245_Criteria;
+static gint ett_h245_TerminalLabel;
+static gint ett_h245_ConferenceResponse;
+static gint ett_h245_T_mCTerminalIDResponse;
+static gint ett_h245_T_terminalIDResponse;
+static gint ett_h245_T_conferenceIDResponse;
+static gint ett_h245_T_passwordResponse;
+static gint ett_h245_SET_SIZE_1_256_OF_TerminalLabel;
+static gint ett_h245_T_makeMeChairResponse;
+static gint ett_h245_T_extensionAddressResponse;
+static gint ett_h245_T_chairTokenOwnerResponse;
+static gint ett_h245_T_terminalCertificateResponse;
+static gint ett_h245_T_broadcastMyLogicalChannelResponse;
+static gint ett_h245_T_makeTerminalBroadcasterResponse;
+static gint ett_h245_T_sendThisSourceResponse;
+static gint ett_h245_RequestAllTerminalIDsResponse;
+static gint ett_h245_SEQUENCE_OF_TerminalInformation;
+static gint ett_h245_TerminalInformation;
+static gint ett_h245_RemoteMCRequest;
+static gint ett_h245_RemoteMCResponse;
+static gint ett_h245_T_reject;
+static gint ett_h245_MultilinkRequest;
+static gint ett_h245_CallInformationReq;
+static gint ett_h245_AddConnectionReq;
+static gint ett_h245_RemoveConnectionReq;
+static gint ett_h245_MaximumHeaderIntervalReq;
+static gint ett_h245_T_requestType;
+static gint ett_h245_MultilinkResponse;
+static gint ett_h245_CallInformationResp;
+static gint ett_h245_AddConnectionResp;
+static gint ett_h245_T_responseCode;
+static gint ett_h245_T_rejected;
+static gint ett_h245_RemoveConnectionResp;
+static gint ett_h245_MaximumHeaderIntervalResp;
+static gint ett_h245_MultilinkIndication;
+static gint ett_h245_T_crcDesired;
+static gint ett_h245_T_excessiveError;
+static gint ett_h245_DialingInformation;
+static gint ett_h245_SET_SIZE_1_65535_OF_DialingInformationNumber;
+static gint ett_h245_DialingInformationNumber;
+static gint ett_h245_SET_SIZE_1_255_OF_DialingInformationNetworkType;
+static gint ett_h245_DialingInformationNetworkType;
+static gint ett_h245_ConnectionIdentifier;
+static gint ett_h245_LogicalChannelRateRequest;
+static gint ett_h245_LogicalChannelRateAcknowledge;
+static gint ett_h245_LogicalChannelRateReject;
+static gint ett_h245_LogicalChannelRateRejectReason;
+static gint ett_h245_LogicalChannelRateRelease;
+static gint ett_h245_SendTerminalCapabilitySet;
+static gint ett_h245_T_specificRequest;
+static gint ett_h245_SET_SIZE_1_65535_OF_CapabilityTableEntryNumber;
+static gint ett_h245_SET_SIZE_1_256_OF_CapabilityDescriptorNumber;
+static gint ett_h245_EncryptionCommand;
+static gint ett_h245_T_encryptionAlgorithmID;
+static gint ett_h245_FlowControlCommand;
+static gint ett_h245_Scope;
+static gint ett_h245_Restriction;
+static gint ett_h245_EndSessionCommand;
+static gint ett_h245_T_gstnOptions;
+static gint ett_h245_T_isdnOptions;
+static gint ett_h245_ConferenceCommand;
+static gint ett_h245_SubstituteConferenceIDCommand;
+static gint ett_h245_EncryptionUpdateDirection;
+static gint ett_h245_MiscellaneousCommand;
+static gint ett_h245_Mc_type;
+static gint ett_h245_T_videoFastUpdateGOB;
+static gint ett_h245_T_videoFastUpdateMB;
+static gint ett_h245_T_progressiveRefinementStart;
+static gint ett_h245_T_repeatCount;
+static gint ett_h245_T_videoBadMBs;
+static gint ett_h245_SEQUENCE_OF_PictureReference;
+static gint ett_h245_T_lostPartialPicture;
+static gint ett_h245_T_encryptionUpdateCommand;
+static gint ett_h245_T_encryptionUpdateAck;
+static gint ett_h245_KeyProtectionMethod;
+static gint ett_h245_EncryptionUpdateRequest;
+static gint ett_h245_PictureReference;
+static gint ett_h245_H223MultiplexReconfiguration;
+static gint ett_h245_T_h223ModeChange;
+static gint ett_h245_T_h223AnnexADoubleFlag;
+static gint ett_h245_NewATMVCCommand;
+static gint ett_h245_Cmd_aal;
+static gint ett_h245_Cmd_aal1;
+static gint ett_h245_Cmd_clockRecovery;
+static gint ett_h245_Cmd_errorCorrection;
+static gint ett_h245_Cmd_aal5;
+static gint ett_h245_Cmd_multiplex;
+static gint ett_h245_Cmd_reverseParameters;
+static gint ett_h245_CmdR_multiplex;
+static gint ett_h245_MobileMultilinkReconfigurationCommand;
+static gint ett_h245_T_status;
+static gint ett_h245_FunctionNotUnderstood;
+static gint ett_h245_FunctionNotSupported;
+static gint ett_h245_FunctionNotSupportedCause;
+static gint ett_h245_ConferenceIndication;
+static gint ett_h245_TerminalYouAreSeeingInSubPictureNumber;
+static gint ett_h245_VideoIndicateCompose;
+static gint ett_h245_MiscellaneousIndication;
+static gint ett_h245_Mi_type;
+static gint ett_h245_T_videoNotDecodedMBs;
+static gint ett_h245_JitterIndication;
+static gint ett_h245_H223SkewIndication;
+static gint ett_h245_H2250MaximumSkewIndication;
+static gint ett_h245_MCLocationIndication;
+static gint ett_h245_VendorIdentification;
+static gint ett_h245_NewATMVCIndication;
+static gint ett_h245_Ind_aal;
+static gint ett_h245_Ind_aal1;
+static gint ett_h245_Ind_clockRecovery;
+static gint ett_h245_Ind_errorCorrection;
+static gint ett_h245_Ind_aal5;
+static gint ett_h245_Ind_multiplex;
+static gint ett_h245_Ind_reverseParameters;
+static gint ett_h245_IndR_multiplex;
+static gint ett_h245_Params;
+static gint ett_h245_UserInputIndication;
+static gint ett_h245_T_userInputSupportIndication;
+static gint ett_h245_T_signal;
+static gint ett_h245_T_rtp;
+static gint ett_h245_T_signalUpdate;
+static gint ett_h245_Si_rtp;
+static gint ett_h245_T_extendedAlphanumeric;
+static gint ett_h245_EncryptedAlphanumeric;
+static gint ett_h245_FlowControlIndication;
+static gint ett_h245_MobileMultilinkReconfigurationIndication;
 
 /* Forward declarations */
 static int dissect_h245_MultimediaSystemControlMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);

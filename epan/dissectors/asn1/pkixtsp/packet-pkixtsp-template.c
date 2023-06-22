@@ -31,11 +31,11 @@ static dissector_handle_t timestamp_reply_handle;
 static dissector_handle_t timestamp_query_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_pkixtsp = -1;
+static int proto_pkixtsp;
 #include "packet-pkixtsp-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_pkixtsp = -1;
+static gint ett_pkixtsp;
 #include "packet-pkixtsp-ett.c"
 
 

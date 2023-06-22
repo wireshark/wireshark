@@ -32,71 +32,71 @@
 void proto_register_q932(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_q932 = -1;
-static int hf_q932_ie_type = -1;
-static int hf_q932_ie_len = -1;
-static int hf_q932_ie_data = -1;
-static int hf_q932_pp = -1;
-static int hf_q932_nd = -1;
-static int hf_q932_NetworkFacilityExtension_PDU = -1;  /* NetworkFacilityExtension */
-static int hf_q932_NetworkProtocolProfile_PDU = -1;  /* NetworkProtocolProfile */
-static int hf_q932_InterpretationComponent_PDU = -1;  /* InterpretationComponent */
-static int hf_q932_presentationAlIowedAddress = -1;  /* AddressScreened */
-static int hf_q932_presentationRestricted = -1;   /* NULL */
-static int hf_q932_numberNotAvailableDueTolnterworking = -1;  /* NULL */
-static int hf_q932_presentationRestrictedAddressScreened = -1;  /* AddressScreened */
-static int hf_q932_presentationAllowedAddress = -1;  /* Address */
-static int hf_q932_presentationRestrictedAddress = -1;  /* Address */
-static int hf_q932_presentationAllowedNumberScreened = -1;  /* NumberScreened */
-static int hf_q932_numberNotAvailableDueToInterworking = -1;  /* NULL */
-static int hf_q932_presentationRestrictedNumberScreened = -1;  /* NumberScreened */
-static int hf_q932_presentationAllowedNumber = -1;  /* PartyNumber */
-static int hf_q932_presentationRestrictedNumber = -1;  /* PartyNumber */
-static int hf_q932_partyNumber = -1;              /* PartyNumber */
-static int hf_q932_screeninglndicator = -1;       /* ScreeningIndicator */
-static int hf_q932_partySubaddress = -1;          /* PartySubaddress */
-static int hf_q932_screeningIndicator = -1;       /* ScreeningIndicator */
-static int hf_q932_unknownPartyNumber = -1;       /* NumberDigits */
-static int hf_q932_publicPartyNumber = -1;        /* PublicPartyNumber */
-static int hf_q932_nsapEncodedNumber = -1;        /* NsapEncodedNumber */
-static int hf_q932_dataPartyNumber = -1;          /* NumberDigits */
-static int hf_q932_telexPartyNumber = -1;         /* NumberDigits */
-static int hf_q932_privatePartyNumber = -1;       /* PrivatePartyNumber */
-static int hf_q932_nationalStandardPartyNumber = -1;  /* NumberDigits */
-static int hf_q932_publicTypeOfNumber = -1;       /* PublicTypeOfNumber */
-static int hf_q932_publicNumberDigits = -1;       /* NumberDigits */
-static int hf_q932_privateTypeOfNumber = -1;      /* PrivateTypeOfNumber */
-static int hf_q932_privateNumberDigits = -1;      /* NumberDigits */
-static int hf_q932_userSpecifiedSubaddress = -1;  /* UserSpecifiedSubaddress */
-static int hf_q932_nSAPSubaddress = -1;           /* NSAPSubaddress */
-static int hf_q932_subaddressInformation = -1;    /* SubaddressInformation */
-static int hf_q932_oddCountIndicator = -1;        /* BOOLEAN */
-static int hf_q932_sourceEntity = -1;             /* EntityType */
-static int hf_q932_sourceEntityAddress = -1;      /* AddressInformation */
-static int hf_q932_destinationEntity = -1;        /* EntityType */
-static int hf_q932_destinationEntityAddress = -1;  /* AddressInformation */
+static int proto_q932;
+static int hf_q932_ie_type;
+static int hf_q932_ie_len;
+static int hf_q932_ie_data;
+static int hf_q932_pp;
+static int hf_q932_nd;
+static int hf_q932_NetworkFacilityExtension_PDU;  /* NetworkFacilityExtension */
+static int hf_q932_NetworkProtocolProfile_PDU;    /* NetworkProtocolProfile */
+static int hf_q932_InterpretationComponent_PDU;   /* InterpretationComponent */
+static int hf_q932_presentationAlIowedAddress;    /* AddressScreened */
+static int hf_q932_presentationRestricted;        /* NULL */
+static int hf_q932_numberNotAvailableDueTolnterworking;  /* NULL */
+static int hf_q932_presentationRestrictedAddressScreened;  /* AddressScreened */
+static int hf_q932_presentationAllowedAddress;    /* Address */
+static int hf_q932_presentationRestrictedAddress;  /* Address */
+static int hf_q932_presentationAllowedNumberScreened;  /* NumberScreened */
+static int hf_q932_numberNotAvailableDueToInterworking;  /* NULL */
+static int hf_q932_presentationRestrictedNumberScreened;  /* NumberScreened */
+static int hf_q932_presentationAllowedNumber;     /* PartyNumber */
+static int hf_q932_presentationRestrictedNumber;  /* PartyNumber */
+static int hf_q932_partyNumber;                   /* PartyNumber */
+static int hf_q932_screeninglndicator;            /* ScreeningIndicator */
+static int hf_q932_partySubaddress;               /* PartySubaddress */
+static int hf_q932_screeningIndicator;            /* ScreeningIndicator */
+static int hf_q932_unknownPartyNumber;            /* NumberDigits */
+static int hf_q932_publicPartyNumber;             /* PublicPartyNumber */
+static int hf_q932_nsapEncodedNumber;             /* NsapEncodedNumber */
+static int hf_q932_dataPartyNumber;               /* NumberDigits */
+static int hf_q932_telexPartyNumber;              /* NumberDigits */
+static int hf_q932_privatePartyNumber;            /* PrivatePartyNumber */
+static int hf_q932_nationalStandardPartyNumber;   /* NumberDigits */
+static int hf_q932_publicTypeOfNumber;            /* PublicTypeOfNumber */
+static int hf_q932_publicNumberDigits;            /* NumberDigits */
+static int hf_q932_privateTypeOfNumber;           /* PrivateTypeOfNumber */
+static int hf_q932_privateNumberDigits;           /* NumberDigits */
+static int hf_q932_userSpecifiedSubaddress;       /* UserSpecifiedSubaddress */
+static int hf_q932_nSAPSubaddress;                /* NSAPSubaddress */
+static int hf_q932_subaddressInformation;         /* SubaddressInformation */
+static int hf_q932_oddCountIndicator;             /* BOOLEAN */
+static int hf_q932_sourceEntity;                  /* EntityType */
+static int hf_q932_sourceEntityAddress;           /* AddressInformation */
+static int hf_q932_destinationEntity;             /* EntityType */
+static int hf_q932_destinationEntityAddress;      /* AddressInformation */
 
 /* Initialize the subtree pointers */
-static gint ett_q932 = -1;
-static gint ett_q932_ie = -1;
-static gint ett_q932_PresentedAddressScreened = -1;
-static gint ett_q932_PresentedAddressUnscreened = -1;
-static gint ett_q932_PresentedNumberScreened = -1;
-static gint ett_q932_PresentedNumberUnscreened = -1;
-static gint ett_q932_AddressScreened = -1;
-static gint ett_q932_NumberScreened = -1;
-static gint ett_q932_Address = -1;
-static gint ett_q932_PartyNumber = -1;
-static gint ett_q932_PublicPartyNumber = -1;
-static gint ett_q932_PrivatePartyNumber = -1;
-static gint ett_q932_PartySubaddress = -1;
-static gint ett_q932_UserSpecifiedSubaddress = -1;
-static gint ett_q932_NetworkFacilityExtension_U = -1;
+static gint ett_q932;
+static gint ett_q932_ie;
+static gint ett_q932_PresentedAddressScreened;
+static gint ett_q932_PresentedAddressUnscreened;
+static gint ett_q932_PresentedNumberScreened;
+static gint ett_q932_PresentedNumberUnscreened;
+static gint ett_q932_AddressScreened;
+static gint ett_q932_NumberScreened;
+static gint ett_q932_Address;
+static gint ett_q932_PartyNumber;
+static gint ett_q932_PublicPartyNumber;
+static gint ett_q932_PrivatePartyNumber;
+static gint ett_q932_PartySubaddress;
+static gint ett_q932_UserSpecifiedSubaddress;
+static gint ett_q932_NetworkFacilityExtension_U;
 
-static expert_field ei_q932_dse_not_supported = EI_INIT;
-static expert_field ei_q932_acse_not_supported = EI_INIT;
-static expert_field ei_q932_unknown_component = EI_INIT;
-static expert_field ei_q932_asn1_encoded = EI_INIT;
+static expert_field ei_q932_dse_not_supported;
+static expert_field ei_q932_acse_not_supported;
+static expert_field ei_q932_unknown_component;
+static expert_field ei_q932_asn1_encoded;
 
 
 /* Preferences */

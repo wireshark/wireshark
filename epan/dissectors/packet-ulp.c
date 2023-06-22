@@ -49,943 +49,943 @@ static dissector_handle_t lpp_handle;
 #define ULP_PORT    7275
 
 /* Initialize the protocol and registered fields */
-static int proto_ulp = -1;
+static int proto_ulp;
 
 
 #define ULP_HEADER_SIZE 2
 
 static gboolean ulp_desegment = TRUE;
 
-static int hf_ulp_ULP_PDU_PDU = -1;               /* ULP_PDU */
-static int hf_ulp_length = -1;                    /* INTEGER_0_65535 */
-static int hf_ulp_version = -1;                   /* Version */
-static int hf_ulp_sessionID = -1;                 /* SessionID */
-static int hf_ulp_message = -1;                   /* UlpMessage */
-static int hf_ulp_msSUPLINIT = -1;                /* SUPLINIT */
-static int hf_ulp_msSUPLSTART = -1;               /* SUPLSTART */
-static int hf_ulp_msSUPLRESPONSE = -1;            /* SUPLRESPONSE */
-static int hf_ulp_msSUPLPOSINIT = -1;             /* SUPLPOSINIT */
-static int hf_ulp_msSUPLPOS = -1;                 /* SUPLPOS */
-static int hf_ulp_msSUPLEND = -1;                 /* SUPLEND */
-static int hf_ulp_msSUPLAUTHREQ = -1;             /* SUPLAUTHREQ */
-static int hf_ulp_msSUPLAUTHRESP = -1;            /* SUPLAUTHRESP */
-static int hf_ulp_msSUPLTRIGGEREDSTART = -1;      /* Ver2_SUPLTRIGGEREDSTART */
-static int hf_ulp_msSUPLTRIGGEREDRESPONSE = -1;   /* Ver2_SUPLTRIGGEREDRESPONSE */
-static int hf_ulp_msSUPLTRIGGEREDSTOP = -1;       /* Ver2_SUPLTRIGGEREDSTOP */
-static int hf_ulp_msSUPLNOTIFY = -1;              /* Ver2_SUPLNOTIFY */
-static int hf_ulp_msSUPLNOTIFYRESPONSE = -1;      /* Ver2_SUPLNOTIFYRESPONSE */
-static int hf_ulp_msSUPLSETINIT = -1;             /* Ver2_SUPLSETINIT */
-static int hf_ulp_msSUPLREPORT = -1;              /* Ver2_SUPLREPORT */
-static int hf_ulp_posMethod = -1;                 /* PosMethod */
-static int hf_ulp_notification = -1;              /* Notification */
-static int hf_ulp_sLPAddress = -1;                /* SLPAddress */
-static int hf_ulp_qoP = -1;                       /* QoP */
-static int hf_ulp_sLPMode = -1;                   /* SLPMode */
-static int hf_ulp_mac = -1;                       /* MAC */
-static int hf_ulp_keyIdentity = -1;               /* KeyIdentity */
-static int hf_ulp_ver2_SUPL_INIT_extension = -1;  /* Ver2_SUPL_INIT_extension */
-static int hf_ulp_notificationType = -1;          /* NotificationType */
-static int hf_ulp_encodingType = -1;              /* EncodingType */
-static int hf_ulp_requestorId = -1;               /* T_requestorId */
-static int hf_ulp_requestorIdType = -1;           /* FormatIndicator */
-static int hf_ulp_clientName = -1;                /* T_clientName */
-static int hf_ulp_clientNameType = -1;            /* FormatIndicator */
-static int hf_ulp_ver2_Notification_extension = -1;  /* Ver2_Notification_extension */
-static int hf_ulp_sETCapabilities = -1;           /* SETCapabilities */
-static int hf_ulp_locationId = -1;                /* LocationId */
-static int hf_ulp_ver2_SUPL_START_extension = -1;  /* Ver2_SUPL_START_extension */
-static int hf_ulp_posTechnology = -1;             /* PosTechnology */
-static int hf_ulp_prefMethod = -1;                /* PrefMethod */
-static int hf_ulp_posProtocol = -1;               /* PosProtocol */
-static int hf_ulp_ver2_SETCapabilities_extension = -1;  /* Ver2_SETCapabilities_extension */
-static int hf_ulp_agpsSETassisted = -1;           /* BOOLEAN */
-static int hf_ulp_agpsSETBased = -1;              /* BOOLEAN */
-static int hf_ulp_autonomousGPS = -1;             /* BOOLEAN */
-static int hf_ulp_aflt = -1;                      /* BOOLEAN */
-static int hf_ulp_ecid = -1;                      /* BOOLEAN */
-static int hf_ulp_eotd = -1;                      /* BOOLEAN */
-static int hf_ulp_otdoa = -1;                     /* BOOLEAN */
-static int hf_ulp_ver2_PosTechnology_extension = -1;  /* Ver2_PosTechnology_extension */
-static int hf_ulp_tia801 = -1;                    /* BOOLEAN */
-static int hf_ulp_rrlp = -1;                      /* BOOLEAN */
-static int hf_ulp_rrc = -1;                       /* BOOLEAN */
-static int hf_ulp_ver2_PosProtocol_extension = -1;  /* Ver2_PosProtocol_extension */
-static int hf_ulp_sETAuthKey = -1;                /* SETAuthKey */
-static int hf_ulp_keyIdentity4 = -1;              /* KeyIdentity4 */
-static int hf_ulp_ver2_SUPL_RESPONSE_extension = -1;  /* Ver2_SUPL_RESPONSE_extension */
-static int hf_ulp_shortKey = -1;                  /* BIT_STRING_SIZE_128 */
-static int hf_ulp_longKey = -1;                   /* BIT_STRING_SIZE_256 */
-static int hf_ulp_requestedAssistData = -1;       /* RequestedAssistData */
-static int hf_ulp_position = -1;                  /* Position */
-static int hf_ulp_suplpos = -1;                   /* SUPLPOS */
-static int hf_ulp_ver = -1;                       /* Ver */
-static int hf_ulp_ver2_SUPL_POS_INIT_extension = -1;  /* Ver2_SUPL_POS_INIT_extension */
-static int hf_ulp_almanacRequested = -1;          /* BOOLEAN */
-static int hf_ulp_utcModelRequested = -1;         /* BOOLEAN */
-static int hf_ulp_ionosphericModelRequested = -1;  /* BOOLEAN */
-static int hf_ulp_dgpsCorrectionsRequested = -1;  /* BOOLEAN */
-static int hf_ulp_referenceLocationRequested = -1;  /* BOOLEAN */
-static int hf_ulp_referenceTimeRequested = -1;    /* BOOLEAN */
-static int hf_ulp_acquisitionAssistanceRequested = -1;  /* BOOLEAN */
-static int hf_ulp_realTimeIntegrityRequested = -1;  /* BOOLEAN */
-static int hf_ulp_navigationModelRequested = -1;  /* BOOLEAN */
-static int hf_ulp_navigationModelData = -1;       /* NavigationModel */
-static int hf_ulp_ver2_RequestedAssistData_extension = -1;  /* Ver2_RequestedAssistData_extension */
-static int hf_ulp_gpsWeek = -1;                   /* INTEGER_0_1023 */
-static int hf_ulp_gpsToe = -1;                    /* INTEGER_0_167 */
-static int hf_ulp_nsat = -1;                      /* INTEGER_0_31 */
-static int hf_ulp_toeLimit = -1;                  /* INTEGER_0_10 */
-static int hf_ulp_satInfo = -1;                   /* SatelliteInfo */
-static int hf_ulp_SatelliteInfo_item = -1;        /* SatelliteInfoElement */
-static int hf_ulp_satId = -1;                     /* INTEGER_0_63 */
-static int hf_ulp_iode = -1;                      /* INTEGER_0_255 */
-static int hf_ulp_posPayLoad = -1;                /* PosPayLoad */
-static int hf_ulp_velocity = -1;                  /* Velocity */
-static int hf_ulp_ver2_SUPL_POS_extension = -1;   /* Ver2_SUPL_POS_extension */
-static int hf_ulp_tia801payload = -1;             /* OCTET_STRING_SIZE_1_8192 */
-static int hf_ulp_rrcPayload = -1;                /* OCTET_STRING_SIZE_1_8192 */
-static int hf_ulp_rrlpPayload = -1;               /* T_rrlpPayload */
-static int hf_ulp_ver2_PosPayLoad_extension = -1;  /* Ver2_PosPayLoad_extension */
-static int hf_ulp_statusCode = -1;                /* StatusCode */
-static int hf_ulp_ver2_SUPL_END_extension = -1;   /* Ver2_SUPL_END_extension */
-static int hf_ulp_sPCSETKey = -1;                 /* SPCSETKey */
-static int hf_ulp_spctid = -1;                    /* SPCTID */
-static int hf_ulp_sPCSETKeylifetime = -1;         /* SPCSETKeylifetime */
-static int hf_ulp_notificationResponse = -1;      /* NotificationResponse */
-static int hf_ulp_targetSETID = -1;               /* SETId */
-static int hf_ulp_applicationID = -1;             /* ApplicationID */
-static int hf_ulp_multipleLocationIds = -1;       /* MultipleLocationIds */
-static int hf_ulp_thirdParty = -1;                /* ThirdParty */
-static int hf_ulp_triggerType = -1;               /* TriggerType */
-static int hf_ulp_triggerParams = -1;             /* TriggerParams */
-static int hf_ulp_reportingCap = -1;              /* ReportingCap */
-static int hf_ulp_causeCode = -1;                 /* CauseCode */
-static int hf_ulp_periodicParams = -1;            /* PeriodicParams */
-static int hf_ulp_areaEventParams = -1;           /* AreaEventParams */
-static int hf_ulp_numberOfFixes = -1;             /* INTEGER_1_8639999 */
-static int hf_ulp_intervalBetweenFixes = -1;      /* INTEGER_1_8639999 */
-static int hf_ulp_startTime = -1;                 /* INTEGER_0_2678400 */
-static int hf_ulp_areaEventType = -1;             /* AreaEventType */
-static int hf_ulp_locationEstimate = -1;          /* BOOLEAN */
-static int hf_ulp_repeatedReportingParams = -1;   /* RepeatedReportingParams */
-static int hf_ulp_stopTime = -1;                  /* INTEGER_0_11318399 */
-static int hf_ulp_geographicTargetAreaList = -1;  /* GeographicTargetAreaList */
-static int hf_ulp_areaIdLists = -1;               /* SEQUENCE_SIZE_1_maxAreaIdList_OF_AreaIdList */
-static int hf_ulp_areaIdLists_item = -1;          /* AreaIdList */
-static int hf_ulp_minimumIntervalTime = -1;       /* INTEGER_1_604800 */
-static int hf_ulp_maximumNumberOfReports = -1;    /* INTEGER_1_1024 */
-static int hf_ulp_GeographicTargetAreaList_item = -1;  /* GeographicTargetArea */
-static int hf_ulp_circularArea = -1;              /* CircularArea */
-static int hf_ulp_ellipticalArea = -1;            /* EllipticalArea */
-static int hf_ulp_polygonArea = -1;               /* PolygonArea */
-static int hf_ulp_areaIdSet = -1;                 /* AreaIdSet */
-static int hf_ulp_areaIdSetType = -1;             /* AreaIdSetType */
-static int hf_ulp_geoAreaMappingList = -1;        /* GeoAreaMappingList */
-static int hf_ulp_AreaIdSet_item = -1;            /* AreaId */
-static int hf_ulp_gSMAreaId = -1;                 /* GSMAreaId */
-static int hf_ulp_wCDMAAreaId = -1;               /* WCDMAAreaId */
-static int hf_ulp_cDMAAreaId = -1;                /* CDMAAreaId */
-static int hf_ulp_hRPDAreaId = -1;                /* HRPDAreaId */
-static int hf_ulp_uMBAreaId = -1;                 /* UMBAreaId */
-static int hf_ulp_lTEAreaId = -1;                 /* LTEAreaId */
-static int hf_ulp_wLANAreaId = -1;                /* WLANAreaId */
-static int hf_ulp_wiMAXAreaId = -1;               /* WimaxAreaId */
-static int hf_ulp_nRAreaId = -1;                  /* NRAreaId */
-static int hf_ulp_refMCC = -1;                    /* INTEGER_0_999 */
-static int hf_ulp_refMNC = -1;                    /* INTEGER_0_999 */
-static int hf_ulp_refLAC = -1;                    /* INTEGER_0_65535 */
-static int hf_ulp_refCI = -1;                     /* INTEGER_0_65535 */
-static int hf_ulp_refUC = -1;                     /* INTEGER_0_268435455 */
-static int hf_ulp_refSID = -1;                    /* INTEGER_0_65535 */
-static int hf_ulp_refNID = -1;                    /* INTEGER_0_32767 */
-static int hf_ulp_refBASEID = -1;                 /* INTEGER_0_65535 */
-static int hf_ulp_refSECTORID = -1;               /* BIT_STRING_SIZE_128 */
-static int hf_ulp_refCI_01 = -1;                  /* BIT_STRING_SIZE_29 */
-static int hf_ulp_apMACAddress = -1;              /* T_apMACAddress */
-static int hf_ulp_bsID_MSB = -1;                  /* BIT_STRING_SIZE_24 */
-static int hf_ulp_bsID_LSB = -1;                  /* BIT_STRING_SIZE_24 */
-static int hf_ulp_refCI_02 = -1;                  /* BIT_STRING_SIZE_36 */
-static int hf_ulp_GeoAreaMappingList_item = -1;   /* GeoAreaIndex */
-static int hf_ulp_supportedNetworkInformation = -1;  /* SupportedNetworkInformation */
-static int hf_ulp_reportingMode = -1;             /* ReportingMode */
-static int hf_ulp_gnssPosTechnology = -1;         /* GNSSPosTechnology */
-static int hf_ulp_repMode = -1;                   /* RepModee */
-static int hf_ulp_batchRepConditions = -1;        /* BatchRepConditions */
-static int hf_ulp_batchRepType = -1;              /* BatchRepType */
-static int hf_ulp_num_interval = -1;              /* INTEGER_1_1024 */
-static int hf_ulp_num_minutes = -1;               /* INTEGER_1_2048 */
-static int hf_ulp_endofsession = -1;              /* NULL */
-static int hf_ulp_reportPosition = -1;            /* BOOLEAN */
-static int hf_ulp_reportMeasurements = -1;        /* BOOLEAN */
-static int hf_ulp_intermediateReports = -1;       /* BOOLEAN */
-static int hf_ulp_discardOldest = -1;             /* BOOLEAN */
-static int hf_ulp_sessionList = -1;               /* SessionList */
-static int hf_ulp_reportDataList = -1;            /* ReportDataList */
-static int hf_ulp_moreComponents = -1;            /* NULL */
-static int hf_ulp_SessionList_item = -1;          /* SessionInformation */
-static int hf_ulp_ReportDataList_item = -1;       /* ReportData */
-static int hf_ulp_positionData = -1;              /* PositionData */
-static int hf_ulp_resultCode = -1;                /* ResultCode */
-static int hf_ulp_timestamp = -1;                 /* TimeStamp */
-static int hf_ulp_ganssSignalsInfo = -1;          /* GANSSsignalsInfo */
-static int hf_ulp_GANSSsignalsInfo_item = -1;     /* GANSSSignalsDescription */
-static int hf_ulp_ganssId = -1;                   /* INTEGER_0_15 */
-static int hf_ulp_gANSSSignals = -1;              /* GANSSSignals */
-static int hf_ulp_absoluteTime = -1;              /* UTCTime */
-static int hf_ulp_relativeTime = -1;              /* INTEGER_0_31536000 */
-static int hf_ulp_notificationMode = -1;          /* NotificationMode */
-static int hf_ulp_e_SLPAddress = -1;              /* SLPAddress */
-static int hf_ulp_historicReporting = -1;         /* HistoricReporting */
-static int hf_ulp_protectionLevel = -1;           /* ProtectionLevel */
-static int hf_ulp_minimumMajorVersion = -1;       /* INTEGER_0_255 */
-static int hf_ulp_allowedReportingType = -1;      /* AllowedReportingType */
-static int hf_ulp_reportingCriteria = -1;         /* ReportingCriteria */
-static int hf_ulp_timeWindow = -1;                /* TimeWindow */
-static int hf_ulp_maxNumberofReports = -1;        /* INTEGER_1_65536 */
-static int hf_ulp_minTimeInterval = -1;           /* INTEGER_1_86400 */
-static int hf_ulp_startTime_01 = -1;              /* INTEGER_M525600_M1 */
-static int hf_ulp_stopTime_01 = -1;               /* INTEGER_M525599_0 */
-static int hf_ulp_protlevel = -1;                 /* ProtLevel */
-static int hf_ulp_basicProtectionParams = -1;     /* BasicProtectionParams */
-static int hf_ulp_keyIdentifier = -1;             /* OCTET_STRING_SIZE_8 */
-static int hf_ulp_basicReplayCounter = -1;        /* INTEGER_0_65535 */
-static int hf_ulp_basicMAC = -1;                  /* BIT_STRING_SIZE_32 */
-static int hf_ulp_initialApproximateposition = -1;  /* Position */
-static int hf_ulp_utran_GPSReferenceTimeResult = -1;  /* UTRAN_GPSReferenceTimeResult */
-static int hf_ulp_utran_GANSSReferenceTimeResult = -1;  /* UTRAN_GANSSReferenceTimeResult */
-static int hf_ulp_utran_GPSReferenceTimeAssistance = -1;  /* UTRAN_GPSReferenceTimeAssistance */
-static int hf_ulp_utran_GANSSReferenceTimeAssistance = -1;  /* UTRAN_GANSSReferenceTimeAssistance */
-static int hf_ulp_ver2_HighAccuracyPosition = -1;  /* Ver2_HighAccuracyPosition */
-static int hf_ulp_emergencyCallLocation = -1;     /* NULL */
-static int hf_ulp_serviceCapabilities = -1;       /* ServiceCapabilities */
-static int hf_ulp_supportedBearers = -1;          /* SupportedBearers */
-static int hf_ulp_servicesSupported = -1;         /* ServicesSupported */
-static int hf_ulp_reportingCapabilities = -1;     /* ReportingCap */
-static int hf_ulp_eventTriggerCapabilities = -1;  /* EventTriggerCapabilities */
-static int hf_ulp_sessionCapabilities = -1;       /* SessionCapabilities */
-static int hf_ulp_periodicTrigger = -1;           /* BOOLEAN */
-static int hf_ulp_areaEventTrigger = -1;          /* BOOLEAN */
-static int hf_ulp_geoAreaShapesSupported = -1;    /* GeoAreaShapesSupported */
-static int hf_ulp_maxNumGeoAreaSupported = -1;    /* INTEGER_0_maxNumGeoArea */
-static int hf_ulp_maxAreaIdListSupported = -1;    /* INTEGER_0_maxAreaIdList */
-static int hf_ulp_maxAreaIdSupportedPerList = -1;  /* INTEGER_0_maxAreaId */
-static int hf_ulp_ellipticalArea_01 = -1;         /* BOOLEAN */
-static int hf_ulp_polygonArea_01 = -1;            /* BOOLEAN */
-static int hf_ulp_maxNumberTotalSessions = -1;    /* INTEGER_1_128 */
-static int hf_ulp_maxNumberPeriodicSessions = -1;  /* INTEGER_1_32 */
-static int hf_ulp_maxNumberTriggeredSessions = -1;  /* INTEGER_1_32 */
-static int hf_ulp_gsm = -1;                       /* BOOLEAN */
-static int hf_ulp_wcdma = -1;                     /* BOOLEAN */
-static int hf_ulp_lte = -1;                       /* BOOLEAN */
-static int hf_ulp_cdma = -1;                      /* BOOLEAN */
-static int hf_ulp_hprd = -1;                      /* BOOLEAN */
-static int hf_ulp_umb = -1;                       /* BOOLEAN */
-static int hf_ulp_wlan = -1;                      /* BOOLEAN */
-static int hf_ulp_wiMAX = -1;                     /* BOOLEAN */
-static int hf_ulp_nr = -1;                        /* BOOLEAN */
-static int hf_ulp_lpp = -1;                       /* BOOLEAN */
-static int hf_ulp_posProtocolVersionRRLP = -1;    /* PosProtocolVersion3GPP */
-static int hf_ulp_posProtocolVersionRRC = -1;     /* PosProtocolVersion3GPP */
-static int hf_ulp_posProtocolVersionTIA801 = -1;  /* PosProtocolVersion3GPP2 */
-static int hf_ulp_posProtocolVersionLPP = -1;     /* PosProtocolVersion3GPP */
-static int hf_ulp_lppe = -1;                      /* BOOLEAN */
-static int hf_ulp_posProtocolVersionLPPe = -1;    /* PosProtocolVersionOMA */
-static int hf_ulp_majorVersionField = -1;         /* INTEGER_0_255 */
-static int hf_ulp_technicalVersionField = -1;     /* INTEGER_0_255 */
-static int hf_ulp_editorialVersionField = -1;     /* INTEGER_0_255 */
-static int hf_ulp_PosProtocolVersion3GPP2_item = -1;  /* Supported3GPP2PosProtocolVersion */
-static int hf_ulp_revisionNumber = -1;            /* BIT_STRING_SIZE_6 */
-static int hf_ulp_pointReleaseNumber = -1;        /* INTEGER_0_255 */
-static int hf_ulp_internalEditLevel = -1;         /* INTEGER_0_255 */
-static int hf_ulp_minorVersionField = -1;         /* INTEGER_0_255 */
-static int hf_ulp_gANSSPositionMethods = -1;      /* GANSSPositionMethods */
-static int hf_ulp_additionalPositioningMethods = -1;  /* AdditionalPositioningMethods */
-static int hf_ulp_GANSSPositionMethods_item = -1;  /* GANSSPositionMethod */
-static int hf_ulp_ganssSBASid = -1;               /* T_ganssSBASid */
-static int hf_ulp_gANSSPositioningMethodTypes = -1;  /* GANSSPositioningMethodTypes */
-static int hf_ulp_rtk = -1;                       /* RTK */
-static int hf_ulp_osr = -1;                       /* BOOLEAN */
-static int hf_ulp_setAssisted = -1;               /* BOOLEAN */
-static int hf_ulp_setBased = -1;                  /* BOOLEAN */
-static int hf_ulp_autonomous = -1;                /* BOOLEAN */
-static int hf_ulp_AdditionalPositioningMethods_item = -1;  /* AddPosSupport_Element */
-static int hf_ulp_addPosID = -1;                  /* T_addPosID */
-static int hf_ulp_addPosMode = -1;                /* T_addPosMode */
-static int hf_ulp_ganssRequestedCommonAssistanceDataList = -1;  /* GanssRequestedCommonAssistanceDataList */
-static int hf_ulp_ganssRequestedGenericAssistanceDataList = -1;  /* GanssRequestedGenericAssistanceDataList */
-static int hf_ulp_extendedEphemeris = -1;         /* ExtendedEphemeris */
-static int hf_ulp_extendedEphemerisCheck = -1;    /* ExtendedEphCheck */
-static int hf_ulp_ganssReferenceTime = -1;        /* BOOLEAN */
-static int hf_ulp_ganssIonosphericModel = -1;     /* BOOLEAN */
-static int hf_ulp_ganssAdditionalIonosphericModelForDataID00 = -1;  /* BOOLEAN */
-static int hf_ulp_ganssAdditionalIonosphericModelForDataID11 = -1;  /* BOOLEAN */
-static int hf_ulp_ganssEarthOrientationParameters = -1;  /* BOOLEAN */
-static int hf_ulp_ganssAdditionalIonosphericModelForDataID01 = -1;  /* BOOLEAN */
-static int hf_ulp_GanssRequestedGenericAssistanceDataList_item = -1;  /* GanssReqGenericData */
-static int hf_ulp_ganssId_01 = -1;                /* T_ganssId */
-static int hf_ulp_ganssSBASid_01 = -1;            /* T_ganssSBASid_01 */
-static int hf_ulp_ganssRealTimeIntegrity = -1;    /* BOOLEAN */
-static int hf_ulp_ganssDifferentialCorrection = -1;  /* DGANSS_Sig_Id_Req */
-static int hf_ulp_ganssAlmanac = -1;              /* BOOLEAN */
-static int hf_ulp_ganssNavigationModelData = -1;  /* GanssNavigationModelData */
-static int hf_ulp_ganssTimeModels = -1;           /* T_ganssTimeModels */
-static int hf_ulp_ganssReferenceMeasurementInfo = -1;  /* BOOLEAN */
-static int hf_ulp_ganssDataBits = -1;             /* GanssDataBits */
-static int hf_ulp_ganssUTCModel = -1;             /* BOOLEAN */
-static int hf_ulp_ganssAdditionalDataChoices = -1;  /* GanssAdditionalDataChoices */
-static int hf_ulp_ganssAuxiliaryInformation = -1;  /* BOOLEAN */
-static int hf_ulp_ganssExtendedEphemeris = -1;    /* ExtendedEphemeris */
-static int hf_ulp_ganssExtendedEphemerisCheck = -1;  /* GanssExtendedEphCheck */
-static int hf_ulp_bds_DifferentialCorrection = -1;  /* BDS_Sig_Id_Req */
-static int hf_ulp_bds_GridModelReq = -1;          /* BOOLEAN */
-static int hf_ulp_ganssWeek = -1;                 /* T_ganssWeek */
-static int hf_ulp_ganssToe = -1;                  /* T_ganssToe */
-static int hf_ulp_t_toeLimit = -1;                /* T_t_toeLimit */
-static int hf_ulp_satellitesListRelatedDataList = -1;  /* SatellitesListRelatedDataList */
-static int hf_ulp_SatellitesListRelatedDataList_item = -1;  /* SatellitesListRelatedData */
-static int hf_ulp_iod = -1;                       /* INTEGER_0_1023 */
-static int hf_ulp_ganssTODmin = -1;               /* INTEGER_0_59 */
-static int hf_ulp_reqDataBitAssistanceList = -1;  /* ReqDataBitAssistanceList */
-static int hf_ulp_gnssSignals = -1;               /* GANSSSignals */
-static int hf_ulp_ganssDataBitInterval = -1;      /* INTEGER_0_15 */
-static int hf_ulp_ganssDataBitSatList = -1;       /* T_ganssDataBitSatList */
-static int hf_ulp_ganssDataBitSatList_item = -1;  /* INTEGER_0_63 */
-static int hf_ulp_orbitModelID = -1;              /* INTEGER_0_7 */
-static int hf_ulp_clockModelID = -1;              /* INTEGER_0_7 */
-static int hf_ulp_utcModelID = -1;                /* INTEGER_0_7 */
-static int hf_ulp_almanacModelID = -1;            /* INTEGER_0_7 */
-static int hf_ulp_validity = -1;                  /* INTEGER_1_256 */
-static int hf_ulp_beginTime = -1;                 /* GPSTime */
-static int hf_ulp_endTime = -1;                   /* GPSTime */
-static int hf_ulp_beginTime_01 = -1;              /* GANSSextEphTime */
-static int hf_ulp_endTime_01 = -1;                /* GANSSextEphTime */
-static int hf_ulp_gPSWeek = -1;                   /* INTEGER_0_1023 */
-static int hf_ulp_gPSTOWhour = -1;                /* INTEGER_0_167 */
-static int hf_ulp_gANSSday = -1;                  /* INTEGER_0_8191 */
-static int hf_ulp_gANSSTODhour = -1;              /* INTEGER_0_23 */
-static int hf_ulp_lPPPayload = -1;                /* T_lPPPayload */
-static int hf_ulp_lPPPayload_item = -1;           /* T_lPPPayload_item */
-static int hf_ulp_tia801Payload = -1;             /* T_tia801Payload */
-static int hf_ulp_tia801Payload_item = -1;        /* OCTET_STRING_SIZE_1_60000 */
-static int hf_ulp_maj = -1;                       /* INTEGER_0_255 */
-static int hf_ulp_min = -1;                       /* INTEGER_0_255 */
-static int hf_ulp_servind = -1;                   /* INTEGER_0_255 */
-static int hf_ulp_setSessionID = -1;              /* SetSessionID */
-static int hf_ulp_slpSessionID = -1;              /* SlpSessionID */
-static int hf_ulp_sessionId = -1;                 /* INTEGER_0_65535 */
-static int hf_ulp_setId = -1;                     /* SETId */
-static int hf_ulp_msisdn = -1;                    /* T_msisdn */
-static int hf_ulp_mdn = -1;                       /* T_mdn */
-static int hf_ulp_minsi = -1;                     /* BIT_STRING_SIZE_34 */
-static int hf_ulp_imsi = -1;                      /* T_imsi */
-static int hf_ulp_nai = -1;                       /* IA5String_SIZE_1_1000 */
-static int hf_ulp_iPAddress = -1;                 /* IPAddress */
-static int hf_ulp_ver2_imei = -1;                 /* OCTET_STRING_SIZE_8 */
-static int hf_ulp_sessionSlpID = -1;              /* OCTET_STRING_SIZE_4 */
-static int hf_ulp_slpId = -1;                     /* SLPAddress */
-static int hf_ulp_ipv4Address = -1;               /* OCTET_STRING_SIZE_4 */
-static int hf_ulp_ipv6Address = -1;               /* OCTET_STRING_SIZE_16 */
-static int hf_ulp_fqdn = -1;                      /* FQDN */
-static int hf_ulp_cellInfo = -1;                  /* CellInfo */
-static int hf_ulp_status = -1;                    /* Status */
-static int hf_ulp_gsmCell = -1;                   /* GsmCellInformation */
-static int hf_ulp_wcdmaCell = -1;                 /* WcdmaCellInformation */
-static int hf_ulp_cdmaCell = -1;                  /* CdmaCellInformation */
-static int hf_ulp_ver2_CellInfo_extension = -1;   /* Ver2_CellInfo_extension */
-static int hf_ulp_timestamp_01 = -1;              /* UTCTime */
-static int hf_ulp_positionEstimate = -1;          /* PositionEstimate */
-static int hf_ulp_latitudeSign = -1;              /* T_latitudeSign */
-static int hf_ulp_latitude = -1;                  /* INTEGER_0_8388607 */
-static int hf_ulp_longitude = -1;                 /* INTEGER_M8388608_8388607 */
-static int hf_ulp_uncertainty = -1;               /* T_uncertainty */
-static int hf_ulp_uncertaintySemiMajor = -1;      /* INTEGER_0_127 */
-static int hf_ulp_uncertaintySemiMinor = -1;      /* INTEGER_0_127 */
-static int hf_ulp_orientationMajorAxis = -1;      /* INTEGER_0_180 */
-static int hf_ulp_confidence = -1;                /* INTEGER_0_100 */
-static int hf_ulp_altitudeInfo = -1;              /* AltitudeInfo */
-static int hf_ulp_altitudeDirection = -1;         /* T_altitudeDirection */
-static int hf_ulp_altitude = -1;                  /* INTEGER_0_32767 */
-static int hf_ulp_altUncertainty = -1;            /* INTEGER_0_127 */
-static int hf_ulp_refNID_01 = -1;                 /* INTEGER_0_65535 */
-static int hf_ulp_refSID_01 = -1;                 /* INTEGER_0_32767 */
-static int hf_ulp_refBASELAT = -1;                /* INTEGER_0_4194303 */
-static int hf_ulp_reBASELONG = -1;                /* INTEGER_0_8388607 */
-static int hf_ulp_refREFPN = -1;                  /* INTEGER_0_511 */
-static int hf_ulp_refWeekNumber = -1;             /* INTEGER_0_65535 */
-static int hf_ulp_refSeconds = -1;                /* INTEGER_0_4194303 */
-static int hf_ulp_nmr = -1;                       /* NMR */
-static int hf_ulp_ta = -1;                        /* INTEGER_0_255 */
-static int hf_ulp_frequencyInfo = -1;             /* FrequencyInfo */
-static int hf_ulp_primaryScramblingCode = -1;     /* INTEGER_0_511 */
-static int hf_ulp_measuredResultsList = -1;       /* MeasuredResultsList */
-static int hf_ulp_cellParametersId = -1;          /* INTEGER_0_127 */
-static int hf_ulp_timingAdvance = -1;             /* TimingAdvance */
-static int hf_ulp_ta_01 = -1;                     /* INTEGER_0_8191 */
-static int hf_ulp_tAResolution = -1;              /* TAResolution */
-static int hf_ulp_chipRate = -1;                  /* ChipRate */
-static int hf_ulp_modeSpecificFrequencyInfo = -1;  /* FrequencySpecificInfo */
-static int hf_ulp_fdd_fr = -1;                    /* FrequencyInfoFDD */
-static int hf_ulp_tdd_fr = -1;                    /* FrequencyInfoTDD */
-static int hf_ulp_uarfcn_UL = -1;                 /* UARFCN */
-static int hf_ulp_uarfcn_DL = -1;                 /* UARFCN */
-static int hf_ulp_uarfcn_Nt = -1;                 /* UARFCN */
-static int hf_ulp_NMR_item = -1;                  /* NMRelement */
-static int hf_ulp_arfcn = -1;                     /* INTEGER_0_1023 */
-static int hf_ulp_bsic = -1;                      /* INTEGER_0_63 */
-static int hf_ulp_rxLev = -1;                     /* INTEGER_0_63 */
-static int hf_ulp_MeasuredResultsList_item = -1;  /* MeasuredResults */
-static int hf_ulp_utra_CarrierRSSI = -1;          /* UTRA_CarrierRSSI */
-static int hf_ulp_cellMeasuredResultsList = -1;   /* CellMeasuredResultsList */
-static int hf_ulp_CellMeasuredResultsList_item = -1;  /* CellMeasuredResults */
-static int hf_ulp_cellIdentity = -1;              /* INTEGER_0_268435455 */
-static int hf_ulp_modeSpecificInfo = -1;          /* T_modeSpecificInfo */
-static int hf_ulp_fdd = -1;                       /* T_fdd */
-static int hf_ulp_primaryCPICH_Info = -1;         /* PrimaryCPICH_Info */
-static int hf_ulp_cpich_Ec_N0 = -1;               /* CPICH_Ec_N0 */
-static int hf_ulp_cpich_RSCP = -1;                /* CPICH_RSCP */
-static int hf_ulp_pathloss = -1;                  /* Pathloss */
-static int hf_ulp_tdd = -1;                       /* T_tdd */
-static int hf_ulp_cellParametersID = -1;          /* CellParametersID */
-static int hf_ulp_proposedTGSN = -1;              /* TGSN */
-static int hf_ulp_primaryCCPCH_RSCP = -1;         /* PrimaryCCPCH_RSCP */
-static int hf_ulp_timeslotISCP_List = -1;         /* TimeslotISCP_List */
-static int hf_ulp_TimeslotISCP_List_item = -1;    /* TimeslotISCP */
-static int hf_ulp_horacc = -1;                    /* INTEGER_0_127 */
-static int hf_ulp_veracc = -1;                    /* INTEGER_0_127 */
-static int hf_ulp_maxLocAge = -1;                 /* INTEGER_0_65535 */
-static int hf_ulp_delay = -1;                     /* INTEGER_0_7 */
-static int hf_ulp_ver2_responseTime = -1;         /* INTEGER_1_128 */
-static int hf_ulp_horvel = -1;                    /* Horvel */
-static int hf_ulp_horandvervel = -1;              /* Horandvervel */
-static int hf_ulp_horveluncert = -1;              /* Horveluncert */
-static int hf_ulp_horandveruncert = -1;           /* Horandveruncert */
-static int hf_ulp_bearing = -1;                   /* T_bearing */
-static int hf_ulp_horspeed = -1;                  /* T_horspeed */
-static int hf_ulp_verdirect = -1;                 /* T_verdirect */
-static int hf_ulp_bearing_01 = -1;                /* T_bearing_01 */
-static int hf_ulp_horspeed_01 = -1;               /* T_horspeed_01 */
-static int hf_ulp_verspeed = -1;                  /* T_verspeed */
-static int hf_ulp_bearing_02 = -1;                /* T_bearing_02 */
-static int hf_ulp_horspeed_02 = -1;               /* T_horspeed_02 */
-static int hf_ulp_uncertspeed = -1;               /* T_uncertspeed */
-static int hf_ulp_verdirect_01 = -1;              /* T_verdirect_01 */
-static int hf_ulp_bearing_03 = -1;                /* T_bearing_03 */
-static int hf_ulp_horspeed_03 = -1;               /* T_horspeed_03 */
-static int hf_ulp_verspeed_01 = -1;               /* T_verspeed_01 */
-static int hf_ulp_horuncertspeed = -1;            /* T_horuncertspeed */
-static int hf_ulp_veruncertspeed = -1;            /* T_veruncertspeed */
-static int hf_ulp_MultipleLocationIds_item = -1;  /* LocationIdData */
-static int hf_ulp_relativetimestamp = -1;         /* RelativeTime */
-static int hf_ulp_servingFlag = -1;               /* BOOLEAN */
-static int hf_ulp_supportedWLANInfo = -1;         /* SupportedWLANInfo */
-static int hf_ulp_supportedWLANApsList = -1;      /* SupportedWLANApsList */
-static int hf_ulp_supportedWCDMAInfo = -1;        /* SupportedWCDMAInfo */
-static int hf_ulp_hrdp = -1;                      /* BOOLEAN */
-static int hf_ulp_wimax = -1;                     /* BOOLEAN */
-static int hf_ulp_historic = -1;                  /* BOOLEAN */
-static int hf_ulp_nonServing = -1;                /* BOOLEAN */
-static int hf_ulp_uTRANGPSReferenceTime = -1;     /* BOOLEAN */
-static int hf_ulp_uTRANGANSSReferenceTime = -1;   /* BOOLEAN */
-static int hf_ulp_apTP = -1;                      /* BOOLEAN */
-static int hf_ulp_apAG = -1;                      /* BOOLEAN */
-static int hf_ulp_apSN = -1;                      /* BOOLEAN */
-static int hf_ulp_apDevType = -1;                 /* BOOLEAN */
-static int hf_ulp_apRSSI = -1;                    /* BOOLEAN */
-static int hf_ulp_apChanFreq = -1;                /* BOOLEAN */
-static int hf_ulp_apRTD = -1;                     /* BOOLEAN */
-static int hf_ulp_setTP = -1;                     /* BOOLEAN */
-static int hf_ulp_setAG = -1;                     /* BOOLEAN */
-static int hf_ulp_setSN = -1;                     /* BOOLEAN */
-static int hf_ulp_setRSSI = -1;                   /* BOOLEAN */
-static int hf_ulp_apRepLoc = -1;                  /* BOOLEAN */
-static int hf_ulp_apRL = -1;                      /* BOOLEAN */
-static int hf_ulp_opClass = -1;                   /* BOOLEAN */
-static int hf_ulp_apSSID = -1;                    /* BOOLEAN */
-static int hf_ulp_apPHYType = -1;                 /* BOOLEAN */
-static int hf_ulp_setMACAddress = -1;             /* BOOLEAN */
-static int hf_ulp_supportedWLANApDataList = -1;   /* SEQUENCE_SIZE_1_maxWLANApDataSize_OF_SupportedWLANApData */
-static int hf_ulp_supportedWLANApDataList_item = -1;  /* SupportedWLANApData */
-static int hf_ulp_supportedWLANapsChannel11a = -1;  /* SupportedWLANApsChannel11a */
-static int hf_ulp_supportedWLANapsChannel11bg = -1;  /* SupportedWLANApsChannel11bg */
-static int hf_ulp_ch34 = -1;                      /* BOOLEAN */
-static int hf_ulp_ch36 = -1;                      /* BOOLEAN */
-static int hf_ulp_ch38 = -1;                      /* BOOLEAN */
-static int hf_ulp_ch40 = -1;                      /* BOOLEAN */
-static int hf_ulp_ch42 = -1;                      /* BOOLEAN */
-static int hf_ulp_ch44 = -1;                      /* BOOLEAN */
-static int hf_ulp_ch46 = -1;                      /* BOOLEAN */
-static int hf_ulp_ch48 = -1;                      /* BOOLEAN */
-static int hf_ulp_ch52 = -1;                      /* BOOLEAN */
-static int hf_ulp_ch56 = -1;                      /* BOOLEAN */
-static int hf_ulp_ch60 = -1;                      /* BOOLEAN */
-static int hf_ulp_ch64 = -1;                      /* BOOLEAN */
-static int hf_ulp_ch149 = -1;                     /* BOOLEAN */
-static int hf_ulp_ch153 = -1;                     /* BOOLEAN */
-static int hf_ulp_ch157 = -1;                     /* BOOLEAN */
-static int hf_ulp_ch161 = -1;                     /* BOOLEAN */
-static int hf_ulp_ch1 = -1;                       /* BOOLEAN */
-static int hf_ulp_ch2 = -1;                       /* BOOLEAN */
-static int hf_ulp_ch3 = -1;                       /* BOOLEAN */
-static int hf_ulp_ch4 = -1;                       /* BOOLEAN */
-static int hf_ulp_ch5 = -1;                       /* BOOLEAN */
-static int hf_ulp_ch6 = -1;                       /* BOOLEAN */
-static int hf_ulp_ch7 = -1;                       /* BOOLEAN */
-static int hf_ulp_ch8 = -1;                       /* BOOLEAN */
-static int hf_ulp_ch9 = -1;                       /* BOOLEAN */
-static int hf_ulp_ch10 = -1;                      /* BOOLEAN */
-static int hf_ulp_ch11 = -1;                      /* BOOLEAN */
-static int hf_ulp_ch12 = -1;                      /* BOOLEAN */
-static int hf_ulp_ch13 = -1;                      /* BOOLEAN */
-static int hf_ulp_ch14 = -1;                      /* BOOLEAN */
-static int hf_ulp_apMACAddress_01 = -1;           /* T_apMACAddress_01 */
-static int hf_ulp_apDevType_01 = -1;              /* T_apDevType */
-static int hf_ulp_mrl = -1;                       /* BOOLEAN */
-static int hf_ulp_hrpdCell = -1;                  /* HrpdCellInformation */
-static int hf_ulp_umbCell = -1;                   /* UmbCellInformation */
-static int hf_ulp_lteCell = -1;                   /* LteCellInformation */
-static int hf_ulp_wlanAP = -1;                    /* WlanAPInformation */
-static int hf_ulp_wimaxBS = -1;                   /* WimaxBSInformation */
-static int hf_ulp_nrCell = -1;                    /* NRCellInformation */
-static int hf_ulp_cellGlobalIdEUTRA = -1;         /* CellGlobalIdEUTRA */
-static int hf_ulp_physCellId = -1;                /* PhysCellId */
-static int hf_ulp_trackingAreaCode = -1;          /* TrackingAreaCode */
-static int hf_ulp_rsrpResult = -1;                /* RSRP_Range */
-static int hf_ulp_rsrqResult = -1;                /* RSRQ_Range */
-static int hf_ulp_ta_02 = -1;                     /* INTEGER_0_1282 */
-static int hf_ulp_measResultListEUTRA = -1;       /* MeasResultListEUTRA */
-static int hf_ulp_earfcn = -1;                    /* INTEGER_0_65535 */
-static int hf_ulp_earfcn_ext = -1;                /* INTEGER_65536_262143 */
-static int hf_ulp_rsrpResult_ext = -1;            /* RSRP_Range_Ext */
-static int hf_ulp_rsrqResult_ext = -1;            /* RSRQ_Range_Ext */
-static int hf_ulp_rs_sinrResult = -1;             /* RS_SINR_Range */
-static int hf_ulp_servingInformation5G = -1;      /* ServingInformation5G */
-static int hf_ulp_MeasResultListEUTRA_item = -1;  /* MeasResultEUTRA */
-static int hf_ulp_cgi_Info = -1;                  /* T_cgi_Info */
-static int hf_ulp_cellGlobalId = -1;              /* CellGlobalIdEUTRA */
-static int hf_ulp_measResult = -1;                /* T_measResult */
-static int hf_ulp_neighbourInformation5G = -1;    /* NeighbourInformation5G */
-static int hf_ulp_plmn_Identity = -1;             /* PLMN_Identity */
-static int hf_ulp_cellIdentity_01 = -1;           /* CellIdentity */
-static int hf_ulp_mcc = -1;                       /* MCC */
-static int hf_ulp_mnc = -1;                       /* MNC */
-static int hf_ulp_MCC_item = -1;                  /* MCC_MNC_Digit */
-static int hf_ulp_MNC_item = -1;                  /* MCC_MNC_Digit */
-static int hf_ulp_trackingAreaCode_01 = -1;       /* TrackingAreaCodeNR */
-static int hf_ulp_apMACAddress_02 = -1;           /* T_apMACAddress_02 */
-static int hf_ulp_apTransmitPower = -1;           /* INTEGER_M127_128 */
-static int hf_ulp_apAntennaGain = -1;             /* INTEGER_M127_128 */
-static int hf_ulp_apSignaltoNoise = -1;           /* INTEGER_M127_128 */
-static int hf_ulp_apDeviceType = -1;              /* T_apDeviceType */
-static int hf_ulp_apSignalStrength = -1;          /* INTEGER_M127_128 */
-static int hf_ulp_apChannelFrequency = -1;        /* INTEGER_0_256 */
-static int hf_ulp_apRoundTripDelay = -1;          /* RTD */
-static int hf_ulp_setTransmitPower = -1;          /* INTEGER_M127_128 */
-static int hf_ulp_setAntennaGain = -1;            /* INTEGER_M127_128 */
-static int hf_ulp_setSignaltoNoise = -1;          /* INTEGER_M127_128 */
-static int hf_ulp_setSignalStrength = -1;         /* INTEGER_M127_128 */
-static int hf_ulp_apReportedLocation = -1;        /* ReportedLocation */
-static int hf_ulp_apRepLocation = -1;             /* RepLocation */
-static int hf_ulp_apSignalStrengthDelta = -1;     /* INTEGER_0_1 */
-static int hf_ulp_apSignaltoNoiseDelta = -1;      /* INTEGER_0_1 */
-static int hf_ulp_setSignalStrengthDelta = -1;    /* INTEGER_0_1 */
-static int hf_ulp_setSignaltoNoiseDelta = -1;     /* INTEGER_0_1 */
-static int hf_ulp_operatingClass = -1;            /* INTEGER_0_255 */
-static int hf_ulp_apSSID_01 = -1;                 /* T_apSSID */
-static int hf_ulp_apPHYType_01 = -1;              /* T_apPHYType */
-static int hf_ulp_setMACAddress_01 = -1;          /* T_setMACAddress */
-static int hf_ulp_rTDValue = -1;                  /* INTEGER_0_16777216 */
-static int hf_ulp_rTDUnits = -1;                  /* RTDUnits */
-static int hf_ulp_rTDAccuracy = -1;               /* INTEGER_0_255 */
-static int hf_ulp_locationEncodingDescriptor = -1;  /* LocationEncodingDescriptor */
-static int hf_ulp_locationData = -1;              /* LocationData */
-static int hf_ulp_locationAccuracy = -1;          /* INTEGER_0_4294967295 */
-static int hf_ulp_locationValue = -1;             /* OCTET_STRING_SIZE_1_128 */
-static int hf_ulp_lciLocData = -1;                /* LciLocData */
-static int hf_ulp_locationDataLCI = -1;           /* LocationDataLCI */
-static int hf_ulp_latitudeResolution = -1;        /* BIT_STRING_SIZE_6 */
-static int hf_ulp_latitude_01 = -1;               /* BIT_STRING_SIZE_34 */
-static int hf_ulp_longitudeResolution = -1;       /* BIT_STRING_SIZE_6 */
-static int hf_ulp_longitude_01 = -1;              /* BIT_STRING_SIZE_34 */
-static int hf_ulp_altitudeType = -1;              /* BIT_STRING_SIZE_4 */
-static int hf_ulp_altitudeResolution = -1;        /* BIT_STRING_SIZE_6 */
-static int hf_ulp_altitude_01 = -1;               /* BIT_STRING_SIZE_30 */
-static int hf_ulp_datum = -1;                     /* BIT_STRING_SIZE_8 */
-static int hf_ulp_wimaxBsID = -1;                 /* WimaxBsID */
-static int hf_ulp_wimaxRTD = -1;                  /* WimaxRTD */
-static int hf_ulp_wimaxNMRList = -1;              /* WimaxNMRList */
-static int hf_ulp_rtd = -1;                       /* INTEGER_0_65535 */
-static int hf_ulp_rTDstd = -1;                    /* INTEGER_0_1023 */
-static int hf_ulp_WimaxNMRList_item = -1;         /* WimaxNMR */
-static int hf_ulp_relDelay = -1;                  /* INTEGER_M32768_32767 */
-static int hf_ulp_relDelaystd = -1;               /* INTEGER_0_1023 */
-static int hf_ulp_rssi = -1;                      /* INTEGER_0_255 */
-static int hf_ulp_rSSIstd = -1;                   /* INTEGER_0_63 */
-static int hf_ulp_bSTxPower = -1;                 /* INTEGER_0_255 */
-static int hf_ulp_cinr = -1;                      /* INTEGER_0_255 */
-static int hf_ulp_cINRstd = -1;                   /* INTEGER_0_63 */
-static int hf_ulp_bSLocation = -1;                /* ReportedLocation */
-static int hf_ulp_servingCellInformation = -1;    /* ServingCellInformationNR */
-static int hf_ulp_measuredResultsListNR = -1;     /* MeasResultListNR */
-static int hf_ulp_ServingCellInformationNR_item = -1;  /* ServCellNR */
-static int hf_ulp_physCellId_01 = -1;             /* PhysCellIdNR */
-static int hf_ulp_arfcn_NR = -1;                  /* ARFCN_NR */
-static int hf_ulp_cellGlobalId_01 = -1;           /* CellGlobalIdNR */
-static int hf_ulp_ssb_Measurements = -1;          /* NR_Measurements */
-static int hf_ulp_csi_rs_Measurements = -1;       /* NR_Measurements */
-static int hf_ulp_ta_03 = -1;                     /* INTEGER_0_3846 */
-static int hf_ulp_MeasResultListNR_item = -1;     /* MeasResultNR */
-static int hf_ulp_cellIdentityNR = -1;            /* CellIdentityNR */
-static int hf_ulp_rsrp_Range = -1;                /* INTEGER_0_127 */
-static int hf_ulp_rsrq_Range = -1;                /* INTEGER_0_127 */
-static int hf_ulp_sinr_Range = -1;                /* INTEGER_0_127 */
-static int hf_ulp_utran_GPSReferenceTime = -1;    /* UTRAN_GPSReferenceTime */
-static int hf_ulp_gpsReferenceTimeUncertainty = -1;  /* INTEGER_0_127 */
-static int hf_ulp_utranGPSDriftRate = -1;         /* UTRANGPSDriftRate */
-static int hf_ulp_utran_GPSTimingOfCell = -1;     /* T_utran_GPSTimingOfCell */
-static int hf_ulp_ms_part = -1;                   /* INTEGER_0_1023 */
-static int hf_ulp_ls_part = -1;                   /* INTEGER_0_4294967295 */
-static int hf_ulp_modeSpecificInfo_01 = -1;       /* T_modeSpecificInfo_01 */
-static int hf_ulp_fdd_01 = -1;                    /* T_fdd_01 */
-static int hf_ulp_referenceIdentity = -1;         /* PrimaryCPICH_Info */
-static int hf_ulp_tdd_01 = -1;                    /* T_tdd_01 */
-static int hf_ulp_referenceIdentity_01 = -1;      /* CellParametersID */
-static int hf_ulp_sfn = -1;                       /* INTEGER_0_4095 */
-static int hf_ulp_set_GPSTimingOfCell = -1;       /* T_set_GPSTimingOfCell */
-static int hf_ulp_ms_part_01 = -1;                /* INTEGER_0_16383 */
-static int hf_ulp_modeSpecificInfo_02 = -1;       /* T_modeSpecificInfo_02 */
-static int hf_ulp_fdd_02 = -1;                    /* T_fdd_02 */
-static int hf_ulp_tdd_02 = -1;                    /* T_tdd_02 */
-static int hf_ulp_ganssDay = -1;                  /* INTEGER_0_8191 */
-static int hf_ulp_ganssTimeID = -1;               /* INTEGER_0_15 */
-static int hf_ulp_utran_GANSSReferenceTime = -1;  /* UTRAN_GANSSReferenceTime */
-static int hf_ulp_utranGANSSDriftRate = -1;       /* UTRANGANSSDriftRate */
-static int hf_ulp_ganssTOD = -1;                  /* INTEGER_0_86399 */
-static int hf_ulp_utran_GANSSTimingOfCell = -1;   /* INTEGER_0_3999999 */
-static int hf_ulp_modeSpecificInfo_03 = -1;       /* T_modeSpecificInfo_03 */
-static int hf_ulp_fdd_03 = -1;                    /* T_fdd_03 */
-static int hf_ulp_tdd_03 = -1;                    /* T_tdd_03 */
-static int hf_ulp_ganss_TODUncertainty = -1;      /* INTEGER_0_127 */
-static int hf_ulp_set_GANSSReferenceTime = -1;    /* SET_GANSSReferenceTime */
-static int hf_ulp_set_GANSSTimingOfCell = -1;     /* T_set_GANSSTimingOfCell */
-static int hf_ulp_ms_part_02 = -1;                /* INTEGER_0_80 */
-static int hf_ulp_modeSpecificInfo_04 = -1;       /* T_modeSpecificInfo_04 */
-static int hf_ulp_fdd_04 = -1;                    /* T_fdd_04 */
-static int hf_ulp_tdd_04 = -1;                    /* T_tdd_04 */
-static int hf_ulp_gps = -1;                       /* BOOLEAN */
-static int hf_ulp_galileo = -1;                   /* BOOLEAN */
-static int hf_ulp_sbas = -1;                      /* BOOLEAN */
-static int hf_ulp_modernized_gps = -1;            /* BOOLEAN */
-static int hf_ulp_qzss = -1;                      /* BOOLEAN */
-static int hf_ulp_glonass = -1;                   /* BOOLEAN */
-static int hf_ulp_bds = -1;                       /* BOOLEAN */
-static int hf_ulp_rtk_osr = -1;                   /* BOOLEAN */
-static int hf_ulp_rand = -1;                      /* BIT_STRING_SIZE_128 */
-static int hf_ulp_slpFQDN = -1;                   /* FQDN */
-static int hf_ulp_ThirdParty_item = -1;           /* ThirdPartyID */
-static int hf_ulp_logicalName = -1;               /* IA5String_SIZE_1_1000 */
-static int hf_ulp_msisdn_01 = -1;                 /* T_msisdn_01 */
-static int hf_ulp_emailaddr = -1;                 /* IA5String_SIZE_1_1000 */
-static int hf_ulp_sip_uri = -1;                   /* T_sip_uri */
-static int hf_ulp_ims_public_identity = -1;       /* T_ims_public_identity */
-static int hf_ulp_min_01 = -1;                    /* BIT_STRING_SIZE_34 */
-static int hf_ulp_mdn_01 = -1;                    /* T_mdn_01 */
-static int hf_ulp_uri = -1;                       /* T_uri */
-static int hf_ulp_appProvider = -1;               /* IA5String_SIZE_1_24 */
-static int hf_ulp_appName = -1;                   /* IA5String_SIZE_1_32 */
-static int hf_ulp_appVersion = -1;                /* IA5String_SIZE_1_8 */
-static int hf_ulp_minInt = -1;                    /* INTEGER_1_3600 */
-static int hf_ulp_maxInt = -1;                    /* INTEGER_1_1440 */
-static int hf_ulp_repMode_01 = -1;                /* RepMode */
-static int hf_ulp_batchRepCap = -1;               /* BatchRepCap */
-static int hf_ulp_realtime = -1;                  /* BOOLEAN */
-static int hf_ulp_quasirealtime = -1;             /* BOOLEAN */
-static int hf_ulp_batch = -1;                     /* BOOLEAN */
-static int hf_ulp_report_position = -1;           /* BOOLEAN */
-static int hf_ulp_report_measurements = -1;       /* BOOLEAN */
-static int hf_ulp_max_num_positions = -1;         /* INTEGER_1_1024 */
-static int hf_ulp_max_num_measurements = -1;      /* INTEGER_1_1024 */
-static int hf_ulp_latitudeSign_01 = -1;           /* T_latitudeSign_01 */
-static int hf_ulp_coordinateLatitude = -1;        /* INTEGER_0_8388607 */
-static int hf_ulp_coordinateLongitude = -1;       /* INTEGER_M8388608_8388607 */
-static int hf_ulp_coordinate = -1;                /* Coordinate */
-static int hf_ulp_radius = -1;                    /* INTEGER_1_1000000 */
-static int hf_ulp_radius_min = -1;                /* INTEGER_1_1000000 */
-static int hf_ulp_radius_max = -1;                /* INTEGER_1_1500000 */
-static int hf_ulp_semiMajor = -1;                 /* INTEGER_1_1000000 */
-static int hf_ulp_semiMajor_min = -1;             /* INTEGER_1_1000000 */
-static int hf_ulp_semiMajor_max = -1;             /* INTEGER_1_1500000 */
-static int hf_ulp_semiMinor = -1;                 /* INTEGER_1_1000000 */
-static int hf_ulp_semiMinor_min = -1;             /* INTEGER_1_1000000 */
-static int hf_ulp_semiMinor_max = -1;             /* INTEGER_1_1500000 */
-static int hf_ulp_angle = -1;                     /* INTEGER_0_179 */
-static int hf_ulp_polygonDescription = -1;        /* PolygonDescription */
-static int hf_ulp_polygonHysteresis = -1;         /* INTEGER_1_100000 */
-static int hf_ulp_PolygonDescription_item = -1;   /* Coordinate */
-static int hf_ulp_highAccuracyPositionEstimate = -1;  /* HighAccuracyPositionEstimate */
-static int hf_ulp_degreesLatitude = -1;           /* INTEGER_M2147483648_2147483647 */
-static int hf_ulp_degreesLongitude = -1;          /* INTEGER_M2147483648_2147483647 */
-static int hf_ulp_uncertaintySemiMajor_01 = -1;   /* INTEGER_0_255 */
-static int hf_ulp_uncertaintySemiMinor_01 = -1;   /* INTEGER_0_255 */
-static int hf_ulp_orientationMajorAxis_01 = -1;   /* INTEGER_0_179 */
-static int hf_ulp_horizontalConfidence = -1;      /* INTEGER_0_100 */
-static int hf_ulp_highAccuracyAltitudeInfo = -1;  /* HighAccuracyAltitudeInfo */
-static int hf_ulp_altitude_02 = -1;               /* INTEGER_64000_1280000 */
-static int hf_ulp_uncertaintyAltitude = -1;       /* INTEGER_0_255 */
-static int hf_ulp_verticalConfidence = -1;        /* INTEGER_0_100 */
+static int hf_ulp_ULP_PDU_PDU;                    /* ULP_PDU */
+static int hf_ulp_length;                         /* INTEGER_0_65535 */
+static int hf_ulp_version;                        /* Version */
+static int hf_ulp_sessionID;                      /* SessionID */
+static int hf_ulp_message;                        /* UlpMessage */
+static int hf_ulp_msSUPLINIT;                     /* SUPLINIT */
+static int hf_ulp_msSUPLSTART;                    /* SUPLSTART */
+static int hf_ulp_msSUPLRESPONSE;                 /* SUPLRESPONSE */
+static int hf_ulp_msSUPLPOSINIT;                  /* SUPLPOSINIT */
+static int hf_ulp_msSUPLPOS;                      /* SUPLPOS */
+static int hf_ulp_msSUPLEND;                      /* SUPLEND */
+static int hf_ulp_msSUPLAUTHREQ;                  /* SUPLAUTHREQ */
+static int hf_ulp_msSUPLAUTHRESP;                 /* SUPLAUTHRESP */
+static int hf_ulp_msSUPLTRIGGEREDSTART;           /* Ver2_SUPLTRIGGEREDSTART */
+static int hf_ulp_msSUPLTRIGGEREDRESPONSE;        /* Ver2_SUPLTRIGGEREDRESPONSE */
+static int hf_ulp_msSUPLTRIGGEREDSTOP;            /* Ver2_SUPLTRIGGEREDSTOP */
+static int hf_ulp_msSUPLNOTIFY;                   /* Ver2_SUPLNOTIFY */
+static int hf_ulp_msSUPLNOTIFYRESPONSE;           /* Ver2_SUPLNOTIFYRESPONSE */
+static int hf_ulp_msSUPLSETINIT;                  /* Ver2_SUPLSETINIT */
+static int hf_ulp_msSUPLREPORT;                   /* Ver2_SUPLREPORT */
+static int hf_ulp_posMethod;                      /* PosMethod */
+static int hf_ulp_notification;                   /* Notification */
+static int hf_ulp_sLPAddress;                     /* SLPAddress */
+static int hf_ulp_qoP;                            /* QoP */
+static int hf_ulp_sLPMode;                        /* SLPMode */
+static int hf_ulp_mac;                            /* MAC */
+static int hf_ulp_keyIdentity;                    /* KeyIdentity */
+static int hf_ulp_ver2_SUPL_INIT_extension;       /* Ver2_SUPL_INIT_extension */
+static int hf_ulp_notificationType;               /* NotificationType */
+static int hf_ulp_encodingType;                   /* EncodingType */
+static int hf_ulp_requestorId;                    /* T_requestorId */
+static int hf_ulp_requestorIdType;                /* FormatIndicator */
+static int hf_ulp_clientName;                     /* T_clientName */
+static int hf_ulp_clientNameType;                 /* FormatIndicator */
+static int hf_ulp_ver2_Notification_extension;    /* Ver2_Notification_extension */
+static int hf_ulp_sETCapabilities;                /* SETCapabilities */
+static int hf_ulp_locationId;                     /* LocationId */
+static int hf_ulp_ver2_SUPL_START_extension;      /* Ver2_SUPL_START_extension */
+static int hf_ulp_posTechnology;                  /* PosTechnology */
+static int hf_ulp_prefMethod;                     /* PrefMethod */
+static int hf_ulp_posProtocol;                    /* PosProtocol */
+static int hf_ulp_ver2_SETCapabilities_extension;  /* Ver2_SETCapabilities_extension */
+static int hf_ulp_agpsSETassisted;                /* BOOLEAN */
+static int hf_ulp_agpsSETBased;                   /* BOOLEAN */
+static int hf_ulp_autonomousGPS;                  /* BOOLEAN */
+static int hf_ulp_aflt;                           /* BOOLEAN */
+static int hf_ulp_ecid;                           /* BOOLEAN */
+static int hf_ulp_eotd;                           /* BOOLEAN */
+static int hf_ulp_otdoa;                          /* BOOLEAN */
+static int hf_ulp_ver2_PosTechnology_extension;   /* Ver2_PosTechnology_extension */
+static int hf_ulp_tia801;                         /* BOOLEAN */
+static int hf_ulp_rrlp;                           /* BOOLEAN */
+static int hf_ulp_rrc;                            /* BOOLEAN */
+static int hf_ulp_ver2_PosProtocol_extension;     /* Ver2_PosProtocol_extension */
+static int hf_ulp_sETAuthKey;                     /* SETAuthKey */
+static int hf_ulp_keyIdentity4;                   /* KeyIdentity4 */
+static int hf_ulp_ver2_SUPL_RESPONSE_extension;   /* Ver2_SUPL_RESPONSE_extension */
+static int hf_ulp_shortKey;                       /* BIT_STRING_SIZE_128 */
+static int hf_ulp_longKey;                        /* BIT_STRING_SIZE_256 */
+static int hf_ulp_requestedAssistData;            /* RequestedAssistData */
+static int hf_ulp_position;                       /* Position */
+static int hf_ulp_suplpos;                        /* SUPLPOS */
+static int hf_ulp_ver;                            /* Ver */
+static int hf_ulp_ver2_SUPL_POS_INIT_extension;   /* Ver2_SUPL_POS_INIT_extension */
+static int hf_ulp_almanacRequested;               /* BOOLEAN */
+static int hf_ulp_utcModelRequested;              /* BOOLEAN */
+static int hf_ulp_ionosphericModelRequested;      /* BOOLEAN */
+static int hf_ulp_dgpsCorrectionsRequested;       /* BOOLEAN */
+static int hf_ulp_referenceLocationRequested;     /* BOOLEAN */
+static int hf_ulp_referenceTimeRequested;         /* BOOLEAN */
+static int hf_ulp_acquisitionAssistanceRequested;  /* BOOLEAN */
+static int hf_ulp_realTimeIntegrityRequested;     /* BOOLEAN */
+static int hf_ulp_navigationModelRequested;       /* BOOLEAN */
+static int hf_ulp_navigationModelData;            /* NavigationModel */
+static int hf_ulp_ver2_RequestedAssistData_extension;  /* Ver2_RequestedAssistData_extension */
+static int hf_ulp_gpsWeek;                        /* INTEGER_0_1023 */
+static int hf_ulp_gpsToe;                         /* INTEGER_0_167 */
+static int hf_ulp_nsat;                           /* INTEGER_0_31 */
+static int hf_ulp_toeLimit;                       /* INTEGER_0_10 */
+static int hf_ulp_satInfo;                        /* SatelliteInfo */
+static int hf_ulp_SatelliteInfo_item;             /* SatelliteInfoElement */
+static int hf_ulp_satId;                          /* INTEGER_0_63 */
+static int hf_ulp_iode;                           /* INTEGER_0_255 */
+static int hf_ulp_posPayLoad;                     /* PosPayLoad */
+static int hf_ulp_velocity;                       /* Velocity */
+static int hf_ulp_ver2_SUPL_POS_extension;        /* Ver2_SUPL_POS_extension */
+static int hf_ulp_tia801payload;                  /* OCTET_STRING_SIZE_1_8192 */
+static int hf_ulp_rrcPayload;                     /* OCTET_STRING_SIZE_1_8192 */
+static int hf_ulp_rrlpPayload;                    /* T_rrlpPayload */
+static int hf_ulp_ver2_PosPayLoad_extension;      /* Ver2_PosPayLoad_extension */
+static int hf_ulp_statusCode;                     /* StatusCode */
+static int hf_ulp_ver2_SUPL_END_extension;        /* Ver2_SUPL_END_extension */
+static int hf_ulp_sPCSETKey;                      /* SPCSETKey */
+static int hf_ulp_spctid;                         /* SPCTID */
+static int hf_ulp_sPCSETKeylifetime;              /* SPCSETKeylifetime */
+static int hf_ulp_notificationResponse;           /* NotificationResponse */
+static int hf_ulp_targetSETID;                    /* SETId */
+static int hf_ulp_applicationID;                  /* ApplicationID */
+static int hf_ulp_multipleLocationIds;            /* MultipleLocationIds */
+static int hf_ulp_thirdParty;                     /* ThirdParty */
+static int hf_ulp_triggerType;                    /* TriggerType */
+static int hf_ulp_triggerParams;                  /* TriggerParams */
+static int hf_ulp_reportingCap;                   /* ReportingCap */
+static int hf_ulp_causeCode;                      /* CauseCode */
+static int hf_ulp_periodicParams;                 /* PeriodicParams */
+static int hf_ulp_areaEventParams;                /* AreaEventParams */
+static int hf_ulp_numberOfFixes;                  /* INTEGER_1_8639999 */
+static int hf_ulp_intervalBetweenFixes;           /* INTEGER_1_8639999 */
+static int hf_ulp_startTime;                      /* INTEGER_0_2678400 */
+static int hf_ulp_areaEventType;                  /* AreaEventType */
+static int hf_ulp_locationEstimate;               /* BOOLEAN */
+static int hf_ulp_repeatedReportingParams;        /* RepeatedReportingParams */
+static int hf_ulp_stopTime;                       /* INTEGER_0_11318399 */
+static int hf_ulp_geographicTargetAreaList;       /* GeographicTargetAreaList */
+static int hf_ulp_areaIdLists;                    /* SEQUENCE_SIZE_1_maxAreaIdList_OF_AreaIdList */
+static int hf_ulp_areaIdLists_item;               /* AreaIdList */
+static int hf_ulp_minimumIntervalTime;            /* INTEGER_1_604800 */
+static int hf_ulp_maximumNumberOfReports;         /* INTEGER_1_1024 */
+static int hf_ulp_GeographicTargetAreaList_item;  /* GeographicTargetArea */
+static int hf_ulp_circularArea;                   /* CircularArea */
+static int hf_ulp_ellipticalArea;                 /* EllipticalArea */
+static int hf_ulp_polygonArea;                    /* PolygonArea */
+static int hf_ulp_areaIdSet;                      /* AreaIdSet */
+static int hf_ulp_areaIdSetType;                  /* AreaIdSetType */
+static int hf_ulp_geoAreaMappingList;             /* GeoAreaMappingList */
+static int hf_ulp_AreaIdSet_item;                 /* AreaId */
+static int hf_ulp_gSMAreaId;                      /* GSMAreaId */
+static int hf_ulp_wCDMAAreaId;                    /* WCDMAAreaId */
+static int hf_ulp_cDMAAreaId;                     /* CDMAAreaId */
+static int hf_ulp_hRPDAreaId;                     /* HRPDAreaId */
+static int hf_ulp_uMBAreaId;                      /* UMBAreaId */
+static int hf_ulp_lTEAreaId;                      /* LTEAreaId */
+static int hf_ulp_wLANAreaId;                     /* WLANAreaId */
+static int hf_ulp_wiMAXAreaId;                    /* WimaxAreaId */
+static int hf_ulp_nRAreaId;                       /* NRAreaId */
+static int hf_ulp_refMCC;                         /* INTEGER_0_999 */
+static int hf_ulp_refMNC;                         /* INTEGER_0_999 */
+static int hf_ulp_refLAC;                         /* INTEGER_0_65535 */
+static int hf_ulp_refCI;                          /* INTEGER_0_65535 */
+static int hf_ulp_refUC;                          /* INTEGER_0_268435455 */
+static int hf_ulp_refSID;                         /* INTEGER_0_65535 */
+static int hf_ulp_refNID;                         /* INTEGER_0_32767 */
+static int hf_ulp_refBASEID;                      /* INTEGER_0_65535 */
+static int hf_ulp_refSECTORID;                    /* BIT_STRING_SIZE_128 */
+static int hf_ulp_refCI_01;                       /* BIT_STRING_SIZE_29 */
+static int hf_ulp_apMACAddress;                   /* T_apMACAddress */
+static int hf_ulp_bsID_MSB;                       /* BIT_STRING_SIZE_24 */
+static int hf_ulp_bsID_LSB;                       /* BIT_STRING_SIZE_24 */
+static int hf_ulp_refCI_02;                       /* BIT_STRING_SIZE_36 */
+static int hf_ulp_GeoAreaMappingList_item;        /* GeoAreaIndex */
+static int hf_ulp_supportedNetworkInformation;    /* SupportedNetworkInformation */
+static int hf_ulp_reportingMode;                  /* ReportingMode */
+static int hf_ulp_gnssPosTechnology;              /* GNSSPosTechnology */
+static int hf_ulp_repMode;                        /* RepModee */
+static int hf_ulp_batchRepConditions;             /* BatchRepConditions */
+static int hf_ulp_batchRepType;                   /* BatchRepType */
+static int hf_ulp_num_interval;                   /* INTEGER_1_1024 */
+static int hf_ulp_num_minutes;                    /* INTEGER_1_2048 */
+static int hf_ulp_endofsession;                   /* NULL */
+static int hf_ulp_reportPosition;                 /* BOOLEAN */
+static int hf_ulp_reportMeasurements;             /* BOOLEAN */
+static int hf_ulp_intermediateReports;            /* BOOLEAN */
+static int hf_ulp_discardOldest;                  /* BOOLEAN */
+static int hf_ulp_sessionList;                    /* SessionList */
+static int hf_ulp_reportDataList;                 /* ReportDataList */
+static int hf_ulp_moreComponents;                 /* NULL */
+static int hf_ulp_SessionList_item;               /* SessionInformation */
+static int hf_ulp_ReportDataList_item;            /* ReportData */
+static int hf_ulp_positionData;                   /* PositionData */
+static int hf_ulp_resultCode;                     /* ResultCode */
+static int hf_ulp_timestamp;                      /* TimeStamp */
+static int hf_ulp_ganssSignalsInfo;               /* GANSSsignalsInfo */
+static int hf_ulp_GANSSsignalsInfo_item;          /* GANSSSignalsDescription */
+static int hf_ulp_ganssId;                        /* INTEGER_0_15 */
+static int hf_ulp_gANSSSignals;                   /* GANSSSignals */
+static int hf_ulp_absoluteTime;                   /* UTCTime */
+static int hf_ulp_relativeTime;                   /* INTEGER_0_31536000 */
+static int hf_ulp_notificationMode;               /* NotificationMode */
+static int hf_ulp_e_SLPAddress;                   /* SLPAddress */
+static int hf_ulp_historicReporting;              /* HistoricReporting */
+static int hf_ulp_protectionLevel;                /* ProtectionLevel */
+static int hf_ulp_minimumMajorVersion;            /* INTEGER_0_255 */
+static int hf_ulp_allowedReportingType;           /* AllowedReportingType */
+static int hf_ulp_reportingCriteria;              /* ReportingCriteria */
+static int hf_ulp_timeWindow;                     /* TimeWindow */
+static int hf_ulp_maxNumberofReports;             /* INTEGER_1_65536 */
+static int hf_ulp_minTimeInterval;                /* INTEGER_1_86400 */
+static int hf_ulp_startTime_01;                   /* INTEGER_M525600_M1 */
+static int hf_ulp_stopTime_01;                    /* INTEGER_M525599_0 */
+static int hf_ulp_protlevel;                      /* ProtLevel */
+static int hf_ulp_basicProtectionParams;          /* BasicProtectionParams */
+static int hf_ulp_keyIdentifier;                  /* OCTET_STRING_SIZE_8 */
+static int hf_ulp_basicReplayCounter;             /* INTEGER_0_65535 */
+static int hf_ulp_basicMAC;                       /* BIT_STRING_SIZE_32 */
+static int hf_ulp_initialApproximateposition;     /* Position */
+static int hf_ulp_utran_GPSReferenceTimeResult;   /* UTRAN_GPSReferenceTimeResult */
+static int hf_ulp_utran_GANSSReferenceTimeResult;  /* UTRAN_GANSSReferenceTimeResult */
+static int hf_ulp_utran_GPSReferenceTimeAssistance;  /* UTRAN_GPSReferenceTimeAssistance */
+static int hf_ulp_utran_GANSSReferenceTimeAssistance;  /* UTRAN_GANSSReferenceTimeAssistance */
+static int hf_ulp_ver2_HighAccuracyPosition;      /* Ver2_HighAccuracyPosition */
+static int hf_ulp_emergencyCallLocation;          /* NULL */
+static int hf_ulp_serviceCapabilities;            /* ServiceCapabilities */
+static int hf_ulp_supportedBearers;               /* SupportedBearers */
+static int hf_ulp_servicesSupported;              /* ServicesSupported */
+static int hf_ulp_reportingCapabilities;          /* ReportingCap */
+static int hf_ulp_eventTriggerCapabilities;       /* EventTriggerCapabilities */
+static int hf_ulp_sessionCapabilities;            /* SessionCapabilities */
+static int hf_ulp_periodicTrigger;                /* BOOLEAN */
+static int hf_ulp_areaEventTrigger;               /* BOOLEAN */
+static int hf_ulp_geoAreaShapesSupported;         /* GeoAreaShapesSupported */
+static int hf_ulp_maxNumGeoAreaSupported;         /* INTEGER_0_maxNumGeoArea */
+static int hf_ulp_maxAreaIdListSupported;         /* INTEGER_0_maxAreaIdList */
+static int hf_ulp_maxAreaIdSupportedPerList;      /* INTEGER_0_maxAreaId */
+static int hf_ulp_ellipticalArea_01;              /* BOOLEAN */
+static int hf_ulp_polygonArea_01;                 /* BOOLEAN */
+static int hf_ulp_maxNumberTotalSessions;         /* INTEGER_1_128 */
+static int hf_ulp_maxNumberPeriodicSessions;      /* INTEGER_1_32 */
+static int hf_ulp_maxNumberTriggeredSessions;     /* INTEGER_1_32 */
+static int hf_ulp_gsm;                            /* BOOLEAN */
+static int hf_ulp_wcdma;                          /* BOOLEAN */
+static int hf_ulp_lte;                            /* BOOLEAN */
+static int hf_ulp_cdma;                           /* BOOLEAN */
+static int hf_ulp_hprd;                           /* BOOLEAN */
+static int hf_ulp_umb;                            /* BOOLEAN */
+static int hf_ulp_wlan;                           /* BOOLEAN */
+static int hf_ulp_wiMAX;                          /* BOOLEAN */
+static int hf_ulp_nr;                             /* BOOLEAN */
+static int hf_ulp_lpp;                            /* BOOLEAN */
+static int hf_ulp_posProtocolVersionRRLP;         /* PosProtocolVersion3GPP */
+static int hf_ulp_posProtocolVersionRRC;          /* PosProtocolVersion3GPP */
+static int hf_ulp_posProtocolVersionTIA801;       /* PosProtocolVersion3GPP2 */
+static int hf_ulp_posProtocolVersionLPP;          /* PosProtocolVersion3GPP */
+static int hf_ulp_lppe;                           /* BOOLEAN */
+static int hf_ulp_posProtocolVersionLPPe;         /* PosProtocolVersionOMA */
+static int hf_ulp_majorVersionField;              /* INTEGER_0_255 */
+static int hf_ulp_technicalVersionField;          /* INTEGER_0_255 */
+static int hf_ulp_editorialVersionField;          /* INTEGER_0_255 */
+static int hf_ulp_PosProtocolVersion3GPP2_item;   /* Supported3GPP2PosProtocolVersion */
+static int hf_ulp_revisionNumber;                 /* BIT_STRING_SIZE_6 */
+static int hf_ulp_pointReleaseNumber;             /* INTEGER_0_255 */
+static int hf_ulp_internalEditLevel;              /* INTEGER_0_255 */
+static int hf_ulp_minorVersionField;              /* INTEGER_0_255 */
+static int hf_ulp_gANSSPositionMethods;           /* GANSSPositionMethods */
+static int hf_ulp_additionalPositioningMethods;   /* AdditionalPositioningMethods */
+static int hf_ulp_GANSSPositionMethods_item;      /* GANSSPositionMethod */
+static int hf_ulp_ganssSBASid;                    /* T_ganssSBASid */
+static int hf_ulp_gANSSPositioningMethodTypes;    /* GANSSPositioningMethodTypes */
+static int hf_ulp_rtk;                            /* RTK */
+static int hf_ulp_osr;                            /* BOOLEAN */
+static int hf_ulp_setAssisted;                    /* BOOLEAN */
+static int hf_ulp_setBased;                       /* BOOLEAN */
+static int hf_ulp_autonomous;                     /* BOOLEAN */
+static int hf_ulp_AdditionalPositioningMethods_item;  /* AddPosSupport_Element */
+static int hf_ulp_addPosID;                       /* T_addPosID */
+static int hf_ulp_addPosMode;                     /* T_addPosMode */
+static int hf_ulp_ganssRequestedCommonAssistanceDataList;  /* GanssRequestedCommonAssistanceDataList */
+static int hf_ulp_ganssRequestedGenericAssistanceDataList;  /* GanssRequestedGenericAssistanceDataList */
+static int hf_ulp_extendedEphemeris;              /* ExtendedEphemeris */
+static int hf_ulp_extendedEphemerisCheck;         /* ExtendedEphCheck */
+static int hf_ulp_ganssReferenceTime;             /* BOOLEAN */
+static int hf_ulp_ganssIonosphericModel;          /* BOOLEAN */
+static int hf_ulp_ganssAdditionalIonosphericModelForDataID00;  /* BOOLEAN */
+static int hf_ulp_ganssAdditionalIonosphericModelForDataID11;  /* BOOLEAN */
+static int hf_ulp_ganssEarthOrientationParameters;  /* BOOLEAN */
+static int hf_ulp_ganssAdditionalIonosphericModelForDataID01;  /* BOOLEAN */
+static int hf_ulp_GanssRequestedGenericAssistanceDataList_item;  /* GanssReqGenericData */
+static int hf_ulp_ganssId_01;                     /* T_ganssId */
+static int hf_ulp_ganssSBASid_01;                 /* T_ganssSBASid_01 */
+static int hf_ulp_ganssRealTimeIntegrity;         /* BOOLEAN */
+static int hf_ulp_ganssDifferentialCorrection;    /* DGANSS_Sig_Id_Req */
+static int hf_ulp_ganssAlmanac;                   /* BOOLEAN */
+static int hf_ulp_ganssNavigationModelData;       /* GanssNavigationModelData */
+static int hf_ulp_ganssTimeModels;                /* T_ganssTimeModels */
+static int hf_ulp_ganssReferenceMeasurementInfo;  /* BOOLEAN */
+static int hf_ulp_ganssDataBits;                  /* GanssDataBits */
+static int hf_ulp_ganssUTCModel;                  /* BOOLEAN */
+static int hf_ulp_ganssAdditionalDataChoices;     /* GanssAdditionalDataChoices */
+static int hf_ulp_ganssAuxiliaryInformation;      /* BOOLEAN */
+static int hf_ulp_ganssExtendedEphemeris;         /* ExtendedEphemeris */
+static int hf_ulp_ganssExtendedEphemerisCheck;    /* GanssExtendedEphCheck */
+static int hf_ulp_bds_DifferentialCorrection;     /* BDS_Sig_Id_Req */
+static int hf_ulp_bds_GridModelReq;               /* BOOLEAN */
+static int hf_ulp_ganssWeek;                      /* T_ganssWeek */
+static int hf_ulp_ganssToe;                       /* T_ganssToe */
+static int hf_ulp_t_toeLimit;                     /* T_t_toeLimit */
+static int hf_ulp_satellitesListRelatedDataList;  /* SatellitesListRelatedDataList */
+static int hf_ulp_SatellitesListRelatedDataList_item;  /* SatellitesListRelatedData */
+static int hf_ulp_iod;                            /* INTEGER_0_1023 */
+static int hf_ulp_ganssTODmin;                    /* INTEGER_0_59 */
+static int hf_ulp_reqDataBitAssistanceList;       /* ReqDataBitAssistanceList */
+static int hf_ulp_gnssSignals;                    /* GANSSSignals */
+static int hf_ulp_ganssDataBitInterval;           /* INTEGER_0_15 */
+static int hf_ulp_ganssDataBitSatList;            /* T_ganssDataBitSatList */
+static int hf_ulp_ganssDataBitSatList_item;       /* INTEGER_0_63 */
+static int hf_ulp_orbitModelID;                   /* INTEGER_0_7 */
+static int hf_ulp_clockModelID;                   /* INTEGER_0_7 */
+static int hf_ulp_utcModelID;                     /* INTEGER_0_7 */
+static int hf_ulp_almanacModelID;                 /* INTEGER_0_7 */
+static int hf_ulp_validity;                       /* INTEGER_1_256 */
+static int hf_ulp_beginTime;                      /* GPSTime */
+static int hf_ulp_endTime;                        /* GPSTime */
+static int hf_ulp_beginTime_01;                   /* GANSSextEphTime */
+static int hf_ulp_endTime_01;                     /* GANSSextEphTime */
+static int hf_ulp_gPSWeek;                        /* INTEGER_0_1023 */
+static int hf_ulp_gPSTOWhour;                     /* INTEGER_0_167 */
+static int hf_ulp_gANSSday;                       /* INTEGER_0_8191 */
+static int hf_ulp_gANSSTODhour;                   /* INTEGER_0_23 */
+static int hf_ulp_lPPPayload;                     /* T_lPPPayload */
+static int hf_ulp_lPPPayload_item;                /* T_lPPPayload_item */
+static int hf_ulp_tia801Payload;                  /* T_tia801Payload */
+static int hf_ulp_tia801Payload_item;             /* OCTET_STRING_SIZE_1_60000 */
+static int hf_ulp_maj;                            /* INTEGER_0_255 */
+static int hf_ulp_min;                            /* INTEGER_0_255 */
+static int hf_ulp_servind;                        /* INTEGER_0_255 */
+static int hf_ulp_setSessionID;                   /* SetSessionID */
+static int hf_ulp_slpSessionID;                   /* SlpSessionID */
+static int hf_ulp_sessionId;                      /* INTEGER_0_65535 */
+static int hf_ulp_setId;                          /* SETId */
+static int hf_ulp_msisdn;                         /* T_msisdn */
+static int hf_ulp_mdn;                            /* T_mdn */
+static int hf_ulp_minsi;                          /* BIT_STRING_SIZE_34 */
+static int hf_ulp_imsi;                           /* T_imsi */
+static int hf_ulp_nai;                            /* IA5String_SIZE_1_1000 */
+static int hf_ulp_iPAddress;                      /* IPAddress */
+static int hf_ulp_ver2_imei;                      /* OCTET_STRING_SIZE_8 */
+static int hf_ulp_sessionSlpID;                   /* OCTET_STRING_SIZE_4 */
+static int hf_ulp_slpId;                          /* SLPAddress */
+static int hf_ulp_ipv4Address;                    /* OCTET_STRING_SIZE_4 */
+static int hf_ulp_ipv6Address;                    /* OCTET_STRING_SIZE_16 */
+static int hf_ulp_fqdn;                           /* FQDN */
+static int hf_ulp_cellInfo;                       /* CellInfo */
+static int hf_ulp_status;                         /* Status */
+static int hf_ulp_gsmCell;                        /* GsmCellInformation */
+static int hf_ulp_wcdmaCell;                      /* WcdmaCellInformation */
+static int hf_ulp_cdmaCell;                       /* CdmaCellInformation */
+static int hf_ulp_ver2_CellInfo_extension;        /* Ver2_CellInfo_extension */
+static int hf_ulp_timestamp_01;                   /* UTCTime */
+static int hf_ulp_positionEstimate;               /* PositionEstimate */
+static int hf_ulp_latitudeSign;                   /* T_latitudeSign */
+static int hf_ulp_latitude;                       /* INTEGER_0_8388607 */
+static int hf_ulp_longitude;                      /* INTEGER_M8388608_8388607 */
+static int hf_ulp_uncertainty;                    /* T_uncertainty */
+static int hf_ulp_uncertaintySemiMajor;           /* INTEGER_0_127 */
+static int hf_ulp_uncertaintySemiMinor;           /* INTEGER_0_127 */
+static int hf_ulp_orientationMajorAxis;           /* INTEGER_0_180 */
+static int hf_ulp_confidence;                     /* INTEGER_0_100 */
+static int hf_ulp_altitudeInfo;                   /* AltitudeInfo */
+static int hf_ulp_altitudeDirection;              /* T_altitudeDirection */
+static int hf_ulp_altitude;                       /* INTEGER_0_32767 */
+static int hf_ulp_altUncertainty;                 /* INTEGER_0_127 */
+static int hf_ulp_refNID_01;                      /* INTEGER_0_65535 */
+static int hf_ulp_refSID_01;                      /* INTEGER_0_32767 */
+static int hf_ulp_refBASELAT;                     /* INTEGER_0_4194303 */
+static int hf_ulp_reBASELONG;                     /* INTEGER_0_8388607 */
+static int hf_ulp_refREFPN;                       /* INTEGER_0_511 */
+static int hf_ulp_refWeekNumber;                  /* INTEGER_0_65535 */
+static int hf_ulp_refSeconds;                     /* INTEGER_0_4194303 */
+static int hf_ulp_nmr;                            /* NMR */
+static int hf_ulp_ta;                             /* INTEGER_0_255 */
+static int hf_ulp_frequencyInfo;                  /* FrequencyInfo */
+static int hf_ulp_primaryScramblingCode;          /* INTEGER_0_511 */
+static int hf_ulp_measuredResultsList;            /* MeasuredResultsList */
+static int hf_ulp_cellParametersId;               /* INTEGER_0_127 */
+static int hf_ulp_timingAdvance;                  /* TimingAdvance */
+static int hf_ulp_ta_01;                          /* INTEGER_0_8191 */
+static int hf_ulp_tAResolution;                   /* TAResolution */
+static int hf_ulp_chipRate;                       /* ChipRate */
+static int hf_ulp_modeSpecificFrequencyInfo;      /* FrequencySpecificInfo */
+static int hf_ulp_fdd_fr;                         /* FrequencyInfoFDD */
+static int hf_ulp_tdd_fr;                         /* FrequencyInfoTDD */
+static int hf_ulp_uarfcn_UL;                      /* UARFCN */
+static int hf_ulp_uarfcn_DL;                      /* UARFCN */
+static int hf_ulp_uarfcn_Nt;                      /* UARFCN */
+static int hf_ulp_NMR_item;                       /* NMRelement */
+static int hf_ulp_arfcn;                          /* INTEGER_0_1023 */
+static int hf_ulp_bsic;                           /* INTEGER_0_63 */
+static int hf_ulp_rxLev;                          /* INTEGER_0_63 */
+static int hf_ulp_MeasuredResultsList_item;       /* MeasuredResults */
+static int hf_ulp_utra_CarrierRSSI;               /* UTRA_CarrierRSSI */
+static int hf_ulp_cellMeasuredResultsList;        /* CellMeasuredResultsList */
+static int hf_ulp_CellMeasuredResultsList_item;   /* CellMeasuredResults */
+static int hf_ulp_cellIdentity;                   /* INTEGER_0_268435455 */
+static int hf_ulp_modeSpecificInfo;               /* T_modeSpecificInfo */
+static int hf_ulp_fdd;                            /* T_fdd */
+static int hf_ulp_primaryCPICH_Info;              /* PrimaryCPICH_Info */
+static int hf_ulp_cpich_Ec_N0;                    /* CPICH_Ec_N0 */
+static int hf_ulp_cpich_RSCP;                     /* CPICH_RSCP */
+static int hf_ulp_pathloss;                       /* Pathloss */
+static int hf_ulp_tdd;                            /* T_tdd */
+static int hf_ulp_cellParametersID;               /* CellParametersID */
+static int hf_ulp_proposedTGSN;                   /* TGSN */
+static int hf_ulp_primaryCCPCH_RSCP;              /* PrimaryCCPCH_RSCP */
+static int hf_ulp_timeslotISCP_List;              /* TimeslotISCP_List */
+static int hf_ulp_TimeslotISCP_List_item;         /* TimeslotISCP */
+static int hf_ulp_horacc;                         /* INTEGER_0_127 */
+static int hf_ulp_veracc;                         /* INTEGER_0_127 */
+static int hf_ulp_maxLocAge;                      /* INTEGER_0_65535 */
+static int hf_ulp_delay;                          /* INTEGER_0_7 */
+static int hf_ulp_ver2_responseTime;              /* INTEGER_1_128 */
+static int hf_ulp_horvel;                         /* Horvel */
+static int hf_ulp_horandvervel;                   /* Horandvervel */
+static int hf_ulp_horveluncert;                   /* Horveluncert */
+static int hf_ulp_horandveruncert;                /* Horandveruncert */
+static int hf_ulp_bearing;                        /* T_bearing */
+static int hf_ulp_horspeed;                       /* T_horspeed */
+static int hf_ulp_verdirect;                      /* T_verdirect */
+static int hf_ulp_bearing_01;                     /* T_bearing_01 */
+static int hf_ulp_horspeed_01;                    /* T_horspeed_01 */
+static int hf_ulp_verspeed;                       /* T_verspeed */
+static int hf_ulp_bearing_02;                     /* T_bearing_02 */
+static int hf_ulp_horspeed_02;                    /* T_horspeed_02 */
+static int hf_ulp_uncertspeed;                    /* T_uncertspeed */
+static int hf_ulp_verdirect_01;                   /* T_verdirect_01 */
+static int hf_ulp_bearing_03;                     /* T_bearing_03 */
+static int hf_ulp_horspeed_03;                    /* T_horspeed_03 */
+static int hf_ulp_verspeed_01;                    /* T_verspeed_01 */
+static int hf_ulp_horuncertspeed;                 /* T_horuncertspeed */
+static int hf_ulp_veruncertspeed;                 /* T_veruncertspeed */
+static int hf_ulp_MultipleLocationIds_item;       /* LocationIdData */
+static int hf_ulp_relativetimestamp;              /* RelativeTime */
+static int hf_ulp_servingFlag;                    /* BOOLEAN */
+static int hf_ulp_supportedWLANInfo;              /* SupportedWLANInfo */
+static int hf_ulp_supportedWLANApsList;           /* SupportedWLANApsList */
+static int hf_ulp_supportedWCDMAInfo;             /* SupportedWCDMAInfo */
+static int hf_ulp_hrdp;                           /* BOOLEAN */
+static int hf_ulp_wimax;                          /* BOOLEAN */
+static int hf_ulp_historic;                       /* BOOLEAN */
+static int hf_ulp_nonServing;                     /* BOOLEAN */
+static int hf_ulp_uTRANGPSReferenceTime;          /* BOOLEAN */
+static int hf_ulp_uTRANGANSSReferenceTime;        /* BOOLEAN */
+static int hf_ulp_apTP;                           /* BOOLEAN */
+static int hf_ulp_apAG;                           /* BOOLEAN */
+static int hf_ulp_apSN;                           /* BOOLEAN */
+static int hf_ulp_apDevType;                      /* BOOLEAN */
+static int hf_ulp_apRSSI;                         /* BOOLEAN */
+static int hf_ulp_apChanFreq;                     /* BOOLEAN */
+static int hf_ulp_apRTD;                          /* BOOLEAN */
+static int hf_ulp_setTP;                          /* BOOLEAN */
+static int hf_ulp_setAG;                          /* BOOLEAN */
+static int hf_ulp_setSN;                          /* BOOLEAN */
+static int hf_ulp_setRSSI;                        /* BOOLEAN */
+static int hf_ulp_apRepLoc;                       /* BOOLEAN */
+static int hf_ulp_apRL;                           /* BOOLEAN */
+static int hf_ulp_opClass;                        /* BOOLEAN */
+static int hf_ulp_apSSID;                         /* BOOLEAN */
+static int hf_ulp_apPHYType;                      /* BOOLEAN */
+static int hf_ulp_setMACAddress;                  /* BOOLEAN */
+static int hf_ulp_supportedWLANApDataList;        /* SEQUENCE_SIZE_1_maxWLANApDataSize_OF_SupportedWLANApData */
+static int hf_ulp_supportedWLANApDataList_item;   /* SupportedWLANApData */
+static int hf_ulp_supportedWLANapsChannel11a;     /* SupportedWLANApsChannel11a */
+static int hf_ulp_supportedWLANapsChannel11bg;    /* SupportedWLANApsChannel11bg */
+static int hf_ulp_ch34;                           /* BOOLEAN */
+static int hf_ulp_ch36;                           /* BOOLEAN */
+static int hf_ulp_ch38;                           /* BOOLEAN */
+static int hf_ulp_ch40;                           /* BOOLEAN */
+static int hf_ulp_ch42;                           /* BOOLEAN */
+static int hf_ulp_ch44;                           /* BOOLEAN */
+static int hf_ulp_ch46;                           /* BOOLEAN */
+static int hf_ulp_ch48;                           /* BOOLEAN */
+static int hf_ulp_ch52;                           /* BOOLEAN */
+static int hf_ulp_ch56;                           /* BOOLEAN */
+static int hf_ulp_ch60;                           /* BOOLEAN */
+static int hf_ulp_ch64;                           /* BOOLEAN */
+static int hf_ulp_ch149;                          /* BOOLEAN */
+static int hf_ulp_ch153;                          /* BOOLEAN */
+static int hf_ulp_ch157;                          /* BOOLEAN */
+static int hf_ulp_ch161;                          /* BOOLEAN */
+static int hf_ulp_ch1;                            /* BOOLEAN */
+static int hf_ulp_ch2;                            /* BOOLEAN */
+static int hf_ulp_ch3;                            /* BOOLEAN */
+static int hf_ulp_ch4;                            /* BOOLEAN */
+static int hf_ulp_ch5;                            /* BOOLEAN */
+static int hf_ulp_ch6;                            /* BOOLEAN */
+static int hf_ulp_ch7;                            /* BOOLEAN */
+static int hf_ulp_ch8;                            /* BOOLEAN */
+static int hf_ulp_ch9;                            /* BOOLEAN */
+static int hf_ulp_ch10;                           /* BOOLEAN */
+static int hf_ulp_ch11;                           /* BOOLEAN */
+static int hf_ulp_ch12;                           /* BOOLEAN */
+static int hf_ulp_ch13;                           /* BOOLEAN */
+static int hf_ulp_ch14;                           /* BOOLEAN */
+static int hf_ulp_apMACAddress_01;                /* T_apMACAddress_01 */
+static int hf_ulp_apDevType_01;                   /* T_apDevType */
+static int hf_ulp_mrl;                            /* BOOLEAN */
+static int hf_ulp_hrpdCell;                       /* HrpdCellInformation */
+static int hf_ulp_umbCell;                        /* UmbCellInformation */
+static int hf_ulp_lteCell;                        /* LteCellInformation */
+static int hf_ulp_wlanAP;                         /* WlanAPInformation */
+static int hf_ulp_wimaxBS;                        /* WimaxBSInformation */
+static int hf_ulp_nrCell;                         /* NRCellInformation */
+static int hf_ulp_cellGlobalIdEUTRA;              /* CellGlobalIdEUTRA */
+static int hf_ulp_physCellId;                     /* PhysCellId */
+static int hf_ulp_trackingAreaCode;               /* TrackingAreaCode */
+static int hf_ulp_rsrpResult;                     /* RSRP_Range */
+static int hf_ulp_rsrqResult;                     /* RSRQ_Range */
+static int hf_ulp_ta_02;                          /* INTEGER_0_1282 */
+static int hf_ulp_measResultListEUTRA;            /* MeasResultListEUTRA */
+static int hf_ulp_earfcn;                         /* INTEGER_0_65535 */
+static int hf_ulp_earfcn_ext;                     /* INTEGER_65536_262143 */
+static int hf_ulp_rsrpResult_ext;                 /* RSRP_Range_Ext */
+static int hf_ulp_rsrqResult_ext;                 /* RSRQ_Range_Ext */
+static int hf_ulp_rs_sinrResult;                  /* RS_SINR_Range */
+static int hf_ulp_servingInformation5G;           /* ServingInformation5G */
+static int hf_ulp_MeasResultListEUTRA_item;       /* MeasResultEUTRA */
+static int hf_ulp_cgi_Info;                       /* T_cgi_Info */
+static int hf_ulp_cellGlobalId;                   /* CellGlobalIdEUTRA */
+static int hf_ulp_measResult;                     /* T_measResult */
+static int hf_ulp_neighbourInformation5G;         /* NeighbourInformation5G */
+static int hf_ulp_plmn_Identity;                  /* PLMN_Identity */
+static int hf_ulp_cellIdentity_01;                /* CellIdentity */
+static int hf_ulp_mcc;                            /* MCC */
+static int hf_ulp_mnc;                            /* MNC */
+static int hf_ulp_MCC_item;                       /* MCC_MNC_Digit */
+static int hf_ulp_MNC_item;                       /* MCC_MNC_Digit */
+static int hf_ulp_trackingAreaCode_01;            /* TrackingAreaCodeNR */
+static int hf_ulp_apMACAddress_02;                /* T_apMACAddress_02 */
+static int hf_ulp_apTransmitPower;                /* INTEGER_M127_128 */
+static int hf_ulp_apAntennaGain;                  /* INTEGER_M127_128 */
+static int hf_ulp_apSignaltoNoise;                /* INTEGER_M127_128 */
+static int hf_ulp_apDeviceType;                   /* T_apDeviceType */
+static int hf_ulp_apSignalStrength;               /* INTEGER_M127_128 */
+static int hf_ulp_apChannelFrequency;             /* INTEGER_0_256 */
+static int hf_ulp_apRoundTripDelay;               /* RTD */
+static int hf_ulp_setTransmitPower;               /* INTEGER_M127_128 */
+static int hf_ulp_setAntennaGain;                 /* INTEGER_M127_128 */
+static int hf_ulp_setSignaltoNoise;               /* INTEGER_M127_128 */
+static int hf_ulp_setSignalStrength;              /* INTEGER_M127_128 */
+static int hf_ulp_apReportedLocation;             /* ReportedLocation */
+static int hf_ulp_apRepLocation;                  /* RepLocation */
+static int hf_ulp_apSignalStrengthDelta;          /* INTEGER_0_1 */
+static int hf_ulp_apSignaltoNoiseDelta;           /* INTEGER_0_1 */
+static int hf_ulp_setSignalStrengthDelta;         /* INTEGER_0_1 */
+static int hf_ulp_setSignaltoNoiseDelta;          /* INTEGER_0_1 */
+static int hf_ulp_operatingClass;                 /* INTEGER_0_255 */
+static int hf_ulp_apSSID_01;                      /* T_apSSID */
+static int hf_ulp_apPHYType_01;                   /* T_apPHYType */
+static int hf_ulp_setMACAddress_01;               /* T_setMACAddress */
+static int hf_ulp_rTDValue;                       /* INTEGER_0_16777216 */
+static int hf_ulp_rTDUnits;                       /* RTDUnits */
+static int hf_ulp_rTDAccuracy;                    /* INTEGER_0_255 */
+static int hf_ulp_locationEncodingDescriptor;     /* LocationEncodingDescriptor */
+static int hf_ulp_locationData;                   /* LocationData */
+static int hf_ulp_locationAccuracy;               /* INTEGER_0_4294967295 */
+static int hf_ulp_locationValue;                  /* OCTET_STRING_SIZE_1_128 */
+static int hf_ulp_lciLocData;                     /* LciLocData */
+static int hf_ulp_locationDataLCI;                /* LocationDataLCI */
+static int hf_ulp_latitudeResolution;             /* BIT_STRING_SIZE_6 */
+static int hf_ulp_latitude_01;                    /* BIT_STRING_SIZE_34 */
+static int hf_ulp_longitudeResolution;            /* BIT_STRING_SIZE_6 */
+static int hf_ulp_longitude_01;                   /* BIT_STRING_SIZE_34 */
+static int hf_ulp_altitudeType;                   /* BIT_STRING_SIZE_4 */
+static int hf_ulp_altitudeResolution;             /* BIT_STRING_SIZE_6 */
+static int hf_ulp_altitude_01;                    /* BIT_STRING_SIZE_30 */
+static int hf_ulp_datum;                          /* BIT_STRING_SIZE_8 */
+static int hf_ulp_wimaxBsID;                      /* WimaxBsID */
+static int hf_ulp_wimaxRTD;                       /* WimaxRTD */
+static int hf_ulp_wimaxNMRList;                   /* WimaxNMRList */
+static int hf_ulp_rtd;                            /* INTEGER_0_65535 */
+static int hf_ulp_rTDstd;                         /* INTEGER_0_1023 */
+static int hf_ulp_WimaxNMRList_item;              /* WimaxNMR */
+static int hf_ulp_relDelay;                       /* INTEGER_M32768_32767 */
+static int hf_ulp_relDelaystd;                    /* INTEGER_0_1023 */
+static int hf_ulp_rssi;                           /* INTEGER_0_255 */
+static int hf_ulp_rSSIstd;                        /* INTEGER_0_63 */
+static int hf_ulp_bSTxPower;                      /* INTEGER_0_255 */
+static int hf_ulp_cinr;                           /* INTEGER_0_255 */
+static int hf_ulp_cINRstd;                        /* INTEGER_0_63 */
+static int hf_ulp_bSLocation;                     /* ReportedLocation */
+static int hf_ulp_servingCellInformation;         /* ServingCellInformationNR */
+static int hf_ulp_measuredResultsListNR;          /* MeasResultListNR */
+static int hf_ulp_ServingCellInformationNR_item;  /* ServCellNR */
+static int hf_ulp_physCellId_01;                  /* PhysCellIdNR */
+static int hf_ulp_arfcn_NR;                       /* ARFCN_NR */
+static int hf_ulp_cellGlobalId_01;                /* CellGlobalIdNR */
+static int hf_ulp_ssb_Measurements;               /* NR_Measurements */
+static int hf_ulp_csi_rs_Measurements;            /* NR_Measurements */
+static int hf_ulp_ta_03;                          /* INTEGER_0_3846 */
+static int hf_ulp_MeasResultListNR_item;          /* MeasResultNR */
+static int hf_ulp_cellIdentityNR;                 /* CellIdentityNR */
+static int hf_ulp_rsrp_Range;                     /* INTEGER_0_127 */
+static int hf_ulp_rsrq_Range;                     /* INTEGER_0_127 */
+static int hf_ulp_sinr_Range;                     /* INTEGER_0_127 */
+static int hf_ulp_utran_GPSReferenceTime;         /* UTRAN_GPSReferenceTime */
+static int hf_ulp_gpsReferenceTimeUncertainty;    /* INTEGER_0_127 */
+static int hf_ulp_utranGPSDriftRate;              /* UTRANGPSDriftRate */
+static int hf_ulp_utran_GPSTimingOfCell;          /* T_utran_GPSTimingOfCell */
+static int hf_ulp_ms_part;                        /* INTEGER_0_1023 */
+static int hf_ulp_ls_part;                        /* INTEGER_0_4294967295 */
+static int hf_ulp_modeSpecificInfo_01;            /* T_modeSpecificInfo_01 */
+static int hf_ulp_fdd_01;                         /* T_fdd_01 */
+static int hf_ulp_referenceIdentity;              /* PrimaryCPICH_Info */
+static int hf_ulp_tdd_01;                         /* T_tdd_01 */
+static int hf_ulp_referenceIdentity_01;           /* CellParametersID */
+static int hf_ulp_sfn;                            /* INTEGER_0_4095 */
+static int hf_ulp_set_GPSTimingOfCell;            /* T_set_GPSTimingOfCell */
+static int hf_ulp_ms_part_01;                     /* INTEGER_0_16383 */
+static int hf_ulp_modeSpecificInfo_02;            /* T_modeSpecificInfo_02 */
+static int hf_ulp_fdd_02;                         /* T_fdd_02 */
+static int hf_ulp_tdd_02;                         /* T_tdd_02 */
+static int hf_ulp_ganssDay;                       /* INTEGER_0_8191 */
+static int hf_ulp_ganssTimeID;                    /* INTEGER_0_15 */
+static int hf_ulp_utran_GANSSReferenceTime;       /* UTRAN_GANSSReferenceTime */
+static int hf_ulp_utranGANSSDriftRate;            /* UTRANGANSSDriftRate */
+static int hf_ulp_ganssTOD;                       /* INTEGER_0_86399 */
+static int hf_ulp_utran_GANSSTimingOfCell;        /* INTEGER_0_3999999 */
+static int hf_ulp_modeSpecificInfo_03;            /* T_modeSpecificInfo_03 */
+static int hf_ulp_fdd_03;                         /* T_fdd_03 */
+static int hf_ulp_tdd_03;                         /* T_tdd_03 */
+static int hf_ulp_ganss_TODUncertainty;           /* INTEGER_0_127 */
+static int hf_ulp_set_GANSSReferenceTime;         /* SET_GANSSReferenceTime */
+static int hf_ulp_set_GANSSTimingOfCell;          /* T_set_GANSSTimingOfCell */
+static int hf_ulp_ms_part_02;                     /* INTEGER_0_80 */
+static int hf_ulp_modeSpecificInfo_04;            /* T_modeSpecificInfo_04 */
+static int hf_ulp_fdd_04;                         /* T_fdd_04 */
+static int hf_ulp_tdd_04;                         /* T_tdd_04 */
+static int hf_ulp_gps;                            /* BOOLEAN */
+static int hf_ulp_galileo;                        /* BOOLEAN */
+static int hf_ulp_sbas;                           /* BOOLEAN */
+static int hf_ulp_modernized_gps;                 /* BOOLEAN */
+static int hf_ulp_qzss;                           /* BOOLEAN */
+static int hf_ulp_glonass;                        /* BOOLEAN */
+static int hf_ulp_bds;                            /* BOOLEAN */
+static int hf_ulp_rtk_osr;                        /* BOOLEAN */
+static int hf_ulp_rand;                           /* BIT_STRING_SIZE_128 */
+static int hf_ulp_slpFQDN;                        /* FQDN */
+static int hf_ulp_ThirdParty_item;                /* ThirdPartyID */
+static int hf_ulp_logicalName;                    /* IA5String_SIZE_1_1000 */
+static int hf_ulp_msisdn_01;                      /* T_msisdn_01 */
+static int hf_ulp_emailaddr;                      /* IA5String_SIZE_1_1000 */
+static int hf_ulp_sip_uri;                        /* T_sip_uri */
+static int hf_ulp_ims_public_identity;            /* T_ims_public_identity */
+static int hf_ulp_min_01;                         /* BIT_STRING_SIZE_34 */
+static int hf_ulp_mdn_01;                         /* T_mdn_01 */
+static int hf_ulp_uri;                            /* T_uri */
+static int hf_ulp_appProvider;                    /* IA5String_SIZE_1_24 */
+static int hf_ulp_appName;                        /* IA5String_SIZE_1_32 */
+static int hf_ulp_appVersion;                     /* IA5String_SIZE_1_8 */
+static int hf_ulp_minInt;                         /* INTEGER_1_3600 */
+static int hf_ulp_maxInt;                         /* INTEGER_1_1440 */
+static int hf_ulp_repMode_01;                     /* RepMode */
+static int hf_ulp_batchRepCap;                    /* BatchRepCap */
+static int hf_ulp_realtime;                       /* BOOLEAN */
+static int hf_ulp_quasirealtime;                  /* BOOLEAN */
+static int hf_ulp_batch;                          /* BOOLEAN */
+static int hf_ulp_report_position;                /* BOOLEAN */
+static int hf_ulp_report_measurements;            /* BOOLEAN */
+static int hf_ulp_max_num_positions;              /* INTEGER_1_1024 */
+static int hf_ulp_max_num_measurements;           /* INTEGER_1_1024 */
+static int hf_ulp_latitudeSign_01;                /* T_latitudeSign_01 */
+static int hf_ulp_coordinateLatitude;             /* INTEGER_0_8388607 */
+static int hf_ulp_coordinateLongitude;            /* INTEGER_M8388608_8388607 */
+static int hf_ulp_coordinate;                     /* Coordinate */
+static int hf_ulp_radius;                         /* INTEGER_1_1000000 */
+static int hf_ulp_radius_min;                     /* INTEGER_1_1000000 */
+static int hf_ulp_radius_max;                     /* INTEGER_1_1500000 */
+static int hf_ulp_semiMajor;                      /* INTEGER_1_1000000 */
+static int hf_ulp_semiMajor_min;                  /* INTEGER_1_1000000 */
+static int hf_ulp_semiMajor_max;                  /* INTEGER_1_1500000 */
+static int hf_ulp_semiMinor;                      /* INTEGER_1_1000000 */
+static int hf_ulp_semiMinor_min;                  /* INTEGER_1_1000000 */
+static int hf_ulp_semiMinor_max;                  /* INTEGER_1_1500000 */
+static int hf_ulp_angle;                          /* INTEGER_0_179 */
+static int hf_ulp_polygonDescription;             /* PolygonDescription */
+static int hf_ulp_polygonHysteresis;              /* INTEGER_1_100000 */
+static int hf_ulp_PolygonDescription_item;        /* Coordinate */
+static int hf_ulp_highAccuracyPositionEstimate;   /* HighAccuracyPositionEstimate */
+static int hf_ulp_degreesLatitude;                /* INTEGER_M2147483648_2147483647 */
+static int hf_ulp_degreesLongitude;               /* INTEGER_M2147483648_2147483647 */
+static int hf_ulp_uncertaintySemiMajor_01;        /* INTEGER_0_255 */
+static int hf_ulp_uncertaintySemiMinor_01;        /* INTEGER_0_255 */
+static int hf_ulp_orientationMajorAxis_01;        /* INTEGER_0_179 */
+static int hf_ulp_horizontalConfidence;           /* INTEGER_0_100 */
+static int hf_ulp_highAccuracyAltitudeInfo;       /* HighAccuracyAltitudeInfo */
+static int hf_ulp_altitude_02;                    /* INTEGER_64000_1280000 */
+static int hf_ulp_uncertaintyAltitude;            /* INTEGER_0_255 */
+static int hf_ulp_verticalConfidence;             /* INTEGER_0_100 */
 /* named bits */
-static int hf_ulp_T_addPosMode_standalone = -1;
-static int hf_ulp_T_addPosMode_setBased = -1;
-static int hf_ulp_T_addPosMode_setAssisted = -1;
-static int hf_ulp_GANSSSignals_signal1 = -1;
-static int hf_ulp_GANSSSignals_signal2 = -1;
-static int hf_ulp_GANSSSignals_signal3 = -1;
-static int hf_ulp_GANSSSignals_signal4 = -1;
-static int hf_ulp_GANSSSignals_signal5 = -1;
-static int hf_ulp_GANSSSignals_signal6 = -1;
-static int hf_ulp_GANSSSignals_signal7 = -1;
-static int hf_ulp_GANSSSignals_signal8 = -1;
-static int hf_ulp_mobile_directory_number = -1;
-static int hf_ulp_ganssTimeModels_bit0 = -1;
-static int hf_ulp_ganssTimeModels_bit1 = -1;
-static int hf_ulp_ganssTimeModels_bit2 = -1;
-static int hf_ulp_ganssTimeModels_bit3 = -1;
-static int hf_ulp_ganssTimeModels_bit4 = -1;
-static int hf_ulp_ganssTimeModels_spare = -1;
+static int hf_ulp_T_addPosMode_standalone;
+static int hf_ulp_T_addPosMode_setBased;
+static int hf_ulp_T_addPosMode_setAssisted;
+static int hf_ulp_GANSSSignals_signal1;
+static int hf_ulp_GANSSSignals_signal2;
+static int hf_ulp_GANSSSignals_signal3;
+static int hf_ulp_GANSSSignals_signal4;
+static int hf_ulp_GANSSSignals_signal5;
+static int hf_ulp_GANSSSignals_signal6;
+static int hf_ulp_GANSSSignals_signal7;
+static int hf_ulp_GANSSSignals_signal8;
+static int hf_ulp_mobile_directory_number;
+static int hf_ulp_ganssTimeModels_bit0;
+static int hf_ulp_ganssTimeModels_bit1;
+static int hf_ulp_ganssTimeModels_bit2;
+static int hf_ulp_ganssTimeModels_bit3;
+static int hf_ulp_ganssTimeModels_bit4;
+static int hf_ulp_ganssTimeModels_spare;
 
 /* Initialize the subtree pointers */
-static gint ett_ulp = -1;
-static gint ett_ulp_setid = -1;
-static gint ett_ulp_thirdPartyId = -1;
-static gint ett_ulp_ganssTimeModels = -1;
-static gint ett_ulp_ULP_PDU = -1;
-static gint ett_ulp_UlpMessage = -1;
-static gint ett_ulp_SUPLINIT = -1;
-static gint ett_ulp_Notification = -1;
-static gint ett_ulp_SUPLSTART = -1;
-static gint ett_ulp_SETCapabilities = -1;
-static gint ett_ulp_PosTechnology = -1;
-static gint ett_ulp_PosProtocol = -1;
-static gint ett_ulp_SUPLRESPONSE = -1;
-static gint ett_ulp_SETAuthKey = -1;
-static gint ett_ulp_SUPLPOSINIT = -1;
-static gint ett_ulp_RequestedAssistData = -1;
-static gint ett_ulp_NavigationModel = -1;
-static gint ett_ulp_SatelliteInfo = -1;
-static gint ett_ulp_SatelliteInfoElement = -1;
-static gint ett_ulp_SUPLPOS = -1;
-static gint ett_ulp_PosPayLoad = -1;
-static gint ett_ulp_SUPLEND = -1;
-static gint ett_ulp_SUPLAUTHREQ = -1;
-static gint ett_ulp_SUPLAUTHRESP = -1;
-static gint ett_ulp_Ver2_SUPLNOTIFY = -1;
-static gint ett_ulp_Ver2_SUPLNOTIFYRESPONSE = -1;
-static gint ett_ulp_Ver2_SUPLSETINIT = -1;
-static gint ett_ulp_Ver2_SUPLTRIGGEREDSTART = -1;
-static gint ett_ulp_TriggerParams = -1;
-static gint ett_ulp_PeriodicParams = -1;
-static gint ett_ulp_AreaEventParams = -1;
-static gint ett_ulp_SEQUENCE_SIZE_1_maxAreaIdList_OF_AreaIdList = -1;
-static gint ett_ulp_RepeatedReportingParams = -1;
-static gint ett_ulp_GeographicTargetAreaList = -1;
-static gint ett_ulp_GeographicTargetArea = -1;
-static gint ett_ulp_AreaIdList = -1;
-static gint ett_ulp_AreaIdSet = -1;
-static gint ett_ulp_AreaId = -1;
-static gint ett_ulp_GSMAreaId = -1;
-static gint ett_ulp_WCDMAAreaId = -1;
-static gint ett_ulp_CDMAAreaId = -1;
-static gint ett_ulp_HRPDAreaId = -1;
-static gint ett_ulp_UMBAreaId = -1;
-static gint ett_ulp_LTEAreaId = -1;
-static gint ett_ulp_WLANAreaId = -1;
-static gint ett_ulp_WimaxAreaId = -1;
-static gint ett_ulp_NRAreaId = -1;
-static gint ett_ulp_GeoAreaMappingList = -1;
-static gint ett_ulp_Ver2_SUPLTRIGGEREDRESPONSE = -1;
-static gint ett_ulp_ReportingMode = -1;
-static gint ett_ulp_BatchRepConditions = -1;
-static gint ett_ulp_BatchRepType = -1;
-static gint ett_ulp_Ver2_SUPLREPORT = -1;
-static gint ett_ulp_SessionList = -1;
-static gint ett_ulp_SessionInformation = -1;
-static gint ett_ulp_ReportDataList = -1;
-static gint ett_ulp_ReportData = -1;
-static gint ett_ulp_PositionData = -1;
-static gint ett_ulp_GANSSsignalsInfo = -1;
-static gint ett_ulp_GANSSSignalsDescription = -1;
-static gint ett_ulp_TimeStamp = -1;
-static gint ett_ulp_Ver2_SUPLTRIGGEREDSTOP = -1;
-static gint ett_ulp_Ver2_SUPL_INIT_extension = -1;
-static gint ett_ulp_HistoricReporting = -1;
-static gint ett_ulp_ReportingCriteria = -1;
-static gint ett_ulp_TimeWindow = -1;
-static gint ett_ulp_ProtectionLevel = -1;
-static gint ett_ulp_BasicProtectionParams = -1;
-static gint ett_ulp_Ver2_SUPL_START_extension = -1;
-static gint ett_ulp_Ver2_SUPL_RESPONSE_extension = -1;
-static gint ett_ulp_Ver2_SUPL_POS_INIT_extension = -1;
-static gint ett_ulp_Ver2_SUPL_POS_extension = -1;
-static gint ett_ulp_Ver2_SUPL_END_extension = -1;
-static gint ett_ulp_Ver2_Notification_extension = -1;
-static gint ett_ulp_Ver2_SETCapabilities_extension = -1;
-static gint ett_ulp_ServiceCapabilities = -1;
-static gint ett_ulp_ServicesSupported = -1;
-static gint ett_ulp_EventTriggerCapabilities = -1;
-static gint ett_ulp_GeoAreaShapesSupported = -1;
-static gint ett_ulp_SessionCapabilities = -1;
-static gint ett_ulp_SupportedBearers = -1;
-static gint ett_ulp_Ver2_PosProtocol_extension = -1;
-static gint ett_ulp_PosProtocolVersion3GPP = -1;
-static gint ett_ulp_PosProtocolVersion3GPP2 = -1;
-static gint ett_ulp_Supported3GPP2PosProtocolVersion = -1;
-static gint ett_ulp_PosProtocolVersionOMA = -1;
-static gint ett_ulp_Ver2_PosTechnology_extension = -1;
-static gint ett_ulp_GANSSPositionMethods = -1;
-static gint ett_ulp_GANSSPositionMethod = -1;
-static gint ett_ulp_RTK = -1;
-static gint ett_ulp_GANSSPositioningMethodTypes = -1;
-static gint ett_ulp_AdditionalPositioningMethods = -1;
-static gint ett_ulp_AddPosSupport_Element = -1;
-static gint ett_ulp_T_addPosMode = -1;
-static gint ett_ulp_Ver2_RequestedAssistData_extension = -1;
-static gint ett_ulp_GanssRequestedCommonAssistanceDataList = -1;
-static gint ett_ulp_GanssRequestedGenericAssistanceDataList = -1;
-static gint ett_ulp_GanssReqGenericData = -1;
-static gint ett_ulp_GanssNavigationModelData = -1;
-static gint ett_ulp_SatellitesListRelatedDataList = -1;
-static gint ett_ulp_SatellitesListRelatedData = -1;
-static gint ett_ulp_GanssDataBits = -1;
-static gint ett_ulp_ReqDataBitAssistanceList = -1;
-static gint ett_ulp_T_ganssDataBitSatList = -1;
-static gint ett_ulp_GanssAdditionalDataChoices = -1;
-static gint ett_ulp_ExtendedEphemeris = -1;
-static gint ett_ulp_ExtendedEphCheck = -1;
-static gint ett_ulp_GanssExtendedEphCheck = -1;
-static gint ett_ulp_GPSTime = -1;
-static gint ett_ulp_GANSSextEphTime = -1;
-static gint ett_ulp_Ver2_PosPayLoad_extension = -1;
-static gint ett_ulp_T_lPPPayload = -1;
-static gint ett_ulp_T_tia801Payload = -1;
-static gint ett_ulp_Version = -1;
-static gint ett_ulp_SessionID = -1;
-static gint ett_ulp_SetSessionID = -1;
-static gint ett_ulp_SETId = -1;
-static gint ett_ulp_SlpSessionID = -1;
-static gint ett_ulp_IPAddress = -1;
-static gint ett_ulp_SLPAddress = -1;
-static gint ett_ulp_LocationId = -1;
-static gint ett_ulp_CellInfo = -1;
-static gint ett_ulp_Position = -1;
-static gint ett_ulp_PositionEstimate = -1;
-static gint ett_ulp_T_uncertainty = -1;
-static gint ett_ulp_AltitudeInfo = -1;
-static gint ett_ulp_CdmaCellInformation = -1;
-static gint ett_ulp_GsmCellInformation = -1;
-static gint ett_ulp_WcdmaCellInformation = -1;
-static gint ett_ulp_TimingAdvance = -1;
-static gint ett_ulp_FrequencyInfo = -1;
-static gint ett_ulp_FrequencySpecificInfo = -1;
-static gint ett_ulp_FrequencyInfoFDD = -1;
-static gint ett_ulp_FrequencyInfoTDD = -1;
-static gint ett_ulp_NMR = -1;
-static gint ett_ulp_NMRelement = -1;
-static gint ett_ulp_MeasuredResultsList = -1;
-static gint ett_ulp_MeasuredResults = -1;
-static gint ett_ulp_CellMeasuredResultsList = -1;
-static gint ett_ulp_CellMeasuredResults = -1;
-static gint ett_ulp_T_modeSpecificInfo = -1;
-static gint ett_ulp_T_fdd = -1;
-static gint ett_ulp_T_tdd = -1;
-static gint ett_ulp_TimeslotISCP_List = -1;
-static gint ett_ulp_PrimaryCPICH_Info = -1;
-static gint ett_ulp_QoP = -1;
-static gint ett_ulp_Velocity = -1;
-static gint ett_ulp_Horvel = -1;
-static gint ett_ulp_Horandvervel = -1;
-static gint ett_ulp_Horveluncert = -1;
-static gint ett_ulp_Horandveruncert = -1;
-static gint ett_ulp_MultipleLocationIds = -1;
-static gint ett_ulp_LocationIdData = -1;
-static gint ett_ulp_SupportedNetworkInformation = -1;
-static gint ett_ulp_SupportedWLANInfo = -1;
-static gint ett_ulp_SupportedWLANApsList = -1;
-static gint ett_ulp_SEQUENCE_SIZE_1_maxWLANApDataSize_OF_SupportedWLANApData = -1;
-static gint ett_ulp_SupportedWLANApsChannel11a = -1;
-static gint ett_ulp_SupportedWLANApsChannel11bg = -1;
-static gint ett_ulp_SupportedWLANApData = -1;
-static gint ett_ulp_SupportedWCDMAInfo = -1;
-static gint ett_ulp_Ver2_CellInfo_extension = -1;
-static gint ett_ulp_HrpdCellInformation = -1;
-static gint ett_ulp_UmbCellInformation = -1;
-static gint ett_ulp_LteCellInformation = -1;
-static gint ett_ulp_MeasResultListEUTRA = -1;
-static gint ett_ulp_MeasResultEUTRA = -1;
-static gint ett_ulp_T_cgi_Info = -1;
-static gint ett_ulp_T_measResult = -1;
-static gint ett_ulp_CellGlobalIdEUTRA = -1;
-static gint ett_ulp_PLMN_Identity = -1;
-static gint ett_ulp_MCC = -1;
-static gint ett_ulp_MNC = -1;
-static gint ett_ulp_ServingInformation5G = -1;
-static gint ett_ulp_NeighbourInformation5G = -1;
-static gint ett_ulp_WlanAPInformation = -1;
-static gint ett_ulp_RTD = -1;
-static gint ett_ulp_ReportedLocation = -1;
-static gint ett_ulp_LocationData = -1;
-static gint ett_ulp_RepLocation = -1;
-static gint ett_ulp_LciLocData = -1;
-static gint ett_ulp_LocationDataLCI = -1;
-static gint ett_ulp_WimaxBSInformation = -1;
-static gint ett_ulp_WimaxBsID = -1;
-static gint ett_ulp_WimaxRTD = -1;
-static gint ett_ulp_WimaxNMRList = -1;
-static gint ett_ulp_WimaxNMR = -1;
-static gint ett_ulp_NRCellInformation = -1;
-static gint ett_ulp_ServingCellInformationNR = -1;
-static gint ett_ulp_ServCellNR = -1;
-static gint ett_ulp_MeasResultListNR = -1;
-static gint ett_ulp_MeasResultNR = -1;
-static gint ett_ulp_CellGlobalIdNR = -1;
-static gint ett_ulp_NR_Measurements = -1;
-static gint ett_ulp_UTRAN_GPSReferenceTimeAssistance = -1;
-static gint ett_ulp_UTRAN_GPSReferenceTime = -1;
-static gint ett_ulp_T_utran_GPSTimingOfCell = -1;
-static gint ett_ulp_T_modeSpecificInfo_01 = -1;
-static gint ett_ulp_T_fdd_01 = -1;
-static gint ett_ulp_T_tdd_01 = -1;
-static gint ett_ulp_UTRAN_GPSReferenceTimeResult = -1;
-static gint ett_ulp_T_set_GPSTimingOfCell = -1;
-static gint ett_ulp_T_modeSpecificInfo_02 = -1;
-static gint ett_ulp_T_fdd_02 = -1;
-static gint ett_ulp_T_tdd_02 = -1;
-static gint ett_ulp_UTRAN_GANSSReferenceTimeAssistance = -1;
-static gint ett_ulp_UTRAN_GANSSReferenceTime = -1;
-static gint ett_ulp_T_modeSpecificInfo_03 = -1;
-static gint ett_ulp_T_fdd_03 = -1;
-static gint ett_ulp_T_tdd_03 = -1;
-static gint ett_ulp_UTRAN_GANSSReferenceTimeResult = -1;
-static gint ett_ulp_SET_GANSSReferenceTime = -1;
-static gint ett_ulp_T_set_GANSSTimingOfCell = -1;
-static gint ett_ulp_T_modeSpecificInfo_04 = -1;
-static gint ett_ulp_T_fdd_04 = -1;
-static gint ett_ulp_T_tdd_04 = -1;
-static gint ett_ulp_GNSSPosTechnology = -1;
-static gint ett_ulp_GANSSSignals = -1;
-static gint ett_ulp_SPCTID = -1;
-static gint ett_ulp_ThirdParty = -1;
-static gint ett_ulp_ThirdPartyID = -1;
-static gint ett_ulp_ApplicationID = -1;
-static gint ett_ulp_ReportingCap = -1;
-static gint ett_ulp_RepMode = -1;
-static gint ett_ulp_BatchRepCap = -1;
-static gint ett_ulp_Coordinate = -1;
-static gint ett_ulp_CircularArea = -1;
-static gint ett_ulp_EllipticalArea = -1;
-static gint ett_ulp_PolygonArea = -1;
-static gint ett_ulp_PolygonDescription = -1;
-static gint ett_ulp_Ver2_HighAccuracyPosition = -1;
-static gint ett_ulp_HighAccuracyPositionEstimate = -1;
-static gint ett_ulp_HighAccuracyAltitudeInfo = -1;
+static gint ett_ulp;
+static gint ett_ulp_setid;
+static gint ett_ulp_thirdPartyId;
+static gint ett_ulp_ganssTimeModels;
+static gint ett_ulp_ULP_PDU;
+static gint ett_ulp_UlpMessage;
+static gint ett_ulp_SUPLINIT;
+static gint ett_ulp_Notification;
+static gint ett_ulp_SUPLSTART;
+static gint ett_ulp_SETCapabilities;
+static gint ett_ulp_PosTechnology;
+static gint ett_ulp_PosProtocol;
+static gint ett_ulp_SUPLRESPONSE;
+static gint ett_ulp_SETAuthKey;
+static gint ett_ulp_SUPLPOSINIT;
+static gint ett_ulp_RequestedAssistData;
+static gint ett_ulp_NavigationModel;
+static gint ett_ulp_SatelliteInfo;
+static gint ett_ulp_SatelliteInfoElement;
+static gint ett_ulp_SUPLPOS;
+static gint ett_ulp_PosPayLoad;
+static gint ett_ulp_SUPLEND;
+static gint ett_ulp_SUPLAUTHREQ;
+static gint ett_ulp_SUPLAUTHRESP;
+static gint ett_ulp_Ver2_SUPLNOTIFY;
+static gint ett_ulp_Ver2_SUPLNOTIFYRESPONSE;
+static gint ett_ulp_Ver2_SUPLSETINIT;
+static gint ett_ulp_Ver2_SUPLTRIGGEREDSTART;
+static gint ett_ulp_TriggerParams;
+static gint ett_ulp_PeriodicParams;
+static gint ett_ulp_AreaEventParams;
+static gint ett_ulp_SEQUENCE_SIZE_1_maxAreaIdList_OF_AreaIdList;
+static gint ett_ulp_RepeatedReportingParams;
+static gint ett_ulp_GeographicTargetAreaList;
+static gint ett_ulp_GeographicTargetArea;
+static gint ett_ulp_AreaIdList;
+static gint ett_ulp_AreaIdSet;
+static gint ett_ulp_AreaId;
+static gint ett_ulp_GSMAreaId;
+static gint ett_ulp_WCDMAAreaId;
+static gint ett_ulp_CDMAAreaId;
+static gint ett_ulp_HRPDAreaId;
+static gint ett_ulp_UMBAreaId;
+static gint ett_ulp_LTEAreaId;
+static gint ett_ulp_WLANAreaId;
+static gint ett_ulp_WimaxAreaId;
+static gint ett_ulp_NRAreaId;
+static gint ett_ulp_GeoAreaMappingList;
+static gint ett_ulp_Ver2_SUPLTRIGGEREDRESPONSE;
+static gint ett_ulp_ReportingMode;
+static gint ett_ulp_BatchRepConditions;
+static gint ett_ulp_BatchRepType;
+static gint ett_ulp_Ver2_SUPLREPORT;
+static gint ett_ulp_SessionList;
+static gint ett_ulp_SessionInformation;
+static gint ett_ulp_ReportDataList;
+static gint ett_ulp_ReportData;
+static gint ett_ulp_PositionData;
+static gint ett_ulp_GANSSsignalsInfo;
+static gint ett_ulp_GANSSSignalsDescription;
+static gint ett_ulp_TimeStamp;
+static gint ett_ulp_Ver2_SUPLTRIGGEREDSTOP;
+static gint ett_ulp_Ver2_SUPL_INIT_extension;
+static gint ett_ulp_HistoricReporting;
+static gint ett_ulp_ReportingCriteria;
+static gint ett_ulp_TimeWindow;
+static gint ett_ulp_ProtectionLevel;
+static gint ett_ulp_BasicProtectionParams;
+static gint ett_ulp_Ver2_SUPL_START_extension;
+static gint ett_ulp_Ver2_SUPL_RESPONSE_extension;
+static gint ett_ulp_Ver2_SUPL_POS_INIT_extension;
+static gint ett_ulp_Ver2_SUPL_POS_extension;
+static gint ett_ulp_Ver2_SUPL_END_extension;
+static gint ett_ulp_Ver2_Notification_extension;
+static gint ett_ulp_Ver2_SETCapabilities_extension;
+static gint ett_ulp_ServiceCapabilities;
+static gint ett_ulp_ServicesSupported;
+static gint ett_ulp_EventTriggerCapabilities;
+static gint ett_ulp_GeoAreaShapesSupported;
+static gint ett_ulp_SessionCapabilities;
+static gint ett_ulp_SupportedBearers;
+static gint ett_ulp_Ver2_PosProtocol_extension;
+static gint ett_ulp_PosProtocolVersion3GPP;
+static gint ett_ulp_PosProtocolVersion3GPP2;
+static gint ett_ulp_Supported3GPP2PosProtocolVersion;
+static gint ett_ulp_PosProtocolVersionOMA;
+static gint ett_ulp_Ver2_PosTechnology_extension;
+static gint ett_ulp_GANSSPositionMethods;
+static gint ett_ulp_GANSSPositionMethod;
+static gint ett_ulp_RTK;
+static gint ett_ulp_GANSSPositioningMethodTypes;
+static gint ett_ulp_AdditionalPositioningMethods;
+static gint ett_ulp_AddPosSupport_Element;
+static gint ett_ulp_T_addPosMode;
+static gint ett_ulp_Ver2_RequestedAssistData_extension;
+static gint ett_ulp_GanssRequestedCommonAssistanceDataList;
+static gint ett_ulp_GanssRequestedGenericAssistanceDataList;
+static gint ett_ulp_GanssReqGenericData;
+static gint ett_ulp_GanssNavigationModelData;
+static gint ett_ulp_SatellitesListRelatedDataList;
+static gint ett_ulp_SatellitesListRelatedData;
+static gint ett_ulp_GanssDataBits;
+static gint ett_ulp_ReqDataBitAssistanceList;
+static gint ett_ulp_T_ganssDataBitSatList;
+static gint ett_ulp_GanssAdditionalDataChoices;
+static gint ett_ulp_ExtendedEphemeris;
+static gint ett_ulp_ExtendedEphCheck;
+static gint ett_ulp_GanssExtendedEphCheck;
+static gint ett_ulp_GPSTime;
+static gint ett_ulp_GANSSextEphTime;
+static gint ett_ulp_Ver2_PosPayLoad_extension;
+static gint ett_ulp_T_lPPPayload;
+static gint ett_ulp_T_tia801Payload;
+static gint ett_ulp_Version;
+static gint ett_ulp_SessionID;
+static gint ett_ulp_SetSessionID;
+static gint ett_ulp_SETId;
+static gint ett_ulp_SlpSessionID;
+static gint ett_ulp_IPAddress;
+static gint ett_ulp_SLPAddress;
+static gint ett_ulp_LocationId;
+static gint ett_ulp_CellInfo;
+static gint ett_ulp_Position;
+static gint ett_ulp_PositionEstimate;
+static gint ett_ulp_T_uncertainty;
+static gint ett_ulp_AltitudeInfo;
+static gint ett_ulp_CdmaCellInformation;
+static gint ett_ulp_GsmCellInformation;
+static gint ett_ulp_WcdmaCellInformation;
+static gint ett_ulp_TimingAdvance;
+static gint ett_ulp_FrequencyInfo;
+static gint ett_ulp_FrequencySpecificInfo;
+static gint ett_ulp_FrequencyInfoFDD;
+static gint ett_ulp_FrequencyInfoTDD;
+static gint ett_ulp_NMR;
+static gint ett_ulp_NMRelement;
+static gint ett_ulp_MeasuredResultsList;
+static gint ett_ulp_MeasuredResults;
+static gint ett_ulp_CellMeasuredResultsList;
+static gint ett_ulp_CellMeasuredResults;
+static gint ett_ulp_T_modeSpecificInfo;
+static gint ett_ulp_T_fdd;
+static gint ett_ulp_T_tdd;
+static gint ett_ulp_TimeslotISCP_List;
+static gint ett_ulp_PrimaryCPICH_Info;
+static gint ett_ulp_QoP;
+static gint ett_ulp_Velocity;
+static gint ett_ulp_Horvel;
+static gint ett_ulp_Horandvervel;
+static gint ett_ulp_Horveluncert;
+static gint ett_ulp_Horandveruncert;
+static gint ett_ulp_MultipleLocationIds;
+static gint ett_ulp_LocationIdData;
+static gint ett_ulp_SupportedNetworkInformation;
+static gint ett_ulp_SupportedWLANInfo;
+static gint ett_ulp_SupportedWLANApsList;
+static gint ett_ulp_SEQUENCE_SIZE_1_maxWLANApDataSize_OF_SupportedWLANApData;
+static gint ett_ulp_SupportedWLANApsChannel11a;
+static gint ett_ulp_SupportedWLANApsChannel11bg;
+static gint ett_ulp_SupportedWLANApData;
+static gint ett_ulp_SupportedWCDMAInfo;
+static gint ett_ulp_Ver2_CellInfo_extension;
+static gint ett_ulp_HrpdCellInformation;
+static gint ett_ulp_UmbCellInformation;
+static gint ett_ulp_LteCellInformation;
+static gint ett_ulp_MeasResultListEUTRA;
+static gint ett_ulp_MeasResultEUTRA;
+static gint ett_ulp_T_cgi_Info;
+static gint ett_ulp_T_measResult;
+static gint ett_ulp_CellGlobalIdEUTRA;
+static gint ett_ulp_PLMN_Identity;
+static gint ett_ulp_MCC;
+static gint ett_ulp_MNC;
+static gint ett_ulp_ServingInformation5G;
+static gint ett_ulp_NeighbourInformation5G;
+static gint ett_ulp_WlanAPInformation;
+static gint ett_ulp_RTD;
+static gint ett_ulp_ReportedLocation;
+static gint ett_ulp_LocationData;
+static gint ett_ulp_RepLocation;
+static gint ett_ulp_LciLocData;
+static gint ett_ulp_LocationDataLCI;
+static gint ett_ulp_WimaxBSInformation;
+static gint ett_ulp_WimaxBsID;
+static gint ett_ulp_WimaxRTD;
+static gint ett_ulp_WimaxNMRList;
+static gint ett_ulp_WimaxNMR;
+static gint ett_ulp_NRCellInformation;
+static gint ett_ulp_ServingCellInformationNR;
+static gint ett_ulp_ServCellNR;
+static gint ett_ulp_MeasResultListNR;
+static gint ett_ulp_MeasResultNR;
+static gint ett_ulp_CellGlobalIdNR;
+static gint ett_ulp_NR_Measurements;
+static gint ett_ulp_UTRAN_GPSReferenceTimeAssistance;
+static gint ett_ulp_UTRAN_GPSReferenceTime;
+static gint ett_ulp_T_utran_GPSTimingOfCell;
+static gint ett_ulp_T_modeSpecificInfo_01;
+static gint ett_ulp_T_fdd_01;
+static gint ett_ulp_T_tdd_01;
+static gint ett_ulp_UTRAN_GPSReferenceTimeResult;
+static gint ett_ulp_T_set_GPSTimingOfCell;
+static gint ett_ulp_T_modeSpecificInfo_02;
+static gint ett_ulp_T_fdd_02;
+static gint ett_ulp_T_tdd_02;
+static gint ett_ulp_UTRAN_GANSSReferenceTimeAssistance;
+static gint ett_ulp_UTRAN_GANSSReferenceTime;
+static gint ett_ulp_T_modeSpecificInfo_03;
+static gint ett_ulp_T_fdd_03;
+static gint ett_ulp_T_tdd_03;
+static gint ett_ulp_UTRAN_GANSSReferenceTimeResult;
+static gint ett_ulp_SET_GANSSReferenceTime;
+static gint ett_ulp_T_set_GANSSTimingOfCell;
+static gint ett_ulp_T_modeSpecificInfo_04;
+static gint ett_ulp_T_fdd_04;
+static gint ett_ulp_T_tdd_04;
+static gint ett_ulp_GNSSPosTechnology;
+static gint ett_ulp_GANSSSignals;
+static gint ett_ulp_SPCTID;
+static gint ett_ulp_ThirdParty;
+static gint ett_ulp_ThirdPartyID;
+static gint ett_ulp_ApplicationID;
+static gint ett_ulp_ReportingCap;
+static gint ett_ulp_RepMode;
+static gint ett_ulp_BatchRepCap;
+static gint ett_ulp_Coordinate;
+static gint ett_ulp_CircularArea;
+static gint ett_ulp_EllipticalArea;
+static gint ett_ulp_PolygonArea;
+static gint ett_ulp_PolygonDescription;
+static gint ett_ulp_Ver2_HighAccuracyPosition;
+static gint ett_ulp_HighAccuracyPositionEstimate;
+static gint ett_ulp_HighAccuracyAltitudeInfo;
 
 static dissector_handle_t ulp_tcp_handle;
 static dissector_handle_t ulp_pdu_handle;

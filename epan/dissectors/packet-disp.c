@@ -48,177 +48,177 @@ void proto_register_disp(void);
 void proto_reg_handoff_disp(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_disp = -1;
+static int proto_disp;
 
-static int hf_disp_EstablishParameter_PDU = -1;   /* EstablishParameter */
-static int hf_disp_ModificationParameter_PDU = -1;  /* ModificationParameter */
-static int hf_disp_ShadowingAgreementInfo_PDU = -1;  /* ShadowingAgreementInfo */
-static int hf_disp_modifiedSecondaryShadows = -1;  /* SET_OF_SupplierAndConsumers */
-static int hf_disp_modifiedSecondaryShadows_item = -1;  /* SupplierAndConsumers */
-static int hf_disp_shadowSubject = -1;            /* UnitOfReplication */
-static int hf_disp_updateMode = -1;               /* UpdateMode */
-static int hf_disp_master = -1;                   /* AccessPoint */
-static int hf_disp_secondaryShadows = -1;         /* BOOLEAN */
-static int hf_disp_area = -1;                     /* AreaSpecification */
-static int hf_disp_replication_attributes = -1;   /* AttributeSelection */
-static int hf_disp_knowledge = -1;                /* Knowledge */
-static int hf_disp_subordinates = -1;             /* BOOLEAN */
-static int hf_disp_contextSelection = -1;         /* ContextSelection */
-static int hf_disp_supplyContexts = -1;           /* T_supplyContexts */
-static int hf_disp_allContexts = -1;              /* NULL */
-static int hf_disp_selectedContexts = -1;         /* T_selectedContexts */
-static int hf_disp_selectedContexts_item = -1;    /* OBJECT_IDENTIFIER */
-static int hf_disp_contextPrefix = -1;            /* DistinguishedName */
-static int hf_disp_replicationArea = -1;          /* SubtreeSpecification */
-static int hf_disp_knowledgeType = -1;            /* T_knowledgeType */
-static int hf_disp_extendedKnowledge = -1;        /* BOOLEAN */
-static int hf_disp_AttributeSelection_item = -1;  /* ClassAttributeSelection */
-static int hf_disp_class = -1;                    /* OBJECT_IDENTIFIER */
-static int hf_disp_classAttributes = -1;          /* ClassAttributes */
-static int hf_disp_allAttributes = -1;            /* NULL */
-static int hf_disp_include = -1;                  /* AttributeTypes */
-static int hf_disp_exclude = -1;                  /* AttributeTypes */
-static int hf_disp_AttributeTypes_item = -1;      /* AttributeType */
-static int hf_disp_supplierInitiated = -1;        /* SupplierUpdateMode */
-static int hf_disp_consumerInitiated = -1;        /* ConsumerUpdateMode */
-static int hf_disp_onChange = -1;                 /* BOOLEAN */
-static int hf_disp_scheduled = -1;                /* SchedulingParameters */
-static int hf_disp_periodic = -1;                 /* PeriodicStrategy */
-static int hf_disp_othertimes = -1;               /* BOOLEAN */
-static int hf_disp_beginTime = -1;                /* Time */
-static int hf_disp_windowSize = -1;               /* INTEGER */
-static int hf_disp_updateInterval = -1;           /* INTEGER */
-static int hf_disp_agreementID = -1;              /* AgreementID */
-static int hf_disp_lastUpdate = -1;               /* Time */
-static int hf_disp_updateStrategy = -1;           /* T_updateStrategy */
-static int hf_disp_standardUpdate = -1;           /* StandardUpdate */
-static int hf_disp_other = -1;                    /* EXTERNAL */
-static int hf_disp_securityParameters = -1;       /* SecurityParameters */
-static int hf_disp_unsignedCoordinateShadowUpdateArgument = -1;  /* CoordinateShadowUpdateArgumentData */
-static int hf_disp_signedCoordinateShadowUpdateArgument = -1;  /* T_signedCoordinateShadowUpdateArgument */
-static int hf_disp_coordinateShadowUpdateArgument = -1;  /* CoordinateShadowUpdateArgumentData */
-static int hf_disp_algorithmIdentifier = -1;      /* AlgorithmIdentifier */
-static int hf_disp_encrypted = -1;                /* BIT_STRING */
-static int hf_disp_null = -1;                     /* NULL */
-static int hf_disp_information = -1;              /* Information */
-static int hf_disp_performer = -1;                /* DistinguishedName */
-static int hf_disp_aliasDereferenced = -1;        /* BOOLEAN */
-static int hf_disp_notification = -1;             /* SEQUENCE_OF_Attribute */
-static int hf_disp_notification_item = -1;        /* Attribute */
-static int hf_disp_unsignedInformation = -1;      /* InformationData */
-static int hf_disp_signedInformation = -1;        /* T_signedInformation */
-static int hf_disp_information_data = -1;         /* InformationData */
-static int hf_disp_requestedStrategy = -1;        /* T_requestedStrategy */
-static int hf_disp_standard = -1;                 /* T_standard */
-static int hf_disp_unsignedRequestShadowUpdateArgument = -1;  /* RequestShadowUpdateArgumentData */
-static int hf_disp_signedRequestShadowUpdateArgument = -1;  /* T_signedRequestShadowUpdateArgument */
-static int hf_disp_requestShadowUpdateArgument = -1;  /* RequestShadowUpdateArgumentData */
-static int hf_disp_updateTime = -1;               /* Time */
-static int hf_disp_updateWindow = -1;             /* UpdateWindow */
-static int hf_disp_updatedInfo = -1;              /* RefreshInformation */
-static int hf_disp_unsignedUpdateShadowArgument = -1;  /* UpdateShadowArgumentData */
-static int hf_disp_signedUpdateShadowArgument = -1;  /* T_signedUpdateShadowArgument */
-static int hf_disp_updateShadowArgument = -1;     /* UpdateShadowArgumentData */
-static int hf_disp_start = -1;                    /* Time */
-static int hf_disp_stop = -1;                     /* Time */
-static int hf_disp_noRefresh = -1;                /* NULL */
-static int hf_disp_total = -1;                    /* TotalRefresh */
-static int hf_disp_incremental = -1;              /* IncrementalRefresh */
-static int hf_disp_otherStrategy = -1;            /* EXTERNAL */
-static int hf_disp_sDSE = -1;                     /* SDSEContent */
-static int hf_disp_subtree = -1;                  /* SET_OF_Subtree */
-static int hf_disp_subtree_item = -1;             /* Subtree */
-static int hf_disp_sDSEType = -1;                 /* SDSEType */
-static int hf_disp_subComplete = -1;              /* BOOLEAN */
-static int hf_disp_attComplete = -1;              /* BOOLEAN */
-static int hf_disp_attributes = -1;               /* SET_OF_Attribute */
-static int hf_disp_attributes_item = -1;          /* Attribute */
-static int hf_disp_attValIncomplete = -1;         /* SET_OF_AttributeType */
-static int hf_disp_attValIncomplete_item = -1;    /* AttributeType */
-static int hf_disp_rdn = -1;                      /* RelativeDistinguishedName */
-static int hf_disp_IncrementalRefresh_item = -1;  /* IncrementalStepRefresh */
-static int hf_disp_sDSEChanges = -1;              /* T_sDSEChanges */
-static int hf_disp_add = -1;                      /* SDSEContent */
-static int hf_disp_remove = -1;                   /* NULL */
-static int hf_disp_modify = -1;                   /* ContentChange */
-static int hf_disp_subordinateUpdates = -1;       /* SEQUENCE_OF_SubordinateChanges */
-static int hf_disp_subordinateUpdates_item = -1;  /* SubordinateChanges */
-static int hf_disp_rename = -1;                   /* T_rename */
-static int hf_disp_newRDN = -1;                   /* RelativeDistinguishedName */
-static int hf_disp_newDN = -1;                    /* DistinguishedName */
-static int hf_disp_attributeChanges = -1;         /* T_attributeChanges */
-static int hf_disp_replace = -1;                  /* SET_OF_Attribute */
-static int hf_disp_replace_item = -1;             /* Attribute */
-static int hf_disp_changes = -1;                  /* SEQUENCE_OF_EntryModification */
-static int hf_disp_changes_item = -1;             /* EntryModification */
-static int hf_disp_subordinate = -1;              /* RelativeDistinguishedName */
-static int hf_disp_subordinate_changes = -1;      /* IncrementalStepRefresh */
-static int hf_disp_problem = -1;                  /* ShadowProblem */
-static int hf_disp_unsignedShadowError = -1;      /* ShadowErrorData */
-static int hf_disp_signedShadowError = -1;        /* T_signedShadowError */
-static int hf_disp_shadowError = -1;              /* ShadowErrorData */
+static int hf_disp_EstablishParameter_PDU;        /* EstablishParameter */
+static int hf_disp_ModificationParameter_PDU;     /* ModificationParameter */
+static int hf_disp_ShadowingAgreementInfo_PDU;    /* ShadowingAgreementInfo */
+static int hf_disp_modifiedSecondaryShadows;      /* SET_OF_SupplierAndConsumers */
+static int hf_disp_modifiedSecondaryShadows_item;  /* SupplierAndConsumers */
+static int hf_disp_shadowSubject;                 /* UnitOfReplication */
+static int hf_disp_updateMode;                    /* UpdateMode */
+static int hf_disp_master;                        /* AccessPoint */
+static int hf_disp_secondaryShadows;              /* BOOLEAN */
+static int hf_disp_area;                          /* AreaSpecification */
+static int hf_disp_replication_attributes;        /* AttributeSelection */
+static int hf_disp_knowledge;                     /* Knowledge */
+static int hf_disp_subordinates;                  /* BOOLEAN */
+static int hf_disp_contextSelection;              /* ContextSelection */
+static int hf_disp_supplyContexts;                /* T_supplyContexts */
+static int hf_disp_allContexts;                   /* NULL */
+static int hf_disp_selectedContexts;              /* T_selectedContexts */
+static int hf_disp_selectedContexts_item;         /* OBJECT_IDENTIFIER */
+static int hf_disp_contextPrefix;                 /* DistinguishedName */
+static int hf_disp_replicationArea;               /* SubtreeSpecification */
+static int hf_disp_knowledgeType;                 /* T_knowledgeType */
+static int hf_disp_extendedKnowledge;             /* BOOLEAN */
+static int hf_disp_AttributeSelection_item;       /* ClassAttributeSelection */
+static int hf_disp_class;                         /* OBJECT_IDENTIFIER */
+static int hf_disp_classAttributes;               /* ClassAttributes */
+static int hf_disp_allAttributes;                 /* NULL */
+static int hf_disp_include;                       /* AttributeTypes */
+static int hf_disp_exclude;                       /* AttributeTypes */
+static int hf_disp_AttributeTypes_item;           /* AttributeType */
+static int hf_disp_supplierInitiated;             /* SupplierUpdateMode */
+static int hf_disp_consumerInitiated;             /* ConsumerUpdateMode */
+static int hf_disp_onChange;                      /* BOOLEAN */
+static int hf_disp_scheduled;                     /* SchedulingParameters */
+static int hf_disp_periodic;                      /* PeriodicStrategy */
+static int hf_disp_othertimes;                    /* BOOLEAN */
+static int hf_disp_beginTime;                     /* Time */
+static int hf_disp_windowSize;                    /* INTEGER */
+static int hf_disp_updateInterval;                /* INTEGER */
+static int hf_disp_agreementID;                   /* AgreementID */
+static int hf_disp_lastUpdate;                    /* Time */
+static int hf_disp_updateStrategy;                /* T_updateStrategy */
+static int hf_disp_standardUpdate;                /* StandardUpdate */
+static int hf_disp_other;                         /* EXTERNAL */
+static int hf_disp_securityParameters;            /* SecurityParameters */
+static int hf_disp_unsignedCoordinateShadowUpdateArgument;  /* CoordinateShadowUpdateArgumentData */
+static int hf_disp_signedCoordinateShadowUpdateArgument;  /* T_signedCoordinateShadowUpdateArgument */
+static int hf_disp_coordinateShadowUpdateArgument;  /* CoordinateShadowUpdateArgumentData */
+static int hf_disp_algorithmIdentifier;           /* AlgorithmIdentifier */
+static int hf_disp_encrypted;                     /* BIT_STRING */
+static int hf_disp_null;                          /* NULL */
+static int hf_disp_information;                   /* Information */
+static int hf_disp_performer;                     /* DistinguishedName */
+static int hf_disp_aliasDereferenced;             /* BOOLEAN */
+static int hf_disp_notification;                  /* SEQUENCE_OF_Attribute */
+static int hf_disp_notification_item;             /* Attribute */
+static int hf_disp_unsignedInformation;           /* InformationData */
+static int hf_disp_signedInformation;             /* T_signedInformation */
+static int hf_disp_information_data;              /* InformationData */
+static int hf_disp_requestedStrategy;             /* T_requestedStrategy */
+static int hf_disp_standard;                      /* T_standard */
+static int hf_disp_unsignedRequestShadowUpdateArgument;  /* RequestShadowUpdateArgumentData */
+static int hf_disp_signedRequestShadowUpdateArgument;  /* T_signedRequestShadowUpdateArgument */
+static int hf_disp_requestShadowUpdateArgument;   /* RequestShadowUpdateArgumentData */
+static int hf_disp_updateTime;                    /* Time */
+static int hf_disp_updateWindow;                  /* UpdateWindow */
+static int hf_disp_updatedInfo;                   /* RefreshInformation */
+static int hf_disp_unsignedUpdateShadowArgument;  /* UpdateShadowArgumentData */
+static int hf_disp_signedUpdateShadowArgument;    /* T_signedUpdateShadowArgument */
+static int hf_disp_updateShadowArgument;          /* UpdateShadowArgumentData */
+static int hf_disp_start;                         /* Time */
+static int hf_disp_stop;                          /* Time */
+static int hf_disp_noRefresh;                     /* NULL */
+static int hf_disp_total;                         /* TotalRefresh */
+static int hf_disp_incremental;                   /* IncrementalRefresh */
+static int hf_disp_otherStrategy;                 /* EXTERNAL */
+static int hf_disp_sDSE;                          /* SDSEContent */
+static int hf_disp_subtree;                       /* SET_OF_Subtree */
+static int hf_disp_subtree_item;                  /* Subtree */
+static int hf_disp_sDSEType;                      /* SDSEType */
+static int hf_disp_subComplete;                   /* BOOLEAN */
+static int hf_disp_attComplete;                   /* BOOLEAN */
+static int hf_disp_attributes;                    /* SET_OF_Attribute */
+static int hf_disp_attributes_item;               /* Attribute */
+static int hf_disp_attValIncomplete;              /* SET_OF_AttributeType */
+static int hf_disp_attValIncomplete_item;         /* AttributeType */
+static int hf_disp_rdn;                           /* RelativeDistinguishedName */
+static int hf_disp_IncrementalRefresh_item;       /* IncrementalStepRefresh */
+static int hf_disp_sDSEChanges;                   /* T_sDSEChanges */
+static int hf_disp_add;                           /* SDSEContent */
+static int hf_disp_remove;                        /* NULL */
+static int hf_disp_modify;                        /* ContentChange */
+static int hf_disp_subordinateUpdates;            /* SEQUENCE_OF_SubordinateChanges */
+static int hf_disp_subordinateUpdates_item;       /* SubordinateChanges */
+static int hf_disp_rename;                        /* T_rename */
+static int hf_disp_newRDN;                        /* RelativeDistinguishedName */
+static int hf_disp_newDN;                         /* DistinguishedName */
+static int hf_disp_attributeChanges;              /* T_attributeChanges */
+static int hf_disp_replace;                       /* SET_OF_Attribute */
+static int hf_disp_replace_item;                  /* Attribute */
+static int hf_disp_changes;                       /* SEQUENCE_OF_EntryModification */
+static int hf_disp_changes_item;                  /* EntryModification */
+static int hf_disp_subordinate;                   /* RelativeDistinguishedName */
+static int hf_disp_subordinate_changes;           /* IncrementalStepRefresh */
+static int hf_disp_problem;                       /* ShadowProblem */
+static int hf_disp_unsignedShadowError;           /* ShadowErrorData */
+static int hf_disp_signedShadowError;             /* T_signedShadowError */
+static int hf_disp_shadowError;                   /* ShadowErrorData */
 
 /* Initialize the subtree pointers */
-static gint ett_disp = -1;
-static gint ett_disp_ModificationParameter = -1;
-static gint ett_disp_SET_OF_SupplierAndConsumers = -1;
-static gint ett_disp_ShadowingAgreementInfo = -1;
-static gint ett_disp_UnitOfReplication = -1;
-static gint ett_disp_T_supplyContexts = -1;
-static gint ett_disp_T_selectedContexts = -1;
-static gint ett_disp_AreaSpecification = -1;
-static gint ett_disp_Knowledge = -1;
-static gint ett_disp_AttributeSelection = -1;
-static gint ett_disp_ClassAttributeSelection = -1;
-static gint ett_disp_ClassAttributes = -1;
-static gint ett_disp_AttributeTypes = -1;
-static gint ett_disp_UpdateMode = -1;
-static gint ett_disp_SupplierUpdateMode = -1;
-static gint ett_disp_SchedulingParameters = -1;
-static gint ett_disp_PeriodicStrategy = -1;
-static gint ett_disp_CoordinateShadowUpdateArgumentData = -1;
-static gint ett_disp_T_updateStrategy = -1;
-static gint ett_disp_CoordinateShadowUpdateArgument = -1;
-static gint ett_disp_T_signedCoordinateShadowUpdateArgument = -1;
-static gint ett_disp_CoordinateShadowUpdateResult = -1;
-static gint ett_disp_InformationData = -1;
-static gint ett_disp_SEQUENCE_OF_Attribute = -1;
-static gint ett_disp_Information = -1;
-static gint ett_disp_T_signedInformation = -1;
-static gint ett_disp_RequestShadowUpdateArgumentData = -1;
-static gint ett_disp_T_requestedStrategy = -1;
-static gint ett_disp_RequestShadowUpdateArgument = -1;
-static gint ett_disp_T_signedRequestShadowUpdateArgument = -1;
-static gint ett_disp_RequestShadowUpdateResult = -1;
-static gint ett_disp_UpdateShadowArgumentData = -1;
-static gint ett_disp_UpdateShadowArgument = -1;
-static gint ett_disp_T_signedUpdateShadowArgument = -1;
-static gint ett_disp_UpdateShadowResult = -1;
-static gint ett_disp_UpdateWindow = -1;
-static gint ett_disp_RefreshInformation = -1;
-static gint ett_disp_TotalRefresh = -1;
-static gint ett_disp_SET_OF_Subtree = -1;
-static gint ett_disp_SDSEContent = -1;
-static gint ett_disp_SET_OF_Attribute = -1;
-static gint ett_disp_SET_OF_AttributeType = -1;
-static gint ett_disp_Subtree = -1;
-static gint ett_disp_IncrementalRefresh = -1;
-static gint ett_disp_IncrementalStepRefresh = -1;
-static gint ett_disp_T_sDSEChanges = -1;
-static gint ett_disp_SEQUENCE_OF_SubordinateChanges = -1;
-static gint ett_disp_ContentChange = -1;
-static gint ett_disp_T_rename = -1;
-static gint ett_disp_T_attributeChanges = -1;
-static gint ett_disp_SEQUENCE_OF_EntryModification = -1;
-static gint ett_disp_SubordinateChanges = -1;
-static gint ett_disp_ShadowErrorData = -1;
-static gint ett_disp_ShadowError = -1;
-static gint ett_disp_T_signedShadowError = -1;
+static gint ett_disp;
+static gint ett_disp_ModificationParameter;
+static gint ett_disp_SET_OF_SupplierAndConsumers;
+static gint ett_disp_ShadowingAgreementInfo;
+static gint ett_disp_UnitOfReplication;
+static gint ett_disp_T_supplyContexts;
+static gint ett_disp_T_selectedContexts;
+static gint ett_disp_AreaSpecification;
+static gint ett_disp_Knowledge;
+static gint ett_disp_AttributeSelection;
+static gint ett_disp_ClassAttributeSelection;
+static gint ett_disp_ClassAttributes;
+static gint ett_disp_AttributeTypes;
+static gint ett_disp_UpdateMode;
+static gint ett_disp_SupplierUpdateMode;
+static gint ett_disp_SchedulingParameters;
+static gint ett_disp_PeriodicStrategy;
+static gint ett_disp_CoordinateShadowUpdateArgumentData;
+static gint ett_disp_T_updateStrategy;
+static gint ett_disp_CoordinateShadowUpdateArgument;
+static gint ett_disp_T_signedCoordinateShadowUpdateArgument;
+static gint ett_disp_CoordinateShadowUpdateResult;
+static gint ett_disp_InformationData;
+static gint ett_disp_SEQUENCE_OF_Attribute;
+static gint ett_disp_Information;
+static gint ett_disp_T_signedInformation;
+static gint ett_disp_RequestShadowUpdateArgumentData;
+static gint ett_disp_T_requestedStrategy;
+static gint ett_disp_RequestShadowUpdateArgument;
+static gint ett_disp_T_signedRequestShadowUpdateArgument;
+static gint ett_disp_RequestShadowUpdateResult;
+static gint ett_disp_UpdateShadowArgumentData;
+static gint ett_disp_UpdateShadowArgument;
+static gint ett_disp_T_signedUpdateShadowArgument;
+static gint ett_disp_UpdateShadowResult;
+static gint ett_disp_UpdateWindow;
+static gint ett_disp_RefreshInformation;
+static gint ett_disp_TotalRefresh;
+static gint ett_disp_SET_OF_Subtree;
+static gint ett_disp_SDSEContent;
+static gint ett_disp_SET_OF_Attribute;
+static gint ett_disp_SET_OF_AttributeType;
+static gint ett_disp_Subtree;
+static gint ett_disp_IncrementalRefresh;
+static gint ett_disp_IncrementalStepRefresh;
+static gint ett_disp_T_sDSEChanges;
+static gint ett_disp_SEQUENCE_OF_SubordinateChanges;
+static gint ett_disp_ContentChange;
+static gint ett_disp_T_rename;
+static gint ett_disp_T_attributeChanges;
+static gint ett_disp_SEQUENCE_OF_EntryModification;
+static gint ett_disp_SubordinateChanges;
+static gint ett_disp_ShadowErrorData;
+static gint ett_disp_ShadowError;
+static gint ett_disp_T_signedShadowError;
 
-static expert_field ei_disp_unsupported_opcode = EI_INIT;
-static expert_field ei_disp_unsupported_errcode = EI_INIT;
-static expert_field ei_disp_unsupported_pdu = EI_INIT;
-static expert_field ei_disp_zero_pdu = EI_INIT;
+static expert_field ei_disp_unsupported_opcode;
+static expert_field ei_disp_unsupported_errcode;
+static expert_field ei_disp_unsupported_pdu;
+static expert_field ei_disp_zero_pdu;
 
 static dissector_handle_t disp_handle = NULL;
 

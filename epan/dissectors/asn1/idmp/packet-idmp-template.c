@@ -50,27 +50,27 @@ static guint32     opcode           = -1;
 /* Initialize the protocol and registered fields */
 int proto_idmp = -1;
 
-static int hf_idmp_version = -1;
-static int hf_idmp_final = -1;
-static int hf_idmp_length = -1;
-static int hf_idmp_PDU = -1;
+static int hf_idmp_version;
+static int hf_idmp_final;
+static int hf_idmp_length;
+static int hf_idmp_PDU;
 
 static reassembly_table idmp_reassembly_table;
 
-static int hf_idmp_fragments = -1;
-static int hf_idmp_fragment = -1;
-static int hf_idmp_fragment_overlap = -1;
-static int hf_idmp_fragment_overlap_conflicts = -1;
-static int hf_idmp_fragment_multiple_tails = -1;
-static int hf_idmp_fragment_too_long_fragment = -1;
-static int hf_idmp_fragment_error = -1;
-static int hf_idmp_fragment_count = -1;
-static int hf_idmp_reassembled_in = -1;
-static int hf_idmp_reassembled_length = -1;
-static int hf_idmp_segment_data = -1;
+static int hf_idmp_fragments;
+static int hf_idmp_fragment;
+static int hf_idmp_fragment_overlap;
+static int hf_idmp_fragment_overlap_conflicts;
+static int hf_idmp_fragment_multiple_tails;
+static int hf_idmp_fragment_too_long_fragment;
+static int hf_idmp_fragment_error;
+static int hf_idmp_fragment_count;
+static int hf_idmp_reassembled_in;
+static int hf_idmp_reassembled_length;
+static int hf_idmp_segment_data;
 
-static gint ett_idmp_fragment = -1;
-static gint ett_idmp_fragments = -1;
+static gint ett_idmp_fragment;
+static gint ett_idmp_fragments;
 
 static const fragment_items idmp_frag_items = {
     /* Fragment subtrees */
@@ -117,7 +117,7 @@ static int call_idmp_oid_callback(tvbuff_t *tvb, int offset, packet_info *pinfo,
 #include "packet-idmp-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_idmp = -1;
+static gint ett_idmp;
 #include "packet-idmp-ett.c"
 
 #include "packet-idmp-fn.c"

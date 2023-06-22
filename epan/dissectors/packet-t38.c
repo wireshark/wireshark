@@ -104,60 +104,60 @@ static guint32 Data_value;
 static guint32 T30ind_value;
 static guint32 Data_Field_item_num;
 
-static int proto_t38 = -1;
-static int proto_acdr = -1;
-static int hf_t38_IFPPacket_PDU = -1;             /* IFPPacket */
-static int hf_t38_UDPTLPacket_PDU = -1;           /* UDPTLPacket */
-static int hf_t38_type_of_msg = -1;               /* Type_of_msg */
-static int hf_t38_data_field = -1;                /* Data_Field */
-static int hf_t38_t30_indicator = -1;             /* T30_indicator */
-static int hf_t38_t30_data = -1;                  /* T30_data */
-static int hf_t38_Data_Field_item = -1;           /* Data_Field_item */
-static int hf_t38_field_type = -1;                /* T_field_type */
-static int hf_t38_field_data = -1;                /* T_field_data */
-static int hf_t38_seq_number = -1;                /* T_seq_number */
-static int hf_t38_primary_ifp_packet = -1;        /* T_primary_ifp_packet */
-static int hf_t38_error_recovery = -1;            /* T_error_recovery */
-static int hf_t38_secondary_ifp_packets = -1;     /* T_secondary_ifp_packets */
-static int hf_t38_secondary_ifp_packets_item = -1;  /* OpenType_IFPPacket */
-static int hf_t38_fec_info = -1;                  /* T_fec_info */
-static int hf_t38_fec_npackets = -1;              /* INTEGER */
-static int hf_t38_fec_data = -1;                  /* T_fec_data */
-static int hf_t38_fec_data_item = -1;             /* OCTET_STRING */
+static int proto_t38;
+static int proto_acdr;
+static int hf_t38_IFPPacket_PDU;                  /* IFPPacket */
+static int hf_t38_UDPTLPacket_PDU;                /* UDPTLPacket */
+static int hf_t38_type_of_msg;                    /* Type_of_msg */
+static int hf_t38_data_field;                     /* Data_Field */
+static int hf_t38_t30_indicator;                  /* T30_indicator */
+static int hf_t38_t30_data;                       /* T30_data */
+static int hf_t38_Data_Field_item;                /* Data_Field_item */
+static int hf_t38_field_type;                     /* T_field_type */
+static int hf_t38_field_data;                     /* T_field_data */
+static int hf_t38_seq_number;                     /* T_seq_number */
+static int hf_t38_primary_ifp_packet;             /* T_primary_ifp_packet */
+static int hf_t38_error_recovery;                 /* T_error_recovery */
+static int hf_t38_secondary_ifp_packets;          /* T_secondary_ifp_packets */
+static int hf_t38_secondary_ifp_packets_item;     /* OpenType_IFPPacket */
+static int hf_t38_fec_info;                       /* T_fec_info */
+static int hf_t38_fec_npackets;                   /* INTEGER */
+static int hf_t38_fec_data;                       /* T_fec_data */
+static int hf_t38_fec_data_item;                  /* OCTET_STRING */
 
 /* T38 setup fields */
-static int hf_t38_setup        = -1;
-static int hf_t38_setup_frame  = -1;
-static int hf_t38_setup_method = -1;
+static int hf_t38_setup;
+static int hf_t38_setup_frame;
+static int hf_t38_setup_method;
 
 /* T38 Data reassemble fields */
-static int hf_t38_fragments = -1;
-static int hf_t38_fragment = -1;
-static int hf_t38_fragment_overlap = -1;
-static int hf_t38_fragment_overlap_conflicts = -1;
-static int hf_t38_fragment_multiple_tails = -1;
-static int hf_t38_fragment_too_long_fragment = -1;
-static int hf_t38_fragment_error = -1;
-static int hf_t38_fragment_count = -1;
-static int hf_t38_reassembled_in = -1;
-static int hf_t38_reassembled_length = -1;
+static int hf_t38_fragments;
+static int hf_t38_fragment;
+static int hf_t38_fragment_overlap;
+static int hf_t38_fragment_overlap_conflicts;
+static int hf_t38_fragment_multiple_tails;
+static int hf_t38_fragment_too_long_fragment;
+static int hf_t38_fragment_error;
+static int hf_t38_fragment_count;
+static int hf_t38_reassembled_in;
+static int hf_t38_reassembled_length;
 
-static gint ett_t38 = -1;
-static gint ett_t38_IFPPacket = -1;
-static gint ett_t38_Type_of_msg = -1;
-static gint ett_t38_Data_Field = -1;
-static gint ett_t38_Data_Field_item = -1;
-static gint ett_t38_UDPTLPacket = -1;
-static gint ett_t38_T_error_recovery = -1;
-static gint ett_t38_T_secondary_ifp_packets = -1;
-static gint ett_t38_T_fec_info = -1;
-static gint ett_t38_T_fec_data = -1;
-static gint ett_t38_setup = -1;
+static gint ett_t38;
+static gint ett_t38_IFPPacket;
+static gint ett_t38_Type_of_msg;
+static gint ett_t38_Data_Field;
+static gint ett_t38_Data_Field_item;
+static gint ett_t38_UDPTLPacket;
+static gint ett_t38_T_error_recovery;
+static gint ett_t38_T_secondary_ifp_packets;
+static gint ett_t38_T_fec_info;
+static gint ett_t38_T_fec_data;
+static gint ett_t38_setup;
 
-static gint ett_data_fragment = -1;
-static gint ett_data_fragments = -1;
+static gint ett_data_fragment;
+static gint ett_data_fragments;
 
-static expert_field ei_t38_malformed = EI_INIT;
+static expert_field ei_t38_malformed;
 
 static gboolean primary_part = TRUE;
 static guint32 seq_number = 0;

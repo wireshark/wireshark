@@ -217,1377 +217,1377 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /* Initialize the protocol and registered fields */
-static int proto_e2ap = -1;
-static int hf_e2ap_Cause_PDU = -1;                /* Cause */
-static int hf_e2ap_CriticalityDiagnostics_PDU = -1;  /* CriticalityDiagnostics */
-static int hf_e2ap_GlobalE2node_ID_PDU = -1;      /* GlobalE2node_ID */
-static int hf_e2ap_GlobalRIC_ID_PDU = -1;         /* GlobalRIC_ID */
-static int hf_e2ap_RANfunctionID_PDU = -1;        /* RANfunctionID */
-static int hf_e2ap_RICactionID_PDU = -1;          /* RICactionID */
-static int hf_e2ap_RICcallProcessID_PDU = -1;     /* RICcallProcessID */
-static int hf_e2ap_RICcontrolAckRequest_PDU = -1;  /* RICcontrolAckRequest */
-static int hf_e2ap_RICcontrolHeader_PDU = -1;     /* RICcontrolHeader */
-static int hf_e2ap_RICcontrolMessage_PDU = -1;    /* RICcontrolMessage */
-static int hf_e2ap_RICcontrolOutcome_PDU = -1;    /* RICcontrolOutcome */
-static int hf_e2ap_RICeventTriggerDefinition_PDU = -1;  /* RICeventTriggerDefinition */
-static int hf_e2ap_RICindicationHeader_PDU = -1;  /* RICindicationHeader */
-static int hf_e2ap_RICindicationMessage_PDU = -1;  /* RICindicationMessage */
-static int hf_e2ap_RICindicationSN_PDU = -1;      /* RICindicationSN */
-static int hf_e2ap_RICindicationType_PDU = -1;    /* RICindicationType */
-static int hf_e2ap_RICrequestID_PDU = -1;         /* RICrequestID */
-static int hf_e2ap_RICsubscriptionTime_PDU = -1;  /* RICsubscriptionTime */
-static int hf_e2ap_RICqueryHeader_PDU = -1;       /* RICqueryHeader */
-static int hf_e2ap_RICqueryDefinition_PDU = -1;   /* RICqueryDefinition */
-static int hf_e2ap_RICqueryOutcome_PDU = -1;      /* RICqueryOutcome */
-static int hf_e2ap_TimeToWait_PDU = -1;           /* TimeToWait */
-static int hf_e2ap_TNLinformation_PDU = -1;       /* TNLinformation */
-static int hf_e2ap_TransactionID_PDU = -1;        /* TransactionID */
-static int hf_e2ap_RICsubscriptionRequest_PDU = -1;  /* RICsubscriptionRequest */
-static int hf_e2ap_RICsubscriptionDetails_PDU = -1;  /* RICsubscriptionDetails */
-static int hf_e2ap_RICaction_ToBeSetup_Item_PDU = -1;  /* RICaction_ToBeSetup_Item */
-static int hf_e2ap_RICsubscriptionResponse_PDU = -1;  /* RICsubscriptionResponse */
-static int hf_e2ap_RICaction_Admitted_List_PDU = -1;  /* RICaction_Admitted_List */
-static int hf_e2ap_RICaction_Admitted_Item_PDU = -1;  /* RICaction_Admitted_Item */
-static int hf_e2ap_RICaction_NotAdmitted_List_PDU = -1;  /* RICaction_NotAdmitted_List */
-static int hf_e2ap_RICaction_NotAdmitted_Item_PDU = -1;  /* RICaction_NotAdmitted_Item */
-static int hf_e2ap_RICsubscriptionFailure_PDU = -1;  /* RICsubscriptionFailure */
-static int hf_e2ap_RICsubscriptionDeleteRequest_PDU = -1;  /* RICsubscriptionDeleteRequest */
-static int hf_e2ap_RICsubscriptionDeleteResponse_PDU = -1;  /* RICsubscriptionDeleteResponse */
-static int hf_e2ap_RICsubscriptionDeleteFailure_PDU = -1;  /* RICsubscriptionDeleteFailure */
-static int hf_e2ap_RICsubscriptionDeleteRequired_PDU = -1;  /* RICsubscriptionDeleteRequired */
-static int hf_e2ap_RICsubscription_List_withCause_PDU = -1;  /* RICsubscription_List_withCause */
-static int hf_e2ap_RICsubscription_withCause_Item_PDU = -1;  /* RICsubscription_withCause_Item */
-static int hf_e2ap_RICsubscriptionModificationRequest_PDU = -1;  /* RICsubscriptionModificationRequest */
-static int hf_e2ap_RICactions_ToBeRemovedForModification_List_PDU = -1;  /* RICactions_ToBeRemovedForModification_List */
-static int hf_e2ap_RICaction_ToBeRemovedForModification_Item_PDU = -1;  /* RICaction_ToBeRemovedForModification_Item */
-static int hf_e2ap_RICactions_ToBeModifiedForModification_List_PDU = -1;  /* RICactions_ToBeModifiedForModification_List */
-static int hf_e2ap_RICaction_ToBeModifiedForModification_Item_PDU = -1;  /* RICaction_ToBeModifiedForModification_Item */
-static int hf_e2ap_RICactions_ToBeAddedForModification_List_PDU = -1;  /* RICactions_ToBeAddedForModification_List */
-static int hf_e2ap_RICaction_ToBeAddedForModification_Item_PDU = -1;  /* RICaction_ToBeAddedForModification_Item */
-static int hf_e2ap_RICsubscriptionModificationResponse_PDU = -1;  /* RICsubscriptionModificationResponse */
-static int hf_e2ap_RICactions_RemovedForModification_List_PDU = -1;  /* RICactions_RemovedForModification_List */
-static int hf_e2ap_RICaction_RemovedForModification_Item_PDU = -1;  /* RICaction_RemovedForModification_Item */
-static int hf_e2ap_RICactions_FailedToBeRemovedForModification_List_PDU = -1;  /* RICactions_FailedToBeRemovedForModification_List */
-static int hf_e2ap_RICaction_FailedToBeRemovedForModification_Item_PDU = -1;  /* RICaction_FailedToBeRemovedForModification_Item */
-static int hf_e2ap_RICactions_ModifiedForModification_List_PDU = -1;  /* RICactions_ModifiedForModification_List */
-static int hf_e2ap_RICaction_ModifiedForModification_Item_PDU = -1;  /* RICaction_ModifiedForModification_Item */
-static int hf_e2ap_RICactions_FailedToBeModifiedForModification_List_PDU = -1;  /* RICactions_FailedToBeModifiedForModification_List */
-static int hf_e2ap_RICaction_FailedToBeModifiedForModification_Item_PDU = -1;  /* RICaction_FailedToBeModifiedForModification_Item */
-static int hf_e2ap_RICactions_AddedForModification_List_PDU = -1;  /* RICactions_AddedForModification_List */
-static int hf_e2ap_RICaction_AddedForModification_Item_PDU = -1;  /* RICaction_AddedForModification_Item */
-static int hf_e2ap_RICactions_FailedToBeAddedForModification_List_PDU = -1;  /* RICactions_FailedToBeAddedForModification_List */
-static int hf_e2ap_RICaction_FailedToBeAddedForModification_Item_PDU = -1;  /* RICaction_FailedToBeAddedForModification_Item */
-static int hf_e2ap_RICsubscriptionModificationFailure_PDU = -1;  /* RICsubscriptionModificationFailure */
-static int hf_e2ap_RICsubscriptionModificationRequired_PDU = -1;  /* RICsubscriptionModificationRequired */
-static int hf_e2ap_RICactions_RequiredToBeModified_List_PDU = -1;  /* RICactions_RequiredToBeModified_List */
-static int hf_e2ap_RICaction_RequiredToBeModified_Item_PDU = -1;  /* RICaction_RequiredToBeModified_Item */
-static int hf_e2ap_RICactions_RequiredToBeRemoved_List_PDU = -1;  /* RICactions_RequiredToBeRemoved_List */
-static int hf_e2ap_RICaction_RequiredToBeRemoved_Item_PDU = -1;  /* RICaction_RequiredToBeRemoved_Item */
-static int hf_e2ap_RICsubscriptionModificationConfirm_PDU = -1;  /* RICsubscriptionModificationConfirm */
-static int hf_e2ap_RICactions_ConfirmedForModification_List_PDU = -1;  /* RICactions_ConfirmedForModification_List */
-static int hf_e2ap_RICaction_ConfirmedForModification_Item_PDU = -1;  /* RICaction_ConfirmedForModification_Item */
-static int hf_e2ap_RICactions_RefusedToBeModified_List_PDU = -1;  /* RICactions_RefusedToBeModified_List */
-static int hf_e2ap_RICaction_RefusedToBeModified_Item_PDU = -1;  /* RICaction_RefusedToBeModified_Item */
-static int hf_e2ap_RICactions_ConfirmedForRemoval_List_PDU = -1;  /* RICactions_ConfirmedForRemoval_List */
-static int hf_e2ap_RICaction_ConfirmedForRemoval_Item_PDU = -1;  /* RICaction_ConfirmedForRemoval_Item */
-static int hf_e2ap_RICactions_RefusedToBeRemoved_List_PDU = -1;  /* RICactions_RefusedToBeRemoved_List */
-static int hf_e2ap_RICaction_RefusedToBeRemoved_Item_PDU = -1;  /* RICaction_RefusedToBeRemoved_Item */
-static int hf_e2ap_RICsubscriptionModificationRefuse_PDU = -1;  /* RICsubscriptionModificationRefuse */
-static int hf_e2ap_RICindication_PDU = -1;        /* RICindication */
-static int hf_e2ap_RICcontrolRequest_PDU = -1;    /* RICcontrolRequest */
-static int hf_e2ap_RICcontrolAcknowledge_PDU = -1;  /* RICcontrolAcknowledge */
-static int hf_e2ap_RICcontrolFailure_PDU = -1;    /* RICcontrolFailure */
-static int hf_e2ap_RICQueryRequest_PDU = -1;      /* RICQueryRequest */
-static int hf_e2ap_RICQueryResponse_PDU = -1;     /* RICQueryResponse */
-static int hf_e2ap_RICQueryFailure_PDU = -1;      /* RICQueryFailure */
-static int hf_e2ap_ErrorIndication_PDU = -1;      /* ErrorIndication */
-static int hf_e2ap_E2setupRequest_PDU = -1;       /* E2setupRequest */
-static int hf_e2ap_E2setupResponse_PDU = -1;      /* E2setupResponse */
-static int hf_e2ap_E2setupFailure_PDU = -1;       /* E2setupFailure */
-static int hf_e2ap_E2connectionUpdate_PDU = -1;   /* E2connectionUpdate */
-static int hf_e2ap_E2connectionUpdate_List_PDU = -1;  /* E2connectionUpdate_List */
-static int hf_e2ap_E2connectionUpdate_Item_PDU = -1;  /* E2connectionUpdate_Item */
-static int hf_e2ap_E2connectionUpdateRemove_List_PDU = -1;  /* E2connectionUpdateRemove_List */
-static int hf_e2ap_E2connectionUpdateRemove_Item_PDU = -1;  /* E2connectionUpdateRemove_Item */
-static int hf_e2ap_E2connectionUpdateAcknowledge_PDU = -1;  /* E2connectionUpdateAcknowledge */
-static int hf_e2ap_E2connectionSetupFailed_List_PDU = -1;  /* E2connectionSetupFailed_List */
-static int hf_e2ap_E2connectionSetupFailed_Item_PDU = -1;  /* E2connectionSetupFailed_Item */
-static int hf_e2ap_E2connectionUpdateFailure_PDU = -1;  /* E2connectionUpdateFailure */
-static int hf_e2ap_E2nodeConfigurationUpdate_PDU = -1;  /* E2nodeConfigurationUpdate */
-static int hf_e2ap_E2nodeComponentConfigAddition_List_PDU = -1;  /* E2nodeComponentConfigAddition_List */
-static int hf_e2ap_E2nodeComponentConfigAddition_Item_PDU = -1;  /* E2nodeComponentConfigAddition_Item */
-static int hf_e2ap_E2nodeComponentConfigUpdate_List_PDU = -1;  /* E2nodeComponentConfigUpdate_List */
-static int hf_e2ap_E2nodeComponentConfigUpdate_Item_PDU = -1;  /* E2nodeComponentConfigUpdate_Item */
-static int hf_e2ap_E2nodeComponentConfigRemoval_List_PDU = -1;  /* E2nodeComponentConfigRemoval_List */
-static int hf_e2ap_E2nodeComponentConfigRemoval_Item_PDU = -1;  /* E2nodeComponentConfigRemoval_Item */
-static int hf_e2ap_E2nodeTNLassociationRemoval_List_PDU = -1;  /* E2nodeTNLassociationRemoval_List */
-static int hf_e2ap_E2nodeTNLassociationRemoval_Item_PDU = -1;  /* E2nodeTNLassociationRemoval_Item */
-static int hf_e2ap_E2nodeConfigurationUpdateAcknowledge_PDU = -1;  /* E2nodeConfigurationUpdateAcknowledge */
-static int hf_e2ap_E2nodeComponentConfigAdditionAck_List_PDU = -1;  /* E2nodeComponentConfigAdditionAck_List */
-static int hf_e2ap_E2nodeComponentConfigAdditionAck_Item_PDU = -1;  /* E2nodeComponentConfigAdditionAck_Item */
-static int hf_e2ap_E2nodeComponentConfigUpdateAck_List_PDU = -1;  /* E2nodeComponentConfigUpdateAck_List */
-static int hf_e2ap_E2nodeComponentConfigUpdateAck_Item_PDU = -1;  /* E2nodeComponentConfigUpdateAck_Item */
-static int hf_e2ap_E2nodeComponentConfigRemovalAck_List_PDU = -1;  /* E2nodeComponentConfigRemovalAck_List */
-static int hf_e2ap_E2nodeComponentConfigRemovalAck_Item_PDU = -1;  /* E2nodeComponentConfigRemovalAck_Item */
-static int hf_e2ap_E2nodeConfigurationUpdateFailure_PDU = -1;  /* E2nodeConfigurationUpdateFailure */
-static int hf_e2ap_ResetRequest_PDU = -1;         /* ResetRequest */
-static int hf_e2ap_ResetResponse_PDU = -1;        /* ResetResponse */
-static int hf_e2ap_RICserviceUpdate_PDU = -1;     /* RICserviceUpdate */
-static int hf_e2ap_RANfunctions_List_PDU = -1;    /* RANfunctions_List */
-static int hf_e2ap_RANfunction_Item_PDU = -1;     /* RANfunction_Item */
-static int hf_e2ap_RANfunctionsID_List_PDU = -1;  /* RANfunctionsID_List */
-static int hf_e2ap_RANfunctionID_Item_PDU = -1;   /* RANfunctionID_Item */
-static int hf_e2ap_RICserviceUpdateAcknowledge_PDU = -1;  /* RICserviceUpdateAcknowledge */
-static int hf_e2ap_RANfunctionsIDcause_List_PDU = -1;  /* RANfunctionsIDcause_List */
-static int hf_e2ap_RANfunctionIDcause_Item_PDU = -1;  /* RANfunctionIDcause_Item */
-static int hf_e2ap_RICserviceUpdateFailure_PDU = -1;  /* RICserviceUpdateFailure */
-static int hf_e2ap_RICserviceQuery_PDU = -1;      /* RICserviceQuery */
-static int hf_e2ap_E2RemovalRequest_PDU = -1;     /* E2RemovalRequest */
-static int hf_e2ap_E2RemovalResponse_PDU = -1;    /* E2RemovalResponse */
-static int hf_e2ap_E2RemovalFailure_PDU = -1;     /* E2RemovalFailure */
-static int hf_e2ap_E2AP_PDU_PDU = -1;             /* E2AP_PDU */
-static int hf_e2ap_E2SM_RC_EventTrigger_PDU = -1;  /* E2SM_RC_EventTrigger */
-static int hf_e2ap_E2SM_RC_ActionDefinition_PDU = -1;  /* E2SM_RC_ActionDefinition */
-static int hf_e2ap_E2SM_RC_IndicationHeader_PDU = -1;  /* E2SM_RC_IndicationHeader */
-static int hf_e2ap_E2SM_RC_IndicationMessage_PDU = -1;  /* E2SM_RC_IndicationMessage */
-static int hf_e2ap_E2SM_RC_CallProcessID_PDU = -1;  /* E2SM_RC_CallProcessID */
-static int hf_e2ap_E2SM_RC_ControlHeader_PDU = -1;  /* E2SM_RC_ControlHeader */
-static int hf_e2ap_E2SM_RC_ControlMessage_PDU = -1;  /* E2SM_RC_ControlMessage */
-static int hf_e2ap_E2SM_RC_ControlOutcome_PDU = -1;  /* E2SM_RC_ControlOutcome */
-static int hf_e2ap_E2SM_RC_RANFunctionDefinition_PDU = -1;  /* E2SM_RC_RANFunctionDefinition */
-static int hf_e2ap_E2SM_KPM_EventTriggerDefinition_PDU = -1;  /* E2SM_KPM_EventTriggerDefinition */
-static int hf_e2ap_E2SM_KPM_ActionDefinition_PDU = -1;  /* E2SM_KPM_ActionDefinition */
-static int hf_e2ap_E2SM_KPM_IndicationHeader_PDU = -1;  /* E2SM_KPM_IndicationHeader */
-static int hf_e2ap_E2SM_KPM_IndicationMessage_PDU = -1;  /* E2SM_KPM_IndicationMessage */
-static int hf_e2ap_E2SM_KPM_RANfunction_Description_PDU = -1;  /* E2SM_KPM_RANfunction_Description */
-static int hf_e2ap_E2SM_NI_EventTriggerDefinition_PDU = -1;  /* E2SM_NI_EventTriggerDefinition */
-static int hf_e2ap_E2SM_NI_ActionDefinition_PDU = -1;  /* E2SM_NI_ActionDefinition */
-static int hf_e2ap_E2SM_NI_IndicationHeader_PDU = -1;  /* E2SM_NI_IndicationHeader */
-static int hf_e2ap_E2SM_NI_IndicationMessage_PDU = -1;  /* E2SM_NI_IndicationMessage */
-static int hf_e2ap_E2SM_NI_CallProcessID_PDU = -1;  /* E2SM_NI_CallProcessID */
-static int hf_e2ap_E2SM_NI_ControlHeader_PDU = -1;  /* E2SM_NI_ControlHeader */
-static int hf_e2ap_E2SM_NI_ControlMessage_PDU = -1;  /* E2SM_NI_ControlMessage */
-static int hf_e2ap_E2SM_NI_ControlOutcome_PDU = -1;  /* E2SM_NI_ControlOutcome */
-static int hf_e2ap_E2SM_NI_RANfunction_Description_PDU = -1;  /* E2SM_NI_RANfunction_Description */
-static int hf_e2ap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
-static int hf_e2ap_id = -1;                       /* ProtocolIE_ID */
-static int hf_e2ap_criticality = -1;              /* Criticality */
-static int hf_e2ap_value = -1;                    /* T_value */
-static int hf_e2ap_ricRequest = -1;               /* CauseRICrequest */
-static int hf_e2ap_ricService = -1;               /* CauseRICservice */
-static int hf_e2ap_e2Node = -1;                   /* CauseE2node */
-static int hf_e2ap_transport = -1;                /* CauseTransport */
-static int hf_e2ap_protocol = -1;                 /* CauseProtocol */
-static int hf_e2ap_misc = -1;                     /* CauseMisc */
-static int hf_e2ap_procedureCode = -1;            /* ProcedureCode */
-static int hf_e2ap_triggeringMessage = -1;        /* TriggeringMessage */
-static int hf_e2ap_procedureCriticality = -1;     /* Criticality */
-static int hf_e2ap_ricRequestorID = -1;           /* RICrequestID */
-static int hf_e2ap_iEsCriticalityDiagnostics = -1;  /* CriticalityDiagnostics_IE_List */
-static int hf_e2ap_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiagnostics_IE_Item */
-static int hf_e2ap_iECriticality = -1;            /* Criticality */
-static int hf_e2ap_iE_ID = -1;                    /* ProtocolIE_ID */
-static int hf_e2ap_typeOfError = -1;              /* TypeOfError */
-static int hf_e2ap_e2nodeComponentRequestPart = -1;  /* T_e2nodeComponentRequestPart */
-static int hf_e2ap_e2nodeComponentResponsePart = -1;  /* T_e2nodeComponentResponsePart */
-static int hf_e2ap_updateOutcome = -1;            /* T_updateOutcome */
-static int hf_e2ap_failureCause = -1;             /* Cause */
-static int hf_e2ap_e2nodeComponentInterfaceTypeNG = -1;  /* T_e2nodeComponentInterfaceTypeNG */
-static int hf_e2ap_e2nodeComponentInterfaceTypeXn = -1;  /* T_e2nodeComponentInterfaceTypeXn */
-static int hf_e2ap_e2nodeComponentInterfaceTypeE1 = -1;  /* T_e2nodeComponentInterfaceTypeE1 */
-static int hf_e2ap_e2nodeComponentInterfaceTypeF1 = -1;  /* T_e2nodeComponentInterfaceTypeF1 */
-static int hf_e2ap_e2nodeComponentInterfaceTypeW1 = -1;  /* E2nodeComponentInterfaceW1 */
-static int hf_e2ap_e2nodeComponentInterfaceTypeS1 = -1;  /* T_e2nodeComponentInterfaceTypeS1 */
-static int hf_e2ap_e2nodeComponentInterfaceTypeX2 = -1;  /* T_e2nodeComponentInterfaceTypeX2 */
-static int hf_e2ap_gNB_CU_UP_ID = -1;             /* GNB_CU_UP_ID */
-static int hf_e2ap_gNB_DU_ID = -1;                /* GNB_DU_ID */
-static int hf_e2ap_amf_name = -1;                 /* AMFName */
-static int hf_e2ap_mme_name = -1;                 /* MMEname */
-static int hf_e2ap_global_eNB_ID = -1;            /* GlobalENB_ID */
-static int hf_e2ap_global_en_gNB_ID = -1;         /* GlobalenGNB_ID */
-static int hf_e2ap_global_NG_RAN_Node_ID = -1;    /* GlobalNG_RANNode_ID */
-static int hf_e2ap_ng_eNB_DU_ID = -1;             /* NGENB_DU_ID */
-static int hf_e2ap_macro_eNB_ID = -1;             /* BIT_STRING_SIZE_20 */
-static int hf_e2ap_home_eNB_ID = -1;              /* BIT_STRING_SIZE_28 */
-static int hf_e2ap_short_Macro_eNB_ID = -1;       /* BIT_STRING_SIZE_18 */
-static int hf_e2ap_long_Macro_eNB_ID = -1;        /* BIT_STRING_SIZE_21 */
-static int hf_e2ap_enb_ID_macro = -1;             /* BIT_STRING_SIZE_20 */
-static int hf_e2ap_enb_ID_shortmacro = -1;        /* BIT_STRING_SIZE_18 */
-static int hf_e2ap_enb_ID_longmacro = -1;         /* BIT_STRING_SIZE_21 */
-static int hf_e2ap_gNB_ID = -1;                   /* BIT_STRING_SIZE_22_32 */
-static int hf_e2ap_gNB = -1;                      /* GlobalE2node_gNB_ID */
-static int hf_e2ap_en_gNB = -1;                   /* GlobalE2node_en_gNB_ID */
-static int hf_e2ap_ng_eNB = -1;                   /* GlobalE2node_ng_eNB_ID */
-static int hf_e2ap_eNB = -1;                      /* GlobalE2node_eNB_ID */
-static int hf_e2ap_en_gNB_CU_UP_ID = -1;          /* GNB_CU_UP_ID */
-static int hf_e2ap_en_gNB_DU_ID = -1;             /* GNB_DU_ID */
-static int hf_e2ap_global_gNB_ID = -1;            /* GlobalgNB_ID */
-static int hf_e2ap_global_ng_eNB_ID = -1;         /* GlobalngeNB_ID */
-static int hf_e2ap_ngENB_DU_ID = -1;              /* NGENB_DU_ID */
-static int hf_e2ap_pLMN_Identity = -1;            /* PLMN_Identity */
-static int hf_e2ap_eNB_ID = -1;                   /* ENB_ID */
-static int hf_e2ap_gNB_ID_01 = -1;                /* ENGNB_ID */
-static int hf_e2ap_plmn_id = -1;                  /* PLMN_Identity */
-static int hf_e2ap_gnb_id = -1;                   /* T_gnb_id */
-static int hf_e2ap_enb_id = -1;                   /* ENB_ID_Choice */
-static int hf_e2ap_gNB_01 = -1;                   /* GlobalgNB_ID */
-static int hf_e2ap_ng_eNB_01 = -1;                /* GlobalngeNB_ID */
-static int hf_e2ap_ric_ID = -1;                   /* BIT_STRING_SIZE_20 */
-static int hf_e2ap_gnb_ID = -1;                   /* BIT_STRING_SIZE_22_32 */
-static int hf_e2ap_ricRequestorID_01 = -1;        /* INTEGER_0_65535 */
-static int hf_e2ap_ricInstanceID = -1;            /* INTEGER_0_65535 */
-static int hf_e2ap_ricSubsequentActionType = -1;  /* RICsubsequentActionType */
-static int hf_e2ap_ricTimeToWait = -1;            /* RICtimeToWait */
-static int hf_e2ap_tnlAddress = -1;               /* T_tnlAddress */
-static int hf_e2ap_tnlPort = -1;                  /* T_tnlPort */
-static int hf_e2ap_protocolIEs = -1;              /* ProtocolIE_Container */
-static int hf_e2ap_ricEventTriggerDefinition = -1;  /* RICeventTriggerDefinition */
-static int hf_e2ap_ricAction_ToBeSetup_List = -1;  /* RICactions_ToBeSetup_List */
-static int hf_e2ap_RICactions_ToBeSetup_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_ricActionID = -1;              /* RICactionID */
-static int hf_e2ap_ricActionType = -1;            /* RICactionType */
-static int hf_e2ap_ricActionDefinition = -1;      /* RICactionDefinition */
-static int hf_e2ap_ricSubsequentAction = -1;      /* RICsubsequentAction */
-static int hf_e2ap_ricActionExecutionOrder = -1;  /* RICactionExecutionOrder */
-static int hf_e2ap_RICaction_Admitted_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_RICaction_NotAdmitted_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_cause = -1;                    /* Cause */
-static int hf_e2ap_RICsubscription_List_withCause_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_ricRequestID = -1;             /* RICrequestID */
-static int hf_e2ap_ranFunctionID = -1;            /* RANfunctionID */
-static int hf_e2ap_RICactions_ToBeRemovedForModification_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_RICactions_ToBeModifiedForModification_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_RICactions_ToBeAddedForModification_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_RICactions_RemovedForModification_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_RICactions_FailedToBeRemovedForModification_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_RICactions_ModifiedForModification_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_RICactions_FailedToBeModifiedForModification_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_RICactions_AddedForModification_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_RICactions_FailedToBeAddedForModification_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_RICactions_RequiredToBeModified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_RICactions_RequiredToBeRemoved_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_RICactions_ConfirmedForModification_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_RICactions_RefusedToBeModified_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_RICactions_ConfirmedForRemoval_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_RICactions_RefusedToBeRemoved_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_E2connectionUpdate_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_tnlInformation = -1;           /* TNLinformation */
-static int hf_e2ap_tnlUsage = -1;                 /* TNLusage */
-static int hf_e2ap_E2connectionUpdateRemove_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_E2connectionSetupFailed_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_E2nodeComponentConfigAddition_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_e2nodeComponentInterfaceType = -1;  /* E2nodeComponentInterfaceType */
-static int hf_e2ap_e2nodeComponentID = -1;        /* E2nodeComponentID */
-static int hf_e2ap_e2nodeComponentConfiguration = -1;  /* E2nodeComponentConfiguration */
-static int hf_e2ap_E2nodeComponentConfigUpdate_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_E2nodeComponentConfigRemoval_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_E2nodeTNLassociationRemoval_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_tnlInformationRIC = -1;        /* TNLinformation */
-static int hf_e2ap_E2nodeComponentConfigAdditionAck_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_e2nodeComponentConfigurationAck = -1;  /* E2nodeComponentConfigurationAck */
-static int hf_e2ap_E2nodeComponentConfigUpdateAck_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_E2nodeComponentConfigRemovalAck_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_RANfunctions_List_item = -1;   /* ProtocolIE_SingleContainer */
-static int hf_e2ap_ranFunctionDefinition = -1;    /* RANfunctionDefinition */
-static int hf_e2ap_ranFunctionRevision = -1;      /* RANfunctionRevision */
-static int hf_e2ap_ranFunctionOID = -1;           /* RANfunctionOID */
-static int hf_e2ap_RANfunctionsID_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_RANfunctionsIDcause_List_item = -1;  /* ProtocolIE_SingleContainer */
-static int hf_e2ap_initiatingMessage = -1;        /* InitiatingMessage */
-static int hf_e2ap_successfulOutcome = -1;        /* SuccessfulOutcome */
-static int hf_e2ap_unsuccessfulOutcome = -1;      /* UnsuccessfulOutcome */
-static int hf_e2ap_initiatingMessagevalue = -1;   /* InitiatingMessage_value */
-static int hf_e2ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
-static int hf_e2ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
-static int hf_e2ap_nR_CGI = -1;                   /* NR_CGI */
-static int hf_e2ap_eUTRA_CGI = -1;                /* EUTRA_CGI */
-static int hf_e2ap_nG = -1;                       /* InterfaceID_NG */
-static int hf_e2ap_xN = -1;                       /* InterfaceID_Xn */
-static int hf_e2ap_f1 = -1;                       /* InterfaceID_F1 */
-static int hf_e2ap_e1 = -1;                       /* InterfaceID_E1 */
-static int hf_e2ap_s1 = -1;                       /* InterfaceID_S1 */
-static int hf_e2ap_x2 = -1;                       /* InterfaceID_X2 */
-static int hf_e2ap_w1 = -1;                       /* InterfaceID_W1 */
-static int hf_e2ap_guami = -1;                    /* GUAMI */
-static int hf_e2ap_global_NG_RAN_ID = -1;         /* GlobalNGRANNodeID */
-static int hf_e2ap_globalGNB_ID = -1;             /* GlobalGNB_ID */
-static int hf_e2ap_gUMMEI = -1;                   /* GUMMEI */
-static int hf_e2ap_nodeType = -1;                 /* T_nodeType */
-static int hf_e2ap_global_ng_eNB_ID_01 = -1;      /* GlobalNgENB_ID */
-static int hf_e2ap_interfaceProcedureID = -1;     /* INTEGER */
-static int hf_e2ap_messageType = -1;              /* T_messageType */
-static int hf_e2ap_ranFunction_ShortName = -1;    /* T_ranFunction_ShortName */
-static int hf_e2ap_ranFunction_E2SM_OID = -1;     /* T_ranFunction_E2SM_OID */
-static int hf_e2ap_ranFunction_Description = -1;  /* PrintableString_SIZE_1_150_ */
-static int hf_e2ap_ranFunction_Instance = -1;     /* INTEGER */
-static int hf_e2ap_rrcType = -1;                  /* T_rrcType */
-static int hf_e2ap_lTE = -1;                      /* RRCclass_LTE */
-static int hf_e2ap_nR = -1;                       /* RRCclass_NR */
-static int hf_e2ap_messageID = -1;                /* INTEGER */
-static int hf_e2ap_nR_01 = -1;                    /* NR_ARFCN */
-static int hf_e2ap_eUTRA = -1;                    /* E_UTRA_ARFCN */
-static int hf_e2ap_nR_02 = -1;                    /* NR_PCI */
-static int hf_e2ap_eUTRA_01 = -1;                 /* E_UTRA_PCI */
-static int hf_e2ap_gNB_UEID = -1;                 /* UEID_GNB */
-static int hf_e2ap_gNB_DU_UEID = -1;              /* UEID_GNB_DU */
-static int hf_e2ap_gNB_CU_UP_UEID = -1;           /* UEID_GNB_CU_UP */
-static int hf_e2ap_ng_eNB_UEID = -1;              /* UEID_NG_ENB */
-static int hf_e2ap_ng_eNB_DU_UEID = -1;           /* UEID_NG_ENB_DU */
-static int hf_e2ap_en_gNB_UEID = -1;              /* UEID_EN_GNB */
-static int hf_e2ap_eNB_UEID = -1;                 /* UEID_ENB */
-static int hf_e2ap_amf_UE_NGAP_ID = -1;           /* AMF_UE_NGAP_ID */
-static int hf_e2ap_gNB_CU_UE_F1AP_ID_List = -1;   /* UEID_GNB_CU_F1AP_ID_List */
-static int hf_e2ap_gNB_CU_CP_UE_E1AP_ID_List = -1;  /* UEID_GNB_CU_CP_E1AP_ID_List */
-static int hf_e2ap_ran_UEID = -1;                 /* RANUEID */
-static int hf_e2ap_m_NG_RAN_UE_XnAP_ID = -1;      /* NG_RANnodeUEXnAPID */
-static int hf_e2ap_globalNG_RANNode_ID = -1;      /* GlobalNGRANNodeID */
-static int hf_e2ap_UEID_GNB_CU_CP_E1AP_ID_List_item = -1;  /* UEID_GNB_CU_CP_E1AP_ID_Item */
-static int hf_e2ap_gNB_CU_CP_UE_E1AP_ID = -1;     /* GNB_CU_CP_UE_E1AP_ID */
-static int hf_e2ap_UEID_GNB_CU_F1AP_ID_List_item = -1;  /* UEID_GNB_CU_CP_F1AP_ID_Item */
-static int hf_e2ap_gNB_CU_UE_F1AP_ID = -1;        /* GNB_CU_UE_F1AP_ID */
-static int hf_e2ap_ng_eNB_CU_UE_W1AP_ID = -1;     /* NGENB_CU_UE_W1AP_ID */
-static int hf_e2ap_globalNgENB_ID = -1;           /* GlobalNgENB_ID */
-static int hf_e2ap_m_eNB_UE_X2AP_ID = -1;         /* ENB_UE_X2AP_ID */
-static int hf_e2ap_m_eNB_UE_X2AP_ID_Extension = -1;  /* ENB_UE_X2AP_ID_Extension */
-static int hf_e2ap_globalENB_ID = -1;             /* GlobalENB_ID */
-static int hf_e2ap_mME_UE_S1AP_ID = -1;           /* MME_UE_S1AP_ID */
-static int hf_e2ap_pLMN_Identity_01 = -1;         /* PLMNIdentity */
-static int hf_e2ap_mME_Group_ID = -1;             /* MME_Group_ID */
-static int hf_e2ap_mME_Code = -1;                 /* MME_Code */
-static int hf_e2ap_pLMNIdentity = -1;             /* PLMNIdentity */
-static int hf_e2ap_eUTRACellIdentity = -1;        /* EUTRACellIdentity */
-static int hf_e2ap_gNB_ID_02 = -1;                /* GNB_ID */
-static int hf_e2ap_ngENB_ID = -1;                 /* NgENB_ID */
-static int hf_e2ap_aMFRegionID = -1;              /* AMFRegionID */
-static int hf_e2ap_aMFSetID = -1;                 /* AMFSetID */
-static int hf_e2ap_aMFPointer = -1;               /* AMFPointer */
-static int hf_e2ap_macroNgENB_ID = -1;            /* BIT_STRING_SIZE_20 */
-static int hf_e2ap_shortMacroNgENB_ID = -1;       /* BIT_STRING_SIZE_18 */
-static int hf_e2ap_longMacroNgENB_ID = -1;        /* BIT_STRING_SIZE_21 */
-static int hf_e2ap_nRCellIdentity = -1;           /* NRCellIdentity */
-static int hf_e2ap_sST = -1;                      /* SST */
-static int hf_e2ap_sD = -1;                       /* SD */
-static int hf_e2ap_gNB_02 = -1;                   /* GlobalGNB_ID */
-static int hf_e2ap_ng_eNB_02 = -1;                /* GlobalNgENB_ID */
-static int hf_e2ap_nRARFCN = -1;                  /* INTEGER_0_maxNRARFCN */
-static int hf_e2ap_NRFrequencyBand_List_item = -1;  /* NRFrequencyBandItem */
-static int hf_e2ap_freqBandIndicatorNr = -1;      /* INTEGER_1_1024_ */
-static int hf_e2ap_supportedSULBandList = -1;     /* SupportedSULBandList */
-static int hf_e2ap_nrARFCN = -1;                  /* NR_ARFCN */
-static int hf_e2ap_frequencyBand_List = -1;       /* NRFrequencyBand_List */
-static int hf_e2ap_frequencyShift7p5khz = -1;     /* NRFrequencyShift7p5khz */
-static int hf_e2ap_SupportedSULBandList_item = -1;  /* SupportedSULFreqBandItem */
-static int hf_e2ap_NeighborCell_List_item = -1;   /* NeighborCell_Item */
-static int hf_e2ap_ranType_Choice_NR = -1;        /* NeighborCell_Item_Choice_NR */
-static int hf_e2ap_ranType_Choice_EUTRA = -1;     /* NeighborCell_Item_Choice_E_UTRA */
-static int hf_e2ap_nR_PCI = -1;                   /* NR_PCI */
-static int hf_e2ap_fiveGS_TAC = -1;               /* FiveGS_TAC */
-static int hf_e2ap_nR_mode_info = -1;             /* T_nR_mode_info */
-static int hf_e2ap_nR_FreqInfo = -1;              /* NRFrequencyInfo */
-static int hf_e2ap_x2_Xn_established = -1;        /* T_x2_Xn_established */
-static int hf_e2ap_hO_validated = -1;             /* T_hO_validated */
-static int hf_e2ap_version = -1;                  /* INTEGER_1_65535_ */
-static int hf_e2ap_eUTRA_PCI = -1;                /* E_UTRA_PCI */
-static int hf_e2ap_eUTRA_ARFCN = -1;              /* E_UTRA_ARFCN */
-static int hf_e2ap_eUTRA_TAC = -1;                /* E_UTRA_TAC */
-static int hf_e2ap_x2_Xn_established_01 = -1;     /* T_x2_Xn_established_01 */
-static int hf_e2ap_hO_validated_01 = -1;          /* T_hO_validated_01 */
-static int hf_e2ap_servingCellPCI = -1;           /* ServingCell_PCI */
-static int hf_e2ap_servingCellARFCN = -1;         /* ServingCell_ARFCN */
-static int hf_e2ap_neighborCell_List = -1;        /* NeighborCell_List */
-static int hf_e2ap_cellInfo_List = -1;            /* SEQUENCE_SIZE_1_maxnoofCellInfo_OF_EventTrigger_Cell_Info_Item */
-static int hf_e2ap_cellInfo_List_item = -1;       /* EventTrigger_Cell_Info_Item */
-static int hf_e2ap_eventTriggerCellID = -1;       /* RIC_EventTrigger_Cell_ID */
-static int hf_e2ap_cellType = -1;                 /* T_cellType */
-static int hf_e2ap_cellType_Choice_Individual = -1;  /* EventTrigger_Cell_Info_Item_Choice_Individual */
-static int hf_e2ap_cellType_Choice_Group = -1;    /* EventTrigger_Cell_Info_Item_Choice_Group */
-static int hf_e2ap_logicalOR = -1;                /* LogicalOR */
-static int hf_e2ap_cellGlobalID = -1;             /* CGI */
-static int hf_e2ap_ranParameterTesting = -1;      /* RANParameter_Testing */
-static int hf_e2ap_ueInfo_List = -1;              /* SEQUENCE_SIZE_1_maxnoofUEInfo_OF_EventTrigger_UE_Info_Item */
-static int hf_e2ap_ueInfo_List_item = -1;         /* EventTrigger_UE_Info_Item */
-static int hf_e2ap_eventTriggerUEID = -1;         /* RIC_EventTrigger_UE_ID */
-static int hf_e2ap_ueType = -1;                   /* T_ueType */
-static int hf_e2ap_ueType_Choice_Individual = -1;  /* EventTrigger_UE_Info_Item_Choice_Individual */
-static int hf_e2ap_ueType_Choice_Group = -1;      /* EventTrigger_UE_Info_Item_Choice_Group */
-static int hf_e2ap_ueID = -1;                     /* UEID */
-static int hf_e2ap_ueEvent_List = -1;             /* SEQUENCE_SIZE_1_maxnoofUEeventInfo_OF_EventTrigger_UEevent_Info_Item */
-static int hf_e2ap_ueEvent_List_item = -1;        /* EventTrigger_UEevent_Info_Item */
-static int hf_e2ap_ueEventID = -1;                /* RIC_EventTrigger_UEevent_ID */
-static int hf_e2ap_ranParameter_Definition_Choice = -1;  /* RANParameter_Definition_Choice */
-static int hf_e2ap_choiceLIST = -1;               /* RANParameter_Definition_Choice_LIST */
-static int hf_e2ap_choiceSTRUCTURE = -1;          /* RANParameter_Definition_Choice_STRUCTURE */
-static int hf_e2ap_ranParameter_List = -1;        /* SEQUENCE_SIZE_1_maxnoofItemsinList_OF_RANParameter_Definition_Choice_LIST_Item */
-static int hf_e2ap_ranParameter_List_item = -1;   /* RANParameter_Definition_Choice_LIST_Item */
-static int hf_e2ap_ranParameter_ID = -1;          /* RANParameter_ID */
-static int hf_e2ap_ranParameter_name = -1;        /* RANParameter_Name */
-static int hf_e2ap_ranParameter_Definition = -1;  /* RANParameter_Definition */
-static int hf_e2ap_ranParameter_STRUCTURE = -1;   /* SEQUENCE_SIZE_1_maxnoofParametersinStructure_OF_RANParameter_Definition_Choice_STRUCTURE_Item */
-static int hf_e2ap_ranParameter_STRUCTURE_item = -1;  /* RANParameter_Definition_Choice_STRUCTURE_Item */
-static int hf_e2ap_valueBoolean = -1;             /* BOOLEAN */
-static int hf_e2ap_valueInt = -1;                 /* INTEGER */
-static int hf_e2ap_valueReal = -1;                /* REAL */
-static int hf_e2ap_valueBitS = -1;                /* BIT_STRING */
-static int hf_e2ap_valueOctS = -1;                /* OCTET_STRING */
-static int hf_e2ap_valuePrintableString = -1;     /* PrintableString */
-static int hf_e2ap_ranP_Choice_ElementTrue = -1;  /* RANParameter_ValueType_Choice_ElementTrue */
-static int hf_e2ap_ranP_Choice_ElementFalse = -1;  /* RANParameter_ValueType_Choice_ElementFalse */
-static int hf_e2ap_ranP_Choice_Structure = -1;    /* RANParameter_ValueType_Choice_Structure */
-static int hf_e2ap_ranP_Choice_List = -1;         /* RANParameter_ValueType_Choice_List */
-static int hf_e2ap_ranParameter_value = -1;       /* RANParameter_Value */
-static int hf_e2ap_ranParameter_Structure = -1;   /* RANParameter_STRUCTURE */
-static int hf_e2ap_ranParameter_List_01 = -1;     /* RANParameter_LIST */
-static int hf_e2ap_sequence_of_ranParameters = -1;  /* SEQUENCE_SIZE_1_maxnoofParametersinStructure_OF_RANParameter_STRUCTURE_Item */
-static int hf_e2ap_sequence_of_ranParameters_item = -1;  /* RANParameter_STRUCTURE_Item */
-static int hf_e2ap_ranParameter_valueType = -1;   /* RANParameter_ValueType */
-static int hf_e2ap_list_of_ranParameter = -1;     /* SEQUENCE_SIZE_1_maxnoofItemsinList_OF_RANParameter_STRUCTURE */
-static int hf_e2ap_list_of_ranParameter_item = -1;  /* RANParameter_STRUCTURE */
-static int hf_e2ap_RANParameter_Testing_item = -1;  /* RANParameter_Testing_Item */
-static int hf_e2ap_ranP_Choice_comparison = -1;   /* T_ranP_Choice_comparison */
-static int hf_e2ap_ranP_Choice_presence = -1;     /* T_ranP_Choice_presence */
-static int hf_e2ap_ranParameter_Type = -1;        /* T_ranParameter_Type */
-static int hf_e2ap_ranP_Choice_List_01 = -1;      /* RANParameter_Testing_Item_Choice_List */
-static int hf_e2ap_ranP_Choice_Structure_01 = -1;  /* RANParameter_Testing_Item_Choice_Structure */
-static int hf_e2ap_ranP_Choice_ElementTrue_01 = -1;  /* RANParameter_Testing_Item_Choice_ElementTrue */
-static int hf_e2ap_ranP_Choice_ElementFalse_01 = -1;  /* RANParameter_Testing_Item_Choice_ElementFalse */
-static int hf_e2ap_ranParameter_List_02 = -1;     /* RANParameter_Testing_LIST */
-static int hf_e2ap_ranParameter_Structure_01 = -1;  /* RANParameter_Testing_STRUCTURE */
-static int hf_e2ap_ranParameter_TestCondition = -1;  /* RANParameter_TestingCondition */
-static int hf_e2ap_ranParameter_Value = -1;       /* RANParameter_Value */
-static int hf_e2ap_RANParameter_Testing_LIST_item = -1;  /* RANParameter_Testing_Item */
-static int hf_e2ap_RANParameter_Testing_STRUCTURE_item = -1;  /* RANParameter_Testing_Item */
-static int hf_e2ap_ric_PolicyAction_ID = -1;      /* RIC_ControlAction_ID */
-static int hf_e2ap_ranParameters_List = -1;       /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_RIC_PolicyAction_RANParameter_Item */
-static int hf_e2ap_ranParameters_List_item = -1;  /* RIC_PolicyAction_RANParameter_Item */
-static int hf_e2ap_ric_PolicyDecision = -1;       /* T_ric_PolicyDecision */
-static int hf_e2ap_ric_eventTrigger_formats = -1;  /* T_ric_eventTrigger_formats */
-static int hf_e2ap_eventTrigger_Format1 = -1;     /* E2SM_RC_EventTrigger_Format1 */
-static int hf_e2ap_eventTrigger_Format2 = -1;     /* E2SM_RC_EventTrigger_Format2 */
-static int hf_e2ap_eventTrigger_Format3 = -1;     /* E2SM_RC_EventTrigger_Format3 */
-static int hf_e2ap_eventTrigger_Format4 = -1;     /* E2SM_RC_EventTrigger_Format4 */
-static int hf_e2ap_eventTrigger_Format5 = -1;     /* E2SM_RC_EventTrigger_Format5 */
-static int hf_e2ap_message_List = -1;             /* SEQUENCE_SIZE_1_maxnoofMessages_OF_E2SM_RC_EventTrigger_Format1_Item */
-static int hf_e2ap_message_List_item = -1;        /* E2SM_RC_EventTrigger_Format1_Item */
-static int hf_e2ap_globalAssociatedUEInfo = -1;   /* EventTrigger_UE_Info */
-static int hf_e2ap_ric_eventTriggerCondition_ID = -1;  /* RIC_EventTriggerCondition_ID */
-static int hf_e2ap_messageType_01 = -1;           /* MessageType_Choice */
-static int hf_e2ap_messageDirection = -1;         /* T_messageDirection */
-static int hf_e2ap_associatedUEInfo = -1;         /* EventTrigger_UE_Info */
-static int hf_e2ap_associatedUEEvent = -1;        /* EventTrigger_UEevent_Info */
-static int hf_e2ap_messageType_Choice_NI = -1;    /* MessageType_Choice_NI */
-static int hf_e2ap_messageType_Choice_RRC = -1;   /* MessageType_Choice_RRC */
-static int hf_e2ap_nI_Type = -1;                  /* InterfaceType */
-static int hf_e2ap_nI_Identifier = -1;            /* InterfaceIdentifier */
-static int hf_e2ap_nI_Message = -1;               /* Interface_MessageID */
-static int hf_e2ap_rRC_Message = -1;              /* RRC_MessageID */
-static int hf_e2ap_ric_callProcessType_ID = -1;   /* RIC_CallProcessType_ID */
-static int hf_e2ap_ric_callProcessBreakpoint_ID = -1;  /* RIC_CallProcessBreakpoint_ID */
-static int hf_e2ap_associatedE2NodeInfo = -1;     /* RANParameter_Testing */
-static int hf_e2ap_e2NodeInfoChange_List = -1;    /* SEQUENCE_SIZE_1_maxnoofE2InfoChanges_OF_E2SM_RC_EventTrigger_Format3_Item */
-static int hf_e2ap_e2NodeInfoChange_List_item = -1;  /* E2SM_RC_EventTrigger_Format3_Item */
-static int hf_e2ap_e2NodeInfoChange_ID = -1;      /* INTEGER_1_512_ */
-static int hf_e2ap_associatedCellInfo = -1;       /* EventTrigger_Cell_Info */
-static int hf_e2ap_uEInfoChange_List = -1;        /* SEQUENCE_SIZE_1_maxnoofUEInfoChanges_OF_E2SM_RC_EventTrigger_Format4_Item */
-static int hf_e2ap_uEInfoChange_List_item = -1;   /* E2SM_RC_EventTrigger_Format4_Item */
-static int hf_e2ap_triggerType = -1;              /* TriggerType_Choice */
-static int hf_e2ap_triggerType_Choice_RRCstate = -1;  /* TriggerType_Choice_RRCstate */
-static int hf_e2ap_triggerType_Choice_UEID = -1;  /* TriggerType_Choice_UEID */
-static int hf_e2ap_triggerType_Choice_L2state = -1;  /* TriggerType_Choice_L2state */
-static int hf_e2ap_rrcState_List = -1;            /* SEQUENCE_SIZE_1_maxnoofRRCstate_OF_TriggerType_Choice_RRCstate_Item */
-static int hf_e2ap_rrcState_List_item = -1;       /* TriggerType_Choice_RRCstate_Item */
-static int hf_e2ap_stateChangedTo = -1;           /* RRC_State */
-static int hf_e2ap_ueIDchange_ID = -1;            /* INTEGER_1_512_ */
-static int hf_e2ap_associatedL2variables = -1;    /* RANParameter_Testing */
-static int hf_e2ap_onDemand = -1;                 /* T_onDemand */
-static int hf_e2ap_ric_Style_Type = -1;           /* RIC_Style_Type */
-static int hf_e2ap_ric_actionDefinition_formats = -1;  /* T_ric_actionDefinition_formats */
-static int hf_e2ap_actionDefinition_Format1 = -1;  /* E2SM_RC_ActionDefinition_Format1 */
-static int hf_e2ap_actionDefinition_Format2 = -1;  /* E2SM_RC_ActionDefinition_Format2 */
-static int hf_e2ap_actionDefinition_Format3 = -1;  /* E2SM_RC_ActionDefinition_Format3 */
-static int hf_e2ap_actionDefinition_Format4 = -1;  /* E2SM_RC_ActionDefinition_Format4 */
-static int hf_e2ap_ranP_ToBeReported_List = -1;   /* SEQUENCE_SIZE_1_maxnoofParametersToReport_OF_E2SM_RC_ActionDefinition_Format1_Item */
-static int hf_e2ap_ranP_ToBeReported_List_item = -1;  /* E2SM_RC_ActionDefinition_Format1_Item */
-static int hf_e2ap_ric_PolicyConditions_List = -1;  /* SEQUENCE_SIZE_1_maxnoofPolicyConditions_OF_E2SM_RC_ActionDefinition_Format2_Item */
-static int hf_e2ap_ric_PolicyConditions_List_item = -1;  /* E2SM_RC_ActionDefinition_Format2_Item */
-static int hf_e2ap_ric_PolicyAction = -1;         /* RIC_PolicyAction */
-static int hf_e2ap_ric_PolicyConditionDefinition = -1;  /* RANParameter_Testing */
-static int hf_e2ap_ric_InsertIndication_ID = -1;  /* RIC_InsertIndication_ID */
-static int hf_e2ap_ranP_InsertIndication_List = -1;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_ActionDefinition_Format3_Item */
-static int hf_e2ap_ranP_InsertIndication_List_item = -1;  /* E2SM_RC_ActionDefinition_Format3_Item */
-static int hf_e2ap_ric_InsertStyle_List = -1;     /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_ActionDefinition_Format4_Style_Item */
-static int hf_e2ap_ric_InsertStyle_List_item = -1;  /* E2SM_RC_ActionDefinition_Format4_Style_Item */
-static int hf_e2ap_requested_Insert_Style_Type = -1;  /* RIC_Style_Type */
-static int hf_e2ap_ric_InsertIndication_List = -1;  /* SEQUENCE_SIZE_1_maxnoofInsertIndicationActions_OF_E2SM_RC_ActionDefinition_Format4_Indication_Item */
-static int hf_e2ap_ric_InsertIndication_List_item = -1;  /* E2SM_RC_ActionDefinition_Format4_Indication_Item */
-static int hf_e2ap_ranP_InsertIndication_List_01 = -1;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_ActionDefinition_Format4_RANP_Item */
-static int hf_e2ap_ranP_InsertIndication_List_item_01 = -1;  /* E2SM_RC_ActionDefinition_Format4_RANP_Item */
-static int hf_e2ap_ric_indicationHeader_formats = -1;  /* T_ric_indicationHeader_formats */
-static int hf_e2ap_indicationHeader_Format1 = -1;  /* E2SM_RC_IndicationHeader_Format1 */
-static int hf_e2ap_indicationHeader_Format2 = -1;  /* E2SM_RC_IndicationHeader_Format2 */
-static int hf_e2ap_indicationHeader_Format3 = -1;  /* E2SM_RC_IndicationHeader_Format3 */
-static int hf_e2ap_ric_InsertStyle_Type = -1;     /* RIC_Style_Type */
-static int hf_e2ap_ric_indicationMessage_formats = -1;  /* T_ric_indicationMessage_formats */
-static int hf_e2ap_indicationMessage_Format1 = -1;  /* E2SM_RC_IndicationMessage_Format1 */
-static int hf_e2ap_indicationMessage_Format2 = -1;  /* E2SM_RC_IndicationMessage_Format2 */
-static int hf_e2ap_indicationMessage_Format3 = -1;  /* E2SM_RC_IndicationMessage_Format3 */
-static int hf_e2ap_indicationMessage_Format4 = -1;  /* E2SM_RC_IndicationMessage_Format4 */
-static int hf_e2ap_indicationMessage_Format5 = -1;  /* E2SM_RC_IndicationMessage_Format5 */
-static int hf_e2ap_indicationMessage_Format6 = -1;  /* E2SM_RC_IndicationMessage_Format6 */
-static int hf_e2ap_ranP_Reported_List = -1;       /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format1_Item */
-static int hf_e2ap_ranP_Reported_List_item = -1;  /* E2SM_RC_IndicationMessage_Format1_Item */
-static int hf_e2ap_ueParameter_List = -1;         /* SEQUENCE_SIZE_1_maxnoofUEID_OF_E2SM_RC_IndicationMessage_Format2_Item */
-static int hf_e2ap_ueParameter_List_item = -1;    /* E2SM_RC_IndicationMessage_Format2_Item */
-static int hf_e2ap_ranP_List = -1;                /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format2_RANParameter_Item */
-static int hf_e2ap_ranP_List_item = -1;           /* E2SM_RC_IndicationMessage_Format2_RANParameter_Item */
-static int hf_e2ap_cellInfo_List_01 = -1;         /* SEQUENCE_SIZE_1_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format3_Item */
-static int hf_e2ap_cellInfo_List_item_01 = -1;    /* E2SM_RC_IndicationMessage_Format3_Item */
-static int hf_e2ap_cellGlobal_ID = -1;            /* CGI */
-static int hf_e2ap_cellContextInfo = -1;          /* OCTET_STRING */
-static int hf_e2ap_cellDeleted = -1;              /* BOOLEAN */
-static int hf_e2ap_neighborRelation_Table = -1;   /* NeighborRelation_Info */
-static int hf_e2ap_ueInfo_List_01 = -1;           /* SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_IndicationMessage_Format4_ItemUE */
-static int hf_e2ap_ueInfo_List_item_01 = -1;      /* E2SM_RC_IndicationMessage_Format4_ItemUE */
-static int hf_e2ap_cellInfo_List_02 = -1;         /* SEQUENCE_SIZE_0_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format4_ItemCell */
-static int hf_e2ap_cellInfo_List_item_02 = -1;    /* E2SM_RC_IndicationMessage_Format4_ItemCell */
-static int hf_e2ap_ueContextInfo = -1;            /* OCTET_STRING */
-static int hf_e2ap_ranP_Requested_List = -1;      /* SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format5_Item */
-static int hf_e2ap_ranP_Requested_List_item = -1;  /* E2SM_RC_IndicationMessage_Format5_Item */
-static int hf_e2ap_ric_InsertStyle_List_01 = -1;  /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_IndicationMessage_Format6_Style_Item */
-static int hf_e2ap_ric_InsertStyle_List_item_01 = -1;  /* E2SM_RC_IndicationMessage_Format6_Style_Item */
-static int hf_e2ap_indicated_Insert_Style_Type = -1;  /* RIC_Style_Type */
-static int hf_e2ap_ric_InsertIndication_List_01 = -1;  /* SEQUENCE_SIZE_1_maxnoofInsertIndicationActions_OF_E2SM_RC_IndicationMessage_Format6_Indication_Item */
-static int hf_e2ap_ric_InsertIndication_List_item_01 = -1;  /* E2SM_RC_IndicationMessage_Format6_Indication_Item */
-static int hf_e2ap_ranP_InsertIndication_List_02 = -1;  /* SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format6_RANP_Item */
-static int hf_e2ap_ranP_InsertIndication_List_item_02 = -1;  /* E2SM_RC_IndicationMessage_Format6_RANP_Item */
-static int hf_e2ap_ric_callProcessID_formats = -1;  /* T_ric_callProcessID_formats */
-static int hf_e2ap_callProcessID_Format1 = -1;    /* E2SM_RC_CallProcessID_Format1 */
-static int hf_e2ap_ric_callProcess_ID = -1;       /* RAN_CallProcess_ID */
-static int hf_e2ap_ric_controlHeader_formats = -1;  /* T_ric_controlHeader_formats */
-static int hf_e2ap_controlHeader_Format1 = -1;    /* E2SM_RC_ControlHeader_Format1 */
-static int hf_e2ap_controlHeader_Format2 = -1;    /* E2SM_RC_ControlHeader_Format2 */
-static int hf_e2ap_ric_ControlAction_ID = -1;     /* RIC_ControlAction_ID */
-static int hf_e2ap_ric_ControlDecision = -1;      /* T_ric_ControlDecision */
-static int hf_e2ap_ric_ControlDecision_01 = -1;   /* T_ric_ControlDecision_01 */
-static int hf_e2ap_ric_controlMessage_formats = -1;  /* T_ric_controlMessage_formats */
-static int hf_e2ap_controlMessage_Format1 = -1;   /* E2SM_RC_ControlMessage_Format1 */
-static int hf_e2ap_controlMessage_Format2 = -1;   /* E2SM_RC_ControlMessage_Format2 */
-static int hf_e2ap_ranP_List_01 = -1;             /* SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_ControlMessage_Format1_Item */
-static int hf_e2ap_ranP_List_item_01 = -1;        /* E2SM_RC_ControlMessage_Format1_Item */
-static int hf_e2ap_ric_ControlStyle_List = -1;    /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_ControlMessage_Format2_Style_Item */
-static int hf_e2ap_ric_ControlStyle_List_item = -1;  /* E2SM_RC_ControlMessage_Format2_Style_Item */
-static int hf_e2ap_indicated_Control_Style_Type = -1;  /* RIC_Style_Type */
-static int hf_e2ap_ric_ControlAction_List = -1;   /* SEQUENCE_SIZE_1_maxnoofMulCtrlActions_OF_E2SM_RC_ControlMessage_Format2_ControlAction_Item */
-static int hf_e2ap_ric_ControlAction_List_item = -1;  /* E2SM_RC_ControlMessage_Format2_ControlAction_Item */
-static int hf_e2ap_ranP_List_02 = -1;             /* E2SM_RC_ControlMessage_Format1 */
-static int hf_e2ap_ric_controlOutcome_formats = -1;  /* T_ric_controlOutcome_formats */
-static int hf_e2ap_controlOutcome_Format1 = -1;   /* E2SM_RC_ControlOutcome_Format1 */
-static int hf_e2ap_controlOutcome_Format2 = -1;   /* E2SM_RC_ControlOutcome_Format2 */
-static int hf_e2ap_controlOutcome_Format3 = -1;   /* E2SM_RC_ControlOutcome_Format3 */
-static int hf_e2ap_ranP_List_03 = -1;             /* SEQUENCE_SIZE_0_maxnoofRANOutcomeParameters_OF_E2SM_RC_ControlOutcome_Format1_Item */
-static int hf_e2ap_ranP_List_item_02 = -1;        /* E2SM_RC_ControlOutcome_Format1_Item */
-static int hf_e2ap_ric_ControlStyle_List_01 = -1;  /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_ControlOutcome_Format2_Style_Item */
-static int hf_e2ap_ric_ControlStyle_List_item_01 = -1;  /* E2SM_RC_ControlOutcome_Format2_Style_Item */
-static int hf_e2ap_ric_ControlOutcome_List = -1;  /* SEQUENCE_SIZE_1_maxnoofMulCtrlActions_OF_E2SM_RC_ControlOutcome_Format2_ControlOutcome_Item */
-static int hf_e2ap_ric_ControlOutcome_List_item = -1;  /* E2SM_RC_ControlOutcome_Format2_ControlOutcome_Item */
-static int hf_e2ap_ranP_List_04 = -1;             /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_ControlOutcome_Format2_RANP_Item */
-static int hf_e2ap_ranP_List_item_03 = -1;        /* E2SM_RC_ControlOutcome_Format2_RANP_Item */
-static int hf_e2ap_ranP_List_05 = -1;             /* SEQUENCE_SIZE_0_maxnoofRANOutcomeParameters_OF_E2SM_RC_ControlOutcome_Format3_Item */
-static int hf_e2ap_ranP_List_item_04 = -1;        /* E2SM_RC_ControlOutcome_Format3_Item */
-static int hf_e2ap_ranFunction_Name = -1;         /* RANfunction_Name */
-static int hf_e2ap_ranFunctionDefinition_EventTrigger = -1;  /* RANFunctionDefinition_EventTrigger */
-static int hf_e2ap_ranFunctionDefinition_Report = -1;  /* RANFunctionDefinition_Report */
-static int hf_e2ap_ranFunctionDefinition_Insert = -1;  /* RANFunctionDefinition_Insert */
-static int hf_e2ap_ranFunctionDefinition_Control = -1;  /* RANFunctionDefinition_Control */
-static int hf_e2ap_ranFunctionDefinition_Policy = -1;  /* RANFunctionDefinition_Policy */
-static int hf_e2ap_ric_EventTriggerStyle_List = -1;  /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_EventTrigger_Style_Item */
-static int hf_e2ap_ric_EventTriggerStyle_List_item = -1;  /* RANFunctionDefinition_EventTrigger_Style_Item */
-static int hf_e2ap_ran_L2Parameters_List = -1;    /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_L2Parameters_RANParameter_Item */
-static int hf_e2ap_ran_L2Parameters_List_item = -1;  /* L2Parameters_RANParameter_Item */
-static int hf_e2ap_ran_CallProcessTypes_List = -1;  /* SEQUENCE_SIZE_1_maxnoofCallProcessTypes_OF_RANFunctionDefinition_EventTrigger_CallProcess_Item */
-static int hf_e2ap_ran_CallProcessTypes_List_item = -1;  /* RANFunctionDefinition_EventTrigger_CallProcess_Item */
-static int hf_e2ap_ran_UEIdentificationParameters_List = -1;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_UEIdentification_RANParameter_Item */
-static int hf_e2ap_ran_UEIdentificationParameters_List_item = -1;  /* UEIdentification_RANParameter_Item */
-static int hf_e2ap_ran_CellIdentificationParameters_List = -1;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_CellIdentification_RANParameter_Item */
-static int hf_e2ap_ran_CellIdentificationParameters_List_item = -1;  /* CellIdentification_RANParameter_Item */
-static int hf_e2ap_ric_EventTriggerStyle_Type = -1;  /* RIC_Style_Type */
-static int hf_e2ap_ric_EventTriggerStyle_Name = -1;  /* RIC_Style_Name */
-static int hf_e2ap_ric_EventTriggerFormat_Type = -1;  /* RIC_Format_Type */
-static int hf_e2ap_callProcessType_ID = -1;       /* RIC_CallProcessType_ID */
-static int hf_e2ap_callProcessType_Name = -1;     /* RIC_CallProcessType_Name */
-static int hf_e2ap_callProcessBreakpoints_List = -1;  /* SEQUENCE_SIZE_1_maxnoofCallProcessBreakpoints_OF_RANFunctionDefinition_EventTrigger_Breakpoint_Item */
-static int hf_e2ap_callProcessBreakpoints_List_item = -1;  /* RANFunctionDefinition_EventTrigger_Breakpoint_Item */
-static int hf_e2ap_callProcessBreakpoint_ID = -1;  /* RIC_CallProcessBreakpoint_ID */
-static int hf_e2ap_callProcessBreakpoint_Name = -1;  /* RIC_CallProcessBreakpoint_Name */
-static int hf_e2ap_ran_CallProcessBreakpointParameters_List = -1;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_CallProcessBreakpoint_RANParameter_Item */
-static int hf_e2ap_ran_CallProcessBreakpointParameters_List_item = -1;  /* CallProcessBreakpoint_RANParameter_Item */
-static int hf_e2ap_ric_ReportStyle_List = -1;     /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Report_Item */
-static int hf_e2ap_ric_ReportStyle_List_item = -1;  /* RANFunctionDefinition_Report_Item */
-static int hf_e2ap_ric_ReportStyle_Type = -1;     /* RIC_Style_Type */
-static int hf_e2ap_ric_ReportStyle_Name = -1;     /* RIC_Style_Name */
-static int hf_e2ap_ric_SupportedEventTriggerStyle_Type = -1;  /* RIC_Style_Type */
-static int hf_e2ap_ric_ReportActionFormat_Type = -1;  /* RIC_Format_Type */
-static int hf_e2ap_ric_IndicationHeaderFormat_Type = -1;  /* RIC_Format_Type */
-static int hf_e2ap_ric_IndicationMessageFormat_Type = -1;  /* RIC_Format_Type */
-static int hf_e2ap_ran_ReportParameters_List = -1;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_Report_RANParameter_Item */
-static int hf_e2ap_ran_ReportParameters_List_item = -1;  /* Report_RANParameter_Item */
-static int hf_e2ap_ric_InsertStyle_List_02 = -1;  /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Insert_Item */
-static int hf_e2ap_ric_InsertStyle_List_item_02 = -1;  /* RANFunctionDefinition_Insert_Item */
-static int hf_e2ap_ric_InsertStyle_Name = -1;     /* RIC_Style_Name */
-static int hf_e2ap_ric_ActionDefinitionFormat_Type = -1;  /* RIC_Format_Type */
-static int hf_e2ap_ric_InsertIndication_List_02 = -1;  /* SEQUENCE_SIZE_1_maxnoofInsertIndication_OF_RANFunctionDefinition_Insert_Indication_Item */
-static int hf_e2ap_ric_InsertIndication_List_item_02 = -1;  /* RANFunctionDefinition_Insert_Indication_Item */
-static int hf_e2ap_ric_CallProcessIDFormat_Type = -1;  /* RIC_Format_Type */
-static int hf_e2ap_ric_InsertIndication_Name = -1;  /* RIC_InsertIndication_Name */
-static int hf_e2ap_ran_InsertIndicationParameters_List = -1;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_InsertIndication_RANParameter_Item */
-static int hf_e2ap_ran_InsertIndicationParameters_List_item = -1;  /* InsertIndication_RANParameter_Item */
-static int hf_e2ap_ric_ControlStyle_List_02 = -1;  /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Control_Item */
-static int hf_e2ap_ric_ControlStyle_List_item_02 = -1;  /* RANFunctionDefinition_Control_Item */
-static int hf_e2ap_ric_ControlStyle_Type = -1;    /* RIC_Style_Type */
-static int hf_e2ap_ric_ControlStyle_Name = -1;    /* RIC_Style_Name */
-static int hf_e2ap_ric_ControlAction_List_01 = -1;  /* SEQUENCE_SIZE_1_maxnoofControlAction_OF_RANFunctionDefinition_Control_Action_Item */
-static int hf_e2ap_ric_ControlAction_List_item_01 = -1;  /* RANFunctionDefinition_Control_Action_Item */
-static int hf_e2ap_ric_ControlHeaderFormat_Type = -1;  /* RIC_Format_Type */
-static int hf_e2ap_ric_ControlMessageFormat_Type = -1;  /* RIC_Format_Type */
-static int hf_e2ap_ric_ControlOutcomeFormat_Type = -1;  /* RIC_Format_Type */
-static int hf_e2ap_ran_ControlOutcomeParameters_List = -1;  /* SEQUENCE_SIZE_1_maxnoofRANOutcomeParameters_OF_ControlOutcome_RANParameter_Item */
-static int hf_e2ap_ran_ControlOutcomeParameters_List_item = -1;  /* ControlOutcome_RANParameter_Item */
-static int hf_e2ap_ric_ControlAction_Name = -1;   /* RIC_ControlAction_Name */
-static int hf_e2ap_ran_ControlActionParameters_List = -1;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_ControlAction_RANParameter_Item */
-static int hf_e2ap_ran_ControlActionParameters_List_item = -1;  /* ControlAction_RANParameter_Item */
-static int hf_e2ap_ric_PolicyStyle_List = -1;     /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Policy_Item */
-static int hf_e2ap_ric_PolicyStyle_List_item = -1;  /* RANFunctionDefinition_Policy_Item */
-static int hf_e2ap_ric_PolicyStyle_Type = -1;     /* RIC_Style_Type */
-static int hf_e2ap_ric_PolicyStyle_Name = -1;     /* RIC_Style_Name */
-static int hf_e2ap_ric_PolicyAction_List = -1;    /* SEQUENCE_SIZE_1_maxnoofPolicyAction_OF_RANFunctionDefinition_Policy_Action_Item */
-static int hf_e2ap_ric_PolicyAction_List_item = -1;  /* RANFunctionDefinition_Policy_Action_Item */
-static int hf_e2ap_ric_PolicyAction_Name = -1;    /* RIC_ControlAction_Name */
-static int hf_e2ap_ran_PolicyActionParameters_List = -1;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_PolicyAction_RANParameter_Item */
-static int hf_e2ap_ran_PolicyActionParameters_List_item = -1;  /* PolicyAction_RANParameter_Item */
-static int hf_e2ap_ran_PolicyConditionParameters_List = -1;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_PolicyCondition_RANParameter_Item */
-static int hf_e2ap_ran_PolicyConditionParameters_List_item = -1;  /* PolicyCondition_RANParameter_Item */
-static int hf_e2ap_measName = -1;                 /* MeasurementTypeName */
-static int hf_e2ap_measID = -1;                   /* MeasurementTypeID */
-static int hf_e2ap_noLabel = -1;                  /* T_noLabel */
-static int hf_e2ap_plmnID = -1;                   /* PLMNIdentity */
-static int hf_e2ap_sliceID = -1;                  /* S_NSSAI */
-static int hf_e2ap_fiveQI = -1;                   /* FiveQI */
-static int hf_e2ap_qFI = -1;                      /* QosFlowIdentifier */
-static int hf_e2ap_qCI = -1;                      /* QCI */
-static int hf_e2ap_qCImax = -1;                   /* QCI */
-static int hf_e2ap_qCImin = -1;                   /* QCI */
-static int hf_e2ap_aRPmax = -1;                   /* INTEGER_1_15_ */
-static int hf_e2ap_aRPmin = -1;                   /* INTEGER_1_15_ */
-static int hf_e2ap_bitrateRange = -1;             /* INTEGER_1_65535_ */
-static int hf_e2ap_layerMU_MIMO = -1;             /* INTEGER_1_65535_ */
-static int hf_e2ap_sUM = -1;                      /* T_sUM */
-static int hf_e2ap_distBinX = -1;                 /* INTEGER_1_65535_ */
-static int hf_e2ap_distBinY = -1;                 /* INTEGER_1_65535_ */
-static int hf_e2ap_distBinZ = -1;                 /* INTEGER_1_65535_ */
-static int hf_e2ap_preLabelOverride = -1;         /* T_preLabelOverride */
-static int hf_e2ap_startEndInd = -1;              /* T_startEndInd */
-static int hf_e2ap_min = -1;                      /* T_min */
-static int hf_e2ap_max = -1;                      /* T_max */
-static int hf_e2ap_avg = -1;                      /* T_avg */
-static int hf_e2ap_ssbIndex = -1;                 /* INTEGER_1_65535_ */
-static int hf_e2ap_nonGoB_BFmode_Index = -1;      /* INTEGER_1_65535_ */
-static int hf_e2ap_mIMO_mode_Index = -1;          /* INTEGER_1_2_ */
-static int hf_e2ap_testType = -1;                 /* TestCond_Type */
-static int hf_e2ap_testExpr = -1;                 /* TestCond_Expression */
-static int hf_e2ap_testValue = -1;                /* TestCond_Value */
-static int hf_e2ap_gBR = -1;                      /* T_gBR */
-static int hf_e2ap_aMBR = -1;                     /* T_aMBR */
-static int hf_e2ap_isStat = -1;                   /* T_isStat */
-static int hf_e2ap_isCatM = -1;                   /* T_isCatM */
-static int hf_e2ap_rSRP = -1;                     /* T_rSRP */
-static int hf_e2ap_rSRQ = -1;                     /* T_rSRQ */
-static int hf_e2ap_ul_rSRP = -1;                  /* T_ul_rSRP */
-static int hf_e2ap_cQI = -1;                      /* T_cQI */
-static int hf_e2ap_fiveQI_01 = -1;                /* T_fiveQI */
-static int hf_e2ap_qCI_01 = -1;                   /* T_qCI */
-static int hf_e2ap_sNSSAI = -1;                   /* T_sNSSAI */
-static int hf_e2ap_valueEnum = -1;                /* INTEGER */
-static int hf_e2ap_valueBool = -1;                /* BOOLEAN */
-static int hf_e2ap_valuePrtS = -1;                /* PrintableString */
-static int hf_e2ap_binRangeListX = -1;            /* BinRangeList */
-static int hf_e2ap_binRangeListY = -1;            /* BinRangeList */
-static int hf_e2ap_binRangeListZ = -1;            /* BinRangeList */
-static int hf_e2ap_BinRangeList_item = -1;        /* BinRangeItem */
-static int hf_e2ap_binIndex = -1;                 /* BinIndex */
-static int hf_e2ap_startValue = -1;               /* BinRangeValue */
-static int hf_e2ap_endValue = -1;                 /* BinRangeValue */
-static int hf_e2ap_DistMeasurementBinRangeList_item = -1;  /* DistMeasurementBinRangeItem */
-static int hf_e2ap_measType = -1;                 /* MeasurementType */
-static int hf_e2ap_binRangeDef = -1;              /* BinRangeDefinition */
-static int hf_e2ap_MeasurementInfoList_item = -1;  /* MeasurementInfoItem */
-static int hf_e2ap_labelInfoList = -1;            /* LabelInfoList */
-static int hf_e2ap_LabelInfoList_item = -1;       /* LabelInfoItem */
-static int hf_e2ap_measLabel = -1;                /* MeasurementLabel */
-static int hf_e2ap_MeasurementData_item = -1;     /* MeasurementDataItem */
-static int hf_e2ap_measRecord = -1;               /* MeasurementRecord */
-static int hf_e2ap_incompleteFlag = -1;           /* T_incompleteFlag */
-static int hf_e2ap_MeasurementRecord_item = -1;   /* MeasurementRecordItem */
-static int hf_e2ap_integer = -1;                  /* INTEGER_0_4294967295 */
-static int hf_e2ap_real = -1;                     /* REAL */
-static int hf_e2ap_noValue = -1;                  /* NULL */
-static int hf_e2ap_MeasurementInfo_Action_List_item = -1;  /* MeasurementInfo_Action_Item */
-static int hf_e2ap_MeasurementCondList_item = -1;  /* MeasurementCondItem */
-static int hf_e2ap_matchingCond = -1;             /* MatchingCondList */
-static int hf_e2ap_MeasurementCondUEidList_item = -1;  /* MeasurementCondUEidItem */
-static int hf_e2ap_matchingUEidList = -1;         /* MatchingUEidList */
-static int hf_e2ap_matchingUEidPerGP = -1;        /* MatchingUEidPerGP */
-static int hf_e2ap_MatchingCondList_item = -1;    /* MatchingCondItem */
-static int hf_e2ap_matchingCondChoice = -1;       /* MatchingCondItem_Choice */
-static int hf_e2ap_testCondInfo = -1;             /* TestCondInfo */
-static int hf_e2ap_MatchingUEidList_item = -1;    /* MatchingUEidItem */
-static int hf_e2ap_MatchingUEidPerGP_item = -1;   /* MatchingUEidPerGP_Item */
-static int hf_e2ap_matchedPerGP = -1;             /* T_matchedPerGP */
-static int hf_e2ap_noUEmatched = -1;              /* T_noUEmatched */
-static int hf_e2ap_oneOrMoreUEmatched = -1;       /* MatchingUEidList_PerGP */
-static int hf_e2ap_MatchingUEidList_PerGP_item = -1;  /* MatchingUEidItem_PerGP */
-static int hf_e2ap_MatchingUeCondPerSubList_item = -1;  /* MatchingUeCondPerSubItem */
-static int hf_e2ap_MatchingUEidPerSubList_item = -1;  /* MatchingUEidPerSubItem */
-static int hf_e2ap_UEMeasurementReportList_item = -1;  /* UEMeasurementReportItem */
-static int hf_e2ap_measReport = -1;               /* E2SM_KPM_IndicationMessage_Format1 */
-static int hf_e2ap_eventDefinition_formats = -1;  /* T_eventDefinition_formats */
-static int hf_e2ap_eventDefinition_Format1 = -1;  /* E2SM_KPM_EventTriggerDefinition_Format1 */
-static int hf_e2ap_reportingPeriod = -1;          /* INTEGER_1_4294967295 */
-static int hf_e2ap_actionDefinition_formats = -1;  /* T_actionDefinition_formats */
-static int hf_e2ap_actionDefinition_Format1_01 = -1;  /* E2SM_KPM_ActionDefinition_Format1 */
-static int hf_e2ap_actionDefinition_Format2_01 = -1;  /* E2SM_KPM_ActionDefinition_Format2 */
-static int hf_e2ap_actionDefinition_Format3_01 = -1;  /* E2SM_KPM_ActionDefinition_Format3 */
-static int hf_e2ap_actionDefinition_Format4_01 = -1;  /* E2SM_KPM_ActionDefinition_Format4 */
-static int hf_e2ap_actionDefinition_Format5 = -1;  /* E2SM_KPM_ActionDefinition_Format5 */
-static int hf_e2ap_measInfoList = -1;             /* MeasurementInfoList */
-static int hf_e2ap_granulPeriod = -1;             /* GranularityPeriod */
-static int hf_e2ap_distMeasBinRangeInfo = -1;     /* DistMeasurementBinRangeList */
-static int hf_e2ap_subscriptInfo = -1;            /* E2SM_KPM_ActionDefinition_Format1 */
-static int hf_e2ap_measCondList = -1;             /* MeasurementCondList */
-static int hf_e2ap_matchingUeCondList = -1;       /* MatchingUeCondPerSubList */
-static int hf_e2ap_subscriptionInfo = -1;         /* E2SM_KPM_ActionDefinition_Format1 */
-static int hf_e2ap_matchingUEidList_01 = -1;      /* MatchingUEidPerSubList */
-static int hf_e2ap_indicationHeader_formats = -1;  /* T_indicationHeader_formats */
-static int hf_e2ap_indicationHeader_Format1_01 = -1;  /* E2SM_KPM_IndicationHeader_Format1 */
-static int hf_e2ap_colletStartTime = -1;          /* T_colletStartTime */
-static int hf_e2ap_fileFormatversion = -1;        /* PrintableString_SIZE_0_15_ */
-static int hf_e2ap_senderName = -1;               /* PrintableString_SIZE_0_400_ */
-static int hf_e2ap_senderType = -1;               /* PrintableString_SIZE_0_8_ */
-static int hf_e2ap_vendorName = -1;               /* PrintableString_SIZE_0_32_ */
-static int hf_e2ap_indicationMessage_formats = -1;  /* T_indicationMessage_formats */
-static int hf_e2ap_indicationMessage_Format1_01 = -1;  /* E2SM_KPM_IndicationMessage_Format1 */
-static int hf_e2ap_indicationMessage_Format2_01 = -1;  /* E2SM_KPM_IndicationMessage_Format2 */
-static int hf_e2ap_indicationMessage_Format3_01 = -1;  /* E2SM_KPM_IndicationMessage_Format3 */
-static int hf_e2ap_measData = -1;                 /* MeasurementData */
-static int hf_e2ap_measCondUEidList = -1;         /* MeasurementCondUEidList */
-static int hf_e2ap_ueMeasReportList = -1;         /* UEMeasurementReportList */
-static int hf_e2ap_ric_EventTriggerStyle_List_01 = -1;  /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RIC_EventTriggerStyle_Item */
-static int hf_e2ap_ric_EventTriggerStyle_List_item_01 = -1;  /* RIC_EventTriggerStyle_Item */
-static int hf_e2ap_ric_ReportStyle_List_01 = -1;  /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RIC_ReportStyle_Item */
-static int hf_e2ap_ric_ReportStyle_List_item_01 = -1;  /* RIC_ReportStyle_Item */
-static int hf_e2ap_ric_ActionFormat_Type = -1;    /* RIC_Format_Type */
-static int hf_e2ap_measInfo_Action_List = -1;     /* MeasurementInfo_Action_List */
-static int hf_e2ap_eventDefinition_Format1_01 = -1;  /* E2SM_NI_EventTriggerDefinition_Format1 */
-static int hf_e2ap_interface_type = -1;           /* NI_Type */
-static int hf_e2ap_interface_ID = -1;             /* NI_Identifier */
-static int hf_e2ap_interfaceDirection = -1;       /* NI_Direction */
-static int hf_e2ap_interfaceMessageType = -1;     /* NI_MessageType */
-static int hf_e2ap_interfaceProtocolIE_List = -1;  /* SEQUENCE_SIZE_1_maxofInterfaceProtocolTests_OF_NI_ProtocolIE_Item */
-static int hf_e2ap_interfaceProtocolIE_List_item = -1;  /* NI_ProtocolIE_Item */
-static int hf_e2ap_action_Definition_Format = -1;  /* E2SM_NI_ActionDefinitionFormat */
-static int hf_e2ap_actionDefinition_Format1_02 = -1;  /* E2SM_NI_ActionDefinition_Format1 */
-static int hf_e2ap_actionDefinition_Format2_02 = -1;  /* E2SM_NI_ActionDefinition_Format2 */
-static int hf_e2ap_actionParameter_List = -1;     /* SEQUENCE_SIZE_1_maxofActionParameters_OF_RANparameter_Item */
-static int hf_e2ap_actionParameter_List_item = -1;  /* RANparameter_Item */
-static int hf_e2ap_ranUEgroup_List = -1;          /* SEQUENCE_SIZE_1_maxofRANueGroups_OF_RANueGroup_Item */
-static int hf_e2ap_ranUEgroup_List_item = -1;     /* RANueGroup_Item */
-static int hf_e2ap_indicationHeader_Format1_02 = -1;  /* E2SM_NI_IndicationHeader_Format1 */
-static int hf_e2ap_timestamp = -1;                /* NI_TimeStamp */
-static int hf_e2ap_indicationMessage_Format1_02 = -1;  /* E2SM_NI_IndicationMessage_Format1 */
-static int hf_e2ap_interfaceMessage = -1;         /* NI_Message */
-static int hf_e2ap_callProcessID_Format1_01 = -1;  /* E2SM_NI_CallProcessID_Format1 */
-static int hf_e2ap_callProcessID_Format2 = -1;    /* E2SM_NI_CallProcessID_Format2 */
-static int hf_e2ap_callProcess_ID = -1;           /* RANcallProcess_ID_number */
-static int hf_e2ap_callProcess_ID_01 = -1;        /* RANcallProcess_ID_string */
-static int hf_e2ap_controlHeader_Format1_01 = -1;  /* E2SM_NI_ControlHeader_Format1 */
-static int hf_e2ap_interface_Direction = -1;      /* NI_Direction */
-static int hf_e2ap_ric_Control_Message_Priority = -1;  /* RIC_Control_Message_Priority */
-static int hf_e2ap_controlMessage_Format1_01 = -1;  /* E2SM_NI_ControlMessage_Format1 */
-static int hf_e2ap_controlOutcome_Format1_01 = -1;  /* E2SM_NI_ControlOutcome_Format1 */
-static int hf_e2ap_outcomeElement_List = -1;      /* SEQUENCE_SIZE_1_maxofRANparameters_OF_RANparameter_Item */
-static int hf_e2ap_outcomeElement_List_item = -1;  /* RANparameter_Item */
-static int hf_e2ap_ni_Type_List = -1;             /* SEQUENCE_SIZE_1_maxofNItypes_OF_E2SM_NI_RANfunction_Item */
-static int hf_e2ap_ni_Type_List_item = -1;        /* E2SM_NI_RANfunction_Item */
-static int hf_e2ap_ric_EventTriggerStyle_List_02 = -1;  /* SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_EventTriggerStyle_List */
-static int hf_e2ap_ric_EventTriggerStyle_List_item_02 = -1;  /* RIC_EventTriggerStyle_List */
-static int hf_e2ap_ric_ReportStyle_List_02 = -1;  /* SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_ReportStyle_List */
-static int hf_e2ap_ric_ReportStyle_List_item_02 = -1;  /* RIC_ReportStyle_List */
-static int hf_e2ap_ric_InsertStyle_List_03 = -1;  /* SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_InsertStyle_List */
-static int hf_e2ap_ric_InsertStyle_List_item_03 = -1;  /* RIC_InsertStyle_List */
-static int hf_e2ap_ric_ControlStyle_List_03 = -1;  /* SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_ControlStyle_List */
-static int hf_e2ap_ric_ControlStyle_List_item_03 = -1;  /* RIC_ControlStyle_List */
-static int hf_e2ap_ric_PolicyStyle_List_01 = -1;  /* SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_PolicyStyle_List */
-static int hf_e2ap_ric_PolicyStyle_List_item_01 = -1;  /* RIC_PolicyStyle_List */
-static int hf_e2ap_global_ng_RAN_ID = -1;         /* Global_ng_RAN_ID */
-static int hf_e2ap_global_eNB_ID_01 = -1;         /* Global_eNB_ID */
-static int hf_e2ap_global_en_gNB_ID_01 = -1;      /* Global_en_gNB_ID */
-static int hf_e2ap_global_gNB_DU_ID = -1;         /* Global_gNB_DU_ID */
-static int hf_e2ap_global_gNB_CU_UP_ID = -1;      /* Global_gNB_CU_UP_ID */
-static int hf_e2ap_s1MessageType = -1;            /* NI_MessageTypeS1 */
-static int hf_e2ap_x2MessageType = -1;            /* NI_MessageTypeX2 */
-static int hf_e2ap_ngMessageType = -1;            /* NI_MessageTypeNG */
-static int hf_e2ap_xnMessageType = -1;            /* NI_MessageTypeXn */
-static int hf_e2ap_f1MessageType = -1;            /* NI_MessageTypeF1 */
-static int hf_e2ap_e1MessageType = -1;            /* NI_MessageTypeE1 */
-static int hf_e2ap_typeOfMessage = -1;            /* TypeOfMessage */
-static int hf_e2ap_interfaceProtocolIE_ID = -1;   /* NI_ProtocolIE_ID */
-static int hf_e2ap_interfaceProtocolIE_Test = -1;  /* NI_ProtocolIE_Test */
-static int hf_e2ap_interfaceProtocolIE_Value = -1;  /* NI_ProtocolIE_Value */
-static int hf_e2ap_ranImperativePolicy_List = -1;  /* SEQUENCE_SIZE_1_maxofRANparameters_OF_RANparameter_Item */
-static int hf_e2ap_ranImperativePolicy_List_item = -1;  /* RANparameter_Item */
-static int hf_e2ap_ranParameter_ID_01 = -1;       /* RANparameter_ID */
-static int hf_e2ap_ranParameter_Value_01 = -1;    /* RANparameter_Value */
-static int hf_e2ap_ranParameter_Name = -1;        /* RANparameter_Name */
-static int hf_e2ap_ranParameter_Type_01 = -1;     /* RANparameter_Type */
-static int hf_e2ap_ranUEgroupID = -1;             /* RANueGroupID */
-static int hf_e2ap_ranUEgroupDefinition = -1;     /* RANueGroupDefinition */
-static int hf_e2ap_ranPolicy = -1;                /* RANimperativePolicy */
-static int hf_e2ap_ranUEgroupDef_List = -1;       /* SEQUENCE_SIZE_1_maxofRANparameters_OF_RANueGroupDef_Item */
-static int hf_e2ap_ranUEgroupDef_List_item = -1;  /* RANueGroupDef_Item */
-static int hf_e2ap_ranParameter_Test = -1;        /* RANparameter_Test_Condition */
-static int hf_e2ap_ric_ControlFormat_Type = -1;   /* RIC_Format_Type */
-static int hf_e2ap_ric_ControlOutcomeRanParaDef_List = -1;  /* SEQUENCE_SIZE_1_maxofRANparameters_OF_RANparameterDef_Item */
-static int hf_e2ap_ric_ControlOutcomeRanParaDef_List_item = -1;  /* RANparameterDef_Item */
-static int hf_e2ap_ric_InsertActionFormat_Type = -1;  /* RIC_Format_Type */
-static int hf_e2ap_ric_InsertRanParameterDef_List = -1;  /* SEQUENCE_SIZE_1_maxofRANparameters_OF_RANparameterDef_Item */
-static int hf_e2ap_ric_InsertRanParameterDef_List_item = -1;  /* RANparameterDef_Item */
-static int hf_e2ap_ric_PolicyActionFormat_Type = -1;  /* RIC_Format_Type */
-static int hf_e2ap_ric_PolicyRanParameterDef_List = -1;  /* SEQUENCE_SIZE_1_maxofRANparameters_OF_RANparameterDef_Item */
-static int hf_e2ap_ric_PolicyRanParameterDef_List_item = -1;  /* RANparameterDef_Item */
-static int hf_e2ap_ric_ReportRanParameterDef_List = -1;  /* SEQUENCE_SIZE_1_maxofRANparameters_OF_RANparameterDef_Item */
-static int hf_e2ap_ric_ReportRanParameterDef_List_item = -1;  /* RANparameterDef_Item */
+static int proto_e2ap;
+static int hf_e2ap_Cause_PDU;                     /* Cause */
+static int hf_e2ap_CriticalityDiagnostics_PDU;    /* CriticalityDiagnostics */
+static int hf_e2ap_GlobalE2node_ID_PDU;           /* GlobalE2node_ID */
+static int hf_e2ap_GlobalRIC_ID_PDU;              /* GlobalRIC_ID */
+static int hf_e2ap_RANfunctionID_PDU;             /* RANfunctionID */
+static int hf_e2ap_RICactionID_PDU;               /* RICactionID */
+static int hf_e2ap_RICcallProcessID_PDU;          /* RICcallProcessID */
+static int hf_e2ap_RICcontrolAckRequest_PDU;      /* RICcontrolAckRequest */
+static int hf_e2ap_RICcontrolHeader_PDU;          /* RICcontrolHeader */
+static int hf_e2ap_RICcontrolMessage_PDU;         /* RICcontrolMessage */
+static int hf_e2ap_RICcontrolOutcome_PDU;         /* RICcontrolOutcome */
+static int hf_e2ap_RICeventTriggerDefinition_PDU;  /* RICeventTriggerDefinition */
+static int hf_e2ap_RICindicationHeader_PDU;       /* RICindicationHeader */
+static int hf_e2ap_RICindicationMessage_PDU;      /* RICindicationMessage */
+static int hf_e2ap_RICindicationSN_PDU;           /* RICindicationSN */
+static int hf_e2ap_RICindicationType_PDU;         /* RICindicationType */
+static int hf_e2ap_RICrequestID_PDU;              /* RICrequestID */
+static int hf_e2ap_RICsubscriptionTime_PDU;       /* RICsubscriptionTime */
+static int hf_e2ap_RICqueryHeader_PDU;            /* RICqueryHeader */
+static int hf_e2ap_RICqueryDefinition_PDU;        /* RICqueryDefinition */
+static int hf_e2ap_RICqueryOutcome_PDU;           /* RICqueryOutcome */
+static int hf_e2ap_TimeToWait_PDU;                /* TimeToWait */
+static int hf_e2ap_TNLinformation_PDU;            /* TNLinformation */
+static int hf_e2ap_TransactionID_PDU;             /* TransactionID */
+static int hf_e2ap_RICsubscriptionRequest_PDU;    /* RICsubscriptionRequest */
+static int hf_e2ap_RICsubscriptionDetails_PDU;    /* RICsubscriptionDetails */
+static int hf_e2ap_RICaction_ToBeSetup_Item_PDU;  /* RICaction_ToBeSetup_Item */
+static int hf_e2ap_RICsubscriptionResponse_PDU;   /* RICsubscriptionResponse */
+static int hf_e2ap_RICaction_Admitted_List_PDU;   /* RICaction_Admitted_List */
+static int hf_e2ap_RICaction_Admitted_Item_PDU;   /* RICaction_Admitted_Item */
+static int hf_e2ap_RICaction_NotAdmitted_List_PDU;  /* RICaction_NotAdmitted_List */
+static int hf_e2ap_RICaction_NotAdmitted_Item_PDU;  /* RICaction_NotAdmitted_Item */
+static int hf_e2ap_RICsubscriptionFailure_PDU;    /* RICsubscriptionFailure */
+static int hf_e2ap_RICsubscriptionDeleteRequest_PDU;  /* RICsubscriptionDeleteRequest */
+static int hf_e2ap_RICsubscriptionDeleteResponse_PDU;  /* RICsubscriptionDeleteResponse */
+static int hf_e2ap_RICsubscriptionDeleteFailure_PDU;  /* RICsubscriptionDeleteFailure */
+static int hf_e2ap_RICsubscriptionDeleteRequired_PDU;  /* RICsubscriptionDeleteRequired */
+static int hf_e2ap_RICsubscription_List_withCause_PDU;  /* RICsubscription_List_withCause */
+static int hf_e2ap_RICsubscription_withCause_Item_PDU;  /* RICsubscription_withCause_Item */
+static int hf_e2ap_RICsubscriptionModificationRequest_PDU;  /* RICsubscriptionModificationRequest */
+static int hf_e2ap_RICactions_ToBeRemovedForModification_List_PDU;  /* RICactions_ToBeRemovedForModification_List */
+static int hf_e2ap_RICaction_ToBeRemovedForModification_Item_PDU;  /* RICaction_ToBeRemovedForModification_Item */
+static int hf_e2ap_RICactions_ToBeModifiedForModification_List_PDU;  /* RICactions_ToBeModifiedForModification_List */
+static int hf_e2ap_RICaction_ToBeModifiedForModification_Item_PDU;  /* RICaction_ToBeModifiedForModification_Item */
+static int hf_e2ap_RICactions_ToBeAddedForModification_List_PDU;  /* RICactions_ToBeAddedForModification_List */
+static int hf_e2ap_RICaction_ToBeAddedForModification_Item_PDU;  /* RICaction_ToBeAddedForModification_Item */
+static int hf_e2ap_RICsubscriptionModificationResponse_PDU;  /* RICsubscriptionModificationResponse */
+static int hf_e2ap_RICactions_RemovedForModification_List_PDU;  /* RICactions_RemovedForModification_List */
+static int hf_e2ap_RICaction_RemovedForModification_Item_PDU;  /* RICaction_RemovedForModification_Item */
+static int hf_e2ap_RICactions_FailedToBeRemovedForModification_List_PDU;  /* RICactions_FailedToBeRemovedForModification_List */
+static int hf_e2ap_RICaction_FailedToBeRemovedForModification_Item_PDU;  /* RICaction_FailedToBeRemovedForModification_Item */
+static int hf_e2ap_RICactions_ModifiedForModification_List_PDU;  /* RICactions_ModifiedForModification_List */
+static int hf_e2ap_RICaction_ModifiedForModification_Item_PDU;  /* RICaction_ModifiedForModification_Item */
+static int hf_e2ap_RICactions_FailedToBeModifiedForModification_List_PDU;  /* RICactions_FailedToBeModifiedForModification_List */
+static int hf_e2ap_RICaction_FailedToBeModifiedForModification_Item_PDU;  /* RICaction_FailedToBeModifiedForModification_Item */
+static int hf_e2ap_RICactions_AddedForModification_List_PDU;  /* RICactions_AddedForModification_List */
+static int hf_e2ap_RICaction_AddedForModification_Item_PDU;  /* RICaction_AddedForModification_Item */
+static int hf_e2ap_RICactions_FailedToBeAddedForModification_List_PDU;  /* RICactions_FailedToBeAddedForModification_List */
+static int hf_e2ap_RICaction_FailedToBeAddedForModification_Item_PDU;  /* RICaction_FailedToBeAddedForModification_Item */
+static int hf_e2ap_RICsubscriptionModificationFailure_PDU;  /* RICsubscriptionModificationFailure */
+static int hf_e2ap_RICsubscriptionModificationRequired_PDU;  /* RICsubscriptionModificationRequired */
+static int hf_e2ap_RICactions_RequiredToBeModified_List_PDU;  /* RICactions_RequiredToBeModified_List */
+static int hf_e2ap_RICaction_RequiredToBeModified_Item_PDU;  /* RICaction_RequiredToBeModified_Item */
+static int hf_e2ap_RICactions_RequiredToBeRemoved_List_PDU;  /* RICactions_RequiredToBeRemoved_List */
+static int hf_e2ap_RICaction_RequiredToBeRemoved_Item_PDU;  /* RICaction_RequiredToBeRemoved_Item */
+static int hf_e2ap_RICsubscriptionModificationConfirm_PDU;  /* RICsubscriptionModificationConfirm */
+static int hf_e2ap_RICactions_ConfirmedForModification_List_PDU;  /* RICactions_ConfirmedForModification_List */
+static int hf_e2ap_RICaction_ConfirmedForModification_Item_PDU;  /* RICaction_ConfirmedForModification_Item */
+static int hf_e2ap_RICactions_RefusedToBeModified_List_PDU;  /* RICactions_RefusedToBeModified_List */
+static int hf_e2ap_RICaction_RefusedToBeModified_Item_PDU;  /* RICaction_RefusedToBeModified_Item */
+static int hf_e2ap_RICactions_ConfirmedForRemoval_List_PDU;  /* RICactions_ConfirmedForRemoval_List */
+static int hf_e2ap_RICaction_ConfirmedForRemoval_Item_PDU;  /* RICaction_ConfirmedForRemoval_Item */
+static int hf_e2ap_RICactions_RefusedToBeRemoved_List_PDU;  /* RICactions_RefusedToBeRemoved_List */
+static int hf_e2ap_RICaction_RefusedToBeRemoved_Item_PDU;  /* RICaction_RefusedToBeRemoved_Item */
+static int hf_e2ap_RICsubscriptionModificationRefuse_PDU;  /* RICsubscriptionModificationRefuse */
+static int hf_e2ap_RICindication_PDU;             /* RICindication */
+static int hf_e2ap_RICcontrolRequest_PDU;         /* RICcontrolRequest */
+static int hf_e2ap_RICcontrolAcknowledge_PDU;     /* RICcontrolAcknowledge */
+static int hf_e2ap_RICcontrolFailure_PDU;         /* RICcontrolFailure */
+static int hf_e2ap_RICQueryRequest_PDU;           /* RICQueryRequest */
+static int hf_e2ap_RICQueryResponse_PDU;          /* RICQueryResponse */
+static int hf_e2ap_RICQueryFailure_PDU;           /* RICQueryFailure */
+static int hf_e2ap_ErrorIndication_PDU;           /* ErrorIndication */
+static int hf_e2ap_E2setupRequest_PDU;            /* E2setupRequest */
+static int hf_e2ap_E2setupResponse_PDU;           /* E2setupResponse */
+static int hf_e2ap_E2setupFailure_PDU;            /* E2setupFailure */
+static int hf_e2ap_E2connectionUpdate_PDU;        /* E2connectionUpdate */
+static int hf_e2ap_E2connectionUpdate_List_PDU;   /* E2connectionUpdate_List */
+static int hf_e2ap_E2connectionUpdate_Item_PDU;   /* E2connectionUpdate_Item */
+static int hf_e2ap_E2connectionUpdateRemove_List_PDU;  /* E2connectionUpdateRemove_List */
+static int hf_e2ap_E2connectionUpdateRemove_Item_PDU;  /* E2connectionUpdateRemove_Item */
+static int hf_e2ap_E2connectionUpdateAcknowledge_PDU;  /* E2connectionUpdateAcknowledge */
+static int hf_e2ap_E2connectionSetupFailed_List_PDU;  /* E2connectionSetupFailed_List */
+static int hf_e2ap_E2connectionSetupFailed_Item_PDU;  /* E2connectionSetupFailed_Item */
+static int hf_e2ap_E2connectionUpdateFailure_PDU;  /* E2connectionUpdateFailure */
+static int hf_e2ap_E2nodeConfigurationUpdate_PDU;  /* E2nodeConfigurationUpdate */
+static int hf_e2ap_E2nodeComponentConfigAddition_List_PDU;  /* E2nodeComponentConfigAddition_List */
+static int hf_e2ap_E2nodeComponentConfigAddition_Item_PDU;  /* E2nodeComponentConfigAddition_Item */
+static int hf_e2ap_E2nodeComponentConfigUpdate_List_PDU;  /* E2nodeComponentConfigUpdate_List */
+static int hf_e2ap_E2nodeComponentConfigUpdate_Item_PDU;  /* E2nodeComponentConfigUpdate_Item */
+static int hf_e2ap_E2nodeComponentConfigRemoval_List_PDU;  /* E2nodeComponentConfigRemoval_List */
+static int hf_e2ap_E2nodeComponentConfigRemoval_Item_PDU;  /* E2nodeComponentConfigRemoval_Item */
+static int hf_e2ap_E2nodeTNLassociationRemoval_List_PDU;  /* E2nodeTNLassociationRemoval_List */
+static int hf_e2ap_E2nodeTNLassociationRemoval_Item_PDU;  /* E2nodeTNLassociationRemoval_Item */
+static int hf_e2ap_E2nodeConfigurationUpdateAcknowledge_PDU;  /* E2nodeConfigurationUpdateAcknowledge */
+static int hf_e2ap_E2nodeComponentConfigAdditionAck_List_PDU;  /* E2nodeComponentConfigAdditionAck_List */
+static int hf_e2ap_E2nodeComponentConfigAdditionAck_Item_PDU;  /* E2nodeComponentConfigAdditionAck_Item */
+static int hf_e2ap_E2nodeComponentConfigUpdateAck_List_PDU;  /* E2nodeComponentConfigUpdateAck_List */
+static int hf_e2ap_E2nodeComponentConfigUpdateAck_Item_PDU;  /* E2nodeComponentConfigUpdateAck_Item */
+static int hf_e2ap_E2nodeComponentConfigRemovalAck_List_PDU;  /* E2nodeComponentConfigRemovalAck_List */
+static int hf_e2ap_E2nodeComponentConfigRemovalAck_Item_PDU;  /* E2nodeComponentConfigRemovalAck_Item */
+static int hf_e2ap_E2nodeConfigurationUpdateFailure_PDU;  /* E2nodeConfigurationUpdateFailure */
+static int hf_e2ap_ResetRequest_PDU;              /* ResetRequest */
+static int hf_e2ap_ResetResponse_PDU;             /* ResetResponse */
+static int hf_e2ap_RICserviceUpdate_PDU;          /* RICserviceUpdate */
+static int hf_e2ap_RANfunctions_List_PDU;         /* RANfunctions_List */
+static int hf_e2ap_RANfunction_Item_PDU;          /* RANfunction_Item */
+static int hf_e2ap_RANfunctionsID_List_PDU;       /* RANfunctionsID_List */
+static int hf_e2ap_RANfunctionID_Item_PDU;        /* RANfunctionID_Item */
+static int hf_e2ap_RICserviceUpdateAcknowledge_PDU;  /* RICserviceUpdateAcknowledge */
+static int hf_e2ap_RANfunctionsIDcause_List_PDU;  /* RANfunctionsIDcause_List */
+static int hf_e2ap_RANfunctionIDcause_Item_PDU;   /* RANfunctionIDcause_Item */
+static int hf_e2ap_RICserviceUpdateFailure_PDU;   /* RICserviceUpdateFailure */
+static int hf_e2ap_RICserviceQuery_PDU;           /* RICserviceQuery */
+static int hf_e2ap_E2RemovalRequest_PDU;          /* E2RemovalRequest */
+static int hf_e2ap_E2RemovalResponse_PDU;         /* E2RemovalResponse */
+static int hf_e2ap_E2RemovalFailure_PDU;          /* E2RemovalFailure */
+static int hf_e2ap_E2AP_PDU_PDU;                  /* E2AP_PDU */
+static int hf_e2ap_E2SM_RC_EventTrigger_PDU;      /* E2SM_RC_EventTrigger */
+static int hf_e2ap_E2SM_RC_ActionDefinition_PDU;  /* E2SM_RC_ActionDefinition */
+static int hf_e2ap_E2SM_RC_IndicationHeader_PDU;  /* E2SM_RC_IndicationHeader */
+static int hf_e2ap_E2SM_RC_IndicationMessage_PDU;  /* E2SM_RC_IndicationMessage */
+static int hf_e2ap_E2SM_RC_CallProcessID_PDU;     /* E2SM_RC_CallProcessID */
+static int hf_e2ap_E2SM_RC_ControlHeader_PDU;     /* E2SM_RC_ControlHeader */
+static int hf_e2ap_E2SM_RC_ControlMessage_PDU;    /* E2SM_RC_ControlMessage */
+static int hf_e2ap_E2SM_RC_ControlOutcome_PDU;    /* E2SM_RC_ControlOutcome */
+static int hf_e2ap_E2SM_RC_RANFunctionDefinition_PDU;  /* E2SM_RC_RANFunctionDefinition */
+static int hf_e2ap_E2SM_KPM_EventTriggerDefinition_PDU;  /* E2SM_KPM_EventTriggerDefinition */
+static int hf_e2ap_E2SM_KPM_ActionDefinition_PDU;  /* E2SM_KPM_ActionDefinition */
+static int hf_e2ap_E2SM_KPM_IndicationHeader_PDU;  /* E2SM_KPM_IndicationHeader */
+static int hf_e2ap_E2SM_KPM_IndicationMessage_PDU;  /* E2SM_KPM_IndicationMessage */
+static int hf_e2ap_E2SM_KPM_RANfunction_Description_PDU;  /* E2SM_KPM_RANfunction_Description */
+static int hf_e2ap_E2SM_NI_EventTriggerDefinition_PDU;  /* E2SM_NI_EventTriggerDefinition */
+static int hf_e2ap_E2SM_NI_ActionDefinition_PDU;  /* E2SM_NI_ActionDefinition */
+static int hf_e2ap_E2SM_NI_IndicationHeader_PDU;  /* E2SM_NI_IndicationHeader */
+static int hf_e2ap_E2SM_NI_IndicationMessage_PDU;  /* E2SM_NI_IndicationMessage */
+static int hf_e2ap_E2SM_NI_CallProcessID_PDU;     /* E2SM_NI_CallProcessID */
+static int hf_e2ap_E2SM_NI_ControlHeader_PDU;     /* E2SM_NI_ControlHeader */
+static int hf_e2ap_E2SM_NI_ControlMessage_PDU;    /* E2SM_NI_ControlMessage */
+static int hf_e2ap_E2SM_NI_ControlOutcome_PDU;    /* E2SM_NI_ControlOutcome */
+static int hf_e2ap_E2SM_NI_RANfunction_Description_PDU;  /* E2SM_NI_RANfunction_Description */
+static int hf_e2ap_ProtocolIE_Container_item;     /* ProtocolIE_Field */
+static int hf_e2ap_id;                            /* ProtocolIE_ID */
+static int hf_e2ap_criticality;                   /* Criticality */
+static int hf_e2ap_value;                         /* T_value */
+static int hf_e2ap_ricRequest;                    /* CauseRICrequest */
+static int hf_e2ap_ricService;                    /* CauseRICservice */
+static int hf_e2ap_e2Node;                        /* CauseE2node */
+static int hf_e2ap_transport;                     /* CauseTransport */
+static int hf_e2ap_protocol;                      /* CauseProtocol */
+static int hf_e2ap_misc;                          /* CauseMisc */
+static int hf_e2ap_procedureCode;                 /* ProcedureCode */
+static int hf_e2ap_triggeringMessage;             /* TriggeringMessage */
+static int hf_e2ap_procedureCriticality;          /* Criticality */
+static int hf_e2ap_ricRequestorID;                /* RICrequestID */
+static int hf_e2ap_iEsCriticalityDiagnostics;     /* CriticalityDiagnostics_IE_List */
+static int hf_e2ap_CriticalityDiagnostics_IE_List_item;  /* CriticalityDiagnostics_IE_Item */
+static int hf_e2ap_iECriticality;                 /* Criticality */
+static int hf_e2ap_iE_ID;                         /* ProtocolIE_ID */
+static int hf_e2ap_typeOfError;                   /* TypeOfError */
+static int hf_e2ap_e2nodeComponentRequestPart;    /* T_e2nodeComponentRequestPart */
+static int hf_e2ap_e2nodeComponentResponsePart;   /* T_e2nodeComponentResponsePart */
+static int hf_e2ap_updateOutcome;                 /* T_updateOutcome */
+static int hf_e2ap_failureCause;                  /* Cause */
+static int hf_e2ap_e2nodeComponentInterfaceTypeNG;  /* T_e2nodeComponentInterfaceTypeNG */
+static int hf_e2ap_e2nodeComponentInterfaceTypeXn;  /* T_e2nodeComponentInterfaceTypeXn */
+static int hf_e2ap_e2nodeComponentInterfaceTypeE1;  /* T_e2nodeComponentInterfaceTypeE1 */
+static int hf_e2ap_e2nodeComponentInterfaceTypeF1;  /* T_e2nodeComponentInterfaceTypeF1 */
+static int hf_e2ap_e2nodeComponentInterfaceTypeW1;  /* E2nodeComponentInterfaceW1 */
+static int hf_e2ap_e2nodeComponentInterfaceTypeS1;  /* T_e2nodeComponentInterfaceTypeS1 */
+static int hf_e2ap_e2nodeComponentInterfaceTypeX2;  /* T_e2nodeComponentInterfaceTypeX2 */
+static int hf_e2ap_gNB_CU_UP_ID;                  /* GNB_CU_UP_ID */
+static int hf_e2ap_gNB_DU_ID;                     /* GNB_DU_ID */
+static int hf_e2ap_amf_name;                      /* AMFName */
+static int hf_e2ap_mme_name;                      /* MMEname */
+static int hf_e2ap_global_eNB_ID;                 /* GlobalENB_ID */
+static int hf_e2ap_global_en_gNB_ID;              /* GlobalenGNB_ID */
+static int hf_e2ap_global_NG_RAN_Node_ID;         /* GlobalNG_RANNode_ID */
+static int hf_e2ap_ng_eNB_DU_ID;                  /* NGENB_DU_ID */
+static int hf_e2ap_macro_eNB_ID;                  /* BIT_STRING_SIZE_20 */
+static int hf_e2ap_home_eNB_ID;                   /* BIT_STRING_SIZE_28 */
+static int hf_e2ap_short_Macro_eNB_ID;            /* BIT_STRING_SIZE_18 */
+static int hf_e2ap_long_Macro_eNB_ID;             /* BIT_STRING_SIZE_21 */
+static int hf_e2ap_enb_ID_macro;                  /* BIT_STRING_SIZE_20 */
+static int hf_e2ap_enb_ID_shortmacro;             /* BIT_STRING_SIZE_18 */
+static int hf_e2ap_enb_ID_longmacro;              /* BIT_STRING_SIZE_21 */
+static int hf_e2ap_gNB_ID;                        /* BIT_STRING_SIZE_22_32 */
+static int hf_e2ap_gNB;                           /* GlobalE2node_gNB_ID */
+static int hf_e2ap_en_gNB;                        /* GlobalE2node_en_gNB_ID */
+static int hf_e2ap_ng_eNB;                        /* GlobalE2node_ng_eNB_ID */
+static int hf_e2ap_eNB;                           /* GlobalE2node_eNB_ID */
+static int hf_e2ap_en_gNB_CU_UP_ID;               /* GNB_CU_UP_ID */
+static int hf_e2ap_en_gNB_DU_ID;                  /* GNB_DU_ID */
+static int hf_e2ap_global_gNB_ID;                 /* GlobalgNB_ID */
+static int hf_e2ap_global_ng_eNB_ID;              /* GlobalngeNB_ID */
+static int hf_e2ap_ngENB_DU_ID;                   /* NGENB_DU_ID */
+static int hf_e2ap_pLMN_Identity;                 /* PLMN_Identity */
+static int hf_e2ap_eNB_ID;                        /* ENB_ID */
+static int hf_e2ap_gNB_ID_01;                     /* ENGNB_ID */
+static int hf_e2ap_plmn_id;                       /* PLMN_Identity */
+static int hf_e2ap_gnb_id;                        /* T_gnb_id */
+static int hf_e2ap_enb_id;                        /* ENB_ID_Choice */
+static int hf_e2ap_gNB_01;                        /* GlobalgNB_ID */
+static int hf_e2ap_ng_eNB_01;                     /* GlobalngeNB_ID */
+static int hf_e2ap_ric_ID;                        /* BIT_STRING_SIZE_20 */
+static int hf_e2ap_gnb_ID;                        /* BIT_STRING_SIZE_22_32 */
+static int hf_e2ap_ricRequestorID_01;             /* INTEGER_0_65535 */
+static int hf_e2ap_ricInstanceID;                 /* INTEGER_0_65535 */
+static int hf_e2ap_ricSubsequentActionType;       /* RICsubsequentActionType */
+static int hf_e2ap_ricTimeToWait;                 /* RICtimeToWait */
+static int hf_e2ap_tnlAddress;                    /* T_tnlAddress */
+static int hf_e2ap_tnlPort;                       /* T_tnlPort */
+static int hf_e2ap_protocolIEs;                   /* ProtocolIE_Container */
+static int hf_e2ap_ricEventTriggerDefinition;     /* RICeventTriggerDefinition */
+static int hf_e2ap_ricAction_ToBeSetup_List;      /* RICactions_ToBeSetup_List */
+static int hf_e2ap_RICactions_ToBeSetup_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_ricActionID;                   /* RICactionID */
+static int hf_e2ap_ricActionType;                 /* RICactionType */
+static int hf_e2ap_ricActionDefinition;           /* RICactionDefinition */
+static int hf_e2ap_ricSubsequentAction;           /* RICsubsequentAction */
+static int hf_e2ap_ricActionExecutionOrder;       /* RICactionExecutionOrder */
+static int hf_e2ap_RICaction_Admitted_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_RICaction_NotAdmitted_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_cause;                         /* Cause */
+static int hf_e2ap_RICsubscription_List_withCause_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_ricRequestID;                  /* RICrequestID */
+static int hf_e2ap_ranFunctionID;                 /* RANfunctionID */
+static int hf_e2ap_RICactions_ToBeRemovedForModification_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_RICactions_ToBeModifiedForModification_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_RICactions_ToBeAddedForModification_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_RICactions_RemovedForModification_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_RICactions_FailedToBeRemovedForModification_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_RICactions_ModifiedForModification_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_RICactions_FailedToBeModifiedForModification_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_RICactions_AddedForModification_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_RICactions_FailedToBeAddedForModification_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_RICactions_RequiredToBeModified_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_RICactions_RequiredToBeRemoved_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_RICactions_ConfirmedForModification_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_RICactions_RefusedToBeModified_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_RICactions_ConfirmedForRemoval_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_RICactions_RefusedToBeRemoved_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_E2connectionUpdate_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_tnlInformation;                /* TNLinformation */
+static int hf_e2ap_tnlUsage;                      /* TNLusage */
+static int hf_e2ap_E2connectionUpdateRemove_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_E2connectionSetupFailed_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_E2nodeComponentConfigAddition_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_e2nodeComponentInterfaceType;  /* E2nodeComponentInterfaceType */
+static int hf_e2ap_e2nodeComponentID;             /* E2nodeComponentID */
+static int hf_e2ap_e2nodeComponentConfiguration;  /* E2nodeComponentConfiguration */
+static int hf_e2ap_E2nodeComponentConfigUpdate_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_E2nodeComponentConfigRemoval_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_E2nodeTNLassociationRemoval_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_tnlInformationRIC;             /* TNLinformation */
+static int hf_e2ap_E2nodeComponentConfigAdditionAck_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_e2nodeComponentConfigurationAck;  /* E2nodeComponentConfigurationAck */
+static int hf_e2ap_E2nodeComponentConfigUpdateAck_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_E2nodeComponentConfigRemovalAck_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_RANfunctions_List_item;        /* ProtocolIE_SingleContainer */
+static int hf_e2ap_ranFunctionDefinition;         /* RANfunctionDefinition */
+static int hf_e2ap_ranFunctionRevision;           /* RANfunctionRevision */
+static int hf_e2ap_ranFunctionOID;                /* RANfunctionOID */
+static int hf_e2ap_RANfunctionsID_List_item;      /* ProtocolIE_SingleContainer */
+static int hf_e2ap_RANfunctionsIDcause_List_item;  /* ProtocolIE_SingleContainer */
+static int hf_e2ap_initiatingMessage;             /* InitiatingMessage */
+static int hf_e2ap_successfulOutcome;             /* SuccessfulOutcome */
+static int hf_e2ap_unsuccessfulOutcome;           /* UnsuccessfulOutcome */
+static int hf_e2ap_initiatingMessagevalue;        /* InitiatingMessage_value */
+static int hf_e2ap_successfulOutcome_value;       /* SuccessfulOutcome_value */
+static int hf_e2ap_unsuccessfulOutcome_value;     /* UnsuccessfulOutcome_value */
+static int hf_e2ap_nR_CGI;                        /* NR_CGI */
+static int hf_e2ap_eUTRA_CGI;                     /* EUTRA_CGI */
+static int hf_e2ap_nG;                            /* InterfaceID_NG */
+static int hf_e2ap_xN;                            /* InterfaceID_Xn */
+static int hf_e2ap_f1;                            /* InterfaceID_F1 */
+static int hf_e2ap_e1;                            /* InterfaceID_E1 */
+static int hf_e2ap_s1;                            /* InterfaceID_S1 */
+static int hf_e2ap_x2;                            /* InterfaceID_X2 */
+static int hf_e2ap_w1;                            /* InterfaceID_W1 */
+static int hf_e2ap_guami;                         /* GUAMI */
+static int hf_e2ap_global_NG_RAN_ID;              /* GlobalNGRANNodeID */
+static int hf_e2ap_globalGNB_ID;                  /* GlobalGNB_ID */
+static int hf_e2ap_gUMMEI;                        /* GUMMEI */
+static int hf_e2ap_nodeType;                      /* T_nodeType */
+static int hf_e2ap_global_ng_eNB_ID_01;           /* GlobalNgENB_ID */
+static int hf_e2ap_interfaceProcedureID;          /* INTEGER */
+static int hf_e2ap_messageType;                   /* T_messageType */
+static int hf_e2ap_ranFunction_ShortName;         /* T_ranFunction_ShortName */
+static int hf_e2ap_ranFunction_E2SM_OID;          /* T_ranFunction_E2SM_OID */
+static int hf_e2ap_ranFunction_Description;       /* PrintableString_SIZE_1_150_ */
+static int hf_e2ap_ranFunction_Instance;          /* INTEGER */
+static int hf_e2ap_rrcType;                       /* T_rrcType */
+static int hf_e2ap_lTE;                           /* RRCclass_LTE */
+static int hf_e2ap_nR;                            /* RRCclass_NR */
+static int hf_e2ap_messageID;                     /* INTEGER */
+static int hf_e2ap_nR_01;                         /* NR_ARFCN */
+static int hf_e2ap_eUTRA;                         /* E_UTRA_ARFCN */
+static int hf_e2ap_nR_02;                         /* NR_PCI */
+static int hf_e2ap_eUTRA_01;                      /* E_UTRA_PCI */
+static int hf_e2ap_gNB_UEID;                      /* UEID_GNB */
+static int hf_e2ap_gNB_DU_UEID;                   /* UEID_GNB_DU */
+static int hf_e2ap_gNB_CU_UP_UEID;                /* UEID_GNB_CU_UP */
+static int hf_e2ap_ng_eNB_UEID;                   /* UEID_NG_ENB */
+static int hf_e2ap_ng_eNB_DU_UEID;                /* UEID_NG_ENB_DU */
+static int hf_e2ap_en_gNB_UEID;                   /* UEID_EN_GNB */
+static int hf_e2ap_eNB_UEID;                      /* UEID_ENB */
+static int hf_e2ap_amf_UE_NGAP_ID;                /* AMF_UE_NGAP_ID */
+static int hf_e2ap_gNB_CU_UE_F1AP_ID_List;        /* UEID_GNB_CU_F1AP_ID_List */
+static int hf_e2ap_gNB_CU_CP_UE_E1AP_ID_List;     /* UEID_GNB_CU_CP_E1AP_ID_List */
+static int hf_e2ap_ran_UEID;                      /* RANUEID */
+static int hf_e2ap_m_NG_RAN_UE_XnAP_ID;           /* NG_RANnodeUEXnAPID */
+static int hf_e2ap_globalNG_RANNode_ID;           /* GlobalNGRANNodeID */
+static int hf_e2ap_UEID_GNB_CU_CP_E1AP_ID_List_item;  /* UEID_GNB_CU_CP_E1AP_ID_Item */
+static int hf_e2ap_gNB_CU_CP_UE_E1AP_ID;          /* GNB_CU_CP_UE_E1AP_ID */
+static int hf_e2ap_UEID_GNB_CU_F1AP_ID_List_item;  /* UEID_GNB_CU_CP_F1AP_ID_Item */
+static int hf_e2ap_gNB_CU_UE_F1AP_ID;             /* GNB_CU_UE_F1AP_ID */
+static int hf_e2ap_ng_eNB_CU_UE_W1AP_ID;          /* NGENB_CU_UE_W1AP_ID */
+static int hf_e2ap_globalNgENB_ID;                /* GlobalNgENB_ID */
+static int hf_e2ap_m_eNB_UE_X2AP_ID;              /* ENB_UE_X2AP_ID */
+static int hf_e2ap_m_eNB_UE_X2AP_ID_Extension;    /* ENB_UE_X2AP_ID_Extension */
+static int hf_e2ap_globalENB_ID;                  /* GlobalENB_ID */
+static int hf_e2ap_mME_UE_S1AP_ID;                /* MME_UE_S1AP_ID */
+static int hf_e2ap_pLMN_Identity_01;              /* PLMNIdentity */
+static int hf_e2ap_mME_Group_ID;                  /* MME_Group_ID */
+static int hf_e2ap_mME_Code;                      /* MME_Code */
+static int hf_e2ap_pLMNIdentity;                  /* PLMNIdentity */
+static int hf_e2ap_eUTRACellIdentity;             /* EUTRACellIdentity */
+static int hf_e2ap_gNB_ID_02;                     /* GNB_ID */
+static int hf_e2ap_ngENB_ID;                      /* NgENB_ID */
+static int hf_e2ap_aMFRegionID;                   /* AMFRegionID */
+static int hf_e2ap_aMFSetID;                      /* AMFSetID */
+static int hf_e2ap_aMFPointer;                    /* AMFPointer */
+static int hf_e2ap_macroNgENB_ID;                 /* BIT_STRING_SIZE_20 */
+static int hf_e2ap_shortMacroNgENB_ID;            /* BIT_STRING_SIZE_18 */
+static int hf_e2ap_longMacroNgENB_ID;             /* BIT_STRING_SIZE_21 */
+static int hf_e2ap_nRCellIdentity;                /* NRCellIdentity */
+static int hf_e2ap_sST;                           /* SST */
+static int hf_e2ap_sD;                            /* SD */
+static int hf_e2ap_gNB_02;                        /* GlobalGNB_ID */
+static int hf_e2ap_ng_eNB_02;                     /* GlobalNgENB_ID */
+static int hf_e2ap_nRARFCN;                       /* INTEGER_0_maxNRARFCN */
+static int hf_e2ap_NRFrequencyBand_List_item;     /* NRFrequencyBandItem */
+static int hf_e2ap_freqBandIndicatorNr;           /* INTEGER_1_1024_ */
+static int hf_e2ap_supportedSULBandList;          /* SupportedSULBandList */
+static int hf_e2ap_nrARFCN;                       /* NR_ARFCN */
+static int hf_e2ap_frequencyBand_List;            /* NRFrequencyBand_List */
+static int hf_e2ap_frequencyShift7p5khz;          /* NRFrequencyShift7p5khz */
+static int hf_e2ap_SupportedSULBandList_item;     /* SupportedSULFreqBandItem */
+static int hf_e2ap_NeighborCell_List_item;        /* NeighborCell_Item */
+static int hf_e2ap_ranType_Choice_NR;             /* NeighborCell_Item_Choice_NR */
+static int hf_e2ap_ranType_Choice_EUTRA;          /* NeighborCell_Item_Choice_E_UTRA */
+static int hf_e2ap_nR_PCI;                        /* NR_PCI */
+static int hf_e2ap_fiveGS_TAC;                    /* FiveGS_TAC */
+static int hf_e2ap_nR_mode_info;                  /* T_nR_mode_info */
+static int hf_e2ap_nR_FreqInfo;                   /* NRFrequencyInfo */
+static int hf_e2ap_x2_Xn_established;             /* T_x2_Xn_established */
+static int hf_e2ap_hO_validated;                  /* T_hO_validated */
+static int hf_e2ap_version;                       /* INTEGER_1_65535_ */
+static int hf_e2ap_eUTRA_PCI;                     /* E_UTRA_PCI */
+static int hf_e2ap_eUTRA_ARFCN;                   /* E_UTRA_ARFCN */
+static int hf_e2ap_eUTRA_TAC;                     /* E_UTRA_TAC */
+static int hf_e2ap_x2_Xn_established_01;          /* T_x2_Xn_established_01 */
+static int hf_e2ap_hO_validated_01;               /* T_hO_validated_01 */
+static int hf_e2ap_servingCellPCI;                /* ServingCell_PCI */
+static int hf_e2ap_servingCellARFCN;              /* ServingCell_ARFCN */
+static int hf_e2ap_neighborCell_List;             /* NeighborCell_List */
+static int hf_e2ap_cellInfo_List;                 /* SEQUENCE_SIZE_1_maxnoofCellInfo_OF_EventTrigger_Cell_Info_Item */
+static int hf_e2ap_cellInfo_List_item;            /* EventTrigger_Cell_Info_Item */
+static int hf_e2ap_eventTriggerCellID;            /* RIC_EventTrigger_Cell_ID */
+static int hf_e2ap_cellType;                      /* T_cellType */
+static int hf_e2ap_cellType_Choice_Individual;    /* EventTrigger_Cell_Info_Item_Choice_Individual */
+static int hf_e2ap_cellType_Choice_Group;         /* EventTrigger_Cell_Info_Item_Choice_Group */
+static int hf_e2ap_logicalOR;                     /* LogicalOR */
+static int hf_e2ap_cellGlobalID;                  /* CGI */
+static int hf_e2ap_ranParameterTesting;           /* RANParameter_Testing */
+static int hf_e2ap_ueInfo_List;                   /* SEQUENCE_SIZE_1_maxnoofUEInfo_OF_EventTrigger_UE_Info_Item */
+static int hf_e2ap_ueInfo_List_item;              /* EventTrigger_UE_Info_Item */
+static int hf_e2ap_eventTriggerUEID;              /* RIC_EventTrigger_UE_ID */
+static int hf_e2ap_ueType;                        /* T_ueType */
+static int hf_e2ap_ueType_Choice_Individual;      /* EventTrigger_UE_Info_Item_Choice_Individual */
+static int hf_e2ap_ueType_Choice_Group;           /* EventTrigger_UE_Info_Item_Choice_Group */
+static int hf_e2ap_ueID;                          /* UEID */
+static int hf_e2ap_ueEvent_List;                  /* SEQUENCE_SIZE_1_maxnoofUEeventInfo_OF_EventTrigger_UEevent_Info_Item */
+static int hf_e2ap_ueEvent_List_item;             /* EventTrigger_UEevent_Info_Item */
+static int hf_e2ap_ueEventID;                     /* RIC_EventTrigger_UEevent_ID */
+static int hf_e2ap_ranParameter_Definition_Choice;  /* RANParameter_Definition_Choice */
+static int hf_e2ap_choiceLIST;                    /* RANParameter_Definition_Choice_LIST */
+static int hf_e2ap_choiceSTRUCTURE;               /* RANParameter_Definition_Choice_STRUCTURE */
+static int hf_e2ap_ranParameter_List;             /* SEQUENCE_SIZE_1_maxnoofItemsinList_OF_RANParameter_Definition_Choice_LIST_Item */
+static int hf_e2ap_ranParameter_List_item;        /* RANParameter_Definition_Choice_LIST_Item */
+static int hf_e2ap_ranParameter_ID;               /* RANParameter_ID */
+static int hf_e2ap_ranParameter_name;             /* RANParameter_Name */
+static int hf_e2ap_ranParameter_Definition;       /* RANParameter_Definition */
+static int hf_e2ap_ranParameter_STRUCTURE;        /* SEQUENCE_SIZE_1_maxnoofParametersinStructure_OF_RANParameter_Definition_Choice_STRUCTURE_Item */
+static int hf_e2ap_ranParameter_STRUCTURE_item;   /* RANParameter_Definition_Choice_STRUCTURE_Item */
+static int hf_e2ap_valueBoolean;                  /* BOOLEAN */
+static int hf_e2ap_valueInt;                      /* INTEGER */
+static int hf_e2ap_valueReal;                     /* REAL */
+static int hf_e2ap_valueBitS;                     /* BIT_STRING */
+static int hf_e2ap_valueOctS;                     /* OCTET_STRING */
+static int hf_e2ap_valuePrintableString;          /* PrintableString */
+static int hf_e2ap_ranP_Choice_ElementTrue;       /* RANParameter_ValueType_Choice_ElementTrue */
+static int hf_e2ap_ranP_Choice_ElementFalse;      /* RANParameter_ValueType_Choice_ElementFalse */
+static int hf_e2ap_ranP_Choice_Structure;         /* RANParameter_ValueType_Choice_Structure */
+static int hf_e2ap_ranP_Choice_List;              /* RANParameter_ValueType_Choice_List */
+static int hf_e2ap_ranParameter_value;            /* RANParameter_Value */
+static int hf_e2ap_ranParameter_Structure;        /* RANParameter_STRUCTURE */
+static int hf_e2ap_ranParameter_List_01;          /* RANParameter_LIST */
+static int hf_e2ap_sequence_of_ranParameters;     /* SEQUENCE_SIZE_1_maxnoofParametersinStructure_OF_RANParameter_STRUCTURE_Item */
+static int hf_e2ap_sequence_of_ranParameters_item;  /* RANParameter_STRUCTURE_Item */
+static int hf_e2ap_ranParameter_valueType;        /* RANParameter_ValueType */
+static int hf_e2ap_list_of_ranParameter;          /* SEQUENCE_SIZE_1_maxnoofItemsinList_OF_RANParameter_STRUCTURE */
+static int hf_e2ap_list_of_ranParameter_item;     /* RANParameter_STRUCTURE */
+static int hf_e2ap_RANParameter_Testing_item;     /* RANParameter_Testing_Item */
+static int hf_e2ap_ranP_Choice_comparison;        /* T_ranP_Choice_comparison */
+static int hf_e2ap_ranP_Choice_presence;          /* T_ranP_Choice_presence */
+static int hf_e2ap_ranParameter_Type;             /* T_ranParameter_Type */
+static int hf_e2ap_ranP_Choice_List_01;           /* RANParameter_Testing_Item_Choice_List */
+static int hf_e2ap_ranP_Choice_Structure_01;      /* RANParameter_Testing_Item_Choice_Structure */
+static int hf_e2ap_ranP_Choice_ElementTrue_01;    /* RANParameter_Testing_Item_Choice_ElementTrue */
+static int hf_e2ap_ranP_Choice_ElementFalse_01;   /* RANParameter_Testing_Item_Choice_ElementFalse */
+static int hf_e2ap_ranParameter_List_02;          /* RANParameter_Testing_LIST */
+static int hf_e2ap_ranParameter_Structure_01;     /* RANParameter_Testing_STRUCTURE */
+static int hf_e2ap_ranParameter_TestCondition;    /* RANParameter_TestingCondition */
+static int hf_e2ap_ranParameter_Value;            /* RANParameter_Value */
+static int hf_e2ap_RANParameter_Testing_LIST_item;  /* RANParameter_Testing_Item */
+static int hf_e2ap_RANParameter_Testing_STRUCTURE_item;  /* RANParameter_Testing_Item */
+static int hf_e2ap_ric_PolicyAction_ID;           /* RIC_ControlAction_ID */
+static int hf_e2ap_ranParameters_List;            /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_RIC_PolicyAction_RANParameter_Item */
+static int hf_e2ap_ranParameters_List_item;       /* RIC_PolicyAction_RANParameter_Item */
+static int hf_e2ap_ric_PolicyDecision;            /* T_ric_PolicyDecision */
+static int hf_e2ap_ric_eventTrigger_formats;      /* T_ric_eventTrigger_formats */
+static int hf_e2ap_eventTrigger_Format1;          /* E2SM_RC_EventTrigger_Format1 */
+static int hf_e2ap_eventTrigger_Format2;          /* E2SM_RC_EventTrigger_Format2 */
+static int hf_e2ap_eventTrigger_Format3;          /* E2SM_RC_EventTrigger_Format3 */
+static int hf_e2ap_eventTrigger_Format4;          /* E2SM_RC_EventTrigger_Format4 */
+static int hf_e2ap_eventTrigger_Format5;          /* E2SM_RC_EventTrigger_Format5 */
+static int hf_e2ap_message_List;                  /* SEQUENCE_SIZE_1_maxnoofMessages_OF_E2SM_RC_EventTrigger_Format1_Item */
+static int hf_e2ap_message_List_item;             /* E2SM_RC_EventTrigger_Format1_Item */
+static int hf_e2ap_globalAssociatedUEInfo;        /* EventTrigger_UE_Info */
+static int hf_e2ap_ric_eventTriggerCondition_ID;  /* RIC_EventTriggerCondition_ID */
+static int hf_e2ap_messageType_01;                /* MessageType_Choice */
+static int hf_e2ap_messageDirection;              /* T_messageDirection */
+static int hf_e2ap_associatedUEInfo;              /* EventTrigger_UE_Info */
+static int hf_e2ap_associatedUEEvent;             /* EventTrigger_UEevent_Info */
+static int hf_e2ap_messageType_Choice_NI;         /* MessageType_Choice_NI */
+static int hf_e2ap_messageType_Choice_RRC;        /* MessageType_Choice_RRC */
+static int hf_e2ap_nI_Type;                       /* InterfaceType */
+static int hf_e2ap_nI_Identifier;                 /* InterfaceIdentifier */
+static int hf_e2ap_nI_Message;                    /* Interface_MessageID */
+static int hf_e2ap_rRC_Message;                   /* RRC_MessageID */
+static int hf_e2ap_ric_callProcessType_ID;        /* RIC_CallProcessType_ID */
+static int hf_e2ap_ric_callProcessBreakpoint_ID;  /* RIC_CallProcessBreakpoint_ID */
+static int hf_e2ap_associatedE2NodeInfo;          /* RANParameter_Testing */
+static int hf_e2ap_e2NodeInfoChange_List;         /* SEQUENCE_SIZE_1_maxnoofE2InfoChanges_OF_E2SM_RC_EventTrigger_Format3_Item */
+static int hf_e2ap_e2NodeInfoChange_List_item;    /* E2SM_RC_EventTrigger_Format3_Item */
+static int hf_e2ap_e2NodeInfoChange_ID;           /* INTEGER_1_512_ */
+static int hf_e2ap_associatedCellInfo;            /* EventTrigger_Cell_Info */
+static int hf_e2ap_uEInfoChange_List;             /* SEQUENCE_SIZE_1_maxnoofUEInfoChanges_OF_E2SM_RC_EventTrigger_Format4_Item */
+static int hf_e2ap_uEInfoChange_List_item;        /* E2SM_RC_EventTrigger_Format4_Item */
+static int hf_e2ap_triggerType;                   /* TriggerType_Choice */
+static int hf_e2ap_triggerType_Choice_RRCstate;   /* TriggerType_Choice_RRCstate */
+static int hf_e2ap_triggerType_Choice_UEID;       /* TriggerType_Choice_UEID */
+static int hf_e2ap_triggerType_Choice_L2state;    /* TriggerType_Choice_L2state */
+static int hf_e2ap_rrcState_List;                 /* SEQUENCE_SIZE_1_maxnoofRRCstate_OF_TriggerType_Choice_RRCstate_Item */
+static int hf_e2ap_rrcState_List_item;            /* TriggerType_Choice_RRCstate_Item */
+static int hf_e2ap_stateChangedTo;                /* RRC_State */
+static int hf_e2ap_ueIDchange_ID;                 /* INTEGER_1_512_ */
+static int hf_e2ap_associatedL2variables;         /* RANParameter_Testing */
+static int hf_e2ap_onDemand;                      /* T_onDemand */
+static int hf_e2ap_ric_Style_Type;                /* RIC_Style_Type */
+static int hf_e2ap_ric_actionDefinition_formats;  /* T_ric_actionDefinition_formats */
+static int hf_e2ap_actionDefinition_Format1;      /* E2SM_RC_ActionDefinition_Format1 */
+static int hf_e2ap_actionDefinition_Format2;      /* E2SM_RC_ActionDefinition_Format2 */
+static int hf_e2ap_actionDefinition_Format3;      /* E2SM_RC_ActionDefinition_Format3 */
+static int hf_e2ap_actionDefinition_Format4;      /* E2SM_RC_ActionDefinition_Format4 */
+static int hf_e2ap_ranP_ToBeReported_List;        /* SEQUENCE_SIZE_1_maxnoofParametersToReport_OF_E2SM_RC_ActionDefinition_Format1_Item */
+static int hf_e2ap_ranP_ToBeReported_List_item;   /* E2SM_RC_ActionDefinition_Format1_Item */
+static int hf_e2ap_ric_PolicyConditions_List;     /* SEQUENCE_SIZE_1_maxnoofPolicyConditions_OF_E2SM_RC_ActionDefinition_Format2_Item */
+static int hf_e2ap_ric_PolicyConditions_List_item;  /* E2SM_RC_ActionDefinition_Format2_Item */
+static int hf_e2ap_ric_PolicyAction;              /* RIC_PolicyAction */
+static int hf_e2ap_ric_PolicyConditionDefinition;  /* RANParameter_Testing */
+static int hf_e2ap_ric_InsertIndication_ID;       /* RIC_InsertIndication_ID */
+static int hf_e2ap_ranP_InsertIndication_List;    /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_ActionDefinition_Format3_Item */
+static int hf_e2ap_ranP_InsertIndication_List_item;  /* E2SM_RC_ActionDefinition_Format3_Item */
+static int hf_e2ap_ric_InsertStyle_List;          /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_ActionDefinition_Format4_Style_Item */
+static int hf_e2ap_ric_InsertStyle_List_item;     /* E2SM_RC_ActionDefinition_Format4_Style_Item */
+static int hf_e2ap_requested_Insert_Style_Type;   /* RIC_Style_Type */
+static int hf_e2ap_ric_InsertIndication_List;     /* SEQUENCE_SIZE_1_maxnoofInsertIndicationActions_OF_E2SM_RC_ActionDefinition_Format4_Indication_Item */
+static int hf_e2ap_ric_InsertIndication_List_item;  /* E2SM_RC_ActionDefinition_Format4_Indication_Item */
+static int hf_e2ap_ranP_InsertIndication_List_01;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_ActionDefinition_Format4_RANP_Item */
+static int hf_e2ap_ranP_InsertIndication_List_item_01;  /* E2SM_RC_ActionDefinition_Format4_RANP_Item */
+static int hf_e2ap_ric_indicationHeader_formats;  /* T_ric_indicationHeader_formats */
+static int hf_e2ap_indicationHeader_Format1;      /* E2SM_RC_IndicationHeader_Format1 */
+static int hf_e2ap_indicationHeader_Format2;      /* E2SM_RC_IndicationHeader_Format2 */
+static int hf_e2ap_indicationHeader_Format3;      /* E2SM_RC_IndicationHeader_Format3 */
+static int hf_e2ap_ric_InsertStyle_Type;          /* RIC_Style_Type */
+static int hf_e2ap_ric_indicationMessage_formats;  /* T_ric_indicationMessage_formats */
+static int hf_e2ap_indicationMessage_Format1;     /* E2SM_RC_IndicationMessage_Format1 */
+static int hf_e2ap_indicationMessage_Format2;     /* E2SM_RC_IndicationMessage_Format2 */
+static int hf_e2ap_indicationMessage_Format3;     /* E2SM_RC_IndicationMessage_Format3 */
+static int hf_e2ap_indicationMessage_Format4;     /* E2SM_RC_IndicationMessage_Format4 */
+static int hf_e2ap_indicationMessage_Format5;     /* E2SM_RC_IndicationMessage_Format5 */
+static int hf_e2ap_indicationMessage_Format6;     /* E2SM_RC_IndicationMessage_Format6 */
+static int hf_e2ap_ranP_Reported_List;            /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format1_Item */
+static int hf_e2ap_ranP_Reported_List_item;       /* E2SM_RC_IndicationMessage_Format1_Item */
+static int hf_e2ap_ueParameter_List;              /* SEQUENCE_SIZE_1_maxnoofUEID_OF_E2SM_RC_IndicationMessage_Format2_Item */
+static int hf_e2ap_ueParameter_List_item;         /* E2SM_RC_IndicationMessage_Format2_Item */
+static int hf_e2ap_ranP_List;                     /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format2_RANParameter_Item */
+static int hf_e2ap_ranP_List_item;                /* E2SM_RC_IndicationMessage_Format2_RANParameter_Item */
+static int hf_e2ap_cellInfo_List_01;              /* SEQUENCE_SIZE_1_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format3_Item */
+static int hf_e2ap_cellInfo_List_item_01;         /* E2SM_RC_IndicationMessage_Format3_Item */
+static int hf_e2ap_cellGlobal_ID;                 /* CGI */
+static int hf_e2ap_cellContextInfo;               /* OCTET_STRING */
+static int hf_e2ap_cellDeleted;                   /* BOOLEAN */
+static int hf_e2ap_neighborRelation_Table;        /* NeighborRelation_Info */
+static int hf_e2ap_ueInfo_List_01;                /* SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_IndicationMessage_Format4_ItemUE */
+static int hf_e2ap_ueInfo_List_item_01;           /* E2SM_RC_IndicationMessage_Format4_ItemUE */
+static int hf_e2ap_cellInfo_List_02;              /* SEQUENCE_SIZE_0_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format4_ItemCell */
+static int hf_e2ap_cellInfo_List_item_02;         /* E2SM_RC_IndicationMessage_Format4_ItemCell */
+static int hf_e2ap_ueContextInfo;                 /* OCTET_STRING */
+static int hf_e2ap_ranP_Requested_List;           /* SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format5_Item */
+static int hf_e2ap_ranP_Requested_List_item;      /* E2SM_RC_IndicationMessage_Format5_Item */
+static int hf_e2ap_ric_InsertStyle_List_01;       /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_IndicationMessage_Format6_Style_Item */
+static int hf_e2ap_ric_InsertStyle_List_item_01;  /* E2SM_RC_IndicationMessage_Format6_Style_Item */
+static int hf_e2ap_indicated_Insert_Style_Type;   /* RIC_Style_Type */
+static int hf_e2ap_ric_InsertIndication_List_01;  /* SEQUENCE_SIZE_1_maxnoofInsertIndicationActions_OF_E2SM_RC_IndicationMessage_Format6_Indication_Item */
+static int hf_e2ap_ric_InsertIndication_List_item_01;  /* E2SM_RC_IndicationMessage_Format6_Indication_Item */
+static int hf_e2ap_ranP_InsertIndication_List_02;  /* SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format6_RANP_Item */
+static int hf_e2ap_ranP_InsertIndication_List_item_02;  /* E2SM_RC_IndicationMessage_Format6_RANP_Item */
+static int hf_e2ap_ric_callProcessID_formats;     /* T_ric_callProcessID_formats */
+static int hf_e2ap_callProcessID_Format1;         /* E2SM_RC_CallProcessID_Format1 */
+static int hf_e2ap_ric_callProcess_ID;            /* RAN_CallProcess_ID */
+static int hf_e2ap_ric_controlHeader_formats;     /* T_ric_controlHeader_formats */
+static int hf_e2ap_controlHeader_Format1;         /* E2SM_RC_ControlHeader_Format1 */
+static int hf_e2ap_controlHeader_Format2;         /* E2SM_RC_ControlHeader_Format2 */
+static int hf_e2ap_ric_ControlAction_ID;          /* RIC_ControlAction_ID */
+static int hf_e2ap_ric_ControlDecision;           /* T_ric_ControlDecision */
+static int hf_e2ap_ric_ControlDecision_01;        /* T_ric_ControlDecision_01 */
+static int hf_e2ap_ric_controlMessage_formats;    /* T_ric_controlMessage_formats */
+static int hf_e2ap_controlMessage_Format1;        /* E2SM_RC_ControlMessage_Format1 */
+static int hf_e2ap_controlMessage_Format2;        /* E2SM_RC_ControlMessage_Format2 */
+static int hf_e2ap_ranP_List_01;                  /* SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_ControlMessage_Format1_Item */
+static int hf_e2ap_ranP_List_item_01;             /* E2SM_RC_ControlMessage_Format1_Item */
+static int hf_e2ap_ric_ControlStyle_List;         /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_ControlMessage_Format2_Style_Item */
+static int hf_e2ap_ric_ControlStyle_List_item;    /* E2SM_RC_ControlMessage_Format2_Style_Item */
+static int hf_e2ap_indicated_Control_Style_Type;  /* RIC_Style_Type */
+static int hf_e2ap_ric_ControlAction_List;        /* SEQUENCE_SIZE_1_maxnoofMulCtrlActions_OF_E2SM_RC_ControlMessage_Format2_ControlAction_Item */
+static int hf_e2ap_ric_ControlAction_List_item;   /* E2SM_RC_ControlMessage_Format2_ControlAction_Item */
+static int hf_e2ap_ranP_List_02;                  /* E2SM_RC_ControlMessage_Format1 */
+static int hf_e2ap_ric_controlOutcome_formats;    /* T_ric_controlOutcome_formats */
+static int hf_e2ap_controlOutcome_Format1;        /* E2SM_RC_ControlOutcome_Format1 */
+static int hf_e2ap_controlOutcome_Format2;        /* E2SM_RC_ControlOutcome_Format2 */
+static int hf_e2ap_controlOutcome_Format3;        /* E2SM_RC_ControlOutcome_Format3 */
+static int hf_e2ap_ranP_List_03;                  /* SEQUENCE_SIZE_0_maxnoofRANOutcomeParameters_OF_E2SM_RC_ControlOutcome_Format1_Item */
+static int hf_e2ap_ranP_List_item_02;             /* E2SM_RC_ControlOutcome_Format1_Item */
+static int hf_e2ap_ric_ControlStyle_List_01;      /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_ControlOutcome_Format2_Style_Item */
+static int hf_e2ap_ric_ControlStyle_List_item_01;  /* E2SM_RC_ControlOutcome_Format2_Style_Item */
+static int hf_e2ap_ric_ControlOutcome_List;       /* SEQUENCE_SIZE_1_maxnoofMulCtrlActions_OF_E2SM_RC_ControlOutcome_Format2_ControlOutcome_Item */
+static int hf_e2ap_ric_ControlOutcome_List_item;  /* E2SM_RC_ControlOutcome_Format2_ControlOutcome_Item */
+static int hf_e2ap_ranP_List_04;                  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_ControlOutcome_Format2_RANP_Item */
+static int hf_e2ap_ranP_List_item_03;             /* E2SM_RC_ControlOutcome_Format2_RANP_Item */
+static int hf_e2ap_ranP_List_05;                  /* SEQUENCE_SIZE_0_maxnoofRANOutcomeParameters_OF_E2SM_RC_ControlOutcome_Format3_Item */
+static int hf_e2ap_ranP_List_item_04;             /* E2SM_RC_ControlOutcome_Format3_Item */
+static int hf_e2ap_ranFunction_Name;              /* RANfunction_Name */
+static int hf_e2ap_ranFunctionDefinition_EventTrigger;  /* RANFunctionDefinition_EventTrigger */
+static int hf_e2ap_ranFunctionDefinition_Report;  /* RANFunctionDefinition_Report */
+static int hf_e2ap_ranFunctionDefinition_Insert;  /* RANFunctionDefinition_Insert */
+static int hf_e2ap_ranFunctionDefinition_Control;  /* RANFunctionDefinition_Control */
+static int hf_e2ap_ranFunctionDefinition_Policy;  /* RANFunctionDefinition_Policy */
+static int hf_e2ap_ric_EventTriggerStyle_List;    /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_EventTrigger_Style_Item */
+static int hf_e2ap_ric_EventTriggerStyle_List_item;  /* RANFunctionDefinition_EventTrigger_Style_Item */
+static int hf_e2ap_ran_L2Parameters_List;         /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_L2Parameters_RANParameter_Item */
+static int hf_e2ap_ran_L2Parameters_List_item;    /* L2Parameters_RANParameter_Item */
+static int hf_e2ap_ran_CallProcessTypes_List;     /* SEQUENCE_SIZE_1_maxnoofCallProcessTypes_OF_RANFunctionDefinition_EventTrigger_CallProcess_Item */
+static int hf_e2ap_ran_CallProcessTypes_List_item;  /* RANFunctionDefinition_EventTrigger_CallProcess_Item */
+static int hf_e2ap_ran_UEIdentificationParameters_List;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_UEIdentification_RANParameter_Item */
+static int hf_e2ap_ran_UEIdentificationParameters_List_item;  /* UEIdentification_RANParameter_Item */
+static int hf_e2ap_ran_CellIdentificationParameters_List;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_CellIdentification_RANParameter_Item */
+static int hf_e2ap_ran_CellIdentificationParameters_List_item;  /* CellIdentification_RANParameter_Item */
+static int hf_e2ap_ric_EventTriggerStyle_Type;    /* RIC_Style_Type */
+static int hf_e2ap_ric_EventTriggerStyle_Name;    /* RIC_Style_Name */
+static int hf_e2ap_ric_EventTriggerFormat_Type;   /* RIC_Format_Type */
+static int hf_e2ap_callProcessType_ID;            /* RIC_CallProcessType_ID */
+static int hf_e2ap_callProcessType_Name;          /* RIC_CallProcessType_Name */
+static int hf_e2ap_callProcessBreakpoints_List;   /* SEQUENCE_SIZE_1_maxnoofCallProcessBreakpoints_OF_RANFunctionDefinition_EventTrigger_Breakpoint_Item */
+static int hf_e2ap_callProcessBreakpoints_List_item;  /* RANFunctionDefinition_EventTrigger_Breakpoint_Item */
+static int hf_e2ap_callProcessBreakpoint_ID;      /* RIC_CallProcessBreakpoint_ID */
+static int hf_e2ap_callProcessBreakpoint_Name;    /* RIC_CallProcessBreakpoint_Name */
+static int hf_e2ap_ran_CallProcessBreakpointParameters_List;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_CallProcessBreakpoint_RANParameter_Item */
+static int hf_e2ap_ran_CallProcessBreakpointParameters_List_item;  /* CallProcessBreakpoint_RANParameter_Item */
+static int hf_e2ap_ric_ReportStyle_List;          /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Report_Item */
+static int hf_e2ap_ric_ReportStyle_List_item;     /* RANFunctionDefinition_Report_Item */
+static int hf_e2ap_ric_ReportStyle_Type;          /* RIC_Style_Type */
+static int hf_e2ap_ric_ReportStyle_Name;          /* RIC_Style_Name */
+static int hf_e2ap_ric_SupportedEventTriggerStyle_Type;  /* RIC_Style_Type */
+static int hf_e2ap_ric_ReportActionFormat_Type;   /* RIC_Format_Type */
+static int hf_e2ap_ric_IndicationHeaderFormat_Type;  /* RIC_Format_Type */
+static int hf_e2ap_ric_IndicationMessageFormat_Type;  /* RIC_Format_Type */
+static int hf_e2ap_ran_ReportParameters_List;     /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_Report_RANParameter_Item */
+static int hf_e2ap_ran_ReportParameters_List_item;  /* Report_RANParameter_Item */
+static int hf_e2ap_ric_InsertStyle_List_02;       /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Insert_Item */
+static int hf_e2ap_ric_InsertStyle_List_item_02;  /* RANFunctionDefinition_Insert_Item */
+static int hf_e2ap_ric_InsertStyle_Name;          /* RIC_Style_Name */
+static int hf_e2ap_ric_ActionDefinitionFormat_Type;  /* RIC_Format_Type */
+static int hf_e2ap_ric_InsertIndication_List_02;  /* SEQUENCE_SIZE_1_maxnoofInsertIndication_OF_RANFunctionDefinition_Insert_Indication_Item */
+static int hf_e2ap_ric_InsertIndication_List_item_02;  /* RANFunctionDefinition_Insert_Indication_Item */
+static int hf_e2ap_ric_CallProcessIDFormat_Type;  /* RIC_Format_Type */
+static int hf_e2ap_ric_InsertIndication_Name;     /* RIC_InsertIndication_Name */
+static int hf_e2ap_ran_InsertIndicationParameters_List;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_InsertIndication_RANParameter_Item */
+static int hf_e2ap_ran_InsertIndicationParameters_List_item;  /* InsertIndication_RANParameter_Item */
+static int hf_e2ap_ric_ControlStyle_List_02;      /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Control_Item */
+static int hf_e2ap_ric_ControlStyle_List_item_02;  /* RANFunctionDefinition_Control_Item */
+static int hf_e2ap_ric_ControlStyle_Type;         /* RIC_Style_Type */
+static int hf_e2ap_ric_ControlStyle_Name;         /* RIC_Style_Name */
+static int hf_e2ap_ric_ControlAction_List_01;     /* SEQUENCE_SIZE_1_maxnoofControlAction_OF_RANFunctionDefinition_Control_Action_Item */
+static int hf_e2ap_ric_ControlAction_List_item_01;  /* RANFunctionDefinition_Control_Action_Item */
+static int hf_e2ap_ric_ControlHeaderFormat_Type;  /* RIC_Format_Type */
+static int hf_e2ap_ric_ControlMessageFormat_Type;  /* RIC_Format_Type */
+static int hf_e2ap_ric_ControlOutcomeFormat_Type;  /* RIC_Format_Type */
+static int hf_e2ap_ran_ControlOutcomeParameters_List;  /* SEQUENCE_SIZE_1_maxnoofRANOutcomeParameters_OF_ControlOutcome_RANParameter_Item */
+static int hf_e2ap_ran_ControlOutcomeParameters_List_item;  /* ControlOutcome_RANParameter_Item */
+static int hf_e2ap_ric_ControlAction_Name;        /* RIC_ControlAction_Name */
+static int hf_e2ap_ran_ControlActionParameters_List;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_ControlAction_RANParameter_Item */
+static int hf_e2ap_ran_ControlActionParameters_List_item;  /* ControlAction_RANParameter_Item */
+static int hf_e2ap_ric_PolicyStyle_List;          /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Policy_Item */
+static int hf_e2ap_ric_PolicyStyle_List_item;     /* RANFunctionDefinition_Policy_Item */
+static int hf_e2ap_ric_PolicyStyle_Type;          /* RIC_Style_Type */
+static int hf_e2ap_ric_PolicyStyle_Name;          /* RIC_Style_Name */
+static int hf_e2ap_ric_PolicyAction_List;         /* SEQUENCE_SIZE_1_maxnoofPolicyAction_OF_RANFunctionDefinition_Policy_Action_Item */
+static int hf_e2ap_ric_PolicyAction_List_item;    /* RANFunctionDefinition_Policy_Action_Item */
+static int hf_e2ap_ric_PolicyAction_Name;         /* RIC_ControlAction_Name */
+static int hf_e2ap_ran_PolicyActionParameters_List;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_PolicyAction_RANParameter_Item */
+static int hf_e2ap_ran_PolicyActionParameters_List_item;  /* PolicyAction_RANParameter_Item */
+static int hf_e2ap_ran_PolicyConditionParameters_List;  /* SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_PolicyCondition_RANParameter_Item */
+static int hf_e2ap_ran_PolicyConditionParameters_List_item;  /* PolicyCondition_RANParameter_Item */
+static int hf_e2ap_measName;                      /* MeasurementTypeName */
+static int hf_e2ap_measID;                        /* MeasurementTypeID */
+static int hf_e2ap_noLabel;                       /* T_noLabel */
+static int hf_e2ap_plmnID;                        /* PLMNIdentity */
+static int hf_e2ap_sliceID;                       /* S_NSSAI */
+static int hf_e2ap_fiveQI;                        /* FiveQI */
+static int hf_e2ap_qFI;                           /* QosFlowIdentifier */
+static int hf_e2ap_qCI;                           /* QCI */
+static int hf_e2ap_qCImax;                        /* QCI */
+static int hf_e2ap_qCImin;                        /* QCI */
+static int hf_e2ap_aRPmax;                        /* INTEGER_1_15_ */
+static int hf_e2ap_aRPmin;                        /* INTEGER_1_15_ */
+static int hf_e2ap_bitrateRange;                  /* INTEGER_1_65535_ */
+static int hf_e2ap_layerMU_MIMO;                  /* INTEGER_1_65535_ */
+static int hf_e2ap_sUM;                           /* T_sUM */
+static int hf_e2ap_distBinX;                      /* INTEGER_1_65535_ */
+static int hf_e2ap_distBinY;                      /* INTEGER_1_65535_ */
+static int hf_e2ap_distBinZ;                      /* INTEGER_1_65535_ */
+static int hf_e2ap_preLabelOverride;              /* T_preLabelOverride */
+static int hf_e2ap_startEndInd;                   /* T_startEndInd */
+static int hf_e2ap_min;                           /* T_min */
+static int hf_e2ap_max;                           /* T_max */
+static int hf_e2ap_avg;                           /* T_avg */
+static int hf_e2ap_ssbIndex;                      /* INTEGER_1_65535_ */
+static int hf_e2ap_nonGoB_BFmode_Index;           /* INTEGER_1_65535_ */
+static int hf_e2ap_mIMO_mode_Index;               /* INTEGER_1_2_ */
+static int hf_e2ap_testType;                      /* TestCond_Type */
+static int hf_e2ap_testExpr;                      /* TestCond_Expression */
+static int hf_e2ap_testValue;                     /* TestCond_Value */
+static int hf_e2ap_gBR;                           /* T_gBR */
+static int hf_e2ap_aMBR;                          /* T_aMBR */
+static int hf_e2ap_isStat;                        /* T_isStat */
+static int hf_e2ap_isCatM;                        /* T_isCatM */
+static int hf_e2ap_rSRP;                          /* T_rSRP */
+static int hf_e2ap_rSRQ;                          /* T_rSRQ */
+static int hf_e2ap_ul_rSRP;                       /* T_ul_rSRP */
+static int hf_e2ap_cQI;                           /* T_cQI */
+static int hf_e2ap_fiveQI_01;                     /* T_fiveQI */
+static int hf_e2ap_qCI_01;                        /* T_qCI */
+static int hf_e2ap_sNSSAI;                        /* T_sNSSAI */
+static int hf_e2ap_valueEnum;                     /* INTEGER */
+static int hf_e2ap_valueBool;                     /* BOOLEAN */
+static int hf_e2ap_valuePrtS;                     /* PrintableString */
+static int hf_e2ap_binRangeListX;                 /* BinRangeList */
+static int hf_e2ap_binRangeListY;                 /* BinRangeList */
+static int hf_e2ap_binRangeListZ;                 /* BinRangeList */
+static int hf_e2ap_BinRangeList_item;             /* BinRangeItem */
+static int hf_e2ap_binIndex;                      /* BinIndex */
+static int hf_e2ap_startValue;                    /* BinRangeValue */
+static int hf_e2ap_endValue;                      /* BinRangeValue */
+static int hf_e2ap_DistMeasurementBinRangeList_item;  /* DistMeasurementBinRangeItem */
+static int hf_e2ap_measType;                      /* MeasurementType */
+static int hf_e2ap_binRangeDef;                   /* BinRangeDefinition */
+static int hf_e2ap_MeasurementInfoList_item;      /* MeasurementInfoItem */
+static int hf_e2ap_labelInfoList;                 /* LabelInfoList */
+static int hf_e2ap_LabelInfoList_item;            /* LabelInfoItem */
+static int hf_e2ap_measLabel;                     /* MeasurementLabel */
+static int hf_e2ap_MeasurementData_item;          /* MeasurementDataItem */
+static int hf_e2ap_measRecord;                    /* MeasurementRecord */
+static int hf_e2ap_incompleteFlag;                /* T_incompleteFlag */
+static int hf_e2ap_MeasurementRecord_item;        /* MeasurementRecordItem */
+static int hf_e2ap_integer;                       /* INTEGER_0_4294967295 */
+static int hf_e2ap_real;                          /* REAL */
+static int hf_e2ap_noValue;                       /* NULL */
+static int hf_e2ap_MeasurementInfo_Action_List_item;  /* MeasurementInfo_Action_Item */
+static int hf_e2ap_MeasurementCondList_item;      /* MeasurementCondItem */
+static int hf_e2ap_matchingCond;                  /* MatchingCondList */
+static int hf_e2ap_MeasurementCondUEidList_item;  /* MeasurementCondUEidItem */
+static int hf_e2ap_matchingUEidList;              /* MatchingUEidList */
+static int hf_e2ap_matchingUEidPerGP;             /* MatchingUEidPerGP */
+static int hf_e2ap_MatchingCondList_item;         /* MatchingCondItem */
+static int hf_e2ap_matchingCondChoice;            /* MatchingCondItem_Choice */
+static int hf_e2ap_testCondInfo;                  /* TestCondInfo */
+static int hf_e2ap_MatchingUEidList_item;         /* MatchingUEidItem */
+static int hf_e2ap_MatchingUEidPerGP_item;        /* MatchingUEidPerGP_Item */
+static int hf_e2ap_matchedPerGP;                  /* T_matchedPerGP */
+static int hf_e2ap_noUEmatched;                   /* T_noUEmatched */
+static int hf_e2ap_oneOrMoreUEmatched;            /* MatchingUEidList_PerGP */
+static int hf_e2ap_MatchingUEidList_PerGP_item;   /* MatchingUEidItem_PerGP */
+static int hf_e2ap_MatchingUeCondPerSubList_item;  /* MatchingUeCondPerSubItem */
+static int hf_e2ap_MatchingUEidPerSubList_item;   /* MatchingUEidPerSubItem */
+static int hf_e2ap_UEMeasurementReportList_item;  /* UEMeasurementReportItem */
+static int hf_e2ap_measReport;                    /* E2SM_KPM_IndicationMessage_Format1 */
+static int hf_e2ap_eventDefinition_formats;       /* T_eventDefinition_formats */
+static int hf_e2ap_eventDefinition_Format1;       /* E2SM_KPM_EventTriggerDefinition_Format1 */
+static int hf_e2ap_reportingPeriod;               /* INTEGER_1_4294967295 */
+static int hf_e2ap_actionDefinition_formats;      /* T_actionDefinition_formats */
+static int hf_e2ap_actionDefinition_Format1_01;   /* E2SM_KPM_ActionDefinition_Format1 */
+static int hf_e2ap_actionDefinition_Format2_01;   /* E2SM_KPM_ActionDefinition_Format2 */
+static int hf_e2ap_actionDefinition_Format3_01;   /* E2SM_KPM_ActionDefinition_Format3 */
+static int hf_e2ap_actionDefinition_Format4_01;   /* E2SM_KPM_ActionDefinition_Format4 */
+static int hf_e2ap_actionDefinition_Format5;      /* E2SM_KPM_ActionDefinition_Format5 */
+static int hf_e2ap_measInfoList;                  /* MeasurementInfoList */
+static int hf_e2ap_granulPeriod;                  /* GranularityPeriod */
+static int hf_e2ap_distMeasBinRangeInfo;          /* DistMeasurementBinRangeList */
+static int hf_e2ap_subscriptInfo;                 /* E2SM_KPM_ActionDefinition_Format1 */
+static int hf_e2ap_measCondList;                  /* MeasurementCondList */
+static int hf_e2ap_matchingUeCondList;            /* MatchingUeCondPerSubList */
+static int hf_e2ap_subscriptionInfo;              /* E2SM_KPM_ActionDefinition_Format1 */
+static int hf_e2ap_matchingUEidList_01;           /* MatchingUEidPerSubList */
+static int hf_e2ap_indicationHeader_formats;      /* T_indicationHeader_formats */
+static int hf_e2ap_indicationHeader_Format1_01;   /* E2SM_KPM_IndicationHeader_Format1 */
+static int hf_e2ap_colletStartTime;               /* T_colletStartTime */
+static int hf_e2ap_fileFormatversion;             /* PrintableString_SIZE_0_15_ */
+static int hf_e2ap_senderName;                    /* PrintableString_SIZE_0_400_ */
+static int hf_e2ap_senderType;                    /* PrintableString_SIZE_0_8_ */
+static int hf_e2ap_vendorName;                    /* PrintableString_SIZE_0_32_ */
+static int hf_e2ap_indicationMessage_formats;     /* T_indicationMessage_formats */
+static int hf_e2ap_indicationMessage_Format1_01;  /* E2SM_KPM_IndicationMessage_Format1 */
+static int hf_e2ap_indicationMessage_Format2_01;  /* E2SM_KPM_IndicationMessage_Format2 */
+static int hf_e2ap_indicationMessage_Format3_01;  /* E2SM_KPM_IndicationMessage_Format3 */
+static int hf_e2ap_measData;                      /* MeasurementData */
+static int hf_e2ap_measCondUEidList;              /* MeasurementCondUEidList */
+static int hf_e2ap_ueMeasReportList;              /* UEMeasurementReportList */
+static int hf_e2ap_ric_EventTriggerStyle_List_01;  /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RIC_EventTriggerStyle_Item */
+static int hf_e2ap_ric_EventTriggerStyle_List_item_01;  /* RIC_EventTriggerStyle_Item */
+static int hf_e2ap_ric_ReportStyle_List_01;       /* SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RIC_ReportStyle_Item */
+static int hf_e2ap_ric_ReportStyle_List_item_01;  /* RIC_ReportStyle_Item */
+static int hf_e2ap_ric_ActionFormat_Type;         /* RIC_Format_Type */
+static int hf_e2ap_measInfo_Action_List;          /* MeasurementInfo_Action_List */
+static int hf_e2ap_eventDefinition_Format1_01;    /* E2SM_NI_EventTriggerDefinition_Format1 */
+static int hf_e2ap_interface_type;                /* NI_Type */
+static int hf_e2ap_interface_ID;                  /* NI_Identifier */
+static int hf_e2ap_interfaceDirection;            /* NI_Direction */
+static int hf_e2ap_interfaceMessageType;          /* NI_MessageType */
+static int hf_e2ap_interfaceProtocolIE_List;      /* SEQUENCE_SIZE_1_maxofInterfaceProtocolTests_OF_NI_ProtocolIE_Item */
+static int hf_e2ap_interfaceProtocolIE_List_item;  /* NI_ProtocolIE_Item */
+static int hf_e2ap_action_Definition_Format;      /* E2SM_NI_ActionDefinitionFormat */
+static int hf_e2ap_actionDefinition_Format1_02;   /* E2SM_NI_ActionDefinition_Format1 */
+static int hf_e2ap_actionDefinition_Format2_02;   /* E2SM_NI_ActionDefinition_Format2 */
+static int hf_e2ap_actionParameter_List;          /* SEQUENCE_SIZE_1_maxofActionParameters_OF_RANparameter_Item */
+static int hf_e2ap_actionParameter_List_item;     /* RANparameter_Item */
+static int hf_e2ap_ranUEgroup_List;               /* SEQUENCE_SIZE_1_maxofRANueGroups_OF_RANueGroup_Item */
+static int hf_e2ap_ranUEgroup_List_item;          /* RANueGroup_Item */
+static int hf_e2ap_indicationHeader_Format1_02;   /* E2SM_NI_IndicationHeader_Format1 */
+static int hf_e2ap_timestamp;                     /* NI_TimeStamp */
+static int hf_e2ap_indicationMessage_Format1_02;  /* E2SM_NI_IndicationMessage_Format1 */
+static int hf_e2ap_interfaceMessage;              /* NI_Message */
+static int hf_e2ap_callProcessID_Format1_01;      /* E2SM_NI_CallProcessID_Format1 */
+static int hf_e2ap_callProcessID_Format2;         /* E2SM_NI_CallProcessID_Format2 */
+static int hf_e2ap_callProcess_ID;                /* RANcallProcess_ID_number */
+static int hf_e2ap_callProcess_ID_01;             /* RANcallProcess_ID_string */
+static int hf_e2ap_controlHeader_Format1_01;      /* E2SM_NI_ControlHeader_Format1 */
+static int hf_e2ap_interface_Direction;           /* NI_Direction */
+static int hf_e2ap_ric_Control_Message_Priority;  /* RIC_Control_Message_Priority */
+static int hf_e2ap_controlMessage_Format1_01;     /* E2SM_NI_ControlMessage_Format1 */
+static int hf_e2ap_controlOutcome_Format1_01;     /* E2SM_NI_ControlOutcome_Format1 */
+static int hf_e2ap_outcomeElement_List;           /* SEQUENCE_SIZE_1_maxofRANparameters_OF_RANparameter_Item */
+static int hf_e2ap_outcomeElement_List_item;      /* RANparameter_Item */
+static int hf_e2ap_ni_Type_List;                  /* SEQUENCE_SIZE_1_maxofNItypes_OF_E2SM_NI_RANfunction_Item */
+static int hf_e2ap_ni_Type_List_item;             /* E2SM_NI_RANfunction_Item */
+static int hf_e2ap_ric_EventTriggerStyle_List_02;  /* SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_EventTriggerStyle_List */
+static int hf_e2ap_ric_EventTriggerStyle_List_item_02;  /* RIC_EventTriggerStyle_List */
+static int hf_e2ap_ric_ReportStyle_List_02;       /* SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_ReportStyle_List */
+static int hf_e2ap_ric_ReportStyle_List_item_02;  /* RIC_ReportStyle_List */
+static int hf_e2ap_ric_InsertStyle_List_03;       /* SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_InsertStyle_List */
+static int hf_e2ap_ric_InsertStyle_List_item_03;  /* RIC_InsertStyle_List */
+static int hf_e2ap_ric_ControlStyle_List_03;      /* SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_ControlStyle_List */
+static int hf_e2ap_ric_ControlStyle_List_item_03;  /* RIC_ControlStyle_List */
+static int hf_e2ap_ric_PolicyStyle_List_01;       /* SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_PolicyStyle_List */
+static int hf_e2ap_ric_PolicyStyle_List_item_01;  /* RIC_PolicyStyle_List */
+static int hf_e2ap_global_ng_RAN_ID;              /* Global_ng_RAN_ID */
+static int hf_e2ap_global_eNB_ID_01;              /* Global_eNB_ID */
+static int hf_e2ap_global_en_gNB_ID_01;           /* Global_en_gNB_ID */
+static int hf_e2ap_global_gNB_DU_ID;              /* Global_gNB_DU_ID */
+static int hf_e2ap_global_gNB_CU_UP_ID;           /* Global_gNB_CU_UP_ID */
+static int hf_e2ap_s1MessageType;                 /* NI_MessageTypeS1 */
+static int hf_e2ap_x2MessageType;                 /* NI_MessageTypeX2 */
+static int hf_e2ap_ngMessageType;                 /* NI_MessageTypeNG */
+static int hf_e2ap_xnMessageType;                 /* NI_MessageTypeXn */
+static int hf_e2ap_f1MessageType;                 /* NI_MessageTypeF1 */
+static int hf_e2ap_e1MessageType;                 /* NI_MessageTypeE1 */
+static int hf_e2ap_typeOfMessage;                 /* TypeOfMessage */
+static int hf_e2ap_interfaceProtocolIE_ID;        /* NI_ProtocolIE_ID */
+static int hf_e2ap_interfaceProtocolIE_Test;      /* NI_ProtocolIE_Test */
+static int hf_e2ap_interfaceProtocolIE_Value;     /* NI_ProtocolIE_Value */
+static int hf_e2ap_ranImperativePolicy_List;      /* SEQUENCE_SIZE_1_maxofRANparameters_OF_RANparameter_Item */
+static int hf_e2ap_ranImperativePolicy_List_item;  /* RANparameter_Item */
+static int hf_e2ap_ranParameter_ID_01;            /* RANparameter_ID */
+static int hf_e2ap_ranParameter_Value_01;         /* RANparameter_Value */
+static int hf_e2ap_ranParameter_Name;             /* RANparameter_Name */
+static int hf_e2ap_ranParameter_Type_01;          /* RANparameter_Type */
+static int hf_e2ap_ranUEgroupID;                  /* RANueGroupID */
+static int hf_e2ap_ranUEgroupDefinition;          /* RANueGroupDefinition */
+static int hf_e2ap_ranPolicy;                     /* RANimperativePolicy */
+static int hf_e2ap_ranUEgroupDef_List;            /* SEQUENCE_SIZE_1_maxofRANparameters_OF_RANueGroupDef_Item */
+static int hf_e2ap_ranUEgroupDef_List_item;       /* RANueGroupDef_Item */
+static int hf_e2ap_ranParameter_Test;             /* RANparameter_Test_Condition */
+static int hf_e2ap_ric_ControlFormat_Type;        /* RIC_Format_Type */
+static int hf_e2ap_ric_ControlOutcomeRanParaDef_List;  /* SEQUENCE_SIZE_1_maxofRANparameters_OF_RANparameterDef_Item */
+static int hf_e2ap_ric_ControlOutcomeRanParaDef_List_item;  /* RANparameterDef_Item */
+static int hf_e2ap_ric_InsertActionFormat_Type;   /* RIC_Format_Type */
+static int hf_e2ap_ric_InsertRanParameterDef_List;  /* SEQUENCE_SIZE_1_maxofRANparameters_OF_RANparameterDef_Item */
+static int hf_e2ap_ric_InsertRanParameterDef_List_item;  /* RANparameterDef_Item */
+static int hf_e2ap_ric_PolicyActionFormat_Type;   /* RIC_Format_Type */
+static int hf_e2ap_ric_PolicyRanParameterDef_List;  /* SEQUENCE_SIZE_1_maxofRANparameters_OF_RANparameterDef_Item */
+static int hf_e2ap_ric_PolicyRanParameterDef_List_item;  /* RANparameterDef_Item */
+static int hf_e2ap_ric_ReportRanParameterDef_List;  /* SEQUENCE_SIZE_1_maxofRANparameters_OF_RANparameterDef_Item */
+static int hf_e2ap_ric_ReportRanParameterDef_List_item;  /* RANparameterDef_Item */
 
-static int hf_e2ap_unmapped_ran_function_id = -1;
-static int hf_e2ap_ran_function_name_not_recognised = -1;
-static int hf_e2ap_ran_function_setup_frame = -1;
+static int hf_e2ap_unmapped_ran_function_id;
+static int hf_e2ap_ran_function_name_not_recognised;
+static int hf_e2ap_ran_function_setup_frame;
 
-static int hf_e2ap_dissector_version= -1;
-static int hf_e2ap_frame_version = -1;
+static int hf_e2ap_dissector_version;
+static int hf_e2ap_frame_version;
 
-static int hf_e2ap_timestamp_string = -1;
+static int hf_e2ap_timestamp_string;
 
 
 /* Initialize the subtree pointers */
-static gint ett_e2ap = -1;
+static gint ett_e2ap;
 
-static expert_field ei_e2ap_ran_function_names_no_match = EI_INIT;
-static expert_field ei_e2ap_ran_function_id_not_mapped = EI_INIT;
-static expert_field ei_e2ap_ran_function_dissector_mismatch = EI_INIT;
-static expert_field ei_e2ap_ran_function_max_dissectors_registered = EI_INIT;
+static expert_field ei_e2ap_ran_function_names_no_match;
+static expert_field ei_e2ap_ran_function_id_not_mapped;
+static expert_field ei_e2ap_ran_function_dissector_mismatch;
+static expert_field ei_e2ap_ran_function_max_dissectors_registered;
 
-static gint ett_e2ap_ProtocolIE_Container = -1;
-static gint ett_e2ap_ProtocolIE_Field = -1;
-static gint ett_e2ap_Cause = -1;
-static gint ett_e2ap_CriticalityDiagnostics = -1;
-static gint ett_e2ap_CriticalityDiagnostics_IE_List = -1;
-static gint ett_e2ap_CriticalityDiagnostics_IE_Item = -1;
-static gint ett_e2ap_E2nodeComponentConfiguration = -1;
-static gint ett_e2ap_E2nodeComponentConfigurationAck = -1;
-static gint ett_e2ap_E2nodeComponentID = -1;
-static gint ett_e2ap_E2nodeComponentInterfaceE1 = -1;
-static gint ett_e2ap_E2nodeComponentInterfaceF1 = -1;
-static gint ett_e2ap_E2nodeComponentInterfaceNG = -1;
-static gint ett_e2ap_E2nodeComponentInterfaceS1 = -1;
-static gint ett_e2ap_E2nodeComponentInterfaceX2 = -1;
-static gint ett_e2ap_E2nodeComponentInterfaceXn = -1;
-static gint ett_e2ap_E2nodeComponentInterfaceW1 = -1;
-static gint ett_e2ap_ENB_ID = -1;
-static gint ett_e2ap_ENB_ID_Choice = -1;
-static gint ett_e2ap_ENGNB_ID = -1;
-static gint ett_e2ap_GlobalE2node_ID = -1;
-static gint ett_e2ap_GlobalE2node_en_gNB_ID = -1;
-static gint ett_e2ap_GlobalE2node_eNB_ID = -1;
-static gint ett_e2ap_GlobalE2node_gNB_ID = -1;
-static gint ett_e2ap_GlobalE2node_ng_eNB_ID = -1;
-static gint ett_e2ap_GlobalENB_ID = -1;
-static gint ett_e2ap_GlobalenGNB_ID = -1;
-static gint ett_e2ap_GlobalgNB_ID = -1;
-static gint ett_e2ap_GlobalngeNB_ID = -1;
-static gint ett_e2ap_GlobalNG_RANNode_ID = -1;
-static gint ett_e2ap_GlobalRIC_ID = -1;
-static gint ett_e2ap_GNB_ID_Choice = -1;
-static gint ett_e2ap_RICrequestID = -1;
-static gint ett_e2ap_RICsubsequentAction = -1;
-static gint ett_e2ap_TNLinformation = -1;
-static gint ett_e2ap_RICsubscriptionRequest = -1;
-static gint ett_e2ap_RICsubscriptionDetails = -1;
-static gint ett_e2ap_RICactions_ToBeSetup_List = -1;
-static gint ett_e2ap_RICaction_ToBeSetup_Item = -1;
-static gint ett_e2ap_RICsubscriptionResponse = -1;
-static gint ett_e2ap_RICaction_Admitted_List = -1;
-static gint ett_e2ap_RICaction_Admitted_Item = -1;
-static gint ett_e2ap_RICaction_NotAdmitted_List = -1;
-static gint ett_e2ap_RICaction_NotAdmitted_Item = -1;
-static gint ett_e2ap_RICsubscriptionFailure = -1;
-static gint ett_e2ap_RICsubscriptionDeleteRequest = -1;
-static gint ett_e2ap_RICsubscriptionDeleteResponse = -1;
-static gint ett_e2ap_RICsubscriptionDeleteFailure = -1;
-static gint ett_e2ap_RICsubscriptionDeleteRequired = -1;
-static gint ett_e2ap_RICsubscription_List_withCause = -1;
-static gint ett_e2ap_RICsubscription_withCause_Item = -1;
-static gint ett_e2ap_RICsubscriptionModificationRequest = -1;
-static gint ett_e2ap_RICactions_ToBeRemovedForModification_List = -1;
-static gint ett_e2ap_RICaction_ToBeRemovedForModification_Item = -1;
-static gint ett_e2ap_RICactions_ToBeModifiedForModification_List = -1;
-static gint ett_e2ap_RICaction_ToBeModifiedForModification_Item = -1;
-static gint ett_e2ap_RICactions_ToBeAddedForModification_List = -1;
-static gint ett_e2ap_RICaction_ToBeAddedForModification_Item = -1;
-static gint ett_e2ap_RICsubscriptionModificationResponse = -1;
-static gint ett_e2ap_RICactions_RemovedForModification_List = -1;
-static gint ett_e2ap_RICaction_RemovedForModification_Item = -1;
-static gint ett_e2ap_RICactions_FailedToBeRemovedForModification_List = -1;
-static gint ett_e2ap_RICaction_FailedToBeRemovedForModification_Item = -1;
-static gint ett_e2ap_RICactions_ModifiedForModification_List = -1;
-static gint ett_e2ap_RICaction_ModifiedForModification_Item = -1;
-static gint ett_e2ap_RICactions_FailedToBeModifiedForModification_List = -1;
-static gint ett_e2ap_RICaction_FailedToBeModifiedForModification_Item = -1;
-static gint ett_e2ap_RICactions_AddedForModification_List = -1;
-static gint ett_e2ap_RICaction_AddedForModification_Item = -1;
-static gint ett_e2ap_RICactions_FailedToBeAddedForModification_List = -1;
-static gint ett_e2ap_RICaction_FailedToBeAddedForModification_Item = -1;
-static gint ett_e2ap_RICsubscriptionModificationFailure = -1;
-static gint ett_e2ap_RICsubscriptionModificationRequired = -1;
-static gint ett_e2ap_RICactions_RequiredToBeModified_List = -1;
-static gint ett_e2ap_RICaction_RequiredToBeModified_Item = -1;
-static gint ett_e2ap_RICactions_RequiredToBeRemoved_List = -1;
-static gint ett_e2ap_RICaction_RequiredToBeRemoved_Item = -1;
-static gint ett_e2ap_RICsubscriptionModificationConfirm = -1;
-static gint ett_e2ap_RICactions_ConfirmedForModification_List = -1;
-static gint ett_e2ap_RICaction_ConfirmedForModification_Item = -1;
-static gint ett_e2ap_RICactions_RefusedToBeModified_List = -1;
-static gint ett_e2ap_RICaction_RefusedToBeModified_Item = -1;
-static gint ett_e2ap_RICactions_ConfirmedForRemoval_List = -1;
-static gint ett_e2ap_RICaction_ConfirmedForRemoval_Item = -1;
-static gint ett_e2ap_RICactions_RefusedToBeRemoved_List = -1;
-static gint ett_e2ap_RICaction_RefusedToBeRemoved_Item = -1;
-static gint ett_e2ap_RICsubscriptionModificationRefuse = -1;
-static gint ett_e2ap_RICindication = -1;
-static gint ett_e2ap_RICcontrolRequest = -1;
-static gint ett_e2ap_RICcontrolAcknowledge = -1;
-static gint ett_e2ap_RICcontrolFailure = -1;
-static gint ett_e2ap_RICQueryRequest = -1;
-static gint ett_e2ap_RICQueryResponse = -1;
-static gint ett_e2ap_RICQueryFailure = -1;
-static gint ett_e2ap_ErrorIndication = -1;
-static gint ett_e2ap_E2setupRequest = -1;
-static gint ett_e2ap_E2setupResponse = -1;
-static gint ett_e2ap_E2setupFailure = -1;
-static gint ett_e2ap_E2connectionUpdate = -1;
-static gint ett_e2ap_E2connectionUpdate_List = -1;
-static gint ett_e2ap_E2connectionUpdate_Item = -1;
-static gint ett_e2ap_E2connectionUpdateRemove_List = -1;
-static gint ett_e2ap_E2connectionUpdateRemove_Item = -1;
-static gint ett_e2ap_E2connectionUpdateAcknowledge = -1;
-static gint ett_e2ap_E2connectionSetupFailed_List = -1;
-static gint ett_e2ap_E2connectionSetupFailed_Item = -1;
-static gint ett_e2ap_E2connectionUpdateFailure = -1;
-static gint ett_e2ap_E2nodeConfigurationUpdate = -1;
-static gint ett_e2ap_E2nodeComponentConfigAddition_List = -1;
-static gint ett_e2ap_E2nodeComponentConfigAddition_Item = -1;
-static gint ett_e2ap_E2nodeComponentConfigUpdate_List = -1;
-static gint ett_e2ap_E2nodeComponentConfigUpdate_Item = -1;
-static gint ett_e2ap_E2nodeComponentConfigRemoval_List = -1;
-static gint ett_e2ap_E2nodeComponentConfigRemoval_Item = -1;
-static gint ett_e2ap_E2nodeTNLassociationRemoval_List = -1;
-static gint ett_e2ap_E2nodeTNLassociationRemoval_Item = -1;
-static gint ett_e2ap_E2nodeConfigurationUpdateAcknowledge = -1;
-static gint ett_e2ap_E2nodeComponentConfigAdditionAck_List = -1;
-static gint ett_e2ap_E2nodeComponentConfigAdditionAck_Item = -1;
-static gint ett_e2ap_E2nodeComponentConfigUpdateAck_List = -1;
-static gint ett_e2ap_E2nodeComponentConfigUpdateAck_Item = -1;
-static gint ett_e2ap_E2nodeComponentConfigRemovalAck_List = -1;
-static gint ett_e2ap_E2nodeComponentConfigRemovalAck_Item = -1;
-static gint ett_e2ap_E2nodeConfigurationUpdateFailure = -1;
-static gint ett_e2ap_ResetRequest = -1;
-static gint ett_e2ap_ResetResponse = -1;
-static gint ett_e2ap_RICserviceUpdate = -1;
-static gint ett_e2ap_RANfunctions_List = -1;
-static gint ett_e2ap_RANfunction_Item = -1;
-static gint ett_e2ap_RANfunctionsID_List = -1;
-static gint ett_e2ap_RANfunctionID_Item = -1;
-static gint ett_e2ap_RICserviceUpdateAcknowledge = -1;
-static gint ett_e2ap_RANfunctionsIDcause_List = -1;
-static gint ett_e2ap_RANfunctionIDcause_Item = -1;
-static gint ett_e2ap_RICserviceUpdateFailure = -1;
-static gint ett_e2ap_RICserviceQuery = -1;
-static gint ett_e2ap_E2RemovalRequest = -1;
-static gint ett_e2ap_E2RemovalResponse = -1;
-static gint ett_e2ap_E2RemovalFailure = -1;
-static gint ett_e2ap_E2AP_PDU = -1;
-static gint ett_e2ap_InitiatingMessage = -1;
-static gint ett_e2ap_SuccessfulOutcome = -1;
-static gint ett_e2ap_UnsuccessfulOutcome = -1;
-static gint ett_e2ap_CGI = -1;
-static gint ett_e2ap_InterfaceIdentifier = -1;
-static gint ett_e2ap_InterfaceID_NG = -1;
-static gint ett_e2ap_InterfaceID_Xn = -1;
-static gint ett_e2ap_InterfaceID_F1 = -1;
-static gint ett_e2ap_InterfaceID_E1 = -1;
-static gint ett_e2ap_InterfaceID_S1 = -1;
-static gint ett_e2ap_InterfaceID_X2 = -1;
-static gint ett_e2ap_T_nodeType = -1;
-static gint ett_e2ap_InterfaceID_W1 = -1;
-static gint ett_e2ap_Interface_MessageID = -1;
-static gint ett_e2ap_RANfunction_Name = -1;
-static gint ett_e2ap_RRC_MessageID = -1;
-static gint ett_e2ap_T_rrcType = -1;
-static gint ett_e2ap_ServingCell_ARFCN = -1;
-static gint ett_e2ap_ServingCell_PCI = -1;
-static gint ett_e2ap_UEID = -1;
-static gint ett_e2ap_UEID_GNB = -1;
-static gint ett_e2ap_UEID_GNB_CU_CP_E1AP_ID_List = -1;
-static gint ett_e2ap_UEID_GNB_CU_CP_E1AP_ID_Item = -1;
-static gint ett_e2ap_UEID_GNB_CU_F1AP_ID_List = -1;
-static gint ett_e2ap_UEID_GNB_CU_CP_F1AP_ID_Item = -1;
-static gint ett_e2ap_UEID_GNB_DU = -1;
-static gint ett_e2ap_UEID_GNB_CU_UP = -1;
-static gint ett_e2ap_UEID_NG_ENB = -1;
-static gint ett_e2ap_UEID_NG_ENB_DU = -1;
-static gint ett_e2ap_UEID_EN_GNB = -1;
-static gint ett_e2ap_UEID_ENB = -1;
-static gint ett_e2ap_GUMMEI = -1;
-static gint ett_e2ap_EUTRA_CGI = -1;
-static gint ett_e2ap_GlobalGNB_ID = -1;
-static gint ett_e2ap_GlobalNgENB_ID = -1;
-static gint ett_e2ap_GNB_ID = -1;
-static gint ett_e2ap_GUAMI = -1;
-static gint ett_e2ap_NgENB_ID = -1;
-static gint ett_e2ap_NR_CGI = -1;
-static gint ett_e2ap_S_NSSAI = -1;
-static gint ett_e2ap_GlobalNGRANNodeID = -1;
-static gint ett_e2ap_NR_ARFCN = -1;
-static gint ett_e2ap_NRFrequencyBand_List = -1;
-static gint ett_e2ap_NRFrequencyBandItem = -1;
-static gint ett_e2ap_NRFrequencyInfo = -1;
-static gint ett_e2ap_SupportedSULBandList = -1;
-static gint ett_e2ap_SupportedSULFreqBandItem = -1;
-static gint ett_e2ap_NeighborCell_List = -1;
-static gint ett_e2ap_NeighborCell_Item = -1;
-static gint ett_e2ap_NeighborCell_Item_Choice_NR = -1;
-static gint ett_e2ap_NeighborCell_Item_Choice_E_UTRA = -1;
-static gint ett_e2ap_NeighborRelation_Info = -1;
-static gint ett_e2ap_EventTrigger_Cell_Info = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofCellInfo_OF_EventTrigger_Cell_Info_Item = -1;
-static gint ett_e2ap_EventTrigger_Cell_Info_Item = -1;
-static gint ett_e2ap_T_cellType = -1;
-static gint ett_e2ap_EventTrigger_Cell_Info_Item_Choice_Individual = -1;
-static gint ett_e2ap_EventTrigger_Cell_Info_Item_Choice_Group = -1;
-static gint ett_e2ap_EventTrigger_UE_Info = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofUEInfo_OF_EventTrigger_UE_Info_Item = -1;
-static gint ett_e2ap_EventTrigger_UE_Info_Item = -1;
-static gint ett_e2ap_T_ueType = -1;
-static gint ett_e2ap_EventTrigger_UE_Info_Item_Choice_Individual = -1;
-static gint ett_e2ap_EventTrigger_UE_Info_Item_Choice_Group = -1;
-static gint ett_e2ap_EventTrigger_UEevent_Info = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofUEeventInfo_OF_EventTrigger_UEevent_Info_Item = -1;
-static gint ett_e2ap_EventTrigger_UEevent_Info_Item = -1;
-static gint ett_e2ap_RANParameter_Definition = -1;
-static gint ett_e2ap_RANParameter_Definition_Choice = -1;
-static gint ett_e2ap_RANParameter_Definition_Choice_LIST = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofItemsinList_OF_RANParameter_Definition_Choice_LIST_Item = -1;
-static gint ett_e2ap_RANParameter_Definition_Choice_LIST_Item = -1;
-static gint ett_e2ap_RANParameter_Definition_Choice_STRUCTURE = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofParametersinStructure_OF_RANParameter_Definition_Choice_STRUCTURE_Item = -1;
-static gint ett_e2ap_RANParameter_Definition_Choice_STRUCTURE_Item = -1;
-static gint ett_e2ap_RANParameter_Value = -1;
-static gint ett_e2ap_RANParameter_ValueType = -1;
-static gint ett_e2ap_RANParameter_ValueType_Choice_ElementTrue = -1;
-static gint ett_e2ap_RANParameter_ValueType_Choice_ElementFalse = -1;
-static gint ett_e2ap_RANParameter_ValueType_Choice_Structure = -1;
-static gint ett_e2ap_RANParameter_ValueType_Choice_List = -1;
-static gint ett_e2ap_RANParameter_STRUCTURE = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofParametersinStructure_OF_RANParameter_STRUCTURE_Item = -1;
-static gint ett_e2ap_RANParameter_STRUCTURE_Item = -1;
-static gint ett_e2ap_RANParameter_LIST = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofItemsinList_OF_RANParameter_STRUCTURE = -1;
-static gint ett_e2ap_RANParameter_Testing = -1;
-static gint ett_e2ap_RANParameter_TestingCondition = -1;
-static gint ett_e2ap_RANParameter_Testing_Item = -1;
-static gint ett_e2ap_T_ranParameter_Type = -1;
-static gint ett_e2ap_RANParameter_Testing_Item_Choice_List = -1;
-static gint ett_e2ap_RANParameter_Testing_Item_Choice_Structure = -1;
-static gint ett_e2ap_RANParameter_Testing_Item_Choice_ElementTrue = -1;
-static gint ett_e2ap_RANParameter_Testing_Item_Choice_ElementFalse = -1;
-static gint ett_e2ap_RANParameter_Testing_LIST = -1;
-static gint ett_e2ap_RANParameter_Testing_STRUCTURE = -1;
-static gint ett_e2ap_RIC_PolicyAction = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_RIC_PolicyAction_RANParameter_Item = -1;
-static gint ett_e2ap_RIC_PolicyAction_RANParameter_Item = -1;
-static gint ett_e2ap_E2SM_RC_EventTrigger = -1;
-static gint ett_e2ap_T_ric_eventTrigger_formats = -1;
-static gint ett_e2ap_E2SM_RC_EventTrigger_Format1 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofMessages_OF_E2SM_RC_EventTrigger_Format1_Item = -1;
-static gint ett_e2ap_E2SM_RC_EventTrigger_Format1_Item = -1;
-static gint ett_e2ap_MessageType_Choice = -1;
-static gint ett_e2ap_MessageType_Choice_NI = -1;
-static gint ett_e2ap_MessageType_Choice_RRC = -1;
-static gint ett_e2ap_E2SM_RC_EventTrigger_Format2 = -1;
-static gint ett_e2ap_E2SM_RC_EventTrigger_Format3 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofE2InfoChanges_OF_E2SM_RC_EventTrigger_Format3_Item = -1;
-static gint ett_e2ap_E2SM_RC_EventTrigger_Format3_Item = -1;
-static gint ett_e2ap_E2SM_RC_EventTrigger_Format4 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofUEInfoChanges_OF_E2SM_RC_EventTrigger_Format4_Item = -1;
-static gint ett_e2ap_E2SM_RC_EventTrigger_Format4_Item = -1;
-static gint ett_e2ap_TriggerType_Choice = -1;
-static gint ett_e2ap_TriggerType_Choice_RRCstate = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRRCstate_OF_TriggerType_Choice_RRCstate_Item = -1;
-static gint ett_e2ap_TriggerType_Choice_RRCstate_Item = -1;
-static gint ett_e2ap_TriggerType_Choice_UEID = -1;
-static gint ett_e2ap_TriggerType_Choice_L2state = -1;
-static gint ett_e2ap_E2SM_RC_EventTrigger_Format5 = -1;
-static gint ett_e2ap_E2SM_RC_ActionDefinition = -1;
-static gint ett_e2ap_T_ric_actionDefinition_formats = -1;
-static gint ett_e2ap_E2SM_RC_ActionDefinition_Format1 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofParametersToReport_OF_E2SM_RC_ActionDefinition_Format1_Item = -1;
-static gint ett_e2ap_E2SM_RC_ActionDefinition_Format1_Item = -1;
-static gint ett_e2ap_E2SM_RC_ActionDefinition_Format2 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofPolicyConditions_OF_E2SM_RC_ActionDefinition_Format2_Item = -1;
-static gint ett_e2ap_E2SM_RC_ActionDefinition_Format2_Item = -1;
-static gint ett_e2ap_E2SM_RC_ActionDefinition_Format3 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_ActionDefinition_Format3_Item = -1;
-static gint ett_e2ap_E2SM_RC_ActionDefinition_Format3_Item = -1;
-static gint ett_e2ap_E2SM_RC_ActionDefinition_Format4 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_ActionDefinition_Format4_Style_Item = -1;
-static gint ett_e2ap_E2SM_RC_ActionDefinition_Format4_Style_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofInsertIndicationActions_OF_E2SM_RC_ActionDefinition_Format4_Indication_Item = -1;
-static gint ett_e2ap_E2SM_RC_ActionDefinition_Format4_Indication_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_ActionDefinition_Format4_RANP_Item = -1;
-static gint ett_e2ap_E2SM_RC_ActionDefinition_Format4_RANP_Item = -1;
-static gint ett_e2ap_E2SM_RC_IndicationHeader = -1;
-static gint ett_e2ap_T_ric_indicationHeader_formats = -1;
-static gint ett_e2ap_E2SM_RC_IndicationHeader_Format1 = -1;
-static gint ett_e2ap_E2SM_RC_IndicationHeader_Format2 = -1;
-static gint ett_e2ap_E2SM_RC_IndicationHeader_Format3 = -1;
-static gint ett_e2ap_E2SM_RC_IndicationMessage = -1;
-static gint ett_e2ap_T_ric_indicationMessage_formats = -1;
-static gint ett_e2ap_E2SM_RC_IndicationMessage_Format1 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format1_Item = -1;
-static gint ett_e2ap_E2SM_RC_IndicationMessage_Format1_Item = -1;
-static gint ett_e2ap_E2SM_RC_IndicationMessage_Format2 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofUEID_OF_E2SM_RC_IndicationMessage_Format2_Item = -1;
-static gint ett_e2ap_E2SM_RC_IndicationMessage_Format2_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format2_RANParameter_Item = -1;
-static gint ett_e2ap_E2SM_RC_IndicationMessage_Format2_RANParameter_Item = -1;
-static gint ett_e2ap_E2SM_RC_IndicationMessage_Format3 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format3_Item = -1;
-static gint ett_e2ap_E2SM_RC_IndicationMessage_Format3_Item = -1;
-static gint ett_e2ap_E2SM_RC_IndicationMessage_Format4 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_IndicationMessage_Format4_ItemUE = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format4_ItemCell = -1;
-static gint ett_e2ap_E2SM_RC_IndicationMessage_Format4_ItemUE = -1;
-static gint ett_e2ap_E2SM_RC_IndicationMessage_Format4_ItemCell = -1;
-static gint ett_e2ap_E2SM_RC_IndicationMessage_Format5 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format5_Item = -1;
-static gint ett_e2ap_E2SM_RC_IndicationMessage_Format5_Item = -1;
-static gint ett_e2ap_E2SM_RC_IndicationMessage_Format6 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_IndicationMessage_Format6_Style_Item = -1;
-static gint ett_e2ap_E2SM_RC_IndicationMessage_Format6_Style_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofInsertIndicationActions_OF_E2SM_RC_IndicationMessage_Format6_Indication_Item = -1;
-static gint ett_e2ap_E2SM_RC_IndicationMessage_Format6_Indication_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format6_RANP_Item = -1;
-static gint ett_e2ap_E2SM_RC_IndicationMessage_Format6_RANP_Item = -1;
-static gint ett_e2ap_E2SM_RC_CallProcessID = -1;
-static gint ett_e2ap_T_ric_callProcessID_formats = -1;
-static gint ett_e2ap_E2SM_RC_CallProcessID_Format1 = -1;
-static gint ett_e2ap_E2SM_RC_ControlHeader = -1;
-static gint ett_e2ap_T_ric_controlHeader_formats = -1;
-static gint ett_e2ap_E2SM_RC_ControlHeader_Format1 = -1;
-static gint ett_e2ap_E2SM_RC_ControlHeader_Format2 = -1;
-static gint ett_e2ap_E2SM_RC_ControlMessage = -1;
-static gint ett_e2ap_T_ric_controlMessage_formats = -1;
-static gint ett_e2ap_E2SM_RC_ControlMessage_Format1 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_ControlMessage_Format1_Item = -1;
-static gint ett_e2ap_E2SM_RC_ControlMessage_Format1_Item = -1;
-static gint ett_e2ap_E2SM_RC_ControlMessage_Format2 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_ControlMessage_Format2_Style_Item = -1;
-static gint ett_e2ap_E2SM_RC_ControlMessage_Format2_Style_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofMulCtrlActions_OF_E2SM_RC_ControlMessage_Format2_ControlAction_Item = -1;
-static gint ett_e2ap_E2SM_RC_ControlMessage_Format2_ControlAction_Item = -1;
-static gint ett_e2ap_E2SM_RC_ControlOutcome = -1;
-static gint ett_e2ap_T_ric_controlOutcome_formats = -1;
-static gint ett_e2ap_E2SM_RC_ControlOutcome_Format1 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofRANOutcomeParameters_OF_E2SM_RC_ControlOutcome_Format1_Item = -1;
-static gint ett_e2ap_E2SM_RC_ControlOutcome_Format1_Item = -1;
-static gint ett_e2ap_E2SM_RC_ControlOutcome_Format2 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_ControlOutcome_Format2_Style_Item = -1;
-static gint ett_e2ap_E2SM_RC_ControlOutcome_Format2_Style_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofMulCtrlActions_OF_E2SM_RC_ControlOutcome_Format2_ControlOutcome_Item = -1;
-static gint ett_e2ap_E2SM_RC_ControlOutcome_Format2_ControlOutcome_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_ControlOutcome_Format2_RANP_Item = -1;
-static gint ett_e2ap_E2SM_RC_ControlOutcome_Format2_RANP_Item = -1;
-static gint ett_e2ap_E2SM_RC_ControlOutcome_Format3 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofRANOutcomeParameters_OF_E2SM_RC_ControlOutcome_Format3_Item = -1;
-static gint ett_e2ap_E2SM_RC_ControlOutcome_Format3_Item = -1;
-static gint ett_e2ap_E2SM_RC_RANFunctionDefinition = -1;
-static gint ett_e2ap_RANFunctionDefinition_EventTrigger = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_EventTrigger_Style_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_L2Parameters_RANParameter_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofCallProcessTypes_OF_RANFunctionDefinition_EventTrigger_CallProcess_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_UEIdentification_RANParameter_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_CellIdentification_RANParameter_Item = -1;
-static gint ett_e2ap_RANFunctionDefinition_EventTrigger_Style_Item = -1;
-static gint ett_e2ap_L2Parameters_RANParameter_Item = -1;
-static gint ett_e2ap_UEIdentification_RANParameter_Item = -1;
-static gint ett_e2ap_CellIdentification_RANParameter_Item = -1;
-static gint ett_e2ap_RANFunctionDefinition_EventTrigger_CallProcess_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofCallProcessBreakpoints_OF_RANFunctionDefinition_EventTrigger_Breakpoint_Item = -1;
-static gint ett_e2ap_RANFunctionDefinition_EventTrigger_Breakpoint_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_CallProcessBreakpoint_RANParameter_Item = -1;
-static gint ett_e2ap_CallProcessBreakpoint_RANParameter_Item = -1;
-static gint ett_e2ap_RANFunctionDefinition_Report = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Report_Item = -1;
-static gint ett_e2ap_RANFunctionDefinition_Report_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_Report_RANParameter_Item = -1;
-static gint ett_e2ap_Report_RANParameter_Item = -1;
-static gint ett_e2ap_RANFunctionDefinition_Insert = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Insert_Item = -1;
-static gint ett_e2ap_RANFunctionDefinition_Insert_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofInsertIndication_OF_RANFunctionDefinition_Insert_Indication_Item = -1;
-static gint ett_e2ap_RANFunctionDefinition_Insert_Indication_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_InsertIndication_RANParameter_Item = -1;
-static gint ett_e2ap_InsertIndication_RANParameter_Item = -1;
-static gint ett_e2ap_RANFunctionDefinition_Control = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Control_Item = -1;
-static gint ett_e2ap_RANFunctionDefinition_Control_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofControlAction_OF_RANFunctionDefinition_Control_Action_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRANOutcomeParameters_OF_ControlOutcome_RANParameter_Item = -1;
-static gint ett_e2ap_ControlOutcome_RANParameter_Item = -1;
-static gint ett_e2ap_RANFunctionDefinition_Control_Action_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_ControlAction_RANParameter_Item = -1;
-static gint ett_e2ap_ControlAction_RANParameter_Item = -1;
-static gint ett_e2ap_RANFunctionDefinition_Policy = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Policy_Item = -1;
-static gint ett_e2ap_RANFunctionDefinition_Policy_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofPolicyAction_OF_RANFunctionDefinition_Policy_Action_Item = -1;
-static gint ett_e2ap_RANFunctionDefinition_Policy_Action_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_PolicyAction_RANParameter_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_PolicyCondition_RANParameter_Item = -1;
-static gint ett_e2ap_PolicyAction_RANParameter_Item = -1;
-static gint ett_e2ap_PolicyCondition_RANParameter_Item = -1;
-static gint ett_e2ap_BinRangeValue = -1;
-static gint ett_e2ap_MeasurementType = -1;
-static gint ett_e2ap_MeasurementLabel = -1;
-static gint ett_e2ap_TestCondInfo = -1;
-static gint ett_e2ap_TestCond_Type = -1;
-static gint ett_e2ap_TestCond_Value = -1;
-static gint ett_e2ap_BinRangeDefinition = -1;
-static gint ett_e2ap_BinRangeList = -1;
-static gint ett_e2ap_BinRangeItem = -1;
-static gint ett_e2ap_DistMeasurementBinRangeList = -1;
-static gint ett_e2ap_DistMeasurementBinRangeItem = -1;
-static gint ett_e2ap_MeasurementInfoList = -1;
-static gint ett_e2ap_MeasurementInfoItem = -1;
-static gint ett_e2ap_LabelInfoList = -1;
-static gint ett_e2ap_LabelInfoItem = -1;
-static gint ett_e2ap_MeasurementData = -1;
-static gint ett_e2ap_MeasurementDataItem = -1;
-static gint ett_e2ap_MeasurementRecord = -1;
-static gint ett_e2ap_MeasurementRecordItem = -1;
-static gint ett_e2ap_MeasurementInfo_Action_List = -1;
-static gint ett_e2ap_MeasurementInfo_Action_Item = -1;
-static gint ett_e2ap_MeasurementCondList = -1;
-static gint ett_e2ap_MeasurementCondItem = -1;
-static gint ett_e2ap_MeasurementCondUEidList = -1;
-static gint ett_e2ap_MeasurementCondUEidItem = -1;
-static gint ett_e2ap_MatchingCondList = -1;
-static gint ett_e2ap_MatchingCondItem = -1;
-static gint ett_e2ap_MatchingCondItem_Choice = -1;
-static gint ett_e2ap_MatchingUEidList = -1;
-static gint ett_e2ap_MatchingUEidItem = -1;
-static gint ett_e2ap_MatchingUEidPerGP = -1;
-static gint ett_e2ap_MatchingUEidPerGP_Item = -1;
-static gint ett_e2ap_T_matchedPerGP = -1;
-static gint ett_e2ap_MatchingUEidList_PerGP = -1;
-static gint ett_e2ap_MatchingUEidItem_PerGP = -1;
-static gint ett_e2ap_MatchingUeCondPerSubList = -1;
-static gint ett_e2ap_MatchingUeCondPerSubItem = -1;
-static gint ett_e2ap_MatchingUEidPerSubList = -1;
-static gint ett_e2ap_MatchingUEidPerSubItem = -1;
-static gint ett_e2ap_UEMeasurementReportList = -1;
-static gint ett_e2ap_UEMeasurementReportItem = -1;
-static gint ett_e2ap_E2SM_KPM_EventTriggerDefinition = -1;
-static gint ett_e2ap_T_eventDefinition_formats = -1;
-static gint ett_e2ap_E2SM_KPM_EventTriggerDefinition_Format1 = -1;
-static gint ett_e2ap_E2SM_KPM_ActionDefinition = -1;
-static gint ett_e2ap_T_actionDefinition_formats = -1;
-static gint ett_e2ap_E2SM_KPM_ActionDefinition_Format1 = -1;
-static gint ett_e2ap_E2SM_KPM_ActionDefinition_Format2 = -1;
-static gint ett_e2ap_E2SM_KPM_ActionDefinition_Format3 = -1;
-static gint ett_e2ap_E2SM_KPM_ActionDefinition_Format4 = -1;
-static gint ett_e2ap_E2SM_KPM_ActionDefinition_Format5 = -1;
-static gint ett_e2ap_E2SM_KPM_IndicationHeader = -1;
-static gint ett_e2ap_T_indicationHeader_formats = -1;
-static gint ett_e2ap_E2SM_KPM_IndicationHeader_Format1 = -1;
-static gint ett_e2ap_E2SM_KPM_IndicationMessage = -1;
-static gint ett_e2ap_T_indicationMessage_formats = -1;
-static gint ett_e2ap_E2SM_KPM_IndicationMessage_Format1 = -1;
-static gint ett_e2ap_E2SM_KPM_IndicationMessage_Format2 = -1;
-static gint ett_e2ap_E2SM_KPM_IndicationMessage_Format3 = -1;
-static gint ett_e2ap_E2SM_KPM_RANfunction_Description = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RIC_EventTriggerStyle_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RIC_ReportStyle_Item = -1;
-static gint ett_e2ap_RIC_EventTriggerStyle_Item = -1;
-static gint ett_e2ap_RIC_ReportStyle_Item = -1;
-static gint ett_e2ap_E2SM_NI_EventTriggerDefinition = -1;
-static gint ett_e2ap_E2SM_NI_EventTriggerDefinition_Format1 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxofInterfaceProtocolTests_OF_NI_ProtocolIE_Item = -1;
-static gint ett_e2ap_E2SM_NI_ActionDefinition = -1;
-static gint ett_e2ap_E2SM_NI_ActionDefinitionFormat = -1;
-static gint ett_e2ap_E2SM_NI_ActionDefinition_Format1 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxofActionParameters_OF_RANparameter_Item = -1;
-static gint ett_e2ap_E2SM_NI_ActionDefinition_Format2 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxofRANueGroups_OF_RANueGroup_Item = -1;
-static gint ett_e2ap_E2SM_NI_IndicationHeader = -1;
-static gint ett_e2ap_E2SM_NI_IndicationHeader_Format1 = -1;
-static gint ett_e2ap_E2SM_NI_IndicationMessage = -1;
-static gint ett_e2ap_E2SM_NI_IndicationMessage_Format1 = -1;
-static gint ett_e2ap_E2SM_NI_CallProcessID = -1;
-static gint ett_e2ap_E2SM_NI_CallProcessID_Format1 = -1;
-static gint ett_e2ap_E2SM_NI_CallProcessID_Format2 = -1;
-static gint ett_e2ap_E2SM_NI_ControlHeader = -1;
-static gint ett_e2ap_E2SM_NI_ControlHeader_Format1 = -1;
-static gint ett_e2ap_E2SM_NI_ControlMessage = -1;
-static gint ett_e2ap_E2SM_NI_ControlMessage_Format1 = -1;
-static gint ett_e2ap_E2SM_NI_ControlOutcome = -1;
-static gint ett_e2ap_E2SM_NI_ControlOutcome_Format1 = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxofRANparameters_OF_RANparameter_Item = -1;
-static gint ett_e2ap_E2SM_NI_RANfunction_Description = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxofNItypes_OF_E2SM_NI_RANfunction_Item = -1;
-static gint ett_e2ap_E2SM_NI_RANfunction_Item = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_EventTriggerStyle_List = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_ReportStyle_List = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_InsertStyle_List = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_ControlStyle_List = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_PolicyStyle_List = -1;
-static gint ett_e2ap_Global_gNB_DU_ID = -1;
-static gint ett_e2ap_Global_gNB_CU_UP_ID = -1;
-static gint ett_e2ap_NI_Identifier = -1;
-static gint ett_e2ap_NI_MessageType = -1;
-static gint ett_e2ap_NI_MessageTypeApproach1 = -1;
-static gint ett_e2ap_NI_ProtocolIE_Item = -1;
-static gint ett_e2ap_NI_ProtocolIE_Value = -1;
-static gint ett_e2ap_RANimperativePolicy = -1;
-static gint ett_e2ap_RANparameter_Item = -1;
-static gint ett_e2ap_RANparameterDef_Item = -1;
-static gint ett_e2ap_RANparameter_Value = -1;
-static gint ett_e2ap_RANueGroup_Item = -1;
-static gint ett_e2ap_RANueGroupDefinition = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxofRANparameters_OF_RANueGroupDef_Item = -1;
-static gint ett_e2ap_RANueGroupDef_Item = -1;
-static gint ett_e2ap_RIC_ControlStyle_List = -1;
-static gint ett_e2ap_SEQUENCE_SIZE_1_maxofRANparameters_OF_RANparameterDef_Item = -1;
-static gint ett_e2ap_RIC_EventTriggerStyle_List = -1;
-static gint ett_e2ap_RIC_InsertStyle_List = -1;
-static gint ett_e2ap_RIC_PolicyStyle_List = -1;
-static gint ett_e2ap_RIC_ReportStyle_List = -1;
+static gint ett_e2ap_ProtocolIE_Container;
+static gint ett_e2ap_ProtocolIE_Field;
+static gint ett_e2ap_Cause;
+static gint ett_e2ap_CriticalityDiagnostics;
+static gint ett_e2ap_CriticalityDiagnostics_IE_List;
+static gint ett_e2ap_CriticalityDiagnostics_IE_Item;
+static gint ett_e2ap_E2nodeComponentConfiguration;
+static gint ett_e2ap_E2nodeComponentConfigurationAck;
+static gint ett_e2ap_E2nodeComponentID;
+static gint ett_e2ap_E2nodeComponentInterfaceE1;
+static gint ett_e2ap_E2nodeComponentInterfaceF1;
+static gint ett_e2ap_E2nodeComponentInterfaceNG;
+static gint ett_e2ap_E2nodeComponentInterfaceS1;
+static gint ett_e2ap_E2nodeComponentInterfaceX2;
+static gint ett_e2ap_E2nodeComponentInterfaceXn;
+static gint ett_e2ap_E2nodeComponentInterfaceW1;
+static gint ett_e2ap_ENB_ID;
+static gint ett_e2ap_ENB_ID_Choice;
+static gint ett_e2ap_ENGNB_ID;
+static gint ett_e2ap_GlobalE2node_ID;
+static gint ett_e2ap_GlobalE2node_en_gNB_ID;
+static gint ett_e2ap_GlobalE2node_eNB_ID;
+static gint ett_e2ap_GlobalE2node_gNB_ID;
+static gint ett_e2ap_GlobalE2node_ng_eNB_ID;
+static gint ett_e2ap_GlobalENB_ID;
+static gint ett_e2ap_GlobalenGNB_ID;
+static gint ett_e2ap_GlobalgNB_ID;
+static gint ett_e2ap_GlobalngeNB_ID;
+static gint ett_e2ap_GlobalNG_RANNode_ID;
+static gint ett_e2ap_GlobalRIC_ID;
+static gint ett_e2ap_GNB_ID_Choice;
+static gint ett_e2ap_RICrequestID;
+static gint ett_e2ap_RICsubsequentAction;
+static gint ett_e2ap_TNLinformation;
+static gint ett_e2ap_RICsubscriptionRequest;
+static gint ett_e2ap_RICsubscriptionDetails;
+static gint ett_e2ap_RICactions_ToBeSetup_List;
+static gint ett_e2ap_RICaction_ToBeSetup_Item;
+static gint ett_e2ap_RICsubscriptionResponse;
+static gint ett_e2ap_RICaction_Admitted_List;
+static gint ett_e2ap_RICaction_Admitted_Item;
+static gint ett_e2ap_RICaction_NotAdmitted_List;
+static gint ett_e2ap_RICaction_NotAdmitted_Item;
+static gint ett_e2ap_RICsubscriptionFailure;
+static gint ett_e2ap_RICsubscriptionDeleteRequest;
+static gint ett_e2ap_RICsubscriptionDeleteResponse;
+static gint ett_e2ap_RICsubscriptionDeleteFailure;
+static gint ett_e2ap_RICsubscriptionDeleteRequired;
+static gint ett_e2ap_RICsubscription_List_withCause;
+static gint ett_e2ap_RICsubscription_withCause_Item;
+static gint ett_e2ap_RICsubscriptionModificationRequest;
+static gint ett_e2ap_RICactions_ToBeRemovedForModification_List;
+static gint ett_e2ap_RICaction_ToBeRemovedForModification_Item;
+static gint ett_e2ap_RICactions_ToBeModifiedForModification_List;
+static gint ett_e2ap_RICaction_ToBeModifiedForModification_Item;
+static gint ett_e2ap_RICactions_ToBeAddedForModification_List;
+static gint ett_e2ap_RICaction_ToBeAddedForModification_Item;
+static gint ett_e2ap_RICsubscriptionModificationResponse;
+static gint ett_e2ap_RICactions_RemovedForModification_List;
+static gint ett_e2ap_RICaction_RemovedForModification_Item;
+static gint ett_e2ap_RICactions_FailedToBeRemovedForModification_List;
+static gint ett_e2ap_RICaction_FailedToBeRemovedForModification_Item;
+static gint ett_e2ap_RICactions_ModifiedForModification_List;
+static gint ett_e2ap_RICaction_ModifiedForModification_Item;
+static gint ett_e2ap_RICactions_FailedToBeModifiedForModification_List;
+static gint ett_e2ap_RICaction_FailedToBeModifiedForModification_Item;
+static gint ett_e2ap_RICactions_AddedForModification_List;
+static gint ett_e2ap_RICaction_AddedForModification_Item;
+static gint ett_e2ap_RICactions_FailedToBeAddedForModification_List;
+static gint ett_e2ap_RICaction_FailedToBeAddedForModification_Item;
+static gint ett_e2ap_RICsubscriptionModificationFailure;
+static gint ett_e2ap_RICsubscriptionModificationRequired;
+static gint ett_e2ap_RICactions_RequiredToBeModified_List;
+static gint ett_e2ap_RICaction_RequiredToBeModified_Item;
+static gint ett_e2ap_RICactions_RequiredToBeRemoved_List;
+static gint ett_e2ap_RICaction_RequiredToBeRemoved_Item;
+static gint ett_e2ap_RICsubscriptionModificationConfirm;
+static gint ett_e2ap_RICactions_ConfirmedForModification_List;
+static gint ett_e2ap_RICaction_ConfirmedForModification_Item;
+static gint ett_e2ap_RICactions_RefusedToBeModified_List;
+static gint ett_e2ap_RICaction_RefusedToBeModified_Item;
+static gint ett_e2ap_RICactions_ConfirmedForRemoval_List;
+static gint ett_e2ap_RICaction_ConfirmedForRemoval_Item;
+static gint ett_e2ap_RICactions_RefusedToBeRemoved_List;
+static gint ett_e2ap_RICaction_RefusedToBeRemoved_Item;
+static gint ett_e2ap_RICsubscriptionModificationRefuse;
+static gint ett_e2ap_RICindication;
+static gint ett_e2ap_RICcontrolRequest;
+static gint ett_e2ap_RICcontrolAcknowledge;
+static gint ett_e2ap_RICcontrolFailure;
+static gint ett_e2ap_RICQueryRequest;
+static gint ett_e2ap_RICQueryResponse;
+static gint ett_e2ap_RICQueryFailure;
+static gint ett_e2ap_ErrorIndication;
+static gint ett_e2ap_E2setupRequest;
+static gint ett_e2ap_E2setupResponse;
+static gint ett_e2ap_E2setupFailure;
+static gint ett_e2ap_E2connectionUpdate;
+static gint ett_e2ap_E2connectionUpdate_List;
+static gint ett_e2ap_E2connectionUpdate_Item;
+static gint ett_e2ap_E2connectionUpdateRemove_List;
+static gint ett_e2ap_E2connectionUpdateRemove_Item;
+static gint ett_e2ap_E2connectionUpdateAcknowledge;
+static gint ett_e2ap_E2connectionSetupFailed_List;
+static gint ett_e2ap_E2connectionSetupFailed_Item;
+static gint ett_e2ap_E2connectionUpdateFailure;
+static gint ett_e2ap_E2nodeConfigurationUpdate;
+static gint ett_e2ap_E2nodeComponentConfigAddition_List;
+static gint ett_e2ap_E2nodeComponentConfigAddition_Item;
+static gint ett_e2ap_E2nodeComponentConfigUpdate_List;
+static gint ett_e2ap_E2nodeComponentConfigUpdate_Item;
+static gint ett_e2ap_E2nodeComponentConfigRemoval_List;
+static gint ett_e2ap_E2nodeComponentConfigRemoval_Item;
+static gint ett_e2ap_E2nodeTNLassociationRemoval_List;
+static gint ett_e2ap_E2nodeTNLassociationRemoval_Item;
+static gint ett_e2ap_E2nodeConfigurationUpdateAcknowledge;
+static gint ett_e2ap_E2nodeComponentConfigAdditionAck_List;
+static gint ett_e2ap_E2nodeComponentConfigAdditionAck_Item;
+static gint ett_e2ap_E2nodeComponentConfigUpdateAck_List;
+static gint ett_e2ap_E2nodeComponentConfigUpdateAck_Item;
+static gint ett_e2ap_E2nodeComponentConfigRemovalAck_List;
+static gint ett_e2ap_E2nodeComponentConfigRemovalAck_Item;
+static gint ett_e2ap_E2nodeConfigurationUpdateFailure;
+static gint ett_e2ap_ResetRequest;
+static gint ett_e2ap_ResetResponse;
+static gint ett_e2ap_RICserviceUpdate;
+static gint ett_e2ap_RANfunctions_List;
+static gint ett_e2ap_RANfunction_Item;
+static gint ett_e2ap_RANfunctionsID_List;
+static gint ett_e2ap_RANfunctionID_Item;
+static gint ett_e2ap_RICserviceUpdateAcknowledge;
+static gint ett_e2ap_RANfunctionsIDcause_List;
+static gint ett_e2ap_RANfunctionIDcause_Item;
+static gint ett_e2ap_RICserviceUpdateFailure;
+static gint ett_e2ap_RICserviceQuery;
+static gint ett_e2ap_E2RemovalRequest;
+static gint ett_e2ap_E2RemovalResponse;
+static gint ett_e2ap_E2RemovalFailure;
+static gint ett_e2ap_E2AP_PDU;
+static gint ett_e2ap_InitiatingMessage;
+static gint ett_e2ap_SuccessfulOutcome;
+static gint ett_e2ap_UnsuccessfulOutcome;
+static gint ett_e2ap_CGI;
+static gint ett_e2ap_InterfaceIdentifier;
+static gint ett_e2ap_InterfaceID_NG;
+static gint ett_e2ap_InterfaceID_Xn;
+static gint ett_e2ap_InterfaceID_F1;
+static gint ett_e2ap_InterfaceID_E1;
+static gint ett_e2ap_InterfaceID_S1;
+static gint ett_e2ap_InterfaceID_X2;
+static gint ett_e2ap_T_nodeType;
+static gint ett_e2ap_InterfaceID_W1;
+static gint ett_e2ap_Interface_MessageID;
+static gint ett_e2ap_RANfunction_Name;
+static gint ett_e2ap_RRC_MessageID;
+static gint ett_e2ap_T_rrcType;
+static gint ett_e2ap_ServingCell_ARFCN;
+static gint ett_e2ap_ServingCell_PCI;
+static gint ett_e2ap_UEID;
+static gint ett_e2ap_UEID_GNB;
+static gint ett_e2ap_UEID_GNB_CU_CP_E1AP_ID_List;
+static gint ett_e2ap_UEID_GNB_CU_CP_E1AP_ID_Item;
+static gint ett_e2ap_UEID_GNB_CU_F1AP_ID_List;
+static gint ett_e2ap_UEID_GNB_CU_CP_F1AP_ID_Item;
+static gint ett_e2ap_UEID_GNB_DU;
+static gint ett_e2ap_UEID_GNB_CU_UP;
+static gint ett_e2ap_UEID_NG_ENB;
+static gint ett_e2ap_UEID_NG_ENB_DU;
+static gint ett_e2ap_UEID_EN_GNB;
+static gint ett_e2ap_UEID_ENB;
+static gint ett_e2ap_GUMMEI;
+static gint ett_e2ap_EUTRA_CGI;
+static gint ett_e2ap_GlobalGNB_ID;
+static gint ett_e2ap_GlobalNgENB_ID;
+static gint ett_e2ap_GNB_ID;
+static gint ett_e2ap_GUAMI;
+static gint ett_e2ap_NgENB_ID;
+static gint ett_e2ap_NR_CGI;
+static gint ett_e2ap_S_NSSAI;
+static gint ett_e2ap_GlobalNGRANNodeID;
+static gint ett_e2ap_NR_ARFCN;
+static gint ett_e2ap_NRFrequencyBand_List;
+static gint ett_e2ap_NRFrequencyBandItem;
+static gint ett_e2ap_NRFrequencyInfo;
+static gint ett_e2ap_SupportedSULBandList;
+static gint ett_e2ap_SupportedSULFreqBandItem;
+static gint ett_e2ap_NeighborCell_List;
+static gint ett_e2ap_NeighborCell_Item;
+static gint ett_e2ap_NeighborCell_Item_Choice_NR;
+static gint ett_e2ap_NeighborCell_Item_Choice_E_UTRA;
+static gint ett_e2ap_NeighborRelation_Info;
+static gint ett_e2ap_EventTrigger_Cell_Info;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofCellInfo_OF_EventTrigger_Cell_Info_Item;
+static gint ett_e2ap_EventTrigger_Cell_Info_Item;
+static gint ett_e2ap_T_cellType;
+static gint ett_e2ap_EventTrigger_Cell_Info_Item_Choice_Individual;
+static gint ett_e2ap_EventTrigger_Cell_Info_Item_Choice_Group;
+static gint ett_e2ap_EventTrigger_UE_Info;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofUEInfo_OF_EventTrigger_UE_Info_Item;
+static gint ett_e2ap_EventTrigger_UE_Info_Item;
+static gint ett_e2ap_T_ueType;
+static gint ett_e2ap_EventTrigger_UE_Info_Item_Choice_Individual;
+static gint ett_e2ap_EventTrigger_UE_Info_Item_Choice_Group;
+static gint ett_e2ap_EventTrigger_UEevent_Info;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofUEeventInfo_OF_EventTrigger_UEevent_Info_Item;
+static gint ett_e2ap_EventTrigger_UEevent_Info_Item;
+static gint ett_e2ap_RANParameter_Definition;
+static gint ett_e2ap_RANParameter_Definition_Choice;
+static gint ett_e2ap_RANParameter_Definition_Choice_LIST;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofItemsinList_OF_RANParameter_Definition_Choice_LIST_Item;
+static gint ett_e2ap_RANParameter_Definition_Choice_LIST_Item;
+static gint ett_e2ap_RANParameter_Definition_Choice_STRUCTURE;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofParametersinStructure_OF_RANParameter_Definition_Choice_STRUCTURE_Item;
+static gint ett_e2ap_RANParameter_Definition_Choice_STRUCTURE_Item;
+static gint ett_e2ap_RANParameter_Value;
+static gint ett_e2ap_RANParameter_ValueType;
+static gint ett_e2ap_RANParameter_ValueType_Choice_ElementTrue;
+static gint ett_e2ap_RANParameter_ValueType_Choice_ElementFalse;
+static gint ett_e2ap_RANParameter_ValueType_Choice_Structure;
+static gint ett_e2ap_RANParameter_ValueType_Choice_List;
+static gint ett_e2ap_RANParameter_STRUCTURE;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofParametersinStructure_OF_RANParameter_STRUCTURE_Item;
+static gint ett_e2ap_RANParameter_STRUCTURE_Item;
+static gint ett_e2ap_RANParameter_LIST;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofItemsinList_OF_RANParameter_STRUCTURE;
+static gint ett_e2ap_RANParameter_Testing;
+static gint ett_e2ap_RANParameter_TestingCondition;
+static gint ett_e2ap_RANParameter_Testing_Item;
+static gint ett_e2ap_T_ranParameter_Type;
+static gint ett_e2ap_RANParameter_Testing_Item_Choice_List;
+static gint ett_e2ap_RANParameter_Testing_Item_Choice_Structure;
+static gint ett_e2ap_RANParameter_Testing_Item_Choice_ElementTrue;
+static gint ett_e2ap_RANParameter_Testing_Item_Choice_ElementFalse;
+static gint ett_e2ap_RANParameter_Testing_LIST;
+static gint ett_e2ap_RANParameter_Testing_STRUCTURE;
+static gint ett_e2ap_RIC_PolicyAction;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_RIC_PolicyAction_RANParameter_Item;
+static gint ett_e2ap_RIC_PolicyAction_RANParameter_Item;
+static gint ett_e2ap_E2SM_RC_EventTrigger;
+static gint ett_e2ap_T_ric_eventTrigger_formats;
+static gint ett_e2ap_E2SM_RC_EventTrigger_Format1;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofMessages_OF_E2SM_RC_EventTrigger_Format1_Item;
+static gint ett_e2ap_E2SM_RC_EventTrigger_Format1_Item;
+static gint ett_e2ap_MessageType_Choice;
+static gint ett_e2ap_MessageType_Choice_NI;
+static gint ett_e2ap_MessageType_Choice_RRC;
+static gint ett_e2ap_E2SM_RC_EventTrigger_Format2;
+static gint ett_e2ap_E2SM_RC_EventTrigger_Format3;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofE2InfoChanges_OF_E2SM_RC_EventTrigger_Format3_Item;
+static gint ett_e2ap_E2SM_RC_EventTrigger_Format3_Item;
+static gint ett_e2ap_E2SM_RC_EventTrigger_Format4;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofUEInfoChanges_OF_E2SM_RC_EventTrigger_Format4_Item;
+static gint ett_e2ap_E2SM_RC_EventTrigger_Format4_Item;
+static gint ett_e2ap_TriggerType_Choice;
+static gint ett_e2ap_TriggerType_Choice_RRCstate;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRRCstate_OF_TriggerType_Choice_RRCstate_Item;
+static gint ett_e2ap_TriggerType_Choice_RRCstate_Item;
+static gint ett_e2ap_TriggerType_Choice_UEID;
+static gint ett_e2ap_TriggerType_Choice_L2state;
+static gint ett_e2ap_E2SM_RC_EventTrigger_Format5;
+static gint ett_e2ap_E2SM_RC_ActionDefinition;
+static gint ett_e2ap_T_ric_actionDefinition_formats;
+static gint ett_e2ap_E2SM_RC_ActionDefinition_Format1;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofParametersToReport_OF_E2SM_RC_ActionDefinition_Format1_Item;
+static gint ett_e2ap_E2SM_RC_ActionDefinition_Format1_Item;
+static gint ett_e2ap_E2SM_RC_ActionDefinition_Format2;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofPolicyConditions_OF_E2SM_RC_ActionDefinition_Format2_Item;
+static gint ett_e2ap_E2SM_RC_ActionDefinition_Format2_Item;
+static gint ett_e2ap_E2SM_RC_ActionDefinition_Format3;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_ActionDefinition_Format3_Item;
+static gint ett_e2ap_E2SM_RC_ActionDefinition_Format3_Item;
+static gint ett_e2ap_E2SM_RC_ActionDefinition_Format4;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_ActionDefinition_Format4_Style_Item;
+static gint ett_e2ap_E2SM_RC_ActionDefinition_Format4_Style_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofInsertIndicationActions_OF_E2SM_RC_ActionDefinition_Format4_Indication_Item;
+static gint ett_e2ap_E2SM_RC_ActionDefinition_Format4_Indication_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_ActionDefinition_Format4_RANP_Item;
+static gint ett_e2ap_E2SM_RC_ActionDefinition_Format4_RANP_Item;
+static gint ett_e2ap_E2SM_RC_IndicationHeader;
+static gint ett_e2ap_T_ric_indicationHeader_formats;
+static gint ett_e2ap_E2SM_RC_IndicationHeader_Format1;
+static gint ett_e2ap_E2SM_RC_IndicationHeader_Format2;
+static gint ett_e2ap_E2SM_RC_IndicationHeader_Format3;
+static gint ett_e2ap_E2SM_RC_IndicationMessage;
+static gint ett_e2ap_T_ric_indicationMessage_formats;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format1;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format1_Item;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format1_Item;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format2;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofUEID_OF_E2SM_RC_IndicationMessage_Format2_Item;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format2_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format2_RANParameter_Item;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format2_RANParameter_Item;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format3;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format3_Item;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format3_Item;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format4;
+static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofUEID_OF_E2SM_RC_IndicationMessage_Format4_ItemUE;
+static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofCellID_OF_E2SM_RC_IndicationMessage_Format4_ItemCell;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format4_ItemUE;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format4_ItemCell;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format5;
+static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format5_Item;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format5_Item;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format6;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_IndicationMessage_Format6_Style_Item;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format6_Style_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofInsertIndicationActions_OF_E2SM_RC_IndicationMessage_Format6_Indication_Item;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format6_Indication_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_IndicationMessage_Format6_RANP_Item;
+static gint ett_e2ap_E2SM_RC_IndicationMessage_Format6_RANP_Item;
+static gint ett_e2ap_E2SM_RC_CallProcessID;
+static gint ett_e2ap_T_ric_callProcessID_formats;
+static gint ett_e2ap_E2SM_RC_CallProcessID_Format1;
+static gint ett_e2ap_E2SM_RC_ControlHeader;
+static gint ett_e2ap_T_ric_controlHeader_formats;
+static gint ett_e2ap_E2SM_RC_ControlHeader_Format1;
+static gint ett_e2ap_E2SM_RC_ControlHeader_Format2;
+static gint ett_e2ap_E2SM_RC_ControlMessage;
+static gint ett_e2ap_T_ric_controlMessage_formats;
+static gint ett_e2ap_E2SM_RC_ControlMessage_Format1;
+static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofAssociatedRANParameters_OF_E2SM_RC_ControlMessage_Format1_Item;
+static gint ett_e2ap_E2SM_RC_ControlMessage_Format1_Item;
+static gint ett_e2ap_E2SM_RC_ControlMessage_Format2;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_ControlMessage_Format2_Style_Item;
+static gint ett_e2ap_E2SM_RC_ControlMessage_Format2_Style_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofMulCtrlActions_OF_E2SM_RC_ControlMessage_Format2_ControlAction_Item;
+static gint ett_e2ap_E2SM_RC_ControlMessage_Format2_ControlAction_Item;
+static gint ett_e2ap_E2SM_RC_ControlOutcome;
+static gint ett_e2ap_T_ric_controlOutcome_formats;
+static gint ett_e2ap_E2SM_RC_ControlOutcome_Format1;
+static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofRANOutcomeParameters_OF_E2SM_RC_ControlOutcome_Format1_Item;
+static gint ett_e2ap_E2SM_RC_ControlOutcome_Format1_Item;
+static gint ett_e2ap_E2SM_RC_ControlOutcome_Format2;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_E2SM_RC_ControlOutcome_Format2_Style_Item;
+static gint ett_e2ap_E2SM_RC_ControlOutcome_Format2_Style_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofMulCtrlActions_OF_E2SM_RC_ControlOutcome_Format2_ControlOutcome_Item;
+static gint ett_e2ap_E2SM_RC_ControlOutcome_Format2_ControlOutcome_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_E2SM_RC_ControlOutcome_Format2_RANP_Item;
+static gint ett_e2ap_E2SM_RC_ControlOutcome_Format2_RANP_Item;
+static gint ett_e2ap_E2SM_RC_ControlOutcome_Format3;
+static gint ett_e2ap_SEQUENCE_SIZE_0_maxnoofRANOutcomeParameters_OF_E2SM_RC_ControlOutcome_Format3_Item;
+static gint ett_e2ap_E2SM_RC_ControlOutcome_Format3_Item;
+static gint ett_e2ap_E2SM_RC_RANFunctionDefinition;
+static gint ett_e2ap_RANFunctionDefinition_EventTrigger;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_EventTrigger_Style_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_L2Parameters_RANParameter_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofCallProcessTypes_OF_RANFunctionDefinition_EventTrigger_CallProcess_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_UEIdentification_RANParameter_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_CellIdentification_RANParameter_Item;
+static gint ett_e2ap_RANFunctionDefinition_EventTrigger_Style_Item;
+static gint ett_e2ap_L2Parameters_RANParameter_Item;
+static gint ett_e2ap_UEIdentification_RANParameter_Item;
+static gint ett_e2ap_CellIdentification_RANParameter_Item;
+static gint ett_e2ap_RANFunctionDefinition_EventTrigger_CallProcess_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofCallProcessBreakpoints_OF_RANFunctionDefinition_EventTrigger_Breakpoint_Item;
+static gint ett_e2ap_RANFunctionDefinition_EventTrigger_Breakpoint_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_CallProcessBreakpoint_RANParameter_Item;
+static gint ett_e2ap_CallProcessBreakpoint_RANParameter_Item;
+static gint ett_e2ap_RANFunctionDefinition_Report;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Report_Item;
+static gint ett_e2ap_RANFunctionDefinition_Report_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_Report_RANParameter_Item;
+static gint ett_e2ap_Report_RANParameter_Item;
+static gint ett_e2ap_RANFunctionDefinition_Insert;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Insert_Item;
+static gint ett_e2ap_RANFunctionDefinition_Insert_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofInsertIndication_OF_RANFunctionDefinition_Insert_Indication_Item;
+static gint ett_e2ap_RANFunctionDefinition_Insert_Indication_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_InsertIndication_RANParameter_Item;
+static gint ett_e2ap_InsertIndication_RANParameter_Item;
+static gint ett_e2ap_RANFunctionDefinition_Control;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Control_Item;
+static gint ett_e2ap_RANFunctionDefinition_Control_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofControlAction_OF_RANFunctionDefinition_Control_Action_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRANOutcomeParameters_OF_ControlOutcome_RANParameter_Item;
+static gint ett_e2ap_ControlOutcome_RANParameter_Item;
+static gint ett_e2ap_RANFunctionDefinition_Control_Action_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_ControlAction_RANParameter_Item;
+static gint ett_e2ap_ControlAction_RANParameter_Item;
+static gint ett_e2ap_RANFunctionDefinition_Policy;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RANFunctionDefinition_Policy_Item;
+static gint ett_e2ap_RANFunctionDefinition_Policy_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofPolicyAction_OF_RANFunctionDefinition_Policy_Action_Item;
+static gint ett_e2ap_RANFunctionDefinition_Policy_Action_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_PolicyAction_RANParameter_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofAssociatedRANParameters_OF_PolicyCondition_RANParameter_Item;
+static gint ett_e2ap_PolicyAction_RANParameter_Item;
+static gint ett_e2ap_PolicyCondition_RANParameter_Item;
+static gint ett_e2ap_BinRangeValue;
+static gint ett_e2ap_MeasurementType;
+static gint ett_e2ap_MeasurementLabel;
+static gint ett_e2ap_TestCondInfo;
+static gint ett_e2ap_TestCond_Type;
+static gint ett_e2ap_TestCond_Value;
+static gint ett_e2ap_BinRangeDefinition;
+static gint ett_e2ap_BinRangeList;
+static gint ett_e2ap_BinRangeItem;
+static gint ett_e2ap_DistMeasurementBinRangeList;
+static gint ett_e2ap_DistMeasurementBinRangeItem;
+static gint ett_e2ap_MeasurementInfoList;
+static gint ett_e2ap_MeasurementInfoItem;
+static gint ett_e2ap_LabelInfoList;
+static gint ett_e2ap_LabelInfoItem;
+static gint ett_e2ap_MeasurementData;
+static gint ett_e2ap_MeasurementDataItem;
+static gint ett_e2ap_MeasurementRecord;
+static gint ett_e2ap_MeasurementRecordItem;
+static gint ett_e2ap_MeasurementInfo_Action_List;
+static gint ett_e2ap_MeasurementInfo_Action_Item;
+static gint ett_e2ap_MeasurementCondList;
+static gint ett_e2ap_MeasurementCondItem;
+static gint ett_e2ap_MeasurementCondUEidList;
+static gint ett_e2ap_MeasurementCondUEidItem;
+static gint ett_e2ap_MatchingCondList;
+static gint ett_e2ap_MatchingCondItem;
+static gint ett_e2ap_MatchingCondItem_Choice;
+static gint ett_e2ap_MatchingUEidList;
+static gint ett_e2ap_MatchingUEidItem;
+static gint ett_e2ap_MatchingUEidPerGP;
+static gint ett_e2ap_MatchingUEidPerGP_Item;
+static gint ett_e2ap_T_matchedPerGP;
+static gint ett_e2ap_MatchingUEidList_PerGP;
+static gint ett_e2ap_MatchingUEidItem_PerGP;
+static gint ett_e2ap_MatchingUeCondPerSubList;
+static gint ett_e2ap_MatchingUeCondPerSubItem;
+static gint ett_e2ap_MatchingUEidPerSubList;
+static gint ett_e2ap_MatchingUEidPerSubItem;
+static gint ett_e2ap_UEMeasurementReportList;
+static gint ett_e2ap_UEMeasurementReportItem;
+static gint ett_e2ap_E2SM_KPM_EventTriggerDefinition;
+static gint ett_e2ap_T_eventDefinition_formats;
+static gint ett_e2ap_E2SM_KPM_EventTriggerDefinition_Format1;
+static gint ett_e2ap_E2SM_KPM_ActionDefinition;
+static gint ett_e2ap_T_actionDefinition_formats;
+static gint ett_e2ap_E2SM_KPM_ActionDefinition_Format1;
+static gint ett_e2ap_E2SM_KPM_ActionDefinition_Format2;
+static gint ett_e2ap_E2SM_KPM_ActionDefinition_Format3;
+static gint ett_e2ap_E2SM_KPM_ActionDefinition_Format4;
+static gint ett_e2ap_E2SM_KPM_ActionDefinition_Format5;
+static gint ett_e2ap_E2SM_KPM_IndicationHeader;
+static gint ett_e2ap_T_indicationHeader_formats;
+static gint ett_e2ap_E2SM_KPM_IndicationHeader_Format1;
+static gint ett_e2ap_E2SM_KPM_IndicationMessage;
+static gint ett_e2ap_T_indicationMessage_formats;
+static gint ett_e2ap_E2SM_KPM_IndicationMessage_Format1;
+static gint ett_e2ap_E2SM_KPM_IndicationMessage_Format2;
+static gint ett_e2ap_E2SM_KPM_IndicationMessage_Format3;
+static gint ett_e2ap_E2SM_KPM_RANfunction_Description;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RIC_EventTriggerStyle_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxnoofRICStyles_OF_RIC_ReportStyle_Item;
+static gint ett_e2ap_RIC_EventTriggerStyle_Item;
+static gint ett_e2ap_RIC_ReportStyle_Item;
+static gint ett_e2ap_E2SM_NI_EventTriggerDefinition;
+static gint ett_e2ap_E2SM_NI_EventTriggerDefinition_Format1;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxofInterfaceProtocolTests_OF_NI_ProtocolIE_Item;
+static gint ett_e2ap_E2SM_NI_ActionDefinition;
+static gint ett_e2ap_E2SM_NI_ActionDefinitionFormat;
+static gint ett_e2ap_E2SM_NI_ActionDefinition_Format1;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxofActionParameters_OF_RANparameter_Item;
+static gint ett_e2ap_E2SM_NI_ActionDefinition_Format2;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxofRANueGroups_OF_RANueGroup_Item;
+static gint ett_e2ap_E2SM_NI_IndicationHeader;
+static gint ett_e2ap_E2SM_NI_IndicationHeader_Format1;
+static gint ett_e2ap_E2SM_NI_IndicationMessage;
+static gint ett_e2ap_E2SM_NI_IndicationMessage_Format1;
+static gint ett_e2ap_E2SM_NI_CallProcessID;
+static gint ett_e2ap_E2SM_NI_CallProcessID_Format1;
+static gint ett_e2ap_E2SM_NI_CallProcessID_Format2;
+static gint ett_e2ap_E2SM_NI_ControlHeader;
+static gint ett_e2ap_E2SM_NI_ControlHeader_Format1;
+static gint ett_e2ap_E2SM_NI_ControlMessage;
+static gint ett_e2ap_E2SM_NI_ControlMessage_Format1;
+static gint ett_e2ap_E2SM_NI_ControlOutcome;
+static gint ett_e2ap_E2SM_NI_ControlOutcome_Format1;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxofRANparameters_OF_RANparameter_Item;
+static gint ett_e2ap_E2SM_NI_RANfunction_Description;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxofNItypes_OF_E2SM_NI_RANfunction_Item;
+static gint ett_e2ap_E2SM_NI_RANfunction_Item;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_EventTriggerStyle_List;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_ReportStyle_List;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_InsertStyle_List;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_ControlStyle_List;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxofRICstyles_OF_RIC_PolicyStyle_List;
+static gint ett_e2ap_Global_gNB_DU_ID;
+static gint ett_e2ap_Global_gNB_CU_UP_ID;
+static gint ett_e2ap_NI_Identifier;
+static gint ett_e2ap_NI_MessageType;
+static gint ett_e2ap_NI_MessageTypeApproach1;
+static gint ett_e2ap_NI_ProtocolIE_Item;
+static gint ett_e2ap_NI_ProtocolIE_Value;
+static gint ett_e2ap_RANimperativePolicy;
+static gint ett_e2ap_RANparameter_Item;
+static gint ett_e2ap_RANparameterDef_Item;
+static gint ett_e2ap_RANparameter_Value;
+static gint ett_e2ap_RANueGroup_Item;
+static gint ett_e2ap_RANueGroupDefinition;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxofRANparameters_OF_RANueGroupDef_Item;
+static gint ett_e2ap_RANueGroupDef_Item;
+static gint ett_e2ap_RIC_ControlStyle_List;
+static gint ett_e2ap_SEQUENCE_SIZE_1_maxofRANparameters_OF_RANparameterDef_Item;
+static gint ett_e2ap_RIC_EventTriggerStyle_List;
+static gint ett_e2ap_RIC_InsertStyle_List;
+static gint ett_e2ap_RIC_PolicyStyle_List;
+static gint ett_e2ap_RIC_ReportStyle_List;
 
 
 /* Forward declarations */

@@ -34,12 +34,12 @@ void proto_register_pkix1explicit(void);
 void proto_reg_handoff_pkix1explicit(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_pkix1explicit = -1;
-static int hf_pkix1explicit_object_identifier_id = -1;
-static int hf_pkix1explicit_addressFamily_afn = -1;
-static int hf_pkix1explicit_addressFamily_safi = -1;
+static int proto_pkix1explicit;
+static int hf_pkix1explicit_object_identifier_id;
+static int hf_pkix1explicit_addressFamily_afn;
+static int hf_pkix1explicit_addressFamily_safi;
 
-static int ett_pkix1explicit_addressFamily = -1;
+static int ett_pkix1explicit_addressFamily;
 
 #include "packet-pkix1explicit-hf.c"
 

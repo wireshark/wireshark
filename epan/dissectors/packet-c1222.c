@@ -75,42 +75,42 @@ static dissector_handle_t c1222_handle=NULL;
 static dissector_handle_t c1222_udp_handle=NULL;
 
 /* Initialize the protocol and registered fields */
-static int proto_c1222 = -1;
+static int proto_c1222;
 
-static int hf_c1222_MESSAGE_PDU = -1;             /* MESSAGE */
-static int hf_c1222_aSO_context = -1;             /* ASO_qualifier */
-static int hf_c1222_called_AP_title = -1;         /* Called_AP_title */
-static int hf_c1222_called_AP_invocation_id = -1;  /* Called_AP_invocation_id */
-static int hf_c1222_calling_AP_title = -1;        /* Calling_AP_title */
-static int hf_c1222_calling_AE_qualifier = -1;    /* Calling_AE_qualifier */
-static int hf_c1222_calling_AP_invocation_id = -1;  /* Calling_AP_invocation_id */
-static int hf_c1222_mechanism_name = -1;          /* Mechanism_name */
-static int hf_c1222_calling_authentication_value = -1;  /* Calling_authentication_value */
-static int hf_c1222_user_information = -1;        /* User_information */
-static int hf_c1222_called_ap_title_abs = -1;     /* OBJECT_IDENTIFIER */
-static int hf_c1222_called_ap_title_rel = -1;     /* RELATIVE_OID */
-static int hf_c1222_calling_ap_title_abs = -1;    /* OBJECT_IDENTIFIER */
-static int hf_c1222_calling_ap_title_rel = -1;    /* RELATIVE_OID */
-static int hf_c1222_calling_authentication_value_indirect = -1;  /* INTEGER */
-static int hf_c1222_calling_authentication_value_encoding = -1;  /* Authentication_value_encoding */
-static int hf_c1222_calling_authentication_value_single_asn1 = -1;  /* Calling_authentication_value_single_asn1 */
-static int hf_c1222_calling_authentication_value_octet_aligned = -1;  /* OCTET_STRING */
-static int hf_c1222_calling_authentication_value_c1222 = -1;  /* Calling_authentication_value_c1222 */
-static int hf_c1222_calling_authentication_value_c1221 = -1;  /* Calling_authentication_value_c1221 */
-static int hf_c1222_key_id_element = -1;          /* Key_id_element */
-static int hf_c1222_iv_element = -1;              /* Iv_element */
-static int hf_c1222_c1221_auth_identification = -1;  /* OCTET_STRING_SIZE_CONSTR001 */
-static int hf_c1222_c1221_auth_request = -1;      /* OCTET_STRING_SIZE_1_255 */
-static int hf_c1222_c1221_auth_response = -1;     /* OCTET_STRING_SIZE_CONSTR002 */
+static int hf_c1222_MESSAGE_PDU;                  /* MESSAGE */
+static int hf_c1222_aSO_context;                  /* ASO_qualifier */
+static int hf_c1222_called_AP_title;              /* Called_AP_title */
+static int hf_c1222_called_AP_invocation_id;      /* Called_AP_invocation_id */
+static int hf_c1222_calling_AP_title;             /* Calling_AP_title */
+static int hf_c1222_calling_AE_qualifier;         /* Calling_AE_qualifier */
+static int hf_c1222_calling_AP_invocation_id;     /* Calling_AP_invocation_id */
+static int hf_c1222_mechanism_name;               /* Mechanism_name */
+static int hf_c1222_calling_authentication_value;  /* Calling_authentication_value */
+static int hf_c1222_user_information;             /* User_information */
+static int hf_c1222_called_ap_title_abs;          /* OBJECT_IDENTIFIER */
+static int hf_c1222_called_ap_title_rel;          /* RELATIVE_OID */
+static int hf_c1222_calling_ap_title_abs;         /* OBJECT_IDENTIFIER */
+static int hf_c1222_calling_ap_title_rel;         /* RELATIVE_OID */
+static int hf_c1222_calling_authentication_value_indirect;  /* INTEGER */
+static int hf_c1222_calling_authentication_value_encoding;  /* Authentication_value_encoding */
+static int hf_c1222_calling_authentication_value_single_asn1;  /* Calling_authentication_value_single_asn1 */
+static int hf_c1222_calling_authentication_value_octet_aligned;  /* OCTET_STRING */
+static int hf_c1222_calling_authentication_value_c1222;  /* Calling_authentication_value_c1222 */
+static int hf_c1222_calling_authentication_value_c1221;  /* Calling_authentication_value_c1221 */
+static int hf_c1222_key_id_element;               /* Key_id_element */
+static int hf_c1222_iv_element;                   /* Iv_element */
+static int hf_c1222_c1221_auth_identification;    /* OCTET_STRING_SIZE_CONSTR001 */
+static int hf_c1222_c1221_auth_request;           /* OCTET_STRING_SIZE_1_255 */
+static int hf_c1222_c1221_auth_response;          /* OCTET_STRING_SIZE_CONSTR002 */
 /* These are the EPSEM pieces */
 /* first, the flag components */
-static int hf_c1222_epsem_flags = -1;
-static int hf_c1222_epsem_flags_reserved = -1;
-static int hf_c1222_epsem_flags_recovery = -1;
-static int hf_c1222_epsem_flags_proxy = -1;
-static int hf_c1222_epsem_flags_ed_class = -1;
-static int hf_c1222_epsem_flags_security_modes = -1;
-static int hf_c1222_epsem_flags_response_control = -1;
+static int hf_c1222_epsem_flags;
+static int hf_c1222_epsem_flags_reserved;
+static int hf_c1222_epsem_flags_recovery;
+static int hf_c1222_epsem_flags_proxy;
+static int hf_c1222_epsem_flags_ed_class;
+static int hf_c1222_epsem_flags_security_modes;
+static int hf_c1222_epsem_flags_response_control;
 /* and the structure of the flag components */
 static int * const c1222_flags[] = {
   &hf_c1222_epsem_flags_reserved,
@@ -122,53 +122,53 @@ static int * const c1222_flags[] = {
   NULL
 };
 /* next the optional ed_class */
-static int hf_c1222_epsem_ed_class = -1;
+static int hf_c1222_epsem_ed_class;
 /* now the aggregate epsem */
-static int hf_c1222_epsem_total = -1;
+static int hf_c1222_epsem_total;
 /* generic command */
-static int hf_c1222_cmd = -1;
-static int hf_c1222_err = -1;
-static int hf_c1222_data = -1;
+static int hf_c1222_cmd;
+static int hf_c1222_err;
+static int hf_c1222_data;
 /* individual epsem fields */
-static int hf_c1222_logon_id = -1;
-static int hf_c1222_logon_user = -1;
-static int hf_c1222_security_password = -1;
-static int hf_c1222_auth_len = -1;
-static int hf_c1222_auth_data = -1;
-static int hf_c1222_read_table = -1;
-static int hf_c1222_read_offset = -1;
-static int hf_c1222_read_count = -1;
-static int hf_c1222_write_table = -1;
-static int hf_c1222_write_offset = -1;
-static int hf_c1222_write_size = -1;
-static int hf_c1222_write_data = -1;
-static int hf_c1222_procedure_response = -1;
-static int hf_c1222_procedure_mfg = -1;
-static int hf_c1222_procedure_num = -1;
-static int hf_c1222_procedure_sequence = -1;
-static int hf_c1222_write_chksum = -1;
-static int hf_c1222_write_chksum_status = -1;
-static int hf_c1222_wait_secs = -1;
-static int hf_c1222_neg_pkt_size = -1;
-static int hf_c1222_neg_nbr_pkts = -1;
-static int hf_c1222_timing_setup_traffic = -1;
-static int hf_c1222_timing_setup_inter_char = -1;
-static int hf_c1222_timing_setup_resp_to = -1;
-static int hf_c1222_timing_setup_nbr_retries = -1;
+static int hf_c1222_logon_id;
+static int hf_c1222_logon_user;
+static int hf_c1222_security_password;
+static int hf_c1222_auth_len;
+static int hf_c1222_auth_data;
+static int hf_c1222_read_table;
+static int hf_c1222_read_offset;
+static int hf_c1222_read_count;
+static int hf_c1222_write_table;
+static int hf_c1222_write_offset;
+static int hf_c1222_write_size;
+static int hf_c1222_write_data;
+static int hf_c1222_procedure_response;
+static int hf_c1222_procedure_mfg;
+static int hf_c1222_procedure_num;
+static int hf_c1222_procedure_sequence;
+static int hf_c1222_write_chksum;
+static int hf_c1222_write_chksum_status;
+static int hf_c1222_wait_secs;
+static int hf_c1222_neg_pkt_size;
+static int hf_c1222_neg_nbr_pkts;
+static int hf_c1222_timing_setup_traffic;
+static int hf_c1222_timing_setup_inter_char;
+static int hf_c1222_timing_setup_resp_to;
+static int hf_c1222_timing_setup_nbr_retries;
 
 /* the MAC */
-static int hf_c1222_epsem_mac = -1;
+static int hf_c1222_epsem_mac;
 
 /* crypto result flags */
-static int hf_c1222_epsem_crypto_good = -1;
-static int hf_c1222_epsem_crypto_bad = -1;
+static int hf_c1222_epsem_crypto_good;
+static int hf_c1222_epsem_crypto_bad;
 
 /* Initialize the subtree pointers */
-static int ett_c1222 = -1;
-static int ett_c1222_epsem = -1;
-static int ett_c1222_flags = -1;
-static int ett_c1222_crypto = -1;
-static int ett_c1222_cmd = -1;
+static int ett_c1222;
+static int ett_c1222_epsem;
+static int ett_c1222_flags;
+static int ett_c1222_crypto;
+static int ett_c1222_cmd;
 
 /* these pointers are for the header elements that may be needed to verify the crypto */
 static guint8 *aSO_context = NULL;
@@ -209,24 +209,24 @@ static guint32 calling_AP_title_allocated = 0;
 static guint32 key_id_element_allocated = 0;
 static guint32 iv_element_allocated = 0;
 
-static gint ett_c1222_MESSAGE_U = -1;
-static gint ett_c1222_Called_AP_title = -1;
-static gint ett_c1222_Calling_AP_title = -1;
-static gint ett_c1222_Calling_authentication_value_U = -1;
-static gint ett_c1222_Authentication_value_encoding = -1;
-static gint ett_c1222_Calling_authentication_value_single_asn1 = -1;
-static gint ett_c1222_Calling_authentication_value_c1222_U = -1;
-static gint ett_c1222_Calling_authentication_value_c1221_U = -1;
+static gint ett_c1222_MESSAGE_U;
+static gint ett_c1222_Called_AP_title;
+static gint ett_c1222_Calling_AP_title;
+static gint ett_c1222_Calling_authentication_value_U;
+static gint ett_c1222_Authentication_value_encoding;
+static gint ett_c1222_Calling_authentication_value_single_asn1;
+static gint ett_c1222_Calling_authentication_value_c1222_U;
+static gint ett_c1222_Calling_authentication_value_c1221_U;
 
-static expert_field ei_c1222_command_truncated = EI_INIT;
-static expert_field ei_c1222_bad_checksum = EI_INIT;
-static expert_field ei_c1222_epsem_missing = EI_INIT;
-static expert_field ei_c1222_epsem_failed_authentication = EI_INIT;
-static expert_field ei_c1222_epsem_not_decrypted = EI_INIT;
-static expert_field ei_c1222_ed_class_missing = EI_INIT;
-static expert_field ei_c1222_epsem_ber_length_error = EI_INIT;
-static expert_field ei_c1222_epsem_field_length_error = EI_INIT;
-static expert_field ei_c1222_mac_missing = EI_INIT;
+static expert_field ei_c1222_command_truncated;
+static expert_field ei_c1222_bad_checksum;
+static expert_field ei_c1222_epsem_missing;
+static expert_field ei_c1222_epsem_failed_authentication;
+static expert_field ei_c1222_epsem_not_decrypted;
+static expert_field ei_c1222_ed_class_missing;
+static expert_field ei_c1222_epsem_ber_length_error;
+static expert_field ei_c1222_epsem_field_length_error;
+static expert_field ei_c1222_mac_missing;
 
 /* Preferences */
 static gboolean c1222_desegment = TRUE;

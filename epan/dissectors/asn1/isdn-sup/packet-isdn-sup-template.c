@@ -32,9 +32,9 @@ static dissector_handle_t isdn_sup_err_handle;
 #include "packet-isdn-sup-val.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_isdn_sup = -1;
-static int hf_isdn_sup_operation = -1;
-static int hf_isdn_sup_error = -1;
+static int proto_isdn_sup;
+static int hf_isdn_sup_operation;
+static int hf_isdn_sup_error;
 
 /* Global variables */
 
@@ -72,19 +72,19 @@ static const value_string isdn_sup_str_error[] = {
   {   0, NULL}
 };
 
-static int hf_isdn_sup = -1;
+static int hf_isdn_sup;
 
 #include "packet-isdn-sup-hf.c"
 
 
 /* Initialize the subtree pointers */
-static gint ett_isdn_sup = -1;
+static gint ett_isdn_sup;
 
 #include "packet-isdn-sup-ett.c"
 
-/* static expert_field ei_isdn_sup_unsupported_arg_type = EI_INIT; */
-static expert_field ei_isdn_sup_unsupported_result_type = EI_INIT;
-static expert_field ei_isdn_sup_unsupported_error_type = EI_INIT;
+/* static expert_field ei_isdn_sup_unsupported_arg_type; */
+static expert_field ei_isdn_sup_unsupported_result_type;
+static expert_field ei_isdn_sup_unsupported_error_type;
 
 /* Preference settings default */
 

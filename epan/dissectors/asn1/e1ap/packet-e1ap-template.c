@@ -38,35 +38,35 @@ void proto_reg_handoff_e1ap(void);
 #include "packet-e1ap-val.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_e1ap = -1;
+static int proto_e1ap;
 
-static int hf_e1ap_transportLayerAddressIPv4 = -1;
-static int hf_e1ap_transportLayerAddressIPv6 = -1;
-static int hf_e1ap_InterfacesToTrace_NG_C = -1;
-static int hf_e1ap_InterfacesToTrace_Xn_C = -1;
-static int hf_e1ap_InterfacesToTrace_Uu = -1;
-static int hf_e1ap_InterfacesToTrace_F1_C = -1;
-static int hf_e1ap_InterfacesToTrace_E1 = -1;
-static int hf_e1ap_InterfacesToTrace_Reserved = -1;
-static int hf_e1ap_MeasurementsToActivate_Reserved1 = -1;
-static int hf_e1ap_MeasurementsToActivate_M4 = -1;
-static int hf_e1ap_MeasurementsToActivate_Reserved2 = -1;
-static int hf_e1ap_MeasurementsToActivate_M6 = -1;
-static int hf_e1ap_MeasurementsToActivate_M7 = -1;
-static int hf_e1ap_ReportCharacteristics_TNLAvailableCapacityIndPeriodic = -1;
-static int hf_e1ap_ReportCharacteristics_HWCapacityIndPeriodic = -1;
-static int hf_e1ap_ReportCharacteristics_Reserved = -1;
-static int hf_e1ap_tcp_pdu_len = -1;
+static int hf_e1ap_transportLayerAddressIPv4;
+static int hf_e1ap_transportLayerAddressIPv6;
+static int hf_e1ap_InterfacesToTrace_NG_C;
+static int hf_e1ap_InterfacesToTrace_Xn_C;
+static int hf_e1ap_InterfacesToTrace_Uu;
+static int hf_e1ap_InterfacesToTrace_F1_C;
+static int hf_e1ap_InterfacesToTrace_E1;
+static int hf_e1ap_InterfacesToTrace_Reserved;
+static int hf_e1ap_MeasurementsToActivate_Reserved1;
+static int hf_e1ap_MeasurementsToActivate_M4;
+static int hf_e1ap_MeasurementsToActivate_Reserved2;
+static int hf_e1ap_MeasurementsToActivate_M6;
+static int hf_e1ap_MeasurementsToActivate_M7;
+static int hf_e1ap_ReportCharacteristics_TNLAvailableCapacityIndPeriodic;
+static int hf_e1ap_ReportCharacteristics_HWCapacityIndPeriodic;
+static int hf_e1ap_ReportCharacteristics_Reserved;
+static int hf_e1ap_tcp_pdu_len;
 #include "packet-e1ap-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_e1ap = -1;
-static gint ett_e1ap_PLMN_Identity = -1;
-static gint ett_e1ap_TransportLayerAddress = -1;
-static gint ett_e1ap_InterfacesToTrace = -1;
-static gint ett_e1ap_MeasurementsToActivate = -1;
-static gint ett_e1ap_ReportCharacteristics = -1;
-static gint ett_e1ap_BurstArrivalTime = -1;
+static gint ett_e1ap;
+static gint ett_e1ap_PLMN_Identity;
+static gint ett_e1ap_TransportLayerAddress;
+static gint ett_e1ap_InterfacesToTrace;
+static gint ett_e1ap_MeasurementsToActivate;
+static gint ett_e1ap_ReportCharacteristics;
+static gint ett_e1ap_BurstArrivalTime;
 #include "packet-e1ap-ett.c"
 
 enum{

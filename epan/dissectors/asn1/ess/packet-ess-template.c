@@ -41,11 +41,11 @@ static ess_category_attributes_t *ess_category_attributes;
 static guint num_ess_category_attributes;
 
 /* Initialize the protocol and registered fields */
-static int proto_ess = -1;
-static int hf_ess_SecurityCategory_type_OID = -1;
-static int hf_ess_Category_attribute = -1;
+static int proto_ess;
+static int hf_ess_SecurityCategory_type_OID;
+static int hf_ess_Category_attribute;
 
-static gint ett_Category_attributes = -1;
+static gint ett_Category_attributes;
 
 #include "packet-ess-hf.c"
 

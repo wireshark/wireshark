@@ -50,7 +50,7 @@ static gint credssp_TS_RGC_package;
 static gint exported_pdu_tap = -1;
 
 /* Initialize the protocol and registered fields */
-static int proto_credssp = -1;
+static int proto_credssp;
 
 /* List of dissectors to call for negoToken data */
 static heur_dissector_list_t credssp_heur_subdissector_list;
@@ -58,54 +58,54 @@ static heur_dissector_list_t credssp_heur_subdissector_list;
 static dissector_handle_t gssapi_handle;
 static dissector_handle_t gssapi_wrap_handle;
 
-static int hf_credssp_TSPasswordCreds = -1;   /* TSPasswordCreds */
-static int hf_credssp_TSSmartCardCreds = -1;  /* TSSmartCardCreds */
-static int hf_credssp_TSRemoteGuardCreds = -1;/* TSRemoteGuardCreds */
-static int hf_credssp_TSCredentials = -1;     /* TSCredentials */
-static int hf_credssp_decr_PublicKeyAuth = -1;/* decr_PublicKeyAuth */
-static int hf_credssp_TSRequest_PDU = -1;         /* TSRequest */
-static int hf_credssp_NegoData_item = -1;         /* NegoData_item */
-static int hf_credssp_negoToken = -1;             /* T_negoToken */
-static int hf_credssp_domainName = -1;            /* OCTET_STRING */
-static int hf_credssp_userName = -1;              /* OCTET_STRING */
-static int hf_credssp_password = -1;              /* OCTET_STRING */
-static int hf_credssp_keySpec = -1;               /* INTEGER */
-static int hf_credssp_cardName = -1;              /* OCTET_STRING */
-static int hf_credssp_readerName = -1;            /* OCTET_STRING */
-static int hf_credssp_containerName = -1;         /* OCTET_STRING */
-static int hf_credssp_cspName = -1;               /* OCTET_STRING */
-static int hf_credssp_pin = -1;                   /* OCTET_STRING */
-static int hf_credssp_cspData = -1;               /* TSCspDataDetail */
-static int hf_credssp_userHint = -1;              /* OCTET_STRING */
-static int hf_credssp_domainHint = -1;            /* OCTET_STRING */
-static int hf_credssp_packageName = -1;           /* T_packageName */
-static int hf_credssp_credBuffer = -1;            /* T_credBuffer */
-static int hf_credssp_logonCred = -1;             /* TSRemoteGuardPackageCred */
-static int hf_credssp_supplementalCreds = -1;     /* SEQUENCE_OF_TSRemoteGuardPackageCred */
-static int hf_credssp_supplementalCreds_item = -1;  /* TSRemoteGuardPackageCred */
-static int hf_credssp_credType = -1;              /* T_credType */
-static int hf_credssp_credentials = -1;           /* T_credentials */
-static int hf_credssp_version = -1;               /* T_version */
-static int hf_credssp_negoTokens = -1;            /* NegoData */
-static int hf_credssp_authInfo = -1;              /* T_authInfo */
-static int hf_credssp_pubKeyAuth = -1;            /* T_pubKeyAuth */
-static int hf_credssp_errorCode = -1;             /* T_errorCode */
-static int hf_credssp_clientNonce = -1;           /* T_clientNonce */
+static int hf_credssp_TSPasswordCreds;   /* TSPasswordCreds */
+static int hf_credssp_TSSmartCardCreds;  /* TSSmartCardCreds */
+static int hf_credssp_TSRemoteGuardCreds;/* TSRemoteGuardCreds */
+static int hf_credssp_TSCredentials;     /* TSCredentials */
+static int hf_credssp_decr_PublicKeyAuth;/* decr_PublicKeyAuth */
+static int hf_credssp_TSRequest_PDU;              /* TSRequest */
+static int hf_credssp_NegoData_item;              /* NegoData_item */
+static int hf_credssp_negoToken;                  /* T_negoToken */
+static int hf_credssp_domainName;                 /* OCTET_STRING */
+static int hf_credssp_userName;                   /* OCTET_STRING */
+static int hf_credssp_password;                   /* OCTET_STRING */
+static int hf_credssp_keySpec;                    /* INTEGER */
+static int hf_credssp_cardName;                   /* OCTET_STRING */
+static int hf_credssp_readerName;                 /* OCTET_STRING */
+static int hf_credssp_containerName;              /* OCTET_STRING */
+static int hf_credssp_cspName;                    /* OCTET_STRING */
+static int hf_credssp_pin;                        /* OCTET_STRING */
+static int hf_credssp_cspData;                    /* TSCspDataDetail */
+static int hf_credssp_userHint;                   /* OCTET_STRING */
+static int hf_credssp_domainHint;                 /* OCTET_STRING */
+static int hf_credssp_packageName;                /* T_packageName */
+static int hf_credssp_credBuffer;                 /* T_credBuffer */
+static int hf_credssp_logonCred;                  /* TSRemoteGuardPackageCred */
+static int hf_credssp_supplementalCreds;          /* SEQUENCE_OF_TSRemoteGuardPackageCred */
+static int hf_credssp_supplementalCreds_item;     /* TSRemoteGuardPackageCred */
+static int hf_credssp_credType;                   /* T_credType */
+static int hf_credssp_credentials;                /* T_credentials */
+static int hf_credssp_version;                    /* T_version */
+static int hf_credssp_negoTokens;                 /* NegoData */
+static int hf_credssp_authInfo;                   /* T_authInfo */
+static int hf_credssp_pubKeyAuth;                 /* T_pubKeyAuth */
+static int hf_credssp_errorCode;                  /* T_errorCode */
+static int hf_credssp_clientNonce;                /* T_clientNonce */
 
 /* Initialize the subtree pointers */
-static gint ett_credssp = -1;
-static gint ett_credssp_RGC_CredBuffer = -1;
+static gint ett_credssp;
+static gint ett_credssp_RGC_CredBuffer;
 
-static gint ett_credssp_NegoData = -1;
-static gint ett_credssp_NegoData_item = -1;
-static gint ett_credssp_TSPasswordCreds = -1;
-static gint ett_credssp_TSCspDataDetail = -1;
-static gint ett_credssp_TSSmartCardCreds = -1;
-static gint ett_credssp_TSRemoteGuardPackageCred = -1;
-static gint ett_credssp_TSRemoteGuardCreds = -1;
-static gint ett_credssp_SEQUENCE_OF_TSRemoteGuardPackageCred = -1;
-static gint ett_credssp_TSCredentials = -1;
-static gint ett_credssp_TSRequest = -1;
+static gint ett_credssp_NegoData;
+static gint ett_credssp_NegoData_item;
+static gint ett_credssp_TSPasswordCreds;
+static gint ett_credssp_TSCspDataDetail;
+static gint ett_credssp_TSSmartCardCreds;
+static gint ett_credssp_TSRemoteGuardPackageCred;
+static gint ett_credssp_TSRemoteGuardCreds;
+static gint ett_credssp_SEQUENCE_OF_TSRemoteGuardPackageCred;
+static gint ett_credssp_TSCredentials;
+static gint ett_credssp_TSRequest;
 
 
 

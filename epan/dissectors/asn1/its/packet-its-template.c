@@ -109,88 +109,88 @@ void proto_register_its(void);
 
 static dissector_handle_t its_handle;
 
-static expert_field ei_its_no_sub_dis = EI_INIT;
+static expert_field ei_its_no_sub_dis;
 
 // TAP
 static int its_tap = -1;
 
 // Protocols
-static int proto_its = -1;
-static int proto_its_denm = -1;
-static int proto_its_denmv1 = -1;
-static int proto_its_cam = -1;
-static int proto_its_camv1 = -1;
-static int proto_its_evcsn = -1;
-static int proto_its_evrsr = -1;
-static int proto_its_ivimv1 = -1;
-static int proto_its_ivim = -1;
-static int proto_its_tistpg = -1;
-static int proto_its_ssem = -1;
-static int proto_its_srem = -1;
-static int proto_its_rtcmemv1 = -1;
-static int proto_its_rtcmem = -1;
-static int proto_its_mapemv1 = -1;
-static int proto_its_mapem = -1;
-static int proto_its_spatemv1 = -1;
-static int proto_its_spatem = -1;
-static int proto_its_cpm = -1;
-static int proto_its_imzm = -1;
-static int proto_its_vam = -1;
-static int proto_addgrpc = -1;
+static int proto_its;
+static int proto_its_denm;
+static int proto_its_denmv1;
+static int proto_its_cam;
+static int proto_its_camv1;
+static int proto_its_evcsn;
+static int proto_its_evrsr;
+static int proto_its_ivimv1;
+static int proto_its_ivim;
+static int proto_its_tistpg;
+static int proto_its_ssem;
+static int proto_its_srem;
+static int proto_its_rtcmemv1;
+static int proto_its_rtcmem;
+static int proto_its_mapemv1;
+static int proto_its_mapem;
+static int proto_its_spatemv1;
+static int proto_its_spatem;
+static int proto_its_cpm;
+static int proto_its_imzm;
+static int proto_its_vam;
+static int proto_addgrpc;
 
 /*
  * DENM SSP
  */
-static int hf_denmssp_version = -1;
-static int hf_denmssp_flags = -1;
-static int hf_denmssp_trafficCondition = -1;
-static int hf_denmssp_accident = -1;
-static int hf_denmssp_roadworks = -1;
-static int hf_denmssp_adverseWeatherConditionAdhesion = -1;
-static int hf_denmssp_hazardousLocationSurfaceCondition = -1;
-static int hf_denmssp_hazardousLocationObstacleOnTheRoad = -1;
-static int hf_denmssp_hazardousLocationAnimalOnTheRoad = -1;
-static int hf_denmssp_humanPresenceOnTheRoad = -1;
-static int hf_denmssp_wrongWayDriving = -1;
-static int hf_denmssp_rescueAndRecoveryWorkInProgress = -1;
-static int hf_denmssp_ExtremeWeatherCondition = -1;
-static int hf_denmssp_adverseWeatherConditionVisibility = -1;
-static int hf_denmssp_adverseWeatherConditionPrecipitation = -1;
-static int hf_denmssp_slowVehicle = -1;
-static int hf_denmssp_dangerousEndOfQueue = -1;
-static int hf_denmssp_vehicleBreakdown = -1;
-static int hf_denmssp_postCrash = -1;
-static int hf_denmssp_humanProblem = -1;
-static int hf_denmssp_stationaryVehicle = -1;
-static int hf_denmssp_emergencyVehicleApproaching = -1;
-static int hf_denmssp_hazardousLocationDangerousCurve = -1;
-static int hf_denmssp_collisionRisk = -1;
-static int hf_denmssp_signalViolation = -1;
-static int hf_denmssp_dangerousSituation = -1;
+static int hf_denmssp_version;
+static int hf_denmssp_flags;
+static int hf_denmssp_trafficCondition;
+static int hf_denmssp_accident;
+static int hf_denmssp_roadworks;
+static int hf_denmssp_adverseWeatherConditionAdhesion;
+static int hf_denmssp_hazardousLocationSurfaceCondition;
+static int hf_denmssp_hazardousLocationObstacleOnTheRoad;
+static int hf_denmssp_hazardousLocationAnimalOnTheRoad;
+static int hf_denmssp_humanPresenceOnTheRoad;
+static int hf_denmssp_wrongWayDriving;
+static int hf_denmssp_rescueAndRecoveryWorkInProgress;
+static int hf_denmssp_ExtremeWeatherCondition;
+static int hf_denmssp_adverseWeatherConditionVisibility;
+static int hf_denmssp_adverseWeatherConditionPrecipitation;
+static int hf_denmssp_slowVehicle;
+static int hf_denmssp_dangerousEndOfQueue;
+static int hf_denmssp_vehicleBreakdown;
+static int hf_denmssp_postCrash;
+static int hf_denmssp_humanProblem;
+static int hf_denmssp_stationaryVehicle;
+static int hf_denmssp_emergencyVehicleApproaching;
+static int hf_denmssp_hazardousLocationDangerousCurve;
+static int hf_denmssp_collisionRisk;
+static int hf_denmssp_signalViolation;
+static int hf_denmssp_dangerousSituation;
 
 /*
  * CAM SSP
  */
-static int hf_camssp_version = -1;
-static int hf_camssp_flags = -1;
-static int hf_camssp_cenDsrcTollingZone = -1;
-static int hf_camssp_publicTransport = -1;
-static int hf_camssp_specialTransport = -1;
-static int hf_camssp_dangerousGoods = -1;
-static int hf_camssp_roadwork = -1;
-static int hf_camssp_rescue = -1;
-static int hf_camssp_emergency = -1;
-static int hf_camssp_safetyCar = -1;
-static int hf_camssp_closedLanes = -1;
-static int hf_camssp_requestForRightOfWay = -1;
-static int hf_camssp_requestForFreeCrossingAtATrafficLight = -1;
-static int hf_camssp_noPassing = -1;
-static int hf_camssp_noPassingForTrucks = -1;
-static int hf_camssp_speedLimit = -1;
-static int hf_camssp_reserved = -1;
+static int hf_camssp_version;
+static int hf_camssp_flags;
+static int hf_camssp_cenDsrcTollingZone;
+static int hf_camssp_publicTransport;
+static int hf_camssp_specialTransport;
+static int hf_camssp_dangerousGoods;
+static int hf_camssp_roadwork;
+static int hf_camssp_rescue;
+static int hf_camssp_emergency;
+static int hf_camssp_safetyCar;
+static int hf_camssp_closedLanes;
+static int hf_camssp_requestForRightOfWay;
+static int hf_camssp_requestForFreeCrossingAtATrafficLight;
+static int hf_camssp_noPassing;
+static int hf_camssp_noPassingForTrucks;
+static int hf_camssp_speedLimit;
+static int hf_camssp_reserved;
 
-static gint ett_denmssp_flags = -1;
-static gint ett_camssp_flags = -1;
+static gint ett_denmssp_flags;
+static gint ett_camssp_flags;
 
 // Subdissectors
 static dissector_table_t its_version_subdissector_table;
@@ -302,7 +302,7 @@ static int dissect_camssp_pdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 // Generated by asn2wrs
 #include "packet-its-hf.c"
 
-static gint ett_its = -1;
+static gint ett_its;
 
 #include "packet-its-ett.c"
 

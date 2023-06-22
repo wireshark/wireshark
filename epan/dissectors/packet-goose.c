@@ -39,40 +39,40 @@ void proto_register_goose(void);
 void proto_reg_handoff_goose(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_goose = -1;
-static int proto_r_goose = -1;
+static int proto_goose;
+static int proto_r_goose;
 
-static int hf_goose_session_header = -1;
-static int hf_goose_spdu_id = -1;
-static int hf_goose_session_hdr_length = -1;
-static int hf_goose_hdr_length = -1;
-static int hf_goose_content_id = -1;
-static int hf_goose_spdu_lenth = -1;
-static int hf_goose_spdu_num = -1;
-static int hf_goose_version = -1;
-static int hf_goose_security_info = -1;
-static int hf_goose_current_key_t = -1;
-static int hf_goose_next_key_t = -1;
-static int hf_goose_key_id = -1;
-static int hf_goose_init_vec_length = -1;
-static int hf_goose_init_vec = -1;
-static int hf_goose_session_user_info = -1;
-static int hf_goose_payload = -1;
-static int hf_goose_payload_length = -1;
-static int hf_goose_apdu_tag = -1;
-static int hf_goose_apdu_simulation = -1;
-static int hf_goose_apdu_appid = -1;
-static int hf_goose_apdu_length = -1;
-static int hf_goose_padding_tag = -1;
-static int hf_goose_padding_length = -1;
-static int hf_goose_padding = -1;
-static int hf_goose_hmac = -1;
-static int hf_goose_appid = -1;
-static int hf_goose_length = -1;
-static int hf_goose_reserve1 = -1;
-static int hf_goose_reserve1_s_bit = -1;
-static int hf_goose_reserve2 = -1;
-static int hf_goose_float_value = -1;
+static int hf_goose_session_header;
+static int hf_goose_spdu_id;
+static int hf_goose_session_hdr_length;
+static int hf_goose_hdr_length;
+static int hf_goose_content_id;
+static int hf_goose_spdu_lenth;
+static int hf_goose_spdu_num;
+static int hf_goose_version;
+static int hf_goose_security_info;
+static int hf_goose_current_key_t;
+static int hf_goose_next_key_t;
+static int hf_goose_key_id;
+static int hf_goose_init_vec_length;
+static int hf_goose_init_vec;
+static int hf_goose_session_user_info;
+static int hf_goose_payload;
+static int hf_goose_payload_length;
+static int hf_goose_apdu_tag;
+static int hf_goose_apdu_simulation;
+static int hf_goose_apdu_appid;
+static int hf_goose_apdu_length;
+static int hf_goose_padding_tag;
+static int hf_goose_padding_length;
+static int hf_goose_padding;
+static int hf_goose_hmac;
+static int hf_goose_appid;
+static int hf_goose_length;
+static int hf_goose_reserve1;
+static int hf_goose_reserve1_s_bit;
+static int hf_goose_reserve2;
+static int hf_goose_float_value;
 
 
 /* Bit fields in the Reserved fields */
@@ -84,101 +84,101 @@ typedef struct _goose_chk_data{
 }goose_chk_data_t;
 #define GOOSE_CHK_DATA_LEN	(sizeof(goose_chk_data_t))
 
-static expert_field ei_goose_mal_utctime = EI_INIT;
-static expert_field ei_goose_zero_pdu = EI_INIT;
-static expert_field ei_goose_invalid_sim = EI_INIT;
+static expert_field ei_goose_mal_utctime;
+static expert_field ei_goose_zero_pdu;
+static expert_field ei_goose_invalid_sim;
 
 #define SINGLE_FLOAT_EXP_BITS	8
 #define FLOAT_ENC_LENGTH		5
 
-static int hf_goose_gseMngtPdu = -1;              /* GSEMngtPdu */
-static int hf_goose_goosePdu = -1;                /* IECGoosePdu */
-static int hf_goose_stateID = -1;                 /* INTEGER */
-static int hf_goose_requestResp = -1;             /* RequestResponse */
-static int hf_goose_requests = -1;                /* GSEMngtRequests */
-static int hf_goose_responses = -1;               /* GSEMngtResponses */
-static int hf_goose_getGoReference = -1;          /* GetReferenceRequestPdu */
-static int hf_goose_getGOOSEElementNumber = -1;   /* GetElementRequestPdu */
-static int hf_goose_getGsReference = -1;          /* GetReferenceRequestPdu */
-static int hf_goose_getGSSEDataOffset = -1;       /* GetElementRequestPdu */
-static int hf_goose_gseMngtNotSupported = -1;     /* NULL */
-static int hf_goose_gseMngtResponses_GetGOReference = -1;  /* GSEMngtResponsePdu */
-static int hf_goose_gseMngtResponses_GetGOOSEElementNumber = -1;  /* GSEMngtResponsePdu */
-static int hf_goose_gseMngtResponses_GetGSReference = -1;  /* GSEMngtResponsePdu */
-static int hf_goose_gseMngtResponses_GetGSSEDataOffset = -1;  /* GSEMngtResponsePdu */
-static int hf_goose_ident = -1;                   /* VisibleString */
-static int hf_goose_getReferenceRequest_offset = -1;  /* T_getReferenceRequest_offset */
-static int hf_goose_getReferenceRequest_offset_item = -1;  /* INTEGER */
-static int hf_goose_references = -1;              /* T_references */
-static int hf_goose_references_item = -1;         /* VisibleString */
-static int hf_goose_confRev = -1;                 /* INTEGER */
-static int hf_goose_posNeg = -1;                  /* PositiveNegative */
-static int hf_goose_responsePositive = -1;        /* T_responsePositive */
-static int hf_goose_datSet = -1;                  /* VisibleString */
-static int hf_goose_result = -1;                  /* SEQUENCE_OF_RequestResults */
-static int hf_goose_result_item = -1;             /* RequestResults */
-static int hf_goose_responseNegative = -1;        /* GlbErrors */
-static int hf_goose_offset = -1;                  /* INTEGER */
-static int hf_goose_reference = -1;               /* IA5String */
-static int hf_goose_error = -1;                   /* ErrorReason */
-static int hf_goose_gocbRef = -1;                 /* VisibleString */
-static int hf_goose_timeAllowedtoLive = -1;       /* INTEGER */
-static int hf_goose_goID = -1;                    /* VisibleString */
-static int hf_goose_t = -1;                       /* UtcTime */
-static int hf_goose_stNum = -1;                   /* INTEGER */
-static int hf_goose_sqNum = -1;                   /* INTEGER */
-static int hf_goose_simulation = -1;              /* T_simulation */
-static int hf_goose_ndsCom = -1;                  /* BOOLEAN */
-static int hf_goose_numDatSetEntries = -1;        /* INTEGER */
-static int hf_goose_allData = -1;                 /* SEQUENCE_OF_Data */
-static int hf_goose_allData_item = -1;            /* Data */
-static int hf_goose_array = -1;                   /* SEQUENCE_OF_Data */
-static int hf_goose_array_item = -1;              /* Data */
-static int hf_goose_structure = -1;               /* SEQUENCE_OF_Data */
-static int hf_goose_structure_item = -1;          /* Data */
-static int hf_goose_boolean = -1;                 /* BOOLEAN */
-static int hf_goose_bit_string = -1;              /* BIT_STRING */
-static int hf_goose_integer = -1;                 /* INTEGER */
-static int hf_goose_unsigned = -1;                /* INTEGER */
-static int hf_goose_floating_point = -1;          /* FloatingPoint */
-static int hf_goose_real = -1;                    /* REAL */
-static int hf_goose_octet_string = -1;            /* OCTET_STRING */
-static int hf_goose_visible_string = -1;          /* VisibleString */
-static int hf_goose_binary_time = -1;             /* TimeOfDay */
-static int hf_goose_bcd = -1;                     /* INTEGER */
-static int hf_goose_booleanArray = -1;            /* BIT_STRING */
-static int hf_goose_objId = -1;                   /* OBJECT_IDENTIFIER */
-static int hf_goose_mMSString = -1;               /* MMSString */
-static int hf_goose_utc_time = -1;                /* UtcTime */
+static int hf_goose_gseMngtPdu;                   /* GSEMngtPdu */
+static int hf_goose_goosePdu;                     /* IECGoosePdu */
+static int hf_goose_stateID;                      /* INTEGER */
+static int hf_goose_requestResp;                  /* RequestResponse */
+static int hf_goose_requests;                     /* GSEMngtRequests */
+static int hf_goose_responses;                    /* GSEMngtResponses */
+static int hf_goose_getGoReference;               /* GetReferenceRequestPdu */
+static int hf_goose_getGOOSEElementNumber;        /* GetElementRequestPdu */
+static int hf_goose_getGsReference;               /* GetReferenceRequestPdu */
+static int hf_goose_getGSSEDataOffset;            /* GetElementRequestPdu */
+static int hf_goose_gseMngtNotSupported;          /* NULL */
+static int hf_goose_gseMngtResponses_GetGOReference;  /* GSEMngtResponsePdu */
+static int hf_goose_gseMngtResponses_GetGOOSEElementNumber;  /* GSEMngtResponsePdu */
+static int hf_goose_gseMngtResponses_GetGSReference;  /* GSEMngtResponsePdu */
+static int hf_goose_gseMngtResponses_GetGSSEDataOffset;  /* GSEMngtResponsePdu */
+static int hf_goose_ident;                        /* VisibleString */
+static int hf_goose_getReferenceRequest_offset;   /* T_getReferenceRequest_offset */
+static int hf_goose_getReferenceRequest_offset_item;  /* INTEGER */
+static int hf_goose_references;                   /* T_references */
+static int hf_goose_references_item;              /* VisibleString */
+static int hf_goose_confRev;                      /* INTEGER */
+static int hf_goose_posNeg;                       /* PositiveNegative */
+static int hf_goose_responsePositive;             /* T_responsePositive */
+static int hf_goose_datSet;                       /* VisibleString */
+static int hf_goose_result;                       /* SEQUENCE_OF_RequestResults */
+static int hf_goose_result_item;                  /* RequestResults */
+static int hf_goose_responseNegative;             /* GlbErrors */
+static int hf_goose_offset;                       /* INTEGER */
+static int hf_goose_reference;                    /* IA5String */
+static int hf_goose_error;                        /* ErrorReason */
+static int hf_goose_gocbRef;                      /* VisibleString */
+static int hf_goose_timeAllowedtoLive;            /* INTEGER */
+static int hf_goose_goID;                         /* VisibleString */
+static int hf_goose_t;                            /* UtcTime */
+static int hf_goose_stNum;                        /* INTEGER */
+static int hf_goose_sqNum;                        /* INTEGER */
+static int hf_goose_simulation;                   /* T_simulation */
+static int hf_goose_ndsCom;                       /* BOOLEAN */
+static int hf_goose_numDatSetEntries;             /* INTEGER */
+static int hf_goose_allData;                      /* SEQUENCE_OF_Data */
+static int hf_goose_allData_item;                 /* Data */
+static int hf_goose_array;                        /* SEQUENCE_OF_Data */
+static int hf_goose_array_item;                   /* Data */
+static int hf_goose_structure;                    /* SEQUENCE_OF_Data */
+static int hf_goose_structure_item;               /* Data */
+static int hf_goose_boolean;                      /* BOOLEAN */
+static int hf_goose_bit_string;                   /* BIT_STRING */
+static int hf_goose_integer;                      /* INTEGER */
+static int hf_goose_unsigned;                     /* INTEGER */
+static int hf_goose_floating_point;               /* FloatingPoint */
+static int hf_goose_real;                         /* REAL */
+static int hf_goose_octet_string;                 /* OCTET_STRING */
+static int hf_goose_visible_string;               /* VisibleString */
+static int hf_goose_binary_time;                  /* TimeOfDay */
+static int hf_goose_bcd;                          /* INTEGER */
+static int hf_goose_booleanArray;                 /* BIT_STRING */
+static int hf_goose_objId;                        /* OBJECT_IDENTIFIER */
+static int hf_goose_mMSString;                    /* MMSString */
+static int hf_goose_utc_time;                     /* UtcTime */
 
 /* Initialize the subtree pointers */
-static int ett_r_goose = -1;
-static int ett_session_header = -1;
-static int ett_security_info = -1;
-static int ett_session_user_info = -1;
-static int ett_payload = -1;
-static int ett_padding = -1;
-static int ett_goose = -1;
-static int ett_reserve1 = -1;
-static int ett_expert_inf_sim = -1;
+static int ett_r_goose;
+static int ett_session_header;
+static int ett_security_info;
+static int ett_session_user_info;
+static int ett_payload;
+static int ett_padding;
+static int ett_goose;
+static int ett_reserve1;
+static int ett_expert_inf_sim;
 
-static gint ett_goose_GOOSEpdu = -1;
-static gint ett_goose_GSEMngtPdu = -1;
-static gint ett_goose_RequestResponse = -1;
-static gint ett_goose_GSEMngtRequests = -1;
-static gint ett_goose_GSEMngtResponses = -1;
-static gint ett_goose_GetReferenceRequestPdu = -1;
-static gint ett_goose_T_getReferenceRequest_offset = -1;
-static gint ett_goose_GetElementRequestPdu = -1;
-static gint ett_goose_T_references = -1;
-static gint ett_goose_GSEMngtResponsePdu = -1;
-static gint ett_goose_PositiveNegative = -1;
-static gint ett_goose_T_responsePositive = -1;
-static gint ett_goose_SEQUENCE_OF_RequestResults = -1;
-static gint ett_goose_RequestResults = -1;
-static gint ett_goose_IECGoosePdu = -1;
-static gint ett_goose_SEQUENCE_OF_Data = -1;
-static gint ett_goose_Data = -1;
+static gint ett_goose_GOOSEpdu;
+static gint ett_goose_GSEMngtPdu;
+static gint ett_goose_RequestResponse;
+static gint ett_goose_GSEMngtRequests;
+static gint ett_goose_GSEMngtResponses;
+static gint ett_goose_GetReferenceRequestPdu;
+static gint ett_goose_T_getReferenceRequest_offset;
+static gint ett_goose_GetElementRequestPdu;
+static gint ett_goose_T_references;
+static gint ett_goose_GSEMngtResponsePdu;
+static gint ett_goose_PositiveNegative;
+static gint ett_goose_T_responsePositive;
+static gint ett_goose_SEQUENCE_OF_RequestResults;
+static gint ett_goose_RequestResults;
+static gint ett_goose_IECGoosePdu;
+static gint ett_goose_SEQUENCE_OF_Data;
+static gint ett_goose_Data;
 
 /*--- Cyclic dependencies ---*/
 
@@ -515,7 +515,7 @@ dissect_goose_UtcTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 	if(len != 8)
 	{
 		proto_tree_add_expert(tree, actx->pinfo, &ei_goose_mal_utctime, tvb, offset, len);
-		if(hf_index >= 0)
+		if(hf_index > 0)
 		{
 			proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
 		}
@@ -531,7 +531,7 @@ dissect_goose_UtcTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, 
 
 	ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, TRUE);
 
-	if(hf_index >= 0)
+	if(hf_index > 0)
 	{
 		proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
 	}

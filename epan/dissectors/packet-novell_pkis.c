@@ -24,67 +24,67 @@
 #include "packet-per.h"
 #include "packet-ber.h"
 
-static int hf_novell_pkis_SecurityAttributes_PDU = -1;  /* SecurityAttributes */
-static int hf_novell_pkis_RelianceLimits_PDU = -1;  /* RelianceLimits */
-static int hf_novell_pkis_versionNumber = -1;     /* OCTET_STRING_SIZE_2 */
-static int hf_novell_pkis_nSI = -1;               /* BOOLEAN */
-static int hf_novell_pkis_securityTM = -1;        /* T_securityTM */
-static int hf_novell_pkis_uriReference = -1;      /* IA5String */
-static int hf_novell_pkis_gLBExtensions = -1;     /* GLBExtensions */
-static int hf_novell_pkis_keyQuality = -1;        /* KeyQuality */
-static int hf_novell_pkis_cryptoProcessQuality = -1;  /* CryptoProcessQuality */
-static int hf_novell_pkis_certificateClass = -1;  /* CertificateClass */
-static int hf_novell_pkis_enterpriseId = -1;      /* EnterpriseId */
-static int hf_novell_pkis_enforceQuality = -1;    /* BOOLEAN */
-static int hf_novell_pkis_compusecQuality = -1;   /* CompusecQuality */
-static int hf_novell_pkis_cryptoQuality = -1;     /* CryptoQuality */
-static int hf_novell_pkis_keyStorageQuality = -1;  /* INTEGER_0_255 */
-static int hf_novell_pkis_CompusecQuality_item = -1;  /* CompusecQualityPair */
-static int hf_novell_pkis_compusecCriteria = -1;  /* INTEGER_0_255 */
-static int hf_novell_pkis_compusecRating = -1;    /* INTEGER_0_255 */
-static int hf_novell_pkis_CryptoQuality_item = -1;  /* CryptoQualityPair */
-static int hf_novell_pkis_cryptoModuleCriteria = -1;  /* INTEGER_0_255 */
-static int hf_novell_pkis_cryptoModuleRating = -1;  /* INTEGER_0_255 */
-static int hf_novell_pkis_classValue = -1;        /* INTEGER_0_255 */
-static int hf_novell_pkis_certificateValid = -1;  /* BOOLEAN */
-static int hf_novell_pkis_rootLabel = -1;         /* SecurityLabelType1 */
-static int hf_novell_pkis_registryLabel = -1;     /* SecurityLabelType1 */
-static int hf_novell_pkis_enterpriseLabel = -1;   /* SEQUENCE_SIZE_1_1_OF_SecurityLabelType1 */
-static int hf_novell_pkis_enterpriseLabel_item = -1;  /* SecurityLabelType1 */
-static int hf_novell_pkis_labelType1 = -1;        /* INTEGER_0_255 */
-static int hf_novell_pkis_secrecyLevel1 = -1;     /* INTEGER_0_255 */
-static int hf_novell_pkis_integrityLevel1 = -1;   /* INTEGER_0_255 */
-static int hf_novell_pkis_secrecyCategories1 = -1;  /* BIT_STRING_SIZE_96 */
-static int hf_novell_pkis_integrityCategories1 = -1;  /* BIT_STRING_SIZE_64 */
-static int hf_novell_pkis_secrecySingletons1 = -1;  /* Singletons */
-static int hf_novell_pkis_integritySingletons1 = -1;  /* Singletons */
-static int hf_novell_pkis_Singletons_item = -1;   /* SingletonChoice */
-static int hf_novell_pkis_uniqueSingleton = -1;   /* INTEGER_0_9223372036854775807 */
-static int hf_novell_pkis_singletonRange = -1;    /* SingletonRange */
-static int hf_novell_pkis_singletonLowerBound = -1;  /* INTEGER_0_9223372036854775807 */
-static int hf_novell_pkis_singletonUpperBound = -1;  /* INTEGER_0_9223372036854775807 */
-static int hf_novell_pkis_singletonValue = -1;    /* BOOLEAN */
-static int hf_novell_pkis_perTransactionLimit = -1;  /* MonetaryValue */
-static int hf_novell_pkis_perCertificateLimit = -1;  /* MonetaryValue */
-static int hf_novell_pkis_currency = -1;          /* Currency */
-static int hf_novell_pkis_amount = -1;            /* INTEGER */
-static int hf_novell_pkis_amtExp10 = -1;          /* INTEGER */
-static gint ett_novell_pkis_SecurityAttributes = -1;
-static gint ett_novell_pkis_GLBExtensions = -1;
-static gint ett_novell_pkis_Quality = -1;
-static gint ett_novell_pkis_CompusecQuality = -1;
-static gint ett_novell_pkis_CompusecQualityPair = -1;
-static gint ett_novell_pkis_CryptoQuality = -1;
-static gint ett_novell_pkis_CryptoQualityPair = -1;
-static gint ett_novell_pkis_CertificateClass = -1;
-static gint ett_novell_pkis_EnterpriseId = -1;
-static gint ett_novell_pkis_SEQUENCE_SIZE_1_1_OF_SecurityLabelType1 = -1;
-static gint ett_novell_pkis_SecurityLabelType1 = -1;
-static gint ett_novell_pkis_Singletons = -1;
-static gint ett_novell_pkis_SingletonChoice = -1;
-static gint ett_novell_pkis_SingletonRange = -1;
-static gint ett_novell_pkis_RelianceLimits = -1;
-static gint ett_novell_pkis_MonetaryValue = -1;
+static int hf_novell_pkis_SecurityAttributes_PDU;  /* SecurityAttributes */
+static int hf_novell_pkis_RelianceLimits_PDU;     /* RelianceLimits */
+static int hf_novell_pkis_versionNumber;          /* OCTET_STRING_SIZE_2 */
+static int hf_novell_pkis_nSI;                    /* BOOLEAN */
+static int hf_novell_pkis_securityTM;             /* T_securityTM */
+static int hf_novell_pkis_uriReference;           /* IA5String */
+static int hf_novell_pkis_gLBExtensions;          /* GLBExtensions */
+static int hf_novell_pkis_keyQuality;             /* KeyQuality */
+static int hf_novell_pkis_cryptoProcessQuality;   /* CryptoProcessQuality */
+static int hf_novell_pkis_certificateClass;       /* CertificateClass */
+static int hf_novell_pkis_enterpriseId;           /* EnterpriseId */
+static int hf_novell_pkis_enforceQuality;         /* BOOLEAN */
+static int hf_novell_pkis_compusecQuality;        /* CompusecQuality */
+static int hf_novell_pkis_cryptoQuality;          /* CryptoQuality */
+static int hf_novell_pkis_keyStorageQuality;      /* INTEGER_0_255 */
+static int hf_novell_pkis_CompusecQuality_item;   /* CompusecQualityPair */
+static int hf_novell_pkis_compusecCriteria;       /* INTEGER_0_255 */
+static int hf_novell_pkis_compusecRating;         /* INTEGER_0_255 */
+static int hf_novell_pkis_CryptoQuality_item;     /* CryptoQualityPair */
+static int hf_novell_pkis_cryptoModuleCriteria;   /* INTEGER_0_255 */
+static int hf_novell_pkis_cryptoModuleRating;     /* INTEGER_0_255 */
+static int hf_novell_pkis_classValue;             /* INTEGER_0_255 */
+static int hf_novell_pkis_certificateValid;       /* BOOLEAN */
+static int hf_novell_pkis_rootLabel;              /* SecurityLabelType1 */
+static int hf_novell_pkis_registryLabel;          /* SecurityLabelType1 */
+static int hf_novell_pkis_enterpriseLabel;        /* SEQUENCE_SIZE_1_1_OF_SecurityLabelType1 */
+static int hf_novell_pkis_enterpriseLabel_item;   /* SecurityLabelType1 */
+static int hf_novell_pkis_labelType1;             /* INTEGER_0_255 */
+static int hf_novell_pkis_secrecyLevel1;          /* INTEGER_0_255 */
+static int hf_novell_pkis_integrityLevel1;        /* INTEGER_0_255 */
+static int hf_novell_pkis_secrecyCategories1;     /* BIT_STRING_SIZE_96 */
+static int hf_novell_pkis_integrityCategories1;   /* BIT_STRING_SIZE_64 */
+static int hf_novell_pkis_secrecySingletons1;     /* Singletons */
+static int hf_novell_pkis_integritySingletons1;   /* Singletons */
+static int hf_novell_pkis_Singletons_item;        /* SingletonChoice */
+static int hf_novell_pkis_uniqueSingleton;        /* INTEGER_0_9223372036854775807 */
+static int hf_novell_pkis_singletonRange;         /* SingletonRange */
+static int hf_novell_pkis_singletonLowerBound;    /* INTEGER_0_9223372036854775807 */
+static int hf_novell_pkis_singletonUpperBound;    /* INTEGER_0_9223372036854775807 */
+static int hf_novell_pkis_singletonValue;         /* BOOLEAN */
+static int hf_novell_pkis_perTransactionLimit;    /* MonetaryValue */
+static int hf_novell_pkis_perCertificateLimit;    /* MonetaryValue */
+static int hf_novell_pkis_currency;               /* Currency */
+static int hf_novell_pkis_amount;                 /* INTEGER */
+static int hf_novell_pkis_amtExp10;               /* INTEGER */
+static gint ett_novell_pkis_SecurityAttributes;
+static gint ett_novell_pkis_GLBExtensions;
+static gint ett_novell_pkis_Quality;
+static gint ett_novell_pkis_CompusecQuality;
+static gint ett_novell_pkis_CompusecQualityPair;
+static gint ett_novell_pkis_CryptoQuality;
+static gint ett_novell_pkis_CryptoQualityPair;
+static gint ett_novell_pkis_CertificateClass;
+static gint ett_novell_pkis_EnterpriseId;
+static gint ett_novell_pkis_SEQUENCE_SIZE_1_1_OF_SecurityLabelType1;
+static gint ett_novell_pkis_SecurityLabelType1;
+static gint ett_novell_pkis_Singletons;
+static gint ett_novell_pkis_SingletonChoice;
+static gint ett_novell_pkis_SingletonRange;
+static gint ett_novell_pkis_RelianceLimits;
+static gint ett_novell_pkis_MonetaryValue;
 
 
 static int
@@ -481,7 +481,7 @@ static int dissect_RelianceLimits_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 void proto_register_novell_pkis (void);
 void proto_reg_handoff_novell_pkis(void);
 
-static int proto_novell_pkis = -1;
+static int proto_novell_pkis;
 
 void proto_reg_handoff_novell_pkis(void)
 {
@@ -694,7 +694,7 @@ void proto_register_novell_pkis (void)
   };
 
   /* execute protocol initialization only once */
-  if (proto_novell_pkis != -1) return;
+  if (proto_novell_pkis > 0) return;
 
   proto_novell_pkis = proto_register_protocol("Novell PKIS ASN.1 type", "novell_pkis", "novell_pkis");
   proto_register_field_array (proto_novell_pkis, hf, array_length (hf));

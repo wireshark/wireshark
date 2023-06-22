@@ -36,70 +36,70 @@ static dissector_handle_t timestamp_reply_handle;
 static dissector_handle_t timestamp_query_handle;
 
 /* Initialize the protocol and registered fields */
-static int proto_pkixtsp = -1;
-static int hf_pkixtsp_TimeStampReq_PDU = -1;      /* TimeStampReq */
-static int hf_pkixtsp_TimeStampResp_PDU = -1;     /* TimeStampResp */
-static int hf_pkixtsp_TSTInfo_PDU = -1;           /* TSTInfo */
-static int hf_pkixtsp_SignatureTimeStampToken_PDU = -1;  /* SignatureTimeStampToken */
-static int hf_pkixtsp_version = -1;               /* T_version */
-static int hf_pkixtsp_messageImprint = -1;        /* MessageImprint */
-static int hf_pkixtsp_reqPolicy = -1;             /* TSAPolicyId */
-static int hf_pkixtsp_nonce = -1;                 /* INTEGER */
-static int hf_pkixtsp_certReq = -1;               /* BOOLEAN */
-static int hf_pkixtsp_extensions = -1;            /* Extensions */
-static int hf_pkixtsp_hashAlgorithm = -1;         /* AlgorithmIdentifier */
-static int hf_pkixtsp_hashedMessage = -1;         /* OCTET_STRING */
-static int hf_pkixtsp_status = -1;                /* PKIStatusInfo */
-static int hf_pkixtsp_timeStampToken = -1;        /* TimeStampToken */
-static int hf_pkixtsp_pki_status = -1;            /* PKIStatus */
-static int hf_pkixtsp_failInfo = -1;              /* PKIFailureInfo */
-static int hf_pkixtsp_tst_version = -1;           /* Tst_version */
-static int hf_pkixtsp_policy = -1;                /* TSAPolicyId */
-static int hf_pkixtsp_serialNumber = -1;          /* INTEGER */
-static int hf_pkixtsp_genTime = -1;               /* GeneralizedTime */
-static int hf_pkixtsp_accuracy = -1;              /* Accuracy */
-static int hf_pkixtsp_ordering = -1;              /* BOOLEAN */
-static int hf_pkixtsp_tsa = -1;                   /* GeneralName */
-static int hf_pkixtsp_seconds = -1;               /* INTEGER */
-static int hf_pkixtsp_millis = -1;                /* INTEGER_1_999 */
-static int hf_pkixtsp_micros = -1;                /* INTEGER_1_999 */
+static int proto_pkixtsp;
+static int hf_pkixtsp_TimeStampReq_PDU;           /* TimeStampReq */
+static int hf_pkixtsp_TimeStampResp_PDU;          /* TimeStampResp */
+static int hf_pkixtsp_TSTInfo_PDU;                /* TSTInfo */
+static int hf_pkixtsp_SignatureTimeStampToken_PDU;  /* SignatureTimeStampToken */
+static int hf_pkixtsp_version;                    /* T_version */
+static int hf_pkixtsp_messageImprint;             /* MessageImprint */
+static int hf_pkixtsp_reqPolicy;                  /* TSAPolicyId */
+static int hf_pkixtsp_nonce;                      /* INTEGER */
+static int hf_pkixtsp_certReq;                    /* BOOLEAN */
+static int hf_pkixtsp_extensions;                 /* Extensions */
+static int hf_pkixtsp_hashAlgorithm;              /* AlgorithmIdentifier */
+static int hf_pkixtsp_hashedMessage;              /* OCTET_STRING */
+static int hf_pkixtsp_status;                     /* PKIStatusInfo */
+static int hf_pkixtsp_timeStampToken;             /* TimeStampToken */
+static int hf_pkixtsp_pki_status;                 /* PKIStatus */
+static int hf_pkixtsp_failInfo;                   /* PKIFailureInfo */
+static int hf_pkixtsp_tst_version;                /* Tst_version */
+static int hf_pkixtsp_policy;                     /* TSAPolicyId */
+static int hf_pkixtsp_serialNumber;               /* INTEGER */
+static int hf_pkixtsp_genTime;                    /* GeneralizedTime */
+static int hf_pkixtsp_accuracy;                   /* Accuracy */
+static int hf_pkixtsp_ordering;                   /* BOOLEAN */
+static int hf_pkixtsp_tsa;                        /* GeneralName */
+static int hf_pkixtsp_seconds;                    /* INTEGER */
+static int hf_pkixtsp_millis;                     /* INTEGER_1_999 */
+static int hf_pkixtsp_micros;                     /* INTEGER_1_999 */
 /* named bits */
-static int hf_pkixtsp_PKIFailureInfo_badAlg = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit1 = -1;
-static int hf_pkixtsp_PKIFailureInfo_badRequest = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit3 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit4 = -1;
-static int hf_pkixtsp_PKIFailureInfo_badDataFormat = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit6 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit7 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit8 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit9 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit10 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit11 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit12 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit13 = -1;
-static int hf_pkixtsp_PKIFailureInfo_timeNotAvailable = -1;
-static int hf_pkixtsp_PKIFailureInfo_unacceptedPolicy = -1;
-static int hf_pkixtsp_PKIFailureInfo_unacceptedExtension = -1;
-static int hf_pkixtsp_PKIFailureInfo_addInfoNotAvailable = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit18 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit19 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit20 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit21 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit22 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit23 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit24 = -1;
-static int hf_pkixtsp_PKIFailureInfo_systemFailure = -1;
+static int hf_pkixtsp_PKIFailureInfo_badAlg;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit1;
+static int hf_pkixtsp_PKIFailureInfo_badRequest;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit3;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit4;
+static int hf_pkixtsp_PKIFailureInfo_badDataFormat;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit6;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit7;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit8;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit9;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit10;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit11;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit12;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit13;
+static int hf_pkixtsp_PKIFailureInfo_timeNotAvailable;
+static int hf_pkixtsp_PKIFailureInfo_unacceptedPolicy;
+static int hf_pkixtsp_PKIFailureInfo_unacceptedExtension;
+static int hf_pkixtsp_PKIFailureInfo_addInfoNotAvailable;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit18;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit19;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit20;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit21;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit22;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit23;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit24;
+static int hf_pkixtsp_PKIFailureInfo_systemFailure;
 
 /* Initialize the subtree pointers */
-static gint ett_pkixtsp = -1;
-static gint ett_pkixtsp_TimeStampReq = -1;
-static gint ett_pkixtsp_MessageImprint = -1;
-static gint ett_pkixtsp_TimeStampResp = -1;
-static gint ett_pkixtsp_PKIStatusInfo = -1;
-static gint ett_pkixtsp_PKIFailureInfo = -1;
-static gint ett_pkixtsp_TSTInfo = -1;
-static gint ett_pkixtsp_Accuracy = -1;
+static gint ett_pkixtsp;
+static gint ett_pkixtsp_TimeStampReq;
+static gint ett_pkixtsp_MessageImprint;
+static gint ett_pkixtsp_TimeStampResp;
+static gint ett_pkixtsp_PKIStatusInfo;
+static gint ett_pkixtsp_PKIFailureInfo;
+static gint ett_pkixtsp_TSTInfo;
+static gint ett_pkixtsp_Accuracy;
 
 
 

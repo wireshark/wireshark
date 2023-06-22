@@ -34,221 +34,221 @@ void proto_register_x509sat(void);
 void proto_reg_handoff_x509sat(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_x509sat = -1;
-static int hf_x509sat_DirectoryString_PDU = -1;   /* DirectoryString */
-static int hf_x509sat_UniqueIdentifier_PDU = -1;  /* UniqueIdentifier */
-static int hf_x509sat_CountryName_PDU = -1;       /* CountryName */
-static int hf_x509sat_Guide_PDU = -1;             /* Guide */
-static int hf_x509sat_EnhancedGuide_PDU = -1;     /* EnhancedGuide */
-static int hf_x509sat_PostalAddress_PDU = -1;     /* PostalAddress */
-static int hf_x509sat_TelephoneNumber_PDU = -1;   /* TelephoneNumber */
-static int hf_x509sat_TelexNumber_PDU = -1;       /* TelexNumber */
-static int hf_x509sat_FacsimileTelephoneNumber_PDU = -1;  /* FacsimileTelephoneNumber */
-static int hf_x509sat_X121Address_PDU = -1;       /* X121Address */
-static int hf_x509sat_InternationalISDNNumber_PDU = -1;  /* InternationalISDNNumber */
-static int hf_x509sat_DestinationIndicator_PDU = -1;  /* DestinationIndicator */
-static int hf_x509sat_PreferredDeliveryMethod_PDU = -1;  /* PreferredDeliveryMethod */
-static int hf_x509sat_PresentationAddress_PDU = -1;  /* PresentationAddress */
-static int hf_x509sat_ProtocolInformation_PDU = -1;  /* ProtocolInformation */
-static int hf_x509sat_NameAndOptionalUID_PDU = -1;  /* NameAndOptionalUID */
-static int hf_x509sat_CaseIgnoreListMatch_PDU = -1;  /* CaseIgnoreListMatch */
-static int hf_x509sat_ObjectIdentifier_PDU = -1;  /* ObjectIdentifier */
-static int hf_x509sat_OctetString_PDU = -1;       /* OctetString */
-static int hf_x509sat_BitString_PDU = -1;         /* BitString */
-static int hf_x509sat_Integer_PDU = -1;           /* Integer */
-static int hf_x509sat_Boolean_PDU = -1;           /* Boolean */
-static int hf_x509sat_SyntaxGeneralizedTime_PDU = -1;  /* SyntaxGeneralizedTime */
-static int hf_x509sat_SyntaxUTCTime_PDU = -1;     /* SyntaxUTCTime */
-static int hf_x509sat_SyntaxNumericString_PDU = -1;  /* SyntaxNumericString */
-static int hf_x509sat_SyntaxPrintableString_PDU = -1;  /* SyntaxPrintableString */
-static int hf_x509sat_SyntaxIA5String_PDU = -1;   /* SyntaxIA5String */
-static int hf_x509sat_SyntaxBMPString_PDU = -1;   /* SyntaxBMPString */
-static int hf_x509sat_SyntaxUniversalString_PDU = -1;  /* SyntaxUniversalString */
-static int hf_x509sat_SyntaxUTF8String_PDU = -1;  /* SyntaxUTF8String */
-static int hf_x509sat_SyntaxTeletexString_PDU = -1;  /* SyntaxTeletexString */
-static int hf_x509sat_SyntaxT61String_PDU = -1;   /* SyntaxT61String */
-static int hf_x509sat_SyntaxVideotexString_PDU = -1;  /* SyntaxVideotexString */
-static int hf_x509sat_SyntaxGraphicString_PDU = -1;  /* SyntaxGraphicString */
-static int hf_x509sat_SyntaxISO646String_PDU = -1;  /* SyntaxISO646String */
-static int hf_x509sat_SyntaxVisibleString_PDU = -1;  /* SyntaxVisibleString */
-static int hf_x509sat_SyntaxGeneralString_PDU = -1;  /* SyntaxGeneralString */
-static int hf_x509sat_GUID_PDU = -1;              /* GUID */
-static int hf_x509sat_teletexString = -1;         /* TeletexString */
-static int hf_x509sat_printableString = -1;       /* PrintableString */
-static int hf_x509sat_universalString = -1;       /* UniversalString */
-static int hf_x509sat_bmpString = -1;             /* BMPString */
-static int hf_x509sat_uTF8String = -1;            /* UTF8String */
-static int hf_x509sat_objectClass = -1;           /* OBJECT_IDENTIFIER */
-static int hf_x509sat_criteria = -1;              /* Criteria */
-static int hf_x509sat_type = -1;                  /* CriteriaItem */
-static int hf_x509sat_and = -1;                   /* SET_OF_Criteria */
-static int hf_x509sat_and_item = -1;              /* Criteria */
-static int hf_x509sat_or = -1;                    /* SET_OF_Criteria */
-static int hf_x509sat_or_item = -1;               /* Criteria */
-static int hf_x509sat_not = -1;                   /* Criteria */
-static int hf_x509sat_equality = -1;              /* AttributeType */
-static int hf_x509sat_substrings = -1;            /* AttributeType */
-static int hf_x509sat_greaterOrEqual = -1;        /* AttributeType */
-static int hf_x509sat_lessOrEqual = -1;           /* AttributeType */
-static int hf_x509sat_approximateMatch = -1;      /* AttributeType */
-static int hf_x509sat_subset = -1;                /* T_subset */
-static int hf_x509sat_PostalAddress_item = -1;    /* DirectoryString */
-static int hf_x509sat_telexNumber = -1;           /* PrintableString */
-static int hf_x509sat_countryCode = -1;           /* PrintableString */
-static int hf_x509sat_answerback = -1;            /* PrintableString */
-static int hf_x509sat_telephoneNumber = -1;       /* TelephoneNumber */
-static int hf_x509sat_parameters = -1;            /* G3FacsimileNonBasicParameters */
-static int hf_x509sat_PreferredDeliveryMethod_item = -1;  /* PreferredDeliveryMethod_item */
-static int hf_x509sat_pSelector = -1;             /* OCTET_STRING */
-static int hf_x509sat_sSelector = -1;             /* OCTET_STRING */
-static int hf_x509sat_tSelector = -1;             /* OCTET_STRING */
-static int hf_x509sat_nAddresses = -1;            /* T_nAddresses */
-static int hf_x509sat_nAddresses_item = -1;       /* OCTET_STRING */
-static int hf_x509sat_nAddress = -1;              /* OCTET_STRING */
-static int hf_x509sat_profiles = -1;              /* T_profiles */
-static int hf_x509sat_profiles_item = -1;         /* OBJECT_IDENTIFIER */
-static int hf_x509sat_dn = -1;                    /* DistinguishedName */
-static int hf_x509sat_uid = -1;                   /* UniqueIdentifier */
-static int hf_x509sat_matchingRuleUsed = -1;      /* OBJECT_IDENTIFIER */
-static int hf_x509sat_attributeList = -1;         /* SEQUENCE_OF_AttributeValueAssertion */
-static int hf_x509sat_attributeList_item = -1;    /* AttributeValueAssertion */
-static int hf_x509sat_SubstringAssertion_item = -1;  /* SubstringAssertion_item */
-static int hf_x509sat_initial = -1;               /* DirectoryString */
-static int hf_x509sat_any = -1;                   /* DirectoryString */
-static int hf_x509sat_final = -1;                 /* DirectoryString */
-static int hf_x509sat_control = -1;               /* Attribute */
-static int hf_x509sat_CaseIgnoreListMatch_item = -1;  /* DirectoryString */
-static int hf_x509sat_OctetSubstringAssertion_item = -1;  /* OctetSubstringAssertion_item */
-static int hf_x509sat_initial_substring = -1;     /* OCTET_STRING */
-static int hf_x509sat_any_substring = -1;         /* OCTET_STRING */
-static int hf_x509sat_finall_substring = -1;      /* OCTET_STRING */
-static int hf_x509sat_ZonalSelect_item = -1;      /* AttributeType */
-static int hf_x509sat_time = -1;                  /* T_time */
-static int hf_x509sat_absolute = -1;              /* T_absolute */
-static int hf_x509sat_startTime = -1;             /* GeneralizedTime */
-static int hf_x509sat_endTime = -1;               /* GeneralizedTime */
-static int hf_x509sat_periodic = -1;              /* SET_OF_Period */
-static int hf_x509sat_periodic_item = -1;         /* Period */
-static int hf_x509sat_notThisTime = -1;           /* BOOLEAN */
-static int hf_x509sat_timeZone = -1;              /* TimeZone */
-static int hf_x509sat_timesOfDay = -1;            /* SET_OF_DayTimeBand */
-static int hf_x509sat_timesOfDay_item = -1;       /* DayTimeBand */
-static int hf_x509sat_days = -1;                  /* T_days */
-static int hf_x509sat_intDay = -1;                /* T_intDay */
-static int hf_x509sat_intDay_item = -1;           /* INTEGER */
-static int hf_x509sat_bitDay = -1;                /* T_bitDay */
-static int hf_x509sat_dayOf = -1;                 /* XDayOf */
-static int hf_x509sat_weeks = -1;                 /* T_weeks */
-static int hf_x509sat_allWeeks = -1;              /* NULL */
-static int hf_x509sat_intWeek = -1;               /* T_intWeek */
-static int hf_x509sat_intWeek_item = -1;          /* INTEGER */
-static int hf_x509sat_bitWeek = -1;               /* T_bitWeek */
-static int hf_x509sat_months = -1;                /* T_months */
-static int hf_x509sat_allMonths = -1;             /* NULL */
-static int hf_x509sat_intMonth = -1;              /* T_intMonth */
-static int hf_x509sat_intMonth_item = -1;         /* INTEGER */
-static int hf_x509sat_bitMonth = -1;              /* T_bitMonth */
-static int hf_x509sat_years = -1;                 /* T_years */
-static int hf_x509sat_years_item = -1;            /* INTEGER */
-static int hf_x509sat_first_dayof = -1;           /* NamedDay */
-static int hf_x509sat_second_dayof = -1;          /* NamedDay */
-static int hf_x509sat_third_dayof = -1;           /* NamedDay */
-static int hf_x509sat_fourth_dayof = -1;          /* NamedDay */
-static int hf_x509sat_fifth_dayof = -1;           /* NamedDay */
-static int hf_x509sat_intNamedDays = -1;          /* T_intNamedDays */
-static int hf_x509sat_bitNamedDays = -1;          /* T_bitNamedDays */
-static int hf_x509sat_startDayTime = -1;          /* DayTime */
-static int hf_x509sat_endDayTime = -1;            /* DayTime */
-static int hf_x509sat_hour = -1;                  /* INTEGER */
-static int hf_x509sat_minute = -1;                /* INTEGER */
-static int hf_x509sat_second = -1;                /* INTEGER */
-static int hf_x509sat_now = -1;                   /* NULL */
-static int hf_x509sat_at = -1;                    /* GeneralizedTime */
-static int hf_x509sat_between = -1;               /* T_between */
-static int hf_x509sat_entirely = -1;              /* BOOLEAN */
-static int hf_x509sat_localeID1 = -1;             /* OBJECT_IDENTIFIER */
-static int hf_x509sat_localeID2 = -1;             /* DirectoryString */
+static int proto_x509sat;
+static int hf_x509sat_DirectoryString_PDU;        /* DirectoryString */
+static int hf_x509sat_UniqueIdentifier_PDU;       /* UniqueIdentifier */
+static int hf_x509sat_CountryName_PDU;            /* CountryName */
+static int hf_x509sat_Guide_PDU;                  /* Guide */
+static int hf_x509sat_EnhancedGuide_PDU;          /* EnhancedGuide */
+static int hf_x509sat_PostalAddress_PDU;          /* PostalAddress */
+static int hf_x509sat_TelephoneNumber_PDU;        /* TelephoneNumber */
+static int hf_x509sat_TelexNumber_PDU;            /* TelexNumber */
+static int hf_x509sat_FacsimileTelephoneNumber_PDU;  /* FacsimileTelephoneNumber */
+static int hf_x509sat_X121Address_PDU;            /* X121Address */
+static int hf_x509sat_InternationalISDNNumber_PDU;  /* InternationalISDNNumber */
+static int hf_x509sat_DestinationIndicator_PDU;   /* DestinationIndicator */
+static int hf_x509sat_PreferredDeliveryMethod_PDU;  /* PreferredDeliveryMethod */
+static int hf_x509sat_PresentationAddress_PDU;    /* PresentationAddress */
+static int hf_x509sat_ProtocolInformation_PDU;    /* ProtocolInformation */
+static int hf_x509sat_NameAndOptionalUID_PDU;     /* NameAndOptionalUID */
+static int hf_x509sat_CaseIgnoreListMatch_PDU;    /* CaseIgnoreListMatch */
+static int hf_x509sat_ObjectIdentifier_PDU;       /* ObjectIdentifier */
+static int hf_x509sat_OctetString_PDU;            /* OctetString */
+static int hf_x509sat_BitString_PDU;              /* BitString */
+static int hf_x509sat_Integer_PDU;                /* Integer */
+static int hf_x509sat_Boolean_PDU;                /* Boolean */
+static int hf_x509sat_SyntaxGeneralizedTime_PDU;  /* SyntaxGeneralizedTime */
+static int hf_x509sat_SyntaxUTCTime_PDU;          /* SyntaxUTCTime */
+static int hf_x509sat_SyntaxNumericString_PDU;    /* SyntaxNumericString */
+static int hf_x509sat_SyntaxPrintableString_PDU;  /* SyntaxPrintableString */
+static int hf_x509sat_SyntaxIA5String_PDU;        /* SyntaxIA5String */
+static int hf_x509sat_SyntaxBMPString_PDU;        /* SyntaxBMPString */
+static int hf_x509sat_SyntaxUniversalString_PDU;  /* SyntaxUniversalString */
+static int hf_x509sat_SyntaxUTF8String_PDU;       /* SyntaxUTF8String */
+static int hf_x509sat_SyntaxTeletexString_PDU;    /* SyntaxTeletexString */
+static int hf_x509sat_SyntaxT61String_PDU;        /* SyntaxT61String */
+static int hf_x509sat_SyntaxVideotexString_PDU;   /* SyntaxVideotexString */
+static int hf_x509sat_SyntaxGraphicString_PDU;    /* SyntaxGraphicString */
+static int hf_x509sat_SyntaxISO646String_PDU;     /* SyntaxISO646String */
+static int hf_x509sat_SyntaxVisibleString_PDU;    /* SyntaxVisibleString */
+static int hf_x509sat_SyntaxGeneralString_PDU;    /* SyntaxGeneralString */
+static int hf_x509sat_GUID_PDU;                   /* GUID */
+static int hf_x509sat_teletexString;              /* TeletexString */
+static int hf_x509sat_printableString;            /* PrintableString */
+static int hf_x509sat_universalString;            /* UniversalString */
+static int hf_x509sat_bmpString;                  /* BMPString */
+static int hf_x509sat_uTF8String;                 /* UTF8String */
+static int hf_x509sat_objectClass;                /* OBJECT_IDENTIFIER */
+static int hf_x509sat_criteria;                   /* Criteria */
+static int hf_x509sat_type;                       /* CriteriaItem */
+static int hf_x509sat_and;                        /* SET_OF_Criteria */
+static int hf_x509sat_and_item;                   /* Criteria */
+static int hf_x509sat_or;                         /* SET_OF_Criteria */
+static int hf_x509sat_or_item;                    /* Criteria */
+static int hf_x509sat_not;                        /* Criteria */
+static int hf_x509sat_equality;                   /* AttributeType */
+static int hf_x509sat_substrings;                 /* AttributeType */
+static int hf_x509sat_greaterOrEqual;             /* AttributeType */
+static int hf_x509sat_lessOrEqual;                /* AttributeType */
+static int hf_x509sat_approximateMatch;           /* AttributeType */
+static int hf_x509sat_subset;                     /* T_subset */
+static int hf_x509sat_PostalAddress_item;         /* DirectoryString */
+static int hf_x509sat_telexNumber;                /* PrintableString */
+static int hf_x509sat_countryCode;                /* PrintableString */
+static int hf_x509sat_answerback;                 /* PrintableString */
+static int hf_x509sat_telephoneNumber;            /* TelephoneNumber */
+static int hf_x509sat_parameters;                 /* G3FacsimileNonBasicParameters */
+static int hf_x509sat_PreferredDeliveryMethod_item;  /* PreferredDeliveryMethod_item */
+static int hf_x509sat_pSelector;                  /* OCTET_STRING */
+static int hf_x509sat_sSelector;                  /* OCTET_STRING */
+static int hf_x509sat_tSelector;                  /* OCTET_STRING */
+static int hf_x509sat_nAddresses;                 /* T_nAddresses */
+static int hf_x509sat_nAddresses_item;            /* OCTET_STRING */
+static int hf_x509sat_nAddress;                   /* OCTET_STRING */
+static int hf_x509sat_profiles;                   /* T_profiles */
+static int hf_x509sat_profiles_item;              /* OBJECT_IDENTIFIER */
+static int hf_x509sat_dn;                         /* DistinguishedName */
+static int hf_x509sat_uid;                        /* UniqueIdentifier */
+static int hf_x509sat_matchingRuleUsed;           /* OBJECT_IDENTIFIER */
+static int hf_x509sat_attributeList;              /* SEQUENCE_OF_AttributeValueAssertion */
+static int hf_x509sat_attributeList_item;         /* AttributeValueAssertion */
+static int hf_x509sat_SubstringAssertion_item;    /* SubstringAssertion_item */
+static int hf_x509sat_initial;                    /* DirectoryString */
+static int hf_x509sat_any;                        /* DirectoryString */
+static int hf_x509sat_final;                      /* DirectoryString */
+static int hf_x509sat_control;                    /* Attribute */
+static int hf_x509sat_CaseIgnoreListMatch_item;   /* DirectoryString */
+static int hf_x509sat_OctetSubstringAssertion_item;  /* OctetSubstringAssertion_item */
+static int hf_x509sat_initial_substring;          /* OCTET_STRING */
+static int hf_x509sat_any_substring;              /* OCTET_STRING */
+static int hf_x509sat_finall_substring;           /* OCTET_STRING */
+static int hf_x509sat_ZonalSelect_item;           /* AttributeType */
+static int hf_x509sat_time;                       /* T_time */
+static int hf_x509sat_absolute;                   /* T_absolute */
+static int hf_x509sat_startTime;                  /* GeneralizedTime */
+static int hf_x509sat_endTime;                    /* GeneralizedTime */
+static int hf_x509sat_periodic;                   /* SET_OF_Period */
+static int hf_x509sat_periodic_item;              /* Period */
+static int hf_x509sat_notThisTime;                /* BOOLEAN */
+static int hf_x509sat_timeZone;                   /* TimeZone */
+static int hf_x509sat_timesOfDay;                 /* SET_OF_DayTimeBand */
+static int hf_x509sat_timesOfDay_item;            /* DayTimeBand */
+static int hf_x509sat_days;                       /* T_days */
+static int hf_x509sat_intDay;                     /* T_intDay */
+static int hf_x509sat_intDay_item;                /* INTEGER */
+static int hf_x509sat_bitDay;                     /* T_bitDay */
+static int hf_x509sat_dayOf;                      /* XDayOf */
+static int hf_x509sat_weeks;                      /* T_weeks */
+static int hf_x509sat_allWeeks;                   /* NULL */
+static int hf_x509sat_intWeek;                    /* T_intWeek */
+static int hf_x509sat_intWeek_item;               /* INTEGER */
+static int hf_x509sat_bitWeek;                    /* T_bitWeek */
+static int hf_x509sat_months;                     /* T_months */
+static int hf_x509sat_allMonths;                  /* NULL */
+static int hf_x509sat_intMonth;                   /* T_intMonth */
+static int hf_x509sat_intMonth_item;              /* INTEGER */
+static int hf_x509sat_bitMonth;                   /* T_bitMonth */
+static int hf_x509sat_years;                      /* T_years */
+static int hf_x509sat_years_item;                 /* INTEGER */
+static int hf_x509sat_first_dayof;                /* NamedDay */
+static int hf_x509sat_second_dayof;               /* NamedDay */
+static int hf_x509sat_third_dayof;                /* NamedDay */
+static int hf_x509sat_fourth_dayof;               /* NamedDay */
+static int hf_x509sat_fifth_dayof;                /* NamedDay */
+static int hf_x509sat_intNamedDays;               /* T_intNamedDays */
+static int hf_x509sat_bitNamedDays;               /* T_bitNamedDays */
+static int hf_x509sat_startDayTime;               /* DayTime */
+static int hf_x509sat_endDayTime;                 /* DayTime */
+static int hf_x509sat_hour;                       /* INTEGER */
+static int hf_x509sat_minute;                     /* INTEGER */
+static int hf_x509sat_second;                     /* INTEGER */
+static int hf_x509sat_now;                        /* NULL */
+static int hf_x509sat_at;                         /* GeneralizedTime */
+static int hf_x509sat_between;                    /* T_between */
+static int hf_x509sat_entirely;                   /* BOOLEAN */
+static int hf_x509sat_localeID1;                  /* OBJECT_IDENTIFIER */
+static int hf_x509sat_localeID2;                  /* DirectoryString */
 /* named bits */
-static int hf_x509sat_T_bitDay_sunday = -1;
-static int hf_x509sat_T_bitDay_monday = -1;
-static int hf_x509sat_T_bitDay_tuesday = -1;
-static int hf_x509sat_T_bitDay_wednesday = -1;
-static int hf_x509sat_T_bitDay_thursday = -1;
-static int hf_x509sat_T_bitDay_friday = -1;
-static int hf_x509sat_T_bitDay_saturday = -1;
-static int hf_x509sat_T_bitWeek_week1 = -1;
-static int hf_x509sat_T_bitWeek_week2 = -1;
-static int hf_x509sat_T_bitWeek_week3 = -1;
-static int hf_x509sat_T_bitWeek_week4 = -1;
-static int hf_x509sat_T_bitWeek_week5 = -1;
-static int hf_x509sat_T_bitMonth_january = -1;
-static int hf_x509sat_T_bitMonth_february = -1;
-static int hf_x509sat_T_bitMonth_march = -1;
-static int hf_x509sat_T_bitMonth_april = -1;
-static int hf_x509sat_T_bitMonth_may = -1;
-static int hf_x509sat_T_bitMonth_june = -1;
-static int hf_x509sat_T_bitMonth_july = -1;
-static int hf_x509sat_T_bitMonth_august = -1;
-static int hf_x509sat_T_bitMonth_september = -1;
-static int hf_x509sat_T_bitMonth_october = -1;
-static int hf_x509sat_T_bitMonth_november = -1;
-static int hf_x509sat_T_bitMonth_december = -1;
-static int hf_x509sat_T_bitNamedDays_sunday = -1;
-static int hf_x509sat_T_bitNamedDays_monday = -1;
-static int hf_x509sat_T_bitNamedDays_tuesday = -1;
-static int hf_x509sat_T_bitNamedDays_wednesday = -1;
-static int hf_x509sat_T_bitNamedDays_thursday = -1;
-static int hf_x509sat_T_bitNamedDays_friday = -1;
-static int hf_x509sat_T_bitNamedDays_saturday = -1;
+static int hf_x509sat_T_bitDay_sunday;
+static int hf_x509sat_T_bitDay_monday;
+static int hf_x509sat_T_bitDay_tuesday;
+static int hf_x509sat_T_bitDay_wednesday;
+static int hf_x509sat_T_bitDay_thursday;
+static int hf_x509sat_T_bitDay_friday;
+static int hf_x509sat_T_bitDay_saturday;
+static int hf_x509sat_T_bitWeek_week1;
+static int hf_x509sat_T_bitWeek_week2;
+static int hf_x509sat_T_bitWeek_week3;
+static int hf_x509sat_T_bitWeek_week4;
+static int hf_x509sat_T_bitWeek_week5;
+static int hf_x509sat_T_bitMonth_january;
+static int hf_x509sat_T_bitMonth_february;
+static int hf_x509sat_T_bitMonth_march;
+static int hf_x509sat_T_bitMonth_april;
+static int hf_x509sat_T_bitMonth_may;
+static int hf_x509sat_T_bitMonth_june;
+static int hf_x509sat_T_bitMonth_july;
+static int hf_x509sat_T_bitMonth_august;
+static int hf_x509sat_T_bitMonth_september;
+static int hf_x509sat_T_bitMonth_october;
+static int hf_x509sat_T_bitMonth_november;
+static int hf_x509sat_T_bitMonth_december;
+static int hf_x509sat_T_bitNamedDays_sunday;
+static int hf_x509sat_T_bitNamedDays_monday;
+static int hf_x509sat_T_bitNamedDays_tuesday;
+static int hf_x509sat_T_bitNamedDays_wednesday;
+static int hf_x509sat_T_bitNamedDays_thursday;
+static int hf_x509sat_T_bitNamedDays_friday;
+static int hf_x509sat_T_bitNamedDays_saturday;
 
 /* Initialize the subtree pointers */
-static gint ett_x509sat_DirectoryString = -1;
-static gint ett_x509sat_Guide = -1;
-static gint ett_x509sat_Criteria = -1;
-static gint ett_x509sat_SET_OF_Criteria = -1;
-static gint ett_x509sat_CriteriaItem = -1;
-static gint ett_x509sat_EnhancedGuide = -1;
-static gint ett_x509sat_PostalAddress = -1;
-static gint ett_x509sat_TelexNumber = -1;
-static gint ett_x509sat_FacsimileTelephoneNumber = -1;
-static gint ett_x509sat_PreferredDeliveryMethod = -1;
-static gint ett_x509sat_PresentationAddress = -1;
-static gint ett_x509sat_T_nAddresses = -1;
-static gint ett_x509sat_ProtocolInformation = -1;
-static gint ett_x509sat_T_profiles = -1;
-static gint ett_x509sat_NameAndOptionalUID = -1;
-static gint ett_x509sat_MultipleMatchingLocalities = -1;
-static gint ett_x509sat_SEQUENCE_OF_AttributeValueAssertion = -1;
-static gint ett_x509sat_SubstringAssertion = -1;
-static gint ett_x509sat_SubstringAssertion_item = -1;
-static gint ett_x509sat_CaseIgnoreListMatch = -1;
-static gint ett_x509sat_OctetSubstringAssertion = -1;
-static gint ett_x509sat_OctetSubstringAssertion_item = -1;
-static gint ett_x509sat_ZonalSelect = -1;
-static gint ett_x509sat_TimeSpecification = -1;
-static gint ett_x509sat_T_time = -1;
-static gint ett_x509sat_T_absolute = -1;
-static gint ett_x509sat_SET_OF_Period = -1;
-static gint ett_x509sat_Period = -1;
-static gint ett_x509sat_SET_OF_DayTimeBand = -1;
-static gint ett_x509sat_T_days = -1;
-static gint ett_x509sat_T_intDay = -1;
-static gint ett_x509sat_T_bitDay = -1;
-static gint ett_x509sat_T_weeks = -1;
-static gint ett_x509sat_T_intWeek = -1;
-static gint ett_x509sat_T_bitWeek = -1;
-static gint ett_x509sat_T_months = -1;
-static gint ett_x509sat_T_intMonth = -1;
-static gint ett_x509sat_T_bitMonth = -1;
-static gint ett_x509sat_T_years = -1;
-static gint ett_x509sat_XDayOf = -1;
-static gint ett_x509sat_NamedDay = -1;
-static gint ett_x509sat_T_bitNamedDays = -1;
-static gint ett_x509sat_DayTimeBand = -1;
-static gint ett_x509sat_DayTime = -1;
-static gint ett_x509sat_TimeAssertion = -1;
-static gint ett_x509sat_T_between = -1;
-static gint ett_x509sat_LocaleContextSyntax = -1;
+static gint ett_x509sat_DirectoryString;
+static gint ett_x509sat_Guide;
+static gint ett_x509sat_Criteria;
+static gint ett_x509sat_SET_OF_Criteria;
+static gint ett_x509sat_CriteriaItem;
+static gint ett_x509sat_EnhancedGuide;
+static gint ett_x509sat_PostalAddress;
+static gint ett_x509sat_TelexNumber;
+static gint ett_x509sat_FacsimileTelephoneNumber;
+static gint ett_x509sat_PreferredDeliveryMethod;
+static gint ett_x509sat_PresentationAddress;
+static gint ett_x509sat_T_nAddresses;
+static gint ett_x509sat_ProtocolInformation;
+static gint ett_x509sat_T_profiles;
+static gint ett_x509sat_NameAndOptionalUID;
+static gint ett_x509sat_MultipleMatchingLocalities;
+static gint ett_x509sat_SEQUENCE_OF_AttributeValueAssertion;
+static gint ett_x509sat_SubstringAssertion;
+static gint ett_x509sat_SubstringAssertion_item;
+static gint ett_x509sat_CaseIgnoreListMatch;
+static gint ett_x509sat_OctetSubstringAssertion;
+static gint ett_x509sat_OctetSubstringAssertion_item;
+static gint ett_x509sat_ZonalSelect;
+static gint ett_x509sat_TimeSpecification;
+static gint ett_x509sat_T_time;
+static gint ett_x509sat_T_absolute;
+static gint ett_x509sat_SET_OF_Period;
+static gint ett_x509sat_Period;
+static gint ett_x509sat_SET_OF_DayTimeBand;
+static gint ett_x509sat_T_days;
+static gint ett_x509sat_T_intDay;
+static gint ett_x509sat_T_bitDay;
+static gint ett_x509sat_T_weeks;
+static gint ett_x509sat_T_intWeek;
+static gint ett_x509sat_T_bitWeek;
+static gint ett_x509sat_T_months;
+static gint ett_x509sat_T_intMonth;
+static gint ett_x509sat_T_bitMonth;
+static gint ett_x509sat_T_years;
+static gint ett_x509sat_XDayOf;
+static gint ett_x509sat_NamedDay;
+static gint ett_x509sat_T_bitNamedDays;
+static gint ett_x509sat_DayTimeBand;
+static gint ett_x509sat_DayTime;
+static gint ett_x509sat_TimeAssertion;
+static gint ett_x509sat_T_between;
+static gint ett_x509sat_LocaleContextSyntax;
 
 /*--- Cyclic dependencies ---*/
 
@@ -1438,7 +1438,7 @@ dissect_x509sat_SyntaxUTCTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
   /* the 2-digit year can only be in the range 1950..2049 https://tools.ietf.org/html/rfc5280#section-4.1.2.5.1 */
   offset = dissect_ber_UTCTime(implicit_tag, actx, tree, tvb, offset, hf_index, &outstr, &tvblen);
-  if (hf_index >= 0 && outstr) {
+  if (hf_index > 0 && outstr) {
     newstr = wmem_strconcat(actx->pinfo->pool, outstr[0] < '5' ? "20": "19", outstr, NULL);
     proto_tree_add_string(tree, hf_index, tvb, offset - tvblen, tvblen, newstr);
   }

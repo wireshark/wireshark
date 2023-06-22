@@ -114,290 +114,290 @@ void proto_reg_handoff_ldap(void);
 
 /* Initialize the protocol and registered fields */
 static int ldap_tap = -1;
-static int proto_ldap = -1;
-static int proto_cldap = -1;
+static int proto_ldap;
+static int proto_cldap;
 
-static int hf_ldap_sasl_buffer_length = -1;
-static int hf_ldap_response_in = -1;
-static int hf_ldap_response_to = -1;
-static int hf_ldap_time = -1;
-static int hf_ldap_guid = -1;
+static int hf_ldap_sasl_buffer_length;
+static int hf_ldap_response_in;
+static int hf_ldap_response_to;
+static int hf_ldap_time;
+static int hf_ldap_guid;
 
-static int hf_mscldap_ntver_flags = -1;
-static int hf_mscldap_ntver_flags_v1 = -1;
-static int hf_mscldap_ntver_flags_v5 = -1;
-static int hf_mscldap_ntver_flags_v5ex = -1;
-static int hf_mscldap_ntver_flags_v5ep = -1;
-static int hf_mscldap_ntver_flags_vcs = -1;
-static int hf_mscldap_ntver_flags_vnt4 = -1;
-static int hf_mscldap_ntver_flags_vpdc = -1;
-static int hf_mscldap_ntver_flags_vip = -1;
-static int hf_mscldap_ntver_flags_vl = -1;
-static int hf_mscldap_ntver_flags_vgc = -1;
+static int hf_mscldap_ntver_flags;
+static int hf_mscldap_ntver_flags_v1;
+static int hf_mscldap_ntver_flags_v5;
+static int hf_mscldap_ntver_flags_v5ex;
+static int hf_mscldap_ntver_flags_v5ep;
+static int hf_mscldap_ntver_flags_vcs;
+static int hf_mscldap_ntver_flags_vnt4;
+static int hf_mscldap_ntver_flags_vpdc;
+static int hf_mscldap_ntver_flags_vip;
+static int hf_mscldap_ntver_flags_vl;
+static int hf_mscldap_ntver_flags_vgc;
 
-static int hf_mscldap_netlogon_ipaddress_family = -1;
-static int hf_mscldap_netlogon_ipaddress_port = -1;
-static int hf_mscldap_netlogon_ipaddress = -1;
-static int hf_mscldap_netlogon_ipaddress_ipv4 = -1;
-static int hf_mscldap_netlogon_opcode = -1;
-static int hf_mscldap_netlogon_flags = -1;
-static int hf_mscldap_netlogon_flags_pdc = -1;
-static int hf_mscldap_netlogon_flags_gc = -1;
-static int hf_mscldap_netlogon_flags_ldap = -1;
-static int hf_mscldap_netlogon_flags_ds = -1;
-static int hf_mscldap_netlogon_flags_kdc = -1;
-static int hf_mscldap_netlogon_flags_timeserv = -1;
-static int hf_mscldap_netlogon_flags_closest = -1;
-static int hf_mscldap_netlogon_flags_writable = -1;
-static int hf_mscldap_netlogon_flags_good_timeserv = -1;
-static int hf_mscldap_netlogon_flags_ndnc = -1;
-static int hf_mscldap_netlogon_flags_fnc = -1;
-static int hf_mscldap_netlogon_flags_dnc = -1;
-static int hf_mscldap_netlogon_flags_dns = -1;
-static int hf_mscldap_netlogon_flags_wdc = -1;
-static int hf_mscldap_netlogon_flags_rodc = -1;
-static int hf_mscldap_domain_guid = -1;
-static int hf_mscldap_forest = -1;
-static int hf_mscldap_domain = -1;
-static int hf_mscldap_hostname = -1;
-static int hf_mscldap_nb_domain_z = -1;
-static int hf_mscldap_nb_domain = -1;
-static int hf_mscldap_nb_hostname_z = -1;
-static int hf_mscldap_nb_hostname = -1;
-static int hf_mscldap_username_z = -1;
-static int hf_mscldap_username = -1;
-static int hf_mscldap_sitename = -1;
-static int hf_mscldap_clientsitename = -1;
-static int hf_mscldap_netlogon_lm_token = -1;
-static int hf_mscldap_netlogon_nt_token = -1;
-static int hf_ldap_sid = -1;
-static int hf_ldap_AccessMask_ADS_CREATE_CHILD = -1;
-static int hf_ldap_AccessMask_ADS_DELETE_CHILD = -1;
-static int hf_ldap_AccessMask_ADS_LIST = -1;
-static int hf_ldap_AccessMask_ADS_SELF_WRITE = -1;
-static int hf_ldap_AccessMask_ADS_READ_PROP = -1;
-static int hf_ldap_AccessMask_ADS_WRITE_PROP = -1;
-static int hf_ldap_AccessMask_ADS_DELETE_TREE = -1;
-static int hf_ldap_AccessMask_ADS_LIST_OBJECT = -1;
-static int hf_ldap_AccessMask_ADS_CONTROL_ACCESS = -1;
-static int hf_ldap_LDAPMessage_PDU = -1;
-static int hf_ldap_object_security_flag = -1;
-static int hf_ldap_ancestor_first_flag = -1;
-static int hf_ldap_public_data_only_flag = -1;
-static int hf_ldap_incremental_value_flag = -1;
-static int hf_ldap_oid = -1;
-static int hf_ldap_gssapi_encrypted_payload = -1;
+static int hf_mscldap_netlogon_ipaddress_family;
+static int hf_mscldap_netlogon_ipaddress_port;
+static int hf_mscldap_netlogon_ipaddress;
+static int hf_mscldap_netlogon_ipaddress_ipv4;
+static int hf_mscldap_netlogon_opcode;
+static int hf_mscldap_netlogon_flags;
+static int hf_mscldap_netlogon_flags_pdc;
+static int hf_mscldap_netlogon_flags_gc;
+static int hf_mscldap_netlogon_flags_ldap;
+static int hf_mscldap_netlogon_flags_ds;
+static int hf_mscldap_netlogon_flags_kdc;
+static int hf_mscldap_netlogon_flags_timeserv;
+static int hf_mscldap_netlogon_flags_closest;
+static int hf_mscldap_netlogon_flags_writable;
+static int hf_mscldap_netlogon_flags_good_timeserv;
+static int hf_mscldap_netlogon_flags_ndnc;
+static int hf_mscldap_netlogon_flags_fnc;
+static int hf_mscldap_netlogon_flags_dnc;
+static int hf_mscldap_netlogon_flags_dns;
+static int hf_mscldap_netlogon_flags_wdc;
+static int hf_mscldap_netlogon_flags_rodc;
+static int hf_mscldap_domain_guid;
+static int hf_mscldap_forest;
+static int hf_mscldap_domain;
+static int hf_mscldap_hostname;
+static int hf_mscldap_nb_domain_z;
+static int hf_mscldap_nb_domain;
+static int hf_mscldap_nb_hostname_z;
+static int hf_mscldap_nb_hostname;
+static int hf_mscldap_username_z;
+static int hf_mscldap_username;
+static int hf_mscldap_sitename;
+static int hf_mscldap_clientsitename;
+static int hf_mscldap_netlogon_lm_token;
+static int hf_mscldap_netlogon_nt_token;
+static int hf_ldap_sid;
+static int hf_ldap_AccessMask_ADS_CREATE_CHILD;
+static int hf_ldap_AccessMask_ADS_DELETE_CHILD;
+static int hf_ldap_AccessMask_ADS_LIST;
+static int hf_ldap_AccessMask_ADS_SELF_WRITE;
+static int hf_ldap_AccessMask_ADS_READ_PROP;
+static int hf_ldap_AccessMask_ADS_WRITE_PROP;
+static int hf_ldap_AccessMask_ADS_DELETE_TREE;
+static int hf_ldap_AccessMask_ADS_LIST_OBJECT;
+static int hf_ldap_AccessMask_ADS_CONTROL_ACCESS;
+static int hf_ldap_LDAPMessage_PDU;
+static int hf_ldap_object_security_flag;
+static int hf_ldap_ancestor_first_flag;
+static int hf_ldap_public_data_only_flag;
+static int hf_ldap_incremental_value_flag;
+static int hf_ldap_oid;
+static int hf_ldap_gssapi_encrypted_payload;
 
-static int hf_ldap_SearchControlValue_PDU = -1;   /* SearchControlValue */
-static int hf_ldap_SortKeyList_PDU = -1;          /* SortKeyList */
-static int hf_ldap_SortResult_PDU = -1;           /* SortResult */
-static int hf_ldap_DirSyncControlValue_PDU = -1;  /* DirSyncControlValue */
-static int hf_ldap_PasswdModifyRequestValue_PDU = -1;  /* PasswdModifyRequestValue */
-static int hf_ldap_CancelRequestValue_PDU = -1;   /* CancelRequestValue */
-static int hf_ldap_SyncRequestValue_PDU = -1;     /* SyncRequestValue */
-static int hf_ldap_SyncStateValue_PDU = -1;       /* SyncStateValue */
-static int hf_ldap_SyncDoneValue_PDU = -1;        /* SyncDoneValue */
-static int hf_ldap_SyncInfoValue_PDU = -1;        /* SyncInfoValue */
-static int hf_ldap_PasswordPolicyResponseValue_PDU = -1;  /* PasswordPolicyResponseValue */
-static int hf_ldap_messageID = -1;                /* MessageID */
-static int hf_ldap_protocolOp = -1;               /* ProtocolOp */
-static int hf_ldap_controls = -1;                 /* Controls */
-static int hf_ldap_bindRequest = -1;              /* BindRequest */
-static int hf_ldap_bindResponse = -1;             /* BindResponse */
-static int hf_ldap_unbindRequest = -1;            /* UnbindRequest */
-static int hf_ldap_searchRequest = -1;            /* SearchRequest */
-static int hf_ldap_searchResEntry = -1;           /* SearchResultEntry */
-static int hf_ldap_searchResDone = -1;            /* SearchResultDone */
-static int hf_ldap_searchResRef = -1;             /* SearchResultReference */
-static int hf_ldap_modifyRequest = -1;            /* ModifyRequest */
-static int hf_ldap_modifyResponse = -1;           /* ModifyResponse */
-static int hf_ldap_addRequest = -1;               /* AddRequest */
-static int hf_ldap_addResponse = -1;              /* AddResponse */
-static int hf_ldap_delRequest = -1;               /* DelRequest */
-static int hf_ldap_delResponse = -1;              /* DelResponse */
-static int hf_ldap_modDNRequest = -1;             /* ModifyDNRequest */
-static int hf_ldap_modDNResponse = -1;            /* ModifyDNResponse */
-static int hf_ldap_compareRequest = -1;           /* CompareRequest */
-static int hf_ldap_compareResponse = -1;          /* CompareResponse */
-static int hf_ldap_abandonRequest = -1;           /* AbandonRequest */
-static int hf_ldap_extendedReq = -1;              /* ExtendedRequest */
-static int hf_ldap_extendedResp = -1;             /* ExtendedResponse */
-static int hf_ldap_intermediateResponse = -1;     /* IntermediateResponse */
-static int hf_ldap_AttributeDescriptionList_item = -1;  /* AttributeDescription */
-static int hf_ldap_attributeDesc = -1;            /* AttributeDescription */
-static int hf_ldap_assertionValue = -1;           /* AssertionValue */
-static int hf_ldap_type = -1;                     /* AttributeDescription */
-static int hf_ldap_vals = -1;                     /* SET_OF_AttributeValue */
-static int hf_ldap_vals_item = -1;                /* AttributeValue */
-static int hf_ldap_resultCode = -1;               /* T_resultCode */
-static int hf_ldap_matchedDN = -1;                /* LDAPDN */
-static int hf_ldap_errorMessage = -1;             /* ErrorMessage */
-static int hf_ldap_referral = -1;                 /* Referral */
-static int hf_ldap_Referral_item = -1;            /* LDAPURL */
-static int hf_ldap_Controls_item = -1;            /* Control */
-static int hf_ldap_controlType = -1;              /* ControlType */
-static int hf_ldap_criticality = -1;              /* BOOLEAN */
-static int hf_ldap_controlValue = -1;             /* T_controlValue */
-static int hf_ldap_version = -1;                  /* INTEGER_1_127 */
-static int hf_ldap_name = -1;                     /* LDAPDN */
-static int hf_ldap_authentication = -1;           /* AuthenticationChoice */
-static int hf_ldap_simple = -1;                   /* Simple */
-static int hf_ldap_sasl = -1;                     /* SaslCredentials */
-static int hf_ldap_ntlmsspNegotiate = -1;         /* T_ntlmsspNegotiate */
-static int hf_ldap_ntlmsspAuth = -1;              /* T_ntlmsspAuth */
-static int hf_ldap_mechanism = -1;                /* Mechanism */
-static int hf_ldap_credentials = -1;              /* Credentials */
-static int hf_ldap_bindResponse_resultCode = -1;  /* BindResponse_resultCode */
-static int hf_ldap_bindResponse_matchedDN = -1;   /* T_bindResponse_matchedDN */
-static int hf_ldap_serverSaslCreds = -1;          /* ServerSaslCreds */
-static int hf_ldap_baseObject = -1;               /* LDAPDN */
-static int hf_ldap_scope = -1;                    /* T_scope */
-static int hf_ldap_derefAliases = -1;             /* T_derefAliases */
-static int hf_ldap_sizeLimit = -1;                /* INTEGER_0_maxInt */
-static int hf_ldap_timeLimit = -1;                /* INTEGER_0_maxInt */
-static int hf_ldap_typesOnly = -1;                /* BOOLEAN */
-static int hf_ldap_filter = -1;                   /* T_filter */
-static int hf_ldap_searchRequest_attributes = -1;  /* AttributeDescriptionList */
-static int hf_ldap_and = -1;                      /* T_and */
-static int hf_ldap_and_item = -1;                 /* T_and_item */
-static int hf_ldap_or = -1;                       /* T_or */
-static int hf_ldap_or_item = -1;                  /* T_or_item */
-static int hf_ldap_not = -1;                      /* T_not */
-static int hf_ldap_equalityMatch = -1;            /* T_equalityMatch */
-static int hf_ldap_substrings = -1;               /* SubstringFilter */
-static int hf_ldap_greaterOrEqual = -1;           /* T_greaterOrEqual */
-static int hf_ldap_lessOrEqual = -1;              /* T_lessOrEqual */
-static int hf_ldap_present = -1;                  /* T_present */
-static int hf_ldap_approxMatch = -1;              /* T_approxMatch */
-static int hf_ldap_extensibleMatch = -1;          /* T_extensibleMatch */
-static int hf_ldap_substringFilter_substrings = -1;  /* T_substringFilter_substrings */
-static int hf_ldap_substringFilter_substrings_item = -1;  /* T_substringFilter_substrings_item */
-static int hf_ldap_initial = -1;                  /* LDAPString */
-static int hf_ldap_any = -1;                      /* LDAPString */
-static int hf_ldap_final = -1;                    /* LDAPString */
-static int hf_ldap_matchingRule = -1;             /* MatchingRuleId */
-static int hf_ldap_matchValue = -1;               /* AssertionValue */
-static int hf_ldap_dnAttributes = -1;             /* T_dnAttributes */
-static int hf_ldap_objectName = -1;               /* LDAPDN */
-static int hf_ldap_searchResultEntry_attributes = -1;  /* PartialAttributeList */
-static int hf_ldap_PartialAttributeList_item = -1;  /* PartialAttributeList_item */
-static int hf_ldap__untag_item = -1;              /* LDAPURL */
-static int hf_ldap_object = -1;                   /* LDAPDN */
-static int hf_ldap_modifyRequest_modification = -1;  /* ModifyRequest_modification */
-static int hf_ldap_modifyRequest_modification_item = -1;  /* T_modifyRequest_modification_item */
-static int hf_ldap_operation = -1;                /* T_operation */
-static int hf_ldap_modification = -1;             /* AttributeTypeAndValues */
-static int hf_ldap_entry = -1;                    /* LDAPDN */
-static int hf_ldap_attributes = -1;               /* AttributeList */
-static int hf_ldap_AttributeList_item = -1;       /* AttributeList_item */
-static int hf_ldap_newrdn = -1;                   /* RelativeLDAPDN */
-static int hf_ldap_deleteoldrdn = -1;             /* BOOLEAN */
-static int hf_ldap_newSuperior = -1;              /* LDAPDN */
-static int hf_ldap_ava = -1;                      /* AttributeValueAssertion */
-static int hf_ldap_requestName = -1;              /* LDAPOID */
-static int hf_ldap_requestValue = -1;             /* T_requestValue */
-static int hf_ldap_extendedResponse_resultCode = -1;  /* ExtendedResponse_resultCode */
-static int hf_ldap_responseName = -1;             /* ResponseName */
-static int hf_ldap_response = -1;                 /* OCTET_STRING */
-static int hf_ldap_intermediateResponse_responseValue = -1;  /* T_intermediateResponse_responseValue */
-static int hf_ldap_size = -1;                     /* INTEGER */
-static int hf_ldap_cookie = -1;                   /* OCTET_STRING */
-static int hf_ldap_SortKeyList_item = -1;         /* SortKeyList_item */
-static int hf_ldap_attributeType = -1;            /* AttributeDescription */
-static int hf_ldap_orderingRule = -1;             /* MatchingRuleId */
-static int hf_ldap_reverseOrder = -1;             /* BOOLEAN */
-static int hf_ldap_sortResult = -1;               /* T_sortResult */
-static int hf_ldap_flags = -1;                    /* DirSyncFlags */
-static int hf_ldap_maxBytes = -1;                 /* INTEGER */
-static int hf_ldap_userIdentity = -1;             /* OCTET_STRING */
-static int hf_ldap_oldPasswd = -1;                /* OCTET_STRING */
-static int hf_ldap_newPasswd = -1;                /* OCTET_STRING */
-static int hf_ldap_cancelID = -1;                 /* MessageID */
-static int hf_ldap_mode = -1;                     /* T_mode */
-static int hf_ldap_reloadHint = -1;               /* BOOLEAN */
-static int hf_ldap_state = -1;                    /* T_state */
-static int hf_ldap_entryUUID = -1;                /* SyncUUID */
-static int hf_ldap_refreshDeletes = -1;           /* BOOLEAN */
-static int hf_ldap_newcookie = -1;                /* OCTET_STRING */
-static int hf_ldap_refreshDelete = -1;            /* T_refreshDelete */
-static int hf_ldap_refreshDone = -1;              /* BOOLEAN */
-static int hf_ldap_refreshPresent = -1;           /* T_refreshPresent */
-static int hf_ldap_syncIdSet = -1;                /* T_syncIdSet */
-static int hf_ldap_syncUUIDs = -1;                /* SET_OF_SyncUUID */
-static int hf_ldap_syncUUIDs_item = -1;           /* SyncUUID */
-static int hf_ldap_warning = -1;                  /* T_warning */
-static int hf_ldap_timeBeforeExpiration = -1;     /* INTEGER_0_maxInt */
-static int hf_ldap_graceAuthNsRemaining = -1;     /* INTEGER_0_maxInt */
-static int hf_ldap_error = -1;                    /* T_error */
+static int hf_ldap_SearchControlValue_PDU;        /* SearchControlValue */
+static int hf_ldap_SortKeyList_PDU;               /* SortKeyList */
+static int hf_ldap_SortResult_PDU;                /* SortResult */
+static int hf_ldap_DirSyncControlValue_PDU;       /* DirSyncControlValue */
+static int hf_ldap_PasswdModifyRequestValue_PDU;  /* PasswdModifyRequestValue */
+static int hf_ldap_CancelRequestValue_PDU;        /* CancelRequestValue */
+static int hf_ldap_SyncRequestValue_PDU;          /* SyncRequestValue */
+static int hf_ldap_SyncStateValue_PDU;            /* SyncStateValue */
+static int hf_ldap_SyncDoneValue_PDU;             /* SyncDoneValue */
+static int hf_ldap_SyncInfoValue_PDU;             /* SyncInfoValue */
+static int hf_ldap_PasswordPolicyResponseValue_PDU;  /* PasswordPolicyResponseValue */
+static int hf_ldap_messageID;                     /* MessageID */
+static int hf_ldap_protocolOp;                    /* ProtocolOp */
+static int hf_ldap_controls;                      /* Controls */
+static int hf_ldap_bindRequest;                   /* BindRequest */
+static int hf_ldap_bindResponse;                  /* BindResponse */
+static int hf_ldap_unbindRequest;                 /* UnbindRequest */
+static int hf_ldap_searchRequest;                 /* SearchRequest */
+static int hf_ldap_searchResEntry;                /* SearchResultEntry */
+static int hf_ldap_searchResDone;                 /* SearchResultDone */
+static int hf_ldap_searchResRef;                  /* SearchResultReference */
+static int hf_ldap_modifyRequest;                 /* ModifyRequest */
+static int hf_ldap_modifyResponse;                /* ModifyResponse */
+static int hf_ldap_addRequest;                    /* AddRequest */
+static int hf_ldap_addResponse;                   /* AddResponse */
+static int hf_ldap_delRequest;                    /* DelRequest */
+static int hf_ldap_delResponse;                   /* DelResponse */
+static int hf_ldap_modDNRequest;                  /* ModifyDNRequest */
+static int hf_ldap_modDNResponse;                 /* ModifyDNResponse */
+static int hf_ldap_compareRequest;                /* CompareRequest */
+static int hf_ldap_compareResponse;               /* CompareResponse */
+static int hf_ldap_abandonRequest;                /* AbandonRequest */
+static int hf_ldap_extendedReq;                   /* ExtendedRequest */
+static int hf_ldap_extendedResp;                  /* ExtendedResponse */
+static int hf_ldap_intermediateResponse;          /* IntermediateResponse */
+static int hf_ldap_AttributeDescriptionList_item;  /* AttributeDescription */
+static int hf_ldap_attributeDesc;                 /* AttributeDescription */
+static int hf_ldap_assertionValue;                /* AssertionValue */
+static int hf_ldap_type;                          /* AttributeDescription */
+static int hf_ldap_vals;                          /* SET_OF_AttributeValue */
+static int hf_ldap_vals_item;                     /* AttributeValue */
+static int hf_ldap_resultCode;                    /* T_resultCode */
+static int hf_ldap_matchedDN;                     /* LDAPDN */
+static int hf_ldap_errorMessage;                  /* ErrorMessage */
+static int hf_ldap_referral;                      /* Referral */
+static int hf_ldap_Referral_item;                 /* LDAPURL */
+static int hf_ldap_Controls_item;                 /* Control */
+static int hf_ldap_controlType;                   /* ControlType */
+static int hf_ldap_criticality;                   /* BOOLEAN */
+static int hf_ldap_controlValue;                  /* T_controlValue */
+static int hf_ldap_version;                       /* INTEGER_1_127 */
+static int hf_ldap_name;                          /* LDAPDN */
+static int hf_ldap_authentication;                /* AuthenticationChoice */
+static int hf_ldap_simple;                        /* Simple */
+static int hf_ldap_sasl;                          /* SaslCredentials */
+static int hf_ldap_ntlmsspNegotiate;              /* T_ntlmsspNegotiate */
+static int hf_ldap_ntlmsspAuth;                   /* T_ntlmsspAuth */
+static int hf_ldap_mechanism;                     /* Mechanism */
+static int hf_ldap_credentials;                   /* Credentials */
+static int hf_ldap_bindResponse_resultCode;       /* BindResponse_resultCode */
+static int hf_ldap_bindResponse_matchedDN;        /* T_bindResponse_matchedDN */
+static int hf_ldap_serverSaslCreds;               /* ServerSaslCreds */
+static int hf_ldap_baseObject;                    /* LDAPDN */
+static int hf_ldap_scope;                         /* T_scope */
+static int hf_ldap_derefAliases;                  /* T_derefAliases */
+static int hf_ldap_sizeLimit;                     /* INTEGER_0_maxInt */
+static int hf_ldap_timeLimit;                     /* INTEGER_0_maxInt */
+static int hf_ldap_typesOnly;                     /* BOOLEAN */
+static int hf_ldap_filter;                        /* T_filter */
+static int hf_ldap_searchRequest_attributes;      /* AttributeDescriptionList */
+static int hf_ldap_and;                           /* T_and */
+static int hf_ldap_and_item;                      /* T_and_item */
+static int hf_ldap_or;                            /* T_or */
+static int hf_ldap_or_item;                       /* T_or_item */
+static int hf_ldap_not;                           /* T_not */
+static int hf_ldap_equalityMatch;                 /* T_equalityMatch */
+static int hf_ldap_substrings;                    /* SubstringFilter */
+static int hf_ldap_greaterOrEqual;                /* T_greaterOrEqual */
+static int hf_ldap_lessOrEqual;                   /* T_lessOrEqual */
+static int hf_ldap_present;                       /* T_present */
+static int hf_ldap_approxMatch;                   /* T_approxMatch */
+static int hf_ldap_extensibleMatch;               /* T_extensibleMatch */
+static int hf_ldap_substringFilter_substrings;    /* T_substringFilter_substrings */
+static int hf_ldap_substringFilter_substrings_item;  /* T_substringFilter_substrings_item */
+static int hf_ldap_initial;                       /* LDAPString */
+static int hf_ldap_any;                           /* LDAPString */
+static int hf_ldap_final;                         /* LDAPString */
+static int hf_ldap_matchingRule;                  /* MatchingRuleId */
+static int hf_ldap_matchValue;                    /* AssertionValue */
+static int hf_ldap_dnAttributes;                  /* T_dnAttributes */
+static int hf_ldap_objectName;                    /* LDAPDN */
+static int hf_ldap_searchResultEntry_attributes;  /* PartialAttributeList */
+static int hf_ldap_PartialAttributeList_item;     /* PartialAttributeList_item */
+static int hf_ldap__untag_item;                   /* LDAPURL */
+static int hf_ldap_object;                        /* LDAPDN */
+static int hf_ldap_modifyRequest_modification;    /* ModifyRequest_modification */
+static int hf_ldap_modifyRequest_modification_item;  /* T_modifyRequest_modification_item */
+static int hf_ldap_operation;                     /* T_operation */
+static int hf_ldap_modification;                  /* AttributeTypeAndValues */
+static int hf_ldap_entry;                         /* LDAPDN */
+static int hf_ldap_attributes;                    /* AttributeList */
+static int hf_ldap_AttributeList_item;            /* AttributeList_item */
+static int hf_ldap_newrdn;                        /* RelativeLDAPDN */
+static int hf_ldap_deleteoldrdn;                  /* BOOLEAN */
+static int hf_ldap_newSuperior;                   /* LDAPDN */
+static int hf_ldap_ava;                           /* AttributeValueAssertion */
+static int hf_ldap_requestName;                   /* LDAPOID */
+static int hf_ldap_requestValue;                  /* T_requestValue */
+static int hf_ldap_extendedResponse_resultCode;   /* ExtendedResponse_resultCode */
+static int hf_ldap_responseName;                  /* ResponseName */
+static int hf_ldap_response;                      /* OCTET_STRING */
+static int hf_ldap_intermediateResponse_responseValue;  /* T_intermediateResponse_responseValue */
+static int hf_ldap_size;                          /* INTEGER */
+static int hf_ldap_cookie;                        /* OCTET_STRING */
+static int hf_ldap_SortKeyList_item;              /* SortKeyList_item */
+static int hf_ldap_attributeType;                 /* AttributeDescription */
+static int hf_ldap_orderingRule;                  /* MatchingRuleId */
+static int hf_ldap_reverseOrder;                  /* BOOLEAN */
+static int hf_ldap_sortResult;                    /* T_sortResult */
+static int hf_ldap_flags;                         /* DirSyncFlags */
+static int hf_ldap_maxBytes;                      /* INTEGER */
+static int hf_ldap_userIdentity;                  /* OCTET_STRING */
+static int hf_ldap_oldPasswd;                     /* OCTET_STRING */
+static int hf_ldap_newPasswd;                     /* OCTET_STRING */
+static int hf_ldap_cancelID;                      /* MessageID */
+static int hf_ldap_mode;                          /* T_mode */
+static int hf_ldap_reloadHint;                    /* BOOLEAN */
+static int hf_ldap_state;                         /* T_state */
+static int hf_ldap_entryUUID;                     /* SyncUUID */
+static int hf_ldap_refreshDeletes;                /* BOOLEAN */
+static int hf_ldap_newcookie;                     /* OCTET_STRING */
+static int hf_ldap_refreshDelete;                 /* T_refreshDelete */
+static int hf_ldap_refreshDone;                   /* BOOLEAN */
+static int hf_ldap_refreshPresent;                /* T_refreshPresent */
+static int hf_ldap_syncIdSet;                     /* T_syncIdSet */
+static int hf_ldap_syncUUIDs;                     /* SET_OF_SyncUUID */
+static int hf_ldap_syncUUIDs_item;                /* SyncUUID */
+static int hf_ldap_warning;                       /* T_warning */
+static int hf_ldap_timeBeforeExpiration;          /* INTEGER_0_maxInt */
+static int hf_ldap_graceAuthNsRemaining;          /* INTEGER_0_maxInt */
+static int hf_ldap_error;                         /* T_error */
 
 /* Initialize the subtree pointers */
-static gint ett_ldap = -1;
-static gint ett_ldap_msg = -1;
-static gint ett_ldap_sasl_blob = -1;
-static gint ett_ldap_payload = -1;
-static gint ett_mscldap_netlogon_flags = -1;
-static gint ett_mscldap_ntver_flags = -1;
-static gint ett_mscldap_ipdetails = -1;
-static gint ett_ldap_DirSyncFlagsSubEntry = -1;
+static gint ett_ldap;
+static gint ett_ldap_msg;
+static gint ett_ldap_sasl_blob;
+static gint ett_ldap_payload;
+static gint ett_mscldap_netlogon_flags;
+static gint ett_mscldap_ntver_flags;
+static gint ett_mscldap_ipdetails;
+static gint ett_ldap_DirSyncFlagsSubEntry;
 
-static gint ett_ldap_LDAPMessage = -1;
-static gint ett_ldap_ProtocolOp = -1;
-static gint ett_ldap_AttributeDescriptionList = -1;
-static gint ett_ldap_AttributeValueAssertion = -1;
-static gint ett_ldap_Attribute = -1;
-static gint ett_ldap_SET_OF_AttributeValue = -1;
-static gint ett_ldap_LDAPResult = -1;
-static gint ett_ldap_Referral = -1;
-static gint ett_ldap_Controls = -1;
-static gint ett_ldap_Control = -1;
-static gint ett_ldap_BindRequest_U = -1;
-static gint ett_ldap_AuthenticationChoice = -1;
-static gint ett_ldap_SaslCredentials = -1;
-static gint ett_ldap_BindResponse_U = -1;
-static gint ett_ldap_SearchRequest_U = -1;
-static gint ett_ldap_Filter = -1;
-static gint ett_ldap_T_and = -1;
-static gint ett_ldap_T_or = -1;
-static gint ett_ldap_SubstringFilter = -1;
-static gint ett_ldap_T_substringFilter_substrings = -1;
-static gint ett_ldap_T_substringFilter_substrings_item = -1;
-static gint ett_ldap_MatchingRuleAssertion = -1;
-static gint ett_ldap_SearchResultEntry_U = -1;
-static gint ett_ldap_PartialAttributeList = -1;
-static gint ett_ldap_PartialAttributeList_item = -1;
-static gint ett_ldap_SEQUENCE_OF_LDAPURL = -1;
-static gint ett_ldap_ModifyRequest_U = -1;
-static gint ett_ldap_ModifyRequest_modification = -1;
-static gint ett_ldap_T_modifyRequest_modification_item = -1;
-static gint ett_ldap_AttributeTypeAndValues = -1;
-static gint ett_ldap_AddRequest_U = -1;
-static gint ett_ldap_AttributeList = -1;
-static gint ett_ldap_AttributeList_item = -1;
-static gint ett_ldap_ModifyDNRequest_U = -1;
-static gint ett_ldap_CompareRequest_U = -1;
-static gint ett_ldap_ExtendedRequest_U = -1;
-static gint ett_ldap_ExtendedResponse_U = -1;
-static gint ett_ldap_IntermediateResponse_U = -1;
-static gint ett_ldap_SearchControlValue = -1;
-static gint ett_ldap_SortKeyList = -1;
-static gint ett_ldap_SortKeyList_item = -1;
-static gint ett_ldap_SortResult = -1;
-static gint ett_ldap_DirSyncControlValue = -1;
-static gint ett_ldap_PasswdModifyRequestValue = -1;
-static gint ett_ldap_CancelRequestValue = -1;
-static gint ett_ldap_SyncRequestValue = -1;
-static gint ett_ldap_SyncStateValue = -1;
-static gint ett_ldap_SyncDoneValue = -1;
-static gint ett_ldap_SyncInfoValue = -1;
-static gint ett_ldap_T_refreshDelete = -1;
-static gint ett_ldap_T_refreshPresent = -1;
-static gint ett_ldap_T_syncIdSet = -1;
-static gint ett_ldap_SET_OF_SyncUUID = -1;
-static gint ett_ldap_PasswordPolicyResponseValue = -1;
-static gint ett_ldap_T_warning = -1;
+static gint ett_ldap_LDAPMessage;
+static gint ett_ldap_ProtocolOp;
+static gint ett_ldap_AttributeDescriptionList;
+static gint ett_ldap_AttributeValueAssertion;
+static gint ett_ldap_Attribute;
+static gint ett_ldap_SET_OF_AttributeValue;
+static gint ett_ldap_LDAPResult;
+static gint ett_ldap_Referral;
+static gint ett_ldap_Controls;
+static gint ett_ldap_Control;
+static gint ett_ldap_BindRequest_U;
+static gint ett_ldap_AuthenticationChoice;
+static gint ett_ldap_SaslCredentials;
+static gint ett_ldap_BindResponse_U;
+static gint ett_ldap_SearchRequest_U;
+static gint ett_ldap_Filter;
+static gint ett_ldap_T_and;
+static gint ett_ldap_T_or;
+static gint ett_ldap_SubstringFilter;
+static gint ett_ldap_T_substringFilter_substrings;
+static gint ett_ldap_T_substringFilter_substrings_item;
+static gint ett_ldap_MatchingRuleAssertion;
+static gint ett_ldap_SearchResultEntry_U;
+static gint ett_ldap_PartialAttributeList;
+static gint ett_ldap_PartialAttributeList_item;
+static gint ett_ldap_SEQUENCE_OF_LDAPURL;
+static gint ett_ldap_ModifyRequest_U;
+static gint ett_ldap_ModifyRequest_modification;
+static gint ett_ldap_T_modifyRequest_modification_item;
+static gint ett_ldap_AttributeTypeAndValues;
+static gint ett_ldap_AddRequest_U;
+static gint ett_ldap_AttributeList;
+static gint ett_ldap_AttributeList_item;
+static gint ett_ldap_ModifyDNRequest_U;
+static gint ett_ldap_CompareRequest_U;
+static gint ett_ldap_ExtendedRequest_U;
+static gint ett_ldap_ExtendedResponse_U;
+static gint ett_ldap_IntermediateResponse_U;
+static gint ett_ldap_SearchControlValue;
+static gint ett_ldap_SortKeyList;
+static gint ett_ldap_SortKeyList_item;
+static gint ett_ldap_SortResult;
+static gint ett_ldap_DirSyncControlValue;
+static gint ett_ldap_PasswdModifyRequestValue;
+static gint ett_ldap_CancelRequestValue;
+static gint ett_ldap_SyncRequestValue;
+static gint ett_ldap_SyncStateValue;
+static gint ett_ldap_SyncDoneValue;
+static gint ett_ldap_SyncInfoValue;
+static gint ett_ldap_T_refreshDelete;
+static gint ett_ldap_T_refreshPresent;
+static gint ett_ldap_T_syncIdSet;
+static gint ett_ldap_SET_OF_SyncUUID;
+static gint ett_ldap_PasswordPolicyResponseValue;
+static gint ett_ldap_T_warning;
 
-static expert_field ei_ldap_exceeded_filter_length = EI_INIT;
-static expert_field ei_ldap_too_many_filter_elements = EI_INIT;
+static expert_field ei_ldap_exceeded_filter_length;
+static expert_field ei_ldap_too_many_filter_elements;
 
 static dissector_table_t ldap_name_dissector_table=NULL;
 static const char *object_identifier_id = NULL; /* LDAP OID */

@@ -57,157 +57,157 @@ int proto_clacse = -1;
 
 
 
-static int hf_acse_direct_reference = -1;         /* T_direct_reference */
-static int hf_acse_indirect_reference = -1;       /* T_indirect_reference */
-static int hf_acse_data_value_descriptor = -1;    /* ObjectDescriptor */
-static int hf_acse_encoding = -1;                 /* T_encoding */
-static int hf_acse_single_ASN1_type = -1;         /* T_single_ASN1_type */
-static int hf_acse_octet_aligned = -1;            /* T_octet_aligned */
-static int hf_acse_arbitrary = -1;                /* BIT_STRING */
-static int hf_acse_aarq = -1;                     /* AARQ_apdu */
-static int hf_acse_aare = -1;                     /* AARE_apdu */
-static int hf_acse_rlrq = -1;                     /* RLRQ_apdu */
-static int hf_acse_rlre = -1;                     /* RLRE_apdu */
-static int hf_acse_abrt = -1;                     /* ABRT_apdu */
-static int hf_acse_adt = -1;                      /* A_DT_apdu */
-static int hf_acse_acrq = -1;                     /* ACRQ_apdu */
-static int hf_acse_acrp = -1;                     /* ACRP_apdu */
-static int hf_acse_aARQ_protocol_version = -1;    /* T_AARQ_protocol_version */
-static int hf_acse_aARQ_aSO_context_name = -1;    /* T_AARQ_aSO_context_name */
-static int hf_acse_called_AP_title = -1;          /* AP_title */
-static int hf_acse_called_AE_qualifier = -1;      /* AE_qualifier */
-static int hf_acse_called_AP_invocation_identifier = -1;  /* AP_invocation_identifier */
-static int hf_acse_called_AE_invocation_identifier = -1;  /* AE_invocation_identifier */
-static int hf_acse_calling_AP_title = -1;         /* AP_title */
-static int hf_acse_calling_AE_qualifier = -1;     /* AE_qualifier */
-static int hf_acse_calling_AP_invocation_identifier = -1;  /* AP_invocation_identifier */
-static int hf_acse_calling_AE_invocation_identifier = -1;  /* AE_invocation_identifier */
-static int hf_acse_sender_acse_requirements = -1;  /* ACSE_requirements */
-static int hf_acse_mechanism_name = -1;           /* Mechanism_name */
-static int hf_acse_calling_authentication_value = -1;  /* Authentication_value */
-static int hf_acse_aSO_context_name_list = -1;    /* ASO_context_name_list */
-static int hf_acse_implementation_information = -1;  /* Implementation_data */
-static int hf_acse_p_context_definition_list = -1;  /* Syntactic_context_list */
-static int hf_acse_called_asoi_tag = -1;          /* ASOI_tag */
-static int hf_acse_calling_asoi_tag = -1;         /* ASOI_tag */
-static int hf_acse_aARQ_user_information = -1;    /* Association_data */
-static int hf_acse_aARE_protocol_version = -1;    /* T_AARE_protocol_version */
-static int hf_acse_aARE_aSO_context_name = -1;    /* T_AARE_aSO_context_name */
-static int hf_acse_result = -1;                   /* Associate_result */
-static int hf_acse_result_source_diagnostic = -1;  /* Associate_source_diagnostic */
-static int hf_acse_responding_AP_title = -1;      /* AP_title */
-static int hf_acse_responding_AE_qualifier = -1;  /* AE_qualifier */
-static int hf_acse_responding_AP_invocation_identifier = -1;  /* AP_invocation_identifier */
-static int hf_acse_responding_AE_invocation_identifier = -1;  /* AE_invocation_identifier */
-static int hf_acse_responder_acse_requirements = -1;  /* ACSE_requirements */
-static int hf_acse_responding_authentication_value = -1;  /* Authentication_value */
-static int hf_acse_p_context_result_list = -1;    /* P_context_result_list */
-static int hf_acse_aARE_user_information = -1;    /* Association_data */
-static int hf_acse_rLRQ_reason = -1;              /* Release_request_reason */
-static int hf_acse_aso_qualifier = -1;            /* ASO_qualifier */
-static int hf_acse_asoi_identifier = -1;          /* ASOI_identifier */
-static int hf_acse_rLRQ_user_information = -1;    /* Association_data */
-static int hf_acse_rLRE_reason = -1;              /* Release_response_reason */
-static int hf_acse_rLRE_user_information = -1;    /* Association_data */
-static int hf_acse_abort_source = -1;             /* ABRT_source */
-static int hf_acse_abort_diagnostic = -1;         /* ABRT_diagnostic */
-static int hf_acse_aBRT_user_information = -1;    /* Association_data */
-static int hf_acse_a_user_data = -1;              /* User_Data */
-static int hf_acse_aCRQ_aSO_context_name = -1;    /* T_ACRQ_aSO_context_name */
-static int hf_acse_user_information = -1;         /* User_information */
-static int hf_acse_aSO_context_name = -1;         /* T_ACRP_aSO_context_name */
-static int hf_acse_ap_title_form1 = -1;           /* AP_title_form1 */
-static int hf_acse_ap_title_form2 = -1;           /* AP_title_form2 */
-static int hf_acse_ap_title_form3 = -1;           /* AP_title_form3 */
-static int hf_acse_aso_qualifier_form1 = -1;      /* ASO_qualifier_form1 */
-static int hf_acse_aso_qualifier_form2 = -1;      /* ASO_qualifier_form2 */
-static int hf_acse_aso_qualifier_form3 = -1;      /* ASO_qualifier_form3 */
-static int hf_acse_aso_qualifier_form_any_octets = -1;  /* ASO_qualifier_form_octets */
-static int hf_acse_ae_title_form1 = -1;           /* AE_title_form1 */
-static int hf_acse_ae_title_form2 = -1;           /* AE_title_form2 */
-static int hf_acse_ASOI_tag_item = -1;            /* ASOI_tag_item */
-static int hf_acse_qualifier = -1;                /* ASO_qualifier */
-static int hf_acse_identifier = -1;               /* ASOI_identifier */
-static int hf_acse_ASO_context_name_list_item = -1;  /* ASO_context_name */
-static int hf_acse_context_list = -1;             /* Context_list */
-static int hf_acse_default_contact_list = -1;     /* Default_Context_List */
-static int hf_acse_Context_list_item = -1;        /* Context_list_item */
-static int hf_acse_pci = -1;                      /* Presentation_context_identifier */
-static int hf_acse_abstract_syntax = -1;          /* Abstract_syntax_name */
-static int hf_acse_transfer_syntaxes = -1;        /* SEQUENCE_OF_TransferSyntaxName */
-static int hf_acse_transfer_syntaxes_item = -1;   /* TransferSyntaxName */
-static int hf_acse_Default_Context_List_item = -1;  /* Default_Context_List_item */
-static int hf_acse_abstract_syntax_name = -1;     /* Abstract_syntax_name */
-static int hf_acse_transfer_syntax_name = -1;     /* TransferSyntaxName */
-static int hf_acse_P_context_result_list_item = -1;  /* P_context_result_list_item */
-static int hf_acse_pcontext_result = -1;          /* Result */
-static int hf_acse_concrete_syntax_name = -1;     /* Concrete_syntax_name */
-static int hf_acse_provider_reason = -1;          /* T_provider_reason */
-static int hf_acse_service_user = -1;             /* T_service_user */
-static int hf_acse_service_provider = -1;         /* T_service_provider */
-static int hf_acse_Association_data_item = -1;    /* EXTERNALt */
-static int hf_acse_simply_encoded_data = -1;      /* Simply_encoded_data */
-static int hf_acse_fully_encoded_data = -1;       /* PDV_list */
-static int hf_acse_presentation_context_identifier = -1;  /* Presentation_context_identifier */
-static int hf_acse_presentation_data_values = -1;  /* T_presentation_data_values */
-static int hf_acse_simple_ASN1_type = -1;         /* T_simple_ASN1_type */
-static int hf_acse_pDVList_octet_aligned = -1;    /* OCTET_STRING */
-static int hf_acse_other_mechanism_name = -1;     /* T_other_mechanism_name */
-static int hf_acse_other_mechanism_value = -1;    /* T_other_mechanism_value */
-static int hf_acse_charstring = -1;               /* GraphicString */
-static int hf_acse_bitstring = -1;                /* BIT_STRING */
-static int hf_acse_external = -1;                 /* EXTERNALt */
-static int hf_acse_other = -1;                    /* Authentication_value_other */
+static int hf_acse_direct_reference;              /* T_direct_reference */
+static int hf_acse_indirect_reference;            /* T_indirect_reference */
+static int hf_acse_data_value_descriptor;         /* ObjectDescriptor */
+static int hf_acse_encoding;                      /* T_encoding */
+static int hf_acse_single_ASN1_type;              /* T_single_ASN1_type */
+static int hf_acse_octet_aligned;                 /* T_octet_aligned */
+static int hf_acse_arbitrary;                     /* BIT_STRING */
+static int hf_acse_aarq;                          /* AARQ_apdu */
+static int hf_acse_aare;                          /* AARE_apdu */
+static int hf_acse_rlrq;                          /* RLRQ_apdu */
+static int hf_acse_rlre;                          /* RLRE_apdu */
+static int hf_acse_abrt;                          /* ABRT_apdu */
+static int hf_acse_adt;                           /* A_DT_apdu */
+static int hf_acse_acrq;                          /* ACRQ_apdu */
+static int hf_acse_acrp;                          /* ACRP_apdu */
+static int hf_acse_aARQ_protocol_version;         /* T_AARQ_protocol_version */
+static int hf_acse_aARQ_aSO_context_name;         /* T_AARQ_aSO_context_name */
+static int hf_acse_called_AP_title;               /* AP_title */
+static int hf_acse_called_AE_qualifier;           /* AE_qualifier */
+static int hf_acse_called_AP_invocation_identifier;  /* AP_invocation_identifier */
+static int hf_acse_called_AE_invocation_identifier;  /* AE_invocation_identifier */
+static int hf_acse_calling_AP_title;              /* AP_title */
+static int hf_acse_calling_AE_qualifier;          /* AE_qualifier */
+static int hf_acse_calling_AP_invocation_identifier;  /* AP_invocation_identifier */
+static int hf_acse_calling_AE_invocation_identifier;  /* AE_invocation_identifier */
+static int hf_acse_sender_acse_requirements;      /* ACSE_requirements */
+static int hf_acse_mechanism_name;                /* Mechanism_name */
+static int hf_acse_calling_authentication_value;  /* Authentication_value */
+static int hf_acse_aSO_context_name_list;         /* ASO_context_name_list */
+static int hf_acse_implementation_information;    /* Implementation_data */
+static int hf_acse_p_context_definition_list;     /* Syntactic_context_list */
+static int hf_acse_called_asoi_tag;               /* ASOI_tag */
+static int hf_acse_calling_asoi_tag;              /* ASOI_tag */
+static int hf_acse_aARQ_user_information;         /* Association_data */
+static int hf_acse_aARE_protocol_version;         /* T_AARE_protocol_version */
+static int hf_acse_aARE_aSO_context_name;         /* T_AARE_aSO_context_name */
+static int hf_acse_result;                        /* Associate_result */
+static int hf_acse_result_source_diagnostic;      /* Associate_source_diagnostic */
+static int hf_acse_responding_AP_title;           /* AP_title */
+static int hf_acse_responding_AE_qualifier;       /* AE_qualifier */
+static int hf_acse_responding_AP_invocation_identifier;  /* AP_invocation_identifier */
+static int hf_acse_responding_AE_invocation_identifier;  /* AE_invocation_identifier */
+static int hf_acse_responder_acse_requirements;   /* ACSE_requirements */
+static int hf_acse_responding_authentication_value;  /* Authentication_value */
+static int hf_acse_p_context_result_list;         /* P_context_result_list */
+static int hf_acse_aARE_user_information;         /* Association_data */
+static int hf_acse_rLRQ_reason;                   /* Release_request_reason */
+static int hf_acse_aso_qualifier;                 /* ASO_qualifier */
+static int hf_acse_asoi_identifier;               /* ASOI_identifier */
+static int hf_acse_rLRQ_user_information;         /* Association_data */
+static int hf_acse_rLRE_reason;                   /* Release_response_reason */
+static int hf_acse_rLRE_user_information;         /* Association_data */
+static int hf_acse_abort_source;                  /* ABRT_source */
+static int hf_acse_abort_diagnostic;              /* ABRT_diagnostic */
+static int hf_acse_aBRT_user_information;         /* Association_data */
+static int hf_acse_a_user_data;                   /* User_Data */
+static int hf_acse_aCRQ_aSO_context_name;         /* T_ACRQ_aSO_context_name */
+static int hf_acse_user_information;              /* User_information */
+static int hf_acse_aSO_context_name;              /* T_ACRP_aSO_context_name */
+static int hf_acse_ap_title_form1;                /* AP_title_form1 */
+static int hf_acse_ap_title_form2;                /* AP_title_form2 */
+static int hf_acse_ap_title_form3;                /* AP_title_form3 */
+static int hf_acse_aso_qualifier_form1;           /* ASO_qualifier_form1 */
+static int hf_acse_aso_qualifier_form2;           /* ASO_qualifier_form2 */
+static int hf_acse_aso_qualifier_form3;           /* ASO_qualifier_form3 */
+static int hf_acse_aso_qualifier_form_any_octets;  /* ASO_qualifier_form_octets */
+static int hf_acse_ae_title_form1;                /* AE_title_form1 */
+static int hf_acse_ae_title_form2;                /* AE_title_form2 */
+static int hf_acse_ASOI_tag_item;                 /* ASOI_tag_item */
+static int hf_acse_qualifier;                     /* ASO_qualifier */
+static int hf_acse_identifier;                    /* ASOI_identifier */
+static int hf_acse_ASO_context_name_list_item;    /* ASO_context_name */
+static int hf_acse_context_list;                  /* Context_list */
+static int hf_acse_default_contact_list;          /* Default_Context_List */
+static int hf_acse_Context_list_item;             /* Context_list_item */
+static int hf_acse_pci;                           /* Presentation_context_identifier */
+static int hf_acse_abstract_syntax;               /* Abstract_syntax_name */
+static int hf_acse_transfer_syntaxes;             /* SEQUENCE_OF_TransferSyntaxName */
+static int hf_acse_transfer_syntaxes_item;        /* TransferSyntaxName */
+static int hf_acse_Default_Context_List_item;     /* Default_Context_List_item */
+static int hf_acse_abstract_syntax_name;          /* Abstract_syntax_name */
+static int hf_acse_transfer_syntax_name;          /* TransferSyntaxName */
+static int hf_acse_P_context_result_list_item;    /* P_context_result_list_item */
+static int hf_acse_pcontext_result;               /* Result */
+static int hf_acse_concrete_syntax_name;          /* Concrete_syntax_name */
+static int hf_acse_provider_reason;               /* T_provider_reason */
+static int hf_acse_service_user;                  /* T_service_user */
+static int hf_acse_service_provider;              /* T_service_provider */
+static int hf_acse_Association_data_item;         /* EXTERNALt */
+static int hf_acse_simply_encoded_data;           /* Simply_encoded_data */
+static int hf_acse_fully_encoded_data;            /* PDV_list */
+static int hf_acse_presentation_context_identifier;  /* Presentation_context_identifier */
+static int hf_acse_presentation_data_values;      /* T_presentation_data_values */
+static int hf_acse_simple_ASN1_type;              /* T_simple_ASN1_type */
+static int hf_acse_pDVList_octet_aligned;         /* OCTET_STRING */
+static int hf_acse_other_mechanism_name;          /* T_other_mechanism_name */
+static int hf_acse_other_mechanism_value;         /* T_other_mechanism_value */
+static int hf_acse_charstring;                    /* GraphicString */
+static int hf_acse_bitstring;                     /* BIT_STRING */
+static int hf_acse_external;                      /* EXTERNALt */
+static int hf_acse_other;                         /* Authentication_value_other */
 /* named bits */
-static int hf_acse_T_AARQ_protocol_version_version1 = -1;
-static int hf_acse_T_AARE_protocol_version_version1 = -1;
-static int hf_acse_ACSE_requirements_authentication = -1;
-static int hf_acse_ACSE_requirements_aSO_context_negotiation = -1;
-static int hf_acse_ACSE_requirements_higher_level_association = -1;
-static int hf_acse_ACSE_requirements_nested_association = -1;
-static gint hf_acse_user_data = -1;
+static int hf_acse_T_AARQ_protocol_version_version1;
+static int hf_acse_T_AARE_protocol_version_version1;
+static int hf_acse_ACSE_requirements_authentication;
+static int hf_acse_ACSE_requirements_aSO_context_negotiation;
+static int hf_acse_ACSE_requirements_higher_level_association;
+static int hf_acse_ACSE_requirements_nested_association;
+static gint hf_acse_user_data;
 
 /* Initialize the subtree pointers */
-static gint ett_acse = -1;
-static gint ett_acse_EXTERNALt_U = -1;
-static gint ett_acse_T_encoding = -1;
-static gint ett_acse_ACSE_apdu = -1;
-static gint ett_acse_AARQ_apdu_U = -1;
-static gint ett_acse_T_AARQ_protocol_version = -1;
-static gint ett_acse_AARE_apdu_U = -1;
-static gint ett_acse_T_AARE_protocol_version = -1;
-static gint ett_acse_RLRQ_apdu_U = -1;
-static gint ett_acse_RLRE_apdu_U = -1;
-static gint ett_acse_ABRT_apdu_U = -1;
-static gint ett_acse_A_DT_apdu_U = -1;
-static gint ett_acse_ACRQ_apdu_U = -1;
-static gint ett_acse_ACRP_apdu_U = -1;
-static gint ett_acse_ACSE_requirements = -1;
-static gint ett_acse_AP_title = -1;
-static gint ett_acse_ASO_qualifier = -1;
-static gint ett_acse_AE_title = -1;
-static gint ett_acse_ASOI_tag = -1;
-static gint ett_acse_ASOI_tag_item = -1;
-static gint ett_acse_ASO_context_name_list = -1;
-static gint ett_acse_Syntactic_context_list = -1;
-static gint ett_acse_Context_list = -1;
-static gint ett_acse_Context_list_item = -1;
-static gint ett_acse_SEQUENCE_OF_TransferSyntaxName = -1;
-static gint ett_acse_Default_Context_List = -1;
-static gint ett_acse_Default_Context_List_item = -1;
-static gint ett_acse_P_context_result_list = -1;
-static gint ett_acse_P_context_result_list_item = -1;
-static gint ett_acse_Associate_source_diagnostic = -1;
-static gint ett_acse_Association_data = -1;
-static gint ett_acse_User_Data = -1;
-static gint ett_acse_PDV_list = -1;
-static gint ett_acse_T_presentation_data_values = -1;
-static gint ett_acse_Authentication_value_other = -1;
-static gint ett_acse_Authentication_value = -1;
+static gint ett_acse;
+static gint ett_acse_EXTERNALt_U;
+static gint ett_acse_T_encoding;
+static gint ett_acse_ACSE_apdu;
+static gint ett_acse_AARQ_apdu_U;
+static gint ett_acse_T_AARQ_protocol_version;
+static gint ett_acse_AARE_apdu_U;
+static gint ett_acse_T_AARE_protocol_version;
+static gint ett_acse_RLRQ_apdu_U;
+static gint ett_acse_RLRE_apdu_U;
+static gint ett_acse_ABRT_apdu_U;
+static gint ett_acse_A_DT_apdu_U;
+static gint ett_acse_ACRQ_apdu_U;
+static gint ett_acse_ACRP_apdu_U;
+static gint ett_acse_ACSE_requirements;
+static gint ett_acse_AP_title;
+static gint ett_acse_ASO_qualifier;
+static gint ett_acse_AE_title;
+static gint ett_acse_ASOI_tag;
+static gint ett_acse_ASOI_tag_item;
+static gint ett_acse_ASO_context_name_list;
+static gint ett_acse_Syntactic_context_list;
+static gint ett_acse_Context_list;
+static gint ett_acse_Context_list_item;
+static gint ett_acse_SEQUENCE_OF_TransferSyntaxName;
+static gint ett_acse_Default_Context_List;
+static gint ett_acse_Default_Context_List_item;
+static gint ett_acse_P_context_result_list;
+static gint ett_acse_P_context_result_list_item;
+static gint ett_acse_Associate_source_diagnostic;
+static gint ett_acse_Association_data;
+static gint ett_acse_User_Data;
+static gint ett_acse_PDV_list;
+static gint ett_acse_T_presentation_data_values;
+static gint ett_acse_Authentication_value_other;
+static gint ett_acse_Authentication_value;
 
-static expert_field ei_acse_dissector_not_available = EI_INIT;
-static expert_field ei_acse_malformed = EI_INIT;
-static expert_field ei_acse_invalid_oid = EI_INIT;
+static expert_field ei_acse_dissector_not_available;
+static expert_field ei_acse_malformed;
+static expert_field ei_acse_invalid_oid;
 
 static dissector_handle_t acse_handle = NULL;
 

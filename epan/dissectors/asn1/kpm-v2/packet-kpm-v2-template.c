@@ -32,10 +32,10 @@ void proto_reg_handoff_kpm_v2(void);
 #include "packet-kpm-v2-val.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_kpm_v2 = -1;
+static int proto_kpm_v2;
 #include "packet-kpm-v2-hf.c"
 
-static int hf_kpm_v2_timestamp_string = -1;
+static int hf_kpm_v2_timestamp_string;
 
 
 #include "packet-kpm-v2-ett.c"

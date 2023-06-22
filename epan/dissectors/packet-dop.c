@@ -44,281 +44,281 @@ void proto_register_dop(void);
 void proto_reg_handoff_dop(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_dop = -1;
+static int proto_dop;
 
 static const char *binding_type = NULL; /* binding_type */
 
 static int call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *col_info, void* data);
 
-static int hf_dop_DSEType_PDU = -1;               /* DSEType */
-static int hf_dop_SupplierInformation_PDU = -1;   /* SupplierInformation */
-static int hf_dop_ConsumerInformation_PDU = -1;   /* ConsumerInformation */
-static int hf_dop_SupplierAndConsumers_PDU = -1;  /* SupplierAndConsumers */
-static int hf_dop_HierarchicalAgreement_PDU = -1;  /* HierarchicalAgreement */
-static int hf_dop_SuperiorToSubordinate_PDU = -1;  /* SuperiorToSubordinate */
-static int hf_dop_SubordinateToSuperior_PDU = -1;  /* SubordinateToSuperior */
-static int hf_dop_SuperiorToSubordinateModification_PDU = -1;  /* SuperiorToSubordinateModification */
-static int hf_dop_NonSpecificHierarchicalAgreement_PDU = -1;  /* NonSpecificHierarchicalAgreement */
-static int hf_dop_NHOBSuperiorToSubordinate_PDU = -1;  /* NHOBSuperiorToSubordinate */
-static int hf_dop_NHOBSubordinateToSuperior_PDU = -1;  /* NHOBSubordinateToSuperior */
-static int hf_dop_ACIItem_PDU = -1;               /* ACIItem */
-static int hf_dop_ae_title = -1;                  /* Name */
-static int hf_dop_address = -1;                   /* PresentationAddress */
-static int hf_dop_protocolInformation = -1;       /* SET_OF_ProtocolInformation */
-static int hf_dop_protocolInformation_item = -1;  /* ProtocolInformation */
-static int hf_dop_agreementID = -1;               /* OperationalBindingID */
-static int hf_dop_supplier_is_master = -1;        /* BOOLEAN */
-static int hf_dop_non_supplying_master = -1;      /* AccessPoint */
-static int hf_dop_consumers = -1;                 /* SET_OF_AccessPoint */
-static int hf_dop_consumers_item = -1;            /* AccessPoint */
-static int hf_dop_bindingType = -1;               /* BindingType */
-static int hf_dop_bindingID = -1;                 /* OperationalBindingID */
-static int hf_dop_accessPoint = -1;               /* AccessPoint */
-static int hf_dop_establishInitiator = -1;        /* EstablishArgumentInitiator */
-static int hf_dop_establishSymmetric = -1;        /* EstablishSymmetric */
-static int hf_dop_establishRoleAInitiates = -1;   /* EstablishRoleAInitiates */
-static int hf_dop_establishRoleBInitiates = -1;   /* EstablishRoleBInitiates */
-static int hf_dop_agreement = -1;                 /* T_agreement */
-static int hf_dop_valid = -1;                     /* Validity */
-static int hf_dop_securityParameters = -1;        /* SecurityParameters */
-static int hf_dop_unsignedEstablishOperationalBindingArgument = -1;  /* EstablishOperationalBindingArgumentData */
-static int hf_dop_signedEstablishOperationalBindingArgument = -1;  /* T_signedEstablishOperationalBindingArgument */
-static int hf_dop_establishOperationalBindingArgument = -1;  /* EstablishOperationalBindingArgumentData */
-static int hf_dop_algorithmIdentifier = -1;       /* AlgorithmIdentifier */
-static int hf_dop_encrypted = -1;                 /* BIT_STRING */
-static int hf_dop_identifier = -1;                /* T_identifier */
-static int hf_dop_version = -1;                   /* T_version */
-static int hf_dop_validFrom = -1;                 /* T_validFrom */
-static int hf_dop_now = -1;                       /* NULL */
-static int hf_dop_time = -1;                      /* Time */
-static int hf_dop_validUntil = -1;                /* T_validUntil */
-static int hf_dop_explicitTermination = -1;       /* NULL */
-static int hf_dop_utcTime = -1;                   /* UTCTime */
-static int hf_dop_generalizedTime = -1;           /* GeneralizedTime */
-static int hf_dop_initiator = -1;                 /* T_initiator */
-static int hf_dop_symmetric = -1;                 /* T_symmetric */
-static int hf_dop_roleA_replies = -1;             /* T_roleA_replies */
-static int hf_dop_roleB_replies = -1;             /* T_roleB_replies */
-static int hf_dop_performer = -1;                 /* DistinguishedName */
-static int hf_dop_aliasDereferenced = -1;         /* BOOLEAN */
-static int hf_dop_notification = -1;              /* SEQUENCE_SIZE_1_MAX_OF_Attribute */
-static int hf_dop_notification_item = -1;         /* Attribute */
-static int hf_dop_modifyInitiator = -1;           /* ModifyArgumentInitiator */
-static int hf_dop_modifySymmetric = -1;           /* ModifySymmetric */
-static int hf_dop_modifyRoleAInitiates = -1;      /* ModifyRoleAInitiates */
-static int hf_dop_modifyRoleBInitiates = -1;      /* ModifyRoleBInitiates */
-static int hf_dop_newBindingID = -1;              /* OperationalBindingID */
-static int hf_dop_argumentNewAgreement = -1;      /* ArgumentNewAgreement */
-static int hf_dop_unsignedModifyOperationalBindingArgument = -1;  /* ModifyOperationalBindingArgumentData */
-static int hf_dop_signedModifyOperationalBindingArgument = -1;  /* T_signedModifyOperationalBindingArgument */
-static int hf_dop_modifyOperationalBindingArgument = -1;  /* ModifyOperationalBindingArgumentData */
-static int hf_dop_null = -1;                      /* NULL */
-static int hf_dop_protectedModifyResult = -1;     /* ProtectedModifyResult */
-static int hf_dop_modifyOperationalBindingResultData = -1;  /* ModifyOperationalBindingResultData */
-static int hf_dop_resultNewAgreement = -1;        /* ResultNewAgreement */
-static int hf_dop_terminateInitiator = -1;        /* TerminateArgumentInitiator */
-static int hf_dop_terminateSymmetric = -1;        /* TerminateSymmetric */
-static int hf_dop_terminateRoleAInitiates = -1;   /* TerminateRoleAInitiates */
-static int hf_dop_terminateRoleBInitiates = -1;   /* TerminateRoleBInitiates */
-static int hf_dop_terminateAtTime = -1;           /* Time */
-static int hf_dop_unsignedTerminateOperationalBindingArgument = -1;  /* TerminateOperationalBindingArgumentData */
-static int hf_dop_signedTerminateOperationalBindingArgument = -1;  /* T_signedTerminateOperationalBindingArgument */
-static int hf_dop_terminateOperationalBindingArgument = -1;  /* TerminateOperationalBindingArgumentData */
-static int hf_dop_protectedTerminateResult = -1;  /* ProtectedTerminateResult */
-static int hf_dop_terminateOperationalBindingResultData = -1;  /* TerminateOperationalBindingResultData */
-static int hf_dop_terminateAtGeneralizedTime = -1;  /* GeneralizedTime */
-static int hf_dop_problem = -1;                   /* T_problem */
-static int hf_dop_agreementProposal = -1;         /* T_agreementProposal */
-static int hf_dop_retryAt = -1;                   /* Time */
-static int hf_dop_rdn = -1;                       /* RelativeDistinguishedName */
-static int hf_dop_immediateSuperior = -1;         /* DistinguishedName */
-static int hf_dop_contextPrefixInfo = -1;         /* DITcontext */
-static int hf_dop_entryInfo = -1;                 /* SET_OF_Attribute */
-static int hf_dop_entryInfo_item = -1;            /* Attribute */
-static int hf_dop_immediateSuperiorInfo = -1;     /* SET_OF_Attribute */
-static int hf_dop_immediateSuperiorInfo_item = -1;  /* Attribute */
-static int hf_dop_DITcontext_item = -1;           /* Vertex */
-static int hf_dop_admPointInfo = -1;              /* SET_OF_Attribute */
-static int hf_dop_admPointInfo_item = -1;         /* Attribute */
-static int hf_dop_subentries = -1;                /* SET_OF_SubentryInfo */
-static int hf_dop_subentries_item = -1;           /* SubentryInfo */
-static int hf_dop_accessPoints = -1;              /* MasterAndShadowAccessPoints */
-static int hf_dop_info = -1;                      /* SET_OF_Attribute */
-static int hf_dop_info_item = -1;                 /* Attribute */
-static int hf_dop_alias = -1;                     /* BOOLEAN */
-static int hf_dop_identificationTag = -1;         /* DirectoryString */
-static int hf_dop_precedence = -1;                /* Precedence */
-static int hf_dop_authenticationLevel = -1;       /* AuthenticationLevel */
-static int hf_dop_itemOrUserFirst = -1;           /* T_itemOrUserFirst */
-static int hf_dop_itemFirst = -1;                 /* T_itemFirst */
-static int hf_dop_protectedItems = -1;            /* ProtectedItems */
-static int hf_dop_itemPermissions = -1;           /* SET_OF_ItemPermission */
-static int hf_dop_itemPermissions_item = -1;      /* ItemPermission */
-static int hf_dop_userFirst = -1;                 /* T_userFirst */
-static int hf_dop_userClasses = -1;               /* UserClasses */
-static int hf_dop_userPermissions = -1;           /* SET_OF_UserPermission */
-static int hf_dop_userPermissions_item = -1;      /* UserPermission */
-static int hf_dop_entry = -1;                     /* NULL */
-static int hf_dop_allUserAttributeTypes = -1;     /* NULL */
-static int hf_dop_attributeType = -1;             /* SET_OF_AttributeType */
-static int hf_dop_attributeType_item = -1;        /* AttributeType */
-static int hf_dop_allAttributeValues = -1;        /* SET_OF_AttributeType */
-static int hf_dop_allAttributeValues_item = -1;   /* AttributeType */
-static int hf_dop_allUserAttributeTypesAndValues = -1;  /* NULL */
-static int hf_dop_attributeValue = -1;            /* SET_OF_AttributeTypeAndValue */
-static int hf_dop_attributeValue_item = -1;       /* AttributeTypeAndValue */
-static int hf_dop_selfValue = -1;                 /* SET_OF_AttributeType */
-static int hf_dop_selfValue_item = -1;            /* AttributeType */
-static int hf_dop_rangeOfValues = -1;             /* Filter */
-static int hf_dop_maxValueCount = -1;             /* SET_OF_MaxValueCount */
-static int hf_dop_maxValueCount_item = -1;        /* MaxValueCount */
-static int hf_dop_maxImmSub = -1;                 /* INTEGER */
-static int hf_dop_restrictedBy = -1;              /* SET_OF_RestrictedValue */
-static int hf_dop_restrictedBy_item = -1;         /* RestrictedValue */
-static int hf_dop_contexts = -1;                  /* SET_OF_ContextAssertion */
-static int hf_dop_contexts_item = -1;             /* ContextAssertion */
-static int hf_dop_classes = -1;                   /* Refinement */
-static int hf_dop_type = -1;                      /* AttributeType */
-static int hf_dop_maxCount = -1;                  /* INTEGER */
-static int hf_dop_valuesIn = -1;                  /* AttributeType */
-static int hf_dop_allUsers = -1;                  /* NULL */
-static int hf_dop_thisEntry = -1;                 /* NULL */
-static int hf_dop_name = -1;                      /* SET_OF_NameAndOptionalUID */
-static int hf_dop_name_item = -1;                 /* NameAndOptionalUID */
-static int hf_dop_userGroup = -1;                 /* SET_OF_NameAndOptionalUID */
-static int hf_dop_userGroup_item = -1;            /* NameAndOptionalUID */
-static int hf_dop_subtree = -1;                   /* SET_OF_SubtreeSpecification */
-static int hf_dop_subtree_item = -1;              /* SubtreeSpecification */
-static int hf_dop_grantsAndDenials = -1;          /* GrantsAndDenials */
-static int hf_dop_basicLevels = -1;               /* T_basicLevels */
-static int hf_dop_level = -1;                     /* T_level */
-static int hf_dop_localQualifier = -1;            /* INTEGER */
-static int hf_dop_signed = -1;                    /* BOOLEAN */
-static int hf_dop_other = -1;                     /* EXTERNAL */
+static int hf_dop_DSEType_PDU;                    /* DSEType */
+static int hf_dop_SupplierInformation_PDU;        /* SupplierInformation */
+static int hf_dop_ConsumerInformation_PDU;        /* ConsumerInformation */
+static int hf_dop_SupplierAndConsumers_PDU;       /* SupplierAndConsumers */
+static int hf_dop_HierarchicalAgreement_PDU;      /* HierarchicalAgreement */
+static int hf_dop_SuperiorToSubordinate_PDU;      /* SuperiorToSubordinate */
+static int hf_dop_SubordinateToSuperior_PDU;      /* SubordinateToSuperior */
+static int hf_dop_SuperiorToSubordinateModification_PDU;  /* SuperiorToSubordinateModification */
+static int hf_dop_NonSpecificHierarchicalAgreement_PDU;  /* NonSpecificHierarchicalAgreement */
+static int hf_dop_NHOBSuperiorToSubordinate_PDU;  /* NHOBSuperiorToSubordinate */
+static int hf_dop_NHOBSubordinateToSuperior_PDU;  /* NHOBSubordinateToSuperior */
+static int hf_dop_ACIItem_PDU;                    /* ACIItem */
+static int hf_dop_ae_title;                       /* Name */
+static int hf_dop_address;                        /* PresentationAddress */
+static int hf_dop_protocolInformation;            /* SET_OF_ProtocolInformation */
+static int hf_dop_protocolInformation_item;       /* ProtocolInformation */
+static int hf_dop_agreementID;                    /* OperationalBindingID */
+static int hf_dop_supplier_is_master;             /* BOOLEAN */
+static int hf_dop_non_supplying_master;           /* AccessPoint */
+static int hf_dop_consumers;                      /* SET_OF_AccessPoint */
+static int hf_dop_consumers_item;                 /* AccessPoint */
+static int hf_dop_bindingType;                    /* BindingType */
+static int hf_dop_bindingID;                      /* OperationalBindingID */
+static int hf_dop_accessPoint;                    /* AccessPoint */
+static int hf_dop_establishInitiator;             /* EstablishArgumentInitiator */
+static int hf_dop_establishSymmetric;             /* EstablishSymmetric */
+static int hf_dop_establishRoleAInitiates;        /* EstablishRoleAInitiates */
+static int hf_dop_establishRoleBInitiates;        /* EstablishRoleBInitiates */
+static int hf_dop_agreement;                      /* T_agreement */
+static int hf_dop_valid;                          /* Validity */
+static int hf_dop_securityParameters;             /* SecurityParameters */
+static int hf_dop_unsignedEstablishOperationalBindingArgument;  /* EstablishOperationalBindingArgumentData */
+static int hf_dop_signedEstablishOperationalBindingArgument;  /* T_signedEstablishOperationalBindingArgument */
+static int hf_dop_establishOperationalBindingArgument;  /* EstablishOperationalBindingArgumentData */
+static int hf_dop_algorithmIdentifier;            /* AlgorithmIdentifier */
+static int hf_dop_encrypted;                      /* BIT_STRING */
+static int hf_dop_identifier;                     /* T_identifier */
+static int hf_dop_version;                        /* T_version */
+static int hf_dop_validFrom;                      /* T_validFrom */
+static int hf_dop_now;                            /* NULL */
+static int hf_dop_time;                           /* Time */
+static int hf_dop_validUntil;                     /* T_validUntil */
+static int hf_dop_explicitTermination;            /* NULL */
+static int hf_dop_utcTime;                        /* UTCTime */
+static int hf_dop_generalizedTime;                /* GeneralizedTime */
+static int hf_dop_initiator;                      /* T_initiator */
+static int hf_dop_symmetric;                      /* T_symmetric */
+static int hf_dop_roleA_replies;                  /* T_roleA_replies */
+static int hf_dop_roleB_replies;                  /* T_roleB_replies */
+static int hf_dop_performer;                      /* DistinguishedName */
+static int hf_dop_aliasDereferenced;              /* BOOLEAN */
+static int hf_dop_notification;                   /* SEQUENCE_SIZE_1_MAX_OF_Attribute */
+static int hf_dop_notification_item;              /* Attribute */
+static int hf_dop_modifyInitiator;                /* ModifyArgumentInitiator */
+static int hf_dop_modifySymmetric;                /* ModifySymmetric */
+static int hf_dop_modifyRoleAInitiates;           /* ModifyRoleAInitiates */
+static int hf_dop_modifyRoleBInitiates;           /* ModifyRoleBInitiates */
+static int hf_dop_newBindingID;                   /* OperationalBindingID */
+static int hf_dop_argumentNewAgreement;           /* ArgumentNewAgreement */
+static int hf_dop_unsignedModifyOperationalBindingArgument;  /* ModifyOperationalBindingArgumentData */
+static int hf_dop_signedModifyOperationalBindingArgument;  /* T_signedModifyOperationalBindingArgument */
+static int hf_dop_modifyOperationalBindingArgument;  /* ModifyOperationalBindingArgumentData */
+static int hf_dop_null;                           /* NULL */
+static int hf_dop_protectedModifyResult;          /* ProtectedModifyResult */
+static int hf_dop_modifyOperationalBindingResultData;  /* ModifyOperationalBindingResultData */
+static int hf_dop_resultNewAgreement;             /* ResultNewAgreement */
+static int hf_dop_terminateInitiator;             /* TerminateArgumentInitiator */
+static int hf_dop_terminateSymmetric;             /* TerminateSymmetric */
+static int hf_dop_terminateRoleAInitiates;        /* TerminateRoleAInitiates */
+static int hf_dop_terminateRoleBInitiates;        /* TerminateRoleBInitiates */
+static int hf_dop_terminateAtTime;                /* Time */
+static int hf_dop_unsignedTerminateOperationalBindingArgument;  /* TerminateOperationalBindingArgumentData */
+static int hf_dop_signedTerminateOperationalBindingArgument;  /* T_signedTerminateOperationalBindingArgument */
+static int hf_dop_terminateOperationalBindingArgument;  /* TerminateOperationalBindingArgumentData */
+static int hf_dop_protectedTerminateResult;       /* ProtectedTerminateResult */
+static int hf_dop_terminateOperationalBindingResultData;  /* TerminateOperationalBindingResultData */
+static int hf_dop_terminateAtGeneralizedTime;     /* GeneralizedTime */
+static int hf_dop_problem;                        /* T_problem */
+static int hf_dop_agreementProposal;              /* T_agreementProposal */
+static int hf_dop_retryAt;                        /* Time */
+static int hf_dop_rdn;                            /* RelativeDistinguishedName */
+static int hf_dop_immediateSuperior;              /* DistinguishedName */
+static int hf_dop_contextPrefixInfo;              /* DITcontext */
+static int hf_dop_entryInfo;                      /* SET_OF_Attribute */
+static int hf_dop_entryInfo_item;                 /* Attribute */
+static int hf_dop_immediateSuperiorInfo;          /* SET_OF_Attribute */
+static int hf_dop_immediateSuperiorInfo_item;     /* Attribute */
+static int hf_dop_DITcontext_item;                /* Vertex */
+static int hf_dop_admPointInfo;                   /* SET_OF_Attribute */
+static int hf_dop_admPointInfo_item;              /* Attribute */
+static int hf_dop_subentries;                     /* SET_OF_SubentryInfo */
+static int hf_dop_subentries_item;                /* SubentryInfo */
+static int hf_dop_accessPoints;                   /* MasterAndShadowAccessPoints */
+static int hf_dop_info;                           /* SET_OF_Attribute */
+static int hf_dop_info_item;                      /* Attribute */
+static int hf_dop_alias;                          /* BOOLEAN */
+static int hf_dop_identificationTag;              /* DirectoryString */
+static int hf_dop_precedence;                     /* Precedence */
+static int hf_dop_authenticationLevel;            /* AuthenticationLevel */
+static int hf_dop_itemOrUserFirst;                /* T_itemOrUserFirst */
+static int hf_dop_itemFirst;                      /* T_itemFirst */
+static int hf_dop_protectedItems;                 /* ProtectedItems */
+static int hf_dop_itemPermissions;                /* SET_OF_ItemPermission */
+static int hf_dop_itemPermissions_item;           /* ItemPermission */
+static int hf_dop_userFirst;                      /* T_userFirst */
+static int hf_dop_userClasses;                    /* UserClasses */
+static int hf_dop_userPermissions;                /* SET_OF_UserPermission */
+static int hf_dop_userPermissions_item;           /* UserPermission */
+static int hf_dop_entry;                          /* NULL */
+static int hf_dop_allUserAttributeTypes;          /* NULL */
+static int hf_dop_attributeType;                  /* SET_OF_AttributeType */
+static int hf_dop_attributeType_item;             /* AttributeType */
+static int hf_dop_allAttributeValues;             /* SET_OF_AttributeType */
+static int hf_dop_allAttributeValues_item;        /* AttributeType */
+static int hf_dop_allUserAttributeTypesAndValues;  /* NULL */
+static int hf_dop_attributeValue;                 /* SET_OF_AttributeTypeAndValue */
+static int hf_dop_attributeValue_item;            /* AttributeTypeAndValue */
+static int hf_dop_selfValue;                      /* SET_OF_AttributeType */
+static int hf_dop_selfValue_item;                 /* AttributeType */
+static int hf_dop_rangeOfValues;                  /* Filter */
+static int hf_dop_maxValueCount;                  /* SET_OF_MaxValueCount */
+static int hf_dop_maxValueCount_item;             /* MaxValueCount */
+static int hf_dop_maxImmSub;                      /* INTEGER */
+static int hf_dop_restrictedBy;                   /* SET_OF_RestrictedValue */
+static int hf_dop_restrictedBy_item;              /* RestrictedValue */
+static int hf_dop_contexts;                       /* SET_OF_ContextAssertion */
+static int hf_dop_contexts_item;                  /* ContextAssertion */
+static int hf_dop_classes;                        /* Refinement */
+static int hf_dop_type;                           /* AttributeType */
+static int hf_dop_maxCount;                       /* INTEGER */
+static int hf_dop_valuesIn;                       /* AttributeType */
+static int hf_dop_allUsers;                       /* NULL */
+static int hf_dop_thisEntry;                      /* NULL */
+static int hf_dop_name;                           /* SET_OF_NameAndOptionalUID */
+static int hf_dop_name_item;                      /* NameAndOptionalUID */
+static int hf_dop_userGroup;                      /* SET_OF_NameAndOptionalUID */
+static int hf_dop_userGroup_item;                 /* NameAndOptionalUID */
+static int hf_dop_subtree;                        /* SET_OF_SubtreeSpecification */
+static int hf_dop_subtree_item;                   /* SubtreeSpecification */
+static int hf_dop_grantsAndDenials;               /* GrantsAndDenials */
+static int hf_dop_basicLevels;                    /* T_basicLevels */
+static int hf_dop_level;                          /* T_level */
+static int hf_dop_localQualifier;                 /* INTEGER */
+static int hf_dop_signed;                         /* BOOLEAN */
+static int hf_dop_other;                          /* EXTERNAL */
 /* named bits */
-static int hf_dop_DSEType_root = -1;
-static int hf_dop_DSEType_glue = -1;
-static int hf_dop_DSEType_cp = -1;
-static int hf_dop_DSEType_entry = -1;
-static int hf_dop_DSEType_alias = -1;
-static int hf_dop_DSEType_subr = -1;
-static int hf_dop_DSEType_nssr = -1;
-static int hf_dop_DSEType_supr = -1;
-static int hf_dop_DSEType_xr = -1;
-static int hf_dop_DSEType_admPoint = -1;
-static int hf_dop_DSEType_subentry = -1;
-static int hf_dop_DSEType_shadow = -1;
-static int hf_dop_DSEType_spare_bit12 = -1;
-static int hf_dop_DSEType_immSupr = -1;
-static int hf_dop_DSEType_rhob = -1;
-static int hf_dop_DSEType_sa = -1;
-static int hf_dop_DSEType_dsSubentry = -1;
-static int hf_dop_DSEType_familyMember = -1;
-static int hf_dop_DSEType_ditBridge = -1;
-static int hf_dop_DSEType_writeableCopy = -1;
-static int hf_dop_GrantsAndDenials_grantAdd = -1;
-static int hf_dop_GrantsAndDenials_denyAdd = -1;
-static int hf_dop_GrantsAndDenials_grantDiscloseOnError = -1;
-static int hf_dop_GrantsAndDenials_denyDiscloseOnError = -1;
-static int hf_dop_GrantsAndDenials_grantRead = -1;
-static int hf_dop_GrantsAndDenials_denyRead = -1;
-static int hf_dop_GrantsAndDenials_grantRemove = -1;
-static int hf_dop_GrantsAndDenials_denyRemove = -1;
-static int hf_dop_GrantsAndDenials_grantBrowse = -1;
-static int hf_dop_GrantsAndDenials_denyBrowse = -1;
-static int hf_dop_GrantsAndDenials_grantExport = -1;
-static int hf_dop_GrantsAndDenials_denyExport = -1;
-static int hf_dop_GrantsAndDenials_grantImport = -1;
-static int hf_dop_GrantsAndDenials_denyImport = -1;
-static int hf_dop_GrantsAndDenials_grantModify = -1;
-static int hf_dop_GrantsAndDenials_denyModify = -1;
-static int hf_dop_GrantsAndDenials_grantRename = -1;
-static int hf_dop_GrantsAndDenials_denyRename = -1;
-static int hf_dop_GrantsAndDenials_grantReturnDN = -1;
-static int hf_dop_GrantsAndDenials_denyReturnDN = -1;
-static int hf_dop_GrantsAndDenials_grantCompare = -1;
-static int hf_dop_GrantsAndDenials_denyCompare = -1;
-static int hf_dop_GrantsAndDenials_grantFilterMatch = -1;
-static int hf_dop_GrantsAndDenials_denyFilterMatch = -1;
-static int hf_dop_GrantsAndDenials_grantInvoke = -1;
-static int hf_dop_GrantsAndDenials_denyInvoke = -1;
+static int hf_dop_DSEType_root;
+static int hf_dop_DSEType_glue;
+static int hf_dop_DSEType_cp;
+static int hf_dop_DSEType_entry;
+static int hf_dop_DSEType_alias;
+static int hf_dop_DSEType_subr;
+static int hf_dop_DSEType_nssr;
+static int hf_dop_DSEType_supr;
+static int hf_dop_DSEType_xr;
+static int hf_dop_DSEType_admPoint;
+static int hf_dop_DSEType_subentry;
+static int hf_dop_DSEType_shadow;
+static int hf_dop_DSEType_spare_bit12;
+static int hf_dop_DSEType_immSupr;
+static int hf_dop_DSEType_rhob;
+static int hf_dop_DSEType_sa;
+static int hf_dop_DSEType_dsSubentry;
+static int hf_dop_DSEType_familyMember;
+static int hf_dop_DSEType_ditBridge;
+static int hf_dop_DSEType_writeableCopy;
+static int hf_dop_GrantsAndDenials_grantAdd;
+static int hf_dop_GrantsAndDenials_denyAdd;
+static int hf_dop_GrantsAndDenials_grantDiscloseOnError;
+static int hf_dop_GrantsAndDenials_denyDiscloseOnError;
+static int hf_dop_GrantsAndDenials_grantRead;
+static int hf_dop_GrantsAndDenials_denyRead;
+static int hf_dop_GrantsAndDenials_grantRemove;
+static int hf_dop_GrantsAndDenials_denyRemove;
+static int hf_dop_GrantsAndDenials_grantBrowse;
+static int hf_dop_GrantsAndDenials_denyBrowse;
+static int hf_dop_GrantsAndDenials_grantExport;
+static int hf_dop_GrantsAndDenials_denyExport;
+static int hf_dop_GrantsAndDenials_grantImport;
+static int hf_dop_GrantsAndDenials_denyImport;
+static int hf_dop_GrantsAndDenials_grantModify;
+static int hf_dop_GrantsAndDenials_denyModify;
+static int hf_dop_GrantsAndDenials_grantRename;
+static int hf_dop_GrantsAndDenials_denyRename;
+static int hf_dop_GrantsAndDenials_grantReturnDN;
+static int hf_dop_GrantsAndDenials_denyReturnDN;
+static int hf_dop_GrantsAndDenials_grantCompare;
+static int hf_dop_GrantsAndDenials_denyCompare;
+static int hf_dop_GrantsAndDenials_grantFilterMatch;
+static int hf_dop_GrantsAndDenials_denyFilterMatch;
+static int hf_dop_GrantsAndDenials_grantInvoke;
+static int hf_dop_GrantsAndDenials_denyInvoke;
 
 /* Initialize the subtree pointers */
-static gint ett_dop = -1;
-static gint ett_dop_unknown = -1;
-static gint ett_dop_DSEType = -1;
-static gint ett_dop_SupplierOrConsumer = -1;
-static gint ett_dop_SET_OF_ProtocolInformation = -1;
-static gint ett_dop_SupplierInformation = -1;
-static gint ett_dop_SupplierAndConsumers = -1;
-static gint ett_dop_SET_OF_AccessPoint = -1;
-static gint ett_dop_EstablishOperationalBindingArgumentData = -1;
-static gint ett_dop_EstablishArgumentInitiator = -1;
-static gint ett_dop_EstablishOperationalBindingArgument = -1;
-static gint ett_dop_T_signedEstablishOperationalBindingArgument = -1;
-static gint ett_dop_OperationalBindingID = -1;
-static gint ett_dop_Validity = -1;
-static gint ett_dop_T_validFrom = -1;
-static gint ett_dop_T_validUntil = -1;
-static gint ett_dop_Time = -1;
-static gint ett_dop_EstablishOperationalBindingResult = -1;
-static gint ett_dop_T_initiator = -1;
-static gint ett_dop_SEQUENCE_SIZE_1_MAX_OF_Attribute = -1;
-static gint ett_dop_ModifyOperationalBindingArgumentData = -1;
-static gint ett_dop_ModifyArgumentInitiator = -1;
-static gint ett_dop_ModifyOperationalBindingArgument = -1;
-static gint ett_dop_T_signedModifyOperationalBindingArgument = -1;
-static gint ett_dop_ModifyOperationalBindingResult = -1;
-static gint ett_dop_ProtectedModifyResult = -1;
-static gint ett_dop_ModifyOperationalBindingResultData = -1;
-static gint ett_dop_TerminateOperationalBindingArgumentData = -1;
-static gint ett_dop_TerminateArgumentInitiator = -1;
-static gint ett_dop_TerminateOperationalBindingArgument = -1;
-static gint ett_dop_T_signedTerminateOperationalBindingArgument = -1;
-static gint ett_dop_TerminateOperationalBindingResult = -1;
-static gint ett_dop_ProtectedTerminateResult = -1;
-static gint ett_dop_TerminateOperationalBindingResultData = -1;
-static gint ett_dop_OpBindingErrorParam = -1;
-static gint ett_dop_HierarchicalAgreement = -1;
-static gint ett_dop_SuperiorToSubordinate = -1;
-static gint ett_dop_SET_OF_Attribute = -1;
-static gint ett_dop_DITcontext = -1;
-static gint ett_dop_Vertex = -1;
-static gint ett_dop_SET_OF_SubentryInfo = -1;
-static gint ett_dop_SubentryInfo = -1;
-static gint ett_dop_SubordinateToSuperior = -1;
-static gint ett_dop_SuperiorToSubordinateModification = -1;
-static gint ett_dop_NonSpecificHierarchicalAgreement = -1;
-static gint ett_dop_NHOBSuperiorToSubordinate = -1;
-static gint ett_dop_NHOBSubordinateToSuperior = -1;
-static gint ett_dop_ACIItem = -1;
-static gint ett_dop_T_itemOrUserFirst = -1;
-static gint ett_dop_T_itemFirst = -1;
-static gint ett_dop_SET_OF_ItemPermission = -1;
-static gint ett_dop_T_userFirst = -1;
-static gint ett_dop_SET_OF_UserPermission = -1;
-static gint ett_dop_ProtectedItems = -1;
-static gint ett_dop_SET_OF_AttributeType = -1;
-static gint ett_dop_SET_OF_AttributeTypeAndValue = -1;
-static gint ett_dop_SET_OF_MaxValueCount = -1;
-static gint ett_dop_SET_OF_RestrictedValue = -1;
-static gint ett_dop_SET_OF_ContextAssertion = -1;
-static gint ett_dop_MaxValueCount = -1;
-static gint ett_dop_RestrictedValue = -1;
-static gint ett_dop_UserClasses = -1;
-static gint ett_dop_SET_OF_NameAndOptionalUID = -1;
-static gint ett_dop_SET_OF_SubtreeSpecification = -1;
-static gint ett_dop_ItemPermission = -1;
-static gint ett_dop_UserPermission = -1;
-static gint ett_dop_AuthenticationLevel = -1;
-static gint ett_dop_T_basicLevels = -1;
-static gint ett_dop_GrantsAndDenials = -1;
+static gint ett_dop;
+static gint ett_dop_unknown;
+static gint ett_dop_DSEType;
+static gint ett_dop_SupplierOrConsumer;
+static gint ett_dop_SET_OF_ProtocolInformation;
+static gint ett_dop_SupplierInformation;
+static gint ett_dop_SupplierAndConsumers;
+static gint ett_dop_SET_OF_AccessPoint;
+static gint ett_dop_EstablishOperationalBindingArgumentData;
+static gint ett_dop_EstablishArgumentInitiator;
+static gint ett_dop_EstablishOperationalBindingArgument;
+static gint ett_dop_T_signedEstablishOperationalBindingArgument;
+static gint ett_dop_OperationalBindingID;
+static gint ett_dop_Validity;
+static gint ett_dop_T_validFrom;
+static gint ett_dop_T_validUntil;
+static gint ett_dop_Time;
+static gint ett_dop_EstablishOperationalBindingResult;
+static gint ett_dop_T_initiator;
+static gint ett_dop_SEQUENCE_SIZE_1_MAX_OF_Attribute;
+static gint ett_dop_ModifyOperationalBindingArgumentData;
+static gint ett_dop_ModifyArgumentInitiator;
+static gint ett_dop_ModifyOperationalBindingArgument;
+static gint ett_dop_T_signedModifyOperationalBindingArgument;
+static gint ett_dop_ModifyOperationalBindingResult;
+static gint ett_dop_ProtectedModifyResult;
+static gint ett_dop_ModifyOperationalBindingResultData;
+static gint ett_dop_TerminateOperationalBindingArgumentData;
+static gint ett_dop_TerminateArgumentInitiator;
+static gint ett_dop_TerminateOperationalBindingArgument;
+static gint ett_dop_T_signedTerminateOperationalBindingArgument;
+static gint ett_dop_TerminateOperationalBindingResult;
+static gint ett_dop_ProtectedTerminateResult;
+static gint ett_dop_TerminateOperationalBindingResultData;
+static gint ett_dop_OpBindingErrorParam;
+static gint ett_dop_HierarchicalAgreement;
+static gint ett_dop_SuperiorToSubordinate;
+static gint ett_dop_SET_OF_Attribute;
+static gint ett_dop_DITcontext;
+static gint ett_dop_Vertex;
+static gint ett_dop_SET_OF_SubentryInfo;
+static gint ett_dop_SubentryInfo;
+static gint ett_dop_SubordinateToSuperior;
+static gint ett_dop_SuperiorToSubordinateModification;
+static gint ett_dop_NonSpecificHierarchicalAgreement;
+static gint ett_dop_NHOBSuperiorToSubordinate;
+static gint ett_dop_NHOBSubordinateToSuperior;
+static gint ett_dop_ACIItem;
+static gint ett_dop_T_itemOrUserFirst;
+static gint ett_dop_T_itemFirst;
+static gint ett_dop_SET_OF_ItemPermission;
+static gint ett_dop_T_userFirst;
+static gint ett_dop_SET_OF_UserPermission;
+static gint ett_dop_ProtectedItems;
+static gint ett_dop_SET_OF_AttributeType;
+static gint ett_dop_SET_OF_AttributeTypeAndValue;
+static gint ett_dop_SET_OF_MaxValueCount;
+static gint ett_dop_SET_OF_RestrictedValue;
+static gint ett_dop_SET_OF_ContextAssertion;
+static gint ett_dop_MaxValueCount;
+static gint ett_dop_RestrictedValue;
+static gint ett_dop_UserClasses;
+static gint ett_dop_SET_OF_NameAndOptionalUID;
+static gint ett_dop_SET_OF_SubtreeSpecification;
+static gint ett_dop_ItemPermission;
+static gint ett_dop_UserPermission;
+static gint ett_dop_AuthenticationLevel;
+static gint ett_dop_T_basicLevels;
+static gint ett_dop_GrantsAndDenials;
 
-static expert_field ei_dop_unknown_binding_parameter = EI_INIT;
-static expert_field ei_dop_unsupported_opcode = EI_INIT;
-static expert_field ei_dop_unsupported_errcode = EI_INIT;
-static expert_field ei_dop_unsupported_pdu = EI_INIT;
-static expert_field ei_dop_zero_pdu = EI_INIT;
+static expert_field ei_dop_unknown_binding_parameter;
+static expert_field ei_dop_unsupported_opcode;
+static expert_field ei_dop_unsupported_errcode;
+static expert_field ei_dop_unsupported_pdu;
+static expert_field ei_dop_zero_pdu;
 
 static dissector_handle_t dop_handle = NULL;
 

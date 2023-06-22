@@ -44,10 +44,10 @@ void proto_register_pres(void);
 void proto_reg_handoff_pres(void);
 
 /* Initialize the protocol and registered fields */
-static int proto_pres = -1;
+static int proto_pres;
 
 /* Initialize the connectionles protocol */
-static int proto_clpres = -1;
+static int proto_clpres;
 
 /*      pointers for acse dissector  */
 proto_tree *global_tree  = NULL;
@@ -72,134 +72,134 @@ typedef struct _pres_user_t {
 static pres_user_t *pres_users;
 static guint num_pres_users;
 
-static int hf_pres_CP_type = -1;
-static int hf_pres_CPA_PPDU = -1;
-static int hf_pres_Abort_type = -1;
-static int hf_pres_CPR_PPDU = -1;
-static int hf_pres_Typed_data_type = -1;
+static int hf_pres_CP_type;
+static int hf_pres_CPA_PPDU;
+static int hf_pres_Abort_type;
+static int hf_pres_CPR_PPDU;
+static int hf_pres_Typed_data_type;
 
-static int hf_pres_UD_type_PDU = -1;              /* UD_type */
-static int hf_pres_mode_selector = -1;            /* Mode_selector */
-static int hf_pres_x410_mode_parameters = -1;     /* RTORQapdu */
-static int hf_pres_normal_mode_parameters = -1;   /* T_normal_mode_parameters */
-static int hf_pres_protocol_version = -1;         /* Protocol_version */
-static int hf_pres_calling_presentation_selector = -1;  /* Calling_presentation_selector */
-static int hf_pres_called_presentation_selector = -1;  /* Called_presentation_selector */
-static int hf_pres_presentation_context_definition_list = -1;  /* Presentation_context_definition_list */
-static int hf_pres_default_context_name = -1;     /* Default_context_name */
-static int hf_pres_presentation_requirements = -1;  /* Presentation_requirements */
-static int hf_pres_user_session_requirements = -1;  /* User_session_requirements */
-static int hf_pres_protocol_options = -1;         /* Protocol_options */
-static int hf_pres_initiators_nominated_context = -1;  /* Presentation_context_identifier */
-static int hf_pres_extensions = -1;               /* T_extensions */
-static int hf_pres_user_data = -1;                /* User_data */
-static int hf_pres_cPR_PPDU_x400_mode_parameters = -1;  /* RTOACapdu */
-static int hf_pres_cPU_PPDU_normal_mode_parameters = -1;  /* T_CPA_PPDU_normal_mode_parameters */
-static int hf_pres_responding_presentation_selector = -1;  /* Responding_presentation_selector */
-static int hf_pres_presentation_context_definition_result_list = -1;  /* Presentation_context_definition_result_list */
-static int hf_pres_responders_nominated_context = -1;  /* Presentation_context_identifier */
-static int hf_pres_cPU_PPDU_x400_mode_parameters = -1;  /* RTORJapdu */
-static int hf_pres_cPR_PPDU_normal_mode_parameters = -1;  /* T_CPR_PPDU_normal_mode_parameters */
-static int hf_pres_default_context_result = -1;   /* Default_context_result */
-static int hf_pres_cPR_PPDU__provider_reason = -1;  /* Provider_reason */
-static int hf_pres_aru_ppdu = -1;                 /* ARU_PPDU */
-static int hf_pres_arp_ppdu = -1;                 /* ARP_PPDU */
-static int hf_pres_aRU_PPDU_x400_mode_parameters = -1;  /* RTABapdu */
-static int hf_pres_aRU_PPDU_normal_mode_parameters = -1;  /* T_ARU_PPDU_normal_mode_parameters */
-static int hf_pres_presentation_context_identifier_list = -1;  /* Presentation_context_identifier_list */
-static int hf_pres_aRU_PPDU_provider_reason = -1;  /* Abort_reason */
-static int hf_pres_event_identifier = -1;         /* Event_identifier */
-static int hf_pres_acPPDU = -1;                   /* AC_PPDU */
-static int hf_pres_acaPPDU = -1;                  /* ACA_PPDU */
-static int hf_pres_ttdPPDU = -1;                  /* User_data */
-static int hf_pres_presentation_context_addition_list = -1;  /* Presentation_context_addition_list */
-static int hf_pres_presentation_context_deletion_list = -1;  /* Presentation_context_deletion_list */
-static int hf_pres_presentation_context_addition_result_list = -1;  /* Presentation_context_addition_result_list */
-static int hf_pres_presentation_context_deletion_result_list = -1;  /* Presentation_context_deletion_result_list */
-static int hf_pres_Context_list_item = -1;        /* Context_list_item */
-static int hf_pres_presentation_context_identifier = -1;  /* Presentation_context_identifier */
-static int hf_pres_abstract_syntax_name = -1;     /* Abstract_syntax_name */
-static int hf_pres_transfer_syntax_name_list = -1;  /* SEQUENCE_OF_Transfer_syntax_name */
-static int hf_pres_transfer_syntax_name_list_item = -1;  /* Transfer_syntax_name */
-static int hf_pres_transfer_syntax_name = -1;     /* Transfer_syntax_name */
-static int hf_pres_mode_value = -1;               /* T_mode_value */
-static int hf_pres_Presentation_context_deletion_list_item = -1;  /* Presentation_context_identifier */
-static int hf_pres_Presentation_context_deletion_result_list_item = -1;  /* Presentation_context_deletion_result_list_item */
-static int hf_pres_Presentation_context_identifier_list_item = -1;  /* Presentation_context_identifier_list_item */
-static int hf_pres_Result_list_item = -1;         /* Result_list_item */
-static int hf_pres_result = -1;                   /* Result */
-static int hf_pres_provider_reason = -1;          /* T_provider_reason */
-static int hf_pres_simply_encoded_data = -1;      /* Simply_encoded_data */
-static int hf_pres_fully_encoded_data = -1;       /* Fully_encoded_data */
-static int hf_pres_Fully_encoded_data_item = -1;  /* PDV_list */
-static int hf_pres_presentation_data_values = -1;  /* T_presentation_data_values */
-static int hf_pres_single_ASN1_type = -1;         /* T_single_ASN1_type */
-static int hf_pres_octet_aligned = -1;            /* T_octet_aligned */
-static int hf_pres_arbitrary = -1;                /* BIT_STRING */
+static int hf_pres_UD_type_PDU;                   /* UD_type */
+static int hf_pres_mode_selector;                 /* Mode_selector */
+static int hf_pres_x410_mode_parameters;          /* RTORQapdu */
+static int hf_pres_normal_mode_parameters;        /* T_normal_mode_parameters */
+static int hf_pres_protocol_version;              /* Protocol_version */
+static int hf_pres_calling_presentation_selector;  /* Calling_presentation_selector */
+static int hf_pres_called_presentation_selector;  /* Called_presentation_selector */
+static int hf_pres_presentation_context_definition_list;  /* Presentation_context_definition_list */
+static int hf_pres_default_context_name;          /* Default_context_name */
+static int hf_pres_presentation_requirements;     /* Presentation_requirements */
+static int hf_pres_user_session_requirements;     /* User_session_requirements */
+static int hf_pres_protocol_options;              /* Protocol_options */
+static int hf_pres_initiators_nominated_context;  /* Presentation_context_identifier */
+static int hf_pres_extensions;                    /* T_extensions */
+static int hf_pres_user_data;                     /* User_data */
+static int hf_pres_cPR_PPDU_x400_mode_parameters;  /* RTOACapdu */
+static int hf_pres_cPU_PPDU_normal_mode_parameters;  /* T_CPA_PPDU_normal_mode_parameters */
+static int hf_pres_responding_presentation_selector;  /* Responding_presentation_selector */
+static int hf_pres_presentation_context_definition_result_list;  /* Presentation_context_definition_result_list */
+static int hf_pres_responders_nominated_context;  /* Presentation_context_identifier */
+static int hf_pres_cPU_PPDU_x400_mode_parameters;  /* RTORJapdu */
+static int hf_pres_cPR_PPDU_normal_mode_parameters;  /* T_CPR_PPDU_normal_mode_parameters */
+static int hf_pres_default_context_result;        /* Default_context_result */
+static int hf_pres_cPR_PPDU__provider_reason;     /* Provider_reason */
+static int hf_pres_aru_ppdu;                      /* ARU_PPDU */
+static int hf_pres_arp_ppdu;                      /* ARP_PPDU */
+static int hf_pres_aRU_PPDU_x400_mode_parameters;  /* RTABapdu */
+static int hf_pres_aRU_PPDU_normal_mode_parameters;  /* T_ARU_PPDU_normal_mode_parameters */
+static int hf_pres_presentation_context_identifier_list;  /* Presentation_context_identifier_list */
+static int hf_pres_aRU_PPDU_provider_reason;      /* Abort_reason */
+static int hf_pres_event_identifier;              /* Event_identifier */
+static int hf_pres_acPPDU;                        /* AC_PPDU */
+static int hf_pres_acaPPDU;                       /* ACA_PPDU */
+static int hf_pres_ttdPPDU;                       /* User_data */
+static int hf_pres_presentation_context_addition_list;  /* Presentation_context_addition_list */
+static int hf_pres_presentation_context_deletion_list;  /* Presentation_context_deletion_list */
+static int hf_pres_presentation_context_addition_result_list;  /* Presentation_context_addition_result_list */
+static int hf_pres_presentation_context_deletion_result_list;  /* Presentation_context_deletion_result_list */
+static int hf_pres_Context_list_item;             /* Context_list_item */
+static int hf_pres_presentation_context_identifier;  /* Presentation_context_identifier */
+static int hf_pres_abstract_syntax_name;          /* Abstract_syntax_name */
+static int hf_pres_transfer_syntax_name_list;     /* SEQUENCE_OF_Transfer_syntax_name */
+static int hf_pres_transfer_syntax_name_list_item;  /* Transfer_syntax_name */
+static int hf_pres_transfer_syntax_name;          /* Transfer_syntax_name */
+static int hf_pres_mode_value;                    /* T_mode_value */
+static int hf_pres_Presentation_context_deletion_list_item;  /* Presentation_context_identifier */
+static int hf_pres_Presentation_context_deletion_result_list_item;  /* Presentation_context_deletion_result_list_item */
+static int hf_pres_Presentation_context_identifier_list_item;  /* Presentation_context_identifier_list_item */
+static int hf_pres_Result_list_item;              /* Result_list_item */
+static int hf_pres_result;                        /* Result */
+static int hf_pres_provider_reason;               /* T_provider_reason */
+static int hf_pres_simply_encoded_data;           /* Simply_encoded_data */
+static int hf_pres_fully_encoded_data;            /* Fully_encoded_data */
+static int hf_pres_Fully_encoded_data_item;       /* PDV_list */
+static int hf_pres_presentation_data_values;      /* T_presentation_data_values */
+static int hf_pres_single_ASN1_type;              /* T_single_ASN1_type */
+static int hf_pres_octet_aligned;                 /* T_octet_aligned */
+static int hf_pres_arbitrary;                     /* BIT_STRING */
 /* named bits */
-static int hf_pres_Presentation_requirements_context_management = -1;
-static int hf_pres_Presentation_requirements_restoration = -1;
-static int hf_pres_Protocol_options_nominated_context = -1;
-static int hf_pres_Protocol_options_short_encoding = -1;
-static int hf_pres_Protocol_options_packed_encoding_rules = -1;
-static int hf_pres_Protocol_version_version_1 = -1;
-static int hf_pres_User_session_requirements_half_duplex = -1;
-static int hf_pres_User_session_requirements_duplex = -1;
-static int hf_pres_User_session_requirements_expedited_data = -1;
-static int hf_pres_User_session_requirements_minor_synchronize = -1;
-static int hf_pres_User_session_requirements_major_synchronize = -1;
-static int hf_pres_User_session_requirements_resynchronize = -1;
-static int hf_pres_User_session_requirements_activity_management = -1;
-static int hf_pres_User_session_requirements_negotiated_release = -1;
-static int hf_pres_User_session_requirements_capability_data = -1;
-static int hf_pres_User_session_requirements_exceptions = -1;
-static int hf_pres_User_session_requirements_typed_data = -1;
-static int hf_pres_User_session_requirements_symmetric_synchronize = -1;
-static int hf_pres_User_session_requirements_data_separation = -1;
+static int hf_pres_Presentation_requirements_context_management;
+static int hf_pres_Presentation_requirements_restoration;
+static int hf_pres_Protocol_options_nominated_context;
+static int hf_pres_Protocol_options_short_encoding;
+static int hf_pres_Protocol_options_packed_encoding_rules;
+static int hf_pres_Protocol_version_version_1;
+static int hf_pres_User_session_requirements_half_duplex;
+static int hf_pres_User_session_requirements_duplex;
+static int hf_pres_User_session_requirements_expedited_data;
+static int hf_pres_User_session_requirements_minor_synchronize;
+static int hf_pres_User_session_requirements_major_synchronize;
+static int hf_pres_User_session_requirements_resynchronize;
+static int hf_pres_User_session_requirements_activity_management;
+static int hf_pres_User_session_requirements_negotiated_release;
+static int hf_pres_User_session_requirements_capability_data;
+static int hf_pres_User_session_requirements_exceptions;
+static int hf_pres_User_session_requirements_typed_data;
+static int hf_pres_User_session_requirements_symmetric_synchronize;
+static int hf_pres_User_session_requirements_data_separation;
 
 /* Initialize the subtree pointers */
-static gint ett_pres           = -1;
+static gint ett_pres;
 
-static gint ett_pres_CP_type = -1;
-static gint ett_pres_T_normal_mode_parameters = -1;
-static gint ett_pres_T_extensions = -1;
-static gint ett_pres_CPA_PPDU = -1;
-static gint ett_pres_T_CPA_PPDU_normal_mode_parameters = -1;
-static gint ett_pres_CPR_PPDU = -1;
-static gint ett_pres_T_CPR_PPDU_normal_mode_parameters = -1;
-static gint ett_pres_Abort_type = -1;
-static gint ett_pres_ARU_PPDU = -1;
-static gint ett_pres_T_ARU_PPDU_normal_mode_parameters = -1;
-static gint ett_pres_ARP_PPDU = -1;
-static gint ett_pres_Typed_data_type = -1;
-static gint ett_pres_AC_PPDU = -1;
-static gint ett_pres_ACA_PPDU = -1;
-static gint ett_pres_RS_PPDU = -1;
-static gint ett_pres_RSA_PPDU = -1;
-static gint ett_pres_Context_list = -1;
-static gint ett_pres_Context_list_item = -1;
-static gint ett_pres_SEQUENCE_OF_Transfer_syntax_name = -1;
-static gint ett_pres_Default_context_name = -1;
-static gint ett_pres_Mode_selector = -1;
-static gint ett_pres_Presentation_context_deletion_list = -1;
-static gint ett_pres_Presentation_context_deletion_result_list = -1;
-static gint ett_pres_Presentation_context_identifier_list = -1;
-static gint ett_pres_Presentation_context_identifier_list_item = -1;
-static gint ett_pres_Presentation_requirements = -1;
-static gint ett_pres_Protocol_options = -1;
-static gint ett_pres_Protocol_version = -1;
-static gint ett_pres_Result_list = -1;
-static gint ett_pres_Result_list_item = -1;
-static gint ett_pres_User_data = -1;
-static gint ett_pres_Fully_encoded_data = -1;
-static gint ett_pres_PDV_list = -1;
-static gint ett_pres_T_presentation_data_values = -1;
-static gint ett_pres_User_session_requirements = -1;
-static gint ett_pres_UD_type = -1;
+static gint ett_pres_CP_type;
+static gint ett_pres_T_normal_mode_parameters;
+static gint ett_pres_T_extensions;
+static gint ett_pres_CPA_PPDU;
+static gint ett_pres_T_CPA_PPDU_normal_mode_parameters;
+static gint ett_pres_CPR_PPDU;
+static gint ett_pres_T_CPR_PPDU_normal_mode_parameters;
+static gint ett_pres_Abort_type;
+static gint ett_pres_ARU_PPDU;
+static gint ett_pres_T_ARU_PPDU_normal_mode_parameters;
+static gint ett_pres_ARP_PPDU;
+static gint ett_pres_Typed_data_type;
+static gint ett_pres_AC_PPDU;
+static gint ett_pres_ACA_PPDU;
+static gint ett_pres_RS_PPDU;
+static gint ett_pres_RSA_PPDU;
+static gint ett_pres_Context_list;
+static gint ett_pres_Context_list_item;
+static gint ett_pres_SEQUENCE_OF_Transfer_syntax_name;
+static gint ett_pres_Default_context_name;
+static gint ett_pres_Mode_selector;
+static gint ett_pres_Presentation_context_deletion_list;
+static gint ett_pres_Presentation_context_deletion_result_list;
+static gint ett_pres_Presentation_context_identifier_list;
+static gint ett_pres_Presentation_context_identifier_list_item;
+static gint ett_pres_Presentation_requirements;
+static gint ett_pres_Protocol_options;
+static gint ett_pres_Protocol_version;
+static gint ett_pres_Result_list;
+static gint ett_pres_Result_list_item;
+static gint ett_pres_User_data;
+static gint ett_pres_Fully_encoded_data;
+static gint ett_pres_PDV_list;
+static gint ett_pres_T_presentation_data_values;
+static gint ett_pres_User_session_requirements;
+static gint ett_pres_UD_type;
 
-static expert_field ei_pres_dissector_not_available = EI_INIT;
-static expert_field ei_pres_wrong_spdu_type = EI_INIT;
-static expert_field ei_pres_invalid_offset = EI_INIT;
+static expert_field ei_pres_dissector_not_available;
+static expert_field ei_pres_wrong_spdu_type;
+static expert_field ei_pres_invalid_offset;
 
 UAT_DEC_CB_DEF(pres_users, ctx_id, pres_user_t)
 UAT_CSTRING_CB_DEF(pres_users, oid, pres_user_t)

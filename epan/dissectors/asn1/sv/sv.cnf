@@ -34,7 +34,7 @@ SampledValues
 	{
 		proto_tree_add_expert_format(tree, actx->pinfo, &ei_sv_mal_utctime, tvb, offset, len,
 				"BER Error: malformed UTCTime encoding, length must be 8 bytes");
-		if(hf_index >= 0)
+		if(hf_index > 0)
 		{
 			proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
 		}
@@ -50,7 +50,7 @@ SampledValues
 
 	ptime = abs_time_to_str(actx->pinfo->pool, &ts, ABSOLUTE_TIME_UTC, TRUE);
 
-	if(hf_index >= 0)
+	if(hf_index > 0)
 	{
 		proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
 	}
@@ -92,7 +92,7 @@ UtcTime	TYPE = FT_STRING DISPLAY = BASE_NONE
 	{
 		proto_tree_add_expert_format(tree, actx->pinfo, &ei_sv_mal_gmidentity, tvb, offset, len,
 				"BER Error: malformed gmIdentity encoding, length must be 8 bytes");
-		if(hf_index >= 0)
+		if(hf_index > 0)
 		{
 			proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
 		}

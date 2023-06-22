@@ -44,63 +44,63 @@
 void proto_register_atn_cm(void);
 void proto_reg_handoff_atn_cm(void);
 
-static int hf_atn_cm_CMAircraftMessage_PDU = -1;  /* CMAircraftMessage */
-static int hf_atn_cm_CMGroundMessage_PDU = -1;    /* CMGroundMessage */
-static int hf_atn_cm_cmLogonRequest = -1;         /* CMLogonRequest */
-static int hf_atn_cm_cmContactResponse = -1;      /* CMContactResponse */
-static int hf_atn_cm_cmAbortReason = -1;          /* CMAbortReason */
-static int hf_atn_cm_cmLogonResponse = -1;        /* CMLogonResponse */
-static int hf_atn_cm_cmUpdate = -1;               /* CMUpdate */
-static int hf_atn_cm_cmContactRequest = -1;       /* CMContactRequest */
-static int hf_atn_cm_cmForwardRequest = -1;       /* CMForwardRequest */
-static int hf_atn_cm_cmForwardResponse = -1;      /* CMForwardResponse */
-static int hf_atn_cm_longTsap = -1;               /* LongTsap */
-static int hf_atn_cm_shortTsap = -1;              /* ShortTsap */
-static int hf_atn_cm_aeQualifier = -1;            /* AEQualifier */
-static int hf_atn_cm_apVersion = -1;              /* VersionNumber */
-static int hf_atn_cm_apAddress = -1;              /* APAddress */
-static int hf_atn_cm_facilityDesignation = -1;    /* FacilityDesignation */
-static int hf_atn_cm_address = -1;                /* LongTsap */
-static int hf_atn_cm_aircraftFlightIdentification = -1;  /* AircraftFlightIdentification */
-static int hf_atn_cm_cMLongTSAP = -1;             /* LongTsap */
-static int hf_atn_cm_groundInitiatedApplications = -1;  /* SEQUENCE_SIZE_1_256_OF_AEQualifierVersionAddress */
-static int hf_atn_cm_groundInitiatedApplications_item = -1;  /* AEQualifierVersionAddress */
-static int hf_atn_cm_airOnlyInitiatedApplications = -1;  /* SEQUENCE_SIZE_1_256_OF_AEQualifierVersion */
-static int hf_atn_cm_airOnlyInitiatedApplications_item = -1;  /* AEQualifierVersion */
-static int hf_atn_cm_airportDeparture = -1;       /* Airport */
-static int hf_atn_cm_airportDestination = -1;     /* Airport */
-static int hf_atn_cm_dateTimeDepartureETD = -1;   /* DateTime */
-static int hf_atn_cm_airInitiatedApplications = -1;  /* SEQUENCE_SIZE_1_256_OF_AEQualifierVersionAddress */
-static int hf_atn_cm_airInitiatedApplications_item = -1;  /* AEQualifierVersionAddress */
-static int hf_atn_cm_groundOnlyInitiatedApplications = -1;  /* SEQUENCE_SIZE_1_256_OF_AEQualifierVersion */
-static int hf_atn_cm_groundOnlyInitiatedApplications_item = -1;  /* AEQualifierVersion */
-static int hf_atn_cm_year = -1;                   /* Year */
-static int hf_atn_cm_month = -1;                  /* Month */
-static int hf_atn_cm_day = -1;                    /* Day */
-static int hf_atn_cm_date = -1;                   /* Date */
-static int hf_atn_cm_time = -1;                   /* Time */
-static int hf_atn_cm_rDP = -1;                    /* OCTET_STRING_SIZE_5 */
-static int hf_atn_cm_aRS = -1;                    /* OCTET_STRING_SIZE_3 */
-static int hf_atn_cm_locSysNselTsel = -1;         /* OCTET_STRING_SIZE_10_11 */
-static int hf_atn_cm_hours = -1;                  /* Timehours */
-static int hf_atn_cm_minutes = -1;                /* Timeminutes */
+static int hf_atn_cm_CMAircraftMessage_PDU;       /* CMAircraftMessage */
+static int hf_atn_cm_CMGroundMessage_PDU;         /* CMGroundMessage */
+static int hf_atn_cm_cmLogonRequest;              /* CMLogonRequest */
+static int hf_atn_cm_cmContactResponse;           /* CMContactResponse */
+static int hf_atn_cm_cmAbortReason;               /* CMAbortReason */
+static int hf_atn_cm_cmLogonResponse;             /* CMLogonResponse */
+static int hf_atn_cm_cmUpdate;                    /* CMUpdate */
+static int hf_atn_cm_cmContactRequest;            /* CMContactRequest */
+static int hf_atn_cm_cmForwardRequest;            /* CMForwardRequest */
+static int hf_atn_cm_cmForwardResponse;           /* CMForwardResponse */
+static int hf_atn_cm_longTsap;                    /* LongTsap */
+static int hf_atn_cm_shortTsap;                   /* ShortTsap */
+static int hf_atn_cm_aeQualifier;                 /* AEQualifier */
+static int hf_atn_cm_apVersion;                   /* VersionNumber */
+static int hf_atn_cm_apAddress;                   /* APAddress */
+static int hf_atn_cm_facilityDesignation;         /* FacilityDesignation */
+static int hf_atn_cm_address;                     /* LongTsap */
+static int hf_atn_cm_aircraftFlightIdentification;  /* AircraftFlightIdentification */
+static int hf_atn_cm_cMLongTSAP;                  /* LongTsap */
+static int hf_atn_cm_groundInitiatedApplications;  /* SEQUENCE_SIZE_1_256_OF_AEQualifierVersionAddress */
+static int hf_atn_cm_groundInitiatedApplications_item;  /* AEQualifierVersionAddress */
+static int hf_atn_cm_airOnlyInitiatedApplications;  /* SEQUENCE_SIZE_1_256_OF_AEQualifierVersion */
+static int hf_atn_cm_airOnlyInitiatedApplications_item;  /* AEQualifierVersion */
+static int hf_atn_cm_airportDeparture;            /* Airport */
+static int hf_atn_cm_airportDestination;          /* Airport */
+static int hf_atn_cm_dateTimeDepartureETD;        /* DateTime */
+static int hf_atn_cm_airInitiatedApplications;    /* SEQUENCE_SIZE_1_256_OF_AEQualifierVersionAddress */
+static int hf_atn_cm_airInitiatedApplications_item;  /* AEQualifierVersionAddress */
+static int hf_atn_cm_groundOnlyInitiatedApplications;  /* SEQUENCE_SIZE_1_256_OF_AEQualifierVersion */
+static int hf_atn_cm_groundOnlyInitiatedApplications_item;  /* AEQualifierVersion */
+static int hf_atn_cm_year;                        /* Year */
+static int hf_atn_cm_month;                       /* Month */
+static int hf_atn_cm_day;                         /* Day */
+static int hf_atn_cm_date;                        /* Date */
+static int hf_atn_cm_time;                        /* Time */
+static int hf_atn_cm_rDP;                         /* OCTET_STRING_SIZE_5 */
+static int hf_atn_cm_aRS;                         /* OCTET_STRING_SIZE_3 */
+static int hf_atn_cm_locSysNselTsel;              /* OCTET_STRING_SIZE_10_11 */
+static int hf_atn_cm_hours;                       /* Timehours */
+static int hf_atn_cm_minutes;                     /* Timeminutes */
 
-static gint ett_atn_cm_CMAircraftMessage = -1;
-static gint ett_atn_cm_CMGroundMessage = -1;
-static gint ett_atn_cm_APAddress = -1;
-static gint ett_atn_cm_AEQualifierVersion = -1;
-static gint ett_atn_cm_AEQualifierVersionAddress = -1;
-static gint ett_atn_cm_CMContactRequest = -1;
-static gint ett_atn_cm_CMLogonRequest = -1;
-static gint ett_atn_cm_SEQUENCE_SIZE_1_256_OF_AEQualifierVersionAddress = -1;
-static gint ett_atn_cm_SEQUENCE_SIZE_1_256_OF_AEQualifierVersion = -1;
-static gint ett_atn_cm_CMLogonResponse = -1;
-static gint ett_atn_cm_Date = -1;
-static gint ett_atn_cm_DateTime = -1;
-static gint ett_atn_cm_LongTsap = -1;
-static gint ett_atn_cm_ShortTsap = -1;
-static gint ett_atn_cm_Time = -1;
-static gint ett_atn_cm = -1;
+static gint ett_atn_cm_CMAircraftMessage;
+static gint ett_atn_cm_CMGroundMessage;
+static gint ett_atn_cm_APAddress;
+static gint ett_atn_cm_AEQualifierVersion;
+static gint ett_atn_cm_AEQualifierVersionAddress;
+static gint ett_atn_cm_CMContactRequest;
+static gint ett_atn_cm_CMLogonRequest;
+static gint ett_atn_cm_SEQUENCE_SIZE_1_256_OF_AEQualifierVersionAddress;
+static gint ett_atn_cm_SEQUENCE_SIZE_1_256_OF_AEQualifierVersion;
+static gint ett_atn_cm_CMLogonResponse;
+static gint ett_atn_cm_Date;
+static gint ett_atn_cm_DateTime;
+static gint ett_atn_cm_LongTsap;
+static gint ett_atn_cm_ShortTsap;
+static gint ett_atn_cm_Time;
+static gint ett_atn_cm;
 
 
 
@@ -600,7 +600,7 @@ static int dissect_CMGroundMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
   return offset;
 }
 
-static int proto_atn_cm = -1;
+static int proto_atn_cm;
 
 static int
 dissect_atn_cm(

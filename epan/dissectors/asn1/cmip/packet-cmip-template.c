@@ -33,19 +33,19 @@ void proto_reg_handoff_cmip(void);
 #include "packet-pres.h"
 
 /* Initialize the protocol and registered fields */
-static int proto_cmip = -1;
-static int hf_cmip_actionType_OID = -1;
-static int hf_cmip_eventType_OID = -1;
-static int hf_cmip_attributeId_OID = -1;
-static int hf_cmip_errorId_OID = -1;
+static int proto_cmip;
+static int hf_cmip_actionType_OID;
+static int hf_cmip_eventType_OID;
+static int hf_cmip_attributeId_OID;
+static int hf_cmip_errorId_OID;
 
 #include "packet-cmip-hf.c"
 
 /* Initialize the subtree pointers */
-static gint ett_cmip = -1;
+static gint ett_cmip;
 #include "packet-cmip-ett.c"
 
-static expert_field ei_wrong_spdu_type = EI_INIT;
+static expert_field ei_wrong_spdu_type;
 
 static guint32 opcode;
 
