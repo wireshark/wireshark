@@ -1990,8 +1990,8 @@ static tap_packet_status
 opensafety_conversation_packet(void *pct, packet_info *pinfo,
         epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
 {
-    address *src = (address *)wmem_alloc0(pinfo->pool, sizeof(address));
-    address *dst = (address *)wmem_alloc0(pinfo->pool, sizeof(address));
+    address *src = wmem_new0(pinfo->pool, address);
+    address *dst = wmem_new0(pinfo->pool, address);
     conv_hash_t *hash = (conv_hash_t*) pct;
     const opensafety_packet_info *osinfo = (const opensafety_packet_info *)vip;
     guint16 receiver = GUINT16_FROM_LE(osinfo->receiver);
@@ -2014,8 +2014,8 @@ static tap_packet_status
 opensafety_endpoint_packet(void *pit, packet_info *pinfo,
         epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
 {
-    address *src = (address *)wmem_alloc0(pinfo->pool, sizeof(address));
-    address *dst = (address *)wmem_alloc0(pinfo->pool, sizeof(address));
+    address *src = wmem_new0(pinfo->pool, address);
+    address *dst = wmem_new0(pinfo->pool, address);
     conv_hash_t *hash = (conv_hash_t*) pit;
     const opensafety_packet_info *osinfo = (const opensafety_packet_info *)vip;
     guint16 receiver = GUINT16_FROM_LE(osinfo->receiver);
