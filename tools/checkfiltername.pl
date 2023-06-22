@@ -350,6 +350,8 @@ sub is_proto_dup_allowed {
 	if (($_[0] eq "sm") && (index($_[1], "sm_") >= 0)) {return 1;}
 	if (($_[0] eq "smpp") && (index($_[1], "smppplus") >= 0)) {return 1;}
 	if (($_[0] eq "spray") && (index($_[1], "sprayarr") >= 0)) {return 1;}
+	if (($_[0] eq "stat") && (index($_[1], "stat_") >= 0)) {return 1;}
+	if (($_[0] eq "stat") && (index($_[1], "state") >= 0)) {return 1;}
 	if (($_[0] eq "tds") && (index($_[1], "tds_") >= 0)) {return 1;}
 	if (($_[0] eq "time") && (index($_[1], "time") >= 0)) {return 1;}
 	if (($_[0] eq "tn3270") && (index($_[1], "tn3270e") >= 0)) {return 1;}
