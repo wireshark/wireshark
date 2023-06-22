@@ -813,11 +813,17 @@ streaming_reassembly_info_new(void);
  * the current PDU (MSP), and set pinfo->desegment_offset to the offset in the tvbuff at which the dissector will
  * continue processing when next called. Next time the subdissector is called, it will be passed a tvbuff composed
  * of the end of the data from the previous tvbuff together with desegment_len more bytes. If the dissector cannot
- * tell how many more bytes it will need, it should set pinfo->desegment_len to additional bytes required for parsing
+ * tell how many more bytes it will need, it should set pinfo->desegment_len to DESEGMENT_ONE_MORE_SEGMENT or additional bytes required for parsing
  * message head. It will then be called again as soon as more data becomes available. Subdissector MUST NOT set the
- * pinfo->desegment_len to DESEGMENT_UNTIL_FIN, we don't support it yet. Note that the subdissector MUST return the
- * length of the tvb handled by itself (return 0 length if nothing is parsed in MoMSP), otherwise it may cause
- * unexpected dissecting errors.
+ * pinfo->desegment_len to DESEGMENT_UNTIL_FIN, we don't support it yet.
+ *
+ * Note that if the subdissector sets pinfo->desegment_len to additional bytes required for parsing the header of
+ * the message rather than the entire message when the length of entire message is unable to be determined, it MUST
+ * return the length of the tvb handled by itself (for example, return 0 length if nothing is parsed in MoMSP),
+ * otherwise it may cause some unexpected dissecting errors. However, if you want to be compatible with TCP's reassembly
+ * method by setting the pinfo->desegment_len, you MUST set the pinfo->desegment_len to DESEGMENT_ONE_MORE_SEGMENT
+ * when the entire message length cannot be determined, and return a length other than 0 (such as tvb_captured_length(tvb))
+ * when exiting the subdissector dissect function (such as dissect_proto_b()).
  *
  * Following is sample code of ProtoB which on top of ProtoA mentioned above:
  * <code>
@@ -833,10 +839,15 @@ streaming_reassembly_info_new(void);
  *                 // need at least X bytes for getting a ProtoB message
  *                 if (pinfo->can_desegment) {
  *                     pinfo->desegment_offset = offset;
- *                     // calculate how many additional bytes needed to parse head of a ProtoB message
- *                     // or just return DESEGMENT_ONE_MORE_SEGMENT
- *                     pinfo->desegment_len = PROTO_B_MESSAGE_HEAD_LEN - (tvb_len - offset);
- *                     return offset; // return the length handled by ProtoB
+ *                     // It is strongly recommended to set pinfo->desegment_len to DESEGMENT_ONE_MORE_SEGMENT
+ *                     // if the length of entire message is unknown.
+ *                     pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+ *                     return tvb_len; // MUST return a length other than 0
+ *
+ *                     // Or set pinfo->desegment_len to how many additional bytes needed to parse head of
+ *                     // a ProtoB message.
+ *                     // pinfo->desegment_len = PROTO_B_MESSAGE_HEAD_LEN - (tvb_len - offset);
+ *                     // return offset; // But you MUST return the length handled by ProtoB
  *                 }
  *                 ...
  *     	       }
@@ -850,7 +861,12 @@ streaming_reassembly_info_new(void);
  *                     pinfo->desegment_offset = offset;
  *                     // caculate how many additional bytes need to parsing body of a ProtoB message
  *                     pinfo->desegment_len = body_len - (tvb_len - offset - PROTO_B_MESSAGE_HEAD_LEN);
- *                     return offset;
+ *                     // MUST return a length other than 0, if DESEGMENT_ONE_MORE_SEGMENT is used previously.
+ *                     return tvb_len;
+ *
+ *                     // MUST return the length handled by ProtoB,
+ *                     // if 'pinfo->desegment_len = PROTO_B_MESSAGE_HEAD_LEN - (tvb_len - offset);' is used previously.
+ *                     // return offset;
  *                 }
  *                 ...
  *             }
