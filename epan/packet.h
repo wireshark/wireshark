@@ -607,6 +607,9 @@ WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_name_and_descripti
 WS_DLL_PUBLIC dissector_handle_t create_dissector_handle_with_data(dissector_cb_t dissector,
     const int proto, void* cb_data);
 
+/* Dump all registered dissectors to the standard output */
+WS_DLL_PUBLIC void dissector_dump_dissectors(void);
+
 /** Call a dissector through a handle and if no dissector was found
  * pass it over to the "data" dissector instead.
  *

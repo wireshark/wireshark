@@ -3637,16 +3637,21 @@ dissector_dump_decodes(void)
 }
 
 /*
- * Dumps the "layer type"/"decode as" associations to stdout, similar
- * to the proto_registrar_dump_*() routines.
+ * Dumps information about dissector tables to stdout.
  *
  * There is one record per line. The fields are tab-delimited.
  *
- * Field 1 = layer type, e.g. "tcp.port"
- * Field 2 = selector in decimal
- * Field 3 = "decode as" name, e.g. "http"
+ * Field 1 = dissector table name, e.g. "tcp.port"
+ * Field 2 = name used for the dissector table in the GUI
+ * Field 3 = type (textual representation of the ftenum type)
+ * Field 4 = base for display (for integer types)
+ * Field 5 = protocol name
+ * Field 6 = "decode as" support
+ *
+ * This does not dump the *individual entries* in the dissector tables,
+ * i.e. it doesn't show what dissector handles what particular value
+ * of the key in the dissector table.
  */
-
 
 static void
 dissector_dump_dissector_tables_display (gpointer key, gpointer user_data _U_)
@@ -3718,6 +3723,57 @@ dissector_dump_dissector_tables(void)
 	list = g_list_sort(list, compare_dissector_key_name);
 	g_list_foreach(list, dissector_dump_dissector_tables_display, NULL);
 	g_list_free(list);
+}
+
+/*
+ * Dumps the entries in the table of registered dissectors.
+ *
+ * There is one record per line. The fields are tab-delimited.
+ *
+ * Field 1 = dissector name
+ * Field 2 = dissector description
+ */
+
+struct dissector_info {
+	const char *name;
+	const char *description;
+};
+
+static int
+compare_dissector_info_names(const void *arg1, const void *arg2)
+{
+	const struct dissector_info *info1 = (const struct dissector_info *) arg1;
+	const struct dissector_info *info2 = (const struct dissector_info *) arg2;
+
+	return strcmp(info1->name, info2->name);
+}
+
+void
+dissector_dump_dissectors(void)
+{
+	GHashTableIter iter;
+	struct dissector_info *dissectors_info;
+	guint num_protocols;
+	gpointer key, value;
+	guint proto_index;
+
+	g_hash_table_iter_init(&iter, registered_dissectors);
+	num_protocols = g_hash_table_size(registered_dissectors);
+	dissectors_info = g_new(struct dissector_info, num_protocols);
+	proto_index = 0;
+	while (g_hash_table_iter_next(&iter, &key, &value)) {
+		dissectors_info[proto_index].name = (const char *)key;
+		dissectors_info[proto_index].description =
+		    ((dissector_handle_t) value)->description;
+		proto_index++;
+	}
+	qsort(dissectors_info, num_protocols, sizeof(struct dissector_info),
+	    compare_dissector_info_names);
+	for (proto_index = 0; proto_index < num_protocols; proto_index++) {
+		printf("%s\t%s\n", dissectors_info[proto_index].name,
+		    dissectors_info[proto_index].description);
+	}
+	g_free(dissectors_info);
 }
 
 void
