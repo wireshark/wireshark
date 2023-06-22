@@ -2168,7 +2168,7 @@ signal_pipe_capquit_to_child(capture_session *cap_session)
     /*pipe_write_block(cap_session->signal_pipe_write_fd, SP_QUIT, quit_msg);*/
     ret = ws_write(cap_session->signal_pipe_write_fd, quit_msg, sizeof quit_msg);
     if(ret == -1) {
-        ws_warning("%d header: error %s", cap_session->signal_pipe_write_fd, g_strerror(errno));
+        ws_warning("%d header: error %s", cap_session->signal_pipe_write_fd, win32strerror(GetLastError()));
     }
 }
 #endif
