@@ -186,6 +186,9 @@ static const value_string acdr_media_type_vals[] = {
     {ACDR_RTP_NSE,          "RTP NSE"            },
     {ACDR_RTP_NO_OP,        "RTP NoOp"           },
     {ACDR_DTLS,             "DTLS Data"          },
+    {ACDR_SSH_SHELL,        "SSH Shell"          },
+    {ACDR_SSH_SFTP,         "SSH SFTP"           },
+    {ACDR_SSH_SCP,          "SSH SCP"            },
     {0,                NULL                 }
 };
 
@@ -406,6 +409,7 @@ static dissector_handle_t dsp_5x_MII_dissector_handle;
 static dissector_handle_t udp_dissector_handle;
 static dissector_handle_t xml_dissector_handle;
 static dissector_handle_t lix2x3_dissector_handle;
+static dissector_handle_t ssh_dissector_handle;
 
 static void dissect_rtp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                guint8 media_type, guint16 payload_type);
@@ -1504,6 +1508,25 @@ dissect_acdr_dsp_data_relay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return call_data_dissector(tvb, pinfo, tree);
 }
 
+static const char *acdr_ssh_protocol(int media_type)
+{
+    switch (media_type) {
+    case ACDR_SSH_SHELL: return "SSH-SHELL";
+    case ACDR_SSH_SFTP: return "SSH-SFTP";
+    case ACDR_SSH_SCP: return "SSH-SCP";
+    }
+    return "Unknown";
+}
+
+static int
+dissect_acdr_ssh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    acdr_dissector_data_t *acdr_data = (acdr_dissector_data_t *) data;
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, acdr_ssh_protocol(acdr_data->media_type));
+    col_set_str(pinfo->cinfo, COL_INFO, "SSH raw data");
+    return call_data_dissector(tvb, pinfo, tree);
+}
+
 void
 proto_register_acdr(void)
 {
@@ -2005,6 +2028,7 @@ proto_reg_handoff_acdr(void)
 
     udp_stun_dissector_handle = find_dissector("stun-udp");
     xml_dissector_handle = find_dissector("xml");
+    ssh_dissector_handle = create_dissector_handle(dissect_acdr_ssh, proto_acdr);
 
     // register our port number to the underlying TCP/UDP layers so our
     // dissector gets called for the appropriate port
@@ -2050,6 +2074,9 @@ proto_reg_handoff_acdr(void)
     dissector_add_uint("acdr.media_type", ACDR_QOE_CDR, acdr_xml_dissector_handle);
     dissector_add_uint("acdr.media_type", ACDR_QOE_MDR, acdr_xml_dissector_handle);
     dissector_add_uint("acdr.media_type", ACDR_QOE_EVENT, acdr_xml_dissector_handle);
+    dissector_add_uint("acdr.media_type", ACDR_SSH_SHELL, ssh_dissector_handle);
+    dissector_add_uint("acdr.media_type", ACDR_SSH_SFTP, ssh_dissector_handle);
+    dissector_add_uint("acdr.media_type", ACDR_SSH_SCP, ssh_dissector_handle);
 }
 
 /*

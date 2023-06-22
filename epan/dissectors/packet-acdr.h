@@ -73,7 +73,10 @@ enum acdr_media_types
     ACDR_RTP_MODEM_BYPASS = 58,
     ACDR_RTP_NSE = 59,
     ACDR_RTP_NO_OP = 60,
-    ACDR_DTLS = 61
+    ACDR_DTLS = 61,
+    ACDR_SSH_SHELL = 62,
+    ACDR_SSH_SFTP = 63,
+    ACDR_SSH_SCP = 64
 };
 
 enum AcdrTlsApplication
