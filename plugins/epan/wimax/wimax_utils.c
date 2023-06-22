@@ -1033,10 +1033,6 @@ void wimax_proto_register_wimax_utility_decoders(void)
 			{"Protocol", "wmx.cst.pkt_class_rule.protocol", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
 		},
 #if 0 /* Removed by the changes of 802.16E 2005 */
-		{	/* Protocol */
-			&hf_cst_pkt_class_rule_protocol,
-			{"Protocol", "wmx.cst.pkt_class_rule.protocol", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
-		},
 		{	/* Protocol Number */
 			&hf_cst_pkt_class_rule_protocol_number,
 			{"Protocol Number", "wmx.cst.pkt_class_rule.protocol.number", FT_UINT8, BASE_DEC, NULL, 0x0, "", HFILL}
@@ -1612,12 +1608,6 @@ void wimax_proto_register_wimax_utility_decoders(void)
 			&hf_pkm_attr_sa_service_type,
 			{"SA Service Type", "wmx.pkm_msg.pkm_attr.sa_service_type", FT_UINT8, BASE_DEC, VALS(vs_sa_service_type), 0x0, NULL, HFILL}
 		},
-#if 0	/* same as 11.9.19 */
-		{	/* 11.9.36 - type 27 */
-			&hf_pkm_attr_config_settings,
-			{"PKMv2 Configuration Settings", "wmx.pkm_msg.pkm_attr.config_settings", FT_BYTES, BASE_HEX, NULL, 0x0, "", HFILL}
-		},
-#endif
 		{	/* 11.9.37 - type 32 */
 			&hf_pkm_attr_frame_number,
 			{"Frame Number", "wmx.pkm_msg.pkm_attr.frame_number", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL}
