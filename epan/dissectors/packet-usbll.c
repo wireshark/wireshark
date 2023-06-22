@@ -238,7 +238,7 @@ static guint besl_to_us(guint8 besl)
     return us;
 }
 
-static void lpm_besl_str(gchar *buf, guint32 value)
+void usb_lpm_besl_str(gchar *buf, guint32 value)
 {
     snprintf(buf, ITEM_LABEL_LENGTH, "%d us (%d)", besl_to_us(value), value);
 }
@@ -2653,7 +2653,7 @@ proto_register_usbll(void)
               NULL, HFILL }},
         { &hf_usbll_lpm_besl,
             { "BESL", "usbll.lpm_besl",
-              FT_UINT16, BASE_CUSTOM, CF_FUNC(lpm_besl_str), 0x00F0,
+              FT_UINT16, BASE_CUSTOM, CF_FUNC(usb_lpm_besl_str), 0x00F0,
               "Best Effort Service Latency", HFILL}},
         { &hf_usbll_lpm_remote_wake,
             { "bRemoteWake", "usbll.lpm_remote_wake",

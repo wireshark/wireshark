@@ -331,6 +331,8 @@ void
 dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                    usb_header_t header_type, void *extra_data);
 
+void usb_lpm_besl_str(gchar *buf, guint32 value);
+
 #endif
 
 /*

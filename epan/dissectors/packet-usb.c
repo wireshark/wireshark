@@ -269,6 +269,24 @@ static int hf_usb_bFunctionClass = -1;
 static int hf_usb_bFunctionSubClass = -1;
 static int hf_usb_bFunctionProtocol = -1;
 static int hf_usb_iFunction = -1;
+static int hf_usb_bNumDeviceCaps = -1;
+static int hf_usb_bDevCapabilityType = -1;
+static int hf_usb_usb20ext_bmAttributes = -1;
+static int hf_usb_usb20ext_LPM = -1;
+static int hf_usb_usb20ext_BESL_HIRD = -1;
+static int hf_usb_usb20ext_baseline_BESL_valid = -1;
+static int hf_usb_usb20ext_deep_BESL_valid = -1;
+static int hf_usb_usb20ext_baseline_BESL = -1;
+static int hf_usb_usb20ext_deep_BESL = -1;
+static int hf_usb_bReserved = -1;
+static int hf_usb_PlatformCapabilityUUID = -1;
+static int hf_usb_webusb_bcdVersion = -1;
+static int hf_usb_webusb_bVendorCode = -1;
+static int hf_usb_webusb_iLandingPage = -1;
+static int hf_usb_msos20_dwWindowsVersion = -1;
+static int hf_usb_msos20_wMSOSDescriptorSetTotalLength = -1;
+static int hf_usb_msos20_bMS_VendorCode = -1;
+static int hf_usb_msos20_bAltEnumCode = -1;
 static int hf_usb_data_fragment = -1;
 static int hf_usb_src = -1;
 static int hf_usb_dst = -1;
@@ -365,6 +383,7 @@ static gint ett_usbport_endpoint_desc = -1;
 static gint ett_usbport_urb = -1;
 static gint ett_usbport_keyword = -1;
 static gint ett_transfer_flags = -1;
+static gint ett_usb20ext_bmAttributes = -1;
 
 static expert_field ei_usb_undecoded = EI_INIT;
 static expert_field ei_usb_bLength_even = EI_INIT;
@@ -377,6 +396,7 @@ static expert_field ei_usb_bad_length = EI_INIT;
 static expert_field ei_usb_invalid_max_packet_size = EI_INIT;
 static expert_field ei_usb_invalid_max_packet_size0 = EI_INIT;
 static expert_field ei_usb_invalid_endpoint_type = EI_INIT;
+static expert_field ei_usb_unexpected_desc_type = EI_INIT;
 
 static expert_field ei_usbport_invalid_path_depth = EI_INIT;
 
@@ -663,6 +683,52 @@ static const value_string usb_protocols[] = {
     {0, NULL}
 };
 static value_string_ext usb_protocols_ext = VALUE_STRING_EXT_INIT(usb_protocols);
+
+/* BOS Descriptor Device Capability Type Codes
+   https://www.usb.org/bos-descriptor-types
+*/
+#define BOS_CAP_WIRELESS_USB           0x01
+#define BOS_CAP_USB_20_EXTENSION       0x02
+#define BOS_CAP_SUPERSPEED_USB         0x03
+#define BOS_CAP_CONTAINER_ID           0x04
+#define BOS_CAP_PLATFORM               0x05
+#define BOS_CAP_POWER_DELIVERY         0x06
+#define BOS_CAP_BATTERY_INFO           0x07
+#define BOS_CAP_PD_CONSUMER_PORT       0x08
+#define BOS_CAP_PD_PROVIDER_PORT       0x09
+#define BOS_CAP_SUPERSPEED_PLUS        0x0A
+#define BOS_CAP_PRECISION_TIME_MEAS    0x0B
+#define BOS_CAP_WIRELESS_USB_EXT       0x0C
+#define BOS_CAP_BILLBOARD              0x0D
+#define BOS_CAP_AUTHENTICATION         0x0E
+#define BOS_CAP_BILLBOARD_EX           0x0F
+#define BOS_CAP_CONFIGURATION_SUMMARY  0x10
+#define BOS_CAP_FWSTATUS               0x11
+#define BOS_CAP_USB3_GEN_T             0x13
+static const value_string usb_capability_vals[] = {
+    {BOS_CAP_WIRELESS_USB,          "Wireless USB"},
+    {BOS_CAP_USB_20_EXTENSION,      "USB 2.0 Extension Descriptor"},
+    {BOS_CAP_SUPERSPEED_USB,        "SuperSpeed USB"},
+    {BOS_CAP_CONTAINER_ID,          "Container ID"},
+    {BOS_CAP_PLATFORM,              "Platform"},
+    {BOS_CAP_POWER_DELIVERY,        "Power Delivery Capability"},
+    {BOS_CAP_BATTERY_INFO,          "Battery Info Capability"},
+    {BOS_CAP_PD_CONSUMER_PORT,      "PD Consumer Port Capability"},
+    {BOS_CAP_PD_PROVIDER_PORT,      "PD Provider Port Capability"},
+    {BOS_CAP_SUPERSPEED_PLUS,       "SuperSpeed Plus"},
+    {BOS_CAP_PRECISION_TIME_MEAS,   "Precision Time Measurement"},
+    {BOS_CAP_WIRELESS_USB_EXT,      "Wireless USB Ext"},
+    {BOS_CAP_BILLBOARD,             "Billboard Capability"},
+    {BOS_CAP_AUTHENTICATION,        "Authentication Capability Descriptor"},
+    {BOS_CAP_BILLBOARD_EX,          "Billboard Ex capability"},
+    {BOS_CAP_CONFIGURATION_SUMMARY, "Configuration Summary"},
+    {BOS_CAP_FWSTATUS,              "Firmware Status"},
+    {0x12,                          "TBD (reserved for USB Audio 4.0)"},
+    {BOS_CAP_USB3_GEN_T,            "USB 3 Gen T Capability"},
+    {0x14,                          "TBD (reserved for USB PD)"},
+    {0, NULL}
+};
+static value_string_ext usb_capability_vals_ext = VALUE_STRING_EXT_INIT(usb_capability_vals);
 
 /* FreeBSD header */
 
@@ -3020,6 +3086,194 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
     return offset;
 }
 
+/* https://wicg.github.io/webusb/#webusb-platform-capability-descriptor */
+static int
+dissect_webusb_platform_descriptor(packet_info *pinfo _U_, proto_tree *tree,
+                                   tvbuff_t *tvb, int offset,
+                                   usb_conv_info_t *usb_conv_info _U_)
+{
+    proto_tree_add_item(tree, hf_usb_webusb_bcdVersion, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_usb_webusb_bVendorCode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_usb_webusb_iLandingPage, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset;
+}
+
+/* Microsoft OS 2.0 Descriptors Specification */
+static int
+dissect_msos20_platform_descriptor(packet_info *pinfo _U_, proto_tree *tree,
+                                   tvbuff_t *tvb, int offset,
+                                   usb_conv_info_t *usb_conv_info _U_)
+{
+    proto_tree_add_item(tree, hf_usb_msos20_dwWindowsVersion, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_usb_msos20_wMSOSDescriptorSetTotalLength, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_usb_msos20_bMS_VendorCode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_usb_msos20_bAltEnumCode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset;
+}
+
+static struct {
+    e_guid_t uuid;
+    const gchar *text;
+    int (*dissect)(packet_info *pinfo, proto_tree *tree,
+                   tvbuff_t *tvb, int offset,
+                   usb_conv_info_t *usb_conv_info);
+} bos_platform_uuids[] = {
+    { {0x3408b638, 0x09a9, 0x47a0, {0x8b, 0xfd, 0xa0, 0x76, 0x88, 0x15, 0xb6, 0x65}},
+      "WebUSB Platform Capability descriptor",
+      dissect_webusb_platform_descriptor },
+
+    { {0xd8dd60df, 0x4589, 0x4cc7, {0x9c, 0xd2, 0x65, 0x9d, 0x9e, 0x64, 0x8a, 0x9f}},
+      "Microsoft OS 2.0 Platform Capability descriptor",
+      dissect_msos20_platform_descriptor },
+};
+
+/* USB 3.2 Specification Table 9-13. Format of a Device Capability Descriptor */
+static int
+dissect_usb_device_capability_descriptor(packet_info *pinfo, proto_tree *tree,
+                                         tvbuff_t *tvb, int offset,
+                                         usb_conv_info_t *usb_conv_info)
+{
+    guint8       cap_type;
+    const gchar *cap_text;
+    e_guid_t     uuid;
+    unsigned int i;
+
+    proto_tree_add_item(tree, hf_usb_bDevCapabilityType, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    cap_type = tvb_get_guint8(tvb, offset);
+    offset += 1;
+
+    cap_text = try_val_to_str_ext(cap_type, &usb_capability_vals_ext);
+
+    if (cap_type == BOS_CAP_USB_20_EXTENSION) {
+        /* USB 2.0 ECN Errata for Link Power Management */
+        static int * const usb20ext_fields[] = {
+            &hf_usb_usb20ext_LPM,
+            &hf_usb_usb20ext_BESL_HIRD,
+            &hf_usb_usb20ext_baseline_BESL_valid,
+            &hf_usb_usb20ext_deep_BESL_valid,
+            &hf_usb_usb20ext_baseline_BESL,
+            &hf_usb_usb20ext_deep_BESL,
+            NULL
+        };
+
+        proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_usb_usb20ext_bmAttributes,
+            ett_usb20ext_bmAttributes, usb20ext_fields, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+        offset += 4;
+    } else if (cap_type == BOS_CAP_PLATFORM) {
+        proto_tree_add_item(tree, hf_usb_bReserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        tvb_get_letohguid(tvb, offset, &uuid);
+        proto_tree_add_guid(tree, hf_usb_PlatformCapabilityUUID, tvb, offset, 16, &uuid);
+        offset += 16;
+
+        for (i = 0; i < array_length(bos_platform_uuids); i++) {
+            if (guid_cmp(&bos_platform_uuids[i].uuid, &uuid) == 0) {
+                offset = bos_platform_uuids[i].dissect(pinfo, tree, tvb, offset, usb_conv_info);
+                cap_text = bos_platform_uuids[i].text;
+                break;
+            }
+        }
+    }
+
+    if (cap_text) {
+        proto_item_append_text(tree, ": %s", cap_text);
+    }
+
+    return offset;
+}
+
+/* USB 3.2 Specification 9.6.2 Binary Device Object Store (BOS) */
+static int
+dissect_usb_bos_descriptor(packet_info *pinfo, proto_tree *parent_tree,
+                           tvbuff_t *tvb, int offset,
+                           usb_conv_info_t *usb_conv_info)
+{
+    proto_item *item;
+    proto_tree *tree;
+    int         old_offset = offset;
+    guint16     total_len;
+    usb_trans_info_t *usb_trans_info;
+
+    usb_trans_info = usb_conv_info->usb_trans_info;
+
+    tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_descriptor_device, &item, "BOS DESCRIPTOR");
+
+    dissect_usb_descriptor_header(tree, tvb, offset, NULL);
+    offset += 2;
+
+    /* wTotalLength */
+    proto_tree_add_item(tree, hf_usb_wTotalLength, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    total_len = tvb_get_letohs(tvb, offset);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_usb_bNumDeviceCaps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    if (offset - old_offset >= usb_trans_info->setup.wLength) {
+        /* Do not report the most common case where host finds out about
+         * wTotalLength by requesting just BOS descriptor as Malformed Packet.
+         * TODO: Generic handling of "host requested too few bytes" (which is
+         * perfectly fine, but complicates dissection) because host is allowed
+         * to request any number of bytes.
+         */
+        return offset;
+    }
+
+    /* Dissect capabilities */
+    while (total_len > (offset - old_offset)) {
+        proto_item *desc_item;
+        int         prev_offset = offset;
+        guint8      desc_len, desc_type;
+
+        tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_descriptor_device, &desc_item, "DEVICE CAPABILITY DESCRIPTOR");
+
+        item = proto_tree_add_item(tree, hf_usb_bLength, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        desc_len = tvb_get_guint8(tvb, offset);
+        offset += 1;
+        if (desc_len < 3) {
+            expert_add_info_format(pinfo, item, &ei_usb_bLength_too_short, "Invalid Length (must be 3 or larger)");
+            break;
+        }
+
+        item = proto_tree_add_item(tree, hf_usb_bDescriptorType, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        desc_type = tvb_get_guint8(tvb, offset);
+        offset += 1;
+        if (desc_type == USB_DT_DEVICE_CAPABILITY) {
+            tvbuff_t *desc_tvb = tvb_new_subset_length(tvb, offset, desc_len - 2);
+            offset += dissect_usb_device_capability_descriptor(pinfo, tree, desc_tvb, 0, usb_conv_info);
+        } else {
+            expert_add_info(pinfo, item, &ei_usb_unexpected_desc_type);
+            /* Already reported unexpected type, do not mark rest as undecoded */
+            offset = prev_offset + desc_len;
+        }
+
+        if (offset < prev_offset + desc_len) {
+            proto_tree_add_expert(tree, pinfo, &ei_usb_undecoded, tvb, offset, prev_offset + desc_len - offset);
+            offset = prev_offset + desc_len;
+        }
+        proto_item_set_len(item, offset - prev_offset);
+    }
+
+    proto_item_set_len(item, offset - old_offset);
+
+    return offset;
+}
+
 /* 9.4.3 */
 static int
 dissect_usb_setup_get_descriptor_request(packet_info *pinfo, proto_tree *tree,
@@ -3094,6 +3348,9 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree,
             break;
         case USB_DT_DEVICE_QUALIFIER:
             offset = dissect_usb_device_qualifier_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
+            break;
+        case USB_DT_BOS:
+            offset = dissect_usb_bos_descriptor(pinfo, tree, tvb, offset, usb_conv_info);
             break;
         default:
             /* XXX dissect the descriptor coming back from the device */
@@ -6642,6 +6899,96 @@ proto_register_usb(void)
             "usb.iFunction", FT_UINT8, BASE_DEC,
             NULL, 0x0, NULL, HFILL }},
 
+        { &hf_usb_bNumDeviceCaps,
+          { "bNumDeviceCaps", "usb.bNumDeviceCaps",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_bDevCapabilityType,
+          { "bDevCapabilityType", "usb.bDevCapabilityType",
+            FT_UINT8, BASE_HEX|BASE_EXT_STRING, &usb_capability_vals_ext, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_usb20ext_bmAttributes,
+          { "bmAttributes", "usb.usb20ext.bmAttributes",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_usb20ext_LPM,
+          { "LPM", "usb.usb20ext.bmAttributes.LPM",
+            FT_BOOLEAN, 32, NULL, 0x00000002,
+            NULL, HFILL }},
+
+        { &hf_usb_usb20ext_BESL_HIRD,
+          { "BESL & Alternate HIRD", "usb.usb20ext.bmAttributes.BESL",
+            FT_BOOLEAN, 32, NULL, 0x00000004,
+            NULL, HFILL }},
+
+        { &hf_usb_usb20ext_baseline_BESL_valid,
+          { "Baseline BESL valid", "usb.usb20ext.bmAttributes.baseline_BESL_valid",
+            FT_BOOLEAN, 32, NULL, 0x00000008,
+            NULL, HFILL }},
+
+        { &hf_usb_usb20ext_deep_BESL_valid,
+          { "Deep BESL valid", "usb.usb20ext.bmAttributes.deep_BESL_valid",
+            FT_BOOLEAN, 32, NULL, 0x00000010,
+            NULL, HFILL }},
+
+        { &hf_usb_usb20ext_baseline_BESL,
+          { "Recommended Baseline BESL", "usb.usb20ext.bmAttributes.baseline_BESL",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(usb_lpm_besl_str), 0x00000F00,
+            NULL, HFILL }},
+
+        { &hf_usb_usb20ext_deep_BESL,
+          { "Recommended Deep BESL", "usb.usb20ext.bmAttributes.deep_BESL",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(usb_lpm_besl_str), 0x0000F000,
+            NULL, HFILL }},
+
+        { &hf_usb_bReserved,
+          { "bReserved", "usb.bReserved",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "This field is reserved and shall be set to zero", HFILL }},
+
+        { &hf_usb_PlatformCapabilityUUID,
+          { "PlatformCapabilityUUID", "usb.PlatformCapabilityUUID",
+            FT_GUID, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_webusb_bcdVersion,
+          { "bcdVersion", "usb.webusb.bcdVersion",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            "WebUSB descriptor version", HFILL }},
+
+        { &hf_usb_webusb_bVendorCode,
+          { "bVendorCode", "usb.webusb.bVendorCode",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "bRequest value for WebUSB", HFILL }},
+
+        { &hf_usb_webusb_iLandingPage,
+          { "iLandingPage", "usb.webusb.iLandingPage",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "URL for landing page", HFILL }},
+
+        { &hf_usb_msos20_dwWindowsVersion,
+          { "dwWindowsVersion", "usb.msos20.dwWindowsVersion",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_msos20_wMSOSDescriptorSetTotalLength,
+          { "wMSOSDescriptorSetTotalLength", "usb.msos20.wMSOSDescriptorSetTotalLength",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_msos20_bMS_VendorCode,
+          { "bMS_VendorCode", "usb.msos20.bMS_VendorCode",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_msos20_bAltEnumCode,
+          { "bAltEnumCode", "usb.msos20.bAltEnumCode",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_usb_data_fragment,
           { "Data Fragment",
             "usb.data_fragment", FT_BYTES, BASE_NONE,
@@ -6919,6 +7266,7 @@ proto_register_usb(void)
         &ett_endpoint_bmAttributes,
         &ett_endpoint_wMaxPacketSize,
         &ett_transfer_flags,
+        &ett_usb20ext_bmAttributes,
     };
 
     static gint *usbport_subtrees[] = {
@@ -6944,6 +7292,7 @@ proto_register_usb(void)
         { &ei_usb_invalid_max_packet_size, { "usb.wMaxPacketSize.invalid", PI_PROTOCOL, PI_WARN, "Invalid Max Packet Size", EXPFILL }},
         { &ei_usb_invalid_max_packet_size0, { "usb.bMaxPacketSize0.invalid", PI_PROTOCOL, PI_WARN, "Invalid Max Packet Size", EXPFILL }},
         { &ei_usb_invalid_endpoint_type, { "usb.bmAttributes.transfer.invalid", PI_PROTOCOL, PI_WARN, "Transfer type not allowed at Low-Speed", EXPFILL }},
+        { &ei_usb_unexpected_desc_type, { "usb.bDescriptorType.unexpected", PI_MALFORMED, PI_ERROR, "Unexpected descriptor type", EXPFILL }},
     };
     static ei_register_info ei_usbport[] = {
         { &ei_usbport_invalid_path_depth, { "usbport.path_depth.invalid", PI_PROTOCOL, PI_WARN, "Invalid path depth", EXPFILL }},
