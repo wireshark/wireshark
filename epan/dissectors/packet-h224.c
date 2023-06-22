@@ -22,6 +22,7 @@
 #include <epan/packet.h>
 #include <epan/proto.h>
 #include <epan/t35.h>
+#include <epan/tfs.h>
 //#include <epan/expert.h>
 //#include <epan/prefs.h>
 
@@ -170,6 +171,9 @@ static const value_string h224_fecc_message_type[] =
                 { FECC_MSG_ACTIVATE_PRESET_REQ, "ACTIVATE PRESET Request" },
                 { 0, NULL },
         };
+        
+static const true_false_string tfs_right_left = { "Right", "Left" };
+static const true_false_string tfs_in_out = { "In", "Out" };
 
 static value_string_ext h224_client_data_ext = VALUE_STRING_EXT_INIT(h224_client_data_type);
 
@@ -668,7 +672,7 @@ proto_register_h224(void)
         },
         { &hf_h224_message_pan_dir,
           { "Pan direction", "h224.pan_dir",
-            FT_BOOLEAN, 8, NULL, 0x40,
+            FT_BOOLEAN, 8, TFS(&tfs_right_left), 0x40,
             NULL, HFILL }
         },
         { &hf_h224_message_tilt,
@@ -678,7 +682,7 @@ proto_register_h224(void)
         },
         { &hf_h224_message_tilt_dir,
           { "Tilt direction", "h224.tilt_dir",
-            FT_BOOLEAN, 8, NULL, 0x10,
+            FT_BOOLEAN, 8, TFS(&tfs_up_down), 0x10,
             NULL, HFILL }
         },
         { &hf_h224_message_zoom,
@@ -688,7 +692,7 @@ proto_register_h224(void)
         },
         { &hf_h224_message_zoom_dir,
           { "Zoom direction", "h224.zoom_dir",
-            FT_BOOLEAN, 8, NULL, 0x04,
+            FT_BOOLEAN, 8, TFS(&tfs_in_out), 0x04,
             NULL, HFILL }
         },
         { &hf_h224_message_focus,
@@ -698,7 +702,7 @@ proto_register_h224(void)
         },
         { &hf_h224_message_focus_dir,
           { "Focus direction", "h224.focus_dir",
-            FT_BOOLEAN, 8, NULL, 0x01,
+            FT_BOOLEAN, 8, TFS(&tfs_in_out), 0x01,
             NULL, HFILL }
         },
         { &hf_h224_message_reserved_b7b4,
