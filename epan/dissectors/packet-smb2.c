@@ -3628,7 +3628,7 @@ static void smb2_generate_decryption_keys(smb2_conv_info_t *conv, smb2_sesid_inf
 	}
 
 	DEBUG("Generated Sign key");
-	HEXDUMP(ses->signing_key, NTLMSSP_KEY_LEN)
+	HEXDUMP(ses->signing_key, NTLMSSP_KEY_LEN);
 	DEBUG("Generated S2C key16");
 	HEXDUMP(ses->client_decryption_key16, AES_KEY_SIZE);
 	DEBUG("Generated S2C key32");
@@ -10274,7 +10274,7 @@ decrypt_smb_payload(packet_info *pinfo,
 	 * have to guess by trying both keys.
 	 */
 
-	DEBUG("dialect 0x%x alg 0x%x conv alg 0x%x", sti->conv->dialect, sti->alg, sti->conv->enc_alg);
+	DEBUG("dialect 0x%x alg 0x%x conv alg 0x%x", sti->conv->dialect, sti->flags, sti->conv->enc_alg);
 
 	for (guint i = 0; i < G_N_ELEMENTS(keys16); i++) {
 		gboolean try_ccm16, try_gcm16;
