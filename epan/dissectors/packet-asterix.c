@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: 3d75e32dc4b056cde3dcf513ede887b2007043b2
+git revision: 5885f96214c853d6614abf6e63c2cf0b9eea66f5
 
 
 */
@@ -262,8 +262,8 @@ static const FieldPart *I001_V1_2_020_PARTS[] = {
 };
 static const AsterixField I001_V1_2_020 = { FX, 1, 0, 0, &hf_001_V1_2_020, I001_V1_2_020_PARTS, { NULL } };
 static int hf_001_V1_2_030 = -1;
-static int hf_001_V1_2_030_WE = -1;
-static const value_string valstr_001_V1_2_030_WE[] = {
+static int hf_001_V1_2_030_Subitem = -1;
+static const value_string valstr_001_V1_2_030_Subitem[] = {
     { 0, "No warning nor error condition" },
     { 1, "Garbled reply" },
     { 2, "Reflection" },
@@ -280,9 +280,9 @@ static const value_string valstr_001_V1_2_030_WE[] = {
     { 82, "Low quality PSR plot" },
     { 0, NULL }
 };
-static const FieldPart I001_V1_2_030_WE = { 7, 1.0, FIELD_PART_UINT, &hf_001_V1_2_030_WE, NULL };
+static const FieldPart I001_V1_2_030_Subitem = { 7, 1.0, FIELD_PART_UINT, &hf_001_V1_2_030_Subitem, NULL };
 static const FieldPart *I001_V1_2_030_PARTS[] = {
-    &I001_V1_2_030_WE,
+    &I001_V1_2_030_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -734,10 +734,10 @@ static const FieldPart *I001_V1_2_120_PARTS[] = {
 };
 static const AsterixField I001_V1_2_120 = { FIXED, 1, 0, 0, &hf_001_V1_2_120, I001_V1_2_120_PARTS, { NULL } };
 static int hf_001_V1_2_130 = -1;
-static int hf_001_V1_2_130_IND = -1;
-static const FieldPart I001_V1_2_130_IND = { 7, 1.0, FIELD_PART_HEX, &hf_001_V1_2_130_IND, NULL };
+static int hf_001_V1_2_130_Subitem = -1;
+static const FieldPart I001_V1_2_130_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_001_V1_2_130_Subitem, NULL };
 static const FieldPart *I001_V1_2_130_PARTS[] = {
-    &I001_V1_2_130_IND,
+    &I001_V1_2_130_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -875,10 +875,10 @@ static const FieldPart *I001_V1_2_200_PARTS[] = {
 };
 static const AsterixField I001_V1_2_200 = { FIXED, 4, 0, 0, &hf_001_V1_2_200, I001_V1_2_200_PARTS, { NULL } };
 static int hf_001_V1_2_210 = -1;
-static int hf_001_V1_2_210_QI = -1;
-static const FieldPart I001_V1_2_210_QI = { 7, 1.0, FIELD_PART_HEX, &hf_001_V1_2_210_QI, NULL };
+static int hf_001_V1_2_210_Subitem = -1;
+static const FieldPart I001_V1_2_210_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_001_V1_2_210_Subitem, NULL };
 static const FieldPart *I001_V1_2_210_PARTS[] = {
-    &I001_V1_2_210_QI,
+    &I001_V1_2_210_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -1050,8 +1050,8 @@ static const FieldPart *I001_V1_3_020_PARTS[] = {
 };
 static const AsterixField I001_V1_3_020 = { FX, 1, 0, 0, &hf_001_V1_3_020, I001_V1_3_020_PARTS, { NULL } };
 static int hf_001_V1_3_030 = -1;
-static int hf_001_V1_3_030_WE = -1;
-static const value_string valstr_001_V1_3_030_WE[] = {
+static int hf_001_V1_3_030_Subitem = -1;
+static const value_string valstr_001_V1_3_030_Subitem[] = {
     { 0, "No warning nor error condition" },
     { 1, "Garbled reply" },
     { 2, "Reflection" },
@@ -1068,9 +1068,9 @@ static const value_string valstr_001_V1_3_030_WE[] = {
     { 82, "Low quality PSR plot" },
     { 0, NULL }
 };
-static const FieldPart I001_V1_3_030_WE = { 7, 1.0, FIELD_PART_UINT, &hf_001_V1_3_030_WE, NULL };
+static const FieldPart I001_V1_3_030_Subitem = { 7, 1.0, FIELD_PART_UINT, &hf_001_V1_3_030_Subitem, NULL };
 static const FieldPart *I001_V1_3_030_PARTS[] = {
-    &I001_V1_3_030_WE,
+    &I001_V1_3_030_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -1522,10 +1522,10 @@ static const FieldPart *I001_V1_3_120_PARTS[] = {
 };
 static const AsterixField I001_V1_3_120 = { FIXED, 1, 0, 0, &hf_001_V1_3_120, I001_V1_3_120_PARTS, { NULL } };
 static int hf_001_V1_3_130 = -1;
-static int hf_001_V1_3_130_IND = -1;
-static const FieldPart I001_V1_3_130_IND = { 7, 1.0, FIELD_PART_HEX, &hf_001_V1_3_130_IND, NULL };
+static int hf_001_V1_3_130_Subitem = -1;
+static const FieldPart I001_V1_3_130_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_001_V1_3_130_Subitem, NULL };
 static const FieldPart *I001_V1_3_130_PARTS[] = {
-    &I001_V1_3_130_IND,
+    &I001_V1_3_130_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -1663,10 +1663,10 @@ static const FieldPart *I001_V1_3_200_PARTS[] = {
 };
 static const AsterixField I001_V1_3_200 = { FIXED, 4, 0, 0, &hf_001_V1_3_200, I001_V1_3_200_PARTS, { NULL } };
 static int hf_001_V1_3_210 = -1;
-static int hf_001_V1_3_210_QI = -1;
-static const FieldPart I001_V1_3_210_QI = { 7, 1.0, FIELD_PART_HEX, &hf_001_V1_3_210_QI, NULL };
+static int hf_001_V1_3_210_Subitem = -1;
+static const FieldPart I001_V1_3_210_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_001_V1_3_210_Subitem, NULL };
 static const FieldPart *I001_V1_3_210_PARTS[] = {
-    &I001_V1_3_210_QI,
+    &I001_V1_3_210_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -1838,8 +1838,8 @@ static const FieldPart *I001_V1_4_020_PARTS[] = {
 };
 static const AsterixField I001_V1_4_020 = { FX, 1, 0, 0, &hf_001_V1_4_020, I001_V1_4_020_PARTS, { NULL } };
 static int hf_001_V1_4_030 = -1;
-static int hf_001_V1_4_030_WE = -1;
-static const value_string valstr_001_V1_4_030_WE[] = {
+static int hf_001_V1_4_030_Subitem = -1;
+static const value_string valstr_001_V1_4_030_Subitem[] = {
     { 0, "No warning nor error condition" },
     { 1, "Garbled reply" },
     { 2, "Reflection" },
@@ -1856,9 +1856,9 @@ static const value_string valstr_001_V1_4_030_WE[] = {
     { 82, "Low quality PSR plot" },
     { 0, NULL }
 };
-static const FieldPart I001_V1_4_030_WE = { 7, 1.0, FIELD_PART_UINT, &hf_001_V1_4_030_WE, NULL };
+static const FieldPart I001_V1_4_030_Subitem = { 7, 1.0, FIELD_PART_UINT, &hf_001_V1_4_030_Subitem, NULL };
 static const FieldPart *I001_V1_4_030_PARTS[] = {
-    &I001_V1_4_030_WE,
+    &I001_V1_4_030_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -2310,10 +2310,10 @@ static const FieldPart *I001_V1_4_120_PARTS[] = {
 };
 static const AsterixField I001_V1_4_120 = { FIXED, 1, 0, 0, &hf_001_V1_4_120, I001_V1_4_120_PARTS, { NULL } };
 static int hf_001_V1_4_130 = -1;
-static int hf_001_V1_4_130_IND = -1;
-static const FieldPart I001_V1_4_130_IND = { 7, 1.0, FIELD_PART_HEX, &hf_001_V1_4_130_IND, NULL };
+static int hf_001_V1_4_130_Subitem = -1;
+static const FieldPart I001_V1_4_130_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_001_V1_4_130_Subitem, NULL };
 static const FieldPart *I001_V1_4_130_PARTS[] = {
-    &I001_V1_4_130_IND,
+    &I001_V1_4_130_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -2451,10 +2451,10 @@ static const FieldPart *I001_V1_4_200_PARTS[] = {
 };
 static const AsterixField I001_V1_4_200 = { FIXED, 4, 0, 0, &hf_001_V1_4_200, I001_V1_4_200_PARTS, { NULL } };
 static int hf_001_V1_4_210 = -1;
-static int hf_001_V1_4_210_QI = -1;
-static const FieldPart I001_V1_4_210_QI = { 7, 1.0, FIELD_PART_HEX, &hf_001_V1_4_210_QI, NULL };
+static int hf_001_V1_4_210_Subitem = -1;
+static const FieldPart I001_V1_4_210_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_001_V1_4_210_Subitem, NULL };
 static const FieldPart *I001_V1_4_210_PARTS[] = {
-    &I001_V1_4_210_QI,
+    &I001_V1_4_210_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -2569,8 +2569,8 @@ static const FieldPart *I001_020_PARTS[] = {
 };
 static const AsterixField I001_020 = { FX, 1, 0, 0, &hf_001_020, I001_020_PARTS, { NULL } };
 static int hf_001_030 = -1;
-static int hf_001_030_WE = -1;
-static const value_string valstr_001_030_WE[] = {
+static int hf_001_030_Subitem = -1;
+static const value_string valstr_001_030_Subitem[] = {
     { 0, "No warning nor error condition" },
     { 1, "Garbled reply" },
     { 2, "Reflection" },
@@ -2587,9 +2587,9 @@ static const value_string valstr_001_030_WE[] = {
     { 82, "Low quality PSR plot" },
     { 0, NULL }
 };
-static const FieldPart I001_030_WE = { 7, 1.0, FIELD_PART_UINT, &hf_001_030_WE, NULL };
+static const FieldPart I001_030_Subitem = { 7, 1.0, FIELD_PART_UINT, &hf_001_030_Subitem, NULL };
 static const FieldPart *I001_030_PARTS[] = {
-    &I001_030_WE,
+    &I001_030_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -3041,10 +3041,10 @@ static const FieldPart *I001_120_PARTS[] = {
 };
 static const AsterixField I001_120 = { FIXED, 1, 0, 0, &hf_001_120, I001_120_PARTS, { NULL } };
 static int hf_001_130 = -1;
-static int hf_001_130_IND = -1;
-static const FieldPart I001_130_IND = { 7, 1.0, FIELD_PART_HEX, &hf_001_130_IND, NULL };
+static int hf_001_130_Subitem = -1;
+static const FieldPart I001_130_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_001_130_Subitem, NULL };
 static const FieldPart *I001_130_PARTS[] = {
-    &I001_130_IND,
+    &I001_130_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -3182,10 +3182,10 @@ static const FieldPart *I001_200_PARTS[] = {
 };
 static const AsterixField I001_200 = { FIXED, 4, 0, 0, &hf_001_200, I001_200_PARTS, { NULL } };
 static int hf_001_210 = -1;
-static int hf_001_210_QI = -1;
-static const FieldPart I001_210_QI = { 7, 1.0, FIELD_PART_HEX, &hf_001_210_QI, NULL };
+static int hf_001_210_Subitem = -1;
+static const FieldPart I001_210_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_001_210_Subitem, NULL };
 static const FieldPart *I001_210_PARTS[] = {
-    &I001_210_QI,
+    &I001_210_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -3362,19 +3362,19 @@ static const FieldPart *I002_V1_0_041_PARTS[] = {
 };
 static const AsterixField I002_V1_0_041 = { FIXED, 2, 0, 0, &hf_002_V1_0_041, I002_V1_0_041_PARTS, { NULL } };
 static int hf_002_V1_0_050 = -1;
-static int hf_002_V1_0_050_SCS = -1;
-static const FieldPart I002_V1_0_050_SCS = { 7, 1.0, FIELD_PART_HEX, &hf_002_V1_0_050_SCS, NULL };
+static int hf_002_V1_0_050_Subitem = -1;
+static const FieldPart I002_V1_0_050_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_002_V1_0_050_Subitem, NULL };
 static const FieldPart *I002_V1_0_050_PARTS[] = {
-    &I002_V1_0_050_SCS,
+    &I002_V1_0_050_Subitem,
     &IXXX_FX,
     NULL
 };
 static const AsterixField I002_V1_0_050 = { FX, 1, 0, 0, &hf_002_V1_0_050, I002_V1_0_050_PARTS, { NULL } };
 static int hf_002_V1_0_060 = -1;
-static int hf_002_V1_0_060_SPM = -1;
-static const FieldPart I002_V1_0_060_SPM = { 7, 1.0, FIELD_PART_HEX, &hf_002_V1_0_060_SPM, NULL };
+static int hf_002_V1_0_060_Subitem = -1;
+static const FieldPart I002_V1_0_060_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_002_V1_0_060_Subitem, NULL };
 static const FieldPart *I002_V1_0_060_PARTS[] = {
-    &I002_V1_0_060_SPM,
+    &I002_V1_0_060_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -3405,10 +3405,10 @@ static const FieldPart *I002_V1_0_070_PARTS[] = {
 };
 static const AsterixField I002_V1_0_070 = { REPETITIVE, 2, 1, 0, &hf_002_V1_0_070, I002_V1_0_070_PARTS, { NULL } };
 static int hf_002_V1_0_080 = -1;
-static int hf_002_V1_0_080_WE = -1;
-static const FieldPart I002_V1_0_080_WE = { 7, 1.0, FIELD_PART_HEX, &hf_002_V1_0_080_WE, NULL };
+static int hf_002_V1_0_080_Subitem = -1;
+static const FieldPart I002_V1_0_080_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_002_V1_0_080_Subitem, NULL };
 static const FieldPart *I002_V1_0_080_PARTS[] = {
-    &I002_V1_0_080_WE,
+    &I002_V1_0_080_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -3523,19 +3523,19 @@ static const FieldPart *I002_V1_1_041_PARTS[] = {
 };
 static const AsterixField I002_V1_1_041 = { FIXED, 2, 0, 0, &hf_002_V1_1_041, I002_V1_1_041_PARTS, { NULL } };
 static int hf_002_V1_1_050 = -1;
-static int hf_002_V1_1_050_SCS = -1;
-static const FieldPart I002_V1_1_050_SCS = { 7, 1.0, FIELD_PART_HEX, &hf_002_V1_1_050_SCS, NULL };
+static int hf_002_V1_1_050_Subitem = -1;
+static const FieldPart I002_V1_1_050_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_002_V1_1_050_Subitem, NULL };
 static const FieldPart *I002_V1_1_050_PARTS[] = {
-    &I002_V1_1_050_SCS,
+    &I002_V1_1_050_Subitem,
     &IXXX_FX,
     NULL
 };
 static const AsterixField I002_V1_1_050 = { FX, 1, 0, 0, &hf_002_V1_1_050, I002_V1_1_050_PARTS, { NULL } };
 static int hf_002_V1_1_060 = -1;
-static int hf_002_V1_1_060_SPM = -1;
-static const FieldPart I002_V1_1_060_SPM = { 7, 1.0, FIELD_PART_HEX, &hf_002_V1_1_060_SPM, NULL };
+static int hf_002_V1_1_060_Subitem = -1;
+static const FieldPart I002_V1_1_060_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_002_V1_1_060_Subitem, NULL };
 static const FieldPart *I002_V1_1_060_PARTS[] = {
-    &I002_V1_1_060_SPM,
+    &I002_V1_1_060_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -3566,10 +3566,10 @@ static const FieldPart *I002_V1_1_070_PARTS[] = {
 };
 static const AsterixField I002_V1_1_070 = { REPETITIVE, 2, 1, 0, &hf_002_V1_1_070, I002_V1_1_070_PARTS, { NULL } };
 static int hf_002_V1_1_080 = -1;
-static int hf_002_V1_1_080_WE = -1;
-static const FieldPart I002_V1_1_080_WE = { 7, 1.0, FIELD_PART_HEX, &hf_002_V1_1_080_WE, NULL };
+static int hf_002_V1_1_080_Subitem = -1;
+static const FieldPart I002_V1_1_080_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_002_V1_1_080_Subitem, NULL };
 static const FieldPart *I002_V1_1_080_PARTS[] = {
-    &I002_V1_1_080_WE,
+    &I002_V1_1_080_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -3660,19 +3660,19 @@ static const FieldPart *I002_041_PARTS[] = {
 };
 static const AsterixField I002_041 = { FIXED, 2, 0, 0, &hf_002_041, I002_041_PARTS, { NULL } };
 static int hf_002_050 = -1;
-static int hf_002_050_SCS = -1;
-static const FieldPart I002_050_SCS = { 7, 1.0, FIELD_PART_HEX, &hf_002_050_SCS, NULL };
+static int hf_002_050_Subitem = -1;
+static const FieldPart I002_050_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_002_050_Subitem, NULL };
 static const FieldPart *I002_050_PARTS[] = {
-    &I002_050_SCS,
+    &I002_050_Subitem,
     &IXXX_FX,
     NULL
 };
 static const AsterixField I002_050 = { FX, 1, 0, 0, &hf_002_050, I002_050_PARTS, { NULL } };
 static int hf_002_060 = -1;
-static int hf_002_060_SPM = -1;
-static const FieldPart I002_060_SPM = { 7, 1.0, FIELD_PART_HEX, &hf_002_060_SPM, NULL };
+static int hf_002_060_Subitem = -1;
+static const FieldPart I002_060_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_002_060_Subitem, NULL };
 static const FieldPart *I002_060_PARTS[] = {
-    &I002_060_SPM,
+    &I002_060_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -3703,10 +3703,10 @@ static const FieldPart *I002_070_PARTS[] = {
 };
 static const AsterixField I002_070 = { REPETITIVE, 2, 1, 0, &hf_002_070, I002_070_PARTS, { NULL } };
 static int hf_002_080 = -1;
-static int hf_002_080_WE = -1;
-static const FieldPart I002_080_WE = { 7, 1.0, FIELD_PART_HEX, &hf_002_080_WE, NULL };
+static int hf_002_080_Subitem = -1;
+static const FieldPart I002_080_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_002_080_Subitem, NULL };
 static const FieldPart *I002_080_PARTS[] = {
-    &I002_080_WE,
+    &I002_080_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -6428,10 +6428,10 @@ static const FieldPart *I008_V1_2_100_PARTS[] = {
 };
 static const AsterixField I008_V1_2_100 = { FX, 1, 0, 2, &hf_008_V1_2_100, I008_V1_2_100_PARTS, { NULL } };
 static int hf_008_V1_2_110 = -1;
-static int hf_008_V1_2_110_DATA = -1;
-static const FieldPart I008_V1_2_110_DATA = { 7, 1.0, FIELD_PART_HEX, &hf_008_V1_2_110_DATA, NULL };
+static int hf_008_V1_2_110_Subitem = -1;
+static const FieldPart I008_V1_2_110_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_008_V1_2_110_Subitem, NULL };
 static const FieldPart *I008_V1_2_110_PARTS[] = {
-    &I008_V1_2_110_DATA,
+    &I008_V1_2_110_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -6661,10 +6661,10 @@ static const FieldPart *I008_V1_3_100_PARTS[] = {
 };
 static const AsterixField I008_V1_3_100 = { FX, 1, 0, 2, &hf_008_V1_3_100, I008_V1_3_100_PARTS, { NULL } };
 static int hf_008_V1_3_110 = -1;
-static int hf_008_V1_3_110_DATA = -1;
-static const FieldPart I008_V1_3_110_DATA = { 7, 1.0, FIELD_PART_HEX, &hf_008_V1_3_110_DATA, NULL };
+static int hf_008_V1_3_110_Subitem = -1;
+static const FieldPart I008_V1_3_110_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_008_V1_3_110_Subitem, NULL };
 static const FieldPart *I008_V1_3_110_PARTS[] = {
-    &I008_V1_3_110_DATA,
+    &I008_V1_3_110_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -6870,10 +6870,10 @@ static const FieldPart *I008_100_PARTS[] = {
 };
 static const AsterixField I008_100 = { FX, 1, 0, 2, &hf_008_100, I008_100_PARTS, { NULL } };
 static int hf_008_110 = -1;
-static int hf_008_110_DATA = -1;
-static const FieldPart I008_110_DATA = { 7, 1.0, FIELD_PART_HEX, &hf_008_110_DATA, NULL };
+static int hf_008_110_Subitem = -1;
+static const FieldPart I008_110_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_008_110_Subitem, NULL };
 static const FieldPart *I008_110_PARTS[] = {
-    &I008_110_DATA,
+    &I008_110_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -12153,10 +12153,10 @@ static const FieldPart *I015_V1_0_020_PARTS[] = {
 };
 static const AsterixField I015_V1_0_020 = { FX, 1, 0, 0, &hf_015_V1_0_020, I015_V1_0_020_PARTS, { NULL } };
 static int hf_015_V1_0_030 = -1;
-static int hf_015_V1_0_030_WE = -1;
-static const FieldPart I015_V1_0_030_WE = { 7, 1.0, FIELD_PART_HEX, &hf_015_V1_0_030_WE, NULL };
+static int hf_015_V1_0_030_Subitem = -1;
+static const FieldPart I015_V1_0_030_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_015_V1_0_030_Subitem, NULL };
 static const FieldPart *I015_V1_0_030_PARTS[] = {
-    &I015_V1_0_030_WE,
+    &I015_V1_0_030_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -13110,10 +13110,10 @@ static const FieldPart *I015_V1_1_020_PARTS[] = {
 };
 static const AsterixField I015_V1_1_020 = { FX, 1, 0, 0, &hf_015_V1_1_020, I015_V1_1_020_PARTS, { NULL } };
 static int hf_015_V1_1_030 = -1;
-static int hf_015_V1_1_030_WE = -1;
-static const FieldPart I015_V1_1_030_WE = { 7, 1.0, FIELD_PART_HEX, &hf_015_V1_1_030_WE, NULL };
+static int hf_015_V1_1_030_Subitem = -1;
+static const FieldPart I015_V1_1_030_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_015_V1_1_030_Subitem, NULL };
 static const FieldPart *I015_V1_1_030_PARTS[] = {
-    &I015_V1_1_030_WE,
+    &I015_V1_1_030_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -14031,10 +14031,10 @@ static const FieldPart *I015_020_PARTS[] = {
 };
 static const AsterixField I015_020 = { FX, 1, 0, 0, &hf_015_020, I015_020_PARTS, { NULL } };
 static int hf_015_030 = -1;
-static int hf_015_030_WE = -1;
-static const FieldPart I015_030_WE = { 7, 1.0, FIELD_PART_HEX, &hf_015_030_WE, NULL };
+static int hf_015_030_Subitem = -1;
+static const FieldPart I015_030_Subitem = { 7, 1.0, FIELD_PART_HEX, &hf_015_030_Subitem, NULL };
 static const FieldPart *I015_030_PARTS[] = {
-    &I015_030_WE,
+    &I015_030_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -17334,8 +17334,8 @@ static const FieldPart *I020_V1_9_020_PARTS[] = {
 };
 static const AsterixField I020_V1_9_020 = { FX, 1, 0, 0, &hf_020_V1_9_020, I020_V1_9_020_PARTS, { NULL } };
 static int hf_020_V1_9_030 = -1;
-static int hf_020_V1_9_030_WE = -1;
-static const value_string valstr_020_V1_9_030_WE[] = {
+static int hf_020_V1_9_030_Subitem = -1;
+static const value_string valstr_020_V1_9_030_Subitem[] = {
     { 0, "Not defined; never used" },
     { 1, "Multipath Reply (Reflection)" },
     { 3, "Split plot" },
@@ -17348,9 +17348,9 @@ static const value_string valstr_020_V1_9_030_WE[] = {
     { 18, "Undecodable Mode C code / Mode S altitude code" },
     { 0, NULL }
 };
-static const FieldPart I020_V1_9_030_WE = { 7, 1.0, FIELD_PART_UINT, &hf_020_V1_9_030_WE, NULL };
+static const FieldPart I020_V1_9_030_Subitem = { 7, 1.0, FIELD_PART_UINT, &hf_020_V1_9_030_Subitem, NULL };
 static const FieldPart *I020_V1_9_030_PARTS[] = {
-    &I020_V1_9_030_WE,
+    &I020_V1_9_030_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -18189,8 +18189,8 @@ static const FieldPart *I020_V1_10_020_PARTS[] = {
 };
 static const AsterixField I020_V1_10_020 = { FX, 1, 0, 0, &hf_020_V1_10_020, I020_V1_10_020_PARTS, { NULL } };
 static int hf_020_V1_10_030 = -1;
-static int hf_020_V1_10_030_WE = -1;
-static const value_string valstr_020_V1_10_030_WE[] = {
+static int hf_020_V1_10_030_Subitem = -1;
+static const value_string valstr_020_V1_10_030_Subitem[] = {
     { 0, "Not defined; never used" },
     { 1, "Multipath Reply (Reflection)" },
     { 3, "Split plot" },
@@ -18203,9 +18203,9 @@ static const value_string valstr_020_V1_10_030_WE[] = {
     { 18, "Undecodable Mode C code / Mode S altitude code" },
     { 0, NULL }
 };
-static const FieldPart I020_V1_10_030_WE = { 7, 1.0, FIELD_PART_UINT, &hf_020_V1_10_030_WE, NULL };
+static const FieldPart I020_V1_10_030_Subitem = { 7, 1.0, FIELD_PART_UINT, &hf_020_V1_10_030_Subitem, NULL };
 static const FieldPart *I020_V1_10_030_PARTS[] = {
-    &I020_V1_10_030_WE,
+    &I020_V1_10_030_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -19006,8 +19006,8 @@ static const FieldPart *I020_020_PARTS[] = {
 };
 static const AsterixField I020_020 = { FX, 1, 0, 0, &hf_020_020, I020_020_PARTS, { NULL } };
 static int hf_020_030 = -1;
-static int hf_020_030_WE = -1;
-static const value_string valstr_020_030_WE[] = {
+static int hf_020_030_Subitem = -1;
+static const value_string valstr_020_030_Subitem[] = {
     { 0, "Not defined; never used" },
     { 1, "Multipath Reply (Reflection)" },
     { 3, "Split plot" },
@@ -19020,9 +19020,9 @@ static const value_string valstr_020_030_WE[] = {
     { 18, "Undecodable Mode C code / Mode S altitude code" },
     { 0, NULL }
 };
-static const FieldPart I020_030_WE = { 7, 1.0, FIELD_PART_UINT, &hf_020_030_WE, NULL };
+static const FieldPart I020_030_Subitem = { 7, 1.0, FIELD_PART_UINT, &hf_020_030_Subitem, NULL };
 static const FieldPart *I020_030_PARTS[] = {
-    &I020_030_WE,
+    &I020_030_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -35074,8 +35074,8 @@ static const FieldPart *I048_V1_27_020_PARTS[] = {
 };
 static const AsterixField I048_V1_27_020 = { FX, 1, 0, 0, &hf_048_V1_27_020, I048_V1_27_020_PARTS, { NULL } };
 static int hf_048_V1_27_030 = -1;
-static int hf_048_V1_27_030_CODE = -1;
-static const value_string valstr_048_V1_27_030_CODE[] = {
+static int hf_048_V1_27_030_Subitem = -1;
+static const value_string valstr_048_V1_27_030_Subitem[] = {
     { 0, "Not defined; never used" },
     { 1, "Multipath Reply (Reflection)" },
     { 2, "Reply due to sidelobe interrogation/reception" },
@@ -35110,9 +35110,9 @@ static const value_string valstr_048_V1_27_030_CODE[] = {
     { 31, "Duplicated Mode 5 Pair NO/PIN detected" },
     { 0, NULL }
 };
-static const FieldPart I048_V1_27_030_CODE = { 7, 1.0, FIELD_PART_UINT, &hf_048_V1_27_030_CODE, NULL };
+static const FieldPart I048_V1_27_030_Subitem = { 7, 1.0, FIELD_PART_UINT, &hf_048_V1_27_030_Subitem, NULL };
 static const FieldPart *I048_V1_27_030_PARTS[] = {
-    &I048_V1_27_030_CODE,
+    &I048_V1_27_030_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -36127,8 +36127,8 @@ static const FieldPart *I048_V1_28_020_PARTS[] = {
 };
 static const AsterixField I048_V1_28_020 = { FX, 1, 0, 0, &hf_048_V1_28_020, I048_V1_28_020_PARTS, { NULL } };
 static int hf_048_V1_28_030 = -1;
-static int hf_048_V1_28_030_CODE = -1;
-static const value_string valstr_048_V1_28_030_CODE[] = {
+static int hf_048_V1_28_030_Subitem = -1;
+static const value_string valstr_048_V1_28_030_Subitem[] = {
     { 0, "Not defined; never used" },
     { 1, "Multipath Reply (Reflection)" },
     { 2, "Reply due to sidelobe interrogation/reception" },
@@ -36166,9 +36166,9 @@ static const value_string valstr_048_V1_28_030_CODE[] = {
     { 34, "Transponder anomaly (SI capability report wrong)" },
     { 0, NULL }
 };
-static const FieldPart I048_V1_28_030_CODE = { 7, 1.0, FIELD_PART_UINT, &hf_048_V1_28_030_CODE, NULL };
+static const FieldPart I048_V1_28_030_Subitem = { 7, 1.0, FIELD_PART_UINT, &hf_048_V1_28_030_Subitem, NULL };
 static const FieldPart *I048_V1_28_030_PARTS[] = {
-    &I048_V1_28_030_CODE,
+    &I048_V1_28_030_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -37183,8 +37183,8 @@ static const FieldPart *I048_V1_29_020_PARTS[] = {
 };
 static const AsterixField I048_V1_29_020 = { FX, 1, 0, 0, &hf_048_V1_29_020, I048_V1_29_020_PARTS, { NULL } };
 static int hf_048_V1_29_030 = -1;
-static int hf_048_V1_29_030_CODE = -1;
-static const value_string valstr_048_V1_29_030_CODE[] = {
+static int hf_048_V1_29_030_Subitem = -1;
+static const value_string valstr_048_V1_29_030_Subitem[] = {
     { 0, "Not defined; never used" },
     { 1, "Multipath Reply (Reflection)" },
     { 2, "Reply due to sidelobe interrogation/reception" },
@@ -37222,9 +37222,9 @@ static const value_string valstr_048_V1_29_030_CODE[] = {
     { 34, "Transponder anomaly (SI capability report wrong)" },
     { 0, NULL }
 };
-static const FieldPart I048_V1_29_030_CODE = { 7, 1.0, FIELD_PART_UINT, &hf_048_V1_29_030_CODE, NULL };
+static const FieldPart I048_V1_29_030_Subitem = { 7, 1.0, FIELD_PART_UINT, &hf_048_V1_29_030_Subitem, NULL };
 static const FieldPart *I048_V1_29_030_PARTS[] = {
-    &I048_V1_29_030_CODE,
+    &I048_V1_29_030_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -38239,8 +38239,8 @@ static const FieldPart *I048_V1_30_020_PARTS[] = {
 };
 static const AsterixField I048_V1_30_020 = { FX, 1, 0, 0, &hf_048_V1_30_020, I048_V1_30_020_PARTS, { NULL } };
 static int hf_048_V1_30_030 = -1;
-static int hf_048_V1_30_030_CODE = -1;
-static const value_string valstr_048_V1_30_030_CODE[] = {
+static int hf_048_V1_30_030_Subitem = -1;
+static const value_string valstr_048_V1_30_030_Subitem[] = {
     { 0, "Not defined; never used" },
     { 1, "Multipath Reply (Reflection)" },
     { 2, "Reply due to sidelobe interrogation/reception" },
@@ -38278,9 +38278,9 @@ static const value_string valstr_048_V1_30_030_CODE[] = {
     { 34, "Transponder anomaly (SI capability report wrong)" },
     { 0, NULL }
 };
-static const FieldPart I048_V1_30_030_CODE = { 7, 1.0, FIELD_PART_UINT, &hf_048_V1_30_030_CODE, NULL };
+static const FieldPart I048_V1_30_030_Subitem = { 7, 1.0, FIELD_PART_UINT, &hf_048_V1_30_030_Subitem, NULL };
 static const FieldPart *I048_V1_30_030_PARTS[] = {
-    &I048_V1_30_030_CODE,
+    &I048_V1_30_030_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -39306,8 +39306,8 @@ static const FieldPart *I048_V1_31_020_PARTS[] = {
 };
 static const AsterixField I048_V1_31_020 = { FX, 1, 0, 0, &hf_048_V1_31_020, I048_V1_31_020_PARTS, { NULL } };
 static int hf_048_V1_31_030 = -1;
-static int hf_048_V1_31_030_CODE = -1;
-static const value_string valstr_048_V1_31_030_CODE[] = {
+static int hf_048_V1_31_030_Subitem = -1;
+static const value_string valstr_048_V1_31_030_Subitem[] = {
     { 0, "Not defined; never used" },
     { 1, "Multipath Reply (Reflection)" },
     { 2, "Reply due to sidelobe interrogation/reception" },
@@ -39347,9 +39347,9 @@ static const value_string valstr_048_V1_31_030_CODE[] = {
     { 36, "IC Conflict detection possible-no conflict currently detected" },
     { 0, NULL }
 };
-static const FieldPart I048_V1_31_030_CODE = { 7, 1.0, FIELD_PART_UINT, &hf_048_V1_31_030_CODE, NULL };
+static const FieldPart I048_V1_31_030_Subitem = { 7, 1.0, FIELD_PART_UINT, &hf_048_V1_31_030_Subitem, NULL };
 static const FieldPart *I048_V1_31_030_PARTS[] = {
-    &I048_V1_31_030_CODE,
+    &I048_V1_31_030_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -40337,8 +40337,8 @@ static const FieldPart *I048_020_PARTS[] = {
 };
 static const AsterixField I048_020 = { FX, 1, 0, 0, &hf_048_020, I048_020_PARTS, { NULL } };
 static int hf_048_030 = -1;
-static int hf_048_030_CODE = -1;
-static const value_string valstr_048_030_CODE[] = {
+static int hf_048_030_Subitem = -1;
+static const value_string valstr_048_030_Subitem[] = {
     { 0, "Not defined; never used" },
     { 1, "Multipath Reply (Reflection)" },
     { 2, "Reply due to sidelobe interrogation/reception" },
@@ -40378,9 +40378,9 @@ static const value_string valstr_048_030_CODE[] = {
     { 36, "IC Conflict detection possible-no conflict currently detected" },
     { 0, NULL }
 };
-static const FieldPart I048_030_CODE = { 7, 1.0, FIELD_PART_UINT, &hf_048_030_CODE, NULL };
+static const FieldPart I048_030_Subitem = { 7, 1.0, FIELD_PART_UINT, &hf_048_030_Subitem, NULL };
 static const FieldPart *I048_030_PARTS[] = {
-    &I048_030_CODE,
+    &I048_030_Subitem,
     &IXXX_FX,
     NULL
 };
@@ -52730,7 +52730,7 @@ void proto_register_asterix (void)
         { &hf_001_V1_2_020_ME, { "ME", "asterix.001_V1_2_020_ME", FT_UINT8, BASE_DEC, VALS (valstr_001_V1_2_020_ME), 0x10, NULL, HFILL } },
         { &hf_001_V1_2_020_MI, { "MI", "asterix.001_V1_2_020_MI", FT_UINT8, BASE_DEC, VALS (valstr_001_V1_2_020_MI), 0x08, NULL, HFILL } },
         { &hf_001_V1_2_030, { "030, Warning/Error Conditions", "asterix.001_V1_2_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_001_V1_2_030_WE, { "WE, WEVALUE", "asterix.001_V1_2_030_WE", FT_UINT8, BASE_DEC, VALS (valstr_001_V1_2_030_WE), 0xfe, NULL, HFILL } },
+        { &hf_001_V1_2_030_Subitem, { "Subitem, Subitem", "asterix.001_V1_2_030_Subitem", FT_UINT8, BASE_DEC, VALS (valstr_001_V1_2_030_Subitem), 0xfe, NULL, HFILL } },
         { &hf_001_V1_2_040, { "040, Measured Position in Polar Co-ordinates", "asterix.001_V1_2_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_2_040_RHO, { "RHO, [NM]", "asterix.001_V1_2_040_RHO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_2_040_THETA, { "THETA, [°]", "asterix.001_V1_2_040_THETA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -52796,7 +52796,7 @@ void proto_register_asterix (void)
         { &hf_001_V1_2_120, { "120, Measured Radial Doppler Speed", "asterix.001_V1_2_120", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_2_120_VALUE, { "Measured Radial Doppler Speed, [NM/s]", "asterix.001_V1_2_120_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_2_130, { "130, Radar Plot Characteristics", "asterix.001_V1_2_130", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_001_V1_2_130_IND, { "IND, Indicator", "asterix.001_V1_2_130_IND", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_001_V1_2_130_Subitem, { "Subitem, Subitem", "asterix.001_V1_2_130_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_001_V1_2_131, { "131, Received Power", "asterix.001_V1_2_131", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_2_131_VALUE, { "Received Power, [dBm]", "asterix.001_V1_2_131_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_2_141, { "141, Truncated Time of Day", "asterix.001_V1_2_141", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -52819,7 +52819,7 @@ void proto_register_asterix (void)
         { &hf_001_V1_2_200_GSP, { "GSP, Calculated Groundspeed, [NM/s]", "asterix.001_V1_2_200_GSP", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_2_200_HDG, { "HDG, Calculated Heading, [°]", "asterix.001_V1_2_200_HDG", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_2_210, { "210, Track Quality", "asterix.001_V1_2_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_001_V1_2_210_QI, { "QI, Relative Track Quality", "asterix.001_V1_2_210_QI", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_001_V1_2_210_Subitem, { "Subitem, Subitem", "asterix.001_V1_2_210_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_001_V1_2_SP, { "SP, Special Purpose Field", "asterix.001_V1_2_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_2_RFS, { "RFS, Random Field Sequencing", "asterix.001_V1_2_RFS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_3_010, { "010, Data Source Identifier", "asterix.001_V1_3_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -52837,7 +52837,7 @@ void proto_register_asterix (void)
         { &hf_001_V1_3_020_ME, { "ME", "asterix.001_V1_3_020_ME", FT_UINT8, BASE_DEC, VALS (valstr_001_V1_3_020_ME), 0x10, NULL, HFILL } },
         { &hf_001_V1_3_020_MI, { "MI", "asterix.001_V1_3_020_MI", FT_UINT8, BASE_DEC, VALS (valstr_001_V1_3_020_MI), 0x08, NULL, HFILL } },
         { &hf_001_V1_3_030, { "030, Warning/Error Conditions", "asterix.001_V1_3_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_001_V1_3_030_WE, { "WE, WEVALUE", "asterix.001_V1_3_030_WE", FT_UINT8, BASE_DEC, VALS (valstr_001_V1_3_030_WE), 0xfe, NULL, HFILL } },
+        { &hf_001_V1_3_030_Subitem, { "Subitem, Subitem", "asterix.001_V1_3_030_Subitem", FT_UINT8, BASE_DEC, VALS (valstr_001_V1_3_030_Subitem), 0xfe, NULL, HFILL } },
         { &hf_001_V1_3_040, { "040, Measured Position in Polar Co-ordinates", "asterix.001_V1_3_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_3_040_RHO, { "RHO, [NM]", "asterix.001_V1_3_040_RHO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_3_040_THETA, { "THETA, [°]", "asterix.001_V1_3_040_THETA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -52903,7 +52903,7 @@ void proto_register_asterix (void)
         { &hf_001_V1_3_120, { "120, Measured Radial Doppler Speed", "asterix.001_V1_3_120", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_3_120_VALUE, { "Measured Radial Doppler Speed, [NM/s]", "asterix.001_V1_3_120_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_3_130, { "130, Radar Plot Characteristics", "asterix.001_V1_3_130", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_001_V1_3_130_IND, { "IND, Indicator", "asterix.001_V1_3_130_IND", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_001_V1_3_130_Subitem, { "Subitem, Subitem", "asterix.001_V1_3_130_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_001_V1_3_131, { "131, Received Power", "asterix.001_V1_3_131", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_3_131_VALUE, { "Received Power, [dBm]", "asterix.001_V1_3_131_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_3_141, { "141, Truncated Time of Day", "asterix.001_V1_3_141", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -52926,7 +52926,7 @@ void proto_register_asterix (void)
         { &hf_001_V1_3_200_GSP, { "GSP, Calculated Groundspeed, [NM/s]", "asterix.001_V1_3_200_GSP", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_3_200_HDG, { "HDG, Calculated Heading, [°]", "asterix.001_V1_3_200_HDG", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_3_210, { "210, Track Quality", "asterix.001_V1_3_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_001_V1_3_210_QI, { "QI, Relative Track Quality", "asterix.001_V1_3_210_QI", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_001_V1_3_210_Subitem, { "Subitem, Subitem", "asterix.001_V1_3_210_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_001_V1_3_SP, { "SP, Special Purpose Field", "asterix.001_V1_3_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_3_RFS, { "RFS, Random Field Sequencing", "asterix.001_V1_3_RFS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_4_010, { "010, Data Source Identifier", "asterix.001_V1_4_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -52944,7 +52944,7 @@ void proto_register_asterix (void)
         { &hf_001_V1_4_020_ME, { "ME", "asterix.001_V1_4_020_ME", FT_UINT8, BASE_DEC, VALS (valstr_001_V1_4_020_ME), 0x10, NULL, HFILL } },
         { &hf_001_V1_4_020_MI, { "MI", "asterix.001_V1_4_020_MI", FT_UINT8, BASE_DEC, VALS (valstr_001_V1_4_020_MI), 0x08, NULL, HFILL } },
         { &hf_001_V1_4_030, { "030, Warning/Error Conditions", "asterix.001_V1_4_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_001_V1_4_030_WE, { "WE, WEVALUE", "asterix.001_V1_4_030_WE", FT_UINT8, BASE_DEC, VALS (valstr_001_V1_4_030_WE), 0xfe, NULL, HFILL } },
+        { &hf_001_V1_4_030_Subitem, { "Subitem, Subitem", "asterix.001_V1_4_030_Subitem", FT_UINT8, BASE_DEC, VALS (valstr_001_V1_4_030_Subitem), 0xfe, NULL, HFILL } },
         { &hf_001_V1_4_040, { "040, Measured Position in Polar Co-ordinates", "asterix.001_V1_4_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_4_040_RHO, { "RHO, [NM]", "asterix.001_V1_4_040_RHO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_4_040_THETA, { "THETA, [°]", "asterix.001_V1_4_040_THETA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -53010,7 +53010,7 @@ void proto_register_asterix (void)
         { &hf_001_V1_4_120, { "120, Measured Radial Doppler Speed", "asterix.001_V1_4_120", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_4_120_VALUE, { "Measured Radial Doppler Speed, [NM/s]", "asterix.001_V1_4_120_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_4_130, { "130, Radar Plot Characteristics", "asterix.001_V1_4_130", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_001_V1_4_130_IND, { "IND, Indicator", "asterix.001_V1_4_130_IND", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_001_V1_4_130_Subitem, { "Subitem, Subitem", "asterix.001_V1_4_130_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_001_V1_4_131, { "131, Received Power", "asterix.001_V1_4_131", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_4_131_VALUE, { "Received Power, [dBm]", "asterix.001_V1_4_131_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_4_141, { "141, Truncated Time of Day", "asterix.001_V1_4_141", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -53033,7 +53033,7 @@ void proto_register_asterix (void)
         { &hf_001_V1_4_200_GSP, { "GSP, Calculated Groundspeed, [NM/s]", "asterix.001_V1_4_200_GSP", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_4_200_HDG, { "HDG, Calculated Heading, [°]", "asterix.001_V1_4_200_HDG", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_4_210, { "210, Track Quality", "asterix.001_V1_4_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_001_V1_4_210_QI, { "QI, Relative Track Quality", "asterix.001_V1_4_210_QI", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_001_V1_4_210_Subitem, { "Subitem, Subitem", "asterix.001_V1_4_210_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_001_V1_4_SP, { "SP, Special Purpose Field", "asterix.001_V1_4_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_V1_4_RFS, { "RFS, Random Field Sequencing", "asterix.001_V1_4_RFS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_010, { "010, Data Source Identifier", "asterix.001_010", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -53051,7 +53051,7 @@ void proto_register_asterix (void)
         { &hf_001_020_ME, { "ME", "asterix.001_020_ME", FT_UINT8, BASE_DEC, VALS (valstr_001_020_ME), 0x10, NULL, HFILL } },
         { &hf_001_020_MI, { "MI", "asterix.001_020_MI", FT_UINT8, BASE_DEC, VALS (valstr_001_020_MI), 0x08, NULL, HFILL } },
         { &hf_001_030, { "030, Warning/Error Conditions", "asterix.001_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_001_030_WE, { "WE, WEVALUE", "asterix.001_030_WE", FT_UINT8, BASE_DEC, VALS (valstr_001_030_WE), 0xfe, NULL, HFILL } },
+        { &hf_001_030_Subitem, { "Subitem, Subitem", "asterix.001_030_Subitem", FT_UINT8, BASE_DEC, VALS (valstr_001_030_Subitem), 0xfe, NULL, HFILL } },
         { &hf_001_040, { "040, Measured Position in Polar Co-ordinates", "asterix.001_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_040_RHO, { "RHO, [NM]", "asterix.001_040_RHO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_040_THETA, { "THETA, [°]", "asterix.001_040_THETA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -53117,7 +53117,7 @@ void proto_register_asterix (void)
         { &hf_001_120, { "120, Measured Radial Doppler Speed", "asterix.001_120", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_120_VALUE, { "Measured Radial Doppler Speed, [NM/s]", "asterix.001_120_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_130, { "130, Radar Plot Characteristics", "asterix.001_130", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_001_130_IND, { "IND, Indicator", "asterix.001_130_IND", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_001_130_Subitem, { "Subitem, Subitem", "asterix.001_130_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_001_131, { "131, Received Power", "asterix.001_131", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_131_VALUE, { "Received Power, [dBm]", "asterix.001_131_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_141, { "141, Truncated Time of Day", "asterix.001_141", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -53140,7 +53140,7 @@ void proto_register_asterix (void)
         { &hf_001_200_GSP, { "GSP, Calculated Groundspeed, [NM/s]", "asterix.001_200_GSP", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_200_HDG, { "HDG, Calculated Heading, [°]", "asterix.001_200_HDG", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_210, { "210, Track Quality", "asterix.001_210", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_001_210_QI, { "QI, Relative Track Quality", "asterix.001_210_QI", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_001_210_Subitem, { "Subitem, Subitem", "asterix.001_210_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_001_SP, { "SP, Special Purpose Field", "asterix.001_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_001_RFS, { "RFS, Random Field Sequencing", "asterix.001_RFS", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_0_000, { "000, Message Type", "asterix.002_V1_0_000", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -53155,15 +53155,15 @@ void proto_register_asterix (void)
         { &hf_002_V1_0_041, { "041, Antenna Rotation Speed", "asterix.002_V1_0_041", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_0_041_VALUE, { "Antenna Rotation Speed, [s]", "asterix.002_V1_0_041_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_0_050, { "050, Station Configuration Status", "asterix.002_V1_0_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_002_V1_0_050_SCS, { "SCS", "asterix.002_V1_0_050_SCS", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_002_V1_0_050_Subitem, { "Subitem, Subitem", "asterix.002_V1_0_050_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_002_V1_0_060, { "060, Station Processing Mode", "asterix.002_V1_0_060", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_002_V1_0_060_SPM, { "SPM", "asterix.002_V1_0_060_SPM", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_002_V1_0_060_Subitem, { "Subitem, Subitem", "asterix.002_V1_0_060_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_002_V1_0_070, { "070, Plot Count Values", "asterix.002_V1_0_070", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_0_070_A, { "A, Aerial Identification", "asterix.002_V1_0_070_A", FT_UINT8, BASE_DEC, VALS (valstr_002_V1_0_070_A), 0x80, NULL, HFILL } },
         { &hf_002_V1_0_070_IDENT, { "IDENT", "asterix.002_V1_0_070_IDENT", FT_UINT8, BASE_DEC, VALS (valstr_002_V1_0_070_IDENT), 0x7c, NULL, HFILL } },
         { &hf_002_V1_0_070_COUNTER, { "COUNTER", "asterix.002_V1_0_070_COUNTER", FT_UINT16, BASE_DEC, NULL, 0x03ff, NULL, HFILL } },
         { &hf_002_V1_0_080, { "080, Warning/Error Conditions", "asterix.002_V1_0_080", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_002_V1_0_080_WE, { "WE, W/E Value", "asterix.002_V1_0_080_WE", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_002_V1_0_080_Subitem, { "Subitem, Subitem", "asterix.002_V1_0_080_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_002_V1_0_090, { "090, Collimation Error", "asterix.002_V1_0_090", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_0_090_RE, { "RE, Range Error, [NM]", "asterix.002_V1_0_090_RE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_0_090_AE, { "AE, Azimuth Error, [°]", "asterix.002_V1_0_090_AE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -53186,15 +53186,15 @@ void proto_register_asterix (void)
         { &hf_002_V1_1_041, { "041, Antenna Rotation Speed", "asterix.002_V1_1_041", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_1_041_VALUE, { "Antenna Rotation Speed, [s]", "asterix.002_V1_1_041_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_1_050, { "050, Station Configuration Status", "asterix.002_V1_1_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_002_V1_1_050_SCS, { "SCS", "asterix.002_V1_1_050_SCS", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_002_V1_1_050_Subitem, { "Subitem, Subitem", "asterix.002_V1_1_050_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_002_V1_1_060, { "060, Station Processing Mode", "asterix.002_V1_1_060", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_002_V1_1_060_SPM, { "SPM", "asterix.002_V1_1_060_SPM", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_002_V1_1_060_Subitem, { "Subitem, Subitem", "asterix.002_V1_1_060_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_002_V1_1_070, { "070, Plot Count Values", "asterix.002_V1_1_070", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_1_070_A, { "A, Aerial Identification", "asterix.002_V1_1_070_A", FT_UINT8, BASE_DEC, VALS (valstr_002_V1_1_070_A), 0x80, NULL, HFILL } },
         { &hf_002_V1_1_070_IDENT, { "IDENT", "asterix.002_V1_1_070_IDENT", FT_UINT8, BASE_DEC, VALS (valstr_002_V1_1_070_IDENT), 0x7c, NULL, HFILL } },
         { &hf_002_V1_1_070_COUNTER, { "COUNTER", "asterix.002_V1_1_070_COUNTER", FT_UINT16, BASE_DEC, NULL, 0x03ff, NULL, HFILL } },
         { &hf_002_V1_1_080, { "080, Warning/Error Conditions", "asterix.002_V1_1_080", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_002_V1_1_080_WE, { "WE, W/E Value", "asterix.002_V1_1_080_WE", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_002_V1_1_080_Subitem, { "Subitem, Subitem", "asterix.002_V1_1_080_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_002_V1_1_090, { "090, Collimation Error", "asterix.002_V1_1_090", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_1_090_RE, { "RE, Range Error, [NM]", "asterix.002_V1_1_090_RE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_V1_1_090_AE, { "AE, Azimuth Error, [°]", "asterix.002_V1_1_090_AE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -53217,15 +53217,15 @@ void proto_register_asterix (void)
         { &hf_002_041, { "041, Antenna Rotation Speed", "asterix.002_041", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_041_VALUE, { "Antenna Rotation Speed, [s]", "asterix.002_041_VALUE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_050, { "050, Station Configuration Status", "asterix.002_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_002_050_SCS, { "SCS", "asterix.002_050_SCS", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_002_050_Subitem, { "Subitem, Subitem", "asterix.002_050_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_002_060, { "060, Station Processing Mode", "asterix.002_060", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_002_060_SPM, { "SPM", "asterix.002_060_SPM", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_002_060_Subitem, { "Subitem, Subitem", "asterix.002_060_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_002_070, { "070, Plot Count Values", "asterix.002_070", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_070_A, { "A, Aerial Identification", "asterix.002_070_A", FT_UINT8, BASE_DEC, VALS (valstr_002_070_A), 0x80, NULL, HFILL } },
         { &hf_002_070_IDENT, { "IDENT", "asterix.002_070_IDENT", FT_UINT8, BASE_DEC, VALS (valstr_002_070_IDENT), 0x7c, NULL, HFILL } },
         { &hf_002_070_COUNTER, { "COUNTER", "asterix.002_070_COUNTER", FT_UINT16, BASE_DEC, NULL, 0x03ff, NULL, HFILL } },
         { &hf_002_080, { "080, Warning/Error Conditions", "asterix.002_080", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_002_080_WE, { "WE, W/E Value", "asterix.002_080_WE", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_002_080_Subitem, { "Subitem, Subitem", "asterix.002_080_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_002_090, { "090, Collimation Error", "asterix.002_090", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_090_RE, { "RE, Range Error, [NM]", "asterix.002_090_RE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_002_090_AE, { "AE, Azimuth Error, [°]", "asterix.002_090_AE", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -53669,7 +53669,7 @@ void proto_register_asterix (void)
         { &hf_008_V1_2_100_R, { "R, Current Reduction Stage in Use", "asterix.008_V1_2_100_R", FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL } },
         { &hf_008_V1_2_100_Q, { "Q, Processing Parameters", "asterix.008_V1_2_100_Q", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
         { &hf_008_V1_2_110, { "110, Station Configuration Status", "asterix.008_V1_2_110", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_2_110_DATA, { "DATA, Unspecified Data", "asterix.008_V1_2_110_DATA", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_008_V1_2_110_Subitem, { "Subitem, Subitem", "asterix.008_V1_2_110_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_008_V1_2_120, { "120, Total Number of Items Constituting One Weather Picture", "asterix.008_V1_2_120", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_120_VALUE, { "Total Number of Items Constituting One Weather Picture", "asterix.008_V1_2_120_VALUE", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_2_SP, { "SP, Special Purpose Field", "asterix.008_V1_2_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -53713,7 +53713,7 @@ void proto_register_asterix (void)
         { &hf_008_V1_3_100_R, { "R, Current Reduction Stage in Use", "asterix.008_V1_3_100_R", FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL } },
         { &hf_008_V1_3_100_Q, { "Q, Processing Parameters", "asterix.008_V1_3_100_Q", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
         { &hf_008_V1_3_110, { "110, Station Configuration Status", "asterix.008_V1_3_110", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_V1_3_110_DATA, { "DATA, Unspecified Data", "asterix.008_V1_3_110_DATA", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_008_V1_3_110_Subitem, { "Subitem, Subitem", "asterix.008_V1_3_110_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_008_V1_3_120, { "120, Total Number of Items Constituting One Weather Picture", "asterix.008_V1_3_120", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_120_VALUE, { "Total Number of Items Constituting One Weather Picture", "asterix.008_V1_3_120_VALUE", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_V1_3_SP, { "SP, Special Purpose Field", "asterix.008_V1_3_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -53757,7 +53757,7 @@ void proto_register_asterix (void)
         { &hf_008_100_R, { "R, Current Reduction Stage in Use", "asterix.008_100_R", FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL } },
         { &hf_008_100_Q, { "Q, Processing Parameters", "asterix.008_100_Q", FT_UINT16, BASE_DEC, NULL, 0xfffe, NULL, HFILL } },
         { &hf_008_110, { "110, Station Configuration Status", "asterix.008_110", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_008_110_DATA, { "DATA, Unspecified Data", "asterix.008_110_DATA", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_008_110_Subitem, { "Subitem, Subitem", "asterix.008_110_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_008_120, { "120, Total Number of Items Constituting One Weather Picture", "asterix.008_120", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_008_120_VALUE, { "Total Number of Items Constituting One Weather Picture", "asterix.008_120_VALUE", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_008_SP, { "SP, Special Purpose Field", "asterix.008_SP", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -54622,7 +54622,7 @@ void proto_register_asterix (void)
         { &hf_015_V1_0_020_TTAX, { "TTAX, Target Taxonomy", "asterix.015_V1_0_020_TTAX", FT_UINT8, BASE_DEC, VALS (valstr_015_V1_0_020_TTAX), 0x30, NULL, HFILL } },
         { &hf_015_V1_0_020_SCD, { "SCD, Scanning Direction", "asterix.015_V1_0_020_SCD", FT_UINT8, BASE_DEC, VALS (valstr_015_V1_0_020_SCD), 0x0c, NULL, HFILL } },
         { &hf_015_V1_0_030, { "030, Warning/Error Conditions", "asterix.015_V1_0_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_0_030_WE, { "WE, Warning/Error Condition Value", "asterix.015_V1_0_030_WE", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_015_V1_0_030_Subitem, { "Subitem, Subitem", "asterix.015_V1_0_030_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_015_V1_0_050, { "050, Update Period", "asterix.015_V1_0_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_050_UPD, { "UPD, Update Period, [s]", "asterix.015_V1_0_050_UPD", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_0_145, { "145, Time of Applicability", "asterix.015_V1_0_145", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -54855,7 +54855,7 @@ void proto_register_asterix (void)
         { &hf_015_V1_1_020_TTAX, { "TTAX, Target Taxonomy", "asterix.015_V1_1_020_TTAX", FT_UINT8, BASE_DEC, VALS (valstr_015_V1_1_020_TTAX), 0x30, NULL, HFILL } },
         { &hf_015_V1_1_020_SCD, { "SCD, Scanning Direction", "asterix.015_V1_1_020_SCD", FT_UINT8, BASE_DEC, VALS (valstr_015_V1_1_020_SCD), 0x0c, NULL, HFILL } },
         { &hf_015_V1_1_030, { "030, Warning/Error Conditions", "asterix.015_V1_1_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_V1_1_030_WE, { "WE, Warning/Error Condition Value", "asterix.015_V1_1_030_WE", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_015_V1_1_030_Subitem, { "Subitem, Subitem", "asterix.015_V1_1_030_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_015_V1_1_050, { "050, Update Period", "asterix.015_V1_1_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_050_UPD, { "UPD, Update Period, [s]", "asterix.015_V1_1_050_UPD", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_V1_1_145, { "145, Time of Applicability", "asterix.015_V1_1_145", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -55088,7 +55088,7 @@ void proto_register_asterix (void)
         { &hf_015_020_TTAX, { "TTAX, Target Taxonomy", "asterix.015_020_TTAX", FT_UINT8, BASE_DEC, VALS (valstr_015_020_TTAX), 0x30, NULL, HFILL } },
         { &hf_015_020_SCD, { "SCD, Scanning Direction", "asterix.015_020_SCD", FT_UINT8, BASE_DEC, VALS (valstr_015_020_SCD), 0x0c, NULL, HFILL } },
         { &hf_015_030, { "030, Warning/Error Conditions", "asterix.015_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_015_030_WE, { "WE, Warning/Error Condition Value", "asterix.015_030_WE", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
+        { &hf_015_030_Subitem, { "Subitem, Subitem", "asterix.015_030_Subitem", FT_UINT8, BASE_DEC, NULL, 0xfe, NULL, HFILL } },
         { &hf_015_050, { "050, Update Period", "asterix.015_050", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_050_UPD, { "UPD, Update Period, [s]", "asterix.015_050_UPD", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_015_145, { "145, Time of Applicability", "asterix.015_145", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -55695,7 +55695,7 @@ void proto_register_asterix (void)
         { &hf_020_V1_9_020_SIM, { "SIM", "asterix.020_V1_9_020_SIM", FT_UINT8, BASE_DEC, VALS (valstr_020_V1_9_020_SIM), 0x04, NULL, HFILL } },
         { &hf_020_V1_9_020_TST, { "TST", "asterix.020_V1_9_020_TST", FT_UINT8, BASE_DEC, VALS (valstr_020_V1_9_020_TST), 0x02, NULL, HFILL } },
         { &hf_020_V1_9_030, { "030, Warning/Error Conditions", "asterix.020_V1_9_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_020_V1_9_030_WE, { "WE", "asterix.020_V1_9_030_WE", FT_UINT8, BASE_DEC, VALS (valstr_020_V1_9_030_WE), 0xfe, NULL, HFILL } },
+        { &hf_020_V1_9_030_Subitem, { "Subitem, Subitem", "asterix.020_V1_9_030_Subitem", FT_UINT8, BASE_DEC, VALS (valstr_020_V1_9_030_Subitem), 0xfe, NULL, HFILL } },
         { &hf_020_V1_9_041, { "041, Position In WGS-84 Coordinates", "asterix.020_V1_9_041", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_9_041_LAT, { "LAT, Latitude, [°]", "asterix.020_V1_9_041_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_9_041_LON, { "LON, Longitude, [°]", "asterix.020_V1_9_041_LON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -55824,7 +55824,7 @@ void proto_register_asterix (void)
         { &hf_020_V1_10_020_SIM, { "SIM", "asterix.020_V1_10_020_SIM", FT_UINT8, BASE_DEC, VALS (valstr_020_V1_10_020_SIM), 0x04, NULL, HFILL } },
         { &hf_020_V1_10_020_TST, { "TST", "asterix.020_V1_10_020_TST", FT_UINT8, BASE_DEC, VALS (valstr_020_V1_10_020_TST), 0x02, NULL, HFILL } },
         { &hf_020_V1_10_030, { "030, Warning/Error Conditions", "asterix.020_V1_10_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_020_V1_10_030_WE, { "WE", "asterix.020_V1_10_030_WE", FT_UINT8, BASE_DEC, VALS (valstr_020_V1_10_030_WE), 0xfe, NULL, HFILL } },
+        { &hf_020_V1_10_030_Subitem, { "Subitem, Subitem", "asterix.020_V1_10_030_Subitem", FT_UINT8, BASE_DEC, VALS (valstr_020_V1_10_030_Subitem), 0xfe, NULL, HFILL } },
         { &hf_020_V1_10_041, { "041, Position In WGS-84 Coordinates", "asterix.020_V1_10_041", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_10_041_LAT, { "LAT, Latitude, [°]", "asterix.020_V1_10_041_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_V1_10_041_LON, { "LON, Longitude, [°]", "asterix.020_V1_10_041_LON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -55953,7 +55953,7 @@ void proto_register_asterix (void)
         { &hf_020_020_SIM, { "SIM", "asterix.020_020_SIM", FT_UINT8, BASE_DEC, VALS (valstr_020_020_SIM), 0x04, NULL, HFILL } },
         { &hf_020_020_TST, { "TST", "asterix.020_020_TST", FT_UINT8, BASE_DEC, VALS (valstr_020_020_TST), 0x02, NULL, HFILL } },
         { &hf_020_030, { "030, Warning/Error Conditions", "asterix.020_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_020_030_WE, { "WE", "asterix.020_030_WE", FT_UINT8, BASE_DEC, VALS (valstr_020_030_WE), 0xfe, NULL, HFILL } },
+        { &hf_020_030_Subitem, { "Subitem, Subitem", "asterix.020_030_Subitem", FT_UINT8, BASE_DEC, VALS (valstr_020_030_Subitem), 0xfe, NULL, HFILL } },
         { &hf_020_041, { "041, Position In WGS-84 Coordinates", "asterix.020_041", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_041_LAT, { "LAT, Latitude, [°]", "asterix.020_041_LAT", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_020_041_LON, { "LON, Longitude, [°]", "asterix.020_041_LON", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -58396,7 +58396,7 @@ void proto_register_asterix (void)
         { &hf_048_V1_27_020_MI, { "MI", "asterix.048_V1_27_020_MI", FT_UINT8, BASE_DEC, VALS (valstr_048_V1_27_020_MI), 0x08, NULL, HFILL } },
         { &hf_048_V1_27_020_FOEFRI, { "FOEFRI", "asterix.048_V1_27_020_FOEFRI", FT_UINT8, BASE_DEC, VALS (valstr_048_V1_27_020_FOEFRI), 0x06, NULL, HFILL } },
         { &hf_048_V1_27_030, { "030, Warning/Error Conditions and Target Classification", "asterix.048_V1_27_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_048_V1_27_030_CODE, { "CODE", "asterix.048_V1_27_030_CODE", FT_UINT8, BASE_DEC, VALS (valstr_048_V1_27_030_CODE), 0xfe, NULL, HFILL } },
+        { &hf_048_V1_27_030_Subitem, { "Subitem, Subitem", "asterix.048_V1_27_030_Subitem", FT_UINT8, BASE_DEC, VALS (valstr_048_V1_27_030_Subitem), 0xfe, NULL, HFILL } },
         { &hf_048_V1_27_040, { "040, Measured Position in Polar Co-ordinates", "asterix.048_V1_27_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_048_V1_27_040_RHO, { "RHO, [NM]", "asterix.048_V1_27_040_RHO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_048_V1_27_040_THETA, { "THETA, [°]", "asterix.048_V1_27_040_THETA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -58554,7 +58554,7 @@ void proto_register_asterix (void)
         { &hf_048_V1_28_020_MI, { "MI", "asterix.048_V1_28_020_MI", FT_UINT8, BASE_DEC, VALS (valstr_048_V1_28_020_MI), 0x08, NULL, HFILL } },
         { &hf_048_V1_28_020_FOEFRI, { "FOEFRI", "asterix.048_V1_28_020_FOEFRI", FT_UINT8, BASE_DEC, VALS (valstr_048_V1_28_020_FOEFRI), 0x06, NULL, HFILL } },
         { &hf_048_V1_28_030, { "030, Warning/Error Conditions and Target Classification", "asterix.048_V1_28_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_048_V1_28_030_CODE, { "CODE", "asterix.048_V1_28_030_CODE", FT_UINT8, BASE_DEC, VALS (valstr_048_V1_28_030_CODE), 0xfe, NULL, HFILL } },
+        { &hf_048_V1_28_030_Subitem, { "Subitem, Subitem", "asterix.048_V1_28_030_Subitem", FT_UINT8, BASE_DEC, VALS (valstr_048_V1_28_030_Subitem), 0xfe, NULL, HFILL } },
         { &hf_048_V1_28_040, { "040, Measured Position in Polar Co-ordinates", "asterix.048_V1_28_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_048_V1_28_040_RHO, { "RHO, [NM]", "asterix.048_V1_28_040_RHO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_048_V1_28_040_THETA, { "THETA, [°]", "asterix.048_V1_28_040_THETA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -58712,7 +58712,7 @@ void proto_register_asterix (void)
         { &hf_048_V1_29_020_MI, { "MI", "asterix.048_V1_29_020_MI", FT_UINT8, BASE_DEC, VALS (valstr_048_V1_29_020_MI), 0x08, NULL, HFILL } },
         { &hf_048_V1_29_020_FOEFRI, { "FOEFRI", "asterix.048_V1_29_020_FOEFRI", FT_UINT8, BASE_DEC, VALS (valstr_048_V1_29_020_FOEFRI), 0x06, NULL, HFILL } },
         { &hf_048_V1_29_030, { "030, Warning/Error Conditions and Target Classification", "asterix.048_V1_29_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_048_V1_29_030_CODE, { "CODE", "asterix.048_V1_29_030_CODE", FT_UINT8, BASE_DEC, VALS (valstr_048_V1_29_030_CODE), 0xfe, NULL, HFILL } },
+        { &hf_048_V1_29_030_Subitem, { "Subitem, Subitem", "asterix.048_V1_29_030_Subitem", FT_UINT8, BASE_DEC, VALS (valstr_048_V1_29_030_Subitem), 0xfe, NULL, HFILL } },
         { &hf_048_V1_29_040, { "040, Measured Position in Polar Co-ordinates", "asterix.048_V1_29_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_048_V1_29_040_RHO, { "RHO, [NM]", "asterix.048_V1_29_040_RHO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_048_V1_29_040_THETA, { "THETA, [°]", "asterix.048_V1_29_040_THETA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -58870,7 +58870,7 @@ void proto_register_asterix (void)
         { &hf_048_V1_30_020_MI, { "MI", "asterix.048_V1_30_020_MI", FT_UINT8, BASE_DEC, VALS (valstr_048_V1_30_020_MI), 0x08, NULL, HFILL } },
         { &hf_048_V1_30_020_FOEFRI, { "FOEFRI", "asterix.048_V1_30_020_FOEFRI", FT_UINT8, BASE_DEC, VALS (valstr_048_V1_30_020_FOEFRI), 0x06, NULL, HFILL } },
         { &hf_048_V1_30_030, { "030, Warning/Error Conditions and Target Classification", "asterix.048_V1_30_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_048_V1_30_030_CODE, { "CODE", "asterix.048_V1_30_030_CODE", FT_UINT8, BASE_DEC, VALS (valstr_048_V1_30_030_CODE), 0xfe, NULL, HFILL } },
+        { &hf_048_V1_30_030_Subitem, { "Subitem, Subitem", "asterix.048_V1_30_030_Subitem", FT_UINT8, BASE_DEC, VALS (valstr_048_V1_30_030_Subitem), 0xfe, NULL, HFILL } },
         { &hf_048_V1_30_040, { "040, Measured Position in Polar Co-ordinates", "asterix.048_V1_30_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_048_V1_30_040_RHO, { "RHO, [NM]", "asterix.048_V1_30_040_RHO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_048_V1_30_040_THETA, { "THETA, [°]", "asterix.048_V1_30_040_THETA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -59031,7 +59031,7 @@ void proto_register_asterix (void)
         { &hf_048_V1_31_020_SCN, { "SCN, Surveillance Cluster Network Information", "asterix.048_V1_31_020_SCN", FT_UINT8, BASE_DEC, NULL, 0x30, NULL, HFILL } },
         { &hf_048_V1_31_020_PAI, { "PAI, Passive Acquisition Interface Information", "asterix.048_V1_31_020_PAI", FT_UINT8, BASE_DEC, NULL, 0x0c, NULL, HFILL } },
         { &hf_048_V1_31_030, { "030, Warning/Error Conditions and Target Classification", "asterix.048_V1_31_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_048_V1_31_030_CODE, { "CODE", "asterix.048_V1_31_030_CODE", FT_UINT8, BASE_DEC, VALS (valstr_048_V1_31_030_CODE), 0xfe, NULL, HFILL } },
+        { &hf_048_V1_31_030_Subitem, { "Subitem, Subitem", "asterix.048_V1_31_030_Subitem", FT_UINT8, BASE_DEC, VALS (valstr_048_V1_31_030_Subitem), 0xfe, NULL, HFILL } },
         { &hf_048_V1_31_040, { "040, Measured Position in Polar Co-ordinates", "asterix.048_V1_31_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_048_V1_31_040_RHO, { "RHO, [NM]", "asterix.048_V1_31_040_RHO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_048_V1_31_040_THETA, { "THETA, [°]", "asterix.048_V1_31_040_THETA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
@@ -59192,7 +59192,7 @@ void proto_register_asterix (void)
         { &hf_048_020_SCN, { "SCN, Surveillance Cluster Network Information", "asterix.048_020_SCN", FT_UINT8, BASE_DEC, NULL, 0x30, NULL, HFILL } },
         { &hf_048_020_PAI, { "PAI, Passive Acquisition Interface Information", "asterix.048_020_PAI", FT_UINT8, BASE_DEC, NULL, 0x0c, NULL, HFILL } },
         { &hf_048_030, { "030, Warning/Error Conditions and Target Classification", "asterix.048_030", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_048_030_CODE, { "CODE", "asterix.048_030_CODE", FT_UINT8, BASE_DEC, VALS (valstr_048_030_CODE), 0xfe, NULL, HFILL } },
+        { &hf_048_030_Subitem, { "Subitem, Subitem", "asterix.048_030_Subitem", FT_UINT8, BASE_DEC, VALS (valstr_048_030_Subitem), 0xfe, NULL, HFILL } },
         { &hf_048_040, { "040, Measured Position in Polar Co-ordinates", "asterix.048_040", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_048_040_RHO, { "RHO, [NM]", "asterix.048_040_RHO", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_048_040_THETA, { "THETA, [°]", "asterix.048_040_THETA", FT_DOUBLE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
