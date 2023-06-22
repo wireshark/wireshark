@@ -523,7 +523,7 @@ def part1(ctx, get_ref, catalogue):
                 # AsterixField
                 bit_size = sum([get_bit_size(i) for i in subvar['items']])
                 byte_size = bit_size // 8
-                rep = variation['rep'] // 8
+                rep = variation['rep']['size'] // 8
                 parts = 'I{}_PARTS'.format(ref)
                 comp = '{ NULL }'
                 tell('static const AsterixField I{} = {} REPETITIVE, {}, {}, 0, &hf_{}, {}, {} {};'.format
@@ -574,8 +574,30 @@ def part1(ctx, get_ref, catalogue):
             variation = item['variation']
         handle_variation(path + [item['name']], variation)
 
-    for i in catalogue:
-        handle_item([], i)
+    for item in catalogue:
+        # adjust 'repetitive fx' item
+        if item['variation']['type'] == 'Repetitive' and item['variation']['rep']['type'] == 'Fx':
+            var = item['variation']['variation'].copy()
+            if var['type'] != 'Element':
+                raise Exception("Expecting 'Element'")
+            n = var['size']
+            item = item.copy()
+            item['variation'] = {
+                'type': 'Extended',
+                'first': n+1,
+                'extents': n+1,
+                'fx': 'Regular',
+                'items': [{
+                    'definition': None,
+                    'description': None,
+                    'name': 'Subitem',
+                    'remark': None,
+                    'spare': False,
+                    'title': 'Subitem',
+                    'variation': var,
+                    }]
+            }
+        handle_item([], item)
     tell('')
 
 def part2(ctx, ref, uap):
@@ -699,7 +721,7 @@ def is_valid(spec):
             n1 = variation['first']
             n2 = variation['extents']
             fx = variation['fx']
-            if fx != 'regular':
+            if fx != 'Regular':
                 return False    # 'iregular extended item'
             return all([check_item(i) for i in variation['items']])
         elif t == 'Repetitive':
