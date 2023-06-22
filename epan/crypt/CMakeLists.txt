@@ -12,7 +12,6 @@ ADD_CUSTOM_CMAKE_INCLUDE()
 set(CRYPT_HEADER_FILES
 	dot11decrypt_debug.h
 	dot11decrypt_int.h
-	dot11decrypt_interop.h
 	dot11decrypt_system.h
 	dot11decrypt_user.h
 	dot11decrypt_util.h

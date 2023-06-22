@@ -11,7 +11,6 @@
 
 #define WS_LOG_DOMAIN "dot11decrypt"
 
-#include "dot11decrypt_interop.h"
 #include <wsutil/wslog.h>
 
 /******************************************************************************/

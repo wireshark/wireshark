@@ -12,7 +12,6 @@
 /****************************************************************************/
 /*	File includes								*/
 
-#include "dot11decrypt_interop.h"
 #include "dot11decrypt_system.h"
 
 #include "ws_attributes.h"
@@ -63,12 +62,12 @@
 /**
  * Macros to get various bits of a 802.11 control frame
  */
-#define	DOT11DECRYPT_TYPE(FrameControl_0)		(UINT8)((FrameControl_0 >> 2) & 0x3)
-#define	DOT11DECRYPT_SUBTYPE(FrameControl_0)	(UINT8)((FrameControl_0 >> 4) & 0xF)
-#define	DOT11DECRYPT_DS_BITS(FrameControl_1)	(UINT8)(FrameControl_1 & 0x3)
-#define	DOT11DECRYPT_TO_DS(FrameControl_1)		(UINT8)(FrameControl_1 & 0x1)
-#define	DOT11DECRYPT_FROM_DS(FrameControl_1)	(UINT8)((FrameControl_1 >> 1) & 0x1)
-#define	DOT11DECRYPT_WEP(FrameControl_1)		(UINT8)((FrameControl_1 >> 6) & 0x1)
+#define	DOT11DECRYPT_TYPE(FrameControl_0)		(uint8_t)((FrameControl_0 >> 2) & 0x3)
+#define	DOT11DECRYPT_SUBTYPE(FrameControl_0)	(uint8_t)((FrameControl_0 >> 4) & 0xF)
+#define	DOT11DECRYPT_DS_BITS(FrameControl_1)	(uint8_t)(FrameControl_1 & 0x3)
+#define	DOT11DECRYPT_TO_DS(FrameControl_1)		(uint8_t)(FrameControl_1 & 0x1)
+#define	DOT11DECRYPT_FROM_DS(FrameControl_1)	(uint8_t)((FrameControl_1 >> 1) & 0x1)
+#define	DOT11DECRYPT_WEP(FrameControl_1)		(uint8_t)((FrameControl_1 >> 6) & 0x1)
 
 /**
  * Get the Key ID from the Initialization Vector (last byte)
@@ -78,7 +77,7 @@
 #define	DOT11DECRYPT_KEY_INDEX(KeyID)	((KeyID >> 6) & 0x3)  /** Used to determine TKIP group key from unicast (group = 1, unicast = 0) */
 
 /* Macros to get various bits of an EAPOL frame				*/
-#define	DOT11DECRYPT_EAP_KEY_DESCR_VER(KeyInfo_1)	((UCHAR)(KeyInfo_1 & 0x3))
+#define	DOT11DECRYPT_EAP_KEY_DESCR_VER(KeyInfo_1)	((unsigned char)(KeyInfo_1 & 0x3))
 #define	DOT11DECRYPT_EAP_KEY(KeyInfo_1)		((KeyInfo_1 >> 3) & 0x1)
 #define	DOT11DECRYPT_EAP_INST(KeyInfo_1)		((KeyInfo_1 >> 6) & 0x1)
 #define	DOT11DECRYPT_EAP_ACK(KeyInfo_1)		((KeyInfo_1 >> 7) & 0x1)
@@ -121,46 +120,46 @@
 
 /* Definition of IEEE 802.11 frame (without the address 4)			*/
 typedef struct _DOT11DECRYPT_MAC_FRAME {
-	UCHAR	fc[2];
-	UCHAR	dur[2];
-	UCHAR	addr1[DOT11DECRYPT_MAC_LEN];
-	UCHAR	addr2[DOT11DECRYPT_MAC_LEN];
-	UCHAR	addr3[DOT11DECRYPT_MAC_LEN];
-	UCHAR	seq[2];
+	unsigned char	fc[2];
+	unsigned char	dur[2];
+	unsigned char	addr1[DOT11DECRYPT_MAC_LEN];
+	unsigned char	addr2[DOT11DECRYPT_MAC_LEN];
+	unsigned char	addr3[DOT11DECRYPT_MAC_LEN];
+	unsigned char	seq[2];
 } DOT11DECRYPT_MAC_FRAME, *PDOT11DECRYPT_MAC_FRAME;
 
 /* Definition of IEEE 802.11 frame (with the address 4)			*/
 typedef struct _DOT11DECRYPT_MAC_FRAME_ADDR4 {
-	UCHAR	fc[2];
-	UCHAR	dur[2];
-	UCHAR	addr1[DOT11DECRYPT_MAC_LEN];
-	UCHAR	addr2[DOT11DECRYPT_MAC_LEN];
-	UCHAR	addr3[DOT11DECRYPT_MAC_LEN];
-	UCHAR	seq[2];
-	UCHAR	addr4[DOT11DECRYPT_MAC_LEN];
+	unsigned char	fc[2];
+	unsigned char	dur[2];
+	unsigned char	addr1[DOT11DECRYPT_MAC_LEN];
+	unsigned char	addr2[DOT11DECRYPT_MAC_LEN];
+	unsigned char	addr3[DOT11DECRYPT_MAC_LEN];
+	unsigned char	seq[2];
+	unsigned char	addr4[DOT11DECRYPT_MAC_LEN];
 } DOT11DECRYPT_MAC_FRAME_ADDR4, *PDOT11DECRYPT_MAC_FRAME_ADDR4;
 
 /* Definition of IEEE 802.11 frame (without the address 4, with QOS)		*/
 typedef struct _DOT11DECRYPT_MAC_FRAME_QOS {
-	UCHAR	fc[2];
-	UCHAR	dur[2];
-	UCHAR	addr1[DOT11DECRYPT_MAC_LEN];
-	UCHAR	addr2[DOT11DECRYPT_MAC_LEN];
-	UCHAR	addr3[DOT11DECRYPT_MAC_LEN];
-	UCHAR	seq[2];
-	UCHAR	qos[2];
+	unsigned char	fc[2];
+	unsigned char	dur[2];
+	unsigned char	addr1[DOT11DECRYPT_MAC_LEN];
+	unsigned char	addr2[DOT11DECRYPT_MAC_LEN];
+	unsigned char	addr3[DOT11DECRYPT_MAC_LEN];
+	unsigned char	seq[2];
+	unsigned char	qos[2];
 } DOT11DECRYPT_MAC_FRAME_QOS, *PDOT11DECRYPT_MAC_FRAME_QOS;
 
 /* Definition of IEEE 802.11 frame (with the address 4 and QOS)		*/
 typedef struct _DOT11DECRYPT_MAC_FRAME_ADDR4_QOS {
-	UCHAR	fc[2];
-	UCHAR	dur[2];
-	UCHAR	addr1[DOT11DECRYPT_MAC_LEN];
-	UCHAR	addr2[DOT11DECRYPT_MAC_LEN];
-	UCHAR	addr3[DOT11DECRYPT_MAC_LEN];
-	UCHAR	seq[2];
-	UCHAR	addr4[DOT11DECRYPT_MAC_LEN];
-	UCHAR	qos[2];
+	unsigned char	fc[2];
+	unsigned char	dur[2];
+	unsigned char	addr1[DOT11DECRYPT_MAC_LEN];
+	unsigned char	addr2[DOT11DECRYPT_MAC_LEN];
+	unsigned char	addr3[DOT11DECRYPT_MAC_LEN];
+	unsigned char	seq[2];
+	unsigned char	addr4[DOT11DECRYPT_MAC_LEN];
+	unsigned char	qos[2];
 } DOT11DECRYPT_MAC_FRAME_ADDR4_QOS, *PDOT11DECRYPT_MAC_FRAME_ADDR4_QOS;
 
 #ifdef _MSC_VER		/* MS Visual C++ */
@@ -170,25 +169,25 @@ typedef struct _DOT11DECRYPT_MAC_FRAME_ADDR4_QOS {
 /******************************************************************************/
 
 int Dot11DecryptCcmpDecrypt(
-	guint8 *m,
+	uint8_t *m,
 	int mac_header_len,
 	int len,
-	guint8 *TK1,
+	uint8_t *TK1,
 	int tk_len,
 	int mic_len);
 
 int Dot11DecryptGcmpDecrypt(
-	guint8 *m,
+	uint8_t *m,
 	int mac_header_len,
 	int len,
-	guint8 *TK1,
+	uint8_t *TK1,
 	int tk_len);
 
-INT Dot11DecryptTkipDecrypt(
-	UCHAR *tkip_mpdu,
+int Dot11DecryptTkipDecrypt(
+	unsigned char *tkip_mpdu,
 	size_t mpdu_len,
-	UCHAR TA[DOT11DECRYPT_MAC_LEN],
-	UCHAR TK[DOT11DECRYPT_TK_LEN])
+	unsigned char TA[DOT11DECRYPT_MAC_LEN],
+	unsigned char TK[DOT11DECRYPT_TK_LEN])
 	;
 
 #endif

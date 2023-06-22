@@ -31,17 +31,17 @@
 /*	Internal function prototypes declarations												*/
 /*																										*/
 static void Dot11DecryptTkipMixingPhase1(
-	UINT16 *TTAK,
-	const UINT8 *TK,
-	const UINT8 *TA,
-	UINT32 TSC)
+	uint16_t *TTAK,
+	const uint8_t *TK,
+	const uint8_t *TA,
+	uint32_t TSC)
 	;
 
 static void Dot11DecryptTkipMixingPhase2(
-	UINT8 *wep_seed,
-	const UINT8 *TK,
-	UINT16 *PPK,
-	UINT16 TSC16)
+	uint8_t *wep_seed,
+	const uint8_t *TK,
+	uint16_t *PPK,
+	uint16_t TSC16)
 	;
 
 /*																										*/
@@ -52,7 +52,7 @@ static void Dot11DecryptTkipMixingPhase2(
 /*																										*/
 /* Note: copied from FreeBSD source code, RELENG 6,									*/
 /*		sys/net80211/ieee80211_crypto_tkip.c, 471											*/
-static const UINT16 Sbox[256] = {
+static const uint16_t Sbox[256] = {
 	0xC6A5, 0xF884, 0xEE99, 0xF68D, 0xFF0D, 0xD6BD, 0xDEB1, 0x9154,
 	0x6050, 0x0203, 0xCEA9, 0x567D, 0xE719, 0xB562, 0x4DE6, 0xEC9A,
 	0x8F45, 0x1F9D, 0x8940, 0xFA87, 0xEF15, 0xB2EB, 0x8EC9, 0xFB0B,
@@ -95,38 +95,38 @@ static const UINT16 Sbox[256] = {
 /* Note: any functions were copied from FreeBSD source code, RELENG 6,			*/
 /*		sys/net80211/ieee80211_crypto_tkip.c												*/
 /* Converted to macros to avoid using __inline, as not all compilers support it	*/
-#define RotR1(val)	((UINT16)(((val) >> 1) | ((val) << 15)))
+#define RotR1(val)	((uint16_t)(((val) >> 1) | ((val) << 15)))
 
-#define Lo8(val)	((UINT8)((val) & 0xff))
+#define Lo8(val)	((uint8_t)((val) & 0xff))
 
-#define Hi8(val)	((UINT8)((val) >> 8))
+#define Hi8(val)	((uint8_t)((val) >> 8))
 
-#define Lo16(val)	((UINT16)((val) & 0xffff))
+#define Lo16(val)	((uint16_t)((val) & 0xffff))
 
-#define Hi16(val)	((UINT16)((val) >> 16))
+#define Hi16(val)	((uint16_t)((val) >> 16))
 
 #define Mk16(hi, lo) \
-	((UINT16)((lo) | (((UINT16) (hi)) << 8)))
+	((uint16_t)((lo) | (((uint16_t) (hi)) << 8)))
 
-#define Mk16_le(v)	((UINT16)pletoh16(v))
+#define Mk16_le(v)	((uint16_t)pletoh16(v))
 
 #define _S_(v) \
-	((UINT16)(Sbox[Lo8(v)] ^ ((Sbox[Hi8(v)] << 8) | (Sbox[Hi8(v)] >> 8))))
+	((uint16_t)(Sbox[Lo8(v)] ^ ((Sbox[Hi8(v)] << 8) | (Sbox[Hi8(v)] >> 8))))
 
 #define READ_6(b0, b1, b2, b3, b4, b5) \
-	((((UINT64)((UINT16)((b4 << 0) | (b5 << 8)))) << 32) | \
-	    ((UINT32)((b0 << 0) | (b1 << 8) | (b2 << 16) | (b3 << 24))))
+	((((uint64_t)((uint16_t)((b4 << 0) | (b5 << 8)))) << 32) | \
+	    ((uint32_t)((b0 << 0) | (b1 << 8) | (b2 << 16) | (b3 << 24))))
 
 /******************************************************************************/
 /*	Function definitions																			*/
 
 static void Dot11DecryptTkipMixingPhase1(
-	UINT16 *TTAK,
-	const UINT8 *TK,
-	const UINT8 *TA,
-	UINT32 TSC)
+	uint16_t *TTAK,
+	const uint8_t *TK,
+	const uint8_t *TA,
+	uint32_t TSC)
 {
-	UINT16 i, j;
+	uint16_t i, j;
 
 	/* Initialize the 80-bit TTAK from TSC (TSC) and TA[0..5] */
 	TTAK[0] = Lo16(TSC);
@@ -136,45 +136,45 @@ static void Dot11DecryptTkipMixingPhase1(
 	TTAK[4] = Mk16(TA[5], TA[4]);
 
 	for (i = 0; i < PHASE1_LOOP_COUNT; i++) {
-		j = (UINT16)(2 * (i & 1));
-		TTAK[0] = (UINT16)(TTAK[0] + _S_((UINT16)(TTAK[4] ^ Mk16(TK[1 + j], TK[0 + j]))));
-		TTAK[1] = (UINT16)(TTAK[1] + _S_((UINT16)(TTAK[0] ^ Mk16(TK[5 + j], TK[4 + j]))));
-		TTAK[2] = (UINT16)(TTAK[2] + _S_((UINT16)(TTAK[1] ^ Mk16(TK[9 + j], TK[8 + j]))));
-		TTAK[3] = (UINT16)(TTAK[3] + _S_((UINT16)(TTAK[2] ^ Mk16(TK[13 + j], TK[12 + j]))));
-		TTAK[4] = (UINT16)(TTAK[4] + _S_((UINT16)(TTAK[3] ^ Mk16(TK[1 + j], TK[0 + j]))) + i);
+		j = (uint16_t)(2 * (i & 1));
+		TTAK[0] = (uint16_t)(TTAK[0] + _S_((uint16_t)(TTAK[4] ^ Mk16(TK[1 + j], TK[0 + j]))));
+		TTAK[1] = (uint16_t)(TTAK[1] + _S_((uint16_t)(TTAK[0] ^ Mk16(TK[5 + j], TK[4 + j]))));
+		TTAK[2] = (uint16_t)(TTAK[2] + _S_((uint16_t)(TTAK[1] ^ Mk16(TK[9 + j], TK[8 + j]))));
+		TTAK[3] = (uint16_t)(TTAK[3] + _S_((uint16_t)(TTAK[2] ^ Mk16(TK[13 + j], TK[12 + j]))));
+		TTAK[4] = (uint16_t)(TTAK[4] + _S_((uint16_t)(TTAK[3] ^ Mk16(TK[1 + j], TK[0 + j]))) + i);
 	}
 }
 
 static void Dot11DecryptTkipMixingPhase2(
-	UINT8 *wep_seed,
-	const UINT8 *TK,
-	UINT16 *TTAK,
-	UINT16 TSC16)
+	uint8_t *wep_seed,
+	const uint8_t *TK,
+	uint16_t *TTAK,
+	uint16_t TSC16)
 {
-	INT i;
-	TTAK[5] = (UINT16)(TTAK[4] + TSC16);
+	int i;
+	TTAK[5] = (uint16_t)(TTAK[4] + TSC16);
 
 	/* Step 2 - 96-bit bijective mixing using S-box */
-	TTAK[0] = (UINT16)(TTAK[0] + _S_((UINT16)(TTAK[5] ^ Mk16_le(&TK[0]))));
-	TTAK[1] = (UINT16)(TTAK[1] + _S_((UINT16)(TTAK[0] ^ Mk16_le(&TK[2]))));
-	TTAK[2] = (UINT16)(TTAK[2] + _S_((UINT16)(TTAK[1] ^ Mk16_le(&TK[4]))));
-	TTAK[3] = (UINT16)(TTAK[3] + _S_((UINT16)(TTAK[2] ^ Mk16_le(&TK[6]))));
-	TTAK[4] = (UINT16)(TTAK[4] + _S_((UINT16)(TTAK[3] ^ Mk16_le(&TK[8]))));
-	TTAK[5] = (UINT16)(TTAK[5] + _S_((UINT16)(TTAK[4] ^ Mk16_le(&TK[10]))));
+	TTAK[0] = (uint16_t)(TTAK[0] + _S_((uint16_t)(TTAK[5] ^ Mk16_le(&TK[0]))));
+	TTAK[1] = (uint16_t)(TTAK[1] + _S_((uint16_t)(TTAK[0] ^ Mk16_le(&TK[2]))));
+	TTAK[2] = (uint16_t)(TTAK[2] + _S_((uint16_t)(TTAK[1] ^ Mk16_le(&TK[4]))));
+	TTAK[3] = (uint16_t)(TTAK[3] + _S_((uint16_t)(TTAK[2] ^ Mk16_le(&TK[6]))));
+	TTAK[4] = (uint16_t)(TTAK[4] + _S_((uint16_t)(TTAK[3] ^ Mk16_le(&TK[8]))));
+	TTAK[5] = (uint16_t)(TTAK[5] + _S_((uint16_t)(TTAK[4] ^ Mk16_le(&TK[10]))));
 
-	TTAK[0] = (UINT16)(TTAK[0] + RotR1((UINT16)(TTAK[5] ^ Mk16_le(&TK[12]))));
-	TTAK[1] = (UINT16)(TTAK[1] + RotR1((UINT16)(TTAK[0] ^ Mk16_le(&TK[14]))));
-	TTAK[2] = (UINT16)(TTAK[2] + RotR1(TTAK[1]));
-	TTAK[3] = (UINT16)(TTAK[3] + RotR1(TTAK[2]));
-	TTAK[4] = (UINT16)(TTAK[4] + RotR1(TTAK[3]));
-	TTAK[5] = (UINT16)(TTAK[5] + RotR1(TTAK[4]));
+	TTAK[0] = (uint16_t)(TTAK[0] + RotR1((uint16_t)(TTAK[5] ^ Mk16_le(&TK[12]))));
+	TTAK[1] = (uint16_t)(TTAK[1] + RotR1((uint16_t)(TTAK[0] ^ Mk16_le(&TK[14]))));
+	TTAK[2] = (uint16_t)(TTAK[2] + RotR1(TTAK[1]));
+	TTAK[3] = (uint16_t)(TTAK[3] + RotR1(TTAK[2]));
+	TTAK[4] = (uint16_t)(TTAK[4] + RotR1(TTAK[3]));
+	TTAK[5] = (uint16_t)(TTAK[5] + RotR1(TTAK[4]));
 
 	/* Step 3 - bring in last of TK bits, assign 24-bit WEP IV value
 	* wep_seed[0..2] is transmitted as WEP IV */
 	wep_seed[0] = Hi8(TSC16);
-	wep_seed[1] = (UINT8)((Hi8(TSC16) | 0x20) & 0x7F);
+	wep_seed[1] = (uint8_t)((Hi8(TSC16) | 0x20) & 0x7F);
 	wep_seed[2] = Lo8(TSC16);
-	wep_seed[3] = Lo8((UINT16)((TTAK[5] ^ Mk16_le(&TK[0])) >> 1));
+	wep_seed[3] = Lo8((uint16_t)((TTAK[5] ^ Mk16_le(&TK[0])) >> 1));
 
 	for (i = 0; i < 6; i++)
 	{
@@ -185,27 +185,27 @@ static void Dot11DecryptTkipMixingPhase2(
 
 /* Note: taken from FreeBSD source code, RELENG 6,										*/
 /*		sys/net80211/ieee80211_crypto_tkip.c, 936											*/
-INT Dot11DecryptTkipDecrypt(
-	UCHAR *tkip_mpdu,
+int Dot11DecryptTkipDecrypt(
+	unsigned char *tkip_mpdu,
 	size_t mpdu_len,
-	UCHAR TA[DOT11DECRYPT_MAC_LEN],
-	UCHAR TK[DOT11DECRYPT_TK_LEN])
+	unsigned char TA[DOT11DECRYPT_MAC_LEN],
+	unsigned char TK[DOT11DECRYPT_TK_LEN])
 {
-	UINT64 TSC64;
-	UINT32 TSC;
-	UINT16 TSC16;
-	UINT8 *IV;
-	UINT16 TTAK[DOT11DECRYPT_TTAK_LEN];
-	UINT8 wep_seed[DOT11DECRYPT_WEP_128_KEY_LEN];
+	uint64_t TSC64;
+	uint32_t TSC;
+	uint16_t TSC16;
+	uint8_t *IV;
+	uint16_t TTAK[DOT11DECRYPT_TTAK_LEN];
+	uint8_t wep_seed[DOT11DECRYPT_WEP_128_KEY_LEN];
 
 	IV = tkip_mpdu;
 
 	TSC64 = READ_6(IV[2], IV[0], IV[4], IV[5], IV[6], IV[7]);
-	TSC16 = (UINT16)TSC64;
+	TSC16 = (uint16_t)TSC64;
 
 	/* The original code made no sense!!  We were shifting a 16-bit number 16 bits to the right. */
-	/* We instead have to have READ_6() be returned to a UINT64 and shift *that* value. */
-	TSC = (UINT32)(TSC64 >> 16);
+	/* We instead have to have READ_6() be returned to a uint64_t and shift *that* value. */
+	TSC = (uint32_t)(TSC64 >> 16);
 
 	Dot11DecryptTkipMixingPhase1(TTAK, TK, TA, TSC);
 

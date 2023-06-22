@@ -16,7 +16,6 @@
 #include "dot11decrypt_system.h"
 #include "dot11decrypt_util.h"
 
-#include <glib.h>
 #include <wsutil/wsgcrypt.h>
 
 /****************************************************************************/
@@ -26,8 +25,8 @@
 /* Internal macros								*/
 
 #define READ_6(b0, b1, b2, b3, b4, b5) \
-	((((guint64)((guint16)((b4 << 0) | (b5 << 8)))) << 32) | \
-	    ((guint32)((b0 << 0) | (b1 << 8) | (b2 << 16) | (b3 << 24))))
+	((((uint64_t)((uint16_t)((b4 << 0) | (b5 << 8)))) << 32) | \
+	    ((uint32_t)((b0 << 0) | (b1 << 8) | (b2 << 16) | (b3 << 24))))
 
 /****************************************************************************/
 /* Internal function prototypes declarations					*/
@@ -39,36 +38,36 @@
 static void
 gcmp_construct_nonce(
 	PDOT11DECRYPT_MAC_FRAME wh,
-	guint64 pn,
-	guint8 nonce[12])
+	uint64_t pn,
+	uint8_t nonce[12])
 {
 	/* Nonce: A2 | PN */
 	DOT11DECRYPT_ADDR_COPY(nonce, wh->addr2);
-	nonce[6] = (guint8)(pn >> 40);
-	nonce[7] = (guint8)(pn >> 32);
-	nonce[8] = (guint8)(pn >> 24);
-	nonce[9] = (guint8)(pn >> 16);
-	nonce[10] = (guint8)(pn >> 8);
-	nonce[11] = (guint8)(pn >> 0);
+	nonce[6] = (uint8_t)(pn >> 40);
+	nonce[7] = (uint8_t)(pn >> 32);
+	nonce[8] = (uint8_t)(pn >> 24);
+	nonce[9] = (uint8_t)(pn >> 16);
+	nonce[10] = (uint8_t)(pn >> 8);
+	nonce[11] = (uint8_t)(pn >> 0);
 }
 
 int Dot11DecryptGcmpDecrypt(
-	guint8 *m,
+	uint8_t *m,
 	int mac_header_len,
 	int len,
-	guint8 *TK1,
+	uint8_t *TK1,
 	int tk_len)
 {
 	PDOT11DECRYPT_MAC_FRAME wh;
-	guint8 aad[30];
-	guint8 nonce[12];
-	guint8 mic[16];
+	uint8_t aad[30];
+	uint8_t nonce[12];
+	uint8_t mic[16];
 	ssize_t data_len;
 	size_t aad_len;
 	int z = mac_header_len;
 	gcry_cipher_hd_t handle;
-	guint64 pn;
-	guint8 *ivp = m + z;
+	uint64_t pn;
+	uint8_t *ivp = m + z;
 
 	wh = (PDOT11DECRYPT_MAC_FRAME )m;
 	data_len = len - (z + DOT11DECRYPT_GCMP_HEADER + sizeof(mic));

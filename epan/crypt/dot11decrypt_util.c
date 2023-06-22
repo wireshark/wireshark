@@ -14,7 +14,6 @@
 
 #include "dot11decrypt_debug.h"
 #include "dot11decrypt_util.h"
-#include <glib.h>
 
 /****************************************************************************/
 /*    Internal definitions                                                  */
@@ -35,10 +34,10 @@
 /* From IEEE 802.11 2016 Chapter 12.5.3.3.3 and 12.5.5.3.3 Construct AAD */
 void dot11decrypt_construct_aad(
     PDOT11DECRYPT_MAC_FRAME wh,
-    guint8 *aad,
+    uint8_t *aad,
     size_t *aad_len)
 {
-    guint8 mgmt = (DOT11DECRYPT_TYPE(wh->fc[0]) == DOT11DECRYPT_TYPE_MANAGEMENT);
+    uint8_t mgmt = (DOT11DECRYPT_TYPE(wh->fc[0]) == DOT11DECRYPT_TYPE_MANAGEMENT);
     int alen = 22;
 
     /* AAD:
@@ -51,19 +50,19 @@ void dot11decrypt_construct_aad(
 
     /* NB: aad[1] set below */
     if (!mgmt) {
-        aad[0] = (UINT8)(wh->fc[0] & FC0_AAD_MASK);
+        aad[0] = (uint8_t)(wh->fc[0] & FC0_AAD_MASK);
     } else {
         aad[0] = wh->fc[0];
     }
     if (DOT11DECRYPT_IS_QOS_DATA(wh)) {
-        aad[1] = (UINT8)((wh->fc[1] & FC1_AAD_QOS_MASK) | 0x40);
+        aad[1] = (uint8_t)((wh->fc[1] & FC1_AAD_QOS_MASK) | 0x40);
     } else {
-        aad[1] = (UINT8)((wh->fc[1] & FC1_AAD_MASK) | 0x40);
+        aad[1] = (uint8_t)((wh->fc[1] & FC1_AAD_MASK) | 0x40);
     }
-    memcpy(aad + 2, (guint8 *)wh->addr1, DOT11DECRYPT_MAC_LEN);
-    memcpy(aad + 8, (guint8 *)wh->addr2, DOT11DECRYPT_MAC_LEN);
-    memcpy(aad + 14, (guint8 *)wh->addr3, DOT11DECRYPT_MAC_LEN);
-    aad[20] = (UINT8)(wh->seq[0] & DOT11DECRYPT_SEQ_FRAG_MASK);
+    memcpy(aad + 2, (uint8_t *)wh->addr1, DOT11DECRYPT_MAC_LEN);
+    memcpy(aad + 8, (uint8_t *)wh->addr2, DOT11DECRYPT_MAC_LEN);
+    memcpy(aad + 14, (uint8_t *)wh->addr3, DOT11DECRYPT_MAC_LEN);
+    aad[20] = (uint8_t)(wh->seq[0] & DOT11DECRYPT_SEQ_FRAG_MASK);
     aad[21] = 0; /* all bits masked */
 
     /*
@@ -77,7 +76,7 @@ void dot11decrypt_construct_aad(
         if (DOT11DECRYPT_IS_QOS_DATA(wh)) {
             PDOT11DECRYPT_MAC_FRAME_ADDR4_QOS qwh4 =
                 (PDOT11DECRYPT_MAC_FRAME_ADDR4_QOS) wh;
-            aad[28] = (UINT8)(qwh4->qos[0] & 0x0f);/* just priority bits */
+            aad[28] = (uint8_t)(qwh4->qos[0] & 0x0f);/* just priority bits */
             aad[29] = 0;
             alen += 2;
         }
@@ -85,7 +84,7 @@ void dot11decrypt_construct_aad(
         if (DOT11DECRYPT_IS_QOS_DATA(wh)) {
             PDOT11DECRYPT_MAC_FRAME_QOS qwh =
                 (PDOT11DECRYPT_MAC_FRAME_QOS) wh;
-            aad[22] = (UINT8)(qwh->qos[0] & 0x0f); /* just priority bits */
+            aad[22] = (uint8_t)(qwh->qos[0] & 0x0f); /* just priority bits */
             aad[23] = 0;
             alen += 2;
         }
@@ -106,33 +105,33 @@ void dot11decrypt_construct_aad(
  *        https://gnupg.org/documentation/manuals/gcrypt/Available-hash-algorithms.html
  * @param[out] output Derived key.
  * @param output_len Length of derived key in bytes.
- * @return FALSE on error
+ * @return false on error
  */
 #define MAX_R_LEN 256
 #define MAX_TMP_LEN 1024
 #define MAX_CONTEXT_LEN 256
 
-gboolean
-dot11decrypt_prf(const guint8 *key, size_t key_len,
+bool
+dot11decrypt_prf(const uint8_t *key, size_t key_len,
                  const char *label,
-                 const guint8 *context, size_t context_len,
+                 const uint8_t *context, size_t context_len,
                  int hash_algo,
-                 guint8 *output, size_t output_len)
+                 uint8_t *output, size_t output_len)
 {
-    guint8 R[MAX_R_LEN]; /* Will hold "label || 0 || context || i" */
+    uint8_t R[MAX_R_LEN]; /* Will hold "label || 0 || context || i" */
     size_t label_len = strlen(label);
-    guint8 tmp[MAX_TMP_LEN];
-    guint16 hash_len = gcry_md_get_algo_dlen(hash_algo);
+    uint8_t tmp[MAX_TMP_LEN];
+    uint16_t hash_len = gcry_md_get_algo_dlen(hash_algo);
     size_t offset = 0;
-    guint8 i;
+    uint8_t i;
 
     if (!key || !label || !context || !output) {
-        return FALSE;
+        return false;
     }
     if (label_len + 1 + context_len + 1 > MAX_R_LEN ||
         output_len > 64) {
         ws_warning("Invalid input or output sizes");
-        return FALSE;
+        return false;
     }
 
     /* Fill R with "label || 0 || context || i" */
@@ -146,11 +145,11 @@ dot11decrypt_prf(const guint8 *key, size_t key_len,
     {
         R[offset] = i;
         if (ws_hmac_buffer(hash_algo, tmp + hash_len * i, R, offset + 1, key, key_len)) {
-            return FALSE;
+            return false;
         }
     }
     memcpy(output, tmp, output_len);
-    return TRUE;
+    return true;
 }
 
 /**
@@ -166,31 +165,31 @@ dot11decrypt_prf(const guint8 *key, size_t key_len,
  *        https://gnupg.org/documentation/manuals/gcrypt/Available-hash-algorithms.html
  * @param[out] output Derived key.
  * @param output_len Length of derived key in bytes.
- * @return FALSE on error
+ * @return false on error
  */
-gboolean
-dot11decrypt_kdf(const guint8 *key, size_t key_len,
+bool
+dot11decrypt_kdf(const uint8_t *key, size_t key_len,
                  const char *label,
-                 const guint8 *context, size_t context_len,
+                 const uint8_t *context, size_t context_len,
                  int hash_algo,
-                 guint8 *output, size_t output_len)
+                 uint8_t *output, size_t output_len)
 {
-    guint8 R[MAX_R_LEN]; /* Will hold "i || Label || Context || Length" */
-    guint8 tmp[MAX_TMP_LEN];
+    uint8_t R[MAX_R_LEN]; /* Will hold "i || Label || Context || Length" */
+    uint8_t tmp[MAX_TMP_LEN];
     size_t label_len = strlen(label);
-    guint16 hash_len = gcry_md_get_algo_dlen(hash_algo);
-    guint iterations = (guint)output_len * 8 / hash_len;
-    guint16 len_le = GUINT16_TO_LE(output_len * 8);
+    uint16_t hash_len = gcry_md_get_algo_dlen(hash_algo);
+    unsigned iterations = (unsigned)output_len * 8 / hash_len;
+    uint16_t len_le = GUINT16_TO_LE(output_len * 8);
     size_t offset = 0;
-    guint16 i;
+    uint16_t i;
 
     if (!key || !label || !context || !output) {
-        return FALSE;
+        return false;
     }
     if (2 + label_len + context_len + 2 > MAX_R_LEN ||
         iterations * hash_len > MAX_TMP_LEN) {
         ws_warning("Invalid input sizes");
-        return FALSE;
+        return false;
     }
 
     /* Fill tmp with "i || Label || Context || Length" */
@@ -204,34 +203,34 @@ dot11decrypt_kdf(const guint8 *key, size_t key_len,
 
     for (i = 0; i < iterations; i++)
     {
-        guint16 count_le = GUINT16_TO_LE(i + 1);
+        uint16_t count_le = GUINT16_TO_LE(i + 1);
         memcpy(R, &count_le, 2);
 
         if (ws_hmac_buffer(hash_algo, tmp + hash_len * i, R, offset, key, key_len)) {
-            return FALSE;
+            return false;
         }
     }
     memcpy(output, tmp, output_len);
-    return TRUE;
+    return true;
 }
 
-static gboolean sha256(const guint8 *data, size_t len, guint8 output[32])
+static bool sha256(const uint8_t *data, size_t len, uint8_t output[32])
 {
     gcry_md_hd_t ctx;
     gcry_error_t result = gcry_md_open(&ctx, GCRY_MD_SHA256, 0);
-    guint8 *digest;
+    uint8_t *digest;
 
     if (result) {
-        return FALSE;
+        return false;
     }
     gcry_md_write(ctx, data, len);
     digest = gcry_md_read(ctx, GCRY_MD_SHA256);
     if (!digest) {
-        return FALSE;
+        return false;
     }
     memcpy(output, digest, 32);
     gcry_md_close(ctx);
-    return TRUE;
+    return true;
 }
 
 /**
@@ -252,47 +251,47 @@ static gboolean sha256(const guint8 *data, size_t len, guint8 output[32])
  * @param pmk_r0_len Length of pmk_r0 in bytes.
  * @param[out] pmk_r0_name Pairwise master key (PMK) R0 name.
  */
-gboolean
-dot11decrypt_derive_pmk_r0(const guint8 *xxkey, size_t xxkey_len,
-                           const guint8 *ssid, size_t ssid_len,
-                           const guint8 mdid[2],
-                           const guint8 *r0kh_id, size_t r0kh_id_len,
-                           const guint8 s0kh_id[DOT11DECRYPT_MAC_LEN],
+bool
+dot11decrypt_derive_pmk_r0(const uint8_t *xxkey, size_t xxkey_len,
+                           const uint8_t *ssid, size_t ssid_len,
+                           const uint8_t mdid[2],
+                           const uint8_t *r0kh_id, size_t r0kh_id_len,
+                           const uint8_t s0kh_id[DOT11DECRYPT_MAC_LEN],
                            int hash_algo,
-                           guint8 *pmk_r0,
+                           uint8_t *pmk_r0,
                            size_t *pmk_r0_len,
-                           guint8 pmk_r0_name[16])
+                           uint8_t pmk_r0_name[16])
 {
     const char *ft_r0n = "FT-R0N";
     const size_t ft_r0n_len = strlen(ft_r0n);
-    guint8 context[MAX_CONTEXT_LEN];
-    guint8 r0_key_data[DOT11DECRYPT_WPA_PMK_MAX_LEN + 16];
-    guint8 sha256_res[32];
+    uint8_t context[MAX_CONTEXT_LEN];
+    uint8_t r0_key_data[DOT11DECRYPT_WPA_PMK_MAX_LEN + 16];
+    uint8_t sha256_res[32];
     size_t offset = 0;
-    guint q = gcry_md_get_algo_dlen(hash_algo);
-    guint16 mdid_le = GUINT16_TO_LE(*(guint16*)mdid);
+    unsigned q = gcry_md_get_algo_dlen(hash_algo);
+    uint16_t mdid_le = GUINT16_TO_LE(*(uint16_t*)mdid);
 
     if (!xxkey || !ssid || !mdid || !r0kh_id || !s0kh_id ||
         !pmk_r0 || !pmk_r0_len || !pmk_r0_name)
     {
-        return FALSE;
+        return false;
     }
     if (1 + ssid_len + 2 + 1 + r0kh_id_len + DOT11DECRYPT_MAC_LEN > MAX_CONTEXT_LEN)
     {
         ws_warning("Invalid input sizes");
-        return FALSE;
+        return false;
     }
 
     // R0-Key-Data =
     //   KDF-Hash-Length(XXKey, "FT-R0",
     //           SSIDlength || SSID || MDID || R0KHlength || R0KH-ID || S0KH-ID)
     // PMK-R0 = L(R0-Key-Data, 0, Q) * PMK-R0Name-Salt = L(R0-Key-Data, Q, 128)
-    context[offset++] = (guint8)ssid_len;
+    context[offset++] = (uint8_t)ssid_len;
     memcpy(context + offset, ssid, ssid_len);
     offset += ssid_len;
     memcpy(context + offset, &mdid_le, 2);
     offset += 2;
-    context[offset++] = (guint8)r0kh_id_len;
+    context[offset++] = (uint8_t)r0kh_id_len;
     memcpy(context + offset, r0kh_id, r0kh_id_len);
     offset += r0kh_id_len;
     memcpy(context + offset, s0kh_id, DOT11DECRYPT_MAC_LEN);
@@ -310,34 +309,34 @@ dot11decrypt_derive_pmk_r0(const guint8 *xxkey, size_t xxkey_len,
     memcpy(context + offset, r0_key_data + q, 16);
     offset += 16;
     if(!sha256(context, offset, sha256_res))
-        return FALSE;
+        return false;
     memcpy(pmk_r0_name, sha256_res, 16);
-    return TRUE;
+    return true;
 }
 
 /**
  * Derive PMK-R1 and PMKR1Name. See IEEE 802.11-2016 12.7.1.7.4 PMK-R1
  *
  */
-gboolean
-dot11decrypt_derive_pmk_r1(const guint8 *pmk_r0, size_t pmk_r0_len,
-                           const guint8 *pmk_r0_name,
-                           const guint8 *r1kh_id, const guint8 *s1kh_id,
+bool
+dot11decrypt_derive_pmk_r1(const uint8_t *pmk_r0, size_t pmk_r0_len,
+                           const uint8_t *pmk_r0_name,
+                           const uint8_t *r1kh_id, const uint8_t *s1kh_id,
                            int hash_algo,
-                           guint8 *pmk_r1, size_t *pmk_r1_len,
-                           guint8 *pmk_r1_name)
+                           uint8_t *pmk_r1, size_t *pmk_r1_len,
+                           uint8_t *pmk_r1_name)
 {
     const char *ft_r1n = "FT-R1N";
     const size_t ft_r1n_len = strlen(ft_r1n);
-    // context len = MAX(R1KH-ID || S1KH-ID, “FT-R1N” || PMKR0Name || R1KH-ID || S1KH-ID)
-    guint8 context[6 + 16 + 6 + 6];
-    guint8 sha256_res[32];
+    // context len = MAX(R1KH-ID || S1KH-ID, "FT-R1N" || PMKR0Name || R1KH-ID || S1KH-ID)
+    uint8_t context[6 + 16 + 6 + 6];
+    uint8_t sha256_res[32];
     size_t offset = 0;
 
     if (!pmk_r0 || !pmk_r0_name || !r1kh_id || !s1kh_id ||
         !pmk_r1 || !pmk_r1_len || !pmk_r1_name)
     {
-        return FALSE;
+        return false;
     }
     *pmk_r1_len = gcry_md_get_algo_dlen(hash_algo);
 
@@ -349,7 +348,7 @@ dot11decrypt_derive_pmk_r1(const guint8 *pmk_r0, size_t pmk_r0_len,
     dot11decrypt_kdf(pmk_r0, pmk_r0_len, "FT-R1", context, offset, hash_algo,
                      pmk_r1, *pmk_r1_len);
 
-    // PMKR1Name = Truncate-128(SHA-256(“FT-R1N” || PMKR0Name || R1KH-ID || S1KH-ID))
+    // PMKR1Name = Truncate-128(SHA-256("FT-R1N" || PMKR0Name || R1KH-ID || S1KH-ID))
     offset = 0;
     memcpy(context + offset, ft_r1n, ft_r1n_len);
     offset += ft_r1n_len;
@@ -360,9 +359,9 @@ dot11decrypt_derive_pmk_r1(const guint8 *pmk_r0, size_t pmk_r0_len,
     memcpy(context + offset, s1kh_id, DOT11DECRYPT_MAC_LEN);
     offset += DOT11DECRYPT_MAC_LEN;
     if(!sha256(context, offset, sha256_res))
-        return FALSE;
+        return false;
     memcpy(pmk_r1_name, sha256_res, 16);
-    return TRUE;
+    return true;
 }
 
 /**
@@ -370,18 +369,18 @@ dot11decrypt_derive_pmk_r1(const guint8 *pmk_r0, size_t pmk_r0_len,
  *
  * PTK = KDF-Hash-Length(PMK-R1, "FT-PTK", SNonce || ANonce || BSSID || STA-ADDR)
  * PTKName = Truncate-128(
- *         SHA-256(PMKR1Name || “FT-PTKN” || SNonce || ANonce || BSSID || STA-ADDR))
+ *         SHA-256(PMKR1Name || "FT-PTKN" || SNonce || ANonce || BSSID || STA-ADDR))
  */
-gboolean
-dot11decrypt_derive_ft_ptk(const guint8 *pmk_r1, size_t pmk_r1_len,
-                           const guint8 *pmk_r1_name _U_,
-                           const guint8 *snonce, const guint8 *anonce,
-                           const guint8 *bssid, const guint8 *sta_addr,
+bool
+dot11decrypt_derive_ft_ptk(const uint8_t *pmk_r1, size_t pmk_r1_len,
+                           const uint8_t *pmk_r1_name _U_,
+                           const uint8_t *snonce, const uint8_t *anonce,
+                           const uint8_t *bssid, const uint8_t *sta_addr,
                            int hash_algo,
-                           guint8 *ptk, const size_t ptk_len, guint8 *ptk_name _U_)
+                           uint8_t *ptk, const size_t ptk_len, uint8_t *ptk_name _U_)
 {
-    guint8 context[32 + 32 + 6 + 6];
-    guint offset = 0;
+    uint8_t context[32 + 32 + 6 + 6];
+    unsigned offset = 0;
 
     // PTK = KDF-Hash-Length(PMK-R1, "FT-PTK", SNonce || ANonce || BSSID || STA-ADDR)
     memcpy(context + offset, snonce, 32);
@@ -396,7 +395,7 @@ dot11decrypt_derive_ft_ptk(const guint8 *pmk_r1, size_t pmk_r1_len,
                      ptk, ptk_len);
 
     // TODO derive PTKName
-    return TRUE;
+    return true;
 }
 
 /*

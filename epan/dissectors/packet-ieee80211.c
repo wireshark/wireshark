@@ -26269,7 +26269,7 @@ ieee80211_tag_ssid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
    */
   ssid_len = tvb_get_raw_bytes_as_string(tvb_new_subset_length(tvb, offset, tag_len), offset, ssid, MAX_SSID_LEN);
   if (ssid_len == (gint)tag_len) {
-    Dot11DecryptSetLastSSID(&dot11decrypt_ctx, (CHAR *) ssid, ssid_len);
+    Dot11DecryptSetLastSSID(&dot11decrypt_ctx, (char *) ssid, ssid_len);
   }
   gchar *s;
   /* XXX: 802.11-2020 9.4.2.2 notes that it might or might not include
