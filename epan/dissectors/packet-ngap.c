@@ -28029,7 +28029,7 @@ void proto_register_ngap(void) {
         NULL, HFILL }},
     { &hf_ngap_CommonNetworkInstance_PDU,
       { "CommonNetworkInstance", "ngap.CommonNetworkInstance",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_SHOW_UTF_8_PRINTABLE, NULL, 0,
         NULL, HFILL }},
     { &hf_ngap_ConcurrentWarningMessageInd_PDU,
       { "ConcurrentWarningMessageInd", "ngap.ConcurrentWarningMessageInd",
