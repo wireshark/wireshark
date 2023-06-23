@@ -740,10 +740,8 @@ done, the continuous count of packets captured shown when saving a
 capture to a file, and the final message giving the count of packets
 captured.  Only true errors are displayed on the standard error.
 
-only display true errors; don't display the
-initial message indicating the.  This outputs less
-than the *-q* option, so the interface name and total packet
-count and the end of a capture are not sent to stderr.
+This outputs less than the *-q* option, so the interface name and total
+packet count and the end of a capture are not sent to stderr.
 
 When reading a capture file, or when capturing and not saving to a file,
 don't print packet information; this is useful if you're using a *-z*
