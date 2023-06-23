@@ -116,14 +116,14 @@ typedef struct coap_common_dissect {
 		int opt_object_security_kid_context;
 		int opt_object_security_kid;
 
-	/* do not forget to update COAP_COMMON_LIST_T and COAP_COMMON_HF_LIST! */
+	/* do not forget to update COAP_COMMON_HF_LIST! */
 	} hf;
 
 	struct {
 		gint payload;
 		gint option;
 
-	/* do not forget to update COAP_COMMON_LIST_T and COAP_COMMON_ETT_LIST! */
+	/* do not forget to update COAP_COMMON_ETT_LIST! */
 	} ett;
 
 	struct {
@@ -134,7 +134,7 @@ typedef struct coap_common_dissect {
 		expert_field opt_length_bad;
 		expert_field opt_object_security_bad;
 
-        /* do not forget to update COAP_COMMON_LIST_T and COAP_COMMON_EI_LIST! */
+	/* do not forget to update COAP_COMMON_EI_LIST! */
 	} ei;
 } coap_common_dissect_t;
 
@@ -147,21 +147,7 @@ extern value_string_ext coap_vals_code_ext;
 
 /* {{{ */
 #define COAP_COMMON_LIST_T(name)						\
-coap_common_dissect_t name = {							\
-	/* hf */ {								\
-		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
-		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
-		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
-		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
-		-1, -1, -1, -1, -1, -1,						\
-		},								\
-	/* ett */ {								\
-		-1, -1,								\
-		},								\
-	/* ei */ {								\
-		EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,			\
-		},								\
-}
+coap_common_dissect_t name;
 /* }}} */
 
 /* {{{ */

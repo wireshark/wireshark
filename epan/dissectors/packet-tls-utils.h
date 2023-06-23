@@ -1111,7 +1111,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_alps_alpn_str_len;
         gint hs_ext_alps_settings;
 
-        /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_HF_LIST! */
+        /* do not forget to update SSL_COMMON_HF_LIST! */
     } hf;
     struct {
         gint hs_ext;
@@ -1152,7 +1152,7 @@ typedef struct ssl_common_dissect {
         gint ech_hpke_cipher_suite;
         gint hs_ext_token_binding_key_parameters;
 
-        /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_ETT_LIST! */
+        /* do not forget to update SSL_COMMON_ETT_LIST! */
     } ett;
     struct {
         /* Generic expert info for malformed packets. */
@@ -1168,7 +1168,7 @@ typedef struct ssl_common_dissect {
 
         expert_field ech_echconfig_invalid_version;
 
-        /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_EI_LIST! */
+        /* do not forget to update SSL_COMMON_EI_LIST! */
     } ei;
 } ssl_common_dissect_t;
 
@@ -1342,36 +1342,7 @@ ssl_dissect_hnd_compress_certificate(ssl_common_dissect_t *hf, tvbuff_t *tvb, pr
                                      gboolean is_from_server _U_, gboolean is_dtls _U_);
 /* {{{ */
 #define SSL_COMMON_LIST_T(name) \
-ssl_common_dissect_t name = {   \
-    /* hf */ {                  \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1          \
-    },                                                                  \
-    /* ett */ {                                                         \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1                                              \
-    },                                                                  \
-    /* ei */ {                                                          \
-        EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,  \
-        EI_INIT, EI_INIT                                                \
-    },                                                                  \
-}
+ssl_common_dissect_t name;
 /* }}} */
 
 /* {{{ */
