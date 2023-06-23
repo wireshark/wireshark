@@ -500,11 +500,6 @@ private slots:
     void showEndpointsDialog();
 
     void openTcpStreamDialog(int graph_type);
-    void on_actionStatisticsTcpStreamStevens_triggered();
-    void on_actionStatisticsTcpStreamTcptrace_triggered();
-    void on_actionStatisticsTcpStreamThroughput_triggered();
-    void on_actionStatisticsTcpStreamRoundTripTime_triggered();
-    void on_actionStatisticsTcpStreamWindowScaling_triggered();
     void openSCTPAllAssocsDialog();
     void on_actionSCTPShowAllAssociations_triggered();
     void on_actionSCTPAnalyseThisAssociation_triggered();
@@ -515,34 +510,7 @@ private slots:
     void on_actionWirelessWlanStatistics_triggered();
 
     void openStatisticsTreeDialog(const gchar *abbr);
-    void on_actionStatistics29WestTopics_Advertisements_by_Topic_triggered();
-    void on_actionStatistics29WestTopics_Advertisements_by_Source_triggered();
-    void on_actionStatistics29WestTopics_Advertisements_by_Transport_triggered();
-    void on_actionStatistics29WestTopics_Queries_by_Topic_triggered();
-    void on_actionStatistics29WestTopics_Queries_by_Receiver_triggered();
-    void on_actionStatistics29WestTopics_Wildcard_Queries_by_Pattern_triggered();
-    void on_actionStatistics29WestTopics_Wildcard_Queries_by_Receiver_triggered();
-    void on_actionStatistics29WestQueues_Advertisements_by_Queue_triggered();
-    void on_actionStatistics29WestQueues_Advertisements_by_Source_triggered();
-    void on_actionStatistics29WestQueues_Queries_by_Queue_triggered();
-    void on_actionStatistics29WestQueues_Queries_by_Receiver_triggered();
-    void on_actionStatistics29WestUIM_Streams_triggered();
-    void on_actionStatistics29WestLBTRM_triggered();
-    void on_actionStatistics29WestLBTRU_triggered();
-    void on_actionStatisticsANCP_triggered();
-    void on_actionStatisticsBACappInstanceId_triggered();
-    void on_actionStatisticsBACappIP_triggered();
-    void on_actionStatisticsBACappObjectId_triggered();
-    void on_actionStatisticsBACappService_triggered();
-    void on_actionStatisticsHTTPPacketCounter_triggered();
-    void on_actionStatisticsHTTPRequests_triggered();
-    void on_actionStatisticsHTTPLoadDistribution_triggered();
-    void on_actionStatisticsHTTPRequestSequences_triggered();
     void statCommandIOGraph(const char *, void *);
-    void on_actionStatisticsSametime_triggered();
-    void on_actionStatisticsSOMEIPmessages_triggered();
-    void on_actionStatisticsSOMEIPSDentries_triggered();
-    void on_actionStatisticsLTP_triggered();
 
     RtpStreamDialog *openTelephonyRtpStreamsDialog();
     RtpPlayerDialog *openTelephonyRtpPlayerDialog();
