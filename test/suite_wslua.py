@@ -14,6 +14,7 @@ import os.path
 import shutil
 import subprocess
 import pytest
+import logging
 
 dhcp_pcap = 'dhcp.pcap'
 dns_port_pcap = 'dns_port.pcap'
@@ -37,7 +38,9 @@ def check_lua_script(cmd_tshark, features, dirs, capture_file, test_env):
         tshark_proc = subprocess.run(tshark_cmd, check=True, capture_output=True, encoding='utf-8', env=test_env)
 
         if check_passed:
-            assert 'All tests passed!' in tshark_proc.stdout
+            logging.info(tshark_proc.stdout)
+            if not 'All tests passed!' in tshark_proc.stdout:
+                pytest.fail("Some test failed, check the logs (eg: pytest --lf --log-cli-level=info)")
 
         return tshark_proc
     return check_lua_script_real
