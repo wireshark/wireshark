@@ -1584,7 +1584,7 @@
         <gavp name="SMSF-3GPP-Realm"/>
       </grouped>
     </avp>
-    <avp name="MSF-Non-3GPP-Address" code="3345" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+    <avp name="SMSF-Non-3GPP-Address" code="3345" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
       <grouped>
         <gavp name="SMSF-Non-3GPP-Number"/>
         <gavp name="SMSF-Non-3GPP-Name"/>
