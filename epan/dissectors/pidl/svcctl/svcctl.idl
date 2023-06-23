@@ -98,6 +98,9 @@ interface svcctl
     svcctl_ServiceFlags service_flags;
   } SERVICE_STATUS_PROCESS;
 
+  /* ENUM_SERVICE_STATUSW
+     https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-scmr/79f17326-c138-4fbc-8170-5c11c4b3ca79
+  */
   typedef [public,gensize] struct {
     nstring *service_name;
     nstring *display_name;
@@ -373,7 +376,7 @@ interface svcctl
     [in] svcctl_ServiceState service_state,
     [out,ref,size_is(offered)] ENUM_SERVICE_STATUSW *service_status,
     [in,range(0,0x40000)] uint32 offered,
-    [out,ref,range(0,0x40000)] uint32 *needed,
+    [out,ref,range(0,0x40000)] uint32 *bytesneeded,
     [out,ref,range(0,0x40000)] uint32 *services_returned
   );
 
@@ -383,9 +386,9 @@ interface svcctl
     [in,ref] policy_handle *scm_handle,
     [in] svcctl_ServiceType service_type,
     [in] svcctl_ServiceState service_state,
-    [out,ref,size_is(offered)] ENUM_SERVICE_STATUSW *service,
+    [out,ref,size_is(offered)] uint8 *services,
     [in,range(0,0x40000)] uint32 offered,
-    [out,ref,range(0,0x40000)] uint32 *needed,
+    [out,ref,range(0,0x40000)] uint32 *bytes_needed,
     [out,ref,range(0,0x40000)] uint32 *services_returned,
     [in,out,unique] uint32 *resume_index
   );
@@ -857,5 +860,5 @@ interface svcctl
   /*****************/
   /* Function 0x42 */
   [todo] WERROR svcctl_GetSharedServiceDirectory(
-  )
+  );
 }

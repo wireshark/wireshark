@@ -22,6 +22,9 @@ void proto_register_dcerpc_svcctl(void);
 void proto_reg_handoff_dcerpc_svcctl(void);
 
 /* Ett declarations */
+static gint ett_svcctl_service = -1;
+static gint ett_svcctl_service_name = -1;
+static gint ett_svcctl_display_name = -1;
 static gint ett_dcerpc_svcctl = -1;
 static gint ett_svcctl_security_secinfo = -1;
 static gint ett_svcctl_SERVICE_LOCK_STATUS = -1;
@@ -93,6 +96,8 @@ static gint hf_svcctl_SERVICE_STATUS_type = -1;
 static gint hf_svcctl_SERVICE_STATUS_wait_hint = -1;
 static gint hf_svcctl_SERVICE_STATUS_win32_exit_code = -1;
 static gint hf_svcctl_opnum = -1;
+static gint hf_svcctl_service_buffer_size = -1;
+static gint hf_svcctl_service_referent_id = -1;
 static gint hf_svcctl_svcctl_ArgumentStringA_string = -1;
 static gint hf_svcctl_svcctl_ArgumentString_string = -1;
 static gint hf_svcctl_svcctl_ChangeServiceConfig2A_info = -1;
@@ -229,7 +234,7 @@ static gint hf_svcctl_svcctl_EnumDependentServicesA_service_handle = -1;
 static gint hf_svcctl_svcctl_EnumDependentServicesA_service_status = -1;
 static gint hf_svcctl_svcctl_EnumDependentServicesA_services_returned = -1;
 static gint hf_svcctl_svcctl_EnumDependentServicesA_state = -1;
-static gint hf_svcctl_svcctl_EnumDependentServicesW_needed = -1;
+static gint hf_svcctl_svcctl_EnumDependentServicesW_bytesneeded = -1;
 static gint hf_svcctl_svcctl_EnumDependentServicesW_offered = -1;
 static gint hf_svcctl_svcctl_EnumDependentServicesW_service_handle = -1;
 static gint hf_svcctl_svcctl_EnumDependentServicesW_service_state = -1;
@@ -252,13 +257,13 @@ static gint hf_svcctl_svcctl_EnumServicesStatusA_service = -1;
 static gint hf_svcctl_svcctl_EnumServicesStatusA_service_state = -1;
 static gint hf_svcctl_svcctl_EnumServicesStatusA_service_type = -1;
 static gint hf_svcctl_svcctl_EnumServicesStatusA_services_returned = -1;
-static gint hf_svcctl_svcctl_EnumServicesStatusW_needed = -1;
+static gint hf_svcctl_svcctl_EnumServicesStatusW_bytes_needed = -1;
 static gint hf_svcctl_svcctl_EnumServicesStatusW_offered = -1;
 static gint hf_svcctl_svcctl_EnumServicesStatusW_resume_index = -1;
 static gint hf_svcctl_svcctl_EnumServicesStatusW_scm_handle = -1;
-static gint hf_svcctl_svcctl_EnumServicesStatusW_service = -1;
 static gint hf_svcctl_svcctl_EnumServicesStatusW_service_state = -1;
 static gint hf_svcctl_svcctl_EnumServicesStatusW_service_type = -1;
+static gint hf_svcctl_svcctl_EnumServicesStatusW_services = -1;
 static gint hf_svcctl_svcctl_EnumServicesStatusW_services_returned = -1;
 static gint hf_svcctl_svcctl_GetCurrentGroupeStateW_handle = -1;
 static gint hf_svcctl_svcctl_GetCurrentGroupeStateW_lpLoadOrderGroup = -1;
@@ -729,22 +734,15 @@ static int svcctl_dissect_element_EnumDependentServicesW_service_status(tvbuff_t
 static int svcctl_dissect_element_EnumDependentServicesW_service_status_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_EnumDependentServicesW_service_status__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_EnumDependentServicesW_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesW_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int svcctl_dissect_element_EnumDependentServicesW_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int svcctl_dissect_element_EnumDependentServicesW_bytesneeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int svcctl_dissect_element_EnumDependentServicesW_bytesneeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_EnumDependentServicesW_services_returned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_EnumDependentServicesW_services_returned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_EnumServicesStatusW_scm_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_EnumServicesStatusW_scm_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_EnumServicesStatusW_service_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_EnumServicesStatusW_service_state(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusW_service(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusW_service_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusW_service__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_EnumServicesStatusW_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusW_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusW_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusW_services_returned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int svcctl_dissect_element_EnumServicesStatusW_services_returned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_EnumServicesStatusW_resume_index(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_EnumServicesStatusW_resume_index_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_OpenSCManagerW_MachineName(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1104,6 +1102,89 @@ static int svcctl_dissect_element_OpenSCManager2_database_name_(tvbuff_t *tvb _U
 static int svcctl_dissect_element_OpenSCManager2_desired_access(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_OpenSCManager2_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_OpenSCManager2_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+/*  ENUM_SERVICE_STATUSW Caveats
+	https://github.com/fortra/impacket/blob/4888172ce638910104da4bda2c3301c24e17564c/impacket/dcerpc/v5/scmr.py#L1274
+*/
+static int
+svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, gint starting_offset);
+static int
+svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, int hf_index, gint starting_offset)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	proto_tree *tr = NULL;
+	int old_offset;
+	guint32 _referent_id = 0;
+	ALIGN_TO_5_BYTES;
+	old_offset = offset;
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_svcctl_ENUM_SERVICE_STATUSW);
+	}
+	// Service Name
+	tr = proto_tree_add_subtree(tree, tvb, offset, 4, ett_svcctl_service_name, NULL, "Pointer to Service Name");
+	offset = PIDL_dissect_uint32_val(tvb, offset, pinfo, tr, di, drep, hf_svcctl_service_referent_id, 0, &_referent_id);
+	dissect_null_term_wstring(tvb, starting_offset + _referent_id, pinfo, tr, drep, hf_svcctl_ENUM_SERVICE_STATUSW_service_name , 0);
+	// Display Name
+	tr = proto_tree_add_subtree(tree, tvb, offset, 4, ett_svcctl_display_name, NULL, "Pointer to Display Name");
+	offset = PIDL_dissect_uint32_val(tvb, offset, pinfo, tr, di, drep, hf_svcctl_service_referent_id, 0, &_referent_id);
+	dissect_null_term_wstring(tvb, starting_offset + _referent_id, pinfo, tr, drep, hf_svcctl_ENUM_SERVICE_STATUSW_display_name , 0);
+	// Status
+	offset = svcctl_dissect_element_ENUM_SERVICE_STATUSW_status(tvb, offset, pinfo, tree, di, drep);
+	proto_item_set_len(item, offset-old_offset);
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_5_BYTES;
+	}
+	return offset;
+}
+/*  REnumServicesStatusW
+	https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-scmr/22b4ff3d-29c6-481f-b598-8ce66a46944a
+*/
+static int
+svcctl_dissect_EnumServicesStatusW_response(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep)
+{
+	guint32 status;
+	guint32 services_returned= 0;
+	proto_item *item;
+	proto_tree  *tr           = NULL;
+	gint        services_buffer_offset;
+	gint        payload_starting_offset = offset;
+	guint64 buffer_size = 0;
+	ALIGN_TO_5_BYTES
+	di->dcerpc_procedure_name="EnumServicesStatusW";
+	tr = proto_tree_add_subtree(tree, tvb, offset, 0, ett_svcctl_service, &item, "Pointer to Services Status");
+	// Services Buffer Size
+	offset = dissect_ndr_uint3264(tvb, offset, pinfo, tr, di, drep, hf_svcctl_service_buffer_size, &buffer_size);
+	services_buffer_offset = offset;
+	offset += buffer_size;
+	proto_item_set_len(item, offset-payload_starting_offset);
+	ALIGN_TO_4_BYTES
+	// Bytes Needed
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServicesStatusW_bytes_needed, 0);
+	// Services Returned
+	offset = PIDL_dissect_uint32_val( tvb, offset, pinfo, tree, di, drep
+	                                , hf_svcctl_svcctl_EnumServicesStatusW_services_returned
+	                                , 0, &services_returned);
+	// Services
+	if (services_returned > 0){
+		payload_starting_offset = services_buffer_offset;
+		for(guint32 index = 0; index < services_returned ; ++index){
+			services_buffer_offset = svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr( tvb, services_buffer_offset
+			                                                                       , pinfo, tr, di, drep
+			                                                                       , hf_svcctl_svcctl_EnumDependentServicesW_service_status
+			                                                                       , payload_starting_offset);
+		}
+		dissect_deferred_pointers(pinfo, tvb, services_buffer_offset, di, drep);
+	}
+	// Resume Index
+	offset = svcctl_dissect_element_EnumServicesStatusW_resume_index(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	// Return status
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_werror, &status);
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
+	return offset;
+}
 
 
 /* IDL: bitmap { */
@@ -3604,17 +3685,17 @@ svcctl_dissect_element_EnumDependentServicesW_offered(tvbuff_t *tvb _U_, int off
 }
 
 static int
-svcctl_dissect_element_EnumDependentServicesW_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+svcctl_dissect_element_EnumDependentServicesW_bytesneeded(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumDependentServicesW_needed_, NDR_POINTER_REF, "Pointer to Needed (uint32)",hf_svcctl_svcctl_EnumDependentServicesW_needed);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumDependentServicesW_bytesneeded_, NDR_POINTER_REF, "Pointer to Bytesneeded (uint32)",hf_svcctl_svcctl_EnumDependentServicesW_bytesneeded);
 
 	return offset;
 }
 
 static int
-svcctl_dissect_element_EnumDependentServicesW_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+svcctl_dissect_element_EnumDependentServicesW_bytesneeded_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumDependentServicesW_needed, 0);
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumDependentServicesW_bytesneeded, 0);
 
 	return offset;
 }
@@ -3640,7 +3721,7 @@ svcctl_dissect_element_EnumDependentServicesW_services_returned_(tvbuff_t *tvb _
 /* IDL: [in] svcctl_ServiceState service_state, */
 /* IDL: [out] [ref] [size_is(offered)] ENUM_SERVICE_STATUSW *service_status, */
 /* IDL: [in] [range(0,0x40000)] uint32 offered, */
-/* IDL: [out] [range(0,0x40000)] [ref] uint32 *needed, */
+/* IDL: [out] [range(0,0x40000)] [ref] uint32 *bytesneeded, */
 /* IDL: [out] [range(0,0x40000)] [ref] uint32 *services_returned */
 /* IDL: ); */
 
@@ -3653,7 +3734,7 @@ svcctl_dissect_EnumDependentServicesW_response(tvbuff_t *tvb _U_, int offset _U_
 	offset = svcctl_dissect_element_EnumDependentServicesW_service_status(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
-	offset = svcctl_dissect_element_EnumDependentServicesW_needed(tvb, offset, pinfo, tree, di, drep);
+	offset = svcctl_dissect_element_EnumDependentServicesW_bytesneeded(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 
 	offset = svcctl_dissect_element_EnumDependentServicesW_services_returned(tvb, offset, pinfo, tree, di, drep);
@@ -3713,65 +3794,9 @@ svcctl_dissect_element_EnumServicesStatusW_service_state(tvbuff_t *tvb _U_, int 
 }
 
 static int
-svcctl_dissect_element_EnumServicesStatusW_service(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusW_service_, NDR_POINTER_REF, "Pointer to Service (ENUM_SERVICE_STATUSW)",hf_svcctl_svcctl_EnumServicesStatusW_service);
-
-	return offset;
-}
-
-static int
-svcctl_dissect_element_EnumServicesStatusW_service_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusW_service__);
-
-	return offset;
-}
-
-static int
-svcctl_dissect_element_EnumServicesStatusW_service__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = svcctl_dissect_struct_ENUM_SERVICE_STATUSW(tvb,offset,pinfo,tree,di,drep,hf_svcctl_svcctl_EnumServicesStatusW_service,0);
-
-	return offset;
-}
-
-static int
 svcctl_dissect_element_EnumServicesStatusW_offered(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServicesStatusW_offered, 0);
-
-	return offset;
-}
-
-static int
-svcctl_dissect_element_EnumServicesStatusW_needed(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusW_needed_, NDR_POINTER_REF, "Pointer to Needed (uint32)",hf_svcctl_svcctl_EnumServicesStatusW_needed);
-
-	return offset;
-}
-
-static int
-svcctl_dissect_element_EnumServicesStatusW_needed_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServicesStatusW_needed, 0);
-
-	return offset;
-}
-
-static int
-svcctl_dissect_element_EnumServicesStatusW_services_returned(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_EnumServicesStatusW_services_returned_, NDR_POINTER_REF, "Pointer to Services Returned (uint32)",hf_svcctl_svcctl_EnumServicesStatusW_services_returned);
-
-	return offset;
-}
-
-static int
-svcctl_dissect_element_EnumServicesStatusW_services_returned_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_EnumServicesStatusW_services_returned, 0);
 
 	return offset;
 }
@@ -3796,38 +3821,12 @@ svcctl_dissect_element_EnumServicesStatusW_resume_index_(tvbuff_t *tvb _U_, int 
 /* IDL: [in] [ref] policy_handle *scm_handle, */
 /* IDL: [in] svcctl_ServiceType service_type, */
 /* IDL: [in] svcctl_ServiceState service_state, */
-/* IDL: [out] [ref] [size_is(offered)] ENUM_SERVICE_STATUSW *service, */
+/* IDL: [out] [ref] [size_is(offered)] uint8 *services, */
 /* IDL: [in] [range(0,0x40000)] uint32 offered, */
-/* IDL: [out] [range(0,0x40000)] [ref] uint32 *needed, */
+/* IDL: [out] [range(0,0x40000)] [ref] uint32 *bytes_needed, */
 /* IDL: [out] [range(0,0x40000)] [ref] uint32 *services_returned, */
 /* IDL: [in] [out] [unique(1)] uint32 *resume_index */
 /* IDL: ); */
-
-static int
-svcctl_dissect_EnumServicesStatusW_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	guint32 status;
-
-	di->dcerpc_procedure_name="EnumServicesStatusW";
-	offset = svcctl_dissect_element_EnumServicesStatusW_service(tvb, offset, pinfo, tree, di, drep);
-	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
-
-	offset = svcctl_dissect_element_EnumServicesStatusW_needed(tvb, offset, pinfo, tree, di, drep);
-	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
-
-	offset = svcctl_dissect_element_EnumServicesStatusW_services_returned(tvb, offset, pinfo, tree, di, drep);
-	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
-
-	offset = svcctl_dissect_element_EnumServicesStatusW_resume_index(tvb, offset, pinfo, tree, di, drep);
-	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
-
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_svcctl_werror, &status);
-
-	if (status != 0)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, WERR_errors, "Unknown DOS error 0x%08x"));
-
-	return offset;
-}
 
 static int
 svcctl_dissect_EnumServicesStatusW_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
@@ -9042,6 +9041,10 @@ void proto_register_dcerpc_svcctl(void)
 	  { "Win32 Exit Code", "svcctl.SERVICE_STATUS.win32_exit_code", FT_UINT32, BASE_DEC, VALS(WERR_errors), 0, NULL, HFILL }},
 	{ &hf_svcctl_opnum,
 	  { "Operation", "svcctl.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_svcctl_service_buffer_size,
+	  { "Buffer Size", "svcctl.services.buffer_size", FT_UINT32, BASE_DEC, NULL, 0, "NULL", HFILL }},
+	{ &hf_svcctl_service_referent_id,
+	  { "Referent ID(offset)", "svcctl.ENUM_SERVICE_STATUSW.referent_id", FT_UINT32, BASE_DEC, NULL, 0, "NULL", HFILL }},
 	{ &hf_svcctl_svcctl_ArgumentStringA_string,
 	  { "String", "svcctl.svcctl_ArgumentStringA.string", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_ArgumentString_string,
@@ -9314,8 +9317,8 @@ void proto_register_dcerpc_svcctl(void)
 	  { "Services Returned", "svcctl.svcctl_EnumDependentServicesA.services_returned", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_EnumDependentServicesA_state,
 	  { "State", "svcctl.svcctl_EnumDependentServicesA.state", FT_UINT32, BASE_DEC, VALS(svcctl_svcctl_ServiceState_vals), 0, NULL, HFILL }},
-	{ &hf_svcctl_svcctl_EnumDependentServicesW_needed,
-	  { "Needed", "svcctl.svcctl_EnumDependentServicesW.needed", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_svcctl_svcctl_EnumDependentServicesW_bytesneeded,
+	  { "Bytesneeded", "svcctl.svcctl_EnumDependentServicesW.bytesneeded", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_EnumDependentServicesW_offered,
 	  { "Offered", "svcctl.svcctl_EnumDependentServicesW.offered", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_EnumDependentServicesW_service_handle,
@@ -9360,20 +9363,20 @@ void proto_register_dcerpc_svcctl(void)
 	  { "Service Type", "svcctl.svcctl_EnumServicesStatusA.service_type", FT_UINT32, BASE_DEC, VALS(svcctl_svcctl_ServiceType_vals), 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_EnumServicesStatusA_services_returned,
 	  { "Services Returned", "svcctl.svcctl_EnumServicesStatusA.services_returned", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-	{ &hf_svcctl_svcctl_EnumServicesStatusW_needed,
-	  { "Needed", "svcctl.svcctl_EnumServicesStatusW.needed", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_svcctl_svcctl_EnumServicesStatusW_bytes_needed,
+	  { "Bytes Needed", "svcctl.svcctl_EnumServicesStatusW.bytes_needed", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_EnumServicesStatusW_offered,
 	  { "Offered", "svcctl.svcctl_EnumServicesStatusW.offered", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_EnumServicesStatusW_resume_index,
 	  { "Resume Index", "svcctl.svcctl_EnumServicesStatusW.resume_index", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_EnumServicesStatusW_scm_handle,
 	  { "Scm Handle", "svcctl.svcctl_EnumServicesStatusW.scm_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_svcctl_svcctl_EnumServicesStatusW_service,
-	  { "Service", "svcctl.svcctl_EnumServicesStatusW.service", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_EnumServicesStatusW_service_state,
 	  { "Service State", "svcctl.svcctl_EnumServicesStatusW.service_state", FT_UINT32, BASE_DEC, VALS(svcctl_svcctl_ServiceState_vals), 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_EnumServicesStatusW_service_type,
 	  { "Service Type", "svcctl.svcctl_EnumServicesStatusW.service_type", FT_UINT32, BASE_DEC, VALS(svcctl_svcctl_ServiceType_vals), 0, NULL, HFILL }},
+	{ &hf_svcctl_svcctl_EnumServicesStatusW_services,
+	  { "Services", "svcctl.svcctl_EnumServicesStatusW.services", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_EnumServicesStatusW_services_returned,
 	  { "Services Returned", "svcctl.svcctl_EnumServicesStatusW.services_returned", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_GetCurrentGroupeStateW_handle,
@@ -9626,6 +9629,9 @@ void proto_register_dcerpc_svcctl(void)
 
 
 	static gint *ett[] = {
+		&ett_svcctl_service,
+		&ett_svcctl_service_name,
+		&ett_svcctl_display_name,
 		&ett_dcerpc_svcctl,
 		&ett_svcctl_security_secinfo,
 		&ett_svcctl_SERVICE_LOCK_STATUS,
