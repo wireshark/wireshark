@@ -232,7 +232,7 @@ ftype_register_ipv6(void)
 		is_zero,
 		NULL,
 		len,
-		slice,
+		(FvalueSlice)slice,
 		bitwise_and,
 		NULL,				/* unary_minus */
 		NULL,				/* add */

@@ -127,17 +127,28 @@ string_is_zero(const fvalue_t *fv)
 static guint
 len(fvalue_t *fv)
 {
-	return (guint)fv->value.strbuf->len;
+	/* g_utf8_strlen returns glong for no apparent reason*/
+	glong len = g_utf8_strlen(fv->value.strbuf->str, -1);
+	if (len < 0)
+		return 0;
+	return (guint)len;
 }
 
 static void
-slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
+slice(fvalue_t *fv, wmem_strbuf_t *buf, guint offset, guint length)
 {
-	guint8* data;
+	const char *str = fv->value.strbuf->str;
 
-	data = (guint8*)fv->value.strbuf->str + offset;
-
-	g_byte_array_append(bytes, data, length);
+	/* Go to the starting offset */
+	const char *p = g_utf8_offset_to_pointer(str, (glong)offset);
+	const char *n;
+	/* Copy 'length' codepoints to dst. Skip the terminating NULL */
+	while (*p != '\0' && length-- > 0) {
+		n = g_utf8_next_char(p);
+		/* Append n - p bytes (one codepoint)*/
+		wmem_strbuf_append_len(buf, p, n - p);
+		p = n;
+	}
 }
 
 static enum ft_result
@@ -213,7 +224,7 @@ ftype_register_string(void)
 		string_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
-		slice,
+		(FvalueSlice)slice,
 		NULL,				/* bitwise_and */
 		NULL,				/* unary_minus */
 		NULL,				/* add */
@@ -249,7 +260,7 @@ ftype_register_string(void)
 		string_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
-		slice,
+		(FvalueSlice)slice,
 		NULL,				/* bitwise_and */
 		NULL,				/* unary_minus */
 		NULL,				/* add */
@@ -285,7 +296,7 @@ ftype_register_string(void)
 		string_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
-		slice,
+		(FvalueSlice)slice,
 		NULL,				/* bitwise_and */
 		NULL,				/* unary_minus */
 		NULL,				/* add */
@@ -321,7 +332,7 @@ ftype_register_string(void)
 		string_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
-		slice,
+		(FvalueSlice)slice,
 		NULL,				/* bitwise_and */
 		NULL,				/* unary_minus */
 		NULL,				/* add */
@@ -357,7 +368,7 @@ ftype_register_string(void)
 		string_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
-		slice,
+		(FvalueSlice)slice,
 		NULL,				/* bitwise_and */
 		NULL,				/* unary_minus */
 		NULL,				/* add */

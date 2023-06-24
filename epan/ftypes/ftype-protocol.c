@@ -396,7 +396,7 @@ ftype_register_tvbuff(void)
 		is_zero,
 		NULL,
 		len,
-		slice,
+		(FvalueSlice)slice,
 		NULL,
 		NULL,				/* unary_minus */
 		NULL,				/* add */

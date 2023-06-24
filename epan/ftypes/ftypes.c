@@ -577,16 +577,16 @@ fvalue_to_sinteger64(const fvalue_t *fv, gint64 *repr)
 
 typedef struct {
 	fvalue_t	*fv;
-	GByteArray	*bytes;
+	void		*ptr;
 	gboolean	slice_failure;
 } slice_data_t;
 
 static gboolean
-compute_drnode(guint field_length, drange_node *drnode, guint *offset_ptr, guint *length_ptr)
+compute_drnode(gsize field_length, drange_node *drnode, gsize *offset_ptr, gsize *length_ptr)
 {
-	gint		start_offset;
-	gint		length = 0;
-	gint		end_offset = 0;
+	gssize		start_offset;
+	gssize		length = 0;
+	gssize		end_offset = 0;
 	drange_node_end_t	ending;
 
 	start_offset = drange_node_get_start_offset(drnode);
@@ -640,8 +640,8 @@ slice_func(gpointer data, gpointer user_data)
 {
 	drange_node	*drnode = (drange_node	*)data;
 	slice_data_t	*slice_data = (slice_data_t *)user_data;
-	gint		start_offset;
-	gint		length = 0;
+	gsize		start_offset;
+	gsize		length = 0;
 	fvalue_t	*fv;
 
 	if (slice_data->slice_failure) {
@@ -654,19 +654,40 @@ slice_func(gpointer data, gpointer user_data)
 		return;
 	}
 
-	ws_assert(start_offset >=0 && length > 0);
-	fv->ftype->slice(fv, slice_data->bytes, start_offset, length);
+	ws_assert(length > 0);
+	fv->ftype->slice(fv, slice_data->ptr, (guint)start_offset, (guint)length);
 }
 
-/* Returns a new FT_BYTES fvalue_t* if possible, otherwise NULL */
-fvalue_t*
-fvalue_slice(fvalue_t *fv, drange_t *d_range)
+static fvalue_t *
+slice_string(fvalue_t *fv, drange_t *d_range)
 {
 	slice_data_t	slice_data;
 	fvalue_t	*new_fv;
 
 	slice_data.fv = fv;
-	slice_data.bytes = g_byte_array_new();
+	slice_data.ptr = wmem_strbuf_create(NULL);
+	slice_data.slice_failure = FALSE;
+
+	/* XXX - We could make some optimizations here based on
+	 * drange_has_total_length() and
+	 * drange_get_max_offset().
+	 */
+
+	drange_foreach_drange_node(d_range, slice_func, &slice_data);
+
+	new_fv = fvalue_new(FT_STRING);
+	fvalue_set_strbuf(new_fv, slice_data.ptr);
+	return new_fv;
+}
+
+static fvalue_t *
+slice_bytes(fvalue_t *fv, drange_t *d_range)
+{
+	slice_data_t	slice_data;
+	fvalue_t	*new_fv;
+
+	slice_data.fv = fv;
+	slice_data.ptr = g_byte_array_new();
 	slice_data.slice_failure = FALSE;
 
 	/* XXX - We could make some optimizations here based on
@@ -677,10 +698,18 @@ fvalue_slice(fvalue_t *fv, drange_t *d_range)
 	drange_foreach_drange_node(d_range, slice_func, &slice_data);
 
 	new_fv = fvalue_new(FT_BYTES);
-	GBytes *bytes = g_byte_array_free_to_bytes(slice_data.bytes);
-	fvalue_set_bytes(new_fv, bytes);
-	g_bytes_unref(bytes);
+	fvalue_set_byte_array(new_fv, slice_data.ptr);
 	return new_fv;
+}
+
+/* Returns a new slice fvalue_t* if possible, otherwise NULL */
+fvalue_t*
+fvalue_slice(fvalue_t *fv, drange_t *d_range)
+{
+	if (FT_IS_STRING(fvalue_type_ftenum(fv))) {
+		return slice_string(fv, d_range);
+	}
+	return slice_bytes(fv, d_range);
 }
 
 void

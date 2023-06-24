@@ -8,7 +8,7 @@ import pytest
 
 @pytest.fixture
 def dfilter_cmd(cmd_tshark, capture_file, request):
-    def wrapped(dfilter, frame_number=None):
+    def wrapped(dfilter, frame_number=None, prefs=None):
         cmd = [
             cmd_tshark,
             "-n",       # No name resolution
@@ -24,6 +24,11 @@ def dfilter_cmd(cmd_tshark, capture_file, request):
             "-Y",       # packet display filter (used to be -R)
             dfilter
         ])
+        if prefs:
+            cmd.extend([
+            "-o",
+            prefs
+        ])
         return cmd
     return wrapped
 
@@ -34,9 +39,9 @@ def cmd_dftest(program):
 
 @pytest.fixture
 def checkDFilterCount(dfilter_cmd, base_env):
-    def checkDFilterCount_real(dfilter, expected_count):
+    def checkDFilterCount_real(dfilter, expected_count, prefs=None):
         """Run a display filter and expect a certain number of packets."""
-        output = subprocess.check_output(dfilter_cmd(dfilter),
+        output = subprocess.check_output(dfilter_cmd(dfilter, prefs=prefs),
                                          universal_newlines=True,
                                          stderr=subprocess.STDOUT,
                                          env=base_env)
@@ -49,9 +54,9 @@ def checkDFilterCount(dfilter_cmd, base_env):
 
 @pytest.fixture
 def checkDFilterCountWithSelectedFrame(dfilter_cmd, base_env):
-    def checkDFilterCount_real(dfilter, expected_count, selected_frame):
+    def checkDFilterCount_real(dfilter, expected_count, selected_frame, prefs=None):
         """Run a display filter and expect a certain number of packets."""
-        output = subprocess.check_output(dfilter_cmd(dfilter, frame_number=selected_frame),
+        output = subprocess.check_output(dfilter_cmd(dfilter, frame_number=selected_frame, prefs=prefs),
                                          universal_newlines=True,
                                          stderr=subprocess.STDOUT,
                                          env=base_env)

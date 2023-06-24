@@ -196,3 +196,45 @@ class TestDfilterStringz:
     def test_stringz_3(self, checkDFilterCount):
         dfilter = 'tftp.type == junk'
         checkDFilterCount(dfilter, 0)
+
+class TestDfilterStringIndex:
+    trace_file = "data-utf8.pcap"
+
+    def test_index_1(self, checkDFilterCount):
+        dfilter = 'data.text[3] == "á"'
+        prefs = "data.show_as_text:true"
+        checkDFilterCount(dfilter, 1, prefs)
+
+    def test_index_2(self, checkDFilterCount):
+        dfilter = 'data.text[3] == "a"'
+        prefs = "data.show_as_text:true"
+        checkDFilterCount(dfilter, 0, prefs)
+
+    def test_index_3(self, checkDFilterCount):
+        dfilter = 'data.text[40:] == "cão preguiçoso"'
+        prefs = "data.show_as_text:true"
+        checkDFilterCount(dfilter, 1, prefs)
+
+    def test_index_4(self, checkDFilterCount):
+        # Byte offset
+        dfilter = '@data.text[41:] == "cão preguiçoso"'
+        prefs = "data.show_as_text:true"
+        checkDFilterCount(dfilter, 1, prefs)
+
+    def test_index_5(self, checkDFilterCount):
+        # Byte offset
+        dfilter = '@data.text[41:] == 63:c3:a3:6f:20:70:72:65:67:75:69:c3:a7:6f:73:6f'
+        prefs = "data.show_as_text:true"
+        checkDFilterCount(dfilter, 1, prefs)
+
+    def test_strlen_1(self, checkDFilterCount):
+        dfilter = 'len(data.text) == 54'
+        prefs = "data.show_as_text:true"
+        checkDFilterCount(dfilter, 1, prefs)
+
+    def test_strlen_2(self, checkDFilterCount):
+        # Byte length
+        dfilter = 'len(@data.text) == 57'
+        prefs = "data.show_as_text:true"
+        checkDFilterCount(dfilter, 1, prefs)
+

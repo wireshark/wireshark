@@ -322,11 +322,10 @@ Otherwise date and time values are interpreted as local time.
 
 === The slice operator
 
-You can take a slice of a field if the field is a text string or a
-byte array.
-For example, you can filter on
-the vendor portion of an ethernet address (the first three bytes) like
-this:
+You can take a slice of a field if the field base type is a text string or a
+byte array (the base type of most network address fields is bytes).
+For example, you can filter on the vendor portion of an ethernet address
+(the first three bytes) like this:
 
     eth.src[0:3] == 00:00:83
 
@@ -350,6 +349,7 @@ The following syntax governs slices:
     [:j]     start_offset = 0, length = j
     [i:]     start_offset = i, end_offset = end_of_field
 
+Slice indexes are zero-based.
 Offsets can be negative, in which case they indicate the
 offset from the *end* of the field.  The last byte of the field is at offset
 -1, the last but one byte is at offset -2, and so on.
@@ -360,6 +360,21 @@ Here's how to check the last four bytes of a frame:
 or
 
     frame[-4:] == 0.1.2.3
+
+As mentioned above the slice operator can be used on string and byte fields
+and will respectively produce string or byte slices. String slices are
+indexed on UTF-8 codepoint boundaries (i.e: internationalized characters),
+so the following comparison is true:
+
+    "touché"[5] == "é"
+
+The example above generates an error because the compiler rejects constant
+expressions but is otherwise syntactically correct and examplifies the
+behaviour of string slices.
+
+To obtain a byte slice of the same string the raw (@) operator can be used:
+
+    @"touché"[5-6] == c3:a9
 
 A slice can always be compared against either a string or a byte sequence.
 

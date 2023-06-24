@@ -519,14 +519,13 @@ check_slice(dfwork_t *dfw, stnode_t *st, ftenum_t lhs_ftype)
 					sttype_function_name(entity1), ftype_pretty_name(ftype1));
 		}
 	} else if (stnode_type_id(entity1) == STTYPE_SLICE) {
-		/* Should this be rejected instead? */
-		check_slice(dfw, entity1, lhs_ftype);
+		ftype1 = check_slice(dfw, entity1, lhs_ftype);
 	} else {
 		FAIL(dfw, entity1, "Range is not supported for entity %s",
 					stnode_todisplay(entity1));
 	}
 
-	return FT_BYTES;
+	return FT_IS_STRING(ftype1) ? FT_STRING : FT_BYTES;
 }
 
 #define IS_FIELD_ENTITY(ft) \
@@ -832,19 +831,19 @@ check_relation_LHS_SLICE(dfwork_t *dfw, stnode_op_t st_op _U_,
 		}
 	}
 	else if (type2 == STTYPE_STRING) {
-		fvalue = dfilter_fvalue_from_string(dfw, FT_BYTES, st_arg2, NULL);
+		fvalue = dfilter_fvalue_from_string(dfw, ftype1, st_arg2, NULL);
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_LITERAL) {
-		fvalue = dfilter_fvalue_from_literal(dfw, FT_BYTES, st_arg2, allow_partial_value, NULL);
+		fvalue = dfilter_fvalue_from_literal(dfw, ftype1, st_arg2, allow_partial_value, NULL);
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_CHARCONST) {
-		fvalue = dfilter_fvalue_from_charconst(dfw, FT_BYTES, st_arg2);
+		fvalue = dfilter_fvalue_from_charconst(dfw, ftype1, st_arg2);
 		stnode_replace(st_arg2, STTYPE_FVALUE, fvalue);
 	}
 	else if (type2 == STTYPE_SLICE) {
-		ftype2 = check_slice(dfw, st_arg2, FT_BYTES);
+		ftype2 = check_slice(dfw, st_arg2, ftype1);
 
 		if (!compatible_ftypes(ftype1, ftype2)) {
 			FAIL(dfw, st_arg2, "%s and %s are not of compatible types.",
@@ -856,7 +855,7 @@ check_relation_LHS_SLICE(dfwork_t *dfw, stnode_op_t st_op _U_,
 		}
 	}
 	else if (type2 == STTYPE_FUNCTION) {
-		ftype2 = check_function(dfw, st_arg2, FT_BYTES);
+		ftype2 = check_function(dfw, st_arg2, ftype1);
 
 		if (!is_bytes_type(ftype2)) {
 			if (!ftype_can_slice(ftype2)) {
@@ -873,9 +872,9 @@ check_relation_LHS_SLICE(dfwork_t *dfw, stnode_op_t st_op _U_,
 		ws_assert(st_op == STNODE_OP_MATCHES);
 	}
 	else if (type2 == STTYPE_ARITHMETIC) {
-		ftype2 = check_arithmetic(dfw, st_arg2, FT_BYTES);
+		ftype2 = check_arithmetic(dfw, st_arg2, ftype1);
 
-		if (!compatible_ftypes(FT_BYTES, ftype2)) {
+		if (!compatible_ftypes(ftype1, ftype2)) {
 			FAIL(dfw, st_arg2, "%s and %s are not of compatible types.",
 					stnode_todisplay(st_arg1), stnode_todisplay(st_arg2));
 		}

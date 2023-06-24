@@ -501,10 +501,7 @@ len(fvalue_t *fv)
 static void
 slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 {
-	guint8* data;
-
-	data = (guint8 *)g_bytes_get_data(fv->value.bytes, NULL) + offset;
-
+	const guint8 *data = (const guint8 *)g_bytes_get_data(fv->value.bytes, NULL) + offset;
 	g_byte_array_append(bytes, data, length);
 }
 
@@ -627,7 +624,7 @@ ftype_register_bytes(void)
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
-		slice,
+		(FvalueSlice)slice,
 		bytes_bitwise_and,		/* bitwise_and */
 		NULL,				/* unary_minus */
 		NULL,				/* add */
@@ -664,7 +661,7 @@ ftype_register_bytes(void)
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
-		slice,
+		(FvalueSlice)slice,
 		bytes_bitwise_and,		/* bitwise_and */
 		NULL,				/* unary_minus */
 		NULL,				/* add */
@@ -701,7 +698,7 @@ ftype_register_bytes(void)
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
-		slice,
+		(FvalueSlice)slice,
 		bytes_bitwise_and,		/* bitwise_and */
 		NULL,				/* unary_minus */
 		NULL,				/* add */
@@ -738,7 +735,7 @@ ftype_register_bytes(void)
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
-		slice,
+		(FvalueSlice)slice,
 		bytes_bitwise_and,		/* bitwise_and */
 		NULL,				/* unary_minus */
 		NULL,				/* add */
@@ -775,7 +772,7 @@ ftype_register_bytes(void)
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
-		slice,
+		(FvalueSlice)slice,
 		bytes_bitwise_and,		/* bitwise_and */
 		NULL,				/* unary_minus */
 		NULL,				/* add */
@@ -812,7 +809,7 @@ ftype_register_bytes(void)
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
-		slice,
+		(FvalueSlice)slice,
 		bytes_bitwise_and,		/* bitwise_and */
 		NULL,				/* unary_minus */
 		NULL,				/* add */
@@ -849,7 +846,7 @@ ftype_register_bytes(void)
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
-		slice,
+		(FvalueSlice)slice,
 		bytes_bitwise_and,		/* bitwise_and */
 		NULL,				/* unary_minus */
 		NULL,				/* add */
@@ -886,7 +883,7 @@ ftype_register_bytes(void)
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
-		slice,
+		(FvalueSlice)slice,
 		bytes_bitwise_and,		/* bitwise_and */
 		NULL,				/* unary_minus */
 		NULL,				/* add */
@@ -923,7 +920,7 @@ ftype_register_bytes(void)
 		bytes_is_zero,			/* is_zero */
 		NULL,				/* is_negative */
 		len,
-		slice,
+		(FvalueSlice)slice,
 		bytes_bitwise_and,		/* bitwise_and */
 		NULL,				/* unary_minus */
 		NULL,				/* add */
