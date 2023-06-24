@@ -238,7 +238,7 @@ rfr_dissect_element_RfrGetNewDSA_ulFlags(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 rfr_dissect_element_RfrGetNewDSA_pUserDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetNewDSA_pUserDN_, NDR_POINTER_REF, "Pointer to Puserdn (uint8)",hf_rfr_RfrGetNewDSA_pUserDN);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetNewDSA_pUserDN_, NDR_POINTER_REF, "Pointer to PUserDN (uint8)",hf_rfr_RfrGetNewDSA_pUserDN);
 
 	return offset;
 }
@@ -257,7 +257,7 @@ rfr_dissect_element_RfrGetNewDSA_pUserDN_(tvbuff_t *tvb _U_, int offset _U_, pac
 static int
 rfr_dissect_element_RfrGetNewDSA_ppszUnused(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetNewDSA_ppszUnused_, NDR_POINTER_UNIQUE, "Pointer to Ppszunused (uint8)",hf_rfr_RfrGetNewDSA_ppszUnused);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetNewDSA_ppszUnused_, NDR_POINTER_UNIQUE, "Pointer to PpszUnused (uint8)",hf_rfr_RfrGetNewDSA_ppszUnused);
 
 	return offset;
 }
@@ -265,7 +265,7 @@ rfr_dissect_element_RfrGetNewDSA_ppszUnused(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 rfr_dissect_element_RfrGetNewDSA_ppszUnused_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetNewDSA_ppszUnused__, NDR_POINTER_UNIQUE, "Pointer to Ppszunused (uint8)",hf_rfr_RfrGetNewDSA_ppszUnused);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetNewDSA_ppszUnused__, NDR_POINTER_UNIQUE, "Pointer to PpszUnused (uint8)",hf_rfr_RfrGetNewDSA_ppszUnused);
 
 	return offset;
 }
@@ -284,7 +284,7 @@ rfr_dissect_element_RfrGetNewDSA_ppszUnused__(tvbuff_t *tvb _U_, int offset _U_,
 static int
 rfr_dissect_element_RfrGetNewDSA_ppszServer(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetNewDSA_ppszServer_, NDR_POINTER_UNIQUE, "Pointer to Ppszserver (uint8)",hf_rfr_RfrGetNewDSA_ppszServer);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetNewDSA_ppszServer_, NDR_POINTER_UNIQUE, "Pointer to PpszServer (uint8)",hf_rfr_RfrGetNewDSA_ppszServer);
 
 	return offset;
 }
@@ -292,7 +292,7 @@ rfr_dissect_element_RfrGetNewDSA_ppszServer(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 rfr_dissect_element_RfrGetNewDSA_ppszServer_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetNewDSA_ppszServer__, NDR_POINTER_UNIQUE, "Pointer to Ppszserver (uint8)",hf_rfr_RfrGetNewDSA_ppszServer);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetNewDSA_ppszServer__, NDR_POINTER_UNIQUE, "Pointer to PpszServer (uint8)",hf_rfr_RfrGetNewDSA_ppszServer);
 
 	return offset;
 }
@@ -368,7 +368,7 @@ rfr_dissect_element_RfrGetFQDNFromLegacyDN_cbMailboxServerDN(tvbuff_t *tvb _U_, 
 static int
 rfr_dissect_element_RfrGetFQDNFromLegacyDN_szMailboxServerDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetFQDNFromLegacyDN_szMailboxServerDN_, NDR_POINTER_REF, "Pointer to Szmailboxserverdn (uint8)",hf_rfr_RfrGetFQDNFromLegacyDN_szMailboxServerDN);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetFQDNFromLegacyDN_szMailboxServerDN_, NDR_POINTER_REF, "Pointer to SzMailboxServerDN (uint8)",hf_rfr_RfrGetFQDNFromLegacyDN_szMailboxServerDN);
 
 	return offset;
 }
@@ -387,7 +387,7 @@ rfr_dissect_element_RfrGetFQDNFromLegacyDN_szMailboxServerDN_(tvbuff_t *tvb _U_,
 static int
 rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN_, NDR_POINTER_REF, "Pointer to Ppszserverfqdn (uint8)",hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN_, NDR_POINTER_REF, "Pointer to PpszServerFQDN (uint8)",hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN);
 
 	return offset;
 }
@@ -395,7 +395,7 @@ rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN(tvbuff_t *tvb _U_, int
 static int
 rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN__, NDR_POINTER_UNIQUE, "Pointer to Ppszserverfqdn (uint8)",hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN);
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, rfr_dissect_element_RfrGetFQDNFromLegacyDN_ppszServerFQDN__, NDR_POINTER_UNIQUE, "Pointer to PpszServerFQDN (uint8)",hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN);
 
 	return offset;
 }
@@ -460,25 +460,25 @@ void proto_register_dcerpc_rfr(void)
 {
 	static hf_register_info hf[] = {
 	{ &hf_rfr_MAPISTATUS_status,
-		{ "MAPISTATUS", "rfr.MAPISTATUS_status", FT_UINT32, BASE_HEX, VALS(rfr_MAPISTATUS_vals), 0, NULL, HFILL }},
+	  { "MAPISTATUS", "rfr.MAPISTATUS_status", FT_UINT32, BASE_HEX, VALS(rfr_MAPISTATUS_vals), 0, NULL, HFILL }},
 	{ &hf_rfr_RfrGetFQDNFromLegacyDN_cbMailboxServerDN,
-		{ "Cbmailboxserverdn", "rfr.RfrGetFQDNFromLegacyDN.cbMailboxServerDN", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	  { "CbMailboxServerDN", "rfr.RfrGetFQDNFromLegacyDN.cbMailboxServerDN", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_rfr_RfrGetFQDNFromLegacyDN_ppszServerFQDN,
-		{ "Ppszserverfqdn", "rfr.RfrGetFQDNFromLegacyDN.ppszServerFQDN", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	  { "PpszServerFQDN", "rfr.RfrGetFQDNFromLegacyDN.ppszServerFQDN", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_rfr_RfrGetFQDNFromLegacyDN_szMailboxServerDN,
-		{ "Szmailboxserverdn", "rfr.RfrGetFQDNFromLegacyDN.szMailboxServerDN", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	  { "SzMailboxServerDN", "rfr.RfrGetFQDNFromLegacyDN.szMailboxServerDN", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_rfr_RfrGetFQDNFromLegacyDN_ulFlags,
-		{ "Ulflags", "rfr.RfrGetFQDNFromLegacyDN.ulFlags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	  { "UlFlags", "rfr.RfrGetFQDNFromLegacyDN.ulFlags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_rfr_RfrGetNewDSA_pUserDN,
-		{ "Puserdn", "rfr.RfrGetNewDSA.pUserDN", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	  { "PUserDN", "rfr.RfrGetNewDSA.pUserDN", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_rfr_RfrGetNewDSA_ppszServer,
-		{ "Ppszserver", "rfr.RfrGetNewDSA.ppszServer", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	  { "PpszServer", "rfr.RfrGetNewDSA.ppszServer", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_rfr_RfrGetNewDSA_ppszUnused,
-		{ "Ppszunused", "rfr.RfrGetNewDSA.ppszUnused", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+	  { "PpszUnused", "rfr.RfrGetNewDSA.ppszUnused", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_rfr_RfrGetNewDSA_ulFlags,
-		{ "Ulflags", "rfr.RfrGetNewDSA.ulFlags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	  { "UlFlags", "rfr.RfrGetNewDSA.ulFlags", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_rfr_opnum,
-		{ "Operation", "rfr.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+	  { "Operation", "rfr.opnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 	};
 
 
