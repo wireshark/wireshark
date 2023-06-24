@@ -92,7 +92,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 					text_tvb = data_tvb;
 					text_length = bytes;
 				}
-				proto_tree_add_item_ret_display_string(data_tree, hf_data_text, text_tvb, 0, text_length, ENC_ASCII, pinfo->pool, &display_str);
+				proto_tree_add_item_ret_display_string(data_tree, hf_data_text, text_tvb, 0, text_length, ENC_UTF_8, pinfo->pool, &display_str);
 				col_add_str(pinfo->cinfo, COL_INFO, display_str);
 			}
 
