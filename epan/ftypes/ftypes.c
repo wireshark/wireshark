@@ -581,34 +581,22 @@ typedef struct {
 	gboolean	slice_failure;
 } slice_data_t;
 
-static void
-slice_func(gpointer data, gpointer user_data)
+static gboolean
+compute_drnode(guint field_length, drange_node *drnode, guint *offset_ptr, guint *length_ptr)
 {
-	drange_node	*drnode = (drange_node	*)data;
-	slice_data_t	*slice_data = (slice_data_t *)user_data;
 	gint		start_offset;
 	gint		length = 0;
 	gint		end_offset = 0;
-	guint		field_length;
-	fvalue_t	*fv;
 	drange_node_end_t	ending;
-
-	if (slice_data->slice_failure) {
-		return;
-	}
 
 	start_offset = drange_node_get_start_offset(drnode);
 	ending = drange_node_get_ending(drnode);
-
-	fv = slice_data->fv;
-	field_length = (guint)fvalue_length2(fv);
 
 	/* Check for negative start */
 	if (start_offset < 0) {
 		start_offset = field_length + start_offset;
 		if (start_offset < 0) {
-			slice_data->slice_failure = TRUE;
-			return;
+			return FALSE;
 		}
 	}
 
@@ -617,15 +605,13 @@ slice_func(gpointer data, gpointer user_data)
 	if (ending == DRANGE_NODE_END_T_TO_THE_END) {
 		length = field_length - start_offset;
 		if (length <= 0) {
-			slice_data->slice_failure = TRUE;
-			return;
+			return FALSE;
 		}
 	}
 	else if (ending == DRANGE_NODE_END_T_LENGTH) {
 		length = drange_node_get_length(drnode);
 		if (start_offset + length > (int) field_length) {
-			slice_data->slice_failure = TRUE;
-			return;
+			return FALSE;
 		}
 	}
 	else if (ending == DRANGE_NODE_END_T_OFFSET) {
@@ -633,12 +619,10 @@ slice_func(gpointer data, gpointer user_data)
 		if (end_offset < 0) {
 			end_offset = field_length + end_offset;
 			if (end_offset < start_offset) {
-				slice_data->slice_failure = TRUE;
-				return;
+				return FALSE;
 			}
 		} else if (end_offset >= (int) field_length) {
-			slice_data->slice_failure = TRUE;
-			return;
+			return FALSE;
 		}
 		length = end_offset - start_offset + 1;
 	}
@@ -646,10 +630,33 @@ slice_func(gpointer data, gpointer user_data)
 		ws_assert_not_reached();
 	}
 
+	*offset_ptr = start_offset;
+	*length_ptr = length;
+	return TRUE;
+}
+
+static void
+slice_func(gpointer data, gpointer user_data)
+{
+	drange_node	*drnode = (drange_node	*)data;
+	slice_data_t	*slice_data = (slice_data_t *)user_data;
+	gint		start_offset;
+	gint		length = 0;
+	fvalue_t	*fv;
+
+	if (slice_data->slice_failure) {
+		return;
+	}
+
+	fv = slice_data->fv;
+	if (!compute_drnode((guint)fvalue_length2(fv), drnode, &start_offset, &length)) {
+		slice_data->slice_failure = TRUE;
+		return;
+	}
+
 	ws_assert(start_offset >=0 && length > 0);
 	fv->ftype->slice(fv, slice_data->bytes, start_offset, length);
 }
-
 
 /* Returns a new FT_BYTES fvalue_t* if possible, otherwise NULL */
 fvalue_t*
