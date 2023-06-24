@@ -505,7 +505,7 @@ check_slice(dfwork_t *dfw, stnode_t *st, ftenum_t lhs_ftype)
 	if (stnode_type_id(entity1) == STTYPE_FIELD) {
 		dfw->field_count++;
 		hfinfo1 = sttype_field_hfinfo(entity1);
-		ftype1 = hfinfo1->type;
+		ftype1 = sttype_field_ftenum(entity1);
 
 		if (!ftype_can_slice(ftype1)) {
 			FAIL(dfw, entity1, "\"%s\" is a %s and cannot be sliced into a sequence of bytes.",

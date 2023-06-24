@@ -261,8 +261,10 @@ value_type_tostr(dfvm_value_t *v, gboolean show_ftype)
 
 	switch (v->type) {
 		case HFINFO:
-		case RAW_HFINFO:
 			s = ftype_name(v->value.hfinfo->type);
+			break;
+		case RAW_HFINFO:
+			s = "FT_BYTES";
 			break;
 		case FVALUE:
 			s = fvalue_type_name(v->value.fvalue);

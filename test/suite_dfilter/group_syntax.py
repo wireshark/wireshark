@@ -396,3 +396,22 @@ class TestDfilterRawModifier:
         dfilter = '@s7comm.blockinfo.blocktype == ${@s7comm.blockinfo.blocktype}'
         # select frame 3, expect 2 frames out of 3.
         checkDFilterCountWithSelectedFrame(dfilter, 2, 3)
+
+class TestDfilterRawSlice:
+    trace_file = "http.pcap"
+
+    def test_raw_slice1(self, checkDFilterFail):
+        dfilter = 'tcp.port[1] == 0xc3'
+        checkDFilterFail(dfilter, "cannot be sliced")
+
+    def test_raw_slice2(self, checkDFilterCount):
+        dfilter = '@tcp.port[1] == 0xc3'
+        checkDFilterCount(dfilter, 1)
+
+    def test_raw_slice3(self, checkDFilterFail):
+        dfilter = 'tcp.port[0:] == 0c:c3'
+        checkDFilterFail(dfilter, "cannot be sliced")
+
+    def test_raw_slice4(self, checkDFilterCount):
+        dfilter = '@tcp.port[0:] == 0c:c3'
+        checkDFilterCount(dfilter, 1)
