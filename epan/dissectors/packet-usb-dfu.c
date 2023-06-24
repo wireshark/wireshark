@@ -565,6 +565,7 @@ proto_reg_handoff_usb_dfu(void)
     dissector_add_uint("usb.control", RUNTIME_KEY, usb_dfu_handle);
     dissector_add_uint("usb.control", DFU_MODE_KEY, usb_dfu_handle);
 
+    dissector_add_uint("usb.product", (0x05ac << 16) | 0x1227, usb_dfu_handle); /* Apple Inc. Mobile Device (DFU Mode) */
     dissector_add_uint("usb.product", (0x1d50 << 16) | 0x1db5, usb_dfu_handle); /* IDBG in DFU mode */
     dissector_add_uint("usb.product", (0x1d50 << 16) | 0x6001, usb_dfu_handle); /* Ubertooth Zero DFU */
     dissector_add_uint("usb.product", (0x1d50 << 16) | 0x6003, usb_dfu_handle); /* Ubertooth One DFU */
