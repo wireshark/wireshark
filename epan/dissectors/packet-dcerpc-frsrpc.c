@@ -663,7 +663,6 @@ frsrpc_dissect_struct_CommPktChunk(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_frsrpc_frsrpc_CommPktChunk);
 	}
-
 	offset = frsrpc_dissect_element_CommPktChunk_type(tvb, offset, pinfo, tree, di, drep, &type);
 	offset = frsrpc_dissect_element_CommPktChunk_data(tvb, offset, pinfo, tree, di, drep, &type);
 	for (i=0; frsrpc_frsrpc_CommPktChunkType_vals[i].strptr; i++) {

@@ -43,7 +43,7 @@ frsrpc_dissect_struct_CommPktChunk(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
 		tree = proto_item_add_subtree(item, ett_frsrpc_frsrpc_CommPktChunk);
 	}
-	
+
 	offset = frsrpc_dissect_element_CommPktChunk_type(tvb, offset, pinfo, tree, di, drep, &type);
 
 	offset = frsrpc_dissect_element_CommPktChunk_data(tvb, offset, pinfo, tree, di, drep, &type);
@@ -96,7 +96,6 @@ frsrpc_dissect_enum_CommPktCommand(tvbuff_t *tvb _U_, int offset _U_, packet_inf
 static int
 frsrpc_dissect_struct_frsrpc_CommPktChunkCtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
-	guint32 nb_chunk = 0;
 	guint32 remaining = tvb_reported_length_remaining(tvb, offset);
 	int align_status = di->no_align;
 
@@ -104,7 +103,7 @@ frsrpc_dissect_struct_frsrpc_CommPktChunkCtr(tvbuff_t *tvb, int offset, packet_i
 		proto_item *item = proto_tree_add_item(tree, hf_index, tvb, offset, -1, TRUE);
 		proto_tree *subtree = proto_item_add_subtree(item, ett_ChunkCtr);
 		di->no_align = 1;
-		for(nb_chunk = 0; remaining > 0; nb_chunk++) {
+		while (remaining > 0) {
 			offset = frsrpc_dissect_struct_CommPktChunk(tvb, offset, pinfo, subtree, di, drep, hf_CommPktChunk, param);
 			remaining = tvb_reported_length_remaining(tvb, offset);
 		}
