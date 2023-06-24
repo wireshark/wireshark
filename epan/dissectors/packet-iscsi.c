@@ -20,8 +20,6 @@
 
 #include "config.h"
 
-#include <stdio.h>      /* for sscanf() */
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
@@ -29,6 +27,7 @@
 #include "packet-scsi.h"
 #include <epan/crc32-tvb.h>
 #include <wsutil/crc32.h>
+#include <wsutil/inet_addr.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/ws_roundup.h>
 
@@ -514,70 +513,81 @@ typedef struct _iscsi_conv_data {
    dissector for the address/port that TargetAddress points to.
    (it starts to be common to use redirectors to point to non-3260 ports)
 */
+static address null_address = ADDRESS_INIT_NONE;
+
 static void
-iscsi_dissect_TargetAddress(packet_info *pinfo, tvbuff_t* tvb, proto_tree *tree, char *val, guint offset)
+iscsi_dissect_TargetAddress(packet_info *pinfo, tvbuff_t* tvb, proto_tree *tree, guint offset)
 {
-    address *addr = NULL;
+    address addr = ADDRESS_INIT_NONE;
     guint16 port;
-    char *value = wmem_strdup(pinfo->pool, val);
-    char *p = NULL, *pgt = NULL;
+    int colon_offset;
+    int end_offset;
+    char *ip_str, *port_str;
 
-    if (value[0] == '[') {
-        /* this looks like an ipv6 address */
-        p = strchr(value, ']');
-        if (p != NULL) {
-            *p = 0;
-            p += 2;    /* skip past "]:" */
-
-            pgt = strchr(p, ',');
-            if (pgt != NULL) {
-                *pgt++ = 0;
-            }
-
-            /* can't handle ipv6 yet */
-        }
-    } else {
-        /* This is either a ipv4 address or a dns name */
-        int i0,i1,i2,i3;
-        if (sscanf(value, "%d.%d.%d.%d", &i0,&i1,&i2,&i3) == 4) {
-            /* looks like a ipv4 address */
-            p = strchr(value, ':');
-            if (p != NULL) {
-                char *addr_data;
-
-                *p++ = 0;
-
-                pgt = strchr(p, ',');
-                if (pgt != NULL) {
-                    *pgt++ = 0;
-                }
-
-                addr_data = (char *) wmem_alloc(pinfo->pool, 4);
-                addr_data[0] = i0;
-                addr_data[1] = i1;
-                addr_data[2] = i2;
-                addr_data[3] = i3;
-
-                addr = wmem_new(pinfo->pool, address);
-                addr->type = AT_IPv4;
-                addr->len  = 4;
-                addr->data = addr_data;
-
-                if (!ws_strtou16(p, NULL, &port)) {
-                    proto_tree_add_expert_format(tree, pinfo, &ei_iscsi_keyvalue_invalid,
-                        tvb, offset + (guint)strlen(value), (guint)strlen(p), "Invalid port: %s", p);
-                }
-            }
-
-        }
+    colon_offset = tvb_find_guint8(tvb, offset, -1, ':');
+    if (colon_offset == -1) {
+        /* RFC 7143 13.8 TargetAddress "If the TCP port is not specified,
+         * it is assumed to be the IANA-assigned default port for iSCSI",
+         * so nothing to do here.
+         */
+        return;
     }
 
+    /* We found a colon, so there's at least one byte and this won't fail. */
+    if (tvb_get_guint8(tvb, offset) == '[') {
+        offset++;
+        /* could be an ipv6 address */
+        end_offset = tvb_find_guint8(tvb, offset, -1, ']');
+        if (end_offset == -1) {
+            return;
+        }
+
+        /* look for the colon before the port, if any */
+        colon_offset = tvb_find_guint8(tvb, end_offset, -1, ':');
+        if (colon_offset == -1) {
+            return;
+        }
+
+        ws_in6_addr *ip6_addr = wmem_new(pinfo->pool, ws_in6_addr);
+        ip_str = tvb_get_string_enc(pinfo->pool, tvb, offset, end_offset - offset, ENC_ASCII);
+        if (ws_inet_pton6(ip_str, ip6_addr)) {
+            /* looks like a ipv6 address */
+            set_address(&addr, AT_IPv6, sizeof(ws_in6_addr), ip6_addr);
+        }
+
+    } else {
+        /* This is either a ipv4 address or a dns name */
+        ip_str = tvb_get_string_enc(pinfo->pool, tvb, offset, colon_offset - offset, ENC_ASCII);
+        ws_in4_addr *ip4_addr = wmem_new(pinfo->pool, ws_in4_addr);
+        if (ws_inet_pton4(ip_str, ip4_addr)) {
+            /* looks like a ipv4 address */
+            set_address(&addr, AT_IPv4, 4, ip4_addr);
+        }
+        /* else a DNS host name; we could, theoretically, try to use
+         * name resolution information in the capture to lookup the address.
+         */
+    }
+
+    /* Extract the port */
+    end_offset = tvb_find_guint8(tvb, colon_offset, -1, ',');
+    int port_len;
+    if (end_offset == -1) {
+        port_len = tvb_reported_length_remaining(tvb, colon_offset + 1);
+    } else {
+        port_len = end_offset - (colon_offset + 1);
+    }
+    port_str = tvb_get_string_enc(pinfo->pool, tvb, colon_offset + 1, port_len, ENC_ASCII);
+    if (!ws_strtou16(port_str, NULL, &port)) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_iscsi_keyvalue_invalid,
+            tvb, colon_offset + 1, port_len, "Invalid port: %s", port_str);
+        return;
+    }
 
     /* attach a conversation dissector to this address/port tuple */
-    if (addr && !pinfo->fd->visited) {
+    if (!addresses_equal(&addr, &null_address) && !pinfo->fd->visited) {
         conversation_t *conv;
 
-        conv = conversation_new(pinfo->num, addr, addr, CONVERSATION_TCP, port, port, NO_ADDR2|NO_PORT2);
+        conv = conversation_new(pinfo->num, &addr, &null_address, CONVERSATION_TCP, port, 0, NO_ADDR2|NO_PORT2);
         if (conv == NULL) {
             return;
         }
@@ -589,30 +599,24 @@ iscsi_dissect_TargetAddress(packet_info *pinfo, tvbuff_t* tvb, proto_tree *tree,
 static gint
 addTextKeys(packet_info *pinfo, proto_tree *tt, tvbuff_t *tvb, gint offset, guint32 text_len) {
     const gint limit = offset + text_len;
+    tvbuff_t *keyvalue_tvb;
+    int len, value_offset;
 
     while(offset < limit) {
-        char *key = NULL, *value = NULL;
-        gint len = tvb_strnlen(tvb, offset, limit - offset);
-
-        if(len == -1) {
-            len = limit - offset;
-        } else {
-            len = len + 1;
-        }
-
-        key = tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII);
-        if (key == NULL) {
+        /* RFC 7143 6.1 Text Format: "Every key=value pair, including the
+         * last or only pair in a LTDS, MUST be followed by one null (0x00)
+         * delimiter.
+         */
+        proto_tree_add_item_ret_length(tt, hf_iscsi_KeyValue, tvb, offset, -1, ENC_ASCII, &len);
+        keyvalue_tvb = tvb_new_subset_length(tvb, offset, len);
+        value_offset = tvb_find_guint8(keyvalue_tvb, 0, len, '=');
+        if (value_offset == -1) {
             break;
         }
-        value = strchr(key, '=');
-        if (value == NULL) {
-            break;
-        }
-        *value++ = 0;
+        value_offset++;
 
-        proto_tree_add_item(tt, hf_iscsi_KeyValue, tvb, offset, len, ENC_ASCII);
-        if (!strcmp(key, "TargetAddress")) {
-            iscsi_dissect_TargetAddress(pinfo, tvb, tt, value, offset + (guint)strlen("TargetAddress") + 2);
+        if (tvb_strneql(keyvalue_tvb, 0, "TargetAddress=", strlen("TargetAddress=")) == 0) {
+            iscsi_dissect_TargetAddress(pinfo, keyvalue_tvb, tt, value_offset);
         }
 
         offset += len;
@@ -2943,7 +2947,7 @@ proto_register_iscsi(void)
         },
         { &hf_iscsi_KeyValue,
           { "KeyValue", "iscsi.keyvalue",
-            FT_STRING, BASE_NONE, NULL, 0,
+            FT_STRINGZ, BASE_NONE, NULL, 0,
             "Key/value pair", HFILL }
         },
         { &hf_iscsi_Text_F,
