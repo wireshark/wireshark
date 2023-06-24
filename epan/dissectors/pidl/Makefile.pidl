@@ -42,6 +42,7 @@ SUBDIRS = \
 	nspi		\
 	rfr		\
 	samr		\
+	svcctl		\
 	winreg		\
 	winspool	\
 	witness		\
@@ -142,6 +143,10 @@ $(SUBDIRS) $(DONT_BUILD_SUBDIRS): %: ../packet-dcerpc-%.c ../packet-dcerpc-%.h
 
 ../packet-dcerpc-srvsvc.c \
 ../packet-dcerpc-srvsvc.h: srvsvc/srvsvc.idl srvsvc/srvsvc.cnf idl_types.h
+	cd $(<D) && $(PIDL) $(pidl_out) $(pidl_inc) -- $(<F)
+
+../packet-dcerpc-svcctl.c \
+../packet-dcerpc-svcctl.h: svcctl/svcctl.idl svcctl/svcctl.cnf
 	cd $(<D) && $(PIDL) $(pidl_out) $(pidl_inc) -- $(<F)
 
 ../packet-dcerpc-winreg.c \
