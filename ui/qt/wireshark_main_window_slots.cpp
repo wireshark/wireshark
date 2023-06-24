@@ -3528,6 +3528,60 @@ void WiresharkMainWindow::statCommandIOGraph(const char *, void *)
 
 // Telephony Menu
 
+void WiresharkMainWindow::connectTelephonyMenuActions()
+{
+    connect(main_ui_->actionTelephonyVoipCalls, &QAction::triggered, this, [=]() {
+                VoipCallsDialog *dialog = VoipCallsDialog::openVoipCallsDialogVoip(*this, capture_file_, packet_list_);
+                dialog->show();
+    });
+
+    connect(main_ui_->actionTelephonyIax2StreamAnalysis, &QAction::triggered, this, [=]() {
+        Iax2AnalysisDialog *iax2_analysis_dialog = new  Iax2AnalysisDialog(*this, capture_file_);
+        connect(iax2_analysis_dialog, &Iax2AnalysisDialog::goToPacket, this, [=](int packet) { packet_list_->goToPacket(packet); });
+        iax2_analysis_dialog->show();
+    });
+
+    connect(main_ui_->actionTelephonyISUPMessages, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("isup_msg"); });
+
+    connect(main_ui_->actionTelephonyGsmMapSummary, &QAction::triggered, this, [=]() {
+        GsmMapSummaryDialog *gms_dialog = new GsmMapSummaryDialog(*this, capture_file_);
+        gms_dialog->show();
+    });
+
+    connect(main_ui_->actionTelephonyLteMacStatistics, &QAction::triggered, this, [=]() { statCommandLteMacStatistics(NULL, NULL); });
+    connect(main_ui_->actionTelephonyLteRlcGraph, &QAction::triggered, this, [=]() {
+        // We don't yet know the channel.
+        launchRLCGraph(false, 0, 0, 0, 0, 0);
+    });
+    connect(main_ui_->actionTelephonyLteRlcStatistics, &QAction::triggered, this, [=]() { statCommandLteRlcStatistics(NULL, NULL); });
+
+    connect(main_ui_->actionTelephonyMtp3Summary, &QAction::triggered, this, [=]() {
+        Mtp3SummaryDialog *mtp3s_dialog = new Mtp3SummaryDialog(*this, capture_file_);
+        mtp3s_dialog->show();
+    });
+
+    connect(main_ui_->actionTelephonyOsmuxPacketCounter, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("osmux"); });
+
+    connect(main_ui_->actionTelephonyRtpStreams, &QAction::triggered, this, &WiresharkMainWindow::openTelephonyRtpStreamsDialog);
+    connect(main_ui_->actionTelephonyRtpStreamAnalysis, &QAction::triggered, this, &WiresharkMainWindow::openRtpStreamAnalysisDialog);
+    connect(main_ui_->actionTelephonyRtpPlayer, &QAction::triggered, this, &WiresharkMainWindow::openRtpPlayerDialog);
+
+    connect(main_ui_->actionTelephonyRTSPPacketCounter, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("rtsp"); });
+
+    connect(main_ui_->actionTelephonySMPPOperations, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("smpp_commands"); });
+
+    connect(main_ui_->actionTelephonyUCPMessages, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("ucp_messages"); });
+
+    connect(main_ui_->actionTelephonyF1APMessages, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("f1ap"); });
+
+    connect(main_ui_->actionTelephonyNGAPMessages, &QAction::triggered, this, [=]() { openStatisticsTreeDialog("ngap"); });
+
+    connect(main_ui_->actionTelephonySipFlows, &QAction::triggered, this, [=]() {
+        VoipCallsDialog *dialog = VoipCallsDialog::openVoipCallsDialogSip(*this, capture_file_, packet_list_);
+        dialog->show();
+    });
+}
+
 RtpPlayerDialog *WiresharkMainWindow::openTelephonyRtpPlayerDialog()
 {
     RtpPlayerDialog *dialog;
@@ -3543,26 +3597,6 @@ RtpPlayerDialog *WiresharkMainWindow::openTelephonyRtpPlayerDialog()
     return dialog;
 }
 
-VoipCallsDialog *WiresharkMainWindow::openTelephonyVoipCallsDialogVoip()
-{
-    VoipCallsDialog *dialog;
-
-    dialog = VoipCallsDialog::openVoipCallsDialogVoip(*this, capture_file_, packet_list_);
-    dialog->show();
-
-    return dialog;
-}
-
-VoipCallsDialog *WiresharkMainWindow::openTelephonyVoipCallsDialogSip()
-{
-    VoipCallsDialog *dialog;
-
-    dialog = VoipCallsDialog::openVoipCallsDialogSip(*this, capture_file_, packet_list_);
-    dialog->show();
-
-    return dialog;
-}
-
 RtpAnalysisDialog *WiresharkMainWindow::openTelephonyRtpAnalysisDialog()
 {
     RtpAnalysisDialog *dialog;
@@ -3573,30 +3607,6 @@ RtpAnalysisDialog *WiresharkMainWindow::openTelephonyRtpAnalysisDialog()
     return dialog;
 }
 
-void WiresharkMainWindow::on_actionTelephonyVoipCalls_triggered()
-{
-    openTelephonyVoipCallsDialogVoip();
-}
-
-void WiresharkMainWindow::on_actionTelephonyGsmMapSummary_triggered()
-{
-    GsmMapSummaryDialog *gms_dialog = new GsmMapSummaryDialog(*this, capture_file_);
-    gms_dialog->show();
-}
-
-void WiresharkMainWindow::on_actionTelephonyIax2StreamAnalysis_triggered()
-{
-    Iax2AnalysisDialog *iax2_analysis_dialog = new  Iax2AnalysisDialog(*this, capture_file_);
-    connect(iax2_analysis_dialog, SIGNAL(goToPacket(int)),
-            packet_list_, SLOT(goToPacket(int)));
-    iax2_analysis_dialog->show();
-}
-
-void WiresharkMainWindow::on_actionTelephonyISUPMessages_triggered()
-{
-    openStatisticsTreeDialog("isup_msg");
-}
-
 // -z mac-lte,stat
 void WiresharkMainWindow::statCommandLteMacStatistics(const char *arg, void *)
 {
@@ -3604,11 +3614,6 @@ void WiresharkMainWindow::statCommandLteMacStatistics(const char *arg, void *)
     connect(lte_mac_stats_dlg, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)),
             this, SIGNAL(filterAction(QString, FilterAction::Action, FilterAction::ActionType)));
     lte_mac_stats_dlg->show();
-}
-
-void WiresharkMainWindow::on_actionTelephonyLteMacStatistics_triggered()
-{
-    statCommandLteMacStatistics(NULL, NULL);
 }
 
 void WiresharkMainWindow::statCommandLteRlcStatistics(const char *arg, void *)
@@ -3622,11 +3627,6 @@ void WiresharkMainWindow::statCommandLteRlcStatistics(const char *arg, void *)
             this, SLOT(launchRLCGraph(bool, guint16, guint8, guint16, guint16, guint8)));
 
     lte_rlc_stats_dlg->show();
-}
-
-void WiresharkMainWindow::on_actionTelephonyLteRlcStatistics_triggered()
-{
-    statCommandLteRlcStatistics(NULL, NULL);
 }
 
 void WiresharkMainWindow::launchRLCGraph(bool channelKnown,
@@ -3643,39 +3643,15 @@ void WiresharkMainWindow::launchRLCGraph(bool channelKnown,
     lrg_dialog->show();
 }
 
-void WiresharkMainWindow::on_actionTelephonyLteRlcGraph_triggered()
-{
-    // We don't yet know the channel.
-    launchRLCGraph(false, 0, 0, 0, 0, 0);
-}
-
-void WiresharkMainWindow::on_actionTelephonyMtp3Summary_triggered()
-{
-    Mtp3SummaryDialog *mtp3s_dialog = new Mtp3SummaryDialog(*this, capture_file_);
-    mtp3s_dialog->show();
-}
-
-void WiresharkMainWindow::on_actionTelephonyOsmuxPacketCounter_triggered()
-{
-    openStatisticsTreeDialog("osmux");
-}
-
 RtpStreamDialog *WiresharkMainWindow::openTelephonyRtpStreamsDialog()
 {
-    RtpStreamDialog *dialog;
-
-    dialog = RtpStreamDialog::openRtpStreamDialog(*this, capture_file_, packet_list_);
+    RtpStreamDialog *dialog = RtpStreamDialog::openRtpStreamDialog(*this, capture_file_, packet_list_);
     dialog->show();
 
     return dialog;
 }
 
-void WiresharkMainWindow::on_actionTelephonyRtpStreams_triggered()
-{
-    openTelephonyRtpStreamsDialog();
-}
-
-void WiresharkMainWindow::on_actionTelephonyRtpStreamAnalysis_triggered()
+void WiresharkMainWindow::openRtpStreamAnalysisDialog()
 {
     QVector<rtpstream_id_t *> stream_ids;
     QString err;
@@ -3698,7 +3674,7 @@ void WiresharkMainWindow::on_actionTelephonyRtpStreamAnalysis_triggered()
     }
 }
 
-void WiresharkMainWindow::on_actionTelephonyRtpPlayer_triggered()
+void WiresharkMainWindow::openRtpPlayerDialog()
 {
     QVector<rtpstream_id_t *> stream_ids;
     QString err;
@@ -3721,36 +3697,6 @@ void WiresharkMainWindow::on_actionTelephonyRtpPlayer_triggered()
         rtpstream_id_free(id);
         g_free(id);
     }
-}
-
-void WiresharkMainWindow::on_actionTelephonyRTSPPacketCounter_triggered()
-{
-    openStatisticsTreeDialog("rtsp");
-}
-
-void WiresharkMainWindow::on_actionTelephonySMPPOperations_triggered()
-{
-    openStatisticsTreeDialog("smpp_commands");
-}
-
-void WiresharkMainWindow::on_actionTelephonyUCPMessages_triggered()
-{
-    openStatisticsTreeDialog("ucp_messages");
-}
-
-void WiresharkMainWindow::on_actionTelephonyF1APMessages_triggered()
-{
-	openStatisticsTreeDialog("f1ap");
-}
-
-void WiresharkMainWindow::on_actionTelephonyNGAPMessages_triggered()
-{
-    openStatisticsTreeDialog("ngap");
-}
-
-void WiresharkMainWindow::on_actionTelephonySipFlows_triggered()
-{
-    openTelephonyVoipCallsDialogSip();
 }
 
 // Wireless Menu
