@@ -623,6 +623,10 @@ Clang + Code Checks:
     - ninja asn1
     - git diff --exit-code ${CI_COMMIT_SHA} ..
     - printf "\e[0Ksection_end:%s:asn1_section\r\e[0K" "$( date +%s)"
+    - printf "\e[0Ksection_start:%s:pidl_section[collapsed=true]\r\e[0KRegenerating PIDL dissectors" "$( date +%s)"
+    - ninja pidl-dissectors
+    - git diff --exit-code ${CI_COMMIT_SHA} ..
+    - printf "\e[0Ksection_end:%s:pidl_section\r\e[0K" "$( date +%s)"
     - mkdir ../html
     - script --command ninja --flush --quiet --return ../tmp_clang_report.txt
     - ansi2txt < ../tmp_clang_report.txt > ../clang_report.txt
