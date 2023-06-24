@@ -1227,7 +1227,7 @@ mk_length(dfilter_t *df, dfvm_value_t *from_arg, dfvm_value_t *to_arg)
 	while (from_list) {
 		old_fv = from_list->data;
 		new_fv = fvalue_new(FT_UINT32);
-		fvalue_set_uinteger(new_fv, fvalue_length(old_fv));
+		fvalue_set_uinteger(new_fv, (guint32)fvalue_length2(old_fv));
 		to_list = g_slist_prepend(to_list, new_fv);
 
 		from_list = g_slist_next(from_list);

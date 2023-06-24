@@ -2662,23 +2662,23 @@ gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
                 gchar *ret;
                 const guint8 *bytes = fvalue_get_bytes_data(fi->value);
                 if (bytes) {
-                    dfilter_string = (gchar *)wmem_alloc(NULL, 3*fvalue_length(fi->value));
+                    dfilter_string = (gchar *)wmem_alloc(NULL, 3*fvalue_length2(fi->value));
                     switch (fi->hfinfo->display) {
                     case SEP_DOT:
-                        ret = bytes_to_hexstr_punct(dfilter_string, bytes, fvalue_length(fi->value), '.');
+                        ret = bytes_to_hexstr_punct(dfilter_string, bytes, fvalue_length2(fi->value), '.');
                         break;
                     case SEP_DASH:
-                        ret = bytes_to_hexstr_punct(dfilter_string, bytes, fvalue_length(fi->value), '-');
+                        ret = bytes_to_hexstr_punct(dfilter_string, bytes, fvalue_length2(fi->value), '-');
                         break;
                     case SEP_COLON:
-                        ret = bytes_to_hexstr_punct(dfilter_string, bytes, fvalue_length(fi->value), ':');
+                        ret = bytes_to_hexstr_punct(dfilter_string, bytes, fvalue_length2(fi->value), ':');
                         break;
                     case SEP_SPACE:
-                        ret = bytes_to_hexstr_punct(dfilter_string, bytes, fvalue_length(fi->value), ' ');
+                        ret = bytes_to_hexstr_punct(dfilter_string, bytes, fvalue_length2(fi->value), ' ');
                         break;
                     case BASE_NONE:
                     default:
-                        ret = bytes_to_hexstr(dfilter_string, bytes, fvalue_length(fi->value));
+                        ret = bytes_to_hexstr(dfilter_string, bytes, fvalue_length2(fi->value));
                         break;
                     }
                     *ret = '\0';

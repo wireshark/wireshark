@@ -2647,7 +2647,7 @@ meta_tag_expected_length(erf_meta_tag_info_t *tag_info) {
       break;
 
     default:
-      expected_length = ftype_length(ftype); /* Returns 0 if unknown */
+      expected_length = ftype_wire_size(ftype); /* Returns 0 if unknown */
       break;
   }
 
@@ -2917,7 +2917,7 @@ dissect_meta_record_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       case ERF_META_TAG_ns_host_ib_lid:
       case ERF_META_TAG_ns_host_fc_id:
       {
-        int addr_len = ftype_length(tag_ft);
+        int addr_len = ftype_wire_size(tag_ft);
 
         DISSECTOR_ASSERT(tag_info->extra);
 

@@ -6505,7 +6505,7 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 			tmp_str = format_bytes_hfinfo(NULL,
 				hfinfo,
 				fvalue_get_bytes_data(finfo->value),
-				fvalue_length(finfo->value));
+				(guint)fvalue_length2(finfo->value));
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
 			break;
@@ -6695,21 +6695,21 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 
 		case FT_REL_OID:
 			bytes = fvalue_get_bytes_data(finfo->value);
-			tmp_str = rel_oid_resolved_from_encoded(NULL, bytes, fvalue_length(finfo->value));
+			tmp_str = rel_oid_resolved_from_encoded(NULL, bytes, (int)fvalue_length2(finfo->value));
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
 			break;
 
 		case FT_OID:
 			bytes = fvalue_get_bytes_data(finfo->value);
-			tmp_str = oid_resolved_from_encoded(NULL, bytes, fvalue_length(finfo->value));
+			tmp_str = oid_resolved_from_encoded(NULL, bytes, (int)fvalue_length2(finfo->value));
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
 			break;
 
 		case FT_SYSTEM_ID:
 			bytes = fvalue_get_bytes_data(finfo->value);
-			tmp_str = print_system_id(NULL, bytes, fvalue_length(finfo->value));
+			tmp_str = print_system_id(NULL, bytes, (int)fvalue_length2(finfo->value));
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
 			break;
@@ -6734,7 +6734,7 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 			if (!tmp_str) {
 				/* Default to show as bytes */
 				bytes = fvalue_get_bytes_data(finfo->value);
-				tmp_str = bytes_to_str(NULL, bytes, fvalue_length(finfo->value));
+				tmp_str = bytes_to_str(NULL, bytes, fvalue_length2(finfo->value));
 			}
 			label_len = protoo_strlcpy(display_label_str, tmp_str, label_str_size);
 			wmem_free(NULL, tmp_str);
@@ -9267,7 +9267,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_UINT_BYTES:
 			tmp = format_bytes_hfinfo(NULL, hfinfo,
 			    fvalue_get_bytes_data(fi->value),
-			    fvalue_length(fi->value));
+			    (guint)fvalue_length2(fi->value));
 			label_fill(label_str, 0, hfinfo, tmp);
 			wmem_free(NULL, tmp);
 			break;
@@ -9447,8 +9447,8 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_OID:
 			bytes = fvalue_get_bytes_data(fi->value);
-			name = oid_resolved_from_encoded(NULL, bytes, fvalue_length(fi->value));
-			tmp = oid_encoded2string(NULL, bytes, fvalue_length(fi->value));
+			name = oid_resolved_from_encoded(NULL, bytes, (gint)fvalue_length2(fi->value));
+			tmp = oid_encoded2string(NULL, bytes, (guint)fvalue_length2(fi->value));
 			if (name) {
 				label_fill_descr(label_str, 0, hfinfo, tmp, name);
 				wmem_free(NULL, name);
@@ -9460,8 +9460,8 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_REL_OID:
 			bytes = fvalue_get_bytes_data(fi->value);
-			name = rel_oid_resolved_from_encoded(NULL, bytes, fvalue_length(fi->value));
-			tmp = rel_oid_encoded2string(NULL, bytes, fvalue_length(fi->value));
+			name = rel_oid_resolved_from_encoded(NULL, bytes, (gint)fvalue_length2(fi->value));
+			tmp = rel_oid_encoded2string(NULL, bytes, (guint)fvalue_length2(fi->value));
 			if (name) {
 				label_fill_descr(label_str, 0, hfinfo, tmp, name);
 				wmem_free(NULL, name);
@@ -9473,7 +9473,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_SYSTEM_ID:
 			bytes = fvalue_get_bytes_data(fi->value);
-			tmp = print_system_id(NULL, bytes, fvalue_length(fi->value));
+			tmp = print_system_id(NULL, bytes, (int)fvalue_length2(fi->value));
 			label_fill(label_str, 0, hfinfo, tmp);
 			wmem_free(NULL, tmp);
 			break;
@@ -10560,7 +10560,7 @@ proto_registrar_get_length(const int n)
 	header_field_info *hfinfo;
 
 	PROTO_REGISTRAR_GET_NTH(n, hfinfo);
-	return ftype_length(hfinfo->type);
+	return ftype_wire_size(hfinfo->type);
 }
 
 /* Looks for a protocol or a field in a proto_tree. Returns TRUE if
@@ -12156,7 +12156,7 @@ proto_tree_add_bitmask_with_flags_ret_uint64(proto_tree *parent_tree, tvbuff_t *
 
 	PROTO_REGISTRAR_GET_NTH(hf_hdr,hf);
 	DISSECTOR_ASSERT_FIELD_TYPE_IS_INTEGRAL(hf);
-	len = ftype_length(hf->type);
+	len = ftype_wire_size(hf->type);
 	value = get_uint64_value(parent_tree, tvb, offset, len, encoding);
 
 	if (parent_tree) {
@@ -12192,7 +12192,7 @@ proto_tree_add_bitmask_with_flags(proto_tree *parent_tree, tvbuff_t *tvb, const 
 	DISSECTOR_ASSERT_FIELD_TYPE_IS_INTEGRAL(hf);
 
 	if (parent_tree) {
-		len = ftype_length(hf->type);
+		len = ftype_wire_size(hf->type);
 		item = proto_tree_add_item(parent_tree, hf_hdr, tvb, offset, len, encoding);
 		value = get_uint64_value(parent_tree, tvb, offset, len, encoding);
 		proto_item_add_bitmask_tree(item, tvb, offset, len, ett, fields,
@@ -12225,7 +12225,7 @@ proto_tree_add_bitmask_value_with_flags(proto_tree *parent_tree, tvbuff_t *tvb, 
 	DISSECTOR_ASSERT_FIELD_TYPE_IS_INTEGRAL(hf);
 	/* the proto_tree_add_uint/_uint64() calls below
 	   will fail if tvb==NULL and len!=0 */
-	len = tvb ? ftype_length(hf->type) : 0;
+	len = tvb ? ftype_wire_size(hf->type) : 0;
 
 	if (parent_tree) {
 		if (len <= 4)
@@ -12309,9 +12309,9 @@ proto_tree_add_bitmask_len(proto_tree *parent_tree, tvbuff_t *tvb,
 	DISSECTOR_ASSERT_FIELD_TYPE_IS_INTEGRAL(hf);
 
 	decodable_offset = offset;
-	decodable_len = MIN(len, (guint) ftype_length(hf->type));
+	decodable_len = MIN(len, (guint) ftype_wire_size(hf->type));
 
-	/* If we are ftype_length-limited,
+	/* If we are ftype_wire_size-limited,
 	 * make sure we decode as many LSBs as possible.
 	 */
 	if (encoding == ENC_BIG_ENDIAN) {

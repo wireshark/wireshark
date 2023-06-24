@@ -143,6 +143,12 @@ bitwise_and(fvalue_t *dst, const fvalue_t *fv_a, const fvalue_t *fv_b, char **er
 	return FT_OK;
 }
 
+static guint
+len(fvalue_t *fv _U_)
+{
+	return 4;
+}
+
 static void
 slice(fvalue_t *fv, GByteArray *bytes, guint offset, guint length)
 {
@@ -196,7 +202,7 @@ ftype_register_ipv4(void)
 		ipv4_hash,
 		is_zero,
 		NULL,
-		NULL,
+		len,
 		slice,
 		bitwise_and,
 		NULL,				/* unary_minus */

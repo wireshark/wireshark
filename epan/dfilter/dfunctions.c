@@ -280,6 +280,20 @@ ul_semcheck_is_field(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype _U
 }
 
 static ftenum_t
+ul_semcheck_can_length(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,
+                            GSList *param_list, df_loc_t func_loc)
+{
+    ws_assert(g_slist_length(param_list) == 1);
+    stnode_t *st_node = param_list->data;
+
+    ul_semcheck_is_field(dfw, func_name, lhs_ftype, param_list, func_loc);
+    if (!ftype_can_length(sttype_field_ftenum(st_node))) {
+        FAIL(dfw, st_node, "Field %s does not support the %s() function", stnode_todisplay(st_node), func_name);
+    }
+    return FT_UINT32;
+}
+
+static ftenum_t
 ul_semcheck_string_param(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype _U_,
                             GSList *param_list, df_loc_t func_loc _U_)
 {
@@ -473,7 +487,7 @@ df_functions[] = {
     { "lower",  df_func_lower,  1, 1, ul_semcheck_is_field_string },
     { "upper",  df_func_upper,  1, 1, ul_semcheck_is_field_string },
     /* Length function is implemented as a DFVM instruction. */
-    { "len",    NULL,           1, 1, ul_semcheck_is_field },
+    { "len",    NULL,           1, 1, ul_semcheck_can_length },
     { "count",  df_func_count,  1, 1, ul_semcheck_is_field },
     { "string", df_func_string, 1, 1, ul_semcheck_string_param },
     { "max",    df_func_max,    1, 0, ul_semcheck_compare },

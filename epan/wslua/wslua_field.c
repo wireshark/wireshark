@@ -179,7 +179,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
             {
                 ByteArray ba = g_byte_array_new();
                 g_byte_array_append(ba, fvalue_get_bytes_data(fi->ws_fi->value),
-                                    fvalue_length(fi->ws_fi->value));
+                                    (guint)fvalue_length2(fi->ws_fi->value));
                 pushByteArray(L,ba);
                 return 1;
             }

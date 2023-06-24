@@ -166,12 +166,21 @@ ftype_pretty_name(enum ftenum ftype)
 }
 
 int
-ftype_length(enum ftenum ftype)
+ftype_wire_size(enum ftenum ftype)
 {
 	ftype_t	*ft;
 
 	FTYPE_LOOKUP(ftype, ft);
 	return ft->wire_size;
+}
+
+gboolean
+ftype_can_length(enum ftenum ftype)
+{
+	ftype_t	*ft;
+
+	FTYPE_LOOKUP(ftype, ft);
+	return ft->len ? TRUE : FALSE;
 }
 
 gboolean
@@ -505,13 +514,14 @@ fvalue_type_name(const fvalue_t *fv)
 }
 
 
-guint
-fvalue_length(fvalue_t *fv)
+gsize
+fvalue_length2(fvalue_t *fv)
 {
-	if (fv->ftype->len)
-		return fv->ftype->len(fv);
-	else
-		return fv->ftype->wire_size;
+	if (!fv->ftype->len) {
+		ws_critical("fv->ftype->len is NULL");
+		return 0;
+	}
+	return fv->ftype->len(fv);
 }
 
 char *
@@ -591,7 +601,7 @@ slice_func(gpointer data, gpointer user_data)
 	ending = drange_node_get_ending(drnode);
 
 	fv = slice_data->fv;
-	field_length = fvalue_length(fv);
+	field_length = (guint)fvalue_length2(fv);
 
 	/* Check for negative start */
 	if (start_offset < 0) {

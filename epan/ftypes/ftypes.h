@@ -198,7 +198,10 @@ ftype_pretty_name(ftenum_t ftype);
 
 /* Returns length of field in packet, or 0 if not determinable/defined. */
 int
-ftype_length(ftenum_t ftype);
+ftype_wire_size(ftenum_t ftype);
+
+gboolean
+ftype_can_length(enum ftenum ftype);
 
 WS_DLL_PUBLIC
 gboolean
@@ -482,8 +485,8 @@ fvalue_is_zero(const fvalue_t *a);
 gboolean
 fvalue_is_negative(const fvalue_t *a);
 
-guint
-fvalue_length(fvalue_t *fv);
+gsize
+fvalue_length2(fvalue_t *fv);
 
 fvalue_t*
 fvalue_slice(fvalue_t *fv, drange_t *dr);

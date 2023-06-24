@@ -52509,7 +52509,7 @@ static void asterix_build_subtree (tvbuff_t *tvb, packet_info *pinfo, unsigned o
                             // instead one would have to use
                             //   { &hf_020_050_V, ... FT_UINT8, ... 0x80, ...
                             //
-                            bytes_in_type = ftype_length (hfi->type);
+                            bytes_in_type = ftype_wire_size(hfi->type);
                             if (bytes_in_type > 1)
                             {
                                 byte_offset_of_mask = bytes_in_type - (ws_ilog2 (hfi->bitmask) + 8)/8;
