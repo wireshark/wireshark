@@ -6696,11 +6696,17 @@ netlogon_dissect_netrserverauthenticate3_rqst(tvbuff_t *tvb, int offset,
     guint32 flags;
     offset = netlogon_dissect_LOGONSRV_HANDLE(tvb, offset,
                                               pinfo, tree, di, drep);
+    ALIGN_TO_5_BYTES
+
     offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
                                           NDR_POINTER_REF, "Acct Name", hf_netlogon_acct_name, 0);
 
+    ALIGN_TO_5_BYTES
+
     offset = netlogon_dissect_NETLOGON_SECURE_CHANNEL_TYPE(tvb, offset,
                                                            pinfo, tree, di, drep);
+
+    ALIGN_TO_5_BYTES
 
     offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, di, drep,
                                           NDR_POINTER_REF, "Computer Name", hf_netlogon_computer_name, 0);
