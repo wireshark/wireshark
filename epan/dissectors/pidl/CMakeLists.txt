@@ -28,6 +28,7 @@ set(PIDL_DISSECTOR_NAMES
 	rfr
 	samr
 	#srvsvc
+	svcctl
 	winreg
 	winspool
 	witness

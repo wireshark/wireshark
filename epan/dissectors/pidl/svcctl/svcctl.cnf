@@ -84,7 +84,7 @@ svcctl_dissect_EnumServicesStatusW_response(tvbuff_t *tvb, int offset, packet_in
 	offset = dissect_ndr_uint3264(tvb, offset, pinfo, tr, di, drep, hf_svcctl_service_buffer_size, &buffer_size);
 	services_buffer_offset = offset;
 
-	offset += buffer_size;
+	offset += (int)buffer_size;
 
 	proto_item_set_len(item, offset-payload_starting_offset);
 
