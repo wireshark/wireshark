@@ -117,6 +117,7 @@ DIAG_ON(frame-larger-than=)
 #include "filter_dialog.h"
 #include "firewall_rules_dialog.h"
 #include "follow_stream_action.h"
+#include "follow_stream_dialog.h"
 #include "funnel_statistics.h"
 #include "gsm_map_summary_dialog.h"
 #include "iax2_analysis_dialog.h"
@@ -3325,11 +3326,6 @@ void WiresharkMainWindow::statCommandWlanStatistics(const char *arg, void *)
     wlan_stats_dlg->show();
 }
 
-void WiresharkMainWindow::on_actionWirelessWlanStatistics_triggered()
-{
-    statCommandWlanStatistics(NULL, NULL);
-}
-
 // -z expert
 void WiresharkMainWindow::statCommandExpertInfo(const char *, void *)
 {
@@ -3701,48 +3697,51 @@ void WiresharkMainWindow::openRtpPlayerDialog()
 
 // Wireless Menu
 
-void WiresharkMainWindow::on_actionBluetoothATT_Server_Attributes_triggered()
+void WiresharkMainWindow::connectWirelessMenuActions()
 {
-    BluetoothAttServerAttributesDialog *bluetooth_att_sever_attributes_dialog = new BluetoothAttServerAttributesDialog(*this, capture_file_);
-    connect(bluetooth_att_sever_attributes_dialog, SIGNAL(goToPacket(int)),
-            packet_list_, SLOT(goToPacket(int)));
-    connect(bluetooth_att_sever_attributes_dialog, SIGNAL(updateFilter(QString, bool)),
-            this, SLOT(filterPackets(QString, bool)));
-    bluetooth_att_sever_attributes_dialog->show();
-}
+    connect(main_ui_->actionBluetoothATT_Server_Attributes, &QAction::triggered, this, [=]() {
+        BluetoothAttServerAttributesDialog *bluetooth_att_sever_attributes_dialog = new BluetoothAttServerAttributesDialog(*this, capture_file_);
+        connect(bluetooth_att_sever_attributes_dialog, SIGNAL(goToPacket(int)),
+                packet_list_, SLOT(goToPacket(int)));
+        connect(bluetooth_att_sever_attributes_dialog, SIGNAL(updateFilter(QString, bool)),
+                this, SLOT(filterPackets(QString, bool)));
+        bluetooth_att_sever_attributes_dialog->show();
+    });
 
-void WiresharkMainWindow::on_actionBluetoothDevices_triggered()
-{
-    BluetoothDevicesDialog *bluetooth_devices_dialog = new BluetoothDevicesDialog(*this, capture_file_, packet_list_);
-    connect(bluetooth_devices_dialog, SIGNAL(goToPacket(int)),
-            packet_list_, SLOT(goToPacket(int)));
-    connect(bluetooth_devices_dialog, SIGNAL(updateFilter(QString, bool)),
-            this, SLOT(filterPackets(QString, bool)));
-    bluetooth_devices_dialog->show();
-}
+    connect(main_ui_->actionBluetoothDevices, &QAction::triggered, this, [=]() {
+        BluetoothDevicesDialog *bluetooth_devices_dialog = new BluetoothDevicesDialog(*this, capture_file_, packet_list_);
+        connect(bluetooth_devices_dialog, SIGNAL(goToPacket(int)),
+                packet_list_, SLOT(goToPacket(int)));
+        connect(bluetooth_devices_dialog, SIGNAL(updateFilter(QString, bool)),
+                this, SLOT(filterPackets(QString, bool)));
+        bluetooth_devices_dialog->show();
+    });
 
-void WiresharkMainWindow::on_actionBluetoothHCI_Summary_triggered()
-{
-    BluetoothHciSummaryDialog *bluetooth_hci_summary_dialog = new BluetoothHciSummaryDialog(*this, capture_file_);
-    connect(bluetooth_hci_summary_dialog, SIGNAL(goToPacket(int)),
-            packet_list_, SLOT(goToPacket(int)));
-    connect(bluetooth_hci_summary_dialog, SIGNAL(updateFilter(QString, bool)),
-            this, SLOT(filterPackets(QString, bool)));
-    bluetooth_hci_summary_dialog->show();
+    connect(main_ui_->actionBluetoothHCI_Summary, &QAction::triggered, this, [=]() {
+        BluetoothHciSummaryDialog *bluetooth_hci_summary_dialog = new BluetoothHciSummaryDialog(*this, capture_file_);
+        connect(bluetooth_hci_summary_dialog, SIGNAL(goToPacket(int)),
+                packet_list_, SLOT(goToPacket(int)));
+        connect(bluetooth_hci_summary_dialog, SIGNAL(updateFilter(QString, bool)),
+                this, SLOT(filterPackets(QString, bool)));
+        bluetooth_hci_summary_dialog->show();
+    });
+
+    connect(main_ui_->actionWirelessWlanStatistics, &QAction::triggered, this, [=]() { statCommandWlanStatistics(NULL, NULL); });
 }
 
 // Tools Menu
 
-void WiresharkMainWindow::on_actionToolsFirewallAclRules_triggered()
+void WiresharkMainWindow::connectToolsMenuActions()
 {
-    FirewallRulesDialog *firewall_rules_dialog = new FirewallRulesDialog(*this, capture_file_);
-    firewall_rules_dialog->show();
-}
+  connect(main_ui_->actionToolsFirewallAclRules, &QAction::triggered, this, [=]() {
+        FirewallRulesDialog *firewall_rules_dialog = new FirewallRulesDialog(*this, capture_file_);
+        firewall_rules_dialog->show();
+    });
 
-void WiresharkMainWindow::on_actionToolsCredentials_triggered()
-{
-    CredentialsDialog *credentials_dialog = new CredentialsDialog(*this, capture_file_, packet_list_);
-    credentials_dialog->show();
+    connect(main_ui_->actionToolsCredentials, &QAction::triggered, this, [=]() {
+        CredentialsDialog *credentials_dialog = new CredentialsDialog(*this, capture_file_, packet_list_);
+        credentials_dialog->show();
+    });
 }
 
 // Help Menu
@@ -3910,7 +3909,7 @@ void WiresharkMainWindow::showEndpointsDialog()
     endp_dialog->show();
 }
 
-void WiresharkMainWindow::externalMenuItem_triggered()
+void WiresharkMainWindow::externalMenuItemTriggered()
 {
     QAction * triggerAction = NULL;
     QVariant v;

@@ -642,6 +642,8 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connectAnalyzeMenuActions();
     connectStatisticsMenuActions();
     connectTelephonyMenuActions();
+    connectWirelessMenuActions();
+    connectToolsMenuActions();
 
     connect(packet_list_, SIGNAL(packetDissectionChanged()),
             this, SLOT(redissectPackets()));
@@ -2918,8 +2920,7 @@ void WiresharkMainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu
             itemAction = subMenu->addAction(item->name);
             itemAction->setData(QVariant::fromValue(static_cast<void *>(item)));
             itemAction->setText(item->label);
-            connect(itemAction, SIGNAL(triggered()),
-                    this, SLOT(externalMenuItem_triggered()));
+            connect(itemAction, &QAction::triggered, this, &WiresharkMainWindow::externalMenuItemTriggered);
         }
 
         /* Iterate Loop */

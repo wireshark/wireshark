@@ -67,11 +67,9 @@
 
 #include "capture_file.h"
 #include "capture_file_dialog.h"
-#include "print_dialog.h"
 #include "capture_file_properties_dialog.h"
 #include <ui/qt/utils/field_information.h>
 #include <ui/qt/widgets/display_filter_combo.h>
-#include "follow_stream_dialog.h"
 #include "main_window.h"
 
 class AccordionFrame;
@@ -469,7 +467,7 @@ private slots:
     void openStatisticsTreeDialog(const gchar *abbr);
     void statCommandIOGraph(const char *, void *);
 
-    void externalMenuItem_triggered();
+    void externalMenuItemTriggered();
 
     void on_actionContextWikiProtocolPage_triggered();
     void on_actionContextFilterFieldReference_triggered();

@@ -3231,7 +3231,7 @@ void LograyMainWindow::showEndpointsDialog()
     endp_dialog->show();
 }
 
-void LograyMainWindow::externalMenuItem_triggered()
+void LograyMainWindow::externalMenuItemTriggered()
 {
     QAction * triggerAction = NULL;
     QVariant v;
