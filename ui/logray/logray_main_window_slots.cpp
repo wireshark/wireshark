@@ -3175,7 +3175,7 @@ void LograyMainWindow::resetPreviousFocus() {
     previous_focus_ = NULL;
 }
 
-void LograyMainWindow::on_goToCancel_clicked()
+void LograyMainWindow::goToCancelClicked()
 {
     main_ui_->goToFrame->animatedHide();
     if (previous_focus_) {
@@ -3185,16 +3185,16 @@ void LograyMainWindow::on_goToCancel_clicked()
     }
 }
 
-void LograyMainWindow::on_goToGo_clicked()
+void LograyMainWindow::goToGoClicked()
 {
     gotoFrame(main_ui_->goToLineEdit->text().toInt());
 
-    on_goToCancel_clicked();
+    goToCancelClicked();
 }
 
-void LograyMainWindow::on_goToLineEdit_returnPressed()
+void LograyMainWindow::goToLineEditReturnPressed()
 {
-    on_goToGo_clicked();
+    goToGoClicked();
 }
 
 void LograyMainWindow::showResolvedAddressesDialog()

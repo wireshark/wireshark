@@ -3850,7 +3850,7 @@ void WiresharkMainWindow::resetPreviousFocus() {
     previous_focus_ = NULL;
 }
 
-void WiresharkMainWindow::on_goToCancel_clicked()
+void WiresharkMainWindow::goToCancelClicked()
 {
     main_ui_->goToFrame->animatedHide();
     if (previous_focus_) {
@@ -3860,16 +3860,16 @@ void WiresharkMainWindow::on_goToCancel_clicked()
     }
 }
 
-void WiresharkMainWindow::on_goToGo_clicked()
+void WiresharkMainWindow::goToGoClicked()
 {
     gotoFrame(main_ui_->goToLineEdit->text().toInt());
 
-    on_goToCancel_clicked();
+    goToCancelClicked();
 }
 
-void WiresharkMainWindow::on_goToLineEdit_returnPressed()
+void WiresharkMainWindow::goToLineEditReturnPressed()
 {
-    on_goToGo_clicked();
+    goToGoClicked();
 }
 
 void WiresharkMainWindow::showResolvedAddressesDialog()

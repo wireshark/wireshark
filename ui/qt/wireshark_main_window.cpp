@@ -492,6 +492,9 @@ WiresharkMainWindow::WiresharkMainWindow(QWidget *parent) :
     main_ui_->goToGo->setAttribute(Qt::WA_MacSmallSize, true);
     main_ui_->goToCancel->setAttribute(Qt::WA_MacSmallSize, true);
 
+    connect(main_ui_->goToGo, &QPushButton::pressed, this, &WiresharkMainWindow::goToGoClicked);
+    connect(main_ui_->goToCancel, &QPushButton::pressed, this, &WiresharkMainWindow::goToCancelClicked);
+
     main_ui_->actionEditPreferences->setMenuRole(QAction::PreferencesRole);
 
 #endif // Q_OS_MAC
@@ -898,9 +901,9 @@ void WiresharkMainWindow::keyPressEvent(QKeyEvent *event) {
     if (mainApp->focusWidget() == main_ui_->goToLineEdit) {
         if (event->modifiers() == Qt::NoModifier) {
             if (event->key() == Qt::Key_Escape) {
-                on_goToCancel_clicked();
+                goToCancelClicked();
             } else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
-                on_goToGo_clicked();
+                goToGoClicked();
             }
         }
         return; // goToLineEdit didn't want it and we don't either.

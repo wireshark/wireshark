@@ -489,9 +489,9 @@ private slots:
     void checkForUpdates();
 #endif
 
-    void on_goToCancel_clicked();
-    void on_goToGo_clicked();
-    void on_goToLineEdit_returnPressed();
+    void goToCancelClicked();
+    void goToGoClicked();
+    void goToLineEditReturnPressed();
 
     void connectStatisticsMenuActions();
 
