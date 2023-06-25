@@ -611,6 +611,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connectCaptureMenuActions();
     connectAnalyzeMenuActions();
     connectStatisticsMenuActions();
+    connectHelpMenuActions();
 
     connect(packet_list_, SIGNAL(packetDissectionChanged()),
             this, SLOT(redissectPackets()));

@@ -3071,80 +3071,41 @@ void LograyMainWindow::statCommandIOGraph(const char *, void *)
 // XXX No log tools yet
 
 // Help Menu
-void LograyMainWindow::on_actionHelpContents_triggered() {
+void LograyMainWindow::connectHelpMenuActions()
+{
+    connect(main_ui_->actionHelpAbout, &QAction::triggered, this, [=]() {
+        AboutDialog *about_dialog = new AboutDialog(this);
 
-    mainApp->helpTopicAction(HELP_CONTENT);
-}
+        if (about_dialog->isMinimized() == true)
+        {
+            about_dialog->showNormal();
+        }
+        else
+        {
+            about_dialog->show();
+        }
 
-void LograyMainWindow::on_actionHelpMPWireshark_triggered() {
+        about_dialog->raise();
+        about_dialog->activateWindow();
+    });
 
-    mainApp->helpTopicAction(LOCALPAGE_MAN_WIRESHARK);
-}
-
-void LograyMainWindow::on_actionHelpMPWireshark_Filter_triggered() {
-    mainApp->helpTopicAction(LOCALPAGE_MAN_WIRESHARK_FILTER);
-}
-
-void LograyMainWindow::on_actionHelpMPCapinfos_triggered() {
-    mainApp->helpTopicAction(LOCALPAGE_MAN_CAPINFOS);
-}
-
-void LograyMainWindow::on_actionHelpMPDumpcap_triggered() {
-    mainApp->helpTopicAction(LOCALPAGE_MAN_DUMPCAP);
-}
-
-void LograyMainWindow::on_actionHelpMPEditcap_triggered() {
-    mainApp->helpTopicAction(LOCALPAGE_MAN_EDITCAP);
-}
-
-void LograyMainWindow::on_actionHelpMPMergecap_triggered() {
-    mainApp->helpTopicAction(LOCALPAGE_MAN_MERGECAP);
-}
-
-void LograyMainWindow::on_actionHelpMPRawshark_triggered() {
-    mainApp->helpTopicAction(LOCALPAGE_MAN_RAWSHARK);
-}
-
-void LograyMainWindow::on_actionHelpMPReordercap_triggered() {
-    mainApp->helpTopicAction(LOCALPAGE_MAN_REORDERCAP);
-}
-
-void LograyMainWindow::on_actionHelpMPText2pcap_triggered() {
-    mainApp->helpTopicAction(LOCALPAGE_MAN_TEXT2PCAP);
-}
-
-void LograyMainWindow::on_actionHelpMPTShark_triggered() {
-    mainApp->helpTopicAction(LOCALPAGE_MAN_TSHARK);
-}
-
-void LograyMainWindow::on_actionHelpWebsite_triggered() {
-
-    mainApp->helpTopicAction(ONLINEPAGE_HOME);
-}
-
-void LograyMainWindow::on_actionHelpFAQ_triggered() {
-
-    mainApp->helpTopicAction(ONLINEPAGE_FAQ);
-}
-
-void LograyMainWindow::on_actionHelpAsk_triggered() {
-
-    mainApp->helpTopicAction(ONLINEPAGE_ASK);
-}
-
-void LograyMainWindow::on_actionHelpDownloads_triggered() {
-
-    mainApp->helpTopicAction(ONLINEPAGE_DOWNLOAD);
-}
-
-void LograyMainWindow::on_actionHelpWiki_triggered() {
-
-    mainApp->helpTopicAction(ONLINEPAGE_WIKI);
-}
-
-void LograyMainWindow::on_actionHelpSampleCaptures_triggered() {
-
-    mainApp->helpTopicAction(ONLINEPAGE_SAMPLE_FILES);
+    connect(main_ui_->actionHelpContents, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(HELP_CONTENT); });
+    connect(main_ui_->actionHelpMPWireshark, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(LOCALPAGE_MAN_WIRESHARK); });
+    connect(main_ui_->actionHelpMPWireshark_Filter, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(LOCALPAGE_MAN_WIRESHARK_FILTER); });
+    connect(main_ui_->actionHelpMPCapinfos, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(LOCALPAGE_MAN_CAPINFOS); });
+    connect(main_ui_->actionHelpMPDumpcap, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(LOCALPAGE_MAN_DUMPCAP); });
+    connect(main_ui_->actionHelpMPEditcap, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(LOCALPAGE_MAN_EDITCAP); });
+    connect(main_ui_->actionHelpMPMergecap, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(LOCALPAGE_MAN_MERGECAP); });
+    connect(main_ui_->actionHelpMPRawshark, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(LOCALPAGE_MAN_RAWSHARK); });
+    connect(main_ui_->actionHelpMPReordercap, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(LOCALPAGE_MAN_REORDERCAP); });
+    connect(main_ui_->actionHelpMPText2pcap, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(LOCALPAGE_MAN_TEXT2PCAP); });
+    connect(main_ui_->actionHelpMPTShark, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(LOCALPAGE_MAN_TSHARK); });
+    connect(main_ui_->actionHelpWebsite, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(ONLINEPAGE_HOME); });
+    connect(main_ui_->actionHelpFAQ, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(ONLINEPAGE_FAQ); });
+    connect(main_ui_->actionHelpAsk, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(ONLINEPAGE_ASK); });
+    connect(main_ui_->actionHelpDownloads, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(ONLINEPAGE_DOWNLOAD); });
+    connect(main_ui_->actionHelpWiki, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(ONLINEPAGE_WIKI); });
+    connect(main_ui_->actionHelpSampleCaptures, &QAction::triggered, this, [=]() { mainApp->helpTopicAction(ONLINEPAGE_SAMPLE_FILES); });
 }
 
 #ifdef HAVE_SOFTWARE_UPDATE
@@ -3153,23 +3114,6 @@ void LograyMainWindow::checkForUpdates()
     software_update_check();
 }
 #endif
-
-void LograyMainWindow::on_actionHelpAbout_triggered()
-{
-    AboutDialog *about_dialog = new AboutDialog(this);
-
-    if (about_dialog->isMinimized() == true)
-    {
-        about_dialog->showNormal();
-    }
-    else
-    {
-        about_dialog->show();
-    }
-
-    about_dialog->raise();
-    about_dialog->activateWindow();
-}
 
 void LograyMainWindow::resetPreviousFocus() {
     previous_focus_ = NULL;

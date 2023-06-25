@@ -644,6 +644,7 @@ main_ui_->goToLineEdit->setValidator(goToLineQiv);
     connectTelephonyMenuActions();
     connectWirelessMenuActions();
     connectToolsMenuActions();
+    connectHelpMenuActions();
 
     connect(packet_list_, SIGNAL(packetDissectionChanged()),
             this, SLOT(redissectPackets()));
