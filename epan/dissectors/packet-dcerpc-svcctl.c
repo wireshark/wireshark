@@ -1168,7 +1168,7 @@ svcctl_dissect_EnumServicesStatusW_response(tvbuff_t *tvb, int offset, packet_in
 	// Services
 	if (services_returned > 0){
 		payload_starting_offset = services_buffer_offset;
-		for(guint32 index = 0; index < services_returned ; ++index){
+		for(unsigned idx = 0; idx < services_returned ; ++idx){
 			services_buffer_offset = svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr( tvb, services_buffer_offset
 			                                                                       , pinfo, tr, di, drep
 			                                                                       , hf_svcctl_svcctl_EnumDependentServicesW_service_status
