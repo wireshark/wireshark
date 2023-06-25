@@ -572,6 +572,7 @@ Commit Check:
     - git status
     - bash ./tools/pre-commit "${CI_COMMIT_SHA}~$NUM_COMMITS"
     - tools/validate-commit.py
+    - python3 tools/checklicenses.py
 
 GCC Release Build:
   extends: .build-ubuntu
@@ -609,7 +610,6 @@ Clang + Code Checks:
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
-    - python3 tools/checklicenses.py
     - mkdir cppcheck
     - ./tools/cppcheck/cppcheck.sh -l $NUM_COMMITS | tee cppcheck/cppcheck_report.txt
     - if [[ -s "cppcheck/cppcheck_report.txt" ]]; then ./tools/cppcheck/cppcheck.sh -l $NUM_COMMITS -x > cppcheck/cppcheck_report.xml ; fi
