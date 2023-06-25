@@ -727,7 +727,7 @@ void ByteViewText::copyBytes(bool)
 
     int dump_type = action->data().toInt();
 
-    if (dump_type <= DataPrinter::DP_Binary) {
+    if (dump_type <= DataPrinter::DP_MimeData) {
         DataPrinter printer;
         printer.toClipboard((DataPrinter::DumpType) dump_type, this);
     }

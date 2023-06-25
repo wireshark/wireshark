@@ -34,13 +34,21 @@ void DataPrinter::toClipboard(DataPrinter::DumpType type, IDataPrintable * print
 
     switch(type)
     {
-    case DP_PrintableText:
+    case DP_CString:
+        // Beginning quote
+        clipboard_text += QString("\"");
         for (int i = 0; i < printData.length(); i++) {
-            QChar ch(printData[i]);
-            if (ch.isSpace() || ch.isPrint()) {
-                clipboard_text += ch;
+            /* ASCII printable */
+            int ch = printData[i];
+            if (ch >= 32 && ch <= 126) {
+                clipboard_text += QChar(ch);
+            }
+            else {
+                clipboard_text += QString("\\x%1").arg((uint8_t) printData[i], 2, 16, QChar('0'));
             }
         }
+        // End quote
+        clipboard_text += QString("\"");
         break;
     case DP_HexStream:
         for (int i = 0; i < printData.length(); i++)
@@ -55,24 +63,7 @@ DIAG_OFF(stringop-overread)
 DIAG_ON(stringop-overread)
 #endif
         break;
-    case DP_EscapedString:
-        // Beginning quote
-        clipboard_text += QString("\"");
-
-        for (int i = 0; i < printData.length(); i++) {
-            // Terminate this line if it has reached 16 bytes,
-            // unless it is also the very last byte in the data,
-            // as the termination after this for loop will take
-            // care of that.
-            if (i % 16 == 0 && i != 0 && i != printData.length() - 1) {
-                clipboard_text += QString("\" \\\n\"");
-            }
-            clipboard_text += QString("\\x%1").arg((uint8_t) printData[i], 2, 16, QChar('0'));
-        }
-        // End quote
-        clipboard_text += QString("\"\n");
-        break;
-    case DP_Binary:
+    case DP_MimeData:
         binaryDump(printData);
         break;
     case DP_HexDump:
@@ -228,11 +219,6 @@ QActionGroup * DataPrinter::copyActions(QObject * copyClass, QObject * data)
     action->setProperty("printertype", DataPrinter::DP_HexOnly);
     connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
 
-    action = new QAction(tr("…as Printable Text"), actions);
-    action->setToolTip(tr("Copy only the printable text in the packet."));
-    action->setProperty("printertype", DataPrinter::DP_PrintableText);
-    connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
-
     action = new QAction(tr("…as a Hex Stream"), actions);
     action->setToolTip(tr("Copy packet bytes as a stream of hex."));
     action->setProperty("printertype", DataPrinter::DP_HexStream);
@@ -243,14 +229,14 @@ QActionGroup * DataPrinter::copyActions(QObject * copyClass, QObject * data)
     action->setProperty("printertype", DataPrinter::DP_Base64);
     connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
 
-    action = new QAction(tr("…as Raw Binary"), actions);
+    action = new QAction(tr("…as MIME Data"), actions);
     action->setToolTip(tr("Copy packet bytes as application/octet-stream MIME data."));
-    action->setProperty("printertype", DataPrinter::DP_Binary);
+    action->setProperty("printertype", DataPrinter::DP_MimeData);
     connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
 
-    action = new QAction(tr("…as Escaped String"), actions);
-    action->setToolTip(tr("Copy packet bytes as an escaped string."));
-    action->setProperty("printertype", DataPrinter::DP_EscapedString);
+    action = new QAction(tr("…as C String"), actions);
+    action->setToolTip(tr("Copy packet bytes as printable ASCII characters and escape sequences."));
+    action->setProperty("printertype", DataPrinter::DP_CString);
     connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
 
     return actions;
