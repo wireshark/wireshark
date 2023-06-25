@@ -9,7 +9,7 @@ See tools/asterix/README.md for details.
 
 Data source:
 https://zoranbosnjak.github.io/asterix-specs
-git revision: 5885f96214c853d6614abf6e63c2cf0b9eea66f5
+git revision: 0b93e712c11a794a6cf1b0daf8a297a105540a8a
 
 
 */
@@ -4684,14 +4684,14 @@ static const FieldPart I004_V1_12_170_CPW_LAT = { 32, 0.00000536441802978515625,
 static int hf_004_V1_12_170_CPW_LON = -1;
 static const FieldPart I004_V1_12_170_CPW_LON = { 32, 0.00000536441802978515625, FIELD_PART_FLOAT, &hf_004_V1_12_170_CPW_LON, NULL };
 static int hf_004_V1_12_170_CPW_ALT = -1;
-static const FieldPart I004_V1_12_170_CPW_ALT = { 32, 25.0, FIELD_PART_FLOAT, &hf_004_V1_12_170_CPW_ALT, NULL };
+static const FieldPart I004_V1_12_170_CPW_ALT = { 16, 25.0, FIELD_PART_FLOAT, &hf_004_V1_12_170_CPW_ALT, NULL };
 static const FieldPart *I004_V1_12_170_CPW_PARTS[] = {
     &I004_V1_12_170_CPW_LAT,
     &I004_V1_12_170_CPW_LON,
     &I004_V1_12_170_CPW_ALT,
     NULL
 };
-static const AsterixField I004_V1_12_170_CPW = { FIXED, 12, 0, 0, &hf_004_V1_12_170_CPW, I004_V1_12_170_CPW_PARTS, { NULL } };
+static const AsterixField I004_V1_12_170_CPW = { FIXED, 10, 0, 0, &hf_004_V1_12_170_CPW, I004_V1_12_170_CPW_PARTS, { NULL } };
 static int hf_004_V1_12_170_CPC = -1;
 static int hf_004_V1_12_170_CPC_X = -1;
 static const FieldPart I004_V1_12_170_CPC_X = { 24, 0.5, FIELD_PART_FLOAT, &hf_004_V1_12_170_CPC_X, NULL };
@@ -4844,14 +4844,14 @@ static const FieldPart I004_V1_12_171_CPW_LAT = { 32, 0.00000536441802978515625,
 static int hf_004_V1_12_171_CPW_LON = -1;
 static const FieldPart I004_V1_12_171_CPW_LON = { 32, 0.00000536441802978515625, FIELD_PART_FLOAT, &hf_004_V1_12_171_CPW_LON, NULL };
 static int hf_004_V1_12_171_CPW_ALT = -1;
-static const FieldPart I004_V1_12_171_CPW_ALT = { 32, 25.0, FIELD_PART_FLOAT, &hf_004_V1_12_171_CPW_ALT, NULL };
+static const FieldPart I004_V1_12_171_CPW_ALT = { 16, 25.0, FIELD_PART_FLOAT, &hf_004_V1_12_171_CPW_ALT, NULL };
 static const FieldPart *I004_V1_12_171_CPW_PARTS[] = {
     &I004_V1_12_171_CPW_LAT,
     &I004_V1_12_171_CPW_LON,
     &I004_V1_12_171_CPW_ALT,
     NULL
 };
-static const AsterixField I004_V1_12_171_CPW = { FIXED, 12, 0, 0, &hf_004_V1_12_171_CPW, I004_V1_12_171_CPW_PARTS, { NULL } };
+static const AsterixField I004_V1_12_171_CPW = { FIXED, 10, 0, 0, &hf_004_V1_12_171_CPW, I004_V1_12_171_CPW_PARTS, { NULL } };
 static int hf_004_V1_12_171_CPL = -1;
 static int hf_004_V1_12_171_CPL_X = -1;
 static const FieldPart I004_V1_12_171_CPL_X = { 24, 0.5, FIELD_PART_FLOAT, &hf_004_V1_12_171_CPL_X, NULL };
@@ -5877,14 +5877,14 @@ static const FieldPart I004_170_CPW_LAT = { 32, 0.00000536441802978515625, FIELD
 static int hf_004_170_CPW_LON = -1;
 static const FieldPart I004_170_CPW_LON = { 32, 0.00000536441802978515625, FIELD_PART_FLOAT, &hf_004_170_CPW_LON, NULL };
 static int hf_004_170_CPW_ALT = -1;
-static const FieldPart I004_170_CPW_ALT = { 32, 25.0, FIELD_PART_FLOAT, &hf_004_170_CPW_ALT, NULL };
+static const FieldPart I004_170_CPW_ALT = { 16, 25.0, FIELD_PART_FLOAT, &hf_004_170_CPW_ALT, NULL };
 static const FieldPart *I004_170_CPW_PARTS[] = {
     &I004_170_CPW_LAT,
     &I004_170_CPW_LON,
     &I004_170_CPW_ALT,
     NULL
 };
-static const AsterixField I004_170_CPW = { FIXED, 12, 0, 0, &hf_004_170_CPW, I004_170_CPW_PARTS, { NULL } };
+static const AsterixField I004_170_CPW = { FIXED, 10, 0, 0, &hf_004_170_CPW, I004_170_CPW_PARTS, { NULL } };
 static int hf_004_170_CPC = -1;
 static int hf_004_170_CPC_X = -1;
 static const FieldPart I004_170_CPC_X = { 24, 0.5, FIELD_PART_FLOAT, &hf_004_170_CPC_X, NULL };
@@ -6037,14 +6037,14 @@ static const FieldPart I004_171_CPW_LAT = { 32, 0.00000536441802978515625, FIELD
 static int hf_004_171_CPW_LON = -1;
 static const FieldPart I004_171_CPW_LON = { 32, 0.00000536441802978515625, FIELD_PART_FLOAT, &hf_004_171_CPW_LON, NULL };
 static int hf_004_171_CPW_ALT = -1;
-static const FieldPart I004_171_CPW_ALT = { 32, 25.0, FIELD_PART_FLOAT, &hf_004_171_CPW_ALT, NULL };
+static const FieldPart I004_171_CPW_ALT = { 16, 25.0, FIELD_PART_FLOAT, &hf_004_171_CPW_ALT, NULL };
 static const FieldPart *I004_171_CPW_PARTS[] = {
     &I004_171_CPW_LAT,
     &I004_171_CPW_LON,
     &I004_171_CPW_ALT,
     NULL
 };
-static const AsterixField I004_171_CPW = { FIXED, 12, 0, 0, &hf_004_171_CPW, I004_171_CPW_PARTS, { NULL } };
+static const AsterixField I004_171_CPW = { FIXED, 10, 0, 0, &hf_004_171_CPW, I004_171_CPW_PARTS, { NULL } };
 static int hf_004_171_CPL = -1;
 static int hf_004_171_CPL_X = -1;
 static const FieldPart I004_171_CPL_X = { 24, 0.5, FIELD_PART_FLOAT, &hf_004_171_CPL_X, NULL };
