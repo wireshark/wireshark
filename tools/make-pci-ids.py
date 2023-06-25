@@ -33,7 +33,10 @@ CODE_PREFIX = """\
  */
 
 #include <config.h>
-#include \"pci-ids.h\"
+
+#include <stddef.h>
+
+#include "pci-ids.h"
 
 typedef struct
 {
