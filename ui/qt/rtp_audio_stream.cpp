@@ -57,7 +57,6 @@ RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_id_t *id, bool stereo_
     , first_sample_rate_(0)
     , audio_out_rate_(0)
     , audio_requested_out_rate_(0)
-    , audio_resampler_(0)
     , max_sample_val_(1)
     , max_sample_val_used_(1)
     , color_(0)
@@ -96,7 +95,6 @@ RtpAudioStream::~RtpAudioStream()
         g_free(rtp_packet);
     }
     g_hash_table_destroy(decoders_hash_);
-    if (audio_resampler_) speex_resampler_destroy(audio_resampler_);
     speex_resampler_destroy(visual_resampler_);
     rtpstream_info_free_data(&rtpstream_);
     rtpstream_id_free(&id_);
@@ -193,9 +191,6 @@ void RtpAudioStream::decode(QAudioDeviceInfo out_device)
 {
     if (rtp_packets_.size() < 1) return;
 
-    if (audio_resampler_) {
-        speex_resampler_reset_mem(audio_resampler_);
-    }
     audio_file_->setFrameWriteStage();
     decodeAudio(out_device);
 
@@ -207,7 +202,6 @@ void RtpAudioStream::decode(QAudioDeviceInfo out_device)
     audio_file_->setDataReadStage();
 }
 
-// Side effect: it creates and initiates resampler if needed
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
 quint32 RtpAudioStream::calculateAudioOutRate(QAudioDevice out_device, unsigned int sample_rate, unsigned int requested_out_rate)
 #else
@@ -245,15 +239,11 @@ quint32 RtpAudioStream::calculateAudioOutRate(QAudioDeviceInfo out_device, unsig
 #else
         out_rate = out_device.nearestFormat(format).sampleRate();
 #endif
-        audio_resampler_ = speex_resampler_init(1, sample_rate, out_rate, 10, NULL);
-        RTP_STREAM_DEBUG("Started resampling from %u to (out) %u Hz.", sample_rate, out_rate);
     } else {
         if ((requested_out_rate != 0) &&
             (requested_out_rate != sample_rate)
            ) {
             out_rate = requested_out_rate;
-            audio_resampler_ = speex_resampler_init(1, sample_rate, out_rate, 10, NULL);
-            RTP_STREAM_DEBUG("Started resampling from %u to (out) %u Hz.", sample_rate, out_rate);
         } else {
             out_rate = sample_rate;
         }
@@ -289,6 +279,8 @@ void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
     guint64 start_timestamp = 0;
 
     size_t decoded_bytes_prev = 0;
+    unsigned int audio_resampler_input_rate = 0;
+    struct SpeexResamplerState_ *audio_resampler = NULL;
 
     for (int cur_packet = 0; cur_packet < rtp_packets_.size(); cur_packet++) {
         SAMPLE *decode_buff = NULL;
@@ -443,7 +435,20 @@ void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
             spx_uint32_t out_len = (spx_uint32_t) ((guint64)in_len * audio_out_rate_ / sample_rate);
             resample_buff = resizeBufferIfNeeded(resample_buff, &resample_buff_bytes, out_len * SAMPLE_BYTES);
 
-            speex_resampler_process_int(audio_resampler_, 0, decode_buff, &in_len, resample_buff, &out_len);
+            if (audio_resampler &&
+                sample_rate != audio_resampler_input_rate
+               ) {
+              // Clear old resampler because input rate changed
+              speex_resampler_destroy(audio_resampler);
+              audio_resampler_input_rate = 0;
+              audio_resampler = NULL;
+            }
+            if (!audio_resampler) {
+                audio_resampler_input_rate = sample_rate;
+                audio_resampler = speex_resampler_init(1, sample_rate, audio_out_rate_, 10, NULL);
+                RTP_STREAM_DEBUG("Started resampling from %u to (out) %u Hz.", sample_rate, audio_out_rate_);
+            }
+            speex_resampler_process_int(audio_resampler, 0, decode_buff, &in_len, resample_buff, &out_len);
 
             write_buff = (char *) resample_buff;
             write_bytes = out_len * SAMPLE_BYTES;
@@ -459,6 +464,8 @@ void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
         g_free(decode_buff);
     }
     g_free(resample_buff);
+
+    if (audio_resampler) speex_resampler_destroy(audio_resampler);
 }
 
 // We preallocate buffer, 320 samples is enough for most scenarios

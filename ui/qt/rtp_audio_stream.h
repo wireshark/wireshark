@@ -195,7 +195,6 @@ private:
     quint32 audio_out_rate_;
     quint32 audio_requested_out_rate_;
     QSet<QString> payload_names_;
-    struct SpeexResamplerState_ *audio_resampler_;
     struct SpeexResamplerState_ *visual_resampler_;
     QMap<double, quint32> packet_timestamps_;
     QVector<qint16> visual_samples_;
