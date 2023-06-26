@@ -3,8 +3,8 @@
  * Copyright 2003, 2006, 2007, 2013 Graham Bloice <graham.bloice<at>trihedral.com>
  *
  * DNP3.0 Application Layer Object dissection added by Chris Bontje (cbontje<at>gmail.com)
- * Device attribute dissection added by Chris Bontje
- * Copyright 2005, 2013
+ * Device attribute and Secure Authentication object dissection added by Chris Bontje
+ * Copyright 2005, 2013, 2023
  *
  * Major updates: tcp and application layer defragmentation, more object dissections by Graham Bloice
  *
@@ -597,6 +597,25 @@
 #define AL_OBJ_VT_OBLK     0x7000   /* 112 xx Virtual Terminal Output Block */
 #define AL_OBJ_VT_EVTD     0x7100   /* 113 xx Virtual Terminal Event Data */
 
+/***************************************************************************/
+/* Secure Authentication ('SA') Objects */
+#define AL_OBJ_SA_AUTH_CH     0x7801   /* 120 01 Authentication Challenge */
+#define AL_OBJ_SA_AUTH_RP     0x7802   /* 120 02 Authentication Reply */
+#define AL_OBJ_SA_AUTH_AGMRQ  0x7803   /* 120 03 Authentication Aggressive Mode Request */
+#define AL_OBJ_SA_AUTH_SKSR   0x7804   /* 120 04 Authentication Session Key Status Request */
+#define AL_OBJ_SA_AUTH_SKS    0x7805   /* 120 05 Authentication Session Key Status */
+#define AL_OBJ_SA_AUTH_SKC    0x7806   /* 120 06 Authentication Session Key Change */
+#define AL_OBJ_SA_AUTH_ERR    0x7807   /* 120 07 Authentication Error */
+#define AL_OBJ_SA_AUTH_MAC    0x7809   /* 120 09 Authentication Message Authentication Code */
+#define AL_OBJ_SA_AUTH_USC    0x780A   /* 120 10 Authentication User Status Change - Not supported */
+#define AL_OBJ_SA_AUTH_UKCR   0x780B   /* 120 11 Authentication Update Key Change Request */
+#define AL_OBJ_SA_AUTH_UKCRP  0x780C   /* 120 12 Authentication Update Key Change Reply */
+#define AL_OBJ_SA_AUTH_UKC    0x780D   /* 120 13 Authentication Update Key Change */
+#define AL_OBJ_SA_AUTH_UKCC   0x780F   /* 120 15 Authentication Update Key Change Confirmation */
+#define AL_OBJ_SA_SECSTAT     0x7901   /* 121 01 Security Statistics */
+#define AL_OBJ_SA_SECSTATEVT  0x7A01   /* 122 01 Security Statistic Event */
+#define AL_OBJ_SA_SECSTATEVTT 0x7A02   /* 122 02 Security Statistic Event w/ Time */
+
 
 /***************************************************************************/
 /* End of Application Layer Data Object Definitions */
@@ -769,6 +788,25 @@ static int hf_dnp3_al_da_int16 = -1;
 static int hf_dnp3_al_da_int32 = -1;
 static int hf_dnp3_al_da_flt = -1;
 static int hf_dnp3_al_da_dbl = -1;
+static int hf_dnp3_al_sa_cd = -1;
+static int hf_dnp3_al_sa_cdl = -1;
+static int hf_dnp3_al_sa_csq = -1;
+static int hf_dnp3_al_sa_err = -1;
+static int hf_dnp3_al_sa_key = -1;
+static int hf_dnp3_al_sa_kcm = -1;
+static int hf_dnp3_al_sa_ks = -1;
+static int hf_dnp3_al_sa_ksq = -1;
+static int hf_dnp3_al_sa_kwa = -1;
+static int hf_dnp3_al_sa_mac = -1;
+static int hf_dnp3_al_sa_mal = -1;
+static int hf_dnp3_al_sa_rfc = -1;
+static int hf_dnp3_al_sa_seq = -1;
+static int hf_dnp3_al_sa_uk = -1;
+static int hf_dnp3_al_sa_ukl = -1;
+static int hf_dnp3_al_sa_usr = -1;
+static int hf_dnp3_al_sa_usrn = -1;
+static int hf_dnp3_al_sa_usrnl = -1;
+static int hf_dnp3_al_sa_assoc_id = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_dnp3_al_point_index = -1;
@@ -1117,6 +1155,7 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_TDI,            "Time and Date w/Interval (Obj:50, Var:02)" },
   { AL_OBJ_TDR,            "Last Recorded Time and Date (Obj:50, Var:03)" },
   { AL_OBJ_TDCTO,          "Time and Date CTO (Obj:51, Var:01)" },
+  { AL_OBJ_UTDCTO,         "Unsynchronized Time and Date CTO (Obj:51, Var:02)"},
   { AL_OBJ_TDELAYF,        "Time Delay - Fine (Obj:52, Var:02)" },
   { AL_OBJ_CLASS0,         "Class 0 Data (Obj:60, Var:01)" },
   { AL_OBJ_CLASS1,         "Class 1 Data (Obj:60, Var:02)" },
@@ -1137,6 +1176,21 @@ static const value_string dnp3_al_obj_vals[] = {
   { AL_OBJ_OCT_EVT,        "Octet String Event (Obj:111)" },
   { AL_OBJ_VT_OBLK,        "Virtual Terminal Output Block (Obj:112)" },
   { AL_OBJ_VT_EVTD,        "Virtual Terminal Event Data (Obj:113)" },
+  { AL_OBJ_SA_AUTH_CH,     "Authentication Challenge (Obj:120, Var:01)" },
+  { AL_OBJ_SA_AUTH_RP,     "Authentication Reply (Obj:120, Var:02)" },
+  { AL_OBJ_SA_AUTH_AGMRQ,  "Authentication Aggressive Mode Request (Obj:120, Var:03)" },
+  { AL_OBJ_SA_AUTH_SKSR,   "Authentication Session Key Status Request (Obj:120, Var:04)" },
+  { AL_OBJ_SA_AUTH_SKS,    "Authentication Session Key Status (Obj:120, Var:05)" },
+  { AL_OBJ_SA_AUTH_SKC,    "Authentication Session Key Change (Obj:120, Var:06)" },
+  { AL_OBJ_SA_AUTH_ERR,    "Authentication Error (Obj:120, Var:07)" },
+  { AL_OBJ_SA_AUTH_MAC,    "Authentication Message Authentication Code (Obj:120, Var:09)" },
+  { AL_OBJ_SA_AUTH_UKCR,   "Authentication Update Key Change Request (Obj:120, Var:11)" },
+  { AL_OBJ_SA_AUTH_UKCRP,  "Authentication Update Key Change Reply (Obj:120, Var:12)"},
+  { AL_OBJ_SA_AUTH_UKC,    "Authentication Update Key Change (Obj:120, Var:13)"},
+  { AL_OBJ_SA_AUTH_UKCC,   "Authentication Update Key Change Confirmation (Obj:120, Var:15)"},
+  { AL_OBJ_SA_SECSTAT,     "Security Statistics (Obj:121, Var:01)" },
+  { AL_OBJ_SA_SECSTATEVT,  "Security Statistic Event (Obj:122, Var:01)" },
+  { AL_OBJ_SA_SECSTATEVTT, "Security Statistic Event w/ Time (Obj:122, Var:02)" },
   { 0, NULL }
 };
 static value_string_ext dnp3_al_obj_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_obj_vals);
@@ -1280,27 +1334,28 @@ static const value_string dnp3_al_data_type_vals[] = {
 
 /* Application Layer Read Object Type values */
 static const value_string dnp3_al_read_obj_vals[] = {
-  { (AL_OBJ_DA_GRP    & 0xFF00),  "Device Attribute"            },
-  { (AL_OBJ_BI_ALL    & 0xFF00),  "Binary Input"                },
-  { (AL_OBJ_BIC_ALL   & 0xFF00),  "Binary Input Change"         },
-  { (AL_OBJ_2BI_ALL   & 0xFF00),  "Double-bit Input"            },
-  { (AL_OBJ_2BIC_ALL  & 0xFF00),  "Double-bit Input Change"     },
-  { (AL_OBJ_BO_ALL    & 0xFF00),  "Binary Output"               },
-  { (AL_OBJ_BOC_ALL   & 0xFF00),  "Binary Output Change"        },
-  { (AL_OBJ_CTR_ALL   & 0xFF00),  "Counter"                     },
-  { (AL_OBJ_FCTR_ALL  & 0xFF00),  "Frozen Counter"              },
-  { (AL_OBJ_CTRC_ALL  & 0xFF00),  "Counter Change"              },
-  { (AL_OBJ_FCTRC_ALL & 0xFF00),  "Frozen Counter Change"       },
-  { (AL_OBJ_AI_ALL    & 0xFF00),  "Analog Input"                },
-  { (AL_OBJ_AIC_ALL   & 0xFF00),  "Analog Input Change"         },
-  { (AL_OBJ_AO_ALL    & 0xFF00),  "Analog Output"               },
-  { (AL_OBJ_AOC_ALL   & 0xFF00),  "Analog Output Change"        },
-  { (AL_OBJ_TD_ALL    & 0xFF00),  "Time and Date"               },
-  { (AL_OBJ_FILE_CMD  & 0xFF00),  "File Control"                },
-  { (AL_OBJ_IIN       & 0xFF00),  "Internal Indications"        },
-  { (AL_OBJ_OCT       & 0xFF00),  "Octet String"                },
-  { (AL_OBJ_OCT_EVT   & 0xFF00),  "Octet String Event"          },
-  { (AL_OBJ_VT_EVTD   & 0xFF00),  "Virtual Terminal Event Data" },
+  { (AL_OBJ_DA_GRP     & 0xFF00),  "Device Attribute"            },
+  { (AL_OBJ_BI_ALL     & 0xFF00),  "Binary Input"                },
+  { (AL_OBJ_BIC_ALL    & 0xFF00),  "Binary Input Change"         },
+  { (AL_OBJ_2BI_ALL    & 0xFF00),  "Double-bit Input"            },
+  { (AL_OBJ_2BIC_ALL   & 0xFF00),  "Double-bit Input Change"     },
+  { (AL_OBJ_BO_ALL     & 0xFF00),  "Binary Output"               },
+  { (AL_OBJ_BOC_ALL    & 0xFF00),  "Binary Output Change"        },
+  { (AL_OBJ_CTR_ALL    & 0xFF00),  "Counter"                     },
+  { (AL_OBJ_FCTR_ALL   & 0xFF00),  "Frozen Counter"              },
+  { (AL_OBJ_CTRC_ALL   & 0xFF00),  "Counter Change"              },
+  { (AL_OBJ_FCTRC_ALL  & 0xFF00),  "Frozen Counter Change"       },
+  { (AL_OBJ_AI_ALL     & 0xFF00),  "Analog Input"                },
+  { (AL_OBJ_AIC_ALL    & 0xFF00),  "Analog Input Change"         },
+  { (AL_OBJ_AO_ALL     & 0xFF00),  "Analog Output"               },
+  { (AL_OBJ_AOC_ALL    & 0xFF00),  "Analog Output Change"        },
+  { (AL_OBJ_TD_ALL     & 0xFF00),  "Time and Date"               },
+  { (AL_OBJ_FILE_CMD   & 0xFF00),  "File Control"                },
+  { (AL_OBJ_IIN        & 0xFF00),  "Internal Indications"        },
+  { (AL_OBJ_OCT        & 0xFF00),  "Octet String"                },
+  { (AL_OBJ_OCT_EVT    & 0xFF00),  "Octet String Event"          },
+  { (AL_OBJ_VT_EVTD    & 0xFF00),  "Virtual Terminal Event Data" },
+  { (AL_OBJ_SA_AUTH_CH & 0xFF00),  "Secure Authentication" },
   { 0, NULL }
 };
 
@@ -1308,16 +1363,116 @@ static value_string_ext dnp3_al_read_obj_vals_ext = VALUE_STRING_EXT_INIT(dnp3_a
 
 /* Application Layer Write Object Type values */
 static const value_string dnp3_al_write_obj_vals[] = {
-  { (AL_OBJ_TD_ALL   & 0xFF00),  "Time and Date"                 },
-  { (AL_OBJ_FILE_CMD & 0xFF00),  "File Control"                  },
-  { (AL_OBJ_IIN      & 0xFF00),  "Internal Indications"          },
-  { (AL_OBJ_OCT      & 0xFF00),  "Octet String"                  },
-  { (AL_OBJ_OCT_EVT  & 0xFF00),  "Octet String Event"            },
-  { (AL_OBJ_VT_OBLK  & 0xFF00),  "Virtual Terminal Output Block" },
+  { (AL_OBJ_TD_ALL     & 0xFF00),  "Time and Date"                 },
+  { (AL_OBJ_FILE_CMD   & 0xFF00),  "File Control"                  },
+  { (AL_OBJ_IIN        & 0xFF00),  "Internal Indications"          },
+  { (AL_OBJ_OCT        & 0xFF00),  "Octet String"                  },
+  { (AL_OBJ_OCT_EVT    & 0xFF00),  "Octet String Event"            },
+  { (AL_OBJ_VT_OBLK    & 0xFF00),  "Virtual Terminal Output Block" },
+  { (AL_OBJ_SA_AUTH_CH & 0xFF00),  "Secure Authentication" },
   { 0, NULL }
 };
 
 static value_string_ext dnp3_al_write_obj_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_write_obj_vals);
+
+/* DNP SA Key Wrap Algorithm Values */
+static const value_string dnp3_al_sa_kwa_vals[] = {
+  { 0,  "Unused"       },
+  { 1,  "AES-128"      },
+  { 2,  "AES-256"      },
+  { 0, NULL }
+};
+
+/* DNP SA Key Status Values */
+static const value_string dnp3_al_sa_ks_vals[] = {
+  { 0,  "Not Used"    },
+  { 1,  "OK"          },
+  { 2,  "NOT_INIT"    },
+  { 3,  "COMM_FAIL"   },
+  { 4,  "AUTH_FAIL"   },
+  { 0, NULL }
+};
+
+/* DNP SA MAC Algorithm Values */
+static const value_string dnp3_al_sa_mal_vals[] = {
+  { 0,  "No MAC value in this message"                     },
+  { 1,  "HMAC SHA-1 truncated to 4 octets (serial)"        },
+  { 2,  "HMAC SHA-1 truncated to 10 octets (networked)"    },
+  { 3,  "HMAC SHA-256 truncated to 8 octets (serial)"      },
+  { 4,  "HMAC SHA-256 truncated to 16 octets (networked)"  },
+  { 5,  "HMAC SHA-1 truncated to 8 octets (serial)"        },
+  { 6,  "AES-GMAC (output is 12 octets)"                   },
+  { 0, NULL }
+};
+
+/* DNP SA Error Values */
+static const value_string dnp3_al_sa_err_vals[] = {
+  { 0,  "Not used"                                 },
+  { 1,  "Authentication failed"                    },
+  { 2,  "Unexpected Response"                      },
+  { 3,  "No response"                              },
+  { 4,  "Aggressive Mode not supported"            },
+  { 5,  "MAC Algorithm not supproted"              },
+  { 6,  "Key Wrap Algorithm not supported"         },
+  { 7,  "Authorization failed"                     },
+  { 8,  "Update Key Change Method not permitted"   },
+  { 9,  "Invalid Signature"                        },
+  { 10, "Invalid Certification Data"               },
+  { 11, "Unknown User"                             },
+  { 12, "Max Session Key Status Requests Exceeded" },
+  { 0, NULL }
+};
+
+/* DNP SA Key Change Method Values */
+static const value_string dnp3_al_sa_kcm_vals[] = {
+  { 0,  "Not used"                                          },
+  { 1,  "Obsolete. Do Not Use"                              },
+  { 2,  "Obsolete. Do Not Use"                              },
+  { 3,  "Symmetric ASE-128 / SHA-1-HMAC"                    },
+  { 4,  "Symmetric ASE-256 / SHA-256-HMAC"                  },
+  { 5,  "Symmetric ASE-256 / AES-GMAC"                      },
+  { 64,  "Obsolete. Do Not Use"                             },
+  { 65,  "Obsolete. Do Not Use"                             },
+  { 66,  "Obsolete. Do Not Use"                             },
+  { 67,  "Asymmetric RS-1024 / DSA SHA-1 / SHA-1-HMAC"      },
+  { 68,  "Asymmetric RSA-2048 / DSA SHA-256 / SHA-256-HMAC" },
+  { 69,  "Asymmetric RSA-3072 / DSA SHA-256 / SHA-256-HMAC" },
+  { 70,  "Asymmetric RSA-2048 / DSA SHA-256 / AES-GMAC"     },
+  { 71,  "Asymmetric RSA-3072 / DSA SHA-256 / AES-GMAC"     },
+  { 0, NULL }
+};
+
+/* DNP SA Reason for Challenge Values */
+static const value_string dnp3_al_sa_rfc_vals[] = {
+  { 0,  "Not Used"    },
+  { 1,  "CRITICAL"    },
+  { 0, NULL }
+};
+
+/* DNP SA Security Statistic Values */
+static const value_string dnp3_al_sa_secstat_vals[] = {
+  { 0,  "(Unexpected Messages)"                   },
+  { 1,  "(Authorization Failures)"                },
+  { 2,  "(Authentication Failures)"               },
+  { 3,  "(Reply Timeouts)"                        },
+  { 4,  "(Rekeys Due to Authentication Failure)"  },
+  { 5,  "(Total Messages Sent)"                   },
+  { 6,  "(Total Messages Received)"               },
+  { 7,  "(Critical Messages Sent)"                },
+  { 8,  "(Critical Messages Received)"            },
+  { 9,  "(Discarded Messages)"                    },
+  { 10,  "(Error Messages Sent)"                  },
+  { 11,  "(Error Messages Rxed)"                  },
+  { 12,  "(Successful Authentications)"           },
+  { 13,  "(Session Key Changes)"                  },
+  { 14,  "(Failed Session Key Changes)"           },
+  { 15,  "(Update Key Changes)"                   },
+  { 16,  "(Failed Update Key Changes)"            },
+  { 17,  "(Rekeys Due to Restarts)"               },
+  { 0, NULL }
+};
+
+static value_string_ext dnp3_al_sa_secstat_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_sa_secstat_vals);
 
 /* Initialize the subtree pointers */
 static gint ett_dnp3 = -1;
@@ -1695,7 +1850,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
   int         orig_offset, rangebytes = 0;
   proto_item *object_item, *range_item;
   proto_tree *object_tree, *qualifier_tree, *range_tree;
-
+  const gchar  *sec_stat_str;
   orig_offset = offset;
 
   /* Application Layer Objects in this Message */
@@ -1707,6 +1862,12 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
   if ((temp == AL_OBJ_OCT) || (temp == AL_OBJ_OCT_EVT )) {
     al_oct_len = al_obj & 0xFF;
     al_obj = temp;
+  }
+
+  /* Special handling for Aggressive Mode Requests (Obj:120, Var3) and Message Authentication Codes (Obj:120, Var:9)
+     objects that occur in read messages and require full dissection */
+  if ((al_obj == AL_OBJ_SA_AUTH_AGMRQ) || (al_obj == AL_OBJ_SA_AUTH_MAC)) {
+    header_only = FALSE;
   }
 
   /* Create Data Objects Detail Tree */
@@ -1884,10 +2045,11 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
       if (!header_only || (AL_OBJQL_PREFIX_1OS <= al_objq_prefix && al_objq_prefix <= AL_OBJQL_PREFIX_4OS)) {
         /* Process the object values */
-        guint8       al_2bit, al_ptflags, al_bi_val, al_tcc_code;
+        guint8       al_2bit, al_ptflags, al_bi_val, al_tcc_code, al_sa_mac_len;
         gint16       al_val_int16;
         guint16      al_val_uint16, al_ctlobj_stat;
         guint16      al_relms, al_filename_len, al_file_ctrl_mode;
+        guint16      sa_username_len, sa_challengedata_len, sa_updatekey_len;
         gint32       al_val_int32;
         guint32      al_val_uint32, file_data_size;
         nstime_t     al_reltime, al_abstime;
@@ -2169,7 +2331,6 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               dnp3_al_obj_quality(tvb, (offset+prefixbytes), al_ptflags, point_tree, point_item, BIN_IN);
               data_pos += 1;
 
-
               /* Get timestamp */
               dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
               proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
@@ -2184,6 +2345,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               break;
 
             case AL_OBJ_BIC_RTIME:   /* Binary Input Change w/ Relative Time (Obj:02, Var:03)  */
+            case AL_OBJ_2BIC_RTIME:  /* Double-bit Input Change w/ Relative Time (Obj:04, Var:03)  */
 
               /* Get Point Flags */
               al_ptflags = tvb_get_guint8(tvb, data_pos);
@@ -2199,10 +2361,20 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               proto_tree_add_time(point_tree, hf_dnp3_al_rel_timestamp, tvb, data_pos, 2, &al_reltime);
               data_pos += 2;
 
-              al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) >> 7; /* bit shift 1xxxxxxx -> xxxxxxx1 */
-              proto_item_append_text(point_item, ", Value: %u, Timestamp: %s",
-                                     al_bit, abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
-              proto_item_set_len(point_item, data_pos - offset);
+              switch (al_obj) {
+                case AL_OBJ_BIC_RTIME:
+                  al_bit = (al_ptflags & AL_OBJ_BI_FLAG7) >> 7; /* bit shift 1xxxxxxx -> xxxxxxx1 */
+                  proto_item_append_text(point_item, ", Value: %u, Timestamp: %s",
+                                        al_bit, abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                  proto_item_set_len(point_item, data_pos - offset);
+                  break;
+                case AL_OBJ_2BIC_RTIME:
+                  al_2bit = (al_ptflags >> 6) & 3; /* bit shift 11xxxxxx -> 00000011 */
+                  proto_item_append_text(point_item, ", Value: %u, Timestamp: %s",
+                                        al_2bit, abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                  proto_item_set_len(point_item, data_pos - offset);
+                  break;
+              }
 
               offset = data_pos;
               break;
@@ -2716,9 +2888,10 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               offset = data_pos;
               break;
 
-            case AL_OBJ_TD:    /* Time and Date (Obj:50, Var:01) */
-            case AL_OBJ_TDR:   /* Time and Date at Last Recorded Time (Obj:50, Var:03) */
-            case AL_OBJ_TDCTO: /* Time and Date CTO (Obj:51, Var:01) */
+            case AL_OBJ_TD:     /* Time and Date (Obj:50, Var:01) */
+            case AL_OBJ_TDR:    /* Time and Date at Last Recorded Time (Obj:50, Var:03) */
+            case AL_OBJ_TDCTO:  /* Time and Date CTO (Obj:51, Var:01) */
+            case AL_OBJ_UTDCTO: /* Unsynchronized Time and Date CTO (Obj:51, Var:02) */
 
               dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
               proto_tree_add_time(object_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
@@ -2909,6 +3082,294 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
               offset = data_pos;
               break;
 
+            case AL_OBJ_SA_AUTH_CH:    /* Authentication Challenge (Obj:120, Var:01) */
+
+              /* Challenge Sequence Number */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_csq, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
+              data_pos += 4;
+
+              /* User Number */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_usr, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+              data_pos += 2;
+
+              /* MAC Algorithm */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_mal, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+              data_pos += 1;
+
+              /* Reason for Challenge */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_rfc, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+              data_pos += 1;
+
+              /* Challenge Data */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_cd, tvb, data_pos, (al_ptaddr-8), ENC_NA);
+              data_pos += (al_ptaddr-8);
+
+              offset = data_pos;
+              break;
+
+            case AL_OBJ_SA_AUTH_RP:    /* Authentication Reply (Obj:120, Var:02) */
+
+              /* Challenge Sequence Number */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_csq, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
+              data_pos += 4;
+
+              /* User Number */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_usr, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+              data_pos += 2;
+
+              /* MAC Value */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_mac, tvb, data_pos, (al_ptaddr-6), ENC_NA);
+              data_pos += (al_ptaddr-6);
+
+              offset = data_pos;
+              break;
+
+            case AL_OBJ_SA_AUTH_AGMRQ:    /* Authentication Aggressive Mode Request (Obj:120, Var:03) */
+
+              /* Challenge Sequence Number */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_csq, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
+              data_pos += 4;
+
+              /* User Number */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_usr, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+              data_pos += 2;
+
+              offset = data_pos;
+              break;
+
+            case AL_OBJ_SA_AUTH_SKSR:    /* Authentication Session Key Status Request (Obj:120, Var:04) */
+
+              /* User Number */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_usr, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+              data_pos += 2;
+
+              offset = data_pos;
+              break;
+
+            case AL_OBJ_SA_AUTH_SKS:    /* Authentication Session Key Status (Obj:120, Var:05) */
+
+              /* Key Change Sequence Number */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_ksq, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
+              data_pos += 4;
+
+              /* User Number */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_usr, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+              data_pos += 2;
+
+              /* Key Wrap Algorithm */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_kwa, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+              data_pos += 1;
+
+              /* Key Status */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_ks, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+              data_pos += 1;
+
+              /* MAC Algorithm */
+              /* Use the MAC Algorithm to determine the length of the MAC Value */
+              temp = tvb_get_guint8(tvb, data_pos);
+              switch (temp) {
+                  case 1:
+                    al_sa_mac_len = 4;
+                    break;
+                  case 2:
+                    al_sa_mac_len = 10;
+                    break;
+                  case 3:
+                  case 5:
+                    al_sa_mac_len = 8;
+                    break;
+                  case 4:
+                    al_sa_mac_len = 16;
+                    break;
+                  case 6:
+                    al_sa_mac_len = 12;
+                    break;
+                  default:
+                    al_sa_mac_len = 0;
+                    break;
+              }
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_mal, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+              data_pos += 1;
+
+              /* Challenge Data Length */
+              al_val_uint16 = tvb_get_letohs(tvb, data_pos);
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_cdl, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+              data_pos += 2;
+
+              /* Challenge Data */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_cd, tvb, data_pos, al_val_uint16, ENC_NA);
+              data_pos += al_val_uint16;
+
+              /* MAC Value */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_mac, tvb, data_pos, al_sa_mac_len, ENC_NA);
+              data_pos += al_sa_mac_len;
+
+              offset = data_pos;
+              break;
+
+            case AL_OBJ_SA_AUTH_SKC:    /* Authentication Session Key Change (Obj:120, Var:06) */
+
+              /* Key Change Sequence Number */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_ksq, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
+              data_pos += 4;
+
+              /* User Number */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_usr, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+              data_pos += 2;
+
+              /* Key Data */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_key, tvb, data_pos, (al_ptaddr-6), ENC_NA);
+              data_pos += (al_ptaddr-6);
+
+              offset = data_pos;
+              break;
+
+            case AL_OBJ_SA_AUTH_ERR:    /* Authentication Error (Obj:120, Var:07) */
+
+              /* Sequence Number - Can be Challenge or Key Change */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_seq, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
+              data_pos += 4;
+
+              /* User Number */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_usr, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+              data_pos += 2;
+
+              /* Association ID */
+              proto_tree_add_item(point_tree, hf_dnp3_al_sa_assoc_id, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+              data_pos += 2;
+
+              /* Error Code */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_err, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+              data_pos += 1;
+
+              /* Error Timestamp */
+              dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
+              proto_tree_add_time(object_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
+              data_pos += 6;
+
+              /* Error Text */
+              /* Optional footer for any remaining data */
+
+              offset = data_pos;
+              break;
+
+
+            case AL_OBJ_SA_AUTH_MAC:    /* Authentication Message Authentication Code (Obj:120, Var:09) */
+            case AL_OBJ_SA_AUTH_UKCC:   /* Authentication Update Key Change Confirmation (Obj:120, Var:15) */
+
+              /* MAC Value */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_mac, tvb, data_pos, al_ptaddr, ENC_NA);
+              data_pos += al_ptaddr;
+
+              offset = data_pos;
+              break;
+
+            case AL_OBJ_SA_AUTH_UKCR:    /* Authentication Update Key Change Request (Obj:120, Var:11) */
+
+              /* Key Change Method */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_kcm, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
+              data_pos += 1;
+
+              /* User Name Length */
+              sa_username_len = tvb_get_letohs(tvb, data_pos);
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_usrnl, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+              data_pos += 2;
+
+              /* Challenge Data Length */
+              sa_challengedata_len = tvb_get_letohs(tvb, data_pos);
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_cdl, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+              data_pos += 2;
+
+              /* User Name */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_usrn, tvb, data_pos, sa_username_len, ENC_ASCII);
+              data_pos += sa_username_len;
+
+              /* Challenge Data */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_cd, tvb, data_pos, sa_challengedata_len, ENC_NA);
+              data_pos += sa_challengedata_len;
+
+              offset = data_pos;
+              break;
+
+            case AL_OBJ_SA_AUTH_UKCRP:    /* Authentication Update Key Change Reply (Obj:120, Var:12) */
+
+              /* Sequence Number - Can be Challenge or Key Change */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_seq, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
+              data_pos += 4;
+
+              /* User Number */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_usr, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+              data_pos += 2;
+
+              /* Challenge Data Length */
+              sa_challengedata_len = tvb_get_letohs(tvb, data_pos);
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_cdl, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+              data_pos += 2;
+
+              /* Challenge Data */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_cd, tvb, data_pos, sa_challengedata_len, ENC_NA);
+              data_pos += sa_challengedata_len;
+
+              offset = data_pos;
+              break;
+
+            case AL_OBJ_SA_AUTH_UKC:    /* Authentication Update Key Change (Obj:120, Var:13) */
+
+              /* Sequence Number - Can be Challenge or Key Change */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_seq, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
+              data_pos += 4;
+
+              /* User Number */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_usr, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+              data_pos += 2;
+
+              /* Encrypted Update Key Length */
+              sa_updatekey_len = tvb_get_letohs(tvb, data_pos);
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_ukl, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+              data_pos += 2;
+
+              /* Encrypted Update Key Data */
+              proto_tree_add_item(object_tree, hf_dnp3_al_sa_uk, tvb, data_pos, sa_updatekey_len, ENC_NA);
+              data_pos += sa_updatekey_len;
+
+              offset = data_pos;
+              break;
+
+            case AL_OBJ_SA_SECSTAT:     /* Security Statistics (Obj:121, Var:01) */
+            case AL_OBJ_SA_SECSTATEVT:  /* Security Statistic Event (Obj:122, Var:01) */
+            case AL_OBJ_SA_SECSTATEVTT: /* Security Statistic Event w/ Time (Obj:122, Var:02) */
+
+              /* Security Statistic Description */
+              sec_stat_str = val_to_str_ext(al_ptaddr, &dnp3_al_sa_secstat_vals_ext, "Unknown statistic");
+              proto_item_append_text(point_item, " %s", sec_stat_str);
+
+              /* Quality Flags */
+              al_ptflags = tvb_get_guint8(tvb, data_pos);
+              dnp3_al_obj_quality(tvb, data_pos, al_ptflags, point_tree, point_item, COUNTER);
+              data_pos += 1;
+
+              /* Association ID */
+              al_val_uint16 = tvb_get_letohs(tvb, data_pos);
+              proto_item_append_text(point_item, ", Association ID: %u", al_val_uint16);
+              proto_tree_add_item(point_tree, hf_dnp3_al_sa_assoc_id, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
+              data_pos += 2;
+
+              /* 32-bit Count Value */
+              al_val_uint32 = tvb_get_letohl(tvb, data_pos);
+              proto_item_append_text(point_item, ", Count: %u", al_val_uint32);
+              proto_tree_add_item(point_tree, hf_dnp3_al_cnt32, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
+              data_pos += 4;
+
+              if (al_obj == AL_OBJ_SA_SECSTATEVTT) {
+                dnp3_al_get_timestamp(&al_abstime, tvb, data_pos);
+                proto_item_append_text(point_item, ", Timestamp: %s", abs_time_to_str(pinfo->pool, &al_abstime, ABSOLUTE_TIME_UTC, FALSE));
+                proto_tree_add_time(point_tree, hf_dnp3_al_timestamp, tvb, data_pos, 6, &al_abstime);
+                data_pos += 6;
+              }
+
+              offset = data_pos;
+              break;
+
             default:             /* In case of unknown object */
 
               proto_tree_add_item(object_tree, hf_dnp3_unknown_data_chunk, tvb, offset, -1, ENC_NA);
@@ -3006,6 +3467,21 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   switch (al_func)
   {
+    case AL_FUNC_CONFIRM:     /* Confirm Function Code 0x00 */
+
+      /* If the application layer data is longer than two bytes in length it may have SA objects appended to it */
+      if (data_len > 2) {
+
+        /* Create Confirm Data Objects Tree */
+        robj_tree = proto_tree_add_subtree(al_tree, tvb, offset, -1, ett_dnp3_al_objdet, NULL, "CONFIRM Data Objects");
+
+        /* Process Data Object Details */
+        while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
+          offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, TRUE, &obj_type, &al_cto);
+        }
+      }
+      break;
+
     case AL_FUNC_READ:     /* Read Function Code 0x01 */
 
       /* Create Read Request Data Objects Tree */
@@ -3157,8 +3633,23 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       break;
 
+    case AL_FUNC_AUTHREQ:     /* Authentication Request Function Code 0x20 */
+    case AL_FUNC_AUTHERR:     /* Authentication Error Function Code 0x21 */
+
+
+      /* Create Authentication Request Data Objects Tree */
+      robj_tree = proto_tree_add_subtree(al_tree, tvb, offset, -1, ett_dnp3_al_objdet, NULL, "Authentication Request Data Objects");
+
+      /* Process Data Object Details */
+      while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
+        offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, FALSE, &obj_type, &al_cto);
+      }
+
+      break;
+
     case AL_FUNC_RESPON:   /* Response Function Code 0x81 */
     case AL_FUNC_UNSOLI:   /* Unsolicited Response Function Code 0x82 */
+    case AL_FUNC_AUTHRESP: /* Authentication Response Function Code 0x83 */
 
       /* Application Layer IIN bits req'd if message is a response */
       dnp3_al_process_iin(tvb, pinfo, offset, al_tree);
@@ -4526,6 +5017,115 @@ proto_register_dnp3(void)
     { &hf_dnp3_al_da_dbl,
       { "Device Attribute Double Value", "dnp3.al.da.double",
           FT_DOUBLE, BASE_NONE, NULL, 0,
+          NULL, HFILL }
+    },
+
+    { &hf_dnp3_al_sa_assoc_id,
+      { "Association ID" , "dnp3.al.sa.assoc_id",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }
+    },
+
+    { &hf_dnp3_al_sa_cd,
+      {"Challenge Data", "dnp3.al.sa.cd",
+          FT_BYTES, BASE_NONE, NULL, 0x00,
+          NULL, HFILL }},
+
+    { &hf_dnp3_al_sa_cdl,
+      { "Challenge Data Length", "dnp3.al.sa.cdl",
+          FT_UINT8, BASE_HEX, NULL, 0,
+          NULL, HFILL }
+    },
+
+    { &hf_dnp3_al_sa_csq,
+      { "Challenge Sequence Number" , "dnp3.al.sa.csq",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }
+    },
+
+    { &hf_dnp3_al_sa_err,
+      { "Error Code", "dnp3.al.sa.err",
+          FT_UINT8, BASE_HEX, VALS(dnp3_al_sa_err_vals), 0,
+          NULL, HFILL }
+    },
+
+    { &hf_dnp3_al_sa_kcm,
+      { "Key Change Method", "dnp3.al.sa.kcm",
+          FT_UINT8, BASE_HEX, VALS(dnp3_al_sa_kcm_vals), 0,
+          NULL, HFILL }
+    },
+
+    { &hf_dnp3_al_sa_key,
+      {"Key Data", "dnp3.al.sa.key",
+          FT_BYTES, BASE_NONE, NULL, 0x00,
+          NULL, HFILL }},
+
+    { &hf_dnp3_al_sa_ks,
+      { "Key Status", "dnp3.al.sa.kw",
+          FT_UINT8, BASE_HEX, VALS(dnp3_al_sa_ks_vals), 0,
+          NULL, HFILL }
+    },
+
+    { &hf_dnp3_al_sa_ksq,
+      { "Key Change Sequence Number" , "dnp3.al.sa.ksq",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }
+    },
+
+    { &hf_dnp3_al_sa_kwa,
+      { "Key Wrap Algorithm", "dnp3.al.sa.kwa",
+          FT_UINT8, BASE_HEX, VALS(dnp3_al_sa_kwa_vals), 0,
+          NULL, HFILL }
+    },
+
+    { &hf_dnp3_al_sa_mac,
+      {"MAC Value", "dnp3.al.sa.mac",
+          FT_BYTES, BASE_NONE, NULL, 0x00,
+          NULL, HFILL }},
+
+    { &hf_dnp3_al_sa_mal,
+      { "MAC Algorithm", "dnp3.al.sa.mal",
+          FT_UINT8, BASE_HEX, VALS(dnp3_al_sa_mal_vals), 0,
+          NULL, HFILL }
+    },
+
+    { &hf_dnp3_al_sa_rfc,
+      { "Reason for Challenge", "dnp3.al.sa.rfc",
+          FT_UINT8, BASE_HEX, VALS(dnp3_al_sa_rfc_vals), 0,
+          NULL, HFILL }
+    },
+
+    { &hf_dnp3_al_sa_seq,
+      { "Sequence Number" , "dnp3.al.sa.seq",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }
+    },
+
+    { &hf_dnp3_al_sa_uk,
+      {"Encrypted Update Key Data", "dnp3.al.sa.uk",
+          FT_BYTES, BASE_NONE, NULL, 0x00,
+          NULL, HFILL }},
+
+    { &hf_dnp3_al_sa_ukl,
+      { "Encrypted Update Key Length", "dnp3.al.sa.ukl",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }
+    },
+
+    { &hf_dnp3_al_sa_usr,
+      { "User Number" , "dnp3.al.sa.usr",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }
+    },
+
+    { &hf_dnp3_al_sa_usrn,
+      { "User Name", "dnp3.al.sa.usrn",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+
+    { &hf_dnp3_al_sa_usrnl,
+      { "User name Length", "dnp3.al.sa.usrnl",
+          FT_UINT16, BASE_DEC, NULL, 0,
           NULL, HFILL }
     },
 
