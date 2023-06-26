@@ -723,7 +723,7 @@ class Item:
 
 
     # Return True if appears to be a match
-    def check_label_vs_filter(self, reportError=True):
+    def check_label_vs_filter(self, reportError=True, reportNumericalMismatch=True):
         global warnings_found
 
         last_filter = self.filter.split('.')[-1]
@@ -755,7 +755,7 @@ class Item:
         label_numbers =  re.findall(r'\d+', label_orig)
         filter_numbers = re.findall(r'\d+', last_filter_orig)
         if len(label_numbers) == len(filter_numbers) and label_numbers != filter_numbers:
-            if reportError:
+            if reportNumericalMismatch:
                 print('Warning:', self.filename, self.hf, 'label="' + self.label + '" has different **numbers** from  filter="' + self.filter + '"')
                 print(label_numbers, filter_numbers)
                 warnings_found += 1
@@ -1132,7 +1132,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     if label_vs_filter:
         matches = 0
         for hf in items_defined:
-            if items_defined[hf].check_label_vs_filter(reportError=False):
+            if items_defined[hf].check_label_vs_filter(reportError=False, reportNumericalMismatch=True):
                 matches += 1
 
         # Only checking if almost every field does match.
@@ -1140,7 +1140,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         if checking:
             print(filename, ':', matches, 'label-vs-filter matches of out of', len(items_defined), 'so reporting mismatches')
             for hf in items_defined:
-                items_defined[hf].check_label_vs_filter(reportError=True)
+                items_defined[hf].check_label_vs_filter(reportError=True, reportNumericalMismatch=False)
 
 
 

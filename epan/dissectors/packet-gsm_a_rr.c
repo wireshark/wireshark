@@ -541,7 +541,7 @@ static int hf_gsm_a_rr_rfn = -1;
 static int hf_gsm_a_rr_RR_cause = -1;
 static int hf_gsm_a_rr_cm_cng_msg_req = -1;
 static int hf_gsm_a_rr_utran_cm_cng_msg_req = -1;
-static int hf_gsm_a_rr_cdma200_cm_cng_msg_req = -1;
+static int hf_gsm_a_rr_cdma2000_cm_cng_msg_req = -1;
 static int hf_gsm_a_rr_geran_iu_cm_cng_msg_req = -1;
 int hf_gsm_a_rr_chnl_needed_ch1 = -1;
 static int hf_gsm_a_rr_chnl_needed_ch2 = -1;
@@ -2550,7 +2550,7 @@ de_rr_cm_enq_mask(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     proto_tree_add_item(tree, hf_gsm_a_rr_cm_cng_msg_req, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_rr_utran_cm_cng_msg_req, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gsm_a_rr_cdma200_cm_cng_msg_req, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gsm_a_rr_cdma2000_cm_cng_msg_req, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_a_rr_geran_iu_cm_cng_msg_req, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     curr_offset = curr_offset + 1;
@@ -12835,8 +12835,8 @@ proto_register_gsm_a_rr(void)
                 FT_UINT8,BASE_DEC,  VALS(gsm_a_rr_utran_cm_cng_msg_req_vals), 0x70,
                 NULL, HFILL }
             },
-            { &hf_gsm_a_rr_cdma200_cm_cng_msg_req,
-              { "CDMA2000 CLASSMARK CHANGE","gsm_a.rr.cdma200_cm_cng_msg_req",
+            { &hf_gsm_a_rr_cdma2000_cm_cng_msg_req,
+              { "CDMA2000 CLASSMARK CHANGE","gsm_a.rr.cdma2000_cm_cng_msg_req",
                 FT_BOOLEAN,8,  TFS(&gsm_a_msg_req_value), 0x08,
                 NULL, HFILL }
             },

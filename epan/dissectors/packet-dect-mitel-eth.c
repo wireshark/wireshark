@@ -1460,7 +1460,7 @@ void proto_register_dect_mitel_eth(void)
 			}
 		},
 		{ &hf_dect_mitel_eth_rfpc_higher_layer_capabilities_g726,
-			{ "ADPCM/G-726 Voice service", "dect_mitel_eth.rfpc.higher_layer_capabilities.g729", FT_BOOLEAN, 16,
+			{ "ADPCM/G-726 Voice service", "dect_mitel_eth.rfpc.higher_layer_capabilities.g726", FT_BOOLEAN, 16,
 				TFS(&tfs_yes_no), DECT_MITEL_ETH_RFPC_HIGHER_LAYER_CAPABILITIES_G726, NULL, HFILL
 			}
 		},

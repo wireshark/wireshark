@@ -1670,7 +1670,7 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_node_freq_900,
-        { "902MHz BPSK Band",           "zbee_zdp.node.freq.900mhz", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_FREQ_900MHZ,
+        { "900MHz BPSK Band",           "zbee_zdp.node.freq.900mhz", FT_BOOLEAN, 16, NULL, ZBEE_ZDP_NODE_FREQ_900MHZ,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_node_freq_2400,

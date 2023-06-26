@@ -84,7 +84,7 @@ static int hf_bssgp_rim_app_id = -1;
 static int hf_bssgp_rim_seq_no = -1;
 static int hf_bssgp_rat_discriminator = -1;
 static int hf_bssgp_nacc_cause = -1;
-static int hf_bssgp_s13_cause = -1;
+static int hf_bssgp_si3_cause = -1;
 static int hf_bssgp_mbms_data_ch_cause = -1;
 static int hf_bssgp_utra_si_cause = -1;
 static int hf_bssgp_num_si_psi = -1;
@@ -2012,7 +2012,7 @@ static const value_string bssgp_nacc_cause_vals[] = {
     { 0,    NULL },
 };
 
-static const value_string bssgp_s13_cause_vals[] = {
+static const value_string bssgp_si3_cause_vals[] = {
     { 0, "Other unspecified error" },
     { 1, "Syntax error in the Application Container" },
     { 2, "Reporting Cell Identifier does not match with the Destination Cell Identifier or with the Source Cell Identifier" },
@@ -2061,7 +2061,7 @@ de_bssgp_ran_app_error_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
              * 11.3.64.2    Application Error Container for the SI3 application
              */
             /* Octet 3 SI3 Cause */
-            proto_tree_add_item(tree, hf_bssgp_s13_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_bssgp_si3_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
             curr_offset++;
             /* Erroneous Application Container including IEI and LI */
             proto_tree_add_expert(tree, pinfo, &ei_bssgp_erroneous_app_container, tvb, curr_offset, len-(curr_offset-offset));
@@ -7021,9 +7021,9 @@ proto_register_bssgp(void)
             FT_UINT8, BASE_DEC, VALS(bssgp_nacc_cause_vals), 0x0,
             NULL, HFILL }
         },
-        { &hf_bssgp_s13_cause,
-          { "SI3 Cause", "bssgp.s13_cause",
-            FT_UINT8, BASE_DEC, VALS(bssgp_s13_cause_vals), 0x0,
+        { &hf_bssgp_si3_cause,
+          { "SI3 Cause", "bssgp.si3_cause",
+            FT_UINT8, BASE_DEC, VALS(bssgp_si3_cause_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_bssgp_mbms_data_ch_cause,

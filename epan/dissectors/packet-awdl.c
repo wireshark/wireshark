@@ -1671,7 +1671,7 @@ void proto_register_awdl(void)
       }
     },
     { &hf_awdl_datastate_flags_7,
-      { "Bit 6", "awdl.datastate.flags.7",
+      { "Bit 7", "awdl.datastate.flags.7",
         FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL
       }
     },
