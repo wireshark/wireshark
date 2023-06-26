@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-x509ce.c                                                            */
-/* asn2wrs.py -b -L -p x509ce -c ./x509ce.cnf -s ./packet-x509ce-template -D . -O ../.. CertificateExtensions.asn CertificateExtensionsCiplus.asn */
+/* asn2wrs.py -b -L -p x509ce -c ./x509ce.cnf -s ./packet-x509ce-template -D . -O ../.. CertificateExtensions.asn CertificateExtensionsRFC9310.asn CertificateExtensionsCiplus.asn */
 
 /* packet-x509ce.c
  * Routines for X.509 Certificate Extensions packet dissection
@@ -80,6 +80,7 @@ static int hf_x509ce_CertificateTemplate_PDU = -1;  /* CertificateTemplate */
 static int hf_x509ce_NtdsCaSecurity_PDU = -1;     /* NtdsCaSecurity */
 static int hf_x509ce_NtdsObjectSid_PDU = -1;      /* NtdsObjectSid */
 static int hf_x509ce_EntrustVersionInfo_PDU = -1;  /* EntrustVersionInfo */
+static int hf_x509ce_NFTypes_PDU = -1;            /* NFTypes */
 static int hf_x509ce_ScramblerCapabilities_PDU = -1;  /* ScramblerCapabilities */
 static int hf_x509ce_CiplusInfo_PDU = -1;         /* CiplusInfo */
 static int hf_x509ce_CicamBrandId_PDU = -1;       /* CicamBrandId */
@@ -213,6 +214,7 @@ static int hf_x509ce_type_id_01 = -1;             /* OBJECT_IDENTIFIER */
 static int hf_x509ce_sid = -1;                    /* PrintableString */
 static int hf_x509ce_entrustVers = -1;            /* GeneralString */
 static int hf_x509ce_entrustVersInfoFlags = -1;   /* EntrustInfoFlags */
+static int hf_x509ce_NFTypes_item = -1;           /* NFType */
 static int hf_x509ce_capability = -1;             /* INTEGER_0_MAX */
 static int hf_x509ce_version = -1;                /* INTEGER_0_MAX */
 /* named bits */
@@ -306,6 +308,7 @@ static gint ett_x509ce_NtdsCaSecurity = -1;
 static gint ett_x509ce_NtdsObjectSid_U = -1;
 static gint ett_x509ce_EntrustVersionInfo = -1;
 static gint ett_x509ce_EntrustInfoFlags = -1;
+static gint ett_x509ce_NFTypes = -1;
 static gint ett_x509ce_ScramblerCapabilities = -1;
 
 
@@ -1655,6 +1658,30 @@ dissect_x509ce_EntrustVersionInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 }
 
 
+
+static int
+dissect_x509ce_NFType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t NFTypes_sequence_of[1] = {
+  { &hf_x509ce_NFTypes_item , BER_CLASS_UNI, BER_UNI_TAG_IA5String, BER_FLAGS_NOOWNTAG, dissect_x509ce_NFType },
+};
+
+static int
+dissect_x509ce_NFTypes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      NFTypes_sequence_of, hf_index, ett_x509ce_NFTypes);
+
+  return offset;
+}
+
+
 static const ber_sequence_t ScramblerCapabilities_sequence[] = {
   { &hf_x509ce_capability   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_x509ce_INTEGER_0_MAX },
   { &hf_x509ce_version      , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_x509ce_INTEGER_0_MAX },
@@ -1965,6 +1992,13 @@ static int dissect_EntrustVersionInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
   offset = dissect_x509ce_EntrustVersionInfo(FALSE, tvb, offset, &asn1_ctx, tree, hf_x509ce_EntrustVersionInfo_PDU);
   return offset;
 }
+static int dissect_NFTypes_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_x509ce_NFTypes(FALSE, tvb, offset, &asn1_ctx, tree, hf_x509ce_NFTypes_PDU);
+  return offset;
+}
 static int dissect_ScramblerCapabilities_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -2209,6 +2243,10 @@ void proto_register_x509ce(void) {
     { &hf_x509ce_EntrustVersionInfo_PDU,
       { "EntrustVersionInfo", "x509ce.EntrustVersionInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_x509ce_NFTypes_PDU,
+      { "NFTypes", "x509ce.NFTypes",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_x509ce_ScramblerCapabilities_PDU,
       { "ScramblerCapabilities", "x509ce.ScramblerCapabilities_element",
@@ -2742,6 +2780,10 @@ void proto_register_x509ce(void) {
       { "entrustVersInfoFlags", "x509ce.entrustVersInfoFlags",
         FT_BYTES, BASE_NONE, NULL, 0,
         "EntrustInfoFlags", HFILL }},
+    { &hf_x509ce_NFTypes_item,
+      { "NFType", "x509ce.NFType",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_x509ce_capability,
       { "capability", "x509ce.capability",
         FT_UINT64, BASE_DEC, NULL, 0,
@@ -2923,6 +2965,7 @@ void proto_register_x509ce(void) {
     &ett_x509ce_NtdsObjectSid_U,
     &ett_x509ce_EntrustVersionInfo,
     &ett_x509ce_EntrustInfoFlags,
+    &ett_x509ce_NFTypes,
     &ett_x509ce_ScramblerCapabilities,
   };
 
@@ -2970,6 +3013,7 @@ void proto_reg_handoff_x509ce(void) {
   register_ber_oid_dissector("2.5.29.59", dissect_RevokedGroupsSyntax_PDU, proto_x509ce, "id-ce-RevokedGroups");
   register_ber_oid_dissector("2.5.29.60", dissect_ExpiredCertsOnCRL_PDU, proto_x509ce, "id-ce-expiredCertsOnCRL");
   register_ber_oid_dissector("2.5.29.61", dissect_AAIssuingDistPointSyntax_PDU, proto_x509ce, "id-ce-aAissuingDistributionPoint");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.1.34", dissect_NFTypes_PDU, proto_x509ce, "id-pe-nftype");
   register_ber_oid_dissector("2.5.13.35", dissect_CertificateAssertion_PDU, proto_x509ce, "id-mr-certificateMatch");
   register_ber_oid_dissector("2.5.13.36", dissect_CertificatePairExactAssertion_PDU, proto_x509ce, "id-mr-certificatePairExactMatch");
   register_ber_oid_dissector("2.5.13.37", dissect_CertificatePairAssertion_PDU, proto_x509ce, "id-mr-certificatePairMatch");

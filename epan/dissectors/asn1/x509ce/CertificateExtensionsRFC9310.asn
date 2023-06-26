@@ -1,0 +1,28 @@
+     -- ASN.1 file from the RFC9310 definition
+     NFTypeCertExtn
+       { iso(1) identified-organization(3) dod(6) internet(1)
+         security(5) mechanisms(5) pkix(7) id-mod(0)
+         id-mod-nftype(106) }
+
+     DEFINITIONS IMPLICIT TAGS ::=
+     BEGIN
+
+     -- NFTypes Certificate Extension
+
+     ext-NFType EXTENSION ::= {
+       SYNTAX NFTypes
+       IDENTIFIED BY id-pe-nftype }
+
+     -- NFTypes Certificate Extension OID
+
+     id-pe-nftype  OBJECT IDENTIFIER ::=
+        { iso(1) identified-organization(3) dod(6) internet(1)
+          security(5) mechanisms(5) pkix(7) id-pe(1) 34 }
+
+     -- NFTypes Certificate Extension Syntax
+
+     NFTypes ::= SEQUENCE SIZE (1..MAX) OF NFType
+
+     NFType ::= IA5String (SIZE (1..32))
+
+     END

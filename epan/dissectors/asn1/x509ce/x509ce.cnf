@@ -128,6 +128,7 @@ ToBeRevokedSyntax         B "2.5.29.58" "id-ce-toBeRevoked"
 RevokedGroupsSyntax       B "2.5.29.59" "id-ce-RevokedGroups"
 ExpiredCertsOnCRL         B "2.5.29.60" "id-ce-expiredCertsOnCRL"
 AAIssuingDistPointSyntax  B "2.5.29.61" "id-ce-aAissuingDistributionPoint"
+NFTypes                   B "1.3.6.1.5.5.7.1.34" "id-pe-nftype"
 
 CertificateAssertion      B "2.5.13.35" "id-mr-certificateMatch"
 CertificatePairExactAssertion B "2.5.13.36" "id-mr-certificatePairExactMatch"

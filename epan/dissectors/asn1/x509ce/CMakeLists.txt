@@ -20,6 +20,7 @@ set( EXT_ASN_FILE_LIST
 
 set( ASN_FILE_LIST
 	CertificateExtensions.asn
+	CertificateExtensionsRFC9310.asn
 	CertificateExtensionsCiplus.asn
 )
 
