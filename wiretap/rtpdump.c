@@ -56,7 +56,6 @@
 #include <wsutil/wslog.h>
 #include "rtpdump.h"
 #include <string.h>
-#include <errno.h>
 
 /* NB. I've included the version string in the magic for stronger identification.
  * If we add/change version support, we'll also need to edit:

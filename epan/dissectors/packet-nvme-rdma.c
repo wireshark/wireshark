@@ -55,7 +55,6 @@ http://www.iana.org/assignments/service-names-port-numbers/service-names-port-nu
 #include "config.h"
 
 #include <stdlib.h>
-#include <errno.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>

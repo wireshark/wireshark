@@ -35,7 +35,6 @@
 
 #include "config.h"
 #include <stdlib.h>
-#include <errno.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>

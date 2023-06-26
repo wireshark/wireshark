@@ -143,7 +143,6 @@ Number  S/R  Length    Timer                        MAC Address   MAC Address   
 
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>

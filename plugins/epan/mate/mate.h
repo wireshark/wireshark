@@ -21,7 +21,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
 
 #include <wsutil/report_message.h>
 #include <wsutil/wslog.h>

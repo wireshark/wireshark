@@ -15,8 +15,6 @@
 
 #include "config.h"
 
-#include <errno.h>
-
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include <wsutil/buffer.h>

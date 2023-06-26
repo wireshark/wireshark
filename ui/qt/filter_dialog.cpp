@@ -9,8 +9,6 @@
 
 #include <config.h>
 
-#include <errno.h>
-
 #include <glib.h>
 
 #include <wsutil/filter_files.h>

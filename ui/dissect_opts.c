@@ -15,8 +15,6 @@
 
 #include <string.h>
 
-#include <errno.h>
-
 #include <glib.h>
 
 #include <epan/prefs.h>

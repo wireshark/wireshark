@@ -21,7 +21,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
 
 DIAG_OFF_PEDANTIC
 #include <netlink/msg.h>

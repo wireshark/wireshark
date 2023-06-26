@@ -12,8 +12,6 @@
 #include "ascend-int.h"
 #include "file_wrappers.h"
 
-#include <errno.h>
-
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif

@@ -13,7 +13,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 
 static int eyesdn_file_type_subtype = -1;
 

@@ -9,7 +9,6 @@
 #include <config.h>
 
 #include <string.h>
-#include <errno.h>
 
 #include <sys/types.h>
 

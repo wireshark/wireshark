@@ -11,8 +11,6 @@
 
 #include <stdlib.h>
 
-#include <errno.h>
-
 #include "epan/decode_as.h"
 #include "epan/packet.h"
 #include "epan/prefs.h"

@@ -8,7 +8,6 @@
  */
 #include "config.h"
 #include <stdlib.h>
-#include <errno.h>
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"

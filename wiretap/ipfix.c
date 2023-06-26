@@ -52,7 +52,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "ipfix.h"

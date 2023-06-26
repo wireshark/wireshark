@@ -12,8 +12,6 @@
 #ifndef __FILE_H__
 #define __FILE_H__
 
-#include <errno.h>
-
 #include <wiretap/wtap.h>
 #include <epan/epan.h>
 #include <epan/print.h>

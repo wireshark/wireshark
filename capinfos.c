@@ -49,7 +49,6 @@
 #include <string.h>
 #include <stdarg.h>
 #include <locale.h>
-#include <errno.h>
 
 #include <ws_exit_codes.h>
 #include <wsutil/ws_getopt.h>

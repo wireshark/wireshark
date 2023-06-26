@@ -16,7 +16,6 @@
 #include <unistd.h>
 #endif
 
-#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>

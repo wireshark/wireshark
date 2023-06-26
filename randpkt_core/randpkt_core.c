@@ -15,7 +15,6 @@
 #include "randpkt_core.h"
 
 #include <time.h>
-#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <wsutil/file_util.h>

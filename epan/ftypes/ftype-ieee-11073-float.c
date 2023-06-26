@@ -16,7 +16,6 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <math.h>
-#include <errno.h>
 #include <float.h>
 
 #include "strutil.h"

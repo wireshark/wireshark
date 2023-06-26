@@ -19,7 +19,6 @@
 #include <string.h>
 #include <stdarg.h>
 #include <locale.h>
-#include <errno.h>
 
 #include <wsutil/ws_getopt.h>
 

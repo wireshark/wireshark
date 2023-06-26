@@ -18,7 +18,6 @@
 #define _PACKET_LUA_H
 
 #include <glib.h>
-#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
