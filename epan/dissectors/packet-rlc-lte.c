@@ -28,6 +28,7 @@
  */
 
 /* TODO:
+   - use proto_tree_add_item_ret_uint() to avoid lots of redundant fetches/shifts/masks
    - add intermediate results to segments leading to final reassembly
    - use multiple active rlc_channel_reassembly_info's per channel
    - sequence analysis gets confused when we change cells and skip back
@@ -2142,12 +2143,11 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
         offset++;
     }
     else if (p_rlc_lte_info->sequenceNumberLength == UM_SN_LENGTH_10_BITS) {
-        guint8 reserved;
+        guint32 reserved;
         proto_item *ti;
 
         /* Check 3 Reserved bits */
-        reserved = (tvb_get_guint8(tvb, offset) & 0xe0) >> 5;
-        ti = proto_tree_add_item(um_header_tree, hf_rlc_lte_um_fixed_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item_ret_uint(um_header_tree, hf_rlc_lte_um_fixed_reserved, tvb, offset, 1, ENC_BIG_ENDIAN, &reserved);
         if (reserved != 0) {
             expert_add_info_format(pinfo, ti, &ei_rlc_lte_reserved_bits_not_zero,
                       "RLC UM Fixed header Reserved bits not zero (found 0x%x)", reserved);
@@ -2495,18 +2495,18 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
                                proto_item *top_ti,
                                rlc_lte_tap_info *tap_info)
 {
-    guint8 is_data;
-    guint8 is_resegmented;
-    guint8 polling;
-    guint8 fixed_extension;
-    guint8 framing_info;
+    guint32 is_data;
+    guint8  is_resegmented;
+    guint8  polling;
+    guint8  fixed_extension;
+    guint8  framing_info;
     gboolean first_includes_start;
     gboolean last_includes_end;
     proto_item *am_ti;
     proto_tree *am_header_tree;
     proto_item *am_header_ti;
     gint   start_offset = offset;
-    guint16    sn;
+    guint32    sn;
     gboolean is_truncated = FALSE;
     proto_item *truncated_ti;
     rlc_channel_reassembly_info *reassembly_info = NULL;
@@ -2528,8 +2528,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
                                             ett_rlc_lte_am_header);
 
     /* First bit is Data/Control flag           */
-    is_data = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
-    proto_tree_add_item(am_header_tree, hf_rlc_lte_am_data_control, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(am_header_tree, hf_rlc_lte_am_data_control, tvb, offset, 1, ENC_BIG_ENDIAN, &is_data);
     tap_info->isControlPDU = !is_data;
 
     if (!is_data) {
@@ -2574,30 +2573,26 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Sequence Number */
     if (p_rlc_lte_info->sequenceNumberLength == AM_SN_LENGTH_16_BITS) {
-        guint8 reserved;
+        guint32 reserved;
 
         if (is_resegmented) {
             /* Last Segment Field (LSF) */
             proto_tree_add_item(am_header_tree, hf_rlc_lte_am_segment_lsf16, tvb, offset, 1, ENC_BIG_ENDIAN);
             /* Reserved (R1) */
-            am_ti = proto_tree_add_item(am_header_tree, hf_rlc_lte_am_fixed_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
-            reserved = tvb_get_guint8(tvb, offset) & 0x01;
+            am_ti = proto_tree_add_item_ret_uint(am_header_tree, hf_rlc_lte_am_fixed_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN, &reserved);
         } else {
             /* Reserved (R1) */
-            am_ti = proto_tree_add_item(am_header_tree, hf_rlc_lte_am_fixed_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-            reserved = tvb_get_guint8(tvb, offset) & 0x03;
+            am_ti = proto_tree_add_item_ret_uint(am_header_tree, hf_rlc_lte_am_fixed_reserved, tvb, offset, 1, ENC_BIG_ENDIAN, &reserved);
         }
         if (reserved != 0) {
             expert_add_info_format(pinfo, am_ti, &ei_rlc_lte_reserved_bits_not_zero,
-                    "RLC AM Fixed header Reserved bits not zero (found 0x%x)", reserved);
+                    "RLC AM Fixed header Reserved bits not zero (found 0x02%x)", reserved);
         }
         offset += 1;
-        proto_tree_add_item(am_header_tree, hf_rlc_lte_am_fixed_sn16, tvb, offset, 2, ENC_BIG_ENDIAN);
-        sn = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item_ret_uint(am_header_tree, hf_rlc_lte_am_fixed_sn16, tvb, offset, 2, ENC_BIG_ENDIAN, &sn);
         offset += 2;
     } else {
-        proto_tree_add_item(am_header_tree, hf_rlc_lte_am_fixed_sn, tvb, offset, 2, ENC_BIG_ENDIAN);
-        sn = tvb_get_ntohs(tvb, offset) & 0x03ff;
+        proto_tree_add_item_ret_uint(am_header_tree, hf_rlc_lte_am_fixed_sn, tvb, offset, 2, ENC_BIG_ENDIAN, &sn);
         offset += 2;
     }
     tap_info->sequenceNumber = sn;
@@ -2607,19 +2602,17 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /***************************************/
     /* Dissect extra segment header fields */
     if (is_resegmented) {
-        guint16 segmentOffset;
+        guint32 segmentOffset;
 
         if (p_rlc_lte_info->sequenceNumberLength == AM_SN_LENGTH_16_BITS) {
             /* SO */
-            proto_tree_add_item(am_header_tree, hf_rlc_lte_am_segment_so16, tvb, offset, 2, ENC_BIG_ENDIAN);
-            segmentOffset = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_item_ret_uint(am_header_tree, hf_rlc_lte_am_segment_so16, tvb, offset, 2, ENC_BIG_ENDIAN, &segmentOffset);
         } else {
             /* Last Segment Field (LSF) */
             proto_tree_add_item(am_header_tree, hf_rlc_lte_am_segment_lsf, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             /* SO */
-            proto_tree_add_item(am_header_tree, hf_rlc_lte_am_segment_so, tvb, offset, 2, ENC_BIG_ENDIAN);
-            segmentOffset = tvb_get_ntohs(tvb, offset) & 0x7fff;
+            proto_tree_add_item_ret_uint(am_header_tree, hf_rlc_lte_am_segment_so, tvb, offset, 2, ENC_BIG_ENDIAN, &segmentOffset);
         }
         write_pdu_label_and_info(top_ti, am_header_ti, pinfo, " SO=%u ", segmentOffset);
         offset += 2;
@@ -3362,7 +3355,7 @@ void proto_register_rlc_lte(void)
         },
         { &hf_rlc_lte_am_fixed_sn16,
             { "Sequence Number",
-              "rlc-lte.am.fixed.sn", FT_UINT16, BASE_DEC, 0, 0xffff,
+              "rlc-lte.am.fixed.sn", FT_UINT16, BASE_DEC, 0, 0x0,
               "AM Fixed Sequence Number", HFILL
             }
         },
@@ -3380,7 +3373,7 @@ void proto_register_rlc_lte(void)
         },
         { &hf_rlc_lte_am_segment_so16,
             { "Segment Offset",
-              "rlc-lte.am.segment.offset", FT_UINT16, BASE_DEC, 0, 0xffff,
+              "rlc-lte.am.segment.offset", FT_UINT16, BASE_DEC, 0, 0x0,
               NULL, HFILL
             }
         },

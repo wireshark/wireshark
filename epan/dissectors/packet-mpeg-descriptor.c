@@ -6518,12 +6518,12 @@ proto_register_mpeg_descriptor(void)
 
         { &hf_mpeg_descr_ac3_sysa_langcode, {
             "Language Code (Deprecated)", "mpeg_descr.ac3.sysa_langcode",
-            FT_UINT8, BASE_HEX, NULL,  0xff, NULL, HFILL
+            FT_UINT8, BASE_HEX, NULL,  0x0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_ac3_sysa_langcode2, {
             "Language Code 2 (Deprecated)", "mpeg_descr.ac3.sysa_langcode2",
-            FT_UINT8, BASE_HEX, NULL,  0xff, NULL, HFILL
+            FT_UINT8, BASE_HEX, NULL,  0x0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_ac3_sysa_mainid, {

@@ -1709,13 +1709,13 @@ proto_register_vrt(void)
         { &hf_vrt_context_signal_data_format_repeat_count,
             { "Repeat count", "vrt.context.signaldataformat.repeatcount",
             FT_UINT16, BASE_DEC,
-            NULL, 0xFFFF,
+            NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_vrt_context_signal_data_format_vector_size,
             { "Vector size", "vrt.context.signaldataformat.vectorsize",
             FT_UINT16, BASE_DEC,
-            NULL, 0xFFFF,
+            NULL, 0,
             NULL, HFILL }
         },
         { &hf_vrt_context_gps.tsi,

@@ -185,7 +185,7 @@ proto_register_dpnss_link(void)
 		},
 		{ &hf_dpnss_link_control_frameType,
 		  { "Frame Type", "dpnss_link.frameType",
-		    FT_UINT8, BASE_DEC, VALS(dpnss_link_frameType_vals), 0xff,
+		    FT_UINT8, BASE_DEC, VALS(dpnss_link_frameType_vals), 0x0,
 		    NULL, HFILL }
 		}
 	};

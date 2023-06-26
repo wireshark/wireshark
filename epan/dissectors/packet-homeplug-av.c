@@ -1544,7 +1544,7 @@ static const value_string homeplug_av_key_type_vals[] = {
     { 0, NULL }
 };
 
-#define HOMEPLUG_AV_DEV_ID_MASK 0xff
+#define HOMEPLUG_AV_DEV_ID_MASK 0x0
 
 static const value_string homeplug_av_dev_id_vals[] = {
     { 0x00, "Unknown" },

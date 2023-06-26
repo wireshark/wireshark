@@ -706,7 +706,8 @@ static int
 awdl_tag_channel_sequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
   proto_item *chanlist_item, *channel_item;
   proto_tree *chanlist_tree, *channel_tree;
-  guint channels, chan_number;
+  guint channels;
+  guint32 chan_number;
   wmem_strbuf_t *strbuf;
   int offset = 0;
 
@@ -755,8 +756,9 @@ awdl_tag_channel_sequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     chanlist_item = proto_tree_add_item(tree, hf_awdl_channelseq_channel_list, tvb, offset, 2 * channels, ENC_NA);
     chanlist_tree = proto_item_add_subtree(chanlist_item, ett_awdl_channelseq_channel_list);
     for (guint i = 0; i < channels; i++) {
-      chan_number = tvb_get_guint8(tvb, offset + 1);
-      channel_item = proto_tree_add_uint(chanlist_tree, hf_awdl_channelseq_channel, tvb, offset, 2, chan_number);
+      /* channel number is 2nd byte */
+      channel_item = proto_tree_add_item_ret_uint(chanlist_tree, hf_awdl_channelseq_channel, tvb, offset, 2,
+                                                  ENC_LITTLE_ENDIAN, &chan_number);
       channel_tree = proto_item_add_subtree(channel_item, ett_awdl_channelseq_channel);
       proto_tree_add_bitmask(channel_tree, tvb, offset, hf_awdl_channelseq_channel_flags,
                              ett_awdl_channelseq_flags, flags_fields, ENC_LITTLE_ENDIAN);
@@ -776,8 +778,9 @@ awdl_tag_channel_sequence(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     chanlist_item = proto_tree_add_item(tree, hf_awdl_channelseq_channel_list, tvb, offset, 2 * channels, ENC_NA);
     chanlist_tree = proto_item_add_subtree(chanlist_item, ett_awdl_channelseq_channel_list);
     for (guint i = 0; i < channels; i++) {
-      chan_number = tvb_get_guint8(tvb, offset);
-      channel_item = proto_tree_add_uint(chanlist_tree, hf_awdl_channelseq_channel, tvb, offset, 2, chan_number);
+      /* channel number is 2nd byte */
+      channel_item = proto_tree_add_item_ret_uint(chanlist_tree, hf_awdl_channelseq_channel, tvb, offset, 2,
+                                                  ENC_LITTLE_ENDIAN, &chan_number);
       channel_tree = proto_item_add_subtree(channel_item, ett_awdl_channelseq_channel);
       proto_tree_add_item(channel_tree, hf_awdl_channelseq_channel_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;

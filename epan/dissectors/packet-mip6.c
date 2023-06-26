@@ -4513,7 +4513,7 @@ proto_register_mip6(void)
     },
     { &hf_mip6_opt_mnlli_reserved,
       { "Reserved", "mip6.mnlli.reserved",
-        FT_UINT16, BASE_DEC, NULL, 0xffff,
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_mip6_opt_mnlli_lli,
@@ -4580,7 +4580,7 @@ proto_register_mip6(void)
     },
     { &hf_mip6_opt_ipv4coa_reserved,
       { "Reserved", "mip6.ipv4coa.reserved",
-        FT_UINT16, BASE_DEC, NULL, 0xffff,
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_mip6_opt_ipv4coa_addr,

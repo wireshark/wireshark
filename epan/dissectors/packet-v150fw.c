@@ -432,7 +432,7 @@ proto_register_v150fw(void)
                 FT_UINT8,
                 BASE_DEC | BASE_RANGE_STRING,
                 RVALS(v150fw_ric_name),
-                0xFF,
+                0x0,
                 NULL, HFILL
             }
         },
@@ -504,7 +504,7 @@ proto_register_v150fw(void)
                 FT_UINT8,
                 BASE_HEX,
                 NULL,
-                0xFF,
+                0x0,
                 NULL, HFILL
             }
         },

@@ -2161,7 +2161,7 @@ proto_register_ansi_801(void)
 		},
 		{ &hf_ansi_801_pd_message_type,
 		  { "PD Message Type", "ansi_801.pd_message_type",
-		    FT_UINT8, BASE_DEC, NULL, 0xFF,
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_ansi_801_pd_message_len,

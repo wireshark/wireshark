@@ -2274,7 +2274,7 @@ void proto_register_synphasor(void)
 	/* Data type for command frame */
 		{ &hf_command,
 		{ "Command", "synphasor.command", FT_UINT16, BASE_HEX|BASE_RANGE_STRING,
-		  RVALS(command_names), 0xFFFF, NULL, HFILL }},
+		  RVALS(command_names), 0x0, NULL, HFILL }},
 
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_synphasor_data, { "Data", "synphasor.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
