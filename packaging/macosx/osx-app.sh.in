@@ -154,7 +154,8 @@ while read -r library ; do
 done < <( find "$pkgplugin" -name "*.so" -type f -perm -0555 -print | sort )
 bundle_binary_list=("$pkgexec/$app_name" "${secondary_binary_list[@]}" "${plugin_library_list[@]}")
 
-# Fetch a unique list of LC_RPATHs from our executables
+# Fetch a unique list of LC_RPATHs from our executables, which will be used
+# for our dependency search below.
 rpaths=()
 bundle_binary_rpaths=()
 
@@ -186,6 +187,9 @@ echo -e "\\nPrepopulating our libraries"
 
 # Copy only <library>.<SOVERSION>.dylib.
 cp -v +([^.]).+([[:digit:]]).dylib "$pkglib"
+
+printf "\\nSearching the following LC_RPATHs for dependencies:\n"
+printf '%s\n' "${rpaths[@]}"
 
 # Find out libs we need from Fink, MacPorts, or from a custom install
 # (i.e. $LIBPREFIX), then loop until no changes.
@@ -339,7 +343,7 @@ rpathify_file () {
 				base=$( echo "$dep_lib" | awk -F/ '{print $NF}' )
 				to="@rpath/$base"
 				echo "Changing reference to $dep_lib to $to in $1"
-				/usr/bin/install_name_tool -change "$dep_lib" "$to" "$1" &
+				/usr/bin/install_name_tool -change "$dep_lib" "$to" "$1"
 			done < <( otool -L "$1" | grep @executable_path/../Frameworks | awk '{print $1}' )
 
 			#
