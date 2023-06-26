@@ -189,6 +189,7 @@ README.windows for those instructions.
 10/b. If you 're running a system that supports APT (Debian/Ubuntu/etc.)
    run
 
+        ln -sn packaging/debian
         dpkg-buildpackage -us -uc -rfakeroot
 
    in the source directory right after extracting of checking out
