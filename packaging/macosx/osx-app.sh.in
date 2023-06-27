@@ -156,8 +156,8 @@ bundle_binary_list=("$pkgexec/$app_name" "${secondary_binary_list[@]}" "${plugin
 
 # Fetch a unique list of LC_RPATHs from our executables, which will be used
 # for our dependency search below.
+bundle_binary_rpaths=("/usr/local/lib")
 rpaths=()
-bundle_binary_rpaths=()
 
 # macdeployqt handles our Qt dependencies. We handle our Sparkle and
 # internal dependencies.
@@ -188,7 +188,7 @@ echo -e "\\nPrepopulating our libraries"
 # Copy only <library>.<SOVERSION>.dylib.
 cp -v +([^.]).+([[:digit:]]).dylib "$pkglib"
 
-printf "\\nSearching the following LC_RPATHs for dependencies:\n"
+printf "\nSearching the following LC_RPATHs for dependencies:\n"
 printf '%s\n' "${rpaths[@]}"
 
 # Find out libs we need from Fink, MacPorts, or from a custom install
