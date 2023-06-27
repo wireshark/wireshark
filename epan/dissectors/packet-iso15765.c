@@ -955,7 +955,7 @@ proto_register_iso15765(void)
             {
                     &hf_iso15765_target_address,
                     {
-                            "FlexRay Target Address",    "iso15765.flexray_target_address",
+                            "Target Address",    "iso15765.target_address",
                             FT_UINT16,  BASE_HEX,
                             NULL, 0,
                             NULL, HFILL
@@ -964,7 +964,7 @@ proto_register_iso15765(void)
             {
                     &hf_iso15765_source_address,
                     {
-                            "FlexRay Source Address",    "iso15765.flexray_source_address",
+                            "Source Address",    "iso15765.source_address",
                             FT_UINT16,  BASE_HEX,
                             NULL, 0,
                             NULL, HFILL
