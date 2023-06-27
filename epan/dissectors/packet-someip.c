@@ -129,6 +129,7 @@ static int proto_someip = -1;
 
 static dissector_handle_t someip_handle_udp = NULL;
 static dissector_handle_t someip_handle_tcp = NULL;
+static dissector_handle_t dtls_handle = NULL;
 
 /* header field */
 static int hf_someip_messageid                                          = -1;
@@ -235,6 +236,7 @@ static const fragment_items someip_tp_frag_items = {
 static gboolean someip_tp_reassemble = TRUE;
 static gboolean someip_deserializer_activated = TRUE;
 static gboolean someip_deserializer_wtlv_default = FALSE;
+static gboolean someip_detect_dtls = FALSE;
 
 /* SOME/IP Message Types */
 static const value_string someip_msg_type[] = {
@@ -3769,9 +3771,72 @@ dissect_someip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     return tvb_reported_length(tvb);
 }
 
+static gboolean
+could_this_be_dtls(tvbuff_t *tvb) {
+    /* Headers compared
+     *
+     * Byte | SOME/IP     | DTLS
+     * --------------------------------
+     * 00   | Service ID  | Content Type
+     * 01   | Service ID  | Version
+     * 02   | Method ID   | Version
+     * 03   | Method ID   | Epoch
+     * 04   | Length      | Epoch
+     * 05   | Length      | Sequence Counter
+     * 06   | Length      | Sequence Counter
+     * 07   | Length      | Sequence Counter
+     * 08   | Client ID   | Sequence Counter
+     * 09   | Client ID   | Sequence Counter
+     * 10   | Session ID  | Sequence Counter
+     * 11   | Session ID  | Length
+     * 12   | SOME/IP Ver | Length
+     * 13   | Iface Ver   | ...
+     * 14   | Msg Type    | ...
+     * 15   | Return Code | ...
+     * 16   | ...         | ...
+     */
+    gint length = tvb_captured_length_remaining(tvb, 0);
+
+    /* DTLS header is 13 bytes. */
+    if (length < 13) {
+        /* not sure what we have here ... */
+        return false;
+    }
+
+    guint8 dtls_content_type = tvb_get_guint8(tvb, 0);
+    guint16 dtls_version = tvb_get_guint16(tvb, 1, ENC_BIG_ENDIAN);
+    guint16 dtls_length = tvb_get_guint16(tvb, 11, ENC_BIG_ENDIAN);
+
+    gboolean dtls_possible = (20 <= dtls_content_type) && (dtls_content_type <= 63) &&
+                             (0xfefc <= dtls_version) && (dtls_version <= 0xfeff) &&
+                             ((guint32)length == (guint32)dtls_length + 13);
+
+    if (dtls_possible && length < SOMEIP_HDR_LEN) {
+        return true;
+    }
+
+    guint32 someip_length = tvb_get_guint32(tvb, 4, ENC_BIG_ENDIAN);
+    guint8 someip_version = tvb_get_guint8(tvb, 12);
+
+    /* typically this is 1500 bytes or less on UDP but being conservative */
+    gboolean someip_possible = (someip_version == 1) && (8 <= someip_length) && (someip_length <= 65535) &&
+                               ((guint32)length == someip_length + 8);
+
+    return dtls_possible && !someip_possible;
+}
 
 static int
 dissect_someip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+    if (someip_detect_dtls && could_this_be_dtls(tvb)) {
+        if (!PINFO_FD_VISITED(pinfo)) {
+            dissector_add_uint("dtls.port", (guint16)pinfo->destport, someip_handle_udp);
+        }
+
+        if (dtls_handle != 0) {
+            return call_dissector_with_data(dtls_handle, tvb, pinfo, tree, data);
+        }
+    }
+
     return udp_dissect_pdus(tvb, pinfo, tree, SOMEIP_HDR_PART1_LEN, NULL, get_someip_message_len, dissect_someip_message, data);
 }
 
@@ -4283,6 +4348,11 @@ proto_register_someip(void) {
         "Should the SOME/IP Dissector use the payload dissector?",
         &someip_deserializer_activated);
 
+    prefs_register_bool_preference(someip_module, "detect_dtls_and_hand_off",
+        "Try to automatically detect DTLS",
+        "Should the SOME/IP Dissector automatically detect DTLS and hand off to it?",
+        &someip_detect_dtls);
+
     prefs_register_bool_preference(someip_module, "payload_dissector_wtlv_default",
         "Try WTLV payload dissection for unconfigured messages (not pure SOME/IP)",
         "Should the SOME/IP Dissector use the payload dissector with the experimental WTLV encoding for unconfigured messages?",
@@ -4496,6 +4566,8 @@ proto_reg_handoff_someip(void) {
 
         dissector_add_uint_range_with_preference("udp.port", "", someip_handle_udp);
         dissector_add_uint_range_with_preference("tcp.port", "", someip_handle_tcp);
+
+        dtls_handle = find_dissector("dtls");
 
         initialized = TRUE;
     } else {
