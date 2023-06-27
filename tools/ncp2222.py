@@ -324,7 +324,7 @@ class PTVCBitfield(PTVC):
 
     def Code(self):
         ett_name = self.ETTName()
-        x = "static gint %s = -1;\n" % (ett_name,)
+        x = "static int %s = -1;\n" % (ett_name,)
 
         x = x + "static const ptvc_record ptvc_%s[] = {\n" % (self.Name())
         for ptvc_rec in self.list:
@@ -884,7 +884,7 @@ class struct(PTVC, Type):
 
     def Code(self):
         ett_name = self.ETTName()
-        x = "static gint %s = -1;\n" % (ett_name,)
+        x = "static int %s = -1;\n" % (ett_name,)
         x = x + "static const ptvc_record ptvc_%s[] = {\n" % (self.name,)
         for ptvc_rec in self.list:
             x = x +  "    %s,\n" % (ptvc_rec.Code())
@@ -5938,10 +5938,10 @@ static int ptvc_struct_int_storage;
 
     if global_highest_var > -1:
         print("#define NUM_REPEAT_VARS    %d" % (global_highest_var + 1))
-        print("static guint repeat_vars[NUM_REPEAT_VARS];")
+        print("static unsigned repeat_vars[NUM_REPEAT_VARS];")
     else:
         print("#define NUM_REPEAT_VARS    0")
-        print("static guint *repeat_vars = NULL;")
+        print("static unsigned *repeat_vars = NULL;")
 
     print("""
 #define NO_VAR          NUM_REPEAT_VARS
@@ -6735,7 +6735,7 @@ static expert_field ei_ncp_value_too_large = EI_INIT;
 
     print("/* Forward declaration of expert info functions defined in ncp2222.inc */")
     for expert in expert_hash:
-        print("static void %s_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const ncp_record *ncp_rec, gboolean request);" % expert)
+        print("static void %s_expert_func(ptvcursor_t *ptvc, packet_info *pinfo, const ncp_record *ncp_rec, bool request);" % expert)
 
     # Print ncp_record packet records
     print("#define SUBFUNC_WITH_LENGTH      0x02")
@@ -6805,7 +6805,7 @@ static expert_field ei_ncp_value_too_large = EI_INIT;
     print("};\n")
 
     print("/* ncp funcs that require a subfunc */")
-    print("static const guint8 ncp_func_requires_subfunc[] = {")
+    print("static const uint8_t ncp_func_requires_subfunc[] = {")
     hi_seen = {}
     for pkt in packets:
         if pkt.HasSubFunction():
@@ -6818,7 +6818,7 @@ static expert_field ei_ncp_value_too_large = EI_INIT;
 
 
     print("/* ncp funcs that have no length parameter */")
-    print("static const guint8 ncp_func_has_no_length_parameter[] = {")
+    print("static const uint8_t ncp_func_has_no_length_parameter[] = {")
     funcs = list(funcs_without_length.keys())
     funcs.sort()
     for func in funcs:
@@ -8518,7 +8518,7 @@ proto_register_ncp2222(void)
     print("    };\n")
 
     if ett_list:
-        print("    static gint *ett[] = {")
+        print("    static int *ett[] = {")
 
         for ett in ett_list:
             print("        &%s," % (ett,))

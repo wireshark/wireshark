@@ -30,7 +30,7 @@ typedef struct {
 
 struct _ptvc_record {
 	int			*hf_ptr;
-	gint			length;
+	int			length;
 	const sub_ptvc_record	*sub_ptvc_rec;
 	const info_string_t	*req_info_str;
 	unsigned int	endianness;
@@ -43,11 +43,11 @@ struct _ptvc_record {
  * Every NCP packet has this common header (except for burst packets).
  */
 struct ncp_common_header {
-	guint16	type;
-	guint8	sequence;
-	guint8	conn_low;
-	guint8	task;
-	guint8	conn_high; /* type=0x5555 doesn't have this */
+	uint16_t	type;
+	uint8_t	sequence;
+	uint8_t	conn_low;
+	uint8_t	task;
+	uint8_t	conn_high; /* type=0x5555 doesn't have this */
 };
 
 extern gboolean nds_defragment;
@@ -59,7 +59,7 @@ extern gboolean ncp_echo_file;
 extern gboolean ncp_newstyle;
 
 struct _sub_ptvc_record {
-	gint			*ett;
+	int			*ett;
 	const char		*descr;
 	const ptvc_record	*ptvc_rec;
 };
@@ -77,19 +77,19 @@ struct novell_tap {
 typedef struct novell_tap _novell_tap;
 
 typedef struct {
-	guint8			error_in_packet;
-	gint			ncp_error_index;
+	uint8_t			error_in_packet;
+	int			ncp_error_index;
 } error_equivalency;
 
 struct _ncp_record;
-typedef void (ncp_expert_handler)(ptvcursor_t *ptvc, packet_info *pinfo, const struct _ncp_record *ncp_rec, gboolean request);
+typedef void (ncp_expert_handler)(ptvcursor_t *ptvc, packet_info *pinfo, const struct _ncp_record *ncp_rec, bool request);
 
 typedef struct _ncp_record {
-	guint8			func;
-	guint8			subfunc;
-	guint8			has_subfunc;
-	const gchar*		name;
-	gint			group;
+	uint8_t			func;
+	uint8_t			subfunc;
+	uint8_t			has_subfunc;
+	const char*		name;
+	int			group;
 	const ptvc_record	*request_ptvc;
 	const ptvc_record	*reply_ptvc;
 	const error_equivalency	*errors;
@@ -104,47 +104,47 @@ typedef struct _ncp_record {
  */
 typedef struct {
 	const ncp_record	*ncp_rec;
-	gboolean		*req_cond_results;
-	guint32			req_frame_num;
+	bool		*req_cond_results;
+	uint32_t			req_frame_num;
 	nstime_t		req_frame_time;
-	guint16			length;
-	guint32			req_nds_flags;
-	guint32			req_nds_prot_flags;
-	guint8			nds_request_verb;
-	guint8			nds_version;
+	uint16_t			length;
+	uint32_t			req_nds_flags;
+	uint32_t			req_nds_prot_flags;
+	uint8_t			nds_request_verb;
+	uint8_t			nds_version;
 	char			object_name[256];
-	gboolean		nds_frag;
-	guint32			nds_end_frag;
-	guint32			nds_frag_num;
-	guint16			req_mask;
-	guint16			req_mask_ext;
-	guint32			nds_frag_flags;
+	bool		nds_frag;
+	uint32_t			nds_end_frag;
+	uint32_t			nds_frag_num;
+	uint16_t			req_mask;
+	uint16_t			req_mask_ext;
+	uint32_t			nds_frag_flags;
 } ncp_req_hash_value;
 
 WS_DLL_PUBLIC const value_string sss_verb_enum[];
 WS_DLL_PUBLIC const value_string nmas_subverb_enum[];
 WS_DLL_PUBLIC const value_string ncp_nds_verb_vals[];
 
-void dissect_ncp_request(tvbuff_t*, packet_info*, guint32,
-		guint8, guint16, gboolean, proto_tree *volatile);
+void dissect_ncp_request(tvbuff_t*, packet_info*, uint32_t,
+		uint8_t, uint16_t, bool, proto_tree *volatile);
 
-void dissect_ncp_reply(tvbuff_t *, packet_info*, guint32, guint8,
-		guint16, proto_tree*, struct novell_tap*);
+void dissect_ncp_reply(tvbuff_t *, packet_info*, uint32_t, uint8_t,
+		uint16_t, proto_tree*, struct novell_tap*);
 
-void dissect_ping_req(tvbuff_t *, packet_info*, guint32, guint8,
-		guint16, proto_tree*);
+void dissect_ping_req(tvbuff_t *, packet_info*, uint32_t, uint8_t,
+		uint16_t, proto_tree*);
 
-void dissect_nds_request(tvbuff_t*, packet_info*, guint32,
-		guint8, guint16, proto_tree*);
+void dissect_nds_request(tvbuff_t*, packet_info*, uint32_t,
+		uint8_t, uint16_t, proto_tree*);
 
-void nds_defrag(tvbuff_t*, packet_info*, guint32,
-		guint8, guint16, proto_tree*, struct novell_tap*);
+void nds_defrag(tvbuff_t*, packet_info*, uint32_t,
+		uint8_t, uint16_t, proto_tree*, struct novell_tap*);
 
 extern int proto_ncp;
-extern gint ett_ncp;
-extern gint ett_nds;
-extern gint ett_nds_segments;
-extern gint ett_nds_segment;
+extern int ett_ncp;
+extern int ett_nds;
+extern int ett_nds_segments;
+extern int ett_nds_segment;
 
 /*extern dissector_handle_t nds_data_handle;*/
 
