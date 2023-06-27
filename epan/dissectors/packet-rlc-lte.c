@@ -28,7 +28,6 @@
  */
 
 /* TODO:
-   - use proto_tree_add_item_ret_uint() to avoid lots of redundant fetches/shifts/masks
    - add intermediate results to segments leading to final reassembly
    - use multiple active rlc_channel_reassembly_info's per channel
    - sequence analysis gets confused when we change cells and skip back
@@ -2313,7 +2312,8 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
                                           rlc_lte_info *p_rlc_lte_info,
                                           rlc_lte_tap_info *tap_info)
 {
-    guint8     cpt, sn_size, so_size;
+    guint32    cpt;
+    guint8     sn_size, so_size;
     guint32    sn_limit;
     guint64    ack_sn, nack_sn;
     guint16    nack_count = 0, so_end_of_pdu;
@@ -2326,8 +2326,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
     /* Part of RLC control PDU header                               */
 
     /* Control PDU Type (CPT) */
-    cpt = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
-    ti = proto_tree_add_item(tree, hf_rlc_lte_am_cpt, tvb, offset, 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item_ret_uint(tree, hf_rlc_lte_am_cpt, tvb, offset, 1, ENC_BIG_ENDIAN, &cpt);
     if (cpt != 0) {
         /* Protest and stop - only know about STATUS PDUs */
         expert_add_info_format(pinfo, ti, &ei_rlc_lte_am_cpt,
@@ -2496,10 +2495,10 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
                                rlc_lte_tap_info *tap_info)
 {
     guint32 is_data;
-    guint8  is_resegmented;
-    guint8  polling;
-    guint8  fixed_extension;
-    guint8  framing_info;
+    guint32 is_resegmented;
+    guint32 polling;
+    guint32 fixed_extension;
+    guint32 framing_info;
     gboolean first_includes_start;
     gboolean last_includes_end;
     proto_item *am_ti;
@@ -2547,16 +2546,16 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /* Data PDU fixed header      */
 
     /* Re-segmentation Flag (RF) field */
-    is_resegmented = (tvb_get_guint8(tvb, offset) & 0x40) >> 6;
-    proto_tree_add_item(am_header_tree, hf_rlc_lte_am_rf, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(am_header_tree, hf_rlc_lte_am_rf, tvb, offset, 1,
+                                 ENC_BIG_ENDIAN, &is_resegmented);
     tap_info->isResegmented = is_resegmented;
 
     write_pdu_label_and_info_literal(top_ti, NULL, pinfo,
                                      (is_resegmented) ? " [DATA-SEGMENT]" : " [DATA]");
 
     /* Polling bit */
-    polling = (tvb_get_guint8(tvb, offset) & 0x20) >> 5;
-    proto_tree_add_item(am_header_tree, hf_rlc_lte_am_p, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(am_header_tree, hf_rlc_lte_am_p, tvb, offset, 1,
+                                 ENC_BIG_ENDIAN, &polling);
 
     write_pdu_label_and_info_literal(top_ti, NULL, pinfo, (polling) ? " (P) " : "     ");
     if (polling) {
@@ -2564,12 +2563,12 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* Framing Info */
-    framing_info = (tvb_get_guint8(tvb, offset) & 0x18) >> 3;
-    proto_tree_add_item(am_header_tree, hf_rlc_lte_am_fi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(am_header_tree, hf_rlc_lte_am_fi, tvb, offset, 1,
+                                 ENC_BIG_ENDIAN, &framing_info);
 
     /* Extension bit */
-    fixed_extension = (tvb_get_guint8(tvb, offset) & 0x04) >> 2;
-    proto_tree_add_item(am_header_tree, hf_rlc_lte_am_fixed_e, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(am_header_tree, hf_rlc_lte_am_fixed_e, tvb, offset, 1,
+                                 ENC_BIG_ENDIAN, &fixed_extension);
 
     /* Sequence Number */
     if (p_rlc_lte_info->sequenceNumberLength == AM_SN_LENGTH_16_BITS) {
