@@ -170,7 +170,7 @@ cp -v +([^.]).+([[:digit:]]).dylib "$pkglib"
 
 # Fetch a unique list of LC_RPATHs from our executables, which will be used
 # for our dependency search below.
-bundle_binary_rpaths=()
+bundle_binary_rpaths=("/usr/local/lib")
 rpaths=()
 
 # macdeployqt handles our Qt dependencies. We handle our Sparkle and
