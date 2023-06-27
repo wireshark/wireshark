@@ -154,26 +154,6 @@ while read -r library ; do
 done < <( find "$pkgplugin" -name "*.so" -type f -perm -0555 -print | sort )
 bundle_binary_list=("$pkgexec/$app_name" "${secondary_binary_list[@]}" "${plugin_library_list[@]}")
 
-# Fetch a unique list of LC_RPATHs from our executables, which will be used
-# for our dependency search below.
-bundle_binary_rpaths=("/usr/local/lib")
-rpaths=()
-
-# macdeployqt handles our Qt dependencies. We handle our Sparkle and
-# internal dependencies.
-skip_pats="Qt|Sparkle|build/run"
-
-for binary in "${bundle_binary_list[@]}" ; do
-	while read -r rpath ; do
-		bundle_binary_rpaths+=("$rpath")
-	done < <( otool -l "$binary" | grep -A2 LC_RPATH | awk '$1=="path" && $2 !~ /^@/ {print $2}' | grep -E -v "$skip_pats" )
-done
-
-while read -r rpath ; do
-	rpaths+=("$rpath")
-done < <( printf '%s\n' "${bundle_binary_rpaths[@]}" | sort -u)
-
-
 echo -e "\\nFixing up $bundle..."
 
 # Start with a clean Frameworks slate.
@@ -187,6 +167,25 @@ echo -e "\\nPrepopulating our libraries"
 
 # Copy only <library>.<SOVERSION>.dylib.
 cp -v +([^.]).+([[:digit:]]).dylib "$pkglib"
+
+# Fetch a unique list of LC_RPATHs from our executables, which will be used
+# for our dependency search below.
+bundle_binary_rpaths=()
+rpaths=()
+
+# macdeployqt handles our Qt dependencies. We handle our Sparkle and
+# internal dependencies.
+skip_pats="Qt|Sparkle|build/run"
+
+for binary in "${bundle_binary_list[@]}" "$pkglib"/*.dylib ; do
+	while read -r rpath ; do
+		bundle_binary_rpaths+=("$rpath")
+	done < <( otool -l "$binary" | grep -A2 LC_RPATH | awk '$1=="path" && $2 !~ /^@/ {print $2}' | grep -E -v "$skip_pats" )
+done
+
+while read -r rpath ; do
+	rpaths+=("$rpath")
+done < <( printf '%s\n' "${bundle_binary_rpaths[@]}" | sort -u)
 
 printf "\nSearching the following LC_RPATHs for dependencies:\n"
 printf '%s\n' "${rpaths[@]}"
@@ -258,7 +257,11 @@ while $endl; do
 				libs+=("$rpath/$suffix")
 			fi
 		done
-	done < <( otool -L "${bundle_binary_list[@]}" | grep @rpath | grep -E -v "$skip_pats" | sort -u )
+	done < <( otool -L "${bundle_binary_list[@]}" "$pkglib"/*.dylib \
+		| grep @rpath \
+		| grep -E -v "$skip_pats" \
+		| sort -u \
+		)
 	install -m 644 -C -v "${libs[@]}" "$pkglib"
 	(( a++ ))
 	# shellcheck disable=SC2012
