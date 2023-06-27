@@ -69,6 +69,8 @@ static int hf_btl2cap_info_fixedchans_null = -1;
 static int hf_btl2cap_info_fixedchans_signal = -1;
 static int hf_btl2cap_info_fixedchans_connless = -1;
 static int hf_btl2cap_info_fixedchans_amp_man = -1;
+static int hf_btl2cap_info_fixedchans_rfu = -1;
+static int hf_btl2cap_info_fixedchans_smp = -1;
 static int hf_btl2cap_info_fixedchans_amp_test = -1;
 static int hf_btl2cap_info_window = -1;
 static int hf_btl2cap_info_unicast = -1;
@@ -1737,6 +1739,8 @@ dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
             proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_signal,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_connless, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_amp_man,  tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_rfu,  tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_smp,  tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
             proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_amp_test, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
@@ -3332,6 +3336,16 @@ proto_register_btl2cap(void)
         { &hf_btl2cap_info_fixedchans_amp_man,
           { "AMP Manager protocol", "btl2cap.info_fixedchans_amp_man",
             FT_UINT32, BASE_DEC, NULL, 0x8,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_info_fixedchans_rfu,
+          { "Reserved for future use", "btl2cap.info_fixedchans_rfu",
+            FT_UINT32, BASE_DEC, NULL, 0x00000070,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_info_fixedchans_smp,
+          { "BR/EDR Security Manager", "btl2cap.info_fixedchans_smp",
+            FT_UINT32, BASE_DEC, NULL, 0x00000080,
             NULL, HFILL }
         },
         { &hf_btl2cap_info_fixedchans_amp_test,

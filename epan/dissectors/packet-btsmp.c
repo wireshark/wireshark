@@ -36,6 +36,7 @@ static int hf_btsmp_bonding_flags = -1;
 static int hf_btsmp_mitm_flag = -1;
 static int hf_btsmp_secure_connection_flag = -1;
 static int hf_btsmp_keypress_flag = -1;
+static int hf_btsmp_ct2_flag = -1;
 static int hf_btsmp_reserved_flag = -1;
 static int hf_btsmp_max_enc_key_size = -1;
 static int hf_btsmp_key_dist_enc = -1;
@@ -65,6 +66,7 @@ static int * const hfx_btsmp_key_distribution[] = {
 
 static int * const hfx_btsmp_authreq[] = {
     &hf_btsmp_reserved_flag,
+    &hf_btsmp_ct2_flag,
     &hf_btsmp_keypress_flag,
     &hf_btsmp_secure_connection_flag,
     &hf_btsmp_mitm_flag,
@@ -460,9 +462,14 @@ proto_register_btsmp(void)
             FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL}
         },
+        {&hf_btsmp_ct2_flag,
+            {"CT2 Flag", "btsmp.ct2_flag",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL}
+        },
         {&hf_btsmp_reserved_flag,
             {"Reserved", "btsmp.reserved_flags",
-            FT_UINT8, BASE_HEX, NULL, 0xE0,
+            FT_UINT8, BASE_HEX, NULL, 0xC0,
             NULL, HFILL}
         },
         {&hf_btsmp_max_enc_key_size,
@@ -569,6 +576,7 @@ void
 proto_reg_handoff_btsmp(void)
 {
     dissector_add_uint("btl2cap.cid", BTL2CAP_FIXED_CID_SMP, btsmp_handle);
+    dissector_add_uint("btl2cap.cid", BTL2CAP_FIXED_CID_BR_EDR_SM, btsmp_handle);
 }
 
 /*
