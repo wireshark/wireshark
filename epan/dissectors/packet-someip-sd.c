@@ -693,7 +693,7 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item_set_hidden(ti);
 
     /* register ports but we skip 0xfffe because of other-serv */
-    if (serviceid != SOMEIP_SD_SERVICE_ID_OTHER_SERVICE) {
+    if (serviceid != SOMEIP_SD_SERVICE_ID_OTHER_SERVICE && !PINFO_FD_VISITED(pinfo)) {
         someip_sd_register_ports(opt_index1, opt_num1, option_count, option_ports);
         someip_sd_register_ports(opt_index2, opt_num2, option_count, option_ports);
     }
