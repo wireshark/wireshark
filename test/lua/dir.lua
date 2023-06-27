@@ -1,24 +1,10 @@
 -- test script for wslua Dir functions
 
+local testlib = require("testlib")
+local OTHER = "other"
+testlib.init( { [OTHER] = 0 } )
+
 ------------- helper funcs ------------
-
-local total_tests = 0
-
-local function testing(name)
-    print("---- Testing "..name.." ---- ")
-end
-
-local function test(name, ...)
-    total_tests = total_tests + 1
-    io.stdout:write("test "..name.."-"..total_tests.."...")
-    if (...) == true then
-        io.stdout:write("passed\n")
-        return true
-    else
-        io.stdout:write("failed!\n")
-        error(name.." test failed!")
-    end
-end
 
 -- the following are so we can use pcall (which needs a function to call)
 local function callDirFuncBase(name, t)
@@ -47,34 +33,34 @@ end
 -- for our called function results
 local t = {}
 
-testing("Dir basics")
+testlib.testing("Dir basics")
 
-test("global", _G.Dir               ~= nil)
-test("global", type(Dir.make)       == 'function')
-test("global", type(Dir.remove)     == 'function')
-test("global", type(Dir.remove_all) == 'function')
-test("global", type(Dir.open)       == 'function')
-test("global", type(Dir.close)      == 'function')
-test("global", type(Dir.exists)     == 'function')
-test("global", type(Dir.personal_config_path)  == 'function')
-test("global", type(Dir.global_config_path)    == 'function')
-test("global", type(Dir.personal_plugins_path) == 'function')
-test("global", type(Dir.global_plugins_path)   == 'function')
+testlib.test(OTHER,"global", _G.Dir               ~= nil)
+testlib.test(OTHER,"global", type(Dir.make)       == 'function')
+testlib.test(OTHER,"global", type(Dir.remove)     == 'function')
+testlib.test(OTHER,"global", type(Dir.remove_all) == 'function')
+testlib.test(OTHER,"global", type(Dir.open)       == 'function')
+testlib.test(OTHER,"global", type(Dir.close)      == 'function')
+testlib.test(OTHER,"global", type(Dir.exists)     == 'function')
+testlib.test(OTHER,"global", type(Dir.personal_config_path)  == 'function')
+testlib.test(OTHER,"global", type(Dir.global_config_path)    == 'function')
+testlib.test(OTHER,"global", type(Dir.personal_plugins_path) == 'function')
+testlib.test(OTHER,"global", type(Dir.global_plugins_path)   == 'function')
 
-testing("Dir paths/filenames")
+testlib.testing("Dir paths/filenames")
 
-test("Dir.__FILE__", __FILE__ ~= nil)
-test("Dir.__DIR__", __DIR__ ~= nil)
-test("Dir.exists", pcall(callDirFunc, "exists", "temp", t))
-test("Dir.personal_config_path",  pcall(callDirFuncBase, "personal_config_path", t))
-test("Dir.global_config_path",    pcall(callDirFuncBase, "global_config_path", t))
-test("Dir.personal_plugins_path", pcall(callDirFuncBase, "personal_plugins_path", t))
-test("Dir.global_plugins_path",   pcall(callDirFuncBase, "global_plugins_path", t))
+testlib.test(OTHER,"Dir.__FILE__", __FILE__ ~= nil)
+testlib.test(OTHER,"Dir.__DIR__", __DIR__ ~= nil)
+testlib.test(OTHER,"Dir.exists", pcall(callDirFunc, "exists", "temp", t))
+testlib.test(OTHER,"Dir.personal_config_path",  pcall(callDirFuncBase, "personal_config_path", t))
+testlib.test(OTHER,"Dir.global_config_path",    pcall(callDirFuncBase, "global_config_path", t))
+testlib.test(OTHER,"Dir.personal_plugins_path", pcall(callDirFuncBase, "personal_plugins_path", t))
+testlib.test(OTHER,"Dir.global_plugins_path",   pcall(callDirFuncBase, "global_plugins_path", t))
 
 -- Users expect trailing slashes for DATA_DIR and USER_DIR (bug 14619).
 local dirsep = package.config:sub(1,1)
-test("DATA_DIR", string.sub(DATA_DIR, -1) == dirsep)
-test("USER_DIR", string.sub(USER_DIR, -1) == dirsep)
+testlib.test(OTHER,"DATA_DIR", string.sub(DATA_DIR, -1) == dirsep)
+testlib.test(OTHER,"USER_DIR", string.sub(USER_DIR, -1) == dirsep)
 
 print("\nFor your information, I got the following info:\n")
 print("__FILE__ = '" .. __FILE__ .. "'")
@@ -85,54 +71,54 @@ print("personal_plugins_path = '" .. Dir.personal_plugins_path() .. "'")
 print("global_plugins_path   = '" .. Dir.global_plugins_path() .. "'")
 print("\n")
 
-testing("Directory manipulation")
+testlib.testing("Directory manipulation")
 
-test("Dir.exists", pcall(callDirFunc, "exists", "temp", t))
+testlib.test(OTHER,"Dir.exists", pcall(callDirFunc, "exists", "temp", t))
 
 if t.result == true or t.result == false then
     error("this testsuite requires there be no 'temp' directory or file; please remove it")
 end
 
-testing("Dir.make")
+testlib.testing("Dir.make")
 
-test("Dir.make", pcall(callDirFunc, "make", "temp", t) and t.result == true)
-test("Dir.exists", pcall(callDirFunc, "exists", "temp", t) and t.result == true)
+testlib.test(OTHER,"Dir.make", pcall(callDirFunc, "make", "temp", t) and t.result == true)
+testlib.test(OTHER,"Dir.exists", pcall(callDirFunc, "exists", "temp", t) and t.result == true)
 -- make the same dir, should give false
-test("Dir.make", pcall(callDirFunc, "make", "temp", t) and t.result == false)
+testlib.test(OTHER,"Dir.make", pcall(callDirFunc, "make", "temp", t) and t.result == false)
 
-testing("Dir.remove")
+testlib.testing("Dir.remove")
 
-test("Dir.remove", pcall(callDirFunc, "remove", "temp", t) and t.result == true)
-test("Dir.exists", pcall(callDirFunc, "exists", "temp", t) and t.result == nil)
-test("Dir.remove", pcall(callDirFunc, "remove", "temp", t) and t.result == false)
+testlib.test(OTHER,"Dir.remove", pcall(callDirFunc, "remove", "temp", t) and t.result == true)
+testlib.test(OTHER,"Dir.exists", pcall(callDirFunc, "exists", "temp", t) and t.result == nil)
+testlib.test(OTHER,"Dir.remove", pcall(callDirFunc, "remove", "temp", t) and t.result == false)
 
 Dir.make("temp")
 makeFile("temp/file.txt")
 
 -- will return nil because temp has a file
-test("Dir.remove", pcall(callDirFunc, "remove", "temp", t) and t.result == nil)
+testlib.test(OTHER,"Dir.remove", pcall(callDirFunc, "remove", "temp", t) and t.result == nil)
 
-testing("Dir.remove_all")
+testlib.testing("Dir.remove_all")
 
-test("Dir.remove_all", pcall(callDirFunc, "remove_all", "temp", t) and t.result == true)
-test("Dir.remove_all", pcall(callDirFunc, "remove_all", "temp", t) and t.result == false)
-
-Dir.make("temp")
-makeFile("temp/file1.txt")
-makeFile("temp/file2.txt")
-makeFile("temp/file3.txt")
-test("Dir.remove_all", pcall(callDirFunc, "remove_all", "temp", t) and t.result == true)
-test("Dir.remove_all", pcall(callDirFunc, "remove_all", "temp", t) and t.result == false)
-
-testing("Dir.open")
+testlib.test(OTHER,"Dir.remove_all", pcall(callDirFunc, "remove_all", "temp", t) and t.result == true)
+testlib.test(OTHER,"Dir.remove_all", pcall(callDirFunc, "remove_all", "temp", t) and t.result == false)
 
 Dir.make("temp")
 makeFile("temp/file1.txt")
 makeFile("temp/file2.txt")
 makeFile("temp/file3.txt")
-test("Dir.open", pcall(callDirFunc, "open", "temp", t))
-test("Dir.open", type(t.result) == 'userdata')
-test("Dir.open", typeof(t.result) == 'Dir')
+testlib.test(OTHER,"Dir.remove_all", pcall(callDirFunc, "remove_all", "temp", t) and t.result == true)
+testlib.test(OTHER,"Dir.remove_all", pcall(callDirFunc, "remove_all", "temp", t) and t.result == false)
+
+testlib.testing("Dir.open")
+
+Dir.make("temp")
+makeFile("temp/file1.txt")
+makeFile("temp/file2.txt")
+makeFile("temp/file3.txt")
+testlib.test(OTHER,"Dir.open", pcall(callDirFunc, "open", "temp", t))
+testlib.test(OTHER,"Dir.open", type(t.result) == 'userdata')
+testlib.test(OTHER,"Dir.open", typeof(t.result) == 'Dir')
 
 io.stdout:write("calling Dir object...")
 local dir = t.result
@@ -142,20 +128,20 @@ io.stdout:write("passed\n")
 files[dir()] = true
 files[dir()] = true
 
-test("Dir.call", files["file1.txt"])
-test("Dir.call", files["file2.txt"])
-test("Dir.call", files["file3.txt"])
-test("Dir.call", dir() == nil)
-test("Dir.call", dir() == nil)
+testlib.test(OTHER,"Dir.call", files["file1.txt"])
+testlib.test(OTHER,"Dir.call", files["file2.txt"])
+testlib.test(OTHER,"Dir.call", files["file3.txt"])
+testlib.test(OTHER,"Dir.call", dir() == nil)
+testlib.test(OTHER,"Dir.call", dir() == nil)
 
-testing("Dir.close")
+testlib.testing("Dir.close")
 
-test("Dir.close", pcall(callDirFunc, "close", dir, t))
-test("Dir.close", pcall(callDirFunc, "close", dir, t))
+testlib.test(OTHER,"Dir.close", pcall(callDirFunc, "close", dir, t))
+testlib.test(OTHER,"Dir.close", pcall(callDirFunc, "close", dir, t))
 
-testing("Negative testing 1")
+testlib.testing("Negative testing 1")
 -- now try breaking it
-test("Dir.open", pcall(callDirFunc, "open", "temp", t))
+testlib.test(OTHER,"Dir.open", pcall(callDirFunc, "open", "temp", t))
 dir = t.result
 -- call dir() now
 files = {}
@@ -166,44 +152,44 @@ Dir.remove_all("temp")
 -- call it again
 files[dir()] = true
 files[dir()] = true
-test("Dir.call", files["file1.txt"])
-test("Dir.call", files["file2.txt"])
-test("Dir.call", files["file3.txt"])
-test("Dir.close", pcall(callDirFunc, "close", dir, t))
+testlib.test(OTHER,"Dir.call", files["file1.txt"])
+testlib.test(OTHER,"Dir.call", files["file2.txt"])
+testlib.test(OTHER,"Dir.call", files["file3.txt"])
+testlib.test(OTHER,"Dir.close", pcall(callDirFunc, "close", dir, t))
 
-testing("Negative testing 2")
+testlib.testing("Negative testing 2")
 -- do it again, but this time don't do dir() until after removing the files
 Dir.make("temp")
 makeFile("temp/file1.txt")
 makeFile("temp/file2.txt")
 makeFile("temp/file3.txt")
 
-test("Dir.open", pcall(callDirFunc, "open", "temp", t))
+testlib.test(OTHER,"Dir.open", pcall(callDirFunc, "open", "temp", t))
 dir = t.result
 
 Dir.remove_all("temp")
 -- now do it
 file = dir()
-test("Dir.call", file == nil)
-test("Dir.close", pcall(callDirFunc, "close", dir, t))
+testlib.test(OTHER,"Dir.call", file == nil)
+testlib.test(OTHER,"Dir.close", pcall(callDirFunc, "close", dir, t))
 
 
 -- negative tests
-testing("Negative testing 3")
+testlib.testing("Negative testing 3")
 
 -- invalid args
-test("Dir.make", not pcall(callDirFunc, "make", {}, t))
-test("Dir.make", not pcall(callDirFunc, "make", nil, t))
-test("Dir.remove", not pcall(callDirFunc, "remove", {}, t))
-test("Dir.remove", not pcall(callDirFunc, "remove", nil, t))
-test("Dir.remove_all", not pcall(callDirFunc, "remove_all", {}, t))
-test("Dir.remove_all", not pcall(callDirFunc, "remove_all", nil, t))
-test("Dir.open", not pcall(callDirFunc, "open", {}, t))
-test("Dir.open", not pcall(callDirFunc, "open", nil, t))
-test("Dir.close", not pcall(callDirFunc, "close", "dir", t))
-test("Dir.close", not pcall(callDirFunc, "close", nil, t))
+testlib.test(OTHER,"Dir.make", not pcall(callDirFunc, "make", {}, t))
+testlib.test(OTHER,"Dir.make", not pcall(callDirFunc, "make", nil, t))
+testlib.test(OTHER,"Dir.remove", not pcall(callDirFunc, "remove", {}, t))
+testlib.test(OTHER,"Dir.remove", not pcall(callDirFunc, "remove", nil, t))
+testlib.test(OTHER,"Dir.remove_all", not pcall(callDirFunc, "remove_all", {}, t))
+testlib.test(OTHER,"Dir.remove_all", not pcall(callDirFunc, "remove_all", nil, t))
+testlib.test(OTHER,"Dir.open", not pcall(callDirFunc, "open", {}, t))
+testlib.test(OTHER,"Dir.open", not pcall(callDirFunc, "open", nil, t))
+testlib.test(OTHER,"Dir.close", not pcall(callDirFunc, "close", "dir", t))
+testlib.test(OTHER,"Dir.close", not pcall(callDirFunc, "close", nil, t))
 
 
 print("\n-----------------------------\n")
 
-print("All tests passed!\n\n")
+testlib.getResults()

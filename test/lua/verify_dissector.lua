@@ -21,7 +21,7 @@ local lines = {
         "[DNS query message]",
         "[Severity level: Chat]",
         "[Group: Request]",
-       ".000 0... .... .... = Opcode: 0",
+        ".000 0... .... .... = Opcode: 0",
         ".... ..0. .... .... = Truncated: False",
         ".... ...1 .... .... = Recursion desired: yes",
         ".... .... .0.. .... = World War Z - Reserved for future use: 0x0",

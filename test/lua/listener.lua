@@ -1,6 +1,7 @@
 -- test script for various Lua functions
 -- use with dhcp.pcap in test/captures directory
 
+local testlib = require("testlib")
 
 ------------- general test helper funcs ------------
 local FRAME = "frame"
@@ -10,60 +11,20 @@ local DHCP = "dhcp"
 local OTHER = "other"
 local PDISS = "postdissector"
 
-local packet_counts = {}
-local function incPktCount(name)
-    if not packet_counts[name] then
-        packet_counts[name] = 1
-    else
-        packet_counts[name] = packet_counts[name] + 1
-    end
-end
-local function getPktCount(name)
-    return packet_counts[name] or 0
-end
-
-local passed = {}
-local function setPassed(name)
-    if not passed[name] then
-        passed[name] = 1
-    else
-        passed[name] = passed[name] + 1
-    end
-end
-
 -- expected number of runs per type
--- note ip only runs 3 times because it gets removed
--- and dhcp only runs twice because the filter makes it run
+-- note ip (5 tests) only runs 3 times because it gets removed
+-- and dhcp (5 tests) only runs twice because the filter makes it run
 -- once and then it gets replaced with a different one for the second time
-local taptests = { [FRAME]=4, [ETH]=4, [IP]=3, [DHCP]=2, [OTHER]=16 }
-local function getResults()
-    print("\n-----------------------------\n")
-    for k,v in pairs(taptests) do
-        if passed[k] ~= v then
-            print("Something didn't run or ran too much... tests failed!")
-            print("Listener type "..k.." expected: "..v..", but got: "..tostring(passed[k]))
-            return false
-        end
-    end
-    print("All tests passed!\n\n")
-    return true
-end
-
-
-local function testing(type,...)
-    print("---- Testing "..type.." ---- "..tostring(...).." for packet # "..getPktCount(type).." ----")
-end
-
-local function test(type,name, ...)
-    io.stdout:write("test "..type.."-->"..name.."-"..getPktCount(type).."...")
-    if (...) == true then
-        io.stdout:write("passed\n")
-        return true
-    else
-        io.stdout:write("failed!\n")
-        error(name.." test failed!")
-    end
-end
+local n_frames = 4
+local taptests = {
+        [FRAME]=5*n_frames,
+        [ETH]=5*n_frames,
+        [IP]=5*3,
+        [DHCP]=5*2,
+        [OTHER]=16,
+        [PDISS]=n_frames,
+}
+testlib.init(taptests)
 
 local pkt_fields = { [FRAME] = {}, [PDISS] = {} }
 local function getAllFieldInfos(type)
@@ -72,7 +33,7 @@ local function getAllFieldInfos(type)
     for i,v in ipairs(fields) do
         fieldnames[i] = v.name
     end
-    local pktnum = getPktCount(type)
+    local pktnum = testlib.getPktCount(type)
     pkt_fields[type][pktnum] = { ["num"] = #fields, ["fields"] = fieldnames }
 end
 
@@ -123,40 +84,31 @@ local function getListener(tap,name)
 end
 
 ------------- test script ------------
-testing(OTHER,"negative tests")
-local orig_test = test
-test = function (...)
-    if orig_test(OTHER,...) then
-        setPassed(OTHER)
-    end
-end
-test("Listener.new-1",not pcall(makeListener,"FooBARhowdy"))
-test("Listener.new-2",not pcall(makeListener,"ip","FooBARhowdy"))
+testlib.testing(OTHER,"negative tests")
+testlib.test(OTHER,"Listener.new-1",not pcall(makeListener,"FooBARhowdy"))
+testlib.test(OTHER,"Listener.new-2",not pcall(makeListener,"ip","FooBARhowdy"))
 local tmptap = Listener.new()
 local func = function(...)
     passed[OTHER] = 0
     error("This shouldn't be called!")
 end
-test("Listener.set-3",pcall(setListener,tmptap,"packet",func))
-test("Listener.set-4",pcall(setListener,tmptap,"reset",func))
-test("Listener.set-5",pcall(setListener,tmptap,"draw",func))
-test("Listener.set-6",not pcall(setListener,Listener,"packet",func))
-test("Listener.set-7",not pcall(setListener,Listener,"reset",func))
-test("Listener.set-8",not pcall(setListener,Listener,"draw",func))
-test("Listener.set-9",not pcall(setListener,Listener,"foobar",func))
+testlib.test(OTHER,"Listener.set-3",pcall(setListener,tmptap,"packet",func))
+testlib.test(OTHER,"Listener.set-4",pcall(setListener,tmptap,"reset",func))
+testlib.test(OTHER,"Listener.set-5",pcall(setListener,tmptap,"draw",func))
+testlib.test(OTHER,"Listener.set-6",not pcall(setListener,Listener,"packet",func))
+testlib.test(OTHER,"Listener.set-7",not pcall(setListener,Listener,"reset",func))
+testlib.test(OTHER,"Listener.set-8",not pcall(setListener,Listener,"draw",func))
+testlib.test(OTHER,"Listener.set-9",not pcall(setListener,Listener,"foobar",func))
 
-test("Listener.get-10",not pcall(getListener,tmptap,"packet",func))
-test("Listener.get-11",not pcall(getListener,tmptap,"reset",func))
-test("Listener.get-12",not pcall(getListener,tmptap,"draw",func))
+testlib.test(OTHER,"Listener.get-10",not pcall(getListener,tmptap,"packet",func))
+testlib.test(OTHER,"Listener.get-11",not pcall(getListener,tmptap,"reset",func))
+testlib.test(OTHER,"Listener.get-12",not pcall(getListener,tmptap,"draw",func))
 
 print("removing tmptap twice")
-test("Listener.remove-13",pcall(tmptap.remove,tmptap))
-test("Listener.remove-14",pcall(tmptap.remove,tmptap))
+testlib.test(OTHER,"Listener.remove-13",pcall(tmptap.remove,tmptap))
+testlib.test(OTHER,"Listener.remove-14",pcall(tmptap.remove,tmptap))
 
-test("typeof-15", typeof(tmptap) == "Listener")
-
--- revert to original test function
-test = orig_test
+testlib.test(OTHER,"typeof-15", typeof(tmptap) == "Listener")
 
 
 -- declare some field extractors
@@ -176,31 +128,29 @@ local tap_dhcp = Listener.new("dhcp","dhcp.option.dhcp == 1")
 local second_time = false
 
 function tap_frame.packet(pinfo,tvb,frame)
-    incPktCount(FRAME)
-    testing(FRAME,"Frame")
+    testlib.countPacket(FRAME)
+    testlib.testing(FRAME,"Frame")
 
-    test(FRAME,"arg-1", typeof(pinfo) == "Pinfo")
-    test(FRAME,"arg-2", typeof(tvb) == "Tvb")
-    test(FRAME,"arg-3", frame == nil)
+    testlib.test(FRAME,"arg-1", typeof(pinfo) == "Pinfo")
+    testlib.test(FRAME,"arg-2", typeof(tvb) == "Tvb")
+    testlib.test(FRAME,"arg-3", frame == nil)
 
-    test(FRAME,"pinfo.number-1",pinfo.number == getPktCount(FRAME))
+    testlib.test(FRAME,"pinfo.number-1",pinfo.number == testlib.getPktCount(FRAME))
 
     -- check ether addr
     local eth_src1 = tostring(f_eth_src().range)
     local eth_src2 = tostring(tvb:range(6,6))
-    test(FRAME,"FieldInfo.range-1", eth_src1 == eth_src2)
+    testlib.test(FRAME,"FieldInfo.range-1", eth_src1 == eth_src2)
 
     getAllFieldInfos(FRAME)
-
-    setPassed(FRAME)
 end
 
 function tap_eth.packet(pinfo,tvb,eth)
-    incPktCount(ETH)
+    testlib.countPacket(ETH)
 
     -- on the 4th run of eth, remove the ip one and add a new dhcp one
-    if getPktCount(ETH) == 4 then
-        testing(ETH,"removing ip tap, replacing dhcp tap")
+    if testlib.getPktCount(ETH) == 4 then
+        testlib.testing(ETH,"removing ip tap, replacing dhcp tap")
         tap_ip:remove()
         tap_dhcp:remove()
         tap_dhcp = Listener.new("dhcp")
@@ -208,74 +158,69 @@ function tap_eth.packet(pinfo,tvb,eth)
         second_time = true
     end
 
-    testing(ETH,"Eth")
+    testlib.testing(ETH,"Eth")
 
-    test(ETH,"arg-1", typeof(pinfo) == "Pinfo")
-    test(ETH,"arg-2", typeof(tvb) == "Tvb")
-    test(ETH,"arg-3", type(eth) == "table")
+    testlib.test(ETH,"arg-1", typeof(pinfo) == "Pinfo")
+    testlib.test(ETH,"arg-2", typeof(tvb) == "Tvb")
+    testlib.test(ETH,"arg-3", type(eth) == "table")
 
-    test(ETH,"pinfo.number-1",pinfo.number == getPktCount(ETH))
+    testlib.test(ETH,"pinfo.number-1",pinfo.number == testlib.getPktCount(ETH))
 
     -- check ether addr
     local eth_src1 = tostring(f_eth_src().range)
     local eth_src2 = tostring(tvb:range(6,6))
-    test(ETH,"FieldInfo.range-1", eth_src1 == eth_src2)
-
-    setPassed(ETH)
+    testlib.test(ETH,"FieldInfo.range-1", eth_src1 == eth_src2)
 end
 
 function tap_ip.packet(pinfo,tvb,ip)
-    incPktCount(IP)
-    testing(IP,"IP")
+    testlib.countPacket(IP)
+    testlib.testing(IP,"IP")
 
-    test(IP,"arg-1", typeof(pinfo) == "Pinfo")
-    test(IP,"arg-2", typeof(tvb) == "Tvb")
-    test(IP,"arg-3", type(ip) == "table")
+    testlib.test(IP,"arg-1", typeof(pinfo) == "Pinfo")
+    testlib.test(IP,"arg-2", typeof(tvb) == "Tvb")
+    testlib.test(IP,"arg-3", type(ip) == "table")
 
-    test(IP,"pinfo.number-1",pinfo.number == getPktCount(IP))
+    testlib.test(IP,"pinfo.number-1",pinfo.number == testlib.getPktCount(IP))
 
     -- check ether addr
     local eth_src1 = tostring(f_eth_src().range)
     local eth_src2 = tostring(tvb:range(6,6))
-    test(IP,"FieldInfo.range-1", eth_src1 == eth_src2)
-
-    setPassed(IP)
+    testlib.test(IP,"FieldInfo.range-1", eth_src1 == eth_src2)
 end
 
 dhcp_packet = function (pinfo,tvb,dhcp)
-    incPktCount(DHCP)
-    testing(DHCP,"DHCP")
+    testlib.countPacket(DHCP)
+    testlib.testing(DHCP,"DHCP")
 
-    test(DHCP,"arg-1", typeof(pinfo) == "Pinfo")
-    test(DHCP,"arg-2", typeof(tvb) == "Tvb")
-    test(DHCP,"arg-3", dhcp == nil)
+    testlib.test(DHCP,"arg-1", typeof(pinfo) == "Pinfo")
+    testlib.test(DHCP,"arg-2", typeof(tvb) == "Tvb")
+    testlib.test(DHCP,"arg-3", dhcp == nil)
 
     if not second_time then
-        test(DHCP,"pinfo.number-1",pinfo.number == getPktCount(DHCP))
+        testlib.test(DHCP,"pinfo.number-1",pinfo.number == testlib.getPktCount(DHCP))
     else
-        test(DHCP,"pinfo.number-1",pinfo.number == 4)
+        testlib.test(DHCP,"pinfo.number-1",pinfo.number == 4)
     end
 
     -- check ether addr
     local eth_src1 = tostring(f_eth_src().range)
     local eth_src2 = tostring(tvb:range(6,6))
-    test(DHCP,"FieldInfo.range-1", eth_src1 == eth_src2)
-
-    setPassed(DHCP)
+    testlib.test(DHCP,"FieldInfo.range-1", eth_src1 == eth_src2)
 end
 tap_dhcp.packet = dhcp_packet
 
 function tap_frame.reset()
     -- reset never gets called in tshark (sadly)
+    --[[ XXX: this is no longer the case?!
     if not GUI_ENABLED then
         error("reset called!!")
     end
+    --]]
 end
 
 function tap_frame.draw()
-    test(OTHER,"all_field_infos", checkAllFieldInfos())
-    setPassed(OTHER)
-    getResults()
+    testlib.test(OTHER,"all_field_infos", checkAllFieldInfos())
+    testlib.getResults()
 end
 
 -- max_gap.lua
@@ -293,8 +238,9 @@ max_gap_p.fields = { max_gap_field }
 -- then we register max_gap_p as a postdissector
 register_postdissector(max_gap_p,true)
 function max_gap_p.dissector(tvb,pinfo,tree)
-    incPktCount(PDISS)
+    testlib.countPacket(PDISS)
     getAllFieldInfos(PDISS)
+    testlib.pass(PDISS)
 end
 
 

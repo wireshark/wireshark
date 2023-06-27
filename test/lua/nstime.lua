@@ -1,65 +1,19 @@
 -- test script for various Lua functions
 -- use with dhcp.pcap in test/captures directory
 
+local testlib = require("testlib")
 
-------------- general test helper funcs ------------
 local FRAME = "frame"
 local OTHER = "other"
-
-local packet_counts = {}
-local function incPktCount(name)
-    if not packet_counts[name] then
-        packet_counts[name] = 1
-    else
-        packet_counts[name] = packet_counts[name] + 1
-    end
-end
-local function getPktCount(name)
-    return packet_counts[name] or 0
-end
-
-local passed = {}
-local function setPassed(name)
-    if not passed[name] then
-        passed[name] = 1
-    else
-        passed[name] = passed[name] + 1
-    end
-end
 
 -- expected number of runs per type
 -- note ip only runs 3 times because it gets removed
 -- and dhcp only runs twice because the filter makes it run
 -- once and then it gets replaced with a different one for the second time
-local taptests = { [FRAME]=4, [OTHER]=44 }
-local function getResults()
-    print("\n-----------------------------\n")
-    for k,v in pairs(taptests) do
-        if passed[k] ~= v then
-            print("Something didn't run or ran too much... tests failed!")
-            print("Listener type "..k.." expected: "..v..", but got: "..tostring(passed[k]))
-            return false
-        end
-    end
-    print("All tests passed!\n\n")
-    return true
-end
+local n_frames = 4
+local taptests = { [FRAME]=n_frames, [OTHER]=44+n_frames*5 }
 
-
-local function testing(type,...)
-    print("---- Testing "..type.." ---- "..tostring(...).." for packet # "..getPktCount(type).."----")
-end
-
-local function test(type,name, ...)
-    io.stdout:write("test "..type.."-->"..name.."-"..getPktCount(type).."...")
-    if (...) == true then
-        io.stdout:write("passed\n")
-        return true
-    else
-        io.stdout:write("failed!\n")
-        error(name.." test failed!")
-    end
-end
+testlib.init(taptests)
 
 ---------
 -- the following are so we can use pcall (which needs a function to call)
@@ -76,87 +30,76 @@ local function getNSTime(nst,name)
 end
 
 ------------- test script ------------
-testing(OTHER,"negative tests")
-local orig_test = test
-test = function (...)
-    if orig_test(OTHER,...) then
-        setPassed(OTHER)
-    end
-end
-test("NSTime.new-1",not pcall(makeNSTime,"FooBARhowdy"))
-test("NSTime.new-2",not pcall(makeNSTime,"ip","FooBARhowdy"))
+testlib.testing(OTHER,"negative tests")
+testlib.test(OTHER,"NSTime.new-1",not pcall(makeNSTime,"FooBARhowdy"))
+testlib.test(OTHER,"NSTime.new-2",not pcall(makeNSTime,"ip","FooBARhowdy"))
 local tmptime = NSTime()
-test("NSTime.set-3",pcall(setNSTime,tmptime,"secs",10))
-test("NSTime.set-4",not pcall(setNSTime,tmptime,"foobar",1000))
-test("NSTime.set-5",pcall(setNSTime,tmptime,"nsecs",123))
-test("NSTime.set-6",not pcall(setNSTime,NSTime,"secs",0))
-test("NSTime.set-7",not pcall(setNSTime,tmptime,"secs","foobar"))
-test("NSTime.set-8",not pcall(setNSTime,NSTime,"nsecs",0))
-test("NSTime.set-9",not pcall(setNSTime,tmptime,"nsecs","foobar"))
+testlib.test(OTHER,"NSTime.set-3",pcall(setNSTime,tmptime,"secs",10))
+testlib.test(OTHER,"NSTime.set-4",not pcall(setNSTime,tmptime,"foobar",1000))
+testlib.test(OTHER,"NSTime.set-5",pcall(setNSTime,tmptime,"nsecs",123))
+testlib.test(OTHER,"NSTime.set-6",not pcall(setNSTime,NSTime,"secs",0))
+testlib.test(OTHER,"NSTime.set-7",not pcall(setNSTime,tmptime,"secs","foobar"))
+testlib.test(OTHER,"NSTime.set-8",not pcall(setNSTime,NSTime,"nsecs",0))
+testlib.test(OTHER,"NSTime.set-9",not pcall(setNSTime,tmptime,"nsecs","foobar"))
 
-test("NSTime.get-10",pcall(getNSTime,tmptime,"secs"))
-test("NSTime.get-11",pcall(getNSTime,tmptime,"nsecs"))
-test("NSTime.get-12",not pcall(getNSTime,NSTime,"secs"))
-test("NSTime.get-13",not pcall(getNSTime,NSTime,"nsecs"))
+testlib.test(OTHER,"NSTime.get-10",pcall(getNSTime,tmptime,"secs"))
+testlib.test(OTHER,"NSTime.get-11",pcall(getNSTime,tmptime,"nsecs"))
+testlib.test(OTHER,"NSTime.get-12",not pcall(getNSTime,NSTime,"secs"))
+testlib.test(OTHER,"NSTime.get-13",not pcall(getNSTime,NSTime,"nsecs"))
 
 
-testing(OTHER,"basic tests")
+testlib.testing(OTHER,"basic tests")
 local first = NSTime()
 local second = NSTime(100,100)
 local third = NSTime(0,100)
-test("NSTime.secs-14", first.secs == 0)
-test("NSTime.secs-15", second.secs == 100)
-test("NSTime.secs-16", third.secs == 0)
+testlib.test(OTHER,"NSTime.secs-14", first.secs == 0)
+testlib.test(OTHER,"NSTime.secs-15", second.secs == 100)
+testlib.test(OTHER,"NSTime.secs-16", third.secs == 0)
 
-test("NSTime.nsecs-17", first.nsecs == 0)
-test("NSTime.nsecs-18", second.nsecs == 100)
-test("NSTime.nsecs-19", third.nsecs == 100)
+testlib.test(OTHER,"NSTime.nsecs-17", first.nsecs == 0)
+testlib.test(OTHER,"NSTime.nsecs-18", second.nsecs == 100)
+testlib.test(OTHER,"NSTime.nsecs-19", third.nsecs == 100)
 
-test("NSTime.eq-20", first == NSTime())
-test("NSTime.neq-21", second ~= third)
+testlib.test(OTHER,"NSTime.eq-20", first == NSTime())
+testlib.test(OTHER,"NSTime.neq-21", second ~= third)
 
-test("NSTime.add-22", first + second == second)
-test("NSTime.add-23", third + NSTime(100,0) == second)
-test("NSTime.add-24", NSTime(100) + NSTime(nil,100) == second)
+testlib.test(OTHER,"NSTime.add-22", first + second == second)
+testlib.test(OTHER,"NSTime.add-23", third + NSTime(100,0) == second)
+testlib.test(OTHER,"NSTime.add-24", NSTime(100) + NSTime(nil,100) == second)
 
-test("NSTime.lt-25", third < second)
-test("NSTime.gt-26", third > first)
-test("NSTime.le-27", second <= NSTime(100,100))
+testlib.test(OTHER,"NSTime.lt-25", third < second)
+testlib.test(OTHER,"NSTime.gt-26", third > first)
+testlib.test(OTHER,"NSTime.le-27", second <= NSTime(100,100))
 
-test("NSTime.unm-28", -first == first)
-test("NSTime.unm-29", -(-second) == second)
-test("NSTime.unm-30", -second == NSTime(-100,-100))
-test("NSTime.unm-31", -third == NSTime(0,-100))
+testlib.test(OTHER,"NSTime.unm-28", -first == first)
+testlib.test(OTHER,"NSTime.unm-29", -(-second) == second)
+testlib.test(OTHER,"NSTime.unm-30", -second == NSTime(-100,-100))
+testlib.test(OTHER,"NSTime.unm-31", -third == NSTime(0,-100))
 
-test("NSTime.tostring-32", tostring(first) == "0.000000000")
-test("NSTime.tostring-33", tostring(second) == "100.000000100")
-test("NSTime.tostring-34", tostring(third) == "0.000000100")
+testlib.test(OTHER,"NSTime.tostring-32", tostring(first) == "0.000000000")
+testlib.test(OTHER,"NSTime.tostring-33", tostring(second) == "100.000000100")
+testlib.test(OTHER,"NSTime.tostring-34", tostring(third) == "0.000000100")
 
-test("NSTime.tonumber-35", first:tonumber() == 0.0)
-test("NSTime.tonumber-36", second:tonumber() == 100.0000001)
-test("NSTime.tonumber-37", third:tonumber() == 0.0000001)
+testlib.test(OTHER,"NSTime.tonumber-35", first:tonumber() == 0.0)
+testlib.test(OTHER,"NSTime.tonumber-36", second:tonumber() == 100.0000001)
+testlib.test(OTHER,"NSTime.tonumber-37", third:tonumber() == 0.0000001)
 
-testing(OTHER,"setters/getters")
+testlib.testing(OTHER,"setters/getters")
 first.secs = 123
 first.nsecs = 100
-test("NSTime.set-38", first == NSTime(123,100))
-test("NSTime.get-39", first.secs == 123)
-test("NSTime.get-40", first.nsecs == 100)
+testlib.test(OTHER,"NSTime.set-38", first == NSTime(123,100))
+testlib.test(OTHER,"NSTime.get-39", first.secs == 123)
+testlib.test(OTHER,"NSTime.get-40", first.nsecs == 100)
 
 local minus0_4 = NSTime() - NSTime(0,400000000)
-test("NSTime.negative_tonumber-41", minus0_4:tonumber() == -0.4)
-test("NSTime.negative_tostring-42", tostring(minus0_4) == "-0.400000000")
+testlib.test(OTHER,"NSTime.negative_tonumber-41", minus0_4:tonumber() == -0.4)
+testlib.test(OTHER,"NSTime.negative_tostring-42", tostring(minus0_4) == "-0.400000000")
 local minus0_4 = NSTime() - NSTime(1,400000000)
-test("NSTime.negative_tonumber-43", minus0_4:tonumber() == -1.4)
-test("NSTime.negative_tostring-44", tostring(minus0_4) == "-1.400000000")
+testlib.test(OTHER,"NSTime.negative_tonumber-43", minus0_4:tonumber() == -1.4)
+testlib.test(OTHER,"NSTime.negative_tostring-44", tostring(minus0_4) == "-1.400000000")
 
 
 ----------------------------------
--- revert to original test function, kinda sorta
-test = function (...)
-    return orig_test(FRAME,...)
-end
-
 
 -- declare some field extractors
 local f_frame_time       = Field.new("frame.time")
@@ -169,32 +112,32 @@ local begin = NSTime()
 local now, previous
 
 function tap.packet(pinfo,tvb,frame)
-    incPktCount(FRAME)
-    testing(FRAME,"NSTime in Frame")
+    testlib.countPacket(FRAME)
+    testlib.testing(FRAME,"NSTime in Frame")
 
     local fi_now = f_frame_time()
     local fi_rel = f_frame_time_rel()
     local fi_delta = f_frame_time_delta()
 
-    test("typeof-1", typeof(begin) == "NSTime")
-    test("typeof-2", typeof(fi_now()) == "NSTime")
+    testlib.test(OTHER,"typeof-1", typeof(begin) == "NSTime")
+    testlib.test(OTHER,"typeof-2", typeof(fi_now()) == "NSTime")
 
     now = fi_now()
-    if getPktCount(FRAME) == 1 then
-        test("__eq-1", begin == fi_delta())
-        test("NSTime.secs-1", fi_delta().secs == 0)
-        test("NSTime.nsecs-1", fi_delta().nsecs == 0)
+    if testlib.getPktCount(FRAME) == 1 then
+        testlib.test(OTHER,"__eq-1", begin == fi_delta())
+        testlib.test(OTHER,"NSTime.secs-1", fi_delta().secs == 0)
+        testlib.test(OTHER,"NSTime.nsecs-1", fi_delta().nsecs == 0)
         begin = fi_now()
     else
-        test("__sub__eq-1", now - previous == fi_delta())
-        test("__sub__eq-2", now - begin == fi_rel())
-        test("__add-1", (previous - begin) + (now - previous) == fi_rel())
+        testlib.test(OTHER,"__sub__eq-1", now - previous == fi_delta())
+        testlib.test(OTHER,"__sub__eq-2", now - begin == fi_rel())
+        testlib.test(OTHER,"__add-1", (previous - begin) + (now - previous) == fi_rel())
     end
     previous = now
 
-    setPassed(FRAME)
+    testlib.pass(FRAME)
 end
 
 function tap.draw()
-    getResults()
+    testlib.getResults()
 end

@@ -6,78 +6,17 @@
 ----------------------------------------
 
 ------------- general test helper funcs ------------
+local testlib = require("testlib")
+
 local FRAME = "frame"
 local OTHER = "other"
-
-local total_tests = 0
-local function getTotal()
-    return total_tests
-end
-
-
-local packet_counts = {}
-local function incPktCount(name)
-    if not packet_counts[name] then
-        packet_counts[name] = 1
-    else
-        packet_counts[name] = packet_counts[name] + 1
-    end
-end
-local function getPktCount(name)
-    return packet_counts[name] or 0
-end
-
-local passed = {}
-local function setPassed(name)
-    if not passed[name] then
-        passed[name] = 1
-    else
-        passed[name] = passed[name] + 1
-    end
-    total_tests = total_tests + 1
-end
-
-local fail_count = 0
-local function setFailed(name)
-    fail_count = fail_count + 1
-    total_tests = total_tests + 1
-end
 
 -- expected number of runs per type
 -- note ip only runs 3 times because it gets removed
 -- and dhcp only runs twice because the filter makes it run
 -- once and then it gets replaced with a different one for the second time
 local taptests = { [FRAME]=4, [OTHER]=48 }
-local function getResults()
-    print("\n-----------------------------\n")
-    for k,v in pairs(taptests) do
-        if v ~= 0 and passed[k] ~= v then
-            print("Something didn't run or ran too much... tests failed!")
-            print("Dissector type "..k.." expected: "..v..", but got: "..tostring(passed[k]))
-            return false
-        end
-    end
-    print("All tests passed!\n\n")
-    return true
-end
-
-
-local function testing(type,...)
-    print("---- Testing "..type.." ---- "..tostring(...).." for packet # "..getPktCount(type).." ----")
-end
-
-local function test(type,name, ...)
-    io.stdout:write("test "..type.."-->"..name.."-"..getTotal().."-"..getPktCount(type).."...")
-    if (...) == true then
-        setPassed(type)
-        io.stdout:write("passed\n")
-        return true
-    else
-        setFailed(type)
-        io.stdout:write("failed!\n")
-        error(name.." test failed!")
-    end
-end
+testlib.init(taptests)
 
 ---------
 -- the following are so we can use pcall (which needs a function to call)
@@ -99,33 +38,26 @@ end
 
 ------------- test script ------------
 
-----------------------------------
--- modify original test function for now, kinda sorta
-local orig_test = test
-test = function (...)
-    return orig_test(OTHER,...)
-end
-
 ----------------------------------------
 -- creates a Proto object, but doesn't register it yet
-testing(OTHER,"Proto creation")
+testlib.testing(OTHER,"Proto creation")
 
-test("Proto.__call", pcall(callFunc,Proto,"foo","Foo Protocol"))
-test("Proto.__call", pcall(callFunc,Proto,"foo1","Foo1 Protocol"))
-test("Proto.__call", not pcall(callFunc,Proto,"","Bar Protocol"))
-test("Proto.__call", not pcall(callFunc,Proto,nil,"Bar Protocol"))
-test("Proto.__call", not pcall(callFunc,Proto,"bar",""))
-test("Proto.__call", not pcall(callFunc,Proto,"bar",nil))
+testlib.test(OTHER,"Proto.__call", pcall(callFunc,Proto,"foo","Foo Protocol"))
+testlib.test(OTHER,"Proto.__call", pcall(callFunc,Proto,"foo1","Foo1 Protocol"))
+testlib.test(OTHER,"Proto.__call", not pcall(callFunc,Proto,"","Bar Protocol"))
+testlib.test(OTHER,"Proto.__call", not pcall(callFunc,Proto,nil,"Bar Protocol"))
+testlib.test(OTHER,"Proto.__call", not pcall(callFunc,Proto,"bar",""))
+testlib.test(OTHER,"Proto.__call", not pcall(callFunc,Proto,"bar",nil))
 
 
 local dns = Proto("mydns","MyDNS Protocol")
 
-test("Proto.__tostring", tostring(dns) == "Proto: MYDNS")
+testlib.test(OTHER,"Proto.__tostring", tostring(dns) == "Proto: MYDNS")
 
 ----------------------------------------
 -- multiple ways to do the same thing: create a protocol field (but not register it yet)
 -- the abbreviation should always have "<myproto>." before the specific abbreviation, to avoid collisions
-testing(OTHER,"ProtoField creation")
+testlib.testing(OTHER,"ProtoField creation")
 
 local pfields = {} -- a table to hold fields, so we can pass them back/forth through pcall()
 --- variable                -- what dissector.lua did, so we almost match it
@@ -136,31 +68,31 @@ local pf_num_answers       = 4 -- ProtoField.uint16("mydns.num_answers", "Number
 local pf_num_authority_rr  = 5 -- ProtoField.uint16("mydns.num_authority_rr", "Number of Authority RRs")
 local pf_num_additional_rr = 6 -- ProtoField.uint16("mydns.num_additional_rr", "Number of Additional RRs")
 
-test("ProtoField.new",pcall(callObjFuncGetter, pfields,pf_trasaction_id, ProtoField,"new", "Transaction ID", "mydns.trans_id", ftypes.INT16,nil,"base.DEC"))
-test("ProtoField.new",pcall(callObjFuncGetter, pfields,pf_flags, ProtoField,"new", "Flags", "mydns.flags", ftypes.UINT16, nil, "base.HEX"))
+testlib.test(OTHER,"ProtoField.new",pcall(callObjFuncGetter, pfields,pf_trasaction_id, ProtoField,"new", "Transaction ID", "mydns.trans_id", ftypes.INT16,nil,"base.DEC"))
+testlib.test(OTHER,"ProtoField.new",pcall(callObjFuncGetter, pfields,pf_flags, ProtoField,"new", "Flags", "mydns.flags", ftypes.UINT16, nil, "base.HEX"))
 
 -- tries to register a field that already exists (from the real dns proto dissector) but with incompatible type
-test("ProtoField.new_duplicate_bad",not pcall(callObjFuncGetter, pfields,10, ProtoField,"new", "Flags", "dns.flags", ftypes.INT16, nil, "base.HEX"))
-test("ProtoField.int16_duplicate_bad",not pcall(callObjFuncGetter, pfields,10, ProtoField,"int16", "dns.id","Transaction ID"))
+testlib.test(OTHER,"ProtoField.new_duplicate_bad",not pcall(callObjFuncGetter, pfields,10, ProtoField,"new", "Flags", "dns.flags", ftypes.INT16, nil, "base.HEX"))
+testlib.test(OTHER,"ProtoField.int16_duplicate_bad",not pcall(callObjFuncGetter, pfields,10, ProtoField,"int16", "dns.id","Transaction ID"))
 -- now compatible (but different type)
-test("ProtoField.new_duplicate_ok",pcall(callObjFuncGetter, pfields,10, ProtoField,"new", "Flags", "dns.flags", ftypes.UINT32, nil, "base.HEX"))
-test("ProtoField.uint16_duplicate_ok",pcall(callObjFuncGetter, pfields,10, ProtoField,"uint16", "dns.id","Transaction ID"))
+testlib.test(OTHER,"ProtoField.new_duplicate_ok",pcall(callObjFuncGetter, pfields,10, ProtoField,"new", "Flags", "dns.flags", ftypes.UINT32, nil, "base.HEX"))
+testlib.test(OTHER,"ProtoField.uint16_duplicate_ok",pcall(callObjFuncGetter, pfields,10, ProtoField,"uint16", "dns.id","Transaction ID"))
 
 -- invalid valuestring arg
-test("ProtoField.new_invalid_valuestring",not pcall(callObjFuncGetter, pfields,10, ProtoField,"new", "Transaction ID", "mydns.trans_id", ftypes.INT16,"howdy","base.DEC"))
+testlib.test(OTHER,"ProtoField.new_invalid_valuestring",not pcall(callObjFuncGetter, pfields,10, ProtoField,"new", "Transaction ID", "mydns.trans_id", ftypes.INT16,"howdy","base.DEC"))
 -- invalid ftype
-test("ProtoField.new_invalid_ftype",not pcall(callObjFuncGetter, pfields,10, ProtoField,"new", "Transaction ID", "mydns.trans_id", 9999))
+testlib.test(OTHER,"ProtoField.new_invalid_ftype",not pcall(callObjFuncGetter, pfields,10, ProtoField,"new", "Transaction ID", "mydns.trans_id", 9999))
 -- invalid description
---test("ProtoField.new_invalid_description",not pcall(callObjFuncGetter, pfields,10, ProtoField,"new", "", "mydns.trans_id", ftypes.INT16))
-test("ProtoField.new_invalid_description",not pcall(callObjFuncGetter, pfields,10, ProtoField,"new", nil, "mydns.trans_id", ftypes.INT16))
+--testlib.test(OTHER,"ProtoField.new_invalid_description",not pcall(callObjFuncGetter, pfields,10, ProtoField,"new", "", "mydns.trans_id", ftypes.INT16))
+testlib.test(OTHER,"ProtoField.new_invalid_description",not pcall(callObjFuncGetter, pfields,10, ProtoField,"new", nil, "mydns.trans_id", ftypes.INT16))
 
-test("ProtoField.new_invalid_abbr",not pcall(callObjFuncGetter, pfields,10, ProtoField,"new", "trans id", "", ftypes.INT16))
-test("ProtoField.new_invalid_abbr",not pcall(callObjFuncGetter, pfields,10, ProtoField,"new", "trans id", nil, ftypes.INT16))
+testlib.test(OTHER,"ProtoField.new_invalid_abbr",not pcall(callObjFuncGetter, pfields,10, ProtoField,"new", "trans id", "", ftypes.INT16))
+testlib.test(OTHER,"ProtoField.new_invalid_abbr",not pcall(callObjFuncGetter, pfields,10, ProtoField,"new", "trans id", nil, ftypes.INT16))
 
-test("ProtoField.int16",pcall(callObjFuncGetter, pfields,pf_num_questions, ProtoField,"int16", "mydns.num_questions", "Number of Questions"))
-test("ProtoField.int16",pcall(callObjFuncGetter, pfields,pf_num_answers, ProtoField,"int16", "mydns.num_answers", "Number of Answer RRs",base.DEC))
-test("ProtoField.int16",pcall(callObjFuncGetter, pfields,pf_num_authority_rr, ProtoField,"int16", "mydns.num_authority_rr", "Number of Authority RRs",base.DEC))
-test("ProtoField.int16",pcall(callObjFuncGetter, pfields,pf_num_additional_rr, ProtoField,"int16", "mydns.num_additional_rr", "Number of Additional RRs"))
+testlib.test(OTHER,"ProtoField.int16",pcall(callObjFuncGetter, pfields,pf_num_questions, ProtoField,"int16", "mydns.num_questions", "Number of Questions"))
+testlib.test(OTHER,"ProtoField.int16",pcall(callObjFuncGetter, pfields,pf_num_answers, ProtoField,"int16", "mydns.num_answers", "Number of Answer RRs",base.DEC))
+testlib.test(OTHER,"ProtoField.int16",pcall(callObjFuncGetter, pfields,pf_num_authority_rr, ProtoField,"int16", "mydns.num_authority_rr", "Number of Authority RRs",base.DEC))
+testlib.test(OTHER,"ProtoField.int16",pcall(callObjFuncGetter, pfields,pf_num_additional_rr, ProtoField,"int16", "mydns.num_additional_rr", "Number of Additional RRs"))
 
 -- now undo the table thingy
 pf_trasaction_id = pfields[pf_trasaction_id]
@@ -212,7 +144,7 @@ local classes = {
 local pf_query_class        = ProtoField.uint16("mydns.query.class", "Class", base.DEC, classes, nil, "keep it classy folks")
 
 
-testing(OTHER,"Proto functions")
+testlib.testing(OTHER,"Proto functions")
 
 ----------------------------------------
 -- this actually registers the ProtoFields above, into our new Protocol
@@ -226,31 +158,31 @@ local myfields = { pf_trasaction_id, pf_flags,
     pf_query, pf_query_name, pf_query_name_len, pf_query_label_count, pf_query_type, pf_query_class }
 
 --dns.fields = myfields
-test("Proto.fields-set", pcall(setValue,dns,"fields",myfields))
-test("Proto.fields-get", pcall(getValue,dns,"fields"))
-test("Proto.fields-get", #dns.fields == #myfields)
+testlib.test(OTHER,"Proto.fields-set", pcall(setValue,dns,"fields",myfields))
+testlib.test(OTHER,"Proto.fields-get", pcall(getValue,dns,"fields"))
+testlib.test(OTHER,"Proto.fields-get", #dns.fields == #myfields)
 
 local pf_foo = ProtoField.uint16("myfoo.com", "Fooishly", base.DEC, rcodes, 0x000F)
 
 local foo = Proto("myfoo","MyFOO Protocol")
 local bar = Proto("mybar","MyBAR Protocol")
 
-test("Proto.fields-set", pcall(setValue,foo,"fields",pf_foo))
-test("Proto.fields-get", #foo.fields == 1)
-test("Proto.fields-get", foo.fields[1] == pf_foo)
+testlib.test(OTHER,"Proto.fields-set", pcall(setValue,foo,"fields",pf_foo))
+testlib.test(OTHER,"Proto.fields-get", #foo.fields == 1)
+testlib.test(OTHER,"Proto.fields-get", foo.fields[1] == pf_foo)
 
-test("Proto.fields-set", not pcall(setValue,bar,"fields","howdy"))
-test("Proto.fields-set", not pcall(setValue,bar,"fields",nil))
-test("Proto.fields-get", #bar.fields == 0)
+testlib.test(OTHER,"Proto.fields-set", not pcall(setValue,bar,"fields","howdy"))
+testlib.test(OTHER,"Proto.fields-set", not pcall(setValue,bar,"fields",nil))
+testlib.test(OTHER,"Proto.fields-get", #bar.fields == 0)
 
-test("Proto.name-get", foo.name == "MYFOO")
-test("Proto.name-set", not pcall(setValue,foo,"name","howdy"))
+testlib.test(OTHER,"Proto.name-get", foo.name == "MYFOO")
+testlib.test(OTHER,"Proto.name-set", not pcall(setValue,foo,"name","howdy"))
 
-test("Proto.description-get", foo.description == "MyFOO Protocol")
-test("Proto.description-set", not pcall(setValue,foo,"description","howdy"))
+testlib.test(OTHER,"Proto.description-get", foo.description == "MyFOO Protocol")
+testlib.test(OTHER,"Proto.description-set", not pcall(setValue,foo,"description","howdy"))
 
-test("Proto.prefs-get", typeof(foo.prefs) == "Prefs")
-test("Proto.prefs-set", not pcall(setValue,foo,"prefs","howdy"))
+testlib.test(OTHER,"Proto.prefs-get", typeof(foo.prefs) == "Prefs")
+testlib.test(OTHER,"Proto.prefs-set", not pcall(setValue,foo,"prefs","howdy"))
 
 local function dummy()
     setFailed(OTHER)
@@ -259,32 +191,32 @@ local function dummy()
 end
 
 -- can't get this because we haven't set it yet
-test("Proto.dissector-get", not pcall(getValue,foo,"dissector"))
+testlib.test(OTHER,"Proto.dissector-get", not pcall(getValue,foo,"dissector"))
 -- now set it
-test("Proto.dissector-set", pcall(setValue,foo,"dissector",dummy))
-test("Proto.dissector-set", not pcall(setValue,foo,"dissector","howdy"))
-test("Proto.dissector-get", pcall(getValue,foo,"dissector"))
+testlib.test(OTHER,"Proto.dissector-set", pcall(setValue,foo,"dissector",dummy))
+testlib.test(OTHER,"Proto.dissector-set", not pcall(setValue,foo,"dissector","howdy"))
+testlib.test(OTHER,"Proto.dissector-get", pcall(getValue,foo,"dissector"))
 
-test("Proto.prefs_changed-set", pcall(setValue,foo,"prefs_changed",dummy))
-test("Proto.prefs_changed-get", not pcall(getValue,foo,"prefs_changed"))
-test("Proto.prefs_changed-set", not pcall(setValue,foo,"prefs_changed","howdy"))
+testlib.test(OTHER,"Proto.prefs_changed-set", pcall(setValue,foo,"prefs_changed",dummy))
+testlib.test(OTHER,"Proto.prefs_changed-get", not pcall(getValue,foo,"prefs_changed"))
+testlib.test(OTHER,"Proto.prefs_changed-set", not pcall(setValue,foo,"prefs_changed","howdy"))
 
 local function dummy_init()
-    --orig_test(OTHER,"Proto.init-called",true)
+    --testlib.test(OTHER,"Proto.init-called",true)
     return
 end
 
-test("Proto.init-set", pcall(setValue,foo,"init",dummy_init))
-test("Proto.init-set", pcall(setValue,bar,"init",dummy_init))
+testlib.test(OTHER,"Proto.init-set", pcall(setValue,foo,"init",dummy_init))
+testlib.test(OTHER,"Proto.init-set", pcall(setValue,bar,"init",dummy_init))
 
-test("Proto.init-get", not pcall(getValue,foo,"init"))
-test("Proto.init-set", not pcall(setValue,foo,"init","howdy"))
+testlib.test(OTHER,"Proto.init-get", not pcall(getValue,foo,"init"))
+testlib.test(OTHER,"Proto.init-set", not pcall(setValue,foo,"init","howdy"))
 
 local numinits = 0
 function dns.init()
     numinits = numinits + 1
     if numinits == 2 then
-        getResults()
+        testlib.getResults()
     end
 end
 
@@ -367,7 +299,7 @@ local byteArray2String, getQueryName
 -- this function and pass it these arguments for the packet it's dissecting.
 function dns.dissector(tvbuf,pktinfo,root)
 
-    incPktCount(FRAME)
+    testlib.countPacket(FRAME)
 
     -- We want to check that the packet size is rational during dissection, so let's get the length of the
     -- packet buffer (Tvb).
@@ -513,7 +445,7 @@ function dns.dissector(tvbuf,pktinfo,root)
         end
     end
 
-    setPassed(FRAME)
+    testlib.pass(FRAME)
 
     -- tell wireshark how much of tvbuff we dissected
     return pos

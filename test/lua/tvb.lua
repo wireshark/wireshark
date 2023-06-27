@@ -2,44 +2,10 @@
 -- script-name: tvb.lua
 -- This tests the Tvb/TvbRange and proto_add_XXX_item API.
 ----------------------------------------
+local testlib = require("testlib")
 
-------------- general test helper funcs ------------
 local FRAME = "frame"
 local OTHER = "other"
-
-local total_tests = 0
-local function getTotal()
-    return total_tests
-end
-
-
-local packet_counts = {}
-local function incPktCount(name)
-    if not packet_counts[name] then
-        packet_counts[name] = 1
-    else
-        packet_counts[name] = packet_counts[name] + 1
-    end
-end
-local function getPktCount(name)
-    return packet_counts[name] or 0
-end
-
-local passed = {}
-local function setPassed(name)
-    if not passed[name] then
-        passed[name] = 1
-    else
-        passed[name] = passed[name] + 1
-    end
-    total_tests = total_tests + 1
-end
-
-local fail_count = 0
-local function setFailed(name)
-    fail_count = fail_count + 1
-    total_tests = total_tests + 1
-end
 
 -- expected number of runs per type
 --
@@ -54,78 +20,12 @@ end
 --     number of verifyFields() * (1 + number of fields) +
 --     number of verifyResults() * (1 + 2 * number of values)
 --
-local taptests = { [FRAME]=4, [OTHER]=413 }
+local n_frames = 1
+local taptests = { [FRAME]=n_frames, [OTHER]=413*n_frames }
 
-local function getResults()
-    print("\n-----------------------------\n")
-    for k,v in pairs(taptests) do
-        -- each frame run executes the same test again, so multiply by #frames
-        if k ~= "frame" and v ~= 0 then v = (v * taptests.frame) end
-
-        if v ~= 0 and passed[k] ~= v then
-            print("Something didn't run or ran too much... tests failed!")
-            print("Dissector type " .. k ..
-                  " expected: " .. v ..
-                  " (" .. ( v / taptests.frame) .. ")" ..
-                  ", but got: " .. tostring(passed[k]) ..
-                  " (" .. (tonumber(passed[k] or 0) / taptests.frame) .. ")" )
-            return false
-        end
-    end
-    print("All tests passed!\n\n")
-    return true
-end
-
-
-local function testing(type,...)
-    print("\n-------- Testing " .. tostring(...) ..
-          " ---- for packet # " .. getPktCount(type) ..
-          " --------\n")
-end
-
-local function execute(type,name, ...)
-    io.stdout:write("test --> "..name.."-"..getTotal().."-"..getPktCount(type).."...")
-    local results = { ... }
-    if #results > 0 and results[1] == true then
-        setPassed(type)
-        io.stdout:write("passed\n")
-        return true
-    else
-        setFailed(type)
-        io.stdout:write("failed!\n")
-        if #results > 1 then
-            print("Got the following error: '" .. tostring(results[2]) .. "'")
-        end
-        error(name.." test failed!")
-    end
-end
-
----------
--- the following are so we can use pcall (which needs a function to call)
-local function callFunc(func,...)
-    func(...)
-end
-
-local function callObjFuncGetter(vart,varn,tobj,name,...)
-    vart[varn] = tobj[name](...)
-end
-
-local function setValue(tobj,name,value)
-    tobj[name] = value
-end
-
-local function getValue(tobj,name)
-    local foo = tobj[name]
-end
+testlib.init(taptests)
 
 ------------- test script ------------
-
-----------------------------------
--- modify original test function for now, kinda sorta
-local orig_execute = execute
-execute = function (...)
-    return orig_execute(OTHER,...)
-end
 
 ----------------------------------------
 -- creates a Proto object for our testing
@@ -135,7 +35,7 @@ local numinits = 0
 function test_proto.init()
     numinits = numinits + 1
     if numinits == 2 then
-        getResults()
+        testlib.getResults()
     end
 end
 
@@ -255,7 +155,7 @@ end
 local function verifyFields(name, match_fields)
     local finfos = getFieldInfos(name)
 
-    execute ("verify-fields-size-" .. name, #finfos == #match_fields,
+    testlib.test(OTHER, "verify-fields-size-" .. name, #finfos == #match_fields,
              "#finfos=" .. #finfos .. ", #match_fields=" .. #match_fields)
 
     for i, t in ipairs(match_fields) do
@@ -272,7 +172,7 @@ local function verifyFields(name, match_fields)
                 "\n\tfinfos [" .. i .. "]='" .. tostring( result ) .. "'",
                 "\n\tmatches[" .. i .. "]='" .. tostring( value  ) .. "'"
              )
-        execute ( "verify-fields-value-" .. name .. "-" .. i, result == value )
+        testlib.test(OTHER, "verify-fields-value-" .. name .. "-" .. i, result == value )
     end
 end
 
@@ -312,7 +212,7 @@ local function treeAddPField(...)
 end
 
 local function verifyResults(name, match_values)
-    execute ("verify-results-size-" .. name, #result_values == #match_values,
+    testlib.test(OTHER, "verify-results-size-" .. name, #result_values == #match_values,
              "#result_values=" .. #result_values ..
              ", #match_values=" .. #match_values)
 
@@ -338,8 +238,8 @@ local function verifyResults(name, match_values)
             else
                 result_type = type(r)
             end
-            execute ( "verify-results-type-" .. name .. "-" .. i, result_type == match_type )
-            execute ( "verify-results-value-" .. name .. "-" .. i, r == match )
+            testlib.test(OTHER, "verify-results-type-" .. name .. "-" .. i, result_type == match_type )
+            testlib.test(OTHER, "verify-results-value-" .. name .. "-" .. i, r == match )
         end
     end
 end
@@ -358,10 +258,10 @@ print ("timezone = " .. timezone)
 -- The 'tvbuf' is a Tvb object, 'pktinfo' is a Pinfo object, and 'root' is a TreeItem object.
 function test_proto.dissector(tvbuf,pktinfo,root)
 
-    incPktCount(FRAME)
-    incPktCount(OTHER)
+    testlib.countPacket(FRAME)
+    testlib.countPacket(OTHER)
 
-    testing(OTHER, "Basic string")
+    testlib.testing(OTHER, "Basic string")
 
     local tree = root:add(test_proto, tvbuf:range(0,tvbuf:len()))
 
@@ -376,159 +276,159 @@ function test_proto.dissector(tvbuf,pktinfo,root)
 
     local string_match_fields = {}
 
-    execute ("basic-tvb_get_string", tvb_string:range():string() == teststring )
+    testlib.test(OTHER, "basic-tvb_get_string", tvb_string:range():string() == teststring )
 
-    execute ("basic-string", tree:add(testfield.basic.STRING, tvb_string:range(0,tvb_string:len())) ~= nil )
+    testlib.test(OTHER, "basic-string", tree:add(testfield.basic.STRING, tvb_string:range(0,tvb_string:len())) ~= nil )
     addMatchFields(string_match_fields, teststring)
 
-    execute ("basic-string", pcall (callTreeAdd, tree, testfield.basic.STRING, tvb_string:range() ) )
+    testlib.test(OTHER, "basic-string", pcall (callTreeAdd, tree, testfield.basic.STRING, tvb_string:range() ) )
     addMatchFields(string_match_fields, teststring)
 
     verifyFields("basic.STRING", string_match_fields)
 
 ----------------------------------------
-    testing(OTHER, "Basic boolean")
+    testlib.testing(OTHER, "Basic boolean")
 
     local barray_bytes_hex  = "00FF00018000"
     local barray_bytes      = ByteArray.new(barray_bytes_hex)
     local tvb_bytes         = barray_bytes:tvb("Basic bytes")
     local bool_match_fields = {}
 
-    execute ("basic-boolean", pcall (callTreeAdd, tree, testfield.basic.BOOLEAN, tvb_bytes:range(0,2)) )
+    testlib.test(OTHER, "basic-boolean", pcall (callTreeAdd, tree, testfield.basic.BOOLEAN, tvb_bytes:range(0,2)) )
     addMatchFields(bool_match_fields, true)
 
-    execute ("basic-boolean", pcall (callTreeAdd, tree, testfield.basic.BOOLEAN, tvb_bytes:range(2,2)) )
+    testlib.test(OTHER, "basic-boolean", pcall (callTreeAdd, tree, testfield.basic.BOOLEAN, tvb_bytes:range(2,2)) )
     addMatchFields(bool_match_fields, true)
 
-    execute ("basic-boolean", pcall (callTreeAdd, tree, testfield.basic.BOOLEAN, tvb_bytes:range(4,2)) )
+    testlib.test(OTHER, "basic-boolean", pcall (callTreeAdd, tree, testfield.basic.BOOLEAN, tvb_bytes:range(4,2)) )
     addMatchFields(bool_match_fields, false)
 
     verifyFields("basic.BOOLEAN", bool_match_fields )
 
 ----------------------------------------
-    testing(OTHER, "Basic uint16")
+    testlib.testing(OTHER, "Basic uint16")
 
     local uint16_match_fields = {}
 
-    execute ("basic-uint16", pcall (callTreeAdd, tree, testfield.basic.UINT16, tvb_bytes:range(0,2)) )
+    testlib.test(OTHER, "basic-uint16", pcall (callTreeAdd, tree, testfield.basic.UINT16, tvb_bytes:range(0,2)) )
     addMatchFields(uint16_match_fields, 255)
 
-    execute ("basic-uint16", pcall (callTreeAdd, tree, testfield.basic.UINT16, tvb_bytes:range(2,2)) )
+    testlib.test(OTHER, "basic-uint16", pcall (callTreeAdd, tree, testfield.basic.UINT16, tvb_bytes:range(2,2)) )
     addMatchFields(uint16_match_fields, 1)
 
-    execute ("basic-uint16", pcall (callTreeAdd, tree, testfield.basic.UINT16, tvb_bytes:range(4,2)) )
+    testlib.test(OTHER, "basic-uint16", pcall (callTreeAdd, tree, testfield.basic.UINT16, tvb_bytes:range(4,2)) )
     addMatchFields(uint16_match_fields, 32768)
 
     verifyFields("basic.UINT16", uint16_match_fields)
 
 ----------------------------------------
-    testing(OTHER, "Basic uint16-le")
+    testlib.testing(OTHER, "Basic uint16-le")
 
     local function callTreeAddLE(tree,...)
         tree:add_le(...)
     end
 
-    execute ("basic-uint16-le", pcall (callTreeAddLE, tree, testfield.basic.UINT16, tvb_bytes:range(0,2)) )
+    testlib.test(OTHER, "basic-uint16-le", pcall (callTreeAddLE, tree, testfield.basic.UINT16, tvb_bytes:range(0,2)) )
     addMatchFields(uint16_match_fields, 65280)
 
-    execute ("basic-uint16-le", pcall (callTreeAddLE, tree, testfield.basic.UINT16, tvb_bytes:range(2,2)) )
+    testlib.test(OTHER, "basic-uint16-le", pcall (callTreeAddLE, tree, testfield.basic.UINT16, tvb_bytes:range(2,2)) )
     addMatchFields(uint16_match_fields, 256)
 
-    execute ("basic-uint16-le", pcall (callTreeAddLE, tree, testfield.basic.UINT16, tvb_bytes:range(4,2)) )
+    testlib.test(OTHER, "basic-uint16-le", pcall (callTreeAddLE, tree, testfield.basic.UINT16, tvb_bytes:range(4,2)) )
     addMatchFields(uint16_match_fields, 128)
 
     verifyFields("basic.UINT16", uint16_match_fields)
 
 ----------------------------------------
-    testing(OTHER, "Basic int24")
+    testlib.testing(OTHER, "Basic int24")
 
     local int24_match_fields = {}
 
-    execute ("basic-int24", pcall (callTreeAdd, tree, testfield.basic.INT24, tvb_bytes:range(0,3)) )
+    testlib.test(OTHER, "basic-int24", pcall (callTreeAdd, tree, testfield.basic.INT24, tvb_bytes:range(0,3)) )
     addMatchFields(int24_match_fields, 65280)
 
-    execute ("basic-int24", pcall (callTreeAdd, tree, testfield.basic.INT24, tvb_bytes:range(3,3)) )
+    testlib.test(OTHER, "basic-int24", pcall (callTreeAdd, tree, testfield.basic.INT24, tvb_bytes:range(3,3)) )
     addMatchFields(int24_match_fields, 98304)
 
     verifyFields("basic.INT24", int24_match_fields)
 
 ----------------------------------------
-    testing(OTHER, "Basic int24-le")
+    testlib.testing(OTHER, "Basic int24-le")
 
-    execute ("basic-int24", pcall (callTreeAddLE, tree, testfield.basic.INT24, tvb_bytes:range(0,3)) )
+    testlib.test(OTHER, "basic-int24", pcall (callTreeAddLE, tree, testfield.basic.INT24, tvb_bytes:range(0,3)) )
     addMatchFields(int24_match_fields, 65280)
 
-    execute ("basic-int24", pcall (callTreeAddLE, tree, testfield.basic.INT24, tvb_bytes:range(3,3)) )
+    testlib.test(OTHER, "basic-int24", pcall (callTreeAddLE, tree, testfield.basic.INT24, tvb_bytes:range(3,3)) )
     addMatchFields(int24_match_fields, 32769)
 
     verifyFields("basic.INT24", int24_match_fields)
 
 ----------------------------------------
-    testing(OTHER, "Basic bytes")
+    testlib.testing(OTHER, "Basic bytes")
 
     local bytes_match_fields = {}
 
-    execute ("basic-tvb_get_string_bytes",
+    testlib.test(OTHER, "basic-tvb_get_string_bytes",
              string.lower(tostring(tvb_bytes:range():bytes())) == string.lower(barray_bytes_hex))
 
-    execute ("basic-bytes", pcall (callTreeAdd, tree, testfield.basic.BYTES, tvb_bytes:range()) )
+    testlib.test(OTHER, "basic-bytes", pcall (callTreeAdd, tree, testfield.basic.BYTES, tvb_bytes:range()) )
     addMatchFields(bytes_match_fields, barray_bytes)
 
     -- TODO: it's silly that tree:add_packet_field() requires an encoding argument
     --  need to fix that separately in a bug fix
-    execute ("add_pfield-bytes", treeAddPField(tree, testfield.basic.BYTES,
+    testlib.test(OTHER, "add_pfield-bytes", treeAddPField(tree, testfield.basic.BYTES,
                                                tvb_bytes:range(), ENC_BIG_ENDIAN))
     addMatchFields(bytes_match_fields, barray_bytes)
 
     verifyFields("basic.BYTES", bytes_match_fields)
 
 ----------------------------------------
-    testing(OTHER, "Basic uint bytes")
+    testlib.testing(OTHER, "Basic uint bytes")
 
     local len_string        = string.format("%02x", barray_bytes:len())
     local barray_uint_bytes = ByteArray.new(len_string) .. barray_bytes
     local tvb_uint_bytes    = barray_uint_bytes:tvb("Basic UINT_BYTES")
     local uint_bytes_match_fields = {}
 
-    execute ("basic-uint-bytes", pcall (callTreeAdd, tree, testfield.basic.UINT_BYTES,
+    testlib.test(OTHER, "basic-uint-bytes", pcall (callTreeAdd, tree, testfield.basic.UINT_BYTES,
                                         tvb_uint_bytes:range(0,1)) )
     addMatchFields(uint_bytes_match_fields, barray_bytes)
 
-    execute ("add_pfield-uint-bytes", treeAddPField(tree, testfield.basic.UINT_BYTES,
+    testlib.test(OTHER, "add_pfield-uint-bytes", treeAddPField(tree, testfield.basic.UINT_BYTES,
                                                     tvb_uint_bytes:range(0,1), ENC_BIG_ENDIAN) )
     addMatchFields(uint_bytes_match_fields, barray_bytes)
 
     verifyFields("basic.UINT_BYTES", uint_bytes_match_fields)
 
 ----------------------------------------
-    testing(OTHER, "Basic OID")
+    testlib.testing(OTHER, "Basic OID")
 
     -- note: the tvb being dissected and compared isn't actually a valid OID.
     -- tree:add() and tree:add_packet-field() don't care about its validity right now.
 
     local oid_match_fields = {}
 
-    execute ("basic-oid", pcall(callTreeAdd, tree, testfield.basic.OID, tvb_bytes:range()) )
+    testlib.test(OTHER, "basic-oid", pcall(callTreeAdd, tree, testfield.basic.OID, tvb_bytes:range()) )
     addMatchFields(oid_match_fields, barray_bytes)
 
-    execute ("add_pfield-oid", treeAddPField(tree, testfield.basic.OID,
+    testlib.test(OTHER, "add_pfield-oid", treeAddPField(tree, testfield.basic.OID,
                                              tvb_bytes:range(), ENC_BIG_ENDIAN) )
     addMatchFields(oid_match_fields, barray_bytes)
 
     verifyFields("basic.OID", oid_match_fields)
 
 ----------------------------------------
-    testing(OTHER, "Basic REL_OID")
+    testlib.testing(OTHER, "Basic REL_OID")
 
     -- note: the tvb being dissected and compared isn't actually a valid OID.
     -- tree:add() and tree:add_packet-field() don't care about its validity right now.
 
     local rel_oid_match_fields = {}
 
-    execute ("basic-rel-oid", pcall(callTreeAdd, tree, testfield.basic.REL_OID, tvb_bytes:range()))
+    testlib.test(OTHER, "basic-rel-oid", pcall(callTreeAdd, tree, testfield.basic.REL_OID, tvb_bytes:range()))
     addMatchFields(rel_oid_match_fields, barray_bytes)
 
-    execute ("add_pfield-rel_oid", treeAddPField(tree, testfield.basic.REL_OID,
+    testlib.test(OTHER, "add_pfield-rel_oid", treeAddPField(tree, testfield.basic.REL_OID,
                                                  tvb_bytes:range(), ENC_BIG_ENDIAN) )
     addMatchFields(rel_oid_match_fields, barray_bytes)
 
@@ -539,63 +439,63 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     -- local tvb_guid          = barray_guid:tvb("Basic GUID")
     -- local guid_match_fields = {}
 
-    -- execute ("basic-guid", pcall(callTreeAdd, tree, testfield.basic.GUID, tvb_guid:range()) )
+    -- testlib.test(OTHER, "basic-guid", pcall(callTreeAdd, tree, testfield.basic.GUID, tvb_guid:range()) )
     -- addMatchFields(guid_match_fields, barray_guid)
 
-    -- execute ("add_pfield-guid", treeAddPField(tree, testfield.basic.GUID,
+    -- testlib.test(OTHER, "add_pfield-guid", treeAddPField(tree, testfield.basic.GUID,
     --                                          tvb_guid:range(), ENC_BIG_ENDIAN) )
     -- addMatchFields(guid_match_fields, barray_guid)
 
     -- verifyFields("basic.GUID", guid_match_fields)
 
 ----------------------------------------
-    testing(OTHER, "tree:add ipv6")
+    testlib.testing(OTHER, "tree:add ipv6")
 
     local tvb = ByteArray.new("20010db8 00000000 0000ff00 00428329"):tvb("IPv6")
     local IPv6 = testfield.basic.IPv6
     local ipv6_match_fields = {}
 
-    execute ("ipv6", pcall (callTreeAdd, tree, IPv6, tvb:range(0,16)))
+    testlib.test(OTHER, "ipv6", pcall (callTreeAdd, tree, IPv6, tvb:range(0,16)))
     addMatchFields(ipv6_match_fields, Address.ipv6('2001:0db8:0000:0000:0000:ff00:0042:8329'))
 
     verifyFields("basic.IPv6", ipv6_match_fields)
 
 ----------------------------------------
-    testing(OTHER, "tree:add ipv4")
+    testlib.testing(OTHER, "tree:add ipv4")
 
     local tvb = ByteArray.new("7f000001"):tvb("IPv4")
     local IPv4 = testfield.basic.IPv4
     local ipv4_match_fields = {}
 
-    execute ("ipv4", pcall (callTreeAdd, tree, IPv4, tvb:range(0,4)))
+    testlib.test(OTHER, "ipv4", pcall (callTreeAdd, tree, IPv4, tvb:range(0,4)))
     addMatchFields(ipv4_match_fields, Address.ip('127.0.0.1'))
 
     -- TODO: currently, tree:add_le only works for numeric values, not IPv4
     -- addresses. Test this in the future.
 
-    -- execute ("ipv4", pcall (callTreeAddLE, tree, IPv4, tvb:range(0,4)))
+    -- testlib.test(OTHER, "ipv4", pcall (callTreeAddLE, tree, IPv4, tvb:range(0,4)))
     -- addMatchFields(ipv4_match_fields, Address.ip('1.0.0.127'))
 
     verifyFields("basic.IPv4", ipv4_match_fields)
 
 ----------------------------------------
-    testing(OTHER, "tree:add ether")
+    testlib.testing(OTHER, "tree:add ether")
 
     local tvb = ByteArray.new("010203040506"):tvb("Ether")
     local tvb0 = ByteArray.new("000000000000"):tvb("Ether0")
     local ether = testfield.basic.ETHER
     local ether_match_fields = {}
 
-    execute ("ether", pcall (callTreeAdd, tree, ether, tvb:range(0,6)))
+    testlib.test(OTHER, "ether", pcall (callTreeAdd, tree, ether, tvb:range(0,6)))
     addMatchFields(ether_match_fields, Address.ether('01:02:03:04:05:06'))
 
-    execute ("ether0", pcall (callTreeAdd, tree, ether, tvb0:range(0,6)))
+    testlib.test(OTHER, "ether0", pcall (callTreeAdd, tree, ether, tvb0:range(0,6)))
     addMatchFields(ether_match_fields, Address.ether('11:22:33'))
 
     verifyFields("basic.ETHER", ether_match_fields)
 
 ----------------------------------------
-    testing(OTHER, "tree:add_packet_field Bytes")
+    testlib.testing(OTHER, "tree:add_packet_field Bytes")
 
     resetResults()
     bytes_match_fields = {}
@@ -613,15 +513,15 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     local bytestvb2 = ByteArray.new(bytesstring2 .. "-f0-00 foobar", true):tvb("Bytes hex-string 2")
 
     local bytestvb1_decode = bytestvb1:range():bytes(ENC_STR_HEX + ENC_SEP_NONE + ENC_SEP_COLON + ENC_SEP_DASH)
-    execute ("tvb_get_string_bytes", string.lower(tostring(bytestvb1_decode)) == string.lower(tostring(bytesstring1)))
+    testlib.test(OTHER, "tvb_get_string_bytes", string.lower(tostring(bytestvb1_decode)) == string.lower(tostring(bytesstring1)))
 
-    execute ("add_pfield-bytes1", treeAddPField(tree, testfield.bytes.BYTES,
+    testlib.test(OTHER, "add_pfield-bytes1", treeAddPField(tree, testfield.bytes.BYTES,
                                                bytestvb1:range(),
                                                ENC_STR_HEX + ENC_SEP_NONE +
                                                ENC_SEP_COLON + ENC_SEP_DASH))
     addMatch(bytesstring, string.len(bytesstring1))
 
-    execute ("add_pfield-bytes2", treeAddPField(tree, testfield.bytes.BYTES,
+    testlib.test(OTHER, "add_pfield-bytes2", treeAddPField(tree, testfield.bytes.BYTES,
                                                bytestvb2:range(),
                                                ENC_STR_HEX + ENC_SEP_NONE +
                                                ENC_SEP_COLON + ENC_SEP_DASH))
@@ -633,24 +533,24 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     -- extra test of ByteArray
     local b64padded = ByteArray.new("dGVzdA==", true):base64_decode():raw()
     local b64unpadded = ByteArray.new("dGVzdA", true):base64_decode():raw()
-    execute ("bytearray_base64_padded", b64padded == "test")
-    execute ("bytearray_base64_unpadded", b64unpadded == "test")
+    testlib.test(OTHER, "bytearray_base64_padded", b64padded == "test")
+    testlib.test(OTHER, "bytearray_base64_unpadded", b64unpadded == "test")
 
 
 ----------------------------------------
-    testing(OTHER, "tree:add_packet_field OID")
+    testlib.testing(OTHER, "tree:add_packet_field OID")
 
     resetResults()
     bytes_match_fields = {}
     bytes_match_values = {}
 
-    execute ("add_pfield-oid1", treeAddPField(tree, testfield.bytes.OID,
+    testlib.test(OTHER, "add_pfield-oid1", treeAddPField(tree, testfield.bytes.OID,
                                                bytestvb1:range(),
                                                ENC_STR_HEX + ENC_SEP_NONE +
                                                ENC_SEP_COLON + ENC_SEP_DASH))
     addMatch(bytesstring, string.len(bytesstring1))
 
-    execute ("add_pfield-oid2", treeAddPField(tree, testfield.bytes.OID,
+    testlib.test(OTHER, "add_pfield-oid2", treeAddPField(tree, testfield.bytes.OID,
                                                bytestvb2:range(),
                                                ENC_STR_HEX + ENC_SEP_NONE +
                                                ENC_SEP_COLON + ENC_SEP_DASH))
@@ -661,19 +561,19 @@ function test_proto.dissector(tvbuf,pktinfo,root)
 
 
 ----------------------------------------
-    testing(OTHER, "tree:add_packet_field REL_OID")
+    testlib.testing(OTHER, "tree:add_packet_field REL_OID")
 
     resetResults()
     bytes_match_fields = {}
     bytes_match_values = {}
 
-    execute ("add_pfield-rel_oid1", treeAddPField(tree, testfield.bytes.REL_OID,
+    testlib.test(OTHER, "add_pfield-rel_oid1", treeAddPField(tree, testfield.bytes.REL_OID,
                                                bytestvb1:range(),
                                                ENC_STR_HEX + ENC_SEP_NONE +
                                                ENC_SEP_COLON + ENC_SEP_DASH))
     addMatch(bytesstring, string.len(bytesstring1))
 
-    execute ("add_pfield-rel_oid2", treeAddPField(tree, testfield.bytes.REL_OID,
+    testlib.test(OTHER, "add_pfield-rel_oid2", treeAddPField(tree, testfield.bytes.REL_OID,
                                                bytestvb2:range(),
                                                ENC_STR_HEX + ENC_SEP_NONE +
                                                ENC_SEP_COLON + ENC_SEP_DASH))
@@ -684,22 +584,22 @@ function test_proto.dissector(tvbuf,pktinfo,root)
 
 
 ----------------------------------------
-    testing(OTHER, "tree:add Time")
+    testlib.testing(OTHER, "tree:add Time")
 
     local tvb = ByteArray.new("00000000 00000000 0000FF0F 00FF000F"):tvb("Time")
     local ALOCAL = testfield.time.ABSOLUTE_LOCAL
     local alocal_match_fields = {}
 
-    execute ("time-local",    pcall (callTreeAdd,   tree, ALOCAL, tvb:range(0,8)) )
+    testlib.test(OTHER, "time-local",    pcall (callTreeAdd,   tree, ALOCAL, tvb:range(0,8)) )
     addMatchFields(alocal_match_fields, NSTime())
 
-    execute ("time-local",    pcall (callTreeAdd,   tree, ALOCAL, tvb:range(8,8)) )
+    testlib.test(OTHER, "time-local",    pcall (callTreeAdd,   tree, ALOCAL, tvb:range(8,8)) )
     addMatchFields(alocal_match_fields, NSTime( 0x0000FF0F, 0x00FF000F) )
 
-    execute ("time-local-le", pcall (callTreeAddLE, tree, ALOCAL, tvb:range(0,8)) )
+    testlib.test(OTHER, "time-local-le", pcall (callTreeAddLE, tree, ALOCAL, tvb:range(0,8)) )
     addMatchFields(alocal_match_fields, NSTime())
 
-    execute ("time-local-le", pcall (callTreeAddLE, tree, ALOCAL, tvb:range(8,8)) )
+    testlib.test(OTHER, "time-local-le", pcall (callTreeAddLE, tree, ALOCAL, tvb:range(8,8)) )
     addMatchFields(alocal_match_fields, NSTime( 0x0FFF0000, 0x0F00FF00 ) )
 
     verifyFields("time.ABSOLUTE_LOCAL", alocal_match_fields)
@@ -707,22 +607,22 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     local AUTC = testfield.time.ABSOLUTE_UTC
     local autc_match_fields = {}
 
-    execute ("time-utc",    pcall (callTreeAdd,   tree, AUTC, tvb:range(0,8)) )
+    testlib.test(OTHER, "time-utc",    pcall (callTreeAdd,   tree, AUTC, tvb:range(0,8)) )
     addMatchFields(autc_match_fields, NSTime())
 
-    execute ("time-utc",    pcall (callTreeAdd,   tree, AUTC, tvb:range(8,8)) )
+    testlib.test(OTHER, "time-utc",    pcall (callTreeAdd,   tree, AUTC, tvb:range(8,8)) )
     addMatchFields(autc_match_fields, NSTime( 0x0000FF0F, 0x00FF000F) )
 
-    execute ("time-utc-le", pcall (callTreeAddLE, tree, AUTC, tvb:range(0,8)) )
+    testlib.test(OTHER, "time-utc-le", pcall (callTreeAddLE, tree, AUTC, tvb:range(0,8)) )
     addMatchFields(autc_match_fields, NSTime())
 
-    execute ("time-utc-le", pcall (callTreeAddLE, tree, AUTC, tvb:range(8,8)) )
+    testlib.test(OTHER, "time-utc-le", pcall (callTreeAddLE, tree, AUTC, tvb:range(8,8)) )
     addMatchFields(autc_match_fields, NSTime( 0x0FFF0000, 0x0F00FF00 ) )
 
     verifyFields("time.ABSOLUTE_UTC", autc_match_fields )
 
 ----------------------------------------
-    testing(OTHER, "tree:add_packet_field Time bytes")
+    testlib.testing(OTHER, "tree:add_packet_field Time bytes")
 
     resetResults()
     local autc_match_values = {}
@@ -733,16 +633,16 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     end
 
     -- tree:add_packet_field(ALOCAL, tvb:range(0,8), ENC_BIG_ENDIAN)
-    execute ("add_pfield-time-bytes-local",    treeAddPField ( tree, AUTC, tvb:range(0,8), ENC_BIG_ENDIAN) )
+    testlib.test(OTHER, "add_pfield-time-bytes-local",    treeAddPField ( tree, AUTC, tvb:range(0,8), ENC_BIG_ENDIAN) )
     addMatch( NSTime(), 8)
 
-    execute ("add_pfield-time-bytes-local",    treeAddPField ( tree, AUTC, tvb:range(8,8), ENC_BIG_ENDIAN) )
+    testlib.test(OTHER, "add_pfield-time-bytes-local",    treeAddPField ( tree, AUTC, tvb:range(8,8), ENC_BIG_ENDIAN) )
     addMatch( NSTime( 0x0000FF0F, 0x00FF000F), 8)
 
-    execute ("add_pfield-time-bytes-local-le", treeAddPField ( tree, AUTC, tvb:range(0,8), ENC_LITTLE_ENDIAN) )
+    testlib.test(OTHER, "add_pfield-time-bytes-local-le", treeAddPField ( tree, AUTC, tvb:range(0,8), ENC_LITTLE_ENDIAN) )
     addMatch( NSTime(), 8)
 
-    execute ("add_pfield-time-bytes-local-le", treeAddPField ( tree, AUTC, tvb:range(8,8), ENC_LITTLE_ENDIAN) )
+    testlib.test(OTHER, "add_pfield-time-bytes-local-le", treeAddPField ( tree, AUTC, tvb:range(8,8), ENC_LITTLE_ENDIAN) )
     addMatch( NSTime( 0x0FFF0000, 0x0F00FF00 ), 8)
 
     verifyFields("time.ABSOLUTE_UTC", autc_match_fields)
@@ -750,7 +650,7 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     verifyResults("add_pfield-time-bytes-local", autc_match_values)
 
 ----------------------------------------
-    testing(OTHER, "tree:add_packet_field Time string ENC_ISO_8601_DATE_TIME")
+    testlib.testing(OTHER, "tree:add_packet_field Time string ENC_ISO_8601_DATE_TIME")
 
     resetResults()
     autc_match_values = {}
@@ -768,22 +668,22 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     local datetimestring6 =   "2013-03-01T22:14Z"         -- this is 1362176040 seconds epoch time
     local tvb6 = ByteArray.new(datetimestring6, true):tvb("Date_Time string 6")
 
-    execute ("add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb1:range(), ENC_ISO_8601_DATE_TIME) )
+    testlib.test(OTHER, "add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb1:range(), ENC_ISO_8601_DATE_TIME) )
     addMatch( NSTime( 1362176088, 0), string.len(datetimestring1))
 
-    execute ("add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb2:range(), ENC_ISO_8601_DATE_TIME) )
+    testlib.test(OTHER, "add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb2:range(), ENC_ISO_8601_DATE_TIME) )
     addMatch( NSTime( 1362176088, 0), string.len(datetimestring2))
 
-    execute ("add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb3:range(), ENC_ISO_8601_DATE_TIME) )
+    testlib.test(OTHER, "add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb3:range(), ENC_ISO_8601_DATE_TIME) )
     addMatch( NSTime( 1362176040, 0), string.len(datetimestring3))
 
-    execute ("add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb4:range(), ENC_ISO_8601_DATE_TIME) )
+    testlib.test(OTHER, "add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb4:range(), ENC_ISO_8601_DATE_TIME) )
     addMatch( NSTime( 1362176040, 0), string.len(datetimestring4))
 
-    execute ("add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb5:range(), ENC_ISO_8601_DATE_TIME) )
+    testlib.test(OTHER, "add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb5:range(), ENC_ISO_8601_DATE_TIME) )
     addMatch( NSTime( 1362176088, 0), string.len(datetimestring5))
 
-    execute ("add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb6:range(), ENC_ISO_8601_DATE_TIME) )
+    testlib.test(OTHER, "add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb6:range(), ENC_ISO_8601_DATE_TIME) )
     addMatch( NSTime( 1362176040, 0), string.len(datetimestring6))
 
     verifyFields("time.ABSOLUTE_UTC", autc_match_fields)
@@ -791,7 +691,7 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     verifyResults("add_pfield-datetime-local", autc_match_values)
 
 ----------------------------------------
-    testing(OTHER, "tree:add_packet_field Time string ENC_ISO_8601_DATE")
+    testlib.testing(OTHER, "tree:add_packet_field Time string ENC_ISO_8601_DATE")
 
     resetResults()
     autc_match_values = {}
@@ -801,10 +701,10 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     local datestring2 = "  2013-03-01"  -- this is 1362096000 seconds epoch time
     local d_tvb2 = ByteArray.new(datestring2 .. "  foobar", true):tvb("Date string 2")
 
-    execute ("add_pfield-date-local", treeAddPField ( tree, AUTC, d_tvb1:range(), ENC_ISO_8601_DATE) )
+    testlib.test(OTHER, "add_pfield-date-local", treeAddPField ( tree, AUTC, d_tvb1:range(), ENC_ISO_8601_DATE) )
     addMatch( NSTime( 1362096000, 0), string.len(datestring1))
 
-    execute ("add_pfield-date-local", treeAddPField ( tree, AUTC, d_tvb2:range(), ENC_ISO_8601_DATE) )
+    testlib.test(OTHER, "add_pfield-date-local", treeAddPField ( tree, AUTC, d_tvb2:range(), ENC_ISO_8601_DATE) )
     addMatch( NSTime( 1362096000, 0), string.len(datestring2))
 
     verifyFields("time.ABSOLUTE_UTC", autc_match_fields)
@@ -812,7 +712,7 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     verifyResults("add_pfield-date-local", autc_match_values)
 
 ----------------------------------------
-    testing(OTHER, "tree:add_packet_field Time string ENC_ISO_8601_TIME")
+    testlib.testing(OTHER, "tree:add_packet_field Time string ENC_ISO_8601_TIME")
 
     resetResults()
     autc_match_values = {}
@@ -830,10 +730,10 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     timebase = timebase + timezone
     print ("timebase = " .. tostring(timebase) .. ", timezone=" .. timezone)
 
-    execute ("add_pfield-time-local", treeAddPField ( tree, AUTC, t_tvb1:range(), ENC_ISO_8601_TIME) )
+    testlib.test(OTHER, "add_pfield-time-local", treeAddPField ( tree, AUTC, t_tvb1:range(), ENC_ISO_8601_TIME) )
     addMatch( NSTime( timebase, 0), string.len(timestring1))
 
-    execute ("add_pfield-time-local", treeAddPField ( tree, AUTC, t_tvb2:range(), ENC_ISO_8601_TIME) )
+    testlib.test(OTHER, "add_pfield-time-local", treeAddPField ( tree, AUTC, t_tvb2:range(), ENC_ISO_8601_TIME) )
     addMatch( NSTime( timebase, 0), string.len(timestring2))
 
     verifyFields("time.ABSOLUTE_UTC", autc_match_fields)
@@ -841,7 +741,7 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     verifyResults("add_pfield-time-local", autc_match_values)
 
 ----------------------------------------
-    testing(OTHER, "tree:add_packet_field Time string ENC_RFC_822")
+    testlib.testing(OTHER, "tree:add_packet_field Time string ENC_RFC_822")
 
     resetResults()
     autc_match_values = {}
@@ -851,10 +751,10 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     local rfc822string2 = "  Fri, 01 Mar 13 22:14:48 GMT"  -- this is 1362176088 seconds epoch time
     local rfc822_tvb2 = ByteArray.new(rfc822string2 .. "  foobar", true):tvb("RFC 822 Time string 2")
 
-    execute ("add_pfield-time-local", treeAddPField ( tree, AUTC, rfc822_tvb1:range(), ENC_RFC_822) )
+    testlib.test(OTHER, "add_pfield-time-local", treeAddPField ( tree, AUTC, rfc822_tvb1:range(), ENC_RFC_822) )
     addMatch( NSTime( 1362176088, 0), string.len(rfc822string1))
 
-    execute ("add_pfield-time-local", treeAddPField ( tree, AUTC, rfc822_tvb2:range(), ENC_RFC_822) )
+    testlib.test(OTHER, "add_pfield-time-local", treeAddPField ( tree, AUTC, rfc822_tvb2:range(), ENC_RFC_822) )
     addMatch( NSTime( 1362176088, 0), string.len(rfc822string2))
 
     verifyFields("time.ABSOLUTE_UTC", autc_match_fields)
@@ -862,7 +762,7 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     verifyResults("add_pfield-rfc822-local", autc_match_values)
 
 ----------------------------------------
-    testing(OTHER, "tree:add_packet_field Time string ENC_RFC_1123")
+    testlib.testing(OTHER, "tree:add_packet_field Time string ENC_RFC_1123")
 
     resetResults()
     autc_match_values = {}
@@ -872,10 +772,10 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     local rfc1123string2 = "  Fri, 01 Mar 2013 22:14:48 GMT"  -- this is 1362176088 seconds epoch time
     local rfc1123_tvb2 = ByteArray.new(rfc1123string2 .. "  foobar", true):tvb("RFC 1123 Time string 2")
 
-    execute ("add_pfield-time-local", treeAddPField ( tree, AUTC, rfc1123_tvb1:range(), ENC_RFC_1123) )
+    testlib.test(OTHER, "add_pfield-time-local", treeAddPField ( tree, AUTC, rfc1123_tvb1:range(), ENC_RFC_1123) )
     addMatch( NSTime( 1362176088, 0), string.len(rfc1123string1))
 
-    execute ("add_pfield-time-local", treeAddPField ( tree, AUTC, rfc1123_tvb2:range(), ENC_RFC_1123) )
+    testlib.test(OTHER, "add_pfield-time-local", treeAddPField ( tree, AUTC, rfc1123_tvb2:range(), ENC_RFC_1123) )
     addMatch( NSTime( 1362176088, 0), string.len(rfc1123string2))
 
     verifyFields("time.ABSOLUTE_UTC", autc_match_fields)
@@ -883,7 +783,7 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     verifyResults("add_pfield-rfc1123-local", autc_match_values)
 
 ----------------------------------------
-    testing(OTHER, "tree:add_packet_field Time string ENC_ISO_8601_DATE_TIME_BASIC")
+    testlib.testing(OTHER, "tree:add_packet_field Time string ENC_ISO_8601_DATE_TIME_BASIC")
 
     resetResults()
     autc_match_values = {}
@@ -901,22 +801,22 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     local datetimestring6 =   "201303012214Z"         -- this is 1362176040 seconds epoch time
     local tvb6 = ByteArray.new(datetimestring6, true):tvb("Date_Time string 6")
 
-    execute ("add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb1:range(), ENC_ISO_8601_DATE_TIME_BASIC) )
+    testlib.test(OTHER, "add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb1:range(), ENC_ISO_8601_DATE_TIME_BASIC) )
     addMatch( NSTime( 1362176088, 0), string.len(datetimestring1))
 
-    execute ("add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb2:range(), ENC_ISO_8601_DATE_TIME_BASIC) )
+    testlib.test(OTHER, "add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb2:range(), ENC_ISO_8601_DATE_TIME_BASIC) )
     addMatch( NSTime( 1362176088, 0), string.len(datetimestring2))
 
-    execute ("add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb3:range(), ENC_ISO_8601_DATE_TIME_BASIC) )
+    testlib.test(OTHER, "add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb3:range(), ENC_ISO_8601_DATE_TIME_BASIC) )
     addMatch( NSTime( 1362176040, 0), string.len(datetimestring3))
 
-    execute ("add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb4:range(), ENC_ISO_8601_DATE_TIME_BASIC) )
+    testlib.test(OTHER, "add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb4:range(), ENC_ISO_8601_DATE_TIME_BASIC) )
     addMatch( NSTime( 1362176040, 0), string.len(datetimestring4))
 
-    execute ("add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb5:range(), ENC_ISO_8601_DATE_TIME_BASIC) )
+    testlib.test(OTHER, "add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb5:range(), ENC_ISO_8601_DATE_TIME_BASIC) )
     addMatch( NSTime( 1362176088, 0), string.len(datetimestring5))
 
-    execute ("add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb6:range(), ENC_ISO_8601_DATE_TIME_BASIC) )
+    testlib.test(OTHER, "add_pfield-datetime-local", treeAddPField ( tree, AUTC, tvb6:range(), ENC_ISO_8601_DATE_TIME_BASIC) )
     addMatch( NSTime( 1362176040, 0), string.len(datetimestring6))
 
     verifyFields("time.ABSOLUTE_UTC", autc_match_fields)
@@ -924,7 +824,7 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     verifyResults("add_pfield-datetime-local", autc_match_values)
 
 ----------------------------------------
-    testing(OTHER, "TvbRange subsets")
+    testlib.testing(OTHER, "TvbRange subsets")
 
     resetResults()
 
@@ -945,81 +845,81 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     range = bytestvb1()
     range_raw = range:raw()
     expected = range:bytes():raw()
-    execute ("tvbrange_raw", range_raw == expected,
+    testlib.test(OTHER, "tvbrange_raw", range_raw == expected,
         string.format('range_raw="%s" expected="%s"', range_raw, expected))
     range_raw = range:raw(b_offset)
     expected = range:bytes():raw(b_offset)
-    execute ("tvbrange_raw_offset", range_raw == expected,
+    testlib.test(OTHER, "tvbrange_raw_offset", range_raw == expected,
         string.format('range_raw="%s" expected="%s"', range_raw, expected))
     range_raw = range:raw(0, b_len)
     expected = range:bytes():raw(0, b_len)
-    execute ("tvbrange_raw_len", range_raw == expected,
+    testlib.test(OTHER, "tvbrange_raw_len", range_raw == expected,
         string.format('range_raw="%s" expected="%s"', range_raw, expected))
     range_raw = range:raw(b_offset, b_len)
     expected = range:bytes():raw(b_offset, b_len)
-    execute ("tvbrange_raw_offset_len", range_raw == expected,
+    testlib.test(OTHER, "tvbrange_raw_offset_len", range_raw == expected,
         string.format('range_raw="%s" expected="%s"', range_raw, expected))
 
     -- tvbrange with len only
     range = bytestvb1(0, len)
     range_raw = range:raw()
     expected = range:bytes():raw()
-    execute ("tvbrange_len_raw", range_raw == expected,
+    testlib.test(OTHER, "tvbrange_len_raw", range_raw == expected,
         string.format('range_raw="%s" expected="%s"', range_raw, expected))
     range_raw = range:raw(b_offset)
     expected = range:bytes():raw(b_offset)
-    execute ("tvbrange_len_raw_offset", range_raw == expected,
+    testlib.test(OTHER, "tvbrange_len_raw_offset", range_raw == expected,
         string.format('range_raw="%s" expected="%s"', range_raw, expected))
     range_raw = range:raw(0, b_len)
     expected = range:bytes():raw(0, b_len)
-    execute ("tvbrange_len_raw_len", range_raw == expected,
+    testlib.test(OTHER, "tvbrange_len_raw_len", range_raw == expected,
         string.format('range_raw="%s" expected="%s"', range_raw, expected))
     range_raw = range:raw(b_offset, b_len)
     expected = range:bytes():raw(b_offset, b_len)
-    execute ("tvbrange_len_raw_offset_len", range_raw == expected,
+    testlib.test(OTHER, "tvbrange_len_raw_offset_len", range_raw == expected,
         string.format('range_raw="%s" expected="%s"', range_raw, expected))
 
     -- tvbrange with offset only
     range = bytestvb1(offset)
     range_raw = range:raw()
     expected = range:bytes():raw()
-    execute ("tvbrange_offset_raw", range_raw == expected,
+    testlib.test(OTHER, "tvbrange_offset_raw", range_raw == expected,
         string.format('range_raw="%s" expected="%s"', range_raw, expected))
     range_raw = range:raw(b_offset)
     expected = range:bytes():raw(b_offset)
-    execute ("tvbrange_offset_raw_offset", range_raw == expected,
+    testlib.test(OTHER, "tvbrange_offset_raw_offset", range_raw == expected,
         string.format('range_raw="%s" expected="%s"', range_raw, expected))
     range_raw = range:raw(0, b_len)
     expected = range:bytes():raw(0, b_len)
-    execute ("tvbrange_offset_raw_len", range_raw == expected,
+    testlib.test(OTHER, "tvbrange_offset_raw_len", range_raw == expected,
         string.format('range_raw="%s" expected="%s"', range_raw, expected))
     range_raw = range:raw(b_offset, b_len)
     expected = range:bytes():raw(b_offset, b_len)
-    execute ("tvbrange_offset_raw_offset_len", range_raw == expected,
+    testlib.test(OTHER, "tvbrange_offset_raw_offset_len", range_raw == expected,
         string.format('range_raw="%s" expected="%s"', range_raw, expected))
 
     -- tvbrange with offset and len
     range = bytestvb1(offset, len)
     range_raw = range:raw()
     expected = range:bytes():raw()
-    execute ("tvbrange_offset_len_raw", range_raw == expected,
+    testlib.test(OTHER, "tvbrange_offset_len_raw", range_raw == expected,
         string.format('range_raw="%s" expected="%s"', range_raw, expected))
     range_raw = range:raw(b_offset)
     expected = range:bytes():raw(b_offset)
-    execute ("tvbrange_offset_len_raw_offset", range_raw == expected,
+    testlib.test(OTHER, "tvbrange_offset_len_raw_offset", range_raw == expected,
         string.format('range_raw="%s" expected="%s"', range_raw, expected))
     range_raw = range:raw(0, b_len)
     expected = range:bytes():raw(0, b_len)
-    execute ("tvbrange_offset_len_raw_len", range_raw == expected,
+    testlib.test(OTHER, "tvbrange_offset_len_raw_len", range_raw == expected,
         string.format('range_raw="%s" expected="%s"', range_raw, expected))
     range_raw = range:raw(b_offset, b_len)
     expected = range:bytes():raw(b_offset, b_len)
-    execute ("tvbrange_offset_len_raw_offset_len", range_raw == expected,
+    testlib.test(OTHER, "tvbrange_offset_len_raw_offset_len", range_raw == expected,
         string.format('range_raw="%s" expected="%s"', range_raw, expected))
 
 ----------------------------------------
 
-    setPassed(FRAME)
+    testlib.pass(FRAME)
 end
 
 ----------------------------------------

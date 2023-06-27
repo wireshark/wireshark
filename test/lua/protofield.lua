@@ -5,66 +5,14 @@
 -- the ProtoField API.
 ----------------------------------------
 
-------------- general test helper funcs ------------
+local testlib = require("testlib")
 local OTHER = "other"
-
-local total_tests = 0
-local function getTotal()
-    return total_tests
-end
-
-local passed = {}
-local function setPassed(name)
-    if not passed[name] then
-        passed[name] = 1
-    else
-        passed[name] = passed[name] + 1
-    end
-    total_tests = total_tests + 1
-end
-
-local fail_count = 0
-local function setFailed(name)
-    fail_count = fail_count + 1
-    total_tests = total_tests + 1
-end
 
 -- expected number of runs
 local taptests = { [OTHER]=66 }
-local function getResults()
-    print("\n-----------------------------\n")
-    for k,v in pairs(taptests) do
-        if v ~= 0 and passed[k] ~= v then
-            print("Something didn't run or ran too much... tests failed!")
-            print("Dissector type "..k.." expected: "..v..", but got: "..tostring(passed[k]))
-            return false
-        end
-    end
-    print("All tests passed!\n\n")
-    return true
-end
-
-local function test(type,name, ...)
-    io.stdout:write("test "..type.."-->"..name.."-"..getTotal().."...")
-    if (...) == true then
-        setPassed(type)
-        io.stdout:write("passed\n")
-        return true
-    else
-        setFailed(type)
-        io.stdout:write("failed!\n")
-        error(name.." test failed!")
-    end
-end
+testlib.init(taptests)
 
 ------------- test script ------------
-
-----------------------------------
--- modify original test function for now, kinda sorta
-local orig_test = test
-test = function (...)
-    return orig_test(OTHER,...)
-end
 
 ----------------------------------------
 local test_proto = Proto.new("test", "Test Proto")
@@ -74,169 +22,169 @@ test_proto.fields.filtered_field = ProtoField.uint16("test.filtered", "Filtered 
 
 -- Field type: CHAR
 success = pcall(ProtoField.new, "char", "test.char0", ftypes.CHAR)
-test("ProtoField-char", success)
+testlib.test(OTHER,"ProtoField-char", success)
 
 success = pcall(ProtoField.new, "char base NONE without valuestring", "test.char1", ftypes.CHAR, nil, base.NONE)
-test("ProtoField-char-without-valuestring", not success)
+testlib.test(OTHER,"ProtoField-char-without-valuestring", not success)
 
 success = pcall(ProtoField.new, "char base NONE with valuestring", "test.char2", ftypes.CHAR, {1, "Value"}, base.NONE)
-test("ProtoField-char-with-valuestring", success)
+testlib.test(OTHER,"ProtoField-char-with-valuestring", success)
 
 success = pcall(ProtoField.new, "char base DEC", "test.char3", ftypes.CHAR, nil, base.DEC)
-test("ProtoField-char-base-dec", not success)
+testlib.test(OTHER,"ProtoField-char-base-dec", not success)
 
 success = pcall(ProtoField.new, "char base UNIT_STRING", "test.char4", ftypes.CHAR, {" m"}, base.UNIT_STRING)
-test("ProtoField-char-unit-string", not success)
+testlib.test(OTHER,"ProtoField-char-unit-string", not success)
 
 success = pcall(ProtoField.new, "char base RANGE_STRING", "test.char5", ftypes.CHAR, {{1, 2, "Value"}}, base.RANGE_STRING)
-test("ProtoField-char-range-string", success)
+testlib.test(OTHER,"ProtoField-char-range-string", success)
 
 -- Field type: BOOLEAN/UINT64 with (64 bit) mask
 success = pcall(ProtoField.new, "boolean", "test.boolean0", ftypes.BOOLEAN, nil, base.HEX, 0x1)
-test("ProtoField-new-bool-mask-trivial", success)
+testlib.test(OTHER,"ProtoField-new-bool-mask-trivial", success)
 
 success = pcall(ProtoField.new, "boolean", "test.boolean1", ftypes.BOOLEAN, nil, base.HEX, "1")
-test("ProtoField-new-bool-mask-string", success)
+testlib.test(OTHER,"ProtoField-new-bool-mask-string", success)
 
 success = pcall(ProtoField.new, "boolean", "test.boolean2", ftypes.BOOLEAN, nil, base.HEX, UInt64(0x00000001, 0x0))
-test("ProtoField-new-bool-mask-uint64", success)
+testlib.test(OTHER,"ProtoField-new-bool-mask-uint64", success)
 
 success = pcall(ProtoField.new, "boolean", "test.boolean3", ftypes.BOOLEAN, nil, base.NONE, "invalid") -- 0
-test("ProtoField-new-bool-mask-string-invalid", success)
+testlib.test(OTHER,"ProtoField-new-bool-mask-string-invalid", success)
 
 success = pcall(ProtoField.new, "boolean", "test.boolean4", ftypes.BOOLEAN, nil, base.HEX, "-1") -- 0xFFFFFFFFFFFFFFFF
-test("ProtoField-new-bool-mask-negative", success)
+testlib.test(OTHER,"ProtoField-new-bool-mask-negative", success)
 
 success = pcall(ProtoField.new, "boolean", "test.boolean5", ftypes.BOOLEAN, nil, base.NONE)
-test("ProtoField-new-bool-mask-none", success)
+testlib.test(OTHER,"ProtoField-new-bool-mask-none", success)
 
 success = pcall(ProtoField.new, "boolean", "test.boolean6", ftypes.BOOLEAN, nil, base.NONE, nil)
-test("ProtoField-new-bool-mask-nil", success)
+testlib.test(OTHER,"ProtoField-new-bool-mask-nil", success)
 
 success = pcall(ProtoField.bool, "test.boolean10", nil, 64, nil, 0x1)
-test("ProtoField-bool-mask-trivial", success)
+testlib.test(OTHER,"ProtoField-bool-mask-trivial", success)
 
 success = pcall(ProtoField.bool, "test.boolean11", nil, 64, nil, "1")
-test("ProtoField-bool-mask-string", success)
+testlib.test(OTHER,"ProtoField-bool-mask-string", success)
 
 success = pcall(ProtoField.bool, "test.boolean12", nil, 64, nil, UInt64(0x00000001, 0x0))
-test("ProtoField-bool-mask-uint64", success)
+testlib.test(OTHER,"ProtoField-bool-mask-uint64", success)
 
 success = pcall(ProtoField.bool, "test.boolean13", nil, base.NONE, nil, "invalid") -- 0
-test("ProtoField-bool-mask-string-invalid", success)
+testlib.test(OTHER,"ProtoField-bool-mask-string-invalid", success)
 
 success = pcall(ProtoField.bool, "test.boolean14", nil, 64, nil, "-1") -- 0xFFFFFFFFFFFFFFFF
-test("ProtoField-bool-mask-negative", success)
+testlib.test(OTHER,"ProtoField-bool-mask-negative", success)
 
 success = pcall(ProtoField.bool, "test.boolean15", nil, base.NONE, nil)
-test("ProtoField-bool-mask-none", success)
+testlib.test(OTHER,"ProtoField-bool-mask-none", success)
 
 success = pcall(ProtoField.bool, "test.boolean16", nil, base.NONE, nil, nil)
-test("ProtoField-bool-mask-nil", success)
+testlib.test(OTHER,"ProtoField-bool-mask-nil", success)
 
 success = pcall(ProtoField.new, "uint64", "test.uint64_0", ftypes.UINT64, nil, base.HEX, 0x1)
-test("ProtoField-new-uint64-mask-trivial", success)
+testlib.test(OTHER,"ProtoField-new-uint64-mask-trivial", success)
 
 success = pcall(ProtoField.new, "uint64", "test.uint64_1", ftypes.UINT64, nil, base.HEX, "1")
-test("ProtoField-new-uint64-mask-string", success)
+testlib.test(OTHER,"ProtoField-new-uint64-mask-string", success)
 
 success = pcall(ProtoField.new, "uint64", "test.uint64_2", ftypes.UINT64, nil, base.HEX, UInt64(0x00000001, 0x0))
-test("ProtoField-new-uint64-mask-uint64", success)
+testlib.test(OTHER,"ProtoField-new-uint64-mask-uint64", success)
 
 success = pcall(ProtoField.new, "uint64", "test.uint64_3", ftypes.UINT64, nil, base.NONE, "invalid") -- 0
-test("ProtoField-new-uint64-mask-string-invalid", success)
+testlib.test(OTHER,"ProtoField-new-uint64-mask-string-invalid", success)
 
 success = pcall(ProtoField.new, "uint64", "test.uint64_4", ftypes.UINT64, nil, base.HEX, "-1") -- 0xFFFFFFFFFFFFFFFF
-test("ProtoField-new-uint64-mask-negative", success)
+testlib.test(OTHER,"ProtoField-new-uint64-mask-negative", success)
 
 success = pcall(ProtoField.new, "uint64", "test.uint64_5", ftypes.UINT64, nil, base.NONE)
-test("ProtoField-new-uint64-mask-none", success)
+testlib.test(OTHER,"ProtoField-new-uint64-mask-none", success)
 
 success = pcall(ProtoField.new, "uint64", "test.uint64_6", ftypes.UINT64, nil, base.NONE, nil)
-test("ProtoField-new-uint64-mask-nil", success)
+testlib.test(OTHER,"ProtoField-new-uint64-mask-nil", success)
 
 success = pcall(ProtoField.uint64, "test.uint64_10", nil, base.HEX, nil, 0x1)
-test("ProtoField-uint64-mask-trivial", success)
+testlib.test(OTHER,"ProtoField-uint64-mask-trivial", success)
 
 success = pcall(ProtoField.uint64, "test.uint64_11", nil, base.HEX, nil, "1")
-test("ProtoField-uint64-mask-string", success)
+testlib.test(OTHER,"ProtoField-uint64-mask-string", success)
 
 success = pcall(ProtoField.uint64, "test.uint64_12", nil, base.HEX, nil, UInt64(0x00000001, 0x0))
-test("ProtoField-uint64-mask-uint64", success)
+testlib.test(OTHER,"ProtoField-uint64-mask-uint64", success)
 
 success = pcall(ProtoField.uint64, "test.uint64_13", nil, base.DEC, nil, "invalid") -- 0
-test("ProtoField-uint64-mask-string-invalid", success)
+testlib.test(OTHER,"ProtoField-uint64-mask-string-invalid", success)
 
 success = pcall(ProtoField.uint64, "test.uint64_14", nil, base.DEC, nil, "-1") -- 0xFFFFFFFFFFFFFFFF
-test("ProtoField-uint64-mask-negative", success)
+testlib.test(OTHER,"ProtoField-uint64-mask-negative", success)
 
 success = pcall(ProtoField.uint64, "test.uint64_15", nil, base.DEC, nil)
-test("ProtoField-uint64-mask-none", success)
+testlib.test(OTHER,"ProtoField-uint64-mask-none", success)
 
 success = pcall(ProtoField.uint64, "test.uint64_16", nil, base.DEC, nil, nil)
-test("ProtoField-uint64-mask-nil", success)
+testlib.test(OTHER,"ProtoField-uint64-mask-nil", success)
 
 
 -- Field name: empty, illegal, incompatible
 success = pcall(ProtoField.int8, nil, "empty field name 1")
-test("ProtoField-empty-field-name-1", not success)
+testlib.test(OTHER,"ProtoField-empty-field-name-1", not success)
 
 success = pcall(ProtoField.int8, "", "empty field name 2")
-test("ProtoField-empty-field-name-2", not success)
+testlib.test(OTHER,"ProtoField-empty-field-name-2", not success)
 
 success = pcall(ProtoField.int8, "test.$", "illegal field name")
-test("ProtoField-illegal-field-name", not success)
+testlib.test(OTHER,"ProtoField-illegal-field-name", not success)
 
 success = pcall(ProtoField.int8, "frame.time", "incompatible field name")
-test("ProtoField-incompatible-field-name", not success)
+testlib.test(OTHER,"ProtoField-incompatible-field-name", not success)
 
 -- Actual name: empty
 success = pcall(ProtoField.int8, "test.empty_name_1")
-test("ProtoField-empty-name-1", success)  -- will use abbrev
+testlib.test(OTHER,"ProtoField-empty-name-1", success)  -- will use abbrev
 
 success = pcall(ProtoField.int8, "test.empty_name_2", "")
-test("ProtoField-empty-name-2", not success)
+testlib.test(OTHER,"ProtoField-empty-name-2", not success)
 
 -- Signed integer base values, only base.DEC should work
 success = pcall(ProtoField.int8, "test.int.base_none", "int base NONE", base.NONE)
-test("ProtoField-int-base-none", not success)
+testlib.test(OTHER,"ProtoField-int-base-none", not success)
 
 success = pcall(ProtoField.int8, "test.int.base_dec", "int base DEC", base.DEC)
-test("ProtoField-int-base-dec", success)
+testlib.test(OTHER,"ProtoField-int-base-dec", success)
 
 success = pcall(ProtoField.int8, "test.int.base_hex", "int base HEX", base.HEX)
-test("ProtoField-int-base-hex", not success)
+testlib.test(OTHER,"ProtoField-int-base-hex", not success)
 
 success = pcall(ProtoField.int8, "test.int.base_oct", "int base OCT", base.OCT)
-test("ProtoField-int-base-oct", not success)
+testlib.test(OTHER,"ProtoField-int-base-oct", not success)
 
 success = pcall(ProtoField.int8, "test.int.base_dec_hex", "int base DEC_HEX", base.DEC_HEX)
-test("ProtoField-int-base-dec-hex", not success)
+testlib.test(OTHER,"ProtoField-int-base-dec-hex", not success)
 
 success = pcall(ProtoField.int8, "test.int.base_hex_dec", "int base HEX_DEC", base.HEX_DEC)
-test("ProtoField-int-base-hex-dec", not success)
+testlib.test(OTHER,"ProtoField-int-base-hex-dec", not success)
 
 -- Passing no table should not work
 success = pcall(ProtoField.uint16, "test.bad0", "Bad0", base.UNIT_STRING)
-test("ProtoField-unitstring-no-table", not success)
+testlib.test(OTHER,"ProtoField-unitstring-no-table", not success)
 
 -- Passing an empty table should not work
 success = pcall(ProtoField.uint16, "test.bad1", "Bad1", base.UNIT_STRING, {})
-test("ProtoField-unitstring-empty-table", not success)
+testlib.test(OTHER,"ProtoField-unitstring-empty-table", not success)
 
 -- Passing userdata should not work
 success = pcall(ProtoField.uint16, "test.bad2", "Bad2", base.UNIT_STRING, {test_proto})
-test("ProtoField-unitstring-userdata", not success)
+testlib.test(OTHER,"ProtoField-unitstring-userdata", not success)
 
 -- Too many items are not supported
 success = pcall(ProtoField.uint16, "test.bad3", "Bad3", base.UNIT_STRING, {"too", "many", "items"})
-test("ProtoField-unitstring-too-many-items", not success)
+testlib.test(OTHER,"ProtoField-unitstring-too-many-items", not success)
 
 local numinits = 0
 function test_proto.init()
     numinits = numinits + 1
     if numinits == 2 then
-        getResults()
+        testlib.getResults()
     end
 end
 
@@ -246,33 +194,33 @@ function test_proto.dissector(tvb, pinfo, tree)
 
     local tvb1 = ByteArray.new("00 00"):tvb("Tvb1")
     ti = tree:add(test_proto.fields.time_field, tvb1())
-    test("Time: 0 secs", ti.text == "Time: 0 secs")
+    testlib.test(OTHER,"Time: 0 secs", ti.text == "Time: 0 secs")
     ti = tree:add(test_proto.fields.dist_field, tvb1())
-    test("Distance: 0 km", ti.text == "Distance: 0 km")
+    testlib.test(OTHER,"Distance: 0 km", ti.text == "Distance: 0 km")
 
     local tvb2 = ByteArray.new("00 01"):tvb("Tvb2")
     ti = tree:add(test_proto.fields.time_field, tvb2())
-    test("Time: 1 sec", ti.text == "Time: 1 sec")
+    testlib.test(OTHER,"Time: 1 sec", ti.text == "Time: 1 sec")
     ti = tree:add(test_proto.fields.dist_field, tvb2())
-    test("Distance: 1 km", ti.text == "Distance: 1 km")
+    testlib.test(OTHER,"Distance: 1 km", ti.text == "Distance: 1 km")
 
     local tvb3 = ByteArray.new("ff ff"):tvb("Tvb3")
     ti = tree:add(test_proto.fields.time_field, tvb3())
-    test("Time: 65535 secs", ti.text == "Time: 65535 secs")
+    testlib.test(OTHER,"Time: 65535 secs", ti.text == "Time: 65535 secs")
     ti = tree:add(test_proto.fields.dist_field, tvb3())
-    test("Distance: 65535 km", ti.text == "Distance: 65535 km")
+    testlib.test(OTHER,"Distance: 65535 km", ti.text == "Distance: 65535 km")
 
     ti = tree:add(test_proto.fields.filtered_field, tvb2())
     -- Note that this file should be loaded in tshark twice. Once with a visible
     -- tree (-V) and once without a visible tree.
     if tree.visible then
         -- Tree is visible so both fields should be referenced
-        test("Visible tree: Time is referenced", tree:referenced(test_proto.fields.time_field) == true)
-        test("Visible tree: Filtered field is referenced", tree:referenced(test_proto.fields.filtered_field) == true)
+        testlib.test(OTHER,"Visible tree: Time is referenced", tree:referenced(test_proto.fields.time_field) == true)
+        testlib.test(OTHER,"Visible tree: Filtered field is referenced", tree:referenced(test_proto.fields.filtered_field) == true)
     else
         -- Tree is not visible so only the field that appears in a filter should be referenced
-        test("Invisible tree: Time is NOT referenced", tree:referenced(test_proto.fields.time_field) == false)
-        test("Invisible tree: Filtered field is referenced", tree:referenced(test_proto.fields.filtered_field) == true)
+        testlib.test(OTHER,"Invisible tree: Time is NOT referenced", tree:referenced(test_proto.fields.time_field) == false)
+        testlib.test(OTHER,"Invisible tree: Filtered field is referenced", tree:referenced(test_proto.fields.filtered_field) == true)
     end
 end
 
