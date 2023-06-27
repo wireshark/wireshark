@@ -1103,7 +1103,7 @@ void IOGraphDialog::mouseMoved(QMouseEvent *event)
             tracer_->setGraphKey(iop->xAxis->pixelToCoord(event->pos().x()));
             ts = tracer_->position->key();
             if (IOGraph *iog = currentActiveGraph()) {
-                interval_packet = iog->packetFromTime(ts);
+                interval_packet = iog->packetFromTime(ts - start_time_);
             }
         }
 
