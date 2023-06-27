@@ -194,7 +194,7 @@ ID3v2
   about addresses (default off).
 
 * The IPv6 dissector now supports dissecting
-  https://gitlab.com/wireshark/wireshark/-/merge_requests/9172[
+  https://www.ipv6plus.net/Phase3/apn6/[
   Application-aware IPv6 Networking (APN6) option]
   in the Hop-by-Hop Options Header (HBH) and Destination Options Header (DOH).
   This feature supports to dissect all three types of APN ID,
