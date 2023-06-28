@@ -133,6 +133,7 @@ class TestDissectGprpc:
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('grpc_person_search_json_with_image.pcapng.gz'),
                 '-d', 'tcp.port==50052,http2',
+                '-2',
                 '-Y', 'grpc.message_length == 208 && json.value.string == "87561234"',
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'GRPC/JSON')
@@ -148,6 +149,7 @@ class TestDissectGprpc:
                 '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
                 '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
                 '-d', 'tcp.port==50051,http2',
+                '-2',
                 '-Y', 'protobuf.message.name == "tutorial.PersonSearchRequest"'
                       ' || (grpc.message_length == 66 && protobuf.field.value.string == "Jason"'
                       '     && protobuf.field.value.int64 == 1602601886)',
@@ -202,6 +204,7 @@ class TestDissectGprpc:
                 '-o', 'uat:http2_fake_headers: "{}","{}","{}","{}","{}","{}"'.format(
                             '50051','0','OUT','content-type','application/grpc','TRUE'),
                 '-d', 'tcp.port==50051,http2',
+                '-2',
                 '-Y', 'protobuf.field.value.string == "Jason" || protobuf.field.value.string == "Lily"',
             ), encoding='utf-8', env=test_env)
         assert count_output(stdout, 'DATA') == 2
@@ -219,6 +222,7 @@ class TestDissectGrpcWeb:
                 '-o', 'protobuf.preload_protos: TRUE',
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-d', 'tcp.port==57226,http',
+                '-2',
                 '-Y', '(tcp.stream eq 0) && (pbf.greet.HelloRequest.name == "88888888"'
                         '|| pbf.greet.HelloRequest.name == "99999999"'
                         '|| pbf.greet.HelloReply.message == "Hello 99999999")',
@@ -239,6 +243,7 @@ class TestDissectGrpcWeb:
                 '-o', 'protobuf.preload_protos: TRUE',
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-d', 'tcp.port==57228,http2',
+                '-2',
                 '-Y', '(tcp.stream eq 1) && (pbf.greet.HelloRequest.name == "88888888"'
                         '|| pbf.greet.HelloRequest.name == "99999999"'
                         '|| pbf.greet.HelloReply.message == "Hello 99999999")',
@@ -259,6 +264,7 @@ class TestDissectGrpcWeb:
                 '-o', 'protobuf.preload_protos: TRUE',
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-d', 'tcp.port==57228,http2',
+                '-2',
                 '-Y', '(tcp.stream eq 2) && ((pbf.greet.HelloRequest.name && grpc.message_length == 80004)'
                        '|| (pbf.greet.HelloReply.message && (grpc.message_length == 23 || grpc.message_length == 80012)))',
             ), encoding='utf-8', env=test_env)
@@ -276,6 +282,7 @@ class TestDissectGrpcWeb:
                 '-o', 'protobuf.preload_protos: TRUE',
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-d', 'tcp.port==57226,http',
+                '-2',
                 '-Y', '(tcp.stream eq 5) && (pbf.greet.HelloRequest.name == "88888888"'
                         '|| pbf.greet.HelloRequest.name == "99999999"'
                         '|| pbf.greet.HelloReply.message == "Hello 99999999")',
@@ -297,6 +304,7 @@ class TestDissectGrpcWeb:
                 '-o', 'protobuf.preload_protos: TRUE',
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-d', 'tcp.port==57228,http2',
+                '-2',
                 '-Y', '(tcp.stream eq 6) && (pbf.greet.HelloRequest.name == "88888888"'
                         '|| pbf.greet.HelloRequest.name == "99999999"'
                         '|| pbf.greet.HelloReply.message == "Hello 99999999")',
@@ -318,6 +326,7 @@ class TestDissectGrpcWeb:
                 '-o', 'protobuf.preload_protos: TRUE',
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-d', 'tcp.port==57228,http2',
+                '-2',
                 '-Y', '(tcp.stream eq 8) && ((pbf.greet.HelloRequest.name && grpc.message_length == 80004)'
                        '|| (pbf.greet.HelloReply.message && (grpc.message_length == 23 || grpc.message_length == 80012)))',
             ), encoding='utf-8', env=test_env)
@@ -336,6 +345,7 @@ class TestDissectGrpcWeb:
                 '-o', 'protobuf.preload_protos: TRUE',
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-d', 'tcp.port==57226,http',
+                '-2',
                 '-Y', '(tcp.stream eq 7) && (grpc.message_length == 80004 || grpc.message_length == 80010)',
             ), encoding='utf-8', env=test_env)
         assert grep_output(stdout, 'GRPC-Web-Text')
@@ -353,6 +363,7 @@ class TestDissectGrpcWeb:
                 '-o', 'protobuf.preload_protos: TRUE',
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-d', 'tcp.port==57226,http',
+                '-2',
                 '-Y', '(tcp.stream eq 9) && ((pbf.greet.HelloRequest.name && grpc.message_length == 10)'
                        '|| (pbf.greet.HelloReply.message && grpc.message_length == 18))',
             ), encoding='utf-8', env=test_env)
@@ -371,6 +382,7 @@ class TestDissectGrpcWeb:
                 '-o', 'protobuf.preload_protos: TRUE',
                 '-o', 'protobuf.pbf_as_hf: TRUE',
                 '-d', 'tcp.port==57226,http',
+                '-2',
                 '-Y', '(tcp.stream eq 10) && ((pbf.greet.HelloRequest.name && grpc.message_length == 80004)'
                        '|| (pbf.greet.HelloReply.message && (grpc.message_length == 23 || grpc.message_length == 80012)))',
             ), encoding='utf-8', env=test_env)
