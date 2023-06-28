@@ -93,9 +93,14 @@ static gint ett_lsarpc_lsa_ForestTrustDomainInfo = -1;
 static gint ett_lsarpc_lsa_ForestTrustData = -1;
 static gint ett_lsarpc_lsa_ForestTrustRecord = -1;
 static gint ett_lsarpc_lsa_ForestTrustInformation = -1;
+static gint ett_lsarpc_LSAPR_REVISION_INFO_V1 = -1;
+static gint ett_lsarpc_LSAPR_REVISION_INFO = -1;
 
 
 /* Header field declarations */
+static gint hf_lsarpc_LSAPR_REVISION_INFO_V1_Revision = -1;
+static gint hf_lsarpc_LSAPR_REVISION_INFO_V1_SupportedFeatures = -1;
+static gint hf_lsarpc_LSAPR_REVISION_INFO_revision_info_v1 = -1;
 static gint hf_lsarpc_String_name = -1;
 static gint hf_lsarpc_account_access_mask = -1;
 static gint hf_lsarpc_domain_access_mask = -1;
@@ -297,6 +302,14 @@ static gint hf_lsarpc_lsa_LookupSids_handle = -1;
 static gint hf_lsarpc_lsa_LookupSids_level = -1;
 static gint hf_lsarpc_lsa_LookupSids_names = -1;
 static gint hf_lsarpc_lsa_LookupSids_sids = -1;
+static gint hf_lsarpc_lsa_LsarOpenPolicy3_DesiredAccess = -1;
+static gint hf_lsarpc_lsa_LsarOpenPolicy3_InRevisionInfo = -1;
+static gint hf_lsarpc_lsa_LsarOpenPolicy3_InVersion = -1;
+static gint hf_lsarpc_lsa_LsarOpenPolicy3_ObjectAttributes = -1;
+static gint hf_lsarpc_lsa_LsarOpenPolicy3_OutRevisionInfo = -1;
+static gint hf_lsarpc_lsa_LsarOpenPolicy3_OutVersion = -1;
+static gint hf_lsarpc_lsa_LsarOpenPolicy3_handle = -1;
+static gint hf_lsarpc_lsa_LsarOpenPolicy3_system_name = -1;
 static gint hf_lsarpc_lsa_ModificationInfo_db_create_time = -1;
 static gint hf_lsarpc_lsa_ModificationInfo_modified_id = -1;
 static gint hf_lsarpc_lsa_ObjectAttribute_attributes = -1;
@@ -984,6 +997,13 @@ static int lsarpc_dissect_element_lsa_ForestTrustInformation_entries(tvbuff_t *t
 static int lsarpc_dissect_element_lsa_ForestTrustInformation_entries_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_ForestTrustInformation_entries__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_ForestTrustInformation_entries___(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+const value_string lsarpc_LSAPR_REVISION_VERSION_vals[] = {
+	{ LSAPR_REVISION_VERSION_1, "LSAPR_REVISION_VERSION_1" },
+{ 0, NULL }
+};
+static int lsarpc_dissect_element_LSAPR_REVISION_INFO_V1_Revision(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_LSAPR_REVISION_INFO_V1_SupportedFeatures(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_LSAPR_REVISION_INFO_revision_info_v1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_Close_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_Close_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_Delete_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1000,6 +1020,7 @@ static int lsarpc_dissect_element_lsa_QuerySecurity_handle_(tvbuff_t *tvb _U_, i
 static int lsarpc_dissect_element_lsa_QuerySecurity_sec_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_QuerySecurity_sdbuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_QuerySecurity_sdbuf_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_QuerySecurity_sdbuf__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_OpenPolicy_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_OpenPolicy_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_OpenPolicy_attr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1012,6 +1033,7 @@ static int lsarpc_dissect_element_lsa_QueryInfoPolicy_handle_(tvbuff_t *tvb _U_,
 static int lsarpc_dissect_element_lsa_QueryInfoPolicy_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_QueryInfoPolicy_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_QueryInfoPolicy_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_QueryInfoPolicy_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_SetInfoPolicy_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_SetInfoPolicy_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_SetInfoPolicy_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1051,6 +1073,7 @@ static int lsarpc_dissect_element_lsa_LookupNames_num_names(tvbuff_t *tvb _U_, i
 static int lsarpc_dissect_element_lsa_LookupNames_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LookupNames_domains__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1084,6 +1107,7 @@ static int lsarpc_dissect_element_lsa_EnumPrivsAccount_handle(tvbuff_t *tvb _U_,
 static int lsarpc_dissect_element_lsa_EnumPrivsAccount_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_EnumPrivsAccount_privs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_EnumPrivsAccount_privs_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_EnumPrivsAccount_privs__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_AddPrivilegesToAccount_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_AddPrivilegesToAccount_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_AddPrivilegesToAccount_privs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1105,6 +1129,7 @@ static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_trustdom_handle_(tv
 static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_OpenSecret_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_OpenSecret_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_OpenSecret_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1139,12 +1164,14 @@ static int lsarpc_dissect_element_lsa_LookupPrivName_luid(tvbuff_t *tvb _U_, int
 static int lsarpc_dissect_element_lsa_LookupPrivName_luid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupPrivName_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupPrivName_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LookupPrivName_name__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_language_id(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_language_id_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupPrivDisplayName_unknown(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1180,6 +1207,7 @@ static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_dom_sid_(tvbuf
 static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_DeleteTrustedDomain_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_DeleteTrustedDomain_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_DeleteTrustedDomain_dom_sid(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1202,6 +1230,7 @@ static int lsarpc_dissect_element_lsa_QueryInfoPolicy2_handle_(tvbuff_t *tvb _U_
 static int lsarpc_dissect_element_lsa_QueryInfoPolicy2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_QueryInfoPolicy2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_QueryInfoPolicy2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_QueryInfoPolicy2_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_SetInfoPolicy2_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_SetInfoPolicy2_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_SetInfoPolicy2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1213,6 +1242,7 @@ static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_trusted_domai
 static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_SetTrustedDomainInfoByName_trusted_domain(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1233,6 +1263,7 @@ static int lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_handle_(tvbuf
 static int lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_SetDomainInformationPolicy_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_SetDomainInformationPolicy_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_SetDomainInformationPolicy_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1250,6 +1281,7 @@ static int lsarpc_dissect_element_lsa_LookupSids2_sids(tvbuff_t *tvb _U_, int of
 static int lsarpc_dissect_element_lsa_LookupSids2_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupSids2_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupSids2_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LookupSids2_domains__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupSids2_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupSids2_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupSids2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1263,6 +1295,7 @@ static int lsarpc_dissect_element_lsa_LookupNames2_num_names(tvbuff_t *tvb _U_, 
 static int lsarpc_dissect_element_lsa_LookupNames2_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames2_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames2_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LookupNames2_domains__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames2_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames2_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames2_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1277,6 +1310,7 @@ static int lsarpc_dissect_element_lsa_LookupNames3_names(tvbuff_t *tvb _U_, int 
 static int lsarpc_dissect_element_lsa_LookupNames3_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames3_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames3_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LookupNames3_domains__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames3_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames3_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames3_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1296,6 +1330,7 @@ static int lsarpc_dissect_element_lsa_LookupSids3_sids(tvbuff_t *tvb _U_, int of
 static int lsarpc_dissect_element_lsa_LookupSids3_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupSids3_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupSids3_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LookupSids3_domains__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupSids3_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupSids3_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupSids3_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1307,6 +1342,7 @@ static int lsarpc_dissect_element_lsa_LookupNames4_num_names(tvbuff_t *tvb _U_, 
 static int lsarpc_dissect_element_lsa_LookupNames4_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames4_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames4_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LookupNames4_domains__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames4_sids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames4_sids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames4_level(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -1314,6 +1350,20 @@ static int lsarpc_dissect_element_lsa_LookupNames4_count(tvbuff_t *tvb _U_, int 
 static int lsarpc_dissect_element_lsa_LookupNames4_count_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames4_unknown1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int lsarpc_dissect_element_lsa_LookupNames4_unknown2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LsarOpenPolicy3_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LsarOpenPolicy3_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LsarOpenPolicy3_ObjectAttributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LsarOpenPolicy3_ObjectAttributes_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LsarOpenPolicy3_DesiredAccess(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LsarOpenPolicy3_InVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LsarOpenPolicy3_InRevisionInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LsarOpenPolicy3_InRevisionInfo_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LsarOpenPolicy3_OutVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LsarOpenPolicy3_OutVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LsarOpenPolicy3_OutRevisionInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LsarOpenPolicy3_OutRevisionInfo_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LsarOpenPolicy3_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int lsarpc_dissect_element_lsa_LsarOpenPolicy3_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static void
 lsarpc_policy_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 access)
 {
@@ -6498,6 +6548,117 @@ lsarpc_dissect_struct_lsa_ForestTrustInformation(tvbuff_t *tvb _U_, int offset _
 	return offset;
 }
 
+
+/* IDL: enum { */
+/* IDL: 	LSAPR_REVISION_VERSION_1=0x00000001, */
+/* IDL: } */
+
+int
+lsarpc_dissect_enum_LSAPR_REVISION_VERSION(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
+{
+	guint32 parameter=0;
+	if (param) {
+		parameter = *param;
+	}
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, &parameter);
+	if (param) {
+		*param = parameter;
+	}
+	return offset;
+}
+
+
+/* IDL: struct _LSAPR_REVISION_INFO_V1 { */
+/* IDL: 	uint32 Revision; */
+/* IDL: 	uint32 SupportedFeatures; */
+/* IDL: } */
+
+static int
+lsarpc_dissect_element_LSAPR_REVISION_INFO_V1_Revision(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_LSAPR_REVISION_INFO_V1_Revision, 0);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_LSAPR_REVISION_INFO_V1_SupportedFeatures(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_LSAPR_REVISION_INFO_V1_SupportedFeatures, 0);
+
+	return offset;
+}
+
+int
+lsarpc_dissect_struct_LSAPR_REVISION_INFO_V1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset;
+
+	ALIGN_TO_4_BYTES;
+
+	old_offset = offset;
+
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_lsarpc_LSAPR_REVISION_INFO_V1);
+	}
+
+	offset = lsarpc_dissect_element_LSAPR_REVISION_INFO_V1_Revision(tvb, offset, pinfo, tree, di, drep);
+
+	offset = lsarpc_dissect_element_LSAPR_REVISION_INFO_V1_SupportedFeatures(tvb, offset, pinfo, tree, di, drep);
+
+
+	proto_item_set_len(item, offset-old_offset);
+
+
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_4_BYTES;
+	}
+
+	return offset;
+}
+
+
+/* IDL: [switch_type(LSAPR_REVISION_VERSION)] union { */
+/* IDL: [case(LSAPR_REVISION_VERSION_1)] [case(LSAPR_REVISION_VERSION_1)] LSAPR_REVISION_INFO_V1 revision_info_v1; */
+/* IDL: } */
+
+static int
+lsarpc_dissect_element_LSAPR_REVISION_INFO_revision_info_v1(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = lsarpc_dissect_struct_LSAPR_REVISION_INFO_V1(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_LSAPR_REVISION_INFO_revision_info_v1,0);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_LSAPR_REVISION_INFO(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	int old_offset;
+	guint32 level;
+
+	old_offset = offset;
+	if (parent_tree) {
+		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_lsarpc_LSAPR_REVISION_INFO, &item, "LSAPR_REVISION_INFO");
+	}
+
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep, hf_index, &level);
+	ALIGN_TO_4_BYTES;
+
+	switch(level) {
+		case LSAPR_REVISION_VERSION_1:
+			offset = lsarpc_dissect_element_LSAPR_REVISION_INFO_revision_info_v1(tvb, offset, pinfo, tree, di, drep);
+		break;
+	}
+	proto_item_set_len(item, offset-old_offset);
+
+
+	return offset;
+}
 static int
 lsarpc_dissect_element_lsa_Close_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
@@ -6710,13 +6871,21 @@ lsarpc_dissect_element_lsa_QuerySecurity_sec_info(tvbuff_t *tvb _U_, int offset 
 static int
 lsarpc_dissect_element_lsa_QuerySecurity_sdbuf(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QuerySecurity_sdbuf_, NDR_POINTER_UNIQUE, "Pointer to Sdbuf (sec_desc_buf)",hf_lsarpc_lsa_QuerySecurity_sdbuf);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QuerySecurity_sdbuf_, NDR_POINTER_REF, "Pointer to Sdbuf (sec_desc_buf)",hf_lsarpc_lsa_QuerySecurity_sdbuf);
 
 	return offset;
 }
 
 static int
 lsarpc_dissect_element_lsa_QuerySecurity_sdbuf_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QuerySecurity_sdbuf__, NDR_POINTER_UNIQUE, "Pointer to Sdbuf (sec_desc_buf)",hf_lsarpc_lsa_QuerySecurity_sdbuf);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_QuerySecurity_sdbuf__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset=cnf_dissect_sec_desc_buf(tvb, offset, pinfo, tree, di, drep);
 
@@ -6726,7 +6895,7 @@ lsarpc_dissect_element_lsa_QuerySecurity_sdbuf_(tvbuff_t *tvb _U_, int offset _U
 /* IDL: NTSTATUS lsa_QuerySecurity( */
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] security_secinfo sec_info, */
-/* IDL: [out] [unique(1)] sec_desc_buf *sdbuf */
+/* IDL: [out] [ref] sec_desc_buf **sdbuf */
 /* IDL: ); */
 
 static int
@@ -6927,13 +7096,21 @@ lsarpc_dissect_element_lsa_QueryInfoPolicy_level(tvbuff_t *tvb _U_, int offset _
 static int
 lsarpc_dissect_element_lsa_QueryInfoPolicy_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryInfoPolicy_info_, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_PolicyInformation)",hf_lsarpc_lsa_QueryInfoPolicy_info);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryInfoPolicy_info_, NDR_POINTER_REF, "Pointer to Info (lsa_PolicyInformation)",hf_lsarpc_lsa_QueryInfoPolicy_info);
 
 	return offset;
 }
 
 static int
 lsarpc_dissect_element_lsa_QueryInfoPolicy_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryInfoPolicy_info__, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_PolicyInformation)",hf_lsarpc_lsa_QueryInfoPolicy_info);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_QueryInfoPolicy_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = lsarpc_dissect_lsa_PolicyInformation(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryInfoPolicy_info, 0);
 
@@ -6943,7 +7120,7 @@ lsarpc_dissect_element_lsa_QueryInfoPolicy_info_(tvbuff_t *tvb _U_, int offset _
 /* IDL: NTSTATUS lsa_QueryInfoPolicy( */
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] lsa_PolicyInfo level, */
-/* IDL: [out] [switch_is(level)] [unique(1)] lsa_PolicyInformation *info */
+/* IDL: [out] [ref] [switch_is(level)] lsa_PolicyInformation **info */
 /* IDL: ); */
 
 static int
@@ -7477,13 +7654,21 @@ lsarpc_dissect_element_lsa_LookupNames_num_names(tvbuff_t *tvb _U_, int offset _
 static int
 lsarpc_dissect_element_lsa_LookupNames_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames_domains_, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupNames_domains);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames_domains_, NDR_POINTER_REF, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupNames_domains);
 
 	return offset;
 }
 
 static int
 lsarpc_dissect_element_lsa_LookupNames_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames_domains__, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupNames_domains);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LookupNames_domains__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = lsarpc_dissect_struct_lsa_RefDomainList(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupNames_domains,0);
 
@@ -7534,7 +7719,7 @@ lsarpc_dissect_element_lsa_LookupNames_count_(tvbuff_t *tvb _U_, int offset _U_,
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] [range(0,1000)] uint32 num_names, */
 /* IDL: [in] [size_is(num_names)] lsa_String names[*], */
-/* IDL: [out] [unique(1)] lsa_RefDomainList *domains, */
+/* IDL: [out] [ref] lsa_RefDomainList **domains, */
 /* IDL: [in] [out] [ref] lsa_TransSidArray *sids, */
 /* IDL: [in] lsa_LookupNamesLevel level, */
 /* IDL: [in] [out] [ref] uint32 *count */
@@ -7617,7 +7802,7 @@ lsarpc_dissect_element_lsa_LookupSids_sids_(tvbuff_t *tvb _U_, int offset _U_, p
 static int
 lsarpc_dissect_element_lsa_LookupSids_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids_domains_, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupSids_domains);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids_domains_, NDR_POINTER_REF, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupSids_domains);
 
 	return offset;
 }
@@ -7673,7 +7858,7 @@ lsarpc_dissect_element_lsa_LookupSids_count_(tvbuff_t *tvb _U_, int offset _U_, 
 /* IDL: NTSTATUS lsa_LookupSids( */
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] [ref] lsa_SidArray *sids, */
-/* IDL: [out] [unique(1)] lsa_RefDomainList *domains, */
+/* IDL: [out] [ref] lsa_RefDomainList *domains, */
 /* IDL: [in] [out] [ref] lsa_TransNameArray *names, */
 /* IDL: [in] uint16 level, */
 /* IDL: [in] [out] [ref] uint32 *count */
@@ -7916,13 +8101,21 @@ lsarpc_dissect_element_lsa_EnumPrivsAccount_handle_(tvbuff_t *tvb _U_, int offse
 static int
 lsarpc_dissect_element_lsa_EnumPrivsAccount_privs(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumPrivsAccount_privs_, NDR_POINTER_UNIQUE, "Pointer to Privs (lsa_PrivilegeSet)",hf_lsarpc_lsa_EnumPrivsAccount_privs);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumPrivsAccount_privs_, NDR_POINTER_REF, "Pointer to Privs (lsa_PrivilegeSet)",hf_lsarpc_lsa_EnumPrivsAccount_privs);
 
 	return offset;
 }
 
 static int
 lsarpc_dissect_element_lsa_EnumPrivsAccount_privs_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_EnumPrivsAccount_privs__, NDR_POINTER_UNIQUE, "Pointer to Privs (lsa_PrivilegeSet)",hf_lsarpc_lsa_EnumPrivsAccount_privs);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_EnumPrivsAccount_privs__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = lsarpc_dissect_struct_lsa_PrivilegeSet(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_EnumPrivsAccount_privs,0);
 
@@ -7931,7 +8124,7 @@ lsarpc_dissect_element_lsa_EnumPrivsAccount_privs_(tvbuff_t *tvb _U_, int offset
 
 /* IDL: NTSTATUS lsa_EnumPrivsAccount( */
 /* IDL: [in] [ref] policy_handle *handle, */
-/* IDL: [out] [unique(1)] lsa_PrivilegeSet *privs */
+/* IDL: [out] [ref] lsa_PrivilegeSet **privs */
 /* IDL: ); */
 
 static int
@@ -8315,13 +8508,21 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_level(tvbuff_t *tvb _U_, int o
 static int
 lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info_, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_TrustedDomainInfo)",hf_lsarpc_lsa_QueryTrustedDomainInfo_info);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info_, NDR_POINTER_REF, "Pointer to Info (lsa_TrustedDomainInfo)",hf_lsarpc_lsa_QueryTrustedDomainInfo_info);
 
 	return offset;
 }
 
 static int
 lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info__, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_TrustedDomainInfo)",hf_lsarpc_lsa_QueryTrustedDomainInfo_info);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = lsarpc_dissect_lsa_TrustedDomainInfo(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryTrustedDomainInfo_info, 0);
 
@@ -8331,7 +8532,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfo_info_(tvbuff_t *tvb _U_, int o
 /* IDL: NTSTATUS lsa_QueryTrustedDomainInfo( */
 /* IDL: [in] [ref] policy_handle *trustdom_handle, */
 /* IDL: [in] lsa_TrustDomInfoEnum level, */
-/* IDL: [out] [switch_is(level)] [unique(1)] lsa_TrustedDomainInfo *info */
+/* IDL: [out] [ref] [switch_is(level)] lsa_TrustedDomainInfo **info */
 /* IDL: ); */
 
 static int
@@ -8801,13 +9002,21 @@ lsarpc_dissect_element_lsa_LookupPrivName_luid_(tvbuff_t *tvb _U_, int offset _U
 static int
 lsarpc_dissect_element_lsa_LookupPrivName_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupPrivName_name_, NDR_POINTER_UNIQUE, "Pointer to Name (lsa_StringLarge)",hf_lsarpc_lsa_LookupPrivName_name);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupPrivName_name_, NDR_POINTER_REF, "Pointer to Name (lsa_StringLarge)",hf_lsarpc_lsa_LookupPrivName_name);
 
 	return offset;
 }
 
 static int
 lsarpc_dissect_element_lsa_LookupPrivName_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupPrivName_name__, NDR_POINTER_UNIQUE, "Pointer to Name (lsa_StringLarge)",hf_lsarpc_lsa_LookupPrivName_name);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LookupPrivName_name__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupPrivName_name,0);
 
@@ -8817,7 +9026,7 @@ lsarpc_dissect_element_lsa_LookupPrivName_name_(tvbuff_t *tvb _U_, int offset _U
 /* IDL: NTSTATUS lsa_LookupPrivName( */
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] [ref] lsa_LUID *luid, */
-/* IDL: [out] [unique(1)] lsa_StringLarge *name */
+/* IDL: [out] [ref] lsa_StringLarge **name */
 /* IDL: ); */
 
 static int
@@ -8883,13 +9092,21 @@ lsarpc_dissect_element_lsa_LookupPrivDisplayName_name_(tvbuff_t *tvb _U_, int of
 static int
 lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name_, NDR_POINTER_UNIQUE, "Pointer to Disp Name (lsa_StringLarge)",hf_lsarpc_lsa_LookupPrivDisplayName_disp_name);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name_, NDR_POINTER_REF, "Pointer to Disp Name (lsa_StringLarge)",hf_lsarpc_lsa_LookupPrivDisplayName_disp_name);
 
 	return offset;
 }
 
 static int
 lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name__, NDR_POINTER_UNIQUE, "Pointer to Disp Name (lsa_StringLarge)",hf_lsarpc_lsa_LookupPrivDisplayName_disp_name);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LookupPrivDisplayName_disp_name__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = lsarpc_dissect_struct_lsa_StringLarge(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupPrivDisplayName_disp_name,0);
 
@@ -8923,7 +9140,7 @@ lsarpc_dissect_element_lsa_LookupPrivDisplayName_unknown(tvbuff_t *tvb _U_, int 
 /* IDL: NTSTATUS lsa_LookupPrivDisplayName( */
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] [ref] lsa_String *name, */
-/* IDL: [out] [unique(1)] lsa_StringLarge *disp_name, */
+/* IDL: [out] [ref] lsa_StringLarge **disp_name, */
 /* IDL: [in] [out] [ref] uint16 *language_id, */
 /* IDL: [in] uint16 unknown */
 /* IDL: ); */
@@ -9368,13 +9585,21 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_level(tvbuff_t *tvb _U_, 
 static int
 lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info_, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_TrustedDomainInfo)",hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_info);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info_, NDR_POINTER_REF, "Pointer to Info (lsa_TrustedDomainInfo)",hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_info);
 
 	return offset;
 }
 
 static int
 lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info__, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_TrustedDomainInfo)",hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_info);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = lsarpc_dissect_lsa_TrustedDomainInfo(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryTrustedDomainInfoBySid_info, 0);
 
@@ -9385,7 +9610,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoBySid_info_(tvbuff_t *tvb _U_, 
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] [ref] dom_sid2 *dom_sid, */
 /* IDL: [in] lsa_TrustDomInfoEnum level, */
-/* IDL: [out] [switch_is(level)] [unique(1)] lsa_TrustedDomainInfo *info */
+/* IDL: [out] [ref] [switch_is(level)] lsa_TrustedDomainInfo **info */
 /* IDL: ); */
 
 static int
@@ -9768,13 +9993,21 @@ lsarpc_dissect_element_lsa_QueryInfoPolicy2_level(tvbuff_t *tvb _U_, int offset 
 static int
 lsarpc_dissect_element_lsa_QueryInfoPolicy2_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryInfoPolicy2_info_, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_PolicyInformation)",hf_lsarpc_lsa_QueryInfoPolicy2_info);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryInfoPolicy2_info_, NDR_POINTER_REF, "Pointer to Info (lsa_PolicyInformation)",hf_lsarpc_lsa_QueryInfoPolicy2_info);
 
 	return offset;
 }
 
 static int
 lsarpc_dissect_element_lsa_QueryInfoPolicy2_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryInfoPolicy2_info__, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_PolicyInformation)",hf_lsarpc_lsa_QueryInfoPolicy2_info);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_QueryInfoPolicy2_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = lsarpc_dissect_lsa_PolicyInformation(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryInfoPolicy2_info, 0);
 
@@ -9784,7 +10017,7 @@ lsarpc_dissect_element_lsa_QueryInfoPolicy2_info_(tvbuff_t *tvb _U_, int offset 
 /* IDL: NTSTATUS lsa_QueryInfoPolicy2( */
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] lsa_PolicyInfo level, */
-/* IDL: [out] [switch_is(level)] [unique(1)] lsa_PolicyInformation *info */
+/* IDL: [out] [ref] [switch_is(level)] lsa_PolicyInformation **info */
 /* IDL: ); */
 
 static int
@@ -9923,13 +10156,21 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_level(tvbuff_t *tvb _U_,
 static int
 lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info_, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_TrustedDomainInfo)",hf_lsarpc_lsa_QueryTrustedDomainInfoByName_info);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info_, NDR_POINTER_REF, "Pointer to Info (lsa_TrustedDomainInfo)",hf_lsarpc_lsa_QueryTrustedDomainInfoByName_info);
 
 	return offset;
 }
 
 static int
 lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info__, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_TrustedDomainInfo)",hf_lsarpc_lsa_QueryTrustedDomainInfoByName_info);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = lsarpc_dissect_lsa_TrustedDomainInfo(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryTrustedDomainInfoByName_info, 0);
 
@@ -9940,7 +10181,7 @@ lsarpc_dissect_element_lsa_QueryTrustedDomainInfoByName_info_(tvbuff_t *tvb _U_,
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] lsa_String trusted_domain, */
 /* IDL: [in] lsa_TrustDomInfoEnum level, */
-/* IDL: [out] [switch_is(level)] [unique(1)] lsa_TrustedDomainInfo *info */
+/* IDL: [out] [ref] [switch_is(level)] lsa_TrustedDomainInfo **info */
 /* IDL: ); */
 
 static int
@@ -10251,13 +10492,21 @@ lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_level(tvbuff_t *tvb _U_,
 static int
 lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info_, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_DomainInformationPolicy)",hf_lsarpc_lsa_QueryDomainInformationPolicy_info);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info_, NDR_POINTER_REF, "Pointer to Info (lsa_DomainInformationPolicy)",hf_lsarpc_lsa_QueryDomainInformationPolicy_info);
 
 	return offset;
 }
 
 static int
 lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info__, NDR_POINTER_UNIQUE, "Pointer to Info (lsa_DomainInformationPolicy)",hf_lsarpc_lsa_QueryDomainInformationPolicy_info);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = lsarpc_dissect_lsa_DomainInformationPolicy(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_QueryDomainInformationPolicy_info, 0);
 
@@ -10267,7 +10516,7 @@ lsarpc_dissect_element_lsa_QueryDomainInformationPolicy_info_(tvbuff_t *tvb _U_,
 /* IDL: NTSTATUS lsa_QueryDomainInformationPolicy( */
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] lsa_DomainInfoEnum level, */
-/* IDL: [out] [switch_is(level)] [unique(1)] lsa_DomainInformationPolicy *info */
+/* IDL: [out] [ref] [switch_is(level)] lsa_DomainInformationPolicy **info */
 /* IDL: ); */
 
 static int
@@ -10516,13 +10765,21 @@ lsarpc_dissect_element_lsa_LookupSids2_sids_(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 lsarpc_dissect_element_lsa_LookupSids2_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids2_domains_, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupSids2_domains);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids2_domains_, NDR_POINTER_REF, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupSids2_domains);
 
 	return offset;
 }
 
 static int
 lsarpc_dissect_element_lsa_LookupSids2_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids2_domains__, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupSids2_domains);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LookupSids2_domains__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = lsarpc_dissect_struct_lsa_RefDomainList(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupSids2_domains,0);
 
@@ -10588,7 +10845,7 @@ lsarpc_dissect_element_lsa_LookupSids2_unknown2(tvbuff_t *tvb _U_, int offset _U
 /* IDL: NTSTATUS lsa_LookupSids2( */
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] [ref] lsa_SidArray *sids, */
-/* IDL: [out] [unique(1)] lsa_RefDomainList *domains, */
+/* IDL: [out] [ref] lsa_RefDomainList **domains, */
 /* IDL: [in] [out] [ref] lsa_TransNameArray2 *names, */
 /* IDL: [in] uint16 level, */
 /* IDL: [in] [out] [ref] uint32 *count, */
@@ -10667,13 +10924,21 @@ lsarpc_dissect_element_lsa_LookupNames2_num_names(tvbuff_t *tvb _U_, int offset 
 static int
 lsarpc_dissect_element_lsa_LookupNames2_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames2_domains_, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupNames2_domains);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames2_domains_, NDR_POINTER_REF, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupNames2_domains);
 
 	return offset;
 }
 
 static int
 lsarpc_dissect_element_lsa_LookupNames2_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames2_domains__, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupNames2_domains);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LookupNames2_domains__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = lsarpc_dissect_struct_lsa_RefDomainList(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupNames2_domains,0);
 
@@ -10740,7 +11005,7 @@ lsarpc_dissect_element_lsa_LookupNames2_unknown2(tvbuff_t *tvb _U_, int offset _
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] [range(0,1000)] uint32 num_names, */
 /* IDL: [in] [size_is(num_names)] lsa_String names[*], */
-/* IDL: [out] [unique(1)] lsa_RefDomainList *domains, */
+/* IDL: [out] [ref] lsa_RefDomainList **domains, */
 /* IDL: [in] [out] [ref] lsa_TransSidArray2 *sids, */
 /* IDL: [in] lsa_LookupNamesLevel level, */
 /* IDL: [in] [out] [ref] uint32 *count, */
@@ -11054,13 +11319,21 @@ lsarpc_dissect_element_lsa_LookupNames3_names_(tvbuff_t *tvb _U_, int offset _U_
 static int
 lsarpc_dissect_element_lsa_LookupNames3_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames3_domains_, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupNames3_domains);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames3_domains_, NDR_POINTER_REF, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupNames3_domains);
 
 	return offset;
 }
 
 static int
 lsarpc_dissect_element_lsa_LookupNames3_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames3_domains__, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupNames3_domains);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LookupNames3_domains__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = lsarpc_dissect_struct_lsa_RefDomainList(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupNames3_domains,0);
 
@@ -11127,7 +11400,7 @@ lsarpc_dissect_element_lsa_LookupNames3_unknown2(tvbuff_t *tvb _U_, int offset _
 /* IDL: [in] [ref] policy_handle *handle, */
 /* IDL: [in] [range(0,1000)] uint32 num_names, */
 /* IDL: [in] [size_is(num_names)] lsa_String names[*], */
-/* IDL: [out] [unique(1)] lsa_RefDomainList *domains, */
+/* IDL: [out] [ref] lsa_RefDomainList **domains, */
 /* IDL: [in] [out] [ref] lsa_TransSidArray3 *sids, */
 /* IDL: [in] lsa_LookupNamesLevel level, */
 /* IDL: [in] [out] [ref] uint32 *count, */
@@ -11451,13 +11724,21 @@ lsarpc_dissect_element_lsa_LookupSids3_sids_(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 lsarpc_dissect_element_lsa_LookupSids3_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids3_domains_, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupSids3_domains);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids3_domains_, NDR_POINTER_REF, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupSids3_domains);
 
 	return offset;
 }
 
 static int
 lsarpc_dissect_element_lsa_LookupSids3_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupSids3_domains__, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupSids3_domains);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LookupSids3_domains__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = lsarpc_dissect_struct_lsa_RefDomainList(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupSids3_domains,0);
 
@@ -11522,7 +11803,7 @@ lsarpc_dissect_element_lsa_LookupSids3_unknown2(tvbuff_t *tvb _U_, int offset _U
 
 /* IDL: NTSTATUS lsa_LookupSids3( */
 /* IDL: [in] [ref] lsa_SidArray *sids, */
-/* IDL: [out] [unique(1)] lsa_RefDomainList *domains, */
+/* IDL: [out] [ref] lsa_RefDomainList **domains, */
 /* IDL: [in] [out] [ref] lsa_TransNameArray2 *names, */
 /* IDL: [in] uint16 level, */
 /* IDL: [in] [out] [ref] uint32 *count, */
@@ -11583,13 +11864,21 @@ lsarpc_dissect_element_lsa_LookupNames4_num_names(tvbuff_t *tvb _U_, int offset 
 static int
 lsarpc_dissect_element_lsa_LookupNames4_domains(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames4_domains_, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupNames4_domains);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames4_domains_, NDR_POINTER_REF, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupNames4_domains);
 
 	return offset;
 }
 
 static int
 lsarpc_dissect_element_lsa_LookupNames4_domains_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_embedded_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames4_domains__, NDR_POINTER_UNIQUE, "Pointer to Domains (lsa_RefDomainList)",hf_lsarpc_lsa_LookupNames4_domains);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LookupNames4_domains__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = lsarpc_dissect_struct_lsa_RefDomainList(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LookupNames4_domains,0);
 
@@ -11655,7 +11944,7 @@ lsarpc_dissect_element_lsa_LookupNames4_unknown2(tvbuff_t *tvb _U_, int offset _
 /* IDL: NTSTATUS lsa_LookupNames4( */
 /* IDL: [in] [range(0,1000)] uint32 num_names, */
 /* IDL: [in] [size_is(num_names)] lsa_String names[*], */
-/* IDL: [out] [unique(1)] lsa_RefDomainList *domains, */
+/* IDL: [out] [ref] lsa_RefDomainList **domains, */
 /* IDL: [in] [out] [ref] lsa_TransSidArray3 *sids, */
 /* IDL: [in] lsa_LookupNamesLevel level, */
 /* IDL: [in] [out] [ref] uint32 *count, */
@@ -11804,6 +12093,1372 @@ static int
 lsarpc_dissect_lsa_LSARADTREPORTSECURITYEVENT_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	di->dcerpc_procedure_name="lsa_LSARADTREPORTSECURITYEVENT";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum82NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum82NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum82NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum82NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum82NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum83NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum83NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum83NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum83NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum83NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum84NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum84NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum84NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum84NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum84NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum85NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum85NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum85NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum85NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum85NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum86NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum86NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum86NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum86NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum86NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum87NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum87NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum87NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum87NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum87NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum88NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum88NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum88NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum88NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum88NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum89NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum89NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum89NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum89NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum89NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum90NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum90NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum90NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum90NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum90NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum91NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum91NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum91NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum91NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum91NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum92NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum92NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum92NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum92NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum92NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum93NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum93NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum93NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum93NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum93NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum94NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum94NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum94NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum94NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum94NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum95NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum95NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum95NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum95NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum95NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum96NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum96NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum96NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum96NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum96NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum97NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum97NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum97NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum97NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum97NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum98NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum98NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum98NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum98NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum98NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum99NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum99NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum99NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum99NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum99NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum100NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum100NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum100NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum100NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum100NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum101NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum101NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum101NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum101NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum101NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum102NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum102NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum102NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum102NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum102NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum103NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum103NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum103NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum103NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum103NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum104NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum104NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum104NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum104NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum104NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum105NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum105NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum105NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum105NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum105NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum106NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum106NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum106NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum106NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum106NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum107NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum107NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum107NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum107NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum107NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum108NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum108NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum108NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum108NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum108NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum109NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum109NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum109NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum109NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum109NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum110NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum110NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum110NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum110NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum110NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum111NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum111NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum111NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum111NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum111NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum112NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum112NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum112NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum112NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum112NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum113NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum113NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum113NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum113NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum113NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum114NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum114NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum114NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum114NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum114NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum115NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum115NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum115NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum115NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum115NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum116NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum116NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum116NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum116NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum116NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum117NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum117NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum117NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum117NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum117NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum118NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum118NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum118NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum118NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum118NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum119NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum119NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum119NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum119NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum119NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum120NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum120NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum120NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum120NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum120NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum121NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum121NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum121NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum121NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum121NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum122NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum122NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum122NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum122NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum122NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum123NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum123NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum123NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum123NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum123NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum124NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum124NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum124NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum124NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum124NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum125NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum125NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum125NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum125NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum125NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum126NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum126NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum126NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum126NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum126NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum127NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum127NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum127NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum127NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum127NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS Opnum128NotUsedOnWire( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_Opnum128NotUsedOnWire_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="Opnum128NotUsedOnWire";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_Opnum128NotUsedOnWire_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="Opnum128NotUsedOnWire";
+	return offset;
+}
+
+/* IDL: NTSTATUS lsa_LsarCreateTrustedDomainEx3( */
+/* IDL:  */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_lsa_LsarCreateTrustedDomainEx3_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="lsa_LsarCreateTrustedDomainEx3";
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_lsa_LsarCreateTrustedDomainEx3_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="lsa_LsarCreateTrustedDomainEx3";
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LsarOpenPolicy3_system_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LsarOpenPolicy3_system_name_, NDR_POINTER_UNIQUE, "Pointer to System Name (uint16)",hf_lsarpc_lsa_LsarOpenPolicy3_system_name);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LsarOpenPolicy3_system_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	char *data;
+
+	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, di, drep, sizeof(guint16), hf_lsarpc_lsa_LsarOpenPolicy3_system_name, FALSE, &data);
+	proto_item_append_text(tree, ": %s", data);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LsarOpenPolicy3_ObjectAttributes(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LsarOpenPolicy3_ObjectAttributes_, NDR_POINTER_REF, "Pointer to ObjectAttributes (lsa_ObjectAttribute)",hf_lsarpc_lsa_LsarOpenPolicy3_ObjectAttributes);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LsarOpenPolicy3_ObjectAttributes_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = lsarpc_dissect_struct_lsa_ObjectAttribute(tvb,offset,pinfo,tree,di,drep,hf_lsarpc_lsa_LsarOpenPolicy3_ObjectAttributes,0);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LsarOpenPolicy3_DesiredAccess(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = lsarpc_dissect_bitmap_lsa_PolicyAccessMask(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LsarOpenPolicy3_DesiredAccess, 0);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LsarOpenPolicy3_InVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LsarOpenPolicy3_InVersion, 0);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LsarOpenPolicy3_InRevisionInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LsarOpenPolicy3_InRevisionInfo_, NDR_POINTER_REF, "Pointer to InRevisionInfo (LSAPR_REVISION_INFO)",hf_lsarpc_lsa_LsarOpenPolicy3_InRevisionInfo);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LsarOpenPolicy3_InRevisionInfo_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = lsarpc_dissect_LSAPR_REVISION_INFO(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LsarOpenPolicy3_InRevisionInfo, 0);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LsarOpenPolicy3_OutVersion(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LsarOpenPolicy3_OutVersion_, NDR_POINTER_REF, "Pointer to OutVersion (uint32)",hf_lsarpc_lsa_LsarOpenPolicy3_OutVersion);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LsarOpenPolicy3_OutVersion_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LsarOpenPolicy3_OutVersion, 0);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LsarOpenPolicy3_OutRevisionInfo(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LsarOpenPolicy3_OutRevisionInfo_, NDR_POINTER_REF, "Pointer to OutRevisionInfo (LSAPR_REVISION_INFO)",hf_lsarpc_lsa_LsarOpenPolicy3_OutRevisionInfo);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LsarOpenPolicy3_OutRevisionInfo_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = lsarpc_dissect_LSAPR_REVISION_INFO(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LsarOpenPolicy3_OutRevisionInfo, 0);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LsarOpenPolicy3_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LsarOpenPolicy3_handle_, NDR_POINTER_REF, "Pointer to Handle (policy_handle)",hf_lsarpc_lsa_LsarOpenPolicy3_handle);
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_element_lsa_LsarOpenPolicy3_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_lsa_LsarOpenPolicy3_handle, 0);
+
+	return offset;
+}
+
+/* IDL: NTSTATUS lsa_LsarOpenPolicy3( */
+/* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *system_name, */
+/* IDL: [in] [ref] lsa_ObjectAttribute *ObjectAttributes, */
+/* IDL: [in] lsa_PolicyAccessMask DesiredAccess, */
+/* IDL: [in] uint32 InVersion, */
+/* IDL: [in] [ref] [switch_is(InVersion)] LSAPR_REVISION_INFO *InRevisionInfo, */
+/* IDL: [out] [ref] uint32 *OutVersion, */
+/* IDL: [out] [ref] [switch_is(*OutVersion)] LSAPR_REVISION_INFO *OutRevisionInfo, */
+/* IDL: [out] [ref] policy_handle *handle */
+/* IDL: ); */
+
+static int
+lsarpc_dissect_lsa_LsarOpenPolicy3_response(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	guint32 status;
+
+	di->dcerpc_procedure_name="lsa_LsarOpenPolicy3";
+	offset = lsarpc_dissect_element_lsa_LsarOpenPolicy3_OutVersion(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = lsarpc_dissect_element_lsa_LsarOpenPolicy3_OutRevisionInfo(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = lsarpc_dissect_element_lsa_LsarOpenPolicy3_handle(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+
+	offset = dissect_ntstatus(tvb, offset, pinfo, tree, di, drep, hf_lsarpc_status, &status);
+
+	if (status != 0)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Error: %s", val_to_str(status, NT_errors, "Unknown NT status 0x%08x"));
+
+	return offset;
+}
+
+static int
+lsarpc_dissect_lsa_LsarOpenPolicy3_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	di->dcerpc_procedure_name="lsa_LsarOpenPolicy3";
+	offset = lsarpc_dissect_element_lsa_LsarOpenPolicy3_system_name(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = lsarpc_dissect_element_lsa_LsarOpenPolicy3_ObjectAttributes(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = lsarpc_dissect_element_lsa_LsarOpenPolicy3_DesiredAccess(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = lsarpc_dissect_element_lsa_LsarOpenPolicy3_InVersion(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
+	offset = lsarpc_dissect_element_lsa_LsarOpenPolicy3_InRevisionInfo(tvb, offset, pinfo, tree, di, drep);
+	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	return offset;
 }
 
@@ -11973,12 +13628,116 @@ static dcerpc_sub_dissector lsarpc_dissectors[] = {
 	   lsarpc_dissect_lsa_LSARADTUNREGISTERSECURITYEVENTSOURCE_request, lsarpc_dissect_lsa_LSARADTUNREGISTERSECURITYEVENTSOURCE_response},
 	{ 81, "lsa_LSARADTREPORTSECURITYEVENT",
 	   lsarpc_dissect_lsa_LSARADTREPORTSECURITYEVENT_request, lsarpc_dissect_lsa_LSARADTREPORTSECURITYEVENT_response},
+	{ 82, "Opnum82NotUsedOnWire",
+	   lsarpc_dissect_Opnum82NotUsedOnWire_request, lsarpc_dissect_Opnum82NotUsedOnWire_response},
+	{ 83, "Opnum83NotUsedOnWire",
+	   lsarpc_dissect_Opnum83NotUsedOnWire_request, lsarpc_dissect_Opnum83NotUsedOnWire_response},
+	{ 84, "Opnum84NotUsedOnWire",
+	   lsarpc_dissect_Opnum84NotUsedOnWire_request, lsarpc_dissect_Opnum84NotUsedOnWire_response},
+	{ 85, "Opnum85NotUsedOnWire",
+	   lsarpc_dissect_Opnum85NotUsedOnWire_request, lsarpc_dissect_Opnum85NotUsedOnWire_response},
+	{ 86, "Opnum86NotUsedOnWire",
+	   lsarpc_dissect_Opnum86NotUsedOnWire_request, lsarpc_dissect_Opnum86NotUsedOnWire_response},
+	{ 87, "Opnum87NotUsedOnWire",
+	   lsarpc_dissect_Opnum87NotUsedOnWire_request, lsarpc_dissect_Opnum87NotUsedOnWire_response},
+	{ 88, "Opnum88NotUsedOnWire",
+	   lsarpc_dissect_Opnum88NotUsedOnWire_request, lsarpc_dissect_Opnum88NotUsedOnWire_response},
+	{ 89, "Opnum89NotUsedOnWire",
+	   lsarpc_dissect_Opnum89NotUsedOnWire_request, lsarpc_dissect_Opnum89NotUsedOnWire_response},
+	{ 90, "Opnum90NotUsedOnWire",
+	   lsarpc_dissect_Opnum90NotUsedOnWire_request, lsarpc_dissect_Opnum90NotUsedOnWire_response},
+	{ 91, "Opnum91NotUsedOnWire",
+	   lsarpc_dissect_Opnum91NotUsedOnWire_request, lsarpc_dissect_Opnum91NotUsedOnWire_response},
+	{ 92, "Opnum92NotUsedOnWire",
+	   lsarpc_dissect_Opnum92NotUsedOnWire_request, lsarpc_dissect_Opnum92NotUsedOnWire_response},
+	{ 93, "Opnum93NotUsedOnWire",
+	   lsarpc_dissect_Opnum93NotUsedOnWire_request, lsarpc_dissect_Opnum93NotUsedOnWire_response},
+	{ 94, "Opnum94NotUsedOnWire",
+	   lsarpc_dissect_Opnum94NotUsedOnWire_request, lsarpc_dissect_Opnum94NotUsedOnWire_response},
+	{ 95, "Opnum95NotUsedOnWire",
+	   lsarpc_dissect_Opnum95NotUsedOnWire_request, lsarpc_dissect_Opnum95NotUsedOnWire_response},
+	{ 96, "Opnum96NotUsedOnWire",
+	   lsarpc_dissect_Opnum96NotUsedOnWire_request, lsarpc_dissect_Opnum96NotUsedOnWire_response},
+	{ 97, "Opnum97NotUsedOnWire",
+	   lsarpc_dissect_Opnum97NotUsedOnWire_request, lsarpc_dissect_Opnum97NotUsedOnWire_response},
+	{ 98, "Opnum98NotUsedOnWire",
+	   lsarpc_dissect_Opnum98NotUsedOnWire_request, lsarpc_dissect_Opnum98NotUsedOnWire_response},
+	{ 99, "Opnum99NotUsedOnWire",
+	   lsarpc_dissect_Opnum99NotUsedOnWire_request, lsarpc_dissect_Opnum99NotUsedOnWire_response},
+	{ 100, "Opnum100NotUsedOnWire",
+	   lsarpc_dissect_Opnum100NotUsedOnWire_request, lsarpc_dissect_Opnum100NotUsedOnWire_response},
+	{ 101, "Opnum101NotUsedOnWire",
+	   lsarpc_dissect_Opnum101NotUsedOnWire_request, lsarpc_dissect_Opnum101NotUsedOnWire_response},
+	{ 102, "Opnum102NotUsedOnWire",
+	   lsarpc_dissect_Opnum102NotUsedOnWire_request, lsarpc_dissect_Opnum102NotUsedOnWire_response},
+	{ 103, "Opnum103NotUsedOnWire",
+	   lsarpc_dissect_Opnum103NotUsedOnWire_request, lsarpc_dissect_Opnum103NotUsedOnWire_response},
+	{ 104, "Opnum104NotUsedOnWire",
+	   lsarpc_dissect_Opnum104NotUsedOnWire_request, lsarpc_dissect_Opnum104NotUsedOnWire_response},
+	{ 105, "Opnum105NotUsedOnWire",
+	   lsarpc_dissect_Opnum105NotUsedOnWire_request, lsarpc_dissect_Opnum105NotUsedOnWire_response},
+	{ 106, "Opnum106NotUsedOnWire",
+	   lsarpc_dissect_Opnum106NotUsedOnWire_request, lsarpc_dissect_Opnum106NotUsedOnWire_response},
+	{ 107, "Opnum107NotUsedOnWire",
+	   lsarpc_dissect_Opnum107NotUsedOnWire_request, lsarpc_dissect_Opnum107NotUsedOnWire_response},
+	{ 108, "Opnum108NotUsedOnWire",
+	   lsarpc_dissect_Opnum108NotUsedOnWire_request, lsarpc_dissect_Opnum108NotUsedOnWire_response},
+	{ 109, "Opnum109NotUsedOnWire",
+	   lsarpc_dissect_Opnum109NotUsedOnWire_request, lsarpc_dissect_Opnum109NotUsedOnWire_response},
+	{ 110, "Opnum110NotUsedOnWire",
+	   lsarpc_dissect_Opnum110NotUsedOnWire_request, lsarpc_dissect_Opnum110NotUsedOnWire_response},
+	{ 111, "Opnum111NotUsedOnWire",
+	   lsarpc_dissect_Opnum111NotUsedOnWire_request, lsarpc_dissect_Opnum111NotUsedOnWire_response},
+	{ 112, "Opnum112NotUsedOnWire",
+	   lsarpc_dissect_Opnum112NotUsedOnWire_request, lsarpc_dissect_Opnum112NotUsedOnWire_response},
+	{ 113, "Opnum113NotUsedOnWire",
+	   lsarpc_dissect_Opnum113NotUsedOnWire_request, lsarpc_dissect_Opnum113NotUsedOnWire_response},
+	{ 114, "Opnum114NotUsedOnWire",
+	   lsarpc_dissect_Opnum114NotUsedOnWire_request, lsarpc_dissect_Opnum114NotUsedOnWire_response},
+	{ 115, "Opnum115NotUsedOnWire",
+	   lsarpc_dissect_Opnum115NotUsedOnWire_request, lsarpc_dissect_Opnum115NotUsedOnWire_response},
+	{ 116, "Opnum116NotUsedOnWire",
+	   lsarpc_dissect_Opnum116NotUsedOnWire_request, lsarpc_dissect_Opnum116NotUsedOnWire_response},
+	{ 117, "Opnum117NotUsedOnWire",
+	   lsarpc_dissect_Opnum117NotUsedOnWire_request, lsarpc_dissect_Opnum117NotUsedOnWire_response},
+	{ 118, "Opnum118NotUsedOnWire",
+	   lsarpc_dissect_Opnum118NotUsedOnWire_request, lsarpc_dissect_Opnum118NotUsedOnWire_response},
+	{ 119, "Opnum119NotUsedOnWire",
+	   lsarpc_dissect_Opnum119NotUsedOnWire_request, lsarpc_dissect_Opnum119NotUsedOnWire_response},
+	{ 120, "Opnum120NotUsedOnWire",
+	   lsarpc_dissect_Opnum120NotUsedOnWire_request, lsarpc_dissect_Opnum120NotUsedOnWire_response},
+	{ 121, "Opnum121NotUsedOnWire",
+	   lsarpc_dissect_Opnum121NotUsedOnWire_request, lsarpc_dissect_Opnum121NotUsedOnWire_response},
+	{ 122, "Opnum122NotUsedOnWire",
+	   lsarpc_dissect_Opnum122NotUsedOnWire_request, lsarpc_dissect_Opnum122NotUsedOnWire_response},
+	{ 123, "Opnum123NotUsedOnWire",
+	   lsarpc_dissect_Opnum123NotUsedOnWire_request, lsarpc_dissect_Opnum123NotUsedOnWire_response},
+	{ 124, "Opnum124NotUsedOnWire",
+	   lsarpc_dissect_Opnum124NotUsedOnWire_request, lsarpc_dissect_Opnum124NotUsedOnWire_response},
+	{ 125, "Opnum125NotUsedOnWire",
+	   lsarpc_dissect_Opnum125NotUsedOnWire_request, lsarpc_dissect_Opnum125NotUsedOnWire_response},
+	{ 126, "Opnum126NotUsedOnWire",
+	   lsarpc_dissect_Opnum126NotUsedOnWire_request, lsarpc_dissect_Opnum126NotUsedOnWire_response},
+	{ 127, "Opnum127NotUsedOnWire",
+	   lsarpc_dissect_Opnum127NotUsedOnWire_request, lsarpc_dissect_Opnum127NotUsedOnWire_response},
+	{ 128, "Opnum128NotUsedOnWire",
+	   lsarpc_dissect_Opnum128NotUsedOnWire_request, lsarpc_dissect_Opnum128NotUsedOnWire_response},
+	{ 129, "lsa_LsarCreateTrustedDomainEx3",
+	   lsarpc_dissect_lsa_LsarCreateTrustedDomainEx3_request, lsarpc_dissect_lsa_LsarCreateTrustedDomainEx3_response},
+	{ 130, "lsa_LsarOpenPolicy3",
+	   lsarpc_dissect_lsa_LsarOpenPolicy3_request, lsarpc_dissect_lsa_LsarOpenPolicy3_response},
 	{ 0, NULL, NULL, NULL }
 };
 
 void proto_register_dcerpc_lsarpc(void)
 {
 	static hf_register_info hf[] = {
+	{ &hf_lsarpc_LSAPR_REVISION_INFO_V1_Revision,
+	  { "Revision", "lsarpc.LSAPR_REVISION_INFO_V1.Revision", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_LSAPR_REVISION_INFO_V1_SupportedFeatures,
+	  { "SupportedFeatures", "lsarpc.LSAPR_REVISION_INFO_V1.SupportedFeatures", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_LSAPR_REVISION_INFO_revision_info_v1,
+	  { "Revision Info V1", "lsarpc.LSAPR_REVISION_INFO.revision_info_v1", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_String_name,
 	  { "String", "lsarpc.lsa.string", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_account_access_mask,
@@ -12381,6 +14140,22 @@ void proto_register_dcerpc_lsarpc(void)
 	  { "Names", "lsarpc.lsa_LookupSids.names", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_LookupSids_sids,
 	  { "Sids", "lsarpc.lsa_LookupSids.sids", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LsarOpenPolicy3_DesiredAccess,
+	  { "DesiredAccess", "lsarpc.lsa_LsarOpenPolicy3.DesiredAccess", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LsarOpenPolicy3_InRevisionInfo,
+	  { "InRevisionInfo", "lsarpc.lsa_LsarOpenPolicy3.InRevisionInfo", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LsarOpenPolicy3_InVersion,
+	  { "InVersion", "lsarpc.lsa_LsarOpenPolicy3.InVersion", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LsarOpenPolicy3_ObjectAttributes,
+	  { "ObjectAttributes", "lsarpc.lsa_LsarOpenPolicy3.ObjectAttributes", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LsarOpenPolicy3_OutRevisionInfo,
+	  { "OutRevisionInfo", "lsarpc.lsa_LsarOpenPolicy3.OutRevisionInfo", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LsarOpenPolicy3_OutVersion,
+	  { "OutVersion", "lsarpc.lsa_LsarOpenPolicy3.OutVersion", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LsarOpenPolicy3_handle,
+	  { "Handle", "lsarpc.lsa_LsarOpenPolicy3.handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+	{ &hf_lsarpc_lsa_LsarOpenPolicy3_system_name,
+	  { "System Name", "lsarpc.lsa_LsarOpenPolicy3.system_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_ModificationInfo_db_create_time,
 	  { "Db Create Time", "lsarpc.lsa_ModificationInfo.db_create_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0, NULL, HFILL }},
 	{ &hf_lsarpc_lsa_ModificationInfo_modified_id,
@@ -12896,6 +14671,8 @@ void proto_register_dcerpc_lsarpc(void)
 		&ett_lsarpc_lsa_ForestTrustData,
 		&ett_lsarpc_lsa_ForestTrustRecord,
 		&ett_lsarpc_lsa_ForestTrustInformation,
+		&ett_lsarpc_LSAPR_REVISION_INFO_V1,
+		&ett_lsarpc_LSAPR_REVISION_INFO,
 	};
 
 	proto_dcerpc_lsarpc = proto_register_protocol("Local Security Authority", "LSARPC", "lsarpc");

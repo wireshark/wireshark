@@ -126,7 +126,7 @@
 	NTSTATUS lsa_QuerySecurity (
 		[in]     policy_handle *handle,
 		[in]         security_secinfo sec_info,
-		[out,unique]        sec_desc_buf *sdbuf
+		[out]        sec_desc_buf **sdbuf
 		);
 
 
@@ -312,7 +312,7 @@
 	NTSTATUS lsa_QueryInfoPolicy (
 		[in]                            policy_handle *handle,
 		[in]                            lsa_PolicyInfo level,
-		[out,unique,switch_is(level)]   lsa_PolicyInformation *info
+		[out,switch_is(level)]   lsa_PolicyInformation **info
 		);
 
 	/******************/
@@ -442,7 +442,7 @@
 		[in]         policy_handle *handle,
 		[in,range(0,1000)] uint32 num_names,
 		[in,size_is(num_names)]  lsa_String names[],
-		[out,unique] lsa_RefDomainList *domains,
+		[out] lsa_RefDomainList **domains,
 		[in,out]     lsa_TransSidArray *sids,
 		[in]         lsa_LookupNamesLevel level,
 		[in,out]     uint32 *count
@@ -466,7 +466,7 @@
 	[public] NTSTATUS lsa_LookupSids (
 		[in]         policy_handle *handle,
 		[in]         lsa_SidArray *sids,
-		[out,unique]        lsa_RefDomainList *domains,
+		[out]        lsa_RefDomainList *domains,
 		[in,out]     lsa_TransNameArray *names,
 		[in]         uint16 level,
 		[in,out] uint32 *count
@@ -508,7 +508,7 @@
 	
 	NTSTATUS lsa_EnumPrivsAccount (
 		[in]         policy_handle *handle,
-		[out,unique] lsa_PrivilegeSet *privs
+		[out] lsa_PrivilegeSet **privs
 		);
 
 
@@ -647,7 +647,7 @@
 	NTSTATUS lsa_QueryTrustedDomainInfo(
 		[in]     policy_handle                   *trustdom_handle,
 		[in]     lsa_TrustDomInfoEnum             level, 
-		[out,switch_is(level),unique] lsa_TrustedDomainInfo *info
+		[out,switch_is(level)] lsa_TrustedDomainInfo **info
 		);
 
 	/* Function:     0x1b */
@@ -694,7 +694,7 @@
 	NTSTATUS lsa_LookupPrivName (
 		[in]     policy_handle *handle,
 		[in]     lsa_LUID *luid,
-		[out,unique]        lsa_StringLarge *name
+		[out]        lsa_StringLarge **name
 		);
 
 
@@ -703,7 +703,7 @@
 	NTSTATUS lsa_LookupPrivDisplayName (
 		[in]     policy_handle *handle,
 		[in]     lsa_String *name,
-		[out,unique]        lsa_StringLarge *disp_name,
+		[out]        lsa_StringLarge **disp_name,
 		/* see http://www.microsoft.com/globaldev/nlsweb/ for
 		   language definitions */
 		[in,out] uint16 *language_id,
@@ -761,7 +761,7 @@
 		[in]               policy_handle         *handle,
 		[in]               dom_sid2              *dom_sid,
 		[in]                   lsa_TrustDomInfoEnum  level, 
-		[out,switch_is(level),unique] lsa_TrustedDomainInfo *info
+		[out,switch_is(level)] lsa_TrustedDomainInfo **info
         );
 
 	/* Function:     0x28 */
@@ -805,7 +805,7 @@
 	NTSTATUS lsa_QueryInfoPolicy2(
 		[in]                 policy_handle *handle,
 		[in]                     lsa_PolicyInfo level,
-		[out,unique,switch_is(level)]   lsa_PolicyInformation *info
+		[out,switch_is(level)]   lsa_PolicyInformation **info
 		);
 
 	/* Function 0x2f */
@@ -821,7 +821,7 @@
 		[in]                   policy_handle         *handle,
 		[in]                   lsa_String             trusted_domain,
 		[in]                   lsa_TrustDomInfoEnum   level, 
-		[out,unique,switch_is(level)] lsa_TrustedDomainInfo *info
+		[out,switch_is(level)] lsa_TrustedDomainInfo **info
 		);
 
 	/**********************/
@@ -891,7 +891,7 @@
 	NTSTATUS lsa_QueryDomainInformationPolicy(
 		[in]		policy_handle *handle,
 		[in] 		lsa_DomainInfoEnum level,
-		[out,unique,switch_is(level)]	lsa_DomainInformationPolicy *info
+		[out,switch_is(level)]	lsa_DomainInformationPolicy **info
 		);
 
 	/* Function 0x36 */
@@ -931,7 +931,7 @@
 	[public] NTSTATUS lsa_LookupSids2(
 		[in]     policy_handle *handle,
 		[in]     lsa_SidArray *sids,
-		[out,unique]        lsa_RefDomainList *domains,
+		[out]        lsa_RefDomainList **domains,
 		[in,out] lsa_TransNameArray2 *names,
 		[in]         uint16 level,
 		[in,out] uint32 *count,
@@ -958,7 +958,7 @@
 		[in]     policy_handle *handle,
 		[in,range(0,1000)] uint32 num_names,
 		[in,size_is(num_names)]  lsa_String names[],
-		[out,unique]        lsa_RefDomainList *domains,
+		[out]        lsa_RefDomainList **domains,
 		[in,out] lsa_TransSidArray2 *sids,
 		[in]         lsa_LookupNamesLevel level,
 		[in,out] uint32 *count,
@@ -1011,7 +1011,7 @@
 		[in]     policy_handle *handle,
 		[in,range(0,1000)] uint32 num_names,
 		[in,size_is(num_names)]  lsa_String names[],
-		[out,unique]        lsa_RefDomainList *domains,
+		[out]        lsa_RefDomainList **domains,
 		[in,out] lsa_TransSidArray3 *sids,
 		[in]         lsa_LookupNamesLevel level,
 		[in,out] uint32 *count,
@@ -1087,7 +1087,7 @@
 
 	[public] NTSTATUS lsa_LookupSids3(
 		[in]         lsa_SidArray *sids,
-		[out,unique] lsa_RefDomainList *domains,
+		[out] lsa_RefDomainList **domains,
 		[in,out]     lsa_TransNameArray2 *names,
 		[in]         uint16 level,
 		[in,out]     uint32 *count,
@@ -1099,7 +1099,7 @@
 	NTSTATUS lsa_LookupNames4(
 		[in,range(0,1000)] uint32 num_names,
 		[in,size_is(num_names)]  lsa_String names[],
-		[out,unique]        lsa_RefDomainList *domains,
+		[out]        lsa_RefDomainList **domains,
 		[in,out] lsa_TransSidArray3 *sids,
 		[in]         lsa_LookupNamesLevel level,
 		[in,out] uint32 *count,
@@ -1119,4 +1119,175 @@
 	/* Function 0x51 */
 	[todo] NTSTATUS lsa_LSARADTREPORTSECURITYEVENT();
 
+	/* Function 0x52 */
+	[todo] NTSTATUS Opnum82NotUsedOnWire(void);
+
+	/* Function 0x53 */
+	[todo] NTSTATUS Opnum83NotUsedOnWire(void);
+
+	/* Function 0x54 */
+	[todo] NTSTATUS Opnum84NotUsedOnWire(void);
+
+	/* Function 0x55 */
+	[todo] NTSTATUS Opnum85NotUsedOnWire(void);
+
+	/* Function 0x56 */
+	[todo] NTSTATUS Opnum86NotUsedOnWire(void);
+
+	/* Function 0x57 */
+	[todo] NTSTATUS Opnum87NotUsedOnWire(void);
+
+	/* Function 0x58 */
+	[todo] NTSTATUS Opnum88NotUsedOnWire(void);
+
+	/* Function 0x59 */
+	[todo] NTSTATUS Opnum89NotUsedOnWire(void);
+
+	/* Function 0x5A */
+	[todo] NTSTATUS Opnum90NotUsedOnWire(void);
+
+	/* Function 0x5B */
+	[todo] NTSTATUS Opnum91NotUsedOnWire(void);
+
+	/* Function 0x5C */
+	[todo] NTSTATUS Opnum92NotUsedOnWire(void);
+
+	/* Function 0x5D */
+	[todo] NTSTATUS Opnum93NotUsedOnWire(void);
+
+	/* Function 0x5E */
+	[todo] NTSTATUS Opnum94NotUsedOnWire(void);
+
+	/* Function 0x5F */
+	[todo] NTSTATUS Opnum95NotUsedOnWire(void);
+
+	/* Function 0x60 */
+	[todo] NTSTATUS Opnum96NotUsedOnWire(void);
+
+	/* Function 0x61 */
+	[todo] NTSTATUS Opnum97NotUsedOnWire(void);
+
+	/* Function 0x62 */
+	[todo] NTSTATUS Opnum98NotUsedOnWire(void);
+
+	/* Function 0x63 */
+	[todo] NTSTATUS Opnum99NotUsedOnWire(void);
+
+	/* Function 0x64 */
+	[todo] NTSTATUS Opnum100NotUsedOnWire(void);
+
+	/* Function 0x65 */
+	[todo] NTSTATUS Opnum101NotUsedOnWire(void);
+
+	/* Function 0x66 */
+	[todo] NTSTATUS Opnum102NotUsedOnWire(void);
+
+	/* Function 0x67 */
+	[todo] NTSTATUS Opnum103NotUsedOnWire(void);
+
+	/* Function 0x68 */
+	[todo] NTSTATUS Opnum104NotUsedOnWire(void);
+
+	/* Function 0x69 */
+	[todo] NTSTATUS Opnum105NotUsedOnWire(void);
+
+	/* Function 0x6A */
+	[todo] NTSTATUS Opnum106NotUsedOnWire(void);
+
+	/* Function 0x6B */
+	[todo] NTSTATUS Opnum107NotUsedOnWire(void);
+
+	/* Function 0x6C */
+	[todo] NTSTATUS Opnum108NotUsedOnWire(void);
+
+	/* Function 0x6D */
+	[todo] NTSTATUS Opnum109NotUsedOnWire(void);
+
+	/* Function 0x6E */
+	[todo] NTSTATUS Opnum110NotUsedOnWire(void);
+
+	/* Function 0x6F */
+	[todo] NTSTATUS Opnum111NotUsedOnWire(void);
+
+	/* Function 0x70 */
+	[todo] NTSTATUS Opnum112NotUsedOnWire(void);
+
+	/* Function 0x71 */
+	[todo] NTSTATUS Opnum113NotUsedOnWire(void);
+
+	/* Function 0x72 */
+	[todo] NTSTATUS Opnum114NotUsedOnWire(void);
+
+	/* Function 0x73 */
+	[todo] NTSTATUS Opnum115NotUsedOnWire(void);
+
+	/* Function 0x74 */
+	[todo] NTSTATUS Opnum116NotUsedOnWire(void);
+
+	/* Function 0x75 */
+	[todo] NTSTATUS Opnum117NotUsedOnWire(void);
+
+	/* Function 0x76 */
+	[todo] NTSTATUS Opnum118NotUsedOnWire(void);
+
+	/* Function 0x77 */
+	[todo] NTSTATUS Opnum119NotUsedOnWire(void);
+
+	/* Function 0x78 */
+	[todo] NTSTATUS Opnum120NotUsedOnWire(void);
+
+	/* Function 0x79 */
+	[todo] NTSTATUS Opnum121NotUsedOnWire(void);
+
+	/* Function 0x7A */
+	[todo] NTSTATUS Opnum122NotUsedOnWire(void);
+
+	/* Function 0x7B */
+	[todo] NTSTATUS Opnum123NotUsedOnWire(void);
+
+	/* Function 0x7C */
+	[todo] NTSTATUS Opnum124NotUsedOnWire(void);
+
+	/* Function 0x7D */
+	[todo] NTSTATUS Opnum125NotUsedOnWire(void);
+
+	/* Function 0x7E */
+	[todo] NTSTATUS Opnum126NotUsedOnWire(void);
+
+	/* Function 0x7F */
+	[todo] NTSTATUS Opnum127NotUsedOnWire(void);
+
+	/* Function 0x80 */
+	[todo] NTSTATUS Opnum128NotUsedOnWire(void);
+
+	/* Function 0x81 */
+	[todo] NTSTATUS lsa_LsarCreateTrustedDomainEx3(void);
+
+	/*****************/
+	/* Function 0x82 */
+
+	typedef [v1_enum] enum {
+		LSAPR_REVISION_VERSION_1	= 0x00000001
+	} LSAPR_REVISION_VERSION;
+
+	typedef struct _LSAPR_REVISION_INFO_V1
+	{
+		uint32 Revision;
+		uint32 SupportedFeatures;
+	} LSAPR_REVISION_INFO_V1;
+
+	typedef [switch_type(LSAPR_REVISION_VERSION)] union {
+		[case(LSAPR_REVISION_VERSION_1)] LSAPR_REVISION_INFO_V1	revision_info_v1;
+	} LSAPR_REVISION_INFO;
+
+	NTSTATUS lsa_LsarOpenPolicy3(
+		[in,unique]      [string,charset(UTF16)] uint16 *system_name,
+		[in]  lsa_ObjectAttribute *ObjectAttributes,
+		[in]  lsa_PolicyAccessMask DesiredAccess,
+		[in]  uint32 InVersion,
+		[in] [switch_is(InVersion)] LSAPR_REVISION_INFO*    InRevisionInfo,
+		[out] uint32 *OutVersion,
+		[out] [switch_is(*OutVersion)] LSAPR_REVISION_INFO* OutRevisionInfo,
+		[out] policy_handle *handle
+	);
 }
