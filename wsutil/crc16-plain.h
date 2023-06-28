@@ -30,10 +30,10 @@
 #ifndef __CRC____PLAIN_H__
 #define __CRC____PLAIN_H__
 
-#include "ws_symbol_export.h"
+#include <stddef.h>
+#include <stdint.h>
 
-#include <glib.h>
-#include <stdlib.h>
+#include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,7 +49,7 @@ extern "C" {
  *
  * This type must be big enough to contain at least 16 bits.
  *****************************************************************************/
-typedef guint16 crc16_plain_t;
+typedef uint16_t crc16_plain_t;
 
 /**
  * Reflect all bits of a \a data word of \a data_len bytes.
@@ -111,7 +111,7 @@ static inline crc16_plain_t crc16_plain_finalize(crc16_plain_t crc)
  * \return         The crc value.
  *****************************************************************************/
 WS_DLL_PUBLIC
-guint16 crc16_8005_noreflect_noxor(const guint8 *data, guint64 data_len);
+uint16_t crc16_8005_noreflect_noxor(const uint8_t *data, uint64_t data_len);
 
 
 #ifdef __cplusplus

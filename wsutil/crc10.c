@@ -19,7 +19,7 @@
  * his "gen_byte_crc10_table()" routine, rather than by calling that
  * routine at run time, and with various data type cleanups.
  */
-static const guint16 byte_crc10_table[256] = {
+static const uint16_t byte_crc10_table[256] = {
 	0x0000, 0x0233, 0x0255, 0x0066, 0x0299, 0x00aa, 0x00cc, 0x02ff,
 	0x0301, 0x0132, 0x0154, 0x0367, 0x0198, 0x03ab, 0x03cd, 0x01fe,
 	0x0031, 0x0202, 0x0264, 0x0057, 0x02a8, 0x009b, 0x00fd, 0x02ce,
@@ -55,8 +55,8 @@ static const guint16 byte_crc10_table[256] = {
 };
 
 /* Update the data block's CRC-10 remainder one byte at a time */
-guint16
-update_crc10_by_bytes(guint16 crc10_accum, const guint8 *data_blk_ptr,
+uint16_t
+update_crc10_by_bytes(uint16_t crc10_accum, const uint8_t *data_blk_ptr,
 		      int data_blk_size)
 {
 	register int i;

@@ -26,7 +26,7 @@ extern "C" {
  * @param seed The seed to use.
  * @return the CRC8 checksum for the buffer
  */
-WS_DLL_PUBLIC guint8 crc8_0x2F(const guint8 *buf, guint32 len, guint8 seed);
+WS_DLL_PUBLIC uint8_t crc8_0x2F(const uint8_t *buf, uint32_t len, uint8_t seed);
 
 /** Calculates a CRC8 checksum for the given buffer with the polynom
  *  0x37 using the precompiled CRC table
@@ -35,7 +35,7 @@ WS_DLL_PUBLIC guint8 crc8_0x2F(const guint8 *buf, guint32 len, guint8 seed);
  * @param seed The seed to use.
  * @return the CRC8 checksum for the buffer
  */
-WS_DLL_PUBLIC guint8 crc8_0x37(const guint8 *buf, guint32 len, guint8 seed);
+WS_DLL_PUBLIC uint8_t crc8_0x37(const uint8_t *buf, uint32_t len, uint8_t seed);
 
 /** Calculates a CRC8 checksum for the given buffer with the polynom
  *  0x3B using the precompiled CRC table
@@ -44,7 +44,7 @@ WS_DLL_PUBLIC guint8 crc8_0x37(const guint8 *buf, guint32 len, guint8 seed);
  * @param seed The seed to use.
  * @return the CRC8 checksum for the buffer
  */
-WS_DLL_PUBLIC guint8 crc8_0x3B(const guint8 *buf, guint32 len, guint8 seed);
+WS_DLL_PUBLIC uint8_t crc8_0x3B(const uint8_t *buf, uint32_t len, uint8_t seed);
 
 #ifdef __cplusplus
 }

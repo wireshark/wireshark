@@ -40,7 +40,7 @@ extern "C" {
  *
  * \return     The initial crc value.
  *****************************************************************************/
-static inline guint8 crc7init(void)
+static inline uint8_t crc7init(void)
 {
     return 0x00 << 1;
 }
@@ -54,7 +54,7 @@ static inline guint8 crc7init(void)
  * \param data_len Number of bytes in the \a data buffer.
  * \return         The updated crc value.
  *****************************************************************************/
-WS_DLL_PUBLIC guint8 crc7update(guint8 crc, const unsigned char *data, int data_len);
+WS_DLL_PUBLIC uint8_t crc7update(uint8_t crc, const unsigned char *data, int data_len);
 
 
 /**
@@ -63,7 +63,7 @@ WS_DLL_PUBLIC guint8 crc7update(guint8 crc, const unsigned char *data, int data_
  * \param crc  The current crc value.
  * \return     The final crc value.
  *****************************************************************************/
-static inline guint8 crc7finalize(guint8 crc)
+static inline uint8_t crc7finalize(uint8_t crc)
 {
     return (crc >> 1) ^ 0x00;
 }

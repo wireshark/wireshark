@@ -28,7 +28,7 @@
 /**
  * Static table used for the table_driven implementation.
  *****************************************************************************/
-static const guint8 crc_table[256] = {
+static const uint8_t crc_table[256] = {
     0x00, 0x8a, 0x9e, 0x14, 0xb6, 0x3c, 0x28, 0xa2, 0xe6, 0x6c, 0x78, 0xf2, 0x50, 0xda, 0xce, 0x44,
     0x46, 0xcc, 0xd8, 0x52, 0xf0, 0x7a, 0x6e, 0xe4, 0xa0, 0x2a, 0x3e, 0xb4, 0x16, 0x9c, 0x88, 0x02,
     0x8c, 0x06, 0x12, 0x98, 0x3a, 0xb0, 0xa4, 0x2e, 0x6a, 0xe0, 0xf4, 0x7e, 0xdc, 0x56, 0x42, 0xc8,
@@ -57,7 +57,7 @@ static const guint8 crc_table[256] = {
  * \param data_len Number of bytes in the \a data buffer.
  * \return         The updated crc value.
  *****************************************************************************/
-guint8 crc7update(guint8 crc, const unsigned char *data, int data_len)
+uint8_t crc7update(uint8_t crc, const unsigned char *data, int data_len)
 {
     unsigned int tbl_idx;
 

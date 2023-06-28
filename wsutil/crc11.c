@@ -27,7 +27,7 @@
 /**
  * Static table used for the table_driven implementation.
  *****************************************************************************/
-static const guint16 crc11_table_307_noreflect_noxor[256] = {
+static const uint16_t crc11_table_307_noreflect_noxor[256] = {
     0x000, 0x307, 0x60e, 0x509, 0x71b, 0x41c, 0x115, 0x212, 0x531, 0x636, 0x33f, 0x038, 0x22a, 0x12d, 0x424, 0x723,
     0x165, 0x262, 0x76b, 0x46c, 0x67e, 0x579, 0x070, 0x377, 0x454, 0x753, 0x25a, 0x15d, 0x34f, 0x048, 0x541, 0x646,
     0x2ca, 0x1cd, 0x4c4, 0x7c3, 0x5d1, 0x6d6, 0x3df, 0x0d8, 0x7fb, 0x4fc, 0x1f5, 0x2f2, 0x0e0, 0x3e7, 0x6ee, 0x5e9,
@@ -52,10 +52,10 @@ static const guint16 crc11_table_307_noreflect_noxor[256] = {
  * \param data_len Number of bytes in the \a data buffer.
  * \return         The updated crc value.
  *****************************************************************************/
-guint16 crc11_307_noreflect_noxor(const guint8 *data, guint64 data_len)
+uint16_t crc11_307_noreflect_noxor(const uint8_t *data, uint64_t data_len)
 {
-    guint16 crc = 0;
-    guint tbl_idx;
+    uint16_t crc = 0;
+    unsigned tbl_idx;
 
     while (data_len--) {
         tbl_idx = ((crc >> 3) ^ *data) & 0xff;

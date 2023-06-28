@@ -40,7 +40,7 @@
 /*****************************************************************/
 #define CRC32C(c,d) CRC32_ACCUMULATE(c,d,crc32c_table)
 
-static const guint32 crc32c_table[256] = {
+static const uint32_t crc32c_table[256] = {
 		0x00000000U, 0xF26B8303U, 0xE13B70F7U, 0x1350F3F4U, 0xC79A971FU,
 		0x35F1141CU, 0x26A1E7E8U, 0xD4CA64EBU, 0x8AD958CFU, 0x78B2DBCCU,
 		0x6BE22838U, 0x9989AB3BU, 0x4D43CFD0U, 0xBF284CD3U, 0xAC78BF27U,
@@ -102,7 +102,7 @@ static const guint32 crc32c_table[256] = {
  *  x^32 + x^26 + x^23 + x^22 + x^16 + x^12 + x^11 + x^10 + x^8 +
  *      x^7 + x^5 + x^4 + x^2 + x + 1
  */
-static const guint32 crc32_ccitt_table[256] = {
+static const uint32_t crc32_ccitt_table[256] = {
 	0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419,
 	0x706af48f, 0xe963a535, 0x9e6495a3, 0x0edb8832, 0x79dcb8a4,
 	0xe0d5e91e, 0x97d2d988, 0x09b64c2b, 0x7eb17cbd, 0xe7b82d07,
@@ -169,7 +169,7 @@ static const guint32 crc32_ccitt_table[256] = {
  *
  * NOTE: this is also used for ATM AAL5.
  */
-static const guint32 crc32_mpeg2_table[256] = {
+static const uint32_t crc32_mpeg2_table[256] = {
 		0x00000000, 0x04c11db7, 0x09823b6e, 0x0d4326d9, 0x130476dc, 0x17c56b6b,
 		0x1a864db2, 0x1e475005, 0x2608edb8, 0x22c9f00f, 0x2f8ad6d6, 0x2b4bcb61,
 		0x350c9b64, 0x31cd86d3, 0x3c8ea00a, 0x384fbdbd, 0x4c11db70, 0x48d0c6c7,
@@ -216,7 +216,7 @@ static const guint32 crc32_mpeg2_table[256] = {
 };
 
 /* This table was compiled using the polynom: 0x0AA725CF*/
-static const guint32 crc32_0AA725CF_reverse[] = {
+static const uint32_t crc32_0AA725CF_reverse[] = {
 		0x00000000U, 0xCEAA95CEU, 0x7A1CE13DU, 0xB4B674F3U,
 		0xF439C27AU, 0x3A9357B4U, 0x8E252347U, 0x408FB689U,
 		0x0F3A4E55U, 0xC190DB9BU, 0x7526AF68U, 0xBB8C3AA6U,
@@ -284,7 +284,7 @@ static const guint32 crc32_0AA725CF_reverse[] = {
 };
 
 /* This table was compiled using the polynom: 0x5D6DCB */
-static const guint32 crc32_5D6DCB[] =
+static const uint32_t crc32_5D6DCB[] =
 {
 		0x00000000, 0x005d6dcb, 0x00badb96, 0x00e7b65d,
 		0x0028dae7, 0x0075b72c, 0x00920171, 0x00cf6cba,
@@ -352,22 +352,22 @@ static const guint32 crc32_5D6DCB[] =
 		0x0098206c, 0x00c54da7, 0x0022fbfa, 0x007f9631
 };
 
-guint32
-crc32c_table_lookup (guchar pos)
+uint32_t
+crc32c_table_lookup (unsigned char pos)
 {
 	return crc32c_table[pos];
 }
 
-guint32
-crc32_ccitt_table_lookup (guchar pos)
+uint32_t
+crc32_ccitt_table_lookup (unsigned char pos)
 {
 	return crc32_ccitt_table[pos];
 }
 
-guint32
-crc32c_calculate(const void *buf, int len, guint32 crc)
+uint32_t
+crc32c_calculate(const void *buf, int len, uint32_t crc)
 {
-	const guint8 *p = (const guint8 *)buf;
+	const uint8_t *p = (const uint8_t *)buf;
 	crc = CRC32C_SWAP(crc);
 	while (len-- > 0) {
 		CRC32C(crc, *p++);
@@ -375,10 +375,10 @@ crc32c_calculate(const void *buf, int len, guint32 crc)
 	return CRC32C_SWAP(crc);
 }
 
-guint32
-crc32c_calculate_no_swap(const void *buf, int len, guint32 crc)
+uint32_t
+crc32c_calculate_no_swap(const void *buf, int len, uint32_t crc)
 {
-	const guint8 *p = (const guint8 *)buf;
+	const uint8_t *p = (const uint8_t *)buf;
 	while (len-- > 0) {
 		CRC32C(crc, *p++);
 	}
@@ -386,17 +386,17 @@ crc32c_calculate_no_swap(const void *buf, int len, guint32 crc)
 	return crc;
 }
 
-guint32
-crc32_ccitt(const guint8 *buf, guint len)
+uint32_t
+crc32_ccitt(const uint8_t *buf, unsigned len)
 {
 	return (crc32_ccitt_seed(buf, len, CRC32_CCITT_SEED));
 }
 
-guint32
-crc32_ccitt_seed(const guint8 *buf, guint len, guint32 seed)
+uint32_t
+crc32_ccitt_seed(const uint8_t *buf, unsigned len, uint32_t seed)
 {
-	guint i;
-	guint32 crc32 = seed;
+	unsigned i;
+	uint32_t crc32 = seed;
 
 	for (i = 0; i < len; i++)
 		CRC32_ACCUMULATE(crc32, buf[i], crc32_ccitt_table);
@@ -404,11 +404,11 @@ crc32_ccitt_seed(const guint8 *buf, guint len, guint32 seed)
 	return ( ~crc32 );
 }
 
-guint32
-crc32_mpeg2_seed(const guint8 *buf, guint len, guint32 seed)
+uint32_t
+crc32_mpeg2_seed(const uint8_t *buf, unsigned len, uint32_t seed)
 {
-	guint i;
-	guint32 crc32;
+	unsigned i;
+	uint32_t crc32;
 
 	crc32 = seed;
 
@@ -418,27 +418,27 @@ crc32_mpeg2_seed(const guint8 *buf, guint len, guint32 seed)
 	return ( crc32 );
 }
 
-guint32
-crc32_0x0AA725CF_seed(const guint8 *buf, guint len, guint32 seed)
+uint32_t
+crc32_0x0AA725CF_seed(const uint8_t *buf, unsigned len, uint32_t seed)
 {
-	guint crc32;
+	unsigned crc32;
 
-	crc32 = (guint)seed;
+	crc32 = (unsigned)seed;
 	while( len-- != 0 )
 		CRC32_ACCUMULATE(crc32, *buf++, crc32_0AA725CF_reverse);
 
-	return (guint32)crc32;
+	return (uint32_t)crc32;
 }
 
-guint32
-crc32_0x5D6DCB_seed(const guint8 *buf, guint len, guint32 seed)
+uint32_t
+crc32_0x5D6DCB_seed(const uint8_t *buf, unsigned len, uint32_t seed)
 {
-	guint32 crc = seed;
+	uint32_t crc = seed;
 	if (len > 0)
 	{
 		while (len-- > 0)
 		{
-			guint8 data = *buf++;
+			uint8_t data = *buf++;
 			/* XOR data with CRC2, look up result, then XOR that with CRC; */
 			crc = crc32_5D6DCB[((crc >> 16) ^ data) & 0xff] ^ (crc << 8);
 		}

@@ -30,7 +30,7 @@
  *    XorOut       = 0
  *    ReflectOut   = False
  */
-static const guint8 crc6_table[256] = {
+static const uint8_t crc6_table[256] = {
         0x00, 0x2f, 0x31, 0x1e, 0x0d, 0x22, 0x3c, 0x13, 0x1a, 0x35, 0x2b, 0x04, 0x17, 0x38, 0x26, 0x09,
         0x34, 0x1b, 0x05, 0x2a, 0x39, 0x16, 0x08, 0x27, 0x2e, 0x01, 0x1f, 0x30, 0x23, 0x0c, 0x12, 0x3d,
         0x07, 0x28, 0x36, 0x19, 0x0a, 0x25, 0x3b, 0x14, 0x1d, 0x32, 0x2c, 0x03, 0x10, 0x3f, 0x21, 0x0e,
@@ -56,9 +56,9 @@ static const guint8 crc6_table[256] = {
  * TS 25.415 docs: https://www.etsi.org/deliver/etsi_ts/125400_125499/125415/04.06.00_60/ts_125415v040600p.pdf
  * TS 25.446 docs: https://www.etsi.org/deliver/etsi_ts/125400_125499/125446/10.01.00_60/ts_125446v100100p.pdf
 */
-guint16 crc6_0X6F(guint16 crc, const guint8 *data, int data_len)
+uint16_t crc6_0X6F(uint16_t crc, const uint8_t *data, int data_len)
 {
-    guint8 tbl_idx;
+    uint8_t tbl_idx;
 
     while (data_len--) {
         tbl_idx = (crc << 2) ^ *data;

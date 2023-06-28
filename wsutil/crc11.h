@@ -10,7 +10,7 @@
 
 #ifndef __CRC11_____H__
 
-#include <glib.h>
+#include <stdint.h>
 
 #include "ws_symbol_export.h"
 
@@ -32,7 +32,7 @@ extern "C" {
  *    Algorithm    = table-driven
  *****************************************************************************/
 WS_DLL_PUBLIC
-guint16 crc11_307_noreflect_noxor(const guint8 *data, guint64 data_len);
+uint16_t crc11_307_noreflect_noxor(const uint8_t *data, uint64_t data_len);
 
 #ifdef __cplusplus
 }           /* closing brace for extern "C" */

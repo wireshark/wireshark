@@ -16,7 +16,7 @@
 #include <wsutil/crc8.h>
 
 /* @brief Precompiled table for CRC8 values for the polynom 0x2F */
-static const guint8 crc8_precompiled_2F[256] =
+static const uint8_t crc8_precompiled_2F[256] =
 {
     0x00, 0x2F, 0x5E, 0x71, 0xBC, 0x93, 0xE2, 0xCD,
     0x57, 0x78, 0x09, 0x26, 0xEB, 0xC4, 0xB5, 0x9A,
@@ -133,13 +133,13 @@ static const unsigned char crc8_precompiled_3b[256] =
  * @param crc_table a table storing 256 entries for crc8 checksums
  * @return the CRC8 checksum for the buffer
  */
-static guint8 crc8_precompiled(const guint8 *buf, guint32 len, guint8 seed, const guint8 crc_table[])
+static uint8_t crc8_precompiled(const uint8_t *buf, uint32_t len, uint8_t seed, const uint8_t crc_table[])
 {
-    guint8 crc;
+    uint8_t crc;
 
     crc = seed;
     while(len-- > 0)
-        crc = crc_table[(guint8)(*buf++) ^ crc];
+        crc = crc_table[(uint8_t)(*buf++) ^ crc];
 
     return crc;
 }
@@ -151,7 +151,7 @@ static guint8 crc8_precompiled(const guint8 *buf, guint32 len, guint8 seed, cons
  * @param seed The seed to use.
  * @return the CRC8 checksum for the buffer
  */
-guint8 crc8_0x2F(const guint8 *buf, guint32 len, guint8 seed)
+uint8_t crc8_0x2F(const uint8_t *buf, uint32_t len, uint8_t seed)
 {
     return crc8_precompiled(buf, len, seed, crc8_precompiled_2F);
 }
@@ -163,9 +163,9 @@ guint8 crc8_0x2F(const guint8 *buf, guint32 len, guint8 seed)
  * @param seed The seed to use.
  * @return the CRC8 checksum for the buffer
  */
-guint8 crc8_0x37(const guint8 *buf, guint32 len, guint8 seed)
+uint8_t crc8_0x37(const uint8_t *buf, uint32_t len, uint8_t seed)
 {
-    guint8 crc = seed;
+    uint8_t crc = seed;
     while (len-- > 0)
     {
         crc = crc8_precompiled_37[(crc ^ *buf++)];
@@ -180,9 +180,9 @@ guint8 crc8_0x37(const guint8 *buf, guint32 len, guint8 seed)
  * @param seed The seed to use.
  * @return the CRC8 checksum for the buffer
  */
-guint8 crc8_0x3B(const guint8 *buf, guint32 len, guint8 seed)
+uint8_t crc8_0x3B(const uint8_t *buf, uint32_t len, uint8_t seed)
 {
-    guint8 crc = seed;
+    uint8_t crc = seed;
     while (len-- > 0)
     {
         crc = crc8_precompiled_3b[(crc ^ *buf++)];
