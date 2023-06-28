@@ -2891,11 +2891,11 @@ if(BUILD_logray AND QT_FOUND)
 	)
 
 	if(QT_WINDEPLOYQT_EXECUTABLE)
-		add_custom_target(copy_ls_qt_dlls ALL)
-		set_target_properties(copy_ls_qt_dlls PROPERTIES FOLDER "Copy Tasks")
+		add_custom_target(copy_logray_qt_dlls ALL)
+		set_target_properties(copy_logray_qt_dlls PROPERTIES FOLDER "Copy Tasks")
 		# Will we ever need to use --debug? Windeployqt seems to
 		# be smart enough to copy debug DLLs when needed.
-		add_custom_command(TARGET copy_ls_qt_dlls
+		add_custom_command(TARGET copy_logray_qt_dlls
 			POST_BUILD
 			COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
 			COMMAND "${QT_WINDEPLOYQT_EXECUTABLE}"
@@ -2904,7 +2904,7 @@ if(BUILD_logray AND QT_FOUND)
 				$<$<BOOL:${MSVC}>:--pdb>
 				"$<TARGET_FILE:logray>"
 		)
-		add_dependencies(copy_ls_qt_dlls logray)
+		add_dependencies(copy_logray_qt_dlls logray)
 
 		install(CODE "execute_process(COMMAND
 			\"${QT_WINDEPLOYQT_EXECUTABLE}\"
