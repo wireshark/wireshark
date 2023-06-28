@@ -724,9 +724,9 @@ static int show_config(const std::string &interface, const struct plugin_configu
     printf(
         "arg {number=%u}"
         "{call=--plugin-source}"
-        "{display=Plugin source}"
+        "{display=Log data URL}"
         "{type=string}"
-        "{tooltip=The plugin data source. This us usually a URL.}"
+        "{tooltip=The plugin data source. This is usually a URL.}"
         "{placeholder=Enter a source URL" UTF8_HORIZONTAL_ELLIPSIS "}"
         "{required=true}"
         "{group=Capture}\n",
