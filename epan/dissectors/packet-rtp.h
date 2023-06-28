@@ -47,6 +47,7 @@ struct _rtp_info {
 	const guint8* info_data;           /* pointer to raw rtp data */
 	const gchar   *info_payload_type_str;
 	gint          info_payload_rate;
+	wmem_map_t    *info_payload_fmtp_map;
 	gboolean      info_is_ed137;
 	const gchar   *info_ed137_info;    /* pointer to static string, no freeing is required */
 	/*
@@ -126,14 +127,57 @@ rtp_dyn_payload_t* rtp_dyn_payload_new(void);
 /* Creates a copy of the given dynamic payload information. */
 rtp_dyn_payload_t* rtp_dyn_payload_dup(rtp_dyn_payload_t *rtp_dyn_payload);
 
-/* Inserts the given payload type key, for the encoding name and sample rate, into the hash table.
-   This makes copies of the encoding name, scoped to the life of the capture file or sooner if
-   rtp_dyn_payload_free is called. */
+/* Inserts the given payload type key, for the encoding name and sample rate,
+   into the hash table. Copy all the format parameters in the map given into
+   the format parameter map for the new entry.
+   This makes copies of the encoding name and the format parameters, scoped to
+   the life of the capture file or sooner if rtp_dyn_payload_free is called.
+
+   @param rtp_dyn_payload The hashtable of dynamic payload information
+   @param pt The RTP dynamic payload type number to insert
+   @param encoding_name The encoding name to assign to the payload type
+   @param sample_rate The sample rate to assign to the payload type
+   @param fmtp_map A map of format parameters to add to the new entry (can be NULL)
+ */
+WS_DLL_PUBLIC
+void rtp_dyn_payload_insert_full(rtp_dyn_payload_t *rtp_dyn_payload,
+							const guint pt,
+							const gchar* encoding_name,
+							const int sample_rate,
+							wmem_map_t* fmtp_map);
+
+/* Inserts the given payload type key, for the encoding name and sample rate,
+   into the hash table.
+   This makes copies of the encoding name, scoped to the life of the capture
+   file or sooner if rtp_dyn_payload_free is called.
+
+   @param rtp_dyn_payload The hashtable of dynamic payload information
+   @param pt The RTP dynamic payload type number to insert
+   @param encoding_name The encoding name to assign to the payload type
+   @param sample_rate The sample rate to assign to the payload type
+ */
 WS_DLL_PUBLIC
 void rtp_dyn_payload_insert(rtp_dyn_payload_t *rtp_dyn_payload,
 							const guint pt,
 							const gchar* encoding_name,
 							const int sample_rate);
+
+/*
+ * Adds the given format parameter to the fmtp_map for the given payload type
+ * in the RTP dynamic payload hashtable, if that payload type has been
+ * inserted with rtp_dyn_payload_insert. The format parameter name and value
+ * are copied, with scope the lifetime of the capture file.
+ *
+ * @param rtp_dyn_payload The hashtable of dynamic payload information
+ * @param pt The RTP payload type number the parameter is for
+ * @param name The name of the format parameter to add
+ * @param value The value of the format parameter to add
+ */
+WS_DLL_PUBLIC
+void rtp_dyn_payload_add_fmtp(rtp_dyn_payload_t *rtp_dyn_payload,
+				const guint pt,
+				const char* name,
+				const char* value);
 
 /* Replaces the given payload type key in the hash table, with the encoding name and sample rate.
    This makes copies of the encoding name, scoped to the life of the capture file or sooner if
@@ -158,12 +202,23 @@ gboolean rtp_dyn_payload_remove(rtp_dyn_payload_t *rtp_dyn_payload, const guint 
 WS_DLL_PUBLIC
 const gchar* rtp_dyn_payload_get_name(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt);
 
-/* retrieves the encoding name and sample rate for the given payload type, returning TRUE if
-   successful, else FALSE. The encoding string pointed to is only valid until the entry is
-   replaced, removed, or the hash table is destroyed, so duplicate it if you need it long. */
+/*
+   Retrieves the encoding name, sample rate, and format parameters map for the
+   given payload type. The encoding string pointed to is only valid until
+   the entry is replaced, removed, or the hash table is destroyed, so duplicate
+   it if you need it long. Each of the three output parameters are optional and
+   can be NULL.
+
+   @param rtp_dyn_payload The hashtable of dynamic payload information
+   @param pt The RTP payload type number to look up
+   @param[out] encoding_name The encoding name assigned to that payload type
+   @param[out] sample_rate The sample rate assigned to that payload type
+   @param[out] fmtp_map The map of format parameters assigned to that type
+   @return TRUE if successful, FALSE if there is no entry for that payload type
+*/
 WS_DLL_PUBLIC
 gboolean rtp_dyn_payload_get_full(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt,
-								  const gchar **encoding_name, int *sample_rate);
+								  const gchar **encoding_name, int *sample_rate, wmem_map_t **fmtp_map);
 
 /* Free's and destroys the dyn_payload hash table; internally this decrements the ref_count
    and only free's it if the ref_count == 0. */

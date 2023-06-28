@@ -21,6 +21,7 @@
 #include <epan/oids.h>
 #include <epan/asn1.h>
 
+#include "packet-rtp.h"
 
 void proto_register_amr(void);
 void proto_reg_handoff_amr(void);
@@ -427,7 +428,7 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr_mod
 
 /* Code to actually dissect the packets */
 static void
-dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr_mode)
+dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr_mode, unsigned encoding)
 {
     int         offset     = 0;
     int         bit_offset = 0;
@@ -442,11 +443,11 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
     ti = proto_tree_add_item(tree, proto_amr, tvb, 0, -1, ENC_NA);
     amr_tree = proto_item_add_subtree(ti, ett_amr);
 
-    item = proto_tree_add_uint(amr_tree, hf_amr_payload_decoded_as, tvb, offset, 4, amr_encoding_type);
+    item = proto_tree_add_uint(amr_tree, hf_amr_payload_decoded_as, tvb, offset, 4, encoding);
     proto_item_set_len(item, tvb_reported_length(tvb));
     proto_item_set_generated(item);
 
-    switch (amr_encoding_type) {
+    switch (encoding) {
     case AMR_OA: /* RFC 3267 Octet aligned */
         break;
     case AMR_BE: /* RFC 3267 Bandwidth-efficient */
@@ -528,23 +529,76 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
 
 /* Code to actually dissect the packets */
 static int
-dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
+    struct _rtp_info *rtp_info = NULL;
+    unsigned encoding = amr_encoding_type;
+
+    if (data) {
+        rtp_info = (struct _rtp_info*)data;
+        if (rtp_info->info_payload_fmtp_map) {
+            /* If the map is non-NULL, then the RTP conversation was set up by
+             * a SDP (even if the fmtp attribute was not present, in which case
+             * the map is empty.) According to RFC 4867, if octet-align is
+             * "0 or if not present, bandwidth-efficient operation is employed."
+             */
+            char *octet_aligned = wmem_map_lookup(rtp_info->info_payload_fmtp_map, "octet-align");
+            if (g_strcmp0(octet_aligned, "1") == 0) {
+                encoding = AMR_OA;
+            } else {
+                encoding = AMR_BE;
+            }
+        } else {
+            /* If the map is NULL, then we were called by RTP, but the RTP
+             * conversation was set by Decode As or similar, and we should
+             * use the preference settings.
+             * XXX: We should pass the preference settings to the decoder
+             * as well, by adding a new fmtp_map to rtp_info.
+             */
+        }
+    }
 
 /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMR");
 
-    dissect_amr_common(tvb, pinfo, tree, pref_amr_mode);
+    dissect_amr_common(tvb, pinfo, tree, pref_amr_mode, encoding);
     return tvb_captured_length(tvb);
 }
 
 static int
 dissect_amr_wb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
+    struct _rtp_info *rtp_info = NULL;
+    unsigned encoding = amr_encoding_type;
+
+    if (data) {
+        rtp_info = (struct _rtp_info*)data;
+        if (rtp_info->info_payload_fmtp_map) {
+            /* If the map is non-NULL, then the RTP conversation was set up by
+             * a SDP (even if the fmtp attribute was not present, in which case
+             * the map is empty.) According to RFC 4867, if octet-align is
+             * "0 or if not present, bandwidth-efficient operation is employed."
+             */
+            char *octet_aligned = wmem_map_lookup(rtp_info->info_payload_fmtp_map, "octet-align");
+            if (g_strcmp0(octet_aligned, "1") == 0) {
+                encoding = AMR_OA;
+            } else {
+                encoding = AMR_BE;
+            }
+        } else {
+            /* If the map is NULL, then we were called by RTP, but the RTP
+             * conversation was set by Decode As or similar, and we should
+             * use the preference settings.
+             * XXX: We should pass the preference settings to the decoder
+             * as well, by adding a new fmtp_map to rtp_info.
+             */
+        }
+    }
 
 /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMR-WB");
-    dissect_amr_common(tvb, pinfo, tree, AMR_WB);
+
+    dissect_amr_common(tvb, pinfo, tree, AMR_WB, encoding);
     return tvb_captured_length(tvb);
 }
 
@@ -796,7 +850,8 @@ proto_register_amr(void)
 
     prefs_register_enum_preference(amr_module, "encoding.version",
                        "Type of AMR encoding of the payload",
-                       "Type of AMR encoding of the payload",
+                       "Type of AMR encoding of the payload, if not specified "
+                       "via SDP",
                        &amr_encoding_type, encoding_types, FALSE);
 
     prefs_register_enum_preference(amr_module, "mode",

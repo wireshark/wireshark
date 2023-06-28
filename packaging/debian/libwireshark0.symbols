@@ -1519,10 +1519,12 @@ libwireshark.so.0 libwireshark0 #MINVER#
  rtd_table_get_tap_string@Base 1.99.8
  rtd_table_iterate_tables@Base 1.99.8
  rtp_add_address@Base 1.9.1
+ rtp_dyn_payload_add_fmtp@Base 4.1.0rc0
  rtp_dyn_payload_free@Base 1.12.0~rc1
  rtp_dyn_payload_get_full@Base 1.12.0~rc1
  rtp_dyn_payload_get_name@Base 1.12.0~rc1
  rtp_dyn_payload_insert@Base 1.12.0~rc1
+ rtp_dyn_payload_insert_full@Base 4.1.0rc0
  rtp_dyn_payload_new@Base 1.12.0~rc1
  rtp_event_type_values_ext@Base 1.12.0~rc1
  rtp_payload_type_short_vals_ext@Base 1.9.1

@@ -76,6 +76,7 @@ typedef struct _rfc2198_hdr {
     int len;
     const char* payload_type_str;
     int payload_rate;
+    wmem_map_t *payload_fmtp_map;
     struct _rfc2198_hdr *next;
 } rfc2198_hdr;
 
@@ -99,6 +100,7 @@ typedef struct  _rtp_private_conv_info {
 typedef struct {
     char *encoding_name;
     int   sample_rate;
+    wmem_map_t *fmtp_map;
 } encoding_name_and_rate_t;
 
 struct _rtp_dyn_payload_t
@@ -715,6 +717,17 @@ rtp_dump_dyn_payload(rtp_dyn_payload_t *rtp_dyn_payload) {
  */
 static GHashTable *rtp_dyn_payloads = NULL;
 
+static gboolean
+fmtp_free(gpointer key, gpointer value, gpointer user_data)
+{
+    wmem_allocator_t *scope = (wmem_allocator_t*)user_data;
+
+    wmem_free(scope, key);
+    wmem_free(scope, value);
+
+    return TRUE;
+}
+
 /* the following is the GDestroyNotify function used when the individual rtp_dyn_payload_t
    GHashTables are destroyed */
 static void
@@ -722,6 +735,8 @@ rtp_dyn_payload_value_destroy(gpointer data)
 {
     encoding_name_and_rate_t *encoding_name_and_rate_pt = (encoding_name_and_rate_t*) data;
     wmem_free(wmem_file_scope(), encoding_name_and_rate_pt->encoding_name);
+    wmem_map_foreach_remove(encoding_name_and_rate_pt->fmtp_map, fmtp_free, wmem_file_scope());
+    wmem_free(wmem_file_scope(), encoding_name_and_rate_pt->fmtp_map);
     wmem_free(wmem_file_scope(), encoding_name_and_rate_pt);
 }
 
@@ -811,9 +826,11 @@ rtp_dyn_payload_t* rtp_dyn_payload_dup(rtp_dyn_payload_t *rtp_dyn_payload)
         encoding_name_and_rate_t *encoding_name_and_rate_pt =
             (encoding_name_and_rate_t *)value;
 
-        rtp_dyn_payload_insert(rtp_dyn_payload2, pt,
+        rtp_dyn_payload_insert_full(rtp_dyn_payload2, pt,
                 encoding_name_and_rate_pt->encoding_name,
-                encoding_name_and_rate_pt->sample_rate);
+                encoding_name_and_rate_pt->sample_rate,
+                encoding_name_and_rate_pt->fmtp_map);
+
     }
 
     return rtp_dyn_payload2;
@@ -828,21 +845,72 @@ rtp_dyn_payload_ref(rtp_dyn_payload_t *rtp_dyn_payload)
     return rtp_dyn_payload;
 }
 
-/* Inserts the given payload type key, for the encoding name and sample rate, into the hash table.
-   This makes copies of the encoding name, scoped to the life of the capture file or sooner if
-   rtp_dyn_payload_free is called. */
+static void
+rtp_dyn_payload_add_fmtp_int(gpointer key, gpointer value, gpointer user_data)
+{
+    wmem_map_t *fmtp_map = (wmem_map_t*)user_data;
+    const char *k = (const char*)key;
+    const char *v = (const char*)value;
+
+    wmem_map_insert(fmtp_map, wmem_strdup(wmem_file_scope(), k), wmem_strdup(wmem_file_scope(), v));
+}
+
+/* Inserts the given payload type key, for the encoding name and sample rate,
+   into the hash table. Copy all the format parameters in the map given into
+   the format parameter map for the new entry.
+   This makes copies of the encoding name and the format parameters, scoped to
+   the life of the capture file or sooner if rtp_dyn_payload_free is called.
+ */
 void
-rtp_dyn_payload_insert(rtp_dyn_payload_t *rtp_dyn_payload,
+rtp_dyn_payload_insert_full(rtp_dyn_payload_t *rtp_dyn_payload,
                        const guint pt,
                        const gchar* encoding_name,
-                       const int sample_rate)
+                       const int sample_rate,
+                       wmem_map_t *fmtp_map)
 {
     if (rtp_dyn_payload && rtp_dyn_payload->table) {
         encoding_name_and_rate_t *encoding_name_and_rate_pt =
                     wmem_new(wmem_file_scope(), encoding_name_and_rate_t);
         encoding_name_and_rate_pt->encoding_name = wmem_strdup(wmem_file_scope(), encoding_name);
         encoding_name_and_rate_pt->sample_rate = sample_rate;
+        encoding_name_and_rate_pt->fmtp_map = wmem_map_new(wmem_file_scope(), wmem_str_hash, g_str_equal);
+        if (fmtp_map) {
+            wmem_map_foreach(fmtp_map, rtp_dyn_payload_add_fmtp_int, encoding_name_and_rate_pt->fmtp_map);
+        }
         g_hash_table_insert(rtp_dyn_payload->table, GUINT_TO_POINTER(pt), encoding_name_and_rate_pt);
+    }
+}
+
+/* Inserts the given payload type key, for the encoding name and sample rate,
+   into the hash table.
+   This makes copies of the encoding name, scoped to the life of the capture
+   file or sooner if rtp_dyn_payload_free is called. */
+void
+rtp_dyn_payload_insert(rtp_dyn_payload_t *rtp_dyn_payload,
+                       const guint pt,
+                       const gchar* encoding_name,
+                       const int sample_rate)
+{
+    rtp_dyn_payload_insert_full(rtp_dyn_payload, pt, encoding_name, sample_rate, NULL);
+}
+
+/* Adds the given format parameter to the fmtp_map for the given payload type
+   in the RTP dynamic payload hashtable, if that payload type has been
+   inserted with rtp_dyn_payload_insert. The format parameter name and value
+   are copied, with scope the lifetime of the capture file.
+ */
+void
+rtp_dyn_payload_add_fmtp(rtp_dyn_payload_t *rtp_dyn_payload,
+                         const guint pt,
+                         const char *key, const char *value)
+{
+    if (rtp_dyn_payload && rtp_dyn_payload->table) {
+        encoding_name_and_rate_t *encoding_name_and_rate_pt = (encoding_name_and_rate_t*)g_hash_table_lookup(rtp_dyn_payload->table,
+                             GUINT_TO_POINTER(pt));
+
+        if (encoding_name_and_rate_pt) {
+            rtp_dyn_payload_add_fmtp_int((void*)key, (void*)value, encoding_name_and_rate_pt->fmtp_map);
+        }
     }
 }
 
@@ -890,16 +958,28 @@ rtp_dyn_payload_get_name(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt)
     return (encoding_name_and_rate_pt ? encoding_name_and_rate_pt->encoding_name : NULL);
 }
 
-/* retrieves the encoding name and sample rate for the given payload type, returning TRUE if
-   successful, else FALSE. The encoding string pointed to is only valid until the entry is
-   replaced, removed, or the hash table is destroyed, so duplicate it if you need it long. */
+/*
+   Retrieves the encoding name, sample rate, and format parameters map for the
+   given payload type. The encoding string pointed to is only valid until
+   the entry is replaced, removed, or the hash table is destroyed, so duplicate
+   it if you need it long. Each of the three output parameters are optional and
+   can be NULL.
+ */
 gboolean
 rtp_dyn_payload_get_full(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt,
-                         const gchar **encoding_name, int *sample_rate)
+                         const gchar **encoding_name, int *sample_rate,
+                         wmem_map_t **fmtp_map)
 {
     encoding_name_and_rate_t *encoding_name_and_rate_pt;
-    *encoding_name = NULL;
-    *sample_rate = 0;
+    if (encoding_name) {
+        *encoding_name = NULL;
+    }
+    if (sample_rate) {
+        *sample_rate = 0;
+    }
+    if (fmtp_map) {
+        *fmtp_map = NULL;
+    }
 
     if (!rtp_dyn_payload || !rtp_dyn_payload->table) return FALSE;
 
@@ -907,8 +987,15 @@ rtp_dyn_payload_get_full(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt,
                                                                                GUINT_TO_POINTER(pt));
 
     if (encoding_name_and_rate_pt) {
-        *encoding_name = encoding_name_and_rate_pt->encoding_name;
-        *sample_rate = encoding_name_and_rate_pt->sample_rate;
+        if (encoding_name) {
+            *encoding_name = encoding_name_and_rate_pt->encoding_name;
+        }
+        if (sample_rate) {
+            *sample_rate = encoding_name_and_rate_pt->sample_rate;
+        }
+        if (fmtp_map) {
+            *fmtp_map = encoding_name_and_rate_pt->fmtp_map;
+        }
     }
 
     return (encoding_name_and_rate_pt != NULL);
@@ -1660,9 +1747,13 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     rfc2198_hdr *hdr_chain = NULL;
     struct _rtp_conversation_info *p_conv_data;
     struct _rtp_info* rtp_info = NULL;
+    struct _rtp_info rfc2198_rtp_info;
+    volatile unsigned rtp_info_offset = 0;
 
     if (data) {
         rtp_info = (struct _rtp_info*)data;
+        rfc2198_rtp_info = *rtp_info;
+        rtp_info_offset = rtp_info->info_payload_offset;
     }
 
     /* Retrieve RTPs idea of a converation */
@@ -1696,7 +1787,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         /* if it is dynamic payload, let use the conv data to see if it is defined */
         if ((hdr_new->pt > 95) && (hdr_new->pt < 128)) {
             if (p_conv_data && p_conv_data->rtp_dyn_payload){
-                rtp_dyn_payload_get_full(p_conv_data->rtp_dyn_payload, hdr_new->pt, &payload_type_str, &hdr_new->payload_rate);
+                rtp_dyn_payload_get_full(p_conv_data->rtp_dyn_payload, hdr_new->pt, &payload_type_str, &hdr_new->payload_rate, &hdr_new->payload_fmtp_map);
                 hdr_new->payload_type_str = payload_type_str;
             } else {
                 /* See if we have a dissector tied to the dynamic payload
@@ -1748,49 +1839,54 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         hdr_last->offset = offset;
         if (!hdr_last->next) {
             hdr_last->len = tvb_reported_length_remaining(tvb, offset);
-            /* Set the payload for the tap to that of the primary encoding
-             * to remove the RFC 2198 encapsulation. (Since this is the
-             * last encoding in the packet, the calculated length includes
-             * the padding and padding stays the same.)
-             * Ideally we should process the redundant encoding or FEC somehow
-             * here, but just treating the primary encoding as the only payload
-             * for the tap is closer than doing nothing, and at least has some
-             * chance of playing or saving the primary media payload.
-             *
-             * XXX: WebRTC/Chromium, when it uses RED with ULPFEC (RFC 5109),
-             * violates the RFCs by having the FEC set in separate packets as a
-             * different primary encoding (and using duplicate sequence numbers
-             * already used by the video.) This is done because of a concern
-             * that the combined payload size of FEC plus video encodings like
-             * VP8 could push a packet over the MTU size, also a problem.
-             * See RFC 8872 3.2.4 "RTP Payload Type" and Appendix A "Dismissing
-             * Payload Type Multiplexing," also
-             * https://bugs.chromium.org/p/webrtc/issues/detail?id=9188
-             * https://bugs.chromium.org/p/webrtc/issues/detail?id=12530
-             * https://bugs.chromium.org/p/webrtc/issues/detail?id=1467
-             * However, since duplicate sequence numbers as used, a user just
-             * Ignoring all the FEC packets could be a workaround.
-             * RFC 2198 in WebRTC/Chromium with actual redundant audio is
-             * RFC-compliant, though:
-             * https://bugs.chromium.org/p/webrtc/issues/detail?id=11640
-             */
-            if (rfc2198_deencapsulate && rtp_info) {
-                rtp_info->info_payload_offset += hdr_last->offset;
-                rtp_info->info_payload_len = hdr_last->len;
-                rtp_info->info_payload_type = hdr_last->pt;
-                rtp_info->info_payload_type_str = hdr_last->payload_type_str;
-                rtp_info->info_payload_rate = hdr_last->payload_rate;
-            }
+        }
+        if (rtp_info) {
+            rfc2198_rtp_info.info_payload_offset = rtp_info_offset + hdr_last->offset;
+            rfc2198_rtp_info.info_payload_len = hdr_last->len;
+            rfc2198_rtp_info.info_payload_type = hdr_last->pt;
+            rfc2198_rtp_info.info_payload_type_str = hdr_last->payload_type_str;
+            rfc2198_rtp_info.info_payload_rate = hdr_last->payload_rate;
+            rfc2198_rtp_info.info_payload_fmtp_map = hdr_last->payload_fmtp_map;
         }
         const char *saved_proto = pinfo->current_proto;
         TRY {
-            dissect_rtp_data(tvb, pinfo, tree, rfc2198_tree, hdr_last->offset, hdr_last->len, hdr_last->len, hdr_last->pt, rtp_info);
+            dissect_rtp_data(tvb, pinfo, tree, rfc2198_tree, hdr_last->offset, hdr_last->len, hdr_last->len, hdr_last->pt, &rfc2198_rtp_info);
         }
         CATCH_NONFATAL_ERRORS {
             show_exception(tvb, pinfo, rfc2198_tree, EXCEPT_CODE, GET_MESSAGE);
             pinfo->current_proto = saved_proto;
         }
         ENDTRY;
+        if (rtp_info && rfc2198_deencapsulate && !hdr_last->next) {
+            /* Set the payload for the tap to that of the primary encoding
+             * to remove the RFC 2198 encapsulation. (Since this is the
+             * last encoding in the packet, the calculated length includes
+             * the padding and padding stays the same.)
+             * Ideally we should process the redundant encoding or FEC,
+             * but just treating the primary encoding as the only payload
+             * for the tap is closer than doing nothing, and at least has
+             * some chance of playing or saving the primary media payload.
+             *
+             * XXX: WebRTC/Chromium, when using RED with ULPFEC (RFC 5109),
+             * violates the RFCs by having the FEC set in separate packets
+             * as a different primary encoding (using duplicate sequence
+             * numbers already used by the video.) This is done because of
+             * a concern that the combined payload size of FEC plus video
+             * encodings like VP8 could push a packet over the MTU size,
+             * also a problem.
+             * See RFC 8872 3.2.4 "RTP Payload Type" and Appendix A
+             * "Dismissing Payload Type Multiplexing," also
+             * https://bugs.chromium.org/p/webrtc/issues/detail?id=9188
+             * https://bugs.chromium.org/p/webrtc/issues/detail?id=12530
+             * https://bugs.chromium.org/p/webrtc/issues/detail?id=1467
+             * However, since duplicate sequence numbers as used, a user
+             * Ignoring all the FEC packets could be a workaround.
+             * RFC 2198 in WebRTC/Chromium with actual redundant audio is
+             * RFC-compliant, though:
+             * https://bugs.chromium.org/p/webrtc/issues/detail?id=11640
+             */
+            *rtp_info = rfc2198_rtp_info;
+        }
         offset += hdr_last->len;
         hdr_last = hdr_last->next;
     }
@@ -2150,6 +2246,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     rtp_info->info_setup_frame_num = 0;
     rtp_info->info_payload_type_str = NULL;
     rtp_info->info_payload_rate = 0;
+    rtp_info->info_payload_fmtp_map = NULL;
     rtp_info->info_is_ed137 = FALSE;
     rtp_info->info_ed137_info = NULL;
 
@@ -2241,6 +2338,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     if ( (payload_type>95) && (payload_type<128) ) {
         if (p_conv_data && p_conv_data->rtp_dyn_payload) {
             int sample_rate = 0;
+            wmem_map_t *fmtp_map;
 
 #ifdef DEBUG_CONVERSATION
             rtp_dump_dyn_payload(p_conv_data->rtp_dyn_payload);
@@ -2248,11 +2346,12 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             DPRINT(("looking up conversation data for dyn_pt=%d", payload_type));
 
             if (rtp_dyn_payload_get_full(p_conv_data->rtp_dyn_payload, payload_type,
-                                        &payload_type_str, &sample_rate)) {
+                                        &payload_type_str, &sample_rate, &fmtp_map)) {
                 DPRINT(("found conversation data for dyn_pt=%d, enc_name=%s",
                         payload_type, payload_type_str));
                 rtp_info->info_payload_type_str = payload_type_str;
                 rtp_info->info_payload_rate     = sample_rate;
+                rtp_info->info_payload_fmtp_map = fmtp_map;
             }
         } else {
             /* See if we have a dissector tied to the dynamic payload trough preferences*/
@@ -2631,6 +2730,7 @@ dissect_rtp_shim_header(tvbuff_t *tvb, gint start, packet_info *pinfo _U_, proto
         rtp_info->info_data = NULL;
         rtp_info->info_payload_type_str = NULL;
         rtp_info->info_payload_rate = 0;
+        rtp_info->info_payload_fmtp_map = NULL;
         rtp_info->info_is_ed137 = FALSE;
         rtp_info->info_ed137_info = NULL;
     }
