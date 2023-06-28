@@ -15,6 +15,8 @@
 #include "config.h"
 
 #include "wslua_file_common.h"
+
+#include <errno.h>
 #include <wiretap/file_wrappers.h>
 
 /* WSLUA_CONTINUE_MODULE File */

@@ -15,6 +15,8 @@
 
 #include "mate.h"
 #include "mate_util.h"
+
+#include <errno.h>
 #include <wsutil/file_util.h>
 
 

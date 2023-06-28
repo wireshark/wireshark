@@ -16,7 +16,9 @@
 
 #include "wslua.h"
 #include "init_wslua.h"
+
 #include <epan/dissectors/packet-frame.h>
+#include <errno.h>
 #include <math.h>
 #include <stdio.h>
 #include <epan/expert.h>

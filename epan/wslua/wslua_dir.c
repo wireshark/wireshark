@@ -15,6 +15,7 @@
 /* WSLUA_MODULE Dir Directory Handling Functions */
 
 #include "wslua.h"
+#include <errno.h>
 #include <wsutil/file_util.h>
 
 WSLUA_CLASS_DEFINE(Dir,FAIL_ON_NULL("Dir")); /* A Directory object, as well as associated functions. */
