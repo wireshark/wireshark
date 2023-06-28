@@ -3142,14 +3142,14 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                               proto_item *pdu_ti,
                               gint offset, guint8 rapid, mac_lte_info *p_mac_lte_info)
 {
-    guint8       reserved;
+    guint32       reserved;
     guint        start_body_offset = offset;
     proto_item  *ti;
     proto_item  *rar_body_ti;
     proto_tree  *rar_body_tree;
     proto_tree  *ul_grant_tree;
     proto_item  *ul_grant_ti;
-    guint16      timing_advance;
+    guint32      timing_advance;
     guint32      ul_grant;
     guint16      temp_crnti;
     const gchar *rapid_description;
@@ -3164,15 +3164,14 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* Dissect an RAR entry */
 
     /* Check reserved bit */
-    reserved = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
-    ti = proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item_ret_uint(rar_body_tree, hf_mac_lte_rar_reserved2, tvb, offset, 1,
+                                      ENC_BIG_ENDIAN, &reserved);
     if (reserved != 0) {
-            expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero, "RAR body Reserved bit not zero (found 0x%x)", reserved);
+            expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero, "RAR body Reserved bit not zero (found 0x02%x)", reserved);
     }
 
     /* Timing Advance */
-    timing_advance = (tvb_get_ntohs(tvb, offset) & 0x7ff0) >> 4;
-    ti = proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_ta, tvb, offset, 2, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item_ret_uint(rar_body_tree, hf_mac_lte_rar_ta, tvb, offset, 2, ENC_BIG_ENDIAN, &timing_advance);
     if (timing_advance != 0) {
         if (timing_advance <= 31) {
             expert_add_info_format(pinfo, ti, &ei_mac_lte_rar_timing_advance_not_zero_note,
@@ -3356,8 +3355,8 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     }
 
     /* Temporary C-RNTI */
-    temp_crnti = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_temporary_crnti, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(rar_body_tree, hf_mac_lte_rar_temporary_crnti, tvb, offset, 2,
+                                 ENC_BIG_ENDIAN, (guint32*)&temp_crnti);
     offset += 2;
 
     rapid_description = get_mac_lte_rapid_description(rapid);
@@ -3381,7 +3380,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     guint       number_of_rars         = 0; /* No of RAR bodies expected following headers */
     guint8     *rapids                 = (guint8 *)wmem_alloc(pinfo->pool, MAX_RAR_PDUS * sizeof(guint8));
     gboolean    backoff_indicator_seen = FALSE;
-    guint8      backoff_indicator      = 0;
+    guint32     backoff_indicator      = 0;
     guint8      extension;
     guint       n;
     proto_tree *rar_headers_tree;
@@ -3431,22 +3430,21 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         if (type_value == 0) {
             /* Backoff Indicator (BI) case */
 
-            guint8 reserved;
+            guint32 reserved;
             proto_item *tii;
             proto_item *bi_ti;
 
             /* 2 Reserved bits */
-            reserved = (tvb_get_guint8(tvb, offset) & 0x30) >> 4;
-            tii = proto_tree_add_item(rar_header_tree, hf_mac_lte_rar_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+            tii = proto_tree_add_item_ret_uint(rar_header_tree, hf_mac_lte_rar_reserved, tvb, offset, 1, ENC_BIG_ENDIAN, &reserved);
             if (reserved != 0) {
                 expert_add_info_format(pinfo, tii, &ei_mac_lte_reserved_not_zero,
                                        "RAR header Reserved bits not zero (found 0x%x)", reserved);
             }
 
             /* Backoff Indicator */
-            backoff_indicator = tvb_get_guint8(tvb, offset) & 0x0f;
-            bi_ti = proto_tree_add_item(rar_header_tree, (p_mac_lte_info->nbMode == no_nb_mode) ?
-                                        hf_mac_lte_rar_bi : hf_mac_lte_rar_bi_nb, tvb, offset, 1, ENC_BIG_ENDIAN);
+            bi_ti = proto_tree_add_item_ret_uint(rar_header_tree, (p_mac_lte_info->nbMode == no_nb_mode) ?
+                                                 hf_mac_lte_rar_bi : hf_mac_lte_rar_bi_nb, tvb, offset, 1,
+                                                 ENC_BIG_ENDIAN, &backoff_indicator);
 
             /* As of March 2009 spec, it must be first, and may only appear once */
             if (backoff_indicator_seen) {
@@ -3470,8 +3468,8 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
             /* TODO: complain if the same RAPID appears twice in same frame? */
             const gchar *rapid_description;
 
-            rapids[number_of_rars] = tvb_get_guint8(tvb, offset) & 0x3f;
-            proto_tree_add_item(rar_header_tree, hf_mac_lte_rar_rapid, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(rar_header_tree, hf_mac_lte_rar_rapid, tvb, offset, 1,
+                                         ENC_BIG_ENDIAN, (guint32*)&rapids[number_of_rars]);
 
             rapid_description = get_mac_lte_rapid_description(rapids[number_of_rars]);
 
@@ -4902,12 +4900,11 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                     offset += 2;
                 } else {
-                    guint8  format;
+                    gboolean format;
 
                     /* F(ormat) bit tells us how long the length field is */
-                    format = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
-                    proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_sch_format,
-                                        tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item_ret_boolean(pdu_subheader_tree, hf_mac_lte_sch_format,
+                                                    tvb, offset, 1, ENC_BIG_ENDIAN, &format);
 
                     /* Now read length field itself */
                     if (format) {
@@ -5239,7 +5236,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         proto_item *ad_ti;
                         proto_tree *ad_tree;
                         proto_item *ti;
-                        guint8 reserved;
+                        guint32 reserved;
 
                         /* Create AD root */
                         ad_ti = proto_tree_add_string_format(tree,
@@ -5264,9 +5261,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                             tvb, offset, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(ad_tree, hf_mac_lte_control_activation_deactivation_c1,
                                             tvb, offset, 1, ENC_BIG_ENDIAN);
-                        ti = proto_tree_add_item(ad_tree, hf_mac_lte_control_activation_deactivation_reserved,
-                                                 tvb, offset, 1, ENC_BIG_ENDIAN);
-                        reserved = tvb_get_guint8(tvb, offset) & 0x01;
+                        ti = proto_tree_add_item_ret_uint(ad_tree, hf_mac_lte_control_activation_deactivation_reserved,
+                                                          tvb, offset, 1, ENC_BIG_ENDIAN, &reserved);
                         if (reserved != 0) {
                             expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
                                                    "Activation/Deactivation Reserved bit not zero");
@@ -5441,7 +5437,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         proto_item *ta_ti;
                         proto_item *ta_value_ti;
                         proto_tree *ta_tree;
-                        guint8      ta_value;
+                        guint32     ta_value;
 
                         /* Create TA root */
                         ta_ti = proto_tree_add_string_format(tree,
@@ -5456,9 +5452,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                             tvb, offset, 1, ENC_BIG_ENDIAN);
 
                         /* TA value */
-                        ta_value = tvb_get_guint8(tvb, offset) & 0x3f;
-                        ta_value_ti = proto_tree_add_item(ta_tree, hf_mac_lte_control_timing_advance_command,
-                                                           tvb, offset, 1, ENC_BIG_ENDIAN);
+                        ta_value_ti = proto_tree_add_item_ret_uint(ta_tree, hf_mac_lte_control_timing_advance_command,
+                                                                   tvb, offset, 1, ENC_BIG_ENDIAN, &ta_value);
 
                         if (ta_value == 31) {
                             expert_add_info(pinfo, ta_value_ti, &ei_mac_lte_control_timing_advance_command_no_correction);
@@ -6133,12 +6128,13 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                     /* Pcmax,c field is present */
                                     byte = tvb_get_guint8(tvb, curr_offset);
                                     /* Check 2 Reserved bits */
-                                    ti = proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_reserved2,
-                                                             tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-                                    if (byte & 0xc0) {
+                                    guint32 reserved;
+                                    ti = proto_tree_add_item_ret_uint(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_reserved2,
+                                                                      tvb, curr_offset, 1, ENC_BIG_ENDIAN, &reserved);
+                                    if (reserved != 0) {
                                         expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
                                                                "Extended Power Headroom Report Reserved bits not zero (found 0x%x)",
-                                                               (byte & 0xc0) >> 6);
+                                                               reserved);
                                     }
                                     proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_pcmaxc,
                                                         tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -6156,8 +6152,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         proto_item *phr_ti;
                         proto_tree *phr_tree;
                         proto_item *ti;
-                        guint8 reserved;
-                        guint8 level;
+                        guint32 reserved;
+                        guint32 level;
 
                         /* Create PHR root */
                         phr_ti = proto_tree_add_string_format(tree,
@@ -6168,18 +6164,16 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         phr_tree = proto_item_add_subtree(phr_ti, ett_mac_lte_power_headroom);
 
                         /* Check 2 Reserved bits */
-                        reserved = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
-                        ti = proto_tree_add_item(phr_tree, hf_mac_lte_control_power_headroom_reserved,
-                                                 tvb, offset, 1, ENC_BIG_ENDIAN);
+                        ti = proto_tree_add_item_ret_uint(phr_tree, hf_mac_lte_control_power_headroom_reserved,
+                                                          tvb, offset, 1, ENC_BIG_ENDIAN, &reserved);
                         if (reserved != 0) {
                             expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
                                                    "Power Headroom Report Reserved bits not zero (found 0x%x)", reserved);
                         }
 
                         /* Level */
-                        level = tvb_get_guint8(tvb, offset) & 0x3f;
-                        proto_tree_add_item(phr_tree, hf_mac_lte_control_power_headroom_level,
-                                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item_ret_uint(phr_tree, hf_mac_lte_control_power_headroom_level,
+                                                     tvb, offset, 1, ENC_BIG_ENDIAN, &level);
 
                         /* Show value in root label */
                         proto_item_append_text(phr_ti, " (%s)",
@@ -6199,8 +6193,8 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         proto_tree *bsr_tree;
                         proto_item *bsr_ti;
                         proto_item *buffer_size_ti;
-                        guint8 lcgid;
-                        guint8 buffer_size;
+                        guint32 lcgid;
+                        guint32 buffer_size;
                         int hfindex;
                         value_string_ext *p_vs_ext;
                         guint32 *p_buffer_size_median;
@@ -6234,13 +6228,11 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         bsr_tree = proto_item_add_subtree(bsr_ti, ett_mac_lte_bsr);
 
                         /* LCG ID */
-                        lcgid = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
-                        proto_tree_add_item(bsr_tree, hf_mac_lte_control_bsr_lcg_id,
-                                                    tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item_ret_uint(bsr_tree, hf_mac_lte_control_bsr_lcg_id,
+                                                     tvb, offset, 1, ENC_BIG_ENDIAN, &lcgid);
                         /* Buffer Size */
-                        buffer_size = tvb_get_guint8(tvb, offset) & 0x3f;
-                        buffer_size_ti = proto_tree_add_item(bsr_tree, hfindex,
-                                                             tvb, offset, 1, ENC_BIG_ENDIAN);
+                        buffer_size_ti = proto_tree_add_item_ret_uint(bsr_tree, hfindex,
+                                                                      tvb, offset, 1, ENC_BIG_ENDIAN, &buffer_size);
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
                             proto_item *bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, p_buffer_size_median[buffer_size]);
@@ -6248,7 +6240,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         }
                         offset++;
 
-                        if (buffer_size >= global_mac_lte_bsr_warn_threshold) {
+                        if ((gint)buffer_size >= global_mac_lte_bsr_warn_threshold) {
                             expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
                                                    "UE %u - BSR for LCG %u exceeds threshold: %u (%s)",
                                                    p_mac_lte_info->ueid,
@@ -6300,9 +6292,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         bsr_tree = proto_item_add_subtree(bsr_ti, ett_mac_lte_bsr);
 
                         /* LCID Group 0 */
-                        buffer_size_ti = proto_tree_add_item(bsr_tree, hfindex[0],
-                                                             tvb, offset, 1, ENC_BIG_ENDIAN);
-                        buffer_size[0] = (tvb_get_guint8(tvb, offset) & 0xfc) >> 2;
+                        buffer_size_ti = proto_tree_add_item_ret_uint(bsr_tree, hfindex[0],
+                                                                      tvb, offset, 1,
+                                                                      ENC_BIG_ENDIAN, (guint32*)&buffer_size[0]);
 
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
@@ -6319,9 +6311,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         }
 
                         /* LCID Group 1 */
-                        buffer_size_ti = proto_tree_add_item(bsr_tree, hfindex[1],
-                                                             tvb, offset, 2, ENC_BIG_ENDIAN);
-                        buffer_size[1] = ((tvb_get_guint8(tvb, offset) & 0x03) << 4) | ((tvb_get_guint8(tvb, offset+1) & 0xf0) >> 4);
+                        buffer_size_ti = proto_tree_add_item_ret_uint(bsr_tree, hfindex[1],
+                                                                      tvb, offset, 2,
+                                                                      ENC_BIG_ENDIAN, (guint32*)&buffer_size[1]);
 
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
@@ -6339,10 +6331,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         }
 
                         /* LCID Group 2 */
-                        buffer_size_ti = proto_tree_add_item(bsr_tree, hfindex[2],
-                                                             tvb, offset, 2, ENC_BIG_ENDIAN);
-
-                        buffer_size[2] = ((tvb_get_guint8(tvb, offset) & 0x0f) << 2) | ((tvb_get_guint8(tvb, offset+1) & 0xc0) >> 6);
+                        buffer_size_ti = proto_tree_add_item_ret_uint(bsr_tree, hfindex[2],
+                                                                      tvb, offset, 2,
+                                                                      ENC_BIG_ENDIAN, (guint32*)&buffer_size[2]);
 
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
@@ -6360,9 +6351,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         }
 
                         /* LCID Group 3 */
-                        buffer_size_ti = proto_tree_add_item(bsr_tree, hfindex[3],
-                                                             tvb, offset, 1, ENC_BIG_ENDIAN);
-                        buffer_size[3] = tvb_get_guint8(tvb, offset) & 0x3f;
+                        buffer_size_ti = proto_tree_add_item_ret_uint(bsr_tree, hfindex[3],
+                                                                      tvb, offset, 1,
+                                                                      ENC_BIG_ENDIAN, (guint32*)&buffer_size[3]);
 
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
@@ -6919,12 +6910,11 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
                     offset += 2;
                 } else {
-                    guint8  format;
+                    gboolean format;
 
                     /* F(ormat) bit tells us how long the length field is */
-                    format = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
-                    proto_tree_add_item(pdu_subheader_tree, hf_mac_lte_mch_format,
-                                        tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item_ret_boolean(pdu_subheader_tree, hf_mac_lte_mch_format,
+                                                    tvb, offset, 1, ENC_BIG_ENDIAN, &format);
 
                     /* Now read length field itself */
                     if (format) {
@@ -7043,7 +7033,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                 {
                     guint32 curr_offset = offset;
                     gint16 i;
-                    guint16 stop_mtch_val;
+                    guint32 stop_mtch_val;
                     proto_item *mch_sched_info_ti, *ti;
                     proto_tree *mch_sched_info_tree;
 
@@ -7066,9 +7056,9 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                     for (i=0; i<(pdu_lengths[n]/2); i++) {
                         proto_tree_add_item(mch_sched_info_tree, hf_mac_lte_control_mch_scheduling_info_lcid,
                                             tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-                        stop_mtch_val = tvb_get_ntohs(tvb, curr_offset) & 0x7ff;
-                        ti = proto_tree_add_item(mch_sched_info_tree, hf_mac_lte_control_mch_scheduling_info_stop_mtch,
-                                                 tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                        ti = proto_tree_add_item_ret_uint(mch_sched_info_tree, hf_mac_lte_control_mch_scheduling_info_stop_mtch,
+                                                          tvb, curr_offset, 2,
+                                                          ENC_BIG_ENDIAN, &stop_mtch_val);
                         if ((stop_mtch_val >= 2043) && (stop_mtch_val <= 2046)) {
                             proto_item_append_text(ti, " (reserved)");
                         }
