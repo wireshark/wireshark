@@ -484,7 +484,7 @@
 	NTSTATUS samr_LookupRids(
 		[in,ref]      policy_handle *domain_handle,
 		[in,range(0,1000)] uint32 num_rids,
-		[in,size_is(1000),length_is(num_rids)] uint32 rids[],
+		[in,size_is(1000),length_is(num_rids)] uint32 *rids,
 		[out,ref]     lsa_Strings *names,
 		[out,ref]     samr_Ids *types
 		);

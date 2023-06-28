@@ -1672,6 +1672,7 @@ static int samr_dissect_element_LookupRids_domain_handle_(tvbuff_t *tvb _U_, int
 static int samr_dissect_element_LookupRids_num_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupRids_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupRids_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
+static int samr_dissect_element_LookupRids_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupRids_names(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupRids_names_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int samr_dissect_element_LookupRids_types(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -10317,13 +10318,21 @@ samr_dissect_element_LookupRids_num_rids(tvbuff_t *tvb _U_, int offset _U_, pack
 static int
 samr_dissect_element_LookupRids_rids(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupRids_rids_);
+	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupRids_rids_, NDR_POINTER_REF, "Pointer to Rids (uint32)",hf_samr_rid);
 
 	return offset;
 }
 
 static int
 samr_dissect_element_LookupRids_rids_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
+{
+	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep, samr_dissect_element_LookupRids_rids__);
+
+	return offset;
+}
+
+static int
+samr_dissect_element_LookupRids_rids__(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = PIDL_dissect_uint32(tvb, offset, pinfo, tree, di, drep, hf_samr_rid, 0);
 
@@ -10365,7 +10374,7 @@ samr_dissect_element_LookupRids_types_(tvbuff_t *tvb _U_, int offset _U_, packet
 /* IDL: NTSTATUS samr_LookupRids( */
 /* IDL: [in] [ref] policy_handle *domain_handle, */
 /* IDL: [in] [range(0,1000)] uint32 num_rids, */
-/* IDL: [in] [length_is(num_rids)] [size_is(1000)] uint32 rids[*], */
+/* IDL: [in] [length_is(num_rids)] [ref] [size_is(1000)] uint32 *rids, */
 /* IDL: [out] [ref] lsa_Strings *names, */
 /* IDL: [out] [ref] samr_Ids *types */
 /* IDL: ); */
