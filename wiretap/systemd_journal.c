@@ -7,6 +7,7 @@
  */
 
 #include "config.h"
+#include "systemd_journal.h"
 
 #include <errno.h>
 #include <string.h>
@@ -14,7 +15,6 @@
 #include "wtap-int.h"
 #include "pcapng_module.h"
 #include "file_wrappers.h"
-#include "systemd_journal.h"
 
 // To do:
 // - Request a pcap encapsulation type.

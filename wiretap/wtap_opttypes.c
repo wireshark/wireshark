@@ -7,6 +7,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 #include "config.h"
+#include "wtap_opttypes.h"
 
 #define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
 
@@ -14,7 +15,6 @@
 #include <string.h>
 
 #include "wtap.h"
-#include "wtap_opttypes.h"
 #include "wtap-int.h"
 #include "pcapng_module.h"
 #include <wsutil/ws_assert.h>

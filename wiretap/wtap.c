@@ -7,6 +7,8 @@
  */
 
 #include <config.h>
+#include "wtap.h"
+#include "wtap-int.h"
 
 #define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
 
@@ -14,7 +16,6 @@
 
 #include <sys/types.h>
 
-#include "wtap-int.h"
 #include "wtap_opttypes.h"
 
 #include "file_wrappers.h"

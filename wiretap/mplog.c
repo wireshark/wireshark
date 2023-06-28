@@ -35,12 +35,11 @@
 */
 
 #include "config.h"
+#include "mplog.h"
 
 #include <string.h>
 #include <wtap-int.h>
 #include <file_wrappers.h>
-
-#include "mplog.h"
 
 /* the block types */
 #define TYPE_PCD_PICC_A  0x70

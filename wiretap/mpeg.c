@@ -18,6 +18,7 @@
  */
 
 #include "config.h"
+#include "mpeg.h"
 
 #include <sys/types.h>
 
@@ -25,7 +26,6 @@
 #include <unistd.h>
 #endif
 
-#include "mpeg.h"
 #include "wsutil/mpeg-audio.h"
 
 #include "wtap-int.h"

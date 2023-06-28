@@ -17,6 +17,7 @@
 
 #include "config.h"
 #define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
+#include "pcapng.h"
 
 #include "wtap_opttypes.h"
 
@@ -36,7 +37,6 @@
 #include "required_file_handlers.h"
 #include "pcap-common.h"
 #include "pcap-encap.h"
-#include "pcapng.h"
 #include "pcapng_module.h"
 #include "secrets-types.h"
 

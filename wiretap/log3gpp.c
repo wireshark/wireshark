@@ -11,6 +11,7 @@
  */
 
 #include "config.h"
+#include "log3gpp.h"
 
 #define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
 
@@ -20,8 +21,6 @@
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-
-#include "log3gpp.h"
 
 #define MAX_FIRST_LINE_LENGTH      200
 #define MAX_TIMESTAMP_LINE_LENGTH  100

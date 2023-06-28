@@ -49,12 +49,12 @@
 #include "config.h"
 
 #define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
+#include "ipfix.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "ipfix.h"
 
 #include <wsutil/strtoi.h>
 #include <wsutil/wslog.h>

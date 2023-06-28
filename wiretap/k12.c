@@ -12,12 +12,13 @@
  */
 
 #include "config.h"
+#include "k12.h"
+
 #include <stdlib.h>
 #include <string.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "k12.h"
 
 #include <wsutil/str_util.h>
 #include <wsutil/glib-compat.h>

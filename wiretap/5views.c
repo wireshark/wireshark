@@ -7,12 +7,12 @@
  */
 
 #include "config.h"
+#include "5views.h"
+
 #include <string.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "5views.h"
-
 
 typedef struct
 {

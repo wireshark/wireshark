@@ -19,11 +19,12 @@
  */
 
 #include "config.h"
+#include "peektagged.h"
+
 #include <string.h>
 #include <stdlib.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "peektagged.h"
 #include <wsutil/802_11-utils.h>
 
 /* CREDITS

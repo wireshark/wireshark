@@ -14,11 +14,11 @@
  */
 
 #include "config.h"
+#include "stanag4607.h"
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include <wsutil/buffer.h>
-#include "stanag4607.h"
 
 typedef struct {
   time_t base_secs;

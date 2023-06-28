@@ -15,6 +15,7 @@
 #include "config.h"
 
 #define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
+#include "merge.h"
 
 #include <stdlib.h>
 #include <errno.h>
@@ -32,7 +33,6 @@
 #endif
 
 #include <string.h>
-#include "merge.h"
 #include "wtap_opttypes.h"
 #include "wtap-int.h"
 

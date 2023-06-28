@@ -10,8 +10,8 @@
  */
 
 #include "config.h"
-#include "wtap-int.h"
 #include "cosine.h"
+#include "wtap-int.h"
 #include "file_wrappers.h"
 
 #include <stdlib.h>

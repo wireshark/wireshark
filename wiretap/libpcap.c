@@ -7,6 +7,7 @@
  */
 
 #include "config.h"
+#include "libpcap.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -15,7 +16,6 @@
 #include "required_file_handlers.h"
 #include "pcap-common.h"
 #include "pcap-encap.h"
-#include "libpcap.h"
 #include "erf-common.h"
 #include <wsutil/ws_assert.h>
 

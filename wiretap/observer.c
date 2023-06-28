@@ -13,12 +13,12 @@
  ***************************************************************************/
 
 #include "config.h"
+#include "observer.h"
 
 #include <stdlib.h>
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "observer.h"
 #include <wsutil/802_11-utils.h>
 
 static const char observer_magic[] = {"ObserverPktBufferVersion=15.00"};

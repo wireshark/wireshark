@@ -11,6 +11,7 @@
 #define __COMMVIEW_H__
 #include <glib.h>
 #include "ws_symbol_export.h"
+#include "wtap.h"
 
 wtap_open_return_val commview_ncf_open(wtap *wth, int *err, char **err_info);
 

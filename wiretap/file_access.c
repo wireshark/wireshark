@@ -8,6 +8,7 @@
 
 #include "config.h"
 #define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
+#include "wtap-int.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -21,7 +22,6 @@
 #endif
 #include <wsutil/ws_assert.h>
 
-#include "wtap-int.h"
 #include "wtap_modules.h"
 #include "file_wrappers.h"
 #include "required_file_handlers.h"

@@ -13,13 +13,13 @@
  */
 
 #include "config.h"
+#include "packetlogger.h"
 
 #include <stdlib.h>
 #include <string.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "packetlogger.h"
 
 typedef struct {
 	bool byte_swapped;

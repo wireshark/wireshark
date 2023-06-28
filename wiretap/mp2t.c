@@ -9,14 +9,13 @@
  */
 
 #include "config.h"
+#include "mp2t.h"
 
 #include <sys/types.h>
 
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-
-#include "mp2t.h"
 
 #include "wtap-int.h"
 #include <wsutil/buffer.h>

@@ -9,10 +9,11 @@
  */
 
 #include "config.h"
+#include "visual.h"
+
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "visual.h"
 
 /*
  * A Visual Networks traffic capture file contains three sections. The

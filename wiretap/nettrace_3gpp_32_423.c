@@ -9,6 +9,7 @@
  */
 
 #include "config.h"
+#include "nettrace_3gpp_32_423.h"
 
 #include <sys/types.h>
 
@@ -31,8 +32,6 @@
 #include <wsutil/inet_addr.h>
 #include <wsutil/ws_assert.h>
 #include <glib.h>
-
-#include "nettrace_3gpp_32_423.h"
 
 /* String constants sought in the XML data.
  * Written as strings instead of lists of chars for readability.

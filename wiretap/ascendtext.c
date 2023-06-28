@@ -7,8 +7,9 @@
  */
 
 #include "config.h"
-#include "wtap-int.h"
 #include "ascendtext.h"
+
+#include "wtap-int.h"
 #include "ascend-int.h"
 #include "file_wrappers.h"
 

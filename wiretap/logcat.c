@@ -6,13 +6,12 @@
  */
 
 #include "config.h"
+#include "logcat.h"
 
 #include <string.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-
-#include "logcat.h"
 
 static int logcat_file_type_subtype = -1;
 

@@ -6,11 +6,11 @@
  */
 
 #include "config.h"
+#include "tnef.h"
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include <wsutil/buffer.h>
-#include "tnef.h"
 
 static int tnef_file_type_subtype = -1;
 

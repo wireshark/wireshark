@@ -8,13 +8,12 @@
  */
 
 #include "config.h"
+#include "ruby_marshal.h"
 
 #include <string.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-
-#include "ruby_marshal.h"
 
 static int ruby_marshal_file_type_subtype = -1;
 

@@ -18,7 +18,6 @@
 #define __W_BLF_H__
 
 #include "wtap.h"
-#include <epan/value_string.h>
 
 wtap_open_return_val blf_open(wtap *wth, int *err, char **err_info);
 

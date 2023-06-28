@@ -9,12 +9,12 @@
 #include "config.h"
 
 #define WS_LOG_DOMAIN LOG_DOMAIN_WIRETAP
+#include "lanalyzer.h"
 
 #include <stdlib.h>
 #include <errno.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "lanalyzer.h"
 
 /* The LANalyzer format is documented (at least in part) in Novell document
    TID022037, which can be found at, among other places:

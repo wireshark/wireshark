@@ -7,10 +7,11 @@
  */
 
 #include "config.h"
+#include "netscaler.h"
+
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "netscaler.h"
 #include <wsutil/ws_assert.h>
 
 /* Defines imported from netscaler code: nsperfrc.h */

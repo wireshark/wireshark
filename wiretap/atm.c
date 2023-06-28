@@ -7,8 +7,8 @@
  */
 
 #include "config.h"
-#include "wtap-int.h"
 #include "atm.h"
+#include "wtap-int.h"
 
 /*
  * Routines to use with ATM capture file types that don't include information

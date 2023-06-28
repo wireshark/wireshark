@@ -7,10 +7,11 @@
  */
 
 #include "config.h"
+#include "aethra.h"
+
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "aethra.h"
 
 /* Magic number in Aethra PC108 files. */
 #define MAGIC_SIZE	5
