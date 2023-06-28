@@ -369,7 +369,7 @@ so the following comparison is true:
     "touché"[5] == "é"
 
 The example above generates an error because the compiler rejects constant
-expressions but is otherwise syntactically correct and examplifies the
+expressions but is otherwise syntactically correct and exemplifies the
 behaviour of string slices.
 
 To obtain a byte slice of the same string the raw (@) operator can be used:

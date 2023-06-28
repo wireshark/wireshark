@@ -850,6 +850,7 @@ microbit
 midamble
 millimeters
 milliwatt
+mingw
 miniport
 minislot
 minislots
@@ -1088,6 +1089,7 @@ plugin
 pluginize
 plugins
 pluginsdir
+pmconfig
 pname
 polestar
 popup
@@ -1378,6 +1380,7 @@ signaal
 signaling
 signon
 simulcast
+sistemas
 skippable
 skype
 slaac
@@ -1426,6 +1429,7 @@ statusbar
 stderr
 stdin
 stdout
+strbuf
 strdup
 streamid
 stringz
@@ -1538,6 +1542,7 @@ totemsrp
 touchlink
 touchpad
 traceroute
+traff
 transceive
 transcoder
 transifex
@@ -1647,6 +1652,7 @@ uninstallation
 uninstalled
 uninstaller
 uninterruptable
+universitaet
 unjoin
 unjoined
 unjoining
