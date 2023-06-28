@@ -3533,6 +3533,12 @@ reassemble_streaming_data_and_call_subdissector(
 	return orig_length;
 }
 
+gint
+additional_bytes_expected_to_complete_reassembly(streaming_reassembly_info_t* reassembly_info)
+{
+	return reassembly_info->prev_deseg_len;
+}
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

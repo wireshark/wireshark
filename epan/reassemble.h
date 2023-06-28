@@ -1119,6 +1119,16 @@ get_virtual_frame_num64(tvbuff_t* tvb, packet_info* pinfo, gint offset)
 		+ ((guint64)tvb_raw_offset(tvb) + offset);
 }
 
+/**
+ * How many additional bytes are still expected to complete this reassembly?
+ *
+ * @return How many additional bytes are expected to complete this reassembly.
+ *         It may also be DESEGMENT_ONE_MORE_SEGMENT.
+ *         0 means this reassembly is completed.
+ */
+WS_DLL_PUBLIC gint
+additional_bytes_expected_to_complete_reassembly(streaming_reassembly_info_t* reassembly_info);
+
 /* ========================================================================= */
 
 #endif

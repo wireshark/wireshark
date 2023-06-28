@@ -33,6 +33,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  add_new_data_source@Base 1.9.1
  add_per_encoded_label@Base 3.7.0
  add_srt_table_data@Base 1.99.8
+ additional_bytes_expected_to_complete_reassembly@Base 4.1.0
  address_to_bytes@Base 2.1.1
  address_to_display@Base 1.99.2
  address_to_name@Base 2.1.0
