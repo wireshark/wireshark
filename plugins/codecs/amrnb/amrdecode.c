@@ -10,8 +10,7 @@
 
 #include "config.h"
 
-#include <glib.h>
-#include <string.h>
+#include <wireshark.h>
 
 #include "wsutil/codecs.h"
 #include "ws_attributes.h"
@@ -47,31 +46,114 @@ codec_amr_get_frequency(void *ctx _U_)
     return 8000;
 }
 
+static const guint8 block_size[16] = {12, 13, 15, 17, 19, 20, 26, 31, 5, 0, 0, 0, 0, 0, 0, 0};
+
+static size_t
+codec_amr_decode_one(void *state, const void *input, size_t inputSizeBytes,
+        void *output, size_t *outputSizeBytes)
+{
+    uint8_t *in;
+    int mode;
+    unsigned packet_size;
+    packet_size = 2; /* CMR + TOC */
+
+    /* 160 samples per frame, two byte per frame, 20ms */
+    *outputSizeBytes = 160 * 2;
+
+    /* If no room for CMR + TOC, insert silence */
+    if (packet_size > inputSizeBytes) {
+        memset(output, 0, 160 * 2);
+        return *outputSizeBytes;
+    }
+
+    in = (uint8_t*)input + 1;
+    mode = (in[0] >> 3) & 0x0F;
+    packet_size += block_size[mode];
+
+    /* If the size is screwed up, insert silence */
+    if (packet_size > inputSizeBytes) {
+        memset(output, 0, 160 * 2);
+        return *outputSizeBytes;
+    }
+
+    /* XXX: The last parameter is the BFI - we could invert the
+     * Q-bit and pass it in, which might be better?
+     */
+    Decoder_Interface_Decode(state, in, (short *)output, 0);
+    return *outputSizeBytes;
+}
+
+static size_t
+codec_amr_decode_many(void *state, const void *input, size_t inputSizeBytes,
+        void *output, size_t *outputSizeBytes, unsigned frames)
+{
+    int mode;
+    unsigned packet_size = 1; /* CMR */
+
+    *outputSizeBytes = 160 * 2 * frames;
+
+    uint8_t *toc = (uint8_t *)input + 1;
+    uint8_t *speech = toc + frames;
+    uint8_t in[32];
+
+    for (unsigned i = 0; i < frames; i++) {
+        mode = (toc[i] >> 3) & 0x0F;
+        packet_size += block_size[mode] + 1; /* include the TOC */
+
+        /* If the size is screwed up, insert silence */
+        if (packet_size > inputSizeBytes) {
+            memset(output, 0, 160 * 2 * (frames - i));
+            return *outputSizeBytes;
+        }
+
+        /* OpenCORE-AMR ignores the F-bit (which is why we're doing
+         * this memcpy) but might as well clear it.
+         */
+        in[0] = toc[i] & 0x7F;
+        memcpy(&in[1], speech, block_size[mode]);
+        /* XXX: The last parameter is the BFI - we could invert the
+         * Q-bit and pass it in, which might be better?
+         */
+        Decoder_Interface_Decode(state, in, (short *)output, 0);
+        speech += block_size[mode];
+        output = (uint8_t *)output + 160 * 2;
+    }
+
+    return *outputSizeBytes;
+}
+
 static size_t
 codec_amr_decode(void *state, const void *input, size_t inputSizeBytes, void *output,
         size_t *outputSizeBytes)
 {
-    int mode;
-    unsigned packet_size;
-    static const guint8 block_size[16] = {12, 13, 15, 17, 19, 20, 26, 31, 5, 0, 0, 0, 0, 0, 0, 0};
+    bool f_bit;
+    unsigned frames = 0;
 
+    /* XXX: This assumes RFC 4867 octet-aligned mode. It would be good
+     * to handle bandwidth-efficient mode as well. OpenCORE-AMR's
+     * interface only supports octet-aligned mode. (From the source, the
+     * decode also supports IF2, except that there's no way to access that
+     * from the interface.)
+     */
     /* First byte is CMR, second is the Payload TOC */
-    mode = (((guint8 *)input)[1] >> 3) & 0x0F;
-    packet_size = block_size[mode] + 2;
-
-    if (!output || !outputSizeBytes)
-	    return 160*2;
-
-    *outputSizeBytes = 160 * 2; /* 160 frames, two byte per frame, 20ms */
-
-    /* If the size is screwed up, insert silence */
-    if (packet_size > inputSizeBytes) {
-	    memset(output, 0, *outputSizeBytes);
-	    return *outputSizeBytes;
+    if (inputSizeBytes < 2) {
+        frames = 1;
+    } else {
+        uint8_t *in = (uint8_t *)input;
+        do {
+            f_bit = (in[++frames] >> 7) & 0x01;
+        } while (f_bit && inputSizeBytes > frames + 1);
     }
 
-    Decoder_Interface_Decode(state, (const unsigned char *)input+1, (short *)output, 0);
-    return *outputSizeBytes;
+    /* 160 samples per frame, two byte per frame, 20ms */
+    if (!output || !outputSizeBytes)
+        return 160 * 2 * frames;
+
+    if (frames == 1) {
+        return codec_amr_decode_one(state, input, inputSizeBytes, output, outputSizeBytes);
+    } else {
+        return codec_amr_decode_many(state, input, inputSizeBytes, output, outputSizeBytes, frames);
+    }
 }
 
 void
