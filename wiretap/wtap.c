@@ -235,8 +235,6 @@ wtap_generate_idb(int encap, int tsprec, int snaplen)
 	ws_assert(encap != WTAP_ENCAP_UNKNOWN &&
 	    encap != WTAP_ENCAP_PER_PACKET &&
 	    encap != WTAP_ENCAP_NONE);
-	ws_assert(tsprec != WTAP_TSPREC_UNKNOWN &&
-	    tsprec != WTAP_TSPREC_PER_PACKET);
 
 	idb = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
 
@@ -279,9 +277,9 @@ wtap_generate_idb(int encap, int tsprec, int snaplen)
 	case WTAP_TSPREC_UNKNOWN:
 	default:
 		/*
-		 * Don't do this.
+		 * No timestamp precision.
 		 */
-		ws_assert_not_reached();
+		if_descr_mand->time_units_per_second = 1000000; /* default microsecond resolution */
 		break;
 	}
 	if (snaplen == 0) {
