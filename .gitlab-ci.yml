@@ -885,6 +885,7 @@ Code Lines:
 # Fuzz TShark using ASAN and valgrind.
 .fuzz-ubuntu:
   extends: .build-ubuntu
+  retry: 0
   rules: !reference [.if-fuzz-schedule]
   tags:
     - wireshark-ubuntu-fuzz
