@@ -437,11 +437,11 @@ destroy_text(print_stream_t *self)
 static const print_stream_ops_t print_text_ops = {
     NULL,            /* preamble */
     print_line_text,
+    print_line_color_text,
     NULL,            /* bookmark */
     new_page_text,
     NULL,            /* finale */
     destroy_text,
-    print_line_color_text,
 };
 
 static print_stream_t *
@@ -817,11 +817,11 @@ destroy_ps(print_stream_t *self)
 static const print_stream_ops_t print_ps_ops = {
     print_preamble_ps,
     print_line_ps,
+    NULL, /* print_line_color */
     print_bookmark_ps,
     new_page_ps,
     print_finale_ps,
     destroy_ps,
-    NULL, /* print_line_color */
 };
 
 static print_stream_t *
