@@ -21,6 +21,8 @@
 #endif
 #include "config.h"
 
+#include <errno.h>
+
 #include "mate.h"
 #include "mate_grammar.h"
 #include <wsutil/file_util.h>
