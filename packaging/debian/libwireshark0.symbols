@@ -513,6 +513,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissector_delete_uint_range@Base 1.12.0~rc1
  dissector_dump_decodes@Base 1.9.1
  dissector_dump_dissector_tables@Base 1.99.1
+ dissector_dump_dissectors@Base 4.1.0rc0
  dissector_dump_heur_decodes@Base 1.9.1
  dissector_endpoint_init@Base 4.0.0-rc2
  dissector_get_custom_table_handle@Base 1.99.8
@@ -1058,6 +1059,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  oids_cleanup@Base 1.9.1
  oids_init@Base 1.9.1
  output_fields_add@Base 1.12.0~rc1
+ output_fields_add_protocolfilter@Base 4.1.0rc0
  output_fields_free@Base 1.12.0~rc1
  output_fields_has_cols@Base 1.12.0~rc1
  output_fields_list_options@Base 1.12.0~rc1

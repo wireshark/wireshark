@@ -122,6 +122,8 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_encap_requires_phdr@Base 1.9.1
  wtap_fdclose@Base 1.9.1
  wtap_fdreopen@Base 1.9.1
+ wtap_file_add_decryption_secrets@Base 4.1.0rc0
+ wtap_file_discard_decryption_secrets@Base 4.1.0rc0
  wtap_file_encap@Base 1.9.1
  wtap_file_get_idb_info@Base 1.9.1
  wtap_file_get_nrb@Base 2.1.2
