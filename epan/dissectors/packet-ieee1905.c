@@ -915,7 +915,7 @@ static expert_field ei_ieee1905_deprecated_tlv = EI_INIT;
 #define UNASSOCIATED_STA_LINK_METRICS_QUERY_MESSAGE    0x800F
 #define UNASSOCIATED_STA_LINK_METRICS_RESPONSE_MESSAGE 0x8010
 #define BEACON_METRICS_QUERY_MESSAGE                   0x8011
-#define BEACON_METRICS_REPONSE_METRICS                 0x8012
+#define BEACON_METRICS_RESPONSE_METRICS                0x8012
 #define COMBINED_INFRASTRUCTURE_METRICS_MESSAGE        0x8013
 #define CLIENT_STEERING_REQUEST_MESSAGE                0x8014
 #define CLIENT_STEERING_BTM_REPORT_MESSAGE             0x8015
@@ -991,7 +991,7 @@ static const value_string ieee1905_message_type_vals[] = {
   { UNASSOCIATED_STA_LINK_METRICS_QUERY_MESSAGE, "Unassociated STA Link Metrics Query" },
   { UNASSOCIATED_STA_LINK_METRICS_RESPONSE_MESSAGE, "Unassociated STA Link Metrics Response" },
   { BEACON_METRICS_QUERY_MESSAGE,                "Beacon Metrics Query" },
-  { BEACON_METRICS_REPONSE_METRICS,              "Beacon Metrics Response" },
+  { BEACON_METRICS_RESPONSE_METRICS,              "Beacon Metrics Response" },
   { COMBINED_INFRASTRUCTURE_METRICS_MESSAGE,     "Combined Infrastructure Metrics" },
   { CLIENT_STEERING_REQUEST_MESSAGE,             "Client Steering Request" },
   { CLIENT_STEERING_BTM_REPORT_MESSAGE,          "Client Steering BTM Report" },
@@ -9315,7 +9315,7 @@ proto_register_ieee1905(void)
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_channel_select_resp_code,
-          { "Response coce", "ieee1905.channel_select.response_code",
+          { "Response code", "ieee1905.channel_select.response_code",
             FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_op_channel_report_radio_id,
