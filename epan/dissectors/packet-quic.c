@@ -15,21 +15,21 @@
  * RFC9000 QUIC: A UDP-Based Multiplexed and Secure Transport
  * RFC9001 Using TLS to Secure QUIC
  * RFC8889 Version-Independent Properties of QUIC
- * https://tools.ietf.org/html/draft-ietf-quic-version-negotiation-14
- * https://datatracker.ietf.org/doc/html/draft-ietf-quic-v2-10
+ * RFC9369 QUIC Version 2
+ * RFC9368 Compatible Version Negotiation for QUIC
  *
  * Extension:
  * https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03
  * https://datatracker.ietf.org/doc/html/draft-ietf-quic-datagram-06
  * https://tools.ietf.org/html/draft-huitema-quic-ts-02
- * https://tools.ietf.org/html/draft-ietf-quic-ack-frequency-01
+ * https://tools.ietf.org/html/draft-ietf-quic-ack-frequency-04
  * https://tools.ietf.org/html/draft-deconinck-quic-multipath-06
  * https://tools.ietf.org/html/draft-banks-quic-cibir-01
 
  *
  * Currently supported QUIC version(s): draft-21, draft-22, draft-23, draft-24,
  * draft-25, draft-26, draft-27, draft-28, draft-29, draft-30, draft-31, draft-32,
- * draft-33, draft-34, v1, v2-draft-10
+ * draft-33, draft-34, v1, v2
  * For a table of supported QUIC versions per Wireshark version, see
  * https://github.com/quicwg/base-drafts/wiki/Tools#wireshark
  *
@@ -164,8 +164,7 @@ static int hf_quic_dg = -1;
 static int hf_quic_af_sequence_number = -1;
 static int hf_quic_af_ack_eliciting_threshold = -1;
 static int hf_quic_af_request_max_ack_delay = -1;
-static int hf_quic_af_last_byte = -1;
-static int hf_quic_af_reserved = -1;
+static int hf_quic_af_reordering_threshold = -1;
 static int hf_quic_af_ignore_order = -1;
 static int hf_quic_af_ignore_ce = -1;
 static int hf_quic_ts = -1;
@@ -2615,17 +2614,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_af_request_max_ack_delay, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
             offset += (guint32)length;
 
-
-            static int * const af_fields[] = {
-                &hf_quic_af_reserved,
-                &hf_quic_af_ignore_ce,
-                &hf_quic_af_ignore_order,
-                NULL
-            };
-
-            proto_tree_add_bitmask(ft_tree, tvb, offset, hf_quic_af_last_byte, ett_quic_af, af_fields, ENC_BIG_ENDIAN);
-            offset += 1;
-
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_af_reordering_threshold, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &length);
+            offset += (guint32)length;
         }
         break;
         case FT_TIME_STAMP:{
@@ -5263,15 +5253,10 @@ proto_register_quic(void)
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "The value to which the endpoint requests the peer update its max_ack_delay", HFILL }
         },
-        { &hf_quic_af_last_byte,
-            { "Last Byte", "quic.af.last_byte",
-              FT_UINT8, BASE_HEX, NULL, 0x0,
-              NULL, HFILL }
-        },
-        { &hf_quic_af_reserved,
-            { "Reserved", "quic.af.reserved",
-              FT_UINT8, BASE_DEC, NULL, 0xFC,
-              "This field has no meaning in this version of ACK_FREQUENCY", HFILL }
+        { &hf_quic_af_reordering_threshold,
+            { "Reordering Threshold", "quic.af.reordering_threshold",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              "The value that indicates the maximum packet reordering before eliciting an immediate ACK", HFILL }
         },
         { &hf_quic_af_ignore_order,
             { "Ignore Order", "quic.af.ignore_order",
