@@ -91,7 +91,12 @@ static GHashTable *registered_codecs = NULL;
 codec_handle_t
 find_codec(const char *name)
 {
-    return (registered_codecs) ? (codec_handle_t)g_hash_table_lookup(registered_codecs, name) : NULL;
+    codec_handle_t ret;
+    char *key = g_ascii_strup(name, -1);
+
+    ret = (registered_codecs) ? (codec_handle_t)g_hash_table_lookup(registered_codecs, key) : NULL;
+    g_free(key);
+    return ret;
 }
 
 /* Register a codec by name. */
@@ -101,14 +106,23 @@ register_codec(const char *name, codec_init_fn init_fn, codec_release_fn release
         codec_decode_fn decode_fn)
 {
     struct codec_handle *handle;
+    char *key;
 
     /* Create our hash table if it doesn't already exist */
     if (registered_codecs == NULL)
-        registered_codecs = g_hash_table_new(g_str_hash, g_str_equal);
+        registered_codecs = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+
+    /* RFC 4855 3. Mapping to SDP Parameters "Note that the payload format
+     * (encoding) names... are commonly shown in upper case. These names
+     * are case-insensitive in both places."
+     */
+    key = g_ascii_strup(name, -1);
 
     /* Make sure the registration is unique */
-    if (g_hash_table_lookup(registered_codecs, name) != NULL)
+    if (g_hash_table_lookup(registered_codecs, key) != NULL) {
+        g_free(key);
         return FALSE;    /* report an error, or have our caller do it? */
+    }
 
     handle = g_new(struct codec_handle, 1);
     handle->name = name;
@@ -118,7 +132,7 @@ register_codec(const char *name, codec_init_fn init_fn, codec_release_fn release
     handle->frequency_fn = frequency_fn;
     handle->decode_fn = decode_fn;
 
-    g_hash_table_insert(registered_codecs, (gpointer)name, (gpointer) handle);
+    g_hash_table_insert(registered_codecs, (gpointer)key, (gpointer) handle);
     return TRUE;
 }
 
@@ -126,14 +140,14 @@ register_codec(const char *name, codec_init_fn init_fn, codec_release_fn release
 gboolean
 deregister_codec(const char *name)
 {
-    gpointer key, value;
+    bool ret = FALSE;
+    if (registered_codecs) {
+        char *key = g_ascii_strup(name, -1);
 
-    if (registered_codecs && g_hash_table_lookup_extended(registered_codecs, name, &key, &value)) {
-        g_hash_table_remove(registered_codecs, name);
-        g_free(value);
-        return TRUE;
+        ret = g_hash_table_remove(registered_codecs, key);
+        g_free(key);
     }
-    return FALSE;
+    return ret;
 }
 
 void *codec_init(codec_handle_t codec)
