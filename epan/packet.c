@@ -1604,7 +1604,7 @@ find_string_dtbl_entry(dissector_table_t const sub_dissectors, const gchar *patt
 		ws_assert_not_reached();
 	}
 
-	if (sub_dissectors->param == TRUE) {
+	if (sub_dissectors->param == STRING_CASE_INSENSITIVE) {
 		key = g_ascii_strdown(pattern, -1);
 	} else {
 		key = g_strdup(pattern);
@@ -1672,7 +1672,7 @@ dissector_add_string(const char *name, const gchar *pattern,
 	dtbl_entry->current = handle;
 	dtbl_entry->initial = dtbl_entry->current;
 
-	if (sub_dissectors->param == TRUE) {
+	if (sub_dissectors->param == STRING_CASE_INSENSITIVE) {
 		key = g_ascii_strdown(pattern, -1);
 	} else {
 		key = g_strdup(pattern);
