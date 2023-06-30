@@ -693,7 +693,30 @@ static int hf_nas_5gs_ursp_r_sel_desc_lst_len = -1;
 static int hf_nas_5gs_ursp_r_sel_desc_lst = -1;
 static int hf_nas_5gs_ursp_traff_desc_ipv4 = -1;
 static int hf_nas_5gs_ursp_traff_desc_ipv4_mask = -1;
+static int hf_nas_5gs_ursp_traff_desc_ipv6 = -1;
+static int hf_nas_5gs_ursp_traff_desc_ipv6_prefix_len = -1;
 static int hf_nas_5gs_ursp_traff_desc_next_hdr = -1;
+static int hf_nas_5gs_ursp_traff_desc_single_remote_port = -1;
+static int hf_nas_5gs_ursp_traff_desc_remote_port_range_low = -1;
+static int hf_nas_5gs_ursp_traff_desc_remote_port_range_high = -1;
+static int hf_nas_5gs_ursp_traff_desc_sec_param_index = -1;
+static int hf_nas_5gs_ursp_traff_desc_tos_tc = -1;
+static int hf_nas_5gs_ursp_traff_desc_tos_tc_mask = -1;
+static int hf_nas_5gs_ursp_traff_desc_flow_label = -1;
+static int hf_nas_5gs_ursp_traff_desc_dest_mac_addr = -1;
+static int hf_nas_5gs_ursp_traff_desc_ctag_vid = -1;
+static int hf_nas_5gs_ursp_traff_desc_stag_vid = -1;
+static int hf_nas_5gs_ursp_traff_desc_ctag_pcp= -1;
+static int hf_nas_5gs_ursp_traff_desc_ctag_dei = -1;
+static int hf_nas_5gs_ursp_traff_desc_stag_pcp = -1;
+static int hf_nas_5gs_ursp_traff_desc_stag_dei = -1;
+static int hf_nas_5gs_ursp_traff_desc_ethertype = -1;
+static int hf_nas_5gs_ursp_traff_desc_conn_cap_len = -1;
+static int hf_nas_5gs_ursp_traff_desc_conn_cap = -1;
+static int hf_nas_5gs_ursp_traff_desc_dest_fqdn_len = -1;
+static int hf_nas_5gs_ursp_traff_desc_dest_fqdn = -1;
+static int hf_nas_5gs_ursp_traff_desc_dest_mac_addr_range_low = -1;
+static int hf_nas_5gs_ursp_traff_desc_dest_mac_addr_range_high = -1;
 static int hf_nas_5gs_ursp_traff_desc_len = -1;
 static int hf_nas_5gs_ursp_r_sel_des_prec = -1;
 static int hf_nas_5gs_ursp_r_sel_des_cont_len = -1;
@@ -8749,6 +8772,7 @@ static const value_string nas_5gs_ursp_traff_desc_component_type_values[] = {
     { 0x30, "Protocol identifier/next header type" },
     { 0x50, "Single remote port type" },
     { 0x51, "Remote port range type" },
+    { 0x52, "IP 3 tuple type" },
     { 0x60, "Security parameter index type" },
     { 0x70, "Type of service/traffic class type" },
     { 0x80, "Flow label type" },
@@ -8761,9 +8785,20 @@ static const value_string nas_5gs_ursp_traff_desc_component_type_values[] = {
     { 0x88, "DNN type" },
     { 0x90, "Connection capabilities type" },
     { 0x91, "Destination FQDN" },
+    { 0x92, "Regular expression" },
     { 0xa0, "OS App Id type" },
+    { 0xa1, "Destination MAC address range type"},
     { 0, NULL }
- };
+};
+
+static const range_string nas_5gs_ursp_traff_desc_conn_cap_values[] = {
+    { 0x01, 0x01, "IMS" },
+    { 0x02, 0x02, "MMS" },
+    { 0x04, 0x04, "SUPL" },
+    { 0x08, 0x08, "Internet" },
+    { 0x20, 0x3f, "Operator specific" },
+    { 0, 0, NULL }
+};
 
 static void
 de_nas_5gs_ursp_traff_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
@@ -8771,7 +8806,7 @@ de_nas_5gs_ursp_traff_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
     int len = tvb_reported_length(tvb);
     guint32 traff_desc;
     int offset = 0;
-    guint32 length;
+    guint32 length, i;
 
     /*
     Traffic descriptor (octets v+5 to w)
@@ -8783,16 +8818,14 @@ de_nas_5gs_ursp_traff_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
         proto_tree_add_item_ret_uint(tree, hf_nas_5gs_ursp_traff_desc, tvb, offset, 1, ENC_BIG_ENDIAN, &traff_desc);
         offset++;
         switch (traff_desc) {
-        case 1:
+        case 0x01:
             /* Match-all type*/
             return;
-        case 8:
+        case 0x08:
             /* For "OS Id + OS App Id type", the traffic descriptor component value field shall be encoded as
-            a sequence of a sixteen octet OS Id field, a one octet OS App Id length field, and an OS App Id field.
-            The OS Id field shall be transmitted first. The OS Id field contains a Universally Unique IDentifier (UUID)
-            as specified in IETF RFC 4122 [16].
-            */
-
+               a sequence of a sixteen octet OS Id field, a one octet OS App Id length field, and an OS App Id field.
+               The OS Id field shall be transmitted first. The OS Id field contains a Universally Unique IDentifier (UUID)
+               as specified in IETF RFC 4122 [16]. */
             proto_tree_add_item(tree, hf_nas_5gs_os_id, tvb, offset, 16, ENC_BIG_ENDIAN);
             offset += 16;
             proto_tree_add_item_ret_uint(tree, hf_nas_5gs_os_app_id_len, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
@@ -8800,95 +8833,203 @@ de_nas_5gs_ursp_traff_desc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
             proto_tree_add_item(tree, hf_nas_5gs_os_app_id, tvb, offset, length, ENC_NA);
             offset += length;
             break;
-
-        case 0x10: /* IPv4 remote address type */
+        case 0x10:
             /* For "IPv4 remote address type", the traffic descriptor component value field shall be encoded as
                 a sequence of a four octet IPv4 address field and a four octet IPv4 address mask field.
-                The IPv4 address field shall be transmitted first.
-            */
+                The IPv4 address field shall be transmitted first. */
             proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_ipv4_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             break;
+        case 0x21:
             /* For "IPv6 remote address/prefix length type", the traffic descriptor component value field shall be encoded as
-            a sequence of a sixteen octet IPv6 address field and one octet prefix length field.
-            The IPv6 address field shall be transmitted first. */
-            case  0x30: /* Protocol identifier/next header type*/
-            /* For "protocol identifier/next header type", the traffic descriptor component value field shall be encoded as
-                one octet which specifies the IPv4 protocol identifier or Ipv6 next header. */
-            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_next_hdr, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset++;
+               a sequence of a sixteen octet IPv6 address field and one octet prefix length field.
+               The IPv6 address field shall be transmitted first. */
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_ipv6, tvb, offset, 16, ENC_NA);
+            offset += 16;
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_ipv6_prefix_len, tvb, offset, 1, ENC_NA);
+            offset += 1;
             break;
-
+        case 0x30:
+            /* For "protocol identifier/next header type", the traffic descriptor component value field shall be encoded as
+               one octet which specifies the IPv4 protocol identifier or Ipv6 next header. */
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_next_hdr, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            break;
+        case 0x50:
             /* For "single remote port type", the traffic descriptor component value field shall be encoded as
-            two octets which specify a port number.
-
-            For "remote port range type", the traffic descriptor component value field shall be encoded as a sequence of
-            a two octet port range low limit field and a two octet port range high limit field.
-            The port range low limit field shall be transmitted first.
-
-            For "security parameter index type", the traffic descriptor component value field shall be encoded as
-            four octets which specify the IPSec security parameter index.
-
-            For "type of service/traffic class type", the traffic descriptor component value field shall be encoded as a
+               two octets which specify a port number. */
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_single_remote_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            break;
+        case 0x51:
+            /* For "remote port range type", the traffic descriptor component value field shall be encoded as a sequence of
+               a two octet port range low limit field and a two octet port range high limit field.
+               The port range low limit field shall be transmitted first. */
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_remote_port_range_low, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_remote_port_range_high, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            break;
+            /* For "IP 3 tuple type", the traffic descriptor component value field shall be encoded as a
+               sequence of a one octet IP 3 tuple information bitmap field where:
+               - bit 1 set to zero indicates that the IPv4 address field is absent;
+               - bit 1 set to one indicates that the IPv4 address field is present;
+               - bit 2 set to zero indicates that the IPv6 remote address/prefix length field is absent;
+               - bit 2 set to one indicates that the IPv6 remote address/prefix length field is present;
+               - bit 3 set to zero indicates that the protocol identifier/next header field is absent;
+               - bit 3 set to one indicates that the protocol identifier/next header field is present;
+               - bit 4 set to zero indicates that the single remote port field is absent;
+               - bit 4 set to one indicates that the single remote port field is present;
+               - bit 5 set to zero indicates that the remote port range field is absent;
+               - bit 5 set to one indicates that the remote port range field is present; and
+               - bits 6,7, and 8 are spare bits;
+               followed by a four octet IPv4 address field and a four octet IPv4 address mask field, if
+               the IPv4 address field is present;
+               followed by a sixteen octet IPv6 address field and one octet prefix length field, if the
+               IPv6 remote address/prefix length field is present;
+               followed by one octet which specifies the IPv4 protocol identifier or IPv6 next header, if
+               the protocol identifier/next header field is present;
+               followed by two octets which specify a port number, if the single remote port field is
+               present;
+               followed by a two octet port range low limit field and a two octet port range high limit
+               field, if the remote port range field is present.
+               The IP 3 tuple information bitmap field shall be transmitted first.
+               The traffic descriptor component value field shall not contain both the IPv4 address
+               field and the IPv6 remote address/prefix length field. If the traffic descriptor component
+               value field contains both the IPv4 address field and the IPv6 remote address/prefix
+               length field, the receiving entity shall ignore the URSP rule.
+               The traffic descriptor component value field shall not contain both the single remote
+               port field and the remote port range field. If the traffic descriptor component value field
+               contains both the single remote port field and the remote port range field, the receiving
+               entity shall ignore the URSP rule.
+               The traffic descriptor component value field shall contain at least one of the IPv4
+               address field, IPv6 remote address/prefix length field, the protocol identifier/next
+               header field, the single remote port field and the remote port range field, otherwise the
+               receiving entity shall ignore the URSP rule. */
+        case 0x60:
+            /* For "security parameter index type", the traffic descriptor component value field shall be encoded as
+               four octets which specify the IPSec security parameter index. */
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_sec_param_index, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            break;
+        case 0x70:
+            /* For "type of service/traffic class type", the traffic descriptor component value field shall be encoded as a
             sequence of a one octet type-of-service/traffic class field and a one octet type-of-service/traffic class mask field.
-            The type-of-service/traffic class field shall be transmitted first.
-
-            For "flow label type", the traffic descriptor component value field shall be encoded as three octets
+            The type-of-service/traffic class field shall be transmitted first. */
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_tos_tc, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_tos_tc_mask, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+        case 0x80:
+            /* For "flow label type", the traffic descriptor component value field shall be encoded as three octets
             which specify the IPv6 flow label. The bits 8 through 5 of the first octet shall be spare whereas the
-            remaining 20 bits shall contain the IPv6 flow label.
-
-            For "destination MAC address type", the traffic descriptor component value field shall be encoded as
-            6 octets which specify a MAC address.
-
-            For "802.1Q C-TAG VID type", the traffic descriptor component value field shall be encoded as
-            two octets which specify the VID of the customer-VLAN tag (C-TAG).
-            The bits 8 through 5 of the first octet shall be spare whereas the remaining 12 bits shall contain the VID.
-
-            For "802.1Q S-TAG VID type", the traffic descriptor component value field shall be encoded as
-            two octets which specify the VID of the service-VLAN tag (S-TAG).
-            The bits 8 through 5 of the first octet shall be spare whereas the remaining 12 bits shall contain the VID.
-
-            For "802.1Q C-TAG PCP/DEI type", the traffic descriptor component value field shall be encoded as
-            one octet which specifies the 802.1Q C-TAG PCP and DEI. The bits 8 through 5 of the octet shall be spare,
-            and the bits 4 through 2 contain the PCP and bit 1 contains the DEI.
-
-            For "802.1Q S-TAG PCP/DEI type", the traffic descriptor component value field shall be encoded as
-            one octet which specifies the 802.1Q S-TAG PCP.
-            The bits 8 through 5 of the octet shall be spare, and the bits 4 through 2 contain the PCP and bit 1 contains the DEI.
-
-            For "ethertype type", the traffic descriptor component value field shall be encoded as
-            two octets which specify an ethertype. */
-            case 0x88:
-            /*
-               For "DNN type", the traffic descriptor component value field shall be encoded as
+            remaining 20 bits shall contain the IPv6 flow label. */
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_flow_label, tvb, offset, 3, ENC_BIG_ENDIAN);
+            offset += 3;
+            break;
+        case 0x81:
+            /* For "destination MAC address type", the traffic descriptor component value field shall be encoded as
+               6 octets which specify a MAC address. */
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_dest_mac_addr, tvb, offset, 6, ENC_NA);
+            offset += 6;
+            break;
+        case 0x83:
+            /* For "802.1Q C-TAG VID type", the traffic descriptor component value field shall be encoded as
+               two octets which specify the VID of the customer-VLAN tag (C-TAG).
+               The bits 8 through 5 of the first octet shall be spare whereas the remaining 12 bits shall contain the VID. */
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_ctag_vid, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            break;
+        case 0x84:
+            /* For "802.1Q S-TAG VID type", the traffic descriptor component value field shall be encoded as
+               two octets which specify the VID of the service-VLAN tag (S-TAG).
+               The bits 8 through 5 of the first octet shall be spare whereas the remaining 12 bits shall contain the VID. */
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_stag_vid, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            break;
+        case 0x85:
+            /* For "802.1Q C-TAG PCP/DEI type", the traffic descriptor component value field shall be encoded as
+               one octet which specifies the 802.1Q C-TAG PCP and DEI. The bits 8 through 5 of the octet shall be spare,
+               and the bits 4 through 2 contain the PCP and bit 1 contains the DEI. */
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_ctag_pcp, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_ctag_dei, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+        case 0x86:
+            /* For "802.1Q S-TAG PCP/DEI type", the traffic descriptor component value field shall be encoded as
+               one octet which specifies the 802.1Q S-TAG PCP.
+               The bits 8 through 5 of the octet shall be spare, and the bits 4 through 2 contain the PCP and bit 1 contains the DEI. */
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_stag_pcp, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_stag_dei, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            break;
+        case 0x87:
+            /* For "ethertype type", the traffic descriptor component value field shall be encoded as
+               two octets which specify an ethertype. */
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_ethertype, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            break;
+        case 0x88:
+            /* For "DNN type", the traffic descriptor component value field shall be encoded as
                a sequence of a one octet DNN length field and a DNN value field of a variable size.
-               The DNN value contains an APN as defined in 3GPP TS 23.003 [4].
-            */
-                proto_tree_add_item_ret_uint(tree, hf_nas_5gs_dnn_len, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
-                offset++;
-                de_nas_5gs_cmn_dnn(tvb, tree, pinfo, offset, length, NULL, 0);
-                offset += length;
-                break;
+               The DNN value contains an APN as defined in 3GPP TS 23.003 [4]. */
+            proto_tree_add_item_ret_uint(tree, hf_nas_5gs_dnn_len, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
+            offset++;
+            de_nas_5gs_cmn_dnn(tvb, tree, pinfo, offset, length, NULL, 0);
+            offset += length;
+            break;
+        case 0x90:
             /* For "connection capabilities” type, the traffic descriptor component value field shall be encoded as
-            a sequence of one octet for number of network capabilities followed by one or more octets,
-            each containing a connection capability identifier encoded as follows:
-            Bits
-            8 7 6 5 4 3 2 1
-            0 0 0 0 0 0 0 1 IMS
-            0 0 0 0 0 0 1 0 MMS
-            0 0 0 0 0 1 0 0 SUPL
-            0 0 0 0 1 0 0 0 Internet
-            All other values are spare. If received they shall be interpreted as unknown.
-
-            For "destination FQDN" type, the traffic descriptor component value field shall be encoded as
-            a sequence of one octet destination FQDN length field and a destination FQDN value of variable size.
-            The destination FQDN value field shall be encoded as defined in IETF RFC 1035 [12].
-
-            For "OS App Id type", the traffic descriptor component value field shall be encoded as
-            a one octet OS App Id length field and an OS App Id field.
-             */
+               a sequence of one octet for number of network capabilities followed by one or more octets,
+               each containing a connection capability identifier encoded as follows:
+               Bits
+               8 7 6 5 4 3 2 1
+               0 0 0 0 0 0 0 1 IMS
+               0 0 0 0 0 0 1 0 MMS
+               0 0 0 0 0 1 0 0 SUPL
+               0 0 0 0 1 0 0 0 Internet
+               All other values are spare. If received they shall be interpreted as unknown. */
+            proto_tree_add_item_ret_uint(tree, hf_nas_5gs_ursp_traff_desc_conn_cap_len, tvb, offset, 1, ENC_NA, &length);
+            offset += 1;
+            for (i = 0; i < length; i++)
+                proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_conn_cap, tvb, offset+i, 1, ENC_NA);
+            offset += length;
+            break;
+        case 0x91:
+            /* For "destination FQDN" type, the traffic descriptor component value field shall be encoded as
+               a sequence of one octet destination FQDN length field and a destination FQDN value of variable size.
+               The destination FQDN value field shall be encoded as defined in IETF RFC 1035 [12]. */
+            proto_tree_add_item_ret_uint(tree, hf_nas_5gs_ursp_traff_desc_dest_fqdn_len, tvb, offset, 1, ENC_NA, &length);
+            offset += 1;
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_dest_fqdn, tvb, offset, length, ENC_APN_STR|ENC_NA);
+            offset += length;
+            break;
+            /* For "regular expression" type, the traffic descriptor component value field shall be
+               encoded as a sequence of one octet regular expression length field and a regular
+               expression value of variable size. The regular expression value field shall take the form
+               of Extended Regular Expressions (ERE) as defined in chapter 9 in IEEE 1003.1-
+               2004 Part 1 [19]. */
+        case 0xa0:
+            /* For "OS App Id type", the traffic descriptor component value field shall be encoded as
+               a one octet OS App Id length field and an OS App Id field. */
+            proto_tree_add_item_ret_uint(tree, hf_nas_5gs_os_app_id_len, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
+            offset += 1;
+            proto_tree_add_item(tree, hf_nas_5gs_os_app_id, tvb, offset, length, ENC_NA);
+            offset += length;
+            break;
+        case 0xa1:
+            /* For "destination MAC address range type", the traffic descriptor component value field
+               shall be encoded as a sequence of a 6 octet destination MAC address range low limit
+               field and a 6 octet destination MAC address range high limit field. The destination MAC
+               address range low limit field shall be transmitted first.*/
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_dest_mac_addr_range_low, tvb, offset, 6, ENC_NA);
+            offset += 6;
+            proto_tree_add_item(tree, hf_nas_5gs_ursp_traff_desc_dest_mac_addr_range_high, tvb, offset, 6, ENC_NA);
+            offset += 6;
+            break;
         default:
             proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, -1);
             return;
@@ -13118,18 +13259,133 @@ proto_register_nas_5gs(void)
             NULL, HFILL }
         },
         { &hf_nas_5gs_ursp_traff_desc_ipv4,
-        { "IPv4 Address", "nas-5gs.ursp.traff_desc.ipv4",
+        { "IPv4 address", "nas-5gs.ursp.traff_desc.ipv4",
             FT_IPv4, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_ursp_traff_desc_ipv4_mask,
-        { "Mask", "nas-5gs.ursp.traff_desc.ipv4_mask",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
+        { "IPv4 mask", "nas-5gs.ursp.traff_desc.ipv4_mask",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_ipv6,
+        { "IPv6 address", "nas-5gs.ursp.traff_desc.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_ipv6_prefix_len,
+        { "IPv6 prefix length", "nas-5gs.ursp.traff_desc.ipv6_prefix_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_ursp_traff_desc_next_hdr,
-        { "Protocol identifier/next header type", "nas-5gs.ursp.desc_next_hdr",
-            FT_UINT8,  BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
+        { "Protocol identifier/next header type", "nas-5gs.ursp.traff_desc.next_hdr",
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &ipproto_val_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_single_remote_port,
+        { "Remote port", "nas-5gs.ursp.traff_desc.single_remote_port",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_remote_port_range_low,
+        { "Remote port range low", "nas-5gs.ursp.traff_desc.remote_port_range_low",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_remote_port_range_high,
+        { "Remote port range high", "nas-5gs.ursp.traff_desc.remote_port_range_high",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_sec_param_index,
+        { "Security parameter index", "nas-5gs.ursp.traff_desc.sec_param_index",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_tos_tc,
+        { "Type of service/traffic class", "nas-5gs.ursp.traff_desc.tos_tc",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_tos_tc_mask,
+        { "Type of service/traffic class mask", "nas-5gs.ursp.traff_desc.tos_tc_mask",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_flow_label,
+        { "Flow label", "nas-5gs.ursp.traff_desc.flow_label",
+            FT_UINT24, BASE_HEX, NULL, 0x0fffff,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_dest_mac_addr,
+        { "Destination MAC address", "nas-5gs.ursp.traff_desc.dest_mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_ctag_vid,
+        { "802.1Q C-TAG VID", "nas-5gs.ursp.traff_desc.ctag_vid",
+            FT_UINT16, BASE_HEX, NULL, 0x0fff,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_stag_vid,
+        { "802.1Q S-TAG VID", "nas-5gs.ursp.traff_desc.stag_vid",
+            FT_UINT16, BASE_HEX, NULL, 0x0fff,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_ctag_pcp,
+        { "802.1Q C-TAG PCP", "nas-5gs.ursp.traff_desc.ctag_pcp",
+            FT_UINT8, BASE_HEX, NULL, 0x0e,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_ctag_dei,
+        { "802.1Q C-TAG DEI", "nas-5gs.ursp.traff_desc.ctag_dei",
+            FT_UINT8, BASE_HEX, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_stag_pcp,
+        { "802.1Q S-TAG PCP", "nas-5gs.ursp.traff_desc.stag_pcp",
+            FT_UINT8, BASE_HEX, NULL, 0x0e,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_stag_dei,
+        { "802.1Q S-TAG DEI", "nas-5gs.ursp.traff_desc.stag_dei",
+            FT_UINT8, BASE_HEX, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_ethertype,
+        { "Ethertype", "nas-5gs.ursp.traff_desc.ethertype",
+            FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_conn_cap_len,
+        { "Connection capabilities length", "nas-5gs.ursp.traff_desc.conn_cap_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_conn_cap,
+        { "Connection capability", "nas-5gs.ursp.traff_desc.conn_cap",
+            FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(nas_5gs_ursp_traff_desc_conn_cap_values), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_dest_fqdn_len,
+        { "Destination FQDN length", "nas-5gs.ursp.traff_desc.dest_fqdn_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_dest_fqdn,
+        { "Destination FQDN", "nas-5gs.ursp.traff_desc.dest_fqdn",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_dest_mac_addr_range_low,
+        { "Destination MAC address range low", "nas-5gs.ursp.traff_desc.dest_mac_addr_range_low",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ursp_traff_desc_dest_mac_addr_range_high,
+        { "Destination MAC address range high", "nas-5gs.ursp.traff_desc.dest_mac_addr_range_high",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_ursp_traff_desc_len,
