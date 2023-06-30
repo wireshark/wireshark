@@ -32,6 +32,11 @@ void proto_reg_handoff_amr(void);
 #define AMR_NB 0
 #define AMR_WB 1
 
+#define AMR_OA 0
+#define AMR_BE 1
+#define AMR_IF1 2
+#define AMR_IF2 3
+
 static dissector_handle_t amr_handle;
 static dissector_handle_t amr_wb_handle;
 
@@ -78,7 +83,7 @@ static expert_field ei_amr_padding_bits_not0 = EI_INIT;
 static expert_field ei_amr_padding_bits_correct = EI_INIT;
 static expert_field ei_amr_reserved = EI_INIT;
 
-static gint  amr_encoding_type         = 0;
+static gint  amr_encoding_type         = AMR_OA;
 static gint  pref_amr_mode             = AMR_NB;
 
 
@@ -86,10 +91,10 @@ static gint  pref_amr_mode             = AMR_NB;
 /* static gboolean octet_aligned = TRUE; */
 
 static const value_string amr_encoding_type_value[] = {
-    {0, "RFC 3267"},
-    {1, "RFC 3267 bandwidth-efficient mode"},
-    {2, "AMR IF 1"},
-    {3, "AMR IF 2"},
+    {AMR_OA, "RFC 3267"},
+    {AMR_BE, "RFC 3267 bandwidth-efficient mode"},
+    {AMR_IF1, "AMR IF 1"},
+    {AMR_IF2, "AMR IF 2"},
     { 0,    NULL }
 };
 
@@ -442,18 +447,18 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
     proto_item_set_generated(item);
 
     switch (amr_encoding_type) {
-    case 0: /* RFC 3267 Byte aligned */
+    case AMR_OA: /* RFC 3267 Octet aligned */
         break;
-    case 1: /* RFC 3267 Bandwidth-efficient */
+    case AMR_BE: /* RFC 3267 Bandwidth-efficient */
         dissect_amr_be(tvb, pinfo, amr_tree, amr_mode);
         return;
-    case 2: /* AMR IF1 */
+    case AMR_IF1:
         if (amr_mode == AMR_NB)
             dissect_amr_nb_if1(tvb, pinfo, amr_tree, NULL);
         else
             dissect_amr_wb_if1(tvb, pinfo, amr_tree, NULL);
         return;
-    case 3: /* AMR IF2 */
+    case AMR_IF2:
         if (amr_mode == AMR_NB)
             dissect_amr_nb_if2(tvb, pinfo, amr_tree, NULL);
         else
@@ -760,10 +765,10 @@ proto_register_amr(void)
     };
 
     static const enum_val_t encoding_types[] = {
-        {"RFC 3267 Byte aligned", "RFC 3267 octet aligned", 0},
-        {"RFC 3267 Bandwidth-efficient", "RFC 3267 BW-efficient", 1},
-        {"AMR IF1", "AMR IF1", 2},
-        {"AMR IF2", "AMR IF2", 3},
+        {"RFC 3267 Byte aligned", "RFC 3267 octet aligned", AMR_OA},
+        {"RFC 3267 Bandwidth-efficient", "RFC 3267 BW-efficient", AMR_BE},
+        {"AMR IF1", "AMR IF1", AMR_IF1},
+        {"AMR IF2", "AMR IF2", AMR_IF2},
         {NULL, NULL, -1}
     };
 
