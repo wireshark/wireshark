@@ -146,8 +146,8 @@ WS_DLL_PUBLIC char *bytes_to_hexstr_punct(char *out, const guint8 *ad, size_t le
  * @return A pointer to the formatted string
  */
 WS_DLL_PUBLIC char *bytes_to_str_punct_maxlen(wmem_allocator_t *scope,
-				const guint8 *buf, size_t buf_size,
-				char punct, size_t max_bytes_len);
+                                const guint8 *buf, size_t buf_size,
+                                char punct, size_t max_bytes_len);
 
 #define bytes_to_str_punct(scope, buf, buf_size, punct) \
     bytes_to_str_punct_maxlen(scope, buf, buf_size, punct, 24)
@@ -161,8 +161,8 @@ WS_DLL_PUBLIC char *bytes_to_str_punct_maxlen(wmem_allocator_t *scope,
  * @return A pointer to the formatted string
  */
 WS_DLL_PUBLIC char *bytes_to_str_maxlen(wmem_allocator_t *scope,
-				const guint8 *buf, size_t buf_size,
-				size_t max_bytes_len);
+                                const guint8 *buf, size_t buf_size,
+                                size_t max_bytes_len);
 
 #define bytes_to_str(scope, buf, buf_size) \
     bytes_to_str_maxlen(scope, buf, buf_size, 36)

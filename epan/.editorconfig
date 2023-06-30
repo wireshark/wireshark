@@ -132,10 +132,6 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
-[to_str.c]
-indent_style = tab
-indent_size = tab
-
 [tvbtest.[ch]]
 indent_style = tab
 indent_size = tab

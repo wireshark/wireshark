@@ -31,63 +31,63 @@
 #define BUF_TOO_SMALL_ERR "[Buffer too small]"
 
 static const char mon_names[12][4] = {
-	"Jan",
-	"Feb",
-	"Mar",
-	"Apr",
-	"May",
-	"Jun",
-	"Jul",
-	"Aug",
-	"Sep",
-	"Oct",
-	"Nov",
-	"Dec"
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec"
 };
 
 static const gchar *
 get_zonename(struct tm *tmp)
 {
 #if defined(_WIN32)
-	/*
-	 * The strings in _tzname[] are encoded using the code page
-	 * for the current C-language locale.
-	 *
-	 * On Windows, all Wireshark programs set that code page
-	 * to the UTF-8 code page by calling
-	 *
-	 *	  setlocale(LC_ALL, ".UTF-8");
-	 *
-	 * so the strings in _tzname[] are UTF-8 strings, and we can
-	 * just return them.
-	 *
-	 * (Note: the above does *not* mean we've set any code pages
-	 * *other* than the one used by the Visual Studio C runtime
-	 * to UTF-8, so don't assume, for example, that the "ANSI"
-	 * versions of Windows APIs will take UTF-8 strings, or that
-	 * non-UTF-16 output to the console will be treated as UTF-8.
-	 * Setting those other code pages can cause problems, especially
-	 * on pre-Windows 10 or older Windows 10 releases.)
-	 */
-	return _tzname[tmp->tm_isdst];
+    /*
+     * The strings in _tzname[] are encoded using the code page
+     * for the current C-language locale.
+     *
+     * On Windows, all Wireshark programs set that code page
+     * to the UTF-8 code page by calling
+     *
+     *	  setlocale(LC_ALL, ".UTF-8");
+     *
+     * so the strings in _tzname[] are UTF-8 strings, and we can
+     * just return them.
+     *
+     * (Note: the above does *not* mean we've set any code pages
+     * *other* than the one used by the Visual Studio C runtime
+     * to UTF-8, so don't assume, for example, that the "ANSI"
+     * versions of Windows APIs will take UTF-8 strings, or that
+     * non-UTF-16 output to the console will be treated as UTF-8.
+     * Setting those other code pages can cause problems, especially
+     * on pre-Windows 10 or older Windows 10 releases.)
+     */
+    return _tzname[tmp->tm_isdst];
 #else
-	/*
-	 * UN*X.
-	 *
-	 * If we have tm_zone in struct tm, use that.
-	 * Otherwise, if we have tzname[], use it, otherwise just
-	 * say "we don't know.
-	 */
+    /*
+     * UN*X.
+     *
+     * If we have tm_zone in struct tm, use that.
+     * Otherwise, if we have tzname[], use it, otherwise just
+     * say "we don't know.
+     */
 # if defined(HAVE_STRUCT_TM_TM_ZONE)
-	return tmp->tm_zone;
+    return tmp->tm_zone;
 # else /* HAVE_STRUCT_TM_TM_ZONE */
-	if ((tmp->tm_isdst != 0) && (tmp->tm_isdst != 1)) {
-		return "???";
-	}
+    if ((tmp->tm_isdst != 0) && (tmp->tm_isdst != 1)) {
+        return "???";
+    }
 #  if defined(HAVE_TZNAME)
-	return tzname[tmp->tm_isdst];
+    return tzname[tmp->tm_isdst];
 #  else
-	return tmp->tm_isdst ? "?DT" : "?ST";
+    return tmp->tm_isdst ? "?DT" : "?ST";
 #  endif /* HAVE_TZNAME */
 # endif /* HAVE_STRUCT_TM_TM_ZONE */
 #endif /* _WIN32 */
@@ -96,181 +96,181 @@ get_zonename(struct tm *tmp)
 static struct tm *
 get_fmt_broken_down_time(field_display_e fmt, const time_t *secs)
 {
-	switch (fmt) {
-		case ABSOLUTE_TIME_UTC:
-		case ABSOLUTE_TIME_DOY_UTC:
-		case ABSOLUTE_TIME_NTP_UTC:
-			return gmtime(secs);
-		case ABSOLUTE_TIME_LOCAL:
-			return localtime(secs);
-		default:
-			break;
-	}
-	ws_assert_not_reached();
+    switch (fmt) {
+        case ABSOLUTE_TIME_UTC:
+        case ABSOLUTE_TIME_DOY_UTC:
+        case ABSOLUTE_TIME_NTP_UTC:
+            return gmtime(secs);
+        case ABSOLUTE_TIME_LOCAL:
+            return localtime(secs);
+        default:
+            break;
+    }
+    ws_assert_not_reached();
 }
 
 static char *
 snprint_abs_time_secs(wmem_allocator_t *scope,
-				field_display_e fmt, struct tm *tmp,
-				const char *nsecs_str, const char *tzone_sep,
-				const char *tzone_str, gboolean add_quotes)
+                        field_display_e fmt, struct tm *tmp,
+                        const char *nsecs_str, const char *tzone_sep,
+                        const char *tzone_str, gboolean add_quotes)
 {
-	char *buf;
+    char *buf;
 
-	switch (fmt) {
-		case ABSOLUTE_TIME_DOY_UTC:
-			buf = wmem_strdup_printf(scope,
-					"%s%04d/%03d:%02d:%02d:%02d%s%s%s%s",
-					add_quotes ? "\"" : "",
-					tmp->tm_year + 1900,
-					tmp->tm_yday + 1,
-					tmp->tm_hour,
-					tmp->tm_min,
-					tmp->tm_sec,
-					nsecs_str,
-					tzone_sep,
-					tzone_str,
-					add_quotes ? "\"" : "");
-			break;
-		case ABSOLUTE_TIME_NTP_UTC:	/* FALLTHROUGH */
-		case ABSOLUTE_TIME_UTC:		/* FALLTHROUGH */
-		case ABSOLUTE_TIME_LOCAL:
-			buf = wmem_strdup_printf(scope,
-					"%s%s %2d, %d %02d:%02d:%02d%s%s%s%s",
-					add_quotes ? "\"" : "",
-					mon_names[tmp->tm_mon],
-					tmp->tm_mday,
-					tmp->tm_year + 1900,
-					tmp->tm_hour,
-					tmp->tm_min,
-					tmp->tm_sec,
-					nsecs_str,
-					tzone_sep,
-					tzone_str,
-					add_quotes ? "\"" : "");
-			break;
-		default:
-			ws_assert_not_reached();
-	}
-	return buf;
+    switch (fmt) {
+        case ABSOLUTE_TIME_DOY_UTC:
+            buf = wmem_strdup_printf(scope,
+                    "%s%04d/%03d:%02d:%02d:%02d%s%s%s%s",
+                    add_quotes ? "\"" : "",
+                    tmp->tm_year + 1900,
+                    tmp->tm_yday + 1,
+                    tmp->tm_hour,
+                    tmp->tm_min,
+                    tmp->tm_sec,
+                    nsecs_str,
+                    tzone_sep,
+                    tzone_str,
+                    add_quotes ? "\"" : "");
+            break;
+        case ABSOLUTE_TIME_NTP_UTC:	/* FALLTHROUGH */
+        case ABSOLUTE_TIME_UTC:		/* FALLTHROUGH */
+        case ABSOLUTE_TIME_LOCAL:
+            buf = wmem_strdup_printf(scope,
+                    "%s%s %2d, %d %02d:%02d:%02d%s%s%s%s",
+                    add_quotes ? "\"" : "",
+                    mon_names[tmp->tm_mon],
+                    tmp->tm_mday,
+                    tmp->tm_year + 1900,
+                    tmp->tm_hour,
+                    tmp->tm_min,
+                    tmp->tm_sec,
+                    nsecs_str,
+                    tzone_sep,
+                    tzone_str,
+                    add_quotes ? "\"" : "");
+            break;
+        default:
+            ws_assert_not_reached();
+    }
+    return buf;
 }
 
 char *
 abs_time_to_str_ex(wmem_allocator_t *scope, const nstime_t *abs_time, field_display_e fmt,
-			int flags)
+                    int flags)
 {
-	struct tm *tmp;
-	char buf_nsecs[32];
-	const char *tzone_sep, *tzone_str;
+    struct tm *tmp;
+    char buf_nsecs[32];
+    const char *tzone_sep, *tzone_str;
 
-	if (fmt == BASE_NONE)
-		fmt = ABSOLUTE_TIME_LOCAL;
+    if (fmt == BASE_NONE)
+        fmt = ABSOLUTE_TIME_LOCAL;
 
-	ws_assert(FIELD_DISPLAY_IS_ABSOLUTE_TIME(fmt));
+    ws_assert(FIELD_DISPLAY_IS_ABSOLUTE_TIME(fmt));
 
-	if (fmt == ABSOLUTE_TIME_NTP_UTC && abs_time->secs == 0 &&
-				(abs_time->nsecs == 0 || abs_time->nsecs == G_MAXINT)) {
-		return wmem_strdup(scope, "NULL");
-	}
+    if (fmt == ABSOLUTE_TIME_NTP_UTC && abs_time->secs == 0 &&
+                (abs_time->nsecs == 0 || abs_time->nsecs == G_MAXINT)) {
+        return wmem_strdup(scope, "NULL");
+    }
 
-	tmp = get_fmt_broken_down_time(fmt, &abs_time->secs);
-	if (tmp == NULL) {
-		return wmem_strdup(scope, "Not representable");
-	}
+    tmp = get_fmt_broken_down_time(fmt, &abs_time->secs);
+    if (tmp == NULL) {
+        return wmem_strdup(scope, "Not representable");
+    }
 
-	*buf_nsecs = '\0';
-	if (abs_time->nsecs != G_MAXINT) {
-		snprintf(buf_nsecs, sizeof(buf_nsecs), ".%09d", abs_time->nsecs);
-	}
+    *buf_nsecs = '\0';
+    if (abs_time->nsecs != G_MAXINT) {
+        snprintf(buf_nsecs, sizeof(buf_nsecs), ".%09d", abs_time->nsecs);
+    }
 
-	tzone_sep = "";
-	tzone_str = "";
-	if (flags & ABS_TIME_TO_STR_SHOW_ZONE || flags & ABS_TIME_TO_STR_SHOW_UTC_ONLY) {
-		switch (fmt) {
+    tzone_sep = "";
+    tzone_str = "";
+    if (flags & ABS_TIME_TO_STR_SHOW_ZONE || flags & ABS_TIME_TO_STR_SHOW_UTC_ONLY) {
+        switch (fmt) {
 
-		case ABSOLUTE_TIME_UTC:
-		case ABSOLUTE_TIME_DOY_UTC:
-		case ABSOLUTE_TIME_NTP_UTC:
-			tzone_sep = " ";
-			tzone_str = "UTC";
-			break;
+        case ABSOLUTE_TIME_UTC:
+        case ABSOLUTE_TIME_DOY_UTC:
+        case ABSOLUTE_TIME_NTP_UTC:
+            tzone_sep = " ";
+            tzone_str = "UTC";
+            break;
 
-		case ABSOLUTE_TIME_LOCAL:
-			if (flags & ABS_TIME_TO_STR_SHOW_ZONE) {
-				tzone_sep = " ";
-				tzone_str = get_zonename(tmp);
-			}
-			break;
-		default:
-			ws_assert_not_reached();
-		}
-	}
+        case ABSOLUTE_TIME_LOCAL:
+            if (flags & ABS_TIME_TO_STR_SHOW_ZONE) {
+                tzone_sep = " ";
+                tzone_str = get_zonename(tmp);
+            }
+            break;
+        default:
+            ws_assert_not_reached();
+        }
+    }
 
-	return snprint_abs_time_secs(scope, fmt, tmp, buf_nsecs, tzone_sep, tzone_str, flags & ABS_TIME_TO_STR_ADD_DQUOTES);
+    return snprint_abs_time_secs(scope, fmt, tmp, buf_nsecs, tzone_sep, tzone_str, flags & ABS_TIME_TO_STR_ADD_DQUOTES);
 }
 
 char *
 abs_time_secs_to_str_ex(wmem_allocator_t *scope, const time_t abs_time_secs, field_display_e fmt,
-			int flags)
+                        int flags)
 {
-	nstime_t abs_time;
+    nstime_t abs_time;
 
-	nstime_set_unset(&abs_time);
-	abs_time.secs = abs_time_secs;
-	return abs_time_to_str_ex(scope, &abs_time, fmt, flags);
+    nstime_set_unset(&abs_time);
+    abs_time.secs = abs_time_secs;
+    return abs_time_to_str_ex(scope, &abs_time, fmt, flags);
 }
 
 void
 display_epoch_time(gchar *buf, int buflen, const time_t sec, gint32 frac,
-		const to_str_time_res_t units)
+                    const to_str_time_res_t units)
 {
-	double elapsed_secs;
+    double elapsed_secs;
 
-	elapsed_secs = difftime(sec,(time_t)0);
+    elapsed_secs = difftime(sec,(time_t)0);
 
-	/* This code copied from display_signed_time; keep it in case anyone
-	   is looking at captures from before 1970 (???).
-	   If the fractional part of the time stamp is negative,
-	   print its absolute value and, if the seconds part isn't
-	   (the seconds part should be zero in that case), stick
-	   a "-" in front of the entire time stamp. */
-	if (frac < 0) {
-		frac = -frac;
-		if (elapsed_secs >= 0) {
-			if (buflen < 1) {
-				return;
-			}
-			buf[0] = '-';
-			buf++;
-			buflen--;
-		}
-	}
-	switch (units) {
+    /* This code copied from display_signed_time; keep it in case anyone
+       is looking at captures from before 1970 (???).
+       If the fractional part of the time stamp is negative,
+       print its absolute value and, if the seconds part isn't
+       (the seconds part should be zero in that case), stick
+       a "-" in front of the entire time stamp. */
+    if (frac < 0) {
+        frac = -frac;
+        if (elapsed_secs >= 0) {
+            if (buflen < 1) {
+                return;
+            }
+            buf[0] = '-';
+            buf++;
+            buflen--;
+        }
+    }
+    switch (units) {
 
-		case TO_STR_TIME_RES_T_SECS:
-			snprintf(buf, buflen, "%0.0f", elapsed_secs);
-			break;
+        case TO_STR_TIME_RES_T_SECS:
+            snprintf(buf, buflen, "%0.0f", elapsed_secs);
+            break;
 
-		case TO_STR_TIME_RES_T_DSECS:
-			snprintf(buf, buflen, "%0.0f.%01d", elapsed_secs, frac);
-			break;
+        case TO_STR_TIME_RES_T_DSECS:
+            snprintf(buf, buflen, "%0.0f.%01d", elapsed_secs, frac);
+            break;
 
-		case TO_STR_TIME_RES_T_CSECS:
-			snprintf(buf, buflen, "%0.0f.%02d", elapsed_secs, frac);
-			break;
+        case TO_STR_TIME_RES_T_CSECS:
+            snprintf(buf, buflen, "%0.0f.%02d", elapsed_secs, frac);
+            break;
 
-		case TO_STR_TIME_RES_T_MSECS:
-			snprintf(buf, buflen, "%0.0f.%03d", elapsed_secs, frac);
-			break;
+        case TO_STR_TIME_RES_T_MSECS:
+            snprintf(buf, buflen, "%0.0f.%03d", elapsed_secs, frac);
+            break;
 
-		case TO_STR_TIME_RES_T_USECS:
-			snprintf(buf, buflen, "%0.0f.%06d", elapsed_secs, frac);
-			break;
+        case TO_STR_TIME_RES_T_USECS:
+            snprintf(buf, buflen, "%0.0f.%06d", elapsed_secs, frac);
+            break;
 
-		case TO_STR_TIME_RES_T_NSECS:
-			snprintf(buf, buflen, "%0.0f.%09d", elapsed_secs, frac);
-			break;
-	}
+        case TO_STR_TIME_RES_T_NSECS:
+            snprintf(buf, buflen, "%0.0f.%09d", elapsed_secs, frac);
+            break;
+    }
 }
 
 /*
@@ -284,79 +284,79 @@ display_epoch_time(gchar *buf, int buflen, const time_t sec, gint32 frac,
 
 void
 display_signed_time(gchar *buf, int buflen, const gint64 sec, gint32 frac,
-		const to_str_time_res_t units)
+                    const to_str_time_res_t units)
 {
-	/* this buffer is not NUL terminated */
-	gint8 num_buf[CHARS_64_BIT_SIGNED];
-	gint8 *num_end = &num_buf[CHARS_64_BIT_SIGNED];
-	gint8 *num_ptr;
-	int num_len;
+    /* this buffer is not NUL terminated */
+    gint8 num_buf[CHARS_64_BIT_SIGNED];
+    gint8 *num_end = &num_buf[CHARS_64_BIT_SIGNED];
+    gint8 *num_ptr;
+    int num_len;
 
-	if (buflen < 1)
-		return;
+    if (buflen < 1)
+        return;
 
-	/* If the fractional part of the time stamp is negative,
-	   print its absolute value and, if the seconds part isn't
-	   (the seconds part should be zero in that case), stick
-	   a "-" in front of the entire time stamp. */
-	if (frac < 0) {
-		frac = -frac;
-		if (sec >= 0) {
-			buf[0] = '-';
-			buf++;
-			buflen--;
-		}
-	}
+    /* If the fractional part of the time stamp is negative,
+       print its absolute value and, if the seconds part isn't
+       (the seconds part should be zero in that case), stick
+       a "-" in front of the entire time stamp. */
+    if (frac < 0) {
+        frac = -frac;
+        if (sec >= 0) {
+            buf[0] = '-';
+            buf++;
+            buflen--;
+        }
+    }
 
-	num_ptr = int64_to_str_back(num_end, sec);
+    num_ptr = int64_to_str_back(num_end, sec);
 
-	num_len = MIN((int) (num_end - num_ptr), buflen);
-	memcpy(buf, num_ptr, num_len);
-	buf += num_len;
-	buflen -= num_len;
+    num_len = MIN((int) (num_end - num_ptr), buflen);
+    memcpy(buf, num_ptr, num_len);
+    buf += num_len;
+    buflen -= num_len;
 
-	switch (units) {
-		case TO_STR_TIME_RES_T_SECS:
-		default:
-			/* no fraction */
-			num_ptr = NULL;
-			break;
+    switch (units) {
+        case TO_STR_TIME_RES_T_SECS:
+        default:
+            /* no fraction */
+            num_ptr = NULL;
+            break;
 
-		case TO_STR_TIME_RES_T_DSECS:
-			num_ptr = uint_to_str_back_len(num_end, frac, 1);
-			break;
+        case TO_STR_TIME_RES_T_DSECS:
+            num_ptr = uint_to_str_back_len(num_end, frac, 1);
+            break;
 
-		case TO_STR_TIME_RES_T_CSECS:
-			num_ptr = uint_to_str_back_len(num_end, frac, 2);
-			break;
+        case TO_STR_TIME_RES_T_CSECS:
+            num_ptr = uint_to_str_back_len(num_end, frac, 2);
+            break;
 
-		case TO_STR_TIME_RES_T_MSECS:
-			num_ptr = uint_to_str_back_len(num_end, frac, 3);
-			break;
+        case TO_STR_TIME_RES_T_MSECS:
+            num_ptr = uint_to_str_back_len(num_end, frac, 3);
+            break;
 
-		case TO_STR_TIME_RES_T_USECS:
-			num_ptr = uint_to_str_back_len(num_end, frac, 6);
-			break;
+        case TO_STR_TIME_RES_T_USECS:
+            num_ptr = uint_to_str_back_len(num_end, frac, 6);
+            break;
 
-		case TO_STR_TIME_RES_T_NSECS:
-			num_ptr = uint_to_str_back_len(num_end, frac, 9);
-			break;
-	}
+        case TO_STR_TIME_RES_T_NSECS:
+            num_ptr = uint_to_str_back_len(num_end, frac, 9);
+            break;
+    }
 
-	if (num_ptr != NULL)
-	{
-		*(--num_ptr) = '.';
+    if (num_ptr != NULL)
+    {
+        *(--num_ptr) = '.';
 
-		num_len = MIN((int) (num_end - num_ptr), buflen);
-		memcpy(buf, num_ptr, num_len);
-		buf += num_len;
-		buflen -= num_len;
-	}
+        num_len = MIN((int) (num_end - num_ptr), buflen);
+        memcpy(buf, num_ptr, num_len);
+        buf += num_len;
+        buflen -= num_len;
+    }
 
-	/* need to NUL terminate, we know that buffer had at least 1 byte */
-	if (buflen == 0)
-		buf--;
-	*buf = '\0';
+    /* need to NUL terminate, we know that buffer had at least 1 byte */
+    if (buflen == 0)
+        buf--;
+    *buf = '\0';
 }
 
 #define	PLURALIZE(n)	(((n) > 1) ? "s" : "")
@@ -379,55 +379,55 @@ display_signed_time(gchar *buf, int buflen, const gint64 sec, gint32 frac,
  */
 static void
 unsigned_time_secs_to_str_buf(guint32 time_val, const guint32 frac,
-    const gboolean is_nsecs, wmem_strbuf_t *buf)
+                                const gboolean is_nsecs, wmem_strbuf_t *buf)
 {
-	int hours, mins, secs;
-	gboolean do_comma = FALSE;
+    int hours, mins, secs;
+    gboolean do_comma = FALSE;
 
-	secs = time_val % 60;
-	time_val /= 60;
-	mins = time_val % 60;
-	time_val /= 60;
-	hours = time_val % 24;
-	time_val /= 24;
+    secs = time_val % 60;
+    time_val /= 60;
+    mins = time_val % 60;
+    time_val /= 60;
+    hours = time_val % 24;
+    time_val /= 24;
 
-	if (time_val != 0) {
-		wmem_strbuf_append_printf(buf, "%u day%s", time_val, PLURALIZE(time_val));
-		do_comma = TRUE;
-	}
-	if (hours != 0) {
-		wmem_strbuf_append_printf(buf, "%s%u hour%s", COMMA(do_comma), hours, PLURALIZE(hours));
-		do_comma = TRUE;
-	}
-	if (mins != 0) {
-		wmem_strbuf_append_printf(buf, "%s%u minute%s", COMMA(do_comma), mins, PLURALIZE(mins));
-		do_comma = TRUE;
-	}
-	if (secs != 0 || frac != 0) {
-		if (frac != 0) {
-			if (is_nsecs)
-				wmem_strbuf_append_printf(buf, "%s%u.%09u seconds", COMMA(do_comma), secs, frac);
-			else
-				wmem_strbuf_append_printf(buf, "%s%u.%03u seconds", COMMA(do_comma), secs, frac);
-		} else
-			wmem_strbuf_append_printf(buf, "%s%u second%s", COMMA(do_comma), secs, PLURALIZE(secs));
-	}
+    if (time_val != 0) {
+        wmem_strbuf_append_printf(buf, "%u day%s", time_val, PLURALIZE(time_val));
+        do_comma = TRUE;
+    }
+    if (hours != 0) {
+        wmem_strbuf_append_printf(buf, "%s%u hour%s", COMMA(do_comma), hours, PLURALIZE(hours));
+        do_comma = TRUE;
+    }
+    if (mins != 0) {
+        wmem_strbuf_append_printf(buf, "%s%u minute%s", COMMA(do_comma), mins, PLURALIZE(mins));
+        do_comma = TRUE;
+    }
+    if (secs != 0 || frac != 0) {
+        if (frac != 0) {
+            if (is_nsecs)
+                wmem_strbuf_append_printf(buf, "%s%u.%09u seconds", COMMA(do_comma), secs, frac);
+            else
+                wmem_strbuf_append_printf(buf, "%s%u.%03u seconds", COMMA(do_comma), secs, frac);
+        } else
+            wmem_strbuf_append_printf(buf, "%s%u second%s", COMMA(do_comma), secs, PLURALIZE(secs));
+    }
 }
 
 gchar *
 unsigned_time_secs_to_str(wmem_allocator_t *scope, const guint32 time_val)
 {
-	wmem_strbuf_t *buf;
+    wmem_strbuf_t *buf;
 
-	if (time_val == 0) {
-		return wmem_strdup(scope, "0 seconds");
-	}
+    if (time_val == 0) {
+        return wmem_strdup(scope, "0 seconds");
+    }
 
-	buf = wmem_strbuf_new_sized(scope, TIME_SECS_LEN+1);
+    buf = wmem_strbuf_new_sized(scope, TIME_SECS_LEN+1);
 
-	unsigned_time_secs_to_str_buf(time_val, 0, FALSE, buf);
+    unsigned_time_secs_to_str_buf(time_val, 0, FALSE, buf);
 
-	return wmem_strbuf_finalize(buf);
+    return wmem_strbuf_finalize(buf);
 }
 
 /*
@@ -441,48 +441,47 @@ static void
 signed_time_secs_to_str_buf(gint32 time_val, const guint32 frac,
     const gboolean is_nsecs, wmem_strbuf_t *buf)
 {
-	if(time_val < 0){
-		wmem_strbuf_append_printf(buf, "-");
-		if(time_val == G_MININT32) {
-			/*
-			 * You can't fit time_val's absolute value into
-			 * a 32-bit signed integer.  Just directly
-			 * pass G_MAXUINT32, which is its absolute
-			 * value, directly to unsigned_time_secs_to_str_buf().
-			 *
-			 * (XXX - does ISO C guarantee that -(-2^n),
-			 * when calculated and cast to an n-bit unsigned
-			 * integer type, will have the value 2^n?)
-			 */
-			unsigned_time_secs_to_str_buf(G_MAXUINT32, frac,
-			    is_nsecs, buf);
-		} else {
-			/*
-			 * We now know -secs will fit into a guint32;
-			 * negate it and pass that to
-			 * unsigned_time_secs_to_str_buf().
-			 */
-			unsigned_time_secs_to_str_buf(-time_val, frac,
-			    is_nsecs, buf);
-		}
-	} else
-		unsigned_time_secs_to_str_buf(time_val, frac, is_nsecs, buf);
+    if(time_val < 0){
+        wmem_strbuf_append_printf(buf, "-");
+        if(time_val == G_MININT32) {
+            /*
+             * You can't fit time_val's absolute value into
+             * a 32-bit signed integer.  Just directly
+             * pass G_MAXUINT32, which is its absolute
+             * value, directly to unsigned_time_secs_to_str_buf().
+             *
+             * (XXX - does ISO C guarantee that -(-2^n),
+             * when calculated and cast to an n-bit unsigned
+             * integer type, will have the value 2^n?)
+             */
+            unsigned_time_secs_to_str_buf(G_MAXUINT32, frac,
+                is_nsecs, buf);
+        } else {
+            /*
+             * We now know -secs will fit into a guint32;
+             * negate it and pass that to
+             * unsigned_time_secs_to_str_buf().
+             */
+            unsigned_time_secs_to_str_buf(-time_val, frac, is_nsecs, buf);
+        }
+    } else
+        unsigned_time_secs_to_str_buf(time_val, frac, is_nsecs, buf);
 }
 
 gchar *
 signed_time_secs_to_str(wmem_allocator_t *scope, const gint32 time_val)
 {
-	wmem_strbuf_t *buf;
+    wmem_strbuf_t *buf;
 
-	if (time_val == 0) {
-		return wmem_strdup(scope, "0 seconds");
-	}
+    if (time_val == 0) {
+        return wmem_strdup(scope, "0 seconds");
+    }
 
-	buf = wmem_strbuf_new_sized(scope, TIME_SECS_LEN+1);
+    buf = wmem_strbuf_new_sized(scope, TIME_SECS_LEN+1);
 
-	signed_time_secs_to_str_buf(time_val, 0, FALSE, buf);
+    signed_time_secs_to_str_buf(time_val, 0, FALSE, buf);
 
-	return wmem_strbuf_finalize(buf);
+    return wmem_strbuf_finalize(buf);
 }
 
 /*
@@ -492,29 +491,29 @@ signed_time_secs_to_str(wmem_allocator_t *scope, const gint32 time_val)
 gchar *
 signed_time_msecs_to_str(wmem_allocator_t *scope, gint32 time_val)
 {
-	wmem_strbuf_t *buf;
-	int msecs;
+    wmem_strbuf_t *buf;
+    int msecs;
 
-	if (time_val == 0) {
-		return wmem_strdup(scope, "0 seconds");
-	}
+    if (time_val == 0) {
+        return wmem_strdup(scope, "0 seconds");
+    }
 
-	buf = wmem_strbuf_new_sized(scope, TIME_SECS_LEN+1+3+1);
+    buf = wmem_strbuf_new_sized(scope, TIME_SECS_LEN+1+3+1);
 
-	if (time_val<0) {
-		/* oops we got passed a negative time */
-		time_val= -time_val;
-		msecs = time_val % 1000;
-		time_val /= 1000;
-		time_val= -time_val;
-	} else {
-		msecs = time_val % 1000;
-		time_val /= 1000;
-	}
+    if (time_val<0) {
+        /* oops we got passed a negative time */
+        time_val= -time_val;
+        msecs = time_val % 1000;
+        time_val /= 1000;
+        time_val= -time_val;
+    } else {
+        msecs = time_val % 1000;
+        time_val /= 1000;
+    }
 
-	signed_time_secs_to_str_buf(time_val, msecs, FALSE, buf);
+    signed_time_secs_to_str_buf(time_val, msecs, FALSE, buf);
 
-	return wmem_strbuf_finalize(buf);
+    return wmem_strbuf_finalize(buf);
 }
 
 /*
@@ -523,37 +522,37 @@ signed_time_msecs_to_str(wmem_allocator_t *scope, gint32 time_val)
 gchar *
 rel_time_to_str(wmem_allocator_t *scope, const nstime_t *rel_time)
 {
-	wmem_strbuf_t *buf;
-	gint32 time_val;
-	gint32 nsec;
+    wmem_strbuf_t *buf;
+    gint32 time_val;
+    gint32 nsec;
 
-	/* If the nanoseconds part of the time stamp is negative,
-	   print its absolute value and, if the seconds part isn't
-	   (the seconds part should be zero in that case), stick
-	   a "-" in front of the entire time stamp. */
-	time_val = (gint) rel_time->secs;
-	nsec = rel_time->nsecs;
-	if (time_val == 0 && nsec == 0) {
-		return wmem_strdup(scope, "0.000000000 seconds");
-	}
+    /* If the nanoseconds part of the time stamp is negative,
+       print its absolute value and, if the seconds part isn't
+       (the seconds part should be zero in that case), stick
+       a "-" in front of the entire time stamp. */
+    time_val = (gint) rel_time->secs;
+    nsec = rel_time->nsecs;
+    if (time_val == 0 && nsec == 0) {
+        return wmem_strdup(scope, "0.000000000 seconds");
+    }
 
-	buf = wmem_strbuf_new_sized(scope, 1+TIME_SECS_LEN+1+6+1);
+    buf = wmem_strbuf_new_sized(scope, 1+TIME_SECS_LEN+1+6+1);
 
-	if (nsec < 0) {
-		nsec = -nsec;
-		wmem_strbuf_append_c(buf, '-');
+    if (nsec < 0) {
+        nsec = -nsec;
+        wmem_strbuf_append_c(buf, '-');
 
-		/*
-		 * We assume here that "rel_time->secs" is negative
-		 * or zero; if it's not, the time stamp is bogus,
-		 * with a positive seconds and negative microseconds.
-		 */
-		time_val = (gint) -rel_time->secs;
-	}
+        /*
+         * We assume here that "rel_time->secs" is negative
+         * or zero; if it's not, the time stamp is bogus,
+         * with a positive seconds and negative microseconds.
+         */
+        time_val = (gint) -rel_time->secs;
+    }
 
-	signed_time_secs_to_str_buf(time_val, nsec, TRUE, buf);
+    signed_time_secs_to_str_buf(time_val, nsec, TRUE, buf);
 
-	return wmem_strbuf_finalize(buf);
+    return wmem_strbuf_finalize(buf);
 }
 
 /* Includes terminating '\0' */
@@ -565,13 +564,13 @@ rel_time_to_str(wmem_allocator_t *scope, const nstime_t *rel_time)
 gchar *
 rel_time_to_secs_str(wmem_allocator_t *scope, const nstime_t *rel_time)
 {
-	gchar *buf;
+    gchar *buf;
 
-	buf=(gchar *)wmem_alloc(scope, REL_TIME_SECS_LEN);
+    buf = (gchar *)wmem_alloc(scope, REL_TIME_SECS_LEN);
 
-	display_signed_time(buf, REL_TIME_SECS_LEN, (gint64) rel_time->secs,
-			rel_time->nsecs, TO_STR_TIME_RES_T_NSECS);
-	return buf;
+    display_signed_time(buf, REL_TIME_SECS_LEN, (gint64) rel_time->secs,
+                        rel_time->nsecs, TO_STR_TIME_RES_T_NSECS);
+    return buf;
 }
 
 /*
@@ -583,132 +582,132 @@ rel_time_to_secs_str(wmem_allocator_t *scope, const nstime_t *rel_time)
 char *
 decode_bits_in_field(wmem_allocator_t *scope, const guint bit_offset, const gint no_of_bits, const guint64 value, const guint encoding)
 {
-	guint64 mask;
-	char *str;
-	int bit, str_p = 0;
-	int i;
-	int max_bits = MIN(64, no_of_bits);
-	int no_leading_dots;
+    guint64 mask;
+    char *str;
+    int bit, str_p = 0;
+    int i;
+    int max_bits = MIN(64, no_of_bits);
+    int no_leading_dots;
 
-	mask = G_GUINT64_CONSTANT(1) << (max_bits-1);
+    mask = G_GUINT64_CONSTANT(1) << (max_bits-1);
 
-	if(encoding & ENC_LITTLE_ENDIAN){
-		/* Bits within octet are numbered from LSB (0) to MSB (7).
-		 * The value in string is from most significant bit to lowest.
-		 * Calculate how many dots have to be printed at the beginning of string.
-		 */
-		no_leading_dots = (8 - ((bit_offset + no_of_bits) % 8)) % 8;
-	} else {
-		no_leading_dots = bit_offset % 8;
-	}
+    if (encoding & ENC_LITTLE_ENDIAN) {
+        /* Bits within octet are numbered from LSB (0) to MSB (7).
+         * The value in string is from most significant bit to lowest.
+         * Calculate how many dots have to be printed at the beginning of string.
+         */
+        no_leading_dots = (8 - ((bit_offset + no_of_bits) % 8)) % 8;
+    } else {
+        no_leading_dots = bit_offset % 8;
+    }
 
-	/* Prepare the string, 256 pos for the bits and zero termination, + 64 for the spaces */
-	str=(char *)wmem_alloc0(scope, 256+64);
-	for(bit=0;bit<no_leading_dots;bit++){
-		if(bit&&(!(bit%4))){
-			str[str_p] = ' ';
-			str_p++;
-		}
-		str[str_p] = '.';
-		str_p++;
-	}
+    /* Prepare the string, 256 pos for the bits and zero termination, + 64 for the spaces */
+    str = (char *)wmem_alloc0(scope, 256+64);
+    for (bit = 0; bit < no_leading_dots; bit++) {
+        if (bit && !(bit % 4)) {
+            str[str_p] = ' ';
+            str_p++;
+        }
+        str[str_p] = '.';
+        str_p++;
+    }
 
-	/* read the bits for the int */
-	for(i=0;i<max_bits;i++){
-		if(bit&&(!(bit%4))){
-			str[str_p] = ' ';
-			str_p++;
-		}
-		if(bit&&(!(bit%8))){
-			str[str_p] = ' ';
-			str_p++;
-		}
-		bit++;
-		if((value & mask) != 0){
-			str[str_p] = '1';
-			str_p++;
-		} else {
-			str[str_p] = '0';
-			str_p++;
-		}
-		mask = mask>>1;
-	}
+    /* read the bits for the int */
+    for (i = 0; i < max_bits; i++) {
+        if (bit && !(bit % 4)) {
+            str[str_p] = ' ';
+            str_p++;
+        }
+        if (bit && !(bit % 8)) {
+            str[str_p] = ' ';
+            str_p++;
+        }
+        bit++;
+        if ((value & mask) != 0) {
+            str[str_p] = '1';
+            str_p++;
+        } else {
+            str[str_p] = '0';
+            str_p++;
+        }
+        mask = mask>>1;
+    }
 
-	for(;bit%8;bit++){
-		if(bit&&(!(bit%4))){
-			str[str_p] = ' ';
-			str_p++;
-		}
-		str[str_p] = '.';
-		str_p++;
-	}
-	return str;
+    for (; bit % 8; bit++) {
+        if (bit && !(bit % 4)) {
+            str[str_p] = ' ';
+            str_p++;
+        }
+        str[str_p] = '.';
+        str_p++;
+    }
+    return str;
 }
 
 gchar *
 guid_to_str(wmem_allocator_t *scope, const e_guid_t *guid)
 {
-	gchar *buf;
+    gchar *buf;
 
-	buf=(gchar *)wmem_alloc(scope, GUID_STR_LEN);
-	return guid_to_str_buf(guid, buf, GUID_STR_LEN);
+    buf = (gchar *)wmem_alloc(scope, GUID_STR_LEN);
+    return guid_to_str_buf(guid, buf, GUID_STR_LEN);
 }
 
 gchar *
 guid_to_str_buf(const e_guid_t *guid, gchar *buf, int buf_len)
 {
-	char *tempptr = buf;
+    char *tempptr = buf;
 
-	if (buf_len < GUID_STR_LEN) {
-		(void) g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);/* Let the unexpected value alert user */
-		return buf;
-	}
+    if (buf_len < GUID_STR_LEN) {
+        (void) g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len); /* Let the unexpected value alert user */
+        return buf;
+    }
 
-	/* 37 bytes */
-	tempptr    = dword_to_hex(tempptr, guid->data1);		/*  8 bytes */
-	*tempptr++ = '-';						/*  1 byte */
-	tempptr    = word_to_hex(tempptr, guid->data2);			/*  4 bytes */
-	*tempptr++ = '-';						/*  1 byte */
-	tempptr    = word_to_hex(tempptr, guid->data3);			/*  4 bytes */
-	*tempptr++ = '-';						/*  1 byte */
-	tempptr    = bytes_to_hexstr(tempptr, &guid->data4[0], 2);	/*  4 bytes */
-	*tempptr++ = '-';						/*  1 byte */
-	tempptr    = bytes_to_hexstr(tempptr, &guid->data4[2], 6);	/* 12 bytes */
+    /* 37 bytes */
+    tempptr    = dword_to_hex(tempptr, guid->data1);        /*  8 bytes */
+    *tempptr++ = '-';                                       /*  1 byte */
+    tempptr    = word_to_hex(tempptr, guid->data2);         /*  4 bytes */
+    *tempptr++ = '-';                                       /*  1 byte */
+    tempptr    = word_to_hex(tempptr, guid->data3);         /*  4 bytes */
+    *tempptr++ = '-';                                       /*  1 byte */
+    tempptr    = bytes_to_hexstr(tempptr, &guid->data4[0], 2);  /*  4 bytes */
+    *tempptr++ = '-';                                       /*  1 byte */
+    tempptr    = bytes_to_hexstr(tempptr, &guid->data4[2], 6);  /* 12 bytes */
 
-	*tempptr   = '\0';
-	return buf;
+    *tempptr   = '\0';
+    return buf;
 }
 
 const gchar *
 port_type_to_str (port_type type)
 {
-	switch (type) {
-		case PT_NONE:		return "NONE";
-		case PT_SCTP:		return "SCTP";
-		case PT_TCP:		return "TCP";
-		case PT_UDP:		return "UDP";
-		case PT_DCCP:		return "DCCP";
-		case PT_IPX:		return "IPX";
-		case PT_DDP:		return "DDP";
-		case PT_IDP:		return "IDP";
-		case PT_USB:		return "USB";
-		case PT_I2C:		return "I2C";
-		case PT_IBQP:		return "IBQP";
-		case PT_BLUETOOTH:	return "BLUETOOTH";
-		case PT_IWARP_MPA:	return "IWARP_MPA";
-		default:		return "[Unknown]";
-	}
+    switch (type) {
+        case PT_NONE:       return "NONE";
+        case PT_SCTP:       return "SCTP";
+        case PT_TCP:        return "TCP";
+        case PT_UDP:        return "UDP";
+        case PT_DCCP:       return "DCCP";
+        case PT_IPX:        return "IPX";
+        case PT_DDP:        return "DDP";
+        case PT_IDP:        return "IDP";
+        case PT_USB:        return "USB";
+        case PT_I2C:        return "I2C";
+        case PT_IBQP:       return "IBQP";
+        case PT_BLUETOOTH:  return "BLUETOOTH";
+        case PT_IWARP_MPA:  return "IWARP_MPA";
+        default:            return "[Unknown]";
+    }
 }
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
- * c-basic-offset: 8
+ * c-basic-offset: 4
  * tab-width: 8
- * indent-tabs-mode: t
+ * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=8 tabstop=8 noexpandtab:
- * :indentSize=8:tabSize=8:noTabs=false:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
