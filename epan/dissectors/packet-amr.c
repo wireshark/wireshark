@@ -463,20 +463,22 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
         break;
     }
 
+    octet = tvb_get_guint8(tvb,offset) & 0x0f;
+    if ( octet != 0  ) {
+        item = proto_tree_add_item(amr_tree, hf_amr_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+        expert_add_info(pinfo, item, &ei_amr_reserved);
+        proto_item_set_generated(item);
+        dissect_amr_be(tvb, pinfo, amr_tree, amr_mode);
+        return;
+    }
+
     if (amr_mode == AMR_NB)
         proto_tree_add_bits_item(amr_tree, hf_amr_nb_cmr, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
     else
         proto_tree_add_bits_item(amr_tree, hf_amr_wb_cmr, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 
     bit_offset += 4;
-    octet = tvb_get_guint8(tvb,offset) & 0x0f;
     item = proto_tree_add_item(amr_tree, hf_amr_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-    if ( octet != 0  ) {
-        expert_add_info(pinfo, item, &ei_amr_reserved);
-        proto_item_set_generated(item);
-        return;
-
-    }
     offset     += 1;
     bit_offset += 4;
     /*
