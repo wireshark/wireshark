@@ -90,3 +90,7 @@ class TestDfilterMembership:
     def test_membership_12_value_string(self, checkDFilterCount):
         dfilter = 'tcp.checksum.status in {"Unverified", "Good"}'
         checkDFilterCount(dfilter, 1)
+
+    def test_membership_arithmetic_1(self, checkDFilterCountWithSelectedFrame):
+        dfilter = 'frame.time_epoch in {${frame.time_epoch}-46..${frame.time_epoch}+43}'
+        checkDFilterCountWithSelectedFrame(dfilter, 1, 1)

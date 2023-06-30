@@ -399,32 +399,13 @@ relation(R) ::= ALL(A) relation_test(T).
 
 /* Sets */
 
-set_entity(N) ::= entity(E).
-{
-    N = E;
-}
-
-set_entity(N) ::= MINUS(M) entity(E).
-{
-    N = M;
-    sttype_oper_set1(N, STNODE_OP_UNARY_MINUS, E);
-    stnode_merge_location(N, M, E);
-}
-
-set_entity(N) ::= PLUS(P) entity(E).
-{
-    N = E;
-    stnode_merge_location(N, P, E);
-    stnode_free(P);
-}
-
-set_element_list(N) ::= set_entity(X).
+set_element_list(N) ::= arithmetic_expr(X).
 {
     N = g_slist_append(NULL, X);
     N = g_slist_append(N, NULL);
 }
 
-set_element_list(N) ::= set_entity(X) DOTDOT set_entity(Y).
+set_element_list(N) ::= arithmetic_expr(X) DOTDOT arithmetic_expr(Y).
 {
     N = g_slist_append(NULL, X);
     N = g_slist_append(N, Y);
