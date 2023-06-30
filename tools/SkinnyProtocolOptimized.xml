@@ -2,14 +2,14 @@
 <messages>
   <bitfield name="Generic_Bitfield_8">
     <entries>
-      <entry comment="" name="Generic_Bitfield_Bit1" text="Bit1" value="0x0001"/>
-      <entry comment="" name="Generic_Bitfield_Bit2" text="Bit2" value="0x0002"/>
-      <entry comment="" name="Generic_Bitfield_Bit3" text="Bit3" value="0x0004"/>
-      <entry comment="" name="Generic_Bitfield_Bit4" text="Bit4" value="0x0008"/>
-      <entry comment="" name="Generic_Bitfield_Bit5" text="Bit5" value="0x0010"/>
-      <entry comment="" name="Generic_Bitfield_Bit6" text="Bit6" value="0x0020"/>
-      <entry comment="" name="Generic_Bitfield_Bit7" text="Bit7" value="0x0040"/>
-      <entry comment="" name="Generic_Bitfield_Bit8" text="Bit8" value="0x0080"/>
+      <entry comment="" name="Generic_Bitfield_Bit1" text="Bit1" value="0x01"/>
+      <entry comment="" name="Generic_Bitfield_Bit2" text="Bit2" value="0x02"/>
+      <entry comment="" name="Generic_Bitfield_Bit3" text="Bit3" value="0x04"/>
+      <entry comment="" name="Generic_Bitfield_Bit4" text="Bit4" value="0x08"/>
+      <entry comment="" name="Generic_Bitfield_Bit5" text="Bit5" value="0x10"/>
+      <entry comment="" name="Generic_Bitfield_Bit6" text="Bit6" value="0x20"/>
+      <entry comment="" name="Generic_Bitfield_Bit7" text="Bit7" value="0x40"/>
+      <entry comment="" name="Generic_Bitfield_Bit8" text="Bit8" value="0x80"/>
     </entries>
   </bitfield>
   <bitfield name="Generic_Bitfield_16">
@@ -28,40 +28,40 @@
       <entry comment="" name="Generic_Bitfield_Bit12" text="Bit12" value="0x0800"/>
       <entry comment="" name="Generic_Bitfield_Bit13" text="Bit13" value="0x1000"/>
       <entry comment="" name="Generic_Bitfield_Bit14" text="Bit14" value="0x2000"/>
-      <entry comment="" name="Generic_Bitfield_Bit15" text="Bit14" value="0x4000"/>
-      <entry comment="" name="Generic_Bitfield_Bit16" text="Bit15" value="0x8000"/>
+      <entry comment="" name="Generic_Bitfield_Bit15" text="Bit15" value="0x4000"/>
+      <entry comment="" name="Generic_Bitfield_Bit16" text="Bit16" value="0x8000"/>
     </entries>
   </bitfield>
   <bitfield name="Generic_Bitfield_32">
     <entries>
-      <entry comment="" name="Generic_Bitfield_Bit1" text="Bit1" value="0x0001"/>
-      <entry comment="" name="Generic_Bitfield_Bit2" text="Bit2" value="0x0002"/>
-      <entry comment="" name="Generic_Bitfield_Bit3" text="Bit3" value="0x0004"/>
-      <entry comment="" name="Generic_Bitfield_Bit4" text="Bit4" value="0x0008"/>
-      <entry comment="" name="Generic_Bitfield_Bit5" text="Bit5" value="0x0010"/>
-      <entry comment="" name="Generic_Bitfield_Bit6" text="Bit6" value="0x0020"/>
-      <entry comment="" name="Generic_Bitfield_Bit7" text="Bit7" value="0x0040"/>
-      <entry comment="" name="Generic_Bitfield_Bit8" text="Bit8" value="0x0080"/>
-      <entry comment="" name="Generic_Bitfield_Bit9" text="Bit9" value="0x0100"/>
-      <entry comment="" name="Generic_Bitfield_Bit10" text="Bit10" value="0x0200"/>
-      <entry comment="" name="Generic_Bitfield_Bit11" text="Bit11" value="0x0400"/>
-      <entry comment="" name="Generic_Bitfield_Bit12" text="Bit12" value="0x0800"/>
-      <entry comment="" name="Generic_Bitfield_Bit13" text="Bit13" value="0x1000"/>
-      <entry comment="" name="Generic_Bitfield_Bit14" text="Bit14" value="0x2000"/>
-      <entry comment="" name="Generic_Bitfield_Bit15" text="Bit14" value="0x4000"/>
-      <entry comment="" name="Generic_Bitfield_Bit16" text="Bit15" value="0x8000"/>
-      <entry comment="" name="Generic_Bitfield_Bit17" text="Bit17" value="0x10000"/>
-      <entry comment="" name="Generic_Bitfield_Bit18" text="Bit18" value="0x20000"/>
-      <entry comment="" name="Generic_Bitfield_Bit19" text="Bit19" value="0x40000"/>
-      <entry comment="" name="Generic_Bitfield_Bit20" text="Bit20" value="0x80000"/>
-      <entry comment="" name="Generic_Bitfield_Bit21" text="Bit21" value="0x100000"/>
-      <entry comment="" name="Generic_Bitfield_Bit22" text="Bit22" value="0x200000"/>
-      <entry comment="" name="Generic_Bitfield_Bit23" text="Bit23" value="0x400000"/>
-      <entry comment="" name="Generic_Bitfield_Bit24" text="Bit24" value="0x800000"/>
-      <entry comment="" name="Generic_Bitfield_Bit25" text="Bit25" value="0x1000000"/>
-      <entry comment="" name="Generic_Bitfield_Bit26" text="Bit26" value="0x2000000"/>
-      <entry comment="" name="Generic_Bitfield_Bit27" text="Bit27" value="0x4000000"/>
-      <entry comment="" name="Generic_Bitfield_Bit28" text="Bit28" value="0x8000000"/>
+      <entry comment="" name="Generic_Bitfield_Bit1" text="Bit1" value="0x00000001"/>
+      <entry comment="" name="Generic_Bitfield_Bit2" text="Bit2" value="0x00000002"/>
+      <entry comment="" name="Generic_Bitfield_Bit3" text="Bit3" value="0x00000004"/>
+      <entry comment="" name="Generic_Bitfield_Bit4" text="Bit4" value="0x00000008"/>
+      <entry comment="" name="Generic_Bitfield_Bit5" text="Bit5" value="0x00000010"/>
+      <entry comment="" name="Generic_Bitfield_Bit6" text="Bit6" value="0x00000020"/>
+      <entry comment="" name="Generic_Bitfield_Bit7" text="Bit7" value="0x00000040"/>
+      <entry comment="" name="Generic_Bitfield_Bit8" text="Bit8" value="0x00000080"/>
+      <entry comment="" name="Generic_Bitfield_Bit9" text="Bit9" value="0x00000100"/>
+      <entry comment="" name="Generic_Bitfield_Bit10" text="Bit10" value="0x00000200"/>
+      <entry comment="" name="Generic_Bitfield_Bit11" text="Bit11" value="0x00000400"/>
+      <entry comment="" name="Generic_Bitfield_Bit12" text="Bit12" value="0x00000800"/>
+      <entry comment="" name="Generic_Bitfield_Bit13" text="Bit13" value="0x00001000"/>
+      <entry comment="" name="Generic_Bitfield_Bit14" text="Bit14" value="0x00002000"/>
+      <entry comment="" name="Generic_Bitfield_Bit15" text="Bit15" value="0x00004000"/>
+      <entry comment="" name="Generic_Bitfield_Bit16" text="Bit16" value="0x00008000"/>
+      <entry comment="" name="Generic_Bitfield_Bit17" text="Bit17" value="0x00010000"/>
+      <entry comment="" name="Generic_Bitfield_Bit18" text="Bit18" value="0x00020000"/>
+      <entry comment="" name="Generic_Bitfield_Bit19" text="Bit19" value="0x00040000"/>
+      <entry comment="" name="Generic_Bitfield_Bit20" text="Bit20" value="0x00080000"/>
+      <entry comment="" name="Generic_Bitfield_Bit21" text="Bit21" value="0x00100000"/>
+      <entry comment="" name="Generic_Bitfield_Bit22" text="Bit22" value="0x00200000"/>
+      <entry comment="" name="Generic_Bitfield_Bit23" text="Bit23" value="0x00400000"/>
+      <entry comment="" name="Generic_Bitfield_Bit24" text="Bit24" value="0x00800000"/>
+      <entry comment="" name="Generic_Bitfield_Bit25" text="Bit25" value="0x01000000"/>
+      <entry comment="" name="Generic_Bitfield_Bit26" text="Bit26" value="0x02000000"/>
+      <entry comment="" name="Generic_Bitfield_Bit27" text="Bit27" value="0x04000000"/>
+      <entry comment="" name="Generic_Bitfield_Bit28" text="Bit28" value="0x08000000"/>
       <entry comment="" name="Generic_Bitfield_Bit29" text="Bit29" value="0x10000000"/>
       <entry comment="" name="Generic_Bitfield_Bit30" text="Bit30" value="0x20000000"/>
       <entry comment="" name="Generic_Bitfield_Bit31" text="Bit31" value="0x40000000"/>
@@ -1208,34 +1208,34 @@
                 <fields>
                   <bitfield comment="H263 Capability BitField" name="h263_capability_bitfield" size="uint32" subtype="Generic_Bitfield_32" type="bitfield">
                     <entries>
-                      <entry comment="" name="Generic_Bitfield_Bit1" text="Bit1" value="0x0001"/>
-                      <entry comment="" name="Generic_Bitfield_Bit2" text="Bit2" value="0x0002"/>
-                      <entry comment="" name="Generic_Bitfield_Bit3" text="Bit3" value="0x0004"/>
-                      <entry comment="" name="Generic_Bitfield_Bit4" text="Bit4" value="0x0008"/>
-                      <entry comment="" name="Generic_Bitfield_Bit5" text="Bit5" value="0x0010"/>
-                      <entry comment="" name="Generic_Bitfield_Bit6" text="Bit6" value="0x0020"/>
-                      <entry comment="" name="Generic_Bitfield_Bit7" text="Bit7" value="0x0040"/>
-                      <entry comment="" name="Generic_Bitfield_Bit8" text="Bit8" value="0x0080"/>
-                      <entry comment="" name="Generic_Bitfield_Bit9" text="Bit9" value="0x0100"/>
-                      <entry comment="" name="Generic_Bitfield_Bit10" text="Bit10" value="0x0200"/>
-                      <entry comment="" name="Generic_Bitfield_Bit11" text="Bit11" value="0x0400"/>
-                      <entry comment="" name="Generic_Bitfield_Bit12" text="Bit12" value="0x0800"/>
-                      <entry comment="" name="Generic_Bitfield_Bit13" text="Bit13" value="0x1000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit14" text="Bit14" value="0x2000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit15" text="Bit14" value="0x4000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit16" text="Bit15" value="0x8000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit17" text="Bit17" value="0x10000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit18" text="Bit18" value="0x20000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit19" text="Bit19" value="0x40000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit20" text="Bit20" value="0x80000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit21" text="Bit21" value="0x100000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit22" text="Bit22" value="0x200000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit23" text="Bit23" value="0x400000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit24" text="Bit24" value="0x800000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit25" text="Bit25" value="0x1000000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit26" text="Bit26" value="0x2000000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit27" text="Bit27" value="0x4000000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit28" text="Bit28" value="0x8000000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit1" text="Bit1" value="0x00000001"/>
+                      <entry comment="" name="Generic_Bitfield_Bit2" text="Bit2" value="0x00000002"/>
+                      <entry comment="" name="Generic_Bitfield_Bit3" text="Bit3" value="0x00000004"/>
+                      <entry comment="" name="Generic_Bitfield_Bit4" text="Bit4" value="0x00000008"/>
+                      <entry comment="" name="Generic_Bitfield_Bit5" text="Bit5" value="0x00000010"/>
+                      <entry comment="" name="Generic_Bitfield_Bit6" text="Bit6" value="0x00000020"/>
+                      <entry comment="" name="Generic_Bitfield_Bit7" text="Bit7" value="0x00000040"/>
+                      <entry comment="" name="Generic_Bitfield_Bit8" text="Bit8" value="0x00000080"/>
+                      <entry comment="" name="Generic_Bitfield_Bit9" text="Bit9" value="0x00000100"/>
+                      <entry comment="" name="Generic_Bitfield_Bit10" text="Bit10" value="0x00000200"/>
+                      <entry comment="" name="Generic_Bitfield_Bit11" text="Bit11" value="0x00000400"/>
+                      <entry comment="" name="Generic_Bitfield_Bit12" text="Bit12" value="0x00000800"/>
+                      <entry comment="" name="Generic_Bitfield_Bit13" text="Bit13" value="0x00001000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit14" text="Bit14" value="0x00002000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit15" text="Bit15" value="0x00004000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit16" text="Bit16" value="0x00008000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit17" text="Bit17" value="0x00010000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit18" text="Bit18" value="0x00020000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit19" text="Bit19" value="0x00040000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit20" text="Bit20" value="0x00080000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit21" text="Bit21" value="0x00100000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit22" text="Bit22" value="0x00200000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit23" text="Bit23" value="0x00400000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit24" text="Bit24" value="0x00800000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit25" text="Bit25" value="0x01000000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit26" text="Bit26" value="0x02000000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit27" text="Bit27" value="0x04000000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit28" text="Bit28" value="0x08000000"/>
                       <entry comment="" name="Generic_Bitfield_Bit29" text="Bit29" value="0x10000000"/>
                       <entry comment="" name="Generic_Bitfield_Bit30" text="Bit30" value="0x20000000"/>
                       <entry comment="" name="Generic_Bitfield_Bit31" text="Bit31" value="0x40000000"/>
@@ -1553,8 +1553,8 @@
                       <entry comment="" name="Generic_Bitfield_Bit12" text="Bit12" value="0x0800"/>
                       <entry comment="" name="Generic_Bitfield_Bit13" text="Bit13" value="0x1000"/>
                       <entry comment="" name="Generic_Bitfield_Bit14" text="Bit14" value="0x2000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit15" text="Bit14" value="0x4000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit16" text="Bit15" value="0x8000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit15" text="Bit15" value="0x4000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit16" text="Bit16" value="0x8000"/>
                       <entry comment="" name="Generic_Bitfield_Bit17" text="Bit17" value="0x10000"/>
                       <entry comment="" name="Generic_Bitfield_Bit18" text="Bit18" value="0x20000"/>
                       <entry comment="" name="Generic_Bitfield_Bit19" text="Bit19" value="0x40000"/>
@@ -1733,8 +1733,8 @@
                       <entry comment="" name="Generic_Bitfield_Bit12" text="Bit12" value="0x0800"/>
                       <entry comment="" name="Generic_Bitfield_Bit13" text="Bit13" value="0x1000"/>
                       <entry comment="" name="Generic_Bitfield_Bit14" text="Bit14" value="0x2000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit15" text="Bit14" value="0x4000"/>
-                      <entry comment="" name="Generic_Bitfield_Bit16" text="Bit15" value="0x8000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit15" text="Bit15" value="0x4000"/>
+                      <entry comment="" name="Generic_Bitfield_Bit16" text="Bit16" value="0x8000"/>
                       <entry comment="" name="Generic_Bitfield_Bit17" text="Bit17" value="0x10000"/>
                       <entry comment="" name="Generic_Bitfield_Bit18" text="Bit18" value="0x20000"/>
                       <entry comment="" name="Generic_Bitfield_Bit19" text="Bit19" value="0x40000"/>
@@ -2335,18 +2335,18 @@
   </enum>
   <bitfield name="RestrictInformationType">
     <entries>
-      <entry comment="" name="RestrictInformationType_CallingPartyName" text="CallingPartyName" value="0x0001"/>
-      <entry comment="" name="RestrictInformationType_CallingPartyNumber" text="CallingPartyNumber" value="0x0002"/>
-      <entry comment="" name="RestrictInformationType_CallingParty" text="CallingParty" value="0x0003"/>
-      <entry comment="" name="RestrictInformationType_CalledPartyName" text="CalledPartyName" value="0x0004"/>
-      <entry comment="" name="RestrictInformationType_CalledPartyNumber" text="CalledPartyNumber" value="0x0008"/>
-      <entry comment="" name="RestrictInformationType_CalledParty" text="CalledParty" value="0x000c"/>
-      <entry comment="" name="RestrictInformationType_OriginalCalledPartyName" text="OriginalCalledPartyName" value="0x0010"/>
-      <entry comment="" name="RestrictInformationType_OriginalCalledPartyNumber" text="OriginalCalledPartyNumber" value="0x0020"/>
-      <entry comment="" name="RestrictInformationType_OriginalCalledParty" text="OriginalCalledParty" value="0x0030"/>
-      <entry comment="" name="RestrictInformationType_LastRedirectPartyName" text="LastRedirectPartyName" value="0x0040"/>
-      <entry comment="" name="RestrictInformationType_LastRedirectPartyNumber" text="LastRedirectPartyNumber" value="0x0080"/>
-      <entry comment="" name="RestrictInformationType_LastRedirectParty" text="LastRedirectParty" value="0x00c0"/>
+      <entry comment="" name="RestrictInformationType_CallingPartyName" text="CallingPartyName" value="0x00000001"/>
+      <entry comment="" name="RestrictInformationType_CallingPartyNumber" text="CallingPartyNumber" value="0x00000002"/>
+      <entry comment="" name="RestrictInformationType_CallingParty" text="CallingParty" value="0x00000003"/>
+      <entry comment="" name="RestrictInformationType_CalledPartyName" text="CalledPartyName" value="0x00000004"/>
+      <entry comment="" name="RestrictInformationType_CalledPartyNumber" text="CalledPartyNumber" value="0x00000008"/>
+      <entry comment="" name="RestrictInformationType_CalledParty" text="CalledParty" value="0x0000000c"/>
+      <entry comment="" name="RestrictInformationType_OriginalCalledPartyName" text="OriginalCalledPartyName" value="0x00000010"/>
+      <entry comment="" name="RestrictInformationType_OriginalCalledPartyNumber" text="OriginalCalledPartyNumber" value="0x00000020"/>
+      <entry comment="" name="RestrictInformationType_OriginalCalledParty" text="OriginalCalledParty" value="0x00000030"/>
+      <entry comment="" name="RestrictInformationType_LastRedirectPartyName" text="LastRedirectPartyName" value="0x00000040"/>
+      <entry comment="" name="RestrictInformationType_LastRedirectPartyNumber" text="LastRedirectPartyNumber" value="0x00000080"/>
+      <entry comment="" name="RestrictInformationType_LastRedirectParty" text="LastRedirectParty" value="0x000000c0"/>
       <entry comment="" name="RestrictInformationType_BitsReserved" text="BitsReserved" value="0xffffff00"/>
     </entries>
   </bitfield>
@@ -2373,18 +2373,18 @@
       <enum comment="" name="callSecurityStatus" subtype="CallSecurityStatusType" type="uint32"/>
       <bitfield comment="" name="partyPIRestrictionBits" size="uint32" subtype="RestrictInformationType" type="bitfield">
         <entries>
-          <entry comment="" name="RestrictInformationType_CallingPartyName" text="CallingPartyName" value="0x0001"/>
-          <entry comment="" name="RestrictInformationType_CallingPartyNumber" text="CallingPartyNumber" value="0x0002"/>
-          <entry comment="" name="RestrictInformationType_CallingParty" text="CallingParty" value="0x0003"/>
-          <entry comment="" name="RestrictInformationType_CalledPartyName" text="CalledPartyName" value="0x0004"/>
-          <entry comment="" name="RestrictInformationType_CalledPartyNumber" text="CalledPartyNumber" value="0x0008"/>
-          <entry comment="" name="RestrictInformationType_CalledParty" text="CalledParty" value="0x000c"/>
-          <entry comment="" name="RestrictInformationType_OriginalCalledPartyName" text="OriginalCalledPartyName" value="0x0010"/>
-          <entry comment="" name="RestrictInformationType_OriginalCalledPartyNumber" text="OriginalCalledPartyNumber" value="0x0020"/>
-          <entry comment="" name="RestrictInformationType_OriginalCalledParty" text="OriginalCalledParty" value="0x0030"/>
-          <entry comment="" name="RestrictInformationType_LastRedirectPartyName" text="LastRedirectPartyName" value="0x0040"/>
-          <entry comment="" name="RestrictInformationType_LastRedirectPartyNumber" text="LastRedirectPartyNumber" value="0x0080"/>
-          <entry comment="" name="RestrictInformationType_LastRedirectParty" text="LastRedirectParty" value="0x00c0"/>
+          <entry comment="" name="RestrictInformationType_CallingPartyName" text="CallingPartyName" value="0x00000001"/>
+          <entry comment="" name="RestrictInformationType_CallingPartyNumber" text="CallingPartyNumber" value="0x00000002"/>
+          <entry comment="" name="RestrictInformationType_CallingParty" text="CallingParty" value="0x00000003"/>
+          <entry comment="" name="RestrictInformationType_CalledPartyName" text="CalledPartyName" value="0x00000004"/>
+          <entry comment="" name="RestrictInformationType_CalledPartyNumber" text="CalledPartyNumber" value="0x00000008"/>
+          <entry comment="" name="RestrictInformationType_CalledParty" text="CalledParty" value="0x0000000c"/>
+          <entry comment="" name="RestrictInformationType_OriginalCalledPartyName" text="OriginalCalledPartyName" value="0x00000010"/>
+          <entry comment="" name="RestrictInformationType_OriginalCalledPartyNumber" text="OriginalCalledPartyNumber" value="0x00000020"/>
+          <entry comment="" name="RestrictInformationType_OriginalCalledParty" text="OriginalCalledParty" value="0x00000030"/>
+          <entry comment="" name="RestrictInformationType_LastRedirectPartyName" text="LastRedirectPartyName" value="0x00000040"/>
+          <entry comment="" name="RestrictInformationType_LastRedirectPartyNumber" text="LastRedirectPartyNumber" value="0x00000080"/>
+          <entry comment="" name="RestrictInformationType_LastRedirectParty" text="LastRedirectParty" value="0x000000c0"/>
           <entry comment="" name="RestrictInformationType_BitsReserved" text="BitsReserved" value="0xffffff00"/>
         </entries>
       </bitfield>
@@ -2947,22 +2947,22 @@
       <enum comment="" name="softKeySetIndex" subtype="SoftKeySet" type="uint32"/>
       <bitfield comment="" name="validKeyMask" size="uint32" subtype="SoftKeyMask" type="bitfield">
         <entries>
-          <entry comment="" name="SoftKeyMask_SoftKey1" text="SoftKey1" value="0x0001"/>
-          <entry comment="" name="SoftKeyMask_SoftKey2" text="SoftKey2" value="0x0002"/>
-          <entry comment="" name="SoftKeyMask_SoftKey3" text="SoftKey3" value="0x0004"/>
-          <entry comment="" name="SoftKeyMask_SoftKey4" text="SoftKey4" value="0x0008"/>
-          <entry comment="" name="SoftKeyMask_SoftKey5" text="SoftKey5" value="0x0010"/>
-          <entry comment="" name="SoftKeyMask_SoftKey6" text="SoftKey6" value="0x0020"/>
-          <entry comment="" name="SoftKeyMask_SoftKey7" text="SoftKey7" value="0x0040"/>
-          <entry comment="" name="SoftKeyMask_SoftKey8" text="SoftKey8" value="0x0080"/>
-          <entry comment="" name="SoftKeyMask_SoftKey9" text="SoftKey9" value="0x0100"/>
-          <entry comment="" name="SoftKeyMask_SoftKey10" text="SoftKey10" value="0x0200"/>
-          <entry comment="" name="SoftKeyMask_SoftKey11" text="SoftKey11" value="0x0400"/>
-          <entry comment="" name="SoftKeyMask_SoftKey12" text="SoftKey12" value="0x0800"/>
-          <entry comment="" name="SoftKeyMask_SoftKey13" text="SoftKey13" value="0x1000"/>
-          <entry comment="" name="SoftKeyMask_SoftKey14" text="SoftKey14" value="0x2000"/>
-          <entry comment="" name="SoftKeyMask_SoftKey15" text="SoftKey15" value="0x4000"/>
-          <entry comment="" name="SoftKeyMask_SoftKey16" text="SoftKey16" value="0x8000"/>
+          <entry comment="" name="SoftKeyMask_SoftKey1" text="SoftKey1" value="0x00000001"/>
+          <entry comment="" name="SoftKeyMask_SoftKey2" text="SoftKey2" value="0x00000002"/>
+          <entry comment="" name="SoftKeyMask_SoftKey3" text="SoftKey3" value="0x00000004"/>
+          <entry comment="" name="SoftKeyMask_SoftKey4" text="SoftKey4" value="0x00000008"/>
+          <entry comment="" name="SoftKeyMask_SoftKey5" text="SoftKey5" value="0x00000010"/>
+          <entry comment="" name="SoftKeyMask_SoftKey6" text="SoftKey6" value="0x00000020"/>
+          <entry comment="" name="SoftKeyMask_SoftKey7" text="SoftKey7" value="0x00000040"/>
+          <entry comment="" name="SoftKeyMask_SoftKey8" text="SoftKey8" value="0x00000080"/>
+          <entry comment="" name="SoftKeyMask_SoftKey9" text="SoftKey9" value="0x00000100"/>
+          <entry comment="" name="SoftKeyMask_SoftKey10" text="SoftKey10" value="0x00000200"/>
+          <entry comment="" name="SoftKeyMask_SoftKey11" text="SoftKey11" value="0x00000400"/>
+          <entry comment="" name="SoftKeyMask_SoftKey12" text="SoftKey12" value="0x00000800"/>
+          <entry comment="" name="SoftKeyMask_SoftKey13" text="SoftKey13" value="0x00001000"/>
+          <entry comment="" name="SoftKeyMask_SoftKey14" text="SoftKey14" value="0x00002000"/>
+          <entry comment="" name="SoftKeyMask_SoftKey15" text="SoftKey15" value="0x00004000"/>
+          <entry comment="" name="SoftKeyMask_SoftKey16" text="SoftKey16" value="0x00008000"/>
         </entries>
       </bitfield>
     </fields>
@@ -3339,7 +3339,7 @@
                           <entry comment="" name="Generic_Bitfield_Bit12" text="Bit12" value="0x0800"/>
                           <entry comment="" name="Generic_Bitfield_Bit13" text="Bit13" value="0x1000"/>
                           <entry comment="" name="Generic_Bitfield_Bit14" text="Bit14" value="0x2000"/>
-                          <entry comment="" name="Generic_Bitfield_Bit15" text="Bit14" value="0x4000"/>
+                          <entry comment="" name="Generic_Bitfield_Bit15" text="Bit16" value="0x4000"/>
                           <entry comment="" name="Generic_Bitfield_Bit16" text="Bit15" value="0x8000"/>
                           <entry comment="" name="Generic_Bitfield_Bit17" text="Bit17" value="0x10000"/>
                           <entry comment="" name="Generic_Bitfield_Bit18" text="Bit18" value="0x20000"/>
@@ -3494,8 +3494,8 @@
                           <entry comment="" name="Generic_Bitfield_Bit12" text="Bit12" value="0x0800"/>
                           <entry comment="" name="Generic_Bitfield_Bit13" text="Bit13" value="0x1000"/>
                           <entry comment="" name="Generic_Bitfield_Bit14" text="Bit14" value="0x2000"/>
-                          <entry comment="" name="Generic_Bitfield_Bit15" text="Bit14" value="0x4000"/>
-                          <entry comment="" name="Generic_Bitfield_Bit16" text="Bit15" value="0x8000"/>
+                          <entry comment="" name="Generic_Bitfield_Bit15" text="Bit15" value="0x4000"/>
+                          <entry comment="" name="Generic_Bitfield_Bit16" text="Bit16" value="0x8000"/>
                           <entry comment="" name="Generic_Bitfield_Bit17" text="Bit17" value="0x10000"/>
                           <entry comment="" name="Generic_Bitfield_Bit18" text="Bit18" value="0x20000"/>
                           <entry comment="" name="Generic_Bitfield_Bit19" text="Bit19" value="0x40000"/>
@@ -3692,18 +3692,18 @@
       <integer comment="CallId" name="callReference" type="uint32"/>
       <bitfield comment="" name="partyPIRestrictionBits" size="uint32" subtype="RestrictInformationType" type="bitfield">
         <entries>
-          <entry comment="" name="RestrictInformationType_CallingPartyName" text="CallingPartyName" value="0x0001"/>
-          <entry comment="" name="RestrictInformationType_CallingPartyNumber" text="CallingPartyNumber" value="0x0002"/>
-          <entry comment="" name="RestrictInformationType_CallingParty" text="CallingParty" value="0x0003"/>
-          <entry comment="" name="RestrictInformationType_CalledPartyName" text="CalledPartyName" value="0x0004"/>
-          <entry comment="" name="RestrictInformationType_CalledPartyNumber" text="CalledPartyNumber" value="0x0008"/>
-          <entry comment="" name="RestrictInformationType_CalledParty" text="CalledParty" value="0x000c"/>
-          <entry comment="" name="RestrictInformationType_OriginalCalledPartyName" text="OriginalCalledPartyName" value="0x0010"/>
-          <entry comment="" name="RestrictInformationType_OriginalCalledPartyNumber" text="OriginalCalledPartyNumber" value="0x0020"/>
-          <entry comment="" name="RestrictInformationType_OriginalCalledParty" text="OriginalCalledParty" value="0x0030"/>
-          <entry comment="" name="RestrictInformationType_LastRedirectPartyName" text="LastRedirectPartyName" value="0x0040"/>
-          <entry comment="" name="RestrictInformationType_LastRedirectPartyNumber" text="LastRedirectPartyNumber" value="0x0080"/>
-          <entry comment="" name="RestrictInformationType_LastRedirectParty" text="LastRedirectParty" value="0x00c0"/>
+          <entry comment="" name="RestrictInformationType_CallingPartyName" text="CallingPartyName" value="0x00000001"/>
+          <entry comment="" name="RestrictInformationType_CallingPartyNumber" text="CallingPartyNumber" value="0x00000002"/>
+          <entry comment="" name="RestrictInformationType_CallingParty" text="CallingParty" value="0x00000003"/>
+          <entry comment="" name="RestrictInformationType_CalledPartyName" text="CalledPartyName" value="0x00000004"/>
+          <entry comment="" name="RestrictInformationType_CalledPartyNumber" text="CalledPartyNumber" value="0x00000008"/>
+          <entry comment="" name="RestrictInformationType_CalledParty" text="CalledParty" value="0x0000000c"/>
+          <entry comment="" name="RestrictInformationType_OriginalCalledPartyName" text="OriginalCalledPartyName" value="0x00000010"/>
+          <entry comment="" name="RestrictInformationType_OriginalCalledPartyNumber" text="OriginalCalledPartyNumber" value="0x00000020"/>
+          <entry comment="" name="RestrictInformationType_OriginalCalledParty" text="OriginalCalledParty" value="0x00000030"/>
+          <entry comment="" name="RestrictInformationType_LastRedirectPartyName" text="LastRedirectPartyName" value="0x00000040"/>
+          <entry comment="" name="RestrictInformationType_LastRedirectPartyNumber" text="LastRedirectPartyNumber" value="0x00000080"/>
+          <entry comment="" name="RestrictInformationType_LastRedirectParty" text="LastRedirectParty" value="0x000000c0"/>
           <entry comment="" name="RestrictInformationType_BitsReserved" text="BitsReserved" value="0xffffff00"/>
         </entries>
       </bitfield>
@@ -3830,10 +3830,10 @@
   </message>
   <bitfield name="LineTypeBits">
     <entries>
-      <entry comment="" name="OrigDialed" text="Originally Dialed" value="0x0001"/>
-      <entry comment="" name="RedirDialed" text="Redirected Dialed" value="0x0002"/>
-      <entry comment="" name="CallingPartyNumber" text="CallingNum" value="0x0004"/>
-      <entry comment="" name="CallingPartyName" text="CallingName" value="0x0008"/>
+      <entry comment="" name="OrigDialed" text="Originally Dialed" value="0x00000001"/>
+      <entry comment="" name="RedirDialed" text="Redirected Dialed" value="0x00000002"/>
+      <entry comment="" name="CallingPartyNumber" text="CallingNum" value="0x00000004"/>
+      <entry comment="" name="CallingPartyName" text="CallingName" value="0x00000008"/>
     </entries>
   </bitfield>
   <message comment="" direction="pbx2dev" dynamic="yes" msgtype="response" name="LineStatV2ResMessage" opcode="0x0147" request="0x000b" type="RegistrationAndManagement">
@@ -3841,10 +3841,10 @@
       <integer comment="" declare="yes" name="lineNumber" req_resp_key="1" type="uint32"/>
       <bitfield comment="" name="lineType" size="uint32" subtype="LineTypeBits" type="bitfield">
         <entries>
-          <entry comment="" name="OrigDialed" text="Originally Dialed" value="0x0001"/>
-          <entry comment="" name="RedirDialed" text="Redirected Dialed" value="0x0002"/>
-          <entry comment="" name="CallingPartyNumber" text="CallingNum" value="0x0004"/>
-          <entry comment="" name="CallingPartyName" text="CallingName" value="0x0008"/>
+          <entry comment="" name="OrigDialed" text="Originally Dialed" value="0x00000001"/>
+          <entry comment="" name="RedirDialed" text="Redirected Dialed" value="0x00000002"/>
+          <entry comment="" name="CallingPartyNumber" text="CallingNum" value="0x00000004"/>
+          <entry comment="" name="CallingPartyName" text="CallingName" value="0x00000008"/>
         </entries>
       </bitfield>
       <string comment="" name="lineDirNumber" size="25" type="char"/>
