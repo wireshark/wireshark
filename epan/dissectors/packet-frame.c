@@ -1570,15 +1570,15 @@ proto_register_frame(void)
 		    FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 		    "Absolute time when this frame was captured", HFILL }},
 
+		{ &hf_frame_arrival_time_epoch,
+		  { "Epoch Time", "frame.time_epoch",
+		    FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UNIX, NULL, 0x0,
+		    "Epoch time (also called Unix time) when this frame was captured", HFILL }},
+
 		{ &hf_frame_shift_offset,
 		  { "Time shift for this packet", "frame.offset_shift",
 		    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
 		    "Time shift applied to this packet", HFILL }},
-
-		{ &hf_frame_arrival_time_epoch,
-		  { "Epoch Time", "frame.time_epoch",
-		    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-		    "Epoch time when this frame was captured", HFILL }},
 
 		{ &hf_frame_time_delta,
 		  { "Time delta from previous captured frame", "frame.time_delta",
