@@ -318,11 +318,13 @@ static const value_string rtp_version_vals[] =
     { 0, NULL },
 };
 
-static const value_string rtp_ext_profile_vals[] =
+static const range_string rtp_ext_profile_rvals[] =
 {
-    { RTP_ED137_SIG, "ED137" },
-    { RTP_ED137A_SIG, "ED137A" },
-    { 0, NULL },
+    { RTP_ED137_SIG, RTP_ED137_SIG, "ED137" },
+    { RTP_ED137A_SIG, RTP_ED137A_SIG, "ED137A" },
+    { RTP_RFC5285_TWO_BYTE_SIG, RTP_RFC5285_TWO_BYTE_SIG + 0xF, "RFC 5285 Two-Byte Header Extensions" },
+    { RTP_RFC5285_ONE_BYTE_SIG, RTP_RFC5285_ONE_BYTE_SIG, "RFC 5285 One-Byte Header Extensions" },
+    { 0, 0, NULL },
 };
 
 /*
@@ -3022,8 +3024,8 @@ proto_register_rtp(void)
                 "Defined by profile",
                 "rtp.ext.profile",
                 FT_UINT16,
-                BASE_HEX_DEC,
-                VALS(rtp_ext_profile_vals),
+                BASE_HEX_DEC | BASE_RANGE_STRING,
+                RVALS(rtp_ext_profile_rvals),
                 0x0,
                 NULL, HFILL
             }
