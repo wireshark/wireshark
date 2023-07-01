@@ -282,6 +282,8 @@ This menu shows MTP3 Statistics and MTP3 Summary windows.
 
 OSmux is a multiplex protocol designed to reduce bandwidth usage of satellite-based GSM systems's voice (RTP-AMR) and signaling traffic. The OSmux menu opens the packet counter window with the related statistic data. The user can filter, copy or save the data into a file.
 
+[#ChTelRTP]
+
 === RTP
 
 [#ChTelRTPStreams]

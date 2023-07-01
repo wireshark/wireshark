@@ -223,10 +223,10 @@ topic_action_url(topic_action_e action)
         url = user_guide_url("ChStatIOGraphs.html");
         break;
     case(HELP_STATS_LTE_MAC_TRAFFIC_DIALOG):
-        url = user_guide_url("ChTelLTEMACTraffic.html");
+        url = user_guide_url("ChTelLTE.html#ChTelLTEMACTraffic");
         break;
     case(HELP_STATS_LTE_RLC_TRAFFIC_DIALOG):
-        url = user_guide_url("ChTelLTERLCTraffic.html");
+        url = user_guide_url("ChTelLTE.html#ChTelLTERLCTraffic");
         break;
     case(HELP_STATS_TCP_STREAM_GRAPHS_DIALOG):
         url = user_guide_url("ChStatTCPStreamGraphs.html");
@@ -275,10 +275,10 @@ topic_action_url(topic_action_e action)
         url = user_guide_url("ChTelVoipCalls.html");
         break;
     case(HELP_TELEPHONY_RTP_ANALYSIS_DIALOG):
-        url = user_guide_url("ChTelRTPAnalysis.html");
+        url = user_guide_url("ChTelRTP.html#ChTelRTPAnalysis");
         break;
     case(HELP_TELEPHONY_RTP_STREAMS_DIALOG):
-        url = user_guide_url("ChTelRTPStreams.html");
+        url = user_guide_url("ChTelRTP.html#ChTelRTPStreams");
         break;
     case(HELP_NEW_PACKET_DIALOG):
         url = user_guide_url("ChapterWork.html#ChWorkPacketSepView");
@@ -287,7 +287,7 @@ topic_action_url(topic_action_e action)
         url = user_guide_url("ChTelIAX2Analysis.html");
         break;
     case(HELP_TELEPHONY_RTP_PLAYER_DIALOG):
-        url = user_guide_url("ChTelRtpPlayer.html");
+        url = user_guide_url("ChTelRTP.html#ChTelRtpPlayer");
         break;
     case(HELP_STAT_FLOW_GRAPH):
         url = user_guide_url("ChStatFlowGraph.html");
