@@ -699,6 +699,7 @@ typedef enum {
     ABSOLUTE_TIME_UTC,          /**< UTC, with month and day */
     ABSOLUTE_TIME_DOY_UTC,      /**< UTC, with 1-origin day-of-year */
     ABSOLUTE_TIME_NTP_UTC,      /**< UTC, with "NULL" when timestamp is all zeros */
+    ABSOLUTE_TIME_UNIX,         /**< Unix time */
 
 /* String types */
     BASE_STR_WSP,       /**< Replace all whitespace characters (newline, formfeed, etc) with "space". */
@@ -707,7 +708,7 @@ typedef enum {
 #define FIELD_DISPLAY(d) ((d) & FIELD_DISPLAY_E_MASK)
 
 #define FIELD_DISPLAY_IS_ABSOLUTE_TIME(d) \
-        (FIELD_DISPLAY(d) >= ABSOLUTE_TIME_LOCAL && FIELD_DISPLAY(d) <= ABSOLUTE_TIME_NTP_UTC)
+        (FIELD_DISPLAY(d) >= ABSOLUTE_TIME_LOCAL && FIELD_DISPLAY(d) <= ABSOLUTE_TIME_UNIX)
 
 /* Following constants have to be ORed with a field_display_e when dissector
  * want to use specials value-string MACROs for a header_field_info */

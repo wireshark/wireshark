@@ -8768,10 +8768,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 			break;
 
 		case FT_ABSOLUTE_TIME:
-			if (!(hfinfo->display == ABSOLUTE_TIME_LOCAL ||
-			      hfinfo->display == ABSOLUTE_TIME_UTC   ||
-			      hfinfo->display == ABSOLUTE_TIME_NTP_UTC   ||
-			      hfinfo->display == ABSOLUTE_TIME_DOY_UTC)) {
+			if (!FIELD_DISPLAY_IS_ABSOLUTE_TIME(hfinfo->display)) {
 				tmp_str = val_to_str_wmem(NULL, hfinfo->display, hf_display, "(Bit count: %d)");
 				REPORT_DISSECTOR_BUG("Field '%s' (%s) is a %s but is being displayed as %s instead of as a time",
 					hfinfo->name, hfinfo->abbrev, ftype_name(hfinfo->type), tmp_str);

@@ -168,6 +168,10 @@ abs_time_to_str_ex(wmem_allocator_t *scope, const nstime_t *abs_time, field_disp
 
     ws_assert(FIELD_DISPLAY_IS_ABSOLUTE_TIME(fmt));
 
+    if (fmt == ABSOLUTE_TIME_UNIX) {
+        return abs_time_to_unix_str(scope, abs_time);
+    }
+
     if (fmt == ABSOLUTE_TIME_NTP_UTC && abs_time->secs == 0 &&
                 (abs_time->nsecs == 0 || abs_time->nsecs == G_MAXINT)) {
         return wmem_strdup(scope, "NULL");
@@ -426,7 +430,7 @@ rel_time_to_str(wmem_allocator_t *scope, const nstime_t *rel_time)
 #define CHARS_NANOSECONDS	10	/* .000000001 */
 
 /* Includes terminating '\0' */
-#define REL_TIME_SECS_LEN	(CHARS_64_BIT_SIGNED+CHARS_NANOSECONDS+1)
+#define NSTIME_SECS_LEN	(CHARS_64_BIT_SIGNED+CHARS_NANOSECONDS+1)
 
 /*
  * Display a relative time as seconds.
@@ -436,9 +440,21 @@ rel_time_to_secs_str(wmem_allocator_t *scope, const nstime_t *rel_time)
 {
     gchar *buf;
 
-    buf = (gchar *)wmem_alloc(scope, REL_TIME_SECS_LEN);
+    buf = (gchar *)wmem_alloc(scope, NSTIME_SECS_LEN);
 
-    display_signed_time(buf, REL_TIME_SECS_LEN, (gint64) rel_time->secs,
+    display_signed_time(buf, NSTIME_SECS_LEN, (gint64) rel_time->secs,
+                        rel_time->nsecs, TO_STR_TIME_RES_T_NSECS);
+    return buf;
+}
+
+gchar *
+abs_time_to_unix_str(wmem_allocator_t *scope, const nstime_t *rel_time)
+{
+    gchar *buf;
+
+    buf = (gchar *)wmem_alloc(scope, NSTIME_SECS_LEN);
+
+    display_epoch_time(buf, NSTIME_SECS_LEN, (gint64) rel_time->secs,
                         rel_time->nsecs, TO_STR_TIME_RES_T_NSECS);
     return buf;
 }

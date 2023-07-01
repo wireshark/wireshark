@@ -21,6 +21,10 @@ class TestDfilterTime:
         dfilter = 'frame.time == "2002-12-31 13:55:31.3"'
         checkDFilterCount(dfilter, 1)
 
+    def test_eq_4(self, checkDFilterCount):
+        dfilter = 'frame.time == 1041342931.3'
+        checkDFilterCount(dfilter, 1)
+
     def test_ne_1(self, checkDFilterCount):
         dfilter = 'frame.time != "Dec 31, 2002 13:55:31.3"'
         checkDFilterCount(dfilter, 0)

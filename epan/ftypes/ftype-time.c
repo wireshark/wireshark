@@ -93,7 +93,7 @@ get_nsecs(const char *startp, int *nsecs, const char **endptr)
 }
 
 static gboolean
-relative_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+val_from_unix_time(fvalue_t *fv, const char *s)
 {
 	const char    *curptr;
 	char *endptr;
@@ -116,7 +116,7 @@ relative_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_va
 		 */
 		fv->value.time.secs = strtoul(curptr, &endptr, 10);
 		if (endptr == curptr || (*endptr != '\0' && *endptr != '.'))
-			goto fail;
+			return FALSE;
 		curptr = endptr;
 		if (*curptr == '.')
 			curptr++;	/* skip the decimal point */
@@ -137,7 +137,7 @@ relative_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_va
 		 * Get the nanoseconds value.
 		 */
 		if (!get_nsecs(curptr, &fv->value.time.nsecs, NULL))
-			goto fail;
+			return FALSE;
 	} else {
 		/*
 		 * No nanoseconds value - it's 0.
@@ -150,13 +150,18 @@ relative_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_va
 		fv->value.time.nsecs = -fv->value.time.nsecs;
 	}
 	return TRUE;
+}
 
-fail:
+static gboolean
+relative_val_from_literal(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, gchar **err_msg)
+{
+	if (val_from_unix_time(fv, s))
+		return TRUE;
+
 	if (err_msg != NULL)
 		*err_msg = ws_strdup_printf("\"%s\" is not a valid time.", s);
 	return FALSE;
 }
-
 
 /* Returns TRUE if 's' starts with an abbreviated month name. */
 static gboolean
@@ -196,7 +201,11 @@ absolute_val_from_string(fvalue_t *fv, const char *s, size_t len _U_, char **err
 	gboolean has_seconds = TRUE;
 	char *err_msg = NULL;
 
-	/* Try ISO 8601 format first. */
+	/* Try Unix time first. */
+	if (val_from_unix_time(fv, s))
+		return TRUE;
+
+	/* Try ISO 8601 format. */
 	if (iso8601_to_nstime(&fv->value.time, s, ISO8601_DATETIME) == strlen(s))
 		return TRUE;
 
@@ -392,11 +401,16 @@ absolute_val_to_repr(wmem_allocator_t *scope, const fvalue_t *fv, ftrepr_t rtype
 			break;
 
 		case FTREPR_DFILTER:
-			/* Only ABSOLUTE_TIME_LOCAL and ABSOLUTE_TIME_UTC
-			 * are supported. Normalize the field_display value. */
-			if (field_display != ABSOLUTE_TIME_LOCAL)
-				field_display = ABSOLUTE_TIME_UTC;
-			rep = abs_time_to_ftrepr_dfilter(scope, &fv->value.time, field_display != ABSOLUTE_TIME_LOCAL);
+			if (field_display == ABSOLUTE_TIME_UNIX) {
+				rep = abs_time_to_unix_str(scope, &fv->value.time);
+			}
+			else {
+				/* Only ABSOLUTE_TIME_LOCAL and ABSOLUTE_TIME_UTC
+				 * are supported. Normalize the field_display value. */
+				if (field_display != ABSOLUTE_TIME_LOCAL)
+					field_display = ABSOLUTE_TIME_UTC;
+				rep = abs_time_to_ftrepr_dfilter(scope, &fv->value.time, field_display != ABSOLUTE_TIME_LOCAL);
+			}
 			break;
 
 		default:

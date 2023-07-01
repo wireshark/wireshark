@@ -133,6 +133,9 @@ WS_DLL_PUBLIC char *abs_time_to_str_ex(wmem_allocator_t *scope,
 #define abs_time_to_str(scope, nst, fmt, show_zone) \
         abs_time_to_str_ex(scope, nst, fmt, (show_zone) ? ABS_TIME_TO_STR_SHOW_ZONE : 0)
 
+gchar *
+abs_time_to_unix_str(wmem_allocator_t *scope, const nstime_t *rel_time);
+
 WS_DLL_PUBLIC char *abs_time_secs_to_str_ex(wmem_allocator_t *scope,
                                         const time_t, field_display_e fmt,
                                         int flags);
