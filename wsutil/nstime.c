@@ -14,9 +14,9 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <glib.h>
 #include "epochs.h"
 #include "time_util.h"
+#include "to_str.h"
 
 /* this is #defined so that we can clearly see that we have the right number of
    zeros, rather than as a guard against the number of nanoseconds in a second
@@ -576,6 +576,63 @@ unix_epoch_to_nstime(nstime_t *nstime, const char *ptr)
     /* return pointer shift */
     ret_val = (guint)(ptr_new-start);
     return ret_val;
+}
+
+size_t nstime_to_iso8601(char *buf, size_t buf_size, const nstime_t *nstime)
+{
+    struct tm *tm;
+#ifndef _WIN32
+    struct tm tm_time;
+#endif
+    size_t len;
+
+#ifdef _WIN32
+    /*
+     * Do not use gmtime_s(), as it will call and
+     * exception handler if the time we're providing
+     * is < 0, and that will, by default, exit.
+     * ("Programmers not bothering to check return
+     * values?  Try new Microsoft Visual Studio,
+     * with Parameter Validation(R)!  Kill insufficiently
+     * careful programs - *and* the processes running them -
+     * fast!")
+     *
+     * We just want to report this as an unrepresentable
+     * time.  It fills in a per-thread structure, which
+     * is sufficiently thread-safe for our purposes.
+     */
+    tm = gmtime(&nstime->secs);
+#else
+    /*
+     * Use gmtime_r(), because the Single UNIX Specification
+     * does *not* guarantee that gmtime() is thread-safe.
+     * Perhaps it is on all platforms on which we run, but
+     * this way we don't have to check.
+     */
+    tm = gmtime_r(&nstime->secs, &tm_time);
+#endif
+    if (tm == NULL) {
+        return 0;
+    }
+
+    /* Some platforms (MinGW-w64) do not support %F or %T. */
+    /* Returns number of bytes, excluding terminaning null, placed in
+     * buf, or zero if there is not enough space for the whole string. */
+    len = strftime(buf, buf_size, "%Y-%m-%dT%H:%M:%S", tm);
+    if (len == 0) {
+        return 0;
+    }
+    ws_assert(len < buf_size);
+    buf += len;
+    buf_size -= len;
+    len += snprintf(buf, buf_size, ".%09dZ", nstime->nsecs);
+    return len;
+}
+
+void nstime_to_unix(char *buf, size_t buf_size, const nstime_t *nstime)
+{
+    display_signed_time(buf, buf_size, (gint64) nstime->secs,
+                        nstime->nsecs, TO_STR_TIME_RES_T_NSECS);
 }
 
 /*

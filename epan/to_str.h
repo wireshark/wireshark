@@ -29,14 +29,6 @@
 #define AX25_ADDR_LEN    7
 #define FCWWN_ADDR_LEN   8
 
-typedef enum {
-    TO_STR_TIME_RES_T_SECS,     /* seconds      */
-    TO_STR_TIME_RES_T_DSECS,    /* deciseconds  */
-    TO_STR_TIME_RES_T_CSECS,    /* centiseconds */
-    TO_STR_TIME_RES_T_MSECS,    /* milliseconds */
-    TO_STR_TIME_RES_T_USECS,    /* microseconds */
-    TO_STR_TIME_RES_T_NSECS     /* nanoseconds  */
-} to_str_time_res_t;
 
 #ifdef __cplusplus
 extern "C" {
@@ -147,10 +139,6 @@ WS_DLL_PUBLIC char *abs_time_secs_to_str_ex(wmem_allocator_t *scope,
 
 #define abs_time_secs_to_str(scope, nst, fmt, show_zone) \
         abs_time_secs_to_str_ex(scope, nst, fmt, (show_zone) ? ABS_TIME_TO_STR_SHOW_ZONE : 0)
-
-WS_DLL_PUBLIC void display_epoch_time(gchar *, int, const time_t, gint32, const to_str_time_res_t);
-
-WS_DLL_PUBLIC void display_signed_time(gchar *, int, const gint64, gint32, const to_str_time_res_t);
 
 WS_DLL_PUBLIC gchar *signed_time_secs_to_str(wmem_allocator_t *scope, const gint32 time_val);
 

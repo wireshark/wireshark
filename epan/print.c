@@ -1307,12 +1307,8 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
 {
     gchar label_str[ITEM_LABEL_LENGTH];
     char *dfilter_string;
-    const nstime_t *t;
-    struct tm *tm;
-#ifndef _WIN32
-    struct tm tm_time;
-#endif
-    char time_string[sizeof("YYYY-MM-DDTHH:MM:SS")];
+    char time_buf[NSTIME_ISO8601_BUFSIZE];
+    size_t time_len;
 
     /* Text label */
     if (fi->hfinfo->id == hf_text_only && fi->rep) {
@@ -1339,36 +1335,9 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
                 json_dumper_value_anyf(pdata->dumper, "false");
             break;
         case FT_ABSOLUTE_TIME:
-            t = fvalue_get_time(fi->value);
-#ifdef _WIN32
-            /*
-             * Do not use gmtime_s(), as it will call and
-             * exception handler if the time we're providing
-             * is < 0, and that will, by default, exit.
-             * ("Programmers not bothering to check return
-             * values?  Try new Microsoft Visual Studio,
-             * with Parameter Validation(R)!  Kill insufficiently
-             * careful programs - *and* the processes running them -
-             * fast!")
-             *
-             * We just want to report this as an unrepresentable
-             * time.  It fills in a per-thread structure, which
-             * is sufficiently thread-safe for our purposes.
-             */
-            tm = gmtime(&t->secs);
-#else
-            /*
-             * Use gmtime_r(), because the Single UNIX Specification
-             * does *not* guarantee that gmtime() is thread-safe.
-             * Perhaps it is on all platforms on which we run, but
-             * this way we don't have to check.
-             */
-            tm = gmtime_r(&t->secs, &tm_time);
-#endif
-            if (tm != NULL) {
-                /* Some platforms (MinGW-w64) do not support %F or %T. */
-                strftime(time_string, sizeof(time_string), "%Y-%m-%dT%H:%M:%S", tm);
-                json_dumper_value_anyf(pdata->dumper, "\"%s.%09uZ\"", time_string, t->nsecs);
+            time_len = nstime_to_iso8601(time_buf, sizeof(time_buf), fvalue_get_time(fi->value));
+            if (time_len != 0) {
+                json_dumper_value_anyf(pdata->dumper, "\"%s\"", time_buf);
             } else {
                 json_dumper_value_anyf(pdata->dumper, "\"Not representable\"");
             }

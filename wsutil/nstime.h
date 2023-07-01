@@ -11,10 +11,8 @@
 #ifndef __NSTIME_H__
 #define __NSTIME_H__
 
-#include <glib.h>
+#include <wireshark.h>
 #include <time.h>
-
-#include "ws_symbol_export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -140,6 +138,15 @@ WS_DLL_PUBLIC guint8 iso8601_to_nstime(nstime_t *nstime, const char *ptr, iso860
     number of chars parsed on success, 0 on failure.
     Note that nstime is set to unset in the case of failure */
 WS_DLL_PUBLIC guint8 unix_epoch_to_nstime(nstime_t *nstime, const char *ptr);
+
+#define NSTIME_ISO8601_BUFSIZE  sizeof("YYYY-MM-DDTHH:MM:SS.123456789Z")
+
+WS_DLL_PUBLIC size_t nstime_to_iso8601(char *buf, size_t buf_size, const nstime_t *nstime);
+
+/* 64 bit signed number plus nanosecond fractional part */
+#define NSTIME_UNIX_BUFSIZE  (20+10+1)
+
+WS_DLL_PUBLIC void nstime_to_unix(char *buf, size_t buf_size, const nstime_t *nstime);
 
 #ifdef __cplusplus
 }
