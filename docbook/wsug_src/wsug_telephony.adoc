@@ -329,11 +329,20 @@ Available controls are:
 
 ==== RTP Stream Analysis Window
 
-The RTP analysis function takes the selected RTP streams and generates a list of statistics on it including graph.
+The RTP analysis function takes the selected RTP streams and generates a list of
+statistics on them including a graph.
 
-Menu menu:Telephony[RTP > RTP Stream Analysis] is enabled only when selected packed is RTP packet. When window is opened, selected RTP stream is added to analysis. If btn:[Ctrl] is pressed during menu opening, reverse RTP stream (if exists) is added to the window too.
+The menu:Telephony[RTP > RTP Stream Analysis] menu item is enabled only when the
+selected packet is an RTP packet. When the action is selected, the RTP Stream
+Analysis window is opened (if not already) and the RTP stream of the current
+packet is added for analysis. If btn:[Ctrl] is pressed when selecting the
+menu item, other RTP streams on the same addresses and ports (in both forward
+and reverse direction) are scanned for and added to the window too if found.
 
-Every stream is shown on own tab. Tabs are numbered as streams are added and its tooltip shows identification of the stream. When tab is closed, number is not reused. Color of tab matches color of graphs on graph tab.
+Every stream is shown on its own tab. Tabs are numbered as streams are added
+and each tooltip shows the identification of the stream. When a tab is closed,
+its number is not reused. The tab color matches the color of the corresponding
+graph on the graph tab.
 
 .The “RTP Stream Analysis” window
 image::images/ws-tel-rtpstream-analysis_1.png[{screenshot-attrs}]
@@ -403,9 +412,16 @@ Stream Analysis window contained tool for save audio and payload for analyzed st
 
 ==== RTP Player Window
 
-The RTP Player function is tool for playing VoIP calls. It shows RTP streams and its waveforms, allows play stream and export it as audio or payload to file. See related concepts in <<ChTelPlayingCalls>>.
+The RTP Player function is a tool for playing VoIP calls. It shows RTP streams
+and their waveforms, and can play the streams and export them to file as audio
+or raw payload. See related concepts in <<ChTelPlayingCalls>>.
 
-Menu menu:Telephony[RTP > RTP Player] is enabled only when selected packed is RTP packet. When window is opened, selected RTP stream is added to playlist. If btn:[Ctrl] is pressed during menu opening, reverse RTP stream (if exists) is added to the playlist too.
+The menu:Telephony[RTP > RTP Player] menu item is enabled only when the
+selected packet is an RTP packet. When the action is selected, the RTP Player
+window is opened (if not already) and the RTP stream of the current packet is
+added to the playlist. If btn:[Ctrl] is pressed when selecting the menu item,
+other RTP streams on the same addresses and ports (in both forward and reverse
+direction) are scanned for and added to the playlist too if found.
 
 .RTP Player window
 image::images/ws-tel-rtp-player_1.png[{screenshot-attrs}]

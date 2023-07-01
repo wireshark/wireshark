@@ -3075,15 +3075,15 @@ void WiresharkMainWindow::setMwFileName(QString fileName)
 }
 
 // Finds rtp id for selected stream and adds it to stream_ids
-// If reverse is set, tries to find reverse stream too
+// If reverse is set, tries to find reverse stream and other streams
+// bundled on the same RTP session too
 // Return error string if error happens
 //
 // Note: Caller must free each returned rtpstream_info_t
 QString WiresharkMainWindow::findRtpStreams(QVector<rtpstream_id_t *> *stream_ids, bool reverse)
 {
     rtpstream_tapinfo_t tapinfo;
-    rtpstream_id_t *fwd_id, *rev_id;
-    bool fwd_id_used, rev_id_used;
+    rtpstream_id_t *new_id;
     const gchar filter_text[] = "rtp && rtp.version == 2 && rtp.ssrc && (ip || ipv6)";
     dfilter_t *sfcode;
     df_error_t *df_err = NULL;
@@ -3131,75 +3131,59 @@ QString WiresharkMainWindow::findRtpStreams(QVector<rtpstream_id_t *> *stream_id
 
     dfilter_free(sfcode);
 
-    /* We need the SSRC value of the current frame; try to get it. */
-    GPtrArray *gp = proto_get_finfo_ptr_array(edt.tree, hfid_rtp_ssrc);
-    if (gp == NULL || gp->len == 0) {
-        /* XXX - should not happen, as the filter includes rtp.ssrc */
-        epan_dissect_cleanup(&edt);
-        return tr("SSRC value not found.");
+    if (!reverse) {
+        // If we only want streams that match the SSRC in this frame, we
+        // can just allocate an RTP stream ID directly instead of having
+        // to redissect all the other packets.
+
+        /* We need the SSRC value of the current frame; try to get it. */
+        GPtrArray *gp = proto_get_finfo_ptr_array(edt.tree, hfid_rtp_ssrc);
+        if (gp == NULL || gp->len == 0) {
+            /* XXX - should not happen, as the filter includes rtp.ssrc */
+            epan_dissect_cleanup(&edt);
+            return tr("SSRC value not found.");
+        }
+
+        /*
+         * OK, we have the SSRC value(s), so we can proceed.
+         * (Try to handle the unlikely case of a frame with more than one
+         * SSRC; perhaps a DVD-S2 Baseband frame? Does that even work
+         * properly?)
+         */
+        for (unsigned i = 0; i < gp->len; i++) {
+            new_id = g_new0(rtpstream_id_t, 1);
+            rtpstream_id_copy_pinfo(&(edt.pi), new_id, false);
+            new_id->ssrc = fvalue_get_uinteger(((field_info *)gp->pdata[i])->value);
+            *stream_ids << new_id;
+        }
+    } else {
+        // If we want to find all SSRCs with the same RTP session as this
+        // frame, then we have to redissect all packets.
+
+        /* Register the tap listener */
+        memset(&tapinfo, 0, sizeof(rtpstream_tapinfo_t));
+        tapinfo.tap_data = this;
+        tapinfo.mode = TAP_ANALYSE;
+
+        /* Scan for RTP streams (redissect all packets) */
+        rtpstream_scan(&tapinfo, capture_file_.capFile(), Q_NULLPTR);
+
+        for (GList *strinfo_list = g_list_first(tapinfo.strinfo_list); strinfo_list; strinfo_list = gxx_list_next(strinfo_list)) {
+            rtpstream_info_t * strinfo = gxx_list_data(rtpstream_info_t*, strinfo_list);
+            // We want any RTP stream ID that matches the address and ports.
+            // This could mean more than one in the forward direction, if
+            // e.g., BUNDLE is used (RFC 9143).
+            if (rtpstream_id_equal_pinfo(&(strinfo->id), &(edt.pi), false) ||
+                rtpstream_id_equal_pinfo(&(strinfo->id), &(edt.pi), true)) {
+                    new_id = g_new0(rtpstream_id_t, 1);
+                    rtpstream_id_copy(&(strinfo->id), new_id);
+                    *stream_ids << new_id;
+            }
+        }
+        rtpstream_reset_cb(&tapinfo);
     }
-
-    /*
-     * OK, we have the SSRC value, so we can proceed.
-     * Allocate RTP stream ID structures.
-     */
-    fwd_id = g_new0(rtpstream_id_t, 1);
-    fwd_id_used = false;
-    rev_id = g_new0(rtpstream_id_t, 1);
-    rev_id_used = false;
-
-    /* Get the IP and port values for the forward direction. */
-    rtpstream_id_copy_pinfo(&(edt.pi), fwd_id, false);
-
-    /* assume the inverse ip/port combination for the reverse direction */
-    rtpstream_id_copy_pinfo(&(edt.pi), rev_id, true);
-
-    /* Save the SSRC value for the forward direction. */
-    fwd_id->ssrc = fvalue_get_uinteger(((field_info *)gp->pdata[0])->value);
 
     epan_dissect_cleanup(&edt);
 
-    /* Register the tap listener */
-    memset(&tapinfo, 0, sizeof(rtpstream_tapinfo_t));
-    tapinfo.tap_data = this;
-    tapinfo.mode = TAP_ANALYSE;
-
-    /* Scan for RTP streams (redissect all packets) */
-    rtpstream_scan(&tapinfo, capture_file_.capFile(), Q_NULLPTR);
-
-    for (GList *strinfo_list = g_list_first(tapinfo.strinfo_list); strinfo_list; strinfo_list = gxx_list_next(strinfo_list)) {
-        rtpstream_info_t * strinfo = gxx_list_data(rtpstream_info_t*, strinfo_list);
-        if (rtpstream_id_equal(&(strinfo->id), fwd_id,RTPSTREAM_ID_EQUAL_NONE))
-        {
-            *stream_ids << fwd_id;
-            fwd_id_used = true;
-        }
-
-        if (rtpstream_id_equal(&(strinfo->id), rev_id,RTPSTREAM_ID_EQUAL_NONE))
-        {
-            if (rev_id->ssrc == 0) {
-                rev_id->ssrc = strinfo->id.ssrc;
-            }
-            if (reverse) {
-                *stream_ids << rev_id;
-                rev_id_used = true;
-            }
-        }
-    }
-
-    //
-    // XXX - is it guaranteed that fwd_id and rev_id were both added to
-    // *stream_ids?  If so, this isn't necessary.
-    //
-    if (!fwd_id_used) {
-        rtpstream_id_free(fwd_id);
-        g_free(fwd_id);
-    }
-    if (!rev_id_used) {
-        rtpstream_id_free(rev_id);
-        g_free(rev_id);
-    }
-
-    rtpstream_reset_cb(&tapinfo);
     return NULL;
 }

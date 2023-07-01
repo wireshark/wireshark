@@ -78,6 +78,13 @@ gboolean rtpstream_id_equal(const rtpstream_id_t *id1, const rtpstream_id_t *id2
 /**
  * Check if rtpstream_id_t is equal to pinfo
  * - compare src_addr, dest_addr, src_port, dest_port with pinfo
+ * - if swap_src_dst is true, compare src to dst and vice versa
+ */
+gboolean rtpstream_id_equal_pinfo(const rtpstream_id_t *id, const packet_info *pinfo, bool swap_src_dst);
+
+/**
+ * Check if rtpstream_id_t is equal to pinfo and rtp_info
+ * - compare src_addr, dest_addr, src_port, dest_port with pinfo
  * - compare ssrc with rtp_info
  */
 gboolean rtpstream_id_equal_pinfo_rtp_info(const rtpstream_id_t *id, const packet_info *pinfo, const struct _rtp_info *rtp_info);
