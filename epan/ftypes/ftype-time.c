@@ -523,13 +523,13 @@ ftype_register_time(void)
 
 		time_hash,			/* hash */
 		time_is_zero,			/* is_zero */
-		NULL,				/* is_negative */
+		time_is_negative,		/* is_negative */
 		NULL,
 		NULL,
 		NULL,				/* bitwise_and */
-		NULL,				/* unary_minus */
-		NULL,				/* add */
-		NULL,				/* subtract */
+		time_unary_minus,		/* unary_minus */
+		time_add,			/* add */
+		time_subtract,			/* subtract */
 		NULL,				/* multiply */
 		NULL,				/* divide */
 		NULL,				/* modulo */
