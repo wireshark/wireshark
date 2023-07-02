@@ -93,6 +93,7 @@ typedef struct can_info can_info_t;
 #define CAN_ERR_PROT_LOC_INTERM  0x12 /* intermission */
 
 gboolean socketcan_call_subdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, struct can_info *can_info, const gboolean use_heuristics_first);
+gboolean socketcan_set_source_and_destination_columns(packet_info* pinfo, can_info_t *caninfo);
 
 #endif /* __PACKET_SOCKETCAN_H__ */
 

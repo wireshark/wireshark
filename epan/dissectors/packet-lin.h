@@ -2,7 +2,7 @@
  *
  * Definitions for LIN
  * By Dr. Lars Voelker <lars.voelker@technica-engineering.de> / <lars.voelker@bmw.de>
- * Copyright 2021-2021 Dr. Lars Voelker
+ * Copyright 2021-2023 Dr. Lars Voelker
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -26,6 +26,8 @@ struct lin_info {
 };
 
 typedef struct lin_info lin_info_t;
+
+gboolean lin_set_source_and_destination_columns(packet_info* pinfo, lin_info_t *lininfo);
 
 #endif /* __PACKET_LIN_H__ */
 

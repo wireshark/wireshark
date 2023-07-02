@@ -1762,9 +1762,10 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                 proto_tree_add_bitmask(tecmp_tree, sub_tvb, offset2, hf_tecmp_payload_data_id_field_8bit, ett_tecmp_payload_lin_id, tecmp_payload_id_flags_lin, ENC_BIG_ENDIAN);
                 lin_info.bus_id = ht_interface_config_to_bus_id(interface_id);
-                ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_length, sub_tvb, offset2 + 1, 1,
-                                                  ENC_NA, &length2);
+                ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_length, sub_tvb, offset2 + 1, 1, ENC_NA, &length2);
                 offset2 += 2;
+
+                lin_set_source_and_destination_columns(pinfo, &lin_info);
 
                 if (length2 > 0 && tvb_captured_length_remaining(sub_tvb, offset2) < (gint)(length2 + 1)) {
                     expert_add_info(pinfo, ti, &ef_tecmp_payload_length_mismatch);
@@ -1824,6 +1825,8 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         can_info.id |= CAN_ERR_FLAG;
                     }
 
+                    socketcan_set_source_and_destination_columns(pinfo, &can_info);
+
                     if (!socketcan_call_subdissectors(payload_tvb, pinfo, tree, &can_info, heuristic_first)) {
                         dissect_data(payload_tvb, pinfo, tree, device_id, tecmp_msg_type, data_type, interface_id);
                     }
@@ -1856,6 +1859,8 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                 ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_length, sub_tvb, offset2 + 3, 1, ENC_NA, &length2);
                 offset2 += 4;
+
+                flexray_set_source_and_destination_columns(pinfo, &fr_info);
 
                 if (tvb_captured_length_remaining(sub_tvb, offset2) < (gint)length2) {
                     expert_add_info(pinfo, ti, &ef_tecmp_payload_length_mismatch);

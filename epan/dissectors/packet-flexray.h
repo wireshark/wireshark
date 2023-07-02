@@ -30,6 +30,7 @@ typedef struct flexray_info
 guint32  flexray_calc_flexrayid(guint16 bus_id, guint8 channel, guint16 frame_id, guint8 cycle);
 guint32  flexray_flexrayinfo_to_flexrayid(flexray_info_t *flexray_info);
 gboolean flexray_call_subdissectors(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, flexray_info_t *flexray_info, const gboolean use_heuristics_first);
+gboolean flexray_set_source_and_destination_columns(packet_info* pinfo, flexray_info_t *flexray_info);
 
 #endif /* __PACKET_FLEXRAY_H__ */
 
