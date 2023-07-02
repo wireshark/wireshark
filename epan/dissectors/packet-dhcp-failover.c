@@ -346,7 +346,14 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	offset += 1;
 
 	poffset = tvb_get_guint8(tvb, offset);
-	if (poffset < DHCPFO_FL_HDR_LEN) {
+	if (poffset == 8) {
+		bogus_poffset = FALSE;
+		proto_tree_add_uint_format_value(dhcpfo_tree,
+			hf_dhcpfo_poffset, tvb, offset, 1, poffset,
+			"%u (as per Draft, now treated as being %u)",
+			poffset, DHCPFO_FL_HDR_LEN);
+		poffset = DHCPFO_FL_HDR_LEN;
+	} else if (poffset < DHCPFO_FL_HDR_LEN) {
 		bogus_poffset = TRUE;
 		if (tree) {
 			proto_tree_add_uint_format_value(dhcpfo_tree,
