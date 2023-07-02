@@ -2023,12 +2023,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>16進数ダンプとしてパケットバイト列をコピー</translation>
     </message>
     <message>
+        <source>…as MIME Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as C String</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as printable ASCII characters and escape sequences.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>…as Printable Text</source>
-        <translation>印刷可能なテキストとして…</translation>
+        <translation type="vanished">印刷可能なテキストとして…</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation>パケット内の印刷可能なテキストだけをコピー</translation>
+        <translation type="vanished">パケット内の印刷可能なテキストだけをコピー</translation>
     </message>
     <message>
         <source>…as a Hex Stream</source>
@@ -2048,7 +2060,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as Raw Binary</source>
-        <translation>無加工バイナリ形式として...</translation>
+        <translation type="vanished">無加工バイナリ形式として...</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
@@ -2056,11 +2068,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as Escaped String</source>
-        <translation>エスケープされた文字列として…</translation>
+        <translation type="vanished">エスケープされた文字列として…</translation>
     </message>
     <message>
         <source>Copy packet bytes as an escaped string.</source>
-        <translation>エスケープされた文字列としてパケットバイト列をコピー</translation>
+        <translation type="vanished">エスケープされた文字列としてパケットバイト列をコピー</translation>
     </message>
 </context>
 <context>

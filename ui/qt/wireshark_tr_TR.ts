@@ -2024,12 +2024,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Paket baytlarını hex dökümü olarak kopyalayın.</translation>
     </message>
     <message>
+        <source>…as MIME Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as C String</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as printable ASCII characters and escape sequences.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>…as Printable Text</source>
-        <translation>…Yazdırılabilir Metin Olarak</translation>
+        <translation type="vanished">…Yazdırılabilir Metin Olarak</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation>Yalnızca paketteki yazdırılabilir metni kopyalayın.</translation>
+        <translation type="vanished">Yalnızca paketteki yazdırılabilir metni kopyalayın.</translation>
     </message>
     <message>
         <source>…as a Hex Stream</source>
@@ -2049,7 +2061,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as Raw Binary</source>
-        <translation>…Ham İkili olarak</translation>
+        <translation type="vanished">…Ham İkili olarak</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
@@ -2057,11 +2069,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as Escaped String</source>
-        <translation>…Kaçan Dize olarak</translation>
+        <translation type="vanished">…Kaçan Dize olarak</translation>
     </message>
     <message>
         <source>Copy packet bytes as an escaped string.</source>
-        <translation>Paket baytlarını çıkış karakterli bir dize olarak kopyalayın.</translation>
+        <translation type="vanished">Paket baytlarını çıkış karakterli bir dize olarak kopyalayın.</translation>
     </message>
 </context>
 <context>

@@ -2031,12 +2031,24 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Kopiera paketbyte som en hex-dump.</translation>
     </message>
     <message>
+        <source>…as MIME Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as C String</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as printable ASCII characters and escape sequences.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>…as Printable Text</source>
-        <translation>… som skrivbar text</translation>
+        <translation type="vanished">… som skrivbar text</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation>Kopiera endast skrivbar text i paketet.</translation>
+        <translation type="vanished">Kopiera endast skrivbar text i paketet.</translation>
     </message>
     <message>
         <source>…as a Hex Stream</source>
@@ -2056,7 +2068,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>…as Raw Binary</source>
-        <translation>… som rå binär</translation>
+        <translation type="vanished">… som rå binär</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
@@ -2064,11 +2076,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>…as Escaped String</source>
-        <translation>… som sträng med flyktföljder</translation>
+        <translation type="vanished">… som sträng med flyktföljder</translation>
     </message>
     <message>
         <source>Copy packet bytes as an escaped string.</source>
-        <translation>Kopiera paketbyte som en sträng med specialsekvenser.</translation>
+        <translation type="vanished">Kopiera paketbyte som en sträng med specialsekvenser.</translation>
     </message>
 </context>
 <context>

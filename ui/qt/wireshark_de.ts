@@ -2031,12 +2031,24 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Paketbytes als Hex Dump kopieren</translation>
     </message>
     <message>
+        <source>…as MIME Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as C String</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as printable ASCII characters and escape sequences.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>…as Printable Text</source>
-        <translation>…als druckbarer Text</translation>
+        <translation type="vanished">…als druckbarer Text</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation>Nur den druckbaren Text im Paket kopieren.</translation>
+        <translation type="vanished">Nur den druckbaren Text im Paket kopieren.</translation>
     </message>
     <message>
         <source>…as a Hex Stream</source>
@@ -2056,7 +2068,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>…as Raw Binary</source>
-        <translation>...als Rohdaten</translation>
+        <translation type="vanished">...als Rohdaten</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
@@ -2064,11 +2076,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>…as Escaped String</source>
-        <translation>…als Zeichenkette mit Escape-Sequenzen</translation>
+        <translation type="vanished">…als Zeichenkette mit Escape-Sequenzen</translation>
     </message>
     <message>
         <source>Copy packet bytes as an escaped string.</source>
-        <translation>Paketbytes als Zeichenkette mit Escape-Sequezen kopieren</translation>
+        <translation type="vanished">Paketbytes als Zeichenkette mit Escape-Sequezen kopieren</translation>
     </message>
 </context>
 <context>

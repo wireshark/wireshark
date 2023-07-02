@@ -2038,12 +2038,24 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Копировать байты пакета в виде шестнадцатеричного дампа.</translation>
     </message>
     <message>
+        <source>…as MIME Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as C String</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as printable ASCII characters and escape sequences.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>…as Printable Text</source>
-        <translation>…в виде текста для печати</translation>
+        <translation type="vanished">…в виде текста для печати</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation>Копировать из пакета только печатаемый текст.</translation>
+        <translation type="vanished">Копировать из пакета только печатаемый текст.</translation>
     </message>
     <message>
         <source>…as a Hex Stream</source>
@@ -2063,7 +2075,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as Raw Binary</source>
-        <translation>…в виде двоичных необработанных данных</translation>
+        <translation type="vanished">…в виде двоичных необработанных данных</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
@@ -2071,11 +2083,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as Escaped String</source>
-        <translation>…в виде экранированной строки</translation>
+        <translation type="vanished">…в виде экранированной строки</translation>
     </message>
     <message>
         <source>Copy packet bytes as an escaped string.</source>
-        <translation>Копировать байты пакета в виде экранированной строки.</translation>
+        <translation type="vanished">Копировать байты пакета в виде экранированной строки.</translation>
     </message>
 </context>
 <context>

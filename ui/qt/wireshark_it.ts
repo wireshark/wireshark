@@ -2031,12 +2031,24 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Copia i byte del pacchetto come un dump esadecimale.</translation>
     </message>
     <message>
+        <source>…as MIME Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as C String</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as printable ASCII characters and escape sequences.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>…as Printable Text</source>
-        <translation>...come testo stampabile</translation>
+        <translation type="vanished">...come testo stampabile</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation>Copia solo il testo stampabile nel pacchetto.</translation>
+        <translation type="vanished">Copia solo il testo stampabile nel pacchetto.</translation>
     </message>
     <message>
         <source>…as a Hex Stream</source>
@@ -2056,7 +2068,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>…as Raw Binary</source>
-        <translation>...come binario grezzo</translation>
+        <translation type="vanished">...come binario grezzo</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
@@ -2064,11 +2076,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>…as Escaped String</source>
-        <translation>...come stringa letterale</translation>
+        <translation type="vanished">...come stringa letterale</translation>
     </message>
     <message>
         <source>Copy packet bytes as an escaped string.</source>
-        <translation>Copia i byte del pacchetto come stringa letterale</translation>
+        <translation type="vanished">Copia i byte del pacchetto come stringa letterale</translation>
     </message>
 </context>
 <context>

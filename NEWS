@@ -117,6 +117,15 @@ Wireshark 4.1.0 Release Notes
      • The display filter drop-down list is now sorted by "most recently
        used" instead of "most recently created".
 
+     • Display filter syntax-related changes:
+
+        • Using the slice operator with strings produces a string.
+       Previously it would produce a byte array. This is useful to
+       index/slice UTF-8 multi-byte strings. String byte slices can
+       still be obtained using the "@" (raw operator) prefix.
+
+        • Arithmetic expressions are allowed as set elements.
+
      • Running the test suite requires the pytest[4] Python module. The
        emulation layer that allowed running tests without pytest
        installed has been removed.
@@ -251,7 +260,7 @@ Wireshark 4.1.0 Release Notes
    2. https://gitlab.com/wireshark/wireshark/-/issues/18413
    3. https://gitlab.com/wireshark/wireshark/-/issues/18510
    4. https://pypi.org/project/pytest/
-   5. https://gitlab.com/wireshark/wireshark/-/merge_requests/9172
+   5. https://www.ipv6plus.net/Phase3/apn6/
    6. https://sourceforge.net/projects/opencore-amr/
    7. https://www.wireshark.org/download.html
    8. https://ask.wireshark.org/

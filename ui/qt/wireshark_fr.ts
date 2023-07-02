@@ -2031,12 +2031,24 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
         <translation>Copier les octets du paquet sous forme de vidage Hex.</translation>
     </message>
     <message>
+        <source>…as MIME Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>…as C String</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy packet bytes as printable ASCII characters and escape sequences.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>…as Printable Text</source>
-        <translation>…comme texte imprimable</translation>
+        <translation type="vanished">…comme texte imprimable</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
-        <translation>Copier uniquement le texte imprimable de ce paquet.</translation>
+        <translation type="vanished">Copier uniquement le texte imprimable de ce paquet.</translation>
     </message>
     <message>
         <source>…as a Hex Stream</source>
@@ -2056,7 +2068,7 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>…as Raw Binary</source>
-        <translation>…en tant que binaire brut</translation>
+        <translation type="vanished">…en tant que binaire brut</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
@@ -2064,11 +2076,11 @@ Pas exemple, inquiquez 1 heure pour avoir un nouveau fichier créé toutes les h
     </message>
     <message>
         <source>…as Escaped String</source>
-        <translation>…comme chaîne d&apos;échappement</translation>
+        <translation type="vanished">…comme chaîne d&apos;échappement</translation>
     </message>
     <message>
         <source>Copy packet bytes as an escaped string.</source>
-        <translation>Copiez les octets du paquet sous forme de chaîne d&apos;échappement.</translation>
+        <translation type="vanished">Copiez les octets du paquet sous forme de chaîne d&apos;échappement.</translation>
     </message>
 </context>
 <context>
