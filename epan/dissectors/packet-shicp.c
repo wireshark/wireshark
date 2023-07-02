@@ -14,7 +14,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
-#include <packet-udp.h>
+#include "packet-udp.h"
 
 void proto_reg_handoff_shicp(void);
 void proto_register_shicp(void);

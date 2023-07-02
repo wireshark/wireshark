@@ -21,8 +21,8 @@
 #include <epan/uat.h>
 #include <epan/stats_tree.h>
 
-#include <packet-udp.h>
-#include <packet-someip.h>
+#include "packet-udp.h"
+#include "packet-someip.h"
 
  /*
   * Dissector for SOME/IP Service Discovery (SOME/IP-SD).

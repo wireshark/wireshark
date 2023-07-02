@@ -17,10 +17,10 @@
 #include <epan/uat.h>
 #include "packet-autosar-ipdu-multiplexer.h"
 
-#include <packet-socketcan.h>
-#include <packet-flexray.h>
-#include <packet-pdu-transport.h>
-#include <packet-lin.h>
+#include "packet-socketcan.h"
+#include "packet-flexray.h"
+#include "packet-pdu-transport.h"
+#include "packet-lin.h"
 
 void proto_register_autosar_ipdu_multiplexer(void);
 void proto_reg_handoff_autosar_ipdu_multiplexer(void);

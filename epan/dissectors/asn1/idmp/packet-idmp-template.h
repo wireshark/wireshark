@@ -12,7 +12,7 @@
 #ifndef PACKET_IDM_H
 #define PACKET_IDM_H
 
-#include <packet-ros.h>
+#include "packet-ros.h"
 
 void
 register_idmp_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name);

@@ -19,15 +19,15 @@
 #include <epan/expert.h>
 #include <epan/to_str.h>
 #include <epan/uat.h>
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
 #include <epan/reassemble.h>
 #include <epan/addr_resolv.h>
 #include <epan/stats_tree.h>
 
-#include <packet-udp.h>
-#include <packet-dtls.h>
-#include <packet-someip.h>
-#include <packet-tls.h>
+#include "packet-udp.h"
+#include "packet-dtls.h"
+#include "packet-someip.h"
+#include "packet-tls.h"
 
 /*
  * Dissector for SOME/IP, SOME/IP-TP, and SOME/IP Payloads.

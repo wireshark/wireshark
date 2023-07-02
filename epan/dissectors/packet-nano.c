@@ -16,7 +16,7 @@
 #include <config.h>
 
 #include <conversation.h>
-#include <packet-tcp.h>
+#include "packet-tcp.h"
 #include <proto_data.h>
 
 #include <epan/packet.h>

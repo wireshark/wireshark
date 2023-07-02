@@ -16,8 +16,8 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/str_util.h>
 
-#include <packet-tls.h>
-#include <packet-dtls.h>
+#include "packet-tls.h"
+#include "packet-dtls.h"
 
 void proto_register_data(void);
 void proto_reg_handoff_data(void);

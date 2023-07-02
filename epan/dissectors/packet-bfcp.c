@@ -21,7 +21,7 @@
 #include <epan/conversation.h>
 #include <epan/proto_data.h>
 
-#include <packet-bfcp.h>
+#include "packet-bfcp.h"
 
 void proto_register_bfcp(void);
 void proto_reg_handoff_bfcp(void);

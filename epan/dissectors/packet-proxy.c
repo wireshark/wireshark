@@ -27,7 +27,7 @@
 #include <wsutil/inet_addr.h>
 #include <wsutil/strtoi.h>
 
-#include <packet-tcp.h>
+#include "packet-tcp.h"
 
 void proto_reg_handoff_proxy(void);
 void proto_register_proxy(void);

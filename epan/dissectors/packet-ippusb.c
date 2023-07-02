@@ -23,7 +23,7 @@
 #include <epan/conversation.h>
 #include <epan/wmem_scopes.h>
 #include <reassemble.h>
-#include <packet-usb.h>
+#include "packet-usb.h"
 
 /*
  * IPPUSB transfer_type values

@@ -20,7 +20,7 @@
 #include <epan/expert.h>
 #include <epan/uat.h>
 
-#include <packet-lin.h>
+#include "packet-lin.h"
 
  /*
   * Dissector for the Local Interconnect Network (LIN) bus.

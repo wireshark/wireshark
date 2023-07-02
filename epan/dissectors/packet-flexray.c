@@ -17,7 +17,7 @@
 #include <wiretap/wtap.h>
 #include <epan/expert.h>
 
-#include <packet-flexray.h>
+#include "packet-flexray.h"
 
 
 void proto_reg_handoff_flexray(void);

@@ -27,10 +27,10 @@
 #include <epan/proto_data.h>
 #include <wsutil/utf8_entities.h>
 
-#include <packet-tecmp.h>
-#include <packet-socketcan.h>
-#include <packet-flexray.h>
-#include <packet-lin.h>
+#include "packet-tecmp.h"
+#include "packet-socketcan.h"
+#include "packet-flexray.h"
+#include "packet-lin.h"
 
 void proto_register_tecmp(void);
 void proto_reg_handoff_tecmp(void);
