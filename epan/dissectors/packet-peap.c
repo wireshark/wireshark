@@ -57,13 +57,14 @@ dissect_peap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   int offset = 0;
   tvbuff_t *eap_tvb, *eap_len_tvb, *next_tvb;
   guchar *eap_len_buf;
+  guint32 tls_group = pinfo->curr_proto_layer_num << 16;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PEAP");
   col_clear(pinfo->cinfo, COL_INFO);
 
   len = tvb_reported_length(tvb);
 
-  eap_tvb = (tvbuff_t *)p_get_proto_data(pinfo->pool, pinfo, proto_eap, PROTO_DATA_EAP_TVB);
+  eap_tvb = (tvbuff_t *)p_get_proto_data(pinfo->pool, pinfo, proto_eap, PROTO_DATA_EAP_TVB | tls_group);
   version = tvb_get_guint8(eap_tvb, EAP_TLS_FLAGS_OFFSET) & EAP_TLS_FLAGS_VERSION;
   if (version > 0) {	/* FIXME support v1 and v2 */
     goto ret;
