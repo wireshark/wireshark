@@ -73,6 +73,8 @@ typedef struct _rfc2198_hdr {
     unsigned int pt;
     int offset;
     int len;
+    const char* payload_type_str;
+    int payload_rate;
     struct _rfc2198_hdr *next;
 } rfc2198_hdr;
 
@@ -274,6 +276,8 @@ static gboolean desegment_rtp = TRUE;
 
 /* RFC2198 Redundant Audio Data */
 #define RFC2198_DEFAULT_PT_RANGE "99"
+
+static gboolean rfc2198_deencapsulate = TRUE;
 
 /* Proto data key values */
 #define RTP_CONVERSATION_PROTO_DATA     0
@@ -1326,7 +1330,8 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
  */
 static void
 process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
-            proto_tree *rtp_tree, unsigned int payload_type)
+            proto_tree *rtp_tree, unsigned int payload_type,
+            struct _rtp_info *rtp_info)
 {
     struct _rtp_conversation_info *p_conv_data;
     int payload_len;
@@ -1413,7 +1418,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
             if (payload_type_str) {
                 int len;
                 len = dissector_try_string(rtp_dyn_pt_dissector_table,
-                    payload_type_str, newtvb, pinfo, tree, NULL);
+                    payload_type_str, newtvb, pinfo, tree, rtp_info);
                 /* If payload type string set from conversation and
                 * no matching dissector found it's probably because no subdissector
                 * exists. Don't call the dissectors based on payload number
@@ -1428,7 +1433,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
     }
 
     /* if we don't found, it is static OR could be set static from the preferences */
-    if (dissector_try_uint(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
+    if (dissector_try_uint_new(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree, TRUE, rtp_info))
         proto_item_set_hidden(rtp_data);
 }
 
@@ -1448,8 +1453,8 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 static void
 dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          proto_tree *rtp_tree, int offset, unsigned int data_len,
-         unsigned int data_reported_len,
-         unsigned int payload_type)
+         unsigned int data_reported_len, unsigned int payload_type,
+         struct _rtp_info *rtp_info)
 {
     tvbuff_t *newtvb;
     struct _rtp_conversation_info *p_conv_data;
@@ -1467,7 +1472,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if(finfo == NULL || !desegment_rtp) {
         /* Hand the whole lot off to the subdissector */
         newtvb = tvb_new_subset_length_caplen(tvb, offset, data_len, data_reported_len);
-        process_rtp_payload(newtvb, pinfo, tree, rtp_tree, payload_type);
+        process_rtp_payload(newtvb, pinfo, tree, rtp_tree, payload_type, rtp_info);
         return;
     }
 
@@ -1515,7 +1520,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         if(newtvb != NULL) {
             /* Hand off to the subdissector */
-            process_rtp_payload(newtvb, pinfo, tree, rtp_tree, payload_type);
+            process_rtp_payload(newtvb, pinfo, tree, rtp_tree, payload_type, rtp_info);
 
             /*
              * Check to see if there were any complete fragments within the chunk
@@ -1556,7 +1561,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         newtvb = tvb_new_subset_length_caplen( tvb, offset, data_len, data_reported_len );
 
         /* Hand off to the subdissector */
-        process_rtp_payload(newtvb, pinfo, tree, rtp_tree, payload_type);
+        process_rtp_payload(newtvb, pinfo, tree, rtp_tree, payload_type, rtp_info);
 
         if(pinfo->desegment_len) {
             /* the higher-level dissector has asked for some more data - ie,
@@ -1644,7 +1649,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static int
-dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     gint offset = 0;
     int cnt;
@@ -1653,6 +1658,11 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     rfc2198_hdr *hdr_last;
     rfc2198_hdr *hdr_chain = NULL;
     struct _rtp_conversation_info *p_conv_data;
+    struct _rtp_info* rtp_info = NULL;
+
+    if (data) {
+        rtp_info = (struct _rtp_info*)data;
+    }
 
     /* Retrieve RTPs idea of a converation */
     p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
@@ -1673,7 +1683,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         payload_type_str = NULL;
 
         /* Allocate and fill in header */
-        hdr_new = wmem_new(pinfo->pool, rfc2198_hdr);
+        hdr_new = wmem_new0(pinfo->pool, rfc2198_hdr);
         hdr_new->next = NULL;
         octet1 = tvb_get_guint8(tvb, offset);
         hdr_new->pt = RTP_PAYLOAD_TYPE(octet1);
@@ -1685,7 +1695,17 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         /* if it is dynamic payload, let use the conv data to see if it is defined */
         if ((hdr_new->pt > 95) && (hdr_new->pt < 128)) {
             if (p_conv_data && p_conv_data->rtp_dyn_payload){
-                payload_type_str = rtp_dyn_payload_get_name(p_conv_data->rtp_dyn_payload, hdr_new->pt);
+                rtp_dyn_payload_get_full(p_conv_data->rtp_dyn_payload, hdr_new->pt, &payload_type_str, &hdr_new->payload_rate);
+                hdr_new->payload_type_str = payload_type_str;
+            } else {
+                /* See if we have a dissector tied to the dynamic payload
+                 * through preferences / Decode As */
+                dissector_handle_t pt_dissector_handle;
+
+                pt_dissector_handle = dissector_get_uint_handle(rtp_pt_dissector_table, hdr_new->pt);
+                if (pt_dissector_handle) {
+                    hdr_new->payload_type_str = dissector_handle_get_dissector_name(pt_dissector_handle);
+                }
             }
         }
         /* Add a subtree for this header and add items */
@@ -1727,8 +1747,41 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         hdr_last->offset = offset;
         if (!hdr_last->next) {
             hdr_last->len = tvb_reported_length_remaining(tvb, offset);
+            /* Set the payload for the tap to that of the primary encoding
+             * to remove the RFC 2198 encapsulation. (Since this is the
+             * last encoding in the packet, the calculated length includes
+             * the padding and padding stays the same.)
+             * Ideally we should process the redundant encoding or FEC somehow
+             * here, but just treating the primary encoding as the only payload
+             * for the tap is closer than doing nothing, and at least has some
+             * chance of playing or saving the primary media payload.
+             *
+             * XXX: WebRTC/Chromium, when it uses RED with ULPFEC (RFC 5109),
+             * violates the RFCs by having the FEC set in separate packets as a
+             * different primary encoding (and using duplicate sequence numbers
+             * already used by the video.) This is done because of a concern
+             * that the combined payload size of FEC plus video encodings like
+             * VP8 could push a packet over the MTU size, also a problem.
+             * See RFC 8872 3.2.4 "RTP Payload Type" and Appendix A "Dismissing
+             * Payload Type Multiplexing," also
+             * https://bugs.chromium.org/p/webrtc/issues/detail?id=9188
+             * https://bugs.chromium.org/p/webrtc/issues/detail?id=12530
+             * https://bugs.chromium.org/p/webrtc/issues/detail?id=1467
+             * However, since duplicate sequence numbers as used, a user just
+             * Ignoring all the FEC packets could be a workaround.
+             * RFC 2198 in WebRTC/Chromium with actual redundant audio is
+             * RFC-compliant, though:
+             * https://bugs.chromium.org/p/webrtc/issues/detail?id=11640
+             */
+            if (rfc2198_deencapsulate && rtp_info) {
+                rtp_info->info_payload_offset += hdr_last->offset;
+                rtp_info->info_payload_len = hdr_last->len;
+                rtp_info->info_payload_type = hdr_last->pt;
+                rtp_info->info_payload_type_str = hdr_last->payload_type_str;
+                rtp_info->info_payload_rate = hdr_last->payload_rate;
+            }
         }
-        dissect_rtp_data(tvb, pinfo, tree, rfc2198_tree, hdr_last->offset, hdr_last->len, hdr_last->len, hdr_last->pt);
+        dissect_rtp_data(tvb, pinfo, tree, rfc2198_tree, hdr_last->offset, hdr_last->len, hdr_last->len, hdr_last->pt, rtp_info);
         offset += hdr_last->len;
         hdr_last = hdr_last->next;
     }
@@ -2399,7 +2452,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                     offset,
                     data_len,
                     data_len,
-                    payload_type);
+                    payload_type,
+                    rtp_info);
             } CATCH_ALL {
                 if (!pinfo->flags.in_error_pkt)
                     tap_queue_packet(rtp_tap, pinfo, rtp_info);
@@ -2473,7 +2527,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 dissect_rtp_data( tvb, pinfo, tree, rtp_tree, offset,
                           tvb_captured_length_remaining( tvb, offset ),
                           tvb_reported_length_remaining( tvb, offset ),
-                          payload_type);
+                          payload_type, rtp_info);
             } CATCH_ALL {
                 if (!pinfo->flags.in_error_pkt)
                     tap_queue_packet(rtp_tap, pinfo, rtp_info);
@@ -3420,6 +3474,13 @@ proto_register_rtp(void)
                                     &global_rtp_version0_type,
                                     rtp_version0_types, FALSE);
     prefs_register_obsolete_preference(rtp_module, "rfc2198_payload_type");
+
+    prefs_register_bool_preference(rtp_module, "rfc2198_deencapsulate",
+                                    "De-encapsulate RFC 2198 primary encoding",
+                                    "De-encapsulate the primary encoding from "
+                                    "the RAD header for RTP analysis and "
+                                    "playback",
+                                    &rfc2198_deencapsulate);
 
     reassembly_table_register(&rtp_reassembly_table,
                   &addresses_reassembly_table_functions);
