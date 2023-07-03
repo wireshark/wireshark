@@ -89,6 +89,8 @@ static int hf_dhcpfo_tls_request = -1;
 static int hf_dhcpfo_tls_reply = -1;
 static int hf_dhcpfo_serverflag = -1;
 static int hf_dhcpfo_options = -1;
+static int hf_dhcpfo_ms_client_hostname = -1;
+static int hf_dhcpfo_ms_server_hostname = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dhcpfo = -1;
@@ -152,6 +154,8 @@ static const value_string failover_vals[] =
 #define DHCP_FO_PD_TLS_REQUEST                  27
 #define DHCP_FO_PD_VENDOR_CLASS                 28
 #define DHCP_FO_PD_VENDOR_OPTION                29
+#define DHCP_FO_PD_MS_CLIENT_HOSTNAME           31
+#define DHCP_FO_PD_MS_SERVER_HOSTNAME           35
 
 
 static const value_string option_code_vals[] =
@@ -185,6 +189,8 @@ static const value_string option_code_vals[] =
 	{DHCP_FO_PD_TLS_REQUEST,			"TLS-request"},
 	{DHCP_FO_PD_VENDOR_CLASS,			"vendor-class"},
 	{DHCP_FO_PD_VENDOR_OPTION,			"vendor-option"},
+	{DHCP_FO_PD_MS_CLIENT_HOSTNAME,			"microsoft-client-hostname"},
+	{DHCP_FO_PD_MS_SERVER_HOSTNAME,			"microsoft-server-hostname"},
 	{0, NULL}
 
 };
@@ -314,6 +320,8 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	guint32 mclt;
 	guint8 server_state;
 	guint32 max_unacked_bndupd, receive_timer;
+	const guint8 *ms_client_hostname_str;
+	const guint8 *ms_server_hostname_str;
 
 /* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPFO");
@@ -807,6 +815,25 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 		case DHCP_FO_PD_REPLY_OPTION:
 			proto_tree_add_item(option_tree, hf_dhcpfo_options, tvb, offset, option_length, ENC_NA);
 			break;
+
+		case DHCP_FO_PD_MS_CLIENT_HOSTNAME:
+			proto_tree_add_item_ret_string(option_tree,
+			    hf_dhcpfo_ms_client_hostname, tvb, offset,
+			    option_length, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &ms_client_hostname_str);
+			/* With UTF-16 the string length is half the data length, minus the zero-termination */
+			proto_item_append_text(oi,", \"%s\"",
+			    format_text(pinfo->pool, ms_client_hostname_str, option_length/2-1));
+			break;
+
+		case DHCP_FO_PD_MS_SERVER_HOSTNAME:
+			proto_tree_add_item_ret_string(option_tree,
+			    hf_dhcpfo_ms_server_hostname, tvb, offset,
+			    option_length, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &ms_server_hostname_str);
+			/* With UTF-16 the string length is half the data length, minus the zero-termination */
+			proto_item_append_text(oi,", \"%s\"",
+			    format_text(pinfo->pool, ms_server_hostname_str, option_length/2-1));
+			break;
+
 		default:
 			break;
 		}
@@ -1087,6 +1114,18 @@ proto_register_dhcpfo(void)
 		{&hf_dhcpfo_options,
 			{"Options", "dhcpfo.options",
 			FT_BYTES, BASE_NONE, NULL, 0,
+			NULL, HFILL }
+		},
+
+		{&hf_dhcpfo_ms_client_hostname,
+			{"Client hostname (Microsoft-specific)", "dhcpfo.msclienthostname",
+			FT_STRING, BASE_NONE, NULL, 0,
+			NULL, HFILL }
+		},
+
+		{&hf_dhcpfo_ms_server_hostname,
+			{"Server hostname (Microsoft-specific)", "dhcpfo.msserverhostname",
+			FT_STRING, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
 
