@@ -34,6 +34,10 @@
    signed/unsigned 64-bit int */
 #define SP_DECISIZE 20
 
+/* Indicator status */
+#define SP_INDICATOR_OK   0
+#define SP_INDICATOR_ERR -2
+
 /*
  * Indications sent out on the sync pipe (from child to parent).
  * We might want to switch to something like Thrift

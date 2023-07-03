@@ -1378,17 +1378,24 @@ sync_interface_stats_open(int *data_read_fd, ws_process_id *fork_child, char **m
     nread = pipe_read_block(message_read_io, &indicator, SP_MAX_MSG_LEN,
                             buffer, msg);
     if(nread <= 0) {
-        /* We got a read error from the sync pipe, or we got no data at
-           all from the sync pipe, so we're not going to be getting any
-           data or error message from the child process.  Pick up its
-           exit status, and complain.
+        /* Check if some rubbish string mixed into the dumpcap's output */
+        if(nread == SP_INDICATOR_ERR) {
+            g_assert(*fork_child != WS_INVALID_PID);
+            kill(*fork_child, SIGTERM);
+            exit(SP_INDICATOR_ERR);
+        } else {
+            /* We got a read error from the sync pipe, or we got no data at
+            all from the sync pipe, so we're not going to be getting any
+            data or error message from the child process.  Pick up its
+            exit status, and complain.
 
-           We don't have to worry about killing the child, if the sync pipe
-           returned an error. Usually this error is caused as the child killed
-           itself while going down. Even in the rare cases that this isn't the
-           case, the child will get an error when writing to the broken pipe
-           the next time, cleaning itself up then. */
-        ret = sync_pipe_wait_for_child(*fork_child, &wait_msg);
+            We don't have to worry about killing the child, if the sync pipe
+            returned an error. Usually this error is caused as the child killed
+            itself while going down. Even in the rare cases that this isn't the
+            case, the child will get an error when writing to the broken pipe
+            the next time, cleaning itself up then. */
+            ret = sync_pipe_wait_for_child(*fork_child, &wait_msg);
+        }
         g_io_channel_unref(message_read_io);
         ws_close(*data_read_fd);
         if(nread == 0) {
@@ -1560,6 +1567,27 @@ sync_pipe_gets_nonblock(int pipe_fd, char *bytes, int max) {
     return offset;
 }
 
+/* validate indicator */
+static int
+pipe_validate_indicator(const guchar *header, const char *indicator) {
+    switch(*indicator) {
+        case SP_SUCCESS:
+            if (header[1] == 0x0 && header[2] == 0x0 && header[3] == 0x0) {
+                return SP_INDICATOR_OK;
+            } else {
+                return SP_INDICATOR_ERR;
+            }
+        case SP_FILE:
+        case SP_ERROR_MSG:
+        case SP_BAD_FILTER:
+        case SP_PACKET_COUNT:
+        case SP_DROPS:
+        case SP_TOOLBAR_CTRL:
+        case SP_QUIT:
+            return SP_INDICATOR_OK;
+    }
+    return SP_INDICATOR_ERR;
+}
 
 /* convert header values (indicator and 3-byte length) */
 static void
@@ -1582,6 +1610,7 @@ pipe_read_block(GIOChannel *pipe_io, char *indicator, int len, char *msg,
     int required;
     ssize_t newly;
     char header[4];
+    int ret = 0;
 
     /* read header (indicator and 3-byte length) */
     newly = pipe_read_bytes(pipe_io, header, 4, err_msg);
@@ -1608,6 +1637,14 @@ pipe_read_block(GIOChannel *pipe_io, char *indicator, int len, char *msg,
 
     /* convert header values */
     pipe_convert_header((unsigned char*)header, 4, indicator, &required);
+
+    /* validate indicator */
+    ret = pipe_validate_indicator((const guchar *)header, (const char *)indicator);
+    if(ret != SP_INDICATOR_OK) {
+        fprintf(stderr, "bad header from dumpcap: %c%c%c%c\n",
+                header[0], header[1], header[2], header[3]);
+        return ret;
+    }
 
     /* only indicator with no value? */
     if(required == 0) {
