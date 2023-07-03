@@ -1,7 +1,7 @@
 /* packet-pdu_transport.c
  * PDU Transport dissector for FDN and others.
  * By <lars.voelker@technica-engineering.de>
- * Copyright 2020-2020 Dr. Lars Voelker
+ * Copyright 2020-2023 Dr. Lars Voelker
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -75,16 +75,16 @@ pdu_transport_free_key(gpointer key) {
 }
 
 static void
-simple_free(gpointer data _U_) {
+simple_free(gpointer data) {
     /* we need to free because of the g_strdup in post_update*/
     g_free(data);
 }
 
 /* ID -> Name */
 static void *
-copy_generic_one_id_string_cb(void* n, const void* o, size_t size _U_) {
-    generic_one_id_string_t* new_rec = (generic_one_id_string_t*)n;
-    const generic_one_id_string_t* old_rec = (const generic_one_id_string_t*)o;
+copy_generic_one_id_string_cb(void *n, const void *o, size_t size _U_) {
+    generic_one_id_string_t *new_rec = (generic_one_id_string_t *)n;
+    const generic_one_id_string_t *old_rec = (const generic_one_id_string_t *)o;
 
     new_rec->name = g_strdup(old_rec->name);
     new_rec->id = old_rec->id;
@@ -104,8 +104,8 @@ update_generic_one_identifier_32bit(void *r, char **err) {
 }
 
 static void
-free_generic_one_id_string_cb(void*r) {
-    generic_one_id_string_t* rec = (generic_one_id_string_t*)r;
+free_generic_one_id_string_cb(void *r) {
+    generic_one_id_string_t *rec = (generic_one_id_string_t *)r;
     /* freeing result of g_strdup */
     g_free(rec->name);
     rec->name = NULL;
@@ -124,8 +124,8 @@ post_update_one_id_string_template_cb(generic_one_id_string_t *data, guint data_
     }
 }
 
-static char*
-ht_lookup_name(GHashTable* ht, unsigned int identifier) {
+static char *
+ht_lookup_name(GHashTable *ht, unsigned int identifier) {
     char           *tmp = NULL;
     unsigned int   *id = NULL;
 
@@ -145,7 +145,7 @@ ht_lookup_name(GHashTable* ht, unsigned int identifier) {
 #define DATAFILE_PDU_IDS                "PDU_Transport_identifiers"
 
 static GHashTable *data_pdu_transport_pdus = NULL;
-static generic_one_id_string_t* pdu_transport_pdus = NULL;
+static generic_one_id_string_t *pdu_transport_pdus = NULL;
 static guint pdu_transport_pdus_num = 0;
 
 UAT_HEX_CB_DEF(pdu_transport_pdus, id, generic_one_id_string_t)
@@ -245,7 +245,7 @@ dissect_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 }
 
 static guint
-get_pdu_transport_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void* data _U_) {
+get_pdu_transport_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_) {
     return PDU_TRANSPORT_HDR_LEN + (guint)tvb_get_ntohl(tvb, offset + 4);
 }
 
@@ -261,14 +261,14 @@ dissect_pdu_transport_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 }
 
 
-static void pdu_transport_id_prompt(packet_info *pinfo, gchar* result)
-{
+static void
+pdu_transport_id_prompt(packet_info *pinfo, gchar *result) {
     snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "PDU Transport ID 0x%08x as",
-               GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_pdu_transport, pinfo->curr_layer_num)));
+             GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_pdu_transport, pinfo->curr_layer_num)));
 }
 
-static gpointer pdu_transport_id_value(packet_info *pinfo)
-{
+static gpointer
+pdu_transport_id_value(packet_info *pinfo) {
     /* Limitation: This only returns the last proto_data, since udp_dissect_pdus gives us the same layer for all. */
     return p_get_proto_data(pinfo->pool, pinfo, proto_pdu_transport, pinfo->curr_layer_num);
 }
@@ -345,7 +345,6 @@ proto_register_pdu_transport(void) {
 
 void
 proto_reg_handoff_pdu_transport(void) {
-
     pdu_transport_handle_udp = register_dissector("pdu_transport_over_udp", dissect_pdu_transport_udp, proto_pdu_transport);
     pdu_transport_handle_tcp = register_dissector("pdu_transport_over_tcp", dissect_pdu_transport_tcp, proto_pdu_transport);
 
@@ -354,14 +353,14 @@ proto_reg_handoff_pdu_transport(void) {
 }
 
 /*
- * Editor modelines
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
- * Local Variables:
+ * Local variables:
  * c-basic-offset: 4
  * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */

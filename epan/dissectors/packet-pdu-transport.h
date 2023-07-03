@@ -1,7 +1,7 @@
 /* packet-pdu-transport.h
  * PDU Transport dissector for FDN and others.
  * By <lars.voelker@technica-engineering.de>
- * Copyright 2020-2020 Dr. Lars Voelker
+ * Copyright 2020-2023 Dr. Lars Voelker
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -14,13 +14,9 @@
 #define __PACKET_PDU_TRANSPORT_H__
 
 /* Structure that gets passed between dissectors. */
-struct pdu_transport_info
-{
-  guint32 id;
-};
-
-typedef struct pdu_transport_info pdu_transport_info_t;
-
+typedef struct pdu_transport_info {
+    guint32 id;
+} pdu_transport_info_t;
 
 #endif /* __PACKET_PDU_TRANSPORT_H__ */
 
@@ -28,11 +24,11 @@ typedef struct pdu_transport_info pdu_transport_info_t;
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
- * c-basic-offset: 2
+ * c-basic-offset: 4
  * tab-width: 8
- * indent-tabs-mode: t
+ * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=8 tabstop=8 noexpandtab:
- * :indentSize=8:tabSize=8:noTabs=false:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
