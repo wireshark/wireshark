@@ -30,7 +30,7 @@
 
 /* Convert an FT_STRING using a callback function */
 static gboolean
-string_walk(GSList *args, guint32 arg_count _U_, GSList **retval, gchar(*conv_func)(gchar))
+string_walk(GSList *args, guint32 arg_count _U_, df_cell_t *retval, gchar(*conv_func)(gchar))
 {
     GSList      *arg1;
     fvalue_t    *arg_fvalue;
@@ -55,7 +55,7 @@ string_walk(GSList *args, guint32 arg_count _U_, GSList **retval, gchar(*conv_fu
 
             new_ft_string = fvalue_new(FT_STRING);
             fvalue_set_strbuf(new_ft_string, dst);
-            *retval = g_slist_prepend(*retval, new_ft_string);
+            df_cell_append(retval, new_ft_string);
         }
         arg1 = arg1->next;
     }
@@ -65,21 +65,21 @@ string_walk(GSList *args, guint32 arg_count _U_, GSList **retval, gchar(*conv_fu
 
 /* dfilter function: lower() */
 static gboolean
-df_func_lower(GSList *args, guint32 arg_count, GSList **retval)
+df_func_lower(GSList *args, guint32 arg_count, df_cell_t *retval)
 {
     return string_walk(args, arg_count, retval, g_ascii_tolower);
 }
 
 /* dfilter function: upper() */
 static gboolean
-df_func_upper(GSList *args, guint32 arg_count, GSList **retval)
+df_func_upper(GSList *args, guint32 arg_count, df_cell_t *retval)
 {
     return string_walk(args, arg_count, retval, g_ascii_toupper);
 }
 
 /* dfilter function: count() */
 static gboolean
-df_func_count(GSList *args, guint32 arg_count _U_, GSList **retval)
+df_func_count(GSList *args, guint32 arg_count _U_, df_cell_t *retval)
 {
     GSList   *arg1;
     fvalue_t *ft_ret;
@@ -93,14 +93,14 @@ df_func_count(GSList *args, guint32 arg_count _U_, GSList **retval)
     num_items = (guint32)g_slist_length(arg1);
     ft_ret = fvalue_new(FT_UINT32);
     fvalue_set_uinteger(ft_ret, num_items);
-    *retval = g_slist_prepend(*retval, ft_ret);
+    df_cell_append(retval, ft_ret);
 
     return TRUE;
 }
 
 /* dfilter function: string() */
 static gboolean
-df_func_string(GSList *args, guint32 arg_count _U_, GSList **retval)
+df_func_string(GSList *args, guint32 arg_count _U_, df_cell_t *retval)
 {
     GSList   *arg1;
     fvalue_t *arg_fvalue;
@@ -160,7 +160,7 @@ df_func_string(GSList *args, guint32 arg_count _U_, GSList **retval)
         new_ft_string = fvalue_new(FT_STRING);
         fvalue_set_string(new_ft_string, s);
         wmem_free(NULL, s);
-        *retval = g_slist_prepend(*retval, new_ft_string);
+        df_cell_append(retval, new_ft_string);
 
         arg1 = arg1->next;
     }
@@ -169,7 +169,7 @@ df_func_string(GSList *args, guint32 arg_count _U_, GSList **retval)
 }
 
 static gboolean
-df_func_compare(GSList *args, guint32 arg_count, GSList **retval,
+df_func_compare(GSList *args, guint32 arg_count, df_cell_t *retval,
                     gboolean (*fv_cmp)(const fvalue_t *a, const fvalue_t *b))
 {
     fvalue_t *fv_ret = NULL;
@@ -187,32 +187,31 @@ df_func_compare(GSList *args, guint32 arg_count, GSList **retval,
     if (fv_ret == NULL)
         return FALSE;
 
-    *retval = g_slist_append(NULL, fvalue_dup(fv_ret));
+    df_cell_append(retval, fvalue_dup(fv_ret));
 
     return TRUE;
 }
 
 /* Find maximum value. */
 static gboolean
-df_func_max(GSList *args, guint32 arg_count, GSList **retval)
+df_func_max(GSList *args, guint32 arg_count, df_cell_t *retval)
 {
     return df_func_compare(args, arg_count, retval, fvalue_gt);
 }
 
 /* Find minimum value. */
 static gboolean
-df_func_min(GSList *args, guint32 arg_count, GSList **retval)
+df_func_min(GSList *args, guint32 arg_count, df_cell_t *retval)
 {
     return df_func_compare(args, arg_count, retval, fvalue_lt);
 }
 
 static gboolean
-df_func_abs(GSList *args, guint32 arg_count _U_, GSList **retval)
+df_func_abs(GSList *args, guint32 arg_count _U_, df_cell_t *retval)
 {
     GSList   *arg1;
     fvalue_t *fv_arg, *new_fv;
     char     *err_msg = NULL;
-    GSList   *result = NULL;
 
     ws_assert(arg_count == 1);
     arg1 = args->data;
@@ -232,15 +231,11 @@ df_func_abs(GSList *args, guint32 arg_count _U_, GSList **retval)
         else {
             new_fv = fvalue_dup(fv_arg);
         }
-        result = g_slist_prepend(result, new_fv);
+        df_cell_append(retval, new_fv);
         arg1 = arg1->next;
     }
 
-    if (g_slist_length(result) == 0)
-        return FALSE;
-
-    *retval = result;
-    return TRUE;
+    return !df_cell_is_empty(retval);
 }
 
 /* For upper() and lower() checks that the parameter passed to

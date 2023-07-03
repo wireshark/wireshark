@@ -156,9 +156,6 @@ reference_free(df_reference_t *ref);
 void
 df_cell_append(df_cell_t *rp, fvalue_t *fv);
 
-void
-df_cell_append_list(df_cell_t *rp, GSList *list);
-
 GSList *
 df_cell_copy_list(df_cell_t *rp);
 

@@ -1224,7 +1224,6 @@ call_function(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2,
 							dfvm_value_t *arg3)
 {
 	df_func_def_t *funcdef;
-	GSList *retval = NULL;
 	gboolean accum;
 	df_cell_t *rp_return;
 	guint32 arg_count;
@@ -1234,13 +1233,10 @@ call_function(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2,
 	rp_return = &df->registers[arg2->value.numeric];
 	arg_count = arg3->value.numeric;
 
-	accum = funcdef->function(df->function_stack, arg_count, &retval);
-
-	/* Write return registers. */
 	// Functions create a new value, so own it.
 	df_cell_init(rp_return, TRUE);
-	df_cell_append_list(rp_return, retval);
-	g_slist_free(retval);
+
+	accum = funcdef->function(df->function_stack, arg_count, rp_return);
 	return accum;
 }
 

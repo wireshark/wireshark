@@ -18,7 +18,7 @@
 /* Functions take any number of arguments and return 1. */
 
 /* The run-time logic of the dfilter function */
-typedef gboolean (*DFFuncType)(GSList *arg_list, guint32 arg_count, GSList **retval);
+typedef gboolean (*DFFuncType)(GSList *arg_list, guint32 arg_count, df_cell_t *retval);
 
 /* The semantic check for the dfilter function */
 typedef ftenum_t (*DFSemCheckType)(dfwork_t *dfw, const char *func_name, ftenum_t lhs_ftype,

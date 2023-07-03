@@ -899,16 +899,6 @@ df_cell_append(df_cell_t *rp, fvalue_t *fv)
 	g_ptr_array_add(rp->array, fv);
 }
 
-void
-df_cell_append_list(df_cell_t *rp, GSList *list)
-{
-	/* Assert cell has been initialized. */
-	ws_assert(rp->array != NULL);
-	for (GSList *l = list; l != NULL; l = l->next) {
-		g_ptr_array_add(rp->array, l->data);
-	}
-}
-
 GSList *
 df_cell_copy_list(df_cell_t *rp)
 {
