@@ -6,7 +6,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
-#include <epan/dissectors/packet-gtp.h>
+#include "packet-gtp.h"
 
 extern void dissect_gtpv2_ie_common(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint offset, guint8 message_type, session_args_t* args);
 

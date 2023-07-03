@@ -32,10 +32,10 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
 #include <epan/reassemble.h>
-#include <epan/dissectors/packet-udp.h>
-#include <epan/dissectors/packet-pdu-transport.h>
+#include "packet-udp.h"
+#include "packet-pdu-transport.h"
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
 

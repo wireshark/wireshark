@@ -25,7 +25,7 @@
 #include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
 
 void proto_reg_handoff_scylla(void);
 void proto_register_scylla(void);

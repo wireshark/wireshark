@@ -11,7 +11,7 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/ipproto.h>
-#include <epan/dissectors/packet-tls.h>
+#include "packet-tls.h"
 
 void proto_reg_handoff_li5g(void);
 void proto_register_li5g(void);

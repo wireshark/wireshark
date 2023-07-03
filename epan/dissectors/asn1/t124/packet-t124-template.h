@@ -13,7 +13,7 @@
 #define PACKET_T124_H
 
 #include <epan/packet_info.h>
-#include <epan/dissectors/packet-per.h>
+#include "packet-per.h"
 
 extern int dissect_DomainMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 extern guint32 t124_get_last_channelId(void);

@@ -22,7 +22,7 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/proto.h>
-#include <epan/dissectors/packet-usb.h>
+#include "packet-usb.h"
 #include <epan/value_string.h>
 
 static int proto_usb_printer = -1;

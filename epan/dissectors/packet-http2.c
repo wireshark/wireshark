@@ -32,9 +32,9 @@
 #include <epan/prefs.h>
 #include <epan/proto_data.h>
 #include <epan/exceptions.h>
-#include <epan/dissectors/packet-http.h> /* for getting status reason-phrase */
-#include <epan/dissectors/packet-http2.h>
-#include <epan/dissectors/packet-media-type.h>
+#include "packet-http.h" /* for getting status reason-phrase */
+#include "packet-http2.h"
+#include "packet-media-type.h"
 
 #ifdef HAVE_NGHTTP2
 #include <epan/uat.h>

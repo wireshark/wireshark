@@ -22,7 +22,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
 #include <epan/next_tvb.h>
 #include <epan/conversation.h>
 #include <wsutil/wmem/wmem.h>

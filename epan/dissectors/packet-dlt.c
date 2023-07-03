@@ -1,7 +1,8 @@
 /* packet-dlt.c
  * DLT Dissector
- * By Dr. Lars Voelker <lars.voelker@bmw.de> / <lars.voelker@technica-engineering.de>
- * Copyright 2013-2022 Dr. Lars Voelker
+ * By Dr. Lars Voelker <lars.voelker@technica-engineering.de>
+ * Copyright 2013-2019 Dr. Lars Voelker, BMW
+ * Copyright 2020-2023 Dr. Lars Voelker, Technica Engineering GmbH
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -21,8 +22,8 @@
 #include <config.h>
 
 #include <epan/packet.h>
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/dissectors/packet-udp.h>
+#include "packet-tcp.h"
+#include "packet-udp.h"
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/show_exception.h>
@@ -33,7 +34,7 @@
 #include <epan/uat.h>
 #include <wiretap/wtap.h>
 
-#include <epan/dissectors/packet-dlt.h>
+#include "packet-dlt.h"
 
 void proto_register_dlt(void);
 void proto_reg_handoff_dlt(void);

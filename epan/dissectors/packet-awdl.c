@@ -18,9 +18,9 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/dissectors/packet-llc.h>
-#include <epan/dissectors/packet-ieee80211.h>
-#include <epan/dissectors/packet-dns.h>
+#include "packet-llc.h"
+#include "packet-ieee80211.h"
+#include "packet-dns.h"
 #include <epan/oui.h>
 
 void proto_register_awdl(void);

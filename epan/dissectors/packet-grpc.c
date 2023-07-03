@@ -63,9 +63,9 @@
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/proto_data.h>
-#include <epan/dissectors/packet-http.h>
-#include <epan/dissectors/packet-http2.h>
-#include <epan/dissectors/packet-media-type.h>
+#include "packet-http.h"
+#include "packet-http2.h"
+#include "packet-media-type.h"
 
 #include "wsutil/pint.h"
 

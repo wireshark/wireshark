@@ -47,10 +47,10 @@
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/tvbuff-int.h>
-#include <epan/dissectors/packet-tls-utils.h>
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/dissectors/packet-ber.h>
-#include <epan/dissectors/packet-bpv6.h>
+#include "packet-tls-utils.h"
+#include "packet-tcp.h"
+#include "packet-ber.h"
+#include "packet-bpv6.h"
 #include "packet-tcpcl.h"
 
 void proto_register_tcpclv3(void);

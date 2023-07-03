@@ -42,7 +42,7 @@
 #include <epan/etypes.h>
 #include <epan/decode_as.h>
 #include <epan/proto_data.h>
-#include <epan/dissectors/packet-socketcan.h>
+#include "packet-socketcan.h"
 
 #include "packet-mp2t.h"
 

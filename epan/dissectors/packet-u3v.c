@@ -17,7 +17,7 @@
 
 #include <epan/packet.h>
 #include <epan/proto_data.h>
-#include <epan/dissectors/packet-usb.h>
+#include "packet-usb.h"
 
 /*
 U3V descriptor constants

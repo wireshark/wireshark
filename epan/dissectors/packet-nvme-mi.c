@@ -19,9 +19,9 @@
 #include <epan/crc32-tvb.h>
 #include <epan/packet.h>
 #include <epan/to_str.h>
-#include <epan/dissectors/packet-sll.h>
-#include <epan/dissectors/packet-mctp.h>
-#include <epan/dissectors/packet-nvme.h>
+#include "packet-sll.h"
+#include "packet-mctp.h"
+#include "packet-nvme.h"
 
 void proto_register_nvme_mi(void);
 void proto_reg_handoff_nvme_mi(void);

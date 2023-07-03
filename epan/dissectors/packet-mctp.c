@@ -22,8 +22,8 @@
 #include <epan/packet.h>
 #include <epan/reassemble.h>
 #include <epan/to_str.h>
-#include <epan/dissectors/packet-mctp.h>
-#include <epan/dissectors/packet-sll.h>
+#include "packet-mctp.h"
+#include "packet-sll.h"
 
 #define MCTP_MIN_LENGTH 5       /* 4-byte header, plus message type */
 

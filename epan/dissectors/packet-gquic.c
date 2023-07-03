@@ -23,8 +23,8 @@ QUIC source code in Chromium : https://code.google.com/p/chromium/codesearch#chr
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
-#include <epan/dissectors/packet-http2.h>
-#include <epan/dissectors/packet-quic.h>
+#include "packet-http2.h"
+#include "packet-quic.h"
 #include <wsutil/strtoi.h>
 
 void proto_register_gquic(void);

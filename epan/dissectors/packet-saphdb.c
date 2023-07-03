@@ -28,8 +28,8 @@
 #include <wsutil/wmem/wmem.h>
 #include <epan/wmem_scopes.h>
 
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/dissectors/packet-tls.h>
+#include "packet-tcp.h"
+#include "packet-tls.h"
 
 
 /*

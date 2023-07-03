@@ -63,7 +63,7 @@ typedef struct _h225_packet_info {
  */
 
 #include <epan/asn1.h>
-#include <epan/dissectors/packet-per.h>
+#include "packet-per.h"
 
 #include "packet-h225-exp.h"
 

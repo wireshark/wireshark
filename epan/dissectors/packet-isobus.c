@@ -14,7 +14,7 @@
 
 #include <epan/packet.h>
 #include <epan/reassemble.h>
-#include <epan/dissectors/packet-socketcan.h>
+#include "packet-socketcan.h"
 #include <epan/wmem_scopes.h>
 
 void proto_register_isobus(void);

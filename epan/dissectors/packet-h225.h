@@ -68,7 +68,7 @@ typedef struct _h225_packet_info {
  */
 
 #include <epan/asn1.h>
-#include <epan/dissectors/packet-per.h>
+#include "packet-per.h"
 
 WS_DLL_PUBLIC const value_string T_h323_message_body_vals[];
 WS_DLL_PUBLIC const value_string h225_ReleaseCompleteReason_vals[];

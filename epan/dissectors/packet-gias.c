@@ -23,7 +23,7 @@
 #include <string.h>
 #include <epan/packet.h>
 #include <epan/proto.h>
-#include <epan/dissectors/packet-giop.h>
+#include "packet-giop.h"
 #include <epan/expert.h>
 
 #include "ws_diag_control.h"

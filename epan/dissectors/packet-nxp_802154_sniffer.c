@@ -25,7 +25,7 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
-#include <epan/dissectors/packet-ieee802154.h>
+#include "packet-ieee802154.h"
 
 #define NXP_802154_SNIFFER_UDP_PORT             49999 /* Not IANA registered */
 #define NXP_802154_SNIFFER_TIMESTAMP_LENGTH     5

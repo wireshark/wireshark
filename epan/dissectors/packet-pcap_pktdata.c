@@ -18,7 +18,7 @@
 
 #include <wiretap/pcap-encap.h>
 
-#include <epan/dissectors/packet-pcap_pktdata.h>
+#include "packet-pcap_pktdata.h"
 
 void proto_register_pcap_pktdata(void);
 void proto_reg_handoff_pcap_pktdata(void);

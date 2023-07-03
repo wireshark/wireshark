@@ -10,7 +10,7 @@
 #ifndef PACKET_ALCAP_H
 #define PACKET_ALCAP_H
 
-#include <epan/dissectors/packet-e164.h>
+#include "packet-e164.h"
 
 extern void alcap_tree_from_bearer_key(proto_tree* tree, tvbuff_t* tvb, packet_info *pinfo, const gchar* key);
 

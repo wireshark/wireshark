@@ -10,7 +10,7 @@
 #include <config.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/dissectors/packet-ieee80211.h>
+#include "packet-ieee80211.h"
 
 #include <wsutil/str_util.h>
 

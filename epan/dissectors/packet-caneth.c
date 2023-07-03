@@ -19,8 +19,8 @@
 #include <config.h>
 
 #include <epan/packet.h>
-#include <epan/dissectors/packet-udp.h>
-#include <epan/dissectors/packet-socketcan.h>
+#include "packet-udp.h"
+#include "packet-socketcan.h"
 
 #define CAN_FRAME_LEN   15
 

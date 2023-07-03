@@ -27,7 +27,7 @@
 #include <epan/packet.h>
 /* clang-format on */
 
-#include <epan/dissectors/packet-llc.h>
+#include "packet-llc.h"
 #include <epan/expert.h>
 #include <string.h>
 

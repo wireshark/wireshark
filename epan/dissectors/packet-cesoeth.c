@@ -18,7 +18,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/etypes.h>
-#include <epan/dissectors/packet-rtp.h>
+#include "packet-rtp.h"
 
 void proto_register_cesoeth(void);
 void proto_reg_handoff_cesoeth(void);

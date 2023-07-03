@@ -21,8 +21,8 @@
 #include <epan/addr_resolv.h>
 #include <wiretap/secrets-types.h>
 
-#include <epan/dissectors/file-pcapng.h>
-#include <epan/dissectors/packet-pcap_pktdata.h>
+#include "file-pcapng.h"
+#include "packet-pcap_pktdata.h"
 
 static int proto_pcapng = -1;
 

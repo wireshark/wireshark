@@ -13,7 +13,7 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
-#include <epan/dissectors/packet-ieee8023.h>
+#include "packet-ieee8023.h"
 
 void proto_register_vntag(void);
 void proto_reg_handoff_vntag(void);

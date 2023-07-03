@@ -24,9 +24,10 @@
 #include <epan/packet.h>
 #include <epan/uat.h>
 #include <epan/expert.h>
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/dissectors/packet-tls.h>
-#include <epan/dissectors/packet-doip.h>
+
+#include "packet-tcp.h"
+#include "packet-tls.h"
+#include "packet-doip.h"
 
 void proto_register_doip(void);
 void proto_reg_handoff_doip(void);

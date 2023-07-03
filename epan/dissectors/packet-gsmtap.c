@@ -35,7 +35,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
-#include <epan/dissectors/packet-gsm_rlcmac.h>
+#include "packet-gsm_rlcmac.h"
 #include <wiretap/wtap.h>
 
 #include "packet-gsmtap.h"

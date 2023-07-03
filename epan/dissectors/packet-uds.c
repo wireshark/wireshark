@@ -12,11 +12,11 @@
 
 #include <epan/packet.h>
 #include <epan/uat.h>
-#include <epan/dissectors/packet-uds.h>
-#include <epan/dissectors/packet-doip.h>
-#include <epan/dissectors/packet-iso10681.h>
-#include <epan/dissectors/packet-iso15765.h>
-#include <epan/dissectors/packet-ber.h>
+#include "packet-uds.h"
+#include "packet-doip.h"
+#include "packet-iso10681.h"
+#include "packet-iso15765.h"
+#include "packet-ber.h"
 #include <wsutil/utf8_entities.h>
 
 void proto_register_uds(void);

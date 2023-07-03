@@ -16,7 +16,7 @@
 #include "config.h"
 #include <epan/conversation.h>
 #include <epan/packet.h>
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
 #include <epan/wmem_scopes.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>

@@ -60,8 +60,8 @@
 #include <epan/addr_resolv.h>
 #include <epan/wmem_scopes.h>
 #include <epan/conversation.h>
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/dissectors/packet-rtps.h>
+#include "packet-tcp.h"
+#include "packet-rtps.h"
 
 
 #define CONTENT_KIND_RTPS                        0x01

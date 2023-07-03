@@ -23,7 +23,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
 #include <epan/expert.h>
 
 #define PTYPE_SECS      0

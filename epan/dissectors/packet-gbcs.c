@@ -24,11 +24,11 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
-#include <epan/dissectors/packet-ber.h>
-#include <epan/dissectors/packet-zbee.h>
-#include <epan/dissectors/packet-zbee-nwk.h>
-#include <epan/dissectors/packet-zbee-zcl.h>
-#include <epan/dissectors/packet-zbee-aps.h>
+#include "packet-ber.h"
+#include "packet-zbee.h"
+#include "packet-zbee-nwk.h"
+#include "packet-zbee-zcl.h"
+#include "packet-zbee-aps.h"
 #include <wsutil/time_util.h>
 
 #define gbcs_message_code_names_VALUE_STRING_LIST(XXX) \

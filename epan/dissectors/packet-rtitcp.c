@@ -24,7 +24,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/wmem_scopes.h>
 #include <epan/conversation.h>
-#include <epan/dissectors/packet-tcp.h>
+#include "packet-tcp.h"
 
 #define RTITCP_MAGIC_NUMBER             0xdd54dd55
 #define RTPS_MAGIC_NUMBER               0x52545053
