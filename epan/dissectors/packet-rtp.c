@@ -49,6 +49,7 @@
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
+#include <epan/show_exception.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <epan/decode_as.h>
@@ -1651,7 +1652,7 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    gint offset = 0;
+    volatile gint offset = 0;
     int cnt;
     gboolean hdr_follow = TRUE;
     proto_tree *rfc2198_tree;
@@ -1781,7 +1782,15 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                 rtp_info->info_payload_rate = hdr_last->payload_rate;
             }
         }
-        dissect_rtp_data(tvb, pinfo, tree, rfc2198_tree, hdr_last->offset, hdr_last->len, hdr_last->len, hdr_last->pt, rtp_info);
+        const char *saved_proto = pinfo->current_proto;
+        TRY {
+            dissect_rtp_data(tvb, pinfo, tree, rfc2198_tree, hdr_last->offset, hdr_last->len, hdr_last->len, hdr_last->pt, rtp_info);
+        }
+        CATCH_NONFATAL_ERRORS {
+            show_exception(tvb, pinfo, rfc2198_tree, EXCEPT_CODE, GET_MESSAGE);
+            pinfo->current_proto = saved_proto;
+        }
+        ENDTRY;
         offset += hdr_last->len;
         hdr_last = hdr_last->next;
     }
