@@ -588,7 +588,11 @@ E2RemovalResponse                        N e2ap.proc.sout id-E2removal
 %(DEFAULT_BODY)s
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
   if (e2ap_data->component_configuration_dissector) {
+    col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "|");
+    col_set_fence(actx->pinfo->cinfo, COL_PROTOCOL);
+    col_set_writable(actx->pinfo->cinfo, COL_INFO, FALSE);
     call_dissector(e2ap_data->component_configuration_dissector, value_tvb, actx->pinfo, tree);
+    col_set_writable(actx->pinfo->cinfo, COL_INFO, TRUE);
   }
 
 #.FN_BODY E2nodeComponentConfiguration/e2nodeComponentResponsePart VAL_PTR=&value_tvb
@@ -596,7 +600,9 @@ E2RemovalResponse                        N e2ap.proc.sout id-E2removal
 %(DEFAULT_BODY)s
   struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
   if (e2ap_data->component_configuration_dissector) {
+    col_set_writable(actx->pinfo->cinfo, COL_INFO, FALSE);
     call_dissector(e2ap_data->component_configuration_dissector, value_tvb, actx->pinfo, tree);
+    col_set_writable(actx->pinfo->cinfo, COL_INFO, TRUE);
   }
 
 
