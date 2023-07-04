@@ -156,8 +156,8 @@ reference_free(df_reference_t *ref);
 void
 df_cell_append(df_cell_t *rp, fvalue_t *fv);
 
-GSList *
-df_cell_copy_list(df_cell_t *rp);
+GPtrArray *
+df_cell_ref(df_cell_t *rp);
 
 size_t
 df_cell_size(const df_cell_t *rp);

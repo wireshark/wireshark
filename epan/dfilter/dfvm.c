@@ -1400,13 +1400,14 @@ put_fvalue(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *to_arg)
 static void
 stack_push(dfilter_t *df, dfvm_value_t *arg1)
 {
-	GSList *arg;
+	GPtrArray *arg;
 
 	if (arg1->type == FVALUE) {
-		arg = g_slist_prepend(NULL, arg1->value.fvalue);
+		arg = g_ptr_array_new();
+		g_ptr_array_add(arg, arg1->value.fvalue);
 	}
 	else if (arg1->type == REGISTER) {
-		arg = df_cell_copy_list(&df->registers[arg1->value.numeric]);
+		arg = df_cell_ref(&df->registers[arg1->value.numeric]);
 	}
 	else {
 		ws_assert_not_reached();
@@ -1417,18 +1418,12 @@ stack_push(dfilter_t *df, dfvm_value_t *arg1)
 static void
 stack_pop(dfilter_t *df, dfvm_value_t *arg1)
 {
-	guint count;
-	GSList *reg;
-
-	count = arg1->value.numeric;
+	guint count = arg1->value.numeric;
 
 	for (guint i = 0; i < count; i++) {
-		/* Free top of stack and register contained there. The register
-		 * contentes are not owned by us. */
-		reg = df->function_stack->data;
-		/* Free the list but not the data it contains. */
-		g_slist_free(reg);
-		/* remove top of stack */
+		/* Free top of stack data. */
+		g_ptr_array_unref(df->function_stack->data);
+		/* Remove top of stack. */
 		df->function_stack = g_slist_delete_link(df->function_stack, df->function_stack);
 	}
 }

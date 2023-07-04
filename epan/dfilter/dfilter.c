@@ -899,18 +899,12 @@ df_cell_append(df_cell_t *rp, fvalue_t *fv)
 	g_ptr_array_add(rp->array, fv);
 }
 
-GSList *
-df_cell_copy_list(df_cell_t *rp)
+GPtrArray *
+df_cell_ref(df_cell_t *rp)
 {
 	if (rp->array == NULL)
 		return NULL;
-
-	GSList *l = NULL;
-
-	for (guint i = 0; i < rp->array->len; i++) {
-		l = g_slist_prepend(l, rp->array->pdata[i]);
-	}
-	return l;
+	return g_ptr_array_ref(rp->array);
 }
 
 size_t
