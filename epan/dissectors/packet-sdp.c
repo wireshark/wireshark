@@ -24,6 +24,7 @@
 #include <epan/show_exception.h>
 #include <epan/addr_resolv.h>
 #include <epan/conversation.h>
+#include <epan/strutil.h>
 
 #include <wsutil/strtoi.h>
 #include <wsutil/str_util.h>
@@ -1147,73 +1148,15 @@ dissect_sdp_media(tvbuff_t *tvb, packet_info* pinfo, proto_item *ti,
 }
 
 static tvbuff_t *
-ascii_bytes_to_tvb(tvbuff_t *tvb, packet_info *pinfo, gint len, gchar *msg)
+ascii_bytes_to_tvb(tvbuff_t *tvb, packet_info *pinfo, gchar *msg)
 {
-    guint8 *buf = (guint8 *)wmem_alloc(pinfo->pool, 10240);
-
-    /* arbitrary maximum length */
-    if (len < 20480) {
-        int i;
+    size_t nbytes;
+    guint8 *buf = convert_string_to_hex(msg, &nbytes);
+    if (buf) {
         tvbuff_t *bytes_tvb;
 
-        /* first, skip to where the encoded pdu starts, this is
-           the first hex digit after the '=' char.
-        */
-        while (1) {
-            if ((*msg == 0) || (*msg == '\n')) {
-                return NULL;
-            }
-            if (*msg == '=') {
-                msg++;
-                break;
-            }
-            msg++;
-        }
-        while (1) {
-            if ((*msg == 0) || (*msg == '\n')) {
-                return NULL;
-            }
-            if ( ((*msg >= '0') && (*msg <= '9'))
-                 || ((*msg >= 'a') && (*msg <= 'f'))
-                 || ((*msg >= 'A') && (*msg <= 'F'))) {
-                break;
-            }
-            msg++;
-        }
-        i = 0;
-        while (((*msg >= '0') && (*msg <= '9'))
-               || ((*msg >= 'a') && (*msg <= 'f'))
-               || ((*msg >= 'A') && (*msg <= 'F'))) {
-            int val;
-            if ((*msg >= '0') && (*msg <= '9')) {
-                val = (*msg)-'0';
-            } else if ((*msg >= 'a') && (*msg <= 'f')) {
-                val = (*msg)-'a'+10;
-            } else if ((*msg >= 'A') && (*msg <= 'F')) {
-                val = (*msg)-'A'+10;
-            } else {
-                return NULL;
-            }
-            val <<= 4;
-            msg++;
-            if ((*msg >= '0') && (*msg <= '9')) {
-                val |= (*msg)-'0';
-            } else if ((*msg >= 'a') && (*msg <= 'f')) {
-                val |= (*msg)-'a'+10;
-            } else if ((*msg >= 'A') && (*msg <= 'F')) {
-                val |= (*msg)-'A'+10;
-            } else {
-                return NULL;
-            }
-            msg++;
-
-            buf[i] = (guint8)val;
-            i++;
-        }
-        if (i == 0) {
-            return NULL;
-        }
-        bytes_tvb = tvb_new_child_real_data(tvb, buf, i, i);
+        bytes_tvb = tvb_new_child_real_data(tvb, buf, (unsigned)nbytes, (unsigned)nbytes);
+        tvb_set_free_cb(bytes_tvb, g_free);
         add_new_data_source(pinfo, bytes_tvb, "ASCII bytes to tvb");
         return bytes_tvb;
     }
@@ -1293,23 +1236,21 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
 #if 0
     proto_tree_add_debug(tree, tvb, offset, tokenlen, "Debug; MIMEtype '%s'Parameter name: '%s'", mime_type, field_name); */
 #endif
-    offset = next_offset;
+    /* Move past the '=' */
+    offset = next_offset + 1;
 
     /* Dissect the MPEG4 profile-level-id parameter if present */
     if ((mime_type != NULL) && (g_ascii_strcasecmp(mime_type, "MP4V-ES") == 0)) {
         if (strcmp((char*)field_name, "profile-level-id") == 0) {
-            offset++;
             tokenlen = end_offset - offset;
             format_specific_parameter = tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
             item = proto_tree_add_uint(tree, hf_sdp_fmtp_mpeg4_profile_level_id, tvb, offset, tokenlen,
                                        (guint32)strtol((char*)format_specific_parameter, NULL, 10));
             proto_item_set_generated(item);
         } else if (strcmp((char*)field_name, "config") == 0) {
-            /* String including "=" */
             tokenlen = end_offset - offset;
             format_specific_parameter = tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
-            /* ascii_bytes_to_tvb requires the "=" to be in the buffer */
-            data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
+            data_tvb = ascii_bytes_to_tvb(tvb, pinfo, format_specific_parameter);
             if (mp4ves_config_handle && data_tvb) {
                 call_dissector(mp4ves_config_handle, data_tvb, pinfo, tree);
             }
@@ -1320,14 +1261,12 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
     if (((mime_type != NULL) && (g_ascii_strcasecmp(mime_type, "H263-2000") == 0)) ||
         ((mime_type != NULL) && (g_ascii_strcasecmp(mime_type, "H263-1998") == 0))) {
         if (strcmp((char*)field_name, "profile") == 0) {
-            offset++;
             tokenlen = end_offset - offset;
             format_specific_parameter = tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
             item = proto_tree_add_uint(tree, hf_sdp_fmtp_h263_profile, tvb, offset, tokenlen,
                                        (guint32)strtol((char*)format_specific_parameter, NULL, 10));
             proto_item_set_generated(item);
         } else if (strcmp((char*)field_name, "level") == 0) {
-            offset++;
             tokenlen = end_offset - offset;
             format_specific_parameter = tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
             item = proto_tree_add_uint(tree, hf_sdp_fmtp_h263_level, tvb, offset, tokenlen,
@@ -1353,10 +1292,9 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
         if (strcmp(field_name, "profile-level-id") == 0) {
             int length = 0;
 
-            /* Length includes "=" as it's required by ascii_bytes_to_tvb()*/
             tokenlen = end_offset - offset;
             format_specific_parameter = tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
-            data_tvb = ascii_bytes_to_tvb(tvb, pinfo, tokenlen, format_specific_parameter);
+            data_tvb = ascii_bytes_to_tvb(tvb, pinfo, format_specific_parameter);
             if (!data_tvb) {
                 proto_tree_add_expert_format(tree, pinfo, &ei_sdp_invalid_conversion, tvb, offset, tokenlen, "Could not convert '%s' to 3 bytes", format_specific_parameter);
                 return;
@@ -1371,7 +1309,6 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
                 proto_item_set_generated(item);
             }
         } else if (strcmp(field_name, "packetization-mode") == 0) {
-            offset++;
             tokenlen = end_offset - offset;
             format_specific_parameter = tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
             item = proto_tree_add_uint(tree, hf_sdp_h264_packetization_mode, tvb, offset, tokenlen,
@@ -1390,9 +1327,6 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
             const guint8 *data_p = NULL;
             gint   comma_offset;
 
-
-            /* Move past '=' */
-            offset++;
             comma_offset = tvb_find_guint8(tvb, offset, -1, ',');
             if (comma_offset != -1) {
                 tokenlen = comma_offset - offset;
@@ -1432,8 +1366,6 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
     else if ((mime_type != NULL) && (g_ascii_strcasecmp(mime_type, "H265") == 0)) {
         if (strcmp(field_name, "sprop-vps") == 0 || strcmp(field_name, "sprop-sps") == 0 || strcmp(field_name, "sprop-pps") == 0) {
 
-            /* Move past '=' */
-            offset++;
             tokenlen = end_offset - offset;
             format_specific_parameter = tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_UTF_8 | ENC_NA);
             data_tvb = base64_to_tvb(tvb, format_specific_parameter);
@@ -1846,13 +1778,19 @@ dissect_sdp_media_attribute_h248_item(proto_tree *tree, packet_info *pinfo, tvbu
          * H223LogicalChannelsParameters structure encoded by applying the PER specified in
          * ITU-T Rec. X.691. Value encoded as per A.5.1.2. For text encoding the mechanism defined
          * in ITU-T Rec. H.248.15 is used.
+         *
+         * H.248.15 6 IANA considerations
+         * The format of the Package attribute is as below:
+         *     a=h248item:<package name>/<property name> = <value>
          */
-        gint len;
         asn1_ctx_t actx;
 
-        len = (gint)strlen(attribute_value);
-        h245_tvb = ascii_bytes_to_tvb(tvb, pinfo, len, attribute_value);
-        /* arbitrary maximum length */
+        attribute_value = strchr(attribute_value, '=');
+        if (!attribute_value) {
+            return;
+        }
+
+        h245_tvb = ascii_bytes_to_tvb(tvb, pinfo, ++attribute_value);
         /* should go through a handle, however,  the two h245 entry
            points are different, one is over tpkt and the other is raw
         */
