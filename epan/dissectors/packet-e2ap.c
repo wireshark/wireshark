@@ -304,17 +304,17 @@ static int hf_e2ap_CriticalityDiagnostics_IE_List_item = -1;  /* CriticalityDiag
 static int hf_e2ap_iECriticality = -1;            /* Criticality */
 static int hf_e2ap_iE_ID = -1;                    /* ProtocolIE_ID */
 static int hf_e2ap_typeOfError = -1;              /* TypeOfError */
-static int hf_e2ap_e2nodeComponentRequestPart = -1;  /* OCTET_STRING */
-static int hf_e2ap_e2nodeComponentResponsePart = -1;  /* OCTET_STRING */
+static int hf_e2ap_e2nodeComponentRequestPart = -1;  /* T_e2nodeComponentRequestPart */
+static int hf_e2ap_e2nodeComponentResponsePart = -1;  /* T_e2nodeComponentResponsePart */
 static int hf_e2ap_updateOutcome = -1;            /* T_updateOutcome */
 static int hf_e2ap_failureCause = -1;             /* Cause */
-static int hf_e2ap_e2nodeComponentInterfaceTypeNG = -1;  /* E2nodeComponentInterfaceNG */
-static int hf_e2ap_e2nodeComponentInterfaceTypeXn = -1;  /* E2nodeComponentInterfaceXn */
-static int hf_e2ap_e2nodeComponentInterfaceTypeE1 = -1;  /* E2nodeComponentInterfaceE1 */
-static int hf_e2ap_e2nodeComponentInterfaceTypeF1 = -1;  /* E2nodeComponentInterfaceF1 */
+static int hf_e2ap_e2nodeComponentInterfaceTypeNG = -1;  /* T_e2nodeComponentInterfaceTypeNG */
+static int hf_e2ap_e2nodeComponentInterfaceTypeXn = -1;  /* T_e2nodeComponentInterfaceTypeXn */
+static int hf_e2ap_e2nodeComponentInterfaceTypeE1 = -1;  /* T_e2nodeComponentInterfaceTypeE1 */
+static int hf_e2ap_e2nodeComponentInterfaceTypeF1 = -1;  /* T_e2nodeComponentInterfaceTypeF1 */
 static int hf_e2ap_e2nodeComponentInterfaceTypeW1 = -1;  /* E2nodeComponentInterfaceW1 */
-static int hf_e2ap_e2nodeComponentInterfaceTypeS1 = -1;  /* E2nodeComponentInterfaceS1 */
-static int hf_e2ap_e2nodeComponentInterfaceTypeX2 = -1;  /* E2nodeComponentInterfaceX2 */
+static int hf_e2ap_e2nodeComponentInterfaceTypeS1 = -1;  /* T_e2nodeComponentInterfaceTypeS1 */
+static int hf_e2ap_e2nodeComponentInterfaceTypeX2 = -1;  /* T_e2nodeComponentInterfaceTypeX2 */
 static int hf_e2ap_gNB_CU_CP_ID = -1;             /* GNB_CU_UP_ID */
 static int hf_e2ap_gNB_DU_ID = -1;                /* GNB_DU_ID */
 static int hf_e2ap_amf_name = -1;                 /* AMFName */
@@ -1469,6 +1469,7 @@ struct e2ap_private_data {
   guint32 gnb_id_len;
 #define MAX_GNB_ID_BYTES 6
   guint8  gnb_id_bytes[MAX_GNB_ID_BYTES];
+  dissector_handle_t component_configuration_dissector;
 };
 
 static struct e2ap_private_data*
@@ -2262,17 +2263,42 @@ dissect_e2ap_CriticalityDiagnostics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 
 static int
-dissect_e2ap_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_e2ap_T_e2nodeComponentRequestPart(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *value_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+                                       NO_BOUND, NO_BOUND, FALSE, &value_tvb);
+
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  if (e2ap_data->component_configuration_dissector) {
+    call_dissector(e2ap_data->component_configuration_dissector, value_tvb, actx->pinfo, tree);
+  }
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_e2ap_T_e2nodeComponentResponsePart(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *value_tvb;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &value_tvb);
+
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  if (e2ap_data->component_configuration_dissector) {
+    call_dissector(e2ap_data->component_configuration_dissector, value_tvb, actx->pinfo, tree);
+  }
+
+
 
   return offset;
 }
 
 
 static const per_sequence_t E2nodeComponentConfiguration_sequence[] = {
-  { &hf_e2ap_e2nodeComponentRequestPart, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_OCTET_STRING },
-  { &hf_e2ap_e2nodeComponentResponsePart, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_OCTET_STRING },
+  { &hf_e2ap_e2nodeComponentRequestPart, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_T_e2nodeComponentRequestPart },
+  { &hf_e2ap_e2nodeComponentResponsePart, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_e2ap_T_e2nodeComponentResponsePart },
   { NULL, 0, 0, NULL }
 };
 
@@ -2346,6 +2372,20 @@ static int
 dissect_e2ap_E2nodeComponentInterfaceNG(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e2ap_E2nodeComponentInterfaceNG, E2nodeComponentInterfaceNG_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_e2ap_T_e2nodeComponentInterfaceTypeNG(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_e2ap_E2nodeComponentInterfaceNG(tvb, offset, actx, tree, hf_index);
+
+  /* Store value in packet-private data */
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  e2ap_data->component_configuration_dissector = find_dissector("ngap");
+
 
   return offset;
 }
@@ -2533,6 +2573,20 @@ dissect_e2ap_E2nodeComponentInterfaceXn(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 
 static int
+dissect_e2ap_T_e2nodeComponentInterfaceTypeXn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_e2ap_E2nodeComponentInterfaceXn(tvb, offset, actx, tree, hf_index);
+
+  /* Store value in packet-private data */
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  e2ap_data->component_configuration_dissector = find_dissector("xnap");
+
+
+  return offset;
+}
+
+
+
+static int
 dissect_e2ap_GNB_CU_UP_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
                                                             0U, G_GUINT64_CONSTANT(68719476735), NULL, FALSE);
@@ -2557,6 +2611,20 @@ dissect_e2ap_E2nodeComponentInterfaceE1(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 
 static int
+dissect_e2ap_T_e2nodeComponentInterfaceTypeE1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_e2ap_E2nodeComponentInterfaceE1(tvb, offset, actx, tree, hf_index);
+
+  /* Store value in packet-private data */
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  e2ap_data->component_configuration_dissector = find_dissector("e1ap");
+
+
+  return offset;
+}
+
+
+
+static int
 dissect_e2ap_GNB_DU_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer_64b(tvb, offset, actx, tree, hf_index,
                                                             0U, G_GUINT64_CONSTANT(68719476735), NULL, FALSE);
@@ -2574,6 +2642,21 @@ static int
 dissect_e2ap_E2nodeComponentInterfaceF1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e2ap_E2nodeComponentInterfaceF1, E2nodeComponentInterfaceF1_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_e2ap_T_e2nodeComponentInterfaceTypeF1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_e2ap_E2nodeComponentInterfaceF1(tvb, offset, actx, tree, hf_index);
+
+  /* Store value in packet-private data */
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  e2ap_data->component_configuration_dissector = find_dissector("f1ap");
+
+
 
   return offset;
 }
@@ -2623,6 +2706,20 @@ static int
 dissect_e2ap_E2nodeComponentInterfaceS1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_e2ap_E2nodeComponentInterfaceS1, E2nodeComponentInterfaceS1_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_e2ap_T_e2nodeComponentInterfaceTypeS1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_e2ap_E2nodeComponentInterfaceS1(tvb, offset, actx, tree, hf_index);
+
+  /* Store value in packet-private data */
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  e2ap_data->component_configuration_dissector = find_dissector("s1ap");
+
 
   return offset;
 }
@@ -2729,6 +2826,22 @@ dissect_e2ap_E2nodeComponentInterfaceX2(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
+
+static int
+dissect_e2ap_T_e2nodeComponentInterfaceTypeX2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_e2ap_E2nodeComponentInterfaceX2(tvb, offset, actx, tree, hf_index);
+
+  /* Store value in packet-private data */
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  e2ap_data->component_configuration_dissector = find_dissector("x2ap");
+
+
+
+
+  return offset;
+}
+
+
 static const value_string e2ap_E2nodeComponentID_vals[] = {
   {   0, "e2nodeComponentInterfaceTypeNG" },
   {   1, "e2nodeComponentInterfaceTypeXn" },
@@ -2741,13 +2854,13 @@ static const value_string e2ap_E2nodeComponentID_vals[] = {
 };
 
 static const per_choice_t E2nodeComponentID_choice[] = {
-  {   0, &hf_e2ap_e2nodeComponentInterfaceTypeNG, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2nodeComponentInterfaceNG },
-  {   1, &hf_e2ap_e2nodeComponentInterfaceTypeXn, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2nodeComponentInterfaceXn },
-  {   2, &hf_e2ap_e2nodeComponentInterfaceTypeE1, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2nodeComponentInterfaceE1 },
-  {   3, &hf_e2ap_e2nodeComponentInterfaceTypeF1, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2nodeComponentInterfaceF1 },
+  {   0, &hf_e2ap_e2nodeComponentInterfaceTypeNG, ASN1_EXTENSION_ROOT    , dissect_e2ap_T_e2nodeComponentInterfaceTypeNG },
+  {   1, &hf_e2ap_e2nodeComponentInterfaceTypeXn, ASN1_EXTENSION_ROOT    , dissect_e2ap_T_e2nodeComponentInterfaceTypeXn },
+  {   2, &hf_e2ap_e2nodeComponentInterfaceTypeE1, ASN1_EXTENSION_ROOT    , dissect_e2ap_T_e2nodeComponentInterfaceTypeE1 },
+  {   3, &hf_e2ap_e2nodeComponentInterfaceTypeF1, ASN1_EXTENSION_ROOT    , dissect_e2ap_T_e2nodeComponentInterfaceTypeF1 },
   {   4, &hf_e2ap_e2nodeComponentInterfaceTypeW1, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2nodeComponentInterfaceW1 },
-  {   5, &hf_e2ap_e2nodeComponentInterfaceTypeS1, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2nodeComponentInterfaceS1 },
-  {   6, &hf_e2ap_e2nodeComponentInterfaceTypeX2, ASN1_EXTENSION_ROOT    , dissect_e2ap_E2nodeComponentInterfaceX2 },
+  {   5, &hf_e2ap_e2nodeComponentInterfaceTypeS1, ASN1_EXTENSION_ROOT    , dissect_e2ap_T_e2nodeComponentInterfaceTypeS1 },
+  {   6, &hf_e2ap_e2nodeComponentInterfaceTypeX2, ASN1_EXTENSION_ROOT    , dissect_e2ap_T_e2nodeComponentInterfaceTypeX2 },
   { 0, NULL, 0, NULL }
 };
 
@@ -5989,6 +6102,16 @@ static int
 dissect_e2ap_BIT_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      NO_BOUND, NO_BOUND, FALSE, NULL, 0, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_e2ap_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, NULL);
 
   return offset;
 }
@@ -13331,11 +13454,11 @@ void proto_register_e2ap(void) {
     { &hf_e2ap_e2nodeComponentRequestPart,
       { "e2nodeComponentRequestPart", "e2ap.e2nodeComponentRequestPart",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_e2ap_e2nodeComponentResponsePart,
       { "e2nodeComponentResponsePart", "e2ap.e2nodeComponentResponsePart",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_e2ap_updateOutcome,
       { "updateOutcome", "e2ap.updateOutcome",
         FT_UINT32, BASE_DEC, VALS(e2ap_T_updateOutcome_vals), 0,
@@ -13347,19 +13470,19 @@ void proto_register_e2ap(void) {
     { &hf_e2ap_e2nodeComponentInterfaceTypeNG,
       { "e2nodeComponentInterfaceTypeNG", "e2ap.e2nodeComponentInterfaceTypeNG_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "E2nodeComponentInterfaceNG", HFILL }},
+        NULL, HFILL }},
     { &hf_e2ap_e2nodeComponentInterfaceTypeXn,
       { "e2nodeComponentInterfaceTypeXn", "e2ap.e2nodeComponentInterfaceTypeXn_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "E2nodeComponentInterfaceXn", HFILL }},
+        NULL, HFILL }},
     { &hf_e2ap_e2nodeComponentInterfaceTypeE1,
       { "e2nodeComponentInterfaceTypeE1", "e2ap.e2nodeComponentInterfaceTypeE1_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "E2nodeComponentInterfaceE1", HFILL }},
+        NULL, HFILL }},
     { &hf_e2ap_e2nodeComponentInterfaceTypeF1,
       { "e2nodeComponentInterfaceTypeF1", "e2ap.e2nodeComponentInterfaceTypeF1_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "E2nodeComponentInterfaceF1", HFILL }},
+        NULL, HFILL }},
     { &hf_e2ap_e2nodeComponentInterfaceTypeW1,
       { "e2nodeComponentInterfaceTypeW1", "e2ap.e2nodeComponentInterfaceTypeW1_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -13367,11 +13490,11 @@ void proto_register_e2ap(void) {
     { &hf_e2ap_e2nodeComponentInterfaceTypeS1,
       { "e2nodeComponentInterfaceTypeS1", "e2ap.e2nodeComponentInterfaceTypeS1_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "E2nodeComponentInterfaceS1", HFILL }},
+        NULL, HFILL }},
     { &hf_e2ap_e2nodeComponentInterfaceTypeX2,
       { "e2nodeComponentInterfaceTypeX2", "e2ap.e2nodeComponentInterfaceTypeX2_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "E2nodeComponentInterfaceX2", HFILL }},
+        NULL, HFILL }},
     { &hf_e2ap_gNB_CU_CP_ID,
       { "gNB-CU-CP-ID", "e2ap.gNB_CU_CP_ID",
         FT_UINT64, BASE_DEC, NULL, 0,

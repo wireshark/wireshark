@@ -116,6 +116,7 @@ struct e2ap_private_data {
   guint32 gnb_id_len;
 #define MAX_GNB_ID_BYTES 6
   guint8  gnb_id_bytes[MAX_GNB_ID_BYTES];
+  dissector_handle_t component_configuration_dissector;
 };
 
 static struct e2ap_private_data*

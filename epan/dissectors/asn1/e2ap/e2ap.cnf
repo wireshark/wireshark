@@ -583,6 +583,63 @@ E2RemovalResponse                        N e2ap.proc.sout id-E2removal
 %(DEFAULT_BODY)s
 
 
+#.FN_BODY E2nodeComponentConfiguration/e2nodeComponentRequestPart VAL_PTR=&value_tvb
+  tvbuff_t *value_tvb;
+%(DEFAULT_BODY)s
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  if (e2ap_data->component_configuration_dissector) {
+    call_dissector(e2ap_data->component_configuration_dissector, value_tvb, actx->pinfo, tree);
+  }
+
+#.FN_BODY E2nodeComponentConfiguration/e2nodeComponentResponsePart VAL_PTR=&value_tvb
+  tvbuff_t *value_tvb;
+%(DEFAULT_BODY)s
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  if (e2ap_data->component_configuration_dissector) {
+    call_dissector(e2ap_data->component_configuration_dissector, value_tvb, actx->pinfo, tree);
+  }
+
+
+#.FN_BODY E2nodeComponentID/e2nodeComponentInterfaceTypeNG
+%(DEFAULT_BODY)s
+  /* Store value in packet-private data */
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  e2ap_data->component_configuration_dissector = find_dissector("ngap");
+
+#.FN_BODY E2nodeComponentID/e2nodeComponentInterfaceTypeXn
+%(DEFAULT_BODY)s
+  /* Store value in packet-private data */
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  e2ap_data->component_configuration_dissector = find_dissector("xnap");
+
+#.FN_BODY E2nodeComponentID/e2nodeComponentInterfaceTypeE1
+%(DEFAULT_BODY)s
+  /* Store value in packet-private data */
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  e2ap_data->component_configuration_dissector = find_dissector("e1ap");
+
+#.FN_BODY E2nodeComponentID/e2nodeComponentInterfaceTypeF1
+%(DEFAULT_BODY)s
+  /* Store value in packet-private data */
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  e2ap_data->component_configuration_dissector = find_dissector("f1ap");
+
+# There is not yet a dissector for W1AP..
+
+#.FN_BODY E2nodeComponentID/e2nodeComponentInterfaceTypeS1
+%(DEFAULT_BODY)s
+  /* Store value in packet-private data */
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  e2ap_data->component_configuration_dissector = find_dissector("s1ap");
+
+#.FN_BODY E2nodeComponentID/e2nodeComponentInterfaceTypeX2
+%(DEFAULT_BODY)s
+  /* Store value in packet-private data */
+  struct e2ap_private_data *e2ap_data = e2ap_get_private_data(actx->pinfo);
+  e2ap_data->component_configuration_dissector = find_dissector("x2ap");
+
+
+
 #.FN_HDR E2connectionUpdate
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E2connectionUpdate");
 
