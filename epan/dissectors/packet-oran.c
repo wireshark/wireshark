@@ -170,6 +170,7 @@ static int hf_oran_numPortc = -1;
 static int hf_oran_csf = -1;
 static int hf_oran_modcompscaler = -1;
 
+static int hf_oran_modcomp_param_set = -1;
 static int hf_oran_mc_scale_re_mask = -1;
 static int hf_oran_mc_scale_offset = -1;
 
@@ -244,6 +245,7 @@ static gint ett_oran_ext19_port = -1;
 static gint ett_oran_prb_allocation = -1;
 static gint ett_oran_punc_pattern = -1;
 static gint ett_oran_bfacomphdr = -1;
+static gint ett_oran_modcomp_param_set = -1;
 
 
 /* Expert info */
@@ -1652,7 +1654,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 break;
             }
 
-            case 5: /* Modulation Compression Additional Parameters Extension Type (5.4.7.5) */
+            case 5: /* Modulation Compression Additional Parameters Extension Type (7.7.5) */
             {
                 /* Applies only to section types 1,3 and 5 */
 
@@ -1667,10 +1669,22 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         sets = 2;
                         reserved_bits = 24;
                         break;
+                    case 4:
+                        /* sets can be 3 or 4, depending upon whether last 28 bits are 0.. */
+                        if ((tvb_get_ntohl(tvb, offset+10) & 0x0fffffff) == 0) {
+                            sets = 3;
+                            reserved_bits = 28;
+                        }
+                        else {
+                            sets = 4;
+                            reserved_bits = 0;
+                        }
+                        break;
+
                     default:
                         /* Malformed error!!! */
                         expert_add_info_format(pinfo, extlen_ti, &ei_oran_extlen_wrong,
-                                               "For section 5, extlen must be 2 or 3, but %u was dissected",
+                                               "For section 5, extlen must be 2, 3 or 4, but %u was dissected",
                                                extlen);
                         break;
                 }
@@ -1678,20 +1692,37 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 guint bit_offset = offset*8;
 
                 for (gint n=0; n < sets; n++) {
+                    /* Subtree for each set */
+                    guint set_start_offset = bit_offset/8;
+                    proto_item *set_ti = proto_tree_add_string(extension_tree, hf_oran_modcomp_param_set,
+                                                                tvb, set_start_offset, 0, "");
+                    proto_tree *set_tree = proto_item_add_subtree(set_ti, ett_oran_modcomp_param_set);
+
+                    guint64 mcScaleReMask, csf, mcScaleOffset;
+
                     /* mcScaleReMask (12 bits) */
-                    proto_tree_add_bits_item(extension_tree, hf_oran_mc_scale_re_mask, tvb, bit_offset, 12, ENC_BIG_ENDIAN);
+                    proto_tree_add_bits_ret_val(set_tree, hf_oran_mc_scale_re_mask, tvb, bit_offset, 12, &mcScaleReMask, ENC_BIG_ENDIAN);
                     bit_offset += 12;
                     /* csf (1 bit) */
-                    proto_tree_add_bits_item(extension_tree, hf_oran_csf, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_bits_ret_val(set_tree, hf_oran_csf, tvb, bit_offset, 1, &csf, ENC_BIG_ENDIAN);
                     bit_offset += 1;
                     /* mcScaleOffset (15 bits) */
-                    proto_tree_add_bits_item(extension_tree, hf_oran_mc_scale_offset, tvb, bit_offset, 15, ENC_BIG_ENDIAN);
+                    proto_tree_add_bits_ret_val(set_tree, hf_oran_mc_scale_offset, tvb, bit_offset, 15, &mcScaleOffset, ENC_BIG_ENDIAN);
                     bit_offset += 15;
+
+                    /* Summary */
+                    proto_item_set_len(set_ti, (bit_offset+7)/8 - set_start_offset);
+                    proto_item_append_text(set_ti, " (mcScaleReMask=%u  csf=%s  mcScaleOffset=%u)",
+                                           (guint)mcScaleReMask, tfs_get_string((gboolean)csf, &tfs_true_false), (guint)mcScaleOffset);
                 }
 
+                proto_item_append_text(extension_ti, " (%u sets)", sets);
+
                 /* Reserved */
-                proto_tree_add_bits_item(extension_tree, hf_oran_reserved, tvb, bit_offset, reserved_bits, ENC_BIG_ENDIAN);
-                bit_offset += reserved_bits;
+                if (reserved_bits) {
+                    proto_tree_add_bits_item(extension_tree, hf_oran_reserved, tvb, bit_offset, reserved_bits, ENC_BIG_ENDIAN);
+                    bit_offset += reserved_bits;
+                }
 
                 offset = bit_offset/8;
                 break;
@@ -3824,10 +3855,19 @@ proto_register_oran(void)
             HFILL }
         },
 
+        /* 7.7.5.1 */
+        { &hf_oran_modcomp_param_set,
+          { "Set", "oran_fh_cus.modcomp-param-set",
+            FT_STRING, BASE_NONE,
+            NULL, 0x0,
+            NULL,
+            HFILL }
+        },
+
         /* mcScaleReMask 7.7.5.2 (12 bits) */
         { &hf_oran_mc_scale_re_mask,
           { "mcScaleReMask", "oran_fh_cus.mcscaleremask",
-            FT_UINT16, BASE_DEC,
+            FT_BOOLEAN, 12,
             NULL, 0x0,
             "modulation compression power scale RE mask",
             HFILL }
@@ -4137,7 +4177,8 @@ proto_register_oran(void)
         &ett_oran_ext19_port,
         &ett_oran_prb_allocation,
         &ett_oran_punc_pattern,
-        &ett_oran_bfacomphdr
+        &ett_oran_bfacomphdr,
+        &ett_oran_modcomp_param_set
     };
 
     expert_module_t* expert_oran;
