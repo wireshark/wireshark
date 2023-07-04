@@ -195,9 +195,9 @@ class TestWslua:
         '''wslua pinfo'''
         check_lua_script('pinfo.lua', dhcp_pcap, True)
 
-    def test_wslua_proto(self, check_lua_script_verify):
+    def test_wslua_proto(self, check_lua_script):
         '''wslua proto'''
-        check_lua_script_verify('proto.lua', dns_port_pcap, check_stage_1=True)
+        check_lua_script('proto.lua', empty_pcap, True)
 
     def test_wslua_protofield_tree(self, check_lua_script):
         '''wslua protofield with a tree'''

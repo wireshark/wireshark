@@ -1,15 +1,21 @@
 ----------------------------------------
 -- script-name: protofield.lua
--- This is based on the dissector.lua example script, which is also used for testing.
--- Unlike that one, this one is purely for testing even more things, notably
--- the ProtoField API.
+-- test the ProtoField API
 ----------------------------------------
 
 local testlib = require("testlib")
+
+local FRAME = "frame"
+local PER_FRAME = "per-frame"
 local OTHER = "other"
 
 -- expected number of runs
-local taptests = { [OTHER]=66 }
+local n_frames = 4
+local taptests = {
+    [FRAME]=n_frames,
+    [PER_FRAME]=n_frames*8,
+    [OTHER]=50,
+}
 testlib.init(taptests)
 
 ------------- test script ------------
@@ -191,37 +197,40 @@ end
 -- Test expected text with singular and plural forms
 function test_proto.dissector(tvb, pinfo, tree)
     local ti
+    testlib.countPacket(FRAME)
 
     local tvb1 = ByteArray.new("00 00"):tvb("Tvb1")
     ti = tree:add(test_proto.fields.time_field, tvb1())
-    testlib.test(OTHER,"Time: 0 secs", ti.text == "Time: 0 secs")
+    testlib.test(PER_FRAME,"Time: 0 secs", ti.text == "Time: 0 secs")
     ti = tree:add(test_proto.fields.dist_field, tvb1())
-    testlib.test(OTHER,"Distance: 0 km", ti.text == "Distance: 0 km")
+    testlib.test(PER_FRAME,"Distance: 0 km", ti.text == "Distance: 0 km")
 
     local tvb2 = ByteArray.new("00 01"):tvb("Tvb2")
     ti = tree:add(test_proto.fields.time_field, tvb2())
-    testlib.test(OTHER,"Time: 1 sec", ti.text == "Time: 1 sec")
+    testlib.test(PER_FRAME,"Time: 1 sec", ti.text == "Time: 1 sec")
     ti = tree:add(test_proto.fields.dist_field, tvb2())
-    testlib.test(OTHER,"Distance: 1 km", ti.text == "Distance: 1 km")
+    testlib.test(PER_FRAME,"Distance: 1 km", ti.text == "Distance: 1 km")
 
     local tvb3 = ByteArray.new("ff ff"):tvb("Tvb3")
     ti = tree:add(test_proto.fields.time_field, tvb3())
-    testlib.test(OTHER,"Time: 65535 secs", ti.text == "Time: 65535 secs")
+    testlib.test(PER_FRAME,"Time: 65535 secs", ti.text == "Time: 65535 secs")
     ti = tree:add(test_proto.fields.dist_field, tvb3())
-    testlib.test(OTHER,"Distance: 65535 km", ti.text == "Distance: 65535 km")
+    testlib.test(PER_FRAME,"Distance: 65535 km", ti.text == "Distance: 65535 km")
 
     ti = tree:add(test_proto.fields.filtered_field, tvb2())
     -- Note that this file should be loaded in tshark twice. Once with a visible
     -- tree (-V) and once without a visible tree.
     if tree.visible then
         -- Tree is visible so both fields should be referenced
-        testlib.test(OTHER,"Visible tree: Time is referenced", tree:referenced(test_proto.fields.time_field) == true)
-        testlib.test(OTHER,"Visible tree: Filtered field is referenced", tree:referenced(test_proto.fields.filtered_field) == true)
+        testlib.test(PER_FRAME,"Visible tree: Time is referenced", tree:referenced(test_proto.fields.time_field) == true)
+        testlib.test(PER_FRAME,"Visible tree: Filtered field is referenced", tree:referenced(test_proto.fields.filtered_field) == true)
     else
         -- Tree is not visible so only the field that appears in a filter should be referenced
-        testlib.test(OTHER,"Invisible tree: Time is NOT referenced", tree:referenced(test_proto.fields.time_field) == false)
-        testlib.test(OTHER,"Invisible tree: Filtered field is referenced", tree:referenced(test_proto.fields.filtered_field) == true)
+        testlib.test(PER_FRAME,"Invisible tree: Time is NOT referenced", tree:referenced(test_proto.fields.time_field) == false)
+        testlib.test(PER_FRAME,"Invisible tree: Filtered field is referenced", tree:referenced(test_proto.fields.filtered_field) == true)
     end
+    testlib.pass(FRAME)
 end
 
 DissectorTable.get("udp.port"):add(65333, test_proto)
+DissectorTable.get("udp.port"):add(65346, test_proto)

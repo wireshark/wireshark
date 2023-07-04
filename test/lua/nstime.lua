@@ -4,23 +4,20 @@
 local testlib = require("testlib")
 
 local FRAME = "frame"
+local PER_FRAME = "per-frame"
 local OTHER = "other"
 
 -- expected number of runs per type
--- note ip only runs 3 times because it gets removed
--- and dhcp only runs twice because the filter makes it run
--- once and then it gets replaced with a different one for the second time
 local n_frames = 4
-local taptests = { [FRAME]=n_frames, [OTHER]=44+n_frames*5 }
-
+local taptests = {
+    [FRAME]=n_frames,
+    [PER_FRAME]=n_frames*5,
+    [OTHER]=44
+}
 testlib.init(taptests)
 
 ---------
 -- the following are so we can use pcall (which needs a function to call)
-local function makeNSTime(...)
-    local foo = NSTime(...)
-end
-
 local function setNSTime(nst,name,value)
     nst[name] = value
 end
@@ -31,8 +28,8 @@ end
 
 ------------- test script ------------
 testlib.testing(OTHER,"negative tests")
-testlib.test(OTHER,"NSTime.new-1",not pcall(makeNSTime,"FooBARhowdy"))
-testlib.test(OTHER,"NSTime.new-2",not pcall(makeNSTime,"ip","FooBARhowdy"))
+testlib.test(OTHER,"NSTime.new-1",not pcall(NSTime,"FooBARhowdy"))
+testlib.test(OTHER,"NSTime.new-2",not pcall(NSTime,"ip","FooBARhowdy"))
 local tmptime = NSTime()
 testlib.test(OTHER,"NSTime.set-3",pcall(setNSTime,tmptime,"secs",10))
 testlib.test(OTHER,"NSTime.set-4",not pcall(setNSTime,tmptime,"foobar",1000))
@@ -119,19 +116,19 @@ function tap.packet(pinfo,tvb,frame)
     local fi_rel = f_frame_time_rel()
     local fi_delta = f_frame_time_delta()
 
-    testlib.test(OTHER,"typeof-1", typeof(begin) == "NSTime")
-    testlib.test(OTHER,"typeof-2", typeof(fi_now()) == "NSTime")
+    testlib.test(PER_FRAME,"typeof-1", typeof(begin) == "NSTime")
+    testlib.test(PER_FRAME,"typeof-2", typeof(fi_now()) == "NSTime")
 
     now = fi_now()
     if testlib.getPktCount(FRAME) == 1 then
-        testlib.test(OTHER,"__eq-1", begin == fi_delta())
-        testlib.test(OTHER,"NSTime.secs-1", fi_delta().secs == 0)
-        testlib.test(OTHER,"NSTime.nsecs-1", fi_delta().nsecs == 0)
+        testlib.test(PER_FRAME,"__eq-1", begin == fi_delta())
+        testlib.test(PER_FRAME,"NSTime.secs-1", fi_delta().secs == 0)
+        testlib.test(PER_FRAME,"NSTime.nsecs-1", fi_delta().nsecs == 0)
         begin = fi_now()
     else
-        testlib.test(OTHER,"__sub__eq-1", now - previous == fi_delta())
-        testlib.test(OTHER,"__sub__eq-2", now - begin == fi_rel())
-        testlib.test(OTHER,"__add-1", (previous - begin) + (now - previous) == fi_rel())
+        testlib.test(PER_FRAME,"__sub__eq-1", now - previous == fi_delta())
+        testlib.test(PER_FRAME,"__sub__eq-2", now - begin == fi_rel())
+        testlib.test(PER_FRAME,"__add-1", (previous - begin) + (now - previous) == fi_rel())
     end
     previous = now
 

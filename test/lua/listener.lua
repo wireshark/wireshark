@@ -27,14 +27,14 @@ local taptests = {
 testlib.init(taptests)
 
 local pkt_fields = { [FRAME] = {}, [PDISS] = {} }
-local function getAllFieldInfos(type)
+local function getAllFieldInfos(group)
     local fields = { all_field_infos() }
     local fieldnames = {}
     for i,v in ipairs(fields) do
         fieldnames[i] = v.name
     end
-    local pktnum = testlib.getPktCount(type)
-    pkt_fields[type][pktnum] = { ["num"] = #fields, ["fields"] = fieldnames }
+    local pktnum = testlib.getPktCount(group)
+    pkt_fields[group][pktnum] = { ["num"] = #fields, ["fields"] = fieldnames }
 end
 
 local function dumpAllFieldInfos()

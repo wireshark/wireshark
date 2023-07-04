@@ -8,7 +8,7 @@
 
 local testlib = require("testlib")
 local OTHER = "other"
-testlib.init( { [OTHER] = 0 } )
+testlib.init( { [OTHER] = 23 } )
 
 -- you can't compare (use the '==') userdata objects with numbers, so this function does it instead.
 function checkeq(arg1,arg2)
@@ -37,7 +37,7 @@ local testtbl = {
 }
 
 for i,t in ipairs(testtbl) do
-    testlib.init( { [t.name] = 0 } )
+    testlib.init( { [t.name] = 125+(t.name == "Int64" and 3 or 0) } )
 
     testlib.testing(t.name, "class")
     local obj = t.type

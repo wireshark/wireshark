@@ -3,7 +3,15 @@
 local testlib = require("testlib")
 
 local FRAME = "frame"
+local PER_FRAME = "per-frame"
 local OTHER = "other"
+
+local n_frames = 1
+testlib.init({
+    [FRAME] = n_frames,
+    [PER_FRAME] = n_frames*43,
+    [OTHER] = 16,
+})
 
 ------------- helper funcs ------------
 
@@ -33,9 +41,6 @@ local function getFieldInfo(finfo,name)
 end
 
 --------------------------
-
-local n_frames = 1
-testlib.init({ [FRAME] = n_frames, [OTHER] = 0 })
 
 testlib.testing(OTHER, "Field")
 
@@ -83,75 +88,74 @@ function tap.packet(pinfo,tvb)
     testlib.countPacket(FRAME)
 
     testlib.testing(FRAME,"Field")
-    testlib.test(OTHER,"Field__tostring-2", tostring(f_frame_proto) == "frame.protocols")
+    testlib.test(PER_FRAME,"Field__tostring-2", tostring(f_frame_proto) == "frame.protocols")
 
     -- make sure can't create a Field inside tap
-    testlib.test(OTHER,"Field.new-5",not pcall(makeField,"ip.src"))
+    testlib.test(PER_FRAME,"Field.new-5",not pcall(makeField,"ip.src"))
 
-    testlib.test(OTHER,"Field__call-2",pcall(makeFieldInfo,f_eth_src))
+    testlib.test(PER_FRAME,"Field__call-2",pcall(makeFieldInfo,f_eth_src))
 
-    testlib.test(OTHER,"Field.name-3", f_frame_proto.name == "frame.protocols")
-    testlib.test(OTHER,"Field.name-4", f_eth_src.name == "eth.src")
+    testlib.test(PER_FRAME,"Field.name-3", f_frame_proto.name == "frame.protocols")
+    testlib.test(PER_FRAME,"Field.name-4", f_eth_src.name == "eth.src")
 
-    testlib.test(OTHER,"Field.display-3", f_frame_proto.display == "Protocols in frame")
-    testlib.test(OTHER,"Field.display-4", f_eth_src.display == "Source")
+    testlib.test(PER_FRAME,"Field.display-3", f_frame_proto.display == "Protocols in frame")
+    testlib.test(PER_FRAME,"Field.display-4", f_eth_src.display == "Source")
 
-    testlib.test(OTHER,"Field.type-6", f_frame_proto.type == ftypes.STRING)
-    testlib.test(OTHER,"Field.type-7", f_eth_src.type == ftypes.ETHER)
-    testlib.test(OTHER,"Field.type-8", f_ip_src.type == ftypes.IPv4)
-    testlib.test(OTHER,"Field.type-9", f_udp_srcport.type == ftypes.UINT16)
-    testlib.test(OTHER,"Field.type-10", f_dhcp_opt.type == ftypes.UINT8)
+    testlib.test(PER_FRAME,"Field.type-6", f_frame_proto.type == ftypes.STRING)
+    testlib.test(PER_FRAME,"Field.type-7", f_eth_src.type == ftypes.ETHER)
+    testlib.test(PER_FRAME,"Field.type-8", f_ip_src.type == ftypes.IPv4)
+    testlib.test(PER_FRAME,"Field.type-9", f_udp_srcport.type == ftypes.UINT16)
+    testlib.test(PER_FRAME,"Field.type-10", f_dhcp_opt.type == ftypes.UINT8)
 
     testlib.testing(FRAME,"FieldInfo")
 
     local finfo_udp_srcport = f_udp_srcport()
-    testlib.test(OTHER,"FieldInfo.name-1", finfo_udp_srcport.name == "udp.srcport")
-    testlib.test(OTHER,"FieldInfo.type-1", finfo_udp_srcport.type == ftypes.UINT16)
-    testlib.test(OTHER,"FieldInfo.little_endian-1", finfo_udp_srcport.little_endian == false)
-    -- the following should be true, but UDP doesn't set it right?
-    -- testlib.test(OTHER,"FieldInfo.big_endian-1", finfo_udp_srcport.big_endian == true)
-    testlib.test(OTHER,"FieldInfo.is_url-1", finfo_udp_srcport.is_url == false)
-    testlib.test(OTHER,"FieldInfo.offset-1", finfo_udp_srcport.offset == 34)
-    testlib.test(OTHER,"FieldInfo.source-1", finfo_udp_srcport.source == tvb)
+    testlib.test(PER_FRAME,"FieldInfo.name-1", finfo_udp_srcport.name == "udp.srcport")
+    testlib.test(PER_FRAME,"FieldInfo.type-1", finfo_udp_srcport.type == ftypes.UINT16)
+    testlib.test(PER_FRAME,"FieldInfo.little_endian-1", finfo_udp_srcport.little_endian == false)
+    testlib.test(PER_FRAME,"FieldInfo.big_endian-1", finfo_udp_srcport.big_endian == true)
+    testlib.test(PER_FRAME,"FieldInfo.is_url-1", finfo_udp_srcport.is_url == false)
+    testlib.test(PER_FRAME,"FieldInfo.offset-1", finfo_udp_srcport.offset == 34)
+    testlib.test(PER_FRAME,"FieldInfo.source-1", finfo_udp_srcport.source == tvb)
 
     -- check ether addr
     local fi_eth_src = f_eth_src()
-    testlib.test(OTHER,"FieldInfo.type-2", fi_eth_src.type == ftypes.ETHER)
-    testlib.test(OTHER,"FieldInfo.range-0",pcall(getFieldInfo,fi_eth_src,"range"))
+    testlib.test(PER_FRAME,"FieldInfo.type-2", fi_eth_src.type == ftypes.ETHER)
+    testlib.test(PER_FRAME,"FieldInfo.range-0",pcall(getFieldInfo,fi_eth_src,"range"))
     local eth_macs = { f_eth_mac() }
     local eth_src1 = tostring(f_eth_src().range)
     local eth_src2 = tostring(tvb:range(6,6))
     local eth_src3 = tostring(eth_macs[2].tvb)
 
-    testlib.test(OTHER,"FieldInfo.range-1", eth_src1 == eth_src2)
-    testlib.test(OTHER,"FieldInfo.range-2", eth_src1 == eth_src3)
-    testlib.test(OTHER,"FieldInfo.range-3",not pcall(setFieldInfo,fi_eth_src,"range",3))
-    testlib.test(OTHER,"FieldInfo.range-4", tostring(f_frame_encap_type().range) == "<EMPTY>")
+    testlib.test(PER_FRAME,"FieldInfo.range-1", eth_src1 == eth_src2)
+    testlib.test(PER_FRAME,"FieldInfo.range-2", eth_src1 == eth_src3)
+    testlib.test(PER_FRAME,"FieldInfo.range-3",not pcall(setFieldInfo,fi_eth_src,"range",3))
+    testlib.test(PER_FRAME,"FieldInfo.range-4", tostring(f_frame_encap_type().range) == "<EMPTY>")
 
-    testlib.test(OTHER,"FieldInfo.generated-1", f_frame_proto().generated == true)
-    testlib.test(OTHER,"FieldInfo.generated-2", eth_macs[2].generated == false)
-    testlib.test(OTHER,"FieldInfo.generated-3",not pcall(setFieldInfo,fi_eth_src,"generated",3))
+    testlib.test(PER_FRAME,"FieldInfo.generated-1", f_frame_proto().generated == true)
+    testlib.test(PER_FRAME,"FieldInfo.generated-2", eth_macs[2].generated == false)
+    testlib.test(PER_FRAME,"FieldInfo.generated-3",not pcall(setFieldInfo,fi_eth_src,"generated",3))
 
-    testlib.test(OTHER,"FieldInfo.name-1", fi_eth_src.name == "eth.src")
-    testlib.test(OTHER,"FieldInfo.name-2",not pcall(setFieldInfo,fi_eth_src,"name","3"))
+    testlib.test(PER_FRAME,"FieldInfo.name-1", fi_eth_src.name == "eth.src")
+    testlib.test(PER_FRAME,"FieldInfo.name-2",not pcall(setFieldInfo,fi_eth_src,"name","3"))
 
-    testlib.test(OTHER,"FieldInfo.label-1", fi_eth_src.label == tostring(fi_eth_src))
-    testlib.test(OTHER,"FieldInfo.label-2", fi_eth_src.label == toMacAddr(eth_src1))
-    testlib.test(OTHER,"FieldInfo.label-3",not pcall(setFieldInfo,fi_eth_src,"label","3"))
+    testlib.test(PER_FRAME,"FieldInfo.label-1", fi_eth_src.label == tostring(fi_eth_src))
+    testlib.test(PER_FRAME,"FieldInfo.label-2", fi_eth_src.label == toMacAddr(eth_src1))
+    testlib.test(PER_FRAME,"FieldInfo.label-3",not pcall(setFieldInfo,fi_eth_src,"label","3"))
 
-    testlib.test(OTHER,"FieldInfo.display-1", select(1, string.find(fi_eth_src.display, toMacAddr(eth_src1))) ~= nil)
-    testlib.test(OTHER,"FieldInfo.display-2",not pcall(setFieldInfo,fi_eth_src,"display","3"))
+    testlib.test(PER_FRAME,"FieldInfo.display-1", select(1, string.find(fi_eth_src.display, toMacAddr(eth_src1))) ~= nil)
+    testlib.test(PER_FRAME,"FieldInfo.display-2",not pcall(setFieldInfo,fi_eth_src,"display","3"))
 
-    testlib.test(OTHER,"FieldInfo.eq-1", eth_macs[2] == select(2, f_eth_mac()))
-    testlib.test(OTHER,"FieldInfo.eq-2", eth_macs[1] ~= fi_eth_src)
-    testlib.test(OTHER,"FieldInfo.eq-3", eth_macs[1] == f_eth_dst())
+    testlib.test(PER_FRAME,"FieldInfo.eq-1", eth_macs[2] == select(2, f_eth_mac()))
+    testlib.test(PER_FRAME,"FieldInfo.eq-2", eth_macs[1] ~= fi_eth_src)
+    testlib.test(PER_FRAME,"FieldInfo.eq-3", eth_macs[1] == f_eth_dst())
 
-    testlib.test(OTHER,"FieldInfo.offset-1", eth_macs[1].offset == 0)
-    testlib.test(OTHER,"FieldInfo.offset-2", -fi_eth_src == 6)
-    testlib.test(OTHER,"FieldInfo.offset-3",not pcall(setFieldInfo,fi_eth_src,"offset","3"))
+    testlib.test(PER_FRAME,"FieldInfo.offset-1", eth_macs[1].offset == 0)
+    testlib.test(PER_FRAME,"FieldInfo.offset-2", -fi_eth_src == 6)
+    testlib.test(PER_FRAME,"FieldInfo.offset-3",not pcall(setFieldInfo,fi_eth_src,"offset","3"))
 
-    testlib.test(OTHER,"FieldInfo.len-1", fi_eth_src.len == 6)
-    testlib.test(OTHER,"FieldInfo.len-2",not pcall(setFieldInfo,fi_eth_src,"len",6))
+    testlib.test(PER_FRAME,"FieldInfo.len-1", fi_eth_src.len == 6)
+    testlib.test(PER_FRAME,"FieldInfo.len-2",not pcall(setFieldInfo,fi_eth_src,"len",6))
 
     testlib.pass(FRAME)
 end

@@ -3,34 +3,22 @@
 -- The first arg should be a number, for how many total args to expect,
 -- including itself.
 
-local function testing(...)
-    print("---- Testing "..tostring(...).." ----")
-end
+local testlib = require("testlib")
 
-local function test(name, result)
-    io.stdout:write("test "..name.."...")
-    if result == true then
-        io.stdout:write("passed\n")
-    else
-        io.stdout:write("failed!\n")
-        error(name.." test failed!")
-    end
-end
+local ARGS = "args"
+testlib.init({ [ARGS]=3 })
 
 -----------------------------
 
-testing("Command-line args")
+testlib.testing("Command-line args")
 
 local arg={...} -- get passed-in args
 
-test("arg1", arg ~= nil and #arg > 0)
+testlib.test(ARGS, "arg1", arg ~= nil and #arg > 0)
 
 local numargs = tonumber(arg[1])
-test("arg2", numargs ~= nil)
+testlib.test(ARGS, "arg2", numargs ~= nil)
 
-test("arg3", #arg == numargs)
+testlib.test(ARGS, "arg3", #arg == numargs)
 
-print("\n-----------------------------\n")
-
-print("All tests passed!\n\n")
-
+testlib.getResults()
