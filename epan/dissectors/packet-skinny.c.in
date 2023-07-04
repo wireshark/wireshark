@@ -163,11 +163,11 @@ for key in sorted(xml2skinny.fieldsArray.keys()):
 static dissector_handle_t xml_handle;
 
 /* Initialize the subtree pointers */
-static gint ett_skinny          = -1;
-static gint ett_skinny_tree     = -1;
+static int ett_skinny          = -1;
+static int ett_skinny_tree     = -1;
 
 /* preference globals */
-static gboolean global_skinny_desegment = TRUE;
+static gboolean global_skinny_desegment = true;
 
 /* tap register id */
 static int skinny_tap = -1;
@@ -181,10 +181,10 @@ static skinny_info_t *si;
 dissector_handle_t skinny_handle;
 
 /* Get the length of a single SKINNY PDU */
-static guint
+static unsigned
 get_skinny_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-  guint32 hdr_data_length;
+  uint32_t hdr_data_length;
 
   /* Get the length of the SKINNY packet. */
   hdr_data_length = tvb_get_letohl(tvb, offset);
@@ -194,12 +194,12 @@ get_skinny_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
 }
 
 static void
-dissect_skinny_xml(ptvcursor_t *cursor, int hfindex, packet_info *pinfo, guint32 length, guint32 maxlength)
+dissect_skinny_xml(ptvcursor_t *cursor, int hfindex, packet_info *pinfo, uint32_t length, uint32_t maxlength)
 {
   proto_item         *item       = NULL;
   proto_tree         *subtree    = NULL;
   proto_tree         *tree       = ptvcursor_tree(cursor);
-  guint32            offset      = ptvcursor_current_offset(cursor);
+  uint32_t           offset      = ptvcursor_current_offset(cursor);
   tvbuff_t           *tvb        = ptvcursor_tvbuff(cursor);
   tvbuff_t           *next_tvb;
 
@@ -224,10 +224,10 @@ dissect_skinny_xml(ptvcursor_t *cursor, int hfindex, packet_info *pinfo, guint32
 static void
 dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6)
 {
-  guint32            ipversion   = 0;
-  guint32            offset      = ptvcursor_current_offset(cursor);
+  uint32_t           ipversion   = 0;
+  uint32_t           offset      = ptvcursor_current_offset(cursor);
   tvbuff_t           *tvb        = ptvcursor_tvbuff(cursor);
-  guint32            hdr_version = tvb_get_letohl(tvb, 4);
+  uint32_t           hdr_version = tvb_get_letohl(tvb, 4);
 
   /* ProtocolVersion > 18 include and extra field to declare IPv4 (0) / IPv6 (1) */
   if (hdr_version >= V17_MSG_TYPE) {
@@ -252,11 +252,11 @@ dissect_skinny_ipv4or6(ptvcursor_t *cursor, int hfindex_ipv4, int hfindex_ipv6)
 static void
 read_skinny_ipv4or6(ptvcursor_t *cursor, address *media_addr)
 {
-  guint32            ipversion   = IPADDRTYPE_IPV4;
-  guint32            offset      = ptvcursor_current_offset(cursor);
-  guint32            offset2     = 0;
+  uint32_t           ipversion   = IPADDRTYPE_IPV4;
+  uint32_t           offset      = ptvcursor_current_offset(cursor);
+  uint32_t           offset2     = 0;
   tvbuff_t           *tvb        = ptvcursor_tvbuff(cursor);
-  guint32            hdr_version = tvb_get_letohl(tvb, 4);
+  uint32_t           hdr_version = tvb_get_letohl(tvb, 4);
 
   /* ProtocolVersion > 18 include and extra field to declare IPv4 (0) / IPv6 (1) */
   if (hdr_version >= V17_MSG_TYPE) {
@@ -276,17 +276,17 @@ read_skinny_ipv4or6(ptvcursor_t *cursor, address *media_addr)
  * Parse a displayLabel string and check if it is using any embedded labels, if so lookup the label and add a user readable translation to the item_tree
  */
 static void
-dissect_skinny_displayLabel(ptvcursor_t *cursor, packet_info *pinfo, int hfindex, gint length)
+dissect_skinny_displayLabel(ptvcursor_t *cursor, packet_info *pinfo, int hfindex, int length)
 {
   proto_item    *item             = NULL;
   proto_tree    *tree             = ptvcursor_tree(cursor);
-  guint32       offset            = ptvcursor_current_offset(cursor);
+  uint32_t      offset            = ptvcursor_current_offset(cursor);
   tvbuff_t      *tvb              = ptvcursor_tvbuff(cursor);
   wmem_strbuf_t *wmem_new         = NULL;
-  gchar         *disp_string      = NULL;
-  const gchar   *replacestr       = NULL;
-  gboolean      show_replaced_str = FALSE;
-  gint          x                 = 0;
+  char          *disp_string      = NULL;
+  const char    *replacestr       = NULL;
+  bool          show_replaced_str = false;
+  int           x                 = 0;
 
   if (length == 0) {
     length = tvb_strnlen(tvb, offset, -1);
@@ -299,7 +299,7 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, packet_info *pinfo, int hfindex
   item = proto_tree_add_item(tree, hfindex, tvb, offset, length, ENC_ASCII);
 
   wmem_new = wmem_strbuf_new_sized(pinfo->pool, length + 1);
-  disp_string = (gchar*) wmem_alloc(pinfo->pool, length + 1);
+  disp_string = (char*) wmem_alloc(pinfo->pool, length + 1);
   disp_string[length] = '\0';
   tvb_memcpy(tvb, (void*)disp_string, offset, length);
 
@@ -315,7 +315,7 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, packet_info *pinfo, int hfindex
     if (replacestr) {
       x++;        /* swallow replaced characters */
       wmem_strbuf_append(wmem_new, replacestr);
-      show_replaced_str = TRUE;
+      show_replaced_str = true;
     } else if (disp_string[x] & 0x80) {
       wmem_strbuf_append_unichar_repl(wmem_new);
     } else {
@@ -400,7 +400,7 @@ cog.out(message_dissector_functions)
 typedef void (*message_handler) (ptvcursor_t * cursor, packet_info *pinfo, skinny_conv_info_t * skinny_conv);
 
 typedef struct _skinny_opcode_map_t {
-  guint32 opcode;
+  uint32_t opcode;
   message_handler handler;
   skinny_message_type_t type;
   const char *name;
@@ -423,18 +423,18 @@ cog.out('};\n')
 /* Dissect a single SKINNY PDU */
 static int dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  guint    offset   = 0;
-  /*gboolean is_video = FALSE;*/    /* FIX ME: need to indicate video or not */
+  unsigned offset   = 0;
+  /*bool is_video = false;*/    /* FIX ME: need to indicate video or not */
   ptvcursor_t* cursor;
   conversation_t *conversation;
   skinny_conv_info_t *skinny_conv;
   const skinny_opcode_map_t *opcode_entry = NULL;
 
   /* Header fields */
-  guint32  hdr_data_length;
-  guint32  hdr_version;
-  guint32  hdr_opcode;
-  guint16  i;
+  uint32_t hdr_data_length;
+  uint32_t hdr_version;
+  uint32_t hdr_opcode;
+  uint16_t i;
 
   /* Set up structures we will need to add the protocol subtree and manage it */
   proto_tree *skinny_tree = NULL;
@@ -534,8 +534,8 @@ dissect_skinny(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
    * SKINNY-Packet: {Header(Size, Reserved)|Data(MessageID, Message-Data)}
    */
   /* Header fields */
-  guint32 hdr_data_length;
-  guint32 hdr_version;
+  uint32_t hdr_data_length;
+  uint32_t hdr_version;
 
   /* check, if this is really an SKINNY packet, they start with a length + 0 */
 
@@ -624,7 +624,7 @@ proto_register_skinny(void)
   };
 
   /* Setup protocol subtree array */
-  static gint *ett[] = {
+  static int *ett[] = {
     &ett_skinny,
     &ett_skinny_tree,
   };

@@ -188,7 +188,7 @@ def xml2obj(src):
                 for fields in self.fields:
                     if fields.size_lt or fields.size_gt:
                         if self.basemessage.declared is None or "hdr_data_length" not in self.basemessage.declared:
-                            ret += self.indent_out("guint32 hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);\n")
+                            ret += self.indent_out("uint32_t hdr_data_length = tvb_get_letohl(ptvcursor_tvbuff(cursor), 0);\n")
                             self.basemessage.declared.append("hdr_data_length")
                             declarations += 1
                     if fields.fixed == "yes":
@@ -197,7 +197,7 @@ def xml2obj(src):
                 if not declarations or fixed == 1:
                     for fields in self.fields[1:]:
                         if self.basemessage.declared is None or "hdr_version" not in self.basemessage.declared:
-                            ret += self.indent_out("guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);\n")
+                            ret += self.indent_out("uint32_t hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);\n")
                             self.basemessage.declared.append("hdr_version")
                             declarations += 1
 
@@ -316,7 +316,7 @@ def xml2obj(src):
 
             if self.declare == "yes" or self.make_additional_info == "yes":
                 if self.basemessage.declared is None or self.name not in self.basemessage.declared:
-                    ret += self.indent_out('guint%s %s = 0;\n' %(self.intsize * 8, self.name))
+                    ret += self.indent_out(f'uint{self.intsize * 8}_t {self.name} = 0;\n')
                     self.basemessage.declared.append(self.name)
 
             global fieldsArray
@@ -343,7 +343,7 @@ def xml2obj(src):
                     ret += self.indent_out('{\n')
                 self.incr_indent()
                 variable = 'counter_%d' %indentation
-                ret += self.indent_out('guint32 %s = 0;\n' %(variable));
+                ret += self.indent_out('uint32_t %s = 0;\n' %(variable));
                 if self.size_fieldname:
                     ret += self.indent_out('ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "%s [ref:%s = %%d, max:%s]", %s);\n' %(self.name, self.size_fieldname, size, self.size_fieldname))
                 else:
@@ -477,7 +477,7 @@ def xml2obj(src):
                     ret += self.indent_out('{\n')
                 self.incr_indent()
                 variable = 'counter_%d' %indentation
-                ret += self.indent_out('guint32 %s = 0;\n' %(variable));
+                ret += self.indent_out('uint32_t %s = 0;\n' %(variable));
                 if self.size_fieldname:
                     ret += self.indent_out('ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "%s [ref: %s = %%d, max:%s]", %s);\n' %(self.name, self.size_fieldname, size, self.size_fieldname))
                 else:
@@ -551,18 +551,18 @@ def xml2obj(src):
                     if self.basemessage.declared is None or "VariableDirnumSize" not in self.basemessage.declared:
                         if self.basemessage.declared is None or "hdr_version" not in self.basemessage.declared:
                         #if (self.basemessage.fields is not None and len(self.basemessage.fields) == 1):
-                            ret += self.indent_out('guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);\n')
+                            ret += self.indent_out('uint32_t hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);\n')
                             self.basemessage.declared.append("hdr_version")
-                        ret += self.indent_out('guint32 VariableDirnumSize = (hdr_version >= V18_MSG_TYPE) ? 25 : 24;\n')
+                        ret += self.indent_out('uint32_t VariableDirnumSize = (hdr_version >= V18_MSG_TYPE) ? 25 : 24;\n')
                         self.basemessage.declared.append("VariableDirnumSize")
                 #else:
                 #    if self.basemessage.declared is None or self.name not in self.basemessage.declared:
-                #        ret += self.indent_out('gchar *%s = NULL;\n' %self.name)
+                #        ret += self.indent_out('char *%s = NULL;\n' %self.name)
                 #        self.basemessage.declared.append(self.name)
 
             if self.basemessage.dynamic == "yes" and not self.subtype == "DisplayLabel":
                 if self.basemessage.declared is None or self.name + '_len' not in self.basemessage.declared:
-                    ret += self.indent_out('guint32 %s_len = 0;\n' %self.name)
+                    ret += self.indent_out('uint32_t %s_len = 0;\n' %self.name)
                     self.basemessage.declared.append(self.name + '_len')
 
             global fieldsArray
@@ -574,7 +574,7 @@ def xml2obj(src):
             ret = ''
 
             if self.declare == "yes" and self.size != "VariableDirnumSize":
-                ret += self.indent_out('const gchar * %s = g_strdup(tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), %s));\n' %(self.name, self.size))
+                ret += self.indent_out('const char * %s = g_strdup(tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), %s));\n' %(self.name, self.size))
 
             if self.subtype == "DisplayLabel":
                 if self.basemessage.dynamic == "yes":
@@ -601,7 +601,7 @@ def xml2obj(src):
                 if self.name in si_fields.keys():
                     ret += self.indent_out('%s = g_strdup(tvb_format_stringzpad(pinfo->pool, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), %s));\n' %(si_fields[self.name], self.size))
                 if self.make_additional_info == "yes":
-                    ret += self.indent_out('guint32 %s_len;\n' %(self.name))
+                    ret += self.indent_out('uint32_t %s_len;\n' %(self.name))
                     if self.size=="VariableDirnumSize":
                         ret += self.indent_out('%s_len = tvb_strnlen(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), VariableDirnumSize)+1;\n' %(self.name))
                     else:
@@ -633,12 +633,12 @@ def xml2obj(src):
 
             if self.declare == "yes":
                 if self.basemessage.declared is None or self.name not in self.basemessage.declared:
-                    ret += self.indent_out('guint32 %s = 0;\n' %self.name)
+                    ret += self.indent_out('uint32_t %s = 0;\n' %self.name)
                     self.basemessage.declared.append(self.name)
 
             if self.basemessage.dynamic == "yes":
                 if self.basemessage.declared is None or self.name + '_len' not in self.basemessage.declared:
-                    ret += self.indent_out('guint32 %s_len = 0;\n' %self.name)
+                    ret += self.indent_out('uint32_t %s_len = 0;\n' %self.name)
                     self.basemessage.declared.append(self.name + '_len')
 
             global fieldsArray
@@ -818,7 +818,7 @@ def xml2obj(src):
             if (self.fields is not None and len(self.fields)):
                 if (len(self.fields) > 1):
                     if self.basemessage.declared is None or "hdr_version" not in self.basemessage.declared:
-                        ret += self.indent_out("guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);\n")
+                        ret += self.indent_out("uint32_t hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);\n")
                         self.basemessage.declared.append("hdr_version")
                 for fields in self.fields:
                     ret += '%s' %fields.declaration()
@@ -848,7 +848,7 @@ def xml2obj(src):
                 self.incr_indent()
                 if debug:
                     ret += self.indent_out('/* start struct : %s / size: %d */\n' %(self.name, self.intsize))
-                ret += self.indent_out('guint32 %s = 0;\n' %(variable));
+                ret += self.indent_out('uint32_t %s = 0;\n' %(variable));
                 if self.size_fieldname:
                     ret += self.indent_out('ptvcursor_add_text_with_subtree(cursor, SUBTREE_UNDEFINED_LENGTH, ett_skinny_tree, "%s [ref:%s = %%d, max:%s]", %s);\n' %(self.name, self.size_fieldname, self.maxsize, self.size_fieldname))
                     if self.maxsize:
@@ -922,7 +922,7 @@ def xml2obj(src):
             if (self.fields is not None and len(self.fields)):
                 if (len(self.fields) > 1):
                     if self.basemessage.declared is None or "hdr_version" not in self.basemessage.declared:
-                        ret += self.indent_out("guint32 hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);\n")
+                        ret += self.indent_out("uint32_t hdr_version = tvb_get_letohl(ptvcursor_tvbuff(cursor), 4);\n")
                         self.basemessage.declared.append("hdr_version")
                 for fields in self.fields:
                     ret += '%s' %fields.declaration()

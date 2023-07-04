@@ -29,8 +29,8 @@
 
 /* request response tracking */
 typedef struct _skinny_req_resp_t {
-  guint32                request_frame;
-  guint32                response_frame;
+  uint32_t               request_frame;
+  uint32_t               response_frame;
   nstime_t               request_time;
 } skinny_req_resp_t;
 
@@ -46,11 +46,11 @@ typedef struct _skinny_conv_info_t {
   wmem_map_t            * pending_req_resp;
   wmem_map_t            * requests;
   wmem_map_t            * responses;
-  gint32                  lineId;
-  //guint32                 callId;
-  //guint32                 passThruId;
-  //guint32                 transactionId;
-  //guint32                 callState;
+  int32_t                 lineId;
+  //uint32_t                callId;
+  //uint32_t                passThruId;
+  //uint32_t                transactionId;
+  //uint32_t                callState;
 } skinny_conv_info_t;
 /* end conversation info */
 
@@ -58,23 +58,23 @@ typedef struct _skinny_conv_info_t {
 /* WIP: will be (partially) replaced in favor of conversionation, dependents: ui/voip_calls.c */
 typedef struct _skinny_info_t
 {
-  guint32                 messId;
-  guint32                 maxProtocolVersion;
-  gint32                  lineId;
-  guint32                 callId;
-  guint32                 passThroughPartyId;
-  const gchar           * messageName;
-  guint32                 callState;
-  gboolean                hasCallInfo;
-  gchar                 * callingParty;
-  gchar                 * calledParty;
-  gint32                  mediaReceptionStatus;
-  gint32                  mediaTransmissionStatus;
-  gint32                  multimediaReceptionStatus;
-  gint32                  multimediaTransmissionStatus;
-  gint32                  multicastReceptionStatus;
+  uint32_t                messId;
+  uint32_t                maxProtocolVersion;
+  int32_t                 lineId;
+  uint32_t                callId;
+  uint32_t                passThroughPartyId;
+  const char            * messageName;
+  uint32_t                callState;
+  bool                    hasCallInfo;
+  char                  * callingParty;
+  char                  * calledParty;
+  int32_t                 mediaReceptionStatus;
+  int32_t                 mediaTransmissionStatus;
+  int32_t                 multimediaReceptionStatus;
+  int32_t                 multimediaTransmissionStatus;
+  int32_t                 multicastReceptionStatus;
   //skinny_conv_info_t    * skinny_conv;
-  gchar                 * additionalInfo;
+  char                  * additionalInfo;
 } skinny_info_t;
 
 /*
