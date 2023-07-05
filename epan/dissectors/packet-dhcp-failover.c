@@ -44,6 +44,18 @@ static dissector_handle_t dhcpfo_handle;
 /* desegmentation of DHCP failover over TCP */
 static gboolean dhcpfo_desegment = TRUE;
 
+/* enum preference to interpret Microsoft-formatted fields correctly */
+#define AUTODETECT_MS_DHCP	0
+#define DISSECT_IEFT_DRAFT	1
+#define DISSECT_MS_DHCP		2
+static const enum_val_t microsoft_compatibility[] = {
+	{ "autodetect_ms_dhcp", "Autodetect Microsoft Windows DHCP server", AUTODETECT_MS_DHCP },
+	{ "dissect_ietf_draft", "Dissect using IETF draft 12 specifications", DISSECT_IEFT_DRAFT },
+	{ "dissect_ms_dhcp", "Dissect using Microsoft-style formatting", DISSECT_MS_DHCP },
+	{ NULL, NULL, 0 }
+};
+static int dhcpfo_microsoft_compatibility = AUTODETECT_MS_DHCP;
+
 /* Initialize the protocol and registered fields */
 static int proto_dhcpfo = -1;
 static int hf_dhcpfo_length = -1;
@@ -91,6 +103,11 @@ static int hf_dhcpfo_serverflag = -1;
 static int hf_dhcpfo_options = -1;
 static int hf_dhcpfo_ms_client_hostname = -1;
 static int hf_dhcpfo_ms_server_hostname = -1;
+static int hf_dhcpfo_ms_server_ip_address = -1;
+static int hf_dhcpfo_ms_client_scope = -1;
+static int hf_dhcpfo_ms_scope_netmask = -1;
+static int hf_dhcpfo_ms_scope_id = -1;
+static int hf_dhcpfo_ms_ipflags = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dhcpfo = -1;
@@ -154,7 +171,10 @@ static const value_string failover_vals[] =
 #define DHCP_FO_PD_TLS_REQUEST                  27
 #define DHCP_FO_PD_VENDOR_CLASS                 28
 #define DHCP_FO_PD_VENDOR_OPTION                29
+#define DHCP_FO_PD_MS_SCOPE_ID                  30
 #define DHCP_FO_PD_MS_CLIENT_HOSTNAME           31
+#define DHCP_FO_PD_MS_SCOPE_NETMASK             33
+#define DHCP_FO_PD_MS_SERVER_IP_ADDRESS         34
 #define DHCP_FO_PD_MS_SERVER_HOSTNAME           35
 
 
@@ -189,7 +209,10 @@ static const value_string option_code_vals[] =
 	{DHCP_FO_PD_TLS_REQUEST,			"TLS-request"},
 	{DHCP_FO_PD_VENDOR_CLASS,			"vendor-class"},
 	{DHCP_FO_PD_VENDOR_OPTION,			"vendor-option"},
+	{DHCP_FO_PD_MS_SCOPE_ID,			"microsoft-scope-ID"},
 	{DHCP_FO_PD_MS_CLIENT_HOSTNAME,			"microsoft-client-hostname"},
+	{DHCP_FO_PD_MS_SCOPE_NETMASK,			"microsoft-scope-netmask"},
+	{DHCP_FO_PD_MS_SERVER_IP_ADDRESS,		"microsoft-server-IP-address"},
 	{DHCP_FO_PD_MS_SERVER_HOSTNAME,			"microsoft-server-hostname"},
 	{0, NULL}
 
@@ -275,6 +298,7 @@ static const value_string tls_reply_vals[] =
 static const value_string message_digest_type_vals[] =
 {
 	{1, "HMAC-MD5"},
+	{2, "Microsoft-specific"},
 	{0, NULL}
 };
 
@@ -310,18 +334,17 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	guint32 lease_expiration_time,
 			potential_expiration_time, client_last_transaction_time,
 			start_time_of_state;
-	gboolean bogus_poffset;
+	gboolean bogus_poffset, microsoft_style;
 	guint16 opcode, option_length;
 	guint8 htype, reject_reason, message_digest_type, binding_status;
-	const guint8 *vendor_class_str;
+	const guint8 *vendor_class_str, *relationship_name_str;
 	const gchar *htype_str;
 	gchar *lease_expiration_time_str, *potential_expiration_time_str,
 		  *client_last_transaction_time_str, *start_time_of_state_str;
 	guint32 mclt;
 	guint8 server_state;
 	guint32 max_unacked_bndupd, receive_timer;
-	const guint8 *ms_client_hostname_str;
-	const guint8 *ms_server_hostname_str;
+	const guint8 *ms_client_hostname_str, *ms_server_hostname_str;
 
 /* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPFO");
@@ -355,8 +378,17 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	    val_to_str_const(type, failover_vals, "Unknown Packet"));
 	offset += 1;
 
+	if (dhcpfo_microsoft_compatibility == DISSECT_MS_DHCP) {
+		microsoft_style = TRUE;
+	} else {
+		/* Set to FALSE, changed to TRUE later if autodetected */
+		microsoft_style = FALSE;
+	}
 	poffset = tvb_get_guint8(tvb, offset);
 	if (poffset == 8) {
+		if (dhcpfo_microsoft_compatibility == AUTODETECT_MS_DHCP) {
+			microsoft_style = TRUE;
+		}
 		bogus_poffset = FALSE;
 		proto_tree_add_uint_format_value(dhcpfo_tree,
 			hf_dhcpfo_poffset, tvb, offset, 1, poffset,
@@ -524,21 +556,42 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			break;
 
 		case DHCP_FO_PD_CLIENT_HARDWARE_ADDRESS:
-			if (option_length < 2) {
-				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "hardware address is too short");
-				break;
+			if (microsoft_style == FALSE) {
+				/* As specified in the draft: hardware type + hardware address */
+				if (option_length < 2) {
+					expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "hardware address is too short");
+					break;
+				}
+				htype = tvb_get_guint8(tvb, offset);
+				htype_str = tvb_arphrdaddr_to_str(pinfo->pool, tvb, offset+1, option_length-1,
+					htype);
+				proto_item_append_text(oi, ", %s, %s", htype_str,
+					htype_str);
+
+				proto_tree_add_item(option_tree, hf_dhcpfo_client_hw_type, tvb,
+					offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_string(option_tree, hf_dhcpfo_client_hardware_address, tvb,
+					offset+1, option_length-1, htype_str);
+			} else {
+				/* Microsoft-style: DHCP scope (reversed) + hardware type + hardware address */
+				if (option_length < 6) {
+					expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "hardware address is too short");
+					break;
+				}
+				proto_tree_add_item(option_tree,
+					hf_dhcpfo_ms_client_scope, tvb,	offset, 4, ENC_LITTLE_ENDIAN);
+
+				htype = tvb_get_guint8(tvb, offset+4);
+				htype_str = tvb_arphrdaddr_to_str(pinfo->pool, tvb, offset+1+4, option_length-1-4,
+					htype);
+				proto_item_append_text(oi, ", %s, %s", htype_str,
+					htype_str);
+
+				proto_tree_add_item(option_tree, hf_dhcpfo_client_hw_type, tvb,
+					offset+4, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_string(option_tree, hf_dhcpfo_client_hardware_address, tvb,
+					offset+1+4, option_length-1-4, htype_str);
 			}
-			htype = tvb_get_guint8(tvb, offset);
-			htype_str = tvb_arphrdaddr_to_str(pinfo->pool, tvb, offset+1, option_length-1,
-			    htype);
-
-			proto_item_append_text(oi, ", %s, %s", htype_str,
-			    htype_str);
-
-			proto_tree_add_item(option_tree, hf_dhcpfo_client_hw_type, tvb,
-				offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_string(option_tree, hf_dhcpfo_client_hardware_address, tvb,
-				offset+1, option_length-1, htype_str);
 			break;
 
 		case DHCP_FO_PD_FTDDNS:
@@ -564,8 +617,22 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			break;
 
 		case DHCP_FO_PD_RELATIONSHIP_NAME:
-			proto_tree_add_item(option_tree, hf_dhcpfo_relationship_name, tvb,
-			    offset, option_length, ENC_ASCII);
+			if (microsoft_style == FALSE) {
+				/* Parse as ASCII */
+				proto_tree_add_item_ret_string(option_tree,
+					hf_dhcpfo_relationship_name, tvb, offset,
+					option_length, ENC_ASCII, pinfo->pool, &relationship_name_str);
+				proto_item_append_text(oi,", \"%s\"",
+					format_text(pinfo->pool, relationship_name_str, option_length));
+			} else {
+				/* Microsoft-style: Parse as UTF-16-LE */
+				proto_tree_add_item_ret_string(option_tree,
+					hf_dhcpfo_relationship_name, tvb, offset,
+					option_length, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &relationship_name_str);
+				/* String length is half the data length */
+				proto_item_append_text(oi,", \"%s\"",
+					format_text(pinfo->pool, relationship_name_str, option_length/2));
+			}
 			break;
 
 		case DHCP_FO_PD_MESSAGE:
@@ -585,11 +652,22 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			break;
 
 		case DHCP_FO_PD_VENDOR_CLASS:
-			proto_tree_add_item_ret_string(option_tree,
-			    hf_dhcpfo_vendor_class, tvb, offset,
-			    option_length, ENC_ASCII, pinfo->pool, &vendor_class_str);
-			proto_item_append_text(oi,", \"%s\"",
-			    format_text(pinfo->pool, vendor_class_str, option_length));
+			if (microsoft_style == FALSE) {
+				/* Parse as ASCII */
+				proto_tree_add_item_ret_string(option_tree,
+					hf_dhcpfo_vendor_class, tvb, offset,
+					option_length, ENC_ASCII, pinfo->pool, &vendor_class_str);
+				proto_item_append_text(oi,", \"%s\"",
+					format_text(pinfo->pool, vendor_class_str, option_length));
+			} else {
+				/* Microsoft-style: Parse as UTF-16-LE */
+				proto_tree_add_item_ret_string(option_tree,
+					hf_dhcpfo_vendor_class, tvb, offset,
+					option_length, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &vendor_class_str);
+				/* String length is half the data length */
+				proto_item_append_text(oi,", \"%s\"",
+					format_text(pinfo->pool, vendor_class_str, option_length/2));
+			}
 			break;
 
 		case DHCP_FO_PD_LEASE_EXPIRATION_TIME:
@@ -746,32 +824,44 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			break;
 
 		case DHCP_FO_PD_IP_FLAGS: {
-			static int * const ipflags[] = {
-				&hf_dhcpfo_ipflags_reserved,
-				&hf_dhcpfo_ipflags_bootp,
-				&hf_dhcpfo_ipflags_mbz,
-				NULL
-			};
-			if (option_length != 2) {
-				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "IP flags is not 2 bytes long");
-				break;
+			if (microsoft_style == FALSE) {
+				/* As specified in the draft: 16-bit flags */
+				static int * const ipflags[] = {
+					&hf_dhcpfo_ipflags_reserved,
+					&hf_dhcpfo_ipflags_bootp,
+					&hf_dhcpfo_ipflags_mbz,
+					NULL
+				};
+				if (option_length != 2) {
+					/* Draft-12 shows Len=1 with 16-bit field though */
+					expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "IP flags is not 2 bytes long");
+					break;
+				}
+				proto_tree_add_bitmask(option_tree, tvb, offset, hf_dhcpfo_ipflags,
+					ett_fo_payload_data, ipflags, ENC_BIG_ENDIAN);
+			} else {
+				/* Microsoft-style: one byte only, usage unknown */
+				if (option_length != 1) {
+					expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "IP flags is not 1 bytes long");
+					break;
+				}
+				proto_item_append_text(oi, ", flags (Microsoft-specific): 0x%02x", tvb_get_guint8(tvb, offset));
+				proto_tree_add_item(option_tree, hf_dhcpfo_ms_ipflags, tvb, offset, option_length, ENC_BIG_ENDIAN);
 			}
-			proto_tree_add_bitmask(option_tree, tvb, offset, hf_dhcpfo_ipflags,
-			    ett_fo_payload_data, ipflags, ENC_BIG_ENDIAN);
 			break;
 			}
 
 		case DHCP_FO_PD_MESSAGE_DIGEST:
-			if (option_length < 2) {
-				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "Message digest is too short");
+			if (option_length < 1) {
+				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "Message digest option is too short");
 				break;
 			}
 
 			message_digest_type = tvb_get_guint8(tvb, offset);
 			ti = proto_tree_add_item(option_tree, hf_dhcpfo_message_digest_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-			if (message_digest_type == 1) {
-				proto_item_append_text(oi, ", HMAC-MD5");
+			if (message_digest_type >= 1 && message_digest_type <= 2) {
+				proto_item_append_text(oi, ", %s", val_to_str_const(message_digest_type, message_digest_type_vals, "Unknown value"));
 			} else {
 				proto_item_append_text(oi, ", type not allowed");
 				expert_add_info_format(pinfo, ti, &ei_dhcpfo_message_digest_type_not_allowed, "Message digest type: %u, not allowed", message_digest_type);
@@ -816,6 +906,16 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			proto_tree_add_item(option_tree, hf_dhcpfo_options, tvb, offset, option_length, ENC_NA);
 			break;
 
+		case DHCP_FO_PD_MS_SCOPE_ID:
+			if (option_length != 4) {
+				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "scope ID is not 4 bytes long");
+				break;
+			}
+			proto_tree_add_item(option_tree,
+				hf_dhcpfo_ms_scope_id, tvb, offset,
+				option_length, ENC_LITTLE_ENDIAN);
+			break;
+
 		case DHCP_FO_PD_MS_CLIENT_HOSTNAME:
 			proto_tree_add_item_ret_string(option_tree,
 			    hf_dhcpfo_ms_client_hostname, tvb, offset,
@@ -823,6 +923,28 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			/* With UTF-16 the string length is half the data length, minus the zero-termination */
 			proto_item_append_text(oi,", \"%s\"",
 			    format_text(pinfo->pool, ms_client_hostname_str, option_length/2-1));
+			break;
+
+		case DHCP_FO_PD_MS_SCOPE_NETMASK:
+			if (option_length != 4) {
+				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "netmask is not 4 bytes long");
+				break;
+			}
+			proto_item_append_text(oi, ", %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
+			proto_tree_add_item(option_tree,
+				hf_dhcpfo_ms_scope_netmask, tvb, offset,
+				option_length, ENC_BIG_ENDIAN);
+			break;
+
+		case DHCP_FO_PD_MS_SERVER_IP_ADDRESS:
+			if (option_length != 4) {
+				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "server IP address is not 4 bytes long");
+				break;
+			}
+			proto_item_append_text(oi, ", %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
+			proto_tree_add_item(option_tree,
+				hf_dhcpfo_ms_server_ip_address, tvb, offset,
+				option_length, ENC_BIG_ENDIAN);
 			break;
 
 		case DHCP_FO_PD_MS_SERVER_HOSTNAME:
@@ -1056,7 +1178,7 @@ proto_register_dhcpfo(void)
 
 		{&hf_dhcpfo_message_digest,
 			{"Message digest", "dhcpfo.messagedigest",
-			FT_STRING, BASE_NONE, NULL, 0,
+			FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0,
 			NULL, HFILL }
 		},
 
@@ -1129,6 +1251,36 @@ proto_register_dhcpfo(void)
 			NULL, HFILL }
 		},
 
+		{&hf_dhcpfo_ms_client_scope,
+			{"Client DHCP scope (Microsoft-specific)", "dhcpfo.msclientscope",
+			FT_IPv4, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+
+		{&hf_dhcpfo_ms_scope_netmask,
+			{"DHCP scope netmask (Microsoft-specific)", "dhcpfo.msscopenetmask",
+			FT_IPv4, BASE_NETMASK, NULL, 0x0,
+			NULL, HFILL }
+		},
+
+		{&hf_dhcpfo_ms_scope_id,
+			{"DHCP scope ID (Microsoft-specific)", "dhcpfo.msscopeid",
+			FT_IPv4, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+
+		{&hf_dhcpfo_ms_server_ip_address,
+			{"Server IP address (Microsoft-specific)", "dhcpfo.msserverip",
+			FT_IPv4, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+
+		{&hf_dhcpfo_ms_ipflags,
+			{"IP flags (Microsoft-specific)", "dhcpfo.msipflags",
+			FT_UINT8, BASE_HEX, NULL, 0,
+			NULL, HFILL }
+		},
+
 	};
 
 /* Setup protocol subtree array */
@@ -1163,6 +1315,11 @@ proto_register_dhcpfo(void)
 	    "Whether the DHCP failover dissector should reassemble messages spanning multiple TCP segments."
 	    " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 	    &dhcpfo_desegment);
+	prefs_register_enum_preference(dhcpfo_module, "microsoft_compatibility",
+		"Microsoft Windows DHCP server compatibility",
+		"Enables the dissector to show Microsoft-formatted option fields correctly",
+		&dhcpfo_microsoft_compatibility,
+		microsoft_compatibility, FALSE);
 
 	dhcpfo_handle = register_dissector("dhcpfo", dissect_dhcpfo, proto_dhcpfo);
 }
