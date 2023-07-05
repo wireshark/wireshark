@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2023-07-01)
+# (last updated 2023-07-03)
 
 0	Reserved
 1	NxNetworks
@@ -56102,7 +56102,6 @@
 56169	Open Products, Networks & Software (OPNS)
 56170	Secure Nordic Payments
 56171	Samm Technology Communications Industry and Trade Inc.
-56172	Stadt Lauf
 56173	A.J. Steenkist
 56174	Geminare Inc.
 56175	AirPro Technology India Pvt Ltd
@@ -60612,3 +60611,6 @@
 60691	Cabalier Intelligent Software
 60692	Health Plan Services, Inc
 60693	Levi Keehn
+60694	MEBAY
+60695	iPresso S.A.
+60696	SlashID

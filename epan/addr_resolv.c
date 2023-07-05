@@ -23,6 +23,8 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/ws_assert.h>
 
+#include "global_enterprise_entries.h"
+
 /*
  * Win32 doesn't have SIGALRM (and it's the OS where name lookup calls
  * are most likely to take a long time, given the way address-to-name
@@ -223,6 +225,8 @@ static wmem_map_t *wka_hashtable = NULL;
 static wmem_map_t *eth_hashtable = NULL;
 // Maps guint -> serv_port_t*
 static wmem_map_t *serv_port_hashtable = NULL;
+
+// Maps enterprise-id -> enterprise-desc (only used for user additions)
 static GHashTable *enterprises_hashtable = NULL;
 
 static subnet_length_entry_t subnet_length_entries[SUBNETLENGTHSIZE]; /* Ordered array of entries */
@@ -303,7 +307,6 @@ gchar *g_services_path  = NULL;     /* global services file   */
 gchar *g_pservices_path = NULL;     /* personal services file */
 gchar *g_pvlan_path     = NULL;     /* personal vlans file    */
 gchar *g_ss7pcs_path    = NULL;     /* personal ss7pcs file   */
-gchar *g_enterprises_path = NULL;   /* global enterprises file   */
 gchar *g_penterprises_path = NULL;  /* personal enterprises file */
                                     /* first resolving call   */
 
@@ -942,11 +945,7 @@ initialize_enterprises(void)
     ws_assert(enterprises_hashtable == NULL);
     enterprises_hashtable = g_hash_table_new_full(NULL, NULL, NULL, g_free);
 
-    if (g_enterprises_path == NULL) {
-        g_enterprises_path = get_datafile_path(ENAME_ENTERPRISES);
-    }
-    parse_enterprises_file(g_enterprises_path);
-
+    /* Populate entries from profile or personal */
     if (g_penterprises_path == NULL) {
         /* Check profile directory before personal configuration */
         g_penterprises_path = get_persconffile_path(ENAME_ENTERPRISES, TRUE);
@@ -955,13 +954,21 @@ initialize_enterprises(void)
             g_penterprises_path = get_persconffile_path(ENAME_ENTERPRISES, FALSE);
         }
     }
+    /* Parse personal file (if present) */
     parse_enterprises_file(g_penterprises_path);
 }
 
 const gchar *
 try_enterprises_lookup(guint32 value)
 {
-    return (const gchar *)g_hash_table_lookup(enterprises_hashtable, GUINT_TO_POINTER(value));
+    /* Trying extra entries first. N.B. This does allow entries to be overwritten and found.. */
+    const char *name = (const gchar *)g_hash_table_lookup(enterprises_hashtable, GUINT_TO_POINTER(value));
+    if (name) {
+        return name;
+    }
+    else {
+        return global_enterprises_lookup(value);
+    }
 }
 
 const gchar *
@@ -993,9 +1000,6 @@ enterprises_cleanup(void)
     ws_assert(enterprises_hashtable);
     g_hash_table_destroy(enterprises_hashtable);
     enterprises_hashtable = NULL;
-    ws_assert(g_enterprises_path);
-    g_free(g_enterprises_path);
-    g_enterprises_path = NULL;
     g_free(g_penterprises_path);
     g_penterprises_path = NULL;
     g_free(g_pservices_path);
