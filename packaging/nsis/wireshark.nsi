@@ -599,9 +599,6 @@ File "${STAGING_DIR}\colorfilters"
 ;IfFileExists dfilters dont_overwrite_dfilters
 File "${STAGING_DIR}\dfilters"
 ;dont_overwrite_dfilters:
-;IfFileExists enterprises.tsv dont_overwrite_enterprises_tsv
-File "${STAGING_DIR}\enterprises.tsv"
-;dont_overwrite_dfilters:
 ;IfFileExists smi_modules dont_overwrite_smi_modules
 File "${STAGING_DIR}\smi_modules"
 ;dont_overwrite_smi_modules:

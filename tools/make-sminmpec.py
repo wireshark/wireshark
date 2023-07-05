@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# create the enterprises.tsv file from
+# create the global_enterprise_entries.c file from
 # https://www.iana.org/assignments/enterprise-numbers/enterprise-numbers
 # or an offline copy
 #
@@ -145,9 +145,9 @@ class CFile:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Create the enterprises.tsv file.")
-    parser.add_argument('infile', nargs='?')
-    parser.add_argument('outfile', nargs=1)
+    parser = argparse.ArgumentParser(description="Create the global_enterprise_entries.c file.")
+    parser.add_argument('--infile')
+    parser.add_argument('outfile', nargs='?', default=os.path.join('epan', 'global_enterprise_entries.c'))
     parsed_args = parser.parse_args()
 
     # Read data from file or webpage
@@ -160,29 +160,24 @@ def main():
                 raise Exception("request for " + ENTERPRISE_NUMBERS_URL + " failed with result code " + f.status)
             data = f.read().decode('utf-8')
 
-    # Find bits we need and write them to file
+    # Find bits we need and generate enterprise entries
     enterprises_content = generate_enterprise_files(data)
-    with open(parsed_args.outfile[0], encoding='utf-8', mode='w') as fh:
-        fh.write(enterprises_content)
 
     # Now write to a C file the contents (which is faster than parsing the global file at runtime).
-    with open(parsed_args.outfile[0], 'r') as tsv_f:
-        c_file = CFile(os.path.join('epan', 'global_enterprise_entries.c'))
+    c_file = CFile(parsed_args.outfile)
 
-        # Find all mappings from .tsv file
-        lines = tsv_f.read().splitlines()
-        mapping_re = re.compile(r'^(\d+)\s+(.*)$')
-        for line in lines:
-            match = mapping_re.match(line)
-            if match:
-                num, name = match.group(1), match.group(2)
-                # Strip any comments and/or trailing whitespace
-                idx = name.find('#')
-                if idx != -1:
-                    name = name[0:idx]
-                name = name.rstrip()
-                # Add
-                c_file.addMapping(int(num), name)
+    mapping_re = re.compile(r'^(\d+)\s+(.*)$')
+    for line in enterprises_content.splitlines():
+        match = mapping_re.match(line)
+        if match:
+            num, name = match.group(1), match.group(2)
+            # Strip any comments and/or trailing whitespace
+            idx = name.find('#')
+            if idx != -1:
+                name = name[0:idx]
+            name = name.rstrip()
+            # Add
+            c_file.addMapping(int(num), name)
 
 
 

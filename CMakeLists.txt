@@ -2040,7 +2040,6 @@ set(INSTALL_DIRS
 
 # Installed into ${DATAFILE_DIR}
 set(INSTALL_FILES
-	enterprises.tsv
 	manuf
 	resources/share/wireshark/cfilters
 	resources/share/wireshark/colorfilters
