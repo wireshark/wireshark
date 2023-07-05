@@ -264,6 +264,7 @@ static int hf_dns_svcb_param_port = -1;
 static int hf_dns_svcb_param_ipv4hint_ip = -1;
 static int hf_dns_svcb_param_echconfig = -1;
 static int hf_dns_svcb_param_ipv6hint_ip = -1;
+static int hf_dns_svcb_param_dohpath = -1;
 static int hf_dns_svcb_param_odohconfig = -1;
 static int hf_dns_openpgpkey = -1;
 static int hf_dns_spf_length = -1;
@@ -1262,6 +1263,7 @@ static const range_string dns_dso_type_rvals[] = {
 #define DNS_SVCB_KEY_IPV4HINT         4
 #define DNS_SVCB_KEY_ECHCONFIG        5
 #define DNS_SVCB_KEY_IPV6HINT         6
+#define DNS_SVCB_KEY_DOHPATH          7 /* draft-ietf-add-svcb-dns-08 */
 #define DNS_SVCB_KEY_ODOHCONFIG   32769 /* draft-pauly-dprive-oblivious-doh-02 */
 #define DNS_SVCB_KEY_RESERVED     65535
 
@@ -1277,6 +1279,7 @@ static const value_string dns_svcb_param_key_vals[] = {
   { DNS_SVCB_KEY_IPV4HINT,      "ipv4hint" },
   { DNS_SVCB_KEY_ECHCONFIG,     "echconfig" },
   { DNS_SVCB_KEY_IPV6HINT,      "ipv6hint" },
+  { DNS_SVCB_KEY_DOHPATH,       "dohpath" },
   { DNS_SVCB_KEY_ODOHCONFIG,    "odohconfig" },
   { DNS_SVCB_KEY_RESERVED,      "key65535" },
   { 0,                          NULL }
@@ -3610,6 +3613,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       guint32       svc_param_alpn_length;
       const gchar  *target;
       int           target_len;
+      const guint8 *dohpath;
       int           start_offset = cur_offset;
       proto_item   *svcb_param_ti;
       proto_tree   *svcb_param_tree;
@@ -3681,6 +3685,11 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
                 proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), tvb_ip6_to_str(pinfo->pool, tvb, cur_offset));
                 cur_offset += 16;
               }
+              break;
+            case DNS_SVCB_KEY_DOHPATH:
+              proto_tree_add_item_ret_string(svcb_param_tree, hf_dns_svcb_param_dohpath, tvb, cur_offset, svc_param_length, ENC_UTF_8|ENC_NA, pinfo->pool, &dohpath);
+              cur_offset += svc_param_length;
+              proto_item_append_text(svcb_param_ti, "=%s", dohpath);
               break;
             case DNS_SVCB_KEY_ODOHCONFIG:
               dissect_dns_svcparam_base64(svcb_param_tree, svcb_param_ti, hf_dns_svcb_param_odohconfig, tvb, cur_offset, svc_param_length);
@@ -5400,6 +5409,11 @@ proto_register_dns(void)
       { "IP", "dns.svcb.svcparam.ipv6hint.ip",
         FT_IPv6, BASE_NONE, NULL, 0x0,
         "IPv6 address hints", HFILL }},
+
+    { &hf_dns_svcb_param_dohpath,
+      { "DoH path", "dns.svcb.svcparam.dohpath",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "DoH URI template", HFILL}},
 
     { &hf_dns_svcb_param_odohconfig,
       { "ODoHConfig", "dns.svcb.svcparam.odohconfig",
