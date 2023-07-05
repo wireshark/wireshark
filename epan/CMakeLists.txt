@@ -118,7 +118,6 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	params.h
 	pci-ids.h
 	plugin_if.h
-        global_enterprise_entries.h
 	ppptypes.h
 	print.h
 	print_stream.h
@@ -195,6 +194,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	disabled_protos.c
 	conversation_filter.c
 	dvb_chartbl.c
+	enterprises.c
 	epan.c
 	ex-opt.c
 	except.c
@@ -272,7 +272,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/ps.c
 )
 
-set(LIBWIRESHARK_FILES ${LIBWIRESHARK_NONGENERATED_FILES} global_enterprise_entries.c)
+set(LIBWIRESHARK_FILES ${LIBWIRESHARK_NONGENERATED_FILES})
 
 add_lex_files(LEX_FILES LIBWIRESHARK_FILES
 	diam_dict.l

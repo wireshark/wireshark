@@ -23,7 +23,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/ws_assert.h>
 
-#include "global_enterprise_entries.h"
+#include "enterprises.h"
 
 /*
  * Win32 doesn't have SIGALRM (and it's the OS where name lookup calls
