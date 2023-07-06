@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V17.4.0 (2023-03)
+-- 3GPP TS 36.331 V17.5.0 (2023-06)
 
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -7966,10 +7966,6 @@ PUCCH-ConfigDedicated-v1430 ::=		SEQUENCE {
 PUCCH-ConfigDedicated-v1530 ::=		SEQUENCE {
 	n1PUCCH-AN-SPT-r15					INTEGER (0..2047)			OPTIONAL,	-- Need OR
 	codebooksizeDeterminationSTTI-r15	ENUMERATED {dai,cc}			OPTIONAL	-- Need OR
-}
-
-CE-PUCCH-TxDurationConfig-r17 ::=	SEQUENCE {
-	ce-PUCCH-TxDuration-r17				ENUMERATED {sf2, sf4, sf8, sf16, sf32, sf64, sf128}
 }
 
 Format4-resource-r13	::=				SEQUENCE {
