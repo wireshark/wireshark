@@ -928,7 +928,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     conversation_t *conversation;
     cops_conv_info_t *cops_conv_info;
     cops_call_t *cops_call;
-    GPtrArray* pdus_array;
+    wmem_array_t* pdus_array;
     nstime_t delta;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "COPS");
@@ -1028,9 +1028,9 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     if ( is_request ||
         (op_code == COPS_MSG_DEC && is_solicited) ) { /* DEC as response for REQ is considered as request, because it expects RPT|DRQ */
 
-        pdus_array = (GPtrArray *)wmem_map_lookup(cops_conv_info->pdus_tree, GUINT_TO_POINTER(handle_value));
+        pdus_array = (wmem_array_t *)wmem_map_lookup(cops_conv_info->pdus_tree, GUINT_TO_POINTER(handle_value));
         if (pdus_array == NULL) { /* This is the first request we've seen with this handle_value */
-            pdus_array = g_ptr_array_new();
+            pdus_array = wmem_array_new(wmem_file_scope(), sizeof(cops_call_t *));
             wmem_map_insert(cops_conv_info->pdus_tree, GUINT_TO_POINTER(handle_value), pdus_array);
         }
 
@@ -1063,11 +1063,11 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             cops_call->req_num = pinfo->num;
             cops_call->rsp_num = 0;
             cops_call->req_time = pinfo->abs_ts;
-            g_ptr_array_add(pdus_array, cops_call);
+            wmem_array_append_one(pdus_array, cops_call);
         }
         else {
-            for (i=0; i < pdus_array->len; i++) {
-                cops_call = (cops_call_t*)g_ptr_array_index(pdus_array, i);
+            for (i=0; i < wmem_array_get_count(pdus_array); i++) {
+                cops_call = (cops_call_t*)wmem_array_index(pdus_array, i);
                 if ( cops_call->req_num == pinfo->num
                   && cops_call->rsp_num != 0)  {
                     ti = proto_tree_add_uint_format(cops_tree, hf_cops_response_in, tvb, 0, 0, cops_call->rsp_num,
@@ -1079,14 +1079,14 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     }
 
     if (is_response) {
-        pdus_array = (GPtrArray *)wmem_map_lookup(cops_conv_info->pdus_tree, GUINT_TO_POINTER(handle_value));
+        pdus_array = (wmem_array_t *)wmem_map_lookup(cops_conv_info->pdus_tree, GUINT_TO_POINTER(handle_value));
 
         if (pdus_array == NULL) /* There's no request with this handle value */
             return offset;
 
         if (!pinfo->fd->visited) {
-            for (i=0; i < pdus_array->len; i++) {
-                cops_call = (cops_call_t*)g_ptr_array_index(pdus_array, i);
+            for (i=0; i < wmem_array_get_count(pdus_array); i++) {
+                cops_call = (cops_call_t*)wmem_array_index(pdus_array, i);
 
                 if (nstime_cmp(&pinfo->abs_ts, &cops_call->req_time) <= 0 || cops_call->rsp_num != 0)
                     continue;
@@ -1112,8 +1112,8 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             }
         }
         else {
-            for (i=0; i < pdus_array->len; i++) {
-                cops_call = (cops_call_t*)g_ptr_array_index(pdus_array, i);
+            for (i=0; i < wmem_array_get_count(pdus_array); i++) {
+                cops_call = (cops_call_t*)wmem_array_index(pdus_array, i);
                 if ( cops_call->rsp_num == pinfo->num ) {
                     ti = proto_tree_add_uint_format(cops_tree, hf_cops_response_to, tvb, 0, 0, cops_call->req_num,
                                                       "Response to a request in frame %u", cops_call->req_num);
