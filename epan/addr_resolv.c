@@ -96,6 +96,7 @@
 #include <epan/maxmind_db.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
+#include "services.h"
 
 #define ENAME_HOSTS     "hosts"
 #define ENAME_SUBNETS   "subnets"
@@ -303,7 +304,6 @@ gchar *g_wka_path       = NULL;     /* global well-known-addresses file */
 gchar *g_manuf_path     = NULL;     /* global manuf file      */
 gchar *g_ipxnets_path   = NULL;     /* global ipxnets file    */
 gchar *g_pipxnets_path  = NULL;     /* personal ipxnets file  */
-gchar *g_services_path  = NULL;     /* global services file   */
 gchar *g_pservices_path = NULL;     /* personal services file */
 gchar *g_pvlan_path     = NULL;     /* personal vlans file    */
 gchar *g_ss7pcs_path    = NULL;     /* personal ss7pcs file   */
@@ -834,10 +834,29 @@ serv_name_lookup(port_type proto, guint port)
 {
     serv_port_t *serv_port_table = NULL;
     const char *name;
+    ws_services_proto_t p;
 
+    /* first look in the personal services file + cache */
     name = _serv_name_lookup(proto, port, &serv_port_table);
     if (name != NULL)
         return name;
+
+    /* now look in the global tables */
+    switch( proto) {
+        case PT_TCP: p = ws_tcp; break;
+        case PT_UDP: p = ws_udp; break;
+        case PT_SCTP: p = ws_sctp; break;
+        case PT_DCCP: p = ws_dccp; break;
+        default: ws_assert_not_reached();
+    }
+    name = global_services_lookup(port, p);
+    if (name) {
+        /* Cache result */
+        /* XXX would be nice to avoid the strdup for this name static string but user/custom entries
+         * are dynamic and they share the same table. */
+        add_service_name(proto, port, name);
+        return name;
+    }
 
     if (serv_port_table == NULL) {
         serv_port_table = wmem_new0(wmem_epan_scope(), serv_port_t);
@@ -856,12 +875,6 @@ initialize_services(void)
     gboolean parse_file = TRUE;
     ws_assert(serv_port_hashtable == NULL);
     serv_port_hashtable = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
-
-    /* Compute the pathname of the services file. */
-    if (g_services_path == NULL) {
-        g_services_path = get_datafile_path(ENAME_SERVICES);
-    }
-    parse_services_file(g_services_path);
 
     /* Compute the pathname of the personal services file */
     if (g_pservices_path == NULL) {
@@ -883,8 +896,6 @@ static void
 service_name_lookup_cleanup(void)
 {
     serv_port_hashtable = NULL;
-    g_free(g_services_path);
-    g_services_path = NULL;
     g_free(g_pservices_path);
     g_pservices_path = NULL;
 }
@@ -1002,8 +1013,6 @@ enterprises_cleanup(void)
     enterprises_hashtable = NULL;
     g_free(g_penterprises_path);
     g_penterprises_path = NULL;
-    g_free(g_pservices_path);
-    g_pservices_path = NULL;
 }
 
 /* Fill in an IP4 structure with info from subnets file or just with the

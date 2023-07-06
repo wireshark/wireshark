@@ -2046,7 +2046,6 @@ set(INSTALL_FILES
 	resources/share/wireshark/dfilter_macros
 	resources/share/wireshark/dfilters
 	resources/share/wireshark/smi_modules
-	services
 	wka
 )
 set(DOC_FILES

@@ -45,9 +45,6 @@
         <Component Id="cmpWka" Guid="*">
           <File Id="filWka" KeyPath="yes" Source="$(var.Staging.Dir)\wka" />
         </Component>
-        <Component Id="cmpServices" Guid="*">
-          <File Id="filServices" KeyPath="yes" Source="$(var.Staging.Dir)\services" />
-        </Component>
         <Component Id="cmpPdml2html_xsl" Guid="*">
           <File Id="filPdml2html_xsl" KeyPath="yes" Source="$(var.Staging.Dir)\pdml2html.xsl" />
         </Component>
@@ -85,7 +82,6 @@
         <ComponentRef Id="cmpREADME_windows_txt" />
         <ComponentRef Id="cmpManuf" />
         <ComponentRef Id="cmpWka" />
-        <ComponentRef Id="cmpServices" />
         <ComponentRef Id="cmpPdml2html_xsl" />
         <ComponentRef Id="cmpWs_css" />
         <ComponentRef Id="cmpWireshark_html" />

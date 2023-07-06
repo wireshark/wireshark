@@ -236,6 +236,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	sctpppids.c
 	secrets.c
 	sequence_analysis.c
+	services.c
 	show_exception.c
 	srt_table.c
 	stat_tap_ui.c
