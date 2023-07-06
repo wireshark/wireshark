@@ -115,7 +115,10 @@ PADATA-TYPE ::= INTEGER {
 	pA-PKINIT-KX(147),		-- [RFC6112]
 	pA-PKU2U-NAME(148),		-- [PKU2U]
 	pA-REQ-ENC-PA-REP(149), 	-- [RFC6806]
+	pA-AS-FRESHNESS(150),		-- [RFC8070]
 	pA-SPAKE(151),			-- draft-ietf-kitten-krb-spake-preauth-09
+	pA-REDHAT-IDP-OAUTH2(152),	-- (pbrezina@redhat.com)
+	pA-REDHAT-PASSKEY(153),		-- (pbrezina@redhat.com)
 	pA-KERB-KEY-LIST-REQ(161), -- [MS-KILE]
 	pA-KERB-KEY-LIST-REP(162), -- [MS-KILE]
 	pA-SUPPORTED-ETYPES(165),	-- [MS-KILE]
