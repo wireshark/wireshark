@@ -43,8 +43,13 @@
 #include "packet-tcp.h"
 #include "packet-nvme.h"
 
+#include "packet-tls.h"
+#include "packet-tls-utils.h"
+
 static int proto_nvme_tcp = -1;
 static dissector_handle_t nvmet_tcp_handle;
+static dissector_handle_t nvmet_tls_handle;
+
 #define NVME_TCP_PORT_RANGE    "4420" /* IANA registered */
 
 #define NVME_FABRICS_TCP "NVMe/TCP"
@@ -1086,6 +1091,8 @@ void proto_register_nvme_tcp(void) {
 
     nvmet_tcp_handle = register_dissector("nvme-tcp", dissect_nvme_tcp,
             proto_nvme_tcp);
+    nvmet_tls_handle = register_dissector_with_description("nvme-tls",
+            "NVMe-over-TCP with TLS", dissect_nvme_tcp, proto_nvme_tcp);
 }
 
 void proto_reg_handoff_nvme_tcp(void) {
@@ -1108,7 +1115,9 @@ void proto_reg_handoff_nvme_tcp(void) {
             "Validate PDU data digest",
             "Whether to validate the PDU data digest or not.",
             &nvme_tcp_check_ddgst);
+    ssl_dissector_add(0, nvmet_tls_handle);
     dissector_add_uint_range("tcp.port", gPORT_RANGE, nvmet_tcp_handle);
+    dissector_add_uint_range("tls.port", gPORT_RANGE, nvmet_tls_handle);
 }
 
 /*
