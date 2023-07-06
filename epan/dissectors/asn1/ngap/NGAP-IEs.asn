@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V17.4.0 (2023-03)
+-- 3GPP TS 38.413 V17.5.0 (2023-06)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -57,6 +57,7 @@ IMPORTS
  	id-GlobalTWIF-ID,
 	id-GlobalW-AGF-ID,
 	id-GUAMIType,
+id-HashedUEIdentityIndexValue,
 	id-IncludeBeamMeasurementsIndication,
 	id-IntersystemSONInformationRequest,
 	id-IntersystemSONInformationReply,
@@ -1145,7 +1146,8 @@ CoreNetworkAssistanceInformationForInactive-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-MicoAllPLMN									CRITICALITY ignore	EXTENSION MicoAllPLMN											PRESENCE optional	}|
 	{ ID id-NR-PagingeDRXInformation					CRITICALITY ignore	EXTENSION NR-PagingeDRXInformation						PRESENCE optional	}|
 	{ ID id-PagingCauseIndicationForVoiceService		CRITICALITY ignore	EXTENSION PagingCauseIndicationForVoiceService		PRESENCE optional	}|
-	{ ID id-PEIPSassistanceInformation					CRITICALITY ignore	EXTENSION PEIPSassistanceInformation						PRESENCE optional	},
+	{ ID id-PEIPSassistanceInformation					CRITICALITY ignore	EXTENSION PEIPSassistanceInformation						PRESENCE optional	}|
+	{ ID id-HashedUEIdentityIndexValue					CRITICALITY ignore	EXTENSION HashedUEIdentityIndexValue						PRESENCE optional	},
 	...
 }
 
@@ -1808,7 +1810,7 @@ Extended-AMFName-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-ExtendedPacketDelayBudget ::= INTEGER (1..65535, ...)
+ExtendedPacketDelayBudget ::= INTEGER (1..65535, ..., 65536..109999)
 
 
 Extended-RANNodeName	 ::= SEQUENCE {
@@ -2278,6 +2280,9 @@ HandoverType ::= ENUMERATED {
 	...,
 	fivegs-to-utran
 }
+
+HashedUEIdentityIndexValue ::= BIT STRING (SIZE(13, ...))
+
 
 HFCNode-ID ::= OCTET STRING
 
@@ -6454,7 +6459,7 @@ UEAppLayerMeasInfoItem-ExtIEs NGAP-PROTOCOL-EXTENSION::= {
 UEAppLayerMeasConfigInfo ::= SEQUENCE {
 	qoEReference								QoEReference,
 	serviceType								ServiceType,
-	areaScopeOfQMC							AreaScopeOfQMC,
+	areaScopeOfQMC							AreaScopeOfQMC									OPTIONAL,
 	measCollEntityIPAddress					TransportLayerAddress,
 	qoEMeasurementStatus						ENUMERATED {ongoing,...}					OPTIONAL,
 	containerForAppLayerMeasConfig			OCTET STRING (SIZE(1..8000))				OPTIONAL,

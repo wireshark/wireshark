@@ -1683,6 +1683,7 @@ id-BeamMeasurementsReportConfiguration             ProtocolIE-ID
 id-HFCNode-ID-new                                  ProtocolIE-ID
 id-GlobalCable-ID-new                              ProtocolIE-ID
 id-TargetHomeENB-ID                                ProtocolIE-ID
+id-HashedUEIdentityIndexValue                      ProtocolIE-ID
 
 #.END
 
@@ -2061,6 +2062,7 @@ EarlyMeasurement                                       N ngap.extension id-Early
 BeamMeasurementsReportConfiguration                    N ngap.extension id-BeamMeasurementsReportConfiguration
 TAI                                                    N ngap.extension id-TAI
 NR-CGI                                                 N ngap.extension id-NR-CGI
+HashedUEIdentityIndexValue                             N ngap.extension id-HashedUEIdentityIndexValue
 
 #NGAP-ELEMENTARY-PROCEDURE
 

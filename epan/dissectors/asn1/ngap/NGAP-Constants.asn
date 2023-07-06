@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V17.4.0 (2023-03)
+-- 3GPP TS 38.413 V17.5.0 (2023-06)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -585,6 +585,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-HFCNode-ID-new										ProtocolIE-ID ::= 362
 	id-GlobalCable-ID-new									ProtocolIE-ID ::= 363
 	id-TargetHomeENB-ID										ProtocolIE-ID ::= 364
+	id-HashedUEIdentityIndexValue							ProtocolIE-ID ::= 365
 
 
 END

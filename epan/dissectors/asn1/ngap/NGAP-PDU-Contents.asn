@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V17.4.0 (2023-03)
+-- 3GPP TS 38.413 V17.5.0 (2023-06)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -2777,7 +2777,8 @@ ConnectionEstablishmentIndicationIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-Enhanced-CoverageRestriction	CRITICALITY ignore	TYPE Enhanced-CoverageRestriction	PRESENCE optional		}|
 	{ ID id-CEmodeBrestricted				CRITICALITY ignore	TYPE CEmodeBrestricted				PRESENCE optional		}|
 	{ ID id-UERadioCapabilityID				CRITICALITY reject	TYPE UERadioCapabilityID			PRESENCE optional		}|
-	{ ID id-MaskedIMEISV					CRITICALITY ignore	TYPE MaskedIMEISV					PRESENCE optional		},
+	{ ID id-MaskedIMEISV					CRITICALITY ignore	TYPE MaskedIMEISV					PRESENCE optional		}|
+	{ ID id-OldAMF							CRITICALITY reject	TYPE AMFName						PRESENCE optional		},
 	...
 }
 
