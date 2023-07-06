@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.501 17.10.0
+ * References: 3GPP TS 24.501 17.11.0
  */
 
 #include "config.h"
@@ -283,6 +283,8 @@ static int hf_nas_5gs_mm_ex_cag_b4 = -1;
 static int hf_nas_5gs_mm_nsag_b5 = -1;
 static int hf_nas_5gs_mm_uas_b6 = -1;
 static int hf_nas_5gs_mm_mpsiu_b7 = -1;
+static int hf_nas_5gs_mm_rcmap_b0 = -1;
+static int hf_nas_5gs_mm_rcman_b1 = -1;
 static int hf_nas_5gs_mm_type_id = -1;
 static int hf_nas_5gs_mm_odd_even = -1;
 static int hf_nas_5gs_mm_length = -1;
@@ -968,6 +970,18 @@ de_nas_5gs_mm_5gmm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         NULL
     };
 
+    static int * const flags6[] = {
+        &hf_nas_5gs_spare_b7,
+        &hf_nas_5gs_spare_b6,
+        &hf_nas_5gs_spare_b5,
+        &hf_nas_5gs_spare_b4,
+        &hf_nas_5gs_spare_b3,
+        &hf_nas_5gs_spare_b2,
+        &hf_nas_5gs_mm_rcman_b1,
+        &hf_nas_5gs_mm_rcmap_b0,
+        NULL
+    };
+
     curr_offset = offset;
 
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags1, ENC_BIG_ENDIAN);
@@ -995,6 +1009,12 @@ de_nas_5gs_mm_5gmm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         return (len);
 
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags5, ENC_BIG_ENDIAN);
+    curr_offset++;
+
+    if ((curr_offset - offset) >= len)
+        return (len);
+
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags6, ENC_BIG_ENDIAN);
     curr_offset++;
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_5gs_extraneous_data);
@@ -11544,6 +11564,16 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_mm_mpsiu_b7,
         { "MPSIU",   "nas-5gs.mm.mpsiu_b7",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_rcmap_b0,
+        { "RCMAP",   "nas-5gs.mm.rcmap_b0",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_rcman_b1,
+        { "RCMAN",   "nas-5gs.mm.rcman_b1",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_type_id,
