@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V17.4.0 (2023-03)
+-- 3GPP TS 36.423 V17.5.0 (2023-06)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -2360,7 +2360,7 @@ NR-TxBW-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-NRNRB ::= ENUMERATED { nrb11, nrb18, nrb24, nrb25, nrb31, nrb32, nrb38, nrb51, nrb52, nrb65, nrb66, nrb78, nrb79, nrb93, nrb106, nrb107, nrb121, nrb132, nrb133, nrb135, nrb160, nrb162, nrb189, nrb216, nrb217, nrb245, nrb264, nrb270, nrb273, ...}
+NRNRB ::= ENUMERATED { nrb11, nrb18, nrb24, nrb25, nrb31, nrb32, nrb38, nrb51, nrb52, nrb65, nrb66, nrb78, nrb79, nrb93, nrb106, nrb107, nrb121, nrb132, nrb133, nrb135, nrb160, nrb162, nrb189, nrb216, nrb217, nrb245, nrb264, nrb270, nrb273, ... , nrb44, nrb58, nrb92, nrb119, nrb188, nrb242}
 
 NRSCS ::= ENUMERATED { scs15, scs30, scs60, scs120, ...}
 

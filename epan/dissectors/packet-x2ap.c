@@ -17,7 +17,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V17.4.0 (2023-03)
+ * 3GPP TS 36.423 V17.5.0 (2023-06)
  */
 
 #include "config.h"
@@ -8260,6 +8260,12 @@ static const value_string x2ap_NRNRB_vals[] = {
   {  26, "nrb264" },
   {  27, "nrb270" },
   {  28, "nrb273" },
+  {  29, "nrb44" },
+  {  30, "nrb58" },
+  {  31, "nrb92" },
+  {  32, "nrb119" },
+  {  33, "nrb188" },
+  {  34, "nrb242" },
   { 0, NULL }
 };
 
@@ -8269,7 +8275,7 @@ static value_string_ext x2ap_NRNRB_vals_ext = VALUE_STRING_EXT_INIT(x2ap_NRNRB_v
 static int
 dissect_x2ap_NRNRB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     29, NULL, TRUE, 0, NULL);
+                                     29, NULL, TRUE, 6, NULL);
 
   return offset;
 }

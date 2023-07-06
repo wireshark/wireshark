@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V17.4.0 (2023-03)
+-- 3GPP TS 36.423 V17.5.0 (2023-06)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -2642,7 +2642,8 @@ E-RABs-ToBeSetupRetrieve-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-uL-GTPtunnelEndpoint		CRITICALITY reject	EXTENSION GTPtunnelEndpoint		PRESENCE mandatory}|
 	{ ID id-dL-Forwarding				CRITICALITY ignore	EXTENSION DL-Forwarding			PRESENCE optional}|
 	{ ID id-Ethernet-Type				CRITICALITY ignore	EXTENSION Ethernet-Type			PRESENCE optional}|
-	{ ID id-SecurityIndication			CRITICALITY reject	EXTENSION SecurityIndication				PRESENCE optional},
+	{ ID id-SecurityIndication			CRITICALITY reject	EXTENSION SecurityIndication				PRESENCE optional}|
+	{ ID id-SourceDLForwardingIPAddress		CRITICALITY ignore	EXTENSION TransportLayerAddress		PRESENCE optional},
 	...
 }
 
