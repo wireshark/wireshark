@@ -38,6 +38,7 @@ static int hf_opus_frame_count_v = -1;
 static int hf_opus_frame_count_p = -1;
 static int hf_opus_frame_count_m = -1;
 static int hf_opus_padding = -1;
+static int hf_opus_padding_size = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_opus = -1;
@@ -49,6 +50,7 @@ static expert_field ei_opus_err_r4 = EI_INIT;
 static expert_field ei_opus_err_r5 = EI_INIT;
 static expert_field ei_opus_err_r6 = EI_INIT;
 static expert_field ei_opus_err_r7 = EI_INIT;
+static expert_field ei_opus_padding_nonzero = EI_INIT;
 
 /* From RFC6716 chapter 3.1
  * The top five bits of the TOC byte, labeled "config", encode one of 32
@@ -171,6 +173,8 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         = {&hf_opus_frame_count_v, &hf_opus_frame_count_p,
         &hf_opus_frame_count_m, NULL};
 
+    int padding_size = 0;
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OPUS");
 
     item = proto_tree_add_item(tree, proto_opus, tvb, 0, -1, ENC_NA);
@@ -187,7 +191,7 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree_add_bitmask_list(opus_tree, tvb, offset, 1, toc_fields, ENC_NA);
 
     cap_len = tvb_captured_length(tvb);
-    pkt_total = tvb_captured_length_remaining(tvb, offset);
+    pkt_total = tvb_reported_length_remaining(tvb, offset);
 
     if (pkt_total <= 0) {
         expert_add_info(pinfo, opus_tree, &ei_opus_err_r1);
@@ -257,7 +261,6 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         /* Padding flag (bit 6) used */
         if (ch & 0x40) {
             int p;
-            gint padding_size = 0;
             gint padding_begin = offset;
             do {
                 int tmp;
@@ -269,9 +272,14 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 tmp = p == 255 ? 254 : p;
                 padding_size += tmp;
             } while (p == 255);
-            proto_tree_add_item(opus_tree, hf_opus_padding, tvb, padding_begin,
-                                padding_size, ENC_NA);
-            offset = padding_begin + padding_size;
+            proto_tree_add_uint(opus_tree, hf_opus_padding_size, tvb,
+                                padding_begin, offset - padding_begin,
+                                padding_size);
+            /* This padding size is the number of padding bytes at the
+             * end of the packets "in addition to the byte(s) used to
+             * indicate the size of the padding."
+             */
+            pkt_total -= padding_size;
         }
         if (offset >= pkt_total) {
             expert_add_info(pinfo, opus_tree, &ei_opus_err_r7);
@@ -330,6 +338,22 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                             ENC_NA);
     }
 
+    if (padding_size) {
+        int padding_begin = tvb_reported_length(tvb) - padding_size;
+        item = proto_tree_add_item(opus_tree, hf_opus_padding, tvb,
+                                   padding_begin, padding_size, ENC_NA);
+        /* RFC 6716: "The additional padding bytes appear at the end
+         * of the packet and MUST be set to zero by the encoder to avoid
+         * creating a covert channel."
+         */
+        for (int i = 0; i < padding_size; ++i) {
+            if (tvb_get_guint8(tvb, padding_begin + i) != 0) {
+                expert_add_info(pinfo, item, &ei_opus_padding_nonzero);
+                break;
+            }
+        }
+    }
+
     return cap_len;
 }
 
@@ -367,6 +391,10 @@ proto_register_opus(void)
           HFILL}},
         {&hf_opus_padding,
          {"Padding", "opus.padding", FT_BYTES, BASE_NONE, NULL, 0x0, NULL,
+          HFILL}},
+        {&hf_opus_padding_size,
+         {"Padding Size", "opus.padding_size", FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Additional padding bytes, not including the bytes indicating the padding size",
           HFILL}},
     };
 
@@ -410,6 +438,10 @@ proto_register_opus(void)
           "header bytes (TOC byte, frame count byte, any padding length bytes, "
           "and any frame length bytes), plus the length of the first M-1 "
           "frames, plus any trailing padding bytes.",
+          EXPFILL}},
+        {&ei_opus_padding_nonzero,
+         {"opus.padding.nonzero", PI_PROTOCOL, PI_WARN,
+          "Additional padding bytes MUST be set to zero by the encoder",
           EXPFILL}},
     };
 
