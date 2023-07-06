@@ -15,7 +15,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V17.4.0 (2023-03)
+ * References: 3GPP TS 36.413 V17.5.0 (2023-06)
  */
 
 #include "config.h"
@@ -7398,6 +7398,8 @@ static const value_string s1ap_T_subcarrierSpacingSSB_vals[] = {
   {   2, "kHz60" },
   {   3, "kHz120" },
   {   4, "kHz240" },
+  {   5, "kHz480" },
+  {   6, "kHz960" },
   { 0, NULL }
 };
 
@@ -7405,7 +7407,7 @@ static const value_string s1ap_T_subcarrierSpacingSSB_vals[] = {
 static int
 dissect_s1ap_T_subcarrierSpacingSSB(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     5, NULL, TRUE, 0, NULL);
+                                     5, NULL, TRUE, 2, NULL);
 
   return offset;
 }

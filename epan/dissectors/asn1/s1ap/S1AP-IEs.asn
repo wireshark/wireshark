@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V17.4.0 (2023-03)
+-- 3GPP TS 36.413 V17.5.0 (2023-06)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -1502,7 +1502,7 @@ InterSystemMeasurementList ::= SEQUENCE (SIZE(1.. maxnooffrequencies)) OF InterS
 InterSystemMeasurementItem ::= SEQUENCE {
 	freqBandIndicatorNR			INTEGER (1..1024),
 	sSBfrequencies				INTEGER (0..maxNARFCN),
-	subcarrierSpacingSSB		ENUMERATED {kHz15, kHz30, kHz60, kHz120, kHz240, ...},
+	subcarrierSpacingSSB		ENUMERATED {kHz15, kHz30, kHz60, kHz120, kHz240, ..., kHz480, kHz960},
 	maxRSIndexCellQual			INTEGER (1..maxRS-IndexCellQual)  	OPTIONAL,
 	sMTC						OCTET STRING 						OPTIONAL,
 	threshRS-Index-r15			OCTET STRING 						OPTIONAL,
