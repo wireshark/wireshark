@@ -14,6 +14,7 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include <epan/exceptions.h>
 
 #include "packet-xmpp.h"
 #include "packet-xmpp-core.h"
@@ -509,6 +510,14 @@ xmpp_get_first_element(xmpp_element_t *packet)
         return NULL;
 }
 
+static void
+xmpp_element_t_cleanup(void* userdata)
+{
+    xmpp_element_t *node = (xmpp_element_t*)userdata;
+
+    xmpp_element_t_tree_free(node);
+}
+
 /*
 Function converts xml_frame_t structure to xmpp_element_t (simpler representation)
 */
@@ -542,6 +551,12 @@ xmpp_xml_frame_to_element_t(wmem_allocator_t *pool, xml_frame_t *xml_frame, xmpp
 
     node->offset = xml_frame->start_offset;
     node->length = xml_frame->length;
+
+    /* We might throw an exception recursively creating child nodes.
+     * Make sure we free the GHashTables created above (and the GList
+     * or child nodes already added) if that happens.
+     */
+    CLEANUP_PUSH(xmpp_element_t_cleanup, node);
 
     tt = tvbparse_init(pool, tvb,node->offset,-1,NULL,want_ignore);
 
@@ -625,6 +640,9 @@ xmpp_xml_frame_to_element_t(wmem_allocator_t *pool, xml_frame_t *xml_frame, xmpp
 
         child = child->next_sibling;
     }
+
+    CLEANUP_POP;
+
     return node;
 }
 
