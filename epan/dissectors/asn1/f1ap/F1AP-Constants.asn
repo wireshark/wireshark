@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V17.4.0 (2023-03)
+-- 3GPP TS 38.473 V17.5.0 (2023-06)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -976,5 +976,14 @@ id-ExtendedUEIdentityIndexValue						ProtocolIE-ID ::= 694
 id-ServingCellMO-List								ProtocolIE-ID ::= 695
 id-ServingCellMO-List-Item							ProtocolIE-ID ::= 696
 id-ServingCellMO-encoded-in-CGC-List				ProtocolIE-ID ::= 697
+id-HashedUEIdentityIndexValue						ProtocolIE-ID ::= 698
+id-UE-MulticastMRBs-Setupnew-List					ProtocolIE-ID ::= 699
+id-UE-MulticastMRBs-Setupnew-Item					ProtocolIE-ID ::= 700
+id-ncd-SSB-RedCapInitialBWP-SDT						ProtocolIE-ID ::= 701
+id-nrofSymbolsExtended								ProtocolIE-ID ::= 702
+id-repetitionFactorExtended							ProtocolIE-ID ::= 703
+id-startRBHopping									ProtocolIE-ID ::= 704
+id-startRBIndex										ProtocolIE-ID ::= 705
+id-transmissionCombn8								ProtocolIE-ID ::= 706
 
 END

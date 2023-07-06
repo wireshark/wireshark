@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V17.4.0 (2023-03)
+ * References: 3GPP TS 38.473 V17.5.0 (2023-06)
  */
 
 #include "config.h"
@@ -148,6 +148,7 @@ static gint ett_f1ap_successfulHOReportContainer = -1;
 static gint ett_f1ap_UL_GapFR2_Config = -1;
 static gint ett_f1ap_ConfigRestrictInfoDAPS = -1;
 static gint ett_f1ap_UplinkTxDirectCurrentTwoCarrierListInfo = -1;
+static gint ett_f1ap_Ncd_SSB_RedCapInitialBWP_SDT = -1;
 #include "packet-f1ap-ett.c"
 
 enum{
@@ -851,6 +852,7 @@ void proto_register_f1ap(void) {
     &ett_f1ap_UL_GapFR2_Config,
     &ett_f1ap_ConfigRestrictInfoDAPS,
     &ett_f1ap_UplinkTxDirectCurrentTwoCarrierListInfo,
+    &ett_f1ap_Ncd_SSB_RedCapInitialBWP_SDT,
 #include "packet-f1ap-ettarr.c"
   };
 

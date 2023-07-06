@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V17.4.0 (2023-03)
+-- 3GPP TS 38.473 V17.5.0 (2023-06)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -196,6 +196,12 @@ IMPORTS
 	id-MulticastF1UContextReferenceCU,
 	id-TwoPHRModeMCG,
 	id-TwoPHRModeSCG,
+	id-ncd-SSB-RedCapInitialBWP-SDT,
+	id-nrofSymbolsExtended,
+	id-repetitionFactorExtended,
+	id-startRBHopping,
+	id-startRBIndex,
+	id-transmissionCombn8,
 	maxNRARFCN,
 	maxnoofErrors,
 	maxnoofBPLMNs,
@@ -369,7 +375,7 @@ ActivationRequestType ::= ENUMERATED {activate, deactivate, ...}
 
 ActiveULBWP  ::= SEQUENCE {
 	locationAndBandwidth		INTEGER (0..37949,...),
-	subcarrierSpacing           ENUMERATED {kHz15, kHz30, kHz60, kHz120,...},
+	subcarrierSpacing           ENUMERATED {kHz15, kHz30, kHz60, kHz120,..., kHz480, kHz960},
 	cyclicPrefix				ENUMERATED {normal, extended},
 	txDirectCurrentLocation		INTEGER (0..3301,...),
 	shift7dot5kHz				ENUMERATED {true, ...} OPTIONAL,
@@ -2123,7 +2129,8 @@ DUtoCURRCInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-InterFrequencyConfig-NoGap			CRITICALITY ignore	EXTENSION InterFrequencyConfig-NoGap			PRESENCE optional }|
 	{ ID id-UL-GapFR2-Config					CRITICALITY ignore	EXTENSION UL-GapFR2-Config							PRESENCE optional }|
 	{ ID id-TwoPHRModeMCG						CRITICALITY ignore	EXTENSION TwoPHRModeMCG								PRESENCE optional }|
-	{ ID id-TwoPHRModeSCG						CRITICALITY ignore	EXTENSION TwoPHRModeSCG								PRESENCE optional },
+	{ ID id-TwoPHRModeSCG						CRITICALITY ignore	EXTENSION TwoPHRModeSCG								PRESENCE optional }|
+	{ ID id-ncd-SSB-RedCapInitialBWP-SDT		CRITICALITY ignore	EXTENSION Ncd-SSB-RedCapInitialBWP-SDT			PRESENCE optional },
 	...
 }
 
@@ -2482,7 +2489,7 @@ EventType ::= ENUMERATED {
 	...
 }
 
-ExtendedPacketDelayBudget ::= INTEGER (1..65535, ...)
+ExtendedPacketDelayBudget ::= INTEGER (1..65535, ..., 65536..109999)
 
 Expected-UL-AoA ::= SEQUENCE {
 	expected-Azimuth-AoA	Expected-Azimuth-AoA,
@@ -3039,6 +3046,9 @@ HSNAFlexible ::= ENUMERATED { hard, soft, notavailable }
 HSNAUplink ::= ENUMERATED { hard, soft, notavailable }
 
 HSNATransmissionPeriodicity ::=	ENUMERATED { ms0p5, ms0p625, ms1, ms1p25, ms2, ms2p5, ms5, ms10, ms20, ms40, ms80, ms160, ...}
+
+HashedUEIdentityIndexValue ::= BIT STRING (SIZE(13, ...))
+
 
 -- I
 
@@ -4061,6 +4071,8 @@ NADownlink ::= ENUMERATED { true, false, ...}
 NAFlexible ::= ENUMERATED { true, false, ...}
 NAUplink ::= ENUMERATED { true, false, ...}
 
+Ncd-SSB-RedCapInitialBWP-SDT ::= OCTET STRING
+
 Neighbour-Node-Cells-List ::= SEQUENCE (SIZE(1..maxnoofNeighbourNodeCellsIAB)) OF Neighbour-Node-Cells-List-Item
 
 Neighbour-Node-Cells-List-Item ::= SEQUENCE{
@@ -4162,6 +4174,8 @@ NR-CGI-List-For-Restart-Item ::= SEQUENCE {
 NR-CGI-List-For-Restart-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+NrofSymbolsExtended ::=  ENUMERATED {n8, n10, n12, n14, ...}
 
 NR-PRSBeamInformation ::= SEQUENCE {
 	nR-PRSBeamInformationList		NR-PRSBeamInformationList,
@@ -5811,6 +5825,7 @@ ResourceSetTypeAperiodic-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+RepetitionFactorExtended ::=  ENUMERATED {n3, n5, n6, n7, n8, n10, n12, n14, ...}
 RepetitionPeriod ::= INTEGER (0..131071, ...)
 
 ReportingRequestType ::= SEQUENCE {
@@ -6909,6 +6924,10 @@ SRSResource::= SEQUENCE {
 }
 
 SRSResource-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+{ ID id-nrofSymbolsExtended			CRITICALITY ignore EXTENSION NrofSymbolsExtended			PRESENCE optional}|
+{ ID id-repetitionFactorExtended		CRITICALITY ignore EXTENSION RepetitionFactorExtended 	PRESENCE optional}|
+{ ID id-startRBHopping			CRITICALITY ignore EXTENSION StartRBHopping 			PRESENCE optional}|
+{ ID id-startRBIndex			CRITICALITY ignore EXTENSION StartRBIndex 			PRESENCE optional},
 	...
 }
 
@@ -7106,7 +7125,8 @@ SSB-PositionsInBurst-ExtIEs F1AP-PROTOCOL-IES ::= {
 
 SSB-TF-Configuration ::= SEQUENCE {
 	sSB-frequency				INTEGER (0..3279165),
-	sSB-subcarrier-spacing		ENUMERATED {kHz15, kHz30, kHz60, kHz120, kHz240, ...},
+	sSB-subcarrier-spacing		ENUMERATED {kHz15, kHz30, kHz60, kHz120, kHz240, ..., kHz480, kHz960},
+	-- The value kHz60 is not supported in this version of the specification.
 	sSB-Transmit-power			INTEGER (-60..50),
 	sSB-periodicity				ENUMERATED {ms5, ms10, ms20, ms40, ms80, ms160, ...},
 	sSB-half-frame-offset		INTEGER(0..1),
@@ -7131,6 +7151,17 @@ SSBToReportItem ::= SEQUENCE {
 SSBToReportItem-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+StartRBIndex  ::= CHOICE{
+	freqScalingFactor2   INTEGER(0..1),
+	freqScalingFactor4   INTEGER(0..3),
+	choice-extension	 ProtocolIE-SingleContainer { { StartRBIndex-ExtIEs} }
+}
+StartRBIndex-ExtIEs F1AP-PROTOCOL-IES ::= {
+	...
+}
+
+StartRBHopping  ::= ENUMERATED {enable}
 
 StartTimeAndDuration ::= SEQUENCE {
 	startTime			RelativeTime1900				OPTIONAL,
@@ -7431,6 +7462,17 @@ TransmissionComb ::= CHOICE {
 	choice-extension				ProtocolIE-SingleContainer { { TransmissionComb-ExtIEs} }
 }
 TransmissionComb-ExtIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-transmissionCombn8	CRITICALITY reject TYPE TransmissionCombn8 PRESENCE mandatory},
+	...
+}
+
+TransmissionCombn8 ::= SEQUENCE {
+	combOffset-n8              INTEGER (0..7),
+	cyclicShift-n8             INTEGER (0..5),
+	iE-Extensions			   ProtocolExtensionContainer { { TransmissionCombn8-ExtIEs} } OPTIONAL
+}
+
+TransmissionCombn8-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -8005,6 +8047,16 @@ UE-MulticastMRBs-Setup-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+UE-MulticastMRBs-Setupnew-Item	::= SEQUENCE {
+	mRB-ID							MRB-ID,
+	multicastF1UContextReferenceCU	MulticastF1UContextReferenceCU,
+	iE-Extensions					ProtocolExtensionContainer { { UE-MulticastMRBs-Setupnew-Item-ExtIEs } } OPTIONAL
+}
+
+UE-MulticastMRBs-Setupnew-Item-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 UE-MulticastMRBs-ToBeReleased-Item	::= SEQUENCE {
 	mRB-ID					MRB-ID,
 	iE-Extensions			ProtocolExtensionContainer { { UE-MulticastMRBs-ToBeReleased-Item-ExtIEs } } OPTIONAL
@@ -8208,7 +8260,7 @@ Uncertainty-range-AoA ::= INTEGER (0..3599)
 Uncertainty-range-ZoA ::= INTEGER (0..1799)
 
 
-UuRLCChannelID ::= BIT STRING (SIZE (16))
+UuRLCChannelID ::= INTEGER (1..32)
 
 UuRLCChannelQoSInformation ::= CHOICE {
 	uuRLCChannelQoS					QoSFlowLevelQoSParameters,

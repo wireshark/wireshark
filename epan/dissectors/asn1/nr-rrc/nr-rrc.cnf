@@ -84,6 +84,7 @@ MUSIM-GapConfig-r17_PDU
 NeedForGapsInfoNR-r16_PDU
 NeedForGapNCSG-InfoEUTRA-r17_PDU
 NeedForGapNCSG-InfoNR-r17_PDU
+NonCellDefiningSSB-r17_PDU
 NZP-CSI-RS-Resource_PDU
 OverheatingAssistance_PDU
 OverheatingAssistance-r17_PDU
@@ -181,6 +182,7 @@ MUSIM-GapConfig-r17
 NeedForGapsInfoNR-r16
 NeedForGapNCSG-InfoEUTRA-r17
 NeedForGapNCSG-InfoNR-r17
+NonCellDefiningSSB-r17
 NZP-CSI-RS-Resource
 OverheatingAssistance
 OverheatingAssistance-r17

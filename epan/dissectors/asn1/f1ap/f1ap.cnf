@@ -876,6 +876,15 @@ id-ExtendedUEIdentityIndexValue                      ProtocolIE-ID
 id-ServingCellMO-List                                ProtocolIE-ID
 id-ServingCellMO-List-Item                           ProtocolIE-ID
 id-ServingCellMO-encoded-in-CGC-List                 ProtocolIE-ID
+id-HashedUEIdentityIndexValue                        ProtocolIE-ID
+id-UE-MulticastMRBs-Setupnew-List                    ProtocolIE-ID
+id-UE-MulticastMRBs-Setupnew-Item                    ProtocolIE-ID
+id-ncd-SSB-RedCapInitialBWP-SDT                      ProtocolIE-ID
+id-nrofSymbolsExtended                               ProtocolIE-ID
+id-repetitionFactorExtended                          ProtocolIE-ID
+id-startRBHopping                                    ProtocolIE-ID
+id-startRBIndex                                      ProtocolIE-ID
+id-transmissionCombn8                                ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -1389,6 +1398,10 @@ ExtendedUEIdentityIndexValue                      N f1ap.ies id-ExtendedUEIdenti
 ServingCellMO-List                                N f1ap.ies id-ServingCellMO-List
 ServingCellMO-List-Item                           N f1ap.ies id-ServingCellMO-List-Item
 ServingCellMO-encoded-in-CGC-List                 N f1ap.ies id-ServingCellMO-encoded-in-CGC-List
+HashedUEIdentityIndexValue                        N f1ap.ies id-HashedUEIdentityIndexValue
+UE-MulticastMRBs-Setupnew-List                    N f1ap.ies id-UE-MulticastMRBs-Setupnew-List
+UE-MulticastMRBs-Setupnew-Item                    N f1ap.ies id-UE-MulticastMRBs-Setupnew-Item
+TransmissionCombn8                                N f1ap.ies id-transmissionCombn8
 
 #F1AP-PROTOCOL-EXTENSION
 GNB-CUSystemInformation                           N f1ap.extension id-gNB-CUSystemInformation
@@ -1561,6 +1574,11 @@ ConfigRestrictInfoDAPS                            N f1ap.extension id-ConfigRest
 MulticastF1UContextReferenceCU                    N f1ap.extension id-MulticastF1UContextReferenceCU
 TwoPHRModeMCG                                     N f1ap.extension id-TwoPHRModeMCG
 TwoPHRModeSCG                                     N f1ap.extension id-TwoPHRModeSCG
+Ncd-SSB-RedCapInitialBWP-SDT                      N f1ap.extension id-ncd-SSB-RedCapInitialBWP-SDT
+NrofSymbolsExtended                               N f1ap.extension id-nrofSymbolsExtended
+RepetitionFactorExtended                          N f1ap.extension id-repetitionFactorExtended
+StartRBHopping                                    N f1ap.extension id-startRBHopping
+StartRBIndex                                      N f1ap.extension id-startRBIndex
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                                    N f1ap.proc.imsg id-Reset
@@ -2733,6 +2751,14 @@ Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
   if (param_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_MUSIM_GapConfig);
     dissect_nr_rrc_MUSIM_GapConfig_r17_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY Ncd-SSB-RedCapInitialBWP-SDT VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_Ncd_SSB_RedCapInitialBWP_SDT);
+    dissect_nr_rrc_NonCellDefiningSSB_r17_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_BODY SDT-MAC-PHY-CG-Config VAL_PTR = &param_tvb
