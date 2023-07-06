@@ -841,6 +841,10 @@ You can perform the arithmetic operations on numeric fields shown in <<Arithmeti
 |Bitwise AND     |A & B     | Bitwise AND of A and B
 |===
 
+An unfortunate quirk in the filter syntax is that the subtraction
+operator must be preceded by a space character, so "A-B" must be
+written as "A -B" or "A - B".
+
 Arithmetic expressions can be grouped using curly braces.
 
 For example, frames where capture length resulted in truncated TCP options:
