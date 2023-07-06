@@ -477,10 +477,11 @@ https://valgrind.org[Valgrind] and can be enabled as follows:
 $ export WIRESHARK_DEBUG_WMEM_OVERRIDE=simple
 ----
 
-For memory allocated without wmem but with GLib's GSlice memory allocator,
-there is a similar `G_SLICE` environment variable that can be set to
-`always-malloc` (similar to `simple`) or `debug-blocks` (similar to `strict`).
+Wireshark uses GLib's GSlice memory allocator, either indirectly via wmem or via various GLib API calls.
+GLib provides a `G_SLICE` environment variable that can be set to `always-malloc` (similar to `simple`) or `debug-blocks` (similar to `strict`).
 See https://developer-old.gnome.org/glib/stable/glib-running.html for details.
+The C libraries on FreeBSD, Linux, and macOS also support memory allocation debugging via various environment variables.
+You can enable many of them by running `source tools/debug-alloc.env` in a POSIX shell.
 
 If you're encountering memory safety bugs, you might want to build with
 https://github.com/google/sanitizers/wiki/AddressSanitizer[Address Sanitizer]
@@ -490,6 +491,8 @@ It works with GCC or Clang, provided that the appropriate libraries are installe
 [source,sh]
 ----
 $ cmake .. -G Ninja -DENABLE_ASAN=1
+$ source ../tools/debug-alloc.env
+$ ./run/tshark ...
 ----
 
 TIP: ASAN slows things down by a factor of 2 (or more), so having a different

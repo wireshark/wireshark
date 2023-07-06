@@ -79,36 +79,7 @@ if [ $NOTFOUND -eq 1 ]; then
 fi
 }
 
-##############################################################################
-### Set up environment variables for fuzz testing			   ###
-##############################################################################
-# Use the Wmem strict allocator which does canaries and scrubbing etc.
-export WIRESHARK_DEBUG_WMEM_OVERRIDE=strict
-# Abort if a dissector adds too many items to the tree
-export WIRESHARK_ABORT_ON_TOO_MANY_ITEMS=
-
-# Turn on GLib memory debugging (since 2.13)
-export G_SLICE=debug-blocks
-# Cause glibc (Linux) to abort() if some memory errors are found
-export MALLOC_CHECK_=3
-# Cause FreeBSD (and other BSDs) to abort() on allocator warnings and
-# initialize allocated memory (to 0xa5) and freed memory (to 0x5a).  see:
-# https://www.freebsd.org/cgi/man.cgi?query=malloc&apropos=0&sektion=0&manpath=FreeBSD+8.2-RELEASE&format=html
-export MALLOC_OPTIONS=AJ
-
-# macOS options; see https://developer.apple.com/library/archive/documentation/Performance/Conceptual/ManagingMemory/Articles/MallocDebug.html
-# Initialize allocated memory to 0xAA and freed memory to 0x55
-export MallocPreScribble=1
-export MallocScribble=1
-# Add guard pages before and after large allocations
-export MallocGuardEdges=1
-# Call abort() if heap corruption is detected.  Heap is checked every 1000
-# allocations (may need to be tuned!)
-export MallocCheckHeapStart=1000
-export MallocCheckHeapEach=1000
-export MallocCheckHeapAbort=1
-# Call abort() if an illegal free() call is made
-export MallocBadFreeAbort=1
+source "$(dirname "$0")"/debug-alloc.env
 
 # Address Sanitizer options
 export ASAN_OPTIONS=detect_leaks=0
