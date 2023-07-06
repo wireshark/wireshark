@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V17.4.0 (2023-03)
+-- 3GPP TS 37.483 V17.5.0 (2023-06)
 -- **************************************************************
 --
 -- Information Element Definitions
@@ -75,6 +75,7 @@ IMPORTS
 	id-MCForwardingResourceReleaseIndication,
 	id-PDCP-COUNT-Reset,
 	id-MBSSessionAssociatedInfoNonSupportToSupport,
+	id-VersionID,
 	maxnoofMBSAreaSessionIDs,
 	maxnoofSharedNG-UTerminations,
 	maxnoofMRBs,
@@ -174,10 +175,10 @@ AlternativeQoSParaSetItem-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 -- BCBearerContextToSetup
 
 BCBearerContextToSetup ::= SEQUENCE {
-	snssai								SNSSAI,
-	bcBearerContextNGU-TNLInfoat5GC		BCBearerContextNGU-TNLInfoat5GC,
+	snssai									SNSSAI,
+	bcBearerContextNGU-TNLInfoat5GC			BCBearerContextNGU-TNLInfoat5GC				OPTIONAL,
 	bcMRBToSetupList						BCMRBSetupConfiguration,
-	requestedAction									RequestedAction4AvailNGUTermination		OPTIONAL,
+	requestedAction							RequestedAction4AvailNGUTermination			OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { {BCBearerContextToSetup-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -201,7 +202,6 @@ BCMRBSetupConfiguration ::= SEQUENCE (SIZE(1..maxnoofMRBs)) OF BCMRBSetupConfigu
 
 BCMRBSetupConfiguration-Item ::= SEQUENCE {
 	mrb-ID								MRB-ID,
-	sdap-config						SDAP-Configuration,
 	mbs-pdcp-config					PDCP-Configuration,
 	qoS-Flow-QoS-Parameter-List		QoS-Flow-QoS-Parameter-List,
 	qoSFlowLevelQoSParameters		QoSFlowLevelQoSParameters		OPTIONAL,
@@ -297,7 +297,6 @@ BCMRBModifyConfiguration ::= SEQUENCE (SIZE(1..maxnoofMRBs)) OF BCMRBModifyConfi
 BCMRBModifyConfiguration-Item ::= SEQUENCE {
 	mrb-ID							MRB-ID,
 	bcBearerContextF1U-TNLInfoatDU 	BCBearerContextF1U-TNLInfoatDU	OPTIONAL,
-	sdap-config						SDAP-Configuration				OPTIONAL,
 	mbs-pdcp-config					PDCP-Configuration				OPTIONAL,
 	qoS-Flow-QoS-Parameter-List		QoS-Flow-QoS-Parameter-List		OPTIONAL,
 	qoSFlowLevelQoSParameters		QoSFlowLevelQoSParameters		OPTIONAL,
@@ -1360,7 +1359,7 @@ EUTRANAllocationAndRetentionPriority ::= SEQUENCE {
 	...
 }
 
-ExtendedPacketDelayBudget ::= INTEGER (1..65535, ...)
+ExtendedPacketDelayBudget ::= INTEGER (1..65535, ..., 65536..109999)
 
 EUTRANAllocationAndRetentionPriority-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 	...
@@ -1815,7 +1814,6 @@ MBSF1UInformationAtDU-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
 
 MBSNGUInformationAt5GC ::= CHOICE {
 	multicast 				MBSNGUInformationAt5GC-Multicast,
-	unicast					UP-TNL-Information,
 	choice-extension	ProtocolIE-SingleContainer	{{MBSNGUInformationAt5GC-ExtIEs}}
 }
 
@@ -1924,7 +1922,6 @@ MCMRBSetupConfiguration ::= SEQUENCE (SIZE(1..maxnoofMRBs)) OF MCMRBSetupConfigu
 
 MCMRBSetupConfiguration-Item ::= SEQUENCE {
 	mrb-ID							MRB-ID,
-	sdap-config						SDAP-Configuration,
 	mbs-pdcp-config					PDCP-Configuration,
 	qoS-Flow-QoS-Parameter-List		QoS-Flow-QoS-Parameter-List,
 	qoSFlowLevelQoSParameters		QoSFlowLevelQoSParameters		OPTIONAL,
@@ -2044,7 +2041,6 @@ MCMRBSetupModifyConfiguration ::= SEQUENCE (SIZE(1..maxnoofMRBs)) OF MCMRBSetupM
 MCMRBSetupModifyConfiguration-Item ::= SEQUENCE {
 	mrb-ID							MRB-ID,
 	f1uTNLatDU						MCBearerContextF1UTNLInfoatDU		OPTIONAL,
-	sdap-config						SDAP-Configuration				OPTIONAL,
 	mbs-pdcp-config					PDCP-Configuration				OPTIONAL,
 	qoS-Flow-QoS-Parameter-List		QoS-Flow-QoS-Parameter-List		OPTIONAL,
 	mrbQoS							QoSFlowLevelQoSParameters		OPTIONAL,
@@ -3076,7 +3072,8 @@ QoSFlowLevelQoSParameters	::= SEQUENCE {
 	gBR-QoS-Flow-Information				GBR-QoSFlowInformation						OPTIONAL,
 	reflective-QoS-Attribute				ENUMERATED {subject-to, ...}				OPTIONAL,
 	additional-QoS-Information				ENUMERATED {more-likely, ...}				OPTIONAL,
-	paging-Policy-Indicator					INTEGER	(1..8,	...)						OPTIONAL,
+	paging-Policy-Index					INTEGER	(1..8,	...)						OPTIONAL,
+-- The paging-Policy-Index IE is not used in this version of the specification.
 	reflective-QoS-Indicator				ENUMERATED {enabled, ...}					OPTIONAL,
 	iE-Extensions							ProtocolExtensionContainer { { QoSFlowLevelQoSParameters-ExtIEs } }	OPTIONAL
 }
@@ -3467,7 +3464,13 @@ UDC-Parameters	::= SEQUENCE {
 	iE-Extensions					ProtocolExtensionContainer { { UDC-Parameters-ExtIEs } } 		OPTIONAL
 }
 
+-- WS modification: define a dedicated type
+VersionID ::= INTEGER (0..15)
+
 UDC-Parameters-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+-- WS modification: define a dedicated type
+--	{ ID id-VersionID CRITICALITY ignore EXTENSION INTEGER (0..15) PRESENCE optional},
+	{ ID id-VersionID CRITICALITY ignore EXTENSION VersionID PRESENCE optional},
 	...
 }
 

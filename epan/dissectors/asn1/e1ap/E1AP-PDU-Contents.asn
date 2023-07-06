@@ -1,4 +1,4 @@
--- 3GPP TS 37.483 V17.4.0 (2023-03)
+-- 3GPP TS 37.483 V17.5.0 (2023-06)
 -- **************************************************************
 --
 -- PDU definitions for E1AP
@@ -1524,10 +1524,10 @@ ResourceStatusUpdateIEs E1AP-PROTOCOL-IES ::= {
 --		{ ID id-gNB-CU-CP-Measurement-ID		CRITICALITY reject		TYPE INTEGER (1..4095, ...)		PRESENCE mandatory}|
 		{ ID id-gNB-CU-CP-Measurement-ID		CRITICALITY reject		TYPE Measurement-ID		PRESENCE mandatory}|
 -- WS modification: define a specific type
---		{ ID id-gNB-CU-UP-Measurement-ID		CRITICALITY ignore		TYPE INTEGER (1..4095, ...)		PRESENCE optional}|
-		{ ID id-gNB-CU-UP-Measurement-ID		CRITICALITY ignore		TYPE Measurement-ID		PRESENCE optional}|
+--		{ ID id-gNB-CU-UP-Measurement-ID		CRITICALITY ignore		TYPE INTEGER (1..4095, ...)		PRESENCE mandatory}|
+		{ ID id-gNB-CU-UP-Measurement-ID		CRITICALITY ignore		TYPE Measurement-ID		PRESENCE mandatory}|
 		{ ID id-TNL-AvailableCapacityIndicator		CRITICALITY ignore		TYPE 							TNL-AvailableCapacityIndicator	PRESENCE optional}|
-		{ ID id-HW-CapacityIndicator				CRITICALITY ignore		TYPE 							HW-CapacityIndicator			PRESENCE mandatory},
+		{ ID id-HW-CapacityIndicator				CRITICALITY ignore		TYPE 							HW-CapacityIndicator			PRESENCE optional},
 
 	...
 }
