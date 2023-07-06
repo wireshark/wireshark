@@ -1526,6 +1526,7 @@ id-CoverageModificationCause                                        ProtocolIE-I
 id-AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated ProtocolIE-ID
 id-UERLFReportContainerLTEExtension                                 ProtocolIE-ID
 id-ExcessPacketDelayThresholdConfiguration                          ProtocolIE-ID
+id-HashedUEIdentityIndexValue                                       ProtocolIE-ID
 
 #.REGISTER
 
@@ -1787,6 +1788,7 @@ MDTPLMNModificationList                           N xnap.ies id-ManagementBasedM
 F1-terminatingIAB-donorIndicator                  N xnap.ies id-F1-terminatingIAB-donorIndicator
 SCGreconfigNotification                           N xnap.ies id-SCGreconfigNotification
 UERLFReportContainerLTEExtension                  N xnap.ies id-UERLFReportContainerLTEExtension
+HashedUEIdentityIndexValue                        N xnap.ies id-HashedUEIdentityIndexValue
 
 #XNAP-PROTOCOL-EXTENSION
 Additional-UL-NG-U-TNLatUPF-List                                 N xnap.extension id-Additional-UL-NG-U-TNLatUPF-List

@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V17.4.0 (2023-03)
+-- 3GPP TS 38.423 V17.5.0 (2023-06)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -574,6 +574,7 @@ id-CoverageModificationCause																			ProtocolIE-ID ::= 368
 id-AdditionalListofPDUSessionResourceChangeConfirmInfo-SNterminated									ProtocolIE-ID ::= 369
 id-UERLFReportContainerLTEExtension																ProtocolIE-ID ::= 370
 id-ExcessPacketDelayThresholdConfiguration															ProtocolIE-ID ::= 371
+id-HashedUEIdentityIndexValue																		ProtocolIE-ID ::= 372
 
 
 END

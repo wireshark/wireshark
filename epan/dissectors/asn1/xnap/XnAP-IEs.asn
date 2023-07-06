@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V17.4.0 (2023-03)
+-- 3GPP TS 38.423 V17.5.0 (2023-06)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -420,14 +420,27 @@ AreaScopeOfMDT-NR ::= CHOICE {
 	cellBased					CellBasedMDT-NR,
 	tABased						TABasedMDT,
 	tAIBased					TAIBasedMDT,
+	...,
+	choice-extension		ProtocolIE-Single-Container { {AreaScopeOfMDT-NR-ExtIEs} }
+}
+
+AreaScopeOfMDT-NR-ExtIEs XNAP-PROTOCOL-IES ::= {
 	...
+
 }
 AreaScopeOfMDT-EUTRA ::= CHOICE {
 	cellBased					CellBasedMDT-EUTRA,
 	tABased						TABasedMDT,
 	tAIBased					TAIBasedMDT,
+	...,
+	choice-extension		ProtocolIE-Single-Container { {AreaScopeOfMDT-EUTRA-ExtIEs} }
+
+}
+
+AreaScopeOfMDT-EUTRA-ExtIEs XNAP-PROTOCOL-IES ::= {
 	...
 }
+
 
 
 AreaScopeOfNeighCellsList ::= SEQUENCE (SIZE(1..maxnoofFreqforMDT)) OF AreaScopeOfNeighCellsItem
@@ -1989,6 +2002,11 @@ EventL1-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 MeasurementThresholdL1LoggedMDT ::= CHOICE {
 	threshold-RSRP				Threshold-RSRP,
 	threshold-RSRQ				Threshold-RSRQ,
+	...,
+	choice-extension		ProtocolIE-Single-Container { {MeasurementThresholdL1LoggedMDT-ExtIEs} }
+}
+
+MeasurementThresholdL1LoggedMDT-ExtIEs XNAP-PROTOCOL-IES ::= {
 	...
 }
 
@@ -2094,7 +2112,7 @@ ExtendedRATRestrictionInformation-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 }
 
 
-ExtendedPacketDelayBudget ::= INTEGER (0..65535, ...)
+ExtendedPacketDelayBudget ::= INTEGER (0..65535, ..., 65536..109999)
 
 ExtendedSliceSupportList	::= SEQUENCE (SIZE(1..maxnoofExtSliceItems)) OF S-NSSAI
 
@@ -2431,6 +2449,7 @@ GTPtunnelTransportLayerInformation ::= SEQUENCE {
 }
 
 GTPtunnelTransportLayerInformation-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ID id-QoS-Mapping-Information	CRITICALITY reject	EXTENSION QoS-Mapping-Information	PRESENCE optional },
 	...
 }
 
@@ -2457,6 +2476,8 @@ HandoverReportType ::= ENUMERATED {
 	intersystempingpong,
 	...
 }
+
+HashedUEIdentityIndexValue ::= BIT STRING (SIZE(13, ...))
 
 HSNASlotConfigList ::= SEQUENCE (SIZE(1..maxnoofHSNASlots)) OF HSNASlotConfigItem
 
@@ -4178,7 +4199,7 @@ NRModeInfoTDD-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 }
 
 
-NRNRB ::= ENUMERATED { nrb11, nrb18, nrb24, nrb25, nrb31, nrb32, nrb38, nrb51, nrb52, nrb65, nrb66, nrb78, nrb79, nrb93, nrb106, nrb107, nrb121, nrb132, nrb133, nrb135, nrb160, nrb162, nrb189, nrb216, nrb217, nrb245, nrb264, nrb270, nrb273, ..., nrb33, nrb62, nrb124, nrb148, nrb248}
+NRNRB ::= ENUMERATED { nrb11, nrb18, nrb24, nrb25, nrb31, nrb32, nrb38, nrb51, nrb52, nrb65, nrb66, nrb78, nrb79, nrb93, nrb106, nrb107, nrb121, nrb132, nrb133, nrb135, nrb160, nrb162, nrb189, nrb216, nrb217, nrb245, nrb264, nrb270, nrb273, ..., nrb33, nrb62, nrb124, nrb148, nrb248, nrb44, nrb58, nrb92, nrb119, nrb188, nrb242}
 
 
 NRPagingeDRXInformation ::= SEQUENCE {
@@ -5776,6 +5797,11 @@ ReportIntervalMDT ::= ENUMERATED {ms120, ms240, ms480, ms640, ms1024, ms2048, ms
 ReportType ::= CHOICE {
 	periodical					Periodical,
 	eventTriggered				EventTriggered,
+	...,
+	choice-extension		ProtocolIE-Single-Container { {ReportType-ExtIEs} }
+}
+
+ReportType-ExtIEs XNAP-PROTOCOL-IES ::= {
 	...
 }
 
@@ -7631,8 +7657,7 @@ UPTransportParametersItem ::= SEQUENCE {
 }
 
 UPTransportParametersItem-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
-	{ID id-QoS-Mapping-Information	CRITICALITY reject	EXTENSION QoS-Mapping-Information	PRESENCE optional},
-	...
+		...
 }
 
 
