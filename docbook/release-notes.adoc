@@ -95,12 +95,6 @@ The following features are new (or have been significantly updated) since versio
 
 * Wireshark now builds with Qt6 by default. To use Qt5 instead pass USE_qt6=OFF to CMake.
 
-* It is now possible to filter on raw packet data for any field by using the syntax ``@some.field == <bytes...>``.
-  This can be useful to filter on malformed UTF-8 strings, among other use cases where it is necessary to
-  look at the field's raw data.
-
-* Negation (unary minus) now works with any display filter arithmetic expression.
-
 * ciscodump support Cisco IOS XE 17.x
 
 * The default interval between GUI updates when capturing has been decreased
@@ -121,8 +115,12 @@ Recognizes PCAP traces with the link type LINKTYPE_FIRA_UCI=299.
   of "most recently created".
 
 * Display filter syntax-related changes:
+  ** It is now possible to filter on raw packet data for any field by using the syntax ``@some.field == <bytes...>``.
+     This can be useful to filter on malformed UTF-8 strings, among other use cases where it is necessary to
+     look at the field's raw data.
+  ** Negation (unary minus) now works with any display filter arithmetic expression.
   ** Using the slice operator with strings produces a string. Previously it
-     would produce a byte array. This is useful to index/slice UTF-8 multi-byte strings.
+     would produce a byte array. This is useful to index/slice UTF-8 multibyte strings.
      String byte slices can still be obtained using the "@" (raw operator) prefix.
   ** Arithmetic expressions are allowed as set elements.
   ** Absolute date and time values can be written as Unix time.
