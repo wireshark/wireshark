@@ -304,11 +304,9 @@ class TestDfilterArithmetic:
         dfilter = "udp.dstport == 68 - 1"
         checkDFilterCount(dfilter, 2)
 
-    def test_sub_3(self, checkDFilterFail):
-        # Minus operator requires spaces around it.
-        error = '"68-1" is not a valid number.'
+    def test_sub_3(self, checkDFilterCount):
         dfilter = "udp.dstport == 68-1"
-        checkDFilterFail(dfilter, error)
+        checkDFilterCount(dfilter, 2)
 
     def test_sub_4(self, checkDFilterCount):
         dfilter = "udp.length == ip.len - 20"

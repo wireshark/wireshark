@@ -74,7 +74,7 @@ class TestDfilterMembership:
         # expression should be parsed as "0.1 .. .7"
         # .7 is the identifier (protocol) named "7"
         dfilter = 'frame.time_delta in {0.1...7}'
-        error = 'not a valid protocol or protocol field'
+        error = '"." was unexpected in this context'
         checkDFilterFail(dfilter, error)
 
     def test_membership_10_bad_lhs_number(self, checkDFilterFail):

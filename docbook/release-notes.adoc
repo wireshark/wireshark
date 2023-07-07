@@ -124,6 +124,8 @@ Recognizes PCAP traces with the link type LINKTYPE_FIRA_UCI=299.
      String byte slices can still be obtained using the "@" (raw operator) prefix.
   ** Arithmetic expressions are allowed as set elements.
   ** Absolute date and time values can be written as Unix time.
+  ** The limitation where a minus sign needed to be preceded by a space character
+     has been removed.
 
 * Running the test suite requires the https://pypi.org/project/pytest/[pytest]
   Python module. The emulation layer that allowed running tests without pytest

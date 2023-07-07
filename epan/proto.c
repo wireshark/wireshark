@@ -7485,6 +7485,8 @@ check_protocol_filter_name_or_fail(const char *filter_name)
 						filter_name, filter_name[0], filter_name[1]);
 	}
 
+	/* Names starting with a digit must not contain a minus sign (currently not checked at runtime). */
+
 	/* Check that it contains at least one letter. */
 	bool have_letter = false;
 	for (const char *s = filter_name; *s != '\0'; s++) {
