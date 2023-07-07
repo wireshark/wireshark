@@ -9978,6 +9978,7 @@ get_amqp_1_0_value_formatter(tvbuff_t *tvb,
             /* null value says that a particular field was optional and is omitted
              * the omitted fields of standard structures are not shown
              * however, we still display null values of custom lists, maps and arrays */
+            *length_size = 0;
             if(hf_amqp_type == hf_amqp_1_0_list)
             {
                 proto_tree_add_none_format(item, hf_amqp_type,
