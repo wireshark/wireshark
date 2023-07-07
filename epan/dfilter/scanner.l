@@ -194,6 +194,8 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 "and"		return test(TOKEN_TEST_AND);
 "||"		return test(TOKEN_TEST_OR);
 "or"		return test(TOKEN_TEST_OR);
+"^^"		return test(TOKEN_TEST_XOR);
+"xor"		return test(TOKEN_TEST_XOR);
 "in"		return test(TOKEN_TEST_IN);
 
 "+"		return math(TOKEN_PLUS);

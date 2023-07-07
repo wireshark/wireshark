@@ -305,6 +305,7 @@ const char *tokenstr(int token)
 	switch (token) {
 		case TOKEN_TEST_AND:	return "TEST_AND";
 		case TOKEN_TEST_OR: 	return "TEST_OR";
+		case TOKEN_TEST_XOR: 	return "TEST_XOR";
 		case TOKEN_TEST_ALL_EQ:	return "TEST_ALL_EQ";
 		case TOKEN_TEST_ANY_EQ:	return "TEST_ANY_EQ";
 		case TOKEN_TEST_ALL_NE:	return "TEST_ALL_NE";

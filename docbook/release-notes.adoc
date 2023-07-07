@@ -126,6 +126,7 @@ Recognizes PCAP traces with the link type LINKTYPE_FIRA_UCI=299.
   ** Absolute date and time values can be written as Unix time.
   ** The limitation where a minus sign needed to be preceded by a space character
      has been removed.
+  ** Added XOR logical operator.
 
 * Running the test suite requires the https://pypi.org/project/pytest/[pytest]
   Python module. The emulation layer that allowed running tests without pytest

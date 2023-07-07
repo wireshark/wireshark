@@ -486,6 +486,7 @@ static const char *reserved_filter_names[] = {
 	"not",
 	"and",
 	"or",
+	"xor",
 	"in",
 	"any",
 	"all",
