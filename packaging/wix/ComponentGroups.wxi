@@ -119,7 +119,6 @@
         <ComponentRef Id="cmpCfilters" />
         <ComponentRef Id="cmpColorfilters" />
         <ComponentRef Id="cmpDfilters" />
-        <ComponentRef Id="cmpEnterprisesTsv" />
         <ComponentRef Id="cmpSmi_modules" />
       </ComponentGroup>
     </Fragment>
