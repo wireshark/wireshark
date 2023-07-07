@@ -1067,7 +1067,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         }
         else {
             for (i=0; i < wmem_array_get_count(pdus_array); i++) {
-                cops_call = (cops_call_t*)wmem_array_index(pdus_array, i);
+                cops_call = *(cops_call_t**)(wmem_array_index(pdus_array, i));
                 if ( cops_call->req_num == pinfo->num
                   && cops_call->rsp_num != 0)  {
                     ti = proto_tree_add_uint_format(cops_tree, hf_cops_response_in, tvb, 0, 0, cops_call->rsp_num,
@@ -1086,7 +1086,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
         if (!pinfo->fd->visited) {
             for (i=0; i < wmem_array_get_count(pdus_array); i++) {
-                cops_call = (cops_call_t*)wmem_array_index(pdus_array, i);
+                cops_call = *(cops_call_t**)(wmem_array_index(pdus_array, i));
 
                 if (nstime_cmp(&pinfo->abs_ts, &cops_call->req_time) <= 0 || cops_call->rsp_num != 0)
                     continue;
@@ -1113,7 +1113,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         }
         else {
             for (i=0; i < wmem_array_get_count(pdus_array); i++) {
-                cops_call = (cops_call_t*)wmem_array_index(pdus_array, i);
+                cops_call = *(cops_call_t**)(wmem_array_index(pdus_array, i));
                 if ( cops_call->rsp_num == pinfo->num ) {
                     ti = proto_tree_add_uint_format(cops_tree, hf_cops_response_to, tvb, 0, 0, cops_call->req_num,
                                                       "Response to a request in frame %u", cops_call->req_num);
