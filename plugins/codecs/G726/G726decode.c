@@ -39,19 +39,19 @@ codec_g726_init(int bit_rate, int packing)
     return state;
 }
 
-static void *codec_g726_16_init(void) { return codec_g726_init(16000, G726_PACKING_RIGHT); }
-static void *codec_g726_24_init(void) { return codec_g726_init(24000, G726_PACKING_RIGHT); }
-static void *codec_g726_32_init(void) { return codec_g726_init(32000, G726_PACKING_RIGHT); }
-static void *codec_g726_40_init(void) { return codec_g726_init(40000, G726_PACKING_RIGHT); }
-static void *codec_aal2_g726_16_init(void) { return codec_g726_init(16000, G726_PACKING_LEFT); }
-static void *codec_aal2_g726_24_init(void) { return codec_g726_init(24000, G726_PACKING_LEFT); }
-static void *codec_aal2_g726_32_init(void) { return codec_g726_init(32000, G726_PACKING_LEFT); }
-static void *codec_aal2_g726_40_init(void) { return codec_g726_init(40000, G726_PACKING_LEFT); }
+static void *codec_g726_16_init(codec_context_t *ctx _U_) { return codec_g726_init(16000, G726_PACKING_RIGHT); }
+static void *codec_g726_24_init(codec_context_t *ctx _U_) { return codec_g726_init(24000, G726_PACKING_RIGHT); }
+static void *codec_g726_32_init(codec_context_t *ctx _U_) { return codec_g726_init(32000, G726_PACKING_RIGHT); }
+static void *codec_g726_40_init(codec_context_t *ctx _U_) { return codec_g726_init(40000, G726_PACKING_RIGHT); }
+static void *codec_aal2_g726_16_init(codec_context_t *ctx _U_) { return codec_g726_init(16000, G726_PACKING_LEFT); }
+static void *codec_aal2_g726_24_init(codec_context_t *ctx _U_) { return codec_g726_init(24000, G726_PACKING_LEFT); }
+static void *codec_aal2_g726_32_init(codec_context_t *ctx _U_) { return codec_g726_init(32000, G726_PACKING_LEFT); }
+static void *codec_aal2_g726_40_init(codec_context_t *ctx _U_) { return codec_g726_init(40000, G726_PACKING_LEFT); }
 
 static void
-codec_g726_release(void *ctx)
+codec_g726_release(codec_context_t *ctx)
 {
-    g726_codec_ctx *state = (g726_codec_ctx *)ctx;
+    g726_codec_ctx *state = (g726_codec_ctx *)(ctx->priv);
 
     if (!state) {
         return;  /* out-of-memory; */
@@ -63,22 +63,22 @@ codec_g726_release(void *ctx)
 }
 
 static unsigned
-codec_g726_get_channels(void *ctx _U_)
+codec_g726_get_channels(codec_context_t *ctx _U_)
 {
     return 1;
 }
 
 static unsigned
-codec_g726_get_frequency(void *ctx _U_)
+codec_g726_get_frequency(codec_context_t *ctx _U_)
 {
     return 8000;
 }
 
 static size_t
-codec_g726_decode(void *ctx, const void *inputBytes, size_t inputBytesSize,
-        void *outputSamples, size_t *outputSamplesSize)
+codec_g726_decode(codec_context_t *ctx, const void *inputBytes,
+        size_t inputBytesSize, void *outputSamples, size_t *outputSamplesSize)
 {
-    g726_codec_ctx *state = (g726_codec_ctx *)ctx;
+    g726_codec_ctx *state = (g726_codec_ctx *)ctx->priv;
 
     if (!state) {
         return 0;  /* out-of-memory; */

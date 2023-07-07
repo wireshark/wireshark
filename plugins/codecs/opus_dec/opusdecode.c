@@ -18,19 +18,23 @@
 void codec_register_opus(void);
 
 static void *
-codec_opus_init(void)
+codec_opus_init(codec_context_t *ctx _U_)
 {
     OpusDecoder *state;
     int err = OPUS_INTERNAL_ERROR;
-    /* always use maximum 48000 to cover all 8k/12k/16k/24k/48k */
+    /* Opus has in-band signaling and can convert what is sent to our
+     * desired output.
+     * always use maximum 48000 to cover all 8k/12k/16k/24k/48k
+     * always downmix to mono because RTP Player only supports mono now
+     */
     state = opus_decoder_create(48000, 1, &err);
     return state;
 }
 
 static void
-codec_opus_release(void *ctx)
+codec_opus_release(codec_context_t *ctx)
 {
-    OpusDecoder* state = (OpusDecoder*)ctx;
+    OpusDecoder* state = (OpusDecoder*)ctx->priv;
     if (!state) {
       return; /* out-of-memory; */
     }
@@ -38,25 +42,26 @@ codec_opus_release(void *ctx)
 }
 
 static unsigned
-codec_opus_get_channels(void *ctx _U_)
+codec_opus_get_channels(codec_context_t *ctx _U_)
 {
     return 1;
 }
 
 static unsigned
-codec_opus_get_frequency(void *ctx _U_)
+codec_opus_get_frequency(codec_context_t *ctx _U_)
 {
     /* although can set kinds of fs, but we set 48K now */
     return 48000;
 }
 
 static size_t
-codec_opus_decode(void *ctx , const void *input, size_t inputSizeBytes,
-                  void *output, size_t *outputSizeBytes  )
+codec_opus_decode(codec_context_t *ctx,
+                  const void *input, size_t inputSizeBytes,
+                  void *output, size_t *outputSizeBytes)
 {
-    OpusDecoder *state = (OpusDecoder *)ctx;
+    OpusDecoder *state = (OpusDecoder *)ctx->priv;
 
-    if (!ctx) {
+    if (!state) {
         return 0;  /* out-of-memory */
     }
 

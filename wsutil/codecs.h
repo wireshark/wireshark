@@ -41,6 +41,12 @@ WS_DLL_PUBLIC void codec_get_compiled_version_info(GString *str);
 struct codec_handle;
 typedef struct codec_handle *codec_handle_t;
 
+typedef struct _codec_context_t {
+    unsigned sample_rate;
+    unsigned channels;
+    void *priv; /* Private state set by the decoder */
+} codec_context_t;
+
 /*****************************************************************************/
 /* Interface which must be implemented by a codec */
 /* Codec decodes bytes to samples. Sample is 2 bytes! Codec writer must
@@ -55,13 +61,13 @@ typedef struct codec_handle *codec_handle_t;
  *
  * @return Pointer to codec context
  */
-typedef void *(*codec_init_fn)(void);
+typedef void *(*codec_init_fn)(codec_context_t *context);
 
 /** Destroy context of codec
  *
  * @param context Pointer to codec context
  */
-typedef void (*codec_release_fn)(void *context);
+typedef void (*codec_release_fn)(codec_context_t *context);
 
 /** Get count of channels provided by the codec
  *
@@ -69,7 +75,7 @@ typedef void (*codec_release_fn)(void *context);
  *
  * @return Count of channels (e.g. 1)
  */
-typedef unsigned (*codec_get_channels_fn)(void *context);
+typedef unsigned (*codec_get_channels_fn)(codec_context_t *context);
 
 /** Get frequency/rate provided by the codec
  *
@@ -77,7 +83,7 @@ typedef unsigned (*codec_get_channels_fn)(void *context);
  *
  * @return Frequency (e.g. 8000)
  */
-typedef unsigned (*codec_get_frequency_fn)(void *context);
+typedef unsigned (*codec_get_frequency_fn)(codec_context_t *context);
 
 /** Decode one frame of payload
  *  Function is called twice, with different values of parameters:
@@ -99,7 +105,7 @@ typedef unsigned (*codec_get_frequency_fn)(void *context);
  * @return Count of reqired bytes (!not samples) to allocate in (1) or
  *         Count of decoded bytes (!not samples) in (2)
  */
-typedef size_t (*codec_decode_fn)(void *context,
+typedef size_t (*codec_decode_fn)(codec_context_t *context,
         const void *inputBytes, size_t inputBytesSize,
         void *outputSamples, size_t *outputSamplesSize);
 
@@ -112,11 +118,11 @@ WS_DLL_PUBLIC gboolean register_codec(const char *name, codec_init_fn init_fn,
         codec_get_frequency_fn frequency_fn, codec_decode_fn decode_fn);
 WS_DLL_PUBLIC gboolean deregister_codec(const char *name);
 WS_DLL_PUBLIC codec_handle_t find_codec(const char *name);
-WS_DLL_PUBLIC void *codec_init(codec_handle_t codec);
-WS_DLL_PUBLIC void codec_release(codec_handle_t codec, void *context);
-WS_DLL_PUBLIC unsigned codec_get_channels(codec_handle_t codec, void *context);
-WS_DLL_PUBLIC unsigned codec_get_frequency(codec_handle_t codec, void *context);
-WS_DLL_PUBLIC size_t codec_decode(codec_handle_t codec, void *context,
+WS_DLL_PUBLIC void *codec_init(codec_handle_t codec, codec_context_t *context);
+WS_DLL_PUBLIC void codec_release(codec_handle_t codec, codec_context_t *context);
+WS_DLL_PUBLIC unsigned codec_get_channels(codec_handle_t codec, codec_context_t *context);
+WS_DLL_PUBLIC unsigned codec_get_frequency(codec_handle_t codec, codec_context_t *context);
+WS_DLL_PUBLIC size_t codec_decode(codec_handle_t codec, codec_context_t *context,
         const void *inputBytes, size_t inputBytesSize,
         void *outputSamples, size_t *outputSamplesSize);
 

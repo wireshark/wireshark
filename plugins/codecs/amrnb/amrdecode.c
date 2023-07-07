@@ -20,7 +20,7 @@
 void codec_register_amr(void);
 
 static void *
-codec_amr_init(void)
+codec_amr_init(codec_context_t *ctx _U_)
 {
     void *state;
     state = Decoder_Interface_init();
@@ -29,19 +29,19 @@ codec_amr_init(void)
 }
 
 static void
-codec_amr_release(void *state)
+codec_amr_release(codec_context_t *state)
 {
-    Decoder_Interface_exit(state);
+    Decoder_Interface_exit(state->priv);
 }
 
 static unsigned
-codec_amr_get_channels(void *ctx _U_)
+codec_amr_get_channels(codec_context_t *ctx _U_)
 {
     return 1;
 }
 
 static unsigned
-codec_amr_get_frequency(void *ctx _U_)
+codec_amr_get_frequency(codec_context_t *ctx _U_)
 {
     return 8000;
 }
@@ -123,11 +123,12 @@ codec_amr_decode_many(void *state, const void *input, size_t inputSizeBytes,
 }
 
 static size_t
-codec_amr_decode(void *state, const void *input, size_t inputSizeBytes, void *output,
-        size_t *outputSizeBytes)
+codec_amr_decode(codec_context_t *ctx, const void *input,
+        size_t inputSizeBytes, void *output, size_t *outputSizeBytes)
 {
     bool f_bit;
     unsigned frames = 0;
+    void *state = ctx->priv;
 
     /* XXX: This assumes RFC 4867 octet-aligned mode. It would be good
      * to handle bandwidth-efficient mode as well. OpenCORE-AMR's

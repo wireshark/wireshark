@@ -19,34 +19,35 @@
 void codec_register_g729(void);
 
 static void *
-codec_g729_init(void)
+codec_g729_init(codec_context_t *ctx _U_)
 {
     return initBcg729DecoderChannel();
 }
 
 static void
-codec_g729_release(void *ctx)
+codec_g729_release(codec_context_t *ctx)
 {
-    closeBcg729DecoderChannel((bcg729DecoderChannelContextStruct *)ctx);
+    closeBcg729DecoderChannel((bcg729DecoderChannelContextStruct *)ctx->priv);
 }
 
 static unsigned
-codec_g729_get_channels(void *ctx _U_)
+codec_g729_get_channels(codec_context_t *ctx _U_)
 {
     return 1;
 }
 
 static unsigned
-codec_g729_get_frequency(void *ctx _U_)
+codec_g729_get_frequency(codec_context_t *ctx _U_)
 {
     return 8000;
 }
 
 static size_t
-codec_g729_decode(void *ctx, const void *inputBytes, size_t inputBytesSize,
+codec_g729_decode(codec_context_t *ctx,
+        const void *inputBytes, size_t inputBytesSize,
         void *outputSamples, size_t *outputSamplesSize)
 {
-    bcg729DecoderChannelContextStruct *state = (bcg729DecoderChannelContextStruct *)ctx;
+    bcg729DecoderChannelContextStruct *state = (bcg729DecoderChannelContextStruct *)ctx->priv;
     const guint8 *dataIn = (const guint8 *) inputBytes;
     gint16 *dataOut = (gint16 *) outputSamples;
     size_t i;

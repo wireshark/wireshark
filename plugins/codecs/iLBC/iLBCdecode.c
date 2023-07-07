@@ -36,37 +36,38 @@ typedef struct {
 void codec_register_iLBC(void);
 
 static void *
-codec_iLBC_init(void)
+codec_iLBC_init(codec_context_t *ctx _U_)
 {
-    ilbc_ctx_t *ctx;
+    ilbc_ctx_t *priv;
 
-    ctx=(ilbc_ctx_t *)g_malloc0(sizeof(*ctx));
-    WebRtcIlbcfix_DecoderCreate(&(ctx->ilbc_ctx));
+    priv=(ilbc_ctx_t *)g_malloc0(sizeof(*priv));
+    WebRtcIlbcfix_DecoderCreate(&(priv->ilbc_ctx));
 
-    return ctx;
+    return priv;
 }
 
 static void
-codec_iLBC_release(void *ctx)
+codec_iLBC_release(codec_context_t *ctx)
 {
-    WebRtcIlbcfix_DecoderFree(((ilbc_ctx_t *)ctx)->ilbc_ctx);
+    WebRtcIlbcfix_DecoderFree(((ilbc_ctx_t *)ctx->priv)->ilbc_ctx);
     g_free(ctx);
 }
 
 static unsigned
-codec_iLBC_get_channels(void *ctx _U_)
+codec_iLBC_get_channels(codec_context_t *ctx _U_)
 {
     return 1;
 }
 
 static unsigned
-codec_iLBC_get_frequency(void *ctx _U_)
+codec_iLBC_get_frequency(codec_context_t *ctx _U_)
 {
     return 8000;
 }
 
 static size_t
-codec_iLBC_decode(void *ctx, const void *inputBytes, size_t inputBytesSize,
+codec_iLBC_decode(codec_context_t *ctx,
+        const void *inputBytes, size_t inputBytesSize,
         void *outputSamples, size_t *outputSamplesSize)
 {
     int16_t speechType; // Not used in Wireshark code
@@ -76,7 +77,7 @@ codec_iLBC_decode(void *ctx, const void *inputBytes, size_t inputBytesSize,
     int16_t *dataIn  = (int16_t *)inputBytes;
 #endif
     int16_t *dataOut = (int16_t *)outputSamples;
-    ilbc_ctx_t *dataCtx = (ilbc_ctx_t *)ctx;
+    ilbc_ctx_t *dataCtx = (ilbc_ctx_t *)ctx->priv;
     size_t outputSamplesCount;
 
     if (!outputSamples || !outputSamplesSize)

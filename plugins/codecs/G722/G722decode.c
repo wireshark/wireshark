@@ -19,7 +19,7 @@
 void codec_register_g722(void);
 
 static void *
-codec_g722_init(void)
+codec_g722_init(codec_context_t *ctx _U_)
 {
     g722_decode_state_t *state;
 
@@ -31,9 +31,9 @@ codec_g722_init(void)
 }
 
 static void
-codec_g722_release(void *ctx)
+codec_g722_release(codec_context_t *ctx)
 {
-    g722_decode_state_t *state = (g722_decode_state_t *)ctx;
+    g722_decode_state_t *state = (g722_decode_state_t *)ctx->priv;
 
     if (!state) {
         return;  /* out-of-memory; */
@@ -44,14 +44,14 @@ codec_g722_release(void *ctx)
 }
 
 static unsigned
-codec_g722_get_channels(void *ctx _U_)
+codec_g722_get_channels(codec_context_t *ctx _U_)
 {
     /* G.722 has only one channel. */
     return 1;
 }
 
 static unsigned
-codec_g722_get_frequency(void *ctx _U_)
+codec_g722_get_frequency(codec_context_t *ctx _U_)
 {
     /* Note: RTP Clock rate is 8kHz due to a historic error, but actual sampling
      * rate is 16kHz (RFC 3551, section 4.5.2). */
@@ -59,10 +59,10 @@ codec_g722_get_frequency(void *ctx _U_)
 }
 
 static size_t
-codec_g722_decode(void *ctx, const void *inputBytes, size_t inputBytesSize,
-        void *outputSamples, size_t *outputSamplesSize)
+codec_g722_decode(codec_context_t *ctx, const void *inputBytes,
+        size_t inputBytesSize, void *outputSamples, size_t *outputSamplesSize)
 {
-    g722_decode_state_t *state = (g722_decode_state_t *)ctx;
+    g722_decode_state_t *state = (g722_decode_state_t *)ctx->priv;
 
     if (!state) {
         return 0;  /* out-of-memory; */

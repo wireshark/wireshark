@@ -150,31 +150,31 @@ deregister_codec(const char *name)
     return ret;
 }
 
-void *codec_init(codec_handle_t codec)
+void *codec_init(codec_handle_t codec, codec_context_t *context)
 {
     if (!codec) return NULL;
-    return (codec->init_fn)();
+    return (codec->init_fn)(context);
 }
 
-void codec_release(codec_handle_t codec, void *context)
+void codec_release(codec_handle_t codec, codec_context_t *context)
 {
     if (!codec) return;
     (codec->release_fn)(context);
 }
 
-unsigned codec_get_channels(codec_handle_t codec, void *context)
+unsigned codec_get_channels(codec_handle_t codec, codec_context_t *context)
 {
     if (!codec) return 0;
     return (codec->channels_fn)(context);
 }
 
-unsigned codec_get_frequency(codec_handle_t codec, void *context)
+unsigned codec_get_frequency(codec_handle_t codec, codec_context_t *context)
 {
     if (!codec) return 0;
     return (codec->frequency_fn)(context);
 }
 
-size_t codec_decode(codec_handle_t codec, void *context, const void *input, size_t inputSizeBytes, void *output, size_t *outputSizeBytes)
+size_t codec_decode(codec_handle_t codec, codec_context_t *context, const void *input, size_t inputSizeBytes, void *output, size_t *outputSizeBytes)
 {
     if (!codec) return 0;
     return (codec->decode_fn)(context, input, inputSizeBytes, output, outputSizeBytes);

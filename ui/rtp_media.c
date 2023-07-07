@@ -27,7 +27,7 @@
 
 typedef struct _rtp_decoder_t {
     codec_handle_t handle;
-    void *context;
+    codec_context_t *context;
 } rtp_decoder_t;
 
 /****************************************************************************/
@@ -36,7 +36,7 @@ typedef struct _rtp_decoder_t {
  */
 
 size_t
-decode_rtp_packet_payload(guint8 payload_type, const gchar *payload_type_str, guint8 *payload_data, size_t payload_len, SAMPLE **out_buff, GHashTable *decoders_hash, guint *channels_ptr, guint *sample_rate_ptr)
+decode_rtp_packet_payload(guint8 payload_type, const gchar *payload_type_str, int payload_rate, int payload_channels, guint8 *payload_data, size_t payload_len, SAMPLE **out_buff, GHashTable *decoders_hash, guint *channels_ptr, guint *sample_rate_ptr)
 {
     const gchar *p;
     rtp_decoder_t *decoder;
@@ -49,7 +49,10 @@ decode_rtp_packet_payload(guint8 payload_type, const gchar *payload_type_str, gu
     if (!decoder) {  /* Put either valid or empty decoder into the hash table */
         decoder = g_new(rtp_decoder_t,1);
         decoder->handle = NULL;
-        decoder->context = NULL;
+        decoder->context = g_new(codec_context_t, 1);
+        decoder->context->sample_rate = payload_rate;
+        decoder->context->channels = payload_channels;
+        decoder->context->priv = NULL;
 
         if (payload_type_str && find_codec(payload_type_str)) {
             p = payload_type_str;
@@ -60,7 +63,7 @@ decode_rtp_packet_payload(guint8 payload_type, const gchar *payload_type_str, gu
         if (p) {
             decoder->handle = find_codec(p);
             if (decoder->handle)
-                decoder->context = codec_init(decoder->handle);
+                decoder->context->priv = codec_init(decoder->handle, decoder->context);
         }
         g_hash_table_insert(decoders_hash, GUINT_TO_POINTER(payload_type), decoder);
     }
@@ -102,7 +105,7 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
 
     payload_type = rp->info->info_payload_type;
 
-    return decode_rtp_packet_payload(payload_type, rp->info->info_payload_type_str, rp->payload_data, rp->info->info_payload_len, out_buff, decoders_hash, channels_ptr, sample_rate_ptr);
+    return decode_rtp_packet_payload(payload_type, rp->info->info_payload_type_str, rp->info->info_payload_rate, rp->info->info_payload_channels, rp->payload_data, rp->info->info_payload_len, out_buff, decoders_hash, channels_ptr, sample_rate_ptr);
 }
 
 /****************************************************************************/
@@ -111,8 +114,10 @@ rtp_decoder_value_destroy(gpointer dec_arg)
 {
     rtp_decoder_t *dec = (rtp_decoder_t *)dec_arg;
 
-    if (dec->handle)
+    if (dec->handle) {
         codec_release(dec->handle, dec->context);
+        g_free(dec->context);
+    }
     g_free(dec_arg);
 }
 

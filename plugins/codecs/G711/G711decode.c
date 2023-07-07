@@ -88,31 +88,32 @@ static gint16 alaw_exp_table[256] = {
 void codec_register_g711(void);
 
 static void *
-codec_g711u_init(void)
+codec_g711u_init(codec_context_t *ctx _U_)
 {
     return NULL;
 }
 
 static void
-codec_g711u_release(void *ctx _U_)
+codec_g711u_release(codec_context_t *ctx _U_)
 {
 
 }
 
 static unsigned
-codec_g711u_get_channels(void *ctx _U_)
+codec_g711u_get_channels(codec_context_t *ctx _U_)
 {
     return 1;
 }
 
 static unsigned
-codec_g711u_get_frequency(void *ctx _U_)
+codec_g711u_get_frequency(codec_context_t *ctx _U_)
 {
     return 8000;
 }
 
 static size_t
-codec_g711u_decode(void *ctx _U_, const void *inputBytes, size_t inputBytesSize,
+codec_g711u_decode(codec_context_t *ctx _U_,
+        const void *inputBytes, size_t inputBytesSize,
         void *outputSamples, size_t *outputSamplesSize)
 {
     const guint8 *dataIn = (const guint8 *) inputBytes;
@@ -133,31 +134,32 @@ codec_g711u_decode(void *ctx _U_, const void *inputBytes, size_t inputBytesSize,
 }
 
 static void *
-codec_g711a_init(void)
+codec_g711a_init(codec_context_t *ctx _U_)
 {
     return NULL;
 }
 
 static void
-codec_g711a_release(void *ctx _U_)
+codec_g711a_release(codec_context_t *ctx _U_)
 {
 
 }
 
 static unsigned
-codec_g711a_get_channels(void *ctx _U_)
+codec_g711a_get_channels(codec_context_t *ctx _U_)
 {
     return 1;
 }
 
 static unsigned
-codec_g711a_get_frequency(void *ctx _U_)
+codec_g711a_get_frequency(codec_context_t *ctx _U_)
 {
     return 8000;
 }
 
 static size_t
-codec_g711a_decode(void *ctx _U_, const void *inputBytes, size_t inputBytesSize,
+codec_g711a_decode(codec_context_t *ctx _U_,
+        const void *inputBytes, size_t inputBytesSize,
         void *outputSamples, size_t *outputSamplesSize)
 {
     const guint8 *dataIn = (const guint8 *) inputBytes;

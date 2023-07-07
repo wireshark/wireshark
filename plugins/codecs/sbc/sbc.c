@@ -22,7 +22,7 @@
 void codec_register_sbc(void);
 
 static void *
-codec_sbc_init(void)
+codec_sbc_init(codec_context_t *ctx _U_)
 {
     sbc_t *sbc;
 
@@ -33,18 +33,18 @@ codec_sbc_init(void)
 }
 
 static void
-codec_sbc_release(void *ctx)
+codec_sbc_release(codec_context_t *ctx)
 {
-    sbc_t *sbc = (sbc_t *) ctx;
+    sbc_t *sbc = (sbc_t *) ctx->priv;
 
     sbc_finish(sbc);
     g_free(sbc);
 }
 
 static unsigned
-codec_sbc_get_channels(void *ctx)
+codec_sbc_get_channels(codec_context_t *ctx)
 {
-    sbc_t *sbc = (sbc_t *) ctx;
+    sbc_t *sbc = (sbc_t *) ctx->priv;
     if (sbc->mode == SBC_MODE_MONO)
         return 1;
 
@@ -52,9 +52,9 @@ codec_sbc_get_channels(void *ctx)
 }
 
 static unsigned
-codec_sbc_get_frequency(void *ctx)
+codec_sbc_get_frequency(codec_context_t *ctx)
 {
-    sbc_t *sbc = (sbc_t *) ctx;
+    sbc_t *sbc = (sbc_t *) ctx->priv;
     int frequency;
 
     switch (sbc->frequency) {
@@ -81,8 +81,9 @@ codec_sbc_get_frequency(void *ctx)
 }
 
 static size_t
-codec_sbc_decode(void *ctx, const void *input, size_t inputSizeBytes, void *output,
-        size_t *outputSizeBytes)
+codec_sbc_decode(codec_context_t *ctx,
+        const void *input, size_t inputSizeBytes,
+        void *output, size_t *outputSizeBytes)
 {
     size_t         size_in = (size_t) inputSizeBytes;
     size_t         size_out = SBC_BUFFER;
@@ -91,7 +92,7 @@ codec_sbc_decode(void *ctx, const void *input, size_t inputSizeBytes, void *outp
     size_t         xframe_pos = 0;
     const guint8  *data_in  = (const guint8 *) input;
     guint8        *data_out = (guint8 *) output;
-    sbc_t         *sbc = (sbc_t *) ctx;
+    sbc_t         *sbc = (sbc_t *) ctx->priv;
     guint8        *i_data;
     guint8         tmp;
 
