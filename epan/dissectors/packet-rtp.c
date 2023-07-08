@@ -76,6 +76,7 @@ typedef struct _rfc2198_hdr {
     int len;
     const char* payload_type_str;
     int payload_rate;
+    unsigned payload_channels;
     wmem_map_t *payload_fmtp_map;
     struct _rfc2198_hdr *next;
 } rfc2198_hdr;
@@ -100,6 +101,7 @@ typedef struct  _rtp_private_conv_info {
 typedef struct {
     char *encoding_name;
     int   sample_rate;
+    unsigned channels;
     wmem_map_t *fmtp_map;
 } encoding_name_and_rate_t;
 
@@ -679,6 +681,7 @@ rtp_dyn_payload_table_foreach_func(gpointer key, gpointer value, gpointer user_d
         DPRINT2(("encoding_name=%s",
                 encoding->encoding_name ? encoding->encoding_name : "NULL"));
         DPRINT2(("sample_rate=%d", encoding->sample_rate));
+        DPRINT2(("channels=%u", encoding->channels));
     } else {
         DPRINT2(("encoding=NULL"));
     }
@@ -829,6 +832,7 @@ rtp_dyn_payload_t* rtp_dyn_payload_dup(rtp_dyn_payload_t *rtp_dyn_payload)
         rtp_dyn_payload_insert_full(rtp_dyn_payload2, pt,
                 encoding_name_and_rate_pt->encoding_name,
                 encoding_name_and_rate_pt->sample_rate,
+                encoding_name_and_rate_pt->channels,
                 encoding_name_and_rate_pt->fmtp_map);
 
     }
@@ -866,6 +870,7 @@ rtp_dyn_payload_insert_full(rtp_dyn_payload_t *rtp_dyn_payload,
                        const guint pt,
                        const gchar* encoding_name,
                        const int sample_rate,
+                       const unsigned channels,
                        wmem_map_t *fmtp_map)
 {
     if (rtp_dyn_payload && rtp_dyn_payload->table) {
@@ -873,6 +878,7 @@ rtp_dyn_payload_insert_full(rtp_dyn_payload_t *rtp_dyn_payload,
                     wmem_new(wmem_file_scope(), encoding_name_and_rate_t);
         encoding_name_and_rate_pt->encoding_name = wmem_strdup(wmem_file_scope(), encoding_name);
         encoding_name_and_rate_pt->sample_rate = sample_rate;
+        encoding_name_and_rate_pt->channels = channels;
         encoding_name_and_rate_pt->fmtp_map = wmem_map_new(wmem_file_scope(), wmem_str_hash, g_str_equal);
         if (fmtp_map) {
             wmem_map_foreach(fmtp_map, rtp_dyn_payload_add_fmtp_int, encoding_name_and_rate_pt->fmtp_map);
@@ -889,9 +895,10 @@ void
 rtp_dyn_payload_insert(rtp_dyn_payload_t *rtp_dyn_payload,
                        const guint pt,
                        const gchar* encoding_name,
-                       const int sample_rate)
+                       const int sample_rate,
+                       const unsigned channels)
 {
-    rtp_dyn_payload_insert_full(rtp_dyn_payload, pt, encoding_name, sample_rate, NULL);
+    rtp_dyn_payload_insert_full(rtp_dyn_payload, pt, encoding_name, sample_rate, channels, NULL);
 }
 
 /* Adds the given format parameter to the fmtp_map for the given payload type
@@ -968,7 +975,7 @@ rtp_dyn_payload_get_name(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt)
 gboolean
 rtp_dyn_payload_get_full(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt,
                          const gchar **encoding_name, int *sample_rate,
-                         wmem_map_t **fmtp_map)
+                         unsigned *channels, wmem_map_t **fmtp_map)
 {
     encoding_name_and_rate_t *encoding_name_and_rate_pt;
     if (encoding_name) {
@@ -976,6 +983,9 @@ rtp_dyn_payload_get_full(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt,
     }
     if (sample_rate) {
         *sample_rate = 0;
+    }
+    if (channels) {
+        *channels = 0;
     }
     if (fmtp_map) {
         *fmtp_map = NULL;
@@ -992,6 +1002,9 @@ rtp_dyn_payload_get_full(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt,
         }
         if (sample_rate) {
             *sample_rate = encoding_name_and_rate_pt->sample_rate;
+        }
+        if (channels) {
+            *channels = encoding_name_and_rate_pt->channels;
         }
         if (fmtp_map) {
             *fmtp_map = encoding_name_and_rate_pt->fmtp_map;
@@ -1787,7 +1800,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         /* if it is dynamic payload, let use the conv data to see if it is defined */
         if ((hdr_new->pt > 95) && (hdr_new->pt < 128)) {
             if (p_conv_data && p_conv_data->rtp_dyn_payload){
-                rtp_dyn_payload_get_full(p_conv_data->rtp_dyn_payload, hdr_new->pt, &payload_type_str, &hdr_new->payload_rate, &hdr_new->payload_fmtp_map);
+                rtp_dyn_payload_get_full(p_conv_data->rtp_dyn_payload, hdr_new->pt, &payload_type_str, &hdr_new->payload_rate, &hdr_new->payload_channels, &hdr_new->payload_fmtp_map);
                 hdr_new->payload_type_str = payload_type_str;
             } else {
                 /* See if we have a dissector tied to the dynamic payload
@@ -1846,6 +1859,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             rfc2198_rtp_info.info_payload_type = hdr_last->pt;
             rfc2198_rtp_info.info_payload_type_str = hdr_last->payload_type_str;
             rfc2198_rtp_info.info_payload_rate = hdr_last->payload_rate;
+            rfc2198_rtp_info.info_payload_channels = hdr_last->payload_channels;
             rfc2198_rtp_info.info_payload_fmtp_map = hdr_last->payload_fmtp_map;
         }
         const char *saved_proto = pinfo->current_proto;
@@ -2338,6 +2352,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     if ( (payload_type>95) && (payload_type<128) ) {
         if (p_conv_data && p_conv_data->rtp_dyn_payload) {
             int sample_rate = 0;
+            unsigned channels = 1;
             wmem_map_t *fmtp_map;
 
 #ifdef DEBUG_CONVERSATION
@@ -2346,11 +2361,13 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             DPRINT(("looking up conversation data for dyn_pt=%d", payload_type));
 
             if (rtp_dyn_payload_get_full(p_conv_data->rtp_dyn_payload, payload_type,
-                                        &payload_type_str, &sample_rate, &fmtp_map)) {
+                                        &payload_type_str, &sample_rate,
+                                        &channels, &fmtp_map)) {
                 DPRINT(("found conversation data for dyn_pt=%d, enc_name=%s",
                         payload_type, payload_type_str));
                 rtp_info->info_payload_type_str = payload_type_str;
                 rtp_info->info_payload_rate     = sample_rate;
+                rtp_info->info_payload_channels = channels;
                 rtp_info->info_payload_fmtp_map = fmtp_map;
             }
         } else {

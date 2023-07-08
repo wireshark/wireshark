@@ -328,7 +328,7 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 	/* (S)RTP, (S)RTCP */
 	if (upcoming_channel_lcl->rfc2198 > 0) {
 		rtp_dyn_payload = rtp_dyn_payload_new();
-		rtp_dyn_payload_insert(rtp_dyn_payload, upcoming_channel_lcl->rfc2198, "red", 8000);
+		rtp_dyn_payload_insert(rtp_dyn_payload, upcoming_channel_lcl->rfc2198, "red", 8000, 1);
 	}
 
 	if (upcoming_channel_lcl->srtp_flag) {

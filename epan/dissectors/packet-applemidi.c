@@ -283,7 +283,7 @@ dissect_applemidi_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	   address/port-tuple to cause RTP-dissector to call the RTP-MIDI-dissector for payload-decoding */
 
 	rtp_dyn_payload = rtp_dyn_payload_new();
-	rtp_dyn_payload_insert(rtp_dyn_payload, 97, "rtp-midi", 10000);
+	rtp_dyn_payload_insert(rtp_dyn_payload, 97, "rtp-midi", 10000, 1);
 	rtp_add_address( pinfo, PT_UDP, &pinfo->src, pinfo->srcport, 0, APPLEMIDI_DISSECTOR_SHORTNAME,
 			 pinfo->num, FALSE, rtp_dyn_payload);
 

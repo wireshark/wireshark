@@ -6831,7 +6831,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
         if (format_assigned &&
             (first_assigned_found == FALSE))
         {
-            rtp_dyn_payload_insert(rtp_dyn_payload, rtp_payload_type, mime_type, sample_rate);
+            rtp_dyn_payload_insert(rtp_dyn_payload, rtp_payload_type, mime_type, sample_rate, 1);
             rtp_dyn_payload_used = TRUE;
 
             first_assigned_found = TRUE;
@@ -6841,7 +6841,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 
         if (in_band_format_assigned)
         {
-            rtp_dyn_payload_insert(rtp_dyn_payload, rtp_payload_type, "telephone-event", sample_rate);
+            rtp_dyn_payload_insert(rtp_dyn_payload, rtp_payload_type, "telephone-event", sample_rate, 1);
             rtp_dyn_payload_used = TRUE;
         }
 

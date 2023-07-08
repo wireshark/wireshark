@@ -274,7 +274,7 @@ typedef struct {
     enum sdp_exchange_type sdp_status;
     char  *encoding_name[SDP_NO_OF_PT];
     int    sample_rate[SDP_NO_OF_PT];
-    int    channels[SDP_NO_OF_PT];
+    unsigned channels[SDP_NO_OF_PT];
 
     /* Data parsed from "m=" */
     wmem_array_t *media_descriptions;   /* array of media_description_t */
@@ -1664,13 +1664,15 @@ dissect_sdp_media_attribute_rtpmap(proto_tree *tree, packet_info *pinfo, tvbuff_
         rtp_dyn_payload_insert(session_info->rtp_dyn_payload,
                                pt,
                                transport_info->encoding_name[pt],
-                               transport_info->sample_rate[pt]);
+                               transport_info->sample_rate[pt],
+                               transport_info->channels[pt]);
     } else if (media_desc) {
         /* if the "a=" is after an "m=", only apply to this "m=" */
         rtp_dyn_payload_insert(media_desc->media.rtp_dyn_payload,
                                pt,
                                transport_info->encoding_name[pt],
-                               transport_info->sample_rate[pt]);
+                               transport_info->sample_rate[pt],
+                               transport_info->channels[pt]);
     }
 }
 
@@ -2214,11 +2216,12 @@ complete_descriptions(transport_info_t *transport_info, guint answer_offset)
                     for (guint pt = 0; pt < 128; ++pt) {
                         const char * encoding_name;
                         int sample_rate;
+                        unsigned channels;
                         wmem_map_t *fmtp_map;
                         if (rtp_dyn_payload_get_full(media_desc->media.rtp_dyn_payload,
-                                                     pt, &encoding_name, &sample_rate, &fmtp_map))
+                                                     pt, &encoding_name, &sample_rate, &channels, &fmtp_map))
                             rtp_dyn_payload_insert_full(bundle_media_desc->media.rtp_dyn_payload,
-                                                        pt, encoding_name, sample_rate, fmtp_map);
+                                                        pt, encoding_name, sample_rate, channels, fmtp_map);
                     }
                 }
             }
