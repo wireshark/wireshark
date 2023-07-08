@@ -148,6 +148,7 @@ static int hf_media_attribute_field = -1;
 static int hf_media_attribute_value = -1;
 static int hf_media_encoding_name = -1;
 static int hf_media_sample_rate = -1;
+static int hf_media_channels = -1;
 static int hf_media_format_specific_parameter = -1;
 static int hf_sdp_fmtp_mpeg4_profile_level_id = -1;
 static int hf_sdp_fmtp_h263_profile = -1;
@@ -206,6 +207,7 @@ static expert_field ei_sdp_invalid_line_space  = EI_INIT;
 static expert_field ei_sdp_invalid_conversion = EI_INIT;
 static expert_field ei_sdp_invalid_media_port = EI_INIT;
 static expert_field ei_sdp_invalid_sample_rate = EI_INIT;
+static expert_field ei_sdp_invalid_channels = EI_INIT;
 static expert_field ei_sdp_invalid_media_format = EI_INIT;
 static expert_field ei_sdp_invalid_crypto_tag = EI_INIT;
 static expert_field ei_sdp_invalid_crypto_mki_length = EI_INIT;
@@ -272,6 +274,7 @@ typedef struct {
     enum sdp_exchange_type sdp_status;
     char  *encoding_name[SDP_NO_OF_PT];
     int    sample_rate[SDP_NO_OF_PT];
+    int    channels[SDP_NO_OF_PT];
 
     /* Data parsed from "m=" */
     wmem_array_t *media_descriptions;   /* array of media_description_t */
@@ -1563,6 +1566,16 @@ dissect_sdp_media_attribute_rtpmap(proto_tree *tree, packet_info *pinfo, tvbuff_
     proto_item   *pi;
     guint8        pt;
 
+    /* RFC 8866 6.6 rtpmap
+       Syntax:
+          rtpmap-value = payload-type SP encoding-name
+          "/" clock-rate [ "/" encoding-params ]
+          payload-type = zero-based-integer
+          encoding-name = token
+          clock-rate = integer
+          encoding-params = channels
+          channels = integer
+     */
     next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
 
     if (next_offset == -1)
@@ -1593,13 +1606,13 @@ dissect_sdp_media_attribute_rtpmap(proto_tree *tree, packet_info *pinfo, tvbuff_
     /* String is file scope allocated because transport_info is connection related */
     transport_info->encoding_name[pt] = (char*)tvb_get_string_enc(wmem_file_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
 
-    next_offset =  next_offset + 1;
-    offset = next_offset;
-    while (length-1 >= next_offset) {
-        if (!g_ascii_isdigit(tvb_get_guint8(tvb, next_offset)))
-            break;
-        next_offset++;
+    offset = next_offset + 1;
+
+    next_offset = tvb_find_guint8(tvb, offset, length - offset, '/');
+    if (next_offset == -1) {
+        next_offset = length;
     }
+
     tokenlen = next_offset - offset;
     pi = proto_tree_add_item(tree, hf_media_sample_rate, tvb,
                              offset, tokenlen, ENC_UTF_8);
@@ -1611,6 +1624,20 @@ dissect_sdp_media_attribute_rtpmap(proto_tree *tree, packet_info *pinfo, tvbuff_
         // The reported sampling rate is 8000, but the actual value is
         // 16kHz. https://tools.ietf.org/html/rfc3551#section-4.5.2
         proto_item_append_text(pi, " (RTP clock rate is 8kHz, actual sampling rate is 16kHz)");
+    }
+
+    transport_info->channels[pt] = 1;
+    if (media_desc && media_desc->media_types & RTP_MEDIA_AUDIO) {
+        if (next_offset < length) {
+            offset = next_offset + 1;
+            tokenlen = length - offset;
+            pi = proto_tree_add_item(tree, hf_media_channels, tvb,
+                                     offset, tokenlen, ENC_UTF_8);
+            if (!ws_strtou32(tvb_get_string_enc(pinfo->pool, tvb, offset, tokenlen, ENC_UTF_8|ENC_NA),
+                             NULL, &transport_info->channels[pt])) {
+                expert_add_info(pinfo, pi, &ei_sdp_invalid_channels);
+            }
+        }
     }
     /* As per RFC2327 it is possible to have multiple Media Descriptions ("m=").
        For example:
@@ -1630,6 +1657,9 @@ dissect_sdp_media_attribute_rtpmap(proto_tree *tree, packet_info *pinfo, tvbuff_
         /* If this "a=" appear before any "m=", we add it to the session
          * info, these will be added later to all media (via
          * sdp_new_media_description).
+         *
+         * NOTE: This should not happen, because rtpmap is Usage Level: media
+         * (RFC 8866 6.6, also RFC 4566 6, and heavily implied by RFC 2327)
          */
         rtp_dyn_payload_insert(session_info->rtp_dyn_payload,
                                pt,
@@ -3167,6 +3197,11 @@ proto_register_sdp(void)
               FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
+        { &hf_media_channels,
+            { "Audio Channels", "sdp.channels",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
         { &hf_media_format_specific_parameter,
             { "Media format specific parameters", "sdp.fmtp.parameter",
               FT_STRING, BASE_NONE, NULL, 0x0,
@@ -3362,6 +3397,13 @@ proto_register_sdp(void)
             { "sdp.invalid_sample_rate",
               PI_MALFORMED, PI_ERROR,
               "Invalid sample rate",
+              EXPFILL
+            }
+        },
+        { &ei_sdp_invalid_channels,
+            { "sdp.invalid_channels",
+              PI_MALFORMED, PI_WARN,
+              "Invalid number of audio channels",
               EXPFILL
             }
         },
