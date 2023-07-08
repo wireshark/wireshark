@@ -36,14 +36,6 @@ TYPE lsa_String "offset=cnf_dissect_lsa_String(tvb, offset, pinfo, tree, di, dre
 TYPE hyper "offset=cnf_dissect_hyper(tvb, offset, pinfo, tree, di, drep, @PARAM@, @HF@);" FT_UINT64 BASE_DEC 0 NULL 8 
 
 CODE START
-/* Bug in pidl.  Can not handle these dependencies properly yet */
-static int
-wkssvc_dissect_struct_srvsvc_PlatformId(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info* di, guint8 *drep, int hf_index _U_, guint32 param _U_)
-{
-	offset = srvsvc_dissect_enum_PlatformId(tvb,offset,pinfo,tree,di,drep,hf_wkssvc_platform_id,0);
-
-	return offset;
-}
 
 static int
 cnf_dissect_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, guint8 *drep, guint32 param, int hfindex)

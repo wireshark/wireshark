@@ -9,7 +9,6 @@ import "srvsvc.idl", "lsa.idl";
 [ uuid("6bffd098-a112-3610-9833-46c3f87e345a"),
   version(1.0),
   pointer_default(unique),
-  pointer_default_top(unique),
   helpstring("Workstation Service"),
   endpoint("ncacn_np:[\\pipe\\wkssvc]","ncacn_ip_tcp:","ncalrpc:")
 ] interface wkssvc
@@ -18,7 +17,7 @@ import "srvsvc.idl", "lsa.idl";
 
 #define BOOL uint32
 
-	typedef [public,noejs] struct {
+	typedef [public] struct {
 		[value(strlen_m_term(name)*2)] uint16 name_len;
 		[value(strlen_m_term(name)*2)] uint16 name_size;
 		[string,charset(UTF16)] uint16 *name;
@@ -311,15 +310,15 @@ import "srvsvc.idl", "lsa.idl";
 
 	typedef struct {
 		uint32 level;
-		[switch_is(level)] wkssvc_NetWkstaEnumUsersCtr ctr;
+		[switch_is(level), flag(LIBNDR_FLAG_ALIGN5)] wkssvc_NetWkstaEnumUsersCtr ctr;
 	} wkssvc_NetWkstaEnumUsersInfo;
 
 	WERROR wkssvc_NetWkstaEnumUsers(
-		[in] [string,charset(UTF16)] uint16 *server_name,
+		[in] [unique,string,charset(UTF16)] uint16 *server_name,
 		[in,out,ref] wkssvc_NetWkstaEnumUsersInfo *info,
 		[in] uint32 prefmaxlen,
 		[out,ref] uint32 *entries_read,
-		[in,out] uint32 *resume_handle
+		[in,out, unique] uint32 *resume_handle
 		);
 
 	/*****************************/
