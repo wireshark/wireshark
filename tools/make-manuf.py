@@ -8,15 +8,7 @@
 '''Update the "manuf" file.
 
 Make-manuf creates a file containing ethernet OUIs and their company
-IDs. It merges the databases at IEEE with entries in our template file.
-Our file in turn contains entries from
-http://www.cavebear.com/archive/cavebear/Ethernet/Ethernet.txt along
-with our own.
-
-The script reads the comments at the top of "manuf.tmpl" and writes them
-to "manuf".  It then joins the manufacturer listing in "manuf.tmpl" with
-the listing in "oui.txt", "iab.txt", etc, with the entries in
-"manuf.tmpl" taking precedence.
+IDs from the databases at IEEE.
 '''
 
 import csv
@@ -47,15 +39,24 @@ def open_url(url):
     str in Python 3 and bytes in Python 2 in order to be compatibile with
     csv.reader.
     '''
-    req_headers = { 'User-Agent': 'Wireshark make-manuf' }
-    try:
-        req = urllib.request.Request(url, headers=req_headers)
-        response = urllib.request.urlopen(req)
-        body = response.read().decode('UTF-8', 'replace')
-    except Exception:
-        exit_msg('Error opening ' + url)
 
-    return (body, dict(response.info()))
+    if len(sys.argv) > 1:
+        url_path = os.path.join(sys.argv[1], url[1])
+        url_fd = open(url_path)
+        body = url_fd.read()
+        url_fd.close()
+    else:
+        url_path = '/'.join(url)
+
+        req_headers = { 'User-Agent': 'Wireshark make-manuf' }
+        try:
+            req = urllib.request.Request(url_path, headers=req_headers)
+            response = urllib.request.urlopen(req)
+            body = response.read().decode('UTF-8', 'replace')
+        except Exception:
+            exit_msg('Error opening ' + url_path)
+
+    return body
 
 # These are applied after punctuation has been removed.
 # More examples at https://en.wikipedia.org/wiki/Incorporation_(business)
@@ -181,49 +182,22 @@ def prefix_to_oui(prefix):
 
 def main():
     this_dir = os.path.dirname(__file__)
-    template_path = os.path.join(this_dir, '..', 'manuf.tmpl')
     manuf_path = os.path.join(this_dir, '..', 'manuf')
-    header_l = []
-    in_header = True
 
     ieee_d = {
-        'OUI':   { 'url': "https://standards-oui.ieee.org/oui/oui.csv", 'min_entries': 1000 },
-        'CID':   { 'url': "https://standards-oui.ieee.org/cid/cid.csv", 'min_entries': 75 },
-        'IAB':   { 'url': "https://standards-oui.ieee.org/iab/iab.csv", 'min_entries': 1000 },
-        'OUI28': { 'url': "https://standards-oui.ieee.org/oui28/mam.csv", 'min_entries': 1000 },
-        'OUI36': { 'url': "https://standards-oui.ieee.org/oui36/oui36.csv", 'min_entries': 1000 },
+        'OUI':   { 'url': ["https://standards-oui.ieee.org/oui/", "oui.csv"], 'min_entries': 1000 },
+        'CID':   { 'url': ["https://standards-oui.ieee.org/cid/", "cid.csv"], 'min_entries': 75 },
+        'IAB':   { 'url': ["https://standards-oui.ieee.org/iab/", "iab.csv"], 'min_entries': 1000 },
+        'OUI28': { 'url': ["https://standards-oui.ieee.org/oui28/", "mam.csv"], 'min_entries': 1000 },
+        'OUI36': { 'url': ["https://standards-oui.ieee.org/oui36/", "oui36.csv"], 'min_entries': 1000 },
     }
     oui_d = {}
-    hp = "[0-9a-fA-F]{2}"
-    manuf_re = re.compile(r'^({}:{}:{})\s+(\S.*)$'.format(hp, hp, hp))
 
     min_total = 35000; # 35830 as of 2018-09-05
-    tmpl_added  = 0
     total_added = 0
 
-    # Write out the header and populate the OUI list with our entries.
-
-    try:
-        tmpl_fd = io.open(template_path, 'r', encoding='UTF-8')
-    except Exception:
-        exit_msg("Couldn't open template file for reading ({}) ".format(template_path))
-    for tmpl_line in tmpl_fd:
-        tmpl_line = tmpl_line.strip()
-        m = manuf_re.match(tmpl_line)
-        if not m and in_header:
-            header_l.append(tmpl_line)
-        elif m:
-            in_header = False
-            oui = m.group(1).upper()
-            oui_d[oui] = m.group(2)
-            tmpl_added += 1
-    tmpl_fd.close()
-
-    total_added += tmpl_added
-
     # Add IEEE entries from each of their databases
-    ieee_db_l = list(ieee_d.keys())
-    ieee_db_l.sort()
+    ieee_db_l = ['OUI', 'OUI28', 'OUI36', 'CID', 'IAB']
 
     for db in ieee_db_l:
         db_url = ieee_d[db]['url']
@@ -231,10 +205,8 @@ def main():
         ieee_d[db]['added'] = 0
         ieee_d[db]['total'] = 0
         print('Merging {} data from {}'.format(db, db_url))
-        (body, response_d) = open_url(db_url)
+        body = open_url(db_url)
         ieee_csv = csv.reader(body.splitlines())
-        ieee_d[db]['last-modified'] = response_d['Last-Modified']
-        ieee_d[db]['length'] = response_d['Content-Length']
 
         # Pop the title row.
         next(ieee_csv)
@@ -247,14 +219,6 @@ def main():
             manuf = html.unescape(manuf)
             if oui in oui_d:
                 action = 'Skipping'
-                try:
-                    manuf_stripped = re.findall('[a-z]+', manuf.lower())
-                    tmpl_manuf_stripped = re.findall('[a-z]+', oui_d[oui].split('\t')[-1].strip().lower())
-                    if manuf_stripped == tmpl_manuf_stripped:
-                        action = 'Skipping duplicate'
-                except IndexError:
-                    pass
-
                 print('{} - {} IEEE "{}" in favor of "{}"'.format(oui, action, manuf, oui_d[oui]))
                 ieee_d[db]['skipped'] += 1
             else:
@@ -277,15 +241,42 @@ def main():
         exit_msg("Couldn't open manuf file for reading ({}) ".format(manuf_path))
 
     manuf_fd.write("# This file was generated by running ./tools/make-manuf.py.\n")
-    manuf_fd.write("# Don't change it directly, change manuf.tmpl instead.\n#\n")
-    manuf_fd.write('\n'.join(header_l))
+    manuf_fd.write(
+'''#
+# /etc/manuf - Ethernet vendor codes, and well-known MAC addresses
+#
+# Laurent Deniel <laurent.deniel [AT] free.fr>
+#
+# Wireshark - Network traffic analyzer
+# By Gerald Combs <gerald [AT] wireshark.org>
+# Copyright 1998 Gerald Combs
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# The data below has been assembled from the following sources:
+#
+# The IEEE public OUI listings available from:
+# <http://standards-oui.ieee.org/oui/oui.csv>
+# <http://standards-oui.ieee.org/cid/cid.csv>
+# <http://standards-oui.ieee.org/iab/iab.csv>
+# <http://standards-oui.ieee.org/oui28/mam.csv>
+# <http://standards-oui.ieee.org/oui36/oui36.csv>
+#
+# This file is in the same format as ethers(4) except that vendor names
+# are truncated to eight characters when used with Wireshark, and
+# that well-known MAC addresses need not have a full 6 octets and may
+# have a netmask following them specifying how many bits of the address
+# are relevant (the other bits are wildcards).  Also, either ":", "-",
+# or "." can be used to separate the octets.
+#
+# You can get the latest version of this file from
+# https://gitlab.com/wireshark/wireshark/-/raw/master/manuf
+
+''')
 
     for db in ieee_db_l:
         manuf_fd.write(
             '''\
-# {url}:
-#   Content-Length: {length}
-#   Last-Modified: {last-modified}
 
 '''.format( **ieee_d[db]))
 
@@ -296,7 +287,6 @@ def main():
 
     manuf_fd.close()
 
-    print('{:<20}: {}'.format('Original entries', tmpl_added))
     for db in ieee_d:
         print('{:<20}: {}'.format('IEEE ' + db + ' added', ieee_d[db]['added']))
     print('{:<20}: {}'.format('Total added', total_added))
