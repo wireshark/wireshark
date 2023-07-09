@@ -157,7 +157,7 @@ def shorten(manuf):
 
     if manuf.lower() == orig_manuf.lower():
         # Original manufacturer name was short and simple.
-        return manuf
+        return [manuf, None]
 
     mixed_manuf = orig_manuf
     # At least one entry has whitespace in front of a period.
@@ -166,7 +166,7 @@ def shorten(manuf):
     if mixed_manuf.upper() == mixed_manuf:
         mixed_manuf = mixed_manuf.title()
 
-    return '{}\t{}'.format(manuf, mixed_manuf)
+    return [manuf, mixed_manuf]
 
 def prefix_to_oui(prefix):
     pfx_len = len(prefix) * 8 / 2
@@ -283,7 +283,20 @@ def main():
     oui_l = list(oui_d.keys())
     oui_l.sort()
     for oui in oui_l:
-        manuf_fd.write('{}\t{}\n'.format(oui, oui_d[oui]))
+        manuf = oui_d[oui]
+        line = oui
+        sep_len = (24 - len(line)) // 8
+        if sep_len <= 0:
+            sep_len = 1
+        line += '\t' * sep_len + manuf[0]
+        if manuf[1]:
+            if len(manuf[0]) < 8:
+                sep_len = 2
+            else:
+                sep_len = 1
+            line += '\t' * sep_len + manuf[1]
+        line += '\n'
+        manuf_fd.write(line)
 
     manuf_fd.close()
 
