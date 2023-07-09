@@ -103,6 +103,18 @@ general_terms = '|'.join([
     'z ?o ?o'
     ])
 
+# Chinese company names tend to start with the location, skip it (non-exhaustive list).
+skip_start = [
+    'shengzen',
+    'shenzhen',
+    'beijing',
+    'shanghai',
+    'wuhan',
+    'hangzhou',
+    'guangxi',
+]
+
+
 def shorten(manuf):
     '''Convert a long manufacturer name to abbreviated and short names'''
     # Normalize whitespace.
@@ -124,6 +136,11 @@ def shorten(manuf):
     # ...but make sure we don't remove everything.
     if not all(s == ' ' for s in plain_manuf):
         manuf = plain_manuf
+
+    split = manuf.split()
+    if len(split) > 1 and split[0].lower() in skip_start:
+        manuf = ' '.join(split[1:])
+
     # Remove all spaces
     manuf = re.sub(r'\s+', '', manuf)
 
