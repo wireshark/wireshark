@@ -304,6 +304,7 @@ gchar *g_wka_path       = NULL;     /* global well-known-addresses file */
 gchar *g_manuf_path     = NULL;     /* global manuf file      */
 gchar *g_ipxnets_path   = NULL;     /* global ipxnets file    */
 gchar *g_pipxnets_path  = NULL;     /* personal ipxnets file  */
+gchar *g_services_path  = NULL;     /* global services file   */
 gchar *g_pservices_path = NULL;     /* personal services file */
 gchar *g_pvlan_path     = NULL;     /* personal vlans file    */
 gchar *g_ss7pcs_path    = NULL;     /* personal ss7pcs file   */
@@ -872,9 +873,14 @@ serv_name_lookup(port_type proto, guint port)
 static void
 initialize_services(void)
 {
-    gboolean parse_file = TRUE;
     ws_assert(serv_port_hashtable == NULL);
     serv_port_hashtable = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
+
+    /* Compute the pathname of the global services file. */
+    if (g_services_path == NULL) {
+        g_services_path = get_datafile_path(ENAME_SERVICES);
+    }
+    parse_services_file(g_services_path);
 
     /* Compute the pathname of the personal services file */
     if (g_pservices_path == NULL) {
@@ -883,12 +889,8 @@ initialize_services(void)
         if (!parse_services_file(g_pservices_path)) {
             g_free(g_pservices_path);
             g_pservices_path = get_persconffile_path(ENAME_SERVICES, FALSE);
-        } else {
-            parse_file = FALSE;
+            parse_services_file(g_pservices_path);
         }
-    }
-    if (parse_file) {
-        parse_services_file(g_pservices_path);
     }
 }
 
@@ -896,6 +898,8 @@ static void
 service_name_lookup_cleanup(void)
 {
     serv_port_hashtable = NULL;
+    g_free(g_services_path);
+    g_services_path = NULL;
     g_free(g_pservices_path);
     g_pservices_path = NULL;
 }
