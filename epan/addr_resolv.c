@@ -308,6 +308,7 @@ gchar *g_services_path  = NULL;     /* global services file   */
 gchar *g_pservices_path = NULL;     /* personal services file */
 gchar *g_pvlan_path     = NULL;     /* personal vlans file    */
 gchar *g_ss7pcs_path    = NULL;     /* personal ss7pcs file   */
+gchar *g_enterprises_path = NULL;   /* global enterprises file   */
 gchar *g_penterprises_path = NULL;  /* personal enterprises file */
                                     /* first resolving call   */
 
@@ -960,6 +961,11 @@ initialize_enterprises(void)
     ws_assert(enterprises_hashtable == NULL);
     enterprises_hashtable = g_hash_table_new_full(NULL, NULL, NULL, g_free);
 
+    if (g_enterprises_path == NULL) {
+        g_enterprises_path = get_datafile_path(ENAME_ENTERPRISES);
+    }
+    parse_enterprises_file(g_enterprises_path);
+
     /* Populate entries from profile or personal */
     if (g_penterprises_path == NULL) {
         /* Check profile directory before personal configuration */
@@ -1015,6 +1021,8 @@ enterprises_cleanup(void)
     ws_assert(enterprises_hashtable);
     g_hash_table_destroy(enterprises_hashtable);
     enterprises_hashtable = NULL;
+    g_free(g_enterprises_path);
+    g_enterprises_path = NULL;
     g_free(g_penterprises_path);
     g_penterprises_path = NULL;
 }
