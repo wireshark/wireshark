@@ -131,26 +131,23 @@ def shorten(manuf):
         sys.stderr.write('Manufacturer "{}" shortened to nothing.\n'.format(orig_manuf))
         sys.exit(1)
 
-    # Truncate names to a reasonable length, say, 8 characters. If
+    # Truncate names to a reasonable length, say, 12 characters. If
     # the string contains UTF-8, this may be substantially more than
-    # 8 bytes. It might also be less than 8 visible characters. Plain
+    # 12 bytes. It might also be less than 12 visible characters. Plain
     # Python slices Unicode strings by code point, which is better
     # than raw bytes but not as good as grapheme clusters. PyICU
     # supports grapheme clusters. https://bugs.python.org/issue30717
     #
-    # In our case plain Python truncates 'Savroni̇k Elektroni̇k'
-    # to 'Savroni̇', which is 7 visible characters, 8 code points,
-    # and 9 bytes.
 
     # Truncate by code points
-    trunc_len = 8
+    trunc_len = 12
 
     if have_icu:
         # Truncate by grapheme clusters
         bi_ci = icu.BreakIterator.createCharacterInstance(icu.Locale('en_US'))
         bi_ci.setText(manuf)
         bounds = list(bi_ci)
-        bounds = bounds[0:8]
+        bounds = bounds[0:trunc_len]
         trunc_len = bounds[-1]
 
     manuf = manuf[:trunc_len]
