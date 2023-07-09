@@ -974,7 +974,7 @@ WSLUA_METHOD TvbRange_string(lua_State* L) {
     }
 
     str = (gchar*)tvb_get_string_enc(NULL,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,encoding);
-    lua_pushlstring(L, str, tvbr->len);
+    lua_pushlstring(L, str, strlen(str));
     wmem_free(NULL, str);
 
     WSLUA_RETURN(1); /* A string containing all bytes in the <<lua_class_TvbRange,`TvbRange`>> including all zeroes (e.g., "a\000bc\000"). */
