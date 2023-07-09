@@ -61,46 +61,47 @@ def open_url(url):
 # These are applied after punctuation has been removed.
 # More examples at https://en.wikipedia.org/wiki/Incorporation_(business)
 general_terms = '|'.join([
-    'a +s', # A/S and A.S. but not "As" as in "Connect As".
-    'ab', # Also follows "Oy", which is covered below.
-    'ag',
-    'b ?v',
-    'closed joint stock company',
-    'co',
-    'company',
-    'corp',
-    'corporation',
-    'de c ?v', # Follows "S.A.", which is covered separately below.
-    'gmbh',
-    'holding',
-    'inc',
-    'incorporated',
-    'jsc',
-    'kg',
-    'k k', # "K.K." as in "kabushiki kaisha", but not "K+K" as in "K+K Messtechnik".
-    'limited',
-    'llc',
-    'ltd',
-    'n ?v',
-    'oao',
-    'of',
-    'open joint stock company',
-    'ooo',
-    'oü',
-    'oy',
-    'oyj',
-    'plc',
-    'pty',
-    'pvt',
-    's ?a ?r ?l',
-    's ?a',
-    's ?p ?a',
-    'sp ?k',
-    's ?r ?l',
-    'systems',
-    'the',
-    'zao',
-    'z ?o ?o'
+    ' a +s\\b', # A/S and A.S. but not "As" as in "Connect As".
+    ' ab\\b', # Also follows "Oy", which is covered below.
+    ' ag\\b',
+    ' b ?v\\b',
+    ' closed joint stock company\\b',
+    ' co\\b',
+    ' company\\b',
+    ' corp\\b',
+    ' corporation\\b',
+    ' corporate\\b',
+    ' de c ?v\\b', # Follows "S.A.", which is covered separately below.
+    ' gmbh\\b',
+    ' holding\\b',
+    ' inc\\b',
+    ' incorporated\\b',
+    ' jsc\\b',
+    ' kg\\b',
+    ' k k\\b', # "K.K." as in "kabushiki kaisha", but not "K+K" as in "K+K Messtechnik".
+    ' limited\\b',
+    ' llc\\b',
+    ' ltd\\b',
+    ' n ?v\\b',
+    ' oao\\b',
+    ' of\\b',
+    ' open joint stock company\\b',
+    ' ooo\\b',
+    ' oü\\b',
+    ' oy\\b',
+    ' oyj\\b',
+    ' plc\\b',
+    ' pty\\b',
+    ' pvt\\b',
+    ' s ?a ?r ?l\\b',
+    ' s ?a\\b',
+    ' s ?p ?a\\b',
+    ' sp ?k\\b',
+    ' s ?r ?l\\b',
+    ' systems\\b',
+    '\\bthe\\b',
+    ' zao\\b',
+    ' z ?o ?o\\b'
     ])
 
 # Chinese company names tend to start with the location, skip it (non-exhaustive list).
@@ -120,19 +121,16 @@ def shorten(manuf):
     # Normalize whitespace.
     manuf = ' '.join(manuf.split())
     orig_manuf = manuf
-    # Add exactly one space on each end.
-    # XXX This appears to be for the re.sub below.
-    manuf = ' {} '.format(manuf)
     # Convert all caps to title case
     if manuf.isupper():
         manuf = manuf.title()
     # Remove any punctuation
     # XXX Use string.punctuation? Note that it includes '-' and '*'.
-    manuf = re.sub(r"[\"',./:()]", ' ', manuf)
+    manuf = re.sub(r"[\"',./:()+-]", ' ', manuf)
     # & isn't needed when Standalone
     manuf = manuf.replace(" & ", " ")
     # Remove business types and other general terms ("the", "inc", "plc", etc.)
-    plain_manuf = re.sub(r'\W(' + general_terms + ')(?= )', '', manuf, flags=re.IGNORECASE)
+    plain_manuf = re.sub(general_terms, '', manuf, flags=re.IGNORECASE)
     # ...but make sure we don't remove everything.
     if not all(s == ' ' for s in plain_manuf):
         manuf = plain_manuf
