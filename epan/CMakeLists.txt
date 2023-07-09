@@ -214,6 +214,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	in_cksum.c
 	introspection.c
 	ipproto.c
+	manuf.c
 	maxmind_db.c
 	media_params.c
 	next_tvb.c

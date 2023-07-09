@@ -24,6 +24,7 @@
 #include <wsutil/ws_assert.h>
 
 #include "enterprises.h"
+#include "manuf.h"
 
 /*
  * Win32 doesn't have SIGALRM (and it's the OS where name lookup calls
@@ -1596,7 +1597,7 @@ get_ethbyaddr(const guint8 *addr)
 } /* get_ethbyaddr */
 
 static hashmanuf_t *
-manuf_hash_new_entry(const guint8 *addr, char* name, char* longname)
+manuf_hash_new_entry(const guint8 *addr, const char* name, const char* longname)
 {
     guint manuf_key;
     hashmanuf_t *manuf_value;
@@ -1697,6 +1698,18 @@ manuf_name_lookup(const guint8 *addr)
         if (manuf_value != NULL) {
             return manuf_value;
         }
+    }
+
+    /* Try the global manuf tables. */
+    uint8_t addr_copy[6];
+    memcpy(addr_copy, addr, 6);
+    /* Mask out the broadcast/multicast flag */
+    addr_copy[0] &= 0xFE;
+    const char *long_name;
+    const char *short_name = global_manuf_lookup(addr_copy, &long_name);
+    if (short_name) {
+        /* Found it */
+        return manuf_hash_new_entry(addr, short_name, long_name);
     }
 
     /* Add the address as a hex string */

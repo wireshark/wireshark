@@ -2040,7 +2040,6 @@ set(INSTALL_DIRS
 
 # Installed into ${DATAFILE_DIR}
 set(INSTALL_FILES
-	manuf
 	resources/share/wireshark/cfilters
 	resources/share/wireshark/colorfilters
 	resources/share/wireshark/dfilter_macros
