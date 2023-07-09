@@ -53,6 +53,13 @@ int srvsvc_dissect_struct_NetSessInfo10(tvbuff_t *tvb _U_, int offset _U_, packe
 int srvsvc_dissect_struct_NetSessCtr10(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int srvsvc_dissect_struct_NetSessInfo502(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 int srvsvc_dissect_struct_NetSessCtr502(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
+#define SESSION_INFO_0_CONTAINER (0)
+#define SESSION_INFO_1_CONTAINER (1)
+#define SESSION_INFO_2_CONTAINER (2)
+#define SESSION_INFO_10_CONTAINER (10)
+#define SESSION_INFO_502_CONTAINER (502)
+extern const value_string srvsvc_SESSION_INFO_LEVEL_vals[];
+int srvsvc_dissect_enum_SESSION_INFO_LEVEL(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint1632 *param _U_);
 int srvsvc_dissect_struct_NetSessInfoCtr(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
 #define STYPE_DISKTREE (0)
 #define STYPE_DISKTREE_TEMPORARY (STYPE_DISKTREE|STYPE_TEMPORARY)

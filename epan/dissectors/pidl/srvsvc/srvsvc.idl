@@ -359,28 +359,35 @@
 		[size_is(count)] srvsvc_NetSessInfo502 *array;
 	} srvsvc_NetSessCtr502;
 
-	typedef union {
+	typedef enum {
+		SESSION_INFO_0_CONTAINER = 0,
+		SESSION_INFO_1_CONTAINER = 1,
+		SESSION_INFO_2_CONTAINER = 2,
+		SESSION_INFO_10_CONTAINER = 10,
+		SESSION_INFO_502_CONTAINER = 502
+	} SESSION_INFO_LEVEL;
+
+	typedef [switch_type(SESSION_INFO_LEVEL)] union {
 		[case(0)] srvsvc_NetSessCtr0 *ctr0;
 		[case(1)] srvsvc_NetSessCtr1 *ctr1;
 		[case(2)] srvsvc_NetSessCtr2 *ctr2;
 		[case(10)] srvsvc_NetSessCtr10 *ctr10;
 		[case(502)] srvsvc_NetSessCtr502 *ctr502;
-		[default] ;
 	} srvsvc_NetSessCtr;
 
 	/******************/
 	/* Function: 0x0c */
 
 	typedef struct {
-		uint32 level;
-		[switch_is(level)] srvsvc_NetSessCtr ctr;
+		SESSION_INFO_LEVEL level;
+		[flag(LIBNDR_FLAG_ALIGN5)][switch_is(level)] srvsvc_NetSessCtr ctr;
 	} srvsvc_NetSessInfoCtr;
 
 	WERROR srvsvc_NetSessEnum(
 		[in,unique]   [string,charset(UTF16)] uint16 *server_unc,
 		[in,unique]   [string,charset(UTF16)] uint16 *client,
 		[in,unique]   [string,charset(UTF16)] uint16 *user,
-		[in,out,ref]   srvsvc_NetSessInfoCtr *info_ctr,
+		[in,out]   srvsvc_NetSessInfoCtr *info_ctr,
 		[in]   uint32 max_buffer,
 		[out,ref]   uint32 *totalentries,
 		[in,out,unique]   uint32 *resume_handle
@@ -1446,7 +1453,7 @@
 		[in,unique]       [string,charset(UTF16)] uint16 *server_unc,
 		[in,unique]       [string,charset(UTF16)] uint16 *share,
 		[in]       uint32 reserved,
-		[out,unique] policy_handle *hnd
+		[out,ref] policy_handle *hnd
 		);
 
 	/******************/
