@@ -158,6 +158,7 @@ static expert_field ei_http_te_unknown = EI_INIT;
 static expert_field ei_http_subdissector_failed = EI_INIT;
 static expert_field ei_http_tls_port = EI_INIT;
 static expert_field ei_http_leading_crlf = EI_INIT;
+static expert_field ei_http_excess_data = EI_INIT;
 static expert_field ei_http_bad_header_name = EI_INIT;
 static expert_field ei_http_decompression_failed = EI_INIT;
 static expert_field ei_http_decompression_disabled = EI_INIT;
@@ -1189,6 +1190,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int reported_length;
 	guint16 word;
 	gboolean	leading_crlf = FALSE;
+	gboolean	excess_data = FALSE;
 	media_content_info_t* content_info = NULL;
 	wmem_map_t* header_value_map = NULL;
 	int 		chunk_offset = 0;
@@ -1300,6 +1302,13 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			http_tree = proto_item_add_subtree(ti, ett_http);
 
 			next_tvb = tvb_new_subset_remaining(tvb, orig_offset);
+			/* If orig_offset > 0, this isn't the first message
+			 * dissected in this TCP segment, which means we had
+			 * a Content-Length, but more data after that body.
+			 */
+			if (orig_offset > 0) {
+				proto_tree_add_expert(http_tree, pinfo, &ei_http_excess_data, next_tvb, 0, tvb_captured_length(next_tvb));
+			}
 			/* Send it to Follow HTTP Stream and mark as file data */
 			if(have_tap_listener(http_follow_tap)) {
 				tap_queue_packet(http_follow_tap, pinfo, next_tvb);
@@ -1456,9 +1465,18 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			streaming_chunk_mode = TRUE;
 		}
 	} else if (have_seen_http) {
-		 /*
-		  * If we know this is HTTP then call it continuation.
-		  */
+		/*
+		 * If we know this is HTTP then call it continuation.
+		 */
+		/* If orig_offset > 0, this isn't the first message dissected
+		 * in this segment, which means we had a Content-Length, but
+		 * more data after the body. If this isn't a request or reply,
+		 * that's bogus, and probably means the Content-Length was
+		 * wrong.
+		 */
+		if (orig_offset > 0) {
+			excess_data = TRUE;
+		}
 		col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 	}
 
@@ -1473,6 +1491,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		if (leading_crlf) {
 			proto_tree_add_expert(http_tree, pinfo, &ei_http_leading_crlf, tvb, offset-2, 2);
+		}
+		if (excess_data) {
+			proto_tree_add_expert(http_tree, pinfo, &ei_http_excess_data, tvb, offset, tvb_captured_length_remaining(tvb, offset));
 		}
 	}
 
@@ -4428,6 +4449,7 @@ proto_register_http(void)
 		{ &ei_http_te_unknown, { "http.te_unknown", PI_UNDECODED, PI_WARN, "Unknown transfer coding name in Transfer-Encoding header", EXPFILL }},
 		{ &ei_http_subdissector_failed, { "http.subdissector_failed", PI_MALFORMED, PI_NOTE, "HTTP body subdissector failed, trying heuristic subdissector", EXPFILL }},
 		{ &ei_http_tls_port, { "http.tls_port", PI_SECURITY, PI_WARN, "Unencrypted HTTP protocol detected over encrypted port, could indicate a dangerous misconfiguration.", EXPFILL }},
+		{ &ei_http_excess_data, { "http.excess_data", PI_PROTOCOL, PI_WARN, "Excess data after a body (not a new request/response), previous Content-Length bogus?", EXPFILL }},
 		{ &ei_http_leading_crlf, { "http.leading_crlf", PI_MALFORMED, PI_ERROR, "Leading CRLF previous message in the stream may have extra CRLF", EXPFILL }},
 		{ &ei_http_bad_header_name, { "http.bad_header_name", PI_PROTOCOL, PI_WARN, "Illegal characters found in header name", EXPFILL }},
 		{ &ei_http_decompression_failed, { "http.decompression_failed", PI_UNDECODED, PI_WARN, "Decompression failed", EXPFILL }},
