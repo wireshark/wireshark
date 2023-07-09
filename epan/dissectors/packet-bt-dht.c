@@ -239,7 +239,7 @@ dissect_bt_dht_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
   offset = dissect_bencoded_string( tvb, pinfo, sub_tree, offset, &error_msg, FALSE, "Error Message" );
 
   proto_item_set_text( ti, "%s: error %s, %s", label, error_no, error_msg );
-  col_append_fstr( pinfo->cinfo, COL_INFO, "error_no=%s error_msg=%s ", error_no, error_msg );
+  col_append_fstr( pinfo->cinfo, COL_INFO, " No=%s Msg=%s", error_no, error_msg );
   *result = wmem_strdup_printf(pinfo->pool, "error %s, %s", error_no, error_msg );
 
   return offset;
@@ -318,7 +318,7 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
   }
 
   proto_item_set_text( ti, "%s: %d peers", label, peer_index );
-  col_append_fstr( pinfo->cinfo, COL_INFO, " reply=%d peers", peer_index );
+  col_append_fstr( pinfo->cinfo, COL_INFO, " Peers=%d", peer_index );
   *result = wmem_strdup_printf(pinfo->pool, "%d peers", peer_index);
 
   return offset;
@@ -386,7 +386,7 @@ dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     offset += string_len;
   }
   proto_item_set_text( ti, "%s: %d nodes", label, node_index );
-  col_append_fstr( pinfo->cinfo, COL_INFO, " reply=%d nodes", node_index );
+  col_append_fstr( pinfo->cinfo, COL_INFO, " Nodes=%d", node_index );
   *result = wmem_strdup_printf(pinfo->pool, "%d", node_index);
 
   return offset;
@@ -493,6 +493,15 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return 0;
   }
 
+  if(key && strcmp(key,"q")==0 && strlen(val)>1 )
+    col_prepend_fstr(pinfo->cinfo, COL_INFO, "%c%s", g_ascii_toupper(val[0]), val + 1);
+  if(key && strcmp(key,"r")==0 )
+    col_prepend_fstr(pinfo->cinfo, COL_INFO, "Response");
+  if(key && strcmp(key,"e")==0 )
+    col_prepend_fstr(pinfo->cinfo, COL_INFO, "Error");
+  if(key && (strcmp(key,"info_hash")==0 || strcmp(key,"target")==0) )
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %c%s=%s", g_ascii_toupper(key[0]), key + 1, val);
+
   if(key && strlen(key)==1 )
     key = val_to_str_const( key[0], short_key_name_value_string, key );
   if(val && strlen(val)==1 )
@@ -500,9 +509,6 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   proto_item_set_text( ti, "%s: %s", key, val );
   proto_item_set_len( ti, offset-orig_offset );
-
-  if(key && (strcmp(key,"message_type")==0 || strcmp(key,"request_type")==0) )
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s=%s ", key, val);
 
   return offset;
 }
@@ -594,7 +600,6 @@ dissect_bt_dht(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT-DHT");
   col_clear(pinfo->cinfo, COL_INFO);
-  col_set_str(pinfo->cinfo, COL_INFO, "BitTorrent DHT Protocol");
 
   /* XXX: There is a separate "bencode" dissector. Would it be possible
    * to use it, at least to move some functions into a shared header?
