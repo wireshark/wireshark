@@ -17,6 +17,7 @@
 #include <glib.h>
 
 #include "wmem_core.h"
+#include "wmem_list.h"
 
 #ifdef __cplusplus
 extern "C" {
