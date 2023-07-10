@@ -24,6 +24,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/etypes.h>
 #include <epan/afn.h>
 #include <epan/addr_resolv.h>
@@ -714,6 +715,8 @@ static gint ett_cfm_ccm_itu = -1;
 static gint ett_cfm_all_tlvs = -1;
 static gint ett_cfm_tlv = -1;
 static gint ett_cfm_raps_status = -1;
+
+static expert_field ei_tlv_tst_id_length = EI_INIT;
 
 static dissector_handle_t cfm_handle;
 
@@ -2372,7 +2375,9 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		guint8 cfm_tlv_type;
 		guint16 cfm_tlv_length;
 		proto_tree *cfm_tlv_tree;
+		proto_item *cfm_tlv_ti;
 		gint tlv_data_offset;
+		gboolean test_id_length_bogus = FALSE;
 
 		cfm_tlv_type = tvb_get_guint8(tvb, cfm_tlv_offset);
 
@@ -2385,6 +2390,17 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		}
 
 		cfm_tlv_length = tvb_get_ntohs(tvb, cfm_tlv_offset+1);
+		if (cfm_tlv_type == TEST_ID_TLV && cfm_tlv_length == 32) {
+			/* ITU-T G.8013/Y.1731 9.14.2 indicates that the
+			 * Length of the Test ID TLV "must be 32" (indicating
+			 * the bit length?) even though the Value is 4 octets,
+			 * contradicting IEEE 802.1Q 21.5 TLV format:
+			 * "The 16 bits of the Length field indicate the size,
+			 * in octets, of the Value field."
+			 */
+			cfm_tlv_length = 4;
+			test_id_length_bogus = TRUE;
+		}
 
 		cfm_tlv_tree = proto_tree_add_subtree_format(cfm_all_tlvs_tree, tvb, cfm_tlv_offset, cfm_tlv_length+3,
 				ett_cfm_tlv, NULL, "TLV: %s (t=%d,l=%d)", val_to_str(cfm_tlv_type, tlv_type_field_vals, "Unknown (0x%02x)"),
@@ -2393,7 +2409,10 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		proto_tree_add_item(cfm_tlv_tree, hf_cfm_tlv_type, tvb, cfm_tlv_offset, 1, ENC_NA);
 		cfm_tlv_offset += 1;
 
-		proto_tree_add_item(cfm_tlv_tree, hf_cfm_tlv_length, tvb, cfm_tlv_offset, 2, ENC_BIG_ENDIAN);
+		cfm_tlv_ti = proto_tree_add_item(cfm_tlv_tree, hf_cfm_tlv_length, tvb, cfm_tlv_offset, 2, ENC_BIG_ENDIAN);
+		if (test_id_length_bogus) {
+			expert_add_info(pinfo, cfm_tlv_ti, &ei_tlv_tst_id_length);
+		}
 		cfm_tlv_offset += 2;
 
 		if (cfm_tlv_length == 0)
@@ -3668,13 +3687,24 @@ void proto_register_cfm(void)
 		&ett_cfm_raps_status,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_tlv_tst_id_length,
+			{ "cfm.tlv.tst_id.length", PI_PROTOCOL, PI_NOTE,
+			  "Test ID TLV length is bits, not octets, unlike other TLVs",
+			  EXPFILL }
+		},
+	};
+
+	expert_module_t* expert_cfm;
+
 	proto_cfm = proto_register_protocol("CFM EOAM IEEE 802.1Q/ITU-T Y.1731 Protocol", "CFM", "cfm");
 
 	cfm_handle = register_dissector("cfm", dissect_cfm, proto_cfm);
 
 	proto_register_field_array(proto_cfm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-
+	expert_cfm = expert_register_protocol(proto_cfm);
+	expert_register_field_array(expert_cfm, ei, array_length(ei));
 }
 
 /* Register CFM EOAM protocol handler */
