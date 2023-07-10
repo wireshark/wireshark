@@ -16,6 +16,8 @@
 
 #include <glib.h>
 
+#include "wsutil/wmem/wmem_map.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -44,6 +46,7 @@ typedef struct codec_handle *codec_handle_t;
 typedef struct _codec_context_t {
     unsigned sample_rate;
     unsigned channels;
+    wmem_map_t *fmtp_map;
     void *priv; /* Private state set by the decoder */
 } codec_context_t;
 

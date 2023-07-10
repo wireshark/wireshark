@@ -213,6 +213,13 @@ static const true_false_string amr_sti_vals = {
     "SID_FIRST"
 };
 
+static wmem_map_t *amr_default_fmtp;
+
+static void
+amr_apply_prefs(void) {
+    wmem_map_insert(amr_default_fmtp, "octet-align", (amr_encoding_type == AMR_OA) ? "1" : "0");
+}
+
 /* See 3GPP TS 26.101 chapter 4 for AMR-NB IF1 */
 static int
 dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
@@ -552,9 +559,8 @@ dissect_amr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             /* If the map is NULL, then we were called by RTP, but the RTP
              * conversation was set by Decode As or similar, and we should
              * use the preference settings.
-             * XXX: We should pass the preference settings to the decoder
-             * as well, by adding a new fmtp_map to rtp_info.
              */
+            rtp_info->info_payload_fmtp_map = amr_default_fmtp;
         }
     }
 
@@ -589,9 +595,8 @@ dissect_amr_wb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             /* If the map is NULL, then we were called by RTP, but the RTP
              * conversation was set by Decode As or similar, and we should
              * use the preference settings.
-             * XXX: We should pass the preference settings to the decoder
-             * as well, by adding a new fmtp_map to rtp_info.
              */
+            rtp_info->info_payload_fmtp_map = amr_default_fmtp;
         }
     }
 
@@ -843,7 +848,7 @@ proto_register_amr(void)
     expert_register_field_array(expert_amr, ei, array_length(ei));
     /* Register a configuration option for port */
 
-    amr_module = prefs_register_protocol(proto_amr, NULL);
+    amr_module = prefs_register_protocol(proto_amr, amr_apply_prefs);
 
     prefs_register_obsolete_preference(amr_module, "dynamic.payload.type");
     prefs_register_obsolete_preference(amr_module, "wb.dynamic.payload.type");
@@ -867,6 +872,8 @@ proto_register_amr(void)
     register_dissector("amr_if2_wb", dissect_amr_wb_if2, proto_amr);
 
     oid_add_from_string("G.722.2 (AMR-WB) audio capability","0.0.7.7222.1.0");
+
+    amr_default_fmtp = wmem_map_new(wmem_epan_scope(), wmem_str_hash, g_str_equal);
 }
 
 /* Register the protocol with Wireshark */

@@ -36,7 +36,7 @@ typedef struct _rtp_decoder_t {
  */
 
 size_t
-decode_rtp_packet_payload(guint8 payload_type, const gchar *payload_type_str, int payload_rate, int payload_channels, guint8 *payload_data, size_t payload_len, SAMPLE **out_buff, GHashTable *decoders_hash, guint *channels_ptr, guint *sample_rate_ptr)
+decode_rtp_packet_payload(guint8 payload_type, const gchar *payload_type_str, int payload_rate, int payload_channels, wmem_map_t *payload_fmtp_map, guint8 *payload_data, size_t payload_len, SAMPLE **out_buff, GHashTable *decoders_hash, guint *channels_ptr, guint *sample_rate_ptr)
 {
     const gchar *p;
     rtp_decoder_t *decoder;
@@ -52,6 +52,7 @@ decode_rtp_packet_payload(guint8 payload_type, const gchar *payload_type_str, in
         decoder->context = g_new(codec_context_t, 1);
         decoder->context->sample_rate = payload_rate;
         decoder->context->channels = payload_channels;
+        decoder->context->fmtp_map = payload_fmtp_map;
         decoder->context->priv = NULL;
 
         if (payload_type_str && find_codec(payload_type_str)) {
@@ -105,7 +106,7 @@ decode_rtp_packet(rtp_packet_t *rp, SAMPLE **out_buff, GHashTable *decoders_hash
 
     payload_type = rp->info->info_payload_type;
 
-    return decode_rtp_packet_payload(payload_type, rp->info->info_payload_type_str, rp->info->info_payload_rate, rp->info->info_payload_channels, rp->payload_data, rp->info->info_payload_len, out_buff, decoders_hash, channels_ptr, sample_rate_ptr);
+    return decode_rtp_packet_payload(payload_type, rp->info->info_payload_type_str, rp->info->info_payload_rate, rp->info->info_payload_channels, rp->info->info_payload_fmtp_map, rp->payload_data, rp->info->info_payload_len, out_buff, decoders_hash, channels_ptr, sample_rate_ptr);
 }
 
 /****************************************************************************/

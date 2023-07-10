@@ -16,6 +16,7 @@
 #define __RTP_MEDIA_H__
 
 #include <glib.h>
+#include <wsutil/wmem/wmem_map.h>
 
 /** @file
  *  "RTP Player" dialog box common routines.
@@ -60,6 +61,7 @@ GHashTable *rtp_decoder_hash_table_new(void);
  * @param payload_type_str Payload name, can be NULL
  * @param payload_rate Sample rate, can be 0 for codec default
  * @param payload_channels Audio channels, can be 0 for codec default
+ * @param payload_fmtp_map Map of format parameters for the media type
  * @param payload_data Payload
  * @param payload_len Length of payload
  * @param out_buff Output audio samples.
@@ -68,7 +70,7 @@ GHashTable *rtp_decoder_hash_table_new(void);
  * @param sample_rate_ptr If non-NULL, receives the sample rate.
  * @return The number of decoded bytes on success, 0 on failure.
  */
-size_t decode_rtp_packet_payload(guint8 payload_type, const gchar *payload_type_str, int payload_rate, int payload_channels, guint8 *payload_data, size_t payload_len, SAMPLE **out_buff, GHashTable *decoders_hash, guint *channels_ptr, guint *sample_rate_ptr);
+size_t decode_rtp_packet_payload(guint8 payload_type, const gchar *payload_type_str, int payload_rate, int payload_channels, wmem_map_t *payload_fmtp_map, guint8 *payload_data, size_t payload_len, SAMPLE **out_buff, GHashTable *decoders_hash, guint *channels_ptr, guint *sample_rate_ptr);
 
 /** Decode an RTP packet
  *
