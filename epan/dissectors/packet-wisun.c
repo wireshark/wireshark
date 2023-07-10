@@ -1182,6 +1182,7 @@ dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
             while (count) {
                 guint16 ex_start = tvb_get_letohs(tvb, offset);
                 guint16 ex_end = tvb_get_letohs(tvb, offset+2);
+                /* TODO: log as separate start and end values so filterable? */
                 proto_tree_add_uint_format_value(tree, hf_wisun_usie_exclude_range, tvb, offset, 4, ex_start, "[%u-%u]", ex_start, ex_end);
                 offset += 4;
                 count--;

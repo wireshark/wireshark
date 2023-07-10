@@ -903,7 +903,7 @@ static int hf_nfapi_maximum_transmit_power = -1;
 static int hf_nfapi_maximum_transmit_power_2 = -1;
 static int hf_nfapi_earfcn = -1;
 static int hf_nfapi_minimum_transmit_power = -1;
-static int hf_nfapi_number_of_antennas_suppported = -1;
+static int hf_nfapi_number_of_antennas_supported = -1;
 static int hf_nfapi_minimum_downlink_frequency = -1;
 static int hf_nfapi_maximum_downlink_frequency = -1;
 static int hf_nfapi_minimum_uplink_frequency = -1;
@@ -1681,7 +1681,7 @@ static void dissect_pnf_rf_config_value(ptvcursor_t * ptvc, packet_info* pinfo)
 	ptvcursor_add(ptvc, hf_nfapi_maximum_transmit_power, 2, ENC_BIG_ENDIAN);
 	ptvcursor_add(ptvc, hf_nfapi_minimum_transmit_power, 2, ENC_BIG_ENDIAN);
 
-	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_of_antennas_suppported, 1, ENC_BIG_ENDIAN, &test_value);
+	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_of_antennas_supported, 1, ENC_BIG_ENDIAN, &test_value);
 	switch (test_value)
 	{
 	case 1:
@@ -9551,8 +9551,8 @@ void proto_register_nfapi(void)
 			FT_UINT16, BASE_CUSTOM, CF_FUNC(max_transmit_power_conversion_fn), 0x0,
 			"The minimum transmit power for the RF chain operating at the maximum supported bandwidth as defined in 3GPP TS 36.104.", HFILL }
 		},
-		{ &hf_nfapi_number_of_antennas_suppported,
-			{ "Number of Supported Antennas", "nfapi.number_of_antennas_suppported",
+		{ &hf_nfapi_number_of_antennas_supported,
+			{ "Number of Supported Antennas", "nfapi.number_of_antennas_supported",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"The maximum number of antennas supported.", HFILL }
 		},
@@ -9567,7 +9567,7 @@ void proto_register_nfapi(void)
 			"The maximum supported downlink frequency in 100kHz units", HFILL }
 		},
 		{ &hf_nfapi_minimum_uplink_frequency,
-			{ "Minimum uplink frequency", "nfapi.minimum_downlink_frequency",
+			{ "Minimum uplink frequency", "nfapi.minimum_uplink_frequency",
 			FT_UINT32, BASE_DEC | BASE_UNIT_STRING, &khz_100_units_db, 0x0,
 			"The minimum supported uplink frequency in 100kHz units", HFILL }
 		},

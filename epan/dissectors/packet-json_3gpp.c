@@ -72,7 +72,7 @@ static int hf_json_3gpp_suppfeat_npcf_am_8_es3xx = -1;
 static int hf_json_3gpp_suppfeat_npcf_am_9_ueslicembrauthorization = -1;
 static int hf_json_3gpp_suppfeat_npcf_am_10_aminfluence = -1;
 static int hf_json_3gpp_suppfeat_npcf_am_11_enena = -1;
-static int hf_json_3gpp_suppfeat_npcf_am_12_targetnassai = -1;
+static int hf_json_3gpp_suppfeat_npcf_am_12_targetnssai = -1;
 
 static int hf_json_3gpp_suppfeat_npcf_am_13_5gaccessstratumtime = -1;
 
@@ -310,7 +310,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_am_9_ueslicembrauthorization,
 			&hf_json_3gpp_suppfeat_npcf_am_10_aminfluence,
 			&hf_json_3gpp_suppfeat_npcf_am_11_enena,
-			&hf_json_3gpp_suppfeat_npcf_am_12_targetnassai,
+			&hf_json_3gpp_suppfeat_npcf_am_12_targetnssai,
 			NULL
 		};
 		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_am_list_3, ENC_UTF_8|BASE_DEC_HEX);
@@ -826,8 +826,8 @@ proto_register_json_3gpp(void)
 			FT_BOOLEAN, 4, NULL, 0x4,
 			NULL, HFILL }
 		},
-		{ &hf_json_3gpp_suppfeat_npcf_am_12_targetnassai,
-			{ "TargetNSSAI", "json.3gpp.suppfeat.targetnassai",
+		{ &hf_json_3gpp_suppfeat_npcf_am_12_targetnssai,
+			{ "TargetNSSAI", "json.3gpp.suppfeat.targetnssai",
 			FT_BOOLEAN, 4, NULL, 0x8,
 			NULL, HFILL }
 		},

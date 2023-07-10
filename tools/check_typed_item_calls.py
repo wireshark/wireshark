@@ -716,7 +716,7 @@ class Item:
             if num_digits is None:
                 return
             if mask[2:] == 'f'*num_digits   or   mask[2:] == 'F'*num_digits:
-                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - item is all set - this is confusing - set 0 instead! :', '"' + mask + '"')
+                print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - mask is all set - this is confusing - set 0 instead! :', '"' + mask + '"')
                 global warnings_found
                 warnings_found += 1
 

@@ -7981,7 +7981,7 @@ proto_register_lustre(void)
         { &hf_lustre_ldlm_resource_desc,
           { "LDLM Resc Desc", "lustre.ldlm_resource_desc", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_lustre_ldlm_resource_desc_lr_type,
-          { "Lr Type", "lustre.ldlm_resource_desc.lr_type", FT_UINT16, BASE_DEC, VALS(lustre_ldlm_type_vals), 0, NULL, HFILL }},
+          { "Lr Type", "lustre.ldlm_resource_desc.lr_type", FT_UINT32, BASE_DEC, VALS(lustre_ldlm_type_vals), 0, NULL, HFILL }},
         { &hf_lustre_ldlm_resource_desc_lr_padding,
           { "Lr Padding", "lustre.ldlm_resource_desc.lr_padding", FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
 

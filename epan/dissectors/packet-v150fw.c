@@ -444,7 +444,7 @@ proto_register_v150fw(void)
                 FT_UINT16,
                 BASE_HEX,
                 NULL,
-                0xFFFF,
+                0x0,
                 NULL, HFILL
             }
         },
@@ -516,7 +516,7 @@ proto_register_v150fw(void)
                 FT_UINT8,
                 BASE_HEX,
                 NULL,
-                0xFF,
+                0x0,
                 NULL, HFILL
             }
         },
@@ -528,7 +528,7 @@ proto_register_v150fw(void)
                 FT_UINT16,
                 BASE_HEX,
                 NULL,
-                0xFFFF,
+                0x0,
                 NULL, HFILL
             }
         },
