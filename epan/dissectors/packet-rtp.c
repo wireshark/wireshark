@@ -874,16 +874,19 @@ rtp_dyn_payload_insert_full(rtp_dyn_payload_t *rtp_dyn_payload,
                        wmem_map_t *fmtp_map)
 {
     if (rtp_dyn_payload && rtp_dyn_payload->table) {
-        encoding_name_and_rate_t *encoding_name_and_rate_pt =
-                    wmem_new(wmem_file_scope(), encoding_name_and_rate_t);
+        encoding_name_and_rate_t *encoding_name_and_rate_pt = (encoding_name_and_rate_t*)g_hash_table_lookup(rtp_dyn_payload->table,
+                             GUINT_TO_POINTER(pt));
+        if (!encoding_name_and_rate_pt) {
+            encoding_name_and_rate_pt = wmem_new(wmem_file_scope(), encoding_name_and_rate_t);
+            encoding_name_and_rate_pt->fmtp_map = wmem_map_new(wmem_file_scope(), wmem_str_hash, g_str_equal);
+            g_hash_table_insert(rtp_dyn_payload->table, GUINT_TO_POINTER(pt), encoding_name_and_rate_pt);
+        }
         encoding_name_and_rate_pt->encoding_name = wmem_strdup(wmem_file_scope(), encoding_name);
         encoding_name_and_rate_pt->sample_rate = sample_rate;
         encoding_name_and_rate_pt->channels = channels;
-        encoding_name_and_rate_pt->fmtp_map = wmem_map_new(wmem_file_scope(), wmem_str_hash, g_str_equal);
         if (fmtp_map) {
             wmem_map_foreach(fmtp_map, rtp_dyn_payload_add_fmtp_int, encoding_name_and_rate_pt->fmtp_map);
         }
-        g_hash_table_insert(rtp_dyn_payload->table, GUINT_TO_POINTER(pt), encoding_name_and_rate_pt);
     }
 }
 
@@ -915,9 +918,12 @@ rtp_dyn_payload_add_fmtp(rtp_dyn_payload_t *rtp_dyn_payload,
         encoding_name_and_rate_t *encoding_name_and_rate_pt = (encoding_name_and_rate_t*)g_hash_table_lookup(rtp_dyn_payload->table,
                              GUINT_TO_POINTER(pt));
 
-        if (encoding_name_and_rate_pt) {
-            rtp_dyn_payload_add_fmtp_int((void*)key, (void*)value, encoding_name_and_rate_pt->fmtp_map);
+        if (!encoding_name_and_rate_pt) {
+            rtp_dyn_payload_insert(rtp_dyn_payload, pt, "Unknown", 0, 1);
+            encoding_name_and_rate_pt = (encoding_name_and_rate_t*)g_hash_table_lookup(rtp_dyn_payload->table, GUINT_TO_POINTER(pt));
         }
+
+        rtp_dyn_payload_add_fmtp_int((void*)key, (void*)value, encoding_name_and_rate_pt->fmtp_map);
     }
 }
 
