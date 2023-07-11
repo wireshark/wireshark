@@ -1445,7 +1445,26 @@ static const value_string darwin_usb_status_vals[] = {
     {0xe00002da, "kIOReturnNoChannels"},
     {0xe00002db, "kIOReturnNoSpace"},
 
+    {0xe00002dd, "kIOReturnPortExists"},
+    {0xe00002de, "kIOReturnCannotWire"},
+    {0xe00002df, "kIOReturnNoInterrupt"},
+    {0xe00002e0, "kIOReturnNoFrames"},
+    {0xe00002e1, "kIOReturnMessageTooLarge"},
+    {0xe00002e2, "kIOReturnNotPermitted"},
+    {0xe00002e3, "kIOReturnNoPower"},
+    {0xe00002e4, "kIOReturnNoMedia"},
+    {0xe00002e5, "kIOReturnUnformattedMedia"},
+    {0xe00002e6, "kIOReturnUnsupportedMode"},
+    {0xe00002e7, "kIOReturnUnderrun"},
+    {0xe00002e8, "kIOReturnOverrun"},
+    {0xe00002e9, "kIOReturnDeviceError"},
+    {0xe00002ea, "kIOReturnNoCompletion"},
     {0xe00002eb, "kIOReturnAborted"},
+    {0xe00002ec, "kIOReturnNoBandwidth"},
+    {0xe00002ed, "kIOReturnNotResponding"},
+    {0xe00002ee, "kIOReturnIsoTooOld"},
+    {0xe00002ef, "kIOReturnIsoTooNew"},
+    {0xe00002f0, "kIOReturnNotFound"},
     {0, NULL}
 };
 
