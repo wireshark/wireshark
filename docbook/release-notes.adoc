@@ -257,6 +257,7 @@ UDP Tracker Protocol for BitTorrent (BT-Tracker)
 Video Protocol 9 (VP9)
 Windows Delivery Optimization (MS-DO)
 Zabbix Protocol (Zabbix)
+Aruba UBT Protocol
 --
 
 === Updated Protocol Support
