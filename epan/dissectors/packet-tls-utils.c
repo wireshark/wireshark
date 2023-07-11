@@ -107,6 +107,7 @@ const value_string ssl_versions[] = {
     { DTLSV1DOT0_OPENSSL_VERSION, "DTLS 1.0 (OpenSSL pre 0.9.8f)" },
     { DTLSV1DOT0_VERSION,   "DTLS 1.0" },
     { DTLSV1DOT2_VERSION,   "DTLS 1.2" },
+    { DTLSV1DOT3_VERSION,   "DTLS 1.3" },
     { 0x0A0A,               "Reserved (GREASE)" }, /* RFC 8701 */
     { 0x1A1A,               "Reserved (GREASE)" }, /* RFC 8701 */
     { 0x2A2A,               "Reserved (GREASE)" }, /* RFC 8701 */

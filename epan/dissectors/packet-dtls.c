@@ -836,6 +836,14 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
      */
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Continuation Data");
 
+    /* If GUI, show unrecognized data in tree */
+    ti = proto_tree_add_item(tree, hf_dtls_record, tvb,
+                                offset, dtls_record_length, ENC_NA);
+    dtls_record_tree = proto_item_add_subtree(ti, ett_dtls_record);
+    proto_item_set_text(dtls_record_tree, "%s Record Layer: unrecognized content type 0x%02x",
+                        val_to_str_const(session->version, ssl_version_short_names, "DTLS"),
+                        content_type);
+
     /* Set the protocol column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DTLS");
     return offset + dtls_record_length;
