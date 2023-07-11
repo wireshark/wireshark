@@ -3845,7 +3845,7 @@ proto_tree_add_item_ret_ipv6(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	new_fi = new_field_info(tree, hfinfo, tvb, start, length);
 
-	proto_tree_set_ipv6(new_fi, addr->bytes);
+	proto_tree_set_ipv6(new_fi, addr);
 
 	return proto_tree_add_node(tree, new_fi);
 }
