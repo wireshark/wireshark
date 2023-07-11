@@ -277,7 +277,7 @@ class TestWslua:
 
     def test_wslua_add_packet_field(self, check_lua_script):
         '''wslua add_packet_field'''
-        check_lua_script(self, 'add_packet_field.lua', dns_port_pcap, True)
+        check_lua_script('add_packet_field.lua', dns_port_pcap, True)
 
 class TestWsluaUnicode:
     def test_wslua_unicode(self, cmd_tshark, features, dirs, capture_file, unicode_env):
