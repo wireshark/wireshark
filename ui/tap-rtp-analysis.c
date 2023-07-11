@@ -27,7 +27,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/proto_data.h>
 #include <epan/dissectors/packet-rtp.h>
-#include <wsutil/pint.h>
 #include "rtp_stream.h"
 #include "tap-rtp-common.h"
 #include "tap-rtp-analysis.h"
@@ -363,8 +362,18 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
     }
 
     /* diff/jitter/skew calculations are done just for in sequence packets */
-    if ( in_time_sequence ) {
-        nominaltime_diff = (double)(guint32_wraparound_diff(rtpinfo->info_timestamp, statinfo->seq_timestamp));
+    /* Note, "in_time_sequence" just means relative to the first packet in
+     * stream (within 0x80000000), excluding packets that are before the first
+     * packet in timestamp (or implausibly far away.)
+     * XXX: Do we really need to exclude those? The underlying problem in
+     * #16330 was not allowing the time difference to be negative.
+     */
+    if ( in_time_sequence || TRUE ) {
+        /* XXX: We try to handle clock rate changes, but if the clock rate
+         * changed during a dropped packet (or if we go backwards because
+         * a packet is reorderd), it won't be quite right.
+         */
+        nominaltime_diff = (double)(TIMESTAMP_DIFFERENCE(statinfo->seq_timestamp, rtpinfo->info_timestamp));
 
         /* Can only analyze defined sampling rates */
         if (clock_rate != 0) {
