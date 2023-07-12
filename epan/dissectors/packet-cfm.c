@@ -1508,6 +1508,16 @@ static int dissect_cfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 		cfm_tlv_length = tvb_get_ntohs(tvb, cfm_tlv_offset+1);
 
+		/* ITU-T G.8013/Y.1731 9.14.2 indicates that the
+		 * Length of the Test ID TLV "must be 32" (indicating
+		 * the bit length?) even though the Value is 4 octets,
+		 * contradicting IEEE 802.1Q 21.5 TLV format:
+		 * "The 16 bits of the Length field indicate the size,
+		 * in octets, of the Value field."
+		 */
+		if (cfm_tlv_type == 0x24)
+			cfm_tlv_length = 4;
+
 		cfm_tlv_tree = proto_tree_add_subtree_format(cfm_all_tlvs_tree, tvb, cfm_tlv_offset, cfm_tlv_length+3,
 				ett_cfm_tlv, NULL, "TLV: %s (t=%d,l=%d)", val_to_str(cfm_tlv_type, tlvtypefieldvalues, "Unknown (0x%02x)"),
 				cfm_tlv_type, cfm_tlv_length);
