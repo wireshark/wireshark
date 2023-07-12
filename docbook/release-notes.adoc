@@ -27,7 +27,7 @@ wsbuglink:17779[]
 // The Windows installers now ship with Qt 5.15.2.
 // They previously shipped with Qt 5.12.1.
 
-If you’re running Wireshark on macOS and upgraded to macOS 13 from an earlier version, you will likely have to open and run the “Uninstall ChmodBPF” package, then open and run “Install ChmodBPF” in order to reset the ChmodBPF Launch Daemon.
+If you’re running Wireshark on macOS and upgraded to macOS 13 from an earlier version, you might have to open and run the “Uninstall ChmodBPF” package, then open and run “Install ChmodBPF” in order to reset the ChmodBPF Launch Daemon.
 wsbuglink:18734[].
 
 === Bug Fixes
