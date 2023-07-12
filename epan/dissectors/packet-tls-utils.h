@@ -40,7 +40,8 @@ typedef enum {
     SSL_ID_HANDSHAKE               = 0x16,
     SSL_ID_APP_DATA                = 0x17,
     SSL_ID_HEARTBEAT               = 0x18,
-    SSL_ID_TLS12_CID               = 0x19
+    SSL_ID_TLS12_CID               = 0x19,
+    SSL_ID_DTLS13_ACK              = 0x1A,
 } ContentType;
 
 typedef enum {
@@ -534,6 +535,12 @@ typedef struct _SslDecryptSession {
     gboolean   has_early_data;
 
 } SslDecryptSession;
+
+/* RecordNumber - RFC 9147 section 4 */
+typedef struct {
+    guint64 epoch;
+    guint64 sequence_number;
+} SslRecordNumber;
 
 /* User Access Table */
 typedef struct _ssldecrypt_assoc_t {

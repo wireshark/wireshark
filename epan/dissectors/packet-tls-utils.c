@@ -5341,6 +5341,7 @@ ssl_decrypt_record(SslDecryptSession *ssl, SslDecoder *decoder, guint8 ct, guint
         case TLSV1DOT2_VERSION:
         case DTLSV1DOT0_VERSION:
         case DTLSV1DOT2_VERSION:
+        case DTLSV1DOT3_VERSION:
         case DTLSV1DOT0_OPENSSL_VERSION:
         case TLCPV1_VERSION:
             blocksize = ssl_get_cipher_blocksize(decoder->cipher_suite);
@@ -9419,6 +9420,7 @@ ssl_is_valid_content_type(guint8 type)
     case SSL_ID_APP_DATA:
     case SSL_ID_HEARTBEAT:
     case SSL_ID_TLS12_CID:
+    case SSL_ID_DTLS13_ACK:
         return TRUE;
     }
     return FALSE;

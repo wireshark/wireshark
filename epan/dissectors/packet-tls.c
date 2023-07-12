@@ -2276,6 +2276,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         }
         break;
     case SSL_ID_TLS12_CID:
+    case SSL_ID_DTLS13_ACK:
         break;
     }
     offset += record_length; /* skip to end of record */
