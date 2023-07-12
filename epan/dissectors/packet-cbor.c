@@ -20,6 +20,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <wsutil/str_util.h>
 
 void proto_register_cbor(void);
@@ -76,6 +77,7 @@ static gint ett_cbor_float_simple		= -1;
 static expert_field ei_cbor_invalid_minor_type  = EI_INIT;
 static expert_field ei_cbor_invalid_element     = EI_INIT;
 static expert_field ei_cbor_too_long_length     = EI_INIT;
+static expert_field ei_cbor_max_recursion_depth_reached = EI_INIT;
 
 static dissector_handle_t cbor_handle;
 static dissector_handle_t cborseq_handle;
@@ -332,6 +334,7 @@ dissect_cbor_negative_integer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbo
 	return TRUE;
 }
 
+#define CBOR_MAX_RECURSION_DEPTH 10 // Arbitrary
 static gboolean
 dissect_cbor_byte_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tree, gint *offset, guint8 type_minor)
 {
@@ -387,7 +390,17 @@ dissect_cbor_byte_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tre
 				return FALSE;
 			}
 
-			if (!dissect_cbor_byte_string(tvb, pinfo, subtree, offset, eof_type & 0x1f)) {
+			unsigned recursion_depth = p_get_proto_depth(pinfo, proto_cbor);
+			if (++recursion_depth >= CBOR_MAX_RECURSION_DEPTH) {
+				proto_tree_add_expert(subtree, pinfo, &ei_cbor_max_recursion_depth_reached, tvb, 0, 0);
+				return FALSE;
+			}
+			p_set_proto_depth(pinfo, proto_cbor, recursion_depth);
+
+			gboolean recursed = dissect_cbor_byte_string(tvb, pinfo, subtree, offset, eof_type & 0x1f);
+			p_set_proto_depth(pinfo, proto_cbor, recursion_depth - 1);
+
+			if (!recursed) {
 				return FALSE;
 			}
 		}
@@ -473,7 +486,17 @@ dissect_cbor_text_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cbor_tre
 				return FALSE;
 			}
 
-			if (!dissect_cbor_text_string(tvb, pinfo, subtree, offset, eof_type & 0x1f)) {
+			unsigned recursion_depth = p_get_proto_depth(pinfo, proto_cbor);
+			if (++recursion_depth >= CBOR_MAX_RECURSION_DEPTH) {
+				proto_tree_add_expert(subtree, pinfo, &ei_cbor_max_recursion_depth_reached, tvb, 0, 0);
+				return FALSE;
+			}
+			p_set_proto_depth(pinfo, proto_cbor, recursion_depth);
+
+			gboolean recursed = dissect_cbor_text_string(tvb, pinfo, subtree, offset, eof_type & 0x1f);
+			p_set_proto_depth(pinfo, proto_cbor, recursion_depth - 1);
+
+			if (!recursed) {
 				return FALSE;
 			}
 		}
@@ -1065,6 +1088,8 @@ proto_register_cbor(void)
 		  { "cbor.invalid_element", PI_MALFORMED, PI_WARN, "Invalid element", EXPFILL }},
 		{ &ei_cbor_too_long_length,
 		  { "cbor.too_long_length", PI_MALFORMED, PI_WARN, "Too long length", EXPFILL }},
+		{ &ei_cbor_max_recursion_depth_reached,
+		  { "cbor.max_recursion_depth_reached", PI_PROTOCOL, PI_WARN, "Maximum allowed recursion depth reached. Dissection stopped.", EXPFILL }},
 	};
 
 	expert_module_t *expert_cbor;
