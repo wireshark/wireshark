@@ -12,7 +12,7 @@ Wireshark 4.0.7 Release Notes
   using the latest 3.6 release. Issue 17779[1]
 
   If you’re running Wireshark on macOS and upgraded to macOS 13 from an
-  earlier version, you will likely have to open and run the “Uninstall
+  earlier version, you might have to open and run the “Uninstall
   ChmodBPF” package, then open and run “Install ChmodBPF” in order to
   reset the ChmodBPF Launch Daemon. Issue 18734[2].
 
@@ -20,7 +20,72 @@ Wireshark 4.0.7 Release Notes
 
    The following vulnerabilities have been fixed:
 
+     • wnpa-sec-2023-21[3] Kafka dissector crash. Issue 19105[4].
+
+     • wnpa-sec-2023-22[5] iSCSI dissector crash. Issue 19164[6].
+
    The following bugs have been fixed:
+
+     • Crash when (re)loading a capture file after renaming a dfilter
+       macro. Issue 13753[7].
+
+     • Moving a column deselects selected packet and moves to beginning
+       of packet list. Issue 16251[8].
+
+     • If you set the default interface in the preferences, it doesn’t
+       work with TShark. Issue 16593[9].
+
+     • Severe performance issues in Follow → Save As raw workflow. Issue
+       17313[10].
+
+     • TShark doesn’t support the tab character as an aggregator
+       character in \"-T fields\" Issue 18002[11].
+
+     • On Windows clicking on a link in the 'Software Update' window
+       launches, now unsupported, MS Internet Explorer. Issue 18488[12].
+
+     • Wireshark 4.x.x on Win10-x64 crashes after saving a file with a
+       name already in use. Issue 18679[13].
+
+     • NAS-5GS Operator-defined Access Category: Multiple Criteria
+       values not displayed in dissected packet display. Issue
+       18941[14].
+
+     • Server Hello Packet Invisible - during 802.1x Authentication-
+       from Wireshark App Version 4.0.3 (v4.0.3-0-gc552f74cdc23) &
+       above. Issue 19071[15].
+
+     • TShark reassembled data is incomplete/truncated. Issue 19107[16].
+
+     • CQL protocol parsing issues with `Result` frames from open source
+       Cassandra. Issue 19119[17].
+
+     • TLS 1.3 second Key Update doesn’t work. Issue 19120[18].
+
+     • HTTP2 dissector reports an assertion error on large data frames.
+       Issue 19121[19].
+
+     • epan: Single letter hostnames aren’t displayed correctly. Issue
+       19137[20].
+
+     • BLF: CAN-FD-Message format is missing a field. Issue 19146[21].
+
+     • BLF: last parameter of LIN-Message is not mandatory (BUGFIX)
+       Issue 19147[22].
+
+     • PPP IPv6CP: Incorrect payload length warning. Issue 19149[23].
+
+     • INSTALL file needs to be updated for Debian. Issue 19167[24].
+
+     • Some RTP streams make Wireshark crash when trying to play stream.
+       Issue 19170[25].
+
+     • Wrong ordering in OpenFlow 1.0 Datapath unique ID. Issue
+       19172[26].
+
+     • Incorrect mask in RTCP slice picture ID. Issue 19182[27].
+
+     • Dissection error in AMQP 1.0. Issue 19191[28].
 
   New and Updated Features
 
@@ -33,6 +98,10 @@ Wireshark 4.0.7 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
+
+   9P, AMQP, BGP, CQL, DHCPFO, EAP, GlusterFS, GSM MAP, HTTP2, iSCSI,
+   Kafka, Kerberos, NAN, NAS-5GS, OCP.1, OpenFlow 1.0, PDCP-NR, PEAP,
+   PPPoE, RSL, RTCP, rtnetlink, and XMPP
 
   New and Updated Capture File Support
 
@@ -52,7 +121,7 @@ Wireshark 4.0.7 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[3] on the Wireshark web site.
+   be found on the download page[29] on the Wireshark web site.
 
  File Locations
 
@@ -67,33 +136,59 @@ Wireshark 4.0.7 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[4] and on the
+  Community support is available on Wireshark’s Q&A site[30] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[5].
+  for all of Wireshark’s mailing lists can be found on the web site[31].
 
-  Bugs and feature requests can be reported on the issue tracker[6].
+  Bugs and feature requests can be reported on the issue tracker[32].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[7].
+  SharkFest[33].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[8].
+  at wiresharkfoundation.org[34].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[9].
+  A complete FAQ is available on the Wireshark web site[35].
 
  References
 
    1. https://gitlab.com/wireshark/wireshark/-/issues/17779
    2. https://gitlab.com/wireshark/wireshark/-/issues/18734
-   3. https://www.wireshark.org/download.html
-   4. https://ask.wireshark.org/
-   5. https://www.wireshark.org/lists/
-   6. https://gitlab.com/wireshark/wireshark/-/issues
-   7. https://sharkfest.wireshark.org
-   8. https://wiresharkfoundation.org
-   9. https://www.wireshark.org/faq.html
+   3. https://www.wireshark.org/security/wnpa-sec-2023-21
+   4. https://gitlab.com/wireshark/wireshark/-/issues/19105
+   5. https://www.wireshark.org/security/wnpa-sec-2023-22
+   6. https://gitlab.com/wireshark/wireshark/-/issues/19164
+   7. https://gitlab.com/wireshark/wireshark/-/issues/13753
+   8. https://gitlab.com/wireshark/wireshark/-/issues/16251
+   9. https://gitlab.com/wireshark/wireshark/-/issues/16593
+  10. https://gitlab.com/wireshark/wireshark/-/issues/17313
+  11. https://gitlab.com/wireshark/wireshark/-/issues/18002
+  12. https://gitlab.com/wireshark/wireshark/-/issues/18488
+  13. https://gitlab.com/wireshark/wireshark/-/issues/18679
+  14. https://gitlab.com/wireshark/wireshark/-/issues/18941
+  15. https://gitlab.com/wireshark/wireshark/-/issues/19071
+  16. https://gitlab.com/wireshark/wireshark/-/issues/19107
+  17. https://gitlab.com/wireshark/wireshark/-/issues/19119
+  18. https://gitlab.com/wireshark/wireshark/-/issues/19120
+  19. https://gitlab.com/wireshark/wireshark/-/issues/19121
+  20. https://gitlab.com/wireshark/wireshark/-/issues/19137
+  21. https://gitlab.com/wireshark/wireshark/-/issues/19146
+  22. https://gitlab.com/wireshark/wireshark/-/issues/19147
+  23. https://gitlab.com/wireshark/wireshark/-/issues/19149
+  24. https://gitlab.com/wireshark/wireshark/-/issues/19167
+  25. https://gitlab.com/wireshark/wireshark/-/issues/19170
+  26. https://gitlab.com/wireshark/wireshark/-/issues/19172
+  27. https://gitlab.com/wireshark/wireshark/-/issues/19182
+  28. https://gitlab.com/wireshark/wireshark/-/issues/19191
+  29. https://www.wireshark.org/download.html
+  30. https://ask.wireshark.org/
+  31. https://www.wireshark.org/lists/
+  32. https://gitlab.com/wireshark/wireshark/-/issues
+  33. https://sharkfest.wireshark.org
+  34. https://wiresharkfoundation.org
+  35. https://www.wireshark.org/faq.html

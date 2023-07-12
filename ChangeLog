@@ -1,0 +1,854 @@
+commit 106f95cf42
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jul 10 19:55:55 2023 -0500
+
+    Prep for 4.0.7
+
+    [skip ci]
+
+commit 3aa11d7c8e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 9 23:04:47 2023 +0000
+
+    [Automatic update for 2023-07-09]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit 7174165d6d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jul 6 21:54:32 2023 -0400
+
+    AMQP: Set the length size for NULL to zero in value formatter
+
+    Some functions that call get_amqp_1_0_value_formatter explicitly
+    set the length size to 0 before calling it, but not all do (e.g. map).
+
+    All other types besides NULL set the length size explicitly. Set
+    the length for a NULL value to zero, the same way that true and
+    false (0x41 and 0x42) set to zero via dissect_amqp_1_0_[true|false].
+    (dissect_amqp_1_0_skip isn't actually called so that null values
+    can be displayed for lists and maps.)
+
+    Fix #19191
+
+    (cherry picked from commit b5cecf0c7888f31b918115d6d290f390548d79af)
+
+commit 27e460615c
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Thu Jul 6 16:23:40 2023 +0200
+
+    Kerberos: Add few more Pre-authentication values from registry
+
+    (cherry picked from commit ff24c25cb1f0ee01f14e3604c0b89c2ac64ce0bb)
+
+commit ceeb2bcc37
+Author: João Valverde <j@v6e.pt>
+Date:   Fri Dec 16 16:13:17 2022 +0000
+
+    epan: Add a bounds check to tvb_uncompress_lz7huff()
+
+    (cherry picked from commit 2de92a94df7f35fa04b6dd36fe557c9853aabb6b)
+
+commit a9da8cf65c
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Sun Jul 2 12:13:41 2023 +0200
+
+    DHCPFO: Work around payload offset bug in Draft
+
+    Where the IETF Draft says the that the payload offset is 8, it also says
+    it's the offset from the beginning of the failover message header, which
+    has a minimum length of 12. Therefore interpret a payload offset of 8
+    to mean 12.
+
+    Ping #19178
+
+    (cherry picked from commit 806e21b9fe639bfd2a21b5b36a324de5fd7e9836)
+
+commit 8fa9ba55cd
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Mon Jul 3 16:33:13 2023 +0200
+
+    RTCP: fix dissection of Slice Loss Indication
+
+    Closes #19182
+
+    (cherry picked from commit 9b95e0df2c4f9af160ff835a752f9f5050f29e52)
+
+commit 28c936cb36
+Author: Alexander Clouter <aclouter@networkradius.com>
+Date:   Sun Jul 2 15:46:02 2023 +0100
+
+    EAP: fix PEAP decoder
+
+    Since fdf55aaa we use tls_group to support tracking multiple TLS
+    layers inside EAP which the PEAP decoder needs to be taught about.
+
+    (cherry picked from commit ed6ab0569afdd2bf4e5001d51855f5b7f26f4011)
+
+commit f98ecb1159
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 2 16:19:21 2023 +0000
+
+    [Automatic update for 2023-07-02]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    enterprises failed.
+    services failed.
+
+commit 25af988b21
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Jun 29 10:49:25 2023 -0700
+
+    GitLab CI: Don't retry our fuzz jobs
+
+    (cherry picked from commit ed35e3a4e99c8178bfd44ced1ed575d51faba4f7)
+
+commit 9301b3354a
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Tue Jun 27 14:20:09 2023 +0200
+
+    IO-Graph: Allow packet selection with Time of day true (BUGFIX)
+
+    Selecting "Time of day" in IO-Graph breaks the click to packet feature,
+    since the time in the graph is changed to absolute but for click to
+    packet a relative time is assumed. Fixing this.
+
+    (cherry picked from commit bdc3d4656e9b3313047b52bd21b48b1a96326447)
+
+commit dfe2279111
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jun 28 09:45:58 2023 -0700
+
+    Qt: Really show our context menu shortcuts this time
+
+    Call setAttribute(Qt::AA_DontShowShortcutsInContextMenus, false) in
+    order to work around QTBUG-109590.
+
+    (cherry picked from commit b330bdb06d2f978ff3e8facee73eb76537d6df41)
+
+commit e20010f3a5
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Wed Jun 28 10:25:09 2023 +0200
+
+    Openflow(v1): fix datapath_id on Features Reply
+
+    2 fields need to be swap (datapath_mac and dataph_impl)
+
+    Fix: #19172
+
+    (cherry picked from commit 8dfe582330995b72eebefd952d7bae45161ef6dc)
+
+commit 89c648fd52
+Author: João Valverde <j@v6e.pt>
+Date:   Wed May 31 10:53:32 2023 +0100
+
+    CMake: Fix build with Ninja + MSVC
+
+    (cherry picked from commit d549c10d3bc61453b1cb5a68c6cf9272fe8b9c07)
+
+commit 1f3bd5a2d7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Jun 26 08:39:56 2023 -0400
+
+    RTP Player: Init resampler if it doesn't exist yet
+
+    Check if the resampler has been initialized before trying to resample.
+
+    If input rate of RTP stream changes more than once, second and later
+    changes was using transcoder with incorrect input rate.
+    The issue was found during solving of #19170.
+
+    Changes:
+    - input rate is remembered when resampler is initiated
+    - resampler is reinitiated every time input rate changes
+    - as consequence it makes no sense to keep resampler as instance
+      property so it was moved as local variable of decodeAudio()
+
+    Fix #19170
+
+    (cherry picked from commit d2d246d3d55041a6151e254dca172a758f72be37)
+
+commit b5ba90c0e7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 25 18:24:49 2023 -0700
+
+    Fix our Debian build instructions
+
+    You need to link to packaging/debian before running dpkg-buildpackage.
+
+    Fixes #19167
+
+    (cherry picked from commit d935582649054a1cc6326c3a68d0b6fd5a23a50b)
+
+commit 021ace4ed9
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Jun 25 23:03:13 2023 -0700
+
+    glusterfs: use a value_string, not g_strerror(), to decode status values.
+
+    GlusterFS status values aren't errno values; they may mostly correspond
+    to errno values, but, because not only are some errno values different
+    on different platforms, some errno values on some Linux platforms differ
+    from the equivalent values on most Linux platforms, using errno values
+    in an over-the-wire protocol is a bad idea unless you *know for certain*
+    that call clients and servers will run the same operating system - and,
+    if that operating system is Linux, the client and server either are on
+    the same platform or are on platforms with compatible errno values.
+
+    Therefore, we shouldn't use g_strerror() to decode them, we should have
+    a value_string table based on the GF_ERROR_CODE_ values.
+
+    This also means that a status value of 0, which means "success", is
+    reported as such, rather thn as something such as "Undefined error 0".
+
+    (cherry picked from commit b494a22780df96e42ab64b8cdc24ea2209245082)
+
+commit 5fe0625ef1
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Jun 25 19:09:39 2023 -0700
+
+    9p: don't use g_strerror() to map 9P2000.L error codes to strings.
+
+    errno values are *not* platform-independent; most platforms probably use
+    the same numeric values for errnos that V7 UNIX returned, but, after
+    that, it's a bit of a free-for-all.  ENAMETOOLONG ("File name too
+    long"), for example, is 36 on most platforms on Linux, but is 63 on *BSD
+    and Darwin and 78 on Solaris.
+
+    The "L" stands for "Linux"; use a value_string that maps the errno
+    values used on Linux for most instruction sets to the corresponding
+    error message.  (On some instruction sets, Linux uses different values;
+    I think this was for backwards compatibility with vendor UNIXes for
+    those platforms.  For now, we just ignore this issue.)
+
+    (cherry picked from commit 932a4ead49f4fd58241ffebe307e7bbeffb3521d)
+
+commit 90a73f8c95
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 25 16:18:26 2023 +0000
+
+    [Automatic update for 2023-06-25]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit d7422dcba5
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sat Jun 24 00:34:50 2023 -0400
+
+    iscsi: Check bounds when extracting TargetAddress
+
+    Use tvb_ functions that do bounds checking when parsing the
+    TargetAddress string, instead of incrementing a pointer to an
+    extracted char* and sometimes accidentally overrunning the
+    string.
+
+    While we're there, go ahead and add support for IPv6 addresses.
+
+    Fix #19164
+
+    (cherry picked from commit 94349bbdaeb384b12d554dd65e7be7ceb0e93d21)
+
+commit 82519e2a0b
+Author: Vojtech Salanda <salandav@gmail.com>
+Date:   Fri Jun 23 12:08:41 2023 +0200
+
+    diameter: fix SMSF-Non-3GPP-Address label
+
+    (cherry picked from commit ec28835122b4e1deea226aa7e214977d7d2b904f)
+
+commit 756e90dc7d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jun 21 22:13:08 2023 -0400
+
+    capture: Use win32strerror on windows
+
+    This code block where we send a quit message to the capture child
+    in another thread is only on Windows, so use win32strerror to get
+    a little more informative error about what's going on when it fails
+    unexpectedly.
+
+    Related to #18014
+
+    (cherry picked from commit 60203c3db30594d74c566d9d2d12b8e544c9e994)
+
+commit ff0395e314
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Wed Jun 21 14:16:32 2023 +0200
+
+    print: Fix a check for hf_text_only
+
+    By coincidence the value for hf_text_only after proto_init() is 0,
+    but this may change. Fix a check in write_json_proto_node_list().
+
+    (cherry picked from commit 7e07c29b09ff7333241945a012d453779ca43963)
+
+commit 5f29615066
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Aug 23 13:54:45 2022 -0700
+
+    GitLab CI: Remove a Lintian check.
+
+    Remove the "copyright-excludes-files-in-native-package". It was added
+    in Lintian 2.57.0 and annoyingly removed without any sort of backward
+    compatibility in 2.106.0. Ubuntu 22.04 / Jammy ships with Lintian
+    2.114.0.
+
+    Conflicts:
+            .gitlab-ci.yml
+
+    (cherry picked from commit bbf596f44706e8d49763a59e4ca954be947d39e9)
+
+    Conflicts:
+            .gitlab-ci.yml
+
+commit 5df4f99755
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Mon Jun 19 11:19:04 2023 +0200
+
+    PPPoE: do not display a payload length error message for IPv6CP
+
+    Similar to what is done for IPCP.
+
+    Closes #19149
+
+    (cherry picked from commit a02c60b7aabbed823cb51950f8b98052a683eb89)
+
+commit bd0711c19b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 18 13:58:29 2023 -0700
+
+    Debian: Fix our PCRE dependency
+
+    We migrated to PCRE2 in 2021 and made it a required dependency
+    9df5279af7. Update the Debian packaging assets to reflect that.
+
+    (cherry picked from commit 6649f96725fcb647a8f6a86e67176578be945c7c)
+
+commit 6704f414b5
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Mar 8 18:04:26 2023 +0100
+
+    netlink: Add netlinkrt handling of RTM_SETLINK
+
+    References #18697
+
+    (cherry picked from commit 4c7d2a771fa9e08d75a6944bdedf266fa66c0bf8)
+
+commit b324678ea8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 18 16:18:47 2023 +0000
+
+    [Automatic update for 2023-06-18]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit c0bd4181e7
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jun 15 02:25:44 2023 -0400
+
+    tcp: Improve out-of-order reassembly
+
+    Remember to check for segments already added to an MSP and
+    increase maxnextseq appropriately.
+
+    Test it on a file with an ooo stream to ensure that all
+    the expected responses are found.
+
+    (backported from commit e31067cb5f056473cde93908095b0c2ebc771cec)
+
+commit 9c4dc4d80d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon May 22 21:46:57 2023 -0400
+
+    XMPP: Cleanup xmpp element even if there's an exception
+
+    Fix some leaks seen in fuzzed data by using an exception
+    cleanup routine
+
+    (cherry picked from commit bde79e1992769bf2ad8cdbedf557d79edc5db8ec)
+
+commit 1a571040ff
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Fri Jun 16 16:15:32 2023 +0200
+
+    BLF: Last LIN-Message parameter is not mandatory (BUGFIX)
+
+    The blf code assumes that the last parameter of the LIN-Message format
+    is mandatory, which it is not. If present, blf stops opening the file.
+
+    Fixes: #19147
+
+    (cherry picked from commit 2956aac65cf6260894fe994c88aee8de963590b7)
+
+commit ae8f8fcc86
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jun 16 22:21:22 2023 -0400
+
+    Qt: Don't look for word boundaries in FollowStreamText
+
+    On long lines without whitespace, FollowStreamText (and its
+    QPlainTextEdit) spends most of its time when adding text looking
+    for word boundaries to wrap at.
+
+    For the C Array, Hex Dump, and YAML options, we insert line
+    endings after fixed widths, so the default wrap behavior is fine.
+
+    In other case, we don't control whether there's line breaks or white
+    space (and with Raw, we ensure that there *isn't* white space or
+    line breaks in the middle of long lines), so it's not worth an
+    O(N^2) performance hit looking for word boundaries. Text with words
+    separated by whitespace in very long lines will word wrap worse now,
+    but that's acceptable in exchange for the dramatic performance
+    improvement.
+
+    Fix #17313.
+
+    Related to #15963 ("There should be a preference for the initial
+    selection, so you can default to Raw, etc. instead of always having
+    to wait for ASCII to finish") and #15211 ("We should probably replace
+    FollowStreamText's QTextEdit with our own widget.")
+
+    (cherry picked from commit e834377f78b5cbacdc9ad4e8f7846c65793b08f8)
+
+commit 4865e73747
+Author: João Valverde <j@v6e.pt>
+Date:   Sat Jun 17 11:46:27 2023 +0100
+
+    CMake: Fix config package without installed plugins or extcaps
+
+    (cherry picked from commit 60dedef3f18932f685ff2abd9f2bb7f7c8de9ffe)
+
+commit c4bfd450e7
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Fri Jun 16 15:18:58 2023 +0200
+
+    BLF: Bugfix CAN-FD Message format
+
+    The CAN-FD Message (not CAN-FD Message64) format was missing a field,
+    which lead to wrong dissections from time to time.
+
+    Fixes: #19146
+
+    (cherry picked from commit 7785452149bfa54c1089a9bb46acd9e456123f08)
+
+commit dcba50b012
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jun 14 20:40:42 2023 -0400
+
+    capture_opts: On Windows, check for combined interface names
+
+    In preferences, we store interface names as: "friendlyname (name)".
+    Check for that formatting as well as for exact matches on just
+    the name or the friendly name on Windows.
+
+    Fix #16593.
+
+    (cherry picked from commit c88b6b43e37036cd467f3736b851218cbc10a6de)
+
+commit 1aceac33c3
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Thu Jun 15 19:58:13 2023 +0200
+
+    address_types.c: fix one character resolved name display
+
+    Closes #19137
+
+    (cherry picked from commit 0af1dfd8d0b1b7eb063d699bcdb7121b6e4c42d3)
+
+commit fb349cd6fd
+Author: Jones Syue <jonessyue@qnap.com>
+Date:   Thu Jun 15 15:25:44 2023 +0800
+
+    wsdg backporting a patch: fix typo
+
+    When reading developer's guide about backporting,
+    it looks like the commit hash in this example is '1ab2c3d4',
+    and it is more consistent if we use 'backport-1ab2c3d4' instead of
+    'backport-g1ab2c3d4'.
+
+    This closes #19140
+
+    Signed-off-by: Jones Syue <jonessyue@qnap.com>
+
+    (cherry picked from commit 79ec9b4e12dabe710023afdefe8003d00912ff40)
+
+commit cffcb19660
+Author: Ben Cartwright-Cox <ben@benjojo.co.uk>
+Date:   Thu Jun 15 18:19:56 2023 +0100
+
+    Fix typo/error in the BGP ATTR_SET error message
+
+    While doing some testing, I found that the wireshark error for "Attribute set (invalid)"
+    was showing "0 bytess", when it should ideally be "0 bytes"
+
+    Current output:
+
+    ```
+    Path Attribute - ATTR_SET
+        Flags: 0xe0, Optional, Transitive, Partial
+        Type Code: ATTR_SET (128)
+        Length: 0
+        Attribute set (invalid): 0 bytess
+            [Expert Info (Error/Malformed): Attribute set (invalid): 0 bytess]
+    ```
+
+    (cherry picked from commit 0facfec6df301b1d580fb4836f53b27881d3b27e)
+
+commit fa56b07d14
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Jun 14 15:49:49 2023 -0400
+
+    EAP: Fix conversation creation
+
+    In EAP, we create conversations with some different addresses and
+    ports to take care of some tunneling situations. Only set the
+    conversation address for the packet once, simplifying the logic,
+    and make sure that if we don't find a matching conversation that
+    we create a matching one, instead of using the packet's existing
+    address and ports.
+
+    Fix #19071
+
+    (cherry picked from commit 04d621ba22c3ee5837cba81c63a485de9fa1b4fb)
+
+commit f7efd73d34
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Jun 12 23:02:12 2023 -0400
+
+    wiretap: Don't close an already closed file descriptor
+
+    Don't try to close a file descriptor that's invalid (because
+    it's already been closed.)
+
+    Fix #18679.
+
+    (cherry picked from commit e2da052757e2c011f583c6935941c60de05c0527)
+
+commit af4b2110bc
+Author: Roland Knall <rknall@gmail.com>
+Date:   Fri Oct 28 14:30:51 2022 +0100
+
+    Qt: TrafficTree - Add headers to CSV/YAML export
+
+    Exporting did not include the header information if exported via
+    CSV or YAML in the new dialogs. Adding those back
+
+    (cherry picked from commit ea41d58d47a63a1ad86663c6b7389687affe76b1)
+
+commit 87f6e26346
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 11 16:18:12 2023 +0000
+
+    [Automatic update for 2023-06-11]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 1c6a5daa22
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Fri Jun 9 08:09:43 2023 +0200
+
+    wifi-nan: fix wrong offset for NAN availability
+
+    Fix 19129
+
+    (cherry picked from commit c251ec9989c284069d2673e408cdd9ce923e1e24)
+
+commit 4654aaa0c8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Jun 8 21:38:06 2023 -0400
+
+    Qt: Fix crash when changing dfilter macro
+
+    The comments claim that UAT_AFFECTS_FIELDS also triggers a redissection,
+    but it does not. Fortunately, all UATs whose flags have UAT_AFFECTS_FIELDS
+    also have UAT_AFFECTS_DISSECTION.
+
+    dfilter macro expressions are a rare case of a UAT that should trigger
+    FieldsChanged but not PacketDissectionChanged. (It's slightly
+    unnecessary to invalidate the custom columns, but perhaps in the
+    future macros will be possible in custom columns.)
+
+    So resolve things by changing the comments to reflect current reality
+    and making the dfilter macro UAT flags UAT_AFFECTS_FIELDS.
+
+    This prevents a crash when removing a dfilter macro thus invalidating
+    the current filter, and then opening a file (including reloading the
+    current one.)
+
+    Fix #13753
+
+    (cherry picked from commit a3806fc69b9ee53ac6e4a52f679ef536219520ea)
+
+commit 0c1d014aeb
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jun 9 08:31:29 2023 -0400
+
+    Qt: Remove now unnecessary, crash-prone ByteViewTab tvb_memeql
+
+    This code path is no longer necessary because in the PacketDialog
+    case a separate fixed epan_dissect_t is now passed in
+    and save (9198448f9db7b77af8d19f8265d6785fb005dc58)
+
+    Removing the tvb memory comparision is faster and reduces the number
+    of ways that the PacketDialog can crash after the capture file is
+    closed, for tvbs with data that was allocated at file scope, or
+    freed when the file is closed like reassembly.
+
+    Related to #14363
+
+    (cherry picked from commit 81c3ade8a344dce8081ef56725fb48e5d02a5589)
+
+commit 7774ba2458
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jun 7 17:02:29 2023 -0700
+
+    Windows: Update to WinSparkle 0.8.0-4-gb320893
+
+    Update WinSparkle to a version which includes wxWidgets 3.2.1, which
+    fixes https://github.com/vslavik/winsparkle/issues/227.
+
+    Fixes #18488.
+
+commit 1bf7541c7f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jun 6 11:18:54 2023 -0700
+
+    Docs: Adjust our Asciidoctor page number settings
+
+    Try to make it so that we generate page numbers in our PDF output but
+    not elsewhere.
+
+    (cherry picked from commit 387eaec32dc4571a9fcad3f960542587bec869f2)
+
+commit 3b049f3970
+Author: Huang Qiangxiong <qiangxiong.huang@qq.com>
+Date:   Tue Jun 6 21:10:25 2023 +0800
+
+    HTTP2: fix a bug of streaming reassembly
+
+    Set the value of last_frame field of an uncompleted msp to
+    the max uint64 to prevent mis-reporting error of "[Dissector
+    bug, protocol HTTP2: ...]".
+
+    close #19121
+
+    (cherry picked from commit 5ad49ee6979697eb3d0c8076f441c4cf6f94a41f)
+
+commit 71beef2e9d
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Jun 2 21:09:08 2023 -0400
+
+    tls: Enable additional TLS 1.3 Key Updates after the first
+
+    When doing a TLS 1.3 Key Update, save the application traffic secret
+    to the new decoder so that it can be used if there is a second
+    Key Update.
+
+    Fix #19120
+
+    (cherry picked from commit 0309175407330faee16ae9a624af039086511517)
+
+commit 12ab04c28d
+Author: Martin Mayer <martin.mayer@m2-it-solutions.de>
+Date:   Mon Jun 5 08:09:02 2023 +0200
+
+    OCP.1: Fix Request Lookup
+
+    Fix condition for request lookup. Before, the condition always succeeds, resulting in the `Request in` field being always displayed. If the request was not captured, this leads to `Request In: 0`.
+
+    (cherry picked from commit fa35bb4848de7b07044d28eeec345e1a56773213)
+
+commit e10ab31964
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jun 5 09:38:44 2023 -0700
+
+    GitLab CI: Sign our Windows packages explicitly
+
+    (cherry picked from commit d04259560c9be204104450b931238799408f0dae)
+
+     Conflicts:
+            .gitlab-ci.yml
+
+commit 3fb389f7a5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 4 16:19:18 2023 +0000
+
+    [Automatic update for 2023-06-04]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 05943ae997
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Fri Jun 2 12:05:39 2023 +0000
+
+    CQL: No global table spec if no metadata flag is set
+
+    Fixes #19119
+
+    (cherry picked from commit fa5497b19e831553424ea99217208aa6a792406f)
+
+commit 4836ea925a
+Author: Martin Mathieson <martin.mathieson@keysight.com>
+Date:   Fri Jun 2 17:43:49 2023 +0100
+
+    Only subtract 4 bytes from payload before passing to RRC if maci_present
+
+    (cherry picked from commit 4d33f48e6f5625d8913c5787e8903257c809035c)
+
+commit e557d67e64
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed May 31 22:17:15 2023 -0400
+
+    tshark: Don't escape the aggregator character when printing -T fields
+
+    Instead of adding the aggregator character to the array of field
+    values (and then iterating with stride 2 for all the output formats
+    other than fields), add the aggregator character between fields
+    when outputting.
+
+    This means that the aggregator character and the field values can
+    be treated differently with regards to escaping. The aggregator
+    character should never be escaped (the user might have chosen
+    something like the tab character), but as of 3.0, the field values
+    are escaped. (Possibly for strings there should be an -E option not
+    to escape the characters, along with documenting it, see #15796.)
+
+    It also avoids some unnecessary calls to strdup.
+
+    Fix #18002
+
+    (cherry picked from commit ec06fe0636ac7f487266e23734549b408d5e7722)
+
+commit b3186f581b
+Author: Joakim Karlsson <oakimk@gmail.com>
+Date:   Tue May 30 12:28:51 2023 +0200
+
+    NAS-5GS: typo corrections
+
+    (cherry picked from commit 7c772428085e9fed9fed82314268593e407cfc95)
+
+commit b96044fd90
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sun May 28 10:13:02 2023 +0200
+
+    Qt: Scroll to selected packet after column move
+
+    Restore current index after moving a column to fix scroll back
+    to the selected packet.
+
+    Fixes #16251
+
+    (cherry picked from commit 07350c6b387cf7f73c5e1af52e53c1cea9a62357)
+
+commit 1ce6277808
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Sun May 28 07:14:52 2023 -0400
+
+    kafka: Don't use after free
+
+    Neither tvb_new_child_real_data() nor tvb_composite_append() copy
+    the real data buffer that they're given. So we can't free a
+    decompressed buffer after making it a tvb.
+
+    We can realloc if the output size is smaller.
+
+    Fix #19105
+
+    (cherry picked from commit b673bc022aa28c2c381cb96cae09357bd27eb0df)
+
+commit c88fa75701
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 28 16:20:35 2023 +0000
+
+    [Automatic update for 2023-05-28]
+
+    Update manuf, services enterprise numbers, translations, and other items.
+
+    services failed.
+
+commit 6686354d21
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Sun May 28 15:05:21 2023 +0200
+
+    NAS 5GS: fix dissection of Operator-defined access category definitions
+
+    Fixes #18941
+
+    (cherry picked from commit 4131824bee1929159554d8fcccd28926cb33b73a)
+
+    Conflicts:
+            epan/dissectors/packet-nas_5gs.c
+
+commit 90980d0cf7
+Author: Vadim Yanitskiy <vyanitskiy@sysmocom.de>
+Date:   Fri May 26 20:54:51 2023 +0700
+
+    RSL: correct wrong value in rsl_data_rte_vals[]
+
+    In change 795db5c60e I fixed a wrong string in rsl_data_rte_vals[],
+    but I did not notice that the corresponding value was wrong too.
+
+    From 3GPP TS 48.058 (V16.0.0), section 9.3.6:
+
+      For the transparent service, bits 6-1 indicate the data rate:
+
+        65 4321
+        -------
+        11 1000  32 kbit/s
+        11 1001  29 kbit/s
+        01 1000  14.4 kbit/s
+        ...
+
+    Related: 795db5c60e "RSL: correct wrong string in rsl_data_rte_vals[]"
+
+    (cherry picked from commit 47167eda1b203e6a1dba84d07c59bda69f3003b2)
+
+commit 3c87f4e759
+Author: Vadim Yanitskiy <vyanitskiy@sysmocom.de>
+Date:   Wed Mar 22 05:38:47 2023 +0700
+
+    RSL: correct wrong string in rsl_data_rte_vals[]
+
+    Section 9.3.6 in 3GPP TS 48.058 contains no encoding variant for
+    data rate of 39 kbit/s, the value 0x22 is actually for 29 kbit/s.
+
+    (cherry picked from commit 795db5c60ebece2026a34b1e60032a7bc9b141ce)
+
+commit 606a3cc7ba
+Author: João Valverde <j@v6e.pt>
+Date:   Sat May 27 12:51:47 2023 +0100
+
+    wsutil: Remove defective sanity check
+
+    Fixes #19107.
+
+    (cherry picked from commit 04f15b9f0798e0983e3e3866e279e9525a3d45ca)
+
+commit bda1ab3d72
+Author: Domonkos P. Tomcsanyi <domi@tomcsanyi.net>
+Date:   Fri Mar 31 15:17:08 2023 +0000
+
+    GSM MAP: Fixed incorrect decoding of subscriberId in sendParameters
+
+    The field subscriberId was set to be decoded as SubscriberIdentity type, but in reality according to GSM 09.02 it has the type of SubscriberId. SubscriberId could be IMSI or TMSI, SubscriberIdentity could be IMSI or MSISDN, so Wireshark decoded TMSI as MSISDN leading to incorrect results.
+
+    (cherry picked from commit 9f2a2f0918420c7dba89178cf4a0b4f79c530f9c)
+
+commit cec9f0d13b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed May 24 10:46:32 2023 -0700
+
+    GitLab CI: Allow API pipeline builds
+
+commit 9b2cd05bbc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed May 24 13:34:53 2023 -0700
+
+    Version: 4.0.6 → 4.0.7
+
+    [skip ci]
