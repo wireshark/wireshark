@@ -108,6 +108,8 @@ static int hf_dhcpfo_ms_client_scope = -1;
 static int hf_dhcpfo_ms_scope_netmask = -1;
 static int hf_dhcpfo_ms_scope_id = -1;
 static int hf_dhcpfo_ms_ipflags = -1;
+static int hf_dhcpfo_infoblox_client_hostname = -1;
+static int hf_dhcpfo_unknown_data = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dhcpfo = -1;
@@ -171,12 +173,16 @@ static const value_string failover_vals[] =
 #define DHCP_FO_PD_TLS_REQUEST                  27
 #define DHCP_FO_PD_VENDOR_CLASS                 28
 #define DHCP_FO_PD_VENDOR_OPTION                29
-#define DHCP_FO_PD_MS_SCOPE_ID                  30
-#define DHCP_FO_PD_MS_CLIENT_HOSTNAME           31
-#define DHCP_FO_PD_MS_SCOPE_NETMASK             33
-#define DHCP_FO_PD_MS_SERVER_IP_ADDRESS         34
-#define DHCP_FO_PD_MS_SERVER_HOSTNAME           35
+/* Options not defined in the draft */
+#define DHCP_FO_PD_OPTION_30                    30
+#define DHCP_FO_PD_OPTION_31                    31
+#define DHCP_FO_PD_OPTION_33                    33
+#define DHCP_FO_PD_OPTION_34                    34
+#define DHCP_FO_PD_OPTION_35                    35
 
+
+static const gchar VENDOR_SPECIFIC[] = "(vendor-specific)";
+static const gchar UNKNOWN_OPTION[] = "Unknown Option";
 
 static const value_string option_code_vals[] =
 {
@@ -209,13 +215,31 @@ static const value_string option_code_vals[] =
 	{DHCP_FO_PD_TLS_REQUEST,			"TLS-request"},
 	{DHCP_FO_PD_VENDOR_CLASS,			"vendor-class"},
 	{DHCP_FO_PD_VENDOR_OPTION,			"vendor-option"},
-	{DHCP_FO_PD_MS_SCOPE_ID,			"microsoft-scope-ID"},
-	{DHCP_FO_PD_MS_CLIENT_HOSTNAME,			"microsoft-client-hostname"},
-	{DHCP_FO_PD_MS_SCOPE_NETMASK,			"microsoft-scope-netmask"},
-	{DHCP_FO_PD_MS_SERVER_IP_ADDRESS,		"microsoft-server-IP-address"},
-	{DHCP_FO_PD_MS_SERVER_HOSTNAME,			"microsoft-server-hostname"},
+	/* Not specified in the draft, further defined in the following arrays: */
+	{DHCP_FO_PD_OPTION_30,				VENDOR_SPECIFIC},
+	{DHCP_FO_PD_OPTION_31,				VENDOR_SPECIFIC},
+	{DHCP_FO_PD_OPTION_33,				VENDOR_SPECIFIC},
+	{DHCP_FO_PD_OPTION_34,				VENDOR_SPECIFIC},
+	{DHCP_FO_PD_OPTION_35,				VENDOR_SPECIFIC},
 	{0, NULL}
+};
 
+/* Used when Microsoft-compatibility is detected/enabled */
+static const value_string microsoft_option_code_vals[] =
+{
+	{DHCP_FO_PD_OPTION_30,		"microsoft-scope-ID"},
+	{DHCP_FO_PD_OPTION_31,		"microsoft-client-hostname"},
+	{DHCP_FO_PD_OPTION_33,		"microsoft-scope-netmask"},
+	{DHCP_FO_PD_OPTION_34,		"microsoft-server-IP-address"},
+	{DHCP_FO_PD_OPTION_35,		"microsoft-server-hostname"},
+	{0, NULL}
+};
+
+/* Used when Microsoft-compatibility is NOT detected/enabled */
+static const value_string others_option_code_vals[] =
+{
+	{DHCP_FO_PD_OPTION_30,		"infoblox-client-hostname"},
+	{0, NULL}
 };
 
 /* Binding-status */
@@ -338,13 +362,13 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	guint16 opcode, option_length;
 	guint8 htype, reject_reason, message_digest_type, binding_status;
 	const guint8 *vendor_class_str, *relationship_name_str;
-	const gchar *htype_str;
+	const gchar *htype_str, *option_name;
 	gchar *lease_expiration_time_str, *potential_expiration_time_str,
 		  *client_last_transaction_time_str, *start_time_of_state_str;
 	guint32 mclt;
 	guint8 server_state;
 	guint32 max_unacked_bndupd, receive_timer;
-	const guint8 *ms_client_hostname_str, *ms_server_hostname_str;
+	const guint8 *client_hostname_str, *ms_server_hostname_str;
 
 /* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPFO");
@@ -470,9 +494,16 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
 		/*** DHCP-Style-Options ****/
 
-		proto_item_append_text(oi, ", %s (%u)",
-		    val_to_str_const(opcode, option_code_vals, "Unknown Option"),
-		    opcode);
+		option_name = val_to_str_const(opcode, option_code_vals, UNKNOWN_OPTION);
+		if (strcmp(option_name, VENDOR_SPECIFIC) == 0) {
+			/* Get the option name based on current setting */
+			if (microsoft_style) {
+				option_name = val_to_str_const(opcode, microsoft_option_code_vals, UNKNOWN_OPTION);
+			} else {
+				option_name = val_to_str_const(opcode, others_option_code_vals, UNKNOWN_OPTION);
+			}
+		}
+		proto_item_append_text(oi, ", %s (%u)", option_name, opcode);
 
 		proto_tree_add_uint(option_tree, hf_dhcpfo_option_code, tvb,
 		    offset, 2, opcode);
@@ -903,26 +934,37 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			proto_tree_add_item(option_tree, hf_dhcpfo_options, tvb, offset, option_length, ENC_NA);
 			break;
 
-		case DHCP_FO_PD_MS_SCOPE_ID:
-			if (option_length != 4) {
-				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "scope ID is not 4 bytes long");
-				break;
+		case DHCP_FO_PD_OPTION_30:
+			if (microsoft_style) {
+				/* This is DHCP scope ID */
+				if (option_length != 4) {
+					expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "scope ID is not 4 bytes long");
+					break;
+				}
+				proto_tree_add_item(option_tree,
+					hf_dhcpfo_ms_scope_id, tvb, offset,
+					option_length, ENC_LITTLE_ENDIAN);
+			} else {
+				/* In Infoblox this is client hostname */
+				proto_tree_add_item_ret_string(option_tree,
+					hf_dhcpfo_infoblox_client_hostname, tvb, offset,
+					option_length, ENC_UTF_8, pinfo->pool, &client_hostname_str);
+				proto_item_append_text(oi,", \"%s\"",
+					format_text(pinfo->pool, client_hostname_str, option_length));
+
 			}
-			proto_tree_add_item(option_tree,
-				hf_dhcpfo_ms_scope_id, tvb, offset,
-				option_length, ENC_LITTLE_ENDIAN);
 			break;
 
-		case DHCP_FO_PD_MS_CLIENT_HOSTNAME:
+		case DHCP_FO_PD_OPTION_31:
 			proto_tree_add_item_ret_string(option_tree,
 			    hf_dhcpfo_ms_client_hostname, tvb, offset,
-			    option_length, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &ms_client_hostname_str);
+			    option_length, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &client_hostname_str);
 			/* With UTF-16 the string length is half the data length, minus the zero-termination */
 			proto_item_append_text(oi,", \"%s\"",
-			    format_text(pinfo->pool, ms_client_hostname_str, option_length/2-1));
+			    format_text(pinfo->pool, client_hostname_str, option_length/2-1));
 			break;
 
-		case DHCP_FO_PD_MS_SCOPE_NETMASK:
+		case DHCP_FO_PD_OPTION_33:
 			if (option_length != 4) {
 				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "netmask is not 4 bytes long");
 				break;
@@ -933,7 +975,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				option_length, ENC_BIG_ENDIAN);
 			break;
 
-		case DHCP_FO_PD_MS_SERVER_IP_ADDRESS:
+		case DHCP_FO_PD_OPTION_34:
 			if (option_length != 4) {
 				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "server IP address is not 4 bytes long");
 				break;
@@ -944,7 +986,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 				option_length, ENC_BIG_ENDIAN);
 			break;
 
-		case DHCP_FO_PD_MS_SERVER_HOSTNAME:
+		case DHCP_FO_PD_OPTION_35:
 			proto_tree_add_item_ret_string(option_tree,
 			    hf_dhcpfo_ms_server_hostname, tvb, offset,
 			    option_length, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &ms_server_hostname_str);
@@ -954,6 +996,9 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 			break;
 
 		default:
+			proto_tree_add_item(option_tree,
+				hf_dhcpfo_unknown_data, tvb, offset,
+				option_length, ENC_ASCII);
 			break;
 		}
 
@@ -989,202 +1034,166 @@ proto_register_dhcpfo(void)
 			FT_UINT8, BASE_DEC, VALS(failover_vals), 0,
 			NULL, HFILL }
 		},
-
 		{ &hf_dhcpfo_poffset,
 			{ "Payload Offset",	   "dhcpfo.poffset",
 			FT_UINT8, BASE_DEC, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{ &hf_dhcpfo_time,
 			{ "Time",	   "dhcpfo.time",
 			FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{ &hf_dhcpfo_xid,
 			{ "Xid",	   "dhcpfo.xid",
 			FT_UINT32, BASE_HEX, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{ &hf_dhcpfo_additional_HB,
 			{"Additional Header Bytes",	"dhcpfo.additionalheaderbytes",
 			FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
-
 		{ &hf_dhcpfo_payload_data,
 			{"Payload Data",	"dhcpfo.payloaddata",
 			FT_NONE, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{ &hf_dhcpfo_dhcp_style_option,
 			{"DHCP Style Option",	"dhcpfo.dhcpstyleoption",
 			FT_NONE, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{ &hf_dhcpfo_option_code,
 			{"Option Code",		"dhcpfo.optioncode",
 			FT_UINT16, BASE_DEC, VALS(option_code_vals), 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_option_length,
 			{"Length",		"dhcpfo.optionlength",
 			FT_UINT16, BASE_DEC, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_binding_status,
 			{"Type", "dhcpfo.bindingstatus",
 			FT_UINT32, BASE_DEC, VALS(binding_status_vals), 0,
 			NULL, HFILL }
 		},
-
-
 		{&hf_dhcpfo_server_state,
 			{"server status", "dhcpfo.serverstatus",
 			FT_UINT8, BASE_DEC, VALS(server_state_vals), 0,
 			NULL, HFILL }
 		},
-
-
 		{&hf_dhcpfo_assigned_ip_address,
 			{"assigned ip address", "dhcpfo.assignedipaddress",
 			FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_delayed_service_parameter,
 			{"delayed service parameter", "dhcpfo.delayedserviceparameter",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }
 		},
-
-
 		{&hf_dhcpfo_addresses_transferred,
 			{"addresses transferred", "dhcpfo.addressestransferred",
 			FT_UINT32, BASE_DEC, NULL, 0,
 			NULL, HFILL }
 		},
-
-
 		{&hf_dhcpfo_client_identifier,
 			{"Client Identifier", "dhcpfo.clientidentifier",
 			FT_STRING, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_client_hw_type,
 			{"Client Hardware Type", "dhcpfo.clienthardwaretype",
 			FT_UINT8, BASE_HEX, VALS(arp_hrd_vals), 0x0,
-			NULL, HFILL }},
-
+			NULL, HFILL }
+		},
 		{&hf_dhcpfo_client_hardware_address,
 			{"Client Hardware Address", "dhcpfo.clienthardwareaddress",
 			FT_STRING, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_ftddns,
 			{"FTDDNS", "dhcpfo.ftddns",
 			FT_STRING, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_reject_reason,
 			{"Reject reason", "dhcpfo.rejectreason",
 			FT_UINT8, BASE_DEC, VALS(reject_reason_vals), 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_relationship_name,
 			{"Relationship name", "dhcpfo.relationshipname",
 			FT_STRING, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_message,
 			{"Message", "dhcpfo.message",
 			FT_STRING, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_mclt,
 			{"MCLT", "dhcpfo.mclt",
 			FT_UINT32, BASE_DEC, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_vendor_class,
 			{"Vendor class", "dhcpfo.vendorclass",
 			FT_STRING, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_lease_expiration_time,
 			{"Lease expiration time", "dhcpfo.leaseexpirationtime",
 			FT_UINT32, BASE_DEC, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_potential_expiration_time,
 			{"Potential expiration time", "dhcpfo.potentialexpirationtime",
 			FT_UINT32, BASE_DEC, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_client_last_transaction_time,
 			{"Client last transaction time", "dhcpfo.clientlasttransactiontime",
 			FT_UINT32, BASE_DEC, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_start_time_of_state,
 			{"Start time of state", "dhcpfo.starttimeofstate",
 			FT_UINT32, BASE_DEC, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_vendor_option,
 			{"Vendor option", "dhcpfo.vendoroption",
 			FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_max_unacked_bndupd,
 			{"Max unacked BNDUPD", "dhcpfo.maxunackedbndupd",
 			FT_UINT32, BASE_DEC, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_protocol_version,
 			{"Protocol version", "dhcpfo.protocolversion",
 			FT_UINT8, BASE_DEC, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_receive_timer,
 			{"Receive timer", "dhcpfo.receivetimer",
 			FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_message_digest,
 			{"Message digest", "dhcpfo.messagedigest",
 			FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_hash_bucket_assignment,
 			{"Hash bucket assignment", "dhcpfo.hashbucketassignment",
 			FT_BYTES, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_ipflags,
 			{"IP Flags", "dhcpfo.ipflags",
 			FT_UINT16, BASE_HEX, NULL, 0,
@@ -1205,79 +1214,76 @@ proto_register_dhcpfo(void)
 			FT_UINT8, BASE_HEX, NULL, 0x3F,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_message_digest_type,
 			{"Message digest type", "dhcpfo.message_digest_type",
 			FT_UINT8, BASE_DEC, VALS(message_digest_type_vals), 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_tls_request,
 			{"TLS Request", "dhcpfo.tls_request",
 			FT_UINT8, BASE_DEC, VALS(tls_request_vals), 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_tls_reply,
 			{"TLS Reply", "dhcpfo.tls_reply",
 			FT_UINT8, BASE_DEC, VALS(tls_reply_vals), 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_serverflag,
 			{"Serverflag", "dhcpfo.serverflag",
 			FT_UINT8, BASE_DEC, VALS(serverflag_vals), 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_options,
 			{"Options", "dhcpfo.options",
 			FT_BYTES, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_ms_client_hostname,
-			{"Client hostname (Microsoft-specific)", "dhcpfo.msclienthostname",
+			{"Client hostname (Microsoft-specific)", "dhcpfo.microsoft.clienthostname",
 			FT_STRING, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_ms_server_hostname,
-			{"Server hostname (Microsoft-specific)", "dhcpfo.msserverhostname",
+			{"Server hostname (Microsoft-specific)", "dhcpfo.microsoft.serverhostname",
 			FT_STRING, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_ms_client_scope,
-			{"Client DHCP scope (Microsoft-specific)", "dhcpfo.msclientscope",
+			{"Client DHCP scope (Microsoft-specific)", "dhcpfo.microsoft.clientscope",
 			FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_ms_scope_netmask,
-			{"DHCP scope netmask (Microsoft-specific)", "dhcpfo.msscopenetmask",
+			{"DHCP scope netmask (Microsoft-specific)", "dhcpfo.microsoft.scopenetmask",
 			FT_IPv4, BASE_NETMASK, NULL, 0x0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_ms_scope_id,
-			{"DHCP scope ID (Microsoft-specific)", "dhcpfo.msscopeid",
+			{"DHCP scope ID (Microsoft-specific)", "dhcpfo.microsoft.scopeid",
 			FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_ms_server_ip_address,
-			{"Server IP address (Microsoft-specific)", "dhcpfo.msserverip",
+			{"Server IP address (Microsoft-specific)", "dhcpfo.microsoft.serverip",
 			FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
-
 		{&hf_dhcpfo_ms_ipflags,
-			{"IP flags (Microsoft-specific)", "dhcpfo.msipflags",
+			{"IP flags (Microsoft-specific)", "dhcpfo.microsoft.ipflags",
 			FT_UINT8, BASE_HEX, NULL, 0,
 			NULL, HFILL }
 		},
-
+		{&hf_dhcpfo_infoblox_client_hostname,
+			{"Client hostname (Infoblox-specific)", "dhcpfo.infoblox.clienthostname",
+			FT_STRING, BASE_NONE, NULL, 0,
+			NULL, HFILL }
+		},
+		{&hf_dhcpfo_unknown_data,
+			{"Unknown data", "dhcpfo.unknowndata",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			NULL, HFILL }
+		},
 	};
 
 /* Setup protocol subtree array */
