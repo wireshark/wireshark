@@ -30,8 +30,10 @@ typedef struct _rdpudp_conv_info_t {
 	address server_addr;
 	guint16 server_port;
 	wmem_tree_t* server_chunks;
+	rdpudp_seq_context_t server_data_seq;
 	rdpudp_seq_context_t server_channel_seq;
 	wmem_tree_t* client_chunks;
+	rdpudp_seq_context_t client_data_seq;
 	rdpudp_seq_context_t client_channel_seq;
 } rdpudp_conv_info_t;
 
