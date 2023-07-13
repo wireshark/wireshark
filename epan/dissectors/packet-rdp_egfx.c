@@ -578,7 +578,7 @@ dissect_rdp_egfx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 		if (!PINFO_FD_VISITED(pinfo)) {
 			work_tvb = rdp8_decompress(infos->zgfx, wmem_file_scope(), tvb, 0);
 			if (work_tvb) {
-				printf("%d: zgfx sz=%d\n", pinfo->num, tvb_captured_length(work_tvb));
+				//printf("%d: zgfx sz=%d\n", pinfo->num, tvb_captured_length(work_tvb));
 				wmem_tree_insert32(pdu_infos->pdus, hash, work_tvb);
 			}
 		} else {
