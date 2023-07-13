@@ -146,8 +146,6 @@ set(WSUG_GRAPHICS
 	wsug_src/images/ws-follow-stream.png
 	wsug_src/images/ws-go-menu.png
 	wsug_src/images/ws-goto-packet.png
-	wsug_src/images/ws-gui-preferences-advanced.png
-	wsug_src/images/ws-gui-preferences.png
 	wsug_src/images/ws-help-menu.png
 	wsug_src/images/ws-list-pane.png # Outdated
 	wsug_src/images/ws-main-toolbar.png
@@ -173,6 +171,18 @@ set(WSUG_GRAPHICS
 	wsug_src/images/ws-packet-range.png
 	wsug_src/images/ws-packet-selected.png
 	wsug_src/images/ws-packet-sep-win.png
+	wsug_src/images/ws-pref-advanced.png
+	wsug_src/images/ws-pref-appearance-columns.png
+	wsug_src/images/ws-pref-appearance-fonts-and-colors.png
+	wsug_src/images/ws-pref-appearance-layout.png
+	wsug_src/images/ws-pref-appearance.png
+	wsug_src/images/ws-pref-capture.png
+	wsug_src/images/ws-pref-expert.png
+	wsug_src/images/ws-pref-filter-buttons.png
+	wsug_src/images/ws-pref-name-resolution.png
+	wsug_src/images/ws-pref-protocols.png
+	wsug_src/images/ws-pref-rsa-keys.png
+	wsug_src/images/ws-pref-statistics.png
 	wsug_src/images/ws-print.png
 	wsug_src/images/ws-save-as-qt5.png
 	wsug_src/images/ws-save-as-win32.png

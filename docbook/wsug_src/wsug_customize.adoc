@@ -613,11 +613,8 @@ btn:[Cancel]:: Cancel the changes and close the dialog box.
 
 === Preferences
 
-There are a number of preferences you can set. Simply select the
-menu:Edit[Preferences...] (menu:Wireshark[Preferences...] on macOS) and
-Wireshark will pop up the Preferences dialog box as shown in
-<<ChCustGUIPrefPage>>, with the “User Interface” page as default. On the left
-side is a tree where you can select the page to be shown.
+There are a large number of preferences you can set. Simply select the menu:Edit[Preferences...] (menu:Wireshark[Preferences...] on macOS) and Wireshark will pop up the Preferences dialog box as shown in <<ChCustGUIPrefPage>>, with the “Appearance” page as default.
+On the left side is a tree where you can select the page to be shown.
 
 * The btn:[OK] button will apply the preferences settings and close the dialog.
 
@@ -628,23 +625,307 @@ side is a tree where you can select the page to be shown.
 
 [#ChCustGUIPrefPage]
 .The preferences dialog box
-image::images/ws-gui-preferences.png[{screenshot-attrs}]
+image::images/ws-pref-appearance.png[{screenshot-attrs}]
 
-Wireshark supports quite a few protocols, which is reflected in the long list of entries in the “Protocols” pane.
+These preferences give you the option to control the makeup of the GUI.
+
+Selecting _Remember main window size and placement_ allow for a repeatable experience when restarting Wireshark.
+
+Selecting _Open files in_ allows you to determine where to start the file selection dialog when opening capture files.
+
+The preference _Show up to_ allows you to determine how much history is tracked for display filter entries and recent files shown in the main application window.
+
+Selecting _Confirm unsaved capture files_ causes a dialog to appear when closing a capture file when it was not yet saved.
+This may help preventing inadvertent loss of data, eg., when Wireshark is closed.
+
+Selecting _Display autocompletion for filter text_ causes a drop down list to appear when you enter a display filter.
+This drop down list contains known display filters for easy selection.
+
+The preference _Main toolbar style_ allows you to tailor the toolbar style in one of three ways.
+
+The Wireshark main window title is replaced by the name of the opened capture file.
+The preferences _Window title_ and _Prepend window title_ allow you to add bracketed strings after and before the window title.
+These window title strings can contain variables which will be replaced by their respective values.
+
+The following variables are available.
+
+* %F = File path of the capture file
+* %P = Currently selected profile name
+* %S = Conditional separator (dash) that only shows when surrounded by variables with values or static text
+* %V = Wireshark version info
+
+The _Language_ preference allows you to select the language used in the GUI.
+Note that the protocol information and details are kept in the language commonly used in this field, that being English.
+
+.Column preferences
+image::images/ws-pref-appearance-columns.png[{screenshot-attrs}]
+
+These preferences give you the option to control the definition of the columns shown in the packet list, once a capture file is loaded.
+
+btn:[+]:: Add new entry to the list.
+
+btn:[-]:: Remove the selected entry.
+
+Selecting _Show displayed columns only_ hides all non-displayed columns from the list, possibly making navigating the list easier.
+
+The rows can be dragged and dropped to arrange them in the desired order.
+
+The columns in the entries are as follows.
+
+Selecting _Displayed_ causes the column to be shown in the packet list.
+
+The _Title_ is the text shown in the header of the column in the packet list.
+
+The _Type_ is the type of value to be shown. This can be a predefined type, ie. a value in a defined format, or custom.
+
+The following settings are applicable when the _Type_ is set to "custom"
+
+The _Fields_ setting is the display filter name of the field to be shown in the column in the packet list.
+
+The _Field Occurrence_ setting is count of the given field in the frame, for fields that appear more than once in a frame.
+
+Selecting _Resolved_ causes name resolution to be applied to the field value, when available.
+
+.Font and color preferences
+image::images/ws-pref-appearance-fonts-and-colors.png[{screenshot-attrs}]
+
+These preferences give you the option to select the font and colors used in the various packet panes.
+Most usable is to select a mono spaced font, which allows for a cleaner presentation, but using a proportional font is possible too.
+
+.Layout preferences
+image::images/ws-pref-appearance-layout.png[{screenshot-attrs}]
+
+These preferences allow you to define the layout of the GUI once a capture file is loaded.
+Make sure that you have at least one pane configured to contain the Packet list.
+Three panes can be active at the same time and they can be layed out as shown in the top layer.
+The exact sizes of these panes can be changed as needed once a capture file is opened.
+
+Selecting _Show packet list separator_ causes the packet list entries to be slightly set apart, which may improve readability at the cost of the amount of packets shown in the packet list.
+
+Selecting _Show column definition in column context menu_ make the column context menu wider to show the currently configured field type for the column.
+This may help identify the column to select or modify.
+
+Selecting _Allow the list to be sorted_ enables the sort operator on all the columns.
+This may prevent inadvertently triggering a sort, which may take considerable time for larger capture files.
+
+The _Maximum number of cached rows_ setting determines how much packet list information is cached to speed up sort operations, where a larger number causes more memory to be consumed by the cache.
+Be aware that changing other dissection settings may invalidate the cache content.
+
+Selecting _Enable mouse-over colorization_ enables the highlighting of the currently pointed to packet in the packet list.
+The currently selected packet is always highlighted.
+
+Selecting _Show selected packet number_ adds the selected packet number to the capture file details in the status bar, taking up some space in the status bar.
+
+Selecting _Show file load time_ adds the time it took to load the capture file to the status bar, taking up some space in the status bar.
+
+.Capture preferences
+image::images/ws-pref-capture.png[{screenshot-attrs}]
+
+These preferences allow you to set the default conditions for packet capture.
+
+The default interface is the interface used for packet capture in case no other is selected on the opening page of GUI.
+Note that this can be multiple interfaces separated by a comma.
+
+Selecting _Capture packets in promiscuous mode_ causes the network interface(s) to capture on to be configured in promiscuous mode.
+This allows all (Ethernet) frames to be received by the network interface to be capture, not only those that are addressed to the capture interface.
+
+Selecting _Capture packets in pcapng format_ causes the Next-Generation packet capture file format to be used when capturing.
+This much more capable packet capture file format has many advantages over the original format, although not every external tool may be capable of handling packet captures in this format.
+
+Selecting _Update list of packets in real time_ causes the packet list to fill up and possibly scroll up during the packet capture process.
+This does give an insight in the packets captured, although it takes processing power to dissect the capture packets.
+
+The preference _Interval between updates (ms)_ allows you to configure how often the packet list is updated during the packet capture process.
+A higher interval reduces processing, but causes more delay between capture and display in the packet list.
+
+Selecting _Automatic scrolling in live capture_ causes the packet list to scroll up once the packet list is full (see previous item).
+To keep track of the current state of the capture process the packet list is scrolled down when packets are added.
+If only the start of the packet list is important this item can be unselected.
+
+Selecting _Don't load interfaces on startup_ prevents Wireshark from spawning dumpcap to populate the list of capture interfaces on the local system.
+This might be a time consuming operation delaying the start of the program, however on most systems this is not an issue.
+The interface list can always be populated after Wireshark is started via menu:Capture[Refresh Interfaces].
+
+Selecting _Disable external capture interfaces_ prevents Wireshark from spawning extcap programs to list off their capture interfaces.
+This might be a time consuming operation delaying the start of the program, however on most systems this is not an issue.
+
+.Expert item preferences
+image::images/ws-pref-expert.png[{screenshot-attrs}]
+
+These preferences allow you to modify the severity set for expert items.
+If, for whatever reason, you find that the severity for certain expert items does not match your needs you can change them here and have them used as such, showing up in the appropriate lists and overviews.
+Get the Field name from selecting the field in the packet details pane, then observe the name shown in the status bar.
+This is the name you enter on a new line in the list, while setting the desired _Severity_ in the next column.
+
+btn:[+]:: Add new entry to the list.
+
+btn:[-]:: Remove the selected entry.
+
+btn:[Copy]:: Copy the selected entry.
+
+btn:[⌃]:: Move the selected entry up in the list.
+
+btn:[⌄]:: Move the selected entry down in the list.
+
+btn:[Clear]:: Clear the list of user specified expert item severities.
+
+btn:[Copy from]:: Copy the list of user specified expert item severities from another profile.
+
+.Filter buttons
+image::images/ws-pref-filter-buttons.png[{screenshot-attrs}]
+
+Having quick access to regularly used display filter expressions can be a real productivity boost.
+Here you can define your own display filter buttons.
+
+btn:[+]:: Add new entry to the list.
+
+btn:[-]:: Remove the selected entry.
+
+btn:[Copy]:: Copy the selected entry.
+
+btn:[⌃]:: Move the selected entry up in the list.
+
+btn:[⌄]:: Move the selected entry down in the list.
+
+btn:[Clear]:: Clear the list of user specified display filter buttons.
+
+btn:[Copy from]:: Copy the list of user specified display filter buttons from another profile.
+
+The columns in the entries are as follows.
+
+Selecting _Show in toolbar_ causes the column to be shown in the toolbar besides the display filter text entry.
+
+The _Button Label_ is the text shown on the button in the toolbar.
+
+The _Filter Expression_ is the display filter expression entered into the display filter text entry when the button is clicked.
+
+The _Comment_ is the comment text which appears in a bubble when the mouse hovers over the button.
+
+.Name resolution preferences
+image::images/ws-pref-name-resolution.png[{screenshot-attrs}]
+
+These preferences allow you to configure which numeric identifiers in protocols are translated into human readable text.
+For some of these identifiers the readable texts are read from configurable external sources.
+
+Selecting _Resolve MAC addresses_ causes the OUI (Organizationally Unique Identifier) at the start of an Ethernet address to be translated into the name registered with the IEEE for that OUI.
+
+Selecting _Resolve transport names_ causes the UDP and TCP port numbers to be translated into the service registered to these ports by IANA.
+
+Selecting _Resolve network (IP) addresses_ causes IPv4, IPv6 and IPX addresses to be translated into their corresponding host name.
+To do this Wireshark reaches out to DNS servers to request names for addresses it finds in packets.
+There are several way to do this, which can be controlled through the following preferences.
+
+Selecting _Use captured DNS packet data for name resolution_ causes DNS response packets in the capture file to fill the network address resolution table.
+These can then be used to resolve addresses found in the packets.
+
+Selecting _Use your system's DNS settings for name resolution_ causes DNS requests to be made as would be for other network applications.
+
+Selecting _Use a custom list of DNS servers for name resolution_ causes DNS requests to be made to manually configured DNS servers.
+
+The _DNS Servers_ btn:[Edit...] button provides access to the dialog to manage these manually configured DNS servers.
+
+The _Maximum concurrent requests_ input field allows you to limit the amount of DNS queries made at the same time.
+
+Selecting _Only use the profile "hosts" file_ causes the system host file to be ignored.
+This may be helpful if conflicting entries cause mis-identification of hosts.
+
+Selecting _Resolve VLAN IDs_ causes the file "vlans" to be read and used to name VLANs.
+This file has the simple format of one line per VLAN, starting wit VLAN ID, a tab character, followed by the name of the VLAN.
+
+Selecting _Resolve SS7 PCs_ causes the file "ss7pcs" to be read and used to name SS7 Point Codes.
+This file has the simple format of one line per Point Code, starting with Network Indicator, a dash, the Point Code in decimal, a tab character, followed by the name of the Point Code.
+
+Selecting _Enable OID resolution_ causes the SMI library to be initialized.
+This library is capable of loading MIB/PIB files to provide name resolution for SMI objects, as present in SNMP packets.
+
+Selecting _Suppress SMI errors_ prevents the SMI library from emitting error messages while loading MIB/PIB files.
+The SMI library is very sensitive to irregularities in these files often resulting in harmless error being emitted.
+
+The _SMI (MIB and PIB) paths_ btn:[Edit...] button provides access to the dialog to manage the directories where the MIB/PIB files to be loaded can be found.
+
+The _SMI (MIB and PIB) modules_ btn:[Edit...] button provides access to the dialog to manage the MIB/PIB modules to be loaded.
+
+The _MaxMind database directories_ btn:[Edit...] button provides access to the dialog to manage the directories where the MaxMind database files can be found. See <<ChMaxMindDbPaths>>.
+
+.Protocol preferences
+image::images/ws-pref-protocols.png[{screenshot-attrs}]
+
+Wireshark supports quite a few protocols, which is reflected in the long list of child entries of the “Protocols” pane.
 You can jump to the preferences for a specific protocol by expanding “Protocols” and typing the first few letters of the protocol name.
+
+There are a few general protocol related preferences, listed below.
+
+Selecting _Display hidden protocol items_ influences what is shown in the packet details pane of the packet selected from the packet list.
+Some protocol dissectors add hidden protocol items that provide additional interpretations of the packet data, or with different display filter strings.
+These may or may not provide valuable information to the user and may clutter the output, therefor these items can be hidden.
+
+Selecting _Display byte fields with a space character between bytes_ influences the way a byte field in shown in the packet details pane of the packet selected in the packet list, if the dissector creates a byte field that is.
+The bytes in the byte field are normally shown as a concatenated sequence of hexadecimals.
+This preference allows you to get the representation of each byte separated by a space.
+This may improve readability of the individual bytes in the byte field.
+
+Selecting _Look for incomplete dissectors_ causes expert items to be added to the dissection of packet data for which the dissector does not create an interpretation.
+Dissectors should strive to not skip packet bytes and this preference allows you to be made aware of this.
+
+Selecting _Enable stricter conversation tracking heuristics_ allows dissectors to take more identifiers into consideration when creating "conversations".
+These are used to track related packets.
+The heuristics for these conversations are sensitive to mis-identification of packets, possibly corrupting conversation analysis.
+Adding more identifiers can reduce the change of this happening.
+Currently only the IPv4, ICMP and ICMPv6 dissector use this preference.
+
+Selecting _Ignore duplicate frames_ causes a duplicate frame to appear in the packet list, but flagged as ignored, hence not dissected.
+The determination of a duplicate frame is made based on the SHA256 hash of the bytes in the frame.
+
+The preference _The max number of hashes to keep in memory for determining duplicate frames_ allows you to set how large the set of frames to consider for duplication is.
+
+.RSA keys
+image::images/ws-pref-rsa-keys.png[{screenshot-attrs}]
+
+For more information see {wireshark-wiki-url}TLS.
+
+.Statistics preferences
+image::images/ws-pref-statistics.png[{screenshot-attrs}]
+
+These preference have influence on the Statistics Tree (stats_tree) based dialogs accessible via the _Statistics_ menu.
+
+The preference _Tap update interval in ms_ allows you to set how quickly protocol taps are being updated, partially determining the update speed of various dialogs and graphs.
+
+Selecting _Enable the calculation of burst information_ allows the Statistics Tree system to calculate burst information.
+
+Selecting _Show burst count for item rather than rate_ allows the statistics nodes to show the count of events within the burst window instead of a burst rate.
+Burst rate is calculated as number of events within burst window divided by the burst window length.
+
+The preference _Burst rate resolution (ms)_ sets the duration of the time interval into which events are grouped when calculating the burst rate.
+Setting a higher resolution (ie., a smaller number) increases processing overhead.
+
+The preference _Burst rate window size (ms)_ sets the duration of the sliding window during which the burst rate is measured.
+Longer window relative to burst rate resolution increases processing overhead.
+This value will be truncated to a multiple of the _Burst rate resolution_ preference setting.
+
+The preference _Default sort column for stats_tree stats_ gives you to option to select one of the columns to sort on.
+
+Selecting _Default stats_tree sort order is descending_ causes a descending sort order based on the previously selected column.
+
+Selecting _Case sensitive sort of stats_tree item names_ causes a case sensitive sort based on the previous selected order and column.
+
+Selecting _Always sort 'range' nodes by name_ causes the sort to take place by name rather than values.
+
+Selecting _Always sort 'range' nodes in ascending order_ makes an exception for range nodes to the previously selected sort order.
+
+Selecting _Display the full stats_tree plug-in name_ causes the full menu path of the Statistics Tree plugin to be shown in the title.
+
+.Advanced preferences
+image::images/ws-pref-advanced.png[{screenshot-attrs}]
 
 The “Advanced” pane will let you view and edit all of Wireshark’s preferences, similar to link:about:config[] and link:chrome:flags[] in the Firefox and Chrome web browsers.
 
-.Advanced preferences
-image::images/ws-gui-preferences-advanced.png[{screenshot-attrs}]
-
 You can search for a preference by typing text into the “Search” entry.
 You can also pass preference names to Wireshark and TShark on the command line.
-For example, the __gui.prepend_window_title__ can be used to differentiate between different instances of Wireshark:
+For example, the __gui.prepend_window_title__ can be used to differentiate between different instances of Wireshark on your screen:
 
 [source,sh]
 ----
-$ wireshark -o "gui.prepend_window_title:Internal Network" &
+$ wireshark -o "gui.prepend_window_title:LAN" &
 $ wireshark -o "gui.prepend_window_title:External Network" &
 ----
 
