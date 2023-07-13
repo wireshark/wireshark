@@ -287,6 +287,7 @@ void t38_add_address(packet_info *pinfo,
         p_conversation_data->src_t38_info.time_first_t4_data = 0;
         p_conversation_data->src_t38_info.additional_hdlc_data_field_counter = 0;
         p_conversation_data->src_t38_info.seqnum_prev_data_field = -1;
+        p_conversation_data->src_t38_info.next = NULL;
 
         p_conversation_data->dst_t38_info.reass_ID = 0;
         p_conversation_data->dst_t38_info.reass_start_seqnum = -1;
@@ -297,6 +298,7 @@ void t38_add_address(packet_info *pinfo,
         p_conversation_data->dst_t38_info.time_first_t4_data = 0;
         p_conversation_data->dst_t38_info.additional_hdlc_data_field_counter = 0;
         p_conversation_data->dst_t38_info.seqnum_prev_data_field = -1;
+        p_conversation_data->dst_t38_info.next = NULL;
 }
 
 
@@ -534,11 +536,7 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
          val_to_str(Data_Field_field_type_value,t38_T_field_type_vals,"<unknown>"));
     }
 
-    /* We only reassmeble packets in the Primary part and in the first two Items.                       */
-    /* There maybe be t38 packets with more than two Items, but reassemble those packets is not easy    */
-    /* using the current ressaemble functions.                                                          */
-    /* TODO: reassemble all the Items in one frame */
-    if (primary_part && (Data_Field_item_num<2)) {
+    if (primary_part) {
         if (Data_Field_field_type_value == 2 || Data_Field_field_type_value == 4 || Data_Field_field_type_value == 7) {/* hdlc-fcs-OK or hdlc-fcs-OK-sig-end or t4-non-ecm-sig-end*/
             fragment_head *frag_msg = NULL;
             tvbuff_t* new_tvb = NULL;
@@ -548,11 +546,17 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
             /* if reass_start_seqnum=-1 it means we have received the end of the fragmente, without received any fragment data */
             if (p_t38_packet_conv_info->reass_start_seqnum != -1) {
+                guint32 frag_seq_num;
+                if (seq_number == (guint32)p_t38_packet_conv_info->reass_start_seqnum) {
+                    frag_seq_num = (guint32)p_t38_packet_conv_info->additional_hdlc_data_field_counter + Data_Field_item_num - p_t38_packet_conv_info->reass_start_data_field;
+                } else {
+                    frag_seq_num = seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum + (guint32)p_t38_packet_conv_info->additional_hdlc_data_field_counter + Data_Field_item_num;
+                }
                 frag_msg = fragment_add_seq(&data_reassembly_table, /* reassembly table */
                     tvb, offset, actx->pinfo,
                     p_t38_packet_conv_info->reass_ID, /* ID for fragments belonging together */
                     NULL,
-                    seq_number + Data_Field_item_num - (guint32)p_t38_packet_conv_info->reass_start_seqnum + (guint32)p_t38_packet_conv_info->additional_hdlc_data_field_counter,  /* fragment sequence number */
+                    frag_seq_num,  /* fragment sequence number */
                     /*0,*/
                     0, /* fragment length */
                     FALSE, /* More fragments */
@@ -619,6 +623,13 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
             p_t38_conv_info->reass_start_seqnum = -1;
             p_t38_conv_info->additional_hdlc_data_field_counter = 0;
             p_t38_conv_info->seqnum_prev_data_field = -1;
+
+            if (p_t38_packet_conv_info->next == NULL) {
+                p_t38_packet_conv_info->next = wmem_new(wmem_file_scope(), t38_conv_info);
+                p_t38_packet_conv_info = p_t38_packet_conv_info->next;
+                memcpy(p_t38_packet_conv_info, p_t38_conv_info, sizeof(t38_conv_info));
+            }
+
         }
         t38_info->Data_Field_field_type_value = Data_Field_field_type_value;
     }
@@ -649,11 +660,7 @@ dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
         }
     }
 
-    /* We only reassmeble packets in the Primary part and in the first two Items.                       */
-    /* There maybe be t38 packets with more than two Items, but reassemble those packets is not easy    */
-    /* using the current ressaemble functions.                                                          */
-    /* TODO: reassemble all the Items in one frame */
-    if (primary_part && (Data_Field_item_num<2)) {
+    if (primary_part) {
         fragment_head *frag_msg = NULL;
 
         /* HDLC Data or t4-non-ecm-data */
@@ -663,30 +670,40 @@ dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
             actx->pinfo->fragmented = TRUE;
 
             /* if we have not reassembled this packet and it is the first fragment, reset the reassemble ID and the start seq number*/
-            if (p_t38_packet_conv && p_t38_conv && (p_t38_packet_conv_info->reass_ID == 0)) {
+            if (p_t38_packet_conv && p_t38_conv && (p_t38_packet_conv_info->reass_start_seqnum == -1)) {
                 /* we use the first fragment's frame_number as fragment ID because the protocol doesn't provide it */
+                /* XXX: We'd be better off assigning our own IDs using a one-up
+                 * counter, if it's possible for more than one reassembly to
+                 * begin in the same frame.
+                 */
                     p_t38_conv_info->reass_ID = actx->pinfo->num;
                     p_t38_conv_info->reass_start_seqnum = seq_number;
                     p_t38_conv_info->time_first_t4_data = nstime_to_sec(&actx->pinfo->rel_ts);
                     p_t38_conv_info->additional_hdlc_data_field_counter = 0;
                     p_t38_packet_conv_info->reass_ID = p_t38_conv_info->reass_ID;
                     p_t38_packet_conv_info->reass_start_seqnum = p_t38_conv_info->reass_start_seqnum;
+                    p_t38_packet_conv_info->reass_start_data_field = Data_Field_item_num;
                     p_t38_packet_conv_info->seqnum_prev_data_field = p_t38_conv_info->seqnum_prev_data_field;
                     p_t38_packet_conv_info->additional_hdlc_data_field_counter = p_t38_conv_info->additional_hdlc_data_field_counter;
                     p_t38_packet_conv_info->time_first_t4_data = p_t38_conv_info->time_first_t4_data;
             }
             if (seq_number == (guint32)p_t38_packet_conv_info->seqnum_prev_data_field){
-	           p_t38_packet_conv_info->additional_hdlc_data_field_counter ++;
                    if(p_t38_conv){
-                     p_t38_conv_info->additional_hdlc_data_field_counter =  p_t38_packet_conv_info->additional_hdlc_data_field_counter;
+                     p_t38_conv_info->additional_hdlc_data_field_counter++;
                    }
 	    }
+            guint32 frag_seq_num;
+            if (seq_number == (guint32)p_t38_packet_conv_info->reass_start_seqnum) {
+                frag_seq_num = (guint32)p_t38_packet_conv_info->additional_hdlc_data_field_counter + Data_Field_item_num - (guint32)p_t38_packet_conv_info->reass_start_data_field;
+            } else {
+                frag_seq_num = seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum + (guint32)p_t38_packet_conv_info->additional_hdlc_data_field_counter + Data_Field_item_num;
+            }
             frag_msg = fragment_add_seq(&data_reassembly_table,
                 value_tvb, 0,
                 actx->pinfo,
                 p_t38_packet_conv_info->reass_ID, /* ID for fragments belonging together */
                 NULL,
-                seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum + (guint32)p_t38_packet_conv_info->additional_hdlc_data_field_counter, /* fragment sequence number */
+                frag_seq_num, /* fragment sequence number */
                 value_len, /* fragment length */
                 TRUE, /* More fragments */
                 0);
@@ -696,9 +713,7 @@ dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
             if (!frag_msg) { /* Not last packet of reassembled */
                 if (Data_Field_field_type_value == 0) {
-                    col_append_fstr(actx->pinfo->cinfo, COL_INFO," (HDLC fragment %u)",
-                                                                     seq_number + (guint32)p_t38_packet_conv_info->additional_hdlc_data_field_counter
-                                                                       - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
+                    col_append_fstr(actx->pinfo->cinfo, COL_INFO," (HDLC fragment %u)", frag_seq_num);
                 } else {
                     col_append_fstr(actx->pinfo->cinfo, COL_INFO," (t4-data fragment %u)", seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
                 }
@@ -985,6 +1000,7 @@ init_t38_info_conv(packet_info *pinfo)
 		p_t38_conv->src_t38_info.time_first_t4_data = 0;
 		p_t38_conv->src_t38_info.additional_hdlc_data_field_counter = 0;
 		p_t38_conv->src_t38_info.seqnum_prev_data_field = -1;
+		p_t38_conv->src_t38_info.next = NULL;
 
 		p_t38_conv->dst_t38_info.reass_ID = 0;
 		p_t38_conv->dst_t38_info.reass_start_seqnum = -1;
@@ -995,6 +1011,7 @@ init_t38_info_conv(packet_info *pinfo)
 		p_t38_conv->dst_t38_info.time_first_t4_data = 0;
 		p_t38_conv->dst_t38_info.additional_hdlc_data_field_counter = 0;
 		p_t38_conv->dst_t38_info.seqnum_prev_data_field = -1;
+		p_t38_conv->dst_t38_info.next = NULL;
 
 		conversation_add_proto_data(p_conv, proto_t38, p_t38_conv);
 	}
