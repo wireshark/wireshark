@@ -514,7 +514,7 @@ image::images/ws-coloring-fields.png[{screenshot-attrs}]
 
 [#ChCustProtocolDissectionSection]
 
-=== Control Protocol dissection
+=== Control Protocol Dissection
 
 The user can control how protocols are dissected.
 
