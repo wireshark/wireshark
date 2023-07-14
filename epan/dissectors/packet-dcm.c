@@ -1384,8 +1384,8 @@ dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state
         eo_info->filename = g_strdup(filename);
         eo_info->content_type = g_strdup(pdv->desc);
 
-        eo_info->payload_data = pdv_combined;
         eo_info->payload_len  = dcm_header_len + pdv_combined_len;
+        eo_info->payload_data = (guint8 *)g_memdup2(pdv_combined, eo_info->payload_len);
 
         tap_queue_packet(dicom_eo_tap, pinfo, eo_info);
     }
