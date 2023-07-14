@@ -1463,13 +1463,13 @@ static const value_string data_vol_extended_power_headroom_level_vals[] =
     { 6,  "POWER_HEADROOM_6"},
     { 7,  "POWER_HEADROOM_7"},
     { 8,  "POWER_HEADROOM_8"},
-    { 3,  "POWER_HEADROOM_9"},
+    { 9,  "POWER_HEADROOM_9"},
     { 10, "POWER_HEADROOM_10"},
     { 11, "POWER_HEADROOM_11"},
     { 12, "POWER_HEADROOM_12"},
     { 13, "POWER_HEADROOM_13"},
     { 14, "POWER_HEADROOM_14"},
-    { 14, "POWER_HEADROOM_15"},
+    { 15, "POWER_HEADROOM_15"},
     { 0, NULL }
 };
 
