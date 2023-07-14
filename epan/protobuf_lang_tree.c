@@ -96,14 +96,15 @@ pbl_reinit_descriptor_pool(pbl_descriptor_pool_t** ppool, const char** directori
     pbl_free_pool(*ppool);
     pbl_descriptor_pool_t* p = g_new0(pbl_descriptor_pool_t, 1);
 
+    p->source_paths = g_queue_new();
     for (i = 0; directories[i] != NULL; i++) {
-        p->source_paths = g_slist_append(p->source_paths, g_strdup(directories[i]));
+        g_queue_push_tail(p->source_paths, g_strdup(directories[i]));
     }
 
     p->error_cb = error_cb ? error_cb : pbl_printf;
     p->packages = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, pbl_free_node);
     p->proto_files = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
-    p->proto_files_to_be_parsed = NULL;
+    p->proto_files_to_be_parsed = g_queue_new();
 
     *ppool = p;
 }
@@ -114,9 +115,9 @@ pbl_free_pool(pbl_descriptor_pool_t* pool)
 {
     if (pool == NULL) return;
 
-    g_slist_free_full(pool->source_paths, g_free);
+    g_queue_free_full(pool->source_paths, g_free);
     g_hash_table_destroy(pool->packages);
-    g_slist_free(pool->proto_files_to_be_parsed); /* elements will be removed in p->proto_files */
+    g_queue_free(pool->proto_files_to_be_parsed); /* elements will be removed in p->proto_files */
     g_hash_table_destroy(pool->proto_files);
 
     g_free(pool);
@@ -169,7 +170,7 @@ gboolean
 pbl_add_proto_file_to_be_parsed(pbl_descriptor_pool_t* pool, const char* filepath)
 {
     char* path = NULL;
-    GSList* it = NULL;
+    GList* it = NULL;
     char* concat_path = NULL;
 
     /* Try to get the absolute path of the file */
@@ -179,7 +180,7 @@ pbl_add_proto_file_to_be_parsed(pbl_descriptor_pool_t* pool, const char* filepat
 
     if (path == NULL) {
         /* try to concat with source directories */
-        for (it = pool->source_paths; it; it = it->next) {
+        for (it = g_queue_peek_head_link(pool->source_paths); it; it = it->next) {
             concat_path = g_build_filename((char*)it->data, filepath, NULL);
             path = pbl_canonicalize_absolute_filepath(concat_path);
             g_free(concat_path);
@@ -209,7 +210,7 @@ pbl_add_proto_file_to_be_parsed(pbl_descriptor_pool_t* pool, const char* filepat
 
         /* store in hash table and list */
         g_hash_table_insert(pool->proto_files, path, file);
-        pool->proto_files_to_be_parsed = g_slist_append(pool->proto_files_to_be_parsed, path);
+        g_queue_push_tail(pool->proto_files_to_be_parsed, path);
     } else {
         /* The file is already in the proto_files */
         g_free(path);
@@ -430,14 +431,14 @@ pbl_message_descriptor_full_name(const pbl_message_descriptor_t* message)
 int
 pbl_message_descriptor_field_count(const pbl_message_descriptor_t* message)
 {
-    return (message && message->fields) ? g_slist_length(message->fields) : 0;
+    return (message && message->fields) ? g_queue_get_length(message->fields) : 0;
 }
 
 /* like Descriptor::field() */
 const pbl_field_descriptor_t*
 pbl_message_descriptor_field(const pbl_message_descriptor_t* message, int field_index)
 {
-    return (message && message->fields) ? (pbl_field_descriptor_t*) g_slist_nth_data(message->fields, field_index) : NULL;
+    return (message && message->fields) ? (pbl_field_descriptor_t*) g_queue_peek_nth(message->fields, field_index) : NULL;
 }
 
 /* like Descriptor::FindFieldByNumber() */
@@ -690,14 +691,14 @@ pbl_enum_descriptor_full_name(const pbl_enum_descriptor_t* anEnum)
 int
 pbl_enum_descriptor_value_count(const pbl_enum_descriptor_t* anEnum)
 {
-    return (anEnum && anEnum->values) ? g_slist_length(anEnum->values) : 0;
+    return (anEnum && anEnum->values) ? g_queue_get_length(anEnum->values) : 0;
 }
 
 /* like EnumDescriptor::value() */
 const pbl_enum_value_descriptor_t*
 pbl_enum_descriptor_value(const pbl_enum_descriptor_t* anEnum, int value_index)
 {
-    return (anEnum && anEnum->values) ? (pbl_enum_value_descriptor_t*) g_slist_nth_data(anEnum->values, value_index) : NULL;
+    return (anEnum && anEnum->values) ? (pbl_enum_value_descriptor_t*) g_queue_peek_nth(anEnum->values, value_index) : NULL;
 }
 
 /* like EnumDescriptor::FindValueByNumber() */
@@ -746,7 +747,7 @@ pbl_enum_value_descriptor_number(const pbl_enum_value_descriptor_t* enumValue)
 static void
 pbl_traverse_sub_tree(const pbl_node_t* node, void (*cb)(const pbl_message_descriptor_t*, void*), void* userdata)
 {
-    GSList* it;
+    GList* it;
     if (node == NULL) {
         return;
     }
@@ -756,7 +757,7 @@ pbl_traverse_sub_tree(const pbl_node_t* node, void (*cb)(const pbl_message_descr
     }
 
     if (node->children) {
-        for (it = node->children; it; it = it->next) {
+        for (it = g_queue_peek_head_link(node->children); it; it = it->next) {
             pbl_traverse_sub_tree((const pbl_node_t*) it->data, cb, userdata);
         }
     }
@@ -1001,7 +1002,10 @@ pbl_add_child(pbl_node_t* parent, pbl_node_t* child)
     child->parent = parent;
 
     /* add child to children list */
-    parent->children = g_slist_append(parent->children, child);
+    if (parent->children == NULL) {
+        parent->children = g_queue_new();
+    }
+    g_queue_push_tail(parent->children, child);
 
     /* add child to children_by_name table */
     if (parent->children_by_name == NULL) {
@@ -1030,18 +1034,29 @@ pbl_add_child(pbl_node_t* parent, pbl_node_t* child)
 
     if (parent->nodetype == PBL_MESSAGE) {
         pbl_message_descriptor_t* msg = (pbl_message_descriptor_t*) parent;
+
         /* add child to fields_by_number table */
         if (child->nodetype == PBL_FIELD || child->nodetype == PBL_MAP_FIELD) {
-            msg->fields = g_slist_append(msg->fields, child);
+            if (msg->fields == NULL) {
+                msg->fields = g_queue_new();
+            }
+            g_queue_push_tail(msg->fields, child);
+
             if (msg->fields_by_number == NULL) {
                 msg->fields_by_number = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
             }
             g_hash_table_insert(msg->fields_by_number,
                                 GINT_TO_POINTER(((pbl_field_descriptor_t*)child)->number), child);
         }
+
     } else if (parent->nodetype == PBL_ENUM && child->nodetype == PBL_ENUM_VALUE) {
         pbl_enum_descriptor_t* anEnum = (pbl_enum_descriptor_t*) parent;
-        anEnum->values = g_slist_append(anEnum->values, child);
+
+        if (anEnum->values == NULL) {
+            anEnum->values = g_queue_new();
+        }
+        g_queue_push_tail(anEnum->values, child);
+
         /* add child to values_by_number table */
         if (anEnum->values_by_number == NULL) {
             anEnum->values_by_number = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
@@ -1057,7 +1072,7 @@ pbl_add_child(pbl_node_t* parent, pbl_node_t* child)
 pbl_node_t*
 pbl_merge_children(pbl_node_t* to, pbl_node_t* from)
 {
-    GSList* it;
+    GList* it;
     pbl_node_t* child;
 
     if (to == NULL || from == NULL) {
@@ -1065,12 +1080,12 @@ pbl_merge_children(pbl_node_t* to, pbl_node_t* from)
     }
 
     if (from->children) {
-        for (it = from->children; it; it = it->next) {
+        for (it = g_queue_peek_head_link(from->children); it; it = it->next) {
             child = (pbl_node_t*)it->data;
             pbl_add_child(to, child);
         }
 
-        g_slist_free(from->children);
+        g_queue_free(from->children);
         from->children = NULL;
         if (from->children_by_name) {
             g_hash_table_destroy(from->children_by_name);
@@ -1080,7 +1095,7 @@ pbl_merge_children(pbl_node_t* to, pbl_node_t* from)
         if (from->nodetype == PBL_MESSAGE) {
             pbl_message_descriptor_t* msg = (pbl_message_descriptor_t*) from;
             if (msg->fields) {
-                g_slist_free(msg->fields);
+                g_queue_free(msg->fields);
                 msg->fields = NULL;
             }
             if (msg->fields_by_number) {
@@ -1090,7 +1105,7 @@ pbl_merge_children(pbl_node_t* to, pbl_node_t* from)
         } else if (from->nodetype == PBL_ENUM) {
             pbl_enum_descriptor_t* anEnum = (pbl_enum_descriptor_t*) from;
             if (anEnum->values) {
-                g_slist_free(anEnum->values);
+                g_queue_free(anEnum->values);
                 anEnum->values = NULL;
             }
             if (anEnum->values_by_number) {
@@ -1125,7 +1140,7 @@ pbl_free_node(gpointer anode)
     case PBL_MESSAGE:
         message_node = (pbl_message_descriptor_t*) node;
         if (message_node->fields) {
-            g_slist_free(message_node->fields);
+            g_queue_free(message_node->fields);
         }
         if (message_node->fields_by_number) {
             g_hash_table_destroy(message_node->fields_by_number);
@@ -1149,7 +1164,7 @@ pbl_free_node(gpointer anode)
     case PBL_ENUM:
         enum_node = (pbl_enum_descriptor_t*) node;
         if (enum_node->values) {
-            g_slist_free(enum_node->values);
+            g_queue_free(enum_node->values);
         }
         if (enum_node->values_by_number) {
             g_hash_table_destroy(enum_node->values_by_number);
@@ -1167,7 +1182,7 @@ pbl_free_node(gpointer anode)
     g_free(node->name);
     g_free(node->full_name);
     if (node->children) {
-        g_slist_free_full(node->children, pbl_free_node);
+        g_queue_free_full(node->children, pbl_free_node);
     }
     if (node->children_by_name) {
         g_hash_table_destroy(node->children_by_name);

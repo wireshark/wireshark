@@ -44,11 +44,11 @@ typedef enum {
 
 /* like google::protobuf::descriptor_pool of protobuf cpp library */
 typedef struct {
-    GSList* source_paths; /* the directories in which to search for proto file */
+    GQueue* source_paths; /* the directories in which to search for proto file */
     pbl_report_error_cb_t error_cb; /* error call back function */
     GHashTable* packages; /* all packages parsed from proto files */
     GHashTable* proto_files; /* all proto files that are parsed or to be parsed */
-    GSList* proto_files_to_be_parsed; /* files is to be parsed */
+    GQueue* proto_files_to_be_parsed; /* files is to be parsed */
     struct _protobuf_lang_state_t *parser_state; /* current parser state */
 } pbl_descriptor_pool_t;
 
@@ -67,7 +67,7 @@ typedef struct pbl_node_t{
     gchar* name;
     gchar* full_name; /* constructed during first access */
     struct pbl_node_t* parent;
-    GSList* children; /* child is a pbl_node_t */
+    GQueue* children; /* child is a pbl_node_t */
     GHashTable* children_by_name; /* take children names as keys */
     pbl_file_descriptor_t* file;
     int lineno;
@@ -85,7 +85,7 @@ typedef struct {
 /* like google::protobuf::Descriptor of protobuf cpp library */
 typedef struct {
     pbl_node_t basic_info;
-    GSList* fields;
+    GQueue* fields;
     GHashTable* fields_by_number;
 } pbl_message_descriptor_t;
 
@@ -123,7 +123,7 @@ typedef struct {
 /* like google::protobuf::EnumDescriptor of protobuf cpp library */
 typedef struct {
     pbl_node_t basic_info;
-    GSList* values;
+    GQueue* values;
     GHashTable* values_by_number;
 } pbl_enum_descriptor_t;
 
@@ -158,7 +158,7 @@ typedef struct _protobuf_lang_state_t {
 static inline gchar*
 pbl_store_string_token(protobuf_lang_state_t* parser_state, char* dupstr)
 {
-    parser_state->lex_string_tokens = g_slist_append(parser_state->lex_string_tokens, dupstr);
+    parser_state->lex_string_tokens = g_slist_prepend(parser_state->lex_string_tokens, dupstr);
     return dupstr;
 }
 
@@ -167,7 +167,7 @@ pbl_store_string_token(protobuf_lang_state_t* parser_state, char* dupstr)
 static inline protobuf_lang_token_t*
 pbl_store_struct_token(protobuf_lang_state_t* parser_state, protobuf_lang_token_t* newtoken)
 {
-    parser_state->lex_struct_tokens = g_slist_append(parser_state->lex_struct_tokens, newtoken);
+    parser_state->lex_struct_tokens = g_slist_prepend(parser_state->lex_struct_tokens, newtoken);
     return newtoken;
 }
 

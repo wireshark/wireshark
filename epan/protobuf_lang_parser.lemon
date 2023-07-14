@@ -630,15 +630,13 @@ int run_pbl_parser(pbl_descriptor_pool_t* pool)
 {
     protobuf_lang_state_t state = {0};
     yyscan_t scanner;
-    GSList* it;
     FILE * fp;
     int status = 0;
     int token_id;
     const char* filepath;
 
-    it = pool->proto_files_to_be_parsed;
-    while (it) {
-        filepath = (const char*) it->data;
+    while (!g_queue_is_empty(pool->proto_files_to_be_parsed)) {
+        filepath = (const char*) g_queue_peek_head(pool->proto_files_to_be_parsed);
         /* reinit state and scanner */
         pbl_reinit_state(&state, pool, filepath);
         scanner = NULL;
@@ -679,7 +677,7 @@ int run_pbl_parser(pbl_descriptor_pool_t* pool)
         }
 
         /* remove the parsed file from list */
-        pool->proto_files_to_be_parsed = it = g_slist_delete_link(pool->proto_files_to_be_parsed, it);
+        g_queue_pop_head(pool->proto_files_to_be_parsed);
     }
 
 finish:
