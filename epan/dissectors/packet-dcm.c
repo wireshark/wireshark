@@ -1056,12 +1056,12 @@ dcm_set_syntax(dcm_state_pctx_t *pctx, gchar *xfer_uid, const gchar *xfer_desc)
     if ((pctx == NULL) || (xfer_uid == NULL) || (xfer_desc == NULL))
         return;
 
-    g_free(pctx->xfer_uid);     /* free prev allocated xfer */
-    g_free(pctx->xfer_desc);    /* free prev allocated xfer */
+    wmem_free(wmem_file_scope(), pctx->xfer_uid);  /* free prev allocated xfer */
+    wmem_free(wmem_file_scope(), pctx->xfer_desc); /* free prev allocated xfer */
 
     pctx->syntax = 0;
-    pctx->xfer_uid = g_strdup(xfer_uid);
-    pctx->xfer_desc = g_strdup(xfer_desc);
+    pctx->xfer_uid = wmem_strdup(wmem_file_scope(), xfer_uid);
+    pctx->xfer_desc = wmem_strdup(wmem_file_scope(), xfer_desc);
 
     /* this would be faster to skip the common parts, and have a FSA to
      * find the syntax.
@@ -3049,8 +3049,8 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             vr = (gchar *)tvb_get_string_enc(pinfo->pool, tvb, offset, 2, ENC_ASCII);
             offset += 2;
 
-            g_free(pdv->open_tag.vr);
-            pdv->open_tag.vr = g_strdup(vr);        /* needs to survive within a session */
+            wmem_free(wmem_file_scope(), pdv->open_tag.vr);
+            pdv->open_tag.vr = wmem_strdup(wmem_file_scope(), vr);        /* needs to survive within a session */
         }
 
         if ((strcmp(vr, "OB") == 0) || (strcmp(vr, "OW") == 0) || (strcmp(vr, "OF") == 0) || (strcmp(vr, "OD") == 0) || (strcmp(vr, "OL") == 0) ||
