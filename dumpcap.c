@@ -625,6 +625,20 @@ relinquish_all_capabilities(void)
 /*
  * Platform-dependent suggestions for fixing permissions.
  */
+
+#ifdef HAVE_LIBCAP
+  #define LIBCAP_PERMISSIONS_SUGGESTION \
+    "\n\n" \
+    "If you did not install Wireshark from a package, ensure that Dumpcap " \
+    "has the needed CAP_NET_RAW and CAP_NET_ADMIN capabilities by running " \
+    "\n\n" \
+    "    sudo setcap cap_net_raw,cap_net_admin=ep {path/to/}dumpcap" \
+    "\n\n" \
+    "and then restarting Wireshark."
+#else
+  #define LIBCAP_PERMISSIONS_SUGGESTION
+#endif
+
 #if defined(__linux__)
   #define PLATFORM_PERMISSIONS_SUGGESTION \
     "\n\n" \
@@ -641,7 +655,8 @@ relinquish_all_capabilities(void)
     "\n\n" \
     "    sudo usermod -a -G wireshark {your username}" \
     "\n\n" \
-    "and then logging out and logging back in again."
+    "and then logging out and logging back in again." \
+    LIBCAP_PERMISSIONS_SUGGESTION
 #elif defined(__APPLE__)
   #define PLATFORM_PERMISSIONS_SUGGESTION \
     "\n\n" \
