@@ -3982,8 +3982,6 @@ print.file: /a/very/long/path/
  *
  */
 
-#define DEF_NUM_COLS    7
-
 /* Initialize non-dissector preferences to wired-in default values Called
  * at program startup and any time the profile changes. (The dissector
  * preferences are assumed to be set to those values by the dissectors.)
@@ -4022,11 +4020,29 @@ pre_init_prefs(void)
     int         i;
     gchar       *col_name;
     fmt_data    *cfmt;
-    static const gchar *col_fmt[DEF_NUM_COLS*2] = {
+    static const char *col_fmt_packets[] = {
         "No.",      "%m", "Time",        "%t",
         "Source",   "%s", "Destination", "%d",
         "Protocol", "%p", "Length",      "%L",
-        "Info",     "%i"};
+        "Info",     "%i" };
+    static const char **col_fmt = col_fmt_packets;
+    int num_cols = 7;
+
+    if (!is_packet_configuration_namespace()) {
+        static const char *col_fmt_logs[] = {
+            "No.",             "%m", "Time",        "%t",
+            "Source",          "%s", "Destination", "%d",
+            "Length",          "%L",
+            "Service",         "%Cus:ct.shortsrc:0:R",
+            "Region",          "%Cus:ct.region:0:R",
+            "Bucket/Instance", "%Cus:s3.bucket || ec2.name:0:R",
+            "User Name",       "%Cus:ct.user:0:R",
+            "Event Name",      "%Cus:ct.name:0:R",
+            "User IP",         "%Cus:ct.srcip:0:R",
+            "Info",            "%i" };
+        col_fmt = col_fmt_logs;
+        num_cols = 12;
+    }
 
     prefs.restore_filter_after_following_stream = FALSE;
     prefs.gui_toolbar_main_style = TB_STYLE_ICONS;
@@ -4152,17 +4168,15 @@ pre_init_prefs(void)
         free_col_info(prefs.col_list);
         prefs.col_list = NULL;
     }
-    for (i = 0; i < DEF_NUM_COLS; i++) {
-        cfmt = g_new(fmt_data,1);
+    for (i = 0; i < num_cols; i++) {
+        cfmt = g_new0(fmt_data,1);
         cfmt->title = g_strdup(col_fmt[i * 2]);
+        cfmt->visible = true;
+        cfmt->resolved = true;
         parse_column_format(cfmt, col_fmt[(i * 2) + 1]);
-        cfmt->visible = TRUE;
-        cfmt->resolved = TRUE;
-        cfmt->custom_fields = NULL;
-        cfmt->custom_occurrence = 0;
         prefs.col_list = g_list_append(prefs.col_list, cfmt);
     }
-    prefs.num_cols  = DEF_NUM_COLS;
+    prefs.num_cols  = num_cols;
 
 /* set the default values for the capture dialog box */
     prefs.capture_prom_mode             = TRUE;
