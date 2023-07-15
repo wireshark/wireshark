@@ -62,7 +62,7 @@
 /* Section 22.3 of RFC 9000 (QUIC) reserves values of this
  * form for a similar purpose as GREASE.
  */
-#define IS_GREASE_QUIC(x) ((((x) - 27) % 31) == 0)
+#define IS_GREASE_QUIC(x) ((x) > 27 ? ((((x) - 27) % 31) == 0) : 0)
 
 /* Lookup tables {{{ */
 const value_string ssl_version_short_names[] = {
