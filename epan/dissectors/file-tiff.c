@@ -41,6 +41,8 @@ static int hf_tiff_entry_unknown = -1;
 // Expert fields
 static expert_field ei_tiff_unknown_tag = EI_INIT;
 static expert_field ei_tiff_bad_entry = EI_INIT;
+static expert_field ei_tiff_zero_denom = EI_INIT;
+
 
 static gint ett_tiff = -1;
 static gint ett_ifd = -1;
@@ -623,10 +625,15 @@ dissect_tiff_single_urational(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint32 numer = 0;
     guint32 denom = 0;
     proto_tree_add_item_ret_uint(tree, hfnumer, tvb, item_offset, 4, encoding, &numer);
-    proto_tree_add_item_ret_uint(tree, hfdenom, tvb, item_offset + 4, 4, encoding, &denom);
+    proto_item *denom_ti = proto_tree_add_item_ret_uint(tree, hfdenom, tvb, item_offset + 4, 4, encoding, &denom);
 
-    proto_item *approx_item = proto_tree_add_double(tree, hfapprox, tvb, item_offset, 8, (double)numer / (double)denom);
-    proto_item_set_generated(approx_item);
+    if (denom > 0) {
+        proto_item *approx_item = proto_tree_add_double(tree, hfapprox, tvb, item_offset, 8, (double)numer / (double)denom);
+        proto_item_set_generated(approx_item);
+    }
+    else {
+        expert_add_info_format(pinfo, denom_ti, &ei_tiff_zero_denom, "Denominator is zero");
+    }
 }
 
 static void
@@ -1124,6 +1131,11 @@ proto_register_tiff(void)
             { "tiff.bad_entry", PI_PROTOCOL, PI_WARN,
             "Invalid entry contents", EXPFILL }
         },
+        { &ei_tiff_zero_denom,
+            { "tiff.zero_denom", PI_PROTOCOL, PI_WARN,
+            "Zero denominator", EXPFILL }
+        },
+
     };
 
     proto_tiff = proto_register_protocol(
