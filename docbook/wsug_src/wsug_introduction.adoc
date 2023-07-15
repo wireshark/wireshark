@@ -316,6 +316,9 @@ Conference, called Sharkfest.
 
 In 2015 Wireshark 2.0 was released, which featured a new user interface.
 
+In 2023 Wireshark moved to the link:{wireshark-foundation-url}[Wireshark Foundation], a nonprofit corporation that operates under section 501(c)(3) of the U.S. tax code.
+The foundation provides the project's infrastructure, hosts link:{sharkfest-url}[SharkFest], our developer and user conference, and promotes low level network education.
+
 [#ChIntroMaintenance]
 
 === Development And Maintenance Of Wireshark

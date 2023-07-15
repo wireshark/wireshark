@@ -30,6 +30,8 @@ endif::[]
 :wireshark-main-url: https://www.wireshark.org/
 :wireshark-gitlab-project-url: https://gitlab.com/wireshark/wireshark
 :wireshark-qa-url: https://ask.wireshark.org/
+:wireshark-foundation-url: https://wiresharkfoundation.org/
+:sharkfest-url: https://sharkfest.wireshark.org/
 
 // Wireshark secondary URLs (pages)
 :wireshark-bugs-url: {wireshark-gitlab-project-url}/-/issues
