@@ -7237,6 +7237,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>&amp;Ignorierte Pakete löschen</translation>
     </message>
     <message>
+        <source>Include &amp;depended upon packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Also include packets depended upon, such as those used to reassemble displayed packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>First &amp;to last marked</source>
         <translation>Vom ersten bis &amp;zum letzten markierten</translation>
     </message>

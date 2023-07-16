@@ -7237,6 +7237,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Ta bort &amp;ignorerade paket</translation>
     </message>
     <message>
+        <source>Include &amp;depended upon packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Also include packets depended upon, such as those used to reassemble displayed packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>First &amp;to last marked</source>
         <translation>Första &amp;till sista markerat</translation>
     </message>

@@ -7151,6 +7151,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Eliminar &amp;paquetes ignorados</translation>
     </message>
     <message>
+        <source>Include &amp;depended upon packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Also include packets depended upon, such as those used to reassemble displayed packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>First &amp;to last marked</source>
         <translation>Primero &amp;al último marcado</translation>
     </message>

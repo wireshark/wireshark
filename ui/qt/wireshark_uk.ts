@@ -7140,6 +7140,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Видалити &amp;проігноровані пакети</translation>
     </message>
     <message>
+        <source>Include &amp;depended upon packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Also include packets depended upon, such as those used to reassemble displayed packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>First &amp;to last marked</source>
         <translation>Від першого до &amp;останнього позначеного</translation>
     </message>
