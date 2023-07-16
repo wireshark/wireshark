@@ -2081,6 +2081,7 @@ dbref		2365/tcp/udp
 qip-login	2366/tcp/udp
 service-ctrl	2367/tcp/udp	# Service Control
 opentable	2368/tcp/udp	# OpenTable
+bif-p2p		2369/tcp/udp	# Blockchain Identifier InFrastructure P2P
 l3-hbmon	2370/tcp/udp	# L3-HBMon
 rda		2371/tcp	# Remote Device Access
 lanmessenger	2372/tcp/udp	# LanMessenger
