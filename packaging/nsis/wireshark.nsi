@@ -468,7 +468,7 @@ FunctionEnd
 !endif
 
 Function DisplayDonatePage
-  !insertmacro MUI_HEADER_TEXT "Donate Today" "We could use your help."
+  !insertmacro MUI_HEADER_TEXT "Your donations keep these releases coming" "Donate today"
   !insertmacro INSTALLOPTIONS_DISPLAY "DonatePage.ini"
 FunctionEnd
 
