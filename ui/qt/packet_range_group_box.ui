@@ -87,6 +87,16 @@
      </property>
     </widget>
    </item>
+   <item row="8" column="0" colspan="2">
+    <widget class="QCheckBox" name="dependedCheckBox">
+     <property name="text">
+      <string>Include &amp;depended upon packets</string>
+     </property>
+     <property name="toolTip">
+      <string>Also include packets depended upon, such as those used to reassemble displayed packets</string>
+     </property>
+    </widget>
+   </item>
    <item row="3" column="3">
     <widget class="QLabel" name="markedDisplayedLabel">
      <property name="text">
@@ -235,6 +245,16 @@
    </item>
    <item row="7" column="3">
     <widget class="QLabel" name="ignoredDisplayedLabel">
+     <property name="text">
+      <string>-</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="3">
+    <widget class="QLabel" name="dependedDisplayedLabel">
      <property name="text">
       <string>-</string>
      </property>

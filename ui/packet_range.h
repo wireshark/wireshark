@@ -68,6 +68,8 @@ typedef struct packet_range_tag {
     guint32  displayed_marked_cnt;
     guint32  displayed_mark_range_cnt;
     guint32  displayed_user_range_cnt;
+    guint32  displayed_plus_dependents_mark_range_cnt;
+    guint32  displayed_plus_dependents_user_range_cnt;
     guint32  displayed_selection_range_cnt;
     guint32  displayed_ignored_cnt;
     guint32  displayed_ignored_marked_cnt;

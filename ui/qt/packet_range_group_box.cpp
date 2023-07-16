@@ -32,6 +32,14 @@ PacketRangeGroupBox::~PacketRangeGroupBox()
 void PacketRangeGroupBox::initRange(packet_range_t *range, QString selRange) {
     if (!range) return;
 
+    range_ = nullptr;
+    // Set this before setting range_ so that on_dependedCheckBox_toggled
+    // doesn't trigger an extra updateCounts().
+    // (We could instead manually connect and disconnect signals and slots
+    // after getting a range, instead of checking for range_ in all the
+    // slots.)
+    pr_ui_->dependedCheckBox->setChecked(range->include_dependents);
+
     range_ = range;
 
     if (range_->process_filtered) {
@@ -64,6 +72,7 @@ void PacketRangeGroupBox::updateCounts() {
     bool can_select;
     bool selected_packets;
     int ignored_cnt = 0, displayed_ignored_cnt = 0;
+    int depended_cnt = 0;
     int label_count;
 
     if (!range_ || !range_->cf) return;
@@ -169,7 +178,11 @@ void PacketRangeGroupBox::updateCounts() {
         label_count -= range_->ignored_mark_range_cnt;
     }
     pr_ui_->ftlCapturedLabel->setText(QString("%1").arg(label_count));
-    label_count = range_->displayed_mark_range_cnt;
+    if (range_->include_dependents) {
+        label_count = range_->displayed_plus_dependents_mark_range_cnt;
+    } else {
+        label_count = range_->displayed_mark_range_cnt;
+    }
     if (range_->remove_ignored) {
         label_count -= range_->displayed_ignored_mark_range_cnt;
     }
@@ -191,7 +204,11 @@ void PacketRangeGroupBox::updateCounts() {
             label_count -= range_->ignored_user_range_cnt;
         }
         pr_ui_->rangeCapturedLabel->setText(QString("%1").arg(label_count));
-        label_count = range_->displayed_user_range_cnt;
+        if (range_->include_dependents) {
+            label_count = range_->displayed_plus_dependents_user_range_cnt;
+        } else {
+            label_count = range_->displayed_user_range_cnt;
+        }
         if (range_->remove_ignored) {
             label_count -= range_->displayed_ignored_user_range_cnt;
         }
@@ -258,6 +275,26 @@ void PacketRangeGroupBox::updateCounts() {
     }
     pr_ui_->ignoredCapturedLabel->setText(QString("%1").arg(ignored_cnt));
     pr_ui_->ignoredDisplayedLabel->setText(QString("%1").arg(displayed_ignored_cnt));
+
+    // Depended upon Displayed (no effect for Captured)
+    switch(range_->process) {
+    case(range_process_all):
+        depended_cnt = range_->displayed_plus_dependents_cnt - range_->displayed_cnt;
+        break;
+    case(range_process_marked_range):
+        depended_cnt = range_->displayed_plus_dependents_mark_range_cnt - range_->displayed_mark_range_cnt;
+        break;
+    case(range_process_user_range):
+        depended_cnt = range_->displayed_plus_dependents_user_range_cnt - range_->displayed_user_range_cnt;
+        break;
+    default:
+        depended_cnt = 0;
+        break;
+    }
+
+    pr_ui_->dependedCheckBox->setEnabled(depended_cnt > 0);
+    pr_ui_->dependedDisplayedLabel->setEnabled(depended_cnt > 0);
+    pr_ui_->dependedDisplayedLabel->setText(QString("%1").arg(depended_cnt));
 
     if (orig_ss != syntax_state_) {
         pr_ui_->rangeLineEdit->setSyntaxState(syntax_state_);
@@ -329,4 +366,12 @@ void PacketRangeGroupBox::on_ignoredCheckBox_toggled(bool checked)
 {
     if (range_) range_->remove_ignored = checked ? TRUE : FALSE;
     updateCounts();
+}
+
+void PacketRangeGroupBox::on_dependedCheckBox_toggled(bool checked)
+{
+    if (range_) {
+        range_->include_dependents = checked ? TRUE : FALSE;
+        updateCounts();
+    }
 }

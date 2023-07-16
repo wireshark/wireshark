@@ -50,6 +50,7 @@ static void packet_range_calc(packet_range_t *range) {
     range->displayed_marked_cnt             = 0;
     range->displayed_mark_range_cnt         = 0;
     range->displayed_plus_dependents_cnt    = 0;
+    range->displayed_plus_dependents_mark_range_cnt  = 0;
     range->displayed_ignored_cnt            = 0;
     range->displayed_ignored_selection_range_cnt  = 0;
     range->displayed_ignored_marked_cnt     = 0;
@@ -145,6 +146,10 @@ static void packet_range_calc(packet_range_t *range) {
                         range->displayed_ignored_mark_range_cnt++;
                     }
                 }
+                if (packet->passed_dfilter ||
+                    packet->dependent_of_displayed) {
+                    range->displayed_plus_dependents_mark_range_cnt++;
+                }
             }
         }
 
@@ -160,6 +165,7 @@ static void packet_range_calc_user(packet_range_t *range) {
     range->user_range_cnt                   = 0;
     range->ignored_user_range_cnt           = 0;
     range->displayed_user_range_cnt         = 0;
+    range->displayed_plus_dependents_user_range_cnt = 0;
     range->displayed_ignored_user_range_cnt = 0;
 
     ws_assert(range->cf != NULL);
@@ -197,6 +203,10 @@ static void packet_range_calc_user(packet_range_t *range) {
                     if (packet->ignored) {
                         range->displayed_ignored_user_range_cnt++;
                     }
+                }
+                if (packet->passed_dfilter ||
+                    packet->dependent_of_displayed) {
+                    range->displayed_plus_dependents_user_range_cnt++;
                 }
             }
         }
@@ -337,6 +347,22 @@ range_process_e packet_range_process_packet(packet_range_t *range, frame_data *f
     /* This packet has to pass the display filter but didn't?
      * Try next, but only if we're not including dependent packets and this
      * packet happens to be a dependency on something that is displayed.
+     */
+    /* XXX: We only track if a frame is depended upon by some displayed frame,
+     * not which of the other frames depend on it.
+     * For Selected and Marked frames, we never include depended upon packets,
+     * because we already returned above if the frame wasn't selected or
+     * marked.
+     * For Marked Range and User Range, we include packets in the range that
+     * any frame displayed, not just ones in the range, depend upon.
+     * We also don't include any frames outside the range that frames in the
+     * range depend upon. So we don't include some depended on frames we
+     * should, but include some unnecessary ones, with the problems mostly
+     * occuring at the beginning and end of the ranges.
+     * For ignored packets, since we don't dissect them, we don't know
+     * anything about packets they depend upon, which is helpful as we
+     * don't have to calculate more counts based on interaction terms. If
+     * someone wants to include those, then don't ignore the packet.
      */
     if ((range->process_filtered && fdata->passed_dfilter == FALSE) &&
         !(range->include_dependents && fdata->dependent_of_displayed)) {
