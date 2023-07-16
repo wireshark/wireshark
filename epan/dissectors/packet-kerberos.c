@@ -7461,7 +7461,6 @@ dissect_kerberos_T_encryptedKrbFastReq_cipher(gboolean implicit_tag _U_, tvbuff_
                                        NULL);
 
 #endif
-  return offset;
 
 
   return offset;
@@ -7525,7 +7524,6 @@ dissect_kerberos_T_encryptedKrbFastResponse_cipher(gboolean implicit_tag _U_, tv
                                        NULL);
 
 #endif
-  return offset;
 
 
   return offset;
@@ -7587,7 +7585,6 @@ dissect_kerberos_T_encryptedChallenge_cipher(gboolean implicit_tag _U_, tvbuff_t
                                        NULL);
 
 #endif
-  return offset;
 
 
   return offset;

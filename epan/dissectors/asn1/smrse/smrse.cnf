@@ -41,9 +41,6 @@ SemiOctetString
 	*strp=0;
 
 	proto_tree_add_string(tree, hf_smrse_Octet_Format, tvb, start_offset, offset-start_offset, tmpstr);
-
-	return offset;
-
 #.END
 
 

@@ -2815,8 +2815,6 @@ dissect_h248_T_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
         gcp_trx_set_error(curr_info.trx,error_code);
     }
 
-    return offset;
-
   return offset;
 }
 

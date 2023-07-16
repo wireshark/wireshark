@@ -1067,6 +1067,7 @@ dissect_mms_Identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 		if (tvb_get_guint8(tvb, offset_id) == 0x1a)
 			private_data_add_moreCinfo_id(actx,tvb);
 	}
+
   return offset;
 }
 
@@ -1967,8 +1968,6 @@ dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 	{
 		proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
 	}
-	return offset;
-
 
 
   return offset;
@@ -2033,7 +2032,6 @@ dissect_mms_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 		proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
 	}
 
-	return offset;
 
 
   return offset;

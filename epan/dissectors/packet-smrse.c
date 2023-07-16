@@ -151,9 +151,6 @@ dissect_smrse_T_octet_format(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 	proto_tree_add_string(tree, hf_smrse_Octet_Format, tvb, start_offset, offset-start_offset, tmpstr);
 
-	return offset;
-
-
   return offset;
 }
 

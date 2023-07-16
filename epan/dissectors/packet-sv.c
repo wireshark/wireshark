@@ -286,7 +286,6 @@ dissect_sv_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 		proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
 	}
 	offset += 8;
-	return offset;
 
   return offset;
 }

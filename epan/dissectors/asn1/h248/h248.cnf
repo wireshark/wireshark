@@ -317,8 +317,6 @@ SigParameterV1/value                ABBREV=sig_param_value
     } else if (curr_info.trx) {
         gcp_trx_set_error(curr_info.trx,error_code);
     }
-
-    return offset;
 #.END
 
 #.FN_HDR TerminationID

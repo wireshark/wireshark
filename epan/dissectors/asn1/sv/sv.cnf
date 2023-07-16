@@ -55,7 +55,6 @@ SampledValues
 		proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
 	}
 	offset += 8;
-	return offset;
 #.END
 
 #.TYPE_ATTR

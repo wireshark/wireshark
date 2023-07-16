@@ -144,8 +144,6 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
 	{
 		proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
 	}
-	return offset;
-
 
 #.FN_BODY UtcTime
 
@@ -183,7 +181,6 @@ AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-
 		proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
 	}
 
-	return offset;
 
 #.FN_BODY Unsigned32 VAL_PTR=&val
 	guint32 val;

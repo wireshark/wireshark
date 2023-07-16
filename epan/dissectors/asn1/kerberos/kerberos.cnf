@@ -647,7 +647,6 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 ##else
 %(DEFAULT_BODY)s
 ##endif
-  return offset;
 
 #.FN_BODY EncryptedKrbFastResponse/cipher
 ##ifdef HAVE_KERBEROS
@@ -655,7 +654,6 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 ##else
 %(DEFAULT_BODY)s
 ##endif
-  return offset;
 
 #.FN_BODY EncryptedChallenge/cipher
 ##ifdef HAVE_KERBEROS
@@ -663,7 +661,6 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
 ##else
 %(DEFAULT_BODY)s
 ##endif
-  return offset;
 
 #.FN_BODY KrbFastArmorTypes VAL_PTR=&(private_data->fast_type)
   kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
