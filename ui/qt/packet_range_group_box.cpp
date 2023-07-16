@@ -140,7 +140,7 @@ void PacketRangeGroupBox::updateCounts() {
         label_count -= range_->ignored_marked_cnt;
     }
     pr_ui_->markedCapturedLabel->setText(QString("%1").arg(label_count));
-    label_count = range_->cf->marked_count;
+    label_count = range_->displayed_marked_cnt;
     if (range_->remove_ignored) {
         label_count -= range_->displayed_ignored_marked_cnt;
     }
