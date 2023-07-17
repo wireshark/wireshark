@@ -172,10 +172,6 @@ HexExponent		([pP][+-]?[[:digit:]]+)
 "==="		return test(TOKEN_TEST_ALL_EQ);
 "all_eq"	return test(TOKEN_TEST_ALL_EQ);
 "!=="		return test(TOKEN_TEST_ANY_NE);
-"~="		{
-	add_deprecated_token(yyextra, "The operator \"~=\" is deprecated, use \"!==\" instead.");
-	return test(TOKEN_TEST_ANY_NE);
-}
 "any_ne"	return test(TOKEN_TEST_ANY_NE);
 ">"		return test(TOKEN_TEST_GT);
 "gt"		return test(TOKEN_TEST_GT);
