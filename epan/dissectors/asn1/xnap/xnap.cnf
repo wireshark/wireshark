@@ -243,7 +243,7 @@ ProtocolExtensionID TYPE = FT_UINT8 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS =
 
     subtree = proto_item_add_subtree(actx->created_item, ett_xnap_RRC_Context);
     if ((xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_AUTOMATIC &&
-         target_ranmode_id == GlobalNG_RANNode_ID_gNB) &&
+         target_ranmode_id == GlobalNG_RANNode_ID_gNB) ||
         (xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_GNB)) {
       dissect_nr_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
     } else if ((xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_AUTOMATIC &&

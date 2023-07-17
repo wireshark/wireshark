@@ -21512,7 +21512,7 @@ dissect_xnap_T_rrc_Context(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
     subtree = proto_item_add_subtree(actx->created_item, ett_xnap_RRC_Context);
     if ((xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_AUTOMATIC &&
-         target_ranmode_id == GlobalNG_RANNode_ID_gNB) &&
+         target_ranmode_id == GlobalNG_RANNode_ID_gNB) ||
         (xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_GNB)) {
       dissect_nr_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
     } else if ((xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_AUTOMATIC &&
