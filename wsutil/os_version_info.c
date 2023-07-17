@@ -300,7 +300,7 @@ get_os_version_info(GString *str)
 		 * and aboeve[sic]".  The value of that key gives a
 		 * "product name"...
 		 *
-		 * ...at least until Windows 11, which it insists i
+		 * ...at least until Windows 11, which it insists is
 		 * Windows 10.  So we don't bother with it.  (It may
 		 * indicate whether it's Home or Pro or..., but that's
 		 * not worth the effort of fixing the "Windows 11 is
