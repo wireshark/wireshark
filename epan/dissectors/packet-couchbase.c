@@ -489,6 +489,7 @@ static int hf_subdoc_doc_flags_add = -1;
 static int hf_subdoc_doc_flags_accessdeleted = -1;
 static int hf_subdoc_doc_flags_createasdeleted = -1;
 static int hf_subdoc_doc_flags_revivedocument = -1;
+static int hf_subdoc_doc_flags_replicaread = -1;
 static int hf_subdoc_doc_flags_reserved = -1;
 static int hf_subdoc_flags = -1;
 static int hf_subdoc_flags_mkdirp = -1;
@@ -1063,6 +1064,7 @@ static int * const subdoc_doc_flags[] = {
   &hf_subdoc_doc_flags_accessdeleted,
   &hf_subdoc_doc_flags_createasdeleted,
   &hf_subdoc_doc_flags_revivedocument,
+  &hf_subdoc_doc_flags_replicaread,
   &hf_subdoc_doc_flags_reserved,
   NULL
 };
@@ -3838,7 +3840,8 @@ proto_register_couchbase(void)
     { &hf_subdoc_doc_flags_accessdeleted, { "ACCESS_DELETED", "couchbase.extras.subdoc.doc_flags.access_deleted", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, "Allow access to XATTRs for deleted documents", HFILL} },
     { &hf_subdoc_doc_flags_createasdeleted, { "CREATE_AS_DELETED", "couchbase.extras.subdoc.doc_flags.create_as_deleted", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08, "If the document does not exist then create it in the Deleted state, instead of the normal Alive state", HFILL} },
     { &hf_subdoc_doc_flags_revivedocument, { "REVIVE_DOCUMENT", "couchbase.extras.subdoc.doc_flags.revive_document", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10, "If the document exists in the Deleted state, revive it to the normal Alive state", HFILL} },
-    { &hf_subdoc_doc_flags_reserved, {"Reserved fields", "couchbase.extras.subdoc.doc_flags.reserved", FT_UINT8, BASE_HEX, NULL, 0xF0, "A reserved field", HFILL} },
+    { &hf_subdoc_doc_flags_replicaread, { "REPLICA_READ", "couchbase.extras.subdoc.doc_flags.replica_read", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20, "Operate on a replica vbucket instead of an active one", HFILL} },
+    { &hf_subdoc_doc_flags_reserved, {"Reserved fields", "couchbase.extras.subdoc.doc_flags.reserved", FT_UINT8, BASE_HEX, NULL, 0xC0, "A reserved field", HFILL} },
     { &hf_extras_pathlen, { "Path Length", "couchbase.extras.pathlen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
     /* DCP flags */
