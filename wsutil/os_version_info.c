@@ -242,7 +242,18 @@ DIAG_ON(cast-function-type)
 		break;
 
 	case VER_PLATFORM_WIN32_WINDOWS:
-		/* Windows OT */
+		/*
+		 * Windows OT.
+		 *
+		 *   https://nsis-dev.github.io/NSIS-Forums/html/t-128527.html
+		 *
+		 * claims that
+		 *
+		 *   HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion
+		 *
+		 * has a key ProductName, at least in Windows M3, the
+		 * value of that key appears to be an OS product name.
+		 */
 		switch (win_version_info.dwMajorVersion) {
 
 		case 4:
@@ -276,17 +287,55 @@ DIAG_ON(cast-function-type)
 		break;
 
 	case VER_PLATFORM_WIN32_NT:
-		/* Windows NT */
+		/*
+		 * Windows NT.
+		 *
+		 *   https://stackoverflow.com/a/19778234/16139739
+		 *
+		 * claims that
+		 *
+		 *   HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion
+		 *
+		 * has a key ProductName that is "present for Windows XP
+		 * and aboeve[sic]".  The value of that key gives a
+		 * "product name"...
+		 *
+		 * ...at least until Windows 11, which it insists i
+		 * Windows 10.  So we don't bother with it.  (It may
+		 * indicate whether it's Home or Pro or..., but that's
+		 * not worth the effort of fixing the "Windows 11 is
+		 * Windows 10" nonsense.)
+		 *
+		 *   https://patents.google.com/patent/EP1517235A2/en
+		 *
+		 * is a Microsoft patent that mentions the
+		 * BrandingFormatString() routine, and seems to suggest
+		 * that it dates back to at least Windows XP.
+		 *
+		 *   https://dennisbabkin.com/blog/?t=how-to-tell-the-real-version-of-windows-your-app-is-running-on
+		 *
+		 * says that routine is in an undocumented winbrand.dll DLL,
+		 * but is used by Microsoft's own code to put the OS
+		 * product name into messages.  It, unlike ProductName,
+		 * appears to make a distinction between Windows 10 and
+		 * Windows 11, and, when handed the string "%WINDOWS_LONG%",
+		 * gives the same edition decoration that I suspect
+		 * ProductName does.
+		 */
 		switch (win_version_info.dwMajorVersion) {
 
 		case 3:
 		case 4:
+			/* NT 3.x and 4.x. */
 			g_string_append_printf(str, "Windows NT %lu.%lu",
 			    win_version_info.dwMajorVersion, win_version_info.dwMinorVersion);
 			break;
 
 		case 5:
-			/* 3 cheers for Microsoft marketing! */
+			/*
+			 * W2K, WXP, and their server versions.
+			 * 3 cheers for Microsoft marketing!
+			 */
 			switch (win_version_info.dwMinorVersion) {
 
 			case 0:
@@ -316,6 +365,9 @@ DIAG_ON(cast-function-type)
 			break;
 
 		case 6: {
+			/*
+			 * Vista, W7, W8, W8.1, and their server versions.
+			 */
 			gboolean is_nt_workstation;
 
 			if (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
@@ -350,6 +402,9 @@ DIAG_ON(cast-function-type)
 		}  /* case 6 */
 
 		case 10: {
+			/*
+			 * W10, W11, and their server versions.
+			 */
 			gboolean is_nt_workstation;
                         TCHAR ReleaseId[10];
                         DWORD ridSize = _countof(ReleaseId);
@@ -364,12 +419,15 @@ DIAG_ON(cast-function-type)
 				/* List of BuildNumber from https://en.wikipedia.org/wiki/List_of_Microsoft_Windows_versions
 				 * and https://docs.microsoft.com/en-us/windows/release-health/windows11-release-information */
 				if (is_nt_workstation) {
-					if (win_version_info.dwBuildNumber >= 10240 && win_version_info.dwBuildNumber < 22000){
-						g_string_append_printf(str, "Windows 10");
-					} else if (win_version_info.dwBuildNumber == 22000) {
-						g_string_append_printf(str, "Windows 11");
-					} else {
+					if (win_version_info.dwBuildNumber < 10240) {
+						/* XXX - W10 builds before 10240? */
 						g_string_append_printf(str, "Windows");
+					} else if (win_version_info.dwBuildNumber < 22000){
+						/* W10 builds sstart at 10240 and end before 22000 */
+						g_string_append_printf(str, "Windows 10");
+					} else {
+						/* Builds 22000 and later are W11 (until there's W12...). */
+						g_string_append_printf(str, "Windows 11");
 					}
 				} else {
 					switch (win_version_info.dwBuildNumber) {
@@ -387,6 +445,88 @@ DIAG_ON(cast-function-type)
 						break;
 					}
 				}
+
+				/*
+				 * Windows 10 and 11 have had multiple
+				 * releases, with different build numbers.
+				 *
+				 * The build number *could* be used to
+				 * determine the release string, but
+				 * that would require a table of releases
+				 * and strings, and that would have to
+				 * get updated whenever a new release
+				 * comes out, and that seems to happen
+				 * twice a year these days.
+				 *
+				 * The good news is that, under
+				 *
+				 *   HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion
+				 *
+				 * there are two keys, DisplayVersion and
+				 * ReleaseId.  If DisplayVersion is present,
+				 * it's a string that gives the release
+				 * string; if not, ReleaseId gives the
+				 * release string.
+				 *
+				 * The DisplayVersion value is currently
+				 * of the form YYHN, where YY is the
+				 * last two digits of the year, H stands
+				 * for "half", and N is the half of the
+				 * year in which it came out.
+				 *
+				 * The ReleaseId is just a numeric string
+				 * and for all the YYHN releases, it's
+				 * stuck at the same value.
+				 *
+				 * Note further that
+				 *
+				 *   https://github.com/nvaccess/nvda/blob/master/source/winVersion.py
+				 *
+				 * has a comment claiming that
+				 *
+				 *   From Version 1511 (build 10586), release
+				 *   Id/display version comes from Windows
+				 *   Registry.
+				 *   However there are builds with no release
+				 *   name (Version 1507/10240) or releases
+				 *   with different builds.
+				 *   Look these up first before asking
+				 *   Windows Registry.
+				 *
+				 * "Look these up first" means "look them
+				 * up in a table that goes from
+				 *
+				 *   10240: Windows 10 1507
+				 *
+				 * to
+				 *
+				 *   22621: Windows 11 22H2
+				 *
+				 * and also includes
+				 *
+				 *   20348: Windows Server 2022
+				 *
+				 * I'm not sure why any Windows 10 builds
+				 * after 10240 are in the table; what does
+				 * "releases with different builds" mean?
+				 * does it mean that those particular
+				 * builds have bogus ReleaseId or
+				 * DisplayVersion values?  Those builds
+				 * appear to be official release builds
+				 * for W10/W11, according to the table
+				 * in
+				 *
+				 *   https://en.wikipedia.org/wiki/Windows_NT
+				 *
+				 * so, if those are all necessary, why
+				 * should ReleaseId or DisplayVersion be
+				 * trusted at all?
+				 *
+				 * As for the Windows Server 2022 entry,
+				 * is that just becuase that script doesn't
+				 * bother checking for "workstation" vs.
+				 * "server"?
+				 */
 				if (RegGetValue(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
 				                L"DisplayVersion", RRF_RT_REG_SZ, NULL, &ReleaseId, &ridSize) == ERROR_SUCCESS) {
 					g_string_append_printf(str, " (%s)", utf_16to8(ReleaseId));
