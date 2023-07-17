@@ -6727,6 +6727,11 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 		case FT_STRINGZTRUNC:
 			str = fvalue_get_string(finfo->value);
 			label_len = (int)ws_label_strcpy(display_label_str, label_str_size, 0, str, label_strcat_flags(hfinfo));
+			if (label_len >= label_str_size) {
+				/* Truncation occured. Get the real length
+				 * copied (not including '\0') */
+				label_len = label_str_size ? label_str_size - 1 : 0;
+			}
 			break;
 
 		default:
