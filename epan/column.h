@@ -26,8 +26,8 @@ typedef struct _fmt_data {
   int fmt;                 /* format of column */
   gchar *custom_fields;    /* fields names for COL_CUSTOM */
   gint custom_occurrence;  /* optional ordinal of occurrence of that field */
-  gboolean visible;        /* if FALSE, hide this column */
-  gboolean resolved;       /* if TRUE, show a more human-readable name */
+  bool visible;            /* if FALSE, hide this column */
+  bool resolved;           /* if TRUE, show a more human-readable name */
 } fmt_data;
 
 WS_DLL_PUBLIC

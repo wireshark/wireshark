@@ -199,7 +199,7 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
     int col_fmt;
     gchar *col_custom_fields = NULL;
     long col_custom_occurrence = 0;
-    gboolean col_resolved = TRUE;
+    bool col_resolved = true;
 
     /*
      * Is this a custom column?
@@ -220,7 +220,7 @@ parse_column_format(fmt_data *cfmt, const char *fmt)
             }
         }
         if (col_custom_fields && cust_format_info[1] && cust_format_info[2]) {
-            col_resolved = (cust_format_info[2][0] == 'U') ? FALSE : TRUE;
+            col_resolved = (cust_format_info[2][0] == 'U') ? false : true;
         }
         g_strfreev(cust_format_info);
     } else {
