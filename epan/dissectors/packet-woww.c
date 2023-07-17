@@ -18586,7 +18586,7 @@ add_body_fields(guint32 header_opcode,
         case SMSG_TEXT_EMOTE:
             ptvcursor_add(ptv, hf_woww_guid, 8, ENC_LITTLE_ENDIAN);
             ptvcursor_add(ptv, hf_woww_text_emote, 4, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(ptv, hf_woww_emote_enum, 4, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(ptv, hf_woww_emote_int, 4, ENC_LITTLE_ENDIAN);
             add_sized_cstring(ptv, &hf_woww_name);
             break;
         case SMSG_TRADE_STATUS:
