@@ -5183,7 +5183,6 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
        written, don't special-case the operation - read each packet
        and then write it out if it's one of the specified ones. */
 
-    /* XXX: what free's params.shb_hdr? */
     wtap_dump_params_init(&params, cf->provider.wth);
 
     /* Determine what file encapsulation type we should use. */
@@ -5247,6 +5246,8 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
                 ws_unlink(fname_new);
                 g_free(fname_new);
             }
+            wtap_dump_params_cleanup(&params);
+
             return CF_WRITE_ABORTED;
             break;
 
@@ -5276,6 +5277,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
         }
         g_free(fname_new);
     }
+    wtap_dump_params_cleanup(&params);
 
     return CF_WRITE_OK;
 
@@ -5290,6 +5292,8 @@ fail:
         ws_unlink(fname_new);
         g_free(fname_new);
     }
+    wtap_dump_params_cleanup(&params);
+
     return CF_WRITE_ERROR;
 }
 
