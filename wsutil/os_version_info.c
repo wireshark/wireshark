@@ -183,6 +183,15 @@ typedef LONG (WINAPI * RtlGetVersionProc) (OSVERSIONINFOEX *);
 #define STATUS_SUCCESS 0
 #endif
 #include <stdlib.h>
+
+/*
+ * Test whether the OS an "NT Workstation" version, meaning "not server".
+ */
+static gboolean
+is_nt_workstation(OSVERSIONINFOEX *win_version_info)
+{
+	return win_version_info->wProductType == VER_NT_WORKSTATION;
+}
 #endif // _WIN32
 
 /*
@@ -347,7 +356,7 @@ DIAG_ON(cast-function-type)
 				break;
 
 			case 2:
-				if ((win_version_info.wProductType == VER_NT_WORKSTATION) &&
+				if (is_nt_workstation(&win_version_info) &&
 				    (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)) {
 					g_string_append_printf(str, "Windows XP Professional x64 Edition");
 				} else {
@@ -368,30 +377,22 @@ DIAG_ON(cast-function-type)
 			/*
 			 * Vista, W7, W8, W8.1, and their server versions.
 			 */
-			gboolean is_nt_workstation;
-
 			if (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
 				g_string_append(str, "64-bit ");
 			else if (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
 				g_string_append(str, "32-bit ");
-#ifndef VER_NT_WORKSTATION
-#define VER_NT_WORKSTATION 0x01
-			is_nt_workstation = ((win_version_info.wReserved[1] & 0xff) == VER_NT_WORKSTATION);
-#else
-			is_nt_workstation = (win_version_info.wProductType == VER_NT_WORKSTATION);
-#endif
 			switch (win_version_info.dwMinorVersion) {
 			case 0:
-				g_string_append_printf(str, is_nt_workstation ? "Windows Vista" : "Windows Server 2008");
+				g_string_append_printf(str, is_nt_workstation(&win_version_info) ? "Windows Vista" : "Windows Server 2008");
 				break;
 			case 1:
-				g_string_append_printf(str, is_nt_workstation ? "Windows 7" : "Windows Server 2008 R2");
+				g_string_append_printf(str, is_nt_workstation(&win_version_info) ? "Windows 7" : "Windows Server 2008 R2");
 				break;
 			case 2:
-				g_string_append_printf(str, is_nt_workstation ? "Windows 8" : "Windows Server 2012");
+				g_string_append_printf(str, is_nt_workstation(&win_version_info) ? "Windows 8" : "Windows Server 2012");
 				break;
 			case 3:
-				g_string_append_printf(str, is_nt_workstation ? "Windows 8.1" : "Windows Server 2012 R2");
+				g_string_append_printf(str, is_nt_workstation(&win_version_info) ? "Windows 8.1" : "Windows Server 2012 R2");
 				break;
 			default:
 				g_string_append_printf(str, "Windows NT, unknown version %lu.%lu",
@@ -405,7 +406,6 @@ DIAG_ON(cast-function-type)
 			/*
 			 * W10, W11, and their server versions.
 			 */
-			gboolean is_nt_workstation;
                         TCHAR ReleaseId[10];
                         DWORD ridSize = _countof(ReleaseId);
 
@@ -413,12 +413,11 @@ DIAG_ON(cast-function-type)
 				g_string_append(str, "64-bit ");
 			else if (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
 				g_string_append(str, "32-bit ");
-			is_nt_workstation = (win_version_info.wProductType == VER_NT_WORKSTATION);
 			switch (win_version_info.dwMinorVersion) {
 			case 0:
 				/* List of BuildNumber from https://en.wikipedia.org/wiki/List_of_Microsoft_Windows_versions
 				 * and https://docs.microsoft.com/en-us/windows/release-health/windows11-release-information */
-				if (is_nt_workstation) {
+				if (is_nt_workstation(&win_version_info)) {
 					if (win_version_info.dwBuildNumber < 10240) {
 						/* XXX - W10 builds before 10240? */
 						g_string_append_printf(str, "Windows");
