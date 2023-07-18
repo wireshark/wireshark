@@ -40,7 +40,7 @@
 #define ISIS_CLV_REVERSE_METRIC      16  /* rfc8500 */
 #define ISIS_CLV_EXTD_IS_REACH       22  /* draft-ietf-isis-traffic-05 */
 #define ISIS_CLV_IS_ALIAS_ID         24  /* draft-ietf-isis-ext-lsp-frags-02 */
-#define ISIS_CLV_SRV6_LOCATOR        27  /* draft-bashandy-isis-srv6-extensions-04 */
+#define ISIS_CLV_SRV6_LOCATOR        27  /* rfc9352 */
 #define ISIS_CLV_INT_IP_REACH        128 /* rfc1195, rfc2966 */
 #define ISIS_CLV_PROTOCOLS_SUPPORTED 129 /* rfc1195 */
 #define ISIS_CLV_EXT_IP_REACH        130 /* rfc1195, rfc2966 */

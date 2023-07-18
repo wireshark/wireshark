@@ -97,7 +97,7 @@
 #define SEGMENT_ROUTING_ALG      19
 #define SEGMENT_ROUTING_LB       22
 #define NODE_MSD                 23            /* rfc8491 */
-#define SRV6_CAP                 25
+#define SRV6_CAP                 25            /* rfc9352 */
 #define FLEX_ALGO_DEF            26            /* draft-ietf-lsr-flex-algo-16 */
 
 
@@ -122,13 +122,12 @@
 #define ISIS_ALG_SPF  0
 #define ISIS_ALG_SSPF 1
 
-/* IGP MSD Type (rfc8491) */
+/* IGP MSD Type (rfc8491/rfc9352) */
 #define IGP_MSD_TYPE_RESERVED       0
 #define IGP_MSD_TYPE_MPLS           1
 #define IGP_MSD_TYPE_SEGMENT_LEFT   41
 #define IGP_MSD_TYPE_END_POP        42
-#define IGP_MSD_TYPE_T_INSERT       43
-#define IGP_MSD_TYPE_T_ENCAP        44
+#define IGP_MSD_TYPE_H_ENCAP        44
 #define IGP_MSD_TYPE_END_D          45
 
 /* Flex Algo Definition Sub-TLV (draft-ietf-lsr-flex-algo-16) */
@@ -418,7 +417,7 @@ static int hf_isis_lsp_clv_sr_alg = -1;
 static int hf_isis_lsp_clv_sr_lb_flags = -1;
 static int hf_isis_lsp_clv_srv6_cap_flags = -1;
 static int hf_isis_lsp_clv_srv6_cap_flags_o = -1;
-static int hf_isis_lsp_clv_srv6_cap_flags_unused = -1;
+static int hf_isis_lsp_clv_srv6_cap_flags_reserved = -1;
 static int hf_isis_lsp_clv_igp_msd_type = -1;
 static int hf_isis_lsp_clv_igp_msd_value = -1;
 static int hf_isis_lsp_clv_ext_admin_group = -1;
@@ -441,9 +440,10 @@ static int hf_isis_lsp_clv_srv6_endx_sid_flags = -1;
 static int hf_isis_lsp_clv_srv6_endx_sid_flags_b = -1;
 static int hf_isis_lsp_clv_srv6_endx_sid_flags_s = -1;
 static int hf_isis_lsp_clv_srv6_endx_sid_flags_p = -1;
+static int hf_isis_lsp_clv_srv6_endx_sid_flags_reserved = -1;
 static int hf_isis_lsp_clv_srv6_endx_sid_alg = -1;
 static int hf_isis_lsp_clv_srv6_endx_sid_weight = -1;
-static int hf_isis_lsp_clv_srv6_endx_sid_endpoint_func = -1;
+static int hf_isis_lsp_clv_srv6_endx_sid_endpoint_behavior = -1;
 static int hf_isis_lsp_clv_srv6_endx_sid_sid = -1;
 static int hf_isis_lsp_clv_srv6_endx_sid_subsubclvs_len = -1;
 static int hf_isis_lsp_area_address = -1;
@@ -486,9 +486,13 @@ static int hf_isis_lsp_srv6_loc_subclvs_len = -1;
 static int hf_isis_lsp_srv6_loc_sub_tlv_type = -1;
 static int hf_isis_lsp_srv6_loc_sub_tlv_length = -1;
 static int hf_isis_lsp_clv_srv6_end_sid_flags = -1;
-static int hf_isis_lsp_clv_srv6_end_sid_endpoint_func = -1;
+static int hf_isis_lsp_clv_srv6_end_sid_endpoint_behavior = -1;
 static int hf_isis_lsp_clv_srv6_end_sid_sid = -1;
 static int hf_isis_lsp_clv_srv6_end_sid_subsubclvs_len = -1;
+static int hf_isis_lsp_clv_srv6_sid_struct_lb_len = -1;
+static int hf_isis_lsp_clv_srv6_sid_struct_ln_len = -1;
+static int hf_isis_lsp_clv_srv6_sid_struct_fun_len = -1;
+static int hf_isis_lsp_clv_srv6_sid_struct_arg_len = -1;
 static int hf_isis_lsp_purge_orig_id_num = -1;
 static int hf_isis_lsp_purge_orig_id_system_id = -1;
 /* rfc 6165: MAC Reachability */
@@ -594,9 +598,12 @@ static gint ett_isis_lsp_sl_sub_tlv_flags = -1;
 static gint ett_isis_lsp_clv_ipv6_te_router_id = -1;
 static gint ett_isis_lsp_clv_bier_subsub_tlv = -1;
 static gint ett_isis_lsp_clv_srv6_locator = -1;
+static gint ett_isis_lsp_clv_srv6_loc_entry = -1;
 static gint ett_isis_lsp_clv_srv6_loc_flags = -1;
 static gint ett_isis_lsp_clv_srv6_loc_sub_tlv = -1;
+static gint ett_isis_lsp_clv_srv6_loc_end_sid_sub_sub_tlv = -1;
 static gint ett_isis_lsp_clv_srv6_endx_sid_flags = -1;
+static gint ett_isis_lsp_clv_srv6_endx_sid_sub_sub_tlv = -1;
 static gint ett_isis_lsp_clv_unidir_link_flags = -1;
 static gint ett_isis_lsp_clv_mac_reachability = -1;
 static gint ett_isis_lsp_clv_avaya_ipvpn = -1;
@@ -634,6 +641,8 @@ static const value_string isis_lsp_sl_sub_tlv_vals[] = {
     { ISIS_LSP_SL_SUB_LAN_ADJ_SID,"LAN-Adjacency SID"},
     { 0, NULL } };
 
+/* rfc8986 */
+/* draft-filsfils-spring-net-pgm-extension-srv6-usid-15 */
 static const value_string srv6_endpoint_type_vals[] = {
     { 1,     "End" },
     { 2,     "End (PSP)" },
@@ -647,7 +656,7 @@ static const value_string srv6_endpoint_type_vals[] = {
     { 10,    "End.T (PSP)" },
     { 11,    "End.T (USP)" },
     { 12,    "End.T (PSP/USP)" },
-    { 13,    "End.B6" },
+    { 13,    "Unassigned" },
     { 14,    "End.B6.Encaps" },
     { 15,    "End.BM" },
     { 16,    "End.DX6" },
@@ -659,14 +668,58 @@ static const value_string srv6_endpoint_type_vals[] = {
     { 22,    "End.DX2V" },
     { 23,    "End.DT2U" },
     { 24,    "End.DT2M" },
-    { 25,    "End.S" },
-    { 26,    "End.B6.Red" },
+    { 25,    "Reserved" },
+    { 26,    "Unassigned" },
     { 27,    "End.B6.Encaps.Red" },
+    { 28,    "End (USD)" },
+    { 29,    "End (PSP/USD)" },
+    { 30,    "End (USP/USD)" },
+    { 31,    "End (PSP/USP/USD)" },
+    { 32,    "End.X (USD)" },
+    { 33,    "End.X (PSP/USD)" },
+    { 34,    "End.X (USP/USD)" },
+    { 35,    "End.X (PSP/USP/USD)" },
+    { 36,    "End.T (USD)" },
+    { 37,    "End.T (PSP/USD)" },
+    { 38,    "End.T (USP/USD)" },
+    { 39,    "End.T (PSP/USP/USD)" },
+    { 42,    "End (NEXT-ONLY-CSID)" },
+    { 43,    "End (NEXT-CSID)" },
+    { 44,    "End (NEXT-CSID/PSP)" },
+    { 45,    "End (NEXT-CSID/USP)" },
+    { 46,    "End (NEXT-CSID/PSP/USP)" },
+    { 47,    "End (NEXT-CSID/USD)" },
+    { 48,    "End (NEXT-CSID/PSP/USD)" },
+    { 49,    "End (NEXT-CSID/USP/USD)" },
+    { 50,    "End (NEXT-CSID/PSP/USP/USD)" },
+    { 51,    "End.X (NEXT-ONLY-CSID)" },
+    { 52,    "End.X (NEXT-CSID)" },
+    { 53,    "End.X (NEXT-CSID/PSP)" },
+    { 54,    "End.X (NEXT-CSID/USP)" },
+    { 55,    "End.X (NEXT-CSID/PSP/USP)" },
+    { 56,    "End.X (NEXT-CSID/USD)" },
+    { 57,    "End.X (NEXT-CSID/PSP/USD)" },
+    { 58,    "End.X (NEXT-CSID/USP/USD)" },
+    { 59,    "End.X (NEXT-CSID/PSP/USP/USD)" },
+    { 60,    "End.DX6 (NEXT-CSID)" },
+    { 61,    "End.DX4 (NEXT-CSID)" },
+    { 62,    "End.DT6 (NEXT-CSID)" },
+    { 63,    "End.DT4 (NEXT-CSID)" },
+    { 64,    "End.DT46 (NEXT-CSID)" },
+    { 65,    "End.DX2 (NEXT-CSID)" },
+    { 66,    "End.DX2V (NEXT-CSID)" },
+    { 67,    "End.DT2U (NEXT-CSID)" },
+    { 68,    "End.DT2M (NEXT-CSID)" },
     { 0, NULL }
 };
 
 static const value_string isis_lsp_srv6_loc_sub_tlv_vals[] = {
+    { 4,  "Prefix Attribute Flags"},
     { 5,  "SRv6 End SID"},
+    { 0, NULL } };
+
+static const value_string isis_lsp_srv6_loc_end_sid_sub_sub_tlv_vals[] = {
+    { 1,  "SRv6 SID Structure"},
     { 0, NULL } };
 
 static int * const adj_sid_flags[] = {
@@ -680,7 +733,7 @@ static int * const adj_sid_flags[] = {
 
 static int * const srv6_cap_flags[] = {
     &hf_isis_lsp_clv_srv6_cap_flags_o,
-    &hf_isis_lsp_clv_srv6_cap_flags_unused,
+    &hf_isis_lsp_clv_srv6_cap_flags_reserved,
     NULL,
 };
 
@@ -694,6 +747,7 @@ static int * const srv6_endx_sid_flags[] = {
     &hf_isis_lsp_clv_srv6_endx_sid_flags_b,
     &hf_isis_lsp_clv_srv6_endx_sid_flags_s,
     &hf_isis_lsp_clv_srv6_endx_sid_flags_p,
+    &hf_isis_lsp_clv_srv6_endx_sid_flags_reserved,
     NULL,
 };
 
@@ -727,8 +781,7 @@ static const value_string isis_lsp_igp_msd_types[] = {
     { IGP_MSD_TYPE_MPLS,            "Base MPLS Imposition" },
     { IGP_MSD_TYPE_SEGMENT_LEFT,    "Maximum Segments Left" },
     { IGP_MSD_TYPE_END_POP,         "Maximum End Pop" },
-    { IGP_MSD_TYPE_T_INSERT,        "Maximum T.Insert" },
-    { IGP_MSD_TYPE_T_ENCAP,         "Maximum T.Encaps" },
+    { IGP_MSD_TYPE_H_ENCAP,         "Maximum H.Encaps" },
     { IGP_MSD_TYPE_END_D,           "Maximum End D" },
     { 0, NULL }
 };
@@ -1131,6 +1184,48 @@ dissect_bierinfo_subtlv (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return;
 }
 
+/*
+ * Name: dissect_prefix_attr_flags_subclv()
+ *
+ * Description:
+ *    Decodes a Prefix Attribute Flags sub-TLV (RFC 7794)
+ *
+ * Input:
+ *   tvbuff_t * : tvbuffer for packet data
+ *   packet_info * : expert error misuse reporting
+ *   proto_tree * : proto tree to build on
+ *   tree_item * : proto tree item to build on (may be null)
+ *   int : current offset into packet data
+ *   int : type of this clv
+ *   int : length of this clv
+ *
+ * Output:
+ *    void, will modify proto_tree if not null.
+ */
+static void
+dissect_prefix_attr_flags_subclv(tvbuff_t *tvb, packet_info *pinfo,
+                                 proto_tree *tree, proto_item *tree_item,
+                                 int offset, int clv_code _U_, int clv_len)
+{
+    guint8 flags;
+
+    if (clv_len != 1) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv,
+                                     tvb, offset-2, 2,
+                                     "Invalid Sub-TLV Length %d (should be 1)", clv_len);
+        return;
+    }
+    flags = tvb_get_guint8(tvb, offset);
+    proto_tree_add_bitmask(tree, tvb, offset, hf_isis_lsp_prefix_attr_flags,
+                           ett_isis_lsp_prefix_attr_flags, prefix_attr_flags, ENC_BIG_ENDIAN);
+    if (tree_item) {
+        proto_item_append_text(tree_item, ": Flags:%c%c%c",
+                               ((flags & ISIS_LSP_PFX_ATTR_FLAG_X) != 0) ? 'X' : '-',
+                               ((flags & ISIS_LSP_PFX_ATTR_FLAG_R) != 0) ? 'R' : '-',
+                               ((flags & ISIS_LSP_PFX_ATTR_FLAG_N) != 0) ? 'N' : '-');
+    }
+}
+
 
 /*
  * Name: dissect_ipreach_subclv ()
@@ -1192,15 +1287,7 @@ dissect_ipreach_subclv(tvbuff_t *tvb, packet_info *pinfo,  proto_tree *tree, pro
         break;
     case IP_REACH_SUBTLV_PFX_ATTRIB_FLAG:
         /* Prefix Attribute Flags */
-        flags = tvb_get_guint8(tvb, offset);
-        proto_tree_add_bitmask(tree, tvb, offset, hf_isis_lsp_prefix_attr_flags,
-                               ett_isis_lsp_prefix_attr_flags, prefix_attr_flags, ENC_BIG_ENDIAN);
-        if (tree_item) {
-            proto_item_append_text(tree_item, ": Flags:%c%c%c",
-                                   ((flags & ISIS_LSP_PFX_ATTR_FLAG_X) != 0) ? 'X' : '-',
-                                   ((flags & ISIS_LSP_PFX_ATTR_FLAG_R) != 0) ? 'R' : '-',
-                                   ((flags & ISIS_LSP_PFX_ATTR_FLAG_N) != 0) ? 'N' : '-');
-        }
+        dissect_prefix_attr_flags_subclv(tvb, pinfo, tree, tree_item, offset, clv_code, clv_len);
         break;
     case IP_REACH_SUBTLV_BIER_INFO:
         dissect_bierinfo_subtlv(tvb, pinfo, tree, offset, clv_len);
@@ -3286,6 +3373,42 @@ dissect_subclv_adj_sid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     /*offset += sli_len;*/
 }
+
+/*
+ * Name: dissect_srv6_sid_struct_subsubclv()
+ *
+ * Description:
+ *    Decodes a SRv6 SID Structure sub-sub-TLV (RFC 9352)
+ *
+ * Input:
+ *   tvbuff_t * : tvbuffer for packet data
+ *   packet_info * : expert error misuse reporting
+ *   proto_tree * : proto tree to build on
+ *   tree_item * : proto tree item to build on (may be null)
+ *   int : current offset into packet data
+ *   int : type of this clv
+ *   int : length of this clv
+ *
+ * Output:
+ *    void, will modify proto_tree if not null.
+ */
+static void
+dissect_srv6_sid_struct_subsubclv(tvbuff_t *tvb, packet_info* pinfo,
+                                  proto_tree *tree, proto_item *tree_item _U_,
+                                  int offset, int clv_code _U_, int clv_len)
+{
+    if (clv_len != 4) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv,
+                                     tvb, offset-2, 2,
+                                     "Invalid Sub-Sub-TLV Length %d (should be 4)", clv_len);
+        return;
+    }
+    proto_tree_add_item(tree, hf_isis_lsp_clv_srv6_sid_struct_lb_len, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_isis_lsp_clv_srv6_sid_struct_ln_len, tvb, offset+1, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_isis_lsp_clv_srv6_sid_struct_fun_len, tvb, offset+2, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_isis_lsp_clv_srv6_sid_struct_arg_len, tvb, offset+3, 1, ENC_NA);
+}
+
 /*
  * Name: dissect_sub_clv_tlv_22_22_23_141_222_223
  *
@@ -3318,6 +3441,10 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
     proto_item *ti;
     gfloat percentage;
     guint8 sabm_length = 0, udabm_length = 0;
+    gint subsubclvs_len;
+    gint ssclv_code, ssclv_len;
+    proto_tree *subsubtree = NULL;
+    proto_item *ti_subsubtree = NULL;
 
     while (i < subclvs_len) {
         /* offset for each sub-TLV */
@@ -3485,9 +3612,45 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
                                        srv6_endx_sid_flags, ENC_BIG_ENDIAN);
                 proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_alg, tvb, sub_tlv_offset+1, 1, ENC_NA);
                 proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_weight, tvb, sub_tlv_offset+2, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_endpoint_func, tvb, sub_tlv_offset+3, 2, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_endpoint_behavior, tvb, sub_tlv_offset+3, 2, ENC_NA);
                 proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_sid, tvb, sub_tlv_offset+5, 16, ENC_NA);
                 proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_subsubclvs_len, tvb, sub_tlv_offset+21, 1, ENC_NA);
+                subsubclvs_len = tvb_get_guint8(tvb, sub_tlv_offset+21);
+                local_offset = sub_tlv_offset + 22;
+                while (subsubclvs_len >= 2) {
+                    ssclv_code = tvb_get_guint8(tvb, local_offset);
+                    ssclv_len  = tvb_get_guint8(tvb, local_offset+1);
+                    subsubtree = proto_tree_add_subtree_format(subtree, tvb, local_offset, ssclv_len+2,
+                                                               ett_isis_lsp_clv_srv6_endx_sid_sub_sub_tlv,
+                                                               &ti_subsubtree, "subsubTLV: %s (c=%u, l=%u)",
+                                                               val_to_str_const(ssclv_code, isis_lsp_srv6_loc_end_sid_sub_sub_tlv_vals, "Unknown"),
+                                                               ssclv_code, ssclv_len);
+                    subsubclvs_len -= 2;
+                    local_offset += 2;
+                    if (ssclv_len > subsubclvs_len) {
+                        proto_tree_add_expert_format(subtree, pinfo,
+                                                     &ei_isis_lsp_short_clv,
+                                                     tvb, local_offset-2, 2,
+                                                     "Too short Sub-Sub-TLV length %u (%d bytes left)",
+                                                     ssclv_len, subsubclvs_len);
+                        break;
+                    }
+                    switch (ssclv_code) {
+                    case 1:
+                        /* SRv6 SID Structure (rfc9352) */
+                        dissect_srv6_sid_struct_subsubclv(tvb, pinfo, subsubtree, ti_subsubtree,
+                                                          local_offset, ssclv_code, ssclv_len);
+                        break;
+                    default:
+                        proto_tree_add_expert_format(subsubtree, pinfo, &ei_isis_lsp_subtlv, tvb,
+                                                     local_offset, ssclv_len,
+                                                     "Unknown Sub-Sub-TLV: Type: %u, Length: %u",
+                                                     ssclv_code, ssclv_len);
+                        break;
+                    }
+                    subsubclvs_len -= ssclv_len;
+                    local_offset += ssclv_len;
+                }
                 break;
             case 44:
                 /* SRv6 LAN End.X SID */
@@ -3498,9 +3661,45 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
                                        srv6_endx_sid_flags, ENC_BIG_ENDIAN);
                 proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_alg, tvb, sub_tlv_offset+7, 1, ENC_NA);
                 proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_weight, tvb, sub_tlv_offset+8, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_endpoint_func, tvb, sub_tlv_offset+9, 2, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_endpoint_behavior, tvb, sub_tlv_offset+9, 2, ENC_NA);
                 proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_sid, tvb, sub_tlv_offset+11, 16, ENC_NA);
                 proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_endx_sid_subsubclvs_len, tvb, sub_tlv_offset+27, 1, ENC_NA);
+                subsubclvs_len = tvb_get_guint8(tvb, sub_tlv_offset+27);
+                local_offset = sub_tlv_offset+28;
+                while (subsubclvs_len >= 2) {
+                    ssclv_code = tvb_get_guint8(tvb, local_offset);
+                    ssclv_len  = tvb_get_guint8(tvb, local_offset+1);
+                    subsubtree = proto_tree_add_subtree_format(subtree, tvb, local_offset, ssclv_len+2,
+                                                               ett_isis_lsp_clv_srv6_endx_sid_sub_sub_tlv,
+                                                               &ti_subsubtree, "subsubTLV: %s (c=%u, l=%u)",
+                                                               val_to_str_const(ssclv_code, isis_lsp_srv6_loc_end_sid_sub_sub_tlv_vals, "Unknown"),
+                                                               ssclv_code, ssclv_len);
+                    subsubclvs_len -= 2;
+                    local_offset += 2;
+                    if (ssclv_len > subsubclvs_len) {
+                        proto_tree_add_expert_format(subtree, pinfo,
+                                                     &ei_isis_lsp_short_clv,
+                                                     tvb, local_offset-2, 2,
+                                                     "Too short Sub-Sub-TLV length %u (%d bytes left)",
+                                                     ssclv_len, subsubclvs_len);
+                        break;
+                    }
+                    switch (ssclv_code) {
+                    case 1:
+                        /* SRv6 SID Structure (rfc9352) */
+                        dissect_srv6_sid_struct_subsubclv(tvb, pinfo, subsubtree, ti_subsubtree,
+                                                          local_offset, ssclv_code, ssclv_len);
+                        break;
+                    default:
+                        proto_tree_add_expert_format(subsubtree, pinfo, &ei_isis_lsp_subtlv, tvb,
+                                                     local_offset, ssclv_len,
+                                                     "Unknown Sub-Sub-TLV: Type: %u, Length: %u",
+                                                     ssclv_code, ssclv_len);
+                        break;
+                    }
+                    subsubclvs_len -= ssclv_len;
+                    local_offset += ssclv_len;
+                }
                 break;
             default:
                 proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_value, tvb, sub_tlv_offset, clv_len, ENC_NA);
@@ -3855,21 +4054,73 @@ dissect_lsp_ipv6_te_router_id_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
  *   void
  */
 static void
-dissect_lsp_srv6_locator_subclv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree,
-                                int offset, int clv_code, int clv_len)
+dissect_lsp_srv6_locator_subclv(tvbuff_t *tvb, packet_info *pinfo,
+                                proto_tree *subtree, proto_item *subtree_item,
+                                int offset, int length, int clv_code, int clv_len)
 {
+    gint subsubclvs_len;
+    gint ssclv_code, ssclv_len;
+    proto_tree *subsubtree;
+    proto_item *ti_subsubtree = NULL;
+
     switch (clv_code) {
+    case 4:
+        /* Prefix Attribute Flags */
+        dissect_prefix_attr_flags_subclv(tvb, pinfo, subtree, subtree_item, offset, clv_code, clv_len);
+        break;
     case 5:
         /* SRv6 End SID */
         if (clv_len < 20) {
-            proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset, clv_len,
-                                         "Invalid SubSub-TLV Length (%d vs 20)", clv_len);
+            proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset-2, clv_len+2,
+                                         "Invalid SubSub-TLV Length (%d vs min 20)", clv_len);
             break;
         }
         proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_end_sid_flags, tvb, offset, 1, ENC_NA);
-        proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_end_sid_endpoint_func, tvb, offset+1, 2, ENC_NA);
+        proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_end_sid_endpoint_behavior, tvb, offset+1, 2, ENC_NA);
         proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_end_sid_sid, tvb, offset+3, 16, ENC_NA);
         proto_tree_add_item(subtree, hf_isis_lsp_clv_srv6_end_sid_subsubclvs_len, tvb, offset+19, 1, ENC_NA);
+        subsubclvs_len = tvb_get_guint8(tvb, offset + 19);
+        offset += 20;
+        length -= 20;
+        if (subsubclvs_len > length) {
+            proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_short_clv, tvb, offset-1, 1,
+                                         "Too short SRv6 End SID Sub-Sub-TLV length %u (%d bytes left)",
+                                         subsubclvs_len, length);
+            break;
+        }
+        while (subsubclvs_len >= 2) {
+            ssclv_code = tvb_get_guint8(tvb, offset);
+            ssclv_len  = tvb_get_guint8(tvb, offset + 1);
+            subsubtree = proto_tree_add_subtree_format(subtree, tvb, offset, ssclv_len+2,
+                                                       ett_isis_lsp_clv_srv6_loc_end_sid_sub_sub_tlv,
+                                                       &ti_subsubtree,
+                                                       "subsubTLV: %s (c=%u, l=%u)",
+                                                       val_to_str_const(ssclv_code, isis_lsp_srv6_loc_end_sid_sub_sub_tlv_vals, "Unknown"),
+                                                       ssclv_code, ssclv_len);
+            offset += 2;
+            subsubclvs_len -= 2;
+            if (ssclv_len > subsubclvs_len) {
+                proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_short_clv, tvb, offset-2, 2,
+                                             "Invalid Sub-Sub-TLV length (%u vs %d bytes left)",
+                                             ssclv_len, subsubclvs_len);
+                break;
+            }
+            switch (ssclv_code) {
+            case 1:
+                /* SRv6 SID Structure (rfc9352) */
+                dissect_srv6_sid_struct_subsubclv(tvb, pinfo, subsubtree, ti_subsubtree,
+                                                  offset, ssclv_code, ssclv_len);
+                break;
+            default:
+                proto_tree_add_expert_format(subsubtree, pinfo, &ei_isis_lsp_subtlv, tvb,
+                                             offset, ssclv_len,
+                                             "Unknown Sub-Sub-TLV: Type: %u, Length: %u",
+                                             ssclv_code, ssclv_len);
+                break;
+            }
+            offset += ssclv_len;
+            subsubclvs_len -= ssclv_len;
+        }
         break;
     default:
         proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_subtlv, tvb,
@@ -3877,6 +4128,146 @@ dissect_lsp_srv6_locator_subclv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *s
                                      "Unknown Sub-TLV: Type: %u, Length: %u", clv_code, clv_len);
         break;
     }
+}
+
+/*
+ * Name: dissect_lsp_srv6_locator_entry()
+ *
+ * Description: Decode each SRv6 locator entry in SRv6 Locator TLV
+ *
+ * Input:
+ *   tvbuff_t * : tvbuffer for packet data
+ *   packet_info * : expert error misuse reporting
+ *   proto_tree * : proto tree to build on (may be null)
+ *   int : current offset into packet data
+ *   isis_data_t : data given to subdissectors
+ *   int : length of clv we are decoding
+ *
+ * Output:
+ *   int : Length of each SRv6 locator entry (-1 when it cannot dissect)
+ */
+static int
+dissect_lsp_srv6_locator_entry(tvbuff_t *tvb, packet_info* pinfo,
+                               proto_tree *tree, int offset,
+                               isis_data_t *isis _U_, int length)
+{
+    int locator_length;
+    proto_tree *loctree = NULL;
+    proto_item *ti_loctree = NULL;
+    guint32 bit_length;
+    gint byte_length;
+    ws_in6_addr prefix;
+    address prefix_addr;
+    gchar *prefix_str;
+    guint8 algorithm;
+    gint subtlv_length;
+    gint clv_code, clv_len;
+    proto_item *ti_subtree = NULL;
+    proto_tree *subtree = NULL;
+
+    if (length < 9) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, length,
+                                     "Too short SRv6 locator entry (%d vs min 9)",
+                                     length);
+        return (-1);
+    }
+
+    /* (1) Detrmine the length of each SRv6 locator entry, first */
+    /* Loc Size */
+    bit_length = tvb_get_guint8(tvb, offset+6);
+    if (bit_length <= 0 || bit_length > 128) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset+6, 1,
+                                     "Invalid SRv6 locator size %u (should be 1-128)",
+                                     bit_length);
+        return (-1);
+    }
+    byte_length = (bit_length + 7) / 8;
+    if (length < 7 + byte_length + 1) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, length,
+                                     "Too short SRv6 locator entry (%d vs min %d)",
+                                     length, 7+byte_length+1);
+        return (-1);
+    }
+
+    /* Sub-TLV Length */
+    subtlv_length = tvb_get_guint8(tvb, offset+7+byte_length);
+
+    /* Length of each SRv6 locator */
+    locator_length = (7 + byte_length + 1) + subtlv_length;
+    if (length < locator_length) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset, length,
+                                     "Too short SRv6 locator entry (%d vs %d bytes left)",
+                                     locator_length, length);
+        return (-1);
+    }
+
+    /* (2) Dissect each SRv6 locator entry */
+    loctree = proto_tree_add_subtree_format(tree, tvb, offset, locator_length,
+                                            ett_isis_lsp_clv_srv6_loc_entry,
+                                            &ti_loctree, "SRv6 Locator");
+    /* Metric */
+    proto_tree_add_item(loctree, hf_isis_lsp_srv6_loc_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    length -= 4;
+
+    /* Flags */
+    proto_tree_add_bitmask(loctree, tvb, offset, hf_isis_lsp_srv6_loc_flags,
+                           ett_isis_lsp_clv_srv6_loc_flags, srv6_locator_flags, ENC_NA);
+    offset++;
+    length--;
+
+    /* Algorithm */
+    algorithm = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(loctree, hf_isis_lsp_srv6_loc_alg, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    length--;
+
+    /* Locator Size */
+    proto_tree_add_item(loctree, hf_isis_lsp_srv6_loc_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    length--;
+
+    /* Locator */
+    (void)tvb_get_ipv6_addr_with_prefix_len(tvb, offset, &prefix, bit_length);
+    proto_tree_add_ipv6(loctree, hf_isis_lsp_srv6_loc_locator, tvb, offset, byte_length, &prefix);
+    offset += byte_length;
+    length -= byte_length;
+
+    /* Sub-TLV Length */
+    subtlv_length = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(loctree, hf_isis_lsp_srv6_loc_subclvs_len, tvb, offset, 1, ENC_NA);
+    offset++;
+    length--;
+
+    set_address(&prefix_addr, AT_IPv6, 16, prefix.bytes);
+    prefix_str = address_to_str(pinfo->pool, &prefix_addr);
+    proto_item_append_text(ti_loctree, ": %s/%u (Algorithm: %u)", prefix_str, bit_length, algorithm);
+
+    while (subtlv_length >= 2) {
+        clv_code = tvb_get_guint8(tvb, offset);
+        clv_len  = tvb_get_guint8(tvb, offset+1);
+        subtree = proto_tree_add_subtree_format(loctree, tvb, offset, clv_len + 2,
+                                                ett_isis_lsp_clv_srv6_loc_sub_tlv,
+                                                &ti_subtree, "subTLV: %s (c=%u, l=%u)",
+                                                val_to_str_const(clv_code, isis_lsp_srv6_loc_sub_tlv_vals, "Unknown"),
+                                                clv_code, clv_len);
+        proto_tree_add_item(subtree, hf_isis_lsp_srv6_loc_sub_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_isis_lsp_srv6_loc_sub_tlv_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        offset += 2;
+        subtlv_length -= 2;
+        if (clv_len > subtlv_length) {
+            proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset-1, 1,
+                                         "Invalid Sub-TLV length %u (%d bytes left)",
+                                         clv_len, subtlv_length);
+            return (-1);
+        }
+        dissect_lsp_srv6_locator_subclv(tvb, pinfo, subtree, ti_subtree, offset, subtlv_length, clv_code, clv_len);
+        offset += clv_len;
+        subtlv_length -= clv_len;
+    }
+
+    /* Return the length of each SRv6 locator entry */
+    return locator_length;
 }
 
 /*
@@ -3899,22 +4290,13 @@ dissect_lsp_srv6_locator_subclv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *s
  */
 static void
 dissect_lsp_srv6_locator_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
-                             isis_data_t *isis _U_, int length)
+                             isis_data_t *isis, int length)
 {
-    int min_tlv_len = 13;
-    ws_in6_addr prefix;
-    guint32 bit_length;
-    int byte_length;
-    int i, subtlv_length;
-    guint clv_code, clv_len;
-    int clv_offset;
-    proto_item *ti_subtree = NULL;
-    proto_tree *subtree = NULL;
+    int locator_length;
 
-    if (length < min_tlv_len) {
+    if (length < 11) {
         proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, length,
-                                     "Short LSP SRv6 locator (%d vs %d)",
-                                     length, min_tlv_len);
+                                     "Too short LSP SRv6 locator TLV (%d vs min 11)", length);
         return;
     }
 
@@ -3923,79 +4305,14 @@ dissect_lsp_srv6_locator_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree
     offset += 2;
     length -= 2;
 
-    /* Metric */
-    proto_tree_add_item(tree, hf_isis_lsp_srv6_loc_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset += 4;
-    length -= 4;
-
-    /* Flags */
-    proto_tree_add_bitmask(tree, tvb, offset, hf_isis_lsp_srv6_loc_flags,
-                           ett_isis_lsp_clv_srv6_loc_flags, srv6_locator_flags, ENC_NA);
-    offset++;
-    length--;
-
-    /* Algorithm */
-    proto_tree_add_item(tree, hf_isis_lsp_srv6_loc_alg, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
-    length--;
-
-    /* Locator Size */
-    bit_length = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_isis_lsp_srv6_loc_size, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
-    length--;
-
-    /* Locator */
-    byte_length = tvb_get_ipv6_addr_with_prefix_len(tvb, offset, &prefix, bit_length);
-    if (byte_length < 0) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_length_invalid, tvb, offset - 1, length,
-                                     "Invalid locator size %u", bit_length);
-        return;
-    }
-    if (length < byte_length + 1) { /* including Sub-tlv-len */
-        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, length,
-                                     "Invalid locator length %u (%d bytes left)",
-                                     byte_length, length);
-        return;
-    }
-    proto_tree_add_ipv6(tree, hf_isis_lsp_srv6_loc_locator, tvb, offset, byte_length, &prefix);
-    offset += byte_length;
-    length -= byte_length;
-
-    /* Sub-TLV Length */
-    subtlv_length = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_isis_lsp_srv6_loc_subclvs_len, tvb, offset, 1, ENC_NA);
-    offset++;
-    length--;
-
-    if (length < subtlv_length) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset, length,
-                                     "Invalid Sub-TLV length %d (%d bytes left)",
-                                     subtlv_length, length);
-        return;
-    }
-
-    i = 0;
-    while (i < subtlv_length) {
-        clv_offset = offset + i;
-        clv_code = tvb_get_guint8(tvb, clv_offset);
-        clv_len  = tvb_get_guint8(tvb, clv_offset+1);
-        subtree = proto_tree_add_subtree(tree, tvb, clv_offset, clv_len + 2,
-                                         ett_isis_lsp_clv_srv6_loc_sub_tlv,
-                                         &ti_subtree, "subTLV");
-        proto_tree_add_item(subtree, hf_isis_lsp_srv6_loc_sub_tlv_type, tvb, clv_offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(subtree, hf_isis_lsp_srv6_loc_sub_tlv_length, tvb, clv_offset+1, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti_subtree, ": %s (c=%u, l=%u)",
-                               val_to_str_const(clv_code, isis_lsp_srv6_loc_sub_tlv_vals, "Unknown"),
-                               clv_code, clv_len);
-        if (i + ((int)clv_len + 2) > subtlv_length) {
-            proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, clv_offset+2, (subtlv_length-(i+2)),
-                                         "Invalid Sub-TLV length %u (%d bytes left)",
-                                         clv_len, subtlv_length-(i+2));
+    /* Dissect each SRv6 Locator */
+    while (length > 0) {
+        locator_length = dissect_lsp_srv6_locator_entry(tvb, pinfo, tree, offset, isis, length);
+        if (locator_length < 0) {
             break;
         }
-        dissect_lsp_srv6_locator_subclv(tvb, pinfo, subtree, clv_offset+2, clv_code, clv_len);
-        i += (clv_len + 2);
+        offset += locator_length;
+        length -= locator_length;
     }
 }
 
@@ -6127,9 +6444,9 @@ proto_register_isis_lsp(void)
               FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x4000,
               NULL, HFILL }
         },
-        { &hf_isis_lsp_clv_srv6_cap_flags_unused,
-            { "Unused", "isis.lsp.srv6_cap.flags.unused",
-              FT_UINT16, BASE_HEX, NULL, 0xbfff,
+        { &hf_isis_lsp_clv_srv6_cap_flags_reserved,
+            { "Reserved", "isis.lsp.srv6_cap.flags.reserved",
+              FT_UINT16, BASE_HEX, NULL, 0x3fff,
               NULL, HFILL }
         },
 
@@ -6144,7 +6461,7 @@ proto_register_isis_lsp(void)
               NULL, HFILL }
         },
         { &hf_isis_lsp_srv6_loc_flags_d,
-            { "Down bit", "isis.lsp.srv6_locator.flags.d",
+            { "Down flag", "isis.lsp.srv6_locator.flags.d",
               FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
               NULL, HFILL }
         },
@@ -6189,8 +6506,8 @@ proto_register_isis_lsp(void)
               FT_UINT8, BASE_HEX, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_isis_lsp_clv_srv6_end_sid_endpoint_func,
-            { "SRv6 Endpoint Function", "isis.lsp.srv6_end_sid.endpoint_function",
+        { &hf_isis_lsp_clv_srv6_end_sid_endpoint_behavior,
+            { "Endpoint Behavior", "isis.lsp.srv6_end_sid.endpoint_behavior",
               FT_UINT16, BASE_DEC, VALS(srv6_endpoint_type_vals), 0x0,
               NULL, HFILL }
         },
@@ -6230,6 +6547,11 @@ proto_register_isis_lsp(void)
               FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
               NULL, HFILL }
         },
+        { &hf_isis_lsp_clv_srv6_endx_sid_flags_reserved,
+            { "Reserved", "isis.lsp.srv6_endx_sid.flags.reserved",
+              FT_UINT8, BASE_HEX, NULL, 0x1f,
+              NULL, HFILL }
+        },
         { &hf_isis_lsp_clv_srv6_endx_sid_alg,
           { "Algorithm", "isis.lsp.srv6_endx_sid.algorithm",
             FT_UINT8, BASE_DEC, VALS(isis_igp_alg_vals), 0x0,
@@ -6240,8 +6562,8 @@ proto_register_isis_lsp(void)
               FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_isis_lsp_clv_srv6_endx_sid_endpoint_func,
-            { "SRv6 Endpoint Function", "isis.lsp.srv6_endx_sid.endpoint_function",
+        { &hf_isis_lsp_clv_srv6_endx_sid_endpoint_behavior,
+            { "Endpoint Behavior", "isis.lsp.srv6_endx_sid.endpoint_behavior",
               FT_UINT16, BASE_DEC, VALS(srv6_endpoint_type_vals), 0x0,
               NULL, HFILL }
         },
@@ -6252,6 +6574,28 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_clv_srv6_endx_sid_subsubclvs_len,
             { "SubSubCLV Length", "isis.lsp.srv6_endx_sid.subsubclvs_length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+
+        /* rfc9352 */
+        { &hf_isis_lsp_clv_srv6_sid_struct_lb_len,
+            { "Locator Block Length", "isis.lsp.srv6_sid_struct.lb_length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_srv6_sid_struct_ln_len,
+            { "Locator Node Length", "isis.lsp.srv6_sid_struct.ln_length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_srv6_sid_struct_fun_len,
+            { "Function Length", "isis.lsp.srv6_sid_struct.fun_length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_srv6_sid_struct_arg_len,
+            { "Arguments Length", "isis.lsp.srv6_sid_struct.arg_length",
               FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
@@ -6697,9 +7041,12 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_srv6_cap_flags,
         &ett_isis_lsp_clv_ipv6_te_rtrid,
         &ett_isis_lsp_clv_srv6_endx_sid_flags,
+        &ett_isis_lsp_clv_srv6_endx_sid_sub_sub_tlv,
         &ett_isis_lsp_clv_srv6_locator,
+        &ett_isis_lsp_clv_srv6_loc_entry,
         &ett_isis_lsp_clv_srv6_loc_flags,
         &ett_isis_lsp_clv_srv6_loc_sub_tlv,
+        &ett_isis_lsp_clv_srv6_loc_end_sid_sub_sub_tlv,
         &ett_isis_lsp_clv_flex_algo_def,
         &ett_isis_lsp_clv_flex_algo_def_sub_tlv,
         &ett_isis_lsp_clv_app_sabm_bits,
