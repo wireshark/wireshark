@@ -185,6 +185,30 @@ typedef LONG (WINAPI * RtlGetVersionProc) (OSVERSIONINFOEX *);
 #include <stdlib.h>
 
 /*
+ * Determine whether it's 32-bit or 64-bit Windows based on the
+ * instruction set; this only tests for the instruction sets
+ * that we currently support for Windows, it doesn't bother with MIPS,
+ * PowerPC, Alpha, or IA-64, nor does it bother wieth 32-bit ARM.
+ */
+static void
+add_os_bitsize(GString *str, SYSTEM_INFO *system_info)
+{
+	switch (system_info->wProcessorArchitecture) {
+	case PROCESSOR_ARCHITECTURE_AMD64:
+#ifdef PROCESSOR_ARCHITECTURE_ARM64
+	case PROCESSOR_ARCHITECTURE_ARM64:
+#endif
+		g_string_append(str, "64-bit ");
+		break;
+	case PROCESSOR_ARCHITECTURE_INTEL:
+		g_string_append(str, "32-bit ");
+		break;
+	default:
+		break;
+	}
+}
+
+/*
  * Test whether the OS an "NT Workstation" version, meaning "not server".
  */
 static gboolean
@@ -239,8 +263,33 @@ DIAG_ON(cast-function-type)
 
 	SYSTEM_INFO system_info;
 	memset(&system_info, '\0', sizeof system_info);
-	/* Look for and use the GetNativeSystemInfo() function to get the correct processor architecture
-	 * even when running 32-bit Wireshark in WOW64 (x86 emulation on 64-bit Windows) */
+	/*
+	 * Look for and use the GetNativeSystemInfo() function to get the
+	 * correct processor architecture even when running 32-bit Wireshark
+	 * in WOW64 (x86 emulation on 64-bit Windows).
+	 *
+	 * However, the documentation for GetNativeSystemInfo() says
+	 *
+	 *   If the function is called from an x86 or x64 application
+	 *   running on a 64-bit system that does not have an Intel64
+	 *   or x64 processor (such as ARM64), it will return information
+	 *   as if the system is x86 only if x86 emulation is supported
+	 *   (or x64 if x64 emulation is also supported).
+	 *
+	 * so it appears that it will *not* return the correct processor
+	 * architecture if running x86-64 Wireshark on ARM64 with
+	 * x86-64 emulation - it will presumably say "x86-64", not "ARM64".
+	 *
+	 * So we use it to say "32-bit" or "64-bit", but we don't use
+	 * it to say "N-bit x86" or "N-bit ARM".
+	 *
+	 * It Would Be Nice if there were some way to report that
+	 * Wireshark is running in emulation on an ARM64 system;
+	 * that might be important if, for example, a user is
+	 * reporting a capture problem, as there currently isn't
+	 * a version of Npcap that can support x86-64 programs on
+	 * an ARM64 system.
+	 */
 	GetNativeSystemInfo(&system_info);
 
 	switch (win_version_info.dwPlatformId) {
@@ -377,10 +426,7 @@ DIAG_ON(cast-function-type)
 			/*
 			 * Vista, W7, W8, W8.1, and their server versions.
 			 */
-			if (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
-				g_string_append(str, "64-bit ");
-			else if (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
-				g_string_append(str, "32-bit ");
+			add_os_bitsize(str, &system_info);
 			switch (win_version_info.dwMinorVersion) {
 			case 0:
 				g_string_append_printf(str, is_nt_workstation(&win_version_info) ? "Windows Vista" : "Windows Server 2008");
@@ -409,10 +455,7 @@ DIAG_ON(cast-function-type)
                         TCHAR ReleaseId[10];
                         DWORD ridSize = _countof(ReleaseId);
 
-			if (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
-				g_string_append(str, "64-bit ");
-			else if (system_info.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_INTEL)
-				g_string_append(str, "32-bit ");
+			add_os_bitsize(str, &system_info);
 			switch (win_version_info.dwMinorVersion) {
 			case 0:
 				/* List of BuildNumber from https://en.wikipedia.org/wiki/List_of_Microsoft_Windows_versions
