@@ -491,7 +491,7 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
         proto_tree_add_bits_item(amr_tree, hf_amr_wb_cmr, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 
     bit_offset += 4;
-    item = proto_tree_add_item(amr_tree, hf_amr_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(amr_tree, hf_amr_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset     += 1;
     bit_offset += 4;
     /*
