@@ -455,7 +455,7 @@ mark_frame_as_depended_upon(frame_data *fd, guint32 frame_num)
 		if (fd->dependent_frames == NULL) {
 			fd->dependent_frames = g_hash_table_new(g_direct_hash, g_direct_equal);
 		}
-		g_hash_table_insert(fd->dependent_frames, GUINT_TO_POINTER(frame_num), NULL);
+		g_hash_table_add(fd->dependent_frames, GUINT_TO_POINTER(frame_num));
 	}
 }
 
