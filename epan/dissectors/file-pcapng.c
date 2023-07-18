@@ -114,7 +114,7 @@ static int hf_pcapng_interface_description_snap_length = -1;
 static int hf_pcapng_packet_block_interface_id = -1;
 static int hf_pcapng_packet_block_drops_count = -1;
 static int hf_pcapng_captured_length = -1;
-static int hf_pcapng_packet_length = -1;
+static int hf_pcapng_original_length = -1;
 static int hf_pcapng_packet_data = -1;
 static int hf_pcapng_packet_padding = -1;
 static int hf_pcapng_interface_id = -1;
@@ -1473,7 +1473,7 @@ dissect_pb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     guint32 interface_id;
     struct interface_description *interface_description;
     guint32 captured_length;
-    guint32 reported_length;
+    guint32 original_length;
     proto_item *packet_data_item;
 
     proto_item_append_text(argp->block_item, " %u", argp->info->frame_number);
@@ -1493,7 +1493,7 @@ dissect_pb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     proto_tree_add_item_ret_uint(tree, hf_pcapng_captured_length, tvb, offset, 4, argp->info->encoding, &captured_length);
     offset += 4;
 
-    proto_tree_add_item_ret_uint(tree, hf_pcapng_packet_length, tvb, offset, 4, argp->info->encoding, &reported_length);
+    proto_tree_add_item_ret_uint(tree, hf_pcapng_original_length, tvb, offset, 4, argp->info->encoding, &original_length);
     offset += 4;
 
     packet_data_item = proto_tree_add_item(tree, hf_pcapng_packet_data, tvb, offset, captured_length, argp->info->encoding);
@@ -1504,7 +1504,7 @@ dissect_pb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         pinfo->num = argp->info->frame_number;
 
         TRY {
-            call_dissector_with_data(pcap_pktdata_handle, tvb_new_subset_length_caplen(tvb, offset, captured_length, reported_length),
+            call_dissector_with_data(pcap_pktdata_handle, tvb_new_subset_length_caplen(tvb, offset, captured_length, original_length),
                                      pinfo, packet_data_tree, &interface_description->link_type);
         }
         CATCH_BOUNDS_ERRORS {
@@ -1531,7 +1531,7 @@ dissect_spb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     struct interface_description *interface_description;
     proto_item *ti;
     volatile guint32 captured_length;
-    guint32 reported_length;
+    guint32 original_length;
     proto_item *packet_data_item;
 
     interface_description = get_interface_description(argp->info, 0,
@@ -1539,12 +1539,12 @@ dissect_spb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
     proto_item_append_text(argp->block_item, " %u", argp->info->frame_number);
 
-    proto_tree_add_item_ret_uint(tree, hf_pcapng_packet_length, tvb, offset, 4, argp->info->encoding, &reported_length);
+    proto_tree_add_item_ret_uint(tree, hf_pcapng_original_length, tvb, offset, 4, argp->info->encoding, &original_length);
     offset += 4;
 
-    captured_length = reported_length;
+    captured_length = original_length;
     if (interface_description && interface_description->snap_len != 0) {
-        captured_length = MIN(reported_length, interface_description->snap_len);
+        captured_length = MIN(original_length, interface_description->snap_len);
     }
     ti = proto_tree_add_uint(tree, hf_pcapng_captured_length, tvb, 0, 0, captured_length);
     proto_item_set_generated(ti);
@@ -1723,7 +1723,7 @@ dissect_epb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     guint32 interface_id;
     struct interface_description *interface_description;
     guint32 captured_length;
-    guint32 reported_length;
+    guint32 original_length;
     proto_item *packet_data_item;
 
     proto_item_append_text(argp->block_item, " %u", argp->info->frame_number);
@@ -1740,7 +1740,7 @@ dissect_epb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     proto_tree_add_item_ret_uint(tree, hf_pcapng_captured_length, tvb, offset, 4, argp->info->encoding, &captured_length);
     offset += 4;
 
-    proto_tree_add_item_ret_uint(tree, hf_pcapng_packet_length, tvb, offset, 4, argp->info->encoding, &reported_length);
+    proto_tree_add_item_ret_uint(tree, hf_pcapng_original_length, tvb, offset, 4, argp->info->encoding, &original_length);
     offset += 4;
 
     packet_data_item = proto_tree_add_item(tree, hf_pcapng_packet_data, tvb, offset, captured_length, argp->info->encoding);
@@ -1751,7 +1751,7 @@ dissect_epb_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         pinfo->num = argp->info->frame_number;
 
         TRY {
-            call_dissector_with_data(pcap_pktdata_handle, tvb_new_subset_length_caplen(tvb, offset, captured_length, reported_length),
+            call_dissector_with_data(pcap_pktdata_handle, tvb_new_subset_length_caplen(tvb, offset, captured_length, original_length),
                                      pinfo, packet_data_tree, &interface_description->link_type);
         }
         CATCH_BOUNDS_ERRORS {
@@ -2569,12 +2569,12 @@ proto_register_pcapng(void)
             NULL, HFILL }
         },
         { &hf_pcapng_captured_length,
-            { "Captured Length",                           "pcapng.packet.captured_length",
+            { "Captured Packet Length",                    "pcapng.packet.captured_length",
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
-        { &hf_pcapng_packet_length,
-            { "Packet Length",                             "pcapng.packet.packet_length",
+        { &hf_pcapng_original_length,
+            { "Original Packet Length",                    "pcapng.packet.original_length",
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },

@@ -37,12 +37,12 @@ static int hf_pcap_packet = -1;
 static int hf_pcap_packet_timestamp = -1;
 static int hf_pcap_packet_timestamp_sec = -1;
 static int hf_pcap_packet_timestamp_usec = -1;
-static int hf_pcap_packet_included_length = -1;
-static int hf_pcap_packet_origin_length = -1;
+static int hf_pcap_packet_captured_length = -1;
+static int hf_pcap_packet_original_length = -1;
 static int hf_pcap_packet_data = -1;
 
-static expert_field ei_pcap_inc_larger_than_orig = EI_INIT;
-static expert_field ei_pcap_inc_larger_than_snap = EI_INIT;
+static expert_field ei_pcap_capt_larger_than_orig = EI_INIT;
+static expert_field ei_pcap_capt_larger_than_snap = EI_INIT;
 
 static gint ett_pcap = -1;
 static gint ett_pcap_header = -1;
@@ -84,13 +84,13 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_item      *timestamp_item;
     proto_tree      *packet_data_tree;
     proto_item      *packet_data_item;
-    proto_item      *inc_len_item;
+    proto_item      *capt_len_item;
     volatile guint32 encoding;
     volatile guint   timestamp_scale_factor;
     const char      *magic;
     guint32          snap_length;
-    guint32          origin_length;
-    guint32          length;
+    guint32          captured_length;
+    guint32          original_length;
     guint32          link_type;
     volatile guint32 frame_number = 1;
     nstime_t         timestamp;
@@ -165,25 +165,25 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         proto_tree_add_item(timestamp_tree, hf_pcap_packet_timestamp_usec, tvb, offset, 4, encoding);
         offset += 4;
 
-        inc_len_item = proto_tree_add_item_ret_uint(packet_tree, hf_pcap_packet_included_length, tvb, offset, 4, encoding, &length);
+        capt_len_item = proto_tree_add_item_ret_uint(packet_tree, hf_pcap_packet_captured_length, tvb, offset, 4, encoding, &captured_length);
         offset += 4;
 
-        proto_tree_add_item_ret_uint(packet_tree, hf_pcap_packet_origin_length, tvb, offset, 4, encoding, &origin_length);
+        proto_tree_add_item_ret_uint(packet_tree, hf_pcap_packet_original_length, tvb, offset, 4, encoding, &original_length);
         offset += 4;
 
-        if (length > snap_length)
+        if (captured_length > snap_length)
         {
-            expert_add_info(pinfo, inc_len_item,
-                    &ei_pcap_inc_larger_than_snap);
+            expert_add_info(pinfo, capt_len_item,
+                    &ei_pcap_capt_larger_than_snap);
         }
 
-        if (length > origin_length) {
-            expert_add_info(pinfo, inc_len_item,
-                    &ei_pcap_inc_larger_than_orig);
+        if (captured_length > original_length) {
+            expert_add_info(pinfo, capt_len_item,
+                    &ei_pcap_capt_larger_than_orig);
             break;
         }
 
-        packet_data_item = proto_tree_add_item(packet_tree, hf_pcap_packet_data, tvb, offset, length, ENC_NA);
+        packet_data_item = proto_tree_add_item(packet_tree, hf_pcap_packet_data, tvb, offset, captured_length, ENC_NA);
         packet_data_tree = proto_item_add_subtree(packet_data_item, ett_pcap_packet_data);
 
         pinfo->num = frame_number;
@@ -191,16 +191,16 @@ dissect_pcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
         if (pref_dissect_next_layer) {
             TRY {
-                call_dissector_with_data(pcap_pktdata_handle, tvb_new_subset_length_caplen(tvb, offset, length, origin_length), pinfo, packet_data_tree, &link_type);
+                call_dissector_with_data(pcap_pktdata_handle, tvb_new_subset_length_caplen(tvb, offset, captured_length, original_length), pinfo, packet_data_tree, &link_type);
             }
             CATCH_BOUNDS_ERRORS {
                 show_exception(tvb, pinfo, packet_data_tree, EXCEPT_CODE, GET_MESSAGE);
             }
             ENDTRY;
         }
-        offset += length;
+        offset += captured_length;
 
-        proto_item_set_len(packet_item, 4 * 4 + length);
+        proto_item_set_len(packet_item, 4 * 4 + captured_length);
         frame_number += 1;
     }
 
@@ -280,13 +280,13 @@ proto_register_file_pcap(void)
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
-        { &hf_pcap_packet_included_length,
-            { "Included Length",                           "pcap.packet.included_length",
+        { &hf_pcap_packet_captured_length,
+            { "Captured Packet Length",                    "pcap.packet.captured_length",
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
-        { &hf_pcap_packet_origin_length,
-            { "Origin Length",                             "pcap.packet.origin_length",
+        { &hf_pcap_packet_original_length,
+            { "Original Packet Length",                    "pcap.packet.original_length",
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
@@ -298,13 +298,13 @@ proto_register_file_pcap(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_pcap_inc_larger_than_orig,
-            { "pcap.inc_len_larger_than_orig_len", PI_MALFORMED, PI_ERROR,
-                "included length is larger than original length",
+        { &ei_pcap_capt_larger_than_orig,
+            { "pcap.capt_len_larger_than_orig_len", PI_MALFORMED, PI_ERROR,
+                "captureed length is larger than original length",
                 EXPFILL }},
-        { &ei_pcap_inc_larger_than_snap,
-            { "pcap.inc_len_larger_than_snap_len", PI_PROTOCOL, PI_WARN,
-                "included length is larger than snapshot length",
+        { &ei_pcap_capt_larger_than_snap,
+            { "pcap.capt_len_larger_than_snap_len", PI_PROTOCOL, PI_WARN,
+                "captureed length is larger than snapshot length",
                 EXPFILL }}
     };
 
