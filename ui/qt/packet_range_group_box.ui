@@ -253,6 +253,16 @@
      </property>
     </widget>
    </item>
+   <item row="8" column="2">
+    <widget class="QLabel" name="dependedCapturedLabel">
+     <property name="text">
+      <string>-</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
    <item row="8" column="3">
     <widget class="QLabel" name="dependedDisplayedLabel">
      <property name="text">

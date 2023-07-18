@@ -56,6 +56,10 @@ typedef struct packet_range_tag {
     guint32       mark_range_cnt;         /* packets in marked range */
     guint32       user_range_cnt;         /* packets in user specified range */
     guint32       selection_range_cnt;    /* packets in the selected range */
+    guint32       marked_plus_depends_cnt;
+    guint32       mark_range_plus_depends_cnt;
+    guint32       user_range_plus_depends_cnt;
+    guint32       selected_plus_depends_cnt;
     guint32       ignored_cnt;            /* packets ignored */
     guint32       ignored_marked_cnt;     /* packets ignored and marked */
     guint32       ignored_mark_range_cnt; /* packets ignored in marked range */
@@ -68,19 +72,30 @@ typedef struct packet_range_tag {
     guint32  displayed_marked_cnt;
     guint32  displayed_mark_range_cnt;
     guint32  displayed_user_range_cnt;
-    guint32  displayed_plus_dependents_mark_range_cnt;
-    guint32  displayed_plus_dependents_user_range_cnt;
+    guint32  displayed_marked_plus_depends_cnt;
+    guint32  displayed_mark_range_plus_depends_cnt;
+    guint32  displayed_user_range_plus_depends_cnt;
     guint32  displayed_selection_range_cnt;
+    guint32  displayed_selected_plus_depends_cnt;
     guint32  displayed_ignored_cnt;
     guint32  displayed_ignored_marked_cnt;
     guint32  displayed_ignored_mark_range_cnt;
     guint32  displayed_ignored_user_range_cnt;
     guint32  displayed_ignored_selection_range_cnt;
 
+    /* Sets of the chosen frames plus any they depend on for each case */
+    GHashTable *marked_plus_depends;
+    GHashTable *displayed_marked_plus_depends;
+    GHashTable *mark_range_plus_depends;
+    GHashTable *displayed_mark_range_plus_depends;
+    GHashTable *user_range_plus_depends;
+    GHashTable *displayed_user_range_plus_depends;
+    GHashTable *selected_plus_depends;
+    GHashTable *displayed_selected_plus_depends;
+
     /* "enumeration" values */
     gboolean marked_range_active;   /* marked range is currently processed */
     guint32  marked_range_left;     /* marked range packets left to do */
-    gboolean selected_done;         /* selected packet already processed */
 } packet_range_t;
 
 typedef enum {

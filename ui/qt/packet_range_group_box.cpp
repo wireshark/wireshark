@@ -72,7 +72,7 @@ void PacketRangeGroupBox::updateCounts() {
     bool can_select;
     bool selected_packets;
     int ignored_cnt = 0, displayed_ignored_cnt = 0;
-    int depended_cnt = 0;
+    int depended_cnt = 0, displayed_depended_cnt = 0;
     int label_count;
 
     if (!range_ || !range_->cf) return;
@@ -112,8 +112,13 @@ void PacketRangeGroupBox::updateCounts() {
         pr_ui_->selectedCapturedLabel->setEnabled(!displayed_checked);
         pr_ui_->selectedDisplayedLabel->setEnabled(displayed_checked);
 
-        pr_ui_->selectedCapturedLabel->setText(QString::number(range_->selection_range_cnt));
-        pr_ui_->selectedDisplayedLabel->setText(QString::number(range_->displayed_selection_range_cnt));
+        if (range_->include_dependents) {
+            pr_ui_->selectedCapturedLabel->setText(QString::number(range_->selected_plus_depends_cnt));
+            pr_ui_->selectedDisplayedLabel->setText(QString::number(range_->displayed_selected_plus_depends_cnt));
+        } else {
+            pr_ui_->selectedCapturedLabel->setText(QString::number(range_->selection_range_cnt));
+            pr_ui_->selectedDisplayedLabel->setText(QString::number(range_->displayed_selection_range_cnt));
+        }
     } else {
         if (range_->process == range_process_selected) {
             pr_ui_->allButton->setChecked(true);
@@ -144,12 +149,20 @@ void PacketRangeGroupBox::updateCounts() {
         pr_ui_->markedCapturedLabel->setEnabled(false);
         pr_ui_->markedDisplayedLabel->setEnabled(false);
     }
-    label_count = range_->cf->marked_count;
+    if (range_->include_dependents) {
+        label_count = range_->marked_plus_depends_cnt;
+    } else {
+        label_count = range_->cf->marked_count;
+    }
     if (range_->remove_ignored) {
         label_count -= range_->ignored_marked_cnt;
     }
     pr_ui_->markedCapturedLabel->setText(QString("%1").arg(label_count));
-    label_count = range_->displayed_marked_cnt;
+    if (range_->include_dependents) {
+        label_count = range_->displayed_marked_plus_depends_cnt;
+    } else {
+        label_count = range_->displayed_marked_cnt;
+    }
     if (range_->remove_ignored) {
         label_count -= range_->displayed_ignored_marked_cnt;
     }
@@ -173,13 +186,17 @@ void PacketRangeGroupBox::updateCounts() {
         pr_ui_->ftlCapturedLabel->setEnabled(false);
         pr_ui_->ftlDisplayedLabel->setEnabled(false);
     }
-    label_count = range_->mark_range_cnt;
+    if (range_->include_dependents) {
+        label_count = range_->mark_range_plus_depends_cnt;
+    } else {
+        label_count = range_->mark_range_cnt;
+    }
     if (range_->remove_ignored) {
         label_count -= range_->ignored_mark_range_cnt;
     }
     pr_ui_->ftlCapturedLabel->setText(QString("%1").arg(label_count));
     if (range_->include_dependents) {
-        label_count = range_->displayed_plus_dependents_mark_range_cnt;
+        label_count = range_->displayed_mark_range_plus_depends_cnt;
     } else {
         label_count = range_->displayed_mark_range_cnt;
     }
@@ -199,13 +216,17 @@ void PacketRangeGroupBox::updateCounts() {
     switch (packet_range_check(range_)) {
 
     case CVT_NO_ERROR:
-        label_count = range_->user_range_cnt;
+        if (range_->include_dependents) {
+            label_count = range_->user_range_plus_depends_cnt;
+        } else {
+            label_count = range_->user_range_cnt;
+        }
         if (range_->remove_ignored) {
             label_count -= range_->ignored_user_range_cnt;
         }
         pr_ui_->rangeCapturedLabel->setText(QString("%1").arg(label_count));
         if (range_->include_dependents) {
-            label_count = range_->displayed_plus_dependents_user_range_cnt;
+            label_count = range_->displayed_user_range_plus_depends_cnt;
         } else {
             label_count = range_->displayed_user_range_cnt;
         }
@@ -276,25 +297,51 @@ void PacketRangeGroupBox::updateCounts() {
     pr_ui_->ignoredCapturedLabel->setText(QString("%1").arg(ignored_cnt));
     pr_ui_->ignoredDisplayedLabel->setText(QString("%1").arg(displayed_ignored_cnt));
 
-    // Depended upon Displayed (no effect for Captured)
+    // Depended upon / Displayed + Captured
     switch(range_->process) {
     case(range_process_all):
-        depended_cnt = range_->displayed_plus_dependents_cnt - range_->displayed_cnt;
+        depended_cnt = 0;
+        displayed_depended_cnt = range_->displayed_plus_dependents_cnt - range_->displayed_cnt;
+        break;
+    case(range_process_selected):
+        depended_cnt = range_->selected_plus_depends_cnt - range_->selection_range_cnt;
+        displayed_depended_cnt = range_->displayed_selected_plus_depends_cnt - range_->displayed_selection_range_cnt;
+        break;
+    case(range_process_marked):
+        depended_cnt = range_->marked_plus_depends_cnt - range_->cf->marked_count;
+        displayed_depended_cnt = range_->displayed_marked_plus_depends_cnt - range_->displayed_marked_cnt;
         break;
     case(range_process_marked_range):
-        depended_cnt = range_->displayed_plus_dependents_mark_range_cnt - range_->displayed_mark_range_cnt;
+        depended_cnt = range_->mark_range_plus_depends_cnt - range_->mark_range_cnt;
+        displayed_depended_cnt = range_->displayed_mark_range_plus_depends_cnt - range_->displayed_mark_range_cnt;
         break;
     case(range_process_user_range):
-        depended_cnt = range_->displayed_plus_dependents_user_range_cnt - range_->displayed_user_range_cnt;
+        depended_cnt = range_->user_range_plus_depends_cnt - range_->user_range_cnt;
+        displayed_depended_cnt = range_->displayed_user_range_plus_depends_cnt - range_->displayed_user_range_cnt;
         break;
     default:
         depended_cnt = 0;
+        displayed_depended_cnt = 0;
         break;
     }
 
-    pr_ui_->dependedCheckBox->setEnabled(depended_cnt > 0);
-    pr_ui_->dependedDisplayedLabel->setEnabled(depended_cnt > 0);
-    pr_ui_->dependedDisplayedLabel->setText(QString("%1").arg(depended_cnt));
+    if (displayed_checked) {
+        selected_packets = (displayed_depended_cnt != 0);
+    } else {
+        selected_packets = (depended_cnt != 0);
+    }
+
+    if (selected_packets) {
+        pr_ui_->dependedCheckBox->setEnabled(true);
+        pr_ui_->dependedCapturedLabel->setEnabled(!displayed_checked);
+        pr_ui_->dependedDisplayedLabel->setEnabled(displayed_checked);
+    } else {
+        pr_ui_->dependedCheckBox->setEnabled(false);
+        pr_ui_->dependedCapturedLabel->setEnabled(false);
+        pr_ui_->dependedDisplayedLabel->setEnabled(false);
+    }
+    pr_ui_->dependedCapturedLabel->setText(QString("%1").arg(depended_cnt));
+    pr_ui_->dependedDisplayedLabel->setText(QString("%1").arg(displayed_depended_cnt));
 
     if (orig_ss != syntax_state_) {
         pr_ui_->rangeLineEdit->setSyntaxState(syntax_state_);
