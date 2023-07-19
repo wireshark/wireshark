@@ -14703,7 +14703,7 @@ proto_register_btatt(void)
         },
         {&hf_btatt_indoor_positioning_configuration_reserved,
             {"Reserved", "btatt.indoor_positioning_configuration.reserved",
-            FT_UINT8, BASE_HEX, NULL, 0xC0,
+            FT_UINT8, BASE_HEX, NULL, 0x80,
             NULL, HFILL}
         },
         {&hf_btatt_indoor_positioning_configuration_location_name,
@@ -15130,7 +15130,7 @@ proto_register_btatt(void)
         },
         {&hf_btatt_cycling_power_control_point_content_mask_reserved,
             {"Reserved", "btatt.cycling_power_control_point.content_mask.reserved",
-            FT_UINT16, BASE_HEX, NULL, 0x0FE0,
+            FT_UINT16, BASE_HEX, NULL, 0xFE00,
             NULL, HFILL}
         },
         {&hf_btatt_cycling_power_control_point_content_mask_accumulated_energy,

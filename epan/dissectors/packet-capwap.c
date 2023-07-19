@@ -4403,7 +4403,7 @@ proto_register_capwap_control(void)
         },
         { &hf_capwap_msg_element_type_ieee80211_direct_sequence_control_energy_detect_threshold,
             { "Energy Detect Threshold", "capwap.control.message_element.ieee80211_direct_sequence_control.energy_detect_threshold",
-              FT_UINT8, BASE_DEC, NULL, 0x0,
+              FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ieee80211_ie_radio_id,

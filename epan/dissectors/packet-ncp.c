@@ -1428,7 +1428,7 @@ proto_register_ncp(void)
             NULL, HFILL }},
         { &hf_ncp_oplock_handle,
           { "File Handle",                      "ncp.oplock_handle",
-            FT_UINT16, BASE_HEX, NULL, 0x0,
+            FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
         { &hf_ncp_stream_type,
           { "Stream Type",                      "ncp.stream_type",

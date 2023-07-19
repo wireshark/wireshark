@@ -6138,7 +6138,7 @@ void proto_register_fp(void)
             },
             { &hf_fp_cfn,
               { "CFN",
-                "fp.cfn", FT_UINT8, BASE_DEC, NULL, 0xff,
+                "fp.cfn", FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Connection Frame Number", HFILL
               }
             },
@@ -6156,7 +6156,7 @@ void proto_register_fp(void)
             },
             { &hf_fp_cfn_control,
               { "CFN control",
-                "fp.cfn-control", FT_UINT8, BASE_DEC, NULL, 0xff,
+                "fp.cfn-control", FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Connection Frame Number Control", HFILL
               }
             },

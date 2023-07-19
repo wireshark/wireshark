@@ -1335,7 +1335,7 @@ proto_register_cdp(void)
           NULL, HFILL }},
 
         { &hf_cdp_nrgyz_tlvlength,
-        { "TLV Length",             "cdp.nrgyz.tlv.len", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "TLV Length",             "cdp.nrgyz.tlv.len", FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }},
 
         { &hf_cdp_deviceid,

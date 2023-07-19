@@ -18992,11 +18992,11 @@ proto_register_smb(void)
 
 	{ &hf_smb_copy_flags_tree_copy,
 		{ "Tree copy", "smb.copy.flags.tree_copy", FT_BOOLEAN, 16,
-		TFS(&tfs_cf_tree_copy), 0x0010, "Is copy a tree copy?", HFILL }},
+		TFS(&tfs_cf_tree_copy), 0x0020, "Is copy a tree copy?", HFILL }},
 
 	{ &hf_smb_copy_flags_ea_action,
 		{ "EA action if EAs not supported on dest", "smb.copy.flags.ea_action", FT_BOOLEAN, 16,
-		TFS(&tfs_cf_ea_action), 0x0010, "Fail copy if source file has EAs and dest doesn't support EAs?", HFILL }},
+		TFS(&tfs_cf_ea_action), 0x0040, "Fail copy if source file has EAs and dest doesn't support EAs?", HFILL }},
 
 	{ &hf_smb_count,
 		{ "Count", "smb.count", FT_UINT32, BASE_DEC,
