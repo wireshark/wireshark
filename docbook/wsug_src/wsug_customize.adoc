@@ -623,11 +623,13 @@ On the left side is a tree where you can select the page to be shown.
 
 * The btn:[Cancel] button will restore all preferences settings to the last saved state.
 
+==== Appearance
+
+These preferences give you the option to control the makeup of the GUI.
+
 [#ChCustGUIPrefPage]
 .The preferences dialog box
 image::images/ws-pref-appearance.png[{screenshot-attrs}]
-
-These preferences give you the option to control the makeup of the GUI.
 
 Selecting _Remember main window size and placement_ allow for a repeatable experience when restarting Wireshark.
 
@@ -657,10 +659,12 @@ The following variables are available.
 The _Language_ preference allows you to select the language used in the GUI.
 Note that the protocol information and details are kept in the language commonly used in this field, that being English.
 
-.Column preferences
-image::images/ws-pref-appearance-columns.png[{screenshot-attrs}]
+==== Columns
 
 These preferences give you the option to control the definition of the columns shown in the packet list, once a capture file is loaded.
+
+.Column preferences
+image::images/ws-pref-appearance-columns.png[{screenshot-attrs}]
 
 btn:[+]:: Add new entry to the list.
 
@@ -686,16 +690,21 @@ The _Field Occurrence_ setting is count of the given field in the frame, for fie
 
 Selecting _Resolved_ causes name resolution to be applied to the field value, when available.
 
-.Font and color preferences
-image::images/ws-pref-appearance-fonts-and-colors.png[{screenshot-attrs}]
+==== Fonts and Color
 
 These preferences give you the option to select the font and colors used in the various packet panes.
 Most usable is to select a mono spaced font, which allows for a cleaner presentation, but using a proportional font is possible too.
 
+.Font and color preferences
+image::images/ws-pref-appearance-fonts-and-colors.png[{screenshot-attrs}]
+
+==== Layout
+
+These preferences allow you to define the layout of the GUI once a capture file is loaded.
+
 .Layout preferences
 image::images/ws-pref-appearance-layout.png[{screenshot-attrs}]
 
-These preferences allow you to define the layout of the GUI once a capture file is loaded.
 Make sure that you have at least one pane configured to contain the Packet list.
 Three panes can be active at the same time and they can be layed out as shown in the top layer.
 The exact sizes of these panes can be changed as needed once a capture file is opened.
@@ -718,10 +727,12 @@ Selecting _Show selected packet number_ adds the selected packet number to the c
 
 Selecting _Show file load time_ adds the time it took to load the capture file to the status bar, taking up some space in the status bar.
 
-.Capture preferences
-image::images/ws-pref-capture.png[{screenshot-attrs}]
+==== Capture
 
 These preferences allow you to set the default conditions for packet capture.
+
+.Capture preferences
+image::images/ws-pref-capture.png[{screenshot-attrs}]
 
 The default interface is the interface used for packet capture in case no other is selected on the opening page of GUI.
 Note that this can be multiple interfaces separated by a comma.
@@ -749,10 +760,13 @@ The interface list can always be populated after Wireshark is started via menu:C
 Selecting _Disable external capture interfaces_ prevents Wireshark from spawning extcap programs to list off their capture interfaces.
 This might be a time consuming operation delaying the start of the program, however on most systems this is not an issue.
 
+==== Expert Items
+
+These preferences allow you to modify the severity set for expert items.
+
 .Expert item preferences
 image::images/ws-pref-expert.png[{screenshot-attrs}]
 
-These preferences allow you to modify the severity set for expert items.
 If, for whatever reason, you find that the severity for certain expert items does not match your needs you can change them here and have them used as such, showing up in the appropriate lists and overviews.
 Get the Field name from selecting the field in the packet details pane, then observe the name shown in the status bar.
 This is the name you enter on a new line in the list, while setting the desired _Severity_ in the next column.
@@ -771,11 +785,13 @@ btn:[Clear]:: Clear the list of user specified expert item severities.
 
 btn:[Copy from]:: Copy the list of user specified expert item severities from another profile.
 
-.Filter buttons
-image::images/ws-pref-filter-buttons.png[{screenshot-attrs}]
+==== Filter Buttons
 
 Having quick access to regularly used display filter expressions can be a real productivity boost.
 Here you can define your own display filter buttons.
+
+.Filter buttons
+image::images/ws-pref-filter-buttons.png[{screenshot-attrs}]
 
 btn:[+]:: Add new entry to the list.
 
@@ -801,11 +817,13 @@ The _Filter Expression_ is the display filter expression entered into the displa
 
 The _Comment_ is the comment text which appears in a bubble when the mouse hovers over the button.
 
-.Name resolution preferences
-image::images/ws-pref-name-resolution.png[{screenshot-attrs}]
+==== Name Resolution
 
 These preferences allow you to configure which numeric identifiers in protocols are translated into human readable text.
 For some of these identifiers the readable texts are read from configurable external sources.
+
+.Name resolution preferences
+image::images/ws-pref-name-resolution.png[{screenshot-attrs}]
 
 Selecting _Resolve MAC addresses_ causes the OUI (Organizationally Unique Identifier) at the start of an Ethernet address to be translated into the name registered with the IEEE for that OUI.
 
@@ -847,11 +865,13 @@ The _SMI (MIB and PIB) modules_ btn:[Edit...] button provides access to the dial
 
 The _MaxMind database directories_ btn:[Edit...] button provides access to the dialog to manage the directories where the MaxMind database files can be found. See <<ChMaxMindDbPaths>>.
 
-.Protocol preferences
-image::images/ws-pref-protocols.png[{screenshot-attrs}]
+==== Protocols
 
 Wireshark supports quite a few protocols, which is reflected in the long list of child entries of the “Protocols” pane.
 You can jump to the preferences for a specific protocol by expanding “Protocols” and typing the first few letters of the protocol name.
+
+.Protocol preferences
+image::images/ws-pref-protocols.png[{screenshot-attrs}]
 
 There are a few general protocol related preferences, listed below.
 
@@ -878,15 +898,19 @@ The determination of a duplicate frame is made based on the SHA256 hash of the b
 
 The preference _The max number of hashes to keep in memory for determining duplicate frames_ allows you to set how large the set of frames to consider for duplication is.
 
-.RSA keys
-image::images/ws-pref-rsa-keys.png[{screenshot-attrs}]
+==== RSA Keys
 
 For more information see {wireshark-wiki-url}TLS.
 
-.Statistics preferences
-image::images/ws-pref-statistics.png[{screenshot-attrs}]
+.RSA keys
+image::images/ws-pref-rsa-keys.png[{screenshot-attrs}]
+
+==== Statistics
 
 These preference have influence on the Statistics Tree (stats_tree) based dialogs accessible via the _Statistics_ menu.
+
+.Statistics preferences
+image::images/ws-pref-statistics.png[{screenshot-attrs}]
 
 The preference _Tap update interval in ms_ allows you to set how quickly protocol taps are being updated, partially determining the update speed of various dialogs and graphs.
 
@@ -914,10 +938,12 @@ Selecting _Always sort 'range' nodes in ascending order_ makes an exception for 
 
 Selecting _Display the full stats_tree plug-in name_ causes the full menu path of the Statistics Tree plugin to be shown in the title.
 
-.Advanced preferences
-image::images/ws-pref-advanced.png[{screenshot-attrs}]
+==== Advanced
 
 The “Advanced” pane will let you view and edit all of Wireshark’s preferences, similar to link:about:config[] and link:chrome:flags[] in the Firefox and Chrome web browsers.
+
+.Advanced preferences
+image::images/ws-pref-advanced.png[{screenshot-attrs}]
 
 You can search for a preference by typing text into the “Search” entry.
 You can also pass preference names to Wireshark and TShark on the command line.
