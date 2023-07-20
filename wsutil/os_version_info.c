@@ -683,10 +683,6 @@ DIAG_ON(cast-function-type)
 		 *
 		 * I've seen references to /etc/redhat-release as well.
 		 *
-		 * At least on my Ubuntu 7 system, /etc/debian_version
-		 * doesn't contain anything interesting (just some Debian
-		 * codenames).
-		 *
 		 * See also
 		 *
 		 *	http://bugs.python.org/issue1322
@@ -698,9 +694,9 @@ DIAG_ON(cast-function-type)
 		 * and the Lib/Platform.py file in recent Python 2.x
 		 * releases.
 		 *
-		 * And then there's
+		 * And then there's /etc/os-release:
 		 *
-		 *	http://0pointer.de/blog/projects/os-release
+		 *	https://0pointer.de/blog/projects/os-release
 		 *
 		 * which, apparently, is something that all distributions
 		 * with systemd have, which seems to mean "most distributions"
@@ -712,6 +708,81 @@ DIAG_ON(cast-function-type)
 		 * means older versions *did* support them:
 		 *
 		 *	https://lists.freedesktop.org/archives/systemd-devel/2012-February/004475.html
+		 *
+		 * At least on my Ubuntu 7 system, /etc/debian_version
+		 * doesn't contain anything interesting (just some Debian
+		 * codenames).  It does have /etc/lsb-release.  My Ubuntu
+		 * 22.04 system has /etc/lsb-release and /etc/os-release.
+		 *
+		 * My Fedora 9 system has /etc/fedora-release, with
+		 * /etc/redhat-release and /etc/system-release as symlinks
+		 * to it.  They all just contain a one-line relase
+		 * description.  My Fedora 38 system has that, plus
+		 * /etc/os-release.
+		 *
+		 * A quick Debian 3.1a installation I did has only
+		 * /etc/debian_version. My Debian 11.3 system has
+		 * /etc/os-release.
+		 *
+		 * See
+		 *
+		 *	https://gist.github.com/natefoo/814c5bf936922dad97ff
+		 *
+		 * for descriptions of what some versions of some
+		 * distributions offer.
+		 *
+		 * So maybe have a table of files to try, with each
+		 * entry having a pathname, a pointer to a file parser
+		 * routine, and a pointer to a string giving a
+		 * parameter name passed to that routine, with entries
+		 * for:
+		 *
+		 *   /etc/os-release, regular parser, "PRETTY_NAME"
+		 *   /etc/lsb-release, regular parser, "DISTRIB_DESCRIPTION"
+		 *   /etc/system-release, first line parser, NULL
+		 *   /etc/redhat-release, first line parser, NULL
+		 *   /etc/fedora-release, first line parser, NULL
+		 *   /etc/centos-release, first line parser, NULL
+		 *   /etc/debian_version, first line parser, "Debian"
+		 *   /etc/SuSE-release, first line parser, NULL
+		 *   /etc/slackware-version:, first line parser, NULL
+		 *   /etc/gentoo-release, first line parser, NULL
+		 *   /etc/antix-version, first line parser, NULL
+		 *
+		 * Each line is tried in order.  If the open fails, go to
+		 * the next one.  If the open succeeds but the parser
+		 * fails, close the file and go on to the next one.
+		 *
+		 * The regular parser parses files of the form
+		 * <param>="value".  It's passed the value of <param>
+		 * for which to look; if not found, it fails.
+		 *
+		 * The first line parser reads the first line of the file.
+		 * If a string is passed to it, it constructs a distribution
+		 * name string by concatenating the parameter, a space,
+		 * and the contents of that line (iwth the newline removed),
+		 * otherwise it constructs it from the contents of the line.
+		 *
+		 * Fall back on just "Linux" if nothing works.
+		 *
+		 * Then use the uname() information to indicate what
+		 * kernel version the machine is running.
+		 *
+		 * XXX - for Gentoo, PRETTY_NAME might not give a version,
+		 * so fall back on /etc/gentoo-release?  Gentoo is
+		 * a rolling-release distribution, so what *is* the
+		 * significance of the contnets of /etc/gentoo-release?
+		 *
+		 * XXX - MX appears to be a Debian-based distribution
+		 * whose /etc/os-release gives its Debian version and
+		 * whose /etc/mx-version and /etc/antix-version give
+		 * the MX version.  Are there any other Debian derivatives
+		 * that do this?  (The Big One calls itself "Ubuntu"
+		 * in PRETTY_NAME.)
+		 *
+		 * XXX - use ID_LIKE in /etc/os-release to check for,
+		 * for example, Debian-like distributions, e.g. when
+		 * suggesting how to give dumpcap capture privileges?
 		 */
 		g_string_append_printf(str, "%s %s", name.sysname, name.release);
 #endif /* HAVE_MACOS_FRAMEWORKS */
