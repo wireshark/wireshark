@@ -480,7 +480,7 @@ Windows Arm64 Package:
     - |
       if (Test-Path env:S3_DESTINATION_WINDOWS_ARM64) {
         foreach ($package in $packages) {
-          aws s3 cp "$package" "$env:S3_DESTINATION_WINDOWS_ARM64/"
+          py.exe "C:\Program Files\Python311-arm64\Scripts\aws" s3 cp "$package" "$env:S3_DESTINATION_WINDOWS_ARM64/"
         }
       }
     - C:\Windows\py.exe -m pytest
