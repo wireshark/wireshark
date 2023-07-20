@@ -38,7 +38,6 @@ def ps_clean_string(raw_str):
 
 
 def start_code(fd, func):
-    script_name = os.path.split(__file__)[-1]
     fd.write("void print_ps_%s(FILE *fd) {\n" % func)
 
 
