@@ -162,7 +162,7 @@ if(WIN32)
 
 	if(WIRESHARK_TARGET_PLATFORM MATCHES "win32")
 		message(FATAL_ERROR "Deprecated target platform ${WIRESHARK_TARGET_PLATFORM}. See https://gitlab.com/wireshark/wireshark/-/issues/17779 for details.")
-	elseif(NOT WIRESHARK_TARGET_PLATFORM MATCHES "x64" OR WIRESHARK_TARGET_PLATFORM MATCHES "arm64")
+	elseif(NOT (WIRESHARK_TARGET_PLATFORM MATCHES "x64" OR WIRESHARK_TARGET_PLATFORM MATCHES "arm64"))
 		message(FATAL_ERROR "Invalid target platform: ${WIRESHARK_TARGET_PLATFORM}")
 	endif()
 

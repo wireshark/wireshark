@@ -408,7 +408,7 @@ Windows x64 Package:
   extends: .build-windows
   rules: !reference [.if-w-w-only-merged]
   tags:
-    - wireshark-x64-package
+    - wireshark-windows-x64-package
   before_script:
     - $env:WIRESHARK_BASE_DIR = "C:\Development"
     - $env:Configuration = "RelWithDebInfo"
@@ -421,7 +421,7 @@ Windows x64 Package:
     - cd build
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release ..
-    - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off -DENABLE_SIGNED_NSIS=On ..
+    - cmake -G "Visual Studio 17 2022" -A x64 -DENABLE_LTO=off -DENABLE_SIGNED_NSIS=on ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
     - msbuild /verbosity:minimal /maxcpucount wireshark_nsis_prep.vcxproj
@@ -440,9 +440,46 @@ Windows x64 Package:
     - foreach ($package in $packages) { Write-Host $package.name $package.length "bytes" }
     - foreach ($package in $packages) { certutil -hashfile $package SHA256 }
     - |
-      if (Test-Path env:S3_DESTINATION_WIN64) {
+      if (Test-Path env:S3_DESTINATION_WINDOWS_X64) {
         foreach ($package in $packages) {
-          aws s3 cp "$package" "$env:S3_DESTINATION_WIN64/"
+          aws s3 cp "$package" "$env:S3_DESTINATION_WINDOWS_X64/"
+        }
+      }
+    - C:\Windows\py.exe -m pytest
+
+Windows Arm64 Package:
+  extends: .build-windows
+  rules: !reference [.if-w-w-only-merged]
+  tags:
+    - wireshark-windows-arm64-package
+  before_script:
+    - $env:WIRESHARK_BASE_DIR = "C:\Development"
+    - $env:Configuration = "RelWithDebInfo"
+    - $env:Path += ";C:\Program Files\Amazon\AWSCLIV2"
+    - $env:CMAKE_PREFIX_PATH = "C:\qt\6.5.2\msvc2019_64"
+    # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
+    - cmd.exe /c "call `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsarm64.bat`" && set > %temp%\vcvars.txt"
+    - Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
+    - mkdir build
+    - cd build
+  script:
+    - C:\Windows\py.exe ..\tools\make-version.py --set-release ..
+    - cmake -G "Visual Studio 17 2022" -A arm64 -DENABLE_LTO=off -DENABLE_SIGNED_NSIS=on ..
+    - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
+    - msbuild /verbosity:minimal /maxcpucount test-programs.vcxproj
+    - msbuild /verbosity:minimal /maxcpucount wireshark_nsis_prep.vcxproj
+    - C:\gitlab-builds\bin\sign-files.ps1 -Recurse -Path run\RelWithDebInfo
+    - msbuild /verbosity:minimal wireshark_nsis.vcxproj
+    - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /q /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-*-arm64.exe
+    - msbuild /verbosity:minimal pdb_zip_package.vcxproj
+    - C:\gitlab-builds\bin\mse-scan.ps1
+    - $packages = Get-ChildItem "packaging\nsis\Wireshark-*-arm64.exe", "Wireshark-pdb-*arm64.zip"
+    - foreach ($package in $packages) { Write-Host $package.name $package.length "bytes" }
+    - foreach ($package in $packages) { certutil -hashfile $package SHA256 }
+    - |
+      if (Test-Path env:S3_DESTINATION_WINDOWS_ARM64) {
+        foreach ($package in $packages) {
+          aws s3 cp "$package" "$env:S3_DESTINATION_WINDOWS_ARM64/"
         }
       }
     - C:\Windows\py.exe -m pytest
