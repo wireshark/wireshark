@@ -28,8 +28,6 @@ def ps_clean_string(raw_str):
     for c in raw_str:
         if c == '\\':
             ps_str += '\\\\'
-        elif c == '%':
-            ps_str += '%%'
         elif c == '\n':
             ps_str += '\\n'
         else:
@@ -37,16 +35,20 @@ def ps_clean_string(raw_str):
     return ps_str
 
 
-def start_code(fd, func):
-    fd.write("void print_ps_%s(FILE *fd) {\n" % func)
-
+def start_code(fd, name):
+    fd.write("static const char ps_%s[] =\n" % name)
+    
 
 def write_code(fd, raw_str):
     ps_str = ps_clean_string(raw_str)
-    fd.write("\tfprintf(fd, \"%s\");\n" % ps_str)
+    fd.write("\t\"%s\"\n" % ps_str)
 
 
-def end_code(fd):
+def end_code(fd, name):
+    fd.write(";\n")
+    fd.write("\n")
+    fd.write("void print_ps_%s(FILE *fd) {\n" % name)
+    fd.write("\tfwrite(ps_%s, sizeof ps_%s - 1, 1, fd);\n" % ( name, name ) )
     fd.write("}\n\n\n")
 
 
@@ -108,14 +110,14 @@ def main():
         elif state == STATE_PREAMBLE:
             if line.startswith("% ---- wireshark preamble end ---- %"):
                 state = STATE_NULL
-                end_code(output)
+                end_code(output, "preamble")
                 continue
             else:
                 write_code(output, line)
         elif state == STATE_FINALE:
             if line.startswith("% ---- wireshark finale end ---- %"):
                 state = STATE_NULL
-                end_code(output)
+                end_code(output, "finale")
                 continue
             else:
                 write_code(output, line)
