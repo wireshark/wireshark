@@ -300,11 +300,11 @@ proto_register_file_pcap(void)
     static ei_register_info ei[] = {
         { &ei_pcap_capt_larger_than_orig,
             { "pcap.capt_len_larger_than_orig_len", PI_MALFORMED, PI_ERROR,
-                "captureed length is larger than original length",
+                "captured length is larger than original length",
                 EXPFILL }},
         { &ei_pcap_capt_larger_than_snap,
             { "pcap.capt_len_larger_than_snap_len", PI_PROTOCOL, PI_WARN,
-                "captureed length is larger than snapshot length",
+                "captured length is larger than snapshot length",
                 EXPFILL }}
     };
 
