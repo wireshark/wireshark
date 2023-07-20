@@ -4261,9 +4261,9 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   opcode = (guint16) ((flags & F_OPCODE) >> OPCODE_SHIFT);
   rcode  = (guint16)  (flags & F_RCODE);
 
-  col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s 0x%04x",
-                val_to_str(opcode, opcode_vals, "Unknown operation (%u)"),
-                (flags&F_RESPONSE)?" response":"", id);
+  col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s%s 0x%04x",
+                      val_to_str(opcode, opcode_vals, "Unknown operation (%u)"),
+                      (flags&F_RESPONSE)?" response":"", id);
 
   if (flags & F_RESPONSE) {
     if (rcode != RCODE_NOERROR) {
@@ -4533,6 +4533,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     cur_off += dissect_answer_records(tvb, cur_off, dns_data_offset, add, dns_tree, "Additional records",
                                       pinfo, is_mdns);
   }
+  col_set_fence(pinfo->cinfo, COL_INFO);
 
   /* print state tracking in the tree */
   if (!(flags&F_RESPONSE)) {
