@@ -105,7 +105,7 @@ typedef struct _rtp_number_space {
 } rtp_number_space;
 
 /** Info to save in RTP conversation */
-struct _rtp_internal_conversation_info
+struct _rtp_conversation_info
 {
     gchar   method[MAX_RTP_SETUP_METHOD_SIZE + 1];
     guint32 frame_number;                           /**> the frame where this conversation is started */
@@ -296,7 +296,7 @@ void proto_reg_handoff_pkt_ccc(void);
 
 static gint dissect_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static struct _rtp_conversation_info *get_rtp_packet_info(packet_info *pinfo, struct _rtp_info *rtp_info);
+static struct _rtp_packet_info *get_rtp_packet_info(packet_info *pinfo, struct _rtp_info *rtp_info);
 
 /* Preferences bool to control whether or not setup info should be shown */
 static gboolean global_rtp_show_setup_info = TRUE;
@@ -1086,7 +1086,7 @@ bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
 {
     address null_addr;
     conversation_t* p_conv;
-    struct _rtp_internal_conversation_info *p_conv_data = NULL;
+    struct _rtp_conversation_info *p_conv_data = NULL;
     /*
      * If this isn't the first time this packet has been processed,
      * we've already done this work, so we don't need to do it
@@ -1120,14 +1120,14 @@ bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
     /*
      * Check if the conversation has data associated with it.
      */
-    p_conv_data = (struct _rtp_internal_conversation_info *)conversation_get_proto_data(p_conv, proto_rtp);
+    p_conv_data = (struct _rtp_conversation_info *)conversation_get_proto_data(p_conv, proto_rtp);
 
     /*
      * If not, add a new data item.
      */
     if (! p_conv_data) {
         /* Create conversation data */
-        p_conv_data = wmem_new0(wmem_file_scope(), struct _rtp_internal_conversation_info);
+        p_conv_data = wmem_new0(wmem_file_scope(), struct _rtp_conversation_info);
 
         p_conv_data->ssrc_number_space = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
         p_conv_data->rtp_conv_info = wmem_new(wmem_file_scope(), rtp_private_conv_info);
@@ -1186,7 +1186,7 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
 {
     address null_addr;
     conversation_t* p_conv, *sdp_conv;
-    struct _rtp_internal_conversation_info *p_conv_data;
+    struct _rtp_conversation_info *p_conv_data;
     wmem_array_t *rtp_conv_info_list = NULL;
 
     /*
@@ -1217,7 +1217,7 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
         /*
          * Check if the conversation has data associated with it.
          */
-        p_conv_data = (struct _rtp_internal_conversation_info *)conversation_get_proto_data(p_conv, proto_rtp);
+        p_conv_data = (struct _rtp_conversation_info *)conversation_get_proto_data(p_conv, proto_rtp);
         if (p_conv_data) {
             rtp_conv_info_list = p_conv_data->rtp_sdp_setup_info_list;
         }
@@ -1258,7 +1258,7 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
     /*
      * Check if the conversation has data associated with it.
      */
-    p_conv_data = (struct _rtp_internal_conversation_info *)conversation_get_proto_data(p_conv, proto_rtp);
+    p_conv_data = (struct _rtp_conversation_info *)conversation_get_proto_data(p_conv, proto_rtp);
 
     /*
      * If not, add a new data item.
@@ -1267,7 +1267,7 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
         DPRINT(("creating new conversation data"));
 
         /* Create conversation data */
-        p_conv_data = wmem_new0(wmem_file_scope(), struct _rtp_internal_conversation_info);
+        p_conv_data = wmem_new0(wmem_file_scope(), struct _rtp_conversation_info);
 
         p_conv_data->ssrc_number_space = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
         p_conv_data->rtp_conv_info = wmem_new(wmem_file_scope(), rtp_private_conv_info);
@@ -1425,13 +1425,13 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     if (!find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src, conversation_pt_to_conversation_type(pinfo->ptype),
                            pinfo->destport, pinfo->srcport, NO_ADDR_B)) {
         conversation_t *p_conv;
-        struct _rtp_internal_conversation_info *p_conv_data;
+        struct _rtp_conversation_info *p_conv_data;
         p_conv = conversation_new(pinfo->num, &pinfo->net_dst, &pinfo->net_src, conversation_pt_to_conversation_type(pinfo->ptype),
                                   pinfo->destport, pinfo->srcport, NO_ADDR2);
-        p_conv_data = (struct _rtp_internal_conversation_info *)conversation_get_proto_data(p_conv, proto_rtp);
+        p_conv_data = (struct _rtp_conversation_info *)conversation_get_proto_data(p_conv, proto_rtp);
         if (! p_conv_data) {
             /* Create conversation data */
-            p_conv_data = wmem_new0(wmem_file_scope(), struct _rtp_internal_conversation_info);
+            p_conv_data = wmem_new0(wmem_file_scope(), struct _rtp_conversation_info);
             p_conv_data->ssrc_number_space = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
             p_conv_data->rtp_conv_info = wmem_new(wmem_file_scope(), rtp_private_conv_info);
             p_conv_data->rtp_conv_info->multisegment_pdus = wmem_tree_new(wmem_file_scope());
@@ -1456,7 +1456,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
             proto_tree *rtp_tree, unsigned int payload_type,
             struct _rtp_info *rtp_info)
 {
-    struct _rtp_conversation_info *p_packet_data;
+    struct _rtp_packet_info *p_packet_data;
     int payload_len;
     struct srtp_info *srtp_info;
     int offset = 0;
@@ -1465,7 +1465,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
     payload_len = tvb_captured_length_remaining(newtvb, offset);
 
     /* first check if this is added as an SRTP stream - if so, don't try to dissector the payload data for now */
-    p_packet_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
+    p_packet_data = (struct _rtp_packet_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
     if (p_packet_data && p_packet_data->srtp_info) {
         srtp_info = p_packet_data->srtp_info;
         payload_len -= srtp_info->mki_len + srtp_info->auth_tag_len;
@@ -1580,14 +1580,14 @@ dissect_rtp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          struct _rtp_info *rtp_info)
 {
     tvbuff_t *newtvb;
-    struct _rtp_conversation_info *p_packet_data;
+    struct _rtp_packet_info *p_packet_data;
     gboolean must_desegment = FALSE;
     rtp_private_conv_info *finfo = NULL;
     rtp_multisegment_pdu *msp;
     guint32 seqno;
 
     /* Retrieve RTPs idea of a conversation */
-    p_packet_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
+    p_packet_data = (struct _rtp_packet_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
 
     if(p_packet_data != NULL)
         finfo = p_packet_data->rtp_conv_info;
@@ -1780,7 +1780,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     proto_tree *rfc2198_tree;
     rfc2198_hdr *hdr_last;
     rfc2198_hdr *hdr_chain = NULL;
-    struct _rtp_conversation_info *p_packet_data;
+    struct _rtp_packet_info *p_packet_data;
     struct _rtp_info* rtp_info = NULL;
     struct _rtp_info rfc2198_rtp_info;
     volatile unsigned rtp_info_offset = 0;
@@ -1792,7 +1792,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     }
 
     /* Retrieve RTPs idea of a conversation */
-    p_packet_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
+    p_packet_data = (struct _rtp_packet_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
 
     /* Add try to RFC 2198 data */
     rfc2198_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_rtp_rfc2198, NULL, "RFC 2198: Redundant Audio Data");
@@ -2098,7 +2098,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     guint16     seq_num;
     guint32     timestamp;
     guint32     sync_src;
-    struct _rtp_conversation_info *p_packet_data;
+    struct _rtp_packet_info *p_packet_data;
     /*struct srtp_info *srtp_info = NULL;*/
     /*unsigned int srtp_offset;*/
     const char   *pt = NULL;
@@ -2869,14 +2869,14 @@ calculate_extended_timestamp(guint64 previous_timestamp, guint32 raw_timestamp)
 }
 
 /* Look for conversation info */
-static struct _rtp_conversation_info *
+static struct _rtp_packet_info *
 get_rtp_packet_info(packet_info *pinfo, struct _rtp_info *rtp_info)
 {
     /* Conversation and current data */
-    struct _rtp_conversation_info *p_packet_data;
+    struct _rtp_packet_info *p_packet_data;
 
     /* Use existing packet info if available */
-    p_packet_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
+    p_packet_data = (struct _rtp_packet_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
 
     if (!p_packet_data)
     {
@@ -2894,8 +2894,8 @@ get_rtp_packet_info(packet_info *pinfo, struct _rtp_info *rtp_info)
         }
 
         /* Create space for packet info */
-        struct _rtp_internal_conversation_info *p_conv_data;
-        p_conv_data = (struct _rtp_internal_conversation_info *)conversation_get_proto_data(p_conv, proto_rtp);
+        struct _rtp_conversation_info *p_conv_data;
+        p_conv_data = (struct _rtp_conversation_info *)conversation_get_proto_data(p_conv, proto_rtp);
 
         if (!p_conv_data) {
             /* Create conversation data. If RTP was set up by an SDP or by
@@ -2903,7 +2903,7 @@ get_rtp_packet_info(packet_info *pinfo, struct _rtp_info *rtp_info)
              * have been created. Therefore, we should only reach this
              * case if Decode As is being used (See Issue #18829).
              */
-            p_conv_data = wmem_new0(wmem_file_scope(), struct _rtp_internal_conversation_info);
+            p_conv_data = wmem_new0(wmem_file_scope(), struct _rtp_conversation_info);
             p_conv_data->ssrc_number_space = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
             p_conv_data->rtp_conv_info = wmem_new(wmem_file_scope(), rtp_private_conv_info);
             p_conv_data->rtp_conv_info->multisegment_pdus = wmem_tree_new(wmem_file_scope());
@@ -2925,7 +2925,7 @@ get_rtp_packet_info(packet_info *pinfo, struct _rtp_info *rtp_info)
          * from the last dissected frame, which is not necessarily the
          * immediately previous frame.
          */
-        p_packet_data = wmem_new(wmem_file_scope(), struct _rtp_conversation_info);
+        p_packet_data = wmem_new(wmem_file_scope(), struct _rtp_packet_info);
         (void)g_strlcpy(p_packet_data->method, p_conv_data->method, MAX_RTP_SETUP_METHOD_SIZE + 1);
         p_packet_data->frame_number = p_conv_data->frame_number;
         p_packet_data->media_types = p_conv_data->media_types;
@@ -2973,12 +2973,12 @@ static void
 show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     /* Conversation and current data */
-    struct _rtp_conversation_info *p_packet_data;
+    struct _rtp_packet_info *p_packet_data;
     proto_tree *rtp_setup_tree;
     proto_item *ti;
 
     /* Use existing packet info if available */
-    p_packet_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
+    p_packet_data = (struct _rtp_packet_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, RTP_CONVERSATION_PROTO_DATA);
 
     if (!p_packet_data) return;
 

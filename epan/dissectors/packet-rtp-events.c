@@ -400,7 +400,7 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	proto_tree   *rtp_events_tree;
 	unsigned int  offset = 0;
 
-	struct _rtp_conversation_info *p_conv_data;
+	struct _rtp_packet_info *p_packet_data;
 
 	guint8 rtp_evt;
 	guint8 octet;
@@ -422,9 +422,9 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 	/* get tap info */
 	rtp_event_info.info_rtp_evt = rtp_evt;
 
-	p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_filter_name("rtp"), 0);
-	if (p_conv_data)
-		rtp_event_info.info_setup_frame_num = p_conv_data->frame_number;
+	p_packet_data = (struct _rtp_packet_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_filter_name("rtp"), 0);
+	if (p_packet_data)
+		rtp_event_info.info_setup_frame_num = p_packet_data->frame_number;
 	else
 		rtp_event_info.info_setup_frame_num = 0;
 

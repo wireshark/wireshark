@@ -612,7 +612,7 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
     rtpstream_info_t    *tmp_listinfo;
     rtpstream_info_t    *strinfo = NULL;
     GList                *list;
-    struct _rtp_conversation_info *p_conv_data = NULL;
+    struct _rtp_packet_info *p_packet_data = NULL;
 
     const struct _rtp_info *rtp_info = (const struct _rtp_info *)rtp_info_ptr;
 
@@ -672,9 +672,9 @@ rtp_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, void c
         /* if it is dynamic payload, let use the conv data to see if it is defined */
         if ( (strinfo->first_payload_type >= PT_UNDF_96) && (strinfo->first_payload_type <= PT_UNDF_127) ) {
             /* Use existing packet info if available */
-            p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_filter_name("rtp"), 0);
-            if (p_conv_data && p_conv_data->rtp_dyn_payload) {
-                const gchar *encoding_name = rtp_dyn_payload_get_name(p_conv_data->rtp_dyn_payload, strinfo->first_payload_type);
+            p_packet_data = (struct _rtp_packet_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_filter_name("rtp"), 0);
+            if (p_packet_data && p_packet_data->rtp_dyn_payload) {
+                const gchar *encoding_name = rtp_dyn_payload_get_name(p_packet_data->rtp_dyn_payload, strinfo->first_payload_type);
                 if (encoding_name) {
                     strinfo->first_payload_type_name = encoding_name;
                 }

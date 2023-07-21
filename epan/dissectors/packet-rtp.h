@@ -243,7 +243,7 @@ void rtp_dump_dyn_payload(rtp_dyn_payload_t *rtp_dyn_payload);
  * to be saved per-packet, as opposed to once per conversation, are the
  * extended seqno and timestamp.
  */
-struct _rtp_conversation_info
+struct _rtp_packet_info
 {
     gchar   method[MAX_RTP_SETUP_METHOD_SIZE + 1];
     guint32 frame_number;                           /**> the frame where this conversation is started */

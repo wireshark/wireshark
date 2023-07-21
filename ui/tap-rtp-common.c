@@ -517,7 +517,7 @@ void rtpstream_info_calc_free(rtpstream_info_calc_t *calc)
 /* Init analyse counters in rtpstream_info_t from pinfo */
 void rtpstream_info_analyse_init(rtpstream_info_t *stream_info, const packet_info *pinfo, const struct _rtp_info *rtpinfo)
 {
-    struct _rtp_conversation_info *p_conv_data = NULL;
+    struct _rtp_packet_info *p_packet_data = NULL;
 
     /* reset stream stats */
     stream_info->first_payload_type = rtpinfo->info_payload_type;
@@ -531,9 +531,9 @@ void rtpstream_info_analyse_init(rtpstream_info_t *stream_info, const packet_inf
     stream_info->rtp_stats.reg_pt = PT_UNDEFINED;
 
     /* Get the Setup frame number who set this RTP stream */
-    p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), (packet_info *)pinfo, proto_get_id_by_filter_name("rtp"), 0);
-    if (p_conv_data)
-        stream_info->setup_frame_number = p_conv_data->frame_number;
+    p_packet_data = (struct _rtp_packet_info *)p_get_proto_data(wmem_file_scope(), (packet_info *)pinfo, proto_get_id_by_filter_name("rtp"), 0);
+    if (p_packet_data)
+        stream_info->setup_frame_number = p_packet_data->frame_number;
     else
         stream_info->setup_frame_number = 0xFFFFFFFF;
 }
