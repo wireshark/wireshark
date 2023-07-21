@@ -1191,7 +1191,6 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 				offset += 4;
 				if (string_length > 0) {
 					proto_tree_add_item(cql_subtree, hf_cql_auth_token, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
-					offset += string_length;
 				}
 				break;
 
@@ -1333,7 +1332,6 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 				proto_tree_add_item_ret_uint(cql_subtree, hf_cql_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
 				offset += 2;
 				proto_tree_add_item(cql_subtree, hf_cql_string, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
-				offset += string_length;
 				break;
 
 
