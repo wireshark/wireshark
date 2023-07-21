@@ -91,6 +91,7 @@ static int hf_ws_masking_key = -1;
 static int hf_ws_payload = -1;
 static int hf_ws_masked_payload = -1;
 static int hf_ws_payload_continue = -1;
+static int hf_ws_payload_text = -1;
 static int hf_ws_payload_close = -1;
 static int hf_ws_payload_close_status_code = -1;
 static int hf_ws_payload_close_reason = -1;
@@ -431,6 +432,7 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   switch (opcode) {
     case WS_TEXT: /* Text */
     {
+      proto_tree_add_item(pl_tree, hf_ws_payload_text, tvb, 0, -1, ENC_UTF_8);
       const gchar  *saved_match_string = pinfo->match_string;
 
       pinfo->match_string = NULL;
@@ -854,6 +856,11 @@ proto_register_websocket(void)
     { &hf_ws_payload_continue,
       { "Continue", "websocket.payload.continue",
       FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
+    },
+    { &hf_ws_payload_text,
+      { "Text", "websocket.payload.text",
+      FT_STRING, BASE_NONE, NULL, 0x0,
       NULL, HFILL }
     },
     { &hf_ws_payload_close,
