@@ -10675,7 +10675,6 @@ static void dissect_HEADER_EXTENSION(tvbuff_t* tvb, packet_info* pinfo, gint off
 
           case RTPS_HE_CHECKSUM_CRC64:
             /* CRC64 is not supported yet */
-            is_crc_supported = false;
             break;
 
           case RTPS_HE_CHECKSUM_MD5:
