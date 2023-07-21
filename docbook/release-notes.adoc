@@ -19,6 +19,8 @@ It is used for troubleshooting, analysis, development and education.
 // Add a summary of major changes here.
 // Add other changes to "New and Updated Features" below.
 
+A Windows installer for Arm64 has been added.
+
 Windows installer file names now have the format Wireshark-<version>-<architecture>.exe.
 
 Wireshark is now better about generating valid UTF-8 output.
