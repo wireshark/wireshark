@@ -237,8 +237,12 @@ void rtp_dyn_payload_free(rtp_dyn_payload_t *rtp_dyn_payload);
 void rtp_dump_dyn_payload(rtp_dyn_payload_t *rtp_dyn_payload);
 #endif
 
-/** Info to save in RTP conversation / packet-info */
 #define MAX_RTP_SETUP_METHOD_SIZE 11
+/** Info to save in RTP packet-info */
+/** XXX: This is wasteful of memory. The only things that really need
+ * to be saved per-packet, as opposed to once per conversation, are the
+ * extended seqno and timestamp.
+ */
 struct _rtp_conversation_info
 {
     gchar   method[MAX_RTP_SETUP_METHOD_SIZE + 1];
