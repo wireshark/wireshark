@@ -714,9 +714,10 @@ static const value_string q931_l1_user_rate_vals[] = {
 static value_string_ext q931_l1_user_rate_vals_ext = VALUE_STRING_EXT_INIT(q931_l1_user_rate_vals);
 
 static const value_string q931_l1_intermediate_rate_vals[] = {
-    { 0x20, "8 kbit/s" },
-    { 0x40, "16 kbit/s" },
-    { 0x60, "32 kbit/s" },
+    { 0x00, "Not used" },
+    { 0x01, "8 kbit/s" },
+    { 0x02, "16 kbit/s" },
+    { 0x03, "32 kbit/s" },
     { 0,    NULL }
 };
 
