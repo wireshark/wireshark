@@ -70,6 +70,7 @@ static int hf_srt_handshake_isn = -1;
 static int hf_srt_handshake_mtu = -1;
 static int hf_srt_handshake_flow_window = -1;
 static int hf_srt_handshake_reqtype = -1;
+static int hf_srt_handshake_failure_type = -1;
 static int hf_srt_handshake_id = -1;
 static int hf_srt_handshake_cookie = -1;
 static int hf_srt_handshake_peerip = -1;
@@ -214,9 +215,7 @@ enum UDTRequestType
     URQ_WAVEAHAND     =    0,
     URQ_INDUCTION     =    1,
 
-    URQ_FAILURE_TYPES = 1000,
-    URQ_REJECT        = 1002,
-    URQ_INVALID       = 1004
+    URQ_FAILURE_TYPES = 1000
 };
 
 
@@ -301,8 +300,6 @@ static const value_string srt_hs_request_types[] = {
     {URQ_CONCLUSION, "URQ_CONCLUSION"},
     {URQ_WAVEAHAND,  "URQ_WAVEAHAND (rendezvous invocation)"},
     {URQ_AGREEMENT,  "URQ_AGREEMENT (rendezvous finalization)"},
-    {URQ_REJECT,     "!REJECT"},
-    {URQ_INVALID,    "!INVALID"},
     {0, NULL}
 };
 
@@ -580,6 +577,7 @@ dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
             const int version = tvb_get_ntohl(tvb, 16);
             const int final_length = tvb_reported_length(tvb);
             int baselen = 64;
+            int handshake_reqtype;
 
             /* This contains the handshake version (currently 4 or 5) */
             proto_tree_add_item(tree, hf_srt_handshake_version, tvb,
@@ -613,8 +611,21 @@ dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
                         28,  4, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_srt_handshake_flow_window, tvb,
                         32,  4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tree, hf_srt_handshake_reqtype, tvb,
+            handshake_reqtype = tvb_get_ntohl(tvb, 36);
+            if (handshake_reqtype < URQ_FAILURE_TYPES)
+            {
+                proto_tree_add_item(tree, hf_srt_handshake_reqtype, tvb,
                         36,  4, ENC_BIG_ENDIAN);
+            }
+            else
+            {
+                int error_code = handshake_reqtype - URQ_FAILURE_TYPES;
+                proto_tree_add_uint_format_value(tree, hf_srt_handshake_failure_type, tvb, 36, 4, handshake_reqtype,
+                        "%d (%s)", error_code,
+                        error_code < 1000 ? "SRT internal" :
+                        error_code < 2000 ? "SRT predefined" : "user-defined");
+            }
+
             proto_tree_add_item(tree, hf_srt_handshake_id, tvb,
                         40,  4, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_srt_handshake_cookie, tvb,
@@ -1097,6 +1108,11 @@ void proto_register_srt(void)
             "Handshake Type", "srt.hs.reqtype",
             FT_INT32, BASE_DEC,
             VALS(srt_hs_request_types), 0, NULL, HFILL}},
+
+        {&hf_srt_handshake_failure_type, {
+            "Handshake FAULURE code", "srt.hs.reqtype",
+            FT_UINT32, BASE_DEC,
+            NULL, 0, NULL, HFILL}},
 
         {&hf_srt_handshake_id, {
             "Socket ID", "srt.hs.id",
