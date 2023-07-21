@@ -708,7 +708,6 @@ dissect_openflow_flow_removed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     /* uint64_t byte_count; */
     proto_tree_add_item(tree, hf_openflow_flow_removed_byte_count, tvb, offset, 8, ENC_BIG_ENDIAN);
-    offset+=8;
 
 }
 
