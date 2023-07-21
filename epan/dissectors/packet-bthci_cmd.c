@@ -10380,7 +10380,7 @@ proto_register_btcommon(void)
         },
         {&hf_btcommon_eir_ad_ips_flags_reserved,
             {"Reserved", "btcommon.eir_ad.entry.ips.flags.reserved",
-            FT_UINT8, BASE_HEX, NULL, 0xC0,
+            FT_UINT8, BASE_HEX, NULL, 0x80,
             NULL, HFILL}
         },
         {&hf_btcommon_eir_ad_ips_flags_location_name,

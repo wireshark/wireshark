@@ -160,7 +160,8 @@ class APICheck:
 
 
 
-    def check_against_items(self, items_defined, items_declared, items_declared_extern, check_missing_items=False):
+    def check_against_items(self, items_defined, items_declared, items_declared_extern, check_missing_items=False,
+                            field_arrays=None):
         global errors_found
         global warnings_found
 
@@ -182,6 +183,7 @@ class APICheck:
                           self.file + ':' + str(call.line_number) +
                           ' with length ' + str(call.length) + ' - must be > 0 or -1')
                     errors_found += 1
+
             if call.hf_name in items_defined:
                 # Is type allowed?
                 if not items_defined[call.hf_name].item_type in self.allowed_types:
@@ -197,8 +199,17 @@ class APICheck:
                           ' with mask ' + items_defined[call.hf_name].mask + '    (must be zero!)\n')
                     errors_found += 1
 
+            if self.fun_name.find('add_bitmask') != -1 and call.hf_name in items_defined and field_arrays:
+                if call.fields in field_arrays:
+                    if (items_defined[call.hf_name].mask_value and
+                        field_arrays[call.fields][1] != 0 and items_defined[call.hf_name].mask_value != field_arrays[call.fields][1]):
+                        # TODO: only really a problem if bit is set in array but not in top-level item?
+                        print('Warning:', self.file, call.hf_name, call.fields, "masks don't match. root=",
+                              items_defined[call.hf_name].mask,
+                              "array has", hex(field_arrays[call.fields][1]))
+                        warnings_found += 1
 
-            elif check_missing_items:
+            if check_missing_items:
                 if call.hf_name in items_declared and not call.hf_name in items_declared_extern:
                 #not in common_hf_var_names:
                     print('Warning:', self.file + ':' + str(call.line_number),
@@ -290,7 +301,8 @@ class ProtoTreeAddItemCheck(APICheck):
                                 warnings_found += 1
                         self.calls.append(Call(hf_name, macros, line_number=line_number, length=m.group(2)))
 
-    def check_against_items(self, items_defined, items_declared, items_declared_extern, check_missing_items=False):
+    def check_against_items(self, items_defined, items_declared, items_declared_extern,
+                            check_missing_items=False, field_arrays=None):
         # For now, only complaining if length if call is longer than the item type implies.
         #
         # Could also be bugs where the length is always less than the type allows.
@@ -884,6 +896,7 @@ apiChecks.append(APICheck('proto_tree_add_bitmask_with_flags_ret_uint64', bitmas
 apiChecks.append(APICheck('proto_tree_add_bitmask_value', bitmask_types))
 apiChecks.append(APICheck('proto_tree_add_bitmask_value_with_flags', bitmask_types))
 apiChecks.append(APICheck('proto_tree_add_bitmask_len', bitmask_types))
+# N.B., proto_tree_add_bitmask_list does not have a root item, just a subtree...
 
 add_bits_types = { 'FT_CHAR', 'FT_BOOLEAN',
                    'FT_UINT8', 'FT_UINT16', 'FT_UINT24', 'FT_UINT32', 'FT_UINT40', 'FT_UINT48', 'FT_UINT56', 'FT_UINT64',
@@ -988,6 +1001,7 @@ def find_items(filename, macros, check_mask=False, mask_exact_width=False, check
 # the 6th arg of ..add_bitmask_..() calls...
 # TODO: return items (rather than local checks) from here so can be checked against list of calls for given filename
 def find_field_arrays(filename, all_fields, all_hf):
+    field_entries = {}
     global warnings_found
     with open(filename, 'r', encoding="utf8") as f:
         contents = f.read()
@@ -999,20 +1013,22 @@ def find_field_arrays(filename, all_fields, all_hf):
         for m in matches:
             name = m.group(1)
             # Ignore if not used in a call to an _add_bitmask_ API
-            if name not in all_fields:
+            if not name in all_fields:
                 continue
-            all_fields = m.group(2)
-            all_fields = all_fields.replace('&', '')
-            all_fields = all_fields.replace(',', '')
+
+            fields_text = m.group(2)
+            fields_text = fields_text.replace('&', '')
+            fields_text = fields_text.replace(',', '')
 
             # Get list of each hf field in the array
-            fields = all_fields.split()
+            fields = fields_text.split()
 
             if fields[0].startswith('ett_'):
                 continue
             if fields[-1].find('NULL') == -1 and fields[-1] != '0':
                 print('Warning:', filename, name, 'is not NULL-terminated - {', ', '.join(fields), '}')
                 warnings_found += 1
+                continue
 
             # Do any hf items reappear?
             seen_fields = set()
@@ -1042,7 +1058,10 @@ def find_field_arrays(filename, all_fields, all_hf):
                         warnings_found += 1
                     set_field_width = new_field_width
 
-    return []
+            # Add entry to table
+            field_entries[name] = (fields[0:-1], combined_mask)
+
+    return field_entries
 
 def find_item_declarations(filename):
     items = set()
@@ -1116,18 +1135,23 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
 
     fields = set()
 
-    # Check each API
+    # Get 'fields' out of calls
     for c in apiChecks:
         c.find_calls(filename, macros)
         for call in c.calls:
+            # From _add_bitmask() calls
             if call.fields:
                 fields.add(call.fields)
 
-        c.check_against_items(items_defined, items_declared, items_extern_declared, check_missing_items)
-
     # Checking for lists of fields for add_bitmask calls
+    field_arrays = {}
     if check_bitmask_fields:
         field_arrays = find_field_arrays(filename, fields, items_defined)
+
+    # Now actually check the calls
+    for c in apiChecks:
+        c.check_against_items(items_defined, items_declared, items_extern_declared, check_missing_items, field_arrays)
+
 
     if label_vs_filter:
         matches = 0

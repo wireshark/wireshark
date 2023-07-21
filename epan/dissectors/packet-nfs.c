@@ -7033,11 +7033,11 @@ dissect_nfs4_mode(tvbuff_t *tvb, int offset, proto_tree *tree)
 	return dissect_nfs2_mode(tvb, offset, tree);
 }
 
-#define FH4_PERSISTENT 0x00000000
+#define FH4_PERSISTENT         0x00000000
 #define FH4_NOEXPIRE_WITH_OPEN 0x00000001
-#define FH4_VOLATILE_ANY 0x00000002
-#define FH4_VOL_MIGRATION 0x00000004
-#define FH4_VOL_RENAME 0x00000008
+#define FH4_VOLATILE_ANY       0x00000002
+#define FH4_VOL_MIGRATION      0x00000004
+#define FH4_VOL_RENAME         0x00000008
 
 static const value_string nfs4_fattr4_fh_expire_type_names[] = {
 	{ FH4_PERSISTENT, "FH4_PERSISTENT" },
@@ -12669,15 +12669,15 @@ proto_register_nfs(void)
 		{ &hf_nfs4_fattr_fh_expiry_volatile_any, {
 			"volatile_any", "nfs.fattr4_fh_expire_type.volatile_any",
 			FT_BOOLEAN, 32,
-			NULL, FH4_NOEXPIRE_WITH_OPEN, NULL, HFILL }},
+			NULL, FH4_VOLATILE_ANY, NULL, HFILL }},
 		{ &hf_nfs4_fattr_fh_expiry_vol_migration, {
 			"vol_migration", "nfs.fattr4_fh_expire_type.vol_migration",
 			FT_BOOLEAN, 32,
-			NULL, FH4_NOEXPIRE_WITH_OPEN, NULL, HFILL }},
+			NULL, FH4_VOL_MIGRATION, NULL, HFILL }},
 		{ &hf_nfs4_fattr_fh_expiry_vol_rename, {
 			"vol_rename", "nfs.fattr4_fh_expire_type.vol_rename",
 			FT_BOOLEAN, 32,
-			NULL, FH4_NOEXPIRE_WITH_OPEN, NULL, HFILL }},
+			NULL, FH4_VOL_RENAME, NULL, HFILL }},
 
 		{ &hf_nfs4_fattr_hidden, {
 			"fattr4_hidden", "nfs.fattr4_hidden", FT_BOOLEAN, BASE_NONE,

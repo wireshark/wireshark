@@ -2971,8 +2971,8 @@ static const value_string extended_data_message_types[] = {
 };
 
 #define EXTENDED_DATA_MFLAG_NORMAL 0x01
-#define EXTENDED_DATA_MFLAG_AUTO 0x03
-#define EXTENDED_DATA_MFLAG_MULTI 0x80
+#define EXTENDED_DATA_MFLAG_AUTO   0x02
+#define EXTENDED_DATA_MFLAG_MULTI  0x80
 
 #define EVIL_ORIGIN_ANONYMOUS		1
 #define EVIL_ORIGIN_NONANONYMOUS 	2
