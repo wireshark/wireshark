@@ -639,6 +639,7 @@ static guint32 get_reassembly_start_frame(packet_info *pinfo, guint32 seg_info,
     return frame_id;
 }
 
+/* On first pass - if this SN is complete, don't try to add any more fragments to it */
 static void reassembly_frame_complete(packet_info *pinfo,
                                       rlc_nr_info *p_rlc_nr_info, guint32 sn)
 {
@@ -652,7 +653,7 @@ static void reassembly_frame_complete(packet_info *pinfo,
 
         /* Set Key. */
         wmem_tree_key_t key[2];
-        key[0].length = 4;       /* Ignoring this frame num */
+        key[0].length = 5;
         key[0].key = key_values;
         key[1].length = 0;
         key[1].key = NULL;
