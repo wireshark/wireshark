@@ -2322,11 +2322,6 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     /* Look for conv and add to the frame if found */
 
     p_packet_data = get_rtp_packet_info(pinfo, rtp_info);
-    if (p_packet_data) {
-        rtp_info->info_media_types = p_packet_data->media_types;
-        rtp_info->info_extended_seq_num = p_packet_data->extended_seqno;
-        rtp_info->info_extended_timestamp = p_packet_data->extended_timestamp;
-    }
 
     if (p_packet_data && p_packet_data->srtp_info) is_srtp = TRUE;
     rtp_info->info_is_srtp = is_srtp;
@@ -2961,9 +2956,10 @@ get_rtp_packet_info(packet_info *pinfo, struct _rtp_info *rtp_info)
         p_packet_data->extended_timestamp = timestamp;
         number_space->extended_timestamp = timestamp;
     }
-    if (p_packet_data) {
-        rtp_info->info_setup_frame_num = p_packet_data->frame_number;
-    }
+    rtp_info->info_setup_frame_num = p_packet_data->frame_number;
+    rtp_info->info_media_types = p_packet_data->media_types;
+    rtp_info->info_extended_seq_num = p_packet_data->extended_seqno;
+    rtp_info->info_extended_timestamp = p_packet_data->extended_timestamp;
     return p_packet_data;
 }
 
