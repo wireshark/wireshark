@@ -403,9 +403,6 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	if (bogus_poffset)
 		return offset;	/* payload offset was bogus */
 
-	if (!tree)
-		return tvb_reported_length(tvb);
-
 	/* if there are any additional header bytes */
 	if (poffset != offset) {
 		proto_tree_add_item(dhcpfo_tree, hf_dhcpfo_additional_HB, tvb,
