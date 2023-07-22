@@ -3852,7 +3852,7 @@ proto_register_nan(void)
              {
              "Map ID",
              "nan.unaligned_schedule.ulw_overwrite.map_id",
-             FT_UINT16, BASE_HEX_DEC, NULL, 0x1E, NULL, HFILL
+             FT_UINT8, BASE_HEX_DEC, NULL, 0x1E, NULL, HFILL
              }
         },
         { &hf_nan_attr_unaligned_sch_ulw_ctrl,

@@ -4014,6 +4014,7 @@ proto_register_glusterfs(void)
 			{ "O_NOFOLLOW", "glusterfs.flags.nofollow", FT_BOOLEAN, 32,
 				TFS(&tfs_set_notset), 00400000, NULL, HFILL }
 		},
+		/* TODO: These 2 have the same mask.  Which one is correct? */
 		{ &hf_glusterfs_flags_nonblock,
 			{ "O_NONBLOCK", "glusterfs.flags.nonblock", FT_BOOLEAN, 32,
 				TFS(&tfs_set_notset), 00004000, NULL, HFILL }
@@ -4022,6 +4023,7 @@ proto_register_glusterfs(void)
 			{ "O_NDELAY", "glusterfs.flags.ndelay", FT_BOOLEAN, 32,
 				TFS(&tfs_set_notset), 00004000, NULL, HFILL }
 		},
+		/* TODO: These 2 have the same mask.  Which one is correct? */
 		{ &hf_glusterfs_flags_sync,
 			{ "O_SYNC", "glusterfs.flags.sync", FT_BOOLEAN, 32,
 				TFS(&tfs_set_notset), 00010000, NULL, HFILL }

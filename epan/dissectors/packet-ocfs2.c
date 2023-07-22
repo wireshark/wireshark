@@ -1492,7 +1492,7 @@ void proto_register_ocfs2(void)
 		},
 		{ &hf_dlm_mres_flags,
 			{ "Flags", "ocfs2.dlm.mres_flags", FT_UINT8, BASE_HEX,
-			  NULL, 0x01, "Migres Flags", HFILL
+			  NULL, 0x06, "Migres Flags", HFILL
 			}
 		},
 		{ &hf_dlm_mres_flag_recovery,
@@ -1505,6 +1505,7 @@ void proto_register_ocfs2(void)
 			  NULL, 0x04, NULL, HFILL
 			}
 		},
+		/* TODO: what should this flag be? Should also be added to hf_dlm_mres_flags above */
 		{ &hf_dlm_mres_flag_all_done,
 			{ "all_done", "ocfs2.dlm.mres_flags.all_done", FT_BOOLEAN, 8,
 			  NULL, 0x0, NULL, HFILL

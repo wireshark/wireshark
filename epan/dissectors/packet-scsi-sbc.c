@@ -1944,6 +1944,7 @@ proto_register_scsi_sbc(void)
         { &hf_scsi_sbc_formatunit_flags,
           {"Flags", "scsi_sbc.formatunit.flags", FT_UINT8, BASE_HEX, NULL, 0xF8,
            NULL, HFILL}},
+        // TODO: need multiple fields, as appears in different positions in fields lists!
         { &hf_scsi_sbc_defect_list_format,
           {"Defect List Format", "scsi_sbc.defect_list_format", FT_UINT8, BASE_DEC,
            NULL, 0x7, NULL, HFILL}},

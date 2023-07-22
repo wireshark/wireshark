@@ -5708,7 +5708,7 @@ static guint mp_max_fragments = 6;
  * memory use significantly. */
 static guint mp_fragment_aging = 4000; /* Short sequence numbers only 12 bit */
 
-#define MP_FRAG_MASK           0xFC
+#define MP_FRAG_MASK           0xFF
 #define MP_FRAG_MASK_SHORT     0xF0
 #define MP_FRAG_FIRST          0x80
 #define MP_FRAG_LAST           0x40

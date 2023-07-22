@@ -46,6 +46,7 @@ static int hf_cfdp_version = -1;
 static int hf_cfdp_pdu_type = -1;
 static int hf_cfdp_direction = -1;
 static int hf_cfdp_trans_mode = -1;
+static int hf_cfdp_trans_mode_2 = -1;
 static int hf_cfdp_crc_flag = -1;
 static int hf_cfdp_res1 = -1;
 static int hf_cfdp_data_length = -1;
@@ -486,7 +487,7 @@ static int * const cfdp_proxy_fault_hdl_overr[] = {
 
 static int * const cfdp_proxy_trans_mode [] = {
     &hf_cfdp_spare_seven_2,
-    &hf_cfdp_trans_mode,
+    &hf_cfdp_trans_mode_2,
     NULL
 };
 
@@ -1631,6 +1632,11 @@ proto_register_cfdp(void)
         { &hf_cfdp_trans_mode,
             { "Trans. Mode", "cfdp.trans_mode",
             FT_UINT8, BASE_DEC, VALS(cfdp_trans_mode), HDR_TMODE,
+            NULL, HFILL }
+        },
+        { &hf_cfdp_trans_mode_2,
+            { "Trans. Mode", "cfdp.trans_mode",
+            FT_UINT8, BASE_DEC, VALS(cfdp_trans_mode), 0x01,
             NULL, HFILL }
         },
         { &hf_cfdp_crc_flag,
