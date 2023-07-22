@@ -21,7 +21,7 @@
  * - RFC 6525
  * - RFC 7053
  * - https://tools.ietf.org/html/draft-stewart-sctp-pktdrprep-02
- * - https://tools.ietf.org/html/draft-ladha-sctp-nonce-02
+ * - https://www.ietf.org/archive/id/draft-ietf-tsvwg-sctp-zero-checksum-01.html
  *
  * Still to do (so stay tuned)
  * - error checking mode
@@ -185,6 +185,8 @@ static int hf_add_outgoing_streams_number_streams = -1;
 static int hf_add_outgoing_streams_reserved = -1;
 static int hf_add_incoming_streams_number_streams = -1;
 static int hf_add_incoming_streams_reserved = -1;
+
+static int hf_zero_checksum_edmid = -1;
 
 static int hf_random_number = -1;
 static int hf_chunks_to_auth = -1;
@@ -1618,9 +1620,19 @@ dissect_ecn_parameter(tvbuff_t *parameter_tvb _U_)
 {
 }
 
+#define ZERO_CHECKSUM_PARAMETER_EDMID_LENGTH 4
+#define ZERO_CHECKSUM_PARAMETER_EDMID_OFFSET PARAMETER_VALUE_OFFSET
+
+static const value_string edmid_values[] = {
+  { 1, "SCTP over DTLS" },
+  { 0, NULL             }
+};
+
 static void
-dissect_zero_checksum_acceptable_parameter(tvbuff_t *parameter_tvb _U_)
+dissect_zero_checksum_acceptable_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
+  proto_tree_add_item(parameter_tree, hf_zero_checksum_edmid, parameter_tvb, ZERO_CHECKSUM_PARAMETER_EDMID_OFFSET, ZERO_CHECKSUM_PARAMETER_EDMID_LENGTH, ENC_BIG_ENDIAN);
+  proto_item_append_text(parameter_item, " (EDMID: %s)", val_to_str_const(tvb_get_ntohl(parameter_tvb, ZERO_CHECKSUM_PARAMETER_EDMID_OFFSET), edmid_values, "Unknown"));
 }
 
 #define RANDOM_NUMBER_OFFSET PARAMETER_VALUE_OFFSET
@@ -1963,7 +1975,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo,
     dissect_ecn_parameter(parameter_tvb);
     break;
   case ZERO_CHECKSUM_ACCEPTABLE_PARAMETER_ID:
-    dissect_zero_checksum_acceptable_parameter(parameter_tvb);
+    dissect_zero_checksum_acceptable_parameter(parameter_tvb, parameter_tree, parameter_item);
     break;
   case RANDOM_PARAMETER_ID:
     dissect_random_parameter(parameter_tvb, parameter_tree);
@@ -4982,6 +4994,7 @@ proto_register_sctp(void)
     { &hf_asconf_ack_seq_nr,                        { "Sequence number",                                "sctp.asconf_ack_seq_nr_number",                        FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_correlation_id,                           { "Correlation_id",                                 "sctp.correlation_id",                                  FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_adap_indication,                          { "Indication",                                     "sctp.adaptation_layer_indication",                     FT_UINT32,  BASE_HEX,  NULL,                                           0x0,                                NULL, HFILL } },
+    { &hf_zero_checksum_edmid,                      { "Error Detection Method Identifier",              "sctp.edmid",                                           FT_UINT32,  BASE_DEC,  VALS(edmid_values),                             0x0,                                NULL, HFILL } },
     { &hf_random_number,                            { "Random number",                                  "sctp.random_number",                                   FT_BYTES,   BASE_NONE, NULL,                                           0x0,                                NULL, HFILL } },
     { &hf_chunks_to_auth,                           { "Chunk type",                                     "sctp.chunk_type_to_auth",                              FT_UINT8,   BASE_DEC,  VALS(chunk_type_values),                        0x0,                                NULL, HFILL } },
     { &hf_hmac_id,                                  { "HMAC identifier",                                "sctp.hmac_id",                                         FT_UINT16,  BASE_DEC,  VALS(hmac_id_values),                           0x0,                                NULL, HFILL } },
