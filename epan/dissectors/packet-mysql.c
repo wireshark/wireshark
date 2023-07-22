@@ -1,5 +1,5 @@
 /* packet-mysql.c
- * Routines for mysql packet dissection
+ * Routines for MySQL/MariaDB packet dissection
  *
  * Huagang XIE <huagang@intruvert.com>
  *
@@ -93,7 +93,6 @@ void proto_reg_handoff_mysql(void);
  *
  * These are libmysqlclient flags and NOT present
  * in the protocol:
- * CLIENT_SSL_VERIFY_SERVER_CERT (1UL << 30)
  * CLIENT_REMEMBER_OPTIONS (1UL << 31)
  */
 #define MYSQL_CAPS_MS 0x0001 /* CLIENT_MULTI_STATMENTS */
@@ -110,8 +109,9 @@ void proto_reg_handoff_mysql(void);
 #define MYSQL_CAPS_QA 0x0800 /* CLIENT_QUERY_ATTRIBUTES */
 #define MYSQL_CAPS_MF 0x1000 /* MULTI_FACTOR_AUTHENTICATION */
 #define MYSQL_CAPS_CE 0x2000 /* CLIENT_CAPABILITY_EXTENSION */
+#define MYSQL_CAPS_VC 0x4000 /* CLIENT_SSL_VERIFY_SERVER_CERT */
 
-#define MYSQL_CAPS_UNUSED 0xC000
+#define MYSQL_CAPS_UNUSED 0x8000 /* Currently only a single bit */
 
 /* status bitfield */
 #define MYSQL_STAT_IT 0x0001
@@ -1016,6 +1016,7 @@ static int hf_mysql_cap_compress_zstd = -1;
 static int hf_mysql_cap_query_attrs = -1;
 static int hf_mysql_cap_mf_auth = -1;
 static int hf_mysql_cap_cap_ext = -1;
+static int hf_mysql_cap_ssl_verify_server_cert = -1;
 static int hf_mysql_cap_unused = -1;
 static int hf_mysql_server_language = -1;
 static int hf_mysql_server_status = -1;
@@ -1589,6 +1590,7 @@ static int * const mysql_extcaps_flags[] = {
 	&hf_mysql_cap_query_attrs,
 	&hf_mysql_cap_mf_auth,
 	&hf_mysql_cap_cap_ext,
+	&hf_mysql_cap_ssl_verify_server_cert,
 	&hf_mysql_cap_unused,
 	NULL
 };
@@ -4711,6 +4713,11 @@ void proto_register_mysql(void)
 		{ &hf_mysql_cap_cap_ext,
 		{ "Capability Extension","mysql.caps.cap_ext",
 		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_CE,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_ssl_verify_server_cert,
+		{ "Client verifies server's TLS/SSL certificate","mysql.caps.vc",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_VC,
 		NULL, HFILL }},
 
 		{ &hf_mysql_cap_unused,
