@@ -17290,6 +17290,7 @@ static const range_string qos_mgmt_attributes[] = {
   { 0, 0, NULL }
 };
 
+/* TODO: these fields are not correct - they all have mask 0x01 */
 static int * const qos_mgmt_pol_headers[] = {
   &hf_ieee80211_qos_mgmt_pol_capa_enabled,
   &hf_ieee80211_qos_mgmt_pol_capa_unsolicited,
@@ -27660,6 +27661,7 @@ static int * const ieee80211_tclas_class_mask8[] = {
   NULL
 };
 
+/* TODO: the masks for these items are clearly wrong! */
 static int * const ieee80211_tclas_class_mask9[] = {
   &hf_ieee80211_tclas_class_mask9_frame_control_match_spec,
   &hf_ieee80211_tclas_class_mask9_address_1_match_spec,
@@ -42120,11 +42122,11 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ftm_rsta_format_and_bandwidth,
       {"Format and Bandwidth", "wlan.ftm.rsta.format_and_bandwidth",
-       FT_UINT8, BASE_HEX, NULL, 0x3F, NULL, HFILL }},
+       FT_UINT40, BASE_HEX, NULL, 0x3F00000000, NULL, HFILL }},
 
     {&hf_ieee80211_ftm_rsta_reserved,
      {"Reserved", "wlan.ftm.rsta.reserved",
-      FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL }},
+      FT_UINT40, BASE_HEX, NULL, 0xC000000000, NULL, HFILL }},
 
     {&hf_ieee80211_ftm_rsta_avail_subfield_short,
      {"RSTA Availability Information", "wlan.ranging.rsta.availability_window",
@@ -45316,7 +45318,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_s1g_cap_mu_beamformer_capable,
      {"MU Beamformer Capable", "wlan.s1g.capabilities.beamformer_capable",
-      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04, NULL, HFILL }},
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_cap_mu_beamformee_capable,
      {"MU Beamformee Capable", "wlan.s1g.capabilities.beamformee_capable",
@@ -52636,7 +52638,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_esp_data_ppdu_duration_target,
      {"Data PPDU Duration Target", "wlan.ext_tag.estimated_service_params.data_ppdu_dur_target",
-      FT_UINT24, BASE_DEC, NULL, 0x00FF00, NULL, HFILL }},
+      FT_UINT24, BASE_DEC, NULL, 0xFF0000, NULL, HFILL }},
 
     {&hf_ieee80211_fcg_new_channel_number,
      {"New Channel Number", "wlan.ext_tag.future_channel_guidance.new_chan_num",
@@ -54036,11 +54038,11 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_twt_bcast_flow,
       {"TWT Flow", "wlan.twt.bcast_flow",
-       FT_UINT8, BASE_HEX, NULL, 0x7f, NULL, HFILL }},
+       FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_twt_individual_flow,
       {"TWT Flow", "wlan.twt.individual_flow",
-       FT_UINT8, BASE_HEX, NULL, 0x67, NULL, HFILL }},
+       FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_twt_individual_flow_id,
       {"Individual TWT Flow Id", "wlan.twt.individual_flow_id",
