@@ -2516,7 +2516,6 @@ decrypt_verifier(tvbuff_t *tvb, packet_info *pinfo)
   ntlmssp_packet_info *packet_ntlmssp_info;
   int                  decrypted_offset    = 0;
   int                  sequence            = 0;
-  ntlmssp_packet_info *stored_packet_ntlmssp_info = NULL;
 
   packet_ntlmssp_info = (ntlmssp_packet_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ntlmssp, NTLMSSP_PACKET_INFO_KEY);
   if (packet_ntlmssp_info == NULL) {
@@ -2531,95 +2530,88 @@ decrypt_verifier(tvbuff_t *tvb, packet_info *pinfo)
   conv_ntlmssp_info = (ntlmssp_info *)conversation_get_proto_data(conversation,
                                                   proto_ntlmssp);
   if (conv_ntlmssp_info == NULL) {
-  /* There is no NTLMSSP state tied to the conversation */
+    /* There is no NTLMSSP state tied to the conversation */
     return;
   }
 
-  if (stored_packet_ntlmssp_info != NULL && stored_packet_ntlmssp_info->verifier_decrypted == TRUE) {
-      /* Mat TBD fprintf(stderr, "Found a already decrypted packet\n");*/
-      /* In Theory it's aleady the case, and we should be more clever ... like just copying buffers ...*/
-      packet_ntlmssp_info = stored_packet_ntlmssp_info;
-  }
-  else {
-    if (!packet_ntlmssp_info->verifier_decrypted) {
-      if (!conv_ntlmssp_info->rc4_state_initialized) {
-        /* The crypto subsystem is not initialized.  This means that either
-           the conversation did not include a challenge, or we are doing
-           something other than NTLMSSP v1 */
-        return;
-      }
-      if (conv_ntlmssp_info->server_dest_port == pinfo->destport) {
-        /* client talk to server */
-        rc4_handle = get_encrypted_state(pinfo, 1);
-        sign_key = get_sign_key(pinfo, 1);
-        rc4_handle_peer = get_encrypted_state(pinfo, 0);
-      } else {
-        rc4_handle = get_encrypted_state(pinfo, 0);
-        sign_key = get_sign_key(pinfo, 0);
-        rc4_handle_peer = get_encrypted_state(pinfo, 1);
-      }
+  if (!packet_ntlmssp_info->verifier_decrypted) {
+    if (!conv_ntlmssp_info->rc4_state_initialized) {
+      /* The crypto subsystem is not initialized.  This means that either
+         the conversation did not include a challenge, or we are doing
+         something other than NTLMSSP v1 */
+      return;
+    }
+    if (conv_ntlmssp_info->server_dest_port == pinfo->destport) {
+      /* client talk to server */
+      rc4_handle = get_encrypted_state(pinfo, 1);
+      sign_key = get_sign_key(pinfo, 1);
+      rc4_handle_peer = get_encrypted_state(pinfo, 0);
+    } else {
+      rc4_handle = get_encrypted_state(pinfo, 0);
+      sign_key = get_sign_key(pinfo, 0);
+      rc4_handle_peer = get_encrypted_state(pinfo, 1);
+    }
 
-      if (rc4_handle == NULL || rc4_handle_peer == NULL) {
-        /* There is no encryption state, so we cannot decrypt */
-        return;
-      }
+    if (rc4_handle == NULL || rc4_handle_peer == NULL) {
+      /* There is no encryption state, so we cannot decrypt */
+      return;
+    }
 
-      /*if (!(NTLMSSP_NEGOTIATE_KEY_EXCH & packet_ntlmssp_info->flags)) {*/
-      if (conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY) {
-        if ((NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags)) {
-          /* The spec says that if we have a key exchange then we have the signature that is encrypted
-           * otherwise it's just a hmac_md5(keysign, concat(message, sequence))[0..7]
-           */
-          if (gcry_cipher_decrypt(rc4_handle, packet_ntlmssp_info->verifier, 8, NULL, 0)) {
-            return;
-          }
+    /*if (!(NTLMSSP_NEGOTIATE_KEY_EXCH & packet_ntlmssp_info->flags)) {*/
+    if (conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY) {
+      if ((NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags)) {
+        /* The spec says that if we have a key exchange then we have the signature that is encrypted
+         * otherwise it's just a hmac_md5(keysign, concat(message, sequence))[0..7]
+         */
+        if (gcry_cipher_decrypt(rc4_handle, packet_ntlmssp_info->verifier, 8, NULL, 0)) {
+          return;
+        }
+      }
+      /*
+       * Trying to check the HMAC MD5 of the message against the calculated one works great with LDAP payload but
+       * don't with DCE/RPC calls.
+       * TODO Some analysis needs to be done ...
+       */
+      if (sign_key != NULL) {
+        check_buf = (guint8 *)wmem_alloc(wmem_packet_scope(), packet_ntlmssp_info->payload_len+4);
+        tvb_memcpy(tvb, &sequence, packet_ntlmssp_info->verifier_offset+8, 4);
+        memcpy(check_buf, &sequence, 4);
+        memcpy(check_buf+4, packet_ntlmssp_info->decrypted_payload, packet_ntlmssp_info->payload_len);
+        if (ws_hmac_buffer(GCRY_MD_MD5, calculated_md5, check_buf, (int)(packet_ntlmssp_info->payload_len+4), sign_key, NTLMSSP_KEY_LEN)) {
+          return;
         }
         /*
-         * Trying to check the HMAC MD5 of the message against the calculated one works great with LDAP payload but
-         * don't with DCE/RPC calls.
-         * TODO Some analysis needs to be done ...
-         */
-        if (sign_key != NULL) {
-          check_buf = (guint8 *)wmem_alloc(wmem_packet_scope(), packet_ntlmssp_info->payload_len+4);
-          tvb_memcpy(tvb, &sequence, packet_ntlmssp_info->verifier_offset+8, 4);
-          memcpy(check_buf, &sequence, 4);
-          memcpy(check_buf+4, packet_ntlmssp_info->decrypted_payload, packet_ntlmssp_info->payload_len);
-          if (ws_hmac_buffer(GCRY_MD_MD5, calculated_md5, check_buf, (int)(packet_ntlmssp_info->payload_len+4), sign_key, NTLMSSP_KEY_LEN)) {
-            return;
-          }
-          /*
-          printnbyte(packet_ntlmssp_info->verifier, 8, "HMAC from packet: ", "\n");
-          printnbyte(calculated_md5, 8, "HMAC            : ", "\n");
-          */
-        }
+        printnbyte(packet_ntlmssp_info->verifier, 8, "HMAC from packet: ", "\n");
+        printnbyte(calculated_md5, 8, "HMAC            : ", "\n");
+        */
       }
-      else {
-        /* The packet has a PAD then a checksum then a sequence and they are encoded in this order so we can decrypt all at once */
-        /* Do the actual decryption of the verifier */
-        if (gcry_cipher_decrypt(rc4_handle, packet_ntlmssp_info->verifier, packet_ntlmssp_info->verifier_block_length, NULL, 0)) {
-          return;
-        }
-      }
-
-
-
-      /* We setup a temporary buffer so we can re-encrypt the payload after
-         decryption. This is to update the opposite peer's RC4 state
-         This is not needed when we just have EXTENDED SESSION SECURITY because the signature is not encrypted
-         and it's also not needed when we have key exchange because server and client have independent keys */
-      if (!(NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags) && !(NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY & conv_ntlmssp_info->flags)) {
-        peer_block = (guint8 *)wmem_memdup(wmem_packet_scope(), packet_ntlmssp_info->verifier, packet_ntlmssp_info->verifier_block_length);
-        if (gcry_cipher_decrypt(rc4_handle_peer, peer_block, packet_ntlmssp_info->verifier_block_length, NULL, 0)) {
-          return;
-        }
-      }
-
-      /* Mark the packet as decrypted so that subsequent attempts to dissect
-         the packet use the already decrypted payload instead of attempting
-         to decrypt again */
-      packet_ntlmssp_info->verifier_decrypted = TRUE;
     }
+    else {
+      /* The packet has a PAD then a checksum then a sequence and they are encoded in this order so we can decrypt all at once */
+      /* Do the actual decryption of the verifier */
+      if (gcry_cipher_decrypt(rc4_handle, packet_ntlmssp_info->verifier, packet_ntlmssp_info->verifier_block_length, NULL, 0)) {
+        return;
+      }
+    }
+
+
+    /* We setup a temporary buffer so we can re-encrypt the payload after
+       decryption. This is to update the opposite peer's RC4 state
+       This is not needed when we just have EXTENDED SESSION SECURITY because the signature is not encrypted
+       and it's also not needed when we have key exchange because server and client have independent keys */
+    if (!(NTLMSSP_NEGOTIATE_KEY_EXCH & conv_ntlmssp_info->flags) && !(NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY & conv_ntlmssp_info->flags)) {
+      peer_block = (guint8 *)wmem_memdup(wmem_packet_scope(), packet_ntlmssp_info->verifier, packet_ntlmssp_info->verifier_block_length);
+      if (gcry_cipher_decrypt(rc4_handle_peer, peer_block, packet_ntlmssp_info->verifier_block_length, NULL, 0)) {
+        return;
+      }
+    }
+
+    /* Mark the packet as decrypted so that subsequent attempts to dissect
+       the packet use the already decrypted payload instead of attempting
+       to decrypt again */
+    packet_ntlmssp_info->verifier_decrypted = TRUE;
   }
+
   /* Show the decrypted buffer in a new window */
   decr_tvb = tvb_new_child_real_data(tvb, packet_ntlmssp_info->verifier,
                                      packet_ntlmssp_info->verifier_block_length,
