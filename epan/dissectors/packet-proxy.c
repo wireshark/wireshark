@@ -24,8 +24,10 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/to_str.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/utf8_entities.h>
 
 #include "packet-tcp.h"
 #include "packet-udp.h"
@@ -83,7 +85,16 @@ static gint ett_proxy2 = -1;
 static gint ett_proxy2_fampro = -1;
 static gint ett_proxy2_tlv = -1;
 
+static dissector_handle_t proxy_v1_handle;
+static dissector_handle_t proxy_v2_handle;
+
 static const guint8 proxy_v2_magic[] = { 0x0d, 0x0a, 0x0d, 0x0a, 0x00, 0x0d, 0x0a, 0x51, 0x55, 0x49, 0x54, 0x0a };
+
+static const value_string proxy2_cmd_vals[] = {
+    { 0x0, "LOCAL" },
+    { 0x1, "PROXY" },
+    { 0 , NULL }
+};
 
 static const value_string proxy2_family_protocol_vals[] = {
     { 0x00, "UNSPEC" },
@@ -134,6 +145,104 @@ static const value_string proxy2_tlv_vals[] = {
     { PP2_TYPE_AWS, "AWS" },
     { 0, NULL }
 };
+
+/* XXX: The protocol specification says that the PROXY header is present
+ * only once, at the beginning of a TCP connection. If we ever do find
+ * the header more than once, we should use a wmem_tree. */
+typedef struct _proxy_conv_info_t {
+    address src;
+    address dst;
+    port_type ptype;
+    uint16_t srcport;
+    uint16_t dstport;
+    uint32_t setup_frame;
+} proxy_conv_info_t;
+
+static int
+dissect_proxy_proxied(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
+    int offset, void* data, proxy_conv_info_t *proxy_info)
+{
+    conversation_t* conv = find_or_create_conversation(pinfo);
+    /* A PROXY header was parsed here or in a previous frame, and
+     * there's remaining data, so call the subdissector.
+     */
+    if (offset > 0) {
+        /* If this is the frame with the header, set a fence. */
+        col_append_str(pinfo->cinfo, COL_INFO, " | ");
+        col_set_fence(pinfo->cinfo, COL_INFO);
+    }
+    uint32_t srcport, dstport;
+    port_type ptype;
+    if (proxy_info == NULL) {
+        /* If we're not passed proxied information, e.g., a LOCAL command or
+         * transported over UDP (connectionless), use the outer addressing.
+         * Note that if the other dissector calls conversation_set_dissector()
+         * or similar then on the second pass we won't call the PROXY heuristic
+         * dissector for coalesced frames.
+         */
+        srcport = pinfo->srcport;
+        dstport = pinfo->destport;
+        ptype = pinfo->ptype;
+    }
+    else {
+        /* If we're passed proxied connection info, set the endpoint used for
+         * conversations to the proxied connection, so that if the subdissector
+         * calls conversation_set_dissector() it will not prevent calling the
+         * PROXY dissector on the header frame on the second pass.
+         * Determine our direction.
+         *
+         * XXX: Perhaps we should actually change the values in pinfo, but
+         * currently that doesn't work well with Follow Stream (whether we
+         * change them back before returning to the TCP dissector or not.)
+         */
+        if (addresses_equal(&pinfo->src, conversation_key_addr1(conv->key_ptr)) &&
+            (pinfo->srcport == conversation_key_port1(conv->key_ptr))) {
+            conversation_set_conv_addr_port_endpoints(pinfo, &proxy_info->src, &proxy_info->dst,
+                conversation_pt_to_conversation_type(proxy_info->ptype), proxy_info->srcport,
+                proxy_info->dstport);
+            srcport = proxy_info->srcport;
+            dstport = proxy_info->dstport;
+            ptype = proxy_info->ptype;
+        }
+        else {
+            conversation_set_conv_addr_port_endpoints(pinfo, &proxy_info->dst, &proxy_info->src,
+                conversation_pt_to_conversation_type(proxy_info->ptype), proxy_info->dstport,
+                proxy_info->srcport);
+            srcport = proxy_info->dstport;
+            dstport = proxy_info->srcport;
+            ptype = proxy_info->ptype;
+        }
+    }
+
+    tvbuff_t* next_tvb = tvb_new_subset_remaining(tvb, offset);
+    /* Allow subdissector to perform reassembly. */
+    if (pinfo->can_desegment > 0)
+        pinfo->can_desegment++;
+    switch (ptype) {
+    case (PT_TCP):
+        /* Get the TCP conversation data associated with the transporting
+         * connection. Note that this means that decode_tcp_ports() can
+         * try tcp->server_port from the outer connection as well as
+         * the ports from the proxied connection.
+         */
+        decode_tcp_ports(next_tvb, 0, pinfo, tree, srcport, dstport,
+            get_tcp_conversation_data(conv, pinfo), (struct tcpinfo*)data);
+        break;
+    case (PT_UDP):
+        decode_udp_ports(next_tvb, 0, pinfo, tree, srcport, dstport, -1);
+        break;
+    default:
+        /* Dissect UNIX and UNSPEC protocols as data */
+        call_data_dissector(next_tvb, pinfo, tree);
+    }
+    if (pinfo->desegment_len > 0) {
+        /* If the subdissector requests desegmentation, adjust the
+         * desegment offset past the PROXY header.
+         */
+        pinfo->desegment_offset += offset;
+    }
+    return tvb_reported_length_remaining(tvb, offset);
+}
 
 static int
 dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, int offset, int next_offset)
@@ -193,6 +302,24 @@ dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, 
     return offset;
 }
 
+static gboolean
+is_proxy_v2(tvbuff_t* tvb)
+{
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
+
+    if (length < 16) {
+        return FALSE;
+    }
+
+    if (tvb_memeql(tvb, offset, (const guint8*)proxy_v2_magic, sizeof(proxy_v2_magic)) != 0) {
+        return FALSE;
+    }
+    // TODO maybe check for "(hdr.v2.ver_cmd & 0xF0) == 0x20" as done in "9. Sample code" from
+    // https://www.haproxy.org/download/1.8/doc/proxy-protocol.txt?
+
+    return TRUE;
+}
 
 /* "a 108-byte buffer is always enough to store all the line and a trailing zero" */
 #define PROXY_V1_MAX_LINE_LENGTH 107
@@ -260,10 +387,11 @@ dissect_proxy_v1_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint        header_length = 0;
     gint        token_length = 0;
     gint        tcp_ip_version = 0;
-    guint16     port;
+    guint16     srcport, dstport;
     gchar       buffer[PROXY_V1_MAX_LINE_LENGTH];
-    guint32     addr_ipv4;
-    ws_in6_addr addr_ipv6;
+    guint32     src_ipv4, dst_ipv4;
+    ws_in6_addr src_ipv6, dst_ipv6;
+    address     src_addr, dst_addr;
 
     if (!is_proxy_v1(tvb, &header_length)) {
         return 0;
@@ -298,24 +426,26 @@ dissect_proxy_v1_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (!proxy_v1_get_token_length(tvb, pinfo, proxy_tree, offset, header_length, buffer, &token_length)) {
             return tvb_captured_length(tvb);
         }
-        if (!ws_inet_pton4(buffer, &addr_ipv4)) {
+        if (!ws_inet_pton4(buffer, &src_ipv4)) {
             proto_tree_add_expert_format(proxy_tree, pinfo, &ei_proxy_bad_format, tvb, offset, token_length,
                     "Unrecognized IPv4 address");
             return tvb_captured_length(tvb);
         }
-        proto_tree_add_ipv4(proxy_tree, hf_proxy_src_ipv4, tvb, offset, token_length, addr_ipv4);
+        proto_tree_add_ipv4(proxy_tree, hf_proxy_src_ipv4, tvb, offset, token_length, src_ipv4);
+        set_address(&src_addr, AT_IPv4, 4, &src_ipv4);
         offset += token_length + 1;
 
         /* IPv4 destination address */
         if (!proxy_v1_get_token_length(tvb, pinfo, proxy_tree, offset, header_length, buffer, &token_length)) {
             return tvb_captured_length(tvb);
         }
-        if (!ws_inet_pton4(buffer, &addr_ipv4)) {
+        if (!ws_inet_pton4(buffer, &dst_ipv4)) {
             proto_tree_add_expert_format(proxy_tree, pinfo, &ei_proxy_bad_format, tvb, offset, token_length,
                     "Unrecognized IPv4 address");
             return tvb_captured_length(tvb);
         }
-        proto_tree_add_ipv4(proxy_tree, hf_proxy_dst_ipv4, tvb, offset, token_length, addr_ipv4);
+        proto_tree_add_ipv4(proxy_tree, hf_proxy_dst_ipv4, tvb, offset, token_length, dst_ipv4);
+        set_address(&dst_addr, AT_IPv4, 4, &dst_ipv4);
         offset += token_length + 1;
         break;
 
@@ -324,24 +454,26 @@ dissect_proxy_v1_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (!proxy_v1_get_token_length(tvb, pinfo, proxy_tree, offset, header_length, buffer, &token_length)) {
             return tvb_captured_length(tvb);
         }
-        if (!ws_inet_pton6(buffer, &addr_ipv6)) {
+        if (!ws_inet_pton6(buffer, &src_ipv6)) {
             proto_tree_add_expert_format(proxy_tree, pinfo, &ei_proxy_bad_format, tvb, offset, token_length,
                     "Unrecognized IPv6 address");
             return tvb_captured_length(tvb);
         }
-        proto_tree_add_ipv6(proxy_tree, hf_proxy_src_ipv6, tvb, offset, token_length, &addr_ipv6);
+        proto_tree_add_ipv6(proxy_tree, hf_proxy_src_ipv6, tvb, offset, token_length, &src_ipv6);
+        set_address(&src_addr, AT_IPv6, sizeof(ws_in6_addr), &src_ipv6);
         offset += token_length + 1;
 
         /* IPv6 destination address */
         if (!proxy_v1_get_token_length(tvb, pinfo, proxy_tree, offset, header_length, buffer, &token_length)) {
             return tvb_captured_length(tvb);
         }
-        if (!ws_inet_pton6(buffer, &addr_ipv6)) {
+        if (!ws_inet_pton6(buffer, &dst_ipv6)) {
             proto_tree_add_expert_format(proxy_tree, pinfo, &ei_proxy_bad_format, tvb, offset, token_length,
                     "Unrecognized IPv6 address");
             return tvb_captured_length(tvb);
         }
-        proto_tree_add_ipv6(proxy_tree, hf_proxy_dst_ipv6, tvb, offset, token_length, &addr_ipv6);
+        proto_tree_add_ipv6(proxy_tree, hf_proxy_dst_ipv6, tvb, offset, token_length, &dst_ipv6);
+        set_address(&dst_addr, AT_IPv6, sizeof(ws_in6_addr), &dst_ipv6);
         offset += token_length + 1;
         break;
 
@@ -354,12 +486,12 @@ dissect_proxy_v1_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (!proxy_v1_get_token_length(tvb, pinfo, proxy_tree, offset, header_length, buffer, &token_length)) {
         return tvb_captured_length(tvb);
     }
-    if (!ws_strtou16(buffer, NULL, &port)) {
+    if (!ws_strtou16(buffer, NULL, &srcport)) {
         proto_tree_add_expert_format(proxy_tree, pinfo, &ei_proxy_bad_format, tvb, offset, token_length,
                 "Unrecognized port");
         return tvb_captured_length(tvb);
     }
-    proto_tree_add_uint(proxy_tree, hf_proxy_srcport, tvb, offset, token_length, port);
+    proto_tree_add_uint(proxy_tree, hf_proxy_srcport, tvb, offset, token_length, srcport);
     offset += token_length + 1;
 
     /* Destination port */
@@ -370,51 +502,63 @@ dissect_proxy_v1_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     tvb_memcpy(tvb, buffer, offset, token_length);
     buffer[token_length] = '\0';
-    if (!ws_strtou16(buffer, NULL, &port)) {
+    if (!ws_strtou16(buffer, NULL, &dstport)) {
         proto_tree_add_expert_format(proxy_tree, pinfo, &ei_proxy_bad_format, tvb, offset, token_length,
                 "Unrecognized port");
         return tvb_captured_length(tvb);
     }
-    proto_tree_add_uint(proxy_tree, hf_proxy_dstport, tvb, offset, token_length, port);
+    proto_tree_add_uint(proxy_tree, hf_proxy_dstport, tvb, offset, token_length, dstport);
 
+    col_add_lstr(pinfo->cinfo, COL_INFO, "PROXY ", address_to_str(pinfo->pool, &src_addr),
+        " "UTF8_RIGHTWARDS_ARROW" ", address_to_str(pinfo->pool, &dst_addr), ", ",
+        COL_ADD_LSTR_TERMINATOR);
+    col_append_ports(pinfo->cinfo, COL_INFO, PT_TCP, srcport, dstport);
+    conversation_t* conv = find_or_create_conversation(pinfo);
+    proxy_conv_info_t* proxy_info = conversation_get_proto_data(conv, proto_proxy);
+    if (proxy_info == NULL) {
+        proxy_info = wmem_new(wmem_file_scope(), proxy_conv_info_t);
+        copy_address_wmem(wmem_file_scope(), &proxy_info->src, &src_addr);
+        copy_address_wmem(wmem_file_scope(), &proxy_info->dst, &dst_addr);
+        proxy_info->ptype = PT_TCP;
+        proxy_info->srcport = srcport;
+        proxy_info->dstport = dstport;
+        proxy_info->setup_frame = pinfo->num;
+        conversation_add_proto_data(conv, proto_proxy, proxy_info);
+    }
     return header_length;
 }
 
 static int
-dissect_proxy_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_proxy_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
+    conversation_t* conv = find_or_create_conversation(pinfo);
+    proxy_conv_info_t* proxy_info;
     int offset = dissect_proxy_v1_header(tvb, pinfo, tree);
-    if (offset > 0 && tvb_reported_length_remaining(tvb, offset)) {
-        /*
-         * If the PROXY v1 header was successfully parsed with remaining data,
-         * call the next dissector. The port number does not have to be changed
-         * as the PROXY header is just a prefix. This also makes it easier to
-         * use Decode As to replace the next dissector.
-         *
-         * Caveat: if the other dissector uses conversation_set_dissector or
-         * similar, then the second pass will fail to call the PROXY dissector
-         * through heuristics. This affects HTTP.
-         * TODO fix two-pass dissection when coalesced with HTTP, see bug 15714.
-         */
-        tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
-        /* Allow subdissector to perform reassembly. */
-        if (pinfo->can_desegment > 0)
-            pinfo->can_desegment++;
-        decode_tcp_ports(next_tvb, 0, pinfo, tree, pinfo->srcport, pinfo->destport,
-                NULL, (struct tcpinfo *)data);
-        offset += tvb_captured_length(next_tvb);
+    proxy_info = conversation_get_proto_data(conv, proto_proxy);
+    if (proxy_info && pinfo->num >= proxy_info->setup_frame &&
+            tvb_reported_length_remaining(tvb, offset)) {
+        /* XXX: If this is a later frame, should we add some
+         * generated fields with the proxy header information,
+         * and a link back to the proxy setup frame? */
+        offset += dissect_proxy_proxied(tvb, pinfo, tree, offset, data, proxy_info);
     }
     return offset;
 }
 
 static int
-dissect_proxy_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        void *data _U_)
+dissect_proxy_v2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_item *ti , *ti_ver;
     proto_tree *proxy_tree, *fampro_tree;
     guint offset = 0, next_offset;
-    guint32 header_len, fam_pro;
+    guint32     header_len, fam_pro, cmd;
+    address     src_addr = ADDRESS_INIT_NONE, dst_addr = ADDRESS_INIT_NONE;
+    guint32     srcport, dstport;
+    port_type   ptype = PT_NONE;
+
+    if (!is_proxy_v2(tvb)) {
+        return 0;
+    }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PROXYv2");
 
@@ -426,7 +570,7 @@ dissect_proxy_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     offset += 12;
 
     proto_tree_add_item(proxy_tree, hf_proxy2_ver, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(proxy_tree, hf_proxy2_cmd, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item_ret_uint(proxy_tree, hf_proxy2_cmd, tvb, offset, 1, ENC_NA, &cmd);
     ti_ver = proto_tree_add_uint(proxy_tree, hf_proxy_version, tvb, offset, 1, 2);
     proto_item_set_generated(ti_ver);
     offset += 1;
@@ -446,24 +590,30 @@ dissect_proxy_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case 0x11: /* TCP over IPv4 */
         case 0x12: /* UDP over IPv4 */
             proto_tree_add_item(proxy_tree, hf_proxy_src_ipv4, tvb, offset, 4, ENC_NA);
+            set_address_tvb(&src_addr, AT_IPv4, 4, tvb, offset);
             offset += 4;
             proto_tree_add_item(proxy_tree, hf_proxy_dst_ipv4, tvb, offset, 4, ENC_NA);
+            set_address_tvb(&dst_addr, AT_IPv4, 4, tvb, offset);
             offset += 4;
-            proto_tree_add_item(proxy_tree, hf_proxy_srcport, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(proxy_tree, hf_proxy_srcport, tvb, offset, 2, ENC_BIG_ENDIAN, &srcport);
             offset += 2;
-            proto_tree_add_item(proxy_tree, hf_proxy_dstport, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(proxy_tree, hf_proxy_dstport, tvb, offset, 2, ENC_BIG_ENDIAN, &dstport);
             offset += 2;
+            ptype = (fam_pro & 1) ? PT_TCP : PT_UDP;
         break;
         case 0x21: /* TCP over IPv6 */
         case 0x22: /* UDP over IPv6 */
             proto_tree_add_item(proxy_tree, hf_proxy_src_ipv6, tvb, offset, 16, ENC_NA);
+            set_address_tvb(&src_addr, AT_IPv6, sizeof(ws_in6_addr), tvb, offset);
             offset += 16;
             proto_tree_add_item(proxy_tree, hf_proxy_dst_ipv6, tvb, offset, 16, ENC_NA);
+            set_address_tvb(&dst_addr, AT_IPv6, sizeof(ws_in6_addr), tvb, offset);
             offset += 16;
-            proto_tree_add_item(proxy_tree, hf_proxy_srcport, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(proxy_tree, hf_proxy_srcport, tvb, offset, 2, ENC_BIG_ENDIAN, &srcport);
             offset += 2;
-            proto_tree_add_item(proxy_tree, hf_proxy_dstport, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(proxy_tree, hf_proxy_dstport, tvb, offset, 2, ENC_BIG_ENDIAN, &dstport);
             offset += 2;
+            ptype = (fam_pro & 1) ? PT_TCP : PT_UDP;
         break;
         case 0x31: /* UNIX stream */
         case 0x32: /* UNIX datagram */
@@ -473,8 +623,10 @@ dissect_proxy_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             offset += 108;
         break;
         default:
-            proto_tree_add_item(proxy_tree, hf_proxy2_unknown, tvb, offset, header_len, ENC_NA);
-            offset += header_len;
+            if (header_len) {
+                proto_tree_add_item(proxy_tree, hf_proxy2_unknown, tvb, offset, header_len, ENC_NA);
+                offset += header_len;
+            }
         break;
     }
 
@@ -490,57 +642,90 @@ dissect_proxy_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset = dissect_proxy_v2_tlv(tvb, pinfo, proxy_tree, offset, next_offset);
     }
 
-    if (offset > 0 && tvb_reported_length_remaining(tvb, offset)) {
-        /*
-         * If the PROXY v2 header was successfully parsed with remaining data,
-         * call the next dissector. The port number does not have to be changed
-         * as the PROXY header is just a prefix. This also makes it easier to
-         * use Decode As to replace the next dissector.
-         *
-         * Caveat: if the other dissector uses conversation_set_dissector or
-         * similar, then the second pass will fail to call the PROXY dissector
-         * through heuristics. This affects HTTP.
-         * TODO fix two-pass dissection when coalesced with HTTP, see bug 15714.
-         */
-        tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
-        /* Allow subdissector to perform reassembly. */
-        if (pinfo->can_desegment > 0)
-            pinfo->can_desegment++;
-
-        switch (fam_pro){
-            case 0x11: /* TCP over IPv4 */
-            case 0x21: /* TCP over IPv6 */
-                decode_tcp_ports(next_tvb, 0, pinfo, tree, pinfo->srcport, pinfo->destport,
-                        NULL, (struct tcpinfo *)data);
-            break;
-            case 0x12: /* UDP over IPv4 */
-            case 0x22: /* UDP over IPv6 */
-                decode_udp_ports(next_tvb, 0, pinfo, tree, pinfo->srcport, pinfo->destport, -1);
-            break;
-            default:
-                /* Dissect UNIX and UNSPEC protocols as data */
-                call_data_dissector(next_tvb, pinfo, tree);
-            break;
+    /* If the cmd is LOCAL, then ignore the proxy protocol block,
+     * even if address and protocol information exists. */
+    if (src_addr.type != AT_NONE) {
+        col_add_lstr(pinfo->cinfo, COL_INFO, "PROXY ", address_to_str(pinfo->pool, &src_addr),
+            " "UTF8_RIGHTWARDS_ARROW" ", address_to_str(pinfo->pool, &dst_addr), ", ",
+            COL_ADD_LSTR_TERMINATOR);
+        col_append_ports(pinfo->cinfo, COL_INFO, ptype, srcport, dstport);
+        conversation_t* conv = find_or_create_conversation(pinfo);
+        proxy_conv_info_t* proxy_info = conversation_get_proto_data(conv, proto_proxy);
+        if (proxy_info == NULL && pinfo->ptype != PT_UDP && cmd != 0) {
+            /* Don't add conversation info on connectionless transport (UDP) */
+            /* If the command is LOCAL, then the receiver "MUST use the real
+             * connection endpoints". */
+            proxy_info = wmem_new(wmem_file_scope(), proxy_conv_info_t);
+            copy_address_wmem(wmem_file_scope(), &proxy_info->src, &src_addr);
+            copy_address_wmem(wmem_file_scope(), &proxy_info->dst, &dst_addr);
+            proxy_info->ptype = PT_TCP;
+            proxy_info->srcport = srcport;
+            proxy_info->dstport = dstport;
+            proxy_info->setup_frame = pinfo->num;
+            conversation_add_proto_data(conv, proto_proxy, proxy_info);
         }
-        offset += tvb_captured_length(next_tvb);
     }
 
+    return offset;
+}
+
+static int
+dissect_proxy_v2(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
+{
+    conversation_t* conv = find_or_create_conversation(pinfo);
+    proxy_conv_info_t *proxy_info;
+    int offset = dissect_proxy_v2_header(tvb, pinfo, tree);
+    proxy_info = conversation_get_proto_data(conv, proto_proxy);
+    if (proxy_info && pinfo->num >= proxy_info->setup_frame &&
+        tvb_reported_length_remaining(tvb, offset)) {
+        /* XXX: If this is a later frame, should we add some
+         * generated fields with the proxy header information,
+         * and a link back to the proxy setup frame? */
+        offset += dissect_proxy_proxied(tvb, pinfo, tree, offset, data, proxy_info);
+    }
     return offset;
 }
 
 static gboolean
 dissect_proxy_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    if (tvb_reported_length(tvb) >= 16 &&
-        tvb_captured_length(tvb) >= sizeof(proxy_v2_magic) &&
-        tvb_memeql(tvb, 0, (const guint8*)proxy_v2_magic, sizeof(proxy_v2_magic)) == 0) {
-        // TODO maybe check for "(hdr.v2.ver_cmd & 0xF0) == 0x20" as done in "9. Sample code" from
-        // https://www.haproxy.org/download/1.8/doc/proxy-protocol.txt?
+    conversation_t* conv = find_or_create_conversation(pinfo);
+    if (is_proxy_v2(tvb)) {
+        conversation_set_dissector(conv, proxy_v2_handle);
         dissect_proxy_v2(tvb, pinfo, tree, data);
         return TRUE;
     } else if (is_proxy_v1(tvb, NULL)) {
+        conversation_set_dissector(conv, proxy_v1_handle);
         dissect_proxy_v1(tvb, pinfo, tree, data);
         return TRUE;
+    }
+    return FALSE;
+}
+
+static gboolean
+dissect_proxy_heur_udp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
+{
+    int offset;
+    if (is_proxy_v2(tvb)) {
+        offset = dissect_proxy_v2(tvb, pinfo, tree, data);
+        if (offset && tvb_reported_length_remaining(tvb, offset)) {
+            /* When the transport is UDP, treat this as connectionless
+             * and just skip past the PROXY header after putting it
+             * in the tree. If this is DNS, for example, every request
+             * will have a PROXY header; the responses don't, and
+             * there's no good way to associate the PROXY information
+             * with the header that won't have problems if the UDP
+             * responses are out of order. Note if the proxied dissector
+             * calls conversation_set_dissector() then this dissector
+             * won't get called on the second pass. */
+            dissect_proxy_proxied(tvb, pinfo, tree, offset, data, NULL);
+        }
+        return TRUE;
+#if 0
+    /* Proxy v1 is only for TCP */
+    } else if (is_proxy_v1(tvb, NULL)) {
+        dissect_proxy_v1(tvb, pinfo, tree, data);
+#endif
     }
     return FALSE;
 }
@@ -617,7 +802,7 @@ proto_register_proxy(void)
         },
         { &hf_proxy2_cmd,
           { "Command", "proxy.v2.cmd",
-            FT_UINT8, BASE_DEC, NULL, 0x0F,
+            FT_UINT8, BASE_DEC, VALS(proxy2_cmd_vals), 0x0F,
             NULL, HFILL }
         },
         { &hf_proxy2_addr_family_protocol,
@@ -743,13 +928,22 @@ proto_register_proxy(void)
     expert_proxy = expert_register_protocol(proto_proxy);
     expert_register_field_array(expert_proxy, ei, array_length(ei));
 
+    proxy_v1_handle = register_dissector("proxy_v1", dissect_proxy_v1, proto_proxy);
+    proxy_v2_handle = register_dissector("proxy_v2", dissect_proxy_v2, proto_proxy);
 }
 
 void
 proto_reg_handoff_proxy(void)
 {
     heur_dissector_add("tcp", dissect_proxy_heur, "PROXY over TCP", "proxy_tcp", proto_proxy, HEURISTIC_ENABLE);
-    heur_dissector_add("udp", dissect_proxy_heur, "PROXY over UDP", "proxy_udp", proto_proxy, HEURISTIC_ENABLE);
+    /* XXX: PROXY v1 is defined to be transported over TCP only. PROXY v2 is
+     * strongly implied to also only be transported over TCP (though the
+     * proxied connection can be UDP), but dnsdist (and others?) use PROXY
+     * over UDP, adding the header to every request (but not response.)
+     * Presumably the proxied payload can only be DGRAM, since there's no
+     * way to deal with desegmentation or out of order without TCP sequence
+     * numbers. */
+    heur_dissector_add("udp", dissect_proxy_heur_udp, "PROXY over UDP", "proxy_udp", proto_proxy, HEURISTIC_ENABLE);
 }
 
 /*
