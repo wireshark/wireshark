@@ -10,6 +10,8 @@ Wireshark 4.1.0 Release Notes
 
  What’s New
 
+  A Windows installer for Arm64 has been added.
+
   Windows installer file names now have the format
   Wireshark-<version>-<architecture>.exe.
 
