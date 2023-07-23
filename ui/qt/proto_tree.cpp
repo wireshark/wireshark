@@ -189,7 +189,7 @@ void ProtoTree::ctxCopySelectedInfo()
 
 void ProtoTree::ctxOpenUrlWiki()
 {
-    QUrl url;
+    QString url;
     bool is_field_reference = false;
     QAction * send = qobject_cast<QAction *>(sender());
     if (send && send->property("field_reference").isValid())
@@ -198,7 +198,9 @@ void ProtoTree::ctxOpenUrlWiki()
     FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(idx));
 
     int field_id = finfo.headerInfo().id;
+    bool protocol_field_selected = false;
     if (!proto_registrar_is_protocol(field_id) && (field_id != hf_text_only)) {
+        protocol_field_selected = true;
         field_id = proto_registrar_get_parent(field_id);
     }
     const QString proto_abbrev = proto_registrar_get_abbrev(field_id);
@@ -219,9 +221,15 @@ void ProtoTree::ctxOpenUrlWiki()
     else
     {
         if (field_id != hf_text_only) {
-            url = QString(WS_DOCS_URL "dfref/%1/%2")
+            url = QString(WS_DOCS_URL "dfref/%1/%2.html")
                 .arg(proto_abbrev[0])
                 .arg(proto_abbrev);
+
+            if (protocol_field_selected)
+            {
+                const QString proto_field_abbrev = proto_registrar_get_abbrev(finfo.headerInfo().id);
+                url.append(QString("#%1").arg(proto_field_abbrev));
+            }
         } else {
             QMessageBox::information(this, tr("Not a field or protocol"),
                 tr("No field reference available for text labels."),
@@ -349,6 +357,11 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     }
 
     int field_id = finfo->headerInfo().id;
+    bool protocol_field_selected = false;
+    if (!proto_registrar_is_protocol(field_id) && (field_id != hf_text_only)) {
+        protocol_field_selected = true;
+        field_id = proto_registrar_get_parent(field_id);
+    }
     action = ctx_menu->addAction(tr("Wiki Protocol Page"), this, SLOT(ctxOpenUrlWiki()));
     action->setProperty("toolTip", QString(WS_WIKI_URL("Protocols/%1")).arg(proto_registrar_get_abbrev(field_id)));
 
@@ -357,9 +370,16 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     if (field_id != hf_text_only) {
         action->setEnabled(true);
         const QString proto_abbrev = proto_registrar_get_abbrev(field_id);
-        action->setProperty("toolTip", QString(WS_DOCS_URL "dfref/%1/%2")
-                .arg(proto_abbrev[0])
-                .arg(proto_abbrev));
+        QString url = QString(WS_DOCS_URL "dfref/%1/%2.html")
+                    .arg(proto_abbrev[0])
+                    .arg(proto_abbrev);
+
+        if (protocol_field_selected)
+        {
+            const QString proto_field_abbrev = proto_registrar_get_abbrev(finfo->headerInfo().id);
+            url.append(QString("#%1").arg(proto_field_abbrev));
+        }
+        action->setProperty("toolTip", url);
     }
     else {
         action->setEnabled(false);
