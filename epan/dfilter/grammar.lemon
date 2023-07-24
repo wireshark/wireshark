@@ -388,11 +388,10 @@ relation_test(T) ::= entity(E) TEST_IN(O) set(S).
     stnode_merge_location(T, E, S);
 }
 
-relation_test(T) ::= entity(E) TEST_NOT(P) TEST_IN(O) set(S).
+relation_test(T) ::= entity(E) TEST_NOT TEST_IN(O) set(S).
 {
-    T = P;
-    sttype_oper_set2(O, STNODE_OP_IN, E, S);
-    sttype_oper_set1(T, STNODE_OP_NOT, O);
+    T = O;
+    sttype_oper_set2(O, STNODE_OP_NOT_IN, E, S);
     stnode_merge_location(T, E, S);
 }
 

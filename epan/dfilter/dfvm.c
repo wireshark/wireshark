@@ -50,6 +50,8 @@ dfvm_opcode_tostr(dfvm_opcode_t code)
 		case DFVM_ANY_MATCHES:		return "ANY_MATCHES";
 		case DFVM_SET_ALL_IN:		return "SET_ALL_IN";
 		case DFVM_SET_ANY_IN:		return "SET_ANY_IN";
+		case DFVM_SET_ALL_NOT_IN:	return "SET_ALL_NOT_IN";
+		case DFVM_SET_ANY_NOT_IN:	return "SET_ANY_NOT_IN";
 		case DFVM_SET_ADD:		return "SET_ADD";
 		case DFVM_SET_ADD_RANGE:	return "SET_ADD_RANGE";
 		case DFVM_SET_CLEAR:		return "SET_CLEAR";
@@ -496,6 +498,8 @@ append_op_args(wmem_strbuf_t *buf, dfvm_insn_t *insn, GSList **stack_print,
 
 		case DFVM_SET_ALL_IN:
 		case DFVM_SET_ANY_IN:
+		case DFVM_SET_ALL_NOT_IN:
+		case DFVM_SET_ANY_NOT_IN:
 			wmem_strbuf_append_printf(buf, "%s%s",
 						arg1_str, arg1_str_type);
 			break;
@@ -1684,6 +1688,14 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 
 			case DFVM_SET_ANY_IN:
 				accum = any_in(df, arg1);
+				break;
+
+			case DFVM_SET_ALL_NOT_IN:
+				accum = !all_in(df, arg1);
+				break;
+
+			case DFVM_SET_ANY_NOT_IN:
+				accum = !any_in(df, arg1);
 				break;
 
 			case DFVM_SET_CLEAR:

@@ -44,6 +44,7 @@ select_opcode(dfvm_opcode_t op, stmatch_t how)
 		case DFVM_ALL_CONTAINS:
 		case DFVM_ALL_MATCHES:
 		case DFVM_SET_ALL_IN:
+		case DFVM_SET_ALL_NOT_IN:
 			return how == STNODE_MATCH_ALL ? op : op + 1;
 		case DFVM_ANY_EQ:
 		case DFVM_ANY_NE:
@@ -54,6 +55,7 @@ select_opcode(dfvm_opcode_t op, stmatch_t how)
 		case DFVM_ANY_CONTAINS:
 		case DFVM_ANY_MATCHES:
 		case DFVM_SET_ANY_IN:
+		case DFVM_SET_ANY_NOT_IN:
 			return how == STNODE_MATCH_ANY ? op : op - 1;
 		default:
 			break;
@@ -417,7 +419,7 @@ fixup_jumps(gpointer data, gpointer user_data)
 /* Generate the code for the in operator. Pushes set values into a stack
  * and then evaluates membership in a single instruction. */
 static void
-gen_relation_in(dfwork_t *dfw, stmatch_t how,
+gen_relation_in(dfwork_t *dfw, dfvm_opcode_t op, stmatch_t how,
 				stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	dfvm_insn_t	*insn;
@@ -425,7 +427,6 @@ gen_relation_in(dfwork_t *dfw, stmatch_t how,
 	GSList		*node_jumps = NULL;
 	dfvm_value_t	*val1, *val2, *val3;
 	stnode_t	*node1, *node2;
-	dfvm_opcode_t	op;
 	GSList		*nodelist_head, *nodelist;
 
 	/* Create code for the LHS of the relation */
@@ -458,8 +459,7 @@ gen_relation_in(dfwork_t *dfw, stmatch_t how,
 	set_nodelist_free(nodelist_head);
 
 	/* Create code for the set on the RHS of the relation */
-	op = select_opcode(DFVM_SET_ANY_IN, how);
-	insn = dfvm_insn_new(op);
+	insn = dfvm_insn_new(select_opcode(op, how));
 	insn->arg1 = dfvm_value_ref(val1);
 	dfw_append_insn(dfw, insn);
 
@@ -742,7 +742,11 @@ gen_test(dfwork_t *dfw, stnode_t *st_node)
 			break;
 
 		case STNODE_OP_IN:
-			gen_relation_in(dfw, st_how, st_arg1, st_arg2);
+			gen_relation_in(dfw, DFVM_SET_ANY_IN, st_how, st_arg1, st_arg2);
+			break;
+
+		case STNODE_OP_NOT_IN:
+			gen_relation_in(dfw, DFVM_SET_ANY_NOT_IN, st_how, st_arg1, st_arg2);
 			break;
 
 		case STNODE_OP_BITWISE_AND:

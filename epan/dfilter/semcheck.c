@@ -1324,10 +1324,18 @@ check_test(dfwork_t *dfw, stnode_t *st_node)
 			check_relation_matches(dfw, st_node, st_arg1, st_arg2);
 			break;
 		case STNODE_OP_IN:
+		case STNODE_OP_NOT_IN:
 			check_relation_in(dfw, st_node, st_arg1, st_arg2);
 			break;
 
-		default:
+		case STNODE_OP_UNINITIALIZED:
+		case STNODE_OP_UNARY_MINUS:
+		case STNODE_OP_BITWISE_AND:
+		case STNODE_OP_ADD:
+		case STNODE_OP_SUBTRACT:
+		case STNODE_OP_MULTIPLY:
+		case STNODE_OP_DIVIDE:
+		case STNODE_OP_MODULO:
 			ws_assert_not_reached();
 	}
 }

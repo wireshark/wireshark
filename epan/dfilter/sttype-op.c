@@ -134,6 +134,9 @@ oper_todisplay(const oper_t *oper)
 		case STNODE_OP_IN:
 			s = "in";
 			break;
+		case STNODE_OP_NOT_IN:
+			s = "not in";
+			break;
 		case STNODE_OP_UNINITIALIZED:
 			s = "<uninitialized>";
 			break;
@@ -210,6 +213,9 @@ oper_todebug(const oper_t *oper)
 		case STNODE_OP_IN:
 			s = "TEST_IN";
 			break;
+		case STNODE_OP_NOT_IN:
+			s = "TEST_NOT_IN";
+			break;
 		case STNODE_OP_UNINITIALIZED:
 			s = "<uninitialized>";
 			break;
@@ -261,6 +267,7 @@ num_operands(stnode_op_t op)
 		case STNODE_OP_CONTAINS:
 		case STNODE_OP_MATCHES:
 		case STNODE_OP_IN:
+		case STNODE_OP_NOT_IN:
 			return 2;
 	}
 	ws_assert_not_reached();
