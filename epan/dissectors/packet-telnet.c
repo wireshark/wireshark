@@ -1230,7 +1230,7 @@ dissect_encryption_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t 
   }
 }
 
-static tn_opt options[] = {
+static const tn_opt options[] = {
   {
     "Binary Transmission",                      /* RFC 856 */
     NULL,                                       /* no suboption negotiation */
@@ -1584,21 +1584,35 @@ static tn_opt options[] = {
 
 };
 
-#define NOPTIONS array_length(options)
+static const tn_opt telnet_ext_unknown = {
+  "<unknown option>",
+  NULL,
+  VARIABLE_LENGTH,
+  0,
+  NULL
+};
+
+static const tn_opt *
+telnet_find_option(guint8 opt_byte)
+{
+  if (opt_byte < array_length(options))
+    return &options[opt_byte];
+
+  return &telnet_ext_unknown;
+}
 
 static int
 telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *option_item, tvbuff_t *tvb, int start_offset)
 {
-  int         offset = start_offset;
-  guint8      opt_byte;
-  int         subneg_len;
-  const char *opt;
-  int         iac_offset;
-  guint       len;
-  tvbuff_t   *unescaped_tvb;
-  void      (*dissect)(packet_info *, const char *, tvbuff_t *, int, int, proto_tree *, proto_item*);
-  gint        cur_offset;
-  gboolean    iac_found;
+  int           offset = start_offset;
+  guint8        opt_byte;
+  const tn_opt *opt;
+  int           subneg_len;
+  int           iac_offset;
+  guint         len;
+  tvbuff_t     *unescaped_tvb;
+  gint          cur_offset;
+  gboolean      iac_found;
 
   /*
    * As data with value iac (0xff) is possible, this value must be escaped
@@ -1610,13 +1624,7 @@ telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *optio
 
   /* Get the option code */
   opt_byte = tvb_get_guint8(tvb, offset);
-  if (opt_byte >= NOPTIONS) {
-    opt = "<unknown option>";
-    dissect = NULL;
-  } else {
-    opt = options[opt_byte].name;
-    dissect = options[opt_byte].dissect;
-  }
+  opt = telnet_find_option(opt_byte);
   offset++;
 
   /* Search for an unescaped IAC. */
@@ -1654,9 +1662,9 @@ telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *optio
   if (subneg_len > 0) {
 
     /* Now dissect the suboption parameters. */
-    if (dissect != NULL) {
+    if (opt->dissect != NULL) {
 
-      switch (options[opt_byte].len_type) {
+      switch (opt->len_type) {
 
       case NO_LENGTH:
         /* There isn't supposed to *be* sub-option negotiation for this. */
@@ -1665,16 +1673,16 @@ telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *optio
 
       case FIXED_LENGTH:
         /* Make sure the length is what it's supposed to be. */
-        if (subneg_len - iac_data != options[opt_byte].optlen) {
-          expert_add_info_format(pinfo, option_item, &ei_telnet_suboption_length, "Suboption parameter length is %d, should be %d", subneg_len, options[opt_byte].optlen);
+        if (subneg_len - iac_data != opt->optlen) {
+          expert_add_info_format(pinfo, option_item, &ei_telnet_suboption_length, "Suboption parameter length is %d, should be %d", subneg_len, opt->optlen);
           return offset;
         }
         break;
 
       case VARIABLE_LENGTH:
         /* Make sure the length is greater than the minimum. */
-        if (subneg_len - iac_data < options[opt_byte].optlen) {
-          expert_add_info_format(pinfo, option_item, &ei_telnet_suboption_length, "Suboption parameter length is %d, should be at least %d", subneg_len, options[opt_byte].optlen);
+        if (subneg_len - iac_data < opt->optlen) {
+          expert_add_info_format(pinfo, option_item, &ei_telnet_suboption_length, "Suboption parameter length is %d, should be at least %d", subneg_len, opt->optlen);
           return offset;
         }
         break;
@@ -1684,9 +1692,9 @@ telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *optio
       if (iac_data > 0) {
         /* Data is escaped, we have to unescape it. */
         unescaped_tvb = unescape_and_tvbuffify_telnet_option(pinfo, tvb, start_offset, subneg_len);
-        (*dissect)(pinfo, opt, unescaped_tvb, 0, subneg_len - iac_data, option_tree, option_item);
+        (*opt->dissect)(pinfo, opt->name, unescaped_tvb, 0, subneg_len - iac_data, option_tree, option_item);
       } else {
-        (*dissect)(pinfo, opt, tvb, start_offset, subneg_len, option_tree, option_item);
+        (*opt->dissect)(pinfo, opt->name, tvb, start_offset, subneg_len, option_tree, option_item);
       }
     } else {
       /* We don't have a dissector for them; just show them as data. */
@@ -1706,24 +1714,19 @@ static void
 telnet_suboption_name(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int* offset, const gchar** optname,
                       proto_tree **opt_tree, proto_item **opt_item, const char *type)
 {
-  guint8      opt_byte;
-  const char *opt;
-  gint        ett = ett_telnet_subopt;
+  guint8        opt_byte;
+  const tn_opt *opt;
+  gint          ett = ett_telnet_subopt;
 
   opt_byte = tvb_get_guint8(tvb, *offset);
-  if (opt_byte >= NOPTIONS) {
-    opt = "<unknown option>";
-  }
-  else {
-    opt = options[opt_byte].name;
-    if (options[opt_byte].subtree_index != NULL)
-      ett = *(options[opt_byte].subtree_index);
-  }
-  *opt_item = proto_tree_add_uint_format_value(tree, hf_telnet_subcmd, tvb, *offset, 1, opt_byte, "%s", opt);
+  opt = telnet_find_option(opt_byte);
+  if (opt->subtree_index != NULL)
+    ett = *(opt->subtree_index);
+  *opt_item = proto_tree_add_uint_format_value(tree, hf_telnet_subcmd, tvb, *offset, 1, opt_byte, "%s", opt->name);
   *opt_tree = proto_item_add_subtree(*opt_item, ett);
 
   (*offset)++;
-  (*optname) = wmem_strdup_printf(pinfo->pool, "%s %s", type, opt);
+  (*optname) = wmem_strdup_printf(pinfo->pool, "%s %s", type, opt->name);
 }
 
 static int
