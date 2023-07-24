@@ -43,7 +43,7 @@ select_opcode(dfvm_opcode_t op, stmatch_t how)
 		case DFVM_ALL_LE:
 		case DFVM_ALL_CONTAINS:
 		case DFVM_ALL_MATCHES:
-		case DFVM_ALL_IN_RANGE:
+		case DFVM_SET_ALL_IN:
 			return how == STNODE_MATCH_ALL ? op : op + 1;
 		case DFVM_ANY_EQ:
 		case DFVM_ANY_NE:
@@ -53,32 +53,9 @@ select_opcode(dfvm_opcode_t op, stmatch_t how)
 		case DFVM_ANY_LE:
 		case DFVM_ANY_CONTAINS:
 		case DFVM_ANY_MATCHES:
-		case DFVM_ANY_IN_RANGE:
+		case DFVM_SET_ANY_IN:
 			return how == STNODE_MATCH_ANY ? op : op - 1;
-		case DFVM_NOT_ALL_ZERO:
-		case DFVM_IF_TRUE_GOTO:
-		case DFVM_IF_FALSE_GOTO:
-		case DFVM_CHECK_EXISTS:
-		case DFVM_CHECK_EXISTS_R:
-		case DFVM_NOT:
-		case DFVM_RETURN:
-		case DFVM_READ_TREE:
-		case DFVM_READ_TREE_R:
-		case DFVM_READ_REFERENCE:
-		case DFVM_READ_REFERENCE_R:
-		case DFVM_PUT_FVALUE:
-		case DFVM_SLICE:
-		case DFVM_LENGTH:
-		case DFVM_BITWISE_AND:
-		case DFVM_UNARY_MINUS:
-		case DFVM_ADD:
-		case DFVM_SUBTRACT:
-		case DFVM_MULTIPLY:
-		case DFVM_DIVIDE:
-		case DFVM_MODULO:
-		case DFVM_CALL_FUNCTION:
-		case DFVM_STACK_PUSH:
-		case DFVM_STACK_POP:
+		default:
 			break;
 	}
 	ws_assert_not_reached();
@@ -111,6 +88,27 @@ dfw_append_stack_pop(dfwork_t *dfw, guint count)
 	insn = dfvm_insn_new(DFVM_STACK_POP);
 	val = dfvm_value_new_guint(count);
 	insn->arg1 = dfvm_value_ref(val);
+	dfw_append_insn(dfw, insn);
+}
+
+static void
+dfw_append_set_add_range(dfwork_t *dfw, dfvm_value_t *arg1, dfvm_value_t *arg2)
+{
+	dfvm_insn_t	*insn;
+
+	insn = dfvm_insn_new(DFVM_SET_ADD_RANGE);
+	insn->arg1 = dfvm_value_ref(arg1);
+	insn->arg2 = dfvm_value_ref(arg2);
+	dfw_append_insn(dfw, insn);
+}
+
+static void
+dfw_append_set_add(dfwork_t *dfw, dfvm_value_t *arg1)
+{
+	dfvm_insn_t	*insn;
+
+	insn = dfvm_insn_new(DFVM_SET_ADD);
+	insn->arg1 = dfvm_value_ref(arg1);
 	dfw_append_insn(dfw, insn);
 }
 
@@ -416,14 +414,13 @@ fixup_jumps(gpointer data, gpointer user_data)
 	}
 }
 
-/* Generate the code for the in operator.  It behaves much like an OR-ed
- * series of == tests, but without the redundant existence checks. */
+/* Generate the code for the in operator. Pushes set values into a stack
+ * and then evaluates membership in a single instruction. */
 static void
 gen_relation_in(dfwork_t *dfw, stmatch_t how,
 				stnode_t *st_arg1, stnode_t *st_arg2)
 {
 	dfvm_insn_t	*insn;
-	dfvm_value_t	*jmp;
 	GSList		*jumps = NULL;
 	GSList		*node_jumps = NULL;
 	dfvm_value_t	*val1, *val2, *val3;
@@ -434,7 +431,7 @@ gen_relation_in(dfwork_t *dfw, stmatch_t how,
 	/* Create code for the LHS of the relation */
 	val1 = gen_entity(dfw, st_arg1, &jumps);
 
-	/* Create code for the set on the RHS of the relation */
+	/* Create code to populate the set stack */
 	nodelist_head = nodelist = stnode_steal_data(st_arg2);
 	while (nodelist) {
 		node1 = nodelist->data;
@@ -443,29 +440,14 @@ gen_relation_in(dfwork_t *dfw, stmatch_t how,
 		nodelist = g_slist_next(nodelist);
 
 		if (node2) {
-			/* Range element: add lower/upper bound test. */
+			/* Range element. */
 			val2 = gen_entity(dfw, node1, &node_jumps);
 			val3 = gen_entity(dfw, node2, &node_jumps);
-
-			/* Add test to see if the item is in range. */
-			op = select_opcode(DFVM_ANY_IN_RANGE, how);
-			gen_relation_insn(dfw, op, val1, val2, val3);
+			dfw_append_set_add_range(dfw, val2, val3);
 		} else {
-			/* Normal element: add equality test. */
+			/* Normal element. */
 			val2 = gen_entity(dfw, node1, &node_jumps);
-
-			/* Add test to see if the item matches */
-			op = select_opcode(DFVM_ANY_EQ, how);
-			gen_relation_insn(dfw, op, val1, val2, NULL);
-		}
-
-		/* Exit as soon as we find a match */
-		if (nodelist) {
-			insn = dfvm_insn_new(DFVM_IF_TRUE_GOTO);
-			jmp = dfvm_value_new(INSN_NUMBER);
-			insn->arg1 = dfvm_value_ref(jmp);
-			dfw_append_insn(dfw, insn);
-			jumps = g_slist_prepend(jumps, jmp);
+			dfw_append_set_add(dfw, val2);
 		}
 
 		/* If an item is not present, just jump to the next item */
@@ -473,14 +455,22 @@ gen_relation_in(dfwork_t *dfw, stmatch_t how,
 		g_slist_free(node_jumps);
 		node_jumps = NULL;
 	}
+	set_nodelist_free(nodelist_head);
+
+	/* Create code for the set on the RHS of the relation */
+	op = select_opcode(DFVM_SET_ANY_IN, how);
+	insn = dfvm_insn_new(op);
+	insn->arg1 = dfvm_value_ref(val1);
+	dfw_append_insn(dfw, insn);
+
+	/* Add instruction to clear the whole stack */
+	insn = dfvm_insn_new(DFVM_SET_CLEAR);
+	dfw_append_insn(dfw, insn);
 
 	/* Jump here if the LHS entity was not present */
-	/* Jump here if any of the items in the set matched */
 	g_slist_foreach(jumps, fixup_jumps, dfw);
 	g_slist_free(jumps);
 	jumps = NULL;
-
-	set_nodelist_free(nodelist_head);
 }
 
 static dfvm_value_t *

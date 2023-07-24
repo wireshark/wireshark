@@ -48,8 +48,11 @@ dfvm_opcode_tostr(dfvm_opcode_t code)
 		case DFVM_ANY_CONTAINS:		return "ANY_CONTAINS";
 		case DFVM_ALL_MATCHES:		return "ALL_MATCHES";
 		case DFVM_ANY_MATCHES:		return "ANY_MATCHES";
-		case DFVM_ALL_IN_RANGE:		return "ALL_IN_RANGE";
-		case DFVM_ANY_IN_RANGE:		return "ANY_IN_RANGE";
+		case DFVM_SET_ALL_IN:		return "SET_ALL_IN";
+		case DFVM_SET_ANY_IN:		return "SET_ANY_IN";
+		case DFVM_SET_ADD:		return "SET_ADD";
+		case DFVM_SET_ADD_RANGE:	return "SET_ADD_RANGE";
+		case DFVM_SET_CLEAR:		return "SET_CLEAR";
 		case DFVM_SLICE:		return "SLICE";
 		case DFVM_LENGTH:		return "LENGTH";
 		case DFVM_BITWISE_AND:		return "BITWISE_AND";
@@ -491,10 +494,19 @@ append_op_args(wmem_strbuf_t *buf, dfvm_insn_t *insn, GSList **stack_print,
 						arg1_str, arg1_str_type, arg2_str, arg2_str_type);
 			break;
 
-		case DFVM_ALL_IN_RANGE:
-		case DFVM_ANY_IN_RANGE:
-			wmem_strbuf_append_printf(buf, "%s%s in { %s%s .. %s%s }",
-						arg1_str, arg1_str_type, arg2_str, arg2_str_type, arg3_str, arg3_str_type);
+		case DFVM_SET_ALL_IN:
+		case DFVM_SET_ANY_IN:
+			wmem_strbuf_append_printf(buf, "%s%s",
+						arg1_str, arg1_str_type);
+			break;
+
+		case DFVM_SET_ADD:
+			wmem_strbuf_append_printf(buf, "%s%s", arg1_str, arg1_str_type);
+			break;
+
+		case DFVM_SET_ADD_RANGE:
+			wmem_strbuf_append_printf(buf, "%s%s .. %s%s",
+						arg1_str, arg1_str_type, arg2_str, arg2_str_type);
 			break;
 
 		case DFVM_BITWISE_AND:
@@ -553,6 +565,7 @@ append_op_args(wmem_strbuf_t *buf, dfvm_insn_t *insn, GSList **stack_print,
 
 		case DFVM_NOT:
 		case DFVM_RETURN:
+		case DFVM_SET_CLEAR:
 			ws_assert_not_reached();
 	}
 
@@ -639,6 +652,7 @@ dfvm_dump_str(wmem_allocator_t *alloc, dfilter_t *df, uint16_t flags)
 		switch (insn->op) {
 			case DFVM_NOT:
 			case DFVM_RETURN:
+			case DFVM_SET_CLEAR:
 				/* Nothing here */
 				break;
 			default:
@@ -1069,14 +1083,67 @@ all_matches(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2)
 }
 
 static gboolean
-any_in_range_internal(GPtrArray *value, GPtrArray *low, GPtrArray *high)
+test_in_internal(fvalue_t *fv, GPtrArray *range[2])
 {
-	ws_assert(low->len == 1);
-	ws_assert(high->len == 1);
+	GPtrArray *low = range[0];
+	GPtrArray *high = range[1];
+	gboolean low_ok = FALSE, high_ok = FALSE;
 
-	for (size_t idx = 0; idx < value->len; idx++) {
-		if (fvalue_ge(value->pdata[idx], low->pdata[0]) == FT_TRUE &&
-				fvalue_le(value->pdata[idx], high->pdata[0]) == FT_TRUE) {
+	if (high) {
+		/* range */
+		for (guint i = 0; i < high->len; i++) {
+			if (fvalue_le(fv, high->pdata[i]) == FT_TRUE) {
+				high_ok = TRUE;
+				break;
+			}
+		}
+		if (!high_ok) {
+			return FALSE;
+		}
+		ws_assert(low);
+		for (guint i = 0; i < low->len; i++) {
+			if (fvalue_ge(fv, low->pdata[i]) == FT_TRUE) {
+				low_ok = TRUE;
+				break;
+			}
+		}
+	}
+	else {
+		/* single element */
+		for (guint i = 0; i < low->len; i++) {
+			if (fvalue_eq(fv, low->pdata[i]) == FT_TRUE) {
+				low_ok = TRUE;
+				break;
+			}
+		}
+	}
+
+	return low_ok;
+}
+
+static gboolean
+any_in(dfilter_t *df, dfvm_value_t *arg1)
+{
+	df_cell_t *rp = &df->registers[arg1->value.numeric];
+	GPtrArray *value;
+	GSList *stack;
+	gboolean ok;
+
+	/* If the read failed we jump over the membership test. */
+	ws_assert(!df_cell_is_empty(rp));
+	value = df_cell_ptr(rp);
+
+	for (size_t i = 0; i < value->len; i++) {
+		stack = df->set_stack;
+		ok = FALSE;
+		while (stack) {
+			if (test_in_internal(value->pdata[i], stack->data)) {
+				ok = TRUE;
+				break;
+			}
+			stack = stack->next;
+		}
+		if (ok) {
 			return TRUE;
 		}
 	}
@@ -1084,68 +1151,32 @@ any_in_range_internal(GPtrArray *value, GPtrArray *low, GPtrArray *high)
 }
 
 static gboolean
-all_in_range_internal(GPtrArray *value, GPtrArray *low, GPtrArray *high)
+all_in(dfilter_t *df, dfvm_value_t *arg1)
 {
-	ws_assert(low->len == 1);
-	ws_assert(high->len == 1);
+	df_cell_t *rp = &df->registers[arg1->value.numeric];
+	GPtrArray *value;
+	GSList *stack;
+	gboolean ok;
 
-	for (size_t idx = 0; idx < value->len; idx++) {
-		if (fvalue_ge(value->pdata[idx], low->pdata[0]) == FT_FALSE ||
-				fvalue_le(value->pdata[idx], high->pdata[0]) == FT_FALSE) {
+	/* If the read failed we jump over the membership test. */
+	ws_assert(!df_cell_is_empty(rp));
+	value = df_cell_ptr(rp);
+
+	for (size_t i = 0; i < value->len; i++) {
+		stack = df->set_stack;
+		ok = FALSE;
+		while (stack) {
+			if (test_in_internal(value->pdata[i], stack->data)) {
+				ok = TRUE;
+				break;
+			}
+			stack = stack->next;
+		}
+		if (!ok) {
 			return FALSE;
 		}
 	}
 	return TRUE;
-}
-
-static gboolean
-match_in_range(dfilter_t *df, enum match_how how, dfvm_value_t *arg1,
-				dfvm_value_t *arg_low, dfvm_value_t *arg_high)
-{
-	GPtrArray *value, *low, *high;
-
-	value = df_cell_ptr(&df->registers[arg1->value.numeric]);
-
-	if (arg_low->type == REGISTER) {
-		low = df_cell_ptr(&df->registers[arg_low->value.numeric]);
-	}
-	else if (arg_low->type == FVALUE) {
-		low = arg_low->value.fvalue_p;
-	}
-	else {
-		ws_assert_not_reached();
-	}
-
-	if (arg_high->type == REGISTER) {
-		high = df_cell_ptr(&df->registers[arg_high->value.numeric]);
-	}
-	else if (arg_high->type == FVALUE) {
-		high = arg_high->value.fvalue_p;
-	}
-	else {
-		ws_assert_not_reached();
-	}
-
-	if (how == MATCH_ALL)
-		return all_in_range_internal(value, low, high);
-	else if (how == MATCH_ANY)
-		return any_in_range_internal(value, low, high);
-	else
-		ws_assert_not_reached();
-}
-
-static gboolean
-any_in_range(dfilter_t *df, dfvm_value_t *arg1,
-				dfvm_value_t *arg_low, dfvm_value_t *arg_high)
-{
-	return match_in_range(df, MATCH_ANY, arg1, arg_low, arg_high);
-}
-
-static gboolean
-all_in_range(dfilter_t *df, dfvm_value_t *arg1,
-				dfvm_value_t *arg_low, dfvm_value_t *arg_high)
-{
-	return match_in_range(df, MATCH_ALL, arg1, arg_low, arg_high);
 }
 
 /* Clear registers that were populated during evaluation.
@@ -1399,6 +1430,48 @@ stack_pop(dfilter_t *df, dfvm_value_t *arg1)
 	}
 }
 
+static void
+set_push(dfilter_t *df, dfvm_value_t *arg1, dfvm_value_t *arg2)
+{
+	GPtrArray **range;
+
+	/* We don´t need to use reference counting because the lifetime of each
+	 * arg is guaranteed to outlive the set stack. */
+
+	range = g_new0(GPtrArray *, 2);
+
+	if (arg1->type == FVALUE) {
+		range[0] = arg1->value.fvalue_p;
+	}
+	else if (arg1->type == REGISTER) {
+		range[0] = df_cell_ptr(&df->registers[arg1->value.numeric]);
+	}
+	else {
+		ws_assert_not_reached();
+	}
+
+	if (arg2) {
+		if (arg2->type == FVALUE) {
+			range[1] = arg2->value.fvalue_p;
+		}
+		else if (arg2->type == REGISTER) {
+			range[1] = df_cell_ptr(&df->registers[arg2->value.numeric]);
+		}
+		else {
+			ws_assert_not_reached();
+		}
+	}
+
+	df->set_stack = g_slist_prepend(df->set_stack, range);
+}
+
+static void
+set_clear(dfilter_t *df)
+{
+	g_slist_free_full(df->set_stack, g_free);
+	df->set_stack = NULL;
+}
+
 static gboolean
 check_exists_finfos(proto_tree *tree, header_field_info *hfinfo, drange_t *range)
 {
@@ -1597,12 +1670,24 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				accum = any_matches(df, arg1, arg2);
 				break;
 
-			case DFVM_ALL_IN_RANGE:
-				accum = all_in_range(df, arg1, arg2, arg3);
+			case DFVM_SET_ADD:
+				set_push(df, arg1, NULL);
 				break;
 
-			case DFVM_ANY_IN_RANGE:
-				accum = any_in_range(df, arg1, arg2, arg3);
+			case DFVM_SET_ADD_RANGE:
+				set_push(df, arg1, arg2);
+				break;
+
+			case DFVM_SET_ALL_IN:
+				accum = all_in(df, arg1);
+				break;
+
+			case DFVM_SET_ANY_IN:
+				accum = any_in(df, arg1);
+				break;
+
+			case DFVM_SET_CLEAR:
+				set_clear(df);
 				break;
 
 			case DFVM_UNARY_MINUS:

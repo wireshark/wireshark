@@ -29,6 +29,22 @@ class TestDfilterMembership:
         dfilter = 'tcp.port in {  80  ,  3267  }'
         checkDFilterCount(dfilter, 1)
 
+    def test_membership_any_1(self, checkDFilterCount):
+        dfilter = 'any tcp.port in {80, 3267}'
+        checkDFilterCount(dfilter, 1)
+
+    def test_membership_any_2(self, checkDFilterCount):
+        dfilter = 'any tcp.port in {70, 80, 90}'
+        checkDFilterCount(dfilter, 1)
+
+    def test_membership_all_1(self, checkDFilterCount):
+        dfilter = 'all tcp.port in {80, 3267}'
+        checkDFilterCount(dfilter, 1)
+
+    def test_membership_all_2(self, checkDFilterCount):
+        dfilter = 'all tcp.port in {70, 80, 90}'
+        checkDFilterCount(dfilter, 0)
+
     def test_membership_range_match_1(self, checkDFilterCount):
         dfilter = 'tcp.port in {80..81}'
         checkDFilterCount(dfilter, 1)

@@ -46,6 +46,7 @@ struct epan_dfilter {
 	char		*syntax_tree_str;
 	/* Used to pass arguments to functions. List of Lists (list of registers). */
 	GSList		*function_stack;
+	GSList		*set_stack;
 };
 
 typedef struct {
