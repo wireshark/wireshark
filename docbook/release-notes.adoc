@@ -188,6 +188,7 @@ and wsbuglink:16576[silently ignored columns that didn't exist.]
 // git log --oneline --diff-filter=A --stat v3.7.0rc0.. epan/dissectors plugins
 [commaize]
 --
+Video Protocol 9 (VP9)
 SAP GUI (SAPDiag)
 SAP Enqueue Server (SAPEnqueue)
 SAP HANA SQL Command Network Protocol (SAPHDB)
