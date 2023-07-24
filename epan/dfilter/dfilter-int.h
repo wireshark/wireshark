@@ -159,6 +159,8 @@ df_cell_append(df_cell_t *rp, fvalue_t *fv);
 GPtrArray *
 df_cell_ref(df_cell_t *rp);
 
+#define df_cell_ptr(rp) ((rp)->array)
+
 size_t
 df_cell_size(const df_cell_t *rp);
 
