@@ -31,7 +31,7 @@ void proto_reg_handoff_zabbix(void);
 static dissector_handle_t zabbix_handle;
 
 /* Desegmentation of Zabbix protocol over TCP */
-static bool zabbix_desegment = true;
+static gboolean zabbix_desegment = true;
 
 /* Initialize the protocol and registered fields */
 static int proto_zabbix = -1;
@@ -1090,7 +1090,7 @@ proto_register_zabbix(void)
         "Reassemble Zabbix messages spanning multiple TCP segments",
         "Whether the Zabbix protocol dissector should reassemble messages spanning multiple TCP segments."
         " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
-        (gboolean *)&zabbix_desegment);
+        &zabbix_desegment);
 
     zabbix_handle = register_dissector("zabbix", dissect_zabbix, proto_zabbix);
 
