@@ -38,4 +38,26 @@ typedef struct {
 const char *
 global_manuf_lookup(const uint8_t addr[6], const char **long_name_ptr);
 
+struct ws_manuf_iter {
+    size_t idx24, idx28, idx36;
+};
+
+typedef struct ws_manuf_iter ws_manuf_iter_t;
+
+void
+ws_manuf_iter_init(ws_manuf_iter_t *iter);
+
+struct ws_manuf {
+    uint8_t addr[6];
+    uint8_t mask;
+    const char *short_name;
+    const char *long_name;
+};
+
+struct ws_manuf *
+ws_manuf_iter_next(ws_manuf_iter_t *iter, struct ws_manuf manuf_ptr[3]);
+
+WS_DLL_PUBLIC void
+ws_manuf_dump(FILE *fp);
+
 #endif

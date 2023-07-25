@@ -67,6 +67,7 @@
 #include <epan/decode_as.h>
 #include <epan/print.h>
 #include <epan/addr_resolv.h>
+#include <epan/manuf.h>
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_ui_utils.h"
 #endif
@@ -536,6 +537,7 @@ glossary_option_help(void)
     fprintf(output, "  -G fields [prefix]       dump fields glossary and exit\n");
     fprintf(output, "  -G ftypes                dump field type basic and descriptive names\n");
     fprintf(output, "  -G heuristic-decodes     dump heuristic dissector tables\n");
+    fprintf(output, "  -G manuf                 dump ethernet manufacturer tables\n");
     fprintf(output, "  -G plugins               dump installed plugins and exit\n");
     fprintf(output, "  -G protocols             dump protocols in registration database and exit\n");
     fprintf(output, "  -G values                dump value, range, true/false strings and exit\n");
@@ -1178,6 +1180,8 @@ main(int argc, char *argv[])
                 proto_registrar_dump_ftypes();
             else if (strcmp(argv[2], "heuristic-decodes") == 0)
                 dissector_dump_heur_decodes();
+            else if (strcmp(argv[2], "manuf") == 0)
+                ws_manuf_dump(stdout);
             else if (strcmp(argv[2], "plugins") == 0) {
 #ifdef HAVE_PLUGINS
                 codecs_init();
