@@ -1307,6 +1307,7 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 				cql_subtree = proto_tree_add_subtree(cql_tree, tvb, offset, message_length, ett_cql_message, &ti, "Message ERROR");
 
 				proto_tree_add_item(cql_subtree, hf_cql_error_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
 
 				/* string  */
 				proto_tree_add_item_ret_uint(cql_subtree, hf_cql_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
