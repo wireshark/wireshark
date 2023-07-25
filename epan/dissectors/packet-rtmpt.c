@@ -296,12 +296,13 @@ static const value_string rtmpt_video_types[] = {
 
 /* from FLV v10.1 section E.4.3.1 */
 static const value_string rtmpt_video_codecs[] = {
-        { 2,                                "Sorensen H.263" },
-        { 3,                                "Screen video" },
-        { 4,                                "On2 VP6" },
-        { 5,                                "On2 VP6+alpha" },
-        { 6,                                "Screen video version 2" },
-        { 7,                                "H.264" },
+        {  2,                               "Sorensen H.263" },
+        {  3,                               "Screen video" },
+        {  4,                               "On2 VP6" },
+        {  5,                               "On2 VP6+alpha" },
+        {  6,                               "Screen video version 2" },
+        {  7,                               "H.264" },
+        { 12,                               "H.265" },
         { 0, NULL }
 };
 
