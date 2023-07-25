@@ -19,11 +19,10 @@
  * and the RFCs and other documents it mentions, such as RFC 1459, RFCs
  * 2810, 2811, 2812, and 2813,
  *
+ * For CTCP, see :
  *  http://www.irchelp.org/irchelp/rfc/ctcpspec.html
- *
- * and
- *
- *  http://www.invlogic.com/irc/ctcp.html
+ *  http://web.archive.org/web/20031203073050/http://www.invlogic.com/irc/ctcp.html
+ *  https://www.ietf.org/archive/id/draft-oakley-irc-ctcp-02.txt
  */
 
 #include "config.h"
@@ -35,6 +34,7 @@ void proto_register_irc(void);
 void proto_reg_handoff_irc(void);
 
 static int proto_irc = -1;
+static int proto_irc_ctcp = -1;
 static int hf_irc_request = -1;
 static int hf_irc_request_prefix = -1;
 static int hf_irc_request_command = -1;
@@ -47,6 +47,8 @@ static int hf_irc_response_num_command = -1;
 static int hf_irc_response_command_param = -1;
 static int hf_irc_response_trailer = -1;
 static int hf_irc_ctcp = -1;
+static int hf_irc_ctcp_command = -1;
+static int hf_irc_ctcp_params = -1;
 
 static gint ett_irc = -1;
 static gint ett_irc_request = -1;
@@ -66,8 +68,32 @@ static const guint8 TAG_DELIMITER[] = {0x01, 0x00};
 /* patterns used for tvb_ws_mempbrk_pattern_guint8 */
 static ws_mempbrk_pattern pbrk_tag_delimiter;
 
+static dissector_handle_t ctcp_handle;
 
 #define TCP_PORT_RANGE          "6667,57000" /* Not IANA registered */
+
+static int
+dissect_irc_ctcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree   *ctcp_tree;
+    proto_item   *ti;
+    const guint8 *str_command, *str_params;
+    gint         space_offset = -1;
+
+    ti = proto_tree_add_item(tree, hf_irc_ctcp, tvb, 0, -1, ENC_ASCII|ENC_NA);
+    ctcp_tree = proto_item_add_subtree(ti, ett_irc);
+
+    space_offset = tvb_find_guint8(tvb, 1, -1, ' ');
+    if (space_offset == -1) {
+        proto_tree_add_item_ret_string(ctcp_tree, hf_irc_ctcp_command, tvb, 0, tvb_reported_length(tvb), ENC_ASCII|ENC_NA, pinfo->pool, &str_command);
+    }
+    else {
+        proto_tree_add_item_ret_string(ctcp_tree, hf_irc_ctcp_command, tvb, 0, space_offset, ENC_ASCII|ENC_NA, pinfo->pool, &str_command);
+        proto_tree_add_item_ret_string(ctcp_tree, hf_irc_ctcp_params, tvb, space_offset+1, tvb_reported_length(tvb)-space_offset-1, ENC_ASCII|ENC_NA, pinfo->pool, &str_params);
+    }
+
+    return tvb_captured_length(tvb);
+}
 
 static void
 dissect_irc_tag_data(proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int datalen, packet_info *pinfo, const guint8* command)
@@ -75,6 +101,7 @@ dissect_irc_tag_data(proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offs
     guchar found_start_needle = 0,
            found_end_needle   = 0;
     gint   tag_start_offset, tag_end_offset;
+    tvbuff_t *next_tvb;
 
     tag_start_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, datalen, &pbrk_tag_delimiter, &found_start_needle);
     if (tag_start_offset == -1)
@@ -83,7 +110,7 @@ dissect_irc_tag_data(proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offs
         return;
     }
 
-    tag_end_offset = tvb_ws_mempbrk_pattern_guint8(tvb, offset, datalen-offset, &pbrk_tag_delimiter, &found_end_needle);
+    tag_end_offset = tvb_ws_mempbrk_pattern_guint8(tvb, tag_start_offset+1, datalen, &pbrk_tag_delimiter, &found_end_needle);
     if (tag_end_offset == -1)
     {
         expert_add_info(pinfo, item, &ei_irc_missing_end_delimiter);
@@ -97,7 +124,10 @@ dissect_irc_tag_data(proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offs
     }
 
     /* Placeholder to call CTCP dissector, strip out delimiter */
-    proto_tree_add_item(tree, hf_irc_ctcp, tvb, offset+1, datalen-2, ENC_ASCII);
+    if(tree) {
+        next_tvb = tvb_new_subset_length(tvb, tag_start_offset+1, datalen-2 );
+        dissect_irc_ctcp(next_tvb, pinfo, tree, NULL);
+    }
 }
 
 static void
@@ -518,8 +548,14 @@ proto_register_irc(void)
         { &hf_irc_response_trailer, { "Trailer", "irc.response.trailer", FT_STRING, BASE_NONE,
           NULL, 0x0, "Response trailer", HFILL }},
 
-        { &hf_irc_ctcp, { "CTCP Data", "irc.ctcp", FT_STRING, BASE_NONE,
-          NULL, 0x0, "Placeholder to dissect CTCP data", HFILL }}
+        { &hf_irc_ctcp, { "CTCP", "irc.ctcp", FT_STRING, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+
+        { &hf_irc_ctcp_command, { "Command", "irc.ctcp.command", FT_STRING, BASE_NONE,
+          NULL, 0x0, "CTCP command", HFILL }},
+
+        { &hf_irc_ctcp_params, { "Parameters", "irc.ctcp.parameters", FT_STRING, BASE_NONE,
+          NULL, 0x0, "CTCP parameters", HFILL }},
     };
 
     static gint *ett[] = {
@@ -548,6 +584,9 @@ proto_register_irc(void)
     expert_irc = expert_register_protocol(proto_irc);
     expert_register_field_array(expert_irc, ei, array_length(ei));
 
+    /* subdissector code */
+    proto_irc_ctcp = proto_register_protocol_in_name_only("Client To Client Protocol", "CTCP", "irc.ctcp", proto_irc, FT_PROTOCOL);
+
     /* compile patterns */
     ws_mempbrk_compile(&pbrk_tag_delimiter, TAG_DELIMITER);
 }
@@ -556,6 +595,8 @@ void
 proto_reg_handoff_irc(void)
 {
     dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_RANGE, find_dissector("irc"));
+
+    ctcp_handle = create_dissector_handle(dissect_irc_ctcp, proto_irc_ctcp);
 }
 
 /*
