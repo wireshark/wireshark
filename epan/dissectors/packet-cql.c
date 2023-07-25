@@ -142,8 +142,11 @@ static int ett_cql_protocol = -1;
 static int ett_cql_version = -1;
 static int ett_cql_message = -1;
 static int ett_cql_result_columns = -1;
+static int ett_cql_result_map = -1;
+static int ett_cql_result_set = -1;
 static int ett_cql_result_metadata = -1;
 static int ett_cql_result_rows = -1;
+static int ett_cql_result_metadata_colspec = -1;
 static int ett_cql_header_flags_bitmap = -1;
 static int ett_cql_query_flags_bitmap = -1;
 
@@ -694,6 +697,8 @@ static int parse_value(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t
 	guint32 addr4;
 	ws_in6_addr addr6;
 	guint32 port_number;
+	proto_tree* map_subtree;
+	proto_tree* set_subtree;
 
 	proto_tree_add_item_ret_int(columns_subtree, hf_cql_bytes_length, tvb, offset, 4, ENC_BIG_ENDIAN, &bytes_length);
 	offset += 4;
@@ -709,7 +714,6 @@ static int parse_value(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t
 		} else if (data_type == CQL_RESULT_ROW_TYPE_SET) {
 			*offset_metadata += 2; /* skip the type field of the elements in the set in the metadata */
 		}
-
 		return offset;
 	}
 
@@ -820,8 +824,10 @@ static int parse_value(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t
 			}
 			break;
 		case CQL_RESULT_ROW_TYPE_MAP:
-			item = proto_tree_add_item_ret_int(columns_subtree, hf_cql_string_result_rows_map_size, tvb, offset, 4, ENC_BIG_ENDIAN, &map_size);
+			map_subtree = proto_tree_add_subtree(columns_subtree, tvb, offset, 0, ett_cql_result_map, NULL, "Map");
+			item = proto_tree_add_item_ret_int(map_subtree, hf_cql_string_result_rows_map_size, tvb, offset, 4, ENC_BIG_ENDIAN, &map_size);
 			offset += 4;
+			proto_item_append_text(map_subtree, " with %" PRId32 " element(s)", map_size);
 			if (map_size < 0) {
 				expert_add_info(pinfo, item, &ei_cql_unexpected_negative_value);
 				return tvb_reported_length(tvb);
@@ -831,13 +837,14 @@ static int parse_value(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t
 				offset_metadata_backup = *offset_metadata;
 				for (j = 0; j < map_size; j++) {
 					*offset_metadata = offset_metadata_backup;
-					offset = parse_value(columns_subtree, pinfo, tvb, offset_metadata, offset);
-					offset = parse_value(columns_subtree, pinfo, tvb, offset_metadata, offset);
+					offset = parse_value(map_subtree, pinfo, tvb, offset_metadata, offset);
+					offset = parse_value(map_subtree, pinfo, tvb, offset_metadata, offset);
 				}
 			}
 			break;
 		case CQL_RESULT_ROW_TYPE_SET:
-			item = proto_tree_add_item_ret_int(columns_subtree, hf_cql_string_result_rows_set_size, tvb, offset, 4, ENC_BIG_ENDIAN, &set_size);
+			set_subtree = proto_tree_add_subtree(columns_subtree, tvb, offset, 0, ett_cql_result_set, NULL, "Set");
+			item = proto_tree_add_item_ret_int(set_subtree, hf_cql_string_result_rows_set_size, tvb, offset, 4, ENC_BIG_ENDIAN, &set_size);
 			offset += 4;
 			if (set_size < 0) {
 				expert_add_info(pinfo, item, &ei_cql_unexpected_negative_value);
@@ -848,7 +855,7 @@ static int parse_value(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t
 				offset_metadata_backup = *offset_metadata;
 				for (j = 0; j < set_size; j++) {
 					*offset_metadata = offset_metadata_backup;
-					offset = parse_value(columns_subtree, pinfo, tvb, offset_metadata, offset);
+					offset = parse_value(set_subtree, pinfo, tvb, offset_metadata, offset);
 				}
 			}
 			break;
@@ -953,7 +960,9 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 	proto_tree* cql_subtree = NULL;
 	proto_tree* rows_subtree = NULL;
 	proto_tree* columns_subtree = NULL;
+	proto_tree* single_column_subtree = NULL;
 	proto_tree* metadata_subtree = NULL;
+	proto_tree* col_spec_subtree = NULL;
 
 	gint offset = 0;
 	gint offset_row_metadata = 0;
@@ -1435,27 +1444,29 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 							offset_row_metadata = offset;
 
 							for (j = 0; j < result_rows_columns_count; ++j) {
+								col_spec_subtree = proto_tree_add_subtree(metadata_subtree, tvb, offset, 0, ett_cql_result_metadata_colspec, NULL, "Column");
+								proto_item_append_text(col_spec_subtree, " # %" PRId64 " specification", j + 1);
 								if (!(result_rows_flags & CQL_RESULT_ROWS_FLAG_GLOBAL_TABLES_SPEC)) {
 									/* ksname and tablename */
-									proto_tree_add_item_ret_uint(metadata_subtree, hf_cql_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
+									proto_tree_add_item_ret_uint(col_spec_subtree, hf_cql_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
 									offset += 2;
-									proto_tree_add_item(metadata_subtree, hf_cql_string_result_rows_keyspace_name, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
+									proto_tree_add_item(col_spec_subtree, hf_cql_string_result_rows_keyspace_name, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
 									offset += string_length;
-									proto_tree_add_item_ret_uint(metadata_subtree, hf_cql_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
+									proto_tree_add_item_ret_uint(col_spec_subtree, hf_cql_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
 									offset += 2;
-									proto_tree_add_item(metadata_subtree, hf_cql_string_result_rows_table_name, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
+									proto_tree_add_item(col_spec_subtree, hf_cql_string_result_rows_table_name, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
 									offset += string_length;
 								}
 
 								/* column name */
-								proto_tree_add_item_ret_uint(metadata_subtree, hf_cql_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
+								proto_tree_add_item_ret_uint(col_spec_subtree, hf_cql_string_length, tvb, offset, 2, ENC_BIG_ENDIAN, &string_length);
 								offset += 2;
-								proto_tree_add_item(metadata_subtree, hf_cql_string_result_rows_column_name, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
+								proto_tree_add_item(col_spec_subtree, hf_cql_string_result_rows_column_name, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
 								offset += string_length;
 
 
 								/* type "option" */
-								offset = parse_option(metadata_subtree, tvb, offset);
+								offset = parse_option(col_spec_subtree, tvb, offset);
 							}
 						}
 
@@ -1476,10 +1487,11 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 									offset = parse_row(columns_subtree, pinfo, tvb, offset_row_metadata, offset, result_rows_columns_count);
 								} else {
 									for (k = 0; k < result_rows_columns_count; ++k) {
-										proto_tree_add_item_ret_int(columns_subtree, hf_cql_bytes_length, tvb, offset, 4, ENC_BIG_ENDIAN, &bytes_length);
+										single_column_subtree = proto_tree_add_item_ret_int(columns_subtree, hf_cql_bytes_length, tvb, offset, 4, ENC_BIG_ENDIAN, &bytes_length);
+										proto_item_append_text(single_column_subtree, " for column # %" PRId64, k + 1);
 										offset += 4;
 										if (bytes_length > 0) {
-											proto_tree_add_item(columns_subtree, hf_cql_bytes, tvb, offset, bytes_length, ENC_NA);
+											proto_tree_add_item(single_column_subtree, hf_cql_bytes, tvb, offset, bytes_length, ENC_NA);
 											offset += bytes_length;
 										}
 									}
@@ -1972,7 +1984,7 @@ proto_register_cql(void)
 		{
 			&hf_cql_string_result_rows_map_size,
 			{
-				"Map Size", "cql.result.rows.map_size",
+				"No. of key/value pairs in map", "cql.result.rows.map_size",
 				FT_INT32, BASE_DEC,
 				NULL, 0x0,
 				NULL, HFILL
@@ -2390,7 +2402,10 @@ proto_register_cql(void)
 		&ett_cql_version,
 		&ett_cql_message,
 		&ett_cql_result_columns,
+		&ett_cql_result_map,
+		&ett_cql_result_set,
 		&ett_cql_result_metadata,
+		&ett_cql_result_metadata_colspec,
 		&ett_cql_result_rows,
 		&ett_cql_header_flags_bitmap,
 		&ett_cql_query_flags_bitmap,
