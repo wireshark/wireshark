@@ -84,6 +84,7 @@ static int hf_cql_ascii = - 1;
 static int hf_cql_double = -1;
 static int hf_cql_float = -1;
 static int hf_cql_custom = -1;
+static int hf_cql_null_value = -1;
 static int hf_cql_int = -1;
 static int hf_cql_uuid = -1;
 static int hf_cql_port = -1;
@@ -701,7 +702,14 @@ static int parse_value(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t
 	proto_item_set_hidden(item);
 	*offset_metadata += 2;
 
-	if (bytes_length == -1) {
+	if (bytes_length == -1) { // value is NULL, but need to skip metadata offsets
+		proto_tree_add_item(columns_subtree, hf_cql_null_value, tvb, offset, 0, ENC_NA);
+		if (data_type == CQL_RESULT_ROW_TYPE_MAP) {
+			*offset_metadata += 4; /* skip the type fields of *both* key and value in the map in the metadata */
+		} else if (data_type == CQL_RESULT_ROW_TYPE_SET) {
+			*offset_metadata += 2; /* skip the type field of the elements in the set in the metadata */
+		}
+
 		return offset;
 	}
 
@@ -813,29 +821,35 @@ static int parse_value(proto_tree* columns_subtree, packet_info *pinfo, tvbuff_t
 			break;
 		case CQL_RESULT_ROW_TYPE_MAP:
 			item = proto_tree_add_item_ret_int(columns_subtree, hf_cql_string_result_rows_map_size, tvb, offset, 4, ENC_BIG_ENDIAN, &map_size);
+			offset += 4;
 			if (map_size < 0) {
 				expert_add_info(pinfo, item, &ei_cql_unexpected_negative_value);
 				return tvb_reported_length(tvb);
-			}
-			offset += 4;
-			offset_metadata_backup = *offset_metadata;
-			for (j = 0; j < map_size; j++) {
-				*offset_metadata = offset_metadata_backup;
-				offset = parse_value(columns_subtree, pinfo, tvb, offset_metadata, offset);
-				offset = parse_value(columns_subtree, pinfo, tvb, offset_metadata, offset);
+			} else if (map_size == 0) {
+				*offset_metadata += 4; /* skip the type fields of *both* key and value in the map in the metadata */
+			} else {
+				offset_metadata_backup = *offset_metadata;
+				for (j = 0; j < map_size; j++) {
+					*offset_metadata = offset_metadata_backup;
+					offset = parse_value(columns_subtree, pinfo, tvb, offset_metadata, offset);
+					offset = parse_value(columns_subtree, pinfo, tvb, offset_metadata, offset);
+				}
 			}
 			break;
 		case CQL_RESULT_ROW_TYPE_SET:
 			item = proto_tree_add_item_ret_int(columns_subtree, hf_cql_string_result_rows_set_size, tvb, offset, 4, ENC_BIG_ENDIAN, &set_size);
+			offset += 4;
 			if (set_size < 0) {
 				expert_add_info(pinfo, item, &ei_cql_unexpected_negative_value);
 				return tvb_reported_length(tvb);
-			}
-			offset += 4;
-			offset_metadata_backup = *offset_metadata;
-			for (j = 0; j < set_size; j++) {
-				*offset_metadata = offset_metadata_backup;
-				offset = parse_value(columns_subtree, pinfo, tvb, offset_metadata, offset);
+			} else if (set_size == 0) {
+				*offset_metadata += 2; /* skip the type field of the elements in the set in the metadata */
+			} else {
+				offset_metadata_backup = *offset_metadata;
+				for (j = 0; j < set_size; j++) {
+					*offset_metadata = offset_metadata_backup;
+					offset = parse_value(columns_subtree, pinfo, tvb, offset_metadata, offset);
+				}
 			}
 			break;
 		case CQL_RESULT_ROW_TYPE_UDT:
@@ -2159,6 +2173,15 @@ proto_register_cql(void)
 				FT_STRING, BASE_NONE,
 				NULL, 0x0,
 				"A custom field", HFILL
+			}
+		},
+		{
+			&hf_cql_null_value,
+			{
+				"NULL value", "cql.null_value",
+				FT_NONE, BASE_NONE,
+				NULL, 0x0,
+				"A NULL value", HFILL
 			}
 		},
 		{
