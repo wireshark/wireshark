@@ -1417,12 +1417,15 @@ static const value_string gsm_a_dtap_rate_adaption_vals[] = {
 
 static const value_string gsm_a_dtap_signal_access_protocol_vals[] = {
     { 0x0,  "Reserved" },
-    { 0x1,  "Rate adaptation according to ITU-T Rec. V.110 and ITU-T Rec. X.30" },
-    { 0x2,  "Flag stuffing according to ITU-T Rec. X.31" },
-    { 0x3,  "Other rate adaption (see octet 5a)" },
-    { 0x4,  "No rate adaption" },
-    { 0x5,  "Rate adaptation according to ITU-T Rec. V.110 and ITU-T Rec. X.30" },
-    { 0x6,  "Flag stuffing according to ITU-T Rec. X.31" },
+    /* 3GPP TS 24.008 (version 16.6.0), Table 10.5.101c defines only one value.
+     * All other values are reserved (were allocated in earlier phases of the protocol). */
+    { 0x1,  "According to ITU-T Rec. Q.920 and ITU-T Rec. Q.930" },
+    /* Below are values from GSM 04.08 (version 5.3.0, July 1996). */
+    { 0x2,  "Reserved (old meaning: X.21)" },
+    { 0x3,  "Reserved (old meaning: X.28 - dedicated PAD, individual NUI)" },
+    { 0x4,  "Reserved (old meaning: X.28 - dedicated PAD, universal NUI)" },
+    { 0x5,  "Reserved (old meaning: X.28 - non dedicated PAD)" },
+    { 0x6,  "Reserved (old meaning: X.32)" },
     { 0x7,  "Reserved" },
     { 0, NULL }
 };
