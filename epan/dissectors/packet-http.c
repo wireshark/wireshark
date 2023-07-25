@@ -349,8 +349,8 @@ typedef struct {
 
 /* http request or response private data */
 typedef struct {
-	/* tcp forward flow of request message */
-	tcp_flow_t* req_fwd_flow;
+	/* direction of request message */
+	int req_fwd_flow;
 	/* request or response streaming reassembly data */
 	http_streaming_reassembly_data_t* req_streaming_reassembly_data;
 	http_streaming_reassembly_data_t* res_streaming_reassembly_data;
@@ -1234,18 +1234,24 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	gboolean streaming_chunk_mode = FALSE;
 	gboolean begin_with_chunk = FALSE;
 	http_streaming_reassembly_data_t* streaming_reassembly_data = NULL;
-	struct tcp_analysis* tcpd = get_tcp_conversation_data(NULL, pinfo);
 
-	conversation_t  *conversation;
 	http_req_res_t  *curr = (http_req_res_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_http, HTTP_PROTO_DATA_REQRES);
 	http_info_value_t *stat_info = NULL;
 	http_req_res_private_data_t* prv_data = curr ? (http_req_res_private_data_t*)curr->private_data : NULL;
 	http_req_res_private_data_t* tail_prv_data = NULL;
 
-	conversation = find_or_create_conversation(pinfo);
-	if (cmp_address(&pinfo->src, conversation_key_addr1(conversation->key_ptr)) == 0 && pinfo->srcport == conversation_key_port1(conversation->key_ptr)) {
+	/* Determine the direction as in the TCP dissector, but don't call
+	 * get_tcp_conversation_data because we don't want to create a new
+	 * TCP stream if it doesn't exist (e.g., SSDP over UDP.)
+         */
+	int direction = cmp_address(&pinfo->src, &pinfo->dst);
+	/* if the addresses are equal, match the ports instead */
+	if (direction == 0) {
+		direction = (pinfo->srcport > pinfo->destport) ? 1 : -1;
+	}
+	if (direction >= 0) {
 		chunk_map = conv_data->chunk_offsets_fwd;
-	} else if (cmp_address(&pinfo->dst, conversation_key_addr1(conversation->key_ptr)) == 0 && pinfo->destport == conversation_key_port1(conversation->key_ptr)) {
+	} else {
 		chunk_map = conv_data->chunk_offsets_rev;
 	}
 
@@ -1361,15 +1367,15 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (begin_with_chunk &&
 			((prv_data && (      /* This packet has been parsed */
 				/* and now we are in a HTTP request chunk stream */
-				(prv_data->req_fwd_flow == tcpd->fwd && prv_data->req_streaming_reassembly_data) ||
+				(prv_data->req_fwd_flow == direction && prv_data->req_streaming_reassembly_data) ||
 				/* and now we are in a HTTP response chunk stream */
-				(prv_data->req_fwd_flow == tcpd->rev && prv_data->res_streaming_reassembly_data)))
+				(prv_data->req_fwd_flow != direction && prv_data->res_streaming_reassembly_data)))
 			||
 			(tail_prv_data && ( /* This packet has not been parsed and headers info in conv_data->req_res_tail */
 				/* and now we are in a HTTP request chunk stream */
-				(tail_prv_data->req_fwd_flow == tcpd->fwd && tail_prv_data->req_streaming_reassembly_data) ||
+				(tail_prv_data->req_fwd_flow == direction && tail_prv_data->req_streaming_reassembly_data) ||
 				/* and now we are in a HTTP response chunk stream */
-				(tail_prv_data->req_fwd_flow == tcpd->rev && tail_prv_data->res_streaming_reassembly_data)))))
+				(tail_prv_data->req_fwd_flow != direction && tail_prv_data->res_streaming_reassembly_data)))))
 		{
 			streaming_chunk_mode = TRUE;
 		}
@@ -1508,10 +1514,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 
 	if (prv_data) {
-		if (prv_data->req_fwd_flow == tcpd->fwd && prv_data->req_streaming_reassembly_data) {
+		if (prv_data->req_fwd_flow == direction && prv_data->req_streaming_reassembly_data) {
 			/* in request flow */
 			streaming_reassembly_data = prv_data->req_streaming_reassembly_data;
-		} else if (prv_data->req_fwd_flow == tcpd->rev && prv_data->res_streaming_reassembly_data) {
+		} else if (prv_data->req_fwd_flow != direction && prv_data->res_streaming_reassembly_data) {
 			/* in response flow */
 			streaming_reassembly_data = prv_data->res_streaming_reassembly_data;
 		}
@@ -1696,11 +1702,11 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					curr = push_req(conv_data, pinfo);
 					curr->request_method = wmem_strdup(wmem_file_scope(), stat_info->request_method);
 					prv_data = curr->private_data;
-					prv_data->req_fwd_flow = tcpd->fwd;
+					prv_data->req_fwd_flow = direction;
 				} else if (http_type == MEDIA_CONTAINER_HTTP_RESPONSE) {
 					curr = push_res(conv_data, pinfo);
 					prv_data = curr->private_data;
-					prv_data->req_fwd_flow = tcpd->rev;
+					prv_data->req_fwd_flow = -direction;
 				}
 			}
 			if (reqresp_dissector) {
@@ -1951,7 +1957,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		streaming_reassembly_data->content_info = content_info;
 		streaming_reassembly_data->main_headers = headers;
 
-		if (prv_data->req_fwd_flow == tcpd->fwd) {
+		if (prv_data->req_fwd_flow == direction) {
 			prv_data->req_streaming_reassembly_data = streaming_reassembly_data;
 		} else {
 			prv_data->res_streaming_reassembly_data = streaming_reassembly_data;
