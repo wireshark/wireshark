@@ -51,48 +51,67 @@ select_registry(const uint8_t addr[6])
     return MA_L;
 }
 
-
-const char *
-global_manuf_lookup(const uint8_t addr[6], const char **long_name_ptr)
+static struct ws_manuf *
+manuf_oui24_lookup(const uint8_t addr[6], struct ws_manuf *result)
 {
-    int kind = select_registry(addr);
+    ws_manuf_oui24_t *oui24 = bsearch(addr, global_manuf_oui24_table, G_N_ELEMENTS(global_manuf_oui24_table), sizeof(ws_manuf_oui24_t), compare_oui24_entry);
+    if (!oui24)
+        return NULL;
 
-    switch (kind) {
+    memcpy(result->addr, oui24->oui24, sizeof(oui24->oui24));
+    result->mask = 24;
+    result->short_name = oui24->short_name;
+    result->long_name = oui24->long_name;
+    return result;
+}
+
+static struct ws_manuf *
+manuf_oui28_lookup(const uint8_t addr[6], struct ws_manuf *result)
+{
+    ws_manuf_oui28_t *oui28 = bsearch(addr, global_manuf_oui28_table, G_N_ELEMENTS(global_manuf_oui28_table), sizeof(ws_manuf_oui28_t), compare_oui28_entry);
+    if (!oui28)
+        return NULL;
+
+    memcpy(result->addr, oui28->oui28, sizeof(oui28->oui28));
+    result->mask = 28;
+    result->short_name = oui28->short_name;
+    result->long_name = oui28->long_name;
+    return result;
+}
+
+static struct ws_manuf *
+manuf_oui36_lookup(const uint8_t addr[6], struct ws_manuf *result)
+{
+    ws_manuf_oui36_t *oui36 = bsearch(addr, global_manuf_oui36_table, G_N_ELEMENTS(global_manuf_oui36_table), sizeof(ws_manuf_oui36_t), compare_oui36_entry);
+    if (!oui36)
+        return NULL;
+
+    memcpy(result->addr, oui36->oui36, sizeof(oui36->oui36));
+    result->mask = 36;
+    result->short_name = oui36->short_name;
+    result->long_name = oui36->long_name;
+    return result;
+}
+
+struct ws_manuf *
+global_manuf_lookup(const uint8_t addr[6], struct ws_manuf *result)
+{
+    memset(result, 0, sizeof(*result));
+
+    switch (select_registry(addr)) {
         case MA_L:
-        {
-            ws_manuf_oui24_t *oui24 = bsearch(addr, global_manuf_oui24_table, G_N_ELEMENTS(global_manuf_oui24_table), sizeof(ws_manuf_oui24_t), compare_oui24_entry);
-            if (oui24) {
-                if (long_name_ptr)
-                    *long_name_ptr = oui24->long_name;
-                return oui24->short_name;
-            }
+            return manuf_oui24_lookup(addr, result);
             break;
-        }
         case MA_M:
-        {
-            ws_manuf_oui28_t *oui28 = bsearch(addr, global_manuf_oui28_table, G_N_ELEMENTS(global_manuf_oui28_table), sizeof(ws_manuf_oui28_t), compare_oui28_entry);
-            if (oui28) {
-                if (long_name_ptr)
-                    *long_name_ptr = oui28->long_name;
-                return oui28->short_name;
-            }
+            return manuf_oui28_lookup(addr, result);
             break;
-        }
         case MA_S:
-        {
-            ws_manuf_oui36_t *oui36 = bsearch(addr, global_manuf_oui36_table, G_N_ELEMENTS(global_manuf_oui36_table), sizeof(ws_manuf_oui36_t), compare_oui36_entry);
-            if (oui36) {
-                if (long_name_ptr)
-                    *long_name_ptr = oui36->long_name;
-                return oui36->short_name;
-            }
+            return manuf_oui36_lookup(addr, result);
             break;
-        }
         default:
-            ws_assert_not_reached();
+            break;
     }
-
-    return NULL;
+    ws_assert_not_reached();
 }
 
 void

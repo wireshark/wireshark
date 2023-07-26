@@ -1706,11 +1706,10 @@ manuf_name_lookup(const guint8 *addr)
     memcpy(addr_copy, addr, 6);
     /* Mask out the broadcast/multicast flag */
     addr_copy[0] &= 0xFE;
-    const char *long_name;
-    const char *short_name = global_manuf_lookup(addr_copy, &long_name);
-    if (short_name) {
+    struct ws_manuf manuf;
+    if (global_manuf_lookup(addr_copy, &manuf) != NULL) {
         /* Found it */
-        return manuf_hash_new_entry(addr, short_name, long_name);
+        return manuf_hash_new_entry(addr, manuf.short_name, manuf.long_name);
     }
 
     /* Add the address as a hex string */

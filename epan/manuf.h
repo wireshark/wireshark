@@ -35,8 +35,8 @@ typedef struct {
     const char *long_name;
 } ws_manuf_oui36_t;
 
-const char *
-global_manuf_lookup(const uint8_t addr[6], const char **long_name_ptr);
+struct ws_manuf *
+global_manuf_lookup(const uint8_t addr[6], struct ws_manuf *result);
 
 struct ws_manuf_iter {
     size_t idx24, idx28, idx36;
