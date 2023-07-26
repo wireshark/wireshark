@@ -51863,32 +51863,32 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_om_rx_nss,
      {"Rx NSS", "wlan.htc.he.a_control.om.rx_nss",
-      FT_UINT16, BASE_DEC, NULL, 0x0007, NULL, HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0x00000007, NULL, HFILL }},
 
     {&hf_ieee80211_he_om_channel_width,
      {"Channel Width", "wlan.htc.he.a_control.om.channel_width",
-      FT_UINT16, BASE_DEC, NULL, 0x0018, NULL, HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0x00000018, NULL, HFILL }},
 
     {&hf_ieee80211_he_om_ul_mu_disable,
      {"UL MU Disable", "wlan.htc.he.a_control.om.ul_mu_disable",
-      FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL }},
+      FT_BOOLEAN, 32, NULL, 0x00000020, NULL, HFILL }},
 
     {&hf_ieee80211_he_om_tx_nsts,
      {"Tx NSTS", "wlan.htc.he.a_control.om.tx_nsts",
-      FT_UINT16, BASE_DEC, NULL, 0x01c0, NULL, HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0x000001c0, NULL, HFILL }},
 
     {&hf_ieee80211_he_om_er_su_disable,
      {"ER SU Disable", "wlan.htc.he.a_control.om.er_su_disable",
-      FT_BOOLEAN, 16, NULL, 0x0200, NULL, HFILL }},
+      FT_BOOLEAN, 32, NULL, 0x00000200, NULL, HFILL }},
 
     {&hf_ieee80211_he_om_dl_mu_mimo_resound,
      {"DL MU-MIMO Resound Recommendation",
       "wlan.htc.he.a_control.om.dl_mu_mimo_resound_recommendation",
-      FT_BOOLEAN, 16, NULL, 0x0400, NULL, HFILL }},
+      FT_BOOLEAN, 32, NULL, 0x00000400, NULL, HFILL }},
 
     {&hf_ieee80211_he_om_ul_mu_data_disable,
      {"UL MU Data Disable", "wlan.htc.he.a_control.om.ul_mu_data_disable",
-      FT_BOOLEAN, 16, NULL, 0x0800, NULL, HFILL }},
+      FT_BOOLEAN, 32, NULL, 0x00000800, NULL, HFILL }},
 
     {&hf_ieee80211_he_hla_unsolicited_mfb,
      {"Unsolicited MFB", "wlan.htc.he.a_control.hla.unsolicited_mfb",
@@ -51956,23 +51956,23 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_uph_ul_power_headroom,
      {"UL Power Headroom", "wlan.htc.he.a_control.uph.ul_power_headroom",
-      FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL }},
+      FT_UINT32, BASE_DEC, NULL, 0x0000001f, NULL, HFILL }},
 
     {&hf_ieee80211_he_uph_ul_min_transmit_power_flag,
      {"Minimum Transmit Power Flag", "wlan.htc.he.a_control.uph.min_transmit_power_flag",
-      FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
+      FT_BOOLEAN, 32, NULL, 0x00000020, NULL, HFILL }},
 
     {&hf_ieee80211_he_uph_reserved,
      {"Reserved", "wlan.htc.he.a_control.uph.reserved",
-      FT_UINT8, BASE_HEX, NULL, 0xc0, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0x000000c0, NULL, HFILL }},
 
     {&hf_ieee80211_he_btc_avail_chan,
      {"Available Channel Bitmap", "wlan.htc.he.a_control.bqr.avail_chan_bitmap",
-      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_he_btc_reserved,
      {"Reserved", "wlan.htc.he.a_control.bqr.reserved",
-      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_he_cci_ac_constraint,
      {"AC Constraint", "wlan.htc.he.a_control.cci.ac_constraint",
