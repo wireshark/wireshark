@@ -32,7 +32,7 @@
 
 static QString formatString(qlonglong value)
 {
-    return QLocale::system().formattedDataSize(value, QLocale::DataSizeSIFormat);
+    return QLocale::system().formattedDataSize(value, 0, QLocale::DataSizeSIFormat);
 }
 
 ATapDataModel::ATapDataModel(dataModelType type, int protoId, QString filter, QObject *parent):
