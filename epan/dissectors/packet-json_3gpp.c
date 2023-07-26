@@ -41,6 +41,7 @@ static gint ett_json_base64decoded_nas5g_ie = -1;
 static gint ett_json_3gpp_data = -1;
 
 static expert_field ei_json_3gpp_data_not_decoded = EI_INIT;
+static expert_field ei_json_3gpp_encoding_error = EI_INIT;
 
 static int hf_json_3gpp_binary_data = -1;
 
@@ -275,6 +276,16 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 
 	int offset_reverse = len - 1;
 
+	/* Read in the HEX in ASCII form and validate it's 0-9,A-F */
+	guint8 *hex_ascii = tvb_memdup(pinfo->pool, tvb, offset, len);
+	for (int i = 0; i < len; i++) {
+		char c = hex_ascii[i];
+		if (!g_ascii_isxdigit(c)) {
+			proto_tree_add_expert_format(sub_tree, pinfo, &ei_json_3gpp_encoding_error, suppfeat_tvb, 0, -1, "Invalid char pos=%d value=%02x", i, c);
+			return;
+		}
+	}
+
 	if (strcmp(path, NPCF_AM_POLICY_CONTROL) == 0) {
 		/* TS 29.507 ch5.8 Feature negotiation */
 
@@ -285,7 +296,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_am_4_dnnreplacementcontrol,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_am_list_1, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_am_list_1, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -299,7 +310,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_am_8_es3xx,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_am_list_2, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_am_list_2, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -313,7 +324,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_am_12_targetnssai,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_am_list_3, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_am_list_3, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -324,7 +335,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_am_13_5gaccessstratumtime,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_am_list_4, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_am_list_4, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -345,7 +356,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_sm_4_adc,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_1, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_1, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -359,7 +370,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_sm_8_provafsignalflow,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_2, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_2, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -373,7 +384,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_sm_12_sponsoredconnectivity,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_3, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_3, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -387,7 +398,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_sm_16_multiipv6addrprefix,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_4, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_4, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -401,7 +412,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_sm_20_pendingtransaction,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_5, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_5, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -415,7 +426,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_sm_24_qosmonitoring,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_6, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_6, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -429,7 +440,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_sm_28_pdusessionrelcause,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_7, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_7, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -443,7 +454,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_sm_32_timesensitivenetworking,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_8, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_8, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -457,7 +468,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_sm_36_policydecisionerrorhandling,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_9, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_9, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -471,7 +482,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_sm_40_extpolicydecisionerrorhandling,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_10, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_10, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -485,7 +496,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_sm_44_groupidlistchange,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_11, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_11, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -499,7 +510,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_sm_48_ddneventpolicycontrol2,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_12, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_12, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -513,7 +524,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_sm_52_enedge,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_13, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_13, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -527,7 +538,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_sm_56_mpsfordts,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_14, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_14, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -541,7 +552,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_sm_60_pvssupport,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_15, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_15, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -555,7 +566,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_sm_64_exposuretoeas,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_16, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_16, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -569,7 +580,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_sm_68_easdiscovery,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_17, ENC_UTF_8 | BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_17, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -581,7 +592,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			NULL
 		};
 
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_18, ENC_UTF_8 | BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_sm_list_18, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -602,7 +613,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_ue_4_v2x,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_ue_list_1, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_ue_list_1, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -616,7 +627,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_ue_8_es3xx,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_ue_list_2, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_ue_list_2, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -627,7 +638,7 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 			&hf_json_3gpp_suppfeat_npcf_ue_9_prose,
 			NULL
 		};
-		proto_tree_add_bitmask_list(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_ue_list_3, ENC_UTF_8|BASE_DEC_HEX);
+		proto_tree_add_bitmask_list_value(sub_tree, suppfeat_tvb, offset_reverse, 1, json_3gpp_suppfeat_npcf_ue_list_3, g_ascii_xdigit_value(hex_ascii[offset_reverse]));
 		offset_reverse--;
 
 		if (offset_reverse == -1) {
@@ -1257,6 +1268,7 @@ proto_register_json_3gpp(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_json_3gpp_data_not_decoded,{ "json.3gpp.data_not_decoded", PI_UNDECODED, PI_NOTE, "Data not decoded by WS yet", EXPFILL } },
+		{ &ei_json_3gpp_encoding_error,{ "json.3gpp.encoding_error", PI_UNDECODED, PI_ERROR, "Data wrongly encoded", EXPFILL } },
 	};
 
 	expert_module_t* expert_json_3gpp;
