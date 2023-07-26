@@ -28,6 +28,7 @@
 #include <wsutil/strtoi.h>
 
 #include "packet-tcp.h"
+#include "packet-udp.h"
 
 void proto_reg_handoff_proxy(void);
 void proto_register_proxy(void);
@@ -487,6 +488,41 @@ dissect_proxy_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (offset < next_offset) {
         /* TLV */
         offset = dissect_proxy_v2_tlv(tvb, pinfo, proxy_tree, offset, next_offset);
+    }
+
+    if (offset > 0 && tvb_reported_length_remaining(tvb, offset)) {
+        /*
+         * If the PROXY v2 header was successfully parsed with remaining data,
+         * call the next dissector. The port number does not have to be changed
+         * as the PROXY header is just a prefix. This also makes it easier to
+         * use Decode As to replace the next dissector.
+         *
+         * Caveat: if the other dissector uses conversation_set_dissector or
+         * similar, then the second pass will fail to call the PROXY dissector
+         * through heuristics. This affects HTTP.
+         * TODO fix two-pass dissection when coalesced with HTTP, see bug 15714.
+         */
+        tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
+        /* Allow subdissector to perform reassembly. */
+        if (pinfo->can_desegment > 0)
+            pinfo->can_desegment++;
+
+        switch (fam_pro){
+            case 0x11: /* TCP over IPv4 */
+            case 0x21: /* TCP over IPv6 */
+                decode_tcp_ports(next_tvb, 0, pinfo, tree, pinfo->srcport, pinfo->destport,
+                        NULL, (struct tcpinfo *)data);
+            break;
+            case 0x12: /* UDP over IPv4 */
+            case 0x22: /* UDP over IPv6 */
+                decode_udp_ports(next_tvb, 0, pinfo, tree, pinfo->srcport, pinfo->destport, -1);
+            break;
+            default:
+                /* Dissect UNIX and UNSPEC protocols as data */
+                call_data_dissector(next_tvb, pinfo, tree);
+            break;
+        }
+        offset += tvb_captured_length(next_tvb);
     }
 
     return offset;
