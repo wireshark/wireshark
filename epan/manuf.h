@@ -11,6 +11,10 @@
 
 #include <wireshark.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 struct ws_manuf {
     uint8_t addr[6];
     uint8_t mask;
@@ -42,5 +46,9 @@ ws_manuf_dump(FILE *fp);
 WS_DLL_PUBLIC
 size_t
 ws_manuf_count(void);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif

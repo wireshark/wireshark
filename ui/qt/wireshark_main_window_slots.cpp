@@ -131,6 +131,7 @@ DIAG_ON(frame-larger-than=)
 #include "lte_rlc_statistics_dialog.h"
 #include "lte_rlc_graph_dialog.h"
 #include "main_application.h"
+#include "manuf_dialog.h"
 #include "mtp3_summary_dialog.h"
 #include "multicast_statistics_dialog.h"
 #include "packet_comment_dialog.h"
@@ -3741,6 +3742,11 @@ void WiresharkMainWindow::connectToolsMenuActions()
     connect(main_ui_->actionToolsCredentials, &QAction::triggered, this, [=]() {
         CredentialsDialog *credentials_dialog = new CredentialsDialog(*this, capture_file_, packet_list_);
         credentials_dialog->show();
+    });
+
+    connect(main_ui_->actionToolsMacLookup, &QAction::triggered, this, [=]() {
+        ManufDialog *manuf_dialog = new ManufDialog(*this, capture_file_);
+        manuf_dialog->show();
     });
 }
 

@@ -159,6 +159,8 @@ can be achieved via other fields, prefer that.
   have been removed and replaced with static binary data. You can dump the
   respective internal data using `tshark -G manuf|enterprises|services`.
 
+* New GUI dialog (under Tools menu) to lookup a MAC address in the IEEE OUI registry.
+
 === Removed Features and Support
 
 * With the addition of the universal and consistent filtering support for

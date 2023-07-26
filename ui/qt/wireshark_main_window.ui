@@ -72,8 +72,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="goToLineEdit">
-        </widget>
+        <widget class="QLineEdit" name="goToLineEdit"/>
        </item>
        <item>
         <widget class="QPushButton" name="goToGo">
@@ -141,7 +140,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>22</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -519,6 +518,24 @@
       <string>Service &amp;Response Time</string>
      </property>
     </widget>
+    <widget class="QMenu" name="menuRSerPool">
+     <property name="title">
+      <string>Reliable Server Pooling (RSerPool)</string>
+     </property>
+    </widget>
+    <widget class="QMenu" name="menuSOMEIP">
+     <property name="title">
+      <string>SOME/IP</string>
+     </property>
+     <addaction name="actionStatisticsSOMEIPmessages"/>
+     <addaction name="actionStatisticsSOMEIPSDentries"/>
+    </widget>
+    <widget class="QMenu" name="menuDTN">
+     <property name="title">
+      <string>&amp;DTN</string>
+     </property>
+     <addaction name="actionStatisticsLTP"/>
+    </widget>
     <addaction name="actionStatisticsCaptureFileProperties"/>
     <addaction name="actionStatisticsResolvedAddresses"/>
     <addaction name="actionStatisticsProtocolHierarchy"/>
@@ -543,27 +560,9 @@
     <addaction name="menuTcpStreamGraphs"/>
     <addaction name="actionStatisticsUdpMulticastStreams"/>
     <addaction name="menuRSerPool"/>
-    <widget class="QMenu" name="menuRSerPool">
-     <property name="title">
-      <string>Reliable Server Pooling (RSerPool)</string>
-     </property>
-    </widget>
     <addaction name="actionStatistics_REGISTER_STAT_GROUP_RSERPOOL"/>
     <addaction name="menuSOMEIP"/>
-    <widget class="QMenu" name="menuSOMEIP">
-     <property name="title">
-      <string>SOME/IP</string>
-     </property>
-     <addaction name="actionStatisticsSOMEIPmessages"/>
-     <addaction name="actionStatisticsSOMEIPSDentries"/>
-    </widget>
     <addaction name="menuDTN"/>
-    <widget class="QMenu" name="menuDTN">
-     <property name="title">
-      <string>&amp;DTN</string>
-     </property>
-     <addaction name="actionStatisticsLTP"/>
-    </widget>
    </widget>
    <widget class="QMenu" name="menuTelephony">
     <property name="title">
@@ -656,6 +655,11 @@
      <addaction name="separator"/>
      <addaction name="actionEditCopyAsFilter"/>
     </widget>
+    <widget class="QMenu" name="menuPacketComment">
+     <property name="title">
+      <string>Packet Comments</string>
+     </property>
+    </widget>
     <addaction name="menuEditCopy"/>
     <addaction name="actionEditFindPacket"/>
     <addaction name="actionEditFindNext"/>
@@ -678,11 +682,6 @@
     <addaction name="separator"/>
     <addaction name="actionEditTimeShift"/>
     <addaction name="separator"/>
-    <widget class="QMenu" name="menuPacketComment">
-     <property name="title">
-      <string>Packet Comments</string>
-     </property>
-    </widget>
     <addaction name="menuPacketComment"/>
     <addaction name="actionDeleteAllPacketComments"/>
     <addaction name="separator"/>
@@ -708,6 +707,7 @@
     </property>
     <addaction name="actionToolsFirewallAclRules"/>
     <addaction name="actionToolsCredentials"/>
+    <addaction name="actionToolsMacLookup"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -1879,15 +1879,15 @@
     <string>Sametime statistics</string>
    </property>
   </action>
-   <action name="actionStatisticsSOMEIPmessages">
-     <property name="text">
-       <string>SOME/IP Messages</string>
-     </property>
-     <property name="toolTip">
-       <string>SOME/IP Message statistics</string>
-     </property>
-   </action>
-   <action name="actionStatisticsSOMEIPSDentries">
+  <action name="actionStatisticsSOMEIPmessages">
+   <property name="text">
+    <string>SOME/IP Messages</string>
+   </property>
+   <property name="toolTip">
+    <string>SOME/IP Message statistics</string>
+   </property>
+  </action>
+  <action name="actionStatisticsSOMEIPSDentries">
    <property name="text">
     <string>SOME/IP-SD Entries</string>
    </property>
@@ -2976,6 +2976,11 @@
   <action name="actionToolsCredentials">
    <property name="text">
     <string>Credentials</string>
+   </property>
+  </action>
+  <action name="actionToolsMacLookup">
+   <property name="text">
+    <string>MAC Address Blocks</string>
    </property>
   </action>
  </widget>

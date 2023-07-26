@@ -107,6 +107,7 @@ set(WIRESHARK_MODEL_HEADERS
 	models/interface_sort_filter_model.h
 	models/interface_tree_cache_model.h
 	models/interface_tree_model.h
+	models/manuf_table_model.h
 	models/numeric_value_chooser_delegate.h
 	models/packet_list_model.h
 	models/packet_list_record.h
@@ -200,6 +201,7 @@ set(WIRESHARK_QT_HEADERS
 	main_window_preferences_frame.h
 	main_window.h
 	manage_interfaces_dialog.h
+	manuf_dialog.h
 	module_preferences_scroll_area.h
 	mtp3_summary_dialog.h
 	multicast_statistics_dialog.h
@@ -360,6 +362,7 @@ set(WIRESHARK_MODEL_SRCS
 	models/interface_sort_filter_model.cpp
 	models/interface_tree_cache_model.cpp
 	models/interface_tree_model.cpp
+	models/manuf_table_model.cpp
 	models/numeric_value_chooser_delegate.cpp
 	models/packet_list_model.cpp
 	models/packet_list_record.cpp
@@ -447,6 +450,7 @@ set(WIRESHARK_QT_SRC
 	main_window.cpp
 	main.cpp
 	manage_interfaces_dialog.cpp
+	manuf_dialog.cpp
 	module_preferences_scroll_area.cpp
 	packet_comment_dialog.cpp
 	packet_diagram.cpp
@@ -589,6 +593,7 @@ set(WIRESHARK_QT_UI
 	lte_rlc_graph_dialog.ui
 	main_window_preferences_frame.ui
 	manage_interfaces_dialog.ui
+	manuf_dialog.ui
 	module_preferences_scroll_area.ui
 	mtp3_summary_dialog.ui
 	packet_comment_dialog.ui
