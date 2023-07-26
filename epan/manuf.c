@@ -120,65 +120,69 @@ ws_manuf_iter_init(ws_manuf_iter_t *iter)
     memset(iter, 0, sizeof(*iter));
 }
 
+#define NUM_REGISTRIES  3
+
 /* Iterate between 3 registries in ascending order. */
 struct ws_manuf *
-ws_manuf_iter_next(ws_manuf_iter_t *iter, struct ws_manuf manuf[3])
+ws_manuf_iter_next(ws_manuf_iter_t *iter, struct ws_manuf manuf[NUM_REGISTRIES])
 {
     ws_manuf_oui24_t *ptr24 = NULL;
     ws_manuf_oui28_t *ptr28 = NULL;
     ws_manuf_oui36_t *ptr36 = NULL;
-    struct ws_manuf *result;
+    struct ws_manuf *ptr;
 
-    memset(manuf, 0, 3 * sizeof(struct ws_manuf));
+    memset(manuf, 0, NUM_REGISTRIES * sizeof(struct ws_manuf));
+    ptr = manuf;
 
     /* Read current positions. */
     if (iter->idx24 < G_N_ELEMENTS(global_manuf_oui24_table)) {
         ptr24 = &global_manuf_oui24_table[iter->idx24];
-        memcpy(manuf[0].addr, ptr24->oui24, sizeof(ptr24->oui24));
-        manuf[0].mask = 24;
-        manuf[0].short_name = ptr24->short_name;
-        manuf[0].long_name = ptr24->long_name;
+        memcpy(ptr->addr, ptr24->oui24, sizeof(ptr24->oui24));
+        ptr->mask = 24;
+        ptr->short_name = ptr24->short_name;
+        ptr->long_name = ptr24->long_name;
+        ptr++;
     }
     if (iter->idx28 < G_N_ELEMENTS(global_manuf_oui28_table)) {
         ptr28 = &global_manuf_oui28_table[iter->idx28];
-        memcpy(manuf[1].addr, ptr28->oui28, sizeof(ptr28->oui28));
-        manuf[1].mask = 28;
-        manuf[1].short_name = ptr28->short_name;
-        manuf[1].long_name = ptr28->long_name;
+        memcpy(ptr->addr, ptr28->oui28, sizeof(ptr28->oui28));
+        ptr->mask = 28;
+        ptr->short_name = ptr28->short_name;
+        ptr->long_name = ptr28->long_name;
+        ptr++;
     }
     if (iter->idx36 < G_N_ELEMENTS(global_manuf_oui36_table)) {
         ptr36 = &global_manuf_oui36_table[iter->idx36];
-        memcpy(manuf[2].addr, ptr36->oui36, sizeof(ptr36->oui36));
-        manuf[2].mask = 36;
-        manuf[2].short_name = ptr36->short_name;
-        manuf[2].long_name = ptr36->long_name;
+        memcpy(ptr->addr, ptr36->oui36, sizeof(ptr36->oui36));
+        ptr->mask = 36;
+        ptr->short_name = ptr36->short_name;
+        ptr->long_name = ptr36->long_name;
     }
 
-    /* Select smallest current prefix out of the 3 registries. */
-    result = &manuf[0];
-    if (result->long_name == NULL)
-        result = &manuf[1];
-    else if (memcmp(result->addr, manuf[1].addr, 6) > 0)
-        result = &manuf[1];
-    if (result->long_name == NULL)
-        result = &manuf[2];
-    else if (memcmp(result->addr, manuf[2].addr, 6) > 0)
-        result = &manuf[2];
-
-    if (result->long_name == NULL)
+    /* None read. */
+    if (manuf->long_name == NULL)
         return NULL;
 
+    /* Select smallest current prefix out of the 3 registries.
+     * There is at least one entry and index 0 is non-empty. */
+    ptr = &manuf[0];
+    for (size_t i = 1; i < NUM_REGISTRIES; i++) {
+        if (manuf[i].long_name && memcmp(manuf[i].addr, ptr->addr, 6) < 0) {
+            ptr = &manuf[i];
+        }
+    }
+
     /* Advance iterator. */
-    if (ptr24 && result->long_name == ptr24->long_name)
+    if (ptr24 && ptr->long_name == ptr24->long_name)
         iter->idx24++;
-    else if (ptr28 && result->long_name == ptr28->long_name)
+    else if (ptr28 && ptr->long_name == ptr28->long_name)
         iter->idx28++;
-    else if (ptr36 && result->long_name == ptr36->long_name)
+    else if (ptr36 && ptr->long_name == ptr36->long_name)
         iter->idx36++;
     else
         ws_assert_not_reached();
 
-    return result;
+    return ptr;
 }
 
 void
