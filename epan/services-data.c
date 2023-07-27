@@ -6309,3 +6309,5 @@ static ws_services_entry_t global_dccp_services_table[] = {
     { 5005, "avt-profile-2",    "RTP control protocol" },
     { 6514, "syslog-tls",       "Syslog over TLS" },
 };
+
+static const uint16_t _services_max_port = 49150;

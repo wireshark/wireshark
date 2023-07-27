@@ -240,9 +240,11 @@ def main(argv):
     body = compile_body(body)
     # body = [(port-range,), [proto-list], service-name, optional-description]
 
+    max_port = 0
+
     tcp_udp, tcp, udp, sctp, dccp = compile_tables(body)
 
-    def write_entry(f, e):
+    def write_entry(f, e, max_port):
         line = "    {{ {}, \"{}\", ".format(*e)
         sep_len = 32 - len(line)
         if sep_len <= 0:
@@ -253,31 +255,36 @@ def main(argv):
         else:
             line += "\"\" },\n"
         f.write(line)
+        if int(e[0]) > int(max_port):
+            return e[0]
+        return max_port
 
     out.write("static ws_services_entry_t global_tcp_udp_services_table[] = {\n")
     for e in tcp_udp:
-        write_entry(out, e)
+        max_port = write_entry(out, e, max_port)
     out.write("};\n\n")
 
     out.write("static ws_services_entry_t global_tcp_services_table[] = {\n")
     for e in tcp:
-        write_entry(out, e)
+        max_port = write_entry(out, e, max_port)
     out.write("};\n\n")
 
     out.write("static ws_services_entry_t global_udp_services_table[] = {\n")
     for e in udp:
-        write_entry(out, e)
+        max_port = write_entry(out, e, max_port)
     out.write("};\n\n")
 
     out.write("static ws_services_entry_t global_sctp_services_table[] = {\n")
     for e in sctp:
-        write_entry(out, e)
+        max_port = write_entry(out, e, max_port)
     out.write("};\n\n")
 
     out.write("static ws_services_entry_t global_dccp_services_table[] = {\n")
     for e in dccp:
-        write_entry(out, e)
-    out.write("};\n")
+        max_port = write_entry(out, e, max_port)
+    out.write("};\n\n")
+
+    out.write("static const uint16_t _services_max_port = {};\n".format(max_port))
 
     out.close()
 

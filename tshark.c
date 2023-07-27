@@ -69,6 +69,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/enterprises.h>
 #include <epan/manuf.h>
+#include <epan/services.h>
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_ui_utils.h"
 #endif
@@ -542,6 +543,7 @@ glossary_option_help(void)
     fprintf(output, "  -G manuf                 dump ethernet manufacturer tables\n");
     fprintf(output, "  -G plugins               dump installed plugins and exit\n");
     fprintf(output, "  -G protocols             dump protocols in registration database and exit\n");
+    fprintf(output, "  -G services              dump transport service (port) names\n");
     fprintf(output, "  -G values                dump value, range, true/false strings and exit\n");
     fprintf(output, "\n");
     fprintf(output, "Preference reports:\n");
@@ -1186,6 +1188,8 @@ main(int argc, char *argv[])
                 ws_manuf_dump(stdout);
             else if (strcmp(argv[2], "enterprises") == 0)
                 global_enterprises_dump(stdout);
+            else if (strcmp(argv[2], "services") == 0)
+                global_services_dump(stdout);
             else if (strcmp(argv[2], "plugins") == 0) {
 #ifdef HAVE_PLUGINS
                 codecs_init();
