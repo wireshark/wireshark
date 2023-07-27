@@ -721,10 +721,13 @@ dissect_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
                     proto_tree_add_item(cp2179_proto_tree, hf_cp2179_timetag_numsets, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
                     num_records = tvb_get_guint8(tvb, offset) & 0x7F;
+                    offset += 1;
+
+                    if (num_records == 0 || numberofcharacters <= 1)
+                        break;
+
                     recordsize = (numberofcharacters-1) / num_records;
                     num_values = (recordsize-6) / 2;      /* Determine how many 16-bit analog values are present in each event record */
-
-                    offset += 1;
 
                     for (x = 0; x < num_records; x++)
                     {
