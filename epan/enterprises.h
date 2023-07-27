@@ -7,6 +7,9 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#include <stdint.h>
+#include <wireshark.h>
 
 const char* global_enterprises_lookup(uint32_t value);
+
+WS_DLL_PUBLIC
+void global_enterprises_dump(FILE *fp);

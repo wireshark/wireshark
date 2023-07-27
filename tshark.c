@@ -67,6 +67,7 @@
 #include <epan/decode_as.h>
 #include <epan/print.h>
 #include <epan/addr_resolv.h>
+#include <epan/enterprises.h>
 #include <epan/manuf.h>
 #ifdef HAVE_LIBPCAP
 #include "ui/capture_ui_utils.h"
@@ -533,6 +534,7 @@ glossary_option_help(void)
     fprintf(output, "  -G dissector-tables      dump dissector table names, types, and properties\n");
     fprintf(output, "  -G dissectors            dump registered dissector names\n");
     fprintf(output, "  -G elastic-mapping       dump ElasticSearch mapping file\n");
+    fprintf(output, "  -G enterprises           dump IANA Private Enterprise Number (PEN) table\n");
     fprintf(output, "  -G fieldcount            dump count of header fields and exit\n");
     fprintf(output, "  -G fields [prefix]       dump fields glossary and exit\n");
     fprintf(output, "  -G ftypes                dump field type basic and descriptive names\n");
@@ -1182,6 +1184,8 @@ main(int argc, char *argv[])
                 dissector_dump_heur_decodes();
             else if (strcmp(argv[2], "manuf") == 0)
                 ws_manuf_dump(stdout);
+            else if (strcmp(argv[2], "enterprises") == 0)
+                global_enterprises_dump(stdout);
             else if (strcmp(argv[2], "plugins") == 0) {
 #ifdef HAVE_PLUGINS
                 codecs_init();

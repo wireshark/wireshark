@@ -28,7 +28,7 @@ ORGANIZATION_PATTERN = r"^   ?(\S.*)"
 FORMERLY_PATTERN = r" \(((formerly|previously) .*)\)"
 
 
-LOOKUP_FUNCTION = """\
+LOOKUP_FUNCTION = r"""
 const char* global_enterprises_lookup(uint32_t value)
 {
     if (value > table.max_idx) {
@@ -38,6 +38,16 @@ const char* global_enterprises_lookup(uint32_t value)
 }
 """
 
+DUMP_FUNCTION = r"""
+void global_enterprises_dump(FILE *fp)
+{
+    for (size_t idx = 0; idx <= table.max_idx; idx++) {
+        if (table.values[idx] != NULL) {
+            fprintf(fp, "%zu\t%s\n", idx, table.values[idx]);
+        }
+    }
+}
+"""
 
 # This intermediate format is no longer written to a file - returned as string
 def generate_enterprise_entries(file_content):
@@ -129,6 +139,9 @@ class CFile:
 
         # Lookup function
         self.f.write(LOOKUP_FUNCTION)
+
+        # Dump function
+        self.f.write(DUMP_FUNCTION)
 
     # Add an individual mapping to the function
     def addMapping(self, num, name):
