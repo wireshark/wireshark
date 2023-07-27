@@ -347,6 +347,13 @@ list_encap_types(void) {
     g_free(encaps);
 }
 
+static void
+cleanup_dump_params(wtap_dump_params *params)
+{
+    wtap_free_idb_info(params->idb_inf);
+    wtap_dump_params_cleanup(params);
+}
+
 /*----------------------------------------------------------------------
  * Parse CLI options
  */
@@ -853,8 +860,6 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
         input_file = stdin;
     }
 
-    wtap_dump_params_init(params, NULL);
-
     params->encap = wtap_encap_type;
     params->snaplen = max_offset;
     if (file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
@@ -866,12 +871,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
      */
     params->tsprec = WTAP_TSPREC_NSEC;
     if ((ret = text_import_pre_open(params, file_type_subtype, input_filename, interface_name)) != EXIT_SUCCESS) {
-        wtap_block_array_free(params->shb_hdrs);
-        if (params->idb_inf != NULL) {
-            wtap_block_array_free(params->idb_inf->interface_data);
-        }
-        g_free(params->idb_inf);
-        wtap_dump_params_cleanup(params);
+        cleanup_dump_params(params);
         return ret;
     }
 
@@ -888,12 +888,7 @@ parse_options(int argc, char *argv[], text_import_info_t * const info, wtap_dump
     if (!wdh) {
         cfile_dump_open_failure_message(output_filename, err, err_info,
                                         file_type_subtype);
-        wtap_block_array_free(params->shb_hdrs);
-        if (params->idb_inf != NULL) {
-            wtap_block_array_free(params->idb_inf->interface_data);
-        }
-        g_free(params->idb_inf);
-        wtap_dump_params_cleanup(params);
+        cleanup_dump_params(params);
         return WS_EXIT_OPEN_ERROR;
     }
 
@@ -1030,6 +1025,7 @@ main(int argc, char *argv[])
     wtap_init(TRUE);
 
     memset(&info, 0, sizeof(info));
+    wtap_dump_params_init(&params, NULL);
     if ((ret = parse_options(argc, argv, &info, &params)) != EXIT_SUCCESS) {
         goto clean_exit;
     }
@@ -1065,12 +1061,8 @@ clean_exit:
             cfile_close_failure_message(output_filename, err, err_info);
             ret = 2;
         }
-        wtap_block_array_free(params.shb_hdrs);
-        if (params.idb_inf != NULL) {
-            wtap_block_array_free(params.idb_inf->interface_data);
-        }
-        g_free(params.idb_inf);
     }
+    cleanup_dump_params(&params);
     return ret;
 }
 
