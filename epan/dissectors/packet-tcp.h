@@ -494,6 +494,9 @@ struct tcp_analysis {
 	 */
 	guint8          conversation_completeness;
 
+	/* Stores the value as a String to be displayed in the appropriate field */
+	gchar           *conversation_completeness_str;
+
 	/* Track AccECN support */
 	gboolean had_acc_ecn_setup_syn;
 	gboolean had_acc_ecn_setup_syn_ack;

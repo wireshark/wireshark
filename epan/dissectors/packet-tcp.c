@@ -179,6 +179,7 @@ static int hf_tcp_completeness_ack = -1;
 static int hf_tcp_completeness_data = -1;
 static int hf_tcp_completeness_fin = -1;
 static int hf_tcp_completeness_rst = -1;
+static int hf_tcp_completeness_str = -1;
 static int hf_tcp_seq = -1;
 static int hf_tcp_seq_abs = -1;
 static int hf_tcp_nxtseq = -1;
@@ -841,6 +842,7 @@ tcp_flags_to_str(wmem_allocator_t *scope, const struct tcpheader *tcph)
 
     return buf;
 }
+
 static char *
 tcp_flags_to_str_first_letter(wmem_allocator_t *scope, const struct tcpheader *tcph)
 {
@@ -866,6 +868,47 @@ tcp_flags_to_str_first_letter(wmem_allocator_t *scope, const struct tcpheader *t
             }
         }
     }
+
+    return wmem_strbuf_finalize(buf);
+}
+
+/*
+ * Print the first letter of each flag set, or the dot character otherwise
+ */
+static char *
+completeness_flags_to_str_first_letter(wmem_allocator_t *scope, guint8 flags)
+{
+    wmem_strbuf_t *buf = wmem_strbuf_new(scope, "");
+
+    if( flags & TCP_COMPLETENESS_RST )
+        wmem_strbuf_append(buf, "R");
+    else
+        wmem_strbuf_append(buf, UTF8_MIDDLE_DOT);
+
+    if( flags & TCP_COMPLETENESS_FIN )
+        wmem_strbuf_append(buf, "F");
+    else
+        wmem_strbuf_append(buf, UTF8_MIDDLE_DOT);
+
+    if( flags & TCP_COMPLETENESS_DATA )
+        wmem_strbuf_append(buf, "D");
+    else
+        wmem_strbuf_append(buf, UTF8_MIDDLE_DOT);
+
+    if( flags & TCP_COMPLETENESS_ACK )
+        wmem_strbuf_append(buf, "A");
+    else
+        wmem_strbuf_append(buf, UTF8_MIDDLE_DOT);
+
+    if( flags & TCP_COMPLETENESS_SYNACK )
+        wmem_strbuf_append(buf, "S");
+    else
+        wmem_strbuf_append(buf, UTF8_MIDDLE_DOT);
+
+    if( flags & TCP_COMPLETENESS_SYNSENT )
+        wmem_strbuf_append(buf, "S");
+    else
+        wmem_strbuf_append(buf, UTF8_MIDDLE_DOT);
 
     return wmem_strbuf_finalize(buf);
 }
@@ -7783,16 +7826,22 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         /* Display the completeness of this TCP conversation */
         static int* const completeness_fields[] = {
-            &hf_tcp_completeness_syn,
-            &hf_tcp_completeness_syn_ack,
-            &hf_tcp_completeness_ack,
-            &hf_tcp_completeness_data,
-            &hf_tcp_completeness_fin,
             &hf_tcp_completeness_rst,
+            &hf_tcp_completeness_fin,
+            &hf_tcp_completeness_data,
+            &hf_tcp_completeness_ack,
+            &hf_tcp_completeness_syn_ack,
+            &hf_tcp_completeness_syn,
             NULL};
+
         item = proto_tree_add_bitmask_value_with_flags(tcp_tree, NULL, 0,
             hf_tcp_completeness, ett_tcp_completeness, completeness_fields,
             tcpd->conversation_completeness, BMT_NO_APPEND);
+        proto_item_set_generated(item);
+        field_tree = proto_item_add_subtree(item, ett_tcp_completeness);
+
+        flags_str_first_letter = tcpd->conversation_completeness_str;
+        item = proto_tree_add_string(field_tree, hf_tcp_completeness_str, tvb, 0, 0, flags_str_first_letter);
         proto_item_set_generated(item);
 
         /* Copy the stream index into the header as well to make it available
@@ -8013,37 +8062,51 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           }
 
           conversation_completeness  = tcpd->conversation_completeness ;
+      }
 
-          /* SYN-ACK */
-          if((tcph->th_flags&(TH_SYN|TH_ACK))==(TH_SYN|TH_ACK)) {
-              conversation_completeness |= TCP_COMPLETENESS_SYNACK;
+      /* SYN-ACK */
+      if((tcph->th_flags&(TH_SYN|TH_ACK))==(TH_SYN|TH_ACK)) {
+          conversation_completeness |= TCP_COMPLETENESS_SYNACK;
+      }
+
+      /* ACKs */
+      if((tcph->th_flags&(TH_SYN|TH_ACK))==(TH_ACK)) {
+          if(tcph->th_seglen>0) { /* transporting some data */
+              conversation_completeness |= TCP_COMPLETENESS_DATA;
           }
-
-          /* ACKs */
-          if((tcph->th_flags&(TH_SYN|TH_ACK))==(TH_ACK)) {
-              if(tcph->th_seglen>0) { /* transporting some data */
-                  conversation_completeness |= TCP_COMPLETENESS_DATA;
-              }
-              else { /* pure ACK */
-                  conversation_completeness |= TCP_COMPLETENESS_ACK;
-              }
-          }
-
-          /* FIN-ACK */
-          if((tcph->th_flags&(TH_FIN|TH_ACK))==(TH_FIN|TH_ACK)) {
-              conversation_completeness |= TCP_COMPLETENESS_FIN;
-          }
-
-          /* RST */
-          /* XXX: A RST segment should be validated (RFC 9293 3.5.3),
-           * and if not valid should not change the conversation state.
-           */
-          if(tcph->th_flags&(TH_RST)) {
-              conversation_completeness |= TCP_COMPLETENESS_RST;
+          else { /* pure ACK */
+              conversation_completeness |= TCP_COMPLETENESS_ACK;
           }
       }
+
+      /* FIN-ACK */
+      if((tcph->th_flags&(TH_FIN|TH_ACK))==(TH_FIN|TH_ACK)) {
+          conversation_completeness |= TCP_COMPLETENESS_FIN;
+      }
+
+      /* RST */
+      /* XXX: A RST segment should be validated (RFC 9293 3.5.3),
+       * and if not valid should not change the conversation state.
+       */
+      if(tcph->th_flags&(TH_RST)) {
+          conversation_completeness |= TCP_COMPLETENESS_RST;
+      }
+
+      /* Store the completeness at the conversation level,
+       * both as numerical and as Flag First Letters string, to avoid
+       * computing many times the same thing.
+       */
+      if (tcpd->conversation_completeness) {
+          if (tcpd->conversation_completeness != conversation_completeness) {
+              tcpd->conversation_completeness = conversation_completeness;
+              tcpd->conversation_completeness_str = completeness_flags_to_str_first_letter(wmem_file_scope(), tcpd->conversation_completeness) ;
+          }
+      }
+      else {
+          tcpd->conversation_completeness = conversation_completeness;
+          tcpd->conversation_completeness_str = completeness_flags_to_str_first_letter(wmem_file_scope(), tcpd->conversation_completeness) ;
+      }
     }
-    tcpd->conversation_completeness = conversation_completeness;
 
     if (tcp_summary_in_tree) {
         if(tcph->th_flags&TH_ACK) {
@@ -8673,6 +8736,10 @@ proto_register_tcp(void)
         { "RST",        "tcp.completeness.rst", FT_BOOLEAN, 8,
             TFS(&tfs_present_absent), TCP_COMPLETENESS_RST,
             "Conversation has a RST packet", HFILL}},
+
+        { &hf_tcp_completeness_str,
+        { "Completeness Flags",          "tcp.completeness.str", FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
 
         { &hf_tcp_seq,
         { "Sequence Number",        "tcp.seq", FT_UINT32, BASE_DEC, NULL, 0x0,
