@@ -26,7 +26,8 @@ typedef enum {
     RA_LUA_PLUGINS,       /* Lua plugin register */
     RA_LUA_DEREGISTER,    /* Lua plugin deregister */
     RA_PREFERENCES,       /* Module preferences */
-    RA_INTERFACES         /* Local interfaces */
+    RA_INTERFACES,        /* Local interfaces */
+    RA_PREFERENCES_APPLY /* Apply changed preferences */
 } register_action_e;
 
 #define RA_BASE_COUNT (RA_INTERFACES - 3) // RA_EXTCAP, RA_LUA_PLUGINS, RA_LUA_DEREGISTER

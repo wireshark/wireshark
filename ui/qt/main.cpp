@@ -919,6 +919,7 @@ int main(int argc, char *qt_argv[])
 #ifdef DEBUG_STARTUP_TIME
     ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling prefs_apply_all, elapsed time %" PRIu64 " us \n", g_get_monotonic_time() - start_time);
 #endif
+    splash_update(RA_PREFERENCES_APPLY, NULL, NULL);
     prefs_apply_all();
     prefs_to_capture_opts();
     wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
@@ -962,6 +963,14 @@ int main(int argc, char *qt_argv[])
         g_free(err_msg);
     }
 
+    /* allSystemsGo() emits appInitialized(), which signals the WelcomePage to
+     * delete the splash overlay. However, it doesn't get redrawn until
+     * processEvents() is called. If we're opening a capture file that happens
+     * either when we finish reading the file or when the progress bar appears.
+     * It's probably better to leave the splash overlay up until that happens
+     * rather than showing the user the welcome page, so we don't call
+     * processEvents() here.
+     */
     wsApp->allSystemsGo();
     ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Wireshark is up and ready to go, elapsed time %.3fs", (float) (g_get_monotonic_time() - start_time) / 1000000);
     SimpleDialog::displayQueuedMessages(main_w);
