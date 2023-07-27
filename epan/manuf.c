@@ -98,15 +98,20 @@ global_manuf_lookup(const uint8_t addr[6], struct ws_manuf *result)
 {
     memset(result, 0, sizeof(*result));
 
-    switch (select_registry(addr)) {
+    uint8_t addr_copy[6];
+    memcpy(addr_copy, addr, 6);
+    /* Mask out the broadcast/multicast flag */
+    addr_copy[0] &= 0xFE;
+
+    switch (select_registry(addr_copy)) {
         case MA_L:
-            return manuf_oui24_lookup(addr, result);
+            return manuf_oui24_lookup(addr_copy, result);
             break;
         case MA_M:
-            return manuf_oui28_lookup(addr, result);
+            return manuf_oui28_lookup(addr_copy, result);
             break;
         case MA_S:
-            return manuf_oui36_lookup(addr, result);
+            return manuf_oui36_lookup(addr_copy, result);
             break;
         default:
             break;

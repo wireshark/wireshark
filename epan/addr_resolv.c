@@ -1702,12 +1702,8 @@ manuf_name_lookup(const guint8 *addr)
     }
 
     /* Try the global manuf tables. */
-    uint8_t addr_copy[6];
-    memcpy(addr_copy, addr, 6);
-    /* Mask out the broadcast/multicast flag */
-    addr_copy[0] &= 0xFE;
     struct ws_manuf manuf;
-    if (global_manuf_lookup(addr_copy, &manuf) != NULL) {
+    if (global_manuf_lookup(addr, &manuf) != NULL) {
         /* Found it */
         return manuf_hash_new_entry(addr, manuf.short_name, manuf.long_name);
     }
