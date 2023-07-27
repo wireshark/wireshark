@@ -838,6 +838,7 @@ serv_name_lookup(port_type proto, guint port)
     serv_port_t *serv_port_table = NULL;
     const char *name;
     ws_services_proto_t p;
+    ws_services_entry_t *serv;
 
     /* first look in the personal services file + cache */
     name = _serv_name_lookup(proto, port, &serv_port_table);
@@ -845,20 +846,20 @@ serv_name_lookup(port_type proto, guint port)
         return name;
 
     /* now look in the global tables */
-    switch( proto) {
+    switch(proto) {
         case PT_TCP: p = ws_tcp; break;
         case PT_UDP: p = ws_udp; break;
         case PT_SCTP: p = ws_sctp; break;
         case PT_DCCP: p = ws_dccp; break;
         default: ws_assert_not_reached();
     }
-    name = global_services_lookup(port, p);
-    if (name) {
+    serv = global_services_lookup(port, p);
+    if (serv) {
         /* Cache result */
         /* XXX would be nice to avoid the strdup for this name static string but user/custom entries
          * are dynamic and they share the same table. */
-        add_service_name(proto, port, name);
-        return name;
+        add_service_name(proto, port, serv->name);
+        return serv->name;
     }
 
     if (serv_port_table == NULL) {

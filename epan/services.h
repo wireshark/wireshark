@@ -19,6 +19,8 @@ typedef enum {
 typedef struct {
     uint16_t port;
     const char *name;
+    const char *description;
 } ws_services_entry_t;
 
-const char *global_services_lookup(uint16_t value, ws_services_proto_t proto);
+ws_services_entry_t *
+global_services_lookup(uint16_t value, ws_services_proto_t proto);

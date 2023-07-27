@@ -49,7 +49,7 @@ size_t global_dccp_services_table_count(void)
     return G_N_ELEMENTS(global_dccp_services_table);
 }
 
-const char *
+ws_services_entry_t *
 global_services_lookup(uint16_t value, ws_services_proto_t proto)
 {
     ws_services_entry_t *list1 = NULL, *list2 = NULL;
@@ -84,14 +84,14 @@ global_services_lookup(uint16_t value, ws_services_proto_t proto)
     if (list1) {
         found = bsearch(&value, list1, list1_size, sizeof(ws_services_entry_t), compare_entry);
         if (found) {
-            return found->name;
+            return found;
         }
     }
 
     if (list2) {
         found = bsearch(&value, list2, list2_size, sizeof(ws_services_entry_t), compare_entry);
         if (found) {
-            return found->name;
+            return found;
         }
     }
 

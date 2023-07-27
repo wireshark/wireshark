@@ -243,15 +243,16 @@ def main(argv):
     tcp_udp, tcp, udp, sctp, dccp = compile_tables(body)
 
     def write_entry(f, e):
-        line = "    {{ {}, \"{}\" }},".format(*e)
-        f.write(line)
+        line = "    {{ {}, \"{}\", ".format(*e)
+        sep_len = 32 - len(line)
+        if sep_len <= 0:
+            sep_len = 1
+        line += ' ' * sep_len
         if len(e) == 3 and e[2]:
-            sep_len = 48 - len(line)
-            if sep_len <= 0:
-                sep_len = 1
-            sep = ' ' * sep_len
-            f.write(sep + "/* {} */".format(e[2]))
-        f.write('\n')
+            line += "\"{}\" }},\n".format(e[2].replace('"', '\\"'))
+        else:
+            line += "\"\" },\n"
+        f.write(line)
 
     out.write("static ws_services_entry_t global_tcp_udp_services_table[] = {\n")
     for e in tcp_udp:
