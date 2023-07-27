@@ -135,6 +135,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  col_fill_in_frame_data@Base 1.9.1
  col_finalize@Base 2.5.0
  col_format_desc@Base 1.9.1
+ col_format_abbrev@Base 4.1.0rc0
  col_format_to_string@Base 1.9.1
  col_get_text@Base 2.0.0
  col_get_writable@Base 1.9.1
@@ -168,6 +169,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  color_filters_used@Base 2.1.0
  color_filters_write@Base 2.1.0
  column_dump_column_formats@Base 1.12.0~rc1
+ column_register_fields@Base 4.1.0rc0
  conversation_add_proto_data@Base 1.9.1
  conversation_delete_proto_data@Base 1.9.1
  conversation_filter_from_log@Base 3.7.0
@@ -291,6 +293,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dfilter_load_field_references_edt@Base 4.1.0
  dfilter_log_full@Base 3.7.0
  dfilter_macro_get_uat@Base 1.9.1
+ dfilter_requires_columns@Base 4.1.0rc0
  dfilter_syntax_tree@Base 3.7.0
  dfilter_text@Base 3.7.0
  disable_name_resolution@Base 1.99.9
@@ -1680,6 +1683,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tap_build_interesting@Base 1.9.1
  tap_listeners_dfilter_recompile@Base 2.0.0
  tap_listeners_load_field_references@Base 4.1.0
+ tap_listeners_require_columns@Base 4.1.0rc0
  tap_listeners_require_dissection@Base 1.9.1
  tap_queue_packet@Base 1.9.1
  tap_register_plugin@Base 2.5.0
@@ -2140,6 +2144,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ws_find_media_type_parameter@Base 2.2.0
  ws_label_strcat@Base 4.1.0
  ws_label_strcpy@Base 4.1.0
+ ws_manuf_dump@Base 4.1.0rc0
  wscbor_chunk_free@Base 3.5.1
  wscbor_chunk_mark_errors@Base 3.5.1
  wscbor_chunk_read@Base 3.5.1
