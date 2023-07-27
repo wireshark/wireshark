@@ -155,6 +155,10 @@ or "_ws.col.protocol"
 because the columns must be constructed, so when the same filtering
 can be achieved via other fields, prefer that.
 
+* The external name resolution text files "manuf", "enterprises" and "services"
+  have been removed and replaced with static binary data. You can dump the
+  respective internal data using `tshark -G manuf|enterprises|services`.
+
 === Removed Features and Support
 
 * With the addition of the universal and consistent filtering support for
