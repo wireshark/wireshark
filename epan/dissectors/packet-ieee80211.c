@@ -439,6 +439,21 @@ typedef enum {
 #define HTC_NO_FEEDBACK_PRESENT(mfb) (((mfb) & 0x7F) == 0x7F)
 
 /*
+ * Bits from the STA Control field.
+ * 802.11be draft2.0 9.4.2.312.2.3, 16 bits
+ */
+#define STA_CTRL_LINK_ID                         0x000F
+#define STA_CTRL_COMPLETE_PROFILE                0x0010
+#define STA_CTRL_MAC_ADDR_PRESENT                0x0020
+#define STA_CTRL_BEACON_INT_PRESENT              0x0040
+#define STA_CTRL_TSF_OFFSET_PRESENT              0x0080
+#define STA_CTRL_DTIM_INFO_PRESENT               0x0100
+#define STA_CTRL_NSTR_LINK_PAIR_PRESENT          0x0200
+#define STA_CTRL_NSTR_BITMAP_SIZE                0x0400
+#define STA_CTRL_BSS_PARAMS_CHANGE_CNT_PRESENT   0x0800
+#define STA_CTRL_RESERVED                        0xF000
+
+/*
  * Extract subfields from the key octet in WEP-encrypted frames.
  */
 #define KEY_OCTET_WEP_KEY(x)   (((x) & 0xC0) >> 6)
@@ -4535,14 +4550,18 @@ static int hf_ieee80211_eht_profile_link_id = -1;
 static int hf_ieee80211_eht_profile_complete_profile = -1;
 static int hf_ieee80211_eht_profile_mac_address_present = -1;
 static int hf_ieee80211_eht_profile_beacon_interval_present = -1;
+static int hf_ieee80211_eht_profile_tsf_offset_present = -1;
 static int hf_ieee80211_eht_profile_dtim_info_present = -1;
 static int hf_ieee80211_eht_profile_nstr_link_pair_present = -1;
 static int hf_ieee80211_eht_profile_nstr_bitmap_size = -1;
+static int hf_ieee80211_eht_profile_bss_params_change_count_present = -1;
 static int hf_ieee80211_eht_profile_reserved = -1;
 static int hf_ieee80211_eht_sta_profile_info_len = -1;
 static int hf_ieee80211_eht_sta_profile_info_mac = -1;
 static int hf_ieee80211_eht_sta_profile_info_beacon = -1;
+static int hf_ieee80211_eht_sta_profile_info_tsf_offset = -1;
 static int hf_ieee80211_eht_sta_profile_info_dtim = -1;
+static int hf_ieee80211_eht_sta_profile_bss_params_change_count = -1;
 static int hf_ieee80211_eht_profile_dtim_count = -1;
 static int hf_ieee80211_eht_profile_dtim_period = -1;
 static int hf_ieee80211_eht_sta_profile_info_bitmap = -1;
@@ -25317,9 +25336,11 @@ static int * const sta_control_hdrs[] = {
   &hf_ieee80211_eht_profile_complete_profile,
   &hf_ieee80211_eht_profile_mac_address_present,
   &hf_ieee80211_eht_profile_beacon_interval_present,
+  &hf_ieee80211_eht_profile_tsf_offset_present,
   &hf_ieee80211_eht_profile_dtim_info_present,
   &hf_ieee80211_eht_profile_nstr_link_pair_present,
   &hf_ieee80211_eht_profile_nstr_bitmap_size,
+  &hf_ieee80211_eht_profile_bss_params_change_count_present,
   &hf_ieee80211_eht_profile_reserved,
   NULL
 };
@@ -25329,13 +25350,6 @@ static int * const sta_info_dtim_hdrs[] = {
   &hf_ieee80211_eht_profile_dtim_period,
   NULL
 };
-
-#define STA_COMPLETE_PROFILE       0x0010
-#define STA_MAC_ADDR_PRESENT       0x0020
-#define STA_BEACON_INT_PRESENT     0x0040
-#define STA_DTIM_INFO_PRESENT      0x0080
-#define STA_NSTR_LINK_PAIR_PRESENT 0x0100
-#define STA_NSTR_BITMAP_SIZE       0x0200
 
 static int
 dissect_multi_link_per_sta(tvbuff_t *tvb, packet_info *pinfo _U_,
@@ -25364,19 +25378,25 @@ dissect_multi_link_per_sta(tvbuff_t *tvb, packet_info *pinfo _U_,
                       tvb, offset, 1, ENC_NA);
   offset += 1;
 
-  if (sta_control & STA_MAC_ADDR_PRESENT) {
+  if (sta_control & STA_CTRL_MAC_ADDR_PRESENT) {
     proto_tree_add_item(sta_info_tree, hf_ieee80211_eht_sta_profile_info_mac,
                         tvb, offset, 6, ENC_NA);
     offset += 6;
   }
 
-  if (sta_control & STA_BEACON_INT_PRESENT) {
+  if (sta_control & STA_CTRL_BEACON_INT_PRESENT) {
     proto_tree_add_item(sta_info_tree, hf_ieee80211_eht_sta_profile_info_beacon,
                         tvb, offset, 2, ENC_NA);
     offset += 2;
   }
 
-  if (sta_control & STA_DTIM_INFO_PRESENT) {
+  if (sta_control & STA_CTRL_TSF_OFFSET_PRESENT) {
+    proto_tree_add_item(sta_info_tree, hf_ieee80211_eht_sta_profile_info_tsf_offset,
+                        tvb, offset, 8, ENC_NA);
+    offset += 8;
+  }
+
+  if (sta_control & STA_CTRL_DTIM_INFO_PRESENT) {
     proto_tree_add_bitmask(sta_info_tree, tvb, offset,
                            hf_ieee80211_eht_sta_profile_info_dtim,
                            ett_eht_multi_link_sta_dtim,
@@ -25384,12 +25404,18 @@ dissect_multi_link_per_sta(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 2;
   }
 
-  if (sta_control & STA_NSTR_LINK_PAIR_PRESENT) {
-    int bitmap_size = (sta_control & STA_NSTR_BITMAP_SIZE) ? 2 : 1;
+  if (sta_control & STA_CTRL_NSTR_LINK_PAIR_PRESENT) {
+    int bitmap_size = (sta_control & STA_CTRL_NSTR_BITMAP_SIZE) ? 2 : 1;
 
     proto_tree_add_item(sta_info_tree, hf_ieee80211_eht_sta_profile_info_bitmap,
                         tvb, offset, bitmap_size, ENC_NA);
-    /* offset += bitmap_size; */
+    offset += bitmap_size;
+  }
+
+  if (sta_control & STA_CTRL_BSS_PARAMS_CHANGE_CNT_PRESENT) {
+    proto_tree_add_item(sta_info_tree, hf_ieee80211_eht_sta_profile_bss_params_change_count,
+                        tvb, offset, 1, ENC_NA);
+    /* offset += 1; */
   }
 
   return len;
@@ -39363,7 +39389,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ndp_eht_annc_reserved2,
      {"Reserved", "wlan.ndp_eht.sta_info.reserved2",
-      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0xe0000000, NULL, HFILL }},
 
     {&hf_ieee80211_data_encap_payload_type,
      {"Payload Type", "wlan.data_encap.payload_type",
@@ -54552,41 +54578,51 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_eht_profile_link_id,
      {"Link ID", "wlan.eht.multi_link.sta_profile.sta_control.link_id",
-      FT_UINT16, BASE_HEX, NULL, 0x000F, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, NULL, STA_CTRL_LINK_ID, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_complete_profile,
      {"Complete Profile",
       "wlan.eht.multi_link.sta_profile.sta_control.complete_profile",
-      FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL }},
+      FT_BOOLEAN, 16, NULL, STA_CTRL_COMPLETE_PROFILE, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_mac_address_present,
      {"MAC Address Present",
       "wlan.eht.multi_link.sta_profile.sta_control.mac_address_present",
-      FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL }},
+      FT_BOOLEAN, 16, NULL, STA_CTRL_MAC_ADDR_PRESENT, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_beacon_interval_present,
      {"Beacon Interval Present",
       "wlan.eht.multi_link.sta_profile.sta_control.beacon_interval_present",
-      FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL }},
+      FT_BOOLEAN, 16, NULL, STA_CTRL_BEACON_INT_PRESENT, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_profile_tsf_offset_present,
+     {"TSF Offset Present",
+      "wlan.eht.multi_link.sta_profile.sta_control.tsf_offset_present",
+      FT_BOOLEAN, 16, NULL, STA_CTRL_TSF_OFFSET_PRESENT, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_dtim_info_present,
      {"DTIM Info Present",
       "wlan.eht.multi_link.sta_profile.sta_control.dtim_info_present",
-      FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL }},
+      FT_BOOLEAN, 16, NULL, STA_CTRL_DTIM_INFO_PRESENT, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_nstr_link_pair_present,
      {"NSTR Link Pair Present",
       "wlan.eht.multi_link.sta_profile.sta_control.nstr_link_pair_present",
-      FT_BOOLEAN, 16, NULL, 0x0100, NULL, HFILL }},
+      FT_BOOLEAN, 16, NULL, STA_CTRL_NSTR_LINK_PAIR_PRESENT, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_nstr_bitmap_size,
      {"NSTR Bitmap Size",
       "wlan.eht.multi_link.sta_profile.sta_control.nstr_bitmap_size",
-      FT_UINT16, BASE_DEC, NULL, 0x0200, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, NULL, STA_CTRL_NSTR_BITMAP_SIZE, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_profile_bss_params_change_count_present,
+     {"BSS Parameters Change Count Present",
+      "wlan.eht.multi_link.sta_profile.sta_control.bss_params_change_count_present",
+      FT_BOOLEAN, 16, NULL, STA_CTRL_BSS_PARAMS_CHANGE_CNT_PRESENT, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_reserved,
      {"Reserved", "wlan.eht.multi_link.sta_profile.sta_control.reserved",
-      FT_UINT16, BASE_HEX, NULL, 0xFC00, NULL, HFILL }},
+      FT_UINT16, BASE_HEX, NULL, STA_CTRL_RESERVED, NULL, HFILL }},
 
     {&hf_ieee80211_eht_sta_profile_info_len,
      {"STA Info Length",
@@ -54603,25 +54639,35 @@ proto_register_ieee80211(void)
       "wlan.eht.multi_link.sta_profile.sta_control.sta_info.beacon_interval",
       FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
+    {&hf_ieee80211_eht_sta_profile_info_tsf_offset,
+     {"TSF Offset",
+      "wlan.eht.multi_link.sta_profile.sta_control.sta_info.tsf_offset",
+      FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
     {&hf_ieee80211_eht_sta_profile_info_dtim,
      {"DTIM Info",
-      "wlan.eht.multi_link.sta_profile.sta_control.sta_info.dtim_interval",
+      "wlan.eht.multi_link.sta_profile.sta_control.sta_info.dtim_info",
       FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_dtim_count,
-     {"DTIM Info",
+     {"DTIM Count",
       "wlan.eht.multi_link.sta_profile.sta_control.sta_info.dtim_count",
-      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0x00FF, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_dtim_period,
-     {"DTIM Info",
+     {"DTIM Period",
       "wlan.eht.multi_link.sta_profile.sta_control.sta_info.dtim_period",
-      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0xFF00, NULL, HFILL }},
 
     {&hf_ieee80211_eht_sta_profile_info_bitmap,
      {"NSTR Indication Bitmap",
       "wlan.eht.multi_link.sta_profile.sta_control.sta_info.nstr_bitmap",
       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_sta_profile_bss_params_change_count,
+     {"BSS Parameters Change Count",
+      "wlan.eht.multi_link.sta_profile.sta_control.sta_info.bss_params_change_count",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_operation_parameters,
      {"EHT Operation Parameters",
