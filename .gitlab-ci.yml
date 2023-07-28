@@ -45,7 +45,7 @@ variables:
 # repo and allow manual runs in the web UI and in forks.
 .if-merged:
   - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "master" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
-  - if: '$CI_PIPELINE_SOURCE == "web"'
+  - if: '$CI_PIPELINE_SOURCE == "web" && $CI_COMMIT_BRANCH == "master" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
   - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL !~ /.*gitlab.com\/wireshark\/wireshark/'
     when: manual
 # Merged commits for runners which are only available in
@@ -53,7 +53,7 @@ variables:
 # the main repo and allow manual runs in the web UI.
 .if-w-w-only-merged:
   - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
-  - if: '$CI_PIPELINE_SOURCE == "web"'
+  - if: '$CI_PIPELINE_SOURCE == "web" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
 # Incoming merge requests.
 .if-merge-request:
   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
