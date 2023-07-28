@@ -46518,7 +46518,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_wfa_ie_wpa_ucs_oui,
-     {"Unicast Cipher Suite OUI", "wlan.wfa.ie.wpau.cs.oui",
+     {"Unicast Cipher Suite OUI", "wlan.wfa.ie.wpa.ucs.oui",
       FT_UINT24, BASE_OUI, NULL, 0,
       NULL, HFILL }},
 
