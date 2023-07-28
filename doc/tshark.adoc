@@ -266,7 +266,7 @@ system or interface on which you're capturing might silently limit the
 capture buffer size to a lower value or raise it to a higher value.
 
 This is available on UNIX-compatible systems, such as Linux, macOS,
-\*BSD, Solaris, and AIX, with libpcap 1.0.0 or later, and on Windows. 
+\*BSD, Solaris, and AIX, with libpcap 1.0.0 or later, and on Windows.
 It is not available on UNIX-compatible systems with earlier versions of
 libpcap.
 
@@ -299,7 +299,7 @@ Run with the given configuration profile.
 --
 Print a list of the interfaces on which *TShark* can capture, and
 exit.  For each network interface, a number and an interface name,
-possibly followed by a text description of the interface, is printed. 
+possibly followed by a text description of the interface, is printed.
 The interface name or the number can be supplied to the *-i* flag to
 specify an interface on which to capture.  The number can be useful on
 Windows systems, where the interfaces have long names that usually
@@ -449,6 +449,8 @@ Field 6:: "decode as" support
 *elastic-mapping*  Dumps the ElasticSearch mapping file to stdout. Fields
 falling in the default case (string) won't be mapped.
 
+*enterprises* Dumps the IANA Private Enterprise Number (PEN) table.
+
 *fieldcount*  Dumps the number of header fields to stdout.
 
 *fields*  Dumps the contents of the registration database to
@@ -508,6 +510,8 @@ Field 3:: heuristic enabled (e.g. "T" or "F")
 
 *help* Displays the available report types.
 
+*manuf* Dumps the MAC address lookup table in `manuf` format.
+
 *plugins* Dumps the plugins currently installed.
 There is one record per line.  The fields are tab-delimited.
 
@@ -525,6 +529,8 @@ or HTML or whatever.  There is one record per line.  The fields are tab-delimite
 Field 1:: protocol name
 Field 2:: protocol short name
 Field 3:: protocol filter name
+
+*services* Dumps the TCP, UDP, and SCTP transport service (port) table.
 
 *values* Dumps the value_strings, range_strings or true/false strings
 for fields that have them.  There is one record per line.  Fields are
