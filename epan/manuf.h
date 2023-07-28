@@ -24,12 +24,15 @@ struct ws_manuf_iter {
 
 typedef struct ws_manuf_iter ws_manuf_iter_t;
 
+WS_DLL_PUBLIC
 struct ws_manuf *
-global_manuf_lookup(const uint8_t addr[6], struct ws_manuf *result);
+ws_manuf_lookup(const uint8_t addr[6], struct ws_manuf *result);
 
+WS_DLL_PUBLIC
 void
 ws_manuf_iter_init(ws_manuf_iter_t *iter);
 
+WS_DLL_PUBLIC
 struct ws_manuf *
 ws_manuf_iter_next(ws_manuf_iter_t *iter, struct ws_manuf manuf_ptr[3]);
 

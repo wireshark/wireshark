@@ -118,7 +118,7 @@ manuf_oui36_lookup(const uint8_t addr[6], struct ws_manuf *result)
 }
 
 struct ws_manuf *
-global_manuf_lookup(const uint8_t addr[6], struct ws_manuf *result)
+ws_manuf_lookup(const uint8_t addr[6], struct ws_manuf *result)
 {
     memset(result, 0, sizeof(*result));
 
