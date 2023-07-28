@@ -229,3 +229,11 @@ ws_manuf_dump(FILE *fp)
             ptr->long_name);
     }
 }
+
+size_t
+ws_manuf_count(void)
+{
+    return G_N_ELEMENTS(global_manuf_oui24_table) +
+            G_N_ELEMENTS(global_manuf_oui28_table) +
+            G_N_ELEMENTS(global_manuf_oui36_table);
+}

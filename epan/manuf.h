@@ -39,4 +39,8 @@ ws_manuf_iter_next(ws_manuf_iter_t *iter, struct ws_manuf manuf_ptr[3]);
 WS_DLL_PUBLIC void
 ws_manuf_dump(FILE *fp);
 
+WS_DLL_PUBLIC
+size_t
+ws_manuf_count(void);
+
 #endif
