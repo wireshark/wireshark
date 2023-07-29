@@ -504,7 +504,7 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
                 profile_path = gchar_free_to_qstring(get_profiles_dir());
             }
             profile_path.append("/").append(prof->name);
-            return profile_path;
+            return QDir::toNativeSeparators(profile_path);
         }
     case PROF_STAT_NEW:
         {
