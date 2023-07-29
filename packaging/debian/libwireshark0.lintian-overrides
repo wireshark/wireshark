@@ -1,11 +1,12 @@
 # from file-elf.c
-libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Synopsys Synopsis
+libwireshark0: spelling-error-in-binary Synopsys Synopsis [usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0]
 
-# Typo directly on IANA enterprise-numbers (epan/enterprise-numbers)
-
-libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Nam Name
-libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Informations Information
-libwireshark0: spelling-error-in-binary usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0 Dont Don't
+# Proper names or typos directly from IANA enterprise-numbers (epan/enterprises.c)
+libwireshark0: spelling-error-in-binary Nam Name [usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0]
+libwireshark0: spelling-error-in-binary Informations Information [usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0]
+libwireshark0: spelling-error-in-binary Dont Don't [usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0]
+libwireshark0: spelling-error-in-binary Transmittion Transmission [usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0]
+libwireshark0: spelling-error-in-binary VERION VERSION [usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0]
 
 # Embedding the manuf data from CSV files into static C arrays isn't static linkage
 libwireshark0: embedded-library ieee-data [usr/lib/x86_64-linux-gnu/libwireshark.so.0.0.0]
