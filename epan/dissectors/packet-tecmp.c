@@ -47,8 +47,6 @@ static gboolean heuristic_first = FALSE;
 static gboolean analog_samples_are_signed_int = TRUE;
 static gboolean show_ethernet_in_tecmp_tree = FALSE;
 
-static dissector_table_t fr_subdissector_table;
-static heur_dissector_list_t fr_heur_subdissector_list;
 static dissector_table_t lin_subdissector_table;
 static dissector_table_t data_subdissector_table;
 static dissector_handle_t text_lines_handle;
@@ -2877,9 +2875,6 @@ proto_reg_handoff_tecmp(void) {
 
     tecmp_handle = create_dissector_handle(dissect_tecmp, proto_tecmp);
     dissector_add_uint("ethertype", ETHERTYPE_TECMP, tecmp_handle);
-
-    fr_subdissector_table  = find_dissector_table("flexray.subdissector");
-    fr_heur_subdissector_list = find_heur_dissector_list("flexray");
 
     lin_subdissector_table = find_dissector_table("lin.frame_id");
 
