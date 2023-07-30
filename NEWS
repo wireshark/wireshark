@@ -135,7 +135,13 @@ Wireshark 4.1.0 Release Notes
 
         • Added XOR logical operator.
 
-     • Running the test suite requires the pytest[4] Python module. The
+        • Fixed the implementation of `all …​ in` membership operator
+       (#19188[4]).
+
+        • The deprecated ~≃ operator symbol has been removed. It was
+       replaced by !== in version 4.0.
+
+     • Running the test suite requires the pytest[5] Python module. The
        emulation layer that allowed running tests without pytest
        installed has been removed.
 
@@ -146,6 +152,33 @@ Wireshark 4.1.0 Release Notes
      • TLS secrets used in decrypting packets can be embedded (or
        discarded) from the capture file via the GUI, similar to the
        options --inject-secrets and --discard-all-secrets in editcap.
+
+     • The text of any configured column (displayed or hidden) can be
+       filtered anywhere that filters are used - in display filters,
+       filters in taps, coloring rules, Wireshark read filters, and the
+       -Y, -R, and -e options to tshark, the "Apply as Filter" GUI
+       option, etc.
+
+        • The filter field names are prefixed by "ws.col", followed by a
+       lowercase version of the COL name found in epan/column-utils.h,
+       e.g. "_ws.col.info" or "_ws.col.protocol"
+
+        • Using the column names as a filter is slower than other filter
+       types because the columns must be constructed, so when the same
+       filtering can be achieved via other fields, prefer that.
+
+     • The external name resolution text files "manuf", "enterprises"
+       and "services" have been removed and replaced with static binary
+       data. You can dump the respective internal data using `tshark -G
+       manuf|enterprises|services`.
+
+  Removed Features and Support
+
+     • With the addition of the universal and consistent filtering
+       support for column text, the previous support in the -e option to
+       tshark for displaying column text via the column title, e.g.
+       "_ws.col.Info", has been removed. The previous implementation
+       allowed names that are not legal filter names and Issue 16576[6]
 
   New Protocol Support
 
@@ -165,8 +198,9 @@ Wireshark 4.1.0 Release Notes
    all WoW 1.12 messages has been added., Train Real-Time Data Protocol
    (TRDP), UBX protocol of u-blox GNSS receivers (UBX), UDP Tracker
    Protocol for BitTorrent (BT-Tracker), Windows Delivery Optimization
-   (MS-DO), and World of Warcraft World (WOWW) display filters have been
-   changed to be more internally consistent.
+   (MS-DO), World of Warcraft World (WOWW) display filters have been
+   changed to be more internally consistent., and Zabbix Protocol
+   (Zabbix)
 
   Updated Protocol Support
 
@@ -180,7 +214,7 @@ Wireshark 4.1.0 Release Notes
        details about addresses (default off).
 
      • The IPv6 dissector now supports dissecting Application-aware IPv6
-       Networking (APN6) option[5] in the Hop-by-Hop Options Header
+       Networking (APN6) option[7] in the Hop-by-Hop Options Header
        (HBH) and Destination Options Header (DOH). This feature supports
        to dissect all three types of APN ID, which are 32-bit, 64-bit
        and 128-bit in length.
@@ -217,7 +251,7 @@ Wireshark 4.1.0 Release Notes
 
   New and Updated Codec support
 
-   Adaptive Multi-Rate (AMR), if compiled with opencore-amr[6]
+   Adaptive Multi-Rate (AMR), if compiled with opencore-amr[8]
 
  Getting Wireshark
 
@@ -229,7 +263,7 @@ Wireshark 4.1.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[7] on the Wireshark web site.
+   be found on the download page[9] on the Wireshark web site.
 
  File Locations
 
@@ -244,37 +278,39 @@ Wireshark 4.1.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[8] and on the
+  Community support is available on Wireshark’s Q&A site[10] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[9].
+  for all of Wireshark’s mailing lists can be found on the web site[11].
 
-  Bugs and feature requests can be reported on the issue tracker[10].
+  Bugs and feature requests can be reported on the issue tracker[12].
 
   You can learn protocol analysis and meet Wireshark’s developers at
-  SharkFest[11].
+  SharkFest[13].
 
  How You Can Help
 
   The Wireshark Foundation helps as many people as possible understand
   their networks as much as possible. You can find out more and donate
-  at wiresharkfoundation.org[12].
+  at wiresharkfoundation.org[14].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[13].
+  A complete FAQ is available on the Wireshark web site[15].
 
  References
 
    1. https://www.msys2.org/
    2. https://gitlab.com/wireshark/wireshark/-/issues/18413
    3. https://gitlab.com/wireshark/wireshark/-/issues/18510
-   4. https://pypi.org/project/pytest/
-   5. https://www.ipv6plus.net/Phase3/apn6/
-   6. https://sourceforge.net/projects/opencore-amr/
-   7. https://www.wireshark.org/download.html
-   8. https://ask.wireshark.org/
-   9. https://www.wireshark.org/lists/
-  10. https://gitlab.com/wireshark/wireshark/-/issues
-  11. https://sharkfest.wireshark.org
-  12. https://wiresharkfoundation.org
-  13. https://www.wireshark.org/faq.html
+   4. https://gitlab.com/wireshark/wireshark/-/issues/19188
+   5. https://pypi.org/project/pytest/
+   6. https://gitlab.com/wireshark/wireshark/-/issues/16576
+   7. https://www.ipv6plus.net/Phase3/apn6/
+   8. https://sourceforge.net/projects/opencore-amr/
+   9. https://www.wireshark.org/download.html
+  10. https://ask.wireshark.org/
+  11. https://www.wireshark.org/lists/
+  12. https://gitlab.com/wireshark/wireshark/-/issues
+  13. https://sharkfest.wireshark.org
+  14. https://wiresharkfoundation.org
+  15. https://www.wireshark.org/faq.html
