@@ -129,7 +129,6 @@ static expert_field ei_telnet_enc_cmd_unknown = EI_INIT;
 static expert_field ei_telnet_invalid_data_size = EI_INIT;
 static expert_field ei_telnet_invalid_modemstate = EI_INIT;
 static expert_field ei_telnet_invalid_parity = EI_INIT;
-static expert_field ei_telnet_kerberos_blob_too_long = EI_INIT;
 static expert_field ei_telnet_invalid_purge = EI_INIT;
 static expert_field ei_telnet_invalid_baud_rate = EI_INIT;
 static expert_field ei_telnet_invalid_control = EI_INIT;
@@ -1019,19 +1018,19 @@ dissect_authentication_type_pair(packet_info *pinfo _U_, tvbuff_t *tvb, int offs
   proto_tree_add_bitmask_list(tree, tvb, offset+1, 1, auth_mods, ENC_BIG_ENDIAN);
 }
 
-/* no kerberos blobs are ever >10kb ? (arbitrary limit) */
-#define MAX_KRB5_BLOB_LEN 10240
+/* Assume no telnet option subnegotiation exceeds 10 kB (arbitrary limit). */
+#define MAX_TELNET_OPTION_SUBNEG_LEN 10240
 
 static tvbuff_t *
 unescape_and_tvbuffify_telnet_option(packet_info *pinfo, tvbuff_t *tvb, int offset, int len)
 {
-  tvbuff_t     *krb5_tvb;
+  tvbuff_t     *option_subneg_tvb;
   guint8       *buf;
   const guint8 *spos;
   guint8       *dpos;
   int           skip, l;
 
-  if(len >= MAX_KRB5_BLOB_LEN)
+  if(len >= MAX_TELNET_OPTION_SUBNEG_LEN)
     return NULL;
 
   spos = tvb_get_ptr(tvb, offset, len);
@@ -1052,10 +1051,10 @@ unescape_and_tvbuffify_telnet_option(packet_info *pinfo, tvbuff_t *tvb, int offs
     *(dpos++) = *(spos++);
     l--;
   }
-  krb5_tvb = tvb_new_child_real_data(tvb, buf, len-skip, len-skip);
-  add_new_data_source(pinfo, krb5_tvb, "Unpacked Telnet Option");
+  option_subneg_tvb = tvb_new_child_real_data(tvb, buf, len-skip, len-skip);
+  add_new_data_source(pinfo, option_subneg_tvb, "Unpacked Telnet Option");
 
-  return krb5_tvb;
+  return option_subneg_tvb;
 }
 
 
@@ -1065,7 +1064,6 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
 {
   tvbuff_t *krb5_tvb;
   guint8    krb5_cmd;
-  proto_item* ti;
 
   dissect_authentication_type_pair(pinfo, tvb, offset, tree);
   offset+=2;
@@ -1073,7 +1071,7 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
 
 
   krb5_cmd=tvb_get_guint8(tvb, offset);
-  ti = proto_tree_add_uint(tree, hf_telnet_auth_krb5_type, tvb, offset, 1, krb5_cmd);
+  proto_tree_add_uint(tree, hf_telnet_auth_krb5_type, tvb, offset, 1, krb5_cmd);
   offset++;
   len--;
 
@@ -1081,11 +1079,8 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
   /* IAC SB AUTHENTICATION IS <authentication-type-pair> AUTH <Kerberos V5 KRB_AP_REQ message> IAC SE */
   if((acmd==TN_AC_IS)&&(krb5_cmd==TN_KRB5_TYPE_AUTH)){
     if(len){
-      krb5_tvb=unescape_and_tvbuffify_telnet_option(pinfo, tvb, offset, len);
-      if(krb5_tvb)
-        dissect_kerberos_main(krb5_tvb, pinfo, tree, FALSE, NULL);
-      else
-        expert_add_info_format(pinfo, ti, &ei_telnet_kerberos_blob_too_long, "Kerberos blob (too long to dissect - length %u > %u)", len, MAX_KRB5_BLOB_LEN);
+      krb5_tvb=tvb_new_subset_length(tvb, offset, len);
+      dissect_kerberos_main(krb5_tvb, pinfo, tree, FALSE, NULL);
     }
   }
 
@@ -1103,7 +1098,7 @@ dissect_krb5_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, 
   /* IAC SB AUTHENTICATION REPLY <authentication-type-pair> RESPONSE <KRB_AP_REP message> IAC SE */
   if((acmd==TN_AC_REPLY)&&(krb5_cmd==TN_KRB5_TYPE_RESPONSE)){
     if(len){
-      krb5_tvb=unescape_and_tvbuffify_telnet_option(pinfo, tvb, offset, len);
+      krb5_tvb=tvb_new_subset_length(tvb, offset, len);
       dissect_kerberos_main(krb5_tvb, pinfo, tree, FALSE, NULL);
     }
   }
@@ -2164,7 +2159,6 @@ proto_register_telnet(void)
       { &ei_telnet_invalid_linestate, { "telnet.invalid_linestate", PI_PROTOCOL, PI_WARN, "Invalid linestate", EXPFILL }},
       { &ei_telnet_invalid_modemstate, { "telnet.invalid_modemstate", PI_PROTOCOL, PI_WARN, "Invalid Modemstate", EXPFILL }},
       { &ei_telnet_invalid_purge, { "telnet.invalid_purge", PI_PROTOCOL, PI_WARN, "Invalid Purge Packet", EXPFILL }},
-      { &ei_telnet_kerberos_blob_too_long, { "telnet.kerberos_blob_too_long", PI_PROTOCOL, PI_NOTE, "Kerberos blob too long to dissect", EXPFILL }},
       { &ei_telnet_enc_cmd_unknown, { "telnet.enc.cmd.unknown", PI_PROTOCOL, PI_WARN, "Unknown encryption command", EXPFILL }},
       { &ei_telnet_suboption_length, { "telnet.suboption_length.invalid", PI_PROTOCOL, PI_WARN, "Bogus suboption data", EXPFILL }},
   };
