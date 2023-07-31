@@ -429,7 +429,7 @@ cf_close(capture_file *cf)
 
 /*
  * TRUE if the progress dialog doesn't exist and it looks like we'll
- * take > 2s to load, FALSE otherwise.
+ * take > PROGBAR_SHOW_DELAY (500ms) to load, FALSE otherwise.
  */
 static inline gboolean
 progress_is_slow(progdlg_t *progdlg, GTimer *prog_timer, gint64 size, gint64 pos)
@@ -438,7 +438,10 @@ progress_is_slow(progdlg_t *progdlg, GTimer *prog_timer, gint64 size, gint64 pos
 
     if (progdlg) return FALSE;
     elapsed = g_timer_elapsed(prog_timer, NULL);
-    if ((elapsed / 2 > PROGBAR_SHOW_DELAY && (size / pos) > 2) /* It looks like we're going to be slow. */
+    /* This only gets checked between reading records, which doesn't help if
+     * a single record takes a very long time, e.g., the first TLS packet if
+     * the SSLKEYLOGFILE is very large. (#17051) */
+    if ((elapsed * 2 > PROGBAR_SHOW_DELAY && (size / pos) >= 2) /* It looks like we're going to be slow. */
             || elapsed > PROGBAR_SHOW_DELAY) { /* We are indeed slow. */
         return TRUE;
     }
