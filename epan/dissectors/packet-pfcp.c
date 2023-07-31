@@ -982,7 +982,6 @@ static int hf_pfcp_bbf_multicast_group_limit_max_joins = -1;
 
 static int hf_pfcp_bbf_apply_action_flags_b0_nat = -1;
 
-static int hf_pfcp_bbf_nat_external_port_range = -1;
 static int hf_pfcp_bbf_nat_external_port_range_start = -1;
 static int hf_pfcp_bbf_nat_external_port_range_end = -1;
 
@@ -8182,7 +8181,7 @@ dissect_pfcp_offending_ie_information(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     offset += 2;
 
     /* Octets 7 to (n+4) shall contain the value of the offending IE that caused the failure */
-    proto_tree_add_item(tree, hf_pfcp_offending_ie_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_pfcp_offending_ie_value, tvb, offset, length - offset, ENC_NA);
 }
 
 /*
@@ -12726,8 +12725,8 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_offending_ie_value,
-        { "Type of the offending IE", "pfcp.offending_ie",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
+        { "Value of the offending IE", "pfcp.offending_ie_value",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
@@ -15547,11 +15546,6 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
 
-        { &hf_pfcp_bbf_nat_external_port_range,
-        { "Port Range", "pfcp.bbf.nat_external_port_range",
-            FT_NONE, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
         { &hf_pfcp_bbf_nat_external_port_range_start,
         { "Start", "pfcp.bbf.nat_external_port_range.start",
             FT_UINT16, BASE_DEC, NULL, 0x0,
