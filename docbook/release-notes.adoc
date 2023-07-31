@@ -16,7 +16,7 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-// Add a summary of major changes here.
+// Add a summary of **major** changes here.
 // Add other changes to "New and Updated Features" below.
 
 A Windows installer for Arm64 has been added.
@@ -30,9 +30,6 @@ A new display filter feature for filtering raw bytes has been added.
 Display filter autocomplete is smarter about not suggesting invalid syntax.
 
 menu:Tools[Lua Scripts,Launch with SSLKEYLOGFILE] can launch your web browser with the SSLKEYLOGFILE environment variable set to the appropriate value.
-
-The Windows build has a new SpeexDSP external dependency (https://www.speex.org).
-The speex code that was previously bundled has been removed.
 
 The personal extcap plugin folder location on Unix has been changed to
 follow existing conventions for architecture-dependent files.
@@ -55,7 +52,7 @@ dissect.) The previous behavior was to reset the dissector to the default.
 To facilitate resetting the dissector, the default dissector is now sorted
 at the top of the list of possible dissector options.
 
-Sorting changes:
+Packet list sorting has been updated:
 * When sorting packet list with a filter applied, only the visible packets are
 sorted, which greatly increases sorting speed.
 * The cache size for column text is limited to a default of 10000 rows,
@@ -89,6 +86,9 @@ The following bugs have been fixed:
 === New and Updated Features
 
 The following features are new (or have been significantly updated) since version 4.0.0:
+
+* The Windows installers now ship with Qt 6.5.2.
+  They previously shipped with Qt 6.2.3.
 
 // * The Windows installers now ship with Npcap 1.75.
 //   They previously shipped with Npcap 1.71.
@@ -160,6 +160,10 @@ can be achieved via other fields, prefer that.
   respective internal data using `tshark -G manuf|enterprises|services`.
 
 * New GUI dialog (under Tools menu) to lookup a MAC address in the IEEE OUI registry.
+
+* The Windows build has a new SpeexDSP external dependency (https://www.speex.org).
+  The speex code that was previously bundled has been removed.
+
 
 === Removed Features and Support
 
