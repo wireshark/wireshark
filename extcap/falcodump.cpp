@@ -273,7 +273,7 @@ void print_cloudtrail_aws_region_config(int arg_num, const char *display, const 
 
 
 // Load our plugins. This should match the behavior of the Falco Bridge dissector.
-static void load_plugins(sinsp &inspector, std::vector<std::shared_ptr<sinsp_plugin>> &plugins) {
+static void load_plugins(sinsp &inspector) {
     WS_DIR *dir;
     WS_DIRENT *file;
     char *plugin_paths[] = {
@@ -288,7 +288,6 @@ static void load_plugins(sinsp &inspector, std::vector<std::shared_ptr<sinsp_plu
                 char *libname = g_build_filename(plugin_path, ws_dir_get_name(file), NULL);
                 try {
                     auto plugin = inspector.register_plugin(libname);
-                    plugins.push_back(plugin);
                     ws_debug("Registered plugin %s via %s", plugin->name().c_str(), libname);
                 } catch (sinsp_exception &e) {
                     ws_warning("%s", e.what());
@@ -672,11 +671,12 @@ static bool get_plugin_config_schema(const std::shared_ptr<sinsp_plugin> &plugin
 }
 
 // For each loaded plugin, get its name and properties.
-static bool get_source_plugins(std::vector<std::shared_ptr<sinsp_plugin>> &plugins, std::map<std::string, struct plugin_configuration> &plugin_configs) {
+static bool get_source_plugins(sinsp &inspector, std::map<std::string, struct plugin_configuration> &plugin_configs) {
+    const auto plugin_manager = inspector.get_plugin_manager();
 
     // XXX sinsp_plugin_manager::sources() can return different names, e.g. aws_cloudtrail vs cloudtrail.
     try {
-        for (auto &plugin : plugins) {
+        for (auto &plugin : plugin_manager->plugins()) {
             if (plugin->caps() & CAP_SOURCING) {
                 plugin_configuration plugin_config = {};
                 if (!get_plugin_config_schema(plugin, plugin_config)) {
@@ -794,8 +794,6 @@ int main(int argc, char **argv)
     char* help_url;
     char* help_header = NULL;
     sinsp inspector;
-    // sinsp::get_plugin_manager crashes (June 2023)
-    std::vector<std::shared_ptr<sinsp_plugin>> plugins;
     std::string plugin_source;
 
     /* Initialize log handler early so we can have proper logging during startup. */
@@ -817,9 +815,9 @@ int main(int argc, char **argv)
         g_free(configuration_init_error);
     }
 
-    load_plugins(inspector, plugins);
+    load_plugins(inspector);
 
-    if (!get_source_plugins(plugins, plugin_configs)) {
+    if (!get_source_plugins(inspector, plugin_configs)) {
         goto end;
     }
 
@@ -948,7 +946,8 @@ int main(int argc, char **argv)
         }
 
         std::shared_ptr<sinsp_plugin> plugin_interface;
-        for (auto &plugin : plugins) {
+        const auto plugin_manager = inspector.get_plugin_manager();
+        for (auto &plugin : plugin_manager->plugins()) {
             if (plugin->name() == extcap_conf->interface) {
                 plugin_interface = plugin;
             }
