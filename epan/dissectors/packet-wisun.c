@@ -115,8 +115,8 @@ static reassembly_table netricity_reassembly_table;
 #define WISUN_PIE_PHY_TYPE                   0xF0
 
 #define WISUN_PIE_JM_ID_PLF      1
-#define WISUN_PIE_JM_ID_MASK  0xfc
-#define WISUN_PIE_JM_LEN_MASK 0x03
+#define WISUN_PIE_JM_ID_MASK  0x3f
+#define WISUN_PIE_JM_LEN_MASK 0xc0
 
 #define WISUN_CMD_MDR 0x03
 
@@ -1512,13 +1512,13 @@ dissect_wisun_jmie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
     offset += 1;
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         guint8 metric_hdr = tvb_get_guint8(tvb, offset);
-        guint8 metric_len = metric_hdr & WISUN_PIE_JM_LEN_MASK;
+        guint8 metric_len = (metric_hdr & WISUN_PIE_JM_LEN_MASK) >> 6;
         proto_tree *metric_subtree;
 
         if (metric_len == 3)
             metric_len = 4;
 
-        switch ((metric_hdr & WISUN_PIE_JM_ID_MASK) >> 2) {
+        switch (metric_hdr & WISUN_PIE_JM_ID_MASK) {
         case WISUN_PIE_JM_ID_PLF:
             item = proto_tree_add_item(subtree, hf_wisun_jmie_metric_plf, tvb, offset, 1 + metric_len, ENC_NA);
             metric_subtree = proto_item_add_subtree(item, ett_wisun_jmie_metric_plf);
