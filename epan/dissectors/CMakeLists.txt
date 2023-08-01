@@ -411,6 +411,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-h323.h
 	packet-h450-ros.h
 	packet-hpext.h
+	packet-hsfz.h
 	packet-http.h
 	packet-http2.h
 	packet-iana-oui.h
@@ -1257,6 +1258,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-hpfeeds.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-hpsw.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-hpteam.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-hsfz.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-hsms.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-hsr-prp-supervision.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-hsr.c

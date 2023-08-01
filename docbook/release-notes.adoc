@@ -214,6 +214,7 @@ FiveCo's Register Access Protocol (5CoRAP)
 UDP Tracker Protocol for BitTorrent (BT-Tracker)
 SINEC AP1 Protocol (SINEC AP)
 ID3v2
+High Speed Fahrzeugzugang (HSFZ)
 Zabbix Protocol (Zabbix)
 --
 

@@ -14,6 +14,7 @@
 #include <epan/uat.h>
 #include "packet-uds.h"
 #include "packet-doip.h"
+#include "packet-hsfz.h"
 #include "packet-iso10681.h"
 #include "packet-iso15765.h"
 #include "packet-ber.h"
@@ -1064,6 +1065,7 @@ static int proto_uds = -1;
 
 static dissector_handle_t uds_handle;
 static dissector_handle_t uds_handle_doip;
+static dissector_handle_t uds_handle_hsfz;
 static dissector_handle_t uds_handle_iso10681;
 static dissector_handle_t uds_handle_iso15765;
 static dissector_handle_t obd_ii_handle;
@@ -3128,12 +3130,12 @@ dissect_uds_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 }
 
 static int
-dissect_uds_no_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _U_) {
+dissect_uds_no_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     return dissect_uds_internal(tvb, pinfo, tree, 0, 0, 0);
 }
 
 static int
-dissect_uds_doip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data) {
+dissect_uds_doip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     DISSECTOR_ASSERT(data);
 
     doip_info_t *doip_info = (doip_info_t *)data;
@@ -3141,7 +3143,15 @@ dissect_uds_doip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *
 }
 
 static int
-dissect_uds_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data) {
+dissect_uds_hsfz(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
+    DISSECTOR_ASSERT(data);
+
+    hsfz_info_t *hsfz_info = (hsfz_info_t *)data;
+    return dissect_uds_internal(tvb, pinfo, tree, hsfz_info->source_address, hsfz_info->target_address, 2);
+}
+
+static int
+dissect_uds_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     DISSECTOR_ASSERT(data);
 
     iso15765_info_t *info = (iso15765_info_t *)data;
@@ -3149,7 +3159,7 @@ dissect_uds_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, vo
 }
 
 static int
-dissect_uds_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data) {
+dissect_uds_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     DISSECTOR_ASSERT(data);
 
     iso10681_info_t *info = (iso10681_info_t *)data;
@@ -3610,6 +3620,7 @@ proto_register_uds(void) {
 
     uds_handle = register_dissector("uds", dissect_uds_no_data, proto_uds);
     uds_handle_doip = register_dissector("uds_over_doip", dissect_uds_doip, proto_uds);
+    uds_handle_hsfz = register_dissector("uds_over_hsfz", dissect_uds_hsfz, proto_uds);
     uds_handle_iso10681 = register_dissector("uds_over_iso10681", dissect_uds_iso10681, proto_uds);
     uds_handle_iso15765 = register_dissector("uds_over_iso15765", dissect_uds_iso15765, proto_uds);
 
