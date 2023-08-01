@@ -175,9 +175,9 @@ dissect_sapsnc_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	offset+=1;
 	header_length-=1; /* Unknown flags (1 byte) */
 	/* Unknown flag (1 bit) */
-	proto_tree_add_bits_item(sapsnc_flags_tree, hf_sapsnc_qop_min, tvb, offset*8 + 1, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(sapsnc_flags_tree, hf_sapsnc_qop_use, tvb, offset*8 + 1, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_bits_item(sapsnc_flags_tree, hf_sapsnc_qop_max, tvb, offset*8 + 3, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_bits_item(sapsnc_flags_tree, hf_sapsnc_qop_use, tvb, offset*8 + 5, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(sapsnc_flags_tree, hf_sapsnc_qop_min, tvb, offset*8 + 5, 2, ENC_BIG_ENDIAN);
 	/* Unknown flag (1 bit) */
 
 	offset+=1;
