@@ -918,11 +918,8 @@ Code Lines and Data:
       #
       # https://www.wireshark.org/download/automated/data/manuf
       #
-      # This file is in the same format as ethers(5) except that vendor names
-      # are truncated to eight characters for compatibility with Wireshark, and
-      # that well-known MAC addresses need not have a full 6 octets and may
-      # have a netmask following them specifying how many bits of the address
-      # are relevant (the other bits are wildcards).
+      # The first column contains the MAC Address block (24, 28 or 36 bits wide,
+      # per IEEE allocation sizes) and the second column contains the vendor name.
       #
       FIN
     - build/run/tshark -G manuf | sed -e 's,:00:00:00/24,,' >> manuf
