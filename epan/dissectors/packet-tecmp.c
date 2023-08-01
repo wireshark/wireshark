@@ -32,6 +32,7 @@
 #include "packet-flexray.h"
 #include "packet-lin.h"
 
+
 void proto_register_tecmp(void);
 void proto_reg_handoff_tecmp(void);
 void proto_register_tecmp_payload(void);
@@ -46,6 +47,7 @@ static int proto_vlan;
 static gboolean heuristic_first = FALSE;
 static gboolean analog_samples_are_signed_int = TRUE;
 static gboolean show_ethernet_in_tecmp_tree = FALSE;
+static gboolean detect_asam_cmp = TRUE;
 
 static dissector_table_t lin_subdissector_table;
 static dissector_table_t data_subdissector_table;
@@ -309,6 +311,8 @@ static gint ett_tecmp_status_bus_vendor_data_flags = -1;
 static gint ett_tecmp_ctrl_message_10baset1s_flags = -1;
 static gint ett_tecmp_ctrl_message_10baset1s_events_errors = -1;
 
+/* dissector handle to hand off to ASAM CMP (successor protocol) */
+static dissector_handle_t asam_cmp_handle;
 
 /*** expert info items ***/
 static expert_field ef_tecmp_payload_length_mismatch = EI_INIT;
@@ -2087,6 +2091,16 @@ dissect_tecmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         NULL
     };
 
+    /* ASAM CMP is the successor of TECMP and uses the same EtherType.
+     *
+     * How to detect what the message is:
+     * The first byte in TECMP is always 0.
+     * The first byte in ASAM CMP is defined as version and is required to be > 0.
+     * If the first byte is not 0, we pass it be ASAM CMP */
+    if (detect_asam_cmp && asam_cmp_handle != 0 && tvb_get_guint8(tvb, offset) != 0) {
+        return call_dissector_with_data(asam_cmp_handle, tvb, pinfo, tree, data);
+    }
+
     col_clear(pinfo->cinfo, COL_INFO);
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TECMP");
     ti_root = proto_tree_add_item(tree, proto_tecmp, tvb, 0, -1, ENC_NA);
@@ -2872,6 +2886,11 @@ proto_register_tecmp(void) {
         "More compact Ethernet representation (move into TECMP Tree)",
         "Move Ethernet into the TECMP Tree to be more space efficient.",
         &show_ethernet_in_tecmp_tree);
+
+    prefs_register_bool_preference(tecmp_module, "detect_asam_cmp",
+        "Detect ASAM CMP",
+        "Detect ASAM CMP messages and the ASAM CMP dissector handle them.",
+        &detect_asam_cmp);
 }
 
 void

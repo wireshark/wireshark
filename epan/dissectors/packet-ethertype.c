@@ -183,7 +183,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_NWP,                  "Neighborhood Watch Protocol" },
 	{ ETHERTYPE_BLUECOM,              "bluecom Protocol" },
 	{ ETHERTYPE_QINQ_OLD,             "QinQ: old non-standard 802.1ad" },
-	{ ETHERTYPE_TECMP,                "Technically Enhanced Capture Module Protocol (TECMP)" },
+	{ ETHERTYPE_TECMP,                "Technically Enhanced Capture Module Protocol (TECMP) or ASAM Capture Module Protocol (CMP)" },
 	{ ETHERTYPE_6LOWPAN,              "6LoWPAN" },
 	{ ETHERTYPE_AVSP,                 "Arista Vendor Specific Protocol" },
 	{ ETHERTYPE_ECPRI,                "eCPRI" },

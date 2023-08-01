@@ -216,6 +216,7 @@ SINEC AP1 Protocol (SINEC AP)
 ID3v2
 High Speed Fahrzeugzugang (HSFZ)
 Zabbix Protocol (Zabbix)
+ASAM Capture Module Protocol (CMP)
 --
 
 === Updated Protocol Support

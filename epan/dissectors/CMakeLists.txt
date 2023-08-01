@@ -751,6 +751,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-aruba-iap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-aruba-papi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ar_drone.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-asam-cmp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-asap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-asap+enrp-common.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ascend.c

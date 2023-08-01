@@ -623,7 +623,7 @@ extern "C" {
 #endif
 
 #ifndef ETHERTYPE_TECMP
-#define ETHERTYPE_TECMP			0x99FE	/* Technically Enhanced Capture Module Protocol (TECMP) */
+#define ETHERTYPE_TECMP			0x99FE	/* Technically Enhanced Capture Module Protocol (TECMP) and ASAM Capture Module Protocol (CMP)*/
 #endif
 
 #ifndef ETHERTYPE_6LOWPAN
