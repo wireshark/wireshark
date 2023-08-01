@@ -584,7 +584,7 @@ codesign_file () {
 	# https://developer.apple.com/documentation/security/hardened_runtime_entitlements?language=objc
 
 	codesign \
-		--sign $codesign_dev_app_identity \
+		--sign "$codesign_dev_app_identity" \
 		--prefix "org.wireshark." \
 		--force \
 		--options runtime \
@@ -599,7 +599,7 @@ codesign_file () {
 productsign_pkg () {
 	mv "$1" "$1.unsigned" || exit 1
 	productsign \
-		--sign $codesign_dev_install_identity \
+		--sign "$codesign_dev_install_identity" \
 		--timestamp \
 		"$1.unsigned" "$1" || exit 1
 	rm -f "$1.unsigned" || exit 1
@@ -627,7 +627,7 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	if [ "$sparkle_version" == "2" ] ; then
 		echo "Signing Sparkle's assets"
 		codesign \
-			--sign $codesign_dev_app_identity \
+			--sign "$codesign_dev_app_identity" \
 			--force \
 			--options runtime \
 			--verbose \
@@ -638,7 +638,7 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 		# Uncomment if we ever start sandboxing.
 		# 	"$pkglib/Sparkle.framework/Versions/B/XPCServices/org.sparkle-project.InstallerLauncher.xpc"
 		# codesign \
-		# 	--sign $codesign_dev_app_identity \
+		# 	--sign "$codesign_dev_app_identity" \
 		# 	--force \
 		# 	--options runtime \
 		# 	--entitlements "$sparkle_frameworks_dir/../Entitlements/org.sparkle-project.Downloader.entitlements" \
@@ -648,7 +648,7 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	else
 		echo "Signing Sparkle's AutoUpdate.app"
 		codesign \
-			--sign $codesign_dev_app_identity \
+			--sign "$codesign_dev_app_identity" \
 			--force \
 			--timestamp \
 			--options runtime \
