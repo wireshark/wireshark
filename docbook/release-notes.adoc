@@ -253,6 +253,7 @@ High Speed Fahrzeugzugang (HSFZ)
 Zabbix Protocol (Zabbix)
 ASAM Capture Module Protocol (CMP)
 Fortinet FortiGate Cluster Protocol (FGCP)
+Multi-Drop Bus (MDB)
 --
 
 === Updated Protocol Support
