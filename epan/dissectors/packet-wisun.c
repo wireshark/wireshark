@@ -209,7 +209,8 @@ static int hf_wisun_usie_fixed_channel = -1;
 static int hf_wisun_usie_hop_count = -1;
 static int hf_wisun_usie_hop_list = -1;
 static int hf_wisun_usie_number_ranges = -1;
-static int hf_wisun_usie_exclude_range = -1;
+static int hf_wisun_usie_exclude_range_start = -1;
+static int hf_wisun_usie_exclude_range_end = -1;
 static int hf_wisun_usie_exclude_mask = -1;
 static int hf_wisun_bsie = -1;
 static int hf_wisun_bsie_bcast_interval = -1;
@@ -1180,11 +1181,10 @@ dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
             proto_tree_add_item(tree, hf_wisun_usie_number_ranges, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
             while (count) {
-                guint16 ex_start = tvb_get_letohs(tvb, offset);
-                guint16 ex_end = tvb_get_letohs(tvb, offset+2);
-                /* TODO: log as separate start and end values so filterable? */
-                proto_tree_add_uint_format_value(tree, hf_wisun_usie_exclude_range, tvb, offset, 4, ex_start, "[%u-%u]", ex_start, ex_end);
-                offset += 4;
+                proto_tree_add_item(tree, hf_wisun_usie_exclude_range_start, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(tree, hf_wisun_usie_exclude_range_end, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
                 count--;
             }
             break;
@@ -2232,8 +2232,13 @@ void proto_register_wisun(void)
             NULL, HFILL }
         },
 
-        { &hf_wisun_usie_exclude_range,
-          { "Excluded Channel Range", "wisun.usie.exclude.range", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { &hf_wisun_usie_exclude_range_start,
+          { "Excluded Channel Range Start", "wisun.usie.exclude.range.start", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_wisun_usie_exclude_range_end,
+          { "Excluded Channel Range End", "wisun.usie.exclude.range.end", FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
 
