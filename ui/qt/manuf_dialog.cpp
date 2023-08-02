@@ -20,12 +20,15 @@
 #include <QRegularExpression>
 #include <QClipboard>
 #include <QAction>
+#include <QButtonGroup>
 
 #include "main_application.h"
 #include <epan/manuf.h>
 #include <epan/strutil.h>
 #include <wsutil/regex.h>
 
+#define PLACEHOLDER_SEARCH_ADDR "Search address"
+#define PLACEHOLDER_SEARCH_NAME "Search name"
 
 ManufDialog::ManufDialog(QWidget &parent, CaptureFile &cf) :
     WiresharkDialog(parent, cf),
@@ -46,12 +49,21 @@ ManufDialog::ManufDialog(QWidget &parent, CaptureFile &cf) :
     ui->manufTableView->addAction(copy_action);
 
     QPushButton *find_button = ui->buttonBox->addButton(tr("Find"), QDialogButtonBox::ActionRole);
+    find_button->setDefault(true);
     connect(find_button, &QPushButton::clicked, this, &ManufDialog::on_editingFinished);
 
     QPushButton *copy_button = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ApplyRole);
     connect(copy_button, &QPushButton::clicked, this, &ManufDialog::copyToClipboard);
 
-    find_button->setDefault(true);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    connect(ui->radioButtonGroup, &QButtonGroup::buttonClicked, this, &ManufDialog::on_searchToggled);
+    connect(ui->radioButtonGroup, &QButtonGroup::buttonClicked, this, &ManufDialog::on_editingFinished);
+#else
+    connect(ui->radioButtonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &ManufDialog::on_searchToggled);
+    connect(ui->radioButtonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &ManufDialog::on_editingFinished);
+#endif
+
+    ui->manufLineEdit->setPlaceholderText(tr(PLACEHOLDER_SEARCH_ADDR));
 
     ui->hintLabel->clear();
 }
@@ -169,9 +181,19 @@ void ManufDialog::searchPrefix(QString &text)
     ui->hintLabel->setText(QString("<small><i>Found \"%1\"</i></small>").arg(addr_str));
 }
 
+void ManufDialog::on_searchToggled(void)
+{
+    if (ui->ouiRadioButton->isChecked())
+        ui->manufLineEdit->setPlaceholderText(tr(PLACEHOLDER_SEARCH_ADDR));
+    else if (ui->vendorRadioButton->isChecked())
+        ui->manufLineEdit->setPlaceholderText(tr(PLACEHOLDER_SEARCH_NAME));
+    else
+        ws_assert_not_reached();
+}
+
 void ManufDialog::on_editingFinished(void)
 {
-    QString text = ui->manufComboBox->currentText();
+    QString text = ui->manufLineEdit->text();
 
     if (text.isEmpty())
         return;

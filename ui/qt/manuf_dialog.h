@@ -26,6 +26,7 @@ public:
     ~ManufDialog();
 
 private slots:
+    void on_searchToggled(void);
     void on_editingFinished(void);
     void copyToClipboard(void);
 

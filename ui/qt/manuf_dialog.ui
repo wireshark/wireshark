@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>503</width>
-    <height>395</height>
+    <height>394</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,6 +24,9 @@
        <property name="checked">
         <bool>true</bool>
        </property>
+       <attribute name="buttonGroup">
+        <string notr="true">radioButtonGroup</string>
+       </attribute>
       </widget>
      </item>
      <item>
@@ -31,6 +34,9 @@
        <property name="text">
         <string>Vendor Name</string>
        </property>
+       <attribute name="buttonGroup">
+        <string notr="true">radioButtonGroup</string>
+       </attribute>
       </widget>
      </item>
      <item>
@@ -59,31 +65,7 @@
     </widget>
    </item>
    <item row="0" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Search</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="manufComboBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="autoFillBackground">
-        <bool>false</bool>
-       </property>
-       <property name="editable">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QLineEdit" name="manufLineEdit"/>
    </item>
    <item row="2" column="0">
     <widget class="QTableView" name="manufTableView">
@@ -142,4 +124,7 @@
    </hints>
   </connection>
  </connections>
+ <buttongroups>
+  <buttongroup name="radioButtonGroup"/>
+ </buttongroups>
 </ui>
