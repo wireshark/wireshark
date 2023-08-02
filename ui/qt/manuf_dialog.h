@@ -27,6 +27,7 @@ public:
 
 private slots:
     void on_editingFinished(void);
+    void copyToClipboard(void);
 
 private:
     void searchPrefix(QString &text);

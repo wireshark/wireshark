@@ -18,6 +18,8 @@
 #include <QStandardItemModel>
 #include <QPushButton>
 #include <QRegularExpression>
+#include <QClipboard>
+#include <QAction>
 
 #include "main_application.h"
 #include <epan/manuf.h>
@@ -33,9 +35,21 @@ ManufDialog::ManufDialog(QWidget &parent, CaptureFile &cf) :
 
     model_ = new ManufTableModel(this);
     ui->manufTableView->setModel(model_);
+    ui->manufTableView->setContextMenuPolicy(Qt::ActionsContextMenu);
+
+    QAction *select_action = new QAction(tr("Select all"));
+    connect(select_action, &QAction::triggered, ui->manufTableView, &QTableView::selectAll);
+    ui->manufTableView->addAction(select_action);
+
+    QAction *copy_action = new QAction(tr("Copy"));
+    connect(copy_action, &QAction::triggered, this, &ManufDialog::copyToClipboard);
+    ui->manufTableView->addAction(copy_action);
 
     QPushButton *find_button = ui->buttonBox->addButton(tr("Find"), QDialogButtonBox::ActionRole);
     connect(find_button, &QPushButton::clicked, this, &ManufDialog::on_editingFinished);
+
+    QPushButton *copy_button = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ApplyRole);
+    connect(copy_button, &QPushButton::clicked, this, &ManufDialog::copyToClipboard);
 
     find_button->setDefault(true);
 
@@ -168,4 +182,37 @@ void ManufDialog::on_editingFinished(void)
         searchVendor(text);
     else
         ws_assert_not_reached();
+}
+
+void ManufDialog::copyToClipboard() {
+    QModelIndexList selectedIndexes = ui->manufTableView->selectionModel()->selectedIndexes();
+
+    std::sort(selectedIndexes.begin(), selectedIndexes.end(), [](const QModelIndex &a, const QModelIndex &b) {
+        return a.row() < b.row() || (a.row() == b.row() && a.column() < b.column());
+    });
+
+    QAbstractItemModel *model = ui->manufTableView->model();
+    QString copiedData;
+
+    int previousRow = -1;
+
+    for (const QModelIndex& selectedIndex : selectedIndexes) {
+        // If the row changed, add a newline character
+        if (selectedIndex.row() != previousRow) {
+            if (!copiedData.isEmpty()) {
+                copiedData += "\n";
+            }
+            previousRow = selectedIndex.row();
+        }
+        else {
+            // If not the first column in the row, add a tab character
+            copiedData += "\t";
+        }
+
+        // Add the cell data to the string
+        copiedData += model->data(selectedIndex).toString();
+    }
+
+    QClipboard *clipboard = QApplication::clipboard();
+    clipboard->setText(copiedData);
 }
