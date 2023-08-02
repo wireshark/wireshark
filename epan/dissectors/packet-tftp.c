@@ -295,6 +295,9 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
         if (windowsize < 1 || windowsize > 65535) {
           expert_add_info(pinfo, opt_tree, &ei_tftp_windowsize_range);
         }
+      } else if (!g_ascii_strcasecmp((const char *)optionname, "tsize") &&
+               opcode == TFTP_RRQ) {
+        tftp_info->tsize_requested = TRUE;
       }
     } else if (opcode == TFTP_OACK) {
       if (!g_ascii_strcasecmp((const char *)optionname, "blksize")) {
@@ -318,9 +321,6 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
           expert_add_info(pinfo, opt_tree, &ei_tftp_msftwindow_unrecognized);
         }
       }
-    } else if (!g_ascii_strcasecmp((const char *)optionname, "tsize") &&
-               opcode == TFTP_RRQ) {
-      tftp_info->tsize_requested = TRUE;
     }
   }
 }
