@@ -28,6 +28,7 @@ public:
 private slots:
     void on_searchToggled(void);
     void on_editingFinished(void);
+    void on_shortNameStateChanged(int state);
     void copyToClipboard(void);
     void clearFilter(void);
 

@@ -21,6 +21,7 @@
 #include <QClipboard>
 #include <QAction>
 #include <QButtonGroup>
+#include <QCheckBox>
 
 #include "main_application.h"
 #include <epan/manuf.h>
@@ -43,6 +44,7 @@ ManufDialog::ManufDialog(QWidget &parent, CaptureFile &cf) :
 
     ui->manufTableView->setModel(proxy_model_);
     ui->manufTableView->setContextMenuPolicy(Qt::ActionsContextMenu);
+    ui->manufTableView->setColumnHidden(ManufTableModel::COL_SHORT_NAME, true);
 
     QAction *select_action = new QAction(tr("Select all"));
     connect(select_action, &QAction::triggered, ui->manufTableView, &QTableView::selectAll);
@@ -69,6 +71,7 @@ ManufDialog::ManufDialog(QWidget &parent, CaptureFile &cf) :
     connect(ui->radioButtonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &ManufDialog::on_searchToggled);
     connect(ui->radioButtonGroup, QOverload<QAbstractButton *>::of(&QButtonGroup::buttonClicked), this, &ManufDialog::on_editingFinished);
 #endif
+    connect(ui->checkShortNameButton, &QCheckBox::stateChanged, this, &ManufDialog::on_shortNameStateChanged);
 
     ui->manufLineEdit->setPlaceholderText(tr(PLACEHOLDER_SEARCH_ADDR));
 
@@ -161,6 +164,11 @@ void ManufDialog::on_editingFinished(void)
         searchVendor(text);
     else
         ws_assert_not_reached();
+}
+
+void ManufDialog::on_shortNameStateChanged(int state)
+{
+    ui->manufTableView->setColumnHidden(ManufTableModel::COL_SHORT_NAME, state ? false : true);
 }
 
 void ManufDialog::clearFilter()
