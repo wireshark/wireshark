@@ -26,6 +26,7 @@
 #include <epan/manuf.h>
 #include <epan/strutil.h>
 #include <wsutil/regex.h>
+#include <utils/qt_ui_utils.h>
 
 #define PLACEHOLDER_SEARCH_ADDR "Search address"
 #define PLACEHOLDER_SEARCH_NAME "Search name"
@@ -37,7 +38,10 @@ ManufDialog::ManufDialog(QWidget &parent, CaptureFile &cf) :
     ui->setupUi(this);
 
     model_ = new ManufTableModel(this);
-    ui->manufTableView->setModel(model_);
+    proxy_model_ = new ManufSortFilterProxyModel(this);
+    proxy_model_->setSourceModel(model_);
+
+    ui->manufTableView->setModel(proxy_model_);
     ui->manufTableView->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     QAction *select_action = new QAction(tr("Select all"));
@@ -51,6 +55,9 @@ ManufDialog::ManufDialog(QWidget &parent, CaptureFile &cf) :
     QPushButton *find_button = ui->buttonBox->addButton(tr("Find"), QDialogButtonBox::ActionRole);
     find_button->setDefault(true);
     connect(find_button, &QPushButton::clicked, this, &ManufDialog::on_editingFinished);
+
+    QPushButton *clear_button = ui->buttonBox->addButton(tr("Clear"), QDialogButtonBox::ActionRole);
+    connect(clear_button, &QPushButton::clicked, this, &ManufDialog::clearFilter);
 
     QPushButton *copy_button = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ApplyRole);
     connect(copy_button, &QPushButton::clicked, this, &ManufDialog::copyToClipboard);
@@ -73,112 +80,62 @@ ManufDialog::~ManufDialog()
     delete ui;
 }
 
-#define ADDR_BUFSIZE 32
-
-static const char *snprint_addr(const uint8_t addr[6], int mask, char *buf, size_t buf_size)
-{
-    if (mask == 24)
-        std::snprintf(buf, buf_size,
-                    "%02" PRIX8 ":%02" PRIX8 ":%02" PRIX8,
-                    addr[0], addr[1], addr[2]);
-    else if (mask == 0 || mask == 48)
-        std::snprintf(buf, buf_size,
-                    "%02" PRIX8 ":%02" PRIX8 ":%02" PRIX8 ":%02" PRIX8 ":%02" PRIX8 ":%02" PRIX8,
-                    addr[0], addr[1], addr[2], addr[3], addr[4], addr[5]);
-    else
-        std::snprintf(buf, buf_size,
-                    "%02" PRIX8 ":%02" PRIX8 ":%02" PRIX8 ":%02" PRIX8 ":%02" PRIX8 ":%02" PRIX8 "/%d",
-                    addr[0], addr[1], addr[2], addr[3], addr[4], addr[5], mask);
-    return buf;
-}
-
 void ManufDialog::searchVendor(QString &text)
 {
-    ws_regex_t *re;
-    ws_manuf_iter_t iter;
-    struct ws_manuf buf[3], *ptr;
-    QString output;
+    QRegularExpression name_re;
 
-    model_->clear();
-
-    char *err_msg = NULL;
-    re = ws_regex_compile_ex(qUtf8Printable(text), -1, &err_msg, WS_REGEX_CASELESS);
-    if (err_msg != nullptr) {
-        ui->hintLabel->setText(QString("<small><i>Invalid regular expression: %1</i></small>").arg(QString::fromUtf8(err_msg)));
-        g_free(err_msg);
+    name_re = QRegularExpression(text, QRegularExpression::CaseInsensitiveOption);
+    if (!name_re.isValid()) {
+        ui->hintLabel->setText(QString("<small><i>Invalid regular expression: %1</i></small>").arg(name_re.errorString()));
         return;
     }
 
-    ws_manuf_iter_init(&iter);
-    while ((ptr = ws_manuf_iter_next(&iter, buf))) {
-        if (ws_regex_matches(re, ptr->long_name)) {
-            char addr_str[ADDR_BUFSIZE];
-            snprint_addr(ptr->addr, ptr->mask, addr_str, sizeof(addr_str));
-            QString prefix = QString::fromUtf8(addr_str);
-            QString short_name = QString::fromUtf8(ptr->short_name);
-            QString vendor_name = QString::fromUtf8(ptr->long_name);
-            model_->addRecord(prefix, short_name, vendor_name);
-        }
-    }
-
-    ws_regex_free(re);
-
-    if (model_->rowCount() > 0) {
-        output = QString("Found %1 matches for \"%2\"").arg(model_->rowCount()).arg(text);
-    }
-    else {
-        output = QString("\"%1\" not found").arg(text);
-    }
-    ui->hintLabel->setText(QString("<small><i>%1</i></small>").arg(output));
+    proxy_model_->setFilterName(name_re);
+    ui->hintLabel->setText(QString("<small><i>Found %1 matches for \"%2\"</i></small>").arg(proxy_model_->rowCount()).arg(text));
 }
 
-static bool text_to_addr(const char *str, uint8_t buf[6])
+static QByteArray convertMacAddressToByteArray(const QString &bytesString)
 {
     GByteArray *bytes = g_byte_array_new();
 
-    if (!hex_str_to_bytes(str, bytes, FALSE) || bytes->len > 6) {
+    if (!hex_str_to_bytes(qUtf8Printable(bytesString), bytes, FALSE)) {
         g_byte_array_free(bytes, TRUE);
-        return false;
+        return QByteArray();
     }
 
-    memset(buf, 0, 6);
-    memcpy(buf, bytes->data, bytes->len);
-    g_byte_array_free(bytes, TRUE);
+    guint8 zero = 0;
+    while(bytes->len < 6)
+        g_byte_array_append(bytes, &zero, 1);
 
-    /* Mask out locally administered/multicast flag. */
-    buf[0] &= 0xFC;
+    /* Mask out multicast/locall administered flags. */
+    bytes->data[0] &= 0xFC;
 
-    return true;
+    return gbytearray_free_to_qbytearray(bytes);
+}
+
+QString convertToMacAddress(const QByteArray& byteArray) {
+    QString macAddress;
+    for (int i = 0; i < byteArray.size(); ++i) {
+        macAddress += QString("%1").arg(static_cast<quint8>(byteArray[i]), 2, 16, QChar('0'));
+        if (i != byteArray.size() - 1) {
+            macAddress += ":";
+        }
+    }
+    return macAddress.toUpper();
 }
 
 void ManufDialog::searchPrefix(QString &text)
 {
-    struct ws_manuf result, *ptr;
-    uint8_t addr_buf[6];
-    char addr_str[ADDR_BUFSIZE];
+    QByteArray addr;
 
-    model_->clear();
-
-    if (!text_to_addr(qUtf8Printable(text), addr_buf)) {
+    addr = convertMacAddressToByteArray(text);
+    if (addr.isEmpty()) {
         ui->hintLabel->setText(QString("<small><i>\"%1\" is not a valid MAC address</i></small>").arg(text));
         return;
     }
 
-    ptr = ws_manuf_lookup(addr_buf, &result);
-    if (ptr == nullptr) {
-        snprint_addr(addr_buf, 0, addr_str, sizeof(addr_str));
-        ui->hintLabel->setText(QString("<small><i>\"%1\" not found</i></small>").arg(addr_str));
-        return;
-    }
-
-    snprint_addr(result.addr, result.mask, addr_str, sizeof(addr_str));
-    QString prefix = QString::fromUtf8(addr_str);
-    QString short_name = QString::fromUtf8(result.short_name);
-    QString vendor_name = QString::fromUtf8(result.long_name);
-    model_->addRecord(prefix, short_name, vendor_name);
-
-    snprint_addr(addr_buf, 0, addr_str, sizeof(addr_str));
-    ui->hintLabel->setText(QString("<small><i>Found \"%1\"</i></small>").arg(addr_str));
+    proxy_model_->setFilterAddress(addr);
+    ui->hintLabel->setText(QString("<small><i>Found %1 matches for \"%2\"</i></small>").arg(proxy_model_->rowCount()).arg(convertToMacAddress(addr)));
 }
 
 void ManufDialog::on_searchToggled(void)
@@ -204,6 +161,13 @@ void ManufDialog::on_editingFinished(void)
         searchVendor(text);
     else
         ws_assert_not_reached();
+}
+
+void ManufDialog::clearFilter()
+{
+    proxy_model_->clearFilter();
+    ui->manufLineEdit->clear();
+    ui->hintLabel->clear();
 }
 
 void ManufDialog::copyToClipboard() {

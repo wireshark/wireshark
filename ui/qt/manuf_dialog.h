@@ -29,6 +29,7 @@ private slots:
     void on_searchToggled(void);
     void on_editingFinished(void);
     void copyToClipboard(void);
+    void clearFilter(void);
 
 private:
     void searchPrefix(QString &text);
@@ -36,6 +37,7 @@ private:
 
     Ui::ManufDialog *ui;
     ManufTableModel *model_;
+    ManufSortFilterProxyModel *proxy_model_;
 };
 
 #endif // MANUF_DIALOG_H

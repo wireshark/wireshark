@@ -90,6 +90,13 @@ QByteArray gchar_free_to_qbytearray(gchar *glib_string);
  */
 QByteArray gstring_free_to_qbytearray(GString *glib_gstring);
 
+/** Transfer ownership of a GbyteArray to a newly constructed QByteArray
+ *
+ * @param glib_array A GByteArray or NULL. Will be freed.
+ * @return A QByteArray instance created from the input array.
+ */
+QByteArray gbytearray_free_to_qbytearray(GByteArray *glib_array);
+
 /** Convert an integer to a formatted string representation.
  *
  * @param value The integer to format.
