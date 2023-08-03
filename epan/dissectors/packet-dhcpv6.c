@@ -81,11 +81,13 @@ static int hf_duid_bytes = -1;
 static int hf_duid_type = -1;
 static int hf_duidllt_time = -1;
 static int hf_duidllt_link_layer_addr = -1;
+static int hf_duidllt_link_layer_addr_ether = -1;
 static int hf_duidllt_hwtype = -1;
 static int hf_duidll_hwtype = -1;
 static int hf_duiden_enterprise = -1;
 static int hf_duiden_identifier = -1;
 static int hf_duidll_link_layer_addr = -1;
+static int hf_duidll_link_layer_addr_ether = -1;
 static int hf_duiduuid_bytes = -1;
 static int hf_iaid = -1;
 static int hf_iaid_t1 = -1;
@@ -308,6 +310,8 @@ static expert_field ei_dhcpv6_bulk_leasequery_bad_query_type = EI_INIT;
 static expert_field ei_dhcpv6_bulk_leasequery_bad_msg_type = EI_INIT;
 
 static dissector_handle_t dhcpv6_handle;
+
+#define DHCPV6_HW_IS_ETHER(hwtype, length) ((hwtype == 1 || hwtype == 6) && length == 6)
 
 #define TCP_PORT_DHCPV6_UPSTREAM        547
 #define UDP_PORT_DHCPV6_RANGE      "546-547" /* Downstream + Upstream */
@@ -1895,6 +1899,9 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                 hwtype = tvb_get_ntohs(tvb, off + 2);
                 proto_tree_add_string(subtree, hf_duidllt_link_layer_addr, tvb, off + 8,
                                     optlen - 8, tvb_arphrdaddr_to_str(pinfo->pool, tvb, off+8, optlen-8, hwtype));
+                if(DHCPV6_HW_IS_ETHER(hwtype, optlen-8)) {
+                    proto_tree_add_item(subtree, hf_duidllt_link_layer_addr_ether, tvb, off+8, optlen-8, ENC_NA);
+                }
             }
         }
         break;
@@ -1918,6 +1925,9 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                 hwtype = tvb_get_ntohs(tvb, off + 2);
                 proto_tree_add_string(subtree, hf_duidll_link_layer_addr, tvb, off + 4,
                                     optlen - 4, tvb_arphrdaddr_to_str(pinfo->pool, tvb, off+4, optlen-4, hwtype));
+                if(DHCPV6_HW_IS_ETHER(hwtype, optlen-4)) {
+                    proto_tree_add_item(subtree, hf_duidll_link_layer_addr_ether, tvb, off+4, optlen-4, ENC_NA);
+                }
             }
             break;
         case DUID_UUID:
@@ -3142,6 +3152,8 @@ proto_register_dhcpv6(void)
           { "DUID Time", "dhcpv6.duidllt.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL}},
         { &hf_duidllt_link_layer_addr,
           { "Link-layer address", "dhcpv6.duidllt.link_layer_addr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        { &hf_duidllt_link_layer_addr_ether,
+          { "Link-layer address (Ethernet)", "dhcpv6.duidllt.link_layer_addr_ether", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_duidllt_hwtype,
           { "Hardware type", "dhcpv6.duidllt.hwtype", FT_UINT16, BASE_DEC, VALS(arp_hrd_vals), 0, "DUID LLT Hardware Type", HFILL }},
         { &hf_duidll_hwtype,
@@ -3152,6 +3164,8 @@ proto_register_dhcpv6(void)
           { "Identifier", "dhcpv6.duiden.identifier", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_duidll_link_layer_addr,
           { "Link-layer address", "dhcpv6.duidll.link_layer_addr", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        { &hf_duidll_link_layer_addr_ether,
+          { "Link-layer address (Ethernet)", "dhcpv6.duidll.link_layer_addr_ether", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_duiduuid_bytes,
           { "UUID", "dhcpv6.duiduuid.bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_iaid,

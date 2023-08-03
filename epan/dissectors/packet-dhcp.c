@@ -174,6 +174,7 @@ static int hf_dhcp_client_identifier_duid_llt_hw_type = -1;
 static int hf_dhcp_client_identifier_duid_ll_hw_type = -1;
 static int hf_dhcp_client_identifier_time = -1;
 static int hf_dhcp_client_identifier_link_layer_address = -1;
+static int hf_dhcp_client_identifier_link_layer_address_ether = -1;
 static int hf_dhcp_client_identifier_enterprise_num = -1;
 static int hf_dhcp_client_identifier = -1;
 static int hf_dhcp_client_identifier_type = -1;
@@ -726,6 +727,8 @@ typedef struct dhcp_option_data
 	const char *dhcp_type;
 	const guint8 *vendor_class_id;
 } dhcp_option_data_t;
+
+#define DHCP_HW_IS_ETHER(hwtype, length) ((hwtype == 1 || hwtype == 6) && length == 6)
 
 /* RFC2937 The Name Service Search Option for DHCP */
 #define RFC2937_LOCAL_NAMING_INFORMATION			   0
@@ -2334,6 +2337,10 @@ dissect_dhcpopt_client_identifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 			if (length > 8) {
 				proto_tree_add_string(tree, hf_dhcp_client_identifier_link_layer_address, tvb, offset + 8,
 					length - 13, tvb_arphrdaddr_to_str(pinfo->pool, tvb, offset+8, length-13, hwtype));
+				if(DHCP_HW_IS_ETHER(hwtype, length-13)) {
+					proto_tree_add_item(tree, hf_dhcp_client_identifier_link_layer_address_ether,
+						tvb, offset+8, length-13, ENC_NA);
+				}
 			}
 			break;
 		case DUID_EN:
@@ -2358,6 +2365,10 @@ dissect_dhcpopt_client_identifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 			if (length > 4) {
 				proto_tree_add_string(tree, hf_dhcp_client_identifier_link_layer_address, tvb, offset + 4,
 					length - 9, tvb_arphrdaddr_to_str(pinfo->pool, tvb, offset+4, length-9, hwtype));
+				if(DHCP_HW_IS_ETHER(hwtype, length-9)) {
+					proto_tree_add_item(tree, hf_dhcp_client_identifier_link_layer_address_ether,
+						tvb, offset+4, length-9, ENC_NA);
+				}
 			}
 			break;
 		}
@@ -7894,6 +7905,11 @@ proto_register_dhcp(void)
 		{ &hf_dhcp_client_identifier_link_layer_address,
 		  { "Link layer address", "dhcp.client_id.link_layer_address",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_client_identifier_link_layer_address_ether,
+		  { "Link layer address (Ethernet)", "dhcp.client_id.link_layer_address_ether",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_dhcp_client_identifier_enterprise_num,
