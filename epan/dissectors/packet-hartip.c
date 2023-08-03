@@ -44,6 +44,7 @@ static int hf_hartip_pt_preambles = -1;
 static int hf_hartip_pt_delimiter = -1;
 static int hf_hartip_pt_short_addr = -1;
 static int hf_hartip_pt_long_addr = -1;
+static int hf_hartip_pt_expansion_bytes = -1;
 static int hf_hartip_pt_command = -1;
 static int hf_hartip_pt_length = -1;
 static int hf_hartip_pt_response_code = -1;
@@ -1144,6 +1145,7 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, gint offset,
   gint        num_preambles = 0;
   gint        result;
   guint8      short_addr;
+  guint8      bytes         = 0;
 
   /* find number of preambles */
   while (length > num_preambles) {
@@ -1186,6 +1188,8 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, gint offset,
     } else {
       proto_item_set_text(ti, "Frame Type: %s", frame_type_str);
     }
+
+    bytes = (delimiter & 0x60) >> 5;
   }
 
   if (is_short == 1) {
@@ -1206,6 +1210,12 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, gint offset,
       proto_tree_add_item(body_tree, hf_hartip_data, tvb, offset, length, ENC_NA);
       length = 0;
     }
+  }
+
+  if (bytes > 0) {
+    proto_tree_add_item(body_tree, hf_hartip_pt_expansion_bytes, tvb, offset, bytes, ENC_NA);
+    offset += bytes;
+    length -= bytes;
   }
 
   if (length > 0) {
@@ -1518,6 +1528,11 @@ proto_register_hartip(void)
       { "Long Address",           "hart_ip.pt.long_address",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "Pass Through Long Address", HFILL }
+    },
+        { &hf_hartip_pt_expansion_bytes,
+      { "Expansion Bytes",           "hart_ip.pt.expansion_bytes",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
     },
     { &hf_hartip_pt_command,
       { "Command",           "hart_ip.pt.command",
