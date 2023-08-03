@@ -42,6 +42,10 @@ static int hf_hartip_error_code = -1;
 
 static int hf_hartip_pt_preambles = -1;
 static int hf_hartip_pt_delimiter = -1;
+static int hf_hartip_pt_delimiter_frame_type = -1;
+static int hf_hartip_pt_delimiter_physical_layer_type = -1;
+static int hf_hartip_pt_delimiter_number_of_expansion_bytes = -1;
+static int hf_hartip_pt_delimiter_address_type = -1;
 static int hf_hartip_pt_short_addr = -1;
 static int hf_hartip_pt_long_addr = -1;
 static int hf_hartip_pt_expansion_bytes = -1;
@@ -55,6 +59,7 @@ static int hf_hartip_pt_checksum = -1;
 static gint ett_hartip = -1;
 static gint ett_hartip_hdr = -1;
 static gint ett_hartip_body = -1;
+static gint ett_hartip_pt_delimiter = -1;
 
 static expert_field ei_hartip_data_none = EI_INIT;
 static expert_field ei_hartip_data_unexpected = EI_INIT;
@@ -296,6 +301,25 @@ static const value_string hartip_error_code_values[] = {
   { SESSION_CLOSED_ERROR,              "Session closed" },
   { PRIMARY_SESSION_UNAVAILABLE_ERROR, "Primary session unavailable" },
   { SERVICE_UNAVAILABLE_ERROR,         "Service unavailable" },
+  { 0, NULL }
+};
+
+static const value_string hartip_pt_delimiter_frame_type_values[] = {
+  { 1, "BACK (Burst Frame)" },
+  { 2, "STX (Master to Field Device)" },
+  { 6, "ACK (Field Device to Master)" },
+  { 0, NULL }
+};
+
+static const value_string hartip_pt_delimiter_physical_layer_type_values[] = {
+  { 0, "Asynchronous" },
+  { 1, "Synchronous (i.e, PSK)" },
+  { 0, NULL }
+};
+
+static const value_string hartip_pt_delimiter_address_type_values[] = {
+  { 0, "Polling (1 Byte)" },
+  { 1, "Unique (5 Bytes)" },
   { 0, NULL }
 };
 
@@ -1135,9 +1159,7 @@ static gint
 dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, gint offset,
                      gint bodylen)
 {
-  proto_item *ti;
   guint8      delimiter;
-  const char *frame_type_str;
   guint8      cmd           = 0;
   gint        length        = bodylen;
   gint        is_short      = 0;
@@ -1165,28 +1187,28 @@ dissect_pass_through(proto_tree *body_tree, tvbuff_t *tvb, gint offset,
 
   if (length > 0) {
     delimiter = tvb_get_guint8(tvb, offset);
-    ti = proto_tree_add_uint(body_tree, hf_hartip_pt_delimiter, tvb, offset, 1,
-                             delimiter);
+
+    static int * const hartip_pt_delimiter_flag[] = {
+        &hf_hartip_pt_delimiter_frame_type,
+        &hf_hartip_pt_delimiter_physical_layer_type,
+        &hf_hartip_pt_delimiter_number_of_expansion_bytes,
+        &hf_hartip_pt_delimiter_address_type,
+        NULL
+    };
+
+    proto_tree_add_bitmask(body_tree, tvb, offset, hf_hartip_pt_delimiter, ett_hartip_pt_delimiter,
+                           hartip_pt_delimiter_flag, ENC_NA);
     offset += 1;
     length -= 1;
 
-    if ((delimiter & 0x7) == 2) {
-      frame_type_str = "STX";
-    } else if ((delimiter & 0x7) == 6) {
-      frame_type_str = "ACK";
+    if ((delimiter & 0x7) == 6) {
       is_rsp = 1;
     } else if ((delimiter & 0x7) == 1) {
-      frame_type_str = "PUB";
       is_rsp = 1;
-    } else {
-      frame_type_str = "UNK";
     }
 
     if ((delimiter & 0x80) == 0) {
       is_short = 1;
-      proto_item_set_text(ti, "Short Address, Frame Type: %s", frame_type_str);
-    } else {
-      proto_item_set_text(ti, "Frame Type: %s", frame_type_str);
     }
 
     bytes = (delimiter & 0x60) >> 5;
@@ -1518,6 +1540,26 @@ proto_register_hartip(void)
       { "Delimiter",           "hart_ip.pt.delimiter",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         "Pass Through Delimiter", HFILL }
+    },
+    { &hf_hartip_pt_delimiter_frame_type,
+      { "Frame Type",           "hart_ip.pt.delimiter.frame_type",
+        FT_UINT8, BASE_DEC, VALS(hartip_pt_delimiter_frame_type_values), 0x07,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_delimiter_physical_layer_type,
+      { "Physical Layer Type",           "hart_ip.pt.delimiter.physical_layer_type",
+        FT_UINT8, BASE_DEC, VALS(hartip_pt_delimiter_physical_layer_type_values), 0x18,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_delimiter_number_of_expansion_bytes,
+      { "Number of Expansion Bytes",           "hart_ip.pt.delimiter.number_of_expansion_bytes",
+        FT_UINT8, BASE_DEC, NULL, 0x60,
+        NULL, HFILL }
+    },
+    { &hf_hartip_pt_delimiter_address_type,
+      { "Address Type",           "hart_ip.pt.delimiter.address_type",
+        FT_UINT8, BASE_DEC, VALS(hartip_pt_delimiter_address_type_values), 0x80,
+        NULL, HFILL }
     },
     { &hf_hartip_pt_short_addr,
       { "Short Address",           "hart_ip.pt.short_addr",
@@ -2239,7 +2281,8 @@ proto_register_hartip(void)
   static gint *ett[] = {
     &ett_hartip,
     &ett_hartip_hdr,
-    &ett_hartip_body
+    &ett_hartip_body,
+    &ett_hartip_pt_delimiter
   };
 
   static ei_register_info ei[] = {
