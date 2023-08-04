@@ -7716,10 +7716,8 @@ ssl_dissect_hnd_hello_ext_session_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb
         ssl->session_ticket.data_len = ext_len;
         tvb_memcpy(tvb,ssl->session_ticket.data, offset, ext_len);
     }
-    proto_tree_add_bytes_format(tree, hf->hf.hs_ext_data,
-                                tvb, offset, ext_len, NULL,
-                                "Data (%u byte%s)",
-                                ext_len, plurality(ext_len, "", "s"));
+    proto_tree_add_item(tree, hf->hf.hs_ext_session_ticket,
+                        tvb, offset, ext_len, ENC_NA);
     return offset + ext_len;
 }
 

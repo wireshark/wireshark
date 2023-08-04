@@ -884,6 +884,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_psk_binders_length;
         gint hs_ext_psk_binders;
         gint hs_ext_psk_identity_selected;
+        gint hs_ext_session_ticket;
         gint hs_ext_supported_versions_len;
         gint hs_ext_supported_version;
         gint hs_ext_cookie_len;
@@ -1303,7 +1304,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1                                  \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1                              \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1481,6 +1482,11 @@ ssl_common_dissect_t name = {   \
     { & name .hf.hs_ext_psk_identity_selected,                          \
       { "Selected Identity", prefix ".handshake.extensions.psk.identity.selected", \
         FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_session_ticket,                                 \
+      { "Session Ticket", prefix ".handshake.extensions.session_ticket", \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_supported_versions_len,                         \
