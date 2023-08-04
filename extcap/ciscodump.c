@@ -1873,6 +1873,8 @@ static int ssh_open_remote_connection(const ssh_params_t* ssh_params, const char
 		goto cleanup;
 	}
 
+	fflush(fp);
+
 	ws_debug("Create first ssh session");
 	sshs = create_ssh_connection(ssh_params, &err_info);
 	if (!sshs) {
