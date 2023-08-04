@@ -176,7 +176,7 @@ have elapsed. Floating point values (e.g. 0.5) are allowed.
 were written.
 
 *filesize*:__value__ Stop writing to a capture file after it reaches a size of
-__value__ kB.  If this option is used together with the -b option, *TShark*
+__value__ kB.  If this option is used together with the *-b* option, *TShark*
 will stop writing to the current capture file and switch to the next one if
 filesize is reached.  When reading a capture file, *TShark* will stop reading
 the file after the number of bytes read exceeds this number (the complete
@@ -770,8 +770,8 @@ particular: those that can be read without seeking backwards).
 Cause the specified filter (which uses the syntax of read/display filters,
 rather than that of capture filters) to be applied during the first pass of
 analysis. Packets not matching the filter are not considered for future
-passes. Only makes sense with multiple passes, see -2. For regular filtering
-on single-pass dissect see -Y instead.
+passes. Only makes sense with multiple passes, see *-2*. For regular filtering
+on single-pass dissect see *-Y* instead.
 
 Note that forward-looking fields such as 'response in frame #' cannot be used
 with this filter, since they will not have been calculate when this filter is
@@ -850,7 +850,7 @@ Example of usage:
 
 *pdml* Packet Details Markup Language, an XML-based format for the
 details of a decoded packet.  This information is equivalent to the
-packet details printed with the *-V* option.  Using the --color option
+packet details printed with the *-V* option.  Using the *--color* option
 will add color attributes to *pdml* output.  These attributes are
 nonstandard.
 
@@ -861,7 +861,7 @@ depending on whether the *-V* option was specified.
 *psml* Packet Summary Markup Language, an XML-based format for the summary
 information of a decoded packet.  This information is equivalent to the
 information shown in the one-line summary printed by default.
-Using the --color option will add color attributes to *pdml* output. These
+Using the *--color* option will add color attributes to *pdml* output. These
 attributes are nonstandard.
 
 *tabs* Similar to the default *text* report except the human-readable one-line
@@ -888,7 +888,7 @@ typically defaults to __%USERPROFILE%\AppData\Local\Temp__.
 +
 --
 PDUs export, exports PDUs from infile to outfile according to the tap
-name given. Use -Y to filter.
+name given. Use *-Y* to filter.
 
 Enter an empty tap name "" or a tap name of ? to get a list of available
 names.
@@ -912,7 +912,7 @@ Cause *TShark* to print a view of the packet details.
 Write raw packet data to __outfile__ or to the standard output if
 __outfile__ is '-'.
 
-NOTE: -w provides raw packet data, not text.  If you want text output
+NOTE: *-w* provides raw packet data, not text.  If you want text output
 you need to redirect stdout (e.g. using '>'), don't use the *-w*
 option for this.
 --
@@ -986,7 +986,7 @@ Enable hexdump without printing any ASCII dump text.
 
 *help*::
 
-Display --hexdump specific help then exit.
+Display *--hexdump* specific help then exit.
 
 The use of *--hexdump <hexoption>* is particularly useful to generate output
 that can be used to create a pcap or pcapng file from a capture file type such
@@ -1065,8 +1065,8 @@ depend upon (e.g., fragments), are not printed but are written to file;
 packets not matching the filter nor depended upon are discarded rather
 than being printed or written.
 
-Use this instead of -R for filtering using single-pass analysis. If doing
-two-pass analysis (see -2) then only packets matching the read filter (if there
+Use this instead of *-R* for filtering using single-pass analysis. If doing
+two-pass analysis (see *-2*) then only packets matching the read filter (if there
 is one) will be checked against this filter.
 --
 
@@ -1080,7 +1080,7 @@ For example,
 
 will reset session every 100000 packets.
 
-This feature does not support -2 two-pass analysis
+This feature does not support *-2* two-pass analysis
 --
 
 -z  <statistics>::
@@ -2459,7 +2459,7 @@ configuring color filters.
 --
 If a key appears multiple times in an object, only write it a single time with
 as value a json array containing all the separate values. (Only works with
--T json)
+*-T json*)
 --
 
 --elastic-mapping-filter <protocol>,<protocol>,...::
