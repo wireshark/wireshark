@@ -1180,12 +1180,13 @@ void MainApplication::loadLanguage(const QString newLanguage)
     QString localeLanguage;
 
     if (newLanguage.isEmpty() || newLanguage == USE_SYSTEM_LANGUAGE) {
-        localeLanguage = QLocale::system().name();
+        locale = QLocale::system();
+        localeLanguage = locale.name();
     } else {
         localeLanguage = newLanguage;
+        locale = QLocale(localeLanguage);
     }
 
-    locale = QLocale(localeLanguage);
     QLocale::setDefault(locale);
     switchTranslator(mainApp->translator,
             QString("wireshark_%1.qm").arg(localeLanguage), QString(":/i18n/"));
