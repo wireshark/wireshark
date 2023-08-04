@@ -171,6 +171,10 @@ can be achieved via other fields, prefer that.
   to fallback to Lua 5.1 (not recommended) by setting the CMake configuration
   variable `LUA_FIND_VERSIONS=5.1`.
 
+* Wireshark now shows byte units in the statistics in the user-selected language
+  (uses the system default language by default).
+
+
 === Removed Features and Support
 
 * With the addition of the universal and consistent filtering support for
