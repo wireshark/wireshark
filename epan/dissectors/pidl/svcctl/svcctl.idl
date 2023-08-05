@@ -845,8 +845,12 @@ interface svcctl
 
   /*****************/
   /* Function 0x40 */
+
+  /* https://learn.microsoft.com/en-us/windows/win32/midl/handle-t
+   * Parameters of type handle_t (primitive handle parameters) are not transmitted on the network.
+   */
   WERROR svcctl_OpenSCManager2(
-    [in,ref] policy_handle *binding_handle,
+    /*[in,ref] handle_t *binding_handle,*/
     [in,string,unique,charset(UTF16)] uint16 *database_name,
     [in] uint32 desired_access,
     [out,ref] policy_handle *handle

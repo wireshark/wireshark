@@ -295,7 +295,6 @@ static gint hf_svcctl_svcctl_MgrAccessMask_SC_RIGHT_MGR_MODIFY_BOOT_CONFIG = -1;
 static gint hf_svcctl_svcctl_MgrAccessMask_SC_RIGHT_MGR_QUERY_LOCK_STATUS = -1;
 static gint hf_svcctl_svcctl_NotifyBootConfigStatus_boot_acceptable = -1;
 static gint hf_svcctl_svcctl_NotifyBootConfigStatus_machine_name = -1;
-static gint hf_svcctl_svcctl_OpenSCManager2_binding_handle = -1;
 static gint hf_svcctl_svcctl_OpenSCManager2_database_name = -1;
 static gint hf_svcctl_svcctl_OpenSCManager2_desired_access = -1;
 static gint hf_svcctl_svcctl_OpenSCManager2_handle = -1;
@@ -1095,8 +1094,6 @@ static int svcctl_dissect_element_CreateWowService_password_size(tvbuff_t *tvb _
 static int svcctl_dissect_element_CreateWowService_service_wow_type(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_CreateWowService_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_CreateWowService_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int svcctl_dissect_element_OpenSCManager2_binding_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
-static int svcctl_dissect_element_OpenSCManager2_binding_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_OpenSCManager2_database_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_OpenSCManager2_database_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int svcctl_dissect_element_OpenSCManager2_desired_access(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
@@ -8644,22 +8641,6 @@ svcctl_dissect_GetServiceProcessToken_request(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 static int
-svcctl_dissect_element_OpenSCManager2_binding_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_OpenSCManager2_binding_handle_, NDR_POINTER_REF, "Pointer to Binding Handle (policy_handle)",hf_svcctl_svcctl_OpenSCManager2_binding_handle);
-
-	return offset;
-}
-
-static int
-svcctl_dissect_element_OpenSCManager2_binding_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
-{
-	offset = PIDL_dissect_policy_hnd(tvb, offset, pinfo, tree, di, drep, hf_svcctl_svcctl_OpenSCManager2_binding_handle, 0);
-
-	return offset;
-}
-
-static int
 svcctl_dissect_element_OpenSCManager2_database_name(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	offset = dissect_ndr_toplevel_pointer(tvb, offset, pinfo, tree, di, drep, svcctl_dissect_element_OpenSCManager2_database_name_, NDR_POINTER_UNIQUE, "Pointer to Database Name (uint16)",hf_svcctl_svcctl_OpenSCManager2_database_name);
@@ -8703,7 +8684,6 @@ svcctl_dissect_element_OpenSCManager2_handle_(tvbuff_t *tvb _U_, int offset _U_,
 }
 
 /* IDL: WERROR svcctl_OpenSCManager2( */
-/* IDL: [in] [ref] policy_handle *binding_handle, */
 /* IDL: [charset(UTF16)] [in] [unique(1)] uint16 *database_name, */
 /* IDL: [in] uint32 desired_access, */
 /* IDL: [out] [ref] policy_handle *handle */
@@ -8730,8 +8710,6 @@ static int
 svcctl_dissect_OpenSCManager2_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_)
 {
 	di->dcerpc_procedure_name="OpenSCManager2";
-	offset = svcctl_dissect_element_OpenSCManager2_binding_handle(tvb, offset, pinfo, tree, di, drep);
-	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = svcctl_dissect_element_OpenSCManager2_database_name(tvb, offset, pinfo, tree, di, drep);
 	offset = dissect_deferred_pointers(pinfo, tvb, offset, di, drep);
 	offset = svcctl_dissect_element_OpenSCManager2_desired_access(tvb, offset, pinfo, tree, di, drep);
@@ -9439,8 +9417,6 @@ void proto_register_dcerpc_svcctl(void)
 	  { "Boot Acceptable", "svcctl.svcctl_NotifyBootConfigStatus.boot_acceptable", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_NotifyBootConfigStatus_machine_name,
 	  { "Machine Name", "svcctl.svcctl_NotifyBootConfigStatus.machine_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-	{ &hf_svcctl_svcctl_OpenSCManager2_binding_handle,
-	  { "Binding Handle", "svcctl.svcctl_OpenSCManager2.binding_handle", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_OpenSCManager2_database_name,
 	  { "Database Name", "svcctl.svcctl_OpenSCManager2.database_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_svcctl_svcctl_OpenSCManager2_desired_access,
