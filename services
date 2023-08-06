@@ -5313,6 +5313,7 @@ pcsync-https	8443/tcp/udp	# PCsync HTTPS
 pcsync-http	8444/tcp/udp	# PCsync HTTP
 copy		8445/tcp	# Port for copy peer sync feature
 copy-disc	8445/udp	# Port for copy discovery
+matrix-fed	8448/tcp	# Matrix Federation Protocol
 npmp		8450/tcp/udp
 nexentamv	8457/tcp	# Nexenta Management GUI
 cisco-avp	8470/tcp	# Cisco Address Validation Protocol
