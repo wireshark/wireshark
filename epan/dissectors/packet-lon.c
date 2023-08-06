@@ -390,6 +390,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 		break;
 	case 2: /* AuthPDU */
 		{
+		/* TODO: these masks are not correct - have { 0xc0, 0x02, 0x0f } */
 		static int * const authpdu_fields[] = {
 			&hf_lon_authpdu_fmt,
 			&hf_lon_authpdu_authpdu_type,
@@ -636,7 +637,7 @@ proto_register_lon(void)
 		},
 		{&hf_lon_authpdu_authpdu_type,
 			{"AuthPDU type", "lon.authpdu_type",
-			FT_UINT8, BASE_HEX, VALS(authpdu_type_vs), 0x2,
+			FT_UINT8, BASE_HEX, VALS(authpdu_type_vs), 0x02,
 			NULL, HFILL }
 		},
 		{&hf_lon_nv,

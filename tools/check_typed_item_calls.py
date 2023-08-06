@@ -1054,8 +1054,8 @@ def find_field_arrays(filename, all_fields, all_hf):
                 if f in all_hf:
                     new_field_width = all_hf[f].get_field_width_in_bits()
                     if set_field_width is not None and new_field_width != set_field_width:
-                        print('Warning:', filename, name, 'set items not all same width - {', ', '.join(fields), '} seen', set_field_width, 'now', new_field_width)
-                        warnings_found += 1
+                        # Its not uncommon for fields to be used in multiple sets, some of which can be different widths..
+                        print('Note:', filename, name, 'set items not all same width - {', ', '.join(fields), '} seen', set_field_width, 'now', new_field_width)
                     set_field_width = new_field_width
 
             # Add entry to table

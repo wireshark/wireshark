@@ -69,6 +69,7 @@ static int hf_cfdp_spare_one_2 = -1;
 static int hf_cfdp_spare_two = -1;
 static int hf_cfdp_spare_four = -1;
 static int hf_cfdp_spare_five = -1;
+static int hf_cfdp_spare_five_2 = -1;
 static int hf_cfdp_spare_seven = -1;
 static int hf_cfdp_spare_seven_2 = -1;
 static int hf_cfdp_trans_stat_ack = -1;
@@ -540,6 +541,7 @@ static int * const cfdp_finish_pdu_flags [] = {
     NULL
 };
 
+/* 6.6.3.2 (1 byte) */
 static int * const cfdp_remote_suspend_resume_req [] = {
     &hf_cfdp_spare_one_2,
     &hf_cfdp_entid_length,
@@ -549,10 +551,11 @@ static int * const cfdp_remote_suspend_resume_req [] = {
 };
 
 
+/* 6.6.4.2 (2 bytes) */
 static int * const cfdp_remote_suspend_resume_resp [] = {
     &hf_cfdp_suspension_ind,
     &hf_cfdp_trans_stat_2,
-    &hf_cfdp_spare_five,
+    &hf_cfdp_spare_five_2,
     &hf_cfdp_spare_one_2,
     &hf_cfdp_entid_length,
     &hf_cfdp_spare_one,
@@ -1730,7 +1733,7 @@ proto_register_cfdp(void)
         },
         { &hf_cfdp_spare_one_2,
             { "Spare", "cfdp.spare_one_2",
-            FT_UINT8, BASE_DEC, NULL, 0x80,
+            FT_UINT16, BASE_DEC, NULL, 0x0080,
             NULL, HFILL }
         },
         { &hf_cfdp_spare_two,
@@ -1746,6 +1749,11 @@ proto_register_cfdp(void)
         { &hf_cfdp_spare_five,
             { "Spare", "cfdp.spare_five_b",
             FT_UINT16, BASE_DEC, NULL, 0x3E00,
+            NULL, HFILL }
+        },
+        { &hf_cfdp_spare_five_2,
+            { "Spare", "cfdp.spare_five_b",
+            FT_UINT16, BASE_DEC, NULL, 0x1F00,
             NULL, HFILL }
         },
         { &hf_cfdp_spare_seven,
@@ -1770,7 +1778,7 @@ proto_register_cfdp(void)
         },
         { &hf_cfdp_trans_stat_2,
             { "Transaction status", "cfdp.trans_stat_2_b",
-            FT_UINT8, BASE_DEC, VALS(cfdp_trans_stat_ack), 0x60,
+            FT_UINT16, BASE_DEC, VALS(cfdp_trans_stat_ack), 0x6000,
             NULL, HFILL }
         },
         { &hf_cfdp_file_checksum,
@@ -1937,7 +1945,7 @@ proto_register_cfdp(void)
         },
         { &hf_cfdp_suspension_ind,
             {"Suspension indicator", "cfdp.suspension_ind_b",
-            FT_UINT8, BASE_DEC, VALS(cfdp_suspension_ind), 0x80,
+            FT_UINT16, BASE_DEC, VALS(cfdp_suspension_ind), 0x8000,
             NULL, HFILL}
         },
         { &hf_cfdp_filestore_message_len,

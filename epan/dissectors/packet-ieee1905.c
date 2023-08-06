@@ -12,7 +12,7 @@
  */
 
 /*
- * https://standards.ieee.org/findstds/standard/1905.1-2013.html
+ * https://standards.ieee.org/ieee/1905.1/4995/
  *
  * IEEE Standard for a Convergent Digital Home Network for Heterogeneous
  * Technologies
@@ -10392,8 +10392,8 @@ proto_register_ieee1905(void)
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_1905_gtk_key_id,
-          { "MIC Version", "ieee1905.mic.group_temporal_key_id.mic_version",
-            FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL }},
+          { "Key ID", "ieee1905.mic.group_temporal_key_id.key_id",
+            FT_UINT8, BASE_DEC, NULL, 0xC0, NULL, HFILL }},
 
         { &hf_ieee1905_mic_version,
           { "MIC Version", "ieee1905.mic.group_temporal_key_id.mic_version",
