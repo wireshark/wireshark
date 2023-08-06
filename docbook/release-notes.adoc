@@ -196,8 +196,6 @@ SAP Message Server (SAPMS)
 SAP Network Interface (SAPNI)
 SAP Router (SAPROUTER)
 SAP Secure Network Connection (SNC)
-World of Warcraft World (WOWW) display filters have been changed to be more internally consistent.
-Support for almost all WoW 1.12 messages has been added.
 Management Component Transport Protocol (MCTP)
 Management Component Transport Protocol - Control Protocol (MCTP CP)
 Non-volatile Memory Express - Management Interface (NVMe-MI) over MCTP
