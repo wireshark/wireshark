@@ -26,10 +26,6 @@ Wireshark 4.1.0 Release Notes
   browser with the SSLKEYLOGFILE environment variable set to the
   appropriate value.
 
-  The Windows build has a new SpeexDSP external dependency
-  (https://www.speex.org). The speex code that was previously bundled
-  has been removed.
-
   The personal extcap plugin folder location on Unix has been changed to
   follow existing conventions for architecture-dependent files. The
   extcap personal folder is now `$HOME/.local/lib/wireshark/extcap`.
@@ -53,18 +49,18 @@ Wireshark 4.1.0 Release Notes
   default. To facilitate resetting the dissector, the default dissector
   is now sorted at the top of the list of possible dissector options.
 
-  Sorting changes: * When sorting packet list with a filter applied,
-  only the visible packets are sorted, which greatly increases sorting
-  speed. * The cache size for column text is limited to a default of
-  10000 rows, which limits the maximum memory usage. The maximum value
-  can be changed in Preferences→Appearance→Layout * Due to the above,
-  columns that require packet dissection can only be sorted if the
-  number of visible rows is less than the cache size. If there are more
-  rows visible, a warning will appear. Columns that do not require
-  packet dissection (those that calculated directly from the capture
-  file frame headers, such as packet number, time, and frame length) can
-  be sorted with any number of visible rows. * Sorting can be
-  interrupted.
+  Packet list sorting has been updated: * When sorting packet list with
+  a filter applied, only the visible packets are sorted, which greatly
+  increases sorting speed. * The cache size for column text is limited
+  to a default of 10000 rows, which limits the maximum memory usage. The
+  maximum value can be changed in Preferences→Appearance→Layout * Due to
+  the above, columns that require packet dissection can only be sorted
+  if the number of visible rows is less than the cache size. If there
+  are more rows visible, a warning will appear. Columns that do not
+  require packet dissection (those that calculated directly from the
+  capture file frame headers, such as packet number, time, and frame
+  length) can be sorted with any number of visible rows. * Sorting can
+  be interrupted.
 
   Many other improvements have been made. See the “New and Updated
   Features” section below for more details.
@@ -83,6 +79,9 @@ Wireshark 4.1.0 Release Notes
 
    The following features are new (or have been significantly updated)
    since version 4.0.0:
+
+     • The Windows installers now ship with Qt 6.5.2. They previously
+       shipped with Qt 6.2.3.
 
      • The API has been updated to ensure that the dissection engine
        produces valid UTF-8 strings.
@@ -171,6 +170,13 @@ Wireshark 4.1.0 Release Notes
        and "services" have been removed and replaced with static binary
        data. You can dump the respective internal data using `tshark -G
        manuf|enterprises|services`.
+
+     • New GUI dialog (under Tools menu) to lookup a MAC address in the
+       IEEE OUI registry.
+
+     • The Windows build has a new SpeexDSP external dependency
+       (https://www.speex.org). The speex code that was previously
+       bundled has been removed.
 
   Removed Features and Support
 

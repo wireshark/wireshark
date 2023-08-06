@@ -6736,6 +6736,60 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
 </context>
 <context>
+    <name>ManufDialog</name>
+    <message>
+        <source>MAC Address Blocks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MAC Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vendor Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show short name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished">&lt;small&gt;&lt;i&gt;Un suggerimento.&lt;/i&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation type="unfinished">Seleziona tutto</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Copia</translation>
+    </message>
+    <message>
+        <source>Find</source>
+        <translation type="unfinished">Trova</translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation type="unfinished">Pulisci</translation>
+    </message>
+</context>
+<context>
+    <name>ManufTableModel</name>
+    <message>
+        <source>Address Block</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Short Name</source>
+        <translation type="unfinished">Nome breve</translation>
+    </message>
+    <message>
+        <source>Vendor Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ModulePreferencesScrollArea</name>
     <message>
         <source>ScrollArea</source>
@@ -13970,6 +14024,10 @@ a:hover {
     <message>
         <source>Credentials</source>
         <translation>Credenziali</translation>
+    </message>
+    <message>
+        <source>MAC Address Blocks</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Options…</source>

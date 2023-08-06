@@ -5651,6 +5651,7 @@ static ws_services_entry_t global_tcp_services_table[] = {
     { 8423, "aritts",           "Aristech text-to-speech server" },
     { 8432, "pgbackrest",       "PostgreSQL Backup" },
     { 8445, "copy",             "Port for copy peer sync feature" },
+    { 8448, "matrix-fed",       "Matrix Federation Protocol" },
     { 8457, "nexentamv",        "Nexenta Management GUI" },
     { 8470, "cisco-avp",        "Cisco Address Validation Protocol" },
     { 8471, "pim-port",         "PIM over Reliable Transport" },
