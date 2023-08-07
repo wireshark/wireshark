@@ -15,20 +15,17 @@
 
 #include <stdint.h>
 
+#include <epan/ftypes/ftypes.h>
 #include <wsutil/wmem/wmem.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
 
+#define FALCO_FIELD_NAME_PREFIX "falco."
+
 typedef struct sinsp_source_info_t sinsp_source_info_t;
 typedef struct sinsp_span_t sinsp_span_t;
-
-typedef enum sinsp_field_type_e {
-    SFT_UNKNOWN,
-    SFT_STRINGZ,
-    SFT_UINT64,
-} sinsp_field_type_e;
 
 typedef enum sinsp_field_display_format_e {
     SFDF_UNKNOWN,
@@ -38,7 +35,7 @@ typedef enum sinsp_field_display_format_e {
 } sinsp_field_display_format_e;
 
 typedef struct sinsp_field_info_t {
-    sinsp_field_type_e type;
+    enum ftenum type;
     sinsp_field_display_format_e display_format;
     char abbrev[64]; // filter name
     char display[64]; // display name
@@ -46,31 +43,52 @@ typedef struct sinsp_field_info_t {
     bool is_hidden;
     bool is_conversation;
     bool is_info;
+    bool is_numeric_address;
 } sinsp_field_info_t;
 
 typedef struct sinsp_field_extract_t {
     uint32_t field_id;          // in
     const char *field_name;     // in
-    sinsp_field_type_e type;    // in, out
+    enum ftenum type;           // in, out
     bool is_present;            // out
-    const char *res_str;        // out
-    uint64_t res_u64;           // out
+    union {
+        uint8_t *bytes;
+        char *str;
+        int32_t i32;
+        int64_t i64;
+        uint32_t u32;
+        uint64_t u64;
+        double dbl;
+        uint8_t ipv6[16];
+        bool boolean;
+    } res;
+    int res_len;                // out
+    size_t parent_category;     // out
 } sinsp_field_extract_t;
 
 sinsp_span_t *create_sinsp_span(void);
 void destroy_sinsp_span(sinsp_span_t *sinsp_span);
 
-char *create_sinsp_source(sinsp_span_t *sinsp_span, const char* libname, sinsp_source_info_t **ssi_ptr);
-
-// Extractor plugin routines.
-// These roughly match common_plugin_info
+// Common routines
 uint32_t get_sinsp_source_id(sinsp_source_info_t *ssi);
 const char *get_sinsp_source_last_error(sinsp_source_info_t *ssi);
 const char *get_sinsp_source_name(sinsp_source_info_t *ssi);
 const char* get_sinsp_source_description(sinsp_source_info_t *ssi);
-size_t get_sinsp_source_nfields(sinsp_source_info_t *ssi);
 bool get_sinsp_source_field_info(sinsp_source_info_t *ssi, size_t field_num, sinsp_field_info_t *field);
-bool extract_sisnp_source_fields(sinsp_source_info_t *ssi, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len);
+
+// libsinsp builtin syscall routines.
+void create_sinsp_syscall_source(sinsp_span_t *sinsp_span, sinsp_source_info_t **ssi_ptr);
+void open_sinsp_capture(sinsp_span_t *sinsp_span, const char *filepath);
+void close_sinsp_capture(sinsp_span_t *sinsp_span);
+size_t get_syscall_source_ncategories(sinsp_source_info_t *ssi);
+bool get_syscall_source_category_info(sinsp_source_info_t *ssi, size_t category_num, sinsp_field_info_t *field);
+bool extract_syscall_source_fields(sinsp_span_t *sinsp_span, sinsp_source_info_t *ssi, int64_t seek_pos, uint16_t event_type, uint32_t nparams, uint64_t ts, uint64_t thread_id, uint16_t cpu_id, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len);
+
+// Extractor plugin routines.
+// These roughly match common_plugin_info
+char *create_sinsp_plugin_source(sinsp_span_t *sinsp_span, const char* libname, sinsp_source_info_t **ssi_ptr);
+size_t get_sinsp_source_nfields(sinsp_source_info_t *ssi);
+bool extract_plugin_source_fields(sinsp_source_info_t *ssi, uint16_t event_type, uint32_t nparams, uint8_t *evt_data, uint32_t evt_datalen, wmem_allocator_t *pool, sinsp_field_extract_t *sinsp_fields, uint32_t sinsp_field_len);
 
 
 #ifdef __cplusplus

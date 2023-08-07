@@ -17,6 +17,7 @@
 // - Add a configuration preference for configure_plugin?
 // - Add a configuration preference for individual conversation filters vs ANDing them?
 //   We would need to add deregister_(|log_)conversation_filter before we implement this.
+// - Add syscall IP address conversation support
 
 #include "config.h"
 
@@ -28,6 +29,8 @@
 #include <unistd.h>
 #include <dlfcn.h>
 #endif
+
+#include <wiretap/wtap.h>
 
 #include <epan/exceptions.h>
 #include <epan/packet.h>
@@ -77,13 +80,21 @@ typedef struct bridge_info {
 } bridge_info;
 
 static int proto_falco_bridge = -1;
-static gint ett_falco_bridge = -1;
-static gint ett_sinsp_span = -1;
-static gint ett_address = -1;
+
+static int ett_falco_bridge = -1;
+static int ett_sinsp_enriched = -1;
+static int ett_sinsp_span = -1;
+static int ett_address = -1;
+
+static hf_register_info *hf_syscall_category = NULL;
+static int *hf_syscall_category_ids = NULL;
+static int *syscall_category_etts = NULL;
+
 static dissector_table_t ptype_dissector_table;
 
 static int dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
-static int dissect_sinsp_span(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_);
+static int dissect_sinsp_enriched(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *bi_ptr);
+static int dissect_sinsp_plugin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *bi_ptr);
 
 /*
  * Array of plugin bridges
@@ -125,9 +136,18 @@ static hf_register_info hf[] = {
     },
 };
 
+static void
+falco_bridge_cleanup(void) {
+    close_sinsp_capture(sinsp_span);
+}
+
 // Returns true if the field might contain an IPv4 or IPv6 address.
 // XXX This should probably be a preference.
-static bool is_addr_field(const char *abbrev) {
+static bool
+is_string_address_field(enum ftenum ftype, const char *abbrev) {
+    if (ftype != FT_STRINGZ) {
+        return false;
+    }
     if (strstr(abbrev, ".srcip")) { // ct.srcip
         return true;
     } else if (strstr(abbrev, ".client.ip")) { // okta.client.ip
@@ -166,8 +186,8 @@ build_filter(packet_info *pinfo _U_, void *cfi_ptr)
     return ws_strdup_printf("%s eq %s", cfi->field_info->hfinfo.abbrev, cfi->strbuf->str);
 }
 
-void
-configure_plugin(bridge_info* bi, char* config _U_)
+static void
+create_source_hfids(bridge_info* bi)
 {
     /*
      * Initialize the plugin
@@ -189,7 +209,7 @@ configure_plugin(bridge_info* bi, char* config _U_)
              */
             continue;
         }
-        if (sfi.type == SFT_STRINGZ && is_addr_field(sfi.abbrev)) {
+        if (sfi.is_numeric_address || is_string_address_field(sfi.type, sfi.abbrev)) {
             addr_fields++;
         }
         bi->visible_fields++;
@@ -237,14 +257,29 @@ configure_plugin(bridge_info* bi, char* config _U_)
                 continue;
             }
 
-            enum ftenum ftype;
+            enum ftenum ftype = sfi.type;
             int fdisplay = BASE_NONE;
             switch (sfi.type) {
-            case SFT_STRINGZ:
-                ftype = FT_STRINGZ;
+            case FT_STRINGZ:
+            case FT_BOOLEAN:
+            case FT_BYTES:
                 break;
-            case SFT_UINT64:
-                ftype = FT_UINT64;
+            case FT_RELATIVE_TIME:
+            case FT_ABSOLUTE_TIME:
+                fdisplay = BASE_DEC;
+                break;
+            case FT_INT8:
+            case FT_INT16:
+            case FT_INT32:
+            case FT_INT64:
+            case FT_DOUBLE:
+                // This differs from libsinsp
+                fdisplay = BASE_DEC;
+                break;
+            case FT_UINT8:
+            case FT_UINT16:
+            case FT_UINT32:
+            case FT_UINT64:
                 switch (sfi.display_format) {
                 case SFDF_DECIMAL:
                     fdisplay = BASE_DEC;
@@ -256,15 +291,15 @@ configure_plugin(bridge_info* bi, char* config _U_)
                     fdisplay = BASE_OCT;
                     break;
                 default:
-                    THROW_FORMATTED(DissectorError, "error in plugin %s: display format %s is not supported",
-                        get_sinsp_source_name(bi->ssi),
-                        sfi.abbrev);
+                    THROW_FORMATTED(DissectorError, "error in source %s: format %d for field %s is not supported",
+                        get_sinsp_source_name(bi->ssi), sfi.display_format, sfi.abbrev);
                 }
                 break;
             default:
-                THROW_FORMATTED(DissectorError, "error in plugin %s: type of field %s is not supported",
+                ftype = FT_NONE;
+                ws_warning("plugin %s: type of field %s (%d) is not supported",
                     get_sinsp_source_name(bi->ssi),
-                    sfi.abbrev);
+                    sfi.abbrev, sfi.type);
             }
 
             hf_register_info finfo = {
@@ -296,7 +331,7 @@ configure_plugin(bridge_info* bi, char* config _U_)
                 bi->field_flags[fld_cnt] |= BFF_INFO;
             }
 
-            if (sfi.type == SFT_STRINGZ && is_addr_field(sfi.abbrev)) {
+            if (sfi.is_numeric_address || is_string_address_field(sfi.type, sfi.abbrev)) {
                 bi->hf_id_to_addr_id[fld_cnt] = addr_fld_cnt;
 
                 bi->hf_v4_ids[addr_fld_cnt] = -1;
@@ -320,7 +355,7 @@ configure_plugin(bridge_info* bi, char* config _U_)
                     {
                         wmem_strdup_printf(wmem_epan_scope(), "%s (IPv6)", sfi.display),
                         wmem_strdup_printf(wmem_epan_scope(), "%s.v6", sfi.abbrev),
-                        FT_IPv4, BASE_NONE,
+                        FT_IPv6, BASE_NONE,
                         NULL, 0x0,
                         wmem_strdup_printf(wmem_epan_scope(), "%s (IPv6)", sfi.description), HFILL
                     }
@@ -346,7 +381,7 @@ import_plugin(char* fname)
     nbridges++;
     bridge_info* bi = &bridges[nbridges - 1];
 
-    char *err_str = create_sinsp_source(sinsp_span, fname, &(bi->ssi));
+    char *err_str = create_sinsp_plugin_source(sinsp_span, fname, &(bi->ssi));
     if (err_str) {
         nbridges--;
         report_failure("Unable to load sinsp plugin %s: %s.", fname, err_str);
@@ -354,7 +389,7 @@ import_plugin(char* fname)
         return;
     }
 
-    configure_plugin(bi, "");
+    create_source_hfids(bi);
 
     const char *source_name = get_sinsp_source_name(bi->ssi);
     const char *plugin_name = g_strdup_printf("%s Plugin", source_name);
@@ -365,7 +400,7 @@ import_plugin(char* fname)
         );
 
     static dissector_handle_t ct_handle;
-    ct_handle = create_dissector_handle(dissect_sinsp_span, bi->proto);
+    ct_handle = create_dissector_handle(dissect_sinsp_plugin, bi->proto);
     dissector_add_uint("falcobridge.id", bi->source_id, ct_handle);
 }
 
@@ -380,6 +415,9 @@ on_wireshark_exit(void)
 void
 proto_register_falcoplugin(void)
 {
+    // Opening requires a file path, so we do that in dissect_sinsp_enriched.
+    register_cleanup_routine(&falco_bridge_cleanup);
+
     proto_falco_bridge = proto_register_protocol (
         "Falco Bridge", /* name       */
         "Falco Bridge", /* short name */
@@ -425,8 +463,38 @@ proto_register_falcoplugin(void)
 
     sinsp_span = create_sinsp_span();
 
-    bridges = g_new0(bridge_info, nbridges);
-    nbridges = 0;
+    bridges = g_new0(bridge_info, nbridges + 1);
+
+    create_sinsp_syscall_source(sinsp_span, &bridges[0].ssi);
+
+    size_t ncategories = get_syscall_source_ncategories(bridges[0].ssi);
+    hf_syscall_category = (hf_register_info*)wmem_alloc0(wmem_epan_scope(), ncategories * sizeof(hf_register_info));
+    hf_syscall_category_ids = (int*)wmem_alloc(wmem_epan_scope(), ncategories * sizeof(int));
+    syscall_category_etts = (int*)wmem_alloc(wmem_epan_scope(), ncategories * sizeof(int));
+    int **syscall_category_ett_ptrs = (int**)g_new(int **, ncategories);
+    sinsp_field_info_t csfi;
+    for (size_t i = 0; i < ncategories; i++) {
+        get_syscall_source_category_info(bridges[0].ssi, i, &csfi);
+        hf_syscall_category_ids[i] = -1;
+        syscall_category_etts[i] = -1;
+        syscall_category_ett_ptrs[i] = &syscall_category_etts[i];
+
+        hf_register_info finfo = {
+            &hf_syscall_category_ids[i],
+            {
+                wmem_strdup(wmem_epan_scope(), csfi.display), wmem_strdup(wmem_epan_scope(), csfi.abbrev),
+                FT_NONE, BASE_NONE,
+                NULL, 0x0,
+                wmem_strdup(wmem_epan_scope(), csfi.description), HFILL
+            }
+        };
+
+        hf_register_info* ri = &hf_syscall_category[i];
+        *ri = finfo;
+    }
+
+    create_source_hfids(&bridges[0]);
+    nbridges = 1;
 
     if ((dir = ws_dir_open(spdname, 0, NULL)) != NULL) {
         while ((file = ws_dir_read_name(dir)) != NULL) {
@@ -452,8 +520,9 @@ proto_register_falcoplugin(void)
     /*
      * Setup protocol subtree array
      */
-    static gint *ett[] = {
+    static int *ett[] = {
         &ett_falco_bridge,
+        &ett_sinsp_enriched,
         &ett_sinsp_span,
         &ett_address,
     };
@@ -461,13 +530,21 @@ proto_register_falcoplugin(void)
     proto_register_field_array(proto_falco_bridge, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
+    proto_register_field_array(proto_falco_bridge, hf_syscall_category, (int)ncategories);
+    proto_register_subtree_array(syscall_category_ett_ptrs, (int)ncategories);
+    g_free(syscall_category_ett_ptrs);
+
     register_shutdown_routine(on_wireshark_exit);
 }
 
 static bridge_info*
 get_bridge_info(guint32 source_id)
 {
-    for(guint j = 0; j < nbridges; j++)
+    if (source_id == 0) {
+        return &bridges[0];
+    }
+
+    for(size_t j = 0; j < nbridges; j++)
     {
         if(bridges[j].source_id == source_id)
         {
@@ -478,55 +555,225 @@ get_bridge_info(guint32 source_id)
     return NULL;
 }
 
+#define FALCO_PPME_PLUGINEVENT_E 322
 static int
 dissect_falco_bridge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
+    int encoding = pinfo->rec->rec_header.syscall_header.byte_order == G_BIG_ENDIAN ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN;
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Falco Bridge");
-    /* Clear out stuff in the info column */
-    col_clear(pinfo->cinfo,COL_INFO);
 
     // https://github.com/falcosecurity/libs/blob/9c942f27/userspace/libscap/scap.c#L1900
     proto_item *ti = proto_tree_add_item(tree, proto_falco_bridge, tvb, 0, 12, ENC_NA);
     proto_tree *fb_tree = proto_item_add_subtree(ti, ett_falco_bridge);
-    proto_tree_add_item(fb_tree, hf_sdp_source_id_size, tvb, 0, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(fb_tree, hf_sdp_lengths, tvb, 4, 4, ENC_LITTLE_ENDIAN);
-    proto_item *idti = proto_tree_add_item(fb_tree, hf_sdp_source_id, tvb, 8, 4, ENC_LITTLE_ENDIAN);
 
-    guint32 source_id = tvb_get_guint32(tvb, 8, ENC_LITTLE_ENDIAN);
+    guint32 source_id = 0;
+    if (pinfo->rec->rec_header.syscall_header.event_type == FALCO_PPME_PLUGINEVENT_E) {
+        source_id = tvb_get_guint32(tvb, 8, encoding);
+    }
     bridge_info* bi = get_bridge_info(source_id);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Plugin ID: %u", source_id);
+    if (source_id) {
+        proto_tree_add_item(fb_tree, hf_sdp_source_id_size, tvb, 0, 4, encoding);
+        proto_tree_add_item(fb_tree, hf_sdp_lengths, tvb, 4, 4, encoding);
+        /* Clear out stuff in the info column */
+        col_clear(pinfo->cinfo,COL_INFO);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Plugin ID: %u", source_id);
 
-    if (bi == NULL) {
-        proto_item_append_text(idti, " (NOT SUPPORTED)");
-        col_append_str(pinfo->cinfo, COL_INFO, " (NOT SUPPORTED)");
-        return tvb_captured_length(tvb);
+        proto_item *idti = proto_tree_add_item(fb_tree, hf_sdp_source_id, tvb, 8, 4, encoding);
+        if (bi == NULL) {
+            proto_item_append_text(idti, " (NOT SUPPORTED)");
+            col_append_str(pinfo->cinfo, COL_INFO, " (NOT SUPPORTED)");
+            return tvb_captured_length(tvb);
+        }
+
+        const char *source_name = get_sinsp_source_name(bi->ssi);
+        proto_item_append_text(idti, " (%s)", source_name);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", source_name);
     }
 
-    const char *source_name = get_sinsp_source_name(bi->ssi);
-    proto_item_append_text(idti, " (%s)", source_name);
-    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", source_name);
 
-    dissector_handle_t dissector = dissector_get_uint_handle(ptype_dissector_table, source_id);
-    if (dissector) {
-        tvbuff_t* next_tvb = tvb_new_subset_length(tvb, 12, tvb_captured_length(tvb) - 12);
-        call_dissector_with_data(dissector, next_tvb, pinfo, tree, bi);
+    if (bi->source_id == 0) {
+        dissect_sinsp_enriched(tvb, pinfo, fb_tree, bi);
+    } else {
+        dissect_sinsp_plugin(tvb, pinfo, fb_tree, bi);
     }
 
     return tvb_captured_length(tvb);
 }
 
 static int
-dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* bi_ptr)
+dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* bi_ptr)
+{
+    bridge_info* bi = (bridge_info *) bi_ptr;
+
+    if (!pinfo->fd->visited) {
+        if (pinfo->fd->num == 1) {
+            // Open the capture file using libsinsp, which reads the meta events
+            // at the beginning of the file. We can't call this via register_init_routine
+            // because we don't have the file path at that point.
+            open_sinsp_capture(sinsp_span, pinfo->rec->rec_header.syscall_header.pathname);
+        }
+    }
+
+    sinsp_field_extract_t *sinsp_fields = (sinsp_field_extract_t*) wmem_alloc(pinfo->pool, sizeof(sinsp_field_extract_t) * bi->visible_fields);
+    for (uint32_t fld_idx = 0; fld_idx < bi->visible_fields; fld_idx++) {
+        header_field_info* hfinfo = &(bi->hf[fld_idx].hfinfo);
+        sinsp_field_extract_t *sfe = &sinsp_fields[fld_idx];
+
+        sfe->field_id = bi->field_ids[fld_idx];
+        sfe->field_name = hfinfo->abbrev + strlen(FALCO_FIELD_NAME_PREFIX);
+        sfe->type = hfinfo->type;
+        switch(hfinfo->type) {
+        case FT_INT8:
+        case FT_INT16:
+        case FT_INT32:
+        case FT_INT64:
+        case FT_UINT8:
+        case FT_UINT16:
+        case FT_UINT32:
+        case FT_UINT64:
+        case FT_STRINGZ:
+        case FT_RELATIVE_TIME:
+        case FT_ABSOLUTE_TIME:
+        case FT_BOOLEAN:
+        case FT_DOUBLE:
+            break;
+        default:
+            sfe->type = FT_BYTES;
+        }
+    }
+
+    guint plen = tvb_captured_length(tvb);
+    guint8* payload = (guint8*)tvb_get_ptr(tvb, 0, plen);
+
+    // If we have a failure, try to dissect what we can first, then bail out with an error.
+    uint64_t ts = pinfo->abs_ts.secs * 1000000000 + pinfo->abs_ts.nsecs;
+    bool rc = extract_syscall_source_fields(sinsp_span, bi->ssi, pinfo->fd->file_off,pinfo->rec->rec_header.syscall_header.event_type,
+                                            pinfo->rec->rec_header.syscall_header.nparams,
+                                            ts, pinfo->rec->rec_header.syscall_header.thread_id, pinfo->rec->rec_header.syscall_header.cpu_id,
+                                            payload, plen, pinfo->pool, sinsp_fields, bi->visible_fields);
+
+    if (!rc) {
+        REPORT_DISSECTOR_BUG("Falco plugin %s extract error: %s", get_sinsp_source_name(bi->ssi), get_sinsp_source_last_error(bi->ssi));
+    }
+
+    size_t ncategories = get_syscall_source_ncategories(bi->ssi);
+    proto_tree **parent_trees = wmem_alloc0(wmem_packet_scope(), ncategories * sizeof(proto_tree *));
+
+    for (uint32_t fld_idx = 0; fld_idx < bi->visible_fields; fld_idx++) {
+        sinsp_field_extract_t *sfe = &sinsp_fields[fld_idx];
+        header_field_info* hfinfo = &(bi->hf[fld_idx].hfinfo);
+
+        if (!sfe->is_present) {
+            continue;
+        }
+
+        if (sfe->type != hfinfo->type) {
+            REPORT_DISSECTOR_BUG("Field %s has an unrecognized or mismatched type %u != %u",
+                                 hfinfo->abbrev, sfe->type, hfinfo->type);
+        }
+
+        proto_tree *parent_tree = tree;
+        if (sfe->parent_category < ncategories) {
+            if (!parent_trees[sfe->parent_category]) {
+                proto_tree *ti = proto_tree_add_item(tree, hf_syscall_category_ids[sfe->parent_category], tvb, 0, 0, BASE_NONE);
+                parent_trees[sfe->parent_category] = proto_item_add_subtree(ti, syscall_category_etts[sfe->parent_category]);
+            }
+            parent_tree = parent_trees[sfe->parent_category];
+        }
+
+        switch (hfinfo->type) {
+        case FT_INT8:
+        case FT_INT16:
+        case FT_INT32:
+            proto_tree_add_int(parent_tree, bi->hf_ids[fld_idx], tvb, 0, 0, sfe->res.i32);
+            break;
+        case FT_INT64:
+            proto_tree_add_int64(parent_tree, bi->hf_ids[fld_idx], tvb, 0, 0, sfe->res.i64);
+            break;
+        case FT_UINT8:
+        case FT_UINT16:
+        case FT_UINT32:
+            proto_tree_add_uint(parent_tree, bi->hf_ids[fld_idx], tvb, 0, 0, sfe->res.u32);
+            break;
+        case FT_UINT64:
+        case FT_RELATIVE_TIME:
+        case FT_ABSOLUTE_TIME:
+            proto_tree_add_uint64(parent_tree, bi->hf_ids[fld_idx], tvb, 0, 0, sfe->res.u64);
+            break;
+        case FT_STRINGZ:
+        {
+            if (sfe->res.str == NULL) {
+                ws_debug("Field %s has NULL result string", sfe->field_name);
+                continue;
+            }
+            proto_item *pi = proto_tree_add_string(parent_tree, bi->hf_ids[fld_idx], tvb, 0, 0, sfe->res.str);
+            if (bi->field_flags[fld_idx] & BFF_INFO) {
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", sfe->res.str);
+                // Mark it hidden, otherwise we end up with a bunch of empty "Info" tree items.
+                proto_item_set_hidden(pi);
+            }
+        }
+            break;
+            case FT_BOOLEAN:
+                proto_tree_add_boolean(parent_tree, bi->hf_ids[fld_idx], tvb, 0, 0, sfe->res.boolean);
+                break;
+            case FT_DOUBLE:
+                proto_tree_add_double(parent_tree, bi->hf_ids[fld_idx], tvb, 0, 0, sfe->res.dbl);
+                break;
+            case FT_BYTES:
+            {
+                int addr_fld_idx = bi->hf_id_to_addr_id[fld_idx];
+                if (addr_fld_idx < 0) {
+                    proto_tree_add_bytes_with_length(parent_tree, bi->hf_ids[fld_idx], tvb, 0, 0, sfe->res.str, sfe->res_len);
+                } else {
+                    // XXX Need to differentiate between src and dest. Falco libs supply client vs server and local vs remote.
+                    if (sfe->res_len == 4) {
+                        ws_in4_addr v4_addr;
+                        memcpy(&v4_addr, sfe->res.bytes, 4);
+                        proto_tree_add_ipv4(parent_tree, bi->hf_v4_ids[addr_fld_idx], tvb, 0, 0, v4_addr);
+                        set_address(&pinfo->net_src, AT_IPv4, sizeof(ws_in4_addr), &v4_addr);
+                    } else if (sfe->res_len == 16) {
+                        ws_in6_addr v6_addr;
+                        memcpy(&v6_addr, sfe->res.bytes, 16);
+                        proto_tree_add_ipv6(parent_tree, bi->hf_v6_ids[addr_fld_idx], tvb, 0, 0, &v6_addr);
+                        set_address(&pinfo->net_src, AT_IPv6, sizeof(ws_in6_addr), &v6_addr);
+                    } else {
+                        ws_warning("Invalid length %u for address field %s", sfe->res_len, sfe->field_name);
+                    }
+                    // XXX Add conversation support.
+#if 0
+                    if (cur_conv_filter) {
+                        wmem_strbuf_append(cur_conv_filter->strbuf, sfe->res.str);
+                        cur_conv_filter->is_present = true;
+                    }
+                    if (cur_conv_els) {
+                        cur_conv_els[1].type = CE_ADDRESS;
+                        copy_address(&cur_conv_els[1].addr_val, &pinfo->net_src);
+                    }
+#endif
+                }
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    return plen;
+}
+
+static int
+dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* bi_ptr)
 {
     bridge_info* bi = (bridge_info *) bi_ptr;
     guint plen = tvb_captured_length(tvb);
-    const char *source_name = get_sinsp_source_name(bi->ssi);
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, source_name);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "oops");
     /* Clear out stuff in the info column */
     col_clear(pinfo->cinfo, COL_INFO);
 
-    proto_item* ti = proto_tree_add_item(tree, bi->proto, tvb, 0, plen, ENC_NA);
+    proto_item *ti = tree;
     proto_tree* fb_tree = proto_item_add_subtree(ti, ett_sinsp_span);
 
     guint8* payload = (guint8*)tvb_get_ptr(tvb, 0, plen);
@@ -538,11 +785,11 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* bi
 
         sfe->field_id = bi->field_ids[fld_idx];
         sfe->field_name = hfinfo->abbrev;
-        sfe->type = hfinfo->type == FT_STRINGZ ? SFT_STRINGZ : SFT_UINT64;
+        sfe->type = hfinfo->type == FT_STRINGZ ? FT_STRINGZ : FT_UINT64;
     }
 
     // If we have a failure, try to dissect what we can first, then bail out with an error.
-    bool rc = extract_sisnp_source_fields(bi->ssi, payload, plen, pinfo->pool, sinsp_fields, bi->visible_fields);
+    bool rc = extract_plugin_source_fields(bi->ssi, pinfo->rec->rec_header.syscall_header.event_type, pinfo->rec->rec_header.syscall_header.nparams, payload, plen, pinfo->pool, sinsp_fields, bi->visible_fields);
 
     if (!rc) {
         REPORT_DISSECTOR_BUG("Falco plugin %s extract error: %s", get_sinsp_source_name(bi->ssi), get_sinsp_source_last_error(bi->ssi));
@@ -581,10 +828,10 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* bi
         }
 
 
-        if (sfe->type == SFT_STRINGZ && hfinfo->type == FT_STRINGZ) {
-            proto_item *pi = proto_tree_add_string(fb_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe->res_str);
+        if (sfe->type == FT_STRINGZ && hfinfo->type == FT_STRINGZ) {
+            proto_item *pi = proto_tree_add_string(fb_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe->res.str);
             if (bi->field_flags[fld_idx] & BFF_INFO) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", sfe->res_str);
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s", sfe->res.str);
                 // Mark it hidden, otherwise we end up with a bunch of empty "Info" tree items.
                 proto_item_set_hidden(pi);
             }
@@ -595,11 +842,11 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* bi
                 ws_in6_addr v6_addr;
                 proto_tree *addr_tree;
                 proto_item *addr_item = NULL;
-                if (ws_inet_pton4(sfe->res_str, &v4_addr)) {
+                if (ws_inet_pton4(sfe->res.str, &v4_addr)) {
                     addr_tree = proto_item_add_subtree(pi, ett_address);
                     addr_item = proto_tree_add_ipv4(addr_tree, bi->hf_v4_ids[addr_fld_idx], tvb, 0, 0, v4_addr);
                     set_address(&pinfo->net_src, AT_IPv4, sizeof(ws_in4_addr), &v4_addr);
-                } else if (ws_inet_pton6(sfe->res_str, &v6_addr)) {
+                } else if (ws_inet_pton6(sfe->res.str, &v6_addr)) {
                     addr_tree = proto_item_add_subtree(pi, ett_address);
                     addr_item = proto_tree_add_ipv6(addr_tree, bi->hf_v6_ids[addr_fld_idx], tvb, 0, 0, &v6_addr);
                     set_address(&pinfo->net_src, AT_IPv6, sizeof(ws_in6_addr), &v6_addr);
@@ -608,7 +855,7 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* bi
                     proto_item_set_generated(addr_item);
                 }
                 if (cur_conv_filter) {
-                    wmem_strbuf_append(cur_conv_filter->strbuf, sfe->res_str);
+                    wmem_strbuf_append(cur_conv_filter->strbuf, sfe->res.str);
                     cur_conv_filter->is_present = true;
                 }
                 if (cur_conv_els) {
@@ -617,44 +864,40 @@ dissect_sinsp_span(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* bi
                 }
             } else {
                 if (cur_conv_filter) {
-                    wmem_strbuf_append_printf(cur_conv_filter->strbuf, "\"%s\"", sfe->res_str);
+                    wmem_strbuf_append_printf(cur_conv_filter->strbuf, "\"%s\"", sfe->res.str);
                     cur_conv_filter->is_present = true;
                 }
                 if (cur_conv_els) {
                     cur_conv_els[1].type = CE_STRING;
-                    cur_conv_els[1].str_val = wmem_strdup(pinfo->pool, sfe->res_str);
+                    cur_conv_els[1].str_val = wmem_strdup(pinfo->pool, sfe->res.str);
                 }
             }
         }
-        else if (sfe->type == SFT_UINT64 && hfinfo->type == FT_UINT64) {
-            proto_tree_add_uint64(fb_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe->res_u64);
+        else if (sfe->type == FT_UINT64 && hfinfo->type == FT_UINT64) {
+            proto_tree_add_uint64(fb_tree, bi->hf_ids[fld_idx], tvb, 0, plen, sfe->res.u64);
             if (cur_conv_filter) {
                 switch (hfinfo->display) {
                 case BASE_HEX:
-                    wmem_strbuf_append_printf(cur_conv_filter->strbuf, "%" PRIx64, sfe->res_u64);
+                    wmem_strbuf_append_printf(cur_conv_filter->strbuf, "%" PRIx64, sfe->res.u64);
                     break;
                 case BASE_OCT:
-                    wmem_strbuf_append_printf(cur_conv_filter->strbuf, "%" PRIo64, sfe->res_u64);
+                    wmem_strbuf_append_printf(cur_conv_filter->strbuf, "%" PRIo64, sfe->res.u64);
                     break;
                 default:
-                    wmem_strbuf_append_printf(cur_conv_filter->strbuf, "%" PRId64, sfe->res_u64);
+                    wmem_strbuf_append_printf(cur_conv_filter->strbuf, "%" PRId64, sfe->res.u64);
                 }
                 cur_conv_filter->is_present = true;
             }
 
             if (cur_conv_els) {
                 cur_conv_els[1].type = CE_UINT64;
-                cur_conv_els[1].uint64_val = sfe->res_u64;
+                cur_conv_els[1].uint64_val = sfe->res.u64;
             }
         }
         else {
             REPORT_DISSECTOR_BUG("Field %s has an unrecognized or mismatched type %u != %u",
                 hfinfo->abbrev, sfe->type, hfinfo->type);
         }
-    }
-
-    if (!rc) {
-        REPORT_DISSECTOR_BUG("Falco plugin %s extract error", get_sinsp_source_name(bi->ssi));
     }
 
     if (first_conv_els) {

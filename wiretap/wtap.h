@@ -1334,6 +1334,7 @@ typedef struct {
 } wtap_ft_specific_header;
 
 typedef struct {
+    const char *pathname;       /* Path name of file. */
     guint     record_type;      /* XXX match ft_specific_record_phdr so that we chain off of packet-pcapng_block for now. */
     int       byte_order;
     /* guint32 sentinel; */
@@ -1497,7 +1498,7 @@ typedef struct wtap_dump_params {
     const GArray *dsbs_growing;             /**< DSBs that will be written while writing packets, or NULL.
                                                  This array may grow since the dumper was opened and will subsequently
                                                  be written before newer packets are written in wtap_dump. */
-    const GArray *sysdig_mev_growing;       /**< Meta events that will be written while writing packets, or NULL.
+    const GArray *mevs_growing;             /**< Meta events that will be written while writing packets, or NULL.
                                                  This array may grow since the dumper was opened and will subsequently
                                                  be written before newer packets are written in wtap_dump. */
     gboolean    dont_copy_idbs;             /**< XXX - don't copy IDBs; this should eventually always be the case. */
@@ -1844,13 +1845,6 @@ void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6);
 typedef void (*wtap_new_secrets_callback_t)(guint32 secrets_type, const void *secrets, guint size);
 WS_DLL_PUBLIC
 void wtap_set_cb_new_secrets(wtap *wth, wtap_new_secrets_callback_t add_new_secrets);
-
-/**
- * Set callback function to receive new sysdig meta events. Currently pcapng-only.
- */
-typedef void (*wtap_new_sysdig_meta_event_callback_t)(uint32_t mev_type, const uint8_t *mev_data, unsigned mev_data_size);
-WS_DLL_PUBLIC
-void wtap_set_cb_new_sysdig_meta_event(wtap *wth, wtap_new_sysdig_meta_event_callback_t add_new_sysdig_meta_event);
 
 /** Read the next record in the file, filling in *phdr and *buf.
  *
