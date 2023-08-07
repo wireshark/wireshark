@@ -1,4 +1,4 @@
-/* services.h
+/* services.c
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

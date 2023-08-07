@@ -1004,6 +1004,7 @@ ofpat
 ofpbac
 ofpbrc
 ofpet
+ofpgmfc
 ofpmp
 ofppf
 ofptfpt
@@ -1073,6 +1074,7 @@ periodicities
 peristency
 persistency
 pfname
+pgpool
 pharos
 phaser
 phasor
@@ -1480,6 +1482,7 @@ subtlv
 subtree
 subtrees
 superset
+sverige
 svhdx
 switchinfo
 symantec
