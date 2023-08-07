@@ -76,11 +76,34 @@ openSUSE +
 
 For macOS, you must first install Xcode. After installing Xcode, the
 script `tools/macos-setup.sh` will install the rest of the tools and
-libraries required to build Wireshark, as well as the additional tools
-required to build the documentation and the libraries required for all
-Wireshark features. If you're using Homebrew, the script
-`tools/macos-setup-brew.sh` will install the same tools and libraries
-from Homebrew.
+libraries required to build Wireshark, except for Qt 6, as well as the
+additional tools required to build the documentation and the libraries
+required for all Wireshark features. If you're using Homebrew, the
+script `tools/macos-setup-brew.sh` will install the same tools and
+libraries from Homebrew.
+
+If you will be building Wireshark with Qt 6, which is the default for
+Wireshark 4.0 and later, you will also have to install Qt; the
+`tools/macos-setup.sh` script will not install Qt 6. To install
+Qt, go to the https://www.qt.io/download-qt-installer-oss[Download Qt
+for open source use page], select “macOS” if it's not already selected,
+and then select “Qt online installer for macOS“.  This will download a
+.dmg for the installer; launch the installer.  It will require that you
+log into your Qt account; if you don't have an account, select “Sign up“
+to create one.  The next page will require you to accept the LGPL (Lesser
+GNU Public License); do so.  Continue to the “Installation Folder“ page
+of the installer screen, and select the “Custom installation“ option.
+On the “Select Components“ screen of the installer, select, for the
+desired Qt version, the “macOS” component. For example, at the time of
+this writing the Qt {qt6-lts-version} “macOS” component is used to build
+the official packages.  The “Qt Debug Information Files” component
+contains dSYM files which can be used for debugging. You can deselect
+all of the other the components such as “Qt Charts” or “Android xxxx”
+as they aren’t required.
+
+Qt 6 needs the "Qt 5 Compatibility Module" to be installed as well. Additionally, the module
+"Qt Multimedia" may be installed, to support advanced controls for playing back streams in the
+RTP Player dialog.
 
 If an install package is not available or you have a
 reason not to use it (maybe because it’s simply too old), you

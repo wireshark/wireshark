@@ -123,7 +123,7 @@ PCRE2_VERSION=10.39
 # "QT_VERSION=5.10.1 ./macos-setup.sh"
 # will build and install with QT 5.10.1.
 #
-QT_VERSION=${QT_VERSION-5.12.12}
+QT_VERSION=${QT_VERSION-6.2.4}
 
 if [ "$QT_VERSION" ]; then
     QT_MAJOR_VERSION="`expr $QT_VERSION : '\([0-9][0-9]*\).*'`"
@@ -3580,7 +3580,22 @@ if $no_build; then
     exit 0
 fi
 
-echo "You are now prepared to build Wireshark."
+if [ "$QT_VERSION" ]; then
+    if [ -f qt-$QT_VERSION-done ]; then
+        echo "You are now prepared to build Wireshark."
+    else
+        echo "Qt was not installed; you will have to install it in order to build the"
+        echo "Wireshark application, but you can build all the command-line tools in"
+        echo "the Wireshark distribution."
+        echo ""
+        echo "See section 2.1.1. \"Build environment setup\" of the Wireshark Developer's"
+        echo "Guide for instructions on how to install Qt."
+    fi
+else
+    echo "You did not install Qt; you will have to install it in order to build"
+    echo "the Wireshark application, but you can build all the command-line tools in"
+    echo "the Wireshark distribution."
+fi
 echo
 echo "To build:"
 echo
