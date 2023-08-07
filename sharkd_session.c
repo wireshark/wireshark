@@ -2766,9 +2766,17 @@ sharkd_session_process_tap_rtp_cb(void *arg)
         sharkd_json_value_string("daddr", calc.dst_addr_str);
         sharkd_json_value_anyf("dport", "%u", calc.dst_port);
 
+        sharkd_json_value_anyf("start_time", "%f", calc.start_time_ms);
+        sharkd_json_value_anyf("duration", "%f", calc.duration_ms);
+
         sharkd_json_value_anyf("pkts", "%u", calc.packet_count);
+        sharkd_json_value_anyf("lost", "%u", calc.lost_num);
+        sharkd_json_value_anyf("lost_percent", "%f", calc.lost_perc);
 
         sharkd_json_value_anyf("max_delta", "%f",calc.max_delta);
+        sharkd_json_value_anyf("min_delta", "%f",calc.min_delta);
+        sharkd_json_value_anyf("mean_delta", "%f",calc.mean_delta);
+        sharkd_json_value_anyf("min_jitter", "%f", calc.min_jitter);
         sharkd_json_value_anyf("max_jitter", "%f", calc.max_jitter);
         sharkd_json_value_anyf("mean_jitter", "%f", calc.mean_jitter);
 
