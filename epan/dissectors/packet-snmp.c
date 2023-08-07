@@ -445,6 +445,9 @@ typedef struct snmp_conv_info_t {
 	wmem_map_t *request_response;
 } snmp_conv_info_t;
 
+static snmp_conv_info_t*
+snmp_find_conversation_and_get_conv_data(packet_info *pinfo);
+
 static snmp_request_response_t *
 snmp_get_request_response_pointer(wmem_map_t *map, guint32 requestId)
 {
@@ -3099,6 +3102,11 @@ static const ber_choice_t SMUX_PDUs_choice[] = {
 
 static int
 dissect_snmp_SMUX_PDUs(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+
+	snmp_conv_info_t *snmp_info = snmp_find_conversation_and_get_conv_data(actx->pinfo);
+
+	actx->private_data = snmp_info;
+
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  SMUX_PDUs_choice, hf_index, ett_snmp_SMUX_PDUs,
                                  NULL);
@@ -3120,16 +3128,27 @@ static int dissect_SMUX_PDUs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 static snmp_conv_info_t*
 snmp_find_conversation_and_get_conv_data(packet_info *pinfo) {
 
-	conversation_t *conversation;
+	conversation_t *conversation = NULL;
 	snmp_conv_info_t *snmp_info = NULL;
 
-	conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
-		pinfo->srcport, pinfo->destport, 0);
-
-	if( (conversation == NULL) || (conversation_get_dissector(conversation, pinfo->num)!=snmp_handle) ) {
-		conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
-			pinfo->srcport, pinfo->destport, 0);
-		conversation_set_dissector(conversation, snmp_handle);
+	/* Get the conversation with the wildcarded port, if it exists
+	 * and is associated with SNMP, so that requests and responses
+	 * can be matched even if the response comes from a different,
+	 * ephemeral, source port, as originally done in OS/400.
+	 * On UDP, we do not automatically call conversation_set_port2()
+	 * and we do not want to do so. Possibly this should eventually
+	 * use find_conversation_full and separate the "SNMP conversation"
+	 * from "the transport layer conversation that carries SNMP."
+	 */
+	if (pinfo->destport == UDP_PORT_SNMP) {
+		conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
+			pinfo->srcport, 0, NO_PORT_B);
+	} else if (pinfo->srcport == UDP_PORT_SNMP) {
+		conversation = find_conversation(pinfo->fd->num, &pinfo->dst, &pinfo->src, conversation_pt_to_conversation_type(pinfo->ptype),
+			pinfo->destport, 0, NO_PORT_B);
+	}
+	if ((conversation == NULL) || (conversation_get_dissector(conversation, pinfo->num) != snmp_handle)) {
+		conversation = find_or_create_conversation(pinfo);
 	}
 
 	snmp_info = (snmp_conv_info_t *)conversation_get_proto_data(conversation, proto_snmp);
@@ -3361,11 +3380,20 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
 
 	/*
-	 * The first SNMP packet goes to the SNMP port; the second one
-	 * may come from some *other* port, but goes back to the same
-	 * IP address and port as the ones from which the first packet
-	 * came; all subsequent packets presumably go between those two
-	 * IP addresses and ports.
+	 * The IBM i (OS/400) SNMP agent, at least originally, would
+	 * send responses back from some *other* UDP port, an ephemeral
+	 * port above 5000, going back to the same IP address and port
+	 * from which the request came, similar to TFTP. This only happens
+	 * with the agent port, 161, not with the trap port, etc. As of
+	 * 2015 with the latest fixes applied, it no longer does this:
+	 * https://www.ibm.com/support/pages/ptf/SI55487
+	 * https://www.ibm.com/support/pages/ptf/SI55537
+	 *
+	 * The SNMP RFCs are silent on this (cf. L2TP RFC 2661, which
+	 * supports using either the well-known port or an ephemeral
+	 * port as the source port for responses, while noting that
+	 * the latter can cause issues with firewalls and NATs.) so
+	 * possibly some other implementations could do this.
 	 *
 	 * If this packet went to the SNMP port, we check to see if
 	 * there's already a conversation with one address/port pair
@@ -3378,6 +3406,17 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	 * the destination address of this packet, and its port 2 being
 	 * wildcarded, and give it the SNMP dissector as a dissector.
 	 */
+
+	if (pinfo->destport == UDP_PORT_SNMP) {
+		conversation_t *conversation = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
+			pinfo->srcport, 0, NO_PORT_B);
+
+		if( (conversation == NULL) || (conversation_get_dissector(conversation, pinfo->num)!=snmp_handle) ) {
+			conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype),
+				pinfo->srcport, 0, NO_PORT2);
+			conversation_set_dissector(conversation, snmp_handle);
+		}
+	}
 
 	return dissect_snmp_pdu(tvb, 0, pinfo, tree, proto_snmp, ett_snmp, FALSE);
 }

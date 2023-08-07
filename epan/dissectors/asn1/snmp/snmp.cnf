@@ -18,6 +18,12 @@ Trap-PDU/_untag/specific-trap   SpecificTrap
 Messagev2u/datav2u/plaintext v2u_plaintext
 BulkPDU/request-id bulkPDU_request-id
 
+#.FN_HDR SMUX-PDUs
+
+	snmp_conv_info_t *snmp_info = snmp_find_conversation_and_get_conv_data(actx->pinfo);
+
+	actx->private_data = snmp_info;
+
 #.FN_PARS Version    VAL_PTR = &snmp_version
 
 #.FN_PARS PDUs
