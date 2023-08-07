@@ -1023,6 +1023,17 @@ static const enum_val_t dhcp_uuid_endian_vals[] = {
 	{ NULL, NULL, 0 }
 };
 
+#define DHCP_SECS_ENDIAN_AUTODETECT -1
+
+static gint dhcp_secs_endian = DHCP_SECS_ENDIAN_AUTODETECT;
+
+static const enum_val_t dhcp_secs_endian_vals[] = {
+	{ "Autodetect", "Autodetect", DHCP_SECS_ENDIAN_AUTODETECT},
+	{ "Little Endian", "Little Endian", ENC_LITTLE_ENDIAN},
+	{ "Big Endian", "Big Endian", ENC_BIG_ENDIAN },
+	{ NULL, NULL, 0 }
+};
+
 #define DHCP_UDP_PORT_RANGE  "67-68,4011"
 #define PROXYDHCP_UDP_PORT   4011
 
@@ -7217,15 +7228,21 @@ dissect_dhcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	/*
 	 * Windows (98, XP and Vista tested) sends the "secs" value on
 	 * the wire formatted as little-endian. See if the LE value
-	 * makes sense.
+	 * makes sense, if autodetect is used.
 	 */
-	secs = tvb_get_letohs(tvb, 8);
-	if (secs > 0 && secs <= 0xff) {
-		ti = proto_tree_add_uint(bp_tree, hf_dhcp_secs, tvb, 8, 2, secs);
-		expert_add_info_format(pinfo, ti, &ei_dhcp_secs_le, "Seconds elapsed appears to be encoded as little-endian");
-	} else {
-		proto_tree_add_item(bp_tree, hf_dhcp_secs, tvb,
-			    8, 2, ENC_BIG_ENDIAN);
+	if (dhcp_secs_endian == DHCP_SECS_ENDIAN_AUTODETECT) {
+		secs = tvb_get_letohs(tvb, 8);
+		if (secs > 0 && secs <= 0xff) {
+			ti = proto_tree_add_uint(bp_tree, hf_dhcp_secs, tvb, 8, 2, secs);
+			expert_add_info_format(pinfo, ti, &ei_dhcp_secs_le, "Seconds elapsed appears to be encoded as little-endian");
+		} else {
+			proto_tree_add_item(bp_tree, hf_dhcp_secs, tvb,
+					8, 2, ENC_BIG_ENDIAN);
+		}
+	}
+	else {
+		/* Use whatever endianness is configured */
+		proto_tree_add_item(bp_tree, hf_dhcp_secs, tvb, 8, 2, dhcp_secs_endian);
 	}
 	flags = tvb_get_ntohs(tvb, 10);
 	fi = proto_tree_add_bitmask(bp_tree, tvb, 10, hf_dhcp_flags,
@@ -10424,6 +10441,13 @@ proto_register_dhcp(void)
 				       "Endianness applied to UUID fields",
 				       &dhcp_uuid_endian,
 				       dhcp_uuid_endian_vals,
+				       FALSE);
+
+	prefs_register_enum_preference(dhcp_module, "secs.endian",
+				       "Endianness of seconds elapsed field",
+				       "Endianness applied to seconds elapsed field",
+				       &dhcp_secs_endian,
+				       dhcp_secs_endian_vals,
 				       FALSE);
 
 	prefs_register_obsolete_preference(dhcp_module, "displayasstring");
