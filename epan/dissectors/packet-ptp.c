@@ -2760,8 +2760,8 @@ dissect_ptp_v2_timeInterval(tvbuff_t *tvb, guint16 *cur_offset, proto_tree *tree
     ptptimeInterval_subtree = proto_tree_add_subtree_format(tree, tvb, *cur_offset, 8,
         ett_ptp_v2_timeInterval, NULL, "%s: %f nanoseconds", name, time_double);
 
-    proto_tree_add_uint64_format_value(ptptimeInterval_subtree,
-        hf_ptp_v2_timeInterval_ns, tvb, *cur_offset, 6, time_ns, "Ns: %" PRId64 " nanoseconds", time_ns);
+    proto_tree_add_int64(ptptimeInterval_subtree,
+        hf_ptp_v2_timeInterval_ns, tvb, *cur_offset, 6, time_ns);
 
     proto_tree_add_double(ptptimeInterval_subtree,
         hf_ptp_v2_timeInterval_subns, tvb, *cur_offset+6, 2, (time_subns/65536.0));
@@ -6143,8 +6143,8 @@ proto_register_ptp(void)
             NULL, HFILL }
         },
         { &hf_ptp_v2_correction,
-          { "correction",           "ptp.v2.correction.ns",
-            FT_UINT64, BASE_DEC, NULL, 0x00,
+          { "correctionNs",              "ptp.v2.correction.ns",
+            FT_INT64, BASE_DEC|BASE_UNIT_STRING, &units_nanosecond_nanoseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_correctionsubns,
@@ -6255,7 +6255,7 @@ proto_register_ptp(void)
         /* Fields for PTP_Announce TLVs */
         { &hf_ptp_v2_an_tlv_tlvtype,
           { "tlvType", "ptp.v2.an.tlvType",
-            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &ptp_v2_TLV_type_vals_ext, 0x00,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &ptp_v2_TLV_type_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_an_tlv_lengthfield,
@@ -6443,7 +6443,7 @@ proto_register_ptp(void)
         /* Fields for PTP_Follow_up TLVs */
         { &hf_ptp_as_fu_tlv_tlvtype,
           { "tlvType", "ptp.as.fu.tlvType",
-            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &ptp_v2_TLV_type_vals_ext, 0x00,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &ptp_v2_TLV_type_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_as_fu_tlv_lengthfield,
@@ -6601,7 +6601,7 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_sig_tlv_tlvType,
           { "tlvType",                      "ptp.v2.sig.tlv.tlvType",
-            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &ptp_v2_TLV_type_vals_ext, 0x00,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &ptp_v2_TLV_type_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_sig_tlv_lengthField,
@@ -6687,7 +6687,7 @@ proto_register_ptp(void)
         /* Fields for PTP_Signalling (=sig) TLVs */
         { &hf_ptp_as_sig_tlv_tlvtype,
           { "tlvType", "ptp.as.sig.tlvType",
-            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &ptp_v2_TLV_type_vals_ext, 0x00,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &ptp_v2_TLV_type_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_as_sig_tlv_lengthfield,
@@ -6789,7 +6789,7 @@ proto_register_ptp(void)
         /* Management TLV */
         { &hf_ptp_v2_mm_tlvType,
           { "tlvType",           "ptp.v2.mm.tlvType",
-            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &ptp_v2_TLV_type_vals_ext, 0x00,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &ptp_v2_TLV_type_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_lengthField,
@@ -7175,8 +7175,8 @@ proto_register_ptp(void)
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_offset_ns,
-          { "correction",           "ptp.v2.mm.offset.ns",
-            FT_UINT64, BASE_DEC, NULL, 0x00,
+          { "Ns",              "ptp.v2.mm.offset.ns",
+            FT_INT64, BASE_DEC|BASE_UNIT_STRING, &units_nanosecond_nanoseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_offset_subns,
@@ -7185,8 +7185,8 @@ proto_register_ptp(void)
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_pathDelay_ns,
-          { "ns",           "ptp.v2.mm.pathDelay.ns",
-            FT_UINT64, BASE_DEC, NULL, 0x00,
+          { "Ns",           "ptp.v2.mm.pathDelay.ns",
+            FT_INT64, BASE_DEC|BASE_UNIT_STRING, &units_nanosecond_nanoseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_pathDelay_subns,
@@ -7210,8 +7210,8 @@ proto_register_ptp(void)
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_peerMeanPathDelay_ns,
-          { "ns",           "ptp.v2.mm.peerMeanPathDelay.ns",
-            FT_UINT64, BASE_DEC, NULL, 0x00,
+          { "Ns",           "ptp.v2.mm.peerMeanPathDelay.ns",
+            FT_INT64, BASE_DEC|BASE_UNIT_STRING, &units_nanosecond_nanoseconds, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_mm_peerMeanPathDelay_subns,
