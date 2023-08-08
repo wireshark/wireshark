@@ -18,6 +18,9 @@
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
       <widget class="QRadioButton" name="ouiRadioButton">
+       <property name="toolTip">
+        <string>Search MAC address or address prefix. Special purpose bits are masked.</string>
+       </property>
        <property name="text">
         <string>MAC Address</string>
        </property>
@@ -31,6 +34,9 @@
      </item>
      <item>
       <widget class="QRadioButton" name="vendorRadioButton">
+       <property name="toolTip">
+        <string>Search vendor name using a case-insentitive regular expression.</string>
+       </property>
        <property name="text">
         <string>Vendor Name</string>
        </property>
@@ -41,8 +47,11 @@
      </item>
      <item>
       <widget class="QCheckBox" name="checkShortNameButton">
+       <property name="toolTip">
+        <string>Show short name column.</string>
+       </property>
        <property name="text">
-        <string>Show short name</string>
+        <string>Short name</string>
        </property>
       </widget>
      </item>
@@ -64,7 +73,7 @@
    <item row="3" column="0">
     <widget class="QLabel" name="hintLabel">
      <property name="text">
-      <string>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</string>
+      <string notr="true">&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
