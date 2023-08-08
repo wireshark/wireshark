@@ -10,6 +10,7 @@
  */
 /* Telnet authentication options as per     RFC2941
  * Kerberos v5 telnet authentication as per RFC2942
+ * VMware Serial Port Proxy documented at https://developer.vmware.com/docs/11763/using-a-proxy-with-virtual-serial-ports
  */
 #include "config.h"
 
@@ -80,6 +81,17 @@ static int hf_tn3270_regime_cmd = -1;
 
 static int hf_telnet_starttls = -1;
 
+static int hf_telnet_vmware_cmd = -1;
+static int hf_telnet_vmware_known_suboption_code = -1;
+static int hf_telnet_vmware_unknown_subopt_code = -1;
+static int hf_telnet_vmware_vmotion_sequence = -1;
+static int hf_telnet_vmware_proxy_direction = -1;
+static int hf_telnet_vmware_proxy_serviceUri = -1;
+static int hf_telnet_vmware_vm_vc_uuid = -1;
+static int hf_telnet_vmware_vm_bios_uuid = -1;
+static int hf_telnet_vmware_vm_location_uuid = -1;
+static int hf_telnet_vmware_vm_name = -1;
+
 static gint ett_telnet = -1;
 static gint ett_telnet_cmd = -1;
 static gint ett_telnet_subopt = -1;
@@ -132,6 +144,7 @@ static expert_field ei_telnet_invalid_parity = EI_INIT;
 static expert_field ei_telnet_invalid_purge = EI_INIT;
 static expert_field ei_telnet_invalid_baud_rate = EI_INIT;
 static expert_field ei_telnet_invalid_control = EI_INIT;
+static expert_field ei_telnet_vmware_unexp_data = EI_INIT;
 
 static dissector_handle_t telnet_handle;
 
@@ -1225,6 +1238,212 @@ dissect_encryption_subopt(packet_info *pinfo, const char *optname _U_, tvbuff_t 
   }
 }
 
+#define VMWARE_TELNET_EXT 232
+
+/* Option Subnegotiation */
+#define VMWARE_KNOWN_SUBOPTIONS_1 0
+#define VMWARE_KNOWN_SUBOPTIONS_2 1
+
+/* Unknown Command Response */
+#define VMWARE_UNKNOWN_SUBOPTION_RCVD_1 2
+#define VMWARE_UNKNOWN_SUBOPTION_RCVD_2 3
+
+/* vMotion Notification */
+#define VMWARE_VMOTION_BEGIN 40
+#define VMWARE_VMOTION_GOAHEAD 41
+#define VMWARE_VMOTION_NOTNOW 43
+#define VMWARE_VMOTION_PEER 44
+#define VMWARE_VMOTION_PEER_OK 45
+#define VMWARE_VMOTION_COMPLETE 46
+#define VMWARE_VMOTION_ABORT 48
+
+/* Proxy operation */
+#define VMWARE_DO_PROXY 70
+#define VMWARE_WILL_PROXY 71
+#define VMWARE_WONT_PROXY 73
+
+/* Virtual machine identification */
+#define VMWARE_VM_VC_UUID 80
+#define VMWARE_GET_VM_VC_UUID 81
+#define VMWARE_VM_NAME 82
+#define VMWARE_GET_VM_NAME 83
+#define VMWARE_VM_BIOS_UUID 84
+#define VMWARE_GET_VM_BIOS_UUID 85
+#define VMWARE_VM_LOCATION_UUID 86
+#define VMWARE_GET_VM_LOCATION_UUID 87
+
+static const value_string vmware_cmd_vals[] = {
+  { VMWARE_KNOWN_SUBOPTIONS_1,       "KNOWN-SUBOPTIONS-1" },
+  { VMWARE_KNOWN_SUBOPTIONS_2,       "KNOWN-SUBOPTIONS-2" },
+  { VMWARE_UNKNOWN_SUBOPTION_RCVD_1, "UNKNOWN-SUBOPTION-RCVD-1" },
+  { VMWARE_UNKNOWN_SUBOPTION_RCVD_2, "UNKNOWN-SUBOPTION-RCVD-2" },
+  { VMWARE_VMOTION_BEGIN,            "VMOTION-BEGIN" },
+  { VMWARE_VMOTION_GOAHEAD,          "VMOTION-GOAHEAD" },
+  { VMWARE_VMOTION_NOTNOW,           "VMOTION-NOTNOW" },
+  { VMWARE_VMOTION_PEER,             "VMOTION-PEER" },
+  { VMWARE_VMOTION_PEER_OK,          "VMOTION-PEER-OK" },
+  { VMWARE_VMOTION_COMPLETE,         "VMOTION-COMPLETE" },
+  { VMWARE_VMOTION_ABORT,            "VMOTION-ABORT" },
+  { VMWARE_DO_PROXY,                 "DO-PROXY" },
+  { VMWARE_WILL_PROXY,               "WILL-PROXY" },
+  { VMWARE_WONT_PROXY,               "WONT-PROXY" },
+  { VMWARE_VM_VC_UUID,               "VM-VC-UUID" },
+  { VMWARE_GET_VM_VC_UUID,           "GET-VM-VC-UUID" },
+  { VMWARE_VM_NAME,                  "VM-NAME" },
+  { VMWARE_GET_VM_NAME,              "GET-VM-NAME" },
+  { VMWARE_VM_BIOS_UUID,             "VM-BIOS-UUID" },
+  { VMWARE_GET_VM_BIOS_UUID,         "GET-VM-BIOS-UUID" },
+  { VMWARE_VM_LOCATION_UUID,         "VM-LOCATION-UUID" },
+  { VMWARE_GET_VM_LOCATION_UUID,     "GET-VM-LOCATION-UUID" },
+  { 0, NULL }
+};
+
+/* Encoding for the "direction" argument to DO-PROXY: */
+#define VMWARE_PROXY_DIRECTION_CLIENT 'C'
+#define VMWARE_PROXY_DIRECTION_SERVER 'S'
+
+static const value_string vmware_proxy_direction_vals[] = {
+  { VMWARE_PROXY_DIRECTION_CLIENT, "Client" },
+  { VMWARE_PROXY_DIRECTION_SERVER, "Server" },
+  { 0, NULL }
+};
+
+static void
+dissect_vmware_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t *tvb, int offset, int len,
+                      proto_tree *tree, proto_item *item _U_)
+{
+  /*
+   * The VMware virtual serial port proxy uses the Telnet protocol over TCP
+   * port 13370.  Use "Decode As..." or specify "-d tcp.port==13370,telnet" on
+   * the command-line.
+   */
+
+  guint8 vmwcmd;
+
+  vmwcmd = tvb_get_guint8(tvb, offset);
+  proto_tree_add_uint(tree, hf_telnet_vmware_cmd, tvb, offset, 1, vmwcmd);
+  offset++;
+  len--;
+
+  switch (vmwcmd) {
+
+  /* --- Option Subnegotiation --- */
+
+  case VMWARE_KNOWN_SUBOPTIONS_1:
+  case VMWARE_KNOWN_SUBOPTIONS_2:
+    /* Data: suboptions... */
+    while (len > 0) {
+      proto_tree_add_item(tree, hf_telnet_vmware_known_suboption_code, tvb, offset, 1, ENC_NA);
+      offset++;
+      len--;
+    }
+    break;
+
+  /* --- Unknown Command Response --- */
+
+  case VMWARE_UNKNOWN_SUBOPTION_RCVD_1:
+  case VMWARE_UNKNOWN_SUBOPTION_RCVD_2:
+    /* Data: suboption */
+    proto_tree_add_item(tree, hf_telnet_vmware_unknown_subopt_code, tvb, offset, 1, ENC_NA);
+    offset++;
+    len--;
+    break;
+
+  /* --- vMotion Notification --- */
+
+  case VMWARE_VMOTION_BEGIN:
+  case VMWARE_VMOTION_NOTNOW:
+  case VMWARE_VMOTION_PEER_OK:
+  case VMWARE_VMOTION_COMPLETE:
+    /* Data: sequence */
+    proto_tree_add_item(tree, hf_telnet_vmware_vmotion_sequence, tvb, offset, len, ENC_NA);
+    offset += len;
+    len = 0;
+    break;
+
+  case VMWARE_VMOTION_GOAHEAD:
+  case VMWARE_VMOTION_PEER:
+    /* Data: sequence secret */
+    /*
+     * TODO: With no delimiter between "sequence" and "secret", nor any other
+     *       way of determining the lengths of those fields, dissecting them
+     *       will require tracking the vMotion conversation.  For now, ignore
+     *       all data.
+     */
+    offset += len;
+    len = 0;
+    break;
+
+  case VMWARE_VMOTION_ABORT:
+    /* no data */
+    break;
+
+  /* --- Proxy Operation --- */
+
+  case VMWARE_DO_PROXY:
+    /* Data: direction serviceUri */
+    proto_tree_add_item(tree, hf_telnet_vmware_proxy_direction, tvb, offset, 1, ENC_NA);
+    offset++;
+    len--;
+    proto_tree_add_item(tree, hf_telnet_vmware_proxy_serviceUri, tvb, offset, len, ENC_UTF_8);
+    offset += len;
+    len = 0;
+    break;
+
+  case VMWARE_WILL_PROXY:
+  case VMWARE_WONT_PROXY:
+    /* no data */
+    break;
+
+  /* --- Virtual Machine Identification --- */
+
+  case VMWARE_GET_VM_VC_UUID:
+  case VMWARE_GET_VM_NAME:
+  case VMWARE_GET_VM_BIOS_UUID:
+  case VMWARE_GET_VM_LOCATION_UUID:
+    /* no data */
+    break;
+
+  case VMWARE_VM_NAME:
+    /* Data: vm-name */
+    proto_tree_add_item(tree, hf_telnet_vmware_vm_name, tvb, offset, len, ENC_UTF_8);
+    offset += len;
+    len = 0;
+    break;
+
+  case VMWARE_VM_VC_UUID:
+    /* Data: vm-uuid */
+    proto_tree_add_item(tree, hf_telnet_vmware_vm_vc_uuid, tvb, offset, len, ENC_ASCII);
+    offset += len;
+    len = 0;
+    break;
+
+  case VMWARE_VM_BIOS_UUID:
+    /* Data: vm-uuid */
+    proto_tree_add_item(tree, hf_telnet_vmware_vm_bios_uuid, tvb, offset, len, ENC_ASCII);
+    offset += len;
+    len = 0;
+    break;
+
+  case VMWARE_VM_LOCATION_UUID:
+    /* Data: vm-uuid */
+    proto_tree_add_item(tree, hf_telnet_vmware_vm_location_uuid, tvb, offset, len, ENC_ASCII);
+    offset += len;
+    len = 0;
+    break;
+
+  default:
+    expert_add_info_format(pinfo, item, &ei_telnet_invalid_subcommand, "Invalid %s subcommand %u", optname, vmwcmd);
+    if (len > 0)
+      proto_tree_add_item(tree, hf_telnet_subcommand_data, tvb, offset, len, ENC_NA);
+    return;
+  }
+  if (len > 0) {
+    proto_item *pi = proto_tree_add_bytes_format(tree, hf_telnet_subcommand_data, tvb, offset, len, NULL, "Unexpected data");
+    expert_add_info_format(pinfo, pi, &ei_telnet_vmware_unexp_data, "%u bytes unexpected data", len);
+  }
+}
+
 static const tn_opt options[] = {
   {
     "Binary Transmission",                      /* RFC 856 */
@@ -1579,7 +1798,15 @@ static const tn_opt options[] = {
 
 };
 
-static const tn_opt telnet_ext_unknown = {
+static const tn_opt telnet_opt_vmware = {
+  "VMware Virtual Serial Port Proxy",
+  NULL,
+  VARIABLE_LENGTH,
+  1,
+  dissect_vmware_subopt
+};
+
+static const tn_opt telnet_opt_unknown = {
   "<unknown option>",
   NULL,
   VARIABLE_LENGTH,
@@ -1593,7 +1820,10 @@ telnet_find_option(guint8 opt_byte)
   if (opt_byte < array_length(options))
     return &options[opt_byte];
 
-  return &telnet_ext_unknown;
+  if (opt_byte == VMWARE_TELNET_EXT)
+    return &telnet_opt_vmware;
+
+  return &telnet_opt_unknown;
 }
 
 static int
@@ -2105,6 +2335,46 @@ proto_register_telnet(void)
       { "Follows", "telnet.starttls", FT_UINT8, BASE_DEC,
         NULL, 0, NULL, HFILL }
     },
+    { &hf_telnet_vmware_cmd,
+      { "VMware Serial Port Proxy Cmd", "telnet.vmware.cmd", FT_UINT8, BASE_DEC,
+        VALS(vmware_cmd_vals), 0, "VMware command", HFILL }
+    },
+    { &hf_telnet_vmware_known_suboption_code,
+      { "Suboption", "telnet.vmware.known_suboption_code", FT_UINT8, BASE_DEC,
+        VALS(vmware_cmd_vals), 0, NULL, HFILL }
+    },
+    { &hf_telnet_vmware_unknown_subopt_code,
+      { "Code", "telnet.vmware.unknown_suboption_code", FT_UINT8, BASE_DEC,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_telnet_vmware_vmotion_sequence,
+      { "vMotion sequence", "telnet.vmware.vmotion.sequence", FT_BYTES, BASE_NONE,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_telnet_vmware_proxy_direction,
+      { "Proxy Direction", "telnet.vmware.proxy.direction", FT_CHAR, BASE_HEX,
+        VALS(vmware_proxy_direction_vals), 0, NULL, HFILL }
+    },
+    { &hf_telnet_vmware_proxy_serviceUri,
+      { "Proxy Service URI", "telnet.vmware.proxy.serviceUri", FT_STRING, BASE_NONE,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_telnet_vmware_vm_vc_uuid,
+      { "VM VC UUID", "telnet.vmware.vm.vc_uuid", FT_STRING, BASE_NONE,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_telnet_vmware_vm_bios_uuid,
+      { "VM BIOS UUID", "telnet.vmware.vm.bios_uuid", FT_STRING, BASE_NONE,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_telnet_vmware_vm_location_uuid,
+      { "VM Location UUID", "telnet.vmware.vm.location_uuid", FT_STRING, BASE_NONE,
+        NULL, 0, NULL, HFILL }
+    },
+    { &hf_telnet_vmware_vm_name,
+      { "VM name", "telnet.vmware.vm.name", FT_STRING, BASE_NONE,
+        NULL, 0, NULL, HFILL }
+    },
   };
   static gint *ett[] = {
     &ett_telnet,
@@ -2161,6 +2431,7 @@ proto_register_telnet(void)
       { &ei_telnet_invalid_purge, { "telnet.invalid_purge", PI_PROTOCOL, PI_WARN, "Invalid Purge Packet", EXPFILL }},
       { &ei_telnet_enc_cmd_unknown, { "telnet.enc.cmd.unknown", PI_PROTOCOL, PI_WARN, "Unknown encryption command", EXPFILL }},
       { &ei_telnet_suboption_length, { "telnet.suboption_length.invalid", PI_PROTOCOL, PI_WARN, "Bogus suboption data", EXPFILL }},
+      { &ei_telnet_vmware_unexp_data, { "telnet.vmware.unexpected_data", PI_PROTOCOL, PI_WARN, "Unexpected VMware Serial Port Proxy negotiation data", EXPFILL }},
   };
 
   expert_module_t* expert_telnet;
