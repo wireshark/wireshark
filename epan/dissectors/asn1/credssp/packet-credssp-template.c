@@ -96,7 +96,7 @@ dissect_credssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   asn1_ctx_t asn1_ctx;
   int offset = 0;
   gint8 ber_class;
-  gboolean pc;
+  bool pc;
   gint32 tag;
   guint32 length;
   gint8 ver;
