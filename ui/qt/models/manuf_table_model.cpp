@@ -11,8 +11,6 @@
 #include "manuf_table_model.h"
 
 ManufTableItem::ManufTableItem(struct ws_manuf *ptr) :
-    addr_(reinterpret_cast<char *>(ptr->addr), sizeof(ptr->addr)),
-    mask_(ptr->mask),
     short_name_(QString::fromUtf8(ptr->short_name)),
     long_name_(QString::fromUtf8(ptr->long_name))
 {
@@ -28,9 +26,12 @@ ManufTableItem::ManufTableItem(struct ws_manuf *ptr) :
             size = 5;
             break;
         default:
-            size = 6;
+            ws_assert_not_reached();
     }
-    addr_ = QByteArray(reinterpret_cast<char *>(ptr->addr), size);
+    block_bytes_ = QByteArray(reinterpret_cast<const char *>(ptr->addr), size);
+
+    char buf[64];
+    block_name_ = QString::fromUtf8(ws_manuf_block_str(buf, sizeof(buf), ptr));
 }
 
 ManufTableItem::~ManufTableItem()
@@ -78,12 +79,7 @@ QVariant ManufTableModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole) {
         switch (index.column()) {
             case COL_MAC_PREFIX:
-            {
-                QString mac_addr = item->addr_.toHex(':').toUpper();
-                if (item->mask_ && item->mask_ != 24)
-                    return QString("%1/%2").arg(mac_addr).arg(item->mask_);
-                return mac_addr;
-            }
+                return item->block_name_;
             case COL_SHORT_NAME:
                 return item->short_name_;
             case COL_VENDOR_NAME:
@@ -96,7 +92,7 @@ QVariant ManufTableModel::data(const QModelIndex &index, int role) const
     if (role == Qt::UserRole) {
         switch (index.column()) {
             case COL_MAC_PREFIX:
-                return item->addr_;
+                return item->block_bytes_;
             case COL_SHORT_NAME:
                 return item->short_name_;
             case COL_VENDOR_NAME:
@@ -161,10 +157,10 @@ void ManufSortFilterProxyModel::clearFilter()
     invalidateFilter();
 }
 
-void ManufSortFilterProxyModel::setFilterAddress(const QByteArray &address)
+void ManufSortFilterProxyModel::setFilterAddress(const QByteArray &bytes)
 {
     filter_type_ = FilterByAddress;
-    filter_addr_ = address;
+    filter_bytes_ = bytes;
     invalidateFilter();
 }
 
@@ -175,11 +171,30 @@ void ManufSortFilterProxyModel::setFilterName(QRegularExpression &name)
     invalidateFilter();
 }
 
+static bool match_filter(const QByteArray &bytes, const QByteArray &mac_block)
+{
+    if (bytes.size() < mac_block.size())
+        return mac_block.startsWith(bytes);
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    QByteArray prefix = bytes.first(mac_block.size());
+#else
+    QByteArray prefix = bytes.left(mac_block.size());
+#endif
+    // Blocks are 3, 4 or 5 bytes wide
+    if (mac_block.size() > 3) {
+        // Mask out the last nibble of the bytes for 28 and 36 bit block lengths
+        // (but not 24 bit OUIs)
+        prefix[prefix.size() - 1] = prefix[prefix.size() - 1] & 0xF0;
+    }
+    return prefix == mac_block;
+}
+
 bool ManufSortFilterProxyModel::filterAddressAcceptsRow(int source_row, const QModelIndex& source_parent) const
 {
     QModelIndex chkIdx = sourceModel()->index(source_row, ManufTableModel::COL_MAC_PREFIX, source_parent);
-    QByteArray bytes = chkIdx.data(Qt::UserRole).toByteArray();
-    return filter_addr_.startsWith(bytes);
+    QByteArray mac_block = chkIdx.data(Qt::UserRole).toByteArray();
+    return match_filter(filter_bytes_, mac_block);
 }
 
 bool ManufSortFilterProxyModel::filterNameAcceptsRow(int source_row, const QModelIndex& source_parent) const

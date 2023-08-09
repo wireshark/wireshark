@@ -23,8 +23,8 @@ public:
     ManufTableItem(struct ws_manuf *ptr);
     ~ManufTableItem();
 
-    QByteArray addr_;
-    int mask_;
+    QByteArray block_bytes_;
+    QString block_name_;
     QString short_name_;
     QString long_name_;
 };
@@ -80,7 +80,7 @@ public slots:
 
 private:
     ManufProxyFilterType filter_type_;
-    QByteArray filter_addr_;
+    QByteArray filter_bytes_;
     QRegularExpression filter_name_;
 
     bool filterAddressAcceptsRow(int source_row, const QModelIndex& source_parent) const;

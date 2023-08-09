@@ -101,16 +101,13 @@ static QByteArray convertMacAddressToByteArray(const QString &bytesString)
 {
     GByteArray *bytes = g_byte_array_new();
 
-    if (!hex_str_to_bytes(qUtf8Printable(bytesString), bytes, FALSE)) {
+    if (!hex_str_to_bytes(qUtf8Printable(bytesString), bytes, FALSE)
+                                || bytes->len == 0 || bytes->len > 6) {
         g_byte_array_free(bytes, TRUE);
         return QByteArray();
     }
 
-    guint8 zero = 0;
-    while(bytes->len < 6)
-        g_byte_array_append(bytes, &zero, 1);
-
-    /* Mask out multicast/locall administered flags. */
+    /* Mask out multicast/locally administered flags. */
     bytes->data[0] &= 0xFC;
 
     return gbytearray_free_to_qbytearray(bytes);
