@@ -37,6 +37,8 @@ capinfos - Prints information about capture files
 [ *-n* ]
 [ *-N* ]
 [ *-o* ]
+[ *-p* ]
+[ *-P* ]
 [ *-q* ]
 [ *-Q* ]
 [ *-r* ]
@@ -294,6 +296,21 @@ default infos are *NOT* quoted.
 Displays "True" if packets exist in strict chronological order
 or "False" if one or more packets in the capture exists
 "out-of-order" time-wise.
+--
+
+-p::
++
+--
+Display individual packet comments.  It is recommended
+to print raw values (-M) when using this option as
+packet comments may include newlines and other special
+characters.
+--
+
+-P::
++
+--
+Disable displaying individual packet comments.
 --
 
 -q::
