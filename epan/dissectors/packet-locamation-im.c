@@ -27,9 +27,10 @@
 #include <epan/packet.h>
 /* clang-format on */
 
-#include "packet-llc.h"
 #include <epan/expert.h>
 #include <string.h>
+
+#include "packet-llc.h"
 
 #ifndef ETH_FRAME_LEN
 #define ETH_FRAME_LEN 1514 /* Max. octets in frame sans FCS */
@@ -526,8 +527,8 @@ static void add_timestamp_sample(tvbuff_t *tvb, packet_info *pinfo, gint *tvb_of
 		/* Get the previous timestamp components and calculate the time difference */
 		guint32 seconds_previous = tvb_get_guint32(tvb, *tvb_offset_previous + 2, ENC_BIG_ENDIAN);
 		guint32 nanoseconds_previous = tvb_get_guint32(tvb, *tvb_offset_previous + 6, ENC_BIG_ENDIAN);
-		guint64 time_previous = ((guint64)seconds_previous << 32) | nanoseconds_previous;
-		guint64 time_now = ((guint64)seconds << 32) | nanoseconds;
+		guint64 time_previous = ((guint64)seconds_previous * 1000000000) + nanoseconds_previous;
+		guint64 time_now = ((guint64)seconds * 1000000000) + nanoseconds;
 		guint64 time_diff = 0;
 		gchar time_difference_sign[2] = {'\0', '\0'};
 		if (time_now > time_previous) {
