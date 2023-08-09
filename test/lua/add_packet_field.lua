@@ -521,39 +521,17 @@ function string_tests(tree)
     local string_test_cases = {
         {input = ABC_ascii, encoding = ENC_ASCII, output = "ABC"},
 
-        --INCOMPATIBILITY: tvbrange:string() preserves embedded nulls
-        {input = ABCzD_ascii, encoding = ENC_ASCII, output = "ABC",
-            incompatible_tvbrange = true, expect_tvbrange_value = "ABC\000D",
-        },
+        {input = ABCzD_ascii, encoding = ENC_ASCII, output = "ABC"},
 
-        --INCOMPATIBILITY: tvbrange:string() truncates the output
-        {input = SHARK_16_little, encoding = ENC_ASCII, output = "�0�0",
-            incompatible_tvbrange = true, expect_tvbrange_value = "�0",
-        },
+        {input = SHARK_16_little, encoding = ENC_ASCII, output = "�0�0"},
 
-        --INCOMPATIBILITY: tvbrange:string() truncates the output, producing invalid utf-8
-        {input = SHARK_16_little, encoding = ENC_UTF_16 + ENC_LITTLE_ENDIAN, output = "サメ",
-            incompatible_tvbrange = true, expect_tvbrange_value = "サ\227",
-            expect_tvbrange_value_printable = "サ�",
-        },
+        {input = SHARK_16_little, encoding = ENC_UTF_16 + ENC_LITTLE_ENDIAN, output = "サメ"},
 
-        --INCOMPATIBILITY: tvbrange:string() preserves embedded nulls and truncates, producing invalid utf-8
-        {input = SHARKzSA_16_little, encoding = ENC_UTF_16 + ENC_LITTLE_ENDIAN, output = "サメ",
-            incompatible_tvbrange = true, expect_tvbrange_value = "サメ\000\227",
-            expect_tvbrange_value_printable = "サメ\\000�",
-        },
+        {input = SHARKzSA_16_little, encoding = ENC_UTF_16 + ENC_LITTLE_ENDIAN, output = "サメ"},
 
-        --INCOMPATIBILITY: tvbrange:string() truncates the output, producing invalid utf-8
-        {input = SHARK_16_big, encoding = ENC_UTF_16 + ENC_BIG_ENDIAN, output = "サメ",
-            incompatible_tvbrange = true, expect_tvbrange_value = "サ\227",
-            expect_tvbrange_value_printable = "サ�",
-        },
+        {input = SHARK_16_big, encoding = ENC_UTF_16 + ENC_BIG_ENDIAN, output = "サメ"},
 
-        --INCOMPATIBILITY: tvbrange:string() preserves embedded nulls and truncates, producing invalid utf-8
-        {input = SHARKzSA_16_big, encoding = ENC_UTF_16 + ENC_BIG_ENDIAN, output = "サメ",
-            incompatible_tvbrange = true, expect_tvbrange_value = "サメ\000\227",
-            expect_tvbrange_value_printable = "サメ\\000�",
-        },
+        {input = SHARKzSA_16_big, encoding = ENC_UTF_16 + ENC_BIG_ENDIAN, output = "サメ"},
     }
 
     function tvbr_string(tvbr, encoding)
