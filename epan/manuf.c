@@ -214,18 +214,41 @@ ws_manuf_iter_next(ws_manuf_iter_t *iter, struct ws_manuf manuf[NUM_REGISTRIES])
     return ptr;
 }
 
+const char *
+ws_manuf_block_str(char *buf, size_t buf_size, const struct ws_manuf *ptr)
+{
+    if (ptr->mask == 24) {
+        snprintf(buf, buf_size, "%02"PRIX8":%02"PRIX8":%02"PRIX8,
+            ptr->addr[0], ptr->addr[1], ptr->addr[2]);
+    }
+    else if (ptr->mask == 28) {
+        snprintf(buf, buf_size, "%02"PRIX8":%02"PRIX8":%02"PRIX8":%02"PRIX8"/%"PRIu8,
+            ptr->addr[0], ptr->addr[1], ptr->addr[2], ptr->addr[3], ptr->mask);
+    }
+    else if (ptr->mask == 36) {
+        snprintf(buf, buf_size, "%02"PRIX8":%02"PRIX8":%02"PRIX8":%02"PRIX8":%02"PRIX8"/%"PRIu8,
+            ptr->addr[0], ptr->addr[1], ptr->addr[2], ptr->addr[3], ptr->addr[4], ptr->mask);
+    }
+    else {
+        ws_assert_not_reached();
+    }
+
+    return buf;
+}
+
 void
 ws_manuf_dump(FILE *fp)
 {
     ws_manuf_iter_t iter;
     struct ws_manuf manuf[3];
     struct ws_manuf *ptr;
+    char strbuf[64];
 
     ws_manuf_iter_init(&iter);
 
     while ((ptr = ws_manuf_iter_next(&iter, manuf))) {
-        fprintf(fp, "%02"PRIX8":%02"PRIX8":%02"PRIX8":%02"PRIX8":%02"PRIX8":%02"PRIX8"/%"PRIu8"\t%s\n",
-            ptr->addr[0], ptr->addr[1], ptr->addr[2], ptr->addr[3], ptr->addr[4], ptr->addr[5], ptr->mask,
+        fprintf(fp, "%-17s\t%s\n",
+            ws_manuf_block_str(strbuf, sizeof(strbuf), ptr),
             ptr->long_name);
     }
 }

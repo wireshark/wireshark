@@ -40,6 +40,10 @@ WS_DLL_PUBLIC
 struct ws_manuf *
 ws_manuf_iter_next(ws_manuf_iter_t *iter, struct ws_manuf manuf_ptr[3]);
 
+WS_DLL_PUBLIC
+const char *
+ws_manuf_block_str(char *buf, size_t buf_size, const struct ws_manuf *ptr);
+
 WS_DLL_PUBLIC void
 ws_manuf_dump(FILE *fp);
 
