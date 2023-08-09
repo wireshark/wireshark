@@ -21,25 +21,14 @@
 #include <epan/stat_tap_ui.h>
 
 #include <wsutil/cmdarg_err.h>
+#include "tap-protohierstat.h"
 
-static int pc_proto_id = -1;
+int pc_proto_id = -1;
 
 void register_tap_listener_protohierstat(void);
 
-typedef struct _phs_t {
-	struct _phs_t *sibling;
-	struct _phs_t *child;
-	struct _phs_t *parent;
-	char *filter;
-	int protocol;
-	const char *proto_name;
-	guint32 frames;
-	guint64 bytes;
-} phs_t;
-
-
-static phs_t *
-new_phs_t(phs_t *parent)
+phs_t *
+new_phs_t(phs_t *parent, const char *filter)
 {
 	phs_t *rs;
 	rs = g_new(phs_t, 1);
@@ -47,6 +36,9 @@ new_phs_t(phs_t *parent)
 	rs->child      = NULL;
 	rs->parent     = parent;
 	rs->filter     = NULL;
+	if (filter != NULL) {
+		rs->filter = g_strdup(filter);
+	}
 	rs->protocol   = -1;
 	rs->proto_name = NULL;
 	rs->frames     = 0;
@@ -54,8 +46,30 @@ new_phs_t(phs_t *parent)
 	return rs;
 }
 
+void
+free_phs(phs_t *rs)
+{
+	if (!rs) {
+		return;
+	}
+	if (rs->filter) {
+		g_free(rs->filter);
+		rs->filter = NULL;
+	}
+	if (rs->sibling)
+	{
+		free_phs(rs->sibling);
+		rs->sibling = NULL;
+	}
+	if (rs->child)
+	{
+		free_phs(rs->child);
+		rs->child = NULL;
+	}
+	g_free(rs);
+}
 
-static tap_packet_status
+tap_packet_status
 protohierstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const void *dummy _U_, tap_flags_t flags _U_)
 {
 	phs_t *rs = (phs_t *)prs;
@@ -76,13 +90,23 @@ protohierstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const v
 	for (node=edt->tree->first_child; node; node=node->next) {
 		fi = PNODE_FINFO(node);
 
+		/*
+		 * If the first child is a tree of comments, skip over it.
+		 * This keeps us from having a top-level "pkt_comment"
+		 * entry that represents a nonexistent protocol,
+		 * and matches how the GUI treats comments.
+		 */
+		if (G_UNLIKELY(fi->hfinfo->id == pc_proto_id)) {
+			continue;
+		}
+
 		/* first time we saw a protocol at this leaf */
 		if (rs->protocol == -1) {
 			rs->protocol = fi->hfinfo->id;
 			rs->proto_name = fi->hfinfo->abbrev;
 			rs->frames = 1;
 			rs->bytes = pinfo->fd->pkt_len;
-			rs->child = new_phs_t(rs);
+			rs->child = new_phs_t(rs, NULL);
 			rs = rs->child;
 			continue;
 		}
@@ -98,7 +122,7 @@ protohierstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const v
 		if (!tmprs) {
 			for (tmprs=rs; tmprs->sibling; tmprs=tmprs->sibling)
 				;
-			tmprs->sibling = new_phs_t(rs->parent);
+			tmprs->sibling = new_phs_t(rs->parent, NULL);
 			rs = tmprs->sibling;
 			rs->protocol = fi->hfinfo->id;
 			rs->proto_name = fi->hfinfo->abbrev;
@@ -110,7 +134,7 @@ protohierstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt, const v
 		rs->bytes += pinfo->fd->pkt_len;
 
 		if (!rs->child) {
-			rs->child = new_phs_t(rs);
+			rs->child = new_phs_t(rs, NULL);
 		}
 		rs = rs->child;
 	}
@@ -126,16 +150,6 @@ phs_draw(phs_t *rs, int indentation)
 	for (;rs;rs = rs->sibling) {
 		if (rs->protocol == -1) {
 			return;
-		}
-		/*
-		 * If the first child is a tree of comments, skip over it.
-		 * This keeps us from having a top-level "pkt_comment"
-		 * entry that represents a nonexistent protocol,
-		 * and matches how the GUI treats comments.
-		 */
-		if (G_UNLIKELY(rs->protocol == pc_proto_id)) {
-			phs_draw(rs->child, indentation);
-			continue;
 		}
 		str[0] = 0;
 		stroff = 0;
@@ -187,14 +201,12 @@ protohierstat_init(const char *opt_arg, void *userdata _U_)
 
 	pc_proto_id = proto_registrar_get_id_byname("pkt_comment");
 
-	rs = new_phs_t(NULL);
-	rs->filter = g_strdup(filter);
+	rs = new_phs_t(NULL, filter);
 
 	error_string = register_tap_listener("frame", rs, filter, TL_REQUIRES_PROTO_TREE, NULL, protohierstat_packet, protohierstat_draw, NULL);
 	if (error_string) {
 		/* error, we failed to attach to the tap. clean up */
-		g_free(rs->filter);
-		g_free(rs);
+		free_phs(rs);
 
 		cmdarg_err("Couldn't register io,phs tap: %s",
 			error_string->str);

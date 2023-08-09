@@ -56,6 +56,7 @@
 #include <ui/rtp_stream.h>
 #include <ui/tap-rtp-common.h>
 #include <ui/tap-rtp-analysis.h>
+#include <ui/cli/tap-protohierstat.h>
 #include <wsutil/version_info.h>
 #include <epan/to_str.h>
 
@@ -1029,6 +1030,11 @@ sharkd_session_process_info(void)
         json_dumper_begin_object(&dumper);
         sharkd_json_value_string("name", "RTP streams");
         sharkd_json_value_string("tap", "rtp-streams");
+        json_dumper_end_object(&dumper);
+
+        json_dumper_begin_object(&dumper);
+        sharkd_json_value_string("name", "Protocol Hierarchy Statistics");
+        sharkd_json_value_string("tap", "phs");
         json_dumper_end_object(&dumper);
 
         json_dumper_begin_object(&dumper);
@@ -2629,6 +2635,80 @@ sharkd_session_free_tap_srt_cb(void *arg)
     g_free(srt_data);
 }
 
+struct sharkd_phs_req
+{
+    const char *tap_name;
+    phs_t *rs;
+};
+
+static void
+sharkd_session_process_tap_phs_cb_aux(phs_t *rs)
+{
+    for (; rs; rs = rs->sibling) {
+        if (rs->protocol == -1) {
+            return;
+        }
+        sharkd_json_object_open(NULL);
+        sharkd_json_value_string("proto", rs->proto_name);
+        sharkd_json_value_anyf("frames", "%u", rs->frames);
+        sharkd_json_value_anyf("bytes", "%lu", rs->bytes);
+        if (rs->child != NULL && rs->child->protocol != -1) {
+            sharkd_json_array_open("protos");
+            sharkd_session_process_tap_phs_cb_aux(rs->child);
+            sharkd_json_array_close();
+        }
+        sharkd_json_object_close();
+    }
+}
+
+static tap_packet_status
+sharkd_session_packet_tap_phs_cb(void *pphs_req, packet_info *pinfo, epan_dissect_t *edt, const void *dummy, tap_flags_t flags)
+{
+    struct sharkd_phs_req *phs_req = (struct sharkd_phs_req *)pphs_req;
+    phs_t *rs = phs_req->rs;
+    return protohierstat_packet(rs, pinfo, edt, dummy, flags);
+}
+
+/**
+ * sharkd_session_process_tap_phs_cb()
+ *
+ * Output phs tap:
+ *   (m) tap        - tap name
+ *   (m) type       - tap output type
+ *   (m) filter     - tap filter argument
+ *   (m) protos     - array of proto objects
+ *
+ *   proto object:
+ *   (m) proto      - protocol name
+ *   (m) frames     - frame count
+ *   (m) bytes      - bytes count
+ *   (o) protos     - array of proto objects
+ */
+static void
+sharkd_session_process_tap_phs_cb(void *arg)
+{
+    struct sharkd_phs_req *phs_req = (struct sharkd_phs_req *)arg;
+    phs_t *rs = phs_req->rs;
+    sharkd_json_object_open(NULL);
+    sharkd_json_value_string("tap", phs_req->tap_name);
+    sharkd_json_value_string("type", "phs");
+    sharkd_json_value_string("filter", rs->filter ? rs->filter : "");
+    sharkd_json_array_open("protos");
+    sharkd_session_process_tap_phs_cb_aux(rs);
+    sharkd_json_array_close();
+    sharkd_json_object_close();
+}
+
+static void
+sharkd_session_free_tap_phs_cb(void *arg)
+{
+    struct sharkd_phs_req *phs_req = (struct sharkd_phs_req *)arg;
+    phs_t *rs = phs_req->rs;
+    free_phs(rs);
+    g_free(phs_req);
+
+}
+
 struct sharkd_export_object_list
 {
     struct sharkd_export_object_list *next;
@@ -3246,6 +3326,26 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
             tap_error = register_tap_listener("udp", mcaststream_tapinfo, tap_filter, 0, NULL, mcaststream_packet, sharkd_session_process_tap_multicast_cb, NULL);
             tap_data = mcaststream_tapinfo;
             tap_free = sharkd_session_process_free_tap_multicast_cb;
+        }
+        else if (!strncmp(tok_tap, "phs", 3))
+        {
+            phs_t *rs;
+
+            pc_proto_id = proto_registrar_get_id_byname("pkt_comment");
+
+            rs = new_phs_t(NULL, tap_filter);
+
+            struct sharkd_phs_req *phs_req;
+            phs_req = (struct sharkd_phs_req *)g_malloc0(sizeof(*phs_req));
+            phs_req->tap_name = tok_tap;
+            phs_req->rs = rs;
+
+            tap_error = register_tap_listener("frame", phs_req, tap_filter, TL_REQUIRES_PROTO_TREE, NULL,
+                                              sharkd_session_packet_tap_phs_cb,
+                                              sharkd_session_process_tap_phs_cb, NULL);
+
+            tap_data = phs_req;
+            tap_free = sharkd_session_free_tap_phs_cb;
         }
         else
         {
