@@ -32991,6 +32991,7 @@ proto_reg_handoff_f1ap(void)
   dissector_add_uint("f1ap.ies", id_new_gNB_CU_UE_F1AP_ID, create_dissector_handle(dissect_GNB_CU_UE_F1AP_ID_PDU, proto_f1ap));
   dissector_add_uint("f1ap.ies", id_RedirectedRRCmessage, create_dissector_handle(dissect_RedirectedRRCmessage_PDU, proto_f1ap));
   dissector_add_uint("f1ap.ies", id_new_gNB_DU_UE_F1AP_ID, create_dissector_handle(dissect_GNB_DU_UE_F1AP_ID_PDU, proto_f1ap));
+  dissector_add_uint("f1ap.ies", id_NotificationInformation, create_dissector_handle(dissect_NotificationInformation_PDU, proto_f1ap));
   dissector_add_uint("f1ap.ies", id_PLMNAssistanceInfoForNetShar, create_dissector_handle(dissect_PLMN_Identity_PDU, proto_f1ap));
   dissector_add_uint("f1ap.ies", id_UEContextNotRetrievable, create_dissector_handle(dissect_UEContextNotRetrievable_PDU, proto_f1ap));
   dissector_add_uint("f1ap.ies", id_SelectedPLMNID, create_dissector_handle(dissect_PLMN_Identity_PDU, proto_f1ap));
@@ -33178,7 +33179,6 @@ proto_reg_handoff_f1ap(void)
   dissector_add_uint("f1ap.extension", id_RequestedP_MaxFR2, create_dissector_handle(dissect_RequestedP_MaxFR2_PDU, proto_f1ap));
   dissector_add_uint("f1ap.extension", id_DRX_Config, create_dissector_handle(dissect_DRX_Config_PDU, proto_f1ap));
   dissector_add_uint("f1ap.extension", id_UEAssistanceInformation, create_dissector_handle(dissect_UEAssistanceInformation_PDU, proto_f1ap));
-  dissector_add_uint("f1ap.extension", id_NotificationInformation, create_dissector_handle(dissect_NotificationInformation_PDU, proto_f1ap));
   dissector_add_uint("f1ap.extension", id_BPLMN_ID_Info_List, create_dissector_handle(dissect_BPLMN_ID_Info_List_PDU, proto_f1ap));
   dissector_add_uint("f1ap.extension", id_TNLAssociationTransportLayerAddressgNBDU, create_dissector_handle(dissect_CP_TransportLayerAddress_PDU, proto_f1ap));
   dissector_add_uint("f1ap.extension", id_portNumber, create_dissector_handle(dissect_PortNumber_PDU, proto_f1ap));

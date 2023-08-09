@@ -778,6 +778,7 @@ PagingOrigin                                      N f1ap.ies id-PagingOrigin
 GNB-CU-UE-F1AP-ID                                 N f1ap.ies id-new-gNB-CU-UE-F1AP-ID
 RedirectedRRCmessage                              N f1ap.ies id-RedirectedRRCmessage
 GNB-DU-UE-F1AP-ID                                 N f1ap.ies id-new-gNB-DU-UE-F1AP-ID
+NotificationInformation                           N f1ap.ies id-NotificationInformation
 PLMN-Identity                                     N f1ap.ies id-PLMNAssistanceInfoForNetShar
 UEContextNotRetrievable                           N f1ap.ies id-UEContextNotRetrievable
 PLMN-Identity                                     N f1ap.ies id-SelectedPLMNID
@@ -967,7 +968,6 @@ RequestedFeatureSetEntryIndex                     N f1ap.extension id-RequestedF
 RequestedP-MaxFR2                                 N f1ap.extension id-RequestedP-MaxFR2
 DRX-Config                                        N f1ap.extension id-DRX-Config
 UEAssistanceInformation                           N f1ap.extension id-UEAssistanceInformation
-NotificationInformation                           N f1ap.extension id-NotificationInformation
 BPLMN-ID-Info-List                                N f1ap.extension id-BPLMN-ID-Info-List
 CP-TransportLayerAddress                          N f1ap.extension id-TNLAssociationTransportLayerAddressgNBDU
 PortNumber                                        N f1ap.extension id-portNumber
