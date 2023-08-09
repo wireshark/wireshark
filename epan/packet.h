@@ -713,16 +713,17 @@ WS_DLL_PUBLIC void set_actual_length(tvbuff_t *tvb, const guint specified_len);
 WS_DLL_PUBLIC void register_init_routine(void (*func)(void));
 
 /**
- * Allows protocols to register "cleanup" routines which are called
+ * Allows protocols to register "cleanup" routines, which are called
  * after closing a capture file (or when preferences are changed, in
  * that case these routines are called before the init routines are
  * executed). It can be used to release resources that are allocated in
- * register_init_routine.
+ * an "init" routine.
  */
 WS_DLL_PUBLIC void register_cleanup_routine(void (*func)(void));
 
 /*
- * Register a shutdown routine to call once just before program exit
+ * Allows protocols to register "shutdown" routines, which are called
+ * once, just before program exit
  */
 WS_DLL_PUBLIC void register_shutdown_routine(void (*func)(void));
 

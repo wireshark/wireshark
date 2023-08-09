@@ -236,8 +236,32 @@ packet_cache_proto_handles(void)
 /* List of routines that are called before we make a pass through a capture file
  * and dissect all its packets. See register_init_routine, register_cleanup_routine
  * and register_shutdown_routine in packet.h */
+/**
+ * List of "init" routines, which are called before we make a pass through
+ * a capture file and dissect all its packets (e.g., when we read in a
+ * new capture file, or run a "filter packets" or "colorize packets"
+ * pass over the current capture file or when the preferences are changed).
+ *
+ * See register_init_routine().
+ */
 static GSList *init_routines = NULL;
+
+/**
+ * List of "cleanup" routines, which are called after closing a capture
+ * file (or when preferences are changed; in that case these routines
+ * are called before the init routines are executed). They can be used
+ * to release resources that are allocated in an "init" routine.
+ *
+ * See register_cleanup_routine().
+ */
 static GSList *cleanup_routines = NULL;
+
+/*
+ * List of "shutdown" routines, which are called once, just before
+ * program exit.
+ *
+ * See register_shutdown_routine().
+ */
 static GSList *shutdown_routines = NULL;
 
 typedef void (*void_func_t)(void);
