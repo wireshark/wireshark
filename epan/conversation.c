@@ -662,7 +662,7 @@ conversation_t *conversation_new_full(const guint32 setup_frame, conversation_el
     if (!el_list_map) {
         el_list_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), conversation_hash_element_list,
                 conversation_match_element_list);
-        wmem_map_insert(conversation_hashtable_element_list, wmem_strdup(wmem_file_scope(), el_list_map_key), el_list_map);
+        wmem_map_insert(conversation_hashtable_element_list, wmem_strdup(wmem_epan_scope(), el_list_map_key), el_list_map);
     }
 
     size_t element_count = conversation_element_count(elements);
