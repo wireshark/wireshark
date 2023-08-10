@@ -99,7 +99,7 @@ static gboolean hsfz_show_uds_in_ack = FALSE;
 static udf_one_id_string_t *udf_diag_addr = NULL;
 static guint udf_diag_addr_num = 0;
 
-void *
+static void *
 udf_copy_one_id_string_cb(void* n, const void* o, size_t size _U_) {
     udf_one_id_string_t *new_rec = (udf_one_id_string_t*)n;
     const udf_one_id_string_t *old_rec = (const udf_one_id_string_t*)o;
@@ -114,13 +114,13 @@ udf_copy_one_id_string_cb(void* n, const void* o, size_t size _U_) {
     return new_rec;
 }
 
-void
+static void
 udf_free_one_id_string_cb(void *r)   {
     udf_one_id_string_t *rec = (udf_one_id_string_t*)r;
     if (rec->name) g_free(rec->name);
 }
 
-void
+static void
 udf_free_one_id_string_data(gpointer data _U_)  {
     /* nothing to free here since we did not malloc data in udf_post_update_one_id_string_template_cb */
 }
@@ -146,12 +146,12 @@ udf_update_diag_addr_cb(void *r, char **err) {
 UAT_HEX_CB_DEF(udf_diag_addr, id, udf_one_id_string_t)
 UAT_CSTRING_CB_DEF(udf_diag_addr, name, udf_one_id_string_t)
 
-void
+static void
 udf_free_key(gpointer key) {
     wmem_free(wmem_epan_scope(), key);
 }
 
-void
+static void
 udf_post_update_one_id_string_template_cb(udf_one_id_string_t *udf_data, guint udf_data_num, GHashTable *ht) {
     guint i;
     int *key = NULL;
