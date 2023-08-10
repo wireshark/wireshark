@@ -171,7 +171,7 @@ static const value_string h224_fecc_message_type[] =
                 { FECC_MSG_ACTIVATE_PRESET_REQ, "ACTIVATE PRESET Request" },
                 { 0, NULL },
         };
-        
+
 static const true_false_string tfs_right_left = { "Right", "Left" };
 static const true_false_string tfs_in_out = { "In", "Out" };
 
