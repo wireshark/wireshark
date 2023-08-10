@@ -2903,6 +2903,7 @@ proto_reg_handoff_tecmp(void) {
     lin_subdissector_table = find_dissector_table("lin.frame_id");
 
     text_lines_handle = find_dissector_add_dependency("data-text-lines", proto_tecmp);
+    asam_cmp_handle = find_dissector("asam-cmp");
 }
 
 /*
