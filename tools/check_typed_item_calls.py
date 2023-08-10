@@ -158,7 +158,22 @@ class APICheck:
                                                length=length,
                                                fields=fields))
 
+    # Return true if bit position n is set in value.
+    def check_bit(self, value, n):
+        return (value & (0x1 << n)) != 0
 
+    def does_mask_cover_value(self, mask, value):
+        # Walk past any l.s. 0 bits in value
+        n = 0
+
+        mask_start = n
+        # Walk through any bits that are set and check they are in mask
+        while self.check_bit(value, n) and n <= 63:
+            if not self.check_bit(mask, n):
+                return False
+            n += 1
+
+        return True
 
     def check_against_items(self, items_defined, items_declared, items_declared_extern, check_missing_items=False,
                             field_arrays=None):
@@ -204,10 +219,12 @@ class APICheck:
                     if (items_defined[call.hf_name].mask_value and
                         field_arrays[call.fields][1] != 0 and items_defined[call.hf_name].mask_value != field_arrays[call.fields][1]):
                         # TODO: only really a problem if bit is set in array but not in top-level item?
-                        print('Warning:', self.file, call.hf_name, call.fields, "masks don't match. root=",
-                              items_defined[call.hf_name].mask,
-                              "array has", hex(field_arrays[call.fields][1]))
-                        warnings_found += 1
+                        if not self.does_mask_cover_value(items_defined[call.hf_name].mask_value,
+                                                          field_arrays[call.fields][1]):
+                            print('Warning:', self.file, call.hf_name, call.fields, "masks don't match. root=",
+                                items_defined[call.hf_name].mask,
+                                "array has", hex(field_arrays[call.fields][1]))
+                            warnings_found += 1
 
             if check_missing_items:
                 if call.hf_name in items_declared and not call.hf_name in items_declared_extern:
@@ -588,7 +605,7 @@ class Item:
         if not self.mask_value:
             return
 
-        # Do see non-contiguous bits often for these..
+        # Do see legitimate non-contiguous bits often for these..
         if name_has_one_of(self.hf, ['reserved', 'unknown', 'unused', 'spare']):
             return
         if name_has_one_of(self.label, ['reserved', 'unknown', 'unused', 'spare']):

@@ -1345,7 +1345,7 @@ proto_register_ipx(void)
 	static hf_register_info hf_spx[] = {
 		{ &hf_spx_connection_control,
 		{ "Connection Control",	"spx.ctl",
-		  FT_UINT8,	BASE_HEX,	VALS(conn_vals),	0xF0,
+		  FT_UINT8,	BASE_HEX,	VALS(conn_vals),	0x0,
 		  NULL, HFILL }},
 
 		{ &hf_spx_connection_control_sys,
