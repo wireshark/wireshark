@@ -3543,7 +3543,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             if (size < 1) {
                 break;
             }
-            wmem_strbuf_append_printf(info_buf, "%s ", wmem_strbuf_get_str(substr));
+            wmem_strbuf_append_printf(info_buf, "%s ", wmem_strbuf_finalize(substr));
             offset += size ;
             bytes_to_go -= size;
         }
