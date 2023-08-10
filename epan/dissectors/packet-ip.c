@@ -350,6 +350,7 @@ const value_string ip_version_vals[] = {
 #define IPDSFIELD_DSCP_AF42     0x24
 #define IPDSFIELD_DSCP_AF43     0x26
 #define IPDSFIELD_DSCP_CS5      0x28
+#define IPDSFIELD_VOICE_ADMIT   0x2C
 #define IPDSFIELD_DSCP_EF       0x2E
 #define IPDSFIELD_DSCP_CS6      0x30
 #define IPDSFIELD_DSCP_CS7      0x38
@@ -1733,6 +1734,7 @@ static const value_string dscp_short_vals[] = {
   { IPDSFIELD_DSCP_AF42,    "AF42"   },
   { IPDSFIELD_DSCP_AF43,    "AF43"   },
   { IPDSFIELD_DSCP_CS5,     "CS5"    },
+  { IPDSFIELD_VOICE_ADMIT,  "VOICE-ADMIT" },
   { IPDSFIELD_DSCP_EF,      "EF PHB" },
   { IPDSFIELD_DSCP_CS6,     "CS6"    },
   { IPDSFIELD_DSCP_CS7,     "CS7"    },
@@ -1760,6 +1762,7 @@ static const value_string dscp_vals[] = {
   { IPDSFIELD_DSCP_AF42,    "Assured Forwarding 42" },
   { IPDSFIELD_DSCP_AF43,    "Assured Forwarding 43" },
   { IPDSFIELD_DSCP_CS5,     "Class Selector 5"      },
+  { IPDSFIELD_VOICE_ADMIT,  "Voice Admit"           },
   { IPDSFIELD_DSCP_EF,      "Expedited Forwarding"  },
   { IPDSFIELD_DSCP_CS6,     "Class Selector 6"      },
   { IPDSFIELD_DSCP_CS7,     "Class Selector 7"      },
