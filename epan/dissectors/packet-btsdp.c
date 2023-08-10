@@ -1925,13 +1925,11 @@ dissect_data_element(proto_tree *tree, proto_tree **next_tree,
         offset += len - length;
     }
 
-    pitem = proto_tree_add_item(ptree, hf_data_element_value, tvb, offset,  0, ENC_NA);
+    pitem = proto_tree_add_item(ptree, hf_data_element_value, tvb, offset, length, ENC_NA);
     if (length > tvb_reported_length_remaining(tvb, offset)) {
         expert_add_info(pinfo, pitem, &ei_data_element_value_large);
-        length = 0;
-    }
-    proto_item_set_len(pitem, length);
-    if (length == 0)
+        proto_item_append_text(pitem, ": MISSING");
+    } else if (length == 0)
         proto_item_append_text(pitem, ": MISSING");
 
     if (next_tree) *next_tree = proto_item_add_subtree(pitem, ett_btsdp_data_element_value);
@@ -3525,6 +3523,8 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         gint           bytes_to_go = size;
         gint           first       = 1;
         wmem_strbuf_t *substr;
+        tvbuff_t      *next_tvb = tvb_new_subset_length(tvb, offset, size);
+        gint           next_offset = 0;
 
         ti = proto_tree_add_item(next_tree, (type == 6) ? hf_data_element_value_sequence : hf_data_element_value_alternative,
                 tvb, offset, size, ENC_NA);
@@ -3539,14 +3539,15 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                 first = 0;
             }
 
-            size = dissect_sdp_type(st, pinfo, tvb, offset, attribute, service_uuid,
+            size = dissect_sdp_type(st, pinfo, next_tvb, next_offset,
+                    attribute, service_uuid,
                     service_did_vendor_id, service_did_vendor_id_source,
                     service_hdp_data_exchange_specification, service_info, &substr);
             if (size < 1) {
                 break;
             }
             wmem_strbuf_append_printf(info_buf, "%s ", wmem_strbuf_finalize(substr));
-            offset += size ;
+            next_offset += size;
             bytes_to_go -= size;
         }
 
