@@ -97,6 +97,9 @@ wmem_block_fast_alloc(void *private_data, const size_t size)
                 size + WMEM_JUMBO_HEADER_SIZE + WMEM_CHUNK_HEADER_SIZE);
 
         block->next = allocator->jumbo_list;
+        if (block->next) {
+            block->next->prev = block;
+        }
         block->prev = NULL;
         allocator->jumbo_list = block;
 
