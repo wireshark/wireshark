@@ -494,6 +494,7 @@ void LograyMainWindow::captureCaptureUpdateStarted(capture_session *session) {
     /* We've done this in "prepared" above, but it will be cleared while
        switching to the next multiple file. */
     setTitlebarForCaptureInProgress();
+    setWindowIcon(mainApp->captureIcon());
 
     bool handle_toolbars = (session->session_will_restart ? false : true);
     setForCaptureInProgress(true, handle_toolbars, session->capture_opts->ifaces);
