@@ -2635,12 +2635,6 @@ sharkd_session_free_tap_srt_cb(void *arg)
     g_free(srt_data);
 }
 
-struct sharkd_phs_req
-{
-    const char *tap_name;
-    phs_t *rs;
-};
-
 static void
 sharkd_session_process_tap_phs_cb_aux(phs_t *rs)
 {
@@ -2661,14 +2655,6 @@ sharkd_session_process_tap_phs_cb_aux(phs_t *rs)
     }
 }
 
-static tap_packet_status
-sharkd_session_packet_tap_phs_cb(void *pphs_req, packet_info *pinfo, epan_dissect_t *edt, const void *dummy, tap_flags_t flags)
-{
-    struct sharkd_phs_req *phs_req = (struct sharkd_phs_req *)pphs_req;
-    phs_t *rs = phs_req->rs;
-    return protohierstat_packet(rs, pinfo, edt, dummy, flags);
-}
-
 /**
  * sharkd_session_process_tap_phs_cb()
  *
@@ -2687,10 +2673,9 @@ sharkd_session_packet_tap_phs_cb(void *pphs_req, packet_info *pinfo, epan_dissec
 static void
 sharkd_session_process_tap_phs_cb(void *arg)
 {
-    struct sharkd_phs_req *phs_req = (struct sharkd_phs_req *)arg;
-    phs_t *rs = phs_req->rs;
+    phs_t *rs = (phs_t *)arg;
     sharkd_json_object_open(NULL);
-    sharkd_json_value_string("tap", phs_req->tap_name);
+    sharkd_json_value_string("tap", "phs");
     sharkd_json_value_string("type", "phs");
     sharkd_json_value_string("filter", rs->filter ? rs->filter : "");
     sharkd_json_array_open("protos");
@@ -2702,11 +2687,8 @@ sharkd_session_process_tap_phs_cb(void *arg)
 static void
 sharkd_session_free_tap_phs_cb(void *arg)
 {
-    struct sharkd_phs_req *phs_req = (struct sharkd_phs_req *)arg;
-    phs_t *rs = phs_req->rs;
+    phs_t *rs = (phs_t *)arg;
     free_phs(rs);
-    g_free(phs_req);
-
 }
 
 struct sharkd_export_object_list
@@ -3327,7 +3309,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
             tap_data = mcaststream_tapinfo;
             tap_free = sharkd_session_process_free_tap_multicast_cb;
         }
-        else if (!strncmp(tok_tap, "phs", 3))
+        else if (!strcmp(tok_tap, "phs"))
         {
             phs_t *rs;
 
@@ -3335,16 +3317,11 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 
             rs = new_phs_t(NULL, tap_filter);
 
-            struct sharkd_phs_req *phs_req;
-            phs_req = (struct sharkd_phs_req *)g_malloc0(sizeof(*phs_req));
-            phs_req->tap_name = tok_tap;
-            phs_req->rs = rs;
-
-            tap_error = register_tap_listener("frame", phs_req, tap_filter, TL_REQUIRES_PROTO_TREE, NULL,
-                                              sharkd_session_packet_tap_phs_cb,
+            tap_error = register_tap_listener("frame", rs, tap_filter, TL_REQUIRES_PROTO_TREE, NULL,
+                                              protohierstat_packet,
                                               sharkd_session_process_tap_phs_cb, NULL);
 
-            tap_data = phs_req;
+            tap_data = rs;
             tap_free = sharkd_session_free_tap_phs_cb;
         }
         else
