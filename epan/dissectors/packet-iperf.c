@@ -425,7 +425,7 @@ dissect_iperf2_isoch_payload_header(tvbuff_t *tvb, proto_tree *tree, guint32 off
     proto_tree_add_item_ret_uint(isoch_tree, hf_iperf2_isoch_start_ts_us, tvb, offset, 4, ENC_BIG_ENDIAN, &isoch_ts_usec);
     offset += 4;
     isoch_timestamp.secs  = (time_t)isoch_ts_sec;
-    isoch_timestamp.nsecs = (int)isoch_ts_usec * 1000.0;
+    isoch_timestamp.nsecs = (int)isoch_ts_usec * 1000;
     ti = proto_tree_add_time(isoch_tree, hf_iperf2_isoch_start_ts, tvb, offset - 8, 8, &isoch_timestamp);
     proto_item_set_generated(ti);
     proto_tree_add_item(isoch_tree, hf_iperf2_isoch_prev_frameid, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -460,7 +460,7 @@ dissect_iperf2_fq_start_time_header(tvbuff_t *tvb, proto_tree *tree, guint32 off
     proto_tree_add_item_ret_uint(fq_tree, hf_iperf2_start_tv_usec, tvb, offset, 4, ENC_BIG_ENDIAN, &fq_ts_usec);
     offset += 4;
     fq_timestamp.secs  = (time_t)fq_ts_sec;
-    fq_timestamp.nsecs = (int)fq_ts_usec * 1000.0;
+    fq_timestamp.nsecs = (int)fq_ts_usec * 1000;
     ti = proto_tree_add_time(fq_tree, hf_iperf2_start_tv, tvb, offset - 8, 8, &fq_timestamp);
     proto_item_set_generated(ti);
     proto_tree_add_item(fq_tree, hf_iperf2_fq_ratel, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -516,7 +516,7 @@ dissect_iperf2_bounceback_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     proto_tree_add_item_ret_uint(bb_tree_clienttx_ts, hf_iperf2_bb_clienttx_ts_usec, tvb, offset, 4, ENC_BIG_ENDIAN, &ts_usec);
     offset += 4;
     clienttx_ts.secs  = (time_t)ts_sec;
-    clienttx_ts.nsecs = (int)ts_usec * 1000.0;
+    clienttx_ts.nsecs = (int)ts_usec * 1000;
     ti = proto_tree_add_time(bb_tree_clienttx_ts, hf_iperf2_bb_clienttx_ts, tvb, offset - 8, 8, &clienttx_ts);
     proto_item_set_generated(ti);
 
@@ -526,7 +526,7 @@ dissect_iperf2_bounceback_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     proto_tree_add_item_ret_uint(bb_tree_serverrx_ts, hf_iperf2_bb_serverrx_ts_usec, tvb, offset, 4, ENC_BIG_ENDIAN, &ts_usec);
     offset += 4;
     serverrx_ts.secs  = (time_t)ts_sec;
-    serverrx_ts.nsecs = (int)ts_usec * 1000.0;
+    serverrx_ts.nsecs = (int)ts_usec * 1000;
     ti = proto_tree_add_time(bb_tree_serverrx_ts, hf_iperf2_bb_serverrx_ts, tvb, offset - 8, 8, &serverrx_ts);
     proto_item_set_generated(ti);
 
@@ -536,7 +536,7 @@ dissect_iperf2_bounceback_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     proto_tree_add_item_ret_uint(bb_tree_servertx_ts, hf_iperf2_bb_servertx_ts_usec, tvb, offset, 4, ENC_BIG_ENDIAN, &ts_usec);
     offset += 4;
     servertx_ts.secs  = (time_t)ts_sec;
-    servertx_ts.nsecs = (int)ts_usec * 1000.0;
+    servertx_ts.nsecs = (int)ts_usec * 1000;
     ti = proto_tree_add_time(bb_tree_servertx_ts, hf_iperf2_bb_servertx_ts, tvb, offset - 8, 8, &servertx_ts);
     proto_item_set_generated(ti);
 
@@ -551,7 +551,7 @@ dissect_iperf2_bounceback_header(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     proto_tree_add_item_ret_uint(bb_tree_read_ts, hf_iperf2_bb_read_ts_usec, tvb, offset, 4, ENC_BIG_ENDIAN, &ts_usec);
     offset += 4;
     read_ts.secs  = (time_t)ts_sec;
-    read_ts.nsecs = (int)ts_usec * 1000.0;
+    read_ts.nsecs = (int)ts_usec * 1000;
     ti = proto_tree_add_time(bb_tree_read_ts, hf_iperf2_bb_read_ts, tvb, offset - 8, 8, &read_ts);
     proto_item_set_generated(ti);
 
@@ -684,7 +684,7 @@ dissect_iperf2_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * d
     offset += 4;
     nstime_t timestamp;
     timestamp.secs  = (time_t)ts_sec;
-    timestamp.nsecs = (int)ts_usec * 1000.0;
+    timestamp.nsecs = (int)ts_usec * 1000;
     ti = proto_tree_add_time(udp_tree, hf_iperf2_timestamp, tvb, offset - 8, 8, &timestamp);
     proto_item_set_generated(ti);
     proto_tree_add_item(udp_tree, hf_iperf2_sequence_upper, tvb, offset, 4, ENC_BIG_ENDIAN);
