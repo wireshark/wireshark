@@ -407,9 +407,27 @@ static int dissect_idn_message_acknowledgement(tvbuff_t *tvb, int offset, proto_
 static configuration_info *get_configuration_info(packet_info *pinfo, int channel_id) {
 	configuration_info *config = NULL;
 
-	conversation_t *conv = find_conversation(pinfo->fd->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport, pinfo->destport, channel_id);
-	if(conv)
-		config = (configuration_info *)conversation_get_proto_data(conv, proto_idn);
+	conversation_element_t *conv_key = wmem_alloc_array(pinfo->pool, conversation_element_t, 6);
+	conv_key[0].type = CE_ADDRESS;
+	conv_key[0].addr_val = pinfo->src;
+	conv_key[1].type = CE_PORT;
+	conv_key[1].port_val = pinfo->srcport;
+	conv_key[2].type = CE_ADDRESS;
+	conv_key[2].addr_val = pinfo->dst;
+	conv_key[3].type = CE_PORT;
+	conv_key[3].port_val = pinfo->destport;
+	conv_key[4].type = CE_UINT;
+	conv_key[4].uint_val = channel_id;
+	conv_key[5].type = CE_CONVERSATION_TYPE;
+	conv_key[5].conversation_type_val = CONVERSATION_IDN;
+
+	conversation_t *conv = find_conversation_full(pinfo->num, conv_key);
+	if(conv) {
+		wmem_tree_t *config_tree = (wmem_tree_t*)conversation_get_proto_data(conv, proto_idn);
+		if (config_tree) {
+			config = (configuration_info *)wmem_tree_lookup32_le(config_tree, pinfo->num);
+		}
+	}
 	if(!config)
 		col_append_str(pinfo->cinfo, COL_INFO, ", no valid Configuration");
 	return config;
@@ -849,7 +867,7 @@ static int dissect_idn_laser_dictionary(tvbuff_t *tvb, int offset, proto_tree *i
 	return offset;
 }
 
-static int dissect_idn_channel_configuration_header(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *idn_tree, int channel_id, configuration_info *config) {
+static int dissect_idn_channel_configuration_header(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *idn_tree, int channel_id, configuration_info **config_p) {
 	conversation_t *conv;
 	guint8 word_count;
 	guint8 sdm;
@@ -875,23 +893,64 @@ static int dissect_idn_channel_configuration_header(tvbuff_t *tvb, packet_info *
 	proto_tree_add_item(configuration_header_tree, idn_service_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	config->word_count = word_count;
-	config->sdm = sdm;
-	config->sample_size = 0;
-	config->dic_precision = wmem_alloc0_array(wmem_file_scope(), char, (255*2)+1);
-	config->sample_column_string = wmem_alloc0_array(wmem_file_scope(), char, MAX_BUFFER);
-	config->count = wmem_alloc0_array(wmem_file_scope(), int, word_count+1);
-	config->base = wmem_alloc0_array(wmem_file_scope(), int, word_count+1);
 
-	conv = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst, conversation_pt_to_conversation_type(pinfo->ptype), pinfo->srcport, pinfo->destport, channel_id);
-	conversation_add_proto_data(conv, proto_idn, config);
+	conversation_element_t *conv_key = wmem_alloc_array(pinfo->pool, conversation_element_t, 6);
+	conv_key[0].type = CE_ADDRESS;
+	conv_key[0].addr_val = pinfo->src;
+	conv_key[1].type = CE_PORT;
+	conv_key[1].port_val = pinfo->srcport;
+	conv_key[2].type = CE_ADDRESS;
+	conv_key[2].addr_val = pinfo->dst;
+	conv_key[3].type = CE_PORT;
+	conv_key[3].port_val = pinfo->destport;
+	conv_key[4].type = CE_UINT;
+	conv_key[4].uint_val = channel_id;
+	conv_key[5].type = CE_CONVERSATION_TYPE;
+	conv_key[5].conversation_type_val = CONVERSATION_IDN;
+
+	configuration_info *config;
+	conv = find_conversation_full(pinfo->num, conv_key);
+	if (!(conv && conv->setup_frame == pinfo->num)) {
+		conv = conversation_new_full(pinfo->num, conv_key);
+	}
+	wmem_tree_t *config_tree = (wmem_tree_t*)conversation_get_proto_data(conv, proto_idn);
+	if (!config_tree) {
+		config_tree = wmem_tree_new(wmem_file_scope());
+		conversation_add_proto_data(conv, proto_idn, config_tree);
+	}
+	/* XXX: It wastes some memory to allocate a new configuration if it
+	 * hasn't changed since the last time it was sent, so we could use
+	 * lookup32_le and see if it's the same as the previous, but that
+	 * requires doing so after parsing the rest of the configuration.
+	 */
+	config = (configuration_info *)wmem_tree_lookup32(config_tree, pinfo->num);
+	if (config) {
+		/* sample size increments as we parse the dictionary, so reset.
+		* The other values shouldn't change, though we'll waste time
+		* overwriting the array with the same values.
+		*/
+		config->sample_size = 0;
+	} else {
+		config = wmem_new0(wmem_file_scope(), configuration_info);
+		config->word_count = word_count;
+		config->sdm = sdm;
+		config->sample_size = 0;
+		config->dic_precision = wmem_alloc0_array(wmem_file_scope(), char, (255*2)+1);
+		config->sample_column_string = wmem_alloc0_array(wmem_file_scope(), char, MAX_BUFFER);
+		config->count = wmem_alloc0_array(wmem_file_scope(), int, word_count+1);
+		config->base = wmem_alloc0_array(wmem_file_scope(), int, word_count+1);
+		wmem_tree_insert32(config_tree, pinfo->num, config);
+	}
+
+	*config_p = config;
 
 	return offset;
 }
 
-static int dissect_idn_channel_configuration(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *idn_tree, message_info *minfo, configuration_info *config) {
-	offset = dissect_idn_channel_configuration_header(tvb, pinfo, offset, idn_tree, minfo->channel_id, config);
+static int dissect_idn_channel_configuration(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *idn_tree, message_info *minfo, configuration_info **config_p) {
+	offset = dissect_idn_channel_configuration_header(tvb, pinfo, offset, idn_tree, minfo->channel_id, config_p);
 
+	configuration_info *config = *config_p;
 	if(config->word_count > 0) {
 		if(minfo->chunk_type == IDNCT_OCTET_SEGMENT) {
 			return offset;
@@ -937,7 +996,7 @@ static int dissect_idn_message_header(tvbuff_t *tvb, int offset, proto_tree *idn
 static int dissect_idn_message(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *idn_tree) {
 	int scm;
 	configuration_info *config = NULL;
-	message_info *minfo = wmem_new(wmem_file_scope(), message_info);
+	message_info *minfo = wmem_new(pinfo->pool, message_info);
 
 	offset = dissect_idn_message_header(tvb, offset, idn_tree, minfo);
 	determine_message_type(pinfo, minfo);
@@ -945,8 +1004,7 @@ static int dissect_idn_message(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		return offset;
 
 	if(minfo->has_config_header && minfo->chunk_type != IDNCT_LP_FRAME_SF) {
-		config = wmem_new0(wmem_file_scope(), configuration_info);
-		offset = dissect_idn_channel_configuration(tvb, pinfo, offset, idn_tree, minfo, config);
+		offset = dissect_idn_channel_configuration(tvb, pinfo, offset, idn_tree, minfo, &config);
 	}else if(minfo->chunk_type != IDNCT_VOID) {
 		config = get_configuration_info(pinfo, minfo->channel_id);
 	}

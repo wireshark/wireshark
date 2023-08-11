@@ -55,6 +55,10 @@ extern "C" {
 #define USE_LAST_ENDPOINT 0x08		/**< Use last endpoint created, regardless of type */
 
 /* Types of conversations Wireshark knows about. */
+/* XXX: There should be a way to register conversation types used only
+ * within one dissector, similar to address types, instead of changing
+ * the global typedef.
+ */
 typedef enum {
     CONVERSATION_NONE,		/* no conversation key */
     CONVERSATION_SCTP,		/* SCTP */
@@ -88,6 +92,13 @@ typedef enum {
     CONVERSATION_IWARP_MPA,	/* iWarp MPA */
     CONVERSATION_BT_UTP,	/* BitTorrent uTP Connection ID */
     CONVERSATION_LOG,		/* Logging source */
+    CONVERSATION_LTP,		/* LTP Engine ID and Session Number */
+    CONVERSATION_MCTP,
+    CONVERSATION_NVME_MI,       /* NVMe management interface */
+    CONVERSATION_BP,		/* Bundle Protocol endpoint IDs */
+    CONVERSATION_SNMP,		/* SNMP */
+    CONVERSATION_QUIC,		/* QUIC */
+    CONVERSATION_IDN,
 } conversation_type;
 
 /*
