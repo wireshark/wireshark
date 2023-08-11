@@ -74,8 +74,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  decrypt_xtea_le_ecb@Base 2.5.0
  delete_persconffile_profile@Base 1.12.0~rc1
  deregister_codec@Base 3.1.0
- display_epoch_time@Base 4.1.0rc0
- display_signed_time@Base 4.1.0rc0
+ display_epoch_time@Base 4.1.0
+ display_signed_time@Base 4.1.0
  doc_file_url@Base 4.1.0
  dword_to_hex@Base 3.5.1
  dword_to_hex_punct@Base 3.5.1
@@ -213,10 +213,10 @@ libwsutil.so.0 libwsutil0 #MINVER#
  nstime_set_unset@Base 1.12.0~rc1
  nstime_set_zero@Base 1.12.0~rc1
  nstime_sum@Base 1.12.0~rc1
- nstime_to_iso8601@Base 4.1.0rc0
+ nstime_to_iso8601@Base 4.1.0
  nstime_to_msec@Base 1.12.0~rc1
  nstime_to_sec@Base 1.12.0~rc1
- nstime_to_unix@Base 4.1.0rc0
+ nstime_to_unix@Base 4.1.0
  oct64_to_str_back@Base 3.5.1
  oct_to_str_back@Base 3.5.1
  please_report_bug@Base 3.1.0

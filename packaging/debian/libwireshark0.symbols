@@ -134,8 +134,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  col_fill_in_error@Base 1.9.1
  col_fill_in_frame_data@Base 1.9.1
  col_finalize@Base 2.5.0
+ col_format_abbrev@Base 4.1.0
  col_format_desc@Base 1.9.1
- col_format_abbrev@Base 4.1.0rc0
  col_format_to_string@Base 1.9.1
  col_get_text@Base 2.0.0
  col_get_writable@Base 1.9.1
@@ -169,7 +169,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  color_filters_used@Base 2.1.0
  color_filters_write@Base 2.1.0
  column_dump_column_formats@Base 1.12.0~rc1
- column_register_fields@Base 4.1.0rc0
+ column_register_fields@Base 4.1.0
  conversation_add_proto_data@Base 1.9.1
  conversation_delete_proto_data@Base 1.9.1
  conversation_filter_from_log@Base 3.7.0
@@ -293,7 +293,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dfilter_load_field_references_edt@Base 4.1.0
  dfilter_log_full@Base 3.7.0
  dfilter_macro_get_uat@Base 1.9.1
- dfilter_requires_columns@Base 4.1.0rc0
+ dfilter_requires_columns@Base 4.1.0
  dfilter_syntax_tree@Base 3.7.0
  dfilter_text@Base 3.7.0
  disable_name_resolution@Base 1.99.9
@@ -515,7 +515,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissector_delete_uint_range@Base 1.12.0~rc1
  dissector_dump_decodes@Base 1.9.1
  dissector_dump_dissector_tables@Base 1.99.1
- dissector_dump_dissectors@Base 4.1.0rc0
+ dissector_dump_dissectors@Base 4.1.0
  dissector_dump_heur_decodes@Base 1.9.1
  dissector_endpoint_init@Base 4.0.0-rc2
  dissector_get_custom_table_handle@Base 1.99.8
@@ -580,8 +580,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  elem_tv_short@Base 1.9.1
  elem_v@Base 1.9.1
  elem_v_short@Base 1.9.1
- endpoint_table_set_gui_info@Base 4.0.0-rc2
  enabled_protos_unsaved_changes@Base 3.7.0
+ endpoint_table_set_gui_info@Base 4.0.0-rc2
  enterprises_base_custom@Base 2.5.0
  enterprises_lookup@Base 2.5.0
  eo_ct2ext@Base 2.3.0
@@ -934,8 +934,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_vlan_hash_table@Base 2.1.0
  get_wka_hashtable@Base 1.12.0~rc1
  giop_add_CDR_string@Base 3.0.1
- global_enterprises_dump@Base 4.1.0rc0
- global_services_dump@Base 4.1.0rc0
+ global_enterprises_dump@Base 4.1.0
+ global_services_dump@Base 4.1.0
  golay_decode@Base 1.9.1
  golay_encode@Base 1.9.1
  golay_errors@Base 1.9.1
@@ -1063,7 +1063,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  oids_cleanup@Base 1.9.1
  oids_init@Base 1.9.1
  output_fields_add@Base 1.12.0~rc1
- output_fields_add_protocolfilter@Base 4.1.0rc0
+ output_fields_add_protocolfilter@Base 4.1.0
  output_fields_free@Base 1.12.0~rc1
  output_fields_has_cols@Base 1.12.0~rc1
  output_fields_list_options@Base 1.12.0~rc1
@@ -1316,7 +1316,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tree_add_cbor_tstr@Base 3.5.1
  proto_tree_add_cbor_uint64@Base 3.5.1
  proto_tree_add_checksum@Base 2.1.1
- proto_tree_add_checksum_bytes@Base 4.1.0rc0
+ proto_tree_add_checksum_bytes@Base 4.1.0
  proto_tree_add_debug_text@Base 1.9.1
  proto_tree_add_double@Base 1.9.1
  proto_tree_add_double_format@Base 1.9.1
@@ -1356,9 +1356,13 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tree_add_item_ret_boolean@Base 2.3.0
  proto_tree_add_item_ret_display_string@Base 3.1.0
  proto_tree_add_item_ret_display_string_and_length@Base 3.1.0
+ proto_tree_add_item_ret_double@Base 4.1.0
+ proto_tree_add_item_ret_ether@Base 4.1.0
+ proto_tree_add_item_ret_float@Base 4.1.0
  proto_tree_add_item_ret_int64@Base 3.1.1
  proto_tree_add_item_ret_int@Base 1.99.6
  proto_tree_add_item_ret_ipv4@Base 3.3.2
+ proto_tree_add_item_ret_ipv6@Base 4.1.0
  proto_tree_add_item_ret_length@Base 2.1.0
  proto_tree_add_item_ret_string@Base 2.1.0
  proto_tree_add_item_ret_string_and_length@Base 2.1.0
@@ -1524,12 +1528,12 @@ libwireshark.so.0 libwireshark0 #MINVER#
  rtd_table_get_tap_string@Base 1.99.8
  rtd_table_iterate_tables@Base 1.99.8
  rtp_add_address@Base 1.9.1
- rtp_dyn_payload_add_fmtp@Base 4.1.0rc0
+ rtp_dyn_payload_add_fmtp@Base 4.1.0
  rtp_dyn_payload_free@Base 1.12.0~rc1
  rtp_dyn_payload_get_full@Base 1.12.0~rc1
  rtp_dyn_payload_get_name@Base 1.12.0~rc1
  rtp_dyn_payload_insert@Base 1.12.0~rc1
- rtp_dyn_payload_insert_full@Base 4.1.0rc0
+ rtp_dyn_payload_insert_full@Base 4.1.0
  rtp_dyn_payload_new@Base 1.12.0~rc1
  rtp_event_type_values_ext@Base 1.12.0~rc1
  rtp_payload_type_short_vals_ext@Base 1.9.1
@@ -1685,7 +1689,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tap_build_interesting@Base 1.9.1
  tap_listeners_dfilter_recompile@Base 2.0.0
  tap_listeners_load_field_references@Base 4.1.0
- tap_listeners_require_columns@Base 4.1.0rc0
+ tap_listeners_require_columns@Base 4.1.0
  tap_listeners_require_dissection@Base 1.9.1
  tap_queue_packet@Base 1.9.1
  tap_register_plugin@Base 2.5.0
@@ -2146,11 +2150,12 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ws_find_media_type_parameter@Base 2.2.0
  ws_label_strcat@Base 4.1.0
  ws_label_strcpy@Base 4.1.0
- ws_manuf_count@Base 4.1.0rc0
- ws_manuf_dump@Base 4.1.0rc0
- ws_manuf_iter_init@Base 4.1.0rc0
- ws_manuf_iter_next@Base 4.1.0rc0
- ws_manuf_lookup@Base 4.1.0rc0
+ ws_manuf_block_str@Base 4.1.0
+ ws_manuf_count@Base 4.1.0
+ ws_manuf_dump@Base 4.1.0
+ ws_manuf_iter_init@Base 4.1.0
+ ws_manuf_iter_next@Base 4.1.0
+ ws_manuf_lookup@Base 4.1.0
  wscbor_chunk_free@Base 3.5.1
  wscbor_chunk_mark_errors@Base 3.5.1
  wscbor_chunk_read@Base 3.5.1
