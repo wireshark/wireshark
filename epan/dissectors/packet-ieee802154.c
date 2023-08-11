@@ -5175,8 +5175,8 @@ dissect_ieee802154_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     case IEEE802154_CMD_VENDOR_SPECIFIC:
     {
-        guint32 oui = tvb_get_ntoh24(tvb, 0);
-        proto_tree_add_item(tree, hf_ieee802154_cmd_vendor_oui, tvb, 0, 3, ENC_BIG_ENDIAN);
+        guint32 oui = tvb_get_letoh24(tvb, 0);
+        proto_tree_add_item(tree, hf_ieee802154_cmd_vendor_oui, tvb, 0, 3, ENC_LITTLE_ENDIAN);
         if (!dissector_try_uint_new(cmd_vendor_dissector_table, oui, tvb_new_subset_remaining(tvb, 3), pinfo, tree, FALSE, packet)) {
             call_data_dissector(tvb_new_subset_remaining(tvb, 3), pinfo, tree);
         }
