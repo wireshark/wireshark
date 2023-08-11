@@ -115,6 +115,8 @@ static int setup_dumpfile(const char* fifo, FILE** fp)
 		return EXIT_FAILURE;
 	}
 
+        fflush(*fp);
+
 	return EXIT_SUCCESS;
 }
 
