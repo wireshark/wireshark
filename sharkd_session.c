@@ -58,6 +58,7 @@
 #include <ui/tap-rtp-common.h>
 #include <ui/tap-rtp-analysis.h>
 #include <ui/cli/tap-protohierstat.h>
+#include <ui/cli/tap-voip.h>
 #include <wsutil/version_info.h>
 #include <epan/to_str.h>
 
@@ -1036,6 +1037,16 @@ sharkd_session_process_info(void)
         json_dumper_begin_object(&dumper);
         sharkd_json_value_string("name", "Protocol Hierarchy Statistics");
         sharkd_json_value_string("tap", "phs");
+        json_dumper_end_object(&dumper);
+
+        json_dumper_begin_object(&dumper);
+        sharkd_json_value_string("name", "VoIP Calls");
+        sharkd_json_value_string("tap", "voip-calls");
+        json_dumper_end_object(&dumper);
+
+        json_dumper_begin_object(&dumper);
+        sharkd_json_value_string("name", "VoIP Conversations");
+        sharkd_json_value_string("tap", "voip-convs");
         json_dumper_end_object(&dumper);
 
         json_dumper_begin_object(&dumper);
@@ -2954,6 +2965,138 @@ sharkd_session_process_free_tap_multicast_cb(void *tapdata)
 }
 
 /**
+ * sharkd_session_process_tap_voip_calls_cb()
+ *
+ * Output VoIP Calls tap:
+ *   (m) tap                    - tap name
+ *   (m) type                   - tap output type
+ *   (m) calls                  - array of objects with attributes:
+ *                              (m) call            - call number
+ *                              (m) start_time      - start timestamp
+ *                              (m) stop_time       - stop timestamp
+ *                              (m) initial_speaker - address of initial speaker
+ *                              (m) from            - from address
+ *                              (m) to              - to address
+ *                              (m) protocol        - protocol name
+ *                              (m) packets         - packet count
+ *                              (m) state           - state string
+ *                              (m) comment         - comment string
+ */
+static void
+sharkd_session_process_tap_voip_calls_cb(void *arg)
+{
+    voip_calls_tapinfo_t *tapinfo = (voip_calls_tapinfo_t *)arg;
+    GList *cur_call = g_queue_peek_nth_link(tapinfo->callsinfos, 0);
+    sharkd_json_object_open(NULL);
+    sharkd_json_value_string("tap", "voip-calls");
+    sharkd_json_value_string("type", "voip-calls");
+    sharkd_json_array_open("calls");
+    while (cur_call && cur_call->data) {
+        voip_calls_info_t *call_info_ = (voip_calls_info_t*) cur_call->data;
+        sharkd_json_object_open(NULL);
+        sharkd_json_value_anyf("call", "%hu", call_info_->call_num);
+        sharkd_json_value_anyf("start_time", "%.6f", nstime_to_sec(&(call_info_->start_rel_ts)));
+        sharkd_json_value_anyf("stop_time", "%.6f", nstime_to_sec(&(call_info_->start_rel_ts)));
+        sharkd_json_value_string("initial_speaker", (char*)address_to_display(NULL, &(call_info_->initial_speaker)));
+        sharkd_json_value_string("from", call_info_->from_identity);
+        sharkd_json_value_string("to", call_info_->to_identity);
+        sharkd_json_value_string("protocol", ((call_info_->protocol == VOIP_COMMON) && call_info_->protocol_name) ?
+            call_info_->protocol_name : voip_protocol_name[call_info_->protocol]);
+        sharkd_json_value_anyf("packets", "%u", call_info_->npackets);
+        sharkd_json_value_string("state", voip_call_state_name[call_info_->call_state]);
+        sharkd_json_value_string("comment", call_info_->call_comment);
+        sharkd_json_object_close();
+        cur_call = g_list_next(cur_call);
+    }
+    sharkd_json_array_close();
+    sharkd_json_object_close();
+}
+
+static void
+sharkd_session_free_tap_voip_calls_cb(void *tapdata)
+{
+    voip_calls_tapinfo_t *tapinfo = (voip_calls_tapinfo_t *)tapdata;
+    voip_calls_remove_all_tap_listeners(tapinfo);
+    if (tapinfo->callsinfos != NULL) {
+        g_queue_free(tapinfo->callsinfos);
+    }
+    if (tapinfo->graph_analysis != NULL) {
+        sequence_analysis_info_free(tapinfo->graph_analysis);
+    }
+    memset(tapinfo, 0, sizeof(*tapinfo));
+}
+
+
+struct sharkd_voip_convs_req {
+    voip_calls_tapinfo_t *tapinfo;
+    const char *tap_name;
+};
+
+/**
+ * sharkd_session_process_tap_voip_convs_cb()
+ *
+ * Output VoIP Conversations tap:
+ *   (m) tap                    - tap name
+ *   (m) type                   - tap output type
+ *   (m) convs                  - array of objects with attributes:
+ *                              (m) frame    - frame number
+ *                              (m) call     - call number
+ *                              (m) time     - timestamp
+ *                              (m) dst_addr - destination address
+ *                              (m) dst_port - destination port
+ *                              (m) src_addr - source address
+ *                              (m) src_port - source port
+ *                              (m) label    - label string
+ *                              (m) comment  - comment string
+ */
+static void
+sharkd_session_process_tap_voip_convs_cb(void *arg)
+{
+    struct sharkd_voip_convs_req *voip_convs_req = (struct sharkd_voip_convs_req *)arg;
+    voip_calls_tapinfo_t *tapinfo = voip_convs_req->tapinfo;
+    seq_analysis_info_t *sainfo = tapinfo->graph_analysis;
+    sequence_analysis_list_sort(sainfo);
+    sharkd_json_object_open(NULL);
+    sharkd_json_value_string("tap", voip_convs_req->tap_name);
+    sharkd_json_value_string("type", "voip-convs");
+    sharkd_json_array_open("convs");
+    for (GList *cur = g_queue_peek_nth_link(sainfo->items, 0); cur; cur = g_list_next(cur)) {
+        seq_analysis_item_t *sai = (seq_analysis_item_t *) cur->data;
+        if ((voip_conv_sel[sai->conv_num / VOIP_CONV_BITS] & (1 << (sai->conv_num % VOIP_CONV_BITS))) == 0)
+            continue;
+        sharkd_json_object_open(NULL);
+        sharkd_json_value_anyf("frame", "%d", sai->frame_number);
+        sharkd_json_value_anyf("call", "%d", sai->conv_num);
+        sharkd_json_value_string("time", sai->time_str);
+        sharkd_json_value_string("dst_addr", (char*)address_to_display(NULL, &(sai->dst_addr)));
+        sharkd_json_value_anyf("dst_port", "%d", sai->port_dst);
+        sharkd_json_value_string("src_addr", (char*)address_to_display(NULL, &(sai->src_addr)));
+        sharkd_json_value_anyf("src_port", "%d", sai->port_src);
+        sharkd_json_value_string("label", sai->frame_label);
+        sharkd_json_value_string("comment", sai->comment);
+        sharkd_json_object_close();
+    }
+    sharkd_json_array_close();
+    sharkd_json_object_close();
+}
+
+static void
+sharkd_session_free_tap_voip_convs_cb(void *tapdata)
+{
+    struct sharkd_voip_convs_req *voip_convs_req = (struct sharkd_voip_convs_req *)tapdata;
+    voip_calls_tapinfo_t *tapinfo = voip_convs_req->tapinfo;
+    voip_calls_remove_all_tap_listeners(tapinfo);
+    if (tapinfo->callsinfos != NULL) {
+        g_queue_free(tapinfo->callsinfos);
+    }
+    if (tapinfo->graph_analysis != NULL) {
+        sequence_analysis_info_free(tapinfo->graph_analysis);
+    }
+    memset(tapinfo, 0, sizeof(*tapinfo));
+    g_free(voip_convs_req);
+}
+
+/**
  * sharkd_session_process_tap()
  *
  * Process tap request
@@ -3324,6 +3467,75 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 
             tap_data = rs;
             tap_free = sharkd_session_free_tap_phs_cb;
+        }
+        else if (!strcmp(tok_tap, "voip-calls"))
+        {
+            voip_stat_init_tapinfo();
+
+            tap_error = register_tap_listener("frame", &tapinfo_, NULL, 0, NULL, NULL, sharkd_session_process_tap_voip_calls_cb, NULL);
+
+            tapinfo_.session = cfile.epan;
+            voip_calls_init_all_taps(&tapinfo_);
+
+            tap_data = &tapinfo_;
+            tap_free = sharkd_session_free_tap_voip_calls_cb;
+        }
+        else if (!strncmp(tok_tap, "voip-convs:", 11))
+        {
+            int len;
+            unsigned int min, max;
+            struct sharkd_voip_convs_req *voip_convs_req;
+            const char *conv_arg = tok_tap + 11;
+
+            // parse tok_tap to get which call we are asking for
+            if (*conv_arg == 0) {
+                // set all bits of voip_conv_sel (-1 in binary is all 1's)
+                memset(voip_conv_sel, -1, sizeof(voip_conv_sel));
+            } else {
+                memset(voip_conv_sel, 0, sizeof(voip_conv_sel));
+
+                while (*conv_arg != 0) {
+                    if (*conv_arg == ',') {
+                        conv_arg++;
+                    }
+                    if (sscanf(conv_arg, "%u-%u%n", &min, &max, &len) == 2) {
+                        conv_arg += len;
+                    } else if (sscanf(conv_arg, "%u%n", &min, &len) == 1) {
+                        max = min;
+                        conv_arg += len;
+                    } else {
+                        sharkd_json_error(
+                                rpcid, -11014, NULL,
+                                "sharkd_session_process_tap() voip-convs=%s invalid 'convs' parameter", tok_tap
+                        );
+                        return;
+                    }
+                    if (min > max || min >= VOIP_CONV_MAX || max >= VOIP_CONV_MAX) {
+                        sharkd_json_error(
+                                rpcid, -11012, NULL,
+                                "sharkd_session_process_tap() voip-convs=%s invalid 'convs' number range", tok_tap
+                        );
+                        return;
+                    }
+                    for(; min <= max; min++) {
+                        voip_conv_sel[min / VOIP_CONV_BITS] |= 1 << (min % VOIP_CONV_BITS);
+                    }
+                }
+            }
+
+            voip_stat_init_tapinfo();
+
+            voip_convs_req = (struct sharkd_voip_convs_req *) g_malloc0(sizeof(*voip_convs_req));
+            voip_convs_req->tapinfo = &tapinfo_;
+            voip_convs_req->tap_name = tok_tap;
+
+            tap_error = register_tap_listener("frame", voip_convs_req, NULL, 0, NULL, NULL, sharkd_session_process_tap_voip_convs_cb, NULL);
+
+            tapinfo_.session = cfile.epan;
+            voip_calls_init_all_taps(&tapinfo_);
+
+            tap_data = voip_convs_req;
+            tap_free = sharkd_session_free_tap_voip_convs_cb;
         }
         else
         {
