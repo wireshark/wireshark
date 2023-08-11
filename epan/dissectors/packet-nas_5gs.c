@@ -3339,7 +3339,6 @@ de_nas_5gs_mm_sor_transp_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
                  */
                 /* PLMN ID 1    octet 23*- 25* */
                 curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, sub_tree, curr_offset, E212_NONE, TRUE);
-                curr_offset += 3;
                 /* access technology identifier 1    octet 26*- 27* */
                 proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags_access_tech_1, ENC_BIG_ENDIAN);
                 curr_offset++;
