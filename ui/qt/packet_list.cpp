@@ -1636,14 +1636,12 @@ void PacketList::goPreviousPacket(void)
     scrollViewChanged(false);
 }
 
-void PacketList::goFirstPacket(bool user_selected) {
+void PacketList::goFirstPacket(void) {
     if (packet_list_model_->rowCount() < 1) return;
     selectionModel()->setCurrentIndex(packet_list_model_->index(0, 0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     scrollTo(currentIndex());
 
-    if (user_selected) {
-        scrollViewChanged(false);
-    }
+    scrollViewChanged(false);
 }
 
 void PacketList::goLastPacket(void) {

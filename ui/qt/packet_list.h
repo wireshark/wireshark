@@ -175,7 +175,7 @@ public slots:
     void setMonospaceFont(const QFont &mono_font);
     void goNextPacket();
     void goPreviousPacket();
-    void goFirstPacket(bool user_selected = true);
+    void goFirstPacket();
     void goLastPacket();
     void goToPacket(int packet, int hf_id = -1);
     void goNextHistoryPacket();
