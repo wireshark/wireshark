@@ -88,6 +88,7 @@
 #include <errno.h>
 #include <net/if.h>
 #include <sys/sockio.h>
+#include <sys/ioctl.h>
 #endif
 
 /*
