@@ -104,7 +104,8 @@ static void gen_u_sig_pkts(pcap_dumper_t *dumper)
 	memcpy(pkt.pkt_data, pkt_data, sizeof(pkt.pkt_data));
 
 	gettimeofday(&ts, NULL);
-	hdr.ts = ts;
+	hdr.ts.tv_sec = ts.tv_sec;
+	hdr.ts.tv_usec = ts.tv_usec;
 	hdr.caplen = sizeof(struct complete_pkt);
 	hdr.len = sizeof(struct complete_pkt);
 
