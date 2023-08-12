@@ -176,7 +176,7 @@ print_usage(FILE *output)
     fprintf(output, "  -d <encap:linktype>|<proto:protoname>\n");
     fprintf(output, "                           packet encapsulation or protocol\n");
     fprintf(output, "  -F <field>               field to display\n");
-#ifndef _WIN32
+#if !defined(_WIN32) && defined(RLIMIT_AS)
     fprintf(output, "  -m                       virtual memory limit, in bytes\n");
 #endif
     fprintf(output, "  -n                       disable all name resolutions (def: \"mNd\" enabled, or\n");
@@ -417,7 +417,7 @@ main(int argc, char *argv[])
     int                  opt, i;
     df_error_t          *df_err;
 
-#ifndef _WIN32
+#if !defined(_WIN32) && defined(RLIMIT_AS)
     struct rlimit limit;
 #endif  /* !_WIN32 */
 
@@ -589,13 +589,14 @@ main(int argc, char *argv[])
                    and the output buffer is only flushed when it fills up). */
                 line_buffered = TRUE;
                 break;
-#ifndef _WIN32
+#if !defined(_WIN32) && defined(RLIMIT_AS)
             case 'm':
                 limit.rlim_cur = get_positive_int(ws_optarg, "memory limit");
                 limit.rlim_max = get_positive_int(ws_optarg, "memory limit");
 
                 if(setrlimit(RLIMIT_AS, &limit) != 0) {
-                    cmdarg_err("setrlimit() returned error");
+                    cmdarg_err("setrlimit(RLIMIT_AS) failed: %s",
+                               g_strerror(errno));
                     ret = WS_EXIT_INVALID_OPTION;
                     goto clean_exit;
                 }
