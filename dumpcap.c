@@ -1366,6 +1366,162 @@ relinquish_privs_except_capture(void)
 
 #endif /* HAVE_LIBCAP */
 
+/* Map DLT_ values, as returned by pcap_datalink(), to LINKTYPE_ values,
+   as are written to capture files.
+
+   Most of the time, a DLT_ value and the corresponding LINKYPE_ value
+   are the same, but there are some cases, where a numeric value as
+   a DLT_ doesn't uniquely identify a particular link-layer header type,
+   where they differ, so that the values in files *do* identify
+   particular link-layer header types. */
+
+/* LINKTYPE_ values that don't match corresponding DLT_ values on
+    all platforms. */
+#define LINKTYPE_ATM_RFC1483	100
+#define LINKTYPE_RAW		101
+#define LINKTYPE_SLIP_BSDOS	102
+#define LINKTYPE_PPP_BSDOS	103
+#define LINKTYPE_C_HDLC		104
+#define LINKTYPE_IEEE802_11	105
+#define LINKTYPE_ATM_CLIP	106
+#define LINKTYPE_FRELAY		107
+#define LINKTYPE_LOOP		108
+#define LINKTYPE_ENC		109
+#define LINKTYPE_NETBSD_HDLC	112
+#define LINKTYPE_PFSYNC		246
+#define LINKTYPE_PKTAP		258
+
+static int
+dlt_to_linktype(int dlt)
+{
+	/* DLT_NULL through DLT_FDDI have the same numeric value on
+	   all platforms, so the corresponding LINKTYPE_s have the
+	   same numeric values. */
+	if (dlt >= DLT_NULL && dlt <= DLT_FDDI)
+		return (dlt);
+
+#if defined(DLT_PFSYNC) && DLT_PFSYNC != LINKTYPE_PFSYNC
+	/* DLT_PFSYNC has a value on several platforms that's in the
+	   non-matching range, a value on FreeBSD that's in the high
+	   matching range and that's *not* equal to LINKTYPE_PFSYNC,
+	   and has a value on the rmaining platforms that's equal
+	   to LINKTYPE_PFSYNC, which is in the high matching range.
+
+	   Map it to LINKTYPE_PFSYNC if it's not equal to LINKTYPE_PFSYNC. */
+	if (dlt == DLT_PFSYNC)
+		return (LINKTYPE_PFSYNC);
+#endif
+
+	/* DLT_PKTAP is defined as DLT_USER2 - which is in the high
+	   matching range - on Darwin because Apple used DLT_USER2
+	   on systems that users ran, not just as an internal thing.
+
+	   We map it to LINKTYPE_PKTAP if it's not equal to LINKTYPE_PKTAP
+	   so that DLT_PKTAP captures from Apple machines can be read by
+	   software that either doesn't handle DLT_USER2 or that handles it
+	   as something other than Apple PKTAP. */
+#if defined(DLT_PKTAP) && DLT_PKTAP != LINKTYPE_PKTAP
+	if (dlt == DLT_PKTAP)
+		return (LINKTYPE_PKTAP);
+#endif
+
+	/* For all other DLT_s with values beyond 104, the value
+	   of the corresponding LINKTYPE_ is the same. */
+	if (dlt >= 104)
+		return (dlt);
+
+	/* These DLT_ values have different values on different
+	   platforms, so we assigned them LINKTYPE_ values just
+	   below the lower bound of the high matchig range;
+	   those values should never be equal to any DLT_
+	   values, so that should avoid collisions.
+
+	   That way, for example, "raw IP" packets will have
+	   LINKTYPE_RAW as the code in all savefiles for
+	   which the code that writes them maps to that
+	   value, regardless of the platform on whih they
+	   were written, so they should be readable on all
+	   platforms without having to determine on which
+	   platform they were written.
+
+	   We map the DLT_ values on this platform, whatever
+	   it might be, to the corresponding LINKTYPE_ values. */
+#ifdef DLT_ATM_RFC1483
+	if (dlt == DLT_ATM_RFC1483)
+		return (LINKTYPE_ATM_RFC1483);
+#endif
+#ifdef DLT_RAW
+	if (dlt == DLT_RAW)
+		return (LINKTYPE_RAW);
+#endif
+#ifdef DLT_SLIP_BSDOS
+	if (dlt == DLT_SLIP_BSDOS)
+		return (LINKTYPE_SLIP_BSDOS);
+#endif
+#ifdef DLT_PPP_BSDOS
+	if (dlt == DLT_PPP_BSDOS)
+		return (LINKTYPE_PPP_BSDOS);
+#endif
+
+	/* These DLT_ values were originally defined on some platform,
+	   and weren't defined on other platforms.
+
+	   At least some of those values, on at least one platform,
+	   collide with the values of other DLT_s on other platforms,
+	   e.g. DLT_LOOP, so we don't just define them, on all
+	   platforms, as having the same value as on the original
+	   platform.
+
+	   Therefore, we assigned new LINKTYPE_ values to them, and,
+	   on the platforms where they weren't originally defined,
+	   define the DLT_s to have the same value as the corresponding
+	   LINKTYPE_.
+
+	   This means that, for capture files with the original
+	   platform's DLT_ value rather than the LINKTYPE_ value
+	   as a link-layer type, we will recognize those types
+	   on that platform, but not on other platforms. */
+#ifdef DLT_FR
+	/* BSD/OS Frame Relay */
+	if (dlt == DLT_FR)
+		return (LINKTYPE_FRELAY);
+#endif
+#if defined(DLT_HDLC) && DLT_HDLC != LINKTYPE_NETBSD_HDLC
+	/* NetBSD HDLC */
+	if (dlt == DLT_HDLC)
+		return (LINKTYPE_NETBSD_HDLC);
+#endif
+#if defined(DLT_C_HDLC) && DLT_C_HDLC != LINKTYPE_C_HDLC
+	/* BSD/OS Cisco HDLC */
+	if (dlt == DLT_C_HDLC)
+		return (LINKTYPE_C_HDLC);
+#endif
+#if defined(DLT_LOOP) && DLT_LOOP != LINKTYPE_LOOP
+	/* OpenBSD DLT_LOOP */
+	if (dlt == DLT_LOOP)
+		return (LINKTYPE_LOOP);
+#endif
+#if defined(DLT_ENC) && DLT_ENC != LINKTYPE_ENC
+	/* OpenBSD DLT_ENC */
+	if (dlt == DLT_ENC)
+		return (LINKTYPE_ENC);
+#endif
+
+	/* These DLT_ values are not on all platforms, but, so far,
+	   there don't appear to be any platforms that define
+	   other DLT_s with those values; we map them to
+	   different LINKTYPE_ values anyway, just in case. */
+#ifdef DLT_ATM_CLIP
+	/* Linux ATM Classical IP */
+	if (dlt == DLT_ATM_CLIP)
+		return (LINKTYPE_ATM_CLIP);
+#endif
+
+	/* Treat all other DLT_s as having the same value as the
+	   corresponding LINKTYPE_. */
+	return (dlt);
+}
+
 /* Take care of byte order in the libpcap headers read from pipes.
  * (function taken from wiretap/libpcap.c) */
 static void
@@ -2158,7 +2314,19 @@ pcap_pipe_open_live(int fd,
         hdr->snaplen = GUINT32_SWAP_LE_BE(hdr->snaplen);
         hdr->network = GUINT32_SWAP_LE_BE(hdr->network);
     }
-    pcap_src->linktype = hdr->network;
+    /*
+     * The link-layer header type field of the pcap header is
+     * probably a LINKTYPE_ value, as the vast majority of
+     * LINKTYPE_ values and their corresponding DLT_ values
+     * are the same.
+     *
+     * However, in case the file was written by a program
+     * that used a DLT_ value, rather than a LINKTYPE_ value,
+     * in one of the cases where the two differ, use dlt_to_linktype()
+     * to map to a LINKTYPE_ value, just as we use it to map
+     * the result of pcap_datalink() to a LINKTYPE_ value.
+     */
+    pcap_src->linktype = dlt_to_linktype(hdr->network);
     /* Pick the appropriate maximum packet size for the link type */
     switch (pcap_src->linktype) {
 
@@ -2300,7 +2468,8 @@ pcapng_read_shb(capture_src *pcap_src,
 }
 
 /*
- * Save IDB blocks for playback whenever we change output files.
+ * Save IDB blocks for playback whenever we change output files, and
+ * fix LINKTYPE_ values that are really platform-dependent DLT_ values.
  * Rewrite EPB and ISB interface IDs.
  */
 static gboolean
@@ -3077,7 +3246,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                                    secondary_errmsg, secondary_errmsg_len)) {
                 return FALSE;
             }
-            pcap_src->linktype = get_pcap_datalink(pcap_src->pcap_h, interface_opts->name);
+            pcap_src->linktype = dlt_to_linktype(get_pcap_datalink(pcap_src->pcap_h, interface_opts->name));
         } else {
             /* We couldn't open "iface" as a network device. */
             /* Try to open it as a pipe */
