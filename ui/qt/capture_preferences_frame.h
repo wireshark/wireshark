@@ -35,7 +35,6 @@ private slots:
     void on_capturePcapNgCheckBox_toggled(bool checked);
     void on_captureRealTimeCheckBox_toggled(bool checked);
     void on_captureUpdateIntervalLineEdit_textChanged(const QString &new_str);
-    void on_captureAutoScrollCheckBox_toggled(bool checked);
     void on_captureNoInterfaceLoad_toggled(bool checked);
     void on_captureNoExtcapCheckBox_toggled(bool checked);
 

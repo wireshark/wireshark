@@ -42,6 +42,7 @@
 #define RECENT_KEY_PACKET_DIAGRAM_SHOW          "gui.packet_diagram_show"
 #define RECENT_KEY_STATUSBAR_SHOW               "gui.statusbar_show"
 #define RECENT_KEY_PACKET_LIST_COLORIZE         "gui.packet_list_colorize"
+#define RECENT_KEY_CAPTURE_AUTO_SCROLL          "capture.auto_scroll"
 #define RECENT_GUI_TIME_FORMAT                  "gui.time_format"
 #define RECENT_GUI_TIME_PRECISION               "gui.time_precision"
 #define RECENT_GUI_SECONDS_FORMAT               "gui.seconds_format"
@@ -867,6 +868,10 @@ write_profile_recent(void)
             RECENT_KEY_PACKET_LIST_COLORIZE,
             recent.packet_list_colorize);
 
+    write_recent_boolean(rf, "Auto scroll packet list when capturing",
+            RECENT_KEY_CAPTURE_AUTO_SCROLL,
+            recent.capture_auto_scroll);
+
     write_recent_enum(rf, "Timestamp display format",
             RECENT_GUI_TIME_FORMAT, ts_type_values,
             recent.gui_time_format);
@@ -1083,6 +1088,8 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
         parse_recent_boolean(value, &recent.statusbar_show);
     } else if (strcmp(key, RECENT_KEY_PACKET_LIST_COLORIZE) == 0) {
         parse_recent_boolean(value, &recent.packet_list_colorize);
+    } else if (strcmp(key, RECENT_KEY_CAPTURE_AUTO_SCROLL) == 0) {
+        parse_recent_boolean(value, &recent.capture_auto_scroll);
     } else if (strcmp(key, RECENT_GUI_TIME_FORMAT) == 0) {
         recent.gui_time_format = (ts_type)str_to_val(value, ts_type_values,
             is_packet_configuration_namespace() ? TS_RELATIVE : TS_ABSOLUTE);
@@ -1365,6 +1372,7 @@ recent_read_profile_static(char **rf_path_return, int *rf_errno_return)
     recent.packet_diagram_show       = TRUE;
     recent.statusbar_show            = TRUE;
     recent.packet_list_colorize      = TRUE;
+    recent.capture_auto_scroll       = TRUE;
     recent.gui_time_format           = TS_RELATIVE;
     recent.gui_time_precision        = TS_PREC_AUTO;
     recent.gui_seconds_format        = TS_SECONDS_DEFAULT;

@@ -37,6 +37,7 @@
 #include "ui/util.h"
 #include <wsutil/utf8_entities.h>
 #include "ui/preference_utils.h"
+#include "ui/recent.h"
 
 #include <cstdio>
 #include <epan/prefs.h>
@@ -582,7 +583,7 @@ void CaptureOptionsDialog::on_cbUpdatePacketsRT_toggled(bool checked)
 
 void CaptureOptionsDialog::on_cbAutoScroll_toggled(bool checked)
 {
-    auto_scroll_live = checked;
+    recent.capture_auto_scroll = checked;
 }
 
 void CaptureOptionsDialog::on_cbExtraCaptureInfo_toggled(bool checked)
@@ -759,7 +760,7 @@ void CaptureOptionsDialog::updateInterfaces()
     }
 
     ui->cbUpdatePacketsRT->setChecked(global_capture_opts.real_time_mode);
-    ui->cbAutoScroll->setChecked(true);
+    ui->cbAutoScroll->setChecked(recent.capture_auto_scroll);
     ui->cbExtraCaptureInfo->setChecked(global_capture_opts.show_info);
 
     ui->cbResolveMacAddresses->setChecked(gbl_resolv_flags.mac_name);

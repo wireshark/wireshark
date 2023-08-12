@@ -106,6 +106,7 @@ typedef struct recent_settings_tag {
     gboolean    packet_diagram_show;
     gboolean    statusbar_show;
     gboolean    packet_list_colorize;
+    gboolean    capture_auto_scroll;
     ts_type     gui_time_format;
     gint        gui_time_precision;
     ts_seconds_type gui_seconds_format;

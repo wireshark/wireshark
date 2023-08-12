@@ -228,8 +228,10 @@ When you check this, Wireshark captures in a separate process and feeds the capt
 
 Automatically scroll during live capture:::
 Scroll the packet list pane as new packets come in, so you are always looking at the most recent packet.
+Automatic scrolling is temporarily disabled when manually scrolling upwards or performing a <<ChUseTabGo,"Go" action>> so that the selected packet can be examined.
+It will resume upon manually scrolling to the end of the packet list.
 If you do not specify this Wireshark adds new packets to the packet list but does not scroll the packet list pane.
-This option is greyed out if “Update list of packets in real-time” is disabled.
+This option has no effect if “Update list of packets in real-time” is disabled.
 
 Show capture information during capture:::
 If this option is enabled, the capture information dialog described in  <<ChCapRunningSection>> will be shown while packets are captured.

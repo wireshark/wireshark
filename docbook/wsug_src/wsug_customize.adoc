@@ -749,10 +749,6 @@ This does give an insight in the packets captured, although it takes processing 
 The preference _Interval between updates (ms)_ allows you to configure how often the packet list is updated during the packet capture process.
 A higher interval reduces processing, but causes more delay between capture and display in the packet list.
 
-Selecting _Automatic scrolling in live capture_ causes the packet list to scroll up once the packet list is full (see previous item).
-To keep track of the current state of the capture process the packet list is scrolled down when packets are added.
-If only the start of the packet list is important this item can be unselected.
-
 Selecting _Don't load interfaces on startup_ prevents Wireshark from spawning dumpcap to populate the list of capture interfaces on the local system.
 This might be a time consuming operation delaying the start of the program, however on most systems this is not an issue.
 The interface list can always be populated after Wireshark is started via menu:Capture[Refresh Interfaces].

@@ -773,11 +773,11 @@ void PacketList::ctxDecodeAsDialog()
 // - It's been more than tail_update_interval_ ms since we last scrolled
 
 // actionGoAutoScroll in the main UI:
-// - Is set to the value of prefs.capture_auto_scroll on startup or whenever
-//   the preference is changed
+// - Is set to the value of recent.capture_auto_scroll on startup (possibly
+//   affected by the -l command line flag) or whenever the recent is changed
 // - Can be triggered manually by the user
 // - Is turned on if the last user-set vertical scrollbar position is at the
-//   end and prefs.capture_auto_scroll is enabled
+//   end and recent.capture_auto_scroll is enabled
 // - Is turned off if the last user-set vertical scrollbar is not at the end,
 //   or if one of the Go to Packet actions is used
 
@@ -1979,10 +1979,10 @@ void PacketList::scrollViewChanged(bool at_end)
 {
     if (capture_in_progress_) {
         // We want to start auto scrolling when the user scrolls to (or past)
-        // the end only if prefs.capture_auto_scroll is set.
+        // the end only if recent.capture_auto_scroll is set.
         // We want to stop autoscrolling if the user scrolls up or uses
         // Go to Packet regardless of the preference setting.
-        if (prefs.capture_auto_scroll || !at_end) {
+        if (recent.capture_auto_scroll || !at_end) {
             emit packetListScrolled(at_end);
         }
     }

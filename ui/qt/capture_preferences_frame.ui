@@ -116,16 +116,6 @@
     </layout>
    </item>
    <item>
-    <widget class="QCheckBox" name="captureAutoScrollCheckBox">
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Keep the packet list scrolled to the bottom while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="text">
-      <string>Automatic scrolling in live capture</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QCheckBox" name="captureNoInterfaceLoad">
      <property name="text">
       <string>Don't load interfaces on startup</string>

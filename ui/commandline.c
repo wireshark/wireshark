@@ -493,7 +493,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                 break;
             case 'l':        /* Automatic scrolling in live capture mode */
 #ifdef HAVE_LIBPCAP
-                auto_scroll_live = TRUE;
+                recent.capture_auto_scroll = TRUE;
 #else
                 capture_option_specified = TRUE;
                 arg_error = TRUE;

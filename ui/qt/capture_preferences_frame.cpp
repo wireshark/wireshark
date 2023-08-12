@@ -39,7 +39,6 @@ CapturePreferencesFrame::CapturePreferencesFrame(QWidget *parent) :
     pref_pcap_ng_ = prefFromPrefPtr(&prefs.capture_pcap_ng);
     pref_real_time_ = prefFromPrefPtr(&prefs.capture_real_time);
     pref_update_interval_ = prefFromPrefPtr(&prefs.capture_update_interval);
-    pref_auto_scroll_ = prefFromPrefPtr(&prefs.capture_auto_scroll);
     pref_no_interface_load_ = prefFromPrefPtr(&prefs.capture_no_interface_load);
     pref_no_extcap_ = prefFromPrefPtr(&prefs.capture_no_extcap);
 
@@ -128,7 +127,6 @@ void CapturePreferencesFrame::updateWidgets()
     ui->captureUpdateIntervalLineEdit->setText(QString::number(prefs_get_uint_value_real(pref_update_interval_, pref_stashed)));
     ui->captureUpdateIntervalLineEdit->setPlaceholderText(QString::number(prefs_get_uint_value_real(pref_update_interval_, pref_default)));
     ui->captureUpdateIntervalLineEdit->setSyntaxState(SyntaxLineEdit::Empty);
-    ui->captureAutoScrollCheckBox->setChecked(prefs_get_bool_value(pref_auto_scroll_, pref_stashed));
 #endif // HAVE_LIBPCAP
     ui->captureNoInterfaceLoad->setChecked(prefs_get_bool_value(pref_no_interface_load_, pref_stashed));
     ui->captureNoExtcapCheckBox->setChecked(prefs_get_bool_value(pref_no_extcap_, pref_stashed));
@@ -173,11 +171,6 @@ void CapturePreferencesFrame::on_captureUpdateIntervalLineEdit_textChanged(const
         ui->captureUpdateIntervalLineEdit->setSyntaxState(SyntaxLineEdit::Invalid);
     }
     prefs_set_uint_value(pref_update_interval_, new_uint, pref_stashed);
-}
-
-void CapturePreferencesFrame::on_captureAutoScrollCheckBox_toggled(bool checked)
-{
-    prefs_set_bool_value(pref_auto_scroll_, checked, pref_stashed);
 }
 
 void CapturePreferencesFrame::on_captureNoInterfaceLoad_toggled(bool checked)

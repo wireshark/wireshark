@@ -3628,9 +3628,7 @@ prefs_register_modules(void)
     prefs_register_bool_preference(capture_module, "no_extcap", "Disable external capture interfaces",
         "Disable external capture modules (extcap)", &prefs.capture_no_extcap);
 
-    /* We might want to make this a "recent" setting. */
-    prefs_register_bool_preference(capture_module, "auto_scroll", "Scroll packet list during capture",
-        "Scroll packet list during capture?", &prefs.capture_auto_scroll);
+    prefs_register_obsolete_preference(capture_module, "auto_scroll");
 
     prefs_register_bool_preference(capture_module, "show_info", "Show capture information dialog while capturing",
         "Show capture information dialog while capturing?", &prefs.capture_show_info);
@@ -4187,7 +4185,6 @@ pre_init_prefs(void)
     prefs.capture_real_time             = TRUE;
     prefs.capture_update_interval       = DEFAULT_UPDATE_INTERVAL;
     prefs.capture_no_extcap             = FALSE;
-    prefs.capture_auto_scroll           = TRUE;
     prefs.capture_show_info             = FALSE;
 
     if (!prefs.capture_columns) {

@@ -30,10 +30,6 @@
 #include "ui/preference_utils.h"
 #include "ui/simple_dialog.h"
 
-#ifdef HAVE_LIBPCAP
-gboolean auto_scroll_live;
-#endif
-
 /* Fill in capture options with values from the preferences */
 void
 prefs_to_capture_opts(void)
@@ -46,7 +42,6 @@ prefs_to_capture_opts(void)
     global_capture_opts.show_info                    = prefs.capture_show_info;
     global_capture_opts.real_time_mode               = prefs.capture_real_time;
     global_capture_opts.update_interval              = prefs.capture_update_interval;
-    auto_scroll_live                                 = prefs.capture_auto_scroll;
 #endif /* HAVE_LIBPCAP */
 }
 

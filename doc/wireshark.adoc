@@ -2130,11 +2130,6 @@ whether to put the interface in promiscuous mode when capturing.
 
 The __Update list of packets in real time__ check box lets you specify
 that the display should be updated as packets are seen.
-
-The __Automatic scrolling in live capture__ check box lets you specify
-whether, in an "Update list of packets in real time" capture, the packet
-list pane should automatically scroll to show the most recently captured
-packets.
 --
 
 Name Resolution Preferences::
