@@ -1,4 +1,4 @@
-Wireshark 4.1.0 (v4.1.0rc0-1991-g04aed725ef4c)
+Wireshark 4.1.0 (v4.1.0rc0-3376-g138a1bb8b98b)
 Interactively dump and analyze network traffic.
 See https://www.wireshark.org for more information.
 
@@ -59,6 +59,11 @@ Processing:
                            enable dissection of proto_name
   --disable-protocol <proto_name>
                            disable dissection of proto_name
+  --only-protocols <proto_name>
+                           Only enable dissection of these protocols, comma
+                           separated. Disable everything else
+  --disable-all-protocols
+                           Disable dissection of all protocols
   --enable-heuristic <short_name>
                            enable dissection of heuristic protocol
   --disable-heuristic <short_name>

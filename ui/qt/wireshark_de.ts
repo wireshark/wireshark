@@ -6742,7 +6742,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Search MAC address or address prefix. Special purpose bits are masked.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MAC Address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search vendor name using a case-insentitive regular expression.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6750,12 +6758,16 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show short name</source>
+        <source>Show short name column.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Short name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished">&lt;small&gt;&lt;i&gt;Hinweis&lt;/i&gt;&lt;/small&gt;</translation>
+        <translation type="obsolete">&lt;small&gt;&lt;i&gt;Hinweis&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Select all</source>
@@ -11318,6 +11330,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Finding local interfaces</source>
         <translation>Lokale Schnittstellen finden</translation>
+    </message>
+    <message>
+        <source>Applying changed preferences</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>(Unknown action)</source>

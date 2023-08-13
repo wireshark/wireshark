@@ -188,24 +188,24 @@ Wireshark 4.1.0 Release Notes
 
   New Protocol Support
 
-   DECT DLC protocol layer (DECT-DLC), DECT NWK protocol layer
-   (DECT-NWK), DECT proprietary Mitel OMM/RFP Protocol (also named
-   AaMiDe), FiRa UWB Controller Interface (UCI), FiveCo’s Register
-   Access Protocol (5CoRAP), GPS L1 C/A LNAV navigation messages, ID3v2,
-   Low Level Signalling (ATSC3 LLS), Management Component Transport
-   Protocol (MCTP), Management Component Transport Protocol - Control
-   Protocol (MCTP CP), Matter home automation protocol, Non-volatile
-   Memory Express - Management Interface (NVMe-MI) over MCTP, SAP
-   Enqueue Server (SAPEnqueue), SAP GUI (SAPDiag), SAP HANA SQL Command
-   Network Protocol (SAPHDB), SAP Internet Graphic Server (SAP IGS), SAP
-   Message Server (SAPMS), SAP Network Interface (SAPNI), SAP Router
+   ASAM Capture Module Protocol (CMP), DECT DLC protocol layer
+   (DECT-DLC), DECT NWK protocol layer (DECT-NWK), DECT proprietary
+   Mitel OMM/RFP Protocol (also named AaMiDe), Digital Object Identifier
+   Resolution Protocol (DO-IRP), FiRa UWB Controller Interface (UCI),
+   FiveCo’s Register Access Protocol (5CoRAP), GPS L1 C/A LNAV
+   navigation messages, High Speed Fahrzeugzugang (HSFZ), ID3v2, Low
+   Level Signalling (ATSC3 LLS), Management Component Transport Protocol
+   (MCTP), Management Component Transport Protocol - Control Protocol
+   (MCTP CP), Matter home automation protocol, Non-volatile Memory
+   Express - Management Interface (NVMe-MI) over MCTP, SAP Enqueue
+   Server (SAPEnqueue), SAP GUI (SAPDiag), SAP HANA SQL Command Network
+   Protocol (SAPHDB), SAP Internet Graphic Server (SAP IGS), SAP Message
+   Server (SAPMS), SAP Network Interface (SAPNI), SAP Router
    (SAPROUTER), SAP Secure Network Connection (SNC), SBAS L1 Navigation
-   Messages (SBAS L1), SINEC AP1 Protocol (SINEC AP), Support for almost
-   all WoW 1.12 messages has been added., Train Real-Time Data Protocol
-   (TRDP), UBX protocol of u-blox GNSS receivers (UBX), UDP Tracker
-   Protocol for BitTorrent (BT-Tracker), Windows Delivery Optimization
-   (MS-DO), World of Warcraft World (WOWW) display filters have been
-   changed to be more internally consistent., and Zabbix Protocol
+   Messages (SBAS L1), SINEC AP1 Protocol (SINEC AP), Train Real-Time
+   Data Protocol (TRDP), UBX protocol of u-blox GNSS receivers (UBX),
+   UDP Tracker Protocol for BitTorrent (BT-Tracker), Video Protocol 9
+   (VP9), Windows Delivery Optimization (MS-DO), and Zabbix Protocol
    (Zabbix)
 
   Updated Protocol Support
