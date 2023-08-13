@@ -124,4 +124,5 @@ persconffile_path = Dir.personal_config_path
 
 if not running_superuser or run_user_scripts_when_superuser then
     dofile(DATA_DIR.."console.lua")
+    dofile(DATA_DIR.."browser_sslkeylog.lua")
 end
