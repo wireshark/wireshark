@@ -113,7 +113,6 @@ install(
 	FILES
 		console.lua
 		browser_sslkeylog.lua
-		dtd_gen.lua
 		init.lua
 	DESTINATION
 		${CMAKE_INSTALL_DATADIR}

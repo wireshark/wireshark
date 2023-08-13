@@ -125,4 +125,3 @@ persconffile_path = Dir.personal_config_path
 if not running_superuser or run_user_scripts_when_superuser then
     dofile(DATA_DIR.."console.lua")
 end
---dofile(DATA_DIR.."dtd_gen.lua")

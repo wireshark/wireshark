@@ -173,6 +173,9 @@ column text via the column title, e.g. "_ws.col.Info", has been removed.
 The previous implementation allowed names that are not legal filter names
 and wsbuglink:16576[silently ignored columns that didn't exist.]
 
+* The bundled script "dtd_gen.lua" that was disabled by default has been removed
+  from the installation. It can be found in the Wireshark Wiki under "Contrib".
+
 // === Removed Dissectors
 
 // === New File Format Decoding Support
