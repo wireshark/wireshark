@@ -164,6 +164,8 @@ can be achieved via other fields, prefer that.
 * The Windows build has a new SpeexDSP external dependency (https://www.speex.org).
   The speex code that was previously bundled has been removed.
 
+* The Lua console dialogs under Tools were refactored and redesigned. It now
+  consists of a single dialog window for input and output (Lua 5.2 only).
 
 === Removed Features and Support
 

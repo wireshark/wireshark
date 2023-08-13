@@ -180,6 +180,7 @@ set(WIRESHARK_QT_HEADERS
 	../qt/interface_frame.h
 	../qt/interface_toolbar_reader.h
 	../qt/interface_toolbar.h
+	../qt/io_console_dialog.h
 	../qt/io_graph_dialog.h
 	../qt/layout_preferences_frame.h
 	../qt/main_application.h
@@ -400,6 +401,7 @@ set(WIRESHARK_QT_SRC
 	../qt/interface_frame.cpp
 	../qt/interface_toolbar_reader.cpp
 	../qt/interface_toolbar.cpp
+	../qt/io_console_dialog.cpp
 	../qt/layout_preferences_frame.cpp
 	../qt/main_application.cpp
 	../qt/main_status_bar.cpp
@@ -511,6 +513,7 @@ set(WIRESHARK_QT_UI
 	../qt/import_text_dialog.ui
 	../qt/interface_frame.ui
 	../qt/interface_toolbar.ui
+	../qt/io_console_dialog.ui
 	../qt/io_graph_dialog.ui
 	../qt/layout_preferences_frame.ui
 	../qt/main_window_preferences_frame.ui

@@ -123,6 +123,9 @@ persconffile_path = Dir.personal_config_path
 
 
 if not running_superuser or run_user_scripts_when_superuser then
-    dofile(DATA_DIR.."console.lua")
+    if _VERSION == "Lua 5.1" then
+        -- This has been deprecated and replaced with Lua 5.2.
+        dofile(DATA_DIR.."console.lua")
+    end
     dofile(DATA_DIR.."browser_sslkeylog.lua")
 end

@@ -13,10 +13,8 @@
 #ifndef __FUNNEL_H__
 #define __FUNNEL_H__
 
-#include <glib.h>
+#include <wireshark.h>
 #include <epan/stat_groups.h>
-#include "ws_symbol_export.h"
-#include <ws_log_defs.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -160,6 +158,66 @@ WS_DLL_PUBLIC void funnel_register_packet_menu(const char *name,
  * @return TRUE if the packet menus were modified since the last registration
  */
 WS_DLL_PUBLIC gboolean funnel_packet_menus_modified(void);
+
+/*
+ * The functions below allow registering a funnel "console". A console is just a GUI
+ * dialog that has an input text widget, an output text widget, and for each user
+ * generated input it calls a callback to generate the corresponding output.
+ * Very simple... each console type has a name and an entry in the Tools menu to invoke it.
+ * Mainly used to present a Lua console to allow inspecting Lua internals and run Lua
+ * code using the embedded interpreter.
+ */
+
+/**
+ * Signature of function that can be called to evaluate code.
+  * Returns zero on success, -1 if precompilation failed, positive for runtime errors.
+ */
+typedef int (*funnel_console_eval_cb_t)(const char *console_input,
+                                            char **error_ptr,
+                                            char **error_hint,
+                                            void *callback_data);
+
+/**
+ * Signature of function that can be called to install a logger. Returns opaque
+ * pinter to restore original logger.
+ */
+typedef intptr_t (*funnel_console_open_cb_t)(void (*print_func)(const char *, void *), void *print_data, void *callback_data);
+
+/**
+ * Signature of function that can be called to remove logger.
+ */
+typedef void (*funnel_console_close_cb_t)(intptr_t blob, void *callback_data);
+
+/**
+ * Signature of function that can be called to free user data.
+ */
+typedef void (*funnel_console_data_free_cb_t)(void *callback_data);
+
+/**
+ * Entry point for Lua code to register a console menu
+ */
+WS_DLL_PUBLIC void funnel_register_console_menu(const char *name,
+                                funnel_console_eval_cb_t eval_cb,
+                                funnel_console_open_cb_t open_cb,
+                                funnel_console_close_cb_t close_cb,
+                                void *callback_data,
+                                funnel_console_data_free_cb_t free_data);
+
+/**
+ * Signature of callback function to register console menu entries
+ */
+typedef void (*funnel_registration_console_cb_t)(const char *name,
+                                funnel_console_eval_cb_t eval_cb,
+                                funnel_console_open_cb_t open_cb,
+                                funnel_console_close_cb_t close_cb,
+                                void *callback_data);
+
+/**
+ * Entry point for Wireshark GUI to obtain all registered console menus
+ *
+ * @param r_cb function which will be called to register each console menu entry
+ */
+WS_DLL_PUBLIC void funnel_register_all_console_menus(funnel_registration_console_cb_t r_cb);
 
 extern void initialize_funnel_ops(void);
 

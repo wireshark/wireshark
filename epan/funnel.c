@@ -27,6 +27,15 @@ typedef struct _funnel_menu_t {
     struct _funnel_menu_t* next;
 } funnel_menu_t;
 
+typedef struct _console_menu {
+    char *name;
+    funnel_console_eval_cb_t eval_cb;
+    funnel_console_open_cb_t open_cb;
+    funnel_console_close_cb_t close_cb;
+    void *user_data;
+    funnel_console_data_free_cb_t data_free_cb;
+} funnel_console_menu_t;
+
 /* XXX This assumes one main window and one capture file. */
 static const funnel_ops_t* ops = NULL;
 static funnel_menu_t* registered_menus = NULL;
@@ -58,6 +67,9 @@ typedef struct _funnel_packet_menu_t {
  * List of all registered funnel_packet_menu_t's
  */
 static funnel_packet_menu_t* registered_packet_menus = NULL;
+
+static GSList *registered_console_menus = NULL;
+
 /*
  * TRUE if the packet menus were modified since the last registration
  */
@@ -66,6 +78,8 @@ static void funnel_clear_packet_menu (funnel_packet_menu_t** menu_list);
 
 const funnel_ops_t* funnel_get_funnel_ops(void) { return ops;  }
 void funnel_set_funnel_ops(const funnel_ops_t* o) { ops = o; }
+
+static void funnel_clear_console_menu(void);
 
 static void funnel_insert_menu (funnel_menu_t** menu_list, funnel_menu_t *menu)
 {
@@ -277,6 +291,50 @@ void funnel_cleanup(void)
 {
     funnel_clear_menu(&registered_menus);
     funnel_clear_packet_menu(&registered_packet_menus);
+    funnel_clear_console_menu();
+}
+
+/**
+ * Entry point for code to register a console menu
+ */
+void funnel_register_console_menu(const char *name,
+                                funnel_console_eval_cb_t eval_cb,
+                                funnel_console_open_cb_t open_cb,
+                                funnel_console_close_cb_t close_cb,
+                                gpointer callback_data,
+                                funnel_console_data_free_cb_t free_data)
+{
+    funnel_console_menu_t* m = g_new0(funnel_console_menu_t, 1);
+    m->name = g_strdup(name);
+    m->eval_cb = eval_cb;
+    m->open_cb = open_cb;
+    m->close_cb = close_cb;
+    m->user_data = callback_data;
+    m->data_free_cb = free_data;
+
+    registered_console_menus = g_slist_prepend(registered_console_menus, m);
+}
+
+void funnel_register_all_console_menus(funnel_registration_console_cb_t r_cb)
+{
+    GSList *l;
+    for (l = registered_console_menus; l != NULL; l = l->next) {
+        funnel_console_menu_t *m = l->data;
+        r_cb(m->name, m->eval_cb, m->open_cb, m->close_cb, m->user_data);
+    }
+}
+
+static void funnel_clear_console_menu(void)
+{
+    GSList *l;
+    for (l = registered_console_menus; l != NULL; l = l->next) {
+        funnel_console_menu_t *m = l->data;
+        if (m->data_free_cb && m->user_data) {
+            m->data_free_cb(m->user_data);
+        }
+    }
+    g_slist_free(registered_console_menus);
+    registered_console_menus = NULL;
 }
 
 /*
