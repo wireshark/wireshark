@@ -266,7 +266,13 @@ dissect_bt_dht_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
   /* dissect bt-dht error number and message */
   offset = dissect_bencoded_int( tvb, pinfo, sub_tree, offset, &error_no, "Error ID" );
+  if (offset == 0) {
+    return 0;
+  }
   offset = dissect_bencoded_string( tvb, pinfo, sub_tree, offset, &error_msg, FALSE, "Error Message" );
+  if (offset == 0) {
+    return 0;
+  }
 
   proto_item_set_text( ti, "%s: error %s, %s", label, error_no, error_msg );
   col_append_fstr( pinfo->cinfo, COL_INFO, " No=%s Msg=%s", error_no, error_msg );
