@@ -21,10 +21,9 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/expert.h>
-#include <epan/reassemble.h>
-#include <epan/conversation.h>
 #include "packet-tcp.h"
 
+/* N.B. IANA has these ports registered for hdl-srv (name from original RFC) */
 #define DO_IRP_UDP_PORT 2641
 #define DO_IRP_TCP_PORT 2641
 
@@ -287,7 +286,7 @@ static wmem_map_t *do_irp_request_hash_map = NULL;
 #define DO_IRP_OC_SESSION_TERMINATE     401
 
 
-const value_string opcode_vals[] = {
+static const value_string opcode_vals[] = {
     { DO_IRP_OC_RESERVED,               "RESERVED" },
     { DO_IRP_OC_RESOLUTION,             "RESOLUTION" },
     { DO_IRP_OC_GET_SITEINFO,           "GET_SITEINFO" },
@@ -339,7 +338,7 @@ const value_string opcode_vals[] = {
 #define DO_IRP_RC_SESSION_MSG_REJECTED  505
 
 
-const value_string responsecode_vals[] = {
+static const value_string responsecode_vals[] = {
     { DO_IRP_RC_RESERVED,              "RESERVED" },
     { DO_IRP_RC_SUCCESS,               "SUCCESS" },
     { DO_IRP_RC_ERROR,                 "ERROR" },
@@ -376,7 +375,7 @@ const value_string responsecode_vals[] = {
 #define DO_IRP_DIGEST_ALGO_SHA1   2
 #define DO_IRP_DIGEST_ALGO_SHA256 3
 
-const value_string digest_algo_vals[] = {
+static const value_string digest_algo_vals[] = {
     { DO_IRP_DIGEST_ALGO_MD5,    "MD5" },
     { DO_IRP_DIGEST_ALGO_SHA1,   "SHA-1" },
     { DO_IRP_DIGEST_ALGO_SHA256, "SHA-256" },
@@ -386,20 +385,20 @@ const value_string digest_algo_vals[] = {
 #define DO_IRP_TTL_RELATIVE 0
 #define DO_IRP_TTL_ABSOLUTE 1
 
-const value_string ttl_vals[] = {
+static const value_string ttl_vals[] = {
     { DO_IRP_TTL_RELATIVE, "relative" },
     { DO_IRP_TTL_ABSOLUTE, "absolute" },
     { 0, NULL },
 };
 
-const value_string hashoption_vals[] = {
+static const value_string hashoption_vals[] = {
     { 0x0, "HASH_BY_PREFIX" },
     { 0x1, "HASH_BY_SUFFIX" },
     { 0x2, "HASH_BY_IDENTIFIER" },
     { 0, NULL },
 };
 
-const value_string transportproto_vals[] = {
+static const value_string transportproto_vals[] = {
     { 0x0, "UDP" },
     { 0x1, "TCP" },
     { 0x2, "HTTP" },
@@ -407,13 +406,13 @@ const value_string transportproto_vals[] = {
     { 0, NULL },
 };
 
-const value_string verification_resp_vals[] = {
+static const value_string verification_resp_vals[] = {
     { 0x0, "Fail" },
     { 0x1, "Match" },
     { 0, NULL },
 };
 
-const value_string key_exchange_vals[] = {
+static const value_string key_exchange_vals[] = {
     { 0x4, "Diffie-Hellman" },
     { 0, NULL },
 };
@@ -460,8 +459,8 @@ do_irp_handle_equal(gconstpointer v, gconstpointer w)
  * length, value_of_string and string_tree can be used by the calling function.
  */
 static gint
-decode_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, int hf, const char **value_of_string) {
-
+decode_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, int hf, const char **value_of_string)
+{
     guint32 len = tvb_get_gint32(tvb, offset, ENC_BIG_ENDIAN);
     proto_item *ti;
 
@@ -491,8 +490,8 @@ decode_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, 
  * Returns length of the dissected value
  */
 static gint
-decode_generic_data(tvbuff_t *tvb, proto_tree *tree, gint offset, int hf) {
-
+decode_generic_data(tvbuff_t *tvb, proto_tree *tree, gint offset, int hf)
+{
     guint32 len = tvb_get_gint32(tvb, offset, ENC_BIG_ENDIAN);
 
     proto_item *ti = proto_tree_add_item(tree, hf, tvb, offset, len + 4, ENC_NA);
@@ -510,8 +509,8 @@ decode_generic_data(tvbuff_t *tvb, proto_tree *tree, gint offset, int hf) {
  * Returns length of the dissected data
  */
 static gint
-decode_pk_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
-
+decode_pk_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
     gint len = 0;
 
     guint32 pk_len = tvb_get_guint32(tvb, offset + len, ENC_BIG_ENDIAN);
@@ -557,8 +556,8 @@ decode_pk_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
  * Returns length of the dissected data
  */
 static gint
-decode_hsadmin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
-
+decode_hsadmin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
     gint len = 0;
 
     proto_tree *ti_hsadmin = proto_tree_add_item(tree, hf_do_irp_identrecord_value, tvb, offset + len, -1, ENC_NA);
@@ -595,7 +594,6 @@ decode_hsadmin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 
     proto_item_set_len(ti_hsadmin, len);
     return len;
-
 }
 
 /*
@@ -604,8 +602,8 @@ decode_hsadmin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
  * Returns length of the dissected data
  */
 static gint
-decode_hssite(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
-
+decode_hssite(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
     gint len = 0;
 
     proto_tree *ti_hssite = proto_tree_add_item(tree, hf_do_irp_identrecord_value, tvb, offset + len, -1, ENC_NA);
@@ -715,7 +713,6 @@ decode_hssite(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) 
 
     proto_item_set_len(ti_hssite, len);
     return len;
-
 }
 
 /*
@@ -724,8 +721,8 @@ decode_hssite(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) 
  * Returns length of the dissected record
  */
 static gint
-decode_identifier_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset) {
-
+decode_identifier_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
     gint len = 0;
 
     const char *type_string;
@@ -880,7 +877,6 @@ decode_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 *re
     offset += 4;
 
     return offset;
-
 }
 
 /*
@@ -1292,8 +1288,8 @@ decode_header_body_credential(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 static gboolean
-test_do_irp(tvbuff_t *tvb) {
-
+test_do_irp(tvbuff_t *tvb)
+{
     /* Minimum length (envelope must be present) */
     if(tvb_captured_length(tvb) < DO_IRP_ENVELOPE_LEN)
         return FALSE;
@@ -1430,8 +1426,8 @@ dissect_do_irp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 }
 
 static int
-dissect_do_irp_tcp_full_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
-
+dissect_do_irp_tcp_full_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
     proto_item *ti = proto_tree_add_item(tree, proto_do_irp, tvb, 0, -1, ENC_NA);
     proto_tree *do_irp_tree = proto_item_add_subtree(ti, ett_do_irp);
 
@@ -1614,35 +1610,35 @@ proto_register_do_irp(void)
         },
         { &hf_do_irp_opflags_ca,
             { "Cache Authentication", "do-irp.opflags.ca",
-            FT_BOOLEAN, 32, NULL, 0x8000000, NULL, HFILL }
+            FT_BOOLEAN, 32, NULL, 0x08000000, NULL, HFILL }
         },
         { &hf_do_irp_opflags_cn,
             { "Continuous", "do-irp.opflags.cn",
-            FT_BOOLEAN, 32, NULL, 0x4000000, NULL, HFILL }
+            FT_BOOLEAN, 32, NULL, 0x04000000, NULL, HFILL }
         },
         { &hf_do_irp_opflags_kc,
             { "Keep Connection", "do-irp.opflags.kc",
-            FT_BOOLEAN, 32, NULL, 0x2000000, NULL, HFILL }
+            FT_BOOLEAN, 32, NULL, 0x02000000, NULL, HFILL }
         },
         { &hf_do_irp_opflags_po,
             { "Public Only", "do-irp.opflags.po",
-            FT_BOOLEAN, 32, NULL, 0x1000000, NULL, HFILL }
+            FT_BOOLEAN, 32, NULL, 0x01000000, NULL, HFILL }
         },
         { &hf_do_irp_opflags_rd,
             { "Request-Digest", "do-irp.opflags.rd",
-            FT_BOOLEAN, 32, NULL, 0x800000, NULL, HFILL }
+            FT_BOOLEAN, 32, NULL, 0x00800000, NULL, HFILL }
         },
         { &hf_do_irp_opflags_owe,
             { "Overwrite when exists", "do-irp.opflags.owe",
-            FT_BOOLEAN, 32, NULL, 0x400000, NULL, HFILL }
+            FT_BOOLEAN, 32, NULL, 0x00400000, NULL, HFILL }
         },
         { &hf_do_irp_opflags_mns,
             { "Mint new suffix", "do-irp.opflags.mns",
-            FT_BOOLEAN, 32, NULL, 0x200000, NULL, HFILL }
+            FT_BOOLEAN, 32, NULL, 0x00200000, NULL, HFILL }
         },
         { &hf_do_irp_opflags_dnr,
             { "Do not refer", "do-irp.opflags.dnr",
-            FT_BOOLEAN, 32, NULL, 0x100000, NULL, HFILL }
+            FT_BOOLEAN, 32, NULL, 0x00100000, NULL, HFILL }
         },
         { &hf_do_irp_sisn,
             { "Site Info Serial No.", "do-irp.sisn",
@@ -2092,16 +2088,12 @@ proto_register_do_irp(void)
         /* Conversation */
         { &hf_do_irp_response_in,
             { "Response in", "do-irp.response_in",
-            FT_FRAMENUM, BASE_NONE,
-            NULL, 0x0,
-            NULL, HFILL }
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_do_irp_response_to,
             { "Request in", "do-irp.response_to",
-            FT_FRAMENUM, BASE_NONE,
-            NULL, 0x0,
-            NULL, HFILL }
-        },
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL }
+        }
     };
 
     static ei_register_info ei[] = {
@@ -2159,7 +2151,7 @@ void
 proto_reg_handoff_do_irp(void)
 {
     dissector_add_uint_with_preference("udp.port", DO_IRP_UDP_PORT, do_irp_handle_udp);
-    dissector_add_uint_with_preference("tcp.port", DO_IRP_UDP_PORT, do_irp_handle_tcp);
+    dissector_add_uint_with_preference("tcp.port", DO_IRP_TCP_PORT, do_irp_handle_tcp);
 }
 
 /*

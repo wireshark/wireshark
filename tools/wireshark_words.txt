@@ -639,6 +639,7 @@ hresult
 hsdpa
 hsdsch
 hspdsch
+hssite
 hsupa
 htonl
 htons
@@ -1022,6 +1023,7 @@ openssh
 openssl
 openstreetmap
 openvpn
+opflags
 oplock
 opnum
 optimisation
