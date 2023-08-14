@@ -99,6 +99,11 @@ static int hf_cql_paging_state = -1;
 static int hf_cql_page_size = -1;
 static int hf_cql_timestamp = -1;
 static int hf_cql_query_id = -1;
+static int hf_cql_event_type = -1;
+static int hf_cql_event_schema_change_type = -1;
+static int hf_cql_event_schema_change_type_target = -1;
+static int hf_cql_event_schema_change_keyspace = -1;
+static int hf_cql_event_schema_change_object = -1;
 static int hf_cql_result_timestamp = -1;
 static int hf_cql_string_list_size = -1;
 static int hf_cql_batch_type = -1;
@@ -1015,6 +1020,9 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 		NULL
 	};
 
+	const guint8* string_event_type = NULL;
+	const guint8* string_event_type_target = NULL;
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CQL");
 	col_clear(pinfo->cinfo, COL_INFO);
 
@@ -1534,7 +1542,47 @@ dissect_cql_tcp_pdu(tvbuff_t* raw_tvb, packet_info* pinfo, proto_tree* tree, voi
 
 
 			case CQL_OPCODE_EVENT:
-				proto_tree_add_item(cql_subtree, hf_cql_string, tvb, offset, string_length, ENC_UTF_8 | ENC_NA);
+				cql_subtree = proto_tree_add_subtree(cql_tree, tvb, offset, message_length, ett_cql_message, &ti, "Message EVENT");
+
+				proto_tree_add_item_ret_uint(cql_subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
+				offset += 2;
+
+				proto_tree_add_item(cql_subtree, hf_cql_event_type, tvb, offset, short_bytes_length, ENC_UTF_8 | ENC_NA);
+				string_event_type = tvb_get_string_enc(pinfo->pool, tvb, offset, short_bytes_length, ENC_UTF_8);
+				offset += short_bytes_length;
+				proto_item_append_text(cql_subtree, " (type: %s)", string_event_type);
+
+				if (strcmp(string_event_type, "SCHEMA_CHANGE") == 0) {
+					proto_tree_add_item_ret_uint(cql_subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
+					offset += 2;
+					proto_tree_add_item(cql_subtree, hf_cql_event_schema_change_type, tvb, offset, short_bytes_length, ENC_UTF_8 | ENC_NA);
+					offset += short_bytes_length;
+					proto_tree_add_item_ret_uint(cql_subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
+					offset += 2;
+					string_event_type_target = tvb_get_string_enc(pinfo->pool, tvb, offset, short_bytes_length, ENC_UTF_8);
+					proto_tree_add_item(cql_subtree, hf_cql_event_schema_change_type_target, tvb, offset, short_bytes_length, ENC_UTF_8 | ENC_NA);
+					offset += short_bytes_length;
+
+					/* all targets have the keyspace as the first parameter*/
+					proto_tree_add_item_ret_uint(cql_subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
+					offset += 2;
+					proto_tree_add_item(cql_subtree, hf_cql_event_schema_change_keyspace, tvb, offset, short_bytes_length, ENC_UTF_8 | ENC_NA);
+					offset += short_bytes_length;
+
+					if ((strcmp(string_event_type_target, "TABLE") == 0) || (strcmp(string_event_type_target, "TYPE") == 0)) {
+						proto_tree_add_item_ret_uint(cql_subtree, hf_cql_short_bytes_length, tvb, offset, 2, ENC_BIG_ENDIAN, &short_bytes_length);
+						offset += 2;
+						proto_tree_add_item(cql_subtree, hf_cql_event_schema_change_object, tvb, offset, short_bytes_length, ENC_UTF_8 | ENC_NA);
+						offset += short_bytes_length;
+					} else {
+						/* TODO: handle "FUNCTION" or "AGGREGATE" targets:
+						- [string] the function/aggregate name
+						- [string list] one string for each argument type (as CQL type)
+						*/
+					}
+				} else {
+					/* TODO: handle "TOPOLOGY_CHANGE" and "STATUS_CHANGE" event types as well*/
+				}
 				break;
 
 
@@ -2267,6 +2315,51 @@ proto_register_cql(void)
 				FT_BYTES, BASE_NONE,
 				NULL, 0x0,
 				"CQL query id resulting from a PREPARE statement", HFILL
+			}
+		},
+		{
+			&hf_cql_event_type,
+			{
+				"Event Type", "cql.event_type",
+				FT_STRING, BASE_NONE,
+				NULL, 0x0,
+				"CQL Event Type", HFILL
+			}
+		},
+		{
+			&hf_cql_event_schema_change_type,
+			{
+				"Schema change type", "cql.schema_change_type",
+				FT_STRING, BASE_NONE,
+				NULL, 0x0,
+				"CQL Schema Change Type", HFILL
+			}
+		},
+		{
+			&hf_cql_event_schema_change_type_target,
+			{
+				"Schema change target", "cql.schema_change_target",
+				FT_STRING, BASE_NONE,
+				NULL, 0x0,
+				"CQL Schema Change target object", HFILL
+			}
+		},
+		{
+			&hf_cql_event_schema_change_object,
+			{
+				"Schema change event object name", "cql.schema_change_object_name",
+				FT_STRING, BASE_NONE,
+				NULL, 0x0,
+				"CQL Schema Change object name", HFILL
+			}
+		},
+		{
+			&hf_cql_event_schema_change_keyspace,
+			{
+				"Schema change event keyspace name", "cql.schema_change_keyspace",
+				FT_STRING, BASE_NONE,
+				NULL, 0x0,
+				"CQL Schema Change keyspace name", HFILL
 			}
 		},
 		{
