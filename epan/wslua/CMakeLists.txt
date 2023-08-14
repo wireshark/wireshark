@@ -111,7 +111,6 @@ set_target_properties(register_wslua PROPERTIES FOLDER "Libs/epan/wslua")
 
 install(
 	FILES
-		console.lua
 		browser_sslkeylog.lua
 		init.lua
 	DESTINATION

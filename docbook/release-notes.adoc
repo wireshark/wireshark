@@ -165,7 +165,7 @@ can be achieved via other fields, prefer that.
   The speex code that was previously bundled has been removed.
 
 * The Lua console dialogs under Tools were refactored and redesigned. It now
-  consists of a single dialog window for input and output (Lua 5.2 only).
+  consists of a single dialog window for input and output.
 
 * By default CMake now searches only for Lua 5.2. You may explicictly choose
   to fallback to Lua 5.1 (not recommended) by setting the CMake configuration

@@ -102,7 +102,6 @@ wsar_html.zip
 /ui/qt/i18n.qrc
 /ui/qt/qrc_*.cpp
 /ui/qt/ui_*.h
-/ui/qt/console.lua
 *.ui.autosave
 
 # Windows Stuff #

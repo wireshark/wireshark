@@ -2386,7 +2386,6 @@ endif()
 if(LUA_FOUND AND ENABLE_LUA)
 	set(_lua_files
 		"${CMAKE_SOURCE_DIR}/epan/wslua/init.lua"
-		"${CMAKE_SOURCE_DIR}/epan/wslua/console.lua"
 		"${CMAKE_SOURCE_DIR}/epan/wslua/browser_sslkeylog.lua"
 	)
 	foreach(_lua_file ${_lua_files})

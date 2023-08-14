@@ -1123,19 +1123,24 @@ wslua_add_introspection(void)
     }
 }
 
-#if LUA_VERSION_NUM >= 502
 static const char *lua_error_msg(int code)
 {
     switch (code) {
         case LUA_ERRSYNTAX: return "syntax error during precompilation";
         case LUA_ERRMEM:    return "memory allocation error";
+#if LUA_VERSION_NUM == 502
         case LUA_ERRGCMM:   return "error while running a __gc metamethod";
+#endif
         case LUA_ERRRUN:    return "runtime error";
         case LUA_ERRERR:    return "error while running the message handler";
         default:            break; /* Should not happen. */
     }
     return "unknown error";
 }
+
+#if LUA_VERSION_NUM == 501
+#define LUA_OK 0
+#endif
 
 static int lua_funnel_console_eval(const char *console_input,
                                         char **error_ptr,
@@ -1171,6 +1176,30 @@ static int lua_funnel_console_eval(const char *console_input,
     ws_noisy("Success");
     return 0;
 }
+
+#if LUA_VERSION_NUM == 501
+static const char *luaL_tolstring (lua_State *_L, int idx, size_t *len) {
+  if (!luaL_callmeta(_L, idx, "__tostring")) {  /* no metafield? */
+    switch (lua_type(_L, idx)) {
+      case LUA_TNUMBER:
+      case LUA_TSTRING:
+        lua_pushvalue(_L, idx);
+        break;
+      case LUA_TBOOLEAN:
+        lua_pushstring(_L, (lua_toboolean(_L, idx) ? "true" : "false"));
+        break;
+      case LUA_TNIL:
+        lua_pushliteral(_L, "nil");
+        break;
+      default:
+        lua_pushfstring(_L, "%s: %p", luaL_typename(_L, idx),
+                                            lua_topointer(_L, idx));
+        break;
+    }
+  }
+  return lua_tolstring(_L, -1, len);
+}
+#endif /* LUA_VERSION_NUM == 501 */
 
 /* Receives C print function pointer as first upvalue. */
 /* Receives C print function data pointer as second upvalue. */
@@ -1235,7 +1264,6 @@ static void lua_funnel_console_close(intptr_t wslua_print_ref,
     /* Release reference */
     luaL_unref(_L, LUA_REGISTRYINDEX, ref);
 }
-#endif /* LUA_VERSION_NUM >= 502 */
 
 void wslua_init(register_cb cb, gpointer client_data) {
     gchar* filename;
@@ -1436,14 +1464,12 @@ void wslua_init(register_cb cb, gpointer client_data) {
 
     wslua_add_introspection();
 
-#if LUA_VERSION_NUM >= 502
     // Register Lua's console menu (in the GUI)
     funnel_register_console_menu("Lua",
                                     lua_funnel_console_eval,
                                     lua_funnel_console_open,
                                     lua_funnel_console_close,
                                     L, NULL);
-#endif /* LUA_VERSION_NUM >= 502 */
 
     /* load system's init.lua */
     filename = get_datafile_path("init.lua");

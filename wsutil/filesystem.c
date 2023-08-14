@@ -1051,7 +1051,7 @@ get_datafile_dir(void)
          * if we're started with special privileges, so we need
          * only check it; we don't need to call started_with_special_privs().)
          *
-         * Data files (console.lua, radius/, etc.) are copied to the build
+         * Data files (dtds/, radius/, etc.) are copied to the build
          * directory during the build which also contains executables. A special
          * exception is macOS (when built with an app bundle).
          */
