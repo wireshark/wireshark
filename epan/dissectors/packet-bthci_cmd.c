@@ -293,6 +293,12 @@ static int hf_bthci_cmd_amp_remaining_assoc_length = -1;
 static int hf_bthci_cmd_amp_assoc_fragment = -1;
 static int hf_bthci_cmd_le_event_mask = -1;
 static int hf_bthci_cmd_le_event_mask_le_reserved = -1;
+static int hf_bthci_cmd_le_event_mask_le_enhanced_connection_complete_v2 = -1;
+static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_response_report = -1;
+static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_subevent_data_request = -1;
+static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_transfer_received_v2 = -1;
+static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_report_v2 = -1;
+static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_established_v2 = -1;
 static int hf_bthci_cmd_le_event_mask_le_subrate_changed = -1;
 static int hf_bthci_cmd_le_event_mask_le_biginfo_advertising_report = -1;
 static int hf_bthci_cmd_le_event_mask_le_transmit_power_reporting = -1;
@@ -304,7 +310,7 @@ static int hf_bthci_cmd_le_event_mask_le_terminate_big_complete = -1;
 static int hf_bthci_cmd_le_event_mask_le_create_big_complete = -1;
 static int hf_bthci_cmd_le_event_mask_le_cis_request = -1;
 static int hf_bthci_cmd_le_event_mask_le_cis_established = -1;
-static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_transfer_received = -1;
+static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_transfer_received_v1 = -1;
 static int hf_bthci_cmd_le_event_mask_le_cte_request_failed = -1;
 static int hf_bthci_cmd_le_event_mask_le_connection_iq_report = -1;
 static int hf_bthci_cmd_le_event_mask_le_connectionless_iq_report = -1;
@@ -313,12 +319,12 @@ static int hf_bthci_cmd_le_event_mask_le_scan_request_received = -1;
 static int hf_bthci_cmd_le_event_mask_le_extended_advertising_set_terminated = -1;
 static int hf_bthci_cmd_le_event_mask_le_extended_scan_timeout = -1;
 static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_lost = -1;
-static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_report = -1;
-static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_established = -1;
+static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_report_v1 = -1;
+static int hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_established_v1 = -1;
 static int hf_bthci_cmd_le_event_mask_le_extended_advertising_report = -1;
 static int hf_bthci_cmd_le_event_mask_le_phy_update_complete = -1;
 static int hf_bthci_cmd_le_event_mask_le_direct_advertising_report  = -1;
-static int hf_bthci_cmd_le_event_mask_le_enhanced_connection_complete = -1;
+static int hf_bthci_cmd_le_event_mask_le_enhanced_connection_complete_v1 = -1;
 static int hf_bthci_cmd_le_event_mask_le_generate_dhkey_complete = -1;
 static int hf_bthci_cmd_le_event_mask_le_read_local_p256_public_key_complete = -1;
 static int hf_bthci_cmd_le_event_mask_le_data_length_change = -1;
@@ -647,6 +653,12 @@ static int hf_bthci_cmd_min_encryption_key_size = -1;
 
 static int * const hfx_bthci_cmd_le_event_mask[] = {
     &hf_bthci_cmd_le_event_mask_le_reserved,
+    &hf_bthci_cmd_le_event_mask_le_enhanced_connection_complete_v2,
+    &hf_bthci_cmd_le_event_mask_le_periodic_advertising_response_report,
+    &hf_bthci_cmd_le_event_mask_le_periodic_advertising_subevent_data_request,
+    &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_transfer_received_v2,
+    &hf_bthci_cmd_le_event_mask_le_periodic_advertising_report_v2,
+    &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_established_v2,
     &hf_bthci_cmd_le_event_mask_le_subrate_changed,
     &hf_bthci_cmd_le_event_mask_le_biginfo_advertising_report,
     &hf_bthci_cmd_le_event_mask_le_transmit_power_reporting,
@@ -658,7 +670,7 @@ static int * const hfx_bthci_cmd_le_event_mask[] = {
     &hf_bthci_cmd_le_event_mask_le_create_big_complete,
     &hf_bthci_cmd_le_event_mask_le_cis_request,
     &hf_bthci_cmd_le_event_mask_le_cis_established,
-    &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_transfer_received,
+    &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_transfer_received_v1,
     &hf_bthci_cmd_le_event_mask_le_cte_request_failed,
     &hf_bthci_cmd_le_event_mask_le_connection_iq_report,
     &hf_bthci_cmd_le_event_mask_le_connectionless_iq_report,
@@ -667,12 +679,12 @@ static int * const hfx_bthci_cmd_le_event_mask[] = {
     &hf_bthci_cmd_le_event_mask_le_extended_advertising_set_terminated,
     &hf_bthci_cmd_le_event_mask_le_extended_scan_timeout,
     &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_lost,
-    &hf_bthci_cmd_le_event_mask_le_periodic_advertising_report,
-    &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_established,
+    &hf_bthci_cmd_le_event_mask_le_periodic_advertising_report_v1,
+    &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_established_v1,
     &hf_bthci_cmd_le_event_mask_le_extended_advertising_report,
     &hf_bthci_cmd_le_event_mask_le_phy_update_complete,
     &hf_bthci_cmd_le_event_mask_le_direct_advertising_report ,
-    &hf_bthci_cmd_le_event_mask_le_enhanced_connection_complete,
+    &hf_bthci_cmd_le_event_mask_le_enhanced_connection_complete_v1,
     &hf_bthci_cmd_le_event_mask_le_generate_dhkey_complete,
     &hf_bthci_cmd_le_event_mask_le_read_local_p256_public_key_complete,
     &hf_bthci_cmd_le_event_mask_le_data_length_change,
@@ -7398,8 +7410,8 @@ proto_register_bthci_cmd(void)
             FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x100),
             NULL, HFILL }
         },
-        { &hf_bthci_cmd_le_event_mask_le_enhanced_connection_complete,
-          { "LE Enhanced Connection Complete",             "bthci_cmd.le_event_mask.le_enhanced_connection_complete",
+        { &hf_bthci_cmd_le_event_mask_le_enhanced_connection_complete_v1,
+          { "LE Enhanced Connection Complete [v1]",             "bthci_cmd.le_event_mask.le_enhanced_connection_complete_v1",
             FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x200),
             NULL, HFILL }
         },
@@ -7418,13 +7430,13 @@ proto_register_bthci_cmd(void)
             FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x1000),
             NULL, HFILL }
         },
-        { &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_established,
-          { "LE Periodic Advertising Sync Established",    "bthci_cmd.le_event_mask.le_periodic_advertising_sync_established",
+        { &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_established_v1,
+          { "LE Periodic Advertising Sync Established [v1]",    "bthci_cmd.le_event_mask.le_periodic_advertising_sync_established_v1",
             FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x2000),
             NULL, HFILL }
         },
-        { &hf_bthci_cmd_le_event_mask_le_periodic_advertising_report,
-          { "LE Periodic Advertising Report",              "bthci_cmd.le_event_mask.le_periodic_advertising_report",
+        { &hf_bthci_cmd_le_event_mask_le_periodic_advertising_report_v1,
+          { "LE Periodic Advertising Report [v1]",              "bthci_cmd.le_event_mask.le_periodic_advertising_report_v1",
             FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x4000),
             NULL, HFILL }
         },
@@ -7468,8 +7480,8 @@ proto_register_bthci_cmd(void)
             FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x400000),
             NULL, HFILL }
         },
-        { &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_transfer_received,
-          { "LE Periodic Advertising Sync Transfer Received", "bthci_cmd.le_event_mask.le_periodic_advertising_sync_transfer_received",
+        { &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_transfer_received_v1,
+          { "LE Periodic Advertising Sync Transfer Received [v1]", "bthci_cmd.le_event_mask.le_periodic_advertising_sync_transfer_received_v1",
             FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x800000),
             NULL, HFILL }
         },
@@ -7528,9 +7540,39 @@ proto_register_bthci_cmd(void)
             FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x400000000),
             NULL, HFILL }
         },
+        { &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_established_v2,
+          { "LE Periodic Advertising Sync Established [v2]", "bthci_cmd.le_event_mask.le_periodic_advertising_sync_established_v2",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x800000000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_periodic_advertising_report_v2,
+          { "LE Periodic Advertising Report [v2]", "bthci_cmd.le_event_mask.le_event_mask_le_periodic_advertising_report_v2",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x1000000000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_periodic_advertising_sync_transfer_received_v2,
+          { "LE Periodic Advertising Sync Transfer Received [v2]", "bthci_cmd.le_event_mask.le_periodic_advertising_sync_transfer_received_v2",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x2000000000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_periodic_advertising_subevent_data_request,
+          { "LE Periodic Advertising Subevent Data Request", "bthci_cmd.le_event_mask.le_periodic_advertising_subevent_data_request",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x4000000000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_periodic_advertising_response_report,
+          { "LE Periodic Advertising Response Report", "bthci_cmd.le_event_mask.le_periodic_advertising_response_report",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x8000000000),
+            NULL, HFILL }
+        },
+        { &hf_bthci_cmd_le_event_mask_le_enhanced_connection_complete_v2,
+          { "LE Enhanced Connection Complete [v2]", "bthci_cmd.le_event_mask.le_enhanced_connection_complete_v2",
+            FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x10000000000),
+            NULL, HFILL }
+        },
         { &hf_bthci_cmd_le_event_mask_le_reserved,
           { "Reserved",                                    "bthci_cmd.le_event_mask.reserved",
-            FT_UINT64, BASE_HEX, NULL, G_GUINT64_CONSTANT(0xFFFFFFF800000000),
+            FT_UINT64, BASE_HEX, NULL, G_GUINT64_CONSTANT(0xFFFFFE0000000000),
             NULL, HFILL }
         },
         { &hf_bthci_cmd_le_advts_interval_min,
