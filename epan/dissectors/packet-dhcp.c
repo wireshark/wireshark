@@ -3611,10 +3611,8 @@ dhcp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 			}
 		}
 		else {
-			if (dhcp_handle_basic_types(pinfo, o82_v_tree, vti, tvb, o82_opt[idx].info.ftype,
-						     suboptoff, subopt_len, o82_opt[idx].info.phf, &default_hfs) == 0) {
-				expert_add_info_format(pinfo, vti, &hf_dhcp_subopt_unknown_type, "ERROR, please report: Unknown subopt type handler %d", subopt);
-			}
+			dhcp_handle_basic_types(pinfo, o82_v_tree, vti, tvb, o82_opt[idx].info.ftype,
+						     suboptoff, subopt_len, o82_opt[idx].info.phf, &default_hfs);
 		}
 	}
 
