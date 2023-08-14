@@ -17,7 +17,6 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/tvbparse.h>
-#include "packet-tcp.h"
 
 #define IPERF2_UDP_HDR_SIZE 160
 
@@ -746,53 +745,53 @@ proto_register_iperf2(void)
             NULL, 0, NULL, HFILL }
         },
         { &hf_iperf2_flag_header_version1,
-		    { "Header Valid", "iperf2.client.flags_version1", FT_BOOLEAN, 32,
+            { "Header Valid", "iperf2.client.flags_version1", FT_BOOLEAN, 32,
             NULL, HEADER_VERSION1, NULL, HFILL }
-		},
+        },
         { &hf_iperf2_flag_header_extend,
-		    { "Extended Version", "iperf2.client.flags_extend", FT_BOOLEAN, 32,
+            { "Extended Version", "iperf2.client.flags_extend", FT_BOOLEAN, 32,
             NULL, HEADER_EXTEND, NULL, HFILL }
-		},
+        },
         { &hf_iperf2_header_udptests,
-		    { "UDP Tests", "iperf2.client.flags_udp_tests", FT_BOOLEAN, 32,
+            { "UDP Tests", "iperf2.client.flags_udp_tests", FT_BOOLEAN, 32,
             NULL, HEADER_UDPTESTS, NULL, HFILL }
-		},
+        },
         { &hf_iperf2_header_seqno64b,
-		    { "64 Bit Seq Num", "iperf2.client.flags_seqno64b", FT_BOOLEAN, 32,
+            { "64 Bit Seq Num", "iperf2.client.flags_seqno64b", FT_BOOLEAN, 32,
             NULL, HEADER_SEQNO64B, "64-bits sequence numbers are used", HFILL }
-		},
+        },
         { &hf_iperf2_header_version2,
-		    { "Version 2", "iperf2.client.flags_version2", FT_BOOLEAN, 32,
+            { "Version 2", "iperf2.client.flags_version2", FT_BOOLEAN, 32,
             NULL, HEADER_VERSION2, NULL, HFILL }
-		},
+        },
         { &hf_iperf2_header_v2peerdetect,
-		    { "Version 2 Peer Detect", "iperf2.client.flags_version2_peerdetect", FT_BOOLEAN, 32,
+            { "Version 2 Peer Detect", "iperf2.client.flags_version2_peerdetect", FT_BOOLEAN, 32,
             NULL, HEADER_V2PEERDETECT, NULL, HFILL }
-		},
+        },
         { &hf_iperf2_header_udpavoid,
-		    { "Don't use for UDP", "iperf2.client.flags_udpavoid", FT_BOOLEAN, 32,
+            { "Don't use for UDP", "iperf2.client.flags_udpavoid", FT_BOOLEAN, 32,
             NULL, HEADER_UDPAVOID1, "Don't use these bits for UDP", HFILL }
-		},
+        },
         { &hf_iperf2_header_bounceback,
-		    { "Bounceback", "iperf2.client.flags_bounceback", FT_BOOLEAN, 32,
+            { "Bounceback", "iperf2.client.flags_bounceback", FT_BOOLEAN, 32,
             NULL, HEADER_BOUNCEBACK, NULL, HFILL }
-		},
+        },
         { &hf_iperf2_header_len_bit,
-		    { "Length Bit", "iperf2.client.flags_len_bit", FT_BOOLEAN, 32,
+            { "Length Bit", "iperf2.client.flags_len_bit", FT_BOOLEAN, 32,
             NULL, HEADER_LEN_BIT, NULL, HFILL }
-		},
+        },
         { &hf_iperf2_header_len_mask,
-		    { "Length Mask", "iperf2.client.flags_len_bit", FT_UINT32, BASE_HEX,
+            { "Length Mask", "iperf2.client.flags_len_mask", FT_UINT32, BASE_HEX,
             NULL, HEADER_LEN_MASK, NULL, HFILL }
-		},
+        },
         { &hf_iperf2_run_now,
-		    { "Run Now", "iperf2.client.flags_run_now", FT_BOOLEAN, 32,
+            { "Run Now", "iperf2.client.flags_run_now", FT_BOOLEAN, 32,
             NULL, RUN_NOW, NULL, HFILL }
-		},
+        },
         { &hf_iperf2_header16_small_triptimes,
-		    { "Small Triptimes", "iperf2.client.flags_small_triptimes", FT_BOOLEAN, 32,
+            { "Small Triptimes", "iperf2.client.flags_small_triptimes", FT_BOOLEAN, 32,
             NULL, HEADER16_SMALL_TRIPTIMES, "Don't decode other fields in this packet", HFILL }
-		},
+        },
         { &hf_iperf2_num_threads,
             { "Number of Threads", "iperf2.client.numthreads", FT_UINT32, BASE_DEC,
             NULL, 0, NULL, HFILL }
@@ -882,7 +881,7 @@ proto_register_iperf2(void)
             NULL, HEADER_PERIODICBURST, NULL, HFILL }
         },
         { &hf_iperf2_upper_header_writeprefetch,
-            { "Write Prefetch", "iperf2.client.upper_header_periodicburst", FT_BOOLEAN, 16,
+            { "Write Prefetch", "iperf2.client.upper_header_writeprefetch", FT_BOOLEAN, 16,
             NULL, HEADER_WRITEPREFETCH, NULL, HFILL }
         },
         { &hf_iperf2_upper_header_tcpquickack,
@@ -930,7 +929,7 @@ proto_register_iperf2(void)
             NULL, 0, NULL, HFILL }
         },
         { &hf_iperf2_permit_key_len,
-            { "Permit Key Length", "iperf2.client.permit_key", FT_UINT16, BASE_DEC,
+            { "Permit Key Length", "iperf2.client.permit_key_length", FT_UINT16, BASE_DEC,
             NULL, 0, NULL, HFILL }
         },
         { &hf_iperf2_permit_key,
@@ -1050,25 +1049,25 @@ proto_register_iperf2(void)
             NULL, 0, NULL, HFILL }
         },
         { &hf_iperf2_header_bbquickack,
-		    { "Quick Ack", "iperf2.client.bb_flags_quickack", FT_BOOLEAN, 16,
+            { "Quick Ack", "iperf2.client.bb_flags_quickack", FT_BOOLEAN, 16,
             NULL, HEADER_BBQUICKACK, NULL, HFILL }
-		},
+        },
         { &hf_iperf2_header_bbclocksynced,
-		    { "Clock Synced", "iperf2.client.bb_flags_clock_synced", FT_BOOLEAN, 16,
+            { "Clock Synced", "iperf2.client.bb_flags_clock_synced", FT_BOOLEAN, 16,
             NULL, HEADER_BBCLOCKSYNCED, NULL, HFILL }
-		},
+        },
         { &hf_iperf2_header_bbtos,
-		    { "ToS", "iperf2.client.bb_flags_tos", FT_BOOLEAN, 16,
+            { "ToS", "iperf2.client.bb_flags_tos", FT_BOOLEAN, 16,
             NULL, HEADER_BBTOS, NULL, HFILL }
-		},
+        },
         { &hf_iperf2_header_bbstop,
-		    { "Stop", "iperf2.client.bb_flags_stop", FT_BOOLEAN, 16,
+            { "Stop", "iperf2.client.bb_flags_stop", FT_BOOLEAN, 16,
             NULL, HEADER_BBSTOP, NULL, HFILL }
-		},
+        },
         { &hf_iperf2_header_bbreplysize,
-		    { "Reply Size", "iperf2.client.bb_flags_reply_size", FT_BOOLEAN, 16,
+            { "Reply Size", "iperf2.client.bb_flags_reply_size", FT_BOOLEAN, 16,
             NULL, HEADER_BBREPLYSIZE, NULL, HFILL }
-		},
+        },
         { &hf_iperf2_bb_tos,
             { "Bounceback ToS", "iperf2.client.bb_tos", FT_UINT16, BASE_HEX,
             NULL, 0, NULL, HFILL }
