@@ -13,6 +13,7 @@ set(PIDL_DISSECTOR_NAMES
 	clusapi
 	dfs
 	dnsserver
+	drsuapi
 	dssetup
 	efs
 	eventlog
@@ -39,7 +40,9 @@ set(PIDL_DISSECTOR_NAMES
 set(PIDL_DISSECTOR_clusapi_EXTRA_DEPS
 	clusapi/clusapi.idl
 )
-
+set(PIDL_DISSECTOR_drsuapi_EXTRA_DEPS
+	misc/misc.idl
+)
 set(PIDL_DISSECTOR_dssetup_EXTRA_DEPS
 	misc/misc.idl
 )

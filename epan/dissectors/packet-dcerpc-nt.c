@@ -1320,7 +1320,7 @@ static int hf_nt_domain_sid = -1;
 /* That's a SID that is always 28 bytes long */
 int
 dissect_ndr_nt_SID28(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			proto_tree *tree, dcerpc_info *di, guint8 *drep _U_)
+			proto_tree *tree, dcerpc_info *di, guint8 *drep _U_, int hf_index)
 {
 	proto_item *item;
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
@@ -1328,8 +1328,8 @@ dissect_ndr_nt_SID28(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	const char *name;
 	int newoffset;
 
-	if(di->hf_index!=-1){
-		name=proto_registrar_get_name(di->hf_index);
+	if(hf_index!=-1){
+		name=proto_registrar_get_name(hf_index);
 	} else {
 		name="Domain";
 	}
@@ -1419,10 +1419,13 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset, packet_info *pinfo,
 */
 /* Note this is in fact for dissecting the dom_sid2*/
 int
-dissect_ndr_nt_SID_with_options(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep, guint32 options)
+dissect_ndr_nt_SID_with_options(tvbuff_t *tvb, int offset, packet_info *pinfo,
+	proto_tree *tree, dcerpc_info *di, guint8 *drep, guint32 options, int hf_index)
 {
 	dcerpc_call_value *dcv = (dcerpc_call_value *)di->call_data;
 	gint levels = CB_STR_ITEM_LEVELS(options);
+
+	di->hf_index = hf_index;
 	offset=dissect_ndr_nt_SID(tvb, offset, pinfo, tree, di, drep);
 
 	if(dcv && dcv->private_data){

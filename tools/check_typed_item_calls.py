@@ -946,6 +946,10 @@ def removeComments(code_string):
 
 # Test for whether the given file was automatically generated.
 def isGeneratedFile(filename):
+    # Check file exists - e.g. may have been deleted in a recent commit.
+    if not os.path.exists(filename):
+        return False
+
     # Open file
     f_read = open(os.path.join(filename), 'r', encoding="utf8")
     lines_tested = 0

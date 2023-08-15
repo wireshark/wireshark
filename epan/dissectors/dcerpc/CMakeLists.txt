@@ -10,7 +10,6 @@
 set(PIDL_DISSECTOR_NAMES
 	budb
 	butc
-	drsuapi
 )
 
 foreach(PROTOCOL_NAME IN LISTS PIDL_DISSECTOR_NAMES)

@@ -156,7 +156,7 @@ dissect_ndr_nt_SID(tvbuff_t *tvb, int offset,
 int
 dissect_ndr_nt_SID_with_options(tvbuff_t *tvb, int offset,
 		   packet_info *pinfo, proto_tree *tree,
-			dcerpc_info *di, guint8 *drep, guint32 options);
+			dcerpc_info *di, guint8 *drep, guint32 options, int hf_index);
 int
 dissect_ndr_nt_PSID(tvbuff_t *tvb, int offset,
 		    packet_info *pinfo, proto_tree *parent_tree,
@@ -177,7 +177,7 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
 
 int
 dissect_ndr_nt_SID28(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			proto_tree *tree, dcerpc_info *di, guint8 *drep);
+			proto_tree *tree, dcerpc_info *di, guint8 *drep, int hf_index);
 /*
  * Policy handle hashing
  */

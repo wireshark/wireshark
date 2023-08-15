@@ -310,6 +310,10 @@ def findStrings(filename):
 
 # Test for whether the given file was automatically generated.
 def isGeneratedFile(filename):
+    # Check file exists - e.g. may have been deleted in a recent commit.
+    if not os.path.exists(filename):
+        return False
+
     if not filename.endswith('.c'):
         return False
 
