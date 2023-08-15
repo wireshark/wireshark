@@ -124,7 +124,7 @@ a Xcode project file in the current directory.
 
 If you upgrade the major release of macOS on which you are building
 Wireshark, we advise that, before you do any builds after the upgrade,
-you remove the build directory and all its subdiretories, and repeat the
+you remove the build directory and all its subdirectories, and repeat the
 above process, re-running CMake and rebuilding from scratch.
 
 On Snow Leopard (10.6) and later releases, if you are building on a

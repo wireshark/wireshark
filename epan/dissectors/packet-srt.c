@@ -92,7 +92,7 @@ static int hf_srt_srths_peer_latency = -1; // TSBPD delay
 static int hf_srt_srtkm_msg = -1;
 static int hf_srt_srtkm_error = -1;
 static int hf_srt_srths_sid = -1;
-static int hf_srt_srths_conjestcontrol = -1;
+static int hf_srt_srths_congestcontrol = -1;
 
 static gint ett_srt = -1;
 static gint ett_srt_handshake_ext_flags = -1;
@@ -195,7 +195,7 @@ enum UDTMessageType
 #define SRT_CMD_KMREQ       3
 #define SRT_CMD_KMRSP       4
 #define SRT_CMD_SID         5
-#define SRT_CMD_CONJESTCTRL 6
+#define SRT_CMD_CONGESTCTRL 6
 
 enum SrtDataStruct
 {
@@ -249,7 +249,7 @@ static const value_string srt_ctrlmsg_exttypes[] = {
     {SRT_CMD_KMREQ,       "SRT_CMD_KMREQ"},
     {SRT_CMD_KMRSP,       "SRT_CMD_KMRSP"},
     {SRT_CMD_SID,         "SRT_CMD_SID"},
-    {SRT_CMD_CONJESTCTRL, "SRT_CMD_CONJESTCTRL"},
+    {SRT_CMD_CONGESTCTRL, "SRT_CMD_CONGESTCTRL"},
 
     { 0, NULL },
 };
@@ -682,8 +682,8 @@ dissect_srt_control_packet(tvbuff_t *tvb, packet_info* pinfo,
                         format_text_reorder_32(tree, tvb, hf_srt_srths_sid, begin, 4 * blocklen);
                         break;
 
-                    case SRT_CMD_CONJESTCTRL:
-                        format_text_reorder_32(tree, tvb, hf_srt_srths_conjestcontrol, begin, 4 * blocklen);
+                    case SRT_CMD_CONGESTCTRL:
+                        format_text_reorder_32(tree, tvb, hf_srt_srths_congestcontrol, begin, 4 * blocklen);
                         break;
 
                     default:
@@ -1226,8 +1226,8 @@ void proto_register_srt(void)
             FT_STRING, BASE_NONE,
             NULL, 0, NULL, HFILL}},
 
-        {&hf_srt_srths_conjestcontrol, {
-            "Congestion Control Type", "srt.hs.conjestctrl",
+        {&hf_srt_srths_congestcontrol, {
+            "Congestion Control Type", "srt.hs.congestctrl",
             FT_STRING, BASE_NONE,
             NULL, 0, NULL, HFILL}}
     };

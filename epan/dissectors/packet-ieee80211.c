@@ -56679,7 +56679,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_eht_ttl_expected_dura_pres,
      {"Expected Duration Present",
-      "wlan.eht.tid_to_link_mapping.control.expteced_duration",
+      "wlan.eht.tid_to_link_mapping.control.expected_duration",
       FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
 
     {&hf_ieee80211_eht_ttl_link_mapping_size,
@@ -56805,39 +56805,39 @@ proto_register_ieee80211(void)
       FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_qos_chars_max_msdu_size,
-     {"Maximum MSDU Size", "wlan.eht.qos_chracteristics.max_msdu_size",
+     {"Maximum MSDU Size", "wlan.eht.qos_characteristics.max_msdu_size",
       FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_qos_chars_service_start_time,
-     {"Service Start Time", "wlan.eht.qos_chracteristics.service_start_time",
+     {"Service Start Time", "wlan.eht.qos_characteristics.service_start_time",
       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_qos_chars_service_start_time_linkid,
-     {"Service Start Time LinkID", "wlan.eht.qos_chracteristics.service_start_time_linkid",
+     {"Service Start Time LinkID", "wlan.eht.qos_characteristics.service_start_time_linkid",
       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_qos_chars_mean_data_rate,
-     {"Mean Data Rate", "wlan.eht.qos_chracteristics.mean_data_rate",
+     {"Mean Data Rate", "wlan.eht.qos_characteristics.mean_data_rate",
       FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_qos_chars_burst_size,
-     {"Burst Size", "wlan.eht.qos_chracteristics.burst_size",
+     {"Burst Size", "wlan.eht.qos_characteristics.burst_size",
       FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_qos_chars_msdu_lifetime,
-     {"MSDU Lifetime", "wlan.eht.qos_chracteristics.msdu_lifetime",
+     {"MSDU Lifetime", "wlan.eht.qos_characteristics.msdu_lifetime",
       FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_qos_chars_msdu_delivery_ratio,
-     {"MSDU Delivery Ratio", "wlan.eht.qos_chracteristics.msdu_delivery_ratio",
+     {"MSDU Delivery Ratio", "wlan.eht.qos_characteristics.msdu_delivery_ratio",
       FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL }},
 
     {&hf_ieee80211_eht_qos_chars_msdu_count_exponent,
-     {"MSDU Count Exponent", "wlan.eht.qos_chracteristics.msdu_count_exponent",
+     {"MSDU Count Exponent", "wlan.eht.qos_characteristics.msdu_count_exponent",
       FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_qos_chars_medium_time,
-     {"Medium Time", "wlan.eht.qos_chracteristics.medium_time",
+     {"Medium Time", "wlan.eht.qos_characteristics.medium_time",
       FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_link_id_bitmap,

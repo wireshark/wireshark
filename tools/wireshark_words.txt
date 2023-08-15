@@ -240,6 +240,7 @@ claypaky
 clientkey
 clientout
 clopts
+clsfr
 cmake
 cmdcontrol
 cmstatus
@@ -407,6 +408,7 @@ dfsauth
 dftest
 dgotyp
 dgram
+dhaka
 dhcpv
 dialed
 dialup
@@ -981,6 +983,7 @@ nrppa
 nrtcws
 nsapi
 nssai
+nssvc
 nstime
 nstrace
 ntlmssp
@@ -1492,6 +1495,7 @@ synchronizer
 synchronizing
 synchronously
 syncman
+syniverse
 synphasor
 syntaxes
 sysdig
