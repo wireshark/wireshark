@@ -17,6 +17,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
+#include <inttypes.h>
 
 #include <glib.h>
 
@@ -2644,8 +2645,8 @@ sharkd_session_process_tap_phs_cb_aux(phs_t *rs)
         }
         sharkd_json_object_open(NULL);
         sharkd_json_value_string("proto", rs->proto_name);
-        sharkd_json_value_anyf("frames", "%u", rs->frames);
-        sharkd_json_value_anyf("bytes", "%lu", rs->bytes);
+        sharkd_json_value_anyf("frames", "%"PRIu32, rs->frames);
+        sharkd_json_value_anyf("bytes", "%"PRIu64, rs->bytes);
         if (rs->child != NULL && rs->child->protocol != -1) {
             sharkd_json_array_open("protos");
             sharkd_session_process_tap_phs_cb_aux(rs->child);
