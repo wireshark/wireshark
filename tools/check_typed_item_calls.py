@@ -560,7 +560,6 @@ class Item:
                 self.check_contiguous_bits(mask)
                 self.check_num_digits(self.mask)
                 self.check_digits_all_zeros(self.mask)
-                self.check_full_mask(self.mask)
 
 
     def __str__(self):
@@ -732,7 +731,7 @@ class Item:
     # Exceptions might be where:
     # - in add_bitmask() set and only one there!
     # - represents flags, but dissector is not yet decoding them
-    def check_full_mask(self, mask):
+    def check_full_mask(self, mask, field_arrays):
         if self.item_type == "FT_BOOLEAN":
             return
         if self.label.lower().find('mask') != -1 or self.label.lower().find('flag') != -1 or self.label.lower().find('bitmap') != -1:
@@ -745,6 +744,13 @@ class Item:
             if num_digits is None:
                 return
             if mask[2:] == 'f'*num_digits   or   mask[2:] == 'F'*num_digits:
+                # Don't report though if the only item in a field_array
+                for arr in field_arrays:
+                    list = field_arrays[arr][0]
+                    if len(list) == 1 and list[0] == self.hf:
+                        # Was first and only!
+                        return
+
                 print('Warning:', self.filename, self.hf, 'filter=', self.filter, ' - mask is all set - this is confusing - set 0 instead! :', '"' + mask + '"')
                 global warnings_found
                 warnings_found += 1
@@ -1142,7 +1148,7 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
         print(filename, 'does not exist!')
         return
 
-    # Find simple macros so can subtitute into items and calls.
+    # Find simple macros so can substitute into items and calls.
     macros = find_macros(filename)
 
     # Find important parts of items.
@@ -1168,6 +1174,11 @@ def checkFile(filename, check_mask=False, mask_exact_width=False, check_label=Fa
     field_arrays = {}
     if check_bitmask_fields:
         field_arrays = find_field_arrays(filename, fields, items_defined)
+
+    if check_mask and check_bitmask_fields:
+        for i in items_defined:
+            item = items_defined[i]
+            item.check_full_mask(item.mask, field_arrays)
 
     # Now actually check the calls
     for c in apiChecks:
@@ -1230,6 +1241,9 @@ if args.all_checks:
     args.consecutive = True
     args.check_bitmask_fields = True
     args.label_vs_filter = True
+
+if args.check_bitmask_fields:
+    args.mask = True
 
 
 # Get files from wherever command-line args indicate.

@@ -3054,7 +3054,7 @@ proto_register_rohc(void)
             },
             { &hf_rohc_ir_dyn_packet,
               { "IR-DYN packet","rohc.ir_dyn_packet",
-                FT_UINT8, BASE_HEX, NULL, 0xff,
+                FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL , HFILL
               }
             },

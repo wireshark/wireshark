@@ -5417,7 +5417,7 @@ proto_register_btle(void)
         },
         { &hf_control_sync_id,
             { "ID",                              "btle.control.sync.id",
-            FT_UINT16, BASE_HEX, NULL, 0xFFFF,
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_control_sync_info_offset,

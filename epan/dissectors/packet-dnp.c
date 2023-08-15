@@ -5033,7 +5033,7 @@ proto_register_dnp3(void)
 
     { &hf_dnp3_al_sa_cdl,
       { "Challenge Data Length", "dnp3.al.sa.cdl",
-          FT_UINT8, BASE_HEX, NULL, 0,
+          FT_UINT16, BASE_HEX, NULL, 0,
           NULL, HFILL }
     },
 

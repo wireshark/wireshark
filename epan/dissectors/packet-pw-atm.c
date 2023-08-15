@@ -1881,7 +1881,7 @@ proto_register_pw_atm_ata(void)
 					  ,NULL						,HFILL }},
 
 		{ &hf_pref_cw_rsvlen	,{"Length (extended)"		,"pw.cw.length"
-					  ,FT_UINT8	,BASE_DEC	,NULL		,0xff
+					  ,FT_UINT8	,BASE_DEC	,NULL		,0x0
 					  ,NULL						,HFILL }},
 
 		{ &hf_cw_seq		,{"Sequence number"		,"pw.cw.seqno"
@@ -1889,7 +1889,7 @@ proto_register_pw_atm_ata(void)
 					  ,NULL						,HFILL }},
 
 		{ &hf_gen_cw_atmbyte	,{"ATM-specific byte"		,"pw.cw.3rd_byte"
-					  ,FT_UINT8	,BASE_HEX	,NULL		,0xFF
+					  ,FT_UINT8	,BASE_HEX	,NULL		,0x0
 					  ,NULL						,HFILL }}
 	};
 	static gint *ett_array[] = {
