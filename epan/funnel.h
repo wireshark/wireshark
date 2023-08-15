@@ -66,12 +66,6 @@ typedef struct _funnel_ops_t {
 
     void (*close_dialogs)(void);
 
-    void (*logger)(const gchar *log_domain,
-                   enum ws_log_level log_level,
-                   const gchar *message,
-                   gpointer user_data);
-
-
     void (*retap_packets)(funnel_ops_id_t *ops_id);
     void (*copy_to_clipboard)(GString *str);
 

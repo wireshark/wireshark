@@ -66,14 +66,6 @@ static const gchar *text_window_get_text(funnel_text_window_t *tw) {
     return tw->text->str;
 }
 
-static void funnel_logger(const gchar *log_domain,
-                          enum ws_log_level log_level,
-                          const gchar *message,
-                          gpointer user_data _U_) {
-    ws_log(log_domain, log_level, "%s", message);
-}
-
-
 
 static const funnel_ops_t funnel_ops = {
     NULL,
@@ -90,7 +82,6 @@ static const funnel_ops_t funnel_ops = {
     /*...,*/
     NULL,
     NULL,
-    funnel_logger,
     NULL,
     NULL,
     NULL,

@@ -45,7 +45,6 @@ extern "C" {
 static struct _funnel_text_window_t* text_window_new(funnel_ops_id_t *ops_id, const char* title);
 static void string_dialog_new(funnel_ops_id_t *ops_id, const gchar* title, const gchar** field_names, const gchar** field_values, funnel_dlg_cb_t dialog_cb, void* dialog_cb_data, funnel_dlg_cb_data_free_t dialog_cb_data_free);
 
-static void funnel_statistics_logger(const gchar *, enum ws_log_level, const gchar *message, gpointer);
 static void funnel_statistics_retap_packets(funnel_ops_id_t *ops_id);
 static void funnel_statistics_copy_to_clipboard(GString *text);
 static const gchar *funnel_statistics_get_filter(funnel_ops_id_t *ops_id);
@@ -262,7 +261,6 @@ FunnelStatistics::FunnelStatistics(QObject *parent, CaptureFile &cf) :
     funnel_ops_->add_button = text_window_add_button;
     funnel_ops_->new_dialog = string_dialog_new;
     funnel_ops_->close_dialogs = string_dialogs_close;
-    funnel_ops_->logger = funnel_statistics_logger;
     funnel_ops_->retap_packets = funnel_statistics_retap_packets;
     funnel_ops_->copy_to_clipboard = funnel_statistics_copy_to_clipboard;
     funnel_ops_->get_filter = funnel_statistics_get_filter;
@@ -372,13 +370,6 @@ void string_dialog_new(funnel_ops_id_t *ops_id, const gchar* title, const gchar*
         field_list << field;
     }
     FunnelStringDialog::stringDialogNew(qobject_cast<QWidget *>(ops_id->funnel_statistics->parent()), title, field_list, dialog_cb, dialog_cb_data, dialog_cb_data_free);
-}
-
-void funnel_statistics_logger(const gchar *log_domain,
-                          enum ws_log_level log_level,
-                          const gchar *message,
-                          gpointer) {
-    ws_log(log_domain, log_level, "%s", message);
 }
 
 void funnel_statistics_retap_packets(funnel_ops_id_t *ops_id) {

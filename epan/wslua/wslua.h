@@ -57,9 +57,6 @@
 #define WSLUA_INIT_ROUTINES "init_routines"
 #define WSLUA_PREFS_CHANGED "prefs_changed"
 
-typedef void (*wslua_logger_t)(const gchar *, enum ws_log_level, const gchar *, gpointer);
-extern wslua_logger_t wslua_logger;
-
 /* type conversion macros - lua_Number is a double, so casting isn't kosher; and
    using Lua's already-available lua_tointeger() and luaL_checkinteger() might be different
    on different machines; so use these instead please! */

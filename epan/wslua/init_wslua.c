@@ -47,7 +47,6 @@ static lua_State* L = NULL;
 packet_info* lua_pinfo;
 struct _wslua_treeitem* lua_tree;
 tvbuff_t* lua_tvb;
-wslua_logger_t wslua_logger;
 int lua_dissectors_table_ref = LUA_NOREF;
 int lua_heur_dissectors_table_ref = LUA_NOREF;
 
@@ -738,14 +737,6 @@ static gboolean lua_load_plugin_script(const gchar* name,
     return FALSE;
 }
 
-
-static void basic_logger(const gchar *log_domain,
-                          enum ws_log_level log_level,
-                          const gchar *message,
-                          gpointer user_data _U_) {
-    ws_log(log_domain, log_level, "%s", message);
-}
-
 static int wslua_panic(lua_State* LS) {
     ws_error("LUA PANIC: %s",lua_tostring(LS,-1));
     /** ws_error() does an abort() and thus never returns **/
@@ -1267,7 +1258,6 @@ static void lua_funnel_console_close(intptr_t wslua_print_ref,
 
 void wslua_init(register_cb cb, gpointer client_data) {
     gchar* filename;
-    const funnel_ops_t* ops = funnel_get_funnel_ops();
     gboolean enable_lua = TRUE;
     gboolean run_anyway = FALSE;
     expert_module_t* expert_lua;
@@ -1390,9 +1380,6 @@ void wslua_init(register_cb cb, gpointer client_data) {
         ws_lua_ei = ei;
         ws_lua_ei_len = array_length(ei);
     }
-
-    /* set up the logger */
-    wslua_logger = ops ? ops->logger : basic_logger;
 
     if (!L) {
         L = lua_newstate(wslua_allocf, NULL);
