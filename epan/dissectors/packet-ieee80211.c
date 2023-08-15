@@ -108,6 +108,7 @@ static const unit_name_string units_10_ms = { " times 10 milliseconds", NULL };
 
 #define IS_2_4_GHZ(freq) (freq >= 2400 && freq <= 2500)
 #define IS_5PLUS GHZ(freq) (freq >= 5000)
+#define IS_6_GHZ(freq) (freq >= 5955)
 
 /*
  * We keep STA properties here, like whether they are S1G STAs or DMG STAs.
@@ -362,6 +363,7 @@ typedef enum {
   PASN_DATA_KEY,
   HE_CHANNEL_WIDTH_KEY,
   IS_EHT_KEY,
+  FRAME_TYPE_KEY,
 } wlan_proto_key_t;
 
 /* ************************************************************************* */
@@ -437,21 +439,6 @@ typedef enum {
 
 /* VHT-MCS = 15, NUM_STS = 7 */
 #define HTC_NO_FEEDBACK_PRESENT(mfb) (((mfb) & 0x7F) == 0x7F)
-
-/*
- * Bits from the STA Control field.
- * 802.11be draft2.0 9.4.2.312.2.3, 16 bits
- */
-#define STA_CTRL_LINK_ID                         0x000F
-#define STA_CTRL_COMPLETE_PROFILE                0x0010
-#define STA_CTRL_MAC_ADDR_PRESENT                0x0020
-#define STA_CTRL_BEACON_INT_PRESENT              0x0040
-#define STA_CTRL_TSF_OFFSET_PRESENT              0x0080
-#define STA_CTRL_DTIM_INFO_PRESENT               0x0100
-#define STA_CTRL_NSTR_LINK_PAIR_PRESENT          0x0200
-#define STA_CTRL_NSTR_BITMAP_SIZE                0x0400
-#define STA_CTRL_BSS_PARAMS_CHANGE_CNT_PRESENT   0x0800
-#define STA_CTRL_RESERVED                        0xF000
 
 /*
  * Extract subfields from the key octet in WEP-encrypted frames.
@@ -806,11 +793,11 @@ static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_MULTIPLE_AOD_FEEDBACK,               "Multiple AOD Feedback" },
   { ETAG_MULTIPLE_BEST_AWV_ID,                "Multiple Best AWV ID" },
   { ETAG_LOS_LIKELIHOOD,                      "LOS Likelihood" },
-  { ETAG_EHT_OPERATION,                       "EHT Operation (802.11be D2.0" },
-  { ETAG_MULTI_LINK,                          "Multi-Link (802.11be D2.0" },
-  { ETAG_EHT_CAPABILITIES,                    "EHT_CAPABILITIES (802.11be D2.0" },
-  { ETAG_TID_TO_LINK_MAPPING,                 "TID-To-Link Mapping (802.11be D2.0)" },
-  { ETAG_MULTI_LINK_TRAFFIC,                  "Multi-Link Traffic (802.11be D2.0)" },
+  { ETAG_EHT_OPERATION,                       "EHT Operation (802.11be D3.0" },
+  { ETAG_MULTI_LINK,                          "Multi-Link (802.11be D3.0" },
+  { ETAG_EHT_CAPABILITIES,                    "EHT_CAPABILITIES (802.11be D3.0" },
+  { ETAG_TID_TO_LINK_MAPPING,                 "TID-To-Link Mapping (802.11be D3.0)" },
+  { ETAG_MULTI_LINK_TRAFFIC,                  "Multi-Link Traffic (802.11be D3.0)" },
   { 0, NULL }
 };
 static value_string_ext tag_num_vals_eid_ext_ext = VALUE_STRING_EXT_INIT(tag_num_vals_eid_ext);
@@ -2457,6 +2444,9 @@ static value_string_ext category_codes_ext = VALUE_STRING_EXT_INIT(category_code
 #define NR_SUB_ID_VHT_OPERATION            192
 #define NR_SUB_ID_HE_CAPABILITIES          193
 #define NR_SUB_ID_HE_OPERATION             194
+#define NR_SUB_ID_EHT_CAPABILITIES         199
+#define NR_SUB_ID_EHT_OPERATION            200
+#define NR_SUB_ID_BASIC_MULTI_LINK         201
 
 #define NR_SUB_ID_VENDOR_SPECIFIC          221
 
@@ -2478,6 +2468,9 @@ static const value_string ieee80211_neighbor_report_subelement_id_vals[] = {
   {NR_SUB_ID_VHT_OPERATION, "VHT Operation"},
   {NR_SUB_ID_HE_CAPABILITIES, "HE Capabilities"},
   {NR_SUB_ID_HE_OPERATION, "HE Operation"},
+  {NR_SUB_ID_EHT_CAPABILITIES, "EHT Capabilities"},
+  {NR_SUB_ID_EHT_OPERATION, "EHT Operation"},
+  {NR_SUB_ID_BASIC_MULTI_LINK, "Basic Multi-Link"},
   {NR_SUB_ID_VENDOR_SPECIFIC, "Vendor Specific"},
   {0, NULL}
 };
@@ -4517,7 +4510,15 @@ static int hf_ieee80211_eht_multi_link_control_bss_parms_ch_count = -1;
 static int hf_ieee80211_eht_multi_link_control_medium_sync_delay = -1;
 static int hf_ieee80211_eht_multi_link_control_eml_capa = -1;
 static int hf_ieee80211_eht_multi_link_control_mld_capa = -1;
+static int hf_ieee80211_eht_multi_link_control_basic_mld_id_present = -1;
+static int hf_ieee80211_eht_multi_link_control_ext_mld_capa = -1;
 static int hf_ieee80211_eht_multi_link_control_bitmap_reserved = -1;
+static int hf_ieee80211_eht_multi_link_control_probe_mld_id_present = -1;
+static int hf_ieee80211_eht_multi_link_control_probe_bm_reserved = -1;
+static int hf_ieee80211_eht_multi_link_control_reconfig_mld_mac = -1;
+static int hf_ieee80211_eht_multi_link_control_reconfig_reserved = -1;
+static int hf_ieee80211_eht_multi_link_control_tdls_reserved = -1;
+static int hf_ieee80211_eht_multi_link_control_prio_access_reserved = -1;
 static int hf_ieee80211_eht_common_field_length = -1;
 static int hf_ieee80211_eht_common_field_mld_mac = -1;
 static int hf_ieee80211_eht_common_field_link_id_field = -1;
@@ -4543,8 +4544,17 @@ static int hf_ieee80211_eht_common_info_mld_tid_to_link_map_neg = -1;
 static int hf_ieee80211_eht_common_info_mld_freq_sep_for_str = -1;
 static int hf_ieee80211_eht_common_info_mld_aar_support = -1;
 static int hf_ieee80211_eht_common_info_mld_reserved = -1;
+static int hf_ieee80211_eht_common_info_ap_mld_mac_addr = -1;
+static int hf_ieee80211_eht_common_field_mld_id = -1;
+static int hf_ieee80211_eht_common_field_ap_mld_mac = -1;
 static int hf_ieee80211_eht_multi_link_subelt_tag = -1;
 static int hf_ieee80211_eht_multi_link_subelt_len = -1;
+static int hf_ieee80211_eht_multi_link_type_0_link_count = -1;
+static int hf_ieee80211_eht_multi_link_type_1_link_count = -1;
+static int hf_ieee80211_eht_multi_link_type_2_link_count = -1;
+static int hf_ieee80211_eht_multi_link_type_3_link_count = -1;
+static int hf_ieee80211_eht_multi_link_type_4_link_count = -1;
+static int hf_ieee80211_eht_multi_link_link_id_list = -1;
 static int hf_ieee80211_eht_profile_sta_control = -1;
 static int hf_ieee80211_eht_profile_link_id = -1;
 static int hf_ieee80211_eht_profile_complete_profile = -1;
@@ -4556,15 +4566,29 @@ static int hf_ieee80211_eht_profile_nstr_link_pair_present = -1;
 static int hf_ieee80211_eht_profile_nstr_bitmap_size = -1;
 static int hf_ieee80211_eht_profile_bss_params_change_count_present = -1;
 static int hf_ieee80211_eht_profile_reserved = -1;
+static int hf_ieee80211_eht_profile_probe_reserved = -1;
+static int hf_ieee80211_eht_profile_removal_timer_present = -1;
+static int hf_ieee80211_eht_profile_operation_update_type = -1;
+static int hf_ieee80211_eht_profile_operation_para_present = -1;
+static int hf_ieee80211_eht_profile_reconfig_reserved = -1;
+static int hf_ieee80211_eht_profile_prio_acc_reserved = -1;
 static int hf_ieee80211_eht_sta_profile_info_len = -1;
 static int hf_ieee80211_eht_sta_profile_info_mac = -1;
 static int hf_ieee80211_eht_sta_profile_info_beacon = -1;
 static int hf_ieee80211_eht_sta_profile_info_tsf_offset = -1;
-static int hf_ieee80211_eht_sta_profile_info_dtim = -1;
-static int hf_ieee80211_eht_sta_profile_bss_params_change_count = -1;
-static int hf_ieee80211_eht_profile_dtim_count = -1;
-static int hf_ieee80211_eht_profile_dtim_period = -1;
+static int hf_ieee80211_eht_sta_profile_info_dtim_count = -1;
+static int hf_ieee80211_eht_sta_profile_info_dtim_period = -1;
 static int hf_ieee80211_eht_sta_profile_info_bitmap = -1;
+static int hf_ieee80211_eht_sta_profile_bss_params_change_count = -1;
+static int hf_ieee80211_eht_sta_profile_removal_timer = -1;
+static int hf_ieee80211_eht_sta_profile_presence_indi = -1;
+static int hf_ieee80211_eht_sta_profile_presence_indi_max_mpdu_length_present = -1;
+static int hf_ieee80211_eht_sta_profile_presence_indi_max_amsdu_length_present = -1;
+static int hf_ieee80211_eht_sta_profile_presence_indi_reserved = -1;
+static int hf_ieee80211_eht_sta_profile_operation_para_info = -1;
+static int hf_ieee80211_eht_sta_profile_operation_para_info_max_mpdu_length = -1;
+static int hf_ieee80211_eht_sta_profile_operation_para_info_amsdu_length = -1;
+static int hf_ieee80211_eht_sta_profile_operation_para_info_pad = -1;
 static int hf_ieee80211_eht_operation_parameters = -1;
 static int hf_ieee80211_eht_basic_eht_mcs_nss_set = -1;
 static int hf_ieee80211_eht_operation_control_chan_width = -1;
@@ -4652,21 +4676,46 @@ static int hf_ieee80211_eht_rx_max_nss_20mhz_10_11 = -1;
 static int hf_ieee80211_eht_tx_max_nss_20mhz_10_11 = -1;
 static int hf_ieee80211_eht_rx_max_nss_20mhz_12_13 = -1;
 static int hf_ieee80211_eht_tx_max_nss_20mhz_12_13 = -1;
-static int hf_ieee80211_eht_rx_max_nss_0_9 = -1;
-static int hf_ieee80211_eht_tx_max_nss_0_9 = -1;
-static int hf_ieee80211_eht_rx_max_nss_10_11 = -1;
-static int hf_ieee80211_eht_tx_max_nss_10_11 = -1;
-static int hf_ieee80211_eht_rx_max_nss_12_13 = -1;
-static int hf_ieee80211_eht_tx_max_nss_12_13 = -1;
-static int hf_ieee80211_eht_mcs_and_nss_lt_80mhz = -1;
+static int hf_ieee80211_eht_le_80_rx_max_nss_0_9 = -1;
+static int hf_ieee80211_eht_le_80_tx_max_nss_0_9 = -1;
+static int hf_ieee80211_eht_le_80_rx_max_nss_10_11 = -1;
+static int hf_ieee80211_eht_le_80_tx_max_nss_10_11 = -1;
+static int hf_ieee80211_eht_le_80_rx_max_nss_12_13 = -1;
+static int hf_ieee80211_eht_le_80_tx_max_nss_12_13 = -1;
+static int hf_ieee80211_eht_160_rx_max_nss_0_9 = -1;
+static int hf_ieee80211_eht_160_tx_max_nss_0_9 = -1;
+static int hf_ieee80211_eht_160_rx_max_nss_10_11 = -1;
+static int hf_ieee80211_eht_160_tx_max_nss_10_11 = -1;
+static int hf_ieee80211_eht_160_rx_max_nss_12_13 = -1;
+static int hf_ieee80211_eht_160_tx_max_nss_12_13 = -1;
+static int hf_ieee80211_eht_320_rx_max_nss_0_9 = -1;
+static int hf_ieee80211_eht_320_tx_max_nss_0_9 = -1;
+static int hf_ieee80211_eht_320_rx_max_nss_10_11 = -1;
+static int hf_ieee80211_eht_320_tx_max_nss_10_11 = -1;
+static int hf_ieee80211_eht_320_rx_max_nss_12_13 = -1;
+static int hf_ieee80211_eht_320_tx_max_nss_12_13 = -1;
+static int hf_ieee80211_eht_mcs_and_nss_le_80mhz = -1;
 static int hf_ieee80211_eht_mcs_and_nss_eq_160mhz = -1;
 static int hf_ieee80211_eht_mcs_and_nss_eq_320mhz = -1;
 static int hf_ieee80211_eht_ppe_thresholds = -1;
+static int hf_ieee80211_eht_ttl_mapping_control = -1;
 static int hf_ieee80211_eht_ttl_mapping_direction = -1;
 static int hf_ieee80211_eht_ttl_default_link_mapping = -1;
+static int hf_ieee80211_eht_ttl_mapping_switch_time_pres = -1;
+static int hf_ieee80211_eht_ttl_expected_dura_pres = -1;
+static int hf_ieee80211_eht_ttl_link_mapping_size = -1;
 static int hf_ieee80211_eht_ttl_mapping_reserved = -1;
 static int hf_ieee80211_eht_ttl_mapping_presence = -1;
-static int hf_ieee80211_ttl_mapping_link_mapping = -1;
+static int hf_ieee80211_eht_ttl_mapping_switch_time = -1;
+static int hf_ieee80211_eht_ttl_mapping_expected_duration = -1;
+static int hf_ieee80211_eht_ttl_mapping_tid_0_link_mapping = -1;
+static int hf_ieee80211_eht_ttl_mapping_tid_1_link_mapping = -1;
+static int hf_ieee80211_eht_ttl_mapping_tid_2_link_mapping = -1;
+static int hf_ieee80211_eht_ttl_mapping_tid_3_link_mapping = -1;
+static int hf_ieee80211_eht_ttl_mapping_tid_4_link_mapping = -1;
+static int hf_ieee80211_eht_ttl_mapping_tid_5_link_mapping = -1;
+static int hf_ieee80211_eht_ttl_mapping_tid_6_link_mapping = -1;
+static int hf_ieee80211_eht_ttl_mapping_tid_7_link_mapping = -1;
 static int hf_ieee80211_eht_multi_link_traffic_control = -1;
 static int hf_ieee80211_eht_multi_link_tc_bitmap_size = -1;
 static int hf_ieee80211_eht_multi_link_tc_aid_offset = -1;
@@ -5092,6 +5141,7 @@ static int hf_ieee80211_rnr_unsolicited_probe_responses = -1;
 static int hf_ieee80211_rnr_same_colocated_ap = -1;
 static int hf_ieee80211_rnr_same_reserved = -1;
 static int hf_ieee80211_rnr_20mhz_psd_subfield = -1;
+static int hf_ieee80211_rnr_reserved_data = -1;
 static int hf_ieee80211_rnr_mld_params = -1;
 static int hf_ieee80211_rnr_mld_id = -1;
 static int hf_ieee80211_rnr_mld_link_id = -1;
@@ -7993,6 +8043,9 @@ static gint ett_eht_multi_link_subelt = -1;
 static gint ett_eht_multi_link_sta_control = -1;
 static gint ett_eht_multi_link_per_sta_info = -1;
 static gint ett_eht_multi_link_sta_dtim = -1;
+static gint ett_eht_multi_link_reconf_oper_param = -1;
+static gint ett_eht_multi_link_reconfig_presence_indi = -1;
+static gint ett_eht_multi_link_reconfig_operation_para_info = -1;
 static gint ett_eht_operation_params = -1;
 static gint ett_eht_operation_control = -1;
 static gint ett_eht_mac_capa = -1;
@@ -8226,6 +8279,8 @@ static expert_field ei_ieee80211_htc_in_dmg_packet = EI_INIT;
 static expert_field ei_ieee80211_tbtt_unexpected = EI_INIT;
 static expert_field ei_ieee80211_eht_invalid_subelement = EI_INIT;
 static expert_field ei_ieee80211_eht_invalid_action = EI_INIT;
+static expert_field ei_ieee80211_eht_invalid_multi_link = EI_INIT;
+
 
 /* 802.11ad trees */
 static gint ett_dynamic_alloc_tree = -1;
@@ -11484,9 +11539,19 @@ add_ff_cap_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int off
     cap_tree = proto_item_add_subtree(cap_item, ett_cap_tree);
     add_ff_dmg_params(cap_tree, tvb, pinfo, offset);
   } else {
-    if ((tvb_get_letohs(tvb, offset) & 0x0001) != 0) {
+    /*
+     * We can only interpret the ESS and IBSS fields to be an AP if the
+     * frame is a BEACON or PROBE_RESPONSE
+     */
+    guint32 l_frame_type = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(),
+                                                         pinfo, proto_wlan,
+                                                         FRAME_TYPE_KEY));
+    if (((tvb_get_letohs(tvb, offset) & 0x0003) == 0x1 &&
+        (l_frame_type == MGT_BEACON || l_frame_type == MGT_PROBE_RESP)) ||
+        l_frame_type == MGT_ASSOC_RESP || l_frame_type == MGT_REASSOC_RESP) {
       p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_AP_KEY, GINT_TO_POINTER(TRUE));
     }
+
     proto_tree_add_bitmask_with_flags(tree, tvb, offset,
                                       hf_ieee80211_ff_capture,
                                       ett_cap_tree, ieee80211_cap_info_fields,
@@ -14494,6 +14559,36 @@ add_ff_oct_mmpdu(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int of
 static int * const eht_eml_control_field_mode_headers[] = {
   &hf_ieee80211_eht_eml_emlsr_mode,
   &hf_ieee80211_eht_eml_emlmr_mode,
+  NULL
+};
+
+static int * const eht_le_80_mcs_map_hdrs[] = {
+  &hf_ieee80211_eht_le_80_rx_max_nss_0_9,
+  &hf_ieee80211_eht_le_80_tx_max_nss_0_9,
+  &hf_ieee80211_eht_le_80_rx_max_nss_10_11,
+  &hf_ieee80211_eht_le_80_tx_max_nss_10_11,
+  &hf_ieee80211_eht_le_80_rx_max_nss_12_13,
+  &hf_ieee80211_eht_le_80_tx_max_nss_12_13,
+  NULL
+};
+
+static int * const eht_160_mcs_map_hdrs[] = {
+  &hf_ieee80211_eht_160_rx_max_nss_0_9,
+  &hf_ieee80211_eht_160_tx_max_nss_0_9,
+  &hf_ieee80211_eht_160_rx_max_nss_10_11,
+  &hf_ieee80211_eht_160_tx_max_nss_10_11,
+  &hf_ieee80211_eht_160_rx_max_nss_12_13,
+  &hf_ieee80211_eht_160_tx_max_nss_12_13,
+  NULL
+};
+
+static int * const eht_320_mcs_map_hdrs[] = {
+  &hf_ieee80211_eht_320_rx_max_nss_0_9,
+  &hf_ieee80211_eht_320_tx_max_nss_0_9,
+  &hf_ieee80211_eht_320_rx_max_nss_10_11,
+  &hf_ieee80211_eht_320_tx_max_nss_10_11,
+  &hf_ieee80211_eht_320_rx_max_nss_12_13,
+  &hf_ieee80211_eht_320_tx_max_nss_12_13,
   NULL
 };
 
@@ -21088,6 +21183,7 @@ static const value_string tbtt_info_length[] = {
   { 12, "Neighbor AP TBTT Offset subfield, the BSSID subfield, the Short SSID subfield and the BSS Parameters subfield" },
   { 13, "Neighbor AP TBTT Offset subfield, the BSSID subfield, the Short SSID subfield, the BSS Parameters subfield and the 20 MHz PSD subfield" },
   { 16, "Neighbor AP TBTT Offset subfield, the BSSID subfield, the Short SSID subfield, the BSS Parameters subfield, the 20 MHz PSD subfield and the MLD Parameters subfield" },
+  { 17, "The first 16 octets contain Neighbor AP TBTT Offset subfield, the BSSID subfield, the Short SSID subfield, the BSS Parameters subfield, the 20 MHz PSD subfield and the MLD Parameters subfield. The remaining octests are reserved"},
   { 0, NULL }
 };
 
@@ -21120,6 +21216,7 @@ dissect_neighbor_ap_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   guint16 tbtt_info_h;
   guint16 tbtt_info_len;
   guint16 tbtt_info_count;
+  guint16 len_remain = 0;
   int i = 0;
   gboolean display_tbtt_offset = FALSE;
   gboolean display_bssid_subfield = FALSE;
@@ -21127,6 +21224,7 @@ dissect_neighbor_ap_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   gboolean display_bss_parameters_subfield = FALSE;
   gboolean display_20mhz_psd_subfield = FALSE;
   gboolean display_mld_params_subfield = FALSE;
+  gboolean display_reserved = FALSE;
 
   proto_item *item;
   proto_tree *query;
@@ -21192,9 +21290,23 @@ dissect_neighbor_ap_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     display_20mhz_psd_subfield = TRUE;
     display_mld_params_subfield = TRUE;
     break;
+  case 17: /* Same as 16 but the remaining bytes are reserved. */
+    display_tbtt_offset = TRUE;
+    display_bssid_subfield = TRUE;
+    display_short_bssid_subfield = TRUE;
+    display_bss_parameters_subfield = TRUE;
+    display_20mhz_psd_subfield = TRUE;
+    display_mld_params_subfield = TRUE;
+    display_reserved = TRUE;
+    len_remain = tbtt_info_len - 16;
+    break;
   default:
-    proto_tree_add_expert(tree, pinfo, &ei_ieee80211_tbtt_unexpected , tvb,
-                          offset, tvb_reported_length_remaining(tvb, offset));
+    if (tbtt_info_len > 16) {
+      len_remain = tbtt_info_len - 16;
+    } else {
+      proto_tree_add_expert(tree, pinfo, &ei_ieee80211_tbtt_unexpected , tvb,
+                            offset, tvb_reported_length_remaining(tvb, offset));
+    }
     break;
   }
 
@@ -21213,7 +21325,7 @@ dissect_neighbor_ap_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree_add_item(tree, hf_ieee80211_tbtt_channel_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   offset+=1;
 
-  for (i=0;i< tbtt_info_count + 1; i++) {
+  for (i=0; i < tbtt_info_count + 1; i++) {
     query = proto_tree_add_subtree(tree, tvb, offset, tbtt_info_len,
                                   ett_tbtt_infos, &item, "TBTT Information");
 
@@ -21252,6 +21364,12 @@ dissect_neighbor_ap_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                         ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
       offset += 3;
     }
+    if (display_reserved) {
+        proto_tree_add_item(query, hf_ieee80211_rnr_reserved_data, tvb, offset,
+                            len_remain, ENC_NA);
+    }
+
+    offset += len_remain;
   }
 
   return offset;
@@ -25345,87 +25463,417 @@ static int * const sta_control_hdrs[] = {
   NULL
 };
 
-static int * const sta_info_dtim_hdrs[] = {
-  &hf_ieee80211_eht_profile_dtim_count,
-  &hf_ieee80211_eht_profile_dtim_period,
+static int * const probe_sta_control_hdrs[] = {
+  &hf_ieee80211_eht_profile_link_id,
+  &hf_ieee80211_eht_profile_complete_profile,
+  &hf_ieee80211_eht_profile_probe_reserved,
   NULL
 };
 
-static int
-dissect_multi_link_per_sta(tvbuff_t *tvb, packet_info *pinfo _U_,
-                           proto_tree *tree, int offset, int len _U_)
-{
-  proto_tree *subelt_tree = NULL, *sta_info_tree = NULL;
-  guint16 sta_control = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
-  guint8 sta_info_len = 0;
+static int * const reconfig_sta_control_hdrs[] = {
+  &hf_ieee80211_eht_profile_link_id,
+  &hf_ieee80211_eht_profile_complete_profile,
+  &hf_ieee80211_eht_profile_mac_address_present,
+  &hf_ieee80211_eht_profile_removal_timer_present,
+  &hf_ieee80211_eht_profile_operation_update_type,
+  &hf_ieee80211_eht_profile_operation_para_present,
+  &hf_ieee80211_eht_profile_reconfig_reserved,
+  NULL
+};
 
-  subelt_tree = proto_tree_add_subtree(tree, tvb, offset, len,
-                                       ett_eht_multi_link_per_sta,
-                                       NULL, "Per-STA Profile");
-  proto_tree_add_bitmask(subelt_tree, tvb, offset,
-                         hf_ieee80211_eht_profile_sta_control,
-                         ett_eht_multi_link_sta_control,
-                         sta_control_hdrs, ENC_LITTLE_ENDIAN);
-  offset += 2;
+static int * const prio_access_sta_control_hdrs[] = {
+  &hf_ieee80211_eht_profile_link_id,
+  &hf_ieee80211_eht_profile_prio_acc_reserved,
+  NULL
+};
 
-  sta_info_len = tvb_get_guint8(tvb, offset);
-  sta_info_tree = proto_tree_add_subtree(subelt_tree, tvb, offset,
-                                         sta_info_len + 1,
-                                         ett_eht_multi_link_per_sta_info,
-                                         NULL, "STA Info");
+static int * const reconfig_presence_indi_hdrs[] = {
+  &hf_ieee80211_eht_sta_profile_presence_indi_max_mpdu_length_present,
+  &hf_ieee80211_eht_sta_profile_presence_indi_max_amsdu_length_present,
+  &hf_ieee80211_eht_sta_profile_presence_indi_reserved,
+  NULL
+};
 
-  proto_tree_add_item(sta_info_tree, hf_ieee80211_eht_sta_profile_info_len,
-                      tvb, offset, 1, ENC_NA);
-  offset += 1;
+static int * const reconfig_operation_para_info_hdrs[] = {
+  &hf_ieee80211_eht_sta_profile_operation_para_info_max_mpdu_length,
+  &hf_ieee80211_eht_sta_profile_operation_para_info_amsdu_length,
+  &hf_ieee80211_eht_sta_profile_operation_para_info_pad,
+  NULL
+};
 
-  if (sta_control & STA_CTRL_MAC_ADDR_PRESENT) {
-    proto_tree_add_item(sta_info_tree, hf_ieee80211_eht_sta_profile_info_mac,
-                        tvb, offset, 6, ENC_NA);
-    offset += 6;
-  }
-
-  if (sta_control & STA_CTRL_BEACON_INT_PRESENT) {
-    proto_tree_add_item(sta_info_tree, hf_ieee80211_eht_sta_profile_info_beacon,
-                        tvb, offset, 2, ENC_NA);
-    offset += 2;
-  }
-
-  if (sta_control & STA_CTRL_TSF_OFFSET_PRESENT) {
-    proto_tree_add_item(sta_info_tree, hf_ieee80211_eht_sta_profile_info_tsf_offset,
-                        tvb, offset, 8, ENC_NA);
-    offset += 8;
-  }
-
-  if (sta_control & STA_CTRL_DTIM_INFO_PRESENT) {
-    proto_tree_add_bitmask(sta_info_tree, tvb, offset,
-                           hf_ieee80211_eht_sta_profile_info_dtim,
-                           ett_eht_multi_link_sta_dtim,
-                           sta_info_dtim_hdrs, ENC_LITTLE_ENDIAN);
-    offset += 2;
-  }
-
-  if (sta_control & STA_CTRL_NSTR_LINK_PAIR_PRESENT) {
-    int bitmap_size = (sta_control & STA_CTRL_NSTR_BITMAP_SIZE) ? 2 : 1;
-
-    proto_tree_add_item(sta_info_tree, hf_ieee80211_eht_sta_profile_info_bitmap,
-                        tvb, offset, bitmap_size, ENC_NA);
-    offset += bitmap_size;
-  }
-
-  if (sta_control & STA_CTRL_BSS_PARAMS_CHANGE_CNT_PRESENT) {
-    proto_tree_add_item(sta_info_tree, hf_ieee80211_eht_sta_profile_bss_params_change_count,
-                        tvb, offset, 1, ENC_NA);
-    /* offset += 1; */
-  }
-
-  return len;
-}
-
+/* Presence Bitmap in ML Control */
+/* Basic */
 #define EHT_LINK_ID     0x01
 #define EHT_BSS_PARAMS  0x02
 #define EHT_MEDIUM_SYNC 0x04
 #define EHT_EML_CAPA    0x08
 #define EHT_MLD_CAPA    0x10
+#define EHT_MLD_ID      0x20
+/* Probe */
+#define EHT_PML_MLD_ID  0x01
+/* Reconf */
+#define EHT_MLD_MAC     0x01
+
+#define BASIC_MULTI_LINK           0
+#define PROBE_MULTI_LINK           1
+#define RECONFIGURATION_MULTI_LINK 2
+#define TDLS_MULTI_LINK            3
+#define PRIORITY_ACCESS_MULTI_LINK 4
+
+/* Bits from the STA Control field */
+/* Basic */
+#define STA_CTRL_LINK_ID                         0x000F
+#define STA_CTRL_COMPLETE_PROFILE                0x0010
+#define STA_CTRL_MAC_ADDR_PRESENT                0x0020
+#define STA_CTRL_BEACON_INT_PRESENT              0x0040
+#define STA_CTRL_TSF_OFFSET_PRESENT              0x0080
+#define STA_CTRL_DTIM_INFO_PRESENT               0x0100
+#define STA_CTRL_NSTR_LINK_PAIR_PRESENT          0x0200
+#define STA_CTRL_NSTR_BITMAP_SIZE                0x0400
+#define STA_CTRL_BSS_PARAMS_CHANGE_CNT_PRESENT   0x0800
+#define STA_CTRL_RESERVED                        0xF000
+
+/* Reconf */
+#define AP_REMOVAL_TIMER_PRESENT                 0x0040
+#define OPERATION_PARAMS_PRESENT                 0x0800
+
+static int
+dissect_multi_link_per_sta(tvbuff_t *tvb, packet_info *pinfo _U_,
+                           proto_tree *tree,
+                           guint8 multi_link_type,
+                           int *found_link_id)
+{
+  proto_tree *subelt_tree = NULL, *sta_info_tree = NULL;
+  int offset = 0;
+  int len = tvb_captured_length_remaining(tvb, offset);
+  guint16 sta_control = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+  guint8 sta_info_len = 0;
+  int start_offset = offset;
+  guint8 link_id;
+
+  subelt_tree = proto_tree_add_subtree(tree, tvb, offset, len,
+                                       ett_eht_multi_link_per_sta,
+                                       NULL, "Per-STA Profile");
+
+  switch (multi_link_type) {
+  case BASIC_MULTI_LINK:
+    link_id = tvb_get_guint8(tvb, offset) & 0x0F;
+    *found_link_id = link_id;
+    proto_item_append_text(subelt_tree, ", Link-ID = %d", link_id);
+
+    proto_tree_add_bitmask(subelt_tree, tvb, offset,
+                           hf_ieee80211_eht_profile_sta_control,
+                           ett_eht_multi_link_sta_control,
+                           sta_control_hdrs, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* Check the length of STA Info is 0 */
+    if (offset >= start_offset + len) {
+      return len;
+    }
+
+    sta_info_len = tvb_get_guint8(tvb, offset);
+    sta_info_tree = proto_tree_add_subtree(subelt_tree, tvb, offset,
+                                           sta_info_len,
+                                           ett_eht_multi_link_per_sta_info,
+                                           NULL, "STA Info");
+
+    proto_tree_add_item(sta_info_tree, hf_ieee80211_eht_sta_profile_info_len,
+                        tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    if (sta_control & STA_CTRL_MAC_ADDR_PRESENT) {
+      proto_tree_add_item(sta_info_tree, hf_ieee80211_eht_sta_profile_info_mac,
+                          tvb, offset, 6, ENC_NA);
+      offset += 6;
+    }
+
+    if (sta_control & STA_CTRL_BEACON_INT_PRESENT) {
+      proto_tree_add_item(sta_info_tree,
+                          hf_ieee80211_eht_sta_profile_info_beacon,
+                          tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+    }
+
+    if (sta_control & STA_CTRL_TSF_OFFSET_PRESENT) {
+      proto_tree_add_item(sta_info_tree, hf_ieee80211_eht_sta_profile_info_tsf_offset,
+                          tvb, offset, 8, ENC_LITTLE_ENDIAN);
+      offset += 8;
+    }
+
+    if (sta_control & STA_CTRL_DTIM_INFO_PRESENT) {
+      proto_tree * dtim_tree;
+
+      dtim_tree = proto_tree_add_subtree(sta_info_tree, tvb, offset, 2,
+                             ett_eht_multi_link_sta_dtim, NULL, "DTIM Info");
+
+      proto_tree_add_item(dtim_tree,
+                          hf_ieee80211_eht_sta_profile_info_dtim_count,
+                          tvb, offset, 1, ENC_NA);
+      offset += 1;
+
+      proto_tree_add_item(dtim_tree,
+                          hf_ieee80211_eht_sta_profile_info_dtim_period,
+                          tvb, offset, 1, ENC_NA);
+      offset += 1;
+    }
+
+    if (sta_control & STA_CTRL_NSTR_LINK_PAIR_PRESENT) {
+      int bitmap_size = (sta_control & STA_CTRL_NSTR_BITMAP_SIZE) ? 2 : 1;
+
+      proto_tree_add_item(sta_info_tree,
+                          hf_ieee80211_eht_sta_profile_info_bitmap,
+                          tvb, offset, bitmap_size, ENC_NA);
+      offset += bitmap_size;
+    }
+
+    if (sta_control & STA_CTRL_BSS_PARAMS_CHANGE_CNT_PRESENT) {
+      proto_tree_add_item(sta_info_tree,
+                      hf_ieee80211_eht_sta_profile_bss_params_change_count,
+                      tvb, offset, 1, ENC_NA);
+      offset += 1;
+    }
+    break;
+  case PROBE_MULTI_LINK:
+    link_id = tvb_get_guint8(tvb, offset) & 0x0F;
+    *found_link_id = link_id;
+
+    proto_tree_add_bitmask(subelt_tree, tvb, offset,
+                           hf_ieee80211_eht_profile_sta_control,
+                           ett_eht_multi_link_sta_control,
+                           probe_sta_control_hdrs, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /*
+     * Now there will be some elements if complete profile is 0
+     *
+     * There can be one Request element, one Extended Request Element or
+     * one of both.
+     */
+    if ((sta_control & STA_CTRL_COMPLETE_PROFILE) == 0) {
+      gboolean seen_request = FALSE, seen_ext_request = FALSE;
+
+      while (tvb_captured_length_remaining(tvb, offset) >= 2) {
+        const guint8 ids[] = { TAG_TSPEC };
+        guint8 elt_type = 0;
+
+        if (tvb_captured_length_remaining(tvb, offset) < 2) {
+          expert_add_info_format(pinfo, subelt_tree,
+                           &ei_ieee80211_eht_invalid_multi_link,
+                           "Invalid Probe Request Multi-Link element "
+                           "STA Control field, should contain a Request "
+                           "element or an Extended Request element or both "
+                           "but there are insufficient bytes");
+
+          return len;
+        }
+
+        elt_type = tvb_get_guint8(tvb, offset);
+
+        if ((elt_type != TAG_REQUEST && elt_type != TAG_ELEMENT_ID_EXTENSION) ||
+            (elt_type == TAG_ELEMENT_ID_EXTENSION &&
+             (tvb_get_guint8(tvb, offset + 1) < 3 ||
+              tvb_get_guint8(tvb, offset + 2) != ETAG_EXTENDED_REQUEST))) {
+          /* Add an expert Info */
+
+          expert_add_info_format(pinfo, subelt_tree,
+                           &ei_ieee80211_eht_invalid_multi_link,
+                           "Invalid Probe Request Multi-Link element "
+                           "STA Control field, should contain a Request "
+                           "element or an Extended Request element or both "
+                           "but it contains other elements or there are "
+                           "insufficient bytes for an extended element");
+          return len;
+        }
+
+        if (elt_type == TAG_REQUEST) {
+          if (!seen_request) {
+            offset += add_tagged_field(pinfo, tree, tvb, offset, 0, ids,
+                                       G_N_ELEMENTS(ids), NULL);
+            seen_request = TRUE;
+          } else {
+            expert_add_info_format(pinfo, subelt_tree,
+                           &ei_ieee80211_eht_invalid_multi_link,
+                           "Invalid Probe Request Multi-Link element "
+                           "STA Control field. May only contain one Request "
+                           "element");
+
+            return len;
+          }
+        } else { /* It can only be a ETAG_EXTENDED_REQUEST */
+          if (!seen_ext_request) {
+            guint8 ext_tag_len = tvb_get_guint8(tvb, offset + 1);
+
+            offset += 3;
+            dissect_extended_request(tvb, pinfo, tree, offset, ext_tag_len);
+
+            offset += ext_tag_len;
+          } else {
+            expert_add_info_format(pinfo, subelt_tree,
+                           &ei_ieee80211_eht_invalid_multi_link,
+                           "Invalid Probe Request Multi-Link element "
+                           "STA Control field. May only contain one Extended "
+                           "Request element");
+
+            return len;
+          }
+        }
+      }
+    }
+    break;
+  case RECONFIGURATION_MULTI_LINK:
+    link_id = tvb_get_guint8(tvb, offset) & 0x0F;
+    *found_link_id = link_id;
+
+    proto_tree_add_bitmask(subelt_tree, tvb, offset,
+                           hf_ieee80211_eht_profile_sta_control,
+                           ett_eht_multi_link_sta_control,
+                           reconfig_sta_control_hdrs, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* Check the length of STA Info is 0 */
+    if (offset >= start_offset + len) {
+      return len;
+    }
+
+    sta_info_len = tvb_get_guint8(tvb, offset);
+    sta_info_tree = proto_tree_add_subtree(subelt_tree, tvb, offset, sta_info_len,
+                                           ett_eht_multi_link_per_sta_info,
+                                           NULL, "STA Info");
+
+    proto_tree_add_item(sta_info_tree, hf_ieee80211_eht_sta_profile_info_len,
+                        tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    if (sta_control & STA_CTRL_MAC_ADDR_PRESENT) {
+      proto_tree_add_item(sta_info_tree, hf_ieee80211_eht_sta_profile_info_mac,
+                          tvb, offset, 6, ENC_NA);
+      offset += 6;
+    }
+
+    if (sta_control & AP_REMOVAL_TIMER_PRESENT) {
+      proto_tree_add_item(sta_info_tree,
+                          hf_ieee80211_eht_sta_profile_removal_timer,
+                          tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+    }
+
+    if (sta_control & OPERATION_PARAMS_PRESENT) {
+      proto_tree * oper_tree;
+
+      oper_tree = proto_tree_add_subtree(sta_info_tree, tvb, offset, 3,
+                                         ett_eht_multi_link_reconf_oper_param, NULL, "Operation Paramters");
+
+      proto_tree_add_bitmask_with_flags(oper_tree, tvb, offset,
+                             hf_ieee80211_eht_sta_profile_presence_indi,
+                             ett_eht_multi_link_reconfig_presence_indi,
+                             reconfig_presence_indi_hdrs, ENC_LITTLE_ENDIAN,
+                             BMT_NO_APPEND);
+      offset += 1;
+
+      proto_tree_add_bitmask_with_flags(oper_tree, tvb, offset,
+                             hf_ieee80211_eht_sta_profile_operation_para_info,
+                             ett_eht_multi_link_reconfig_operation_para_info,
+                             reconfig_operation_para_info_hdrs, ENC_LITTLE_ENDIAN,
+                             BMT_NO_APPEND);
+      offset += 2;
+    }
+    break;
+  case TDLS_MULTI_LINK:
+    expert_add_info_format(pinfo, subelt_tree,
+                           &ei_ieee80211_eht_invalid_multi_link,
+                           "Invalid TDLS Multi-Link element. There should not "
+                           "be any Link Info fields.");
+
+    break;
+  case PRIORITY_ACCESS_MULTI_LINK:
+    link_id = tvb_get_guint8(tvb, offset) & 0x0F;
+    *found_link_id = link_id;
+    proto_tree_add_bitmask(subelt_tree, tvb, offset,
+                           hf_ieee80211_eht_profile_sta_control,
+                           ett_eht_multi_link_sta_control,
+                           prio_access_sta_control_hdrs, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /*
+     * Could contain the EDCA Parameter Set elt or the MU EDCA Parameter Set
+     * elt, or none.
+     */
+    if (tvb_captured_length_remaining(tvb, offset) > 2) {
+
+    }
+    break;
+  default:
+    DISSECTOR_ASSERT_NOT_REACHED();
+    break;
+  }
+
+  // Sta Profile
+  // Save HE capa settings
+  {
+    guint *p_channel_width_set =
+    (guint *)p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan,
+                              HE_CHANNEL_WIDTH_KEY);
+    guint channel_width_set = GPOINTER_TO_INT(p_channel_width_set);
+    guint32 ftype = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(),
+                                                      pinfo, proto_wlan,
+                                                      FRAME_TYPE_KEY));
+
+    int end_offset = start_offset + len;
+    if (offset < end_offset) {
+      /* Check CSA, EX CSA or MAX CST elements to skip parsing cap info */
+      guint8 elem = tvb_get_guint8(tvb, offset);
+      guint8 elem_len = tvb_get_guint8(tvb, offset+1);
+      guint8 ext_elem = 0;
+      if (elem == TAG_ELEMENT_ID_EXTENSION) {
+        ext_elem = tvb_get_guint8(tvb, offset+2);
+      }
+      if (multi_link_type == PRIORITY_ACCESS_MULTI_LINK) {
+      } else if ((elem == TAG_CHANNEL_SWITCH_ANN && elem_len == 3) ||
+          (elem == TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT && elem_len == 4) ||
+          (ext_elem == ETAG_MAX_CHANNEL_SWITCH_TIME && elem_len == 4)) {
+      } else {
+        offset += add_ff_cap_info(subelt_tree, tvb, pinfo, offset);
+      }
+      /*
+       * If it is an association or re-association response, deal with the
+       * status code.
+       */
+      if ((ftype == MGT_ASSOC_RESP || ftype == MGT_REASSOC_RESP) &&
+          multi_link_type == BASIC_MULTI_LINK) {
+        offset += add_ff_status_code(subelt_tree, tvb, pinfo, offset);
+      }
+    }
+    while (offset < end_offset) {
+      int tag_len = tvb_get_guint8(tvb, offset+1);
+      if (offset + 1 + tag_len >= end_offset) {
+        /* Detect wrong format to avoid from corrupting default_context */
+        expert_add_info_format(pinfo, subelt_tree, &ei_ieee80211_eht_invalid_subelement,
+          "Per-STA Profile subelements had wrong element/length");
+        *found_link_id = -1;
+        return len;
+      }
+      offset += add_tagged_field(pinfo, subelt_tree, tvb, offset, ftype, NULL, 0, NULL);
+    }
+
+    // Set he capa settings back
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, HE_CHANNEL_WIDTH_KEY,
+                     GINT_TO_POINTER(channel_width_set | (1<<31)));
+  }
+  return len;
+}
+
+static const value_string multi_link_type_vals[] = {
+  { BASIC_MULTI_LINK, "Basic" },
+  { PROBE_MULTI_LINK, "Probe Request" },
+  { RECONFIGURATION_MULTI_LINK, "Reconfiguration" },
+  { TDLS_MULTI_LINK, "TDLS" },
+  { PRIORITY_ACCESS_MULTI_LINK, "Priority Access" },
+  { 5, "Reserved" },
+  { 6, "Reserved" },
+  { 7, "Reserved" },
+  { 0, NULL }
+};
 
 static const range_string multi_link_sub_elt_string[] = {
   { 0,   0, "Per-STA Profile" },
@@ -25469,27 +25917,76 @@ static int * const eht_mld_capabilities_hdrs[] = {
   NULL
 };
 
+/*
+ * Build a TVB containing the sub-elt. Offset will point to the subelt id in
+ * tvb, and the sub-elt might span several fragments. Subsequent fragments
+ * will have an id of 254.
+ */
+static tvbuff_t *
+get_subelt_tvb(tvbuff_t *tvb, packet_info *pinfo, int offset, int *overhead)
+{
+  guint8 subelt_len = tvb_get_guint8(tvb, offset + 1);
+  tvbuff_t *tmp_tvb;
+  int ohead = 0;
+
+  if (subelt_len == 255 &&
+      tvb_captured_length_remaining(tvb, offset) > 259 &&
+      tvb_get_guint8(tvb, offset + 255 + 2) == 0xfe) {
+    tvbuff_t *tvb_comp;
+    guint8 frag_len;
+
+    tvb_comp = tvb_new_composite();
+
+    do {
+      offset += 1;
+      frag_len = tvb_get_guint8(tvb, offset);
+      offset += 1;
+      tmp_tvb = tvb_new_subset_length(tvb, offset, frag_len);
+      /* Insert this fragment ... */
+      tvb_composite_append(tvb_comp, tmp_tvb);
+      offset += frag_len;
+      ohead += 2;
+    } while (frag_len == 255 &&
+             tvb_captured_length_remaining(tvb, offset) > 2 &&
+             tvb_get_guint8(tvb, offset) == 0xfe);
+
+    tvb_composite_finalize(tvb_comp);
+
+    *overhead = ohead - 2;
+    add_new_data_source(pinfo, tvb_comp, "Reassembled Subelt");
+    return tvb_comp;
+  } else {
+    *overhead = 0;
+    return tvb_new_subset_length_caplen(tvb, offset + 2, subelt_len,
+                                        subelt_len);
+  }
+}
+
 static void
 dissect_multi_link(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                    int offset, int len _U_)
 {
-  proto_item *control = NULL;
-  proto_tree *ctl_tree = NULL, *common_tree = NULL, *subelt_tree = NULL;;
+  proto_item *control = NULL, *type = NULL;
+  proto_tree *ctl_tree = NULL, *common_tree = NULL, *subelt_tree = NULL;
   guint8 common_info_len = 0;
   guint16 multi_link_control = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+  guint8 multi_link_type = multi_link_control & 0x0007;
   guint16 present = multi_link_control >> 4;
+  int elt = 0, hf_index;
+  int local_link_ids[16];
 
   control = proto_tree_add_item(tree, hf_ieee80211_eht_multi_link_control, tvb,
                                 offset, 2, ENC_LITTLE_ENDIAN);
   ctl_tree = proto_item_add_subtree(control, ett_eht_multi_link_control);
 
-  proto_tree_add_item(ctl_tree, hf_ieee80211_eht_multi_link_control_type, tvb,
-                      offset, 2, ENC_LITTLE_ENDIAN);
+  type = proto_tree_add_item(ctl_tree, hf_ieee80211_eht_multi_link_control_type,
+                             tvb, offset, 2, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(ctl_tree, hf_ieee80211_eht_multi_link_control_reserved,
                       tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-  /* If it is a basic element */
-  if ((multi_link_control & 0x0007) == 0) {
+  /* Handle the control elt here, separate items */
+  if (multi_link_type == BASIC_MULTI_LINK) {
+    proto_item_append_text(control, " Basic");
     proto_tree_add_item(ctl_tree,
                         hf_ieee80211_eht_multi_link_control_link_id_present,
                         tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -25506,69 +26003,180 @@ dissect_multi_link(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         hf_ieee80211_eht_multi_link_control_mld_capa,
                         tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(ctl_tree,
+                        hf_ieee80211_eht_multi_link_control_basic_mld_id_present,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ctl_tree,
+                        hf_ieee80211_eht_multi_link_control_ext_mld_capa,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ctl_tree,
                         hf_ieee80211_eht_multi_link_control_bitmap_reserved,
                         tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    hf_index = hf_ieee80211_eht_multi_link_type_0_link_count;
+  } else if (multi_link_type == PROBE_MULTI_LINK) {
+    proto_item_append_text(control, " Probe Request");
+    proto_tree_add_item(ctl_tree,
+                        hf_ieee80211_eht_multi_link_control_probe_mld_id_present,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ctl_tree,
+                        hf_ieee80211_eht_multi_link_control_probe_bm_reserved,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    hf_index = hf_ieee80211_eht_multi_link_type_1_link_count;
+  } else if (multi_link_type == RECONFIGURATION_MULTI_LINK) {
+    proto_item_append_text(control, " Reconfiguration");
+    proto_tree_add_item(ctl_tree,
+                        hf_ieee80211_eht_multi_link_control_reconfig_mld_mac,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(ctl_tree,
+                        hf_ieee80211_eht_multi_link_control_reconfig_reserved,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    hf_index = hf_ieee80211_eht_multi_link_type_2_link_count;
+  } else if (multi_link_type == TDLS_MULTI_LINK) {
+    proto_item_append_text(control, " TDLS");
+    /* Presence bitmap is reserved */
+    proto_tree_add_item(ctl_tree,
+                        hf_ieee80211_eht_multi_link_control_tdls_reserved, tvb,
+                        offset, 2, ENC_LITTLE_ENDIAN);
+    hf_index = hf_ieee80211_eht_multi_link_type_3_link_count;
+  } else if (multi_link_type == PRIORITY_ACCESS_MULTI_LINK) {
+    proto_item_append_text(control, " Priority Access");
+    proto_tree_add_item(ctl_tree,
+                        hf_ieee80211_eht_multi_link_control_prio_access_reserved,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    hf_index = hf_ieee80211_eht_multi_link_type_4_link_count;
   } else {
-    /* Handle the other type ...*/
+    expert_add_info_format(pinfo, type, &ei_ieee80211_eht_invalid_multi_link,
+                           "Invalid Multi-Link Control type, value is %u",
+                           multi_link_type);
+    return;
   }
   offset += 2;
 
-  /* Handle common info for basic element */
-  common_info_len = tvb_get_guint8(tvb, offset);
-  common_tree = proto_tree_add_subtree(tree, tvb, offset, common_info_len,
-                                       ett_eht_multi_link_common_info,
-                                       NULL, "Common Info");
-  proto_tree_add_item(common_tree, hf_ieee80211_eht_common_field_length, tvb,
-                      offset, 1, ENC_NA);
-  offset += 1;
-
-  proto_tree_add_item(common_tree, hf_ieee80211_eht_common_field_mld_mac,
-                      tvb, offset, 6, ENC_NA);
-  offset += 6;
-
-  if (present & EHT_LINK_ID) {
-    proto_tree_add_bitmask(common_tree, tvb, offset,
-                           hf_ieee80211_eht_common_field_link_id_field,
-                           ett_eht_multi_link_common_info_link_id,
-                           eht_link_id_hdrs, ENC_NA);
+  switch (multi_link_type) {
+  case BASIC_MULTI_LINK:
+    /* Handle common info for basic element */
+    common_info_len = tvb_get_guint8(tvb, offset);
+    common_tree = proto_tree_add_subtree(tree, tvb, offset, common_info_len,
+                                         ett_eht_multi_link_common_info,
+                                         NULL, "Common Info");
+    proto_tree_add_item(common_tree, hf_ieee80211_eht_common_field_length, tvb,
+                        offset, 1, ENC_NA);
     offset += 1;
-  }
 
-  if (present & EHT_BSS_PARAMS) {
+    proto_tree_add_item(common_tree, hf_ieee80211_eht_common_field_mld_mac,
+                        tvb, offset, 6, ENC_NA);
+    offset += 6;
+
+    if (present & EHT_LINK_ID) {
+      proto_tree_add_bitmask(common_tree, tvb, offset,
+                             hf_ieee80211_eht_common_field_link_id_field,
+                             ett_eht_multi_link_common_info_link_id,
+                             eht_link_id_hdrs, ENC_NA);
+      offset += 1;
+    }
+
+    if (present & EHT_BSS_PARAMS) {
+      proto_tree_add_item(common_tree,
+                          hf_ieee80211_eht_common_field_bss_param_change_count,
+                          tvb, offset, 1, ENC_NA);
+      offset += 1;
+    }
+
+    if (present & EHT_MEDIUM_SYNC) {
+      proto_tree_add_bitmask(common_tree, tvb, offset,
+                             hf_ieee80211_eht_common_field_medium_sync_field,
+                             ett_eht_multi_link_common_info_medium_sync,
+                             eht_medium_sync_delay_hdrs, ENC_LITTLE_ENDIAN);
+      offset += 2;
+    }
+
+    if (present & EHT_EML_CAPA) {
+      proto_tree_add_bitmask(common_tree, tvb, offset,
+                             hf_ieee80211_eht_common_field_eml_capabilities,
+                             ett_eht_multi_link_common_info_eml_capa,
+                             eht_eml_capabilities_hdrs, ENC_LITTLE_ENDIAN);
+      offset += 2;
+    }
+
+    if (present & EHT_MLD_CAPA) {
+      proto_tree_add_bitmask(common_tree, tvb, offset,
+                             hf_ieee80211_eht_common_field_mld_capabilities,
+                             ett_eht_multi_link_common_info_mld_capa,
+                             eht_mld_capabilities_hdrs, ENC_LITTLE_ENDIAN);
+      offset += 2;
+    }
+
+    if (present & EHT_MLD_ID) {
+      proto_tree_add_item(common_tree, hf_ieee80211_eht_common_field_mld_id,
+                          tvb, offset, 1, ENC_NA);
+      offset += 1;
+    }
+    break;
+  case PROBE_MULTI_LINK:
+    /* Handle common info for probe request element */
+    common_info_len = tvb_get_guint8(tvb, offset);
+    common_tree = proto_tree_add_subtree(tree, tvb, offset, common_info_len,
+                                         ett_eht_multi_link_common_info,
+                                         NULL, "Common Info");
+    proto_tree_add_item(common_tree, hf_ieee80211_eht_common_field_length, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    if (present & EHT_PML_MLD_ID) {
+      proto_tree_add_item(common_tree, hf_ieee80211_eht_common_field_mld_id,
+                          tvb, offset, 1, ENC_NA);
+      offset += 1;
+    }
+    break;
+  case RECONFIGURATION_MULTI_LINK:
+    common_info_len = tvb_get_guint8(tvb, offset);
+    common_tree = proto_tree_add_subtree(tree, tvb, offset, common_info_len,
+                                         ett_eht_multi_link_common_info,
+                                         NULL, "Common Info");
+    proto_tree_add_item(common_tree, hf_ieee80211_eht_common_field_length, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    if (present & EHT_MLD_MAC) {
+      proto_tree_add_item(common_tree, hf_ieee80211_eht_common_field_mld_mac,
+                          tvb, offset, 6, ENC_NA);
+      offset += 6;
+    }
+    break;
+  case TDLS_MULTI_LINK:
+    common_info_len = tvb_get_guint8(tvb, offset);
+    common_tree = proto_tree_add_subtree(tree, tvb, offset, common_info_len,
+                                         ett_eht_multi_link_common_info,
+                                         NULL, "Common Info");
+    proto_tree_add_item(common_tree, hf_ieee80211_eht_common_field_length, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+    proto_tree_add_item(common_tree, hf_ieee80211_eht_common_field_ap_mld_mac,
+                        tvb, offset, 6, ENC_NA);
+    offset += 6;
+    break;
+  case PRIORITY_ACCESS_MULTI_LINK:
+    common_info_len = tvb_get_guint8(tvb, offset);
+    common_tree = proto_tree_add_subtree(tree, tvb, offset, common_info_len,
+                                         ett_eht_multi_link_common_info,
+                                         NULL, "Common Info");
+    proto_tree_add_item(common_tree, hf_ieee80211_eht_common_field_length, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
     proto_tree_add_item(common_tree,
-                        hf_ieee80211_eht_common_field_bss_param_change_count,
-                        tvb, offset, 1, ENC_NA);
-    offset += 1;
+                        hf_ieee80211_eht_common_info_ap_mld_mac_addr, tvb,
+                        offset, 6, ENC_NA);
+    offset += 6;
+    break;
+  default:
+    /* We should not reach here as we filtered out non-valid values above */
+    DISSECTOR_ASSERT_NOT_REACHED();
   }
-
-  if (present & EHT_MEDIUM_SYNC) {
-    proto_tree_add_bitmask(common_tree, tvb, offset,
-                           hf_ieee80211_eht_common_field_medium_sync_field,
-                           ett_eht_multi_link_common_info_medium_sync,
-                           eht_medium_sync_delay_hdrs, ENC_LITTLE_ENDIAN);
-    offset += 2;
-  }
-
-  if (present & EHT_EML_CAPA) {
-    proto_tree_add_bitmask(common_tree, tvb, offset,
-                           hf_ieee80211_eht_common_field_eml_capabilities,
-                           ett_eht_multi_link_common_info_eml_capa,
-                           eht_eml_capabilities_hdrs, ENC_LITTLE_ENDIAN);
-    offset += 2;
-  }
-
-  if (present & EHT_MLD_CAPA) {
-    proto_tree_add_bitmask(common_tree, tvb, offset,
-                           hf_ieee80211_eht_common_field_mld_capabilities,
-                           ett_eht_multi_link_common_info_mld_capa,
-                           eht_mld_capabilities_hdrs, ENC_LITTLE_ENDIAN);
-    offset += 2;
-  }
-
 
   /* Handle the link info. It is 0 or more subelements */
-  while (offset < len) {
+  while (tvb_reported_length_remaining(tvb, offset)) {
     guint8 tag, subelt_len;
+    int link_id = -1;
 
     if (tvb_reported_length_remaining(tvb, offset) < 2) {
       expert_add_info_format(pinfo, tree, &ei_ieee80211_eht_invalid_subelement,
@@ -25579,34 +26187,81 @@ dissect_multi_link(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     tag = tvb_get_guint8(tvb, offset);
     subelt_len = tvb_get_guint8(tvb, offset + 1);
 
-    subelt_tree = proto_tree_add_subtree(tree, tvb, offset, subelt_len + 2,
-                                         ett_eht_multi_link_subelt,
-                                         NULL,
-                                         rval_to_str(tag,
-                                                     multi_link_sub_elt_string,
-                                                     "Reserved"));
-    proto_tree_add_item(subelt_tree,
-                        hf_ieee80211_eht_multi_link_subelt_tag, tvb,
-                        offset, 1, ENC_NA);
-    offset += 1;
-    proto_tree_add_item(subelt_tree,
-                        hf_ieee80211_eht_multi_link_subelt_len, tvb,
-                        offset, 1, ENC_NA);
-    offset += 1;
+    tvbuff_t *new_tvb;
+    int overhead = 0;
+    int full_subelt_len;
 
     switch (tag) {
-      case 0:
-        offset += dissect_multi_link_per_sta(tvb, pinfo, subelt_tree, offset,
-                                             subelt_len);
-        break;
-      case 221:
-        /* Add an expert info saying there are none so far? */
-        offset += subelt_len;
-        break;
-      default:
-        offset += subelt_len;
-        break;
+    case 0:
+      /*
+       * We have to assemble the sub-elt if there is a continuations. And
+       * it will have to be a composite TVB etc.
+       */
+      new_tvb = get_subelt_tvb(tvb, pinfo, offset, &overhead);
+      full_subelt_len = tvb_captured_length_remaining(new_tvb, 0);
+
+      proto_tree_add_item(tree,
+                          hf_ieee80211_eht_multi_link_subelt_tag, tvb,
+                          offset, 1, ENC_NA);
+      offset += 1;
+      if (full_subelt_len <= 255) {
+        proto_tree_add_item(tree,
+                            hf_ieee80211_eht_multi_link_subelt_len, tvb,
+                            offset, 1, ENC_NA);
+      } else {
+        proto_tree_add_uint(tree, hf_ieee80211_eht_multi_link_subelt_len, tvb,
+                            0, 0, full_subelt_len);
+      }
+      offset += 1;
+
+      subelt_tree = proto_tree_add_subtree_format(tree, new_tvb, 0,
+                                       full_subelt_len,
+                                       ett_eht_multi_link_subelt,
+                                       NULL, "Per-STA Profile %d", elt + 1);
+      /*
+       * There might be some per-STA elements that do not contain link IDs.
+       */
+
+      /*
+       * We use the sta profile num here. But we need to ensure it is not
+       * seen as NULL and we send it in zero based. Will be incremented
+       * before use.
+       */
+
+      offset += dissect_multi_link_per_sta(new_tvb, pinfo, subelt_tree,
+                                           multi_link_type, &link_id);
+
+      offset += overhead; /* Account for the overhead in the subelt */
+      if (link_id != -1) {
+        local_link_ids[elt] = link_id;
+      }
+      break;
+    case 221:
+      /* Add an expert info saying there are none so far? */
+      offset += subelt_len + 2;
+      break;
+    default:
+      offset += subelt_len + 2;
+      break;
     }
+    if (link_id != -1) {
+      elt++;
+    }
+  }
+  proto_tree_add_uint(tree, hf_index, tvb, 0, 0, elt);
+
+  if (elt) {
+    char link_id_list[128];
+    int i, ret, n = 0;
+    for (i = 0; i < elt; i++) {
+      if (local_link_ids[i] != -1) {
+        ret = snprintf(link_id_list + n, 128 - n,
+                         (i == 0) ? "%d" : "_%d", local_link_ids[i]);
+        n += ret;
+      }
+    }
+    proto_tree_add_string(tree, hf_ieee80211_eht_multi_link_link_id_list, tvb,
+                          0, 0, link_id_list);
   }
 }
 
@@ -25786,16 +26441,6 @@ static int * const eht_mcs_20mhz_map_hdrs[] = {
   NULL
 };
 
-static int * const eht_mcs_map_hdrs[] = {
-  &hf_ieee80211_eht_rx_max_nss_0_9,
-  &hf_ieee80211_eht_tx_max_nss_0_9,
-  &hf_ieee80211_eht_rx_max_nss_10_11,
-  &hf_ieee80211_eht_tx_max_nss_10_11,
-  &hf_ieee80211_eht_rx_max_nss_12_13,
-  &hf_ieee80211_eht_tx_max_nss_12_13,
-  NULL
-};
-
 static void
 dissect_eht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
                          proto_tree *tree, int offset, int len _U_)
@@ -25857,35 +26502,80 @@ dissect_eht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
                                tvb_captured_length_remaining(tvb, offset),
                                ett_eht_phy_mcs_nss, NULL,
                                "Supported EHT-MCS and NSS Set");
+
   if (pinfo->pseudo_header->ieee_802_11.has_frequency) {
     guint *p_channel_width_set =
       (guint *)p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan,
                                 HE_CHANNEL_WIDTH_KEY);
     guint channel_width_set = 0;
-
     /*
      * If we got it, we can handle the rest, otherwise not. Note,
      * we can determine if it was ever set by checking for non-zero because
      * we set at least one bit when saving it..
      */
-    if (p_channel_width_set &&
-      pinfo->pseudo_header->ieee_802_11.has_frequency) {
+    if (p_channel_width_set) {
       gboolean is_ap = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(),
                                                          pinfo, proto_wlan,
                                                          IS_AP_KEY));
       channel_width_set = GPOINTER_TO_UINT(p_channel_width_set);
-      if (IS_2_4_GHZ(pinfo->pseudo_header->ieee_802_11.frequency)) {
-        /* */
-        if (is_ap && (channel_width_set & 0x1) == 1) {
-          /* The EHT-MCS and NSS set for BW <= 80MHz Ap etc */
+
+      /* Distinguish between the AP and the non-AP cases as the logis is easier
+       * even if that means some duplicate code.
+       */
+      if (is_ap) {
+        /* The EHT-MCS and NSS set for BW <= 80MHz Ap etc */
+        if (tvb_captured_length_remaining(tvb, offset) < 3) {
+          expert_add_info_format(pinfo, eht_mcs_nss, &ei_ieee80211_bad_length,
+                           "Insufficient bytes for EHT Capabilities. Need 3. "
+                           "Perhaps the EHT Capabilities field is malformed.");
+          return;
+        }
+        proto_tree_add_bitmask(eht_mcs_nss, tvb, offset,
+                               hf_ieee80211_eht_mcs_and_nss_le_80mhz,
+                               ett_eht_phy_mcs_nss_set,
+                               eht_le_80_mcs_map_hdrs,
+                               ENC_LITTLE_ENDIAN);
+        offset += 3;
+
+        if (channel_width_set & 0x04) { /* B2 is set */
+          if (tvb_captured_length_remaining(tvb, offset) < 3) {
+            expert_add_info_format(pinfo, eht_mcs_nss, &ei_ieee80211_bad_length,
+                           "Insufficient bytes for EHT Capabilities. Need 3 for AP 160MHz. "
+                           "Perhaps the EHT Capabilities field is malformed.");
+            return;
+          }
           proto_tree_add_bitmask(eht_mcs_nss, tvb, offset,
-                                 hf_ieee80211_eht_mcs_and_nss_lt_80mhz,
+                                 hf_ieee80211_eht_mcs_and_nss_eq_160mhz,
                                  ett_eht_phy_mcs_nss_set,
-                                 eht_mcs_map_hdrs,
+                                 eht_160_mcs_map_hdrs,
                                  ENC_LITTLE_ENDIAN);
           offset += 3;
-        } else {
-          /* Add the info for a 20MHz-Only Non-AP. */
+        }
+        if (ch_320mhz_in_6ghz &&
+            IS_6_GHZ(pinfo->pseudo_header->ieee_802_11.frequency)) {
+          if (tvb_captured_length_remaining(tvb, offset) < 3) {
+            expert_add_info_format(pinfo, eht_mcs_nss, &ei_ieee80211_bad_length,
+                           "Insufficient bytes for EHT Capabilities. Need 3. "
+                           "Perhaps the EHT Capabilities field is malformed.");
+            return;
+          }
+          proto_tree_add_bitmask(eht_mcs_nss, tvb, offset,
+                                 hf_ieee80211_eht_mcs_and_nss_eq_320mhz,
+                                 ett_eht_phy_mcs_nss_set,
+                                 eht_320_mcs_map_hdrs,
+                                 ENC_LITTLE_ENDIAN);
+          offset += 3;
+        }
+      } else {
+        /* Add the info for a 20MHz-Only Non-AP. But have to check both
+         * frequency sets for some cases */
+        if ((channel_width_set & 0x07) == 0) {
+          if (tvb_captured_length_remaining(tvb, offset) < 4) {
+            expert_add_info_format(pinfo, eht_mcs_nss, &ei_ieee80211_bad_length,
+                           "Insufficient bytes for EHT Capabilities. Need 4. "
+                           "Perhaps the EHT Capabilities field is malformed.");
+           return;
+          }
           proto_tree_add_bitmask(eht_mcs_nss, tvb, offset,
                                  hf_ieee80211_eht_mcs_and_nss_non_ap,
                                  ett_eht_phy_mcs_nss_set,
@@ -25893,37 +26583,61 @@ dissect_eht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
                                  ENC_LITTLE_ENDIAN);
           offset += 4;
         }
-      } else {
-        if ((channel_width_set & 0x0E) == 0) { /* B1, 2 & 3 are 0 */
+        /* Now, the next set BW <= 80MHz except ...
+         * If 2.4GHz and B0 is 1, or 5GHz or 6GHz and B1 */
+        if ((IS_2_4_GHZ(pinfo->pseudo_header->ieee_802_11.frequency) &&
+             channel_width_set & 0x01) ||
+            (channel_width_set & 0x02)) {
+          if (tvb_captured_length_remaining(tvb, offset) < 3) {
+            expert_add_info_format(pinfo, eht_mcs_nss, &ei_ieee80211_bad_length,
+                           "Insufficient bytes for EHT Capabilities. Need 3 for le 80MHz. "
+                           "Perhaps the EHT Capabilities field is malformed.");
+            return;
+          }
           proto_tree_add_bitmask(eht_mcs_nss, tvb, offset,
-                                 hf_ieee80211_eht_mcs_and_nss_non_ap,
+                                 hf_ieee80211_eht_mcs_and_nss_le_80mhz,
                                  ett_eht_phy_mcs_nss_set,
-                                 eht_mcs_20mhz_map_hdrs,
+                                 eht_le_80_mcs_map_hdrs,
                                  ENC_LITTLE_ENDIAN);
-          offset += 4;
-        } else {
-          if (channel_width_set & 0x04) { /* B2 is set */
-            proto_tree_add_bitmask(eht_mcs_nss, tvb, offset,
-                                   hf_ieee80211_eht_mcs_and_nss_eq_160mhz,
-                                   ett_eht_phy_mcs_nss_set,
-                                   eht_mcs_map_hdrs,
-                                   ENC_LITTLE_ENDIAN);
-            offset += 3;
+          offset += 3;
+
+        }
+        if (!IS_2_4_GHZ(pinfo->pseudo_header->ieee_802_11.frequency) &&
+            channel_width_set & 0x04) { /* B2 is set */
+          if (tvb_captured_length_remaining(tvb, offset) < 3) {
+            expert_add_info_format(pinfo, eht_mcs_nss, &ei_ieee80211_bad_length,
+                           "Insufficient bytes for EHT Capabilities. Need 3 for 160MHz. "
+                           "Perhaps the EHT Capabilities field is malformed.");
+            return;
           }
-          if (ch_320mhz_in_6ghz) {
-            proto_tree_add_bitmask(eht_mcs_nss, tvb, offset,
-                                   hf_ieee80211_eht_mcs_and_nss_eq_320mhz,
-                                   ett_eht_phy_mcs_nss_set,
-                                   eht_mcs_map_hdrs,
-                                   ENC_LITTLE_ENDIAN);
-            offset += 3;
+          proto_tree_add_bitmask(eht_mcs_nss, tvb, offset,
+                                 hf_ieee80211_eht_mcs_and_nss_eq_160mhz,
+                                 ett_eht_phy_mcs_nss_set,
+                                 eht_160_mcs_map_hdrs,
+                                 ENC_LITTLE_ENDIAN);
+          offset += 3;
+        }
+        if (ch_320mhz_in_6ghz &&
+            IS_6_GHZ(pinfo->pseudo_header->ieee_802_11.frequency)) {
+          if (tvb_captured_length_remaining(tvb, offset) < 3) {
+            expert_add_info_format(pinfo, eht_mcs_nss, &ei_ieee80211_bad_length,
+                           "Insufficient bytes for EHT Capabilities. Need 3 for 320MHz. "
+                           "Perhaps the EHT Capabilities field is malformed.");
+            return;
           }
+          proto_tree_add_bitmask(eht_mcs_nss, tvb, offset,
+                                 hf_ieee80211_eht_mcs_and_nss_eq_320mhz,
+                                 ett_eht_phy_mcs_nss_set,
+                                 eht_320_mcs_map_hdrs,
+                                 ENC_LITTLE_ENDIAN);
+          offset += 3;
         }
       }
     } else {
       proto_tree_add_item(eht_mcs_nss, hf_ieee80211_eht_supported_mcs_nss_bytes,
                           tvb, offset,
                           tvb_captured_length_remaining(tvb, offset), ENC_NA);
+      offset += tvb_captured_length_remaining(tvb, offset);
     }
   }
 
@@ -25943,39 +26657,82 @@ static const value_string tid_to_link_mapping_dirn_vals[] = {
   { 0, NULL }
 };
 
+static const value_string ttl_link_mapping_size_vals[] = {
+  { 0, "2 octets" },
+  { 1, "1 octet" },
+  { 0, NULL }
+};
+
+static int * const eht_ttl_mapping_control_hdrs[] = {
+  &hf_ieee80211_eht_ttl_mapping_direction,
+  &hf_ieee80211_eht_ttl_default_link_mapping,
+  &hf_ieee80211_eht_ttl_mapping_switch_time_pres,
+  &hf_ieee80211_eht_ttl_expected_dura_pres,
+  &hf_ieee80211_eht_ttl_link_mapping_size,
+  &hf_ieee80211_eht_ttl_mapping_reserved,
+  NULL
+};
+
 static void
 dissect_tid_to_link_mapping(tvbuff_t *tvb, packet_info *pinfo _U_,
                             proto_tree *tree, int offset, int len _U_)
 {
-  proto_tree *control = NULL;
-  guint8 presence = tvb_get_guint8(tvb, offset + 1);
-  guint8 tid_num = 0;
+  proto_item *control = NULL;
+  guint8 presence;
+  guint8 control_byte = tvb_get_guint8(tvb, offset);
+  guint8 map_size = 2;
+  int hf_array[8] = {hf_ieee80211_eht_ttl_mapping_tid_0_link_mapping,
+                     hf_ieee80211_eht_ttl_mapping_tid_1_link_mapping,
+                     hf_ieee80211_eht_ttl_mapping_tid_2_link_mapping,
+                     hf_ieee80211_eht_ttl_mapping_tid_3_link_mapping,
+                     hf_ieee80211_eht_ttl_mapping_tid_4_link_mapping,
+                     hf_ieee80211_eht_ttl_mapping_tid_5_link_mapping,
+                     hf_ieee80211_eht_ttl_mapping_tid_6_link_mapping,
+                     hf_ieee80211_eht_ttl_mapping_tid_7_link_mapping};
+  int hf_index = 0;
 
-  control = proto_tree_add_subtree(tree, tvb, offset, 2, ett_eht_ttl_mapping,
-                                   NULL, "TID-To_Link Mapping Control");
-  proto_tree_add_item(control, hf_ieee80211_eht_ttl_mapping_direction, tvb,
-                      offset, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(control, hf_ieee80211_eht_ttl_default_link_mapping, tvb,
-                      offset, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(control, hf_ieee80211_eht_ttl_mapping_reserved, tvb,
-                      offset, 2, ENC_LITTLE_ENDIAN);
+  /*
+   * If the Default Link Mapping bit is set, we only have 1 byte, otherwise 2
+   */
+  control = proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+              hf_ieee80211_eht_ttl_mapping_control,
+              ett_eht_ttl_mapping,
+              eht_ttl_mapping_control_hdrs,
+              ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  offset += 1;
+
+  if (len == 1) {
+    return;
+  }
+
+  presence = tvb_get_guint8(tvb, offset);
+
   proto_tree_add_item(control, hf_ieee80211_eht_ttl_mapping_presence, tvb,
-                      offset, 2, ENC_LITTLE_ENDIAN);
-  offset += 2;
+                      offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
 
-  while (presence) {
-    if (presence & 0x01) {
-      proto_tree *mapping;
-
-      mapping = proto_tree_add_subtree_format(tree, tvb, offset, 2,
-                                              ett_eht_ttl_mapping_link_mapping,
-                                              NULL, "Link Mapping Of Tid %u",
-                                              tid_num);
-      proto_tree_add_item(mapping, hf_ieee80211_ttl_mapping_link_mapping, tvb,
+  if (control_byte & 0x08) {
+      proto_tree_add_item(tree, hf_ieee80211_eht_ttl_mapping_switch_time, tvb,
                           offset, 2, ENC_LITTLE_ENDIAN);
       offset += 2;
+  }
+
+  if (control_byte & 0x10) {
+      proto_tree_add_item(tree, hf_ieee80211_eht_ttl_mapping_expected_duration, tvb,
+                          offset, 3, ENC_LITTLE_ENDIAN);
+      offset += 3;
+  }
+
+  if (control_byte & 0x20) {
+    map_size = 1;
+  }
+  while (presence) {
+    if (presence & 0x01) {
+      proto_tree_add_item(tree, hf_array[hf_index], tvb,
+                          offset, map_size, ENC_LITTLE_ENDIAN);
+      offset += map_size;
     }
-    tid_num++;
+    hf_index++;
     presence = presence >> 1;
   }
 }
@@ -25997,6 +26754,11 @@ dissect_multi_link_traffic(tvbuff_t *tvb, packet_info *pinfo _U_,
                          ml_traffic_control_hdrs,
                          ENC_LITTLE_ENDIAN);
   offset += 2;
+  len -= 2;
+
+  /* If there is nothing more, bail. */
+  if (len <= 0)
+    return;
 
   /* Now, add the traffic indication list as a byte string for the moment */
   proto_tree_add_item(tree, hf_ieee80211_eht_multi_link_traffic_indication,
@@ -26452,6 +27214,15 @@ dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         break;
       case NR_SUB_ID_HE_OPERATION:
         dissect_he_operation(sub_tag_tvb, pinfo, sub_tag_tree, 0, sub_tag_len);
+        break;
+      case NR_SUB_ID_EHT_CAPABILITIES:
+        dissect_eht_capabilities(sub_tag_tvb, pinfo, sub_tag_tree, 0, sub_tag_len);
+        break;
+      case NR_SUB_ID_EHT_OPERATION:
+        dissect_eht_operation(sub_tag_tvb, pinfo, sub_tag_tree, 0, sub_tag_len);
+        break;
+      case NR_SUB_ID_BASIC_MULTI_LINK:
+        dissect_multi_link(sub_tag_tvb, pinfo, sub_tag_tree, 0, sub_tag_len);
         break;
       case NR_SUB_ID_VENDOR_SPECIFIC:
       default:
@@ -30077,6 +30848,10 @@ dissect_he_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
   /* Get and isolate the phy channel witdth set */
   phy_channel_width_set = tvb_get_guint8(tvb, offset) >> 1;
+  /* Save this info so we can refer to it later. It might need to be global */
+  p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, HE_CHANNEL_WIDTH_KEY,
+                   GINT_TO_POINTER(phy_channel_width_set | (1<<31)));
+
   phy_cap_tree = proto_tree_add_subtree(tree, tvb, offset, 11, ett_he_phy_capabilities,
                         NULL,
                         "HE PHY Capabilities Information");
@@ -32994,6 +33769,11 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
   ti = proto_tree_add_item(tree, hf_ieee80211_mgt, tvb, 0, -1, ENC_NA);
   mgt_tree = proto_item_add_subtree(ti, ett_80211_mgt);
+  /*
+   * Add the frame type to the pinfo for those cases where it is needed
+   * to determine other things.
+   */
+  p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, FRAME_TYPE_KEY, GINT_TO_POINTER(COMPOSE_FRAME_TYPE(fcf)));
 
   switch (COMPOSE_FRAME_TYPE(fcf))
   {
@@ -45194,6 +45974,10 @@ proto_register_ieee80211(void)
      {"PSD Subfield", "wlan.rnr.tbt_info.psd_subfield",
       FT_UINT8, BASE_CUSTOM, CF_FUNC(tpe_psd_custom), 0, NULL, HFILL }},
 
+    {&hf_ieee80211_rnr_reserved_data,
+     {"Reserved", "wlan.rnr.tbtt_info.reserved",
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
     {&hf_ieee80211_rnr_mld_params,
      {"MLD Parameters", "wlan.rnr.tbtt_info.mld_parameters",
       FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -54412,7 +55196,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_eht_multi_link_control_type,
      {"Type", "wlan.eht.multi_link.control.type",
-      FT_UINT16, BASE_DEC, NULL, 0x0007, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, VALS(multi_link_type_vals), 0x0007, NULL, HFILL }},
 
     {&hf_ieee80211_eht_multi_link_control_reserved,
      {"Reserved", "wlan.eht.multi_link.control.reserved",
@@ -54443,9 +55227,46 @@ proto_register_ieee80211(void)
       "wlan.eht.multi_link.control.presence_bitmap.mld_capabilities_present",
       FT_BOOLEAN, 16, NULL, 0x0100, NULL, HFILL }},
 
+    {&hf_ieee80211_eht_multi_link_control_basic_mld_id_present,
+     {"AP MLD ID Present",
+      "wlan.eht.multi_link_control.control.basic.mld_id_present",
+      FT_BOOLEAN, 16, NULL, 0x0200, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_multi_link_control_ext_mld_capa,
+     {"Extended MLD Capabilities and Operations Present",
+      "wlan.eht.multi_link_control.control.basic.ext_mld_capabilities_present",
+      FT_BOOLEAN, 16, NULL, 0x0400, NULL, HFILL }},
+
     {&hf_ieee80211_eht_multi_link_control_bitmap_reserved,
      {"Reserved", "wlan.eht.multi_link.control.presence_bitmap.reserved",
       FT_UINT16, BASE_HEX, NULL, 0xFE00, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_multi_link_control_probe_mld_id_present,
+     {"MLD ID Present",
+      "wlan.eht.multi_link.control.probe.mld_id_present",
+      FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_multi_link_control_tdls_reserved,
+     {"Reserved", "wlan.eht.multi_link.control.tdls.reserved",
+      FT_UINT16, BASE_HEX, NULL, 0xFFF0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_multi_link_control_prio_access_reserved,
+     {"Reserved", "wlan.eht.multi_link.control.prio_access.reserved",
+      FT_UINT16, BASE_HEX, NULL, 0xFFF0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_multi_link_control_probe_bm_reserved,
+     {"Reserved", "wlan.eht.multi_link.control.probe.reserved",
+      FT_UINT16, BASE_HEX, NULL, 0xFFE0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_multi_link_control_reconfig_mld_mac,
+     {"MLD MAC Address Present",
+      "wlan.eht.multi_link.control.reconfiguration.mld_mac_addr_present",
+      FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_multi_link_control_reconfig_reserved,
+     {"Reserved",
+      "wlan.eht.multi_link.control.reconfiguration.reserved",
+      FT_UINT16, BASE_HEX, NULL, 0xFFE0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_common_field_length,
      {"Common Info Length", "wlan.eht.multi_link.common_info.length",
@@ -54563,6 +55384,20 @@ proto_register_ieee80211(void)
      {"Reserved", "wlan.eht.multi_link.common_info.mld_capabilities.reserved",
       FT_UINT16, BASE_HEX, NULL, 0xE000, NULL, HFILL }},
 
+    {&hf_ieee80211_eht_common_field_ap_mld_mac,
+     {"AP MLD MAC Address",
+      "wlan.eht.multi_link.common_info.ap_mld_mac_address",
+      FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_common_field_mld_id,
+     {"MLD ID", "wlan.eht.multi_link.common_info.mld_id",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_common_info_ap_mld_mac_addr,
+     {"AP MLD MAC Address",
+      "wlan.eht.multi_link.common_info.ap_mld_mac_address",
+      FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
     {&hf_ieee80211_eht_profile_sta_control,
      {"STA Control", "wlan.eht.multi_link.sta_profile.sta_control",
       FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -54575,6 +55410,30 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_eht_multi_link_subelt_len,
      {"Subelement Length", "wlan.eht.multi_link.sta_profile.subelt_len",
       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_multi_link_type_0_link_count,
+     {"Basic STA Profile Count", "wlan.eht.multi_link.type_0.sta_profile_count",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_multi_link_type_1_link_count,
+     {"Probe Request STA Profile Count", "wlan.eht.multi_link.type_1.sta_profile_count",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_multi_link_type_2_link_count,
+     {"Reconfiguration STA Profile Count", "wlan.eht.multi_link.type_2.sta_profile_count",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_multi_link_type_3_link_count,
+     {"TDLS STA Profile Count", "wlan.eht.multi_link.type_3.sta_profile_count",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_multi_link_type_4_link_count,
+     {"Priority Access STA Profile Count", "wlan.eht.multi_link.type_4.sta_profile_count",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_multi_link_link_id_list,
+     {"STA Profiles LinkIds", "wlan.eht.multi_link.sta_profile_id_list",
+      FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_profile_link_id,
      {"Link ID", "wlan.eht.multi_link.sta_profile.sta_control.link_id",
@@ -54624,6 +55483,33 @@ proto_register_ieee80211(void)
      {"Reserved", "wlan.eht.multi_link.sta_profile.sta_control.reserved",
       FT_UINT16, BASE_HEX, NULL, STA_CTRL_RESERVED, NULL, HFILL }},
 
+    {&hf_ieee80211_eht_profile_probe_reserved,
+     {"Reserved", "wlan.eht.multi_link.sta_control.probe_reserved",
+      FT_UINT16, BASE_HEX, NULL, 0xFFE0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_profile_removal_timer_present,
+     {"AP Removal Timer Present",
+      "wlan.eht.multi_link.sta_control.ap_removal_timer_present",
+      FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_profile_operation_update_type,
+     {"Operation Update Type",
+      "wlan.eht.multi_link.sta_control.operation_update_type",
+      FT_UINT16, BASE_HEX, NULL, 0x0780, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_profile_operation_para_present,
+     {"Operation Parameters Present",
+      "wlan.eht.multi_link.sta_control.operation_parameters_present",
+      FT_BOOLEAN, 16, NULL, 0x0800, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_profile_reconfig_reserved,
+     {"Reserved", "wlan.eht.multi_link.sta_control.reconfiguration_reserved",
+      FT_UINT16, BASE_HEX, NULL, 0xF000, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_profile_prio_acc_reserved,
+     {"Reserved", "wlan.eht.multi_link.sta_control.priority_access_reserved",
+      FT_UINT16, BASE_HEX, NULL, 0xFFF0, NULL, HFILL }},
+
     {&hf_ieee80211_eht_sta_profile_info_len,
      {"STA Info Length",
       "wlan.eht.multi_link.sta_profile.sta_control.sta_info.len",
@@ -54642,22 +55528,17 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_eht_sta_profile_info_tsf_offset,
      {"TSF Offset",
       "wlan.eht.multi_link.sta_profile.sta_control.sta_info.tsf_offset",
-      FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      FT_INT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-    {&hf_ieee80211_eht_sta_profile_info_dtim,
-     {"DTIM Info",
-      "wlan.eht.multi_link.sta_profile.sta_control.sta_info.dtim_info",
-      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-    {&hf_ieee80211_eht_profile_dtim_count,
+    {&hf_ieee80211_eht_sta_profile_info_dtim_count,
      {"DTIM Count",
       "wlan.eht.multi_link.sta_profile.sta_control.sta_info.dtim_count",
-      FT_UINT16, BASE_DEC, NULL, 0x00FF, NULL, HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-    {&hf_ieee80211_eht_profile_dtim_period,
+    {&hf_ieee80211_eht_sta_profile_info_dtim_period,
      {"DTIM Period",
       "wlan.eht.multi_link.sta_profile.sta_control.sta_info.dtim_period",
-      FT_UINT16, BASE_DEC, NULL, 0xFF00, NULL, HFILL }},
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_sta_profile_info_bitmap,
      {"NSTR Indication Bitmap",
@@ -54668,6 +55549,51 @@ proto_register_ieee80211(void)
      {"BSS Parameters Change Count",
       "wlan.eht.multi_link.sta_profile.sta_control.sta_info.bss_params_change_count",
       FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_sta_profile_removal_timer,
+     {"AP Removal Timer",
+      "wlan.eht.multi_link.sta_profile.sta_control.sta_info.ap_removal_timer",
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_sta_profile_presence_indi,
+     {"Presence Indication",
+      "wlan.eht.multi_link.sta_profile.sta_info.presence_indication",
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_sta_profile_presence_indi_max_mpdu_length_present,
+     {"Maximum MPDU Length Present",
+      "wlan.eht.multi_link.sta_profile.sta_info.presence_indication.max_mpdu_length_present",
+      FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_sta_profile_presence_indi_max_amsdu_length_present,
+     {"Maximum A-MSDU Length Present",
+      "wlan.eht.multi_link.sta_profile.sta_info.presence_indication.max_amsdu_length_present",
+      FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_sta_profile_presence_indi_reserved,
+     {"Reserved",
+      "wlan.eht.multi_link.sta_profile.sta_info.presence_indication.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xfc, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_sta_profile_operation_para_info,
+     {"Operation Parameter Info",
+      "wlan.eht.multi_link.sta_profile.sta_info.operation_parameter_info",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_sta_profile_operation_para_info_max_mpdu_length,
+     {"Maximum MPDU Length", "wlan.eht.multi_link.sta_profile.sta_info.operation_parameter_info.max_mpdu_length",
+      FT_UINT16, BASE_HEX, VALS(vht_max_mpdu_length_flag), 0x0003,
+      "In Octets unit", HFILL }},
+
+    {&hf_ieee80211_eht_sta_profile_operation_para_info_amsdu_length,
+     {"A-MSDU length", "wlan.eht.multi_link.sta_profile.sta_info.operation_parameter_info.amsdu_length",
+      FT_BOOLEAN, 16, TFS(&ht_max_amsdu_flag), 0x0004,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_eht_sta_profile_operation_para_info_pad,
+     {"Pad", "wlan.eht.multi_link.sta_profile.sta_info.operation_parameter_info.pad",
+      FT_UINT16, BASE_HEX, NULL, 0xFFF8,
+      NULL, HFILL }},
 
     {&hf_ieee80211_eht_operation_parameters,
      {"EHT Operation Parameters",
@@ -55098,53 +56024,113 @@ proto_register_ieee80211(void)
       "wlan.eht.supported_eht_mcs_bss_non_sta.tx_max_nss_supports_eht_mcs_12_13",
       FT_UINT32, BASE_HEX, NULL, 0xF0000000, NULL, HFILL }},
 
-    {&hf_ieee80211_eht_mcs_and_nss_lt_80mhz,
+    {&hf_ieee80211_eht_mcs_and_nss_le_80mhz,
      {"EHT-MCS Map (BW <= 80MHz)",
-      "wlan.eht.supported_eht_mcs_bss_set.eht_mcs_map_bw_lt_80_mhz",
+      "wlan.eht.supported_eht_mcs_bss_set.eht_mcs_map_bw_le_80_mhz",
       FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_le_80_rx_max_nss_0_9,
+     {"Rx Max Nss That Supports EHT-MCS 0-9",
+      "wlan.eht.supported_eht_mcs_bss_set.le_80.rx_max_nss_supports_eht_mcs_0_9",
+      FT_UINT24, BASE_DEC, NULL, 0x00000F, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_le_80_tx_max_nss_0_9,
+     {"Tx Max Nss That Supports EHT-MCS 0-9",
+      "wlan.eht.supported_eht_mcs_bss_set.le_80.tx_max_nss_supports_eht_mcs_0_9",
+      FT_UINT24, BASE_DEC, NULL, 0x0000F0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_le_80_rx_max_nss_10_11,
+     {"Rx Max Nss That Supports EHT-MCS 10-11",
+      "wlan.eht.supported_eht_mcs_bss_set.le_80.rx_max_nss_supports_eht_mcs_10_11",
+      FT_UINT24, BASE_DEC, NULL, 0x000F00, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_le_80_tx_max_nss_10_11,
+     {"Tx Max Nss That Supports EHT-MCS 10-11",
+      "wlan.eht.supported_eht_mcs_bss_set.le_80.tx_max_nss_supports_eht_mcs_10_11",
+      FT_UINT24, BASE_DEC, NULL, 0x00F000, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_le_80_rx_max_nss_12_13,
+     {"Rx Max Nss That Supports EHT-MCS 12-13",
+      "wlan.eht.supported_eht_mcs_bss_set.le_80.rx_max_nss_supports_eht_mcs_12_13",
+      FT_UINT24, BASE_DEC, NULL, 0x0F0000, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_le_80_tx_max_nss_12_13,
+     {"Tx Max Nss That Supports EHT-MCS 12-13",
+      "wlan.eht.supported_eht_mcs_bss_set.le_80.tx_max_nss_supports_eht_mcs_12_13",
+      FT_UINT24, BASE_DEC, NULL, 0xF00000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_mcs_and_nss_eq_160mhz,
      {"EHT-MCS Map (BW = 160MHz)",
       "wlan.eht.supported_eht_mcs_bss_set.eht_mcs_map_bw_eq_160_mhz",
       FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
+    {&hf_ieee80211_eht_160_rx_max_nss_0_9,
+     {"Rx Max Nss That Supports EHT-MCS 0-9",
+      "wlan.eht.supported_eht_mcs_bss_set.160.rx_max_nss_supports_eht_mcs_0_9",
+      FT_UINT24, BASE_DEC, NULL, 0x00000F, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_160_tx_max_nss_0_9,
+     {"Tx Max Nss That Supports EHT-MCS 0-9",
+      "wlan.eht.supported_eht_mcs_bss_set.160.tx_max_nss_supports_eht_mcs_0_9",
+      FT_UINT24, BASE_DEC, NULL, 0x0000F0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_160_rx_max_nss_10_11,
+     {"Rx Max Nss That Supports EHT-MCS 10-11",
+      "wlan.eht.supported_eht_mcs_bss_set.160.rx_max_nss_supports_eht_mcs_10_11",
+      FT_UINT24, BASE_DEC, NULL, 0x000F00, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_160_tx_max_nss_10_11,
+     {"Tx Max Nss That Supports EHT-MCS 10-11",
+      "wlan.eht.supported_eht_mcs_bss_set.160.tx_max_nss_supports_eht_mcs_10_11",
+      FT_UINT24, BASE_DEC, NULL, 0x00F000, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_160_rx_max_nss_12_13,
+     {"Rx Max Nss That Supports EHT-MCS 12-13",
+      "wlan.eht.supported_eht_mcs_bss_set.160.rx_max_nss_supports_eht_mcs_12_13",
+      FT_UINT24, BASE_DEC, NULL, 0x0F0000, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_160_tx_max_nss_12_13,
+     {"Tx Max Nss That Supports EHT-MCS 12-13",
+      "wlan.eht.supported_eht_mcs_bss_set.160.tx_max_nss_supports_eht_mcs_12_13",
+      FT_UINT24, BASE_DEC, NULL, 0xF00000, NULL, HFILL }},
+
     {&hf_ieee80211_eht_mcs_and_nss_eq_320mhz,
      {"EHT-MCS Map (BW = 320MHz)",
       "wlan.eht.supported_eht_mcs_bss_set.eht_mcs_map_bw_eq_320_mhz",
       FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    {&hf_ieee80211_eht_rx_max_nss_0_9,
+    {&hf_ieee80211_eht_320_rx_max_nss_0_9,
      {"Rx Max Nss That Supports EHT-MCS 0-9",
-      "wlan.eht.supported_eht_mcs_bss_set.rx_max_nss_supports_eht_mcs_0_9",
+      "wlan.eht.supported_eht_mcs_bss_set.320.rx_max_nss_supports_eht_mcs_0_9",
       FT_UINT24, BASE_DEC, NULL, 0x00000F, NULL, HFILL }},
 
-    {&hf_ieee80211_eht_tx_max_nss_0_9,
+    {&hf_ieee80211_eht_320_tx_max_nss_0_9,
      {"Tx Max Nss That Supports EHT-MCS 0-9",
-      "wlan.eht.supported_eht_mcs_bss_set.tx_max_nss_supports_eht_mcs_0_9",
+      "wlan.eht.supported_eht_mcs_bss_set.320.tx_max_nss_supports_eht_mcs_0_9",
       FT_UINT24, BASE_DEC, NULL, 0x0000F0, NULL, HFILL }},
 
-    {&hf_ieee80211_eht_rx_max_nss_10_11,
+    {&hf_ieee80211_eht_320_rx_max_nss_10_11,
      {"Rx Max Nss That Supports EHT-MCS 10-11",
-      "wlan.eht.supported_eht_mcs_bss_set.rx_max_nss_supports_eht_mcs_10_11",
+      "wlan.eht.supported_eht_mcs_bss_set.320.rx_max_nss_supports_eht_mcs_10_11",
       FT_UINT24, BASE_DEC, NULL, 0x000F00, NULL, HFILL }},
 
-    {&hf_ieee80211_eht_tx_max_nss_10_11,
+    {&hf_ieee80211_eht_320_tx_max_nss_10_11,
      {"Tx Max Nss That Supports EHT-MCS 10-11",
-      "wlan.eht.supported_eht_mcs_bss_set.tx_max_nss_supports_eht_mcs_10_11",
+      "wlan.eht.supported_eht_mcs_bss_set.320.tx_max_nss_supports_eht_mcs_10_11",
       FT_UINT24, BASE_DEC, NULL, 0x00F000, NULL, HFILL }},
 
-    {&hf_ieee80211_eht_rx_max_nss_12_13,
+    {&hf_ieee80211_eht_320_rx_max_nss_12_13,
      {"Rx Max Nss That Supports EHT-MCS 12-13",
-      "wlan.eht.supported_eht_mcs_bss_set.rx_max_nss_supports_eht_mcs_12_13",
+      "wlan.eht.supported_eht_mcs_bss_set.320.rx_max_nss_supports_eht_mcs_12_13",
       FT_UINT24, BASE_DEC, NULL, 0x0F0000, NULL, HFILL }},
 
-    {&hf_ieee80211_eht_tx_max_nss_12_13,
+    {&hf_ieee80211_eht_320_tx_max_nss_12_13,
      {"Tx Max Nss That Supports EHT-MCS 12-13",
-      "wlan.eht.supported_eht_mcs_bss_set.tx_max_nss_supports_eht_mcs_12_13",
+      "wlan.eht.supported_eht_mcs_bss_set.320.tx_max_nss_supports_eht_mcs_12_13",
       FT_UINT24, BASE_DEC, NULL, 0xF00000, NULL, HFILL }},
 
     {&hf_ieee80211_eht_supported_mcs_nss_bytes,
-     {"Supported EHT-MCA and NSS Set bytes",
+     {"Supported EHT-MCS and NSS Set bytes",
       "wlan.eht.supported_eht_mcs_nss_set.bytes",
       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
@@ -55152,27 +56138,83 @@ proto_register_ieee80211(void)
      {"EHT PPE Thresholds", "wlan.eht.ppe_thresholds",
       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+    {&hf_ieee80211_eht_ttl_mapping_control,
+     {"TID-To-Link Mapping Control",
+      "wlan.eht.tid_to_link_mapping.control",
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
     {&hf_ieee80211_eht_ttl_mapping_direction,
      {"Direction", "wlan.eht.tid_to_link_mapping.control.direction",
-      FT_UINT16, BASE_HEX, VALS(tid_to_link_mapping_dirn_vals), 0x0003,
+      FT_UINT8, BASE_HEX, VALS(tid_to_link_mapping_dirn_vals), 0x03,
       NULL, HFILL }},
 
     {&hf_ieee80211_eht_ttl_default_link_mapping,
      {"Default Link Mapping",
       "wlan.eht.tid_to_link_mapping.control.default_link_mapping",
-      FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL }},
+      FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_ttl_mapping_switch_time_pres,
+     {"Mapping Switch Time Present",
+      "wlan.eht.tid_to_link_mapping.control.mapping_switch_time",
+      FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_ttl_expected_dura_pres,
+     {"Expected Duration Present",
+      "wlan.eht.tid_to_link_mapping.control.expteced_duration",
+      FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_ttl_link_mapping_size,
+     {"Link Mapping Size",
+      "wlan.eht.tid_to_link_mapping.control.link_mapping_size",
+      FT_UINT8, BASE_DEC, VALS(ttl_link_mapping_size_vals), 0x20, NULL, HFILL }},
 
     {&hf_ieee80211_eht_ttl_mapping_reserved,
      {"Reserved", "wlan.eht.tid_to_link_mapping.control.reserved",
-      FT_UINT16, BASE_HEX, NULL, 0x00F8, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_ttl_mapping_presence,
      {"Link Mapping Presence Indicator",
       "wlan.eht.tid_to_link_mapping.control.link_mapping_presence_indicator",
-      FT_UINT16, BASE_HEX, NULL, 0x00F8, NULL, HFILL }},
+      FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }},
 
-    {&hf_ieee80211_ttl_mapping_link_mapping,
-     {"Link Mapping", "wlan.eht.tid_to_link_mapping.link_mapping",
+    {&hf_ieee80211_eht_ttl_mapping_switch_time,
+     {"Mapping Switch Time", "wlan.eht.tid_to_link_mapping.switch_time",
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_ttl_mapping_expected_duration,
+     {"Expected Duration", "wlan.eht.tid_to_link_mapping.expected_duration",
+      FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_ttl_mapping_tid_0_link_mapping,
+     {"Link Mapping Of TID 0", "wlan.eht.tid_to_link_mapping.tid_0.link_mapping",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_ttl_mapping_tid_1_link_mapping,
+     {"Link Mapping Of TID 1", "wlan.eht.tid_to_link_mapping.tid_1.link_mapping",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_ttl_mapping_tid_2_link_mapping,
+     {"Link Mapping Of TID 2", "wlan.eht.tid_to_link_mapping.tid_2.link_mapping",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_ttl_mapping_tid_3_link_mapping,
+     {"Link Mapping Of TID 3", "wlan.eht.tid_to_link_mapping.tid_3.link_mapping",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_ttl_mapping_tid_4_link_mapping,
+     {"Link Mapping Of TID 4", "wlan.eht.tid_to_link_mapping.tid_4.link_mapping",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_ttl_mapping_tid_5_link_mapping,
+     {"Link Mapping Of TID 5", "wlan.eht.tid_to_link_mapping.tid_5.link_mapping",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_ttl_mapping_tid_6_link_mapping,
+     {"Link Mapping Of TID 6", "wlan.eht.tid_to_link_mapping.tid_6.link_mapping",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_eht_ttl_mapping_tid_7_link_mapping,
+     {"Link Mapping Of TID 7", "wlan.eht.tid_to_link_mapping.tid_7.link_mapping",
       FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_eht_multi_link_traffic_control,
@@ -55182,7 +56224,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_eht_multi_link_tc_bitmap_size,
      {"Bitmap Size", "wlan.eht.multi_link_traffic.traffic_control.bitmap_size",
-      FT_UINT16, BASE_DEC, NULL, 0x000F, NULL, HFILL }},
+      FT_UINT16, BASE_CUSTOM, CF_FUNC(extra_one_base_custom), 0x000F, NULL, HFILL }},
 
     {&hf_ieee80211_eht_multi_link_tc_aid_offset,
      {"AID Offset", "wlan.eht.multi_link_traffic.traffic_control.aid_offset",
@@ -55442,6 +56484,9 @@ proto_register_ieee80211(void)
     &ett_eht_multi_link_sta_control,
     &ett_eht_multi_link_per_sta_info,
     &ett_eht_multi_link_sta_dtim,
+    &ett_eht_multi_link_reconf_oper_param,
+    &ett_eht_multi_link_reconfig_presence_indi,
+    &ett_eht_multi_link_reconfig_operation_para_info,
     &ett_eht_operation_params,
     &ett_eht_operation_control,
     &ett_eht_mac_capa,
@@ -55936,16 +56981,20 @@ proto_register_ieee80211(void)
       { "wlan.htc_in_dmg_packet", PI_PROTOCOL, PI_ERROR,
         "DMG frame has the +HTC/Order bit set", EXPFILL }},
 
-     { &ei_ieee80211_tbtt_unexpected,
-       { "wlan.rnr.tbtt_info.unexpected", PI_MALFORMED, PI_ERROR, "Unexpected TBTT Information Length", EXPFILL }},
+    { &ei_ieee80211_tbtt_unexpected,
+      { "wlan.rnr.tbtt_info.unexpected", PI_MALFORMED, PI_ERROR, "Unexpected TBTT Information Length", EXPFILL }},
 
-     { &ei_ieee80211_eht_invalid_subelement,
-       { "wlan.eht.invalid_subelement", PI_PROTOCOL, PI_ERROR,
+    { &ei_ieee80211_eht_invalid_subelement,
+      { "wlan.eht.invalid_subelement", PI_PROTOCOL, PI_ERROR,
          "Incorrect EHT Sub-element length", EXPFILL }},
 
-    {  &ei_ieee80211_eht_invalid_action,
-       { "wlan.eht.invalid_action", PI_PROTOCOL, PI_ERROR,
+    { &ei_ieee80211_eht_invalid_action,
+      { "wlan.eht.invalid_action", PI_PROTOCOL, PI_ERROR,
          "Invalid EHT Action field value", EXPFILL }},
+
+    { &ei_ieee80211_eht_invalid_multi_link,
+      { "wlan.eht.invalid_multi_link", PI_PROTOCOL, PI_ERROR,
+         "Invalid EHT Multi-Link element", EXPFILL }},
 
   };
 
