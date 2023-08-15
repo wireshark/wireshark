@@ -479,7 +479,7 @@ static gint ett_batadv_iv_ogm = -1;
 static gint ett_batadv_iv_ogm_flags = -1;
 static gint ett_batadv_elp = -1;
 static gint ett_batadv_ogm2 = -1;
-static gint ett_batadv_ogm2_flags = -1;
+//static gint ett_batadv_ogm2_flags = -1;
 static gint ett_batadv_bcast = -1;
 static gint ett_batadv_icmp = -1;
 static gint ett_batadv_icmp_rr = -1;
@@ -3993,9 +3993,14 @@ static int dissect_batadv_ogm2_v15(tvbuff_t *tvb, int offset,
 	guint8 type, version;
 	struct ogm2_packet_v15 *ogm2_packeth;
 	tvbuff_t *next_tvb;
+#if 0
+	/* OGM2 flags field is unused, it is illegal to call
+	 * proto_tree_add_bitmask with an empty list of fields.
+	 */
 	static int * const flags[] = {
 		NULL
 	};
+#endif
 
 	type = tvb_get_guint8(tvb, offset+0);
 	version = tvb_get_guint8(tvb, offset+1);
@@ -4035,9 +4040,8 @@ static int dissect_batadv_ogm2_v15(tvbuff_t *tvb, int offset,
 	offset += 1;
 
 	ogm2_packeth->flags = tvb_get_guint8(tvb, offset);
-	proto_tree_add_bitmask(batadv_ogm2_tree, tvb, offset,
-			       hf_batadv_ogm2_flags, ett_batadv_ogm2_flags,
-			       flags, ENC_NA);
+	proto_tree_add_item(batadv_ogm2_tree, hf_batadv_ogm2_flags, tvb,
+			    offset, 1, ENC_NA);
 	offset += 1;
 
 	ogm2_packeth->seqno = tvb_get_ntohl(tvb, offset);
@@ -4753,7 +4757,7 @@ void proto_register_batadv(void)
 		{ &hf_batadv_ogm2_flags,
 		  { "Flags", "batadv.ogm2.flags",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
-		    NULL, HFILL }
+		    "Unused", HFILL }
 		},
 		{ &hf_batadv_ogm2_seqno,
 		  { "Sequence number", "batadv.ogm2.seq",
@@ -5465,7 +5469,7 @@ void proto_register_batadv(void)
 		&ett_batadv_iv_ogm_flags,
 		&ett_batadv_elp,
 		&ett_batadv_ogm2,
-		&ett_batadv_ogm2_flags,
+		//&ett_batadv_ogm2_flags,
 		&ett_batadv_bcast,
 		&ett_batadv_icmp,
 		&ett_batadv_icmp_rr,
