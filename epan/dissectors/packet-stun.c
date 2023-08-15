@@ -1282,12 +1282,21 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 break;
             }
             case CHANGE_REQUEST:
+            {
+                gboolean change_ip, change_port;
                 if (att_length < 4)
                     break;
-                proto_tree_add_item(att_tree, hf_stun_att_change_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(att_tree, hf_stun_att_change_port, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_boolean(att_tree, hf_stun_att_change_ip, tvb, offset, 4, ENC_BIG_ENDIAN, &change_ip);
+                proto_tree_add_item_ret_boolean(att_tree, hf_stun_att_change_port, tvb, offset, 4, ENC_BIG_ENDIAN, &change_port);
+                if (change_ip && change_port) {
+                    col_append_str(pinfo->cinfo, COL_INFO, ", Change IP and Port");
+                } else if (change_ip) {
+                    col_append_str(pinfo->cinfo, COL_INFO, ", Change IP");
+                } else if (change_port) {
+                    col_append_str(pinfo->cinfo, COL_INFO, ", Change Port");
+                }
                 break;
-
+            }
             case USERNAME:
             {
                 if (network_version >  NET_VER_3489) {
