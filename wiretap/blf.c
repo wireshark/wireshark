@@ -116,22 +116,22 @@ static void add_interface_name(wtap_block_t *int_data, int pkt_encap, guint32 ch
     } else {
         switch (pkt_encap) {
         case WTAP_ENCAP_ETHERNET:
-            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "ETH-%d", channel);
+            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "ETH-%u", channel);
             break;
         case WTAP_ENCAP_IEEE_802_11:
-            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "WLAN-%d", channel);
+            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "WLAN-%u", channel);
             break;
         case WTAP_ENCAP_FLEXRAY:
-            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "FR-%d", channel);
+            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "FR-%u", channel);
             break;
         case WTAP_ENCAP_LIN:
-            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "LIN-%d", channel);
+            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "LIN-%u", channel);
             break;
         case WTAP_ENCAP_SOCKETCAN:
-            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "CAN-%d", channel);
+            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "CAN-%u", channel);
             break;
         default:
-            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "0x%04x-%d", pkt_encap, channel);
+            wtap_block_add_string_option_format(*int_data, OPT_IDB_NAME, "ENCAP_%d-%u", pkt_encap, channel);
         }
     }
 }
@@ -608,14 +608,14 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
             g_free(compressed_data);
             *err = WTAP_ERR_INTERNAL;
             if (infstream.msg != NULL) {
-                *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: inflateInit failed for LogContainer %d, message\"%s\"",
+                *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: inflateInit failed for LogContainer %u, message\"%s\"",
                                               index_log_container,
                                               infstream.msg);
             } else {
-                *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: inflateInit failed for LogContainer %d",
+                *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: inflateInit failed for LogContainer %u",
                                               index_log_container);
             }
-            ws_debug("inflateInit failed for LogContainer %d", index_log_container);
+            ws_debug("inflateInit failed for LogContainer %u", index_log_container);
             if (infstream.msg != NULL) {
                 ws_debug("inflateInit returned: \"%s\"", infstream.msg);
             }
@@ -671,7 +671,7 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
             }
             g_free(buf);
             g_free(compressed_data);
-            ws_debug("inflate failed (return code %d) for LogContainer %d", ret, index_log_container);
+            ws_debug("inflate failed (return code %d) for LogContainer %u", ret, index_log_container);
             if (infstream.msg != NULL) {
                 ws_debug("inflate returned: \"%s\"", infstream.msg);
             }
@@ -694,10 +694,10 @@ blf_pull_logcontainer_into_memory(blf_params_t *params, guint index_log_containe
              * fails.
              */
             *err = WTAP_ERR_INTERNAL;
-            *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: inflateEnd failed for LogContainer %d", index_log_container);
+            *err_info = ws_strdup_printf("blf_pull_logcontainer_into_memory: inflateEnd failed for LogContainer %u", index_log_container);
             g_free(buf);
             g_free(compressed_data);
-            ws_debug("inflateEnd failed for LogContainer %d", index_log_container);
+            ws_debug("inflateEnd failed for LogContainer %u", index_log_container);
             if (infstream.msg != NULL) {
                 ws_debug("inflateEnd returned: \"%s\"", infstream.msg);
             }
