@@ -26,6 +26,8 @@
 
 static int proto_blf = -1;
 
+static dissector_handle_t xml_handle;
+
 static int hf_blf_file_header = -1;
 static int hf_blf_file_header_magic = -1;
 static int hf_blf_file_header_length = -1;
@@ -59,11 +61,66 @@ static int hf_blf_cont_uncomp_size = -1;
 static int hf_blf_cont_res4 = -1;
 static int hf_blf_cont_payload = -1;
 
+static int hf_blf_app_text_source = -1;
+static int hf_blf_app_text_reservedapptext1 = -1;
+static int hf_blf_app_text_textlength = -1;
+static int hf_blf_app_text_reservedapptext2 = -1;
+static int hf_blf_app_text_data_version = -1;
+static int hf_blf_app_text_channelno = -1;
+static int hf_blf_app_text_busstype = -1;
+static int hf_blf_app_text_can_fd_channel = -1;
+static int hf_blf_app_text_text = -1;
+static int hf_blf_trigg_cond_state = -1;
+static int hf_blf_trigg_cond_triggerblocknamelength = -1;
+static int hf_blf_trigg_cond_triggerconditionlength = -1;
+static int hf_blf_trigg_cond_triggerblockname = -1;
+static int hf_blf_trigg_cond_triggercondition = -1;
+static int hf_blf_not_parsed = -1;
+static int hf_blf_sys_var_type = -1;
+static int hf_blf_sys_var_rep = -1;
+static int hf_blf_sys_var_reservedsystemvariable1 = -1;
+static int hf_blf_sys_var_namelength = -1;
+static int hf_blf_sys_var_datalength = -1;
+static int hf_blf_sys_var_reservedsystemvariable2 = -1;
+static int hf_blf_sys_var_name = -1;
+static int hf_blf_sys_var_data = -1;
+static int hf_blf_eth_status_channel = -1;
+static int hf_blf_eth_status_flags1_b0 = -1;
+static int hf_blf_eth_status_flags1_b1 = -1;
+static int hf_blf_eth_status_flags1_b2 = -1;
+static int hf_blf_eth_status_flags1_b3 = -1;
+static int hf_blf_eth_status_flags1_b4 = -1;
+static int hf_blf_eth_status_flags1_b5 = -1;
+static int hf_blf_eth_status_flags1_b6 = -1;
+static int hf_blf_eth_status_flags1_b7 = -1;
+static int hf_blf_eth_status_flags1_b8 = -1;
+
+static int hf_blf_eth_status_linkstatus = -1;
+static int hf_blf_eth_status_ethernetphy = -1;
+static int hf_blf_eth_status_duplex = -1;
+static int hf_blf_eth_status_mdi = -1;
+static int hf_blf_eth_status_connector = -1;
+static int hf_blf_eth_status_clockmode = -1;
+static int hf_blf_eth_status_pairs = -1;
+static int hf_blf_eth_status_hardwarechannel = -1;
+static int hf_blf_eth_status_bitrate = -1;
+static int hf_blf_eth_frame_ext_structlength = -1;
+static int hf_blf_eth_frame_ext_flags = -1;
+static int hf_blf_eth_frame_ext_channel = -1;
+static int hf_blf_eth_frame_ext_hardwarechannel = -1;
+static int hf_blf_eth_frame_ext_frameduration = -1;
+static int hf_blf_eth_frame_ext_framechecksum = -1;
+static int hf_blf_eth_frame_ext_dir = -1;
+static int hf_blf_eth_frame_ext_framelength = -1;
+static int hf_blf_eth_frame_ext_framehandle = -1;
+static int hf_blf_eth_frame_ext_reservedethernetframeex = -1;
+
 static gint ett_blf = -1;
 static gint ett_blf_header = -1;
 static gint ett_blf_obj = -1;
 static gint ett_blf_obj_header = -1;
 static gint ett_blf_logcontainer_payload = -1;
+static gint ett_blf_app_text_payload = -1;
 
 static const value_string blf_object_names[] = {
     { BLF_OBJTYPE_UNKNOWN,                          "Unknown" },
@@ -220,6 +277,48 @@ static const value_string blf_compression_names[] = {
     { 0, NULL }
 };
 
+static const value_string blf_app_text_source_vals[] = {
+    { 0,     "Measurement comment" },
+    { 1,     "Database channel information" },
+    { 2,     "Meta data" },
+    { 0, NULL }
+};
+
+static const value_string blf_trigger_cond_state_vals[] = {
+    { 0,     "Unknown" },
+    { 1,     "Start" },
+    { 2,     "Stop" },
+    { 3,     "StartStop"},
+    { 0, NULL }
+};
+
+static const value_string blf_sys_var_type_vals[] = {
+    { 1,     "Double" },
+    { 2,     "Long" },
+    { 3,     "String"},
+    { 4,     "DoubleArray"},
+    { 5,     "LongArray"},
+    { 6,     "LongLong"},
+    { 7,     "ByteArray"},
+    { 0, NULL }
+};
+
+static const value_string blf_eth_status_linkstatus_vals[] = {
+    { 0,     "UnknownLinkStatus" },
+    { 1,     "LinkDown" },
+    { 2,     "LinkUp"},
+    { 3,     "Negotiate"},
+    { 4,     "LinkError"},
+    { 0, NULL }
+};
+
+static const value_string blf_eth_status_ethernetphy_vals[] = {
+    { 0,     "UnknownEthernetPhy" },
+    { 1,     "Ieee802_3" },
+    { 2,     "BroadR_Reach"},
+    { 0, NULL }
+};
+
 void proto_register_file_blf(void);
 void proto_reg_handoff_file_blf(void);
 static int dissect_blf_next_object(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset);
@@ -353,6 +452,240 @@ dissect_blf_lobj(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint o
                 }
             }
             break;
+        case BLF_OBJTYPE_APP_TEXT:
+        {
+            guint source;
+            guint textlength;
+            if (offset - offset_orig < (gint)hdr_length) {
+                proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
+                offset = offset_orig + hdr_length;
+            }
+
+            ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
+            subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
+
+            proto_tree_add_item_ret_uint(subtree, hf_blf_app_text_source, tvb, offset, 4, ENC_LITTLE_ENDIAN, &source);
+            offset += 4;
+
+            /*uint32_t reservedAppText1 {};*/
+            if (source == 1) {
+                /* 1: Database channel information
+                 * - reserved contains channel information. The following
+                 * - table show how the 4 bytes are used:
+                 *   - Bit 0-7: Version of the data
+                 *   - Bit 8-15: Channel number
+                 *   - Bit 15-23: Bus type of the channel. One of the
+                 *     following values:
+                 *     - 1: BL_BUSTYPE_CAN
+                 *     - 5: BL_BUSTYPE_LIN
+                 *     - 6: BL_BUSTYPE_MOST
+                 *     - 7: BL_BUSTYPE_FLEXRAY
+                 *     - 9: BL_BUSTYPE_J1708
+                 *     - 10: BL_BUSTYPE_ETHERNET
+                 *     - 13: BL_BUSTYPE_WLAN
+                 *     - 14: BL_BUSTYPE_AFDX
+                 *   - Bit 24: Flag, that determines, if channel is a CAN-
+                 *     FD channel
+                 *   - Bit 25-31: Unused at the moment
+                 * - text contains database information for the specific
+                 *   channel. Each database is defined by the database path and
+                 *   the cluster name (if available). The single databases and the
+                 *   cluster name are separated by a semicolon. Example:
+                 *   \<Path1\>;\<ClusterName1\>;\<Path2\>;\<ClusterName2\>;...
+                 *   If for a database there's no cluster name available, an
+                 *   empty string is written as cluster name.
+                 */
+                proto_tree_add_item(subtree, hf_blf_app_text_data_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(subtree, hf_blf_app_text_channelno, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(subtree, hf_blf_app_text_busstype, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(subtree, hf_blf_app_text_can_fd_channel, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            } else {
+                proto_tree_add_item(subtree, hf_blf_app_text_reservedapptext1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            }
+            offset += 4;
+            /*uint32_t textLength {};*/
+            proto_tree_add_item_ret_uint(subtree, hf_blf_app_text_textlength, tvb, offset, 4, ENC_LITTLE_ENDIAN, &textlength);
+            offset += 4;
+            /*uint32_t reservedAppText2 {};*/
+            proto_tree_add_item(subtree, hf_blf_app_text_reservedapptext2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            /* If there is less than 38 characters this is not XML
+             * <?xml version="1.0" encoding="UTF-8"?>
+             */
+            if ((textlength > 37) && (tvb_strncaseeql(tvb, offset, "<?xml", 5) == 0) &&( xml_handle)) {
+                tvbuff_t* new_tvb = tvb_new_subset_length(tvb, offset, textlength);
+                call_dissector(xml_handle, new_tvb, pinfo, subtree);
+            } else {
+                proto_tree_add_item(subtree, hf_blf_app_text_text, tvb, offset, textlength, ENC_UTF_8|ENC_NA);
+            }
+        }
+            break;
+        case BLF_OBJTYPE_SYS_VARIABLE:
+        {
+            uint32_t namelength;
+            uint32_t datalength;
+
+            if (offset - offset_orig < (gint)hdr_length) {
+                proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
+                offset = offset_orig + hdr_length;
+            }
+
+            ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
+            subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
+
+            /* uint32_t type {}; */
+            proto_tree_add_item(subtree, hf_blf_sys_var_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            /* uint32_t representation {}; */
+            proto_tree_add_item(subtree, hf_blf_sys_var_rep, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            /* uint64_t reservedSystemVariable1 {}; */
+            proto_tree_add_item(subtree, hf_blf_sys_var_reservedsystemvariable1, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+            /* uint32_t nameLength {}; */
+            proto_tree_add_item_ret_uint(subtree, hf_blf_sys_var_namelength, tvb, offset, 4, ENC_LITTLE_ENDIAN, &namelength);
+            offset += 4;
+            /* uint32_t dataLength {}; */
+            proto_tree_add_item_ret_uint(subtree, hf_blf_sys_var_datalength, tvb, offset, 4, ENC_LITTLE_ENDIAN, &datalength);
+            offset += 4;
+            /* uint64_t reservedSystemVariable2 {}; */
+            proto_tree_add_item(subtree, hf_blf_sys_var_reservedsystemvariable2, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+            proto_tree_add_item(subtree, hf_blf_sys_var_name, tvb, offset, namelength, ENC_UTF_8 | ENC_NA);
+            offset += namelength;
+            proto_tree_add_item(subtree, hf_blf_sys_var_data, tvb, offset, namelength, ENC_NA);
+            offset += namelength;
+
+        }
+        break;
+        case BLF_OBJTYPE_ETHERNET_STATUS:
+        {
+            static int* const flags1[] = {
+                &hf_blf_eth_status_flags1_b8,
+                &hf_blf_eth_status_flags1_b7,
+                &hf_blf_eth_status_flags1_b6,
+                &hf_blf_eth_status_flags1_b5,
+                &hf_blf_eth_status_flags1_b4,
+                &hf_blf_eth_status_flags1_b3,
+                &hf_blf_eth_status_flags1_b2,
+                &hf_blf_eth_status_flags1_b1,
+                &hf_blf_eth_status_flags1_b0,
+                NULL
+            };
+            if (offset - offset_orig < (gint)hdr_length) {
+                proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
+                offset = offset_orig + hdr_length;
+            }
+
+            ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
+            subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
+
+            /* uint16_t channel {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_status_channel, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            /* uint16_t flags; */
+            proto_tree_add_bitmask_list(subtree, tvb, offset, 2, flags1, ENC_BIG_ENDIAN);
+            offset += 2;
+            /* uint8_t linkStatus {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_status_linkstatus, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            /* uint8_t ethernetPhy {};*/
+            proto_tree_add_item(subtree, hf_blf_eth_status_ethernetphy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            /* uint8_t duplex {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_status_duplex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            /* uint8_t mdi {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_status_mdi, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            /* uint8_t connector {};*/
+            proto_tree_add_item(subtree, hf_blf_eth_status_connector, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            /* uint8_t clockMode {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_status_clockmode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            /* uint8_t pairs {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_status_pairs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            /* uint8_t hardwareChannel {};*/
+            proto_tree_add_item(subtree, hf_blf_eth_status_hardwarechannel, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            /* uint32_t bitrate {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_status_bitrate, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        }
+            break;
+        case BLF_OBJTYPE_ETHERNET_FRAME_EX:
+        {
+            if (offset - offset_orig < (gint)hdr_length) {
+                proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
+                offset = offset_orig + hdr_length;
+            }
+
+            ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
+            subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
+
+            /* uint16_t structLength {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_frame_ext_structlength, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            /* uint16_t flags {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_frame_ext_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            /* uint16_t channel {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_frame_ext_channel, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            /* uint16_t hardwareChannel {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_frame_ext_hardwarechannel, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            /* uint64_t frameDuration {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_frame_ext_frameduration, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            offset += 8;
+            /* uint32_t frameChecksum {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_frame_ext_framechecksum, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            /* uint16_t dir {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_frame_ext_dir, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            /* uint16_t frameLength {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_frame_ext_framelength, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            /* uint32_t frameHandle {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_frame_ext_framehandle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            /* uint32_t reservedEthernetFrameEx {}; */
+            proto_tree_add_item(subtree, hf_blf_eth_frame_ext_reservedethernetframeex, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+        }
+        break;
+        case BLF_OBJTYPE_TRIGGER_CONDITION:
+        {
+            uint32_t triggerblocknamelength;
+            uint32_t triggerconditionlength;
+
+            if (offset - offset_orig < (gint)hdr_length) {
+                proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
+                offset = offset_orig + hdr_length;
+            }
+
+            ti = proto_tree_add_item(objtree, hf_blf_lobj_payload, tvb, offset, obj_length - hdr_length, ENC_NA);
+            subtree = proto_item_add_subtree(ti, ett_blf_app_text_payload);
+
+            /* uint32_t state {}; */
+            proto_tree_add_item(subtree, hf_blf_trigg_cond_state, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            /* uint32_t triggerBlockNameLength {}; */
+            proto_tree_add_item_ret_uint(subtree, hf_blf_trigg_cond_triggerblocknamelength, tvb, offset, 4, ENC_LITTLE_ENDIAN,&triggerblocknamelength);
+            offset += 4;
+            /* uint32_t triggerConditionLength {};*/
+            proto_tree_add_item_ret_uint(subtree, hf_blf_trigg_cond_triggerconditionlength, tvb, offset, 4, ENC_LITTLE_ENDIAN, &triggerconditionlength);
+            offset += 4;
+            /* std::string triggerBlockName {};*/
+            proto_tree_add_item(subtree, hf_blf_trigg_cond_triggerblockname, tvb, offset, triggerblocknamelength, ENC_UTF_8 | ENC_NA);
+            offset += triggerblocknamelength;
+            /* std::string triggerCondition {};*/
+            proto_tree_add_item(subtree, hf_blf_trigg_cond_triggercondition, tvb, offset, triggerconditionlength, ENC_UTF_8 | ENC_NA);
+            offset += triggerconditionlength;
+        }
+        break;
         default:
             if (offset - offset_orig < (gint)hdr_length) {
                 proto_tree_add_item(subtree, hf_blf_lobj_hdr_remains, tvb, offset, hdr_length - (offset - offset_orig), ENC_NA);
@@ -512,7 +845,110 @@ proto_register_file_blf(void) {
             { "Reserved", "blf.object.logcontainer.res4", FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }},
         { &hf_blf_cont_payload,
             { "Payload", "blf.object.logcontainer.payload", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }},
-
+        { &hf_blf_app_text_source,
+            { "Source", "blf.object.app_text.source", FT_UINT32, BASE_DEC, VALS(blf_app_text_source_vals), 0x00, NULL, HFILL }},
+        { &hf_blf_app_text_reservedapptext1,
+            { "reservedAppText1", "blf.object.app_text.reservedapptext1", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_app_text_textlength,
+            { "Text length", "blf.object.app_text.textlength", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_app_text_reservedapptext2,
+            { "reservedAppText2", "blf.object.app_text.reservedapptext2", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_app_text_data_version,
+            { "Version", "blf.object.app_text.version", FT_UINT32, BASE_DEC, NULL, 0x000000ff, NULL, HFILL }},
+        { &hf_blf_app_text_channelno,
+            { "Channel number", "blf.object.app_text.channelno", FT_UINT32, BASE_DEC, NULL, 0x0000ff00, NULL, HFILL }},
+        { &hf_blf_app_text_busstype,
+            { "Bus type", "blf.object.app_text.bustype", FT_UINT32, BASE_DEC, NULL, 0x00ff0000, NULL, HFILL }},
+        { &hf_blf_app_text_can_fd_channel,
+            { "CAN FD-Channel", "blf.object.app_text.can_fd_channel", FT_BOOLEAN, 32, NULL, 0x01000000, NULL, HFILL }},
+        { &hf_blf_app_text_text,
+            { "Text", "blf.object.app_text.text", FT_STRINGZPAD, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_trigg_cond_state,
+            { "State", "blf.object.trigg_con.state", FT_UINT32, BASE_DEC, VALS(blf_trigger_cond_state_vals), 0x00, NULL, HFILL}},
+        { &hf_blf_trigg_cond_triggerblocknamelength,
+            { "Trigger blockname length", "blf.object.trigg_con.triggerblocknamelength", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_trigg_cond_triggerconditionlength,
+            { "Trigger condition length", "blf.object.trigg_con.triggerconditionlength", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_trigg_cond_triggerblockname,
+            { "Trigger blockname", "blf.object.trigg_con.triggerblockname", FT_STRINGZPAD, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_trigg_cond_triggercondition,
+            { "Trigger condition", "blf.object.trigg_con.triggercondition", FT_STRINGZPAD, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_not_parsed,
+            { "Not parsed", "blf.object.not_parsed", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_sys_var_type,
+            { "Type", "blf.object.sys_var.type", FT_UINT32, BASE_DEC, VALS(blf_sys_var_type_vals), 0x00, NULL, HFILL}},
+        { &hf_blf_sys_var_rep,
+            { "Representation", "blf.object.sys_var.representation", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_sys_var_reservedsystemvariable1,
+            { "Reserved systemvariable 1", "blf.object.sys_var.reservedsystemvariable1", FT_UINT64, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_sys_var_namelength,
+            { "Name length", "blf.object.sys_var.namelength", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL}},
+        { &hf_blf_sys_var_datalength,
+            { "Data length", "blf.object.sys_var.datalength", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL}},
+        { &hf_blf_sys_var_reservedsystemvariable2,
+            { "Reserved systemvariable 2", "blf.object.sys_var.reservedsystemvariable2", FT_UINT64, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+        { &hf_blf_sys_var_name,
+            { "Name", "blf.object.sys_var.name", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_blf_sys_var_data,
+            { "Data", "blf.object.sys_var.data", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_blf_eth_status_channel,
+            { "Channel", "blf.object.eth_status.channel", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_status_flags1_b0,
+            { "LinkStatus",   "blf.object.eth_status.flags.b0", FT_BOOLEAN, 16, NULL, 0x0001,  NULL, HFILL } },
+        { &hf_blf_eth_status_flags1_b1,
+            { "Bitrate",   "blf.object.eth_status.flags.b1", FT_BOOLEAN, 16, NULL, 0x0002,  NULL, HFILL } },
+        { &hf_blf_eth_status_flags1_b2,
+            { "EthernetPhy",   "blf.object.eth_status.flags.b2", FT_BOOLEAN, 16, NULL, 0x0004,  NULL, HFILL } },
+        { &hf_blf_eth_status_flags1_b3,
+            { "Duplex",   "blf.object.eth_status.flags.b3", FT_BOOLEAN, 16, NULL, 0x0008,  NULL, HFILL } },
+        { &hf_blf_eth_status_flags1_b4,
+            { "MdiType",   "blf.object.eth_status.flags.b4", FT_BOOLEAN, 16, NULL, 0x0010,  NULL, HFILL } },
+        { &hf_blf_eth_status_flags1_b5,
+            { "Connector",   "blf.object.eth_status.flags.b5", FT_BOOLEAN, 16, NULL, 0x0020,  NULL, HFILL } },
+        { &hf_blf_eth_status_flags1_b6,
+            { "ClockMode",   "blf.object.eth_status.flags.b6", FT_BOOLEAN, 16, NULL, 0x0040,  NULL, HFILL } },
+        { &hf_blf_eth_status_flags1_b7,
+            { "BrPair",   "blf.object.eth_status.flags.b7", FT_BOOLEAN, 16, NULL, 0x0080,  NULL, HFILL } },
+        { &hf_blf_eth_status_flags1_b8,
+            { "HardwareChannel",   "blf.object.eth_status.flags.b8", FT_BOOLEAN, 16, NULL, 0x0100,  NULL, HFILL } },
+        { &hf_blf_eth_status_linkstatus,
+            { "Link status", "blf.object.eth_status.linkstatus", FT_UINT8, BASE_DEC, VALS(blf_eth_status_linkstatus_vals), 0x00, NULL, HFILL}},
+        { &hf_blf_eth_status_ethernetphy,
+            { "Ethernet PHY", "blf.object.eth_status.ethernetphy", FT_UINT8, BASE_DEC, VALS(blf_eth_status_ethernetphy_vals), 0x00, NULL, HFILL}},
+        { &hf_blf_eth_status_duplex,
+            { "Duplex", "blf.object.eth_status.duplex", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_status_mdi,
+            { "MDI", "blf.object.eth_status.mdi", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_status_connector,
+            { "Connector", "blf.object.eth_status.connector", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_status_clockmode,
+            { "Clock mode", "blf.object.eth_status.clockmode", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_status_pairs,
+            { "Pairs", "blf.object.eth_status.pairs", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_status_hardwarechannel,
+            { "Hardware channel", "blf.object.eth_status.hardwarechannel", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_status_bitrate,
+            { "Bitrate", "blf.object.eth_status.hardwarechannel", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_frame_ext_structlength,
+            { "Struct length", "blf.object.eth_frame_ext.structlength", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_frame_ext_flags,
+            { "Flags", "blf.object.eth_frame_ext.flags", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_frame_ext_channel,
+            { "Channel", "blf.object.eth_frame_ext.channel", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_frame_ext_hardwarechannel,
+            { "Hardware Channel", "blf.object.eth_frame_ext.hardwarechannel", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_frame_ext_frameduration,
+            { "Frame duration", "blf.object.eth_frame_ext.frameduration", FT_UINT64, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_frame_ext_framechecksum,
+            { "Frame checksum", "blf.object.eth_frame_ext.framechecksum", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_frame_ext_dir,
+            { "Dir", "blf.object.eth_frame_ext.dir", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_frame_ext_framelength,
+            { "Frame length", "blf.object.eth_frame_ext.frame_length", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_frame_ext_framehandle,
+            { "Frame handle", "blf.object.eth_frame_ext.frame_handle", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL} },
+        { &hf_blf_eth_frame_ext_reservedethernetframeex,
+            { "Reserved ethernet frame ex", "blf.object.eth_frame_ext.reservedethernetframeex", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL} },
     };
 
     static gint *ett[] = {
@@ -521,6 +957,7 @@ proto_register_file_blf(void) {
         &ett_blf_obj,
         &ett_blf_obj_header,
         &ett_blf_logcontainer_payload,
+        &ett_blf_app_text_payload,
     };
 
     proto_blf = proto_register_protocol("BLF File Format", "File-BLF", "file-blf");
@@ -533,6 +970,7 @@ proto_register_file_blf(void) {
 void
 proto_reg_handoff_file_blf(void) {
     heur_dissector_add("wtap_file", dissect_blf_heur, "BLF File", "blf_wtap", proto_blf, HEURISTIC_ENABLE);
+    xml_handle = find_dissector_add_dependency("xml", proto_blf);
 }
 
 /*
