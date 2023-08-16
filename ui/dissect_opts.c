@@ -215,7 +215,7 @@ dissect_opts_handle_opt(int opt, char *optarg_str_p)
 typedef gboolean (proto_set_func)(const char *);
 
 static gboolean
-slist_break_commas(GSList *list, proto_set_func callback)
+process_enable_disable_list(GSList *list, proto_set_func callback)
 {
     gboolean success = TRUE;
     gboolean rv;
@@ -268,13 +268,13 @@ setup_enabled_and_disabled_protocols(void)
 {
     gboolean success = TRUE;
 
-    success &= slist_break_commas(global_dissect_options.disable_protocol_slist,
+    success &= process_enable_disable_list(global_dissect_options.disable_protocol_slist,
             proto_disable_proto_by_name);
-    success &= slist_break_commas(global_dissect_options.enable_protocol_slist,
+    success &= process_enable_disable_list(global_dissect_options.enable_protocol_slist,
             proto_enable_proto_by_name);
-    success &= slist_break_commas(global_dissect_options.enable_heur_slist,
+    success &= process_enable_disable_list(global_dissect_options.enable_heur_slist,
             proto_enable_heuristic_by_name);
-    success &= slist_break_commas(global_dissect_options.disable_heur_slist,
+    success &= process_enable_disable_list(global_dissect_options.disable_heur_slist,
             proto_disable_heuristic_by_name);
     return success;
 }
