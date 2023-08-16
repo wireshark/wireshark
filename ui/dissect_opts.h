@@ -62,10 +62,6 @@ typedef struct dissect_options_tag {
 
 extern dissect_options global_dissect_options;
 
-/* initialize the dissect_options with some reasonable values */
-extern void
-dissect_opts_init(void);
-
 /*
  * Handle a command line option.
  * Returns TRUE if the option is valid, FALSE if not; an error message

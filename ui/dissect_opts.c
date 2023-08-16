@@ -35,18 +35,10 @@
 
 #include "ui/dissect_opts.h"
 
-dissect_options global_dissect_options;
-
-void
-dissect_opts_init(void)
-{
-    global_dissect_options.time_format = TS_NOT_SET;
-    global_dissect_options.time_precision = TS_PREC_NOT_SET;
-    global_dissect_options.disable_protocol_slist = NULL;
-    global_dissect_options.enable_protocol_slist = NULL;
-    global_dissect_options.enable_heur_slist = NULL;
-    global_dissect_options.disable_heur_slist = NULL;
-}
+dissect_options global_dissect_options = {
+    .time_format = TS_NOT_SET,
+    .time_precision = TS_PREC_NOT_SET
+};
 
 gboolean
 dissect_opts_handle_opt(int opt, char *optarg_str_p)
