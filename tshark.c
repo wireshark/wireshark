@@ -2142,8 +2142,10 @@ main(int argc, char *argv[])
         }
     }
 
-    timestamp_set_type(global_dissect_options.time_format);
-    timestamp_set_precision(global_dissect_options.time_precision);
+    if (global_dissect_options.time_format != TS_NOT_SET)
+        timestamp_set_type(global_dissect_options.time_format);
+    if (global_dissect_options.time_precision != TS_PREC_NOT_SET)
+        timestamp_set_precision(global_dissect_options.time_precision);
 
     /*
      * Enabled and disabled protocols and heuristic dissectors as per

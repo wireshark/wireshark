@@ -38,10 +38,7 @@ int timestamp_get_precision(void)
 
 void timestamp_set_precision(int tsp)
 {
-	if (tsp == TS_PREC_NOT_SET)
-		timestamp_precision = TS_PREC_AUTO;
-	else
-		timestamp_precision = tsp;
+	timestamp_precision = tsp;
 }
 
 
