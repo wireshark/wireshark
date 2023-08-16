@@ -27,6 +27,7 @@
 StockIconToolButton::StockIconToolButton(QWidget * parent, QString stock_icon_name) :
     QToolButton(parent)
 {
+    setCursor(Qt::ArrowCursor);
     setStockIcon(stock_icon_name);
 }
 
@@ -57,9 +58,14 @@ void StockIconToolButton::setStockIcon(QString icon_name)
 bool StockIconToolButton::event(QEvent *event)
 {
     switch (event->type()) {
-        case QEvent::Enter:
+    case QEvent::Enter:
         if (isEnabled()) {
             setIconMode(QIcon::Active);
+        }
+        break;
+    case QEvent::Leave:
+        if (isEnabled()) {
+            setIconMode();
         }
         break;
     case QEvent::MouseButtonPress:
