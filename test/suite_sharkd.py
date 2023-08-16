@@ -194,10 +194,12 @@ class TestSharkd:
             },
             {"jsonrpc":"2.0", "id":2, "method":"tap"},
             {"jsonrpc":"2.0", "id":3, "method":"tap", "params":{"tap0": "garbage tap"}},
+            {"jsonrpc":"2.0", "id":4, "method":"tap", "params":{"tap0": "conv:Ethernet", "filter": "garbage filter"}},
         ), (
             {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
             {"jsonrpc":"2.0","id":2,"error":{"code":-32600,"message":"Mandatory parameter tap0 is missing"}},
             {"jsonrpc":"2.0","id":3,"error":{"code":-11012,"message":"sharkd_session_process_tap() garbage tap not recognized"}},
+            {"jsonrpc":"2.0","id":4,"error":{"code":-11013,"message":"sharkd_session_process_tap() name=conv:Ethernet error=Filter \"garbage filter\" is invalid - \"filter\" was unexpected in this context."}},
         ))
 
     def test_sharkd_req_tap(self, check_sharkd_session, capture_file):
@@ -319,6 +321,7 @@ class TestSharkd:
              "params":{"file": capture_file('protohier-without-comments.pcapng')}
              },
             {"jsonrpc":"2.0", "id":4, "method":"tap", "params":{"tap0": "phs"}},
+            {"jsonrpc":"2.0", "id":5, "method":"tap", "params":{"tap0": "phs", "filter": "ipv6"}},
         ), (
             {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
             {"jsonrpc":"2.0","id":2,"result":{
@@ -492,6 +495,37 @@ class TestSharkd:
                             "proto":"arp",
                             "frames":6,
                             "bytes":360
+                        }]
+                    }]
+                }]
+            }},
+            {"jsonrpc": "2.0", "id": 5, "result": {
+                "taps": [{
+                    "tap": "phs",
+                    "type": "phs",
+                    "filter": "ipv6",
+                    "protos": [{
+                        "bytes": 7566,
+                        "frames": 39,
+                        "proto": "eth",
+                        "protos": [{
+                            "bytes": 7566,
+                            "frames": 39,
+                            "proto": "ipv6",
+                            "protos": [{
+                                "bytes": 3684,
+                                "frames": 36,
+                                "proto": "icmpv6"
+                            },{
+                                "bytes": 3882,
+                                "frames": 3,
+                                "proto": "udp",
+                                "protos": [{
+                                    "bytes": 3882,
+                                    "frames": 3,
+                                    "proto": "data"
+                                }]
+                            }]
                         }]
                     }]
                 }]

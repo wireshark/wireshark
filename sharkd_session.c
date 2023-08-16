@@ -455,6 +455,7 @@ json_prep(char* buf, const jsmntok_t* tokens, int count)
         {"tap",        "tap13",      2, JSMN_STRING,       SHARKD_JSON_STRING, OPTIONAL},
         {"tap",        "tap14",      2, JSMN_STRING,       SHARKD_JSON_STRING, OPTIONAL},
         {"tap",        "tap15",      2, JSMN_STRING,       SHARKD_JSON_STRING, OPTIONAL},
+        {"tap",        "filter",     2, JSMN_STRING,       SHARKD_JSON_STRING, OPTIONAL},
 
         // End of the name_array
         {NULL,         NULL,         0, JSMN_STRING,       SHARKD_ARRAY_END,   OPTIONAL},
@@ -3131,6 +3132,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
     GFreeFunc taps_free[16];
     int taps_count = 0;
     int i;
+    const char *tap_filter = json_find_attr(buf, tokens, count, "filter");
 
     rtpstream_tapinfo_t rtp_tapinfo =
     { NULL, NULL, NULL, NULL, 0, NULL, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, FALSE, FALSE};
@@ -3142,7 +3144,6 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 
         void *tap_data = NULL;
         GFreeFunc tap_free = NULL;
-        const char *tap_filter = "";
         GString *tap_error = NULL;
 
         snprintf(tapbuf, sizeof(tapbuf), "tap%d", i);
@@ -3181,7 +3182,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
             expert_tap = g_new0(struct sharkd_expert_tap, 1);
             expert_tap->text = g_string_chunk_new(100);
 
-            tap_error = register_tap_listener("expert", expert_tap, NULL, 0, NULL, sharkd_session_packet_tap_expert_cb, sharkd_session_process_tap_expert_cb, NULL);
+            tap_error = register_tap_listener("expert", expert_tap, tap_filter, 0, NULL, sharkd_session_packet_tap_expert_cb, sharkd_session_process_tap_expert_cb, NULL);
 
             tap_data = expert_tap;
             tap_free = sharkd_session_free_tap_expert_cb;
@@ -3213,7 +3214,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
             tap_flags = sequence_analysis_get_tap_flags(analysis);
             tap_func  = sequence_analysis_get_packet_func(analysis);
 
-            tap_error = register_tap_listener(tap_name, graph_analysis, NULL, tap_flags, NULL, tap_func, sharkd_session_process_tap_flow_cb, NULL);
+            tap_error = register_tap_listener(tap_name, graph_analysis, tap_filter, tap_flags, NULL, tap_func, sharkd_session_process_tap_flow_cb, NULL);
 
             tap_data = graph_analysis;
             tap_free = sharkd_session_free_tap_flow_cb;
@@ -3411,7 +3412,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
             eo_object->get_entry = sharkd_eo_object_list_get_entry;
             eo_object->gui_data = (void *) object_list;
 
-            tap_error = register_tap_listener(get_eo_tap_listener_name(eo), eo_object, NULL, 0, NULL, get_eo_packet_func(eo), sharkd_session_process_tap_eo_cb, NULL);
+            tap_error = register_tap_listener(get_eo_tap_listener_name(eo), eo_object, tap_filter, 0, NULL, get_eo_packet_func(eo), sharkd_session_process_tap_eo_cb, NULL);
 
             tap_data = eo_object;
             tap_free = g_free; /* need to free only eo_object, object_list need to be kept for potential download */
@@ -3472,7 +3473,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
         {
             voip_stat_init_tapinfo();
 
-            tap_error = register_tap_listener("frame", &tapinfo_, NULL, 0, NULL, NULL, sharkd_session_process_tap_voip_calls_cb, NULL);
+            tap_error = register_tap_listener("frame", &tapinfo_, tap_filter, 0, NULL, NULL, sharkd_session_process_tap_voip_calls_cb, NULL);
 
             tapinfo_.session = cfile.epan;
             voip_calls_init_all_taps(&tapinfo_);
@@ -3529,7 +3530,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
             voip_convs_req->tapinfo = &tapinfo_;
             voip_convs_req->tap_name = tok_tap;
 
-            tap_error = register_tap_listener("frame", voip_convs_req, NULL, 0, NULL, NULL, sharkd_session_process_tap_voip_convs_cb, NULL);
+            tap_error = register_tap_listener("frame", voip_convs_req, tap_filter, 0, NULL, NULL, sharkd_session_process_tap_voip_convs_cb, NULL);
 
             tapinfo_.session = cfile.epan;
             voip_calls_init_all_taps(&tapinfo_);
