@@ -21,6 +21,9 @@
  * upon which the handling of the message-digest option is based.
  *
  * Updated to https://tools.ietf.org/html/draft-ietf-dhc-failover-12, July 2020
+ *
+ * Updated with Microsoft DHCP Failover Protocol Extension in August 2023:
+ *   https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-dhcpf/380744f9-17ed-4aef-8810-ef08d1e70932
  */
 
 #include "config.h"
@@ -101,13 +104,20 @@ static int hf_dhcpfo_tls_request = -1;
 static int hf_dhcpfo_tls_reply = -1;
 static int hf_dhcpfo_serverflag = -1;
 static int hf_dhcpfo_options = -1;
-static int hf_dhcpfo_ms_client_hostname = -1;
-static int hf_dhcpfo_ms_server_hostname = -1;
-static int hf_dhcpfo_ms_server_ip_address = -1;
+static int hf_dhcpfo_ms_client_name = -1;
+static int hf_dhcpfo_ms_client_description = -1;
+static int hf_dhcpfo_ms_client_type = -1;
+static int hf_dhcpfo_ms_client_nap_status = -1;
+static int hf_dhcpfo_ms_client_nap_capable = -1;
+static int hf_dhcpfo_ms_client_nap_probation = -1;
+static int hf_dhcpfo_ms_client_matched_policy = -1;
+static int hf_dhcpfo_ms_server_name = -1;
+static int hf_dhcpfo_ms_server_ip = -1;
 static int hf_dhcpfo_ms_client_scope = -1;
-static int hf_dhcpfo_ms_scope_netmask = -1;
+static int hf_dhcpfo_ms_client_subnet_mask = -1;
 static int hf_dhcpfo_ms_scope_id = -1;
 static int hf_dhcpfo_ms_ipflags = -1;
+static int hf_dhcpfo_ms_extended_address_state = -1;
 static int hf_dhcpfo_infoblox_client_hostname = -1;
 static int hf_dhcpfo_unknown_data = -1;
 
@@ -176,9 +186,16 @@ static const value_string failover_vals[] =
 /* Options not defined in the draft */
 #define DHCP_FO_PD_OPTION_30                    30
 #define DHCP_FO_PD_OPTION_31                    31
+#define DHCP_FO_PD_OPTION_32                    32
 #define DHCP_FO_PD_OPTION_33                    33
 #define DHCP_FO_PD_OPTION_34                    34
 #define DHCP_FO_PD_OPTION_35                    35
+#define DHCP_FO_PD_OPTION_36                    36
+#define DHCP_FO_PD_OPTION_37                    37
+#define DHCP_FO_PD_OPTION_38                    38
+#define DHCP_FO_PD_OPTION_39                    39
+#define DHCP_FO_PD_OPTION_40                    40
+#define DHCP_FO_PD_OPTION_41                    41
 
 
 static const gchar VENDOR_SPECIFIC[] = "(vendor-specific)";
@@ -218,20 +235,34 @@ static const value_string option_code_vals[] =
 	/* Not specified in the draft, further defined in the following arrays: */
 	{DHCP_FO_PD_OPTION_30,				VENDOR_SPECIFIC},
 	{DHCP_FO_PD_OPTION_31,				VENDOR_SPECIFIC},
+	{DHCP_FO_PD_OPTION_32,				VENDOR_SPECIFIC},
 	{DHCP_FO_PD_OPTION_33,				VENDOR_SPECIFIC},
 	{DHCP_FO_PD_OPTION_34,				VENDOR_SPECIFIC},
 	{DHCP_FO_PD_OPTION_35,				VENDOR_SPECIFIC},
+	{DHCP_FO_PD_OPTION_36,				VENDOR_SPECIFIC},
+	{DHCP_FO_PD_OPTION_37,				VENDOR_SPECIFIC},
+	{DHCP_FO_PD_OPTION_38,				VENDOR_SPECIFIC},
+	{DHCP_FO_PD_OPTION_39,				VENDOR_SPECIFIC},
+	{DHCP_FO_PD_OPTION_40,				VENDOR_SPECIFIC},
+	{DHCP_FO_PD_OPTION_41,				VENDOR_SPECIFIC},
 	{0, NULL}
 };
 
 /* Used when Microsoft-compatibility is detected/enabled */
 static const value_string microsoft_option_code_vals[] =
 {
-	{DHCP_FO_PD_OPTION_30,		"microsoft-scope-ID"},
-	{DHCP_FO_PD_OPTION_31,		"microsoft-client-hostname"},
-	{DHCP_FO_PD_OPTION_33,		"microsoft-scope-netmask"},
-	{DHCP_FO_PD_OPTION_34,		"microsoft-server-IP-address"},
-	{DHCP_FO_PD_OPTION_35,		"microsoft-server-hostname"},
+	{DHCP_FO_PD_OPTION_30,		"microsoft-scope-ID-list"},
+	{DHCP_FO_PD_OPTION_31,		"microsoft-client-name"},
+	{DHCP_FO_PD_OPTION_32,		"microsoft-client-description"},
+	{DHCP_FO_PD_OPTION_33,		"microsoft-client-subnet-mask"},
+	{DHCP_FO_PD_OPTION_34,		"microsoft-server-IP"},
+	{DHCP_FO_PD_OPTION_35,		"microsoft-server-name"},
+	{DHCP_FO_PD_OPTION_36,		"microsoft-client-type"},
+	{DHCP_FO_PD_OPTION_37,		"microsoft-client-NAP-status"},
+	{DHCP_FO_PD_OPTION_38,		"microsoft-client-NAP-probation"},
+	{DHCP_FO_PD_OPTION_39,		"microsoft-client-NAP-capable"},
+	{DHCP_FO_PD_OPTION_40,		"microsoft-client-matched-policy"},
+	{DHCP_FO_PD_OPTION_41,		"microsoft-extended-address-state"},
 	{0, NULL}
 };
 
@@ -239,6 +270,30 @@ static const value_string microsoft_option_code_vals[] =
 static const value_string others_option_code_vals[] =
 {
 	{DHCP_FO_PD_OPTION_30,		"infoblox-client-hostname"},
+	{0, NULL}
+};
+
+/* Microsoft client types (option 36) */
+
+static const value_string ms_client_type_vals[] =
+{
+	{0x00,	"CLIENT_TYPE_UNSPECIFIED"},
+	{0x01,	"CLIENT_TYPE_DHCP"},
+	{0x02,	"CLIENT_TYPE_BOOTP"},
+	{0x03,	"CLIENT_TYPE_BOTH"},
+	{0x04,	"CLIENT_TYPE_RESERVATION_FLAG"},
+	{0x64,	"CLIENT_TYPE_NONE"},
+	{0, NULL}
+};
+
+/* Microsoft client NAP status codes (option 37) */
+
+static const value_string ms_client_nap_status_vals[] =
+{
+	{0x00,	"NOQUARANTINE"},
+	{0x01,	"RESTRICTEDACCESS"},
+	{0x02,	"DROPPACKET"},
+	{0x03,	"PROBATION"},
 	{0, NULL}
 };
 
@@ -366,9 +421,11 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	gchar *lease_expiration_time_str, *potential_expiration_time_str,
 		  *client_last_transaction_time_str, *start_time_of_state_str;
 	guint32 mclt;
-	guint8 server_state;
-	guint32 max_unacked_bndupd, receive_timer;
-	const guint8 *client_hostname_str, *ms_server_hostname_str;
+	guint8 server_state, ms_client_type, ms_client_nap_status, ms_client_nap_capable;
+	guint32 max_unacked_bndupd, receive_timer,
+			ms_client_nap_probation, ms_extended_address_state;
+	const guint8 *client_hostname_str, *ms_server_name_str, *ms_client_description_str,
+				 *ms_client_matched_policy_str;
 
 /* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPFO");
@@ -936,14 +993,13 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
 		case DHCP_FO_PD_OPTION_30:
 			if (microsoft_style) {
-				/* This is DHCP scope ID */
-				if (option_length != 4) {
-					expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "scope ID is not 4 bytes long");
-					break;
+				/* Microsoft: Scope ID List */
+				guint16 local_offset = 0;
+				while (local_offset < option_length) {
+					proto_tree_add_item(option_tree,
+						hf_dhcpfo_ms_scope_id, tvb, offset+local_offset, 4, ENC_LITTLE_ENDIAN);
+					local_offset += 4;
 				}
-				proto_tree_add_item(option_tree,
-					hf_dhcpfo_ms_scope_id, tvb, offset,
-					option_length, ENC_LITTLE_ENDIAN);
 			} else {
 				/* In Infoblox this is client hostname */
 				proto_tree_add_item_ret_string(option_tree,
@@ -951,48 +1007,143 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 					option_length, ENC_UTF_8, pinfo->pool, &client_hostname_str);
 				proto_item_append_text(oi,", \"%s\"",
 					format_text(pinfo->pool, client_hostname_str, option_length));
-
 			}
 			break;
 
 		case DHCP_FO_PD_OPTION_31:
+			/* Microsoft: Client Name */
 			proto_tree_add_item_ret_string(option_tree,
-			    hf_dhcpfo_ms_client_hostname, tvb, offset,
+			    hf_dhcpfo_ms_client_name, tvb, offset,
 			    option_length, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &client_hostname_str);
 			/* With UTF-16 the string length is half the data length, minus the zero-termination */
 			proto_item_append_text(oi,", \"%s\"",
 			    format_text(pinfo->pool, client_hostname_str, option_length/2-1));
 			break;
 
+		case DHCP_FO_PD_OPTION_32:
+			/* Microsoft: Client Description */
+			proto_tree_add_item_ret_string(option_tree,
+			    hf_dhcpfo_ms_client_description, tvb, offset,
+			    option_length, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &ms_client_description_str);
+			/* With UTF-16 the string length is half the data length, minus the zero-termination */
+			proto_item_append_text(oi,", \"%s\"",
+			    format_text(pinfo->pool, ms_client_description_str, option_length/2-1));
+			break;
+
 		case DHCP_FO_PD_OPTION_33:
+			/* Microsoft: Client Subnet Mask */
 			if (option_length != 4) {
 				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "netmask is not 4 bytes long");
 				break;
 			}
 			proto_item_append_text(oi, ", %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
 			proto_tree_add_item(option_tree,
-				hf_dhcpfo_ms_scope_netmask, tvb, offset,
+				hf_dhcpfo_ms_client_subnet_mask, tvb, offset,
 				option_length, ENC_BIG_ENDIAN);
 			break;
 
 		case DHCP_FO_PD_OPTION_34:
+			/* Microsoft: Server IP */
 			if (option_length != 4) {
 				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "server IP address is not 4 bytes long");
 				break;
 			}
 			proto_item_append_text(oi, ", %s", tvb_ip_to_str(pinfo->pool, tvb, offset));
 			proto_tree_add_item(option_tree,
-				hf_dhcpfo_ms_server_ip_address, tvb, offset,
+				hf_dhcpfo_ms_server_ip, tvb, offset,
 				option_length, ENC_BIG_ENDIAN);
 			break;
 
 		case DHCP_FO_PD_OPTION_35:
+			/* Microsoft: Server Name */
 			proto_tree_add_item_ret_string(option_tree,
-			    hf_dhcpfo_ms_server_hostname, tvb, offset,
-			    option_length, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &ms_server_hostname_str);
+			    hf_dhcpfo_ms_server_name, tvb, offset,
+			    option_length, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &ms_server_name_str);
 			/* With UTF-16 the string length is half the data length, minus the zero-termination */
 			proto_item_append_text(oi,", \"%s\"",
-			    format_text(pinfo->pool, ms_server_hostname_str, option_length/2-1));
+			    format_text(pinfo->pool, ms_server_name_str, option_length/2-1));
+			break;
+
+		case DHCP_FO_PD_OPTION_36:
+			/* Microsoft: Client Type */
+			if (option_length != 1) {
+				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "client type is not 1 byte long");
+				break;
+			}
+			ms_client_type = tvb_get_guint8(tvb, offset);
+			proto_item_append_text(oi, ", %s (%d)",
+				val_to_str_const(ms_client_type, ms_client_type_vals, "(undefined)"),
+				ms_client_type);
+			proto_tree_add_item(option_tree, hf_dhcpfo_ms_client_type, tvb, offset, option_length, ENC_BIG_ENDIAN);
+			break;
+
+		case DHCP_FO_PD_OPTION_37:
+			/* Microsoft: Client NAP Status */
+			if (option_length != 1) {
+				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "client NAP status is not 1 byte long");
+				break;
+			}
+			ms_client_nap_status = tvb_get_guint8(tvb, offset);
+			proto_item_append_text(oi, ", %s (%d)",
+				val_to_str_const(ms_client_nap_status, ms_client_nap_status_vals, "(undefined)"),
+				ms_client_nap_status);
+			proto_tree_add_item(option_tree, hf_dhcpfo_ms_client_nap_status, tvb, offset, option_length, ENC_BIG_ENDIAN);
+			break;
+
+		case DHCP_FO_PD_OPTION_38:
+			/* Microsoft: Client NAP Probation */
+			if (option_length != 4) {
+				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "client NAP probation is not 4 bytes long");
+				break;
+			}
+			ms_client_nap_probation = tvb_get_ntohl(tvb, offset);
+			/* The option value is specified:
+			 * "The value is specified as an absolute time and represents the
+			 * number of 100-nanosecond intervals since January 1, 1601 (UTC)"
+			 * But obviously that large values won't fit into a 4-byte variable.
+			 * So showing as uint32 for now.
+			 */
+			proto_item_append_text(oi,", %u", ms_client_nap_probation);
+			proto_tree_add_uint(option_tree,
+				hf_dhcpfo_ms_client_nap_probation, tvb, offset,
+				option_length, ms_client_nap_probation);
+			break;
+
+		case DHCP_FO_PD_OPTION_39:
+			/* Microsoft: Client NAP Capable */
+			if (option_length != 1) {
+				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "client NAP capable option is not 1 byte long");
+				break;
+			}
+			ms_client_nap_capable = tvb_get_guint8(tvb, offset);
+			proto_item_append_text(oi, ", %s (%d)",
+				tfs_get_string(ms_client_nap_capable, &tfs_true_false),
+				ms_client_nap_capable);
+			proto_tree_add_item(option_tree, hf_dhcpfo_ms_client_nap_capable, tvb, offset, option_length, ENC_BIG_ENDIAN);
+			break;
+
+		case DHCP_FO_PD_OPTION_40:
+			/* Microsoft: Client Matched Policy */
+			proto_tree_add_item_ret_string(option_tree,
+			    hf_dhcpfo_ms_client_matched_policy, tvb, offset,
+			    option_length, ENC_UTF_16|ENC_LITTLE_ENDIAN, pinfo->pool, &ms_client_matched_policy_str);
+			/* With UTF-16 the string length is half the data length, minus the zero-termination */
+			proto_item_append_text(oi,", \"%s\"",
+			    format_text(pinfo->pool, ms_client_matched_policy_str, option_length/2-1));
+			break;
+
+		case DHCP_FO_PD_OPTION_41:
+			/* Microsoft: Extended Address State */
+			if (option_length != 4) {
+				expert_add_info_format(pinfo, oi, &ei_dhcpfo_bad_length, "Extended address state is not 4 bytes long");
+				break;
+			}
+			ms_extended_address_state = tvb_get_ntohl(tvb, offset);
+			proto_item_append_text(oi,", 0x%08x", ms_extended_address_state);
+
+			proto_tree_add_uint(option_tree,
+			    hf_dhcpfo_ms_extended_address_state, tvb, offset,
+			    option_length, ms_extended_address_state);
 			break;
 
 		default:
@@ -1239,13 +1390,43 @@ proto_register_dhcpfo(void)
 			FT_BYTES, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
-		{&hf_dhcpfo_ms_client_hostname,
-			{"Client hostname (Microsoft-specific)", "dhcpfo.microsoft.clienthostname",
+		{&hf_dhcpfo_ms_client_name,
+			{"Client name (Microsoft-specific)", "dhcpfo.microsoft.clientname",
 			FT_STRING, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
-		{&hf_dhcpfo_ms_server_hostname,
-			{"Server hostname (Microsoft-specific)", "dhcpfo.microsoft.serverhostname",
+		{&hf_dhcpfo_ms_client_description,
+			{"Client description (Microsoft-specific)", "dhcpfo.microsoft.clientdescription",
+			FT_STRING, BASE_NONE, NULL, 0,
+			NULL, HFILL }
+		},
+		{&hf_dhcpfo_ms_client_type,
+			{"Client type (Microsoft-specific)", "dhcpfo.microsoft.clienttype",
+			FT_UINT8, BASE_NONE, VALS(ms_client_type_vals), 0,
+			NULL, HFILL }
+		},
+		{&hf_dhcpfo_ms_client_nap_status,
+			{"Client NAP status (Microsoft-specific)", "dhcpfo.microsoft.clientnapstatus",
+			FT_UINT8, BASE_NONE, VALS(ms_client_nap_status_vals), 0,
+			NULL, HFILL }
+		},
+		{&hf_dhcpfo_ms_client_nap_capable,
+			{"Client NAP capable (Microsoft-specific)", "dhcpfo.microsoft.clientnapcapable",
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_true_false), 0,
+			NULL, HFILL }
+		},
+		{&hf_dhcpfo_ms_client_nap_probation,
+			{"Client NAP probation (Microsoft-specific)", "dhcpfo.microsoft.clientnapprobation",
+			FT_UINT32, BASE_DEC, NULL, 0,
+			NULL, HFILL }
+		},
+		{&hf_dhcpfo_ms_client_matched_policy,
+			{"Client matched policy (Microsoft-specific)", "dhcpfo.microsoft.clientmatchedpolicy",
+			FT_STRING, BASE_NONE, NULL, 0,
+			NULL, HFILL }
+		},
+		{&hf_dhcpfo_ms_server_name,
+			{"Server name (Microsoft-specific)", "dhcpfo.microsoft.servername",
 			FT_STRING, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
@@ -1254,24 +1435,29 @@ proto_register_dhcpfo(void)
 			FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{&hf_dhcpfo_ms_scope_netmask,
-			{"DHCP scope netmask (Microsoft-specific)", "dhcpfo.microsoft.scopenetmask",
+		{&hf_dhcpfo_ms_client_subnet_mask,
+			{"Client subnet mask (Microsoft-specific)", "dhcpfo.microsoft.clientsubnetmask",
 			FT_IPv4, BASE_NETMASK, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{&hf_dhcpfo_ms_scope_id,
-			{"DHCP scope ID (Microsoft-specific)", "dhcpfo.microsoft.scopeid",
+			{"Scope ID (Microsoft-specific)", "dhcpfo.microsoft.scopeid",
 			FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
-		{&hf_dhcpfo_ms_server_ip_address,
-			{"Server IP address (Microsoft-specific)", "dhcpfo.microsoft.serverip",
+		{&hf_dhcpfo_ms_server_ip,
+			{"Server IP (Microsoft-specific)", "dhcpfo.microsoft.serverip",
 			FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
 		{&hf_dhcpfo_ms_ipflags,
 			{"IP flags (Microsoft-specific)", "dhcpfo.microsoft.ipflags",
 			FT_UINT8, BASE_HEX, NULL, 0,
+			NULL, HFILL }
+		},
+		{&hf_dhcpfo_ms_extended_address_state,
+			{"Extended address state (Microsoft-specific)", "dhcpfo.microsoft.extendedaddressstate",
+			FT_UINT32, BASE_HEX, NULL, 0,
 			NULL, HFILL }
 		},
 		{&hf_dhcpfo_infoblox_client_hostname,
