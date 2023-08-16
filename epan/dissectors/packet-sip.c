@@ -5965,12 +5965,15 @@ static void sip_stat_init(stat_tap_table_ui* new_stat)
     // These values are fixed for all entries.
     items[REQ_RESP_METHOD_COLUMN].type = TABLE_ITEM_STRING;
     items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
+    items[COUNT_COLUMN].user_data.uint_value = 0;
     items[COUNT_COLUMN].value.uint_value = 0;
     items[RESENT_COLUMN].type = TABLE_ITEM_UINT;
     items[RESENT_COLUMN].value.uint_value = 0;
     items[MIN_SETUP_COLUMN].type = TABLE_ITEM_FLOAT;
+    items[MIN_SETUP_COLUMN].user_data.uint_value = 0;
     items[MIN_SETUP_COLUMN].value.float_value = 0.0f;
     items[AVG_SETUP_COLUMN].type = TABLE_ITEM_FLOAT;
+    items[AVG_SETUP_COLUMN].user_data.float_value = 0.0f;
     items[AVG_SETUP_COLUMN].value.float_value = 0.0f;
     items[MAX_SETUP_COLUMN].type = TABLE_ITEM_FLOAT;
     items[MAX_SETUP_COLUMN].value.float_value = 0.0f;
@@ -6116,12 +6119,9 @@ sip_stat_reset(stat_tap_table* table)
     for (element = 0; element < table->num_elements; element++)
     {
         item_data = stat_tap_get_field_data(table, element, COUNT_COLUMN);
+        item_data->user_data.uint_value = 0;
         item_data->value.uint_value = 0;
         stat_tap_set_field_data(table, element, COUNT_COLUMN, item_data);
-
-        item_data = stat_tap_get_field_data(table, element, RESENT_COLUMN);
-        item_data->value.uint_value = 0;
-        stat_tap_set_field_data(table, element, RESENT_COLUMN, item_data);
 
         item_data = stat_tap_get_field_data(table, element, RESENT_COLUMN);
         item_data->value.uint_value = 0;
@@ -6133,7 +6133,7 @@ sip_stat_reset(stat_tap_table* table)
         stat_tap_set_field_data(table, element, MIN_SETUP_COLUMN, item_data);
 
         item_data = stat_tap_get_field_data(table, element, AVG_SETUP_COLUMN);
-        item_data->user_data.float_value = 0;
+        item_data->user_data.float_value = 0.0f;
         item_data->value.float_value = 0.0f;
         stat_tap_set_field_data(table, element, AVG_SETUP_COLUMN, item_data);
 
