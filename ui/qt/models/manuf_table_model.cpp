@@ -28,7 +28,11 @@ ManufTableItem::ManufTableItem(struct ws_manuf *ptr) :
         default:
             ws_assert_not_reached();
     }
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
     block_bytes_ = QByteArray(reinterpret_cast<const char *>(ptr->addr), size);
+#else
+    block_bytes_ = QByteArray(reinterpret_cast<const char *>(ptr->addr), static_cast<int>(size));
+#endif
 
     char buf[64];
     block_name_ = QString::fromUtf8(ws_manuf_block_str(buf, sizeof(buf), ptr));
