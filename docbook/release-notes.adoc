@@ -46,6 +46,9 @@ Check the Developer's guide for instructions.
 
 Packet list sorting has been updated.
 
+* menu:Tools[Browser (SSL Keylog)] can launch your web browser with the
+  SSLKEYLOGFILE environment variable set to the appropriate value.
+
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 

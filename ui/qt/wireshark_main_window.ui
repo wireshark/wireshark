@@ -708,6 +708,7 @@
     <addaction name="actionToolsFirewallAclRules"/>
     <addaction name="actionToolsCredentials"/>
     <addaction name="actionToolsMacLookup"/>
+    <addaction name="actionToolsSSLKeylog"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -2981,6 +2982,11 @@
   <action name="actionToolsMacLookup">
    <property name="text">
     <string>MAC Address Blocks</string>
+   </property>
+  </action>
+  <action name="actionToolsSSLKeylog">
+   <property name="text">
+    <string>Browser (SSL Keylog)</string>
    </property>
   </action>
  </widget>

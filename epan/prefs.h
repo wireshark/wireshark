@@ -145,6 +145,7 @@ typedef struct _e_prefs {
   color_t      gui_active_fg;
   color_t      gui_active_bg;
   gint         gui_active_style;
+  gchar       *gui_browser_sslkeylog_path;
   color_t      gui_inactive_fg;
   color_t      gui_inactive_bg;
   gint         gui_inactive_style;

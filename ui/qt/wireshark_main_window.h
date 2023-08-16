@@ -73,6 +73,7 @@
 #include "main_window.h"
 #include "rtp_stream_dialog.h"
 #include "rtp_analysis_dialog.h"
+#include "browser_sslkeylog_dialog.h"
 
 class AccordionFrame;
 class ByteViewTab;
@@ -194,6 +195,8 @@ private:
 #endif
 
     QPoint dragStartPosition;
+
+    QPointer<SSLKeylogDialog> sslkeylog_dialog_;
 
     void freeze();
     void thaw();
@@ -514,6 +517,8 @@ private slots:
     void showExtcapOptionsDialog(QString & device_name, bool startCaptureOnClose);
 
     QString findRtpStreams(QVector<rtpstream_id_t *> *stream_ids, bool reverse);
+
+    void openBrowserKeylogDialog();
 
     friend class MainApplication;
 };

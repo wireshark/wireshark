@@ -97,6 +97,7 @@ DIAG_ON(frame-larger-than=)
 #include "capture_options_dialog.h"
 #endif
 #include <ui/qt/utils/color_utils.h>
+#include "browser_sslkeylog_dialog.h"
 #include "coloring_rules_dialog.h"
 #include "conversation_dialog.h"
 #include "conversation_colorize_action.h"
@@ -3766,6 +3767,8 @@ void WiresharkMainWindow::connectToolsMenuActions()
         ManufDialog *manuf_dialog = new ManufDialog(*this, capture_file_);
         manuf_dialog->show();
     });
+
+    connect(main_ui_->actionToolsSSLKeylog, &QAction::triggered, this, &WiresharkMainWindow::openBrowserKeylogDialog);
 }
 
 // Help Menu

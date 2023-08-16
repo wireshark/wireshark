@@ -3243,6 +3243,10 @@ prefs_register_modules(void)
         "Directory to start in when opening File Open dialog.",
         &prefs.gui_fileopen_dir, PREF_DIRNAME, NULL, TRUE);
 
+    register_string_like_preference(gui_module, "browser_sslkeylog.path", "Path to browser executable",
+        "Path to browser executable to launch with SSLKEYLOG",
+        &prefs.gui_browser_sslkeylog_path, PREF_OPEN_FILENAME, NULL, TRUE);
+
     prefs_register_obsolete_preference(gui_module, "fileopen.remembered_dir");
 
     prefs_register_uint_preference(gui_module, "fileopen.preview",
@@ -4125,6 +4129,8 @@ pre_init_prefs(void)
     prefs.gui_recent_files_count_max = 10;
     g_free(prefs.gui_fileopen_dir);
     prefs.gui_fileopen_dir           = g_strdup(get_persdatafile_dir());
+    g_free(prefs.gui_browser_sslkeylog_path);
+    prefs.gui_browser_sslkeylog_path = g_strdup("");
     prefs.gui_fileopen_preview       = 3;
     prefs.gui_ask_unsaved            = TRUE;
     prefs.gui_autocomplete_filter    = TRUE;
