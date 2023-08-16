@@ -16,15 +16,7 @@
 
 #include <wsutil/wmem/wmem.h>
 #include <wsutil/inet_ipv6.h>
-
-typedef enum {
-    TO_STR_TIME_RES_T_SECS,     /* seconds      */
-    TO_STR_TIME_RES_T_DSECS,    /* deciseconds  */
-    TO_STR_TIME_RES_T_CSECS,    /* centiseconds */
-    TO_STR_TIME_RES_T_MSECS,    /* milliseconds */
-    TO_STR_TIME_RES_T_USECS,    /* microseconds */
-    TO_STR_TIME_RES_T_NSECS     /* nanoseconds  */
-} to_str_time_res_t;
+#include <wsutil/nstime.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -307,9 +299,9 @@ WS_DLL_PUBLIC gchar *ipxnet_to_str_punct(wmem_allocator_t *scope, const guint32 
 
 WS_DLL_PUBLIC gchar *eui64_to_str(wmem_allocator_t *scope, const guint64 ad);
 
-WS_DLL_PUBLIC void display_epoch_time(gchar *, size_t, const time_t, gint32, const to_str_time_res_t);
+WS_DLL_PUBLIC void display_epoch_time(gchar *, size_t, const time_t, gint32, const ws_tsprec_e);
 
-WS_DLL_PUBLIC void display_signed_time(gchar *, size_t, const gint64, gint32, const to_str_time_res_t);
+WS_DLL_PUBLIC void display_signed_time(gchar *, size_t, const gint64, gint32, const ws_tsprec_e);
 
 #ifdef __cplusplus
 }

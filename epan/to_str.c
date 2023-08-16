@@ -443,7 +443,7 @@ rel_time_to_secs_str(wmem_allocator_t *scope, const nstime_t *rel_time)
     buf = (gchar *)wmem_alloc(scope, NSTIME_SECS_LEN);
 
     display_signed_time(buf, NSTIME_SECS_LEN, (gint64) rel_time->secs,
-                        rel_time->nsecs, TO_STR_TIME_RES_T_NSECS);
+                        rel_time->nsecs, WS_TSPREC_NSEC);
     return buf;
 }
 
@@ -455,7 +455,7 @@ abs_time_to_unix_str(wmem_allocator_t *scope, const nstime_t *rel_time)
     buf = (gchar *)wmem_alloc(scope, NSTIME_SECS_LEN);
 
     display_epoch_time(buf, NSTIME_SECS_LEN, (gint64) rel_time->secs,
-                        rel_time->nsecs, TO_STR_TIME_RES_T_NSECS);
+                        rel_time->nsecs, WS_TSPREC_NSEC);
     return buf;
 }
 

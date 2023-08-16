@@ -148,6 +148,20 @@ WS_DLL_PUBLIC size_t nstime_to_iso8601(char *buf, size_t buf_size, const nstime_
 
 WS_DLL_PUBLIC void nstime_to_unix(char *buf, size_t buf_size, const nstime_t *nstime);
 
+/*
+ * Timestamp precision values.
+ *
+ * The value is the number of digits of precision after the integral part.
+ */
+typedef enum {
+    WS_TSPREC_SEC      = 0,
+    WS_TSPREC_100_MSEC = 1,
+    WS_TSPREC_10_MSEC  = 2,
+    WS_TSPREC_MSEC     = 3,
+    WS_TSPREC_USEC     = 6,
+    WS_TSPREC_NSEC     = 9
+} ws_tsprec_e;
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

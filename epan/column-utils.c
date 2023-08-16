@@ -1258,27 +1258,27 @@ set_time_seconds(const frame_data *fd, const nstime_t *ts, gchar *buf)
   switch (tsprecision) {
   case WTAP_TSPREC_SEC:
     display_signed_time(buf, COL_MAX_LEN,
-      (gint64) ts->secs, ts->nsecs / 1000000000, TO_STR_TIME_RES_T_SECS);
+      (gint64) ts->secs, ts->nsecs / 1000000000, WS_TSPREC_SEC);
     break;
   case WTAP_TSPREC_DSEC:
     display_signed_time(buf, COL_MAX_LEN,
-      (gint64) ts->secs, ts->nsecs / 100000000, TO_STR_TIME_RES_T_DSECS);
+      (gint64) ts->secs, ts->nsecs / 100000000, WS_TSPREC_100_MSEC);
     break;
   case WTAP_TSPREC_CSEC:
     display_signed_time(buf, COL_MAX_LEN,
-      (gint64) ts->secs, ts->nsecs / 10000000, TO_STR_TIME_RES_T_CSECS);
+      (gint64) ts->secs, ts->nsecs / 10000000, WS_TSPREC_10_MSEC);
     break;
   case WTAP_TSPREC_MSEC:
     display_signed_time(buf, COL_MAX_LEN,
-      (gint64) ts->secs, ts->nsecs / 1000000, TO_STR_TIME_RES_T_MSECS);
+      (gint64) ts->secs, ts->nsecs / 1000000, WS_TSPREC_MSEC);
     break;
   case WTAP_TSPREC_USEC:
     display_signed_time(buf, COL_MAX_LEN,
-      (gint64) ts->secs, ts->nsecs / 1000, TO_STR_TIME_RES_T_USECS);
+      (gint64) ts->secs, ts->nsecs / 1000, WS_TSPREC_USEC);
     break;
   case WTAP_TSPREC_NSEC:
     display_signed_time(buf, COL_MAX_LEN,
-      (gint64) ts->secs, ts->nsecs, TO_STR_TIME_RES_T_NSECS);
+      (gint64) ts->secs, ts->nsecs, WS_TSPREC_NSEC);
     break;
   default:
     ws_assert_not_reached();
@@ -1716,27 +1716,27 @@ set_epoch_time(const frame_data *fd, gchar *buf)
   switch (tsprecision) {
   case WTAP_TSPREC_SEC:
     display_epoch_time(buf, COL_MAX_LEN,
-      fd->abs_ts.secs, fd->abs_ts.nsecs / 1000000000, TO_STR_TIME_RES_T_SECS);
+      fd->abs_ts.secs, fd->abs_ts.nsecs / 1000000000, WS_TSPREC_SEC);
     break;
   case WTAP_TSPREC_DSEC:
     display_epoch_time(buf, COL_MAX_LEN,
-       fd->abs_ts.secs, fd->abs_ts.nsecs / 100000000, TO_STR_TIME_RES_T_DSECS);
+       fd->abs_ts.secs, fd->abs_ts.nsecs / 100000000, WS_TSPREC_100_MSEC);
     break;
   case WTAP_TSPREC_CSEC:
     display_epoch_time(buf, COL_MAX_LEN,
-       fd->abs_ts.secs, fd->abs_ts.nsecs / 10000000, TO_STR_TIME_RES_T_CSECS);
+       fd->abs_ts.secs, fd->abs_ts.nsecs / 10000000, WS_TSPREC_10_MSEC);
     break;
   case WTAP_TSPREC_MSEC:
     display_epoch_time(buf, COL_MAX_LEN,
-       fd->abs_ts.secs, fd->abs_ts.nsecs / 1000000, TO_STR_TIME_RES_T_MSECS);
+       fd->abs_ts.secs, fd->abs_ts.nsecs / 1000000, WS_TSPREC_MSEC);
     break;
   case WTAP_TSPREC_USEC:
     display_epoch_time(buf, COL_MAX_LEN,
-       fd->abs_ts.secs, fd->abs_ts.nsecs / 1000, TO_STR_TIME_RES_T_USECS);
+       fd->abs_ts.secs, fd->abs_ts.nsecs / 1000, WS_TSPREC_USEC);
     break;
   case WTAP_TSPREC_NSEC:
     display_epoch_time(buf, COL_MAX_LEN,
-       fd->abs_ts.secs, fd->abs_ts.nsecs, TO_STR_TIME_RES_T_NSECS);
+       fd->abs_ts.secs, fd->abs_ts.nsecs, WS_TSPREC_NSEC);
     break;
   default:
     ws_assert_not_reached();
@@ -1991,28 +1991,28 @@ col_set_time(column_info *cinfo, const gint el, const nstime_t *ts, const char *
       switch (timestamp_get_precision()) {
       case TS_PREC_FIXED_SEC:
         display_signed_time(col_item->col_buf, COL_MAX_LEN,
-          (gint64) ts->secs, ts->nsecs / 1000000000, TO_STR_TIME_RES_T_SECS);
+          (gint64) ts->secs, ts->nsecs / 1000000000, WS_TSPREC_SEC);
         break;
       case TS_PREC_FIXED_DSEC:
         display_signed_time(col_item->col_buf, COL_MAX_LEN,
-          (gint64) ts->secs, ts->nsecs / 100000000, TO_STR_TIME_RES_T_DSECS);
+          (gint64) ts->secs, ts->nsecs / 100000000, WS_TSPREC_100_MSEC);
         break;
       case TS_PREC_FIXED_CSEC:
         display_signed_time(col_item->col_buf, COL_MAX_LEN,
-          (gint64) ts->secs, ts->nsecs / 10000000, TO_STR_TIME_RES_T_CSECS);
+          (gint64) ts->secs, ts->nsecs / 10000000, WS_TSPREC_10_MSEC);
         break;
       case TS_PREC_FIXED_MSEC:
         display_signed_time(col_item->col_buf, COL_MAX_LEN,
-          (gint64) ts->secs, ts->nsecs / 1000000, TO_STR_TIME_RES_T_MSECS);
+          (gint64) ts->secs, ts->nsecs / 1000000, WS_TSPREC_MSEC);
         break;
       case TS_PREC_FIXED_USEC:
         display_signed_time(col_item->col_buf, COL_MAX_LEN,
-          (gint64) ts->secs, ts->nsecs / 1000, TO_STR_TIME_RES_T_USECS);
+          (gint64) ts->secs, ts->nsecs / 1000, WS_TSPREC_USEC);
         break;
       case TS_PREC_FIXED_NSEC:
       case TS_PREC_AUTO:    /* default to maximum */
         display_signed_time(col_item->col_buf, COL_MAX_LEN,
-          (gint64) ts->secs, ts->nsecs, TO_STR_TIME_RES_T_NSECS);
+          (gint64) ts->secs, ts->nsecs, WS_TSPREC_NSEC);
         break;
       default:
         ws_assert_not_reached();

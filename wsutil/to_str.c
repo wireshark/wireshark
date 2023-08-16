@@ -642,7 +642,7 @@ eui64_to_str(wmem_allocator_t *scope, const guint64 ad) {
 
 void
 display_epoch_time(gchar *buf, size_t buflen, const time_t sec, gint32 frac,
-                    const to_str_time_res_t units)
+                    const ws_tsprec_e units)
 {
     double elapsed_secs;
 
@@ -667,27 +667,27 @@ display_epoch_time(gchar *buf, size_t buflen, const time_t sec, gint32 frac,
     }
     switch (units) {
 
-        case TO_STR_TIME_RES_T_SECS:
+        case WS_TSPREC_SEC:
             snprintf(buf, buflen, "%0.0f", elapsed_secs);
             break;
 
-        case TO_STR_TIME_RES_T_DSECS:
+        case WS_TSPREC_100_MSEC:
             snprintf(buf, buflen, "%0.0f.%01d", elapsed_secs, frac);
             break;
 
-        case TO_STR_TIME_RES_T_CSECS:
+        case WS_TSPREC_10_MSEC:
             snprintf(buf, buflen, "%0.0f.%02d", elapsed_secs, frac);
             break;
 
-        case TO_STR_TIME_RES_T_MSECS:
+        case WS_TSPREC_MSEC:
             snprintf(buf, buflen, "%0.0f.%03d", elapsed_secs, frac);
             break;
 
-        case TO_STR_TIME_RES_T_USECS:
+        case WS_TSPREC_USEC:
             snprintf(buf, buflen, "%0.0f.%06d", elapsed_secs, frac);
             break;
 
-        case TO_STR_TIME_RES_T_NSECS:
+        case WS_TSPREC_NSEC:
             snprintf(buf, buflen, "%0.0f.%09d", elapsed_secs, frac);
             break;
     }
@@ -704,7 +704,7 @@ display_epoch_time(gchar *buf, size_t buflen, const time_t sec, gint32 frac,
 
 void
 display_signed_time(gchar *buf, size_t buflen, const gint64 sec, gint32 frac,
-                    const to_str_time_res_t units)
+                    const ws_tsprec_e units)
 {
     /* this buffer is not NUL terminated */
     gint8 num_buf[CHARS_64_BIT_SIGNED];
@@ -736,29 +736,29 @@ display_signed_time(gchar *buf, size_t buflen, const gint64 sec, gint32 frac,
     buflen -= num_len;
 
     switch (units) {
-        case TO_STR_TIME_RES_T_SECS:
+        case WS_TSPREC_SEC:
         default:
             /* no fraction */
             num_ptr = NULL;
             break;
 
-        case TO_STR_TIME_RES_T_DSECS:
+        case WS_TSPREC_100_MSEC:
             num_ptr = uint_to_str_back_len(num_end, frac, 1);
             break;
 
-        case TO_STR_TIME_RES_T_CSECS:
+        case WS_TSPREC_10_MSEC:
             num_ptr = uint_to_str_back_len(num_end, frac, 2);
             break;
 
-        case TO_STR_TIME_RES_T_MSECS:
+        case WS_TSPREC_MSEC:
             num_ptr = uint_to_str_back_len(num_end, frac, 3);
             break;
 
-        case TO_STR_TIME_RES_T_USECS:
+        case WS_TSPREC_USEC:
             num_ptr = uint_to_str_back_len(num_end, frac, 6);
             break;
 
-        case TO_STR_TIME_RES_T_NSECS:
+        case WS_TSPREC_NSEC:
             num_ptr = uint_to_str_back_len(num_end, frac, 9);
             break;
     }

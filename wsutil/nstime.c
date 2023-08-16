@@ -632,7 +632,7 @@ size_t nstime_to_iso8601(char *buf, size_t buf_size, const nstime_t *nstime)
 void nstime_to_unix(char *buf, size_t buf_size, const nstime_t *nstime)
 {
     display_signed_time(buf, buf_size, (gint64) nstime->secs,
-                        nstime->nsecs, TO_STR_TIME_RES_T_NSECS);
+                        nstime->nsecs, WS_TSPREC_NSEC);
 }
 
 /*
