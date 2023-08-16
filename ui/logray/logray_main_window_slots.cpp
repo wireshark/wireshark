@@ -1362,6 +1362,10 @@ void LograyMainWindow::applyGlobalCommandLineOptions()
         foreach(QAction* tda, td_actions.keys()) {
             if (global_dissect_options.time_format == td_actions[tda]) {
                 tda->setChecked(true);
+                // XXX - this means that if the user sets the
+                // time stamp format with the -t flag, that
+                // setting will persist and will be used as
+                // the default the next time Logray is run.
                 recent.gui_time_format = global_dissect_options.time_format;
                 timestamp_set_type(global_dissect_options.time_format);
                 break;
@@ -1372,6 +1376,10 @@ void LograyMainWindow::applyGlobalCommandLineOptions()
         foreach(QAction* tpa, tp_actions.keys()) {
             if (global_dissect_options.time_precision == tp_actions[tpa]) {
                 tpa->setChecked(true);
+                // XXX - this means that if the user sets the
+                // time stamp precision with the -t flag, that
+                // setting will persist and will be used as
+                // the default the next time Logray is run.
                 recent.gui_time_precision = global_dissect_options.time_precision;
                 timestamp_set_precision(global_dissect_options.time_precision);
                 break;
