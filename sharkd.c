@@ -203,7 +203,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_MAXMINDDB
     /* mmdbresolve is started from mmdb_resolve_start(), which is called from epan_load_settings via: read_prefs -> (...) uat_load_all -> maxmind_db_post_update_cb.
      * Need to stop it, otherwise all sharkd will have same mmdbresolve process, including pipe descriptors to read and write. */
-    uat_clear(uat_get_table_by_name("MaxMind Database Paths"));
+    uat_get_table_by_name("MaxMind Database Paths")->reset_cb();
 #endif
 
     ret = sharkd_loop(argc, argv);
