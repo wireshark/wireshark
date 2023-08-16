@@ -40,6 +40,7 @@ public:
 private slots:
     void acceptInput();
     void on_clearActivated(void);
+    void clearSuccessHint(void);
 
 private:
     Ui::IOConsoleDialog *ui;

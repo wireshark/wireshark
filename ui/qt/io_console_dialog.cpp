@@ -85,6 +85,14 @@ void IOConsoleDialog::clearHintText()
     ui->hintLabel->clear();
 }
 
+void IOConsoleDialog::clearSuccessHint()
+{
+    // Text changed so we no longer have a success.
+    ui->hintLabel->clear();
+    // Disconnect this slot until the next success.
+    disconnect(ui->inputPlainTextEdit, &QPlainTextEdit::textChanged, this, &IOConsoleDialog::clearSuccessHint);
+}
+
 void IOConsoleDialog::acceptInput()
 {
     clearHintText();
@@ -112,6 +120,10 @@ void IOConsoleDialog::acceptInput()
             appendOutputText(QString(error_str));
             g_free(error_str);
         }
+    }
+    else {
+        setHintText("Code evaluated successfully.");
+        connect(ui->inputPlainTextEdit, &QPlainTextEdit::textChanged, this, &IOConsoleDialog::clearSuccessHint);
     }
 }
 
