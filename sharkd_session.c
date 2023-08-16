@@ -3784,6 +3784,9 @@ sharkd_session_process_frame_cb_tree(const char *key, epan_dissect_t *edt, proto
                 sharkd_json_value_string("f", filter);
                 wmem_free(NULL, filter);
             }
+
+            if (finfo->hfinfo->abbrev)
+                    sharkd_json_value_string("fn", finfo->hfinfo->abbrev);
         }
 
         if (FI_GET_FLAG(finfo, FI_GENERATED))
@@ -4364,6 +4367,7 @@ sharkd_session_process_intervals(char *buf, const jsmntok_t *tokens, int count)
  *                  l - label
  *                  t: 'proto', 'framenum', 'url' - type of node
  *                  f - filter string
+ *                  fn - field name
  *                  s - severity
  *                  e - subtree ett index
  *                  n - array of subtree nodes

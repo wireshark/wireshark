@@ -1074,11 +1074,13 @@ class TestSharkd:
                     "l": "Dynamic Host Configuration Protocol (Offer)",
                     "t": "proto",
                     "f": "dhcp",
+                    "fn": "dhcp",
                     "e": MatchAny(int),
                     "n": MatchList({
                         "l": "Padding: 0000000000000000000000000000000000000000000000000000",
                         "h": [316, 26],
-                        "f": "dhcp.option.padding == 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00"
+                        "f": "dhcp.option.padding == 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00",
+                        "fn": "dhcp.option.padding"
                     }, match_element=any),  # match one element from 'n'
                     "h": [42, 300],
                 }, match_element=any),  # match one element from 'tree'
